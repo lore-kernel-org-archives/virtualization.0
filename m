@@ -7,82 +7,82 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 67B30C64E75
-	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 09:26:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 376D7C64E75
+	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 09:26:44 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D7CB121D81
-	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 09:26:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id ABCD421741
+	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 09:26:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ECx2mbtM"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D7CB121D81
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MZovwmzL"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org ABCD421741
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 89D4887234;
-	Thu, 26 Nov 2020 09:26:38 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 4FCA48725A;
+	Thu, 26 Nov 2020 09:26:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gb4aEJNnRteT; Thu, 26 Nov 2020 09:26:38 +0000 (UTC)
+	with ESMTP id qGm-c1RKx8e5; Thu, 26 Nov 2020 09:26:42 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 1DBC38724C;
-	Thu, 26 Nov 2020 09:26:38 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id C1ACA8727B;
+	Thu, 26 Nov 2020 09:26:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 08D5EC0891;
-	Thu, 26 Nov 2020 09:26:38 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A97A4C1833;
+	Thu, 26 Nov 2020 09:26:41 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 58069C0052
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D07B9C0052
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Nov 2020 09:26:37 +0000 (UTC)
+ Thu, 26 Nov 2020 09:26:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 445792E1F4
+ by silver.osuosl.org (Postfix) with ESMTP id CC31620377
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Nov 2020 09:26:37 +0000 (UTC)
+ Thu, 26 Nov 2020 09:26:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JH1emU-FISSB
+ with ESMTP id FlN-VN6V2Uj6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Nov 2020 09:26:34 +0000 (UTC)
+ Thu, 26 Nov 2020 09:26:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by silver.osuosl.org (Postfix) with ESMTPS id 9CB812E1F0
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by silver.osuosl.org (Postfix) with ESMTPS id DCE4A2E1F7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Nov 2020 09:26:31 +0000 (UTC)
+ Thu, 26 Nov 2020 09:26:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1606382790;
+ s=mimecast20190719; t=1606382798;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=8sE1xeuz6dSZOY7Y1iWTvc0WPQjDNBKr5YtZhz7GgcQ=;
- b=ECx2mbtMXWtIVDMgP6AQ6/6lo2O1mWDk35KhYUiScUPZYExP824V6ovt2RnqbSFTCocu2j
- mNFcPyggZWjC/MCNo9uG6Wsx1B8eby2U18H1dTR2E9HV1+hrvKTAvEqc3/gm3B+XGyJJaO
- hSGM3o3czKhGrxiJA/uN7JbS37iuN0I=
+ bh=PGeSUOw3EA5Dwk3oqcA/cpF+36kRWGew2tcBxThIsRs=;
+ b=MZovwmzLZO3RzFsXJoo05NcPH7UcXEfihWfDucKcU6Jx4Lon4SXmw11yK2HZc3pHdO0m0L
+ wO2Ej9R96mtoJks6RQspZhQTfRVcshSz/Xs+f6gcCwlK8k60+x/grW3VWdNlQ98Un37Cp/
+ n0/NZl/JR61zI34fz7ijPWuyVVXKG+o=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-97-qpIXKCq8Moi2uU1I083ccQ-1; Thu, 26 Nov 2020 04:26:28 -0500
-X-MC-Unique: qpIXKCq8Moi2uU1I083ccQ-1
+ us-mta-416-cRt5MzrOPZK84CbQ3HFa7w-1; Thu, 26 Nov 2020 04:26:36 -0500
+X-MC-Unique: cRt5MzrOPZK84CbQ3HFa7w-1
 Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
  [10.5.11.23])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1B502803F48;
- Thu, 26 Nov 2020 09:26:27 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3179A1084C80;
+ Thu, 26 Nov 2020 09:26:35 +0000 (UTC)
 Received: from jason-ThinkPad-X1-Carbon-6th.redhat.com
  (ovpn-13-213.pek2.redhat.com [10.72.13.213])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 3A8FC19C71;
- Thu, 26 Nov 2020 09:26:24 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 5241A19C71;
+ Thu, 26 Nov 2020 09:26:33 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com, jasowang@redhat.com,
  virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: [PATCH V2 06/14] virtio-pci-modern: introduce
- vp_modern_queue_address()
-Date: Thu, 26 Nov 2020 17:25:56 +0800
-Message-Id: <20201126092604.208033-7-jasowang@redhat.com>
+Subject: [PATCH V2 08/14] virtio-pci-modern: introduce helper for
+ setting/geting queue size
+Date: Thu, 26 Nov 2020 17:25:58 +0800
+Message-Id: <20201126092604.208033-9-jasowang@redhat.com>
 In-Reply-To: <20201126092604.208033-1-jasowang@redhat.com>
 References: <20201126092604.208033-1-jasowang@redhat.com>
 MIME-Version: 1.0
@@ -104,64 +104,73 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch introduce a helper to set virtqueue address for modern address.
+This patch introduces helper for setting/getting queue size for modern
+device.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_pci_modern.c | 33 ++++++++++++++++++++++++------
- 1 file changed, 27 insertions(+), 6 deletions(-)
+ drivers/virtio/virtio_pci_modern.c | 34 ++++++++++++++++++++++++++++--
+ 1 file changed, 32 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index bacc05cbc762..3125987973d3 100644
+index dcdda32b6182..f85216ccc6df 100644
 --- a/drivers/virtio/virtio_pci_modern.c
 +++ b/drivers/virtio/virtio_pci_modern.c
-@@ -174,6 +174,30 @@ static u16 vp_modern_queue_vector(struct virtio_pci_modern_device *mdev,
- 	return vp_ioread16(&cfg->queue_msix_vector);
+@@ -226,6 +226,36 @@ static bool vp_modern_get_queue_enable(struct virtio_pci_modern_device *mdev,
+ 	return vp_ioread16(&mdev->common->queue_enable);
  }
  
 +/*
-+ * vp_modern_queue_address - set the virtqueue address
++ * vp_modern_set_queue_size - set size for a virtqueue
 + * @mdev: the modern virtio-pci device
 + * @index: the queue index
-+ * @desc_addr: address of the descriptor area
-+ * @driver_addr: address of the driver area
-+ * @device_addr: address of the device area
++ * @size: the size of the virtqueue
 + */
-+static void vp_modern_queue_address(struct virtio_pci_modern_device *mdev,
-+				    u16 index, u64 desc_addr, u64 driver_addr,
-+				    u64 device_addr)
++static void vp_modern_set_queue_size(struct virtio_pci_modern_device *mdev,
++				     u16 index, u16 size)
 +{
-+	struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
++	vp_iowrite16(index, &mdev->common->queue_select);
++	vp_iowrite16(size, &mdev->common->queue_size);
 +
-+	vp_iowrite16(index, &cfg->queue_select);
++}
 +
-+	vp_iowrite64_twopart(desc_addr, &cfg->queue_desc_lo,
-+			     &cfg->queue_desc_hi);
-+	vp_iowrite64_twopart(driver_addr, &cfg->queue_avail_lo,
-+			     &cfg->queue_avail_hi);
-+	vp_iowrite64_twopart(device_addr, &cfg->queue_used_lo,
-+			     &cfg->queue_used_hi);
++/*
++ * vp_modern_get_queue_size - get size for a virtqueue
++ * @mdev: the modern virtio-pci device
++ * @index: the queue index
++ *
++ * Returns the size of the virtqueue
++ */
++static u16 vp_modern_get_queue_size(struct virtio_pci_modern_device *mdev,
++				    u16 index)
++{
++	vp_iowrite16(index, &mdev->common->queue_select);
++
++	return vp_ioread16(&mdev->common->queue_size);
++
 +}
 +
  /* virtio config->finalize_features() implementation */
  static int vp_finalize_features(struct virtio_device *vdev)
  {
-@@ -396,12 +420,9 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+@@ -424,7 +454,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 	vp_iowrite16(index, &cfg->queue_select);
+ 
+ 	/* Check if queue is either not available or already active. */
+-	num = vp_ioread16(&cfg->queue_size);
++	num = vp_modern_get_queue_size(mdev, index);
+ 	if (!num || vp_modern_get_queue_enable(mdev, index))
+ 		return ERR_PTR(-ENOENT);
+ 
+@@ -447,7 +477,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 		return ERR_PTR(-ENOMEM);
  
  	/* activate the queue */
- 	vp_iowrite16(virtqueue_get_vring_size(vq), &cfg->queue_size);
--	vp_iowrite64_twopart(virtqueue_get_desc_addr(vq),
--			     &cfg->queue_desc_lo, &cfg->queue_desc_hi);
--	vp_iowrite64_twopart(virtqueue_get_avail_addr(vq),
--			     &cfg->queue_avail_lo, &cfg->queue_avail_hi);
--	vp_iowrite64_twopart(virtqueue_get_used_addr(vq),
--			     &cfg->queue_used_lo, &cfg->queue_used_hi);
-+	vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
-+				virtqueue_get_avail_addr(vq),
-+				virtqueue_get_used_addr(vq));
- 
- 	vq->priv = (void __force *)mdev->notify_base +
- 		off * mdev->notify_offset_multiplier;
+-	vp_iowrite16(virtqueue_get_vring_size(vq), &cfg->queue_size);
++	vp_modern_set_queue_size(mdev, index, virtqueue_get_vring_size(vq));
+ 	vp_modern_queue_address(mdev, index, virtqueue_get_desc_addr(vq),
+ 				virtqueue_get_avail_addr(vq),
+ 				virtqueue_get_used_addr(vq));
 -- 
 2.25.1
 
