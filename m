@@ -2,91 +2,105 @@ Return-Path: <SRS0=66oW=FA=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82299C64E7D
-	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 09:27:02 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99C4AC56202
+	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 10:50:40 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DCD7D21741
-	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 09:27:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id BC03620DD4
+	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 10:50:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cHwaa+XY"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DCD7D21741
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IqdBa7if"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BC03620DD4
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 8D30B876A4;
-	Thu, 26 Nov 2020 09:27:01 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 3907E87231;
+	Thu, 26 Nov 2020 10:50:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id A3wvWe4el4BS; Thu, 26 Nov 2020 09:27:00 +0000 (UTC)
+	with ESMTP id CiikTbeA9znD; Thu, 26 Nov 2020 10:50:26 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 4DF788769C;
-	Thu, 26 Nov 2020 09:27:00 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 5E4B7871A9;
+	Thu, 26 Nov 2020 10:50:09 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 39828C0891;
-	Thu, 26 Nov 2020 09:27:00 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E2C13C0052
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 459C4C163C;
+	Thu, 26 Nov 2020 10:50:09 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CDEC0C0052
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Nov 2020 09:26:58 +0000 (UTC)
+ Thu, 26 Nov 2020 10:50:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id D1CFD87694
+ by silver.osuosl.org (Postfix) with ESMTP id AD3722E0E4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Nov 2020 09:26:58 +0000 (UTC)
+ Thu, 26 Nov 2020 10:50:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GiXPAKA6vKlJ
+ with ESMTP id Ktoc5f4C0ZO5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Nov 2020 09:26:57 +0000 (UTC)
+ Thu, 26 Nov 2020 10:50:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id E320F876A4
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by silver.osuosl.org (Postfix) with ESMTPS id 73F142002E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Nov 2020 09:26:56 +0000 (UTC)
+ Thu, 26 Nov 2020 10:50:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1606382815;
+ s=mimecast20190719; t=1606387804;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=vmbxnePLfcAghZps14WSyI06cxF/Rg3DrEYfTCuuSd8=;
- b=cHwaa+XY3r77fZLYtvq7MSTXcMdtfqYnAKJMzwD1HIkPt/TRY2OU/O7NpsBYkh6rvdIMpT
- GXMt0tliu4etqTc0IJn47iEopW5MbYKC02sJ6nbPW6M5GDkt8r8NIEpPd1ONqtzhhwxw5N
- j3iI58uYw8t29CxxX3kFZ+Q8MRSy4Mg=
+ bh=QpZgr6wJ8/sykGAGqyCWwPWc/fAOdgDBk5KB+fEeVlM=;
+ b=IqdBa7if9VUOK2+n+h3TXcQ8hEIBHmBLRL/S1O8RuYA0Y16s0FTaCQghbpnQN8+VOy/9rw
+ onCv6vdWGT8SzWDI2hhioZ08q50BktXf0lxM3G3838d1yj4p07RK+MBVC41nED9yVTVj0l
+ lu8OAKJO7jnmawA2Nm1x6IepDVKmXA8=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-148-PkwJy1JIPmyGD7VHAGNfDg-1; Thu, 26 Nov 2020 04:26:53 -0500
-X-MC-Unique: PkwJy1JIPmyGD7VHAGNfDg-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
- [10.5.11.23])
+ us-mta-457-6-4YplhPMvqbQX4L5Wv3Yg-1; Thu, 26 Nov 2020 05:50:01 -0500
+X-MC-Unique: 6-4YplhPMvqbQX4L5Wv3Yg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 551B91084D60;
- Thu, 26 Nov 2020 09:26:52 +0000 (UTC)
-Received: from jason-ThinkPad-X1-Carbon-6th.redhat.com
- (ovpn-13-213.pek2.redhat.com [10.72.13.213])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 7874F19C71;
- Thu, 26 Nov 2020 09:26:47 +0000 (UTC)
-From: Jason Wang <jasowang@redhat.com>
-To: mst@redhat.com, jasowang@redhat.com,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: [PATCH V2 14/14] vdpa: introduce virtio pci driver
-Date: Thu, 26 Nov 2020 17:26:04 +0800
-Message-Id: <20201126092604.208033-15-jasowang@redhat.com>
-In-Reply-To: <20201126092604.208033-1-jasowang@redhat.com>
-References: <20201126092604.208033-1-jasowang@redhat.com>
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D767681CBE5;
+ Thu, 26 Nov 2020 10:49:59 +0000 (UTC)
+Received: from [10.36.113.83] (ovpn-113-83.ams2.redhat.com [10.36.113.83])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 084335C1BD;
+ Thu, 26 Nov 2020 10:49:54 +0000 (UTC)
+Subject: Re: [PATCH v3] virtio-rng: return available data with O_NONBLOCK
+To: "Michael S. Tsirkin" <mst@redhat.com>, Martin Wilck <mwilck@suse.com>
+References: <20200811142821.12323-1-mwilck@suse.com>
+ <4ae4f348-c186-f7e4-f7e3-b1f1e4a4b408@redhat.com>
+ <20200826082613-mutt-send-email-mst@kernel.org>
+ <519e0296a7d61d5e9e8d258a855eb42a57c641c5.camel@suse.com>
+ <a5d4bcd3-e468-e818-3bd2-3a1b0fa172d8@redhat.com>
+ <20200908101413-mutt-send-email-mst@kernel.org>
+ <0a5fcbc9bb6eef521c627035687de4654a1dd740.camel@suse.com>
+ <20201125043726-mutt-send-email-mst@kernel.org>
+From: Laurent Vivier <lvivier@redhat.com>
+Message-ID: <7417f1fd-d5c0-4906-4663-d85141bc97d7@redhat.com>
+Date: Thu, 26 Nov 2020 11:49:53 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.0
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-Cc: shahafs@mellanox.com
+In-Reply-To: <20201125043726-mutt-send-email-mst@kernel.org>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=lvivier@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: Amit Shah <amit@kernel.org>,
+ =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?= <philmd@redhat.com>,
+ qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -103,513 +117,308 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch introduce a vDPA driver for virtio-pci device. It bridges
-the virtio-pci control command to the vDPA bus. This will be used for
-features prototyping and testing.
+On 25/11/2020 10:39, Michael S. Tsirkin wrote:
+> On Tue, Sep 08, 2020 at 05:33:40PM +0200, Martin Wilck wrote:
+>> On Tue, 2020-09-08 at 10:14 -0400, Michael S. Tsirkin wrote:
+>>> On Mon, Aug 31, 2020 at 02:37:26PM +0200, Laurent Vivier wrote:
+>>>> On 28/08/2020 23:34, Martin Wilck wrote:
+>>>>> On Wed, 2020-08-26 at 08:26 -0400, Michael S. Tsirkin wrote:
+>>>>>> On Tue, Aug 11, 2020 at 04:42:32PM +0200, Laurent Vivier wrote:
+>>>>>>> On 11/08/2020 16:28, mwilck@suse.com wrote:
+>>>>>>>> From: Martin Wilck <mwilck@suse.com>
+>>>>>>>>
+>>>>>>>> If a program opens /dev/hwrng with O_NONBLOCK and uses
+>>>>>>>> poll() and
+>>>>>>>> non-blocking read() to retrieve random data, it ends up in
+>>>>>>>> a
+>>>>>>>> tight
+>>>>>>>> loop with poll() always returning POLLIN and read()
+>>>>>>>> returning
+>>>>>>>> EAGAIN.
+>>>>>>>> This repeats forever until some process makes a blocking
+>>>>>>>> read()
+>>>>>>>> call.
+>>>>>>>> The reason is that virtio_read() always returns 0 in non-
+>>>>>>>> blocking 
+>>>>>>>> mode,
+>>>>>>>> even if data is available. Worse, it fetches random data
+>>>>>>>> from the
+>>>>>>>> hypervisor after every non-blocking call, without ever
+>>>>>>>> using this
+>>>>>>>> data.
+>>>>>>>>
+>>>>>>>> The following test program illustrates the behavior and can
+>>>>>>>> be
+>>>>>>>> used
+>>>>>>>> for testing and experiments. The problem will only be seen
+>>>>>>>> if all
+>>>>>>>> tasks use non-blocking access; otherwise the blocking reads
+>>>>>>>> will
+>>>>>>>> "recharge" the random pool and cause other, non-blocking
+>>>>>>>> reads to
+>>>>>>>> succeed at least sometimes.
+>>>>>>>>
+>>>>>>>> /* Whether to use non-blocking mode in a task, problem
+>>>>>>>> occurs if
+>>>>>>>> CONDITION is 1 */
+>>>>>>>> //#define CONDITION (getpid() % 2 != 0)
+>>>>>>>>
+>>>>>>>> static volatile sig_atomic_t stop;
+>>>>>>>> static void handler(int sig __attribute__((unused))) { stop
+>>>>>>>> = 1;
+>>>>>>>> }
+>>>>>>>>
+>>>>>>>> static void loop(int fd, int sec)
+>>>>>>>> {
+>>>>>>>> 	struct pollfd pfd = { .fd = fd, .events  = POLLIN, };
+>>>>>>>> 	unsigned long errors = 0, eagains = 0, bytes = 0, succ
+>>>>>>>> = 0;
+>>>>>>>> 	int size, rc, rd;
+>>>>>>>>
+>>>>>>>> 	srandom(getpid());
+>>>>>>>> 	if (CONDITION && fcntl(fd, F_SETFL, fcntl(fd, F_GETFL)
+>>>>>>>> |
+>>>>>>>> O_NONBLOCK) == -1)
+>>>>>>>> 		perror("fcntl");
+>>>>>>>> 	size = MINBUFSIZ + random() % (MAXBUFSIZ - MINBUFSIZ +
+>>>>>>>> 1);
+>>>>>>>>
+>>>>>>>> 	for(;;) {
+>>>>>>>> 		char buf[size];
+>>>>>>>>
+>>>>>>>> 		if (stop)
+>>>>>>>> 			break;
+>>>>>>>> 		rc = poll(&pfd, 1, sec);
+>>>>>>>> 		if (rc > 0) {
+>>>>>>>> 			rd = read(fd, buf, sizeof(buf));
+>>>>>>>> 			if (rd == -1 && errno == EAGAIN)
+>>>>>>>> 				eagains++;
+>>>>>>>> 			else if (rd == -1)
+>>>>>>>> 				errors++;
+>>>>>>>> 			else {
+>>>>>>>> 				succ++;
+>>>>>>>> 				bytes += rd;
+>>>>>>>> 				write(1, buf, sizeof(buf));
+>>>>>>>> 			}
+>>>>>>>> 		} else if (rc == -1) {
+>>>>>>>> 			if (errno != EINTR)
+>>>>>>>> 				perror("poll");
+>>>>>>>> 			break;
+>>>>>>>> 		} else
+>>>>>>>> 			fprintf(stderr, "poll: timeout\n");
+>>>>>>>> 	}
+>>>>>>>> 	fprintf(stderr,
+>>>>>>>> 		"pid %d %sblocking, bufsize %d, %d seconds, %lu
+>>>>>>>> bytes
+>>>>>>>> read, %lu success, %lu eagain, %lu errors\n",
+>>>>>>>> 		getpid(), CONDITION ? "non-" : "", size, sec,
+>>>>>>>> bytes,
+>>>>>>>> succ, eagains, errors);
+>>>>>>>> }
+>>>>>>>>
+>>>>>>>> int main(void)
+>>>>>>>> {
+>>>>>>>> 	int fd;
+>>>>>>>>
+>>>>>>>> 	fork(); fork();
+>>>>>>>> 	fd = open("/dev/hwrng", O_RDONLY);
+>>>>>>>> 	if (fd == -1) {
+>>>>>>>> 		perror("open");
+>>>>>>>> 		return 1;
+>>>>>>>> 	};
+>>>>>>>> 	signal(SIGALRM, handler);
+>>>>>>>> 	alarm(SECONDS);
+>>>>>>>> 	loop(fd, SECONDS);
+>>>>>>>> 	close(fd);
+>>>>>>>> 	wait(NULL);
+>>>>>>>> 	return 0;
+>>>>>>>> }
+>>>>>>>>
+>>>>>>>> void loop(int fd)
+>>>>>>>> {
+>>>>>>>>         struct pollfd pfd0 = { .fd = fd, .events  = POLLIN,
+>>>>>>>> };
+>>>>>>>>         int rc;
+>>>>>>>>         unsigned int n;
+>>>>>>>>
+>>>>>>>>         for (n = LOOPS; n > 0; n--) {
+>>>>>>>>                 struct pollfd pfd = pfd0;
+>>>>>>>>                 char buf[SIZE];
+>>>>>>>>
+>>>>>>>>                 rc = poll(&pfd, 1, 1);
+>>>>>>>>                 if (rc > 0) {
+>>>>>>>>                         int rd = read(fd, buf,
+>>>>>>>> sizeof(buf));
+>>>>>>>>
+>>>>>>>>                         if (rd == -1)
+>>>>>>>>                                 perror("read");
+>>>>>>>>                         else
+>>>>>>>>                                 printf("read %d bytes\n",
+>>>>>>>> rd);
+>>>>>>>>                 } else if (rc == -1)
+>>>>>>>>                         perror("poll");
+>>>>>>>>                 else
+>>>>>>>>                         fprintf(stderr, "timeout\n");
+>>>>>>>>
+>>>>>>>>         }
+>>>>>>>> }
+>>>>>>>>
+>>>>>>>> int main(void)
+>>>>>>>> {
+>>>>>>>>         int fd;
+>>>>>>>>
+>>>>>>>>         fd = open("/dev/hwrng", O_RDONLY|O_NONBLOCK);
+>>>>>>>>         if (fd == -1) {
+>>>>>>>>                 perror("open");
+>>>>>>>>                 return 1;
+>>>>>>>>         };
+>>>>>>>>         loop(fd);
+>>>>>>>>         close(fd);
+>>>>>>>>         return 0;
+>>>>>>>> }
+>>>>>>>>
+>>>>>>>> This can be observed in the real word e.g. with nested
+>>>>>>>> qemu/KVM
+>>>>>>>> virtual
+>>>>>>>> machines, if both the "outer" and "inner" VMs have a
+>>>>>>>> virtio-rng
+>>>>>>>> device.
+>>>>>>>> If the "inner" VM requests random data, qemu running in the
+>>>>>>>> "outer" VM
+>>>>>>>> uses this device in a non-blocking manner like the test
+>>>>>>>> program
+>>>>>>>> above.
+>>>>>>>>
+>>>>>>>> Fix it by returning available data if a previous hypervisor
+>>>>>>>> call
+>>>>>>>> has
+>>>>>>>> completed. I tested this patch with the program above, and
+>>>>>>>> with
+>>>>>>>> rng-tools.
+>>>>>>>>
+>>>>>>>> v2 -> v3: Simplified the implementation as suggested by
+>>>>>>>> Laurent
+>>>>>>>> Vivier
+>>>>>>>>
+>>>>>>>> Signed-off-by: Martin Wilck <mwilck@suse.com>
+>>>>>>>> ---
+>>>>>>>>  drivers/char/hw_random/virtio-rng.c | 4 ++--
+>>>>>>>>  1 file changed, 2 insertions(+), 2 deletions(-)
+>>>>>>>>
+>>>>>>>> diff --git a/drivers/char/hw_random/virtio-rng.c
+>>>>>>>> b/drivers/char/hw_random/virtio-rng.c
+>>>>>>>> index a90001e02bf7..8eaeceecb41e 100644
+>>>>>>>> --- a/drivers/char/hw_random/virtio-rng.c
+>>>>>>>> +++ b/drivers/char/hw_random/virtio-rng.c
+>>>>>>>> @@ -65,7 +65,7 @@ static int virtio_read(struct hwrng *rng,
+>>>>>>>> void
+>>>>>>>> *buf, size_t size, bool wait)
+>>>>>>>>  		register_buffer(vi, buf, size);
+>>>>>>>>  	}
+>>>>>>>>  
+>>>>>>>> -	if (!wait)
+>>>>>>>> +	if (!wait && !completion_done(&vi->have_data))
+>>>>>>>>  		return 0;
+>>>>>>>>  
+>>>>>>>>  	ret = wait_for_completion_killable(&vi->have_data);
+>>>>>>>> @@ -74,7 +74,7 @@ static int virtio_read(struct hwrng *rng,
+>>>>>>>> void
+>>>>>>>> *buf, size_t size, bool wait)
+>>>>>>>>  
+>>>>>>>>  	vi->busy = false;
+>>>>>>>>  
+>>>>>>>> -	return vi->data_avail;
+>>>>>>>> +	return min_t(size_t, size, vi->data_avail);
+>>>>>>>>  }
+>>>>>>>>  
+>>>>>>>>  static void virtio_cleanup(struct hwrng *rng)
+>>>>>>>>
+>>>>>>>
+>>>>>>> Reviewed-by: Laurent Vivier <lvivier@redhat.com>
+>>>>>>
+>>>>>> Laurent didn't we agree the real fix is private buffers in the
+>>>>>> driver,
+>>>>>> and copying out from there?
+>>>>>>
+>>>>>
+>>>>> Can we perhaps proceed with this for now? AFAICS the private
+>>>>> buffer
+>>>>> implementation would be a larger effort, while we have the issues
+>>>>> with
+>>>>> nested VMs getting no entropy today.
+>>>>>
+>>>>
+>>>> I agree. I think it's important to have a simple and quick fix for
+>>>> the
+>>>> problem reported by Martin.
+>>>>
+>>>> We need the private buffers but not sure how long it will take to
+>>>> have
+>>>> them included in the kernel and how many new bugs will be
+>>>> introduced
+>>>> doing that as the code is hard to understand and the core is shared
+>>>> with
+>>>> several other hardware backends that can be impacted by the changes
+>>>> needed.
+>>>>
+>>>> Thanks,
+>>>> Laurent
+>>>
+>>> However I am not sure with the patch applies we never return
+>>> the same buffer to userspace twice, e.g. if one is
+>>> non blocking another blocking. Doing that would be a bug.
+>>>
+>>
+>> As Laurent mentioned in 
+>> https://lists.gnu.org/archive/html/qemu-devel/2020-08/msg02039.html,
+>> there are only 2 different buffers that may be passed to virtio_read(),
+>> rng_buffer and rng_fillbuf.
+>> The latter is only used in blocking mode.
+>>
+>> AFAICS there's just one problematic situation: 
+>>
+>>  1 a user space process reads random data without blocking and runs
+>> register_buffer(), gets no data, releases reading_mutex
+>>  2 the hwrng kthread grabs the mutex and makes a sync call, vi->busy is
+>> still set, so no new completion is initialized.
+>>  3 hwrng calls wait_for_completion_killable() and sees the completion
+>>    that had been initialized by the user space process previously,
+>>  4 hwrng "thinks" it got some positive randomness, but random data have
+>>    actually been written into rng_buffer, not rng_fillbuff.
+>>
+>> This is indeed bad, but it can happen with the current code as well.
+>> Actually, it's more likely to happen with the current code, because
+>> asynchronous callers might hang forever trying to get entropy,
+>> making this scenario more likely (if there's a process, like nested
+>> qemu, that would keep calling . So this wouldn't be a regression caused
+>> by my patch, AFAICT.
+>>
+>> How can we avoid this problem entirely? A) With private buffers, of
+>> course. B) Another, a bit hackish, approach would be to remember the
+>> active "buffer" pointer in virtio_rng, and restart the IO when a
+>> another buffer is passed down. C) Finally, we could modify
+>> virtio_read() such that blocking calls always re-initialize the buffer;
+>> they'd then have to wait for a potential already running IO from a
+>> previous, non-blocking access to finish first.
+>>
+>> But I believe this is something which could (and should) be done
+>> independently. Alternatively, I could add B) or C). A) I'd rather leave
+>> to Laurent.
+>>
+>> Regards,
+>> Martin
+> 
+> Of the simple solutions, C seems cleanest.
+> Laurent, any interest in working on A meanwhile?
+> 
 
-Note that get/restore virtqueue state is not supported which needs
-extension on the virtio specification.
+Sorry, I didn't see your email.
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vdpa/Kconfig              |   6 +
- drivers/vdpa/Makefile             |   1 +
- drivers/vdpa/virtio_pci/Makefile  |   2 +
- drivers/vdpa/virtio_pci/vp_vdpa.c | 450 ++++++++++++++++++++++++++++++
- 4 files changed, 459 insertions(+)
- create mode 100644 drivers/vdpa/virtio_pci/Makefile
- create mode 100644 drivers/vdpa/virtio_pci/vp_vdpa.c
+I have no time to work on this for the moment. But virtio-rng fixes are on top of my TODO
+list...
 
-diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
-index d7d32b656102..4cca53114cc4 100644
---- a/drivers/vdpa/Kconfig
-+++ b/drivers/vdpa/Kconfig
-@@ -47,4 +47,10 @@ config MLX5_VDPA_NET
- 	  be executed by the hardware. It also supports a variety of stateless
- 	  offloads depending on the actual device used and firmware version.
- 
-+config VP_VDPA
-+	tristate "Virtio PCI bridge vDPA driver"
-+	depends on PCI_MSI && VIRTIO_PCI_MODERN
-+	help
-+	  This kernel module that bridges virtio PCI device to vDPA bus.
-+
- endif # VDPA
-diff --git a/drivers/vdpa/Makefile b/drivers/vdpa/Makefile
-index d160e9b63a66..67fe7f3d6943 100644
---- a/drivers/vdpa/Makefile
-+++ b/drivers/vdpa/Makefile
-@@ -3,3 +3,4 @@ obj-$(CONFIG_VDPA) += vdpa.o
- obj-$(CONFIG_VDPA_SIM) += vdpa_sim/
- obj-$(CONFIG_IFCVF)    += ifcvf/
- obj-$(CONFIG_MLX5_VDPA) += mlx5/
-+obj-$(CONFIG_VP_VDPA)    += virtio_pci/
-diff --git a/drivers/vdpa/virtio_pci/Makefile b/drivers/vdpa/virtio_pci/Makefile
-new file mode 100644
-index 000000000000..231088d3af7d
---- /dev/null
-+++ b/drivers/vdpa/virtio_pci/Makefile
-@@ -0,0 +1,2 @@
-+# SPDX-License-Identifier: GPL-2.0
-+obj-$(CONFIG_VP_VDPA) += vp_vdpa.o
-diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
-new file mode 100644
-index 000000000000..6458fa470566
---- /dev/null
-+++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-@@ -0,0 +1,450 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * vDPA bridge driver for modern virtio-pci device
-+ *
-+ * Copyright (c) 2020, Red Hat Inc. All rights reserved.
-+ * Author: Jason Wang <jasowang@redhat.com>
-+ *
-+ * Based on virtio_pci_modern.c.
-+ */
-+
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+#include <linux/vdpa.h>
-+#include <linux/virtio.h>
-+#include <linux/virtio_config.h>
-+#include <linux/virtio_ring.h>
-+#include <linux/virtio_pci.h>
-+#include <linux/virtio_pci_modern.h>
-+
-+#define VP_VDPA_QUEUE_MAX 256
-+#define VP_VDPA_DRIVER_NAME "vp_vdpa"
-+
-+struct vp_vring {
-+	void __iomem *notify;
-+	char msix_name[256];
-+	struct vdpa_callback cb;
-+	int irq;
-+};
-+
-+struct vp_vdpa {
-+	struct vdpa_device vdpa;
-+	struct virtio_pci_modern_device mdev;
-+	struct vp_vring *vring;
-+	struct vdpa_callback cb;
-+	char msix_name[256];
-+	int config_irq;
-+	int queues;
-+	int vectors;
-+};
-+
-+static struct vp_vdpa *vdpa_to_vp(struct vdpa_device *vdpa)
-+{
-+	return container_of(vdpa, struct vp_vdpa, vdpa);
-+}
-+
-+static struct virtio_pci_modern_device *vdpa_to_mdev(struct vdpa_device *vdpa)
-+{
-+	struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
-+
-+	return &vp_vdpa->mdev;
-+}
-+
-+static u64 vp_vdpa_get_features(struct vdpa_device *vdpa)
-+{
-+	struct virtio_pci_modern_device *mdev = vdpa_to_mdev(vdpa);
-+
-+	return vp_modern_get_features(mdev);
-+}
-+
-+static int vp_vdpa_set_features(struct vdpa_device *vdpa, u64 features)
-+{
-+	struct virtio_pci_modern_device *mdev = vdpa_to_mdev(vdpa);
-+
-+	vp_modern_set_features(mdev, features);
-+
-+	return 0;
-+}
-+
-+static u8 vp_vdpa_get_status(struct vdpa_device *vdpa)
-+{
-+	struct virtio_pci_modern_device *mdev = vdpa_to_mdev(vdpa);
-+
-+	return vp_modern_get_status(mdev);
-+}
-+
-+static void vp_vdpa_free_irq(struct vp_vdpa *vp_vdpa)
-+{
-+	struct virtio_pci_modern_device *mdev = &vp_vdpa->mdev;
-+	struct pci_dev *pdev = mdev->pci_dev;
-+	int i;
-+
-+	for (i = 0; i < vp_vdpa->queues; i++) {
-+		if (vp_vdpa->vring[i].irq != VIRTIO_MSI_NO_VECTOR) {
-+			vp_modern_queue_vector(mdev, i, VIRTIO_MSI_NO_VECTOR);
-+			devm_free_irq(&pdev->dev, vp_vdpa->vring[i].irq,
-+				      &vp_vdpa->vring[i]);
-+			vp_vdpa->vring[i].irq = VIRTIO_MSI_NO_VECTOR;
-+		}
-+	}
-+
-+	if (vp_vdpa->config_irq != VIRTIO_MSI_NO_VECTOR) {
-+		vp_modern_config_vector(mdev, VIRTIO_MSI_NO_VECTOR);
-+		devm_free_irq(&pdev->dev, vp_vdpa->config_irq, vp_vdpa);
-+		vp_vdpa->config_irq = VIRTIO_MSI_NO_VECTOR;
-+	}
-+
-+	if (vp_vdpa->vectors) {
-+		pci_free_irq_vectors(pdev);
-+		vp_vdpa->vectors = 0;
-+	}
-+}
-+
-+static irqreturn_t vp_vdpa_vq_handler(int irq, void *arg)
-+{
-+	struct vp_vring *vring = arg;
-+
-+	if (vring->cb.callback)
-+		return vring->cb.callback(vring->cb.private);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t vp_vdpa_config_handler(int irq, void *arg)
-+{
-+	struct vp_vdpa *vp_vdpa = arg;
-+
-+	if (vp_vdpa->cb.callback)
-+		return vp_vdpa->cb.callback(vp_vdpa->cb.private);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int vp_vdpa_request_irq(struct vp_vdpa *vp_vdpa)
-+{
-+	struct virtio_pci_modern_device *mdev = &vp_vdpa->mdev;
-+	struct pci_dev *pdev = mdev->pci_dev;
-+	int i, ret, irq;
-+	int queues = vp_vdpa->queues;
-+	int vectors = queues + 1;
-+
-+	ret = pci_alloc_irq_vectors(pdev, vectors, vectors, PCI_IRQ_MSIX);
-+	if (ret != vectors) {
-+		dev_err(&pdev->dev,
-+			"vp_vdpa: fail to allocate irq vectors want %d but %d\n",
-+			vectors, ret);
-+		return ret;
-+	}
-+
-+	vp_vdpa->vectors = vectors;
-+
-+	for (i = 0; i < queues; i++) {
-+		snprintf(vp_vdpa->vring[i].msix_name, 256,
-+			"vp-vdpa[%s]-%d\n", pci_name(pdev), i);
-+		irq = pci_irq_vector(pdev, i);
-+		ret = devm_request_irq(&pdev->dev, irq,
-+				       vp_vdpa_vq_handler,
-+				       0, vp_vdpa->vring[i].msix_name,
-+				       &vp_vdpa->vring[i]);
-+		if (ret) {
-+			dev_err(&pdev->dev,
-+				"vp_vdpa: fail to request irq for vq %d\n", i);
-+			goto err;
-+		}
-+		vp_modern_queue_vector(mdev, i, i);
-+		vp_vdpa->vring[i].irq = irq;
-+	}
-+
-+	snprintf(vp_vdpa->msix_name, 256, "vp-vdpa[%s]-config\n",
-+		 pci_name(pdev));
-+	irq = pci_irq_vector(pdev, queues);
-+	ret = devm_request_irq(&pdev->dev, irq,	vp_vdpa_config_handler, 0,
-+			       vp_vdpa->msix_name, vp_vdpa);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"vp_vdpa: fail to request irq for vq %d\n", i);
-+			goto err;
-+	}
-+	vp_modern_config_vector(mdev, queues);
-+	vp_vdpa->config_irq = irq;
-+
-+	return 0;
-+err:
-+	vp_vdpa_free_irq(vp_vdpa);
-+	return ret;
-+}
-+
-+static void vp_vdpa_set_status(struct vdpa_device *vdpa, u8 status)
-+{
-+	struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
-+	struct virtio_pci_modern_device *mdev = &vp_vdpa->mdev;
-+	u8 s = vp_vdpa_get_status(vdpa);
-+
-+	if (status & VIRTIO_CONFIG_S_DRIVER_OK &&
-+	    !(s & VIRTIO_CONFIG_S_DRIVER_OK)) {
-+		vp_vdpa_request_irq(vp_vdpa);
-+	}
-+
-+	vp_modern_set_status(mdev, status);
-+
-+	if (!(status & VIRTIO_CONFIG_S_DRIVER_OK) &&
-+	    (s & VIRTIO_CONFIG_S_DRIVER_OK))
-+		vp_vdpa_free_irq(vp_vdpa);
-+}
-+
-+static u16 vp_vdpa_get_vq_num_max(struct vdpa_device *vdpa)
-+{
-+	return VP_VDPA_QUEUE_MAX;
-+}
-+
-+static int vp_vdpa_get_vq_state(struct vdpa_device *vdpa, u16 qid,
-+				struct vdpa_vq_state *state)
-+{
-+	/* Note that this is not supported by virtio specification, so
-+	 * we return -EOPNOTSUPP here. This means we can't support live
-+	 * migration, vhost device start/stop.
-+	 */
-+	return -EOPNOTSUPP;
-+}
-+
-+static int vp_vdpa_set_vq_state(struct vdpa_device *vdpa, u16 qid,
-+				const struct vdpa_vq_state *state)
-+{
-+	/* Note that this is not supported by virtio specification, so
-+	 * we return -ENOPOTSUPP here. This means we can't support live
-+	 * migration, vhost device start/stop.
-+	 */
-+	return -EOPNOTSUPP;
-+}
-+
-+static void vp_vdpa_set_vq_cb(struct vdpa_device *vdpa, u16 qid,
-+			      struct vdpa_callback *cb)
-+{
-+	struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
-+
-+	vp_vdpa->vring[qid].cb = *cb;
-+}
-+
-+static void vp_vdpa_set_vq_ready(struct vdpa_device *vdpa,
-+				 u16 qid, bool ready)
-+{
-+	struct virtio_pci_modern_device *mdev = vdpa_to_mdev(vdpa);
-+
-+	vp_modern_set_queue_enable(mdev, qid, ready);
-+}
-+
-+static bool vp_vdpa_get_vq_ready(struct vdpa_device *vdpa, u16 qid)
-+{
-+	struct virtio_pci_modern_device *mdev = vdpa_to_mdev(vdpa);
-+
-+	return vp_modern_get_queue_enable(mdev, qid);
-+}
-+
-+static void vp_vdpa_set_vq_num(struct vdpa_device *vdpa, u16 qid,
-+			       u32 num)
-+{
-+	struct virtio_pci_modern_device *mdev = vdpa_to_mdev(vdpa);
-+
-+	vp_modern_set_queue_size(mdev, qid, num);
-+}
-+
-+static int vp_vdpa_set_vq_address(struct vdpa_device *vdpa, u16 qid,
-+				  u64 desc_area, u64 driver_area,
-+				  u64 device_area)
-+{
-+	struct virtio_pci_modern_device *mdev = vdpa_to_mdev(vdpa);
-+
-+	vp_modern_queue_address(mdev, qid, desc_area,
-+				driver_area, device_area);
-+
-+	return 0;
-+}
-+
-+static void vp_vdpa_kick_vq(struct vdpa_device *vdpa, u16 qid)
-+{
-+	struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
-+
-+	vp_iowrite16(qid, vp_vdpa->vring[qid].notify);
-+}
-+
-+static u32 vp_vdpa_get_generation(struct vdpa_device *vdpa)
-+{
-+	struct virtio_pci_modern_device *mdev = vdpa_to_mdev(vdpa);
-+
-+	return vp_ioread8(&mdev->common->config_generation);
-+}
-+
-+static u32 vp_vdpa_get_device_id(struct vdpa_device *vdpa)
-+{
-+	struct virtio_pci_modern_device *mdev = vdpa_to_mdev(vdpa);
-+
-+	return mdev->id.device;
-+}
-+
-+static u32 vp_vdpa_get_vendor_id(struct vdpa_device *vdpa)
-+{
-+	struct virtio_pci_modern_device *mdev = vdpa_to_mdev(vdpa);
-+
-+	return mdev->id.vendor;
-+}
-+
-+static u32 vp_vdpa_get_vq_align(struct vdpa_device *vdpa)
-+{
-+	return PAGE_SIZE;
-+}
-+
-+static void vp_vdpa_get_config(struct vdpa_device *vdpa,
-+			       unsigned int offset,
-+			       void *buf, unsigned int len)
-+{
-+	struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
-+	struct virtio_pci_modern_device *mdev = &vp_vdpa->mdev;
-+	u8 old, new;
-+	u8 *p;
-+	int i;
-+
-+	do {
-+		old = vp_ioread8(&mdev->common->config_generation);
-+		p = buf;
-+		for (i = 0; i < len; i++)
-+			*p++ = vp_ioread8(mdev->device + offset + i);
-+
-+		new = vp_ioread8(&mdev->common->config_generation);
-+	} while (old != new);
-+}
-+
-+static void vp_vdpa_set_config(struct vdpa_device *vdpa,
-+			       unsigned int offset, const void *buf,
-+			       unsigned int len)
-+{
-+	struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
-+	struct virtio_pci_modern_device *mdev = &vp_vdpa->mdev;
-+	const u8 *p = buf;
-+	int i;
-+
-+	for (i = 0; i < len; i++)
-+		vp_iowrite8(*p++, mdev->device + offset + i);
-+}
-+
-+static void vp_vdpa_set_config_cb(struct vdpa_device *vdpa,
-+				  struct vdpa_callback *cb)
-+{
-+	struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
-+
-+	vp_vdpa->cb = *cb;
-+}
-+
-+static const struct vdpa_config_ops vp_vdpa_ops = {
-+	.get_features	= vp_vdpa_get_features,
-+	.set_features	= vp_vdpa_set_features,
-+	.get_status	= vp_vdpa_get_status,
-+	.set_status	= vp_vdpa_set_status,
-+	.get_vq_num_max	= vp_vdpa_get_vq_num_max,
-+	.get_vq_state	= vp_vdpa_get_vq_state,
-+	.set_vq_state	= vp_vdpa_set_vq_state,
-+	.set_vq_cb	= vp_vdpa_set_vq_cb,
-+	.set_vq_ready	= vp_vdpa_set_vq_ready,
-+	.get_vq_ready	= vp_vdpa_get_vq_ready,
-+	.set_vq_num	= vp_vdpa_set_vq_num,
-+	.set_vq_address	= vp_vdpa_set_vq_address,
-+	.kick_vq	= vp_vdpa_kick_vq,
-+	.get_generation	= vp_vdpa_get_generation,
-+	.get_device_id	= vp_vdpa_get_device_id,
-+	.get_vendor_id	= vp_vdpa_get_vendor_id,
-+	.get_vq_align	= vp_vdpa_get_vq_align,
-+	.get_config	= vp_vdpa_get_config,
-+	.set_config	= vp_vdpa_set_config,
-+	.set_config_cb  = vp_vdpa_set_config_cb,
-+};
-+
-+static void vp_vdpa_free_irq_vectors(void *data)
-+{
-+	pci_free_irq_vectors(data);
-+}
-+
-+static int vp_vdpa_probe(struct pci_dev *pdev, const struct pci_device_id *id)
-+{
-+	struct virtio_pci_modern_device *mdev;
-+	struct device *dev = &pdev->dev;
-+	struct vp_vdpa *vp_vdpa;
-+	u16 notify_off;
-+	int ret, i;
-+
-+	vp_vdpa = vdpa_alloc_device(struct vp_vdpa, vdpa,
-+				    dev, &vp_vdpa_ops);
-+	if (vp_vdpa == NULL) {
-+		dev_err(dev, "vp_vdpa: Failed to allocate vDPA structure\n");
-+		return -ENOMEM;
-+	}
-+
-+	mdev = &vp_vdpa->mdev;
-+	mdev->pci_dev = pdev;
-+
-+	if (vp_modern_probe(mdev)) {
-+		dev_err(&pdev->dev, "Failed to probe modern PCI device\n");
-+		goto err;
-+	}
-+
-+	pci_set_master(pdev);
-+	pci_set_drvdata(pdev, vp_vdpa);
-+
-+	vp_vdpa->vdpa.dma_dev = &pdev->dev;
-+	vp_vdpa->queues = vp_modern_get_num_queues(mdev);
-+
-+	ret = devm_add_action_or_reset(dev, vp_vdpa_free_irq_vectors, pdev);
-+	if (ret) {
-+		dev_err(&pdev->dev,
-+			"Failed for adding devres for freeing irq vectors\n");
-+		goto err;
-+	}
-+
-+	vp_vdpa->vring = devm_kcalloc(&pdev->dev, vp_vdpa->queues,
-+				      sizeof(*vp_vdpa->vring),
-+				      GFP_KERNEL);
-+	if (!vp_vdpa->vring) {
-+		dev_err(&pdev->dev, "Fail to allocate virtqueues\n");
-+		goto err;
-+	}
-+
-+	for (i = 0; i < vp_vdpa->queues; i++) {
-+		notify_off = vp_modern_get_queue_notify_off(mdev, i);
-+		vp_vdpa->vring[i].irq = VIRTIO_MSI_NO_VECTOR;
-+		vp_vdpa->vring[i].notify = mdev->notify_base +
-+			notify_off * mdev->notify_offset_multiplier;
-+	}
-+	vp_vdpa->config_irq = VIRTIO_MSI_NO_VECTOR;
-+
-+	ret = vdpa_register_device(&vp_vdpa->vdpa, vp_vdpa->queues);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to register to vdpa bus\n");
-+		goto err;
-+	}
-+
-+	return 0;
-+
-+err:
-+	put_device(&vp_vdpa->vdpa.dev);
-+	return ret;
-+}
-+
-+static void vp_vdpa_remove(struct pci_dev *pdev)
-+{
-+	struct vp_vdpa *vp_vdpa = pci_get_drvdata(pdev);
-+
-+	vdpa_unregister_device(&vp_vdpa->vdpa);
-+}
-+
-+static struct pci_driver vp_vdpa_driver = {
-+	.name		= "vp-vdpa",
-+	.id_table	= NULL, /* only dynamic ids */
-+	.probe		= vp_vdpa_probe,
-+	.remove		= vp_vdpa_remove,
-+};
-+
-+module_pci_driver(vp_vdpa_driver);
-+
-+MODULE_AUTHOR("Jason Wang <jasowang@redhat.com>");
-+MODULE_DESCRIPTION("vp-vdpa");
-+MODULE_LICENSE("GPL");
-+MODULE_VERSION("1");
--- 
-2.25.1
+Thanks,
+Laurent
 
 _______________________________________________
 Virtualization mailing list
