@@ -7,49 +7,49 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75C9CC56202
-	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 14:52:05 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 558A0C56202
+	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 14:52:07 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E47C2206B5
-	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 14:52:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id BC27D206B5
+	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 14:52:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FR5cUvaX"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E47C2206B5
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="J+tA97uL"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BC27D206B5
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 9A076877DF;
-	Thu, 26 Nov 2020 14:52:04 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 4C234875DF;
+	Thu, 26 Nov 2020 14:52:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EbR56R8pG+a2; Thu, 26 Nov 2020 14:52:03 +0000 (UTC)
+	with ESMTP id nz73TVKTwNts; Thu, 26 Nov 2020 14:52:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id E78D5877D3;
-	Thu, 26 Nov 2020 14:52:03 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 42BBA875A3;
+	Thu, 26 Nov 2020 14:52:05 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DEC77C163C;
-	Thu, 26 Nov 2020 14:52:03 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 731CEC0052
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3BBF4C163C;
+	Thu, 26 Nov 2020 14:52:05 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F0070C1D9F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Nov 2020 14:52:02 +0000 (UTC)
+ Thu, 26 Nov 2020 14:52:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 60EBB877D4
+ by silver.osuosl.org (Postfix) with ESMTP id D589D2E242
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Nov 2020 14:52:02 +0000 (UTC)
+ Thu, 26 Nov 2020 14:52:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nBgG+XF7dYLE
+ with ESMTP id qy28hRImuCJF
  for <virtualization@lists.linux-foundation.org>;
  Thu, 26 Nov 2020 14:52:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id C5132877D3
+ by silver.osuosl.org (Postfix) with ESMTPS id B5D692E243
  for <virtualization@lists.linux-foundation.org>;
  Thu, 26 Nov 2020 14:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
@@ -58,29 +58,29 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=4F5wkaO8SROTGlbgeYTqRaOIi3MhPQzl8htm0czz4QI=;
- b=FR5cUvaXOadzjzqjSCPKN5NpioZf77tb4cRBP1HTvvQHDfoWARb+KCkClFVp/0IV/8n61q
- SRyWSHIO8lwuNjbukJi+W/bK+cMKOwcfMeYSFPlEd/m1e+xpCmSEUAx0VK54mFlPCYyVmy
- UmeoPO8R4NhjqvxyZR10bzCr+CjjPoA=
+ bh=Yd5o1ZhT6n3IllGPM9QevybiC1ZAZ/hson6rMvA9R3Y=;
+ b=J+tA97uL+uV21kizknVIkGjhr0tQF7ulLU4oV/wOXmF4cZdjo4XH2FB7jkZza4JZbVpWjN
+ kzmQJ14suG0plylaxYcJJTOJNTvmAnP0AdsrEiopPsHZgcNfBNpkA7XJrsWoy3KCTaxxVq
+ RQoyY4xq44i/aiSkerzoLeICEtKfy10=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-109-2g-oZeQhMiyG_d5h45_cKw-1; Thu, 26 Nov 2020 09:51:58 -0500
-X-MC-Unique: 2g-oZeQhMiyG_d5h45_cKw-1
+ us-mta-431-PX7VQgOZO52-vMZDb_ZqFg-1; Thu, 26 Nov 2020 09:51:56 -0500
+X-MC-Unique: PX7VQgOZO52-vMZDb_ZqFg-1
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
  [10.5.11.13])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5B76010919C7;
- Thu, 26 Nov 2020 14:51:57 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3D87E1E7DB;
+ Thu, 26 Nov 2020 14:51:55 +0000 (UTC)
 Received: from steredhat.redhat.com (ovpn-113-252.ams2.redhat.com
  [10.36.113.252])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 8EB4760855;
- Thu, 26 Nov 2020 14:51:55 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 7673E60855;
+ Thu, 26 Nov 2020 14:51:53 +0000 (UTC)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v2 15/17] vdpa_sim: make vdpasim->buffer size configurable
-Date: Thu, 26 Nov 2020 15:49:48 +0100
-Message-Id: <20201126144950.92850-16-sgarzare@redhat.com>
+Subject: [PATCH v2 14/17] vdpa_sim: use kvmalloc to allocate vdpasim->buffer
+Date: Thu, 26 Nov 2020 15:49:47 +0100
+Message-Id: <20201126144950.92850-15-sgarzare@redhat.com>
 In-Reply-To: <20201126144950.92850-1-sgarzare@redhat.com>
 References: <20201126144950.92850-1-sgarzare@redhat.com>
 MIME-Version: 1.0
@@ -104,44 +104,39 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Allow each device to specify the size of the buffer allocated
-in vdpa_sim.
+The next patch will make the buffer size configurable from each
+device.
+Since the buffer could be larger than a page, we use kvmalloc()
+instead of kmalloc().
 
 Acked-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/vdpa/vdpa_sim/vdpa_sim.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index 3bcf622949c8..f5f41f20ee0b 100644
+index 4327efd6d41e..3bcf622949c8 100644
 --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
 +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -63,6 +63,7 @@ struct vdpasim;
- struct vdpasim_dev_attr {
- 	u64 supported_features;
- 	size_t config_size;
-+	size_t buffer_size;
- 	int nvqs;
- 	u32 id;
- 
-@@ -405,7 +406,7 @@ static struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr)
+@@ -405,7 +405,7 @@ static struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr)
  	if (!vdpasim->iommu)
  		goto err_iommu;
  
--	vdpasim->buffer = kvmalloc(PAGE_SIZE, GFP_KERNEL);
-+	vdpasim->buffer = kvmalloc(dev_attr->buffer_size, GFP_KERNEL);
+-	vdpasim->buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
++	vdpasim->buffer = kvmalloc(PAGE_SIZE, GFP_KERNEL);
  	if (!vdpasim->buffer)
  		goto err_iommu;
  
-@@ -766,6 +767,7 @@ static int __init vdpasim_dev_init(void)
- 	dev_attr.config_size = sizeof(struct virtio_net_config);
- 	dev_attr.get_config = vdpasim_net_get_config;
- 	dev_attr.work_fn = vdpasim_net_work;
-+	dev_attr.buffer_size = PAGE_SIZE;
+@@ -686,7 +686,7 @@ static void vdpasim_free(struct vdpa_device *vdpa)
+ 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
  
- 	vdpasim_dev = vdpasim_create(&dev_attr);
- 
+ 	cancel_work_sync(&vdpasim->work);
+-	kfree(vdpasim->buffer);
++	kvfree(vdpasim->buffer);
+ 	if (vdpasim->iommu)
+ 		vhost_iotlb_free(vdpasim->iommu);
+ 	kfree(vdpasim->vqs);
 -- 
 2.26.2
 
