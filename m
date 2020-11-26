@@ -7,80 +7,80 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11830C63798
-	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 14:50:49 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B133FC56202
+	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 14:50:50 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8A25320B80
-	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 14:50:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 3931720B80
+	for <virtualization@archiver.kernel.org>; Thu, 26 Nov 2020 14:50:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xi7xSbWv"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8A25320B80
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TpJ4/KNB"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3931720B80
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 247D9877AE;
-	Thu, 26 Nov 2020 14:50:48 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SCFtBkouG+YU; Thu, 26 Nov 2020 14:50:46 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id D05AC877BA;
-	Thu, 26 Nov 2020 14:50:46 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B6DA4C1D9F;
-	Thu, 26 Nov 2020 14:50:46 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E4B0CC0052
- for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Nov 2020 14:50:45 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id DFAEE2E23B
- for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Nov 2020 14:50:45 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id EBC662E248;
+	Thu, 26 Nov 2020 14:50:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 70idC16eiwlg
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id OaCVjzn-JM53; Thu, 26 Nov 2020 14:50:49 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id 288692E245;
+	Thu, 26 Nov 2020 14:50:49 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1F327C163C;
+	Thu, 26 Nov 2020 14:50:49 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AC95EC0052
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Nov 2020 14:50:42 +0000 (UTC)
+ Thu, 26 Nov 2020 14:50:47 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id 94F37878C2
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 26 Nov 2020 14:50:47 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id yAvbkKbJQAxm
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 26 Nov 2020 14:50:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by silver.osuosl.org (Postfix) with ESMTPS id A54C32E249
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 8ECD0878C4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 26 Nov 2020 14:50:41 +0000 (UTC)
+ Thu, 26 Nov 2020 14:50:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1606402240;
+ s=mimecast20190719; t=1606402245;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=5MEy+nYHquOaJZFWUznRCJ+zGo/LLrF9K07U0tqIAng=;
- b=Xi7xSbWve4Z004Y2PrmVyMzN542dMfBpS1s04hgtKVG52w/2rCl2KIDHYJMwECWsl/uwgC
- c+HC89xLbofYYkW5GwNOKRkiWwp2Plictwai/qtn44GokcRAfkfjO+TeAjYEgqq1WTGGiR
- HSSmaMiPwHeRzCHFtBIOEPnTR/dI6BQ=
+ bh=cgeOvdyIExWUoyLX31++F3PhFzZaDc7ReaHXAYKQi0E=;
+ b=TpJ4/KNBCl/idNC6c9IfCbmFihIgZcsdiPBDq3Kzkz/ZzKFSE1Z01AK2UTiObLjYtI2jby
+ /+6b3bRT2LlrblsQQHbJTmH1l+8/NiY7Ms8Avu24FPKqv5qky4+kvQwjptHZs3c/c1Ttw+
+ srwjPz1KvLpHN6OAr9ZuYkkfexlg2qE=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-522-TWC7LeO6M7-qddLCO9ul8Q-1; Thu, 26 Nov 2020 09:50:38 -0500
-X-MC-Unique: TWC7LeO6M7-qddLCO9ul8Q-1
+ us-mta-241-KtY14Q4pPNeDm9PhnlYJUg-1; Thu, 26 Nov 2020 09:50:43 -0500
+X-MC-Unique: KtY14Q4pPNeDm9PhnlYJUg-1
 Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
  [10.5.11.16])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A309C805BFE;
- Thu, 26 Nov 2020 14:50:37 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D4C51805BFA;
+ Thu, 26 Nov 2020 14:50:41 +0000 (UTC)
 Received: from steredhat.redhat.com (ovpn-113-252.ams2.redhat.com
  [10.36.113.252])
- by smtp.corp.redhat.com (Postfix) with ESMTP id D541D5C1BD;
- Thu, 26 Nov 2020 14:50:35 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 19F1B5C1BD;
+ Thu, 26 Nov 2020 14:50:39 +0000 (UTC)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v2 05/17] vdpa_sim: rename vdpasim_config_ops variables
-Date: Thu, 26 Nov 2020 15:49:38 +0100
-Message-Id: <20201126144950.92850-6-sgarzare@redhat.com>
+Subject: [PATCH v2 07/17] vdpa_sim: add device id field in vdpasim_dev_attr
+Date: Thu, 26 Nov 2020 15:49:40 +0100
+Message-Id: <20201126144950.92850-8-sgarzare@redhat.com>
 In-Reply-To: <20201126144950.92850-1-sgarzare@redhat.com>
 References: <20201126144950.92850-1-sgarzare@redhat.com>
 MIME-Version: 1.0
@@ -104,61 +104,57 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-These variables stores generic callbacks used by the vDPA simulator
-core, so we can remove the 'net' word in their names.
+Remove VDPASIM_DEVICE_ID macro and add 'id' field in vdpasim_dev_attr,
+that will be returned by vdpasim_get_device_id().
+
+Use VIRTIO_ID_NET for vDPA-net simulator device id.
 
 Co-developed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
 Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/vdpa/vdpa_sim/vdpa_sim.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index 40664d87f303..62204e064841 100644
+index f98262add0e1..393b54a9f0e4 100644
 --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
 +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -331,8 +331,8 @@ static const struct dma_map_ops vdpasim_dma_ops = {
- 	.free = vdpasim_free_coherent,
+@@ -44,7 +44,6 @@ struct vdpasim_virtqueue {
+ 
+ #define VDPASIM_QUEUE_ALIGN PAGE_SIZE
+ #define VDPASIM_QUEUE_MAX 256
+-#define VDPASIM_DEVICE_ID 0x1
+ #define VDPASIM_VENDOR_ID 0
+ #define VDPASIM_IOTLB_LIMIT 0 /* unlimited */
+ #define VDPASIM_VQ_NUM 0x2
+@@ -57,6 +56,7 @@ static u64 vdpasim_features = (1ULL << VIRTIO_F_ANY_LAYOUT) |
+ 
+ struct vdpasim_dev_attr {
+ 	int nvqs;
++	u32 id;
  };
  
--static const struct vdpa_config_ops vdpasim_net_config_ops;
--static const struct vdpa_config_ops vdpasim_net_batch_config_ops;
-+static const struct vdpa_config_ops vdpasim_config_ops;
-+static const struct vdpa_config_ops vdpasim_batch_config_ops;
+ /* State of each vdpasim device */
+@@ -536,7 +536,9 @@ static u16 vdpasim_get_vq_num_max(struct vdpa_device *vdpa)
  
- static struct vdpasim *vdpasim_create(void)
+ static u32 vdpasim_get_device_id(struct vdpa_device *vdpa)
  {
-@@ -342,9 +342,9 @@ static struct vdpasim *vdpasim_create(void)
- 	int i, ret = -ENOMEM;
- 
- 	if (batch_mapping)
--		ops = &vdpasim_net_batch_config_ops;
-+		ops = &vdpasim_batch_config_ops;
- 	else
--		ops = &vdpasim_net_config_ops;
-+		ops = &vdpasim_config_ops;
- 
- 	vdpasim = vdpa_alloc_device(struct vdpasim, vdpa, NULL, ops, VDPASIM_VQ_NUM);
- 	if (!vdpasim)
-@@ -657,7 +657,7 @@ static void vdpasim_free(struct vdpa_device *vdpa)
- 	kfree(vdpasim->vqs);
+-	return VDPASIM_DEVICE_ID;
++	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
++
++	return vdpasim->dev_attr.id;
  }
  
--static const struct vdpa_config_ops vdpasim_net_config_ops = {
-+static const struct vdpa_config_ops vdpasim_config_ops = {
- 	.set_vq_address         = vdpasim_set_vq_address,
- 	.set_vq_num             = vdpasim_set_vq_num,
- 	.kick_vq                = vdpasim_kick_vq,
-@@ -684,7 +684,7 @@ static const struct vdpa_config_ops vdpasim_net_config_ops = {
- 	.free                   = vdpasim_free,
- };
+ static u32 vdpasim_get_vendor_id(struct vdpa_device *vdpa)
+@@ -719,6 +721,7 @@ static int __init vdpasim_dev_init(void)
+ {
+ 	struct vdpasim_dev_attr dev_attr = {};
  
--static const struct vdpa_config_ops vdpasim_net_batch_config_ops = {
-+static const struct vdpa_config_ops vdpasim_batch_config_ops = {
- 	.set_vq_address         = vdpasim_set_vq_address,
- 	.set_vq_num             = vdpasim_set_vq_num,
- 	.kick_vq                = vdpasim_kick_vq,
++	dev_attr.id = VIRTIO_ID_NET;
+ 	dev_attr.nvqs = VDPASIM_VQ_NUM;
+ 
+ 	vdpasim_dev = vdpasim_create(&dev_attr);
 -- 
 2.26.2
 
