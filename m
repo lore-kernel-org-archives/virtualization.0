@@ -1,81 +1,85 @@
-Return-Path: <SRS0=/B29=FC=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=PU37=FD=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FE15C63777
-	for <virtualization@archiver.kernel.org>; Sat, 28 Nov 2020 21:39:33 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7924C3E8C5
+	for <virtualization@archiver.kernel.org>; Sun, 29 Nov 2020 04:13:19 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 42D1A20857
-	for <virtualization@archiver.kernel.org>; Sat, 28 Nov 2020 21:39:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 60DE520809
+	for <virtualization@archiver.kernel.org>; Sun, 29 Nov 2020 04:13:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="RmXEmFKU"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 42D1A20857
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="2U04zY4J"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 60DE520809
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 59FE78759A;
-	Sat, 28 Nov 2020 21:39:30 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 0443B86FE9;
+	Sun, 29 Nov 2020 04:13:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5asjXcZZ7adt; Sat, 28 Nov 2020 21:39:29 +0000 (UTC)
+	with ESMTP id KqPXUmQ9e7sR; Sun, 29 Nov 2020 04:13:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id C1BF987618;
-	Sat, 28 Nov 2020 21:39:29 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 7038286FAD;
+	Sun, 29 Nov 2020 04:13:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A5C9DC0891;
-	Sat, 28 Nov 2020 21:39:29 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6B162C0052
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 58D13C163C;
+	Sun, 29 Nov 2020 04:13:18 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CF169C0052
  for <virtualization@lists.linux-foundation.org>;
- Sat, 28 Nov 2020 21:39:27 +0000 (UTC)
+ Sun, 29 Nov 2020 04:13:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 5F58A87618
+ by silver.osuosl.org (Postfix) with ESMTP id A49F720763
  for <virtualization@lists.linux-foundation.org>;
- Sat, 28 Nov 2020 21:39:27 +0000 (UTC)
+ Sun, 29 Nov 2020 04:13:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id G7U5p+Q045dk
+ with ESMTP id K+B96wY1B3m6
  for <virtualization@lists.linux-foundation.org>;
- Sat, 28 Nov 2020 21:39:26 +0000 (UTC)
+ Sun, 29 Nov 2020 04:13:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from merlin.infradead.org (merlin.infradead.org [205.233.59.134])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 53A208759A
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by silver.osuosl.org (Postfix) with ESMTPS id 34EFB20531
  for <virtualization@lists.linux-foundation.org>;
- Sat, 28 Nov 2020 21:39:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:MIME-Version:
- Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
- Content-Description:In-Reply-To:References;
- bh=cLViv87Sd5/WI1F3sh0RUkFslM622GS1dHyu4cz2mHc=; b=RmXEmFKUkit0IQMFSSYtrynDQV
- x0Kb0z1oiAxxbC7tWYH0UmZyPJlUUPrmg1ciyyWuHgVnxtDIe8hQuX1ArHBGOT1DQvgraRCLbZulU
- ZNVmxJLVEyFCsFUB/l4aQF4HPHBcBZyACeMi0PsDo01RPMH7FVwofJtGZzWhlzTUMGutYz6YxV7ko
- a6YUYBkcFBBv1IF2b2r+0b4rSYLCCwfWXHknuGSrliO9b2ZPJzpVw7AU9vbLe97TGaJBtwQl67X/Y
- W/CoZbOyJwDDvoxyruHZkNrZP765HhUgQ3rBCcrYdhAfsIxttZgr1czN+GkD3KPmKqu7ggsqe75yx
- rTmydCAQ==;
-Received: from [2601:1c0:6280:3f0::cc1f] (helo=smtpauth.infradead.org)
- by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
- id 1kj7vz-0002PT-6P; Sat, 28 Nov 2020 21:39:11 +0000
-From: Randy Dunlap <rdunlap@infradead.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH v4] vdpa: mlx5: fix vdpa/vhost dependencies
-Date: Sat, 28 Nov 2020 13:39:05 -0800
-Message-Id: <20201128213905.27409-1-rdunlap@infradead.org>
-X-Mailer: git-send-email 2.26.2
+ Sun, 29 Nov 2020 04:13:16 +0000 (UTC)
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mail.kernel.org (Postfix) with ESMTPSA id 667BC20795;
+ Sun, 29 Nov 2020 04:13:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1606623195;
+ bh=K5FoQFGvvNLIFxwgaGQuC5JCNn9fVGY3KnfGk0sDLXg=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=2U04zY4JE+cbtkq5mlJ8om2ytJ1uTm+UYGdu7RKAeHETNZNSc9gjOeQoL2a2K5IP+
+ At+b2lF6KDCSuK4LDS8ZHnl8GzlEpSJWa07e00vFV6rl7G5e3EHGpYO2nBcInatl5V
+ SM9vZI+yfGaBkEcNN4c2Q1ZRZdspjxO/7nReLN2s=
+Date: Sat, 28 Nov 2020 23:13:14 -0500
+From: Sasha Levin <sashal@kernel.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH AUTOSEL 5.9 22/33] vhost scsi: add lun parser helper
+Message-ID: <20201129041314.GO643756@sasha-vm>
+References: <20201125153550.810101-1-sashal@kernel.org>
+ <20201125153550.810101-22-sashal@kernel.org>
+ <25cd0d64-bffc-9506-c148-11583fed897c@redhat.com>
+ <20201125180102.GL643756@sasha-vm>
+ <9670064e-793f-561e-b032-75b1ab5c9096@redhat.com>
 MIME-Version: 1.0
-Cc: kernel test robot <lkp@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Leon Romanovsky <leonro@nvidia.com>, Randy Dunlap <rdunlap@infradead.org>,
- virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
- Eli Cohen <eli@mellanox.com>, Saeed Mahameed <saeedm@nvidia.com>,
- Parav Pandit <parav@mellanox.com>
+Content-Disposition: inline
+In-Reply-To: <9670064e-793f-561e-b032-75b1ab5c9096@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Mike Christie <michael.christie@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -87,65 +91,49 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-drivers/vdpa/mlx5/ uses vhost_iotlb*() interfaces, so select
-VHOST_IOTLB to make them be built.
+On Wed, Nov 25, 2020 at 07:08:54PM +0100, Paolo Bonzini wrote:
+>On 25/11/20 19:01, Sasha Levin wrote:
+>>On Wed, Nov 25, 2020 at 06:48:21PM +0100, Paolo Bonzini wrote:
+>>>On 25/11/20 16:35, Sasha Levin wrote:
+>>>>From: Mike Christie <michael.christie@oracle.com>
+>>>>
+>>>>[ Upstream commit 18f1becb6948cd411fd01968a0a54af63732e73c ]
+>>>>
+>>>>Move code to parse lun from req's lun_buf to helper, so tmf code
+>>>>can use it in the next patch.
+>>>>
+>>>>Signed-off-by: Mike Christie <michael.christie@oracle.com>
+>>>>Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+>>>>Acked-by: Jason Wang <jasowang@redhat.com>
+>>>>Link: https://lore.kernel.org/r/1604986403-4931-5-git-send-email-michael.christie@oracle.com
+>>>>
+>>>>Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>>>>Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
+>>>>Signed-off-by: Sasha Levin <sashal@kernel.org>
+>>>
+>>>This doesn't seem like stable material, does it?
+>>
+>>It went in as a dependency for efd838fec17b ("vhost scsi: Add support
+>>for LUN resets."), which is the next patch.
+>
+>Which doesn't seem to be suitable for stable either...  Patch 3/5 in 
 
-However, if VHOST_IOTLB is the only VHOST symbol that is
-set/enabled, the object file still won't be built because
-drivers/Makefile won't descend into drivers/vhost/ to build it,
-so make drivers/Makefile build the needed binary whenever
-VHOST_IOTLB is set, like it does for VHOST_RING.
+Why not? It was sent as a fix to Linus.
 
-Fixes these build errors:
-ERROR: modpost: "vhost_iotlb_itree_next" [drivers/vdpa/mlx5/mlx5_vdpa.ko] undefined!
-ERROR: modpost: "vhost_iotlb_itree_first" [drivers/vdpa/mlx5/mlx5_vdpa.ko] undefined!
+>the series might be (vhost scsi: fix cmd completion race), so I can 
+>understand including 1/5 and 2/5 just in case, but not the rest.  Does 
+>the bot not understand diffstats?
 
-Fixes: 29064bfdabd5 ("vdpa/mlx5: Add support library for mlx5 VDPA implementation")
-Fixes: aff90770e54c ("vdpa/mlx5: Fix dependency on MLX5_CORE")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Eli Cohen <eli@mellanox.com>
-Cc: Parav Pandit <parav@mellanox.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: Saeed Mahameed <saeedm@nvidia.com>
-Cc: Leon Romanovsky <leonro@nvidia.com>
-Cc: netdev@vger.kernel.org
----
-v2: change from select to depends on VHOST (Saeed)
-v3: change to depends on VHOST_IOTLB (Jason)
-v4: use select VHOST_IOTLB (Michael); also add to drivers/Makefile
+Not on their own, no. What's wrong with the diffstats?
 
- drivers/Makefile     |    1 +
- drivers/vdpa/Kconfig |    1 +
- 2 files changed, 2 insertions(+)
-
---- linux-next-20201127.orig/drivers/vdpa/Kconfig
-+++ linux-next-20201127/drivers/vdpa/Kconfig
-@@ -32,6 +32,7 @@ config IFCVF
- 
- config MLX5_VDPA
- 	bool
-+	select VHOST_IOTLB
- 	help
- 	  Support library for Mellanox VDPA drivers. Provides code that is
- 	  common for all types of VDPA drivers. The following drivers are planned:
---- linux-next-20201127.orig/drivers/Makefile
-+++ linux-next-20201127/drivers/Makefile
-@@ -143,6 +143,7 @@ obj-$(CONFIG_OF)		+= of/
- obj-$(CONFIG_SSB)		+= ssb/
- obj-$(CONFIG_BCMA)		+= bcma/
- obj-$(CONFIG_VHOST_RING)	+= vhost/
-+obj-$(CONFIG_VHOST_IOTLB)	+= vhost/
- obj-$(CONFIG_VHOST)		+= vhost/
- obj-$(CONFIG_VLYNQ)		+= vlynq/
- obj-$(CONFIG_GREYBUS)		+= greybus/
+-- 
+Thanks,
+Sasha
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
