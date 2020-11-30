@@ -7,114 +7,111 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 743BAC64E8A
-	for <virtualization@archiver.kernel.org>; Mon, 30 Nov 2020 14:17:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B750C63777
+	for <virtualization@archiver.kernel.org>; Mon, 30 Nov 2020 15:31:14 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AF5D72084C
-	for <virtualization@archiver.kernel.org>; Mon, 30 Nov 2020 14:17:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id B17672076B
+	for <virtualization@archiver.kernel.org>; Mon, 30 Nov 2020 15:31:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="csSIqQPw"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AF5D72084C
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YTRqMtj+"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B17672076B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 50C442288F;
-	Mon, 30 Nov 2020 14:17:47 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 2F0DA22844;
+	Mon, 30 Nov 2020 15:31:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6tracRevM0EV; Mon, 30 Nov 2020 14:17:45 +0000 (UTC)
+	with ESMTP id f3l30azt5Nxe; Mon, 30 Nov 2020 15:31:06 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 7CB7822882;
-	Mon, 30 Nov 2020 14:17:45 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 6FFFB22CCE;
+	Mon, 30 Nov 2020 15:31:05 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6F997C163C;
-	Mon, 30 Nov 2020 14:17:45 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 641C4C0052
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F7D6C0859;
+	Mon, 30 Nov 2020 15:31:05 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6311AC0052
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Nov 2020 14:17:44 +0000 (UTC)
+ Mon, 30 Nov 2020 15:31:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 50F092288F
+ by hemlock.osuosl.org (Postfix) with ESMTP id 219F68723C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Nov 2020 14:17:44 +0000 (UTC)
+ Mon, 30 Nov 2020 15:31:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uTAQXGAyFQnw
+ with ESMTP id dnlos3-An0gp
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Nov 2020 14:17:43 +0000 (UTC)
+ Mon, 30 Nov 2020 15:30:59 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by silver.osuosl.org (Postfix) with ESMTPS id 3ED0222882
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id CDEFF8723A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Nov 2020 14:17:43 +0000 (UTC)
+ Mon, 30 Nov 2020 15:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1606745862;
+ s=mimecast20190719; t=1606750257;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=9prsWoGXCRXLL1OI4BrWzM/wk3x2f0Z7sUXp0RoUalg=;
- b=csSIqQPwal7NoSZjj1YXMoQg5vE+1oxRC5jEjNYSVsexQv7TuRQsk4IB5LSi1NwlSjE22h
- s7J5LdggBgLuHXqqMT312utqnIYlyyez3pIL/5BUmp+lmwRxCQxIPJKD1o+4aDqRWO2ocB
- zCBZpedQAWtLHiFwa6XXoPZ9ix8fv24=
+ bh=mSq1E62E7wz6JRt2Y3RxWKfynONuZ8BYJwR+me11tnw=;
+ b=YTRqMtj+8OmEUD/I5PhrvNIiKchnMGUEJggz6r61oBCSZWEyBOYgycUWBqlPaO++bsdYRP
+ V0Yz8YI7yn6669kujYa2IZvtVjr32QkufU95iCBuLvS/Dh2R3cOPLva0AcNST+mI+JrSG4
+ mLA2WZikuLV+7m6EfT5YMZUH2/gmvmM=
 Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
  [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-245-p6eWYiF7MyKMNofHPXDPfw-1; Mon, 30 Nov 2020 09:17:31 -0500
-X-MC-Unique: p6eWYiF7MyKMNofHPXDPfw-1
-Received: by mail-wm1-f69.google.com with SMTP id q1so4457569wmq.2
+ us-mta-542-0Up3OvbVMpqnLDZqzojUQg-1; Mon, 30 Nov 2020 10:30:48 -0500
+X-MC-Unique: 0Up3OvbVMpqnLDZqzojUQg-1
+Received: by mail-wm1-f69.google.com with SMTP id r5so2145637wma.2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Nov 2020 06:17:31 -0800 (PST)
+ Mon, 30 Nov 2020 07:30:47 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=9prsWoGXCRXLL1OI4BrWzM/wk3x2f0Z7sUXp0RoUalg=;
- b=aS1G508KfdFse/J4e257ulvGVhahsY351THVEVl7Oo1H+xxHNm14NyDofgj89q2Zsy
- /dLqVxjF0mTwvq1p31wMB2qd1Jmg6jLM7TOORlYW8f8XVCPZXUF9E37bDpFN4gHFbHc9
- MUvwyowyw1/VH34CbKGRwqWIumn09BfCtnEVWpROgA97xp/S9ZP1TdoyeeV9r9raqa3/
- T7muHMAt0W7nMAg713KQ+AOp8FIfCtdI91jE51Sdh7DwJ1DPlWFVVk43MluZYRvQMYuY
- c+PikD3J05WUrn/Ru3v3nPwF0q6+TGHOXMpW6QAtcFki3GcT0nW/zF3zTuO+4ZvSLqm4
- lRng==
-X-Gm-Message-State: AOAM5313CnYs0LEKHni6Bw3maydUw6sk+Bk0hO/N0kj7xea2yI0IGNZQ
- zPYy9igq62AkCK0K6PmquBS8ZScQ/QDbXPQ25iN1d3luwt0RD0XmlsslnGgZrtRHewnH+x7WO3E
- qhX/WOU6s1vc4ejyrX6j0E98WLBkNo/ri4XxIqYh4AA==
-X-Received: by 2002:a05:600c:258:: with SMTP id
- 24mr8353725wmj.16.1606745850164; 
- Mon, 30 Nov 2020 06:17:30 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJytEilOYibEaRt1OubviG1B2ypJ06x22ayeguT4QXkdSoR5ocTTJpdRPmZfnCl2gZgvNpyKSA==
-X-Received: by 2002:a05:600c:258:: with SMTP id
- 24mr8353700wmj.16.1606745849962; 
- Mon, 30 Nov 2020 06:17:29 -0800 (PST)
-Received: from steredhat (host-79-17-248-175.retail.telecomitalia.it.
- [79.17.248.175])
- by smtp.gmail.com with ESMTPSA id x10sm21703399wro.0.2020.11.30.06.17.28
+ :mime-version:content-disposition:in-reply-to;
+ bh=mSq1E62E7wz6JRt2Y3RxWKfynONuZ8BYJwR+me11tnw=;
+ b=dnb7C9B0u3Y+Nwc/HmyhUAYrvUM98IslsGE0cRBvCsX9UiclakPP6UXn17+cE+sXNk
+ T1ZMTRtwC+5UGhFTj2SF9nTTHMzew9XsXXkFxGqSUxJKCR4tKdxVv86RBKl+ZJ616HKs
+ 9EjLqnFCqjspAA/1s4mSuulel+/z82TIdL6wF9Y+uazTCJDJK5wEB3KlfumQgZWw697x
+ tl+uRwAMT8GPgbutk8YOuEIcYTUbvJuAmnKMx0DV2BFOpuGwWR0btGLe9ipL0OUvyMP8
+ SYF7aNeJetrsLdrOueI3yzEQJINHyENllYzsTRPlEHO0haCWrXARuveh4x1zRlpxTx+i
+ SCFw==
+X-Gm-Message-State: AOAM533vQdvaIzfaFMJRUy/mkOt/Wardh672b7gjO4iaeRima2g83KsD
+ GapRu5T5o2DW5pEUC49TJBeCHyIN1zX4Md+JOgm47sKOA8L+pt+gI+uQzbmc/ob8hoaT65DTlDE
+ ZyAAKG1W7+Mk8f70lpr7UpeTG18pHkw2BXaSvA+5vyg==
+X-Received: by 2002:a5d:5222:: with SMTP id i2mr30380251wra.247.1606750246557; 
+ Mon, 30 Nov 2020 07:30:46 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwLfsWdwn+ngcuaGhodnrBSo95VO8/Fqkp8mEji2+ltAV+F81gZF2wnOT7/jRgqO+l3faOIEw==
+X-Received: by 2002:a5d:5222:: with SMTP id i2mr30380223wra.247.1606750246129; 
+ Mon, 30 Nov 2020 07:30:46 -0800 (PST)
+Received: from redhat.com (bzq-79-176-44-197.red.bezeqint.net. [79.176.44.197])
+ by smtp.gmail.com with ESMTPSA id q4sm3852657wmc.2.2020.11.30.07.30.43
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 30 Nov 2020 06:17:29 -0800 (PST)
-Date: Mon, 30 Nov 2020 15:17:26 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2 17/17] vdpa: split vdpasim to core and net modules
-Message-ID: <20201130141726.wm732gw4khvbgm34@steredhat>
-References: <20201126144950.92850-1-sgarzare@redhat.com>
- <20201126144950.92850-18-sgarzare@redhat.com>
- <ce5f1f8b-a0e2-5c3f-2e49-48e0379d1bba@redhat.com>
+ Mon, 30 Nov 2020 07:30:45 -0800 (PST)
+Date: Mon, 30 Nov 2020 10:30:42 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Eli Cohen <elic@nvidia.com>
+Subject: Re: [PATCH] vdpa/mlx5: Use random MAC for the vdpa net instance
+Message-ID: <20201130102633-mutt-send-email-mst@kernel.org>
+References: <20201129064351.63618-1-elic@nvidia.com>
+ <20201129150505-mutt-send-email-mst@kernel.org>
+ <20201130062746.GA99449@mtl-vdi-166.wap.labs.mlnx>
+ <20201130035147-mutt-send-email-mst@kernel.org>
+ <20201130092759.GB99449@mtl-vdi-166.wap.labs.mlnx>
+ <20201130043050-mutt-send-email-mst@kernel.org>
+ <20201130115106.GC99449@mtl-vdi-166.wap.labs.mlnx>
 MIME-Version: 1.0
-In-Reply-To: <ce5f1f8b-a0e2-5c3f-2e49-48e0379d1bba@redhat.com>
+In-Reply-To: <20201130115106.GC99449@mtl-vdi-166.wap.labs.mlnx>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Laurent Vivier <lvivier@redhat.com>, Max Gurtovoy <mgurtovoy@nvidia.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Stefan Hajnoczi <stefanha@redhat.com>, Eli Cohen <elic@nvidia.com>
+Cc: linux-kernel@vger.kernel.org, lulu@redhat.com,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,42 +123,135 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gTW9uLCBOb3YgMzAsIDIwMjAgYXQgMTE6MzE6NDNBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPgo+T24gMjAyMC8xMS8yNiDkuIvljYgxMDo0OSwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3Rl
-Ogo+PkZyb206IE1heCBHdXJ0b3ZveTxtZ3VydG92b3lAbnZpZGlhLmNvbT4KPj4KPj5JbnRyb2R1
-Y2UgbmV3IHZkcGFfc2ltX25ldCBhbmQgdmRwYV9zaW0gKGNvcmUpIGRyaXZlcnMuIFRoaXMgaXMg
-YQo+PnByZXBhcmF0aW9uIGZvciBhZGRpbmcgYSB2ZHBhIHNpbXVsYXRvciBtb2R1bGUgZm9yIGJs
-b2NrIGRldmljZXMuCj4+Cj4+U2lnbmVkLW9mZi1ieTogTWF4IEd1cnRvdm95PG1ndXJ0b3ZveUBu
-dmlkaWEuY29tPgo+PltzZ2FyemFyZTogdmFyaW91cyBjbGVhbnVwcy9maXhlc10KPj5TaWduZWQt
-b2ZmLWJ5OiBTdGVmYW5vIEdhcnphcmVsbGE8c2dhcnphcmVAcmVkaGF0LmNvbT4KPj4tLS0KPj52
-MjoKPj4tIEZpeGVkICJ3YXJuaW5nOiB2YXJpYWJsZSAnZGV2JyBpcyB1c2VkIHVuaW5pdGlhbGl6
-ZWQiIHJlcG9ydGVkIGJ5Cj4+ICAgJ2tlcm5lbCB0ZXN0IHJvYm90JyBhbmQgRGFuIENhcnBlbnRl
-cgo+Pi0gcmViYXNlZCBvbiB0b3Agb2Ygb3RoZXIgY2hhbmdlcyAoZGV2X2F0dHIsIGdldF9jb25m
-aWcoKSwgbm90aWZ5KCksIGV0Yy4pCj4+LSBsZWZ0IGJhdGNoX21hcHBpbmcgbW9kdWxlIHBhcmFt
-ZXRlciBpbiB0aGUgY29yZSBbSmFzb25dCj4+Cj4+djE6Cj4+LSBSZW1vdmVkIHVudXNlZCBoZWFk
-ZXJzCj4+LSBSZW1vdmVkIGVtcHR5IG1vZHVsZV9pbml0KCkgbW9kdWxlX2V4aXQoKQo+Pi0gTW92
-ZWQgdmRwYXNpbV9pc19saXR0bGVfZW5kaWFuKCkgaW4gdmRwYV9zaW0uaAo+Pi0gTW92ZWQgdmRw
-YXNpbTE2X3RvX2NwdS9jcHVfdG9fdmRwYXNpbTE2KCkgaW4gdmRwYV9zaW0uaAo+Pi0gQWRkZWQg
-dmRwYXNpbSpfdG9fY3B1L2NwdV90b192ZHBhc2ltKigpIGFsc28gZm9yIDMyIGFuZCA2NAo+Pi0g
-UmVwbGFjZWQgJ3NlbGVjdCBWRFBBX1NJTScgd2l0aCAnZGVwZW5kcyBvbiBWRFBBX1NJTScgc2lu
-Y2Ugc2VsZWN0ZWQKPj4gICBvcHRpb24gY2FuIG5vdCBkZXBlbmQgb24gb3RoZXIgW0phc29uXQo+
-Pi0tLQo+PiAgZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmggICAgIHwgMTAzICsrKysr
-KysrKysrKysKPj4gIGRyaXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBhX3NpbS5jICAgICB8IDIyMiAr
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KPj4gIGRyaXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBh
-X3NpbV9uZXQuYyB8IDE3MSArKysrKysrKysrKysrKysrKysrKysKPj4gIGRyaXZlcnMvdmRwYS9L
-Y29uZmlnICAgICAgICAgICAgICAgICB8ICAxMyArLQo+PiAgZHJpdmVycy92ZHBhL3ZkcGFfc2lt
-L01ha2VmaWxlICAgICAgIHwgICAxICsKPj4gIDUgZmlsZXMgY2hhbmdlZCwgMjkwIGluc2VydGlv
-bnMoKyksIDIyMCBkZWxldGlvbnMoLSkKPj4gIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL3Zk
-cGEvdmRwYV9zaW0vdmRwYV9zaW0uaAo+PiAgY3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMvdmRw
-YS92ZHBhX3NpbS92ZHBhX3NpbV9uZXQuYwo+Cj4KPkxvb2tzIGdvb2QsIGNvbnNpZGVyIHRoZXJl
-IGFyZSBzb21lIHN0aWxsIHNvbWUgcXVlc3Rpb25zIGxlZnQuIEkgd2lsbCAKPnByb2JhYmx5IGFj
-ayBmb3IgdGhlIG5leHQgdmVyc2lvbi4KPgoKU3VyZSwgdGhhbmtzIGZvciB5b3VyIGZlZWRiYWNr
-IQoKU3RlZmFubwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Mon, Nov 30, 2020 at 01:51:06PM +0200, Eli Cohen wrote:
+> On Mon, Nov 30, 2020 at 04:33:09AM -0500, Michael S. Tsirkin wrote:
+> > On Mon, Nov 30, 2020 at 11:27:59AM +0200, Eli Cohen wrote:
+> > > On Mon, Nov 30, 2020 at 04:00:51AM -0500, Michael S. Tsirkin wrote:
+> > > > On Mon, Nov 30, 2020 at 08:27:46AM +0200, Eli Cohen wrote:
+> > > > > On Sun, Nov 29, 2020 at 03:08:22PM -0500, Michael S. Tsirkin wrote:
+> > > > > > On Sun, Nov 29, 2020 at 08:43:51AM +0200, Eli Cohen wrote:
+> > > > > > > We should not try to use the VF MAC address as that is used by the
+> > > > > > > regular (e.g. mlx5_core) NIC implementation. Instead, use a random
+> > > > > > > generated MAC address.
+> > > > > > > 
+> > > > > > > Suggested by: Cindy Lu <lulu@redhat.com>
+> > > > > > > Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
+> > > > > > > Signed-off-by: Eli Cohen <elic@nvidia.com>
+> > > > > > 
+> > > > > > I didn't realise it's possible to use VF in two ways
+> > > > > > with and without vdpa.
+> > > > > 
+> > > > > Using a VF you can create quite a few resources, e.g. send queues
+> > > > > recieve queues, virtio_net queues etc. So you can possibly create
+> > > > > several instances of vdpa net devices and nic net devices.
+> > > > > 
+> > > > > > Could you include a bit more description on the failure
+> > > > > > mode?
+> > > > > 
+> > > > > Well, using the MAC address of the nic vport is wrong since that is the
+> > > > > MAC of the regular NIC implementation of mlx5_core.
+> > > > 
+> > > > Right but ATM it doesn't coexist with vdpa so what's the problem?
+> > > > 
+> > > 
+> > > This call is wrong:  mlx5_query_nic_vport_mac_address()
+> > > 
+> > > > > > Is switching to a random mac for such an unusual
+> > > > > > configuration really justified?
+> > > > > 
+> > > > > Since I can't use the NIC's MAC address, I have two options:
+> > > > > 1. To get the MAC address as was chosen by the user administering the
+> > > > >    NIC. This should invoke the set_config callback. Unfortunately this
+> > > > >    is not implemented yet.
+> > > > > 
+> > > > > 2. Use a random MAC address. This is OK since if (1) is implemented it
+> > > > >    can always override this random configuration.
+> > > > > 
+> > > > > > It looks like changing a MAC could break some guests,
+> > > > > > can it not?
+> > > > > >
+> > > > > 
+> > > > > No, it will not. The current version of mlx5 VDPA does not allow regular
+> > > > > NIC driver and VDPA to co-exist. I have patches ready that enable that
+> > > > > from steering point of view. I will post them here once other patches on
+> > > > > which they depend will be merged.
+> > > > > 
+> > > > > https://patchwork.ozlabs.org/project/netdev/patch/20201120230339.651609-12-saeedm@nvidia.com/
+> > > > 
+> > > > Could you be more explicit on the following points:
+> > > > - which configuration is broken ATM (as in, two device have identical
+> > > >   macs? any other issues)?
+> > > 
+> > > The only wrong thing is the call to  mlx5_query_nic_vport_mac_address().
+> > > It's not breaking anything yet is wrong. The random MAC address setting
+> > > is required for the steering patches.
+> > 
+> > Okay so I'm not sure the Fixes tag at least is appropriate if it's a
+> > dependency of a new feature.
+> > 
+> 
+> OK, let's leave it for now. I will push along with the steering patches.
+> The meaning is the the VDPA net device instance is create with a MAC of
+> all zeros which also mean the link is down. You can set a MAC which will
+> let the link come up.
+> The vdpa driver will not get a callback as I
+> stated but since current mode of steering directs all traffic to the
+> vdpa instance it will work. In the future this must be fixed.
+
+So at the moment the MAC is in the config space and that is read during
+probe.  So I guess userspace will do that before passing device to
+guest.
+
+> 
+> > > > - why won't device MAC change from guest point of view?
+> > > > 
+> > > 
+> > > It's lack of implementation in qemu as far as I know.
+> > 
+> > Sorry not sure I understand. What's not implemented in QEMU?
+> > 
+> 
+> vdpa config operation set_config() should be called whenever the MAC is
+> changed, e.g. when administrator of the vdpa net device changes the mac.
+> This does not happen which is a bug.
+
+I am not sure that's a good interface for that, I think set_config
+is for guest writes into config space.
+Will let Jason comment once patches are posted.
+
+> > > > 
+> > > > > > > ---
+> > > > > > >  drivers/vdpa/mlx5/net/mlx5_vnet.c | 5 +----
+> > > > > > >  1 file changed, 1 insertion(+), 4 deletions(-)
+> > > > > > > 
+> > > > > > > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > > > > > > index 1fa6fcac8299..80d06d958b8b 100644
+> > > > > > > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > > > > > > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > > > > > > @@ -1955,10 +1955,7 @@ void *mlx5_vdpa_add_dev(struct mlx5_core_dev *mdev)
+> > > > > > >  	if (err)
+> > > > > > >  		goto err_mtu;
+> > > > > > >  
+> > > > > > > -	err = mlx5_query_nic_vport_mac_address(mdev, 0, 0, config->mac);
+> > > > > > > -	if (err)
+> > > > > > > -		goto err_mtu;
+> > > > > > > -
+> > > > > > > +	eth_random_addr(config->mac);
+> > > > > > >  	mvdev->vdev.dma_dev = mdev->device;
+> > > > > > >  	err = mlx5_vdpa_alloc_resources(&ndev->mvdev);
+> > > > > > >  	if (err)
+> > > > > > > -- 
+> > > > > > > 2.26.2
+> > > > > > 
+> > > > 
+> > 
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
