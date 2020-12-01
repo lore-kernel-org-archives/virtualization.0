@@ -7,68 +7,68 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E271CC64E7B
-	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A726C83013
+	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:31 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5CBED20809
-	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5CBED20809
+	by mail.kernel.org (Postfix) with ESMTPS id 023F220644
+	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 023F220644
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 142CE8810A;
-	Tue,  1 Dec 2020 10:36:29 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id AE7E6880BC;
+	Tue,  1 Dec 2020 10:36:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9uFgg4xR2Gre; Tue,  1 Dec 2020 10:36:26 +0000 (UTC)
+	with ESMTP id k0iyQHRep+uV; Tue,  1 Dec 2020 10:36:26 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 3E6AF8809E;
-	Tue,  1 Dec 2020 10:36:09 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 66EC88809C;
+	Tue,  1 Dec 2020 10:36:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2AA80C163C;
-	Tue,  1 Dec 2020 10:36:09 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 05AE3C163C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5523DC163C;
+	Tue,  1 Dec 2020 10:36:10 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 56D4AC163C
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 10:36:08 +0000 (UTC)
+ Tue,  1 Dec 2020 10:36:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id F41992E159
+ by whitealder.osuosl.org (Postfix) with ESMTP id 40891880A8
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 10:36:07 +0000 (UTC)
+ Tue,  1 Dec 2020 10:36:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GnL8Z8ClxMbM
+ with ESMTP id Hz6RpZzaDuLR
  for <virtualization@lists.linux-foundation.org>;
  Tue,  1 Dec 2020 10:36:03 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTPS id A106A2E147
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 1ED2A8809F
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 10:36:01 +0000 (UTC)
+ Tue,  1 Dec 2020 10:36:03 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 426AAACF1;
- Tue,  1 Dec 2020 10:36:00 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id B583BAD3F;
+ Tue,  1 Dec 2020 10:36:01 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: airlied@linux.ie,
 	daniel@ffwll.ch
-Subject: [PATCH v2 15/20] drm/radeon: Fix trailing whitespaces
-Date: Tue,  1 Dec 2020 11:35:37 +0100
-Message-Id: <20201201103542.2182-16-tzimmermann@suse.de>
+Subject: [PATCH v2 17/20] drm/vboxvideo: Remove references to struct
+ drm_device.pdev
+Date: Tue,  1 Dec 2020 11:35:39 +0100
+Message-Id: <20201201103542.2182-18-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201103542.2182-1-tzimmermann@suse.de>
 References: <20201201103542.2182-1-tzimmermann@suse.de>
 MIME-Version: 1.0
-Cc: nouveau@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+Cc: Sam Ravnborg <sam@ravnborg.org>, nouveau@lists.freedesktop.org,
+ intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, Hans de Goede <hdegoede@redhat.com>,
  amd-gfx@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>,
- Alex Deucher <alexander.deucher@amd.com>, spice-devel@lists.freedesktop.org,
- intel-gvt-dev@lists.freedesktop.org,
- =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+ spice-devel@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -80,36 +80,163 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-QWRoZXJlIHRvIGtlcm5lbCBjb2Rpbmcgc3R5bGUuCgpTaWduZWQtb2ZmLWJ5OiBUaG9tYXMgWmlt
-bWVybWFubiA8dHppbW1lcm1hbm5Ac3VzZS5kZT4KQWNrZWQtYnk6IEFsZXggRGV1Y2hlciA8YWxl
-eGFuZGVyLmRldWNoZXJAYW1kLmNvbT4KQ2M6IEFsZXggRGV1Y2hlciA8YWxleGFuZGVyLmRldWNo
-ZXJAYW1kLmNvbT4KQ2M6IENocmlzdGlhbiBLw7ZuaWcgPGNocmlzdGlhbi5rb2VuaWdAYW1kLmNv
-bT4KLS0tCiBkcml2ZXJzL2dwdS9kcm0vcmFkZW9uL3IxMDAuYyAgICAgICB8IDIgKy0KIGRyaXZl
-cnMvZ3B1L2RybS9yYWRlb24vcmFkZW9uX2ttcy5jIHwgMiArLQogMiBmaWxlcyBjaGFuZ2VkLCAy
-IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUv
-ZHJtL3JhZGVvbi9yMTAwLmMgYi9kcml2ZXJzL2dwdS9kcm0vcmFkZW9uL3IxMDAuYwppbmRleCAy
-NGM4ZGI2NzM5MzEuLmU0YWUwOWI1Mjk0ZCAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL3Jh
-ZGVvbi9yMTAwLmMKKysrIGIvZHJpdmVycy9ncHUvZHJtL3JhZGVvbi9yMTAwLmMKQEAgLTI3OTcs
-NyArMjc5Nyw3IEBAIHZvaWQgcjEwMF92cmFtX2luaXRfc2l6ZXMoc3RydWN0IHJhZGVvbl9kZXZp
-Y2UgKnJkZXYpCiAJCQlyZGV2LT5tYy5yZWFsX3ZyYW1fc2l6ZSA9IDgxOTIgKiAxMDI0OwogCQkJ
-V1JFRzMyKFJBREVPTl9DT05GSUdfTUVNU0laRSwgcmRldi0+bWMucmVhbF92cmFtX3NpemUpOwog
-CQl9Ci0JCS8qIEZpeCBmb3IgUk41MCwgTTYsIE03IHdpdGggOC8xNi8zMig/PykgTUJzIG9mIFZS
-QU0gLSAKKwkJLyogRml4IGZvciBSTjUwLCBNNiwgTTcgd2l0aCA4LzE2LzMyKD8/KSBNQnMgb2Yg
-VlJBTSAtCiAJCSAqIE5vdmVsbCBidWcgMjA0ODgyICsgYWxvbmcgd2l0aCBsb3RzIG9mIHVidW50
-dSBvbmVzCiAJCSAqLwogCQlpZiAocmRldi0+bWMuYXBlcl9zaXplID4gY29uZmlnX2FwZXJfc2l6
-ZSkKZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9yYWRlb24vcmFkZW9uX2ttcy5jIGIvZHJp
-dmVycy9ncHUvZHJtL3JhZGVvbi9yYWRlb25fa21zLmMKaW5kZXggYWJiM2JkZDljYTI1Li43NWIw
-Mzg3NDBlYTggMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS9yYWRlb24vcmFkZW9uX2ttcy5j
-CisrKyBiL2RyaXZlcnMvZ3B1L2RybS9yYWRlb24vcmFkZW9uX2ttcy5jCkBAIC03NCw3ICs3NCw3
-IEBAIHZvaWQgcmFkZW9uX2RyaXZlcl91bmxvYWRfa21zKHN0cnVjdCBkcm1fZGV2aWNlICpkZXYp
-CiAJfQogCiAJcmFkZW9uX2FjcGlfZmluaShyZGV2KTsKLQkKKwogCXJhZGVvbl9tb2Rlc2V0X2Zp
-bmkocmRldik7CiAJcmFkZW9uX2RldmljZV9maW5pKHJkZXYpOwogCi0tIAoyLjI5LjIKCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
-IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
-dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
-aXphdGlvbg==
+Using struct drm_device.pdev is deprecated. Convert vboxvideo to struct
+drm_device.dev. No functional changes.
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Cc: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/gpu/drm/vboxvideo/vbox_drv.c  | 11 ++++++-----
+ drivers/gpu/drm/vboxvideo/vbox_irq.c  |  4 +++-
+ drivers/gpu/drm/vboxvideo/vbox_main.c |  8 ++++++--
+ drivers/gpu/drm/vboxvideo/vbox_ttm.c  |  7 ++++---
+ 4 files changed, 19 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_drv.c b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+index f3eac72cb46e..e534896b6cfd 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+@@ -51,7 +51,6 @@ static int vbox_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	if (IS_ERR(vbox))
+ 		return PTR_ERR(vbox);
+ 
+-	vbox->ddev.pdev = pdev;
+ 	pci_set_drvdata(pdev, vbox);
+ 	mutex_init(&vbox->hw_mutex);
+ 
+@@ -109,15 +108,16 @@ static void vbox_pci_remove(struct pci_dev *pdev)
+ static int vbox_pm_suspend(struct device *dev)
+ {
+ 	struct vbox_private *vbox = dev_get_drvdata(dev);
++	struct pci_dev *pdev = to_pci_dev(dev);
+ 	int error;
+ 
+ 	error = drm_mode_config_helper_suspend(&vbox->ddev);
+ 	if (error)
+ 		return error;
+ 
+-	pci_save_state(vbox->ddev.pdev);
+-	pci_disable_device(vbox->ddev.pdev);
+-	pci_set_power_state(vbox->ddev.pdev, PCI_D3hot);
++	pci_save_state(pdev);
++	pci_disable_device(pdev);
++	pci_set_power_state(pdev, PCI_D3hot);
+ 
+ 	return 0;
+ }
+@@ -125,8 +125,9 @@ static int vbox_pm_suspend(struct device *dev)
+ static int vbox_pm_resume(struct device *dev)
+ {
+ 	struct vbox_private *vbox = dev_get_drvdata(dev);
++	struct pci_dev *pdev = to_pci_dev(dev);
+ 
+-	if (pci_enable_device(vbox->ddev.pdev))
++	if (pci_enable_device(pdev))
+ 		return -EIO;
+ 
+ 	return drm_mode_config_helper_resume(&vbox->ddev);
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_irq.c b/drivers/gpu/drm/vboxvideo/vbox_irq.c
+index 631657fa554f..b3ded68603ba 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_irq.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_irq.c
+@@ -170,10 +170,12 @@ static void vbox_hotplug_worker(struct work_struct *work)
+ 
+ int vbox_irq_init(struct vbox_private *vbox)
+ {
++	struct pci_dev *pdev = to_pci_dev(vbox->ddev.dev);
++
+ 	INIT_WORK(&vbox->hotplug_work, vbox_hotplug_worker);
+ 	vbox_update_mode_hints(vbox);
+ 
+-	return drm_irq_install(&vbox->ddev, vbox->ddev.pdev->irq);
++	return drm_irq_install(&vbox->ddev, pdev->irq);
+ }
+ 
+ void vbox_irq_fini(struct vbox_private *vbox)
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_main.c b/drivers/gpu/drm/vboxvideo/vbox_main.c
+index d68d9bad7674..f28779715ccd 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_main.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_main.c
+@@ -8,7 +8,9 @@
+  *          Hans de Goede <hdegoede@redhat.com>
+  */
+ 
++#include <linux/pci.h>
+ #include <linux/vbox_err.h>
++
+ #include <drm/drm_fb_helper.h>
+ #include <drm/drm_crtc_helper.h>
+ #include <drm/drm_damage_helper.h>
+@@ -30,6 +32,7 @@ void vbox_report_caps(struct vbox_private *vbox)
+ 
+ static int vbox_accel_init(struct vbox_private *vbox)
+ {
++	struct pci_dev *pdev = to_pci_dev(vbox->ddev.dev);
+ 	struct vbva_buffer *vbva;
+ 	unsigned int i;
+ 
+@@ -41,7 +44,7 @@ static int vbox_accel_init(struct vbox_private *vbox)
+ 	/* Take a command buffer for each screen from the end of usable VRAM. */
+ 	vbox->available_vram_size -= vbox->num_crtcs * VBVA_MIN_BUFFER_SIZE;
+ 
+-	vbox->vbva_buffers = pci_iomap_range(vbox->ddev.pdev, 0,
++	vbox->vbva_buffers = pci_iomap_range(pdev, 0,
+ 					     vbox->available_vram_size,
+ 					     vbox->num_crtcs *
+ 					     VBVA_MIN_BUFFER_SIZE);
+@@ -106,6 +109,7 @@ bool vbox_check_supported(u16 id)
+ 
+ int vbox_hw_init(struct vbox_private *vbox)
+ {
++	struct pci_dev *pdev = to_pci_dev(vbox->ddev.dev);
+ 	int ret = -ENOMEM;
+ 
+ 	vbox->full_vram_size = inl(VBE_DISPI_IOPORT_DATA);
+@@ -115,7 +119,7 @@ int vbox_hw_init(struct vbox_private *vbox)
+ 
+ 	/* Map guest-heap at end of vram */
+ 	vbox->guest_heap =
+-	    pci_iomap_range(vbox->ddev.pdev, 0, GUEST_HEAP_OFFSET(vbox),
++	    pci_iomap_range(pdev, 0, GUEST_HEAP_OFFSET(vbox),
+ 			    GUEST_HEAP_SIZE);
+ 	if (!vbox->guest_heap)
+ 		return -ENOMEM;
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_ttm.c b/drivers/gpu/drm/vboxvideo/vbox_ttm.c
+index f5a06675da43..0066a3c1dfc9 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_ttm.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_ttm.c
+@@ -15,8 +15,9 @@ int vbox_mm_init(struct vbox_private *vbox)
+ 	struct drm_vram_mm *vmm;
+ 	int ret;
+ 	struct drm_device *dev = &vbox->ddev;
++	struct pci_dev *pdev = to_pci_dev(dev->dev);
+ 
+-	vmm = drm_vram_helper_alloc_mm(dev, pci_resource_start(dev->pdev, 0),
++	vmm = drm_vram_helper_alloc_mm(dev, pci_resource_start(pdev, 0),
+ 				       vbox->available_vram_size);
+ 	if (IS_ERR(vmm)) {
+ 		ret = PTR_ERR(vmm);
+@@ -24,8 +25,8 @@ int vbox_mm_init(struct vbox_private *vbox)
+ 		return ret;
+ 	}
+ 
+-	vbox->fb_mtrr = arch_phys_wc_add(pci_resource_start(dev->pdev, 0),
+-					 pci_resource_len(dev->pdev, 0));
++	vbox->fb_mtrr = arch_phys_wc_add(pci_resource_start(pdev, 0),
++					 pci_resource_len(pdev, 0));
+ 	return 0;
+ }
+ 
+-- 
+2.29.2
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
