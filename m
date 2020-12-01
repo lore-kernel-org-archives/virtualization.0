@@ -2,98 +2,75 @@ Return-Path: <SRS0=fSyG=FF=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D2C5C64E7B
-	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 06:25:24 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76B43C64E8A
+	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 09:50:31 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AA9442087D
-	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 06:25:23 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GurzyJYd"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AA9442087D
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 91453206C0
+	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 09:50:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 91453206C0
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 11CC786A2B;
-	Tue,  1 Dec 2020 06:25:22 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id DC3EE874E6;
+	Tue,  1 Dec 2020 09:50:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Y7OA2N1Nistl; Tue,  1 Dec 2020 06:25:21 +0000 (UTC)
+	with ESMTP id MOhp2ryGqpMe; Tue,  1 Dec 2020 09:50:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 0A44486A11;
-	Tue,  1 Dec 2020 06:25:21 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id A4442874C1;
+	Tue,  1 Dec 2020 09:50:28 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CC994C163C;
-	Tue,  1 Dec 2020 06:25:20 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 84986C0052
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 858A0C0859;
+	Tue,  1 Dec 2020 09:50:28 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A61FEC0052
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 06:25:19 +0000 (UTC)
+ Tue,  1 Dec 2020 09:50:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 669672E0EA
+ by hemlock.osuosl.org (Postfix) with ESMTP id A11EC874D4
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 06:25:19 +0000 (UTC)
+ Tue,  1 Dec 2020 09:50:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wAjKPsTsMEsM
+ with ESMTP id PWtlPJz59ROj
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 06:25:18 +0000 (UTC)
+ Tue,  1 Dec 2020 09:50:24 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by silver.osuosl.org (Postfix) with ESMTPS id DD8682E0F5
+Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id B77E6874C1
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 06:25:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1606803916;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=KCHesexpjRFhWOcxGP78gptqdhCw6l2GCYqi5IE/c2M=;
- b=GurzyJYdaIbP7qEk7glfI4rJLLN636K9yE1TUOj48OgltwWmXfYJrU2RXVfhhSt4dEptds
- DUgRFiydI/ZoxJ9vMp7X/4qKB92uV9VkUA0NViLXfsC5AZg8ktI4N0NOLpH+LdHV+mxga+
- Y1ZcVWaAMgnVP2YhAQM7uIGPMihOzhE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-180-h6Hs-gSMOVqrcs__jDRWng-1; Tue, 01 Dec 2020 01:25:12 -0500
-X-MC-Unique: h6Hs-gSMOVqrcs__jDRWng-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7820F180E49D;
- Tue,  1 Dec 2020 06:25:11 +0000 (UTC)
-Received: from [10.72.13.167] (ovpn-13-167.pek2.redhat.com [10.72.13.167])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 8F69860853;
- Tue,  1 Dec 2020 06:25:06 +0000 (UTC)
-Subject: Re: [External] Re: [PATCH 0/7] Introduce vdpa management tool
-To: Yongji Xie <xieyongji@bytedance.com>
-References: <20201112064005.349268-1-parav@nvidia.com>
- <5b2235f6-513b-dbc9-3670-e4c9589b4d1f@redhat.com>
- <CACycT3sYScObb9nN3g7L3cesjE7sCZWxZ5_5R1usGU9ePZEeqA@mail.gmail.com>
- <182708df-1082-0678-49b2-15d0199f20df@redhat.com>
- <CACycT3votu2eyacKg+w12xZ_ujEOgTY0f8A7qcpbM-fwTpjqAw@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <7f80eeed-f5d3-8c6f-1b8c-87b7a449975c@redhat.com>
-Date: Tue, 1 Dec 2020 14:25:05 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ Tue,  1 Dec 2020 09:50:23 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+ by mx2.suse.de (Postfix) with ESMTP id 8C5F8AC65;
+ Tue,  1 Dec 2020 09:50:21 +0000 (UTC)
+To: Sam Ravnborg <sam@ravnborg.org>
+References: <20201124113824.19994-1-tzimmermann@suse.de>
+ <20201124113824.19994-10-tzimmermann@suse.de>
+ <20201124214208.GB93095@ravnborg.org>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: [PATCH 09/15] drm/nouveau: Remove references to struct
+ drm_device.pdev
+Message-ID: <77dcf689-d22c-5ae8-8c46-10ce7a546a63@suse.de>
+Date: Tue, 1 Dec 2020 10:50:19 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.0
 MIME-Version: 1.0
-In-Reply-To: <CACycT3votu2eyacKg+w12xZ_ujEOgTY0f8A7qcpbM-fwTpjqAw@mail.gmail.com>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-Cc: netdev@vger.kernel.org, elic@nvidia.com,
- "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org
+In-Reply-To: <20201124214208.GB93095@ravnborg.org>
+Cc: airlied@linux.ie, nouveau@lists.freedesktop.org,
+ intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, amd-gfx@lists.freedesktop.org,
+ daniel@ffwll.ch, spice-devel@lists.freedesktop.org,
+ intel-gvt-dev@lists.freedesktop.org, Ben Skeggs <bskeggs@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -105,39 +82,259 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: multipart/mixed; boundary="===============3563482581291003900=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Ck9uIDIwMjAvMTEvMzAg5LiL5Y2IMzowNywgWW9uZ2ppIFhpZSB3cm90ZToKPj4+IFRoYW5rcyBm
-b3IgYWRkaW5nIG1lLCBKYXNvbiEKPj4+Cj4+PiBOb3cgSSdtIHdvcmtpbmcgb24gYSB2MiBwYXRj
-aHNldCBmb3IgVkRVU0UgKHZEUEEgRGV2aWNlIGluIFVzZXJzcGFjZSkKPj4+IFsxXS4gVGhpcyB0
-b29sIGlzIHZlcnkgdXNlZnVsIGZvciB0aGUgdmR1c2UgZGV2aWNlLiBTbyBJJ20gY29uc2lkZXJp
-bmcKPj4+IGludGVncmF0aW5nIHRoaXMgaW50byBteSB2MiBwYXRjaHNldC4gQnV0IHRoZXJlIGlz
-IG9uZSBwcm9ibGVt77yaCj4+Pgo+Pj4gSW4gdGhpcyB0b29sLCB2ZHBhIGRldmljZSBjb25maWcg
-YWN0aW9uIGFuZCBlbmFibGUgYWN0aW9uIGFyZSBjb21iaW5lZAo+Pj4gaW50byBvbmUgbmV0bGlu
-ayBtc2c6IFZEUEFfQ01EX0RFVl9ORVcuIEJ1dCBpbiB2ZHVzZSBjYXNlLCBpdCBuZWVkcyB0bwo+
-Pj4gYmUgc3BsaXR0ZWQgYmVjYXVzZSBhIGNoYXJkZXYgc2hvdWxkIGJlIGNyZWF0ZWQgYW5kIG9w
-ZW5lZCBieSBhCj4+PiB1c2Vyc3BhY2UgcHJvY2VzcyBiZWZvcmUgd2UgZW5hYmxlIHRoZSB2ZHBh
-IGRldmljZSAoY2FsbAo+Pj4gdmRwYV9yZWdpc3Rlcl9kZXZpY2UoKSkuCj4+Pgo+Pj4gU28gSSdk
-IGxpa2UgdG8ga25vdyB3aGV0aGVyIGl0J3MgcG9zc2libGUgKG9yIGhhdmUgc29tZSBwbGFucykg
-dG8gYWRkCj4+PiB0d28gbmV3IG5ldGxpbmsgbXNncyBzb21ldGhpbmcgbGlrZTogVkRQQV9DTURf
-REVWX0VOQUJMRSBhbmQKPj4+IFZEUEFfQ01EX0RFVl9ESVNBQkxFIHRvIG1ha2UgdGhlIGNvbmZp
-ZyBwYXRoIG1vcmUgZmxleGlibGUuCj4+Pgo+PiBBY3R1YWxseSwgd2UndmUgZGlzY3Vzc2VkIHN1
-Y2ggaW50ZXJtZWRpYXRlIHN0ZXAgaW4gc29tZSBlYXJseQo+PiBkaXNjdXNzaW9uLiBJdCBsb29r
-cyB0byBtZSBWRFVTRSBjb3VsZCBiZSBvbmUgb2YgdGhlIHVzZXJzIG9mIHRoaXMuCj4+Cj4+IE9y
-IEkgd29uZGVyIHdoZXRoZXIgd2UgY2FuIHN3aXRjaCB0byB1c2UgYW5vbnltb3VzIGlub2RlKGZk
-KSBmb3IgVkRVU0UKPj4gdGhlbiBmZXRjaGluZyBpdCB2aWEgYW4gVkRVU0VfR0VUX0RFVklDRV9G
-RCBpb2N0bD8KPj4KPiBZZXMsIHdlIGNhbi4gQWN0dWFsbHkgdGhlIGN1cnJlbnQgaW1wbGVtZW50
-YXRpb24gaW4gVkRVU0UgaXMgbGlrZQo+IHRoaXMuICBCdXQgc2VlbXMgbGlrZSB0aGlzIGlzIHN0
-aWxsIGEgaW50ZXJtZWRpYXRlIHN0ZXAuIFRoZSBmZCBzaG91bGQKPiBiZSBiaW5kZWQgdG8gYSBu
-YW1lIG9yIHNvbWV0aGluZyBlbHNlIHdoaWNoIG5lZWQgdG8gYmUgY29uZmlndXJlZAo+IGJlZm9y
-ZS4KCgpUaGUgbmFtZSBjb3VsZCBiZSBzcGVjaWZpZWQgdmlhIHRoZSBuZXRsaW5rLiBJdCBsb29r
-cyB0byBtZSB0aGUgcmVhbCAKaXNzdWUgaXMgdGhhdCB1bnRpbCB0aGUgZGV2aWNlIGlzIGNvbm5l
-Y3RlZCB3aXRoIGEgdXNlcnNwYWNlLCBpdCBjYW4ndCAKYmUgdXNlZC4gU28gd2UgYWxzbyBuZWVk
-IHRvIGZhaWwgdGhlIGVuYWJsaW5nIGlmIGl0IGRvZXNuJ3Qgb3BlbmVkLgoKVGhhbmtzCgoKPgo+
-IFRoYW5rcywKPiBZb25namkKPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
-c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
-Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============3563482581291003900==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="4bE8wtoD18K52eefsY2TD0VT1msAv6pGQ"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--4bE8wtoD18K52eefsY2TD0VT1msAv6pGQ
+Content-Type: multipart/mixed; boundary="h9BtDHO1BkSllNSHbFLWYUa8dv8v2U8Rv";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: airlied@linux.ie, daniel@ffwll.ch, nouveau@lists.freedesktop.org,
+ intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, amd-gfx@lists.freedesktop.org,
+ spice-devel@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org,
+ Ben Skeggs <bskeggs@redhat.com>
+Message-ID: <77dcf689-d22c-5ae8-8c46-10ce7a546a63@suse.de>
+Subject: Re: [PATCH 09/15] drm/nouveau: Remove references to struct
+ drm_device.pdev
+References: <20201124113824.19994-1-tzimmermann@suse.de>
+ <20201124113824.19994-10-tzimmermann@suse.de>
+ <20201124214208.GB93095@ravnborg.org>
+In-Reply-To: <20201124214208.GB93095@ravnborg.org>
+
+--h9BtDHO1BkSllNSHbFLWYUa8dv8v2U8Rv
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+Hi Sam
+
+Am 24.11.20 um 22:42 schrieb Sam Ravnborg:
+> Hi Thomas.
+>=20
+> On Tue, Nov 24, 2020 at 12:38:18PM +0100, Thomas Zimmermann wrote:
+>> Using struct drm_device.pdev is deprecated. Convert nouveau to struct
+>> drm_device.dev. No functional changes.
+>>
+>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>> Cc: Ben Skeggs <bskeggs@redhat.com>
+>=20
+> Suggestion to an alternative implmentation below.
+>=20
+>> ---
+>>   drivers/gpu/drm/nouveau/dispnv04/arb.c      | 12 +++++++-----
+>>   drivers/gpu/drm/nouveau/dispnv04/disp.h     | 14 ++++++++------
+>>   drivers/gpu/drm/nouveau/dispnv04/hw.c       | 10 ++++++----
+>>   drivers/gpu/drm/nouveau/nouveau_abi16.c     |  7 ++++---
+>>   drivers/gpu/drm/nouveau/nouveau_acpi.c      |  2 +-
+>>   drivers/gpu/drm/nouveau/nouveau_bios.c      | 11 ++++++++---
+>>   drivers/gpu/drm/nouveau/nouveau_connector.c | 10 ++++++----
+>>   drivers/gpu/drm/nouveau/nouveau_drm.c       |  5 ++---
+>>   drivers/gpu/drm/nouveau/nouveau_fbcon.c     |  6 ++++--
+>>   drivers/gpu/drm/nouveau/nouveau_vga.c       | 20 ++++++++++++-------=
+-
+>>   10 files changed, 58 insertions(+), 39 deletions(-)
+>>
+>=20
+>> diff --git a/drivers/gpu/drm/nouveau/nouveau_bios.c b/drivers/gpu/drm/=
+nouveau/nouveau_bios.c
+>> index d204ea8a5618..7cc683b8dc7a 100644
+>> --- a/drivers/gpu/drm/nouveau/nouveau_bios.c
+>> +++ b/drivers/gpu/drm/nouveau/nouveau_bios.c
+>> @@ -110,6 +110,9 @@ static int call_lvds_manufacturer_script(struct dr=
+m_device *dev, struct dcb_outp
+>>   	struct nvbios *bios =3D &drm->vbios;
+>>   	uint8_t sub =3D bios->data[bios->fp.xlated_entry + script] + (bios-=
+>fp.link_c_increment && dcbent->or & DCB_OUTPUT_C ? 1 : 0);
+>>   	uint16_t scriptofs =3D ROM16(bios->data[bios->init_script_tbls_ptr =
++ sub * 2]);
+>> +#ifdef __powerpc__
+>> +	struct pci_dev *pdev =3D to_pci_dev(dev->dev);
+>> +#endif
+> Or
+> 	int device =3D 0;
+>>  =20
+>>   	if (!bios->fp.xlated_entry || !sub || !scriptofs)
+>>   		return -EINVAL;
+>> @@ -123,8 +126,8 @@ static int call_lvds_manufacturer_script(struct dr=
+m_device *dev, struct dcb_outp
+>>   #ifdef __powerpc__
+>>   	/* Powerbook specific quirks */
+> 	device =3D to_pci_dev(dev->dev)->device;
+> 	if (script =3D=3D LVDS_RESET && (device =3D=3D 0x0179 || device =3D=3D=
+ 0x0189 || device =3D=3D 0x0329))
+
+I see the point, but I'm trying to not change the existing=20
+implementation too much.
+
+>=20
+>>   	if (script =3D=3D LVDS_RESET &&
+>> -	    (dev->pdev->device =3D=3D 0x0179 || dev->pdev->device =3D=3D 0x0=
+189 ||
+>> -	     dev->pdev->device =3D=3D 0x0329))
+>> +	    (pdev->device =3D=3D 0x0179 || pdev->device =3D=3D 0x0189 ||
+>> +	     pdev->device =3D=3D 0x0329))
+>>   		nv_write_tmds(dev, dcbent->or, 0, 0x02, 0x72);
+>>   #endif
+>>  =20
+>=20
+>=20
+>> diff --git a/drivers/gpu/drm/nouveau/nouveau_fbcon.c b/drivers/gpu/drm=
+/nouveau/nouveau_fbcon.c
+>> index 24ec5339efb4..4fc0fa696461 100644
+>> --- a/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+>> +++ b/drivers/gpu/drm/nouveau/nouveau_fbcon.c
+>> @@ -396,7 +396,9 @@ nouveau_fbcon_create(struct drm_fb_helper *helper,=
+
+>>   	NV_INFO(drm, "allocated %dx%d fb: 0x%llx, bo %p\n",
+>>   		fb->width, fb->height, nvbo->offset, nvbo);
+>>  =20
+>> -	vga_switcheroo_client_fb_set(dev->pdev, info);
+>> +	if (dev_is_pci(dev->dev))
+>> +		vga_switcheroo_client_fb_set(to_pci_dev(dev->dev), info);
+>> +
+> I cannot see why dev_is_pci() is needed here.
+> So I am obviously missing something :-(
+
+vga_switcheroo_client_fb_set() expects a PCI device. It's a bit of a=20
+stretch, but at least it is possible to pass NULL for non-PCI devices.=20
+Passing the upcasted dev->dev is just garbage.
+
+As the VGA switcheroo is only relevant for PCI devices, I added the=20
+branching to make this work reliably.
+
+Best regards
+Thomas
+
+>=20
+>>   	return 0;
+>>  =20
+>>   out_unlock:
+>> @@ -548,7 +550,7 @@ nouveau_fbcon_init(struct drm_device *dev)
+>>   	int ret;
+>>  =20
+>>   	if (!dev->mode_config.num_crtc ||
+>> -	    (dev->pdev->class >> 8) !=3D PCI_CLASS_DISPLAY_VGA)
+>> +	    (to_pci_dev(dev->dev)->class >> 8) !=3D PCI_CLASS_DISPLAY_VGA)
+>>   		return 0;
+>>  =20
+>>   	fbcon =3D kzalloc(sizeof(struct nouveau_fbdev), GFP_KERNEL);
+>> diff --git a/drivers/gpu/drm/nouveau/nouveau_vga.c b/drivers/gpu/drm/n=
+ouveau/nouveau_vga.c
+>> index c85dd8afa3c3..7c4b374b3eca 100644
+>> --- a/drivers/gpu/drm/nouveau/nouveau_vga.c
+>> +++ b/drivers/gpu/drm/nouveau/nouveau_vga.c
+>> @@ -87,18 +87,20 @@ nouveau_vga_init(struct nouveau_drm *drm)
+>>   {
+>>   	struct drm_device *dev =3D drm->dev;
+>>   	bool runtime =3D nouveau_pmops_runtime();
+>> +	struct pci_dev *pdev;
+>>  =20
+>>   	/* only relevant for PCI devices */
+>> -	if (!dev->pdev)
+>> +	if (!dev_is_pci(dev->dev))
+>>   		return;
+>> +	pdev =3D to_pci_dev(dev->dev);
+>>  =20
+>> -	vga_client_register(dev->pdev, dev, NULL, nouveau_vga_set_decode);
+>> +	vga_client_register(pdev, dev, NULL, nouveau_vga_set_decode);
+>>  =20
+>>   	/* don't register Thunderbolt eGPU with vga_switcheroo */
+>> -	if (pci_is_thunderbolt_attached(dev->pdev))
+>> +	if (pci_is_thunderbolt_attached(pdev))
+>>   		return;
+>>  =20
+>> -	vga_switcheroo_register_client(dev->pdev, &nouveau_switcheroo_ops, r=
+untime);
+>> +	vga_switcheroo_register_client(pdev, &nouveau_switcheroo_ops, runtim=
+e);
+>>  =20
+>>   	if (runtime && nouveau_is_v1_dsm() && !nouveau_is_optimus())
+>>   		vga_switcheroo_init_domain_pm_ops(drm->dev->dev, &drm->vga_pm_doma=
+in);
+>> @@ -109,17 +111,19 @@ nouveau_vga_fini(struct nouveau_drm *drm)
+>>   {
+>>   	struct drm_device *dev =3D drm->dev;
+>>   	bool runtime =3D nouveau_pmops_runtime();
+>> +	struct pci_dev *pdev;
+>>  =20
+>>   	/* only relevant for PCI devices */
+>> -	if (!dev->pdev)
+>> +	if (!dev_is_pci(dev->dev))
+>>   		return;
+>> +	pdev =3D to_pci_dev(dev->dev);
+>>  =20
+>> -	vga_client_register(dev->pdev, NULL, NULL, NULL);
+>> +	vga_client_register(pdev, NULL, NULL, NULL);
+>>  =20
+>> -	if (pci_is_thunderbolt_attached(dev->pdev))
+>> +	if (pci_is_thunderbolt_attached(pdev))
+>>   		return;
+>>  =20
+>> -	vga_switcheroo_unregister_client(dev->pdev);
+>> +	vga_switcheroo_unregister_client(pdev);
+>>   	if (runtime && nouveau_is_v1_dsm() && !nouveau_is_optimus())
+>>   		vga_switcheroo_fini_domain_pm_ops(drm->dev->dev);
+>>   }
+>> --=20
+>> 2.29.2
+>>
+>> _______________________________________________
+>> dri-devel mailing list
+>> dri-devel@lists.freedesktop.org
+>> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+
+
+--h9BtDHO1BkSllNSHbFLWYUa8dv8v2U8Rv--
+
+--4bE8wtoD18K52eefsY2TD0VT1msAv6pGQ
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAl/GEdsFAwAAAAAACgkQlh/E3EQov+Df
+kRAAvj2+LkBCXz/2aIbjZjTpvfqk5RKkEA3ePFiR6UttUmznYEPIJkPmdsqr2JNUU5YI85JJRvM7
+7/QvWO4KXVqYbbPAzFhdHqySRrSnWpV89jseDccMSnjcHEKc1cNj386s3YDWeJ3/pmAuysLnOU30
+bTdrdkKpYL4CvHWI6RQyGG/5D65TteLwDT6ZAXThOVthuraz2XvGwt2pOhVSiwX1mNfibm2lQ0G6
+7b7sv+5l5sKaq5uETZi4iW++TmdotLrd40VioW/dttTfBwtfiIFHZm2jcO8Kb0+WkpZ4JKEDPZT2
+nfxMeK2euCeehZYCWFz4xlDg3SiBAbTTB2uhasE7McPPA25P3MoR4d8Ivf237PbA1EVSGNuTshKU
+zc4S9Rnw6zyqD9lc5rlofsyDUrESgMGQlbneHb52dUwFxIcgfdvg3nitUSBGw9deFIRDd6Rjrbu+
++ns4Z223cVq+TEmRNSERvAxVwCDlSN2x7Q0U4P0MIBd/4cPKsmwOvjZlWlGMfpTKlfkhWyMVV0aZ
+mK6WZxRrV827KprLxdT9vSGLlPNEbYYOz1dqRsaRgtSk+XhplfGJwPBnsbPiUVt7NlOGmltFHFl8
+8+vR4ygf4RBTIO4Y23B8ba2NwuvqxMEo9asKO0hZ1IqPbQQYYRZnkqXtZtKMlIo7TUb41I8gNFHR
+Yc4=
+=91fY
+-----END PGP SIGNATURE-----
+
+--4bE8wtoD18K52eefsY2TD0VT1msAv6pGQ--
+
+--===============3563482581291003900==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3563482581291003900==--
