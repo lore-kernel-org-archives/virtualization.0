@@ -7,70 +7,69 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FE5EC83012
-	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:12 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27E31C64E7B
+	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:14 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 931522085B
-	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 931522085B
+	by mail.kernel.org (Postfix) with ESMTPS id 957FF2086A
+	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 957FF2086A
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 30E8D88139;
-	Tue,  1 Dec 2020 10:36:11 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id C861E86B6D;
+	Tue,  1 Dec 2020 10:36:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DsHyqFTB3m5Q; Tue,  1 Dec 2020 10:36:03 +0000 (UTC)
+	with ESMTP id QzH0zAeq09FG; Tue,  1 Dec 2020 10:36:07 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 442D3880D0;
-	Tue,  1 Dec 2020 10:36:03 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id A6C9486B75;
+	Tue,  1 Dec 2020 10:36:07 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 25092C1D9F;
-	Tue,  1 Dec 2020 10:36:03 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8F1A7C1D9F;
+	Tue,  1 Dec 2020 10:36:07 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id ECF77C0052
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F20AFC0052
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 10:35:59 +0000 (UTC)
+ Tue,  1 Dec 2020 10:36:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id D9FE087517
+ by hemlock.osuosl.org (Postfix) with ESMTP id EE58887525
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 10:35:59 +0000 (UTC)
+ Tue,  1 Dec 2020 10:36:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id WxizzWMzQKcg
+ with ESMTP id pTtrSAJmdiuu
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 10:35:59 +0000 (UTC)
+ Tue,  1 Dec 2020 10:36:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by hemlock.osuosl.org (Postfix) with ESMTPS id C0C448750F
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 9DCD487517
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 10:35:58 +0000 (UTC)
+ Tue,  1 Dec 2020 10:36:04 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 60283AD4A;
- Tue,  1 Dec 2020 10:35:57 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id 43EF4ACF1;
+ Tue,  1 Dec 2020 10:36:03 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: airlied@linux.ie,
 	daniel@ffwll.ch
-Subject: [PATCH v2 11/20] drm/i915/gvt: Remove references to struct
+Subject: [PATCH v2 19/20] drm/vmwgfx: Remove references to struct
  drm_device.pdev
-Date: Tue,  1 Dec 2020 11:35:33 +0100
-Message-Id: <20201201103542.2182-12-tzimmermann@suse.de>
+Date: Tue,  1 Dec 2020 11:35:41 +0100
+Message-Id: <20201201103542.2182-20-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201103542.2182-1-tzimmermann@suse.de>
 References: <20201201103542.2182-1-tzimmermann@suse.de>
 MIME-Version: 1.0
-Cc: Jani Nikula <jani.nikula@linux.intel.com>, nouveau@lists.freedesktop.org,
- intel-gfx@lists.freedesktop.org,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+Cc: Sam Ravnborg <sam@ravnborg.org>, nouveau@lists.freedesktop.org,
+ intel-gfx@lists.freedesktop.org, Roland Scheidegger <sroland@vmware.com>,
  dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
  amd-gfx@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, spice-devel@lists.freedesktop.org,
- intel-gvt-dev@lists.freedesktop.org
+ spice-devel@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org,
+ Zack Rusin <zackr@vmware.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -87,205 +86,182 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Using struct drm_device.pdev is deprecated. Convert i915 to struct
+Using struct drm_device.pdev is deprecated. Convert vmwgfx to struct
 drm_device.dev. No functional changes.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Reviewed-by: Zack Rusin <zackr@vmware.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+Cc: Roland Scheidegger <sroland@vmware.com>
 ---
- drivers/gpu/drm/i915/gvt/cfg_space.c |  5 +++--
- drivers/gpu/drm/i915/gvt/firmware.c  | 10 +++++-----
- drivers/gpu/drm/i915/gvt/gtt.c       | 12 ++++++------
- drivers/gpu/drm/i915/gvt/gvt.c       |  6 +++---
- drivers/gpu/drm/i915/gvt/kvmgt.c     |  4 ++--
- 5 files changed, 19 insertions(+), 18 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf.c |  8 ++++----
+ drivers/gpu/drm/vmwgfx/vmwgfx_drv.c    | 27 +++++++++++++-------------
+ drivers/gpu/drm/vmwgfx/vmwgfx_fb.c     |  2 +-
+ 3 files changed, 19 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gvt/cfg_space.c b/drivers/gpu/drm/i915/gvt/cfg_space.c
-index ad86c5eb5bba..b490e3db2e38 100644
---- a/drivers/gpu/drm/i915/gvt/cfg_space.c
-+++ b/drivers/gpu/drm/i915/gvt/cfg_space.c
-@@ -374,6 +374,7 @@ void intel_vgpu_init_cfg_space(struct intel_vgpu *vgpu,
- 			       bool primary)
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf.c b/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf.c
+index 9a9fe10d829b..83a8d34704ea 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_cmdbuf.c
+@@ -1230,7 +1230,7 @@ int vmw_cmdbuf_set_pool_size(struct vmw_cmdbuf_man *man,
+ 
+ 	/* First, try to allocate a huge chunk of DMA memory */
+ 	size = PAGE_ALIGN(size);
+-	man->map = dma_alloc_coherent(&dev_priv->dev->pdev->dev, size,
++	man->map = dma_alloc_coherent(dev_priv->dev->dev, size,
+ 				      &man->handle, GFP_KERNEL);
+ 	if (man->map) {
+ 		man->using_mob = false;
+@@ -1313,7 +1313,7 @@ struct vmw_cmdbuf_man *vmw_cmdbuf_man_create(struct vmw_private *dev_priv)
+ 	man->num_contexts = (dev_priv->capabilities & SVGA_CAP_HP_CMD_QUEUE) ?
+ 		2 : 1;
+ 	man->headers = dma_pool_create("vmwgfx cmdbuf",
+-				       &dev_priv->dev->pdev->dev,
++				       dev_priv->dev->dev,
+ 				       sizeof(SVGACBHeader),
+ 				       64, PAGE_SIZE);
+ 	if (!man->headers) {
+@@ -1322,7 +1322,7 @@ struct vmw_cmdbuf_man *vmw_cmdbuf_man_create(struct vmw_private *dev_priv)
+ 	}
+ 
+ 	man->dheaders = dma_pool_create("vmwgfx inline cmdbuf",
+-					&dev_priv->dev->pdev->dev,
++					dev_priv->dev->dev,
+ 					sizeof(struct vmw_cmdbuf_dheader),
+ 					64, PAGE_SIZE);
+ 	if (!man->dheaders) {
+@@ -1387,7 +1387,7 @@ void vmw_cmdbuf_remove_pool(struct vmw_cmdbuf_man *man)
+ 		ttm_bo_put(man->cmd_space);
+ 		man->cmd_space = NULL;
+ 	} else {
+-		dma_free_coherent(&man->dev_priv->dev->pdev->dev,
++		dma_free_coherent(man->dev_priv->dev->dev,
+ 				  man->size, man->map, man->handle);
+ 	}
+ }
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
+index 216daf93022c..e63e08f5b14f 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
+@@ -652,6 +652,7 @@ static int vmw_driver_load(struct drm_device *dev, unsigned long chipset)
+ 	enum vmw_res_type i;
+ 	bool refuse_dma = false;
+ 	char host_log[100] = {0};
++	struct pci_dev *pdev = to_pci_dev(dev->dev);
+ 
+ 	dev_priv = kzalloc(sizeof(*dev_priv), GFP_KERNEL);
+ 	if (unlikely(!dev_priv)) {
+@@ -659,7 +660,7 @@ static int vmw_driver_load(struct drm_device *dev, unsigned long chipset)
+ 		return -ENOMEM;
+ 	}
+ 
+-	pci_set_master(dev->pdev);
++	pci_set_master(pdev);
+ 
+ 	dev_priv->dev = dev;
+ 	dev_priv->vmw_chipset = chipset;
+@@ -688,9 +689,9 @@ static int vmw_driver_load(struct drm_device *dev, unsigned long chipset)
+ 
+ 	dev_priv->used_memory_size = 0;
+ 
+-	dev_priv->io_start = pci_resource_start(dev->pdev, 0);
+-	dev_priv->vram_start = pci_resource_start(dev->pdev, 1);
+-	dev_priv->mmio_start = pci_resource_start(dev->pdev, 2);
++	dev_priv->io_start = pci_resource_start(pdev, 0);
++	dev_priv->vram_start = pci_resource_start(pdev, 1);
++	dev_priv->mmio_start = pci_resource_start(pdev, 2);
+ 
+ 	dev_priv->assume_16bpp = !!vmw_assume_16bpp;
+ 
+@@ -840,7 +841,7 @@ static int vmw_driver_load(struct drm_device *dev, unsigned long chipset)
+ 
+ 	dev->dev_private = dev_priv;
+ 
+-	ret = pci_request_regions(dev->pdev, "vmwgfx probe");
++	ret = pci_request_regions(pdev, "vmwgfx probe");
+ 	dev_priv->stealth = (ret != 0);
+ 	if (dev_priv->stealth) {
+ 		/**
+@@ -849,7 +850,7 @@ static int vmw_driver_load(struct drm_device *dev, unsigned long chipset)
+ 
+ 		DRM_INFO("It appears like vesafb is loaded. "
+ 			 "Ignore above error if any.\n");
+-		ret = pci_request_region(dev->pdev, 2, "vmwgfx stealth probe");
++		ret = pci_request_region(pdev, 2, "vmwgfx stealth probe");
+ 		if (unlikely(ret != 0)) {
+ 			DRM_ERROR("Failed reserving the SVGA MMIO resource.\n");
+ 			goto out_no_device;
+@@ -857,7 +858,7 @@ static int vmw_driver_load(struct drm_device *dev, unsigned long chipset)
+ 	}
+ 
+ 	if (dev_priv->capabilities & SVGA_CAP_IRQMASK) {
+-		ret = vmw_irq_install(dev, dev->pdev->irq);
++		ret = vmw_irq_install(dev, pdev->irq);
+ 		if (ret != 0) {
+ 			DRM_ERROR("Failed installing irq: %d\n", ret);
+ 			goto out_no_irq;
+@@ -1003,9 +1004,9 @@ static int vmw_driver_load(struct drm_device *dev, unsigned long chipset)
+ 		vmw_irq_uninstall(dev_priv->dev);
+ out_no_irq:
+ 	if (dev_priv->stealth)
+-		pci_release_region(dev->pdev, 2);
++		pci_release_region(pdev, 2);
+ 	else
+-		pci_release_regions(dev->pdev);
++		pci_release_regions(pdev);
+ out_no_device:
+ 	ttm_object_device_release(&dev_priv->tdev);
+ out_err4:
+@@ -1023,6 +1024,7 @@ static int vmw_driver_load(struct drm_device *dev, unsigned long chipset)
+ static void vmw_driver_unload(struct drm_device *dev)
  {
- 	struct intel_gvt *gvt = vgpu->gvt;
-+	struct pci_dev *pdev = to_pci_dev(gvt->gt->i915->drm.dev);
- 	const struct intel_gvt_device_info *info = &gvt->device_info;
- 	u16 *gmch_ctl;
- 	u8 next;
-@@ -407,9 +408,9 @@ void intel_vgpu_init_cfg_space(struct intel_vgpu *vgpu,
- 	memset(vgpu_cfg_space(vgpu) + INTEL_GVT_PCI_OPREGION, 0, 4);
+ 	struct vmw_private *dev_priv = vmw_priv(dev);
++	struct pci_dev *pdev = to_pci_dev(dev->dev);
+ 	enum vmw_res_type i;
  
- 	vgpu->cfg_space.bar[INTEL_GVT_PCI_BAR_GTTMMIO].size =
--		pci_resource_len(gvt->gt->i915->drm.pdev, 0);
-+		pci_resource_len(pdev, 0);
- 	vgpu->cfg_space.bar[INTEL_GVT_PCI_BAR_APERTURE].size =
--		pci_resource_len(gvt->gt->i915->drm.pdev, 2);
-+		pci_resource_len(pdev, 2);
+ 	unregister_pm_notifier(&dev_priv->pm_nb);
+@@ -1054,9 +1056,9 @@ static void vmw_driver_unload(struct drm_device *dev)
+ 	if (dev_priv->capabilities & SVGA_CAP_IRQMASK)
+ 		vmw_irq_uninstall(dev_priv->dev);
+ 	if (dev_priv->stealth)
+-		pci_release_region(dev->pdev, 2);
++		pci_release_region(pdev, 2);
+ 	else
+-		pci_release_regions(dev->pdev);
++		pci_release_regions(pdev);
  
- 	memset(vgpu_cfg_space(vgpu) + PCI_ROM_ADDRESS, 0, 4);
+ 	ttm_object_device_release(&dev_priv->tdev);
+ 	memunmap(dev_priv->mmio_virt);
+@@ -1409,7 +1411,7 @@ static int vmw_pm_freeze(struct device *kdev)
  
-diff --git a/drivers/gpu/drm/i915/gvt/firmware.c b/drivers/gpu/drm/i915/gvt/firmware.c
-index 990a181094e3..1a8274a3f4b1 100644
---- a/drivers/gpu/drm/i915/gvt/firmware.c
-+++ b/drivers/gpu/drm/i915/gvt/firmware.c
-@@ -76,7 +76,7 @@ static int mmio_snapshot_handler(struct intel_gvt *gvt, u32 offset, void *data)
- static int expose_firmware_sysfs(struct intel_gvt *gvt)
- {
- 	struct intel_gvt_device_info *info = &gvt->device_info;
--	struct pci_dev *pdev = gvt->gt->i915->drm.pdev;
-+	struct pci_dev *pdev = to_pci_dev(gvt->gt->i915->drm.dev);
- 	struct gvt_firmware_header *h;
- 	void *firmware;
- 	void *p;
-@@ -127,7 +127,7 @@ static int expose_firmware_sysfs(struct intel_gvt *gvt)
- 
- static void clean_firmware_sysfs(struct intel_gvt *gvt)
- {
--	struct pci_dev *pdev = gvt->gt->i915->drm.pdev;
-+	struct pci_dev *pdev = to_pci_dev(gvt->gt->i915->drm.dev);
- 
- 	device_remove_bin_file(&pdev->dev, &firmware_attr);
- 	vfree(firmware_attr.private);
-@@ -151,7 +151,7 @@ static int verify_firmware(struct intel_gvt *gvt,
- 			   const struct firmware *fw)
- {
- 	struct intel_gvt_device_info *info = &gvt->device_info;
--	struct pci_dev *pdev = gvt->gt->i915->drm.pdev;
-+	struct pci_dev *pdev = to_pci_dev(gvt->gt->i915->drm.dev);
- 	struct gvt_firmware_header *h;
- 	unsigned long id, crc32_start;
- 	const void *mem;
-@@ -205,7 +205,7 @@ static int verify_firmware(struct intel_gvt *gvt,
- int intel_gvt_load_firmware(struct intel_gvt *gvt)
- {
- 	struct intel_gvt_device_info *info = &gvt->device_info;
--	struct pci_dev *pdev = gvt->gt->i915->drm.pdev;
-+	struct pci_dev *pdev = to_pci_dev(gvt->gt->i915->drm.dev);
- 	struct intel_gvt_firmware *firmware = &gvt->firmware;
- 	struct gvt_firmware_header *h;
- 	const struct firmware *fw;
-@@ -240,7 +240,7 @@ int intel_gvt_load_firmware(struct intel_gvt *gvt)
- 
- 	gvt_dbg_core("request hw state firmware %s...\n", path);
- 
--	ret = request_firmware(&fw, path, &gvt->gt->i915->drm.pdev->dev);
-+	ret = request_firmware(&fw, path, gvt->gt->i915->drm.dev);
- 	kfree(path);
- 
- 	if (ret)
-diff --git a/drivers/gpu/drm/i915/gvt/gtt.c b/drivers/gpu/drm/i915/gvt/gtt.c
-index 897c007ea96a..6d12a5a401f6 100644
---- a/drivers/gpu/drm/i915/gvt/gtt.c
-+++ b/drivers/gpu/drm/i915/gvt/gtt.c
-@@ -746,7 +746,7 @@ static int detach_oos_page(struct intel_vgpu *vgpu,
- 
- static void ppgtt_free_spt(struct intel_vgpu_ppgtt_spt *spt)
- {
--	struct device *kdev = &spt->vgpu->gvt->gt->i915->drm.pdev->dev;
-+	struct device *kdev = spt->vgpu->gvt->gt->i915->drm.dev;
- 
- 	trace_spt_free(spt->vgpu->id, spt, spt->guest_page.type);
- 
-@@ -831,7 +831,7 @@ static int reclaim_one_ppgtt_mm(struct intel_gvt *gvt);
- static struct intel_vgpu_ppgtt_spt *ppgtt_alloc_spt(
- 		struct intel_vgpu *vgpu, enum intel_gvt_gtt_type type)
- {
--	struct device *kdev = &vgpu->gvt->gt->i915->drm.pdev->dev;
-+	struct device *kdev = vgpu->gvt->gt->i915->drm.dev;
- 	struct intel_vgpu_ppgtt_spt *spt = NULL;
- 	dma_addr_t daddr;
- 	int ret;
-@@ -2402,7 +2402,7 @@ static int alloc_scratch_pages(struct intel_vgpu *vgpu,
- 				vgpu->gvt->device_info.gtt_entry_size_shift;
- 	void *scratch_pt;
- 	int i;
--	struct device *dev = &vgpu->gvt->gt->i915->drm.pdev->dev;
-+	struct device *dev = vgpu->gvt->gt->i915->drm.dev;
- 	dma_addr_t daddr;
- 
- 	if (drm_WARN_ON(&i915->drm,
-@@ -2460,7 +2460,7 @@ static int alloc_scratch_pages(struct intel_vgpu *vgpu,
- static int release_scratch_page_tree(struct intel_vgpu *vgpu)
- {
- 	int i;
--	struct device *dev = &vgpu->gvt->gt->i915->drm.pdev->dev;
-+	struct device *dev = vgpu->gvt->gt->i915->drm.dev;
- 	dma_addr_t daddr;
- 
- 	for (i = GTT_TYPE_PPGTT_PTE_PT; i < GTT_TYPE_MAX; i++) {
-@@ -2732,7 +2732,7 @@ int intel_gvt_init_gtt(struct intel_gvt *gvt)
- {
- 	int ret;
- 	void *page;
--	struct device *dev = &gvt->gt->i915->drm.pdev->dev;
-+	struct device *dev = gvt->gt->i915->drm.dev;
- 	dma_addr_t daddr;
- 
- 	gvt_dbg_core("init gtt\n");
-@@ -2781,7 +2781,7 @@ int intel_gvt_init_gtt(struct intel_gvt *gvt)
-  */
- void intel_gvt_clean_gtt(struct intel_gvt *gvt)
- {
--	struct device *dev = &gvt->gt->i915->drm.pdev->dev;
-+	struct device *dev = gvt->gt->i915->drm.dev;
- 	dma_addr_t daddr = (dma_addr_t)(gvt->gtt.scratch_mfn <<
- 					I915_GTT_PAGE_SHIFT);
- 
-diff --git a/drivers/gpu/drm/i915/gvt/gvt.c b/drivers/gpu/drm/i915/gvt/gvt.c
-index d1d8ee4a5f16..aa7fc0dd1db5 100644
---- a/drivers/gpu/drm/i915/gvt/gvt.c
-+++ b/drivers/gpu/drm/i915/gvt/gvt.c
-@@ -50,7 +50,7 @@ static struct intel_vgpu_type *intel_gvt_find_vgpu_type(struct intel_gvt *gvt,
- 		const char *name)
- {
- 	const char *driver_name =
--		dev_driver_string(&gvt->gt->i915->drm.pdev->dev);
-+		dev_driver_string(gvt->gt->i915->drm.dev);
- 	int i;
- 
- 	name += strlen(driver_name) + 1;
-@@ -189,7 +189,7 @@ static const struct intel_gvt_ops intel_gvt_ops = {
- static void init_device_info(struct intel_gvt *gvt)
- {
- 	struct intel_gvt_device_info *info = &gvt->device_info;
--	struct pci_dev *pdev = gvt->gt->i915->drm.pdev;
-+	struct pci_dev *pdev = to_pci_dev(gvt->gt->i915->drm.dev);
- 
- 	info->max_support_vgpus = 8;
- 	info->cfg_space_size = PCI_CFG_SPACE_EXP_SIZE;
-@@ -376,7 +376,7 @@ int intel_gvt_init_device(struct drm_i915_private *i915)
- 	intel_gvt_debugfs_init(gvt);
- 
- 	gvt_dbg_core("gvt device initialization is done\n");
--	intel_gvt_host.dev = &i915->drm.pdev->dev;
-+	intel_gvt_host.dev = i915->drm.dev;
- 	intel_gvt_host.initialized = true;
+ 	vmw_fence_fifo_down(dev_priv->fman);
+ 	__vmw_svga_disable(dev_priv);
+-	
++
+ 	vmw_release_device_late(dev_priv);
  	return 0;
+ }
+@@ -1520,7 +1522,6 @@ static int vmw_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 		goto err_pci_disable_device;
+ 	}
  
-diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-index 60f1a386dd06..551f00024e99 100644
---- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-+++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-@@ -221,7 +221,7 @@ static int gvt_pin_guest_page(struct intel_vgpu *vgpu, unsigned long gfn,
- static int gvt_dma_map_page(struct intel_vgpu *vgpu, unsigned long gfn,
- 		dma_addr_t *dma_addr, unsigned long size)
+-	dev->pdev = pdev;
+ 	pci_set_drvdata(pdev, dev);
+ 
+ 	ret = vmw_driver_load(dev, ent->driver_data);
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_fb.c b/drivers/gpu/drm/vmwgfx/vmwgfx_fb.c
+index 4d60201037d1..a244b6c3e5a1 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_fb.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_fb.c
+@@ -638,7 +638,7 @@ static const struct fb_ops vmw_fb_ops = {
+ 
+ int vmw_fb_init(struct vmw_private *vmw_priv)
  {
--	struct device *dev = &vgpu->gvt->gt->i915->drm.pdev->dev;
-+	struct device *dev = vgpu->gvt->gt->i915->drm.dev;
- 	struct page *page = NULL;
- 	int ret;
- 
-@@ -244,7 +244,7 @@ static int gvt_dma_map_page(struct intel_vgpu *vgpu, unsigned long gfn,
- static void gvt_dma_unmap_page(struct intel_vgpu *vgpu, unsigned long gfn,
- 		dma_addr_t dma_addr, unsigned long size)
- {
--	struct device *dev = &vgpu->gvt->gt->i915->drm.pdev->dev;
-+	struct device *dev = vgpu->gvt->gt->i915->drm.dev;
- 
- 	dma_unmap_page(dev, dma_addr, size, PCI_DMA_BIDIRECTIONAL);
- 	gvt_unpin_guest_page(vgpu, gfn, size);
+-	struct device *device = &vmw_priv->dev->pdev->dev;
++	struct device *device = vmw_priv->dev->dev;
+ 	struct vmw_fb_par *par;
+ 	struct fb_info *info;
+ 	unsigned fb_width, fb_height;
 -- 
 2.29.2
 
