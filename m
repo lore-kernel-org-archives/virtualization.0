@@ -7,69 +7,67 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BD47C83016
-	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2E6BC64E7B
+	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:06 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9CB5C2080A
-	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9CB5C2080A
+	by mail.kernel.org (Postfix) with ESMTPS id 22C912080A
+	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 22C912080A
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id ACD6286B7B;
-	Tue,  1 Dec 2020 10:36:03 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id B126686AAA;
+	Tue,  1 Dec 2020 10:36:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Iek55qsbtws1; Tue,  1 Dec 2020 10:36:02 +0000 (UTC)
+	with ESMTP id 63oKZLvwqC6S; Tue,  1 Dec 2020 10:36:04 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id B999686B66;
-	Tue,  1 Dec 2020 10:36:02 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 7363286B75;
+	Tue,  1 Dec 2020 10:36:03 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9D7BAC1D9F;
-	Tue,  1 Dec 2020 10:36:02 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 29D7DC163C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 60092C1D9F;
+	Tue,  1 Dec 2020 10:36:03 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 71D72C0052
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 10:35:59 +0000 (UTC)
+ Tue,  1 Dec 2020 10:36:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 1853D87517
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 61A1F86AAA
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  1 Dec 2020 10:36:00 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Z4aV2xrcB3YE
  for <virtualization@lists.linux-foundation.org>;
  Tue,  1 Dec 2020 10:35:59 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ppDxGNSG+Zix
- for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 10:35:58 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 0C519874F3
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 715B286B66
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 10:35:58 +0000 (UTC)
+ Tue,  1 Dec 2020 10:35:59 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 94337AD18;
- Tue,  1 Dec 2020 10:35:56 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id 15B2EAD77;
+ Tue,  1 Dec 2020 10:35:58 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: airlied@linux.ie,
 	daniel@ffwll.ch
-Subject: [PATCH v2 10/20] drm/i915/gt: Remove references to struct
+Subject: [PATCH v2 12/20] drm/mgag200: Remove references to struct
  drm_device.pdev
-Date: Tue,  1 Dec 2020 11:35:32 +0100
-Message-Id: <20201201103542.2182-11-tzimmermann@suse.de>
+Date: Tue,  1 Dec 2020 11:35:34 +0100
+Message-Id: <20201201103542.2182-13-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201103542.2182-1-tzimmermann@suse.de>
 References: <20201201103542.2182-1-tzimmermann@suse.de>
 MIME-Version: 1.0
-Cc: Jani Nikula <jani.nikula@linux.intel.com>, nouveau@lists.freedesktop.org,
- intel-gfx@lists.freedesktop.org,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- amd-gfx@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, spice-devel@lists.freedesktop.org,
+Cc: Sam Ravnborg <sam@ravnborg.org>, nouveau@lists.freedesktop.org,
+ intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, amd-gfx@lists.freedesktop.org,
+ Thomas Zimmermann <tzimmermann@suse.de>, spice-devel@lists.freedesktop.org,
  intel-gvt-dev@lists.freedesktop.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -87,148 +85,154 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Using struct drm_device.pdev is deprecated. Convert i915 to struct
+Using struct drm_device.pdev is deprecated. Convert mgag200 to struct
 drm_device.dev. No functional changes.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
 ---
- drivers/gpu/drm/i915/gt/intel_engine_cs.c |  2 +-
- drivers/gpu/drm/i915/gt/intel_ggtt.c      | 10 +++++-----
- drivers/gpu/drm/i915/gt/intel_ppgtt.c     |  2 +-
- drivers/gpu/drm/i915/gt/intel_rc6.c       |  4 ++--
- drivers/gpu/drm/i915/gt/intel_reset.c     |  6 +++---
- 5 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/mgag200/mgag200_drv.c | 20 +++++++++++---------
+ drivers/gpu/drm/mgag200/mgag200_i2c.c |  2 +-
+ drivers/gpu/drm/mgag200/mgag200_mm.c  | 10 ++++++----
+ 3 files changed, 18 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gt/intel_engine_cs.c b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-index d4e988b2816a..71bd2e22e7c6 100644
---- a/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-+++ b/drivers/gpu/drm/i915/gt/intel_engine_cs.c
-@@ -1228,7 +1228,7 @@ bool intel_engine_is_idle(struct intel_engine_cs *engine)
- 
- 	/* Waiting to drain ELSP? */
- 	if (execlists_active(&engine->execlists)) {
--		synchronize_hardirq(engine->i915->drm.pdev->irq);
-+		synchronize_hardirq(to_pci_dev(engine->i915->drm.dev)->irq);
- 
- 		intel_engine_flush_submission(engine);
- 
-diff --git a/drivers/gpu/drm/i915/gt/intel_ggtt.c b/drivers/gpu/drm/i915/gt/intel_ggtt.c
-index cf94525be2c1..591c6a2a0a8f 100644
---- a/drivers/gpu/drm/i915/gt/intel_ggtt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_ggtt.c
-@@ -760,7 +760,7 @@ static unsigned int chv_get_total_gtt_size(u16 gmch_ctrl)
- static int ggtt_probe_common(struct i915_ggtt *ggtt, u64 size)
+diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.c b/drivers/gpu/drm/mgag200/mgag200_drv.c
+index a977c9f49719..4e4c105f9a50 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_drv.c
++++ b/drivers/gpu/drm/mgag200/mgag200_drv.c
+@@ -47,10 +47,11 @@ static const struct drm_driver mgag200_driver = {
+ static bool mgag200_has_sgram(struct mga_device *mdev)
  {
- 	struct drm_i915_private *i915 = ggtt->vm.i915;
--	struct pci_dev *pdev = i915->drm.pdev;
-+	struct pci_dev *pdev = to_pci_dev(i915->drm.dev);
- 	phys_addr_t phys_addr;
+ 	struct drm_device *dev = &mdev->base;
++	struct pci_dev *pdev = to_pci_dev(dev->dev);
+ 	u32 option;
  	int ret;
  
-@@ -830,7 +830,7 @@ static struct resource pci_resource(struct pci_dev *pdev, int bar)
- static int gen8_gmch_probe(struct i915_ggtt *ggtt)
+-	ret = pci_read_config_dword(dev->pdev, PCI_MGA_OPTION, &option);
++	ret = pci_read_config_dword(pdev, PCI_MGA_OPTION, &option);
+ 	if (drm_WARN(dev, ret, "failed to read PCI config dword: %d\n", ret))
+ 		return false;
+ 
+@@ -60,6 +61,7 @@ static bool mgag200_has_sgram(struct mga_device *mdev)
+ static int mgag200_regs_init(struct mga_device *mdev)
  {
- 	struct drm_i915_private *i915 = ggtt->vm.i915;
--	struct pci_dev *pdev = i915->drm.pdev;
-+	struct pci_dev *pdev = to_pci_dev(i915->drm.dev);
- 	unsigned int size;
- 	u16 snb_gmch_ctl;
+ 	struct drm_device *dev = &mdev->base;
++	struct pci_dev *pdev = to_pci_dev(dev->dev);
+ 	u32 option, option2;
+ 	u8 crtcext3;
  
-@@ -974,7 +974,7 @@ static u64 iris_pte_encode(dma_addr_t addr,
- static int gen6_gmch_probe(struct i915_ggtt *ggtt)
+@@ -99,13 +101,13 @@ static int mgag200_regs_init(struct mga_device *mdev)
+ 	}
+ 
+ 	if (option)
+-		pci_write_config_dword(dev->pdev, PCI_MGA_OPTION, option);
++		pci_write_config_dword(pdev, PCI_MGA_OPTION, option);
+ 	if (option2)
+-		pci_write_config_dword(dev->pdev, PCI_MGA_OPTION2, option2);
++		pci_write_config_dword(pdev, PCI_MGA_OPTION2, option2);
+ 
+ 	/* BAR 1 contains registers */
+-	mdev->rmmio_base = pci_resource_start(dev->pdev, 1);
+-	mdev->rmmio_size = pci_resource_len(dev->pdev, 1);
++	mdev->rmmio_base = pci_resource_start(pdev, 1);
++	mdev->rmmio_size = pci_resource_len(pdev, 1);
+ 
+ 	if (!devm_request_mem_region(dev->dev, mdev->rmmio_base,
+ 				     mdev->rmmio_size, "mgadrmfb_mmio")) {
+@@ -113,7 +115,7 @@ static int mgag200_regs_init(struct mga_device *mdev)
+ 		return -ENOMEM;
+ 	}
+ 
+-	mdev->rmmio = pcim_iomap(dev->pdev, 1, 0);
++	mdev->rmmio = pcim_iomap(pdev, 1, 0);
+ 	if (mdev->rmmio == NULL)
+ 		return -ENOMEM;
+ 
+@@ -218,6 +220,7 @@ static void mgag200_g200_interpret_bios(struct mga_device *mdev,
+ static void mgag200_g200_init_refclk(struct mga_device *mdev)
  {
- 	struct drm_i915_private *i915 = ggtt->vm.i915;
--	struct pci_dev *pdev = i915->drm.pdev;
-+	struct pci_dev *pdev = to_pci_dev(i915->drm.dev);
- 	unsigned int size;
- 	u16 snb_gmch_ctl;
+ 	struct drm_device *dev = &mdev->base;
++	struct pci_dev *pdev = to_pci_dev(dev->dev);
+ 	unsigned char __iomem *rom;
+ 	unsigned char *bios;
+ 	size_t size;
+@@ -226,7 +229,7 @@ static void mgag200_g200_init_refclk(struct mga_device *mdev)
+ 	mdev->model.g200.pclk_max = 230000;
+ 	mdev->model.g200.ref_clk = 27050;
  
-@@ -1037,7 +1037,7 @@ static int i915_gmch_probe(struct i915_ggtt *ggtt)
- 	phys_addr_t gmadr_base;
- 	int ret;
+-	rom = pci_map_rom(dev->pdev, &size);
++	rom = pci_map_rom(pdev, &size);
+ 	if (!rom)
+ 		return;
  
--	ret = intel_gmch_probe(i915->bridge_dev, i915->drm.pdev, NULL);
-+	ret = intel_gmch_probe(i915->bridge_dev, to_pci_dev(i915->drm.dev), NULL);
- 	if (!ret) {
- 		drm_err(&i915->drm, "failed to set up gmch\n");
- 		return -EIO;
-@@ -1077,7 +1077,7 @@ static int ggtt_probe_hw(struct i915_ggtt *ggtt, struct intel_gt *gt)
+@@ -244,7 +247,7 @@ static void mgag200_g200_init_refclk(struct mga_device *mdev)
  
- 	ggtt->vm.gt = gt;
- 	ggtt->vm.i915 = i915;
--	ggtt->vm.dma = &i915->drm.pdev->dev;
-+	ggtt->vm.dma = i915->drm.dev;
- 
- 	if (INTEL_GEN(i915) <= 5)
- 		ret = i915_gmch_probe(ggtt);
-diff --git a/drivers/gpu/drm/i915/gt/intel_ppgtt.c b/drivers/gpu/drm/i915/gt/intel_ppgtt.c
-index 46d9aceda64c..01b7d08532f2 100644
---- a/drivers/gpu/drm/i915/gt/intel_ppgtt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_ppgtt.c
-@@ -301,7 +301,7 @@ void ppgtt_init(struct i915_ppgtt *ppgtt, struct intel_gt *gt)
- 
- 	ppgtt->vm.gt = gt;
- 	ppgtt->vm.i915 = i915;
--	ppgtt->vm.dma = &i915->drm.pdev->dev;
-+	ppgtt->vm.dma = i915->drm.dev;
- 	ppgtt->vm.total = BIT_ULL(INTEL_INFO(i915)->ppgtt_size);
- 
- 	i915_address_space_init(&ppgtt->vm, VM_CLASS_PPGTT);
-diff --git a/drivers/gpu/drm/i915/gt/intel_rc6.c b/drivers/gpu/drm/i915/gt/intel_rc6.c
-index d7b8e4457fc2..cce53fb9589c 100644
---- a/drivers/gpu/drm/i915/gt/intel_rc6.c
-+++ b/drivers/gpu/drm/i915/gt/intel_rc6.c
-@@ -485,14 +485,14 @@ static bool rc6_supported(struct intel_rc6 *rc6)
- static void rpm_get(struct intel_rc6 *rc6)
- {
- 	GEM_BUG_ON(rc6->wakeref);
--	pm_runtime_get_sync(&rc6_to_i915(rc6)->drm.pdev->dev);
-+	pm_runtime_get_sync(rc6_to_i915(rc6)->drm.dev);
- 	rc6->wakeref = true;
+ 	vfree(bios);
+ out:
+-	pci_unmap_rom(dev->pdev, rom);
++	pci_unmap_rom(pdev, rom);
  }
  
- static void rpm_put(struct intel_rc6 *rc6)
+ static void mgag200_g200se_init_unique_id(struct mga_device *mdev)
+@@ -301,7 +304,6 @@ mgag200_device_create(struct pci_dev *pdev, unsigned long flags)
+ 		return mdev;
+ 	dev = &mdev->base;
+ 
+-	dev->pdev = pdev;
+ 	pci_set_drvdata(pdev, dev);
+ 
+ 	ret = mgag200_device_init(mdev, flags);
+diff --git a/drivers/gpu/drm/mgag200/mgag200_i2c.c b/drivers/gpu/drm/mgag200/mgag200_i2c.c
+index 09731e614e46..ac8e34eef513 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_i2c.c
++++ b/drivers/gpu/drm/mgag200/mgag200_i2c.c
+@@ -126,7 +126,7 @@ struct mga_i2c_chan *mgag200_i2c_create(struct drm_device *dev)
+ 	i2c->clock = clock;
+ 	i2c->adapter.owner = THIS_MODULE;
+ 	i2c->adapter.class = I2C_CLASS_DDC;
+-	i2c->adapter.dev.parent = &dev->pdev->dev;
++	i2c->adapter.dev.parent = dev->dev;
+ 	i2c->dev = dev;
+ 	i2c_set_adapdata(&i2c->adapter, i2c);
+ 	snprintf(i2c->adapter.name, sizeof(i2c->adapter.name), "mga i2c");
+diff --git a/drivers/gpu/drm/mgag200/mgag200_mm.c b/drivers/gpu/drm/mgag200/mgag200_mm.c
+index 641f1aa992be..b667371b69a4 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_mm.c
++++ b/drivers/gpu/drm/mgag200/mgag200_mm.c
+@@ -78,11 +78,12 @@ static size_t mgag200_probe_vram(struct mga_device *mdev, void __iomem *mem,
+ static void mgag200_mm_release(struct drm_device *dev, void *ptr)
  {
- 	GEM_BUG_ON(!rc6->wakeref);
--	pm_runtime_put(&rc6_to_i915(rc6)->drm.pdev->dev);
-+	pm_runtime_put(rc6_to_i915(rc6)->drm.dev);
- 	rc6->wakeref = false;
+ 	struct mga_device *mdev = to_mga_device(dev);
++	struct pci_dev *pdev = to_pci_dev(dev->dev);
+ 
+ 	mdev->vram_fb_available = 0;
+ 	iounmap(mdev->vram);
+-	arch_io_free_memtype_wc(pci_resource_start(dev->pdev, 0),
+-				pci_resource_len(dev->pdev, 0));
++	arch_io_free_memtype_wc(pci_resource_start(pdev, 0),
++				pci_resource_len(pdev, 0));
+ 	arch_phys_wc_del(mdev->fb_mtrr);
+ 	mdev->fb_mtrr = 0;
  }
- 
-diff --git a/drivers/gpu/drm/i915/gt/intel_reset.c b/drivers/gpu/drm/i915/gt/intel_reset.c
-index 3654c955e6be..a49faf4ec139 100644
---- a/drivers/gpu/drm/i915/gt/intel_reset.c
-+++ b/drivers/gpu/drm/i915/gt/intel_reset.c
-@@ -180,7 +180,7 @@ static int i915_do_reset(struct intel_gt *gt,
- 			 intel_engine_mask_t engine_mask,
- 			 unsigned int retry)
+@@ -90,6 +91,7 @@ static void mgag200_mm_release(struct drm_device *dev, void *ptr)
+ int mgag200_mm_init(struct mga_device *mdev)
  {
--	struct pci_dev *pdev = gt->i915->drm.pdev;
-+	struct pci_dev *pdev = to_pci_dev(gt->i915->drm.dev);
- 	int err;
- 
- 	/* Assert reset for at least 20 usec, and wait for acknowledgement. */
-@@ -209,7 +209,7 @@ static int g33_do_reset(struct intel_gt *gt,
- 			intel_engine_mask_t engine_mask,
- 			unsigned int retry)
- {
--	struct pci_dev *pdev = gt->i915->drm.pdev;
-+	struct pci_dev *pdev = to_pci_dev(gt->i915->drm.dev);
- 
- 	pci_write_config_byte(pdev, I915_GDRST, GRDOM_RESET_ENABLE);
- 	return wait_for_atomic(g4x_reset_complete(pdev), 50);
-@@ -219,7 +219,7 @@ static int g4x_do_reset(struct intel_gt *gt,
- 			intel_engine_mask_t engine_mask,
- 			unsigned int retry)
- {
--	struct pci_dev *pdev = gt->i915->drm.pdev;
-+	struct pci_dev *pdev = to_pci_dev(gt->i915->drm.dev);
- 	struct intel_uncore *uncore = gt->uncore;
+ 	struct drm_device *dev = &mdev->base;
++	struct pci_dev *pdev = to_pci_dev(dev->dev);
+ 	u8 misc;
+ 	resource_size_t start, len;
  	int ret;
+@@ -102,8 +104,8 @@ int mgag200_mm_init(struct mga_device *mdev)
+ 	WREG8(MGA_MISC_OUT, misc);
  
+ 	/* BAR 0 is VRAM */
+-	start = pci_resource_start(dev->pdev, 0);
+-	len = pci_resource_len(dev->pdev, 0);
++	start = pci_resource_start(pdev, 0);
++	len = pci_resource_len(pdev, 0);
+ 
+ 	if (!devm_request_mem_region(dev->dev, start, len, "mgadrmfb_vram")) {
+ 		drm_err(dev, "can't reserve VRAM\n");
 -- 
 2.29.2
 
