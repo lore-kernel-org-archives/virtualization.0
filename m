@@ -7,71 +7,68 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D649C71156
-	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:25 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E271CC64E7B
+	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:29 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3030B20644
-	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3030B20644
+	by mail.kernel.org (Postfix) with ESMTPS id 5CBED20809
+	for <virtualization@archiver.kernel.org>; Tue,  1 Dec 2020 10:36:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5CBED20809
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id CB05D2E148;
-	Tue,  1 Dec 2020 10:36:24 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nc10EDbAlKxR; Tue,  1 Dec 2020 10:36:09 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 294B32E151;
-	Tue,  1 Dec 2020 10:36:05 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1AF6DC1DA6;
-	Tue,  1 Dec 2020 10:36:05 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E7B26C163C
- for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 10:36:01 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id D3B1388084
- for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 10:36:01 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 142CE8810A;
+	Tue,  1 Dec 2020 10:36:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id d7r1jnHDeUJF
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9uFgg4xR2Gre; Tue,  1 Dec 2020 10:36:26 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by whitealder.osuosl.org (Postfix) with ESMTP id 3E6AF8809E;
+	Tue,  1 Dec 2020 10:36:09 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2AA80C163C;
+	Tue,  1 Dec 2020 10:36:09 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 05AE3C163C
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 10:35:59 +0000 (UTC)
+ Tue,  1 Dec 2020 10:36:08 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by silver.osuosl.org (Postfix) with ESMTP id F41992E159
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  1 Dec 2020 10:36:07 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from silver.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GnL8Z8ClxMbM
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  1 Dec 2020 10:36:03 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 8D1D78809E
+ by silver.osuosl.org (Postfix) with ESMTPS id A106A2E147
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Dec 2020 10:35:56 +0000 (UTC)
+ Tue,  1 Dec 2020 10:36:01 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 2DBFBACC1;
- Tue,  1 Dec 2020 10:35:55 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id 426AAACF1;
+ Tue,  1 Dec 2020 10:36:00 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: airlied@linux.ie,
 	daniel@ffwll.ch
-Subject: [PATCH v2 08/20] drm/hibmc: Remove references to struct
- drm_device.pdev
-Date: Tue,  1 Dec 2020 11:35:30 +0100
-Message-Id: <20201201103542.2182-9-tzimmermann@suse.de>
+Subject: [PATCH v2 15/20] drm/radeon: Fix trailing whitespaces
+Date: Tue,  1 Dec 2020 11:35:37 +0100
+Message-Id: <20201201103542.2182-16-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201201103542.2182-1-tzimmermann@suse.de>
 References: <20201201103542.2182-1-tzimmermann@suse.de>
 MIME-Version: 1.0
-Cc: Sam Ravnborg <sam@ravnborg.org>, Xinliang Liu <xinliang.liu@linaro.org>,
- nouveau@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+Cc: nouveau@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
  dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- Xinwei Kong <kong.kongxinwei@hisilicon.com>,
- John Stultz <john.stultz@linaro.org>, amd-gfx@lists.freedesktop.org,
- Thomas Zimmermann <tzimmermann@suse.de>, Tian Tao <tiantao6@hisilicon.com>,
- spice-devel@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org,
- Chen Feng <puck.chen@hisilicon.com>
+ amd-gfx@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>,
+ Alex Deucher <alexander.deucher@amd.com>, spice-devel@lists.freedesktop.org,
+ intel-gvt-dev@lists.freedesktop.org,
+ =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -83,112 +80,36 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Using struct drm_device.pdev is deprecated. Convert hibmc to struct
-drm_device.dev. No functional changes.
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Cc: Xinliang Liu <xinliang.liu@linaro.org>
-Cc: Tian Tao  <tiantao6@hisilicon.com>
-Cc: John Stultz <john.stultz@linaro.org>
-Cc: Xinwei Kong <kong.kongxinwei@hisilicon.com>
-Cc: Chen Feng <puck.chen@hisilicon.com>
----
- drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c | 10 +++++-----
- drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_i2c.c |  2 +-
- drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c     |  4 ++--
- 3 files changed, 8 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
-index d845657fd99c..ac5868343d0c 100644
---- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
-+++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
-@@ -203,7 +203,7 @@ static void hibmc_hw_config(struct hibmc_drm_private *priv)
- static int hibmc_hw_map(struct hibmc_drm_private *priv)
- {
- 	struct drm_device *dev = priv->dev;
--	struct pci_dev *pdev = dev->pdev;
-+	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	resource_size_t addr, size, ioaddr, iosize;
- 
- 	ioaddr = pci_resource_start(pdev, 1);
-@@ -249,7 +249,7 @@ static int hibmc_unload(struct drm_device *dev)
- 	if (dev->irq_enabled)
- 		drm_irq_uninstall(dev);
- 
--	pci_disable_msi(dev->pdev);
-+	pci_disable_msi(to_pci_dev(dev->dev));
- 	hibmc_kms_fini(priv);
- 	hibmc_mm_fini(priv);
- 	dev->dev_private = NULL;
-@@ -258,6 +258,7 @@ static int hibmc_unload(struct drm_device *dev)
- 
- static int hibmc_load(struct drm_device *dev)
- {
-+	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	struct hibmc_drm_private *priv;
- 	int ret;
- 
-@@ -287,11 +288,11 @@ static int hibmc_load(struct drm_device *dev)
- 		goto err;
- 	}
- 
--	ret = pci_enable_msi(dev->pdev);
-+	ret = pci_enable_msi(pdev);
- 	if (ret) {
- 		drm_warn(dev, "enabling MSI failed: %d\n", ret);
- 	} else {
--		ret = drm_irq_install(dev, dev->pdev->irq);
-+		ret = drm_irq_install(dev, pdev->irq);
- 		if (ret)
- 			drm_warn(dev, "install irq failed: %d\n", ret);
- 	}
-@@ -324,7 +325,6 @@ static int hibmc_pci_probe(struct pci_dev *pdev,
- 		return PTR_ERR(dev);
- 	}
- 
--	dev->pdev = pdev;
- 	pci_set_drvdata(pdev, dev);
- 
- 	ret = pci_enable_device(pdev);
-diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_i2c.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_i2c.c
-index 86d712090d87..410bd019bb35 100644
---- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_i2c.c
-+++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_i2c.c
-@@ -83,7 +83,7 @@ int hibmc_ddc_create(struct drm_device *drm_dev,
- 	connector->adapter.owner = THIS_MODULE;
- 	connector->adapter.class = I2C_CLASS_DDC;
- 	snprintf(connector->adapter.name, I2C_NAME_SIZE, "HIS i2c bit bus");
--	connector->adapter.dev.parent = &drm_dev->pdev->dev;
-+	connector->adapter.dev.parent = drm_dev->dev;
- 	i2c_set_adapdata(&connector->adapter, connector);
- 	connector->adapter.algo_data = &connector->bit_data;
- 
-diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c
-index 602ece11bb4a..77f075075db2 100644
---- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c
-+++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c
-@@ -26,9 +26,9 @@ int hibmc_mm_init(struct hibmc_drm_private *hibmc)
- 	struct drm_vram_mm *vmm;
- 	int ret;
- 	struct drm_device *dev = hibmc->dev;
-+	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 
--	vmm = drm_vram_helper_alloc_mm(dev,
--				       pci_resource_start(dev->pdev, 0),
-+	vmm = drm_vram_helper_alloc_mm(dev, pci_resource_start(pdev, 0),
- 				       hibmc->fb_size);
- 	if (IS_ERR(vmm)) {
- 		ret = PTR_ERR(vmm);
--- 
-2.29.2
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+QWRoZXJlIHRvIGtlcm5lbCBjb2Rpbmcgc3R5bGUuCgpTaWduZWQtb2ZmLWJ5OiBUaG9tYXMgWmlt
+bWVybWFubiA8dHppbW1lcm1hbm5Ac3VzZS5kZT4KQWNrZWQtYnk6IEFsZXggRGV1Y2hlciA8YWxl
+eGFuZGVyLmRldWNoZXJAYW1kLmNvbT4KQ2M6IEFsZXggRGV1Y2hlciA8YWxleGFuZGVyLmRldWNo
+ZXJAYW1kLmNvbT4KQ2M6IENocmlzdGlhbiBLw7ZuaWcgPGNocmlzdGlhbi5rb2VuaWdAYW1kLmNv
+bT4KLS0tCiBkcml2ZXJzL2dwdS9kcm0vcmFkZW9uL3IxMDAuYyAgICAgICB8IDIgKy0KIGRyaXZl
+cnMvZ3B1L2RybS9yYWRlb24vcmFkZW9uX2ttcy5jIHwgMiArLQogMiBmaWxlcyBjaGFuZ2VkLCAy
+IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUv
+ZHJtL3JhZGVvbi9yMTAwLmMgYi9kcml2ZXJzL2dwdS9kcm0vcmFkZW9uL3IxMDAuYwppbmRleCAy
+NGM4ZGI2NzM5MzEuLmU0YWUwOWI1Mjk0ZCAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL3Jh
+ZGVvbi9yMTAwLmMKKysrIGIvZHJpdmVycy9ncHUvZHJtL3JhZGVvbi9yMTAwLmMKQEAgLTI3OTcs
+NyArMjc5Nyw3IEBAIHZvaWQgcjEwMF92cmFtX2luaXRfc2l6ZXMoc3RydWN0IHJhZGVvbl9kZXZp
+Y2UgKnJkZXYpCiAJCQlyZGV2LT5tYy5yZWFsX3ZyYW1fc2l6ZSA9IDgxOTIgKiAxMDI0OwogCQkJ
+V1JFRzMyKFJBREVPTl9DT05GSUdfTUVNU0laRSwgcmRldi0+bWMucmVhbF92cmFtX3NpemUpOwog
+CQl9Ci0JCS8qIEZpeCBmb3IgUk41MCwgTTYsIE03IHdpdGggOC8xNi8zMig/PykgTUJzIG9mIFZS
+QU0gLSAKKwkJLyogRml4IGZvciBSTjUwLCBNNiwgTTcgd2l0aCA4LzE2LzMyKD8/KSBNQnMgb2Yg
+VlJBTSAtCiAJCSAqIE5vdmVsbCBidWcgMjA0ODgyICsgYWxvbmcgd2l0aCBsb3RzIG9mIHVidW50
+dSBvbmVzCiAJCSAqLwogCQlpZiAocmRldi0+bWMuYXBlcl9zaXplID4gY29uZmlnX2FwZXJfc2l6
+ZSkKZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9yYWRlb24vcmFkZW9uX2ttcy5jIGIvZHJp
+dmVycy9ncHUvZHJtL3JhZGVvbi9yYWRlb25fa21zLmMKaW5kZXggYWJiM2JkZDljYTI1Li43NWIw
+Mzg3NDBlYTggMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS9yYWRlb24vcmFkZW9uX2ttcy5j
+CisrKyBiL2RyaXZlcnMvZ3B1L2RybS9yYWRlb24vcmFkZW9uX2ttcy5jCkBAIC03NCw3ICs3NCw3
+IEBAIHZvaWQgcmFkZW9uX2RyaXZlcl91bmxvYWRfa21zKHN0cnVjdCBkcm1fZGV2aWNlICpkZXYp
+CiAJfQogCiAJcmFkZW9uX2FjcGlfZmluaShyZGV2KTsKLQkKKwogCXJhZGVvbl9tb2Rlc2V0X2Zp
+bmkocmRldik7CiAJcmFkZW9uX2RldmljZV9maW5pKHJkZXYpOwogCi0tIAoyLjI5LjIKCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
