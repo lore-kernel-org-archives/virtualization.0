@@ -7,82 +7,82 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EDDBC4361B
-	for <virtualization@archiver.kernel.org>; Thu,  3 Dec 2020 17:05:35 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD2BDC4361A
+	for <virtualization@archiver.kernel.org>; Thu,  3 Dec 2020 17:06:03 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A89E2207AE
-	for <virtualization@archiver.kernel.org>; Thu,  3 Dec 2020 17:05:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A89E2207AE
+	by mail.kernel.org (Postfix) with ESMTPS id 33DFD207AE
+	for <virtualization@archiver.kernel.org>; Thu,  3 Dec 2020 17:06:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 33DFD207AE
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 6171187759;
-	Thu,  3 Dec 2020 17:05:34 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id A72FE86F89;
+	Thu,  3 Dec 2020 17:06:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uquTt+HwQTtB; Thu,  3 Dec 2020 17:05:33 +0000 (UTC)
+	with ESMTP id U8r71iAw6JRq; Thu,  3 Dec 2020 17:06:01 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id CA9FA87718;
-	Thu,  3 Dec 2020 17:05:33 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 45DFA86F9C;
+	Thu,  3 Dec 2020 17:06:01 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C1C38C163C;
-	Thu,  3 Dec 2020 17:05:33 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 11770C163C;
+	Thu,  3 Dec 2020 17:06:01 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 70F77C0FA7
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 68569C0FA7
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Dec 2020 17:05:32 +0000 (UTC)
+ Thu,  3 Dec 2020 17:05:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 69E532E2BF
+ by silver.osuosl.org (Postfix) with ESMTP id 46DCA2048A
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Dec 2020 17:05:32 +0000 (UTC)
+ Thu,  3 Dec 2020 17:05:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id f5Kw4QkkXEGF
+ with ESMTP id wRds7zbTr6Sn
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Dec 2020 17:05:31 +0000 (UTC)
+ Thu,  3 Dec 2020 17:05:58 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by silver.osuosl.org (Postfix) with ESMTPS id 0F63A2E2DA
+ by silver.osuosl.org (Postfix) with ESMTPS id 4D2BB20477
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Dec 2020 17:05:30 +0000 (UTC)
+ Thu,  3 Dec 2020 17:05:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1607015129;
+ s=mimecast20190719; t=1607015157;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=FlYLAYzobPQZ1bUpNmKavUwclkN60gIysIOh5AekM4g=;
- b=BxN9Oe8PgieVhBkmTAN6EAAdqXIuMSDJl+uEdJtzA/qZHo+j/4i9LWT20suYzimK6bDxNW
- yw8RkPM2HGtQ/LwPTXNwF42uiEdQ9C4PEIUK7ujoMQ/d102KFmh+/kC5KMQyGNHtUOmf7v
- RBV9+vGwTbxMjY8dEUZsHr+Lxh2P/+s=
+ bh=FwRJrUBTPsHO6CS9p2N6npskY2prbgJKju6rYBszPUY=;
+ b=EUb8N45XJvuaIDuqap4abQi9dNt0i+l6K1giDMkC4NWPzSoiJ8s1dkH9InPmMrAlumpVMM
+ YClKWdwpaFY+Z6gTfswhZHSO9eqXk0qDvo2DvvNGzwfimv0hla4usnDhAfd22LBeApCKxZ
+ 3COi6wRxC8Yjv98XN3lV3f9M28QDGyw=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-502-atWkQ-5SNXW4cV07yiUqZQ-1; Thu, 03 Dec 2020 12:05:24 -0500
-X-MC-Unique: atWkQ-5SNXW4cV07yiUqZQ-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
+ us-mta-254-AenLv00DOHOZc5Kke33WtA-1; Thu, 03 Dec 2020 12:05:55 -0500
+X-MC-Unique: AenLv00DOHOZc5Kke33WtA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
+ [10.5.11.12])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2E0169CC0F;
- Thu,  3 Dec 2020 17:05:23 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 137711922043;
+ Thu,  3 Dec 2020 17:05:54 +0000 (UTC)
 Received: from steredhat.redhat.com (ovpn-113-142.ams2.redhat.com
  [10.36.113.142])
- by smtp.corp.redhat.com (Postfix) with ESMTP id B0B755D6AC;
- Thu,  3 Dec 2020 17:05:20 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 5ED8160C15;
+ Thu,  3 Dec 2020 17:05:44 +0000 (UTC)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v3 03/19] vdpa_sim: remove hard-coded virtq count
-Date: Thu,  3 Dec 2020 18:04:55 +0100
-Message-Id: <20201203170511.216407-4-sgarzare@redhat.com>
+Subject: [PATCH v3 04/19] vhost/iotlb: add VHOST_IOTLB_UNLIMITED macro
+Date: Thu,  3 Dec 2020 18:04:56 +0100
+Message-Id: <20201203170511.216407-5-sgarzare@redhat.com>
 In-Reply-To: <20201203170511.216407-1-sgarzare@redhat.com>
 References: <20201203170511.216407-1-sgarzare@redhat.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Cc: Laurent Vivier <lvivier@redhat.com>, Max Gurtovoy <mgurtovoy@nvidia.com>,
  "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
  Shahaf Shuler <shahafs@nvidia.com>, Stefan Hajnoczi <stefanha@redhat.com>,
@@ -103,101 +103,46 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
+It's possible to allocate an unlimited IOTLB calling
+vhost_iotlb_alloc() with 'limit' = 0.
 
-Add a new attribute that will define the number of virt queues to be
-created for the vdpasim device.
+Add a new macro (VHOST_IOTLB_UNLIMITED) for this case and document
+it in the vhost_iotlb_alloc() documentation block.
 
-Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-[sgarzare: replace kmalloc_array() with kcalloc()]
-Acked-by: Jason Wang <jasowang@redhat.com>
+Suggested-by: Jason Wang <jasowang@redhat.com>
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
-v1:
-- use kcalloc() instead of kmalloc_array() since some function expects
-  variables initialized to zero
----
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ include/linux/vhost_iotlb.h | 2 ++
+ drivers/vhost/iotlb.c       | 3 ++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index b08f28d20d8d..295a770caac0 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -60,7 +60,7 @@ static u64 vdpasim_features = (1ULL << VIRTIO_F_ANY_LAYOUT) |
- /* State of each vdpasim device */
- struct vdpasim {
- 	struct vdpa_device vdpa;
--	struct vdpasim_virtqueue vqs[VDPASIM_VQ_NUM];
-+	struct vdpasim_virtqueue *vqs;
- 	struct work_struct work;
- 	/* spinlock to synchronize virtqueue state */
- 	spinlock_t lock;
-@@ -70,6 +70,7 @@ struct vdpasim {
- 	u32 status;
- 	u32 generation;
- 	u64 features;
-+	int nvqs;
- 	/* spinlock to synchronize iommu table */
- 	spinlock_t iommu_lock;
- };
-@@ -134,7 +135,7 @@ static void vdpasim_reset(struct vdpasim *vdpasim)
- {
- 	int i;
+diff --git a/include/linux/vhost_iotlb.h b/include/linux/vhost_iotlb.h
+index 6b09b786a762..47019f97f795 100644
+--- a/include/linux/vhost_iotlb.h
++++ b/include/linux/vhost_iotlb.h
+@@ -4,6 +4,8 @@
  
--	for (i = 0; i < VDPASIM_VQ_NUM; i++)
-+	for (i = 0; i < vdpasim->nvqs; i++)
- 		vdpasim_vq_reset(&vdpasim->vqs[i]);
+ #include <linux/interval_tree_generic.h>
  
- 	spin_lock(&vdpasim->iommu_lock);
-@@ -340,7 +341,7 @@ static struct vdpasim *vdpasim_create(void)
- 	const struct vdpa_config_ops *ops;
- 	struct vdpasim *vdpasim;
- 	struct device *dev;
--	int ret = -ENOMEM;
-+	int i, ret = -ENOMEM;
- 
- 	if (batch_mapping)
- 		ops = &vdpasim_net_batch_config_ops;
-@@ -351,6 +352,7 @@ static struct vdpasim *vdpasim_create(void)
- 	if (!vdpasim)
- 		goto err_alloc;
- 
-+	vdpasim->nvqs = VDPASIM_VQ_NUM;
- 	INIT_WORK(&vdpasim->work, vdpasim_work);
- 	spin_lock_init(&vdpasim->lock);
- 	spin_lock_init(&vdpasim->iommu_lock);
-@@ -361,6 +363,11 @@ static struct vdpasim *vdpasim_create(void)
- 		goto err_iommu;
- 	set_dma_ops(dev, &vdpasim_dma_ops);
- 
-+	vdpasim->vqs = kcalloc(vdpasim->nvqs, sizeof(struct vdpasim_virtqueue),
-+			       GFP_KERNEL);
-+	if (!vdpasim->vqs)
-+		goto err_iommu;
++#define VHOST_IOTLB_UNLIMITED 0
 +
- 	vdpasim->iommu = vhost_iotlb_alloc(2048, 0);
- 	if (!vdpasim->iommu)
- 		goto err_iommu;
-@@ -379,8 +386,8 @@ static struct vdpasim *vdpasim_create(void)
- 		eth_random_addr(vdpasim->config.mac);
- 	}
+ struct vhost_iotlb_map {
+ 	struct rb_node rb;
+ 	struct list_head link;
+diff --git a/drivers/vhost/iotlb.c b/drivers/vhost/iotlb.c
+index 0fd3f87e913c..80fdde78ee5a 100644
+--- a/drivers/vhost/iotlb.c
++++ b/drivers/vhost/iotlb.c
+@@ -100,7 +100,8 @@ EXPORT_SYMBOL_GPL(vhost_iotlb_del_range);
  
--	vringh_set_iotlb(&vdpasim->vqs[0].vring, vdpasim->iommu);
--	vringh_set_iotlb(&vdpasim->vqs[1].vring, vdpasim->iommu);
-+	for (i = 0; i < vdpasim->nvqs; i++)
-+		vringh_set_iotlb(&vdpasim->vqs[i].vring, vdpasim->iommu);
- 
- 	vdpasim->vdpa.dma_dev = dev;
- 	ret = vdpa_register_device(&vdpasim->vdpa);
-@@ -649,6 +656,7 @@ static void vdpasim_free(struct vdpa_device *vdpa)
- 	kfree(vdpasim->buffer);
- 	if (vdpasim->iommu)
- 		vhost_iotlb_free(vdpasim->iommu);
-+	kfree(vdpasim->vqs);
- }
- 
- static const struct vdpa_config_ops vdpasim_net_config_ops = {
+ /**
+  * vhost_iotlb_alloc - add a new vhost IOTLB
+- * @limit: maximum number of IOTLB entries
++ * @limit: maximum number of IOTLB entries (use VHOST_IOTLB_UNLIMITED for an
++ *         unlimited IOTLB)
+  * @flags: VHOST_IOTLB_FLAG_XXX
+  *
+  * Returns an error is memory allocation fails
 -- 
 2.26.2
 
