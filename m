@@ -2,85 +2,84 @@ Return-Path: <SRS0=VsiN=FI=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23FFEC433FE
-	for <virtualization@archiver.kernel.org>; Fri,  4 Dec 2020 04:04:33 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83D35C433FE
+	for <virtualization@archiver.kernel.org>; Fri,  4 Dec 2020 04:04:37 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 981C0222B6
-	for <virtualization@archiver.kernel.org>; Fri,  4 Dec 2020 04:04:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 981C0222B6
+	by mail.kernel.org (Postfix) with ESMTPS id 17C84222B6
+	for <virtualization@archiver.kernel.org>; Fri,  4 Dec 2020 04:04:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 17C84222B6
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 2242E204F5;
-	Fri,  4 Dec 2020 04:04:32 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id C5B8087BF8;
+	Fri,  4 Dec 2020 04:04:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qymqSenPGF1D; Fri,  4 Dec 2020 04:04:30 +0000 (UTC)
+	with ESMTP id 4mV3mJCgdqjd; Fri,  4 Dec 2020 04:04:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 08DF0204FA;
-	Fri,  4 Dec 2020 04:04:30 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id AF71987BE5;
+	Fri,  4 Dec 2020 04:04:35 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DFE21C163C;
-	Fri,  4 Dec 2020 04:04:29 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 945DEC0FA7
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 897DAC1DA2;
+	Fri,  4 Dec 2020 04:04:35 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6F05CC0FA7
  for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Dec 2020 04:04:26 +0000 (UTC)
+ Fri,  4 Dec 2020 04:04:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 80B5087EEC
+ by hemlock.osuosl.org (Postfix) with ESMTP id 6B89D87BD6
  for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Dec 2020 04:04:26 +0000 (UTC)
+ Fri,  4 Dec 2020 04:04:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id TpJnPZc0iU4m
+ with ESMTP id khvTJdxh7hY5
  for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Dec 2020 04:04:25 +0000 (UTC)
+ Fri,  4 Dec 2020 04:04:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id B5B6387EC5
+ by hemlock.osuosl.org (Postfix) with ESMTPS id D1B0B87BCA
  for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Dec 2020 04:04:25 +0000 (UTC)
+ Fri,  4 Dec 2020 04:04:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1607054664;
+ s=mimecast20190719; t=1607054672;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=Cz4Cg3nnzO3FS98gTMZZAIPsbgh47yB+xmLOC1GVS+Q=;
- b=hHaYcr11qFFnhVQN6j53Wm5ntj1AvZrAgQQTEu4H90jU/S/Z25ynKt6lCbTAHRZyKTaDHD
- 5v5DhbVXJSikjc2HUeQVc8OOR5sTBUuZf84ByoZyigIayjBWEDBWmcvuTt5TTfl0JB8uYu
- l1KaPqXL0KO5AnDG5Q0Gt4vYC5J8Rxw=
+ bh=jWQOtPyifN/PjEn3xTBf4iGLE1QrxjMiv/aT+1c7dfI=;
+ b=P3Rhwm2OhgUKDoic5hDq4mCSLIcdfw2cLR1IcB2vJLnbDMNATMyjRuoeylubZG8xDkIPXE
+ NeqTwjGRHrLhOAfVCLqf/QpcIhMy8YbcG9xc4y8ZcxgTGEiOVIl10hcOB//TAYYbNBdcgA
+ m3qoF/oPqyDNnbrVFXtr/OVX0PMZL1g=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-95-SU7UvmOUPOmDkQ95573oSg-1; Thu, 03 Dec 2020 23:04:22 -0500
-X-MC-Unique: SU7UvmOUPOmDkQ95573oSg-1
+ us-mta-589-NWFx0MyyP_eTAe03uZfnxQ-1; Thu, 03 Dec 2020 23:04:30 -0500
+X-MC-Unique: NWFx0MyyP_eTAe03uZfnxQ-1
 Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
  [10.5.11.23])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 617E01005504;
- Fri,  4 Dec 2020 04:04:21 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DA271802B47;
+ Fri,  4 Dec 2020 04:04:29 +0000 (UTC)
 Received: from jason-ThinkPad-X1-Carbon-6th.redhat.com
  (ovpn-12-116.pek2.redhat.com [10.72.12.116])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 7860F1A4D0;
- Fri,  4 Dec 2020 04:04:15 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 9901A1A838;
+ Fri,  4 Dec 2020 04:04:27 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com, jasowang@redhat.com,
  virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: [PATCH V2 05/19] virtio-pci-modern: introduce helper to set config
- vector
-Date: Fri,  4 Dec 2020 12:03:39 +0800
-Message-Id: <20201204040353.21679-6-jasowang@redhat.com>
+Subject: [PATCH V2 08/19] virtio-pci-modern: introduce vp_modern_generation()
+Date: Fri,  4 Dec 2020 12:03:42 +0800
+Message-Id: <20201204040353.21679-9-jasowang@redhat.com>
 In-Reply-To: <20201204040353.21679-1-jasowang@redhat.com>
 References: <20201204040353.21679-1-jasowang@redhat.com>
 MIME-Version: 1.0
@@ -102,49 +101,47 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch introduces vp_modern_config_vector() for setting config
-vector.
+This patch introduces vp_modern_generation() to get device generation.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_pci_modern.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/virtio/virtio_pci_modern.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 4be9afad547e..2e37bfc89655 100644
+index cb14fc334a9c..a128e5814045 100644
 --- a/drivers/virtio/virtio_pci_modern.c
 +++ b/drivers/virtio/virtio_pci_modern.c
-@@ -315,9 +315,16 @@ static void vp_reset(struct virtio_device *vdev)
- 	vp_synchronize_vectors(vdev);
+@@ -289,15 +289,26 @@ static void vp_set(struct virtio_device *vdev, unsigned offset,
+ 	}
  }
  
--static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
+-static u32 vp_generation(struct virtio_device *vdev)
 +/*
-+ * vp_modern_config_vector - set the vector for config interrupt
++ * vp_modern_generation - get the device genreation
 + * @mdev: the modern virtio-pci device
-+ * @vector: the config vector
 + *
-+ * Returns the config vector read from the device
++ * Returns the genreation read from device
 + */
-+static u16 vp_modern_config_vector(struct virtio_pci_modern_device *mdev,
-+				   u16 vector)
++static u32 vp_modern_generation(struct virtio_pci_modern_device *mdev)
  {
+-	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
 -	struct virtio_pci_modern_device *mdev = &vp_dev->mdev;
  	struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
  
- 	/* Setup the vector used for configuration events */
-@@ -327,6 +334,11 @@ static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
- 	return vp_ioread16(&cfg->msix_config);
+ 	return vp_ioread8(&cfg->config_generation);
  }
  
-+static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
++static u32 vp_generation(struct virtio_device *vdev)
 +{
-+	return vp_modern_config_vector(&vp_dev->mdev, vector);
++	struct virtio_pci_device *vp_dev = to_vp_device(vdev);
++
++	return vp_modern_generation(&vp_dev->mdev);
 +}
 +
- static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 				  struct virtio_pci_vq_info *info,
- 				  unsigned index,
+ /*
+  * vp_modern_get_status - get the device status
+  * @mdev: the modern virtio-pci device
 -- 
 2.25.1
 
