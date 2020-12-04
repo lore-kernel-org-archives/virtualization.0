@@ -7,80 +7,79 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9711EC4361A
-	for <virtualization@archiver.kernel.org>; Fri,  4 Dec 2020 04:05:06 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FC2EC4361A
+	for <virtualization@archiver.kernel.org>; Fri,  4 Dec 2020 04:05:16 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 35C10222B6
-	for <virtualization@archiver.kernel.org>; Fri,  4 Dec 2020 04:05:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 35C10222B6
+	by mail.kernel.org (Postfix) with ESMTPS id DFC47222B6
+	for <virtualization@archiver.kernel.org>; Fri,  4 Dec 2020 04:05:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DFC47222B6
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 75F7B20526;
-	Fri,  4 Dec 2020 04:05:05 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 8542B87C0B;
+	Fri,  4 Dec 2020 04:05:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id B8FeRwLL6zL8; Fri,  4 Dec 2020 04:05:01 +0000 (UTC)
+	with ESMTP id YRxOSTPFQC2w; Fri,  4 Dec 2020 04:05:14 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id ECC412E2C7;
-	Fri,  4 Dec 2020 04:05:00 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id C680C87BFF;
+	Fri,  4 Dec 2020 04:05:14 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E0371C163C;
-	Fri,  4 Dec 2020 04:05:00 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7D114C0FA7
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AE2BBC163C;
+	Fri,  4 Dec 2020 04:05:14 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D6853C0FA7
  for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Dec 2020 04:04:59 +0000 (UTC)
+ Fri,  4 Dec 2020 04:05:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 6842C88192
+ by fraxinus.osuosl.org (Postfix) with ESMTP id D2AE48787B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Dec 2020 04:04:59 +0000 (UTC)
+ Fri,  4 Dec 2020 04:05:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id B8LmjKb4ylfZ
+ with ESMTP id KrZbEB63L3Ap
  for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Dec 2020 04:04:58 +0000 (UTC)
+ Fri,  4 Dec 2020 04:05:11 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 55961881A1
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id F039287834
  for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Dec 2020 04:04:58 +0000 (UTC)
+ Fri,  4 Dec 2020 04:05:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1607054697;
+ s=mimecast20190719; t=1607054710;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=Vh5cz5at1G+5ld0pHqqsQA1nJo4RyhpJ3/S1fZfR/fY=;
- b=DvWzRvRNh/DSbVAVegS5wIFurKwXdbphRxgr9D0cMPUFlaifQeo4MINKTZ4aJcc+QUcCFM
- CGSJi4f8ocgXXKtPgeN0IYaL/jFTPKUzKlA2SyVpE48Ns4RhXC9ArWHd9Cf7A+sX/3m8ci
- DKI/BCxXvJ+grQRXKr0o16jJ7X1+alE=
+ bh=2qEWI+MX2adpYOE0dEiuQYxEzz8VLasn0pLk1ZCl7lA=;
+ b=HecSqEbgFT3/iFt9jWmGFgqZ7fjjO23VKO4vxo4UD5cWNqJoGzSOCxD99cXXeFzZfRfrRq
+ 04ky7rQERYLs/HIJMI63e7p6X3rRjXJk+cOyISta/w0FizHm8CTCvsDXNJzwJs7ZkGzcVk
+ bn2RXZfv1ajVY/jUgXPomDUGZzA3A8M=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-229-ZeuXFiKrNfOgWh8cRyaFMQ-1; Thu, 03 Dec 2020 23:04:55 -0500
-X-MC-Unique: ZeuXFiKrNfOgWh8cRyaFMQ-1
+ us-mta-58-1IaHLpxPNB60BnvIIyJRDA-1; Thu, 03 Dec 2020 23:05:08 -0500
+X-MC-Unique: 1IaHLpxPNB60BnvIIyJRDA-1
 Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
  [10.5.11.23])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 49CB5802B42;
- Fri,  4 Dec 2020 04:04:54 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 44AE0107ACE3;
+ Fri,  4 Dec 2020 04:05:07 +0000 (UTC)
 Received: from jason-ThinkPad-X1-Carbon-6th.redhat.com
  (ovpn-12-116.pek2.redhat.com [10.72.12.116])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 372FC1A4D0;
- Fri,  4 Dec 2020 04:04:51 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id CA31E1A4D0;
+ Fri,  4 Dec 2020 04:05:01 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
 To: mst@redhat.com, jasowang@redhat.com,
  virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: [PATCH V2 15/19] virito-pci-modern: rename map_capability() to
- vp_modern_map_capability()
-Date: Fri,  4 Dec 2020 12:03:49 +0800
-Message-Id: <20201204040353.21679-16-jasowang@redhat.com>
+Subject: [PATCH V2 17/19] vdpa: set the virtqueue num during register
+Date: Fri,  4 Dec 2020 12:03:51 +0800
+Message-Id: <20201204040353.21679-18-jasowang@redhat.com>
 In-Reply-To: <20201204040353.21679-1-jasowang@redhat.com>
 References: <20201204040353.21679-1-jasowang@redhat.com>
 MIME-Version: 1.0
@@ -102,107 +101,157 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-To ease the split, map_capability() was renamed to
-vp_modern_map_capability(). While at it, add the comments for the
-arguments and switch to use virtio_pci_modern_device as the first
-parameter.
+This patch delay the queue number setting to vDPA device
+registering. This allows us to probe the virtqueue numbers between
+device allocation and registering.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_pci_modern.c | 46 +++++++++++++++++++-----------
- 1 file changed, 30 insertions(+), 16 deletions(-)
+ drivers/vdpa/ifcvf/ifcvf_main.c   | 5 ++---
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 5 ++---
+ drivers/vdpa/vdpa.c               | 8 ++++----
+ drivers/vdpa/vdpa_sim/vdpa_sim.c  | 4 ++--
+ include/linux/vdpa.h              | 7 +++----
+ 5 files changed, 13 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-index 217573f2588d..a5e3a5e40323 100644
---- a/drivers/virtio/virtio_pci_modern.c
-+++ b/drivers/virtio/virtio_pci_modern.c
-@@ -63,12 +63,25 @@ static void vp_iowrite64_twopart(u64 val,
- 	vp_iowrite32(val >> 32, hi);
- }
- 
--static void __iomem *map_capability(struct pci_dev *dev, int off,
--				    size_t minlen,
--				    u32 align,
--				    u32 start, u32 size,
--				    size_t *len)
-+/*
-+ * vp_modern_map_capability - map a part of virtio pci capability
-+ * @mdev: the modern virtio-pci device
-+ * @off: offset of the capability
-+ * @minlen: minimal length of the capability
-+ * @align: align requirement
-+ * @start: start from the capability
-+ * @size: map size
-+ * @len: the length that is actually mapped
-+ *
-+ * Returns the io address of for the part of the capability
-+ */
-+void __iomem *vp_modern_map_capability(struct virtio_pci_modern_device *mdev, int off,
-+				       size_t minlen,
-+				       u32 align,
-+				       u32 start, u32 size,
-+				       size_t *len)
- {
-+	struct pci_dev *dev = mdev->pci_dev;
- 	u8 bar;
- 	u32 offset, length;
- 	void __iomem *p;
-@@ -582,7 +595,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
- 		vq->priv = (void __force *)mdev->notify_base +
- 			off * mdev->notify_offset_multiplier;
- 	} else {
--		vq->priv = (void __force *)map_capability(mdev->pci_dev,
-+		vq->priv = (void __force *)vp_modern_map_capability(mdev,
- 							  mdev->notify_map_cap, 2, 2,
- 							  off * mdev->notify_offset_multiplier, 2,
- 							  NULL);
-@@ -956,15 +969,15 @@ static int vp_modern_probe(struct virtio_pci_modern_device *mdev)
- 		return err;
- 
- 	err = -EINVAL;
--	mdev->common = map_capability(pci_dev, common,
-+	mdev->common = vp_modern_map_capability(mdev, common,
- 				      sizeof(struct virtio_pci_common_cfg), 4,
- 				      0, sizeof(struct virtio_pci_common_cfg),
- 				      NULL);
- 	if (!mdev->common)
- 		goto err_map_common;
--	mdev->isr = map_capability(pci_dev, isr, sizeof(u8), 1,
--				   0, 1,
--				   NULL);
-+	mdev->isr = vp_modern_map_capability(mdev, isr, sizeof(u8), 1,
-+					     0, 1,
-+					     NULL);
- 	if (!mdev->isr)
- 		goto err_map_isr;
- 
-@@ -989,9 +1002,10 @@ static int vp_modern_probe(struct virtio_pci_modern_device *mdev)
- 	 * Otherwise, map each VQ individually later.
- 	 */
- 	if ((u64)notify_length + (notify_offset % PAGE_SIZE) <= PAGE_SIZE) {
--		mdev->notify_base = map_capability(pci_dev, notify, 2, 2,
--						   0, notify_length,
--						   &mdev->notify_len);
-+		mdev->notify_base = vp_modern_map_capability(mdev, notify,
-+							     2, 2,
-+							     0, notify_length,
-+							     &mdev->notify_len);
- 		if (!mdev->notify_base)
- 			goto err_map_notify;
- 	} else {
-@@ -1002,9 +1016,9 @@ static int vp_modern_probe(struct virtio_pci_modern_device *mdev)
- 	 * is more than enough for all existing devices.
- 	 */
- 	if (device) {
--		mdev->device = map_capability(pci_dev, device, 0, 4,
--					      0, PAGE_SIZE,
--					      &mdev->device_len);
-+		mdev->device = vp_modern_map_capability(mdev, device, 0, 4,
-+							0, PAGE_SIZE,
-+							&mdev->device_len);
- 		if (!mdev->device)
- 			goto err_map_device;
+diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
+index 8b4028556cb6..d65f3221d8ed 100644
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -438,8 +438,7 @@ static int ifcvf_probe(struct pci_dev *pdev, const struct pci_device_id *id)
  	}
+ 
+ 	adapter = vdpa_alloc_device(struct ifcvf_adapter, vdpa,
+-				    dev, &ifc_vdpa_ops,
+-				    IFCVF_MAX_QUEUE_PAIRS * 2);
++				    dev, &ifc_vdpa_ops);
+ 	if (adapter == NULL) {
+ 		IFCVF_ERR(pdev, "Failed to allocate vDPA structure");
+ 		return -ENOMEM;
+@@ -463,7 +462,7 @@ static int ifcvf_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	for (i = 0; i < IFCVF_MAX_QUEUE_PAIRS * 2; i++)
+ 		vf->vring[i].irq = -EINVAL;
+ 
+-	ret = vdpa_register_device(&adapter->vdpa);
++	ret = vdpa_register_device(&adapter->vdpa, IFCVF_MAX_QUEUE_PAIRS * 2);
+ 	if (ret) {
+ 		IFCVF_ERR(pdev, "Failed to register ifcvf to vdpa bus");
+ 		goto err;
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 1fa6fcac8299..3c3eb2a02f76 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1940,8 +1940,7 @@ void *mlx5_vdpa_add_dev(struct mlx5_core_dev *mdev)
+ 	max_vqs = MLX5_CAP_DEV_VDPA_EMULATION(mdev, max_num_virtio_queues);
+ 	max_vqs = min_t(u32, max_vqs, MLX5_MAX_SUPPORTED_VQS);
+ 
+-	ndev = vdpa_alloc_device(struct mlx5_vdpa_net, mvdev.vdev, mdev->device, &mlx5_vdpa_ops,
+-				 2 * mlx5_vdpa_max_qps(max_vqs));
++	ndev = vdpa_alloc_device(struct mlx5_vdpa_net, mvdev.vdev, mdev->device, &mlx5_vdpa_ops);
+ 	if (IS_ERR(ndev))
+ 		return ndev;
+ 
+@@ -1968,7 +1967,7 @@ void *mlx5_vdpa_add_dev(struct mlx5_core_dev *mdev)
+ 	if (err)
+ 		goto err_res;
+ 
+-	err = vdpa_register_device(&mvdev->vdev);
++	err = vdpa_register_device(&mvdev->vdev, 2 * mlx5_vdpa_max_qps(max_vqs));
+ 	if (err)
+ 		goto err_reg;
+ 
+diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+index a69ffc991e13..ba89238f9898 100644
+--- a/drivers/vdpa/vdpa.c
++++ b/drivers/vdpa/vdpa.c
+@@ -61,7 +61,6 @@ static void vdpa_release_dev(struct device *d)
+  * initialized but before registered.
+  * @parent: the parent device
+  * @config: the bus operations that is supported by this device
+- * @nvqs: number of virtqueues supported by this device
+  * @size: size of the parent structure that contains private data
+  *
+  * Driver should use vdpa_alloc_device() wrapper macro instead of
+@@ -72,7 +71,6 @@ static void vdpa_release_dev(struct device *d)
+  */
+ struct vdpa_device *__vdpa_alloc_device(struct device *parent,
+ 					const struct vdpa_config_ops *config,
+-					int nvqs,
+ 					size_t size)
+ {
+ 	struct vdpa_device *vdev;
+@@ -99,7 +97,6 @@ struct vdpa_device *__vdpa_alloc_device(struct device *parent,
+ 	vdev->index = err;
+ 	vdev->config = config;
+ 	vdev->features_valid = false;
+-	vdev->nvqs = nvqs;
+ 
+ 	err = dev_set_name(&vdev->dev, "vdpa%u", vdev->index);
+ 	if (err)
+@@ -122,11 +119,14 @@ EXPORT_SYMBOL_GPL(__vdpa_alloc_device);
+  * vdpa_register_device - register a vDPA device
+  * Callers must have a succeed call of vdpa_alloc_device() before.
+  * @vdev: the vdpa device to be registered to vDPA bus
++ * @nvqs: number of virtqueues supported by this device
+  *
+  * Returns an error when fail to add to vDPA bus
+  */
+-int vdpa_register_device(struct vdpa_device *vdev)
++int vdpa_register_device(struct vdpa_device *vdev, int nvqs)
+ {
++	vdev->nvqs = nvqs;
++
+ 	return device_add(&vdev->dev);
+ }
+ EXPORT_SYMBOL_GPL(vdpa_register_device);
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+index 6a90fdb9cbfc..b129cb4dd013 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -357,7 +357,7 @@ static struct vdpasim *vdpasim_create(void)
+ 	else
+ 		ops = &vdpasim_net_config_ops;
+ 
+-	vdpasim = vdpa_alloc_device(struct vdpasim, vdpa, NULL, ops, VDPASIM_VQ_NUM);
++	vdpasim = vdpa_alloc_device(struct vdpasim, vdpa, NULL, ops);
+ 	if (!vdpasim)
+ 		goto err_alloc;
+ 
+@@ -393,7 +393,7 @@ static struct vdpasim *vdpasim_create(void)
+ 	vringh_set_iotlb(&vdpasim->vqs[1].vring, vdpasim->iommu);
+ 
+ 	vdpasim->vdpa.dma_dev = dev;
+-	ret = vdpa_register_device(&vdpasim->vdpa);
++	ret = vdpa_register_device(&vdpasim->vdpa, VDPASIM_VQ_NUM);
+ 	if (ret)
+ 		goto err_iommu;
+ 
+diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+index 30bc7a7223bb..d9e9d17b9083 100644
+--- a/include/linux/vdpa.h
++++ b/include/linux/vdpa.h
+@@ -244,18 +244,17 @@ struct vdpa_config_ops {
+ 
+ struct vdpa_device *__vdpa_alloc_device(struct device *parent,
+ 					const struct vdpa_config_ops *config,
+-					int nvqs,
+ 					size_t size);
+ 
+-#define vdpa_alloc_device(dev_struct, member, parent, config, nvqs)   \
++#define vdpa_alloc_device(dev_struct, member, parent, config)   \
+ 			  container_of(__vdpa_alloc_device( \
+-				       parent, config, nvqs, \
++				       parent, config, \
+ 				       sizeof(dev_struct) + \
+ 				       BUILD_BUG_ON_ZERO(offsetof( \
+ 				       dev_struct, member))), \
+ 				       dev_struct, member)
+ 
+-int vdpa_register_device(struct vdpa_device *vdev);
++int vdpa_register_device(struct vdpa_device *vdev, int nvqs);
+ void vdpa_unregister_device(struct vdpa_device *vdev);
+ 
+ /**
 -- 
 2.25.1
 
