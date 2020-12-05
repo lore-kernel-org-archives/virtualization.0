@@ -1,82 +1,119 @@
-Return-Path: <SRS0=VsiN=FI=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=Hf4y=FJ=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A82DC4167B
-	for <virtualization@archiver.kernel.org>; Fri,  4 Dec 2020 17:13:11 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39458C433FE
+	for <virtualization@archiver.kernel.org>; Sat,  5 Dec 2020 19:32:21 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8D14322B3B
-	for <virtualization@archiver.kernel.org>; Fri,  4 Dec 2020 17:13:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8D14322B3B
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+	by mail.kernel.org (Postfix) with ESMTPS id 08EA922DBF
+	for <virtualization@archiver.kernel.org>; Sat,  5 Dec 2020 19:32:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 08EA922DBF
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id ED35F204E2;
-	Fri,  4 Dec 2020 17:13:09 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id AF50687936;
+	Sat,  5 Dec 2020 19:32:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nL1hWyMajXC0; Fri,  4 Dec 2020 17:13:08 +0000 (UTC)
+	with ESMTP id CGVMEfxAqOIK; Sat,  5 Dec 2020 19:32:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 8035F204CE;
-	Fri,  4 Dec 2020 17:13:08 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id ECD7E8792B;
+	Sat,  5 Dec 2020 19:32:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 56533C0FA7;
-	Fri,  4 Dec 2020 17:13:08 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B3292C013B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CD37EC0FA8;
+	Sat,  5 Dec 2020 19:32:18 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 17C5DC013B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Dec 2020 17:13:06 +0000 (UTC)
+ Sat,  5 Dec 2020 19:32:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 9BF2387C04
+ by hemlock.osuosl.org (Postfix) with ESMTP id 062A087930
  for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Dec 2020 17:13:06 +0000 (UTC)
+ Sat,  5 Dec 2020 19:32:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ovrQd8eJiQ-0
+ with ESMTP id 8agbW---kJua
  for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Dec 2020 17:13:05 +0000 (UTC)
+ Sat,  5 Dec 2020 19:32:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from merlin.infradead.org (merlin.infradead.org [205.233.59.134])
- by whitealder.osuosl.org (Postfix) with ESMTPS id C1F8487E57
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 3313F8792B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  4 Dec 2020 17:13:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:Content-Type:
- In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
- :Reply-To:Content-ID:Content-Description;
- bh=Uudat3NMCrNIXj1FEuY9SUz/r7syzJ3sbnmnSODxAJg=; b=gIHWQ/mbkOj0QUxq4EXZ66shiW
- IkpsaN4EDANDPQ2SbTsuPA2/NsLd8l6BKwyAabcflmOWv+pZxHqFz0nGS3Xzt236S2IKjMyXbfndg
- B7QgVbWkNpreXf14D4nlCDrv6llYjiHV2bdssCKvmK65JRMicxO3gDcvTnBxx8qzhIrmSzw+ios4g
- w4jQRQPbhmcUVgNV4t1x7yMvIASZZKE5hiwRfbq291Y5kn+BFWh1S0gfksj7VnSCuNaFk4evm+9RE
- 6Pb9fdkJLSR5mvTg5GMexDd3kSLtHPoa0+Ni+vv5nXaDyNA6tIWUMH+M4w3Ehcr+OMsCl4VMNJNY5
- DEgP0/Eg==;
-Received: from [2601:1c0:6280:3f0::1494]
- by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
- id 1klEdi-0003Dt-Vh; Fri, 04 Dec 2020 17:13:03 +0000
-Subject: Re: [PATCH V2 19/19] vdpa: introduce virtio pci driver
-To: Stefano Garzarella <sgarzare@redhat.com>, Jason Wang <jasowang@redhat.com>
-References: <20201204040353.21679-1-jasowang@redhat.com>
- <20201204040353.21679-20-jasowang@redhat.com>
- <20201204152043.ewqlwviaf33wwiyx@steredhat>
-From: Randy Dunlap <rdunlap@infradead.org>
-Message-ID: <73a1c314-7398-6182-146f-cd2012646736@infradead.org>
-Date: Fri, 4 Dec 2020 09:12:55 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+ Sat,  5 Dec 2020 19:32:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1607196733;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=U0EK7Xx+WJiCxdoOjpYgymlmknRa2p5m+dwzuMaOFjc=;
+ b=CsZ2ecsWkH9aZ7TQrI8ZO8vKeTWj/6G6l/KP0XCzPPH11IyPN3ReCyBZhPOMg7SfADZ1FL
+ jxuSkqyFwE4svtyAV6jv1MNMUQStGry0ewGSFKU70X4qBGax42WZTw362TU6yAu3jPQ3L6
+ iYDOYSI8ZKmVM7d+h+Ofmx0CeFO31Ho=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-584-PQXYH78PMMyQzlTYnM62hg-1; Sat, 05 Dec 2020 14:32:12 -0500
+X-MC-Unique: PQXYH78PMMyQzlTYnM62hg-1
+Received: by mail-wm1-f72.google.com with SMTP id q17so2953827wmc.1
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 05 Dec 2020 11:32:12 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=ofSC9lpwG6+UCSNudemJILG6AFj0fHelQy+fBqMM60g=;
+ b=tgh1YJvKeIdYHzaS7V6yp1LcXJLOg4zqoJwrIgWKJ0pcB6HBAjt20qqLS0NwGbBi74
+ 9+a1O/CCIkt0l8QhUHSJ6Z0hPXEbQLhmjjmhhLPsZOW6PFSiGx/4oEu5Dr53oP9+c60y
+ JzcXxjEQFkbV48uQpZzUFbs2PCefTJfMf0UKgbtrLHx0xh/+HpBWf6z5iOdqbX7+qHep
+ adajuoeOuKgdh37z16Qcc0V4QGP4bu/uOQaxYoZ215RMcXTonlmE8E53baGiYmXXXt02
+ 8eE2WzclsqVsDdm4MJ3U3pQ4HyS14L11Ex4R1NZ7g6lPVIdOs1qL5g86/d0g3i5mfEU5
+ i5Hw==
+X-Gm-Message-State: AOAM533koL4yuuQTg508VBnPQ99iFy1r0JL1fl8lEyDi/vXo8rEmK7eu
+ c6pz9rYeit7F6B3hNgQWVlgPaJxTFqa45sTmce+U7AZHi4JEXtOUCXRd+UAnSSZh2a8thWHVZ02
+ bxuMSj20ztcml8gJAxPyglmlMggt1ATu9FtOy14tLww==
+X-Received: by 2002:a1c:9d85:: with SMTP id
+ g127mr10659853wme.118.1607196729259; 
+ Sat, 05 Dec 2020 11:32:09 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxTZFGnBU4zJ3vNUAlp7Lk23tATWWb8vX7NoCe2Rd1SBGhMQ9NKv0j2hhmXa23rEif7aIjTgQ==
+X-Received: by 2002:a1c:9d85:: with SMTP id
+ g127mr10659834wme.118.1607196729032; 
+ Sat, 05 Dec 2020 11:32:09 -0800 (PST)
+Received: from redhat.com (bzq-79-176-44-197.red.bezeqint.net. [79.176.44.197])
+ by smtp.gmail.com with ESMTPSA id b14sm8512163wrq.47.2020.12.05.11.32.06
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Sat, 05 Dec 2020 11:32:08 -0800 (PST)
+Date: Sat, 5 Dec 2020 14:32:04 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
+Subject: Re: [PATCH v2 2/2] drivers: gpio: add virtio-gpio guest driver
+Message-ID: <20201205142218-mutt-send-email-mst@kernel.org>
+References: <20201203191135.21576-1-info@metux.net>
+ <20201203191135.21576-2-info@metux.net>
+ <8209ce55-a4aa-f256-b9b9-f7eb3cac877b@redhat.com>
+ <96aca1e6-2d5a-deb1-2444-88f938c7a9de@metux.net>
 MIME-Version: 1.0
-In-Reply-To: <20201204152043.ewqlwviaf33wwiyx@steredhat>
-Content-Language: en-US
-Cc: shahafs@mellanox.com, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, mst@redhat.com
+In-Reply-To: <96aca1e6-2d5a-deb1-2444-88f938c7a9de@metux.net>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: stefanha@redhat.com, corbet@lwn.net, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ bgolaszewski@baylibre.com, linux-gpio@vger.kernel.org,
+ linux-riscv@lists.infradead.org, msuchanek@suse.de, "Enrico Weigelt,
+ metux IT consult" <info@metux.net>, linus.walleij@linaro.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -88,40 +125,125 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gMTIvNC8yMCA3OjIwIEFNLCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6Cj4gT24gRnJpLCBE
-ZWMgMDQsIDIwMjAgYXQgMTI6MDM6NTNQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPj4gVGhp
-cyBwYXRjaCBpbnRyb2R1Y2UgYSB2RFBBIGRyaXZlciBmb3IgdmlydGlvLXBjaSBkZXZpY2UuIEl0
-IGJyaWRnZXMKPj4gdGhlIHZpcnRpby1wY2kgY29udHJvbCBjb21tYW5kIHRvIHRoZSB2RFBBIGJ1
-cy4gVGhpcyB3aWxsIGJlIHVzZWQgZm9yCj4+IGZlYXR1cmVzIHByb3RvdHlwaW5nIGFuZCB0ZXN0
-aW5nLgo+Pgo+PiBOb3RlIHRoYXQgZ2V0L3Jlc3RvcmUgdmlydHF1ZXVlIHN0YXRlIGlzIG5vdCBz
-dXBwb3J0ZWQgd2hpY2ggbmVlZHMKPj4gZXh0ZW5zaW9uIG9uIHRoZSB2aXJ0aW8gc3BlY2lmaWNh
-dGlvbi4KPj4KPj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNv
-bT4KPj4gLS0tCj4+IGRyaXZlcnMvdmRwYS9LY29uZmlnwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqAgfMKgwqAgNiArCj4+IGRyaXZlcnMvdmRwYS9NYWtlZmlsZcKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoCB8wqDCoCAxICsKPj4gZHJpdmVycy92ZHBhL3ZpcnRpb19wY2kvTWFrZWZpbGXCoCB8wqDC
-oCAyICsKPj4gZHJpdmVycy92ZHBhL3ZpcnRpb19wY2kvdnBfdmRwYS5jIHwgNDU1ICsrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKwo+PiA0IGZpbGVzIGNoYW5nZWQsIDQ2NCBpbnNlcnRpb25z
-KCspCj4+IGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL3ZkcGEvdmlydGlvX3BjaS9NYWtlZmls
-ZQo+PiBjcmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy92ZHBhL3ZpcnRpb19wY2kvdnBfdmRwYS5j
-Cj4+Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEvS2NvbmZpZyBiL2RyaXZlcnMvdmRwYS9L
-Y29uZmlnCj4+IGluZGV4IDM1OGY2MDQ4ZGQzYy4uMThjYWQxNGY1MzNlIDEwMDY0NAo+PiAtLS0g
-YS9kcml2ZXJzL3ZkcGEvS2NvbmZpZwo+PiArKysgYi9kcml2ZXJzL3ZkcGEvS2NvbmZpZwo+PiBA
-QCAtNDgsNCArNDgsMTAgQEAgY29uZmlnIE1MWDVfVkRQQV9ORVQKPj4gwqDCoMKgwqDCoCBiZSBl
-eGVjdXRlZCBieSB0aGUgaGFyZHdhcmUuIEl0IGFsc28gc3VwcG9ydHMgYSB2YXJpZXR5IG9mIHN0
-YXRlbGVzcwo+PiDCoMKgwqDCoMKgIG9mZmxvYWRzIGRlcGVuZGluZyBvbiB0aGUgYWN0dWFsIGRl
-dmljZSB1c2VkIGFuZCBmaXJtd2FyZSB2ZXJzaW9uLgo+Pgo+PiArY29uZmlnIFZQX1ZEUEEKPj4g
-K8KgwqDCoCB0cmlzdGF0ZSAiVmlydGlvIFBDSSBicmlkZ2UgdkRQQSBkcml2ZXIiCj4+ICvCoMKg
-wqAgZGVwZW5kcyBvbiBQQ0lfTVNJICYmIFZJUlRJT19QQ0lfTU9ERVJOCj4+ICvCoMKgwqAgaGVs
-cAo+PiArwqDCoMKgwqDCoCBUaGlzIGtlcm5lbCBtb2R1bGUgdGhhdCBicmlkZ2VzIHZpcnRpbyBQ
-Q0kgZGV2aWNlIHRvIHZEUEEgYnVzLgo+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIF4KPiBXaXRob3V0ICd0aGF0JyBtYXliZSBzb3VuZCBi
-ZXR0ZXIsIGJ1dCBJJ20gbm90IGEgbmF0aXZlIHNwZWFrZXIgOi0pCgpZZXMsIGRyb3AgJ3RoYXQn
-LCBwbGVhc2UuCgo+PiArCj4+IGVuZGlmICMgVkRQQQoKLS0gCn5SYW5keQoKX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
-ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
-bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Sat, Dec 05, 2020 at 08:59:55AM +0100, Enrico Weigelt, metux IT consult =
+wrote:
+> On 04.12.20 04:35, Jason Wang wrote:
+> =
+
+> >> --- a/drivers/gpio/Kconfig
+> >> +++ b/drivers/gpio/Kconfig
+> >> @@ -1615,6 +1615,15 @@ config GPIO_MOCKUP
+> >> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 tools/testing/selftests/gpi=
+o/gpio-mockup.sh. Reference the
+> >> usage in
+> >> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 it.
+> >> =C2=A0 +config GPIO_VIRTIO
+> >> +=C2=A0=C2=A0=C2=A0 tristate "VirtIO GPIO support"
+> >> +=C2=A0=C2=A0=C2=A0 depends on VIRTIO
+> > =
+
+> > =
+
+> > Let's use select, since there's no prompt for VIRTIO and it doesn't have
+> > any dependencies.
+> =
+
+> whoops, it's not that simple:
+> =
+
+> make: Entering directory '/home/nekrad/src/apu2-dev/pkg/kernel.apu2.git'
+> make[1]: Entering directory
+> '/home/nekrad/src/dk/DistroKit/platform-x86_64/build-target/linux-5.8.9-b=
+uild'
+>   GEN     Makefile
+> drivers/gpu/drm/Kconfig:74:error: recursive dependency detected!
+> drivers/gpu/drm/Kconfig:74:	symbol DRM_KMS_HELPER is selected by
+> DRM_VIRTIO_GPU
+> drivers/gpu/drm/virtio/Kconfig:2:	symbol DRM_VIRTIO_GPU depends on VIRTIO
+> drivers/virtio/Kconfig:2:	symbol VIRTIO is selected by GPIO_VIRTIO
+> drivers/gpio/Kconfig:1618:	symbol GPIO_VIRTIO depends on GPIOLIB
+> drivers/gpio/Kconfig:14:	symbol GPIOLIB is selected by I2C_MUX_LTC4306
+> drivers/i2c/muxes/Kconfig:47:	symbol I2C_MUX_LTC4306 depends on I2C
+> drivers/i2c/Kconfig:8:	symbol I2C is selected by FB_DDC
+> drivers/video/fbdev/Kconfig:63:	symbol FB_DDC depends on FB
+> drivers/video/fbdev/Kconfig:12:	symbol FB is selected by DRM_KMS_FB_HELPER
+> drivers/gpu/drm/Kconfig:80:	symbol DRM_KMS_FB_HELPER depends on
+> DRM_KMS_HELPER
+> =
+
+> Seems that we can only depend on or select some symbol - we run into
+> huge trouble if thats mixed. Just changed DRM_VIRTIO_GPU to just select
+> VIRIO instead of depending on it, and now it works.
+> =
+
+> I've posted another patch for fixing drivers/gpu/drm/virtio/Kconfig
+> to use 'select' instead of 'depends on'.
+
+It seems a bit of a mess, at this point I'm not entirely sure when
+should drivers select VIRTIO and when depend on it.
+
+The text near it says:
+
+# SPDX-License-Identifier: GPL-2.0-only
+config VIRTIO
+        tristate
+        help
+          This option is selected by any driver which implements the virtio
+          bus, such as CONFIG_VIRTIO_PCI, CONFIG_VIRTIO_MMIO, CONFIG_RPMSG
+          or CONFIG_S390_GUEST.
+
+Which seems clear enough and would indicate drivers for devices *behind*
+the bus should not select VIRTIO and thus presumably should "depend on" it.
+This is violated in virtio console and virtio fs drivers.
+
+For console it says:
+
+commit 9f30eb29c514589e16f2999ea070598583d1f6ec
+Author: Michal Suchanek <msuchanek@suse.de>
+Date:   Mon Aug 31 18:58:50 2020 +0200
+
+    char: virtio: Select VIRTIO from VIRTIO_CONSOLE.
+    =
+
+    Make it possible to have virtio console built-in when
+    other virtio drivers are modular.
+    =
+
+    Signed-off-by: Michal Suchanek <msuchanek@suse.de>
+    Reviewed-by: Amit Shah <amit@kernel.org>
+    Link: https://lore.kernel.org/r/20200831165850.26163-1-msuchanek@suse.de
+    Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+which seems kind of bogus - why do we care about allowing a builtin
+virtio console driver if the pci virtio bus driver is a module?
+There won't be any devices on the bus to attach to ...
+
+And for virtio fs it was like this from the beginning.
+
+I am inclined to fix console and virtio fs to depend on VIRTIO:
+select is harder to use correctly ...
+
+Jason?
+
+
+> -- =
+
+> ---
+> Hinweis: unverschl=C3=BCsselte E-Mails k=C3=B6nnen leicht abgeh=C3=B6rt u=
+nd manipuliert
+> werden ! F=C3=BCr eine vertrauliche Kommunikation senden Sie bitte ihren
+> GPG/PGP-Schl=C3=BCssel zu.
+> ---
+> Enrico Weigelt, metux IT consult
+> Free software and Linux embedded engineering
+> info@metux.net -- +49-151-27565287
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
