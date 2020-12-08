@@ -2,97 +2,97 @@ Return-Path: <SRS0=k93m=FM=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
 	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73AF0C4361B
-	for <virtualization@archiver.kernel.org>; Tue,  8 Dec 2020 08:25:59 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E71C2C433FE
+	for <virtualization@archiver.kernel.org>; Tue,  8 Dec 2020 08:42:07 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EE81223A5B
-	for <virtualization@archiver.kernel.org>; Tue,  8 Dec 2020 08:25:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EE81223A5B
+	by mail.kernel.org (Postfix) with ESMTPS id 55053239E5
+	for <virtualization@archiver.kernel.org>; Tue,  8 Dec 2020 08:42:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 55053239E5
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 7E8AB87788;
-	Tue,  8 Dec 2020 08:25:58 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id CA51C86463;
+	Tue,  8 Dec 2020 08:42:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id StUAt+jPnzUs; Tue,  8 Dec 2020 08:25:58 +0000 (UTC)
+	with ESMTP id 7HI0xB3nm1FL; Tue,  8 Dec 2020 08:42:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 192C4877AB;
-	Tue,  8 Dec 2020 08:25:58 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 5BAEA864C3;
+	Tue,  8 Dec 2020 08:42:05 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E923FC0FA7;
-	Tue,  8 Dec 2020 08:25:57 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 29A1DC013B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1A866C0FA7;
+	Tue,  8 Dec 2020 08:42:05 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B3CCEC013B
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Dec 2020 08:25:57 +0000 (UTC)
+ Tue,  8 Dec 2020 08:42:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 1D46787585
+ by silver.osuosl.org (Postfix) with ESMTP id 8FCCE203A2
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Dec 2020 08:25:57 +0000 (UTC)
+ Tue,  8 Dec 2020 08:42:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FRsjxsoOmzOd
+ with ESMTP id XnVKGwwkhW3s
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Dec 2020 08:25:56 +0000 (UTC)
+ Tue,  8 Dec 2020 08:42:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-ed1-f66.google.com (mail-ed1-f66.google.com
- [209.85.208.66])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 0486B87538
+Received: from mail-ed1-f65.google.com (mail-ed1-f65.google.com
+ [209.85.208.65])
+ by silver.osuosl.org (Postfix) with ESMTPS id 4A3E720396
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Dec 2020 08:25:56 +0000 (UTC)
-Received: by mail-ed1-f66.google.com with SMTP id cw27so16661735edb.5
+ Tue,  8 Dec 2020 08:42:02 +0000 (UTC)
+Received: by mail-ed1-f65.google.com with SMTP id r5so16669826eda.12
  for <virtualization@lists.linux-foundation.org>;
- Tue, 08 Dec 2020 00:25:55 -0800 (PST)
+ Tue, 08 Dec 2020 00:42:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to;
- bh=CRRpx8acZX4QjtTnMIWAXX++AMuePl61ml+xI4XshWU=;
- b=fOK/3HgiuVBZ02q0KOifw6SzUXjBYw5+AuClkdFIgY1bJpmlwwdbHVyVivO0eg+aa2
- JhYZdRbBcHtFNThHnS9vSHXgzNgZeaJEBYXDf+pb/wF3NqwCKtbzTo4BTUNaoLugNuZH
- Pjmhf/0107cUNmr1PnADrcmbvF7Xsg9WQLMYay/4/HoolpX8IO6F7BV0/6z84Ayj6tyC
- t5UJEqv5AmQuY9sKeu1suv8qLhIIZKBjCrXblTOv0AkITuMqGH+5DqYFYgff4E0Yiawv
- voT9qUCZKgkr2A3wCFgycaL2kPM43WHTbx/qHUPsQYjC/mtOwMW7GE/3K/ArfNn4RJWd
- ZhVQ==
+ bh=dv5042T5Xl5anFxys9y89AYgrw+q8hp4hTeeMVqbfNM=;
+ b=Wff6CoaMW3uX4r9WwTxFp+jpDE9pAduxRRSz4rVxEnS3miF+JZ5aS9POcaEvPBDpQz
+ xXbitemYl5dTVKfKNkNxEU7WDwvcrfENEAVtPFtR9Cn0auNaRG8YJ9LDw41E/bwIBDos
+ no7fegFtVm8SeEp8tLDpXgwXQ2mKUfL1Zymw1sn3DINpWzHt4irS9t/LQ6zXzsxRjiYL
+ ZXw+AP9aHRwBDaRb8jHEcqgoWOnUV5aJpV64PykkpG0XMVbj8bXQtwVmroIefb/pSfyO
+ 2NR0mGnXYp/Nm1p1ydo3umt/7Juo4vr31PatUjq6dSribOltlKSB8LIlq0LSOK758U/H
+ 3zLA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=CRRpx8acZX4QjtTnMIWAXX++AMuePl61ml+xI4XshWU=;
- b=AusDXXLWqTQj5td7XNYejoYQauxlGbQkKmFc1bi0OmidzAVCY+us030xDmE1qRc5BZ
- SwZ1gxby0CwatZMbxEIqrF5xZwaRH8uTQ0SW8pv+uWREPjr68zJUeFg7wlY0P9mxXdit
- 33B6VP/PE0JOqWkR1CspBs0RQl5G1wqqnt8HohIolnLT1kcBxHu3JhnGbUSfKLZPeQrR
- R9+xnAfKhIrnZpGdakrCnhu6Tn6RvVco4/CfDU5PP2TrGB8HGWqpzzsYsRjCqZa+sZvr
- IyH2/7tGFZiOusZfkJgtz1K3pbeso28hxvAXOREMArQOkyAAycWBfDefDhfOrKZSgxfZ
- JXxA==
-X-Gm-Message-State: AOAM53168bBRWH3YAKYsmKprTpSPKqdodKhET75oe0n/PYqfp9qqFTYb
- BoR0GiJqSmwSbB8ubvwjL30=
-X-Google-Smtp-Source: ABdhPJwgXgn+yrMMIjilMjVvsLWwQHozsuf+tTEAZtoyMOYhysd+aHWNX+tUMzVsB8iXuDrM/o5tQA==
-X-Received: by 2002:a05:6402:3074:: with SMTP id
- bs20mr23700631edb.365.1607415954491; 
- Tue, 08 Dec 2020 00:25:54 -0800 (PST)
+ bh=dv5042T5Xl5anFxys9y89AYgrw+q8hp4hTeeMVqbfNM=;
+ b=JO9SfD5tejRTgkglQDf/qDFKG5Uu5wDCQwUTQZPJZSFA0sgCINc7v8iuKstNBJxHP8
+ dGTZBf5oTytmgLdUUUT6vuZN/z9+FKS85p5s+SXyGxUcZCBLaGp2EzKT1koauUro+WYD
+ J7zcU5jlGVJJmqB3RQCK8YtcjGxQimQwFl8q37PqAHXXWEsaxtkAQ37ry23tqq2LLj0r
+ clW7OPK7iq8Un5LF/HX0Z+cpnbF8uT7K1KyQx5HldaDkwBry/k7DjwxWjNGVnlC5Eao7
+ sXnghdsWfGAtjQHwjU0Y7N/s/w1WJtqAYnfnOTlyeZ7ZaqsuSC+9ViTyV0qKu9tDvwA6
+ 32Pw==
+X-Gm-Message-State: AOAM531WRf0ELWRPbDyYw+FdRuY4AxTIifyf6MlX14qZ4VsWqjxRSIwH
+ zX2nuxz8C8mGxcwr+M9yU5I=
+X-Google-Smtp-Source: ABdhPJxKX9FUD+oYHW+oUA4G+bzORQxT3oENR+iOmlg23ZJuzgV75RiXV2XUS+CIPltJfjfZPeW9YQ==
+X-Received: by 2002:a05:6402:a45:: with SMTP id
+ bt5mr23987529edb.130.1607416920727; 
+ Tue, 08 Dec 2020 00:42:00 -0800 (PST)
 Received: from localhost ([51.15.41.238])
- by smtp.gmail.com with ESMTPSA id rs27sm15112106ejb.21.2020.12.08.00.25.53
+ by smtp.gmail.com with ESMTPSA id m1sm13292254ejg.41.2020.12.08.00.41.59
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 08 Dec 2020 00:25:53 -0800 (PST)
-Date: Tue, 8 Dec 2020 08:25:52 +0000
+ Tue, 08 Dec 2020 00:41:59 -0800 (PST)
+Date: Tue, 8 Dec 2020 08:41:58 +0000
 From: Stefan Hajnoczi <stefanha@gmail.com>
 To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Subject: Re: [RFC PATCH 16/27] virtio: Expose virtqueue_alloc_element
-Message-ID: <20201208082552.GT203660@stefanha-x1.localdomain>
+Subject: Re: [RFC PATCH 18/27] vhost: add vhost_vring_poll_rcu
+Message-ID: <20201208084158.GU203660@stefanha-x1.localdomain>
 References: <20201120185105.279030-1-eperezma@redhat.com>
- <20201120185105.279030-17-eperezma@redhat.com>
+ <20201120185105.279030-19-eperezma@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20201120185105.279030-17-eperezma@redhat.com>
+In-Reply-To: <20201120185105.279030-19-eperezma@redhat.com>
 Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
  qemu-devel@nongnu.org, Daniel Daly <dandaly0@gmail.com>,
  virtualization@lists.linux-foundation.org, Liran Alon <liralon@gmail.com>,
@@ -119,53 +119,50 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============6444854928177360934=="
+Content-Type: multipart/mixed; boundary="===============0277814981316283725=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
---===============6444854928177360934==
+--===============0277814981316283725==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="80Ds8Z/hZmemMosa"
+	protocol="application/pgp-signature"; boundary="sDhuxz86kt5qlkuV"
 Content-Disposition: inline
 
 
---80Ds8Z/hZmemMosa
+--sDhuxz86kt5qlkuV
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 20, 2020 at 07:50:54PM +0100, Eugenio P=E9rez wrote:
-> Specify VirtQueueElement * as return type makes no harm at this moment.
+On Fri, Nov 20, 2020 at 07:50:56PM +0100, Eugenio P=E9rez wrote:
+> @@ -83,6 +89,18 @@ void vhost_vring_set_notification_rcu(VhostShadowVirtq=
+ueue *vq, bool enable)
+>      smp_mb();
+>  }
+> =20
+> +bool vhost_vring_poll_rcu(VhostShadowVirtqueue *vq)
 
-The reason for the void * return type is that C implicitly converts void
-pointers to pointers of any type. The function takes a size_t sz
-argument so it can allocate a object of user-defined size. The idea is
-that the user's struct embeds a VirtQueueElement field. Changing the
-return type to VirtQueueElement * means that callers may need to
-explicitly cast to the user's struct type.
+A name like "more_used" is clearer than "poll".
 
-It's a question of coding style but I think the void * return type
-communicates what is going on better than VirtQueueElement *.
-
---80Ds8Z/hZmemMosa
+--sDhuxz86kt5qlkuV
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl/POJAACgkQnKSrs4Gr
-c8iIOQf/eNAzxK1ncAAJ6gkC5ZN4/DQUgcfZBmB/a4jRwojXtH7Tkr9soSJU/TN+
-1mJPWNebsod4iVWGO+yl0y+YL4Iif2d2TSFpiyZvwOyNY1KAXpSgm3TwsbBW1UkG
-WduAcNnpl06uIFb+x2w1aQlVE7RMaCFKRSw7GgLxDxuBJipan4LO+cDLlgwJk62z
-RMsgHlzhfHZ9Kq2MMbZkwF4Etz1sWFOkn80cbFQT247Mn6Kx0KtU3RM7ubowKDmY
-fXsySdAnqcU8fNv+7Oi3lM1zHI2jWTVPbfvmFDK7cYghlUU5lQJlUSC2icXRKm1T
-OtyLrwUxDfPwL4895JADTzpPAwngDA==
-=Cecc
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl/PPFYACgkQnKSrs4Gr
+c8i/SQf/TvTgWv3whWVp5Emvh9/XNPEraByggX/NHutQ/7KU68p2ij7mFjVhwXoA
+S6Cga7m5aygc3dDUoTF2rsp1uhontJMnUxLtq7glV2eUFpg/DqxfwBjU9uAYziyo
+yqr4PaBlhgqJbNO9lsLXpwHX+KZwGDDsm+eiAPgOsKVltCQaHMCE3LETr3MX6JwU
+ZHwC9DSppMxi7LXWqiTiHMwP006UxKxQQQfHiUpYYkZQ2qBpNpGXfQoebtyDgbUm
+/lb3vNSJzsqrusZvv7j1LMVXFjPnpGdsry9w9q+ia9B68VPFQJp9CYwJxVIBA3DS
+mOsdXqFq6+bwjli4YUG16be6Oc3rOg==
+=k8Qa
 -----END PGP SIGNATURE-----
 
---80Ds8Z/hZmemMosa--
+--sDhuxz86kt5qlkuV--
 
---===============6444854928177360934==
+--===============0277814981316283725==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -175,4 +172,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6444854928177360934==--
+--===============0277814981316283725==--
