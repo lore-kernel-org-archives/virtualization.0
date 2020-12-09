@@ -2,108 +2,106 @@ Return-Path: <SRS0=MC01=FN=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
-	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2DFDC4361B
-	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:43:57 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 972B3C433FE
+	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 15:58:46 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 33D01233A2
-	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:43:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 33D01233A2
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 446492310E
+	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 15:58:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 446492310E
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id D2D52875CF;
-	Wed,  9 Dec 2020 14:43:56 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 1568887A12;
+	Wed,  9 Dec 2020 15:58:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8XUjiZ9nUoyO; Wed,  9 Dec 2020 14:43:56 +0000 (UTC)
+	with ESMTP id We6oGFoi5OHr; Wed,  9 Dec 2020 15:58:45 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 25B71875DD;
-	Wed,  9 Dec 2020 14:43:56 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 37A1C879CD;
+	Wed,  9 Dec 2020 15:58:45 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0C5D3C0FA7;
-	Wed,  9 Dec 2020 14:43:56 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 26C35C0893;
+	Wed,  9 Dec 2020 15:58:45 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1DD35C013B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 626B0C013B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:43:55 +0000 (UTC)
+ Wed,  9 Dec 2020 15:58:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 0B2D386B92
+ by whitealder.osuosl.org (Postfix) with ESMTP id 4FCE58690F
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:43:55 +0000 (UTC)
+ Wed,  9 Dec 2020 15:58:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id jhw9IFEr3PSi
+ with ESMTP id 7H-bEO9uZ0vn
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:43:53 +0000 (UTC)
+ Wed,  9 Dec 2020 15:58:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-vk1-f195.google.com (mail-vk1-f195.google.com
- [209.85.221.195])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 89FD086B83
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 2D3B9868D0
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:43:53 +0000 (UTC)
-Received: by mail-vk1-f195.google.com with SMTP id v185so384914vkf.8
- for <virtualization@lists.linux-foundation.org>;
- Wed, 09 Dec 2020 06:43:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=7Q6KcYtQg5u1UB7CZSEvhSXseIPsOcn669yzRvM9CMI=;
- b=MlNvVPUG7US7xBW3iVErIuZr+AX7nU82hgF0ulmmxukBGxZ+1aH8RSAISrlziE8ohP
- 3rHT2hclrFaH7fVYUBoXUOstwt+bc9QYX3X8ALTg6X5lBTkgBf8WxhMvrd08q9pIuE2E
- ROIhSWl9U3bbWNiEFECJDGApOqjDZgiCLU6BhfPfQaHVd+/ludibgxNig9Ga2clSkxLL
- XDF2E73bcHhgNStuIvVz04fkXa+eJsA1t64j3S3SVLso9HivnYtXI7dqrH6syofZZiOK
- cueIh3qC39Qd2tHI+caBJ6vq9g2IuSR9SalaG0NVyUu4JBRCWQ6SMFlpXefbPZ+E680/
- e2LQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=7Q6KcYtQg5u1UB7CZSEvhSXseIPsOcn669yzRvM9CMI=;
- b=RsXS8TggPyTORXEZ+ziqaltgf7i1P4f5OE9hvFop8Ams34gqPd52Ms1nyYS2smAFrS
- eDnqaYDMyWoICFSUUzjG+DvY/dQD0oYSOh1VkHmY8DDwrzU1UEyzNbXu8BcMF5gZG8G6
- 9322KiFcR3reiUA+/4Iit+f1iisTIM9MfV/x1jWFp3m9z0ncWofpZMnpRuOay6vAFQ11
- RQb8UVBM+jY+32XbPO3fRJhMdpM9W/6+11FWa+znFJtdS/h1n6kzes6yeh6MfW/0Zahc
- G3naiJ9WGCOJev/Qr46OjrejWf8cgqazO5ZZt8gTbJVz6MWL0kEY288drm4O12cFMOOs
- IGeg==
-X-Gm-Message-State: AOAM530sg3nHF6+HaCLBPfCXjOqQ5j8MUuuCm5qhMlfBEIAYsk8l3b2Y
- kdP+tiMCZbmCkYhKlCd/D8GS2k5/bYU=
-X-Google-Smtp-Source: ABdhPJx2zr81tWTOmGLT1Zr/Euh+/qaHMG7rP+7Bg9Z5diQAICwUZ/sXO/OYF6/FcrHtTdsLg8xmWg==
-X-Received: by 2002:ac5:c995:: with SMTP id e21mr2260925vkm.5.1607525032139;
- Wed, 09 Dec 2020 06:43:52 -0800 (PST)
-Received: from mail-ua1-f41.google.com (mail-ua1-f41.google.com.
- [209.85.222.41])
- by smtp.gmail.com with ESMTPSA id b23sm169925vsa.11.2020.12.09.06.43.50
- for <virtualization@lists.linux-foundation.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 09 Dec 2020 06:43:51 -0800 (PST)
-Received: by mail-ua1-f41.google.com with SMTP id w7so555155uap.13
- for <virtualization@lists.linux-foundation.org>;
- Wed, 09 Dec 2020 06:43:50 -0800 (PST)
-X-Received: by 2002:a9f:2356:: with SMTP id 80mr1832051uae.92.1607525030374;
- Wed, 09 Dec 2020 06:43:50 -0800 (PST)
+ Wed,  9 Dec 2020 15:58:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1607529520;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=JBr32EfwjraHmhGUU1qWmpGQu6trXhEY+c3U2JTdT58=;
+ b=Cae9WGaouIuQalqCvNagq8SRtMfMkFnpwJ1q+pltPZWHNpPKySvRtA/jpT4ycxocZXzq8N
+ 31kJgEo0SPGv4wO7YME+RBF1QuJZFs4cqAlZQ/WCaEfoSVSNc7xuLz5PaMW+cg3XE7tJpW
+ eCENZzox7vazQiMgzoRvTYhV0B2mWh8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-44-2pOf97PaMRukBQZCgWs7BA-1; Wed, 09 Dec 2020 10:58:35 -0500
+X-MC-Unique: 2pOf97PaMRukBQZCgWs7BA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
+ [10.5.11.11])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ADE23180DE10;
+ Wed,  9 Dec 2020 15:57:31 +0000 (UTC)
+Received: from localhost (ovpn-115-48.ams2.redhat.com [10.36.115.48])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id BD6786064B;
+ Wed,  9 Dec 2020 15:57:30 +0000 (UTC)
+Date: Wed, 9 Dec 2020 15:57:29 +0000
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH 00/27] vDPA software assisted live migration
+Message-ID: <20201209155729.GB396498@stefanha-x1.localdomain>
+References: <20201120185105.279030-1-eperezma@redhat.com>
+ <20201208093715.GX203660@stefanha-x1.localdomain>
+ <1410217602.34486578.1607506010536.JavaMail.zimbra@redhat.com>
 MIME-Version: 1.0
-References: <1606982459-41752-1-git-send-email-wangyunjian@huawei.com>
- <1607517703-18472-1-git-send-email-wangyunjian@huawei.com>
-In-Reply-To: <1607517703-18472-1-git-send-email-wangyunjian@huawei.com>
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Wed, 9 Dec 2020 09:43:13 -0500
-X-Gmail-Original-Message-ID: <CA+FuTSfQoDr0jd76xBXSvchhyihQaL2UQXeCR6frJ7hyXxbmVA@mail.gmail.com>
-Message-ID: <CA+FuTSfQoDr0jd76xBXSvchhyihQaL2UQXeCR6frJ7hyXxbmVA@mail.gmail.com>
-Subject: Re: [PATCH net v2] tun: fix ubuf refcount incorrectly on error path
-To: wangyunjian <wangyunjian@huawei.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Network Development <netdev@vger.kernel.org>, jerry.lilijun@huawei.com,
- virtualization@lists.linux-foundation.org, xudingke@huawei.com,
- chenchanghu@huawei.com
+In-Reply-To: <1410217602.34486578.1607506010536.JavaMail.zimbra@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=stefanha@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ qemu-devel@nongnu.org, Daniel Daly <dandaly0@gmail.com>,
+ virtualization@lists.linux-foundation.org, Liran Alon <liralon@gmail.com>,
+ Eli Cohen <eli@mellanox.com>, Nitin Shrivastav <nitin.shrivastav@broadcom.com>,
+ Alex Barba <alex.barba@broadcom.com>,
+ Christophe Fontaine <cfontain@redhat.com>, Lee Ballard <ballle98@gmail.com>,
+ Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+ Lars Ganrot <lars.ganrot@gmail.com>, Rob Miller <rob.miller@broadcom.com>,
+ Howard Cai <howard.cai@gmail.com>, Parav Pandit <parav@mellanox.com>,
+ vm <vmireyno@marvell.com>, Salil Mehta <mehta.salil.lnk@gmail.com>,
+ Stephen Finucane <stephenfin@redhat.com>, Xiao W Wang <xiao.w.wang@intel.com>,
+ Sean Mooney <smooney@redhat.com>, Jim Harford <jim.harford@broadcom.com>,
+ Dmytro Kazantsev <dmytro.kazantsev@gmail.com>, Siwei Liu <loseweigh@gmail.com>,
+ Harpreet Singh Anand <hanand@xilinx.com>, Michael Lilja <ml@napatech.com>,
+ Max Gurtovoy <maxgu14@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,129 +113,137 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1719845293749785858=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Dec 9, 2020 at 8:03 AM wangyunjian <wangyunjian@huawei.com> wrote:
->
-> From: Yunjian Wang <wangyunjian@huawei.com>
->
-> After setting callback for ubuf_info of skb, the callback
-> (vhost_net_zerocopy_callback) will be called to decrease
-> the refcount when freeing skb. But when an exception occurs
+--===============1719845293749785858==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="JP+T4n/bALQSJXh8"
+Content-Disposition: inline
 
-With exception, you mean if tun_get_user returns an error that
-propagates to the sendmsg call in vhost handle_tx, correct?
+--JP+T4n/bALQSJXh8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> afterwards, the error handling in vhost handle_tx() will
-> try to decrease the same refcount again. This is wrong and
-> fix this by delay copying ubuf_info until we're sure
-> there's no errors.
+On Wed, Dec 09, 2020 at 04:26:50AM -0500, Jason Wang wrote:
+> ----- Original Message -----
+> > On Fri, Nov 20, 2020 at 07:50:38PM +0100, Eugenio P=E9rez wrote:
+> > > This series enable vDPA software assisted live migration for vhost-ne=
+t
+> > > devices. This is a new method of vhost devices migration: Instead of
+> > > relay on vDPA device's dirty logging capability, SW assisted LM
+> > > intercepts dataplane, forwarding the descriptors between VM and devic=
+e.
+> >=20
+> > Pros:
+> > + vhost/vDPA devices don't need to implement dirty memory logging
+> > + Obsoletes ioctl(VHOST_SET_LOG_BASE) and friends
+> >=20
+> > Cons:
+> > - Not generic, relies on vhost-net-specific ioctls
+> > - Doesn't support VIRTIO Shared Memory Regions
+> >   https://github.com/oasis-tcs/virtio-spec/blob/master/shared-mem.tex
+>=20
+> I may miss something but my understanding is that it's the
+> responsiblity of device to migrate this part?
 
-I think the right approach is to address this in the error paths,
-rather than complicate the normal datapath.
+Good point. You're right.
 
-Is it sufficient to suppress the call to vhost_net_ubuf_put in the
-handle_tx sendmsg error path, given that vhost_zerocopy_callback
-will be called on kfree_skb?
+> > - Performance (see below)
+> >=20
+> > I think performance will be significantly lower when the shadow vq is
+> > enabled. Imagine a vDPA device with hardware vq doorbell registers
+> > mapped into the guest so the guest driver can directly kick the device.
+> > When the shadow vq is enabled a vmexit is needed to write to the shadow
+> > vq ioeventfd, then the host kernel scheduler switches to a QEMU thread
+> > to read the ioeventfd, the descriptors are translated, QEMU writes to
+> > the vhost hdev kick fd, the host kernel scheduler switches to the vhost
+> > worker thread, vhost/vDPA notifies the virtqueue, and finally the
+> > vDPA driver writes to the hardware vq doorbell register. That is a lot
+> > of overhead compared to writing to an exitless MMIO register!
+>=20
+> I think it's a balance. E.g we can poll the virtqueue to have an
+> exitless doorbell.
+>=20
+> >=20
+> > If the shadow vq was implemented in drivers/vhost/ and QEMU used the
+> > existing ioctl(VHOST_SET_LOG_BASE) approach, then the overhead would be
+> > reduced to just one set of ioeventfd/irqfd. In other words, the QEMU
+> > dirty memory logging happens asynchronously and isn't in the dataplane.
+> >=20
+> > In addition, hardware that supports dirty memory logging as well as
+> > software vDPA devices could completely eliminate the shadow vq for even
+> > better performance.
+>=20
+> Yes. That's our plan. But the interface might require more thought.
+>=20
+> E.g is the bitmap a good approach? To me reporting dirty pages via
+> virqueue is better since it get less footprint and is self throttled.
+>=20
+> And we need an address space other than the one used by guest for
+> either bitmap for virtqueue.
+>=20
+> >=20
+> > But performance is a question of "is it good enough?". Maybe this
+> > approach is okay and users don't expect good performance while dirty
+> > memory logging is enabled.
+>=20
+> Yes, and actually such slow down may help for the converge of the
+> migration.
+>=20
+> Note that the whole idea is try to have a generic solution for all
+> types of devices. It's good to consider the performance but for the
+> first stage, it should be sufficient to make it work and consider to
+> optimize on top.
 
-Or alternatively clear the destructor in drop:
+Moving the shadow vq to the kernel later would be quite a big change
+requiring rewriting much of the code. That's why I mentioned this now
+before a lot of effort is invested in a QEMU implementation.
 
->
-> Fixes: 4477138fa0ae ("tun: properly test for IFF_UP")
-> Fixes: 90e33d459407 ("tun: enable napi_gro_frags() for TUN/TAP driver")
->
-> Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
-> ---
-> v2:
->    Updated code, fix by delay copying ubuf_info
-> ---
->  drivers/net/tun.c | 29 +++++++++++++++++++----------
->  1 file changed, 19 insertions(+), 10 deletions(-)
->
-> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> index 2dc1988a8973..2ea822328e73 100644
-> --- a/drivers/net/tun.c
-> +++ b/drivers/net/tun.c
-> @@ -1637,6 +1637,20 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
->         return NULL;
->  }
->
-> +/* copy ubuf_info for callback when skb has no error */
-> +static inline void tun_copy_ubuf_info(struct sk_buff *skb, bool zerocopy, void *msg_control)
-> +{
-> +       if (zerocopy) {
-> +               skb_shinfo(skb)->destructor_arg = msg_control;
-> +               skb_shinfo(skb)->tx_flags |= SKBTX_DEV_ZEROCOPY;
-> +               skb_shinfo(skb)->tx_flags |= SKBTX_SHARED_FRAG;
-> +       } else if (msg_control) {
-> +               struct ubuf_info *uarg = msg_control;
-> +
-> +               uarg->callback(uarg, false);
-> +       }
-> +}
-> +
->  /* Get packet from user space buffer */
->  static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
->                             void *msg_control, struct iov_iter *from,
-> @@ -1812,16 +1826,6 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
->                 break;
->         }
->
-> -       /* copy skb_ubuf_info for callback when skb has no error */
-> -       if (zerocopy) {
-> -               skb_shinfo(skb)->destructor_arg = msg_control;
-> -               skb_shinfo(skb)->tx_flags |= SKBTX_DEV_ZEROCOPY;
-> -               skb_shinfo(skb)->tx_flags |= SKBTX_SHARED_FRAG;
-> -       } else if (msg_control) {
-> -               struct ubuf_info *uarg = msg_control;
-> -               uarg->callback(uarg, false);
-> -       }
-> -
->         skb_reset_network_header(skb);
->         skb_probe_transport_header(skb);
->         skb_record_rx_queue(skb, tfile->queue_index);
-> @@ -1830,6 +1834,7 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
->                 struct bpf_prog *xdp_prog;
->                 int ret;
->
-> +               tun_copy_ubuf_info(skb, zerocopy, msg_control);
->                 local_bh_disable();
->                 rcu_read_lock();
->                 xdp_prog = rcu_dereference(tun->xdp_prog);
-> @@ -1881,6 +1886,7 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
->                         return -ENOMEM;
->                 }
->
-> +               tun_copy_ubuf_info(skb, zerocopy, msg_control);
->                 local_bh_disable();
->                 napi_gro_frags(&tfile->napi);
->                 local_bh_enable();
-> @@ -1889,6 +1895,7 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
->                 struct sk_buff_head *queue = &tfile->sk.sk_write_queue;
->                 int queue_len;
->
-> +               tun_copy_ubuf_info(skb, zerocopy, msg_control);
->                 spin_lock_bh(&queue->lock);
->                 __skb_queue_tail(queue, skb);
->                 queue_len = skb_queue_len(queue);
-> @@ -1899,8 +1906,10 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
->
->                 local_bh_enable();
->         } else if (!IS_ENABLED(CONFIG_4KSTACKS)) {
-> +               tun_copy_ubuf_info(skb, zerocopy, msg_control);
->                 tun_rx_batched(tun, tfile, skb, more);
->         } else {
-> +               tun_copy_ubuf_info(skb, zerocopy, msg_control);
->                 netif_rx_ni(skb);
->         }
->         rcu_read_unlock();
-> --
-> 2.23.0
->
+> > I just wanted to share the idea of moving the
+> > shadow vq into the kernel in case you like that approach better.
+>=20
+> My understanding is to keep kernel as simple as possible and leave the
+> polices to userspace as much as possible. E.g it requires us to
+> disable doorbell mapping and irq offloading, all of which were under
+> the control of userspace.
+
+If the performance is acceptable with the QEMU approach then I think
+that's the best place to implement it. It looks high-overhead though so
+maybe one of the first things to do is to run benchmarks to collect data
+on how it performs?
+
+Stefan
+
+--JP+T4n/bALQSJXh8
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl/Q8+kACgkQnKSrs4Gr
+c8gzgwf/R8XyRehTNARVsYQYQS8pC8vzoJcb4LMSB4/opM4DdNb2gIFzVOzHt7am
+ibFu8Wyl3C2txGaFCh4YlGIwVkGTdAp++Dwhl9wWZaVA0vvjv/yxR/r82IIid7oR
+tLb5LibQ19LXmVdFgAfGaT3dXSIkPG38RECJZwSk3QBrgXfsKclGZHRpnPGsK0B3
+3PIQtGy3wjJIuVXoknfAXjThXpzXmwlc/EHQnBSajm9byvMVWzlHb2Kirc5PO0xP
+Vrg2wdmUUwnVgSC2n9DgEjb1IRyVWEW9dsF+8QdmBnPtYSOJ74EekvFkn6fKWd2A
+/NyM+ry+1zHgomC5WqzC9bKCp+KacQ==
+=WM5k
+-----END PGP SIGNATURE-----
+
+--JP+T4n/bALQSJXh8--
+
+
+--===============1719845293749785858==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1719845293749785858==--
+
