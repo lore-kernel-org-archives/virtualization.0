@@ -5,63 +5,62 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0D31C2BB40
-	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:25:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01BE7C19425
+	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:25:45 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 85666207B1
-	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:25:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 85666207B1
+	by mail.kernel.org (Postfix) with ESMTPS id A8F33207B1
+	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:25:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A8F33207B1
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 592F387569;
-	Wed,  9 Dec 2020 14:25:42 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 64EC28758B;
+	Wed,  9 Dec 2020 14:25:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kRBoknn2rfz4; Wed,  9 Dec 2020 14:25:40 +0000 (UTC)
+	with ESMTP id pxJ_dnIivglX; Wed,  9 Dec 2020 14:25:40 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id B22CA8757E;
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 7512787568;
 	Wed,  9 Dec 2020 14:25:39 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9D115C1DA2;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 559A1C1DA2;
 	Wed,  9 Dec 2020 14:25:39 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 387B3C013B
- for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:25:38 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 2501987A17
- for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:25:38 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yTKZaIFUrj2R
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EF951C013B
  for <virtualization@lists.linux-foundation.org>;
  Wed,  9 Dec 2020 14:25:37 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id EB9D2873D6
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  9 Dec 2020 14:25:37 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gI4aznybqVrQ
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  9 Dec 2020 14:25:35 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 6E74C87A16
+ by whitealder.osuosl.org (Postfix) with ESMTPS id D998386E73
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:25:36 +0000 (UTC)
+ Wed,  9 Dec 2020 14:25:34 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 02DE0AD1E;
- Wed,  9 Dec 2020 14:25:35 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id 71BF3AD0B;
+ Wed,  9 Dec 2020 14:25:33 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: daniel@ffwll.ch, christian.koenig@amd.com, airlied@linux.ie,
  sumit.semwal@linaro.org, maarten.lankhorst@linux.intel.com,
  mripard@kernel.org, kraxel@redhat.com, hdegoede@redhat.com,
  sean@poorly.run, eric@anholt.net, sam@ravnborg.org
-Subject: [PATCH v3 6/8] drm/shmem-helper: Provide a vmap function for
- short-term mappings
-Date: Wed,  9 Dec 2020 15:25:25 +0100
-Message-Id: <20201209142527.26415-7-tzimmermann@suse.de>
+Subject: [PATCH v3 4/8] drm/gem: Create infrastructure for GEM vmap_local
+Date: Wed,  9 Dec 2020 15:25:23 +0100
+Message-Id: <20201209142527.26415-5-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201209142527.26415-1-tzimmermann@suse.de>
 References: <20201209142527.26415-1-tzimmermann@suse.de>
@@ -85,336 +84,188 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Implementations of the vmap/vunmap GEM callbacks may perform pinning
-of the BO and may acquire the associated reservation object's lock.
-Callers that only require a mapping of the contained memory can thus
-interfere with other tasks that require exact pinning, such as scanout.
-This is less of an issue with private SHMEM buffers, but may happen
-with imported ones.
+This patch adds vmap_local and vunmap_local to struct drm_gem_object_funcs;
+including the PRIME helpers to connect with dma-buf's related interfaces.
 
-Therefore provide the new interfaces drm_gem_shmem_vmap_local() and
-drm_gem_shmem_vunmap_local(), which only perform the vmap/vunmap
-operations. Callers have to hold the reservation lock while the mapping
-persists.
-
-The affected callers are display updates in cirrus, gm12u320, mgag200
-and udl. All are being changed to the new interface.
-
-This patch also connects GEM SHMEM helpers to GEM object functions with
-equivalent functionality.
+Besides the generic DRM core, this will become relevant for fbdev emulation
+with virtio, so we update it as well.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/drm_gem_shmem_helper.c | 71 +++++++++++++++++++++++++-
- drivers/gpu/drm/mgag200/mgag200_mode.c | 16 ++++--
- drivers/gpu/drm/tiny/cirrus.c          | 10 +++-
- drivers/gpu/drm/tiny/gm12u320.c        | 14 +++--
- drivers/gpu/drm/udl/udl_modeset.c      | 18 ++++---
- include/drm/drm_gem_shmem_helper.h     |  2 +
- 6 files changed, 115 insertions(+), 16 deletions(-)
+ drivers/gpu/drm/drm_gem.c              | 28 ++++++++++++++++++
+ drivers/gpu/drm/drm_internal.h         |  2 ++
+ drivers/gpu/drm/drm_prime.c            | 39 ++++++++++++++++++++++++++
+ drivers/gpu/drm/virtio/virtgpu_prime.c |  2 ++
+ include/drm/drm_gem.h                  | 20 +++++++++++++
+ include/drm/drm_prime.h                |  2 ++
+ 6 files changed, 93 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-index 9825c378dfa6..41663f48d46a 100644
---- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-+++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -32,6 +32,8 @@ static const struct drm_gem_object_funcs drm_gem_shmem_funcs = {
- 	.get_sg_table = drm_gem_shmem_get_sg_table,
- 	.vmap = drm_gem_shmem_vmap,
- 	.vunmap = drm_gem_shmem_vunmap,
-+	.vmap_local = drm_gem_shmem_vmap_local,
-+	.vunmap_local = drm_gem_shmem_vunmap_local,
- 	.mmap = drm_gem_shmem_mmap,
- };
- 
-@@ -313,7 +315,7 @@ static int drm_gem_shmem_vmap_locked(struct drm_gem_shmem_object *shmem, struct
- 	return ret;
+diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
+index 92f89cee213e..6e131d9bb7bd 100644
+--- a/drivers/gpu/drm/drm_gem.c
++++ b/drivers/gpu/drm/drm_gem.c
+@@ -1234,6 +1234,34 @@ void drm_gem_vunmap(struct drm_gem_object *obj, struct dma_buf_map *map)
+ 	dma_buf_map_clear(map);
  }
  
--/*
-+/**
-  * drm_gem_shmem_vmap - Create a virtual mapping for a shmem GEM object
-  * @shmem: shmem GEM object
-  * @map: Returns the kernel virtual address of the SHMEM GEM object's backing
-@@ -346,6 +348,44 @@ int drm_gem_shmem_vmap(struct drm_gem_object *obj, struct dma_buf_map *map)
- }
- EXPORT_SYMBOL(drm_gem_shmem_vmap);
- 
-+/**
-+ * drm_gem_shmem_vmap_local - Create a virtual mapping for a shmem GEM object
-+ * @shmem: shmem GEM object
-+ * @map: Returns the kernel virtual address of the SHMEM GEM object's backing
-+ *       store.
-+ *
-+ * This function makes sure that a contiguous kernel virtual address mapping
-+ * exists for the buffer backing the shmem GEM object.
-+ *
-+ * The function is called with the BO's reservation object locked. Callers must
-+ * hold the lock until after unmapping the buffer.
-+ *
-+ * This function can be used to implement &drm_gem_object_funcs.vmap_local. But
-+ * it can also be called by drivers directly, in which case it will hide the
-+ * differences between dma-buf imported and natively allocated objects.
-+ *
-+ * Acquired mappings should be cleaned up by calling drm_gem_shmem_vunmap_local().
-+ *
-+ * Returns:
-+ * 0 on success or a negative error code on failure.
-+ */
-+int drm_gem_shmem_vmap_local(struct drm_gem_object *obj, struct dma_buf_map *map)
++int drm_gem_vmap_local(struct drm_gem_object *obj, struct dma_buf_map *map)
 +{
-+	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
 +	int ret;
 +
-+	dma_resv_assert_held(obj->resv);
++	if (!obj->funcs->vmap_local)
++		return -EOPNOTSUPP;
 +
-+	ret = mutex_lock_interruptible(&shmem->vmap_lock);
++	ret = obj->funcs->vmap_local(obj, map);
 +	if (ret)
 +		return ret;
-+	ret = drm_gem_shmem_vmap_locked(shmem, map);
-+	mutex_unlock(&shmem->vmap_lock);
++	else if (dma_buf_map_is_null(map))
++		return -ENOMEM;
 +
-+	return ret;
++	return 0;
 +}
-+EXPORT_SYMBOL(drm_gem_shmem_vmap_local);
 +
- static void drm_gem_shmem_vunmap_locked(struct drm_gem_shmem_object *shmem,
- 					struct dma_buf_map *map)
- {
-@@ -366,7 +406,7 @@ static void drm_gem_shmem_vunmap_locked(struct drm_gem_shmem_object *shmem,
- 	drm_gem_shmem_put_pages(shmem);
- }
- 
--/*
-+/**
-  * drm_gem_shmem_vunmap - Unmap a virtual mapping fo a shmem GEM object
-  * @shmem: shmem GEM object
-  * @map: Kernel virtual address where the SHMEM GEM object was mapped
-@@ -389,6 +429,33 @@ void drm_gem_shmem_vunmap(struct drm_gem_object *obj, struct dma_buf_map *map)
- }
- EXPORT_SYMBOL(drm_gem_shmem_vunmap);
- 
-+/**
-+ * drm_gem_shmem_vunmap_local - Unmap a virtual mapping fo a shmem GEM object
-+ * @shmem: shmem GEM object
-+ * @map: Kernel virtual address where the SHMEM GEM object was mapped
-+ *
-+ * This function cleans up a kernel virtual address mapping acquired by
-+ * drm_gem_shmem_vmap_local(). The mapping is only removed when the use count
-+ * drops to zero.
-+ *
-+ * The function is called with the BO's reservation object locked.
-+ *
-+ * This function can be used to implement &drm_gem_object_funcs.vmap_local.
-+ * But it can also be called by drivers directly, in which case it will hide
-+ * the differences between dma-buf imported and natively allocated objects.
-+ */
-+void drm_gem_shmem_vunmap_local(struct drm_gem_object *obj, struct dma_buf_map *map)
++void drm_gem_vunmap_local(struct drm_gem_object *obj, struct dma_buf_map *map)
 +{
-+	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
-+
-+	dma_resv_assert_held(obj->resv);
-+
-+	mutex_lock(&shmem->vmap_lock);
-+	drm_gem_shmem_vunmap_locked(shmem, map);
-+	mutex_unlock(&shmem->vmap_lock);
-+}
-+EXPORT_SYMBOL(drm_gem_shmem_vunmap_local);
-+
- struct drm_gem_shmem_object *
- drm_gem_shmem_create_with_handle(struct drm_file *file_priv,
- 				 struct drm_device *dev, size_t size,
-diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
-index 1dfc42170059..a33e28d4c5e9 100644
---- a/drivers/gpu/drm/mgag200/mgag200_mode.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
-@@ -1552,22 +1552,32 @@ mgag200_handle_damage(struct mga_device *mdev, struct drm_framebuffer *fb,
- 		      struct drm_rect *clip)
- {
- 	struct drm_device *dev = &mdev->base;
-+	struct drm_gem_object *obj = fb->obj[0];
- 	struct dma_buf_map map;
- 	void *vmap;
- 	int ret;
- 
--	ret = drm_gem_shmem_vmap(fb->obj[0], &map);
-+	ret = dma_resv_lock(obj->resv, NULL);
- 	if (drm_WARN_ON(dev, ret))
--		return; /* BUG: SHMEM BO should always be vmapped */
++	if (dma_buf_map_is_null(map))
 +		return;
-+	ret = drm_gem_shmem_vmap_local(obj, &map);
-+	if (drm_WARN_ON(dev, ret))
-+		goto err_dma_resv_unlock; /* BUG: SHMEM BO should always be vmapped */
- 	vmap = map.vaddr; /* TODO: Use mapping abstraction properly */
- 
- 	drm_fb_memcpy_dstclip(mdev->vram, vmap, fb, clip);
- 
--	drm_gem_shmem_vunmap(fb->obj[0], &map);
-+	drm_gem_shmem_vunmap_local(obj, &map);
-+	dma_resv_unlock(obj->resv);
- 
- 	/* Always scanout image at VRAM offset 0 */
- 	mgag200_set_startadd(mdev, (u32)0);
- 	mgag200_set_offset(mdev, fb);
 +
-+	return;
++	if (obj->funcs->vunmap_local)
++		obj->funcs->vunmap_local(obj, map);
 +
-+err_dma_resv_unlock:
-+	dma_resv_unlock(obj->resv);
++	/* Always set the mapping to NULL. Callers may rely on this. */
++	dma_buf_map_clear(map);
++}
++
+ /**
+  * drm_gem_lock_reservations - Sets up the ww context and acquires
+  * the lock on an array of GEM objects.
+diff --git a/drivers/gpu/drm/drm_internal.h b/drivers/gpu/drm/drm_internal.h
+index 81d386b5b92a..b0bf6aba763a 100644
+--- a/drivers/gpu/drm/drm_internal.h
++++ b/drivers/gpu/drm/drm_internal.h
+@@ -190,6 +190,8 @@ int drm_gem_pin(struct drm_gem_object *obj);
+ void drm_gem_unpin(struct drm_gem_object *obj);
+ int drm_gem_vmap(struct drm_gem_object *obj, struct dma_buf_map *map);
+ void drm_gem_vunmap(struct drm_gem_object *obj, struct dma_buf_map *map);
++int drm_gem_vmap_local(struct drm_gem_object *obj, struct dma_buf_map *map);
++void drm_gem_vunmap_local(struct drm_gem_object *obj, struct dma_buf_map *map);
+ 
+ /* drm_debugfs.c drm_debugfs_crc.c */
+ #if defined(CONFIG_DEBUG_FS)
+diff --git a/drivers/gpu/drm/drm_prime.c b/drivers/gpu/drm/drm_prime.c
+index 683aa29ecd3b..633edea76985 100644
+--- a/drivers/gpu/drm/drm_prime.c
++++ b/drivers/gpu/drm/drm_prime.c
+@@ -695,6 +695,43 @@ void drm_gem_dmabuf_vunmap(struct dma_buf *dma_buf, struct dma_buf_map *map)
  }
+ EXPORT_SYMBOL(drm_gem_dmabuf_vunmap);
  
- static void
-diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
-index 561c49d8657a..58c694964148 100644
---- a/drivers/gpu/drm/tiny/cirrus.c
-+++ b/drivers/gpu/drm/tiny/cirrus.c
-@@ -315,6 +315,7 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
- 			       struct drm_rect *rect)
- {
- 	struct cirrus_device *cirrus = to_cirrus(fb->dev);
-+	struct drm_gem_object *obj = fb->obj[0];
- 	struct dma_buf_map map;
- 	void *vmap;
- 	int idx, ret;
-@@ -323,9 +324,12 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
- 	if (!drm_dev_enter(&cirrus->dev, &idx))
- 		goto out;
- 
--	ret = drm_gem_shmem_vmap(fb->obj[0], &map);
-+	ret = dma_resv_lock(obj->resv, NULL);
- 	if (ret)
- 		goto out_dev_exit;
-+	ret = drm_gem_shmem_vmap_local(fb->obj[0], &map);
-+	if (ret)
-+		goto out_dma_resv_unlock;
- 	vmap = map.vaddr; /* TODO: Use mapping abstraction properly */
- 
- 	if (cirrus->cpp == fb->format->cpp[0])
-@@ -345,9 +349,11 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
- 	else
- 		WARN_ON_ONCE("cpp mismatch");
- 
--	drm_gem_shmem_vunmap(fb->obj[0], &map);
- 	ret = 0;
- 
-+	drm_gem_shmem_vunmap_local(obj, &map);
-+out_dma_resv_unlock:
-+	dma_resv_unlock(obj->resv);
- out_dev_exit:
- 	drm_dev_exit(idx);
- out:
-diff --git a/drivers/gpu/drm/tiny/gm12u320.c b/drivers/gpu/drm/tiny/gm12u320.c
-index 33f65f4626e5..b0c6e350f2b3 100644
---- a/drivers/gpu/drm/tiny/gm12u320.c
-+++ b/drivers/gpu/drm/tiny/gm12u320.c
-@@ -265,11 +265,16 @@ static void gm12u320_copy_fb_to_blocks(struct gm12u320_device *gm12u320)
- 	y1 = gm12u320->fb_update.rect.y1;
- 	y2 = gm12u320->fb_update.rect.y2;
- 
--	ret = drm_gem_shmem_vmap(fb->obj[0], &map);
-+	ret = dma_resv_lock(fb->obj[0]->resv, NULL);
- 	if (ret) {
--		GM12U320_ERR("failed to vmap fb: %d\n", ret);
-+		GM12U320_ERR("failed to reserve fb: %d\n", ret);
- 		goto put_fb;
- 	}
-+	ret = drm_gem_shmem_vmap_local(fb->obj[0], &map);
-+	if (ret) {
-+		GM12U320_ERR("failed to vmap fb: %d\n", ret);
-+		goto unlock_resv;
-+	}
- 	vaddr = map.vaddr; /* TODO: Use mapping abstraction properly */
- 
- 	if (fb->obj[0]->import_attach) {
-@@ -321,8 +326,11 @@ static void gm12u320_copy_fb_to_blocks(struct gm12u320_device *gm12u320)
- 		if (ret)
- 			GM12U320_ERR("dma_buf_end_cpu_access err: %d\n", ret);
- 	}
++/**
++ * drm_gem_dmabuf_vmap_local - dma_buf vmap_local implementation for GEM
++ * @dma_buf: buffer to be mapped
++ * @map: the virtual address of the buffer
++ *
++ * Sets up a kernel virtual mapping. This can be used as the &dma_buf_ops.vmap_local
++ * callback. Calls into &drm_gem_object_funcs.vmap_local for device specific handling.
++ * The kernel virtual address is returned in map.
++ *
++ * Returns:
++ * 0 on success or a negative errno code otherwise.
++ */
++int drm_gem_dmabuf_vmap_local(struct dma_buf *dma_buf, struct dma_buf_map *map)
++{
++	struct drm_gem_object *obj = dma_buf->priv;
 +
-+unlock_resv:
-+	dma_resv_unlock(fb->obj[0]->resv);
- vunmap:
--	drm_gem_shmem_vunmap(fb->obj[0], &map);
-+	drm_gem_shmem_vunmap_local(fb->obj[0], &map);
- put_fb:
- 	drm_framebuffer_put(fb);
- 	gm12u320->fb_update.fb = NULL;
-diff --git a/drivers/gpu/drm/udl/udl_modeset.c b/drivers/gpu/drm/udl/udl_modeset.c
-index 9d34ec9d03f6..46b55b4d03c2 100644
---- a/drivers/gpu/drm/udl/udl_modeset.c
-+++ b/drivers/gpu/drm/udl/udl_modeset.c
-@@ -290,14 +290,18 @@ static int udl_handle_damage(struct drm_framebuffer *fb, int x, int y,
- 	else if ((clip.x2 > fb->width) || (clip.y2 > fb->height))
- 		return -EINVAL;
- 
-+	ret = dma_resv_lock(fb->obj[0]->resv, NULL);
-+	if (ret)
-+		return ret;
++	return drm_gem_vmap_local(obj, map);
++}
++EXPORT_SYMBOL(drm_gem_dmabuf_vmap_local);
 +
- 	if (import_attach) {
- 		ret = dma_buf_begin_cpu_access(import_attach->dmabuf,
- 					       DMA_FROM_DEVICE);
- 		if (ret)
--			return ret;
-+			goto out_dma_resv_unlock;
- 	}
++/**
++ * drm_gem_dmabuf_vunmap_local - dma_buf vunmap_local implementation for GEM
++ * @dma_buf: buffer to be unmapped
++ * @map: the virtual address of the buffer
++ *
++ * Releases a kernel virtual mapping. This can be used as the
++ * &dma_buf_ops.vunmap_local callback. Calls into &drm_gem_object_funcs.vunmap_local
++ * for device specific handling.
++ */
++void drm_gem_dmabuf_vunmap_local(struct dma_buf *dma_buf, struct dma_buf_map *map)
++{
++	struct drm_gem_object *obj = dma_buf->priv;
++
++	drm_gem_vunmap_local(obj, map);
++}
++EXPORT_SYMBOL(drm_gem_dmabuf_vunmap_local);
++
+ /**
+  * drm_gem_prime_mmap - PRIME mmap function for GEM drivers
+  * @obj: GEM object
+@@ -787,6 +824,8 @@ static const struct dma_buf_ops drm_gem_prime_dmabuf_ops =  {
+ 	.mmap = drm_gem_dmabuf_mmap,
+ 	.vmap = drm_gem_dmabuf_vmap,
+ 	.vunmap = drm_gem_dmabuf_vunmap,
++	.vmap_local = drm_gem_dmabuf_vmap_local,
++	.vunmap_local = drm_gem_dmabuf_vunmap_local,
+ };
  
--	ret = drm_gem_shmem_vmap(fb->obj[0], &map);
-+	ret = drm_gem_shmem_vmap_local(fb->obj[0], &map);
- 	if (ret) {
- 		DRM_ERROR("failed to vmap fb\n");
- 		goto out_dma_buf_end_cpu_access;
-@@ -307,7 +311,7 @@ static int udl_handle_damage(struct drm_framebuffer *fb, int x, int y,
- 	urb = udl_get_urb(dev);
- 	if (!urb) {
- 		ret = -ENOMEM;
--		goto out_drm_gem_shmem_vunmap;
-+		goto out_drm_gem_shmem_vunmap_local;
- 	}
- 	cmd = urb->transfer_buffer;
+ /**
+diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
+index 807a27a16365..fea11a53d8fc 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_prime.c
++++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
+@@ -54,6 +54,8 @@ static const struct virtio_dma_buf_ops virtgpu_dmabuf_ops =  {
+ 		.mmap = drm_gem_dmabuf_mmap,
+ 		.vmap = drm_gem_dmabuf_vmap,
+ 		.vunmap = drm_gem_dmabuf_vunmap,
++		.vmap = drm_gem_dmabuf_vmap_local,
++		.vunmap = drm_gem_dmabuf_vunmap_local,
+ 	},
+ 	.device_attach = drm_gem_map_attach,
+ 	.get_uuid = virtgpu_virtio_get_uuid,
+diff --git a/include/drm/drm_gem.h b/include/drm/drm_gem.h
+index 5e6daa1c982f..1281f26de494 100644
+--- a/include/drm/drm_gem.h
++++ b/include/drm/drm_gem.h
+@@ -151,6 +151,26 @@ struct drm_gem_object_funcs {
+ 	 */
+ 	void (*vunmap)(struct drm_gem_object *obj, struct dma_buf_map *map);
  
-@@ -320,7 +324,7 @@ static int udl_handle_damage(struct drm_framebuffer *fb, int x, int y,
- 				       &cmd, byte_offset, dev_byte_offset,
- 				       byte_width);
- 		if (ret)
--			goto out_drm_gem_shmem_vunmap;
-+			goto out_drm_gem_shmem_vunmap_local;
- 	}
++	/**
++	 * @vmap_local:
++	 *
++	 * Returns a virtual address for the buffer. Used by the
++	 * drm_gem_dmabuf_vmap_local() helper.
++	 *
++	 * This callback is optional.
++	 */
++	int (*vmap_local)(struct drm_gem_object *obj, struct dma_buf_map *map);
++
++	/**
++	 * @vunmap_local:
++	 *
++	 * Releases the address previously returned by @vmap. Used by the
++	 * drm_gem_dmabuf_vunmap_local() helper.
++	 *
++	 * This callback is optional.
++	 */
++	void (*vunmap_local)(struct drm_gem_object *obj, struct dma_buf_map *map);
++
+ 	/**
+ 	 * @mmap:
+ 	 *
+diff --git a/include/drm/drm_prime.h b/include/drm/drm_prime.h
+index 54f2c58305d2..fd2aef6966ef 100644
+--- a/include/drm/drm_prime.h
++++ b/include/drm/drm_prime.h
+@@ -85,6 +85,8 @@ void drm_gem_unmap_dma_buf(struct dma_buf_attachment *attach,
+ 			   enum dma_data_direction dir);
+ int drm_gem_dmabuf_vmap(struct dma_buf *dma_buf, struct dma_buf_map *map);
+ void drm_gem_dmabuf_vunmap(struct dma_buf *dma_buf, struct dma_buf_map *map);
++int drm_gem_dmabuf_vmap_local(struct dma_buf *dma_buf, struct dma_buf_map *map);
++void drm_gem_dmabuf_vunmap_local(struct dma_buf *dma_buf, struct dma_buf_map *map);
  
- 	if (cmd > (char *)urb->transfer_buffer) {
-@@ -336,8 +340,8 @@ static int udl_handle_damage(struct drm_framebuffer *fb, int x, int y,
- 
- 	ret = 0;
- 
--out_drm_gem_shmem_vunmap:
--	drm_gem_shmem_vunmap(fb->obj[0], &map);
-+out_drm_gem_shmem_vunmap_local:
-+	drm_gem_shmem_vunmap_local(fb->obj[0], &map);
- out_dma_buf_end_cpu_access:
- 	if (import_attach) {
- 		tmp_ret = dma_buf_end_cpu_access(import_attach->dmabuf,
-@@ -345,6 +349,8 @@ static int udl_handle_damage(struct drm_framebuffer *fb, int x, int y,
- 		if (tmp_ret && !ret)
- 			ret = tmp_ret; /* only update ret if not set yet */
- 	}
-+out_dma_resv_unlock:
-+	dma_resv_unlock(fb->obj[0]->resv);
- 
- 	return ret;
- }
-diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_shmem_helper.h
-index 434328d8a0d9..3f59bdf749aa 100644
---- a/include/drm/drm_gem_shmem_helper.h
-+++ b/include/drm/drm_gem_shmem_helper.h
-@@ -114,7 +114,9 @@ void drm_gem_shmem_put_pages(struct drm_gem_shmem_object *shmem);
- int drm_gem_shmem_pin(struct drm_gem_object *obj);
- void drm_gem_shmem_unpin(struct drm_gem_object *obj);
- int drm_gem_shmem_vmap(struct drm_gem_object *obj, struct dma_buf_map *map);
-+int drm_gem_shmem_vmap_local(struct drm_gem_object *obj, struct dma_buf_map *map);
- void drm_gem_shmem_vunmap(struct drm_gem_object *obj, struct dma_buf_map *map);
-+void drm_gem_shmem_vunmap_local(struct drm_gem_object *obj, struct dma_buf_map *map);
- 
- int drm_gem_shmem_madvise(struct drm_gem_object *obj, int madv);
- 
+ int drm_gem_prime_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma);
+ int drm_gem_dmabuf_mmap(struct dma_buf *dma_buf, struct vm_area_struct *vma);
 -- 
 2.29.2
 
