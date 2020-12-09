@@ -2,73 +2,108 @@ Return-Path: <SRS0=MC01=FN=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADF55C433FE
-	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:27:52 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2DFDC4361B
+	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:43:57 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 589FC207B1
-	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:27:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 589FC207B1
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id 33D01233A2
+	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:43:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 33D01233A2
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id A204C2E2C9;
-	Wed,  9 Dec 2020 14:27:51 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id D2D52875CF;
+	Wed,  9 Dec 2020 14:43:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ag5l9RBZFOKr; Wed,  9 Dec 2020 14:27:47 +0000 (UTC)
+	with ESMTP id 8XUjiZ9nUoyO; Wed,  9 Dec 2020 14:43:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 394382E2BA;
-	Wed,  9 Dec 2020 14:27:47 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 25B71875DD;
+	Wed,  9 Dec 2020 14:43:56 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 232ADC0FA7;
-	Wed,  9 Dec 2020 14:27:47 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C61B6C013B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0C5D3C0FA7;
+	Wed,  9 Dec 2020 14:43:56 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1DD35C013B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:27:45 +0000 (UTC)
+ Wed,  9 Dec 2020 14:43:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id BB5262E2BA
+ by whitealder.osuosl.org (Postfix) with ESMTP id 0B2D386B92
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:27:45 +0000 (UTC)
+ Wed,  9 Dec 2020 14:43:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vfOf9y2bU1PD
+ with ESMTP id jhw9IFEr3PSi
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:27:42 +0000 (UTC)
+ Wed,  9 Dec 2020 14:43:53 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTPS id C853A2E2C7
+Received: from mail-vk1-f195.google.com (mail-vk1-f195.google.com
+ [209.85.221.195])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 89FD086B83
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:27:41 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 5D5AEAD29;
- Wed,  9 Dec 2020 14:27:40 +0000 (UTC)
-Subject: Re: [PATCH v3 3/8] dma-buf: Add vmap_local and vnumap_local operations
-To: daniel@ffwll.ch, christian.koenig@amd.com, airlied@linux.ie,
- sumit.semwal@linaro.org, maarten.lankhorst@linux.intel.com,
- mripard@kernel.org, kraxel@redhat.com, hdegoede@redhat.com, sean@poorly.run,
- eric@anholt.net, sam@ravnborg.org
-References: <20201209142527.26415-1-tzimmermann@suse.de>
- <20201209142527.26415-4-tzimmermann@suse.de>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <fab0fe22-45dc-4420-66b4-3a566b816c79@suse.de>
-Date: Wed, 9 Dec 2020 15:27:38 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
+ Wed,  9 Dec 2020 14:43:53 +0000 (UTC)
+Received: by mail-vk1-f195.google.com with SMTP id v185so384914vkf.8
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 09 Dec 2020 06:43:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=7Q6KcYtQg5u1UB7CZSEvhSXseIPsOcn669yzRvM9CMI=;
+ b=MlNvVPUG7US7xBW3iVErIuZr+AX7nU82hgF0ulmmxukBGxZ+1aH8RSAISrlziE8ohP
+ 3rHT2hclrFaH7fVYUBoXUOstwt+bc9QYX3X8ALTg6X5lBTkgBf8WxhMvrd08q9pIuE2E
+ ROIhSWl9U3bbWNiEFECJDGApOqjDZgiCLU6BhfPfQaHVd+/ludibgxNig9Ga2clSkxLL
+ XDF2E73bcHhgNStuIvVz04fkXa+eJsA1t64j3S3SVLso9HivnYtXI7dqrH6syofZZiOK
+ cueIh3qC39Qd2tHI+caBJ6vq9g2IuSR9SalaG0NVyUu4JBRCWQ6SMFlpXefbPZ+E680/
+ e2LQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=7Q6KcYtQg5u1UB7CZSEvhSXseIPsOcn669yzRvM9CMI=;
+ b=RsXS8TggPyTORXEZ+ziqaltgf7i1P4f5OE9hvFop8Ams34gqPd52Ms1nyYS2smAFrS
+ eDnqaYDMyWoICFSUUzjG+DvY/dQD0oYSOh1VkHmY8DDwrzU1UEyzNbXu8BcMF5gZG8G6
+ 9322KiFcR3reiUA+/4Iit+f1iisTIM9MfV/x1jWFp3m9z0ncWofpZMnpRuOay6vAFQ11
+ RQb8UVBM+jY+32XbPO3fRJhMdpM9W/6+11FWa+znFJtdS/h1n6kzes6yeh6MfW/0Zahc
+ G3naiJ9WGCOJev/Qr46OjrejWf8cgqazO5ZZt8gTbJVz6MWL0kEY288drm4O12cFMOOs
+ IGeg==
+X-Gm-Message-State: AOAM530sg3nHF6+HaCLBPfCXjOqQ5j8MUuuCm5qhMlfBEIAYsk8l3b2Y
+ kdP+tiMCZbmCkYhKlCd/D8GS2k5/bYU=
+X-Google-Smtp-Source: ABdhPJx2zr81tWTOmGLT1Zr/Euh+/qaHMG7rP+7Bg9Z5diQAICwUZ/sXO/OYF6/FcrHtTdsLg8xmWg==
+X-Received: by 2002:ac5:c995:: with SMTP id e21mr2260925vkm.5.1607525032139;
+ Wed, 09 Dec 2020 06:43:52 -0800 (PST)
+Received: from mail-ua1-f41.google.com (mail-ua1-f41.google.com.
+ [209.85.222.41])
+ by smtp.gmail.com with ESMTPSA id b23sm169925vsa.11.2020.12.09.06.43.50
+ for <virtualization@lists.linux-foundation.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 09 Dec 2020 06:43:51 -0800 (PST)
+Received: by mail-ua1-f41.google.com with SMTP id w7so555155uap.13
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 09 Dec 2020 06:43:50 -0800 (PST)
+X-Received: by 2002:a9f:2356:: with SMTP id 80mr1832051uae.92.1607525030374;
+ Wed, 09 Dec 2020 06:43:50 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20201209142527.26415-4-tzimmermann@suse.de>
-Cc: linaro-mm-sig@lists.linaro.org, virtualization@lists.linux-foundation.org,
- dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org
+References: <1606982459-41752-1-git-send-email-wangyunjian@huawei.com>
+ <1607517703-18472-1-git-send-email-wangyunjian@huawei.com>
+In-Reply-To: <1607517703-18472-1-git-send-email-wangyunjian@huawei.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date: Wed, 9 Dec 2020 09:43:13 -0500
+X-Gmail-Original-Message-ID: <CA+FuTSfQoDr0jd76xBXSvchhyihQaL2UQXeCR6frJ7hyXxbmVA@mail.gmail.com>
+Message-ID: <CA+FuTSfQoDr0jd76xBXSvchhyihQaL2UQXeCR6frJ7hyXxbmVA@mail.gmail.com>
+Subject: Re: [PATCH net v2] tun: fix ubuf refcount incorrectly on error path
+To: wangyunjian <wangyunjian@huawei.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ Network Development <netdev@vger.kernel.org>, jerry.lilijun@huawei.com,
+ virtualization@lists.linux-foundation.org, xudingke@huawei.com,
+ chenchanghu@huawei.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -80,274 +115,129 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============7292771235827314966=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============7292771235827314966==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="OA6RCknbOgcXsd6XvZQKnTWiNat1O9M3v"
+On Wed, Dec 9, 2020 at 8:03 AM wangyunjian <wangyunjian@huawei.com> wrote:
+>
+> From: Yunjian Wang <wangyunjian@huawei.com>
+>
+> After setting callback for ubuf_info of skb, the callback
+> (vhost_net_zerocopy_callback) will be called to decrease
+> the refcount when freeing skb. But when an exception occurs
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---OA6RCknbOgcXsd6XvZQKnTWiNat1O9M3v
-Content-Type: multipart/mixed; boundary="aGWGSbVmo8qRQRE6BtFJDPl69hq2YXjmn";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: daniel@ffwll.ch, christian.koenig@amd.com, airlied@linux.ie,
- sumit.semwal@linaro.org, maarten.lankhorst@linux.intel.com,
- mripard@kernel.org, kraxel@redhat.com, hdegoede@redhat.com, sean@poorly.run,
- eric@anholt.net, sam@ravnborg.org
-Cc: dri-devel@lists.freedesktop.org, linux-media@vger.kernel.org,
- linaro-mm-sig@lists.linaro.org, virtualization@lists.linux-foundation.org
-Message-ID: <fab0fe22-45dc-4420-66b4-3a566b816c79@suse.de>
-Subject: Re: [PATCH v3 3/8] dma-buf: Add vmap_local and vnumap_local
- operations
-References: <20201209142527.26415-1-tzimmermann@suse.de>
- <20201209142527.26415-4-tzimmermann@suse.de>
-In-Reply-To: <20201209142527.26415-4-tzimmermann@suse.de>
+With exception, you mean if tun_get_user returns an error that
+propagates to the sendmsg call in vhost handle_tx, correct?
 
---aGWGSbVmo8qRQRE6BtFJDPl69hq2YXjmn
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+> afterwards, the error handling in vhost handle_tx() will
+> try to decrease the same refcount again. This is wrong and
+> fix this by delay copying ubuf_info until we're sure
+> there's no errors.
 
-Hi
+I think the right approach is to address this in the error paths,
+rather than complicate the normal datapath.
 
-Am 09.12.20 um 15:25 schrieb Thomas Zimmermann:
-> The existing dma-buf calls dma_buf_vmap() and dma_buf_vunmap() are
-> allowed to pin the buffer or acquire the buffer's reservation object
-> lock.
->=20
-> This is a problem for callers that only require a short-term mapping
-> of the buffer without the pinning, or callers that have special locking=
+Is it sufficient to suppress the call to vhost_net_ubuf_put in the
+handle_tx sendmsg error path, given that vhost_zerocopy_callback
+will be called on kfree_skb?
 
-> requirements. These may suffer from unnecessary overhead or interfere
-> with regular pin operations.
->=20
-> The new interfaces dma_buf_vmap_local(), dma_buf_vunmapo_local(), and
-> their rsp callbacks in struct dma_buf_ops provide an alternative withou=
-t
-> pinning or reservation locking. Callers are responsible for these
-> operations.
->=20
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Or alternatively clear the destructor in drop:
 
-Before merging, this patch would get a Suggested-by tag to give Daniel=20
-credit. I only notices after hitting the send button.
-
-Best regards
-Thomas
-
+>
+> Fixes: 4477138fa0ae ("tun: properly test for IFF_UP")
+> Fixes: 90e33d459407 ("tun: enable napi_gro_frags() for TUN/TAP driver")
+>
+> Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
 > ---
->   drivers/dma-buf/dma-buf.c | 80 ++++++++++++++++++++++++++++++++++++++=
-+
->   include/linux/dma-buf.h   | 34 +++++++++++++++++
->   2 files changed, 114 insertions(+)
->=20
-> diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
-> index e63684d4cd90..be9f80190a66 100644
-> --- a/drivers/dma-buf/dma-buf.c
-> +++ b/drivers/dma-buf/dma-buf.c
-> @@ -1265,6 +1265,86 @@ void dma_buf_vunmap(struct dma_buf *dmabuf, stru=
-ct dma_buf_map *map)
->   }
->   EXPORT_SYMBOL_GPL(dma_buf_vunmap);
->  =20
-> +/**
-> + * dma_buf_vmap_local - Create virtual mapping for the buffer object i=
-nto kernel
-> + * address space.
-> + * @dmabuf:	[in]	buffer to vmap
-> + * @map:	[out]	returns the vmap pointer
-> + *
-> + * This call may fail due to lack of virtual mapping address space.
-> + * These calls are optional in drivers. The intended use for them
-> + * is for mapping objects linear in kernel space for high use objects.=
-
-> + * Please attempt to use kmap/kunmap before thinking about these inter=
-faces.
-> + *
-> + * Returns:
-> + * 0 on success, or a negative errno code otherwise.
-> + */
-> +int dma_buf_vmap_local(struct dma_buf *dmabuf, struct dma_buf_map *map=
-)
+> v2:
+>    Updated code, fix by delay copying ubuf_info
+> ---
+>  drivers/net/tun.c | 29 +++++++++++++++++++----------
+>  1 file changed, 19 insertions(+), 10 deletions(-)
+>
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index 2dc1988a8973..2ea822328e73 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -1637,6 +1637,20 @@ static struct sk_buff *tun_build_skb(struct tun_struct *tun,
+>         return NULL;
+>  }
+>
+> +/* copy ubuf_info for callback when skb has no error */
+> +static inline void tun_copy_ubuf_info(struct sk_buff *skb, bool zerocopy, void *msg_control)
 > +{
-> +	struct dma_buf_map ptr;
-> +	int ret =3D 0;
+> +       if (zerocopy) {
+> +               skb_shinfo(skb)->destructor_arg = msg_control;
+> +               skb_shinfo(skb)->tx_flags |= SKBTX_DEV_ZEROCOPY;
+> +               skb_shinfo(skb)->tx_flags |= SKBTX_SHARED_FRAG;
+> +       } else if (msg_control) {
+> +               struct ubuf_info *uarg = msg_control;
 > +
-> +	dma_buf_map_clear(map);
-> +
-> +	if (WARN_ON(!dmabuf))
-> +		return -EINVAL;
-> +
-> +	dma_resv_assert_held(dmabuf->resv);
-> +
-> +	if (!dmabuf->ops->vmap_local)
-> +		return -EINVAL;
-> +
-> +	mutex_lock(&dmabuf->lock);
-> +	if (dmabuf->vmapping_counter) {
-> +		dmabuf->vmapping_counter++;
-> +		BUG_ON(dma_buf_map_is_null(&dmabuf->vmap_ptr));
-> +		*map =3D dmabuf->vmap_ptr;
-> +		goto out_unlock;
-> +	}
-> +
-> +	BUG_ON(dma_buf_map_is_set(&dmabuf->vmap_ptr));
-> +
-> +	ret =3D dmabuf->ops->vmap_local(dmabuf, &ptr);
-> +	if (WARN_ON_ONCE(ret))
-> +		goto out_unlock;
-> +
-> +	dmabuf->vmap_ptr =3D ptr;
-> +	dmabuf->vmapping_counter =3D 1;
-> +
-> +	*map =3D dmabuf->vmap_ptr;
-> +
-> +out_unlock:
-> +	mutex_unlock(&dmabuf->lock);
-> +	return ret;
+> +               uarg->callback(uarg, false);
+> +       }
 > +}
-> +EXPORT_SYMBOL_GPL(dma_buf_vmap_local);
 > +
-> +/**
-> + * dma_buf_vunmap_local - Unmap a vmap obtained by dma_buf_vmap_local.=
-
-> + * @dmabuf:	[in]	buffer to vunmap
-> + * @map:	[in]	vmap pointer to vunmap
-> + */
-> +void dma_buf_vunmap_local(struct dma_buf *dmabuf, struct dma_buf_map *=
-map)
-> +{
-> +	if (WARN_ON(!dmabuf))
-> +		return;
-> +
-> +	dma_resv_assert_held(dmabuf->resv);
-> +
-> +	BUG_ON(dma_buf_map_is_null(&dmabuf->vmap_ptr));
-> +	BUG_ON(dmabuf->vmapping_counter =3D=3D 0);
-> +	BUG_ON(!dma_buf_map_is_equal(&dmabuf->vmap_ptr, map));
-> +
-> +	mutex_lock(&dmabuf->lock);
-> +	if (--dmabuf->vmapping_counter =3D=3D 0) {
-> +		if (dmabuf->ops->vunmap_local)
-> +			dmabuf->ops->vunmap_local(dmabuf, map);
-> +		dma_buf_map_clear(&dmabuf->vmap_ptr);
-> +	}
-> +	mutex_unlock(&dmabuf->lock);
-> +}
-> +EXPORT_SYMBOL_GPL(dma_buf_vunmap_local);
-> +
->   #ifdef CONFIG_DEBUG_FS
->   static int dma_buf_debug_show(struct seq_file *s, void *unused)
->   {
-> diff --git a/include/linux/dma-buf.h b/include/linux/dma-buf.h
-> index cf72699cb2bc..f66580d23a9b 100644
-> --- a/include/linux/dma-buf.h
-> +++ b/include/linux/dma-buf.h
-> @@ -269,6 +269,38 @@ struct dma_buf_ops {
->  =20
->   	int (*vmap)(struct dma_buf *dmabuf, struct dma_buf_map *map);
->   	void (*vunmap)(struct dma_buf *dmabuf, struct dma_buf_map *map);
-> +
-> +	/**
-> +	 * @vmap_local:
-> +	 *
-> +	 * Creates a virtual mapping for the buffer into kernel address space=
-=2E
-> +	 *
-> +	 * This callback establishes short-term mappings for situations where=
-
-> +	 * callers only use the buffer for a bounded amount of time; such as
-> +	 * updates to the framebuffer or reading back contained information.
-> +	 * In contrast to the regular @vmap callback, vmap_local does never p=
-in
-> +	 * the buffer to a specific domain or acquire the buffer's reservatio=
-n
-> +	 * lock.
-> +	 *
-> +	 * This is called with the dmabuf->resv object locked. Callers must h=
-old
-> +	 * the lock until after removing the mapping with @vunmap_local.
-> +	 *
-> +	 * This callback is optional.
-> +	 *
-> +	 * Returns:
-> +	 *
-> +	 * 0 on success or a negative error code on failure.
-> +	 */
-> +	int (*vmap_local)(struct dma_buf *dmabuf, struct dma_buf_map *map);
-> +
-> +	/**
-> +	 * @vunmap_local:
-> +	 *
-> +	 * Removes a virtual mapping that wa sestablished by @vmap_local.
-> +	 *
-> +	 * This callback is optional.
-> +	 */
-> +	void (*vunmap_local)(struct dma_buf *dmabuf, struct dma_buf_map *map)=
-;
->   };
->  =20
->   /**
-> @@ -506,4 +538,6 @@ int dma_buf_mmap(struct dma_buf *, struct vm_area_s=
-truct *,
->   		 unsigned long);
->   int dma_buf_vmap(struct dma_buf *dmabuf, struct dma_buf_map *map);
->   void dma_buf_vunmap(struct dma_buf *dmabuf, struct dma_buf_map *map);=
-
-> +int dma_buf_vmap_local(struct dma_buf *dmabuf, struct dma_buf_map *map=
-);
-> +void dma_buf_vunmap_local(struct dma_buf *dmabuf, struct dma_buf_map *=
-map);
->   #endif /* __DMA_BUF_H__ */
->=20
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
-
---aGWGSbVmo8qRQRE6BtFJDPl69hq2YXjmn--
-
---OA6RCknbOgcXsd6XvZQKnTWiNat1O9M3v
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAl/Q3toFAwAAAAAACgkQlh/E3EQov+DI
-uxAAhx4iJU/FHPsmAupxKsb/vMp8tSvFIXnVLMYth6sFzmQQDwdaJEHeF0meLcdyZmJyxPUCoIhy
-ZddFxjFfThu5tY3JssNtxDd2vkOy7CDpLnsyho/LZwXJ0MgKhl19DlDSvywtJz4gHq56d3S7J3U2
-Wtud6Ie54Q7xapck9gp45g67g4/9nVbsRCeMkCLlnslG6VfzQ7MoPVk223NIL5wUDKL7kdIFuOLX
-ubpj9LWlciUyhmEjqS0lznSgxyrhpBV7uCk2Jb9NGGM9BmdWLwwr+OSjBQhrLFEc1/uygvZVWEGn
-gjpA6u76uQaC2WIXuf1nuvg6kjN6h4c6irq5NtFxQ6uUmUFRNz47UlRQCqYFUuo5xEf4rfws7x2K
-0xduAmzjZ6nRoHO1mxjAOKrHhHuE0OpGru03zTSeV0As9dPmC/vDhyEnwGCelWgXLwIsfslcLIDf
-tG4ZUVLS3YXlROsRAKh84k4Bvm+0nv6qjk03AJJcCt3lSscWUTYYLAo14/Y/I4DbujSjdzjqjSD2
-GHYk9pnHjD7bZvb0ui6K0PME/6RSzoAmTl+Haec/e+6e8qgactS2vSQ69Aq9y1qryoctQpAhqYWu
-OGU/GoFn6X45SG5VmQjqR6YCvUfWLm6dgnaFr/00aiLRU+V6ov0wJU9TasQsWktM91ToVSFqba4d
-X+U=
-=G2uP
------END PGP SIGNATURE-----
-
---OA6RCknbOgcXsd6XvZQKnTWiNat1O9M3v--
-
---===============7292771235827314966==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+>  /* Get packet from user space buffer */
+>  static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+>                             void *msg_control, struct iov_iter *from,
+> @@ -1812,16 +1826,6 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+>                 break;
+>         }
+>
+> -       /* copy skb_ubuf_info for callback when skb has no error */
+> -       if (zerocopy) {
+> -               skb_shinfo(skb)->destructor_arg = msg_control;
+> -               skb_shinfo(skb)->tx_flags |= SKBTX_DEV_ZEROCOPY;
+> -               skb_shinfo(skb)->tx_flags |= SKBTX_SHARED_FRAG;
+> -       } else if (msg_control) {
+> -               struct ubuf_info *uarg = msg_control;
+> -               uarg->callback(uarg, false);
+> -       }
+> -
+>         skb_reset_network_header(skb);
+>         skb_probe_transport_header(skb);
+>         skb_record_rx_queue(skb, tfile->queue_index);
+> @@ -1830,6 +1834,7 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+>                 struct bpf_prog *xdp_prog;
+>                 int ret;
+>
+> +               tun_copy_ubuf_info(skb, zerocopy, msg_control);
+>                 local_bh_disable();
+>                 rcu_read_lock();
+>                 xdp_prog = rcu_dereference(tun->xdp_prog);
+> @@ -1881,6 +1886,7 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+>                         return -ENOMEM;
+>                 }
+>
+> +               tun_copy_ubuf_info(skb, zerocopy, msg_control);
+>                 local_bh_disable();
+>                 napi_gro_frags(&tfile->napi);
+>                 local_bh_enable();
+> @@ -1889,6 +1895,7 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+>                 struct sk_buff_head *queue = &tfile->sk.sk_write_queue;
+>                 int queue_len;
+>
+> +               tun_copy_ubuf_info(skb, zerocopy, msg_control);
+>                 spin_lock_bh(&queue->lock);
+>                 __skb_queue_tail(queue, skb);
+>                 queue_len = skb_queue_len(queue);
+> @@ -1899,8 +1906,10 @@ static ssize_t tun_get_user(struct tun_struct *tun, struct tun_file *tfile,
+>
+>                 local_bh_enable();
+>         } else if (!IS_ENABLED(CONFIG_4KSTACKS)) {
+> +               tun_copy_ubuf_info(skb, zerocopy, msg_control);
+>                 tun_rx_batched(tun, tfile, skb, more);
+>         } else {
+> +               tun_copy_ubuf_info(skb, zerocopy, msg_control);
+>                 netif_rx_ni(skb);
+>         }
+>         rcu_read_unlock();
+> --
+> 2.23.0
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7292771235827314966==--
