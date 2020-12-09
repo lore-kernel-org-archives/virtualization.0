@@ -2,90 +2,72 @@ Return-Path: <SRS0=MC01=FN=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2A53C4361B
-	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:05:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E14BC4361B
+	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:25:39 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 18E3723B40
-	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:05:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 18E3723B40
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id 92DEC22227
+	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:25:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 92DEC22227
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id B3DBB879FB;
-	Wed,  9 Dec 2020 14:05:51 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 480B987A1F;
+	Wed,  9 Dec 2020 14:25:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kqTnY7DNrh67; Wed,  9 Dec 2020 14:05:47 +0000 (UTC)
+	with ESMTP id qm9T0KYsRcUJ; Wed,  9 Dec 2020 14:25:36 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 5961B879E7;
-	Wed,  9 Dec 2020 14:05:47 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id E952987A2C;
+	Wed,  9 Dec 2020 14:25:35 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 486A7C0893;
-	Wed,  9 Dec 2020 14:05:47 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8F403C013B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D1762C1DA2;
+	Wed,  9 Dec 2020 14:25:35 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 17706C013B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:05:46 +0000 (UTC)
+ Wed,  9 Dec 2020 14:25:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 7CD1687031
+ by hemlock.osuosl.org (Postfix) with ESMTP id 03912872D0
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:05:46 +0000 (UTC)
+ Wed,  9 Dec 2020 14:25:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id OR56QqpCKZMY
+ with ESMTP id ajNaOFkXQTId
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:05:43 +0000 (UTC)
+ Wed,  9 Dec 2020 14:25:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 3D1DC87022
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 1778687A16
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:05:43 +0000 (UTC)
+ Wed,  9 Dec 2020 14:25:34 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1607522741; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=uXgDSSgnRzBGDMdctLYaRQ+Qn2PprXJNdztVTKfo77c=;
- b=VBLFnGdFLTZejaes667CEyWZxD0WAgEJ51z5oj3X8hKrujSoQO3KE8O+t/PTAzZi9+s3+H
- s0Ej2Glu5ccJ8u9gsnr256lA8K5pMwj5Xsyx4FqRkAfCEtHb/xtCrk2T3NVppdMovVrLTa
- 7NxlwD+oCqy1r458bCjBnqoIF2sArLY=
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id D0203ACEB;
- Wed,  9 Dec 2020 14:05:40 +0000 (UTC)
-Subject: Re: [PATCH v2 05/12] x86: rework arch_local_irq_restore() to not use
- popf
-To: Mark Rutland <mark.rutland@arm.com>, Andy Lutomirski <luto@kernel.org>
-References: <20201120114630.13552-1-jgross@suse.com>
- <20201120114630.13552-6-jgross@suse.com>
- <20201120115943.GD3021@hirez.programming.kicks-ass.net>
- <eb05e878-6334-8d19-496b-6572df67fc56@suse.com>
- <CALCETrXOGhXoOJpzhAMqD7iibi09WzbGk9SWVH7JzA=d5uarWA@mail.gmail.com>
- <20201209132710.GA8566@C02TD0UTHF1T.local>
- <20201209140221.GA9087@C02TD0UTHF1T.local>
-Message-ID: <a37be173-6702-5523-8757-2b5a1b4ae311@suse.com>
-Date: Wed, 9 Dec 2020 15:05:39 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+ by mx2.suse.de (Postfix) with ESMTP id AE327ACEB;
+ Wed,  9 Dec 2020 14:25:32 +0000 (UTC)
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: daniel@ffwll.ch, christian.koenig@amd.com, airlied@linux.ie,
+ sumit.semwal@linaro.org, maarten.lankhorst@linux.intel.com,
+ mripard@kernel.org, kraxel@redhat.com, hdegoede@redhat.com,
+ sean@poorly.run, eric@anholt.net, sam@ravnborg.org
+Subject: [PATCH v3 3/8] dma-buf: Add vmap_local and vnumap_local operations
+Date: Wed,  9 Dec 2020 15:25:22 +0100
+Message-Id: <20201209142527.26415-4-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.29.2
+In-Reply-To: <20201209142527.26415-1-tzimmermann@suse.de>
+References: <20201209142527.26415-1-tzimmermann@suse.de>
 MIME-Version: 1.0
-In-Reply-To: <20201209140221.GA9087@C02TD0UTHF1T.local>
-Cc: Stefano Stabellini <sstabellini@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>, "VMware,
- Inc." <pv-drivers@vmware.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
- xen-devel <xen-devel@lists.xenproject.org>,
- Thomas Gleixner <tglx@linutronix.de>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: linaro-mm-sig@lists.linaro.org, virtualization@lists.linux-foundation.org,
+ Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org,
+ linux-media@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -97,234 +79,176 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============8543237368879776538=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============8543237368879776538==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="SbHnCuqvhr456hxBGyZfmnROM8i0IqhVV"
+The existing dma-buf calls dma_buf_vmap() and dma_buf_vunmap() are
+allowed to pin the buffer or acquire the buffer's reservation object
+lock.
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---SbHnCuqvhr456hxBGyZfmnROM8i0IqhVV
-Content-Type: multipart/mixed; boundary="3SWBQ2CGRPlIb6qugl6p4NZVoXATi0Vjq";
- protected-headers="v1"
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-To: Mark Rutland <mark.rutland@arm.com>, Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>,
- Stefano Stabellini <sstabellini@kernel.org>,
- "VMware, Inc." <pv-drivers@vmware.com>, X86 ML <x86@kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- "H. Peter Anvin" <hpa@zytor.com>, xen-devel
- <xen-devel@lists.xenproject.org>, Thomas Gleixner <tglx@linutronix.de>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Message-ID: <a37be173-6702-5523-8757-2b5a1b4ae311@suse.com>
-Subject: Re: [PATCH v2 05/12] x86: rework arch_local_irq_restore() to not use
- popf
-References: <20201120114630.13552-1-jgross@suse.com>
- <20201120114630.13552-6-jgross@suse.com>
- <20201120115943.GD3021@hirez.programming.kicks-ass.net>
- <eb05e878-6334-8d19-496b-6572df67fc56@suse.com>
- <CALCETrXOGhXoOJpzhAMqD7iibi09WzbGk9SWVH7JzA=d5uarWA@mail.gmail.com>
- <20201209132710.GA8566@C02TD0UTHF1T.local>
- <20201209140221.GA9087@C02TD0UTHF1T.local>
-In-Reply-To: <20201209140221.GA9087@C02TD0UTHF1T.local>
+This is a problem for callers that only require a short-term mapping
+of the buffer without the pinning, or callers that have special locking
+requirements. These may suffer from unnecessary overhead or interfere
+with regular pin operations.
 
---3SWBQ2CGRPlIb6qugl6p4NZVoXATi0Vjq
-Content-Type: multipart/mixed;
- boundary="------------11CE66C562C189ECDCC48235"
-Content-Language: en-US
+The new interfaces dma_buf_vmap_local(), dma_buf_vunmapo_local(), and
+their rsp callbacks in struct dma_buf_ops provide an alternative without
+pinning or reservation locking. Callers are responsible for these
+operations.
 
-This is a multi-part message in MIME format.
---------------11CE66C562C189ECDCC48235
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+ drivers/dma-buf/dma-buf.c | 80 +++++++++++++++++++++++++++++++++++++++
+ include/linux/dma-buf.h   | 34 +++++++++++++++++
+ 2 files changed, 114 insertions(+)
 
-On 09.12.20 15:02, Mark Rutland wrote:
-> On Wed, Dec 09, 2020 at 01:27:10PM +0000, Mark Rutland wrote:
->> On Sun, Nov 22, 2020 at 01:44:53PM -0800, Andy Lutomirski wrote:
->>> On Sat, Nov 21, 2020 at 10:55 PM J=C3=BCrgen Gro=C3=9F <jgross@suse.c=
-om> wrote:
->>>> On 20.11.20 12:59, Peter Zijlstra wrote:
->>>>> If someone were to write horrible code like:
->>>>>
->>>>>        local_irq_disable();
->>>>>        local_irq_save(flags);
->>>>>        local_irq_enable();
->>>>>        local_irq_restore(flags);
->>>>>
->>>>> we'd be up some creek without a paddle... now I don't _think_ we ha=
-ve
->>>>> genius code like that, but I'd feel saver if we can haz an assertio=
-n in
->>>>> there somewhere...
->=20
->> I was just talking to Peter on IRC about implementing the same thing f=
-or
->> arm64, so could we put this in the generic irqflags code? IIUC we can
->> use raw_irqs_disabled() to do the check.
->>
->> As this isn't really entry specific (and IIUC the cases this should
->> catch would break lockdep today), maybe we should add a new
->> DEBUG_IRQFLAGS for this, that DEBUG_LOCKDEP can also select?
->>
->> Something like:
->>
->> #define local_irq_restore(flags)                               \
->>         do {                                                    \
->>                 if (!raw_irqs_disabled_flags(flags)) {          \
->>                         trace_hardirqs_on();                    \
->>                 } else if (IS_ENABLED(CONFIG_DEBUG_IRQFLAGS) {  \
->>                         if (unlikely(raw_irqs_disabled())       \
->=20
-> Whoops; that should be !raw_irqs_disabled().
->=20
->>                                 warn_bogus_irqrestore();        \
->>                 }                                               \
->>                 raw_local_irq_restore(flags);                   \
->>          } while (0)
->>
->> ... perhaps? (ignoring however we deal with once-ness).
->=20
-> If no-one shouts in the next day or two I'll spin this as its own patch=
-=2E
-
-Fine with me. So I'll just ignore a potential error case in my patch.
-
-Thanks,
-
-
-Juergen
-
-
---------------11CE66C562C189ECDCC48235
-Content-Type: application/pgp-keys;
- name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
- filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-
------BEGIN PGP PUBLIC KEY BLOCK-----
-
-xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
-cWx
-w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
-f8Z
-d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
-9bf
-IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
-G7/
-377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
-3Jv
-c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
-QIe
-AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
-hpw
-dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
-MbD
-1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
-oPH
-Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
-5QL
-+qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
-2Vu
-IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
-QoL
-BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
-Wf0
-teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
-/nu
-AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
-ITT
-d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
-XBK
-7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
-80h
-SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
-AcD
-AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
-FOX
-gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
-jnD
-kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
-N51
-N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
-otu
-fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
-tqS
-EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
-hsD
-BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
-g3O
-ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
-dM7
-wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
-D+j
-LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
-V2x
-AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
-Eaw
-QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
-nHI
-s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
-wgn
-BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
-bVF
-LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
-pEd
-IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
-QAB
-wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
-Tbe
-8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
-vJz
-Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
-VGi
-wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
-svi
-uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
-zXs
-ZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
-
---------------11CE66C562C189ECDCC48235--
-
---3SWBQ2CGRPlIb6qugl6p4NZVoXATi0Vjq--
-
---SbHnCuqvhr456hxBGyZfmnROM8i0IqhVV
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAl/Q2bMFAwAAAAAACgkQsN6d1ii/Ey+M
-Sgf/YvUCb1mTnblXUk7krczQ1ATvqpRzUPkRKWI/gbHwiba2E6IgZu9qI9rnOGU2XftlrlseQrYY
-TgBQ6ElRBxmD7UwTQHYEo8sGuk4aRzlqWFZLiOQhYPhqFc8uv3eWlZWVcplQH9mer1rAZS4Z0tCR
-Rbh4HJa+Qmfhh0n0L+kBDWzNfll7LrjnV21sZLSSzSDLsDxObqi4yRoM+Mr/0wLovtHHb3oVIE3y
-q87ZQjcZeCZZYcwIYLQrhpIPtU5b7rrYB5kLEyKHus+S+B+PciDn7QYEvbfIddjOmaIMB8VWIIC4
-Ir1NaFfvEJlgYdw15YRsTmU/yqkiTZ3/cp4vlaFqKw==
-=ZFoe
------END PGP SIGNATURE-----
-
---SbHnCuqvhr456hxBGyZfmnROM8i0IqhVV--
-
---===============8543237368879776538==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+index e63684d4cd90..be9f80190a66 100644
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -1265,6 +1265,86 @@ void dma_buf_vunmap(struct dma_buf *dmabuf, struct dma_buf_map *map)
+ }
+ EXPORT_SYMBOL_GPL(dma_buf_vunmap);
+ 
++/**
++ * dma_buf_vmap_local - Create virtual mapping for the buffer object into kernel
++ * address space.
++ * @dmabuf:	[in]	buffer to vmap
++ * @map:	[out]	returns the vmap pointer
++ *
++ * This call may fail due to lack of virtual mapping address space.
++ * These calls are optional in drivers. The intended use for them
++ * is for mapping objects linear in kernel space for high use objects.
++ * Please attempt to use kmap/kunmap before thinking about these interfaces.
++ *
++ * Returns:
++ * 0 on success, or a negative errno code otherwise.
++ */
++int dma_buf_vmap_local(struct dma_buf *dmabuf, struct dma_buf_map *map)
++{
++	struct dma_buf_map ptr;
++	int ret = 0;
++
++	dma_buf_map_clear(map);
++
++	if (WARN_ON(!dmabuf))
++		return -EINVAL;
++
++	dma_resv_assert_held(dmabuf->resv);
++
++	if (!dmabuf->ops->vmap_local)
++		return -EINVAL;
++
++	mutex_lock(&dmabuf->lock);
++	if (dmabuf->vmapping_counter) {
++		dmabuf->vmapping_counter++;
++		BUG_ON(dma_buf_map_is_null(&dmabuf->vmap_ptr));
++		*map = dmabuf->vmap_ptr;
++		goto out_unlock;
++	}
++
++	BUG_ON(dma_buf_map_is_set(&dmabuf->vmap_ptr));
++
++	ret = dmabuf->ops->vmap_local(dmabuf, &ptr);
++	if (WARN_ON_ONCE(ret))
++		goto out_unlock;
++
++	dmabuf->vmap_ptr = ptr;
++	dmabuf->vmapping_counter = 1;
++
++	*map = dmabuf->vmap_ptr;
++
++out_unlock:
++	mutex_unlock(&dmabuf->lock);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(dma_buf_vmap_local);
++
++/**
++ * dma_buf_vunmap_local - Unmap a vmap obtained by dma_buf_vmap_local.
++ * @dmabuf:	[in]	buffer to vunmap
++ * @map:	[in]	vmap pointer to vunmap
++ */
++void dma_buf_vunmap_local(struct dma_buf *dmabuf, struct dma_buf_map *map)
++{
++	if (WARN_ON(!dmabuf))
++		return;
++
++	dma_resv_assert_held(dmabuf->resv);
++
++	BUG_ON(dma_buf_map_is_null(&dmabuf->vmap_ptr));
++	BUG_ON(dmabuf->vmapping_counter == 0);
++	BUG_ON(!dma_buf_map_is_equal(&dmabuf->vmap_ptr, map));
++
++	mutex_lock(&dmabuf->lock);
++	if (--dmabuf->vmapping_counter == 0) {
++		if (dmabuf->ops->vunmap_local)
++			dmabuf->ops->vunmap_local(dmabuf, map);
++		dma_buf_map_clear(&dmabuf->vmap_ptr);
++	}
++	mutex_unlock(&dmabuf->lock);
++}
++EXPORT_SYMBOL_GPL(dma_buf_vunmap_local);
++
+ #ifdef CONFIG_DEBUG_FS
+ static int dma_buf_debug_show(struct seq_file *s, void *unused)
+ {
+diff --git a/include/linux/dma-buf.h b/include/linux/dma-buf.h
+index cf72699cb2bc..f66580d23a9b 100644
+--- a/include/linux/dma-buf.h
++++ b/include/linux/dma-buf.h
+@@ -269,6 +269,38 @@ struct dma_buf_ops {
+ 
+ 	int (*vmap)(struct dma_buf *dmabuf, struct dma_buf_map *map);
+ 	void (*vunmap)(struct dma_buf *dmabuf, struct dma_buf_map *map);
++
++	/**
++	 * @vmap_local:
++	 *
++	 * Creates a virtual mapping for the buffer into kernel address space.
++	 *
++	 * This callback establishes short-term mappings for situations where
++	 * callers only use the buffer for a bounded amount of time; such as
++	 * updates to the framebuffer or reading back contained information.
++	 * In contrast to the regular @vmap callback, vmap_local does never pin
++	 * the buffer to a specific domain or acquire the buffer's reservation
++	 * lock.
++	 *
++	 * This is called with the dmabuf->resv object locked. Callers must hold
++	 * the lock until after removing the mapping with @vunmap_local.
++	 *
++	 * This callback is optional.
++	 *
++	 * Returns:
++	 *
++	 * 0 on success or a negative error code on failure.
++	 */
++	int (*vmap_local)(struct dma_buf *dmabuf, struct dma_buf_map *map);
++
++	/**
++	 * @vunmap_local:
++	 *
++	 * Removes a virtual mapping that wa sestablished by @vmap_local.
++	 *
++	 * This callback is optional.
++	 */
++	void (*vunmap_local)(struct dma_buf *dmabuf, struct dma_buf_map *map);
+ };
+ 
+ /**
+@@ -506,4 +538,6 @@ int dma_buf_mmap(struct dma_buf *, struct vm_area_struct *,
+ 		 unsigned long);
+ int dma_buf_vmap(struct dma_buf *dmabuf, struct dma_buf_map *map);
+ void dma_buf_vunmap(struct dma_buf *dmabuf, struct dma_buf_map *map);
++int dma_buf_vmap_local(struct dma_buf *dmabuf, struct dma_buf_map *map);
++void dma_buf_vunmap_local(struct dma_buf *dmabuf, struct dma_buf_map *map);
+ #endif /* __DMA_BUF_H__ */
+-- 
+2.29.2
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8543237368879776538==--
