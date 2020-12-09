@@ -2,105 +2,82 @@ Return-Path: <SRS0=MC01=FN=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B06BC433FE
-	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 12:53:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BFB8C433FE
+	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 13:27:24 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 88367238A0
-	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 12:53:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 88367238A0
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 13ED823BC7
+	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 13:27:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 13ED823BC7
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=arm.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 0ED9C8780A;
-	Wed,  9 Dec 2020 12:53:37 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id ACB8087864;
+	Wed,  9 Dec 2020 13:27:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id PT+c1yF5VnIW; Wed,  9 Dec 2020 12:53:36 +0000 (UTC)
+	with ESMTP id d6X+h62nkEZa; Wed,  9 Dec 2020 13:27:22 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 63E9C877FB;
-	Wed,  9 Dec 2020 12:53:36 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id DC736877D5;
+	Wed,  9 Dec 2020 13:27:22 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 462D1C0FA7;
-	Wed,  9 Dec 2020 12:53:36 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7A5CEC013B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A2AC9C0893;
+	Wed,  9 Dec 2020 13:27:22 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E401AC013B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 12:53:35 +0000 (UTC)
+ Wed,  9 Dec 2020 13:27:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 681D32DDC9
+ by fraxinus.osuosl.org (Postfix) with ESMTP id DFDA786329
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 12:53:35 +0000 (UTC)
+ Wed,  9 Dec 2020 13:27:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id B+XFNhFJcWb4
+ with ESMTP id PzMitFLWNEKz
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 12:53:31 +0000 (UTC)
+ Wed,  9 Dec 2020 13:27:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-lf1-f68.google.com (mail-lf1-f68.google.com
- [209.85.167.68])
- by silver.osuosl.org (Postfix) with ESMTPS id 32B3A2E2BE
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by fraxinus.osuosl.org (Postfix) with ESMTP id D4A73861F6
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 12:53:29 +0000 (UTC)
-Received: by mail-lf1-f68.google.com with SMTP id 23so2910956lfg.10
- for <virtualization@lists.linux-foundation.org>;
- Wed, 09 Dec 2020 04:53:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=Q0ERmRel5zMK0HrfUyBGbMf84SViVXTKgfugx46LJdc=;
- b=CfQeSl03RYY1/kP1aY6rXJzJvM6wQuj5UDNft7mpgVbb/7Cw6Y14eAKeJR4Mj/0n4k
- wf8XYouCzKoh0cr64LOl/BxkYu4qURmZGRf+6tS58CDr5U0SDILSMmayCqifmbKnGGe2
- 2o+N8h3Z8EFN58HRS1yMpC0D3WjPp4xqfhzVVrJwq8rj2CR2spDLG5URfVjGAwDcckBM
- vl02o6JImgvybbR4RtSNCbcPpHzi+inU7G7AODAsNZV7IQYZ57Ibs9O3ZOIbi6sUXgg7
- A8HzLGoX1upy2ah+cmO0uxehRoUznRxLapDvw22E6BErQb9i7k2+P4gUB4pCTBkowOES
- cixg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=Q0ERmRel5zMK0HrfUyBGbMf84SViVXTKgfugx46LJdc=;
- b=DurPmhz6gkCAfdqWR/fkTGDMp53blUIiw/uipG1c4JRYMEvfMQQsDrJB6awg1iDUzJ
- 3xVDX9Dzn1+eQErrATmdLpWyObdWwBhYVlKthMelbkD34n3VX9FJCVl8M0TPDWMVWuLJ
- tdvlJrom92RJxk0a7yDj9uO8i0OvmH6nCY0X8dJgBOzVPtWArDPdqfcnExriDaVL5Ndk
- SEaRthPLnBiDcRdp7Y35fnM5xC19CtKmXL7csttn79S3KYubIBMPcyVobSNawBZ4zQsQ
- trX1T24HZJYyjc9/g69B41ofLsMh5a2JkfnJl/UrJCATt4/ux8sKo+7SZw33Vt4KaB8T
- a7fA==
-X-Gm-Message-State: AOAM530rlCJDRXSqP84iyLexEzICMVEAu9mlzsZVKV735jHwXELG3Zg7
- PFaz/k8/WJfOIqy/gqH5fffKX0JZlHxg2F8OXddOpw==
-X-Google-Smtp-Source: ABdhPJxT4z0Ly0kEdV4gEy+8cd3A9g/cl+KJVYjIXwDP/GLVbi+NiYbB3EufDbPF5UWEAxrY4q6VUw8juxsLEvIm0Og=
-X-Received: by 2002:a19:8384:: with SMTP id f126mr877455lfd.649.1607518407214; 
- Wed, 09 Dec 2020 04:53:27 -0800 (PST)
+ Wed,  9 Dec 2020 13:27:20 +0000 (UTC)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6032831B;
+ Wed,  9 Dec 2020 05:27:20 -0800 (PST)
+Received: from C02TD0UTHF1T.local (unknown [10.57.26.40])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2F7983F66B;
+ Wed,  9 Dec 2020 05:27:17 -0800 (PST)
+Date: Wed, 9 Dec 2020 13:27:10 +0000
+From: Mark Rutland <mark.rutland@arm.com>
+To: Andy Lutomirski <luto@kernel.org>
+Subject: Re: [PATCH v2 05/12] x86: rework arch_local_irq_restore() to not use
+ popf
+Message-ID: <20201209132710.GA8566@C02TD0UTHF1T.local>
+References: <20201120114630.13552-1-jgross@suse.com>
+ <20201120114630.13552-6-jgross@suse.com>
+ <20201120115943.GD3021@hirez.programming.kicks-ass.net>
+ <eb05e878-6334-8d19-496b-6572df67fc56@suse.com>
+ <CALCETrXOGhXoOJpzhAMqD7iibi09WzbGk9SWVH7JzA=d5uarWA@mail.gmail.com>
 MIME-Version: 1.0
-References: <20201203191135.21576-1-info@metux.net>
- <20201203191135.21576-2-info@metux.net>
- <0080d492-2f07-d1c6-d18c-73d4204a5d40@metux.net>
- <CACRpkdb4R4yHcUV2KbGEC_RkU+QmH6Xg7X+qee8sEa9TURGr8A@mail.gmail.com>
- <51d3efb7-b7eb-83d7-673a-308dd51616d3@metux.net>
- <CACRpkdbqVoT56H88hoZwDqV0kW_8XTaE5TkMQsg-RRrPqgF=cQ@mail.gmail.com>
- <CAK8P3a1PRQGUXkjdSmqxXSONX_ZoCgsfx8hJBUdBUk14tyzErA@mail.gmail.com>
-In-Reply-To: <CAK8P3a1PRQGUXkjdSmqxXSONX_ZoCgsfx8hJBUdBUk14tyzErA@mail.gmail.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Wed, 9 Dec 2020 13:53:15 +0100
-Message-ID: <CACRpkdbNAeDsi9B14kbkAeoqX7NE_Ua_yOX1iNF75oNK0ELefQ@mail.gmail.com>
-Subject: Re: Howto listen to/handle gpio state changes ? Re: [PATCH v2 2/2]
- drivers: gpio: add virtio-gpio guest driver
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
- Linux Doc Mailing List <linux-doc@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- virtualization@lists.linux-foundation.org,
- Bartosz Golaszewski <bgolaszewski@baylibre.com>, "Enrico Weigelt,
- metux IT consult" <lkml@metux.net>,
- "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
- linux-riscv <linux-riscv@lists.infradead.org>, "Enrico Weigelt,
- metux IT consult" <info@metux.net>
+Content-Disposition: inline
+In-Reply-To: <CALCETrXOGhXoOJpzhAMqD7iibi09WzbGk9SWVH7JzA=d5uarWA@mail.gmail.com>
+Cc: =?utf-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>,
+ Stefano Stabellini <sstabellini@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Linux Virtualization <virtualization@lists.linux-foundation.org>, "VMware,
+ Inc." <pv-drivers@vmware.com>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
+ xen-devel <xen-devel@lists.xenproject.org>,
+ Thomas Gleixner <tglx@linutronix.de>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,41 +89,60 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Dec 9, 2020 at 12:19 PM Arnd Bergmann <arnd@kernel.org> wrote:
-> On Wed, Dec 9, 2020 at 9:51 AM Linus Walleij <linus.walleij@linaro.org> wrote:
-> > On Tue, Dec 8, 2020 at 3:07 PM Enrico Weigelt, metux IT consult <lkml@metux.net> wrote:
->
-> > What we need to understand is if your new usecase is an outlier
-> > so it is simplest modeled by a "mock" irq_chip or we have to design
-> > something new altogether like notifications on changes. I suspect
-> > irq_chip would be best because all drivers using GPIOs for interrupts
-> > are expecting interrupts, and it would be an enormous task to
-> > change them all and really annoying to create a new mechanism
-> > on the side.
->
-> I would expect the platform abstraction to actually be close enough
-> to a chained irqchip that it actually works: the notification should
-> come in via vring_interrupt(), which is a normal interrupt handler
-> that calls vq->vq.callback(), calling generic_handle_irq() (and
-> possibly chained_irq_enter()/chained_irq_exit() around it) like the
-> other gpio drivers do should just work here I think, and if it did
-> not, then I would expect this to be just a bug in the driver rather
-> than something missing in the gpio framework.
-
-Performance/latency-wise that would also be strongly encouraged.
-
-Tglx isn't super-happy about the chained interrupts at times, as they
-can create really nasty bugs, but a pure IRQ in fastpath of some
-kinde is preferable and intuitive either way.
-
-Yours,
-Linus Walleij
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gU3VuLCBOb3YgMjIsIDIwMjAgYXQgMDE6NDQ6NTNQTSAtMDgwMCwgQW5keSBMdXRvbWlyc2tp
+IHdyb3RlOgo+IE9uIFNhdCwgTm92IDIxLCAyMDIwIGF0IDEwOjU1IFBNIErDvHJnZW4gR3Jvw58g
+PGpncm9zc0BzdXNlLmNvbT4gd3JvdGU6Cj4gPgo+ID4gT24gMjAuMTEuMjAgMTI6NTksIFBldGVy
+IFppamxzdHJhIHdyb3RlOgo+ID4gPiBPbiBGcmksIE5vdiAyMCwgMjAyMCBhdCAxMjo0NjoyM1BN
+ICswMTAwLCBKdWVyZ2VuIEdyb3NzIHdyb3RlOgo+ID4gPj4gK3N0YXRpYyBfX2Fsd2F5c19pbmxp
+bmUgdm9pZCBhcmNoX2xvY2FsX2lycV9yZXN0b3JlKHVuc2lnbmVkIGxvbmcgZmxhZ3MpCj4gPiA+
+PiArewo+ID4gPj4gKyAgICBpZiAoIWFyY2hfaXJxc19kaXNhYmxlZF9mbGFncyhmbGFncykpCj4g
+PiA+PiArICAgICAgICAgICAgYXJjaF9sb2NhbF9pcnFfZW5hYmxlKCk7Cj4gPiA+PiArfQo+ID4g
+Pgo+ID4gPiBJZiBzb21lb25lIHdlcmUgdG8gd3JpdGUgaG9ycmlibGUgY29kZSBsaWtlOgo+ID4g
+Pgo+ID4gPiAgICAgICBsb2NhbF9pcnFfZGlzYWJsZSgpOwo+ID4gPiAgICAgICBsb2NhbF9pcnFf
+c2F2ZShmbGFncyk7Cj4gPiA+ICAgICAgIGxvY2FsX2lycV9lbmFibGUoKTsKPiA+ID4gICAgICAg
+bG9jYWxfaXJxX3Jlc3RvcmUoZmxhZ3MpOwo+ID4gPgo+ID4gPiB3ZSdkIGJlIHVwIHNvbWUgY3Jl
+ZWsgd2l0aG91dCBhIHBhZGRsZS4uLiBub3cgSSBkb24ndCBfdGhpbmtfIHdlIGhhdmUKPiA+ID4g
+Z2VuaXVzIGNvZGUgbGlrZSB0aGF0LCBidXQgSSdkIGZlZWwgc2F2ZXIgaWYgd2UgY2FuIGhheiBh
+biBhc3NlcnRpb24gaW4KPiA+ID4gdGhlcmUgc29tZXdoZXJlLi4uCj4gPiA+Cj4gPiA+IE1heWJl
+IHNvbWV0aGluZyBsaWtlOgo+ID4gPgo+ID4gPiAjaWZkZWYgQ09ORklHX0RFQlVHX0VOVFJZIC8v
+IGZvciBsYWNrIG9mIHNvbWV0aGluZyBzYW5lcgo+ID4gPiAgICAgICBXQVJOX09OX09OQ0UoKGFy
+Y2hfbG9jYWxfc2F2ZV9mbGFncygpIF4gZmxhZ3MpICYgWDg2X0VGTEFHU19JRik7Cj4gPiA+ICNl
+bmRpZgo+ID4gPgo+ID4gPiBBdCB0aGUgZW5kPwo+ID4KPiA+IEknZCBsaWtlIHRvLCBidXQgdXNp
+bmcgV0FSTl9PTl9PTkNFKCkgaW4gaW5jbHVkZS9hc20vaXJxZmxhZ3MuaCBzb3VuZHMKPiA+IGxp
+a2UgYSBwZXJmZWN0IHJlY2VpcHQgZm9yIGluY2x1ZGUgZGVwZW5kZW5jeSBoZWxsLgo+ID4KPiA+
+IFdlIGNvdWxkIHVzZSBhIHBsYWluIGFzbSgidWQyIikgaW5zdGVhZC4KPiAKPiBIb3cgYWJvdXQg
+b3V0LW9mLWxpbmluZyBpdDoKPiAKPiAjaWZkZWYgQ09ORklHX0RFQlVHX0VOVFJZCj4gZXh0ZXJu
+IHZvaWQgd2Fybl9ib2d1c19pcnFyZXN0b3JlKCk7Cj4gI2VuZGlmCj4gCj4gc3RhdGljIF9fYWx3
+YXlzX2lubGluZSB2b2lkIGFyY2hfbG9jYWxfaXJxX3Jlc3RvcmUodW5zaWduZWQgbG9uZyBmbGFn
+cykKPiB7Cj4gICAgICAgIGlmICghYXJjaF9pcnFzX2Rpc2FibGVkX2ZsYWdzKGZsYWdzKSkgewo+
+ICAgICAgICAgICAgICAgIGFyY2hfbG9jYWxfaXJxX2VuYWJsZSgpOwo+ICAgICAgICB9IGVsc2Ug
+ewo+ICNpZmRlZiBDT05GSUdfREVCVUdfRU5UUlkKPiAgICAgICAgICAgICAgICBpZiAodW5saWtl
+bHkoYXJjaF9sb2NhbF9pcnFfc2F2ZSgpICYgWDg2X0VGTEFHU19JRikpCj4gICAgICAgICAgICAg
+ICAgICAgICB3YXJuX2JvZ3VzX2lycXJlc3RvcmUoKTsKPiAjZW5kaWYKPiB9CgpJIHdhcyBqdXN0
+IHRhbGtpbmcgdG8gUGV0ZXIgb24gSVJDIGFib3V0IGltcGxlbWVudGluZyB0aGUgc2FtZSB0aGlu
+ZyBmb3IKYXJtNjQsIHNvIGNvdWxkIHdlIHB1dCB0aGlzIGluIHRoZSBnZW5lcmljIGlycWZsYWdz
+IGNvZGU/IElJVUMgd2UgY2FuCnVzZSByYXdfaXJxc19kaXNhYmxlZCgpIHRvIGRvIHRoZSBjaGVj
+ay4KCkFzIHRoaXMgaXNuJ3QgcmVhbGx5IGVudHJ5IHNwZWNpZmljIChhbmQgSUlVQyB0aGUgY2Fz
+ZXMgdGhpcyBzaG91bGQKY2F0Y2ggd291bGQgYnJlYWsgbG9ja2RlcCB0b2RheSksIG1heWJlIHdl
+IHNob3VsZCBhZGQgYSBuZXcKREVCVUdfSVJRRkxBR1MgZm9yIHRoaXMsIHRoYXQgREVCVUdfTE9D
+S0RFUCBjYW4gYWxzbyBzZWxlY3Q/CgpTb21ldGhpbmcgbGlrZToKCiNkZWZpbmUgbG9jYWxfaXJx
+X3Jlc3RvcmUoZmxhZ3MpICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwKICAgICAgIGRv
+IHsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXAog
+ICAgICAgICAgICAgICBpZiAoIXJhd19pcnFzX2Rpc2FibGVkX2ZsYWdzKGZsYWdzKSkgeyAgICAg
+ICAgICBcCiAgICAgICAgICAgICAgICAgICAgICAgdHJhY2VfaGFyZGlycXNfb24oKTsgICAgICAg
+ICAgICAgICAgICAgIFwKICAgICAgICAgICAgICAgfSBlbHNlIGlmIChJU19FTkFCTEVEKENPTkZJ
+R19ERUJVR19JUlFGTEFHUykgeyAgXAogICAgICAgICAgICAgICAgICAgICAgIGlmICh1bmxpa2Vs
+eShyYXdfaXJxc19kaXNhYmxlZCgpKSAgICAgICBcCiAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICB3YXJuX2JvZ3VzX2lycXJlc3RvcmUoKTsgICAgICAgIFwKICAgICAgICAgICAgICAgfSAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXAogICAgICAgICAg
+ICAgICByYXdfbG9jYWxfaXJxX3Jlc3RvcmUoZmxhZ3MpOyAgICAgICAgICAgICAgICAgICBcCiAg
+ICAgICAgfSB3aGlsZSAoMCkKCi4uLiBwZXJoYXBzPyAoaWdub3JpbmcgaG93ZXZlciB3ZSBkZWFs
+IHdpdGggb25jZS1uZXNzKS4KClRoYW5rcywKTWFyay4KX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
