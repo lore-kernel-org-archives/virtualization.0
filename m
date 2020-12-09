@@ -2,75 +2,82 @@ Return-Path: <SRS0=MC01=FN=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0882EC2BB48
-	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:02:40 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2A53C4361B
+	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:05:52 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9522E23B31
-	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:02:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9522E23B31
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=arm.com
+	by mail.kernel.org (Postfix) with ESMTPS id 18E3723B40
+	for <virtualization@archiver.kernel.org>; Wed,  9 Dec 2020 14:05:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 18E3723B40
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 2025587199;
-	Wed,  9 Dec 2020 14:02:39 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id B3DBB879FB;
+	Wed,  9 Dec 2020 14:05:51 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kqTnY7DNrh67; Wed,  9 Dec 2020 14:05:47 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by hemlock.osuosl.org (Postfix) with ESMTP id 5961B879E7;
+	Wed,  9 Dec 2020 14:05:47 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 486A7C0893;
+	Wed,  9 Dec 2020 14:05:47 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8F403C013B
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  9 Dec 2020 14:05:46 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id 7CD1687031
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  9 Dec 2020 14:05:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1T-LpIU47oNm; Wed,  9 Dec 2020 14:02:35 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id BE7308718B;
-	Wed,  9 Dec 2020 14:02:35 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9E6B9C0893;
-	Wed,  9 Dec 2020 14:02:35 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CD742C013B
- for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:02:33 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id BC6F78753B
- for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:02:33 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pqmyNdQiwdcH
+ with ESMTP id OR56QqpCKZMY
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:02:32 +0000 (UTC)
+ Wed,  9 Dec 2020 14:05:43 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by fraxinus.osuosl.org (Postfix) with ESMTP id BD8E382146
+Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 3D1DC87022
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Dec 2020 14:02:32 +0000 (UTC)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id EAFD31FB;
- Wed,  9 Dec 2020 06:02:31 -0800 (PST)
-Received: from C02TD0UTHF1T.local (unknown [10.57.26.40])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 067D13F66B;
- Wed,  9 Dec 2020 06:02:28 -0800 (PST)
-Date: Wed, 9 Dec 2020 14:02:21 +0000
-From: Mark Rutland <mark.rutland@arm.com>
-To: Andy Lutomirski <luto@kernel.org>
+ Wed,  9 Dec 2020 14:05:43 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1607522741; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=uXgDSSgnRzBGDMdctLYaRQ+Qn2PprXJNdztVTKfo77c=;
+ b=VBLFnGdFLTZejaes667CEyWZxD0WAgEJ51z5oj3X8hKrujSoQO3KE8O+t/PTAzZi9+s3+H
+ s0Ej2Glu5ccJ8u9gsnr256lA8K5pMwj5Xsyx4FqRkAfCEtHb/xtCrk2T3NVppdMovVrLTa
+ 7NxlwD+oCqy1r458bCjBnqoIF2sArLY=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+ by mx2.suse.de (Postfix) with ESMTP id D0203ACEB;
+ Wed,  9 Dec 2020 14:05:40 +0000 (UTC)
 Subject: Re: [PATCH v2 05/12] x86: rework arch_local_irq_restore() to not use
  popf
-Message-ID: <20201209140221.GA9087@C02TD0UTHF1T.local>
+To: Mark Rutland <mark.rutland@arm.com>, Andy Lutomirski <luto@kernel.org>
 References: <20201120114630.13552-1-jgross@suse.com>
  <20201120114630.13552-6-jgross@suse.com>
  <20201120115943.GD3021@hirez.programming.kicks-ass.net>
  <eb05e878-6334-8d19-496b-6572df67fc56@suse.com>
  <CALCETrXOGhXoOJpzhAMqD7iibi09WzbGk9SWVH7JzA=d5uarWA@mail.gmail.com>
  <20201209132710.GA8566@C02TD0UTHF1T.local>
+ <20201209140221.GA9087@C02TD0UTHF1T.local>
+Message-ID: <a37be173-6702-5523-8757-2b5a1b4ae311@suse.com>
+Date: Wed, 9 Dec 2020 15:05:39 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20201209132710.GA8566@C02TD0UTHF1T.local>
-Cc: =?utf-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>,
- Stefano Stabellini <sstabellini@kernel.org>,
+In-Reply-To: <20201209140221.GA9087@C02TD0UTHF1T.local>
+Cc: Stefano Stabellini <sstabellini@kernel.org>,
  Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>,
  LKML <linux-kernel@vger.kernel.org>,
  Linux Virtualization <virtualization@lists.linux-foundation.org>, "VMware,
@@ -90,45 +97,234 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Content-Type: multipart/mixed; boundary="===============8543237368879776538=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCBEZWMgMDksIDIwMjAgYXQgMDE6Mjc6MTBQTSArMDAwMCwgTWFyayBSdXRsYW5kIHdy
-b3RlOgo+IE9uIFN1biwgTm92IDIyLCAyMDIwIGF0IDAxOjQ0OjUzUE0gLTA4MDAsIEFuZHkgTHV0
-b21pcnNraSB3cm90ZToKPiA+IE9uIFNhdCwgTm92IDIxLCAyMDIwIGF0IDEwOjU1IFBNIErDvHJn
-ZW4gR3Jvw58gPGpncm9zc0BzdXNlLmNvbT4gd3JvdGU6Cj4gPiA+IE9uIDIwLjExLjIwIDEyOjU5
-LCBQZXRlciBaaWpsc3RyYSB3cm90ZToKPiA+ID4gPiBJZiBzb21lb25lIHdlcmUgdG8gd3JpdGUg
-aG9ycmlibGUgY29kZSBsaWtlOgo+ID4gPiA+Cj4gPiA+ID4gICAgICAgbG9jYWxfaXJxX2Rpc2Fi
-bGUoKTsKPiA+ID4gPiAgICAgICBsb2NhbF9pcnFfc2F2ZShmbGFncyk7Cj4gPiA+ID4gICAgICAg
-bG9jYWxfaXJxX2VuYWJsZSgpOwo+ID4gPiA+ICAgICAgIGxvY2FsX2lycV9yZXN0b3JlKGZsYWdz
-KTsKPiA+ID4gPgo+ID4gPiA+IHdlJ2QgYmUgdXAgc29tZSBjcmVlayB3aXRob3V0IGEgcGFkZGxl
-Li4uIG5vdyBJIGRvbid0IF90aGlua18gd2UgaGF2ZQo+ID4gPiA+IGdlbml1cyBjb2RlIGxpa2Ug
-dGhhdCwgYnV0IEknZCBmZWVsIHNhdmVyIGlmIHdlIGNhbiBoYXogYW4gYXNzZXJ0aW9uIGluCj4g
-PiA+ID4gdGhlcmUgc29tZXdoZXJlLi4uCgo+IEkgd2FzIGp1c3QgdGFsa2luZyB0byBQZXRlciBv
-biBJUkMgYWJvdXQgaW1wbGVtZW50aW5nIHRoZSBzYW1lIHRoaW5nIGZvcgo+IGFybTY0LCBzbyBj
-b3VsZCB3ZSBwdXQgdGhpcyBpbiB0aGUgZ2VuZXJpYyBpcnFmbGFncyBjb2RlPyBJSVVDIHdlIGNh
-bgo+IHVzZSByYXdfaXJxc19kaXNhYmxlZCgpIHRvIGRvIHRoZSBjaGVjay4KPiAKPiBBcyB0aGlz
-IGlzbid0IHJlYWxseSBlbnRyeSBzcGVjaWZpYyAoYW5kIElJVUMgdGhlIGNhc2VzIHRoaXMgc2hv
-dWxkCj4gY2F0Y2ggd291bGQgYnJlYWsgbG9ja2RlcCB0b2RheSksIG1heWJlIHdlIHNob3VsZCBh
-ZGQgYSBuZXcKPiBERUJVR19JUlFGTEFHUyBmb3IgdGhpcywgdGhhdCBERUJVR19MT0NLREVQIGNh
-biBhbHNvIHNlbGVjdD8KPiAKPiBTb21ldGhpbmcgbGlrZToKPiAKPiAjZGVmaW5lIGxvY2FsX2ly
-cV9yZXN0b3JlKGZsYWdzKSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcCj4gICAgICAg
-IGRvIHsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-XAo+ICAgICAgICAgICAgICAgIGlmICghcmF3X2lycXNfZGlzYWJsZWRfZmxhZ3MoZmxhZ3MpKSB7
-ICAgICAgICAgIFwKPiAgICAgICAgICAgICAgICAgICAgICAgIHRyYWNlX2hhcmRpcnFzX29uKCk7
-ICAgICAgICAgICAgICAgICAgICBcCj4gICAgICAgICAgICAgICAgfSBlbHNlIGlmIChJU19FTkFC
-TEVEKENPTkZJR19ERUJVR19JUlFGTEFHUykgeyAgXAo+ICAgICAgICAgICAgICAgICAgICAgICAg
-aWYgKHVubGlrZWx5KHJhd19pcnFzX2Rpc2FibGVkKCkpICAgICAgIFwKCldob29wczsgdGhhdCBz
-aG91bGQgYmUgIXJhd19pcnFzX2Rpc2FibGVkKCkuCgo+ICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICB3YXJuX2JvZ3VzX2lycXJlc3RvcmUoKTsgICAgICAgIFwKPiAgICAgICAgICAgICAg
-ICB9ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcCj4gICAg
-ICAgICAgICAgICAgcmF3X2xvY2FsX2lycV9yZXN0b3JlKGZsYWdzKTsgICAgICAgICAgICAgICAg
-ICAgXAo+ICAgICAgICAgfSB3aGlsZSAoMCkKPiAKPiAuLi4gcGVyaGFwcz8gKGlnbm9yaW5nIGhv
-d2V2ZXIgd2UgZGVhbCB3aXRoIG9uY2UtbmVzcykuCgpJZiBuby1vbmUgc2hvdXRzIGluIHRoZSBu
-ZXh0IGRheSBvciB0d28gSSdsbCBzcGluIHRoaXMgYXMgaXRzIG93biBwYXRjaC4KCk1hcmsuCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============8543237368879776538==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="SbHnCuqvhr456hxBGyZfmnROM8i0IqhVV"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--SbHnCuqvhr456hxBGyZfmnROM8i0IqhVV
+Content-Type: multipart/mixed; boundary="3SWBQ2CGRPlIb6qugl6p4NZVoXATi0Vjq";
+ protected-headers="v1"
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+To: Mark Rutland <mark.rutland@arm.com>, Andy Lutomirski <luto@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>,
+ Stefano Stabellini <sstabellini@kernel.org>,
+ "VMware, Inc." <pv-drivers@vmware.com>, X86 ML <x86@kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Linux Virtualization <virtualization@lists.linux-foundation.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ "H. Peter Anvin" <hpa@zytor.com>, xen-devel
+ <xen-devel@lists.xenproject.org>, Thomas Gleixner <tglx@linutronix.de>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Message-ID: <a37be173-6702-5523-8757-2b5a1b4ae311@suse.com>
+Subject: Re: [PATCH v2 05/12] x86: rework arch_local_irq_restore() to not use
+ popf
+References: <20201120114630.13552-1-jgross@suse.com>
+ <20201120114630.13552-6-jgross@suse.com>
+ <20201120115943.GD3021@hirez.programming.kicks-ass.net>
+ <eb05e878-6334-8d19-496b-6572df67fc56@suse.com>
+ <CALCETrXOGhXoOJpzhAMqD7iibi09WzbGk9SWVH7JzA=d5uarWA@mail.gmail.com>
+ <20201209132710.GA8566@C02TD0UTHF1T.local>
+ <20201209140221.GA9087@C02TD0UTHF1T.local>
+In-Reply-To: <20201209140221.GA9087@C02TD0UTHF1T.local>
+
+--3SWBQ2CGRPlIb6qugl6p4NZVoXATi0Vjq
+Content-Type: multipart/mixed;
+ boundary="------------11CE66C562C189ECDCC48235"
+Content-Language: en-US
+
+This is a multi-part message in MIME format.
+--------------11CE66C562C189ECDCC48235
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+
+On 09.12.20 15:02, Mark Rutland wrote:
+> On Wed, Dec 09, 2020 at 01:27:10PM +0000, Mark Rutland wrote:
+>> On Sun, Nov 22, 2020 at 01:44:53PM -0800, Andy Lutomirski wrote:
+>>> On Sat, Nov 21, 2020 at 10:55 PM J=C3=BCrgen Gro=C3=9F <jgross@suse.c=
+om> wrote:
+>>>> On 20.11.20 12:59, Peter Zijlstra wrote:
+>>>>> If someone were to write horrible code like:
+>>>>>
+>>>>>        local_irq_disable();
+>>>>>        local_irq_save(flags);
+>>>>>        local_irq_enable();
+>>>>>        local_irq_restore(flags);
+>>>>>
+>>>>> we'd be up some creek without a paddle... now I don't _think_ we ha=
+ve
+>>>>> genius code like that, but I'd feel saver if we can haz an assertio=
+n in
+>>>>> there somewhere...
+>=20
+>> I was just talking to Peter on IRC about implementing the same thing f=
+or
+>> arm64, so could we put this in the generic irqflags code? IIUC we can
+>> use raw_irqs_disabled() to do the check.
+>>
+>> As this isn't really entry specific (and IIUC the cases this should
+>> catch would break lockdep today), maybe we should add a new
+>> DEBUG_IRQFLAGS for this, that DEBUG_LOCKDEP can also select?
+>>
+>> Something like:
+>>
+>> #define local_irq_restore(flags)                               \
+>>         do {                                                    \
+>>                 if (!raw_irqs_disabled_flags(flags)) {          \
+>>                         trace_hardirqs_on();                    \
+>>                 } else if (IS_ENABLED(CONFIG_DEBUG_IRQFLAGS) {  \
+>>                         if (unlikely(raw_irqs_disabled())       \
+>=20
+> Whoops; that should be !raw_irqs_disabled().
+>=20
+>>                                 warn_bogus_irqrestore();        \
+>>                 }                                               \
+>>                 raw_local_irq_restore(flags);                   \
+>>          } while (0)
+>>
+>> ... perhaps? (ignoring however we deal with once-ness).
+>=20
+> If no-one shouts in the next day or two I'll spin this as its own patch=
+=2E
+
+Fine with me. So I'll just ignore a potential error case in my patch.
+
+Thanks,
+
+
+Juergen
+
+
+--------------11CE66C562C189ECDCC48235
+Content-Type: application/pgp-keys;
+ name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+ filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
+cWx
+w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
+f8Z
+d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
+9bf
+IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
+G7/
+377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
+3Jv
+c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
+QIe
+AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
+hpw
+dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
+MbD
+1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
+oPH
+Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
+5QL
++qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
+2Vu
+IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
+QoL
+BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
+Wf0
+teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
+/nu
+AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
+ITT
+d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
+XBK
+7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
+80h
+SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
+AcD
+AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
+FOX
+gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
+jnD
+kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
+N51
+N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
+otu
+fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
+tqS
+EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
+hsD
+BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
+g3O
+ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
+dM7
+wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
+D+j
+LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
+V2x
+AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
+Eaw
+QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
+nHI
+s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
+wgn
+BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
+bVF
+LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
+pEd
+IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
+QAB
+wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
+Tbe
+8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
+vJz
+Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
+VGi
+wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
+svi
+uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
+zXs
+ZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------11CE66C562C189ECDCC48235--
+
+--3SWBQ2CGRPlIb6qugl6p4NZVoXATi0Vjq--
+
+--SbHnCuqvhr456hxBGyZfmnROM8i0IqhVV
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAl/Q2bMFAwAAAAAACgkQsN6d1ii/Ey+M
+Sgf/YvUCb1mTnblXUk7krczQ1ATvqpRzUPkRKWI/gbHwiba2E6IgZu9qI9rnOGU2XftlrlseQrYY
+TgBQ6ElRBxmD7UwTQHYEo8sGuk4aRzlqWFZLiOQhYPhqFc8uv3eWlZWVcplQH9mer1rAZS4Z0tCR
+Rbh4HJa+Qmfhh0n0L+kBDWzNfll7LrjnV21sZLSSzSDLsDxObqi4yRoM+Mr/0wLovtHHb3oVIE3y
+q87ZQjcZeCZZYcwIYLQrhpIPtU5b7rrYB5kLEyKHus+S+B+PciDn7QYEvbfIddjOmaIMB8VWIIC4
+Ir1NaFfvEJlgYdw15YRsTmU/yqkiTZ3/cp4vlaFqKw==
+=ZFoe
+-----END PGP SIGNATURE-----
+
+--SbHnCuqvhr456hxBGyZfmnROM8i0IqhVV--
+
+--===============8543237368879776538==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8543237368879776538==--
