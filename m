@@ -2,106 +2,75 @@ Return-Path: <SRS0=lZ9m=FO=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9011C4361B
-	for <virtualization@archiver.kernel.org>; Thu, 10 Dec 2020 11:31:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86D44C4361B
+	for <virtualization@archiver.kernel.org>; Thu, 10 Dec 2020 11:42:30 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7088823C8D
-	for <virtualization@archiver.kernel.org>; Thu, 10 Dec 2020 11:31:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7088823C8D
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id D1F6923D56
+	for <virtualization@archiver.kernel.org>; Thu, 10 Dec 2020 11:42:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D1F6923D56
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id A78DA876F7;
-	Thu, 10 Dec 2020 11:31:40 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 5194987752;
+	Thu, 10 Dec 2020 11:42:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id R0_Agj62P5v4; Thu, 10 Dec 2020 11:31:40 +0000 (UTC)
+	with ESMTP id d5PP0DpQYpKd; Thu, 10 Dec 2020 11:42:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 24DC4876DA;
-	Thu, 10 Dec 2020 11:31:40 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 1967C8774A;
+	Thu, 10 Dec 2020 11:42:28 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 066DFC0FA7;
-	Thu, 10 Dec 2020 11:31:40 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D2040C013B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DE7B4C0FA7;
+	Thu, 10 Dec 2020 11:42:27 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C85A1C013B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Dec 2020 11:31:38 +0000 (UTC)
+ Thu, 10 Dec 2020 11:42:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id C020B8701A
+ by fraxinus.osuosl.org (Postfix) with ESMTP id BC3FF8774A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Dec 2020 11:31:38 +0000 (UTC)
+ Thu, 10 Dec 2020 11:42:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id X+XNaqHhxwu9
+ with ESMTP id SBPXC0FX6A1w
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Dec 2020 11:31:38 +0000 (UTC)
+ Thu, 10 Dec 2020 11:42:26 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 0E5B687018
+Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id CD18187742
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Dec 2020 11:31:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1607599897;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=0vpeFoxvipiFfHjrK3SmcHRfsuQ3JzQdub6tkzQBRZk=;
- b=Q6al0xrUQUAl2OiNHSpxbSaWIdcHwo6D06pJ84r3GgVqIi9Q3yE59sOJ5Yi2K0jRELBLQG
- d66Yl2oznFlA0vbQIOPEN0vwwhNFGI3VvESMpMqymT8nKoYw6KI10mhChHFjrUvY4Jy+yy
- e5WRxMCuPB2cIT9QU9HDUI+7cJT48HU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-41-IPyTpgFpPWuti1cYkS4kHA-1; Thu, 10 Dec 2020 06:31:33 -0500
-X-MC-Unique: IPyTpgFpPWuti1cYkS4kHA-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
- [10.5.11.14])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0353810CE7BC;
- Thu, 10 Dec 2020 11:30:53 +0000 (UTC)
-Received: from localhost (ovpn-113-62.ams2.redhat.com [10.36.113.62])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 380665D9DD;
- Thu, 10 Dec 2020 11:30:52 +0000 (UTC)
-Date: Thu, 10 Dec 2020 11:30:51 +0000
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Subject: Re: [RFC PATCH 05/27] vhost: Add hdev->dev.sw_lm_vq_handler
-Message-ID: <20201210113051.GF416119@stefanha-x1.localdomain>
-References: <20201120185105.279030-1-eperezma@redhat.com>
- <20201120185105.279030-6-eperezma@redhat.com>
- <20201207165216.GL203660@stefanha-x1.localdomain>
- <CAJaqyWfSUHD0MU=1yfU1N6pZ4TU7prxyoG6NY-VyNGt=MO9H4g@mail.gmail.com>
+ Thu, 10 Dec 2020 11:42:25 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+ by mx2.suse.de (Postfix) with ESMTP id B1475AE47;
+ Thu, 10 Dec 2020 11:42:21 +0000 (UTC)
+Subject: Re: [PATCH v2 09/20] drm/i915: Remove references to struct
+ drm_device.pdev
+To: Jani Nikula <jani.nikula@linux.intel.com>, airlied@linux.ie,
+ daniel@ffwll.ch
+References: <20201201103542.2182-1-tzimmermann@suse.de>
+ <20201201103542.2182-10-tzimmermann@suse.de>
+ <7c9b3127-0e79-fd22-0bba-b3e8430d876a@suse.de> <875z5a9gns.fsf@intel.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Message-ID: <48afe494-eab1-7dac-0f8c-ad1acd31cbfe@suse.de>
+Date: Thu, 10 Dec 2020 10:24:15 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.0
 MIME-Version: 1.0
-In-Reply-To: <CAJaqyWfSUHD0MU=1yfU1N6pZ4TU7prxyoG6NY-VyNGt=MO9H4g@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=stefanha@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: kvm list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- qemu-level <qemu-devel@nongnu.org>, Daniel Daly <dandaly0@gmail.com>,
- virtualization@lists.linux-foundation.org, Liran Alon <liralon@gmail.com>,
- Eli Cohen <eli@mellanox.com>, Nitin Shrivastav <nitin.shrivastav@broadcom.com>,
- Alex Barba <alex.barba@broadcom.com>,
- Christophe Fontaine <cfontain@redhat.com>, Lee Ballard <ballle98@gmail.com>,
- Lars Ganrot <lars.ganrot@gmail.com>, Rob Miller <rob.miller@broadcom.com>,
- Howard Cai <howard.cai@gmail.com>, Parav Pandit <parav@mellanox.com>,
- vm <vmireyno@marvell.com>, Salil Mehta <mehta.salil.lnk@gmail.com>,
- Stephen Finucane <stephenfin@redhat.com>, Xiao W Wang <xiao.w.wang@intel.com>,
- Sean Mooney <smooney@redhat.com>, Jim Harford <jim.harford@broadcom.com>,
- Dmytro Kazantsev <dmytro.kazantsev@gmail.com>, Siwei Liu <loseweigh@gmail.com>,
- Harpreet Singh Anand <hanand@xilinx.com>, Michael Lilja <ml@napatech.com>,
- Max Gurtovoy <maxgu14@gmail.com>
+In-Reply-To: <875z5a9gns.fsf@intel.com>
+Cc: nouveau@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+ amd-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ dri-devel@lists.freedesktop.org, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ spice-devel@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,70 +82,98 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============6319510717984419397=="
+Content-Type: multipart/mixed; boundary="===============7669636320923971625=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
---===============6319510717984419397==
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============7669636320923971625==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="wtjvnLv0o8UUzur2"
-Content-Disposition: inline
+ protocol="application/pgp-signature";
+ boundary="LHeFyx9QqIlGkEMELLBaAod1WWnnwq7bD"
 
---wtjvnLv0o8UUzur2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--LHeFyx9QqIlGkEMELLBaAod1WWnnwq7bD
+Content-Type: multipart/mixed; boundary="UYNLXYvdyqt1LAH6LX9dVWFS9wYsDJzAN";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Jani Nikula <jani.nikula@linux.intel.com>, airlied@linux.ie,
+ daniel@ffwll.ch
+Cc: nouveau@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ amd-gfx@lists.freedesktop.org, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ spice-devel@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org
+Message-ID: <48afe494-eab1-7dac-0f8c-ad1acd31cbfe@suse.de>
+Subject: Re: [PATCH v2 09/20] drm/i915: Remove references to struct
+ drm_device.pdev
+References: <20201201103542.2182-1-tzimmermann@suse.de>
+ <20201201103542.2182-10-tzimmermann@suse.de>
+ <7c9b3127-0e79-fd22-0bba-b3e8430d876a@suse.de> <875z5a9gns.fsf@intel.com>
+In-Reply-To: <875z5a9gns.fsf@intel.com>
+
+--UYNLXYvdyqt1LAH6LX9dVWFS9wYsDJzAN
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 09, 2020 at 04:02:56PM +0100, Eugenio Perez Martin wrote:
-> On Mon, Dec 7, 2020 at 5:52 PM Stefan Hajnoczi <stefanha@gmail.com> wrote=
-:
-> > On Fri, Nov 20, 2020 at 07:50:43PM +0100, Eugenio P=E9rez wrote:
-> > > diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-> > > index 9179013ac4..9a69ae3598 100644
-> > > --- a/hw/net/virtio-net.c
-> > > +++ b/hw/net/virtio-net.c
-> > > @@ -2628,24 +2628,32 @@ static void virtio_net_tx_bh(void *opaque)
-> > >      }
-> > >  }
-> > >
-> > > -static void virtio_net_add_queue(VirtIONet *n, int index)
-> > > +static void virtio_net_add_queue(VirtIONet *n, int index,
-> > > +                                 VirtIOHandleOutput custom_handler)
-> > >  {
-> >
-> > We talked about the possibility of moving this into the generic vhost
-> > code so that devices don't need to be modified. It would be nice to hid=
-e
-> > this feature inside vhost.
+Hi
+
+Am 10.12.20 um 10:03 schrieb Jani Nikula:
+> On Tue, 08 Dec 2020, Thomas Zimmermann <tzimmermann@suse.de> wrote:
+>> ping for a review of the i915 patches
 >=20
-> I'm thinking of tying it to VirtQueue, allowing the caller to override
-> the handler knowing it is not going to be called (I mean, not offering
-> race conditions protection, like before of starting processing
-> notifications in qemu calling vhost_dev_disable_notifiers).
+> What did you have in mind regarding merging the series? Should we just
+> pick the patches up?
 
-Yes, I can see how at least part of this belongs to VirtQueue.
+Originally I thought that individual trees would merge their rsp=20
+patches. I guess the larger drivers could get some minor conflicts.
 
-Stefan
+Amdgpu/radeon devs suggested to put everything into drm-misc-next at=20
+once. I'd prefer that, but ultimately it's up to you.
 
---wtjvnLv0o8UUzur2
-Content-Type: application/pgp-signature; name="signature.asc"
+Best regards
+Thomas
+
+>=20
+> BR,
+> Jani.
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+
+
+--UYNLXYvdyqt1LAH6LX9dVWFS9wYsDJzAN--
+
+--LHeFyx9QqIlGkEMELLBaAod1WWnnwq7bD
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl/SBusACgkQnKSrs4Gr
-c8iLwgf/aaGiY0DHn8I8FYdQGoreiYRr1SK+yJ4QWre7tvYsACl3EXz8Uq2PKZRo
-+7NkNHIwhXEpcb1usOfH5PrUw4pRoMH78oQckxlnJtoQOdKiYi1SikAQKxOrooRs
-Cn4E2SA9vVnDyCa0ZFs83GkRJyhnsLfs/AOYtWk/t2JdxzXWZhbewHgI3lUhy5qN
-nLo/wINyWrndWt1HoI7HFbe82IDwhpwh5ACBxlb5579HaSwJsI/HX4k+jcHEJGAl
-S7wSdufuVz9xzQ07r3fIWjTh9GsVJRJhHS3cfUcYmL/7CbmkGxYOiHPveHLEPogL
-0G812OH8HJc+Hde+Ce/yAwlHGjXPFw==
-=/sJb
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAl/R6T8FAwAAAAAACgkQlh/E3EQov+D+
+yBAAkmsb7v4JGw4GBDqZWXkf5yeRsZn3lzy9FuCJ49HPiWArqivWYnYoWu9O070xkrdvcGcbAsTO
+L/JtiL8Nd5xwyw9A0lRhxes/adNTLIStoJGT/JfLUHLGXO3CiO2OnKxKnOMihtqlB/dUlvmB2B7J
+4mNXjMyo06DEcDvsyFATN3BYRFRj1MFYUkzwXMrLAHQ9QXyvHrBMU6sfBuN/zwnKrXPmy9NevK2w
+SAuSBY8kMiimRwWYSF2ZlaC/TVE9S97iEiTU7jo5CkXetNBVNUABRUOvG3JIlISV2GeJ19MBaPPd
+KcJUyxuCLT/TJU+DPnfw92YWHbb/LGAEpsSCB0wd1S7Uokf3XDiqYfOn9PXRfsqo+m+lYv9AhPEz
+MGpCSuqZFIv4OO9wQsUIeTZlqyNUF0W4jjmGDHvtzkcbQ7laRq+PzxgZ7WiWOxU5N7g2tcHdh7Q7
+8mTfXYiOfZCbgakQ8t8DqW8ZvUtB2CqgfcWVbGkcVKnfR8Wmp9eTpFbTzrFd64/1mhC3DA5QtkRI
+W6XV4PvCD1wLJetvEAXSo09A8d8NXyMG9NxyQ2ySF5w82dA2kswS7LsRSDFUHE3hEk+7HrJZZQkb
+0odsemajAYcKfi5ab5WrszULfTV8IhCxACylTnqyKR4LoFfTk+WjRTwWeV4LYqn8rvmHnc1wXesh
+jbo=
+=uTJr
 -----END PGP SIGNATURE-----
 
---wtjvnLv0o8UUzur2--
+--LHeFyx9QqIlGkEMELLBaAod1WWnnwq7bD--
 
-
---===============6319510717984419397==
+--===============7669636320923971625==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -186,5 +183,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6319510717984419397==--
-
+--===============7669636320923971625==--
