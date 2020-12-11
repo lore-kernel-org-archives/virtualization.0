@@ -2,102 +2,74 @@ Return-Path: <SRS0=HmZx=FP=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5164C433FE
-	for <virtualization@archiver.kernel.org>; Fri, 11 Dec 2020 10:14:53 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C01B3C4361B
+	for <virtualization@archiver.kernel.org>; Fri, 11 Dec 2020 10:16:38 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4BFD323C18
-	for <virtualization@archiver.kernel.org>; Fri, 11 Dec 2020 10:14:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4BFD323C18
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
+	by mail.kernel.org (Postfix) with ESMTPS id 3761C23C18
+	for <virtualization@archiver.kernel.org>; Fri, 11 Dec 2020 10:16:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3761C23C18
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 8B64B8726D;
-	Fri, 11 Dec 2020 10:14:52 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 978CC2CD96;
+	Fri, 11 Dec 2020 10:16:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nfPnRskk4nb6; Fri, 11 Dec 2020 10:14:52 +0000 (UTC)
+	with ESMTP id sTnLeer2OHeX; Fri, 11 Dec 2020 10:16:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id EEAEB87224;
-	Fri, 11 Dec 2020 10:14:51 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id A08C521537;
+	Fri, 11 Dec 2020 10:16:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CC2D9C0FA7;
-	Fri, 11 Dec 2020 10:14:51 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E35FEC013B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7DF58C0FA7;
+	Fri, 11 Dec 2020 10:16:32 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C6CC1C013B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Dec 2020 10:14:49 +0000 (UTC)
+ Fri, 11 Dec 2020 10:16:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id C4BE086856
+ by silver.osuosl.org (Postfix) with ESMTP id BAAFC21537
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Dec 2020 10:14:49 +0000 (UTC)
+ Fri, 11 Dec 2020 10:16:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vshynw9podjh
+ with ESMTP id Eqxrj0E6tXrc
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Dec 2020 10:14:49 +0000 (UTC)
+ Fri, 11 Dec 2020 10:16:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-wm1-f66.google.com (mail-wm1-f66.google.com
- [209.85.128.66])
- by whitealder.osuosl.org (Postfix) with ESMTPS id AAC7E86F80
+Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
+ by silver.osuosl.org (Postfix) with ESMTPS id CFDC5203E1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Dec 2020 10:14:48 +0000 (UTC)
-Received: by mail-wm1-f66.google.com with SMTP id y23so8050933wmi.1
- for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Dec 2020 02:14:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=tFibnX3/+2uQLJigmsH9b8s5hxcI5Nnzsyfczlow2uY=;
- b=dGhq32YMkTjWI/ie2Hq+RdFI2qUl+7/r+2hNI1hmc7rqmjb1bUxt3I38/+V1gaz4Bi
- tpO9bNBaMSzFzrAzfieUISFFy1nzZP5xUTiHgEVpnG8Edk2NmeOVM06D8pAO9yjnKpZu
- f+AcH6sPBkStWxgnvgOfJo3dI+Mu2HsWk3EYY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=tFibnX3/+2uQLJigmsH9b8s5hxcI5Nnzsyfczlow2uY=;
- b=OQp9kH/XtphSYRDVBS+88NEHHe6kKd+dTcDNJ3YgGrJgJ79Jo9dRLDfVLblNYd93Lp
- F+MEGfnVRi+ReHQ7WdseM2lpZupRzhioT2e2AVkhIdUEctJEGXDT4osFJ9zzmSW4T1l3
- 4WcLOaHTXF/2F3ws2rqPzq6Nvv8BBXPOlLK9bT27kqZURDeCmpe9K+Np2FBlwH79T1wk
- poiSNcMUimWrpOfkDrs6DCmpfaCLf3PEjO5JvJFoBuVYTRCkhtLjyKtIci2phBHILh9I
- LAKfJEcHFiKZCERtco1q1ltpVK3B4qQyYejlcr97KvGE+4l5JwtGrxs9Jrj+JwtoWJyv
- AKAw==
-X-Gm-Message-State: AOAM533eKKlInMG2LenUsgDeXtTaWLf9Nyx9byLfVvS/4vLhX0rr2ACz
- SNxWZAKBTGATtZsIc/NuhPofdA==
-X-Google-Smtp-Source: ABdhPJyVgqHgjlCiunOK9t3N8S0FIge5kEeCAE3w010OLYNrBIfSd131FdYBTILVWy8GablsJBC0KA==
-X-Received: by 2002:a1c:24c4:: with SMTP id k187mr12989334wmk.14.1607681687220; 
- Fri, 11 Dec 2020 02:14:47 -0800 (PST)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
- by smtp.gmail.com with ESMTPSA id y2sm13440927wma.6.2020.12.11.02.14.45
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 11 Dec 2020 02:14:46 -0800 (PST)
-Date: Fri, 11 Dec 2020 11:14:44 +0100
-From: Daniel Vetter <daniel@ffwll.ch>
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: [PATCH v3 1/8] drm/ast: Don't pin cursor source BO explicitly
- during update
-Message-ID: <20201211101444.GP401619@phenom.ffwll.local>
+ Fri, 11 Dec 2020 10:16:28 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+ by mx2.suse.de (Postfix) with ESMTP id B2738AC10;
+ Fri, 11 Dec 2020 10:16:26 +0000 (UTC)
+Subject: Re: [PATCH v3 8/8] drm/fb-helper: Move BO locking from DRM client to
+ fbdev damage worker
+To: Daniel Vetter <daniel@ffwll.ch>
 References: <20201209142527.26415-1-tzimmermann@suse.de>
- <20201209142527.26415-2-tzimmermann@suse.de>
+ <20201209142527.26415-9-tzimmermann@suse.de>
+ <20201211100134.GN401619@phenom.ffwll.local>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Message-ID: <e1b4d35a-f624-bca2-cd12-ca6dbaf860d1@suse.de>
+Date: Fri, 11 Dec 2020 11:16:25 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.5.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20201209142527.26415-2-tzimmermann@suse.de>
-X-Operating-System: Linux phenom 5.7.0-1-amd64 
-Cc: eric@anholt.net, airlied@linux.ie, sam@ravnborg.org,
- dri-devel@lists.freedesktop.org, maarten.lankhorst@linux.intel.com,
- mripard@kernel.org, sumit.semwal@linaro.org, linaro-mm-sig@lists.linaro.org,
- hdegoede@redhat.com, daniel@ffwll.ch,
- virtualization@lists.linux-foundation.org, sean@poorly.run,
- christian.koenig@amd.com, linux-media@vger.kernel.org
+In-Reply-To: <20201211100134.GN401619@phenom.ffwll.local>
+Cc: airlied@linux.ie, sean@poorly.run, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, linaro-mm-sig@lists.linaro.org,
+ hdegoede@redhat.com, sam@ravnborg.org, christian.koenig@amd.com,
+ linux-media@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -109,64 +81,358 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============2607169382783640259=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Dec 09, 2020 at 03:25:20PM +0100, Thomas Zimmermann wrote:
-> Vmapping the cursor source BO contains an implicit pin operation,
-> so there's no need to do this manually.
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============2607169382783640259==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="SjVwQ8ymHuMOUUVTrEN95juI6Y70IsD7Q"
 
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--SjVwQ8ymHuMOUUVTrEN95juI6Y70IsD7Q
+Content-Type: multipart/mixed; boundary="9O3Hm3aaHpTi0E7OCX3m926eejB6HYYq9";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Daniel Vetter <daniel@ffwll.ch>
+Cc: airlied@linux.ie, sam@ravnborg.org, dri-devel@lists.freedesktop.org,
+ linaro-mm-sig@lists.linaro.org, hdegoede@redhat.com, kraxel@redhat.com,
+ virtualization@lists.linux-foundation.org, sean@poorly.run,
+ christian.koenig@amd.com, linux-media@vger.kernel.org
+Message-ID: <e1b4d35a-f624-bca2-cd12-ca6dbaf860d1@suse.de>
+Subject: Re: [PATCH v3 8/8] drm/fb-helper: Move BO locking from DRM client to
+ fbdev damage worker
+References: <20201209142527.26415-1-tzimmermann@suse.de>
+ <20201209142527.26415-9-tzimmermann@suse.de>
+ <20201211100134.GN401619@phenom.ffwll.local>
+In-Reply-To: <20201211100134.GN401619@phenom.ffwll.local>
 
-> ---
->  drivers/gpu/drm/ast/ast_cursor.c | 10 +---------
->  1 file changed, 1 insertion(+), 9 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/ast/ast_cursor.c b/drivers/gpu/drm/ast/ast_cursor.c
-> index 742d43a7edf4..68bf3d33f1ed 100644
-> --- a/drivers/gpu/drm/ast/ast_cursor.c
-> +++ b/drivers/gpu/drm/ast/ast_cursor.c
-> @@ -180,12 +180,9 @@ int ast_cursor_blit(struct ast_private *ast, struct drm_framebuffer *fb)
->  
->  	gbo = drm_gem_vram_of_gem(fb->obj[0]);
->  
-> -	ret = drm_gem_vram_pin(gbo, 0);
-> -	if (ret)
-> -		return ret;
->  	ret = drm_gem_vram_vmap(gbo, &map);
->  	if (ret)
-> -		goto err_drm_gem_vram_unpin;
-> +		return ret;
->  	src = map.vaddr; /* TODO: Use mapping abstraction properly */
->  
->  	dst = ast->cursor.map[ast->cursor.next_index].vaddr_iomem;
-> @@ -194,13 +191,8 @@ int ast_cursor_blit(struct ast_private *ast, struct drm_framebuffer *fb)
->  	update_cursor_image(dst, src, fb->width, fb->height);
->  
->  	drm_gem_vram_vunmap(gbo, &map);
-> -	drm_gem_vram_unpin(gbo);
->  
->  	return 0;
-> -
-> -err_drm_gem_vram_unpin:
-> -	drm_gem_vram_unpin(gbo);
-> -	return ret;
->  }
->  
->  static void ast_cursor_set_base(struct ast_private *ast, u64 address)
-> -- 
-> 2.29.2
-> 
+--9O3Hm3aaHpTi0E7OCX3m926eejB6HYYq9
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+Hi
+
+Am 11.12.20 um 11:01 schrieb Daniel Vetter:
+> On Wed, Dec 09, 2020 at 03:25:27PM +0100, Thomas Zimmermann wrote:
+>> Fbdev emulation has to lock the BO into place while flushing the shado=
+w
+>> buffer into the BO's memory. Remove any interference with pinning by
+>> using vmap_local functionality (instead of full vmap). This requires
+>> BO reservation locking in fbdev's damage worker.
+>>
+>> The new DRM client functions for locking and vmap_local functionality
+>> are added for consistency with the existing style.
+>>
+>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>=20
+> The old vmap/vunmap in the client library aren't used anymore, please
+> delete. That will also make it clearer in the diff what's going on and
+> that it makes sense to have the client and fb-helper part in one patch.=
+
+
+They are still around for perma-mapped BOs where HW supports it (really=20
+only CMA-based drivers). See drm_fb_helper_generic_probe() and=20
+drm_fbdev_cleanup().
+
+Best regards
+Thomas
+
+>=20
+> With that: Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+>=20
+>> ---
+>>   drivers/gpu/drm/drm_client.c    | 91 +++++++++++++++++++++++++++++++=
+++
+>>   drivers/gpu/drm/drm_fb_helper.c | 41 +++++++--------
+>>   include/drm/drm_client.h        |  4 ++
+>>   3 files changed, 116 insertions(+), 20 deletions(-)
+>>
+>> diff --git a/drivers/gpu/drm/drm_client.c b/drivers/gpu/drm/drm_client=
+=2Ec
+>> index ce45e380f4a2..795f5cb052ba 100644
+>> --- a/drivers/gpu/drm/drm_client.c
+>> +++ b/drivers/gpu/drm/drm_client.c
+>> @@ -288,6 +288,37 @@ drm_client_buffer_create(struct drm_client_dev *c=
+lient, u32 width, u32 height, u
+>>   	return ERR_PTR(ret);
+>>   }
+>>  =20
+>> +/**
+>> + * drm_client_buffer_lock - Locks the DRM client buffer
+>> + * @buffer: DRM client buffer
+>> + *
+>> + * This function locks the client buffer by acquiring the buffer
+>> + * object's reservation lock.
+>> + *
+>> + * Unlock the buffer with drm_client_buffer_unlock().
+>> + *
+>> + * Returns:
+>> + *	0 on success, or a negative errno code otherwise.
+>> + */
+>> +int
+>> +drm_client_buffer_lock(struct drm_client_buffer *buffer)
+>> +{
+>> +	return dma_resv_lock(buffer->gem->resv, NULL);
+>> +}
+>> +EXPORT_SYMBOL(drm_client_buffer_lock);
+>> +
+>> +/**
+>> + * drm_client_buffer_unlock - Unlock DRM client buffer
+>> + * @buffer: DRM client buffer
+>> + *
+>> + * Unlocks a client buffer. See drm_client_buffer_lock().
+>> + */
+>> +void drm_client_buffer_unlock(struct drm_client_buffer *buffer)
+>> +{
+>> +	dma_resv_unlock(buffer->gem->resv);
+>> +}
+>> +EXPORT_SYMBOL(drm_client_buffer_unlock);
+>> +
+>>   /**
+>>    * drm_client_buffer_vmap - Map DRM client buffer into address space=
+
+>>    * @buffer: DRM client buffer
+>> @@ -348,6 +379,66 @@ void drm_client_buffer_vunmap(struct drm_client_b=
+uffer *buffer)
+>>   }
+>>   EXPORT_SYMBOL(drm_client_buffer_vunmap);
+>>  =20
+>> +/**
+>> + * drm_client_buffer_vmap_local - Map DRM client buffer into address =
+space
+>> + * @buffer: DRM client buffer
+>> + * @map_copy: Returns the mapped memory's address
+>> + *
+>> + * This function maps a client buffer into kernel address space. If t=
+he
+>> + * buffer is already mapped, it returns the existing mapping's addres=
+s.
+>> + *
+>> + * Client buffer mappings are not ref'counted. Each call to
+>> + * drm_client_buffer_vmap_local() should be followed by a call to
+>> + * drm_client_buffer_vunmap_local(); or the client buffer should be m=
+apped
+>> + * throughout its lifetime.
+>> + *
+>> + * The returned address is a copy of the internal value. In contrast =
+to
+>> + * other vmap interfaces, you don't need it for the client's vunmap
+>> + * function. So you can modify it at will during blit and draw operat=
+ions.
+>> + *
+>> + * Returns:
+>> + *	0 on success, or a negative errno code otherwise.
+>> + */
+>> +int
+>> +drm_client_buffer_vmap_local(struct drm_client_buffer *buffer, struct=
+ dma_buf_map *map_copy)
+>> +{
+>> +	struct dma_buf_map *map =3D &buffer->map;
+>> +	int ret;
+>> +
+>> +	/*
+>> +	 * FIXME: The dependency on GEM here isn't required, we could
+>> +	 * convert the driver handle to a dma-buf instead and use the
+>> +	 * backend-agnostic dma-buf vmap_local support instead. This would
+>> +	 * require that the handle2fd prime ioctl is reworked to pull the
+>> +	 * fd_install step out of the driver backend hooks, to make that
+>> +	 * final step optional for internal users.
+>> +	 */
+>> +	ret =3D drm_gem_vmap_local(buffer->gem, map);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	*map_copy =3D *map;
+>> +
+>> +	return 0;
+>> +}
+>> +EXPORT_SYMBOL(drm_client_buffer_vmap_local);
+>> +
+>> +/**
+>> + * drm_client_buffer_vunmap_local - Unmap DRM client buffer
+>> + * @buffer: DRM client buffer
+>> + *
+>> + * This function removes a client buffer's memory mapping. Calling th=
+is
+>> + * function is only required by clients that manage their buffer mapp=
+ings
+>> + * by themselves.
+>> + */
+>> +void drm_client_buffer_vunmap_local(struct drm_client_buffer *buffer)=
+
+>> +{
+>> +	struct dma_buf_map *map =3D &buffer->map;
+>> +
+>> +	drm_gem_vunmap_local(buffer->gem, map);
+>> +}
+>> +EXPORT_SYMBOL(drm_client_buffer_vunmap_local);
+>> +
+>>   static void drm_client_buffer_rmfb(struct drm_client_buffer *buffer)=
+
+>>   {
+>>   	int ret;
+>> diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_=
+helper.c
+>> index e82db0f4e771..a56a7d9f7e35 100644
+>> --- a/drivers/gpu/drm/drm_fb_helper.c
+>> +++ b/drivers/gpu/drm/drm_fb_helper.c
+>> @@ -399,28 +399,34 @@ static int drm_fb_helper_damage_blit(struct drm_=
+fb_helper *fb_helper,
+>>   	int ret;
+>>  =20
+>>   	/*
+>> -	 * We have to pin the client buffer to its current location while
+>> -	 * flushing the shadow buffer. In the general case, concurrent
+>> -	 * modesetting operations could try to move the buffer and would
+>> -	 * fail. The modeset has to be serialized by acquiring the reservati=
+on
+>> -	 * object of the underlying BO here.
+>> -	 *
+>>   	 * For fbdev emulation, we only have to protect against fbdev modes=
+et
+>>   	 * operations. Nothing else will involve the client buffer's BO. So=
+ it
+>>   	 * is sufficient to acquire struct drm_fb_helper.lock here.
+>>   	 */
+>>   	mutex_lock(&fb_helper->lock);
+>>  =20
+>> -	ret =3D drm_client_buffer_vmap(buffer, &map);
+>> +	/*
+>> +	 * We have to keep the client buffer at its current location while
+>> +	 * flushing the shadow buffer. Concurrent operations could otherwise=
+
+>> +	 * try to move the buffer. Therefore acquiring the reservation
+>> +	 * object of the underlying BO here.
+>> +	 */
+>> +	ret =3D drm_client_buffer_lock(buffer);
+>> +	if (ret)
+>> +		goto out_mutex_unlock;
+>> +
+>> +	ret =3D drm_client_buffer_vmap_local(buffer, &map);
+>>   	if (ret)
+>> -		goto out;
+>> +		goto out_drm_client_buffer_unlock;
+>>  =20
+>>   	dst =3D map;
+>>   	drm_fb_helper_damage_blit_real(fb_helper, clip, &dst);
+>>  =20
+>> -	drm_client_buffer_vunmap(buffer);
+>> +	drm_client_buffer_vunmap_local(buffer);
+>>  =20
+>> -out:
+>> +out_drm_client_buffer_unlock:
+>> +	drm_client_buffer_unlock(buffer);
+>> +out_mutex_unlock:
+>>   	mutex_unlock(&fb_helper->lock);
+>>  =20
+>>   	return ret;
+>> @@ -946,15 +952,11 @@ static int setcmap_legacy(struct fb_cmap *cmap, =
+struct fb_info *info)
+>>   	drm_modeset_lock_all(fb_helper->dev);
+>>   	drm_client_for_each_modeset(modeset, &fb_helper->client) {
+>>   		crtc =3D modeset->crtc;
+>> -		if (!crtc->funcs->gamma_set || !crtc->gamma_size) {
+>> -			ret =3D -EINVAL;
+>> -			goto out;
+>> -		}
+>> +		if (!crtc->funcs->gamma_set || !crtc->gamma_size)
+>> +			return -EINVAL;
+>>  =20
+>> -		if (cmap->start + cmap->len > crtc->gamma_size) {
+>> -			ret =3D -EINVAL;
+>> -			goto out;
+>> -		}
+>> +		if (cmap->start + cmap->len > crtc->gamma_size)
+>> +			return -EINVAL;
+>>  =20
+>>   		r =3D crtc->gamma_store;
+>>   		g =3D r + crtc->gamma_size;
+>> @@ -967,9 +969,8 @@ static int setcmap_legacy(struct fb_cmap *cmap, st=
+ruct fb_info *info)
+>>   		ret =3D crtc->funcs->gamma_set(crtc, r, g, b,
+>>   					     crtc->gamma_size, NULL);
+>>   		if (ret)
+>> -			goto out;
+>> +			return ret;
+>>   	}
+>> -out:
+>>   	drm_modeset_unlock_all(fb_helper->dev);
+>>  =20
+>>   	return ret;
+>> diff --git a/include/drm/drm_client.h b/include/drm/drm_client.h
+>> index f07f2fb02e75..df61e339a11c 100644
+>> --- a/include/drm/drm_client.h
+>> +++ b/include/drm/drm_client.h
+>> @@ -156,8 +156,12 @@ struct drm_client_buffer *
+>>   drm_client_framebuffer_create(struct drm_client_dev *client, u32 wid=
+th, u32 height, u32 format);
+>>   void drm_client_framebuffer_delete(struct drm_client_buffer *buffer)=
+;
+>>   int drm_client_framebuffer_flush(struct drm_client_buffer *buffer, s=
+truct drm_rect *rect);
+>> +int drm_client_buffer_lock(struct drm_client_buffer *buffer);
+>> +void drm_client_buffer_unlock(struct drm_client_buffer *buffer);
+>>   int drm_client_buffer_vmap(struct drm_client_buffer *buffer, struct =
+dma_buf_map *map);
+>>   void drm_client_buffer_vunmap(struct drm_client_buffer *buffer);
+>> +int drm_client_buffer_vmap_local(struct drm_client_buffer *buffer, st=
+ruct dma_buf_map *map);
+>> +void drm_client_buffer_vunmap_local(struct drm_client_buffer *buffer)=
+;
+>>  =20
+>>   int drm_client_modeset_create(struct drm_client_dev *client);
+>>   void drm_client_modeset_free(struct drm_client_dev *client);
+>> --=20
+>> 2.29.2
+>>
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+
+
+--9O3Hm3aaHpTi0E7OCX3m926eejB6HYYq9--
+
+--SjVwQ8ymHuMOUUVTrEN95juI6Y70IsD7Q
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAl/TRvkFAwAAAAAACgkQlh/E3EQov+CG
+sA/9FVMu9RPjSQpSfEPDiUY0df7CxRtqEaWtw7ct1jUvSZ7AMmrq4YJqplpiPfLeSn5Z2atgPeoK
+ys1KO5ykMW2kJBaflstv7Xq/fSuE+b+OkvdeMc3wzJ/d63If4LVd5ZOYI7rr9e9L9DE/YqD1Kj2e
+OK3M09enS1m7Ax9KsquyE+WD9th5m3QlJWVLUMEVn0qh8M/aJvuEsvectm+EVF5QdMQimqz21KjJ
+cYtRZ7guTn/NZz3ScUfgY85WirZUr4/jXRe+Y0Gc3hwewmFt8VbGqZvejuq1ANDbpGTxpcRgi5hT
+pnL1WslT0dRWsz6mWIz1HtLDzlSmqOprXToTDArv0PGtlnjYO+H7ueoGZy44ZVSNqBA1/6j93kXJ
+5jkyFwrKld0yxfMXZ3HgVxeLOExbytKT/UQ4lSv/r1XrGjeJrWzOphoWfdUAenZOT4S05G544X19
+I5YSla1GPoqm0OtmpE5uhv+mKi5by7w3tHqHiFlKpkkkUG1bWjUsjMHsHPdqiJlh+ifO0fTH7CTR
+HrKMJe+1SPMwdx2a1RrnS16/kYM5ssruBunM+oZpK2YiyICetCr2MGd+n/OjfpTPxN/WK0cDFbLI
+cNYfWe91OrlTJImLOvwntRyR8Pi0DtKcY+vPws3ASTmMYp3UpaaqX+zCowo6grlT88L6c8TKPR0T
+AaE=
+=vs4B
+-----END PGP SIGNATURE-----
+
+--SjVwQ8ymHuMOUUVTrEN95juI6Y70IsD7Q--
+
+--===============2607169382783640259==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2607169382783640259==--
