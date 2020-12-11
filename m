@@ -7,89 +7,90 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E579FC4167B
-	for <virtualization@archiver.kernel.org>; Fri, 11 Dec 2020 09:29:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F6AEC433FE
+	for <virtualization@archiver.kernel.org>; Fri, 11 Dec 2020 09:40:10 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6D84E23F37
-	for <virtualization@archiver.kernel.org>; Fri, 11 Dec 2020 09:29:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6D84E23F37
+	by mail.kernel.org (Postfix) with ESMTPS id 9A75E23ECD
+	for <virtualization@archiver.kernel.org>; Fri, 11 Dec 2020 09:40:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9A75E23ECD
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id DA07586FD2;
-	Fri, 11 Dec 2020 09:29:57 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 1326086FFC;
+	Fri, 11 Dec 2020 09:40:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pK3WAbDqLKXr; Fri, 11 Dec 2020 09:29:56 +0000 (UTC)
+	with ESMTP id 8HqPiCP5vI3B; Fri, 11 Dec 2020 09:40:08 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id A253986FB8;
-	Fri, 11 Dec 2020 09:29:56 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 4D39E87009;
+	Fri, 11 Dec 2020 09:40:08 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9155FC0893;
-	Fri, 11 Dec 2020 09:29:56 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 017A2C013B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1504AC0893;
+	Fri, 11 Dec 2020 09:40:08 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 81C9BC013B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Dec 2020 09:29:55 +0000 (UTC)
+ Fri, 11 Dec 2020 09:40:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id DBAC187271
+ by silver.osuosl.org (Postfix) with ESMTP id 73F3D27A61
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Dec 2020 09:29:54 +0000 (UTC)
+ Fri, 11 Dec 2020 09:40:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id IIWjX2bdp9Ih
+ with ESMTP id 4vptrmH8jyTj
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Dec 2020 09:29:54 +0000 (UTC)
+ Fri, 11 Dec 2020 09:40:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mail-wr1-f68.google.com (mail-wr1-f68.google.com
  [209.85.221.68])
- by hemlock.osuosl.org (Postfix) with ESMTPS id A4A4087268
+ by silver.osuosl.org (Postfix) with ESMTPS id BFA7E274B3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Dec 2020 09:29:53 +0000 (UTC)
-Received: by mail-wr1-f68.google.com with SMTP id t16so8289668wra.3
+ Fri, 11 Dec 2020 09:40:04 +0000 (UTC)
+Received: by mail-wr1-f68.google.com with SMTP id r3so8342482wrt.2
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Dec 2020 01:29:53 -0800 (PST)
+ Fri, 11 Dec 2020 01:40:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to;
- bh=nFEF2mgC+Rn2Wc0pNzn/tnOs6sHnOKs8QYhmKDalNZ4=;
- b=hbONVG1yKLfcEGEJhYSenaLWC3u8SAxMzwmjHFtf28xmXgu7kJnbyB6V76zVlnmu3e
- otsusXvrpccg+Ssw4m0Yjs1DjplxRlaG459z8saoKxJ62Njg6hxMCPy8Y9lCxJKiFGKw
- 3Qm54oqhC/HqqXVTtXqKeITDqaUqRdP7nhi38=
+ bh=BBMZYuvSnfgkVx6tBmK2Wiiqx5byRBrgyTEDwAs9l14=;
+ b=aSB1BCyAvO7hF26iVhODkq39odRS+UoX+/oEfJ5VGJdVce5NUWDQckQodHcII5H1Hz
+ 21DgrIg7JZjbvmg9AEnvWFbJ2s0R6C40bwZyPc3tCuaNuWdPdXdnjGKsbpJaapYM9/Po
+ Vn/VZ6zoqNPYXLPahQWHebojD//y9HM+P1Tjs=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=nFEF2mgC+Rn2Wc0pNzn/tnOs6sHnOKs8QYhmKDalNZ4=;
- b=L+8hncFK3HiZAuZmb4LcIwDSPCcalpC0jBAPodmntj6u3QIIzPdXM7gd7v1lZjozIK
- wLKY6NdRK1nP1pMjCFjtFqkPNLKBGIeN9n+1Tk8eK7urQp7/I551+h2JUuani1vzWPhF
- 6GWBHjM6XamfkQpzytR9/i8e+44Ua34qmgFjlkjBdLMK8uMuVl7tzWvHJTQ7rd0KP3N3
- Jobz9EAjq8vuSoyqQP86HSMXwX9nD696BKdv9KFIyFRMbb3Sf6jotM7pMMXLYmuEowIc
- zBxZgHbLDqI10Xiecb+sOgFwNWE7Z7Cx85c7D+2ZgJrv688gZi9krAlPfwWKztgTjOec
- rfzA==
-X-Gm-Message-State: AOAM530qkKLS7+H9ugciVWTpT0dkbprJgVj7MD8UTzkKzP8mhe/E3Gbd
- +RfeOWvuXc/46S/2w+aMcjmACw==
-X-Google-Smtp-Source: ABdhPJzS2sw1Ca/uzaHPWVajCEVBbdup9BR0G2+osmCm0g/pUyy+FsvXnfUqmDKrMpCAejbagLJwFA==
-X-Received: by 2002:adf:a29d:: with SMTP id s29mr12698320wra.329.1607678992136; 
- Fri, 11 Dec 2020 01:29:52 -0800 (PST)
+ bh=BBMZYuvSnfgkVx6tBmK2Wiiqx5byRBrgyTEDwAs9l14=;
+ b=MYM+SrfW8HrQfMOWX3NjetwNofW95VUbn6MPeIJSeOABuCLpKZS0HVS243CMZfqDor
+ ulk5TiRDWNLRW3DINJ7P4xRZsFHK8xVZHbSTFhdwq2KAmOeK9Lycp5U+K5mrb8NnFBrF
+ zSWI9SmanEbQ2H7ERFwGqwo8oVCAzLRbnFZ5YAdV3s/FJZrWSf4ft5Gfaeki42RyxIRc
+ O5qBh3l19zRYWJL41hWxr8FyIszanjk7N3554NPqCsER5KPl0+vwIkiLkfJQBuHeL6bG
+ S5IWtCPn/pX3Vk39SSXMmMkDEuQVdzfyfZEYgkaqIQUW2lIxoukLu0cIvA1z0xtoBKOj
+ lplw==
+X-Gm-Message-State: AOAM531iPgRjJjMntSH4QNvhSehBuRYSWyg4Z8XkOnu1teD7+l9CUNfn
+ xikUNFzqNH1t3VNyRaL3U1Z5IA==
+X-Google-Smtp-Source: ABdhPJz8bnteVuPWlqvUHmb5G+JjYIr75IXQFMqcJBKRq84zZqO9uSdVvytCN9HvAtL2Ocom3MmErQ==
+X-Received: by 2002:adf:97ce:: with SMTP id t14mr13035615wrb.368.1607679603133; 
+ Fri, 11 Dec 2020 01:40:03 -0800 (PST)
 Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
- by smtp.gmail.com with ESMTPSA id k11sm13508000wmj.42.2020.12.11.01.29.50
+ by smtp.gmail.com with ESMTPSA id h83sm15009761wmf.9.2020.12.11.01.40.01
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 11 Dec 2020 01:29:51 -0800 (PST)
-Date: Fri, 11 Dec 2020 10:29:49 +0100
+ Fri, 11 Dec 2020 01:40:02 -0800 (PST)
+Date: Fri, 11 Dec 2020 10:40:00 +0100
 From: Daniel Vetter <daniel@ffwll.ch>
 To: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: [PATCH v3 4/8] drm/gem: Create infrastructure for GEM vmap_local
-Message-ID: <20201211092949.GJ401619@phenom.ffwll.local>
+Subject: Re: [PATCH v3 5/8] drm/cma-helper: Provide a vmap function for
+ short-term mappings
+Message-ID: <20201211094000.GK401619@phenom.ffwll.local>
 References: <20201209142527.26415-1-tzimmermann@suse.de>
- <20201209142527.26415-5-tzimmermann@suse.de>
+ <20201209142527.26415-6-tzimmermann@suse.de>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20201209142527.26415-5-tzimmermann@suse.de>
+In-Reply-To: <20201209142527.26415-6-tzimmermann@suse.de>
 X-Operating-System: Linux phenom 5.7.0-1-amd64 
 Cc: eric@anholt.net, airlied@linux.ie, sam@ravnborg.org,
  dri-devel@lists.freedesktop.org, maarten.lankhorst@linux.intel.com,
@@ -113,196 +114,157 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Dec 09, 2020 at 03:25:23PM +0100, Thomas Zimmermann wrote:
-> This patch adds vmap_local and vunmap_local to struct drm_gem_object_funcs;
-> including the PRIME helpers to connect with dma-buf's related interfaces.
+On Wed, Dec 09, 2020 at 03:25:24PM +0100, Thomas Zimmermann wrote:
+> Implementations of the vmap/vunmap GEM callbacks may perform pinning
+> of the BO and may acquire the associated reservation object's lock.
+> Callers that only require a mapping of the contained memory can thus
+> interfere with other tasks that require exact pinning, such as scanout.
+> This is less of an issue with private CMA buffers, but may happen
+> with imported ones.
 > 
-> Besides the generic DRM core, this will become relevant for fbdev emulation
-> with virtio, so we update it as well.
+> Therefore provide the new interface drm_gem_cma_vmap_local(), which only
+> performs the vmap operations. Callers have to hold the reservation lock
+> while the mapping persists.
+> 
+> This patch also connects GEM CMA helpers to the GEM object function with
+> equivalent functionality.
 > 
 > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 > ---
->  drivers/gpu/drm/drm_gem.c              | 28 ++++++++++++++++++
->  drivers/gpu/drm/drm_internal.h         |  2 ++
->  drivers/gpu/drm/drm_prime.c            | 39 ++++++++++++++++++++++++++
->  drivers/gpu/drm/virtio/virtgpu_prime.c |  2 ++
->  include/drm/drm_gem.h                  | 20 +++++++++++++
->  include/drm/drm_prime.h                |  2 ++
->  6 files changed, 93 insertions(+)
+>  drivers/gpu/drm/drm_gem_cma_helper.c | 35 ++++++++++++++++++++++++++++
+>  drivers/gpu/drm/vc4/vc4_bo.c         | 13 +++++++++++
+>  drivers/gpu/drm/vc4/vc4_drv.h        |  1 +
+>  include/drm/drm_gem_cma_helper.h     |  1 +
+>  4 files changed, 50 insertions(+)
 > 
-> diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
-> index 92f89cee213e..6e131d9bb7bd 100644
-> --- a/drivers/gpu/drm/drm_gem.c
-> +++ b/drivers/gpu/drm/drm_gem.c
-> @@ -1234,6 +1234,34 @@ void drm_gem_vunmap(struct drm_gem_object *obj, struct dma_buf_map *map)
->  	dma_buf_map_clear(map);
+> diff --git a/drivers/gpu/drm/drm_gem_cma_helper.c b/drivers/gpu/drm/drm_gem_cma_helper.c
+> index 7942cf05cd93..40b3e8e3fc42 100644
+> --- a/drivers/gpu/drm/drm_gem_cma_helper.c
+> +++ b/drivers/gpu/drm/drm_gem_cma_helper.c
+> @@ -38,6 +38,7 @@ static const struct drm_gem_object_funcs drm_gem_cma_default_funcs = {
+>  	.print_info = drm_gem_cma_print_info,
+>  	.get_sg_table = drm_gem_cma_get_sg_table,
+>  	.vmap = drm_gem_cma_vmap,
+> +	.vmap_local = drm_gem_cma_vmap_local,
+>  	.mmap = drm_gem_cma_mmap,
+>  	.vm_ops = &drm_gem_cma_vm_ops,
+>  };
+> @@ -471,6 +472,40 @@ int drm_gem_cma_vmap(struct drm_gem_object *obj, struct dma_buf_map *map)
 >  }
+>  EXPORT_SYMBOL_GPL(drm_gem_cma_vmap);
 >  
-> +int drm_gem_vmap_local(struct drm_gem_object *obj, struct dma_buf_map *map)
+> +/**
+> + * drm_gem_cma_vmap_local - map a CMA GEM object into the kernel's virtual
+> + *     address space
+> + * @obj: GEM object
+> + * @map: Returns the kernel virtual address of the CMA GEM object's backing
+> + *       store.
+> + *
+> + * This function maps a buffer into the kernel's
+> + * virtual address space. Since the CMA buffers are already mapped into the
+> + * kernel virtual address space this simply returns the cached virtual
+> + * address. Drivers using the CMA helpers should set this as their DRM
+> + * driver's &drm_gem_object_funcs.vmap_local callback.
+> + *
+> + * Returns:
+> + * 0 on success, or a negative error code otherwise.
+> + */
+> +int drm_gem_cma_vmap_local(struct drm_gem_object *obj, struct dma_buf_map *map)
 > +{
-> +	int ret;
+> +	struct drm_gem_cma_object *cma_obj = to_drm_gem_cma_obj(obj);
 > +
-> +	if (!obj->funcs->vmap_local)
-> +		return -EOPNOTSUPP;
-> +
-> +	ret = obj->funcs->vmap_local(obj, map);
-> +	if (ret)
-> +		return ret;
-> +	else if (dma_buf_map_is_null(map))
-> +		return -ENOMEM;
+> +	/*
+> +	 * TODO: The code in drm_gem_cma_prime_import_sg_table_vmap()
+> +	 *       establishes this mapping. The correct solution would
+> +	 *       be to call dma_buf_vmap_local() here.
+> +	 *
+> +	 *       If we find a case where we absolutely have to call
+> +	 *       dma_buf_vmap_local(), the code needs to be restructured.
+
+dma_buf_vmap_local is only relevant for dynamic importers, pinning at
+import time is actually what you get anyway. That's what Christian meant
+with his comments for the ->pin hook. So the TODO here doesn't make sense
+imo, just delete it. We're very far away from making cma dynamic :-)
+
+> +	 */
+> +	dma_buf_map_set_vaddr(map, cma_obj->vaddr);
 > +
 > +	return 0;
 > +}
-> +
-> +void drm_gem_vunmap_local(struct drm_gem_object *obj, struct dma_buf_map *map)
-> +{
-> +	if (dma_buf_map_is_null(map))
-> +		return;
-> +
-> +	if (obj->funcs->vunmap_local)
-> +		obj->funcs->vunmap_local(obj, map);
-> +
-> +	/* Always set the mapping to NULL. Callers may rely on this. */
-> +	dma_buf_map_clear(map);
-> +}
+> +EXPORT_SYMBOL_GPL(drm_gem_cma_vmap_local);
 > +
 >  /**
->   * drm_gem_lock_reservations - Sets up the ww context and acquires
->   * the lock on an array of GEM objects.
-> diff --git a/drivers/gpu/drm/drm_internal.h b/drivers/gpu/drm/drm_internal.h
-> index 81d386b5b92a..b0bf6aba763a 100644
-> --- a/drivers/gpu/drm/drm_internal.h
-> +++ b/drivers/gpu/drm/drm_internal.h
-> @@ -190,6 +190,8 @@ int drm_gem_pin(struct drm_gem_object *obj);
->  void drm_gem_unpin(struct drm_gem_object *obj);
->  int drm_gem_vmap(struct drm_gem_object *obj, struct dma_buf_map *map);
->  void drm_gem_vunmap(struct drm_gem_object *obj, struct dma_buf_map *map);
-> +int drm_gem_vmap_local(struct drm_gem_object *obj, struct dma_buf_map *map);
-> +void drm_gem_vunmap_local(struct drm_gem_object *obj, struct dma_buf_map *map);
->  
->  /* drm_debugfs.c drm_debugfs_crc.c */
->  #if defined(CONFIG_DEBUG_FS)
-> diff --git a/drivers/gpu/drm/drm_prime.c b/drivers/gpu/drm/drm_prime.c
-> index 683aa29ecd3b..633edea76985 100644
-> --- a/drivers/gpu/drm/drm_prime.c
-> +++ b/drivers/gpu/drm/drm_prime.c
-> @@ -695,6 +695,43 @@ void drm_gem_dmabuf_vunmap(struct dma_buf *dma_buf, struct dma_buf_map *map)
->  }
->  EXPORT_SYMBOL(drm_gem_dmabuf_vunmap);
->  
-> +/**
-> + * drm_gem_dmabuf_vmap_local - dma_buf vmap_local implementation for GEM
-> + * @dma_buf: buffer to be mapped
-> + * @map: the virtual address of the buffer
-> + *
-> + * Sets up a kernel virtual mapping. This can be used as the &dma_buf_ops.vmap_local
-> + * callback. Calls into &drm_gem_object_funcs.vmap_local for device specific handling.
-> + * The kernel virtual address is returned in map.
-> + *
-> + * Returns:
-> + * 0 on success or a negative errno code otherwise.
-> + */
-> +int drm_gem_dmabuf_vmap_local(struct dma_buf *dma_buf, struct dma_buf_map *map)
-> +{
-> +	struct drm_gem_object *obj = dma_buf->priv;
-> +
-> +	return drm_gem_vmap_local(obj, map);
-> +}
-> +EXPORT_SYMBOL(drm_gem_dmabuf_vmap_local);
-> +
-> +/**
-> + * drm_gem_dmabuf_vunmap_local - dma_buf vunmap_local implementation for GEM
-> + * @dma_buf: buffer to be unmapped
-> + * @map: the virtual address of the buffer
-> + *
-> + * Releases a kernel virtual mapping. This can be used as the
-> + * &dma_buf_ops.vunmap_local callback. Calls into &drm_gem_object_funcs.vunmap_local
-> + * for device specific handling.
-> + */
-> +void drm_gem_dmabuf_vunmap_local(struct dma_buf *dma_buf, struct dma_buf_map *map)
-> +{
-> +	struct drm_gem_object *obj = dma_buf->priv;
-> +
-> +	drm_gem_vunmap_local(obj, map);
-> +}
-> +EXPORT_SYMBOL(drm_gem_dmabuf_vunmap_local);
-> +
->  /**
->   * drm_gem_prime_mmap - PRIME mmap function for GEM drivers
+>   * drm_gem_cma_mmap - memory-map an exported CMA GEM object
 >   * @obj: GEM object
-> @@ -787,6 +824,8 @@ static const struct dma_buf_ops drm_gem_prime_dmabuf_ops =  {
->  	.mmap = drm_gem_dmabuf_mmap,
->  	.vmap = drm_gem_dmabuf_vmap,
->  	.vunmap = drm_gem_dmabuf_vunmap,
-> +	.vmap_local = drm_gem_dmabuf_vmap_local,
-> +	.vunmap_local = drm_gem_dmabuf_vunmap_local,
+> diff --git a/drivers/gpu/drm/vc4/vc4_bo.c b/drivers/gpu/drm/vc4/vc4_bo.c
+> index dc316cb79e00..ec57326c69c4 100644
+> --- a/drivers/gpu/drm/vc4/vc4_bo.c
+> +++ b/drivers/gpu/drm/vc4/vc4_bo.c
+> @@ -387,6 +387,7 @@ static const struct drm_gem_object_funcs vc4_gem_object_funcs = {
+>  	.export = vc4_prime_export,
+>  	.get_sg_table = drm_gem_cma_get_sg_table,
+>  	.vmap = vc4_prime_vmap,
+> +	.vmap_local = vc4_prime_vmap_local,
+>  	.vm_ops = &vc4_vm_ops,
 >  };
 >  
+> @@ -797,6 +798,18 @@ int vc4_prime_vmap(struct drm_gem_object *obj, struct dma_buf_map *map)
+>  	return drm_gem_cma_vmap(obj, map);
+>  }
+>  
+> +int vc4_prime_vmap_local(struct drm_gem_object *obj, struct dma_buf_map *map)
+> +{
+> +	struct vc4_bo *bo = to_vc4_bo(obj);
+> +
+> +	if (bo->validated_shader) {
+
+This freaks me out. It should be impossible to export a validated shader
+as a dma-buf, and indeed the check exists already.
+
+All the wrapper functions here are imo pointless. Either we should remove
+them, or replace the if with a BUG_ON here since if that ever happens we
+have a security bug already. I'd go with removing, less code. Maybe throw
+a patch on top?
+
+Anyway this patch looks good, with the todo deleted:
+
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+
+
+> +		DRM_DEBUG("mmaping of shader BOs not allowed.\n");
+> +		return -EINVAL;
+> +	}
+> +
+> +	return drm_gem_cma_vmap_local(obj, map);
+> +}
+> +
+>  struct drm_gem_object *
+>  vc4_prime_import_sg_table(struct drm_device *dev,
+>  			  struct dma_buf_attachment *attach,
+> diff --git a/drivers/gpu/drm/vc4/vc4_drv.h b/drivers/gpu/drm/vc4/vc4_drv.h
+> index 43a1af110b3e..efb6c47d318f 100644
+> --- a/drivers/gpu/drm/vc4/vc4_drv.h
+> +++ b/drivers/gpu/drm/vc4/vc4_drv.h
+> @@ -812,6 +812,7 @@ struct drm_gem_object *vc4_prime_import_sg_table(struct drm_device *dev,
+>  						 struct dma_buf_attachment *attach,
+>  						 struct sg_table *sgt);
+>  int vc4_prime_vmap(struct drm_gem_object *obj, struct dma_buf_map *map);
+> +int vc4_prime_vmap_local(struct drm_gem_object *obj, struct dma_buf_map *map);
+>  int vc4_bo_cache_init(struct drm_device *dev);
+>  int vc4_bo_inc_usecnt(struct vc4_bo *bo);
+>  void vc4_bo_dec_usecnt(struct vc4_bo *bo);
+> diff --git a/include/drm/drm_gem_cma_helper.h b/include/drm/drm_gem_cma_helper.h
+> index 0a9711caa3e8..05122e71bc6d 100644
+> --- a/include/drm/drm_gem_cma_helper.h
+> +++ b/include/drm/drm_gem_cma_helper.h
+> @@ -99,6 +99,7 @@ drm_gem_cma_prime_import_sg_table(struct drm_device *dev,
+>  				  struct dma_buf_attachment *attach,
+>  				  struct sg_table *sgt);
+>  int drm_gem_cma_vmap(struct drm_gem_object *obj, struct dma_buf_map *map);
+> +int drm_gem_cma_vmap_local(struct drm_gem_object *obj, struct dma_buf_map *map);
+>  int drm_gem_cma_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma);
+>  
 >  /**
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
-> index 807a27a16365..fea11a53d8fc 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_prime.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
-> @@ -54,6 +54,8 @@ static const struct virtio_dma_buf_ops virtgpu_dmabuf_ops =  {
->  		.mmap = drm_gem_dmabuf_mmap,
->  		.vmap = drm_gem_dmabuf_vmap,
->  		.vunmap = drm_gem_dmabuf_vunmap,
-> +		.vmap = drm_gem_dmabuf_vmap_local,
-> +		.vunmap = drm_gem_dmabuf_vunmap_local,
->  	},
->  	.device_attach = drm_gem_map_attach,
->  	.get_uuid = virtgpu_virtio_get_uuid,
-> diff --git a/include/drm/drm_gem.h b/include/drm/drm_gem.h
-> index 5e6daa1c982f..1281f26de494 100644
-> --- a/include/drm/drm_gem.h
-> +++ b/include/drm/drm_gem.h
-> @@ -151,6 +151,26 @@ struct drm_gem_object_funcs {
->  	 */
->  	void (*vunmap)(struct drm_gem_object *obj, struct dma_buf_map *map);
->  
-> +	/**
-> +	 * @vmap_local:
-> +	 *
-> +	 * Returns a virtual address for the buffer. Used by the
-> +	 * drm_gem_dmabuf_vmap_local() helper.
-
-I'd add "Callers will hold &drm_gem_object.resv already and only release
-it after @vunmap is called" (and pls check I typed this correctly for the
-linking).
-
-Either way: Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-
-> +	 *
-> +	 * This callback is optional.
-> +	 */
-> +	int (*vmap_local)(struct drm_gem_object *obj, struct dma_buf_map *map);
-> +
-> +	/**
-> +	 * @vunmap_local:
-> +	 *
-> +	 * Releases the address previously returned by @vmap. Used by the
-> +	 * drm_gem_dmabuf_vunmap_local() helper.
-> +	 *
-> +	 * This callback is optional.
-> +	 */
-> +	void (*vunmap_local)(struct drm_gem_object *obj, struct dma_buf_map *map);
-> +
->  	/**
->  	 * @mmap:
->  	 *
-> diff --git a/include/drm/drm_prime.h b/include/drm/drm_prime.h
-> index 54f2c58305d2..fd2aef6966ef 100644
-> --- a/include/drm/drm_prime.h
-> +++ b/include/drm/drm_prime.h
-> @@ -85,6 +85,8 @@ void drm_gem_unmap_dma_buf(struct dma_buf_attachment *attach,
->  			   enum dma_data_direction dir);
->  int drm_gem_dmabuf_vmap(struct dma_buf *dma_buf, struct dma_buf_map *map);
->  void drm_gem_dmabuf_vunmap(struct dma_buf *dma_buf, struct dma_buf_map *map);
-> +int drm_gem_dmabuf_vmap_local(struct dma_buf *dma_buf, struct dma_buf_map *map);
-> +void drm_gem_dmabuf_vunmap_local(struct dma_buf *dma_buf, struct dma_buf_map *map);
->  
->  int drm_gem_prime_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma);
->  int drm_gem_dmabuf_mmap(struct dma_buf *dma_buf, struct vm_area_struct *vma);
 > -- 
 > 2.29.2
 > 
