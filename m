@@ -2,87 +2,102 @@ Return-Path: <SRS0=HmZx=FP=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4653C4361B
-	for <virtualization@archiver.kernel.org>; Fri, 11 Dec 2020 05:10:52 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 47F1DC433FE
+	for <virtualization@archiver.kernel.org>; Fri, 11 Dec 2020 09:24:59 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1B33923E25
-	for <virtualization@archiver.kernel.org>; Fri, 11 Dec 2020 05:10:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1B33923E25
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id 899BD23F34
+	for <virtualization@archiver.kernel.org>; Fri, 11 Dec 2020 09:24:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 899BD23F34
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 619B8231A1;
-	Fri, 11 Dec 2020 05:10:51 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id D76EB85F8B;
+	Fri, 11 Dec 2020 09:24:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uP18Nva0MS9y; Fri, 11 Dec 2020 05:10:49 +0000 (UTC)
+	with ESMTP id g30eid8RpmCw; Fri, 11 Dec 2020 09:24:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id DE1A120021;
-	Fri, 11 Dec 2020 05:10:49 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id BA57885F74;
+	Fri, 11 Dec 2020 09:24:56 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B9137C0893;
-	Fri, 11 Dec 2020 05:10:49 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 17667C013B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 97B21C0893;
+	Fri, 11 Dec 2020 09:24:56 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 70CFBC013B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Dec 2020 05:10:48 +0000 (UTC)
+ Fri, 11 Dec 2020 09:24:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id D7F2C230FB
+ by whitealder.osuosl.org (Postfix) with ESMTP id 5686186FA9
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Dec 2020 05:10:47 +0000 (UTC)
+ Fri, 11 Dec 2020 09:24:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uF-41wA2Bo1p
+ with ESMTP id 1LhexG2D5Lpc
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Dec 2020 05:10:46 +0000 (UTC)
+ Fri, 11 Dec 2020 09:24:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTPS id 6B2DB22CB0
+Received: from mail-wm1-f65.google.com (mail-wm1-f65.google.com
+ [209.85.128.65])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 4342F86FA7
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Dec 2020 05:10:46 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1607663443; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=Tw8WaYEedOoP6uhdqQDj4FZ0EAnAR9qHZSp5wafjsIg=;
- b=RSe3GVINPA6mwnWqpxRj8C9UTL+BPcbllw0Jd3tlnuM7c4kwSeqEQEIxImNXBlC8vx+2u1
- lA6EJ0XwdoFW1xEM2TtixXyMKKnxqwvVltg4iWOvd6RBHTgkMnSUT7RGpYUltKe435KCOq
- 6Dor5nBpZV8g2Lp2ly+q87J7HUENxLQ=
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 89C2DAB91;
- Fri, 11 Dec 2020 05:10:43 +0000 (UTC)
-Subject: Re: x86/ioapic: Cleanup the timer_works() irqflags mess
-To: Thomas Gleixner <tglx@linutronix.de>, Mark Rutland <mark.rutland@arm.com>
-References: <20201120114630.13552-1-jgross@suse.com>
- <20201120114630.13552-6-jgross@suse.com>
- <20201120115943.GD3021@hirez.programming.kicks-ass.net>
- <20201209181514.GA14235@C02TD0UTHF1T.local>
- <87tusuzu71.fsf@nanos.tec.linutronix.de>
- <20201210111008.GB88655@C02TD0UTHF1T.local>
- <87k0tpju47.fsf@nanos.tec.linutronix.de>
-Message-ID: <0a90cfff-05d6-1475-43f8-e41b5af24281@suse.com>
-Date: Fri, 11 Dec 2020 06:10:42 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+ Fri, 11 Dec 2020 09:24:52 +0000 (UTC)
+Received: by mail-wm1-f65.google.com with SMTP id y23so7907687wmi.1
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 11 Dec 2020 01:24:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=Noiq8gsKgg/LmPBYtG4VjMmp/kERyYyDVQNSE22eDBs=;
+ b=YJTmE9P6FWKESCHT99NVZ48X2FPzRfEvuv+TaYJap8W61ad8HrhmTIkP4DISixS4YH
+ UwqC6CzRL/7k1wrePt0hA0EvJdpbQCpzFbeeAin/yNfw+d8JdaTCNbwvqkPgkXharbDz
+ 9YXL0Kl4jgi4VLGQEZ+/rDxK5G6k1TeQRprHI=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=Noiq8gsKgg/LmPBYtG4VjMmp/kERyYyDVQNSE22eDBs=;
+ b=FFQ068X8kt/W2GAGNfpGlJ1xaRknAQWfCLy+aDVd+FRHxcg1WMS5DXYlI35CX6qaPs
+ NyV6pwfLUIJoL7M8T6E7z9dytx+/W5IfQrN5lFk3hPjN2nCvkc0QbMqziHHjxPFAZBgC
+ gDU6Ojcegyw1hOsDxVEVlxv7GI9dQOdqq12IJLY8Qxpykm2/RVminwfDQU7L1E4WjNet
+ 51lGEArvmBpMYNwn/vpkURtZIDS7/fEhD2qgdn2uRoheiqnmWSuDrQN06Y/onEQZ8Z2m
+ mp6FmvWgimlMsxdsOD+zCdDNLKv0sS1dBtgStRXYVp66zc1cbTJpA8Sjja30+plUo94g
+ 4V6A==
+X-Gm-Message-State: AOAM533tK/QFXIX7Knx7hA1+hcogBJwNlegUDg2I5D/arRZCe5Yo3vCu
+ ozBvtFAtXhlStRT3Sya4UKmy3Q==
+X-Google-Smtp-Source: ABdhPJwvltxF9wGnEXSjhojgpoMzESfVQ1Ad7xV1kWlQXLVSKVgbKNI49bhVbctGtSZoQ6qoyon36w==
+X-Received: by 2002:a1c:2d8a:: with SMTP id
+ t132mr12747335wmt.128.1607678690518; 
+ Fri, 11 Dec 2020 01:24:50 -0800 (PST)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+ by smtp.gmail.com with ESMTPSA id 65sm13809325wri.95.2020.12.11.01.24.49
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 11 Dec 2020 01:24:49 -0800 (PST)
+Date: Fri, 11 Dec 2020 10:24:47 +0100
+From: Daniel Vetter <daniel@ffwll.ch>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: [PATCH v3 3/8] dma-buf: Add vmap_local and vnumap_local operations
+Message-ID: <20201211092447.GI401619@phenom.ffwll.local>
+References: <20201209142527.26415-1-tzimmermann@suse.de>
+ <20201209142527.26415-4-tzimmermann@suse.de>
 MIME-Version: 1.0
-In-Reply-To: <87k0tpju47.fsf@nanos.tec.linutronix.de>
-Cc: Stefano Stabellini <sstabellini@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, x86@kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- "VMware, Inc." <pv-drivers@vmware.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, luto@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Content-Disposition: inline
+In-Reply-To: <20201209142527.26415-4-tzimmermann@suse.de>
+X-Operating-System: Linux phenom 5.7.0-1-amd64 
+Cc: eric@anholt.net, airlied@linux.ie, sam@ravnborg.org,
+ dri-devel@lists.freedesktop.org, maarten.lankhorst@linux.intel.com,
+ mripard@kernel.org, sumit.semwal@linaro.org, linaro-mm-sig@lists.linaro.org,
+ hdegoede@redhat.com, daniel@ffwll.ch,
+ virtualization@lists.linux-foundation.org, sean@poorly.run,
+ christian.koenig@amd.com, linux-media@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,199 +109,205 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============5872277896493746156=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============5872277896493746156==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="ut1CfDbO7XZTjsKp0jfE35exNGTBAXJ4U"
+On Wed, Dec 09, 2020 at 03:25:22PM +0100, Thomas Zimmermann wrote:
+> The existing dma-buf calls dma_buf_vmap() and dma_buf_vunmap() are
+> allowed to pin the buffer or acquire the buffer's reservation object
+> lock.
+> 
+> This is a problem for callers that only require a short-term mapping
+> of the buffer without the pinning, or callers that have special locking
+> requirements. These may suffer from unnecessary overhead or interfere
+> with regular pin operations.
+> 
+> The new interfaces dma_buf_vmap_local(), dma_buf_vunmapo_local(), and
+> their rsp callbacks in struct dma_buf_ops provide an alternative without
+> pinning or reservation locking. Callers are responsible for these
+> operations.
+> 
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> ---
+>  drivers/dma-buf/dma-buf.c | 80 +++++++++++++++++++++++++++++++++++++++
+>  include/linux/dma-buf.h   | 34 +++++++++++++++++
+>  2 files changed, 114 insertions(+)
+> 
+> diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+> index e63684d4cd90..be9f80190a66 100644
+> --- a/drivers/dma-buf/dma-buf.c
+> +++ b/drivers/dma-buf/dma-buf.c
+> @@ -1265,6 +1265,86 @@ void dma_buf_vunmap(struct dma_buf *dmabuf, struct dma_buf_map *map)
+>  }
+>  EXPORT_SYMBOL_GPL(dma_buf_vunmap);
+>  
+> +/**
+> + * dma_buf_vmap_local - Create virtual mapping for the buffer object into kernel
+> + * address space.
+> + * @dmabuf:	[in]	buffer to vmap
+> + * @map:	[out]	returns the vmap pointer
+> + *
+> + * This call may fail due to lack of virtual mapping address space.
+> + * These calls are optional in drivers. The intended use for them
+> + * is for mapping objects linear in kernel space for high use objects.
+> + * Please attempt to use kmap/kunmap before thinking about these interfaces.
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---ut1CfDbO7XZTjsKp0jfE35exNGTBAXJ4U
-Content-Type: multipart/mixed; boundary="FClLxLK0RQjd7JNbzYVWLfCZWmbD9gnXP";
- protected-headers="v1"
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-To: Thomas Gleixner <tglx@linutronix.de>, Mark Rutland <mark.rutland@arm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, xen-devel@lists.xenproject.org,
- x86@kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, luto@kernel.org,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- "H. Peter Anvin" <hpa@zytor.com>, Deep Shah <sdeep@vmware.com>,
- "VMware, Inc." <pv-drivers@vmware.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Stefano Stabellini <sstabellini@kernel.org>
-Message-ID: <0a90cfff-05d6-1475-43f8-e41b5af24281@suse.com>
-Subject: Re: x86/ioapic: Cleanup the timer_works() irqflags mess
-References: <20201120114630.13552-1-jgross@suse.com>
- <20201120114630.13552-6-jgross@suse.com>
- <20201120115943.GD3021@hirez.programming.kicks-ass.net>
- <20201209181514.GA14235@C02TD0UTHF1T.local>
- <87tusuzu71.fsf@nanos.tec.linutronix.de>
- <20201210111008.GB88655@C02TD0UTHF1T.local>
- <87k0tpju47.fsf@nanos.tec.linutronix.de>
-In-Reply-To: <87k0tpju47.fsf@nanos.tec.linutronix.de>
-
---FClLxLK0RQjd7JNbzYVWLfCZWmbD9gnXP
-Content-Type: multipart/mixed;
- boundary="------------3B73900FA14EEF59C60EECEC"
-Content-Language: en-US
-
-This is a multi-part message in MIME format.
---------------3B73900FA14EEF59C60EECEC
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-
-On 10.12.20 21:15, Thomas Gleixner wrote:
-> Mark tripped over the creative irqflags handling in the IO-APIC timer
-> delivery check which ends up doing:
->=20
->          local_irq_save(flags);
-> 	local_irq_enable();
->          local_irq_restore(flags);
->=20
-> which triggered a new consistency check he's working on required for
-> replacing the POPF based restore with a conditional STI.
->=20
-> That code is a historical mess and none of this is needed. Make it
-> straightforward use local_irq_disable()/enable() as that's all what is
-> required. It is invoked from interrupt enabled code nowadays.
->=20
-> Reported-by: Mark Rutland <mark.rutland@arm.com>
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> Tested-by: Mark Rutland <mark.rutland@arm.com>
-
-Reviewed-by: Juergen Gross <jgross@suse.com>
+Kmap is gone, so the entire 2 sentences here are no longer needed. Maybe
+mention something like "Unlike dma_buf_vmap() this is a short term mapping
+and will not pin the buffer. The struct dma_resv for the @dmabuf must be
+locked until dma_buf_vunmap_local() is called."
 
 
-Juergen
+> + *
+> + * Returns:
+> + * 0 on success, or a negative errno code otherwise.
+> + */
+> +int dma_buf_vmap_local(struct dma_buf *dmabuf, struct dma_buf_map *map)
+> +{
+> +	struct dma_buf_map ptr;
+> +	int ret = 0;
+> +
+> +	dma_buf_map_clear(map);
+> +
+> +	if (WARN_ON(!dmabuf))
+> +		return -EINVAL;
+> +
+> +	dma_resv_assert_held(dmabuf->resv);
+> +
+> +	if (!dmabuf->ops->vmap_local)
+> +		return -EINVAL;
+> +
+> +	mutex_lock(&dmabuf->lock);
+> +	if (dmabuf->vmapping_counter) {
+> +		dmabuf->vmapping_counter++;
+> +		BUG_ON(dma_buf_map_is_null(&dmabuf->vmap_ptr));
+> +		*map = dmabuf->vmap_ptr;
+> +		goto out_unlock;
+> +	}
+> +
+> +	BUG_ON(dma_buf_map_is_set(&dmabuf->vmap_ptr));
+> +
+> +	ret = dmabuf->ops->vmap_local(dmabuf, &ptr);
+> +	if (WARN_ON_ONCE(ret))
+> +		goto out_unlock;
+> +
+> +	dmabuf->vmap_ptr = ptr;
+> +	dmabuf->vmapping_counter = 1;
+> +
+> +	*map = dmabuf->vmap_ptr;
+> +
+> +out_unlock:
+> +	mutex_unlock(&dmabuf->lock);
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL_GPL(dma_buf_vmap_local);
+> +
+> +/**
+> + * dma_buf_vunmap_local - Unmap a vmap obtained by dma_buf_vmap_local.
+> + * @dmabuf:	[in]	buffer to vunmap
+> + * @map:	[in]	vmap pointer to vunmap
 
---------------3B73900FA14EEF59C60EECEC
-Content-Type: application/pgp-keys;
- name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
- filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Maybe for hyperlinking add "Release a mapping established with
+dma_buf_vmap_local()."
+> + */
+> +void dma_buf_vunmap_local(struct dma_buf *dmabuf, struct dma_buf_map *map)
+> +{
+> +	if (WARN_ON(!dmabuf))
+> +		return;
+> +
+> +	dma_resv_assert_held(dmabuf->resv);
+> +
+> +	BUG_ON(dma_buf_map_is_null(&dmabuf->vmap_ptr));
+> +	BUG_ON(dmabuf->vmapping_counter == 0);
+> +	BUG_ON(!dma_buf_map_is_equal(&dmabuf->vmap_ptr, map));
+> +
+> +	mutex_lock(&dmabuf->lock);
+> +	if (--dmabuf->vmapping_counter == 0) {
+> +		if (dmabuf->ops->vunmap_local)
+> +			dmabuf->ops->vunmap_local(dmabuf, map);
+> +		dma_buf_map_clear(&dmabuf->vmap_ptr);
+> +	}
+> +	mutex_unlock(&dmabuf->lock);
+> +}
+> +EXPORT_SYMBOL_GPL(dma_buf_vunmap_local);
+> +
+>  #ifdef CONFIG_DEBUG_FS
+>  static int dma_buf_debug_show(struct seq_file *s, void *unused)
+>  {
+> diff --git a/include/linux/dma-buf.h b/include/linux/dma-buf.h
+> index cf72699cb2bc..f66580d23a9b 100644
+> --- a/include/linux/dma-buf.h
+> +++ b/include/linux/dma-buf.h
+> @@ -269,6 +269,38 @@ struct dma_buf_ops {
+>  
+>  	int (*vmap)(struct dma_buf *dmabuf, struct dma_buf_map *map);
+>  	void (*vunmap)(struct dma_buf *dmabuf, struct dma_buf_map *map);
+> +
+> +	/**
+> +	 * @vmap_local:
+> +	 *
+> +	 * Creates a virtual mapping for the buffer into kernel address space.
+> +	 *
+> +	 * This callback establishes short-term mappings for situations where
+> +	 * callers only use the buffer for a bounded amount of time; such as
+> +	 * updates to the framebuffer or reading back contained information.
+> +	 * In contrast to the regular @vmap callback, vmap_local does never pin
+> +	 * the buffer to a specific domain or acquire the buffer's reservation
+> +	 * lock.
+> +	 *
+> +	 * This is called with the dmabuf->resv object locked. Callers must hold
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+				^^Not the right kerneldoc, I think it
+				should be &dma_buf.resv to get the
+				hyperlink.
 
-xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
-cWx
-w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
-f8Z
-d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
-9bf
-IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
-G7/
-377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
-3Jv
-c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
-QIe
-AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
-hpw
-dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
-MbD
-1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
-oPH
-Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
-5QL
-+qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
-2Vu
-IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
-QoL
-BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
-Wf0
-teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
-/nu
-AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
-ITT
-d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
-XBK
-7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
-80h
-SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
-AcD
-AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
-FOX
-gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
-jnD
-kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
-N51
-N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
-otu
-fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
-tqS
-EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
-hsD
-BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
-g3O
-ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
-dM7
-wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
-D+j
-LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
-V2x
-AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
-Eaw
-QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
-nHI
-s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
-wgn
-BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
-bVF
-LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
-pEd
-IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
-QAB
-wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
-Tbe
-8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
-vJz
-Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
-VGi
-wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
-svi
-uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
-zXs
-ZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
+> +	 * the lock until after removing the mapping with @vunmap_local.
+> +	 *
+> +	 * This callback is optional.
+> +	 *
+> +	 * Returns:
+> +	 *
+> +	 * 0 on success or a negative error code on failure.
+> +	 */
+> +	int (*vmap_local)(struct dma_buf *dmabuf, struct dma_buf_map *map);
+> +
+> +	/**
+> +	 * @vunmap_local:
+> +	 *
+> +	 * Removes a virtual mapping that wa sestablished by @vmap_local.
 
---------------3B73900FA14EEF59C60EECEC--
+					     ^^established
+> +	 *
+> +	 * This callback is optional.
+> +	 */
+> +	void (*vunmap_local)(struct dma_buf *dmabuf, struct dma_buf_map *map);
+>  };
+>  
+>  /**
+> @@ -506,4 +538,6 @@ int dma_buf_mmap(struct dma_buf *, struct vm_area_struct *,
+>  		 unsigned long);
+>  int dma_buf_vmap(struct dma_buf *dmabuf, struct dma_buf_map *map);
+>  void dma_buf_vunmap(struct dma_buf *dmabuf, struct dma_buf_map *map);
+> +int dma_buf_vmap_local(struct dma_buf *dmabuf, struct dma_buf_map *map);
+> +void dma_buf_vunmap_local(struct dma_buf *dmabuf, struct dma_buf_map *map);
+>  #endif /* __DMA_BUF_H__ */
 
---FClLxLK0RQjd7JNbzYVWLfCZWmbD9gnXP--
 
---ut1CfDbO7XZTjsKp0jfE35exNGTBAXJ4U
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+With the doc nits addressed:
 
------BEGIN PGP SIGNATURE-----
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAl/S/1IFAwAAAAAACgkQsN6d1ii/Ey8w
-Zwf9FLP8Fj1JNG2NYn58CzNrRiyr6YDBpKBiJh+uBmcJAAc34XAwkzDVUYbbaFsr12h2bICSlnJ8
-jEN0pu4X53sJVw2xxOEfx2HlGI/ksGGRhrAFARK/h8staI70tGsbSOHJQNJCbmZKHOn55OkNQR0H
-yA4TBnoai2gnYd1Tc96EnKJ40Pch1hg2X3C+9sWGqwd31dbv0wsnLeMOiORzwikM8mIVKrzutkCC
-p8AySw3U0kMObQPydcJO3Ub4msqzkccfByYDWWOCsEi+1kfIEYqv28eTTfRW5FMYpQF0VCRSkQec
-oU3arD7srQaZGLOwwClaEpgS3z5yk8VDOxX++d8Eiw==
-=eb6p
------END PGP SIGNATURE-----
+> -- 
+> 2.29.2
+> 
 
---ut1CfDbO7XZTjsKp0jfE35exNGTBAXJ4U--
-
---===============5872277896493746156==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5872277896493746156==--
