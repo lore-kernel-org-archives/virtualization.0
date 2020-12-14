@@ -2,103 +2,99 @@ Return-Path: <SRS0=0lGn=FS=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BBB1C4361B
-	for <virtualization@archiver.kernel.org>; Mon, 14 Dec 2020 01:33:26 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED017C4361B
+	for <virtualization@archiver.kernel.org>; Mon, 14 Dec 2020 03:13:46 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E2AF322C7E
-	for <virtualization@archiver.kernel.org>; Mon, 14 Dec 2020 01:33:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E2AF322C7E
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 487DF22252
+	for <virtualization@archiver.kernel.org>; Mon, 14 Dec 2020 03:13:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 487DF22252
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 02749871B8;
-	Mon, 14 Dec 2020 01:33:25 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id C3B2D85C9D;
+	Mon, 14 Dec 2020 03:13:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7V8ppaX8t0Db; Mon, 14 Dec 2020 01:33:23 +0000 (UTC)
+	with ESMTP id P-_WpeqmuUmo; Mon, 14 Dec 2020 03:13:45 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id A1A55871B7;
-	Mon, 14 Dec 2020 01:33:23 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 144C785BF2;
+	Mon, 14 Dec 2020 03:13:45 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8CEF3C0893;
-	Mon, 14 Dec 2020 01:33:23 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EC6A6C0893;
+	Mon, 14 Dec 2020 03:13:44 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 44072C013B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AB0AEC013B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Dec 2020 01:33:22 +0000 (UTC)
+ Mon, 14 Dec 2020 03:13:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 2766E857BF
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 9935185BFB
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Dec 2020 01:33:22 +0000 (UTC)
+ Mon, 14 Dec 2020 03:13:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qUN20lCiEWCJ
+ with ESMTP id sVI7IIo-BEtS
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Dec 2020 01:33:21 +0000 (UTC)
+ Mon, 14 Dec 2020 03:13:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-ej1-f65.google.com (mail-ej1-f65.google.com
- [209.85.218.65])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 17183857A3
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id E41ED85BF2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Dec 2020 01:33:21 +0000 (UTC)
-Received: by mail-ej1-f65.google.com with SMTP id b9so20366175ejy.0
- for <virtualization@lists.linux-foundation.org>;
- Sun, 13 Dec 2020 17:33:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=Ufj2Iq9YciaonnGoHIm8LQWHySzfZ2ZpGbsx76Hg1BQ=;
- b=LwO7WtZLLeatk7VoGpFQVD0BI0Df/ahV0fiCGA9HYtyFC9Nhj3/cRrgfxY7XcWjTwj
- RHtFejRX9uYdrOJCgVg+DM4kRCQwfv+kBMiXLpWl1VJQcD5qDNWaDQI88u2nNcKoEpj+
- cBnP5SFI6U7D1eIbzyraz6kcHVq7CgVENkINlY8ta23wpPYKA/CfDxR64dunLjW2EkBe
- 8QIe9LYMpCuqVjIHw0DbJqkbKqOyf+yUCpXJ4J4tw/1hOg/5+7lqO69saC8bJofj3J2N
- CnZ8ldgszIwrQH9x5qz3/cHQ7YIsj+H1AJZxUIuRILLJX0TOZ3RAH4GWkQ21vszD7KEF
- E4FQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=Ufj2Iq9YciaonnGoHIm8LQWHySzfZ2ZpGbsx76Hg1BQ=;
- b=M13O6b4TSNFBKiIYitP5rVZ+raG4OTNehcmyJ5EY9IRIAF7bQGn9NhMc4dOdMycRZ/
- REDsXxHNc478U93i6aPo6mwPHPR2eQ8cnpjO5silqz9z6u1BpwlV7gBCq0q7wVopWhWX
- nZodUJtKICl3dM7B6YMx61mdGH/WVxVUOoIrishvA5fugDYrQNN5Yk16TtGNQGkzRP5R
- wH2DOkaRs5oMNLcthTh7RPzzd2yQzj/4zzwQ9URvIBlIkadqub8xis1prG3zi+i9ShJa
- IkLOrR+DPLR9aIymVYo0omFiumelcj2crvdReBVzSTO8oni8MnXEoeX5hPAkgTH3kBIR
- +xpw==
-X-Gm-Message-State: AOAM53001z5f5laEkgbsrzUBCDcp9cIPX21yVDjozaXY3nW/lfZNwhnB
- fMcoA3fswjPb5f9OIsl2fAs0b752EyCwPTe7Rlk=
-X-Google-Smtp-Source: ABdhPJxvt8CvJ9cemskE/wqcGLeQe/L3TdIfTkPerfoBZb6XZ6IL2on8BCxwz6RAvlsqRwaIuwX+pR35XXSaqoMB1bQ=
-X-Received: by 2002:a17:906:1796:: with SMTP id
- t22mr4429019eje.11.1607909599492; 
- Sun, 13 Dec 2020 17:33:19 -0800 (PST)
+ Mon, 14 Dec 2020 03:13:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1607915618;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=ybh/R/4GdDHQLyi7K+E2pe9l0OU63WmaJrxO4w9fLUU=;
+ b=PMIiVeuBpRgV4Y+96pKgclnLZ/smq3Zo5m4Pr2KJqDXykD4waKKWImR7AzoP1d0WI/Qga6
+ A7R2AIiZ27EbFTrDQ+REnVLbLKKzvfG8PJmBib1aw9T8P91Od04c2OJi8lja2UG27HZEmQ
+ 0bLoFlgbpzBfDhV1YmS8YPr80FAYigs=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-528-bsGc3wo6PHivHNPtnxOzUA-1; Sun, 13 Dec 2020 22:13:34 -0500
+X-MC-Unique: bsGc3wo6PHivHNPtnxOzUA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
+ [10.5.11.13])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1C7D01005D44;
+ Mon, 14 Dec 2020 03:13:33 +0000 (UTC)
+Received: from [10.72.13.213] (ovpn-13-213.pek2.redhat.com [10.72.13.213])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id CC0AB709AA;
+ Mon, 14 Dec 2020 03:13:26 +0000 (UTC)
+Subject: Re: [PATCH net] vhost_net: fix high cpu load when sendmsg fails
+To: wangyunjian <wangyunjian@huawei.com>, "Michael S. Tsirkin" <mst@redhat.com>
+References: <1607514504-20956-1-git-send-email-wangyunjian@huawei.com>
+ <20201209074832-mutt-send-email-mst@kernel.org>
+ <34EFBCA9F01B0748BEB6B629CE643AE60DB61ADF@DGGEMM533-MBX.china.huawei.com>
+ <f95f061c-dcac-9d56-94a0-50ef683946cd@redhat.com>
+ <34EFBCA9F01B0748BEB6B629CE643AE60DB65468@DGGEMM533-MBX.china.huawei.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <d3b6b081-97c6-d8e9-55cc-8b24bdd99483@redhat.com>
+Date: Mon, 14 Dec 2020 11:13:25 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <1606982459-41752-1-git-send-email-wangyunjian@huawei.com>
- <1607517703-18472-1-git-send-email-wangyunjian@huawei.com>
- <CA+FuTSfQoDr0jd76xBXSvchhyihQaL2UQXeCR6frJ7hyXxbmVA@mail.gmail.com>
- <34EFBCA9F01B0748BEB6B629CE643AE60DB6E3B3@dggemm513-mbx.china.huawei.com>
- <CA+FuTSdVJa4JQzzybZ17WDcfokA2RZ043kh5++Zgy5aNNebj0A@mail.gmail.com>
-In-Reply-To: <CA+FuTSdVJa4JQzzybZ17WDcfokA2RZ043kh5++Zgy5aNNebj0A@mail.gmail.com>
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Sun, 13 Dec 2020 20:32:43 -0500
-Message-ID: <CAF=yD-LF+j1vpzKDtBVUi22ZkTCEnMAXgfLfoQTBO+95D6RGRA@mail.gmail.com>
-Subject: Re: [PATCH net v2] tun: fix ubuf refcount incorrectly on error path
-To: wangyunjian <wangyunjian@huawei.com>
-Cc: Willem de Bruijn <willemb@google.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Network Development <netdev@vger.kernel.org>,
+In-Reply-To: <34EFBCA9F01B0748BEB6B629CE643AE60DB65468@DGGEMM533-MBX.china.huawei.com>
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
  "Lilijun \(Jerry\)" <jerry.lilijun@huawei.com>,
  "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, xudingke <xudingke@huawei.com>,
- "huangbin \(J\)" <brian.huangbin@huawei.com>,
- chenchanghu <chenchanghu@huawei.com>
+ <virtualization@lists.linux-foundation.org>,
+ chenchanghu <chenchanghu@huawei.com>,
+ "huangbin \(J\)" <brian.huangbin@huawei.com>, xudingke <xudingke@huawei.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,79 +106,91 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Dec 12, 2020 at 7:18 PM Willem de Bruijn
-<willemdebruijn.kernel@gmail.com> wrote:
->
-> > > > afterwards, the error handling in vhost handle_tx() will try to
-> > > > decrease the same refcount again. This is wrong and fix this by delay
-> > > > copying ubuf_info until we're sure there's no errors.
-> > >
-> > > I think the right approach is to address this in the error paths, rather than
-> > > complicate the normal datapath.
-> > >
-> > > Is it sufficient to suppress the call to vhost_net_ubuf_put in the handle_tx
-> > > sendmsg error path, given that vhost_zerocopy_callback will be called on
-> > > kfree_skb?
-> >
-> > We can not call kfree_skb() until the skb was created.
-> >
-> > >
-> > > Or alternatively clear the destructor in drop:
-> >
-> > The uarg->callback() is called immediately after we decide do datacopy
-> > even if caller want to do zerocopy. If another error occurs later, the vhost
-> > handle_tx() will try to decrease it again.
->
-> Oh right, I missed the else branch in this path:
->
->         /* copy skb_ubuf_info for callback when skb has no error */
->         if (zerocopy) {
->                 skb_shinfo(skb)->destructor_arg = msg_control;
->                 skb_shinfo(skb)->tx_flags |= SKBTX_DEV_ZEROCOPY;
->                 skb_shinfo(skb)->tx_flags |= SKBTX_SHARED_FRAG;
->         } else if (msg_control) {
->                 struct ubuf_info *uarg = msg_control;
->                 uarg->callback(uarg, false);
->         }
->
-> So if handle_tx_zerocopy calls tun_sendmsg with ubuf_info (and thus a
-> reference to release), there are these five options:
->
-> 1. tun_sendmsg succeeds, ubuf_info is associated with skb.
->      reference released from kfree_skb calling vhost_zerocopy_callback later
->
-> 2. tun_sendmsg succeeds, ubuf_info is released immediately, as skb is
-> not zerocopy.
->
-> 3. tun_sendmsg fails before creating skb, handle_tx_zerocopy correctly
-> cleans up on receiving error from tun_sendmsg.
->
-> 4. tun_sendmsg fails after creating skb, but with copying: decremented
-> at branch shown above + again in handle_tx_zerocopy
->
-> 5. tun_sendmsg fails after creating skb, with zerocopy: decremented at
-> kfree_skb in drop: + again in handle_tx_zerocopy
->
-> Since handle_tx_zerocopy has no idea whether on error 3, 4 or 5
-> occurred,
-
-Actually, it does. If sendmsg returns an error, it can test whether
-vq->heads[nvq->upend_idx].len != VHOST_DMA_IN_PROGRESS.
-
-> either all decrement-on-error cases must be handled by
-> handle_tx_zerocopy or none.
->
-> Your patch chooses the latter. Makes sense.
->
-> But can this still go wrong if the xdp path is taken, but no program
-> exists or the program returns XDP_PASS. And then the packet hits an
-> error path, such as ! IFF_UP?
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+Ck9uIDIwMjAvMTIvMTEg5LiL5Y2IMzozNywgd2FuZ3l1bmppYW4gd3JvdGU6Cj4+IC0tLS0tT3Jp
+Z2luYWwgTWVzc2FnZS0tLS0tCj4+IEZyb206IEphc29uIFdhbmcgW21haWx0bzpqYXNvd2FuZ0By
+ZWRoYXQuY29tXQo+PiBTZW50OiBGcmlkYXksIERlY2VtYmVyIDExLCAyMDIwIDEwOjUzIEFNCj4+
+IFRvOiB3YW5neXVuamlhbiA8d2FuZ3l1bmppYW5AaHVhd2VpLmNvbT47IE1pY2hhZWwgUy4gVHNp
+cmtpbgo+PiA8bXN0QHJlZGhhdC5jb20+Cj4+IENjOiB2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
+eC1mb3VuZGF0aW9uLm9yZzsgbmV0ZGV2QHZnZXIua2VybmVsLm9yZzsgTGlsaWp1bgo+PiAoSmVy
+cnkpIDxqZXJyeS5saWxpanVuQGh1YXdlaS5jb20+OyBjaGVuY2hhbmdodSA8Y2hlbmNoYW5naHVA
+aHVhd2VpLmNvbT47Cj4+IHh1ZGluZ2tlIDx4dWRpbmdrZUBodWF3ZWkuY29tPgo+PiBTdWJqZWN0
+OiBSZTogW1BBVENIIG5ldF0gdmhvc3RfbmV0OiBmaXggaGlnaCBjcHUgbG9hZCB3aGVuIHNlbmRt
+c2cgZmFpbHMKPj4KPj4KPj4gT24gMjAyMC8xMi85IOS4i+WNiDk6MjcsIHdhbmd5dW5qaWFuIHdy
+b3RlOgo+Pj4+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tCj4+Pj4gRnJvbTogTWljaGFlbCBT
+LiBUc2lya2luIFttYWlsdG86bXN0QHJlZGhhdC5jb21dCj4+Pj4gU2VudDogV2VkbmVzZGF5LCBE
+ZWNlbWJlciA5LCAyMDIwIDg6NTAgUE0KPj4+PiBUbzogd2FuZ3l1bmppYW4gPHdhbmd5dW5qaWFu
+QGh1YXdlaS5jb20+Cj4+Pj4gQ2M6IGphc293YW5nQHJlZGhhdC5jb207IHZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnOwo+Pj4+IG5ldGRldkB2Z2VyLmtlcm5lbC5vcmc7
+IExpbGlqdW4gKEplcnJ5KSA8amVycnkubGlsaWp1bkBodWF3ZWkuY29tPjsKPj4+PiBjaGVuY2hh
+bmdodSA8Y2hlbmNoYW5naHVAaHVhd2VpLmNvbT47IHh1ZGluZ2tlCj4+IDx4dWRpbmdrZUBodWF3
+ZWkuY29tPgo+Pj4+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggbmV0XSB2aG9zdF9uZXQ6IGZpeCBoaWdo
+IGNwdSBsb2FkIHdoZW4gc2VuZG1zZwo+Pj4+IGZhaWxzCj4+Pj4KPj4+PiBPbiBXZWQsIERlYyAw
+OSwgMjAyMCBhdCAwNzo0ODoyNFBNICswODAwLCB3YW5neXVuamlhbiB3cm90ZToKPj4+Pj4gRnJv
+bTogWXVuamlhbiBXYW5nIDx3YW5neXVuamlhbkBodWF3ZWkuY29tPgo+Pj4+Pgo+Pj4+PiBDdXJy
+ZW50bHkgd2UgYnJlYWsgdGhlIGxvb3AgYW5kIHdha2UgdXAgdGhlIHZob3N0X3dvcmtlciB3aGVu
+Cj4+Pj4+IHNlbmRtc2cgZmFpbHMuIFdoZW4gdGhlIHdvcmtlciB3YWtlcyB1cCBhZ2Fpbiwgd2Un
+bGwgbWVldCB0aGUgc2FtZQo+Pj4+PiBlcnJvci4gVGhpcyB3aWxsIGNhdXNlIGhpZ2ggQ1BVIGxv
+YWQuIFRvIGZpeCB0aGlzIGlzc3VlLCB3ZSBjYW4gc2tpcAo+Pj4+PiB0aGlzIGRlc2NyaXB0aW9u
+IGJ5IGlnbm9yaW5nIHRoZSBlcnJvci4KPj4+Pj4KPj4+Pj4gU2lnbmVkLW9mZi1ieTogWXVuamlh
+biBXYW5nIDx3YW5neXVuamlhbkBodWF3ZWkuY29tPgo+Pj4+PiAtLS0KPj4+Pj4gICAgZHJpdmVy
+cy92aG9zdC9uZXQuYyB8IDI0ICsrKysrLS0tLS0tLS0tLS0tLS0tLS0tLQo+Pj4+PiAgICAxIGZp
+bGUgY2hhbmdlZCwgNSBpbnNlcnRpb25zKCspLCAxOSBkZWxldGlvbnMoLSkKPj4+Pj4KPj4+Pj4g
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3QvbmV0LmMgYi9kcml2ZXJzL3Zob3N0L25ldC5jIGlu
+ZGV4Cj4+Pj4+IDUzMWEwMGQ3MDNjZC4uYWM5NTBiMTEyMGY1IDEwMDY0NAo+Pj4+PiAtLS0gYS9k
+cml2ZXJzL3Zob3N0L25ldC5jCj4+Pj4+ICsrKyBiL2RyaXZlcnMvdmhvc3QvbmV0LmMKPj4+Pj4g
+QEAgLTgyOSwxNCArODI5LDggQEAgc3RhdGljIHZvaWQgaGFuZGxlX3R4X2NvcHkoc3RydWN0IHZo
+b3N0X25ldAo+Pj4+PiAqbmV0LCBzdHJ1Y3Qgc29ja2V0ICpzb2NrKQo+Pj4+Pgo+Pj4+PiAgICAJ
+CS8qIFRPRE86IENoZWNrIHNwZWNpZmljIGVycm9yIGFuZCBib21iIG91dCB1bmxlc3MgRU5PQlVG
+Uz8KPj4gKi8KPj4+Pj4gICAgCQllcnIgPSBzb2NrLT5vcHMtPnNlbmRtc2coc29jaywgJm1zZywg
+bGVuKTsKPj4+Pj4gLQkJaWYgKHVubGlrZWx5KGVyciA8IDApKSB7Cj4+Pj4+IC0JCQl2aG9zdF9k
+aXNjYXJkX3ZxX2Rlc2ModnEsIDEpOwo+Pj4+PiAtCQkJdmhvc3RfbmV0X2VuYWJsZV92cShuZXQs
+IHZxKTsKPj4+Pj4gLQkJCWJyZWFrOwo+Pj4+PiAtCQl9Cj4+Pj4+IC0JCWlmIChlcnIgIT0gbGVu
+KQo+Pj4+PiAtCQkJcHJfZGVidWcoIlRydW5jYXRlZCBUWCBwYWNrZXQ6IGxlbiAlZCAhPSAlemRc
+biIsCj4+Pj4+IC0JCQkJIGVyciwgbGVuKTsKPj4+Pj4gKwkJaWYgKHVubGlrZWx5KGVyciA8IDAg
+fHwgZXJyICE9IGxlbikpCj4+Pj4+ICsJCQl2cV9lcnIodnEsICJGYWlsIHRvIHNlbmRpbmcgcGFj
+a2V0cyBlcnIgOiAlZCwgbGVuIDogJXpkXG4iLAo+PiBlcnIsCj4+Pj4+ICtsZW4pOwo+Pj4+PiAg
+ICBkb25lOgo+Pj4+PiAgICAJCXZxLT5oZWFkc1tudnEtPmRvbmVfaWR4XS5pZCA9IGNwdV90b192
+aG9zdDMyKHZxLCBoZWFkKTsKPj4+Pj4gICAgCQl2cS0+aGVhZHNbbnZxLT5kb25lX2lkeF0ubGVu
+ID0gMDsKPj4+PiBPbmUgb2YgdGhlIHJlYXNvbnMgZm9yIHNlbmRtc2cgdG8gZmFpbCBpcyBFTk9C
+VUZTLgo+Pj4+IEluIHRoYXQgY2FzZSBmb3Igc3VyZSB3ZSBkb24ndCB3YW50IHRvIGRyb3AgcGFj
+a2V0Lgo+Pj4gTm93IHRoZSBmdW5jdGlvbiB0YXBfc2VuZG1zZygpL3R1bl9zZW5kbXNnKCkgZG9u
+J3QgcmV0dXJuIEVOT0JVRlMuCj4+Cj4+IEkgdGhpbmsgbm90LCBpdCBjYW4gaGFwcGVuIGlmIHdl
+IGV4Y2VlZHMgc25kYnVmLiBFLmcgc2VlIHR1bl9hbGxvY19za2IoKS4KPiBUaGlzIHBhdGNoICdu
+ZXQ6IGFkZCBhbGxvY19za2Jfd2l0aF9mcmFncygpIGhlbHBlcicgbW9kaWZ5cyB0aGUgcmV0dXJu
+IHZhbHVlCj4gb2Ygc29ja19hbGxvY19zZW5kX3Bza2IoKSBmcm9tIC1FTk9CVUZTIHRvIC1FQUdB
+SU4gd2hlbiB3ZSBleGNlZWRzIHNuZGJ1Zi4KPiBTbyB0aGUgcmV0dXJuIHZhbHVlIG9mIHR1bl9h
+bGxvY19za2IgaGFzIGJlZW4gY2hhbmdlZC4KCgpPay4KCgo+Cj4gV2UgZG9uJ3QgZHJvcCBwYWNr
+ZXQgaWYgdGhlIHJlYXNvbnMgZm9yIHNlbmRtc2cgdG8gZmFpbCBpcyBFQUdBSU4uCj4gSG93IGFi
+b3V0IHRoaXM/CgoKSXQgc2hvdWxkIHdvcmsuCgpCdHcsIHRoZSBwYXRjaCBkb2Vzbid0IGFkZCB0
+aGUgaGVhZCB0byB0aGUgdXNlZCByaW5nLiBUaGlzIG1heSBjb25mdXNlcyAKdGhlIGRyaXZlci4K
+ClRoYW5rcwoKCj4KPiBUaGFua3MKPgo+PiBUaGFua3MKPj4KPj4KPj4+PiBUaGVyZSBjb3VsZCBi
+ZSBvdGhlciB0cmFuc2llbnQgZXJyb3JzLgo+Pj4+IFdoaWNoIGVycm9yIGRpZCB5b3UgZW5jb3Vu
+dGVyLCBzcGVjaWZpY2FsbHk/Cj4+PiBDdXJyZW50bHkgYSBndWVzdCB2bSBzZW5kIGEgc2tiIHdo
+aWNoIGxlbmd0aCBpcyBtb3JlIHRoYW4gNjRrLgo+Pj4gSWYgdmlydGlvIGhkciBpcyB3cm9uZywg
+dGhlIHByb2JsZW0gd2lsbCBhbHNvIGJlIHRyaWdnZXJlZC4KPj4+Cj4+PiBUaGFua3MKPj4+Cj4+
+Pj4+IEBAIC05MjUsMTkgKzkxOSwxMSBAQCBzdGF0aWMgdm9pZCBoYW5kbGVfdHhfemVyb2NvcHko
+c3RydWN0Cj4+Pj4+IHZob3N0X25ldCAqbmV0LCBzdHJ1Y3Qgc29ja2V0ICpzb2NrKQo+Pj4+Pgo+
+Pj4+PiAgICAJCS8qIFRPRE86IENoZWNrIHNwZWNpZmljIGVycm9yIGFuZCBib21iIG91dCB1bmxl
+c3MgRU5PQlVGUz8KPj4gKi8KPj4+Pj4gICAgCQllcnIgPSBzb2NrLT5vcHMtPnNlbmRtc2coc29j
+aywgJm1zZywgbGVuKTsKPj4+Pj4gLQkJaWYgKHVubGlrZWx5KGVyciA8IDApKSB7Cj4+Pj4+IC0J
+CQlpZiAoemNvcHlfdXNlZCkgewo+Pj4+PiArCQlpZiAodW5saWtlbHkoZXJyIDwgMCB8fCBlcnIg
+IT0gbGVuKSkgewo+Pj4+PiArCQkJaWYgKHpjb3B5X3VzZWQgJiYgZXJyIDwgMCkKPj4+Pj4gICAg
+CQkJCXZob3N0X25ldF91YnVmX3B1dCh1YnVmcyk7Cj4+Pj4+IC0JCQkJbnZxLT51cGVuZF9pZHgg
+PSAoKHVuc2lnbmVkKW52cS0+dXBlbmRfaWR4IC0gMSkKPj4+Pj4gLQkJCQkJJSBVSU9fTUFYSU9W
+Owo+Pj4+PiAtCQkJfQo+Pj4+PiAtCQkJdmhvc3RfZGlzY2FyZF92cV9kZXNjKHZxLCAxKTsKPj4+
+Pj4gLQkJCXZob3N0X25ldF9lbmFibGVfdnEobmV0LCB2cSk7Cj4+Pj4+IC0JCQlicmVhazsKPj4+
+Pj4gKwkJCXZxX2Vycih2cSwgIkZhaWwgdG8gc2VuZGluZyBwYWNrZXRzIGVyciA6ICVkLCBsZW4g
+OiAlemRcbiIsCj4+IGVyciwKPj4+Pj4gK2xlbik7Cj4+Pj4+ICAgIAkJfQo+Pj4+PiAtCQlpZiAo
+ZXJyICE9IGxlbikKPj4+Pj4gLQkJCXByX2RlYnVnKCJUcnVuY2F0ZWQgVFggcGFja2V0OiAiCj4+
+Pj4+IC0JCQkJICIgbGVuICVkICE9ICV6ZFxuIiwgZXJyLCBsZW4pOwo+Pj4+PiAgICAJCWlmICgh
+emNvcHlfdXNlZCkKPj4+Pj4gICAgCQkJdmhvc3RfYWRkX3VzZWRfYW5kX3NpZ25hbCgmbmV0LT5k
+ZXYsIHZxLCBoZWFkLCAwKTsKPj4+Pj4gICAgCQllbHNlCj4+Pj4+IC0tCj4+Pj4+IDIuMjMuMAoK
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
+YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
+b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
+cnR1YWxpemF0aW9u
