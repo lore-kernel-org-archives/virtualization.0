@@ -2,94 +2,118 @@ Return-Path: <SRS0=Oc7+=FT=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DCBAC4361B
-	for <virtualization@archiver.kernel.org>; Tue, 15 Dec 2020 11:42:57 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77173C4361B
+	for <virtualization@archiver.kernel.org>; Tue, 15 Dec 2020 11:43:36 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E14DF2226A
-	for <virtualization@archiver.kernel.org>; Tue, 15 Dec 2020 11:42:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E14DF2226A
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id D5C432226A
+	for <virtualization@archiver.kernel.org>; Tue, 15 Dec 2020 11:43:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D5C432226A
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 65DA386D2A;
-	Tue, 15 Dec 2020 11:42:56 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8WubroYWRF7k; Tue, 15 Dec 2020 11:42:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id D760D86D19;
-	Tue, 15 Dec 2020 11:42:54 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B4B9BC088E;
-	Tue, 15 Dec 2020 11:42:54 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8B11CC013B
- for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Dec 2020 11:42:53 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 6235C204D5
- for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Dec 2020 11:42:53 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 59AB6204FF;
+	Tue, 15 Dec 2020 11:43:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id WY0Ijanu2aLG; Tue, 15 Dec 2020 11:43:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id 1ADF32034C;
+	Tue, 15 Dec 2020 11:43:34 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 11B2DC088E;
+	Tue, 15 Dec 2020 11:43:34 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A8F70C013B
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 15 Dec 2020 11:43:32 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id 9FC8187259
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 15 Dec 2020 11:43:32 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id D5LOAIYnFK5V
+ with ESMTP id T4R1YX2bWT4X
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Dec 2020 11:42:50 +0000 (UTC)
+ Tue, 15 Dec 2020 11:43:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTPS id F297F2034C
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id A743D8724E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Dec 2020 11:42:49 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1608032567; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
+ Tue, 15 Dec 2020 11:43:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1608032608;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=8JgTs45MuhZxp31unKb1wCSq9R0yfQ1p132Smb6fNbE=;
- b=eJxV41g0cLnyuFzF7+jvLZgSq72DDtjDi69jcCuJm38/OdETrwGMcJmFBHJXr7D/bpNwDc
- XnlFiyx38G3FK0y/VWeDFQjNYzetAYxoLQfYVHbu+aVmvayMvPLUXHVc2GG7X6zsMhGIU+
- N5elEp2XyFiRMzWokHOth1GTVb1gs9c=
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 88697AE47;
- Tue, 15 Dec 2020 11:42:47 +0000 (UTC)
-Subject: Re: [PATCH v2 00/12] x86: major paravirt cleanup
-To: Peter Zijlstra <peterz@infradead.org>
-References: <20201120114630.13552-1-jgross@suse.com>
- <20201120125342.GC3040@hirez.programming.kicks-ass.net>
- <20201123134317.GE3092@hirez.programming.kicks-ass.net>
-Message-ID: <6771a12c-051d-1655-fb3a-cc45a3c82e29@suse.com>
-Date: Tue, 15 Dec 2020 12:42:45 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.5.0
+ bh=goME2hSqTlOZFsUal75epX/X/O/RKF0nPblt3Kqiumo=;
+ b=dHnKGqCOCkmxSwmrTTs0c61t1CPX+Qju5y0KkQdNVP87l15YPWAN+VGgMyZiPGAy5aFRrU
+ JMa3JfMoZoznXgGt4QQitq78RU6YE11ybLKJe10plWLqpZ/3O2emZeeqEpYDmXdbtr+SG2
+ M6qvgOwKeNwrTyAdBY3CcuSG6aqh5ZU=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-276-iOB7hn-XNDmBwe5DBDxg0A-1; Tue, 15 Dec 2020 06:43:26 -0500
+X-MC-Unique: iOB7hn-XNDmBwe5DBDxg0A-1
+Received: by mail-wm1-f69.google.com with SMTP id f187so893366wme.3
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 15 Dec 2020 03:43:26 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=goME2hSqTlOZFsUal75epX/X/O/RKF0nPblt3Kqiumo=;
+ b=lbFwup/EPkhfX9nQGdZb/HZhAHte1qeqove0NO/itNlWLF8Ow//+CwoQq6lAXAmLqt
+ 79vElW6Bhc816AoeDwz27B01d2PpPfcGzlK5L0SFILi/u3DEopoIsqkLV8y0xJUx/p5s
+ 6BLELnGW6lX/FfRG2Mpb5YyOfTB25PIUV7EMeVbKVtmhQNIWpFJr6C/ABNdqpwPFNt1X
+ gYIhn6nplhNb4isaWuCrk2I3ofnEcn0Az6k3SsjnpzZYucodzzjo8vD3/2AZZ0qV2fdb
+ MzaykhT/K8LAj6OtzZuePpeiXJORwfBzBkaY1ri6x8vlF+Lwqqs/kC4QPBJdxOKASJeL
+ 0W2w==
+X-Gm-Message-State: AOAM531FnakR2P4pB9oD9DcZmFVnmiIsiXiM4AaiVOOoPhmKn+z6/Yks
+ vdDM11ZlzJDHyL25zhhR5qGDpDzFS/RBHNfOb+71k4wXAiPNdlERwUF/ib0Bw+xB8spFGk54aa/
+ zqPS0zH5jzacivzknd4wHHMufDLlTxyxIKzw15ZsxRw==
+X-Received: by 2002:adf:dc8b:: with SMTP id r11mr34084493wrj.131.1608032605703; 
+ Tue, 15 Dec 2020 03:43:25 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwtRGa2/ozBxM2PzGAqC+oThXH0iygkOmEWn3nkmpSJjKPNiTziBynhYs0F2alwvlB4gj+hEg==
+X-Received: by 2002:adf:dc8b:: with SMTP id r11mr34084475wrj.131.1608032605492; 
+ Tue, 15 Dec 2020 03:43:25 -0800 (PST)
+Received: from steredhat (host-79-13-204-15.retail.telecomitalia.it.
+ [79.13.204.15])
+ by smtp.gmail.com with ESMTPSA id 90sm37250897wrl.60.2020.12.15.03.43.24
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 15 Dec 2020 03:43:24 -0800 (PST)
+Date: Tue, 15 Dec 2020 12:43:22 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 13/19] vdpa_sim: add get_config callback in
+ vdpasim_dev_attr
+Message-ID: <CAGxU2F4Eeb68J6PuapCneZtEqnyU2MVhCd4VZyVh-o-kxvQBkA@mail.gmail.com>
+References: <20201203170511.216407-1-sgarzare@redhat.com>
+ <20201203170511.216407-14-sgarzare@redhat.com>
+ <829a5026-a68c-6d02-49ef-f237dcae2460@redhat.com>
+ <20201209110745.p4ybybanzip2lav3@steredhat>
 MIME-Version: 1.0
-In-Reply-To: <20201123134317.GE3092@hirez.programming.kicks-ass.net>
-Cc: Juri Lelli <juri.lelli@redhat.com>, linux-hyperv@vger.kernel.org,
- Daniel Lezcano <daniel.lezcano@linaro.org>, Wanpeng Li <wanpengli@tencent.com>,
- kvm@vger.kernel.org, "VMware, Inc." <pv-drivers@vmware.com>,
- virtualization@lists.linux-foundation.org, Ben Segall <bsegall@google.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Wei Liu <wei.liu@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>,
- Stephen Hemminger <sthemmin@microsoft.com>, Joerg Roedel <joro@8bytes.org>,
- x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Mel Gorman <mgorman@suse.de>,
- xen-devel@lists.xenproject.org, Haiyang Zhang <haiyangz@microsoft.com>,
- Steven Rostedt <rostedt@goodmis.org>, Borislav Petkov <bp@alien8.de>,
- luto@kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Thomas Gleixner <tglx@linutronix.de>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>, Jim Mattson <jmattson@google.com>,
- linux-kernel@vger.kernel.org,
- Sean Christopherson <sean.j.christopherson@intel.com>,
- Paolo Bonzini <pbonzini@redhat.com>,
- Daniel Bristot de Oliveira <bristot@redhat.com>
+In-Reply-To: <20201209110745.p4ybybanzip2lav3@steredhat>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Laurent Vivier <lvivier@redhat.com>, Max Gurtovoy <mgurtovoy@nvidia.com>,
+ kernel list <linux-kernel@vger.kernel.org>,
+ Linux Virtualization <virtualization@lists.linux-foundation.org>,
+ Shahaf Shuler <shahafs@nvidia.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Eli Cohen <elic@nvidia.com>, Oren Duer <oren@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,710 +125,103 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============8719421099603008366=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============8719421099603008366==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="H2kwefz8uIE15eQoOkpjLVA8XJ0Q8kIsD"
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---H2kwefz8uIE15eQoOkpjLVA8XJ0Q8kIsD
-Content-Type: multipart/mixed; boundary="eJf0I1odMv2scnFFsZ16khArxsjn0GCwk";
- protected-headers="v1"
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: xen-devel@lists.xenproject.org, x86@kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-hyperv@vger.kernel.org, kvm@vger.kernel.org, luto@kernel.org,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Stefano Stabellini <sstabellini@kernel.org>, Deep Shah <sdeep@vmware.com>,
- "VMware, Inc." <pv-drivers@vmware.com>, "K. Y. Srinivasan"
- <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>,
- Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
- Paolo Bonzini <pbonzini@redhat.com>,
- Sean Christopherson <sean.j.christopherson@intel.com>,
- Vitaly Kuznetsov <vkuznets@redhat.com>, Wanpeng Li <wanpengli@tencent.com>,
- Jim Mattson <jmattson@google.com>, Joerg Roedel <joro@8bytes.org>,
- Daniel Lezcano <daniel.lezcano@linaro.org>,
- Juri Lelli <juri.lelli@redhat.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>,
- Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
- Mel Gorman <mgorman@suse.de>, Daniel Bristot de Oliveira
- <bristot@redhat.com>, Josh Poimboeuf <jpoimboe@redhat.com>
-Message-ID: <6771a12c-051d-1655-fb3a-cc45a3c82e29@suse.com>
-Subject: Re: [PATCH v2 00/12] x86: major paravirt cleanup
-References: <20201120114630.13552-1-jgross@suse.com>
- <20201120125342.GC3040@hirez.programming.kicks-ass.net>
- <20201123134317.GE3092@hirez.programming.kicks-ass.net>
-In-Reply-To: <20201123134317.GE3092@hirez.programming.kicks-ass.net>
-
---eJf0I1odMv2scnFFsZ16khArxsjn0GCwk
-Content-Type: multipart/mixed;
- boundary="------------F4E81710D117794268EEB261"
-Content-Language: en-US
-
-This is a multi-part message in MIME format.
---------------F4E81710D117794268EEB261
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-
-Peter,
-
-On 23.11.20 14:43, Peter Zijlstra wrote:
-> On Fri, Nov 20, 2020 at 01:53:42PM +0100, Peter Zijlstra wrote:
->> On Fri, Nov 20, 2020 at 12:46:18PM +0100, Juergen Gross wrote:
->>>   30 files changed, 325 insertions(+), 598 deletions(-)
->>
->> Much awesome ! I'll try and get that objtool thing sorted.
->=20
-> This seems to work for me. It isn't 100% accurate, because it doesn't
-> know about the direct call instruction, but I can either fudge that or
-> switching to static_call() will cure that.
->=20
-> It's not exactly pretty, but it should be straight forward.
-
-Are you planning to send this out as an "official" patch, or should I
-include it in my series (in this case I'd need a variant with a proper
-commit message)?
-
-I'd like to have this settled soon, as I'm going to send V2 of my
-series hopefully this week.
-
-
-Juergen
-
->=20
-> Index: linux-2.6/tools/objtool/check.c
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- linux-2.6.orig/tools/objtool/check.c
-> +++ linux-2.6/tools/objtool/check.c
-> @@ -1090,6 +1090,32 @@ static int handle_group_alt(struct objto
->   		return -1;
->   	}
->  =20
-> +	/*
-> +	 * Add the filler NOP, required for alternative CFI.
-> +	 */
-> +	if (special_alt->group && special_alt->new_len < special_alt->orig_le=
-n) {
-> +		struct instruction *nop =3D malloc(sizeof(*nop));
-> +		if (!nop) {
-> +			WARN("malloc failed");
-> +			return -1;
-> +		}
-> +		memset(nop, 0, sizeof(*nop));
-> +		INIT_LIST_HEAD(&nop->alts);
-> +		INIT_LIST_HEAD(&nop->stack_ops);
-> +		init_cfi_state(&nop->cfi);
-> +
-> +		nop->sec =3D last_new_insn->sec;
-> +		nop->ignore =3D last_new_insn->ignore;
-> +		nop->func =3D last_new_insn->func;
-> +		nop->alt_group =3D alt_group;
-> +		nop->offset =3D last_new_insn->offset + last_new_insn->len;
-> +		nop->type =3D INSN_NOP;
-> +		nop->len =3D special_alt->orig_len - special_alt->new_len;
-> +
-> +		list_add(&nop->list, &last_new_insn->list);
-> +		last_new_insn =3D nop;
-> +	}
-> +
->   	if (fake_jump)
->   		list_add(&fake_jump->list, &last_new_insn->list);
->  =20
-> @@ -2190,18 +2216,12 @@ static int handle_insn_ops(struct instru
->   	struct stack_op *op;
->  =20
->   	list_for_each_entry(op, &insn->stack_ops, list) {
-> -		struct cfi_state old_cfi =3D state->cfi;
->   		int res;
->  =20
->   		res =3D update_cfi_state(insn, &state->cfi, op);
->   		if (res)
->   			return res;
->  =20
-> -		if (insn->alt_group && memcmp(&state->cfi, &old_cfi, sizeof(struct c=
-fi_state))) {
-> -			WARN_FUNC("alternative modifies stack", insn->sec, insn->offset);
-> -			return -1;
-> -		}
-> -
->   		if (op->dest.type =3D=3D OP_DEST_PUSHF) {
->   			if (!state->uaccess_stack) {
->   				state->uaccess_stack =3D 1;
-> @@ -2399,19 +2419,137 @@ static int validate_return(struct symbol
->    * unreported (because they're NOPs), such holes would result in CFI_=
-UNDEFINED
->    * states which then results in ORC entries, which we just said we di=
-dn't want.
->    *
-> - * Avoid them by copying the CFI entry of the first instruction into t=
-he whole
-> - * alternative.
-> + * Avoid them by copying the CFI entry of the first instruction into t=
-he hole.
->    */
-> -static void fill_alternative_cfi(struct objtool_file *file, struct ins=
-truction *insn)
-> +static void __fill_alt_cfi(struct objtool_file *file, struct instructi=
-on *insn)
->   {
->   	struct instruction *first_insn =3D insn;
->   	int alt_group =3D insn->alt_group;
->  =20
-> -	sec_for_each_insn_continue(file, insn) {
-> +	sec_for_each_insn_from(file, insn) {
->   		if (insn->alt_group !=3D alt_group)
->   			break;
-> -		insn->cfi =3D first_insn->cfi;
-> +
-> +		if (!insn->visited)
-> +			insn->cfi =3D first_insn->cfi;
-> +	}
-> +}
-> +
-> +static void fill_alt_cfi(struct objtool_file *file, struct instruction=
- *alt_insn)
-> +{
-> +	struct alternative *alt;
-> +
-> +	__fill_alt_cfi(file, alt_insn);
-> +
-> +	list_for_each_entry(alt, &alt_insn->alts, list)
-> +		__fill_alt_cfi(file, alt->insn);
-> +}
-> +
-> +static struct instruction *
-> +__find_unwind(struct objtool_file *file,
-> +	      struct instruction *insn, unsigned long offset)
-> +{
-> +	int alt_group =3D insn->alt_group;
-> +	struct instruction *next;
-> +	unsigned long off =3D 0;
-> +
-> +	while ((off + insn->len) <=3D offset) {
-> +		next =3D next_insn_same_sec(file, insn);
-> +		if (next && next->alt_group !=3D alt_group)
-> +			next =3D NULL;
-> +
-> +		if (!next)
-> +			break;
-> +
-> +		off +=3D insn->len;
-> +		insn =3D next;
->   	}
-> +
-> +	return insn;
-> +}
-> +
-> +struct instruction *
-> +find_alt_unwind(struct objtool_file *file,
-> +		struct instruction *alt_insn, unsigned long offset)
-> +{
-> +	struct instruction *fit;
-> +	struct alternative *alt;
-> +	unsigned long fit_off;
-> +
-> +	fit =3D __find_unwind(file, alt_insn, offset);
-> +	fit_off =3D (fit->offset - alt_insn->offset);
-> +
-> +	list_for_each_entry(alt, &alt_insn->alts, list) {
-> +		struct instruction *x;
-> +		unsigned long x_off;
-> +
-> +		x =3D __find_unwind(file, alt->insn, offset);
-> +		x_off =3D (x->offset - alt->insn->offset);
-> +
-> +		if (fit_off < x_off) {
-> +			fit =3D x;
-> +			fit_off =3D x_off;
-> +
-> +		} else if (fit_off =3D=3D x_off &&
-> +			   memcmp(&fit->cfi, &x->cfi, sizeof(struct cfi_state))) {
-> +
-> +			char *_str1 =3D offstr(fit->sec, fit->offset);
-> +			char *_str2 =3D offstr(x->sec, x->offset);
-> +			WARN("%s: equal-offset incompatible alternative: %s\n", _str1, _str=
-2);
-> +			free(_str1);
-> +			free(_str2);
-> +			return fit;
-> +		}
-> +	}
-> +
-> +	return fit;
-> +}
-> +
-> +static int __validate_unwind(struct objtool_file *file,
-> +			     struct instruction *alt_insn,
-> +			     struct instruction *insn)
-> +{
-> +	int alt_group =3D insn->alt_group;
-> +	struct instruction *unwind;
-> +	unsigned long offset =3D 0;
-> +
-> +	sec_for_each_insn_from(file, insn) {
-> +		if (insn->alt_group !=3D alt_group)
-> +			break;
-> +
-> +		unwind =3D find_alt_unwind(file, alt_insn, offset);
-> +
-> +		if (memcmp(&insn->cfi, &unwind->cfi, sizeof(struct cfi_state))) {
-> +
-> +			char *_str1 =3D offstr(insn->sec, insn->offset);
-> +			char *_str2 =3D offstr(unwind->sec, unwind->offset);
-> +			WARN("%s: unwind incompatible alternative: %s (%ld)\n",
-> +			     _str1, _str2, offset);
-> +			free(_str1);
-> +			free(_str2);
-> +			return 1;
-> +		}
-> +
-> +		offset +=3D insn->len;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static int validate_alt_unwind(struct objtool_file *file,
-> +			       struct instruction *alt_insn)
-> +{
-> +	struct alternative *alt;
-> +
-> +	if (__validate_unwind(file, alt_insn, alt_insn))
-> +		return 1;
-> +
-> +	list_for_each_entry(alt, &alt_insn->alts, list) {
-> +		if (__validate_unwind(file, alt_insn, alt->insn))
-> +			return 1;
-> +	}
-> +
-> +	return 0;
->   }
->  =20
->   /*
-> @@ -2423,9 +2561,10 @@ static void fill_alternative_cfi(struct
->   static int validate_branch(struct objtool_file *file, struct symbol *=
-func,
->   			   struct instruction *insn, struct insn_state state)
->   {
-> +	struct instruction *next_insn, *alt_insn =3D NULL;
->   	struct alternative *alt;
-> -	struct instruction *next_insn;
->   	struct section *sec;
-> +	int alt_group =3D 0;
->   	u8 visited;
->   	int ret;
->  =20
-> @@ -2480,8 +2619,10 @@ static int validate_branch(struct objtoo
->   				}
->   			}
->  =20
-> -			if (insn->alt_group)
-> -				fill_alternative_cfi(file, insn);
-> +			if (insn->alt_group) {
-> +				alt_insn =3D insn;
-> +				alt_group =3D insn->alt_group;
-> +			}
->  =20
->   			if (skip_orig)
->   				return 0;
-> @@ -2613,6 +2754,17 @@ static int validate_branch(struct objtoo
->   		}
->  =20
->   		insn =3D next_insn;
-> +
-> +		if (alt_insn && insn->alt_group !=3D alt_group) {
-> +			alt_insn->alt_end =3D insn;
-> +
-> +			fill_alt_cfi(file, alt_insn);
-> +
-> +			if (validate_alt_unwind(file, alt_insn))
-> +				return 1;
-> +
-> +			alt_insn =3D NULL;
-> +		}
->   	}
->  =20
->   	return 0;
-> Index: linux-2.6/tools/objtool/check.h
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- linux-2.6.orig/tools/objtool/check.h
-> +++ linux-2.6/tools/objtool/check.h
-> @@ -40,6 +40,7 @@ struct instruction {
->   	struct instruction *first_jump_src;
->   	struct reloc *jump_table;
->   	struct list_head alts;
-> +	struct instruction *alt_end;
->   	struct symbol *func;
->   	struct list_head stack_ops;
->   	struct cfi_state cfi;
-> @@ -54,6 +55,10 @@ static inline bool is_static_jump(struct
->   	       insn->type =3D=3D INSN_JUMP_UNCONDITIONAL;
->   }
->  =20
-> +struct instruction *
-> +find_alt_unwind(struct objtool_file *file,
-> +		struct instruction *alt_insn, unsigned long offset);
-> +
->   struct instruction *find_insn(struct objtool_file *file,
->   			      struct section *sec, unsigned long offset);
->  =20
-> Index: linux-2.6/tools/objtool/orc_gen.c
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- linux-2.6.orig/tools/objtool/orc_gen.c
-> +++ linux-2.6/tools/objtool/orc_gen.c
-> @@ -12,75 +12,86 @@
->   #include "check.h"
->   #include "warn.h"
->  =20
-> -int create_orc(struct objtool_file *file)
-> +static int create_orc_insn(struct objtool_file *file, struct instructi=
-on *insn)
->   {
-> -	struct instruction *insn;
-> +	struct orc_entry *orc =3D &insn->orc;
-> +	struct cfi_reg *cfa =3D &insn->cfi.cfa;
-> +	struct cfi_reg *bp =3D &insn->cfi.regs[CFI_BP];
-> +
-> +	orc->end =3D insn->cfi.end;
-> +
-> +	if (cfa->base =3D=3D CFI_UNDEFINED) {
-> +		orc->sp_reg =3D ORC_REG_UNDEFINED;
-> +		return 0;
-> +	}
->  =20
-> -	for_each_insn(file, insn) {
-> -		struct orc_entry *orc =3D &insn->orc;
-> -		struct cfi_reg *cfa =3D &insn->cfi.cfa;
-> -		struct cfi_reg *bp =3D &insn->cfi.regs[CFI_BP];
-> +	switch (cfa->base) {
-> +	case CFI_SP:
-> +		orc->sp_reg =3D ORC_REG_SP;
-> +		break;
-> +	case CFI_SP_INDIRECT:
-> +		orc->sp_reg =3D ORC_REG_SP_INDIRECT;
-> +		break;
-> +	case CFI_BP:
-> +		orc->sp_reg =3D ORC_REG_BP;
-> +		break;
-> +	case CFI_BP_INDIRECT:
-> +		orc->sp_reg =3D ORC_REG_BP_INDIRECT;
-> +		break;
-> +	case CFI_R10:
-> +		orc->sp_reg =3D ORC_REG_R10;
-> +		break;
-> +	case CFI_R13:
-> +		orc->sp_reg =3D ORC_REG_R13;
-> +		break;
-> +	case CFI_DI:
-> +		orc->sp_reg =3D ORC_REG_DI;
-> +		break;
-> +	case CFI_DX:
-> +		orc->sp_reg =3D ORC_REG_DX;
-> +		break;
-> +	default:
-> +		WARN_FUNC("unknown CFA base reg %d",
-> +			  insn->sec, insn->offset, cfa->base);
-> +		return -1;
-> +	}
->  =20
-> -		if (!insn->sec->text)
-> -			continue;
-> +	switch(bp->base) {
-> +	case CFI_UNDEFINED:
-> +		orc->bp_reg =3D ORC_REG_UNDEFINED;
-> +		break;
-> +	case CFI_CFA:
-> +		orc->bp_reg =3D ORC_REG_PREV_SP;
-> +		break;
-> +	case CFI_BP:
-> +		orc->bp_reg =3D ORC_REG_BP;
-> +		break;
-> +	default:
-> +		WARN_FUNC("unknown BP base reg %d",
-> +			  insn->sec, insn->offset, bp->base);
-> +		return -1;
-> +	}
->  =20
-> -		orc->end =3D insn->cfi.end;
-> +	orc->sp_offset =3D cfa->offset;
-> +	orc->bp_offset =3D bp->offset;
-> +	orc->type =3D insn->cfi.type;
->  =20
-> -		if (cfa->base =3D=3D CFI_UNDEFINED) {
-> -			orc->sp_reg =3D ORC_REG_UNDEFINED;
-> -			continue;
-> -		}
-> +	return 0;
-> +}
->  =20
-> -		switch (cfa->base) {
-> -		case CFI_SP:
-> -			orc->sp_reg =3D ORC_REG_SP;
-> -			break;
-> -		case CFI_SP_INDIRECT:
-> -			orc->sp_reg =3D ORC_REG_SP_INDIRECT;
-> -			break;
-> -		case CFI_BP:
-> -			orc->sp_reg =3D ORC_REG_BP;
-> -			break;
-> -		case CFI_BP_INDIRECT:
-> -			orc->sp_reg =3D ORC_REG_BP_INDIRECT;
-> -			break;
-> -		case CFI_R10:
-> -			orc->sp_reg =3D ORC_REG_R10;
-> -			break;
-> -		case CFI_R13:
-> -			orc->sp_reg =3D ORC_REG_R13;
-> -			break;
-> -		case CFI_DI:
-> -			orc->sp_reg =3D ORC_REG_DI;
-> -			break;
-> -		case CFI_DX:
-> -			orc->sp_reg =3D ORC_REG_DX;
-> -			break;
-> -		default:
-> -			WARN_FUNC("unknown CFA base reg %d",
-> -				  insn->sec, insn->offset, cfa->base);
-> -			return -1;
-> -		}
-> +int create_orc(struct objtool_file *file)
-> +{
-> +	struct instruction *insn;
->  =20
-> -		switch(bp->base) {
-> -		case CFI_UNDEFINED:
-> -			orc->bp_reg =3D ORC_REG_UNDEFINED;
-> -			break;
-> -		case CFI_CFA:
-> -			orc->bp_reg =3D ORC_REG_PREV_SP;
-> -			break;
-> -		case CFI_BP:
-> -			orc->bp_reg =3D ORC_REG_BP;
-> -			break;
-> -		default:
-> -			WARN_FUNC("unknown BP base reg %d",
-> -				  insn->sec, insn->offset, bp->base);
-> -			return -1;
-> -		}
-> +	for_each_insn(file, insn) {
-> +		int ret;
-> +=09
-> +		if (!insn->sec->text)
-> +			continue;
->  =20
-> -		orc->sp_offset =3D cfa->offset;
-> -		orc->bp_offset =3D bp->offset;
-> -		orc->type =3D insn->cfi.type;
-> +		ret =3D create_orc_insn(file, insn);
-> +		if (ret)
-> +			return ret;
->   	}
->  =20
->   	return 0;
-> @@ -166,6 +177,28 @@ int create_orc_sections(struct objtool_f
->  =20
->   		prev_insn =3D NULL;
->   		sec_for_each_insn(file, sec, insn) {
-> +
-> +			if (insn->alt_end) {
-> +				unsigned int offset, alt_len;
-> +				struct instruction *unwind;
-> +
-> +				alt_len =3D insn->alt_end->offset - insn->offset;
-> +				for (offset =3D 0; offset < alt_len; offset++) {
-> +					unwind =3D find_alt_unwind(file, insn, offset);
-> +					/* XXX: skipped earlier ! */
-> +					create_orc_insn(file, unwind);
-> +					if (!prev_insn ||
-> +					    memcmp(&unwind->orc, &prev_insn->orc,
-> +						   sizeof(struct orc_entry))) {
-> +						idx++;
-> +//						WARN_FUNC("ORC @ %d/%d", sec, insn->offset+offset, offset, alt=
-_len);
-> +					}
-> +					prev_insn =3D unwind;
-> +				}
-> +
-> +				insn =3D insn->alt_end;
-> +			}
-> +
->   			if (!prev_insn ||
->   			    memcmp(&insn->orc, &prev_insn->orc,
->   				   sizeof(struct orc_entry))) {
-> @@ -203,6 +236,31 @@ int create_orc_sections(struct objtool_f
->  =20
->   		prev_insn =3D NULL;
->   		sec_for_each_insn(file, sec, insn) {
-> +
-> +			if (insn->alt_end) {
-> +				unsigned int offset, alt_len;
-> +				struct instruction *unwind;
-> +
-> +				alt_len =3D insn->alt_end->offset - insn->offset;
-> +				for (offset =3D 0; offset < alt_len; offset++) {
-> +					unwind =3D find_alt_unwind(file, insn, offset);
-> +					if (!prev_insn ||
-> +					    memcmp(&unwind->orc, &prev_insn->orc,
-> +						   sizeof(struct orc_entry))) {
-> +
-> +						if (create_orc_entry(file->elf, u_sec, ip_relocsec, idx,
-> +								     insn->sec, insn->offset + offset,
-> +								     &unwind->orc))
-> +							return -1;
-> +
-> +						idx++;
-> +					}
-> +					prev_insn =3D unwind;
-> +				}
-> +
-> +				insn =3D insn->alt_end;
-> +			}
-> +
->   			if (!prev_insn || memcmp(&insn->orc, &prev_insn->orc,
->   						 sizeof(struct orc_entry))) {
->  =20
->=20
-
-
---------------F4E81710D117794268EEB261
-Content-Type: application/pgp-keys;
- name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
- filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-
------BEGIN PGP PUBLIC KEY BLOCK-----
-
-xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
-cWx
-w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
-f8Z
-d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
-9bf
-IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
-G7/
-377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
-3Jv
-c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
-QIe
-AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
-hpw
-dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
-MbD
-1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
-oPH
-Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
-5QL
-+qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
-2Vu
-IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
-QoL
-BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
-Wf0
-teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
-/nu
-AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
-ITT
-d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
-XBK
-7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
-80h
-SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
-AcD
-AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
-FOX
-gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
-jnD
-kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
-N51
-N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
-otu
-fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
-tqS
-EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
-hsD
-BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
-g3O
-ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
-dM7
-wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
-D+j
-LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
-V2x
-AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
-Eaw
-QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
-nHI
-s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
-wgn
-BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
-bVF
-LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
-pEd
-IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
-QAB
-wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
-Tbe
-8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
-vJz
-Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
-VGi
-wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
-svi
-uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
-zXs
-ZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
-
---------------F4E81710D117794268EEB261--
-
---eJf0I1odMv2scnFFsZ16khArxsjn0GCwk--
-
---H2kwefz8uIE15eQoOkpjLVA8XJ0Q8kIsD
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAl/YoTUFAwAAAAAACgkQsN6d1ii/Ey8c
-4Af9EPguE36mExOqZBOb5ZgFrhbSqrWQDZmE1KbHgbM1ziiQCfiXQD6+EBEmtuQ0oUDN8hJc/CIg
-f0IHhweVykhon4Z9R3Fv9q6z3ZryFRzygP14ZNye2GW6cspH0bp8c2v9vG+0dQKxAUee3cS2hJVn
-XHeibQug+fGgdI2D90U6xryasC5CgTFYEttF/tEJNMGbVsZyTzQHHbWtPf93baVeEBfjd2cPe54R
-Asv8rjRxGivpEtCA8+mK7Up57mLT6oLLX9CBzpzvfoMz7iQI8tj9gP5WO8NLcqGLF0K4PxREJEzC
-UD6+h6ew8YijxTQPm3EL8bqbOZQT5pL+DHnrUoVMcQ==
-=Kt/D
------END PGP SIGNATURE-----
-
---H2kwefz8uIE15eQoOkpjLVA8XJ0Q8kIsD--
-
---===============8719421099603008366==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8719421099603008366==--
+Ck9uIFdlZCwgRGVjIDksIDIwMjAgYXQgMTI6MDcgUE0gU3RlZmFubyBHYXJ6YXJlbGxhIDxzZ2Fy
+emFyZUByZWRoYXQuY29tPiB3cm90ZToKPiBPbiBNb24sIERlYyAwNywgMjAyMCBhdCAwMToyOTox
+N1BNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4KPiA+T24gMjAyMC8xMi80IOS4iuWNiDE6
+MDUsIFN0ZWZhbm8gR2FyemFyZWxsYSB3cm90ZToKPiA+PlRoZSBnZXRfY29uZmlnIGNhbGxiYWNr
+IGNhbiBiZSB1c2VkIGJ5IHRoZSBkZXZpY2UgdG8gZmlsbCB0aGUKPiA+PmNvbmZpZyBzdHJ1Y3R1
+cmUuCj4gPj5UaGUgY2FsbGJhY2sgd2lsbCBiZSBpbnZva2VkIGluIHZkcGFzaW1fZ2V0X2NvbmZp
+ZygpIGJlZm9yZSBjb3B5aW5nCj4gPj5ieXRlcyBpbnRvIGNhbGxlciBidWZmZXIuCj4gPj4KPiA+
+Pk1vdmUgdkRQQS1uZXQgY29uZmlnIHVwZGF0ZXMgZnJvbSB2ZHBhc2ltX3NldF9mZWF0dXJlcygp
+IGluIHRoZQo+ID4+bmV3IHZkcGFzaW1fbmV0X2dldF9jb25maWcoKSBjYWxsYmFjay4KPiA+Pgo+
+ID4+U2lnbmVkLW9mZi1ieTogU3RlZmFubyBHYXJ6YXJlbGxhIDxzZ2FyemFyZUByZWRoYXQuY29t
+Pgo+ID4+LS0tCj4gPj52MzoKPiA+Pi0gY2hlY2tlZCBpZiBnZXRfY29uZmlnIGNhbGxiYWNrIGlz
+IHNldCBiZWZvcmUgY2FsbCBpdAo+ID4+LS0tCj4gPj4gIGRyaXZlcnMvdmRwYS92ZHBhX3NpbS92
+ZHBhX3NpbS5jIHwgMzUgKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0KPiA+PiAgMSBm
+aWxlIGNoYW5nZWQsIDIxIGluc2VydGlvbnMoKyksIDE0IGRlbGV0aW9ucygtKQo+ID4+Cj4gPj5k
+aWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmMgYi9kcml2ZXJzL3Zk
+cGEvdmRwYV9zaW0vdmRwYV9zaW0uYwo+ID4+aW5kZXggZmU3MWVkNzg5MGUxLi5mOTM1YWRlMDgw
+NmIgMTAwNjQ0Cj4gPj4tLS0gYS9kcml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW0uYwo+ID4+
+KysrIGIvZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmMKPiA+PkBAIC02MCw2ICs2MCw4
+IEBAIHN0cnVjdCB2ZHBhc2ltX3ZpcnRxdWV1ZSB7Cj4gPj4gICNkZWZpbmUgVkRQQVNJTV9ORVRf
+RkVBVFVSRVMgICAgICAgIChWRFBBU0lNX0ZFQVRVUkVTIHwgXAo+ID4+ICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICgxVUxMIDw8IFZJUlRJT19ORVRfRl9NQUMpKQo+ID4+K3N0cnVjdCB2
+ZHBhc2ltOwo+ID4+Kwo+ID4+ICBzdHJ1Y3QgdmRwYXNpbV9kZXZfYXR0ciB7Cj4gPj4gICAgICB1
+NjQgc3VwcG9ydGVkX2ZlYXR1cmVzOwo+ID4+ICAgICAgc2l6ZV90IGNvbmZpZ19zaXplOwo+ID4+
+QEAgLTY3LDYgKzY5LDcgQEAgc3RydWN0IHZkcGFzaW1fZGV2X2F0dHIgewo+ID4+ICAgICAgdTMy
+IGlkOwo+ID4+ICAgICAgd29ya19mdW5jX3Qgd29ya19mbjsKPiA+PisgICAgIHZvaWQgKCpnZXRf
+Y29uZmlnKShzdHJ1Y3QgdmRwYXNpbSAqdmRwYXNpbSwgdm9pZCAqY29uZmlnKTsKPiA+PiAgfTsK
+PiA+PiAgLyogU3RhdGUgb2YgZWFjaCB2ZHBhc2ltIGRldmljZSAqLwo+ID4+QEAgLTUyMiw4ICs1
+MjUsNiBAQCBzdGF0aWMgdTY0IHZkcGFzaW1fZ2V0X2ZlYXR1cmVzKHN0cnVjdCB2ZHBhX2Rldmlj
+ZSAqdmRwYSkKPiA+PiAgc3RhdGljIGludCB2ZHBhc2ltX3NldF9mZWF0dXJlcyhzdHJ1Y3QgdmRw
+YV9kZXZpY2UgKnZkcGEsIHU2NCBmZWF0dXJlcykKPiA+PiAgewo+ID4+ICAgICAgc3RydWN0IHZk
+cGFzaW0gKnZkcGFzaW0gPSB2ZHBhX3RvX3NpbSh2ZHBhKTsKPiA+Pi0gICAgIHN0cnVjdCB2aXJ0
+aW9fbmV0X2NvbmZpZyAqY29uZmlnID0KPiA+Pi0gICAgICAgICAgICAgKHN0cnVjdCB2aXJ0aW9f
+bmV0X2NvbmZpZyAqKXZkcGFzaW0tPmNvbmZpZzsKPiA+PiAgICAgIC8qIERNQSBtYXBwaW5nIG11
+c3QgYmUgZG9uZSBieSBkcml2ZXIgKi8KPiA+PiAgICAgIGlmICghKGZlYXR1cmVzICYgKDFVTEwg
+PDwgVklSVElPX0ZfQUNDRVNTX1BMQVRGT1JNKSkpCj4gPj5AQCAtNTMxLDE2ICs1MzIsNiBAQCBz
+dGF0aWMgaW50IHZkcGFzaW1fc2V0X2ZlYXR1cmVzKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRwYSwg
+dTY0IGZlYXR1cmVzKQo+ID4+ICAgICAgdmRwYXNpbS0+ZmVhdHVyZXMgPSBmZWF0dXJlcyAmIHZk
+cGFzaW0tPmRldl9hdHRyLnN1cHBvcnRlZF9mZWF0dXJlczsKPiA+Pi0gICAgIC8qIFdlIGdlbmVy
+YWxseSBvbmx5IGtub3cgd2hldGhlciBndWVzdCBpcyB1c2luZyB0aGUgbGVnYWN5IGludGVyZmFj
+ZQo+ID4+LSAgICAgICogaGVyZSwgc28gZ2VuZXJhbGx5IHRoYXQncyB0aGUgZWFybGllc3Qgd2Ug
+Y2FuIHNldCBjb25maWcgZmllbGRzLgo+ID4+LSAgICAgICogTm90ZTogV2UgYWN0dWFsbHkgcmVx
+dWlyZSBWSVJUSU9fRl9BQ0NFU1NfUExBVEZPUk0gYWJvdmUgd2hpY2gKPiA+Pi0gICAgICAqIGlt
+cGxpZXMgVklSVElPX0ZfVkVSU0lPTl8xLCBidXQgbGV0J3Mgbm90IHRyeSB0byBiZSBjbGV2ZXIg
+aGVyZS4KPiA+Pi0gICAgICAqLwo+ID4+LQo+ID4+LSAgICAgY29uZmlnLT5tdHUgPSBjcHVfdG9f
+dmRwYXNpbTE2KHZkcGFzaW0sIDE1MDApOwo+ID4+LSAgICAgY29uZmlnLT5zdGF0dXMgPSBjcHVf
+dG9fdmRwYXNpbTE2KHZkcGFzaW0sIFZJUlRJT19ORVRfU19MSU5LX1VQKTsKPiA+Pi0gICAgIG1l
+bWNweShjb25maWctPm1hYywgbWFjYWRkcl9idWYsIEVUSF9BTEVOKTsKPiA+Cj4gPgo+ID5QYXRj
+aCBsb29rcyBnb29kIHRvIG1lLgo+ID4KPiA+QnV0IHdlIG5lZWQgTWljaGFlbCB0byBjb25maXJt
+IHdoZXRoZXIgZG9pbmcgbW92aW5nIGxpa2UgdGhpcyBpcyBzYWZlLgo+ID5JIGd1ZXNzIHdoYXQg
+aGFzIGJlZW4gZG9uZSB3ZXJlIHRyeWluZyB0byBtYWtlIHN1cmUgZ2V0X2NvbmZpZygpIGZhaWwK
+PiA+YmVmb3JlIHNldF9mZWF0dXJlcygpLCBidXQgaXQncyBub3QgY2xlYXIgdG8gbWUgd2hldGhl
+ciBpdCdzIHVzZWZ1bC4KPgo+IElJVUMsIGFsc28gbG9va2luZyB0aGUgUUVNVSBjb2RlLCB0aGUg
+c2V0X2ZlYXR1cmVzKCkgc2hvdWxkIGJlIGNhbGxlZAo+IGV2ZXJ5IHRpbWUgYmVmb3JlIGdldF9j
+b25maWcoKSwgYnV0IHRvIGJlIHN1cmUsIGluIGdldF9jb25maWcoKSwgSSBjYW4KPiBjaGVjayBm
+b3IgZXhhbXBsZSBpZiAndmRwYXNpbS0+ZmVhdHVyZXMnIGlzIG5vdCB6ZXJvICh3ZSByZXF1aXJl
+Cj4gVklSVElPX0ZfQUNDRVNTX1BMQVRGT1JNIHNldCkuCgpXb3JraW5nIG9uIHRoaXMgSSBqdXN0
+IHJlYWxpemVkIHRoYXQgd2UgYWxyZWFkeSBjaGVjayBpbiAKdmRwYV9nZXRfY29uZmlnKCkgdGhh
+dCBzZXRfZmVhdHVyZXMoKSBpcyBjYWxsZWQsIHNvIEkgdGhpbmsgdGhlIG1vdmluZyAKaXMgc2Fm
+ZS4KCkknbGwgcHV0IHRoZXNlIGNvbnNpZGVyYXRpb25zIGluIHRoZSBjb21taXQgbWVzc2FnZS4K
+ClRoYW5rcywKU3RlZmFubwoKPgo+IEBNaWNoYWVsIGFueSBzdWdnZXN0aW9uPwo+Cj4gVGhhbmtz
+LAo+IFN0ZWZhbm8KPgo+ID4KPiA+VGhhbmtzCj4gPgo+ID4KPiA+Pi0KPiA+PiAgICAgIHJldHVy
+biAwOwo+ID4+ICB9Cj4gPj5AQCAtNTk1LDggKzU4NiwxMyBAQCBzdGF0aWMgdm9pZCB2ZHBhc2lt
+X2dldF9jb25maWcoc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhLCB1bnNpZ25lZCBpbnQgb2Zmc2V0
+LAo+ID4+ICB7Cj4gPj4gICAgICBzdHJ1Y3QgdmRwYXNpbSAqdmRwYXNpbSA9IHZkcGFfdG9fc2lt
+KHZkcGEpOwo+ID4+LSAgICAgaWYgKG9mZnNldCArIGxlbiA8IHZkcGFzaW0tPmRldl9hdHRyLmNv
+bmZpZ19zaXplKQo+ID4+LSAgICAgICAgICAgICBtZW1jcHkoYnVmLCB2ZHBhc2ltLT5jb25maWcg
+KyBvZmZzZXQsIGxlbik7Cj4gPj4rICAgICBpZiAob2Zmc2V0ICsgbGVuID4gdmRwYXNpbS0+ZGV2
+X2F0dHIuY29uZmlnX3NpemUpCj4gPj4rICAgICAgICAgICAgIHJldHVybjsKPiA+PisKPiA+Pisg
+ICAgIGlmICh2ZHBhc2ltLT5kZXZfYXR0ci5nZXRfY29uZmlnKQo+ID4+KyAgICAgICAgICAgICB2
+ZHBhc2ltLT5kZXZfYXR0ci5nZXRfY29uZmlnKHZkcGFzaW0sIHZkcGFzaW0tPmNvbmZpZyk7Cj4g
+Pj4rCj4gPj4rICAgICBtZW1jcHkoYnVmLCB2ZHBhc2ltLT5jb25maWcgKyBvZmZzZXQsIGxlbik7
+Cj4gPj4gIH0KPiA+PiAgc3RhdGljIHZvaWQgdmRwYXNpbV9zZXRfY29uZmlnKHN0cnVjdCB2ZHBh
+X2RldmljZSAqdmRwYSwgdW5zaWduZWQgaW50IG9mZnNldCwKPiA+PkBAIC03MzksNiArNzM1LDE2
+IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgdmRwYV9jb25maWdfb3BzIHZkcGFzaW1fYmF0Y2hfY29u
+ZmlnX29wcyA9IHsKPiA+PiAgICAgIC5mcmVlICAgICAgICAgICAgICAgICAgID0gdmRwYXNpbV9m
+cmVlLAo+ID4+ICB9Owo+ID4+K3N0YXRpYyB2b2lkIHZkcGFzaW1fbmV0X2dldF9jb25maWcoc3Ry
+dWN0IHZkcGFzaW0gKnZkcGFzaW0sIHZvaWQgKmNvbmZpZykKPiA+Pit7Cj4gPj4rICAgICBzdHJ1
+Y3QgdmlydGlvX25ldF9jb25maWcgKm5ldF9jb25maWcgPQo+ID4+KyAgICAgICAgICAgICAoc3Ry
+dWN0IHZpcnRpb19uZXRfY29uZmlnICopY29uZmlnOwo+ID4+Kwo+ID4+KyAgICAgbmV0X2NvbmZp
+Zy0+bXR1ID0gY3B1X3RvX3ZkcGFzaW0xNih2ZHBhc2ltLCAxNTAwKTsKPiA+PisgICAgIG5ldF9j
+b25maWctPnN0YXR1cyA9IGNwdV90b192ZHBhc2ltMTYodmRwYXNpbSwgVklSVElPX05FVF9TX0xJ
+TktfVVApOwo+ID4+KyAgICAgbWVtY3B5KG5ldF9jb25maWctPm1hYywgbWFjYWRkcl9idWYsIEVU
+SF9BTEVOKTsKPiA+Pit9Cj4gPj4rCj4gPj4gIHN0YXRpYyBpbnQgX19pbml0IHZkcGFzaW1fZGV2
+X2luaXQodm9pZCkKPiA+PiAgewo+ID4+ICAgICAgc3RydWN0IHZkcGFzaW1fZGV2X2F0dHIgZGV2
+X2F0dHIgPSB7fTsKPiA+PkBAIC03NDcsNiArNzUzLDcgQEAgc3RhdGljIGludCBfX2luaXQgdmRw
+YXNpbV9kZXZfaW5pdCh2b2lkKQo+ID4+ICAgICAgZGV2X2F0dHIuc3VwcG9ydGVkX2ZlYXR1cmVz
+ID0gVkRQQVNJTV9ORVRfRkVBVFVSRVM7Cj4gPj4gICAgICBkZXZfYXR0ci5udnFzID0gVkRQQVNJ
+TV9WUV9OVU07Cj4gPj4gICAgICBkZXZfYXR0ci5jb25maWdfc2l6ZSA9IHNpemVvZihzdHJ1Y3Qg
+dmlydGlvX25ldF9jb25maWcpOwo+ID4+KyAgICAgZGV2X2F0dHIuZ2V0X2NvbmZpZyA9IHZkcGFz
+aW1fbmV0X2dldF9jb25maWc7Cj4gPj4gICAgICBkZXZfYXR0ci53b3JrX2ZuID0gdmRwYXNpbV9u
+ZXRfd29yazsKPiA+PiAgICAgIHZkcGFzaW1fZGV2ID0gdmRwYXNpbV9jcmVhdGUoJmRldl9hdHRy
+KTsKPiA+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
+aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
+dGluZm8vdmlydHVhbGl6YXRpb24=
