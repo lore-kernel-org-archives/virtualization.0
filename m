@@ -7,87 +7,101 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CDCACC2BB9A
-	for <virtualization@archiver.kernel.org>; Tue, 15 Dec 2020 14:48:06 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33E1CC4361B
+	for <virtualization@archiver.kernel.org>; Tue, 15 Dec 2020 14:54:48 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 754662251E
-	for <virtualization@archiver.kernel.org>; Tue, 15 Dec 2020 14:48:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 754662251E
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id BDEED22518
+	for <virtualization@archiver.kernel.org>; Tue, 15 Dec 2020 14:54:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BDEED22518
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 15DCB86E4C;
-	Tue, 15 Dec 2020 14:48:06 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 48DA62E144;
+	Tue, 15 Dec 2020 14:54:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id I2lWZ2pP7D_x; Tue, 15 Dec 2020 14:48:04 +0000 (UTC)
+	with ESMTP id 58ry76UBsUFq; Tue, 15 Dec 2020 14:54:43 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id C212A86E51;
-	Tue, 15 Dec 2020 14:48:04 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id B62912150A;
+	Tue, 15 Dec 2020 14:54:43 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A9892C0893;
-	Tue, 15 Dec 2020 14:48:04 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3D102C013B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 93590C0893;
+	Tue, 15 Dec 2020 14:54:43 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A3EB9C013B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Dec 2020 14:48:03 +0000 (UTC)
+ Tue, 15 Dec 2020 14:54:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 33D1887363
+ by whitealder.osuosl.org (Postfix) with ESMTP id 9013186D65
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Dec 2020 14:48:03 +0000 (UTC)
+ Tue, 15 Dec 2020 14:54:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Dp68AZVrX4h4
+ with ESMTP id RNIs34aMlaZL
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Dec 2020 14:48:01 +0000 (UTC)
+ Tue, 15 Dec 2020 14:54:38 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 8CE428734F
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 5382C86D63
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Dec 2020 14:48:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1608043680;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=LLZv4LqIGpP0jZJq6Y4FmPQcvc97IqABDCB1KZVPt0s=;
- b=DMhP5NP9ELjCD/l++BvoXLsXoppPdpKCm0CwOk/p/GJ0zqw8bRT3P2G6fmLaZ5G9L7h5j6
- LuGVRPslm1wb+frQDLKynjTC/XGiJvsKFftfi3bG+mue1IzJE2hjrmewFK35+4c4cRUcZV
- BfOgSFB9Mqj1m7mfGNgEJn77xHvlta0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-6-WsDhFPJvMfWdRZ8DqHar0A-1; Tue, 15 Dec 2020 09:46:21 -0500
-X-MC-Unique: WsDhFPJvMfWdRZ8DqHar0A-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
- [10.5.11.16])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 22648801B13;
- Tue, 15 Dec 2020 14:46:18 +0000 (UTC)
-Received: from steredhat.redhat.com (ovpn-115-49.ams2.redhat.com
- [10.36.115.49])
- by smtp.corp.redhat.com (Postfix) with ESMTP id B9D735C224;
- Tue, 15 Dec 2020 14:46:11 +0000 (UTC)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v4 18/18] vdpa: split vdpasim to core and net modules
-Date: Tue, 15 Dec 2020 15:42:56 +0100
-Message-Id: <20201215144256.155342-19-sgarzare@redhat.com>
-In-Reply-To: <20201215144256.155342-1-sgarzare@redhat.com>
-References: <20201215144256.155342-1-sgarzare@redhat.com>
+ Tue, 15 Dec 2020 14:54:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=i7/Dmdf/9/KX5OWMc6gqbQ/znmDaWWCIUvdqdmOq2yg=; b=poBbcvBpz4LX1hoYM4wbTihWDX
+ uOy0rPE2W9evHPNElzxZmHkhNfRbIlBLmxgHkpUY8gE0iDzhzDgUAouRD4qerv1VQ37nUxBOY/QS+
+ iSEtiFHDyHBWEO/MHXmljfdRTMcm7xSieGyq2r/smem57sLPSUzdCkAII0fwBLX5d2KUgEFSbAI/X
+ Oc1HurNdTe8wrQjE8tSrWRk815zD0WPgBYvHJRJ6PLlHQdZlcNcBDhHfCTaphqHwiaemBhk9VEqyt
+ V5Jg2P6IdKLXSx2xJlOtzRE0tRdV074jsVCOx2Qr/NIRSOXmR5R7p1XsDdC3EE0yMxgE8V43+75Co
+ ZNKvsQUQ==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100]
+ helo=noisy.programming.kicks-ass.net)
+ by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+ id 1kpBiO-00050k-Al; Tue, 15 Dec 2020 14:54:12 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id DF3A93059DD;
+ Tue, 15 Dec 2020 15:54:08 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+ id C0B352C7DB779; Tue, 15 Dec 2020 15:54:08 +0100 (CET)
+Date: Tue, 15 Dec 2020 15:54:08 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: =?iso-8859-1?Q?J=FCrgen_Gro=DF?= <jgross@suse.com>
+Subject: Re: [PATCH v2 00/12] x86: major paravirt cleanup
+Message-ID: <20201215145408.GR3092@hirez.programming.kicks-ass.net>
+References: <20201120114630.13552-1-jgross@suse.com>
+ <20201120125342.GC3040@hirez.programming.kicks-ass.net>
+ <20201123134317.GE3092@hirez.programming.kicks-ass.net>
+ <6771a12c-051d-1655-fb3a-cc45a3c82e29@suse.com>
+ <20201215141834.GG3040@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-Cc: Laurent Vivier <lvivier@redhat.com>, Max Gurtovoy <mgurtovoy@nvidia.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Randy Dunlap <rdunlap@infradead.org>,
- linux-kernel@vger.kernel.org, Shahaf Shuler <shahafs@nvidia.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, Eli Cohen <elic@nvidia.com>,
- Oren Duer <oren@nvidia.com>
+Content-Disposition: inline
+In-Reply-To: <20201215141834.GG3040@hirez.programming.kicks-ass.net>
+Cc: Juri Lelli <juri.lelli@redhat.com>, linux-hyperv@vger.kernel.org,
+ Daniel Lezcano <daniel.lezcano@linaro.org>, Wanpeng Li <wanpengli@tencent.com>,
+ kvm@vger.kernel.org, "VMware, Inc." <pv-drivers@vmware.com>,
+ virtualization@lists.linux-foundation.org, Ben Segall <bsegall@google.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Wei Liu <wei.liu@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>,
+ Stephen Hemminger <sthemmin@microsoft.com>, Joerg Roedel <joro@8bytes.org>,
+ x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Mel Gorman <mgorman@suse.de>,
+ xen-devel@lists.xenproject.org, Haiyang Zhang <haiyangz@microsoft.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Borislav Petkov <bp@alien8.de>,
+ luto@kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Thomas Gleixner <tglx@linutronix.de>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>, Jim Mattson <jmattson@google.com>,
+ linux-kernel@vger.kernel.org,
+ Sean Christopherson <sean.j.christopherson@intel.com>,
+ Paolo Bonzini <pbonzini@redhat.com>,
+ Daniel Bristot de Oliveira <bristot@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -104,671 +118,553 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Max Gurtovoy <mgurtovoy@nvidia.com>
+On Tue, Dec 15, 2020 at 03:18:34PM +0100, Peter Zijlstra wrote:
+> Ah, I was waiting for Josh to have an opinion (and then sorta forgot
+> about the whole thing again). Let me refresh and provide at least a
+> Changelog.
 
-Introduce new vdpa_sim_net and vdpa_sim (core) drivers. This is a
-preparation for adding a vdpa simulator module for block devices.
+How's this then?
 
-Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-[sgarzare: various cleanups/fixes]
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
-v4:
-- Fixed typo (s/loop/loops) [Randy]
-- Fixed #include [Randy]
+Subject: objtool: Alternatives vs ORC, the hard way
+From: Peter Zijlstra <peterz@infradead.org>
+Date: Mon, 23 Nov 2020 14:43:17 +0100
 
-v2:
-- Fixed "warning: variable 'dev' is used uninitialized" reported by
-  'kernel test robot' and Dan Carpenter
-- rebased on top of other changes (dev_attr, get_config(), notify(), etc.)
-- left batch_mapping module parameter in the core [Jason]
+Alternatives pose an interesting problem for unwinders because from
+the unwinders PoV we're just executing instructions, it has no idea
+the text is modified, nor any way of retrieving what with.
 
-v1:
-- Removed unused headers
-- Removed empty module_init() module_exit()
-- Moved vdpasim_is_little_endian() in vdpa_sim.h
-- Moved vdpasim16_to_cpu/cpu_to_vdpasim16() in vdpa_sim.h
-- Added vdpasim*_to_cpu/cpu_to_vdpasim*() also for 32 and 64
-- Replaced 'select VDPA_SIM' with 'depends on VDPA_SIM' since selected
-  option can not depend on other [Jason]
+Therefore the stance has been that alternatives must not change stack
+state, as encoded by commit: 7117f16bf460 ("objtool: Fix ORC vs
+alternatives"). This obviously guarantees that whatever actual
+instructions end up in the text, the unwind information is correct.
+
+However, there is one additional source of text patching that isn't
+currently visible to objtool: paravirt immediate patching. And it
+turns out one of these violates the rule.
+
+As part of cleaning that up, the unfortunate reality is that objtool
+now has to deal with alternatives modifying unwind state and validate
+the combination is valid and generate ORC data to match.
+
+The problem is that a single instance of unwind information (ORC) must
+capture and correctly unwind all alternatives. Since the trivially
+correct mandate is out, implement the straight forward brute-force
+approach:
+
+ 1) generate CFI information for each alternative
+
+ 2) unwind every alternative with the merge-sort of the previously
+    generated CFI information -- O(n^2)
+
+ 3) for any possible conflict: yell.
+
+ 4) Generate ORC with merge-sort
+
+Specifically for 3 there are two possible classes of conflicts:
+
+ - the merge-sort itself could find conflicting CFI for the same
+   offset.
+
+ - the unwind can fail with the merged CFI.
+
+In specific, this allows us to deal with:
+
+	Alt1			Alt2			Alt3
+
+ 0x00	CALL *pv_ops.save_fl	CALL xen_save_fl	PUSHF
+ 0x01							POP %RAX
+ 0x02							NOP
+ ...
+ 0x05				NOP
+ ...
+ 0x07   <insn>
+
+The unwind information for offset-0x00 is identical for all 3
+alternatives. Similarly offset-0x05 and higher also are identical (and
+the same as 0x00). However offset-0x01 has deviating CFI, but that is
+only relevant for Alt3, neither of the other alternative instruction
+streams will ever hit that offset.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 ---
- drivers/vdpa/vdpa_sim/vdpa_sim.h     | 105 +++++++++++++
- drivers/vdpa/vdpa_sim/vdpa_sim.c     | 221 +--------------------------
- drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 177 +++++++++++++++++++++
- drivers/vdpa/Kconfig                 |  13 +-
- drivers/vdpa/vdpa_sim/Makefile       |   1 +
- 5 files changed, 298 insertions(+), 219 deletions(-)
- create mode 100644 drivers/vdpa/vdpa_sim/vdpa_sim.h
- create mode 100644 drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+ tools/objtool/check.c   |  180 ++++++++++++++++++++++++++++++++++++++++++++----
+ tools/objtool/check.h   |    5 +
+ tools/objtool/orc_gen.c |  180 +++++++++++++++++++++++++++++++-----------------
+ 3 files changed, 290 insertions(+), 75 deletions(-)
 
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-new file mode 100644
-index 000000000000..b02142293d5b
---- /dev/null
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-@@ -0,0 +1,105 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Copyright (c) 2020, Red Hat Inc. All rights reserved.
-+ */
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -1096,6 +1096,32 @@ static int handle_group_alt(struct objto
+ 		return -1;
+ 	}
+ 
++	/*
++	 * Add the filler NOP, required for alternative CFI.
++	 */
++	if (special_alt->group && special_alt->new_len < special_alt->orig_len) {
++		struct instruction *nop = malloc(sizeof(*nop));
++		if (!nop) {
++			WARN("malloc failed");
++			return -1;
++		}
++		memset(nop, 0, sizeof(*nop));
++		INIT_LIST_HEAD(&nop->alts);
++		INIT_LIST_HEAD(&nop->stack_ops);
++		init_cfi_state(&nop->cfi);
 +
-+#ifndef _VDPA_SIM_H
-+#define _VDPA_SIM_H
++		nop->sec = last_new_insn->sec;
++		nop->ignore = last_new_insn->ignore;
++		nop->func = last_new_insn->func;
++		nop->alt_group = alt_group;
++		nop->offset = last_new_insn->offset + last_new_insn->len;
++		nop->type = INSN_NOP;
++		nop->len = special_alt->orig_len - special_alt->new_len;
 +
-+#include <linux/vringh.h>
-+#include <linux/vdpa.h>
-+#include <linux/virtio_byteorder.h>
-+#include <linux/vhost_iotlb.h>
-+#include <uapi/linux/virtio_config.h>
++		list_add(&nop->list, &last_new_insn->list);
++		last_new_insn = nop;
++	}
 +
-+#define VDPASIM_FEATURES	((1ULL << VIRTIO_F_ANY_LAYOUT) | \
-+				 (1ULL << VIRTIO_F_VERSION_1)  | \
-+				 (1ULL << VIRTIO_F_ACCESS_PLATFORM))
-+
-+struct vdpasim;
-+
-+struct vdpasim_virtqueue {
-+	struct vringh vring;
-+	struct vringh_kiov in_iov;
-+	struct vringh_kiov out_iov;
-+	unsigned short head;
-+	bool ready;
-+	u64 desc_addr;
-+	u64 device_addr;
-+	u64 driver_addr;
-+	u32 num;
-+	void *private;
-+	irqreturn_t (*cb)(void *data);
-+};
-+
-+struct vdpasim_dev_attr {
-+	u64 supported_features;
-+	size_t config_size;
-+	size_t buffer_size;
-+	int nvqs;
-+	u32 id;
-+
-+	work_func_t work_fn;
-+	void (*get_config)(struct vdpasim *vdpasim, void *config);
-+	void (*set_config)(struct vdpasim *vdpasim, const void *config);
-+};
-+
-+/* State of each vdpasim device */
-+struct vdpasim {
-+	struct vdpa_device vdpa;
-+	struct vdpasim_virtqueue *vqs;
-+	struct work_struct work;
-+	struct vdpasim_dev_attr dev_attr;
-+	/* spinlock to synchronize virtqueue state */
-+	spinlock_t lock;
-+	/* virtio config according to device type */
-+	void *config;
-+	struct vhost_iotlb *iommu;
-+	void *buffer;
-+	u32 status;
-+	u32 generation;
-+	u64 features;
-+	/* spinlock to synchronize iommu table */
-+	spinlock_t iommu_lock;
-+};
-+
-+struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *attr);
-+
-+/* TODO: cross-endian support */
-+static inline bool vdpasim_is_little_endian(struct vdpasim *vdpasim)
-+{
-+	return virtio_legacy_is_little_endian() ||
-+		(vdpasim->features & (1ULL << VIRTIO_F_VERSION_1));
-+}
-+
-+static inline u16 vdpasim16_to_cpu(struct vdpasim *vdpasim, __virtio16 val)
-+{
-+	return __virtio16_to_cpu(vdpasim_is_little_endian(vdpasim), val);
-+}
-+
-+static inline __virtio16 cpu_to_vdpasim16(struct vdpasim *vdpasim, u16 val)
-+{
-+	return __cpu_to_virtio16(vdpasim_is_little_endian(vdpasim), val);
-+}
-+
-+static inline u32 vdpasim32_to_cpu(struct vdpasim *vdpasim, __virtio32 val)
-+{
-+	return __virtio32_to_cpu(vdpasim_is_little_endian(vdpasim), val);
-+}
-+
-+static inline __virtio32 cpu_to_vdpasim32(struct vdpasim *vdpasim, u32 val)
-+{
-+	return __cpu_to_virtio32(vdpasim_is_little_endian(vdpasim), val);
-+}
-+
-+static inline u64 vdpasim64_to_cpu(struct vdpasim *vdpasim, __virtio64 val)
-+{
-+	return __virtio64_to_cpu(vdpasim_is_little_endian(vdpasim), val);
-+}
-+
-+static inline __virtio64 cpu_to_vdpasim64(struct vdpasim *vdpasim, u64 val)
-+{
-+	return __cpu_to_virtio64(vdpasim_is_little_endian(vdpasim), val);
-+}
-+
-+#endif
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index 875e42390a13..b3fcc67bfdf0 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- /*
-- * VDPA networking device simulator.
-+ * VDPA device simulator core.
+ 	if (fake_jump)
+ 		list_add(&fake_jump->list, &last_new_insn->list);
+ 
+@@ -2237,18 +2263,12 @@ static int handle_insn_ops(struct instru
+ 	struct stack_op *op;
+ 
+ 	list_for_each_entry(op, &insn->stack_ops, list) {
+-		struct cfi_state old_cfi = state->cfi;
+ 		int res;
+ 
+ 		res = update_cfi_state(insn, &state->cfi, op);
+ 		if (res)
+ 			return res;
+ 
+-		if (insn->alt_group && memcmp(&state->cfi, &old_cfi, sizeof(struct cfi_state))) {
+-			WARN_FUNC("alternative modifies stack", insn->sec, insn->offset);
+-			return -1;
+-		}
+-
+ 		if (op->dest.type == OP_DEST_PUSHF) {
+ 			if (!state->uaccess_stack) {
+ 				state->uaccess_stack = 1;
+@@ -2460,19 +2480,137 @@ static int validate_return(struct symbol
+  * unreported (because they're NOPs), such holes would result in CFI_UNDEFINED
+  * states which then results in ORC entries, which we just said we didn't want.
   *
-  * Copyright (c) 2020, Red Hat Inc. All rights reserved.
-  *     Author: Jason Wang <jasowang@redhat.com>
-@@ -14,17 +14,15 @@
- #include <linux/slab.h>
- #include <linux/sched.h>
- #include <linux/dma-map-ops.h>
--#include <linux/etherdevice.h>
- #include <linux/vringh.h>
- #include <linux/vdpa.h>
--#include <linux/virtio_byteorder.h>
- #include <linux/vhost_iotlb.h>
--#include <uapi/linux/virtio_config.h>
--#include <uapi/linux/virtio_net.h>
-+
-+#include "vdpa_sim.h"
- 
- #define DRV_VERSION  "0.1"
- #define DRV_AUTHOR   "Jason Wang <jasowang@redhat.com>"
--#define DRV_DESC     "vDPA Device Simulator"
-+#define DRV_DESC     "vDPA Device Simulator core"
- #define DRV_LICENSE  "GPL v2"
- 
- static int batch_mapping = 1;
-@@ -36,90 +34,9 @@ module_param(max_iotlb_entries, int, 0444);
- MODULE_PARM_DESC(max_iotlb_entries,
- 		 "Maximum number of iotlb entries. 0 means unlimited. (default: 2048)");
- 
--static char *macaddr;
--module_param(macaddr, charp, 0);
--MODULE_PARM_DESC(macaddr, "Ethernet MAC address");
--
--u8 macaddr_buf[ETH_ALEN];
--
--struct vdpasim_virtqueue {
--	struct vringh vring;
--	struct vringh_kiov in_iov;
--	struct vringh_kiov out_iov;
--	unsigned short head;
--	bool ready;
--	u64 desc_addr;
--	u64 device_addr;
--	u64 driver_addr;
--	u32 num;
--	void *private;
--	irqreturn_t (*cb)(void *data);
--};
--
- #define VDPASIM_QUEUE_ALIGN PAGE_SIZE
- #define VDPASIM_QUEUE_MAX 256
- #define VDPASIM_VENDOR_ID 0
--#define VDPASIM_VQ_NUM 0x2
--#define VDPASIM_NAME "vdpasim-netdev"
--
--#define VDPASIM_FEATURES	((1ULL << VIRTIO_F_ANY_LAYOUT) | \
--				 (1ULL << VIRTIO_F_VERSION_1)  | \
--				 (1ULL << VIRTIO_F_ACCESS_PLATFORM))
--
--#define VDPASIM_NET_FEATURES	(VDPASIM_FEATURES | \
--				 (1ULL << VIRTIO_NET_F_MAC))
--
--struct vdpasim;
--
--struct vdpasim_dev_attr {
--	u64 supported_features;
--	size_t config_size;
--	size_t buffer_size;
--	int nvqs;
--	u32 id;
--
--	work_func_t work_fn;
--	void (*get_config)(struct vdpasim *vdpasim, void *config);
--	void (*set_config)(struct vdpasim *vdpasim, const void *config);
--};
--
--/* State of each vdpasim device */
--struct vdpasim {
--	struct vdpa_device vdpa;
--	struct vdpasim_virtqueue *vqs;
--	struct work_struct work;
--	struct vdpasim_dev_attr dev_attr;
--	/* spinlock to synchronize virtqueue state */
--	spinlock_t lock;
--	/* virtio config according to device type */
--	void *config;
--	struct vhost_iotlb *iommu;
--	void *buffer;
--	u32 status;
--	u32 generation;
--	u64 features;
--	/* spinlock to synchronize iommu table */
--	spinlock_t iommu_lock;
--};
--
--/* TODO: cross-endian support */
--static inline bool vdpasim_is_little_endian(struct vdpasim *vdpasim)
--{
--	return virtio_legacy_is_little_endian() ||
--		(vdpasim->features & (1ULL << VIRTIO_F_VERSION_1));
--}
--
--static inline u16 vdpasim16_to_cpu(struct vdpasim *vdpasim, __virtio16 val)
--{
--	return __virtio16_to_cpu(vdpasim_is_little_endian(vdpasim), val);
--}
--
--static inline __virtio16 cpu_to_vdpasim16(struct vdpasim *vdpasim, u16 val)
--{
--	return __cpu_to_virtio16(vdpasim_is_little_endian(vdpasim), val);
--}
--
--static struct vdpasim *vdpasim_dev;
- 
- static struct vdpasim *vdpa_to_sim(struct vdpa_device *vdpa)
+- * Avoid them by copying the CFI entry of the first instruction into the whole
+- * alternative.
++ * Avoid them by copying the CFI entry of the first instruction into the hole.
+  */
+-static void fill_alternative_cfi(struct objtool_file *file, struct instruction *insn)
++static void __fill_alt_cfi(struct objtool_file *file, struct instruction *insn)
  {
-@@ -190,80 +107,6 @@ static void vdpasim_reset(struct vdpasim *vdpasim)
- 	++vdpasim->generation;
- }
+ 	struct instruction *first_insn = insn;
+ 	int alt_group = insn->alt_group;
  
--static void vdpasim_net_work(struct work_struct *work)
--{
--	struct vdpasim *vdpasim = container_of(work, struct
--						 vdpasim, work);
--	struct vdpasim_virtqueue *txq = &vdpasim->vqs[1];
--	struct vdpasim_virtqueue *rxq = &vdpasim->vqs[0];
--	ssize_t read, write;
--	size_t total_write;
--	int pkts = 0;
--	int err;
--
--	spin_lock(&vdpasim->lock);
--
--	if (!(vdpasim->status & VIRTIO_CONFIG_S_DRIVER_OK))
--		goto out;
--
--	if (!txq->ready || !rxq->ready)
--		goto out;
--
--	while (true) {
--		total_write = 0;
--		err = vringh_getdesc_iotlb(&txq->vring, &txq->out_iov, NULL,
--					   &txq->head, GFP_ATOMIC);
--		if (err <= 0)
--			break;
--
--		err = vringh_getdesc_iotlb(&rxq->vring, NULL, &rxq->in_iov,
--					   &rxq->head, GFP_ATOMIC);
--		if (err <= 0) {
--			vringh_complete_iotlb(&txq->vring, txq->head, 0);
--			break;
--		}
--
--		while (true) {
--			read = vringh_iov_pull_iotlb(&txq->vring, &txq->out_iov,
--						     vdpasim->buffer,
--						     PAGE_SIZE);
--			if (read <= 0)
--				break;
--
--			write = vringh_iov_push_iotlb(&rxq->vring, &rxq->in_iov,
--						      vdpasim->buffer, read);
--			if (write <= 0)
--				break;
--
--			total_write += write;
--		}
--
--		/* Make sure data is wrote before advancing index */
--		smp_wmb();
--
--		vringh_complete_iotlb(&txq->vring, txq->head, 0);
--		vringh_complete_iotlb(&rxq->vring, rxq->head, total_write);
--
--		/* Make sure used is visible before rasing the interrupt. */
--		smp_wmb();
--
--		local_bh_disable();
--		if (vringh_need_notify_iotlb(&txq->vring) > 0)
--			vringh_notify(&txq->vring);
--		if (vringh_need_notify_iotlb(&rxq->vring) > 0)
--			vringh_notify(&rxq->vring);
--		local_bh_enable();
--
--		if (++pkts > 4) {
--			schedule_work(&vdpasim->work);
--			goto out;
--		}
--	}
--
--out:
--	spin_unlock(&vdpasim->lock);
--}
--
- static int dir_to_perm(enum dma_data_direction dir)
- {
- 	int perm = -EFAULT;
-@@ -379,7 +222,7 @@ static const struct dma_map_ops vdpasim_dma_ops = {
- static const struct vdpa_config_ops vdpasim_config_ops;
- static const struct vdpa_config_ops vdpasim_batch_config_ops;
- 
--static struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr)
-+struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr)
- {
- 	const struct vdpa_config_ops *ops;
- 	struct vdpasim *vdpasim;
-@@ -424,23 +267,10 @@ static struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr)
- 	if (!vdpasim->buffer)
- 		goto err_iommu;
- 
--	if (macaddr) {
--		mac_pton(macaddr, macaddr_buf);
--		if (!is_valid_ether_addr(macaddr_buf)) {
--			ret = -EADDRNOTAVAIL;
--			goto err_iommu;
--		}
--	} else {
--		eth_random_addr(macaddr_buf);
--	}
--
- 	for (i = 0; i < dev_attr->nvqs; i++)
- 		vringh_set_iotlb(&vdpasim->vqs[i].vring, vdpasim->iommu);
- 
- 	vdpasim->vdpa.dma_dev = dev;
--	ret = vdpa_register_device(&vdpasim->vdpa);
--	if (ret)
--		goto err_iommu;
- 
- 	return vdpasim;
- 
-@@ -449,6 +279,7 @@ static struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr)
- err_alloc:
- 	return ERR_PTR(ret);
- }
-+EXPORT_SYMBOL_GPL(vdpasim_create);
- 
- static int vdpasim_set_vq_address(struct vdpa_device *vdpa, u16 idx,
- 				  u64 desc_area, u64 driver_area,
-@@ -769,46 +600,6 @@ static const struct vdpa_config_ops vdpasim_batch_config_ops = {
- 	.free                   = vdpasim_free,
- };
- 
--static void vdpasim_net_get_config(struct vdpasim *vdpasim, void *config)
--{
--	struct virtio_net_config *net_config =
--		(struct virtio_net_config *)config;
--
--	net_config->mtu = cpu_to_vdpasim16(vdpasim, 1500);
--	net_config->status = cpu_to_vdpasim16(vdpasim, VIRTIO_NET_S_LINK_UP);
--	memcpy(net_config->mac, macaddr_buf, ETH_ALEN);
--}
--
--static int __init vdpasim_dev_init(void)
--{
--	struct vdpasim_dev_attr dev_attr = {};
--
--	dev_attr.id = VIRTIO_ID_NET;
--	dev_attr.supported_features = VDPASIM_NET_FEATURES;
--	dev_attr.nvqs = VDPASIM_VQ_NUM;
--	dev_attr.config_size = sizeof(struct virtio_net_config);
--	dev_attr.get_config = vdpasim_net_get_config;
--	dev_attr.work_fn = vdpasim_net_work;
--	dev_attr.buffer_size = PAGE_SIZE;
--
--	vdpasim_dev = vdpasim_create(&dev_attr);
--
--	if (!IS_ERR(vdpasim_dev))
--		return 0;
--
--	return PTR_ERR(vdpasim_dev);
--}
--
--static void __exit vdpasim_dev_exit(void)
--{
--	struct vdpa_device *vdpa = &vdpasim_dev->vdpa;
--
--	vdpa_unregister_device(vdpa);
--}
--
--module_init(vdpasim_dev_init)
--module_exit(vdpasim_dev_exit)
--
- MODULE_VERSION(DRV_VERSION);
- MODULE_LICENSE(DRV_LICENSE);
- MODULE_AUTHOR(DRV_AUTHOR);
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-new file mode 100644
-index 000000000000..c10b6981fdab
---- /dev/null
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-@@ -0,0 +1,177 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * VDPA simulator for networking device.
-+ *
-+ * Copyright (c) 2020, Red Hat Inc. All rights reserved.
-+ *     Author: Jason Wang <jasowang@redhat.com>
-+ *
-+ */
+-	sec_for_each_insn_continue(file, insn) {
++	sec_for_each_insn_from(file, insn) {
+ 		if (insn->alt_group != alt_group)
+ 			break;
+-		insn->cfi = first_insn->cfi;
 +
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/device.h>
-+#include <linux/kernel.h>
-+#include <linux/sched.h>
-+#include <linux/etherdevice.h>
-+#include <linux/vringh.h>
-+#include <linux/vdpa.h>
-+#include <uapi/linux/virtio_net.h>
-+
-+#include "vdpa_sim.h"
-+
-+#define DRV_VERSION  "0.1"
-+#define DRV_AUTHOR   "Jason Wang <jasowang@redhat.com>"
-+#define DRV_DESC     "vDPA Device Simulator for networking device"
-+#define DRV_LICENSE  "GPL v2"
-+
-+#define VDPASIM_NET_FEATURES	(VDPASIM_FEATURES | \
-+				 (1ULL << VIRTIO_NET_F_MAC))
-+
-+#define VDPASIM_NET_VQ_NUM	2
-+
-+static char *macaddr;
-+module_param(macaddr, charp, 0);
-+MODULE_PARM_DESC(macaddr, "Ethernet MAC address");
-+
-+u8 macaddr_buf[ETH_ALEN];
-+
-+static struct vdpasim *vdpasim_net_dev;
-+
-+static void vdpasim_net_work(struct work_struct *work)
-+{
-+	struct vdpasim *vdpasim = container_of(work, struct vdpasim, work);
-+	struct vdpasim_virtqueue *txq = &vdpasim->vqs[1];
-+	struct vdpasim_virtqueue *rxq = &vdpasim->vqs[0];
-+	ssize_t read, write;
-+	size_t total_write;
-+	int pkts = 0;
-+	int err;
-+
-+	spin_lock(&vdpasim->lock);
-+
-+	if (!(vdpasim->status & VIRTIO_CONFIG_S_DRIVER_OK))
-+		goto out;
-+
-+	if (!txq->ready || !rxq->ready)
-+		goto out;
-+
-+	while (true) {
-+		total_write = 0;
-+		err = vringh_getdesc_iotlb(&txq->vring, &txq->out_iov, NULL,
-+					   &txq->head, GFP_ATOMIC);
-+		if (err <= 0)
-+			break;
-+
-+		err = vringh_getdesc_iotlb(&rxq->vring, NULL, &rxq->in_iov,
-+					   &rxq->head, GFP_ATOMIC);
-+		if (err <= 0) {
-+			vringh_complete_iotlb(&txq->vring, txq->head, 0);
-+			break;
-+		}
-+
-+		while (true) {
-+			read = vringh_iov_pull_iotlb(&txq->vring, &txq->out_iov,
-+						     vdpasim->buffer,
-+						     PAGE_SIZE);
-+			if (read <= 0)
-+				break;
-+
-+			write = vringh_iov_push_iotlb(&rxq->vring, &rxq->in_iov,
-+						      vdpasim->buffer, read);
-+			if (write <= 0)
-+				break;
-+
-+			total_write += write;
-+		}
-+
-+		/* Make sure data is wrote before advancing index */
-+		smp_wmb();
-+
-+		vringh_complete_iotlb(&txq->vring, txq->head, 0);
-+		vringh_complete_iotlb(&rxq->vring, rxq->head, total_write);
-+
-+		/* Make sure used is visible before rasing the interrupt. */
-+		smp_wmb();
-+
-+		local_bh_disable();
-+		if (vringh_need_notify_iotlb(&txq->vring) > 0)
-+			vringh_notify(&txq->vring);
-+		if (vringh_need_notify_iotlb(&rxq->vring) > 0)
-+			vringh_notify(&rxq->vring);
-+		local_bh_enable();
-+
-+		if (++pkts > 4) {
-+			schedule_work(&vdpasim->work);
-+			goto out;
-+		}
++		if (!insn->visited)
++			insn->cfi = first_insn->cfi;
 +	}
-+
-+out:
-+	spin_unlock(&vdpasim->lock);
 +}
 +
-+static void vdpasim_net_get_config(struct vdpasim *vdpasim, void *config)
++static void fill_alt_cfi(struct objtool_file *file, struct instruction *alt_insn)
 +{
-+	struct virtio_net_config *net_config =
-+		(struct virtio_net_config *)config;
++	struct alternative *alt;
 +
-+	net_config->mtu = cpu_to_vdpasim16(vdpasim, 1500);
-+	net_config->status = cpu_to_vdpasim16(vdpasim, VIRTIO_NET_S_LINK_UP);
-+	memcpy(net_config->mac, macaddr_buf, ETH_ALEN);
++	__fill_alt_cfi(file, alt_insn);
++
++	list_for_each_entry(alt, &alt_insn->alts, list)
++		__fill_alt_cfi(file, alt->insn);
 +}
 +
-+static int __init vdpasim_net_init(void)
++static struct instruction *
++__find_unwind(struct objtool_file *file,
++	      struct instruction *insn, unsigned long offset)
 +{
-+	struct vdpasim_dev_attr dev_attr = {};
-+	int ret;
++	int alt_group = insn->alt_group;
++	struct instruction *next;
++	unsigned long off = 0;
 +
-+	if (macaddr) {
-+		mac_pton(macaddr, macaddr_buf);
-+		if (!is_valid_ether_addr(macaddr_buf)) {
-+			ret = -EADDRNOTAVAIL;
-+			goto out;
++	while ((off + insn->len) <= offset) {
++		next = next_insn_same_sec(file, insn);
++		if (next && next->alt_group != alt_group)
++			next = NULL;
++
++		if (!next)
++			break;
++
++		off += insn->len;
++		insn = next;
+ 	}
++
++	return insn;
++}
++
++struct instruction *
++find_alt_unwind(struct objtool_file *file,
++		struct instruction *alt_insn, unsigned long offset)
++{
++	struct instruction *fit;
++	struct alternative *alt;
++	unsigned long fit_off;
++
++	fit = __find_unwind(file, alt_insn, offset);
++	fit_off = (fit->offset - alt_insn->offset);
++
++	list_for_each_entry(alt, &alt_insn->alts, list) {
++		struct instruction *x;
++		unsigned long x_off;
++
++		x = __find_unwind(file, alt->insn, offset);
++		x_off = (x->offset - alt->insn->offset);
++
++		if (fit_off < x_off) {
++			fit = x;
++			fit_off = x_off;
++
++		} else if (fit_off == x_off &&
++			   memcmp(&fit->cfi, &x->cfi, sizeof(struct cfi_state))) {
++
++			char *_str1 = offstr(fit->sec, fit->offset);
++			char *_str2 = offstr(x->sec, x->offset);
++			WARN("%s: equal-offset incompatible alternative: %s\n", _str1, _str2);
++			free(_str1);
++			free(_str2);
++			return fit;
 +		}
-+	} else {
-+		eth_random_addr(macaddr_buf);
 +	}
 +
-+	dev_attr.id = VIRTIO_ID_NET;
-+	dev_attr.supported_features = VDPASIM_NET_FEATURES;
-+	dev_attr.nvqs = VDPASIM_NET_VQ_NUM;
-+	dev_attr.config_size = sizeof(struct virtio_net_config);
-+	dev_attr.get_config = vdpasim_net_get_config;
-+	dev_attr.work_fn = vdpasim_net_work;
-+	dev_attr.buffer_size = PAGE_SIZE;
++	return fit;
++}
 +
-+	vdpasim_net_dev = vdpasim_create(&dev_attr);
-+	if (IS_ERR(vdpasim_net_dev)) {
-+		ret = PTR_ERR(vdpasim_net_dev);
-+		goto out;
++static int __validate_unwind(struct objtool_file *file,
++			     struct instruction *alt_insn,
++			     struct instruction *insn)
++{
++	int alt_group = insn->alt_group;
++	struct instruction *unwind;
++	unsigned long offset = 0;
++
++	sec_for_each_insn_from(file, insn) {
++		if (insn->alt_group != alt_group)
++			break;
++
++		unwind = find_alt_unwind(file, alt_insn, offset);
++
++		if (memcmp(&insn->cfi, &unwind->cfi, sizeof(struct cfi_state))) {
++
++			char *_str1 = offstr(insn->sec, insn->offset);
++			char *_str2 = offstr(unwind->sec, unwind->offset);
++			WARN("%s: unwind incompatible alternative: %s (%ld)\n",
++			     _str1, _str2, offset);
++			free(_str1);
++			free(_str2);
++			return 1;
++		}
++
++		offset += insn->len;
 +	}
-+
-+	ret = vdpa_register_device(&vdpasim_net_dev->vdpa);
-+	if (ret)
-+		goto put_dev;
 +
 +	return 0;
-+
-+put_dev:
-+	put_device(&vdpasim_net_dev->vdpa.dev);
-+out:
-+	return ret;
 +}
 +
-+static void __exit vdpasim_net_exit(void)
++static int validate_alt_unwind(struct objtool_file *file,
++			       struct instruction *alt_insn)
 +{
-+	struct vdpa_device *vdpa = &vdpasim_net_dev->vdpa;
++	struct alternative *alt;
 +
-+	vdpa_unregister_device(vdpa);
++	if (__validate_unwind(file, alt_insn, alt_insn))
++		return 1;
++
++	list_for_each_entry(alt, &alt_insn->alts, list) {
++		if (__validate_unwind(file, alt_insn, alt->insn))
++			return 1;
++	}
++
++	return 0;
+ }
+ 
+ /*
+@@ -2484,9 +2622,10 @@ static void fill_alternative_cfi(struct
+ static int validate_branch(struct objtool_file *file, struct symbol *func,
+ 			   struct instruction *insn, struct insn_state state)
+ {
++	struct instruction *next_insn, *alt_insn = NULL;
+ 	struct alternative *alt;
+-	struct instruction *next_insn;
+ 	struct section *sec;
++	int alt_group = 0;
+ 	u8 visited;
+ 	int ret;
+ 
+@@ -2541,8 +2680,10 @@ static int validate_branch(struct objtoo
+ 				}
+ 			}
+ 
+-			if (insn->alt_group)
+-				fill_alternative_cfi(file, insn);
++			if (insn->alt_group) {
++				alt_insn = insn;
++				alt_group = insn->alt_group;
++			}
+ 
+ 			if (skip_orig)
+ 				return 0;
+@@ -2697,6 +2838,17 @@ static int validate_branch(struct objtoo
+ 		}
+ 
+ 		insn = next_insn;
++
++		if (alt_insn && insn->alt_group != alt_group) {
++			alt_insn->alt_end = insn;
++
++			fill_alt_cfi(file, alt_insn);
++
++			if (validate_alt_unwind(file, alt_insn))
++				return 1;
++
++			alt_insn = NULL;
++		}
+ 	}
+ 
+ 	return 0;
+--- a/tools/objtool/check.h
++++ b/tools/objtool/check.h
+@@ -41,6 +41,7 @@ struct instruction {
+ 	struct instruction *first_jump_src;
+ 	struct reloc *jump_table;
+ 	struct list_head alts;
++	struct instruction *alt_end;
+ 	struct symbol *func;
+ 	struct list_head stack_ops;
+ 	struct cfi_state cfi;
+@@ -55,6 +56,10 @@ static inline bool is_static_jump(struct
+ 	       insn->type == INSN_JUMP_UNCONDITIONAL;
+ }
+ 
++struct instruction *
++find_alt_unwind(struct objtool_file *file,
++		struct instruction *alt_insn, unsigned long offset);
++
+ struct instruction *find_insn(struct objtool_file *file,
+ 			      struct section *sec, unsigned long offset);
+ 
+--- a/tools/objtool/orc_gen.c
++++ b/tools/objtool/orc_gen.c
+@@ -12,75 +12,86 @@
+ #include "check.h"
+ #include "warn.h"
+ 
+-int create_orc(struct objtool_file *file)
++static int create_orc_insn(struct objtool_file *file, struct instruction *insn)
+ {
+-	struct instruction *insn;
++	struct orc_entry *orc = &insn->orc;
++	struct cfi_reg *cfa = &insn->cfi.cfa;
++	struct cfi_reg *bp = &insn->cfi.regs[CFI_BP];
++
++	orc->end = insn->cfi.end;
++
++	if (cfa->base == CFI_UNDEFINED) {
++		orc->sp_reg = ORC_REG_UNDEFINED;
++		return 0;
++	}
+ 
+-	for_each_insn(file, insn) {
+-		struct orc_entry *orc = &insn->orc;
+-		struct cfi_reg *cfa = &insn->cfi.cfa;
+-		struct cfi_reg *bp = &insn->cfi.regs[CFI_BP];
++	switch (cfa->base) {
++	case CFI_SP:
++		orc->sp_reg = ORC_REG_SP;
++		break;
++	case CFI_SP_INDIRECT:
++		orc->sp_reg = ORC_REG_SP_INDIRECT;
++		break;
++	case CFI_BP:
++		orc->sp_reg = ORC_REG_BP;
++		break;
++	case CFI_BP_INDIRECT:
++		orc->sp_reg = ORC_REG_BP_INDIRECT;
++		break;
++	case CFI_R10:
++		orc->sp_reg = ORC_REG_R10;
++		break;
++	case CFI_R13:
++		orc->sp_reg = ORC_REG_R13;
++		break;
++	case CFI_DI:
++		orc->sp_reg = ORC_REG_DI;
++		break;
++	case CFI_DX:
++		orc->sp_reg = ORC_REG_DX;
++		break;
++	default:
++		WARN_FUNC("unknown CFA base reg %d",
++			  insn->sec, insn->offset, cfa->base);
++		return -1;
++	}
+ 
+-		if (!insn->sec->text)
+-			continue;
++	switch(bp->base) {
++	case CFI_UNDEFINED:
++		orc->bp_reg = ORC_REG_UNDEFINED;
++		break;
++	case CFI_CFA:
++		orc->bp_reg = ORC_REG_PREV_SP;
++		break;
++	case CFI_BP:
++		orc->bp_reg = ORC_REG_BP;
++		break;
++	default:
++		WARN_FUNC("unknown BP base reg %d",
++			  insn->sec, insn->offset, bp->base);
++		return -1;
++	}
+ 
+-		orc->end = insn->cfi.end;
++	orc->sp_offset = cfa->offset;
++	orc->bp_offset = bp->offset;
++	orc->type = insn->cfi.type;
+ 
+-		if (cfa->base == CFI_UNDEFINED) {
+-			orc->sp_reg = ORC_REG_UNDEFINED;
+-			continue;
+-		}
++	return 0;
 +}
-+
-+module_init(vdpasim_net_init);
-+module_exit(vdpasim_net_exit);
-+
-+MODULE_VERSION(DRV_VERSION);
-+MODULE_LICENSE(DRV_LICENSE);
-+MODULE_AUTHOR(DRV_AUTHOR);
-+MODULE_DESCRIPTION(DRV_DESC);
-diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
-index 2c892e890b9e..92a6396f8a73 100644
---- a/drivers/vdpa/Kconfig
-+++ b/drivers/vdpa/Kconfig
-@@ -9,15 +9,20 @@ menuconfig VDPA
- if VDPA
  
- config VDPA_SIM
--	tristate "vDPA device simulator"
-+	tristate "vDPA device simulator core"
- 	depends on RUNTIME_TESTING_MENU && HAS_DMA
- 	select DMA_OPS
- 	select VHOST_RING
-+	help
-+	  Enable this module to support vDPA device simulators. These devices
-+	  are used for testing, prototyping and development of vDPA.
-+
-+config VDPA_SIM_NET
-+	tristate "vDPA simulator for networking device"
-+	depends on VDPA_SIM
- 	select GENERIC_NET_UTILS
- 	help
--	  vDPA networking device simulator which loop TX traffic back
--	  to RX. This device is used for testing, prototyping and
--	  development of vDPA.
-+	  vDPA networking device simulator which loops TX traffic back to RX.
+-		switch (cfa->base) {
+-		case CFI_SP:
+-			orc->sp_reg = ORC_REG_SP;
+-			break;
+-		case CFI_SP_INDIRECT:
+-			orc->sp_reg = ORC_REG_SP_INDIRECT;
+-			break;
+-		case CFI_BP:
+-			orc->sp_reg = ORC_REG_BP;
+-			break;
+-		case CFI_BP_INDIRECT:
+-			orc->sp_reg = ORC_REG_BP_INDIRECT;
+-			break;
+-		case CFI_R10:
+-			orc->sp_reg = ORC_REG_R10;
+-			break;
+-		case CFI_R13:
+-			orc->sp_reg = ORC_REG_R13;
+-			break;
+-		case CFI_DI:
+-			orc->sp_reg = ORC_REG_DI;
+-			break;
+-		case CFI_DX:
+-			orc->sp_reg = ORC_REG_DX;
+-			break;
+-		default:
+-			WARN_FUNC("unknown CFA base reg %d",
+-				  insn->sec, insn->offset, cfa->base);
+-			return -1;
+-		}
++int create_orc(struct objtool_file *file)
++{
++	struct instruction *insn;
  
- config IFCVF
- 	tristate "Intel IFC VF vDPA driver"
-diff --git a/drivers/vdpa/vdpa_sim/Makefile b/drivers/vdpa/vdpa_sim/Makefile
-index b40278f65e04..79d4536d347e 100644
---- a/drivers/vdpa/vdpa_sim/Makefile
-+++ b/drivers/vdpa/vdpa_sim/Makefile
-@@ -1,2 +1,3 @@
- # SPDX-License-Identifier: GPL-2.0
- obj-$(CONFIG_VDPA_SIM) += vdpa_sim.o
-+obj-$(CONFIG_VDPA_SIM_NET) += vdpa_sim_net.o
--- 
-2.26.2
-
+-		switch(bp->base) {
+-		case CFI_UNDEFINED:
+-			orc->bp_reg = ORC_REG_UNDEFINED;
+-			break;
+-		case CFI_CFA:
+-			orc->bp_reg = ORC_REG_PREV_SP;
+-			break;
+-		case CFI_BP:
+-			orc->bp_reg = ORC_REG_BP;
+-			break;
+-		default:
+-			WARN_FUNC("unknown BP base reg %d",
+-				  insn->sec, insn->offset, bp->base);
+-			return -1;
+-		}
++	for_each_insn(file, insn) {
++		int ret;
++
++		if (!insn->sec->text)
++			continue;
+ 
+-		orc->sp_offset = cfa->offset;
+-		orc->bp_offset = bp->offset;
+-		orc->type = insn->cfi.type;
++		ret = create_orc_insn(file, insn);
++		if (ret)
++			return ret;
+ 	}
+ 
+ 	return 0;
+@@ -166,6 +177,28 @@ int create_orc_sections(struct objtool_f
+ 
+ 		prev_insn = NULL;
+ 		sec_for_each_insn(file, sec, insn) {
++
++			if (insn->alt_end) {
++				unsigned int offset, alt_len;
++				struct instruction *unwind;
++
++				alt_len = insn->alt_end->offset - insn->offset;
++				for (offset = 0; offset < alt_len; offset++) {
++					unwind = find_alt_unwind(file, insn, offset);
++					/* XXX: skipped earlier ! */
++					create_orc_insn(file, unwind);
++					if (!prev_insn ||
++					    memcmp(&unwind->orc, &prev_insn->orc,
++						   sizeof(struct orc_entry))) {
++						idx++;
++//						WARN_FUNC("ORC @ %d/%d", sec, insn->offset+offset, offset, alt_len);
++					}
++					prev_insn = unwind;
++				}
++
++				insn = insn->alt_end;
++			}
++
+ 			if (!prev_insn ||
+ 			    memcmp(&insn->orc, &prev_insn->orc,
+ 				   sizeof(struct orc_entry))) {
+@@ -203,6 +236,31 @@ int create_orc_sections(struct objtool_f
+ 
+ 		prev_insn = NULL;
+ 		sec_for_each_insn(file, sec, insn) {
++
++			if (insn->alt_end) {
++				unsigned int offset, alt_len;
++				struct instruction *unwind;
++
++				alt_len = insn->alt_end->offset - insn->offset;
++				for (offset = 0; offset < alt_len; offset++) {
++					unwind = find_alt_unwind(file, insn, offset);
++					if (!prev_insn ||
++					    memcmp(&unwind->orc, &prev_insn->orc,
++						   sizeof(struct orc_entry))) {
++
++						if (create_orc_entry(file->elf, u_sec, ip_relocsec, idx,
++								     insn->sec, insn->offset + offset,
++								     &unwind->orc))
++							return -1;
++
++						idx++;
++					}
++					prev_insn = unwind;
++				}
++
++				insn = insn->alt_end;
++			}
++
+ 			if (!prev_insn || memcmp(&insn->orc, &prev_insn->orc,
+ 						 sizeof(struct orc_entry))) {
+ 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
