@@ -2,108 +2,89 @@ Return-Path: <SRS0=2z8p=FU=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65FA2C0018C
-	for <virtualization@archiver.kernel.org>; Wed, 16 Dec 2020 06:42:24 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC60AC4361B
+	for <virtualization@archiver.kernel.org>; Wed, 16 Dec 2020 06:48:40 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 05C4D2313F
-	for <virtualization@archiver.kernel.org>; Wed, 16 Dec 2020 06:42:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 05C4D2313F
+	by mail.kernel.org (Postfix) with ESMTPS id 60C5A2336D
+	for <virtualization@archiver.kernel.org>; Wed, 16 Dec 2020 06:48:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 60C5A2336D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 6AC64207A4;
-	Wed, 16 Dec 2020 06:42:23 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 04282866CA;
+	Wed, 16 Dec 2020 06:48:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Sl1Wxv8JYnqH; Wed, 16 Dec 2020 06:42:22 +0000 (UTC)
+	with ESMTP id 4YEEXChAdHXr; Wed, 16 Dec 2020 06:48:38 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 21B30207EF;
-	Wed, 16 Dec 2020 06:42:22 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id EA50B865AB;
+	Wed, 16 Dec 2020 06:48:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0D28CC0893;
-	Wed, 16 Dec 2020 06:42:22 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D9125C0893;
+	Wed, 16 Dec 2020 06:48:38 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4BC09C013B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C43E9C013B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Dec 2020 06:42:20 +0000 (UTC)
+ Wed, 16 Dec 2020 06:48:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 3AAEE8725D
+ by hemlock.osuosl.org (Postfix) with ESMTP id B8879872CD
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Dec 2020 06:42:20 +0000 (UTC)
+ Wed, 16 Dec 2020 06:48:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uPQPNKKgz7Mf
+ with ESMTP id QpZSRCKxUlJc
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Dec 2020 06:42:19 +0000 (UTC)
+ Wed, 16 Dec 2020 06:48:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id C9DEE87264
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id DA6C5872CB
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Dec 2020 06:42:18 +0000 (UTC)
+ Wed, 16 Dec 2020 06:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1608100937;
+ s=mimecast20190719; t=1608101315;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=3UWP1wA+TmXEYFaObG+gNlM2R7JNPVOrtlzVhMwTG98=;
- b=ERYDxSz1nQ782phxpymZBS22u+CBKoEUWVGg7QR7fPnfWrzraVV0v2R5jajSZ5QxvZuu7C
- LQ4H4yfBiYAk22RHiEX39TT52IKx8roe1HJj0ZeCIWuCYIGUtqHdC0ny06Rl+AZz03YyzM
- 6Vy/QsDkN+qZXh4paWOKUS6Pp03KvaY=
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=spj9CMYtee5G5sWC8UnW3oUIg25fvwv0Y3rRIX8a8Gc=;
+ b=Mxm61wBem69FHHdu8Pc9zs2lE/NdWh0myKvs51FQAoxi073fteaUjbm7RrWXtbGvJh1N5+
+ 7JQfgm0MpubhlzBr7vRaOuayO2Fj9WRsaLJ+pTg4KtIPrlNMaj43OWM05Q/krnx7VqDbMD
+ cAN7+XXo0snWovu3KgLCvVWUCZaTCN4=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-48-tP-Nw1d0PK-J9a5BMA-bCQ-1; Wed, 16 Dec 2020 01:42:13 -0500
-X-MC-Unique: tP-Nw1d0PK-J9a5BMA-bCQ-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
- [10.5.11.11])
+ us-mta-459-PFy-QapTMuu9VuVWykG2Og-1; Wed, 16 Dec 2020 01:48:32 -0500
+X-MC-Unique: PFy-QapTMuu9VuVWykG2Og-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
+ [10.5.11.22])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1A1C9803F60;
- Wed, 16 Dec 2020 06:42:08 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com
- (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 03E6C72F80;
- Wed, 16 Dec 2020 06:42:08 +0000 (UTC)
-Received: from zmail21.collab.prod.int.phx2.redhat.com
- (zmail21.collab.prod.int.phx2.redhat.com [10.5.83.24])
- by colo-mx.corp.redhat.com (Postfix) with ESMTP id D777518095C9;
- Wed, 16 Dec 2020 06:42:07 +0000 (UTC)
-Date: Wed, 16 Dec 2020 01:41:48 -0500 (EST)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9DBE5801A9E;
+ Wed, 16 Dec 2020 06:48:30 +0000 (UTC)
+Received: from jason-ThinkPad-X1-Carbon-6th.redhat.com
+ (ovpn-12-210.pek2.redhat.com [10.72.12.210])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 24FDD10013C1;
+ Wed, 16 Dec 2020 06:48:19 +0000 (UTC)
 From: Jason Wang <jasowang@redhat.com>
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Message-ID: <613214145.36646222.1608100908658.JavaMail.zimbra@redhat.com>
-In-Reply-To: <1330503106.36174346.1608098013639.JavaMail.zimbra@redhat.com>
-References: <d2ae0b1d-332b-42a1-87bf-7da2b749cac2@sect.tu-berlin.de>
- <20201214214950.GC18103@char.us.oracle.com>
- <c3629a27-3590-1d9f-211b-c0b7be152b32@redhat.com>
- <20201215142755.GB28810@char.us.oracle.com>
- <1330503106.36174346.1608098013639.JavaMail.zimbra@redhat.com>
-Subject: Re: swiotlb/virtio: unchecked device dma address and length
+To: mst@redhat.com,
+	jasowang@redhat.com
+Subject: [PATCH 00/21] Control VQ support in vDPA
+Date: Wed, 16 Dec 2020 14:47:57 +0800
+Message-Id: <20201216064818.48239-1-jasowang@redhat.com>
 MIME-Version: 1.0
-X-Originating-IP: [10.68.5.20, 10.4.195.29]
-Thread-Topic: swiotlb/virtio: unchecked device dma address and length
-Thread-Index: PEkMXKnONb0rkBpXq/L9SkUhNE40FYnhNR02
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: ashish kalra <ashish.kalra@amd.com>,
- Felicitas Hetzelt <file@sect.tu-berlin.de>,
- Martin Radev <martin.radev@aisec.fraunhofer.de>,
- david kaplan <david.kaplan@amd.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org,
- Robert Buhren <robert@sect.tu-berlin.de>, iommu@lists.linux-foundation.org,
- Mathias Morbitzer <mathias.morbitzer@aisec.fraunhofer.de>, hch@lst.de
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+Cc: kvm@vger.kernel.org, lulu@redhat.com, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ eperezma@redhat.com, stefanha@redhat.com, eli@mellanox.com,
+ lingshan.zhu@intel.com, rob.miller@broadcom.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,57 +101,125 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+Hi All:
 
+This series tries to add the support for control virtqueue in vDPA.
 
------ Original Message -----
-> 
-> 
-> ----- Original Message -----
-> > .snip.
-> > > > > This raises two issues:
-> > > > > 1) swiotlb_tlb_unmap_single fails to check whether the index
-> > > > > generated
-> > > > > from the dma_addr is in range of the io_tlb_orig_addr array.
-> > > > That is fairly simple to implement I would think. That is it can check
-> > > > that the dma_addr is from the PA in the io_tlb pool when SWIOTLB=force
-> > > > is used.
-> > > 
-> > > 
-> > > I'm not sure this can fix all the cases. It looks to me we should map
-> > > descriptor coherent but readonly (which is not supported by current DMA
-> > > API).
-> > 
-> > I think I am missing something obvious here. The attacker is the
-> > hypervisor,
-> > aka
-> > the owner of the VirtIO device (ring0). The attacker is the one that
-> > provides the addr/len - having that readonly from a guest perspective
-> > does not change the fact that the hypervisor can modify the memory range
-> > by mapping it via a different virtual address in the hypervisor? (aka
-> > aliasing it).
-> 
-> Right, but if we allow hypervisor to provide arbitrary addr/len, does
-> it mean hypervisor can read encrypted content of encrypted memory of
-> guest through swiotlb?
-> 
-> Thanks
+Control virtqueue is used by networking device for accepting various
+commands from the driver. It's a must to support multiqueue and other
+configurations.
 
-Actually not. I think you're right.
+When used by vhost-vDPA bus driver for VM, the control virtqueue
+should be shadowed via userspace VMM (Qemu) instead of being assigned
+directly to Guest. This is because Qemu needs to know the device state
+in order to start and stop device correctly (e.g for Live Migration).
+
+This requies to isolate the memory mapping for control virtqueue
+presented by vhost-vDPA to prevent guest from accesing it directly.
+
+To achieve this, vDPA introduce two new abstractions:
+
+- address space: identified through address space id (ASID) and a set
+                 of memory mapping in maintained
+- virtqueue group: the minimal set of virtqueues that must share an
+                 address space
+
+Device needs to advertise the following attributes to vDPA:
+
+- the number of address spaces supported in the device
+- the number of virtqueue groups supported in the device
+- the mappings from a specific virtqueue to its virtqueue groups
+
+The mappings from virtqueue to virtqueue groups is fixed and defined
+by vDPA device driver. E.g:
+
+- For the device that has hardware ASID support, it can simply
+  advertise a per virtqueue virtqueue group.
+- For the device that does not have hardware ASID support, it can
+  simply advertise a single virtqueue group that contains all
+  virtqueues. Or if it wants a software emulated control virtqueue, it
+  can advertise two virtqueue groups, one is for cvq, another is for
+  the rest virtqueues.
+
+vDPA also allow to change the association between virtqueue group and
+address space. So in the case of control virtqueue, userspace
+VMM(Qemu) may use a dedicated address space for the control virtqueue
+group to isolate the memory mapping.
+
+The vhost/vhost-vDPA is also extend for the userspace to:
+
+- query the number of virtqueue groups and address spaces supported by
+  the device
+- query the virtqueue group for a specific virtqueue
+- assocaite a virtqueue group with an address space
+- send ASID based IOTLB commands
+
+This will help userspace VMM(Qemu) to detect whether the control vq
+could be supported and isolate memory mappings of control virtqueue
+from the others.
+
+To demonstrate the usage, vDPA simulator is extended to support
+setting MAC address via a emulated control virtqueue.
+
+Please review.
+
+Changes since RFC:
+
+- tweak vhost uAPI documentation
+- switch to use device specific IOTLB really in patch 4
+- tweak the commit log
+- fix that ASID in vhost is claimed to be 32 actually but 16bit
+  actually
+- fix use after free when using ASID with IOTLB batching requests
+- switch to use Stefano's patch for having separated iov
+- remove unused "used_as" variable
+- fix the iotlb/asid checking in vhost_vdpa_unmap()
 
 Thanks
 
-> 
-> > > 
-> > > Otherwise, device can modify the desc[i].addr/desc[i].len at any time to
-> > > pretend a valid mapping.
-> > 
-> > With the swiotlb=force as long as addr/len are within the PA boundaries
-> > within the SWIOTLB pool this should be OK?
-> > 
-> > After all that whole area is in cleartext and visible to the attacker.
-> > 
-> > 
-> 
+Jason Wang (20):
+  vhost: move the backend feature bits to vhost_types.h
+  virtio-vdpa: don't set callback if virtio doesn't need it
+  vhost-vdpa: passing iotlb to IOMMU mapping helpers
+  vhost-vdpa: switch to use vhost-vdpa specific IOTLB
+  vdpa: add the missing comment for nvqs in struct vdpa_device
+  vdpa: introduce virtqueue groups
+  vdpa: multiple address spaces support
+  vdpa: introduce config operations for associating ASID to a virtqueue
+    group
+  vhost_iotlb: split out IOTLB initialization
+  vhost: support ASID in IOTLB API
+  vhost-vdpa: introduce asid based IOTLB
+  vhost-vdpa: introduce uAPI to get the number of virtqueue groups
+  vhost-vdpa: introduce uAPI to get the number of address spaces
+  vhost-vdpa: uAPI to get virtqueue group id
+  vhost-vdpa: introduce uAPI to set group ASID
+  vhost-vdpa: support ASID based IOTLB API
+  vdpa_sim: advertise VIRTIO_NET_F_MTU
+  vdpa_sim: factor out buffer completion logic
+  vdpa_sim: filter destination mac address
+  vdpasim: control virtqueue support
+
+Stefano Garzarella (1):
+  vdpa_sim: split vdpasim_virtqueue's iov field in out_iov and in_iov
+
+ drivers/vdpa/ifcvf/ifcvf_main.c   |   9 +-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c |  11 +-
+ drivers/vdpa/vdpa.c               |   8 +-
+ drivers/vdpa/vdpa_sim/vdpa_sim.c  | 292 ++++++++++++++++++++++++------
+ drivers/vhost/iotlb.c             |  23 ++-
+ drivers/vhost/vdpa.c              | 246 ++++++++++++++++++++-----
+ drivers/vhost/vhost.c             |  23 ++-
+ drivers/vhost/vhost.h             |   4 +-
+ drivers/virtio/virtio_vdpa.c      |   2 +-
+ include/linux/vdpa.h              |  42 ++++-
+ include/linux/vhost_iotlb.h       |   2 +
+ include/uapi/linux/vhost.h        |  25 ++-
+ include/uapi/linux/vhost_types.h  |  10 +-
+ 13 files changed, 561 insertions(+), 136 deletions(-)
+
+-- 
+2.25.1
 
 _______________________________________________
 Virtualization mailing list
