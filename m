@@ -2,107 +2,84 @@ Return-Path: <SRS0=2z8p=FU=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,HTML_MESSAGE,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09FB7C4361B
-	for <virtualization@archiver.kernel.org>; Wed, 16 Dec 2020 08:41:48 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31E65C2BBCD
+	for <virtualization@archiver.kernel.org>; Wed, 16 Dec 2020 08:45:56 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C25F92071C
-	for <virtualization@archiver.kernel.org>; Wed, 16 Dec 2020 08:41:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C25F92071C
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+	by mail.kernel.org (Postfix) with ESMTPS id 6B1682313F
+	for <virtualization@archiver.kernel.org>; Wed, 16 Dec 2020 08:45:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6B1682313F
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=huawei.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 153E9871AF;
-	Wed, 16 Dec 2020 08:41:45 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id DB3EC85B25;
+	Wed, 16 Dec 2020 08:45:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id v3lb6ZGC9TCp; Wed, 16 Dec 2020 08:41:43 +0000 (UTC)
+	with ESMTP id lDGgVYSAOf-t; Wed, 16 Dec 2020 08:45:53 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id BB38C8713A;
-	Wed, 16 Dec 2020 08:41:43 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 8B7C985A5A;
+	Wed, 16 Dec 2020 08:45:53 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 90865C0893;
-	Wed, 16 Dec 2020 08:41:43 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 606F3C0893;
+	Wed, 16 Dec 2020 08:45:53 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F1146C013B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C2AEBC013B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Dec 2020 08:41:40 +0000 (UTC)
+ Wed, 16 Dec 2020 08:45:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id E0142859EF
+ by fraxinus.osuosl.org (Postfix) with ESMTP id B190385A5A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Dec 2020 08:41:40 +0000 (UTC)
+ Wed, 16 Dec 2020 08:45:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1viJTUWjHVa7
+ with ESMTP id LV1t7VyOObtO
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Dec 2020 08:41:39 +0000 (UTC)
+ Wed, 16 Dec 2020 08:45:49 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from merlin.infradead.org (merlin.infradead.org [205.233.59.134])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 35436859E3
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 74F7385A6A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Dec 2020 08:41:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=0Vl8v+K48CQ1CpDPZyiLdlZ3QZd1xhq2vGyfDmO1QSk=; b=d0ukNEGopW7xSAvf4l6oxB/hVo
- FRyEdkJ6gVh6WhW3HqIsdfeYXWYQ1HLOyEXl/M8OOjMOALFor8DXrwW8OkhssqBZWj2qY+dOjn3WQ
- w+eOTFIjqNLK3/OUKiTAiR7DfaZ2tzpDvvAr4qqHg7G/gm2EllebQ0U87v/0G0msGEUvStoO64DY+
- jRApct0VEjBdukFFaWwT/w5fpgGG2r/xGFbqZ+y+RR+1foywG9EkTHpqpIVFJmYZHyDNnwWxdOg8q
- B4pWQSqNEGAgqHIW+S7+CgCiPXoMiutaQwIno90DVH6FICQhR2vzciTHwxWeaxxT1doUmhnq8aMrv
- PjYDhOMw==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100]
- helo=noisy.programming.kicks-ass.net)
- by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
- id 1kpSMu-0005UY-Qg; Wed, 16 Dec 2020 08:41:09 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id AB87E307697;
- Wed, 16 Dec 2020 09:40:59 +0100 (CET)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id 967842CADD880; Wed, 16 Dec 2020 09:40:59 +0100 (CET)
-Date: Wed, 16 Dec 2020 09:40:59 +0100
-From: Peter Zijlstra <peterz@infradead.org>
-To: Josh Poimboeuf <jpoimboe@redhat.com>
-Subject: Re: [PATCH v2 00/12] x86: major paravirt cleanup
-Message-ID: <20201216084059.GL3040@hirez.programming.kicks-ass.net>
-References: <20201120114630.13552-1-jgross@suse.com>
- <20201120125342.GC3040@hirez.programming.kicks-ass.net>
- <20201123134317.GE3092@hirez.programming.kicks-ass.net>
- <6771a12c-051d-1655-fb3a-cc45a3c82e29@suse.com>
- <20201215141834.GG3040@hirez.programming.kicks-ass.net>
- <20201215145408.GR3092@hirez.programming.kicks-ass.net>
- <20201216003802.5fpklvx37yuiufrt@treble>
+ Wed, 16 Dec 2020 08:45:49 +0000 (UTC)
+Received: from dggeme755-chm.china.huawei.com (unknown [172.30.72.57])
+ by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4CwpbG5F5Rz13VK8;
+ Wed, 16 Dec 2020 16:44:42 +0800 (CST)
+Received: from [10.174.185.135] (10.174.185.135) by
+ dggeme755-chm.china.huawei.com (10.3.19.101) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.1913.5; Wed, 16 Dec 2020 16:45:45 +0800
+Subject: Re: [PATCH v2 0/6] KVM: arm64: VCPU preempted check support
+To: Marc Zyngier <maz@kernel.org>, Will Deacon <will@kernel.org>
+References: <20191226135833.1052-1-yezengruan@huawei.com>
+ <20200113121240.GC3260@willie-the-truck>
+ <b1d23a82d6a7caa79a99597fb83472be@kernel.org>
+From: yezengruan <yezengruan@huawei.com>
+Message-ID: <6c1f0896-b78f-c92f-4c3b-9ab17400487b@huawei.com>
+Date: Wed, 16 Dec 2020 16:45:44 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.3.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20201216003802.5fpklvx37yuiufrt@treble>
-Cc: Juri Lelli <juri.lelli@redhat.com>, linux-hyperv@vger.kernel.org,
- Daniel Lezcano <daniel.lezcano@linaro.org>, Wanpeng Li <wanpengli@tencent.com>,
- kvm@vger.kernel.org, "VMware, Inc." <pv-drivers@vmware.com>,
- virtualization@lists.linux-foundation.org, Ben Segall <bsegall@google.com>,
- "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Wei Liu <wei.liu@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>,
- Stephen Hemminger <sthemmin@microsoft.com>, Joerg Roedel <joro@8bytes.org>,
- x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Mel Gorman <mgorman@suse.de>,
- xen-devel@lists.xenproject.org, Haiyang Zhang <haiyangz@microsoft.com>,
- Steven Rostedt <rostedt@goodmis.org>, Borislav Petkov <bp@alien8.de>,
- luto@kernel.org, Vincent Guittot <vincent.guittot@linaro.org>,
- Thomas Gleixner <tglx@linutronix.de>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>, Jim Mattson <jmattson@google.com>,
- =?iso-8859-1?Q?J=FCrgen_Gro=DF?= <jgross@suse.com>,
- linux-kernel@vger.kernel.org,
- Sean Christopherson <sean.j.christopherson@intel.com>,
- Paolo Bonzini <pbonzini@redhat.com>,
- Daniel Bristot de Oliveira <bristot@redhat.com>
+In-Reply-To: <b1d23a82d6a7caa79a99597fb83472be@kernel.org>
+Content-Language: en-US
+X-Originating-IP: [10.174.185.135]
+X-ClientProxiedBy: dggeme707-chm.china.huawei.com (10.1.199.103) To
+ dggeme755-chm.china.huawei.com (10.3.19.101)
+X-CFilter-Loop: Reflected
+Cc: mark.rutland@arm.com, daniel.lezcano@linaro.org, kvm@vger.kernel.org,
+ linux-doc@vger.kernel.org, peterz@infradead.org, catalin.marinas@arm.com,
+ suzuki.poulose@arm.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, james.morse@arm.com,
+ julien.thierry.kdev@gmail.com, "Wanghaibin \(D\)" <wanghaibin.wang@huawei.com>,
+ linux@armlinux.org.uk, steven.price@arm.com, kvmarm@lists.cs.columbia.edu,
+ linux-arm-kernel@lists.infradead.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,74 +91,395 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4947820565364618433=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Dec 15, 2020 at 06:38:02PM -0600, Josh Poimboeuf wrote:
-> On Tue, Dec 15, 2020 at 03:54:08PM +0100, Peter Zijlstra wrote:
-> > The problem is that a single instance of unwind information (ORC) must
-> > capture and correctly unwind all alternatives. Since the trivially
-> > correct mandate is out, implement the straight forward brute-force
-> > approach:
-> > 
-> >  1) generate CFI information for each alternative
-> > 
-> >  2) unwind every alternative with the merge-sort of the previously
-> >     generated CFI information -- O(n^2)
-> > 
-> >  3) for any possible conflict: yell.
-> > 
-> >  4) Generate ORC with merge-sort
-> > 
-> > Specifically for 3 there are two possible classes of conflicts:
-> > 
-> >  - the merge-sort itself could find conflicting CFI for the same
-> >    offset.
-> > 
-> >  - the unwind can fail with the merged CFI.
-> 
-> So much algorithm.
+--===============4947820565364618433==
+Content-Type: multipart/alternative;
+	boundary="------------43CA695FE1BBE3490CBD148C"
+Content-Language: en-US
 
-:-)
+--------------43CA695FE1BBE3490CBD148C
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 
-It's not really hard, but it has a few pesky details (as always).
+On 2020/1/15 22:14, Marc Zyngier wrote:
+> On 2020-01-13 12:12, Will Deacon wrote:
+>> [+PeterZ]
+>>
+>> On Thu, Dec 26, 2019 at 09:58:27PM +0800, Zengruan Ye wrote:
+>>> This patch set aims to support the vcpu_is_preempted() functionality
+>>> under KVM/arm64, which allowing the guest to obtain the VCPU is
+>>> currently running or not. This will enhance lock performance on
+>>> overcommitted hosts (more runnable VCPUs than physical CPUs in the
+>>> system) as doing busy waits for preempted VCPUs will hurt system
+>>> performance far worse than early yielding.
+>>>
+>>> We have observed some performace improvements in uninx benchmark tests.
+>>>
+>>> unix benchmark result:
+>>>   host:  kernel 5.5.0-rc1, HiSilicon Kunpeng920, 8 CPUs
+>>>   guest: kernel 5.5.0-rc1, 16 VCPUs
+>>>
+>>>                test-case                |    after-patch    |   before-patch
+>>> ----------------------------------------+-------------------+------------------
+>>>  Dhrystone 2 using register variables   | 334600751.0 lps   | 335319028.3 lps
+>>>  Double-Precision Whetstone             |     32856.1 MWIPS |     32849.6 MWIPS
+>>>  Execl Throughput                       |      3662.1 lps   |      2718.0 lps
+>>>  File Copy 1024 bufsize 2000 maxblocks  |    432906.4 KBps  |    158011.8 KBps
+>>>  File Copy 256 bufsize 500 maxblocks    |    116023.0 KBps  |     37664.0 KBps
+>>>  File Copy 4096 bufsize 8000 maxblocks  |   1432769.8 KBps  |    441108.8 KBps
+>>>  Pipe Throughput                        |   6405029.6 lps   |   6021457.6 lps
+>>>  Pipe-based Context Switching           |    185872.7 lps   |    184255.3 lps
+>>>  Process Creation                       |      4025.7 lps   |      3706.6 lps
+>>>  Shell Scripts (1 concurrent)           |      6745.6 lpm   |      6436.1 lpm
+>>>  Shell Scripts (8 concurrent)           |       998.7 lpm   |       931.1 lpm
+>>>  System Call Overhead                   |   3913363.1 lps   |   3883287.8 lps
+>>> ----------------------------------------+-------------------+------------------
+>>>  System Benchmarks Index Score          |      1835.1       |      1327.6
+>>
+>> Interesting, thanks for the numbers.
+>>
+>> So it looks like there is a decent improvement to be had from targetted vCPU
+>> wakeup, but I really dislike the explicit PV interface and it's already been
+>> shown to interact badly with the WFE-based polling in smp_cond_load_*().
+>>
+>> Rather than expose a divergent interface, I would instead like to explore an
+>> improvement to smp_cond_load_*() and see how that performs before we commit
+>> to something more intrusive. Marc and I looked at this very briefly in the
+>> past, and the basic idea is to register all of the WFE sites with the
+>> hypervisor, indicating which register contains the address being spun on
+>> and which register contains the "bad" value. That way, you don't bother
+>> rescheduling a vCPU if the value at the address is still bad, because you
+>> know it will exit immediately.
+>>
+>> Of course, the devil is in the details because when I say "address", that's
+>> a guest virtual address, so you need to play some tricks in the hypervisor
+>> so that you have a separate mapping for the lockword (it's enough to keep
+>> track of the physical address).
+>>
+>> Our hacks are here but we basically ran out of time to work on them beyond
+>> an unoptimised and hacky prototype:
+>>
+>> https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platforms.git/log/?h=kvm-arm64/pvcy
+>>
+>> Marc -- how would you prefer to handle this?
+>
+> Let me try and rebase this thing to a modern kernel (I doubt it applies without
+> conflicts to mainline). We can then have discussion about its merit on the list
+> once I post it. It'd be good to have a pointer to the benchamrks that have been
+> used here.
 
-> Could we make it easier by caching the shared
-> per-alt-group CFI state somewhere along the way?
+Hi Marc, Will,
 
-Yes, but when I tried it grew the code required. Runtime costs would be
-less, but I figured that since alternatives are typically few and small,
-that wasn't a real consideration.
+My apologies for the slow reply. Just checking what is the latest on this
+PV cond yield prototype?
 
-That is, it would basically cache the results of find_alt_unwind(), but
-you still need find_alt_unwind() to generate that data, and so you gain
-the code for filling and using the extra data structure.
+https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platforms.git/log/?h=kvm-arm64/pvcy
 
-Yes, computing it 3 times is naf, but meh.
+Recently, I re-doed the unixbench test comparison between vCPU preempted check
+and PV cond yield. The results are as follows:
 
-> [ 'offset' is a byte offset from the beginning of the group.  It could
->   be calculated based on 'orig_insn' or 'orig_insn->alts', depending on
->   whether 'insn' is an original or a replacement. ]
 
-That's exactly what it already does ofcourse ;-)
+unix benchmark result:
+  host:  kernel 5.10.0-rc6, HiSilicon Kunpeng920, 8 CPUs
+  guest: kernel 5.10.0-rc6, 16 VCPUs
+                                       | 5.10.0-rc6 | pv_cond_yield | vcpu_is_preempted
+ System Benchmarks Index Values        |    INDEX   |      INDEX    |      INDEX
+---------------------------------------+------------+---------------+-------------------
+ Dhrystone 2 using register variables  |  29164.0   |    29156.9    |    29207.2
+ Double-Precision Whetstone            |   6807.6   |     6789.2    |     6912.1
+ Execl Throughput                      |    856.7   |     1195.6    |      863.1
+ File Copy 1024 bufsize 2000 maxblocks |    189.9   |      923.5    |     1094.2
+ File Copy 256 bufsize 500 maxblocks   |    121.9   |      578.4    |      588.7
+ File Copy 4096 bufsize 8000 maxblocks |    419.9   |     1992.0    |     2733.7
+ Pipe Throughput                       |   6727.2   |     6670.2    |     6743.2
+ Pipe-based Context Switching          |    486.9   |      547.0    |      471.9
+ Process Creation                      |    353.4   |      345.1    |      338.5
+ Shell Scripts (1 concurrent)          |   3187.2   |     1432.2    |     2798.7
+ Shell Scripts (8 concurrent)          |   3410.5   |     1360.1    |     2672.9
+ System Call Overhead                  |   2967.0   |     3273.9    |     3497.9
+---------------------------------------+------------+---------------+-------------------
+ System Benchmarks Index Score         |   1410.0   |     1885.8    |     2128.5
 
-> If the array entry is NULL, just update it with a pointer to the CFI.
-> If it's not NULL, make sure it matches the existing CFI, and WARN if it
-> doesn't.
-> 
-> Also, with this data structure, the ORC generation should also be a lot
-> more straightforward, just ignore the NULL entries.
 
-Yeah, I suppose it gets rid of the memcmp-prev thing.
+Thanks,
 
-> Thoughts?  This is all theoretical of course, I could try to do a patch
-> tomorrow.
+Zengruan
 
-No real objection, I just didn't do it because 1) it works, and 2) even
-moar lines.
+>
+> Thanks,
+>
+>         M.
+
+
+
+--------------43CA695FE1BBE3490CBD148C
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+  <body>
+    <div class="moz-cite-prefix"><font face="Consolas">On 2020/1/15
+        22:14, Marc Zyngier wrote:<br>
+      </font></div>
+    <blockquote type="cite"
+      cite="mid:b1d23a82d6a7caa79a99597fb83472be@kernel.org"><font
+        face="Consolas">On 2020-01-13 12:12, Will Deacon wrote:
+        <br>
+      </font>
+      <blockquote type="cite"><font face="Consolas">[+PeterZ]
+          <br>
+        </font>
+        <font face="Consolas"><br>
+          On Thu, Dec 26, 2019 at 09:58:27PM +0800, Zengruan Ye wrote:
+          <br>
+        </font>
+        <blockquote type="cite"><font face="Consolas">This patch set
+            aims to support the vcpu_is_preempted() functionality
+            <br>
+            under KVM/arm64, which allowing the guest to obtain the VCPU
+            is
+            <br>
+            currently running or not. This will enhance lock performance
+            on
+            <br>
+            overcommitted hosts (more runnable VCPUs than physical CPUs
+            in the
+            <br>
+            system) as doing busy waits for preempted VCPUs will hurt
+            system
+            <br>
+            performance far worse than early yielding.
+            <br>
+          </font>
+          <font face="Consolas"><br>
+            We have observed some performace improvements in uninx
+            benchmark tests.
+            <br>
+          </font>
+          <font face="Consolas"><br>
+            unix benchmark result:
+            <br>
+              host:  kernel 5.5.0-rc1, HiSilicon Kunpeng920, 8 CPUs
+            <br>
+              guest: kernel 5.5.0-rc1, 16 VCPUs
+            <br>
+          </font>
+          <font face="Consolas"><br>
+                           test-case                |    after-patch   
+            |   before-patch
+            <br>
+----------------------------------------+-------------------+------------------
+            <br>
+             Dhrystone 2 using register variables   | 334600751.0 lps  
+            | 335319028.3 lps
+            <br>
+             Double-Precision Whetstone             |     32856.1 MWIPS
+            |     32849.6 MWIPS
+            <br>
+             Execl Throughput                       |      3662.1 lps  
+            |      2718.0 lps
+            <br>
+             File Copy 1024 bufsize 2000 maxblocks  |    432906.4 KBps 
+            |    158011.8 KBps
+            <br>
+             File Copy 256 bufsize 500 maxblocks    |    116023.0 KBps 
+            |     37664.0 KBps
+            <br>
+             File Copy 4096 bufsize 8000 maxblocks  |   1432769.8 KBps 
+            |    441108.8 KBps
+            <br>
+             Pipe Throughput                        |   6405029.6 lps  
+            |   6021457.6 lps
+            <br>
+             Pipe-based Context Switching           |    185872.7 lps  
+            |    184255.3 lps
+            <br>
+             Process Creation                       |      4025.7 lps  
+            |      3706.6 lps
+            <br>
+             Shell Scripts (1 concurrent)           |      6745.6 lpm  
+            |      6436.1 lpm
+            <br>
+             Shell Scripts (8 concurrent)           |       998.7 lpm  
+            |       931.1 lpm
+            <br>
+             System Call Overhead                   |   3913363.1 lps  
+            |   3883287.8 lps
+            <br>
+----------------------------------------+-------------------+------------------
+            <br>
+             System Benchmarks Index Score          |      1835.1      
+            |      1327.6
+            <br>
+          </font></blockquote>
+        <font face="Consolas"><br>
+          Interesting, thanks for the numbers.
+          <br>
+        </font>
+        <font face="Consolas"><br>
+          So it looks like there is a decent improvement to be had from
+          targetted vCPU
+          <br>
+          wakeup, but I really dislike the explicit PV interface and
+          it's already been
+          <br>
+          shown to interact badly with the WFE-based polling in
+          smp_cond_load_*().
+          <br>
+        </font>
+        <font face="Consolas"><br>
+          Rather than expose a divergent interface, I would instead like
+          to explore an
+          <br>
+          improvement to smp_cond_load_*() and see how that performs
+          before we commit
+          <br>
+          to something more intrusive. Marc and I looked at this very
+          briefly in the
+          <br>
+          past, and the basic idea is to register all of the WFE sites
+          with the
+          <br>
+          hypervisor, indicating which register contains the address
+          being spun on
+          <br>
+          and which register contains the "bad" value. That way, you
+          don't bother
+          <br>
+          rescheduling a vCPU if the value at the address is still bad,
+          because you
+          <br>
+          know it will exit immediately.
+          <br>
+        </font>
+        <font face="Consolas"><br>
+          Of course, the devil is in the details because when I say
+          "address", that's
+          <br>
+          a guest virtual address, so you need to play some tricks in
+          the hypervisor
+          <br>
+          so that you have a separate mapping for the lockword (it's
+          enough to keep
+          <br>
+          track of the physical address).
+          <br>
+        </font>
+        <font face="Consolas"><br>
+          Our hacks are here but we basically ran out of time to work on
+          them beyond
+          <br>
+          an unoptimised and hacky prototype:
+          <br>
+        </font>
+        <font face="Consolas"><br>
+<a class="moz-txt-link-freetext" href="https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platforms.git/log/?h=kvm-arm64/pvcy">https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platforms.git/log/?h=kvm-arm64/pvcy</a>
+          <br>
+        </font>
+        <font face="Consolas"><br>
+          Marc -- how would you prefer to handle this?
+          <br>
+        </font></blockquote>
+      <font face="Consolas"><br>
+        Let me try and rebase this thing to a modern kernel (I doubt it
+        applies without
+        <br>
+        conflicts to mainline). We can then have discussion about its
+        merit on the list
+        <br>
+        once I post it. It'd be good to have a pointer to the benchamrks
+        that have been
+        <br>
+        used here.
+        <br>
+      </font></blockquote>
+    <p><font face="Consolas">Hi Marc, Will,<br>
+        <br>
+        My apologies for the slow reply. Just checking what is the
+        latest on this<br>
+        PV cond yield prototype?<br>
+        <br>
+<a class="moz-txt-link-freetext" href="https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platforms.git/log/?h=kvm-arm64/pvcy">https://git.kernel.org/pub/scm/linux/kernel/git/maz/arm-platforms.git/log/?h=kvm-arm64/pvcy</a><br>
+        <br>
+        Recently, I re-doed the unixbench test comparison between vCPU
+        preempted check<br>
+        and PV cond yield. The results are as follows:<br>
+        <br>
+        <br>
+        unix benchmark result:<br>
+          host:  kernel 5.10.0-rc6, HiSilicon Kunpeng920, 8 CPUs<br>
+          guest: kernel 5.10.0-rc6, 16 VCPUs<br>
+                                               | 5.10.0-rc6 |
+        pv_cond_yield | vcpu_is_preempted<br>
+         System Benchmarks Index Values        |    INDEX   |     
+        INDEX    |      INDEX<br>
+---------------------------------------+------------+---------------+-------------------<br>
+         Dhrystone 2 using register variables  |  29164.0   |   
+        29156.9    |    29207.2<br>
+         Double-Precision Whetstone            |   6807.6   |    
+        6789.2    |     6912.1<br>
+         Execl Throughput                      |    856.7   |    
+        1195.6    |      863.1<br>
+         File Copy 1024 bufsize 2000 maxblocks |    189.9   |     
+        923.5    |     1094.2<br>
+         File Copy 256 bufsize 500 maxblocks   |    121.9   |     
+        578.4    |      588.7<br>
+         File Copy 4096 bufsize 8000 maxblocks |    419.9   |    
+        1992.0    |     2733.7<br>
+         Pipe Throughput                       |   6727.2   |    
+        6670.2    |     6743.2<br>
+         Pipe-based Context Switching          |    486.9   |     
+        547.0    |      471.9<br>
+         Process Creation                      |    353.4   |     
+        345.1    |      338.5<br>
+         Shell Scripts (1 concurrent)          |   3187.2   |    
+        1432.2    |     2798.7<br>
+         Shell Scripts (8 concurrent)          |   3410.5   |    
+        1360.1    |     2672.9<br>
+         System Call Overhead                  |   2967.0   |    
+        3273.9    |     3497.9<br>
+---------------------------------------+------------+---------------+-------------------<br>
+         System Benchmarks Index Score         |   1410.0   |    
+        1885.8    |     2128.5<br>
+        <br>
+        <br>
+        Thanks,<br>
+        <br>
+        Zengruan<br>
+        <br>
+      </font></p>
+    <blockquote type="cite"
+      cite="mid:b1d23a82d6a7caa79a99597fb83472be@kernel.org">
+      <font face="Consolas"><br>
+        Thanks,
+        <br>
+      </font>
+      <font face="Consolas"><br>
+                M.
+        <br>
+      </font>
+    </blockquote>
+    <p><font face="Consolas"><br>
+      </font></p>
+  </body>
+</html>
+
+--------------43CA695FE1BBE3490CBD148C--
+
+--===============4947820565364618433==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4947820565364618433==--
