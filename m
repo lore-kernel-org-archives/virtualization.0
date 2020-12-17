@@ -5,76 +5,77 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9A79C4361B
-	for <virtualization@archiver.kernel.org>; Thu, 17 Dec 2020 09:32:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67628C4361B
+	for <virtualization@archiver.kernel.org>; Thu, 17 Dec 2020 09:32:20 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 49AD023602
-	for <virtualization@archiver.kernel.org>; Thu, 17 Dec 2020 09:32:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 49AD023602
+	by mail.kernel.org (Postfix) with ESMTPS id F3E8923602
+	for <virtualization@archiver.kernel.org>; Thu, 17 Dec 2020 09:32:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F3E8923602
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id DC7322E29A;
-	Thu, 17 Dec 2020 09:32:15 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id ACE0F2E291;
+	Thu, 17 Dec 2020 09:32:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id J5mJrzWtul62; Thu, 17 Dec 2020 09:32:01 +0000 (UTC)
+	with ESMTP id NrDDxXFS0KS6; Thu, 17 Dec 2020 09:32:08 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 7170B2E299;
-	Thu, 17 Dec 2020 09:31:55 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 999922E2A1;
+	Thu, 17 Dec 2020 09:32:00 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 432AEC088E;
-	Thu, 17 Dec 2020 09:31:55 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 029EBC1DA2
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7F6C8C1DA2;
+	Thu, 17 Dec 2020 09:32:00 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E7332C013B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Dec 2020 09:31:53 +0000 (UTC)
+ Thu, 17 Dec 2020 09:31:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id DED6E87A44
+ by silver.osuosl.org (Postfix) with ESMTP id C82952E29C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Dec 2020 09:31:52 +0000 (UTC)
+ Thu, 17 Dec 2020 09:31:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NMU9nszcCBiy
+ with ESMTP id F1KZIP7HMBCE
  for <virtualization@lists.linux-foundation.org>;
  Thu, 17 Dec 2020 09:31:51 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 8A06087A3C
+ by silver.osuosl.org (Postfix) with ESMTPS id 7D4422E28B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Dec 2020 09:31:51 +0000 (UTC)
+ Thu, 17 Dec 2020 09:31:50 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1608197510; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ t=1608197508; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=QbhN8nDn8ElFaPhinA1wJiI1Qr2HaGBNE+bcWGQlFpI=;
- b=UFoQlSy4Dkk3IGYqpUsYwqK3x/2DMMD2RVRF0AFx3WupuOh8INGNwy1YOnqk73w8nBO7lq
- 7Sc81VGyhZdXgXTPFN0fW6vOOCOL7i2y0I6M4Wgu0IzV4ZBY9IO1lAldq5Q8GS2I2BpVXp
- 7BFQrpQDmDPkie4o7I8sVGexzABwWOY=
+ bh=tw17vw9qDinK072Gqjp0wECv525qejhJlbKr8xzx2Nk=;
+ b=IkLEuniFx1QPiIU+XZSiMA+xhU+PYa4LNmxqu+d0Dp3gONeD422EIm3Ft/rSuD2mziVA/x
+ 556GbUzg7wqElUMLCzOAT8wUbuVLzbSWRxd9ELZLwU0jivC1i/u1pKz9Sk/nDa5SIXfd/L
+ 8yMmfCHhZP8HlRN/e/oQ2E3/wRBr62I=
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 290A0B722;
- Thu, 17 Dec 2020 09:31:50 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id B99DAB71D;
+ Thu, 17 Dec 2020 09:31:48 +0000 (UTC)
 To: xen-devel@lists.xenproject.org, x86@kernel.org,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 14/15] x86/paravirt: switch functions with custom code to
- ALTERNATIVE
-Date: Thu, 17 Dec 2020 10:31:32 +0100
-Message-Id: <20201217093133.1507-15-jgross@suse.com>
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Subject: [PATCH v3 09/15] x86/paravirt: remove no longer needed 32-bit pvops
+ cruft
+Date: Thu, 17 Dec 2020 10:31:27 +0100
+Message-Id: <20201217093133.1507-10-jgross@suse.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201217093133.1507-1-jgross@suse.com>
 References: <20201217093133.1507-1-jgross@suse.com>
 MIME-Version: 1.0
 Cc: Juergen Gross <jgross@suse.com>, "VMware, Inc." <pv-drivers@vmware.com>,
  Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
+ Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+ Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,363 +95,328 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Instead of using paravirt patching for custom code sequences use
-ALTERNATIVE for the functions with custom code replacements.
+PVOP_VCALL4() is only used for Xen PV, while PVOP_CALL4() isn't used
+at all. Keep PVOP_CALL4() for 64 bits due to symmetry reasons.
 
-Instead of patching an ud2 instruction for unpopulated vector entries
-into the caller site, use a simple function just calling BUG() as a
-replacement.
+This allows to remove the 32-bit definitions of those macros leading
+to a substantial simplification of the paravirt macros, as those were
+the only ones needing non-empty "pre" and "post" parameters.
+
+PVOP_CALLEE2() and PVOP_VCALLEE2() are used nowhere, so remove them.
+
+Another no longer needed case is special handling of return types
+larger than unsigned long. Replace that with a BUILD_BUG_ON().
+
+DISABLE_INTERRUPTS() is used in 32-bit code only, so it can just be
+replaced by cli.
+
+INTERRUPT_RETURN in 32-bit code can be replaced by iret.
+
+ENABLE_INTERRUPTS is used nowhere, so it can be removed.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- arch/x86/include/asm/paravirt.h       | 72 ++++++++++++++--------
- arch/x86/include/asm/paravirt_types.h |  1 -
- arch/x86/kernel/paravirt.c            | 16 ++---
- arch/x86/kernel/paravirt_patch.c      | 88 ---------------------------
- 4 files changed, 53 insertions(+), 124 deletions(-)
+ arch/x86/entry/entry_32.S             |   4 +-
+ arch/x86/include/asm/irqflags.h       |   5 --
+ arch/x86/include/asm/paravirt.h       |  35 +-------
+ arch/x86/include/asm/paravirt_types.h | 112 ++++++++------------------
+ arch/x86/kernel/asm-offsets.c         |   2 -
+ 5 files changed, 35 insertions(+), 123 deletions(-)
 
+diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
+index df8c017e6161..765487e57d6e 100644
+--- a/arch/x86/entry/entry_32.S
++++ b/arch/x86/entry/entry_32.S
+@@ -430,7 +430,7 @@
+ 	 * will soon execute iret and the tracer was already set to
+ 	 * the irqstate after the IRET:
+ 	 */
+-	DISABLE_INTERRUPTS(CLBR_ANY)
++	cli
+ 	lss	(%esp), %esp			/* switch to espfix segment */
+ .Lend_\@:
+ #endif /* CONFIG_X86_ESPFIX32 */
+@@ -1077,7 +1077,7 @@ restore_all_switch_stack:
+ 	 * when returning from IPI handler and when returning from
+ 	 * scheduler to user-space.
+ 	 */
+-	INTERRUPT_RETURN
++	iret
+ 
+ .section .fixup, "ax"
+ SYM_CODE_START(asm_iret_error)
+diff --git a/arch/x86/include/asm/irqflags.h b/arch/x86/include/asm/irqflags.h
+index 144d70ea4393..a0efbcd24b86 100644
+--- a/arch/x86/include/asm/irqflags.h
++++ b/arch/x86/include/asm/irqflags.h
+@@ -109,9 +109,6 @@ static __always_inline unsigned long arch_local_irq_save(void)
+ }
+ #else
+ 
+-#define ENABLE_INTERRUPTS(x)	sti
+-#define DISABLE_INTERRUPTS(x)	cli
+-
+ #ifdef CONFIG_X86_64
+ #ifdef CONFIG_DEBUG_ENTRY
+ #define SAVE_FLAGS(x)		pushfq; popq %rax
+@@ -119,8 +116,6 @@ static __always_inline unsigned long arch_local_irq_save(void)
+ 
+ #define INTERRUPT_RETURN	jmp native_iret
+ 
+-#else
+-#define INTERRUPT_RETURN		iret
+ #endif
+ 
+ #endif /* __ASSEMBLY__ */
 diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 49a823abc0e1..fc551dcc6458 100644
+index 0785a9686e32..1dd30c95505d 100644
 --- a/arch/x86/include/asm/paravirt.h
 +++ b/arch/x86/include/asm/paravirt.h
-@@ -108,7 +108,8 @@ static inline void write_cr0(unsigned long x)
+@@ -692,6 +692,7 @@ extern void default_banner(void);
+ 	.if ((~(set)) & mask); pop %reg; .endif
  
- static inline unsigned long read_cr2(void)
- {
--	return PVOP_CALLEE0(unsigned long, mmu.read_cr2);
-+	return PVOP_ALT_CALLEE0(unsigned long, mmu.read_cr2,
-+				"mov %%cr2, %%rax;", ~X86_FEATURE_XENPV);
- }
+ #ifdef CONFIG_X86_64
++#ifdef CONFIG_PARAVIRT_XXL
  
- static inline void write_cr2(unsigned long x)
-@@ -118,12 +119,14 @@ static inline void write_cr2(unsigned long x)
+ #define PV_SAVE_REGS(set)			\
+ 	COND_PUSH(set, CLBR_RAX, rax);		\
+@@ -717,46 +718,12 @@ extern void default_banner(void);
+ #define PARA_PATCH(off)		((off) / 8)
+ #define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops, .quad, 8)
+ #define PARA_INDIRECT(addr)	*addr(%rip)
+-#else
+-#define PV_SAVE_REGS(set)			\
+-	COND_PUSH(set, CLBR_EAX, eax);		\
+-	COND_PUSH(set, CLBR_EDI, edi);		\
+-	COND_PUSH(set, CLBR_ECX, ecx);		\
+-	COND_PUSH(set, CLBR_EDX, edx)
+-#define PV_RESTORE_REGS(set)			\
+-	COND_POP(set, CLBR_EDX, edx);		\
+-	COND_POP(set, CLBR_ECX, ecx);		\
+-	COND_POP(set, CLBR_EDI, edi);		\
+-	COND_POP(set, CLBR_EAX, eax)
+-
+-#define PARA_PATCH(off)		((off) / 4)
+-#define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops, .long, 4)
+-#define PARA_INDIRECT(addr)	*%cs:addr
+-#endif
  
- static inline unsigned long __read_cr3(void)
- {
--	return PVOP_CALL0(unsigned long, mmu.read_cr3);
-+	return PVOP_ALT_CALL0(unsigned long, mmu.read_cr3,
-+			      "mov %%cr3, %%rax;", ~X86_FEATURE_XENPV);
- }
+-#ifdef CONFIG_PARAVIRT_XXL
+ #define INTERRUPT_RETURN						\
+ 	PARA_SITE(PARA_PATCH(PV_CPU_iret),				\
+ 		  ANNOTATE_RETPOLINE_SAFE;				\
+ 		  jmp PARA_INDIRECT(pv_ops+PV_CPU_iret);)
  
- static inline void write_cr3(unsigned long x)
- {
--	PVOP_VCALL1(mmu.write_cr3, x);
-+	PVOP_ALT_VCALL1(mmu.write_cr3, x,
-+			"mov %%rdi, %%cr3", ~X86_FEATURE_XENPV);
- }
- 
- static inline void __write_cr4(unsigned long x)
-@@ -143,7 +146,7 @@ static inline void halt(void)
- 
- static inline void wbinvd(void)
- {
--	PVOP_VCALL0(cpu.wbinvd);
-+	PVOP_ALT_VCALL0(cpu.wbinvd, "wbinvd", ~X86_FEATURE_XENPV);
- }
- 
- static inline u64 paravirt_read_msr(unsigned msr)
-@@ -357,22 +360,28 @@ static inline void paravirt_release_p4d(unsigned long pfn)
- 
- static inline pte_t __pte(pteval_t val)
- {
--	return (pte_t) { PVOP_CALLEE1(pteval_t, mmu.make_pte, val) };
-+	return (pte_t) { PVOP_ALT_CALLEE1(pteval_t, mmu.make_pte, val,
-+					  "mov %%rdi, %%rax",
-+					  ~X86_FEATURE_XENPV) };
- }
- 
- static inline pteval_t pte_val(pte_t pte)
- {
--	return PVOP_CALLEE1(pteval_t, mmu.pte_val, pte.pte);
-+	return PVOP_ALT_CALLEE1(pteval_t, mmu.pte_val, pte.pte,
-+				"mov %%rdi, %%rax", ~X86_FEATURE_XENPV);
- }
- 
- static inline pgd_t __pgd(pgdval_t val)
- {
--	return (pgd_t) { PVOP_CALLEE1(pgdval_t, mmu.make_pgd, val) };
-+	return (pgd_t) { PVOP_ALT_CALLEE1(pgdval_t, mmu.make_pgd, val,
-+					  "mov %%rdi, %%rax",
-+					  ~X86_FEATURE_XENPV) };
- }
- 
- static inline pgdval_t pgd_val(pgd_t pgd)
- {
--	return PVOP_CALLEE1(pgdval_t, mmu.pgd_val, pgd.pgd);
-+	return PVOP_ALT_CALLEE1(pgdval_t, mmu.pgd_val, pgd.pgd,
-+				"mov %%rdi, %%rax", ~X86_FEATURE_XENPV);
- }
- 
- #define  __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION
-@@ -405,12 +414,15 @@ static inline void set_pmd(pmd_t *pmdp, pmd_t pmd)
- 
- static inline pmd_t __pmd(pmdval_t val)
- {
--	return (pmd_t) { PVOP_CALLEE1(pmdval_t, mmu.make_pmd, val) };
-+	return (pmd_t) { PVOP_ALT_CALLEE1(pmdval_t, mmu.make_pmd, val,
-+					  "mov %%rdi, %%rax",
-+					  ~X86_FEATURE_XENPV) };
- }
- 
- static inline pmdval_t pmd_val(pmd_t pmd)
- {
--	return PVOP_CALLEE1(pmdval_t, mmu.pmd_val, pmd.pmd);
-+	return PVOP_ALT_CALLEE1(pmdval_t, mmu.pmd_val, pmd.pmd,
-+				"mov %%rdi, %%rax", ~X86_FEATURE_XENPV);
- }
- 
- static inline void set_pud(pud_t *pudp, pud_t pud)
-@@ -422,14 +434,16 @@ static inline pud_t __pud(pudval_t val)
- {
- 	pudval_t ret;
- 
--	ret = PVOP_CALLEE1(pudval_t, mmu.make_pud, val);
-+	ret = PVOP_ALT_CALLEE1(pudval_t, mmu.make_pud, val,
-+			       "mov %%rdi, %%rax", ~X86_FEATURE_XENPV);
- 
- 	return (pud_t) { ret };
- }
- 
- static inline pudval_t pud_val(pud_t pud)
- {
--	return PVOP_CALLEE1(pudval_t, mmu.pud_val, pud.pud);
-+	return PVOP_ALT_CALLEE1(pudval_t, mmu.pud_val, pud.pud,
-+				"mov %%rdi, %%rax", ~X86_FEATURE_XENPV);
- }
- 
- static inline void pud_clear(pud_t *pudp)
-@@ -448,14 +462,16 @@ static inline void set_p4d(p4d_t *p4dp, p4d_t p4d)
- 
- static inline p4d_t __p4d(p4dval_t val)
- {
--	p4dval_t ret = PVOP_CALLEE1(p4dval_t, mmu.make_p4d, val);
-+	p4dval_t ret = PVOP_ALT_CALLEE1(p4dval_t, mmu.make_p4d, val,
-+					"mov %%rdi, %%rax", ~X86_FEATURE_XENPV);
- 
- 	return (p4d_t) { ret };
- }
- 
- static inline p4dval_t p4d_val(p4d_t p4d)
- {
--	return PVOP_CALLEE1(p4dval_t, mmu.p4d_val, p4d.p4d);
-+	return PVOP_ALT_CALLEE1(p4dval_t, mmu.p4d_val, p4d.p4d,
-+				"mov %%rdi, %%rax", ~X86_FEATURE_XENPV);
- }
- 
- static inline void __set_pgd(pgd_t *pgdp, pgd_t pgd)
-@@ -542,7 +558,9 @@ static __always_inline void pv_queued_spin_lock_slowpath(struct qspinlock *lock,
- 
- static __always_inline void pv_queued_spin_unlock(struct qspinlock *lock)
- {
--	PVOP_VCALLEE1(lock.queued_spin_unlock, lock);
-+	PVOP_ALT_VCALLEE1(lock.queued_spin_unlock, lock,
-+			  "movb $0, (%%" _ASM_ARG1 ");",
-+			  ~X86_FEATURE_PVUNLOCK);
- }
- 
- static __always_inline void pv_wait(u8 *ptr, u8 val)
-@@ -557,7 +575,9 @@ static __always_inline void pv_kick(int cpu)
- 
- static __always_inline bool pv_vcpu_is_preempted(long cpu)
- {
--	return PVOP_CALLEE1(bool, lock.vcpu_is_preempted, cpu);
-+	return PVOP_ALT_CALLEE1(bool, lock.vcpu_is_preempted, cpu,
-+				"xor %%" _ASM_AX ", %%" _ASM_AX ";",
-+				~X86_FEATURE_VCPUPREEMPT);
- }
- 
- void __raw_callee_save___native_queued_spin_unlock(struct qspinlock *lock);
-@@ -631,17 +651,18 @@ bool __raw_callee_save___native_vcpu_is_preempted(long cpu);
- #ifdef CONFIG_PARAVIRT_XXL
- static inline notrace unsigned long arch_local_save_flags(void)
- {
--	return PVOP_CALLEE0(unsigned long, irq.save_fl);
-+	return PVOP_ALT_CALLEE0(unsigned long, irq.save_fl,
-+				"pushf; pop %%rax;", ~X86_FEATURE_XENPV);
- }
- 
- static inline notrace void arch_local_irq_disable(void)
- {
--	PVOP_VCALLEE0(irq.irq_disable);
-+	PVOP_ALT_VCALLEE0(irq.irq_disable, "cli;", ~X86_FEATURE_XENPV);
- }
- 
- static inline notrace void arch_local_irq_enable(void)
- {
--	PVOP_VCALLEE0(irq.irq_enable);
-+	PVOP_ALT_VCALLEE0(irq.irq_enable, "sti;", ~X86_FEATURE_XENPV);
- }
- 
- static inline notrace unsigned long arch_local_irq_save(void)
-@@ -725,12 +746,13 @@ extern void default_banner(void);
- 		X86_FEATURE_XENPV, "jmp xen_iret;", "jmp native_iret;")
- 
- #ifdef CONFIG_DEBUG_ENTRY
--#define SAVE_FLAGS(clobbers)                                        \
--	PARA_SITE(PARA_PATCH(PV_IRQ_save_fl),			    \
--		  PV_SAVE_REGS(clobbers | CLBR_CALLEE_SAVE);        \
--		  ANNOTATE_RETPOLINE_SAFE;			    \
--		  call PARA_INDIRECT(pv_ops+PV_IRQ_save_fl);	    \
+-#define DISABLE_INTERRUPTS(clobbers)					\
+-	PARA_SITE(PARA_PATCH(PV_IRQ_irq_disable),			\
+-		  PV_SAVE_REGS(clobbers | CLBR_CALLEE_SAVE);		\
+-		  ANNOTATE_RETPOLINE_SAFE;				\
+-		  call PARA_INDIRECT(pv_ops+PV_IRQ_irq_disable);	\
 -		  PV_RESTORE_REGS(clobbers | CLBR_CALLEE_SAVE);)
-+#define SAVE_FLAGS(clobbers)						      \
-+	ALTERNATIVE(PARA_SITE(PARA_PATCH(PV_IRQ_save_fl),		      \
-+			      PV_SAVE_REGS(clobbers | CLBR_CALLEE_SAVE);      \
-+			      ANNOTATE_RETPOLINE_SAFE;			      \
-+			      call PARA_INDIRECT(pv_ops+PV_IRQ_save_fl);      \
-+			      PV_RESTORE_REGS(clobbers | CLBR_CALLEE_SAVE);), \
-+		    "pushf; pop %rax;", ~X86_FEATURE_XENPV)
- #endif
- #endif /* CONFIG_PARAVIRT_XXL */
- #endif	/* CONFIG_X86_64 */
+-
+-#define ENABLE_INTERRUPTS(clobbers)					\
+-	PARA_SITE(PARA_PATCH(PV_IRQ_irq_enable),			\
+-		  PV_SAVE_REGS(clobbers | CLBR_CALLEE_SAVE);		\
+-		  ANNOTATE_RETPOLINE_SAFE;				\
+-		  call PARA_INDIRECT(pv_ops+PV_IRQ_irq_enable);		\
+-		  PV_RESTORE_REGS(clobbers | CLBR_CALLEE_SAVE);)
+-#endif
+-
+-#ifdef CONFIG_X86_64
+-#ifdef CONFIG_PARAVIRT_XXL
+ #ifdef CONFIG_DEBUG_ENTRY
+ #define SAVE_FLAGS(clobbers)                                        \
+ 	PARA_SITE(PARA_PATCH(PV_IRQ_save_fl),			    \
 diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 7e0130781b12..f9e77046b61b 100644
+index 1fff349e4792..42f9eef84131 100644
 --- a/arch/x86/include/asm/paravirt_types.h
 +++ b/arch/x86/include/asm/paravirt_types.h
-@@ -322,7 +322,6 @@ extern void (*paravirt_iret)(void);
- /* Simple instruction patching code. */
- #define NATIVE_LABEL(a,x,b) "\n\t.globl " a #x "_" #b "\n" a #x "_" #b ":\n\t"
+@@ -470,55 +470,34 @@ int paravirt_disable_iospace(void);
+ 	})
  
--unsigned paravirt_patch_ident_64(void *insn_buff, unsigned len);
- unsigned paravirt_patch_default(u8 type, void *insn_buff, unsigned long addr, unsigned len);
- unsigned paravirt_patch_insns(void *insn_buff, unsigned len, const char *start, const char *end);
  
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 2ab547dd66c3..db6ae7f7c14e 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -53,7 +53,10 @@ void __init default_banner(void)
- }
+-#define ____PVOP_CALL(rettype, op, clbr, call_clbr, extra_clbr,		\
+-		      pre, post, ...)					\
++#define ____PVOP_CALL(rettype, op, clbr, call_clbr, extra_clbr, ...)	\
+ 	({								\
+-		rettype __ret;						\
+ 		PVOP_CALL_ARGS;						\
+ 		PVOP_TEST_NULL(op);					\
+-		/* This is 32-bit specific, but is okay in 64-bit */	\
+-		/* since this condition will never hold */		\
+-		if (sizeof(rettype) > sizeof(unsigned long)) {		\
+-			asm volatile(pre				\
+-				     paravirt_alt(PARAVIRT_CALL)	\
+-				     post				\
+-				     : call_clbr, ASM_CALL_CONSTRAINT	\
+-				     : paravirt_type(op),		\
+-				       paravirt_clobber(clbr),		\
+-				       ##__VA_ARGS__			\
+-				     : "memory", "cc" extra_clbr);	\
+-			__ret = (rettype)((((u64)__edx) << 32) | __eax); \
+-		} else {						\
+-			asm volatile(pre				\
+-				     paravirt_alt(PARAVIRT_CALL)	\
+-				     post				\
+-				     : call_clbr, ASM_CALL_CONSTRAINT	\
+-				     : paravirt_type(op),		\
+-				       paravirt_clobber(clbr),		\
+-				       ##__VA_ARGS__			\
+-				     : "memory", "cc" extra_clbr);	\
+-			__ret = (rettype)(__eax & PVOP_RETMASK(rettype));	\
+-		}							\
+-		__ret;							\
++		BUILD_BUG_ON(sizeof(rettype) > sizeof(unsigned long));	\
++		asm volatile(paravirt_alt(PARAVIRT_CALL)		\
++			     : call_clbr, ASM_CALL_CONSTRAINT		\
++			     : paravirt_type(op),			\
++			       paravirt_clobber(clbr),			\
++			       ##__VA_ARGS__				\
++			     : "memory", "cc" extra_clbr);		\
++		(rettype)(__eax & PVOP_RETMASK(rettype));		\
+ 	})
  
- /* Undefined instruction for dealing with missing ops pointers. */
--static const unsigned char ud2a[] = { 0x0f, 0x0b };
-+static void paravirt_BUG(void)
-+{
-+	BUG();
-+}
+-#define __PVOP_CALL(rettype, op, pre, post, ...)			\
++#define __PVOP_CALL(rettype, op, ...)					\
+ 	____PVOP_CALL(rettype, op, CLBR_ANY, PVOP_CALL_CLOBBERS,	\
+-		      EXTRA_CLOBBERS, pre, post, ##__VA_ARGS__)
++		      EXTRA_CLOBBERS, ##__VA_ARGS__)
  
- struct branch {
- 	unsigned char opcode;
-@@ -107,17 +110,10 @@ unsigned paravirt_patch_default(u8 type, void *insn_buff,
- 	unsigned ret;
+-#define __PVOP_CALLEESAVE(rettype, op, pre, post, ...)			\
++#define __PVOP_CALLEESAVE(rettype, op, ...)				\
+ 	____PVOP_CALL(rettype, op.func, CLBR_RET_REG,			\
+-		      PVOP_CALLEE_CLOBBERS, ,				\
+-		      pre, post, ##__VA_ARGS__)
++		      PVOP_CALLEE_CLOBBERS, , ##__VA_ARGS__)
  
- 	if (opfunc == NULL)
--		/* If there's no function, patch it with a ud2a (BUG) */
--		ret = paravirt_patch_insns(insn_buff, len, ud2a, ud2a+sizeof(ud2a));
-+		/* If there's no function, patch it with paravirt_BUG() */
-+		ret = paravirt_patch_call(insn_buff, paravirt_BUG, addr, len);
- 	else if (opfunc == _paravirt_nop)
- 		ret = 0;
+ 
+-#define ____PVOP_VCALL(op, clbr, call_clbr, extra_clbr, pre, post, ...)	\
++#define ____PVOP_VCALL(op, clbr, call_clbr, extra_clbr, ...)		\
+ 	({								\
+ 		PVOP_VCALL_ARGS;					\
+ 		PVOP_TEST_NULL(op);					\
+-		asm volatile(pre					\
+-			     paravirt_alt(PARAVIRT_CALL)		\
+-			     post					\
++		asm volatile(paravirt_alt(PARAVIRT_CALL)		\
+ 			     : call_clbr, ASM_CALL_CONSTRAINT		\
+ 			     : paravirt_type(op),			\
+ 			       paravirt_clobber(clbr),			\
+@@ -526,84 +505,57 @@ int paravirt_disable_iospace(void);
+ 			     : "memory", "cc" extra_clbr);		\
+ 	})
+ 
+-#define __PVOP_VCALL(op, pre, post, ...)				\
++#define __PVOP_VCALL(op, ...)						\
+ 	____PVOP_VCALL(op, CLBR_ANY, PVOP_VCALL_CLOBBERS,		\
+-		       VEXTRA_CLOBBERS,					\
+-		       pre, post, ##__VA_ARGS__)
++		       VEXTRA_CLOBBERS, ##__VA_ARGS__)
+ 
+-#define __PVOP_VCALLEESAVE(op, pre, post, ...)				\
++#define __PVOP_VCALLEESAVE(op, ...)					\
+ 	____PVOP_VCALL(op.func, CLBR_RET_REG,				\
+-		      PVOP_VCALLEE_CLOBBERS, ,				\
+-		      pre, post, ##__VA_ARGS__)
++		      PVOP_VCALLEE_CLOBBERS, , ##__VA_ARGS__)
+ 
+ 
+ 
+ #define PVOP_CALL0(rettype, op)						\
+-	__PVOP_CALL(rettype, op, "", "")
++	__PVOP_CALL(rettype, op)
+ #define PVOP_VCALL0(op)							\
+-	__PVOP_VCALL(op, "", "")
++	__PVOP_VCALL(op)
+ 
+ #define PVOP_CALLEE0(rettype, op)					\
+-	__PVOP_CALLEESAVE(rettype, op, "", "")
++	__PVOP_CALLEESAVE(rettype, op)
+ #define PVOP_VCALLEE0(op)						\
+-	__PVOP_VCALLEESAVE(op, "", "")
++	__PVOP_VCALLEESAVE(op)
+ 
+ 
+ #define PVOP_CALL1(rettype, op, arg1)					\
+-	__PVOP_CALL(rettype, op, "", "", PVOP_CALL_ARG1(arg1))
++	__PVOP_CALL(rettype, op, PVOP_CALL_ARG1(arg1))
+ #define PVOP_VCALL1(op, arg1)						\
+-	__PVOP_VCALL(op, "", "", PVOP_CALL_ARG1(arg1))
++	__PVOP_VCALL(op, PVOP_CALL_ARG1(arg1))
+ 
+ #define PVOP_CALLEE1(rettype, op, arg1)					\
+-	__PVOP_CALLEESAVE(rettype, op, "", "", PVOP_CALL_ARG1(arg1))
++	__PVOP_CALLEESAVE(rettype, op, PVOP_CALL_ARG1(arg1))
+ #define PVOP_VCALLEE1(op, arg1)						\
+-	__PVOP_VCALLEESAVE(op, "", "", PVOP_CALL_ARG1(arg1))
++	__PVOP_VCALLEESAVE(op, PVOP_CALL_ARG1(arg1))
+ 
+ 
+ #define PVOP_CALL2(rettype, op, arg1, arg2)				\
+-	__PVOP_CALL(rettype, op, "", "", PVOP_CALL_ARG1(arg1),		\
+-		    PVOP_CALL_ARG2(arg2))
++	__PVOP_CALL(rettype, op, PVOP_CALL_ARG1(arg1), PVOP_CALL_ARG2(arg2))
+ #define PVOP_VCALL2(op, arg1, arg2)					\
+-	__PVOP_VCALL(op, "", "", PVOP_CALL_ARG1(arg1),			\
+-		     PVOP_CALL_ARG2(arg2))
 -
--#ifdef CONFIG_PARAVIRT_XXL
--	/* identity functions just return their single argument */
--	else if (opfunc == _paravirt_ident_64)
--		ret = paravirt_patch_ident_64(insn_buff, len);
+-#define PVOP_CALLEE2(rettype, op, arg1, arg2)				\
+-	__PVOP_CALLEESAVE(rettype, op, "", "", PVOP_CALL_ARG1(arg1),	\
+-			  PVOP_CALL_ARG2(arg2))
+-#define PVOP_VCALLEE2(op, arg1, arg2)					\
+-	__PVOP_VCALLEESAVE(op, "", "", PVOP_CALL_ARG1(arg1),		\
+-			   PVOP_CALL_ARG2(arg2))
 -
++	__PVOP_VCALL(op, PVOP_CALL_ARG1(arg1), PVOP_CALL_ARG2(arg2))
+ 
+ #define PVOP_CALL3(rettype, op, arg1, arg2, arg3)			\
+-	__PVOP_CALL(rettype, op, "", "", PVOP_CALL_ARG1(arg1),		\
++	__PVOP_CALL(rettype, op, PVOP_CALL_ARG1(arg1),			\
+ 		    PVOP_CALL_ARG2(arg2), PVOP_CALL_ARG3(arg3))
+ #define PVOP_VCALL3(op, arg1, arg2, arg3)				\
+-	__PVOP_VCALL(op, "", "", PVOP_CALL_ARG1(arg1),			\
++	__PVOP_VCALL(op, PVOP_CALL_ARG1(arg1),				\
+ 		     PVOP_CALL_ARG2(arg2), PVOP_CALL_ARG3(arg3))
+ 
+-/* This is the only difference in x86_64. We can make it much simpler */
+-#ifdef CONFIG_X86_32
+ #define PVOP_CALL4(rettype, op, arg1, arg2, arg3, arg4)			\
+ 	__PVOP_CALL(rettype, op,					\
+-		    "push %[_arg4];", "lea 4(%%esp),%%esp;",		\
+-		    PVOP_CALL_ARG1(arg1), PVOP_CALL_ARG2(arg2),		\
+-		    PVOP_CALL_ARG3(arg3), [_arg4] "mr" ((u32)(arg4)))
+-#define PVOP_VCALL4(op, arg1, arg2, arg3, arg4)				\
+-	__PVOP_VCALL(op,						\
+-		    "push %[_arg4];", "lea 4(%%esp),%%esp;",		\
+-		    "0" ((u32)(arg1)), "1" ((u32)(arg2)),		\
+-		    "2" ((u32)(arg3)), [_arg4] "mr" ((u32)(arg4)))
+-#else
+-#define PVOP_CALL4(rettype, op, arg1, arg2, arg3, arg4)			\
+-	__PVOP_CALL(rettype, op, "", "",				\
+ 		    PVOP_CALL_ARG1(arg1), PVOP_CALL_ARG2(arg2),		\
+ 		    PVOP_CALL_ARG3(arg3), PVOP_CALL_ARG4(arg4))
+ #define PVOP_VCALL4(op, arg1, arg2, arg3, arg4)				\
+-	__PVOP_VCALL(op, "", "",					\
+-		     PVOP_CALL_ARG1(arg1), PVOP_CALL_ARG2(arg2),	\
++	__PVOP_VCALL(op, PVOP_CALL_ARG1(arg1), PVOP_CALL_ARG2(arg2),	\
+ 		     PVOP_CALL_ARG3(arg3), PVOP_CALL_ARG4(arg4))
 -#endif
- 	else
- 		/* Otherwise call the function. */
- 		ret = paravirt_patch_call(insn_buff, opfunc, addr, len);
-diff --git a/arch/x86/kernel/paravirt_patch.c b/arch/x86/kernel/paravirt_patch.c
-index abd27ec67397..10543dcc8211 100644
---- a/arch/x86/kernel/paravirt_patch.c
-+++ b/arch/x86/kernel/paravirt_patch.c
-@@ -4,96 +4,8 @@
- #include <asm/paravirt.h>
- #include <asm/asm-offsets.h>
  
--#define PSTART(d, m)							\
--	patch_data_##d.m
--
--#define PEND(d, m)							\
--	(PSTART(d, m) + sizeof(patch_data_##d.m))
--
--#define PATCH(d, m, insn_buff, len)						\
--	paravirt_patch_insns(insn_buff, len, PSTART(d, m), PEND(d, m))
--
--#define PATCH_CASE(ops, m, data, insn_buff, len)				\
--	case PARAVIRT_PATCH(ops.m):					\
--		return PATCH(data, ops##_##m, insn_buff, len)
--
--#ifdef CONFIG_PARAVIRT_XXL
--struct patch_xxl {
--	const unsigned char	irq_irq_disable[1];
--	const unsigned char	irq_irq_enable[1];
--	const unsigned char	irq_save_fl[2];
--	const unsigned char	mmu_read_cr2[3];
--	const unsigned char	mmu_read_cr3[3];
--	const unsigned char	mmu_write_cr3[3];
--	const unsigned char	cpu_wbinvd[2];
--	const unsigned char	mov64[3];
--};
--
--static const struct patch_xxl patch_data_xxl = {
--	.irq_irq_disable	= { 0xfa },		// cli
--	.irq_irq_enable		= { 0xfb },		// sti
--	.irq_save_fl		= { 0x9c, 0x58 },	// pushf; pop %[re]ax
--	.mmu_read_cr2		= { 0x0f, 0x20, 0xd0 },	// mov %cr2, %[re]ax
--	.mmu_read_cr3		= { 0x0f, 0x20, 0xd8 },	// mov %cr3, %[re]ax
--	.mmu_write_cr3		= { 0x0f, 0x22, 0xdf },	// mov %rdi, %cr3
--	.cpu_wbinvd		= { 0x0f, 0x09 },	// wbinvd
--	.mov64			= { 0x48, 0x89, 0xf8 },	// mov %rdi, %rax
--};
--
--unsigned int paravirt_patch_ident_64(void *insn_buff, unsigned int len)
--{
--	return PATCH(xxl, mov64, insn_buff, len);
--}
--# endif /* CONFIG_PARAVIRT_XXL */
--
--#ifdef CONFIG_PARAVIRT_SPINLOCKS
--struct patch_lock {
--	unsigned char queued_spin_unlock[3];
--	unsigned char vcpu_is_preempted[2];
--};
--
--static const struct patch_lock patch_data_lock = {
--	.vcpu_is_preempted	= { 0x31, 0xc0 },	// xor %eax, %eax
--
--# ifdef CONFIG_X86_64
--	.queued_spin_unlock	= { 0xc6, 0x07, 0x00 },	// movb $0, (%rdi)
--# else
--	.queued_spin_unlock	= { 0xc6, 0x00, 0x00 },	// movb $0, (%eax)
--# endif
--};
--#endif /* CONFIG_PARAVIRT_SPINLOCKS */
--
- unsigned int native_patch(u8 type, void *insn_buff, unsigned long addr,
- 			  unsigned int len)
- {
--	switch (type) {
--
--#ifdef CONFIG_PARAVIRT_XXL
--	PATCH_CASE(irq, save_fl, xxl, insn_buff, len);
--	PATCH_CASE(irq, irq_enable, xxl, insn_buff, len);
--	PATCH_CASE(irq, irq_disable, xxl, insn_buff, len);
--
--	PATCH_CASE(mmu, read_cr2, xxl, insn_buff, len);
--	PATCH_CASE(mmu, read_cr3, xxl, insn_buff, len);
--	PATCH_CASE(mmu, write_cr3, xxl, insn_buff, len);
--
--	PATCH_CASE(cpu, wbinvd, xxl, insn_buff, len);
--#endif
--
--#ifdef CONFIG_PARAVIRT_SPINLOCKS
--	case PARAVIRT_PATCH(lock.queued_spin_unlock):
--		if (pv_is_native_spin_unlock())
--			return PATCH(lock, queued_spin_unlock, insn_buff, len);
--		break;
--
--	case PARAVIRT_PATCH(lock.vcpu_is_preempted):
--		if (pv_is_native_vcpu_is_preempted())
--			return PATCH(lock, vcpu_is_preempted, insn_buff, len);
--		break;
--#endif
--	default:
--		break;
--	}
--
- 	return paravirt_patch_default(type, insn_buff, addr, len);
- }
+ /* Lazy mode for batching updates / context switch */
+ enum paravirt_lazy_mode {
+diff --git a/arch/x86/kernel/asm-offsets.c b/arch/x86/kernel/asm-offsets.c
+index 60b9f42ce3c1..736508004b30 100644
+--- a/arch/x86/kernel/asm-offsets.c
++++ b/arch/x86/kernel/asm-offsets.c
+@@ -63,8 +63,6 @@ static void __used common(void)
+ 
+ #ifdef CONFIG_PARAVIRT_XXL
+ 	BLANK();
+-	OFFSET(PV_IRQ_irq_disable, paravirt_patch_template, irq.irq_disable);
+-	OFFSET(PV_IRQ_irq_enable, paravirt_patch_template, irq.irq_enable);
+ 	OFFSET(PV_CPU_iret, paravirt_patch_template, cpu.iret);
+ #endif
+ 
 -- 
 2.26.2
 
