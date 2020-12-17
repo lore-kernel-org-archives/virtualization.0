@@ -2,149 +2,95 @@ Return-Path: <SRS0=dJY/=FV=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,MSGID_FROM_MTA_HEADER,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 500EEC4361B
-	for <virtualization@archiver.kernel.org>; Thu, 17 Dec 2020 16:24:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F6DCC4361B
+	for <virtualization@archiver.kernel.org>; Thu, 17 Dec 2020 16:28:43 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E4485206F6
-	for <virtualization@archiver.kernel.org>; Thu, 17 Dec 2020 16:24:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E4485206F6
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=amd.com
+	by mail.kernel.org (Postfix) with ESMTPS id AD6D3239E5
+	for <virtualization@archiver.kernel.org>; Thu, 17 Dec 2020 16:28:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AD6D3239E5
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmx.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 7DBC987A42;
-	Thu, 17 Dec 2020 16:24:45 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 3B3DB87A5F;
+	Thu, 17 Dec 2020 16:28:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KqPCOZx3Vcyj; Thu, 17 Dec 2020 16:24:44 +0000 (UTC)
+	with ESMTP id IQpOt+J3gLDF; Thu, 17 Dec 2020 16:28:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 93BDF879BF;
-	Thu, 17 Dec 2020 16:24:44 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 4274887A3E;
+	Thu, 17 Dec 2020 16:28:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 75C28C0893;
-	Thu, 17 Dec 2020 16:24:44 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 28FF5C0893;
+	Thu, 17 Dec 2020 16:28:41 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 90AA3C013B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0A519C013B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Dec 2020 16:24:42 +0000 (UTC)
+ Thu, 17 Dec 2020 16:28:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 779E5875BF
+ by fraxinus.osuosl.org (Postfix) with ESMTP id E4FAC875C1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Dec 2020 16:24:42 +0000 (UTC)
+ Thu, 17 Dec 2020 16:28:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 27ha6e9sYhOT
+ with ESMTP id dKmSTwNUCnzD
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Dec 2020 16:24:39 +0000 (UTC)
+ Thu, 17 Dec 2020 16:28:36 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com
- (mail-dm6nam10on2046.outbound.protection.outlook.com [40.107.93.46])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id AD13D874B3
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 8BC44875AB
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Dec 2020 16:24:39 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Ym3FOdJ5C6plbwCWnPbYiBldTJJD/AeVhIqq6kRnLp3r+ZVmG7ga+jAROpL9mzkxFAQDY1cfiCKV/kkS9Y8wel43VUqonq21PEWzYEeVdLa2gxXj6pZx/O3AewH/BGxwqAEPST8E9x2P3/B6k+MYxBVQBHmAAKGaTMarEqupsNw1M2kFTAsReIpeHph2fxK3HEKi9EWo5fH95WoEsewgnNQBItGCz+AQOhAPU0tm78zs8F9lPAz9wH8ynwY6pFYbbzxybK2oCMuvMyZ7D3g2n8TCzgEMyLoEYpZKDKdJernQRInEuxHzabIz3RuTGIgu9LWC2+M8RAby6KUDmidzEA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=T3L/Z2JKNmBEevjM5T+b7IzYa/RSylIYJ0/QgLw7IpQ=;
- b=GGuWIApSejzEewJBWNMHQ4wXreva9evJzU0cWalrMO28vAWjGTnmDkx62ZF89+mI8wZnIiKfnqJnle4FN64aukRDAnCSO0gGaV9kE1ZgxXpYtiEkfekzkOPENWf0rS1DcXTxDBKxeC84MIbcaIgn4NpgXH4KdhdSor/GpbvFXvsz3aqhXosEzElSJKLGt5HjsHVq6G6DeUD3wABxGokrM1PKch8c/1rRS8lVaJfDEjl4gfdKv7UF6OHOfeefhM96NKuh9cb2oRgM5XNGAJ5KvhaXxhNGbiTMVGEz6evLfS72wPtydkqssQksRGcbnJOxP1lp+p2dw/5ONsM7tmu/ZA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=T3L/Z2JKNmBEevjM5T+b7IzYa/RSylIYJ0/QgLw7IpQ=;
- b=V6RvASXAmTWOfVWPUuYwVtmb7aRpr6nmuhnx9C1cYx4DjnLBt1EkhA2IOJFA1d/DCmTHqk4QvW5YMOulWOJsfW5qk4HSWNvWOUiToFtmxIf14s/KHmXuIQRnvwqIXrWHjJ84wMcX0yps/YzbvZfBSxs+bWRdU4lLINiouhjnJYU=
-Authentication-Results: lists.linux-foundation.org; dkim=none (message not
- signed) header.d=none;lists.linux-foundation.org; dmarc=none action=none
- header.from=amd.com;
-Received: from MN2PR12MB3775.namprd12.prod.outlook.com (2603:10b6:208:159::19)
- by BL0PR12MB4898.namprd12.prod.outlook.com (2603:10b6:208:1c7::17)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3654.13; Thu, 17 Dec
- 2020 16:24:37 +0000
-Received: from MN2PR12MB3775.namprd12.prod.outlook.com
- ([fe80::44f:9f01:ece7:f0e5]) by MN2PR12MB3775.namprd12.prod.outlook.com
- ([fe80::44f:9f01:ece7:f0e5%3]) with mapi id 15.20.3654.025; Thu, 17 Dec 2020
- 16:24:36 +0000
+ Thu, 17 Dec 2020 16:28:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+ s=badeba3b8450; t=1608222411;
+ bh=aJhw+NY4u2qqLCXsW8xRiaAfQAzXQyg9VlWkYcC2UWE=;
+ h=X-UI-Sender-Class:Subject:From:To:Cc:Date:In-Reply-To:References;
+ b=asPOK6Ks87kt5M4lCZQbjZ+66dQCM40s75b3RbRRHOjQO0J3/gWFSKI1aK5xZF5Us
+ kqYSLgbLhn0cb5f0/H0n6+lw91Zq75b94EKQtIiyob6bDT1uhMee9fTF8knP+b2eo0
+ q5ZOcHHO7ivTk+3IWzayPbuxMegYatcUU4vAbV+8=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from homer.fritz.box ([185.191.217.61]) by mail.gmx.com (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MIx3C-1kVf8a3bic-00KTrQ; Thu, 17
+ Dec 2020 17:26:50 +0100
+Message-ID: <23bc1073395db9ccf55ecca45198375f4d5d6250.camel@gmx.de>
 Subject: Re: [bisected] Re: drm, qxl: post 5.11 merge warning+explosion
-To: Mike Galbraith <efault@gmx.de>, LKML <linux-kernel@vger.kernel.org>
+From: Mike Galbraith <efault@gmx.de>
+To: Christian =?ISO-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>, LKML
+ <linux-kernel@vger.kernel.org>
+Date: Thu, 17 Dec 2020 17:26:49 +0100
+In-Reply-To: <6f99d3ca-a7ff-69e9-8ca1-9d016a8d3f48@amd.com>
 References: <5979380e28f4ba8023e88f96d3a9291381a8457e.camel@gmx.de>
  <a1b925758cbc5517d4ff6df3cf2a9b6614fd5535.camel@gmx.de>
  <1f88b926bedcad0d6e35c7f5b63bbb038c8c6c09.camel@gmx.de>
-From: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
-Message-ID: <6f99d3ca-a7ff-69e9-8ca1-9d016a8d3f48@amd.com>
-Date: Thu, 17 Dec 2020 17:24:32 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-In-Reply-To: <1f88b926bedcad0d6e35c7f5b63bbb038c8c6c09.camel@gmx.de>
-Content-Language: en-US
-X-Originating-IP: [2a02:908:1252:fb60:be8a:bd56:1f94:86e7]
-X-ClientProxiedBy: AM0PR01CA0154.eurprd01.prod.exchangelabs.com
- (2603:10a6:208:aa::23) To MN2PR12MB3775.namprd12.prod.outlook.com
- (2603:10b6:208:159::19)
+ <6f99d3ca-a7ff-69e9-8ca1-9d016a8d3f48@amd.com>
+User-Agent: Evolution 3.34.4 
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [IPv6:2a02:908:1252:fb60:be8a:bd56:1f94:86e7]
- (2a02:908:1252:fb60:be8a:bd56:1f94:86e7) by
- AM0PR01CA0154.eurprd01.prod.exchangelabs.com (2603:10a6:208:aa::23) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3654.12 via Frontend
- Transport; Thu, 17 Dec 2020 16:24:35 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-HT: Tenant
-X-MS-Office365-Filtering-Correlation-Id: 723b400f-e7c8-411f-a1ca-08d8a2a83f16
-X-MS-TrafficTypeDiagnostic: BL0PR12MB4898:
-X-Microsoft-Antispam-PRVS: <BL0PR12MB489824FE7B8114309BBF33B383C40@BL0PR12MB4898.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:586;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Ux4d5fODcnM2UfOypThGYnj/W+pEB+TBHhQEdoBTPFanTZXUi9wvGMsyRv+P42G6D4Z4b3uordoMYXNyccWBXnG7Pw5U93+iZFC+a6Ih5kTXelQhFt57dNScPP9avfTvLymQ0443Ejv91G2D9WrFd7tBr139OZwAzEYjvn27k1F6zxLoR++Hvbmu7uTbY7R/fZuuISWsDK+YOZIwEoMoc53xDUOP0xbP166+la6+U9e6AIoElwfRP/hzLCNsutvydpbNnMlfPQgfsCHtoUPgWVDlTpajd5Eg6NT7nW96mLa6fgrOEicisfWlFUuEYQdfEVyxLMxeTjD7vMylEeVGEVjqFAtNd6E2qifGA0Pn+mtLvHYvCxITK1EFFpgZj3nxnt9WMOc/HTOT2jKzf/ds5pjceuHMnJhOERVYhskRJt4=
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:MN2PR12MB3775.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(136003)(366004)(39860400002)(346002)(376002)(396003)(83380400001)(66476007)(52116002)(86362001)(66556008)(31696002)(31686004)(66946007)(8936002)(6666004)(5660300002)(2906002)(316002)(966005)(16526019)(2616005)(54906003)(45080400002)(478600001)(6486002)(4326008)(66574015)(8676002)(186003)(110136005)(36756003)(43740500002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData: =?iso-8859-15?Q?+5roQga08X6/Al2BRXNYdNfdyN6bptEma3eEbmVVPICUkJFmK7gc5odIa?=
- =?iso-8859-15?Q?DVwjCInBI4Bg9023lYH46MkGgx5eazRzARSJ1Qu06I/iqO3yXK7jNb+R+?=
- =?iso-8859-15?Q?MHdWgeR59t+O6+DEZMyyDonu3OHJIpEfC1LjBJHHcIQho0BSuvkOSJdcd?=
- =?iso-8859-15?Q?8Jm7aF+QjIPJKrGNmizElqlHAoj9PG6E+K0nzVC5ySoOkBwcVV0Eh4IMe?=
- =?iso-8859-15?Q?vJa1VwpHhFdeZSWeJB7UYkA3SEfN25eQTpjZlu+Ieqi5Us2Eqwc4YOpcg?=
- =?iso-8859-15?Q?0ubkIM6DThBEBhC2MZqiOLjJq1CP329uaP3kSEc9HihGOZ5ZBfQO5EZ4g?=
- =?iso-8859-15?Q?OUHZAuWeqCk9vryiXSt9cNddStLFzrM4K6qkpYQtUGz0lgdBWn0Y2YJZ8?=
- =?iso-8859-15?Q?HlKlYdRWwTGVswOVvo0trAaFh6OU6CC4dpD77hHkRa8f2QAwkU59pvfZM?=
- =?iso-8859-15?Q?D/OnNwTFNJY0SQ7pSas9j8arRwiBwp8VH+Zw+txEdIxORgjfCMx7lcZ+X?=
- =?iso-8859-15?Q?/9oNyZzSGh8zAGWI2O02FWmg8LUY+a2n1bUVBUM14LP+TWhpdxHxDmeh2?=
- =?iso-8859-15?Q?mgMDKS3W238igBE+wf2c0iYNmNlDLerl4oNBOVOlxVEmDvAUL3lOQZfqe?=
- =?iso-8859-15?Q?jVCzuVtrT+P+FT+5GP2wBWSqSFUg03mk3YKoz+7135ZOe/poggEvnNyTs?=
- =?iso-8859-15?Q?iNMdVjVgPIqisyQEHoUEJOPWJxPl4uVSFLVl+U2qTCGy8mL2lumalrQKU?=
- =?iso-8859-15?Q?isBi0za6e5ae7UHd9N4RRqulBWax/duqsrkhlHfEAfO+6X8bt+asqrR0n?=
- =?iso-8859-15?Q?jaRGEfFriJK+PbykaxNZ2x1bqInCQPw0wipjS98ZL8UiXcotb4rx9PhU2?=
- =?iso-8859-15?Q?tY9bGX1rjuh3EnMwltn+cJ8XWgIeOIa9zPHoNPZgkBDQf2tme4A7MI/HU?=
- =?iso-8859-15?Q?AZwoN5sVmVqt2+Y7wbNn7TXbE1F0PqkH05QmhX8aIbwjRaOKSjor9e2oT?=
- =?iso-8859-15?Q?L1aTJl3+IWS8b6hH7bCcKWTaANIKEstkMTlJ/8fuEbo+W3PBuZE/0jGun?=
- =?iso-8859-15?Q?qLD77FiFc5tWeRPPr5DTr5ZCkSTjYhvMeSrvLM1iwqz9Lo3YwvhsWkd7G?=
- =?iso-8859-15?Q?16/89?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB3775.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Dec 2020 16:24:36.9018 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-Network-Message-Id: 723b400f-e7c8-411f-a1ca-08d8a2a83f16
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: zWNXSfZ3AQzvG3JRgK4WqzqprFcSj/c63BpXjo7qgY26shkg8xuCY1Lawa5MK3l+
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB4898
+X-Provags-ID: V03:K1:tWUdMzCUtqIO6Qrmy+U0bkUiPadM7gU5O5hYttXmoV/4efQNZpE
+ 9o+sGEdbQkOtweBbQbPwHaJr2WVg4G28TOLU6RHpe20YTUf8YKM8fr9NEJsBldTPDNpZiWh
+ flXyIgpWdCIE8ZWeu4a1atMTwWJMe/kNyQ8FfVgKH9Qrx5czxMzIOv4Zm8rp58+fsjgPwGJ
+ 3TsvYeNqzFw1oLHkJYFWA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:C7Yxk1vQWCk=:8nR5iNgzCB+H6q1dk+9iEJ
+ ujcRcH/utrQv3nXUHgvE19dJGj4L9K2ULZid1T34a+HXWaljDyyEaJYFcfOPRCf+f2lFFN6fd
+ LZG3cVQu7C0iRz32ERhUF+wry8vaZ/E9DTl7K+I6xjuE80A+ofJzEApVoe2lJmXOUml9bvyCC
+ xx8JS+EYPIXo54x7m96tyVbDw3QvA7JT7XgXxV0Fw4bn7dKBkwRnBPXfzB5NbXG26NmS1FB13
+ SXnHP8kiL5OZsWy6TkL8lPSeeYaUXA6RzOzN6PRd0ceJ+mPJASKfTajY5/6Y/rog8qsIbc59E
+ 2u2yyY/0gSNbEhVXA2rnMSneFvbg+nCNewmHJahj5yggDuwmzGtAvc/5fd0zHuTs9xSjKe5kG
+ s69BdmqQrW/hCN5gdJLBnr3iN1wvQwGhECVJeVh1mtwsnf8l54KlzjuaA3Cvd8mVScjwc2LYQ
+ A2CVgjWgW6pEmKAyYEfQZRhnCovvNriNkc0Lz29HtoPPzcz9CUKqhFFfXHEGfEuN/yS3vGSui
+ CHBR6UZnalBSNISl+d5+2ylh36qFa2ZwcnC615/DWGRD7X29/8zwUe/iUv7CISJ7ixXneS/LY
+ jDudd6q/hLy1PKvhclxiEG6pOVmrp2nBq9KyJzTYSpylr+1cYqSGJXnvyqONgIbHsg4I/bMj/
+ 25V0Tzmbb0SY+bKDwgs4auLTIEP/1hVKcqr45g8oOELmVvE9szJQQcFiwWVE/xEZIYdRjmEE5
+ a2MJ8sUivwJj9DFU9tTc5Wx7vLtkvhE+RMk+vEPSQ3ts/GFGw9whN4E5wNe7zgq+uuOX5X+70
+ twqFKmUXhwXdFATjO8dBU/l5GU+1lt+3JE9oBcp/cOYb43mSv7xKLri39WFslttAb2cETMBsp
+ ER2fyqWdhaXEvDNxCLaQ==
 Cc: Dave Airlie <airlied@redhat.com>,
  virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -158,104 +104,153 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="iso-8859-15"
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-15"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Mike,
+On Thu, 2020-12-17 at 17:24 +0100, Christian K=F6nig wrote:
+> Hi Mike,
+>
+> what exactly is the warning from qxl you are seeing?
 
-what exactly is the warning from qxl you are seeing?
+[    1.815561] WARNING: CPU: 7 PID: 355 at drivers/gpu/drm/ttm/ttm_pool.c:3=
+65 ttm_pool_alloc+0x41b/0x540 [ttm]
+[    1.815561] Modules linked in: ext4(E) crc16(E) mbcache(E) jbd2(E) ata_g=
+eneric(E) ata_piix(E) virtio_console(E) virtio_rng(E) virtio_blk(E) qxl(E) =
+drm_ttm_helper(E) ttm(E) drm_kms_helper(E) syscopyarea(E) sysfillrect(E) sy=
+simgblt(E) ahci(E) fb_sys_fops(E) cec(E) libahci(E) uhci_hcd(E) ehci_pci(E)=
+ rc_core(E) ehci_hcd(E) crc32c_intel(E) serio_raw(E) virtio_pci(E) virtio_r=
+ing(E) 8139cp(E) virtio(E) libata(E) drm(E) usbcore(E) mii(E) sg(E) dm_mult=
+ipath(E) dm_mod(E) scsi_dh_rdac(E) scsi_dh_emc(E) scsi_dh_alua(E) scsi_mod(=
+E) autofs4(E)
+[    1.815589] CPU: 7 PID: 355 Comm: kworker/7:2 Tainted: G            E   =
+  5.10.0.g489e9fe-master #26
+[    1.815590] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS =
+rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
+[    1.815614] Workqueue: events drm_fb_helper_dirty_work [drm_kms_helper]
+[    1.815621] RIP: 0010:ttm_pool_alloc+0x41b/0x540 [ttm]
+[    1.815623] Code: fc ff ff 89 ea 48 8d 04 d5 00 00 00 00 48 29 d0 48 8d =
+3c c5 00 1c 40 a0 e9 d7 fc ff ff 85 c0 0f 89 2f fc ff ff e9 28 fc ff ff <0f=
+> 0b e9 35 fc ff ff 89 e9 49 8b 7d 00 b8 00 10 00 00 48 d3 e0 45
+[    1.815623] RSP: 0018:ffff888105d3b818 EFLAGS: 00010246
+[    1.815625] RAX: 0000000000000000 RBX: ffff888106978800 RCX: 00000000000=
+00000
+[    1.815626] RDX: ffff888105d3bc68 RSI: 0000000000000001 RDI: ffff8881062=
+38820
+[    1.815626] RBP: ffff888106238758 R08: ffffc90000296000 R09: 80000000000=
+0016b
+[    1.815627] R10: 0000000000000001 R11: ffffc90000296000 R12: 00000000000=
+00000
+[    1.815628] R13: ffff888106238820 R14: 0000000000000000 R15: ffff8881069=
+78800
+[    1.815628] FS:  0000000000000000(0000) GS:ffff888237dc0000(0000) knlGS:=
+0000000000000000
+[    1.815632] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    1.815633] CR2: 00007eff52a0d5b8 CR3: 0000000002010003 CR4: 00000000001=
+706e0
+[    1.815633] Call Trace:
+[    1.815644]  ttm_tt_populate+0xb1/0xc0 [ttm]
+[    1.815647]  ttm_bo_move_memcpy+0x4a5/0x500 [ttm]
+[    1.815652]  qxl_bo_move+0x230/0x2f0 [qxl]
+[    1.815655]  ttm_bo_handle_move_mem+0x79/0x140 [ttm]
+[    1.815657]  ttm_bo_evict+0x124/0x250 [ttm]
+[    1.815693]  ? drm_mm_insert_node_in_range+0x55c/0x580 [drm]
+[    1.815696]  ttm_mem_evict_first+0x110/0x3d0 [ttm]
+[    1.815698]  ttm_bo_mem_space+0x261/0x270 [ttm]
+[    1.815702]  ? qxl_ttm_debugfs_init+0xb0/0xb0 [qxl]
+[    1.815705]  ttm_bo_validate+0x117/0x150 [ttm]
+[    1.815756]  ttm_bo_init_reserved+0x2c8/0x3c0 [ttm]
+[    1.815772]  qxl_bo_create+0x134/0x1d0 [qxl]
+[    1.815775]  ? qxl_ttm_debugfs_init+0xb0/0xb0 [qxl]
+[    1.815791]  qxl_alloc_bo_reserved+0x2c/0x90 [qxl]
+[    1.815794]  qxl_image_alloc_objects+0xa3/0x120 [qxl]
+[    1.815797]  qxl_draw_dirty_fb+0x155/0x450 [qxl]
+[    1.815815]  ? _cond_resched+0x15/0x40
+[    1.815819]  ? ww_mutex_lock_interruptible+0x12/0x60
+[    1.815822]  qxl_framebuffer_surface_dirty+0x14f/0x1a0 [qxl]
+[    1.815841]  drm_fb_helper_dirty_work+0x11d/0x180 [drm_kms_helper]
+[    1.815853]  process_one_work+0x1f5/0x3c0
+[    1.815866]  ? process_one_work+0x3c0/0x3c0
+[    1.815867]  worker_thread+0x2d/0x3d0
+[    1.815868]  ? process_one_work+0x3c0/0x3c0
+[    1.815872]  kthread+0x117/0x130
+[    1.815876]  ? kthread_park+0x90/0x90
+[    1.815880]  ret_from_fork+0x1f/0x30
+[    1.815886] ---[ end trace 51e464c1e89a1728 ]---
+[    1.815894] BUG: kernel NULL pointer dereference, address: 0000000000000=
+230
+[    1.815895] #PF: supervisor read access in kernel mode
+[    1.815895] #PF: error_code(0x0000) - not-present page
+[    1.815896] PGD 0 P4D 0
+[    1.815898] Oops: 0000 [#1] SMP NOPTI
+[    1.815900] CPU: 7 PID: 355 Comm: kworker/7:2 Tainted: G        W   E   =
+  5.10.0.g489e9fe-master #26
+[    1.815901] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS =
+rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
+[    1.815916] Workqueue: events drm_fb_helper_dirty_work [drm_kms_helper]
+[    1.815921] RIP: 0010:dma_map_page_attrs+0xf/0x1c0
+[    1.815922] Code: 1f 17 5b 01 48 85 c0 75 e3 31 c0 c3 66 66 2e 0f 1f 84 =
+00 00 00 00 00 0f 1f 40 00 0f 1f 44 00 00 41 55 41 54 55 53 48 83 ec 08 <48=
+> 8b 87 30 02 00 00 48 85 c0 48 0f 44 05 e7 16 5b 01 41 83 f8 02
+[    1.815923] RSP: 0018:ffff888105d3b7e8 EFLAGS: 00010296
+[    1.815924] RAX: 0000000000001000 RBX: 0000000000000001 RCX: 00000000000=
+01000
+[    1.815924] RDX: 0000000000000000 RSI: ffffea0004171e40 RDI: 00000000000=
+00000
+[    1.815925] RBP: 0000000000000000 R08: 0000000000000000 R09: 00000000000=
+00000
+[    1.815925] R10: ffffea0004171e40 R11: ffffc90000296000 R12: 00000000000=
+00001
+[    1.815926] R13: ffff888106238820 R14: ffff888105d07100 R15: ffff8881069=
+78800
+[    1.815926] FS:  0000000000000000(0000) GS:ffff888237dc0000(0000) knlGS:=
+0000000000000000
+[    1.815928] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[    1.815929] CR2: 0000000000000230 CR3: 0000000002010003 CR4: 00000000001=
+706e0
+[    1.815929] Call Trace:
+[    1.815937]  ttm_pool_alloc+0x448/0x540 [ttm]
+[    1.815940]  ttm_tt_populate+0xb1/0xc0 [ttm]
+[    1.815942]  ttm_bo_move_memcpy+0x4a5/0x500 [ttm]
+[    1.815945]  qxl_bo_move+0x230/0x2f0 [qxl]
+[    1.815947]  ttm_bo_handle_move_mem+0x79/0x140 [ttm]
+[    1.815949]  ttm_bo_evict+0x124/0x250 [ttm]
+[    1.815982]  ? drm_mm_insert_node_in_range+0x55c/0x580 [drm]
+[    1.815984]  ttm_mem_evict_first+0x110/0x3d0 [ttm]
+[    1.815988]  ttm_bo_mem_space+0x261/0x270 [ttm]
+[    1.890133]  ? qxl_ttm_debugfs_init+0xb0/0xb0 [qxl]
+[    1.890138]  ttm_bo_validate+0x117/0x150 [ttm]
+[    1.891740]  ttm_bo_init_reserved+0x2c8/0x3c0 [ttm]
+[    1.891744]  qxl_bo_create+0x134/0x1d0 [qxl]
+[    1.893398]  ? qxl_ttm_debugfs_init+0xb0/0xb0 [qxl]
+[    1.893400]  qxl_alloc_bo_reserved+0x2c/0x90 [qxl]
+[    1.893402]  qxl_image_alloc_objects+0xa3/0x120 [qxl]
+[    1.893405]  qxl_draw_dirty_fb+0x155/0x450 [qxl]
+[    1.896515]  ? _cond_resched+0x15/0x40
+[    1.896517]  ? ww_mutex_lock_interruptible+0x12/0x60
+[    1.896520]  qxl_framebuffer_surface_dirty+0x14f/0x1a0 [qxl]
+[    1.896533]  drm_fb_helper_dirty_work+0x11d/0x180 [drm_kms_helper]
+[    1.896537]  process_one_work+0x1f5/0x3c0
+[    1.900535]  ? process_one_work+0x3c0/0x3c0
+[    1.900536]  worker_thread+0x2d/0x3d0
+[    1.900538]  ? process_one_work+0x3c0/0x3c0
+[    1.902704]  kthread+0x117/0x130
+[    1.902706]  ? kthread_park+0x90/0x90
+[    1.902709]  ret_from_fork+0x1f/0x30
+[    1.902711] Modules linked in: ext4(E) crc16(E) mbcache(E) jbd2(E) ata_g=
+eneric(E) ata_piix(E) virtio_console(E) virtio_rng(E) virtio_blk(E) qxl(E) =
+drm_ttm_helper(E) ttm(E) drm_kms_helper(E) syscopyarea(E) sysfillrect(E) sy=
+simgblt(E) ahci(E) fb_sys_fops(E) cec(E) libahci(E) uhci_hcd(E) ehci_pci(E)=
+ rc_core(E) ehci_hcd(E) crc32c_intel(E) serio_raw(E) virtio_pci(E) virtio_r=
+ing(E) 8139cp(E) virtio(E) libata(E) drm(E) usbcore(E) mii(E) sg(E) dm_mult=
+ipath(E) dm_mod(E) scsi_dh_rdac(E) scsi_dh_emc(E) scsi_dh_alua(E) scsi_mod(=
+E) autofs4(E)
+[    1.904797] Dumping ftrace buffer:
+[    1.911038]    (ftrace buffer empty)
+[    1.911041] CR2: 0000000000000230
 
-Thanks,
-Christian.
 
-Am 17.12.20 um 17:21 schrieb Mike Galbraith:
-> ee5d2a8e549e90325fcc31825269f89647cd6fac is the first bad commit
-> commit ee5d2a8e549e90325fcc31825269f89647cd6fac
-> Author: Christian K=F6nig <christian.koenig@amd.com>
-> Date:   Sat Oct 24 13:10:28 2020 +0200
->
->      drm/ttm: wire up the new pool as default one v2
->
->      Provide the necessary parameters by all drivers and use the new pool=
- alloc
->      when no driver specific function is provided.
->
->      v2: fix the GEM VRAM helpers
->
->      Signed-off-by: Christian K=F6nig <christian.koenig@amd.com>
->      Reviewed-by: Dave Airlie <airlied@redhat.com>
->      Reviewed-by: Madhav Chauhan <madhav.chauhan@amd.com>
->      Tested-by: Huang Rui <ray.huang@amd.com>
->      Link: https://nam11.safelinks.protection.outlook.com/?url=3Dhttps%3A=
-%2F%2Fpatchwork.freedesktop.org%2Fpatch%2F397081%2F%3Fseries%3D83051%26rev%=
-3D1&amp;data=3D04%7C01%7Cchristian.koenig%40amd.com%7C5e5b079ebef74f3ef56b0=
-8d8a2a7c416%7C3dd8961fe4884e608e11a82d994e183d%7C0%7C0%7C637438189325014013=
-%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haW=
-wiLCJXVCI6Mn0%3D%7C3000&amp;sdata=3D7dT4qkc4SEBLYDZwl5V4glm9ynvFHwAVdzn3y7e=
-O7Kc%3D&amp;reserved=3D0
->
->   drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c |  4 ++--
->   drivers/gpu/drm/drm_gem_vram_helper.c   |  4 ++--
->   drivers/gpu/drm/nouveau/nouveau_ttm.c   | 14 +++++++++-----
->   drivers/gpu/drm/qxl/qxl_ttm.c           |  5 ++---
->   drivers/gpu/drm/radeon/radeon_ttm.c     |  4 ++--
->   drivers/gpu/drm/ttm/ttm_bo.c            |  8 ++++++--
->   drivers/gpu/drm/ttm/ttm_memory.c        |  2 +-
->   drivers/gpu/drm/ttm/ttm_tt.c            |  5 ++---
->   drivers/gpu/drm/vmwgfx/vmwgfx_drv.c     |  5 +++--
->   include/drm/ttm/ttm_bo_driver.h         | 11 +++++++----
->   10 files changed, 36 insertions(+), 26 deletions(-)
->
-> git bisect start 'drivers/gpu/drm/qxl'
-> # good: [2c85ebc57b3e1817b6ce1a6b703928e113a90442] Linux 5.10
-> git bisect good 2c85ebc57b3e1817b6ce1a6b703928e113a90442
-> # bad: [accefff5b547a9a1d959c7e76ad539bf2480e78b] Merge tag 'arm-soc-omap=
--genpd-5.11' of git://git.kernel.org/pub/scm/linux/kernel/git/soc/soc
-> git bisect bad accefff5b547a9a1d959c7e76ad539bf2480e78b
-> # bad: [d635a69dd4981cc51f90293f5f64268620ed1565] Merge tag 'net-next-5.1=
-1' of git://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next
-> git bisect bad d635a69dd4981cc51f90293f5f64268620ed1565
-> # bad: [0ca2ce81eb8ee30f3ba8ac7967fef9cfbb44dbdb] Merge tag 'arm64-upstre=
-am' of git://git.kernel.org/pub/scm/linux/kernel/git/arm64/linux
-> git bisect bad 0ca2ce81eb8ee30f3ba8ac7967fef9cfbb44dbdb
-> # bad: [f8aab60422c371425365d386dfd51e0c6c5b1041] drm/amdgpu: Initialise =
-drm_gem_object_funcs for imported BOs
-> git bisect bad f8aab60422c371425365d386dfd51e0c6c5b1041
-> # bad: [c0f98d2f8b076bf3e3183aa547395f919c943a14] Merge tag 'drm-misc-nex=
-t-2020-11-05' of git://anongit.freedesktop.org/drm/drm-misc into drm-next
-> git bisect bad c0f98d2f8b076bf3e3183aa547395f919c943a14
-> # good: [6a6e5988a2657cd0c91f6f1a3e7d194599248b6d] drm/ttm: replace last =
-move_notify with delete_mem_notify
-> git bisect good 6a6e5988a2657cd0c91f6f1a3e7d194599248b6d
-> # good: [f566fdcd6cc49a9d5b5d782f56e3e7cb243f01b8] drm/i915: Force VT'd w=
-orkarounds when running as a guest OS
-> git bisect good f566fdcd6cc49a9d5b5d782f56e3e7cb243f01b8
-> # good: [e76ab2cf21c38331155ea613cdf18582f011c30f] drm/i915: Remove per-p=
-latform IIR HPD masking
-> git bisect good e76ab2cf21c38331155ea613cdf18582f011c30f
-> # bad: [268af50f38b1f2199a2e85e38073d7a25c20190c] drm/panfrost: Support c=
-ache-coherent integrations
-> git bisect bad 268af50f38b1f2199a2e85e38073d7a25c20190c
-> # good: [e000650375b65ff77c5ee852b5086f58c741179e] fbdev/atafb: Remove un=
-used extern variables
-> git bisect good e000650375b65ff77c5ee852b5086f58c741179e
-> # bad: [461619f5c3242aaee9ec3f0b7072719bd86ea207] drm/nouveau: switch to =
-new allocator
-> git bisect bad 461619f5c3242aaee9ec3f0b7072719bd86ea207
-> # good: [d099fc8f540add80f725014fdd4f7f49f3c58911] drm/ttm: new TT backen=
-d allocation pool v3
-> git bisect good d099fc8f540add80f725014fdd4f7f49f3c58911
-> # bad: [e93b2da9799e5cb97760969f3e1f02a5bdac29fe] drm/amdgpu: switch to n=
-ew allocator v2
-> git bisect bad e93b2da9799e5cb97760969f3e1f02a5bdac29fe
-> # bad: [ee5d2a8e549e90325fcc31825269f89647cd6fac] drm/ttm: wire up the ne=
-w pool as default one v2
-> git bisect bad ee5d2a8e549e90325fcc31825269f89647cd6fac
-> # first bad commit: [ee5d2a8e549e90325fcc31825269f89647cd6fac] drm/ttm: w=
-ire up the new pool as default one v2
->
 
 _______________________________________________
 Virtualization mailing list
