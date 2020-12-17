@@ -2,96 +2,81 @@ Return-Path: <SRS0=dJY/=FV=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F10ABC4361B
-	for <virtualization@archiver.kernel.org>; Thu, 17 Dec 2020 09:03:12 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ADA2DC4361B
+	for <virtualization@archiver.kernel.org>; Thu, 17 Dec 2020 09:31:55 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7C0372389E
-	for <virtualization@archiver.kernel.org>; Thu, 17 Dec 2020 09:03:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7C0372389E
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 24DED23602
+	for <virtualization@archiver.kernel.org>; Thu, 17 Dec 2020 09:31:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 24DED23602
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id DFACA87877;
-	Thu, 17 Dec 2020 09:03:11 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id C156A87A4A;
+	Thu, 17 Dec 2020 09:31:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JS8mnBTY4Bcw; Thu, 17 Dec 2020 09:03:11 +0000 (UTC)
+	with ESMTP id emWg2OU20IlY; Thu, 17 Dec 2020 09:31:53 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id F2D0A8785B;
-	Thu, 17 Dec 2020 09:03:10 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id E99FB87A3C;
+	Thu, 17 Dec 2020 09:31:52 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DCC4FC1833;
-	Thu, 17 Dec 2020 09:03:10 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BA7F8C013B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C2805C1DA4;
+	Thu, 17 Dec 2020 09:31:52 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C3A4FC013B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Dec 2020 09:03:09 +0000 (UTC)
+ Thu, 17 Dec 2020 09:31:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id A4E8387555
+ by hemlock.osuosl.org (Postfix) with ESMTP id B9B6A87A42
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Dec 2020 09:03:09 +0000 (UTC)
+ Thu, 17 Dec 2020 09:31:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3kAwrExz-T5h
+ with ESMTP id yCJ+rihCG4ym
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Dec 2020 09:03:08 +0000 (UTC)
+ Thu, 17 Dec 2020 09:31:49 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 91C8C87554
+Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id C8DDD87A43
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Dec 2020 09:03:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1608195787;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ Thu, 17 Dec 2020 09:31:48 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1608197507; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=N7BMLAt3Nkb4GWZAxfBiiUdsoewOzT4BGc7hVKvcSzc=;
- b=DQldMh+Hs8uJuUhnTtjwGK5c/K0Wrfm+/Mwbe6V1QOSLBiy7hHEI3/+W9hMXElQZVwi3AN
- 3S/h1gLW1/Lz8/0LBqvFSeF53tuCQQ7hdRPDIUzNpWAU7bq0vbelbTn3rOzZylI+ebJCQ6
- f2YuYfM3i7rbtL4O5hrNUWtQikJcYJM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-55-6rdIExmXMbSqGRSDQB8yNA-1; Thu, 17 Dec 2020 04:03:05 -0500
-X-MC-Unique: 6rdIExmXMbSqGRSDQB8yNA-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
- [10.5.11.14])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 81710190A7A4;
- Thu, 17 Dec 2020 09:03:03 +0000 (UTC)
-Received: from [10.72.12.223] (ovpn-12-223.pek2.redhat.com [10.72.12.223])
- by smtp.corp.redhat.com (Postfix) with ESMTP id A76125D9C0;
- Thu, 17 Dec 2020 09:02:50 +0000 (UTC)
-Subject: Re: [PATCH 00/21] Control VQ support in vDPA
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20201216064818.48239-1-jasowang@redhat.com>
- <20201216044051-mutt-send-email-mst@kernel.org>
- <aa061fcb-9395-3a1b-5d6e-76b5454dfb6c@redhat.com>
- <20201217025410-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <61b60985-142b-10f2-58b8-1d9f57c0cfca@redhat.com>
-Date: Thu, 17 Dec 2020 17:02:49 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ bh=PWa8LXJtPmdrGF/SU7ngKGgWKwsy52HIQIMfyyd743k=;
+ b=XV18fU5jObgxzak0SuEa4O/Fu1W4msBVPVw+I4RyV0+x/g1FB+E24MhDfSXhUgrLBHkP54
+ 7+VaG4EuQrH0C1QUt62IfclRgOMOUQEy2sf66NMiRuMKbqj7u6FJ1SeSNZ+V1TQCeZlso+
+ HwYGPxsv9e3fr+FOrK2wvuezZi6Mu9Y=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+ by mx2.suse.de (Postfix) with ESMTP id 45CAFB717;
+ Thu, 17 Dec 2020 09:31:47 +0000 (UTC)
+To: xen-devel@lists.xenproject.org, x86@kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Subject: [PATCH v3 05/15] x86: rework arch_local_irq_restore() to not use popf
+Date: Thu, 17 Dec 2020 10:31:23 +0100
+Message-Id: <20201217093133.1507-6-jgross@suse.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20201217093133.1507-1-jgross@suse.com>
+References: <20201217093133.1507-1-jgross@suse.com>
 MIME-Version: 1.0
-In-Reply-To: <20201217025410-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-Cc: kvm@vger.kernel.org, lulu@redhat.com, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- eperezma@redhat.com, stefanha@redhat.com, eli@mellanox.com,
- lingshan.zhu@intel.com, rob.miller@broadcom.com
+Cc: Juergen Gross <jgross@suse.com>,
+ Stefano Stabellini <sstabellini@kernel.org>, "VMware,
+ Inc." <pv-drivers@vmware.com>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
+ "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -103,150 +88,287 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+From: Juergen Gross via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Juergen Gross <jgross@suse.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Ck9uIDIwMjAvMTIvMTcg5LiL5Y2IMzo1OCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9u
-IFRodSwgRGVjIDE3LCAyMDIwIGF0IDExOjMwOjE4QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
-Cj4+IE9uIDIwMjAvMTIvMTYg5LiL5Y2INTo0NywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+
-Pj4gT24gV2VkLCBEZWMgMTYsIDIwMjAgYXQgMDI6NDc6NTdQTSArMDgwMCwgSmFzb24gV2FuZyB3
-cm90ZToKPj4+PiBIaSBBbGw6Cj4+Pj4KPj4+PiBUaGlzIHNlcmllcyB0cmllcyB0byBhZGQgdGhl
-IHN1cHBvcnQgZm9yIGNvbnRyb2wgdmlydHF1ZXVlIGluIHZEUEEuCj4+Pj4KPj4+PiBDb250cm9s
-IHZpcnRxdWV1ZSBpcyB1c2VkIGJ5IG5ldHdvcmtpbmcgZGV2aWNlIGZvciBhY2NlcHRpbmcgdmFy
-aW91cwo+Pj4+IGNvbW1hbmRzIGZyb20gdGhlIGRyaXZlci4gSXQncyBhIG11c3QgdG8gc3VwcG9y
-dCBtdWx0aXF1ZXVlIGFuZCBvdGhlcgo+Pj4+IGNvbmZpZ3VyYXRpb25zLgo+Pj4+Cj4+Pj4gV2hl
-biB1c2VkIGJ5IHZob3N0LXZEUEEgYnVzIGRyaXZlciBmb3IgVk0sIHRoZSBjb250cm9sIHZpcnRx
-dWV1ZQo+Pj4+IHNob3VsZCBiZSBzaGFkb3dlZCB2aWEgdXNlcnNwYWNlIFZNTSAoUWVtdSkgaW5z
-dGVhZCBvZiBiZWluZyBhc3NpZ25lZAo+Pj4+IGRpcmVjdGx5IHRvIEd1ZXN0LiBUaGlzIGlzIGJl
-Y2F1c2UgUWVtdSBuZWVkcyB0byBrbm93IHRoZSBkZXZpY2Ugc3RhdGUKPj4+PiBpbiBvcmRlciB0
-byBzdGFydCBhbmQgc3RvcCBkZXZpY2UgY29ycmVjdGx5IChlLmcgZm9yIExpdmUgTWlncmF0aW9u
-KS4KPj4+Pgo+Pj4+IFRoaXMgcmVxdWllcyB0byBpc29sYXRlIHRoZSBtZW1vcnkgbWFwcGluZyBm
-b3IgY29udHJvbCB2aXJ0cXVldWUKPj4+PiBwcmVzZW50ZWQgYnkgdmhvc3QtdkRQQSB0byBwcmV2
-ZW50IGd1ZXN0IGZyb20gYWNjZXNpbmcgaXQgZGlyZWN0bHkuCj4+Pj4gVG8gYWNoaWV2ZSB0aGlz
-LCB2RFBBIGludHJvZHVjZSB0d28gbmV3IGFic3RyYWN0aW9uczoKPj4+Pgo+Pj4+IC0gYWRkcmVz
-cyBzcGFjZTogaWRlbnRpZmllZCB0aHJvdWdoIGFkZHJlc3Mgc3BhY2UgaWQgKEFTSUQpIGFuZCBh
-IHNldAo+Pj4+ICAgICAgICAgICAgICAgICAgICBvZiBtZW1vcnkgbWFwcGluZyBpbiBtYWludGFp
-bmVkCj4+Pj4gLSB2aXJ0cXVldWUgZ3JvdXA6IHRoZSBtaW5pbWFsIHNldCBvZiB2aXJ0cXVldWVz
-IHRoYXQgbXVzdCBzaGFyZSBhbgo+Pj4+ICAgICAgICAgICAgICAgICAgICBhZGRyZXNzIHNwYWNl
-Cj4+PiBIb3cgd2lsbCB0aGlzIHN1cHBvcnQgdGhlIHByZXR0eSBjb21tb24gY2FzZSB3aGVyZSBj
-b250cm9sIHZxCj4+PiBpcyBwcm9ncmFtbWVkIGJ5IHRoZSBrZXJuZWwgdGhyb3VnaCB0aGUgUEYs
-IGFuZCBvdGhlcnMgYnkgdGhlIFZGcz8KPj4KPj4gSW4gdGhpcyBjYXNlLCB0aGUgVkYgcGFyZW50
-IG5lZWQgdG8gcHJvdmlkZSBhIHNvZnR3YXJlIGNvbnRyb2wgdnEgYW5kIGRlY29kZQo+PiB0aGUg
-Y29tbWFuZCB0aGVuIHNlbmQgdGhlbSB0byBWRi4KPgo+IEJ1dCBob3cgZG9lcyB0aGF0IHRpZSB0
-byB0aGUgYWRkcmVzcyBzcGFjZSBpbmZyYXN0cnVjdHVyZT8KCgpJbiB0aGlzIGNhc2UsIGFkZHJl
-c3Mgc3BhY2UgaXMgbm90IGEgbXVzdC4gQnV0IHRoZSBpZGVhIGlzIHRvIG1ha2UgCmNvbnRyb2wg
-dnEgd29ya3MgZm9yIGFsbCB0eXBlcyBvZiBoYXJkd2FyZToKCjEpIGNvbnRyb2wgdmlydHF1ZXVl
-IGlzIGltcGxlbWVudGVkIHZpYSBWRi9QRiBjb21tdW5pY2F0aW9uCjIpIGNvbnRyb2wgdmlydHF1
-ZXVlIGlzIGltcGxlbWVudGVkIGJ5IFZGIGJ1dCBub3QgdGhyb3VnaCBETUEKMykgY29udHJvbCB2
-aXJ0cXVldWUgaXMgaW1wbGVtZW50ZWQgYnkgVkYgRE1BLCBpdCBjb3VsZCBiZSBlaXRoZXIgYSAK
-aGFyZHdhcmUgY29udHJvbCB2aXJ0cXVldWUgb3Igb3RoZXIgdHlwZSBvZiBETUEKClRoZSBhZGRy
-ZXNzIHNwYWNlIGlzIGEgbXVzdCBmb3IgMykgdG8gd29yayBhbmQgY2FuIHdvcmsgZm9yIGJvdGgg
-MSkgYW5kIDIpLgoKCj4KPgo+Cj4+Pgo+Pj4gSSBhY3R1YWxseSB0aG91Z2h0IHRoZSB3YXkgdG8g
-c3VwcG9ydCBpdCBpcyBieSBleHBvc2luZwo+Pj4gc29tZXRoaW5nIGxpa2UgYW4gImluamVjdCBi
-dWZmZXJzIiBBUEkgd2hpY2ggc2VuZHMgZGF0YSB0byBhIGdpdmVuIFZRLgo+Pj4gTWF5YmUgYW4g
-aW9jdGwsIGFuZCBtYXliZSBkb3duIHRoZSByb2FkIHVpbyByaW5nIGNhbiBzdXBwb3J0IGJhdGNo
-aW5nCj4+PiB0aGVzZSAuLi4uCj4+Cj4+IFNvIHRoZSB2aXJ0dXF1ZXVlIGFsbG93cyB0aGUgcmVx
-dWVzdCB0byBiZSBwcm9jZXNzZWQgYXN5bmNocm9ub3VzbHkgKGUuZwo+PiBkcml2ZXIgbWF5IGNo
-b29zZSB0byB1c2UgaW50ZXJydXB0IGZvciBjb250cm9sIHZxKS4gVGhpcyBtZWFucyB3ZSBuZWVk
-IHRvCj4+IHN1cHBvcnQgdGhhdCBpbiB1QVBJIGxldmVsLgo+IEkgZG9uJ3QgdGhpbmsgd2UgbmVl
-ZCB0byBtYWtlIGl0IGFzeW5jLCBqdXN0IGEgcmVndWxhciBpb2N0bCB3aWxsIGRvLgo+IEluIGZh
-Y3Qgbm8gZ3Vlc3QgdXNlcyB0aGUgYXN5bmNocm9ub3VzIHByb3BlcnR5LgoKCkl0IHdhcyBub3Qg
-Zm9yYmlkZGVuIGJ5IHRoZSBzcGVjIHRoZW4gd2UgbmVlZCB0byBzdXBwb3J0IHRoYXQuIEUuZyB3
-ZSAKY2FuIG5vdCBhc3N1bWUgZHJpdmVyIGRvZXNuJ3QgYXNzaWduIGludGVycnVwdCBmb3IgY3Zx
-LgoKCj4KPgo+PiBBbmQgaWYgd2UgbWFuYWdlIHRvIGRvIHRoYXQsIGl0J3MganVzdCBhbm90aGVy
-Cj4+IHR5cGUgb2YgdmlydHF1ZXVlLgo+Pgo+PiBGb3IgdmlydGlvLXZEUEEsIHRoaXMgYWxzbyBt
-ZWFucyB0aGUgZXh0ZW5zaW9ucyBmb3IgcXVldWUgcHJvY2Vzc2luZyB3aGljaAo+PiBpcyBhIGZ1
-bmN0aW9uYWwgZHVwbGljYXRpb24uCj4gSSBkb24ndCBzZWUgd2h5LCBqdXN0IHNlbmQgaXQgdG8g
-dGhlIGFjdHVhbCBjb250cm9sIHZxIDopCgoKQnV0IGluIHRoZSBjYXNlIHlvdSd2ZSBwb2ludGVk
-IG91dCwgdGhlcmUncyBubyBoYXJkd2FyZSBjb250cm9sIHZxIGluIGZhY3QuCgoKPgo+PiBVc2lu
-ZyB3aGF0IHByb3Bvc2VkIGluIHRoaXMgc2VyaWVzLCB3ZSBkb24ndAo+PiBuZWVkIGFueSBjaGFu
-Z2VzIGZvciBrZXJuZWwgdmlydGlvIGRyaXZlcnMuCj4+Cj4+IFdoYXQncyBtb3JlIGltcG9ydGFu
-dCwgdGhpcyBzZXJpZXMgY291bGQgYmUgdXNlZCBmb3IgZnV0dXJlIGZlYXR1cmVzIHRoYXQKPj4g
-cmVxdWlyZXMgRE1BIGlzb2xhdGlvbiBiZXR3ZWVuIHZpcnRxdWV1ZXM6Cj4+Cj4+IC0gcmVwb3J0
-IGRpcnR5IHBhZ2VzIHZpYSB2aXJ0cXVldWUKPj4gLSBzdWIgZnVuY3Rpb24gbGV2ZWwgZGV2aWNl
-IHNsaWNpbmcKPgo+IEkgYWdyZWUgdGhlc2UgYXJlIG5pY2UgdG8gaGF2ZSwgYnV0IEkgYW0gbm90
-IHN1cmUgYmFzaWMgY29udHJvbCB2cSBtdXN0Cj4gYmUgdGllZCB0byB0aGF0LgoKCklmIHRoZSBj
-b250cm9sIHZpcnRxdWV1ZSBpcyBpbXBsZW1lbnRlZCB2aWEgRE1BIHRocm91Z2ggVkYsIGl0IGxv
-b2tzIApsaWtlIGEgbXVzdC4KClRoYW5rcwoKCj4KPj4gLi4uCj4+Cj4+IFRoYW5rcwo+Pgo+Pgo+
-Pj4KPj4+PiBEZXZpY2UgbmVlZHMgdG8gYWR2ZXJ0aXNlIHRoZSBmb2xsb3dpbmcgYXR0cmlidXRl
-cyB0byB2RFBBOgo+Pj4+Cj4+Pj4gLSB0aGUgbnVtYmVyIG9mIGFkZHJlc3Mgc3BhY2VzIHN1cHBv
-cnRlZCBpbiB0aGUgZGV2aWNlCj4+Pj4gLSB0aGUgbnVtYmVyIG9mIHZpcnRxdWV1ZSBncm91cHMg
-c3VwcG9ydGVkIGluIHRoZSBkZXZpY2UKPj4+PiAtIHRoZSBtYXBwaW5ncyBmcm9tIGEgc3BlY2lm
-aWMgdmlydHF1ZXVlIHRvIGl0cyB2aXJ0cXVldWUgZ3JvdXBzCj4+Pj4KPj4+PiBUaGUgbWFwcGlu
-Z3MgZnJvbSB2aXJ0cXVldWUgdG8gdmlydHF1ZXVlIGdyb3VwcyBpcyBmaXhlZCBhbmQgZGVmaW5l
-ZAo+Pj4+IGJ5IHZEUEEgZGV2aWNlIGRyaXZlci4gRS5nOgo+Pj4+Cj4+Pj4gLSBGb3IgdGhlIGRl
-dmljZSB0aGF0IGhhcyBoYXJkd2FyZSBBU0lEIHN1cHBvcnQsIGl0IGNhbiBzaW1wbHkKPj4+PiAg
-ICAgYWR2ZXJ0aXNlIGEgcGVyIHZpcnRxdWV1ZSB2aXJ0cXVldWUgZ3JvdXAuCj4+Pj4gLSBGb3Ig
-dGhlIGRldmljZSB0aGF0IGRvZXMgbm90IGhhdmUgaGFyZHdhcmUgQVNJRCBzdXBwb3J0LCBpdCBj
-YW4KPj4+PiAgICAgc2ltcGx5IGFkdmVydGlzZSBhIHNpbmdsZSB2aXJ0cXVldWUgZ3JvdXAgdGhh
-dCBjb250YWlucyBhbGwKPj4+PiAgICAgdmlydHF1ZXVlcy4gT3IgaWYgaXQgd2FudHMgYSBzb2Z0
-d2FyZSBlbXVsYXRlZCBjb250cm9sIHZpcnRxdWV1ZSwgaXQKPj4+PiAgICAgY2FuIGFkdmVydGlz
-ZSB0d28gdmlydHF1ZXVlIGdyb3Vwcywgb25lIGlzIGZvciBjdnEsIGFub3RoZXIgaXMgZm9yCj4+
-Pj4gICAgIHRoZSByZXN0IHZpcnRxdWV1ZXMuCj4+Pj4KPj4+PiB2RFBBIGFsc28gYWxsb3cgdG8g
-Y2hhbmdlIHRoZSBhc3NvY2lhdGlvbiBiZXR3ZWVuIHZpcnRxdWV1ZSBncm91cCBhbmQKPj4+PiBh
-ZGRyZXNzIHNwYWNlLiBTbyBpbiB0aGUgY2FzZSBvZiBjb250cm9sIHZpcnRxdWV1ZSwgdXNlcnNw
-YWNlCj4+Pj4gVk1NKFFlbXUpIG1heSB1c2UgYSBkZWRpY2F0ZWQgYWRkcmVzcyBzcGFjZSBmb3Ig
-dGhlIGNvbnRyb2wgdmlydHF1ZXVlCj4+Pj4gZ3JvdXAgdG8gaXNvbGF0ZSB0aGUgbWVtb3J5IG1h
-cHBpbmcuCj4+Pj4KPj4+PiBUaGUgdmhvc3Qvdmhvc3QtdkRQQSBpcyBhbHNvIGV4dGVuZCBmb3Ig
-dGhlIHVzZXJzcGFjZSB0bzoKPj4+Pgo+Pj4+IC0gcXVlcnkgdGhlIG51bWJlciBvZiB2aXJ0cXVl
-dWUgZ3JvdXBzIGFuZCBhZGRyZXNzIHNwYWNlcyBzdXBwb3J0ZWQgYnkKPj4+PiAgICAgdGhlIGRl
-dmljZQo+Pj4+IC0gcXVlcnkgdGhlIHZpcnRxdWV1ZSBncm91cCBmb3IgYSBzcGVjaWZpYyB2aXJ0
-cXVldWUKPj4+PiAtIGFzc29jYWl0ZSBhIHZpcnRxdWV1ZSBncm91cCB3aXRoIGFuIGFkZHJlc3Mg
-c3BhY2UKPj4+PiAtIHNlbmQgQVNJRCBiYXNlZCBJT1RMQiBjb21tYW5kcwo+Pj4+Cj4+Pj4gVGhp
-cyB3aWxsIGhlbHAgdXNlcnNwYWNlIFZNTShRZW11KSB0byBkZXRlY3Qgd2hldGhlciB0aGUgY29u
-dHJvbCB2cQo+Pj4+IGNvdWxkIGJlIHN1cHBvcnRlZCBhbmQgaXNvbGF0ZSBtZW1vcnkgbWFwcGlu
-Z3Mgb2YgY29udHJvbCB2aXJ0cXVldWUKPj4+PiBmcm9tIHRoZSBvdGhlcnMuCj4+Pj4KPj4+PiBU
-byBkZW1vbnN0cmF0ZSB0aGUgdXNhZ2UsIHZEUEEgc2ltdWxhdG9yIGlzIGV4dGVuZGVkIHRvIHN1
-cHBvcnQKPj4+PiBzZXR0aW5nIE1BQyBhZGRyZXNzIHZpYSBhIGVtdWxhdGVkIGNvbnRyb2wgdmly
-dHF1ZXVlLgo+Pj4+Cj4+Pj4gUGxlYXNlIHJldmlldy4KPj4+Pgo+Pj4+IENoYW5nZXMgc2luY2Ug
-UkZDOgo+Pj4+Cj4+Pj4gLSB0d2VhayB2aG9zdCB1QVBJIGRvY3VtZW50YXRpb24KPj4+PiAtIHN3
-aXRjaCB0byB1c2UgZGV2aWNlIHNwZWNpZmljIElPVExCIHJlYWxseSBpbiBwYXRjaCA0Cj4+Pj4g
-LSB0d2VhayB0aGUgY29tbWl0IGxvZwo+Pj4+IC0gZml4IHRoYXQgQVNJRCBpbiB2aG9zdCBpcyBj
-bGFpbWVkIHRvIGJlIDMyIGFjdHVhbGx5IGJ1dCAxNmJpdAo+Pj4+ICAgICBhY3R1YWxseQo+Pj4+
-IC0gZml4IHVzZSBhZnRlciBmcmVlIHdoZW4gdXNpbmcgQVNJRCB3aXRoIElPVExCIGJhdGNoaW5n
-IHJlcXVlc3RzCj4+Pj4gLSBzd2l0Y2ggdG8gdXNlIFN0ZWZhbm8ncyBwYXRjaCBmb3IgaGF2aW5n
-IHNlcGFyYXRlZCBpb3YKPj4+PiAtIHJlbW92ZSB1bnVzZWQgInVzZWRfYXMiIHZhcmlhYmxlCj4+
-Pj4gLSBmaXggdGhlIGlvdGxiL2FzaWQgY2hlY2tpbmcgaW4gdmhvc3RfdmRwYV91bm1hcCgpCj4+
-Pj4KPj4+PiBUaGFua3MKPj4+Pgo+Pj4+IEphc29uIFdhbmcgKDIwKToKPj4+PiAgICAgdmhvc3Q6
-IG1vdmUgdGhlIGJhY2tlbmQgZmVhdHVyZSBiaXRzIHRvIHZob3N0X3R5cGVzLmgKPj4+PiAgICAg
-dmlydGlvLXZkcGE6IGRvbid0IHNldCBjYWxsYmFjayBpZiB2aXJ0aW8gZG9lc24ndCBuZWVkIGl0
-Cj4+Pj4gICAgIHZob3N0LXZkcGE6IHBhc3NpbmcgaW90bGIgdG8gSU9NTVUgbWFwcGluZyBoZWxw
-ZXJzCj4+Pj4gICAgIHZob3N0LXZkcGE6IHN3aXRjaCB0byB1c2Ugdmhvc3QtdmRwYSBzcGVjaWZp
-YyBJT1RMQgo+Pj4+ICAgICB2ZHBhOiBhZGQgdGhlIG1pc3NpbmcgY29tbWVudCBmb3IgbnZxcyBp
-biBzdHJ1Y3QgdmRwYV9kZXZpY2UKPj4+PiAgICAgdmRwYTogaW50cm9kdWNlIHZpcnRxdWV1ZSBn
-cm91cHMKPj4+PiAgICAgdmRwYTogbXVsdGlwbGUgYWRkcmVzcyBzcGFjZXMgc3VwcG9ydAo+Pj4+
-ICAgICB2ZHBhOiBpbnRyb2R1Y2UgY29uZmlnIG9wZXJhdGlvbnMgZm9yIGFzc29jaWF0aW5nIEFT
-SUQgdG8gYSB2aXJ0cXVldWUKPj4+PiAgICAgICBncm91cAo+Pj4+ICAgICB2aG9zdF9pb3RsYjog
-c3BsaXQgb3V0IElPVExCIGluaXRpYWxpemF0aW9uCj4+Pj4gICAgIHZob3N0OiBzdXBwb3J0IEFT
-SUQgaW4gSU9UTEIgQVBJCj4+Pj4gICAgIHZob3N0LXZkcGE6IGludHJvZHVjZSBhc2lkIGJhc2Vk
-IElPVExCCj4+Pj4gICAgIHZob3N0LXZkcGE6IGludHJvZHVjZSB1QVBJIHRvIGdldCB0aGUgbnVt
-YmVyIG9mIHZpcnRxdWV1ZSBncm91cHMKPj4+PiAgICAgdmhvc3QtdmRwYTogaW50cm9kdWNlIHVB
-UEkgdG8gZ2V0IHRoZSBudW1iZXIgb2YgYWRkcmVzcyBzcGFjZXMKPj4+PiAgICAgdmhvc3QtdmRw
-YTogdUFQSSB0byBnZXQgdmlydHF1ZXVlIGdyb3VwIGlkCj4+Pj4gICAgIHZob3N0LXZkcGE6IGlu
-dHJvZHVjZSB1QVBJIHRvIHNldCBncm91cCBBU0lECj4+Pj4gICAgIHZob3N0LXZkcGE6IHN1cHBv
-cnQgQVNJRCBiYXNlZCBJT1RMQiBBUEkKPj4+PiAgICAgdmRwYV9zaW06IGFkdmVydGlzZSBWSVJU
-SU9fTkVUX0ZfTVRVCj4+Pj4gICAgIHZkcGFfc2ltOiBmYWN0b3Igb3V0IGJ1ZmZlciBjb21wbGV0
-aW9uIGxvZ2ljCj4+Pj4gICAgIHZkcGFfc2ltOiBmaWx0ZXIgZGVzdGluYXRpb24gbWFjIGFkZHJl
-c3MKPj4+PiAgICAgdmRwYXNpbTogY29udHJvbCB2aXJ0cXVldWUgc3VwcG9ydAo+Pj4+Cj4+Pj4g
-U3RlZmFubyBHYXJ6YXJlbGxhICgxKToKPj4+PiAgICAgdmRwYV9zaW06IHNwbGl0IHZkcGFzaW1f
-dmlydHF1ZXVlJ3MgaW92IGZpZWxkIGluIG91dF9pb3YgYW5kIGluX2lvdgo+Pj4+Cj4+Pj4gICAg
-ZHJpdmVycy92ZHBhL2lmY3ZmL2lmY3ZmX21haW4uYyAgIHwgICA5ICstCj4+Pj4gICAgZHJpdmVy
-cy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5jIHwgIDExICstCj4+Pj4gICAgZHJpdmVycy92ZHBh
-L3ZkcGEuYyAgICAgICAgICAgICAgIHwgICA4ICstCj4+Pj4gICAgZHJpdmVycy92ZHBhL3ZkcGFf
-c2ltL3ZkcGFfc2ltLmMgIHwgMjkyICsrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLQo+Pj4+
-ICAgIGRyaXZlcnMvdmhvc3QvaW90bGIuYyAgICAgICAgICAgICB8ICAyMyArKy0KPj4+PiAgICBk
-cml2ZXJzL3Zob3N0L3ZkcGEuYyAgICAgICAgICAgICAgfCAyNDYgKysrKysrKysrKysrKysrKysr
-KystLS0tLQo+Pj4+ICAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyAgICAgICAgICAgICB8ICAyMyAr
-Ky0KPj4+PiAgICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggICAgICAgICAgICAgfCAgIDQgKy0KPj4+
-PiAgICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fdmRwYS5jICAgICAgfCAgIDIgKy0KPj4+PiAgICBp
-bmNsdWRlL2xpbnV4L3ZkcGEuaCAgICAgICAgICAgICAgfCAgNDIgKysrKy0KPj4+PiAgICBpbmNs
-dWRlL2xpbnV4L3Zob3N0X2lvdGxiLmggICAgICAgfCAgIDIgKwo+Pj4+ICAgIGluY2x1ZGUvdWFw
-aS9saW51eC92aG9zdC5oICAgICAgICB8ICAyNSArKy0KPj4+PiAgICBpbmNsdWRlL3VhcGkvbGlu
-dXgvdmhvc3RfdHlwZXMuaCAgfCAgMTAgKy0KPj4+PiAgICAxMyBmaWxlcyBjaGFuZ2VkLCA1NjEg
-aW5zZXJ0aW9ucygrKSwgMTM2IGRlbGV0aW9ucygtKQo+Pj4+Cj4+Pj4gLS0gCj4+Pj4gMi4yNS4x
-CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
-aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
-dmlydHVhbGl6YXRpb24=
+"popf" is a rather expensive operation, so don't use it for restoring
+irq flags. Instead test whether interrupts are enabled in the flags
+parameter and enable interrupts via "sti" in that case.
+
+This results in the restore_fl paravirt op to be no longer needed.
+
+Suggested-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+ arch/x86/include/asm/irqflags.h       | 20 ++++++-------------
+ arch/x86/include/asm/paravirt.h       |  5 -----
+ arch/x86/include/asm/paravirt_types.h |  7 ++-----
+ arch/x86/kernel/irqflags.S            | 11 -----------
+ arch/x86/kernel/paravirt.c            |  1 -
+ arch/x86/kernel/paravirt_patch.c      |  3 ---
+ arch/x86/xen/enlighten_pv.c           |  2 --
+ arch/x86/xen/irq.c                    | 23 ----------------------
+ arch/x86/xen/xen-asm.S                | 28 ---------------------------
+ arch/x86/xen/xen-ops.h                |  1 -
+ 10 files changed, 8 insertions(+), 93 deletions(-)
+
+diff --git a/arch/x86/include/asm/irqflags.h b/arch/x86/include/asm/irqflags.h
+index e585a4705b8d..144d70ea4393 100644
+--- a/arch/x86/include/asm/irqflags.h
++++ b/arch/x86/include/asm/irqflags.h
+@@ -35,15 +35,6 @@ extern __always_inline unsigned long native_save_fl(void)
+ 	return flags;
+ }
+ 
+-extern inline void native_restore_fl(unsigned long flags);
+-extern inline void native_restore_fl(unsigned long flags)
+-{
+-	asm volatile("push %0 ; popf"
+-		     : /* no output */
+-		     :"g" (flags)
+-		     :"memory", "cc");
+-}
+-
+ static __always_inline void native_irq_disable(void)
+ {
+ 	asm volatile("cli": : :"memory");
+@@ -79,11 +70,6 @@ static __always_inline unsigned long arch_local_save_flags(void)
+ 	return native_save_fl();
+ }
+ 
+-static __always_inline void arch_local_irq_restore(unsigned long flags)
+-{
+-	native_restore_fl(flags);
+-}
+-
+ static __always_inline void arch_local_irq_disable(void)
+ {
+ 	native_irq_disable();
+@@ -152,6 +138,12 @@ static __always_inline int arch_irqs_disabled(void)
+ 
+ 	return arch_irqs_disabled_flags(flags);
+ }
++
++static __always_inline void arch_local_irq_restore(unsigned long flags)
++{
++	if (!arch_irqs_disabled_flags(flags))
++		arch_local_irq_enable();
++}
+ #else
+ #ifdef CONFIG_X86_64
+ #ifdef CONFIG_XEN_PV
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index dd43b1100a87..4abf110e2243 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -648,11 +648,6 @@ static inline notrace unsigned long arch_local_save_flags(void)
+ 	return PVOP_CALLEE0(unsigned long, irq.save_fl);
+ }
+ 
+-static inline notrace void arch_local_irq_restore(unsigned long f)
+-{
+-	PVOP_VCALLEE1(irq.restore_fl, f);
+-}
+-
+ static inline notrace void arch_local_irq_disable(void)
+ {
+ 	PVOP_VCALLEE0(irq.irq_disable);
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index 0169365f1403..de87087d3bde 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -168,16 +168,13 @@ struct pv_cpu_ops {
+ struct pv_irq_ops {
+ #ifdef CONFIG_PARAVIRT_XXL
+ 	/*
+-	 * Get/set interrupt state.  save_fl and restore_fl are only
+-	 * expected to use X86_EFLAGS_IF; all other bits
+-	 * returned from save_fl are undefined, and may be ignored by
+-	 * restore_fl.
++	 * Get/set interrupt state.  save_fl is expected to use X86_EFLAGS_IF;
++	 * all other bits returned from save_fl are undefined.
+ 	 *
+ 	 * NOTE: These functions callers expect the callee to preserve
+ 	 * more registers than the standard C calling convention.
+ 	 */
+ 	struct paravirt_callee_save save_fl;
+-	struct paravirt_callee_save restore_fl;
+ 	struct paravirt_callee_save irq_disable;
+ 	struct paravirt_callee_save irq_enable;
+ 
+diff --git a/arch/x86/kernel/irqflags.S b/arch/x86/kernel/irqflags.S
+index 0db0375235b4..8ef35063964b 100644
+--- a/arch/x86/kernel/irqflags.S
++++ b/arch/x86/kernel/irqflags.S
+@@ -13,14 +13,3 @@ SYM_FUNC_START(native_save_fl)
+ 	ret
+ SYM_FUNC_END(native_save_fl)
+ EXPORT_SYMBOL(native_save_fl)
+-
+-/*
+- * void native_restore_fl(unsigned long flags)
+- * %eax/%rdi: flags
+- */
+-SYM_FUNC_START(native_restore_fl)
+-	push %_ASM_ARG1
+-	popf
+-	ret
+-SYM_FUNC_END(native_restore_fl)
+-EXPORT_SYMBOL(native_restore_fl)
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index 18560b71e717..c60222ab8ab9 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -320,7 +320,6 @@ struct paravirt_patch_template pv_ops = {
+ 
+ 	/* Irq ops. */
+ 	.irq.save_fl		= __PV_IS_CALLEE_SAVE(native_save_fl),
+-	.irq.restore_fl		= __PV_IS_CALLEE_SAVE(native_restore_fl),
+ 	.irq.irq_disable	= __PV_IS_CALLEE_SAVE(native_irq_disable),
+ 	.irq.irq_enable		= __PV_IS_CALLEE_SAVE(native_irq_enable),
+ 	.irq.safe_halt		= native_safe_halt,
+diff --git a/arch/x86/kernel/paravirt_patch.c b/arch/x86/kernel/paravirt_patch.c
+index 2fada2c347c9..abd27ec67397 100644
+--- a/arch/x86/kernel/paravirt_patch.c
++++ b/arch/x86/kernel/paravirt_patch.c
+@@ -25,7 +25,6 @@ struct patch_xxl {
+ 	const unsigned char	mmu_read_cr2[3];
+ 	const unsigned char	mmu_read_cr3[3];
+ 	const unsigned char	mmu_write_cr3[3];
+-	const unsigned char	irq_restore_fl[2];
+ 	const unsigned char	cpu_wbinvd[2];
+ 	const unsigned char	mov64[3];
+ };
+@@ -37,7 +36,6 @@ static const struct patch_xxl patch_data_xxl = {
+ 	.mmu_read_cr2		= { 0x0f, 0x20, 0xd0 },	// mov %cr2, %[re]ax
+ 	.mmu_read_cr3		= { 0x0f, 0x20, 0xd8 },	// mov %cr3, %[re]ax
+ 	.mmu_write_cr3		= { 0x0f, 0x22, 0xdf },	// mov %rdi, %cr3
+-	.irq_restore_fl		= { 0x57, 0x9d },	// push %rdi; popfq
+ 	.cpu_wbinvd		= { 0x0f, 0x09 },	// wbinvd
+ 	.mov64			= { 0x48, 0x89, 0xf8 },	// mov %rdi, %rax
+ };
+@@ -71,7 +69,6 @@ unsigned int native_patch(u8 type, void *insn_buff, unsigned long addr,
+ 	switch (type) {
+ 
+ #ifdef CONFIG_PARAVIRT_XXL
+-	PATCH_CASE(irq, restore_fl, xxl, insn_buff, len);
+ 	PATCH_CASE(irq, save_fl, xxl, insn_buff, len);
+ 	PATCH_CASE(irq, irq_enable, xxl, insn_buff, len);
+ 	PATCH_CASE(irq, irq_disable, xxl, insn_buff, len);
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 5476423fc6d0..32b295cc2716 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1022,8 +1022,6 @@ void __init xen_setup_vcpu_info_placement(void)
+ 	 */
+ 	if (xen_have_vcpu_info_placement) {
+ 		pv_ops.irq.save_fl = __PV_IS_CALLEE_SAVE(xen_save_fl_direct);
+-		pv_ops.irq.restore_fl =
+-			__PV_IS_CALLEE_SAVE(xen_restore_fl_direct);
+ 		pv_ops.irq.irq_disable =
+ 			__PV_IS_CALLEE_SAVE(xen_irq_disable_direct);
+ 		pv_ops.irq.irq_enable =
+diff --git a/arch/x86/xen/irq.c b/arch/x86/xen/irq.c
+index 850c93f346c7..dfa091d79c2e 100644
+--- a/arch/x86/xen/irq.c
++++ b/arch/x86/xen/irq.c
+@@ -42,28 +42,6 @@ asmlinkage __visible unsigned long xen_save_fl(void)
+ }
+ PV_CALLEE_SAVE_REGS_THUNK(xen_save_fl);
+ 
+-__visible void xen_restore_fl(unsigned long flags)
+-{
+-	struct vcpu_info *vcpu;
+-
+-	/* convert from IF type flag */
+-	flags = !(flags & X86_EFLAGS_IF);
+-
+-	/* See xen_irq_enable() for why preemption must be disabled. */
+-	preempt_disable();
+-	vcpu = this_cpu_read(xen_vcpu);
+-	vcpu->evtchn_upcall_mask = flags;
+-
+-	if (flags == 0) {
+-		barrier(); /* unmask then check (avoid races) */
+-		if (unlikely(vcpu->evtchn_upcall_pending))
+-			xen_force_evtchn_callback();
+-		preempt_enable();
+-	} else
+-		preempt_enable_no_resched();
+-}
+-PV_CALLEE_SAVE_REGS_THUNK(xen_restore_fl);
+-
+ asmlinkage __visible void xen_irq_disable(void)
+ {
+ 	/* There's a one instruction preempt window here.  We need to
+@@ -118,7 +96,6 @@ static void xen_halt(void)
+ 
+ static const struct pv_irq_ops xen_irq_ops __initconst = {
+ 	.save_fl = PV_CALLEE_SAVE(xen_save_fl),
+-	.restore_fl = PV_CALLEE_SAVE(xen_restore_fl),
+ 	.irq_disable = PV_CALLEE_SAVE(xen_irq_disable),
+ 	.irq_enable = PV_CALLEE_SAVE(xen_irq_enable),
+ 
+diff --git a/arch/x86/xen/xen-asm.S b/arch/x86/xen/xen-asm.S
+index c0630fd9f44e..1ea7e41044b5 100644
+--- a/arch/x86/xen/xen-asm.S
++++ b/arch/x86/xen/xen-asm.S
+@@ -72,34 +72,6 @@ SYM_FUNC_START(xen_save_fl_direct)
+ 	ret
+ SYM_FUNC_END(xen_save_fl_direct)
+ 
+-
+-/*
+- * In principle the caller should be passing us a value return from
+- * xen_save_fl_direct, but for robustness sake we test only the
+- * X86_EFLAGS_IF flag rather than the whole byte. After setting the
+- * interrupt mask state, it checks for unmasked pending events and
+- * enters the hypervisor to get them delivered if so.
+- */
+-SYM_FUNC_START(xen_restore_fl_direct)
+-	FRAME_BEGIN
+-	testw $X86_EFLAGS_IF, %di
+-	setz PER_CPU_VAR(xen_vcpu_info) + XEN_vcpu_info_mask
+-	/*
+-	 * Preempt here doesn't matter because that will deal with any
+-	 * pending interrupts.  The pending check may end up being run
+-	 * on the wrong CPU, but that doesn't hurt.
+-	 */
+-
+-	/* check for unmasked and pending */
+-	cmpw $0x0001, PER_CPU_VAR(xen_vcpu_info) + XEN_vcpu_info_pending
+-	jnz 1f
+-	call check_events
+-1:
+-	FRAME_END
+-	ret
+-SYM_FUNC_END(xen_restore_fl_direct)
+-
+-
+ /*
+  * Force an event check by making a hypercall, but preserve regs
+  * before making the call.
+diff --git a/arch/x86/xen/xen-ops.h b/arch/x86/xen/xen-ops.h
+index b2fd80a01a36..8d7ec49a35fb 100644
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -131,7 +131,6 @@ static inline void __init xen_efi_init(struct boot_params *boot_params)
+ __visible void xen_irq_enable_direct(void);
+ __visible void xen_irq_disable_direct(void);
+ __visible unsigned long xen_save_fl_direct(void);
+-__visible void xen_restore_fl_direct(unsigned long);
+ 
+ __visible unsigned long xen_read_cr2(void);
+ __visible unsigned long xen_read_cr2_direct(void);
+-- 
+2.26.2
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
