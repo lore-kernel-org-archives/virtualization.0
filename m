@@ -7,73 +7,76 @@ X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0299C2BB40
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7722EC2BB9A
 	for <virtualization@archiver.kernel.org>; Thu, 17 Dec 2020 09:32:01 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 71A492388E
-	for <virtualization@archiver.kernel.org>; Thu, 17 Dec 2020 09:32:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 71A492388E
+	by mail.kernel.org (Postfix) with ESMTPS id 1E66223602
+	for <virtualization@archiver.kernel.org>; Thu, 17 Dec 2020 09:32:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1E66223602
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 0458687568;
-	Thu, 17 Dec 2020 09:32:01 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nki3w7GeCZnW; Thu, 17 Dec 2020 09:32:00 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 5B04B87569;
+	by silver.osuosl.org (Postfix) with ESMTP id 07BC92E29F;
 	Thu, 17 Dec 2020 09:32:00 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 509FCC088E;
-	Thu, 17 Dec 2020 09:32:00 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4910EC1DA2
- for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Dec 2020 09:31:55 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id E158A2E297
- for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Dec 2020 09:31:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id jDc3AeiY8jek
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Rtqg2OlVGqil; Thu, 17 Dec 2020 09:31:52 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id 9ABD42E289;
+	Thu, 17 Dec 2020 09:31:52 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6DFB2C088E;
+	Thu, 17 Dec 2020 09:31:52 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 30855C013B
  for <virtualization@lists.linux-foundation.org>;
  Thu, 17 Dec 2020 09:31:51 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id 17BB287A42
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 17 Dec 2020 09:31:51 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id RDFq4LyyyKMg
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 17 Dec 2020 09:31:49 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTPS id 7D0172E28A
+ by hemlock.osuosl.org (Postfix) with ESMTPS id C8DB887A3C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Dec 2020 09:31:50 +0000 (UTC)
+ Thu, 17 Dec 2020 09:31:48 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1608197509; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ t=1608197507; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=krzYKKZ6g2vq1rvt7bfI6SRgvPLaGsiufG7X/rsRMo8=;
- b=pwPtxyy2poL6EYi7HW3ugjJSE162fXp9iMFusfTAXqqk+neOimaWa+Px30E+z0YeWBShjY
- G+ZO6LE1yrDFl1JBPNJTPH4PzSYzFoPzCJk7xJh5ZDSfW+UaqCz/B24t0h035dFTHzmate
- pROLqcc9WGbfSwVo6PbSPOcb2+V/EuI=
+ bh=s9jYYrCp5NMm5yGKLL/4edua8SOODyzTExPxz/HtQyc=;
+ b=IbP6h6XuI55B6mlzx6H61UbVjivatheangh9jaqVm5H+C3z4ag44hxqz+JV3AWrsNVpeQY
+ JhxYE1Xi9BqTdVfk/IA8rFns3GTtiM+LqbwmLH9b5JC4Xmg2vxE5RCUiHvaLG19e7DB9yk
+ 58Qv4P2H7PqaDYhi/4gkqgF4yKGDNks=
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 0C5B1B71E;
- Thu, 17 Dec 2020 09:31:49 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id E0A08B715;
+ Thu, 17 Dec 2020 09:31:46 +0000 (UTC)
 To: xen-devel@lists.xenproject.org, x86@kernel.org,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 10/15] x86/paravirt: simplify paravirt macros
-Date: Thu, 17 Dec 2020 10:31:28 +0100
-Message-Id: <20201217093133.1507-11-jgross@suse.com>
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Subject: [PATCH v3 04/15] x86/xen: drop USERGS_SYSRET64 paravirt call
+Date: Thu, 17 Dec 2020 10:31:22 +0100
+Message-Id: <20201217093133.1507-5-jgross@suse.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201217093133.1507-1-jgross@suse.com>
 References: <20201217093133.1507-1-jgross@suse.com>
 MIME-Version: 1.0
-Cc: Juergen Gross <jgross@suse.com>, "VMware, Inc." <pv-drivers@vmware.com>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
+Cc: Juergen Gross <jgross@suse.com>,
+ Stefano Stabellini <sstabellini@kernel.org>, "VMware,
+ Inc." <pv-drivers@vmware.com>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
+ "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,85 +96,263 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The central pvops call macros ____PVOP_CALL() and ____PVOP_VCALL() are
-looking very similar now.
+USERGS_SYSRET64 is used to return from a syscall via sysret, but
+a Xen PV guest will nevertheless use the iret hypercall, as there
+is no sysret PV hypercall defined.
 
-The main differences are using PVOP_VCALL_ARGS or PVOP_CALL_ARGS, which
-are identical, and the return value handling.
+So instead of testing all the prerequisites for doing a sysret and
+then mangling the stack for Xen PV again for doing an iret just use
+the iret exit from the beginning.
 
-So drop PVOP_VCALL_ARGS and instead of ____PVOP_VCALL() just use
-(void)____PVOP_CALL(long, ...).
+This can easily be done via an ALTERNATIVE like it is done for the
+sysenter compat case already.
 
-Note that it isn't easily possible to just redefine ____PVOP_VCALL()
-to use ____PVOP_CALL() instead, as this would require further hiding of
-commas in macro parameters.
+It should be noted that this drops the optimization in Xen for not
+restoring a few registers when returning to user mode, but it seems
+as if the saved instructions in the kernel more than compensate for
+this drop (a kernel build in a Xen PV guest was slightly faster with
+this patch applied).
+
+While at it remove the stale sysret32 remnants.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
 V3:
-- new patch
+- simplify ALTERNATIVE (Boris Petkov)
 ---
- arch/x86/include/asm/paravirt_types.h | 25 ++++---------------------
- 1 file changed, 4 insertions(+), 21 deletions(-)
+ arch/x86/entry/entry_64.S             | 16 +++++++---------
+ arch/x86/include/asm/irqflags.h       |  6 ------
+ arch/x86/include/asm/paravirt.h       |  5 -----
+ arch/x86/include/asm/paravirt_types.h |  8 --------
+ arch/x86/kernel/asm-offsets_64.c      |  2 --
+ arch/x86/kernel/paravirt.c            |  5 +----
+ arch/x86/kernel/paravirt_patch.c      |  4 ----
+ arch/x86/xen/enlighten_pv.c           |  1 -
+ arch/x86/xen/xen-asm.S                | 20 --------------------
+ arch/x86/xen/xen-ops.h                |  2 --
+ 10 files changed, 8 insertions(+), 61 deletions(-)
 
+diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+index a876204a73e0..ce0464d630a2 100644
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -46,14 +46,6 @@
+ .code64
+ .section .entry.text, "ax"
+ 
+-#ifdef CONFIG_PARAVIRT_XXL
+-SYM_CODE_START(native_usergs_sysret64)
+-	UNWIND_HINT_EMPTY
+-	swapgs
+-	sysretq
+-SYM_CODE_END(native_usergs_sysret64)
+-#endif /* CONFIG_PARAVIRT_XXL */
+-
+ /*
+  * 64-bit SYSCALL instruction entry. Up to 6 arguments in registers.
+  *
+@@ -123,7 +115,12 @@ SYM_INNER_LABEL(entry_SYSCALL_64_after_hwframe, SYM_L_GLOBAL)
+ 	 * Try to use SYSRET instead of IRET if we're returning to
+ 	 * a completely clean 64-bit userspace context.  If we're not,
+ 	 * go to the slow exit path.
++	 * In the Xen PV case we must use iret anyway.
+ 	 */
++
++	ALTERNATIVE "", "jmp	swapgs_restore_regs_and_return_to_usermode", \
++		X86_FEATURE_XENPV
++
+ 	movq	RCX(%rsp), %rcx
+ 	movq	RIP(%rsp), %r11
+ 
+@@ -215,7 +212,8 @@ syscall_return_via_sysret:
+ 
+ 	popq	%rdi
+ 	popq	%rsp
+-	USERGS_SYSRET64
++	swapgs
++	sysretq
+ SYM_CODE_END(entry_SYSCALL_64)
+ 
+ /*
+diff --git a/arch/x86/include/asm/irqflags.h b/arch/x86/include/asm/irqflags.h
+index 8c86edefa115..e585a4705b8d 100644
+--- a/arch/x86/include/asm/irqflags.h
++++ b/arch/x86/include/asm/irqflags.h
+@@ -132,12 +132,6 @@ static __always_inline unsigned long arch_local_irq_save(void)
+ #endif
+ 
+ #define INTERRUPT_RETURN	jmp native_iret
+-#define USERGS_SYSRET64				\
+-	swapgs;					\
+-	sysretq;
+-#define USERGS_SYSRET32				\
+-	swapgs;					\
+-	sysretl
+ 
+ #else
+ #define INTERRUPT_RETURN		iret
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index f2ebe109a37e..dd43b1100a87 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -776,11 +776,6 @@ extern void default_banner(void);
+ 
+ #ifdef CONFIG_X86_64
+ #ifdef CONFIG_PARAVIRT_XXL
+-#define USERGS_SYSRET64							\
+-	PARA_SITE(PARA_PATCH(PV_CPU_usergs_sysret64),			\
+-		  ANNOTATE_RETPOLINE_SAFE;				\
+-		  jmp PARA_INDIRECT(pv_ops+PV_CPU_usergs_sysret64);)
+-
+ #ifdef CONFIG_DEBUG_ENTRY
+ #define SAVE_FLAGS(clobbers)                                        \
+ 	PARA_SITE(PARA_PATCH(PV_IRQ_save_fl),			    \
 diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 42f9eef84131..a9efd4dad820 100644
+index 130f428b0cc8..0169365f1403 100644
 --- a/arch/x86/include/asm/paravirt_types.h
 +++ b/arch/x86/include/asm/paravirt_types.h
-@@ -408,11 +408,9 @@ int paravirt_disable_iospace(void);
-  * makes sure the incoming and outgoing types are always correct.
-  */
- #ifdef CONFIG_X86_32
--#define PVOP_VCALL_ARGS							\
-+#define PVOP_CALL_ARGS							\
- 	unsigned long __eax = __eax, __edx = __edx, __ecx = __ecx;
+@@ -156,14 +156,6 @@ struct pv_cpu_ops {
  
--#define PVOP_CALL_ARGS			PVOP_VCALL_ARGS
+ 	u64 (*read_pmc)(int counter);
+ 
+-	/*
+-	 * Switch to usermode gs and return to 64-bit usermode using
+-	 * sysret.  Only used in 64-bit kernels to return to 64-bit
+-	 * processes.  Usermode register state, including %rsp, must
+-	 * already be restored.
+-	 */
+-	void (*usergs_sysret64)(void);
 -
- #define PVOP_CALL_ARG1(x)		"a" ((unsigned long)(x))
- #define PVOP_CALL_ARG2(x)		"d" ((unsigned long)(x))
- #define PVOP_CALL_ARG3(x)		"c" ((unsigned long)(x))
-@@ -428,12 +426,10 @@ int paravirt_disable_iospace(void);
- #define VEXTRA_CLOBBERS
- #else  /* CONFIG_X86_64 */
- /* [re]ax isn't an arg, but the return val */
--#define PVOP_VCALL_ARGS						\
-+#define PVOP_CALL_ARGS						\
- 	unsigned long __edi = __edi, __esi = __esi,		\
- 		__edx = __edx, __ecx = __ecx, __eax = __eax;
+ 	/* Normal iret.  Jump to this with the standard iret stack
+ 	   frame set up. */
+ 	void (*iret)(void);
+diff --git a/arch/x86/kernel/asm-offsets_64.c b/arch/x86/kernel/asm-offsets_64.c
+index 1354bc30614d..b14533af7676 100644
+--- a/arch/x86/kernel/asm-offsets_64.c
++++ b/arch/x86/kernel/asm-offsets_64.c
+@@ -13,8 +13,6 @@ int main(void)
+ {
+ #ifdef CONFIG_PARAVIRT
+ #ifdef CONFIG_PARAVIRT_XXL
+-	OFFSET(PV_CPU_usergs_sysret64, paravirt_patch_template,
+-	       cpu.usergs_sysret64);
+ #ifdef CONFIG_DEBUG_ENTRY
+ 	OFFSET(PV_IRQ_save_fl, paravirt_patch_template, irq.save_fl);
+ #endif
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index 5e5fcf5c376d..18560b71e717 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -135,8 +135,7 @@ unsigned paravirt_patch_default(u8 type, void *insn_buff,
+ 	else if (opfunc == _paravirt_ident_64)
+ 		ret = paravirt_patch_ident_64(insn_buff, len);
  
--#define PVOP_CALL_ARGS		PVOP_VCALL_ARGS
+-	else if (type == PARAVIRT_PATCH(cpu.iret) ||
+-		 type == PARAVIRT_PATCH(cpu.usergs_sysret64))
++	else if (type == PARAVIRT_PATCH(cpu.iret))
+ 		/* If operation requires a jmp, then jmp */
+ 		ret = paravirt_patch_jmp(insn_buff, opfunc, addr, len);
+ #endif
+@@ -170,7 +169,6 @@ static u64 native_steal_clock(int cpu)
+ 
+ /* These are in entry.S */
+ extern void native_iret(void);
+-extern void native_usergs_sysret64(void);
+ 
+ static struct resource reserve_ioports = {
+ 	.start = 0,
+@@ -310,7 +308,6 @@ struct paravirt_patch_template pv_ops = {
+ 
+ 	.cpu.load_sp0		= native_load_sp0,
+ 
+-	.cpu.usergs_sysret64	= native_usergs_sysret64,
+ 	.cpu.iret		= native_iret,
+ 
+ #ifdef CONFIG_X86_IOPL_IOPERM
+diff --git a/arch/x86/kernel/paravirt_patch.c b/arch/x86/kernel/paravirt_patch.c
+index 7c518b08aa3c..2fada2c347c9 100644
+--- a/arch/x86/kernel/paravirt_patch.c
++++ b/arch/x86/kernel/paravirt_patch.c
+@@ -27,7 +27,6 @@ struct patch_xxl {
+ 	const unsigned char	mmu_write_cr3[3];
+ 	const unsigned char	irq_restore_fl[2];
+ 	const unsigned char	cpu_wbinvd[2];
+-	const unsigned char	cpu_usergs_sysret64[6];
+ 	const unsigned char	mov64[3];
+ };
+ 
+@@ -40,8 +39,6 @@ static const struct patch_xxl patch_data_xxl = {
+ 	.mmu_write_cr3		= { 0x0f, 0x22, 0xdf },	// mov %rdi, %cr3
+ 	.irq_restore_fl		= { 0x57, 0x9d },	// push %rdi; popfq
+ 	.cpu_wbinvd		= { 0x0f, 0x09 },	// wbinvd
+-	.cpu_usergs_sysret64	= { 0x0f, 0x01, 0xf8,
+-				    0x48, 0x0f, 0x07 },	// swapgs; sysretq
+ 	.mov64			= { 0x48, 0x89, 0xf8 },	// mov %rdi, %rax
+ };
+ 
+@@ -83,7 +80,6 @@ unsigned int native_patch(u8 type, void *insn_buff, unsigned long addr,
+ 	PATCH_CASE(mmu, read_cr3, xxl, insn_buff, len);
+ 	PATCH_CASE(mmu, write_cr3, xxl, insn_buff, len);
+ 
+-	PATCH_CASE(cpu, usergs_sysret64, xxl, insn_buff, len);
+ 	PATCH_CASE(cpu, wbinvd, xxl, insn_buff, len);
+ #endif
+ 
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 44bb18adfb51..5476423fc6d0 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1060,7 +1060,6 @@ static const struct pv_cpu_ops xen_cpu_ops __initconst = {
+ 	.read_pmc = xen_read_pmc,
+ 
+ 	.iret = xen_iret,
+-	.usergs_sysret64 = xen_sysret64,
+ 
+ 	.load_tr_desc = paravirt_nop,
+ 	.set_ldt = xen_set_ldt,
+diff --git a/arch/x86/xen/xen-asm.S b/arch/x86/xen/xen-asm.S
+index 1d054c915046..c0630fd9f44e 100644
+--- a/arch/x86/xen/xen-asm.S
++++ b/arch/x86/xen/xen-asm.S
+@@ -214,26 +214,6 @@ SYM_CODE_START(xen_iret)
+ 	jmp hypercall_iret
+ SYM_CODE_END(xen_iret)
+ 
+-SYM_CODE_START(xen_sysret64)
+-	/*
+-	 * We're already on the usermode stack at this point, but
+-	 * still with the kernel gs, so we can easily switch back.
+-	 *
+-	 * tss.sp2 is scratch space.
+-	 */
+-	movq %rsp, PER_CPU_VAR(cpu_tss_rw + TSS_sp2)
+-	movq PER_CPU_VAR(cpu_current_top_of_stack), %rsp
 -
- #define PVOP_CALL_ARG1(x)		"D" ((unsigned long)(x))
- #define PVOP_CALL_ARG2(x)		"S" ((unsigned long)(x))
- #define PVOP_CALL_ARG3(x)		"d" ((unsigned long)(x))
-@@ -492,25 +488,12 @@ int paravirt_disable_iospace(void);
- 	____PVOP_CALL(rettype, op.func, CLBR_RET_REG,			\
- 		      PVOP_CALLEE_CLOBBERS, , ##__VA_ARGS__)
- 
+-	pushq $__USER_DS
+-	pushq PER_CPU_VAR(cpu_tss_rw + TSS_sp2)
+-	pushq %r11
+-	pushq $__USER_CS
+-	pushq %rcx
 -
--#define ____PVOP_VCALL(op, clbr, call_clbr, extra_clbr, ...)		\
--	({								\
--		PVOP_VCALL_ARGS;					\
--		PVOP_TEST_NULL(op);					\
--		asm volatile(paravirt_alt(PARAVIRT_CALL)		\
--			     : call_clbr, ASM_CALL_CONSTRAINT		\
--			     : paravirt_type(op),			\
--			       paravirt_clobber(clbr),			\
--			       ##__VA_ARGS__				\
--			     : "memory", "cc" extra_clbr);		\
--	})
+-	pushq $VGCF_in_syscall
+-	jmp hypercall_iret
+-SYM_CODE_END(xen_sysret64)
 -
- #define __PVOP_VCALL(op, ...)						\
--	____PVOP_VCALL(op, CLBR_ANY, PVOP_VCALL_CLOBBERS,		\
-+	(void)____PVOP_CALL(long, op, CLBR_ANY, PVOP_VCALL_CLOBBERS,	\
- 		       VEXTRA_CLOBBERS, ##__VA_ARGS__)
+ /*
+  * Xen handles syscall callbacks much like ordinary exceptions, which
+  * means we have:
+diff --git a/arch/x86/xen/xen-ops.h b/arch/x86/xen/xen-ops.h
+index 9546c3384c75..b2fd80a01a36 100644
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -138,8 +138,6 @@ __visible unsigned long xen_read_cr2_direct(void);
  
- #define __PVOP_VCALLEESAVE(op, ...)					\
--	____PVOP_VCALL(op.func, CLBR_RET_REG,				\
-+	(void)____PVOP_CALL(long, op.func, CLBR_RET_REG,		\
- 		      PVOP_VCALLEE_CLOBBERS, , ##__VA_ARGS__)
+ /* These are not functions, and cannot be called normally */
+ __visible void xen_iret(void);
+-__visible void xen_sysret32(void);
+-__visible void xen_sysret64(void);
  
+ extern int xen_panic_handler_init(void);
  
 -- 
 2.26.2
