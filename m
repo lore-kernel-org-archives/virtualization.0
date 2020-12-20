@@ -1,87 +1,70 @@
-Return-Path: <SRS0=st/B=FW=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=hZ5U=FY=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Level: **
+X-Spam-Status: No, score=2.3 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+	HTML_MESSAGE,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1256C4361B
-	for <virtualization@archiver.kernel.org>; Fri, 18 Dec 2020 23:26:34 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C977C4361B
+	for <virtualization@archiver.kernel.org>; Sun, 20 Dec 2020 14:51:00 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 65FBB23BA7
-	for <virtualization@archiver.kernel.org>; Fri, 18 Dec 2020 23:26:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 65FBB23BA7
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=opensynergy.com
+	by mail.kernel.org (Postfix) with ESMTPS id DB96F230FD
+	for <virtualization@archiver.kernel.org>; Sun, 20 Dec 2020 14:50:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DB96F230FD
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 433E187ABF;
-	Fri, 18 Dec 2020 23:26:34 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 553A720396;
+	Sun, 20 Dec 2020 14:50:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id GDJ2CEBYEbbh; Fri, 18 Dec 2020 23:26:33 +0000 (UTC)
+	with ESMTP id C8j+d3RWjTEU; Sun, 20 Dec 2020 14:50:52 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id AB86E86D20;
-	Fri, 18 Dec 2020 23:26:33 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id B5EDC2033B;
+	Sun, 20 Dec 2020 14:50:52 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8EE6BC1786;
-	Fri, 18 Dec 2020 23:26:33 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 95476C0893
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 974A4C1787;
+	Sun, 20 Dec 2020 14:50:52 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B1B9DC0893
  for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Dec 2020 23:26:32 +0000 (UTC)
+ Sun, 20 Dec 2020 14:50:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 81FB887C5A
+ by silver.osuosl.org (Postfix) with ESMTP id 4B0D42037A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Dec 2020 23:26:32 +0000 (UTC)
+ Sun, 20 Dec 2020 14:50:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 2DQQw5pp9ORO
+ with ESMTP id Vhm6K+MMiKOd
  for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Dec 2020 23:26:32 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from plasma4.jpberlin.de (plasma4.jpberlin.de [80.241.57.33])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 3AA0F87C56
+ Sun, 20 Dec 2020 14:50:44 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
+Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
+ [5.45.125.222])
+ by silver.osuosl.org (Postfix) with ESMTPS id 6F8192033B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Dec 2020 23:26:32 +0000 (UTC)
-Received: from hefe.heinlein-support.de (hefe.heinlein-support.de
- [91.198.250.172])
- by plasma.jpberlin.de (Postfix) with ESMTP id B0DEBAAD30;
- Sat, 19 Dec 2020 00:26:28 +0100 (CET)
-X-Virus-Scanned: amavisd-new at heinlein-support.de
-Received: from plasma.jpberlin.de ([91.198.250.140])
- by hefe.heinlein-support.de (hefe.heinlein-support.de [91.198.250.172])
- (amavisd-new, port 10030)
- with ESMTP id 8qM22asEXxr6; Sat, 19 Dec 2020 00:26:24 +0100 (CET)
-Received: from webmail.opensynergy.com (unknown [217.66.60.5])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
- (Client CN "*.opensynergy.com",
- Issuer "Starfield Secure Certificate Authority - G2" (not verified))
- (Authenticated sender: opensynergy@jpberlin.de)
- by plasma.jpberlin.de (Postfix) with ESMTPSA id 82FB5AAD16;
- Sat, 19 Dec 2020 00:26:24 +0100 (CET)
-From: Vasyl Vavrychuk <vasyl.vavrychuk@opensynergy.com>
-To: <virtualization@lists.linux-foundation.org>,
- <linux-kernel@vger.kernel.org>, <linux-input@vger.kernel.org>
-Subject: [PATCH v3 RESEND] virtio-input: add multi-touch support
-Date: Sat, 19 Dec 2020 01:25:56 +0200
-Message-ID: <20201218232556.28041-1-vasyl.vavrychuk@opensynergy.com>
+ Sun, 20 Dec 2020 14:50:43 +0000 (UTC)
+Received: from [37.189.17.205] (helo=LAPTOP-EPOV2LRR)
+ by s052d7dde.fastvps-server.com with esmtpsa
+ (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
+ (envelope-from <marle@saisti.eu>) id 1kqz1e-0008Jr-VG
+ for virtualization@lists.linux-foundation.org; Sun, 20 Dec 2020 16:45:31 +0300
+From: "Lemos" <marialemos72@gmail.com>
+Subject: =?utf-8?B?TUlDUkFEU8K0MjE=?= - The 2021 Multidisciplinary
+ International Conference of Research Applied to Defense and Security,
+ Cartagena, Colombia
+To: virtualization@lists.linux-foundation.org
 MIME-Version: 1.0
-X-ClientProxiedBy: SR-MAIL-02.open-synergy.com (10.26.10.22) To
- SR-MAIL-01.open-synergy.com (10.26.10.21)
-X-MBO-SPAM-Probability: 
-X-Rspamd-Score: -3.06 / 15.00 / 15.00
-X-Rspamd-Queue-Id: B0DEBAAD30
-X-Rspamd-UID: 4cff26
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Henrik Rydberg <rydberg@bitmath.org>,
- Vasyl Vavrychuk <vasyl.vavrychuk@opensynergy.com>,
- Mathias Crombez <mathias.crombez@faurecia.com>
+Date: Sun, 20 Dec 2020 13:45:31 +0000
+Message-ID: <1348139071359@gmail-com>
+X-Antivirus: AVG (VPS 201220-0, 20/12/2020), Outbound message
+X-Antivirus-Status: Clean
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,75 +76,434 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Reply-To: micradsmail@gmail.com
+Content-Type: multipart/mixed; boundary="===============2983174866566967811=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Mathias Crombez <mathias.crombez@faurecia.com>
+This is a multi-part message in MIME format
 
-Without multi-touch slots allocated, ABS_MT_SLOT events will be lost by
-input_handle_abs_event.
+--===============2983174866566967811==
+Content-Type: multipart/alternative; charset=utf-8; boundary="S9=_RJ1GD9uHMVAnhgvl9jNPXwW5I6Gydb"
 
-Implementation is based on uinput_create_device.
+This is a multi-part message in MIME format
 
-Signed-off-by: Mathias Crombez <mathias.crombez@faurecia.com>
-Co-developed-by: Vasyl Vavrychuk <vasyl.vavrychuk@opensynergy.com>
-Signed-off-by: Vasyl Vavrychuk <vasyl.vavrychuk@opensynergy.com>
----
-v2: fix patch corrupted by corporate email server
-v3: use number of slots from the host
+--S9=_RJ1GD9uHMVAnhgvl9jNPXwW5I6Gydb
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
- drivers/virtio/virtio_input.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+------------------------------  ------------------------------  -----------=
+-------------------  ------------ 
+MICRADS=C2=B421 - The 2021 Multidisciplinary International Conference of Re=
+search Applied to Defense and Security 
 
-diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
-index f1f6208edcf5..f643536807dd 100644
---- a/drivers/virtio/virtio_input.c
-+++ b/drivers/virtio/virtio_input.c
-@@ -7,6 +7,7 @@
+Cartagena, Colombia, 26-28 May 2021
+
+http://www.micrads.org/ <http://www.micrads.org/>
+
+------------------------------  ------------------------------  -----------=
+-------------------  ------------- 
  
- #include <uapi/linux/virtio_ids.h>
- #include <uapi/linux/virtio_input.h>
-+#include <linux/input/mt.h>
+
+Scope 
+
+MICRADS=C2=B421 - The 2021 Multidisciplinary International Conference of Re=
+search Applied to Defense and Security, to be held at Cartagena, Colombia, =
+26-28 May 2021, is an international forum for researchers and practitioners=
+ to present and discuss the most recent innovations, trends, results, exper=
+iences and concerns in the several perspectives of Defense and Security.
+
+We are pleased to invite you to submit your papers to MICRADS=C2=B421. They=
+ can be written in English, Spanish or Portuguese. All submissions will be =
+reviewed on the basis of relevance, originality, importance and clarity.
+
  
- struct virtio_input {
- 	struct virtio_device       *vdev;
-@@ -204,7 +205,7 @@ static int virtinput_probe(struct virtio_device *vdev)
- 	struct virtio_input *vi;
- 	unsigned long flags;
- 	size_t size;
--	int abs, err;
-+	int abs, err, nslots;
+
+Topics 
+
+Submitted papers should be related with one or more of the main themes prop=
+osed for the Conference:
+
  
- 	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
- 		return -ENODEV;
-@@ -289,6 +290,13 @@ static int virtinput_probe(struct virtio_device *vdev)
- 				continue;
- 			virtinput_cfg_abs(vi, abs);
- 		}
-+
-+		if (test_bit(ABS_MT_SLOT, vi->idev->absbit)) {
-+			nslots = input_abs_get_max(vi->idev, ABS_MT_SLOT) + 1;
-+			err = input_mt_init_slots(vi->idev, nslots, 0);
-+			if (err)
-+				goto err_mt_init_slots;
-+		}
- 	}
+
+Area A: Systems, Communication and Defense
+
+A1) Information and Communication Technology in Education 
+A2) Simulation and computer vision in military applications 
+A3) Analysis and Signal Processing 
+A4) Cybersecurity and Cyberdefense 
+A5) Computer Networks, Mobility and Pervasive Systems 
+
  
- 	virtio_device_ready(vdev);
-@@ -304,6 +312,7 @@ static int virtinput_probe(struct virtio_device *vdev)
- 	spin_lock_irqsave(&vi->lock, flags);
- 	vi->ready = false;
- 	spin_unlock_irqrestore(&vi->lock, flags);
-+err_mt_init_slots:
- 	input_free_device(vi->idev);
- err_input_alloc:
- 	vdev->config->del_vqs(vdev);
+
+Area B: Strategy and political-administrative vision in Defense
+
+B1) Safety and Maritime Protection 
+B2) Strategy, Geopolitics and Oceanopolitics 
+B3) Planning, economy and logistics applied to Defense 
+B4) Leadership and e-leadership 
+B5) Military Marketing 
+B6) Health informatics in military applications 
+
+ 
+
+Area C: Engineering and technologies applied to Defense
+
+C1) Wearable Technology and Assistance Devices 
+C2) Military Naval Engineering 
+C3) Weapons and Combat Systems 
+C4) Chemical, Biological and Nuclear Defense 
+C5) Defense Engineering (General) 
+
+ 
+
+Submission and Decision 
+
+Submitted papers written in English (until 10-page limit) must comply with =
+the format of Smart Innovation, Systems and Technologies series (see Instru=
+ctions for Authors at Springer Website), must not have been published befor=
+e, not be under review for any other conference or publication and not incl=
+ude any information leading to the authors=E2=80=99 identification. Therefo=
+re, the authors=E2=80=99 names, affiliations and e-mails should not be incl=
+uded in the version for evaluation by the Scientific Committee. This inform=
+ation should only be included in the camera-ready version, saved in Word or=
+ Latex format and also in PDF format. These files must be accompanied by th=
+e Consent to Publish form filled out, in a ZIP file, and uploaded at the co=
+nference management system.
+
+Submitted papers written in Spanish or Portuguese (until 15-page limit) mus=
+t comply with the format of RISTI - Revista Ib=C3=A9rica de Sistemas e Tecn=
+ologias de Informa=C3=A7=C3=A3o (download instructions/template for authors=
+ in Spanish or Portuguese), must not have been published before, not be und=
+er review for any other conference or publication and not include any infor=
+mation leading to the authors=E2=80=99 identification. Therefore, the autho=
+rs=E2=80=99 names, affiliations and e-mails should not be included in the v=
+ersion for evaluation by the Scientific Committee. This information should =
+only be included in the camera-ready version, saved in Word. These file mus=
+t be uploaded at the conference management system in a ZIP file.
+
+All papers will be subjected to a =E2=80=9Cblind review=E2=80=9D by at leas=
+t two members of the Scientific Committee.
+
+Based on Scientific Committee evaluation, a paper can be rejected or accept=
+ed by the Conference Chairs. In the later case, it can be accepted as paper=
+ or poster.
+
+The authors of papers accepted as posters must build and print a poster to =
+be exhibited during the Conference. This poster must follow an A1 or A2 ver=
+tical format. The Conference can includes Work Sessions where these posters=
+ are presented and orally discussed, with a 7 minute limit per poster.
+
+The authors of accepted papers will have 15 minutes to present their work i=
+n a Conference Work Session; approximately 5 minutes of discussion will fol=
+low each presentation.
+
+ 
+
+Publication and Indexing 
+
+To ensure that an accepted paper is published, at least one of the authors =
+must be fully registered by the 19 of February 2021, and the paper must com=
+ply with the suggested layout and page-limit (until 10 pages). Additionally=
+, all recommended changes must be addressed by the authors before they subm=
+it the camera-ready version.
+
+No more than one paper per registration will be published. An extra fee mus=
+t be paid for publication of additional papers, with a maximum of one addit=
+ional paper per registration. One registration permits only the participati=
+on of one author in the conference.
+
+Papers can be written in English, Spanish or Portuguese. Accepted and regis=
+tered papers written in English will be published in Proceedings by Springe=
+r, in a book of its SIST series, and will be submitted for indexing by ISI,=
+ SCOPUS, EI-Compendex, SpringerLink, and Google Scholar.
+
+Papers written in Spanish or Portuguese and registered will be published in=
+ a Special Issue of RISTI and will be submitted for indexation by SCOPUS, a=
+mong others.
+
+ 
+
+Important Dates 
+
+Paper Submission: January 11, 2021
+
+Notification of Acceptance: February 19, 2021
+
+Payment of Registration, to ensure the inclusion of an accepted paper in th=
+e conference proceedings: February 26, 2021
+
+Camera-ready Submission: February 26, 2021 
+
+ 
+
+Website of MICRADS'21: http://www.micrads.org/ <http://www.micrads.org/> 
+
+
 -- 
-2.23.0
+This email has been checked for viruses by AVG.
+https://www.avg.com
+
+--S9=_RJ1GD9uHMVAnhgvl9jNPXwW5I6Gydb
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
+" />
+  </head>
+  <body>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">------------------------------
+      <wbr>&nbsp;</wbr>------------------------------
+      <wbr>&nbsp;</wbr>------------------------------
+      <wbr>&nbsp;</wbr>------------
+    </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%"><strong>MICRADS&acute;21 - The 2021 Mult=
+idisciplinary International Conference of Research Applied to Defense and S=
+ecurity</strong> </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Cartagena, Colombia, 26-28 May 2021</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%"><a href=3D"http://www.micrads.org/" targ=
+et=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttp:/=
+/www.micrads.org/&source=3Dgmail&ust=3D1606489496821000&usg=3DAFQjCNE8rCuFL=
+Du7oV2SzePcUgD0OhZVew">http://www.micrads.org/</a></p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">------------------------------
+      <wbr>&nbsp;</wbr>------------------------------
+      <wbr>&nbsp;</wbr>------------------------------
+      <wbr>&nbsp;</wbr>-------------
+    </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">&nbsp;</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%"><strong>Scope</strong> </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">MICRADS&acute;21 - The 2021 Multidiscipl=
+inary International Conference of Research Applied to Defense and Security,=
+ to be held at Cartagena, Colombia, 26-28 May 2021, is an international for=
+um for researchers and practitioners to present and discuss the most recent=
+ innovations, trends, results, experiences and concerns in the several pers=
+pectives of Defense and Security.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">We are pleased to invite you to submit y=
+our papers to MICRADS&acute;21. They can be written in English, Spanish or =
+Portuguese. All submissions will be reviewed on the basis of relevance, ori=
+ginality, importance and clarity.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">&nbsp;</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%"><strong>Topics</strong> </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Submitted papers should be related with =
+one or more of the main themes proposed for the Conference:</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">&nbsp;</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Area A: Systems, Communication and Defen=
+se</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">A1) Information and Communication Techno=
+logy in Education <br />A2) Simulation and computer vision in military appl=
+ications <br />A3) Analysis and Signal Processing <br />A4) Cybersecurity a=
+nd Cyberdefense <br />A5) Computer Networks, Mobility and Pervasive Systems=
+ </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">&nbsp;</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Area B: Strategy and political-administr=
+ative vision in Defense</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">B1) Safety and Maritime Protection <br /=
+>B2) Strategy, Geopolitics and Oceanopolitics <br />B3) Planning, economy a=
+nd logistics applied to Defense <br />B4) Leadership and e-leadership <br /=
+>B5) Military Marketing <br />B6) Health informatics in military applicatio=
+ns </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">&nbsp;</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Area C: Engineering and technologies app=
+lied to Defense</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">C1) Wearable Technology and Assistance D=
+evices <br />C2) Military Naval Engineering <br />C3) Weapons and Combat Sy=
+stems <br />C4) Chemical, Biological and Nuclear Defense <br />C5) Defense =
+Engineering (General) </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">&nbsp;</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%"><strong>Submission and Decision</strong>=
+ </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Submitted papers written in English (unt=
+il 10-page limit) must comply with the format of Smart Innovation, Systems =
+and Technologies series (see Instructions for Authors at Springer Website),=
+ must not have been published before, not be under review for any other con=
+ference or publication and not include any information leading to the autho=
+rs&rsquo; identification. Therefore, the authors&rsquo; names, affiliations=
+ and e-mails should not be included in the version for evaluation by the Sc=
+ientific Committee. This information should only be included in the camera-=
+ready version, saved in Word or Latex format and also in PDF format. These =
+files must be accompanied by the Consent to Publish form filled out, in a Z=
+IP file, and uploaded at the conference management system.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Submitted papers written in Spanish or P=
+ortuguese (until 15-page limit) must comply with the format of RISTI - Revi=
+sta Ib&eacute;rica de Sistemas e Tecnologias de Informa&ccedil;&atilde;o (d=
+ownload instructions/template for authors in Spanish or Portuguese), must n=
+ot have been published before, not be under review for any other conference=
+ or publication and not include any information leading to the authors&rsqu=
+o; identification. Therefore, the authors&rsquo; names, affiliations and e-=
+mails should not be included in the version for evaluation by the Scientifi=
+c Committee. This information should only be included in the camera-ready v=
+ersion, saved in Word. These file must be uploaded at the conference manage=
+ment system in a ZIP file.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">All papers will be subjected to a &ldquo=
+;blind review&rdquo; by at least two members of the Scientific Committee.</=
+p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Based on Scientific Committee evaluation=
+, a paper can be rejected or accepted by the Conference Chairs. In the late=
+r case, it can be accepted as paper or poster.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">The authors of papers accepted as poster=
+s must build and print a poster to be exhibited during the Conference. This=
+ poster must follow an A1 or A2 vertical format. The Conference can include=
+s Work Sessions where these posters are presented and orally discussed, wit=
+h a 7 minute limit per poster.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">The authors of accepted papers will have=
+ 15 minutes to present their work in a Conference Work Session; approximate=
+ly 5 minutes of discussion will follow each presentation.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">&nbsp;</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%"><strong>Publication and Indexing</strong=
+> </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">To ensure that an accepted paper is publ=
+ished, at least one of the authors must be fully registered by the 19 of Fe=
+bruary 2021, and the paper must comply with the suggested layout and page-l=
+imit (until 10 pages). Additionally, all recommended changes must be addres=
+sed by the authors before they submit the camera-ready version.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">No more than one paper per registration =
+will be published. An extra fee must be paid for publication of additional =
+papers, with a maximum of one additional paper per registration. One regist=
+ration permits only the participation of one author in the conference.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Papers can be written in English, Spanis=
+h or Portuguese. Accepted and registered papers written in English will be =
+published in Proceedings by Springer, in a book of its SIST series, and wil=
+l be submitted for indexing by ISI, SCOPUS, EI-Compendex, SpringerLink, and=
+ Google Scholar.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Papers written in Spanish or Portuguese =
+and registered will be published in a Special Issue of RISTI and will be su=
+bmitted for indexation by SCOPUS, among others.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">&nbsp;</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%"><strong>Important Dates</strong> </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Paper Submission: January 11, 2021</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Notification of Acceptance: February 19,=
+ 2021</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Payment of Registration, to ensure the i=
+nclusion of an accepted paper in the conference proceedings: February 26, 2=
+021</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Camera-ready Submission: February 26, 20=
+21 </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">&nbsp;</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Website of MICRADS'21: <a href=3D"http:/=
+/www.micrads.org/">http://www.micrads.org/</a>&nbsp;</p>
+  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
+<table style=3D"border-top: 1px solid #D3D4DE;">
+	<tr>
+        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
+=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
+n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
+s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
+=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
+a></td>
+		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
+13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
+free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
+source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
+"_blank" style=3D"color: #4453ea;">www.avg.com</a>
+		</td>
+	</tr>
+</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
+t=3D"1"> </a></div></body>
+</html>
+
+--S9=_RJ1GD9uHMVAnhgvl9jNPXwW5I6Gydb--
+
+
+--===============2983174866566967811==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2983174866566967811==--
+
