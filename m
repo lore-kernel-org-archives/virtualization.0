@@ -2,102 +2,93 @@ Return-Path: <SRS0=Q5yb=F2=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26053C433E0
-	for <virtualization@archiver.kernel.org>; Tue, 22 Dec 2020 14:25:35 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3504C433E6
+	for <virtualization@archiver.kernel.org>; Tue, 22 Dec 2020 15:26:45 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9B8AF23124
-	for <virtualization@archiver.kernel.org>; Tue, 22 Dec 2020 14:25:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9B8AF23124
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 66DBA2312E
+	for <virtualization@archiver.kernel.org>; Tue, 22 Dec 2020 15:26:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 66DBA2312E
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 3DFAF8614E;
-	Tue, 22 Dec 2020 14:25:34 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 1ACF886886;
+	Tue, 22 Dec 2020 15:26:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id V06FKDGh3Oot; Tue, 22 Dec 2020 14:25:33 +0000 (UTC)
+	with ESMTP id 3IZc23pELLcK; Tue, 22 Dec 2020 15:26:44 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id AED5681E4F;
-	Tue, 22 Dec 2020 14:25:33 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 6A62586871;
+	Tue, 22 Dec 2020 15:26:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 968EBC1825;
-	Tue, 22 Dec 2020 14:25:33 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C49EDC0893
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4A4FFC1787;
+	Tue, 22 Dec 2020 15:26:44 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3A9A4C0893
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Dec 2020 14:25:32 +0000 (UTC)
+ Tue, 22 Dec 2020 15:26:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 8BA212284F
+ by whitealder.osuosl.org (Postfix) with ESMTP id 34F2D86886
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Dec 2020 14:25:32 +0000 (UTC)
+ Tue, 22 Dec 2020 15:26:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id U6UPMVJe6YtH
+ with ESMTP id oMldCcguxuYj
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Dec 2020 14:25:31 +0000 (UTC)
+ Tue, 22 Dec 2020 15:26:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com
- [209.85.218.46])
- by silver.osuosl.org (Postfix) with ESMTPS id C5CED2034F
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 2752F86871
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Dec 2020 14:25:30 +0000 (UTC)
-Received: by mail-ej1-f46.google.com with SMTP id n26so18474238eju.6
- for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Dec 2020 06:25:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc:content-transfer-encoding;
- bh=w0ZoW1YtNnNvY2+areMW2gfi6KMKObUc38gUPhTuopQ=;
- b=f+FnVZOBPLtOTEXet8hkD/XtcWq4kPOPWi9OBffjf+DJ1F47c9ynXidjBvNV2Q/cfh
- Kwje3xDXmlwnibGTNuyx8wCVSyaIEU/jzI69kga59ByaqtcDd7pNKym44ICggoE2L8A7
- BjWJj0PLZoELkv2/VTeznojSHc78xZGGxzy5rygLlyhCV8pIzf/UjmJg1k89P+HWFzFY
- seUZ/yaMmzsNFMao4CCbvqpMGfQjyC2Q75u0fQ7RUT9tVk5I+Xad6q0jv0HfJ7vt8BPY
- 7rKOxNX7609a+UIVxNocXzWP13r4nhLRtjU8i5MFKYlOcCXm6udTn+zT89xFizG4Xwtf
- HAXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc:content-transfer-encoding;
- bh=w0ZoW1YtNnNvY2+areMW2gfi6KMKObUc38gUPhTuopQ=;
- b=EiDFIPbwPbnjNqpcT6d1CGjTF7a9W2SEOuG/aBTAlbrNlPc0rZT/8yFwWtVZ3BFhtq
- I+OtImrYVlqD1IMaCjNPQzQvhXAtkWv+SXiZHRRqcMZ7kfyCm3/pPVaA9V3VDKj2SZwU
- tuloeKhHcejI/e2qSfRhtiAnHNVmolzktD9i8r4VIytm0QuYmbELkVXHH0soj5upuFgf
- tsSMDap11709PvkE1dVG4vKYXBqkHhdESC+QqaVBZMJsUAkUsOQ6Nuho0RMxPNVuEtft
- w2yNGI69j88qNOW0XTIGBV3m4E6IxFu7E9pmZRBW05PrMUdal1wxU5bnWG8+hE1pBmW7
- JSOA==
-X-Gm-Message-State: AOAM532suTY0X65ixD0RUPxXRNsoHmmvQ+zkEIIFzynnY5Pj16TWYrvb
- ti9h4+7v2YYnjw85B5uK7pT2Iw9F7X3WVpRm/mA=
-X-Google-Smtp-Source: ABdhPJxzwTJ6k3Z63MMFK8Crq80JHefJXNDH11QJGkVz82rtNyFtQcidVrk6WPbfnx0XZXXJ8RLBzRd/nthPLuCQoIs=
-X-Received: by 2002:a17:906:aeda:: with SMTP id
- me26mr19812860ejb.11.1608647129124; 
- Tue, 22 Dec 2020 06:25:29 -0800 (PST)
+ Tue, 22 Dec 2020 15:26:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1608650800;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=M34ihcQIgl2uBvdtI2eLaQPEje/5BH6xiNgzRU0ua+I=;
+ b=BmxRRQ+szp+8wfAbhPrfLM66f/a7edr6wc9an9/OvZqUySGiijgzS7C7YKpTS5V7UUSyvz
+ f+quJ62V2QuaLRsbuGxX9Beg9f9nTRR4NI1i1OgVyRAWH+BDUyGbKUXIpQj6ODpXgM2kF6
+ mXaNndS2zYnOvJRNSbdh9dQXy9DVMjE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-537-VA1_zpJrM-isDBU9vNciDw-1; Tue, 22 Dec 2020 10:26:36 -0500
+X-MC-Unique: VA1_zpJrM-isDBU9vNciDw-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
+ [10.5.11.22])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1D613802B40;
+ Tue, 22 Dec 2020 15:26:35 +0000 (UTC)
+Received: from sirius.home.kraxel.org (ovpn-112-94.ams2.redhat.com
+ [10.36.112.94])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 2E28F10016F4;
+ Tue, 22 Dec 2020 15:26:33 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+ id F2A0311AB8; Tue, 22 Dec 2020 16:26:32 +0100 (CET)
+Date: Tue, 22 Dec 2020 16:26:32 +0100
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: "Enrico Weigelt, metux IT consult" <info@metux.net>
+Subject: Re: [PATCH] drivers: gpu: drm: virtio: fix dependency of
+ DRM_VIRTIO_GPU on VIRTIO
+Message-ID: <20201222152632.eiyi5a46ekdafhyc@sirius.home.kraxel.org>
+References: <20201204131221.2827-1-info@metux.net>
 MIME-Version: 1.0
-References: <cover.1608065644.git.wangyunjian@huawei.com>
- <6b4c5fff8705dc4b5b6a25a45c50f36349350c73.1608065644.git.wangyunjian@huawei.com>
- <CAF=yD-K6EM3zfZtEh=305P4Z6ehO6TzfQC4cxp5+gHYrxEtXSg@mail.gmail.com>
- <acebdc23-7627-e170-cdfb-b7656c05e5c5@redhat.com>
-In-Reply-To: <acebdc23-7627-e170-cdfb-b7656c05e5c5@redhat.com>
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Tue, 22 Dec 2020 09:24:53 -0500
-Message-ID: <CAF=yD-KCs5x1oX-02aDM=5JyLP=BaA7_Jg7Wxt3=JmK8JBnyiA@mail.gmail.com>
-Subject: Re: [PATCH net v2 2/2] vhost_net: fix high cpu load when sendmsg fails
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Network Development <netdev@vger.kernel.org>,
- wangyunjian <wangyunjian@huawei.com>,
- "Lilijun \(Jerry\)" <jerry.lilijun@huawei.com>,
- virtualization@lists.linux-foundation.org, xudingke <xudingke@huawei.com>,
- "huangbin \(J\)" <brian.huangbin@huawei.com>,
- chenchanghu <chenchanghu@huawei.com>
+Content-Disposition: inline
+In-Reply-To: <20201204131221.2827-1-info@metux.net>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org, daniel@ffwll.ch,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -109,41 +100,48 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gTW9uLCBEZWMgMjEsIDIwMjAgYXQgMTE6NDEgUE0gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
-aGF0LmNvbT4gd3JvdGU6Cj4KPgo+IE9uIDIwMjAvMTIvMjIg5LiK5Y2INzowNywgV2lsbGVtIGRl
-IEJydWlqbiB3cm90ZToKPiA+IE9uIFdlZCwgRGVjIDE2LCAyMDIwIGF0IDM6MjAgQU0gd2FuZ3l1
-bmppYW48d2FuZ3l1bmppYW5AaHVhd2VpLmNvbT4gIHdyb3RlOgo+ID4+IEZyb206IFl1bmppYW4g
-V2FuZzx3YW5neXVuamlhbkBodWF3ZWkuY29tPgo+ID4+Cj4gPj4gQ3VycmVudGx5IHdlIGJyZWFr
-IHRoZSBsb29wIGFuZCB3YWtlIHVwIHRoZSB2aG9zdF93b3JrZXIgd2hlbgo+ID4+IHNlbmRtc2cg
-ZmFpbHMuIFdoZW4gdGhlIHdvcmtlciB3YWtlcyB1cCBhZ2Fpbiwgd2UnbGwgbWVldCB0aGUKPiA+
-PiBzYW1lIGVycm9yLgo+ID4gVGhlIHBhdGNoIGlzIGJhc2VkIG9uIHRoZSBhc3N1bXB0aW9uIHRo
-YXQgc3VjaCBlcnJvciBjYXNlcyBhbHdheXMKPiA+IHJldHVybiBFQUdBSU4uIENhbiBpdCBub3Qg
-YWxzbyBiZSBFTk9NRU0sIHN1Y2ggYXMgZnJvbSB0dW5fYnVpbGRfc2tiPwo+ID4KPiA+PiBUaGlz
-IHdpbGwgY2F1c2UgaGlnaCBDUFUgbG9hZC4gVG8gZml4IHRoaXMgaXNzdWUsCj4gPj4gd2UgY2Fu
-IHNraXAgdGhpcyBkZXNjcmlwdGlvbiBieSBpZ25vcmluZyB0aGUgZXJyb3IuIFdoZW4gd2UKPiA+
-PiBleGNlZWRzIHNuZGJ1ZiwgdGhlIHJldHVybiB2YWx1ZSBvZiBzZW5kbXNnIGlzIC1FQUdBSU4u
-IEluCj4gPj4gdGhlIGNhc2Ugd2UgZG9uJ3Qgc2tpcCB0aGUgZGVzY3JpcHRpb24gYW5kIGRvbid0
-IGRyb3AgcGFja2V0Lgo+ID4gdGhlIC0+IHRoYXQKPiA+Cj4gPiBoZXJlIGFuZCBhYm92ZTogZGVz
-Y3JpcHRpb24gLT4gZGVzY3JpcHRvcgo+ID4KPiA+IFBlcmhhcHMgc2xpZ2h0bHkgcmV2aXNlIHRv
-IG1vcmUgZXhwbGljaXRseSBzdGF0ZSB0aGF0Cj4gPgo+ID4gMS4gaW4gdGhlIGNhc2Ugb2YgcGVy
-c2lzdGVudCBmYWlsdXJlIChpLmUuLCBiYWQgcGFja2V0KSwgdGhlIGRyaXZlcgo+ID4gZHJvcHMg
-dGhlIHBhY2tldAo+ID4gMi4gaW4gdGhlIGNhc2Ugb2YgdHJhbnNpZW50IGZhaWx1cmUgKGUuZywu
-IG1lbW9yeSBwcmVzc3VyZSkgdGhlIGRyaXZlcgo+ID4gc2NoZWR1bGVzIHRoZSB3b3JrZXIgdG8g
-dHJ5IGFnYWluIGxhdGVyCj4KPgo+IElmIHdlIHdhbnQgdG8gZ28gd2l0aCB0aGlzIHdheSwgd2Ug
-bmVlZCBhIGJldHRlciB0aW1lIHRvIHdha2V1cCB0aGUKPiB3b3JrZXIuIE90aGVyd2lzZSBpdCBq
-dXN0IHByb2R1Y2VzIG1vcmUgc3RyZXNzIG9uIHRoZSBjcHUgdGhhdCBpcyB3aGF0Cj4gdGhpcyBw
-YXRjaCB0cmllcyB0byBhdm9pZC4KClBlcmhhcHMgSSBtaXN1bmRlcnN0b29kIHRoZSBwdXJwb3Nl
-IG9mIHRoZSBwYXRjaDogaXMgaXQgdG8gZHJvcApldmVyeXRoaW5nLCByZWdhcmRsZXNzIG9mIHRy
-YW5zaWVudCBvciBwZXJzaXN0ZW50IGZhaWx1cmUsIHVudGlsIHRoZQpyaW5nIHJ1bnMgb3V0IG9m
-IGRlc2NyaXB0b3JzPwoKSSBjYW4gdW5kZXJzdGFuZCBib3RoIGEgYmxvY2tpbmcgYW5kIGRyb3Ag
-c3RyYXRlZ3kgZHVyaW5nIG1lbW9yeQpwcmVzc3VyZS4gQnV0IHBhcnRpYWwgZHJvcCBzdHJhdGVn
-eSB1bnRpbCBleGNlZWRpbmcgcmluZyBjYXBhY2l0eQpzZWVtcyBsaWtlIGEgcGVjdWxpYXIgaHli
-cmlkPwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
-dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
-dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
-Zm8vdmlydHVhbGl6YXRpb24=
+On Fri, Dec 04, 2020 at 02:12:21PM +0100, Enrico Weigelt, metux IT consult wrote:
+> VIRTIO itself has no dependencies and therefore can easily be just
+> select'ed, instead of depending on it. The current depends on causes
+> any others trying to select VIRTIO to fail like this:
+> 
+>    drivers/gpu/drm/Kconfig:74:error: recursive dependency detected!
+>    drivers/gpu/drm/Kconfig:74:	symbol DRM_KMS_HELPER is selected by DRM_VIRTIO_GPU
+>    drivers/gpu/drm/virtio/Kconfig:2:	symbol DRM_VIRTIO_GPU depends on VIRTIO
+>    drivers/virtio/Kconfig:2:	symbol VIRTIO is selected by GPIO_VIRTIO
+>    drivers/gpio/Kconfig:1618:	symbol GPIO_VIRTIO depends on GPIOLIB
+>    drivers/gpio/Kconfig:14:	symbol GPIOLIB is selected by I2C_MUX_LTC4306
+>    drivers/i2c/muxes/Kconfig:47:	symbol I2C_MUX_LTC4306 depends on I2C
+>    drivers/i2c/Kconfig:8:	symbol I2C is selected by FB_DDC
+>    drivers/video/fbdev/Kconfig:63:	symbol FB_DDC depends on FB
+>    drivers/video/fbdev/Kconfig:12:	symbol FB is selected by DRM_KMS_FB_HELPER
+>    drivers/gpu/drm/Kconfig:80:	symbol DRM_KMS_FB_HELPER depends on DRM_KMS_HELPER
+> 
+> It seems that having both 'depends on' as well as 'select' on the same symbol
+> sends us into big trouble, and Kconfig can't break up the circular dependency
+> (note that in the tested configuration, neither I2C, FB or DRM are enabled at
+> all). Perhaps we could consider this a bug in Kconfig, but the trouble can
+> easily be circumvented by changing 'depends on' into 'select'.
+> 
+> DRM_VIRTIO_GPU also depends on VIRTIO_MENU, so even after this change, that
+> option will only show up if the user already enabled virtio in the config.
+> 
+> This change didn't cause any changes in the .config after menuconfig run,
+> so we should be completely safe here.
+> 
+> Signed-off-by: Enrico Weigelt, metux IT consult <info@metux.net>
+
+Pushed to drm-misc-next.
+
+thanks,
+  Gerd
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
