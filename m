@@ -2,97 +2,86 @@ Return-Path: <SRS0=+X4x=F3=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDDC3C433E0
-	for <virtualization@archiver.kernel.org>; Wed, 23 Dec 2020 09:05:51 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B3B1C433DB
+	for <virtualization@archiver.kernel.org>; Wed, 23 Dec 2020 09:06:24 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 70031207CD
-	for <virtualization@archiver.kernel.org>; Wed, 23 Dec 2020 09:05:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 70031207CD
+	by mail.kernel.org (Postfix) with ESMTPS id 887EE20760
+	for <virtualization@archiver.kernel.org>; Wed, 23 Dec 2020 09:06:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 887EE20760
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 8CEFE87260;
-	Wed, 23 Dec 2020 09:05:50 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 17AEE85CAA;
+	Wed, 23 Dec 2020 09:06:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uJtyI2P6fxLu; Wed, 23 Dec 2020 09:05:48 +0000 (UTC)
+	with ESMTP id P-nG_r9uC7PR; Wed, 23 Dec 2020 09:06:21 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id E4EAE8719A;
-	Wed, 23 Dec 2020 09:05:48 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 2E5CD85C5E;
+	Wed, 23 Dec 2020 09:06:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C52ABC1825;
-	Wed, 23 Dec 2020 09:05:48 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B8E4EC0893
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 25458C1825;
+	Wed, 23 Dec 2020 09:06:21 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C0FC2C0893
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Dec 2020 09:05:47 +0000 (UTC)
+ Wed, 23 Dec 2020 09:06:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id A6D2F203E6
+ by whitealder.osuosl.org (Postfix) with ESMTP id AAB1A86845
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Dec 2020 09:05:47 +0000 (UTC)
+ Wed, 23 Dec 2020 09:06:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Xq-1FadTpePK
+ with ESMTP id IbjsjBAOVfbj
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Dec 2020 09:05:45 +0000 (UTC)
+ Wed, 23 Dec 2020 09:06:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by silver.osuosl.org (Postfix) with ESMTPS id 8FAC1203E4
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id AE6E1867ED
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Dec 2020 09:05:42 +0000 (UTC)
+ Wed, 23 Dec 2020 09:06:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1608714341;
+ s=mimecast20190719; t=1608714377;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=bzp4miSYa1YbX1pzPBEvAGZlsG6n9vA+NtKZUy2Yneg=;
- b=K6/WLmJ3b/Tg6ZVbtN6nWvJvfo1d2Kur9EMCWis6dBeWPYSay2nowEt7XI3SHdwGUZYtw6
- q67NE1YBwzOJEAUcUiJqpXpz3VNMFtnSD9OK5zSNkqltECfcH2klyKvzkGwN3KRRbQF/wy
- wD+nUMJZN+zq1FOk9fSQu94h2uZv9+o=
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=8kvGky1ZBOO/lTtyjwDgFXqJjxaFFOaFPrPYqkGVJhE=;
+ b=H3+CGMK4yR9ayIhDQXJEqTpiPJtWzimJ84jb1N8tMPYoi5FBzrMRsPhgHudSI3s8mDXcXS
+ hVF3QRGgpLiFLEgkqpsZVJR6eUnfueaCrVwytNr2gSk9EodjlBG3VNm4eI4j+PURaw5uD8
+ ensDhi75f864r38AIalaZGFFOLI3axE=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-397-Vmgvr832MN-qZP6m-ec38Q-1; Wed, 23 Dec 2020 04:05:37 -0500
-X-MC-Unique: Vmgvr832MN-qZP6m-ec38Q-1
+ us-mta-214-qKd5C_B1NH6R43M4qbtmAw-1; Wed, 23 Dec 2020 04:06:15 -0500
+X-MC-Unique: qKd5C_B1NH6R43M4qbtmAw-1
 Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
  [10.5.11.23])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9F6BD107AD2F;
- Wed, 23 Dec 2020 09:05:34 +0000 (UTC)
-Received: from [10.72.12.54] (ovpn-12-54.pek2.redhat.com [10.72.12.54])
- by smtp.corp.redhat.com (Postfix) with ESMTP id B0CB619D9C;
- Wed, 23 Dec 2020 09:05:22 +0000 (UTC)
-Subject: Re: [RFC v2 09/13] vduse: Add support for processing vhost iotlb
- message
-To: Xie Yongji <xieyongji@bytedance.com>, mst@redhat.com,
- stefanha@redhat.com, sgarzare@redhat.com, parav@nvidia.com,
- akpm@linux-foundation.org, rdunlap@infradead.org, willy@infradead.org,
- viro@zeniv.linux.org.uk, axboe@kernel.dk, bcrl@kvack.org, corbet@lwn.net
-References: <20201222145221.711-1-xieyongji@bytedance.com>
- <20201222145221.711-10-xieyongji@bytedance.com>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <6818a214-d587-4f0b-7de6-13c4e7e94ab6@redhat.com>
-Date: Wed, 23 Dec 2020 17:05:21 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E94BB107ACE4;
+ Wed, 23 Dec 2020 09:06:13 +0000 (UTC)
+Received: from steredhat.redhat.com (ovpn-112-247.ams2.redhat.com
+ [10.36.112.247])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 46ED719725;
+ Wed, 23 Dec 2020 09:06:09 +0000 (UTC)
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: virtualization@lists.linux-foundation.org
+Subject: [PATCH v2] vdpa_sim: use iova module to allocate IOVA addresses
+Date: Wed, 23 Dec 2020 10:06:08 +0100
+Message-Id: <20201223090608.24163-1-sgarzare@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20201222145221.711-10-xieyongji@bytedance.com>
-Content-Language: en-US
 X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-Cc: linux-aio@kvack.org, kvm@vger.kernel.org, netdev@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- linux-fsdevel@vger.kernel.org
+Cc: Max Gurtovoy <mgurtovoy@nvidia.com>, Laurent Vivier <lvivier@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -104,170 +93,247 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Ck9uIDIwMjAvMTIvMjIg5LiL5Y2IMTA6NTIsIFhpZSBZb25namkgd3JvdGU6Cj4gVG8gc3VwcG9y
-dCB2aG9zdC12ZHBhIGJ1cyBkcml2ZXIsIHdlIG5lZWQgYSB3YXkgdG8gc2hhcmUgdGhlCj4gdmhv
-c3QtdmRwYSBiYWNrZW5kIHByb2Nlc3MncyBtZW1vcnkgd2l0aCB0aGUgdXNlcnNwYWNlIFZEVVNF
-IHByb2Nlc3MuCj4KPiBUaGlzIHBhdGNoIHRyaWVzIHRvIG1ha2UgdXNlIG9mIHRoZSB2aG9zdCBp
-b3RsYiBtZXNzYWdlIHRvIGFjaGlldmUKPiB0aGF0LiBXZSB3aWxsIGdldCB0aGUgc2htIGZpbGUg
-ZnJvbSB0aGUgaW90bGIgbWVzc2FnZSBhbmQgcGFzcyBpdAo+IHRvIHRoZSB1c2Vyc3BhY2UgVkRV
-U0UgcHJvY2Vzcy4KPgo+IFNpZ25lZC1vZmYtYnk6IFhpZSBZb25namkgPHhpZXlvbmdqaUBieXRl
-ZGFuY2UuY29tPgo+IC0tLQo+ICAgRG9jdW1lbnRhdGlvbi9kcml2ZXItYXBpL3ZkdXNlLnJzdCB8
-ICAxNSArKystCj4gICBkcml2ZXJzL3ZkcGEvdmRwYV91c2VyL3ZkdXNlX2Rldi5jIHwgMTQ3ICsr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0KPiAgIGluY2x1ZGUvdWFwaS9saW51
-eC92ZHVzZS5oICAgICAgICAgfCAgMTEgKysrCj4gICAzIGZpbGVzIGNoYW5nZWQsIDE3MSBpbnNl
-cnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24v
-ZHJpdmVyLWFwaS92ZHVzZS5yc3QgYi9Eb2N1bWVudGF0aW9uL2RyaXZlci1hcGkvdmR1c2UucnN0
-Cj4gaW5kZXggNjIzZjdiMDQwY2NmLi40OGU0YjFiYTM1M2YgMTAwNjQ0Cj4gLS0tIGEvRG9jdW1l
-bnRhdGlvbi9kcml2ZXItYXBpL3ZkdXNlLnJzdAo+ICsrKyBiL0RvY3VtZW50YXRpb24vZHJpdmVy
-LWFwaS92ZHVzZS5yc3QKPiBAQCAtNDYsMTMgKzQ2LDI2IEBAIFRoZSBmb2xsb3dpbmcgdHlwZXMg
-b2YgbWVzc2FnZXMgYXJlIHByb3ZpZGVkIGJ5IHRoZSBWRFVTRSBmcmFtZXdvcmsgbm93Ogo+ICAg
-Cj4gICAtIFZEVVNFX0dFVF9DT05GSUc6IFJlYWQgZnJvbSBkZXZpY2Ugc3BlY2lmaWMgY29uZmln
-dXJhdGlvbiBzcGFjZQo+ICAgCj4gKy0gVkRVU0VfVVBEQVRFX0lPVExCOiBVcGRhdGUgdGhlIG1l
-bW9yeSBtYXBwaW5nIGluIGRldmljZSBJT1RMQgo+ICsKPiArLSBWRFVTRV9JTlZBTElEQVRFX0lP
-VExCOiBJbnZhbGlkYXRlIHRoZSBtZW1vcnkgbWFwcGluZyBpbiBkZXZpY2UgSU9UTEIKPiArCj4g
-ICBQbGVhc2Ugc2VlIGluY2x1ZGUvbGludXgvdmRwYS5oIGZvciBkZXRhaWxzLgo+ICAgCj4gLUlu
-IHRoZSBkYXRhIHBhdGgsIFZEVVNFIGZyYW1ld29yayBpbXBsZW1lbnRzIGEgTU1VLWJhc2VkIG9u
-LWNoaXAgSU9NTVUKPiArVGhlIGRhdGEgcGF0aCBvZiB1c2Vyc3BhY2UgdkRQQSBkZXZpY2UgaXMg
-aW1wbGVtZW50ZWQgaW4gZGlmZmVyZW50IHdheXMKPiArZGVwZW5kaW5nIG9uIHRoZSB2ZHBhIGJ1
-cyB0byB3aGljaCBpdCBpcyBhdHRhY2hlZC4KPiArCj4gK0luIHZpcnRpby12ZHBhIGNhc2UsIFZE
-VVNFIGZyYW1ld29yayBpbXBsZW1lbnRzIGEgTU1VLWJhc2VkIG9uLWNoaXAgSU9NTVUKPiAgIGRy
-aXZlciB3aGljaCBzdXBwb3J0cyBtYXBwaW5nIHRoZSBrZXJuZWwgZG1hIGJ1ZmZlciB0byBhIHVz
-ZXJzcGFjZSBpb3ZhCj4gICByZWdpb24gZHluYW1pY2FsbHkuIFRoZSB1c2Vyc3BhY2UgaW92YSBy
-ZWdpb24gY2FuIGJlIGNyZWF0ZWQgYnkgcGFzc2luZwo+ICAgdGhlIHVzZXJzcGFjZSB2RFBBIGRl
-dmljZSBmZCB0byBtbWFwKDIpLgo+ICAgCj4gK0luIHZob3N0LXZkcGEgY2FzZSwgdGhlIGRtYSBi
-dWZmZXIgaXMgcmVzaWRlIGluIGEgdXNlcnNwYWNlIG1lbW9yeSByZWdpb24KPiArd2hpY2ggd2ls
-bCBiZSBzaGFyZWQgdG8gdGhlIFZEVVNFIHVzZXJzcGFjZSBwcm9jZXNzcyB2aWEgdGhlIGZpbGUK
-PiArZGVzY3JpcHRvciBpbiBWRFVTRV9VUERBVEVfSU9UTEIgbWVzc2FnZS4gQW5kIHRoZSBjb3Jy
-ZXNwb25kaW5nIGFkZHJlc3MKPiArbWFwcGluZyAoSU9WQSBvZiBkbWEgYnVmZmVyIDwtPiBWQSBv
-ZiB0aGUgbWVtb3J5IHJlZ2lvbikgaXMgYWxzbyBpbmNsdWRlZAo+ICtpbiB0aGlzIG1lc3NhZ2Uu
-Cj4gKwo+ICAgQmVzaWRlcywgdGhlIGV2ZW50ZmQgbWVjaGFuaXNtIGlzIHVzZWQgdG8gdHJpZ2dl
-ciBpbnRlcnJ1cHQgY2FsbGJhY2tzIGFuZAo+ICAgcmVjZWl2ZSB2aXJ0cXVldWUga2lja3MgaW4g
-dXNlcnNwYWNlLiBUaGUgZm9sbG93aW5nIGlvY3RscyBvbiB0aGUgdXNlcnNwYWNlCj4gICB2RFBB
-IGRldmljZSBmZCBhcmUgcHJvdmlkZWQgdG8gc3VwcG9ydCB0aGF0Ogo+IGRpZmYgLS1naXQgYS9k
-cml2ZXJzL3ZkcGEvdmRwYV91c2VyL3ZkdXNlX2Rldi5jIGIvZHJpdmVycy92ZHBhL3ZkcGFfdXNl
-ci92ZHVzZV9kZXYuYwo+IGluZGV4IGI5NzQzMzNlZDRlOS4uZDI0YWFhY2I2MDA4IDEwMDY0NAo+
-IC0tLSBhL2RyaXZlcnMvdmRwYS92ZHBhX3VzZXIvdmR1c2VfZGV2LmMKPiArKysgYi9kcml2ZXJz
-L3ZkcGEvdmRwYV91c2VyL3ZkdXNlX2Rldi5jCj4gQEAgLTM0LDYgKzM0LDcgQEAKPiAgIAo+ICAg
-c3RydWN0IHZkdXNlX2Rldl9tc2cgewo+ICAgCXN0cnVjdCB2ZHVzZV9kZXZfcmVxdWVzdCByZXE7
-Cj4gKwlzdHJ1Y3QgZmlsZSAqaW90bGJfZmlsZTsKPiAgIAlzdHJ1Y3QgdmR1c2VfZGV2X3Jlc3Bv
-bnNlIHJlc3A7Cj4gICAJc3RydWN0IGxpc3RfaGVhZCBsaXN0Owo+ICAgCXdhaXRfcXVldWVfaGVh
-ZF90IHdhaXRxOwo+IEBAIC0zMjUsMTIgKzMyNiw4MCBAQCBzdGF0aWMgaW50IHZkdXNlX2Rldl9z
-ZXRfdnFfc3RhdGUoc3RydWN0IHZkdXNlX2RldiAqZGV2LAo+ICAgCXJldHVybiByZXQ7Cj4gICB9
-Cj4gICAKPiArc3RhdGljIGludCB2ZHVzZV9kZXZfdXBkYXRlX2lvdGxiKHN0cnVjdCB2ZHVzZV9k
-ZXYgKmRldiwgc3RydWN0IGZpbGUgKmZpbGUsCj4gKwkJCQl1NjQgb2Zmc2V0LCB1NjQgaW92YSwg
-dTY0IHNpemUsIHU4IHBlcm0pCj4gK3sKPiArCXN0cnVjdCB2ZHVzZV9kZXZfbXNnICptc2c7Cj4g
-KwlpbnQgcmV0Owo+ICsKPiArCWlmICghc2l6ZSkKPiArCQlyZXR1cm4gLUVJTlZBTDsKPiArCj4g
-Kwltc2cgPSB2ZHVzZV9kZXZfbmV3X21zZyhkZXYsIFZEVVNFX1VQREFURV9JT1RMQik7Cj4gKwlt
-c2ctPnJlcS5zaXplID0gc2l6ZW9mKHN0cnVjdCB2ZHVzZV9pb3RsYik7Cj4gKwltc2ctPnJlcS5p
-b3RsYi5vZmZzZXQgPSBvZmZzZXQ7Cj4gKwltc2ctPnJlcS5pb3RsYi5pb3ZhID0gaW92YTsKPiAr
-CW1zZy0+cmVxLmlvdGxiLnNpemUgPSBzaXplOwo+ICsJbXNnLT5yZXEuaW90bGIucGVybSA9IHBl
-cm07Cj4gKwltc2ctPnJlcS5pb3RsYi5mZCA9IC0xOwo+ICsJbXNnLT5pb3RsYl9maWxlID0gZ2V0
-X2ZpbGUoZmlsZSk7Cj4gKwo+ICsJcmV0ID0gdmR1c2VfZGV2X21zZ19zeW5jKGRldiwgbXNnKTsK
-CgpNeSBmZWVsaW5nIGlzIHRoYXQgd2Ugc2hvdWxkIHByb3ZpZGUgY29uc2lzdGVudCBBUEkgZm9y
-IHRoZSB1c2Vyc3BhY2UgCmRldmljZSB0byB1c2UuCgpFLmcgd2UnZCBiZXR0ZXIgY2FycnkgdGhl
-IElPVExCIG1lc3NhZ2UgZm9yIGJvdGggdmlydGlvL3Zob3N0IGRyaXZlcnMuCgpJdCBsb29rcyB0
-byBtZSBmb3IgdmlydGlvIGRyaXZlcnMgd2UgY2FuIHN0aWxsIHVzZSBVUERBVF9JT1RMQiBtZXNz
-YWdlIApieSB1c2luZyBWRFVTRSBmaWxlIGFzIG1zZy0+aW90bGJfZmlsZSBoZXJlLgoKCj4gKwl2
-ZHVzZV9kZXZfbXNnX3B1dChtc2cpOwo+ICsJZnB1dChmaWxlKTsKPiArCj4gKwlyZXR1cm4gcmV0
-Owo+ICt9Cj4gKwo+ICtzdGF0aWMgaW50IHZkdXNlX2Rldl9pbnZhbGlkYXRlX2lvdGxiKHN0cnVj
-dCB2ZHVzZV9kZXYgKmRldiwKPiArCQkJCQl1NjQgaW92YSwgdTY0IHNpemUpCj4gK3sKPiArCXN0
-cnVjdCB2ZHVzZV9kZXZfbXNnICptc2c7Cj4gKwlpbnQgcmV0Owo+ICsKPiArCWlmICghc2l6ZSkK
-PiArCQlyZXR1cm4gLUVJTlZBTDsKPiArCj4gKwltc2cgPSB2ZHVzZV9kZXZfbmV3X21zZyhkZXYs
-IFZEVVNFX0lOVkFMSURBVEVfSU9UTEIpOwo+ICsJbXNnLT5yZXEuc2l6ZSA9IHNpemVvZihzdHJ1
-Y3QgdmR1c2VfaW90bGIpOwo+ICsJbXNnLT5yZXEuaW90bGIuaW92YSA9IGlvdmE7Cj4gKwltc2ct
-PnJlcS5pb3RsYi5zaXplID0gc2l6ZTsKPiArCj4gKwlyZXQgPSB2ZHVzZV9kZXZfbXNnX3N5bmMo
-ZGV2LCBtc2cpOwo+ICsJdmR1c2VfZGV2X21zZ19wdXQobXNnKTsKPiArCj4gKwlyZXR1cm4gcmV0
-Owo+ICt9Cj4gKwo+ICtzdGF0aWMgdW5zaWduZWQgaW50IHBlcm1fdG9fZmlsZV9mbGFncyh1OCBw
-ZXJtKQo+ICt7Cj4gKwl1bnNpZ25lZCBpbnQgZmxhZ3MgPSAwOwo+ICsKPiArCXN3aXRjaCAocGVy
-bSkgewo+ICsJY2FzZSBWSE9TVF9BQ0NFU1NfV086Cj4gKwkJZmxhZ3MgfD0gT19XUk9OTFk7Cj4g
-KwkJYnJlYWs7Cj4gKwljYXNlIFZIT1NUX0FDQ0VTU19STzoKPiArCQlmbGFncyB8PSBPX1JET05M
-WTsKPiArCQlicmVhazsKPiArCWNhc2UgVkhPU1RfQUNDRVNTX1JXOgo+ICsJCWZsYWdzIHw9IE9f
-UkRXUjsKPiArCQlicmVhazsKPiArCWRlZmF1bHQ6Cj4gKwkJV0FSTigxLCAiaW52YWxpZGF0ZSB2
-aG9zdCBJT1RMQiBwZXJtaXNzaW9uXG4iKTsKPiArCQlicmVhazsKPiArCX0KPiArCj4gKwlyZXR1
-cm4gZmxhZ3M7Cj4gK30KPiArCj4gICBzdGF0aWMgc3NpemVfdCB2ZHVzZV9kZXZfcmVhZF9pdGVy
-KHN0cnVjdCBraW9jYiAqaW9jYiwgc3RydWN0IGlvdl9pdGVyICp0bykKPiAgIHsKPiAgIAlzdHJ1
-Y3QgZmlsZSAqZmlsZSA9IGlvY2ItPmtpX2ZpbHA7Cj4gICAJc3RydWN0IHZkdXNlX2RldiAqZGV2
-ID0gZmlsZS0+cHJpdmF0ZV9kYXRhOwo+ICAgCXN0cnVjdCB2ZHVzZV9kZXZfbXNnICptc2c7Cj4g
-LQlpbnQgc2l6ZSA9IHNpemVvZihzdHJ1Y3QgdmR1c2VfZGV2X3JlcXVlc3QpOwo+ICsJdW5zaWdu
-ZWQgaW50IGZsYWdzOwo+ICsJaW50IGZkLCBzaXplID0gc2l6ZW9mKHN0cnVjdCB2ZHVzZV9kZXZf
-cmVxdWVzdCk7Cj4gICAJc3NpemVfdCByZXQgPSAwOwo+ICAgCj4gICAJaWYgKGlvdl9pdGVyX2Nv
-dW50KHRvKSA8IHNpemUpCj4gQEAgLTM0OSw2ICs0MTgsMTggQEAgc3RhdGljIHNzaXplX3QgdmR1
-c2VfZGV2X3JlYWRfaXRlcihzdHJ1Y3Qga2lvY2IgKmlvY2IsIHN0cnVjdCBpb3ZfaXRlciAqdG8p
-Cj4gICAJCWlmIChyZXQpCj4gICAJCQlyZXR1cm4gcmV0Owo+ICAgCX0KPiArCj4gKwlpZiAobXNn
-LT5yZXEudHlwZSA9PSBWRFVTRV9VUERBVEVfSU9UTEIgJiYgbXNnLT5yZXEuaW90bGIuZmQgPT0g
-LTEpIHsKPiArCQlmbGFncyA9IHBlcm1fdG9fZmlsZV9mbGFncyhtc2ctPnJlcS5pb3RsYi5wZXJt
-KTsKPiArCQlmZCA9IGdldF91bnVzZWRfZmRfZmxhZ3MoZmxhZ3MpOwo+ICsJCWlmIChmZCA8IDAp
-IHsKPiArCQkJdmR1c2VfZGV2X2VucXVldWVfbXNnKGRldiwgbXNnLCAmZGV2LT5zZW5kX2xpc3Qp
-Owo+ICsJCQlyZXR1cm4gZmQ7Cj4gKwkJfQo+ICsJCWZkX2luc3RhbGwoZmQsIGdldF9maWxlKG1z
-Zy0+aW90bGJfZmlsZSkpOwo+ICsJCW1zZy0+cmVxLmlvdGxiLmZkID0gZmQ7Cj4gKwl9Cj4gKwo+
-ICAgCXJldCA9IGNvcHlfdG9faXRlcigmbXNnLT5yZXEsIHNpemUsIHRvKTsKPiAgIAlpZiAocmV0
-ICE9IHNpemUpIHsKPiAgIAkJdmR1c2VfZGV2X2VucXVldWVfbXNnKGRldiwgbXNnLCAmZGV2LT5z
-ZW5kX2xpc3QpOwo+IEBAIC01NjUsNiArNjQ2LDY5IEBAIHN0YXRpYyB2b2lkIHZkdXNlX3ZkcGFf
-c2V0X2NvbmZpZyhzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkcGEsIHVuc2lnbmVkIGludCBvZmZzZXQs
-Cj4gICAJdmR1c2VfZGV2X3NldF9jb25maWcoZGV2LCBvZmZzZXQsIGJ1ZiwgbGVuKTsKPiAgIH0K
-PiAgIAo+ICtzdGF0aWMgdm9pZCB2ZHVzZV92ZHBhX2ludmFsaWRhdGVfaW90bGIoc3RydWN0IHZk
-dXNlX2RldiAqZGV2LAo+ICsJCQkJCXN0cnVjdCB2aG9zdF9pb3RsYl9tc2cgKm1zZykKPiArewo+
-ICsJdmR1c2VfZGV2X2ludmFsaWRhdGVfaW90bGIoZGV2LCBtc2ctPmlvdmEsIG1zZy0+c2l6ZSk7
-Cj4gK30KPiArCj4gK3N0YXRpYyBpbnQgdmR1c2VfdmRwYV91cGRhdGVfaW90bGIoc3RydWN0IHZk
-dXNlX2RldiAqZGV2LAo+ICsJCQkJCXN0cnVjdCB2aG9zdF9pb3RsYl9tc2cgKm1zZykKPiArewo+
-ICsJdTY0IHVhZGRyID0gbXNnLT51YWRkcjsKPiArCXU2NCBpb3ZhID0gbXNnLT5pb3ZhOwo+ICsJ
-dTY0IHNpemUgPSBtc2ctPnNpemU7Cj4gKwl1NjQgb2Zmc2V0Owo+ICsJc3RydWN0IHZtX2FyZWFf
-c3RydWN0ICp2bWE7Cj4gKwlpbnQgcmV0Owo+ICsKPiArCXdoaWxlICh1YWRkciA8IG1zZy0+dWFk
-ZHIgKyBtc2ctPnNpemUpIHsKPiArCQl2bWEgPSBmaW5kX3ZtYShjdXJyZW50LT5tbSwgdWFkZHIp
-Owo+ICsJCXJldCA9IC1FSU5WQUw7Cj4gKwkJaWYgKCF2bWEpCj4gKwkJCWdvdG8gZXJyOwo+ICsK
-PiArCQlzaXplID0gbWluKG1zZy0+c2l6ZSwgdm1hLT52bV9lbmQgLSB1YWRkcik7Cj4gKwkJb2Zm
-c2V0ID0gKHZtYS0+dm1fcGdvZmYgPDwgUEFHRV9TSElGVCkgKyB1YWRkciAtIHZtYS0+dm1fc3Rh
-cnQ7Cj4gKwkJaWYgKHZtYS0+dm1fZmlsZSAmJiAodm1hLT52bV9mbGFncyAmIFZNX1NIQVJFRCkp
-IHsKPiArCQkJcmV0ID0gdmR1c2VfZGV2X3VwZGF0ZV9pb3RsYihkZXYsIHZtYS0+dm1fZmlsZSwg
-b2Zmc2V0LAo+ICsJCQkJCQkJaW92YSwgc2l6ZSwgbXNnLT5wZXJtKTsKPiArCQkJaWYgKHJldCkK
-PiArCQkJCWdvdG8gZXJyOwoKCk15IHVuZGVyc3RhbmRpbmcgaXMgdGhhdCB2bWEgaXMgc29tZXRo
-aW5nIHRoYXQgc2hvdWxkIG5vdCBiZSBrbm93biBieSBhIApkZXZpY2UuIFNvIEkgc3VnZ2VzdCB0
-byBtb3ZlIHRoZSBhYm92ZSBwcm9jZXNzaW5nIHRvIHZob3N0LXZkcGEuYy4KClRoYW5rcwoKCj4g
-KwkJfQo+ICsJCWlvdmEgKz0gc2l6ZTsKPiArCQl1YWRkciArPSBzaXplOwo+ICsJfQo+ICsJcmV0
-dXJuIDA7Cj4gK2VycjoKPiArCXZkdXNlX2Rldl9pbnZhbGlkYXRlX2lvdGxiKGRldiwgbXNnLT5p
-b3ZhLCBpb3ZhIC0gbXNnLT5pb3ZhKTsKPiArCXJldHVybiByZXQ7Cj4gK30KPiArCj4gK3N0YXRp
-YyBpbnQgdmR1c2VfdmRwYV9wcm9jZXNzX2lvdGxiX21zZyhzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZk
-cGEsCj4gKwkJCQkJc3RydWN0IHZob3N0X2lvdGxiX21zZyAqbXNnKQo+ICt7Cj4gKwlzdHJ1Y3Qg
-dmR1c2VfZGV2ICpkZXYgPSB2ZHBhX3RvX3ZkdXNlKHZkcGEpOwo+ICsJaW50IHJldCA9IDA7Cj4g
-Kwo+ICsJc3dpdGNoIChtc2ctPnR5cGUpIHsKPiArCWNhc2UgVkhPU1RfSU9UTEJfVVBEQVRFOgo+
-ICsJCXJldCA9IHZkdXNlX3ZkcGFfdXBkYXRlX2lvdGxiKGRldiwgbXNnKTsKPiArCQlicmVhazsK
-PiArCWNhc2UgVkhPU1RfSU9UTEJfSU5WQUxJREFURToKPiArCQl2ZHVzZV92ZHBhX2ludmFsaWRh
-dGVfaW90bGIoZGV2LCBtc2cpOwo+ICsJCWJyZWFrOwo+ICsJY2FzZSBWSE9TVF9JT1RMQl9CQVRD
-SF9CRUdJTjoKPiArCWNhc2UgVkhPU1RfSU9UTEJfQkFUQ0hfRU5EOgo+ICsJCWJyZWFrOwo+ICsJ
-ZGVmYXVsdDoKPiArCQlyZXQgPSAtRUlOVkFMOwo+ICsJCWJyZWFrOwo+ICsJfQo+ICsKPiArCXJl
-dHVybiByZXQ7Cj4gK30KPiArCj4gICBzdGF0aWMgdm9pZCB2ZHVzZV92ZHBhX2ZyZWUoc3RydWN0
-IHZkcGFfZGV2aWNlICp2ZHBhKQo+ICAgewo+ICAgCXN0cnVjdCB2ZHVzZV9kZXYgKmRldiA9IHZk
-cGFfdG9fdmR1c2UodmRwYSk7Cj4gQEAgLTU5Nyw2ICs3NDEsNyBAQCBzdGF0aWMgY29uc3Qgc3Ry
-dWN0IHZkcGFfY29uZmlnX29wcyB2ZHVzZV92ZHBhX2NvbmZpZ19vcHMgPSB7Cj4gICAJLnNldF9z
-dGF0dXMJCT0gdmR1c2VfdmRwYV9zZXRfc3RhdHVzLAo+ICAgCS5nZXRfY29uZmlnCQk9IHZkdXNl
-X3ZkcGFfZ2V0X2NvbmZpZywKPiAgIAkuc2V0X2NvbmZpZwkJPSB2ZHVzZV92ZHBhX3NldF9jb25m
-aWcsCj4gKwkucHJvY2Vzc19pb3RsYl9tc2cJPSB2ZHVzZV92ZHBhX3Byb2Nlc3NfaW90bGJfbXNn
-LAo+ICAgCS5mcmVlCQkJPSB2ZHVzZV92ZHBhX2ZyZWUsCj4gICB9Owo+ICAgCj4gZGlmZiAtLWdp
-dCBhL2luY2x1ZGUvdWFwaS9saW51eC92ZHVzZS5oIGIvaW5jbHVkZS91YXBpL2xpbnV4L3ZkdXNl
-LmgKPiBpbmRleCA4NzMzMDVkZmQ5M2YuLmM1MDgwODUxZjE0MCAxMDA2NDQKPiAtLS0gYS9pbmNs
-dWRlL3VhcGkvbGludXgvdmR1c2UuaAo+ICsrKyBiL2luY2x1ZGUvdWFwaS9saW51eC92ZHVzZS5o
-Cj4gQEAgLTIxLDYgKzIxLDggQEAgZW51bSB2ZHVzZV9yZXFfdHlwZSB7Cj4gICAJVkRVU0VfR0VU
-X1NUQVRVUywKPiAgIAlWRFVTRV9TRVRfQ09ORklHLAo+ICAgCVZEVVNFX0dFVF9DT05GSUcsCj4g
-KwlWRFVTRV9VUERBVEVfSU9UTEIsCj4gKwlWRFVTRV9JTlZBTElEQVRFX0lPVExCLAo+ICAgfTsK
-PiAgIAo+ICAgc3RydWN0IHZkdXNlX3ZxX251bSB7Cj4gQEAgLTUxLDYgKzUzLDE0IEBAIHN0cnVj
-dCB2ZHVzZV9kZXZfY29uZmlnX2RhdGEgewo+ICAgCV9fdTggZGF0YVtWRFVTRV9DT05GSUdfREFU
-QV9MRU5dOwo+ICAgfTsKPiAgIAo+ICtzdHJ1Y3QgdmR1c2VfaW90bGIgewo+ICsJX191MzIgZmQ7
-Cj4gKwlfX3U2NCBvZmZzZXQ7Cj4gKwlfX3U2NCBpb3ZhOwo+ICsJX191NjQgc2l6ZTsKPiArCV9f
-dTggcGVybTsKPiArfTsKPiArCj4gICBzdHJ1Y3QgdmR1c2VfZGV2X3JlcXVlc3Qgewo+ICAgCV9f
-dTMyIHR5cGU7IC8qIHJlcXVlc3QgdHlwZSAqLwo+ICAgCV9fdTMyIHVuaXF1ZTsgLyogcmVxdWVz
-dCBpZCAqLwo+IEBAIC02Miw2ICs3Miw3IEBAIHN0cnVjdCB2ZHVzZV9kZXZfcmVxdWVzdCB7Cj4g
-ICAJCXN0cnVjdCB2ZHVzZV92cV9yZWFkeSB2cV9yZWFkeTsgLyogdmlydHF1ZXVlIHJlYWR5IHN0
-YXR1cyAqLwo+ICAgCQlzdHJ1Y3QgdmR1c2VfdnFfc3RhdGUgdnFfc3RhdGU7IC8qIHZpcnRxdWV1
-ZSBzdGF0ZSAqLwo+ICAgCQlzdHJ1Y3QgdmR1c2VfZGV2X2NvbmZpZ19kYXRhIGNvbmZpZzsgLyog
-dmlydGlvIGRldmljZSBjb25maWcgc3BhY2UgKi8KPiArCQlzdHJ1Y3QgdmR1c2VfaW90bGIgaW90
-bGI7IC8qIGlvdGxiIG1lc3NhZ2UgKi8KPiAgIAkJX191NjQgZmVhdHVyZXM7IC8qIHZpcnRpbyBm
-ZWF0dXJlcyAqLwo+ICAgCQlfX3U4IHN0YXR1czsgLyogZGV2aWNlIHN0YXR1cyAqLwo+ICAgCX07
-CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
-aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
-dmlydHVhbGl6YXRpb24=
+The identical mapping used until now created issues when mapping
+different virtual pages with the same physical address.
+To solve this issue, we can use the iova module, to handle the IOVA
+allocation.
+For simplicity we use an IOVA allocator with byte granularity.
+
+We add two new functions, vdpasim_map_range() and vdpasim_unmap_range(),
+to handle the IOVA allocation and the registration into the IOMMU/IOTLB.
+These functions are used by dma_map_ops callbacks.
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+v2:
+- used ULONG_MAX instead of ~0UL [Jason]
+- fixed typos in comment and patch description [Jason]
+---
+ drivers/vdpa/vdpa_sim/vdpa_sim.h |   2 +
+ drivers/vdpa/vdpa_sim/vdpa_sim.c | 108 +++++++++++++++++++------------
+ drivers/vdpa/Kconfig             |   1 +
+ 3 files changed, 69 insertions(+), 42 deletions(-)
+
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa_sim.h
+index b02142293d5b..6efe205e583e 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
+@@ -6,6 +6,7 @@
+ #ifndef _VDPA_SIM_H
+ #define _VDPA_SIM_H
+ 
++#include <linux/iova.h>
+ #include <linux/vringh.h>
+ #include <linux/vdpa.h>
+ #include <linux/virtio_byteorder.h>
+@@ -55,6 +56,7 @@ struct vdpasim {
+ 	/* virtio config according to device type */
+ 	void *config;
+ 	struct vhost_iotlb *iommu;
++	struct iova_domain iova;
+ 	void *buffer;
+ 	u32 status;
+ 	u32 generation;
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+index b3fcc67bfdf0..edc930719fb8 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -17,6 +17,7 @@
+ #include <linux/vringh.h>
+ #include <linux/vdpa.h>
+ #include <linux/vhost_iotlb.h>
++#include <linux/iova.h>
+ 
+ #include "vdpa_sim.h"
+ 
+@@ -128,30 +129,57 @@ static int dir_to_perm(enum dma_data_direction dir)
+ 	return perm;
+ }
+ 
++static dma_addr_t vdpasim_map_range(struct vdpasim *vdpasim, phys_addr_t paddr,
++				    size_t size, unsigned int perm)
++{
++	struct iova *iova;
++	dma_addr_t dma_addr;
++	int ret;
++
++	/* We set the limit_pfn to the maximum (ULONG_MAX - 1) */
++	iova = alloc_iova(&vdpasim->iova, size, ULONG_MAX - 1, true);
++	if (!iova)
++		return DMA_MAPPING_ERROR;
++
++	dma_addr = iova_dma_addr(&vdpasim->iova, iova);
++
++	spin_lock(&vdpasim->iommu_lock);
++	ret = vhost_iotlb_add_range(vdpasim->iommu, (u64)dma_addr,
++				    (u64)dma_addr + size - 1, (u64)paddr, perm);
++	spin_unlock(&vdpasim->iommu_lock);
++
++	if (ret) {
++		__free_iova(&vdpasim->iova, iova);
++		return DMA_MAPPING_ERROR;
++	}
++
++	return dma_addr;
++}
++
++static void vdpasim_unmap_range(struct vdpasim *vdpasim, dma_addr_t dma_addr,
++				size_t size)
++{
++	spin_lock(&vdpasim->iommu_lock);
++	vhost_iotlb_del_range(vdpasim->iommu, (u64)dma_addr,
++			      (u64)dma_addr + size - 1);
++	spin_unlock(&vdpasim->iommu_lock);
++
++	free_iova(&vdpasim->iova, iova_pfn(&vdpasim->iova, dma_addr));
++}
++
+ static dma_addr_t vdpasim_map_page(struct device *dev, struct page *page,
+ 				   unsigned long offset, size_t size,
+ 				   enum dma_data_direction dir,
+ 				   unsigned long attrs)
+ {
+ 	struct vdpasim *vdpasim = dev_to_sim(dev);
+-	struct vhost_iotlb *iommu = vdpasim->iommu;
+-	u64 pa = (page_to_pfn(page) << PAGE_SHIFT) + offset;
+-	int ret, perm = dir_to_perm(dir);
++	phys_addr_t paddr = page_to_phys(page) + offset;
++	int perm = dir_to_perm(dir);
+ 
+ 	if (perm < 0)
+ 		return DMA_MAPPING_ERROR;
+ 
+-	/* For simplicity, use identical mapping to avoid e.g iova
+-	 * allocator.
+-	 */
+-	spin_lock(&vdpasim->iommu_lock);
+-	ret = vhost_iotlb_add_range(iommu, pa, pa + size - 1,
+-				    pa, dir_to_perm(dir));
+-	spin_unlock(&vdpasim->iommu_lock);
+-	if (ret)
+-		return DMA_MAPPING_ERROR;
+-
+-	return (dma_addr_t)(pa);
++	return vdpasim_map_range(vdpasim, paddr, size, perm);
+ }
+ 
+ static void vdpasim_unmap_page(struct device *dev, dma_addr_t dma_addr,
+@@ -159,12 +187,8 @@ static void vdpasim_unmap_page(struct device *dev, dma_addr_t dma_addr,
+ 			       unsigned long attrs)
+ {
+ 	struct vdpasim *vdpasim = dev_to_sim(dev);
+-	struct vhost_iotlb *iommu = vdpasim->iommu;
+ 
+-	spin_lock(&vdpasim->iommu_lock);
+-	vhost_iotlb_del_range(iommu, (u64)dma_addr,
+-			      (u64)dma_addr + size - 1);
+-	spin_unlock(&vdpasim->iommu_lock);
++	vdpasim_unmap_range(vdpasim, dma_addr, size);
+ }
+ 
+ static void *vdpasim_alloc_coherent(struct device *dev, size_t size,
+@@ -172,27 +196,22 @@ static void *vdpasim_alloc_coherent(struct device *dev, size_t size,
+ 				    unsigned long attrs)
+ {
+ 	struct vdpasim *vdpasim = dev_to_sim(dev);
+-	struct vhost_iotlb *iommu = vdpasim->iommu;
+-	void *addr = kmalloc(size, flag);
+-	int ret;
++	phys_addr_t paddr;
++	void *addr;
+ 
+-	spin_lock(&vdpasim->iommu_lock);
++	addr = kmalloc(size, flag);
+ 	if (!addr) {
+ 		*dma_addr = DMA_MAPPING_ERROR;
+-	} else {
+-		u64 pa = virt_to_phys(addr);
+-
+-		ret = vhost_iotlb_add_range(iommu, (u64)pa,
+-					    (u64)pa + size - 1,
+-					    pa, VHOST_MAP_RW);
+-		if (ret) {
+-			*dma_addr = DMA_MAPPING_ERROR;
+-			kfree(addr);
+-			addr = NULL;
+-		} else
+-			*dma_addr = (dma_addr_t)pa;
++		return NULL;
++	}
++
++	paddr = virt_to_phys(addr);
++
++	*dma_addr = vdpasim_map_range(vdpasim, paddr, size, VHOST_MAP_RW);
++	if (*dma_addr == DMA_MAPPING_ERROR) {
++		kfree(addr);
++		return NULL;
+ 	}
+-	spin_unlock(&vdpasim->iommu_lock);
+ 
+ 	return addr;
+ }
+@@ -202,14 +221,10 @@ static void vdpasim_free_coherent(struct device *dev, size_t size,
+ 				  unsigned long attrs)
+ {
+ 	struct vdpasim *vdpasim = dev_to_sim(dev);
+-	struct vhost_iotlb *iommu = vdpasim->iommu;
+ 
+-	spin_lock(&vdpasim->iommu_lock);
+-	vhost_iotlb_del_range(iommu, (u64)dma_addr,
+-			      (u64)dma_addr + size - 1);
+-	spin_unlock(&vdpasim->iommu_lock);
++	vdpasim_unmap_range(vdpasim, dma_addr, size);
+ 
+-	kfree(phys_to_virt((uintptr_t)dma_addr));
++	kfree(vaddr);
+ }
+ 
+ static const struct dma_map_ops vdpasim_dma_ops = {
+@@ -270,6 +285,13 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr)
+ 	for (i = 0; i < dev_attr->nvqs; i++)
+ 		vringh_set_iotlb(&vdpasim->vqs[i].vring, vdpasim->iommu);
+ 
++	ret = iova_cache_get();
++	if (ret)
++		goto err_iommu;
++
++	/* For simplicity we use an IOVA allocator with byte granularity */
++	init_iova_domain(&vdpasim->iova, 1, 0);
++
+ 	vdpasim->vdpa.dma_dev = dev;
+ 
+ 	return vdpasim;
+@@ -540,6 +562,8 @@ static void vdpasim_free(struct vdpa_device *vdpa)
+ 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+ 
+ 	cancel_work_sync(&vdpasim->work);
++	put_iova_domain(&vdpasim->iova);
++	iova_cache_put();
+ 	kvfree(vdpasim->buffer);
+ 	if (vdpasim->iommu)
+ 		vhost_iotlb_free(vdpasim->iommu);
+diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+index 92a6396f8a73..8965e3717231 100644
+--- a/drivers/vdpa/Kconfig
++++ b/drivers/vdpa/Kconfig
+@@ -13,6 +13,7 @@ config VDPA_SIM
+ 	depends on RUNTIME_TESTING_MENU && HAS_DMA
+ 	select DMA_OPS
+ 	select VHOST_RING
++	select IOMMU_IOVA
+ 	help
+ 	  Enable this module to support vDPA device simulators. These devices
+ 	  are used for testing, prototyping and development of vDPA.
+-- 
+2.26.2
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
