@@ -2,87 +2,102 @@ Return-Path: <SRS0=+X4x=F3=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 011C7C433DB
-	for <virtualization@archiver.kernel.org>; Wed, 23 Dec 2020 14:36:59 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77220C433DB
+	for <virtualization@archiver.kernel.org>; Wed, 23 Dec 2020 16:39:54 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6E179222B3
-	for <virtualization@archiver.kernel.org>; Wed, 23 Dec 2020 14:36:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6E179222B3
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 0179320897
+	for <virtualization@archiver.kernel.org>; Wed, 23 Dec 2020 16:39:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0179320897
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 220762DE3B;
-	Wed, 23 Dec 2020 14:36:59 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id AFA4885C28;
+	Wed, 23 Dec 2020 16:39:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FSmj0wDug8dX; Wed, 23 Dec 2020 14:36:58 +0000 (UTC)
+	with ESMTP id KUprr4ogCllm; Wed, 23 Dec 2020 16:39:52 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 223ED203E8;
-	Wed, 23 Dec 2020 14:36:58 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id E2C8085C2E;
+	Wed, 23 Dec 2020 16:39:52 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0209DC1787;
-	Wed, 23 Dec 2020 14:36:58 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 58E17C0893
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CC713C1787;
+	Wed, 23 Dec 2020 16:39:52 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 43A7FC0893
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Dec 2020 14:36:56 +0000 (UTC)
+ Wed, 23 Dec 2020 16:39:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 3FA9686FA8
+ by whitealder.osuosl.org (Postfix) with ESMTP id 3C6D5866D4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Dec 2020 14:36:56 +0000 (UTC)
+ Wed, 23 Dec 2020 16:39:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CGMO7KJaor+d
+ with ESMTP id uxqMJaUde0nK
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Dec 2020 14:36:55 +0000 (UTC)
+ Wed, 23 Dec 2020 16:39:50 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 2694586FA5
+Received: from mail-io1-f49.google.com (mail-io1-f49.google.com
+ [209.85.166.49])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 1B66A86830
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Dec 2020 14:36:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1608734213;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding;
- bh=dUU452tRqrvkfJMA+eezzExr3vkzl56EFOyXCB1EYnQ=;
- b=ZU3/CSMDhow18S+Maf1HEuJM9sMcHZXY62P3WszdU6DFIP69+72iz/QcAnE9S19MhYaqYu
- 1m4sozdviREq4kiVR1jwfMI5OtLWA7C7oMm/MsfxRh2nTXaZjojVBo96/VwuFcLiTlB7/j
- uSbnvspCEn75inU0umM0jNWS4Skls/g=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-462--u0xtbG2N-2sRj1vrceUuw-1; Wed, 23 Dec 2020 09:36:49 -0500
-X-MC-Unique: -u0xtbG2N-2sRj1vrceUuw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9091E180A097;
- Wed, 23 Dec 2020 14:36:48 +0000 (UTC)
-Received: from steredhat.redhat.com (ovpn-112-247.ams2.redhat.com
- [10.36.112.247])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 89294614F5;
- Wed, 23 Dec 2020 14:36:39 +0000 (UTC)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v2] vhost/vsock: add IOTLB API support
-Date: Wed, 23 Dec 2020 15:36:38 +0100
-Message-Id: <20201223143638.123417-1-sgarzare@redhat.com>
+ Wed, 23 Dec 2020 16:39:50 +0000 (UTC)
+Received: by mail-io1-f49.google.com with SMTP id r9so15585982ioo.7
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 23 Dec 2020 08:39:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=rVatYmYCMQJMPjerzko57jobHUoXj+DHRjujys0dqAg=;
+ b=CMoRHJGuB1XkSbypZBbRm5Lmn/sYHKrrdSCLcYKUgSpGp/iIxUWpK7MqDlEpZGZ/ZD
+ SMUgmlHBkjZAhgOYfKLrsAQQ2mMDkqHE13F3DRTjxTcGD7l658kjyqkYC81jcTfgm40h
+ ngdZ8ggxsn4jQ9lLSvbc41CsNjCnD70y41Fcq+PlRGEb+3XfAxEra5cNugupWtTuptdk
+ ZOJocOMNm0WBUDIT6NlQuhYN35JEon7iB0ECIKD+pwOL3niu5vO44NxBWPUa6+gdBhE6
+ d31sf7OTkUeHc1/u00+DUii7nWaEIpW5kk/NmXqi4ND+8t/dRs77wgI+xsDHUWMmfyDt
+ odyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=rVatYmYCMQJMPjerzko57jobHUoXj+DHRjujys0dqAg=;
+ b=GrO9+nWAN4H1FF4pPV5nyeC445f+D+YgZ4/eg5d3W4GBDy4ikH3XndDxyaIrFVfkHI
+ gJcPchPHiUDc65xWUfKgB4L/16+SHLGquxs270cwi/1Qc8OFnNYB8ayBpxCMXGycPMIx
+ Q3DwEtdCO4aMeuh5VCo89rPlx6beeZMOwBTEtgu1N0UdH0ZgMEQnpPjrZQ4ulo+qyYDa
+ ScnctfnlhGX5aCf59VuBiXDcT0LojeIhc7Hqen2HHK1VRR+bX8kDK1/WBx0h012uUozc
+ 7IThs6Qcpi0wIixPlcCcXvdW6/Wb+kHDpf20/nZqn68QOCVe4J4bJJcLylJZlMB3SdTQ
+ 7c6g==
+X-Gm-Message-State: AOAM532fsohXV4RiEiRLXxCjO2Z+PPpyoTR3vZ9UbPI4RiVeCNG1nyEV
+ Io39OdHJRcbeWV9pk+0bUSGcd/ektIUC4OcJeco=
+X-Google-Smtp-Source: ABdhPJxyAnwmJZzZB1b22WrZzw7BIjDXYDFpaPAmxIgWuUHQ3FHGoOFNR3974ncYPlecPN6dclod2ICJWmOPjDwyEvk=
+X-Received: by 2002:a02:5d85:: with SMTP id w127mr23645424jaa.83.1608741587758; 
+ Wed, 23 Dec 2020 08:39:47 -0800 (PST)
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- Stefan Hajnoczi <stefanha@redhat.com>
+References: <20201222074656.GA30035@open-light-1.localdomain>
+ <CAKgT0Ucs4pv0+rcPi41uNDrav0sgOmLnVaD4NNWkg7=gncidnQ@mail.gmail.com>
+ <CA+2MQi_b98v+vS9J+FnovPe5avNv4WSeD2KoQycdQAG4c3Hxpg@mail.gmail.com>
+In-Reply-To: <CA+2MQi_b98v+vS9J+FnovPe5avNv4WSeD2KoQycdQAG4c3Hxpg@mail.gmail.com>
+From: Alexander Duyck <alexander.duyck@gmail.com>
+Date: Wed, 23 Dec 2020 08:39:36 -0800
+Message-ID: <CAKgT0Ue2+eV22kAt-DmsTZqRvXGdxQXa8uVEbD0cmmFP22-r5A@mail.gmail.com>
+Subject: Re: [RFC PATCH 1/3] mm: support hugetlb free page reporting
+To: Liang Li <liliang324@gmail.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>, Michal Hocko <mhocko@suse.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org,
+ Dan Williams <dan.j.williams@intel.com>, Liang Li <liliangleo@didiglobal.com>,
+ LKML <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
+ Dave Hansen <dave.hansen@intel.com>,
+ Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+ virtualization@lists.linux-foundation.org,
+ Mel Gorman <mgorman@techsingularity.net>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Mike Kravetz <mike.kravetz@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,181 +114,184 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch enables the IOTLB API support for vhost-vsock devices,
-allowing the userspace to emulate an IOMMU for the guest.
+On Tue, Dec 22, 2020 at 7:39 PM Liang Li <liliang324@gmail.com> wrote:
+>
+> > > +hugepage_reporting_cycle(struct page_reporting_dev_info *prdev,
+> > > +                        struct hstate *h, unsigned int nid,
+> > > +                        struct scatterlist *sgl, unsigned int *offset)
+> > > +{
+> > > +       struct list_head *list = &h->hugepage_freelists[nid];
+> > > +       unsigned int page_len = PAGE_SIZE << h->order;
+> > > +       struct page *page, *next;
+> > > +       long budget;
+> > > +       int ret = 0, scan_cnt = 0;
+> > > +
+> > > +       /*
+> > > +        * Perform early check, if free area is empty there is
+> > > +        * nothing to process so we can skip this free_list.
+> > > +        */
+> > > +       if (list_empty(list))
+> > > +               return ret;
+> > > +
+> > > +       spin_lock_irq(&hugetlb_lock);
+> > > +
+> > > +       if (huge_page_order(h) > MAX_ORDER)
+> > > +               budget = HUGEPAGE_REPORTING_CAPACITY;
+> > > +       else
+> > > +               budget = HUGEPAGE_REPORTING_CAPACITY * 32;
+> >
+> > Wouldn't huge_page_order always be more than MAX_ORDER? Seems like we
+> > don't even really need budget since this should probably be pulling
+> > out no more than one hugepage at a time.
+>
+> I want to disting a 2M page and 1GB page here. The order of 1GB page is greater
+> than MAX_ORDER while 2M page's order is less than MAX_ORDER.
 
-These changes were made following vhost-net, in details this patch:
-- exposes VIRTIO_F_ACCESS_PLATFORM feature and inits the iotlb
-  device if the feature is acked
-- implements VHOST_GET_BACKEND_FEATURES and
-  VHOST_SET_BACKEND_FEATURES ioctls
-- calls vq_meta_prefetch() before vq processing to prefetch vq
-  metadata address in IOTLB
-- provides .read_iter, .write_iter, and .poll callbacks for the
-  chardev; they are used by the userspace to exchange IOTLB messages
+The budget here is broken. When I put the budget in page reporting it
+was so that we wouldn't try to report all of the memory in a given
+region. It is meant to hold us to no more than one pass through 1/16
+of the free memory. So essentially we will be slowly processing all of
+memory and it will take 16 calls (32 seconds) for us to process a
+system that is sitting completely idle. It is meant to pace us so we
+don't spend a ton of time doing work that will be undone, not to
+prevent us from burying a CPU which is what seems to be implied here.
 
-This patch was tested specifying "intel_iommu=strict" in the guest
-kernel command line. I used QEMU with a patch applied [1] to fix a
-simple issue (that patch was merged in QEMU v5.2.0):
-    $ qemu -M q35,accel=kvm,kernel-irqchip=split \
-           -drive file=fedora.qcow2,format=qcow2,if=virtio \
-           -device intel-iommu,intremap=on,device-iotlb=on \
-           -device vhost-vsock-pci,guest-cid=3,iommu_platform=on,ats=on
+Using HUGEPAGE_REPORTING_CAPACITY makes no sense here. I was using it
+in the original definition because it was how many pages we could
+scoop out at a time and then I was aiming for a 16th of that. Here you
+are arbitrarily squaring HUGEPAGE_REPORTING_CAPACITY in terms of the
+amount of work you will doo since you are using it as a multiple
+instead of a divisor.
 
-[1] https://lists.gnu.org/archive/html/qemu-devel/2020-10/msg09077.html
+> >
+> > > +       /* loop through free list adding unreported pages to sg list */
+> > > +       list_for_each_entry_safe(page, next, list, lru) {
+> > > +               /* We are going to skip over the reported pages. */
+> > > +               if (PageReported(page)) {
+> > > +                       if (++scan_cnt >= MAX_SCAN_NUM) {
+> > > +                               ret = scan_cnt;
+> > > +                               break;
+> > > +                       }
+> > > +                       continue;
+> > > +               }
+> > > +
+> >
+> > It would probably have been better to place this set before your new
+> > set. I don't see your new set necessarily being the best use for page
+> > reporting.
+>
+> I haven't really latched on to what you mean, could you explain it again?
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
+It would be better for you to spend time understanding how this patch
+set works before you go about expanding it to do other things.
+Mistakes like the budget one above kind of point out the fact that you
+don't understand how this code was supposed to work and just kind of
+shoehorned you page zeroing code onto it.
 
-The patch is the same of v1, but I re-tested it with:
-- QEMU v5.2.0-551-ga05f8ecd88
-- Linux 5.9.15 (host)
-- Linux 5.9.15 and 5.10.0 (guest)
-Now, enabling 'ats' it works well, there are just a few simple changes.
+It would be better to look at trying to understand this code first
+before you extend it to support your zeroing use case. So adding huge
+pages first might make more sense than trying to zero and push the
+order down. The fact is the page reporting extension should be minimal
+for huge pages since they are just passed as a scatterlist so you
+should only need to add a small bit to page_reporting.c to extend it
+to support this use case.
 
-v1: https://www.spinics.net/lists/kernel/msg3716022.html
-v2:
-- updated commit message about QEMU version and string used to test
-- rebased on mst/vhost branch
+> >
+> > > +               /*
+> > > +                * If we fully consumed our budget then update our
+> > > +                * state to indicate that we are requesting additional
+> > > +                * processing and exit this list.
+> > > +                */
+> > > +               if (budget < 0) {
+> > > +                       atomic_set(&prdev->state, PAGE_REPORTING_REQUESTED);
+> > > +                       next = page;
+> > > +                       break;
+> > > +               }
+> > > +
+> >
+> > If budget is only ever going to be 1 then we probably could just look
+> > at making this the default case for any time we find a non-reported
+> > page.
+>
+> and here again.
 
-Thanks,
-Stefano
----
- drivers/vhost/vsock.c | 68 +++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 65 insertions(+), 3 deletions(-)
+It comes down to the fact that the changes you made have a significant
+impact on how this is supposed to function. Reducing the scatterlist
+to a size of one makes the whole point of doing batching kind of
+pointless. Basically the code should be rewritten with the assumption
+that if you find a page you report it.
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index a483cec31d5c..5e78fb719602 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -30,7 +30,12 @@
- #define VHOST_VSOCK_PKT_WEIGHT 256
- 
- enum {
--	VHOST_VSOCK_FEATURES = VHOST_FEATURES,
-+	VHOST_VSOCK_FEATURES = VHOST_FEATURES |
-+			       (1ULL << VIRTIO_F_ACCESS_PLATFORM)
-+};
-+
-+enum {
-+	VHOST_VSOCK_BACKEND_FEATURES = (1ULL << VHOST_BACKEND_F_IOTLB_MSG_V2)
- };
- 
- /* Used to track all the vhost_vsock instances on the system. */
-@@ -94,6 +99,9 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
- 	if (!vhost_vq_get_backend(vq))
- 		goto out;
- 
-+	if (!vq_meta_prefetch(vq))
-+		goto out;
-+
- 	/* Avoid further vmexits, we're already processing the virtqueue */
- 	vhost_disable_notify(&vsock->dev, vq);
- 
-@@ -449,6 +457,9 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
- 	if (!vhost_vq_get_backend(vq))
- 		goto out;
- 
-+	if (!vq_meta_prefetch(vq))
-+		goto out;
-+
- 	vhost_disable_notify(&vsock->dev, vq);
- 	do {
- 		u32 len;
-@@ -766,8 +777,12 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
- 	mutex_lock(&vsock->dev.mutex);
- 	if ((features & (1 << VHOST_F_LOG_ALL)) &&
- 	    !vhost_log_access_ok(&vsock->dev)) {
--		mutex_unlock(&vsock->dev.mutex);
--		return -EFAULT;
-+		goto err;
-+	}
-+
-+	if ((features & (1ULL << VIRTIO_F_ACCESS_PLATFORM))) {
-+		if (vhost_init_device_iotlb(&vsock->dev, true))
-+			goto err;
- 	}
- 
- 	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
-@@ -778,6 +793,10 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
- 	}
- 	mutex_unlock(&vsock->dev.mutex);
- 	return 0;
-+
-+err:
-+	mutex_unlock(&vsock->dev.mutex);
-+	return -EFAULT;
- }
- 
- static long vhost_vsock_dev_ioctl(struct file *f, unsigned int ioctl,
-@@ -811,6 +830,18 @@ static long vhost_vsock_dev_ioctl(struct file *f, unsigned int ioctl,
- 		if (copy_from_user(&features, argp, sizeof(features)))
- 			return -EFAULT;
- 		return vhost_vsock_set_features(vsock, features);
-+	case VHOST_GET_BACKEND_FEATURES:
-+		features = VHOST_VSOCK_BACKEND_FEATURES;
-+		if (copy_to_user(argp, &features, sizeof(features)))
-+			return -EFAULT;
-+		return 0;
-+	case VHOST_SET_BACKEND_FEATURES:
-+		if (copy_from_user(&features, argp, sizeof(features)))
-+			return -EFAULT;
-+		if (features & ~VHOST_VSOCK_BACKEND_FEATURES)
-+			return -EOPNOTSUPP;
-+		vhost_set_backend_features(&vsock->dev, features);
-+		return 0;
- 	default:
- 		mutex_lock(&vsock->dev.mutex);
- 		r = vhost_dev_ioctl(&vsock->dev, ioctl, argp);
-@@ -823,6 +854,34 @@ static long vhost_vsock_dev_ioctl(struct file *f, unsigned int ioctl,
- 	}
- }
- 
-+static ssize_t vhost_vsock_chr_read_iter(struct kiocb *iocb, struct iov_iter *to)
-+{
-+	struct file *file = iocb->ki_filp;
-+	struct vhost_vsock *vsock = file->private_data;
-+	struct vhost_dev *dev = &vsock->dev;
-+	int noblock = file->f_flags & O_NONBLOCK;
-+
-+	return vhost_chr_read_iter(dev, to, noblock);
-+}
-+
-+static ssize_t vhost_vsock_chr_write_iter(struct kiocb *iocb,
-+					struct iov_iter *from)
-+{
-+	struct file *file = iocb->ki_filp;
-+	struct vhost_vsock *vsock = file->private_data;
-+	struct vhost_dev *dev = &vsock->dev;
-+
-+	return vhost_chr_write_iter(dev, from);
-+}
-+
-+static __poll_t vhost_vsock_chr_poll(struct file *file, poll_table *wait)
-+{
-+	struct vhost_vsock *vsock = file->private_data;
-+	struct vhost_dev *dev = &vsock->dev;
-+
-+	return vhost_chr_poll(file, dev, wait);
-+}
-+
- static const struct file_operations vhost_vsock_fops = {
- 	.owner          = THIS_MODULE,
- 	.open           = vhost_vsock_dev_open,
-@@ -830,6 +889,9 @@ static const struct file_operations vhost_vsock_fops = {
- 	.llseek		= noop_llseek,
- 	.unlocked_ioctl = vhost_vsock_dev_ioctl,
- 	.compat_ioctl   = compat_ptr_ioctl,
-+	.read_iter      = vhost_vsock_chr_read_iter,
-+	.write_iter     = vhost_vsock_chr_write_iter,
-+	.poll           = vhost_vsock_chr_poll,
- };
- 
- static struct miscdevice vhost_vsock_misc = {
--- 
-2.26.2
+The old code would batch things up because there is significant
+overhead to be addressed when going to the hypervisor to report said
+memory. Your code doesn't seem to really take anything like that into
+account and instead is using an arbitrary budget value based on the
+page size.
 
+> > > +               /* Attempt to pull page from list and place in scatterlist */
+> > > +               if (*offset) {
+> > > +                       isolate_free_huge_page(page, h, nid);
+> > > +                       /* Add page to scatter list */
+> > > +                       --(*offset);
+> > > +                       sg_set_page(&sgl[*offset], page, page_len, 0);
+> > > +
+> > > +                       continue;
+> > > +               }
+> > > +
+> >
+> > There is no point in the continue case if we only have a budget of 1.
+> > We should probably just tighten up the loop so that all it does is
+> > search until it finds the 1 page it can pull, pull it, and then return
+> > it. The scatterlist doesn't serve much purpose and could be reduced to
+> > just a single entry.
+>
+> I will think about it more.
+>
+> > > +static int
+> > > +hugepage_reporting_process_hstate(struct page_reporting_dev_info *prdev,
+> > > +                           struct scatterlist *sgl, struct hstate *h)
+> > > +{
+> > > +       unsigned int leftover, offset = HUGEPAGE_REPORTING_CAPACITY;
+> > > +       int ret = 0, nid;
+> > > +
+> > > +       for (nid = 0; nid < MAX_NUMNODES; nid++) {
+> > > +               ret = hugepage_reporting_cycle(prdev, h, nid, sgl, &offset);
+> > > +
+> > > +               if (ret < 0)
+> > > +                       return ret;
+> > > +       }
+> > > +
+> > > +       /* report the leftover pages before going idle */
+> > > +       leftover = HUGEPAGE_REPORTING_CAPACITY - offset;
+> > > +       if (leftover) {
+> > > +               sgl = &sgl[offset];
+> > > +               ret = prdev->report(prdev, sgl, leftover);
+> > > +
+> > > +               /* flush any remaining pages out from the last report */
+> > > +               spin_lock_irq(&hugetlb_lock);
+> > > +               hugepage_reporting_drain(prdev, h, sgl, leftover, !ret);
+> > > +               spin_unlock_irq(&hugetlb_lock);
+> > > +       }
+> > > +
+> > > +       return ret;
+> > > +}
+> > > +
+> >
+> > If HUGEPAGE_REPORTING_CAPACITY is 1 it would make more sense to
+> > rewrite this code to just optimize for a find and process a page
+> > approach rather than trying to batch pages.
+>
+> Yes, I will make a change. Thanks for your comments!
+
+Lastly I would recommend setting up and testing page reporting with
+the virtio-balloon driver. I worry that your patch set would have a
+significant negative impact on the performance of it. As I mentioned
+before it was designed to be more of a leaky bucket solution to
+reporting memory and was supposed to take about 30 seconds for it to
+flush all of the memory in a guest. Your changes seem to be trying to
+do a much more aggressive task and I worry that what you are going to
+find is that it will easily push CPUs to 100% on an active system
+since it will be aggressively trying to zero memory as soon as it is
+freed rather than taking it at a slower pace.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
