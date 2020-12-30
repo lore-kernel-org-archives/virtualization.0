@@ -1,114 +1,97 @@
-Return-Path: <SRS0=Ae13=GB=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=QXZB=GC=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
-	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF0D6C433DB
-	for <virtualization@archiver.kernel.org>; Tue, 29 Dec 2020 14:20:58 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24E69C433E0
+	for <virtualization@archiver.kernel.org>; Wed, 30 Dec 2020 04:00:46 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 853E7207C9
-	for <virtualization@archiver.kernel.org>; Tue, 29 Dec 2020 14:20:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 853E7207C9
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 8C087207B2
+	for <virtualization@archiver.kernel.org>; Wed, 30 Dec 2020 04:00:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8C087207B2
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 32FB586C50;
-	Tue, 29 Dec 2020 14:20:58 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 31AE485E27;
+	Wed, 30 Dec 2020 04:00:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id E+raWOwnSg88; Tue, 29 Dec 2020 14:20:57 +0000 (UTC)
+	with ESMTP id RssnZyyq8IW4; Wed, 30 Dec 2020 04:00:44 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 4A0D486C47;
-	Tue, 29 Dec 2020 14:20:57 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 9398D85D9B;
+	Wed, 30 Dec 2020 04:00:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2C068C0893;
-	Tue, 29 Dec 2020 14:20:57 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7CBD6C0174
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 722F8C088B;
+	Wed, 30 Dec 2020 04:00:44 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B8A90C0174
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Dec 2020 14:20:55 +0000 (UTC)
+ Wed, 30 Dec 2020 04:00:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 5B7FF203AF
+ by fraxinus.osuosl.org (Postfix) with ESMTP id A8A2685DF2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Dec 2020 14:20:55 +0000 (UTC)
+ Wed, 30 Dec 2020 04:00:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id y1HWvyQIAGU1
+ with ESMTP id Kh9m0gz5ZCIT
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Dec 2020 14:20:54 +0000 (UTC)
+ Wed, 30 Dec 2020 04:00:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-ua1-f47.google.com (mail-ua1-f47.google.com
- [209.85.222.47])
- by silver.osuosl.org (Postfix) with ESMTPS id 38DF020368
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id C1BE785D9B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Dec 2020 14:20:54 +0000 (UTC)
-Received: by mail-ua1-f47.google.com with SMTP id p2so4364138uac.3
- for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Dec 2020 06:20:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=BI7YG4D/264hD48pBSTZ/cy9Mm52S+GHG7c9KEI8pu0=;
- b=e81ECpwp2xvN7FDpxWZQqIl3/z89VLROaeHh9a+okFWDolCAek/dh8YpVolJ6Tjip/
- 0hdwcqTKFd/nLcDajbtrs8pf3w/5Ms+ee+tgUn+0xaxYB52Bpy9BhFknAWBvlYbYZ0SI
- kz4izi51Xe5Xx4A5Azll9kChtXimwHc2eQ4viGcsJcN+qMIAtkLuPoFb+bdY8RTT02Yj
- QUkcnue03cIpYiT6jnixkVyTwdEbRaOkgjzR7j7bR3UxDx6pgHxqhieyEQfpyRuamkht
- qxK3Ixwy1TyZPCBCSw7eO7bC6YfQY4QUstQBn0n0d8sff2PzZpn6Q05XMVJ0tZ7U3xaU
- rg2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=BI7YG4D/264hD48pBSTZ/cy9Mm52S+GHG7c9KEI8pu0=;
- b=T/q0qkGuquy7B3iEcF2VkejwqZ1wZbhDESmcx4/qgodELP4gjkN0WxysruEZAHVsB5
- lN1ouE+gR1AHFkVzteCfv1H/eHAs+VTD7MweIj9jcR/r1ijm4zBibBSbLHJvAvy38b3u
- q7V3wEMuVDDMAol9z2IfcwjefQXEGxy1l8YIN7DY41Znz1HjdgVzusEd8/ooMCrXAx4P
- he5SKYti5h8yl1Wfd/Yxijj/HiqDuioNWfgMp/+mEJLAlGXdazxdiZy++APCHyPClq/F
- QFqs5PGXfL5aRz0wCTk/CGK1bbIWT8zLegk0ORMFeDgdowCWX5oxDlduIIwE+LS4NTQ0
- avMg==
-X-Gm-Message-State: AOAM533e5bkaX885JHN8uCrLl3wnnjJfecbnlWhtwIVFbOxdqUqx8Eij
- 1K+d81QTsQ4mETa2dtu4rLTp+YKAAmI=
-X-Google-Smtp-Source: ABdhPJxnr9UYLAZNlqffxUgI5oXMrGw82/Sc8EcHbS3YTyq8EqBgeV09AcC/vum6Bcs7uwT9f0T8bQ==
-X-Received: by 2002:ab0:e14:: with SMTP id g20mr23800473uak.112.1609251652605; 
- Tue, 29 Dec 2020 06:20:52 -0800 (PST)
-Received: from mail-ua1-f46.google.com (mail-ua1-f46.google.com.
- [209.85.222.46])
- by smtp.gmail.com with ESMTPSA id g23sm9326018uan.7.2020.12.29.06.20.51
- for <virtualization@lists.linux-foundation.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Tue, 29 Dec 2020 06:20:51 -0800 (PST)
-Received: by mail-ua1-f46.google.com with SMTP id a31so1921206uae.11
- for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Dec 2020 06:20:51 -0800 (PST)
-X-Received: by 2002:ab0:2:: with SMTP id 2mr19938128uai.108.1609251650821;
- Tue, 29 Dec 2020 06:20:50 -0800 (PST)
+ Wed, 30 Dec 2020 04:00:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1609300840;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=KZ+tvVxfnnvv+eTht2YPU3/8LnIaN/7WC1RcaN3MqX4=;
+ b=Ql+TaECzfZVWHvMTksPeEgURq4A4vPAeRZxzPjwHAOjlrokEF/lvw9jUKC/wPl+jH+eiLY
+ 3bNXADwpY6NF+rqBwju4NQtMpdbNPEHjo0vH3Yxh4ED26L1FzHPFsZXLltgGW/oEhptb4W
+ lMhRrE14SfohgluXFYBDp6X3zMSp/+k=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-352-usxb8T_YOo21w800PIYJBg-1; Tue, 29 Dec 2020 23:00:38 -0500
+X-MC-Unique: usxb8T_YOo21w800PIYJBg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
+ [10.5.11.13])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E8CD5180A096;
+ Wed, 30 Dec 2020 04:00:36 +0000 (UTC)
+Received: from [10.72.13.30] (ovpn-13-30.pek2.redhat.com [10.72.13.30])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 46A41709B3;
+ Wed, 30 Dec 2020 04:00:01 +0000 (UTC)
+Subject: Re: [PATCH 07/21] vdpa: multiple address spaces support
+To: Eli Cohen <elic@nvidia.com>
+References: <20201216064818.48239-1-jasowang@redhat.com>
+ <20201216064818.48239-8-jasowang@redhat.com>
+ <20201229072832.GA195479@mtl-vdi-166.wap.labs.mlnx>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <bbd05848-3376-3a35-8914-16f19c74f373@redhat.com>
+Date: Wed, 30 Dec 2020 12:00:00 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-References: <20201228162233.2032571-1-willemdebruijn.kernel@gmail.com>
- <20201228162233.2032571-3-willemdebruijn.kernel@gmail.com>
- <20201228122253-mutt-send-email-mst@kernel.org>
- <CA+FuTScguDWkvk=Lc+GzP=UCK2wjRFNJ_GEn_bniHpCDWdkfjg@mail.gmail.com>
- <20201228162903-mutt-send-email-mst@kernel.org>
- <CA+FuTSffjFZGGwpMkpnTBbHHwnJN7if=0cVf0Des7Db5UFe0bw@mail.gmail.com>
- <1881606476.40780520.1609233449300.JavaMail.zimbra@redhat.com>
-In-Reply-To: <1881606476.40780520.1609233449300.JavaMail.zimbra@redhat.com>
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Tue, 29 Dec 2020 09:20:14 -0500
-X-Gmail-Original-Message-ID: <CA+FuTScycxSHqxvZZRjK9+tpXVV2iTv8vqeFc5U_m2CGDR3jog@mail.gmail.com>
-Message-ID: <CA+FuTScycxSHqxvZZRjK9+tpXVV2iTv8vqeFc5U_m2CGDR3jog@mail.gmail.com>
-Subject: Re: [PATCH rfc 2/3] virtio-net: support receive timestamp
-To: Jason Wang <jasowang@redhat.com>
-Cc: Network Development <netdev@vger.kernel.org>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- virtualization@lists.linux-foundation.org,
- "Michael S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20201229072832.GA195479@mtl-vdi-166.wap.labs.mlnx>
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Cc: lulu@redhat.com, kvm@vger.kernel.org, mst@redhat.com,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, eperezma@redhat.com,
+ stefanha@redhat.com, eli@mellanox.com, lingshan.zhu@intel.com,
+ rob.miller@broadcom.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,124 +103,28 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Dec 29, 2020 at 4:23 AM Jason Wang <jasowang@redhat.com> wrote:
->
->
->
-> ----- Original Message -----
-> > On Mon, Dec 28, 2020 at 7:55 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > On Mon, Dec 28, 2020 at 02:30:31PM -0500, Willem de Bruijn wrote:
-> > > > On Mon, Dec 28, 2020 at 12:29 PM Michael S. Tsirkin <mst@redhat.com>
-> > > > wrote:
-> > > > >
-> > > > > On Mon, Dec 28, 2020 at 11:22:32AM -0500, Willem de Bruijn wrote:
-> > > > > > From: Willem de Bruijn <willemb@google.com>
-> > > > > >
-> > > > > > Add optional PTP hardware timestamp offload for virtio-net.
-> > > > > >
-> > > > > > Accurate RTT measurement requires timestamps close to the wire.
-> > > > > > Introduce virtio feature VIRTIO_NET_F_RX_TSTAMP. If negotiated, the
-> > > > > > virtio-net header is expanded with room for a timestamp. A host may
-> > > > > > pass receive timestamps for all or some packets. A timestamp is valid
-> > > > > > if non-zero.
-> > > > > >
-> > > > > > The timestamp straddles (virtual) hardware domains. Like PTP, use
-> > > > > > international atomic time (CLOCK_TAI) as global clock base. It is
-> > > > > > guest responsibility to sync with host, e.g., through kvm-clock.
-> > > > > >
-> > > > > > Signed-off-by: Willem de Bruijn <willemb@google.com>
-> > > > > > diff --git a/include/uapi/linux/virtio_net.h
-> > > > > > b/include/uapi/linux/virtio_net.h
-> > > > > > index f6881b5b77ee..0ffe2eeebd4a 100644
-> > > > > > --- a/include/uapi/linux/virtio_net.h
-> > > > > > +++ b/include/uapi/linux/virtio_net.h
-> > > > > > @@ -57,6 +57,7 @@
-> > > > > >                                        * Steering */
-> > > > > >  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23        /* Set MAC address */
-> > > > > >
-> > > > > > +#define VIRTIO_NET_F_RX_TSTAMP         55    /* Host sends TAI
-> > > > > > receive time */
-> > > > > >  #define VIRTIO_NET_F_TX_HASH   56    /* Guest sends hash report */
-> > > > > >  #define VIRTIO_NET_F_HASH_REPORT  57 /* Supports hash report */
-> > > > > >  #define VIRTIO_NET_F_RSS       60    /* Supports RSS RX steering */
-> > > > > > @@ -182,6 +183,17 @@ struct virtio_net_hdr_v1_hash {
-> > > > > >       };
-> > > > > >  };
-> > > > > >
-> > > > > > +struct virtio_net_hdr_v12 {
-> > > > > > +     struct virtio_net_hdr_v1 hdr;
-> > > > > > +     struct {
-> > > > > > +             __le32 value;
-> > > > > > +             __le16 report;
-> > > > > > +             __le16 flow_state;
-> > > > > > +     } hash;
-> > > > > > +     __virtio32 reserved;
-> > > > > > +     __virtio64 tstamp;
-> > > > > > +};
-> > > > > > +
-> > > > > >  #ifndef VIRTIO_NET_NO_LEGACY
-> > > > > >  /* This header comes first in the scatter-gather list.
-> > > > > >   * For legacy virtio, if VIRTIO_F_ANY_LAYOUT is not negotiated, it
-> > > > > >   must
-> > > > >
-> > > > >
-> > > > > So it looks like VIRTIO_NET_F_RX_TSTAMP should depend on both
-> > > > > VIRTIO_NET_F_RX_TSTAMP and VIRTIO_NET_F_HASH_REPORT then?
-> > > >
-> > > > Do you mean VIRTIO_NET_F_TX_TSTAMP depends on VIRTIO_NET_F_RX_TSTAMP?
-> > > >
-> > > > I think if either is enabled we need to enable the extended layout.
-> > > > Regardless of whether TX_HASH or HASH_REPORT are enabled. If they are
-> > > > not, then those fields are ignored.
-> > >
-> > > I mean do we waste the 8 bytes for hash if TSTAMP is set but HASH is not?
-> > > If TSTAMP depends on HASH then point is moot.
-> >
-> > True, but the two features really are independent.
-> >
-> > I did consider using configurable metadata layout depending on
-> > features negotiated. If there are tons of optional extensions, that
-> > makes sense. But it is more complex and parsing error prone. With a
-> > handful of options each of a few bytes, that did not seem worth the
-> > cost to me at this point.
->
-> Consider NFV workloads(64B) packet. Most fields of current vnet header
-> is even a burdern.
-
-Such workloads will not negotiate these features, I imagine.
-
-I think this could only become an issue if a small packet workload
-would want to negotiate one optional feature, without the others.
-
-Even then, the actual cost of a few untouched bytes is negligible, as
-long as the headers don't span cache-lines. I expect it to be cheaper
-than having to parse a dynamic layout.
-
-> It might be the time to introduce configurable or
-> self-descriptive vnet header.
-
-I did briefly toy with a type-val encoding. Not type-val-len, as all
-options have fixed length (so far), so length can be left implicit.
-But as each feature is negotiated before hand, the type can be left
-implicit too. Leaving just the data elements tightly packed. As long
-as order is defined.
-
-> > And importantly, such a mode can always be added later as a separate
-> > VIRTIO_NET_F_PACKED_HEADER option.
->
-> What will do feature provide?
-
-The tightly packed data elements. Strip out the elements for non
-negotiated features. So if either tstamp option is negotiated, but
-hash is not, exclude the 64b of hash fields. Note that I'm not
-actually arguing for this (at this point).
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+Ck9uIDIwMjAvMTIvMjkg5LiL5Y2IMzoyOCwgRWxpIENvaGVuIHdyb3RlOgo+PiBAQCAtNDMsNiAr
+NDMsOCBAQCBzdHJ1Y3QgdmRwYV92cV9zdGF0ZSB7Cj4+ICAgICogQGluZGV4OiBkZXZpY2UgaW5k
+ZXgKPj4gICAgKiBAZmVhdHVyZXNfdmFsaWQ6IHdlcmUgZmVhdHVyZXMgaW5pdGlhbGl6ZWQ/IGZv
+ciBsZWdhY3kgZ3Vlc3RzCj4+ICAgICogQG52cXM6IHRoZSBudW1iZXIgb2YgdmlydHF1ZXVlcwo+
+PiArICogQG5ncm91cHM6IHRoZSBudW1iZXIgb2YgdmlydHF1ZXVlIGdyb3Vwcwo+PiArICogQG5h
+czogdGhlIG51bWJlciBvZiBhZGRyZXNzIHNwYWNlcwo+IEkgYW0gbm90IHN1cmUgdGhlc2UgY2Fu
+IGJlIGNhdGVnb3Jpc2VkIGFzIHBhcnQgb2YgdGhlIHN0YXRlIG9mIHRoZSBWUS4KPiBJdCdzIG1v
+cmUgb2YgYSBwcm9wZXJ0eSBzbyBtYXliZSB3ZSBjYW4gaGF2ZSBhIGNhbGxiYWNrIHRvIGdldCB0
+aGUKPiBwcm9wZXJ0aWVzIG9mIHRoZSBWUT8KPgo+IE1vcmVvdmVyLCBJIHRoaW5rIHRoZXkgc2hv
+dWxkIGJlIGhhbmRsZWQgaW4gdGhlIGhhcmR3YXJlIGRyaXZlcnMgdG8KPiByZXR1cm4gMSBmb3Ig
+Ym90aCBuZ3JvdXBzIGFuZCBuYXMuCgoKV2UgY2FuLCBidXQgdGhvc2UgYXJlIHN0YXRpYyBhdHRy
+aWJ1dGVzIHRoYXQgaXMgbm90IGV4cGVjdGVkIHRvIGJlIApjaGFuZ2VkIGJ5IHRoZSBkcml2ZXIu
+CgpJbnRyb2R1Y2UgY2FsbGJhY2tzIGZvciB0aG9zZSBzdGF0aWMgc3R1ZmZzIGRvZXMgbm90IGdp
+dmUgdXMgYW55IGFkdmFudGFnZS4KCkZvciBncm91cCBpZCBhbmQgbm90aWZpY2F0aW9uIGFyZWEs
+IHNpbmNlIHdlIGRvbid0IGhhdmUgYSBhYnN0cmFjdCBvZiAKdmRwYV92aXJ0cXVldWUuIFRoZSBv
+bmx5IGNob2ljZSBpcyB0byBpbnRyb2R1Y2UgY2FsbGJhY2tzIGZvciB0aGVtLgoKTWF5YmUgaXQn
+cyB0aW1lIHRvIGludHJvZHVjZSB2ZHBhX3ZpcnRxdWV1ZS4KClRoYW5rcwoKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
+ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
