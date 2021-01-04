@@ -2,100 +2,130 @@ Return-Path: <SRS0=kU6l=GH=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
-	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38F66C433E0
-	for <virtualization@archiver.kernel.org>; Mon,  4 Jan 2021 10:20:01 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F4A7C433DB
+	for <virtualization@archiver.kernel.org>; Mon,  4 Jan 2021 19:19:20 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B44BF20780
-	for <virtualization@archiver.kernel.org>; Mon,  4 Jan 2021 10:20:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B44BF20780
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id DE2E320770
+	for <virtualization@archiver.kernel.org>; Mon,  4 Jan 2021 19:19:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DE2E320770
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 4E5CF870A9;
-	Mon,  4 Jan 2021 10:20:00 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 7A3B086988;
+	Mon,  4 Jan 2021 19:19:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EZiITTDUk9Be; Mon,  4 Jan 2021 10:19:59 +0000 (UTC)
+	with ESMTP id IeOINbT80CeF; Mon,  4 Jan 2021 19:19:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id A77128709F;
-	Mon,  4 Jan 2021 10:19:59 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 8B87E86990;
+	Mon,  4 Jan 2021 19:19:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8CFC5C0893;
-	Mon,  4 Jan 2021 10:19:59 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6D48AC088B;
+	Mon,  4 Jan 2021 19:19:18 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0FE2BC013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 381AFC013A
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jan 2021 10:19:58 +0000 (UTC)
+ Mon,  4 Jan 2021 19:19:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id EBF63859E6
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 1DF4684C33
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jan 2021 10:19:57 +0000 (UTC)
+ Mon,  4 Jan 2021 19:19:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id kDmA1gwC2cRv
+ with ESMTP id rBhT6fn6agzN
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jan 2021 10:19:56 +0000 (UTC)
+ Mon,  4 Jan 2021 19:19:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com
- [209.85.128.48])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 45FD985507
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 4DBA684947
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jan 2021 10:19:56 +0000 (UTC)
-Received: by mail-wm1-f48.google.com with SMTP id a6so17943967wmc.2
- for <virtualization@lists.linux-foundation.org>;
- Mon, 04 Jan 2021 02:19:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=cshuBm7yB0Z3cSiR7jcnuEYzCYnzDpnl22WbZG/ju9A=;
- b=M3Ngc5/MMNzyhU8I5x5YBEM7KEyJ85Y0XLmLQEYrJWsFHN5N8VXe8Z5MPFYwnuMrMi
- Hx/9Mpra2YpHPrZqELXd73hWlIY1XRevN88LOhXt/adUP5lVVlBhj5VnV87P+RePmuu3
- /TxKZ1oCnspXNA+t3jR/wrELwh2BuSY7bWFn2E/79tRNqFoewT5tm7XidnRDq7zPg7Q2
- khd0qeLDq3dGyBhVMs4alfzPYBZOOpeshQQ1oolYQHB4q8SS84uIKrKeG5sjd96cYb9M
- 3166FELfa+cTzCd1qV4jEU6jT4zvv7+XkmPr/gbsNiRm2SPSO8V58fKTXkJR8anaqW2Q
- W6TQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=cshuBm7yB0Z3cSiR7jcnuEYzCYnzDpnl22WbZG/ju9A=;
- b=rT+1nkK4NN5rZYm8/JphF5wyR4mROe2b5bLPp2Vl9XYdWEDrTXVSmUeaA5huH0aNRd
- j2jmUe4gJwMDekhNN1dFi4v7iwj75HXhLLlLW/XnhoEh1zIabWVL4YzUhLXnZ4sYFt2o
- jhcbUjsYUwR3ZXVxBZk6vzYRJf+mns1nKzgrdq7PCo+pqPLsxctwtgEiwpuEnGUgZ+52
- /XAndL3+ExB13pMU1xdlpnwZeYxU2tP71RR68Up/NehCWE1qXdw0RcF5Iix4n3ef/7Dd
- jvncbuf+8EAU3L1cOoIjTPqoz8dkmXq676CZqX10LPHb0ePcinjATOW8ifBgcBKXiZNh
- 74hg==
-X-Gm-Message-State: AOAM531ofKsIQ5h04RVqKe4IMwl0iTd/g2uSR5RZhNbUFyOWSeEeZbMb
- 6PyQRrUsVWbVEXjNn6D/abw=
-X-Google-Smtp-Source: ABdhPJwOuLImjmAuXi0UyWjGYMZg6gZNFDNyltiw/uCmka2l2gwaY0RUZ3EWHJG5F8u9t7/5Zt9cRw==
-X-Received: by 2002:a1c:e246:: with SMTP id z67mr26166545wmg.166.1609755594674; 
- Mon, 04 Jan 2021 02:19:54 -0800 (PST)
-Received: from localhost ([51.15.41.238])
- by smtp.gmail.com with ESMTPSA id b9sm35686661wmd.32.2021.01.04.02.19.53
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 04 Jan 2021 02:19:53 -0800 (PST)
-Date: Mon, 4 Jan 2021 10:19:52 +0000
-From: Stefan Hajnoczi <stefanha@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v2] vhost/vsock: add IOTLB API support
-Message-ID: <20210104101952.GA344891@stefanha-x1.localdomain>
-References: <20201223143638.123417-1-sgarzare@redhat.com>
+ Mon,  4 Jan 2021 19:19:16 +0000 (UTC)
+IronPort-SDR: si2XIcB7mSgHXCA+cZnGlQtQzSOysMOgALv75A6OyXwDwawqRXxv3R0fKyoAfWoiFCASGQX0nW
+ IHPb9h2Xmy0w==
+X-IronPort-AV: E=McAfee;i="6000,8403,9854"; a="173488350"
+X-IronPort-AV: E=Sophos;i="5.78,474,1599548400"; d="scan'208";a="173488350"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+ by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 04 Jan 2021 11:19:15 -0800
+IronPort-SDR: KgSadHUemovhP1/W+oU86mb7s1oljRqAejaCR+PoagSVM26DWMxcwG6Ce5Hfk8fB9Ji5Qb4sU3
+ c/ikGxvHxkXA==
+X-IronPort-AV: E=Sophos;i="5.78,474,1599548400"; d="scan'208";a="360881592"
+Received: from trhudson-mobl.amr.corp.intel.com (HELO [10.213.162.49])
+ ([10.213.162.49])
+ by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 04 Jan 2021 11:19:14 -0800
+Subject: Re: [RFC v2 PATCH 4/4] mm: pre zero out free pages to speed up page
+ allocation for __GFP_ZERO
+To: Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+ Mel Gorman <mgorman@techsingularity.net>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Andrea Arcangeli <aarcange@redhat.com>,
+ Dan Williams <dan.j.williams@intel.com>, "Michael S. Tsirkin"
+ <mst@redhat.com>, David Hildenbrand <david@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Michal Hocko <mhocko@suse.com>,
+ Liang Li <liliangleo@didiglobal.com>, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+References: <20201221163024.GA22532@open-light-1.localdomain>
+From: Dave Hansen <dave.hansen@intel.com>
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+ z5cecg==
+Message-ID: <0e8b6a2f-527d-7c77-efcf-04f21ef2a77c@intel.com>
+Date: Mon, 4 Jan 2021 11:19:13 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20201223143638.123417-1-sgarzare@redhat.com>
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Stefan Hajnoczi <stefanha@redhat.com>
+In-Reply-To: <20201221163024.GA22532@open-light-1.localdomain>
+Content-Language: en-US
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,95 +137,29 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============6634530218064821065=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On 12/21/20 8:30 AM, Liang Li wrote:
+> --- a/include/linux/page-flags.h
+> +++ b/include/linux/page-flags.h
+> @@ -137,6 +137,9 @@ enum pageflags {
+>  #endif
+>  #ifdef CONFIG_64BIT
+>  	PG_arch_2,
+> +#endif
+> +#ifdef CONFIG_PREZERO_PAGE
+> +	PG_zero,
+>  #endif
+>  	__NR_PAGEFLAGS,
 
---===============6634530218064821065==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
-Content-Disposition: inline
+I don't think this is worth a generic page->flags bit.
 
-
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, Dec 23, 2020 at 03:36:38PM +0100, Stefano Garzarella wrote:
-> This patch enables the IOTLB API support for vhost-vsock devices,
-> allowing the userspace to emulate an IOMMU for the guest.
->=20
-> These changes were made following vhost-net, in details this patch:
-> - exposes VIRTIO_F_ACCESS_PLATFORM feature and inits the iotlb
->   device if the feature is acked
-> - implements VHOST_GET_BACKEND_FEATURES and
->   VHOST_SET_BACKEND_FEATURES ioctls
-> - calls vq_meta_prefetch() before vq processing to prefetch vq
->   metadata address in IOTLB
-> - provides .read_iter, .write_iter, and .poll callbacks for the
->   chardev; they are used by the userspace to exchange IOTLB messages
->=20
-> This patch was tested specifying "intel_iommu=3Dstrict" in the guest
-> kernel command line. I used QEMU with a patch applied [1] to fix a
-> simple issue (that patch was merged in QEMU v5.2.0):
->     $ qemu -M q35,accel=3Dkvm,kernel-irqchip=3Dsplit \
->            -drive file=3Dfedora.qcow2,format=3Dqcow2,if=3Dvirtio \
->            -device intel-iommu,intremap=3Don,device-iotlb=3Don \
->            -device vhost-vsock-pci,guest-cid=3D3,iommu_platform=3Don,ats=
-=3Don
->=20
-> [1] https://lists.gnu.org/archive/html/qemu-devel/2020-10/msg09077.html
->=20
-> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> ---
->=20
-> The patch is the same of v1, but I re-tested it with:
-> - QEMU v5.2.0-551-ga05f8ecd88
-> - Linux 5.9.15 (host)
-> - Linux 5.9.15 and 5.10.0 (guest)
-> Now, enabling 'ats' it works well, there are just a few simple changes.
->=20
-> v1: https://www.spinics.net/lists/kernel/msg3716022.html
-> v2:
-> - updated commit message about QEMU version and string used to test
-> - rebased on mst/vhost branch
->=20
-> Thanks,
-> Stefano
-> ---
->  drivers/vhost/vsock.c | 68 +++++++++++++++++++++++++++++++++++++++++--
->  1 file changed, 65 insertions(+), 3 deletions(-)
-
-Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl/y68gACgkQnKSrs4Gr
-c8jFlggAxynl8f/xErtZe/4q3P7uG8fRfOuje/XSlmzcxtlgQOv+t7r/vKjWzGwb
-ZJ52k6PN1dlbuQHyBf1TDre9nNqW17YteqL+em0hfvynsHV6WREOpJPLnVcbOWkF
-/vMadG9PxDkagfVN7ZOEzeLewJM4ZxAjYaZe9ADM2aq6MoxhiC4oCICmOK2UBbu3
-t/bVIhCL/cZs0nMO5cGfpz8u0ZenAiVPsXmbEiynMhhFd1pNWu1XsB6BGqJgZ4oJ
-1BvYrA3RWKmvq/EK15JIKzHJrNuP5mh0bGrWKXOj4ubUTRYnjVMWfwtfDpjKUlGB
-W77zh8Sm5xfKTDndtPmChInD+yd2iQ==
-=9iMg
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--
-
---===============6634530218064821065==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+There's a ton of space in 'struct page' for pages that are in the
+allocator.  Can't we use some of that space?
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6634530218064821065==--
