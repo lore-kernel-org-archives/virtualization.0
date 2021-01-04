@@ -2,93 +2,85 @@ Return-Path: <SRS0=kU6l=GH=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DCAEC433DB
-	for <virtualization@archiver.kernel.org>; Mon,  4 Jan 2021 03:28:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00BAEC433E0
+	for <virtualization@archiver.kernel.org>; Mon,  4 Jan 2021 03:32:22 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 753A720DD4
-	for <virtualization@archiver.kernel.org>; Mon,  4 Jan 2021 03:28:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 753A720DD4
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 60A0B20DD4
+	for <virtualization@archiver.kernel.org>; Mon,  4 Jan 2021 03:32:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 60A0B20DD4
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=nvidia.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 21D068578B;
-	Mon,  4 Jan 2021 03:28:27 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 131E585E77;
+	Mon,  4 Jan 2021 03:32:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0tffk6apurhH; Mon,  4 Jan 2021 03:28:24 +0000 (UTC)
+	with ESMTP id ODW0_0uBXhBs; Mon,  4 Jan 2021 03:32:21 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 6F0F585773;
-	Mon,  4 Jan 2021 03:28:24 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id A1B2F85E2B;
+	Mon,  4 Jan 2021 03:32:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5954CC0893;
-	Mon,  4 Jan 2021 03:28:24 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7DB83C1DA7;
+	Mon,  4 Jan 2021 03:32:21 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 014ECC013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5EA28C013A
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jan 2021 03:28:22 +0000 (UTC)
+ Mon,  4 Jan 2021 03:32:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id DC20F8680C
+ by whitealder.osuosl.org (Postfix) with ESMTP id 4C8408680C
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jan 2021 03:28:22 +0000 (UTC)
+ Mon,  4 Jan 2021 03:32:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id iIGhlB7XG8Mn
+ with ESMTP id yA4y7vm9+hw7
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jan 2021 03:28:22 +0000 (UTC)
+ Mon,  4 Jan 2021 03:32:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id E690586803
+Received: from hqnvemgate24.nvidia.com (hqnvemgate24.nvidia.com
+ [216.228.121.143])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 97ECA8681B
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jan 2021 03:28:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1609730900;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=GJJfwwJvIQfLkVSCQiPAwQXYX1m/CER5+zYYRij6ymg=;
- b=hLh+cqyad8loNSR6nMgFQPaoXKXvxzud1jZt4v+AqGAGiTHhKIBsUBxMe9NKHEUUECCh7q
- 6vdQEXVx5baa1XmuMpKfjeazICibwMNO3gO5jbBJp4DoTndQWBdcVKVWaUZyjv3MxA1r0I
- T/6VVjwAtovUanV/Y2L1F5644UQ9PFU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-578-F31XkmCWPxag_wRJA-zYGg-1; Sun, 03 Jan 2021 22:28:19 -0500
-X-MC-Unique: F31XkmCWPxag_wRJA-zYGg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
- [10.5.11.11])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1D7D2107ACE3;
- Mon,  4 Jan 2021 03:28:18 +0000 (UTC)
-Received: from [10.72.13.221] (ovpn-13-221.pek2.redhat.com [10.72.13.221])
- by smtp.corp.redhat.com (Postfix) with ESMTP id D24801346D;
- Mon,  4 Jan 2021 03:28:06 +0000 (UTC)
-Subject: Re: [PATCH V2 19/19] vdpa: introduce virtio pci driver
-To: Stefano Garzarella <sgarzare@redhat.com>
-References: <20201204040353.21679-1-jasowang@redhat.com>
- <20201204040353.21679-20-jasowang@redhat.com>
- <20201204152043.ewqlwviaf33wwiyx@steredhat>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <a17bd160-eda2-af4f-e465-23d29ca0580a@redhat.com>
-Date: Mon, 4 Jan 2021 11:28:05 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ Mon,  4 Jan 2021 03:32:18 +0000 (UTC)
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by
+ hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+ id <B5ff28c420000>; Sun, 03 Jan 2021 19:32:18 -0800
+Received: from sw-mtx-036.mtx.labs.mlnx (172.20.145.6) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3;
+ Mon, 4 Jan 2021 03:32:17 +0000
+From: Parav Pandit <parav@nvidia.com>
+To: <virtualization@lists.linux-foundation.org>
+Subject: [PATCH linux-next v2 1/7] vdpa_sim_net: Make mac address array static
+Date: Mon, 4 Jan 2021 05:31:35 +0200
+Message-ID: <20210104033141.105876-2-parav@nvidia.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210104033141.105876-1-parav@nvidia.com>
+References: <20201112064005.349268-1-parav@nvidia.com>
+ <20210104033141.105876-1-parav@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <20201204152043.ewqlwviaf33wwiyx@steredhat>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-Cc: shahafs@mellanox.com, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, mst@redhat.com
+X-Originating-IP: [172.20.145.6]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+ t=1609731138; bh=IOLgtQ8wjhNIKDKoZd+WM4eBiMFNdcNz29O7F2JDlb0=;
+ h=From:To:CC:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
+ References:MIME-Version:Content-Transfer-Encoding:Content-Type:
+ X-Originating-IP:X-ClientProxiedBy;
+ b=cwJP/sM3XEWinIjH34eV2QdYSaiWvmW/QM/0N/Pia64VC7jFc//UoX0nXwe8a/KWZ
+ NM1qMCDmbBNDf+Ay2o96+G3pQXeIURq8abvjooPLb+B3gmzRk5Nhumbm1u4QnFFD/E
+ IJsZtmBDGgpV8GjDuYIlz11E2QS/GYAgfWrXnSYoTgUOvwjth352o0dPJDrkZw4/aQ
+ eAmtKwTE+gtGNI1ww7NoInR6fTEtiszPJl3rlXnjK00auxbgUAE0xgP2FwpBN5bXgj
+ Js4OGfAW3xE87Jhk4vQ23IyUb57faWoSWIqmfIdYfOI47X+7ScTtoMl9COwB5MHkLq
+ gML/R6ZK6vQ+g==
+Cc: netdev@vger.kernel.org, elic@nvidia.com, mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -100,26 +92,40 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Ck9uIDIwMjAvMTIvNCDkuIvljYgxMToyMCwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3RlOgo+PiAr
-I2RlZmluZSBWUF9WRFBBX1FVRVVFX01BWCAyNTYKPj4gKyNkZWZpbmUgVlBfVkRQQV9EUklWRVJf
-TkFNRSAidnBfdmRwYSIKPj4gKwo+PiArc3RydWN0IHZwX3ZyaW5nIHsKPj4gK8KgwqDCoCB2b2lk
-IF9faW9tZW0gKm5vdGlmeTsKPj4gK8KgwqDCoCBjaGFyIG1zaXhfbmFtZVsyNTZdOwo+Cj4gQ2Fu
-IHdlIHVzZSBhIG1hY3JvIGZvciB0aGUgbXNpeF9uYW1lIHNpemUsIHNpbmNlIHdlIHVzZSAyNTYg
-aW4gCj4gbXVsdGlwbGUgcGxhY2VzPwoKClllcywgd2lsbCBzd2l0Y2ggdG8gdXNlIGEgbWFjcm8u
-CgoKPgo+PiArwqDCoMKgIHN0cnVjdCB2ZHBhX2NhbGxiYWNrIGNiOwo+PiArwqDCoMKgIGludCBp
-cnE7Cj4+ICt9Owo+PiArCj4+ICtzdHJ1Y3QgdnBfdmRwYSB7Cj4+ICvCoMKgwqAgc3RydWN0IHZk
-cGFfZGV2aWNlIHZkcGE7Cj4+ICvCoMKgwqAgc3RydWN0IHZpcnRpb19wY2lfbW9kZXJuX2Rldmlj
-ZSBtZGV2Owo+PiArwqDCoMKgIHN0cnVjdCB2cF92cmluZyAqdnJpbmc7Cj4+ICvCoMKgwqAgc3Ry
-dWN0IHZkcGFfY2FsbGJhY2sgY2I7Cj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgXgo+IEl0IGlzIG5vdCByZWxldmFudCwgYnV0ICdjb25m
-aWdfY2InIGlzIG1heWJlIGNsZWFyZXIgdG8gcmVhZC4KPgoKV2lsbCBjaGFuZ2UgdG8gY29uZmln
-X2NiLgoKCj4gVGhlIHJlc3QgbG9va3MgZ29vZC4KCgpUaGFua3MKCgo+Cj4gVGhhbmtzLAo+IFN0
-ZWZhbm8gCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+MAC address array is used only in vdpa_sim_net.c.
+Hence, keep it static.
+
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+---
+Changelog:
+v1->v2:
+ - new patch
+---
+ drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+index c10b6981fdab..f0482427186b 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
+@@ -33,7 +33,7 @@ static char *macaddr;
+ module_param(macaddr, charp, 0);
+ MODULE_PARM_DESC(macaddr, "Ethernet MAC address");
+ 
+-u8 macaddr_buf[ETH_ALEN];
++static u8 macaddr_buf[ETH_ALEN];
+ 
+ static struct vdpasim *vdpasim_net_dev;
+ 
+-- 
+2.26.2
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
