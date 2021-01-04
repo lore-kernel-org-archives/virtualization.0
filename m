@@ -8,96 +8,94 @@ X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0449AC433DB
-	for <virtualization@archiver.kernel.org>; Mon,  4 Jan 2021 10:05:07 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38F66C433E0
+	for <virtualization@archiver.kernel.org>; Mon,  4 Jan 2021 10:20:01 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9084C20780
-	for <virtualization@archiver.kernel.org>; Mon,  4 Jan 2021 10:05:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9084C20780
+	by mail.kernel.org (Postfix) with ESMTPS id B44BF20780
+	for <virtualization@archiver.kernel.org>; Mon,  4 Jan 2021 10:20:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B44BF20780
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id B2A4086399;
-	Mon,  4 Jan 2021 10:05:05 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 4E5CF870A9;
+	Mon,  4 Jan 2021 10:20:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mqckCP6yr6Lc; Mon,  4 Jan 2021 10:05:04 +0000 (UTC)
+	with ESMTP id EZiITTDUk9Be; Mon,  4 Jan 2021 10:19:59 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 8903586110;
-	Mon,  4 Jan 2021 10:05:04 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id A77128709F;
+	Mon,  4 Jan 2021 10:19:59 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 79D0BC088B;
-	Mon,  4 Jan 2021 10:05:04 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8CFC5C0893;
+	Mon,  4 Jan 2021 10:19:59 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2D608C013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0FE2BC013A
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jan 2021 10:05:03 +0000 (UTC)
+ Mon,  4 Jan 2021 10:19:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 1A19B85F94
+ by fraxinus.osuosl.org (Postfix) with ESMTP id EBF63859E6
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jan 2021 10:05:03 +0000 (UTC)
+ Mon,  4 Jan 2021 10:19:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 459f43PCakWR
+ with ESMTP id kDmA1gwC2cRv
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jan 2021 10:05:02 +0000 (UTC)
+ Mon,  4 Jan 2021 10:19:56 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com
- [209.85.221.44])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 472EC85F93
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com
+ [209.85.128.48])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 45FD985507
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Jan 2021 10:05:02 +0000 (UTC)
-Received: by mail-wr1-f44.google.com with SMTP id t16so31564514wra.3
+ Mon,  4 Jan 2021 10:19:56 +0000 (UTC)
+Received: by mail-wm1-f48.google.com with SMTP id a6so17943967wmc.2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 04 Jan 2021 02:05:02 -0800 (PST)
+ Mon, 04 Jan 2021 02:19:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to;
- bh=uFFU3VXsv3EPwLwjLxtgH+p/qlSMAwu7grwI0PaoZiQ=;
- b=QWHADie0s84qde1sI/e7JgVp7NxxE472JwIN5+FxFbv0+u60SVbKkD00Whsau0NoYi
- xHiPER08qL35eUyUT+waT/v6wk4E1Mwd1YNeoY1k4fKaI22fU/WTMA6NNFiEI8eCmBVs
- 59rYSyNyisznbyyBOgt4g27fCW3SlwkGU7eF67/Q6L7XEiXaw1mhD7ztsx9zyKgD5bkC
- E1uz/HbEf8he4AJvRV3uJANyJZA+1SV7DyY4485hqC0N392FNN0Li2LQ5SEZN2VHmUpk
- L5IBSzuUI8c+g0XKddW6OFMVoWy2MDkT3OkrFF5Endgg5/j4BGIEc+o1l0E2NO8yleFf
- wheg==
+ bh=cshuBm7yB0Z3cSiR7jcnuEYzCYnzDpnl22WbZG/ju9A=;
+ b=M3Ngc5/MMNzyhU8I5x5YBEM7KEyJ85Y0XLmLQEYrJWsFHN5N8VXe8Z5MPFYwnuMrMi
+ Hx/9Mpra2YpHPrZqELXd73hWlIY1XRevN88LOhXt/adUP5lVVlBhj5VnV87P+RePmuu3
+ /TxKZ1oCnspXNA+t3jR/wrELwh2BuSY7bWFn2E/79tRNqFoewT5tm7XidnRDq7zPg7Q2
+ khd0qeLDq3dGyBhVMs4alfzPYBZOOpeshQQ1oolYQHB4q8SS84uIKrKeG5sjd96cYb9M
+ 3166FELfa+cTzCd1qV4jEU6jT4zvv7+XkmPr/gbsNiRm2SPSO8V58fKTXkJR8anaqW2Q
+ W6TQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=uFFU3VXsv3EPwLwjLxtgH+p/qlSMAwu7grwI0PaoZiQ=;
- b=SmOCl4QRpkbq6/pB7pnJjl3GIYisv+CMJJ8r2bJiY4mcigHHUG2coqMGWwuAT5voLI
- OscP6hoWq4L27MIh5tmhgBhbgPl+16v7WpwWteUayNVwo8PyD+a3WxWHTJo4e2e9vH9d
- JC1EKYVh+DKkO9LsDPCX323ACaZO9+SYekUwJnwRXSENG/63aB0/1+8qLCy631LO56T8
- 8uWnxp9iW29SDSXUJSX8BV96i6VHFU8TJpTrmGl+8OkgnensHn3obDxs6llKPLHnAftN
- ha/CK/WyMAbDiAZBwlyasiw29NNWDfU0g4iixXI0AiwIQYY8BfTgx+3x7LE8XZFZxWn7
- yyPA==
-X-Gm-Message-State: AOAM53339hLNEdrkMdSmZBy1BWmPfOAdDzFU3UY5i5JlT+xDvDQRyKTF
- 03ZNipfZIMxHIQHRZ/9jUKk=
-X-Google-Smtp-Source: ABdhPJzHUrpdcysfWmvcKOTpV/rCqvrg6zvR2no2fO3kzOoq/dycLaf10uIQjBP/NfbhUBxGo0HWIg==
-X-Received: by 2002:a5d:4e92:: with SMTP id e18mr82200857wru.66.1609754700700; 
- Mon, 04 Jan 2021 02:05:00 -0800 (PST)
+ bh=cshuBm7yB0Z3cSiR7jcnuEYzCYnzDpnl22WbZG/ju9A=;
+ b=rT+1nkK4NN5rZYm8/JphF5wyR4mROe2b5bLPp2Vl9XYdWEDrTXVSmUeaA5huH0aNRd
+ j2jmUe4gJwMDekhNN1dFi4v7iwj75HXhLLlLW/XnhoEh1zIabWVL4YzUhLXnZ4sYFt2o
+ jhcbUjsYUwR3ZXVxBZk6vzYRJf+mns1nKzgrdq7PCo+pqPLsxctwtgEiwpuEnGUgZ+52
+ /XAndL3+ExB13pMU1xdlpnwZeYxU2tP71RR68Up/NehCWE1qXdw0RcF5Iix4n3ef/7Dd
+ jvncbuf+8EAU3L1cOoIjTPqoz8dkmXq676CZqX10LPHb0ePcinjATOW8ifBgcBKXiZNh
+ 74hg==
+X-Gm-Message-State: AOAM531ofKsIQ5h04RVqKe4IMwl0iTd/g2uSR5RZhNbUFyOWSeEeZbMb
+ 6PyQRrUsVWbVEXjNn6D/abw=
+X-Google-Smtp-Source: ABdhPJwOuLImjmAuXi0UyWjGYMZg6gZNFDNyltiw/uCmka2l2gwaY0RUZ3EWHJG5F8u9t7/5Zt9cRw==
+X-Received: by 2002:a1c:e246:: with SMTP id z67mr26166545wmg.166.1609755594674; 
+ Mon, 04 Jan 2021 02:19:54 -0800 (PST)
 Received: from localhost ([51.15.41.238])
- by smtp.gmail.com with ESMTPSA id f14sm77042982wre.69.2021.01.04.02.04.59
+ by smtp.gmail.com with ESMTPSA id b9sm35686661wmd.32.2021.01.04.02.19.53
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 04 Jan 2021 02:04:59 -0800 (PST)
-Date: Mon, 4 Jan 2021 10:04:58 +0000
+ Mon, 04 Jan 2021 02:19:53 -0800 (PST)
+Date: Mon, 4 Jan 2021 10:19:52 +0000
 From: Stefan Hajnoczi <stefanha@gmail.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 06/21] vdpa: introduce virtqueue groups
-Message-ID: <20210104100458.GC342399@stefanha-x1.localdomain>
-References: <20201216064818.48239-1-jasowang@redhat.com>
- <20201216064818.48239-7-jasowang@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v2] vhost/vsock: add IOTLB API support
+Message-ID: <20210104101952.GA344891@stefanha-x1.localdomain>
+References: <20201223143638.123417-1-sgarzare@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20201216064818.48239-7-jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, lulu@redhat.com, mst@redhat.com,
+In-Reply-To: <20201223143638.123417-1-sgarzare@redhat.com>
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
  netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, eperezma@redhat.com,
- stefanha@redhat.com, eli@mellanox.com, lingshan.zhu@intel.com,
- rob.miller@broadcom.com
+ virtualization@lists.linux-foundation.org,
+ Stefan Hajnoczi <stefanha@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -109,64 +107,88 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============8494592134226267975=="
+Content-Type: multipart/mixed; boundary="===============6634530218064821065=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
---===============8494592134226267975==
+--===============6634530218064821065==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="Md/poaVZ8hnGTzuv"
+	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
 Content-Disposition: inline
 
 
---Md/poaVZ8hnGTzuv
+--Q68bSM7Ycu6FN28Q
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Dec 16, 2020 at 02:48:03PM +0800, Jason Wang wrote:
-> This patch introduces virtqueue groups to vDPA device. The virtqueue
-> group is the minimal set of virtqueues that must share an address
-> space. And the adddress space identifier could only be attached to
-> a specific virtqueue group.
+On Wed, Dec 23, 2020 at 03:36:38PM +0100, Stefano Garzarella wrote:
+> This patch enables the IOTLB API support for vhost-vsock devices,
+> allowing the userspace to emulate an IOMMU for the guest.
 >=20
-> A new mandated bus operation is introduced to get the virtqueue group
-> ID for a specific virtqueue.
+> These changes were made following vhost-net, in details this patch:
+> - exposes VIRTIO_F_ACCESS_PLATFORM feature and inits the iotlb
+>   device if the feature is acked
+> - implements VHOST_GET_BACKEND_FEATURES and
+>   VHOST_SET_BACKEND_FEATURES ioctls
+> - calls vq_meta_prefetch() before vq processing to prefetch vq
+>   metadata address in IOTLB
+> - provides .read_iter, .write_iter, and .poll callbacks for the
+>   chardev; they are used by the userspace to exchange IOTLB messages
 >=20
-> All the vDPA device drivers were converted to simply support a single
-> virtqueue group.
+> This patch was tested specifying "intel_iommu=3Dstrict" in the guest
+> kernel command line. I used QEMU with a patch applied [1] to fix a
+> simple issue (that patch was merged in QEMU v5.2.0):
+>     $ qemu -M q35,accel=3Dkvm,kernel-irqchip=3Dsplit \
+>            -drive file=3Dfedora.qcow2,format=3Dqcow2,if=3Dvirtio \
+>            -device intel-iommu,intremap=3Don,device-iotlb=3Don \
+>            -device vhost-vsock-pci,guest-cid=3D3,iommu_platform=3Don,ats=
+=3Don
 >=20
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> [1] https://lists.gnu.org/archive/html/qemu-devel/2020-10/msg09077.html
+>=20
+> Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 > ---
->  drivers/vdpa/ifcvf/ifcvf_main.c   |  9 ++++++++-
->  drivers/vdpa/mlx5/net/mlx5_vnet.c |  8 +++++++-
->  drivers/vdpa/vdpa.c               |  4 +++-
->  drivers/vdpa/vdpa_sim/vdpa_sim.c  | 11 ++++++++++-
->  include/linux/vdpa.h              | 12 +++++++++---
->  5 files changed, 37 insertions(+), 7 deletions(-)
+>=20
+> The patch is the same of v1, but I re-tested it with:
+> - QEMU v5.2.0-551-ga05f8ecd88
+> - Linux 5.9.15 (host)
+> - Linux 5.9.15 and 5.10.0 (guest)
+> Now, enabling 'ats' it works well, there are just a few simple changes.
+>=20
+> v1: https://www.spinics.net/lists/kernel/msg3716022.html
+> v2:
+> - updated commit message about QEMU version and string used to test
+> - rebased on mst/vhost branch
+>=20
+> Thanks,
+> Stefano
+> ---
+>  drivers/vhost/vsock.c | 68 +++++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 65 insertions(+), 3 deletions(-)
 
-Maybe consider calling it iotlb_group or iommu_group so the purpose of
-the group is clear?
+Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---Md/poaVZ8hnGTzuv
+--Q68bSM7Ycu6FN28Q
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl/y6EoACgkQnKSrs4Gr
-c8iKNwgAtnS7PgEL7jT2JkaKAXLejyXKO8IW8xfLeTqNpJCmwkwbyzsQjH83riBW
-TFaz9i//mTuWeJjzc9ZPWSkeDGQ30KdUG+keqyrr4IBcu2g7YO58mAqf8DL/b/Vf
-EkX+sXimegTguYioYzT5zbgApNPlo5RPJWS0UTInQ8n2+gzXKmBmhyI9EXchVNqz
-MZDTWzKqZ6urkT5JZlOIlMa1Mw/Xr+yRQpVIBYuZe3GEdwM5gfn6ElhAyrT8qhO/
-ssFCNPzcSuJl+2MhxDVM3uyaadUQhr63o4BzNSSyr2Gk4i+nepfTCe0pXukbrnGs
-wWqtRMGsRbjl811BZJwNtdVCqu/lsw==
-=J7Jn
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl/y68gACgkQnKSrs4Gr
+c8jFlggAxynl8f/xErtZe/4q3P7uG8fRfOuje/XSlmzcxtlgQOv+t7r/vKjWzGwb
+ZJ52k6PN1dlbuQHyBf1TDre9nNqW17YteqL+em0hfvynsHV6WREOpJPLnVcbOWkF
+/vMadG9PxDkagfVN7ZOEzeLewJM4ZxAjYaZe9ADM2aq6MoxhiC4oCICmOK2UBbu3
+t/bVIhCL/cZs0nMO5cGfpz8u0ZenAiVPsXmbEiynMhhFd1pNWu1XsB6BGqJgZ4oJ
+1BvYrA3RWKmvq/EK15JIKzHJrNuP5mh0bGrWKXOj4ubUTRYnjVMWfwtfDpjKUlGB
+W77zh8Sm5xfKTDndtPmChInD+yd2iQ==
+=9iMg
 -----END PGP SIGNATURE-----
 
---Md/poaVZ8hnGTzuv--
+--Q68bSM7Ycu6FN28Q--
 
---===============8494592134226267975==
+--===============6634530218064821065==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -176,4 +198,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8494592134226267975==--
+--===============6634530218064821065==--
