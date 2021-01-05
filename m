@@ -2,111 +2,172 @@ Return-Path: <SRS0=5FLU=GI=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69B70C433E0
-	for <virtualization@archiver.kernel.org>; Tue,  5 Jan 2021 11:49:13 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AA7FC433DB
+	for <virtualization@archiver.kernel.org>; Tue,  5 Jan 2021 12:02:44 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DD0F32222A
-	for <virtualization@archiver.kernel.org>; Tue,  5 Jan 2021 11:49:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DD0F32222A
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id C034F22AAC
+	for <virtualization@archiver.kernel.org>; Tue,  5 Jan 2021 12:02:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C034F22AAC
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=nvidia.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 3722521519;
-	Tue,  5 Jan 2021 11:49:12 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 7CD5284949;
+	Tue,  5 Jan 2021 12:02:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HDq7rcaIcV9V; Tue,  5 Jan 2021 11:49:10 +0000 (UTC)
+	with ESMTP id ZT-VGgewE7Se; Tue,  5 Jan 2021 12:02:42 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 25EAF20C92;
-	Tue,  5 Jan 2021 11:49:10 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id C953E84368;
+	Tue,  5 Jan 2021 12:02:42 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0D0BDC0891;
-	Tue,  5 Jan 2021 11:49:10 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5DE18C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A5611C0891;
+	Tue,  5 Jan 2021 12:02:42 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DC997C013A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jan 2021 11:49:08 +0000 (UTC)
+ Tue,  5 Jan 2021 12:02:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 50FF686F87
+ by whitealder.osuosl.org (Postfix) with ESMTP id C7DDD84737
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jan 2021 11:49:08 +0000 (UTC)
+ Tue,  5 Jan 2021 12:02:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id W7UkmLSDiiPD
+ with ESMTP id m9lF4SW9-aGY
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jan 2021 11:49:07 +0000 (UTC)
+ Tue,  5 Jan 2021 12:02:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 5704F87101
+Received: from nat-hk.nvidia.com (nat-hk.nvidia.com [203.18.50.4])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id E7E5C84368
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jan 2021 11:49:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1609847346;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=Fut1Y2EsHn3bhvP0i73Cj1gJTUlxPV1KUG+a0d7acj8=;
- b=G6dFy5y7mg2LsRHdenq1MUSc+lgZrW9feGFvj/oaTi6EbDl9R8YXy+rraeXDASCHDK6DUM
- Jrf190M1jtUTLdQ5veVrrBXDJahsR7n0kdmhRHyHbdkJ2taCJC37wPV9ZDDixRbb6rZiNJ
- jGOhN3G2Px1M4Oez3C94mK+HmUaZltQ=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-541-ZW0_UShKMFKNM40vEYbjuQ-1; Tue, 05 Jan 2021 06:49:04 -0500
-X-MC-Unique: ZW0_UShKMFKNM40vEYbjuQ-1
-Received: by mail-wm1-f72.google.com with SMTP id l5so246562wmi.4
- for <virtualization@lists.linux-foundation.org>;
- Tue, 05 Jan 2021 03:49:03 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=Fut1Y2EsHn3bhvP0i73Cj1gJTUlxPV1KUG+a0d7acj8=;
- b=nGowX3WffG4UbM42g6kZYLs7ZKNo2j/m44MFVHRJliP2hWH2bGV3/Udv8cy37rX9rf
- fR7UpuOsTMQVKAkcmBtaD4ccFtu9oss2z7QXsoeQmKr8MZ5ynmYSHKy/P9/keT1P8zNt
- G7uXaPjWaj9AWIUEdXrMXSxfpisXil6/JtH0537dsU1FL93tkMqrksZ6trRutlwqdeW2
- psAOWDZn5xbSHE9V7RlRRsJP7DvM6afQIzkvdtk3YudZ2rcgv7cqac43hkZMuq2AbQXI
- PVJ76lNWb/9HOWX+2RLI2fSyCaBpbte+KRNEaacLpLE2ShZSxdxWfNAIRWcGYWmk39s/
- 9WSg==
-X-Gm-Message-State: AOAM531BfQXbIjQ7a8uXKdNqWbUPXSjopcjWTEiwfNDSJ2+ca0Srq2Gs
- h/WXqMtOxfP5O/XOZYc5qZ+TrapK9WWAMPRtlQtk8KBl6ZQuyY/bBPpQEO94o992fGa7QlBOJnA
- tQgokvE3gRnA3NyIy2DZtHmQEr6VWPaQZXfIMoDaxmw==
-X-Received: by 2002:a1c:cc14:: with SMTP id h20mr3173809wmb.180.1609847342666; 
- Tue, 05 Jan 2021 03:49:02 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxgeopOVLBCAF7wx6sxfCGX6KW/lKRsu1Rt6mVUnL57qixRveaV+Tq9/8s/30f9SXbM2rOPtw==
-X-Received: by 2002:a1c:cc14:: with SMTP id h20mr3173794wmb.180.1609847342474; 
- Tue, 05 Jan 2021 03:49:02 -0800 (PST)
-Received: from redhat.com (bzq-79-178-32-166.red.bezeqint.net. [79.178.32.166])
- by smtp.gmail.com with ESMTPSA id z13sm5081842wmz.3.2021.01.05.03.49.00
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 05 Jan 2021 03:49:01 -0800 (PST)
-Date: Tue, 5 Jan 2021 06:48:58 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
-Subject: Re: [PATCH linux-next v3 6/6] vdpa_sim_net: Add support for user
+ Tue,  5 Jan 2021 12:02:39 +0000 (UTC)
+Received: from HKMAIL102.nvidia.com (Not Verified[10.18.92.9]) by
+ nat-hk.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+ id <B5ff4555d0003>; Tue, 05 Jan 2021 20:02:37 +0800
+Received: from HKMAIL102.nvidia.com (10.18.16.11) by HKMAIL102.nvidia.com
+ (10.18.16.11) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 5 Jan
+ 2021 12:02:37 +0000
+Received: from NAM04-SN1-obe.outbound.protection.outlook.com (104.47.44.59) by
+ HKMAIL102.nvidia.com (10.18.16.11) with Microsoft SMTP Server (TLS)
+ id 15.0.1473.3 via Frontend Transport; Tue, 5 Jan 2021 12:02:37 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=JNWP7Kng+DquaOQ4S96kWY2dE+rJznDNoslfBpMbSeiGnq2mhHlQ/Wn4cFhOwc34zSYgFuwdlPzKnM4BFkuKOi8rUmsq7X/x2CCwBd+53sEm0nBiD1KLmp5CxtmqRcHEpAYWC8MFXT6vcnxxcAbC75K76B5BYylboRpJ1a/Th9O4G0Uj/VUKdyiQv62JbXqUtvu5J9INqRZPSoHQU+AKt1hMFMlnJmNJ9tnmqh0SQPQFwUG4s9R9007I4JdvHItRrZjucGZ1RFmzb19VrckZ1gcnSmpCouuS+b2PjladwXLnpRwAANrJquSvbwvnVtGZU6eh0LK66ScjRzXYOJLCLg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=0/jx5WFk3vyY8ySxdOkqFOctXNER6PQlggFn/Ps04KQ=;
+ b=BRSXkGTI/BKFvpTW8Dk+P8O5feIElF9qCGwq8iyAmZiVSwQSsJPNKitr7R22iEkCkE0Xep3p9xRziOSFWTjeeaWVGlP82MvfeUIjUvSgnAu8w6cqSmeXS9x0po6K0x9AXl0YS31l7pP5JFUzNJgmo0flfAWKsCE7Y2gHwg5PfYeVhaxQMjueRv9WZn8WEnyhUpkK4GF0C9mTLgk8WFJIisdi59JTJmVPYFm0ddBX2foYdH3rAf7yS3Wnhjyy01kSB9K3h6yKNsQSluJ+z7dX/AhLygtbvTOFOMAQ8p31DVSPn66SL17MuACAvdH9P0vxjkUh29z2Iy1Gil+xudhScw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+Received: from BY5PR12MB4322.namprd12.prod.outlook.com (2603:10b6:a03:20a::20)
+ by BYAPR12MB3431.namprd12.prod.outlook.com (2603:10b6:a03:da::26)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3721.23; Tue, 5 Jan
+ 2021 12:02:33 +0000
+Received: from BY5PR12MB4322.namprd12.prod.outlook.com
+ ([fe80::f9f4:8fdd:8e2a:67a4]) by BY5PR12MB4322.namprd12.prod.outlook.com
+ ([fe80::f9f4:8fdd:8e2a:67a4%5]) with mapi id 15.20.3721.024; Tue, 5 Jan 2021
+ 12:02:33 +0000
+From: Parav Pandit <parav@nvidia.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: RE: [PATCH linux-next v3 6/6] vdpa_sim_net: Add support for user
  supported devices
-Message-ID: <20210105064707-mutt-send-email-mst@kernel.org>
+Thread-Topic: [PATCH linux-next v3 6/6] vdpa_sim_net: Add support for user
+ supported devices
+Thread-Index: AQHW404ZeuD1Nrf6EkKQQnhYNrY/9qoY6uQAgAAB4oA=
+Date: Tue, 5 Jan 2021 12:02:33 +0000
+Message-ID: <BY5PR12MB4322E5E7CA71CB2EE0577706DCD10@BY5PR12MB4322.namprd12.prod.outlook.com>
 References: <20201112064005.349268-1-parav@nvidia.com>
  <20210105103203.82508-1-parav@nvidia.com>
  <20210105103203.82508-7-parav@nvidia.com>
+ <20210105064707-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20210105064707-mutt-send-email-mst@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: redhat.com; dkim=none (message not signed)
+ header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
+x-originating-ip: [49.207.222.208]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 7821fff7-cdc6-47e6-2930-08d8b171c8fd
+x-ms-traffictypediagnostic: BYAPR12MB3431:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <BYAPR12MB343193F631256C24A8437368DCD10@BYAPR12MB3431.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8882;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: KqZg2OpvvCkMOBG5G/l5URp4XJBJojfX54aE1G4gW0N4bLToMWGLrV6ob1lbZ5H/9c0Oqec3HBzce4Dgl/X5C9vqtcr30N+7er4V2Kmt0QJyZViYJr/thjjlV21Npd1YwZNsbr07DVbQILeZ4Po0HQ/kUjh6VzgoETfFT90IJDHa+wGY6Hy3gYwuCxPdru8NixoJLb66HXXLOo46tMWaTkWWbsS7MAJNPzoPS4h4iSyJfgaIJHEXc3XZuEDqE9wRwH8u6Fd1nv2BbLcp+6eTD8S1CFKgJ24sKBAjWOuP94SWtP0vKSvrroAw0Eut1drl4HpPGlnwZ2uyPwDVTxng1MFkGWJF4j0uhFN03No1RoFEPacqmGANUDiytC9TLgOElOx3Wi7D7gDgbB341YQzYA==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BY5PR12MB4322.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(4636009)(366004)(396003)(136003)(39860400002)(376002)(346002)(55016002)(9686003)(54906003)(66446008)(64756008)(86362001)(66946007)(66476007)(66556008)(76116006)(4326008)(5660300002)(26005)(7696005)(71200400001)(33656002)(6916009)(6506007)(8936002)(316002)(478600001)(52536014)(55236004)(186003)(2906002)(8676002);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata: =?us-ascii?Q?/pzd1A+37WG6cZLM+OZmnx4PzFJTS9qj8iHvSWOaNfhHdxsDLIkoav1N1fL9?=
+ =?us-ascii?Q?kTTwf28e78vVhb8KQxmfUFGyYXOkFzLt2nnuxuPNlXbDNMddUs4ZafYM6ejV?=
+ =?us-ascii?Q?8KnmBchRawsv0Od/MuTogqD2wANawMpKnsim1fK8u6rJ8BtF6xxLACx1mg6J?=
+ =?us-ascii?Q?KZEjYtSGUUbP1+R6wcvqRqypEOOQd9dN6TqMVBqQts90nrF79Bn/tTPLVren?=
+ =?us-ascii?Q?qI4ou82UPCYhywpIEcxRMw7ZvKJu2IajWgXT13+wI4BEZfmzIg7UtooJAlxH?=
+ =?us-ascii?Q?eo/iCpV94GTiH2nh8e51DndZ9/C1DHCki7ke2i6HeQBphEDGwffvc380n6Qy?=
+ =?us-ascii?Q?q2GmtwPaJyLmtqKf5+Ngt598a2Z6t3BTzkcFu6Zuxv5p5w8/5mlU/AgFJ3ze?=
+ =?us-ascii?Q?AiwX99v2jOsc/cO7zWeUvg9dzVcKJMhNERY03jBxVu4e8yvBlq57EdRT7/uj?=
+ =?us-ascii?Q?hv2bTA0d+QlNbAbQQ8kfBBZPsjsr66XDXjwoNVFSWG017ptxKGs4IKrWr+pS?=
+ =?us-ascii?Q?FbxS5SZwxVbZV8CSg66fx6s5VbldtzD7Z/yVSa5xSrj5fsAkrcNIdahw4D+Z?=
+ =?us-ascii?Q?GX06A929YYmll28kQ51FzYLLNluEcdwzIdPYYuS5mzXVnkG2ljoO/e1/rKNY?=
+ =?us-ascii?Q?xxk8UYzgG9nGVatxecoB4m1MHqPlwVhv0esu0UNZD1iyI5Fj3DB9Ntb2KKX5?=
+ =?us-ascii?Q?r2Ei6M0Q8/jJp+Dc2pYGIaskYP98G+WVcIqzkCDJix4DpIzwSFCJY+NRcjsy?=
+ =?us-ascii?Q?ZM7py4py+dBJaUrXiOyyPQK8VawAUcT6bXCsoII4LxM8EcWFbPYPyshPnrP8?=
+ =?us-ascii?Q?H3/CTI0z4cwElQ1l4C3NYa19SnItjH4jPlb3HSEYV+66H7uxV5zuDPiKywnP?=
+ =?us-ascii?Q?caSJW1i+C1vO189rwoIZHj8OCEEDminJ4R4CgRGeEHXd+n4eqahcBkaIrkd2?=
+ =?us-ascii?Q?v7cEBiGaLQMPv0HjBy4y1uuxGYwhLZ4Nwg/yEB+xJKc=3D?=
 MIME-Version: 1.0
-In-Reply-To: <20210105103203.82508-7-parav@nvidia.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: netdev@vger.kernel.org, elic@nvidia.com,
- virtualization@lists.linux-foundation.org
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BY5PR12MB4322.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7821fff7-cdc6-47e6-2930-08d8b171c8fd
+X-MS-Exchange-CrossTenant-originalarrivaltime: 05 Jan 2021 12:02:33.3165 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: D6hZTIBMZHqS+K529/zQPhIHFyumm8yIpCfiE3ltnSgrH3wpfkBnKn/9UYTOQ+3XWugMK+AzjXpQ1BRrsrQBQA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB3431
+X-OriginatorOrg: Nvidia.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+ t=1609848157; bh=0/jx5WFk3vyY8ySxdOkqFOctXNER6PQlggFn/Ps04KQ=;
+ h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:From:To:
+ CC:Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
+ In-Reply-To:Accept-Language:Content-Language:X-MS-Has-Attach:
+ X-MS-TNEF-Correlator:authentication-results:x-originating-ip:
+ x-ms-publictraffictype:x-ms-office365-filtering-correlation-id:
+ x-ms-traffictypediagnostic:x-ms-exchange-transport-forked:
+ x-microsoft-antispam-prvs:x-ms-oob-tlc-oobclassifiers:
+ x-ms-exchange-senderadcheck:x-microsoft-antispam:
+ x-microsoft-antispam-message-info:x-forefront-antispam-report:
+ x-ms-exchange-antispam-messagedata:Content-Type:
+ Content-Transfer-Encoding:MIME-Version:
+ X-MS-Exchange-CrossTenant-AuthAs:
+ X-MS-Exchange-CrossTenant-AuthSource:
+ X-MS-Exchange-CrossTenant-Network-Message-Id:
+ X-MS-Exchange-CrossTenant-originalarrivaltime:
+ X-MS-Exchange-CrossTenant-fromentityheader:
+ X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
+ X-MS-Exchange-CrossTenant-userprincipalname:
+ X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
+ b=KUX25S6qJY/3USHEc/oaPrFttiq7pq/C8sNNHj7NAwsr7loEAx4DgPsZKh8lpDedK
+ 9fV+mMULr09PpyPb75fwn0fPbJo8LrUARdJJZNDVJkVpippumPR+OFGY21abp8jGz5
+ m2HMo0zbJc1+iJrHvWdGVUYIBx1m9tyfmq3tFOVNp0XG6k2OZjSMgSp5pfBrV2sshs
+ oOCtY6BSePBQxgRNJW9IUyYAHAxYRbK7uvk0zmIRuTAjHsFNxnDU57+qMiAs8LXLbz
+ Otv6IstY0TDKmnXIrmLU1ZqW25XS3O6785RiWW2A8HN3P9NLVrADdXU0mSbxO1w2x/
+ EptWgcxp0aNDw==
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ Eli Cohen <elic@nvidia.com>, "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,248 +184,59 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jan 05, 2021 at 12:32:03PM +0200, Parav Pandit wrote:
-> Enable user to create vdpasim net simulate devices.
-> 
-> Show vdpa management device that supports creating, deleting vdpa devices.
-> 
-> $ vdpa mgmtdev show
-> vdpasim_net:
->   supported_classes
->     net
-> 
-> $ vdpa mgmtdev show -jp
-> {
->     "show": {
->         "vdpasim_net": {
->             "supported_classes": {
->               "net"
->         }
->     }
-> }
-> 
-> Create a vdpa device of type networking named as "foo2" from
-> the management device vdpasim:
-> 
-> $ vdpa dev add mgmtdev vdpasim_net name foo2
-> 
-> Show the newly created vdpa device by its name:
-> $ vdpa dev show foo2
-> foo2: type network mgmtdev vdpasim_net vendor_id 0 max_vqs 2 max_vq_size 256
-> 
-> $ vdpa dev show foo2 -jp
-> {
->     "dev": {
->         "foo2": {
->             "type": "network",
->             "mgmtdev": "vdpasim_net",
->             "vendor_id": 0,
->             "max_vqs": 2,
->             "max_vq_size": 256
->         }
->     }
-> }
 
 
-I'd like an example of how do device specific
-(e.g. net specific) interfaces tie in to this.
-
-
-> Delete the vdpa device after its use:
-> $ vdpa dev del foo2
+> From: Michael S. Tsirkin <mst@redhat.com>
+> Sent: Tuesday, January 5, 2021 5:19 PM
 > 
-> Signed-off-by: Parav Pandit <parav@nvidia.com>
-> Reviewed-by: Eli Cohen <elic@nvidia.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> ---
-> Changelog:
-> v2->v3:
->  - removed code branches due to default device removal patch
-> v1->v2:
->  - rebased
-> ---
->  drivers/vdpa/vdpa_sim/vdpa_sim.c     |  3 +-
->  drivers/vdpa/vdpa_sim/vdpa_sim.h     |  2 +
->  drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 96 ++++++++++++++++++++--------
->  3 files changed, 75 insertions(+), 26 deletions(-)
+> On Tue, Jan 05, 2021 at 12:32:03PM +0200, Parav Pandit wrote:
+> > Enable user to create vdpasim net simulate devices.
+> >
+> >
+
+> > $ vdpa dev add mgmtdev vdpasim_net name foo2
+> >
+> > Show the newly created vdpa device by its name:
+> > $ vdpa dev show foo2
+> > foo2: type network mgmtdev vdpasim_net vendor_id 0 max_vqs 2
+> > max_vq_size 256
+> >
+> > $ vdpa dev show foo2 -jp
+> > {
+> >     "dev": {
+> >         "foo2": {
+> >             "type": "network",
+> >             "mgmtdev": "vdpasim_net",
+> >             "vendor_id": 0,
+> >             "max_vqs": 2,
+> >             "max_vq_size": 256
+> >         }
+> >     }
+> > }
 > 
-> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> index db1636a99ba4..d5942842432d 100644
-> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> @@ -235,7 +235,7 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr)
->  		ops = &vdpasim_config_ops;
->  
->  	vdpasim = vdpa_alloc_device(struct vdpasim, vdpa, NULL, ops,
-> -				    dev_attr->nvqs, NULL);
-> +				    dev_attr->nvqs, dev_attr->name);
->  	if (!vdpasim)
->  		goto err_alloc;
->  
-> @@ -249,6 +249,7 @@ struct vdpasim *vdpasim_create(struct vdpasim_dev_attr *dev_attr)
->  	if (dma_set_mask_and_coherent(dev, DMA_BIT_MASK(64)))
->  		goto err_iommu;
->  	set_dma_ops(dev, &vdpasim_dma_ops);
-> +	vdpasim->vdpa.mdev = dev_attr->mgmt_dev;
->  
->  	vdpasim->config = kzalloc(dev_attr->config_size, GFP_KERNEL);
->  	if (!vdpasim->config)
-> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-> index b02142293d5b..6d75444f9948 100644
-> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
-> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-> @@ -33,6 +33,8 @@ struct vdpasim_virtqueue {
->  };
->  
->  struct vdpasim_dev_attr {
-> +	struct vdpa_mgmt_dev *mgmt_dev;
-> +	const char *name;
->  	u64 supported_features;
->  	size_t config_size;
->  	size_t buffer_size;
-> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-> index f0482427186b..d344c5b7c914 100644
-> --- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-> @@ -35,8 +35,6 @@ MODULE_PARM_DESC(macaddr, "Ethernet MAC address");
->  
->  static u8 macaddr_buf[ETH_ALEN];
->  
-> -static struct vdpasim *vdpasim_net_dev;
-> -
->  static void vdpasim_net_work(struct work_struct *work)
->  {
->  	struct vdpasim *vdpasim = container_of(work, struct vdpasim, work);
-> @@ -120,21 +118,23 @@ static void vdpasim_net_get_config(struct vdpasim *vdpasim, void *config)
->  	memcpy(net_config->mac, macaddr_buf, ETH_ALEN);
->  }
->  
-> -static int __init vdpasim_net_init(void)
-> +static void vdpasim_net_mgmtdev_release(struct device *dev)
-> +{
-> +}
-> +
-> +static struct device vdpasim_net_mgmtdev = {
-> +	.init_name = "vdpasim_net",
-> +	.release = vdpasim_net_mgmtdev_release,
-> +};
-> +
-> +static int vdpasim_net_dev_add(struct vdpa_mgmt_dev *mdev, const char *name)
->  {
->  	struct vdpasim_dev_attr dev_attr = {};
-> +	struct vdpasim *simdev;
->  	int ret;
->  
-> -	if (macaddr) {
-> -		mac_pton(macaddr, macaddr_buf);
-> -		if (!is_valid_ether_addr(macaddr_buf)) {
-> -			ret = -EADDRNOTAVAIL;
-> -			goto out;
-> -		}
-> -	} else {
-> -		eth_random_addr(macaddr_buf);
-> -	}
-> -
-> +	dev_attr.mgmt_dev = mdev;
-> +	dev_attr.name = name;
->  	dev_attr.id = VIRTIO_ID_NET;
->  	dev_attr.supported_features = VDPASIM_NET_FEATURES;
->  	dev_attr.nvqs = VDPASIM_NET_VQ_NUM;
-> @@ -143,29 +143,75 @@ static int __init vdpasim_net_init(void)
->  	dev_attr.work_fn = vdpasim_net_work;
->  	dev_attr.buffer_size = PAGE_SIZE;
->  
-> -	vdpasim_net_dev = vdpasim_create(&dev_attr);
-> -	if (IS_ERR(vdpasim_net_dev)) {
-> -		ret = PTR_ERR(vdpasim_net_dev);
-> -		goto out;
-> +	simdev = vdpasim_create(&dev_attr);
-> +	if (IS_ERR(simdev))
-> +		return PTR_ERR(simdev);
-> +
-> +	ret = _vdpa_register_device(&simdev->vdpa);
-> +	if (ret)
-> +		goto reg_err;
-> +
-> +	return 0;
-> +
-> +reg_err:
-> +	put_device(&simdev->vdpa.dev);
-> +	return ret;
-> +}
-> +
-> +static void vdpasim_net_dev_del(struct vdpa_mgmt_dev *mdev,
-> +				struct vdpa_device *dev)
-> +{
-> +	struct vdpasim *simdev = container_of(dev, struct vdpasim, vdpa);
-> +
-> +	_vdpa_unregister_device(&simdev->vdpa);
-> +}
-> +
-> +static const struct vdpa_mgmtdev_ops vdpasim_net_mgmtdev_ops = {
-> +	.dev_add = vdpasim_net_dev_add,
-> +	.dev_del = vdpasim_net_dev_del
-> +};
-> +
-> +static struct virtio_device_id id_table[] = {
-> +	{ VIRTIO_ID_NET, VIRTIO_DEV_ANY_ID },
-> +	{ 0 },
-> +};
-> +
-> +static struct vdpa_mgmt_dev mgmt_dev = {
-> +	.device = &vdpasim_net_mgmtdev,
-> +	.id_table = id_table,
-> +	.ops = &vdpasim_net_mgmtdev_ops,
-> +};
-> +
-> +static int __init vdpasim_net_init(void)
-> +{
-> +	int ret;
-> +
-> +	if (macaddr) {
-> +		mac_pton(macaddr, macaddr_buf);
-> +		if (!is_valid_ether_addr(macaddr_buf))
-> +			return -EADDRNOTAVAIL;
-> +	} else {
-> +		eth_random_addr(macaddr_buf);
->  	}
+> 
+> I'd like an example of how do device specific (e.g. net specific) interfaces tie
+> in to this.
+Not sure I follow your question.
+Do you mean how to set mac address or mtu of this vdpa device of type net?
+If so, dev add command will be extended shortly in subsequent series to set this net specific attributes.
+(I did mention in the next steps in cover letter).
 
-Hmm so all devices start out with the same MAC
-until changed? And how is the change effected?
-
-
-> -	ret = vdpa_register_device(&vdpasim_net_dev->vdpa);
-> +	ret = device_register(&vdpasim_net_mgmtdev);
->  	if (ret)
-> -		goto put_dev;
-> +		return ret;
->  
-> +	ret = vdpa_mgmtdev_register(&mgmt_dev);
-> +	if (ret)
-> +		goto parent_err;
->  	return 0;
->  
-> -put_dev:
-> -	put_device(&vdpasim_net_dev->vdpa.dev);
-> -out:
-> +parent_err:
-> +	device_unregister(&vdpasim_net_mgmtdev);
->  	return ret;
->  }
->  
->  static void __exit vdpasim_net_exit(void)
->  {
-> -	struct vdpa_device *vdpa = &vdpasim_net_dev->vdpa;
-> -
-> -	vdpa_unregister_device(vdpa);
-> +	vdpa_mgmtdev_unregister(&mgmt_dev);
-> +	device_unregister(&vdpasim_net_mgmtdev);
->  }
->  
->  module_init(vdpasim_net_init);
-> -- 
-> 2.26.2
-
+> > +static int __init vdpasim_net_init(void) {
+> > +	int ret;
+> > +
+> > +	if (macaddr) {
+> > +		mac_pton(macaddr, macaddr_buf);
+> > +		if (!is_valid_ether_addr(macaddr_buf))
+> > +			return -EADDRNOTAVAIL;
+> > +	} else {
+> > +		eth_random_addr(macaddr_buf);
+> >  	}
+> 
+> Hmm so all devices start out with the same MAC until changed? And how is
+> the change effected?
+Post this patchset and post we have iproute2 vdpa in the tree, will add the mac address as the input attribute during "vdpa dev add" command.
+So that each different vdpa device can have user specified (different) mac address.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
