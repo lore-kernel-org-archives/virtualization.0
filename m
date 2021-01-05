@@ -2,99 +2,110 @@ Return-Path: <SRS0=5FLU=GI=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF86FC433E0
-	for <virtualization@archiver.kernel.org>; Tue,  5 Jan 2021 12:31:24 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DE46C433E0
+	for <virtualization@archiver.kernel.org>; Tue,  5 Jan 2021 13:06:23 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 528F2229F0
-	for <virtualization@archiver.kernel.org>; Tue,  5 Jan 2021 12:31:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 528F2229F0
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
+	by mail.kernel.org (Postfix) with ESMTPS id A813D22240
+	for <virtualization@archiver.kernel.org>; Tue,  5 Jan 2021 13:06:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A813D22240
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 1FC9C87101;
-	Tue,  5 Jan 2021 12:31:24 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id D33FB20377;
+	Tue,  5 Jan 2021 13:06:21 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from silver.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3uscrRND4rvm; Tue,  5 Jan 2021 13:06:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id 3210820349;
+	Tue,  5 Jan 2021 13:06:19 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 08FA9C0891;
+	Tue,  5 Jan 2021 13:06:19 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7B0FBC013A
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  5 Jan 2021 13:06:17 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id 6492585A81
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  5 Jan 2021 13:06:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1huESPl1qzWb; Tue,  5 Jan 2021 12:31:22 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 2594F870A2;
-	Tue,  5 Jan 2021 12:31:22 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 09254C088B;
-	Tue,  5 Jan 2021 12:31:22 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 033E0C013A
- for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jan 2021 12:31:20 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id E15C4868A8
- for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jan 2021 12:31:19 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sEPt8OfQC2W0
+ with ESMTP id eso00zyeg7lF
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jan 2021 12:31:19 +0000 (UTC)
-X-Greylist: delayed 00:06:46 by SQLgrey-1.7.6
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com
- [209.85.128.49])
- by whitealder.osuosl.org (Postfix) with ESMTPS id D3A6285F9B
+ Tue,  5 Jan 2021 13:06:16 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 76934855FF
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jan 2021 12:31:18 +0000 (UTC)
-Received: by mail-wm1-f49.google.com with SMTP id v14so2876765wml.1
+ Tue,  5 Jan 2021 13:06:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1609851975;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=85pKVnvSeYA5QLQD5EhADjq2rId3Mid5CE6/9bUvHYM=;
+ b=Vz9njH/VJECLR18MB/8XKxE+nWBPtPopiPPEOA1Nr1rYZ4jGFCSiEjrr+q8V6JuvW7By0Z
+ R7HIPp3C+cQNsMzbvLwkJzZt8FmvdsSwFXVYu5pU7Owp5jJVfILPUYTacP+TNXOG58qEae
+ NA5jgaVYxYgyvkSMxt1kpmYgNIDGLQs=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-279-Ul9x6iLGPsWIqsbhxqwZ6g-1; Tue, 05 Jan 2021 08:06:11 -0500
+X-MC-Unique: Ul9x6iLGPsWIqsbhxqwZ6g-1
+Received: by mail-ej1-f69.google.com with SMTP id k3so7896679ejr.16
  for <virtualization@lists.linux-foundation.org>;
- Tue, 05 Jan 2021 04:31:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=daynix-com.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id:in-reply-to:references;
- bh=95fcQ7XOzwxPXY92PHMXKGjY9iDFTd+3y3erYQ9GO9s=;
- b=iIG6RHpaEDCYDyHHaHHz5lfqneKL//162o6PaecyRMmpgqZZ5U5KUefBSFTnAGQi+R
- wqietjz3diqRGXleLo4HCy0fTHlUgUBSZ4kHjhT65Nrx9ckCvaqjWiDAqKCGMvNJos72
- fPOOnFKHjb9+rYcHOI6J73EafrnWkxZU1e+hM9c7kYg0Toh/jOYpWM9uSN1ePIsrOHdQ
- ZCB3nB0ECeEsFGdMh4nMnogIcT9zPeiTwG9At5oUkqW627rO+LCZZ1f9ZYn22xH+RxoJ
- qFBXGavyiC+ex0VSFxq+Y2baqg2Rfx1Fg6DMT1atmtOGPJ3aA/f8Z+CK2b3XcEvT/QXR
- SM4Q==
+ Tue, 05 Jan 2021 05:06:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references;
- bh=95fcQ7XOzwxPXY92PHMXKGjY9iDFTd+3y3erYQ9GO9s=;
- b=KJRQWVboVLN9JcZjgiVnpbAXo9gsjPpLLZt5WSd18vNfYsXtVTLdj0wiD3yGlBqPUS
- RjhYnRqJvQUXDZwTqKRnF0/DaJM3SQTLwC2oqk+FOEzQTm7QTQqOOMf3zgp8+R8cejQW
- knrcZeVND0Kh50lf8VwIByv2YvdKo3JUeoJCWMG+qjIYMzV8yiYJmzZf5SxfSwvUFEce
- eFDEJ/E4R4ZmbxlavvE4mMr12jV61DXhmm4KwsPqtTm8R5egL1ZAl7CDlJzzPnSiE6og
- LUVRvRHhOC0lHmQ9TQ0pXPuRIBY8lqn/KJM95BfKL87UoXrbH1IWqHLG/04kdrJF+NBA
- LAaw==
-X-Gm-Message-State: AOAM531NZLxNIDkmRqpZ+ajBm+FBnmIHZqam+G1JDzhfFGfw6STHfbBG
- +UgEbhy6fuxbs4xfswRFjkUrX5ov36oeEQ==
-X-Google-Smtp-Source: ABdhPJzorTi7ks7HQy2lPJ0gpjzOHvfFV47zjsVnH3IZt0rAIvgZ6KHOYmU//Cm9oLOW/QQz86qGVg==
-X-Received: by 2002:a1c:9c52:: with SMTP id f79mr3233640wme.3.1609849470379;
- Tue, 05 Jan 2021 04:24:30 -0800 (PST)
-Received: from f2.redhat.com (bzq-79-183-72-147.red.bezeqint.net.
- [79.183.72.147])
- by smtp.gmail.com with ESMTPSA id 138sm4242281wma.41.2021.01.05.04.24.29
- (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
- Tue, 05 Jan 2021 04:24:29 -0800 (PST)
-From: Yuri Benditovich <yuri.benditovich@daynix.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>
-Subject: [RFC PATCH 2/7] vhost: support for hash report virtio-net feature
-Date: Tue,  5 Jan 2021 14:24:11 +0200
-Message-Id: <20210105122416.16492-3-yuri.benditovich@daynix.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210105122416.16492-1-yuri.benditovich@daynix.com>
-References: <20210105122416.16492-1-yuri.benditovich@daynix.com>
-Cc: yan@daynix.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+ h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
+ :message-id:mime-version;
+ bh=85pKVnvSeYA5QLQD5EhADjq2rId3Mid5CE6/9bUvHYM=;
+ b=qMa3tnGpbSl+bLyUAwwFkIatlI1gTHsm5I00ckRMgXmiryLl0jRfXam2M4MjpPQDNn
+ Kb06ytGkPImajXM6T+Keiju4Bb6W23KJliQMZLyFUf9xr/CwEwGDWKbKH0gZfMUV4ebL
+ c+t1LvpcLHxCcy9+Xo2SJ44iWuAhyiOfxr/ep41d9kfiXKu64W7iy43QAFE1g7MJdFsC
+ U2/FFhYmicFWJusxg8yueVLUrz0h0Ye2050xsjKAEB6DnX9S9eq68N8pIChyqQQy1+fx
+ 7MmHk+rO+oV3LtHn0oxtfDxxG6Wl++4IiZJhZ+cQgo2Tgs6HSLaiyJUagaWgnNs6ljEJ
+ /1/A==
+X-Gm-Message-State: AOAM531NTEP1cE/2mn1gcQqTV8P7bENBMpZlRBfz7WDaSWOc7O98xYhE
+ V/1CAJqOLRZRFg1+lUnizrfpoVtYEb/1lNTFY4e9nA1sT+dJeXPjt1L7lbFeFxPlrjFzi6GDC11
+ vuQVh+D12HVDi333e1Won/bKHT457rCZqertAcqgbWw==
+X-Received: by 2002:a05:6402:3192:: with SMTP id
+ di18mr74257293edb.332.1609851970496; 
+ Tue, 05 Jan 2021 05:06:10 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzIXZH+i4vTIqBL+qL/InbxzIhFkuFWwsUFjB/084QZuJD1bxGWu2omuhWudF/kow2Btliw+A==
+X-Received: by 2002:a05:6402:3192:: with SMTP id
+ di18mr74257264edb.332.1609851970322; 
+ Tue, 05 Jan 2021 05:06:10 -0800 (PST)
+Received: from vitty.brq.redhat.com (g-server-2.ign.cz. [91.219.240.2])
+ by smtp.gmail.com with ESMTPSA id p12sm22637661eds.39.2021.01.05.05.06.09
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 05 Jan 2021 05:06:09 -0800 (PST)
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
+To: Alexey Makhalov <amakhalov@vmware.com>
+Subject: Re: [PATCH] x86/vmware: avoid TSC recalibration
+In-Reply-To: <20210105004752.131069-1-amakhalov@vmware.com>
+References: <20210105004752.131069-1-amakhalov@vmware.com>
+Date: Tue, 05 Jan 2021 14:06:08 +0100
+Message-ID: <87im8bildr.fsf@vitty.brq.redhat.com>
+MIME-Version: 1.0
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=vkuznets@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: pv-drivers@vmware.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, mingo@redhat.com, bp@alien8.de,
+ hpa@zytor.com, tglx@linutronix.de
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,120 +117,45 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-According to the virtio specification if VIRTIO_NET_F_HASH_REPORT
-feature acked the virtio-net header is extended to hold the hash
-value and hash report type.
+Alexey Makhalov <amakhalov@vmware.com> writes:
 
-Signed-off-by: Yuri Benditovich <yuri.benditovich@daynix.com>
----
- drivers/vhost/net.c | 37 +++++++++++++++++++++++++++++--------
- 1 file changed, 29 insertions(+), 8 deletions(-)
+> When TSC frequency is known (retrieved from hypervisor), we should skip
+> TSC refined calibration by setting X86_FEATURE_TSC_KNOWN_FREQ.
+>
+> Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
+> ---
+>  arch/x86/kernel/cpu/vmware.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+> index c6ede3b3d302..83164110ccc5 100644
+> --- a/arch/x86/kernel/cpu/vmware.c
+> +++ b/arch/x86/kernel/cpu/vmware.c
+> @@ -378,6 +378,8 @@ static void __init vmware_set_capabilities(void)
+>  {
+>  	setup_force_cpu_cap(X86_FEATURE_CONSTANT_TSC);
+>  	setup_force_cpu_cap(X86_FEATURE_TSC_RELIABLE);
+> +	if (vmware_tsc_khz)
+> +		setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
+>  	if (vmware_hypercall_mode == CPUID_VMWARE_FEATURES_ECX_VMCALL)
+>  		setup_force_cpu_cap(X86_FEATURE_VMCALL);
+>  	else if (vmware_hypercall_mode == CPUID_VMWARE_FEATURES_ECX_VMMCALL)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 531a00d703cd..31a894b9a992 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -73,7 +73,8 @@ enum {
- 	VHOST_NET_FEATURES = VHOST_FEATURES |
- 			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
- 			 (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
--			 (1ULL << VIRTIO_F_ACCESS_PLATFORM)
-+			 (1ULL << VIRTIO_F_ACCESS_PLATFORM) |
-+			 (1ULL << VIRTIO_NET_F_HASH_REPORT)
- };
- 
- enum {
-@@ -1108,14 +1109,16 @@ static void handle_rx(struct vhost_net *net)
- 		.msg_controllen = 0,
- 		.msg_flags = MSG_DONTWAIT,
- 	};
--	struct virtio_net_hdr hdr = {
--		.flags = 0,
--		.gso_type = VIRTIO_NET_HDR_GSO_NONE
-+	struct virtio_net_hdr_v1_hash hdrv1 = {
-+		{
-+			.flags = 0,
-+			.gso_type = VIRTIO_NET_HDR_GSO_NONE
-+		}
- 	};
- 	size_t total_len = 0;
- 	int err, mergeable;
- 	s16 headcount;
--	size_t vhost_hlen, sock_hlen;
-+	size_t vhost_hlen, sock_hlen, extra_hlen;
- 	size_t vhost_len, sock_len;
- 	bool busyloop_intr = false;
- 	struct socket *sock;
-@@ -1137,9 +1140,12 @@ static void handle_rx(struct vhost_net *net)
- 	vhost_hlen = nvq->vhost_hlen;
- 	sock_hlen = nvq->sock_hlen;
- 
-+
- 	vq_log = unlikely(vhost_has_feature(vq, VHOST_F_LOG_ALL)) ?
- 		vq->log : NULL;
- 	mergeable = vhost_has_feature(vq, VIRTIO_NET_F_MRG_RXBUF);
-+	extra_hlen = vhost_has_feature(vq, VIRTIO_NET_F_HASH_REPORT) ?
-+		sizeof(hdrv1) - sizeof(hdrv1.hdr) : 0;
- 
- 	do {
- 		sock_len = vhost_net_rx_peek_head_len(net, sock->sk,
-@@ -1201,8 +1207,8 @@ static void handle_rx(struct vhost_net *net)
- 		}
- 		/* Supply virtio_net_hdr if VHOST_NET_F_VIRTIO_NET_HDR */
- 		if (unlikely(vhost_hlen)) {
--			if (copy_to_iter(&hdr, sizeof(hdr),
--					 &fixup) != sizeof(hdr)) {
-+			if (copy_to_iter(&hdrv1, sizeof(struct virtio_net_hdr),
-+					 &fixup) != sizeof(struct virtio_net_hdr)) {
- 				vq_err(vq, "Unable to write vnet_hdr "
- 				       "at addr %p\n", vq->iov->iov_base);
- 				goto out;
-@@ -1211,7 +1217,7 @@ static void handle_rx(struct vhost_net *net)
- 			/* Header came from socket; we'll need to patch
- 			 * ->num_buffers over if VIRTIO_NET_F_MRG_RXBUF
- 			 */
--			iov_iter_advance(&fixup, sizeof(hdr));
-+			iov_iter_advance(&fixup, sizeof(struct virtio_net_hdr));
- 		}
- 		/* TODO: Should check and handle checksum. */
- 
-@@ -1223,6 +1229,18 @@ static void handle_rx(struct vhost_net *net)
- 			vhost_discard_vq_desc(vq, headcount);
- 			goto out;
- 		}
-+		if (unlikely(extra_hlen)) {
-+			if (unlikely(vhost_hlen)) {
-+				if (copy_to_iter(&hdrv1.hash_value, extra_hlen,
-+						&fixup) != extra_hlen) {
-+					vq_err(vq, "Unable to write extra_hdr "
-+					"at addr %p\n", vq->iov->iov_base);
-+					goto out;
-+				}
-+			} else {
-+				iov_iter_advance(&fixup, extra_hlen);
-+			}
-+		}
- 		nvq->done_idx += headcount;
- 		if (nvq->done_idx > VHOST_NET_BATCH)
- 			vhost_net_signal_used(nvq);
-@@ -1624,6 +1642,9 @@ static int vhost_net_set_features(struct vhost_net *n, u64 features)
- 			       (1ULL << VIRTIO_F_VERSION_1))) ?
- 			sizeof(struct virtio_net_hdr_mrg_rxbuf) :
- 			sizeof(struct virtio_net_hdr);
-+	if (features & (1ULL << VIRTIO_NET_F_HASH_REPORT)) {
-+		hdr_len = sizeof(struct virtio_net_hdr_v1_hash);
-+	}
- 	if (features & (1 << VHOST_NET_F_VIRTIO_NET_HDR)) {
- 		/* vhost provides vnet_hdr */
- 		vhost_hlen = hdr_len;
+The same trick is being used in Xen/Jailhouse/KVM code already and
+Hyper-V overwrites x86_platform.calibrate_tsc/x86_platform.calibrate_cpu
+hooks to basically achive the same goal. Should we maybe introduce a
+flag in 'struct hypervisor_x86' or something like that to unify all
+this?
+
+Just a suggestion.
+
 -- 
-2.17.1
+Vitaly
 
 _______________________________________________
 Virtualization mailing list
