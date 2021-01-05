@@ -2,66 +2,65 @@ Return-Path: <SRS0=5FLU=GI=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04806C43381
-	for <virtualization@archiver.kernel.org>; Tue,  5 Jan 2021 10:32:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 417CBC433DB
+	for <virtualization@archiver.kernel.org>; Tue,  5 Jan 2021 10:32:43 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9E94122510
-	for <virtualization@archiver.kernel.org>; Tue,  5 Jan 2021 10:32:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9E94122510
+	by mail.kernel.org (Postfix) with ESMTPS id DD80C22510
+	for <virtualization@archiver.kernel.org>; Tue,  5 Jan 2021 10:32:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DD80C22510
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=nvidia.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 20D43214FD;
-	Tue,  5 Jan 2021 10:32:37 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 708852155B;
+	Tue,  5 Jan 2021 10:32:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rmem5N-mJqNi; Tue,  5 Jan 2021 10:32:28 +0000 (UTC)
+	with ESMTP id kc3CRiLlWSUT; Tue,  5 Jan 2021 10:32:34 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id E6D182151F;
-	Tue,  5 Jan 2021 10:32:27 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id CF8D820C92;
+	Tue,  5 Jan 2021 10:32:28 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 57ACFC1DA8;
-	Tue,  5 Jan 2021 10:32:27 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 866B9C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A785CC088B;
+	Tue,  5 Jan 2021 10:32:28 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9D244C0FA8
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jan 2021 10:32:26 +0000 (UTC)
+ Tue,  5 Jan 2021 10:32:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 73818867E0
+ by hemlock.osuosl.org (Postfix) with ESMTP id 83609870AC
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  5 Jan 2021 10:32:27 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ZMShVcLGbup0
  for <virtualization@lists.linux-foundation.org>;
  Tue,  5 Jan 2021 10:32:26 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nJIPGMGjh9-W
- for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jan 2021 10:32:25 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from hqnvemgate25.nvidia.com (hqnvemgate25.nvidia.com
- [216.228.121.64])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 74634867FA
+Received: from hqnvemgate26.nvidia.com (hqnvemgate26.nvidia.com
+ [216.228.121.65])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 91E5987021
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Jan 2021 10:32:25 +0000 (UTC)
+ Tue,  5 Jan 2021 10:32:26 +0000 (UTC)
 Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by
- hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
- id <B5ff440390000>; Tue, 05 Jan 2021 02:32:25 -0800
+ hqnvemgate26.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+ id <B5ff4403a0000>; Tue, 05 Jan 2021 02:32:26 -0800
 Received: from sw-mtx-036.mtx.labs.mlnx (172.20.145.6) by HQMAIL107.nvidia.com
  (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3;
- Tue, 5 Jan 2021 10:32:24 +0000
+ Tue, 5 Jan 2021 10:32:25 +0000
 From: Parav Pandit <parav@nvidia.com>
 To: <virtualization@lists.linux-foundation.org>
-Subject: [PATCH linux-next v3 4/6] vdpa: Enable a user to add and delete a
- vdpa device
-Date: Tue, 5 Jan 2021 12:32:01 +0200
-Message-ID: <20210105103203.82508-5-parav@nvidia.com>
+Subject: [PATCH linux-next v3 5/6] vdpa: Enable user to query vdpa device info
+Date: Tue, 5 Jan 2021 12:32:02 +0200
+Message-ID: <20210105103203.82508-6-parav@nvidia.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210105103203.82508-1-parav@nvidia.com>
 References: <20201112064005.349268-1-parav@nvidia.com>
@@ -71,16 +70,16 @@ X-Originating-IP: [172.20.145.6]
 X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
  HQMAIL107.nvidia.com (172.20.187.13)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1609842745; bh=wkdbaT79pbyJG3mlfG5sfwATHT28AJLLnK9Z0Kdx4dI=;
+ t=1609842746; bh=G4YN24ZRtil1Q2t+OZA4XXpih9LUlcThycNeO/nlfr8=;
  h=From:To:CC:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
  References:MIME-Version:Content-Transfer-Encoding:Content-Type:
  X-Originating-IP:X-ClientProxiedBy;
- b=jgT/xUI8W9X4Y5RGlfGnWt55cAvbdkPNDi78SpSpSkta2p9j/Sj9cSl3wG0dWrIjZ
- tjPSarXVSK/xALxRamZI6iNFq4xjgy8d6DfkF4Fgev7Y7gtgYXs8YbnSTrywywdT9P
- ytfpAU9GPpGoAxo8y4bKEl/hetGouKLG0tzg6OusBjrsEbzz8KN3rElysldde8FE/7
- pb/VOL3oLgfEW2h5ytTHVjulL7VzJoztHG1Hnu3HIYP50zQxqp3bw2Km8wXnyVpmqs
- VJc2aXCc0uZ3WCv7TRpK/h9u00leWS1wMlJZsnDRFkuUU+qdh/+weiua85wBYuM+N3
- A/QojWVe3e9lw==
+ b=KO1iyO9DkkYl04NB/8+Vp9bYUpuOTmaTfbYRTS7PgaJeCYpF9wNSn6rOUXjtCALLu
+ 4AelJOfyvkkUE0S7uh6c5j1DE4U9xGZIOxLZpmrn6cF5nOJvXKhAdex4fenIkQZXNI
+ bCUf2Ezio+DZ3t6Z8N5LMM6fPuGcqI6VLAx5AN8H9NlUg1Q1JqtmuABNvbc3Kqhmwd
+ foo7Lp8Jo/gBPjaQScJNs/ygoBH+fB34iazRdcRGTD2tDfACJHHTKpSvgr44aU+aSW
+ nnil9gcGdw6iJkstbR8tZsS/IP34KEJOhnnXHCpwj7PO+nt0+wO0fGxE4kLsUrUk/R
+ rn/wWiY7eiWeg==
 Cc: netdev@vger.kernel.org, elic@nvidia.com, mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -98,282 +97,207 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Add the ability to add and delete a vdpa device.
-
-Examples:
-Create a vdpa device of type network named "foo2" from
-the management device vdpasim:
+Enable user to query vdpa device information.
 
 $ vdpa dev add mgmtdev vdpasim_net name foo2
 
-Delete the vdpa device after its use:
-$ vdpa dev del foo2
+Show the newly created vdpa device by its name:
+$ vdpa dev show foo2
+foo2: type network mgmtdev vdpasim_net vendor_id 0 max_vqs 2 max_vq_size 256
+
+$ vdpa dev show foo2 -jp
+{
+    "dev": {
+        "foo2": {
+            "type": "network",
+            "mgmtdev": "vdpasim_net",
+            "vendor_id": 0,
+            "max_vqs": 2,
+            "max_vq_size": 256
+        }
+    }
+}
 
 Signed-off-by: Parav Pandit <parav@nvidia.com>
 Reviewed-by: Eli Cohen <elic@nvidia.com>
 Reviewed-by: Jason Wang <jasowang@redhat.com>
-
 ---
-Changelog:
-v1->v2:
- - using int return type for dev_add callback
- - removed device_id (type) as current drivers only supports single type
----
- drivers/vdpa/vdpa.c       | 143 +++++++++++++++++++++++++++++++++++---
- include/linux/vdpa.h      |   6 ++
- include/uapi/linux/vdpa.h |   4 ++
- 3 files changed, 143 insertions(+), 10 deletions(-)
+ drivers/vdpa/vdpa.c       | 131 ++++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/vdpa.h |   5 ++
+ 2 files changed, 136 insertions(+)
 
 diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-index 319d09709dfc..dca67e4d32e5 100644
+index dca67e4d32e5..9700a0adcca0 100644
 --- a/drivers/vdpa/vdpa.c
 +++ b/drivers/vdpa/vdpa.c
-@@ -136,6 +136,37 @@ static int vdpa_name_match(struct device *dev, const void *data)
- 	return (strcmp(dev_name(&vdev->dev), data) == 0);
- }
- 
-+static int __vdpa_register_device(struct vdpa_device *vdev)
-+{
-+	struct device *dev;
-+
-+	lockdep_assert_held(&vdpa_dev_mutex);
-+	dev = bus_find_device(&vdpa_bus, NULL, dev_name(&vdev->dev), vdpa_name_match);
-+	if (dev) {
-+		put_device(dev);
-+		return -EEXIST;
-+	}
-+	return device_add(&vdev->dev);
-+}
-+
-+/**
-+ * _vdpa_register_device - register a vDPA device with vdpa lock held
-+ * Caller must have a succeed call of vdpa_alloc_device() before.
-+ * Caller must invoke this routine in the management device dev_add()
-+ * callback after setting up valid mgmtdev for this vdpa device.
-+ * @vdev: the vdpa device to be registered to vDPA bus
-+ *
-+ * Returns an error when fail to add device to vDPA bus
-+ */
-+int _vdpa_register_device(struct vdpa_device *vdev)
-+{
-+	if (!vdev->mdev)
-+		return -EINVAL;
-+
-+	return __vdpa_register_device(vdev);
-+}
-+EXPORT_SYMBOL_GPL(_vdpa_register_device);
-+
- /**
-  * vdpa_register_device - register a vDPA device
-  * Callers must have a succeed call of vdpa_alloc_device() before.
-@@ -145,24 +176,29 @@ static int vdpa_name_match(struct device *dev, const void *data)
-  */
- int vdpa_register_device(struct vdpa_device *vdev)
- {
--	struct device *dev;
- 	int err;
- 
- 	mutex_lock(&vdpa_dev_mutex);
--	dev = bus_find_device(&vdpa_bus, NULL, dev_name(&vdev->dev), vdpa_name_match);
--	if (dev) {
--		put_device(dev);
--		err = -EEXIST;
--		goto name_err;
--	}
--
--	err = device_add(&vdev->dev);
--name_err:
-+	err = __vdpa_register_device(vdev);
- 	mutex_unlock(&vdpa_dev_mutex);
+@@ -478,6 +478,131 @@ static int vdpa_nl_cmd_dev_del_set_doit(struct sk_buff *skb, struct genl_info *i
  	return err;
  }
- EXPORT_SYMBOL_GPL(vdpa_register_device);
  
-+/**
-+ * _vdpa_unregister_device - unregister a vDPA device
-+ * Caller must invoke this routine as part of management device dev_del()
-+ * callback.
-+ * @vdev: the vdpa device to be unregisted from vDPA bus
-+ */
-+void _vdpa_unregister_device(struct vdpa_device *vdev)
++static int
++vdpa_dev_fill(struct vdpa_device *vdev, struct sk_buff *msg, u32 portid, u32 seq,
++	      int flags, struct netlink_ext_ack *extack)
 +{
-+	lockdep_assert_held(&vdpa_dev_mutex);
-+	WARN_ON(!vdev->mdev);
-+	device_unregister(&vdev->dev);
-+}
-+EXPORT_SYMBOL_GPL(_vdpa_unregister_device);
++	u16 max_vq_size;
++	u32 device_id;
++	u32 vendor_id;
++	void *hdr;
++	int err;
 +
- /**
-  * vdpa_unregister_device - unregister a vDPA device
-  * @vdev: the vdpa device to be unregisted from vDPA bus
-@@ -221,10 +257,25 @@ int vdpa_mgmtdev_register(struct vdpa_mgmt_dev *mdev)
- }
- EXPORT_SYMBOL_GPL(vdpa_mgmtdev_register);
- 
-+static int vdpa_match_remove(struct device *dev, void *data)
-+{
-+	struct vdpa_device *vdev = container_of(dev, struct vdpa_device, dev);
-+	struct vdpa_mgmt_dev *mdev = vdev->mdev;
++	hdr = genlmsg_put(msg, portid, seq, &vdpa_nl_family, flags, VDPA_CMD_DEV_NEW);
++	if (!hdr)
++		return -EMSGSIZE;
 +
-+	if (mdev == data)
-+		mdev->ops->dev_del(mdev, vdev);
++	err = vdpa_nl_mgmtdev_handle_fill(msg, vdev->mdev);
++	if (err)
++		goto msg_err;
++
++	device_id = vdev->config->get_device_id(vdev);
++	vendor_id = vdev->config->get_vendor_id(vdev);
++	max_vq_size = vdev->config->get_vq_num_max(vdev);
++
++	err = -EMSGSIZE;
++	if (nla_put_string(msg, VDPA_ATTR_DEV_NAME, dev_name(&vdev->dev)))
++		goto msg_err;
++	if (nla_put_u32(msg, VDPA_ATTR_DEV_ID, device_id))
++		goto msg_err;
++	if (nla_put_u32(msg, VDPA_ATTR_DEV_VENDOR_ID, vendor_id))
++		goto msg_err;
++	if (nla_put_u32(msg, VDPA_ATTR_DEV_MAX_VQS, vdev->nvqs))
++		goto msg_err;
++	if (nla_put_u16(msg, VDPA_ATTR_DEV_MAX_VQ_SIZE, max_vq_size))
++		goto msg_err;
++
++	genlmsg_end(msg, hdr);
 +	return 0;
-+}
 +
- void vdpa_mgmtdev_unregister(struct vdpa_mgmt_dev *mdev)
- {
- 	mutex_lock(&vdpa_dev_mutex);
-+
- 	list_del(&mdev->list);
-+
-+	/* Filter out all the entries belong to this management device and delete it. */
-+	bus_for_each_dev(&vdpa_bus, NULL, mdev, vdpa_match_remove);
-+
- 	mutex_unlock(&vdpa_dev_mutex);
- }
- EXPORT_SYMBOL_GPL(vdpa_mgmtdev_unregister);
-@@ -368,9 +419,69 @@ vdpa_nl_cmd_mgmtdev_get_dumpit(struct sk_buff *msg, struct netlink_callback *cb)
- 	return msg->len;
- }
- 
-+static int vdpa_nl_cmd_dev_add_set_doit(struct sk_buff *skb, struct genl_info *info)
-+{
-+	struct vdpa_mgmt_dev *mdev;
-+	const char *name;
-+	int err = 0;
-+
-+	if (!info->attrs[VDPA_ATTR_DEV_NAME])
-+		return -EINVAL;
-+
-+	name = nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
-+
-+	mutex_lock(&vdpa_dev_mutex);
-+	mdev = vdpa_mgmtdev_get_from_attr(info->attrs);
-+	if (IS_ERR(mdev)) {
-+		NL_SET_ERR_MSG_MOD(info->extack, "Fail to find the specified management device");
-+		err = PTR_ERR(mdev);
-+		goto err;
-+	}
-+
-+	err = mdev->ops->dev_add(mdev, name);
-+err:
-+	mutex_unlock(&vdpa_dev_mutex);
++msg_err:
++	genlmsg_cancel(msg, hdr);
 +	return err;
 +}
 +
-+static int vdpa_nl_cmd_dev_del_set_doit(struct sk_buff *skb, struct genl_info *info)
++static int vdpa_nl_cmd_dev_get_doit(struct sk_buff *skb, struct genl_info *info)
 +{
-+	struct vdpa_mgmt_dev *mdev;
 +	struct vdpa_device *vdev;
++	struct sk_buff *msg;
++	const char *devname;
 +	struct device *dev;
-+	const char *name;
-+	int err = 0;
++	int err;
 +
 +	if (!info->attrs[VDPA_ATTR_DEV_NAME])
 +		return -EINVAL;
-+	name = nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
++	devname = nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
++	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
++	if (!msg)
++		return -ENOMEM;
 +
 +	mutex_lock(&vdpa_dev_mutex);
-+	dev = bus_find_device(&vdpa_bus, NULL, name, vdpa_name_match);
++	dev = bus_find_device(&vdpa_bus, NULL, devname, vdpa_name_match);
 +	if (!dev) {
++		mutex_unlock(&vdpa_dev_mutex);
 +		NL_SET_ERR_MSG_MOD(info->extack, "device not found");
-+		err = -ENODEV;
-+		goto dev_err;
++		return -ENODEV;
 +	}
 +	vdev = container_of(dev, struct vdpa_device, dev);
 +	if (!vdev->mdev) {
-+		NL_SET_ERR_MSG_MOD(info->extack, "Only user created device can be deleted by user");
-+		err = -EINVAL;
-+		goto mdev_err;
++		mutex_unlock(&vdpa_dev_mutex);
++		put_device(dev);
++		return -EINVAL;
 +	}
-+	mdev = vdev->mdev;
-+	mdev->ops->dev_del(mdev, vdev);
-+mdev_err:
++	err = vdpa_dev_fill(vdev, msg, info->snd_portid, info->snd_seq, 0, info->extack);
++	if (!err)
++		err = genlmsg_reply(msg, info);
 +	put_device(dev);
-+dev_err:
 +	mutex_unlock(&vdpa_dev_mutex);
++
++	if (err)
++		nlmsg_free(msg);
 +	return err;
++}
++
++struct vdpa_dev_dump_info {
++	struct sk_buff *msg;
++	struct netlink_callback *cb;
++	int start_idx;
++	int idx;
++};
++
++static int vdpa_dev_dump(struct device *dev, void *data)
++{
++	struct vdpa_device *vdev = container_of(dev, struct vdpa_device, dev);
++	struct vdpa_dev_dump_info *info = data;
++	int err;
++
++	if (!vdev->mdev)
++		return 0;
++	if (info->idx < info->start_idx) {
++		info->idx++;
++		return 0;
++	}
++	err = vdpa_dev_fill(vdev, info->msg, NETLINK_CB(info->cb->skb).portid,
++			    info->cb->nlh->nlmsg_seq, NLM_F_MULTI, info->cb->extack);
++	if (err)
++		return err;
++
++	info->idx++;
++	return 0;
++}
++
++static int vdpa_nl_cmd_dev_get_dumpit(struct sk_buff *msg, struct netlink_callback *cb)
++{
++	struct vdpa_dev_dump_info info;
++
++	info.msg = msg;
++	info.cb = cb;
++	info.start_idx = cb->args[0];
++	info.idx = 0;
++
++	mutex_lock(&vdpa_dev_mutex);
++	bus_for_each_dev(&vdpa_bus, NULL, &info, vdpa_dev_dump);
++	mutex_unlock(&vdpa_dev_mutex);
++	cb->args[0] = info.idx;
++	return msg->len;
 +}
 +
  static const struct nla_policy vdpa_nl_policy[VDPA_ATTR_MAX] = {
  	[VDPA_ATTR_MGMTDEV_BUS_NAME] = { .type = NLA_NUL_STRING },
  	[VDPA_ATTR_MGMTDEV_DEV_NAME] = { .type = NLA_STRING },
-+	[VDPA_ATTR_DEV_NAME] = { .type = NLA_STRING },
- };
- 
- static const struct genl_ops vdpa_nl_ops[] = {
-@@ -380,6 +491,18 @@ static const struct genl_ops vdpa_nl_ops[] = {
- 		.doit = vdpa_nl_cmd_mgmtdev_get_doit,
- 		.dumpit = vdpa_nl_cmd_mgmtdev_get_dumpit,
+@@ -503,6 +628,12 @@ static const struct genl_ops vdpa_nl_ops[] = {
+ 		.doit = vdpa_nl_cmd_dev_del_set_doit,
+ 		.flags = GENL_ADMIN_PERM,
  	},
 +	{
-+		.cmd = VDPA_CMD_DEV_NEW,
++		.cmd = VDPA_CMD_DEV_GET,
 +		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
-+		.doit = vdpa_nl_cmd_dev_add_set_doit,
-+		.flags = GENL_ADMIN_PERM,
-+	},
-+	{
-+		.cmd = VDPA_CMD_DEV_DEL,
-+		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
-+		.doit = vdpa_nl_cmd_dev_del_set_doit,
-+		.flags = GENL_ADMIN_PERM,
++		.doit = vdpa_nl_cmd_dev_get_doit,
++		.dumpit = vdpa_nl_cmd_dev_get_dumpit,
 +	},
  };
  
  static struct genl_family vdpa_nl_family __ro_after_init = {
-diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-index 6b8b4222bca6..4ab5494503a8 100644
---- a/include/linux/vdpa.h
-+++ b/include/linux/vdpa.h
-@@ -45,6 +45,8 @@ struct vdpa_mgmt_dev;
-  * @index: device index
-  * @features_valid: were features initialized? for legacy guests
-  * @nvqs: maximum number of supported virtqueues
-+ * @mdev: management device pointer; caller must setup when registering device as part
-+ *	  of dev_add() mgmtdev ops callback before invoking _vdpa_register_device().
-  */
- struct vdpa_device {
- 	struct device dev;
-@@ -53,6 +55,7 @@ struct vdpa_device {
- 	unsigned int index;
- 	bool features_valid;
- 	int nvqs;
-+	struct vdpa_mgmt_dev *mdev;
- };
- 
- /**
-@@ -260,6 +263,9 @@ struct vdpa_device *__vdpa_alloc_device(struct device *parent,
- int vdpa_register_device(struct vdpa_device *vdev);
- void vdpa_unregister_device(struct vdpa_device *vdev);
- 
-+int _vdpa_register_device(struct vdpa_device *vdev);
-+void _vdpa_unregister_device(struct vdpa_device *vdev);
-+
- /**
-  * vdpa_driver - operations for a vDPA driver
-  * @driver: underlying device driver
 diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
-index d44d82e567b1..bb4a1f00eb1c 100644
+index bb4a1f00eb1c..66a41e4ec163 100644
 --- a/include/uapi/linux/vdpa.h
 +++ b/include/uapi/linux/vdpa.h
-@@ -14,6 +14,8 @@ enum vdpa_command {
- 	VDPA_CMD_UNSPEC,
- 	VDPA_CMD_MGMTDEV_NEW,
+@@ -16,6 +16,7 @@ enum vdpa_command {
  	VDPA_CMD_MGMTDEV_GET,		/* can dump */
-+	VDPA_CMD_DEV_NEW,
-+	VDPA_CMD_DEV_DEL,
+ 	VDPA_CMD_DEV_NEW,
+ 	VDPA_CMD_DEV_DEL,
++	VDPA_CMD_DEV_GET,		/* can dump */
  };
  
  enum vdpa_attr {
-@@ -24,6 +26,8 @@ enum vdpa_attr {
- 	VDPA_ATTR_MGMTDEV_DEV_NAME,		/* string */
+@@ -27,6 +28,10 @@ enum vdpa_attr {
  	VDPA_ATTR_MGMTDEV_SUPPORTED_CLASSES,	/* u64 */
  
-+	VDPA_ATTR_DEV_NAME,			/* string */
-+
+ 	VDPA_ATTR_DEV_NAME,			/* string */
++	VDPA_ATTR_DEV_ID,			/* u32 */
++	VDPA_ATTR_DEV_VENDOR_ID,		/* u32 */
++	VDPA_ATTR_DEV_MAX_VQS,			/* u32 */
++	VDPA_ATTR_DEV_MAX_VQ_SIZE,		/* u16 */
+ 
  	/* new attributes must be added above here */
  	VDPA_ATTR_MAX,
- };
 -- 
 2.26.2
 
