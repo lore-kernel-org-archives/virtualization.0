@@ -5,89 +5,89 @@ X-Spam-Level:
 X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
 	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
 	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	URIBL_RED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD9ACC433E0
-	for <virtualization@archiver.kernel.org>; Wed,  6 Jan 2021 18:42:38 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9A64C433E6
+	for <virtualization@archiver.kernel.org>; Wed,  6 Jan 2021 19:02:25 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3C9F823125
-	for <virtualization@archiver.kernel.org>; Wed,  6 Jan 2021 18:42:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3C9F823125
+	by mail.kernel.org (Postfix) with ESMTPS id 6C03023131
+	for <virtualization@archiver.kernel.org>; Wed,  6 Jan 2021 19:02:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6C03023131
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 85599868A2;
-	Wed,  6 Jan 2021 18:42:37 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id E8E0387389;
+	Wed,  6 Jan 2021 19:02:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id acIXVqmoHzgu; Wed,  6 Jan 2021 18:42:36 +0000 (UTC)
+	with ESMTP id 9HxLDBHXM58p; Wed,  6 Jan 2021 19:02:24 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 7953A8688F;
-	Wed,  6 Jan 2021 18:42:36 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 1F73A8735C;
+	Wed,  6 Jan 2021 19:02:24 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4C945C0891;
-	Wed,  6 Jan 2021 18:42:36 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D28ADC013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F423CC0891;
+	Wed,  6 Jan 2021 19:02:23 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DA187C013A
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jan 2021 18:42:34 +0000 (UTC)
+ Wed,  6 Jan 2021 19:02:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id AFD6C86D06
+ by silver.osuosl.org (Postfix) with ESMTP id BFC382010F
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jan 2021 18:42:34 +0000 (UTC)
+ Wed,  6 Jan 2021 19:02:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CclG2csH61LK
+ with ESMTP id GXSHmbxeyxUm
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jan 2021 18:42:33 +0000 (UTC)
+ Wed,  6 Jan 2021 19:02:21 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-io1-f54.google.com (mail-io1-f54.google.com
- [209.85.166.54])
- by whitealder.osuosl.org (Postfix) with ESMTPS id A2CE986BD4
+Received: from mail-io1-f42.google.com (mail-io1-f42.google.com
+ [209.85.166.42])
+ by silver.osuosl.org (Postfix) with ESMTPS id E553F20020
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jan 2021 18:42:33 +0000 (UTC)
-Received: by mail-io1-f54.google.com with SMTP id i18so3690792ioa.1
+ Wed,  6 Jan 2021 19:02:20 +0000 (UTC)
+Received: by mail-io1-f42.google.com with SMTP id t8so3717540iov.8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 06 Jan 2021 10:42:33 -0800 (PST)
+ Wed, 06 Jan 2021 11:02:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=LXbQyuhu8MJhuWLpzCR+mt3CN6/MAbyKTSN+t0WIyKg=;
- b=pybeZ3LJXJM520ZUF/lF5e+DMV6pDbodJA58CCMaXrvOWT5plLY3BDk1bQ9mWsRHkA
- dog0zUHHVZCTLKeYETnRnjTcjxsh5rjMh8MhP4MeuxUu7CeQRNT2+qO6nupBj+E4gDxd
- hHi58oRS9SQ+cTjV6NVNnuWf86EW8PljAr8VdQx3ZB2EKpSKRXTpb/OgR4EjFDQDyqzF
- eVt5uwZFLdvcruoeERL3XwixAfem1OQu7bPo0MXcHQ30/mzs3jVLk2mtDWmdrnGqejic
- DuOxaeRtcVYVPUqN8w1QGzTZoYgFFaoJxPs1ibjxiNqqM2BKCKwabhlCrGaorooqMeJB
- VS/g==
+ :cc; bh=M0UU3Fnq+AFDY3LyEvzo+8UIeemvleyG8FxASGXtzZk=;
+ b=IJqte2brsbiUjTAqQUQIwhUXLXNmzSbuAyYTBcwfoRLDJuH5UjOHFTqsMqjS7wzZB+
+ Ji0sLhgN9+cJbBPWkhgX2dxAzCxKTRZKN9sPXkbhxrPeOyI4UWoDMvp2DzSVxDiEo/Sc
+ rKnK6d/p/ySoeU1FNBiF0FfpC34+1xcvYleNpVTm5MxlM9tQTYeUeSeI08YrFvA7uAQb
+ jmpvoThYXuyDb+d19wJpAOYHobwgZpp6xdVW8hhbXPabz0N1Um3R7MiAKA5tAKDqCluC
+ ejrtfIZg+EKBGPyTnE4N06p5NshM5kq2PflPknc2sOUZNDiNX3gvbanBNxqzl/Tx8JLB
+ tkSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=LXbQyuhu8MJhuWLpzCR+mt3CN6/MAbyKTSN+t0WIyKg=;
- b=WVXkukQo7QeZj7Za5rKzjnanRNl7ei2eocsZAsXJtpzt7q+bclKE1qjKM20ZW7aBMH
- 08yJC/r3QZOdx+9gG0eGsvgnMAd6s6LOacVPhcCYtmsRqW6fDDvSN6kdcy8B1vAb/Wz+
- 6iUTjwCfGIExLXLxLniCJKvYW1aD1dXqszHIc+tclKhEp4xir9gJJKh1lT9lGkyqh4FI
- Ub5fJ6AhZpR/RTxDcYhZAGPHBFj5PLCu5XHAmJjHyOfjFfNngvK5iwYtlf27UUOSEuwe
- ab70U02LaSv7d+seCXn3oXcFyxFSaOLvVcEPDrjwgDUuI2Pn1D5W8XA+LnAS2cFX1w//
- 7qaA==
-X-Gm-Message-State: AOAM533/Dh+96GHXi7o4JAzwRx16x3XIYTcNXT8uh2pmtbtqxRGaPyuX
- qhEBdmTLrPiLbZDbbMoWnzqWig3x4JnbkPCMBZM=
-X-Google-Smtp-Source: ABdhPJyN/Evfh7mW0ZqQGsTY+XA0zAm54YpbvgTzjeZ7QhrWyhnrpWN32WMF1Veb8fQE7eCDA0PMoXG2OfLo6jzPXM0=
-X-Received: by 2002:a5d:9a82:: with SMTP id c2mr3913038iom.38.1609958552867;
- Wed, 06 Jan 2021 10:42:32 -0800 (PST)
+ bh=M0UU3Fnq+AFDY3LyEvzo+8UIeemvleyG8FxASGXtzZk=;
+ b=BULZnCwH69qJ/mFCIjYn7QY8gRctXDNXPGyfaWh5yJaQgRJ7am5D7RyqtJqivatxl4
+ //scGZKfdJWo396dcMTTN9qrF2jydhpI6JqN0A8WqLAI8kDYA2mV3IBhihGLFnllsUPm
+ xsKWewQw+Inhes5WBEhE/of7eZEXtPNLUJpzKB1eXJUeUpDLIx+uF7t95OYCXjbl9CDL
+ k+nbMlDjxMzzhDhSfSBxwdTJGfDN+BwkO231WbJYQItWqtWxStdPexAKELr2XrXoT3XK
+ T/64ZLwY9HmWvTt6vsQDRt/OQTiXHEyEHUlhA+FiIAor3ZuJSChvvMEywOSTStludgBZ
+ X5qw==
+X-Gm-Message-State: AOAM533+LdJ6f+eNLZKAMeGfbXhV2nAOynJKBLpKoCHlsqtyKPAKxiJ8
+ QD3xZA2QJTJ5Bki0zQlaBoV2j/UD60wlLVYCSNI=
+X-Google-Smtp-Source: ABdhPJwG+edIgaoxPvZl0LuFM4yyoTnhPu3VBY7ANESudQRB2S8rG/6gT8xCNFuG5VHx3Oslf/WUOA+1pU6/vpHEOjA=
+X-Received: by 2002:a6b:8e41:: with SMTP id q62mr3935276iod.5.1609959739977;
+ Wed, 06 Jan 2021 11:02:19 -0800 (PST)
 MIME-Version: 1.0
-References: <20210106034806.GA1146@open-light-1.localdomain>
-In-Reply-To: <20210106034806.GA1146@open-light-1.localdomain>
+References: <20210106035027.GA1160@open-light-1.localdomain>
+In-Reply-To: <20210106035027.GA1160@open-light-1.localdomain>
 From: Alexander Duyck <alexander.duyck@gmail.com>
-Date: Wed, 6 Jan 2021 10:42:21 -0800
-Message-ID: <CAKgT0UffrUeLm0VFxW5S3rOqQit4vEPhmnEW17nGtA7yy5M3ow@mail.gmail.com>
-Subject: Re: [PATCH 2/6] mm: let user decide page reporting option
-To: Alexander Duyck <alexander.h.duyck@linux.intel.com>, 
- Mel Gorman <mgorman@techsingularity.net>,
+Date: Wed, 6 Jan 2021 11:02:09 -0800
+Message-ID: <CAKgT0Ue=hXEarqjW-h2G1fODA5UiSjHsKz3FpcyTcaTtQR4iMw@mail.gmail.com>
+Subject: Re: [PATCH 4/6] hugetlb: avoid allocation failed when page reporting
+ is on going
+To: Mel Gorman <mgorman@techsingularity.net>,
  Andrew Morton <akpm@linux-foundation.org>, 
  Andrea Arcangeli <aarcange@redhat.com>, Dan Williams <dan.j.williams@intel.com>,
  "Michael S. Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>,
@@ -113,13 +113,20 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jan 5, 2021 at 7:48 PM Liang Li <liliang324@gmail.com> wrote:
+On Tue, Jan 5, 2021 at 7:50 PM Liang Li <liliang324@gmail.com> wrote:
 >
-> Some key parameters for page reporting are now hard coded, different
-> users of the framework may have their special requirements, make
-> these parameter configrable and let the user decide them.
+> Page reporting isolates free pages temporarily when reporting
+> free pages information. It will reduce the actual free pages
+> and may cause application failed for no enough available memory.
+> This patch try to solve this issue, when there is no free page
+> and page repoting is on going, wait until it is done.
 >
 > Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+
+Please don't use this email address for me anymore. Either use
+alexander.duyck@gmail.com or alexanderduyck@fb.com. I am getting
+bounces when I reply to this thread because of the old address.
+
 > Cc: Mel Gorman <mgorman@techsingularity.net>
 > Cc: Andrea Arcangeli <aarcange@redhat.com>
 > Cc: Dan Williams <dan.j.williams@intel.com>
@@ -132,157 +139,115 @@ On Tue, Jan 5, 2021 at 7:48 PM Liang Li <liliang324@gmail.com> wrote:
 > Cc: Liang Li <liliang324@gmail.com>
 > Signed-off-by: Liang Li <liliangleo@didiglobal.com>
 > ---
->  drivers/virtio/virtio_balloon.c |  3 +++
->  include/linux/page_reporting.h  |  3 +++
->  mm/page_reporting.c             | 13 +++++++++----
->  mm/page_reporting.h             |  6 +++---
->  4 files changed, 18 insertions(+), 7 deletions(-)
+>  include/linux/hugetlb.h | 2 ++
+>  mm/hugetlb.c            | 9 +++++++++
+>  mm/page_reporting.c     | 6 +++++-
+>  3 files changed, 16 insertions(+), 1 deletion(-)
 >
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 8985fc2cea86..684bcc39ef5a 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -993,6 +993,9 @@ static int virtballoon_probe(struct virtio_device *vdev)
->                         goto out_unregister_oom;
->                 }
+> diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
+> index d55e6a00b3dc..73b2934ba91c 100644
+> --- a/include/linux/hugetlb.h
+> +++ b/include/linux/hugetlb.h
+> @@ -490,6 +490,7 @@ struct hstate {
+>         unsigned long resv_huge_pages;
+>         unsigned long surplus_huge_pages;
+>         unsigned long nr_overcommit_huge_pages;
+> +       unsigned long isolated_huge_pages;
+>         struct list_head hugepage_activelist;
+>         struct list_head hugepage_freelists[MAX_NUMNODES];
+>         unsigned int nr_huge_pages_node[MAX_NUMNODES];
+> @@ -500,6 +501,7 @@ struct hstate {
+>         struct cftype cgroup_files_dfl[7];
+>         struct cftype cgroup_files_legacy[9];
+>  #endif
+> +       struct mutex mtx_prezero;
+>         char name[HSTATE_NAME_LEN];
+>  };
 >
-> +               vb->pr_dev_info.mini_order = pageblock_order;
-> +               vb->pr_dev_info.batch_size = 16 * 1024 * 1024; /* 16M */
-> +               vb->pr_dev_info.delay_jiffies = 2 * HZ; /* 2 seconds */
->                 err = page_reporting_register(&vb->pr_dev_info);
->                 if (err)
->                         goto out_unregister_oom;
-> diff --git a/include/linux/page_reporting.h b/include/linux/page_reporting.h
-> index 3b99e0ec24f2..63e1e9fbcaa2 100644
-> --- a/include/linux/page_reporting.h
-> +++ b/include/linux/page_reporting.h
-> @@ -13,6 +13,9 @@ struct page_reporting_dev_info {
->         int (*report)(struct page_reporting_dev_info *prdev,
->                       struct scatterlist *sg, unsigned int nents);
+> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+> index eb533995cb49..0fccd5f96954 100644
+> --- a/mm/hugetlb.c
+> +++ b/mm/hugetlb.c
+> @@ -2320,6 +2320,12 @@ struct page *alloc_huge_page(struct vm_area_struct *vma,
+>                 goto out_uncharge_cgroup_reservation;
 >
-> +       unsigned long batch_size;
-> +       unsigned long delay_jiffies;
-> +       int mini_order;
->         /* work struct for processing reports */
->         struct delayed_work work;
+>         spin_lock(&hugetlb_lock);
+> +       while (h->free_huge_pages <= 1 && h->isolated_huge_pages) {
+> +               spin_unlock(&hugetlb_lock);
+> +               mutex_lock(&h->mtx_prezero);
+> +               mutex_unlock(&h->mtx_prezero);
+> +               spin_lock(&hugetlb_lock);
+> +       }
+
+This seems like a bad idea. It kind of defeats the whole point of
+doing the page zeroing outside of the hugetlb_lock. Also it is
+operating on the assumption that the only way you might get a page is
+from the page zeroing logic.
+
+With the page reporting code we wouldn't drop the count to zero. We
+had checks that were going through and monitoring the watermarks and
+if we started to hit the low watermark we would stop page reporting
+and just assume there aren't enough pages to report. You might need to
+look at doing something similar here so that you can avoid colliding
+with the allocator.
+
+
+>         /*
+>          * glb_chg is passed to indicate whether or not a page must be taken
+>          * from the global free pool (global change).  gbl_chg == 0 indicates
+> @@ -3208,6 +3214,7 @@ void __init hugetlb_add_hstate(unsigned int order)
+>         INIT_LIST_HEAD(&h->hugepage_activelist);
+>         h->next_nid_to_alloc = first_memory_node;
+>         h->next_nid_to_free = first_memory_node;
+> +       mutex_init(&h->mtx_prezero);
+>         snprintf(h->name, HSTATE_NAME_LEN, "hugepages-%lukB",
+>                                         huge_page_size(h)/1024);
 >
+> @@ -5541,6 +5548,7 @@ void isolate_free_huge_page(struct page *page, struct hstate *h, int nid)
+>
+>         list_move(&page->lru, &h->hugepage_activelist);
+>         set_page_refcounted(page);
+> +       h->isolated_huge_pages++;
+>  }
+>
+>  void putback_isolate_huge_page(struct hstate *h, struct page *page)
+> @@ -5548,6 +5556,7 @@ void putback_isolate_huge_page(struct hstate *h, struct page *page)
+>         int nid = page_to_nid(page);
+>
+>         list_move(&page->lru, &h->hugepage_freelists[nid]);
+> +       h->isolated_huge_pages--;
+>  }
+>
+>  bool isolate_huge_page(struct page *page, struct list_head *list)
 > diff --git a/mm/page_reporting.c b/mm/page_reporting.c
-> index 694df981ddd2..39bc6a9d7b73 100644
+> index cc31696225bb..99e1e688d7c1 100644
 > --- a/mm/page_reporting.c
 > +++ b/mm/page_reporting.c
-> @@ -13,6 +13,7 @@
->  #define PAGE_REPORTING_DELAY   (2 * HZ)
->  static struct page_reporting_dev_info __rcu *pr_dev_info __read_mostly;
->  unsigned long page_report_batch_size  __read_mostly = 16 * 1024 * 1024UL;
-> +int page_report_mini_order = pageblock_order;
+> @@ -272,12 +272,15 @@ hugepage_reporting_process_hstate(struct page_reporting_dev_info *prdev,
+>         int ret = 0, nid;
 >
->  enum {
->         PAGE_REPORTING_IDLE = 0,
-> @@ -44,7 +45,7 @@ __page_reporting_request(struct page_reporting_dev_info *prdev)
->          * now we are limiting this to running no more than once every
->          * couple of seconds.
->          */
-> -       schedule_delayed_work(&prdev->work, PAGE_REPORTING_DELAY);
-> +       schedule_delayed_work(&prdev->work, prdev->delay_jiffies);
+>         offset = max_items;
+> +       mutex_lock(&h->mtx_prezero);
+>         for (nid = 0; nid < MAX_NUMNODES; nid++) {
+>                 ret = hugepage_reporting_cycle(prdev, h, nid, sgl, &offset,
+>                                                max_items);
+>
+> -               if (ret < 0)
+> +               if (ret < 0) {
+> +                       mutex_unlock(&h->mtx_prezero);
+>                         return ret;
+> +               }
+>         }
+>
+>         /* report the leftover pages before going idle */
+> @@ -291,6 +294,7 @@ hugepage_reporting_process_hstate(struct page_reporting_dev_info *prdev,
+>                 hugepage_reporting_drain(prdev, h, sgl, leftover, !ret);
+>                 spin_unlock(&hugetlb_lock);
+>         }
+> +       mutex_unlock(&h->mtx_prezero);
+>
+>         return ret;
 >  }
->
-
-So this ends up being the reason why you needed to add the batch size
-value. However I don't really see it working as expected since you
-could essentially have 1 page freed 4M times that could trigger your
-page zeroing logic. So for example if a NIC is processing frames and
-ends up freeing and then reallocating some small batch of pages this
-could would be running often even though there isn't really all that
-many pages that needed zeroing.
-
->  /* notify prdev of free page reporting request */
-> @@ -230,7 +231,7 @@ page_reporting_process_zone(struct page_reporting_dev_info *prdev,
->
->         /* Generate minimum watermark to be able to guarantee progress */
->         watermark = low_wmark_pages(zone) +
-> -                   (PAGE_REPORTING_CAPACITY << PAGE_REPORTING_MIN_ORDER);
-> +                   (PAGE_REPORTING_CAPACITY << prdev->mini_order);
->
->         /*
->          * Cancel request if insufficient free memory or if we failed
-
-With the page order being able to be greatly reduced this could have a
-significant impact on if this code really has any value. Previously we
-were able to guarantee a pretty significant number of higher order
-pages free. With this we might only be guaranteeing something like 32
-4K pages which is pretty small compared to what can end up being
-pulled out at the higher end.
-
-> @@ -240,7 +241,7 @@ page_reporting_process_zone(struct page_reporting_dev_info *prdev,
->                 return err;
->
->         /* Process each free list starting from lowest order/mt */
-> -       for (order = PAGE_REPORTING_MIN_ORDER; order < MAX_ORDER; order++) {
-> +       for (order = prdev->mini_order; order < MAX_ORDER; order++) {
->                 for (mt = 0; mt < MIGRATE_TYPES; mt++) {
->                         /* We do not pull pages from the isolate free list */
->                         if (is_migrate_isolate(mt))
-> @@ -307,7 +308,7 @@ static void page_reporting_process(struct work_struct *work)
->          */
->         state = atomic_cmpxchg(&prdev->state, state, PAGE_REPORTING_IDLE);
->         if (state == PAGE_REPORTING_REQUESTED)
-> -               schedule_delayed_work(&prdev->work, PAGE_REPORTING_DELAY);
-> +               schedule_delayed_work(&prdev->work, prdev->delay_jiffies);
->  }
->
->  static DEFINE_MUTEX(page_reporting_mutex);
-> @@ -335,6 +336,8 @@ int page_reporting_register(struct page_reporting_dev_info *prdev)
->         /* Assign device to allow notifications */
->         rcu_assign_pointer(pr_dev_info, prdev);
->
-> +       page_report_mini_order = prdev->mini_order;
-> +       page_report_batch_size = prdev->batch_size;
->         /* enable page reporting notification */
->         if (!static_key_enabled(&page_reporting_enabled)) {
->                 static_branch_enable(&page_reporting_enabled);
-> @@ -352,6 +355,8 @@ void page_reporting_unregister(struct page_reporting_dev_info *prdev)
->         mutex_lock(&page_reporting_mutex);
->
->         if (rcu_access_pointer(pr_dev_info) == prdev) {
-> +               if (static_key_enabled(&page_reporting_enabled))
-> +                       static_branch_disable(&page_reporting_enabled);
->                 /* Disable page reporting notification */
->                 RCU_INIT_POINTER(pr_dev_info, NULL);
->                 synchronize_rcu();
-
-If we are going to use this we are using it. Once we NULL out the
-prdev that should stop page reporting from running. We shouldn't be
-relying on the static key.
-
-> diff --git a/mm/page_reporting.h b/mm/page_reporting.h
-> index b8fb3bbb345f..86ac6ffad970 100644
-> --- a/mm/page_reporting.h
-> +++ b/mm/page_reporting.h
-> @@ -9,9 +9,9 @@
->  #include <linux/slab.h>
->  #include <linux/pgtable.h>
->  #include <linux/scatterlist.h>
-> +#include <linux/page_reporting.h>
->
-> -#define PAGE_REPORTING_MIN_ORDER       pageblock_order
-> -
-> +extern int page_report_mini_order;
->  extern unsigned long page_report_batch_size;
->
->  #ifdef CONFIG_PAGE_REPORTING
-> @@ -42,7 +42,7 @@ static inline void page_reporting_notify_free(unsigned int order)
->                 return;
->
->         /* Determine if we have crossed reporting threshold */
-> -       if (order < PAGE_REPORTING_MIN_ORDER)
-> +       if (order < page_report_mini_order)
->                 return;
-
-This is another case where it might make sense to look at placing the
-code in __page_reporting_notify if we are going to allow this to be a
-dynamically configurable value.
-
->         batch_size += (1 << order) << PAGE_SHIFT;
 > --
 > 2.18.2
 >
