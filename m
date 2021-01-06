@@ -8,84 +8,84 @@ X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66C90C433E0
-	for <virtualization@archiver.kernel.org>; Wed,  6 Jan 2021 16:59:19 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD9ACC433E0
+	for <virtualization@archiver.kernel.org>; Wed,  6 Jan 2021 18:42:38 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DC81D2311E
-	for <virtualization@archiver.kernel.org>; Wed,  6 Jan 2021 16:59:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DC81D2311E
+	by mail.kernel.org (Postfix) with ESMTPS id 3C9F823125
+	for <virtualization@archiver.kernel.org>; Wed,  6 Jan 2021 18:42:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3C9F823125
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 7D530271D9;
-	Wed,  6 Jan 2021 16:59:18 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 85599868A2;
+	Wed,  6 Jan 2021 18:42:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id cXdIo8IM77O0; Wed,  6 Jan 2021 16:59:17 +0000 (UTC)
+	with ESMTP id acIXVqmoHzgu; Wed,  6 Jan 2021 18:42:36 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 38C18204CC;
-	Wed,  6 Jan 2021 16:59:17 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 7953A8688F;
+	Wed,  6 Jan 2021 18:42:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2A611C0891;
-	Wed,  6 Jan 2021 16:59:17 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7BFBEC013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4C945C0891;
+	Wed,  6 Jan 2021 18:42:36 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D28ADC013A
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jan 2021 16:59:16 +0000 (UTC)
+ Wed,  6 Jan 2021 18:42:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 69F0B85BC4
+ by whitealder.osuosl.org (Postfix) with ESMTP id AFD6C86D06
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jan 2021 16:59:16 +0000 (UTC)
+ Wed,  6 Jan 2021 18:42:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id S1yTNcnd-NKr
+ with ESMTP id CclG2csH61LK
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jan 2021 16:59:15 +0000 (UTC)
+ Wed,  6 Jan 2021 18:42:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-il1-f180.google.com (mail-il1-f180.google.com
- [209.85.166.180])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 9B50D8734E
+Received: from mail-io1-f54.google.com (mail-io1-f54.google.com
+ [209.85.166.54])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id A2CE986BD4
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Jan 2021 16:59:15 +0000 (UTC)
-Received: by mail-il1-f180.google.com with SMTP id b10so1850684ilr.4
+ Wed,  6 Jan 2021 18:42:33 +0000 (UTC)
+Received: by mail-io1-f54.google.com with SMTP id i18so3690792ioa.1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 06 Jan 2021 08:59:15 -0800 (PST)
+ Wed, 06 Jan 2021 10:42:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=3EmfUTuYnuTvPsdC4hdIk2/vIKZRsbh5sYgRQoKisdc=;
- b=kBn4N4cJQY1i+4o8/OjUAlYWOoo4zZhtiRIw2uz9KnHglVk+6VWWFzkj8sI7zU+85G
- PhR6dzXAwWuVGiDXkHkXqG9lLgitcz8TlgzkJvMxp1i4rUCgyqFXE9Ipu0kstODAcX0g
- mpayT3d4Uwaaw6k6mNhrite1jm4Oq9cQntsaW1Y/NDC1s0fslrfPs+8GY7jR0km7SESU
- HOndvPqqmkmf8ZhRmj4NZAy6zeYOCS+QTUb2iHWxdUDKZ43BTgQl8IJqXx/tpCi4BmjM
- 0tRgZ3kA4x4S2356P19eTh3+DsEr5Fw3USj0OCBf3WQTQIiMZNtObrhY2i+GzQtpW8Z2
- w4BA==
+ :cc; bh=LXbQyuhu8MJhuWLpzCR+mt3CN6/MAbyKTSN+t0WIyKg=;
+ b=pybeZ3LJXJM520ZUF/lF5e+DMV6pDbodJA58CCMaXrvOWT5plLY3BDk1bQ9mWsRHkA
+ dog0zUHHVZCTLKeYETnRnjTcjxsh5rjMh8MhP4MeuxUu7CeQRNT2+qO6nupBj+E4gDxd
+ hHi58oRS9SQ+cTjV6NVNnuWf86EW8PljAr8VdQx3ZB2EKpSKRXTpb/OgR4EjFDQDyqzF
+ eVt5uwZFLdvcruoeERL3XwixAfem1OQu7bPo0MXcHQ30/mzs3jVLk2mtDWmdrnGqejic
+ DuOxaeRtcVYVPUqN8w1QGzTZoYgFFaoJxPs1ibjxiNqqM2BKCKwabhlCrGaorooqMeJB
+ VS/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=3EmfUTuYnuTvPsdC4hdIk2/vIKZRsbh5sYgRQoKisdc=;
- b=hlRN5oPV5DpUDOgV8PWAt+0W7rBRGawseQ5YMf/XvlX85VhUGPvyMhp7WOlIlPu1LY
- ELR0Ioqmr7QlVBwML06voOkdJ66gAV+3geXljmJQ/Si6Gm8Pg+LUy7XT6edCBD/Qz6aA
- cyAK7MyFpq9vRKwv01smoat+bJX59i1Mm5GJ62SqncHhZaUyusN0/ulvvuHTezV9ChJv
- 7anUstbBGZk2RuY5ry5/7DBb4r1LIdHhutaADtNLluyTnywc1RvpkOyQnAuDKTxu+uoX
- IbDPbdtQlt/x1JAX4GiFS8yRTacPPT25tBNxhTnYK7na/nX75heTcP5usapoAfWty2DJ
- Ke8Q==
-X-Gm-Message-State: AOAM533qqXMAKAi5fUnhSP9y8gacwizH71Gahl4WZqT77jPCQy6I8ut4
- aCxpIPC+whEcPGNBO0IQjnJXCTkSCmCHKhh4OhE=
-X-Google-Smtp-Source: ABdhPJzjwgaxVsHtTZws6cL84ADauyumJ8mJ0Jvu4/J1N8I/u89+8vWMx+nTn/GdpCCaz5MlKXGT+g3VPF3uG37FwtE=
-X-Received: by 2002:a92:d8cc:: with SMTP id l12mr4972019ilo.64.1609952354762; 
- Wed, 06 Jan 2021 08:59:14 -0800 (PST)
+ bh=LXbQyuhu8MJhuWLpzCR+mt3CN6/MAbyKTSN+t0WIyKg=;
+ b=WVXkukQo7QeZj7Za5rKzjnanRNl7ei2eocsZAsXJtpzt7q+bclKE1qjKM20ZW7aBMH
+ 08yJC/r3QZOdx+9gG0eGsvgnMAd6s6LOacVPhcCYtmsRqW6fDDvSN6kdcy8B1vAb/Wz+
+ 6iUTjwCfGIExLXLxLniCJKvYW1aD1dXqszHIc+tclKhEp4xir9gJJKh1lT9lGkyqh4FI
+ Ub5fJ6AhZpR/RTxDcYhZAGPHBFj5PLCu5XHAmJjHyOfjFfNngvK5iwYtlf27UUOSEuwe
+ ab70U02LaSv7d+seCXn3oXcFyxFSaOLvVcEPDrjwgDUuI2Pn1D5W8XA+LnAS2cFX1w//
+ 7qaA==
+X-Gm-Message-State: AOAM533/Dh+96GHXi7o4JAzwRx16x3XIYTcNXT8uh2pmtbtqxRGaPyuX
+ qhEBdmTLrPiLbZDbbMoWnzqWig3x4JnbkPCMBZM=
+X-Google-Smtp-Source: ABdhPJyN/Evfh7mW0ZqQGsTY+XA0zAm54YpbvgTzjeZ7QhrWyhnrpWN32WMF1Veb8fQE7eCDA0PMoXG2OfLo6jzPXM0=
+X-Received: by 2002:a5d:9a82:: with SMTP id c2mr3913038iom.38.1609958552867;
+ Wed, 06 Jan 2021 10:42:32 -0800 (PST)
 MIME-Version: 1.0
-References: <20210106034715.GA1138@open-light-1.localdomain>
-In-Reply-To: <20210106034715.GA1138@open-light-1.localdomain>
+References: <20210106034806.GA1146@open-light-1.localdomain>
+In-Reply-To: <20210106034806.GA1146@open-light-1.localdomain>
 From: Alexander Duyck <alexander.duyck@gmail.com>
-Date: Wed, 6 Jan 2021 08:59:03 -0800
-Message-ID: <CAKgT0Uf=iQ-vzk7woNBsgAOvVD2RS41x9dRC-Y06TCGwykHzSw@mail.gmail.com>
-Subject: Re: [PATCH 1/6] mm: Add batch size for free page reporting
+Date: Wed, 6 Jan 2021 10:42:21 -0800
+Message-ID: <CAKgT0UffrUeLm0VFxW5S3rOqQit4vEPhmnEW17nGtA7yy5M3ow@mail.gmail.com>
+Subject: Re: [PATCH 2/6] mm: let user decide page reporting option
 To: Alexander Duyck <alexander.h.duyck@linux.intel.com>, 
  Mel Gorman <mgorman@techsingularity.net>,
  Andrew Morton <akpm@linux-foundation.org>, 
@@ -113,15 +113,11 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jan 5, 2021 at 7:47 PM Liang Li <liliang324@gmail.com> wrote:
+On Tue, Jan 5, 2021 at 7:48 PM Liang Li <liliang324@gmail.com> wrote:
 >
-> Use the page order as the only threshold for page reporting
-> is not flexible and has some flaws. Because scan a long free
-> list is not cheap, it's better to wake up the page reporting
-> worker when there are more pages, wake it up for a sigle page
-> may not worth.
-> This patch add a batch size as another threshold to control the
-> waking up of reporting worker.
+> Some key parameters for page reporting are now hard coded, different
+> users of the framework may have their special requirements, make
+> these parameter configrable and let the user decide them.
 >
 > Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
 > Cc: Mel Gorman <mgorman@techsingularity.net>
@@ -135,81 +131,158 @@ On Tue, Jan 5, 2021 at 7:47 PM Liang Li <liliang324@gmail.com> wrote:
 > Cc: Michael S. Tsirkin <mst@redhat.com>
 > Cc: Liang Li <liliang324@gmail.com>
 > Signed-off-by: Liang Li <liliangleo@didiglobal.com>
-
-So you are going to need a lot more explanation for this. Page
-reporting already had the concept of batching as you could only scan
-once every 2 seconds as I recall. Thus the "PAGE_REPORTING_DELAY". The
-change you are making doesn't make any sense without additional
-context.
-
 > ---
->  mm/page_reporting.c |  1 +
->  mm/page_reporting.h | 12 ++++++++++--
->  2 files changed, 11 insertions(+), 2 deletions(-)
+>  drivers/virtio/virtio_balloon.c |  3 +++
+>  include/linux/page_reporting.h  |  3 +++
+>  mm/page_reporting.c             | 13 +++++++++----
+>  mm/page_reporting.h             |  6 +++---
+>  4 files changed, 18 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 8985fc2cea86..684bcc39ef5a 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -993,6 +993,9 @@ static int virtballoon_probe(struct virtio_device *vdev)
+>                         goto out_unregister_oom;
+>                 }
+>
+> +               vb->pr_dev_info.mini_order = pageblock_order;
+> +               vb->pr_dev_info.batch_size = 16 * 1024 * 1024; /* 16M */
+> +               vb->pr_dev_info.delay_jiffies = 2 * HZ; /* 2 seconds */
+>                 err = page_reporting_register(&vb->pr_dev_info);
+>                 if (err)
+>                         goto out_unregister_oom;
+> diff --git a/include/linux/page_reporting.h b/include/linux/page_reporting.h
+> index 3b99e0ec24f2..63e1e9fbcaa2 100644
+> --- a/include/linux/page_reporting.h
+> +++ b/include/linux/page_reporting.h
+> @@ -13,6 +13,9 @@ struct page_reporting_dev_info {
+>         int (*report)(struct page_reporting_dev_info *prdev,
+>                       struct scatterlist *sg, unsigned int nents);
+>
+> +       unsigned long batch_size;
+> +       unsigned long delay_jiffies;
+> +       int mini_order;
+>         /* work struct for processing reports */
+>         struct delayed_work work;
 >
 > diff --git a/mm/page_reporting.c b/mm/page_reporting.c
-> index cd8e13d41df4..694df981ddd2 100644
+> index 694df981ddd2..39bc6a9d7b73 100644
 > --- a/mm/page_reporting.c
 > +++ b/mm/page_reporting.c
-> @@ -12,6 +12,7 @@
->
+> @@ -13,6 +13,7 @@
 >  #define PAGE_REPORTING_DELAY   (2 * HZ)
 >  static struct page_reporting_dev_info __rcu *pr_dev_info __read_mostly;
-> +unsigned long page_report_batch_size  __read_mostly = 16 * 1024 * 1024UL;
+>  unsigned long page_report_batch_size  __read_mostly = 16 * 1024 * 1024UL;
+> +int page_report_mini_order = pageblock_order;
 >
 >  enum {
 >         PAGE_REPORTING_IDLE = 0,
+> @@ -44,7 +45,7 @@ __page_reporting_request(struct page_reporting_dev_info *prdev)
+>          * now we are limiting this to running no more than once every
+>          * couple of seconds.
+>          */
+> -       schedule_delayed_work(&prdev->work, PAGE_REPORTING_DELAY);
+> +       schedule_delayed_work(&prdev->work, prdev->delay_jiffies);
+>  }
+>
+
+So this ends up being the reason why you needed to add the batch size
+value. However I don't really see it working as expected since you
+could essentially have 1 page freed 4M times that could trigger your
+page zeroing logic. So for example if a NIC is processing frames and
+ends up freeing and then reallocating some small batch of pages this
+could would be running often even though there isn't really all that
+many pages that needed zeroing.
+
+>  /* notify prdev of free page reporting request */
+> @@ -230,7 +231,7 @@ page_reporting_process_zone(struct page_reporting_dev_info *prdev,
+>
+>         /* Generate minimum watermark to be able to guarantee progress */
+>         watermark = low_wmark_pages(zone) +
+> -                   (PAGE_REPORTING_CAPACITY << PAGE_REPORTING_MIN_ORDER);
+> +                   (PAGE_REPORTING_CAPACITY << prdev->mini_order);
+>
+>         /*
+>          * Cancel request if insufficient free memory or if we failed
+
+With the page order being able to be greatly reduced this could have a
+significant impact on if this code really has any value. Previously we
+were able to guarantee a pretty significant number of higher order
+pages free. With this we might only be guaranteeing something like 32
+4K pages which is pretty small compared to what can end up being
+pulled out at the higher end.
+
+> @@ -240,7 +241,7 @@ page_reporting_process_zone(struct page_reporting_dev_info *prdev,
+>                 return err;
+>
+>         /* Process each free list starting from lowest order/mt */
+> -       for (order = PAGE_REPORTING_MIN_ORDER; order < MAX_ORDER; order++) {
+> +       for (order = prdev->mini_order; order < MAX_ORDER; order++) {
+>                 for (mt = 0; mt < MIGRATE_TYPES; mt++) {
+>                         /* We do not pull pages from the isolate free list */
+>                         if (is_migrate_isolate(mt))
+> @@ -307,7 +308,7 @@ static void page_reporting_process(struct work_struct *work)
+>          */
+>         state = atomic_cmpxchg(&prdev->state, state, PAGE_REPORTING_IDLE);
+>         if (state == PAGE_REPORTING_REQUESTED)
+> -               schedule_delayed_work(&prdev->work, PAGE_REPORTING_DELAY);
+> +               schedule_delayed_work(&prdev->work, prdev->delay_jiffies);
+>  }
+>
+>  static DEFINE_MUTEX(page_reporting_mutex);
+> @@ -335,6 +336,8 @@ int page_reporting_register(struct page_reporting_dev_info *prdev)
+>         /* Assign device to allow notifications */
+>         rcu_assign_pointer(pr_dev_info, prdev);
+>
+> +       page_report_mini_order = prdev->mini_order;
+> +       page_report_batch_size = prdev->batch_size;
+>         /* enable page reporting notification */
+>         if (!static_key_enabled(&page_reporting_enabled)) {
+>                 static_branch_enable(&page_reporting_enabled);
+> @@ -352,6 +355,8 @@ void page_reporting_unregister(struct page_reporting_dev_info *prdev)
+>         mutex_lock(&page_reporting_mutex);
+>
+>         if (rcu_access_pointer(pr_dev_info) == prdev) {
+> +               if (static_key_enabled(&page_reporting_enabled))
+> +                       static_branch_disable(&page_reporting_enabled);
+>                 /* Disable page reporting notification */
+>                 RCU_INIT_POINTER(pr_dev_info, NULL);
+>                 synchronize_rcu();
+
+If we are going to use this we are using it. Once we NULL out the
+prdev that should stop page reporting from running. We shouldn't be
+relying on the static key.
+
 > diff --git a/mm/page_reporting.h b/mm/page_reporting.h
-> index 2c385dd4ddbd..b8fb3bbb345f 100644
+> index b8fb3bbb345f..86ac6ffad970 100644
 > --- a/mm/page_reporting.h
 > +++ b/mm/page_reporting.h
-> @@ -12,6 +12,8 @@
+> @@ -9,9 +9,9 @@
+>  #include <linux/slab.h>
+>  #include <linux/pgtable.h>
+>  #include <linux/scatterlist.h>
+> +#include <linux/page_reporting.h>
 >
->  #define PAGE_REPORTING_MIN_ORDER       pageblock_order
+> -#define PAGE_REPORTING_MIN_ORDER       pageblock_order
+> -
+> +extern int page_report_mini_order;
+>  extern unsigned long page_report_batch_size;
 >
-> +extern unsigned long page_report_batch_size;
-> +
 >  #ifdef CONFIG_PAGE_REPORTING
->  DECLARE_STATIC_KEY_FALSE(page_reporting_enabled);
->  void __page_reporting_notify(void);
-> @@ -33,6 +35,8 @@ static inline bool page_reported(struct page *page)
->   */
->  static inline void page_reporting_notify_free(unsigned int order)
->  {
-> +       static long batch_size;
-> +
-
-I'm not sure this makes a tone of sense to place the value in an
-inline function. It might make more sense to put this new code in
-__page_reporting_notify so that all callers would be referring to the
-same batch_size value and you don't have to bother with the export of
-the page_report_batch_size value.
-
->         /* Called from hot path in __free_one_page() */
->         if (!static_branch_unlikely(&page_reporting_enabled))
->                 return;
-> @@ -41,8 +45,12 @@ static inline void page_reporting_notify_free(unsigned int order)
->         if (order < PAGE_REPORTING_MIN_ORDER)
+> @@ -42,7 +42,7 @@ static inline void page_reporting_notify_free(unsigned int order)
 >                 return;
 >
-> -       /* This will add a few cycles, but should be called infrequently */
-> -       __page_reporting_notify();
-> +       batch_size += (1 << order) << PAGE_SHIFT;
-> +       if (batch_size >= page_report_batch_size) {
-> +               batch_size = 0;
+>         /* Determine if we have crossed reporting threshold */
+> -       if (order < PAGE_REPORTING_MIN_ORDER)
+> +       if (order < page_report_mini_order)
+>                 return;
 
-I would probably run this in the opposite direction. Rather than
-running batch_size to zero I would look at adding a "batch_remaining"
-and then when it is < 0 you could then reset it back to
-page_report_batch_size. Doing that you only have to read one variable
-most of the time instead of doing a comparison against two.
+This is another case where it might make sense to look at placing the
+code in __page_reporting_notify if we are going to allow this to be a
+dynamically configurable value.
 
-> +               /* This add a few cycles, but should be called infrequently */
-> +               __page_reporting_notify();
-> +       }
->  }
->  #else /* CONFIG_PAGE_REPORTING */
->  #define page_reported(_page)   false
+>         batch_size += (1 << order) << PAGE_SHIFT;
 > --
 > 2.18.2
 >
