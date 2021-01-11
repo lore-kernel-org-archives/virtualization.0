@@ -7,91 +7,90 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 696F1C433DB
-	for <virtualization@archiver.kernel.org>; Mon, 11 Jan 2021 17:03:48 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E329C43381
+	for <virtualization@archiver.kernel.org>; Mon, 11 Jan 2021 17:06:33 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id F34F022473
-	for <virtualization@archiver.kernel.org>; Mon, 11 Jan 2021 17:03:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F34F022473
+	by mail.kernel.org (Postfix) with ESMTPS id 33D1622AAD
+	for <virtualization@archiver.kernel.org>; Mon, 11 Jan 2021 17:06:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 33D1622AAD
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id A0BC685D3D;
-	Mon, 11 Jan 2021 17:03:47 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id D8DA586D52;
+	Mon, 11 Jan 2021 17:06:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xeQHRqkSF1k1; Mon, 11 Jan 2021 17:03:45 +0000 (UTC)
+	with ESMTP id ONvwm5nmwuoH; Mon, 11 Jan 2021 17:06:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 069AD858DD;
-	Mon, 11 Jan 2021 17:03:45 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 9D1BF86D51;
+	Mon, 11 Jan 2021 17:06:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DF884C088B;
-	Mon, 11 Jan 2021 17:03:44 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7AB73C088B;
+	Mon, 11 Jan 2021 17:06:31 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 973DCC013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 075E3C013A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Jan 2021 17:03:43 +0000 (UTC)
+ Mon, 11 Jan 2021 17:06:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 652AA22621
+ by silver.osuosl.org (Postfix) with ESMTP id E4AB920338
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Jan 2021 17:03:43 +0000 (UTC)
+ Mon, 11 Jan 2021 17:06:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Jlt5MpLvMAVT
+ with ESMTP id 07pT+Iih6ESK
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Jan 2021 17:03:42 +0000 (UTC)
+ Mon, 11 Jan 2021 17:06:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com
- [209.85.221.52])
- by silver.osuosl.org (Postfix) with ESMTPS id F1DB2204E1
+Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com
+ [209.85.221.45])
+ by silver.osuosl.org (Postfix) with ESMTPS id E8DC420009
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Jan 2021 17:03:41 +0000 (UTC)
-Received: by mail-wr1-f52.google.com with SMTP id d26so465559wrb.12
+ Mon, 11 Jan 2021 17:06:27 +0000 (UTC)
+Received: by mail-wr1-f45.google.com with SMTP id t16so540069wra.3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Jan 2021 09:03:41 -0800 (PST)
+ Mon, 11 Jan 2021 09:06:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to;
- bh=ALtIbbdLffgue6tI4Zq52HkQm8jHa5cuL6H+tIYyZvw=;
- b=ON9Fdv13tvinQvVKGf0i/jKWuF/PWRDDEK2r2JYDitjAUwRTKDpqf4nufXzFYEAxsX
- vaN1mtOgXr0FDD2Qs9gTIFSK5vut7kwgRlCz5Vns/7LXRlrLXChAR/CToOVIGQqizCAl
- xeEu6htpOJh81BArqoLN2CQIS8Ltk6eWziloE=
+ bh=p7Uc2OyCpbZc27r6+RhlQios2u1l6dYrQyaRRy//21k=;
+ b=kuotTnsOzNzbbq3i4nOilnPGqxJC4JBrJeu+7gf3kPgh40xQZWqDosulRpinytv8op
+ TTL/t4wkczzGW71GV/L28Dg0id7cqSdsvZbAOTxpr7v0PTUsbHHCb0DHjRigdiOpDuku
+ oiFMysSetGPniYcfzDCXrOR0tVdsXrhgUU7a4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=ALtIbbdLffgue6tI4Zq52HkQm8jHa5cuL6H+tIYyZvw=;
- b=dO9c9P5rI+zT4zh+1oSNTXPQX9d1O5DlO/CDRT+MChdSKjBVAabfzN1M1fl5PaA1pE
- JAu8nnhCdbq6G5CphBaUPjRVvEBnpXo3IPnIhCUYWm+y/SL4WJeTyfmdMdHftrmdu3uf
- MOqGZihMnkvGsmi2WMxo09HH/BVsZb4PWri8EzrV2tWIy/OWc6dZSopfiRWiX3TWgL+v
- izr7njyhG2EmXQcqRdCHFfl8w/bELGiJqIoF663piSRyLb0iFFuDLQJ7kDsHIRH2eyUF
- uJnlKciqhy1BrXu+O8IWY6n7k9kI0RRwpngRDNUaYqiDFfncxVSzv32l2mjrcKgIVDig
- O3xg==
-X-Gm-Message-State: AOAM533lN07wgV24kKjuh4RBE7SUjdqHoBLXs2kJs01RINd0UUEn4btX
- NzBzSuTZkPy7Cmz5Nc2F8D7U6A==
-X-Google-Smtp-Source: ABdhPJxFI7jKE0bGZWc1WaBEC3v4a5PjcJyxs5JgUHTFcbju1xWGCLxnPt0/We5va+1YMmoe1yCj3g==
-X-Received: by 2002:a5d:4b44:: with SMTP id w4mr77723wrs.155.1610384620424;
- Mon, 11 Jan 2021 09:03:40 -0800 (PST)
+ bh=p7Uc2OyCpbZc27r6+RhlQios2u1l6dYrQyaRRy//21k=;
+ b=RsdF/dbzEuwmME3/uCUB0j/Ve2YMkG43pqlJnnozMI2fjMO8dyOung63lapDrFLP36
+ S09VToaZN1U7QLKf3dw3WIM//OqTATz1RGK6jArFGGOlTYchFJ4bPQCRAMTkMqsm/687
+ QkJ7vo3cwZDPaAyLvDukI53IUMPclXvuWOv0zm5OAY2bTpGoPzGNHe/SdS5va0qHBATB
+ IJjDupF/lkildU43Z+MCoLDeBD7eTxW5D4PscJhuDInKpEPgTxvS+E3tIPV0TdP1kh3y
+ pV5l1sI2xFVPXcUAYpPYw9z7+YIsgxqoVQRYv3NtqFBnAHaQQj8EWfgps5Sxh/NnD6c0
+ HiSw==
+X-Gm-Message-State: AOAM533BuSLh+y+qMvQUi1oRexkJqLv7gZ9MnJIwqI/oP3Xl7ul+p6zK
+ ylY1kVPweeCFbhznsIV0FvIPdA==
+X-Google-Smtp-Source: ABdhPJyegMlvqCqOihCDnGvYO+RAtSicUNBZxCpbQB3gvjm2ZoKp8GO/MFPQDu1494yGCJmdOUhrwg==
+X-Received: by 2002:adf:b1ca:: with SMTP id r10mr122544wra.252.1610384786298; 
+ Mon, 11 Jan 2021 09:06:26 -0800 (PST)
 Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
- by smtp.gmail.com with ESMTPSA id b12sm439139wmj.2.2021.01.11.09.03.39
+ by smtp.gmail.com with ESMTPSA id r20sm326591wrg.66.2021.01.11.09.06.24
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 11 Jan 2021 09:03:39 -0800 (PST)
-Date: Mon, 11 Jan 2021 18:03:37 +0100
+ Mon, 11 Jan 2021 09:06:25 -0800 (PST)
+Date: Mon, 11 Jan 2021 18:06:23 +0100
 From: Daniel Vetter <daniel@ffwll.ch>
 To: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: [PATCH v4 06/13] drm/cirrus: Use drm_gem_shmem_vmap_local() in
- damage handling
-Message-ID: <X/yE6bxLBpgXtiXy@phenom.ffwll.local>
+Subject: Re: [PATCH v4 11/13] drm/vboxvideo: Use drm_gem_vram_vmap_local() in
+ cursor update
+Message-ID: <X/yFj9zIdW52UKk4@phenom.ffwll.local>
 References: <20210108094340.15290-1-tzimmermann@suse.de>
- <20210108094340.15290-7-tzimmermann@suse.de>
- <X/yEOiDNYmRo+17/@phenom.ffwll.local>
+ <20210108094340.15290-12-tzimmermann@suse.de>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <X/yEOiDNYmRo+17/@phenom.ffwll.local>
+In-Reply-To: <20210108094340.15290-12-tzimmermann@suse.de>
 X-Operating-System: Linux phenom 5.7.0-1-amd64 
 Cc: eric@anholt.net, sam@ravnborg.org, dri-devel@lists.freedesktop.org,
  maarten.lankhorst@linux.intel.com, mripard@kernel.org,
@@ -114,79 +113,73 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jan 11, 2021 at 06:00:42PM +0100, Daniel Vetter wrote:
-> On Fri, Jan 08, 2021 at 10:43:33AM +0100, Thomas Zimmermann wrote:
-> > Damage handling in cirrus requires a short-term mapping of the source
-> > BO. Use drm_gem_shmem_vmap_local().
-> > 
-> > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+On Fri, Jan 08, 2021 at 10:43:38AM +0100, Thomas Zimmermann wrote:
+> Cursor updates in vboxvideo require a short-term mapping of the
+> source BO. Use drm_gem_vram_vmap_local() and avoid the pinning
+> operations.
 > 
-> Hm more possible errors that we don't report to userspace ... Why don't we
-> vmap/vunmap these in prepare/cleanup_fb? Generally we'd want a long-term
-> vmap here to make sure this all works nicely.
-> 
-> Since it's nothing new, on this patch:
-> 
-> Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 
-Ok, also strike this r-b here. This is called from that atomic commit
-paths, and we cannot call dma_resv_lock here. This should splat with
-lockdep enabled against the dma-fence annotations I've merged, I'm kinda
-surprised it doesn't?
+All these drivers patches break the dma_resv_lock vs
+dma_fence_begin/end_signalling nesting rules, so this doesn't work.
+
+Generally this is what the prepare/cleanup_fb hooks are for, that's where
+mappings (including vmaps) are meant to be set up, permanently.
+
+I'm kinda not clear on why we need all these changes, I thought the
+locking problem is just in the fb helper paths, because it's outside of
+the atomic path and could conflict with an atomic update at the same time?
+So only that one should get the vmap_local treatment, everything else
+should keep the normal vmap treatment.
 -Daniel
-
+> ---
+>  drivers/gpu/drm/vboxvideo/vbox_mode.c | 15 +++++++++------
+>  1 file changed, 9 insertions(+), 6 deletions(-)
 > 
-> > ---
-> >  drivers/gpu/drm/tiny/cirrus.c | 10 ++++++++--
-> >  1 file changed, 8 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
-> > index a043e602199e..21cd7056d45f 100644
-> > --- a/drivers/gpu/drm/tiny/cirrus.c
-> > +++ b/drivers/gpu/drm/tiny/cirrus.c
-> > @@ -315,6 +315,7 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
-> >  			       struct drm_rect *rect)
-> >  {
-> >  	struct cirrus_device *cirrus = to_cirrus(fb->dev);
-> > +	struct drm_gem_object *obj = fb->obj[0];
-> >  	struct dma_buf_map map;
-> >  	void *vmap;
-> >  	int idx, ret;
-> > @@ -323,9 +324,12 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
-> >  	if (!drm_dev_enter(&cirrus->dev, &idx))
-> >  		goto out;
-> >  
-> > -	ret = drm_gem_shmem_vmap(fb->obj[0], &map);
-> > +	ret = dma_resv_lock(obj->resv, NULL);
-> >  	if (ret)
-> >  		goto out_dev_exit;
-> > +	ret = drm_gem_shmem_vmap_local(fb->obj[0], &map);
-> > +	if (ret)
-> > +		goto out_dma_resv_unlock;
-> >  	vmap = map.vaddr; /* TODO: Use mapping abstraction properly */
-> >  
-> >  	if (cirrus->cpp == fb->format->cpp[0])
-> > @@ -345,9 +349,11 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
-> >  	else
-> >  		WARN_ON_ONCE("cpp mismatch");
-> >  
-> > -	drm_gem_shmem_vunmap(fb->obj[0], &map);
-> >  	ret = 0;
-> >  
-> > +	drm_gem_shmem_vunmap_local(obj, &map);
-> > +out_dma_resv_unlock:
-> > +	dma_resv_unlock(obj->resv);
-> >  out_dev_exit:
-> >  	drm_dev_exit(idx);
-> >  out:
-> > -- 
-> > 2.29.2
-> > 
-> 
+> diff --git a/drivers/gpu/drm/vboxvideo/vbox_mode.c b/drivers/gpu/drm/vboxvideo/vbox_mode.c
+> index dbc0dd53c69e..215b37c78c10 100644
+> --- a/drivers/gpu/drm/vboxvideo/vbox_mode.c
+> +++ b/drivers/gpu/drm/vboxvideo/vbox_mode.c
+> @@ -381,7 +381,8 @@ static void vbox_cursor_atomic_update(struct drm_plane *plane,
+>  		container_of(plane->dev, struct vbox_private, ddev);
+>  	struct vbox_crtc *vbox_crtc = to_vbox_crtc(plane->state->crtc);
+>  	struct drm_framebuffer *fb = plane->state->fb;
+> -	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(fb->obj[0]);
+> +	struct drm_gem_object *obj = fb->obj[0];
+> +	struct drm_gem_vram_object *gbo = drm_gem_vram_of_gem(obj);
+>  	u32 width = plane->state->crtc_w;
+>  	u32 height = plane->state->crtc_h;
+>  	size_t data_size, mask_size;
+> @@ -401,11 +402,12 @@ static void vbox_cursor_atomic_update(struct drm_plane *plane,
+>  
+>  	vbox_crtc->cursor_enabled = true;
+>  
+> -	ret = drm_gem_vram_vmap(gbo, &map);
+> +	ret = dma_resv_lock(obj->resv, NULL);
+> +	if (ret)
+> +		return;
+> +	ret = drm_gem_vram_vmap_local(gbo, &map);
+>  	if (ret) {
+> -		/*
+> -		 * BUG: we should have pinned the BO in prepare_fb().
+> -		 */
+> +		dma_resv_unlock(obj->resv);
+>  		mutex_unlock(&vbox->hw_mutex);
+>  		DRM_WARN("Could not map cursor bo, skipping update\n");
+>  		return;
+> @@ -421,7 +423,8 @@ static void vbox_cursor_atomic_update(struct drm_plane *plane,
+>  	data_size = width * height * 4 + mask_size;
+>  
+>  	copy_cursor_image(src, vbox->cursor_data, width, height, mask_size);
+> -	drm_gem_vram_vunmap(gbo, &map);
+> +	drm_gem_vram_vunmap_local(gbo, &map);
+> +	dma_resv_unlock(obj->resv);
+>  
+>  	flags = VBOX_MOUSE_POINTER_VISIBLE | VBOX_MOUSE_POINTER_SHAPE |
+>  		VBOX_MOUSE_POINTER_ALPHA;
 > -- 
-> Daniel Vetter
-> Software Engineer, Intel Corporation
-> http://blog.ffwll.ch
+> 2.29.2
+> 
 
 -- 
 Daniel Vetter
