@@ -2,89 +2,87 @@ Return-Path: <SRS0=ALvA=GP=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65049C433E0
-	for <virtualization@archiver.kernel.org>; Tue, 12 Jan 2021 19:42:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45AACC433DB
+	for <virtualization@archiver.kernel.org>; Tue, 12 Jan 2021 19:42:01 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EE2152311A
-	for <virtualization@archiver.kernel.org>; Tue, 12 Jan 2021 19:42:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EE2152311A
+	by mail.kernel.org (Postfix) with ESMTPS id C4B0D2311F
+	for <virtualization@archiver.kernel.org>; Tue, 12 Jan 2021 19:42:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C4B0D2311F
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id A31FB203FA;
-	Tue, 12 Jan 2021 19:42:02 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 4AC5D203F3;
+	Tue, 12 Jan 2021 19:42:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Xa1GHJRsALO1; Tue, 12 Jan 2021 19:42:01 +0000 (UTC)
+	with ESMTP id rRovOYeiOMIs; Tue, 12 Jan 2021 19:41:59 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 4C6CE203C4;
-	Tue, 12 Jan 2021 19:42:01 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 11B4820361;
+	Tue, 12 Jan 2021 19:41:59 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3170EC088B;
-	Tue, 12 Jan 2021 19:42:01 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3BD8FC013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E35B7C088B;
+	Tue, 12 Jan 2021 19:41:58 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 53065C013A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Jan 2021 19:42:00 +0000 (UTC)
+ Tue, 12 Jan 2021 19:41:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 3452386D73
+ by whitealder.osuosl.org (Postfix) with ESMTP id 3338F85F96
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Jan 2021 19:42:00 +0000 (UTC)
+ Tue, 12 Jan 2021 19:41:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id F9K-+4iNJ2Rm
+ with ESMTP id bsyhA4Oag4dz
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Jan 2021 19:41:59 +0000 (UTC)
+ Tue, 12 Jan 2021 19:41:56 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com
- [209.85.128.46])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 6F96586D37
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com
+ [209.85.128.45])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 5E92C85C20
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Jan 2021 19:41:59 +0000 (UTC)
-Received: by mail-wm1-f46.google.com with SMTP id y187so3236436wmd.3
+ Tue, 12 Jan 2021 19:41:56 +0000 (UTC)
+Received: by mail-wm1-f45.google.com with SMTP id r4so3221078wmh.5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Jan 2021 11:41:59 -0800 (PST)
+ Tue, 12 Jan 2021 11:41:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=daynix-com.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id:in-reply-to:references;
- bh=+hdtHCSFxGXzmG9zcdLMtsA9CM+yy9a1rXrTwefd0k4=;
- b=uDUgsIFWkCAbgZpUVsXjZnHVBtT5AU2g2Tu3bHmPpimoSMu5Pt0D9DUupyK66NiDmr
- SFEsFzaU9DeZGgsQNEmiMdYaft+Prt2oiSZp3IwXkNZcxt/HhMRiefuYPbdbHk207Kqk
- Ox0YHcUONluOucMlOfT29PUY08TWwE4IG1a6SaLfcUzRQriJ5ZteB9zJYi6UG87ywCfN
- JJHQnkpHwdqQk0KZ4i9o+jUIFEziT+WLlSsXAP0tJN8Igphnx/Aqlr/nyFJ/mvZPN5MB
- EXwGgSs6GpQKpUPrMqOtt2NwAzA19W1ixaml8FgEQbVfWvbklv/rk1W2DIbuFaxQ7f41
- yRmQ==
+ h=from:to:cc:subject:date:message-id;
+ bh=9oioH7fTimHXbwiOIluI6SOkD883+857JncYScStEP4=;
+ b=JmO6IQKgjQY+7ho4ih3Bdmj0eRPnup/UlujCGZhO4AJhanp3QH0J71/SQjiI8RlftE
+ LxVkn1U86G3tkyTL1V1ekzv7AG4aQUuBC1r0RvRBoERwudQRkTXIem4aavnr56WrANo8
+ gOtBpR9pRxwKu1xDJhfk/82GSYbgzv2ibgNt5w0f4THTbGm6h2zSgqNsqz15NEjpA55j
+ jhso19OBmu3jzIh6d8tb1TXJSzru4eS/fD3T3nWv1umUB8RNCOvvnnPdOKeCNLkCN3mh
+ BIGrXTEThybGX1OaJSNIbNpsSW/dNQUVwxByoyviBmYkIkBVcUXJ03lrcjitMvDn4T//
+ igkw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references;
- bh=+hdtHCSFxGXzmG9zcdLMtsA9CM+yy9a1rXrTwefd0k4=;
- b=oT4c2r7sZwclFg84AB5gz6PMcjzdZ46mkmM51nGppLNr1teSxCpF36jR4m30Uk/nfm
- XJcpx86ccxCsHiaZHMbebKgIOkRvxs0yF5La8K9EEj4e/tqjojAjdtglkLrfmOTAvOQh
- D90DnpPpOEdgWERWG30XrrkgJkywxqq8ZcCXVa9bh3XcHe7Svjy09VRflYt83kW35JCP
- PmfxUAy8Nsf1aegWz9J2Z+ivmk1D91PU7oxh+dFowuwkt9K+2Pi7CO62WFrItVRrR7R+
- U4m3e1AyooAa2Y1K25zkDmXxtuG85Y0dHgDdsqHJtwlM5AL5Aoo5AD4wb414nJks8FCB
- 24rw==
-X-Gm-Message-State: AOAM531C9gjFIGwUZHz0yMA7J2OXHkLL9kvd+XK+pNFyR3I+4HEeXw/k
- nu7g6BerSSzze9N042RM4USI1Q==
-X-Google-Smtp-Source: ABdhPJx/0woun/MhI7lJlAwq65ikInzHiKo9rw3lXUFvfj5s5Qs3xrAuB3tgEtBp9fISRu7oCo34FA==
-X-Received: by 2002:a05:600c:2255:: with SMTP id
- a21mr809749wmm.122.1610480517946; 
- Tue, 12 Jan 2021 11:41:57 -0800 (PST)
+ h=x-gm-message-state:from:to:cc:subject:date:message-id;
+ bh=9oioH7fTimHXbwiOIluI6SOkD883+857JncYScStEP4=;
+ b=hZTZZh5CWpFCXdrf4jvH+NDbcmCIg+prjXvc8myp9UlRNkEFHSyFJY9bqyeLfPUm+V
+ MEiDQIarmlLnd6X5V2wEJHRFU7a5Az6+MZIMpVa8bOWWtWJKXR2s5e+KDtbJrKqkKT2K
+ EPBPpjDsXq2CMJL+wTxdMQpi7ht+aOCAPXiXqgNYBSCb0DxezHGCekCU6FAiLDRk1Llv
+ sivgl1WXpLHEkLk4OtSGoRqz3xelQZpXvEzVNfBjzJ5vgEYl6MkbOvTWU87sBCVP1k6w
+ b60V9T7lholWtqg39eQw66SshtwzHk1dyEpXohVpsnOMocqAAVVk6BspDI87YVUvV8HR
+ lSWw==
+X-Gm-Message-State: AOAM5309B+Z2r459lEZJe7samOFBI4u7AW0NGEBCCU6nXHbBtRdSWkzs
+ P4FHyAau3ZPUMJ9+8YrFl6lndQ==
+X-Google-Smtp-Source: ABdhPJxLSdWWpfIxaQGNHeFfQoIuyfHcKNbVYBL99mebz4m6+1+6/6514Is75EyggDSS6XrPJMXKGw==
+X-Received: by 2002:a1c:b742:: with SMTP id h63mr780567wmf.122.1610480514861; 
+ Tue, 12 Jan 2021 11:41:54 -0800 (PST)
 Received: from f2.redhat.com (bzq-79-183-72-147.red.bezeqint.net.
  [79.183.72.147])
- by smtp.gmail.com with ESMTPSA id z63sm4885315wme.8.2021.01.12.11.41.54
+ by smtp.gmail.com with ESMTPSA id z63sm4885315wme.8.2021.01.12.11.41.51
  (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
- Tue, 12 Jan 2021 11:41:57 -0800 (PST)
+ Tue, 12 Jan 2021 11:41:54 -0800 (PST)
 From: Yuri Benditovich <yuri.benditovich@daynix.com>
 To: davem@davemloft.net, kuba@kernel.org, mst@redhat.com, jasowang@redhat.com,
  ast@kernel.org, daniel@iogearbox.net, andrii@kernel.org, kafai@fb.com,
@@ -96,12 +94,10 @@ To: davem@davemloft.net, kuba@kernel.org, mst@redhat.com, jasowang@redhat.com,
  pabeni@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
  kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
  bpf@vger.kernel.org
-Subject: [RFC PATCH 1/7] skbuff: define field for hash report type
-Date: Tue, 12 Jan 2021 21:41:37 +0200
-Message-Id: <20210112194143.1494-2-yuri.benditovich@daynix.com>
+Subject: [RFC PATCH 0/7] Support for virtio-net hash reporting
+Date: Tue, 12 Jan 2021 21:41:36 +0200
+Message-Id: <20210112194143.1494-1-yuri.benditovich@daynix.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20210112194143.1494-1-yuri.benditovich@daynix.com>
-References: <20210112194143.1494-1-yuri.benditovich@daynix.com>
 Cc: yan@daynix.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -120,38 +116,45 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Used by virtio-net receive side scaling
+Existing TUN module is able to use provided "steering eBPF" to
+calculate per-packet hash and derive the destination queue to
+place the packet to. The eBPF uses mapped configuration data
+containing a key for hash calculation and indirection table
+with array of queues' indices.
 
-Signed-off-by: Yuri Benditovich <yuri.benditovich@daynix.com>
----
- include/linux/skbuff.h | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+This series of patches adds support for virtio-net hash reporting
+feature as defined in virtio specification. It extends the TUN module
+and the "steering eBPF" as follows:
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index 416bf95cd5f2..36cf40ec0259 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -510,7 +510,7 @@ int skb_zerocopy_iter_stream(struct sock *sk, struct sk_buff *skb,
-  * the end of the header data, ie. at skb->end.
-  */
- struct skb_shared_info {
--	__u8		__unused;
-+	__u8		hash_report_type; /* virtio-net rss */
- 	__u8		meta_len;
- 	__u8		nr_frags;
- 	__u8		tx_flags;
-@@ -1430,6 +1430,11 @@ static inline struct skb_shared_hwtstamps *skb_hwtstamps(struct sk_buff *skb)
- 	return &skb_shinfo(skb)->hwtstamps;
- }
- 
-+static inline __u8 *skb_hash_report_type(struct sk_buff *skb)
-+{
-+	return &skb_shinfo(skb)->hash_report_type;
-+}
-+
- static inline struct ubuf_info *skb_zcopy(struct sk_buff *skb)
- {
- 	bool is_zcopy = skb && skb_shinfo(skb)->tx_flags & SKBTX_DEV_ZEROCOPY;
+Extended steering eBPF calculates the hash value and hash type, keeps
+hash value in the skb->hash and returns index of destination virtqueue
+and the type of the hash. TUN module keeps returned hash type in
+(currently unused) field of the skb. 
+skb->__unused renamed to 'hash_report_type'.
+
+When TUN module is called later to allocate and fill the virtio-net
+header and push it to destination virtqueue it populates the hash
+and the hash type into virtio-net header.
+
+VHOST driver is made aware of respective virtio-net feature that
+extends the virtio-net header to report the hash value and hash report
+type.
+
+Yuri Benditovich (7):
+  skbuff: define field for hash report type
+  vhost: support for hash report virtio-net feature
+  tun: allow use of BPF_PROG_TYPE_SCHED_CLS program type
+  tun: free bpf_program by bpf_prog_put instead of bpf_prog_destroy
+  tun: add ioctl code TUNSETHASHPOPULATION
+  tun: populate hash in virtio-net header when needed
+  tun: report new tun feature IFF_HASH
+
+ drivers/net/tun.c           | 43 +++++++++++++++++++++++++++++++------
+ drivers/vhost/net.c         | 37 ++++++++++++++++++++++++-------
+ include/linux/skbuff.h      |  7 +++++-
+ include/uapi/linux/if_tun.h |  2 ++
+ 4 files changed, 74 insertions(+), 15 deletions(-)
+
 -- 
 2.17.1
 
