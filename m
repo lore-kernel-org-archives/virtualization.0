@@ -2,114 +2,131 @@ Return-Path: <SRS0=tWAs=GS=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82487C43381
-	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 18:16:14 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 900DCC433DB
+	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 20:29:26 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 18C6A23A5A
-	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 18:16:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 18C6A23A5A
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 1E1A923A9C
+	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 20:29:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1E1A923A9C
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ideasonboard.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id A59CF86D2F;
-	Fri, 15 Jan 2021 18:16:13 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 5C97686C1B;
+	Fri, 15 Jan 2021 20:29:25 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id atNApbxeaJhA; Fri, 15 Jan 2021 20:29:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 5E2D386B46;
+	Fri, 15 Jan 2021 20:29:24 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3DDE3C0893;
+	Fri, 15 Jan 2021 20:29:24 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4E593C013A
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 15 Jan 2021 20:29:22 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id 352B686822
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 15 Jan 2021 20:29:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id arUzKdaC0Lc2; Fri, 15 Jan 2021 18:16:13 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 2B1E28690C;
-	Fri, 15 Jan 2021 18:16:13 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0F41DC0893;
-	Fri, 15 Jan 2021 18:16:13 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F2CA1C013A
- for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 18:16:11 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id EB8692044F
- for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 18:16:11 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id plX5hAhIigxV
+ with ESMTP id lcQfmE2BL50C
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 18:16:11 +0000 (UTC)
+ Fri, 15 Jan 2021 20:29:21 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-ua1-f52.google.com (mail-ua1-f52.google.com
- [209.85.222.52])
- by silver.osuosl.org (Postfix) with ESMTPS id 1038420346
+Received: from perceval.ideasonboard.com (perceval.ideasonboard.com
+ [213.167.242.64])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id E119386819
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 18:16:11 +0000 (UTC)
-Received: by mail-ua1-f52.google.com with SMTP id 43so668922uag.12
- for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 10:16:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc:content-transfer-encoding;
- bh=VTlINeSVg0q4ArXqDy2KEmadEKZMV/zMWMhRsiB5z8U=;
- b=aDj1h7aR8vmf5hMcBHemhjEe6KAqV2ftTaIATgd95BLUDf4mmMssHbQYMV1I4w1RK2
- Nf7Rg0ZSZ71P+poNIYZOItUw5vE3L3bDtt6y8zwOA81VsnV/dHGGeu7YBFTnXCKsviPm
- rD0OQU2+QRyRc2JaH0+/HW4hgzQ4zzkZJvzYEJ00cIuRNe1BXoVjsz2Anwn875vz2KFE
- PmOXOaoK68C8ulKfoxw1+2wRndjC+ko3yFv0n9xK81TpsWyLWwdWEBZPVdICor9vIy0H
- TZ6xsN983jhCbGAMzV3EoM2lhMKR4OkalNvMesrxBzu0dmbtxdNdZ1qHR6ZNpW9NIGrZ
- EdVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc:content-transfer-encoding;
- bh=VTlINeSVg0q4ArXqDy2KEmadEKZMV/zMWMhRsiB5z8U=;
- b=OSVx94VwMZarM7hrqvDaWh2rqg1Sew4q52GbiOtedCc6+joSCPLHHLNxqgaOzlLxib
- oQmylVbg4MtmWiCO8URLeHev2NnKxlGJidgbNBfv9Z4e4tTijU3WvmrhcN0R2k1yTdnR
- 015QcOHdM4xnvOP81wlBrfMMuHe5fpPfZUbyfi3zJ8QhU0VGUUUx4QPX5z/fUoNXYR3i
- wqIk1HUJJrBpI+9JN7K5EHR6rgLHqFzHv4zFvEWxLMQ/54CHacXDyURVG+NM/L4lrkCF
- QLIAgQfAImWUOKVfzhqa0rT59BV1LhHZRcgBbwEyfzgp4KrQm4SVGj4ckfzMYVkG+vwl
- BBOA==
-X-Gm-Message-State: AOAM532QFpGp5krrX0TKK3IQvvG7StyHFnvONxsUQZ4YGOZj8V9UVhhM
- O7oIvZCn4PGd3DYjAkZuhK7CrkIDhYQ=
-X-Google-Smtp-Source: ABdhPJzh4PE87eRXfGaY/55M6+ZH45SEP/SvBsxfFG6pnJuFI+GQCxBu5mP9KPu90ZWXnCPIgO89Kg==
-X-Received: by 2002:ab0:43a7:: with SMTP id l36mr10665531ual.106.1610734568370; 
- Fri, 15 Jan 2021 10:16:08 -0800 (PST)
-Received: from mail-vk1-f176.google.com (mail-vk1-f176.google.com.
- [209.85.221.176])
- by smtp.gmail.com with ESMTPSA id m18sm1341055vke.4.2021.01.15.10.16.06
- for <virtualization@lists.linux-foundation.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Fri, 15 Jan 2021 10:16:06 -0800 (PST)
-Received: by mail-vk1-f176.google.com with SMTP id j67so925671vkh.11
- for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 10:16:06 -0800 (PST)
-X-Received: by 2002:a1f:2f81:: with SMTP id v123mr11517700vkv.24.1610734565853; 
- Fri, 15 Jan 2021 10:16:05 -0800 (PST)
+ Fri, 15 Jan 2021 20:29:20 +0000 (UTC)
+Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi
+ [62.78.145.57])
+ by perceval.ideasonboard.com (Postfix) with ESMTPSA id 0E61358B;
+ Fri, 15 Jan 2021 21:29:16 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+ s=mail; t=1610742556;
+ bh=8R5qOZgwIXX9QIBlCIV/R54viYQ+tS8st/8kK+PspT4=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=rXfe/Bd4sxDcopxrQyulKr6sWDtZgNWVEUmMmsnebMU4/0jVNn/8hLQVXHqwR4Iqy
+ dmLamgDdsuehH2QKJU5DVGWdiVNzsC5Rqtv2JHOZ59k4V2CtY3G/tqo9iglvRf5/6q
+ dndbBomFsfYf9WqlpJf3+ozL6ojiJBE1hiTgHRnI=
+Date: Fri, 15 Jan 2021 22:28:59 +0200
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To: Maxime Ripard <maxime@cerno.tech>
+Subject: Re: [PATCH 02/10] drm: Rename plane atomic_check state names
+Message-ID: <YAH7C0EOsisHhqvR@pendragon.ideasonboard.com>
+References: <20210115125703.1315064-1-maxime@cerno.tech>
+ <20210115125703.1315064-2-maxime@cerno.tech>
 MIME-Version: 1.0
-References: <1610685980-38608-1-git-send-email-wangyunjian@huawei.com>
- <ff01b9da-f2a7-3559-63cc-833f52280ef6@redhat.com>
-In-Reply-To: <ff01b9da-f2a7-3559-63cc-833f52280ef6@redhat.com>
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Fri, 15 Jan 2021 13:15:30 -0500
-X-Gmail-Original-Message-ID: <CA+FuTSdvhJ9An9F5pZHKzEKx1NWFArY=QE0C1RB2+nOVP6iNyw@mail.gmail.com>
-Message-ID: <CA+FuTSdvhJ9An9F5pZHKzEKx1NWFArY=QE0C1RB2+nOVP6iNyw@mail.gmail.com>
-Subject: Re: [PATCH net-next v7] vhost_net: avoid tx queue stuck when sendmsg
- fails
-To: Jason Wang <jasowang@redhat.com>
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Network Development <netdev@vger.kernel.org>,
- wangyunjian <wangyunjian@huawei.com>,
- "Lilijun \(Jerry\)" <jerry.lilijun@huawei.com>,
- virtualization@lists.linux-foundation.org, xudingke <xudingke@huawei.com>,
- "huangbin \(J\)" <brian.huangbin@huawei.com>,
- chenchanghu <chenchanghu@huawei.com>
+Content-Disposition: inline
+In-Reply-To: <20210115125703.1315064-2-maxime@cerno.tech>
+Cc: Heiko =?utf-8?Q?St=C3=BCbner?= <heiko@sntech.de>,
+ Xinliang Liu <xinliang.liu@linaro.org>, dri-devel@lists.freedesktop.org,
+ Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
+ linux-stm32@st-md-mailman.stormreply.com, Jerome Brunet <jbrunet@baylibre.com>,
+ linux-samsung-soc@vger.kernel.org, Kevin Hilman <khilman@baylibre.com>,
+ Michal Simek <michal.simek@xilinx.com>, NXP Linux Team <linux-imx@nxp.com>,
+ VMware Graphics <linux-graphics-maintainer@vmware.com>,
+ Leo Li <sunpeng.li@amd.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+ Roland Scheidegger <sroland@vmware.com>, Inki Dae <inki.dae@samsung.com>,
+ Sean Paul <sean@poorly.run>, Hyun Kwon <hyun.kwon@xilinx.com>,
+ Seung-Woo Kim <sw0312.kim@samsung.com>, linux-kernel@vger.kernel.org,
+ Pengutronix Kernel Team <kernel@pengutronix.de>,
+ Alex Deucher <alexander.deucher@amd.com>, freedreno@lists.freedesktop.org,
+ David Airlie <airlied@linux.ie>, nouveau@lists.freedesktop.org,
+ Edmund Dea <edmund.j.dea@intel.com>, virtualization@lists.linux-foundation.org,
+ Eric Anholt <eric@anholt.net>, Thierry Reding <thierry.reding@gmail.com>,
+ Daniel Vetter <daniel.vetter@intel.com>,
+ Mihail Atanassov <mihail.atanassov@arm.com>,
+ Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>,
+ linux-rockchip@lists.infradead.org,
+ "James \(Qian\) Wang" <james.qian.wang@arm.com>,
+ Ben Skeggs <bskeggs@redhat.com>, Dave Airlie <airlied@redhat.com>,
+ Alexandre Torgue <alexandre.torgue@st.com>,
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+ linux-arm-msm@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
+ John Stultz <john.stultz@linaro.org>, linux-amlogic@lists.infradead.org,
+ linux-arm-kernel@lists.infradead.org,
+ Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
+ Sandy Huang <hjc@rock-chips.com>, Yannick Fertre <yannick.fertre@st.com>,
+ Kyungmin Park <kyungmin.park@samsung.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Brian Starkey <brian.starkey@arm.com>,
+ Haneen Mohammed <hamohammed.sa@gmail.com>,
+ Neil Armstrong <narmstrong@baylibre.com>, Stefan Agner <stefan@agner.ch>,
+ Melissa Wen <melissa.srw@gmail.com>, linux-tegra@vger.kernel.org,
+ Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+ Fabio Estevam <festevam@gmail.com>,
+ Xinwei Kong <kong.kongxinwei@hisilicon.com>, amd-gfx@lists.freedesktop.org,
+ Chen-Yu Tsai <wens@csie.org>, Harry Wentland <harry.wentland@amd.com>,
+ Chun-Kuang Hu <chunkuang.hu@kernel.org>, Chen Feng <puck.chen@hisilicon.com>,
+ Alison Wang <alison.wang@nxp.com>, spice-devel@lists.freedesktop.org,
+ Daniel Vetter <daniel@ffwll.ch>, Tomi Valkeinen <tomba@kernel.org>,
+ Philippe Cornu <philippe.cornu@st.com>, Vincent Abriou <vincent.abriou@st.com>,
+ Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+ Tian Tao <tiantao6@hisilicon.com>, Shawn Guo <shawnguo@kernel.org>,
+ Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>,
+ Liviu Dudau <liviu.dudau@arm.com>, Paul Cercueil <paul@crapouillou.net>,
+ linux-renesas-soc@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>,
+ Russell King <linux@armlinux.org.uk>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ linux-mediatek@lists.infradead.org,
+ Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ Jernej Skrabec <jernej.skrabec@siol.net>, Rob Clark <robdclark@gmail.com>,
+ Philipp Zabel <p.zabel@pengutronix.de>, Jyri Sarha <jyri.sarha@iki.fi>,
+ Lucas Stach <l.stach@pengutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,26 +138,175 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCBKYW4gMTUsIDIwMjEgYXQgMToxMiBBTSBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
-YXQuY29tPiB3cm90ZToKPgo+Cj4gT24gMjAyMS8xLzE1IOS4i+WNiDEyOjQ2LCB3YW5neXVuamlh
-biB3cm90ZToKPiA+IEZyb206IFl1bmppYW4gV2FuZyA8d2FuZ3l1bmppYW5AaHVhd2VpLmNvbT4K
-PiA+Cj4gPiBDdXJyZW50bHkgdGhlIGRyaXZlciBkb2Vzbid0IGRyb3AgYSBwYWNrZXQgd2hpY2gg
-Y2FuJ3QgYmUgc2VudCBieSB0dW4KPiA+IChlLmcgYmFkIHBhY2tldCkuIEluIHRoaXMgY2FzZSwg
-dGhlIGRyaXZlciB3aWxsIGFsd2F5cyBwcm9jZXNzIHRoZQo+ID4gc2FtZSBwYWNrZXQgbGVhZCB0
-byB0aGUgdHggcXVldWUgc3R1Y2suCj4gPgo+ID4gVG8gZml4IHRoaXMgaXNzdWU6Cj4gPiAxLiBp
-biB0aGUgY2FzZSBvZiBwZXJzaXN0ZW50IGZhaWx1cmUgKGUuZyBiYWQgcGFja2V0KSwgdGhlIGRy
-aXZlcgo+ID4gICAgIGNhbiBza2lwIHRoaXMgZGVzY3JpcHRvciBieSBpZ25vcmluZyB0aGUgZXJy
-b3IuCj4gPiAyLiBpbiB0aGUgY2FzZSBvZiB0cmFuc2llbnQgZmFpbHVyZSAoZS5nIC1FTk9CVUZT
-LCAtRUFHQUlOIGFuZCAtRU5PTUVNKSwKPiA+ICAgICB0aGUgZHJpdmVyIHNjaGVkdWxlcyB0aGUg
-d29ya2VyIHRvIHRyeSBhZ2Fpbi4KPiA+Cj4gPiBTaWduZWQtb2ZmLWJ5OiBZdW5qaWFuIFdhbmcg
-PHdhbmd5dW5qaWFuQGh1YXdlaS5jb20+Cj4KPgo+IEFja2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNv
-d2FuZ0ByZWRoYXQuY29tPgoKQWNrZWQtYnk6IFdpbGxlbSBkZSBCcnVpam4gPHdpbGxlbWJAZ29v
-Z2xlLmNvbT4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi Maxime,
+
+Thank you for the patch.
+
+On Fri, Jan 15, 2021 at 01:56:54PM +0100, Maxime Ripard wrote:
+> Most drivers call the argument to the plane atomic_check hook simply
+> state, which is going to conflict with the global atomic state in a
+> later rework. Let's rename it to new_plane_state (or new_state depending
+> on the convention used in the driver).
+> 
+> This was done using the coccinelle script below, and built tested:
+> 
+> @ plane_atomic_func @
+> identifier helpers;
+> identifier func;
+> @@
+> 
+>  static const struct drm_plane_helper_funcs helpers = {
+>  	.atomic_check = func,
+>  };
+> 
+> @ has_old_state @
+> identifier plane_atomic_func.func;
+> identifier plane;
+> expression e;
+> symbol old_state;
+> symbol state;
+> @@
+> 
+>  func(struct drm_plane *plane, struct drm_plane_state *state)
+>  {
+>  	...
+>  	struct drm_plane_state *old_state = e;
+>  	...
+>  }
+> 
+> @ depends on has_old_state @
+> identifier plane_atomic_func.func;
+> identifier plane;
+> symbol old_state;
+> @@
+> 
+>  func(struct drm_plane *plane,
+> -	struct drm_plane_state *state
+> +	struct drm_plane_state *new_state
+>      )
+>  {
+>  	<+...
+> -	state
+> +	new_state
+> 	...+>
+>  }
+> 
+> @ has_state @
+> identifier plane_atomic_func.func;
+> identifier plane;
+> symbol state;
+> @@
+> 
+>  func(struct drm_plane *plane, struct drm_plane_state *state)
+>  {
+>  	...
+>  }
+> 
+> @ depends on has_state @
+> identifier plane_atomic_func.func;
+> identifier plane;
+> symbol old_state;
+> @@
+> 
+>  func(struct drm_plane *plane,
+> -	struct drm_plane_state *state
+> +	struct drm_plane_state *new_plane_state
+>      )
+>  {
+>  	<+...
+> -	state
+> +	new_plane_state
+> 	...+>
+>  }
+> 
+> Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+> ---
+
+[...]
+
+>  drivers/gpu/drm/omapdrm/omap_plane.c          | 19 +++++----
+>  drivers/gpu/drm/rcar-du/rcar_du_plane.c       |  7 ++--
+>  drivers/gpu/drm/rcar-du/rcar_du_vsp.c         |  7 ++--
+>  drivers/gpu/drm/xlnx/zynqmp_disp.c            | 10 +++--
+
+For these, with the comment below addressed,
+
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+
+>  41 files changed, 402 insertions(+), 357 deletions(-)
+
+[snip]
+
+> diff --git a/drivers/gpu/drm/omapdrm/omap_plane.c b/drivers/gpu/drm/omapdrm/omap_plane.c
+> index 51dc24acea73..78d0eb1fd69d 100644
+> --- a/drivers/gpu/drm/omapdrm/omap_plane.c
+> +++ b/drivers/gpu/drm/omapdrm/omap_plane.c
+> @@ -99,18 +99,19 @@ static void omap_plane_atomic_disable(struct drm_plane *plane,
+>  }
+>  
+>  static int omap_plane_atomic_check(struct drm_plane *plane,
+> -				   struct drm_plane_state *state)
+> +				   struct drm_plane_state *new_plane_state)
+>  {
+>  	struct drm_crtc_state *crtc_state;
+>  
+> -	if (!state->fb)
+> +	if (!new_plane_state->fb)
+>  		return 0;
+>  
+>  	/* crtc should only be NULL when disabling (i.e., !state->fb) */
+
+s/state/new_plane_state/ here too ?
+
+> -	if (WARN_ON(!state->crtc))
+> +	if (WARN_ON(!new_plane_state->crtc))
+>  		return 0;
+>  
+> -	crtc_state = drm_atomic_get_existing_crtc_state(state->state, state->crtc);
+> +	crtc_state = drm_atomic_get_existing_crtc_state(new_plane_state->state,
+> +							new_plane_state->crtc);
+>  	/* we should have a crtc state if the plane is attached to a crtc */
+>  	if (WARN_ON(!crtc_state))
+>  		return 0;
+> @@ -118,17 +119,17 @@ static int omap_plane_atomic_check(struct drm_plane *plane,
+>  	if (!crtc_state->enable)
+>  		return 0;
+>  
+> -	if (state->crtc_x < 0 || state->crtc_y < 0)
+> +	if (new_plane_state->crtc_x < 0 || new_plane_state->crtc_y < 0)
+>  		return -EINVAL;
+>  
+> -	if (state->crtc_x + state->crtc_w > crtc_state->adjusted_mode.hdisplay)
+> +	if (new_plane_state->crtc_x + new_plane_state->crtc_w > crtc_state->adjusted_mode.hdisplay)
+
+I can't help thinking we're using too long variable names... :-(
+
+>  		return -EINVAL;
+>  
+> -	if (state->crtc_y + state->crtc_h > crtc_state->adjusted_mode.vdisplay)
+> +	if (new_plane_state->crtc_y + new_plane_state->crtc_h > crtc_state->adjusted_mode.vdisplay)
+>  		return -EINVAL;
+>  
+> -	if (state->rotation != DRM_MODE_ROTATE_0 &&
+> -	    !omap_framebuffer_supports_rotation(state->fb))
+> +	if (new_plane_state->rotation != DRM_MODE_ROTATE_0 &&
+> +	    !omap_framebuffer_supports_rotation(new_plane_state->fb))
+>  		return -EINVAL;
+>  
+>  	return 0;
+
+[...]
+
+-- 
+Regards,
+
+Laurent Pinchart
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
