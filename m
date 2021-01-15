@@ -2,187 +2,70 @@ Return-Path: <SRS0=tWAs=GS=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1574C433DB
-	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 06:27:37 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFCF8C433DB
+	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 09:04:10 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1343A23A34
-	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 06:27:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1343A23A34
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=nvidia.com
+	by mail.kernel.org (Postfix) with ESMTPS id 624A623128
+	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 09:04:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 624A623128
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id AABEF86224;
-	Fri, 15 Jan 2021 06:27:36 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 0ED1687449;
+	Fri, 15 Jan 2021 09:04:10 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id E3GlXMchtplH; Fri, 15 Jan 2021 09:04:01 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by hemlock.osuosl.org (Postfix) with ESMTP id 0E57487313;
+	Fri, 15 Jan 2021 09:04:01 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CCDEFC08A1;
+	Fri, 15 Jan 2021 09:04:00 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 06477C088B
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 15 Jan 2021 09:03:59 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by fraxinus.osuosl.org (Postfix) with ESMTP id DC95D867BD
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 15 Jan 2021 09:03:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id p8CleXQnQCzK; Fri, 15 Jan 2021 06:27:35 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id D388886216;
-	Fri, 15 Jan 2021 06:27:35 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AE144C0893;
-	Fri, 15 Jan 2021 06:27:35 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E6518C013A
- for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 06:27:33 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id D415786ADA
- for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 06:27:33 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SQxD9nwUOGlh
+ with ESMTP id wHLH7tfslxBV
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 06:27:33 +0000 (UTC)
+ Fri, 15 Jan 2021 09:03:53 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from nat-hk.nvidia.com (nat-hk.nvidia.com [203.18.50.4])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 74F0C868CB
+Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 597588665F
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 06:27:32 +0000 (UTC)
-Received: from HKMAIL102.nvidia.com (Not Verified[10.18.92.100]) by
- nat-hk.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
- id <B600135d10000>; Fri, 15 Jan 2021 14:27:29 +0800
-Received: from HKMAIL101.nvidia.com (10.18.16.10) by HKMAIL102.nvidia.com
- (10.18.16.11) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 15 Jan
- 2021 06:27:29 +0000
-Received: from NAM04-SN1-obe.outbound.protection.outlook.com (104.47.44.55) by
- HKMAIL101.nvidia.com (10.18.16.10) with Microsoft SMTP Server (TLS)
- id
- 15.0.1473.3 via Frontend Transport; Fri, 15 Jan 2021 06:27:29 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=IgWwxBJnNX4mSq66gF1n58mZlmJb/jEqw5lCOZTvKU3OHxGtLiI1JykXIR/MaoFhkRsV0bnpXM6WhCu8ACrPmRj7ALugrr5Jq3qDTThrzEkoAMcQdiWSKCbGNPt4CjUPYHq9Y7Y7cClhah/lE63n9RIXeTZ6c/wakeGJtoA/Jf8jzLoyoOBNJacm46uIUGlV/Qut0QUZRS0042NS3zu5xVUZJzp6wcZCXHeQpQZignCkFZMf73/OaFdKyB3OTiwb7xPIA3rH0tu/5jbBYaAUcgQfLFUXUyQcYCtmegBC/XCKKS5N6M6tC3iQrxixsbxQHwgSof+38ew/TGUpZT7bZw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=3xG7S9gwh1xgZxOKbRYWozddJdL893StehW1mcgsxTc=;
- b=Wbjkx/AJCC1GrkY43jfSg+bVeocBbWpQswNXZvumYfY5vp+30+2vUNu/Uh1d/qaxBQdw8Sp7a5GJkGFtkGKdFUYph7BpDRtnXLEYfZV2AY20BT/hfe7UbI42UI0053FKzd0RuCcROXmQkoxGtrJZE5DAdyC3Vd/G5ViYuDUhx9DsCZdUMw47mnzz7YHinWi8t8hP7rJuHwGg4+v8SnmJoYbMdqb/sMvSLVxPnDmhc/o2YEnhQ+QPEH0AWQJH/P/1mH4mJkdxTSX1VhxRiy07W8rXu4gesHKz9MqU8OW/SWLdtWJvbXJO6ehlDKCOKS89PSgWhPcOD+jw738zkxvo7Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-Received: from BY5PR12MB4322.namprd12.prod.outlook.com (2603:10b6:a03:20a::20)
- by BY5PR12MB4322.namprd12.prod.outlook.com (2603:10b6:a03:20a::20)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3763.11; Fri, 15 Jan
- 2021 06:27:27 +0000
-Received: from BY5PR12MB4322.namprd12.prod.outlook.com
- ([fe80::f9f4:8fdd:8e2a:67a4]) by BY5PR12MB4322.namprd12.prod.outlook.com
- ([fe80::f9f4:8fdd:8e2a:67a4%5]) with mapi id 15.20.3763.011; Fri, 15 Jan 2021
- 06:27:27 +0000
-From: Parav Pandit <parav@nvidia.com>
-To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Subject: RE: [PATCH linux-next v3 6/6] vdpa_sim_net: Add support for user
- supported devices
-Thread-Topic: [PATCH linux-next v3 6/6] vdpa_sim_net: Add support for user
- supported devices
-Thread-Index: AQHW404ZeuD1Nrf6EkKQQnhYNrY/9qoY6uQAgAAB4oCAAAVhgIAAAsjwgAAQXACAAoNJoIALCUSAgAAyM0CAAXa1gIAADQPg
-Date: Fri, 15 Jan 2021 06:27:26 +0000
-Message-ID: <BY5PR12MB4322309C33E4871C11535F3CDCA70@BY5PR12MB4322.namprd12.prod.outlook.com>
-References: <20201112064005.349268-1-parav@nvidia.com>
- <20210105103203.82508-1-parav@nvidia.com>
- <20210105103203.82508-7-parav@nvidia.com>
- <20210105064707-mutt-send-email-mst@kernel.org>
- <BY5PR12MB4322E5E7CA71CB2EE0577706DCD10@BY5PR12MB4322.namprd12.prod.outlook.com>
- <20210105071101-mutt-send-email-mst@kernel.org>
- <BY5PR12MB432235169D805760EC0CF7CEDCD10@BY5PR12MB4322.namprd12.prod.outlook.com>
- <20210105082243-mutt-send-email-mst@kernel.org>
- <BY5PR12MB4322EC8D0AD648063C607E17DCAF0@BY5PR12MB4322.namprd12.prod.outlook.com>
- <66dc44ac-52da-eaba-3f5e-69254e42d75b@redhat.com>
- <BY5PR12MB43225D83EA46004E3AF50D3ADCA80@BY5PR12MB4322.namprd12.prod.outlook.com>
- <01213588-d4af-820a-bcf8-c28b8a80c346@redhat.com>
-In-Reply-To: <01213588-d4af-820a-bcf8-c28b8a80c346@redhat.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: redhat.com; dkim=none (message not signed)
- header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
-x-originating-ip: [122.167.131.74]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 8026958b-71c5-4c89-e7f3-08d8b91ea0c6
-x-ms-traffictypediagnostic: BY5PR12MB4322:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <BY5PR12MB4322E7DB140F783D18C60284DCA70@BY5PR12MB4322.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:8273;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 5aJORqpzDGIakbfqz8CGMYIrQaAqXP+yLtYBahosdwLsTlMFQxXI5g3mH+AtDGYQa/+wAmDi0pN4Rr74upj1C6bDdbMxNZK9nQCWrfVCv8N2+JUIf+NRyB66OeKbpO/A8aeQE2HUfWkvGyWTMT49O9aHgr07PD64Msj7njiSLGvBSOHNJJIxYCXYn+qJv20t5ggn+aYl10HMrkmIcRpzkNXTtejRrRTu+9hpgJyFL2L44zLmrvpy+g+ei1cIrzd70iWdF4lzU4ivX8PvVCwlyrw/ed/xTF13FVfJILMUUpkeY1MHWcJYutA0IohglJVyNH9X4bfdFmaMPuQA2248diPBPiTpufm2QZ68CL0BRPTzeHewtOHkNtUUuYN8MZJGvITETFNKomXC6xKWWKVE2A==
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BY5PR12MB4322.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(346002)(376002)(396003)(136003)(366004)(39860400002)(9686003)(86362001)(52536014)(66446008)(7696005)(26005)(66556008)(33656002)(316002)(4326008)(66946007)(8936002)(2906002)(66476007)(71200400001)(6506007)(55016002)(76116006)(64756008)(54906003)(83380400001)(110136005)(478600001)(5660300002)(186003)(8676002);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata: =?utf-8?B?bVM2Tmw1MVFGTnJHZEtKaDBaWWNHM2wxV0U4N2U0cndZRmlyNFNUMDVMTklH?=
- =?utf-8?B?YWZSRStBeVdwMGFnQWJxSW9YV3hHSzNYdUZqREx6dUVTSXNEcjVQZGJ0K21j?=
- =?utf-8?B?SFJYd2E2dXBhY2Fkek9UMjZ5cVdkaUU0Q0tGeTBrWnQvZjRMOEFzR3FFMmRL?=
- =?utf-8?B?VWxtMzNwL3A3YVRueENnWHJYUGdCOUJ2VzdxT3pkaGpYd0FMd25lV1dyaVc2?=
- =?utf-8?B?TUJBSmk0SHpDTVJlb2RreDd3S2lIbXZzU2J0ZHA0ZmErREkyNk9IaVQ2Qm9C?=
- =?utf-8?B?cVlQb053bm5nc2lqV3RIS0VHK1pNL1pBNmhVVUdSei95cXRqMmVUMzNmUmF2?=
- =?utf-8?B?SkViZlJqS0ZqQWo4UU4zVnh3SWdSUU5sYmFzR0Q3UWpsNGZoTjJDQlJCMU53?=
- =?utf-8?B?bTJrMmRxY2xFSFF0NEUrZ0JhSWNuTkNhVyt4Ni9haHlhM3l1MHJWWnVBZ1gx?=
- =?utf-8?B?QzhmR0xTRGlGZVNuSG56YWNYbFBVTm9WMzZkRWpFY3FYaFgvWlczbUovL0c0?=
- =?utf-8?B?RU5uSnJjZ2hHTzJ1U2V0QVFkdzgxREQyZXBYUHdwVlJRVHpzTWM2VFdSLzRp?=
- =?utf-8?B?S3F0M1JNUnZjU3ZhbytNeFNXWGV2QktOZDRUOGZORTg0a05SeWUwT2hSWlQ1?=
- =?utf-8?B?c3RRTVdFd0NHbDlBdlcveXJHSEh1REFyMEZYTzJzYXpXTUx2bnY2RStyL2Fy?=
- =?utf-8?B?TnRpWUJmU1J4WHRZc2JRUjdrcHRGSERUVUdUR1BQT3B5OFk4bjNHcFk3ZHlD?=
- =?utf-8?B?VEdkNGZpVWJpbGdLOE1maFlreEFNVkt5NDFPMEgrTXRXUDdmKzBRVWhEU3pI?=
- =?utf-8?B?czBpb0l1VnBxaXV6dmFqNW8xeEk1eUNWVXViUjhVNG1OZ1BrQkVnUW54bGpn?=
- =?utf-8?B?ZkpnT0lPcUgxaWlFdkU3aVo5dTM5WFBiOGxxV1ZCWk5DSE9uZ2swanA5ZXdy?=
- =?utf-8?B?UXIwRFpJbzFmL05wTHF1d0hCV3F0UFhFYyt5MFBjbi9WVXlyTmdCa3dYeWU0?=
- =?utf-8?B?bWkwSDZOVDUvWExBS0FFSHdqZGJ0TmU5ZFIyS1hPMnI0Z1c2ajdVWkxITVZy?=
- =?utf-8?B?TWplU1JyR2pTbmEwZEhxRmVGeW5WakpUMmtxc3ZZWG9CNzZXTDc2SmNFMWVH?=
- =?utf-8?B?aXYyeUk0YjBZZjJJN1M5WUo4K0ZwTElQVi9scUY5SXplWDAxNkIyTUVwTHRD?=
- =?utf-8?B?SjRXOU1VL0VvOUNKUGl0ejZOR0s4RUVxbDNsdGNzWEZ4ZmZ4cDcwZVFvcjZX?=
- =?utf-8?B?SEJ5a1krVmplVGg1aDRWQW5sMHZHZGNjeDkxdkhvcHI1RlZNVXNTTm54VnRR?=
- =?utf-8?Q?qjV84L6NyY9Bc=3D?=
+ Fri, 15 Jan 2021 09:03:53 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+ by mx2.suse.de (Postfix) with ESMTP id C0376AA6F;
+ Fri, 15 Jan 2021 09:03:51 +0000 (UTC)
+To: Eli Cohen <elic@nvidia.com>, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, daniel.vetter@ffwll.ch,
+ christian.koenig@amd.com, sam@ravnborg.org
+References: <20210114151529.GA79120@mtl-vdi-166.wap.labs.mlnx>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: Change eats memory on my server
+Message-ID: <23cf7712-1daf-23b8-b596-792c9586d6b4@suse.de>
+Date: Fri, 15 Jan 2021 10:03:50 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BY5PR12MB4322.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8026958b-71c5-4c89-e7f3-08d8b91ea0c6
-X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Jan 2021 06:27:26.9755 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: F3huwCN7YG6ymtfc7X0Ls0Vz+WtJKkv4HxBhdsMTKyxEQBrO1tBNeZ9tUefSS3VlCAvQHpXWHTnr1E7/qwM8Rw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4322
-X-OriginatorOrg: Nvidia.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1610692049; bh=3xG7S9gwh1xgZxOKbRYWozddJdL893StehW1mcgsxTc=;
- h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:From:To:
- CC:Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
- In-Reply-To:Accept-Language:Content-Language:X-MS-Has-Attach:
- X-MS-TNEF-Correlator:authentication-results:x-originating-ip:
- x-ms-publictraffictype:x-ms-office365-filtering-correlation-id:
- x-ms-traffictypediagnostic:x-ms-exchange-transport-forked:
- x-microsoft-antispam-prvs:x-ms-oob-tlc-oobclassifiers:
- x-ms-exchange-senderadcheck:x-microsoft-antispam:
- x-microsoft-antispam-message-info:x-forefront-antispam-report:
- x-ms-exchange-antispam-messagedata:Content-Type:
- Content-Transfer-Encoding:MIME-Version:
- X-MS-Exchange-CrossTenant-AuthAs:
- X-MS-Exchange-CrossTenant-AuthSource:
- X-MS-Exchange-CrossTenant-Network-Message-Id:
- X-MS-Exchange-CrossTenant-originalarrivaltime:
- X-MS-Exchange-CrossTenant-fromentityheader:
- X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
- X-MS-Exchange-CrossTenant-userprincipalname:
- X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
- b=fZ/db/fTNmkN9uguCYeBsdlbx/RZt6hX/ynFyN1m5dMN/dy3wHPvWkfizJqOFuB6p
- +4ZmHLc922FbanRksfHz5tA6AkfZ5oWtO15Mg5xIYpbZfjPCNCP8N2y6Uf1UVLMfD1
- J8u0gCsUiVQN2tgvbMUssY1P/RZIjMvo0r73D5FpSclQ/s/0Tnv9bWyXtu+YVjUeNb
- jwZEaEtdDvWer/UbF5TS6bkB3BmRtBS8RKgxFBoYDkRLR1GnwSwYWvtcB1VJh5aiQT
- DvBtF5SzrZdj5rJtRxJvgWFjH7TkcI1wYGNBjVrpyQuOPWULQJTtfqQ5ubBgVDc3wH
- siDEEbErEuUFg==
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- Eli Cohen <elic@nvidia.com>, "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
+In-Reply-To: <20210114151529.GA79120@mtl-vdi-166.wap.labs.mlnx>
+Cc: dri-devel <dri-devel@lists.freedesktop.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -194,122 +77,2853 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============8216567510409235839=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-DQoNCj4gRnJvbTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4NCj4gU2VudDogRnJp
-ZGF5LCBKYW51YXJ5IDE1LCAyMDIxIDExOjA5IEFNDQo+IA0KPiANCj4gT24gMjAyMS8xLzE0IOS4
-i+WNiDM6NTgsIFBhcmF2IFBhbmRpdCB3cm90ZToNCj4gPg0KPiA+PiBGcm9tOiBKYXNvbiBXYW5n
-IDxqYXNvd2FuZ0ByZWRoYXQuY29tPg0KPiA+PiBTZW50OiBUaHVyc2RheSwgSmFudWFyeSAxNCwg
-MjAyMSA5OjQ4IEFNDQo+ID4+DQo+ID4+IE9uIDIwMjEvMS83IOS4iuWNiDExOjQ4LCBQYXJhdiBQ
-YW5kaXQgd3JvdGU6DQo+ID4+Pj4gRnJvbTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0
-LmNvbT4NCj4gPj4+PiBTZW50OiBUdWVzZGF5LCBKYW51YXJ5IDUsIDIwMjEgNjo1MyBQTQ0KPiA+
-Pj4+DQo+ID4+Pj4gT24gVHVlLCBKYW4gMDUsIDIwMjEgYXQgMTI6MzA6MTVQTSArMDAwMCwgUGFy
-YXYgUGFuZGl0IHdyb3RlOg0KPiA+Pj4+Pj4gRnJvbTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RA
-cmVkaGF0LmNvbT4NCj4gPj4+Pj4+IFNlbnQ6IFR1ZXNkYXksIEphbnVhcnkgNSwgMjAyMSA1OjQ1
-IFBNDQo+ID4+Pj4+Pg0KPiA+Pj4+Pj4gT24gVHVlLCBKYW4gMDUsIDIwMjEgYXQgMTI6MDI6MzNQ
-TSArMDAwMCwgUGFyYXYgUGFuZGl0IHdyb3RlOg0KPiA+Pj4+Pj4+PiBGcm9tOiBNaWNoYWVsIFMu
-IFRzaXJraW4gPG1zdEByZWRoYXQuY29tPg0KPiA+Pj4+Pj4+PiBTZW50OiBUdWVzZGF5LCBKYW51
-YXJ5IDUsIDIwMjEgNToxOSBQTQ0KPiA+Pj4+Pj4+Pg0KPiA+Pj4+Pj4+PiBPbiBUdWUsIEphbiAw
-NSwgMjAyMSBhdCAxMjozMjowM1BNICswMjAwLCBQYXJhdiBQYW5kaXQgd3JvdGU6DQo+ID4+Pj4+
-Pj4+PiBFbmFibGUgdXNlciB0byBjcmVhdGUgdmRwYXNpbSBuZXQgc2ltdWxhdGUgZGV2aWNlcy4N
-Cj4gPj4+Pj4+Pj4+DQo+ID4+Pj4+Pj4+Pg0KPiA+Pj4+Pj4+Pj4gJCB2ZHBhIGRldiBhZGQgbWdt
-dGRldiB2ZHBhc2ltX25ldCBuYW1lIGZvbzINCj4gPj4+Pj4+Pj4+DQo+ID4+Pj4+Pj4+PiBTaG93
-IHRoZSBuZXdseSBjcmVhdGVkIHZkcGEgZGV2aWNlIGJ5IGl0cyBuYW1lOg0KPiA+Pj4+Pj4+Pj4g
-JCB2ZHBhIGRldiBzaG93IGZvbzINCj4gPj4+Pj4+Pj4+IGZvbzI6IHR5cGUgbmV0d29yayBtZ210
-ZGV2IHZkcGFzaW1fbmV0IHZlbmRvcl9pZCAwDQo+IG1heF92cXMgMg0KPiA+Pj4+Pj4+Pj4gbWF4
-X3ZxX3NpemUgMjU2DQo+ID4+Pj4+Pj4+Pg0KPiA+Pj4+Pj4+Pj4gJCB2ZHBhIGRldiBzaG93IGZv
-bzIgLWpwDQo+ID4+Pj4+Pj4+PiB7DQo+ID4+Pj4+Pj4+PiAgICAgICAiZGV2Ijogew0KPiA+Pj4+
-Pj4+Pj4gICAgICAgICAgICJmb28yIjogew0KPiA+Pj4+Pj4+Pj4gICAgICAgICAgICAgICAidHlw
-ZSI6ICJuZXR3b3JrIiwNCj4gPj4+Pj4+Pj4+ICAgICAgICAgICAgICAgIm1nbXRkZXYiOiAidmRw
-YXNpbV9uZXQiLA0KPiA+Pj4+Pj4+Pj4gICAgICAgICAgICAgICAidmVuZG9yX2lkIjogMCwNCj4g
-Pj4+Pj4+Pj4+ICAgICAgICAgICAgICAgIm1heF92cXMiOiAyLA0KPiA+Pj4+Pj4+Pj4gICAgICAg
-ICAgICAgICAibWF4X3ZxX3NpemUiOiAyNTYNCj4gPj4+Pj4+Pj4+ICAgICAgICAgICB9DQo+ID4+
-Pj4+Pj4+PiAgICAgICB9DQo+ID4+Pj4+Pj4+PiB9DQo+ID4+Pj4+Pj4+IEknZCBsaWtlIGFuIGV4
-YW1wbGUgb2YgaG93IGRvIGRldmljZSBzcGVjaWZpYyAoZS5nLiBuZXQNCj4gPj4+Pj4+Pj4gc3Bl
-Y2lmaWMpIGludGVyZmFjZXMgdGllIGluIHRvIHRoaXMuDQo+ID4+Pj4+Pj4gTm90IHN1cmUgSSBm
-b2xsb3cgeW91ciBxdWVzdGlvbi4NCj4gPj4+Pj4+PiBEbyB5b3UgbWVhbiBob3cgdG8gc2V0IG1h
-YyBhZGRyZXNzIG9yIG10dSBvZiB0aGlzIHZkcGEgZGV2aWNlIG9mDQo+ID4+Pj4+Pj4gdHlwZQ0K
-PiA+Pj4+Pj4gbmV0Pw0KPiA+Pj4+Pj4+IElmIHNvLCBkZXYgYWRkIGNvbW1hbmQgd2lsbCBiZSBl
-eHRlbmRlZCBzaG9ydGx5IGluIHN1YnNlcXVlbnQNCj4gPj4+Pj4+PiBzZXJpZXMgdG8NCj4gPj4+
-Pj4+IHNldCB0aGlzIG5ldCBzcGVjaWZpYyBhdHRyaWJ1dGVzLg0KPiA+Pj4+Pj4+IChJIGRpZCBt
-ZW50aW9uIGluIHRoZSBuZXh0IHN0ZXBzIGluIGNvdmVyIGxldHRlcikuDQo+ID4+Pj4+Pj4NCj4g
-Pj4+Pj4+Pj4+ICtzdGF0aWMgaW50IF9faW5pdCB2ZHBhc2ltX25ldF9pbml0KHZvaWQpIHsNCj4g
-Pj4+Pj4+Pj4+ICsJaW50IHJldDsNCj4gPj4+Pj4+Pj4+ICsNCj4gPj4+Pj4+Pj4+ICsJaWYgKG1h
-Y2FkZHIpIHsNCj4gPj4+Pj4+Pj4+ICsJCW1hY19wdG9uKG1hY2FkZHIsIG1hY2FkZHJfYnVmKTsN
-Cj4gPj4+Pj4+Pj4+ICsJCWlmICghaXNfdmFsaWRfZXRoZXJfYWRkcihtYWNhZGRyX2J1ZikpDQo+
-ID4+Pj4+Pj4+PiArCQkJcmV0dXJuIC1FQUREUk5PVEFWQUlMOw0KPiA+Pj4+Pj4+Pj4gKwl9IGVs
-c2Ugew0KPiA+Pj4+Pj4+Pj4gKwkJZXRoX3JhbmRvbV9hZGRyKG1hY2FkZHJfYnVmKTsNCj4gPj4+
-Pj4+Pj4+ICAgIAl9DQo+ID4+Pj4+Pj4+IEhtbSBzbyBhbGwgZGV2aWNlcyBzdGFydCBvdXQgd2l0
-aCB0aGUgc2FtZSBNQUMgdW50aWwgY2hhbmdlZD8NCj4gPj4+Pj4+Pj4gQW5kIGhvdyBpcyB0aGUg
-Y2hhbmdlIGVmZmVjdGVkPw0KPiA+Pj4+Pj4+IFBvc3QgdGhpcyBwYXRjaHNldCBhbmQgcG9zdCB3
-ZSBoYXZlIGlwcm91dGUyIHZkcGEgaW4gdGhlIHRyZWUsDQo+ID4+Pj4+Pj4gd2lsbCBhZGQgdGhl
-DQo+ID4+Pj4+PiBtYWMgYWRkcmVzcyBhcyB0aGUgaW5wdXQgYXR0cmlidXRlIGR1cmluZyAidmRw
-YSBkZXYgYWRkIiBjb21tYW5kLg0KPiA+Pj4+Pj4+IFNvIHRoYXQgZWFjaCBkaWZmZXJlbnQgdmRw
-YSBkZXZpY2UgY2FuIGhhdmUgdXNlciBzcGVjaWZpZWQNCj4gPj4+Pj4+PiAoZGlmZmVyZW50KSBt
-YWMNCj4gPj4+Pj4+IGFkZHJlc3MuDQo+ID4+Pj4+Pg0KPiA+Pj4+Pj4gRm9yIG5vdyBtYXliZSBq
-dXN0IGF2b2lkIFZJUlRJT19ORVRfRl9NQUMgdGhlbiBmb3IgbmV3IGRldmljZXMNCj4gPj4+PiB0
-aGVuPw0KPiA+Pj4+PiBUaGF0IHdvdWxkIHJlcXVpcmUgYm9vayBrZWVwaW5nIGV4aXN0aW5nIG5l
-dCB2ZHBhX3NpbSBkZXZpY2VzDQo+ID4+Pj4+IGNyZWF0ZWQgdG8NCj4gPj4+PiBhdm9pZCBzZXR0
-aW5nIFZJUlRJT19ORVRfRl9NQUMuDQo+ID4+Pj4+IFN1Y2ggYm9vayBrZWVwaW5nIGNvZGUgd2ls
-bCBiZSBzaG9ydCBsaXZlZCBhbnl3YXkuDQo+ID4+Pj4+IE5vdCBzdXJlIGlmIGl0cyB3b3J0aCBp
-dC4NCj4gPj4+Pj4gVW50aWwgbm93IG9ubHkgb25lIGRldmljZSB3YXMgY3JlYXRlZC4gU28gbm90
-IHN1cmUgdHdvIHZkcGENCj4gPj4+Pj4gZGV2aWNlcyB3aXRoDQo+ID4+Pj4gc2FtZSBtYWMgYWRk
-cmVzcyB3aWxsIGJlIGEgcmVhbCBpc3N1ZS4NCj4gPj4+Pj4gV2hlbiB3ZSBhZGQgbWFjIGFkZHJl
-c3MgYXR0cmlidXRlIGluIGFkZCBjb21tYW5kLCBhdCB0aGF0IHBvaW50DQo+ID4+Pj4+IGFsc28N
-Cj4gPj4+PiByZW1vdmUgdGhlIG1vZHVsZSBwYXJhbWV0ZXIgbWFjYWRkci4NCj4gPj4+Pg0KPiA+
-Pj4+IFdpbGwgdGhhdCBiZSBtYW5kYXRvcnk/IEknbSBub3QgdG8gaGFwcHkgd2l0aCBhIFVBUEkg
-d2UgaW50ZW5kIHRvDQo+ID4+Pj4gYnJlYWsgc3RyYWlnaHQgYXdheSAuLi4NCj4gPj4+IE5vLiBT
-cGVjaWZ5aW5nIG1hYyBhZGRyZXNzIHNob3VsZG4ndCBiZSBtYW5kYXRvcnkuIFVBUEkgd29udCcg
-YmUNCj4gPj4gYnJva2VuLg0KPiA+Pg0KPiA+Pg0KPiA+PiBJZiBpdCdzIG5vdCBtYW5kYXRvcnku
-IERvZXMgaXQgbWVhbiB0aGUgdkRQQSBwYXJlbnQgbmVlZCB0byB1c2UgaXRzDQo+ID4+IG93biBs
-b2dpYyB0byBnZW5lcmF0ZSBhIHZhbGlkYXRlIG1hYz8gSSdtIG5vdCBzdXJlIHRoaXMgaXMgd2hh
-dA0KPiA+PiBtYW5hZ2VtZW50IChsaWJ2aXJ0IHdhbnQpLg0KPiA+Pg0KPiA+IFRoZXJlIGFyZSBm
-ZXcgdXNlIGNhc2VzIHRoYXQgSSBzZWUgd2l0aCBQRnMsIFZGcyBhbmQgU0ZzIHN1cHBvcnRpbmcg
-dmRwYQ0KPiBkZXZpY2VzLg0KPiA+DQo+ID4gMS4gVXNlciB3YW50cyB0byB1c2UgdGhlIFZGIG9u
-bHkgZm9yIHZkcGEgcHVycG9zZS4gSGVyZSB1c2VyIGdvdCB0aGUgVkYNCj4gd2hpY2ggd2FzIHBy
-ZS1zZXR1cCBieSB0aGUgc3lzYWRtaW4uDQo+ID4gSW4gdGhpcyBjYXNlIHdoYXRldmVyIE1BQyBh
-c3NpZ25lZCB0byB0aGUgVkYgY2FuIGJlIHVzZWQgYnkgaXRzIHZkcGENCj4gZGV2aWNlLg0KPiA+
-IEhlcmUsIHVzZXIgZG9lc24ndCBuZWVkIHRvIHBhc3MgdGhlIG1hYyBhZGRyZXNzIGR1cmluZyB2
-ZHBhIGRldmljZQ0KPiBjcmVhdGlvbiB0aW1lLg0KPiA+IFRoaXMgaXMgZG9uZSBhcyB0aGUgc2Ft
-ZSBNQUMgaGFzIGJlZW4gc2V0dXAgaW4gdGhlIEFDTCBydWxlcyBvbiB0aGUgc3dpdGNoDQo+IHNp
-ZGUuDQo+ID4gTm9uIFZEUEEgdXNlcnMgb2YgYSBWRiB0eXBpY2FsbHkgdXNlIHRoZSBWRiB0aGlz
-IHdheSBmb3IgTmV0ZGV2IGFuZCByZG1hDQo+IGZ1bmN0aW9uYWxpdHkuDQo+ID4gVGhleSBtaWdo
-dCBjb250aW51ZSBzYW1lIHdheSBmb3IgdmRwYSBhcHBsaWNhdGlvbiBhcyB3ZWxsLg0KPiA+IEhl
-cmUgVkYgbWFjIGlzIGVpdGhlciBzZXQgdXNpbmcNCj4gPiAoYSkgZGV2bGluayBwb3J0IGZ1bmN0
-aW9uIHNldCBod19hZGRyIGNvbW1hbmQgb3IgdXNpbmcNCj4gPiAoYikgaXAgbGluayBzZXQgdmYg
-bWFjDQo+ID4gU28gdmRwYSB0b29sIGRpZG4ndCBwYXNzIHRoZSBtYWMuIChvcHRpb25hbCkuDQo+
-ID4gVGhvdWdoIFZJUlRJT19ORVRfRl9NQUMgaXMgc3RpbGwgdmFsaWQuDQo+ID4NCj4gPiAyLiBV
-c2VyIG1heSB3YW50IHRvIGNyZWF0ZSBvbmUgb3IgbW9yZSB2ZHBhIGRldmljZSBvdXQgb2YgdGhl
-IG1nbXQuDQo+IGRldmljZS4NCj4gPiBIZXJlIHVzZXIgd2FudHMgdG8gbW9yZS9mdWxsIGNvbnRy
-b2wgb2YgYWxsIGZlYXR1cmVzLCBvdmVycmlkaW5nIHdoYXQNCj4gc3lzYWRtaW4gaGFzIHNldHVw
-IGFzIE1BQyBvZiB0aGUgVkYvU0YuDQo+ID4gSW4gdGhpcyBjYXNlIHVzZXIgd2lsbCBzcGVjaWZ5
-IHRoZSBNQUMgdmlhIG1nbXQgdG9vbC4NCj4gPiAoYSkgVGhpcyBpcyBhbHNvIHVzZWQgYnkgdGhv
-c2UgdmRwYSBkZXZpY2VzIHdoaWNoIGRvZXNuJ3QgaGF2ZSBlc3dpdGNoDQo+IG9mZmxvYWRzLg0K
-PiA+IChiKSBUaGlzIHdpbGwgd29yayB3aXRoIGVzd2l0Y2ggb2ZmbG9hZHMgYXMgd2VsbCB3aG8g
-ZG9lcyBzb3VyY2UgbGVhcm5pbmcuDQo+ID4gKGMpIFVzZXIgY2hvc2UgdG8gdXNlIHRoZSB2ZHBh
-IGRldmljZSBvZiBhIFZGIHdoaWxlIFZGIE5ldGRldiBhbmQgcmRtYQ0KPiBkZXZpY2UgYXJlIHVz
-ZWQgYnkgaHlwZXJ2aXNvciBmb3Igc29tZXRoaW5nIGVsc2UgYXMgd2VsbC4NCj4gPiBWSVJUSU9f
-TkVUX0ZfTUFDIHJlbWFpbnMgdmFsaWQgaW4gYWxsIDIue2EsYixjfS4NCj4gPg0KPiA+IDMuIEEg
-IHZlbmRvciBtZ210LiBkZXZpY2UgYWx3YXlzIGV4cGVjdHMgaXQgdXNlciB0byBwcm92aWRlIG1h
-YyBmb3IgaXRzDQo+IHZkcGEgZGV2aWNlcy4NCj4gPiBTbyB3aGVuIGl0IGlzIG5vdCBwcm92aWRl
-ZCwgaXQgY2FuIGZhaWwgd2l0aCBlcnJvciBtZXNzYWdlIHN0cmluZyBpbiBleHRhY2sgb3INCj4g
-Y2xlYXIgdGhlIFZJUlRJT19ORVRfRl9NQUMgYW5kIGxldCBpdCB3b3JrIHVzaW5nIHZpcnRpbyBz
-cGVjJ3MgNS4xLjUgcG9pbnQgNQ0KPiB0byBwcm9jZWVkLg0KPiA+DQo+ID4gQXMgY29tbW9uIGRl
-bm9taW5hdG9yIG9mIGFsbCBhYm92ZSBjYXNlcywgaWYgUUVNVSBvciB1c2VyIHBhc3MgdGhlIE1B
-Qw0KPiBkdXJpbmcgY3JlYXRpb24sIGl0IHdpbGwgYWxtb3N0IGFsd2F5cyB3b3JrLg0KPiA+IEFk
-dmFuY2UgdXNlciBhbmQgUUVNVSB3aXRoIHN3aXRjaGRldiBtb2RlIHN1cHBvcnQgd2hvIGhhcyBk
-b25lDQo+IDEuYS8xLmIsIHdpbGwgb21pdCBpdC4NCj4gPiBJIGRvIG5vdCBrbm93IGhvdyBkZWVw
-IGludGVncmF0aW9uIG9mIFFFTVUgZXhpc3Qgd2l0aCB0aGUgc3dpdGNoZGV2DQo+IG1vZGUgc3Vw
-cG9ydC4NCj4gPg0KPiA+IFdpdGggdGhhdCBtYWMsIG10dSBhcyBvcHRpb25hbCBpbnB1dCBmaWVs
-ZHMgcHJvdmlkZSB0aGUgbmVjZXNzYXJ5IGZsZXhpYmlsaXR5DQo+IGZvciBkaWZmZXJlbnQgc3Rh
-Y2tzIHRvIHRha2UgYXBwcm9wcmlhdGUgc2hhcGUgYXMgdGhleSBkZXNpcmUuDQo+IA0KPiANCj4g
-VGhhbmtzIGZvciB0aGUgY2xhcmlmaWNhdGlvbi4gSSB0aGluayB3ZSdkIGJldHRlciBkb2N1bWVu
-dCB0aGUgYWJvdmUgaW4gdGhlDQo+IHBhdGNoIHRoYXQgaW50cm9kdWNlcyB0aGUgbWFjIHNldHRp
-bmcgZnJvbSBtYW5hZ2VtZW50IEFQSS4NCg0KWWVzLiBXaWxsIGRvLg0KVGhhbmtzLg0KX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
-emF0aW9u
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============8216567510409235839==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="b9oKPa2LaO82NeqHYhn216RqnHul0myBC"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--b9oKPa2LaO82NeqHYhn216RqnHul0myBC
+Content-Type: multipart/mixed; boundary="4lluKEjAFX7Zf09fXV5ictL26QPzfbbGx";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Eli Cohen <elic@nvidia.com>, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, daniel.vetter@ffwll.ch,
+ christian.koenig@amd.com, sam@ravnborg.org
+Cc: dri-devel <dri-devel@lists.freedesktop.org>
+Message-ID: <23cf7712-1daf-23b8-b596-792c9586d6b4@suse.de>
+Subject: Re: Change eats memory on my server
+References: <20210114151529.GA79120@mtl-vdi-166.wap.labs.mlnx>
+In-Reply-To: <20210114151529.GA79120@mtl-vdi-166.wap.labs.mlnx>
+
+--4lluKEjAFX7Zf09fXV5ictL26QPzfbbGx
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+(cc'ing dri-devel)
+
+Hi
+
+Am 14.01.21 um 16:15 schrieb Eli Cohen:
+> Hi Thomas,
+>=20
+> After long bisecting I found that this patch,
+>=20
+> commit 1086db71a1dbbfb32ffb42cf0d540b69956f951e
+> Author: Thomas Zimmermann <tzimmermann@suse.de>
+> Date:   Tue Nov 3 10:30:06 2020 +0100
+>=20
+>      drm/vram-helper: Remove invariant parameters from internal kmap fu=
+nction
+>=20
+> is the offending patch causing the kernel to eat my server memory. It
+> will eat all 24 GB of ram after around 7 hours.
+
+Thanks for reporting. It's a bit strange that this commit shows up,=20
+because there's nothing that should produce a memory leak.
+
+Could you please double-check that 3fb91f56aea4 ("drm/udl: Retrieve USB=20
+device from struct drm_device.dev") works correctly and that=20
+823efa922102 ("drm/cma-helper: Remove empty drm_gem_cma_prime_vunmap()") =
+
+is broken?
+
+For one of the broken commits, could you please send us the output of
+
+   dmesg | grep -i drm
+
+after most of the memory got leaked?
+
+Best regards
+Thomas
+
+>=20
+> It's a a super micro server. The output of dmidecode is below:
+>=20
+>=20
+> # dmidecode 3.2
+> Getting SMBIOS data from sysfs.
+> SMBIOS 3.1.1 present.
+> Table at 0x6F01B000.
+>=20
+> Handle 0x0000, DMI type 0, 26 bytes
+> BIOS Information
+> 	Vendor: American Megatrends Inc.
+> 	Version: 2.0
+> 	Release Date: 11/30/2017
+> 	Address: 0xF0000
+> 	Runtime Size: 64 kB
+> 	ROM Size: 32 MB
+> 	Characteristics:
+> 		PCI is supported
+> 		BIOS is upgradeable
+> 		BIOS shadowing is allowed
+> 		Boot from CD is supported
+> 		Selectable boot is supported
+> 		BIOS ROM is socketed
+> 		EDD is supported
+> 		5.25"/1.2 MB floppy services are supported (int 13h)
+> 		3.5"/720 kB floppy services are supported (int 13h)
+> 		3.5"/2.88 MB floppy services are supported (int 13h)
+> 		Print screen service is supported (int 5h)
+> 		Serial services are supported (int 14h)
+> 		Printer services are supported (int 17h)
+> 		ACPI is supported
+> 		USB legacy is supported
+> 		BIOS boot specification is supported
+> 		Targeted content distribution is supported
+> 		UEFI is supported
+> 	BIOS Revision: 5.12
+>=20
+> Handle 0x0001, DMI type 1, 27 bytes
+> System Information
+> 	Manufacturer: Supermicro
+> 	Product Name: Super Server
+> 	Version: 0123456789
+> 	Serial Number: 0123456789
+> 	UUID: 00000000-0000-0000-0000-0cc47af973ca
+> 	Wake-up Type: Power Switch
+> 	SKU Number: To be filled by O.E.M.
+> 	Family: To be filled by O.E.M.
+>=20
+> Handle 0x0002, DMI type 2, 15 bytes
+> Base Board Information
+> 	Manufacturer: Supermicro
+> 	Product Name: X11DPT-B
+> 	Version: 1.02
+> 	Serial Number: HM179S003332
+> 	Asset Tag: To be filled by O.E.M.
+> 	Features:
+> 		Board is a hosting board
+> 		Board is replaceable
+> 	Location In Chassis: To be filled by O.E.M.
+> 	Chassis Handle: 0x0003
+> 	Type: Motherboard
+> 	Contained Object Handles: 0
+>=20
+> Handle 0x0003, DMI type 3, 22 bytes
+> Chassis Information
+> 	Manufacturer: Supermicro
+> 	Type: Main Server Chassis
+> 	Lock: Not Present
+> 	Version: 0123456789
+> 	Serial Number: 0123456789
+> 	Asset Tag: To be filled by O.E.M.
+> 	Boot-up State: Safe
+> 	Power Supply State: Safe
+> 	Thermal State: Safe
+> 	Security Status: None
+> 	OEM Information: 0x00000000
+> 	Height: Unspecified
+> 	Number Of Power Cords: 1
+> 	Contained Elements: 0
+> 	SKU Number: To be filled by O.E.M.
+>=20
+> Handle 0x0004, DMI type 8, 9 bytes
+> Port Connector Information
+> 	Internal Reference Designator: JVGA1
+> 	Internal Connector Type: None
+> 	External Reference Designator: VGA
+> 	External Connector Type: DB-15 female
+> 	Port Type: Video Port
+>=20
+> Handle 0x0005, DMI type 8, 9 bytes
+> Port Connector Information
+> 	Internal Reference Designator: JLAN1
+> 	Internal Connector Type: None
+> 	External Reference Designator: IPMI_LAN
+> 	External Connector Type: RJ-45
+> 	Port Type: Network Port
+>=20
+> Handle 0x0006, DMI type 8, 9 bytes
+> Port Connector Information
+> 	Internal Reference Designator: JUSB1
+> 	Internal Connector Type: None
+> 	External Reference Designator: USB0/1(3.0)
+> 	External Connector Type: Access Bus (USB)
+> 	Port Type: USB
+>=20
+> Handle 0x0007, DMI type 8, 9 bytes
+> Port Connector Information
+> 	Internal Reference Designator: TPM/PORT80
+> 	Internal Connector Type: Other
+> 	External Reference Designator: Not Specified
+> 	External Connector Type: None
+> 	Port Type: Other
+>=20
+> Handle 0x0008, DMI type 8, 9 bytes
+> Port Connector Information
+> 	Internal Reference Designator: FAN3
+> 	Internal Connector Type: Other
+> 	External Reference Designator: Not Specified
+> 	External Connector Type: None
+> 	Port Type: Other
+>=20
+> Handle 0x0009, DMI type 8, 9 bytes
+> Port Connector Information
+> 	Internal Reference Designator: FAN4
+> 	Internal Connector Type: Other
+> 	External Reference Designator: Not Specified
+> 	External Connector Type: None
+> 	Port Type: Other
+>=20
+> Handle 0x000A, DMI type 8, 9 bytes
+> Port Connector Information
+> 	Internal Reference Designator: JCOM1 - COM1
+> 	Internal Connector Type: Other
+> 	External Reference Designator: Not Specified
+> 	External Connector Type: None
+> 	Port Type: Other
+>=20
+> Handle 0x000B, DMI type 8, 9 bytes
+> Port Connector Information
+> 	Internal Reference Designator: I-SATA6
+> 	Internal Connector Type: Other
+> 	External Reference Designator: Not Specified
+> 	External Connector Type: None
+> 	Port Type: Other
+>=20
+> Handle 0x000C, DMI type 8, 9 bytes
+> Port Connector Information
+> 	Internal Reference Designator: JSD1 - SATA PWR
+> 	Internal Connector Type: Other
+> 	External Reference Designator: Not Specified
+> 	External Connector Type: None
+> 	Port Type: Other
+>=20
+> Handle 0x000D, DMI type 9, 17 bytes
+> System Slot Information
+> 	Designation: CPU1 SLOT1 PCI-E 3.0 X16E 3.0 X16
+> 	Type: x16 PCI Express 3 x16
+> 	Current Usage: In Use
+> 	Length: Long
+> 	ID: 1
+> 	Characteristics:
+> 		3.3 V is provided
+> 		Opening is shared
+> 		PME signal is supported
+> 	Bus Address: 0000:3b:00.0
+>=20
+> Handle 0x000E, DMI type 9, 17 bytes
+> System Slot Information
+> 	Designation: CPU1 SIOM PCI-E 3.0 X16
+> 	Type: x16 PCI Express 3 x16
+> 	Current Usage: In Use
+> 	Length: Short
+> 	ID: 1
+> 	Characteristics:
+> 		3.3 V is provided
+> 		Opening is shared
+> 		PME signal is supported
+> 	Bus Address: 0000:18:00.0
+>=20
+> Handle 0x000F, DMI type 9, 17 bytes
+> System Slot Information
+> 	Designation: CPU2 RSC-P-6 PCI-E 3.0 X16 3.0 X8
+> 	Type: x16 PCI Express 3 x16
+> 	Current Usage: Available
+> 	Length: Short
+> 	ID: 1
+> 	Characteristics:
+> 		3.3 V is provided
+> 		Opening is shared
+> 		PME signal is supported
+> 	Bus Address: 0000:af:00.0
+>=20
+> Handle 0x0011, DMI type 11, 5 bytes
+> OEM Strings
+> 	String 1: Intel Skylake/Lewisburg/Purley
+> 	String 2: Supermicro motherboard-X11 Series
+>=20
+> Handle 0x0012, DMI type 32, 20 bytes
+> System Boot Information
+> 	Status: No errors detected
+>=20
+> Handle 0x0013, DMI type 39, 22 bytes
+> System Power Supply
+> 	Power Unit Group: 1
+> 	Location: PSU1
+> 	Name: PWS-2K22A-1R
+> 	Manufacturer: SUPERMICRO
+> 	Serial Number: P2K22CH46JT0157
+> 	Asset Tag: N/A
+> 	Model Part Number: PWS-2K22A-1R
+> 	Revision: 1.3
+> 	Max Power Capacity: 2200 W
+> 	Status: Present, OK
+> 	Type: Switching
+> 	Input Voltage Range Switching: Auto-switch
+> 	Plugged: Yes
+> 	Hot Replaceable: No
+>=20
+> Handle 0x0014, DMI type 39, 22 bytes
+> System Power Supply
+> 	Power Unit Group: 2
+> 	Location: PSU2
+> 	Name: PWS-2K22A-1R
+> 	Manufacturer: SUPERMICRO
+> 	Serial Number: P2K22CH46JT0155
+> 	Asset Tag: N/A
+> 	Model Part Number: PWS-2K22A-1R
+> 	Revision: 1.3
+> 	Max Power Capacity: 2200 W
+> 	Status: Present, OK
+> 	Type: Switching
+> 	Input Voltage Range Switching: Auto-switch
+> 	Plugged: Yes
+> 	Hot Replaceable: No
+>=20
+> Handle 0x0015, DMI type 41, 11 bytes
+> Onboard Device
+> 	Reference Designation: ASPEED Video AST2500
+> 	Type: Video
+> 	Status: Enabled
+> 	Type Instance: 1
+> 	Bus Address: 0000:03:00.0
+>=20
+> Handle 0x0016, DMI type 38, 18 bytes
+> IPMI Device Information
+> 	Interface Type: KCS (Keyboard Control Style)
+> 	Specification Version: 2.0
+> 	I2C Slave Address: 0x10
+> 	NV Storage Device: Not Present
+> 	Base Address: 0x0000000000000CA2 (I/O)
+> 	Register Spacing: Successive Byte Boundaries
+>=20
+> Handle 0x0017, DMI type 42, 12 bytes
+> Management Controller Host Interface
+> 	Interface Type: KCS: Keyboard Controller Style
+>=20
+> Handle 0x001C, DMI type 15, 73 bytes
+> System Event Log
+> 	Area Length: 65535 bytes
+> 	Header Start Offset: 0x0000
+> 	Header Length: 16 bytes
+> 	Data Start Offset: 0x0010
+> 	Access Method: Memory-mapped physical 32-bit address
+> 	Access Address: 0xFF110000
+> 	Status: Valid, Not Full
+> 	Change Token: 0x00000001
+> 	Header Format: Type 1
+> 	Supported Log Type Descriptors: 25
+> 	Descriptor 1: Single-bit ECC memory error
+> 	Data Format 1: Multiple-event handle
+> 	Descriptor 2: Multi-bit ECC memory error
+> 	Data Format 2: Multiple-event handle
+> 	Descriptor 3: Parity memory error
+> 	Data Format 3: None
+> 	Descriptor 4: Bus timeout
+> 	Data Format 4: None
+> 	Descriptor 5: I/O channel block
+> 	Data Format 5: None
+> 	Descriptor 6: Software NMI
+> 	Data Format 6: None
+> 	Descriptor 7: POST memory resize
+> 	Data Format 7: None
+> 	Descriptor 8: POST error
+> 	Data Format 8: POST results bitmap
+> 	Descriptor 9: PCI parity error
+> 	Data Format 9: Multiple-event handle
+> 	Descriptor 10: PCI system error
+> 	Data Format 10: Multiple-event handle
+> 	Descriptor 11: CPU failure
+> 	Data Format 11: None
+> 	Descriptor 12: EISA failsafe timer timeout
+> 	Data Format 12: None
+> 	Descriptor 13: Correctable memory log disabled
+> 	Data Format 13: None
+> 	Descriptor 14: Logging disabled
+> 	Data Format 14: None
+> 	Descriptor 15: System limit exceeded
+> 	Data Format 15: None
+> 	Descriptor 16: Asynchronous hardware timer expired
+> 	Data Format 16: None
+> 	Descriptor 17: System configuration information
+> 	Data Format 17: None
+> 	Descriptor 18: Hard disk information
+> 	Data Format 18: None
+> 	Descriptor 19: System reconfigured
+> 	Data Format 19: None
+> 	Descriptor 20: Uncorrectable CPU-complex error
+> 	Data Format 20: None
+> 	Descriptor 21: Log area reset/cleared
+> 	Data Format 21: None
+> 	Descriptor 22: System boot
+> 	Data Format 22: None
+> 	Descriptor 23: End of log
+> 	Data Format 23: None
+> 	Descriptor 24: OEM-specific
+> 	Data Format 24: OEM-specific
+> 	Descriptor 25: OEM-specific
+> 	Data Format 25: OEM-specific
+>=20
+> Handle 0x001D, DMI type 16, 23 bytes
+> Physical Memory Array
+> 	Location: System Board Or Motherboard
+> 	Use: System Memory
+> 	Error Correction Type: Single-bit ECC
+> 	Maximum Capacity: 2304 GB
+> 	Error Information Handle: Not Provided
+> 	Number Of Devices: 6
+>=20
+> Handle 0x001E, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x001D
+> 	Error Information Handle: Not Provided
+> 	Total Width: 72 bits
+> 	Data Width: 64 bits
+> 	Size: 8 GB
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P1-DIMMA1
+> 	Bank Locator: P0_Node0_Channel0_Dimm0
+> 	Type: DDR4
+> 	Type Detail: Synchronous
+> 	Speed: 2400 MT/s
+> 	Manufacturer: Micron Technology
+> 	Serial Number: 181E11CB
+> 	Asset Tag: P1-DIMMA1_AssetTag (date:17/31)
+> 	Part Number: 9ASF1G72PZ-2G3B1
+> 	Rank: 1
+> 	Configured Memory Speed: 2400 MT/s
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x001F, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x001D
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P1-DIMMA2
+> 	Bank Locator: P0_Node0_Channel0_Dimm1
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0020, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x001D
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P1-DIMMB1
+> 	Bank Locator: P0_Node0_Channel1_Dimm0
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0021, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x001D
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P1-DIMMB2
+> 	Bank Locator: P0_Node0_Channel1_Dimm1
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0022, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x001D
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P1-DIMMC1
+> 	Bank Locator: P0_Node0_Channel2_Dimm0
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0023, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x001D
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P1-DIMMC2
+> 	Bank Locator: P0_Node0_Channel2_Dimm1
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0024, DMI type 16, 23 bytes
+> Physical Memory Array
+> 	Location: System Board Or Motherboard
+> 	Use: System Memory
+> 	Error Correction Type: Single-bit ECC
+> 	Maximum Capacity: 2304 GB
+> 	Error Information Handle: Not Provided
+> 	Number Of Devices: 6
+>=20
+> Handle 0x0025, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x0024
+> 	Error Information Handle: Not Provided
+> 	Total Width: 72 bits
+> 	Data Width: 64 bits
+> 	Size: 8 GB
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P1-DIMMD1
+> 	Bank Locator: P0_Node1_Channel0_Dimm0
+> 	Type: DDR4
+> 	Type Detail: Synchronous
+> 	Speed: 2400 MT/s
+> 	Manufacturer: Micron Technology
+> 	Serial Number: 181E129C
+> 	Asset Tag: P1-DIMMD1_AssetTag (date:17/31)
+> 	Part Number: 9ASF1G72PZ-2G3B1
+> 	Rank: 1
+> 	Configured Memory Speed: 2400 MT/s
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0026, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x0024
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P1-DIMMD2
+> 	Bank Locator: P0_Node1_Channel0_Dimm1
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0027, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x0024
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P1-DIMME1
+> 	Bank Locator: P0_Node1_Channel1_Dimm0
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0028, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x0024
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P1-DIMME2
+> 	Bank Locator: P0_Node1_Channel1_Dimm1
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0029, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x0024
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P1-DIMMF1
+> 	Bank Locator: P0_Node1_Channel2_Dimm0
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x002A, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x0024
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P1-DIMMF2
+> 	Bank Locator: P0_Node1_Channel2_Dimm1
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x002B, DMI type 16, 23 bytes
+> Physical Memory Array
+> 	Location: System Board Or Motherboard
+> 	Use: System Memory
+> 	Error Correction Type: Single-bit ECC
+> 	Maximum Capacity: 2304 GB
+> 	Error Information Handle: Not Provided
+> 	Number Of Devices: 6
+>=20
+> Handle 0x002C, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x002B
+> 	Error Information Handle: Not Provided
+> 	Total Width: 72 bits
+> 	Data Width: 64 bits
+> 	Size: 8 GB
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P2-DIMMA1
+> 	Bank Locator: P1_Node0_Channel0_Dimm0
+> 	Type: DDR4
+> 	Type Detail: Synchronous
+> 	Speed: 2400 MT/s
+> 	Manufacturer: Micron Technology
+> 	Serial Number: 181E1283
+> 	Asset Tag: P2-DIMMA1_AssetTag (date:17/31)
+> 	Part Number: 9ASF1G72PZ-2G3B1
+> 	Rank: 1
+> 	Configured Memory Speed: 2400 MT/s
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x002D, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x002B
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P2-DIMMA2
+> 	Bank Locator: P1_Node0_Channel0_Dimm1
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x002E, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x002B
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P2-DIMMB1
+> 	Bank Locator: P1_Node0_Channel1_Dimm0
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x002F, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x002B
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P2-DIMMB2
+> 	Bank Locator: P1_Node0_Channel1_Dimm1
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0030, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x002B
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P2-DIMMC1
+> 	Bank Locator: P1_Node0_Channel2_Dimm0
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0031, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x002B
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P2-DIMMC2
+> 	Bank Locator: P1_Node0_Channel2_Dimm1
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0032, DMI type 16, 23 bytes
+> Physical Memory Array
+> 	Location: System Board Or Motherboard
+> 	Use: System Memory
+> 	Error Correction Type: Single-bit ECC
+> 	Maximum Capacity: 2304 GB
+> 	Error Information Handle: Not Provided
+> 	Number Of Devices: 6
+>=20
+> Handle 0x0033, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x0032
+> 	Error Information Handle: Not Provided
+> 	Total Width: 72 bits
+> 	Data Width: 64 bits
+> 	Size: 8 GB
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P2-DIMMD1
+> 	Bank Locator: P1_Node1_Channel0_Dimm0
+> 	Type: DDR4
+> 	Type Detail: Synchronous
+> 	Speed: 2400 MT/s
+> 	Manufacturer: Micron Technology
+> 	Serial Number: 181E122C
+> 	Asset Tag: P2-DIMMD1_AssetTag (date:17/31)
+> 	Part Number: 9ASF1G72PZ-2G3B1
+> 	Rank: 1
+> 	Configured Memory Speed: 2400 MT/s
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0034, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x0032
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P2-DIMMD2
+> 	Bank Locator: P1_Node1_Channel0_Dimm1
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0035, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x0032
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P2-DIMME1
+> 	Bank Locator: P1_Node1_Channel1_Dimm0
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0036, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x0032
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P2-DIMME2
+> 	Bank Locator: P1_Node1_Channel1_Dimm1
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0037, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x0032
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P2-DIMMF1
+> 	Bank Locator: P1_Node1_Channel2_Dimm0
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0038, DMI type 17, 40 bytes
+> Memory Device
+> 	Array Handle: 0x0032
+> 	Error Information Handle: Not Provided
+> 	Total Width: Unknown
+> 	Data Width: Unknown
+> 	Size: No Module Installed
+> 	Form Factor: DIMM
+> 	Set: None
+> 	Locator: P2-DIMMF2
+> 	Bank Locator: P1_Node1_Channel2_Dimm1
+> 	Type: Unknown
+> 	Type Detail: Unknown
+> 	Speed: Unknown
+> 	Manufacturer: NO DIMM
+> 	Serial Number: NO DIMM
+> 	Asset Tag: NO DIMM
+> 	Part Number: NO DIMM
+> 	Rank: Unknown
+> 	Configured Memory Speed: Unknown
+> 	Minimum Voltage: 1.2 V
+> 	Maximum Voltage: 1.2 V
+> 	Configured Voltage: 1.2 V
+>=20
+> Handle 0x0039, DMI type 19, 31 bytes
+> Memory Array Mapped Address
+> 	Starting Address: 0x00000000000
+> 	Ending Address: 0x001FFFFFFFF
+> 	Range Size: 8 GB
+> 	Physical Array Handle: 0x001D
+> 	Partition Width: 1
+>=20
+> Handle 0x003A, DMI type 20, 35 bytes
+> Memory Device Mapped Address
+> 	Starting Address: 0x00000000000
+> 	Ending Address: 0x001FFFFFFFF
+> 	Range Size: 8 GB
+> 	Physical Device Handle: 0x001E
+> 	Memory Array Mapped Address Handle: 0x0039
+> 	Partition Row Position: 1
+> 	Interleave Position: 1
+> 	Interleaved Data Depth: 1
+>=20
+> Handle 0x003B, DMI type 19, 31 bytes
+> Memory Array Mapped Address
+> 	Starting Address: 0x00200000000
+> 	Ending Address: 0x003FFFFFFFF
+> 	Range Size: 8 GB
+> 	Physical Array Handle: 0x0024
+> 	Partition Width: 1
+>=20
+> Handle 0x003C, DMI type 20, 35 bytes
+> Memory Device Mapped Address
+> 	Starting Address: 0x00000000000
+> 	Ending Address: 0x001FFFFFFFF
+> 	Range Size: 8 GB
+> 	Physical Device Handle: 0x0025
+> 	Memory Array Mapped Address Handle: 0x003B
+> 	Partition Row Position: 1
+> 	Interleave Position: 1
+> 	Interleaved Data Depth: 1
+>=20
+> Handle 0x003D, DMI type 19, 31 bytes
+> Memory Array Mapped Address
+> 	Starting Address: 0x00400000000
+> 	Ending Address: 0x005FFFFFFFF
+> 	Range Size: 8 GB
+> 	Physical Array Handle: 0x002B
+> 	Partition Width: 1
+>=20
+> Handle 0x003E, DMI type 20, 35 bytes
+> Memory Device Mapped Address
+> 	Starting Address: 0x00000000000
+> 	Ending Address: 0x001FFFFFFFF
+> 	Range Size: 8 GB
+> 	Physical Device Handle: 0x002C
+> 	Memory Array Mapped Address Handle: 0x003D
+> 	Partition Row Position: 1
+> 	Interleave Position: 1
+> 	Interleaved Data Depth: 1
+>=20
+> Handle 0x003F, DMI type 19, 31 bytes
+> Memory Array Mapped Address
+> 	Starting Address: 0x00600000000
+> 	Ending Address: 0x007FFFFFFFF
+> 	Range Size: 8 GB
+> 	Physical Array Handle: 0x0032
+> 	Partition Width: 1
+>=20
+> Handle 0x0040, DMI type 20, 35 bytes
+> Memory Device Mapped Address
+> 	Starting Address: 0x00000000000
+> 	Ending Address: 0x001FFFFFFFF
+> 	Range Size: 8 GB
+> 	Physical Device Handle: 0x0033
+> 	Memory Array Mapped Address Handle: 0x003F
+> 	Partition Row Position: 1
+> 	Interleave Position: 1
+> 	Interleaved Data Depth: 1
+>=20
+> Handle 0x0041, DMI type 7, 19 bytes
+> Cache Information
+> 	Socket Designation: L1 Cache
+> 	Configuration: Enabled, Not Socketed, Level 1
+> 	Operational Mode: Write Back
+> 	Location: Internal
+> 	Installed Size: 512 kB
+> 	Maximum Size: 512 kB
+> 	Supported SRAM Types:
+> 		Synchronous
+> 	Installed SRAM Type: Synchronous
+> 	Speed: Unknown
+> 	Error Correction Type: Single-bit ECC
+> 	System Type: Instruction
+> 	Associativity: 8-way Set-associative
+>=20
+> Handle 0x0042, DMI type 7, 19 bytes
+> Cache Information
+> 	Socket Designation: L2 Cache
+> 	Configuration: Enabled, Not Socketed, Level 2
+> 	Operational Mode: Varies With Memory Address
+> 	Location: Internal
+> 	Installed Size: 8 MB
+> 	Maximum Size: 8 MB
+> 	Supported SRAM Types:
+> 		Synchronous
+> 	Installed SRAM Type: Synchronous
+> 	Speed: Unknown
+> 	Error Correction Type: Single-bit ECC
+> 	System Type: Unified
+> 	Associativity: 16-way Set-associative
+>=20
+> Handle 0x0043, DMI type 7, 19 bytes
+> Cache Information
+> 	Socket Designation: L3 Cache
+> 	Configuration: Enabled, Not Socketed, Level 3
+> 	Operational Mode: Varies With Memory Address
+> 	Location: Internal
+> 	Installed Size: 11 MB
+> 	Maximum Size: 11 MB
+> 	Supported SRAM Types:
+> 		Synchronous
+> 	Installed SRAM Type: Synchronous
+> 	Speed: Unknown
+> 	Error Correction Type: Single-bit ECC
+> 	System Type: Unified
+> 	Associativity: Fully Associative
+>=20
+> Handle 0x0044, DMI type 4, 48 bytes
+> Processor Information
+> 	Socket Designation: CPU1
+> 	Type: Central Processor
+> 	Family: Xeon
+> 	Manufacturer: Intel(R) Corporation
+> 	ID: 54 06 05 00 FF FB EB BF
+> 	Signature: Type 0, Family 6, Model 85, Stepping 4
+> 	Flags:
+> 		FPU (Floating-point unit on-chip)
+> 		VME (Virtual mode extension)
+> 		DE (Debugging extension)
+> 		PSE (Page size extension)
+> 		TSC (Time stamp counter)
+> 		MSR (Model specific registers)
+> 		PAE (Physical address extension)
+> 		MCE (Machine check exception)
+> 		CX8 (CMPXCHG8 instruction supported)
+> 		APIC (On-chip APIC hardware supported)
+> 		SEP (Fast system call)
+> 		MTRR (Memory type range registers)
+> 		PGE (Page global enable)
+> 		MCA (Machine check architecture)
+> 		CMOV (Conditional move instruction supported)
+> 		PAT (Page attribute table)
+> 		PSE-36 (36-bit page size extension)
+> 		CLFSH (CLFLUSH instruction supported)
+> 		DS (Debug store)
+> 		ACPI (ACPI supported)
+> 		MMX (MMX technology supported)
+> 		FXSR (FXSAVE and FXSTOR instructions supported)
+> 		SSE (Streaming SIMD extensions)
+> 		SSE2 (Streaming SIMD extensions 2)
+> 		SS (Self-snoop)
+> 		HTT (Multi-threading)
+> 		TM (Thermal monitor supported)
+> 		PBE (Pending break enabled)
+> 	Version: Intel(R) Xeon(R) Silver 4108 CPU @ 1.80GHz
+> 	Voltage: 1.6 V
+> 	External Clock: 100 MHz
+> 	Max Speed: 4000 MHz
+> 	Current Speed: 1800 MHz
+> 	Status: Populated, Enabled
+> 	Upgrade: Other
+> 	L1 Cache Handle: 0x0041
+> 	L2 Cache Handle: 0x0042
+> 	L3 Cache Handle: 0x0043
+> 	Serial Number: Not Specified
+> 	Asset Tag: UNKNOWN
+> 	Part Number: Not Specified
+> 	Core Count: 8
+> 	Core Enabled: 8
+> 	Thread Count: 16
+> 	Characteristics:
+> 		64-bit capable
+> 		Multi-Core
+> 		Hardware Thread
+> 		Execute Protection
+> 		Enhanced Virtualization
+> 		Power/Performance Control
+>=20
+> Handle 0x0045, DMI type 7, 19 bytes
+> Cache Information
+> 	Socket Designation: L1 Cache
+> 	Configuration: Enabled, Not Socketed, Level 1
+> 	Operational Mode: Write Back
+> 	Location: Internal
+> 	Installed Size: 512 kB
+> 	Maximum Size: 512 kB
+> 	Supported SRAM Types:
+> 		Synchronous
+> 	Installed SRAM Type: Synchronous
+> 	Speed: Unknown
+> 	Error Correction Type: Single-bit ECC
+> 	System Type: Instruction
+> 	Associativity: 8-way Set-associative
+>=20
+> Handle 0x0046, DMI type 7, 19 bytes
+> Cache Information
+> 	Socket Designation: L2 Cache
+> 	Configuration: Enabled, Not Socketed, Level 2
+> 	Operational Mode: Varies With Memory Address
+> 	Location: Internal
+> 	Installed Size: 8 MB
+> 	Maximum Size: 8 MB
+> 	Supported SRAM Types:
+> 		Synchronous
+> 	Installed SRAM Type: Synchronous
+> 	Speed: Unknown
+> 	Error Correction Type: Single-bit ECC
+> 	System Type: Unified
+> 	Associativity: 16-way Set-associative
+>=20
+> Handle 0x0047, DMI type 7, 19 bytes
+> Cache Information
+> 	Socket Designation: L3 Cache
+> 	Configuration: Enabled, Not Socketed, Level 3
+> 	Operational Mode: Varies With Memory Address
+> 	Location: Internal
+> 	Installed Size: 11 MB
+> 	Maximum Size: 11 MB
+> 	Supported SRAM Types:
+> 		Synchronous
+> 	Installed SRAM Type: Synchronous
+> 	Speed: Unknown
+> 	Error Correction Type: Single-bit ECC
+> 	System Type: Unified
+> 	Associativity: Fully Associative
+>=20
+> Handle 0x0048, DMI type 4, 48 bytes
+> Processor Information
+> 	Socket Designation: CPU2
+> 	Type: Central Processor
+> 	Family: Xeon
+> 	Manufacturer: Intel(R) Corporation
+> 	ID: 54 06 05 00 FF FB EB BF
+> 	Signature: Type 0, Family 6, Model 85, Stepping 4
+> 	Flags:
+> 		FPU (Floating-point unit on-chip)
+> 		VME (Virtual mode extension)
+> 		DE (Debugging extension)
+> 		PSE (Page size extension)
+> 		TSC (Time stamp counter)
+> 		MSR (Model specific registers)
+> 		PAE (Physical address extension)
+> 		MCE (Machine check exception)
+> 		CX8 (CMPXCHG8 instruction supported)
+> 		APIC (On-chip APIC hardware supported)
+> 		SEP (Fast system call)
+> 		MTRR (Memory type range registers)
+> 		PGE (Page global enable)
+> 		MCA (Machine check architecture)
+> 		CMOV (Conditional move instruction supported)
+> 		PAT (Page attribute table)
+> 		PSE-36 (36-bit page size extension)
+> 		CLFSH (CLFLUSH instruction supported)
+> 		DS (Debug store)
+> 		ACPI (ACPI supported)
+> 		MMX (MMX technology supported)
+> 		FXSR (FXSAVE and FXSTOR instructions supported)
+> 		SSE (Streaming SIMD extensions)
+> 		SSE2 (Streaming SIMD extensions 2)
+> 		SS (Self-snoop)
+> 		HTT (Multi-threading)
+> 		TM (Thermal monitor supported)
+> 		PBE (Pending break enabled)
+> 	Version: Intel(R) Xeon(R) Silver 4108 CPU @ 1.80GHz
+> 	Voltage: 1.6 V
+> 	External Clock: 100 MHz
+> 	Max Speed: 4000 MHz
+> 	Current Speed: 1800 MHz
+> 	Status: Populated, Enabled
+> 	Upgrade: Other
+> 	L1 Cache Handle: 0x0045
+> 	L2 Cache Handle: 0x0046
+> 	L3 Cache Handle: 0x0047
+> 	Serial Number: Not Specified
+> 	Asset Tag: UNKNOWN
+> 	Part Number: Not Specified
+> 	Core Count: 8
+> 	Core Enabled: 8
+> 	Thread Count: 16
+> 	Characteristics:
+> 		64-bit capable
+> 		Multi-Core
+> 		Hardware Thread
+> 		Execute Protection
+> 		Enhanced Virtualization
+> 		Power/Performance Control
+>=20
+> Handle 0x004D, DMI type 40, 27 bytes
+> Additional Information 1
+>=20
+> Handle 0x004E, DMI type 40, 200 bytes
+> Additional Information 1
+>=20
+> Handle 0x004F, DMI type 40, 27 bytes
+> Additional Information 1
+>=20
+> Handle 0x0050, DMI type 40, 27 bytes
+> Additional Information 1
+>=20
+> Handle 0x0051, DMI type 130, 32 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		82 20 51 00 01 00 20 00 00 00 04 00 00 00 00 01
+> 		18 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 	Strings:
+> 		RSC-P-6
+>=20
+> Handle 0x0052, DMI type 130, 32 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		82 20 52 00 01 00 20 00 00 00 02 00 00 00 00 01
+> 		18 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 	Strings:
+> 		BPN-ADP-12S3216N4-2UB
+>=20
+> Handle 0x0053, DMI type 40, 27 bytes
+> Additional Information 1
+>=20
+> Handle 0x0054, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 54 00 06 00 00 86 80 20 20 D9 15 62 09 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0055, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 55 00 54 00 00 00 00 00
+>=20
+> Handle 0x0056, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 56 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0057, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 57 00 56 00 00 00 04 00
+>=20
+> Handle 0x0058, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 58 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0059, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 59 00 58 00 00 00 04 01
+>=20
+> Handle 0x005A, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 5A 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x005B, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 5B 00 5A 00 00 00 04 02
+>=20
+> Handle 0x005C, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 5C 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x005D, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 5D 00 5C 00 00 00 04 03
+>=20
+> Handle 0x005E, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 5E 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x005F, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 5F 00 5E 00 00 00 04 04
+>=20
+> Handle 0x0060, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 60 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0061, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 61 00 60 00 00 00 04 05
+>=20
+> Handle 0x0062, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 62 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0063, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 63 00 62 00 00 00 04 06
+>=20
+> Handle 0x0064, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 64 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0065, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 65 00 64 00 00 00 04 07
+>=20
+> Handle 0x0066, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 66 00 08 00 00 86 80 24 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0067, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 67 00 66 00 00 00 05 00
+>=20
+> Handle 0x0068, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 68 00 08 00 00 86 80 25 20 00 00 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0069, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 69 00 68 00 00 00 05 02
+>=20
+> Handle 0x006A, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 6A 00 08 00 00 86 80 26 20 86 80 26 20 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x006B, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 6B 00 6A 00 00 00 05 04
+>=20
+> Handle 0x006C, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 6C 00 08 00 00 86 80 14 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x006D, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 6D 00 6C 00 00 00 08 00
+>=20
+> Handle 0x006E, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 6E 00 08 00 00 86 80 16 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x006F, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 6F 00 6E 00 00 00 08 02
+>=20
+> Handle 0x0070, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 70 00 06 00 00 86 80 90 A1 D9 15 62 09 01
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0071, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 71 00 70 00 00 00 1C 00
+>=20
+> Handle 0x0072, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 72 00 06 00 00 86 80 95 A1 D9 15 62 09 02
+> 		00 00 00 01 00 00 00
+>=20
+> Handle 0x0073, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 73 00 72 00 00 00 1C 05
+>=20
+> Handle 0x0074, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 74 00 06 00 00 03 1A 50 11 03 1A 50 11 02
+> 		00 00 00 01 00 00 00
+>=20
+> Handle 0x0075, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 75 00 74 00 00 02 00 00
+>=20
+> Handle 0x0076, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 76 00 06 06 00 86 80 30 20 D9 15 62 09 02
+> 		00 00 00 04 00 00 00
+>=20
+> Handle 0x0077, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 77 00 76 00 00 17 00 00
+>=20
+> Handle 0x0078, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 78 00 02 06 00 86 80 21 15 D9 15 12 09 02
+> 		00 00 00 04 00 00 00
+>=20
+> Handle 0x0079, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 79 00 78 00 00 18 00 00
+>=20
+> Handle 0x007A, DMI type 190, 58 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		BE 3A 7A 00 02 06 00 86 80 21 15 D9 15 12 09 02
+> 		00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00 00 00 00 00
+>=20
+> Handle 0x007B, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 7B 00 02 06 00 86 80 21 15 D9 15 12 09 02
+> 		00 00 00 04 00 00 00
+>=20
+> Handle 0x007C, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 7C 00 7B 00 00 18 00 01
+>=20
+> Handle 0x007D, DMI type 190, 58 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		BE 3A 7D 00 02 06 00 86 80 21 15 D9 15 12 09 02
+> 		00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00 00 00 00 00
+>=20
+> Handle 0x007E, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 7E 00 08 00 00 86 80 34 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x007F, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 7F 00 7E 00 00 17 05 00
+>=20
+> Handle 0x0080, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 80 00 08 00 00 86 80 35 20 00 00 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0081, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 81 00 80 00 00 17 05 02
+>=20
+> Handle 0x0082, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 82 00 08 00 00 86 80 36 20 86 80 36 20 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0083, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 83 00 82 00 00 17 05 04
+>=20
+> Handle 0x0084, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 84 00 06 01 00 86 80 30 20 D9 15 62 09 03
+> 		00 00 00 10 00 00 00
+>=20
+> Handle 0x0085, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 85 00 84 00 00 3A 00 00
+>=20
+> Handle 0x0086, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 86 00 02 01 00 B3 15 1D 10 B3 15 83 00 03
+> 		00 00 00 10 00 00 00
+>=20
+> Handle 0x0087, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 87 00 86 00 00 3B 00 00
+>=20
+> Handle 0x0088, DMI type 190, 58 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		BE 3A 88 00 02 01 00 B3 15 1D 10 B3 15 83 00 03
+> 		00 00 00 10 00 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00 00 00 00 00
+>=20
+> Handle 0x0089, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 89 00 02 01 00 B3 15 1D 10 B3 15 83 00 03
+> 		00 00 00 10 00 00 00
+>=20
+> Handle 0x008A, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 8A 00 89 00 00 3B 00 01
+>=20
+> Handle 0x008B, DMI type 190, 58 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		BE 3A 8B 00 02 01 00 B3 15 1D 10 B3 15 83 00 03
+> 		00 00 00 10 00 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00 00 00 00 00
+>=20
+> Handle 0x008C, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 8C 00 08 00 00 86 80 34 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x008D, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 8D 00 8C 00 00 3A 05 00
+>=20
+> Handle 0x008E, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 8E 00 08 00 00 86 80 35 20 00 00 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x008F, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 8F 00 8E 00 00 3A 05 02
+>=20
+> Handle 0x0090, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 90 00 08 00 00 86 80 36 20 86 80 36 20 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0091, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 91 00 90 00 00 3A 05 04
+>=20
+> Handle 0x0092, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 92 00 08 00 00 86 80 66 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0093, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 93 00 92 00 00 3A 08 00
+>=20
+> Handle 0x0094, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 94 00 08 00 00 86 80 66 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0095, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 95 00 94 00 00 3A 09 00
+>=20
+> Handle 0x0096, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 96 00 08 00 00 86 80 40 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0097, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 97 00 96 00 00 3A 0A 00
+>=20
+> Handle 0x0098, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 98 00 08 00 00 86 80 41 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0099, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 99 00 98 00 00 3A 0A 01
+>=20
+> Handle 0x009A, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 9A 00 08 00 00 86 80 42 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x009B, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 9B 00 9A 00 00 3A 0A 02
+>=20
+> Handle 0x009C, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 9C 00 08 00 00 86 80 43 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x009D, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 9D 00 9C 00 00 3A 0A 03
+>=20
+> Handle 0x009E, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 9E 00 08 00 00 86 80 44 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x009F, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 9F 00 9E 00 00 3A 0A 04
+>=20
+> Handle 0x00A0, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 A0 00 08 00 00 86 80 45 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00A1, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A A1 00 A0 00 00 3A 0A 05
+>=20
+> Handle 0x00A2, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 A2 00 08 00 00 86 80 46 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00A3, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A A3 00 A2 00 00 3A 0A 06
+>=20
+> Handle 0x00A4, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 A4 00 08 00 00 86 80 47 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00A5, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A A5 00 A4 00 00 3A 0A 07
+>=20
+> Handle 0x00A6, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 A6 00 08 00 00 86 80 48 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00A7, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A A7 00 A6 00 00 3A 0B 00
+>=20
+> Handle 0x00A8, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 A8 00 08 00 00 86 80 49 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00A9, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A A9 00 A8 00 00 3A 0B 01
+>=20
+> Handle 0x00AA, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 AA 00 08 00 00 86 80 4A 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00AB, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A AB 00 AA 00 00 3A 0B 02
+>=20
+> Handle 0x00AC, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 AC 00 08 00 00 86 80 4B 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00AD, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A AD 00 AC 00 00 3A 0B 03
+>=20
+> Handle 0x00AE, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 AE 00 08 00 00 86 80 40 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00AF, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A AF 00 AE 00 00 3A 0C 00
+>=20
+> Handle 0x00B0, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 B0 00 08 00 00 86 80 41 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00B1, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A B1 00 B0 00 00 3A 0C 01
+>=20
+> Handle 0x00B2, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 B2 00 08 00 00 86 80 42 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00B3, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A B3 00 B2 00 00 3A 0C 02
+>=20
+> Handle 0x00B4, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 B4 00 08 00 00 86 80 43 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00B5, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A B5 00 B4 00 00 3A 0C 03
+>=20
+> Handle 0x00B6, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 B6 00 08 00 00 86 80 44 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00B7, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A B7 00 B6 00 00 3A 0C 04
+>=20
+> Handle 0x00B8, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 B8 00 08 00 00 86 80 45 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00B9, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A B9 00 B8 00 00 3A 0C 05
+>=20
+> Handle 0x00BA, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 BA 00 08 00 00 86 80 46 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00BB, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A BB 00 BA 00 00 3A 0C 06
+>=20
+> Handle 0x00BC, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 BC 00 08 00 00 86 80 47 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00BD, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A BD 00 BC 00 00 3A 0C 07
+>=20
+> Handle 0x00BE, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 BE 00 08 00 00 86 80 48 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00BF, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A BF 00 BE 00 00 3A 0D 00
+>=20
+> Handle 0x00C0, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 C0 00 08 00 00 86 80 49 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00C1, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A C1 00 C0 00 00 3A 0D 01
+>=20
+> Handle 0x00C2, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 C2 00 08 00 00 86 80 4A 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00C3, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A C3 00 C2 00 00 3A 0D 02
+>=20
+> Handle 0x00C4, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 C4 00 08 00 00 86 80 4B 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00C5, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A C5 00 C4 00 00 3A 0D 03
+>=20
+> Handle 0x00C6, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 C6 00 08 00 00 86 80 34 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00C7, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A C7 00 C6 00 00 5D 05 00
+>=20
+> Handle 0x00C8, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 C8 00 08 00 00 86 80 35 20 00 00 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00C9, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A C9 00 C8 00 00 5D 05 02
+>=20
+> Handle 0x00CA, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 CA 00 08 00 00 86 80 36 20 86 80 36 20 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00CB, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A CB 00 CA 00 00 5D 05 04
+>=20
+> Handle 0x00CC, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 CC 00 11 00 00 86 80 58 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00CD, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A CD 00 CC 00 00 5D 0E 00
+>=20
+> Handle 0x00CE, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 CE 00 08 00 00 86 80 59 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00CF, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A CF 00 CE 00 00 5D 0E 01
+>=20
+> Handle 0x00D0, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 D0 00 11 00 00 86 80 58 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00D1, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A D1 00 D0 00 00 5D 0F 00
+>=20
+> Handle 0x00D2, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 D2 00 08 00 00 86 80 59 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00D3, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A D3 00 D2 00 00 5D 0F 01
+>=20
+> Handle 0x00D4, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 D4 00 11 00 00 86 80 4C 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00D5, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A D5 00 D4 00 00 5D 12 00
+>=20
+> Handle 0x00D6, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 D6 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00D7, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A D7 00 D6 00 00 80 04 00
+>=20
+> Handle 0x00D8, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 D8 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00D9, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A D9 00 D8 00 00 80 04 01
+>=20
+> Handle 0x00DA, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 DA 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00DB, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A DB 00 DA 00 00 80 04 02
+>=20
+> Handle 0x00DC, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 DC 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00DD, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A DD 00 DC 00 00 80 04 03
+>=20
+> Handle 0x00DE, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 DE 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00DF, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A DF 00 DE 00 00 80 04 04
+>=20
+> Handle 0x00E0, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 E0 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00E1, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A E1 00 E0 00 00 80 04 05
+>=20
+> Handle 0x00E2, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 E2 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00E3, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A E3 00 E2 00 00 80 04 06
+>=20
+> Handle 0x00E4, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 E4 00 08 00 00 86 80 21 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00E5, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A E5 00 E4 00 00 80 04 07
+>=20
+> Handle 0x00E6, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 E6 00 08 00 00 86 80 24 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00E7, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A E7 00 E6 00 00 80 05 00
+>=20
+> Handle 0x00E8, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 E8 00 08 00 00 86 80 25 20 00 00 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00E9, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A E9 00 E8 00 00 80 05 02
+>=20
+> Handle 0x00EA, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 EA 00 08 00 00 86 80 26 20 86 80 26 20 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00EB, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A EB 00 EA 00 00 80 05 04
+>=20
+> Handle 0x00EC, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 EC 00 08 00 00 86 80 14 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00ED, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A ED 00 EC 00 00 80 08 00
+>=20
+> Handle 0x00EE, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 EE 00 08 00 00 86 80 16 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00EF, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A EF 00 EE 00 00 80 08 02
+>=20
+> Handle 0x00F0, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 F0 00 06 00 00 86 80 30 20 D9 15 62 09 03
+> 		00 00 00 08 00 00 00
+>=20
+> Handle 0x00F1, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A F1 00 F0 00 00 85 00 00
+>=20
+> Handle 0x00F2, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 F2 00 01 00 00 00 10 C9 00 D9 15 72 09 03
+> 		00 00 00 08 00 00 00
+>=20
+> Handle 0x00F3, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A F3 00 F2 00 00 86 00 00
+>=20
+> Handle 0x00F4, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 F4 00 08 00 00 86 80 34 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00F5, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A F5 00 F4 00 00 85 05 00
+>=20
+> Handle 0x00F6, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 F6 00 08 00 00 86 80 35 20 00 00 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00F7, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A F7 00 F6 00 00 85 05 02
+>=20
+> Handle 0x00F8, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 F8 00 08 00 00 86 80 36 20 86 80 36 20 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00F9, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A F9 00 F8 00 00 85 05 04
+>=20
+> Handle 0x00FA, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 FA 00 06 02 00 86 80 30 20 D9 15 62 09 01
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00FB, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A FB 00 FA 00 00 AE 00 00
+>=20
+> Handle 0x00FC, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 FC 00 08 00 00 86 80 34 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00FD, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A FD 00 FC 00 00 AE 05 00
+>=20
+> Handle 0x00FE, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 FE 00 08 00 00 86 80 35 20 00 00 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x00FF, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A FF 00 FE 00 00 AE 05 02
+>=20
+> Handle 0x0100, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 00 01 08 00 00 86 80 36 20 86 80 36 20 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0101, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 01 01 00 01 00 AE 05 04
+>=20
+> Handle 0x0102, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 02 01 08 00 00 86 80 66 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0103, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 03 01 02 01 00 AE 08 00
+>=20
+> Handle 0x0104, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 04 01 08 00 00 86 80 66 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0105, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 05 01 04 01 00 AE 09 00
+>=20
+> Handle 0x0106, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 06 01 08 00 00 86 80 40 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0107, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 07 01 06 01 00 AE 0A 00
+>=20
+> Handle 0x0108, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 08 01 08 00 00 86 80 41 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0109, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 09 01 08 01 00 AE 0A 01
+>=20
+> Handle 0x010A, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 0A 01 08 00 00 86 80 42 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x010B, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 0B 01 0A 01 00 AE 0A 02
+>=20
+> Handle 0x010C, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 0C 01 08 00 00 86 80 43 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x010D, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 0D 01 0C 01 00 AE 0A 03
+>=20
+> Handle 0x010E, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 0E 01 08 00 00 86 80 44 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x010F, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 0F 01 0E 01 00 AE 0A 04
+>=20
+> Handle 0x0110, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 10 01 08 00 00 86 80 45 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0111, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 11 01 10 01 00 AE 0A 05
+>=20
+> Handle 0x0112, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 12 01 08 00 00 86 80 46 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0113, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 13 01 12 01 00 AE 0A 06
+>=20
+> Handle 0x0114, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 14 01 08 00 00 86 80 47 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0115, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 15 01 14 01 00 AE 0A 07
+>=20
+> Handle 0x0116, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 16 01 08 00 00 86 80 48 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0117, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 17 01 16 01 00 AE 0B 00
+>=20
+> Handle 0x0118, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 18 01 08 00 00 86 80 49 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0119, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 19 01 18 01 00 AE 0B 01
+>=20
+> Handle 0x011A, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 1A 01 08 00 00 86 80 4A 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x011B, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 1B 01 1A 01 00 AE 0B 02
+>=20
+> Handle 0x011C, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 1C 01 08 00 00 86 80 4B 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x011D, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 1D 01 1C 01 00 AE 0B 03
+>=20
+> Handle 0x011E, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 1E 01 08 00 00 86 80 40 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x011F, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 1F 01 1E 01 00 AE 0C 00
+>=20
+> Handle 0x0120, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 20 01 08 00 00 86 80 41 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0121, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 21 01 20 01 00 AE 0C 01
+>=20
+> Handle 0x0122, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 22 01 08 00 00 86 80 42 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0123, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 23 01 22 01 00 AE 0C 02
+>=20
+> Handle 0x0124, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 24 01 08 00 00 86 80 43 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0125, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 25 01 24 01 00 AE 0C 03
+>=20
+> Handle 0x0126, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 26 01 08 00 00 86 80 44 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0127, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 27 01 26 01 00 AE 0C 04
+>=20
+> Handle 0x0128, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 28 01 08 00 00 86 80 45 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0129, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 29 01 28 01 00 AE 0C 05
+>=20
+> Handle 0x012A, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 2A 01 08 00 00 86 80 46 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x012B, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 2B 01 2A 01 00 AE 0C 06
+>=20
+> Handle 0x012C, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 2C 01 08 00 00 86 80 47 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x012D, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 2D 01 2C 01 00 AE 0C 07
+>=20
+> Handle 0x012E, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 2E 01 08 00 00 86 80 48 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x012F, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 2F 01 2E 01 00 AE 0D 00
+>=20
+> Handle 0x0130, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 30 01 08 00 00 86 80 49 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0131, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 31 01 30 01 00 AE 0D 01
+>=20
+> Handle 0x0132, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 32 01 08 00 00 86 80 4A 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0133, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 33 01 32 01 00 AE 0D 02
+>=20
+> Handle 0x0134, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 34 01 08 00 00 86 80 4B 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0135, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 35 01 34 01 00 AE 0D 03
+>=20
+> Handle 0x0136, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 36 01 06 0E 00 86 80 30 20 D9 15 62 09 01
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0137, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 37 01 36 01 00 D7 00 00
+>=20
+> Handle 0x0138, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 38 01 06 0F 00 86 80 31 20 D9 15 62 09 01
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0139, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 39 01 38 01 00 D7 01 00
+>=20
+> Handle 0x013A, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 3A 01 06 10 00 86 80 32 20 D9 15 62 09 01
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x013B, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 3B 01 3A 01 00 D7 02 00
+>=20
+> Handle 0x013C, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 3C 01 06 11 00 86 80 33 20 D9 15 62 09 01
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x013D, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 3D 01 3C 01 00 D7 03 00
+>=20
+> Handle 0x013E, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 3E 01 08 00 00 86 80 34 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x013F, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 3F 01 3E 01 00 D7 05 00
+>=20
+> Handle 0x0140, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 40 01 08 00 00 86 80 35 20 00 00 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0141, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 41 01 40 01 00 D7 05 02
+>=20
+> Handle 0x0142, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 42 01 08 00 00 86 80 36 20 86 80 36 20 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0143, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 43 01 42 01 00 D7 05 04
+>=20
+> Handle 0x0144, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 44 01 11 00 00 86 80 58 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0145, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 45 01 44 01 00 D7 0E 00
+>=20
+> Handle 0x0146, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 46 01 08 00 00 86 80 59 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0147, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 47 01 46 01 00 D7 0E 01
+>=20
+> Handle 0x0148, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 48 01 11 00 00 86 80 58 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x0149, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 49 01 48 01 00 D7 0F 00
+>=20
+> Handle 0x014A, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 4A 01 08 00 00 86 80 59 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x014B, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 4B 01 4A 01 00 D7 0F 01
+>=20
+> Handle 0x014C, DMI type 192, 23 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C0 17 4C 01 11 00 00 86 80 4C 20 86 80 00 00 00
+> 		00 00 00 00 00 00 00
+>=20
+> Handle 0x014D, DMI type 165, 10 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		A5 0A 4D 01 4C 01 00 D7 12 00
+>=20
+> Handle 0x014E, DMI type 193, 230 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C1 E6 4E 01 01 01 16 00 00 00 47 65 6E 75 6E 74
+> 		65 6C 69 6E 65 49 54 06 05 00 00 08 10 00 FF FB
+> 		FE 77 FF FB EB BF 01 63 03 76 FF B5 F0 00 00 00
+> 		00 00 00 00 C3 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00 40 00 00 00 40 00 00 00 03 00
+> 		00 00 20 20 00 00 77 00 00 00 02 00 00 00 09 00
+> 		00 00 00 00 00 00 00 00 00 00 FB FF 9F D3 08 00
+> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00 04 04 30 07 00 00 00 00 00 00
+> 		00 00 03 06 00 00 01 00 00 00 02 00 00 00 00 01
+> 		00 00 00 00 00 00 FF 02 00 00 80 0A 00 00 88 0A
+> 		00 00 00 00 00 00 00 00 00 00 3F 00 00 00 00 00
+> 		00 00 02 00 00 00 00 00 00 00 0A 00 00 00 00 00
+> 		00 00 00 00 00 00
+> 	Strings:
+> 		Socket 0
+>=20
+> Handle 0x014F, DMI type 193, 246 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C1 F6 4F 01 01 02 01 00 00 00 0F 00 00 00 07 00
+> 		00 00 00 00 00 00 02 00 00 00 90 00 00 00 00 00
+> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
+> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
+> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
+> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
+> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
+> 		00 00 00 00 00 00 08 00 00 80 00 00 00 00 00 00
+> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 21 01
+> 		00 00 00 08 10 2C 49 6E 74 65 6C 28 52 29 20 58
+> 		65 6F 6E 28 52 29 20 53 69 6C 76 65 72 20 34 31
+> 		30 38 20 43 50 55 20 40 20 31 2E 38 30 47 48 7A
+> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 40 60
+> 		00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 01 00 00 2E 30 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00
+> 	Strings:
+> 		Socket 0
+>=20
+> Handle 0x0150, DMI type 193, 230 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C1 E6 50 01 01 01 16 00 00 00 47 65 6E 75 6E 74
+> 		65 6C 69 6E 65 49 54 06 05 00 00 08 10 10 FF FB
+> 		FE 77 FF FB EB BF 01 63 03 76 FF B5 F0 00 00 00
+> 		00 00 00 00 C3 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00 40 00 00 00 40 00 00 00 03 00
+> 		00 00 20 20 00 00 77 00 00 00 02 00 00 00 09 00
+> 		00 00 00 00 00 00 00 00 00 00 FB FF 9F D3 08 00
+> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00 04 04 30 07 00 00 00 00 00 00
+> 		00 00 03 06 00 00 01 00 00 00 02 00 00 00 00 01
+> 		00 00 10 00 00 00 FF 02 00 00 80 0A 00 00 88 0A
+> 		00 00 00 00 00 00 00 00 00 00 3F 00 00 00 00 00
+> 		00 00 02 00 00 00 00 00 00 00 0A 00 00 00 00 00
+> 		00 00 00 00 00 00
+> 	Strings:
+> 		Socket 1
+>=20
+> Handle 0x0151, DMI type 193, 246 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C1 F6 51 01 01 02 01 00 00 00 0F 00 00 00 07 00
+> 		00 00 00 00 00 00 02 00 00 00 90 00 00 00 00 00
+> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
+> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
+> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
+> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
+> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
+> 		00 00 00 00 00 00 08 00 00 80 00 00 00 00 00 00
+> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 21 01
+> 		00 00 00 08 10 2C 49 6E 74 65 6C 28 52 29 20 58
+> 		65 6F 6E 28 52 29 20 53 69 6C 76 65 72 20 34 31
+> 		30 38 20 43 50 55 20 40 20 31 2E 38 30 47 48 7A
+> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 40 60
+> 		00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+> 		00 00 00 01 00 00 2E 30 00 00 00 00 00 00 00 00
+> 		00 00 00 00 00 00
+> 	Strings:
+> 		Socket 1
+>=20
+> Handle 0x0152, DMI type 196, 5 bytes
+> OEM-specific Type
+> 	Header and Data:
+> 		C4 05 52 01 00
+>=20
+> Handle 0x0153, DMI type 127, 4 bytes
+> End Of Table
+>=20
+>=20
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+
+
+--4lluKEjAFX7Zf09fXV5ictL26QPzfbbGx--
+
+--b9oKPa2LaO82NeqHYhn216RqnHul0myBC
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmABWnYFAwAAAAAACgkQlh/E3EQov+C+
+WA//ZrVhyvZXNcuLCj3XchmtieYu2FUtDLrOLIKogFaC70bXjts5EY5ohaue60v7K78t/DTtl9nB
+MyYIBtIOctnLHfkwQXIgRxkxSdFHsM7/AKrqasoc2NNC76vp7Mh8TdFKXVbEsUJDe7pcWVuVKB+A
+P/1ULsx84iAFevGhkoXtPfcjXrBAm3RiETf+S0T5EDCw46Yulq08py0so0w2vPCYYNftsg2yxx+U
+E97MHzgUL4Eaalxthp60y4RGNoCDlDbuj+iP+2/ti2DOF2RSM6WEdALjjCLONDokAkqzywXNqZ+T
+uRraM12yxJg7xs87XUU4hUUUHMJa4VSHZEetAmzFUAIMycAEwlV8iSyzOnEgPV6PHPcDd1vwQo11
+i4HI/hkYG015XBPsgXhBqOsvwiURUB1aHzwl9BiD+PhKvLesGUAoK6UK3nMiC+d/ajsjY8SPkRKN
+7gf0uB8vPEhqynhOW2oBk9L2aajz6rI7vUtSkDahu/DBQEuXUuNznZLIr9K3hwK2nSk6bEnajd2O
+LJa903LUYIt0WnjTV6arJQ/T1To8nVfUoW8+PQcYnnMPFjfi6l1fIY5VGQcavwtffanq//4yTHYL
+lJDuTH5mssTMlMwkuOBzSYAxnP0TEJM38Vjr3GTpEcnpnYfjaU7uWtTS3B1YzD9QJzzio7Cx2ewm
+Lw0=
+=U1Wi
+-----END PGP SIGNATURE-----
+
+--b9oKPa2LaO82NeqHYhn216RqnHul0myBC--
+
+--===============8216567510409235839==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8216567510409235839==--
