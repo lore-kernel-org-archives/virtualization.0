@@ -7,119 +7,101 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A343C433DB
-	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 20:42:39 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 387F6C433E0
+	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 20:58:06 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 341C323A9D
-	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 20:42:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 341C323A9D
+	by mail.kernel.org (Postfix) with ESMTPS id BCC9323A57
+	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 20:58:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BCC9323A57
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ideasonboard.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id CC3A68749F;
-	Fri, 15 Jan 2021 20:42:38 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 4EFB32E182;
+	Fri, 15 Jan 2021 20:58:05 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from silver.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qwuFn5+r6mE2; Fri, 15 Jan 2021 20:58:03 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id 6BEB02E171;
+	Fri, 15 Jan 2021 20:58:03 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5014CC0893;
+	Fri, 15 Jan 2021 20:58:03 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CEF7CC013A
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 15 Jan 2021 20:58:01 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id B724D874BB
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 15 Jan 2021 20:58:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id r0WtIPCcm9PR; Fri, 15 Jan 2021 20:42:38 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 49435872EE;
-	Fri, 15 Jan 2021 20:42:38 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 33E7DC0893;
-	Fri, 15 Jan 2021 20:42:38 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 51B68C013A
- for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 20:42:36 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 3F35686C19
- for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 20:42:36 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id i-YMMsrzEwTT
+ with ESMTP id UyVe0-vxBA74
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 20:42:35 +0000 (UTC)
+ Fri, 15 Jan 2021 20:58:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from perceval.ideasonboard.com (perceval.ideasonboard.com
  [213.167.242.64])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 5B27586C06
+ by hemlock.osuosl.org (Postfix) with ESMTPS id C19DE874B7
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 20:42:35 +0000 (UTC)
+ Fri, 15 Jan 2021 20:58:00 +0000 (UTC)
 Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi
  [62.78.145.57])
- by perceval.ideasonboard.com (Postfix) with ESMTPSA id 6768E58B;
- Fri, 15 Jan 2021 21:42:31 +0100 (CET)
+ by perceval.ideasonboard.com (Postfix) with ESMTPSA id F32CB58B;
+ Fri, 15 Jan 2021 21:57:56 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
- s=mail; t=1610743351;
- bh=YM0UFEEnI3+Rh/NmmpBAyHwTyu8kF8Q6d7WaAvXYXmg=;
+ s=mail; t=1610744277;
+ bh=VjE+h+vZVJvv9Us4y8H19WCA00VSbF5Mv39d7q0MA9U=;
  h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=ePDFtIg2t/f8Sh35gudyogfQHgJctjLWaOxjX9MALH284FX8TVNfetW4hT9f9t6Zs
- RkKSbZK9kxaFvE9rFVQDu2VmmTQ6+yQ/IEntNmQ4OGrAWr43Z8LNSl81omX5DWIITd
- FZb6j2pMbH2Kg7TVoFuIiyWnRsiWGYMJt85Nq3bg=
-Date: Fri, 15 Jan 2021 22:42:14 +0200
+ b=BV3hEMjlk7/sEuKZRq6pt0i2HuaqsH60PVECUzrsL2O1TD7ANDlEjKgpfLxpsno0J
+ V+GDPEX+RT1JaaqsMkgbVNMHG6qTeG7N7mWXbGklvGmCYKw1yxb3d/evRKRLjIbvkr
+ 5xrKIgguJLiN4CHn4qNUfx/2EFxHOtUVq3DDfbUg=
+Date: Fri, 15 Jan 2021 22:57:40 +0200
 From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 To: Maxime Ripard <maxime@cerno.tech>
-Subject: Re: [PATCH 05/10] drm: Use the state pointer directly in planes
- atomic_check
-Message-ID: <YAH+JvNnlx73BA+Q@pendragon.ideasonboard.com>
+Subject: Re: [PATCH 07/10] drm: Store new plane state in a variable for
+ atomic_update and disable
+Message-ID: <YAIBxF2kiy0twoV+@pendragon.ideasonboard.com>
 References: <20210115125703.1315064-1-maxime@cerno.tech>
- <20210115125703.1315064-5-maxime@cerno.tech>
+ <20210115125703.1315064-7-maxime@cerno.tech>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20210115125703.1315064-5-maxime@cerno.tech>
+In-Reply-To: <20210115125703.1315064-7-maxime@cerno.tech>
 Cc: Haneen Mohammed <hamohammed.sa@gmail.com>,
  Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Heiko =?utf-8?Q?St=C3=BCbner?= <heiko@sntech.de>,
- Neil Armstrong <narmstrong@baylibre.com>, David Airlie <airlied@linux.ie>,
- Liviu Dudau <liviu.dudau@arm.com>, dri-devel@lists.freedesktop.org,
- Sandy Huang <hjc@rock-chips.com>, Paul Cercueil <paul@crapouillou.net>,
- Rob Clark <robdclark@gmail.com>,
- Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+ David Airlie <airlied@linux.ie>, Liviu Dudau <liviu.dudau@arm.com>,
+ dri-devel@lists.freedesktop.org, Michal Simek <michal.simek@xilinx.com>,
+ Melissa Wen <melissa.srw@gmail.com>, linux-tegra@vger.kernel.org,
+ Thierry Reding <thierry.reding@gmail.com>,
  Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
- Daniel Vetter <daniel.vetter@intel.com>,
- Mihail Atanassov <mihail.atanassov@arm.com>, Sam Ravnborg <sam@ravnborg.org>,
- Michal Simek <michal.simek@xilinx.com>, linux-kernel@vger.kernel.org,
- Jerome Brunet <jbrunet@baylibre.com>, Marek Vasut <marex@denx.de>,
- linux-rockchip@lists.infradead.org, Fabio Estevam <festevam@gmail.com>,
- freedreno@lists.freedesktop.org, linux-mediatek@lists.infradead.org,
- Russell King <linux@armlinux.org.uk>, amd-gfx@lists.freedesktop.org,
+ Daniel Vetter <daniel.vetter@intel.com>, Sam Ravnborg <sam@ravnborg.org>,
+ Alexey Brodkin <abrodkin@synopsys.com>, Chen-Yu Tsai <wens@csie.org>,
+ Jonathan Hunter <jonathanh@nvidia.com>,
  Roland Scheidegger <sroland@vmware.com>,
- Xinliang Liu <xinliang.liu@linaro.org>,
  Ludovic Desroches <ludovic.desroches@microchip.com>,
- "James \(Qian\) Wang" <james.qian.wang@arm.com>,
- NXP Linux Team <linux-imx@nxp.com>, linux-arm-msm@vger.kernel.org,
- Dave Airlie <airlied@redhat.com>, Xinwei Kong <kong.kongxinwei@hisilicon.com>,
- Harry Wentland <harry.wentland@amd.com>, Hyun Kwon <hyun.kwon@xilinx.com>,
- Philipp Zabel <p.zabel@pengutronix.de>,
- Chun-Kuang Hu <chunkuang.hu@kernel.org>,
- Thomas Zimmermann <tzimmermann@suse.de>, Leo Li <sunpeng.li@amd.com>,
- Chen Feng <puck.chen@hisilicon.com>, Sascha Hauer <s.hauer@pengutronix.de>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>,
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
- Hans de Goede <hdegoede@redhat.com>, John Stultz <john.stultz@linaro.org>,
- Stefan Agner <stefan@agner.ch>, Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
- Matthias Brugger <matthias.bgg@gmail.com>, linux-amlogic@lists.infradead.org,
- Chen-Yu Tsai <wens@csie.org>, Sean Paul <sean@poorly.run>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- linux-arm-kernel@lists.infradead.org, Melissa Wen <melissa.srw@gmail.com>,
- Jernej Skrabec <jernej.skrabec@siol.net>,
  VMware Graphics <linux-graphics-maintainer@vmware.com>,
+ Dave Airlie <airlied@redhat.com>, Hyun Kwon <hyun.kwon@xilinx.com>,
+ Chun-Kuang Hu <chunkuang.hu@kernel.org>, Daniel Vetter <daniel@ffwll.ch>,
+ Edmund Dea <edmund.j.dea@intel.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Hans de Goede <hdegoede@redhat.com>,
+ linux-mediatek@lists.infradead.org, spice-devel@lists.freedesktop.org,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ virtualization@lists.linux-foundation.org,
+ linux-arm-kernel@lists.infradead.org, Jernej Skrabec <jernej.skrabec@siol.net>,
  Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
  Tomi Valkeinen <tomba@kernel.org>, Boris Brezillon <bbrezillon@kernel.org>,
- Jyri Sarha <jyri.sarha@iki.fi>, virtualization@lists.linux-foundation.org,
- Nicolas Ferre <nicolas.ferre@microchip.com>,
- Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>,
- Vincent Abriou <vincent.abriou@st.com>, Edmund Dea <edmund.j.dea@intel.com>,
- Daniel Vetter <daniel@ffwll.ch>, Kevin Hilman <khilman@baylibre.com>,
- Alex Deucher <alexander.deucher@amd.com>, Tian Tao <tiantao6@hisilicon.com>,
- Shawn Guo <shawnguo@kernel.org>, Brian Starkey <brian.starkey@arm.com>,
- Lucas Stach <l.stach@pengutronix.de>
+ Thomas Zimmermann <tzimmermann@suse.de>,
+ Nicolas Ferre <nicolas.ferre@microchip.com>, linux-kernel@vger.kernel.org,
+ linux-renesas-soc@vger.kernel.org,
+ Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+ Philipp Zabel <p.zabel@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>,
+ Brian Starkey <brian.starkey@arm.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -140,60 +122,132 @@ Hi Maxime,
 
 Thank you for the patch.
 
-On Fri, Jan 15, 2021 at 01:56:57PM +0100, Maxime Ripard wrote:
-> Now that atomic_check takes the global atomic state as a parameter, we
-> don't need to go through the pointer in the plane state.
+On Fri, Jan 15, 2021 at 01:56:59PM +0100, Maxime Ripard wrote:
+> In order to store the new plane state in a subsequent helper, let's move
+> the plane->state dereferences into a variable.
 > 
-> This was done using the following coccinelle script:
+> This was done using the following coccinelle script, plus some hand
+> changes for vmwgfx:
 > 
 > @ plane_atomic_func @
 > identifier helpers;
 > identifier func;
 > @@
 > 
-> static struct drm_plane_helper_funcs helpers = {
+> (
+>  static const struct drm_plane_helper_funcs helpers = {
+>  	...,
+>  	.atomic_disable = func,
 > 	...,
-> 	.atomic_check = func,
+>  };
+> |
+>  static const struct drm_plane_helper_funcs helpers = {
+>  	...,
+>  	.atomic_update = func,
 > 	...,
-> };
+>  };
+> )
 > 
-> @@
+> @ has_new_state_old_state @
 > identifier plane_atomic_func.func;
-> identifier plane, state;
-> identifier plane_state;
+> identifier plane;
+> identifier new_state;
+> symbol old_state;
 > @@
 > 
->   func(struct drm_plane *plane, struct drm_atomic_state *state) {
->   ...
-> - struct drm_plane_state *plane_state = drm_atomic_get_new_plane_state(state, plane);
->   <... when != plane_state
-> - plane_state->state
-> + state
->   ...>
+>  func(struct drm_plane *plane, struct drm_plane_state *old_state)
+>  {
+>  	...
+>  	struct drm_plane_state *new_state = plane->state;
+> 	...
 >  }
 > 
-> @@
+> @ depends on !has_new_state_old_state @
 > identifier plane_atomic_func.func;
-> identifier plane, state;
-> identifier plane_state;
+> identifier plane;
+> symbol old_state;
 > @@
 > 
->   func(struct drm_plane *plane, struct drm_atomic_state *state) {
->   ...
->   struct drm_plane_state *plane_state = drm_atomic_get_new_plane_state(state, plane);
->   <...
-> - plane_state->state
-> + state
->   ...>
+>  func(struct drm_plane *plane, struct drm_plane_state *old_state)
+>  {
+> +	struct drm_plane_state *new_state = plane->state;
+>  	<+...
+> -	plane->state
+> +	new_state
+> 	...+>
 >  }
+> 
+> @ has_new_state_state @
+> identifier plane_atomic_func.func;
+> identifier plane;
+> identifier new_state;
+> symbol state;
+> @@
+> 
+>  func(struct drm_plane *plane, struct drm_plane_state *state)
+>  {
+>  	...
+>  	struct drm_plane_state *new_state = plane->state;
+> 	...
+>  }
+> 
+> @ depends on !has_new_state_state @
+> identifier plane_atomic_func.func;
+> identifier plane;
+> symbol state;
+> @@
+> 
+>  func(struct drm_plane *plane, struct drm_plane_state *state)
+>  {
+> +	struct drm_plane_state *new_plane_state = plane->state;
+>  	<+...
+> -	plane->state
+> +	new_plane_state
+> 	...+>
+>  }
+> 
+> @ has_new_state_old_s @
+> identifier plane_atomic_func.func;
+> identifier plane;
+> identifier new_state;
+> symbol old_s;
+> @@
+> 
+>  func(struct drm_plane *plane, struct drm_plane_state *old_s)
+>  {
+>  	...
+>  	struct drm_plane_state *new_state = plane->state;
+> 	...
+>  }
+> 
+> @ depends on !has_new_state_old_s @
+> identifier plane_atomic_func.func;
+> identifier plane;
+> symbol old_s;
+> @@
+> 
+>  func(struct drm_plane *plane, struct drm_plane_state *old_s)
+>  {
+> +	struct drm_plane_state *new_s = plane->state;
+>  	<+...
+> -	plane->state
+> +	new_s
+> 	...+>
+>  }
+
+I may have taken this as an opportunity to align naming conventions for
+variables across drivers, but that may just be me.
+
 > 
 > Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 > ---
 
 [snip]
 
->  drivers/gpu/drm/omapdrm/omap_plane.c              | 2 +-
->  drivers/gpu/drm/xlnx/zynqmp_disp.c                | 2 +-
+>  drivers/gpu/drm/omapdrm/omap_plane.c          |  5 ++-
+>  drivers/gpu/drm/rcar-du/rcar_du_plane.c       |  5 ++-
+>  drivers/gpu/drm/rcar-du/rcar_du_vsp.c         |  3 +-
+>  drivers/gpu/drm/xlnx/zynqmp_disp.c            |  7 ++--
 
 For these, with the small issue below addressed,
 
@@ -201,22 +255,27 @@ Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
 [snip]
 
-> diff --git a/drivers/gpu/drm/xlnx/zynqmp_disp.c b/drivers/gpu/drm/xlnx/zynqmp_disp.c
-> index b0a3ba528718..d749acc78c85 100644
-> --- a/drivers/gpu/drm/xlnx/zynqmp_disp.c
-> +++ b/drivers/gpu/drm/xlnx/zynqmp_disp.c
-> @@ -1152,7 +1152,7 @@ zynqmp_disp_plane_atomic_check(struct drm_plane *plane,
->  	if (!new_plane_state->crtc)
->  		return 0;
+> diff --git a/drivers/gpu/drm/omapdrm/omap_plane.c b/drivers/gpu/drm/omapdrm/omap_plane.c
+> index 1042e1147e74..de5ad69af4cb 100644
+> --- a/drivers/gpu/drm/omapdrm/omap_plane.c
+> +++ b/drivers/gpu/drm/omapdrm/omap_plane.c
+> @@ -88,11 +88,12 @@ static void omap_plane_atomic_update(struct drm_plane *plane,
+>  static void omap_plane_atomic_disable(struct drm_plane *plane,
+>  				      struct drm_plane_state *old_state)
+>  {
+> +	struct drm_plane_state *new_state = plane->state;
+>  	struct omap_drm_private *priv = plane->dev->dev_private;
+>  	struct omap_plane *omap_plane = to_omap_plane(plane);
 >  
-> -	crtc_state = drm_atomic_get_crtc_state(new_plane_state->state,
-> +	crtc_state = drm_atomic_get_crtc_state(state,
->  					       new_plane_state->crtc);
+> -	plane->state->rotation = DRM_MODE_ROTATE_0;
+> -	plane->state->zpos = plane->type == DRM_PLANE_TYPE_PRIMARY
+> +	new_state->rotation = DRM_MODE_ROTATE_0;
+> +	new_state->zpos = plane->type == DRM_PLANE_TYPE_PRIMARY
+>  			   ? 0 : omap_plane->id;
 
-This now holds on a single line.
+Can you fix the indentation ?
 
->  	if (IS_ERR(crtc_state))
->  		return PTR_ERR(crtc_state);
+>  	dispc_ovl_enable(priv->dispc, omap_plane->id, false);
 
 [snip]
 
