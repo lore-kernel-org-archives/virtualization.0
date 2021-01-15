@@ -2,70 +2,122 @@ Return-Path: <SRS0=tWAs=GS=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFCF8C433DB
-	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 09:04:10 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78AFCC433E6
+	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 13:46:54 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 624A623128
-	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 09:04:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 624A623128
+	by mail.kernel.org (Postfix) with ESMTPS id 0562F23382
+	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 13:46:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0562F23382
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 0ED1687449;
-	Fri, 15 Jan 2021 09:04:10 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 96B94203EA;
+	Fri, 15 Jan 2021 13:46:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id E3GlXMchtplH; Fri, 15 Jan 2021 09:04:01 +0000 (UTC)
+	with ESMTP id wF5ghLtXZMcm; Fri, 15 Jan 2021 13:46:49 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 0E57487313;
-	Fri, 15 Jan 2021 09:04:01 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id D7EBD20377;
+	Fri, 15 Jan 2021 13:46:48 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CCDEFC08A1;
-	Fri, 15 Jan 2021 09:04:00 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C0AB4C088B;
+	Fri, 15 Jan 2021 13:46:48 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 06477C088B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 092A4C013A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 09:03:59 +0000 (UTC)
+ Fri, 15 Jan 2021 13:46:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id DC95D867BD
+ by fraxinus.osuosl.org (Postfix) with ESMTP id E0F0186B00
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 09:03:58 +0000 (UTC)
+ Fri, 15 Jan 2021 13:46:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wHLH7tfslxBV
+ with ESMTP id VQazbqrnhxrM
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 09:03:53 +0000 (UTC)
+ Fri, 15 Jan 2021 13:46:44 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 597588665F
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id B75F486AFD
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 09:03:53 +0000 (UTC)
+ Fri, 15 Jan 2021 13:46:43 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id C0376AA6F;
- Fri, 15 Jan 2021 09:03:51 +0000 (UTC)
-To: Eli Cohen <elic@nvidia.com>, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, daniel.vetter@ffwll.ch,
- christian.koenig@amd.com, sam@ravnborg.org
-References: <20210114151529.GA79120@mtl-vdi-166.wap.labs.mlnx>
+ by mx2.suse.de (Postfix) with ESMTP id 800F0B1C2;
+ Fri, 15 Jan 2021 13:46:41 +0000 (UTC)
+Subject: Re: [PATCH 02/10] drm: Rename plane atomic_check state names
+To: Maxime Ripard <maxime@cerno.tech>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Daniel Vetter <daniel.vetter@intel.com>, David Airlie <airlied@linux.ie>
+References: <20210115125703.1315064-1-maxime@cerno.tech>
+ <20210115125703.1315064-2-maxime@cerno.tech>
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: Change eats memory on my server
-Message-ID: <23cf7712-1daf-23b8-b596-792c9586d6b4@suse.de>
-Date: Fri, 15 Jan 2021 10:03:50 +0100
+Message-ID: <221e5626-d97c-9d4e-07cc-e696c92ceb65@suse.de>
+Date: Fri, 15 Jan 2021 14:46:36 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.6.0
 MIME-Version: 1.0
-In-Reply-To: <20210114151529.GA79120@mtl-vdi-166.wap.labs.mlnx>
-Cc: dri-devel <dri-devel@lists.freedesktop.org>
+In-Reply-To: <20210115125703.1315064-2-maxime@cerno.tech>
+Cc: Haneen Mohammed <hamohammed.sa@gmail.com>, amd-gfx@lists.freedesktop.org,
+ =?UTF-8?Q?Heiko_St=c3=bcbner?= <heiko@sntech.de>,
+ Neil Armstrong <narmstrong@baylibre.com>,
+ Xinliang Liu <xinliang.liu@linaro.org>, nouveau@lists.freedesktop.org,
+ Liviu Dudau <liviu.dudau@arm.com>, Stefan Agner <stefan@agner.ch>,
+ Philippe Cornu <philippe.cornu@st.com>, Paul Cercueil <paul@crapouillou.net>,
+ Eric Anholt <eric@anholt.net>, Chen-Yu Tsai <wens@csie.org>,
+ Thierry Reding <thierry.reding@gmail.com>, Rob Clark <robdclark@gmail.com>,
+ Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+ Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
+ Mihail Atanassov <mihail.atanassov@arm.com>,
+ Fabio Estevam <festevam@gmail.com>, Michal Simek <michal.simek@xilinx.com>,
+ linux-kernel@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
+ Yannick Fertre <yannick.fertre@st.com>, linux-samsung-soc@vger.kernel.org,
+ Joonyoung Shim <jy0922.shim@samsung.com>, linux-rockchip@lists.infradead.org,
+ Kevin Hilman <khilman@baylibre.com>, freedreno@lists.freedesktop.org,
+ linux-mediatek@lists.infradead.org, Russell King <linux@armlinux.org.uk>,
+ Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>,
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+ Xinwei Kong <kong.kongxinwei@hisilicon.com>,
+ "James \(Qian\) Wang" <james.qian.wang@arm.com>,
+ NXP Linux Team <linux-imx@nxp.com>, linux-arm-msm@vger.kernel.org,
+ Dave Airlie <airlied@redhat.com>, Harry Wentland <harry.wentland@amd.com>,
+ Hyun Kwon <hyun.kwon@xilinx.com>, virtualization@lists.linux-foundation.org,
+ Ben Skeggs <bskeggs@redhat.com>, Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+ linux-tegra@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
+ Alexandre Torgue <alexandre.torgue@st.com>, Leo Li <sunpeng.li@amd.com>,
+ Chen Feng <puck.chen@hisilicon.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+ Alison Wang <alison.wang@nxp.com>, Roland Scheidegger <sroland@vmware.com>,
+ linux-renesas-soc@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
+ Inki Dae <inki.dae@samsung.com>, John Stultz <john.stultz@linaro.org>,
+ dri-devel@lists.freedesktop.org, Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
+ Matthias Brugger <matthias.bgg@gmail.com>, linux-amlogic@lists.infradead.org,
+ Edmund Dea <edmund.j.dea@intel.com>, Sean Paul <sean@poorly.run>,
+ Pengutronix Kernel Team <kernel@pengutronix.de>,
+ linux-arm-kernel@lists.infradead.org, Melissa Wen <melissa.srw@gmail.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Jernej Skrabec <jernej.skrabec@siol.net>,
+ VMware Graphics <linux-graphics-maintainer@vmware.com>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
+ Tomi Valkeinen <tomba@kernel.org>, Jyri Sarha <jyri.sarha@iki.fi>,
+ linux-stm32@st-md-mailman.stormreply.com,
+ Seung-Woo Kim <sw0312.kim@samsung.com>, Sandy Huang <hjc@rock-chips.com>,
+ =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
+ Vincent Abriou <vincent.abriou@st.com>,
+ Kyungmin Park <kyungmin.park@samsung.com>,
+ Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+ spice-devel@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>,
+ Alex Deucher <alexander.deucher@amd.com>, Tian Tao <tiantao6@hisilicon.com>,
+ Shawn Guo <shawnguo@kernel.org>, Brian Starkey <brian.starkey@arm.com>,
+ Lucas Stach <l.stach@pengutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -77,2809 +129,1715 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============8216567510409235839=="
+Content-Type: multipart/mixed; boundary="===============8164778750273332059=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============8216567510409235839==
+--===============8164778750273332059==
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="b9oKPa2LaO82NeqHYhn216RqnHul0myBC"
+ boundary="lskaz8LNiVcoYs32HxGmgvvWi4Wmq6HeF"
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---b9oKPa2LaO82NeqHYhn216RqnHul0myBC
-Content-Type: multipart/mixed; boundary="4lluKEjAFX7Zf09fXV5ictL26QPzfbbGx";
+--lskaz8LNiVcoYs32HxGmgvvWi4Wmq6HeF
+Content-Type: multipart/mixed; boundary="G73GagE3zy2UEeAS8xRbo0xZxh4D3MkVG";
  protected-headers="v1"
 From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Eli Cohen <elic@nvidia.com>, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, daniel.vetter@ffwll.ch,
- christian.koenig@amd.com, sam@ravnborg.org
-Cc: dri-devel <dri-devel@lists.freedesktop.org>
-Message-ID: <23cf7712-1daf-23b8-b596-792c9586d6b4@suse.de>
-Subject: Re: Change eats memory on my server
-References: <20210114151529.GA79120@mtl-vdi-166.wap.labs.mlnx>
-In-Reply-To: <20210114151529.GA79120@mtl-vdi-166.wap.labs.mlnx>
+To: Maxime Ripard <maxime@cerno.tech>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Daniel Vetter <daniel.vetter@intel.com>, David Airlie <airlied@linux.ie>
+Cc: dri-devel@lists.freedesktop.org, Harry Wentland <harry.wentland@amd.com>,
+ Leo Li <sunpeng.li@amd.com>, Alex Deucher <alexander.deucher@amd.com>,
+ =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
+ Daniel Vetter <daniel@ffwll.ch>, "James (Qian) Wang"
+ <james.qian.wang@arm.com>, Liviu Dudau <liviu.dudau@arm.com>,
+ Mihail Atanassov <mihail.atanassov@arm.com>,
+ Brian Starkey <brian.starkey@arm.com>, Russell King <linux@armlinux.org.uk>,
+ Dave Airlie <airlied@redhat.com>, Inki Dae <inki.dae@samsung.com>,
+ Joonyoung Shim <jy0922.shim@samsung.com>,
+ Seung-Woo Kim <sw0312.kim@samsung.com>,
+ Kyungmin Park <kyungmin.park@samsung.com>,
+ Krzysztof Kozlowski <krzk@kernel.org>, Stefan Agner <stefan@agner.ch>,
+ Alison Wang <alison.wang@nxp.com>, Xinliang Liu <xinliang.liu@linaro.org>,
+ Tian Tao <tiantao6@hisilicon.com>, John Stultz <john.stultz@linaro.org>,
+ Xinwei Kong <kong.kongxinwei@hisilicon.com>,
+ Chen Feng <puck.chen@hisilicon.com>,
+ Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
+ Lucas Stach <l.stach@pengutronix.de>, Philipp Zabel
+ <p.zabel@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>,
+ Sascha Hauer <s.hauer@pengutronix.de>,
+ Pengutronix Kernel Team <kernel@pengutronix.de>,
+ Fabio Estevam <festevam@gmail.com>, NXP Linux Team <linux-imx@nxp.com>,
+ Paul Cercueil <paul@crapouillou.net>,
+ Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
+ Edmund Dea <edmund.j.dea@intel.com>, Chun-Kuang Hu
+ <chunkuang.hu@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+ Neil Armstrong <narmstrong@baylibre.com>, Kevin Hilman
+ <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>,
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+ Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>,
+ Ben Skeggs <bskeggs@redhat.com>, Tomi Valkeinen <tomba@kernel.org>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+ Sandy Huang <hjc@rock-chips.com>, =?UTF-8?Q?Heiko_St=c3=bcbner?=
+ <heiko@sntech.de>, Benjamin Gaignard <benjamin.gaignard@linaro.org>,
+ Vincent Abriou <vincent.abriou@st.com>,
+ Yannick Fertre <yannick.fertre@st.com>,
+ Philippe Cornu <philippe.cornu@st.com>,
+ Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+ Alexandre Torgue <alexandre.torgue@st.com>,
+ Maxime Ripard <mripard@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
+ Jernej Skrabec <jernej.skrabec@siol.net>,
+ Thierry Reding <thierry.reding@gmail.com>,
+ Jonathan Hunter <jonathanh@nvidia.com>, Jyri Sarha <jyri.sarha@iki.fi>,
+ Eric Anholt <eric@anholt.net>,
+ Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
+ Melissa Wen <melissa.srw@gmail.com>,
+ Haneen Mohammed <hamohammed.sa@gmail.com>,
+ VMware Graphics <linux-graphics-maintainer@vmware.com>,
+ Roland Scheidegger <sroland@vmware.com>, Hyun Kwon <hyun.kwon@xilinx.com>,
+ Michal Simek <michal.simek@xilinx.com>, amd-gfx@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-mediatek@lists.infradead.org,
+ linux-amlogic@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+ freedreno@lists.freedesktop.org, nouveau@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org,
+ spice-devel@lists.freedesktop.org, linux-renesas-soc@vger.kernel.org,
+ linux-rockchip@lists.infradead.org,
+ linux-stm32@st-md-mailman.stormreply.com, linux-tegra@vger.kernel.org
+Message-ID: <221e5626-d97c-9d4e-07cc-e696c92ceb65@suse.de>
+Subject: Re: [PATCH 02/10] drm: Rename plane atomic_check state names
+References: <20210115125703.1315064-1-maxime@cerno.tech>
+ <20210115125703.1315064-2-maxime@cerno.tech>
+In-Reply-To: <20210115125703.1315064-2-maxime@cerno.tech>
 
---4lluKEjAFX7Zf09fXV5ictL26QPzfbbGx
+--G73GagE3zy2UEeAS8xRbo0xZxh4D3MkVG
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-(cc'ing dri-devel)
-
 Hi
 
-Am 14.01.21 um 16:15 schrieb Eli Cohen:
-> Hi Thomas,
->=20
-> After long bisecting I found that this patch,
->=20
-> commit 1086db71a1dbbfb32ffb42cf0d540b69956f951e
-> Author: Thomas Zimmermann <tzimmermann@suse.de>
-> Date:   Tue Nov 3 10:30:06 2020 +0100
->=20
->      drm/vram-helper: Remove invariant parameters from internal kmap fu=
-nction
->=20
-> is the offending patch causing the kernel to eat my server memory. It
-> will eat all 24 GB of ram after around 7 hours.
+Am 15.01.21 um 13:56 schrieb Maxime Ripard:
+> diff --git a/drivers/gpu/drm/imx/ipuv3-plane.c b/drivers/gpu/drm/imx/ip=
+uv3-plane.c
+> index 8a4235d9d9f1..2cb09e9d9306 100644
+> --- a/drivers/gpu/drm/imx/ipuv3-plane.c
+> +++ b/drivers/gpu/drm/imx/ipuv3-plane.c
+> @@ -344,12 +344,12 @@ static const struct drm_plane_funcs ipu_plane_fun=
+cs =3D {
+>   };
+>  =20
+>   static int ipu_plane_atomic_check(struct drm_plane *plane,
+> -				  struct drm_plane_state *state)
+> +				  struct drm_plane_state *new_state)
 
-Thanks for reporting. It's a bit strange that this commit shows up,=20
-because there's nothing that should produce a memory leak.
-
-Could you please double-check that 3fb91f56aea4 ("drm/udl: Retrieve USB=20
-device from struct drm_device.dev") works correctly and that=20
-823efa922102 ("drm/cma-helper: Remove empty drm_gem_cma_prime_vunmap()") =
-
-is broken?
-
-For one of the broken commits, could you please send us the output of
-
-   dmesg | grep -i drm
-
-after most of the memory got leaked?
+It's not 'new_plane_state' ?
 
 Best regards
 Thomas
 
->=20
-> It's a a super micro server. The output of dmidecode is below:
->=20
->=20
-> # dmidecode 3.2
-> Getting SMBIOS data from sysfs.
-> SMBIOS 3.1.1 present.
-> Table at 0x6F01B000.
->=20
-> Handle 0x0000, DMI type 0, 26 bytes
-> BIOS Information
-> 	Vendor: American Megatrends Inc.
-> 	Version: 2.0
-> 	Release Date: 11/30/2017
-> 	Address: 0xF0000
-> 	Runtime Size: 64 kB
-> 	ROM Size: 32 MB
-> 	Characteristics:
-> 		PCI is supported
-> 		BIOS is upgradeable
-> 		BIOS shadowing is allowed
-> 		Boot from CD is supported
-> 		Selectable boot is supported
-> 		BIOS ROM is socketed
-> 		EDD is supported
-> 		5.25"/1.2 MB floppy services are supported (int 13h)
-> 		3.5"/720 kB floppy services are supported (int 13h)
-> 		3.5"/2.88 MB floppy services are supported (int 13h)
-> 		Print screen service is supported (int 5h)
-> 		Serial services are supported (int 14h)
-> 		Printer services are supported (int 17h)
-> 		ACPI is supported
-> 		USB legacy is supported
-> 		BIOS boot specification is supported
-> 		Targeted content distribution is supported
-> 		UEFI is supported
-> 	BIOS Revision: 5.12
->=20
-> Handle 0x0001, DMI type 1, 27 bytes
-> System Information
-> 	Manufacturer: Supermicro
-> 	Product Name: Super Server
-> 	Version: 0123456789
-> 	Serial Number: 0123456789
-> 	UUID: 00000000-0000-0000-0000-0cc47af973ca
-> 	Wake-up Type: Power Switch
-> 	SKU Number: To be filled by O.E.M.
-> 	Family: To be filled by O.E.M.
->=20
-> Handle 0x0002, DMI type 2, 15 bytes
-> Base Board Information
-> 	Manufacturer: Supermicro
-> 	Product Name: X11DPT-B
-> 	Version: 1.02
-> 	Serial Number: HM179S003332
-> 	Asset Tag: To be filled by O.E.M.
-> 	Features:
-> 		Board is a hosting board
-> 		Board is replaceable
-> 	Location In Chassis: To be filled by O.E.M.
-> 	Chassis Handle: 0x0003
-> 	Type: Motherboard
-> 	Contained Object Handles: 0
->=20
-> Handle 0x0003, DMI type 3, 22 bytes
-> Chassis Information
-> 	Manufacturer: Supermicro
-> 	Type: Main Server Chassis
-> 	Lock: Not Present
-> 	Version: 0123456789
-> 	Serial Number: 0123456789
-> 	Asset Tag: To be filled by O.E.M.
-> 	Boot-up State: Safe
-> 	Power Supply State: Safe
-> 	Thermal State: Safe
-> 	Security Status: None
-> 	OEM Information: 0x00000000
-> 	Height: Unspecified
-> 	Number Of Power Cords: 1
-> 	Contained Elements: 0
-> 	SKU Number: To be filled by O.E.M.
->=20
-> Handle 0x0004, DMI type 8, 9 bytes
-> Port Connector Information
-> 	Internal Reference Designator: JVGA1
-> 	Internal Connector Type: None
-> 	External Reference Designator: VGA
-> 	External Connector Type: DB-15 female
-> 	Port Type: Video Port
->=20
-> Handle 0x0005, DMI type 8, 9 bytes
-> Port Connector Information
-> 	Internal Reference Designator: JLAN1
-> 	Internal Connector Type: None
-> 	External Reference Designator: IPMI_LAN
-> 	External Connector Type: RJ-45
-> 	Port Type: Network Port
->=20
-> Handle 0x0006, DMI type 8, 9 bytes
-> Port Connector Information
-> 	Internal Reference Designator: JUSB1
-> 	Internal Connector Type: None
-> 	External Reference Designator: USB0/1(3.0)
-> 	External Connector Type: Access Bus (USB)
-> 	Port Type: USB
->=20
-> Handle 0x0007, DMI type 8, 9 bytes
-> Port Connector Information
-> 	Internal Reference Designator: TPM/PORT80
-> 	Internal Connector Type: Other
-> 	External Reference Designator: Not Specified
-> 	External Connector Type: None
-> 	Port Type: Other
->=20
-> Handle 0x0008, DMI type 8, 9 bytes
-> Port Connector Information
-> 	Internal Reference Designator: FAN3
-> 	Internal Connector Type: Other
-> 	External Reference Designator: Not Specified
-> 	External Connector Type: None
-> 	Port Type: Other
->=20
-> Handle 0x0009, DMI type 8, 9 bytes
-> Port Connector Information
-> 	Internal Reference Designator: FAN4
-> 	Internal Connector Type: Other
-> 	External Reference Designator: Not Specified
-> 	External Connector Type: None
-> 	Port Type: Other
->=20
-> Handle 0x000A, DMI type 8, 9 bytes
-> Port Connector Information
-> 	Internal Reference Designator: JCOM1 - COM1
-> 	Internal Connector Type: Other
-> 	External Reference Designator: Not Specified
-> 	External Connector Type: None
-> 	Port Type: Other
->=20
-> Handle 0x000B, DMI type 8, 9 bytes
-> Port Connector Information
-> 	Internal Reference Designator: I-SATA6
-> 	Internal Connector Type: Other
-> 	External Reference Designator: Not Specified
-> 	External Connector Type: None
-> 	Port Type: Other
->=20
-> Handle 0x000C, DMI type 8, 9 bytes
-> Port Connector Information
-> 	Internal Reference Designator: JSD1 - SATA PWR
-> 	Internal Connector Type: Other
-> 	External Reference Designator: Not Specified
-> 	External Connector Type: None
-> 	Port Type: Other
->=20
-> Handle 0x000D, DMI type 9, 17 bytes
-> System Slot Information
-> 	Designation: CPU1 SLOT1 PCI-E 3.0 X16E 3.0 X16
-> 	Type: x16 PCI Express 3 x16
-> 	Current Usage: In Use
-> 	Length: Long
-> 	ID: 1
-> 	Characteristics:
-> 		3.3 V is provided
-> 		Opening is shared
-> 		PME signal is supported
-> 	Bus Address: 0000:3b:00.0
->=20
-> Handle 0x000E, DMI type 9, 17 bytes
-> System Slot Information
-> 	Designation: CPU1 SIOM PCI-E 3.0 X16
-> 	Type: x16 PCI Express 3 x16
-> 	Current Usage: In Use
-> 	Length: Short
-> 	ID: 1
-> 	Characteristics:
-> 		3.3 V is provided
-> 		Opening is shared
-> 		PME signal is supported
-> 	Bus Address: 0000:18:00.0
->=20
-> Handle 0x000F, DMI type 9, 17 bytes
-> System Slot Information
-> 	Designation: CPU2 RSC-P-6 PCI-E 3.0 X16 3.0 X8
-> 	Type: x16 PCI Express 3 x16
-> 	Current Usage: Available
-> 	Length: Short
-> 	ID: 1
-> 	Characteristics:
-> 		3.3 V is provided
-> 		Opening is shared
-> 		PME signal is supported
-> 	Bus Address: 0000:af:00.0
->=20
-> Handle 0x0011, DMI type 11, 5 bytes
-> OEM Strings
-> 	String 1: Intel Skylake/Lewisburg/Purley
-> 	String 2: Supermicro motherboard-X11 Series
->=20
-> Handle 0x0012, DMI type 32, 20 bytes
-> System Boot Information
-> 	Status: No errors detected
->=20
-> Handle 0x0013, DMI type 39, 22 bytes
-> System Power Supply
-> 	Power Unit Group: 1
-> 	Location: PSU1
-> 	Name: PWS-2K22A-1R
-> 	Manufacturer: SUPERMICRO
-> 	Serial Number: P2K22CH46JT0157
-> 	Asset Tag: N/A
-> 	Model Part Number: PWS-2K22A-1R
-> 	Revision: 1.3
-> 	Max Power Capacity: 2200 W
-> 	Status: Present, OK
-> 	Type: Switching
-> 	Input Voltage Range Switching: Auto-switch
-> 	Plugged: Yes
-> 	Hot Replaceable: No
->=20
-> Handle 0x0014, DMI type 39, 22 bytes
-> System Power Supply
-> 	Power Unit Group: 2
-> 	Location: PSU2
-> 	Name: PWS-2K22A-1R
-> 	Manufacturer: SUPERMICRO
-> 	Serial Number: P2K22CH46JT0155
-> 	Asset Tag: N/A
-> 	Model Part Number: PWS-2K22A-1R
-> 	Revision: 1.3
-> 	Max Power Capacity: 2200 W
-> 	Status: Present, OK
-> 	Type: Switching
-> 	Input Voltage Range Switching: Auto-switch
-> 	Plugged: Yes
-> 	Hot Replaceable: No
->=20
-> Handle 0x0015, DMI type 41, 11 bytes
-> Onboard Device
-> 	Reference Designation: ASPEED Video AST2500
-> 	Type: Video
-> 	Status: Enabled
-> 	Type Instance: 1
-> 	Bus Address: 0000:03:00.0
->=20
-> Handle 0x0016, DMI type 38, 18 bytes
-> IPMI Device Information
-> 	Interface Type: KCS (Keyboard Control Style)
-> 	Specification Version: 2.0
-> 	I2C Slave Address: 0x10
-> 	NV Storage Device: Not Present
-> 	Base Address: 0x0000000000000CA2 (I/O)
-> 	Register Spacing: Successive Byte Boundaries
->=20
-> Handle 0x0017, DMI type 42, 12 bytes
-> Management Controller Host Interface
-> 	Interface Type: KCS: Keyboard Controller Style
->=20
-> Handle 0x001C, DMI type 15, 73 bytes
-> System Event Log
-> 	Area Length: 65535 bytes
-> 	Header Start Offset: 0x0000
-> 	Header Length: 16 bytes
-> 	Data Start Offset: 0x0010
-> 	Access Method: Memory-mapped physical 32-bit address
-> 	Access Address: 0xFF110000
-> 	Status: Valid, Not Full
-> 	Change Token: 0x00000001
-> 	Header Format: Type 1
-> 	Supported Log Type Descriptors: 25
-> 	Descriptor 1: Single-bit ECC memory error
-> 	Data Format 1: Multiple-event handle
-> 	Descriptor 2: Multi-bit ECC memory error
-> 	Data Format 2: Multiple-event handle
-> 	Descriptor 3: Parity memory error
-> 	Data Format 3: None
-> 	Descriptor 4: Bus timeout
-> 	Data Format 4: None
-> 	Descriptor 5: I/O channel block
-> 	Data Format 5: None
-> 	Descriptor 6: Software NMI
-> 	Data Format 6: None
-> 	Descriptor 7: POST memory resize
-> 	Data Format 7: None
-> 	Descriptor 8: POST error
-> 	Data Format 8: POST results bitmap
-> 	Descriptor 9: PCI parity error
-> 	Data Format 9: Multiple-event handle
-> 	Descriptor 10: PCI system error
-> 	Data Format 10: Multiple-event handle
-> 	Descriptor 11: CPU failure
-> 	Data Format 11: None
-> 	Descriptor 12: EISA failsafe timer timeout
-> 	Data Format 12: None
-> 	Descriptor 13: Correctable memory log disabled
-> 	Data Format 13: None
-> 	Descriptor 14: Logging disabled
-> 	Data Format 14: None
-> 	Descriptor 15: System limit exceeded
-> 	Data Format 15: None
-> 	Descriptor 16: Asynchronous hardware timer expired
-> 	Data Format 16: None
-> 	Descriptor 17: System configuration information
-> 	Data Format 17: None
-> 	Descriptor 18: Hard disk information
-> 	Data Format 18: None
-> 	Descriptor 19: System reconfigured
-> 	Data Format 19: None
-> 	Descriptor 20: Uncorrectable CPU-complex error
-> 	Data Format 20: None
-> 	Descriptor 21: Log area reset/cleared
-> 	Data Format 21: None
-> 	Descriptor 22: System boot
-> 	Data Format 22: None
-> 	Descriptor 23: End of log
-> 	Data Format 23: None
-> 	Descriptor 24: OEM-specific
-> 	Data Format 24: OEM-specific
-> 	Descriptor 25: OEM-specific
-> 	Data Format 25: OEM-specific
->=20
-> Handle 0x001D, DMI type 16, 23 bytes
-> Physical Memory Array
-> 	Location: System Board Or Motherboard
-> 	Use: System Memory
-> 	Error Correction Type: Single-bit ECC
-> 	Maximum Capacity: 2304 GB
-> 	Error Information Handle: Not Provided
-> 	Number Of Devices: 6
->=20
-> Handle 0x001E, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x001D
-> 	Error Information Handle: Not Provided
-> 	Total Width: 72 bits
-> 	Data Width: 64 bits
-> 	Size: 8 GB
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P1-DIMMA1
-> 	Bank Locator: P0_Node0_Channel0_Dimm0
-> 	Type: DDR4
-> 	Type Detail: Synchronous
-> 	Speed: 2400 MT/s
-> 	Manufacturer: Micron Technology
-> 	Serial Number: 181E11CB
-> 	Asset Tag: P1-DIMMA1_AssetTag (date:17/31)
-> 	Part Number: 9ASF1G72PZ-2G3B1
-> 	Rank: 1
-> 	Configured Memory Speed: 2400 MT/s
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x001F, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x001D
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P1-DIMMA2
-> 	Bank Locator: P0_Node0_Channel0_Dimm1
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0020, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x001D
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P1-DIMMB1
-> 	Bank Locator: P0_Node0_Channel1_Dimm0
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0021, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x001D
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P1-DIMMB2
-> 	Bank Locator: P0_Node0_Channel1_Dimm1
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0022, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x001D
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P1-DIMMC1
-> 	Bank Locator: P0_Node0_Channel2_Dimm0
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0023, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x001D
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P1-DIMMC2
-> 	Bank Locator: P0_Node0_Channel2_Dimm1
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0024, DMI type 16, 23 bytes
-> Physical Memory Array
-> 	Location: System Board Or Motherboard
-> 	Use: System Memory
-> 	Error Correction Type: Single-bit ECC
-> 	Maximum Capacity: 2304 GB
-> 	Error Information Handle: Not Provided
-> 	Number Of Devices: 6
->=20
-> Handle 0x0025, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x0024
-> 	Error Information Handle: Not Provided
-> 	Total Width: 72 bits
-> 	Data Width: 64 bits
-> 	Size: 8 GB
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P1-DIMMD1
-> 	Bank Locator: P0_Node1_Channel0_Dimm0
-> 	Type: DDR4
-> 	Type Detail: Synchronous
-> 	Speed: 2400 MT/s
-> 	Manufacturer: Micron Technology
-> 	Serial Number: 181E129C
-> 	Asset Tag: P1-DIMMD1_AssetTag (date:17/31)
-> 	Part Number: 9ASF1G72PZ-2G3B1
-> 	Rank: 1
-> 	Configured Memory Speed: 2400 MT/s
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0026, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x0024
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P1-DIMMD2
-> 	Bank Locator: P0_Node1_Channel0_Dimm1
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0027, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x0024
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P1-DIMME1
-> 	Bank Locator: P0_Node1_Channel1_Dimm0
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0028, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x0024
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P1-DIMME2
-> 	Bank Locator: P0_Node1_Channel1_Dimm1
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0029, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x0024
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P1-DIMMF1
-> 	Bank Locator: P0_Node1_Channel2_Dimm0
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x002A, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x0024
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P1-DIMMF2
-> 	Bank Locator: P0_Node1_Channel2_Dimm1
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x002B, DMI type 16, 23 bytes
-> Physical Memory Array
-> 	Location: System Board Or Motherboard
-> 	Use: System Memory
-> 	Error Correction Type: Single-bit ECC
-> 	Maximum Capacity: 2304 GB
-> 	Error Information Handle: Not Provided
-> 	Number Of Devices: 6
->=20
-> Handle 0x002C, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x002B
-> 	Error Information Handle: Not Provided
-> 	Total Width: 72 bits
-> 	Data Width: 64 bits
-> 	Size: 8 GB
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P2-DIMMA1
-> 	Bank Locator: P1_Node0_Channel0_Dimm0
-> 	Type: DDR4
-> 	Type Detail: Synchronous
-> 	Speed: 2400 MT/s
-> 	Manufacturer: Micron Technology
-> 	Serial Number: 181E1283
-> 	Asset Tag: P2-DIMMA1_AssetTag (date:17/31)
-> 	Part Number: 9ASF1G72PZ-2G3B1
-> 	Rank: 1
-> 	Configured Memory Speed: 2400 MT/s
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x002D, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x002B
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P2-DIMMA2
-> 	Bank Locator: P1_Node0_Channel0_Dimm1
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x002E, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x002B
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P2-DIMMB1
-> 	Bank Locator: P1_Node0_Channel1_Dimm0
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x002F, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x002B
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P2-DIMMB2
-> 	Bank Locator: P1_Node0_Channel1_Dimm1
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0030, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x002B
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P2-DIMMC1
-> 	Bank Locator: P1_Node0_Channel2_Dimm0
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0031, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x002B
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P2-DIMMC2
-> 	Bank Locator: P1_Node0_Channel2_Dimm1
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0032, DMI type 16, 23 bytes
-> Physical Memory Array
-> 	Location: System Board Or Motherboard
-> 	Use: System Memory
-> 	Error Correction Type: Single-bit ECC
-> 	Maximum Capacity: 2304 GB
-> 	Error Information Handle: Not Provided
-> 	Number Of Devices: 6
->=20
-> Handle 0x0033, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x0032
-> 	Error Information Handle: Not Provided
-> 	Total Width: 72 bits
-> 	Data Width: 64 bits
-> 	Size: 8 GB
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P2-DIMMD1
-> 	Bank Locator: P1_Node1_Channel0_Dimm0
-> 	Type: DDR4
-> 	Type Detail: Synchronous
-> 	Speed: 2400 MT/s
-> 	Manufacturer: Micron Technology
-> 	Serial Number: 181E122C
-> 	Asset Tag: P2-DIMMD1_AssetTag (date:17/31)
-> 	Part Number: 9ASF1G72PZ-2G3B1
-> 	Rank: 1
-> 	Configured Memory Speed: 2400 MT/s
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0034, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x0032
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P2-DIMMD2
-> 	Bank Locator: P1_Node1_Channel0_Dimm1
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0035, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x0032
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P2-DIMME1
-> 	Bank Locator: P1_Node1_Channel1_Dimm0
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0036, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x0032
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P2-DIMME2
-> 	Bank Locator: P1_Node1_Channel1_Dimm1
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0037, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x0032
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P2-DIMMF1
-> 	Bank Locator: P1_Node1_Channel2_Dimm0
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0038, DMI type 17, 40 bytes
-> Memory Device
-> 	Array Handle: 0x0032
-> 	Error Information Handle: Not Provided
-> 	Total Width: Unknown
-> 	Data Width: Unknown
-> 	Size: No Module Installed
-> 	Form Factor: DIMM
-> 	Set: None
-> 	Locator: P2-DIMMF2
-> 	Bank Locator: P1_Node1_Channel2_Dimm1
-> 	Type: Unknown
-> 	Type Detail: Unknown
-> 	Speed: Unknown
-> 	Manufacturer: NO DIMM
-> 	Serial Number: NO DIMM
-> 	Asset Tag: NO DIMM
-> 	Part Number: NO DIMM
-> 	Rank: Unknown
-> 	Configured Memory Speed: Unknown
-> 	Minimum Voltage: 1.2 V
-> 	Maximum Voltage: 1.2 V
-> 	Configured Voltage: 1.2 V
->=20
-> Handle 0x0039, DMI type 19, 31 bytes
-> Memory Array Mapped Address
-> 	Starting Address: 0x00000000000
-> 	Ending Address: 0x001FFFFFFFF
-> 	Range Size: 8 GB
-> 	Physical Array Handle: 0x001D
-> 	Partition Width: 1
->=20
-> Handle 0x003A, DMI type 20, 35 bytes
-> Memory Device Mapped Address
-> 	Starting Address: 0x00000000000
-> 	Ending Address: 0x001FFFFFFFF
-> 	Range Size: 8 GB
-> 	Physical Device Handle: 0x001E
-> 	Memory Array Mapped Address Handle: 0x0039
-> 	Partition Row Position: 1
-> 	Interleave Position: 1
-> 	Interleaved Data Depth: 1
->=20
-> Handle 0x003B, DMI type 19, 31 bytes
-> Memory Array Mapped Address
-> 	Starting Address: 0x00200000000
-> 	Ending Address: 0x003FFFFFFFF
-> 	Range Size: 8 GB
-> 	Physical Array Handle: 0x0024
-> 	Partition Width: 1
->=20
-> Handle 0x003C, DMI type 20, 35 bytes
-> Memory Device Mapped Address
-> 	Starting Address: 0x00000000000
-> 	Ending Address: 0x001FFFFFFFF
-> 	Range Size: 8 GB
-> 	Physical Device Handle: 0x0025
-> 	Memory Array Mapped Address Handle: 0x003B
-> 	Partition Row Position: 1
-> 	Interleave Position: 1
-> 	Interleaved Data Depth: 1
->=20
-> Handle 0x003D, DMI type 19, 31 bytes
-> Memory Array Mapped Address
-> 	Starting Address: 0x00400000000
-> 	Ending Address: 0x005FFFFFFFF
-> 	Range Size: 8 GB
-> 	Physical Array Handle: 0x002B
-> 	Partition Width: 1
->=20
-> Handle 0x003E, DMI type 20, 35 bytes
-> Memory Device Mapped Address
-> 	Starting Address: 0x00000000000
-> 	Ending Address: 0x001FFFFFFFF
-> 	Range Size: 8 GB
-> 	Physical Device Handle: 0x002C
-> 	Memory Array Mapped Address Handle: 0x003D
-> 	Partition Row Position: 1
-> 	Interleave Position: 1
-> 	Interleaved Data Depth: 1
->=20
-> Handle 0x003F, DMI type 19, 31 bytes
-> Memory Array Mapped Address
-> 	Starting Address: 0x00600000000
-> 	Ending Address: 0x007FFFFFFFF
-> 	Range Size: 8 GB
-> 	Physical Array Handle: 0x0032
-> 	Partition Width: 1
->=20
-> Handle 0x0040, DMI type 20, 35 bytes
-> Memory Device Mapped Address
-> 	Starting Address: 0x00000000000
-> 	Ending Address: 0x001FFFFFFFF
-> 	Range Size: 8 GB
-> 	Physical Device Handle: 0x0033
-> 	Memory Array Mapped Address Handle: 0x003F
-> 	Partition Row Position: 1
-> 	Interleave Position: 1
-> 	Interleaved Data Depth: 1
->=20
-> Handle 0x0041, DMI type 7, 19 bytes
-> Cache Information
-> 	Socket Designation: L1 Cache
-> 	Configuration: Enabled, Not Socketed, Level 1
-> 	Operational Mode: Write Back
-> 	Location: Internal
-> 	Installed Size: 512 kB
-> 	Maximum Size: 512 kB
-> 	Supported SRAM Types:
-> 		Synchronous
-> 	Installed SRAM Type: Synchronous
-> 	Speed: Unknown
-> 	Error Correction Type: Single-bit ECC
-> 	System Type: Instruction
-> 	Associativity: 8-way Set-associative
->=20
-> Handle 0x0042, DMI type 7, 19 bytes
-> Cache Information
-> 	Socket Designation: L2 Cache
-> 	Configuration: Enabled, Not Socketed, Level 2
-> 	Operational Mode: Varies With Memory Address
-> 	Location: Internal
-> 	Installed Size: 8 MB
-> 	Maximum Size: 8 MB
-> 	Supported SRAM Types:
-> 		Synchronous
-> 	Installed SRAM Type: Synchronous
-> 	Speed: Unknown
-> 	Error Correction Type: Single-bit ECC
-> 	System Type: Unified
-> 	Associativity: 16-way Set-associative
->=20
-> Handle 0x0043, DMI type 7, 19 bytes
-> Cache Information
-> 	Socket Designation: L3 Cache
-> 	Configuration: Enabled, Not Socketed, Level 3
-> 	Operational Mode: Varies With Memory Address
-> 	Location: Internal
-> 	Installed Size: 11 MB
-> 	Maximum Size: 11 MB
-> 	Supported SRAM Types:
-> 		Synchronous
-> 	Installed SRAM Type: Synchronous
-> 	Speed: Unknown
-> 	Error Correction Type: Single-bit ECC
-> 	System Type: Unified
-> 	Associativity: Fully Associative
->=20
-> Handle 0x0044, DMI type 4, 48 bytes
-> Processor Information
-> 	Socket Designation: CPU1
-> 	Type: Central Processor
-> 	Family: Xeon
-> 	Manufacturer: Intel(R) Corporation
-> 	ID: 54 06 05 00 FF FB EB BF
-> 	Signature: Type 0, Family 6, Model 85, Stepping 4
-> 	Flags:
-> 		FPU (Floating-point unit on-chip)
-> 		VME (Virtual mode extension)
-> 		DE (Debugging extension)
-> 		PSE (Page size extension)
-> 		TSC (Time stamp counter)
-> 		MSR (Model specific registers)
-> 		PAE (Physical address extension)
-> 		MCE (Machine check exception)
-> 		CX8 (CMPXCHG8 instruction supported)
-> 		APIC (On-chip APIC hardware supported)
-> 		SEP (Fast system call)
-> 		MTRR (Memory type range registers)
-> 		PGE (Page global enable)
-> 		MCA (Machine check architecture)
-> 		CMOV (Conditional move instruction supported)
-> 		PAT (Page attribute table)
-> 		PSE-36 (36-bit page size extension)
-> 		CLFSH (CLFLUSH instruction supported)
-> 		DS (Debug store)
-> 		ACPI (ACPI supported)
-> 		MMX (MMX technology supported)
-> 		FXSR (FXSAVE and FXSTOR instructions supported)
-> 		SSE (Streaming SIMD extensions)
-> 		SSE2 (Streaming SIMD extensions 2)
-> 		SS (Self-snoop)
-> 		HTT (Multi-threading)
-> 		TM (Thermal monitor supported)
-> 		PBE (Pending break enabled)
-> 	Version: Intel(R) Xeon(R) Silver 4108 CPU @ 1.80GHz
-> 	Voltage: 1.6 V
-> 	External Clock: 100 MHz
-> 	Max Speed: 4000 MHz
-> 	Current Speed: 1800 MHz
-> 	Status: Populated, Enabled
-> 	Upgrade: Other
-> 	L1 Cache Handle: 0x0041
-> 	L2 Cache Handle: 0x0042
-> 	L3 Cache Handle: 0x0043
-> 	Serial Number: Not Specified
-> 	Asset Tag: UNKNOWN
-> 	Part Number: Not Specified
-> 	Core Count: 8
-> 	Core Enabled: 8
-> 	Thread Count: 16
-> 	Characteristics:
-> 		64-bit capable
-> 		Multi-Core
-> 		Hardware Thread
-> 		Execute Protection
-> 		Enhanced Virtualization
-> 		Power/Performance Control
->=20
-> Handle 0x0045, DMI type 7, 19 bytes
-> Cache Information
-> 	Socket Designation: L1 Cache
-> 	Configuration: Enabled, Not Socketed, Level 1
-> 	Operational Mode: Write Back
-> 	Location: Internal
-> 	Installed Size: 512 kB
-> 	Maximum Size: 512 kB
-> 	Supported SRAM Types:
-> 		Synchronous
-> 	Installed SRAM Type: Synchronous
-> 	Speed: Unknown
-> 	Error Correction Type: Single-bit ECC
-> 	System Type: Instruction
-> 	Associativity: 8-way Set-associative
->=20
-> Handle 0x0046, DMI type 7, 19 bytes
-> Cache Information
-> 	Socket Designation: L2 Cache
-> 	Configuration: Enabled, Not Socketed, Level 2
-> 	Operational Mode: Varies With Memory Address
-> 	Location: Internal
-> 	Installed Size: 8 MB
-> 	Maximum Size: 8 MB
-> 	Supported SRAM Types:
-> 		Synchronous
-> 	Installed SRAM Type: Synchronous
-> 	Speed: Unknown
-> 	Error Correction Type: Single-bit ECC
-> 	System Type: Unified
-> 	Associativity: 16-way Set-associative
->=20
-> Handle 0x0047, DMI type 7, 19 bytes
-> Cache Information
-> 	Socket Designation: L3 Cache
-> 	Configuration: Enabled, Not Socketed, Level 3
-> 	Operational Mode: Varies With Memory Address
-> 	Location: Internal
-> 	Installed Size: 11 MB
-> 	Maximum Size: 11 MB
-> 	Supported SRAM Types:
-> 		Synchronous
-> 	Installed SRAM Type: Synchronous
-> 	Speed: Unknown
-> 	Error Correction Type: Single-bit ECC
-> 	System Type: Unified
-> 	Associativity: Fully Associative
->=20
-> Handle 0x0048, DMI type 4, 48 bytes
-> Processor Information
-> 	Socket Designation: CPU2
-> 	Type: Central Processor
-> 	Family: Xeon
-> 	Manufacturer: Intel(R) Corporation
-> 	ID: 54 06 05 00 FF FB EB BF
-> 	Signature: Type 0, Family 6, Model 85, Stepping 4
-> 	Flags:
-> 		FPU (Floating-point unit on-chip)
-> 		VME (Virtual mode extension)
-> 		DE (Debugging extension)
-> 		PSE (Page size extension)
-> 		TSC (Time stamp counter)
-> 		MSR (Model specific registers)
-> 		PAE (Physical address extension)
-> 		MCE (Machine check exception)
-> 		CX8 (CMPXCHG8 instruction supported)
-> 		APIC (On-chip APIC hardware supported)
-> 		SEP (Fast system call)
-> 		MTRR (Memory type range registers)
-> 		PGE (Page global enable)
-> 		MCA (Machine check architecture)
-> 		CMOV (Conditional move instruction supported)
-> 		PAT (Page attribute table)
-> 		PSE-36 (36-bit page size extension)
-> 		CLFSH (CLFLUSH instruction supported)
-> 		DS (Debug store)
-> 		ACPI (ACPI supported)
-> 		MMX (MMX technology supported)
-> 		FXSR (FXSAVE and FXSTOR instructions supported)
-> 		SSE (Streaming SIMD extensions)
-> 		SSE2 (Streaming SIMD extensions 2)
-> 		SS (Self-snoop)
-> 		HTT (Multi-threading)
-> 		TM (Thermal monitor supported)
-> 		PBE (Pending break enabled)
-> 	Version: Intel(R) Xeon(R) Silver 4108 CPU @ 1.80GHz
-> 	Voltage: 1.6 V
-> 	External Clock: 100 MHz
-> 	Max Speed: 4000 MHz
-> 	Current Speed: 1800 MHz
-> 	Status: Populated, Enabled
-> 	Upgrade: Other
-> 	L1 Cache Handle: 0x0045
-> 	L2 Cache Handle: 0x0046
-> 	L3 Cache Handle: 0x0047
-> 	Serial Number: Not Specified
-> 	Asset Tag: UNKNOWN
-> 	Part Number: Not Specified
-> 	Core Count: 8
-> 	Core Enabled: 8
-> 	Thread Count: 16
-> 	Characteristics:
-> 		64-bit capable
-> 		Multi-Core
-> 		Hardware Thread
-> 		Execute Protection
-> 		Enhanced Virtualization
-> 		Power/Performance Control
->=20
-> Handle 0x004D, DMI type 40, 27 bytes
-> Additional Information 1
->=20
-> Handle 0x004E, DMI type 40, 200 bytes
-> Additional Information 1
->=20
-> Handle 0x004F, DMI type 40, 27 bytes
-> Additional Information 1
->=20
-> Handle 0x0050, DMI type 40, 27 bytes
-> Additional Information 1
->=20
-> Handle 0x0051, DMI type 130, 32 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		82 20 51 00 01 00 20 00 00 00 04 00 00 00 00 01
-> 		18 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 	Strings:
-> 		RSC-P-6
->=20
-> Handle 0x0052, DMI type 130, 32 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		82 20 52 00 01 00 20 00 00 00 02 00 00 00 00 01
-> 		18 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 	Strings:
-> 		BPN-ADP-12S3216N4-2UB
->=20
-> Handle 0x0053, DMI type 40, 27 bytes
-> Additional Information 1
->=20
-> Handle 0x0054, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 54 00 06 00 00 86 80 20 20 D9 15 62 09 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0055, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 55 00 54 00 00 00 00 00
->=20
-> Handle 0x0056, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 56 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0057, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 57 00 56 00 00 00 04 00
->=20
-> Handle 0x0058, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 58 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0059, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 59 00 58 00 00 00 04 01
->=20
-> Handle 0x005A, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 5A 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x005B, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 5B 00 5A 00 00 00 04 02
->=20
-> Handle 0x005C, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 5C 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x005D, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 5D 00 5C 00 00 00 04 03
->=20
-> Handle 0x005E, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 5E 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x005F, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 5F 00 5E 00 00 00 04 04
->=20
-> Handle 0x0060, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 60 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0061, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 61 00 60 00 00 00 04 05
->=20
-> Handle 0x0062, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 62 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0063, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 63 00 62 00 00 00 04 06
->=20
-> Handle 0x0064, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 64 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0065, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 65 00 64 00 00 00 04 07
->=20
-> Handle 0x0066, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 66 00 08 00 00 86 80 24 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0067, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 67 00 66 00 00 00 05 00
->=20
-> Handle 0x0068, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 68 00 08 00 00 86 80 25 20 00 00 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0069, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 69 00 68 00 00 00 05 02
->=20
-> Handle 0x006A, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 6A 00 08 00 00 86 80 26 20 86 80 26 20 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x006B, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 6B 00 6A 00 00 00 05 04
->=20
-> Handle 0x006C, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 6C 00 08 00 00 86 80 14 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x006D, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 6D 00 6C 00 00 00 08 00
->=20
-> Handle 0x006E, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 6E 00 08 00 00 86 80 16 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x006F, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 6F 00 6E 00 00 00 08 02
->=20
-> Handle 0x0070, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 70 00 06 00 00 86 80 90 A1 D9 15 62 09 01
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0071, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 71 00 70 00 00 00 1C 00
->=20
-> Handle 0x0072, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 72 00 06 00 00 86 80 95 A1 D9 15 62 09 02
-> 		00 00 00 01 00 00 00
->=20
-> Handle 0x0073, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 73 00 72 00 00 00 1C 05
->=20
-> Handle 0x0074, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 74 00 06 00 00 03 1A 50 11 03 1A 50 11 02
-> 		00 00 00 01 00 00 00
->=20
-> Handle 0x0075, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 75 00 74 00 00 02 00 00
->=20
-> Handle 0x0076, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 76 00 06 06 00 86 80 30 20 D9 15 62 09 02
-> 		00 00 00 04 00 00 00
->=20
-> Handle 0x0077, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 77 00 76 00 00 17 00 00
->=20
-> Handle 0x0078, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 78 00 02 06 00 86 80 21 15 D9 15 12 09 02
-> 		00 00 00 04 00 00 00
->=20
-> Handle 0x0079, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 79 00 78 00 00 18 00 00
->=20
-> Handle 0x007A, DMI type 190, 58 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		BE 3A 7A 00 02 06 00 86 80 21 15 D9 15 12 09 02
-> 		00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00 00 00 00 00
->=20
-> Handle 0x007B, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 7B 00 02 06 00 86 80 21 15 D9 15 12 09 02
-> 		00 00 00 04 00 00 00
->=20
-> Handle 0x007C, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 7C 00 7B 00 00 18 00 01
->=20
-> Handle 0x007D, DMI type 190, 58 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		BE 3A 7D 00 02 06 00 86 80 21 15 D9 15 12 09 02
-> 		00 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00 00 00 00 00
->=20
-> Handle 0x007E, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 7E 00 08 00 00 86 80 34 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x007F, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 7F 00 7E 00 00 17 05 00
->=20
-> Handle 0x0080, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 80 00 08 00 00 86 80 35 20 00 00 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0081, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 81 00 80 00 00 17 05 02
->=20
-> Handle 0x0082, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 82 00 08 00 00 86 80 36 20 86 80 36 20 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0083, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 83 00 82 00 00 17 05 04
->=20
-> Handle 0x0084, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 84 00 06 01 00 86 80 30 20 D9 15 62 09 03
-> 		00 00 00 10 00 00 00
->=20
-> Handle 0x0085, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 85 00 84 00 00 3A 00 00
->=20
-> Handle 0x0086, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 86 00 02 01 00 B3 15 1D 10 B3 15 83 00 03
-> 		00 00 00 10 00 00 00
->=20
-> Handle 0x0087, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 87 00 86 00 00 3B 00 00
->=20
-> Handle 0x0088, DMI type 190, 58 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		BE 3A 88 00 02 01 00 B3 15 1D 10 B3 15 83 00 03
-> 		00 00 00 10 00 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00 00 00 00 00
->=20
-> Handle 0x0089, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 89 00 02 01 00 B3 15 1D 10 B3 15 83 00 03
-> 		00 00 00 10 00 00 00
->=20
-> Handle 0x008A, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 8A 00 89 00 00 3B 00 01
->=20
-> Handle 0x008B, DMI type 190, 58 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		BE 3A 8B 00 02 01 00 B3 15 1D 10 B3 15 83 00 03
-> 		00 00 00 10 00 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00 00 00 00 00
->=20
-> Handle 0x008C, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 8C 00 08 00 00 86 80 34 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x008D, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 8D 00 8C 00 00 3A 05 00
->=20
-> Handle 0x008E, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 8E 00 08 00 00 86 80 35 20 00 00 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x008F, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 8F 00 8E 00 00 3A 05 02
->=20
-> Handle 0x0090, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 90 00 08 00 00 86 80 36 20 86 80 36 20 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0091, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 91 00 90 00 00 3A 05 04
->=20
-> Handle 0x0092, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 92 00 08 00 00 86 80 66 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0093, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 93 00 92 00 00 3A 08 00
->=20
-> Handle 0x0094, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 94 00 08 00 00 86 80 66 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0095, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 95 00 94 00 00 3A 09 00
->=20
-> Handle 0x0096, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 96 00 08 00 00 86 80 40 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0097, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 97 00 96 00 00 3A 0A 00
->=20
-> Handle 0x0098, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 98 00 08 00 00 86 80 41 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0099, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 99 00 98 00 00 3A 0A 01
->=20
-> Handle 0x009A, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 9A 00 08 00 00 86 80 42 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x009B, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 9B 00 9A 00 00 3A 0A 02
->=20
-> Handle 0x009C, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 9C 00 08 00 00 86 80 43 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x009D, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 9D 00 9C 00 00 3A 0A 03
->=20
-> Handle 0x009E, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 9E 00 08 00 00 86 80 44 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x009F, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 9F 00 9E 00 00 3A 0A 04
->=20
-> Handle 0x00A0, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 A0 00 08 00 00 86 80 45 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00A1, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A A1 00 A0 00 00 3A 0A 05
->=20
-> Handle 0x00A2, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 A2 00 08 00 00 86 80 46 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00A3, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A A3 00 A2 00 00 3A 0A 06
->=20
-> Handle 0x00A4, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 A4 00 08 00 00 86 80 47 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00A5, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A A5 00 A4 00 00 3A 0A 07
->=20
-> Handle 0x00A6, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 A6 00 08 00 00 86 80 48 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00A7, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A A7 00 A6 00 00 3A 0B 00
->=20
-> Handle 0x00A8, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 A8 00 08 00 00 86 80 49 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00A9, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A A9 00 A8 00 00 3A 0B 01
->=20
-> Handle 0x00AA, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 AA 00 08 00 00 86 80 4A 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00AB, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A AB 00 AA 00 00 3A 0B 02
->=20
-> Handle 0x00AC, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 AC 00 08 00 00 86 80 4B 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00AD, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A AD 00 AC 00 00 3A 0B 03
->=20
-> Handle 0x00AE, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 AE 00 08 00 00 86 80 40 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00AF, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A AF 00 AE 00 00 3A 0C 00
->=20
-> Handle 0x00B0, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 B0 00 08 00 00 86 80 41 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00B1, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A B1 00 B0 00 00 3A 0C 01
->=20
-> Handle 0x00B2, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 B2 00 08 00 00 86 80 42 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00B3, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A B3 00 B2 00 00 3A 0C 02
->=20
-> Handle 0x00B4, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 B4 00 08 00 00 86 80 43 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00B5, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A B5 00 B4 00 00 3A 0C 03
->=20
-> Handle 0x00B6, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 B6 00 08 00 00 86 80 44 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00B7, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A B7 00 B6 00 00 3A 0C 04
->=20
-> Handle 0x00B8, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 B8 00 08 00 00 86 80 45 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00B9, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A B9 00 B8 00 00 3A 0C 05
->=20
-> Handle 0x00BA, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 BA 00 08 00 00 86 80 46 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00BB, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A BB 00 BA 00 00 3A 0C 06
->=20
-> Handle 0x00BC, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 BC 00 08 00 00 86 80 47 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00BD, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A BD 00 BC 00 00 3A 0C 07
->=20
-> Handle 0x00BE, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 BE 00 08 00 00 86 80 48 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00BF, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A BF 00 BE 00 00 3A 0D 00
->=20
-> Handle 0x00C0, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 C0 00 08 00 00 86 80 49 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00C1, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A C1 00 C0 00 00 3A 0D 01
->=20
-> Handle 0x00C2, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 C2 00 08 00 00 86 80 4A 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00C3, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A C3 00 C2 00 00 3A 0D 02
->=20
-> Handle 0x00C4, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 C4 00 08 00 00 86 80 4B 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00C5, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A C5 00 C4 00 00 3A 0D 03
->=20
-> Handle 0x00C6, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 C6 00 08 00 00 86 80 34 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00C7, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A C7 00 C6 00 00 5D 05 00
->=20
-> Handle 0x00C8, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 C8 00 08 00 00 86 80 35 20 00 00 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00C9, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A C9 00 C8 00 00 5D 05 02
->=20
-> Handle 0x00CA, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 CA 00 08 00 00 86 80 36 20 86 80 36 20 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00CB, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A CB 00 CA 00 00 5D 05 04
->=20
-> Handle 0x00CC, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 CC 00 11 00 00 86 80 58 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00CD, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A CD 00 CC 00 00 5D 0E 00
->=20
-> Handle 0x00CE, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 CE 00 08 00 00 86 80 59 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00CF, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A CF 00 CE 00 00 5D 0E 01
->=20
-> Handle 0x00D0, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 D0 00 11 00 00 86 80 58 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00D1, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A D1 00 D0 00 00 5D 0F 00
->=20
-> Handle 0x00D2, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 D2 00 08 00 00 86 80 59 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00D3, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A D3 00 D2 00 00 5D 0F 01
->=20
-> Handle 0x00D4, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 D4 00 11 00 00 86 80 4C 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00D5, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A D5 00 D4 00 00 5D 12 00
->=20
-> Handle 0x00D6, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 D6 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00D7, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A D7 00 D6 00 00 80 04 00
->=20
-> Handle 0x00D8, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 D8 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00D9, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A D9 00 D8 00 00 80 04 01
->=20
-> Handle 0x00DA, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 DA 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00DB, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A DB 00 DA 00 00 80 04 02
->=20
-> Handle 0x00DC, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 DC 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00DD, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A DD 00 DC 00 00 80 04 03
->=20
-> Handle 0x00DE, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 DE 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00DF, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A DF 00 DE 00 00 80 04 04
->=20
-> Handle 0x00E0, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 E0 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00E1, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A E1 00 E0 00 00 80 04 05
->=20
-> Handle 0x00E2, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 E2 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00E3, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A E3 00 E2 00 00 80 04 06
->=20
-> Handle 0x00E4, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 E4 00 08 00 00 86 80 21 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00E5, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A E5 00 E4 00 00 80 04 07
->=20
-> Handle 0x00E6, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 E6 00 08 00 00 86 80 24 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00E7, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A E7 00 E6 00 00 80 05 00
->=20
-> Handle 0x00E8, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 E8 00 08 00 00 86 80 25 20 00 00 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00E9, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A E9 00 E8 00 00 80 05 02
->=20
-> Handle 0x00EA, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 EA 00 08 00 00 86 80 26 20 86 80 26 20 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00EB, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A EB 00 EA 00 00 80 05 04
->=20
-> Handle 0x00EC, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 EC 00 08 00 00 86 80 14 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00ED, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A ED 00 EC 00 00 80 08 00
->=20
-> Handle 0x00EE, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 EE 00 08 00 00 86 80 16 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00EF, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A EF 00 EE 00 00 80 08 02
->=20
-> Handle 0x00F0, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 F0 00 06 00 00 86 80 30 20 D9 15 62 09 03
-> 		00 00 00 08 00 00 00
->=20
-> Handle 0x00F1, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A F1 00 F0 00 00 85 00 00
->=20
-> Handle 0x00F2, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 F2 00 01 00 00 00 10 C9 00 D9 15 72 09 03
-> 		00 00 00 08 00 00 00
->=20
-> Handle 0x00F3, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A F3 00 F2 00 00 86 00 00
->=20
-> Handle 0x00F4, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 F4 00 08 00 00 86 80 34 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00F5, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A F5 00 F4 00 00 85 05 00
->=20
-> Handle 0x00F6, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 F6 00 08 00 00 86 80 35 20 00 00 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00F7, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A F7 00 F6 00 00 85 05 02
->=20
-> Handle 0x00F8, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 F8 00 08 00 00 86 80 36 20 86 80 36 20 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00F9, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A F9 00 F8 00 00 85 05 04
->=20
-> Handle 0x00FA, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 FA 00 06 02 00 86 80 30 20 D9 15 62 09 01
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00FB, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A FB 00 FA 00 00 AE 00 00
->=20
-> Handle 0x00FC, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 FC 00 08 00 00 86 80 34 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00FD, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A FD 00 FC 00 00 AE 05 00
->=20
-> Handle 0x00FE, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 FE 00 08 00 00 86 80 35 20 00 00 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x00FF, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A FF 00 FE 00 00 AE 05 02
->=20
-> Handle 0x0100, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 00 01 08 00 00 86 80 36 20 86 80 36 20 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0101, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 01 01 00 01 00 AE 05 04
->=20
-> Handle 0x0102, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 02 01 08 00 00 86 80 66 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0103, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 03 01 02 01 00 AE 08 00
->=20
-> Handle 0x0104, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 04 01 08 00 00 86 80 66 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0105, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 05 01 04 01 00 AE 09 00
->=20
-> Handle 0x0106, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 06 01 08 00 00 86 80 40 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0107, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 07 01 06 01 00 AE 0A 00
->=20
-> Handle 0x0108, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 08 01 08 00 00 86 80 41 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0109, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 09 01 08 01 00 AE 0A 01
->=20
-> Handle 0x010A, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 0A 01 08 00 00 86 80 42 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x010B, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 0B 01 0A 01 00 AE 0A 02
->=20
-> Handle 0x010C, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 0C 01 08 00 00 86 80 43 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x010D, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 0D 01 0C 01 00 AE 0A 03
->=20
-> Handle 0x010E, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 0E 01 08 00 00 86 80 44 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x010F, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 0F 01 0E 01 00 AE 0A 04
->=20
-> Handle 0x0110, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 10 01 08 00 00 86 80 45 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0111, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 11 01 10 01 00 AE 0A 05
->=20
-> Handle 0x0112, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 12 01 08 00 00 86 80 46 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0113, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 13 01 12 01 00 AE 0A 06
->=20
-> Handle 0x0114, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 14 01 08 00 00 86 80 47 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0115, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 15 01 14 01 00 AE 0A 07
->=20
-> Handle 0x0116, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 16 01 08 00 00 86 80 48 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0117, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 17 01 16 01 00 AE 0B 00
->=20
-> Handle 0x0118, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 18 01 08 00 00 86 80 49 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0119, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 19 01 18 01 00 AE 0B 01
->=20
-> Handle 0x011A, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 1A 01 08 00 00 86 80 4A 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x011B, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 1B 01 1A 01 00 AE 0B 02
->=20
-> Handle 0x011C, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 1C 01 08 00 00 86 80 4B 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x011D, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 1D 01 1C 01 00 AE 0B 03
->=20
-> Handle 0x011E, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 1E 01 08 00 00 86 80 40 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x011F, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 1F 01 1E 01 00 AE 0C 00
->=20
-> Handle 0x0120, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 20 01 08 00 00 86 80 41 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0121, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 21 01 20 01 00 AE 0C 01
->=20
-> Handle 0x0122, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 22 01 08 00 00 86 80 42 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0123, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 23 01 22 01 00 AE 0C 02
->=20
-> Handle 0x0124, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 24 01 08 00 00 86 80 43 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0125, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 25 01 24 01 00 AE 0C 03
->=20
-> Handle 0x0126, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 26 01 08 00 00 86 80 44 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0127, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 27 01 26 01 00 AE 0C 04
->=20
-> Handle 0x0128, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 28 01 08 00 00 86 80 45 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0129, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 29 01 28 01 00 AE 0C 05
->=20
-> Handle 0x012A, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 2A 01 08 00 00 86 80 46 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x012B, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 2B 01 2A 01 00 AE 0C 06
->=20
-> Handle 0x012C, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 2C 01 08 00 00 86 80 47 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x012D, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 2D 01 2C 01 00 AE 0C 07
->=20
-> Handle 0x012E, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 2E 01 08 00 00 86 80 48 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x012F, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 2F 01 2E 01 00 AE 0D 00
->=20
-> Handle 0x0130, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 30 01 08 00 00 86 80 49 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0131, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 31 01 30 01 00 AE 0D 01
->=20
-> Handle 0x0132, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 32 01 08 00 00 86 80 4A 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0133, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 33 01 32 01 00 AE 0D 02
->=20
-> Handle 0x0134, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 34 01 08 00 00 86 80 4B 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0135, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 35 01 34 01 00 AE 0D 03
->=20
-> Handle 0x0136, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 36 01 06 0E 00 86 80 30 20 D9 15 62 09 01
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0137, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 37 01 36 01 00 D7 00 00
->=20
-> Handle 0x0138, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 38 01 06 0F 00 86 80 31 20 D9 15 62 09 01
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0139, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 39 01 38 01 00 D7 01 00
->=20
-> Handle 0x013A, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 3A 01 06 10 00 86 80 32 20 D9 15 62 09 01
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x013B, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 3B 01 3A 01 00 D7 02 00
->=20
-> Handle 0x013C, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 3C 01 06 11 00 86 80 33 20 D9 15 62 09 01
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x013D, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 3D 01 3C 01 00 D7 03 00
->=20
-> Handle 0x013E, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 3E 01 08 00 00 86 80 34 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x013F, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 3F 01 3E 01 00 D7 05 00
->=20
-> Handle 0x0140, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 40 01 08 00 00 86 80 35 20 00 00 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0141, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 41 01 40 01 00 D7 05 02
->=20
-> Handle 0x0142, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 42 01 08 00 00 86 80 36 20 86 80 36 20 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0143, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 43 01 42 01 00 D7 05 04
->=20
-> Handle 0x0144, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 44 01 11 00 00 86 80 58 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0145, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 45 01 44 01 00 D7 0E 00
->=20
-> Handle 0x0146, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 46 01 08 00 00 86 80 59 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0147, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 47 01 46 01 00 D7 0E 01
->=20
-> Handle 0x0148, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 48 01 11 00 00 86 80 58 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x0149, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 49 01 48 01 00 D7 0F 00
->=20
-> Handle 0x014A, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 4A 01 08 00 00 86 80 59 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x014B, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 4B 01 4A 01 00 D7 0F 01
->=20
-> Handle 0x014C, DMI type 192, 23 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C0 17 4C 01 11 00 00 86 80 4C 20 86 80 00 00 00
-> 		00 00 00 00 00 00 00
->=20
-> Handle 0x014D, DMI type 165, 10 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		A5 0A 4D 01 4C 01 00 D7 12 00
->=20
-> Handle 0x014E, DMI type 193, 230 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C1 E6 4E 01 01 01 16 00 00 00 47 65 6E 75 6E 74
-> 		65 6C 69 6E 65 49 54 06 05 00 00 08 10 00 FF FB
-> 		FE 77 FF FB EB BF 01 63 03 76 FF B5 F0 00 00 00
-> 		00 00 00 00 C3 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00 40 00 00 00 40 00 00 00 03 00
-> 		00 00 20 20 00 00 77 00 00 00 02 00 00 00 09 00
-> 		00 00 00 00 00 00 00 00 00 00 FB FF 9F D3 08 00
-> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00 04 04 30 07 00 00 00 00 00 00
-> 		00 00 03 06 00 00 01 00 00 00 02 00 00 00 00 01
-> 		00 00 00 00 00 00 FF 02 00 00 80 0A 00 00 88 0A
-> 		00 00 00 00 00 00 00 00 00 00 3F 00 00 00 00 00
-> 		00 00 02 00 00 00 00 00 00 00 0A 00 00 00 00 00
-> 		00 00 00 00 00 00
-> 	Strings:
-> 		Socket 0
->=20
-> Handle 0x014F, DMI type 193, 246 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C1 F6 4F 01 01 02 01 00 00 00 0F 00 00 00 07 00
-> 		00 00 00 00 00 00 02 00 00 00 90 00 00 00 00 00
-> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
-> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
-> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
-> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
-> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
-> 		00 00 00 00 00 00 08 00 00 80 00 00 00 00 00 00
-> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 21 01
-> 		00 00 00 08 10 2C 49 6E 74 65 6C 28 52 29 20 58
-> 		65 6F 6E 28 52 29 20 53 69 6C 76 65 72 20 34 31
-> 		30 38 20 43 50 55 20 40 20 31 2E 38 30 47 48 7A
-> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 40 60
-> 		00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 01 00 00 2E 30 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00
-> 	Strings:
-> 		Socket 0
->=20
-> Handle 0x0150, DMI type 193, 230 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C1 E6 50 01 01 01 16 00 00 00 47 65 6E 75 6E 74
-> 		65 6C 69 6E 65 49 54 06 05 00 00 08 10 10 FF FB
-> 		FE 77 FF FB EB BF 01 63 03 76 FF B5 F0 00 00 00
-> 		00 00 00 00 C3 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00 40 00 00 00 40 00 00 00 03 00
-> 		00 00 20 20 00 00 77 00 00 00 02 00 00 00 09 00
-> 		00 00 00 00 00 00 00 00 00 00 FB FF 9F D3 08 00
-> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00 04 04 30 07 00 00 00 00 00 00
-> 		00 00 03 06 00 00 01 00 00 00 02 00 00 00 00 01
-> 		00 00 10 00 00 00 FF 02 00 00 80 0A 00 00 88 0A
-> 		00 00 00 00 00 00 00 00 00 00 3F 00 00 00 00 00
-> 		00 00 02 00 00 00 00 00 00 00 0A 00 00 00 00 00
-> 		00 00 00 00 00 00
-> 	Strings:
-> 		Socket 1
->=20
-> Handle 0x0151, DMI type 193, 246 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C1 F6 51 01 01 02 01 00 00 00 0F 00 00 00 07 00
-> 		00 00 00 00 00 00 02 00 00 00 90 00 00 00 00 00
-> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
-> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
-> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
-> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
-> 		00 00 00 00 00 00 08 07 00 00 B8 0B 00 00 64 00
-> 		00 00 00 00 00 00 08 00 00 80 00 00 00 00 00 00
-> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 21 01
-> 		00 00 00 08 10 2C 49 6E 74 65 6C 28 52 29 20 58
-> 		65 6F 6E 28 52 29 20 53 69 6C 76 65 72 20 34 31
-> 		30 38 20 43 50 55 20 40 20 31 2E 38 30 47 48 7A
-> 		00 00 00 00 00 00 00 00 00 00 00 00 00 00 40 60
-> 		00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-> 		00 00 00 01 00 00 2E 30 00 00 00 00 00 00 00 00
-> 		00 00 00 00 00 00
-> 	Strings:
-> 		Socket 1
->=20
-> Handle 0x0152, DMI type 196, 5 bytes
-> OEM-specific Type
-> 	Header and Data:
-> 		C4 05 52 01 00
->=20
-> Handle 0x0153, DMI type 127, 4 bytes
-> End Of Table
->=20
->=20
+>   {
+>   	struct drm_plane_state *old_state =3D plane->state;
+>   	struct drm_crtc_state *crtc_state;
+>   	struct device *dev =3D plane->dev->dev;
+> -	struct drm_framebuffer *fb =3D state->fb;
+> +	struct drm_framebuffer *fb =3D new_state->fb;
+>   	struct drm_framebuffer *old_fb =3D old_state->fb;
+>   	unsigned long eba, ubo, vbo, old_ubo, old_vbo, alpha_eba;
+>   	bool can_position =3D (plane->type =3D=3D DRM_PLANE_TYPE_OVERLAY);
+> @@ -359,15 +359,16 @@ static int ipu_plane_atomic_check(struct drm_plan=
+e *plane,
+>   	if (!fb)
+>   		return 0;
+>  =20
+> -	if (WARN_ON(!state->crtc))
+> +	if (WARN_ON(!new_state->crtc))
+>   		return -EINVAL;
+>  =20
+>   	crtc_state =3D
+> -		drm_atomic_get_existing_crtc_state(state->state, state->crtc);
+> +		drm_atomic_get_existing_crtc_state(new_state->state,
+> +						   new_state->crtc);
+>   	if (WARN_ON(!crtc_state))
+>   		return -EINVAL;
+>  =20
+> -	ret =3D drm_atomic_helper_check_plane_state(state, crtc_state,
+> +	ret =3D drm_atomic_helper_check_plane_state(new_state, crtc_state,
+>   						  DRM_PLANE_HELPER_NO_SCALING,
+>   						  DRM_PLANE_HELPER_NO_SCALING,
+>   						  can_position, true);
+> @@ -381,7 +382,7 @@ static int ipu_plane_atomic_check(struct drm_plane =
+*plane,
+>   	switch (plane->type) {
+>   	case DRM_PLANE_TYPE_PRIMARY:
+>   		/* full plane minimum width is 13 pixels */
+> -		if (drm_rect_width(&state->dst) < 13)
+> +		if (drm_rect_width(&new_state->dst) < 13)
+>   			return -EINVAL;
+>   		break;
+>   	case DRM_PLANE_TYPE_OVERLAY:
+> @@ -391,7 +392,7 @@ static int ipu_plane_atomic_check(struct drm_plane =
+*plane,
+>   		return -EINVAL;
+>   	}
+>  =20
+> -	if (drm_rect_height(&state->dst) < 2)
+> +	if (drm_rect_height(&new_state->dst) < 2)
+>   		return -EINVAL;
+>  =20
+>   	/*
+> @@ -402,12 +403,12 @@ static int ipu_plane_atomic_check(struct drm_plan=
+e *plane,
+>   	 * callback.
+>   	 */
+>   	if (old_fb &&
+> -	    (drm_rect_width(&state->dst) !=3D drm_rect_width(&old_state->dst)=
+ ||
+> -	     drm_rect_height(&state->dst) !=3D drm_rect_height(&old_state->ds=
+t) ||
+> +	    (drm_rect_width(&new_state->dst) !=3D drm_rect_width(&old_state->=
+dst) ||
+> +	     drm_rect_height(&new_state->dst) !=3D drm_rect_height(&old_state=
+->dst) ||
+>   	     fb->format !=3D old_fb->format))
+>   		crtc_state->mode_changed =3D true;
+>  =20
+> -	eba =3D drm_plane_state_to_eba(state, 0);
+> +	eba =3D drm_plane_state_to_eba(new_state, 0);
+>  =20
+>   	if (eba & 0x7)
+>   		return -EINVAL;
+> @@ -433,7 +434,7 @@ static int ipu_plane_atomic_check(struct drm_plane =
+*plane,
+>   		 * - Only EBA may be changed while scanout is active
+>   		 * - The strides of U and V planes must be identical.
+>   		 */
+> -		vbo =3D drm_plane_state_to_vbo(state);
+> +		vbo =3D drm_plane_state_to_vbo(new_state);
+>  =20
+>   		if (vbo & 0x7 || vbo > 0xfffff8)
+>   			return -EINVAL;
+> @@ -450,7 +451,7 @@ static int ipu_plane_atomic_check(struct drm_plane =
+*plane,
+>   		fallthrough;
+>   	case DRM_FORMAT_NV12:
+>   	case DRM_FORMAT_NV16:
+> -		ubo =3D drm_plane_state_to_ubo(state);
+> +		ubo =3D drm_plane_state_to_ubo(new_state);
+>  =20
+>   		if (ubo & 0x7 || ubo > 0xfffff8)
+>   			return -EINVAL;
+> @@ -471,8 +472,8 @@ static int ipu_plane_atomic_check(struct drm_plane =
+*plane,
+>   		 * The x/y offsets must be even in case of horizontal/vertical
+>   		 * chroma subsampling.
+>   		 */
+> -		if (((state->src.x1 >> 16) & (fb->format->hsub - 1)) ||
+> -		    ((state->src.y1 >> 16) & (fb->format->vsub - 1)))
+> +		if (((new_state->src.x1 >> 16) & (fb->format->hsub - 1)) ||
+> +		    ((new_state->src.y1 >> 16) & (fb->format->vsub - 1)))
+>   			return -EINVAL;
+>   		break;
+>   	case DRM_FORMAT_RGB565_A8:
+> @@ -481,7 +482,7 @@ static int ipu_plane_atomic_check(struct drm_plane =
+*plane,
+>   	case DRM_FORMAT_BGR888_A8:
+>   	case DRM_FORMAT_RGBX8888_A8:
+>   	case DRM_FORMAT_BGRX8888_A8:
+> -		alpha_eba =3D drm_plane_state_to_eba(state, 1);
+> +		alpha_eba =3D drm_plane_state_to_eba(new_state, 1);
+>   		if (alpha_eba & 0x7)
+>   			return -EINVAL;
+>  =20
+> diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/dr=
+m/ingenic/ingenic-drm-drv.c
+> index 7bb31fbee29d..f589923b4a5d 100644
+> --- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+> +++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+> @@ -359,21 +359,22 @@ static void ingenic_drm_crtc_atomic_flush(struct =
+drm_crtc *crtc,
+>   }
+>  =20
+>   static int ingenic_drm_plane_atomic_check(struct drm_plane *plane,
+> -					  struct drm_plane_state *state)
+> +					  struct drm_plane_state *new_plane_state)
+>   {
+>   	struct ingenic_drm *priv =3D drm_device_get_priv(plane->dev);
+>   	struct drm_crtc_state *crtc_state;
+> -	struct drm_crtc *crtc =3D state->crtc ?: plane->state->crtc;
+> +	struct drm_crtc *crtc =3D new_plane_state->crtc ?: plane->state->crtc=
+;
+>   	int ret;
+>  =20
+>   	if (!crtc)
+>   		return 0;
+>  =20
+> -	crtc_state =3D drm_atomic_get_existing_crtc_state(state->state, crtc)=
+;
+> +	crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->st=
+ate,
+> +							crtc);
+>   	if (WARN_ON(!crtc_state))
+>   		return -EINVAL;
+>  =20
+> -	ret =3D drm_atomic_helper_check_plane_state(state, crtc_state,
+> +	ret =3D drm_atomic_helper_check_plane_state(new_plane_state, crtc_sta=
+te,
+>   						  DRM_PLANE_HELPER_NO_SCALING,
+>   						  DRM_PLANE_HELPER_NO_SCALING,
+>   						  priv->soc_info->has_osd,
+> @@ -386,9 +387,9 @@ static int ingenic_drm_plane_atomic_check(struct dr=
+m_plane *plane,
+>   	 * Note that state->src_* are in 16.16 fixed-point format.
+>   	 */
+>   	if (!priv->soc_info->has_osd &&
+> -	    (state->src_x !=3D 0 ||
+> -	     (state->src_w >> 16) !=3D state->crtc_w ||
+> -	     (state->src_h >> 16) !=3D state->crtc_h))
+> +	    (new_plane_state->src_x !=3D 0 ||
+> +	     (new_plane_state->src_w >> 16) !=3D new_plane_state->crtc_w ||
+> +	     (new_plane_state->src_h >> 16) !=3D new_plane_state->crtc_h))
+>   		return -EINVAL;
+>  =20
+>   	/*
+> @@ -396,12 +397,12 @@ static int ingenic_drm_plane_atomic_check(struct =
+drm_plane *plane,
+>   	 * its position, size or depth.
+>   	 */
+>   	if (priv->soc_info->has_osd &&
+> -	    (!plane->state->fb || !state->fb ||
+> -	     plane->state->crtc_x !=3D state->crtc_x ||
+> -	     plane->state->crtc_y !=3D state->crtc_y ||
+> -	     plane->state->crtc_w !=3D state->crtc_w ||
+> -	     plane->state->crtc_h !=3D state->crtc_h ||
+> -	     plane->state->fb->format->format !=3D state->fb->format->format)=
+)
+> +	    (!plane->state->fb || !new_plane_state->fb ||
+> +	     plane->state->crtc_x !=3D new_plane_state->crtc_x ||
+> +	     plane->state->crtc_y !=3D new_plane_state->crtc_y ||
+> +	     plane->state->crtc_w !=3D new_plane_state->crtc_w ||
+> +	     plane->state->crtc_h !=3D new_plane_state->crtc_h ||
+> +	     plane->state->fb->format->format !=3D new_plane_state->fb->forma=
+t->format))
+>   		crtc_state->mode_changed =3D true;
+>  =20
+>   	return 0;
+> diff --git a/drivers/gpu/drm/ingenic/ingenic-ipu.c b/drivers/gpu/drm/in=
+genic/ingenic-ipu.c
+> index e52777ef85fd..623f42d44b07 100644
+> --- a/drivers/gpu/drm/ingenic/ingenic-ipu.c
+> +++ b/drivers/gpu/drm/ingenic/ingenic-ipu.c
+> @@ -514,49 +514,49 @@ static void ingenic_ipu_plane_atomic_update(struc=
+t drm_plane *plane,
+>   }
+>  =20
+>   static int ingenic_ipu_plane_atomic_check(struct drm_plane *plane,
+> -					  struct drm_plane_state *state)
+> +					  struct drm_plane_state *new_plane_state)
+>   {
+>   	unsigned int num_w, denom_w, num_h, denom_h, xres, yres, max_w, max_=
+h;
+>   	struct ingenic_ipu *ipu =3D plane_to_ingenic_ipu(plane);
+> -	struct drm_crtc *crtc =3D state->crtc ?: plane->state->crtc;
+> +	struct drm_crtc *crtc =3D new_plane_state->crtc ?: plane->state->crtc=
+;
+>   	struct drm_crtc_state *crtc_state;
+>  =20
+>   	if (!crtc)
+>   		return 0;
+>  =20
+> -	crtc_state =3D drm_atomic_get_existing_crtc_state(state->state, crtc)=
+;
+> +	crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->st=
+ate, crtc);
+>   	if (WARN_ON(!crtc_state))
+>   		return -EINVAL;
+>  =20
+>   	/* Request a full modeset if we are enabling or disabling the IPU. *=
+/
+> -	if (!plane->state->crtc ^ !state->crtc)
+> +	if (!plane->state->crtc ^ !new_plane_state->crtc)
+>   		crtc_state->mode_changed =3D true;
+>  =20
+> -	if (!state->crtc ||
+> +	if (!new_plane_state->crtc ||
+>   	    !crtc_state->mode.hdisplay || !crtc_state->mode.vdisplay)
+>   		return 0;
+>  =20
+>   	/* Plane must be fully visible */
+> -	if (state->crtc_x < 0 || state->crtc_y < 0 ||
+> -	    state->crtc_x + state->crtc_w > crtc_state->mode.hdisplay ||
+> -	    state->crtc_y + state->crtc_h > crtc_state->mode.vdisplay)
+> +	if (new_plane_state->crtc_x < 0 || new_plane_state->crtc_y < 0 ||
+> +	    new_plane_state->crtc_x + new_plane_state->crtc_w > crtc_state->m=
+ode.hdisplay ||
+> +	    new_plane_state->crtc_y + new_plane_state->crtc_h > crtc_state->m=
+ode.vdisplay)
+>   		return -EINVAL;
+>  =20
+>   	/* Minimum size is 4x4 */
+> -	if ((state->src_w >> 16) < 4 || (state->src_h >> 16) < 4)
+> +	if ((new_plane_state->src_w >> 16) < 4 || (new_plane_state->src_h >> =
+16) < 4)
+>   		return -EINVAL;
+>  =20
+>   	/* Input and output lines must have an even number of pixels. */
+> -	if (((state->src_w >> 16) & 1) || (state->crtc_w & 1))
+> +	if (((new_plane_state->src_w >> 16) & 1) || (new_plane_state->crtc_w =
+& 1))
+>   		return -EINVAL;
+>  =20
+> -	if (!osd_changed(state, plane->state))
+> +	if (!osd_changed(new_plane_state, plane->state))
+>   		return 0;
+>  =20
+>   	crtc_state->mode_changed =3D true;
+>  =20
+> -	xres =3D state->src_w >> 16;
+> -	yres =3D state->src_h >> 16;
+> +	xres =3D new_plane_state->src_w >> 16;
+> +	yres =3D new_plane_state->src_h >> 16;
+>  =20
+>   	/*
+>   	 * Increase the scaled image's theorical width/height until we find =
+a
+> @@ -568,13 +568,13 @@ static int ingenic_ipu_plane_atomic_check(struct =
+drm_plane *plane,
+>   	max_w =3D crtc_state->mode.hdisplay * 102 / 100;
+>   	max_h =3D crtc_state->mode.vdisplay * 102 / 100;
+>  =20
+> -	for (denom_w =3D xres, num_w =3D state->crtc_w; num_w <=3D max_w; num=
+_w++)
+> +	for (denom_w =3D xres, num_w =3D new_plane_state->crtc_w; num_w <=3D =
+max_w; num_w++)
+>   		if (!reduce_fraction(&num_w, &denom_w))
+>   			break;
+>   	if (num_w > max_w)
+>   		return -EINVAL;
+>  =20
+> -	for (denom_h =3D yres, num_h =3D state->crtc_h; num_h <=3D max_h; num=
+_h++)
+> +	for (denom_h =3D yres, num_h =3D new_plane_state->crtc_h; num_h <=3D =
+max_h; num_h++)
+>   		if (!reduce_fraction(&num_h, &denom_h))
+>   			break;
+>   	if (num_h > max_h)
+> diff --git a/drivers/gpu/drm/kmb/kmb_plane.c b/drivers/gpu/drm/kmb/kmb_=
+plane.c
+> index be8eea3830c1..51ceaae9e7e8 100644
+> --- a/drivers/gpu/drm/kmb/kmb_plane.c
+> +++ b/drivers/gpu/drm/kmb/kmb_plane.c
+> @@ -77,32 +77,34 @@ static unsigned int check_pixel_format(struct drm_p=
+lane *plane, u32 format)
+>   }
+>  =20
+>   static int kmb_plane_atomic_check(struct drm_plane *plane,
+> -				  struct drm_plane_state *state)
+> +				  struct drm_plane_state *new_plane_state)
+>   {
+>   	struct drm_framebuffer *fb;
+>   	int ret;
+>   	struct drm_crtc_state *crtc_state;
+>   	bool can_position;
+>  =20
+> -	fb =3D state->fb;
+> -	if (!fb || !state->crtc)
+> +	fb =3D new_plane_state->fb;
+> +	if (!fb || !new_plane_state->crtc)
+>   		return 0;
+>  =20
+>   	ret =3D check_pixel_format(plane, fb->format->format);
+>   	if (ret)
+>   		return ret;
+>  =20
+> -	if (state->crtc_w > KMB_MAX_WIDTH || state->crtc_h > KMB_MAX_HEIGHT)
+> +	if (new_plane_state->crtc_w > KMB_MAX_WIDTH || new_plane_state->crtc_=
+h > KMB_MAX_HEIGHT)
+>   		return -EINVAL;
+> -	if (state->crtc_w < KMB_MIN_WIDTH || state->crtc_h < KMB_MIN_HEIGHT)
+> +	if (new_plane_state->crtc_w < KMB_MIN_WIDTH || new_plane_state->crtc_=
+h < KMB_MIN_HEIGHT)
+>   		return -EINVAL;
+>   	can_position =3D (plane->type =3D=3D DRM_PLANE_TYPE_OVERLAY);
+>   	crtc_state =3D
+> -		drm_atomic_get_existing_crtc_state(state->state, state->crtc);
+> -	return drm_atomic_helper_check_plane_state(state, crtc_state,
+> -						 DRM_PLANE_HELPER_NO_SCALING,
+> -						 DRM_PLANE_HELPER_NO_SCALING,
+> -						 can_position, true);
+> +		drm_atomic_get_existing_crtc_state(new_plane_state->state,
+> +						   new_plane_state->crtc);
+> +	return drm_atomic_helper_check_plane_state(new_plane_state,
+> +						   crtc_state,
+> +						   DRM_PLANE_HELPER_NO_SCALING,
+> +						   DRM_PLANE_HELPER_NO_SCALING,
+> +						   can_position, true);
+>   }
+>  =20
+>   static void kmb_plane_atomic_disable(struct drm_plane *plane,
+> diff --git a/drivers/gpu/drm/mediatek/mtk_drm_plane.c b/drivers/gpu/drm=
+/mediatek/mtk_drm_plane.c
+> index 30ebcfd8832f..cdd2f8cfb4ab 100644
+> --- a/drivers/gpu/drm/mediatek/mtk_drm_plane.c
+> +++ b/drivers/gpu/drm/mediatek/mtk_drm_plane.c
+> @@ -141,28 +141,30 @@ static const struct drm_plane_funcs mtk_plane_fun=
+cs =3D {
+>   };
+>  =20
+>   static int mtk_plane_atomic_check(struct drm_plane *plane,
+> -				  struct drm_plane_state *state)
+> +				  struct drm_plane_state *new_plane_state)
+>   {
+> -	struct drm_framebuffer *fb =3D state->fb;
+> +	struct drm_framebuffer *fb =3D new_plane_state->fb;
+>   	struct drm_crtc_state *crtc_state;
+>   	int ret;
+>  =20
+>   	if (!fb)
+>   		return 0;
+>  =20
+> -	if (WARN_ON(!state->crtc))
+> +	if (WARN_ON(!new_plane_state->crtc))
+>   		return 0;
+>  =20
+> -	ret =3D mtk_drm_crtc_plane_check(state->crtc, plane,
+> -				       to_mtk_plane_state(state));
+> +	ret =3D mtk_drm_crtc_plane_check(new_plane_state->crtc, plane,
+> +				       to_mtk_plane_state(new_plane_state));
+>   	if (ret)
+>   		return ret;
+>  =20
+> -	crtc_state =3D drm_atomic_get_crtc_state(state->state, state->crtc);
+> +	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state,
+> +					       new_plane_state->crtc);
+>   	if (IS_ERR(crtc_state))
+>   		return PTR_ERR(crtc_state);
+>  =20
+> -	return drm_atomic_helper_check_plane_state(state, crtc_state,
+> +	return drm_atomic_helper_check_plane_state(new_plane_state,
+> +						   crtc_state,
+>   						   DRM_PLANE_HELPER_NO_SCALING,
+>   						   DRM_PLANE_HELPER_NO_SCALING,
+>   						   true, true);
+> diff --git a/drivers/gpu/drm/meson/meson_overlay.c b/drivers/gpu/drm/me=
+son/meson_overlay.c
+> index 1ffbbecafa22..a419a8c514e1 100644
+> --- a/drivers/gpu/drm/meson/meson_overlay.c
+> +++ b/drivers/gpu/drm/meson/meson_overlay.c
+> @@ -165,18 +165,20 @@ struct meson_overlay {
+>   #define FRAC_16_16(mult, div)    (((mult) << 16) / (div))
+>  =20
+>   static int meson_overlay_atomic_check(struct drm_plane *plane,
+> -				      struct drm_plane_state *state)
+> +				      struct drm_plane_state *new_plane_state)
+>   {
+>   	struct drm_crtc_state *crtc_state;
+>  =20
+> -	if (!state->crtc)
+> +	if (!new_plane_state->crtc)
+>   		return 0;
+>  =20
+> -	crtc_state =3D drm_atomic_get_crtc_state(state->state, state->crtc);
+> +	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state,
+> +					       new_plane_state->crtc);
+>   	if (IS_ERR(crtc_state))
+>   		return PTR_ERR(crtc_state);
+>  =20
+> -	return drm_atomic_helper_check_plane_state(state, crtc_state,
+> +	return drm_atomic_helper_check_plane_state(new_plane_state,
+> +						   crtc_state,
+>   						   FRAC_16_16(1, 5),
+>   						   FRAC_16_16(5, 1),
+>   						   true, true);
+> diff --git a/drivers/gpu/drm/meson/meson_plane.c b/drivers/gpu/drm/meso=
+n/meson_plane.c
+> index 35338ed18209..2c1256caf48a 100644
+> --- a/drivers/gpu/drm/meson/meson_plane.c
+> +++ b/drivers/gpu/drm/meson/meson_plane.c
+> @@ -71,14 +71,15 @@ struct meson_plane {
+>   #define FRAC_16_16(mult, div)    (((mult) << 16) / (div))
+>  =20
+>   static int meson_plane_atomic_check(struct drm_plane *plane,
+> -				    struct drm_plane_state *state)
+> +				    struct drm_plane_state *new_plane_state)
+>   {
+>   	struct drm_crtc_state *crtc_state;
+>  =20
+> -	if (!state->crtc)
+> +	if (!new_plane_state->crtc)
+>   		return 0;
+>  =20
+> -	crtc_state =3D drm_atomic_get_crtc_state(state->state, state->crtc);
+> +	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state,
+> +					       new_plane_state->crtc);
+>   	if (IS_ERR(crtc_state))
+>   		return PTR_ERR(crtc_state);
+>  =20
+> @@ -87,7 +88,8 @@ static int meson_plane_atomic_check(struct drm_plane =
+*plane,
+>   	 * - Upscaling up to 5x, vertical and horizontal
+>   	 * - Final coordinates must match crtc size
+>   	 */
+> -	return drm_atomic_helper_check_plane_state(state, crtc_state,
+> +	return drm_atomic_helper_check_plane_state(new_plane_state,
+> +						   crtc_state,
+>   						   FRAC_16_16(1, 5),
+>   						   DRM_PLANE_HELPER_NO_SCALING,
+>   						   false, true);
+> diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c b/drivers/gpu/dr=
+m/msm/disp/dpu1/dpu_plane.c
+> index bc0231a50132..9bce72627ff0 100644
+> --- a/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
+> +++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
+> @@ -950,44 +950,45 @@ static bool dpu_plane_validate_src(struct drm_rec=
+t *src,
+>   }
+>  =20
+>   static int dpu_plane_atomic_check(struct drm_plane *plane,
+> -				  struct drm_plane_state *state)
+> +				  struct drm_plane_state *new_plane_state)
+>   {
+>   	int ret =3D 0, min_scale;
+>   	struct dpu_plane *pdpu =3D to_dpu_plane(plane);
+> -	struct dpu_plane_state *pstate =3D to_dpu_plane_state(state);
+> +	struct dpu_plane_state *pstate =3D to_dpu_plane_state(new_plane_state=
+);
+>   	const struct drm_crtc_state *crtc_state =3D NULL;
+>   	const struct dpu_format *fmt;
+>   	struct drm_rect src, dst, fb_rect =3D { 0 };
+>   	uint32_t min_src_size, max_linewidth;
+>  =20
+> -	if (state->crtc)
+> -		crtc_state =3D drm_atomic_get_new_crtc_state(state->state,
+> -							   state->crtc);
+> +	if (new_plane_state->crtc)
+> +		crtc_state =3D drm_atomic_get_new_crtc_state(new_plane_state->state,=
+
+> +							   new_plane_state->crtc);
+>  =20
+>   	min_scale =3D FRAC_16_16(1, pdpu->pipe_sblk->maxupscale);
+> -	ret =3D drm_atomic_helper_check_plane_state(state, crtc_state, min_sc=
+ale,
+> -					  pdpu->pipe_sblk->maxdwnscale << 16,
+> -					  true, true);
+> +	ret =3D drm_atomic_helper_check_plane_state(new_plane_state, crtc_sta=
+te,
+> +						  min_scale,
+> +						  pdpu->pipe_sblk->maxdwnscale << 16,
+> +						  true, true);
+>   	if (ret) {
+>   		DPU_DEBUG_PLANE(pdpu, "Check plane state failed (%d)\n", ret);
+>   		return ret;
+>   	}
+> -	if (!state->visible)
+> +	if (!new_plane_state->visible)
+>   		return 0;
+>  =20
+> -	src.x1 =3D state->src_x >> 16;
+> -	src.y1 =3D state->src_y >> 16;
+> -	src.x2 =3D src.x1 + (state->src_w >> 16);
+> -	src.y2 =3D src.y1 + (state->src_h >> 16);
+> +	src.x1 =3D new_plane_state->src_x >> 16;
+> +	src.y1 =3D new_plane_state->src_y >> 16;
+> +	src.x2 =3D src.x1 + (new_plane_state->src_w >> 16);
+> +	src.y2 =3D src.y1 + (new_plane_state->src_h >> 16);
+>  =20
+> -	dst =3D drm_plane_state_dest(state);
+> +	dst =3D drm_plane_state_dest(new_plane_state);
+>  =20
+> -	fb_rect.x2 =3D state->fb->width;
+> -	fb_rect.y2 =3D state->fb->height;
+> +	fb_rect.x2 =3D new_plane_state->fb->width;
+> +	fb_rect.y2 =3D new_plane_state->fb->height;
+>  =20
+>   	max_linewidth =3D pdpu->catalog->caps->max_linewidth;
+>  =20
+> -	fmt =3D to_dpu_format(msm_framebuffer_format(state->fb));
+> +	fmt =3D to_dpu_format(msm_framebuffer_format(new_plane_state->fb));
+>  =20
+>   	min_src_size =3D DPU_FORMAT_IS_YUV(fmt) ? 2 : 1;
+>  =20
+> diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c b/drivers/gpu/d=
+rm/msm/disp/mdp5/mdp5_plane.c
+> index 05fa8255caeb..f5434a5254e0 100644
+> --- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
+> +++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
+> @@ -404,20 +404,21 @@ static int mdp5_plane_atomic_check_with_state(str=
+uct drm_crtc_state *crtc_state,
+>   }
+>  =20
+>   static int mdp5_plane_atomic_check(struct drm_plane *plane,
+> -				   struct drm_plane_state *state)
+> +				   struct drm_plane_state *new_plane_state)
+>   {
+>   	struct drm_crtc *crtc;
+>   	struct drm_crtc_state *crtc_state;
+>  =20
+> -	crtc =3D state->crtc ? state->crtc : plane->state->crtc;
+> +	crtc =3D new_plane_state->crtc ? new_plane_state->crtc : plane->state=
+->crtc;
+>   	if (!crtc)
+>   		return 0;
+>  =20
+> -	crtc_state =3D drm_atomic_get_existing_crtc_state(state->state, crtc)=
+;
+> +	crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->st=
+ate,
+> +							crtc);
+>   	if (WARN_ON(!crtc_state))
+>   		return -EINVAL;
+>  =20
+> -	return mdp5_plane_atomic_check_with_state(crtc_state, state);
+> +	return mdp5_plane_atomic_check_with_state(crtc_state, new_plane_state=
+);
+>   }
+>  =20
+>   static void mdp5_plane_atomic_update(struct drm_plane *plane,
+> diff --git a/drivers/gpu/drm/nouveau/dispnv50/wndw.c b/drivers/gpu/drm/=
+nouveau/dispnv50/wndw.c
+> index 0356474ad6f6..f83bfc0794ab 100644
+> --- a/drivers/gpu/drm/nouveau/dispnv50/wndw.c
+> +++ b/drivers/gpu/drm/nouveau/dispnv50/wndw.c
+> @@ -434,12 +434,13 @@ nv50_wndw_atomic_check_lut(struct nv50_wndw *wndw=
+,
+>   }
+>  =20
+>   static int
+> -nv50_wndw_atomic_check(struct drm_plane *plane, struct drm_plane_state=
+ *state)
+> +nv50_wndw_atomic_check(struct drm_plane *plane,
+> +		       struct drm_plane_state *new_plane_state)
+>   {
+>   	struct nouveau_drm *drm =3D nouveau_drm(plane->dev);
+>   	struct nv50_wndw *wndw =3D nv50_wndw(plane);
+>   	struct nv50_wndw_atom *armw =3D nv50_wndw_atom(wndw->plane.state);
+> -	struct nv50_wndw_atom *asyw =3D nv50_wndw_atom(state);
+> +	struct nv50_wndw_atom *asyw =3D nv50_wndw_atom(new_plane_state);
+>   	struct nv50_head_atom *harm =3D NULL, *asyh =3D NULL;
+>   	bool modeset =3D false;
+>   	int ret;
+> diff --git a/drivers/gpu/drm/omapdrm/omap_plane.c b/drivers/gpu/drm/oma=
+pdrm/omap_plane.c
+> index 51dc24acea73..78d0eb1fd69d 100644
+> --- a/drivers/gpu/drm/omapdrm/omap_plane.c
+> +++ b/drivers/gpu/drm/omapdrm/omap_plane.c
+> @@ -99,18 +99,19 @@ static void omap_plane_atomic_disable(struct drm_pl=
+ane *plane,
+>   }
+>  =20
+>   static int omap_plane_atomic_check(struct drm_plane *plane,
+> -				   struct drm_plane_state *state)
+> +				   struct drm_plane_state *new_plane_state)
+>   {
+>   	struct drm_crtc_state *crtc_state;
+>  =20
+> -	if (!state->fb)
+> +	if (!new_plane_state->fb)
+>   		return 0;
+>  =20
+>   	/* crtc should only be NULL when disabling (i.e., !state->fb) */
+> -	if (WARN_ON(!state->crtc))
+> +	if (WARN_ON(!new_plane_state->crtc))
+>   		return 0;
+>  =20
+> -	crtc_state =3D drm_atomic_get_existing_crtc_state(state->state, state=
+->crtc);
+> +	crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->st=
+ate,
+> +							new_plane_state->crtc);
+>   	/* we should have a crtc state if the plane is attached to a crtc */=
+
+>   	if (WARN_ON(!crtc_state))
+>   		return 0;
+> @@ -118,17 +119,17 @@ static int omap_plane_atomic_check(struct drm_pla=
+ne *plane,
+>   	if (!crtc_state->enable)
+>   		return 0;
+>  =20
+> -	if (state->crtc_x < 0 || state->crtc_y < 0)
+> +	if (new_plane_state->crtc_x < 0 || new_plane_state->crtc_y < 0)
+>   		return -EINVAL;
+>  =20
+> -	if (state->crtc_x + state->crtc_w > crtc_state->adjusted_mode.hdispla=
+y)
+> +	if (new_plane_state->crtc_x + new_plane_state->crtc_w > crtc_state->a=
+djusted_mode.hdisplay)
+>   		return -EINVAL;
+>  =20
+> -	if (state->crtc_y + state->crtc_h > crtc_state->adjusted_mode.vdispla=
+y)
+> +	if (new_plane_state->crtc_y + new_plane_state->crtc_h > crtc_state->a=
+djusted_mode.vdisplay)
+>   		return -EINVAL;
+>  =20
+> -	if (state->rotation !=3D DRM_MODE_ROTATE_0 &&
+> -	    !omap_framebuffer_supports_rotation(state->fb))
+> +	if (new_plane_state->rotation !=3D DRM_MODE_ROTATE_0 &&
+> +	    !omap_framebuffer_supports_rotation(new_plane_state->fb))
+>   		return -EINVAL;
+>  =20
+>   	return 0;
+> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qx=
+l_display.c
+> index 012bce0cdb65..96769047bd8c 100644
+> --- a/drivers/gpu/drm/qxl/qxl_display.c
+> +++ b/drivers/gpu/drm/qxl/qxl_display.c
+> @@ -463,15 +463,15 @@ static const struct drm_crtc_helper_funcs qxl_crt=
+c_helper_funcs =3D {
+>   };
+>  =20
+>   static int qxl_primary_atomic_check(struct drm_plane *plane,
+> -				    struct drm_plane_state *state)
+> +				    struct drm_plane_state *new_plane_state)
+>   {
+>   	struct qxl_device *qdev =3D to_qxl(plane->dev);
+>   	struct qxl_bo *bo;
+>  =20
+> -	if (!state->crtc || !state->fb)
+> +	if (!new_plane_state->crtc || !new_plane_state->fb)
+>   		return 0;
+>  =20
+> -	bo =3D gem_to_qxl_bo(state->fb->obj[0]);
+> +	bo =3D gem_to_qxl_bo(new_plane_state->fb->obj[0]);
+>  =20
+>   	return qxl_check_framebuffer(qdev, bo);
+>   }
+> diff --git a/drivers/gpu/drm/rcar-du/rcar_du_plane.c b/drivers/gpu/drm/=
+rcar-du/rcar_du_plane.c
+> index a0021fc25b27..63d1bd97abcb 100644
+> --- a/drivers/gpu/drm/rcar-du/rcar_du_plane.c
+> +++ b/drivers/gpu/drm/rcar-du/rcar_du_plane.c
+> @@ -607,11 +607,12 @@ int __rcar_du_plane_atomic_check(struct drm_plane=
+ *plane,
+>   }
+>  =20
+>   static int rcar_du_plane_atomic_check(struct drm_plane *plane,
+> -				      struct drm_plane_state *state)
+> +				      struct drm_plane_state *new_plane_state)
+>   {
+> -	struct rcar_du_plane_state *rstate =3D to_rcar_plane_state(state);
+> +	struct rcar_du_plane_state *rstate =3D to_rcar_plane_state(new_plane_=
+state);
+>  =20
+> -	return __rcar_du_plane_atomic_check(plane, state, &rstate->format);
+> +	return __rcar_du_plane_atomic_check(plane, new_plane_state,
+> +					    &rstate->format);
+>   }
+>  =20
+>   static void rcar_du_plane_atomic_update(struct drm_plane *plane,
+> diff --git a/drivers/gpu/drm/rcar-du/rcar_du_vsp.c b/drivers/gpu/drm/rc=
+ar-du/rcar_du_vsp.c
+> index f6a69aa116e6..37047d8d1a79 100644
+> --- a/drivers/gpu/drm/rcar-du/rcar_du_vsp.c
+> +++ b/drivers/gpu/drm/rcar-du/rcar_du_vsp.c
+> @@ -264,11 +264,12 @@ static void rcar_du_vsp_plane_cleanup_fb(struct d=
+rm_plane *plane,
+>   }
+>  =20
+>   static int rcar_du_vsp_plane_atomic_check(struct drm_plane *plane,
+> -					  struct drm_plane_state *state)
+> +					  struct drm_plane_state *new_plane_state)
+>   {
+> -	struct rcar_du_vsp_plane_state *rstate =3D to_rcar_vsp_plane_state(st=
+ate);
+> +	struct rcar_du_vsp_plane_state *rstate =3D to_rcar_vsp_plane_state(ne=
+w_plane_state);
+>  =20
+> -	return __rcar_du_plane_atomic_check(plane, state, &rstate->format);
+> +	return __rcar_du_plane_atomic_check(plane, new_plane_state,
+> +					    &rstate->format);
+>   }
+>  =20
+>   static void rcar_du_vsp_plane_atomic_update(struct drm_plane *plane,
+> diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/=
+drm/rockchip/rockchip_drm_vop.c
+> index fefeab73ca27..8a507917a0dc 100644
+> --- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+> +++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
+> @@ -778,11 +778,11 @@ static bool rockchip_mod_supported(struct drm_pla=
+ne *plane,
+>   }
+>  =20
+>   static int vop_plane_atomic_check(struct drm_plane *plane,
+> -			   struct drm_plane_state *state)
+> +			   struct drm_plane_state *new_plane_state)
+>   {
+> -	struct drm_crtc *crtc =3D state->crtc;
+> +	struct drm_crtc *crtc =3D new_plane_state->crtc;
+>   	struct drm_crtc_state *crtc_state;
+> -	struct drm_framebuffer *fb =3D state->fb;
+> +	struct drm_framebuffer *fb =3D new_plane_state->fb;
+>   	struct vop_win *vop_win =3D to_vop_win(plane);
+>   	const struct vop_win_data *win =3D vop_win->data;
+>   	int ret;
+> @@ -794,17 +794,18 @@ static int vop_plane_atomic_check(struct drm_plan=
+e *plane,
+>   	if (!crtc || WARN_ON(!fb))
+>   		return 0;
+>  =20
+> -	crtc_state =3D drm_atomic_get_existing_crtc_state(state->state, crtc)=
+;
+> +	crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->st=
+ate,
+> +							crtc);
+>   	if (WARN_ON(!crtc_state))
+>   		return -EINVAL;
+>  =20
+> -	ret =3D drm_atomic_helper_check_plane_state(state, crtc_state,
+> +	ret =3D drm_atomic_helper_check_plane_state(new_plane_state, crtc_sta=
+te,
+>   						  min_scale, max_scale,
+>   						  true, true);
+>   	if (ret)
+>   		return ret;
+>  =20
+> -	if (!state->visible)
+> +	if (!new_plane_state->visible)
+>   		return 0;
+>  =20
+>   	ret =3D vop_convert_format(fb->format->format);
+> @@ -815,12 +816,12 @@ static int vop_plane_atomic_check(struct drm_plan=
+e *plane,
+>   	 * Src.x1 can be odd when do clip, but yuv plane start point
+>   	 * need align with 2 pixel.
+>   	 */
+> -	if (fb->format->is_yuv && ((state->src.x1 >> 16) % 2)) {
+> +	if (fb->format->is_yuv && ((new_plane_state->src.x1 >> 16) % 2)) {
+>   		DRM_ERROR("Invalid Source: Yuv format not support odd xpos\n");
+>   		return -EINVAL;
+>   	}
+>  =20
+> -	if (fb->format->is_yuv && state->rotation & DRM_MODE_REFLECT_Y) {
+> +	if (fb->format->is_yuv && new_plane_state->rotation & DRM_MODE_REFLEC=
+T_Y) {
+>   		DRM_ERROR("Invalid Source: Yuv format does not support this rotatio=
+n\n");
+>   		return -EINVAL;
+>   	}
+> @@ -837,14 +838,16 @@ static int vop_plane_atomic_check(struct drm_plan=
+e *plane,
+>   		if (ret < 0)
+>   			return ret;
+>  =20
+> -		if (state->src.x1 || state->src.y1) {
+> -			DRM_ERROR("AFBC does not support offset display, xpos=3D%d, ypos=3D=
+%d, offset=3D%d\n", state->src.x1, state->src.y1, fb->offsets[0]);
+> +		if (new_plane_state->src.x1 || new_plane_state->src.y1) {
+> +			DRM_ERROR("AFBC does not support offset display, xpos=3D%d, ypos=3D=
+%d, offset=3D%d\n",
+> +				  new_plane_state->src.x1,
+> +				  new_plane_state->src.y1, fb->offsets[0]);
+>   			return -EINVAL;
+>   		}
+>  =20
+> -		if (state->rotation && state->rotation !=3D DRM_MODE_ROTATE_0) {
+> +		if (new_plane_state->rotation && new_plane_state->rotation !=3D DRM_=
+MODE_ROTATE_0) {
+>   			DRM_ERROR("No rotation support in AFBC, rotation=3D%d\n",
+> -				  state->rotation);
+> +				  new_plane_state->rotation);
+>   			return -EINVAL;
+>   		}
+>   	}
+> diff --git a/drivers/gpu/drm/sti/sti_cursor.c b/drivers/gpu/drm/sti/sti=
+_cursor.c
+> index a98057431023..09a187ea4ade 100644
+> --- a/drivers/gpu/drm/sti/sti_cursor.c
+> +++ b/drivers/gpu/drm/sti/sti_cursor.c
+> @@ -181,12 +181,12 @@ static void sti_cursor_init(struct sti_cursor *cu=
+rsor)
+>   }
+>  =20
+>   static int sti_cursor_atomic_check(struct drm_plane *drm_plane,
+> -				   struct drm_plane_state *state)
+> +				   struct drm_plane_state *new_plane_state)
+>   {
+>   	struct sti_plane *plane =3D to_sti_plane(drm_plane);
+>   	struct sti_cursor *cursor =3D to_sti_cursor(plane);
+> -	struct drm_crtc *crtc =3D state->crtc;
+> -	struct drm_framebuffer *fb =3D state->fb;
+> +	struct drm_crtc *crtc =3D new_plane_state->crtc;
+> +	struct drm_framebuffer *fb =3D new_plane_state->fb;
+>   	struct drm_crtc_state *crtc_state;
+>   	struct drm_display_mode *mode;
+>   	int dst_x, dst_y, dst_w, dst_h;
+> @@ -196,15 +196,17 @@ static int sti_cursor_atomic_check(struct drm_pla=
+ne *drm_plane,
+>   	if (!crtc || !fb)
+>   		return 0;
+>  =20
+> -	crtc_state =3D drm_atomic_get_crtc_state(state->state, crtc);
+> +	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state, crtc=
+);
+>   	mode =3D &crtc_state->mode;
+> -	dst_x =3D state->crtc_x;
+> -	dst_y =3D state->crtc_y;
+> -	dst_w =3D clamp_val(state->crtc_w, 0, mode->crtc_hdisplay - dst_x);
+> -	dst_h =3D clamp_val(state->crtc_h, 0, mode->crtc_vdisplay - dst_y);
+> +	dst_x =3D new_plane_state->crtc_x;
+> +	dst_y =3D new_plane_state->crtc_y;
+> +	dst_w =3D clamp_val(new_plane_state->crtc_w, 0,
+> +			  mode->crtc_hdisplay - dst_x);
+> +	dst_h =3D clamp_val(new_plane_state->crtc_h, 0,
+> +			  mode->crtc_vdisplay - dst_y);
+>   	/* src_x are in 16.16 format */
+> -	src_w =3D state->src_w >> 16;
+> -	src_h =3D state->src_h >> 16;
+> +	src_w =3D new_plane_state->src_w >> 16;
+> +	src_h =3D new_plane_state->src_h >> 16;
+>  =20
+>   	if (src_w < STI_CURS_MIN_SIZE ||
+>   	    src_h < STI_CURS_MIN_SIZE ||
+> diff --git a/drivers/gpu/drm/sti/sti_gdp.c b/drivers/gpu/drm/sti/sti_gd=
+p.c
+> index 2d5a2b5b78b8..1b108181cddd 100644
+> --- a/drivers/gpu/drm/sti/sti_gdp.c
+> +++ b/drivers/gpu/drm/sti/sti_gdp.c
+> @@ -615,12 +615,12 @@ static int sti_gdp_get_dst(struct device *dev, in=
+t dst, int src)
+>   }
+>  =20
+>   static int sti_gdp_atomic_check(struct drm_plane *drm_plane,
+> -				struct drm_plane_state *state)
+> +				struct drm_plane_state *new_plane_state)
+>   {
+>   	struct sti_plane *plane =3D to_sti_plane(drm_plane);
+>   	struct sti_gdp *gdp =3D to_sti_gdp(plane);
+> -	struct drm_crtc *crtc =3D state->crtc;
+> -	struct drm_framebuffer *fb =3D  state->fb;
+> +	struct drm_crtc *crtc =3D new_plane_state->crtc;
+> +	struct drm_framebuffer *fb =3D  new_plane_state->fb;
+>   	struct drm_crtc_state *crtc_state;
+>   	struct sti_mixer *mixer;
+>   	struct drm_display_mode *mode;
+> @@ -633,17 +633,19 @@ static int sti_gdp_atomic_check(struct drm_plane =
+*drm_plane,
+>   		return 0;
+>  =20
+>   	mixer =3D to_sti_mixer(crtc);
+> -	crtc_state =3D drm_atomic_get_crtc_state(state->state, crtc);
+> +	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state, crtc=
+);
+>   	mode =3D &crtc_state->mode;
+> -	dst_x =3D state->crtc_x;
+> -	dst_y =3D state->crtc_y;
+> -	dst_w =3D clamp_val(state->crtc_w, 0, mode->hdisplay - dst_x);
+> -	dst_h =3D clamp_val(state->crtc_h, 0, mode->vdisplay - dst_y);
+> +	dst_x =3D new_plane_state->crtc_x;
+> +	dst_y =3D new_plane_state->crtc_y;
+> +	dst_w =3D clamp_val(new_plane_state->crtc_w, 0, mode->hdisplay - dst_=
+x);
+> +	dst_h =3D clamp_val(new_plane_state->crtc_h, 0, mode->vdisplay - dst_=
+y);
+>   	/* src_x are in 16.16 format */
+> -	src_x =3D state->src_x >> 16;
+> -	src_y =3D state->src_y >> 16;
+> -	src_w =3D clamp_val(state->src_w >> 16, 0, GAM_GDP_SIZE_MAX_WIDTH);
+> -	src_h =3D clamp_val(state->src_h >> 16, 0, GAM_GDP_SIZE_MAX_HEIGHT);
+> +	src_x =3D new_plane_state->src_x >> 16;
+> +	src_y =3D new_plane_state->src_y >> 16;
+> +	src_w =3D clamp_val(new_plane_state->src_w >> 16, 0,
+> +			  GAM_GDP_SIZE_MAX_WIDTH);
+> +	src_h =3D clamp_val(new_plane_state->src_h >> 16, 0,
+> +			  GAM_GDP_SIZE_MAX_HEIGHT);
+>  =20
+>   	format =3D sti_gdp_fourcc2format(fb->format->format);
+>   	if (format =3D=3D -1) {
+> diff --git a/drivers/gpu/drm/sti/sti_hqvdp.c b/drivers/gpu/drm/sti/sti_=
+hqvdp.c
+> index 5a4e12194a77..cd556e0e4855 100644
+> --- a/drivers/gpu/drm/sti/sti_hqvdp.c
+> +++ b/drivers/gpu/drm/sti/sti_hqvdp.c
+> @@ -1017,12 +1017,12 @@ static void sti_hqvdp_start_xp70(struct sti_hqv=
+dp *hqvdp)
+>   }
+>  =20
+>   static int sti_hqvdp_atomic_check(struct drm_plane *drm_plane,
+> -				  struct drm_plane_state *state)
+> +				  struct drm_plane_state *new_plane_state)
+>   {
+>   	struct sti_plane *plane =3D to_sti_plane(drm_plane);
+>   	struct sti_hqvdp *hqvdp =3D to_sti_hqvdp(plane);
+> -	struct drm_crtc *crtc =3D state->crtc;
+> -	struct drm_framebuffer *fb =3D state->fb;
+> +	struct drm_crtc *crtc =3D new_plane_state->crtc;
+> +	struct drm_framebuffer *fb =3D new_plane_state->fb;
+>   	struct drm_crtc_state *crtc_state;
+>   	struct drm_display_mode *mode;
+>   	int dst_x, dst_y, dst_w, dst_h;
+> @@ -1032,17 +1032,17 @@ static int sti_hqvdp_atomic_check(struct drm_pl=
+ane *drm_plane,
+>   	if (!crtc || !fb)
+>   		return 0;
+>  =20
+> -	crtc_state =3D drm_atomic_get_crtc_state(state->state, crtc);
+> +	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state, crtc=
+);
+>   	mode =3D &crtc_state->mode;
+> -	dst_x =3D state->crtc_x;
+> -	dst_y =3D state->crtc_y;
+> -	dst_w =3D clamp_val(state->crtc_w, 0, mode->hdisplay - dst_x);
+> -	dst_h =3D clamp_val(state->crtc_h, 0, mode->vdisplay - dst_y);
+> +	dst_x =3D new_plane_state->crtc_x;
+> +	dst_y =3D new_plane_state->crtc_y;
+> +	dst_w =3D clamp_val(new_plane_state->crtc_w, 0, mode->hdisplay - dst_=
+x);
+> +	dst_h =3D clamp_val(new_plane_state->crtc_h, 0, mode->vdisplay - dst_=
+y);
+>   	/* src_x are in 16.16 format */
+> -	src_x =3D state->src_x >> 16;
+> -	src_y =3D state->src_y >> 16;
+> -	src_w =3D state->src_w >> 16;
+> -	src_h =3D state->src_h >> 16;
+> +	src_x =3D new_plane_state->src_x >> 16;
+> +	src_y =3D new_plane_state->src_y >> 16;
+> +	src_w =3D new_plane_state->src_w >> 16;
+> +	src_h =3D new_plane_state->src_h >> 16;
+>  =20
+>   	if (mode->clock && !sti_hqvdp_check_hw_scaling(hqvdp, mode,
+>   						       src_w, src_h,
+> diff --git a/drivers/gpu/drm/stm/ltdc.c b/drivers/gpu/drm/stm/ltdc.c
+> index 7812094f93d6..a316bf87834f 100644
+> --- a/drivers/gpu/drm/stm/ltdc.c
+> +++ b/drivers/gpu/drm/stm/ltdc.c
+> @@ -720,9 +720,9 @@ static const struct drm_crtc_funcs ltdc_crtc_funcs =
+=3D {
+>    */
+>  =20
+>   static int ltdc_plane_atomic_check(struct drm_plane *plane,
+> -				   struct drm_plane_state *state)
+> +				   struct drm_plane_state *new_plane_state)
+>   {
+> -	struct drm_framebuffer *fb =3D state->fb;
+> +	struct drm_framebuffer *fb =3D new_plane_state->fb;
+>   	u32 src_w, src_h;
+>  =20
+>   	DRM_DEBUG_DRIVER("\n");
+> @@ -731,11 +731,11 @@ static int ltdc_plane_atomic_check(struct drm_pla=
+ne *plane,
+>   		return 0;
+>  =20
+>   	/* convert src_ from 16:16 format */
+> -	src_w =3D state->src_w >> 16;
+> -	src_h =3D state->src_h >> 16;
+> +	src_w =3D new_plane_state->src_w >> 16;
+> +	src_h =3D new_plane_state->src_h >> 16;
+>  =20
+>   	/* Reject scaling */
+> -	if (src_w !=3D state->crtc_w || src_h !=3D state->crtc_h) {
+> +	if (src_w !=3D new_plane_state->crtc_w || src_h !=3D new_plane_state-=
+>crtc_h) {
+>   		DRM_ERROR("Scaling is not supported");
+>   		return -EINVAL;
+>   	}
+> diff --git a/drivers/gpu/drm/sun4i/sun8i_ui_layer.c b/drivers/gpu/drm/s=
+un4i/sun8i_ui_layer.c
+> index 816ad4ce8996..981dd72a2991 100644
+> --- a/drivers/gpu/drm/sun4i/sun8i_ui_layer.c
+> +++ b/drivers/gpu/drm/sun4i/sun8i_ui_layer.c
+> @@ -236,17 +236,18 @@ static int sun8i_ui_layer_update_buffer(struct su=
+n8i_mixer *mixer, int channel,
+>   }
+>  =20
+>   static int sun8i_ui_layer_atomic_check(struct drm_plane *plane,
+> -				       struct drm_plane_state *state)
+> +				       struct drm_plane_state *new_plane_state)
+>   {
+>   	struct sun8i_ui_layer *layer =3D plane_to_sun8i_ui_layer(plane);
+> -	struct drm_crtc *crtc =3D state->crtc;
+> +	struct drm_crtc *crtc =3D new_plane_state->crtc;
+>   	struct drm_crtc_state *crtc_state;
+>   	int min_scale, max_scale;
+>  =20
+>   	if (!crtc)
+>   		return 0;
+>  =20
+> -	crtc_state =3D drm_atomic_get_existing_crtc_state(state->state, crtc)=
+;
+> +	crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->st=
+ate,
+> +							crtc);
+>   	if (WARN_ON(!crtc_state))
+>   		return -EINVAL;
+>  =20
+> @@ -258,7 +259,8 @@ static int sun8i_ui_layer_atomic_check(struct drm_p=
+lane *plane,
+>   		max_scale =3D SUN8I_UI_SCALER_SCALE_MAX;
+>   	}
+>  =20
+> -	return drm_atomic_helper_check_plane_state(state, crtc_state,
+> +	return drm_atomic_helper_check_plane_state(new_plane_state,
+> +						   crtc_state,
+>   						   min_scale, max_scale,
+>   						   true, true);
+>   }
+> diff --git a/drivers/gpu/drm/sun4i/sun8i_vi_layer.c b/drivers/gpu/drm/s=
+un4i/sun8i_vi_layer.c
+> index 76393fc976fe..8dcb243c3166 100644
+> --- a/drivers/gpu/drm/sun4i/sun8i_vi_layer.c
+> +++ b/drivers/gpu/drm/sun4i/sun8i_vi_layer.c
+> @@ -339,17 +339,18 @@ static int sun8i_vi_layer_update_buffer(struct su=
+n8i_mixer *mixer, int channel,
+>   }
+>  =20
+>   static int sun8i_vi_layer_atomic_check(struct drm_plane *plane,
+> -				       struct drm_plane_state *state)
+> +				       struct drm_plane_state *new_plane_state)
+>   {
+>   	struct sun8i_vi_layer *layer =3D plane_to_sun8i_vi_layer(plane);
+> -	struct drm_crtc *crtc =3D state->crtc;
+> +	struct drm_crtc *crtc =3D new_plane_state->crtc;
+>   	struct drm_crtc_state *crtc_state;
+>   	int min_scale, max_scale;
+>  =20
+>   	if (!crtc)
+>   		return 0;
+>  =20
+> -	crtc_state =3D drm_atomic_get_existing_crtc_state(state->state, crtc)=
+;
+> +	crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->st=
+ate,
+> +							crtc);
+>   	if (WARN_ON(!crtc_state))
+>   		return -EINVAL;
+>  =20
+> @@ -361,7 +362,8 @@ static int sun8i_vi_layer_atomic_check(struct drm_p=
+lane *plane,
+>   		max_scale =3D SUN8I_VI_SCALER_SCALE_MAX;
+>   	}
+>  =20
+> -	return drm_atomic_helper_check_plane_state(state, crtc_state,
+> +	return drm_atomic_helper_check_plane_state(new_plane_state,
+> +						   crtc_state,
+>   						   min_scale, max_scale,
+>   						   true, true);
+>   }
+> diff --git a/drivers/gpu/drm/tegra/dc.c b/drivers/gpu/drm/tegra/dc.c
+> index 85dd7131553a..2d91956bc762 100644
+> --- a/drivers/gpu/drm/tegra/dc.c
+> +++ b/drivers/gpu/drm/tegra/dc.c
+> @@ -604,23 +604,23 @@ static const u64 tegra124_modifiers[] =3D {
+>   };
+>  =20
+>   static int tegra_plane_atomic_check(struct drm_plane *plane,
+> -				    struct drm_plane_state *state)
+> +				    struct drm_plane_state *new_plane_state)
+>   {
+> -	struct tegra_plane_state *plane_state =3D to_tegra_plane_state(state)=
+;
+> +	struct tegra_plane_state *plane_state =3D to_tegra_plane_state(new_pl=
+ane_state);
+>   	unsigned int supported_rotation =3D DRM_MODE_ROTATE_0 |
+>   					  DRM_MODE_REFLECT_X |
+>   					  DRM_MODE_REFLECT_Y;
+> -	unsigned int rotation =3D state->rotation;
+> +	unsigned int rotation =3D new_plane_state->rotation;
+>   	struct tegra_bo_tiling *tiling =3D &plane_state->tiling;
+>   	struct tegra_plane *tegra =3D to_tegra_plane(plane);
+> -	struct tegra_dc *dc =3D to_tegra_dc(state->crtc);
+> +	struct tegra_dc *dc =3D to_tegra_dc(new_plane_state->crtc);
+>   	int err;
+>  =20
+>   	/* no need for further checks if the plane is being disabled */
+> -	if (!state->crtc)
+> +	if (!new_plane_state->crtc)
+>   		return 0;
+>  =20
+> -	err =3D tegra_plane_format(state->fb->format->format,
+> +	err =3D tegra_plane_format(new_plane_state->fb->format->format,
+>   				 &plane_state->format,
+>   				 &plane_state->swap);
+>   	if (err < 0)
+> @@ -638,7 +638,7 @@ static int tegra_plane_atomic_check(struct drm_plan=
+e *plane,
+>   			return err;
+>   	}
+>  =20
+> -	err =3D tegra_fb_get_tiling(state->fb, tiling);
+> +	err =3D tegra_fb_get_tiling(new_plane_state->fb, tiling);
+>   	if (err < 0)
+>   		return err;
+>  =20
+> @@ -654,7 +654,7 @@ static int tegra_plane_atomic_check(struct drm_plan=
+e *plane,
+>   	 * property in order to achieve the same result.  The legacy BO flag=
+
+>   	 * duplicates the DRM rotation property when both are set.
+>   	 */
+> -	if (tegra_fb_is_bottom_up(state->fb))
+> +	if (tegra_fb_is_bottom_up(new_plane_state->fb))
+>   		rotation |=3D DRM_MODE_REFLECT_Y;
+>  =20
+>   	rotation =3D drm_rotation_simplify(rotation, supported_rotation);
+> @@ -674,14 +674,14 @@ static int tegra_plane_atomic_check(struct drm_pl=
+ane *plane,
+>   	 * error out if the user tries to display a framebuffer with such a
+>   	 * configuration.
+>   	 */
+> -	if (state->fb->format->num_planes > 2) {
+> -		if (state->fb->pitches[2] !=3D state->fb->pitches[1]) {
+> +	if (new_plane_state->fb->format->num_planes > 2) {
+> +		if (new_plane_state->fb->pitches[2] !=3D new_plane_state->fb->pitche=
+s[1]) {
+>   			DRM_ERROR("unsupported UV-plane configuration\n");
+>   			return -EINVAL;
+>   		}
+>   	}
+>  =20
+> -	err =3D tegra_plane_state_add(tegra, state);
+> +	err =3D tegra_plane_state_add(tegra, new_plane_state);
+>   	if (err < 0)
+>   		return err;
+>  =20
+> @@ -831,29 +831,29 @@ static const u32 tegra_cursor_plane_formats[] =3D=
+ {
+>   };
+>  =20
+>   static int tegra_cursor_atomic_check(struct drm_plane *plane,
+> -				     struct drm_plane_state *state)
+> +				     struct drm_plane_state *new_plane_state)
+>   {
+>   	struct tegra_plane *tegra =3D to_tegra_plane(plane);
+>   	int err;
+>  =20
+>   	/* no need for further checks if the plane is being disabled */
+> -	if (!state->crtc)
+> +	if (!new_plane_state->crtc)
+>   		return 0;
+>  =20
+>   	/* scaling not supported for cursor */
+> -	if ((state->src_w >> 16 !=3D state->crtc_w) ||
+> -	    (state->src_h >> 16 !=3D state->crtc_h))
+> +	if ((new_plane_state->src_w >> 16 !=3D new_plane_state->crtc_w) ||
+> +	    (new_plane_state->src_h >> 16 !=3D new_plane_state->crtc_h))
+>   		return -EINVAL;
+>  =20
+>   	/* only square cursors supported */
+> -	if (state->src_w !=3D state->src_h)
+> +	if (new_plane_state->src_w !=3D new_plane_state->src_h)
+>   		return -EINVAL;
+>  =20
+> -	if (state->crtc_w !=3D 32 && state->crtc_w !=3D 64 &&
+> -	    state->crtc_w !=3D 128 && state->crtc_w !=3D 256)
+> +	if (new_plane_state->crtc_w !=3D 32 && new_plane_state->crtc_w !=3D 6=
+4 &&
+> +	    new_plane_state->crtc_w !=3D 128 && new_plane_state->crtc_w !=3D =
+256)
+>   		return -EINVAL;
+>  =20
+> -	err =3D tegra_plane_state_add(tegra, state);
+> +	err =3D tegra_plane_state_add(tegra, new_plane_state);
+>   	if (err < 0)
+>   		return err;
+>  =20
+> diff --git a/drivers/gpu/drm/tegra/hub.c b/drivers/gpu/drm/tegra/hub.c
+> index 22a03f7ffdc1..8a2d359c4ff6 100644
+> --- a/drivers/gpu/drm/tegra/hub.c
+> +++ b/drivers/gpu/drm/tegra/hub.c
+> @@ -336,25 +336,25 @@ static void tegra_dc_remove_shared_plane(struct t=
+egra_dc *dc,
+>   }
+>  =20
+>   static int tegra_shared_plane_atomic_check(struct drm_plane *plane,
+> -					   struct drm_plane_state *state)
+> +					   struct drm_plane_state *new_plane_state)
+>   {
+> -	struct tegra_plane_state *plane_state =3D to_tegra_plane_state(state)=
+;
+> +	struct tegra_plane_state *plane_state =3D to_tegra_plane_state(new_pl=
+ane_state);
+>   	struct tegra_shared_plane *tegra =3D to_tegra_shared_plane(plane);
+>   	struct tegra_bo_tiling *tiling =3D &plane_state->tiling;
+> -	struct tegra_dc *dc =3D to_tegra_dc(state->crtc);
+> +	struct tegra_dc *dc =3D to_tegra_dc(new_plane_state->crtc);
+>   	int err;
+>  =20
+>   	/* no need for further checks if the plane is being disabled */
+> -	if (!state->crtc || !state->fb)
+> +	if (!new_plane_state->crtc || !new_plane_state->fb)
+>   		return 0;
+>  =20
+> -	err =3D tegra_plane_format(state->fb->format->format,
+> +	err =3D tegra_plane_format(new_plane_state->fb->format->format,
+>   				 &plane_state->format,
+>   				 &plane_state->swap);
+>   	if (err < 0)
+>   		return err;
+>  =20
+> -	err =3D tegra_fb_get_tiling(state->fb, tiling);
+> +	err =3D tegra_fb_get_tiling(new_plane_state->fb, tiling);
+>   	if (err < 0)
+>   		return err;
+>  =20
+> @@ -369,8 +369,8 @@ static int tegra_shared_plane_atomic_check(struct d=
+rm_plane *plane,
+>   	 * error out if the user tries to display a framebuffer with such a
+>   	 * configuration.
+>   	 */
+> -	if (state->fb->format->num_planes > 2) {
+> -		if (state->fb->pitches[2] !=3D state->fb->pitches[1]) {
+> +	if (new_plane_state->fb->format->num_planes > 2) {
+> +		if (new_plane_state->fb->pitches[2] !=3D new_plane_state->fb->pitche=
+s[1]) {
+>   			DRM_ERROR("unsupported UV-plane configuration\n");
+>   			return -EINVAL;
+>   		}
+> @@ -378,7 +378,7 @@ static int tegra_shared_plane_atomic_check(struct d=
+rm_plane *plane,
+>  =20
+>   	/* XXX scaling is not yet supported, add a check here */
+>  =20
+> -	err =3D tegra_plane_state_add(&tegra->base, state);
+> +	err =3D tegra_plane_state_add(&tegra->base, new_plane_state);
+>   	if (err < 0)
+>   		return err;
+>  =20
+> diff --git a/drivers/gpu/drm/tidss/tidss_plane.c b/drivers/gpu/drm/tids=
+s/tidss_plane.c
+> index 35067ae674ea..6dab9ad89644 100644
+> --- a/drivers/gpu/drm/tidss/tidss_plane.c
+> +++ b/drivers/gpu/drm/tidss/tidss_plane.c
+> @@ -20,7 +20,7 @@
+>   /* drm_plane_helper_funcs */
+>  =20
+>   static int tidss_plane_atomic_check(struct drm_plane *plane,
+> -				    struct drm_plane_state *state)
+> +				    struct drm_plane_state *new_plane_state)
+>   {
+>   	struct drm_device *ddev =3D plane->dev;
+>   	struct tidss_device *tidss =3D to_tidss(ddev);
+> @@ -33,20 +33,22 @@ static int tidss_plane_atomic_check(struct drm_plan=
+e *plane,
+>  =20
+>   	dev_dbg(ddev->dev, "%s\n", __func__);
+>  =20
+> -	if (!state->crtc) {
+> +	if (!new_plane_state->crtc) {
+>   		/*
+>   		 * The visible field is not reset by the DRM core but only
+>   		 * updated by drm_plane_helper_check_state(), set it manually.
+>   		 */
+> -		state->visible =3D false;
+> +		new_plane_state->visible =3D false;
+>   		return 0;
+>   	}
+>  =20
+> -	crtc_state =3D drm_atomic_get_crtc_state(state->state, state->crtc);
+> +	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state,
+> +					       new_plane_state->crtc);
+>   	if (IS_ERR(crtc_state))
+>   		return PTR_ERR(crtc_state);
+>  =20
+> -	ret =3D drm_atomic_helper_check_plane_state(state, crtc_state, 0,
+> +	ret =3D drm_atomic_helper_check_plane_state(new_plane_state, crtc_sta=
+te,
+> +						  0,
+>   						  INT_MAX, true, true);
+>   	if (ret < 0)
+>   		return ret;
+> @@ -63,35 +65,37 @@ static int tidss_plane_atomic_check(struct drm_plan=
+e *plane,
+>   	 * check for odd height).
+>   	 */
+>  =20
+> -	finfo =3D drm_format_info(state->fb->format->format);
+> +	finfo =3D drm_format_info(new_plane_state->fb->format->format);
+>  =20
+> -	if ((state->src_x >> 16) % finfo->hsub !=3D 0) {
+> +	if ((new_plane_state->src_x >> 16) % finfo->hsub !=3D 0) {
+>   		dev_dbg(ddev->dev,
+>   			"%s: x-position %u not divisible subpixel size %u\n",
+> -			__func__, (state->src_x >> 16), finfo->hsub);
+> +			__func__, (new_plane_state->src_x >> 16), finfo->hsub);
+>   		return -EINVAL;
+>   	}
+>  =20
+> -	if ((state->src_y >> 16) % finfo->vsub !=3D 0) {
+> +	if ((new_plane_state->src_y >> 16) % finfo->vsub !=3D 0) {
+>   		dev_dbg(ddev->dev,
+>   			"%s: y-position %u not divisible subpixel size %u\n",
+> -			__func__, (state->src_y >> 16), finfo->vsub);
+> +			__func__, (new_plane_state->src_y >> 16), finfo->vsub);
+>   		return -EINVAL;
+>   	}
+>  =20
+> -	if ((state->src_w >> 16) % finfo->hsub !=3D 0) {
+> +	if ((new_plane_state->src_w >> 16) % finfo->hsub !=3D 0) {
+>   		dev_dbg(ddev->dev,
+>   			"%s: src width %u not divisible by subpixel size %u\n",
+> -			 __func__, (state->src_w >> 16), finfo->hsub);
+> +			 __func__, (new_plane_state->src_w >> 16),
+> +			 finfo->hsub);
+>   		return -EINVAL;
+>   	}
+>  =20
+> -	if (!state->visible)
+> +	if (!new_plane_state->visible)
+>   		return 0;
+>  =20
+> -	hw_videoport =3D to_tidss_crtc(state->crtc)->hw_videoport;
+> +	hw_videoport =3D to_tidss_crtc(new_plane_state->crtc)->hw_videoport;
+>  =20
+> -	ret =3D dispc_plane_check(tidss->dispc, hw_plane, state, hw_videoport=
+);
+> +	ret =3D dispc_plane_check(tidss->dispc, hw_plane, new_plane_state,
+> +				hw_videoport);
+>   	if (ret)
+>   		return ret;
+>  =20
+> diff --git a/drivers/gpu/drm/tilcdc/tilcdc_plane.c b/drivers/gpu/drm/ti=
+lcdc/tilcdc_plane.c
+> index 2f681a713815..389c80a5873c 100644
+> --- a/drivers/gpu/drm/tilcdc/tilcdc_plane.c
+> +++ b/drivers/gpu/drm/tilcdc/tilcdc_plane.c
+> @@ -21,48 +21,48 @@ static const struct drm_plane_funcs tilcdc_plane_fu=
+ncs =3D {
+>   };
+>  =20
+>   static int tilcdc_plane_atomic_check(struct drm_plane *plane,
+> -				     struct drm_plane_state *state)
+> +				     struct drm_plane_state *new_state)
+>   {
+>   	struct drm_crtc_state *crtc_state;
+>   	struct drm_plane_state *old_state =3D plane->state;
+>   	unsigned int pitch;
+>  =20
+> -	if (!state->crtc)
+> +	if (!new_state->crtc)
+>   		return 0;
+>  =20
+> -	if (WARN_ON(!state->fb))
+> +	if (WARN_ON(!new_state->fb))
+>   		return -EINVAL;
+>  =20
+> -	if (state->crtc_x || state->crtc_y) {
+> +	if (new_state->crtc_x || new_state->crtc_y) {
+>   		dev_err(plane->dev->dev, "%s: crtc position must be zero.",
+>   			__func__);
+>   		return -EINVAL;
+>   	}
+>  =20
+> -	crtc_state =3D drm_atomic_get_existing_crtc_state(state->state,
+> -							state->crtc);
+> +	crtc_state =3D drm_atomic_get_existing_crtc_state(new_state->state,
+> +							new_state->crtc);
+>   	/* we should have a crtc state if the plane is attached to a crtc */=
+
+>   	if (WARN_ON(!crtc_state))
+>   		return 0;
+>  =20
+> -	if (crtc_state->mode.hdisplay !=3D state->crtc_w ||
+> -	    crtc_state->mode.vdisplay !=3D state->crtc_h) {
+> +	if (crtc_state->mode.hdisplay !=3D new_state->crtc_w ||
+> +	    crtc_state->mode.vdisplay !=3D new_state->crtc_h) {
+>   		dev_err(plane->dev->dev,
+>   			"%s: Size must match mode (%dx%d =3D=3D %dx%d)", __func__,
+>   			crtc_state->mode.hdisplay, crtc_state->mode.vdisplay,
+> -			state->crtc_w, state->crtc_h);
+> +			new_state->crtc_w, new_state->crtc_h);
+>   		return -EINVAL;
+>   	}
+>  =20
+>   	pitch =3D crtc_state->mode.hdisplay *
+> -		state->fb->format->cpp[0];
+> -	if (state->fb->pitches[0] !=3D pitch) {
+> +		new_state->fb->format->cpp[0];
+> +	if (new_state->fb->pitches[0] !=3D pitch) {
+>   		dev_err(plane->dev->dev,
+>   			"Invalid pitch: fb and crtc widths must be the same");
+>   		return -EINVAL;
+>   	}
+>  =20
+> -	if (old_state->fb && state->fb->format !=3D old_state->fb->format) {
+> +	if (old_state->fb && new_state->fb->format !=3D old_state->fb->format=
+) {
+>   		dev_dbg(plane->dev->dev,
+>   			"%s(): pixel format change requires mode_change\n",
+>   			__func__);
+> diff --git a/drivers/gpu/drm/vc4/vc4_plane.c b/drivers/gpu/drm/vc4/vc4_=
+plane.c
+> index 48fdffebb45f..b1b16043b1ed 100644
+> --- a/drivers/gpu/drm/vc4/vc4_plane.c
+> +++ b/drivers/gpu/drm/vc4/vc4_plane.c
+> @@ -1040,21 +1040,21 @@ static int vc4_plane_mode_set(struct drm_plane =
+*plane,
+>    * in the CRTC's flush.
+>    */
+>   static int vc4_plane_atomic_check(struct drm_plane *plane,
+> -				  struct drm_plane_state *state)
+> +				  struct drm_plane_state *new_plane_state)
+>   {
+> -	struct vc4_plane_state *vc4_state =3D to_vc4_plane_state(state);
+> +	struct vc4_plane_state *vc4_state =3D to_vc4_plane_state(new_plane_st=
+ate);
+>   	int ret;
+>  =20
+>   	vc4_state->dlist_count =3D 0;
+>  =20
+> -	if (!plane_enabled(state))
+> +	if (!plane_enabled(new_plane_state))
+>   		return 0;
+>  =20
+> -	ret =3D vc4_plane_mode_set(plane, state);
+> +	ret =3D vc4_plane_mode_set(plane, new_plane_state);
+>   	if (ret)
+>   		return ret;
+>  =20
+> -	return vc4_plane_allocate_lbm(state);
+> +	return vc4_plane_allocate_lbm(new_plane_state);
+>   }
+>  =20
+>   static void vc4_plane_atomic_update(struct drm_plane *plane,
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/v=
+irtio/virtgpu_plane.c
+> index 42ac08ed1442..9b2ec4db1265 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+> @@ -83,20 +83,21 @@ static const struct drm_plane_funcs virtio_gpu_plan=
+e_funcs =3D {
+>   };
+>  =20
+>   static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
+> -					 struct drm_plane_state *state)
+> +					 struct drm_plane_state *new_plane_state)
+>   {
+>   	bool is_cursor =3D plane->type =3D=3D DRM_PLANE_TYPE_CURSOR;
+>   	struct drm_crtc_state *crtc_state;
+>   	int ret;
+>  =20
+> -	if (!state->fb || WARN_ON(!state->crtc))
+> +	if (!new_plane_state->fb || WARN_ON(!new_plane_state->crtc))
+>   		return 0;
+>  =20
+> -	crtc_state =3D drm_atomic_get_crtc_state(state->state, state->crtc);
+> +	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state,
+> +					       new_plane_state->crtc);
+>   	if (IS_ERR(crtc_state))
+>                   return PTR_ERR(crtc_state);
+>  =20
+> -	ret =3D drm_atomic_helper_check_plane_state(state, crtc_state,
+> +	ret =3D drm_atomic_helper_check_plane_state(new_plane_state, crtc_sta=
+te,
+>   						  DRM_PLANE_HELPER_NO_SCALING,
+>   						  DRM_PLANE_HELPER_NO_SCALING,
+>   						  is_cursor, true);
+> diff --git a/drivers/gpu/drm/vkms/vkms_plane.c b/drivers/gpu/drm/vkms/v=
+kms_plane.c
+> index 0824327cc860..eef120a573a8 100644
+> --- a/drivers/gpu/drm/vkms/vkms_plane.c
+> +++ b/drivers/gpu/drm/vkms/vkms_plane.c
+> @@ -114,23 +114,24 @@ static void vkms_plane_atomic_update(struct drm_p=
+lane *plane,
+>   }
+>  =20
+>   static int vkms_plane_atomic_check(struct drm_plane *plane,
+> -				   struct drm_plane_state *state)
+> +				   struct drm_plane_state *new_plane_state)
+>   {
+>   	struct drm_crtc_state *crtc_state;
+>   	bool can_position =3D false;
+>   	int ret;
+>  =20
+> -	if (!state->fb || WARN_ON(!state->crtc))
+> +	if (!new_plane_state->fb || WARN_ON(!new_plane_state->crtc))
+>   		return 0;
+>  =20
+> -	crtc_state =3D drm_atomic_get_crtc_state(state->state, state->crtc);
+> +	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state,
+> +					       new_plane_state->crtc);
+>   	if (IS_ERR(crtc_state))
+>   		return PTR_ERR(crtc_state);
+>  =20
+>   	if (plane->type =3D=3D DRM_PLANE_TYPE_CURSOR)
+>   		can_position =3D true;
+>  =20
+> -	ret =3D drm_atomic_helper_check_plane_state(state, crtc_state,
+> +	ret =3D drm_atomic_helper_check_plane_state(new_plane_state, crtc_sta=
+te,
+>   						  DRM_PLANE_HELPER_NO_SCALING,
+>   						  DRM_PLANE_HELPER_NO_SCALING,
+>   						  can_position, true);
+> @@ -138,7 +139,7 @@ static int vkms_plane_atomic_check(struct drm_plane=
+ *plane,
+>   		return ret;
+>  =20
+>   	/* for now primary plane must be visible and full screen */
+> -	if (!state->visible && !can_position)
+> +	if (!new_plane_state->visible && !can_position)
+>   		return -EINVAL;
+>  =20
+>   	return 0;
+> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c b/drivers/gpu/drm/vmwg=
+fx/vmwgfx_kms.c
+> index 7dc96125e5c2..fa3ceef90891 100644
+> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
+> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
+> @@ -441,22 +441,23 @@ vmw_du_cursor_plane_atomic_update(struct drm_plan=
+e *plane,
+>    * Returns 0 on success
+>    */
+>   int vmw_du_primary_plane_atomic_check(struct drm_plane *plane,
+> -				      struct drm_plane_state *state)
+> +				      struct drm_plane_state *new_state)
+>   {
+>   	struct drm_crtc_state *crtc_state =3D NULL;
+> -	struct drm_framebuffer *new_fb =3D state->fb;
+> +	struct drm_framebuffer *new_fb =3D new_state->fb;
+>   	int ret;
+>  =20
+> -	if (state->crtc)
+> -		crtc_state =3D drm_atomic_get_new_crtc_state(state->state, state->cr=
+tc);
+> +	if (new_state->crtc)
+> +		crtc_state =3D drm_atomic_get_new_crtc_state(new_state->state,
+> +							   new_state->crtc);
+>  =20
+> -	ret =3D drm_atomic_helper_check_plane_state(state, crtc_state,
+> +	ret =3D drm_atomic_helper_check_plane_state(new_state, crtc_state,
+>   						  DRM_PLANE_HELPER_NO_SCALING,
+>   						  DRM_PLANE_HELPER_NO_SCALING,
+>   						  false, true);
+>  =20
+>   	if (!ret && new_fb) {
+> -		struct drm_crtc *crtc =3D state->crtc;
+> +		struct drm_crtc *crtc =3D new_state->crtc;
+>   		struct vmw_connector_state *vcs;
+>   		struct vmw_display_unit *du =3D vmw_crtc_to_du(crtc);
+>  =20
+> diff --git a/drivers/gpu/drm/xlnx/zynqmp_disp.c b/drivers/gpu/drm/xlnx/=
+zynqmp_disp.c
+> index c685d94409b0..ee7793d6a26e 100644
+> --- a/drivers/gpu/drm/xlnx/zynqmp_disp.c
+> +++ b/drivers/gpu/drm/xlnx/zynqmp_disp.c
+> @@ -1143,18 +1143,20 @@ static inline struct zynqmp_disp_layer *plane_t=
+o_layer(struct drm_plane *plane)
+>  =20
+>   static int
+>   zynqmp_disp_plane_atomic_check(struct drm_plane *plane,
+> -			       struct drm_plane_state *state)
+> +			       struct drm_plane_state *new_plane_state)
+>   {
+>   	struct drm_crtc_state *crtc_state;
+>  =20
+> -	if (!state->crtc)
+> +	if (!new_plane_state->crtc)
+>   		return 0;
+>  =20
+> -	crtc_state =3D drm_atomic_get_crtc_state(state->state, state->crtc);
+> +	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state,
+> +					       new_plane_state->crtc);
+>   	if (IS_ERR(crtc_state))
+>   		return PTR_ERR(crtc_state);
+>  =20
+> -	return drm_atomic_helper_check_plane_state(state, crtc_state,
+> +	return drm_atomic_helper_check_plane_state(new_plane_state,
+> +						   crtc_state,
+>   						   DRM_PLANE_HELPER_NO_SCALING,
+>   						   DRM_PLANE_HELPER_NO_SCALING,
+>   						   false, false);
 >=20
 
 --=20
@@ -2891,32 +1849,32 @@ Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
 Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
 
 
---4lluKEjAFX7Zf09fXV5ictL26QPzfbbGx--
+--G73GagE3zy2UEeAS8xRbo0xZxh4D3MkVG--
 
---b9oKPa2LaO82NeqHYhn216RqnHul0myBC
+--lskaz8LNiVcoYs32HxGmgvvWi4Wmq6HeF
 Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="OpenPGP_signature"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmABWnYFAwAAAAAACgkQlh/E3EQov+C+
-WA//ZrVhyvZXNcuLCj3XchmtieYu2FUtDLrOLIKogFaC70bXjts5EY5ohaue60v7K78t/DTtl9nB
-MyYIBtIOctnLHfkwQXIgRxkxSdFHsM7/AKrqasoc2NNC76vp7Mh8TdFKXVbEsUJDe7pcWVuVKB+A
-P/1ULsx84iAFevGhkoXtPfcjXrBAm3RiETf+S0T5EDCw46Yulq08py0so0w2vPCYYNftsg2yxx+U
-E97MHzgUL4Eaalxthp60y4RGNoCDlDbuj+iP+2/ti2DOF2RSM6WEdALjjCLONDokAkqzywXNqZ+T
-uRraM12yxJg7xs87XUU4hUUUHMJa4VSHZEetAmzFUAIMycAEwlV8iSyzOnEgPV6PHPcDd1vwQo11
-i4HI/hkYG015XBPsgXhBqOsvwiURUB1aHzwl9BiD+PhKvLesGUAoK6UK3nMiC+d/ajsjY8SPkRKN
-7gf0uB8vPEhqynhOW2oBk9L2aajz6rI7vUtSkDahu/DBQEuXUuNznZLIr9K3hwK2nSk6bEnajd2O
-LJa903LUYIt0WnjTV6arJQ/T1To8nVfUoW8+PQcYnnMPFjfi6l1fIY5VGQcavwtffanq//4yTHYL
-lJDuTH5mssTMlMwkuOBzSYAxnP0TEJM38Vjr3GTpEcnpnYfjaU7uWtTS3B1YzD9QJzzio7Cx2ewm
-Lw0=
-=U1Wi
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmABnLwFAwAAAAAACgkQlh/E3EQov+BQ
+ig//Rmtlj7KxWTxphbz7M8sPiLc6CxLQyY5x6lAx72gnSoObmnwACoX7yq7dhZ2aoVeVBlxF78sP
+oSHhzJjGGnEfUsdwbk+v8IYRB8YgnFikmNH7YNDp/Rq6UvcmULzt+G+RguJ+EzgndCM44wH/Sc3l
+0eQYFvErKJiSwWZrrW3PihgqMqHvqgjKhGDmkTcKlcRNUqQUeJ6sYzdSebcQsyj7wVS+kY0uQg4p
+zWA39stMzIxEvQ69Rkm0oXAhzaodfBhhs+itcDnkukEriKJ5+tB/pYXdNAsMtzmw2UGFPXEXIzS4
+UGgVcs/NPqUbiVy2Pqs2E7QsY8LDE1QbPnWCsn3MF6K8HQWugLm0+jm/aZ0m7a5khT8382kIu/DA
+0pCCU6lwVHfweSKMaLhSVeuCMKvl6DKubEdF/XieSC8OuiyYkqbv8gnPgAhZ33+Zkwrcm3QGcfhb
+Wkyljsd2+mv96avzZQmaqMRCnAim4Nvcoui/HwPP22SbQLa/zsGWQDvQd5816k4uB4UCjrKMgVAZ
+BC54UKybVu6h38jkAjguKoebnPbEWx4HOqZRStBH0x2S1ZIRhRXxmKoubAqnhWbQHF3913WQJrVW
+ETw6vPqNH/cblBDtfIaXYQDyb4B6H5kqpc4G503aXcT1bUh/QCaTw5hJJCBNztqYS0ka7YWiX9tK
+dm0=
+=X/Y5
 -----END PGP SIGNATURE-----
 
---b9oKPa2LaO82NeqHYhn216RqnHul0myBC--
+--lskaz8LNiVcoYs32HxGmgvvWi4Wmq6HeF--
 
---===============8216567510409235839==
+--===============8164778750273332059==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -2926,4 +1884,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8216567510409235839==--
+--===============8164778750273332059==--
