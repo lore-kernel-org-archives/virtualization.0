@@ -1,131 +1,116 @@
-Return-Path: <SRS0=tWAs=GS=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=cF9L=GU=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29E3AC433E6
-	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 21:20:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D777C433E0
+	for <virtualization@archiver.kernel.org>; Sun, 17 Jan 2021 07:58:05 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id ABFBA23603
-	for <virtualization@archiver.kernel.org>; Fri, 15 Jan 2021 21:20:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org ABFBA23603
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ideasonboard.com
+	by mail.kernel.org (Postfix) with ESMTPS id 91FD522597
+	for <virtualization@archiver.kernel.org>; Sun, 17 Jan 2021 07:58:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 91FD522597
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 3CBF320365;
-	Fri, 15 Jan 2021 21:20:44 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 31E0522E89;
+	Sun, 17 Jan 2021 07:58:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iYGJWVh88W0P; Fri, 15 Jan 2021 21:20:43 +0000 (UTC)
+	with ESMTP id VGc2zwrevnOv; Sun, 17 Jan 2021 07:58:02 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 6680920344;
-	Fri, 15 Jan 2021 21:20:43 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 94E1F22E6E;
+	Sun, 17 Jan 2021 07:58:02 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 31E9FC088B;
-	Fri, 15 Jan 2021 21:20:43 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 764C8C0893;
+	Sun, 17 Jan 2021 07:58:02 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 91F55C013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2E4EAC013A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 21:20:41 +0000 (UTC)
+ Sun, 17 Jan 2021 07:58:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 76D6A874C6
+ by hemlock.osuosl.org (Postfix) with ESMTP id 144578747D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 21:20:41 +0000 (UTC)
+ Sun, 17 Jan 2021 07:58:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dYEpCfijxpgp
+ with ESMTP id hsep6FzjpRnz
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 21:20:40 +0000 (UTC)
+ Sun, 17 Jan 2021 07:58:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com
- [213.167.242.64])
- by hemlock.osuosl.org (Postfix) with ESMTPS id ADB7F874C5
+Received: from mail-ot1-f41.google.com (mail-ot1-f41.google.com
+ [209.85.210.41])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id E1B2E87471
  for <virtualization@lists.linux-foundation.org>;
- Fri, 15 Jan 2021 21:20:40 +0000 (UTC)
-Received: from pendragon.ideasonboard.com (62-78-145-57.bb.dnainternet.fi
- [62.78.145.57])
- by perceval.ideasonboard.com (Postfix) with ESMTPSA id 6241F58B;
- Fri, 15 Jan 2021 22:20:38 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
- s=mail; t=1610745638;
- bh=gBrtw5MNkdCbuPvi2cTqhl5za5Pqp/q6zVdWl/a94uc=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=DpGlh+3zv26rFKiVKPMFcYE9SIJo78wTzt+f/qWBARm/BpkTmg6EAErEFPBPbbPhX
- fh5IdmlIWmtQSiBr7ktLcqDESDp5TwoTZAovDL33H8Kodwu6i7gIW5IBgS4KdC5rwv
- RKLhIq/ekLRDmOepJkHy4FhmHBsfknCCplWClCys=
-Date: Fri, 15 Jan 2021 23:20:21 +0200
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To: Maxime Ripard <maxime@cerno.tech>
-Subject: Re: [PATCH 10/10] drm: Use state helper instead of the plane state
- pointer
-Message-ID: <YAIHFTYiry6ebUsY@pendragon.ideasonboard.com>
-References: <20210115125703.1315064-1-maxime@cerno.tech>
- <20210115125703.1315064-10-maxime@cerno.tech>
+ Sun, 17 Jan 2021 07:57:59 +0000 (UTC)
+Received: by mail-ot1-f41.google.com with SMTP id i30so270999ota.6
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 16 Jan 2021 23:57:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=daynix-com.20150623.gappssmtp.com; s=20150623;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc:content-transfer-encoding;
+ bh=VESx0q50uHif31i5KEl5hWIvCIRQQNFTAOMGoAM4sHk=;
+ b=dowfzTW23mQmJth/93y3cwCyGyvAl+fFqQcvXECxcGq8jo5zaQkT722+738BfC0A14
+ Bsqd/ozm5BiNtKsHXJ5UDIa7Wfm31hW52j0wVk/7WFwHHDzt1eytW0ilYs1zsM5BMX7s
+ t1nLNTzQDYtxUd/eiOB+foBYE4wfdrR00TKQgH+31X2W7aLhZPfvJR4go5ov7vm4hlh+
+ 814jWwD7JM8JKTkGOMTEvwqXRqGSJC9Z16hI/+aYhFdXlqRtovk9JT9kkHGl5VyDVRY2
+ DewWaIsAU0QFt3CgW6rxqv0Qz3cazUlkFC55+YDczF0e0pq3KuAN2Y+g7PvU+9NnN9hd
+ t2zQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc:content-transfer-encoding;
+ bh=VESx0q50uHif31i5KEl5hWIvCIRQQNFTAOMGoAM4sHk=;
+ b=eEjgN66U/xZ/cM8MQt120RH++8JHL2QjVZX75BWB2rq7kknkrSmfWEzLVauYXeCyeE
+ IF3zjnbD0cZHFN4jRWWoycitOsPrnl2q/15zER2XkHMi04HjsXLAz9rsSPf2LBH/nU1V
+ AhFPa2kIi3+SloISiCZEzgydOYjwwKjaj9bv4d5kypYKwqqEUsbx6sYgMdXl3VxdMWoC
+ 08q5OddTXkqC765670gM3yfoprWEv3aXRhKzwHoczm2KA27PpLNzCZBgg5KGoHdMzNhG
+ df3oCAJOnA+FwEBO7+ISDY0Cphb3PfMZAMU9bi98fn3s8ESEjUfO4KNYKwUZTKM3rPze
+ bN3Q==
+X-Gm-Message-State: AOAM5313+4lNXNfpHAXxo/XWgWdLkRz/HLGr2rhceKF4oHUq9FYWAKRA
+ 1/4P6dr4BAi/yxHpK7xqLgyIFDnsosDnl3ohf7AgtA==
+X-Google-Smtp-Source: ABdhPJw72h9Qq08nM/YnqFoYtJLR5CwoCt5GmjOdfecQ7OjxFIthON9NM5A1BUKUsEtaY5OOl0Rzt3RdzKkeCVJhpec=
+X-Received: by 2002:a9d:4715:: with SMTP id a21mr14710269otf.220.1610870278976; 
+ Sat, 16 Jan 2021 23:57:58 -0800 (PST)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20210115125703.1315064-10-maxime@cerno.tech>
-Cc: Heiko =?utf-8?Q?St=C3=BCbner?= <heiko@sntech.de>,
- Xinliang Liu <xinliang.liu@linaro.org>, dri-devel@lists.freedesktop.org,
- Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
- linux-stm32@st-md-mailman.stormreply.com, Jerome Brunet <jbrunet@baylibre.com>,
- linux-samsung-soc@vger.kernel.org, Vincent Abriou <vincent.abriou@st.com>,
- Michal Simek <michal.simek@xilinx.com>,
- Ludovic Desroches <ludovic.desroches@microchip.com>,
- NXP Linux Team <linux-imx@nxp.com>, spice-devel@lists.freedesktop.org,
- Sascha Hauer <s.hauer@pengutronix.de>, Roland Scheidegger <sroland@vmware.com>,
- Inki Dae <inki.dae@samsung.com>, Sean Paul <sean@poorly.run>,
- Hyun Kwon <hyun.kwon@xilinx.com>, Seung-Woo Kim <sw0312.kim@samsung.com>,
- linux-kernel@vger.kernel.org, Pengutronix Kernel Team <kernel@pengutronix.de>,
- freedreno@lists.freedesktop.org,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- David Airlie <airlied@linux.ie>, Edmund Dea <edmund.j.dea@intel.com>,
- virtualization@lists.linux-foundation.org,
- Thierry Reding <thierry.reding@gmail.com>,
- Daniel Vetter <daniel.vetter@intel.com>, Fabio Estevam <festevam@gmail.com>,
- Alexey Brodkin <abrodkin@synopsys.com>, Jonathan Hunter <jonathanh@nvidia.com>,
- linux-rockchip@lists.infradead.org,
- VMware Graphics <linux-graphics-maintainer@vmware.com>,
- Dave Airlie <airlied@redhat.com>, Alexandre Torgue <alexandre.torgue@st.com>,
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
- linux-arm-msm@vger.kernel.org, Maxime Ripard <mripard@kernel.org>,
- John Stultz <john.stultz@linaro.org>, linux-amlogic@lists.infradead.org,
- linux-arm-kernel@lists.infradead.org,
- Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
- Boris Brezillon <bbrezillon@kernel.org>, Sandy Huang <hjc@rock-chips.com>,
- Yannick Fertre <yannick.fertre@st.com>,
- Kyungmin Park <kyungmin.park@samsung.com>,
- Maxime Coquelin <mcoquelin.stm32@gmail.com>,
- Kevin Hilman <khilman@baylibre.com>, Brian Starkey <brian.starkey@arm.com>,
- Haneen Mohammed <hamohammed.sa@gmail.com>,
- Neil Armstrong <narmstrong@baylibre.com>, Stefan Agner <stefan@agner.ch>,
- Melissa Wen <melissa.srw@gmail.com>, Matthias Brugger <matthias.bgg@gmail.com>,
- Benjamin Gaignard <benjamin.gaignard@linaro.org>,
- Sam Ravnborg <sam@ravnborg.org>, Xinwei Kong <kong.kongxinwei@hisilicon.com>,
- Krzysztof Kozlowski <krzk@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
- Chun-Kuang Hu <chunkuang.hu@kernel.org>, Chen Feng <puck.chen@hisilicon.com>,
- Alison Wang <alison.wang@nxp.com>, Daniel Vetter <daniel@ffwll.ch>,
- Tomi Valkeinen <tomba@kernel.org>, Philippe Cornu <philippe.cornu@st.com>,
- Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
- Tian Tao <tiantao6@hisilicon.com>, Shawn Guo <shawnguo@kernel.org>,
- Liviu Dudau <liviu.dudau@arm.com>, Paul Cercueil <paul@crapouillou.net>,
- Marek Vasut <marex@denx.de>, linux-renesas-soc@vger.kernel.org,
- Joonyoung Shim <jy0922.shim@samsung.com>, Russell King <linux@armlinux.org.uk>,
- Thomas Zimmermann <tzimmermann@suse.de>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Hans de Goede <hdegoede@redhat.com>, linux-mediatek@lists.infradead.org,
- Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>, linux-tegra@vger.kernel.org,
- Jernej Skrabec <jernej.skrabec@siol.net>,
- Nicolas Ferre <nicolas.ferre@microchip.com>, Rob Clark <robdclark@gmail.com>,
- Philipp Zabel <p.zabel@pengutronix.de>, Jyri Sarha <jyri.sarha@iki.fi>,
- Lucas Stach <l.stach@pengutronix.de>
+References: <20210112194143.1494-1-yuri.benditovich@daynix.com>
+ <CAOEp5OejaX4ZETThrj4-n8_yZoeTZs56CBPHbQqNsR2oni8dWw@mail.gmail.com>
+ <CAOEp5Oc5qif_krU8oC6qhq6X0xRW-9GpWrBzWgPw0WevyhT8Mg@mail.gmail.com>
+ <CA+FuTSfhBZfEf8+LKNUJQpSxt8c5h1wMpARupekqFKuei6YBsA@mail.gmail.com>
+ <78bbc518-4b73-4629-68fb-2713250f8967@redhat.com>
+ <CA+FuTSfJJhEYr6gXmjpjjXzg6Xm5wWa-dL1SEV-Zt7RcPXGztg@mail.gmail.com>
+ <8ea218a8-a068-1ed9-929d-67ad30111c3c@redhat.com>
+In-Reply-To: <8ea218a8-a068-1ed9-929d-67ad30111c3c@redhat.com>
+From: Yuri Benditovich <yuri.benditovich@daynix.com>
+Date: Sun, 17 Jan 2021 09:57:47 +0200
+Message-ID: <CAOEp5OfyHz2rXHmOeojNNE2wvrHMn_z1egr5aGQborEq829TLw@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/7] Support for virtio-net hash reporting
+To: Jason Wang <jasowang@redhat.com>
+Cc: Song Liu <songliubraving@fb.com>, kvm@vger.kernel.org,
+ "Michael S . Tsirkin" <mst@redhat.com>,
+ John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>, Yan Vugenfirer <yan@daynix.com>,
+ Steffen Klassert <steffen.klassert@secunet.com>,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ Herbert Xu <herbert@gondor.apana.org.au>,
+ Daniel Borkmann <daniel@iogearbox.net>, decui@microsoft.com,
+ Andrii Nakryiko <andrii@kernel.org>, Yonghong Song <yhs@fb.com>,
+ Paolo Abeni <pabeni@redhat.com>, Pablo Neira Ayuso <pablo@netfilter.org>,
+ Marco Elver <elver@google.com>, KP Singh <kpsingh@kernel.org>, cai@lca.pw,
+ Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org,
+ Jakub Sitnicki <jakub@cloudflare.com>,
+ Network Development <netdev@vger.kernel.org>,
+ Randy Dunlap <rdunlap@infradead.org>,
+ "Gustavo A . R . Silva" <gustavoars@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>, bpf <bpf@vger.kernel.org>,
+ Martin KaFai Lau <kafai@fb.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -137,128 +122,160 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Maxime,
-
-Thank you for the patch.
-
-On Fri, Jan 15, 2021 at 01:57:02PM +0100, Maxime Ripard wrote:
-> Many drivers reference the plane->state pointer in order to get the
-> current plane state in their atomic_update or atomic_disable hooks,
-
-Please don't use the word "current", it's ambiguous. Do you mean old
-state or new state ?
-
-> which would be the new plane state in the global atomic state since
-> _swap_state happened when those hooks are run.
-
-Is this relevant ? drm_atomic_helper_swap_state() doesn't change the
-old_state and new_state pointers in drm_atomic_state as far as I can
-tell.
-
-> Use the drm_atomic_get_new_plane_state helper to get that state to make it
-> more obvious.
-> 
-> This was made using the coccinelle script below:
-> 
-> @ plane_atomic_func @
-> identifier helpers;
-> identifier func;
-> @@
-> 
-> (
->  static const struct drm_plane_helper_funcs helpers = {
->  	...,
->  	.atomic_disable = func,
-> 	...,
->  };
-> |
->  static const struct drm_plane_helper_funcs helpers = {
->  	...,
->  	.atomic_update = func,
-> 	...,
->  };
-> )
-> 
-> @ adds_new_state @
-> identifier plane_atomic_func.func;
-> identifier plane, state;
-> identifier new_state;
-> @@
-> 
->  func(struct drm_plane *plane, struct drm_atomic_state *state)
->  {
->  	...
-> -	struct drm_plane_state *new_state = plane->state;
-> +	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state, plane);
-> 	...
->  }
-> 
-> @ include depends on adds_new_state @
-> @@
-> 
->  #include <drm/drm_atomic.h>
-> 
-> @ no_include depends on !include && adds_new_state @
-> @@
-> 
-> + #include <drm/drm_atomic.h>
->   #include <drm/...>
-> 
-> Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-> ---
-
-[snip]
-
->  drivers/gpu/drm/omapdrm/omap_plane.c            | 6 ++++--
->  drivers/gpu/drm/rcar-du/rcar_du_plane.c         | 3 ++-
->  drivers/gpu/drm/rcar-du/rcar_du_vsp.c           | 3 ++-
->  drivers/gpu/drm/xlnx/zynqmp_disp.c              | 3 ++-
-
-[snip]
-
-> diff --git a/drivers/gpu/drm/omapdrm/omap_plane.c b/drivers/gpu/drm/omapdrm/omap_plane.c
-> index cd8cf7c786b5..021a94de84a1 100644
-> --- a/drivers/gpu/drm/omapdrm/omap_plane.c
-> +++ b/drivers/gpu/drm/omapdrm/omap_plane.c
-> @@ -44,7 +44,8 @@ static void omap_plane_atomic_update(struct drm_plane *plane,
->  {
->  	struct omap_drm_private *priv = plane->dev->dev_private;
->  	struct omap_plane *omap_plane = to_omap_plane(plane);
-> -	struct drm_plane_state *new_state = plane->state;
-
-This seems to imply that you're interested in the new state.
-
-> +	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state,
-> +									   plane);
-
-Does this really make things more obvious ?
-
->  	struct omap_overlay_info info;
->  	int ret;
->  
-> @@ -89,7 +90,8 @@ static void omap_plane_atomic_update(struct drm_plane *plane,
->  static void omap_plane_atomic_disable(struct drm_plane *plane,
->  				      struct drm_atomic_state *state)
->  {
-> -	struct drm_plane_state *new_state = plane->state;
-> +	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state,
-> +									   plane);
->  	struct omap_drm_private *priv = plane->dev->dev_private;
->  	struct omap_plane *omap_plane = to_omap_plane(plane);
->  
-
-[snip]
-
--- 
-Regards,
-
-Laurent Pinchart
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVGh1LCBKYW4gMTQsIDIwMjEgYXQgNTozOSBBTSBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
+YXQuY29tPiB3cm90ZToKPgo+Cj4gT24gMjAyMS8xLzEzIOS4i+WNiDEwOjMzLCBXaWxsZW0gZGUg
+QnJ1aWpuIHdyb3RlOgo+ID4gT24gVHVlLCBKYW4gMTIsIDIwMjEgYXQgMTE6MTEgUE0gSmFzb24g
+V2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPj4KPiA+PiBPbiAyMDIxLzEvMTMg
+5LiK5Y2INzo0NywgV2lsbGVtIGRlIEJydWlqbiB3cm90ZToKPiA+Pj4gT24gVHVlLCBKYW4gMTIs
+IDIwMjEgYXQgMzoyOSBQTSBZdXJpIEJlbmRpdG92aWNoCj4gPj4+IDx5dXJpLmJlbmRpdG92aWNo
+QGRheW5peC5jb20+IHdyb3RlOgo+ID4+Pj4gT24gVHVlLCBKYW4gMTIsIDIwMjEgYXQgOTo0OSBQ
+TSBZdXJpIEJlbmRpdG92aWNoCj4gPj4+PiA8eXVyaS5iZW5kaXRvdmljaEBkYXluaXguY29tPiB3
+cm90ZToKPiA+Pj4+PiBPbiBUdWUsIEphbiAxMiwgMjAyMSBhdCA5OjQxIFBNIFl1cmkgQmVuZGl0
+b3ZpY2gKPiA+Pj4+PiA8eXVyaS5iZW5kaXRvdmljaEBkYXluaXguY29tPiB3cm90ZToKPiA+Pj4+
+Pj4gRXhpc3RpbmcgVFVOIG1vZHVsZSBpcyBhYmxlIHRvIHVzZSBwcm92aWRlZCAic3RlZXJpbmcg
+ZUJQRiIgdG8KPiA+Pj4+Pj4gY2FsY3VsYXRlIHBlci1wYWNrZXQgaGFzaCBhbmQgZGVyaXZlIHRo
+ZSBkZXN0aW5hdGlvbiBxdWV1ZSB0bwo+ID4+Pj4+PiBwbGFjZSB0aGUgcGFja2V0IHRvLiBUaGUg
+ZUJQRiB1c2VzIG1hcHBlZCBjb25maWd1cmF0aW9uIGRhdGEKPiA+Pj4+Pj4gY29udGFpbmluZyBh
+IGtleSBmb3IgaGFzaCBjYWxjdWxhdGlvbiBhbmQgaW5kaXJlY3Rpb24gdGFibGUKPiA+Pj4+Pj4g
+d2l0aCBhcnJheSBvZiBxdWV1ZXMnIGluZGljZXMuCj4gPj4+Pj4+Cj4gPj4+Pj4+IFRoaXMgc2Vy
+aWVzIG9mIHBhdGNoZXMgYWRkcyBzdXBwb3J0IGZvciB2aXJ0aW8tbmV0IGhhc2ggcmVwb3J0aW5n
+Cj4gPj4+Pj4+IGZlYXR1cmUgYXMgZGVmaW5lZCBpbiB2aXJ0aW8gc3BlY2lmaWNhdGlvbi4gSXQg
+ZXh0ZW5kcyB0aGUgVFVOIG1vZHVsZQo+ID4+Pj4+PiBhbmQgdGhlICJzdGVlcmluZyBlQlBGIiBh
+cyBmb2xsb3dzOgo+ID4+Pj4+Pgo+ID4+Pj4+PiBFeHRlbmRlZCBzdGVlcmluZyBlQlBGIGNhbGN1
+bGF0ZXMgdGhlIGhhc2ggdmFsdWUgYW5kIGhhc2ggdHlwZSwga2VlcHMKPiA+Pj4+Pj4gaGFzaCB2
+YWx1ZSBpbiB0aGUgc2tiLT5oYXNoIGFuZCByZXR1cm5zIGluZGV4IG9mIGRlc3RpbmF0aW9uIHZp
+cnRxdWV1ZQo+ID4+Pj4+PiBhbmQgdGhlIHR5cGUgb2YgdGhlIGhhc2guIFRVTiBtb2R1bGUga2Vl
+cHMgcmV0dXJuZWQgaGFzaCB0eXBlIGluCj4gPj4+Pj4+IChjdXJyZW50bHkgdW51c2VkKSBmaWVs
+ZCBvZiB0aGUgc2tiLgo+ID4+Pj4+PiBza2ItPl9fdW51c2VkIHJlbmFtZWQgdG8gJ2hhc2hfcmVw
+b3J0X3R5cGUnLgo+ID4+Pj4+Pgo+ID4+Pj4+PiBXaGVuIFRVTiBtb2R1bGUgaXMgY2FsbGVkIGxh
+dGVyIHRvIGFsbG9jYXRlIGFuZCBmaWxsIHRoZSB2aXJ0aW8tbmV0Cj4gPj4+Pj4+IGhlYWRlciBh
+bmQgcHVzaCBpdCB0byBkZXN0aW5hdGlvbiB2aXJ0cXVldWUgaXQgcG9wdWxhdGVzIHRoZSBoYXNo
+Cj4gPj4+Pj4+IGFuZCB0aGUgaGFzaCB0eXBlIGludG8gdmlydGlvLW5ldCBoZWFkZXIuCj4gPj4+
+Pj4+Cj4gPj4+Pj4+IFZIT1NUIGRyaXZlciBpcyBtYWRlIGF3YXJlIG9mIHJlc3BlY3RpdmUgdmly
+dGlvLW5ldCBmZWF0dXJlIHRoYXQKPiA+Pj4+Pj4gZXh0ZW5kcyB0aGUgdmlydGlvLW5ldCBoZWFk
+ZXIgdG8gcmVwb3J0IHRoZSBoYXNoIHZhbHVlIGFuZCBoYXNoIHJlcG9ydAo+ID4+Pj4+PiB0eXBl
+Lgo+ID4+Pj4+IENvbW1lbnQgZnJvbSBXaWxsZW0gZGUgQnJ1aWpuOgo+ID4+Pj4+Cj4gPj4+Pj4g
+U2tidWZmIGZpZWxkcyBhcmUgaW4gc2hvcnQgc3VwcGx5LiBJIGRvbid0IHRoaW5rIHdlIG5lZWQg
+dG8gYWRkIG9uZQo+ID4+Pj4+IGp1c3QgZm9yIHRoaXMgbmFycm93IHBhdGggZW50aXJlbHkgaW50
+ZXJuYWwgdG8gdGhlIHR1biBkZXZpY2UuCj4gPj4+Pj4KPiA+Pj4+IFdlIHVuZGVyc3RhbmQgdGhh
+dCBhbmQgdHJ5IHRvIG1pbmltaXplIHRoZSBpbXBhY3QgYnkgdXNpbmcgYW4gYWxyZWFkeQo+ID4+
+Pj4gZXhpc3RpbmcgdW51c2VkIGZpZWxkIG9mIHNrYi4KPiA+Pj4gTm90IGFueW1vcmUuIEl0IHdh
+cyByZXB1cnBvc2VkIGFzIGEgZmxhZ3MgZmllbGQgdmVyeSByZWNlbnRseS4KPiA+Pj4KPiA+Pj4g
+VGhpcyB1c2UgY2FzZSBpcyBhbHNvIHZlcnkgbmFycm93IGluIHNjb3BlLiBBbmQgYSB2ZXJ5IHNo
+b3J0IHBhdGggZnJvbQo+ID4+PiBkYXRhIHByb2R1Y2VyIHRvIGNvbnN1bWVyLiBTbyBJIGRvbid0
+IHRoaW5rIGl0IG5lZWRzIHRvIGNsYWltIHNjYXJjZQo+ID4+PiBiaXRzIGluIHRoZSBza2IuCj4g
+Pj4+Cj4gPj4+IHR1bl9lYnBmX3NlbGVjdF9xdWV1ZSBzdG9yZXMgdGhlIGZpZWxkLCB0dW5fcHV0
+X3VzZXIgcmVhZHMgaXQgYW5kCj4gPj4+IGNvbnZlcnRzIGl0IHRvIHRoZSB2aXJ0aW9fbmV0X2hk
+ciBpbiB0aGUgZGVzY3JpcHRvci4KPiA+Pj4KPiA+Pj4gdHVuX2VicGZfc2VsZWN0X3F1ZXVlIGlz
+IGNhbGxlZCBmcm9tIC5uZG9fc2VsZWN0X3F1ZXVlLiAgU3RvcmluZyB0aGUKPiA+Pj4gZmllbGQg
+aW4gc2tiLT5jYiBpcyBmcmFnaWxlLCBhcyBpbiB0aGVvcnkgc29tZSBjb2RlIGNvdWxkIG92ZXJ3
+cml0ZQo+ID4+PiB0aGF0IGJldHdlZW4gZmllbGQgYmV0d2VlbiBuZG9fc2VsZWN0X3F1ZXVlIGFu
+ZAo+ID4+PiBuZG9fc3RhcnRfeG1pdC90dW5fbmV0X3htaXQsIGZyb20gd2hpY2ggcG9pbnQgaXQg
+aXMgZnVsbHkgdW5kZXIgdHVuCj4gPj4+IGNvbnRyb2wgYWdhaW4uIEJ1dCBpbiBwcmFjdGljZSwg
+SSBkb24ndCBiZWxpZXZlIGFueXRoaW5nIGRvZXMuCj4gPj4+Cj4gPj4+IEFsdGVybmF0aXZlbHkg
+YW4gZXhpc3Rpbmcgc2tiIGZpZWxkIHRoYXQgaXMgdXNlZCBvbmx5IG9uIGRpc2pvaW50Cj4gPj4+
+IGRhdGFwYXRocywgc3VjaCBhcyBpbmdyZXNzLW9ubHksIGNvdWxkIGJlIHZpYWJsZS4KPiA+Pgo+
+ID4+IEEgcXVlc3Rpb24gaGVyZS4gV2UgaGFkIG1ldGFkYXRhIHN1cHBvcnQgaW4gWERQIGZvciBj
+b29wZXJhdGlvbiBiZXR3ZWVuCj4gPj4gZUJQRiBwcm9ncmFtcy4gRG8gd2UgaGF2ZSBzb21ldGhp
+bmcgc2ltaWxhciBpbiB0aGUgc2tiPwo+ID4+Cj4gPj4gRS5nIGluIHRoZSBSU1MsIGlmIHdlIHdh
+bnQgdG8gcGFzcyBzb21lIG1ldGFkYXRhIGluZm9ybWF0aW9uIGJldHdlZW4KPiA+PiBlQlBGIHBy
+b2dyYW0gYW5kIHRoZSBsb2dpYyB0aGF0IGdlbmVyYXRlcyB0aGUgdm5ldCBoZWFkZXIgKGVpdGhl
+ciBoYXJkCj4gPj4gbG9naWMgaW4gdGhlIGtlcm5lbCBvciBhbm90aGVyIGVCUEYgcHJvZ3JhbSku
+IElzIHRoZXJlIGFueSB3YXkgdGhhdCBjYW4KPiA+PiBhdm9pZCB0aGUgcG9zc2libGUgY29uZmxp
+Y3RzIG9mIHFkaXNjcz8KPiA+IE5vdCB0aGF0IEkgYW0gYXdhcmUgb2YuIFRoZSBjbG9zZXN0IHRo
+aW5nIGlzIGNiW10uCj4gPgo+ID4gSXQnbGwgaGF2ZSB0byBhbGlhc2UgYSBmaWVsZCBsaWtlIHRo
+YXQsIHRoYXQgaXMga25vd24gdW51c2VkIGZvciB0aGUgZ2l2ZW4gcGF0aC4KPgo+Cj4gUmlnaHQs
+IHdlIG5lZWQgdG8gbWFrZSBzdXJlIGNiIGlzIG5vdCB1c2VkIGJ5IG90aGVyIG9uZXMuIEknbSBu
+b3Qgc3VyZQo+IGhvdyBoYXJkIHRvIGFjaGlldmUgdGhhdCBjb25zaWRlciBRZW11IGluc3RhbGxz
+IHRoZSBlQlBGIHByb2dyYW0gYnV0IGl0Cj4gZG9lc24ndCBkZWFsIHdpdGggbmV0d29ya2luZyBj
+b25maWd1cmF0aW9ucy4KPgo+Cj4gPgo+ID4gT25lIG90aGVyIGFwcHJvYWNoIHRoYXQgaGFzIGJl
+ZW4gdXNlZCB3aXRoaW4gbGluZWFyIGNhbGwgc3RhY2tzIGlzIG91dAo+ID4gb2YgYmFuZC4gTGlr
+ZSBwZXJjcHUgdmFyaWFibGVzIHNvZnRuZXRfZGF0YS54bWl0Lm1vcmUgYW5kCj4gPiBtaXJyZWRf
+cmVjX2xldmVsLiBCdXQgdGhhdCBpcyBwZXJoYXBzIGEgYml0IG92ZXJ3cm91Z2h0IGZvciB0aGlz
+IHVzZQo+ID4gY2FzZS4KPgo+Cj4gWWVzLCBhbmQgaWYgd2UgZ28gdGhhdCB3YXkgdGhlbiBlQlBG
+IHR1cm5zIG91dCB0byBiZSBhIGJ1cmRlbiBzaW5jZSB3ZQo+IG5lZWQgdG8gaW52ZW50IGhlbHBl
+cnMgdG8gYWNjZXNzIHRob3NlIGF1eGlsaWFyeSBkYXRhIHN0cnVjdHVyZS4gSXQKPiB3b3VsZCBi
+ZSBiZXR0ZXIgdGhlbiB0byBoYXJkLWNvZGVkIHRoZSBSU1MgaW4gdGhlIGtlcm5lbC4KPgo+Cj4g
+Pgo+ID4+Pj4+IEluc3RlYWQsIHlvdSBjb3VsZCBqdXN0IHJ1biB0aGUgZmxvd19kaXNzZWN0b3Ig
+aW4gdHVuX3B1dF91c2VyIGlmIHRoZQo+ID4+Pj4+IGZlYXR1cmUgaXMgbmVnb3RpYXRlZC4gSW5k
+ZWVkLCB0aGUgZmxvdyBkaXNzZWN0b3Igc2VlbXMgbW9yZSBhcHQgdG8gbWUKPiA+Pj4+PiB0aGFu
+IEJQRiBoZXJlLiBOb3RlIHRoYXQgdGhlIGZsb3cgZGlzc2VjdG9yIGludGVybmFsbHkgY2FuIGJl
+Cj4gPj4+Pj4gb3ZlcnJpZGRlbiBieSBhIEJQRiBwcm9ncmFtIGlmIHRoZSBhZG1pbiBzbyBjaG9v
+c2VzLgo+ID4+Pj4+Cj4gPj4+PiBXaGVuIHRoaXMgc2V0IG9mIHBhdGNoZXMgaXMgcmVsYXRlZCB0
+byBoYXNoIGRlbGl2ZXJ5IGluIHRoZSB2aXJ0aW8tbmV0Cj4gPj4+PiBwYWNrZXQgaW4gZ2VuZXJh
+bCwKPiA+Pj4+IGl0IHdhcyBwcmVwYXJlZCBpbiBjb250ZXh0IG9mIFJTUyBmZWF0dXJlIGltcGxl
+bWVudGF0aW9uIGFzIGRlZmluZWQgaW4KPiA+Pj4+IHZpcnRpbyBzcGVjIFsxXQo+ID4+Pj4gSW4g
+Y2FzZSBvZiBSU1MgaXQgaXMgbm90IGVub3VnaCB0byBydW4gdGhlIGZsb3dfZGlzc2VjdG9yIGlu
+IHR1bl9wdXRfdXNlcjoKPiA+Pj4+IGluIHR1bl9lYnBmX3NlbGVjdF9xdWV1ZSB0aGUgVFVOIGNh
+bGxzIGVCUEYgdG8gY2FsY3VsYXRlIHRoZSBoYXNoLAo+ID4+Pj4gaGFzaCB0eXBlIGFuZCBxdWV1
+ZSBpbmRleAo+ID4+Pj4gYWNjb3JkaW5nIHRvIHRoZSAobWFwcGVkKSBwYXJhbWV0ZXJzIChrZXks
+IGhhc2ggdHlwZXMsIGluZGlyZWN0aW9uCj4gPj4+PiB0YWJsZSkgcmVjZWl2ZWQgZnJvbSB0aGUg
+Z3Vlc3QuCj4gPj4+IFRVTlNFVFNURUVSSU5HRUJQRiB3YXMgYWRkZWQgdG8gc3VwcG9ydCBtb3Jl
+IGRpdmVyc2UgcXVldWUgc2VsZWN0aW9uCj4gPj4+IHRoYW4gdGhlIGRlZmF1bHQgaW4gY2FzZSBv
+ZiBtdWx0aXF1ZXVlIHR1bi4gTm90IHN1cmUgd2hhdCB0aGUgZXhhY3QKPiA+Pj4gdXNlIGNhc2Vz
+IGFyZS4KPiA+Pj4KPiA+Pj4gQnV0IFJTUyBpcyBleGFjdGx5IHRoZSBwdXJwb3NlIG9mIHRoZSBm
+bG93IGRpc3NlY3Rvci4gSXQgaXMgdXNlZCBmb3IKPiA+Pj4gdGhhdCBwdXJwb3NlIGluIHRoZSBz
+b2Z0d2FyZSB2YXJpYW50IFJQUy4gVGhlIGZsb3cgZGlzc2VjdG9yCj4gPj4+IGltcGxlbWVudHMg
+YSBzdXBlcnNldCBvZiB0aGUgUlNTIHNwZWMsIGFuZCBjZXJ0YWlubHkgY29tcHV0ZXMgYQo+ID4+
+PiBmb3VyLXR1cGxlIGZvciBUQ1AvSVB2Ni4gSW4gdGhlIGNhc2Ugb2YgUlBTLCBpdCBpcyBza2lw
+cGVkIGlmIHRoZSBOSUMKPiA+Pj4gaGFzIGFscmVhZHkgY29tcHV0ZWQgYSA0LXR1cGxlIGhhc2gu
+Cj4gPj4+Cj4gPj4+IFdoYXQgaXQgZG9lcyBub3QgZ2l2ZSBpcyBhIHR5cGUgaW5kaWNhdGlvbiwg
+c3VjaCBhcwo+ID4+PiBWSVJUSU9fTkVUX0hBU0hfVFlQRV9UQ1B2Ni4gSSBkb24ndCB1bmRlcnN0
+YW5kIGhvdyB0aGlzIHdvdWxkIGJlIHVzZWQuCj4gPj4+IEluIGRhdGFwYXRocyB3aGVyZSB0aGUg
+TklDIGhhcyBhbHJlYWR5IGNvbXB1dGVkIHRoZSBmb3VyLXR1cGxlIGhhc2gKPiA+Pj4gYW5kIHN0
+b3JlZCBpdCBpbiBza2ItPmhhc2ggLS10aGUgY29tbW9uIGNhc2UgZm9yIHNlcnZlcnMtLSwgVGhh
+dCB0eXBlCj4gPj4+IGZpZWxkIGlzIHRoZSBvbmx5IHJlYXNvbiB0byBoYXZlIHRvIGNvbXB1dGUg
+YWdhaW4uCj4gPj4KPiA+PiBUaGUgcHJvYmxlbSBpcyB0aGVyZSdzIG5vIGd1YXJhbnRlZSB0aGF0
+IHRoZSBwYWNrZXQgY29tZXMgZnJvbSB0aGUgTklDLAo+ID4+IGl0IGNvdWxkIGJlIGEgc2ltcGxl
+IFZNMlZNIG9yIGhvc3QyVk0gcGFja2V0Lgo+ID4+Cj4gPj4gQW5kIGV2ZW4gaWYgdGhlIHBhY2tl
+dCBpcyBjb21pbmcgZnJvbSB0aGUgTklDIHRoYXQgY2FsY3VsYXRlcyB0aGUgaGFzaAo+ID4+IHRo
+ZXJlJ3Mgbm8gZ3VhcmFudGVlIHRoYXQgaXQncyB0aGUgaGFzIHRoYXQgZ3Vlc3Qgd2FudCAoZ3Vl
+c3QgbWF5IHVzZQo+ID4+IGRpZmZlcmVudCBSU1Mga2V5cykuCj4gPiBBaCB5ZXMsIG9mIGNvdXJz
+ZS4KPiA+Cj4gPiBJIHdvdWxkIHN0aWxsIHJldmlzaXQgdGhlIG5lZWQgdG8gc3RvcmUgYSBkZXRh
+aWxlZCBoYXNoX3R5cGUgYWxvbmcgd2l0aAo+ID4gdGhlIGhhc2gsIGFzIGFzIGZhciBJIGNhbiB0
+ZWxsIHRoYXQgY29udmV5cyBubyBhY3Rpb25hYmxlIGluZm9ybWF0aW9uCj4gPiB0byB0aGUgZ3Vl
+c3QuCj4KPgo+IFllcywgbmVlZCB0byBmaWd1cmUgb3V0IGl0cyB1c2FnZS4gQWNjb3JkaW5nIHRv
+IFsxXSwgaXQgb25seSBtZW50aW9uCj4gdGhhdCBzdG9yaW5nIGhhcyB0eXBlIGlzIGEgY2hhcmdl
+IG9mIGRyaXZlci4gTWF5YmUgWXVyaSBjYW4gYW5zd2VyIHRoaXMuCj4KCkZvciB0aGUgY2FzZSBv
+ZiBXaW5kb3dzIFZNIHdlIGNhbid0IGtub3cgaG93IGV4YWN0bHkgdGhlIG5ldHdvcmsgc3RhY2sK
+dXNlcyBwcm92aWRlZCBoYXNoIGRhdGEgKGluY2x1ZGluZyBoYXNoIHR5cGUpLiBCdXQ6IGRpZmZl
+cmVudCByZWxlYXNlcwpvZiBXaW5kb3dzCmVuYWJsZSBkaWZmZXJlbnQgaGFzaCB0eXBlcyAoZm9y
+IGV4YW1wbGUgVURQIGhhc2ggaXMgZW5hYmxlZCBvbmx5IG9uClNlcnZlciAyMDE2IGFuZCB1cCku
+CgpJbmRlZWQgdGhlIFdpbmRvd3MgcmVxdWlyZXMgYSBsaXR0bGUgbW9yZSBmcm9tIHRoZSBuZXR3
+b3JrIGFkYXB0ZXIvZHJpdmVyCnRoYW4gTGludXggZG9lcy4KClRoZSBhZGRpdGlvbiBvZiBSU1Mg
+c3VwcG9ydCB0byB2aXJ0aW8gc3BlY2lmaWNhdGlvbiB0YWtlcyBpbiBhY2NvdW50CnRoZSB3aWRl
+c3Qgc2V0IG9mCnJlcXVpcmVtZW50cyAoaS5lLiBXaW5kb3dzIG9uZSksIG91ciBpbml0aWFsIGlt
+cHJlc3Npb24gaXMgdGhhdCB0aGlzCnNob3VsZCBiZSBlbm91Z2ggYWxzbyBmb3IgTGludXguCgpU
+aGUgTkRJUyBzcGVjaWZpY2F0aW9uIGluIHBhcnQgb2YgUlNTIGlzIF9tYW5kYXRvcnlfIGFuZCB0
+aGVyZSBhcmUKY2VydGlmaWNhdGlvbiB0ZXN0cwp0aGF0IGNoZWNrIHRoYXQgdGhlIGRyaXZlciBw
+cm92aWRlcyB0aGUgaGFzaCBkYXRhIGFzIGV4cGVjdGVkLiBBbGwgdGhlCmhpZ2gtcGVyZm9ybWFu
+Y2UKbmV0d29yayBhZGFwdGVycyBoYXZlIHN1Y2ggUlNTIGZ1bmN0aW9uYWxpdHkgaW4gdGhlIGhh
+cmR3YXJlLgpXaXRoIHByZS1SU1MgUUVNVSAoaS5lLiB3aGVyZSB0aGUgdmlydGlvLW5ldCBkZXZp
+Y2UgZG9lcyBub3QgaW5kaWNhdGUKdGhlIFJTUyBzdXBwb3J0KQp0aGUgdmlydGlvLW5ldCBkcml2
+ZXIgZm9yIFdpbmRvd3MgZG9lcyBhbGwgdGhlIGpvYiByZWxhdGVkIHRvIFJTUzoKLSBoYXNoIGNh
+bGN1bGF0aW9uCi0gaGFzaC9oYXNoX3R5cGUgZGVsaXZlcnkKLSByZXBvcnRpbmcgZWFjaCBwYWNr
+ZXQgb24gdGhlIGNvcnJlY3QgQ1BVIGFjY29yZGluZyB0byBSU1Mgc2V0dGluZ3MKCldpdGggUlNT
+IHN1cHBvcnQgaW4gUUVNVSBhbGwgdGhlIHBhY2tldHMgYWx3YXlzIGNvbWUgb24gYSBwcm9wZXIg
+Q1BVIGFuZAp0aGUgZHJpdmVyIG5ldmVyIG5lZWRzIHRvIHJlc2NoZWR1bGUgdGhlbS4gVGhlIGRy
+aXZlciBzdGlsbCBuZWVkIHRvCmNhbGN1bGF0ZSB0aGUKaGFzaCBhbmQgcmVwb3J0IGl0IHRvIFdp
+bmRvd3MuIEluIHRoaXMgY2FzZSB3ZSBkbyB0aGUgc2FtZSBqb2IgdHdpY2U6IHRoZSBkZXZpY2UK
+KFFFTVUgb3IgZUJQRikgZG9lcyBjYWxjdWxhdGUgdGhlIGhhc2ggYW5kIGdldCBwcm9wZXIgcXVl
+dWUvQ1BVIHRvIGRlbGl2ZXIKdGhlIHBhY2tldC4gQnV0IHRoZSBoYXNoIGlzIG5vdCBkZWxpdmVy
+ZWQgYnkgdGhlIGRldmljZSwgc28gdGhlIGRyaXZlciBuZWVkcyB0bwpyZWNhbGN1bGF0ZSBpdCBh
+bmQgcmVwb3J0IHRvIHRoZSBXaW5kb3dzLgoKSWYgd2UgYWRkIEhBU0hfUkVQT1JUIHN1cHBvcnQg
+KGN1cnJlbnQgc2V0IG9mIHBhdGNoZXMpIGFuZCB0aGUgZGV2aWNlCmluZGljYXRlcyB0aGlzCmZl
+YXR1cmUgd2UgY2FuIGF2b2lkIGhhc2ggcmVjYWxjdWxhdGlvbiBpbiB0aGUgZHJpdmVyIGFzc3Vt
+aW5nIHdlCnJlY2VpdmUgdGhlIGNvcnJlY3QgaGFzaAp2YWx1ZSBhbmQgaGFzaCB0eXBlLiBPdGhl
+cndpc2UgdGhlIGRyaXZlciBjYW4ndCBrbm93IHdoaWNoIGV4YWN0bHkKaGFzaCB0aGUgZGV2aWNl
+IGhhcyBjYWxjdWxhdGVkLgoKUGxlYXNlIGxldCBtZSBrbm93IGlmIEkgZGlkIG5vdCBhbnN3ZXIg
+dGhlIHF1ZXN0aW9uLgoKPiBUaGFua3MKPgo+IFsxXQo+IGh0dHBzOi8vZG9jcy5taWNyb3NvZnQu
+Y29tL2VuLXVzL3dpbmRvd3MtaGFyZHdhcmUvZHJpdmVycy9uZXR3b3JrL2luZGljYXRpbmctcnNz
+LXJlY2VpdmUtZGF0YQo+Cj4KPiA+Cj4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
