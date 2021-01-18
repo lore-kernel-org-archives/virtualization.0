@@ -2,118 +2,129 @@ Return-Path: <SRS0=OmMZ=GV=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A652EC433E0
-	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 15:17:07 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0177C433DB
+	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 15:20:43 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 38B8F22BEA
-	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 15:17:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 38B8F22BEA
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 78249223DB
+	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 15:20:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 78249223DB
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 0C6BC85ABB;
-	Mon, 18 Jan 2021 15:17:07 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 1F69487000;
+	Mon, 18 Jan 2021 15:20:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7ayF69aQq9vY; Mon, 18 Jan 2021 15:17:06 +0000 (UTC)
+	with ESMTP id ALRT8px3cXcr; Mon, 18 Jan 2021 15:20:42 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 7EBAA85A80;
-	Mon, 18 Jan 2021 15:17:06 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 3B33886FDA;
+	Mon, 18 Jan 2021 15:20:42 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 63A87C08A1;
-	Mon, 18 Jan 2021 15:17:06 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A0F56C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0D815C08A1;
+	Mon, 18 Jan 2021 15:20:42 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EF8C1C013A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 15:17:04 +0000 (UTC)
+ Mon, 18 Jan 2021 15:20:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 9C0FF85A84
+ by silver.osuosl.org (Postfix) with ESMTP id E18CB204A0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 15:17:04 +0000 (UTC)
+ Mon, 18 Jan 2021 15:20:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id LCKxGLwDvI_f
+ with ESMTP id wZfKk1GhITJo
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 15:17:04 +0000 (UTC)
+ Mon, 18 Jan 2021 15:20:39 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id D9AE885A80
+Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com
+ [209.85.160.177])
+ by silver.osuosl.org (Postfix) with ESMTPS id B76062049E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 15:17:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1610983022;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=psrfvoG3s6Q5vxt3L2I9TwaBLHc6rZJ8JZ9ILZMQQLQ=;
- b=JuvWhx5oP7Yc3rdL+gESQ/2QsljbZPwx/i7widicX6kLayT2feEe/9tOo1bnUdhnYcfYHF
- lO20Fd17husvOABD7+sQ3GETKJlBbMXfIupM64Lfn2PgOVzzXOaBWUlhfycv/hnMGRbfc0
- /uxhX7Bq4pu11JUfpJJd1ZG/H9NzoNg=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-483-c7j0QhrDNPy_YVC4cp4v-Q-1; Mon, 18 Jan 2021 10:17:00 -0500
-X-MC-Unique: c7j0QhrDNPy_YVC4cp4v-Q-1
-Received: by mail-wr1-f71.google.com with SMTP id w5so8366802wrl.9
+ Mon, 18 Jan 2021 15:20:39 +0000 (UTC)
+Received: by mail-qt1-f177.google.com with SMTP id e15so11444668qte.9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 07:17:00 -0800 (PST)
+ Mon, 18 Jan 2021 07:20:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=F6KA9w3XTyDzR9a/eJiRfa89v7fUgs4kNlqtUAh2eRs=;
+ b=LIhPXBoQ0lqZVjwUYNyS926s6D2uM+E4QTstoVoyx4n/7hogHhwpwSIBj+IPlC8YRN
+ h3oF2QH8WoW7n66iWRccB6P28cnjAoaZFh9Ihuo4M2y2hnwgm269UEf0c7HlVrmhnE+9
+ KJYq1eh3iCo2cSAphPIo6nJjawFJTfFVbF/c7O13aAsmJxFnegxLSNNkU62oqpaWFTiB
+ V89AL0U1zhHAjVLfhYgFjt5j4ESe5y8dRSW3qJC3WKQ7QQ4pcRzH5pRi6LJUi78Ft/Ka
+ uIHf3k+LMjIxLol3HyKVPi8GWfs3cxxk1fX9BduFukj4m0ZBJOyjaKxOf48FB7EvZ4B5
+ EK+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=psrfvoG3s6Q5vxt3L2I9TwaBLHc6rZJ8JZ9ILZMQQLQ=;
- b=ch9nQWODBxNL9fq8FblLuk5nx8cv0pP4NMzTtmMtgr91CEiMefvoPjbIFUa43YJN35
- UI9q0TU+sT1I43BK/ruVvQ2lpFN/NHsNhO1TGhqCWTKcEyM8fBQ2qpRTVjQE/lRh6p3T
- CTjI4ccI4f24PqV5PzpVOtkTltYtslXdSNExuO2FXckhhdCh4owq+WQg+h3oQaNoeMNy
- 7obpmN4M/QAROrFRQsdCZ7OoMVD3k6d+1naDqRZMA5AFR0fQpRoRB7hSFqrolq+wZRfo
- iZTKSndCqrJbL5s56MPXQI/Q63kXD+Thijf9bqmfgvQhQ9X0Fnr5193YOcbLvDZa9hKx
- kuQQ==
-X-Gm-Message-State: AOAM531EsGKGGNQrSH+8f/cSCNgwrkc+mXeDWrrTkdPb4IYmtqfgRBDQ
- G3gWhW7s97ZsFKHvEnMWUAT7ybY/aAK68inqgSCv5QBSRjXoW28dam2b4RpPzoMECyQ9XEcySDo
- l/YeVb6rCsqe1T40PbrCTr40S3WpJ3jKvufcEVJferQ==
-X-Received: by 2002:adf:e54a:: with SMTP id z10mr26882336wrm.1.1610983019798; 
- Mon, 18 Jan 2021 07:16:59 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxXG3dAk6icAdSs8xnG72+nZUruxeveo9BolCI0f5eiHmFFp/RlmpfjavbAYMBXV+ShJ7Tvbw==
-X-Received: by 2002:adf:e54a:: with SMTP id z10mr26882310wrm.1.1610983019631; 
- Mon, 18 Jan 2021 07:16:59 -0800 (PST)
-Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
- [79.34.249.199])
- by smtp.gmail.com with ESMTPSA id z130sm28028318wmb.33.2021.01.18.07.16.58
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 18 Jan 2021 07:16:58 -0800 (PST)
-Date: Mon, 18 Jan 2021 16:16:56 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseny Krasnov <arseny.krasnov@kaspersky.com>, stsp <stsp2@yandex.ru>
-Subject: Re: [RFC PATCH v2 00/13] virtio/vsock: introduce SOCK_SEQPACKET
- support.
-Message-ID: <CAGxU2F4v9_a9frgM61fh7UYTcWeGpNaAEXTUgnj8hvdU81PW5Q@mail.gmail.com>
-References: <20210115053553.1454517-1-arseny.krasnov@kaspersky.com>
- <2fd6fc75-c534-7f70-c116-50b1c804b594@yandex.ru>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=F6KA9w3XTyDzR9a/eJiRfa89v7fUgs4kNlqtUAh2eRs=;
+ b=BUZNkRNk6z3Gl72JOWBMBPSXQujizrvcxeMk5+M8/VEhk6m9q/q1TG/x78PZvJGkqK
+ rVrILwwKgfyvU6XiqLC5V8LOFbss7hV5GVoBk0W1GOz1PDiNIyf1n3AG4s8b1Fpv6bBm
+ iIclv9pGvAwRlp7h/FzxftjRZZKxUtF671sZmKIjdo5UJkwNHzS7GhGCOZVHE/jpqBIA
+ UhLc6Bjc/9d+ufs4XkHAFXKW3HiOB6w1ZYmf8rHOgKav+7jz3yldf3+xGoOi/zhsVNqQ
+ laW9dy5EJEvBXLPtiZHGlc7w+C2nUaj2foQNkylTK96QsYcTNY/Dj/gFJJKqh9s1yrbI
+ aqGg==
+X-Gm-Message-State: AOAM530w9Rqj+MHfogdj82Y6AbTVQA+u+lUj5JlvjfA4d8cBGgXMY/zg
+ LqNW7iky7bDPgRKaCjZmQ3XomRZbRvY=
+X-Google-Smtp-Source: ABdhPJygpcMeTQ3gcDE+87binYnvhhL1/jqueWPmfCgltKnIcCBYOmxitWQCEr6n42u1XWMeMWUvSw==
+X-Received: by 2002:aed:2c66:: with SMTP id f93mr134574qtd.14.1610983238109;
+ Mon, 18 Jan 2021 07:20:38 -0800 (PST)
+Received: from mail-yb1-f170.google.com (mail-yb1-f170.google.com.
+ [209.85.219.170])
+ by smtp.gmail.com with ESMTPSA id z20sm10688523qkz.37.2021.01.18.07.20.36
+ for <virtualization@lists.linux-foundation.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 18 Jan 2021 07:20:37 -0800 (PST)
+Received: by mail-yb1-f170.google.com with SMTP id i141so5480482yba.0
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 18 Jan 2021 07:20:36 -0800 (PST)
+X-Received: by 2002:ab0:7386:: with SMTP id l6mr17924882uap.141.1610983234282; 
+ Mon, 18 Jan 2021 07:20:34 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <2fd6fc75-c534-7f70-c116-50b1c804b594@yandex.ru>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Andra Paraschiv <andraprs@amazon.com>, kvm <kvm@vger.kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jeff Vander Stoep <jeffv@google.com>,
- kernel list <linux-kernel@vger.kernel.org>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>,
- Krasnov Arseniy <oxffffaa@gmail.com>, netdev <netdev@vger.kernel.org>,
- Stefan Hajnoczi <stefanha@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
- Colin Ian King <colin.king@canonical.com>,
- "David S. Miller" <davem@davemloft.net>
+References: <20210112194143.1494-1-yuri.benditovich@daynix.com>
+ <CAOEp5OejaX4ZETThrj4-n8_yZoeTZs56CBPHbQqNsR2oni8dWw@mail.gmail.com>
+ <CAOEp5Oc5qif_krU8oC6qhq6X0xRW-9GpWrBzWgPw0WevyhT8Mg@mail.gmail.com>
+ <CA+FuTSfhBZfEf8+LKNUJQpSxt8c5h1wMpARupekqFKuei6YBsA@mail.gmail.com>
+ <78bbc518-4b73-4629-68fb-2713250f8967@redhat.com>
+ <CA+FuTSfJJhEYr6gXmjpjjXzg6Xm5wWa-dL1SEV-Zt7RcPXGztg@mail.gmail.com>
+ <8ea218a8-a068-1ed9-929d-67ad30111c3c@redhat.com>
+ <CAOEp5OfyHz2rXHmOeojNNE2wvrHMn_z1egr5aGQborEq829TLw@mail.gmail.com>
+ <65fe1a40-abc0-77ed-56df-3f0a70615016@redhat.com>
+ <CAOEp5Oe4TcOukJa+OGj-ynfMMrZC=_YQDpzSC9_9p+UXSH7hmg@mail.gmail.com>
+In-Reply-To: <CAOEp5Oe4TcOukJa+OGj-ynfMMrZC=_YQDpzSC9_9p+UXSH7hmg@mail.gmail.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date: Mon, 18 Jan 2021 10:19:57 -0500
+X-Gmail-Original-Message-ID: <CA+FuTSfsFC0DTFhHDwT7dbtWXTmGOWjc=ozt8CgH_qDDn9gejg@mail.gmail.com>
+Message-ID: <CA+FuTSfsFC0DTFhHDwT7dbtWXTmGOWjc=ozt8CgH_qDDn9gejg@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/7] Support for virtio-net hash reporting
+To: Yuri Benditovich <yuri.benditovich@daynix.com>
+Cc: Song Liu <songliubraving@fb.com>, kvm@vger.kernel.org,
+ "Michael S . Tsirkin" <mst@redhat.com>,
+ John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>, Yan Vugenfirer <yan@daynix.com>,
+ Steffen Klassert <steffen.klassert@secunet.com>,
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ Herbert Xu <herbert@gondor.apana.org.au>,
+ Daniel Borkmann <daniel@iogearbox.net>, decui@microsoft.com,
+ Andrii Nakryiko <andrii@kernel.org>, Yonghong Song <yhs@fb.com>,
+ Paolo Abeni <pabeni@redhat.com>, Pablo Neira Ayuso <pablo@netfilter.org>,
+ Marco Elver <elver@google.com>, KP Singh <kpsingh@kernel.org>, cai@lca.pw,
+ Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org,
+ Jakub Sitnicki <jakub@cloudflare.com>,
+ Network Development <netdev@vger.kernel.org>,
+ Randy Dunlap <rdunlap@infradead.org>,
+ "Gustavo A . R . Silva" <gustavoars@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>, bpf <bpf@vger.kernel.org>,
+ Martin KaFai Lau <kafai@fb.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,56 +136,121 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCBKYW4gMTUsIDIwMjEgYXQgMTI6NTk6MzBQTSArMDMwMCwgc3RzcCB3cm90ZToKPjE1
-LjAxLjIwMjEgMDg6MzUsIEFyc2VueSBLcmFzbm92INC/0LjRiNC10YI6Cj4+ICAgICAgVGhpcyBw
-YXRjaHNldCBpbXBlbGVtZW50cyBzdXBwb3J0IG9mIFNPQ0tfU0VRUEFDS0VUIGZvciB2aXJ0aW8K
-Pj50cmFuc3BvcnQuCj4+ICAgICAgQXMgU09DS19TRVFQQUNLRVQgZ3VhcmFudGVlcyB0byBzYXZl
-IHJlY29yZCBib3VuZGFyaWVzLCBzbyB0bwo+PmRvIGl0LCBuZXcgcGFja2V0IG9wZXJhdGlvbiB3
-YXMgYWRkZWQ6IGl0IG1hcmtzIHN0YXJ0IG9mIHJlY29yZCAod2l0aAo+PnJlY29yZCBsZW5ndGgg
-aW4gaGVhZGVyKSwgc3VjaCBwYWNrZXQgZG9lc24ndCBjYXJyeSBhbnkgZGF0YS4gIFRvIHNlbmQK
-Pj5yZWNvcmQsIHBhY2tldCB3aXRoIHN0YXJ0IG1hcmtlciBpcyBzZW50IGZpcnN0LCB0aGVuIGFs
-bCBkYXRhIGlzIHNlbnQKPj5hcyB1c3VhbCAnUlcnIHBhY2tldHMuIE9uIHJlY2VpdmVyJ3Mgc2lk
-ZSwgbGVuZ3RoIG9mIHJlY29yZCBpcyBrbm93bgo+PmZyb20gcGFja2V0IHdpdGggc3RhcnQgcmVj
-b3JkIG1hcmtlci4gTm93IGFzICBwYWNrZXRzIG9mIG9uZSBzb2NrZXQKPj5hcmUgbm90IHJlb3Jk
-ZXJlZCBuZWl0aGVyIG9uIHZzb2NrIG5vciBvbiB2aG9zdCB0cmFuc3BvcnQgbGF5ZXJzLCBzdWNo
-Cj4+bWFya2VyIGFsbG93cyB0byByZXN0b3JlIG9yaWdpbmFsIHJlY29yZCBvbiByZWNlaXZlcidz
-IHNpZGUuIElmIHVzZXIncwo+PmJ1ZmZlciBpcyBzbWFsbGVyIHRoYXQKPgo+dGhhbgo+Cj4KPj4g
-IHJlY29yZCBsZW5ndGgsIHdoZW4KPgo+dGhlbgo+Cj4KPj4gIHYxIC0+IHYyOgo+PiAgLSBwYXRj
-aGVzIHJlb3JkZXJlZDogYWZfdnNvY2suYyBjaGFuZ2VzIG5vdyBiZWZvcmUgdmlydGlvIHZzb2Nr
-Cj4+ICAtIHBhdGNoZXMgcmVvcmdhbml6ZWQ6IG1vcmUgc21hbGwgcGF0Y2hlcywgd2hlcmUgKy8t
-IGFyZSBub3QgbWl4ZWQKPgo+SWYgeW91IGRpZCB0aGlzIGJlY2F1c2UgSSBhc2tlZCwgdGhlbiB0
-aGlzCj5pcyBub3Qgd2hhdCBJIGFza2VkLiA6KQo+WW91IGNhbid0IGp1c3QgYWRkIHNvbWUgc3Rh
-dGljIGZ1bmMgaW4gYQo+c2VwYXJhdGUgcGF0Y2gsIGFzIGl0IHdpbGwganVzdCBwcm9kdWNlIHRo
-ZQo+Y29tcGlsYXRpb24gd2FybmluZyBvZiBhbiB1bnVzZWQgZnVuY3Rpb24uCj5JIG9ubHkgYXNr
-ZWQgdG8gc2VwYXJhdGUgdGhlIHJlZmFjdG9yaW5nIGZyb20KPnRoZSBuZXcgY29kZS4gSS5lLiBp
-ZiB5b3UgbW92ZSBzb21lIGNvZGUKPmJsb2NrIHRvIGEgc2VwYXJhdGUgZnVuY3Rpb24sIHlvdSBz
-aG91bGRuJ3QKPnNwbGl0IHRoYXQgaW50byAyIHBhdGNoZXMsIG9uZSB0aGF0IGFkZHMgYQo+Y29k
-ZSBibG9jayBhbmQgYW5vdGhlciBvbmUgdGhhdCByZW1vdmVzIGl0Lgo+SXQgc2hvdWxkIGJlIGlu
-IG9uZSBwYXRjaCwgc28gdGhhdCBpdCBpcyBjbGVhcgo+d2hhdCB3YXMgbW92ZWQsIGFuZCBubyBu
-ZXcgd2FybmluZ3MgYXJlCj5pbnRyb2R1Y2VkLgo+V2hhdCBJIGFza2VkIHRvIHNlcGFyYXRlLCBp
-cyB0aGUgb2xkIGNvZGUKPm1vdmVzIHdpdGggdGhlIG5ldyBjb2RlIGFkZGl0aW9ucy4gU3VjaAo+
-dGhpbmdzIGNhbiBkZWZpbml0ZWx5IGdvIGluIGEgc2VwYXJhdGUgcGF0Y2hlcy4KCkFyc2VueSwg
-dGhhbmtzIGZvciB0aGUgdjIuCkkgYXBwcmVjaWF0ZWQgdGhhdCB5b3UgbW92ZWQgdGhlIGFmX3Zz
-b2NrIGNoYW5nZXMgYmVmb3JlIHRoZSB0cmFuc3BvcnQKYW5kIGFsc28gdGhlIHRlc3QsIGJ1dCBJ
-IGFncmVlIHdpdGggc3RzcCBhYm91dCBzcGxpdCBwYXRjaGVzLgoKQXMgc3RzcCBzdWdnZXN0ZWQs
-IHlvdSBjYW4gaGF2ZSBzb21lICJwcmVwYXJhdGlvbiIgcGF0Y2hlcyB0aGF0IHRvdWNoCnRoZSBh
-bHJlYWR5IGV4aXN0aW5nIGNvZGUgKGUuZy4gcmVuYW1lIHZzb2NrX3N0cmVhbV9zZW5kbXNnIGlu
-CnZzb2NrX2Nvbm5lY3RpYmxlX3NlbmRtc2coKSBhbmQgY2FsbCBpdCBpbnNpZGUgdGhlIG5ldwp2
-c29ja19zdHJlYW1fc2VuZG1zZywgZXRjLiksIHRoZW4gYSBwYXRjaCB0aGF0IGFkZHMgc2VxcGFj
-a2V0IHN0dWZmIGluCmFmX3Zzb2NrLgoKQWxzbyBmb3IgdmlydGlvL3Zob3N0IHRyYW5zcG9ydHMs
-IHlvdSBjYW4gaGF2ZSBzb21lIHBhdGNoZXMgdGhhdCBhZGQKc3VwcG9ydCBpbiB2aXJ0aW9fdHJh
-bnNwb3J0X2NvbW1vbiwgdGhlbiBhIHBhdGNoIHRoYXQgZW5hYmxlIGl0IGluCnZpcnRpb190cmFu
-c3BvcnQgYW5kIGEgcGF0Y2ggZm9yIHZob3N0X3Zzb2NrLCBhcyB5b3UgcmlnaHRseSBkaWQgaW4K
-cGF0Y2ggMTIuCgpTbywgSSdkIHN1Z2dlc3QgbW92aW5nIG91dCB0aGUgY29kZSB0aGF0IHRvdWNo
-ZXMgdmlydGlvX3RyYW5zcG9ydC5jCmZyb20gcGF0Y2ggMTEuCgpUaGVzZSBjaGFuZ2VzIHNob3Vs
-ZCBzaW1wbGlmeSB0aGUgcmV2aWV3LgoKSW4gYWRkaXRpb24sIHlvdSBjYW4gYWxzbyByZW1vdmUg
-dGhlIC4gZnJvbSB0aGUgY29tbWl0IHRpdGxlcy4KCgpJIGxlZnQgb3RoZXIgY29tbWVudHMgaW4g
-dGhlIHNpbmdsZSBwYXRjaGVzLgoKVGhhbmtzLApTdGVmYW5vCgpfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+> > >>>>> What it does not give is a type indication, such as
+> > >>>>> VIRTIO_NET_HASH_TYPE_TCPv6. I don't understand how this would be used.
+> > >>>>> In datapaths where the NIC has already computed the four-tuple hash
+> > >>>>> and stored it in skb->hash --the common case for servers--, That type
+> > >>>>> field is the only reason to have to compute again.
+> > >>>> The problem is there's no guarantee that the packet comes from the NIC,
+> > >>>> it could be a simple VM2VM or host2VM packet.
+> > >>>>
+> > >>>> And even if the packet is coming from the NIC that calculates the hash
+> > >>>> there's no guarantee that it's the has that guest want (guest may use
+> > >>>> different RSS keys).
+> > >>> Ah yes, of course.
+> > >>>
+> > >>> I would still revisit the need to store a detailed hash_type along with
+> > >>> the hash, as as far I can tell that conveys no actionable information
+> > >>> to the guest.
+> > >>
+> > >> Yes, need to figure out its usage. According to [1], it only mention
+> > >> that storing has type is a charge of driver. Maybe Yuri can answer this.
+> > >>
+> > > For the case of Windows VM we can't know how exactly the network stack
+> > > uses provided hash data (including hash type). But: different releases
+> > > of Windows
+> > > enable different hash types (for example UDP hash is enabled only on
+> > > Server 2016 and up).
+> > >
+> > > Indeed the Windows requires a little more from the network adapter/driver
+> > > than Linux does.
+> > >
+> > > The addition of RSS support to virtio specification takes in account
+> > > the widest set of
+> > > requirements (i.e. Windows one), our initial impression is that this
+> > > should be enough also for Linux.
+> > >
+> > > The NDIS specification in part of RSS is _mandatory_ and there are
+> > > certification tests
+> > > that check that the driver provides the hash data as expected. All the
+> > > high-performance
+> > > network adapters have such RSS functionality in the hardware.
+
+Thanks for the context.
+
+If Windows requires the driver to pass the hash-type along with the
+hash data, then indeed this will be needed.
+
+If it only requires the device to support a subset of of the possible
+types, chosen at init, that would be different and it would be cheaper
+for the driver to pass this config to the device one time.
+
+> > > With pre-RSS QEMU (i.e. where the virtio-net device does not indicate
+> > > the RSS support)
+> > > the virtio-net driver for Windows does all the job related to RSS:
+> > > - hash calculation
+> > > - hash/hash_type delivery
+> > > - reporting each packet on the correct CPU according to RSS settings
+> > >
+> > > With RSS support in QEMU all the packets always come on a proper CPU and
+> > > the driver never needs to reschedule them. The driver still need to
+> > > calculate the
+> > > hash and report it to Windows. In this case we do the same job twice: the device
+> > > (QEMU or eBPF) does calculate the hash and get proper queue/CPU to deliver
+> > > the packet. But the hash is not delivered by the device, so the driver needs to
+> > > recalculate it and report to the Windows.
+> > >
+> > > If we add HASH_REPORT support (current set of patches) and the device
+> > > indicates this
+> > > feature we can avoid hash recalculation in the driver assuming we
+> > > receive the correct hash
+> > > value and hash type. Otherwise the driver can't know which exactly
+> > > hash the device has calculated.
+> > >
+> > > Please let me know if I did not answer the question.
+> >
+> >
+> > I think I get you. The hash type is also a kind of classification (e.g
+> > TCP or UDP). Any possibility that it can be deduced from the driver? (Or
+> > it could be too expensive to do that).
+> >
+> The driver does it today (when the device does not offer any features)
+> and of course can continue doing it.
+> IMO if the device can't report the data according to the spec it
+> should not indicate support for the respective feature (or fallback to
+> vhost=off).
+> Again, IMO if Linux does not need the exact hash_type we can use (for
+> Linux) the way that Willem de Brujin suggested in his patchset:
+> - just add VIRTIO_NET_HASH_REPORT_L4 to the spec
+> - Linux can use MQ + hash delivery (and use VIRTIO_NET_HASH_REPORT_L4)
+> - Linux can use (if makes sense) RSS with VIRTIO_NET_HASH_REPORT_L4 and eBPF
+> - Windows gets what it needs + eBPF
+> So, everyone has what they need at the respective cost.
+>
+> Regarding use of skb->cb for hash type:
+> Currently, if I'm not mistaken, there are 2 bytes at the end of skb->cb:
+> skb->cb is 48 bytes array
+> There is skb_gso_cb (14 bytes) at offset SKB_GSO_CB_OFFSET(32)
+> Is it possible to use one of these 2 bytes for hash_type?
+> If yes, shall we extend the skb_gso_cb and place the 1-bytes hash_type
+> in it or just emit compilation error if the skb_gso_cb grows beyond 15
+> bytes?
+
+Good catch on segmentation taking place between .ndo_select_queue and
+.ndo_start_xmit.
+
+That also means that whatever field in the skb is used, has to be
+copied to all segments in skb_segment. Which happens for cb. But this
+feature is completely unrelated to the skb_gso_cb type. Perhaps
+another field with a real type is more clear. For instance, an
+extension to the union with napi_id and sender_cpu, as neither is used
+in this egress path with .ndo_select_queue?
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
