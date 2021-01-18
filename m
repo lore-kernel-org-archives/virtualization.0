@@ -2,81 +2,115 @@ Return-Path: <SRS0=OmMZ=GV=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.4 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED9C9C433E0
-	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 14:48:09 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95062C433DB
+	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 14:52:11 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 77B1B22B40
-	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 14:48:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 77B1B22B40
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id 370BD22CA2
+	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 14:52:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 370BD22CA2
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 3136286691;
-	Mon, 18 Jan 2021 14:48:09 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id D88092010A;
+	Mon, 18 Jan 2021 14:52:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pMHjXDS4jZGa; Mon, 18 Jan 2021 14:48:08 +0000 (UTC)
+	with ESMTP id Io3tIUoqrZgC; Mon, 18 Jan 2021 14:52:10 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 6021186669;
-	Mon, 18 Jan 2021 14:48:08 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 152F02002B;
+	Mon, 18 Jan 2021 14:52:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4DFEFC088B;
-	Mon, 18 Jan 2021 14:48:08 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EC292C088B;
+	Mon, 18 Jan 2021 14:52:09 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 66B44C013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A8F89C013A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 14:48:06 +0000 (UTC)
+ Mon, 18 Jan 2021 14:52:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 5483A86669
+ by whitealder.osuosl.org (Postfix) with ESMTP id 8F79386322
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 14:48:06 +0000 (UTC)
+ Mon, 18 Jan 2021 14:52:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JKtFVhDSBiM3
+ with ESMTP id 31RtPChFKVxz
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 14:48:05 +0000 (UTC)
+ Mon, 18 Jan 2021 14:52:06 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by whitealder.osuosl.org (Postfix) with ESMTPS id B84A88650E
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 4827886710
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 14:48:04 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 3A1A6AC4F;
- Mon, 18 Jan 2021 14:48:02 +0000 (UTC)
-Subject: Re: Change eats memory on my server
-To: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
- Eli Cohen <elic@nvidia.com>
-References: <20210114151529.GA79120@mtl-vdi-166.wap.labs.mlnx>
- <23cf7712-1daf-23b8-b596-792c9586d6b4@suse.de>
- <20210117050837.GA225992@mtl-vdi-166.wap.labs.mlnx>
- <83f74a11-b3c0-db2e-8301-4292d60d803b@amd.com>
- <2ea2630b-8782-c662-91fe-683d8b5d6c99@suse.de>
- <20210118091302.GB40909@mtl-vdi-166.wap.labs.mlnx>
- <052812fd-10ce-abf4-d12a-91d4fd66ed54@suse.de>
- <20210118131608.GA50817@mtl-vdi-166.wap.labs.mlnx>
- <c9078ed1-a3c6-32b9-b76f-cc511cb54c83@suse.de>
- <20210118132225.GA51141@mtl-vdi-166.wap.labs.mlnx>
- <b36485a3-2fc6-bf3f-fea2-6a7d040f4df1@amd.com>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <38ddb62c-0b4c-dcc3-e6c2-e025b38d8acd@suse.de>
-Date: Mon, 18 Jan 2021 15:48:01 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+ Mon, 18 Jan 2021 14:52:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1610981525;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=bvHYXveaY1fYHKCh/4G0s4Eb72E980+xC2zhbE72Tuc=;
+ b=Eo7xIaWrpBf4arroqUcI24j4LTPNU470Qtd4KJcelOMnpIpOa6vApPlpjayRStsnNw9SZ6
+ bxc1etsJ5UBFW0+dRG11z6Zo9zTL7Sbdhu5hLTOkpjU3vIJK/TU94VRED+Mj6/XyDp2pmx
+ TbqFE/j8MuWUt7V19iGaqALXTZqvLR0=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-29-aVWoBJMONw26OaW-Vlm8FQ-1; Mon, 18 Jan 2021 09:52:03 -0500
+X-MC-Unique: aVWoBJMONw26OaW-Vlm8FQ-1
+Received: by mail-wr1-f69.google.com with SMTP id r11so8367663wrs.23
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 18 Jan 2021 06:52:03 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=bvHYXveaY1fYHKCh/4G0s4Eb72E980+xC2zhbE72Tuc=;
+ b=qT1Dx7fXmBiPBNngcQoe+izVkrnwwaa7nF8GWWqGmNx4b15C27ujhq59gpQzuMIQFK
+ o+R7LVrwaUPtjm0rxCuYNdLaWhIsjtVMwGFXJUm0Sd3Y47qfBwWWdgAmE3hYyoj/th1P
+ bTH1LuVfuugcHIgTFrxME09trLWupzyLr+O3DnayVuEBSfqcdRqili8+kDz00zLX43c6
+ 0fbg1rIsgbK7FLiN5TBTzmfnbIvtkBEUDdVlraSFsstX0MWYMqvx0OZwBC4zuAirE+ZM
+ 9l4TMLTMnYfkSC5Y+fnJY/nwMKdx2WbzRlaJ9iBcZSsPAc+whPrFX4SjLBpDAslHzaFk
+ j1wQ==
+X-Gm-Message-State: AOAM531APHR9zWd0OpA9YwuEumUJrmcfL0LYwn65FTzOWOAd2R+3U/fA
+ EQuMHgMNvWHwTRdEZDOdXiCChFYlDRKLic7d4NlP93Cv62t1DnFGhM3F1UZl3WSiBK5IiF1rrdG
+ F+vBODwqgaUfWt89sQaSysgYrPjdr4VAJN/g8f7+QLw==
+X-Received: by 2002:a5d:42d0:: with SMTP id t16mr26110644wrr.230.1610981522393; 
+ Mon, 18 Jan 2021 06:52:02 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyLYqyNMVyFEoAlbSpKAd9WKw+ODMCj85rmyuhMgWAf133vbbFpPK94WXLLheaXzynpxdDRUg==
+X-Received: by 2002:a5d:42d0:: with SMTP id t16mr26110629wrr.230.1610981522214; 
+ Mon, 18 Jan 2021 06:52:02 -0800 (PST)
+Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
+ [79.34.249.199])
+ by smtp.gmail.com with ESMTPSA id x25sm1728972wmk.20.2021.01.18.06.52.00
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 18 Jan 2021 06:52:01 -0800 (PST)
+Date: Mon, 18 Jan 2021 15:51:58 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+Subject: Re: [RFC PATCH v2 01/13] af_vsock: implement 'vsock_wait_data()'.
+Message-ID: <20210118145158.ufakay5mbezjex4v@steredhat>
+References: <20210115053553.1454517-1-arseny.krasnov@kaspersky.com>
+ <20210115054028.1455574-1-arseny.krasnov@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <b36485a3-2fc6-bf3f-fea2-6a7d040f4df1@amd.com>
-Cc: daniel.vetter@ffwll.ch, sam@ravnborg.org, linux-kernel@vger.kernel.org,
- dri-devel <dri-devel@lists.freedesktop.org>,
- virtualization@lists.linux-foundation.org
+In-Reply-To: <20210115054028.1455574-1-arseny.krasnov@kaspersky.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Andra Paraschiv <andraprs@amazon.com>, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jeff Vander Stoep <jeffv@google.com>,
+ stsp2@yandex.ru, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, oxffffaa@gmail.com,
+ netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+ Jakub Kicinski <kuba@kernel.org>, Colin Ian King <colin.king@canonical.com>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -88,148 +122,105 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============1670899867162819787=="
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============1670899867162819787==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="RFpo06B9jGZEhhL16cYJ7esrE31blbXkf"
+On Fri, Jan 15, 2021 at 08:40:25AM +0300, Arseny Krasnov wrote:
+>This adds 'vsock_wait_data()' function which is called from user's read
+>syscall and waits until new socket data is arrived. It was based on code
+>from stream dequeue logic and moved to separate function because it will
+>be called both from SOCK_STREAM and SOCK_SEQPACKET receive loops.
+>
+>Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+>---
+> net/vmw_vsock/af_vsock.c | 47 ++++++++++++++++++++++++++++++++++++++++
+> 1 file changed, 47 insertions(+)
+>
+>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>index b12d3a322242..af716f5a93a4 100644
+>--- a/net/vmw_vsock/af_vsock.c
+>+++ b/net/vmw_vsock/af_vsock.c
+>@@ -1822,6 +1822,53 @@ static int vsock_stream_sendmsg(struct socket *sock, struct msghdr *msg,
+> 	return err;
+> }
+>
+>+static int vsock_wait_data(struct sock *sk, struct wait_queue_entry *wait,
+>+			   long timeout,
+>+			   struct vsock_transport_recv_notify_data *recv_data,
+>+			   size_t target)
+>+{
+>+	int err = 0;
+>+	struct vsock_sock *vsk;
+>+	const struct vsock_transport *transport;
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---RFpo06B9jGZEhhL16cYJ7esrE31blbXkf
-Content-Type: multipart/mixed; boundary="DybqpbsvVNQqMROSujaTMxRj4hCA3VW1b";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
- Eli Cohen <elic@nvidia.com>
-Cc: daniel.vetter@ffwll.ch, sam@ravnborg.org, linux-kernel@vger.kernel.org,
- dri-devel <dri-devel@lists.freedesktop.org>,
- virtualization@lists.linux-foundation.org
-Message-ID: <38ddb62c-0b4c-dcc3-e6c2-e025b38d8acd@suse.de>
-Subject: Re: Change eats memory on my server
-References: <20210114151529.GA79120@mtl-vdi-166.wap.labs.mlnx>
- <23cf7712-1daf-23b8-b596-792c9586d6b4@suse.de>
- <20210117050837.GA225992@mtl-vdi-166.wap.labs.mlnx>
- <83f74a11-b3c0-db2e-8301-4292d60d803b@amd.com>
- <2ea2630b-8782-c662-91fe-683d8b5d6c99@suse.de>
- <20210118091302.GB40909@mtl-vdi-166.wap.labs.mlnx>
- <052812fd-10ce-abf4-d12a-91d4fd66ed54@suse.de>
- <20210118131608.GA50817@mtl-vdi-166.wap.labs.mlnx>
- <c9078ed1-a3c6-32b9-b76f-cc511cb54c83@suse.de>
- <20210118132225.GA51141@mtl-vdi-166.wap.labs.mlnx>
- <b36485a3-2fc6-bf3f-fea2-6a7d040f4df1@amd.com>
-In-Reply-To: <b36485a3-2fc6-bf3f-fea2-6a7d040f4df1@amd.com>
+Please be sure that here and in all of the next patches, you follow the 
+"Reverse Christmas tree" rule followed in net/ for the local variable 
+declarations (order variable declaration lines longest to shortest).
 
---DybqpbsvVNQqMROSujaTMxRj4hCA3VW1b
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+>+
+>+	vsk = vsock_sk(sk);
+>+	transport = vsk->transport;
+>+
+>+	if (sk->sk_err != 0 ||
+>+	    (sk->sk_shutdown & RCV_SHUTDOWN) ||
+>+	    (vsk->peer_shutdown & SEND_SHUTDOWN)) {
+>+		finish_wait(sk_sleep(sk), wait);
+>+		return -1;
+>+	}
+>+	/* Don't wait for non-blocking sockets. */
+>+	if (timeout == 0) {
+>+		err = -EAGAIN;
+>+		finish_wait(sk_sleep(sk), wait);
+>+		return err;
+>+	}
+>+
+>+	if (recv_data) {
+>+		err = transport->notify_recv_pre_block(vsk, target, recv_data);
+>+		if (err < 0) {
+>+			finish_wait(sk_sleep(sk), wait);
+>+			return err;
+>+		}
+>+	}
+>+
+>+	release_sock(sk);
+>+	timeout = schedule_timeout(timeout);
+>+	lock_sock(sk);
+>+
+>+	if (signal_pending(current)) {
+>+		err = sock_intr_errno(timeout);
+>+		finish_wait(sk_sleep(sk), wait);
+>+	} else if (timeout == 0) {
+>+		err = -EAGAIN;
+>+		finish_wait(sk_sleep(sk), wait);
+>+	}
+>+
 
-Hi
+Since we are calling finish_wait() before return in all path, why not 
+doing somethig like this:
 
-Am 18.01.21 um 14:23 schrieb Christian K=C3=B6nig:
-> Am 18.01.21 um 14:22 schrieb Eli Cohen:
->> On Mon, Jan 18, 2021 at 02:20:49PM +0100, Thomas Zimmermann wrote:
->>> Hi
->>>
->>> Am 18.01.21 um 14:16 schrieb Eli Cohen:
->>>> On Mon, Jan 18, 2021 at 10:30:56AM +0100, Thomas Zimmermann wrote:
->>>>> Here's the patch against the latest DRM tree. v5.11-rc3 should work=
-=20
->>>>> as well.
->>>>>
->>>>> I was able to reproduce the memory leak locally and found that the =
+out:
+	finish_wait(sk_sleep(sk), wait);
+>+	return err;
+>+}
 
->>>>> patch
->>>>> fixes it. Please give it a try.
->>>>>
->>>> As far as I am concerned, this issue is fixed by the patch you sent.=
+Then in the error paths you can do:
 
->>>>
->>>> Thanks for looking into it.
->>> OK, great. I'll prepare the real patch soon. Can I add your=20
->>> Reported-by and
->>> Tested-by tags?
->> Yes, sure.
->=20
-> Feel free to add an Acked-by from my side as well.
+	err = XXX;
+	goto out;
 
-Done, thanks. I sent out the patch. If no one complains, I'll merge it=20
-on Wednesday or so.
+Thanks,
+Stefano
 
-Best regards
-Thomas
-
->=20
-> Christian.
->=20
->>
->>> Best regards
->>> Thomas
->>>
->>>> Eli
->>>>
->>> --=20
->>> Thomas Zimmermann
->>> Graphics Driver Developer
->>> SUSE Software Solutions Germany GmbH
->>> Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
->>> (HRB 36809, AG N=C3=BCrnberg)
->>> Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
->>>
->>
->>
->=20
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
-
---DybqpbsvVNQqMROSujaTMxRj4hCA3VW1b--
-
---RFpo06B9jGZEhhL16cYJ7esrE31blbXkf
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmAFn6EFAwAAAAAACgkQlh/E3EQov+CH
-yg//Xhj5Fv/eYkVaZPeOWgWWPRkdPgwstEiH02JjVlD8H2tXsK4h0yE86PxnsdHeBBhekNnfXMu+
-jwPLMJzpksiQUp7fqKrn2eKD6B/TJGBKrb964HmotgjHhaI/JdIXqT/zm9N/Xtv5V7p2Y9xEGoW9
-iFr3neQbQOkZCSbCCvkuxevuiDpGnfGS35zAo8JxKtGY1vOspEZZjqqa51ugW57cT1PMXW93C+6E
-F1mYSl5TSb+R2BuwuHsRi2Dcqz92cpw1wCZZX7F4bxFw9k9baZhCc8O4yUrcGAeBdpokptfgiZdc
-njXDImoX0XjTSIwExGnQWLvhNq54ptwyg/Vc+Ht9jTQ7vFO7R4u5GIEcVCJ5gDrKFXD2h6SgAEdv
-PJGcuSF/GyVHRsXwRRDCi4ckFCU+BpQAoKAjFA5lpRTHecbhoBMIKiq9Khfv96/P8b1fzFSeZfM7
-GIrMF7Pbf7yIcRuUQGtPphwcMIoVvqG1oa+i8lRnlCT5TXisjnVu34XfSyujDwM/+S42u6k/Hooh
-5QcOmb2lQ9KWyadyu09xIi+jU6ew68CXlYbpKiBnmmkScGQh0p+SlC6nz77nATUXf1pr1oUjBbAr
-hWKSLPh4KPK5UmkarZ9CSjPWRW3q0adw/zEMc2ZtHVhHOkJUdPzu3SFMX81SjCocG7EbMWHhToJp
-NXE=
-=VHCv
------END PGP SIGNATURE-----
-
---RFpo06B9jGZEhhL16cYJ7esrE31blbXkf--
-
---===============1670899867162819787==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+>
+> static int
+> vsock_stream_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+>-- 
+>2.25.1
+>
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1670899867162819787==--
