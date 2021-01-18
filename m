@@ -2,76 +2,111 @@ Return-Path: <SRS0=OmMZ=GV=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.4 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75ABEC433E0
-	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 09:31:06 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64DF1C433E0
+	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 11:28:09 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E92612245C
-	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 09:31:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E92612245C
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id C0947222B3
+	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 11:28:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C0947222B3
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 68DC2865AB;
-	Mon, 18 Jan 2021 09:31:05 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 2F77F8558A;
+	Mon, 18 Jan 2021 11:28:08 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id l8iaWw0ncDgO; Mon, 18 Jan 2021 11:28:07 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 8D6D485535;
+	Mon, 18 Jan 2021 11:28:07 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 80475C08A1;
+	Mon, 18 Jan 2021 11:28:07 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 398B3C013A
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 18 Jan 2021 11:28:06 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id 2AAD28667D
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 18 Jan 2021 11:28:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lfho9QIbuaaI; Mon, 18 Jan 2021 09:31:03 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 86EFD865A1;
-	Mon, 18 Jan 2021 09:31:03 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4DEBCC08A1;
-	Mon, 18 Jan 2021 09:31:03 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CB707C013A
- for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 09:31:01 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id ADFC620104
- for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 09:31:01 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 4LoH9Ej5ZvAu
+ with ESMTP id wfrI3Sxlf0Fs
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 09:31:00 +0000 (UTC)
+ Mon, 18 Jan 2021 11:28:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTPS id 1896720035
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id C78AF8667A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 09:31:00 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 12FC0B742;
- Mon, 18 Jan 2021 09:30:58 +0000 (UTC)
-Subject: Re: Change eats memory on my server
-To: Eli Cohen <elic@nvidia.com>
-References: <20210114151529.GA79120@mtl-vdi-166.wap.labs.mlnx>
- <23cf7712-1daf-23b8-b596-792c9586d6b4@suse.de>
- <20210117050837.GA225992@mtl-vdi-166.wap.labs.mlnx>
- <83f74a11-b3c0-db2e-8301-4292d60d803b@amd.com>
- <2ea2630b-8782-c662-91fe-683d8b5d6c99@suse.de>
- <20210118091302.GB40909@mtl-vdi-166.wap.labs.mlnx>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <052812fd-10ce-abf4-d12a-91d4fd66ed54@suse.de>
-Date: Mon, 18 Jan 2021 10:30:56 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+ Mon, 18 Jan 2021 11:28:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1610969283;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=GfkKudYaZlqmuF0tL9e4J/Hz3n8hnZrxD3cO+HhHt7c=;
+ b=W4OgQLaI6tfMdqwg5mv6ARmwxiI+ezp58HE0EMvahtX20vJKKeat7DiXkRN+iBXNRKofcR
+ Bucz1gxoqFDxdZM1NmB+483g9AJOmb2kMCWqdXUncWED9BvfMwKgII2Xl8wnBHw3k9I+Pc
+ ap34ZCAhPYko+hijKt4BWz8SE72FqmI=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-13-255EEfNoOQeU0tlrDcoS1w-1; Mon, 18 Jan 2021 06:28:00 -0500
+X-MC-Unique: 255EEfNoOQeU0tlrDcoS1w-1
+Received: by mail-wr1-f69.google.com with SMTP id g17so8123701wrr.11
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 18 Jan 2021 03:28:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=GfkKudYaZlqmuF0tL9e4J/Hz3n8hnZrxD3cO+HhHt7c=;
+ b=SeX6bXlrva0vaJXqT19MxesiylGfzSGr7Bk+zNsqbIUnMu/HsOIw7HRnh1NEpZxJid
+ IjuGd1ScHUCwsBpdft2mQ1KFKh7BZslBfUSfK99HI+dHBZPypFyaexdJ9edLB1FnZp/t
+ OHANDa3eiMMeIjIW2iBZQomi9+y1bxMXb9O73/Pbh5Nyr6ZFIlBUbtbBh9ECD8F4HcKk
+ 5p+qEySLE3n90qw6yoPjRWHYxmtH9+1NrariurKz3OVLqzwTvH2/UZ9QcovECGjlnJH+
+ AVn3OM2L5x/oRO7KNjlQnmMjo5qVOZ6t0sJonB5cf8wL9uUtms8yJ52PabSQMxDIFmgJ
+ OX6g==
+X-Gm-Message-State: AOAM530ApoO2wpyab6KcPmrLlRPxgQM8iEcTfD0yqJz7LmhtDYd57fdR
+ 7YWEzs6kQlYAdzLYgz7YUPLFLGXHfTWtG5OMySR2vvJi9txiRVrKgjkJ581OLGnRujrkkx4/Sd+
+ UZ4suQee+yptu7WcC/gBdy4xDEgeGlTC+kRYxemMQ1A==
+X-Received: by 2002:adf:b1da:: with SMTP id r26mr21560889wra.198.1610969279348; 
+ Mon, 18 Jan 2021 03:27:59 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwXJ0k/cNJfD975QGqeq3Um6f+ympUYuBPRRl5bHpD0GmnEEsYtRLTxC5yL4qC2rX3vGpo1WA==
+X-Received: by 2002:adf:b1da:: with SMTP id r26mr21560869wra.198.1610969279157; 
+ Mon, 18 Jan 2021 03:27:59 -0800 (PST)
+Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
+ [79.34.249.199])
+ by smtp.gmail.com with ESMTPSA id o14sm25518146wmc.28.2021.01.18.03.27.58
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 18 Jan 2021 03:27:58 -0800 (PST)
+Date: Mon, 18 Jan 2021 12:27:56 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Jorgen Hansen <jhansen@vmware.com>
+Subject: Re: [PATCH] VMCI: Enforce queuepair max size for
+ IOCTL_VMCI_QUEUEPAIR_ALLOC
+Message-ID: <20210118112756.ekfebcbyqwz4dd4b@steredhat>
+References: <1610367535-4463-1-git-send-email-jhansen@vmware.com>
 MIME-Version: 1.0
-In-Reply-To: <20210118091302.GB40909@mtl-vdi-166.wap.labs.mlnx>
-Cc: daniel.vetter@ffwll.ch, linux-kernel@vger.kernel.org,
- dri-devel <dri-devel@lists.freedesktop.org>,
- virtualization@lists.linux-foundation.org, sam@ravnborg.org,
- =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
+In-Reply-To: <1610367535-4463-1-git-send-email-jhansen@vmware.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: pv-drivers@vmware.com, gregkh@linuxfoundation.org,
+ Norbert Slusarek <nslusarek@gmx.net>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -83,292 +118,110 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============3123721763127645862=="
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============3123721763127645862==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="9UpJC8ZdoigN9CO2MkMVSol5rGhzyvYL4"
++Cc: Norbert Slusarek <nslusarek@gmx.net>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---9UpJC8ZdoigN9CO2MkMVSol5rGhzyvYL4
-Content-Type: multipart/mixed; boundary="sej5FWBvejTI7A9zd1duKNlOupZxNZRwY";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Eli Cohen <elic@nvidia.com>
-Cc: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
- daniel.vetter@ffwll.ch, sam@ravnborg.org, linux-kernel@vger.kernel.org,
- dri-devel <dri-devel@lists.freedesktop.org>,
- virtualization@lists.linux-foundation.org
-Message-ID: <052812fd-10ce-abf4-d12a-91d4fd66ed54@suse.de>
-Subject: Re: Change eats memory on my server
-References: <20210114151529.GA79120@mtl-vdi-166.wap.labs.mlnx>
- <23cf7712-1daf-23b8-b596-792c9586d6b4@suse.de>
- <20210117050837.GA225992@mtl-vdi-166.wap.labs.mlnx>
- <83f74a11-b3c0-db2e-8301-4292d60d803b@amd.com>
- <2ea2630b-8782-c662-91fe-683d8b5d6c99@suse.de>
- <20210118091302.GB40909@mtl-vdi-166.wap.labs.mlnx>
-In-Reply-To: <20210118091302.GB40909@mtl-vdi-166.wap.labs.mlnx>
-
---sej5FWBvejTI7A9zd1duKNlOupZxNZRwY
-Content-Type: multipart/mixed;
- boundary="------------AC837D0F559BA27412AF7141"
-Content-Language: en-US
-
-This is a multi-part message in MIME format.
---------------AC837D0F559BA27412AF7141
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-
-Hi
-
-Am 18.01.21 um 10:13 schrieb Eli Cohen:
-> On Mon, Jan 18, 2021 at 08:54:07AM +0100, Thomas Zimmermann wrote:
->> Hi
->>
->> Am 18.01.21 um 08:43 schrieb Christian K=C3=B6nig:
->>> Hi Eli,
->>>
->>> have you already tried using kmemleak?
->>>
->>> This sounds like a leak of memory allocated using kmalloc(), so kmeml=
-eak
->>> should be able to catch it.
->>
->> I have an idea what happens here. When the refcount is 0 in kmap, a ne=
-w page
->> mapping for the BO is being established. But VRAM helpers unmap the pr=
-evious
->> pages only on BO moves or frees; not in kunmap. So the old mapping mig=
-ht
->> still be around. I'll send out a test patch later today.
->>
->=20
-> Great! Looking forward to test it.
-
-Here's the patch against the latest DRM tree. v5.11-rc3 should work as we=
-ll.
-
-I was able to reproduce the memory leak locally and found that the patch =
-
-fixes it. Please give it a try.
-
-Best regards
-Thomas
-
->=20
->> Best regards
->> Thomas
->>
->>>
->>> Regards,
->>> Christian.
->>>
->>> Am 17.01.21 um 06:08 schrieb Eli Cohen:
->>>> On Fri, Jan 15, 2021 at 10:03:50AM +0100, Thomas Zimmermann wrote:
->>>>> Could you please double-check that 3fb91f56aea4 ("drm/udl: Retrieve=
- USB
->>>>> device from struct drm_device.dev") works correctly
->>>> Checked again, it does not seem to leak.
->>>>
->>>>> and that 823efa922102
->>>>> ("drm/cma-helper: Remove empty drm_gem_cma_prime_vunmap()") is brok=
-en?
->>>>>
->>>> Yes, this one leaks, as does the one preceding it:
->>>>
->>>> 1086db71a1db ("drm/vram-helper: Remove invariant parameters from
->>>> internal kmap function")
->>>>> For one of the broken commits, could you please send us the output =
-of
->>>>>
->>>>>  =C2=A0=C2=A0 dmesg | grep -i drm
->>>>>
->>>>> after most of the memory got leaked?
->>>>>
->>>> I ran the following script in the shell:
->>>>
->>>> while true; do cat /proc/meminfo | grep MemFree:; sleep 5; done
->>>>
->>>> and this is what I saw before I got disconnected from the shell:
->>>>
->>>> MemFree:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 14820=
-8 kB
->>>> MemFree:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 14830=
-4 kB
->>>> MemFree:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 14666=
-0 kB
->>>> Connection to nps-server-24 closed by remote host.
->>>> Connection to nps-server-24 closed.
->>>>
->>>>
->>>> I also mointored the output of dmesg | grep -i drm
->>>> The last output I was able to save on disk is this:
->>>>
->>>> [=C2=A0=C2=A0 46.140720] ast 0000:03:00.0: [drm] Using P2A bridge fo=
-r configuration
->>>> [=C2=A0=C2=A0 46.140737] ast 0000:03:00.0: [drm] AST 2500 detected
->>>> [=C2=A0=C2=A0 46.140754] ast 0000:03:00.0: [drm] Analog VGA only
->>>> [=C2=A0=C2=A0 46.140772] ast 0000:03:00.0: [drm] dram MCLK=3D800 Mhz=
- type=3D7
->>>> bus_width=3D16
->>>> [=C2=A0=C2=A0 46.153553] [drm] Initialized ast 0.1.0 20120228 for 00=
-00:03:00.0
->>>> on minor 0
->>>> [=C2=A0=C2=A0 46.165097] fbcon: astdrmfb (fb0) is primary device
->>>> [=C2=A0=C2=A0 46.391381] ast 0000:03:00.0: [drm] fb0: astdrmfb frame=
- buffer device
->>>> [=C2=A0=C2=A0 56.097697] systemd[1]: Starting Load Kernel Module drm=
-=2E..
->>>> [=C2=A0=C2=A0 56.343556] systemd[1]: modprobe@drm.service: Succeeded=
-=2E
->>>> [=C2=A0=C2=A0 56.350382] systemd[1]: Finished Load Kernel Module drm=
-=2E
->>>> [13319.469462] [=C2=A0=C2=A0 2683] 70889=C2=A0 2683=C2=A0=C2=A0=C2=A0=
- 55586=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 0=C2=A0=C2=A0=C2=A0 7372=
-8
->>>> 138=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0 0 tdrm
->>>> [13320.658386] [=C2=A0=C2=A0 2683] 70889=C2=A0 2683=C2=A0=C2=A0=C2=A0=
- 55586=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 0=C2=A0=C2=A0=C2=A0 7372=
-8
->>>> 138=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0 0 tdrm
->>>> [13321.800970] [=C2=A0=C2=A0 2683] 70889=C2=A0 2683=C2=A0=C2=A0=C2=A0=
- 55586=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 0=C2=A0=C2=A0=C2=A0 7372=
-8
->>>> 138=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0 0 tdrm
->>>
->>> _______________________________________________
->>> dri-devel mailing list
->>> dri-devel@lists.freedesktop.org
->>> https://lists.freedesktop.org/mailman/listinfo/dri-devel
->>
->> --=20
->> Thomas Zimmermann
->> Graphics Driver Developer
->> SUSE Software Solutions Germany GmbH
->> Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
->> (HRB 36809, AG N=C3=BCrnberg)
->> Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
->>
->=20
->=20
->=20
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
---------------AC837D0F559BA27412AF7141
-Content-Type: text/x-patch; charset=UTF-8;
- name="0001-drm-vram-helper-Reuse-existing-page-mappings-in-vmap.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
- filename*0="0001-drm-vram-helper-Reuse-existing-page-mappings-in-vmap.pa";
- filename*1="tch"
-
-=46rom e8462600662621db47bccf8174bf683513aa7102 Mon Sep 17 00:00:00 2001
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Date: Mon, 18 Jan 2021 09:58:07 +0100
-Subject: [PATCH] drm/vram-helper: Reuse existing page mappings in vmap
-
-For performance, BO page mappings can stay in place even if the
-map counter has returned to 0. In these cases, the existing page
-mapping has to be reused by the next vmap operation. Otherwise
-a new mapping would be installed and the old mapping's pages leak.
-
-Fix the issue by reusing existing page mappings for vmap operations.
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reported-by: Eli Cohen <elic@nvidia.com>
----
- drivers/gpu/drm/drm_gem_vram_helper.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_=
-gem_vram_helper.c
-index 02ca22e90290..a57790b0d985 100644
---- a/drivers/gpu/drm/drm_gem_vram_helper.c
-+++ b/drivers/gpu/drm/drm_gem_vram_helper.c
-@@ -387,9 +387,16 @@ static int drm_gem_vram_kmap_locked(struct drm_gem_v=
-ram_object *gbo,
- 	if (gbo->vmap_use_count > 0)
- 		goto out;
-=20
--	ret =3D ttm_bo_vmap(&gbo->bo, &gbo->map);
--	if (ret)
--		return ret;
-+	/*
-+	 * VRAM helpers unmap the BO only on demand. So the previous
-+	 * page mapping might still be arround. Only vmap if the there's
-+	 * no mapping present.
-+	 */
-+	if (dma_buf_map_is_null(&gbo->map)) {
-+		ret =3D ttm_bo_vmap(&gbo->bo, &gbo->map);
-+		if (ret)
-+			return ret;
-+	}
-=20
- out:
- 	++gbo->vmap_use_count;
-@@ -577,6 +584,7 @@ static void drm_gem_vram_bo_driver_move_notify(struct=
- drm_gem_vram_object *gbo,
- 		return;
-=20
- 	ttm_bo_vunmap(bo, &gbo->map);
-+	dma_buf_map_clear(&gbo->map); /* explicitly clear mapping for next vmap=
- call */
- }
-=20
- static int drm_gem_vram_bo_driver_move(struct drm_gem_vram_object *gbo,
---=20
-2.29.2
-
-
---------------AC837D0F559BA27412AF7141--
-
---sej5FWBvejTI7A9zd1duKNlOupZxNZRwY--
-
---9UpJC8ZdoigN9CO2MkMVSol5rGhzyvYL4
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmAFVVAFAwAAAAAACgkQlh/E3EQov+A0
-uQ//Zj4RwM6ddlRdnDxGBYOc3A/f6yvayznmYkWLmj56cYa/vHTiPgSxpCjzuNc0Md//4tO6h3SG
-cgIsL8MNXTH73THYqxj61QL8SAuxsKw2l3G73eDWOUMJ+1c3jN96SUidQ7SQzwY+F9/Alx8fCnXy
-h1ZfFXYPXSuCxmsXzVLWYe2ad7RRqYX/wBFnC6l6FRP4G2c+CMgVbITTe0iEch8YeOoYSOxSdI51
-xwapwzH9kstIp5Yr+8W6JQKtFRmAVLYwKX4/fFd0K9cIWnNGx9ocpzQBZsjgct0CUl/taRQsiOZM
-o/mgfK+d3MlBWa6Dew12/N0INJ4Rz7cGutqwkmnyR51nnnHzfuIsJLIPfb8xdaVK/MCeUqp6ryfE
-8+fjG3TDBeOSnJyqfTokYklgx3LKebhYsw12yretTKMMg+yvMcMoWETDq/WzK/XvcT68cUmGc4V5
-5pqg/m7GQRneNkSzpKpj/cnfquXbVbd6QEPgiK0+sPiYmjyrtE4S01ydUGERqumqWPMXOZ76Qx6y
-7NTLCjjL4s1igSdyZzLuMux3S7WRI8o9Y+G0wn1CwXsuioDXB+x3WBhN8oko+rvzOURKOrhtUOke
-j5Due3rw4meXfdyOamBJMOGDW1orWIRa52bREAxPpZZMD5k+Ozub8+bPHsQqWhNi/VZzt2BQRykI
-gjY=
-=k6do
------END PGP SIGNATURE-----
-
---9UpJC8ZdoigN9CO2MkMVSol5rGhzyvYL4--
-
---===============3123721763127645862==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Mon, Jan 11, 2021 at 04:18:53AM -0800, Jorgen Hansen wrote:
+>When create the VMCI queue pair tracking data structures on the host
+>side, the IOCTL for creating the VMCI queue pair didn't validate
+>the queue pair size parameters. This change adds checks for this.
+>
+>This avoids a memory allocation issue in qp_host_alloc_queue, as
+>reported by nslusarek@gmx.net. The check in qp_host_alloc_queue
+>has also been updated to enforce the maximum queue pair size
+>as defined by VMCI_MAX_GUEST_QP_MEMORY.
+>
+>The fix has been verified using sample code supplied by
+>nslusarek@gmx.net.
+>
+>Reported-by: nslusarek@gmx.net
+>Reviewed-by: Vishnu Dasa <vdasa@vmware.com>
+>Signed-off-by: Jorgen Hansen <jhansen@vmware.com>
+>---
+> drivers/misc/vmw_vmci/vmci_queue_pair.c | 12 ++++++++----
+> include/linux/vmw_vmci_defs.h           |  4 ++--
+> 2 files changed, 10 insertions(+), 6 deletions(-)
+>
+>diff --git a/drivers/misc/vmw_vmci/vmci_queue_pair.c b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+>index 525ef96..39d2f191 100644
+>--- a/drivers/misc/vmw_vmci/vmci_queue_pair.c
+>+++ b/drivers/misc/vmw_vmci/vmci_queue_pair.c
+>@@ -237,7 +237,9 @@ static struct qp_list qp_guest_endpoints = {
+> #define QPE_NUM_PAGES(_QPE) ((u32) \
+> 			     (DIV_ROUND_UP(_QPE.produce_size, PAGE_SIZE) + \
+> 			      DIV_ROUND_UP(_QPE.consume_size, PAGE_SIZE) + 2))
+>-
+>+#define QP_SIZES_ARE_VALID(_prod_qsize, _cons_qsize) \
+>+	((_prod_qsize) + (_cons_qsize) >= max(_prod_qsize, _cons_qsize) && \
+>+	 (_prod_qsize) + (_cons_qsize) <= VMCI_MAX_GUEST_QP_MEMORY)
+>
+> /*
+>  * Frees kernel VA space for a given queue and its queue header, and
+>@@ -528,7 +530,7 @@ static struct vmci_queue *qp_host_alloc_queue(u64 size)
+> 	u64 num_pages;
+> 	const size_t queue_size = sizeof(*queue) + sizeof(*(queue->kernel_if));
+>
+>-	if (size > SIZE_MAX - PAGE_SIZE)
+>+	if (size > min(VMCI_MAX_GUEST_QP_MEMORY, SIZE_MAX - PAGE_SIZE))
+> 		return NULL;
+> 	num_pages = DIV_ROUND_UP(size, PAGE_SIZE) + 1;
+> 	if (num_pages > (SIZE_MAX - queue_size) /
+>@@ -1929,6 +1931,9 @@ int vmci_qp_broker_alloc(struct vmci_handle handle,
+> 			 struct vmci_qp_page_store *page_store,
+> 			 struct vmci_ctx *context)
+> {
+>+	if (!QP_SIZES_ARE_VALID(produce_size, consume_size))
+>+		return VMCI_ERROR_NO_RESOURCES;
+>+
+> 	return qp_broker_alloc(handle, peer, flags, priv_flags,
+> 			       produce_size, consume_size,
+> 			       page_store, context, NULL, NULL, NULL, NULL);
+>@@ -2685,8 +2690,7 @@ int vmci_qpair_alloc(struct vmci_qp **qpair,
+> 	 * used by the device is NO_RESOURCES, so use that here too.
+> 	 */
+>
+>-	if (produce_qsize + consume_qsize < max(produce_qsize, consume_qsize) ||
+>-	    produce_qsize + consume_qsize > VMCI_MAX_GUEST_QP_MEMORY)
+>+	if (!QP_SIZES_ARE_VALID(produce_qsize, consume_qsize))
+> 		return VMCI_ERROR_NO_RESOURCES;
+>
+> 	retval = vmci_route(&src, &dst, false, &route);
+>diff --git a/include/linux/vmw_vmci_defs.h b/include/linux/vmw_vmci_defs.h
+>index be0afe6..e36cb11 100644
+>--- a/include/linux/vmw_vmci_defs.h
+>+++ b/include/linux/vmw_vmci_defs.h
+>@@ -66,7 +66,7 @@ enum {
+>  * consists of at least two pages, the memory limit also dictates the
+>  * number of queue pairs a guest can create.
+>  */
+>-#define VMCI_MAX_GUEST_QP_MEMORY (128 * 1024 * 1024)
+>+#define VMCI_MAX_GUEST_QP_MEMORY ((size_t)(128 * 1024 * 1024))
+> #define VMCI_MAX_GUEST_QP_COUNT  (VMCI_MAX_GUEST_QP_MEMORY / PAGE_SIZE / 2)
+>
+> /*
+>@@ -80,7 +80,7 @@ enum {
+>  * too much kernel memory (especially on vmkernel).  We limit a queuepair to
+>  * 32 KB, or 16 KB per queue for symmetrical pairs.
+>  */
+>-#define VMCI_MAX_PINNED_QP_MEMORY (32 * 1024)
+>+#define VMCI_MAX_PINNED_QP_MEMORY ((size_t)(32 * 1024))
+>
+> /*
+>  * We have a fixed set of resource IDs available in the VMX.
+>-- 
+>2.6.2
+>
+>_______________________________________________
+>Virtualization mailing list
+>Virtualization@lists.linux-foundation.org
+>https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+>
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3123721763127645862==--
