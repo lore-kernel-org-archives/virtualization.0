@@ -2,74 +2,158 @@ Return-Path: <SRS0=OmMZ=GV=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.4 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 489D2C433DB
-	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 07:54:17 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E965C433E0
+	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 07:57:48 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AB95022242
-	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 07:54:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AB95022242
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id 300FA224B8
+	for <virtualization@archiver.kernel.org>; Mon, 18 Jan 2021 07:57:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 300FA224B8
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=amd.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 2B82384E8C;
-	Mon, 18 Jan 2021 07:54:16 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id C70422010F;
+	Mon, 18 Jan 2021 07:57:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ijaonCaVWWWt; Mon, 18 Jan 2021 07:54:13 +0000 (UTC)
+	with ESMTP id 52Ah1vbLmLN9; Mon, 18 Jan 2021 07:57:44 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id B9ABF84AAB;
-	Mon, 18 Jan 2021 07:54:13 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 5654A20348;
+	Mon, 18 Jan 2021 07:57:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A8A07C08A1;
-	Mon, 18 Jan 2021 07:54:13 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 58AC8C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2C3DEC08A1;
+	Mon, 18 Jan 2021 07:57:44 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 15B57C013A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 07:54:11 +0000 (UTC)
+ Mon, 18 Jan 2021 07:57:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 4000886777
+ by hemlock.osuosl.org (Postfix) with ESMTP id 8101A8702D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 07:54:11 +0000 (UTC)
+ Mon, 18 Jan 2021 07:57:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GkEdEEUIX2xv
+ with ESMTP id z8CWYKCh2L3m
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 07:54:10 +0000 (UTC)
+ Mon, 18 Jan 2021 07:57:39 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 280CC866C8
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam12on2055.outbound.protection.outlook.com [40.107.237.55])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id A934186F98
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Jan 2021 07:54:10 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 259ABAB9F;
- Mon, 18 Jan 2021 07:54:08 +0000 (UTC)
+ Mon, 18 Jan 2021 07:57:38 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=T5WTIzS2XhM+w6qio2FxCgd3wI82KdazuryRirSYvy2veaX0SSmzQIn1BooBGmRklGvoIw0fJZuY1xH6aD+r0RE73x7gficvcz2ehQjQSPoOYD2+rn0NQxu+JrHOX+ICkBTz1VsQuONOFrVO9ZudTAy7Kczps/EPcBbgvD7V+H+QVpITTdWQVPHBhasWLmJ2nD4VJbfVzK6F06gqryxud2SL3CdcofybXqp0ATyZvRyq9sDN6d+Q6+7IxCtS3NfwJ2vAVN7tUdIJsqp9l5yipa9R/mNokXsMt6SjeDc1vj1pGR/09CKoM80pZ3SCUunWonVFkj44zpBjNdBYBXxvew==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rb0dO5gjrpnNkbzu5H191bydD6eg8YnDqRBFe7RZ33M=;
+ b=ILKmNbaNdrEis5/bVt4bK+ZqpCyU6f5CFgxn3IJKif+Vs2BudM+Az+SGjW57hb21KHR6t4NSv2Qi/2qADLRSb0edNyv16h/pxFvkoZDp4EBH0xcl+/kBHbu4qapHaB1UyV5rMCWZLHQdcGDMv9jvrsWhBhengUok5iJS6oFvF7g9sfsxaXCDi7il5oxp+BIydGErVqGbumDllfdkGC6rQPGKVbvTC/9sKGDNLXWhVEfe4iE7o8i8Y8jvOT9IqOqSOHwbg5bMrA4vbCNiLiuXdEjMPp2HBR/fQRd6oUsYAAeFM+rgjM5xnQ4hca1BCsneznbfMxd0XH2H0RhkvAO1yw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rb0dO5gjrpnNkbzu5H191bydD6eg8YnDqRBFe7RZ33M=;
+ b=x4nM4WQq/ZQLjhIpBVMMQZSprVf+yuWEnyMuxAjNecVTVguKxIKt4iBS5pALsTa6vwERdrj25BrcQs/CEv/bPhzZxfFRcjpB4wdS0NZrRv+xK26PztaeJBMFki/YD/klON6ZO7eBuEubwlxq2R1WXUryH0XGLnAd7OEfpDBwl74=
+Authentication-Results: lists.freedesktop.org; dkim=none (message not signed)
+ header.d=none; lists.freedesktop.org;
+ dmarc=none action=none header.from=amd.com;
+Received: from MN2PR12MB3775.namprd12.prod.outlook.com (2603:10b6:208:159::19)
+ by MN2PR12MB3966.namprd12.prod.outlook.com (2603:10b6:208:165::18)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3763.10; Mon, 18 Jan
+ 2021 07:57:35 +0000
+Received: from MN2PR12MB3775.namprd12.prod.outlook.com
+ ([fe80::44f:9f01:ece7:f0e5]) by MN2PR12MB3775.namprd12.prod.outlook.com
+ ([fe80::44f:9f01:ece7:f0e5%3]) with mapi id 15.20.3763.014; Mon, 18 Jan 2021
+ 07:57:35 +0000
 Subject: Re: Change eats memory on my server
-To: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
- Eli Cohen <elic@nvidia.com>
+To: Eli Cohen <elic@nvidia.com>
 References: <20210114151529.GA79120@mtl-vdi-166.wap.labs.mlnx>
  <23cf7712-1daf-23b8-b596-792c9586d6b4@suse.de>
  <20210117050837.GA225992@mtl-vdi-166.wap.labs.mlnx>
  <83f74a11-b3c0-db2e-8301-4292d60d803b@amd.com>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <2ea2630b-8782-c662-91fe-683d8b5d6c99@suse.de>
-Date: Mon, 18 Jan 2021 08:54:07 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+ <20210118074913.GA39161@mtl-vdi-166.wap.labs.mlnx>
+From: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
+Message-ID: <a39c1b62-3e22-2454-d68b-e9eb510891d3@amd.com>
+Date: Mon, 18 Jan 2021 08:57:26 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+In-Reply-To: <20210118074913.GA39161@mtl-vdi-166.wap.labs.mlnx>
+Content-Language: en-US
+X-Originating-IP: [2a02:908:1252:fb60:be8a:bd56:1f94:86e7]
+X-ClientProxiedBy: AM0PR01CA0145.eurprd01.prod.exchangelabs.com
+ (2603:10a6:208:aa::14) To MN2PR12MB3775.namprd12.prod.outlook.com
+ (2603:10b6:208:159::19)
 MIME-Version: 1.0
-In-Reply-To: <83f74a11-b3c0-db2e-8301-4292d60d803b@amd.com>
-Cc: daniel.vetter@ffwll.ch, sam@ravnborg.org, linux-kernel@vger.kernel.org,
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from [IPv6:2a02:908:1252:fb60:be8a:bd56:1f94:86e7]
+ (2a02:908:1252:fb60:be8a:bd56:1f94:86e7) by
+ AM0PR01CA0145.eurprd01.prod.exchangelabs.com (2603:10a6:208:aa::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3763.9 via Frontend
+ Transport; Mon, 18 Jan 2021 07:57:33 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: 8e9bc7e3-8b1f-49b2-d2b7-08d8bb86b796
+X-MS-TrafficTypeDiagnostic: MN2PR12MB3966:
+X-Microsoft-Antispam-PRVS: <MN2PR12MB3966B95D59EB786FCE563D9983A40@MN2PR12MB3966.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:5236;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Ea7gO+vM45PYPMNgzkMyTTqIExkkSbL7owi5M0j6Q0XqhMYqqI+M/NbfaygsWxhn4c0M03BnfVdEQwTH/ivmVBaGJmvy0Fi5SMYErq9w1YbJnPp2Ck7/tVJVj/HlqwbNrV/hPRXEwpsLeQysHY7fmbnNobQsnlOCgaV16FnKAU9Q8efEERYtGBTBF2aKT+b7p3AS+DwIAC3TdurkH3xWXKmvX6Bl9l1JAF2leJI8COBwfk6nDC4SLcURxiU3ike/kfeA1vXkQmAjIjHL40uH46oXNKC5lbEpOV8b7TSeo6XPeJsxJYgj2ewDfw6opWJrQ/GRM01uVMONsdgJx4IzlcdDTCNuK52kK1Z7iihNBdEm4qrwS1lIqVLBw7oexnZ4jnpJXkOwPjmd3vyN1zTmglWSUNTXSALOwQbE1qKCUA7QzayXAQ7B8phAd8oQEbfq
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:MN2PR12MB3775.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(4636009)(39860400002)(346002)(366004)(376002)(396003)(136003)(16526019)(31686004)(4744005)(5660300002)(4326008)(6916009)(316002)(8936002)(478600001)(6666004)(66946007)(66476007)(66556008)(54906003)(86362001)(8676002)(6486002)(186003)(52116002)(36756003)(2906002)(31696002)(2616005)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?RnRCVytjNVlqWnVUUnVPZHpwSnVqOGJiNVZvT2ErajZrZzdTZk9aWHpxUFlt?=
+ =?utf-8?B?ZWZaNHdyUUVDOWxUaDZNSkhaSXZMTHp0dlNQU210c1J4Tm1IU0JPNEdUam1R?=
+ =?utf-8?B?alhGUmdycTkxRzdLMDdORElySnlaS0U3Umo2T0dnR0hheU9GRVN4SVpTUU9m?=
+ =?utf-8?B?VHdDN1kzQTBRb3FJSUNaeUJPZnNNNE1nN0VzYWNSVkYwWlNJeGxxUlhrZ3ZM?=
+ =?utf-8?B?RDdYUXZKWUwyc01FVy9xY1RtZlFvRWZCYmNLaEtzbTQ4SWNYd1djVyswQnpO?=
+ =?utf-8?B?dU1QSVE0MDFhR1JVRlVkb1h3WkdCQWQ5RCt5U2pPTGt6UUVXL2dZUkxyZjNT?=
+ =?utf-8?B?cFRuSk4rWWp6TWxjRVNEaXpORUVxT3EzZ1l1M1V1QWZvMmx4NkR2c1pIdEdD?=
+ =?utf-8?B?YW41WmtzeDJhTFBCVDlva3lxQjRhRmd2M3Z3MU5lQUtlWi9RMjM0ZzQ4Vm03?=
+ =?utf-8?B?V05yWVRuV0RQdWVxMnZJWDlXQTBWeTJSMG1SeWVUSmVxRHplZVJ6ZG1aQTRi?=
+ =?utf-8?B?RDZWSktxdjFZRit0cVdxTWgxWFQxbStiWFcreXI4eFdHaStmclprYUJ4MERN?=
+ =?utf-8?B?ZFBBdTltbG9FTWEzQWZVV2trVjIvMXY5anp0elh3UmNOMFhzaFNRQ29YRUFj?=
+ =?utf-8?B?RHNUSHdhR3hFNjFsSXpOclhoaS9lUG9RVDM5WVZHYU5zeWxpS2VvMlZPWllT?=
+ =?utf-8?B?Y01jdndiYStPd2lSSWxSZmp6N2d5OVlmcnNNd2c1OVAwT2E3eHQ5bTZqRy9j?=
+ =?utf-8?B?UG5BMVFpVlYzQ09wdUtPa0VmWnBjWUluWVJXOFBUM0p0SmZPdngwTDNzMThv?=
+ =?utf-8?B?TVNXazE2MWJGbnQ3cnIxMFdkM2wvNVR0c3ZGWFVVVGZQMTJpOHRKMTVHWG0z?=
+ =?utf-8?B?VVpRQTVtQ0tRRW5xellrTlhqU0psWE5CTWpiY2JYUGNGSE8rNE9rNG9oUG5B?=
+ =?utf-8?B?N1hrNmU4VHhheUFZaytWTkVRdUxFV2R2ZnlPRm9VRVl0Z0ppSWNtUWtLa2hn?=
+ =?utf-8?B?aUphdkVXWEtlR24xNGNITFBoUHRaYStxR0VKTUVKV1FJZWdkc3hNUjRxRUY2?=
+ =?utf-8?B?dFJuODlyRlNHVnVLSFZpZHEyMys1eldmaW0xOTFnWjVNU1lqZkdEM0RzdWpv?=
+ =?utf-8?B?a2hxZFRLSGNRTVRXelZoS2JxK0dYbmhJMjhWeTlQZ3BFVHRacWVScnROdGZ5?=
+ =?utf-8?B?T3lPS2pRYXZSY3NESFY2MnptdEdXUWd4a1lwTnhtbFkxRWxLTnJCYzdlMVhu?=
+ =?utf-8?B?NWNudWlmaHRIcUhEaEs5TTdkaTVPSGtMYTBWVEYvU0NIOVdtNzJqVnk5NGtU?=
+ =?utf-8?B?QjZsU2NMZ25SR0d5bHV6QitpODhXS2JrZjJsTGlXc1gzUmVDUG5ZUDZVRmlD?=
+ =?utf-8?B?aW1NbWVYZjM5Mm1vcDdqaVVUNXhTVFBsbFM3U3Rxczc3OVJSTlJwbjR3ZzBM?=
+ =?utf-8?Q?x/Dml8r8?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8e9bc7e3-8b1f-49b2-d2b7-08d8bb86b796
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB3775.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Jan 2021 07:57:35.5360 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: vDHuRiizjNywB49d14ivOrOQ1/Bre3fBhCIIq/mXHexQ+b9AxNWj9KSEfjDSXAEU
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB3966
+Cc: daniel.vetter@ffwll.ch, linux-kernel@vger.kernel.org,
  dri-devel <dri-devel@lists.freedesktop.org>,
- virtualization@lists.linux-foundation.org
+ virtualization@lists.linux-foundation.org,
+ Thomas Zimmermann <tzimmermann@suse.de>, sam@ravnborg.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -81,184 +165,25 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============2423121533001841173=="
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============2423121533001841173==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="RcFgwA8dRwaXHq7Dlf1wzDAElghb4FzhR"
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---RcFgwA8dRwaXHq7Dlf1wzDAElghb4FzhR
-Content-Type: multipart/mixed; boundary="rl4018eEF1PLVTLuxIvjk8vMW2R5W6PKf";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
- Eli Cohen <elic@nvidia.com>
-Cc: daniel.vetter@ffwll.ch, sam@ravnborg.org, linux-kernel@vger.kernel.org,
- dri-devel <dri-devel@lists.freedesktop.org>,
- virtualization@lists.linux-foundation.org
-Message-ID: <2ea2630b-8782-c662-91fe-683d8b5d6c99@suse.de>
-Subject: Re: Change eats memory on my server
-References: <20210114151529.GA79120@mtl-vdi-166.wap.labs.mlnx>
- <23cf7712-1daf-23b8-b596-792c9586d6b4@suse.de>
- <20210117050837.GA225992@mtl-vdi-166.wap.labs.mlnx>
- <83f74a11-b3c0-db2e-8301-4292d60d803b@amd.com>
-In-Reply-To: <83f74a11-b3c0-db2e-8301-4292d60d803b@amd.com>
-
---rl4018eEF1PLVTLuxIvjk8vMW2R5W6PKf
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-
-Hi
-
-Am 18.01.21 um 08:43 schrieb Christian K=C3=B6nig:
-> Hi Eli,
->=20
-> have you already tried using kmemleak?
->=20
-> This sounds like a leak of memory allocated using kmalloc(), so kmemlea=
-k=20
-> should be able to catch it.
-
-I have an idea what happens here. When the refcount is 0 in kmap, a new=20
-page mapping for the BO is being established. But VRAM helpers unmap the =
-
-previous pages only on BO moves or frees; not in kunmap. So the old=20
-mapping might still be around. I'll send out a test patch later today.
-
-Best regards
-Thomas
-
->=20
-> Regards,
-> Christian.
->=20
-> Am 17.01.21 um 06:08 schrieb Eli Cohen:
->> On Fri, Jan 15, 2021 at 10:03:50AM +0100, Thomas Zimmermann wrote:
->>> Could you please double-check that 3fb91f56aea4 ("drm/udl: Retrieve U=
-SB
->>> device from struct drm_device.dev") works correctly
->> Checked again, it does not seem to leak.
->>
->>> and that 823efa922102
->>> ("drm/cma-helper: Remove empty drm_gem_cma_prime_vunmap()") is broken=
-?
->>>
->> Yes, this one leaks, as does the one preceding it:
->>
->> 1086db71a1db ("drm/vram-helper: Remove invariant parameters from=20
->> internal kmap function")
->>> For one of the broken commits, could you please send us the output of=
-
->>>
->>> =C2=A0=C2=A0 dmesg | grep -i drm
->>>
->>> after most of the memory got leaked?
->>>
->> I ran the following script in the shell:
->>
->> while true; do cat /proc/meminfo | grep MemFree:; sleep 5; done
->>
->> and this is what I saw before I got disconnected from the shell:
->>
->> MemFree:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 148208 =
-kB
->> MemFree:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 148304 =
-kB
->> MemFree:=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 146660 =
-kB
->> Connection to nps-server-24 closed by remote host.
->> Connection to nps-server-24 closed.
->>
->>
->> I also mointored the output of dmesg | grep -i drm
->> The last output I was able to save on disk is this:
->>
->> [=C2=A0=C2=A0 46.140720] ast 0000:03:00.0: [drm] Using P2A bridge for =
-configuration
->> [=C2=A0=C2=A0 46.140737] ast 0000:03:00.0: [drm] AST 2500 detected
->> [=C2=A0=C2=A0 46.140754] ast 0000:03:00.0: [drm] Analog VGA only
->> [=C2=A0=C2=A0 46.140772] ast 0000:03:00.0: [drm] dram MCLK=3D800 Mhz t=
-ype=3D7=20
->> bus_width=3D16
->> [=C2=A0=C2=A0 46.153553] [drm] Initialized ast 0.1.0 20120228 for 0000=
-:03:00.0=20
->> on minor 0
->> [=C2=A0=C2=A0 46.165097] fbcon: astdrmfb (fb0) is primary device
->> [=C2=A0=C2=A0 46.391381] ast 0000:03:00.0: [drm] fb0: astdrmfb frame b=
-uffer device
->> [=C2=A0=C2=A0 56.097697] systemd[1]: Starting Load Kernel Module drm..=
-=2E
->> [=C2=A0=C2=A0 56.343556] systemd[1]: modprobe@drm.service: Succeeded.
->> [=C2=A0=C2=A0 56.350382] systemd[1]: Finished Load Kernel Module drm.
->> [13319.469462] [=C2=A0=C2=A0 2683] 70889=C2=A0 2683=C2=A0=C2=A0=C2=A0 =
-55586=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 0=C2=A0=C2=A0=C2=A0 73728=
-     =20
->> 138=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0 0 tdrm
->> [13320.658386] [=C2=A0=C2=A0 2683] 70889=C2=A0 2683=C2=A0=C2=A0=C2=A0 =
-55586=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 0=C2=A0=C2=A0=C2=A0 73728=
-     =20
->> 138=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0 0 tdrm
->> [13321.800970] [=C2=A0=C2=A0 2683] 70889=C2=A0 2683=C2=A0=C2=A0=C2=A0 =
-55586=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 0=C2=A0=C2=A0=C2=A0 73728=
-     =20
->> 138=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0 0 tdrm
->=20
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
-
---rl4018eEF1PLVTLuxIvjk8vMW2R5W6PKf--
-
---RcFgwA8dRwaXHq7Dlf1wzDAElghb4FzhR
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmAFPp8FAwAAAAAACgkQlh/E3EQov+C2
-9Q//YK5YC86F30mSz1L+lODlHgKbWSTKpOwXpJHBO/8BhSSsfwR52qphdeIyH4IQYuYoO0soKG0F
-cdRTFgyHHsF+u57i4yfIxJVlnlp4noMy+GvGfr2QnYr+/dc3lbKMDxWV4AEUIFlA9eMwXrb3vZi5
-M6EDs8JRUHg9LIEMv9yO0iRxfromTeoIabRUGQL/W9ELEXZr2DxO0lCS8C9H2ZuIQAyFKpymgOpW
-t/nbpjGjppGhKY1DsDWfo3qbCqgOlY+46YHeRDna+KtvPWvLQGb9iebr+wkY1UtJYUeoG7i8eb4m
-XIwjLf41mT41BUgeGsaxziUVXtpPY/YvedKi3kiVOABe+HipnJDaJpsaTQIrICDj+FXvOIlrwhCs
-cs9VQUiDdLpHqdS1nq8pfEu/dAD8UMZTqtH2EwvUwJINw2+TFl7/nAVbNQEDsCo0zuw+X658ZL03
-A6zY+QQ2KJP/wmfs3drB7yhX13X3QoLsBjleaY/tKW5SZUU0/ELT9AR2ZkEePalIivL9uwiDhHUr
-v8rcH0UlpINkAFZZps3r8jeoKp/HzVIYie2fNvJvX3a+F/XxyGzbwBEB4g4NeByuwPDAZ4pC0J5y
-v/3aeCBKbzs4QxEQclNCczaH5Y2XIFHQYv+4S0LxBPEALI070lvPHELuyOHEo5zkenkouPFHKdom
-Tas=
-=d9xt
------END PGP SIGNATURE-----
-
---RcFgwA8dRwaXHq7Dlf1wzDAElghb4FzhR--
-
---===============2423121533001841173==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2423121533001841173==--
+QW0gMTguMDEuMjEgdW0gMDg6NDkgc2NocmllYiBFbGkgQ29oZW46Cj4gT24gTW9uLCBKYW4gMTgs
+IDIwMjEgYXQgMDg6NDM6MTJBTSArMDEwMCwgQ2hyaXN0aWFuIEvDtm5pZyB3cm90ZToKPj4gSGkg
+RWxpLAo+Pgo+PiBoYXZlIHlvdSBhbHJlYWR5IHRyaWVkIHVzaW5nIGttZW1sZWFrPwo+Pgo+PiBU
+aGlzIHNvdW5kcyBsaWtlIGEgbGVhayBvZiBtZW1vcnkgYWxsb2NhdGVkIHVzaW5nIGttYWxsb2Mo
+KSwgc28ga21lbWxlYWsKPj4gc2hvdWxkIGJlIGFibGUgdG8gY2F0Y2ggaXQuCj4+Cj4gSGkgQ2hy
+aXN0aWFuLAo+Cj4gSSBoYXZlIHRoZSBmb2xsb3dpbmcgY29uZmlndXJlZCBidXQgSSBkaWQgbm90
+IHNlZSBhbnkgdmlzaWJsZSBjb21wbGFpbnQKPiBpbiBkbWVzZy4KPgo+IENPTkZJR19IQVZFX0RF
+QlVHX0tNRU1MRUFLPXkKPiBDT05GSUdfREVCVUdfS01FTUxFQUs9eQo+IENPTkZJR19ERUJVR19L
+TUVNTEVBS19NRU1fUE9PTF9TSVpFPTE2MDAwCj4KPiBBbnkgb3RoZXIgY29uZmlndXJhdGlvbiB0
+aGF0IEkgbmVlZCB0byBzZXQ/CgpBcyBsb25nIGFzIHlvdSBkb24ndCBoYXZlIGFueSBrZXJuZWwg
+cGFyYW1ldGVycyB0byBlbmFibGUgaXQgSSB0aGluayB5b3UgCm5lZWQgdG8gZG8gImVjaG8gc2Nh
+biA+IC9zeXMva2VybmVsL2RlYnVnL2ttZW1sZWFrIiB0byBzdGFydCBhIHNjYW4uCgpUaGUgcmVz
+dWx0IGNhbiB0aGVuIGJlIHF1ZXJpZWQgdXNpbmcgImNhdCAvc3lzL2tlcm5lbC9kZWJ1Zy9rbWVt
+bGVhayIuCgpSZWdhcmRzLApDaHJpc3RpYW4uCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
+dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
+dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
