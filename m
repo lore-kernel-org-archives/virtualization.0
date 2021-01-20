@@ -2,97 +2,76 @@ Return-Path: <SRS0=zQmE=GX=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3ECB7C433DB
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 00:51:15 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B82E0C433DB
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 01:51:17 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id BAF152310B
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 00:51:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BAF152310B
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id F2E57224B1
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 01:51:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F2E57224B1
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 6D7098574F;
-	Wed, 20 Jan 2021 00:51:13 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id ABF4D85077;
+	Wed, 20 Jan 2021 01:51:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SRz7mvNSbZhP; Wed, 20 Jan 2021 00:51:12 +0000 (UTC)
+	with ESMTP id G41isVJiEgUi; Wed, 20 Jan 2021 01:51:15 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id BF3478567A;
-	Wed, 20 Jan 2021 00:51:12 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 36C9884FD2;
+	Wed, 20 Jan 2021 01:51:15 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A1DB3C08A1;
-	Wed, 20 Jan 2021 00:51:12 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B3C0DC013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EAFC9C088B;
+	Wed, 20 Jan 2021 01:51:14 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 478BFC013A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 00:51:10 +0000 (UTC)
+ Wed, 20 Jan 2021 01:51:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id A742A856E9
+ by silver.osuosl.org (Postfix) with ESMTP id 34FD9204F1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 00:51:10 +0000 (UTC)
+ Wed, 20 Jan 2021 01:51:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KpUoDzx_93mf
+ with ESMTP id ripV8Gj76ExM
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 00:51:09 +0000 (UTC)
+ Wed, 20 Jan 2021 01:51:12 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 4B48A8567A
+Received: from out30-43.freemail.mail.aliyun.com
+ (out30-43.freemail.mail.aliyun.com [115.124.30.43])
+ by silver.osuosl.org (Postfix) with ESMTPS id 2668C20425
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 00:51:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1611103867;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=XMgxh4QT16BUU6+08uzYGYm4b9G6LkkPIkP55kDsU4k=;
- b=WzZFiAa2nF5j234uZCp2GKc9B2bwpIpOwQe47AA0GVPQIXpvQ6YWhUvYSxtITKUFTVEaZj
- GcoBsmqdzwrDPBOYvQAS6/yPZCtAEuCQnUUeVLhpB9DfOiAt0vzq+PmdYTqGYlCzwD8xaa
- xJAWhVuWGQf6IFZ1b6JzR51dNzSwo5s=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-102-r9MXn4OtOrutL3_HPlXfvg-1; Tue, 19 Jan 2021 19:51:05 -0500
-X-MC-Unique: r9MXn4OtOrutL3_HPlXfvg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
- [10.5.11.14])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CA4271800D42;
- Wed, 20 Jan 2021 00:51:01 +0000 (UTC)
-Received: from x1.home.shazbot.org (ovpn-112-255.phx2.redhat.com
- [10.3.112.255])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 86D795D9DD;
- Wed, 20 Jan 2021 00:51:01 +0000 (UTC)
-Date: Tue, 19 Jan 2021 17:50:57 -0700
-From: Alex Williamson <alex.williamson@redhat.com>
-To: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>
-Subject: Re: [RFC 3/3] vfio: Share the KVM instance with Vdmabuf
-Message-ID: <20210119175057.5768b26b@x1.home.shazbot.org>
-In-Reply-To: <b4a93e926d424ff199ab91ff88399087@intel.com>
-References: <20210119082812.822291-1-vivek.kasireddy@intel.com>
- <20210119082812.822291-4-vivek.kasireddy@intel.com>
- <20210119083955.1cc9eae3@omen.home.shazbot.org>
- <b4a93e926d424ff199ab91ff88399087@intel.com>
-Organization: Red Hat
+ Wed, 20 Jan 2021 01:51:10 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R171e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=5; SR=0; TI=SMTPD_---0UMHI5TK_1611107465; 
+Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com
+ fp:SMTPD_---0UMHI5TK_1611107465) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 20 Jan 2021 09:51:06 +0800
+Subject: Re: [PATCH RFC] virtio-blk: support per-device queue depth
+To: Jason Wang <jasowang@redhat.com>, Joseph Qi
+ <joseph.qi@linux.alibaba.com>, "Michael S. Tsirkin" <mst@redhat.com>
+References: <1610942338-78252-1-git-send-email-joseph.qi@linux.alibaba.com>
+ <ab4cbc06-b629-dd35-52ac-1246d500d1c4@redhat.com>
+ <4141645d-6dfc-110c-bfcd-03641df8332c@linux.alibaba.com>
+ <46f2f81f-9906-e1f7-d8fd-6da2c61683ba@redhat.com>
+From: JeffleXu <jefflexu@linux.alibaba.com>
+Message-ID: <25d8430c-bf18-38ca-cf0c-c054507e1466@linux.alibaba.com>
+Date: Wed, 20 Jan 2021 09:51:05 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.6.0
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=alex.williamson@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: "Kim, Dongwon" <dongwon.kim@intel.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
+In-Reply-To: <46f2f81f-9906-e1f7-d8fd-6da2c61683ba@redhat.com>
+Content-Language: en-US
+Cc: linux-block@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -104,79 +83,78 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, 20 Jan 2021 00:14:49 +0000
-"Kasireddy, Vivek" <vivek.kasireddy@intel.com> wrote:
-
-> Hi Alex,
-> 
-> > -----Original Message-----
-> > From: Alex Williamson <alex.williamson@redhat.com>
-> > Sent: Tuesday, January 19, 2021 7:40 AM
-> > To: Kasireddy, Vivek <vivek.kasireddy@intel.com>
-> > Cc: virtualization@lists.linux-foundation.org; Kim, Dongwon <dongwon.kim@intel.com>
-> > Subject: Re: [RFC 3/3] vfio: Share the KVM instance with Vdmabuf
-> > 
-> > On Tue, 19 Jan 2021 00:28:12 -0800
-> > Vivek Kasireddy <vivek.kasireddy@intel.com> wrote:
-> >   
-> > > Getting a copy of the KVM instance is necessary for mapping Guest
-> > > pages in the Host.
-> > >
-> > > TODO: Instead of invoking the symbol directly, there needs to be a
-> > > better way of getting a copy of the KVM instance probably by using
-> > > other notifiers. However, currently, KVM shares its instance only
-> > > with VFIO and therefore we are compelled to bind the passthrough'd
-> > > device to vfio-pci.  
-> > 
-> > Yeah, this is a bad solution, sorry, vfio is not going to gratuitously
-> > call out to vhost to share a kvm pointer.  I'd prefer to get rid of
-> > vfio having any knowledge or visibility of the kvm pointer.  Thanks,  
-> 
-> [Kasireddy, Vivek] I agree that this is definitely not ideal as I recognize it
-> in the TODO. However, it looks like VFIO also gets a copy of the KVM 
-> pointer in a similar manner:
-> 
-> virt/kvm/vfio.c
-> 
-> static void kvm_vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
-> {
->         void (*fn)(struct vfio_group *, struct kvm *);
-> 
->         fn = symbol_get(vfio_group_set_kvm);
->         if (!fn)
->                 return;
-> 
->         fn(group, kvm);
-> 
->         symbol_put(vfio_group_set_kvm);
-> }
-
-You're equating the mechanism with the architecture.  We use symbols
-here to avoid module dependencies between kvm and vfio, but this is
-just propagating data that userspace is specifically registering
-between kvm and vfio.  vhost doesn't get to piggyback on that channel.
-
-> With this patch, I am not suggesting that this is a precedent that should be followed 
-> but it appears there doesn't seem to be an alternative way of getting a copy of the KVM 
-> pointer that is clean and elegant -- unless I have not looked hard enough. I guess we
-> could create a notifier chain with callbacks for VFIO and Vhost that KVM would call 
-> but this would mean modifying KVM.
-> 
-> Also, if I understand correctly, if VFIO does not want to share the KVM pointer with
-> VFIO groups, then I think it would break stuff like mdev which counts on it. 
-
-Only kvmgt requires the kvm pointer and the use case there is pretty
-questionable, I wonder if it actually still exists now that we have the
-DMA r/w interface through vfio.  Thanks,
-
-Alex
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CgpPbiAxLzE5LzIxIDEyOjA2IFBNLCBKYXNvbiBXYW5nIHdyb3RlOgo+IAo+IE9uIDIwMjEvMS8x
+OSDkuIrljYg5OjMzLCBKZWZmbGVYdSB3cm90ZToKPj4KPj4gT24gMS8xOC8yMSAxOjI1IFBNLCBK
+YXNvbiBXYW5nIHdyb3RlOgo+Pj4gT24gMjAyMS8xLzE4IOS4iuWNiDExOjU4LCBKb3NlcGggUWkg
+d3JvdGU6Cj4+Pj4gbW9kdWxlIHBhcmFtZXRlciAndmlydGJsa19xdWV1ZV9kZXB0aCcgd2FzIGZp
+cnN0bHkgaW50cm9kdWNlZCBmb3IKPj4+PiB0ZXN0aW5nL2JlbmNobWFya2luZyBwdXJwb3NlcyBk
+ZXNjcmliZWQgaW4gY29tbWl0IGZjNDMyNGI0NTk3Ywo+Pj4+ICgidmlydGlvLWJsazogYmFzZSBx
+dWV1ZS1kZXB0aCBvbiB2aXJ0cXVldWUgcmluZ3NpemUgb3IgbW9kdWxlIHBhcmFtIikuCj4+Pj4g
+U2luY2Ugd2UgaGF2ZSBkaWZmZXJlbnQgdmlydGlvLWJsayBkZXZpY2VzIHdoaWNoIGhhdmUgZGlm
+ZmVyZW50Cj4+Pj4gY2FwYWJpbGl0aWVzLCBpdCByZXF1aXJlcyB0aGF0IHdlIHN1cHBvcnQgcGVy
+LWRldmljZSBxdWV1ZSBkZXB0aAo+Pj4+IGluc3RlYWQKPj4+PiBvZiBwZXItbW9kdWxlLiBTbyBk
+ZWZhdWx0bHkgdXNlIHZxIGZyZWUgZWxlbWVudHMgaWYgbW9kdWxlIHBhcmFtZXRlcgo+Pj4+ICd2
+aXJ0YmxrX3F1ZXVlX2RlcHRoJyBpcyBub3Qgc2V0Lgo+Pj4KPj4+IEkgd29uZGVyIGlmIGl0J3Mg
+YmV0dGVyIHRvIHVzZSBzeXNmcyBpbnN0ZWFkIChvciB3aGV0aGVyIGl0IGhhcyBhbHJlYWR5Cj4+
+PiBoYWQgc29tZXRoaW5nIGxpa2UgdGhpcyBpbiB0aGUgYmxvY2tlciBsYXllcikuCj4+Pgo+PiAi
+L3N5cy9ibG9jay88ZGV2Pi9xdWV1ZS9ucl9yZXF1ZXN0cyIgaW5kZWVkIHdvcmtzLCBidXQgaXNu
+J3QgYmV0dGVyIHRvCj4+IHNldCBxdWV1ZV9kZXB0aCBhY2NvcmRpbmcgdG8gdGhlIGhhcmR3YXJl
+IGNhcGFiaWxpdHkgYXQgdGhlIHZlcnkgZmlyc3Q/Cj4+IEFGQUlLLCBudm1lIGp1c3Qgc2V0IHBl
+ci1kZXZpY2UgcXVldWVfZGVwdGggYXQgaW5pdGlhbGl6aW5nIHBoYXNlLgo+IAo+IAo+IEkgYWdy
+ZWUsIHRoZSBwcm9ibGVtIGlzIHRoYXQgdGhlIGN1cnJlbnQgY29kZSBtYXkgbW9kaWZ5IG1vZHVs
+ZSBwYXJhbWV0ZXIuCgpUaGUgbW9kdWxlIHBhcmFtZXRlciAndmlydGJsa19xdWV1ZV9kZXB0aCcg
+aXMgYWN0dWFsbHkgcmVtYWluZWQgdW50YWludGVkLgoKQWN0dWFsbHkgaXQgaXMgdGhlIG9yaWdp
+bmFsIGNvZGUgYmVmb3JlIHRoaXMgcGF0Y2ggdGhhdCBjaGFuZ2VzIHRoZQptb2R1bGUgcGFyYW1l
+dGVyLiBXaGVuIHRoZSBtb2R1bGUgcGFyYW1ldGVyIGlzIG5vdCBzZXQgYnkgYm9vdCBjbWRsaW5l
+CihpLmUuLCBkZWZhdWx0IHRvIDApLCBpdCB3aWxsIGJlIGluaXRpYWxpemVkIHRvIHRoZSBxdWV1
+ZV9kZXB0aCBvZiB0aGUKdnJpbmcgb2YgdGhlIGZpcnN0IHByb2JlZCB2aXJ0aW8tYmxrIGRldmlj
+ZSwgYW5kIHdpbGwgYmUgcmV2ZWFsZWQgdG8KdXNlciBzcGFjZSB0aHJvdWdoICcvc3lzL21vZHVs
+ZS92aXJ0aW9fYmxrL3BhcmFtZXRlcnMvcXVldWVfZGVwdGgnLiBJJ20Kbm90IHN1cmUgaWYgdGhp
+cyBiZWhhdmlvciBpcyByZWFzb25hYmxlIG9yIG5vdC4KClRoZSBvbmx5IHNpZGUgZWZmZWN0IG9m
+IHRoaXMgcGF0Y2ggaXMgdGhhdCwgbm93Cicvc3lzL21vZHVsZS92aXJ0aW9fYmxrL3BhcmFtZXRl
+cnMvcXVldWVfZGVwdGgnIHdpbGwgYmUga2VwdCBhcyAnMCcgd2hlbgp0aGUgbW9kdWxlIHBhcmFt
+ZXRlciBpcyBub3Qgc2V0IG1hbnVhbGx5LgoKClRoYW5rcywKSmVmZmxlCgoKPj4KPj4+Cj4+Pj4g
+U2lnbmVkLW9mZi1ieTogSm9zZXBoIFFpIDxqb3NlcGgucWlAbGludXguYWxpYmFiYS5jb20+Cj4+
+Pj4gLS0tCj4+Pj4gwqDCoCBkcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYyB8IDEyICsrKysrKyst
+LS0tLQo+Pj4+IMKgwqAgMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwgNSBkZWxldGlv
+bnMoLSkKPj4+Pgo+Pj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYyBi
+L2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4+Pj4gaW5kZXggMTQ1NjA2ZC4uZjgzYTQxNyAx
+MDA2NDQKPj4+PiAtLS0gYS9kcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYwo+Pj4+ICsrKyBiL2Ry
+aXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCj4+Pj4gQEAgLTcwNSw2ICs3MDUsNyBAQCBzdGF0aWMg
+aW50IHZpcnRibGtfcHJvYmUoc3RydWN0IHZpcnRpb19kZXZpY2UKPj4+PiAqdmRldikKPj4+PiDC
+oMKgwqDCoMKgwqAgdTMyIHYsIGJsa19zaXplLCBtYXhfc2l6ZSwgc2dfZWxlbXMsIG9wdF9pb19z
+aXplOwo+Pj4+IMKgwqDCoMKgwqDCoCB1MTYgbWluX2lvX3NpemU7Cj4+Pj4gwqDCoMKgwqDCoMKg
+IHU4IHBoeXNpY2FsX2Jsb2NrX2V4cCwgYWxpZ25tZW50X29mZnNldDsKPj4+PiArwqDCoMKgIHVu
+c2lnbmVkIGludCBxdWV1ZV9kZXB0aDsKPj4+PiDCoMKgIMKgwqDCoMKgwqAgaWYgKCF2ZGV2LT5j
+b25maWctPmdldCkgewo+Pj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgIGRldl9lcnIoJnZkZXYtPmRl
+diwgIiVzIGZhaWx1cmU6IGNvbmZpZyBhY2Nlc3MgZGlzYWJsZWRcbiIsCj4+Pj4gQEAgLTc1NSwx
+NyArNzU2LDE4IEBAIHN0YXRpYyBpbnQgdmlydGJsa19wcm9iZShzdHJ1Y3QgdmlydGlvX2Rldmlj
+ZQo+Pj4+ICp2ZGV2KQo+Pj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgIGdvdG8gb3V0X2ZyZWVfdnE7
+Cj4+Pj4gwqDCoMKgwqDCoMKgIH0KPj4+PiDCoMKgIC3CoMKgwqAgLyogRGVmYXVsdCBxdWV1ZSBz
+aXppbmcgaXMgdG8gZmlsbCB0aGUgcmluZy4gKi8KPj4+PiAtwqDCoMKgIGlmICghdmlydGJsa19x
+dWV1ZV9kZXB0aCkgewo+Pj4+IC3CoMKgwqDCoMKgwqDCoCB2aXJ0YmxrX3F1ZXVlX2RlcHRoID0g
+dmJsay0+dnFzWzBdLnZxLT5udW1fZnJlZTsKPj4+PiArwqDCoMKgIGlmIChsaWtlbHkoIXZpcnRi
+bGtfcXVldWVfZGVwdGgpKSB7Cj4+Pj4gK8KgwqDCoMKgwqDCoMKgIHF1ZXVlX2RlcHRoID0gdmJs
+ay0+dnFzWzBdLnZxLT5udW1fZnJlZTsKPj4+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoCAvKiAuLi4g
+YnV0IHdpdGhvdXQgaW5kaXJlY3QgZGVzY3MsIHdlIHVzZSAyIGRlc2NzIHBlciByZXEgKi8KPj4+
+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoCBpZiAoIXZpcnRpb19oYXNfZmVhdHVyZSh2ZGV2LCBWSVJU
+SU9fUklOR19GX0lORElSRUNUX0RFU0MpKQo+Pj4+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHZp
+cnRibGtfcXVldWVfZGVwdGggLz0gMjsKPj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBxdWV1
+ZV9kZXB0aCAvPSAyOwo+Pj4+ICvCoMKgwqAgfSBlbHNlIHsKPj4+PiArwqDCoMKgwqDCoMKgwqAg
+cXVldWVfZGVwdGggPSB2aXJ0YmxrX3F1ZXVlX2RlcHRoOwo+Pj4+IMKgwqDCoMKgwqDCoCB9Cj4+
+Pj4gwqDCoCDCoMKgwqDCoMKgIG1lbXNldCgmdmJsay0+dGFnX3NldCwgMCwgc2l6ZW9mKHZibGst
+PnRhZ19zZXQpKTsKPj4+PiDCoMKgwqDCoMKgwqAgdmJsay0+dGFnX3NldC5vcHMgPSAmdmlydGlv
+X21xX29wczsKPj4+PiAtwqDCoMKgIHZibGstPnRhZ19zZXQucXVldWVfZGVwdGggPSB2aXJ0Ymxr
+X3F1ZXVlX2RlcHRoOwo+Pj4+ICvCoMKgwqAgdmJsay0+dGFnX3NldC5xdWV1ZV9kZXB0aCA9IHF1
+ZXVlX2RlcHRoOwo+Pj4+IMKgwqDCoMKgwqDCoCB2YmxrLT50YWdfc2V0Lm51bWFfbm9kZSA9IE5V
+TUFfTk9fTk9ERTsKPj4+PiDCoMKgwqDCoMKgwqAgdmJsay0+dGFnX3NldC5mbGFncyA9IEJMS19N
+UV9GX1NIT1VMRF9NRVJHRTsKPj4+PiDCoMKgwqDCoMKgwqAgdmJsay0+dGFnX3NldC5jbWRfc2l6
+ZSA9CgotLSAKVGhhbmtzLApKZWZmbGUKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
