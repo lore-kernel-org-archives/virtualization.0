@@ -7,76 +7,83 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3A23C433E6
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 13:56:13 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2714C433DB
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 13:56:14 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4C114233EB
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 13:56:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4C114233EB
+	by mail.kernel.org (Postfix) with ESMTPS id 5BCDA2339D
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 13:56:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5BCDA2339D
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id E4DA986AC8;
-	Wed, 20 Jan 2021 13:56:12 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id DAA7D21511;
+	Wed, 20 Jan 2021 13:56:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7FisZVFd7CBt; Wed, 20 Jan 2021 13:56:06 +0000 (UTC)
+	with ESMTP id aj8KmdejmE0B; Wed, 20 Jan 2021 13:56:06 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 23CE6869F3;
-	Wed, 20 Jan 2021 13:56:05 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 01F2B2076F;
+	Wed, 20 Jan 2021 13:56:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 05308C1DA7;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id ED67AC088B;
 	Wed, 20 Jan 2021 13:56:05 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AE734C013A
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4493AC013A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 13:56:03 +0000 (UTC)
+ Wed, 20 Jan 2021 13:56:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 9CCC98711C
+ by silver.osuosl.org (Postfix) with ESMTP id 15248203E1
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 20 Jan 2021 13:56:04 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from silver.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 6sVdwlZBv6ru
  for <virtualization@lists.linux-foundation.org>;
  Wed, 20 Jan 2021 13:56:03 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GYa1Beg64AF9
- for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 13:56:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 426F887113
+ by silver.osuosl.org (Postfix) with ESMTPS id 7087420764
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 13:56:02 +0000 (UTC)
+ Wed, 20 Jan 2021 13:56:03 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1611150960; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ t=1611150962; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=s9jYYrCp5NMm5yGKLL/4edua8SOODyzTExPxz/HtQyc=;
- b=mTSXwUIMqLn2flkxPfYNjKCq3baUe5jkJzXhH1xkfCqaFClNOA4Zb0PeBytMloGo281jLU
- ZII40ityxfMNuLvp+cRlCj3+N2InphKJHZQJ/cu0QhQ3vGIM9PthPGzywVwQRAEBgFwR1H
- Wga6ekqqAwSMpKBjBmF+FfxvbwwLYdo=
+ bh=gPBshvehzp6blrUnnUW76rGI6e9WlnGmkT7jZvn/5h4=;
+ b=uOewyFTuTYGcYqxaS0f68MyKay0eqqN+HXVU32cgfoN5DndxAGzsBwPYX4CD6fN0eTpUcR
+ /VUme5cGWuqQmclhE5Inn0NwniOKuwJXX92yJG2xnqXDL4txCiknH035LivyF1x+J+r1ps
+ 3w2LJEjyzXQ9RfDjMg2CU4hqw5bP95Q=
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id CD7B3B2D2;
- Wed, 20 Jan 2021 13:56:00 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id C1D49B699;
+ Wed, 20 Jan 2021 13:56:01 +0000 (UTC)
 To: xen-devel@lists.xenproject.org, x86@kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Subject: [PATCH v4 05/15] x86/xen: drop USERGS_SYSRET64 paravirt call
-Date: Wed, 20 Jan 2021 14:55:45 +0100
-Message-Id: <20210120135555.32594-6-jgross@suse.com>
+ linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+Subject: [PATCH v4 07/15] x86/paravirt: switch time pvops functions to use
+ static_call()
+Date: Wed, 20 Jan 2021 14:55:47 +0100
+Message-Id: <20210120135555.32594-8-jgross@suse.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210120135555.32594-1-jgross@suse.com>
 References: <20210120135555.32594-1-jgross@suse.com>
 MIME-Version: 1.0
-Cc: Juergen Gross <jgross@suse.com>,
- Stefano Stabellini <sstabellini@kernel.org>, "VMware,
- Inc." <pv-drivers@vmware.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
- "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>, Wei Liu <wei.liu@kernel.org>,
+ Stefano Stabellini <sstabellini@kernel.org>,
+ Stephen Hemminger <sthemmin@microsoft.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>, "VMware,
+ Inc." <pv-drivers@vmware.com>, Sean Christopherson <seanjc@google.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>,
+ Daniel Lezcano <daniel.lezcano@linaro.org>, Joerg Roedel <joro@8bytes.org>,
+ Wanpeng Li <wanpengli@tencent.com>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Jim Mattson <jmattson@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -96,264 +103,303 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-USERGS_SYSRET64 is used to return from a syscall via sysret, but
-a Xen PV guest will nevertheless use the iret hypercall, as there
-is no sysret PV hypercall defined.
+The time pvops functions are the only ones left which might be
+used in 32-bit mode and which return a 64-bit value.
 
-So instead of testing all the prerequisites for doing a sysret and
-then mangling the stack for Xen PV again for doing an iret just use
-the iret exit from the beginning.
-
-This can easily be done via an ALTERNATIVE like it is done for the
-sysenter compat case already.
-
-It should be noted that this drops the optimization in Xen for not
-restoring a few registers when returning to user mode, but it seems
-as if the saved instructions in the kernel more than compensate for
-this drop (a kernel build in a Xen PV guest was slightly faster with
-this patch applied).
-
-While at it remove the stale sysret32 remnants.
+Switch them to use the static_call() mechanism instead of pvops, as
+this allows quite some simplification of the pvops implementation.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
-V3:
-- simplify ALTERNATIVE (Boris Petkov)
+V4:
+- drop paravirt_time.h again
+- don't move Hyper-V code (Michael Kelley)
 ---
- arch/x86/entry/entry_64.S             | 16 +++++++---------
- arch/x86/include/asm/irqflags.h       |  6 ------
- arch/x86/include/asm/paravirt.h       |  5 -----
- arch/x86/include/asm/paravirt_types.h |  8 --------
- arch/x86/kernel/asm-offsets_64.c      |  2 --
- arch/x86/kernel/paravirt.c            |  5 +----
- arch/x86/kernel/paravirt_patch.c      |  4 ----
- arch/x86/xen/enlighten_pv.c           |  1 -
- arch/x86/xen/xen-asm.S                | 20 --------------------
- arch/x86/xen/xen-ops.h                |  2 --
- 10 files changed, 8 insertions(+), 61 deletions(-)
+ arch/x86/Kconfig                      |  1 +
+ arch/x86/include/asm/mshyperv.h       |  2 +-
+ arch/x86/include/asm/paravirt.h       | 17 ++++++++++++++---
+ arch/x86/include/asm/paravirt_types.h |  6 ------
+ arch/x86/kernel/cpu/vmware.c          |  5 +++--
+ arch/x86/kernel/kvm.c                 |  2 +-
+ arch/x86/kernel/kvmclock.c            |  2 +-
+ arch/x86/kernel/paravirt.c            | 16 ++++++++++++----
+ arch/x86/kernel/tsc.c                 |  2 +-
+ arch/x86/xen/time.c                   | 11 ++++-------
+ drivers/clocksource/hyperv_timer.c    |  5 +++--
+ drivers/xen/time.c                    |  2 +-
+ 12 files changed, 42 insertions(+), 29 deletions(-)
 
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index a876204a73e0..ce0464d630a2 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -46,14 +46,6 @@
- .code64
- .section .entry.text, "ax"
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 21f851179ff0..7ccd4a80788c 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -771,6 +771,7 @@ if HYPERVISOR_GUEST
  
--#ifdef CONFIG_PARAVIRT_XXL
--SYM_CODE_START(native_usergs_sysret64)
--	UNWIND_HINT_EMPTY
--	swapgs
--	sysretq
--SYM_CODE_END(native_usergs_sysret64)
--#endif /* CONFIG_PARAVIRT_XXL */
--
- /*
-  * 64-bit SYSCALL instruction entry. Up to 6 arguments in registers.
-  *
-@@ -123,7 +115,12 @@ SYM_INNER_LABEL(entry_SYSCALL_64_after_hwframe, SYM_L_GLOBAL)
- 	 * Try to use SYSRET instead of IRET if we're returning to
- 	 * a completely clean 64-bit userspace context.  If we're not,
- 	 * go to the slow exit path.
-+	 * In the Xen PV case we must use iret anyway.
- 	 */
-+
-+	ALTERNATIVE "", "jmp	swapgs_restore_regs_and_return_to_usermode", \
-+		X86_FEATURE_XENPV
-+
- 	movq	RCX(%rsp), %rcx
- 	movq	RIP(%rsp), %r11
- 
-@@ -215,7 +212,8 @@ syscall_return_via_sysret:
- 
- 	popq	%rdi
- 	popq	%rsp
--	USERGS_SYSRET64
-+	swapgs
-+	sysretq
- SYM_CODE_END(entry_SYSCALL_64)
- 
- /*
-diff --git a/arch/x86/include/asm/irqflags.h b/arch/x86/include/asm/irqflags.h
-index 8c86edefa115..e585a4705b8d 100644
---- a/arch/x86/include/asm/irqflags.h
-+++ b/arch/x86/include/asm/irqflags.h
-@@ -132,12 +132,6 @@ static __always_inline unsigned long arch_local_irq_save(void)
- #endif
- 
- #define INTERRUPT_RETURN	jmp native_iret
--#define USERGS_SYSRET64				\
--	swapgs;					\
--	sysretq;
--#define USERGS_SYSRET32				\
--	swapgs;					\
--	sysretl
- 
- #else
- #define INTERRUPT_RETURN		iret
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index f2ebe109a37e..dd43b1100a87 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -776,11 +776,6 @@ extern void default_banner(void);
- 
- #ifdef CONFIG_X86_64
- #ifdef CONFIG_PARAVIRT_XXL
--#define USERGS_SYSRET64							\
--	PARA_SITE(PARA_PATCH(PV_CPU_usergs_sysret64),			\
--		  ANNOTATE_RETPOLINE_SAFE;				\
--		  jmp PARA_INDIRECT(pv_ops+PV_CPU_usergs_sysret64);)
--
- #ifdef CONFIG_DEBUG_ENTRY
- #define SAVE_FLAGS(clobbers)                                        \
- 	PARA_SITE(PARA_PATCH(PV_IRQ_save_fl),			    \
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 130f428b0cc8..0169365f1403 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -156,14 +156,6 @@ struct pv_cpu_ops {
- 
- 	u64 (*read_pmc)(int counter);
- 
--	/*
--	 * Switch to usermode gs and return to 64-bit usermode using
--	 * sysret.  Only used in 64-bit kernels to return to 64-bit
--	 * processes.  Usermode register state, including %rsp, must
--	 * already be restored.
--	 */
--	void (*usergs_sysret64)(void);
--
- 	/* Normal iret.  Jump to this with the standard iret stack
- 	   frame set up. */
- 	void (*iret)(void);
-diff --git a/arch/x86/kernel/asm-offsets_64.c b/arch/x86/kernel/asm-offsets_64.c
-index 1354bc30614d..b14533af7676 100644
---- a/arch/x86/kernel/asm-offsets_64.c
-+++ b/arch/x86/kernel/asm-offsets_64.c
-@@ -13,8 +13,6 @@ int main(void)
+ config PARAVIRT
+ 	bool "Enable paravirtualization code"
++	depends on HAVE_STATIC_CALL
+ 	help
+ 	  This changes the kernel so it can modify itself when it is run
+ 	  under a hypervisor, potentially improving performance significantly
+diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
+index 30f76b966857..b4ee331d29a7 100644
+--- a/arch/x86/include/asm/mshyperv.h
++++ b/arch/x86/include/asm/mshyperv.h
+@@ -63,7 +63,7 @@ typedef int (*hyperv_fill_flush_list_func)(
+ static __always_inline void hv_setup_sched_clock(void *sched_clock)
  {
  #ifdef CONFIG_PARAVIRT
- #ifdef CONFIG_PARAVIRT_XXL
--	OFFSET(PV_CPU_usergs_sysret64, paravirt_patch_template,
--	       cpu.usergs_sysret64);
- #ifdef CONFIG_DEBUG_ENTRY
- 	OFFSET(PV_IRQ_save_fl, paravirt_patch_template, irq.save_fl);
+-	pv_ops.time.sched_clock = sched_clock;
++	paravirt_set_sched_clock(sched_clock);
  #endif
+ }
+ 
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index 4abf110e2243..1e45b46fae84 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -15,11 +15,22 @@
+ #include <linux/bug.h>
+ #include <linux/types.h>
+ #include <linux/cpumask.h>
++#include <linux/static_call_types.h>
+ #include <asm/frame.h>
+ 
+-static inline unsigned long long paravirt_sched_clock(void)
++u64 dummy_steal_clock(int cpu);
++u64 dummy_sched_clock(void);
++
++DECLARE_STATIC_CALL(pv_steal_clock, dummy_steal_clock);
++DECLARE_STATIC_CALL(pv_sched_clock, dummy_sched_clock);
++
++extern bool paravirt_using_native_sched_clock;
++
++void paravirt_set_sched_clock(u64 (*func)(void));
++
++static inline u64 paravirt_sched_clock(void)
+ {
+-	return PVOP_CALL0(unsigned long long, time.sched_clock);
++	return static_call(pv_sched_clock)();
+ }
+ 
+ struct static_key;
+@@ -33,7 +44,7 @@ bool pv_is_native_vcpu_is_preempted(void);
+ 
+ static inline u64 paravirt_steal_clock(int cpu)
+ {
+-	return PVOP_CALL1(u64, time.steal_clock, cpu);
++	return static_call(pv_steal_clock)(cpu);
+ }
+ 
+ /* The paravirtualized I/O functions */
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index de87087d3bde..1fff349e4792 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -95,11 +95,6 @@ struct pv_lazy_ops {
+ } __no_randomize_layout;
+ #endif
+ 
+-struct pv_time_ops {
+-	unsigned long long (*sched_clock)(void);
+-	unsigned long long (*steal_clock)(int cpu);
+-} __no_randomize_layout;
+-
+ struct pv_cpu_ops {
+ 	/* hooks for various privileged instructions */
+ 	void (*io_delay)(void);
+@@ -291,7 +286,6 @@ struct pv_lock_ops {
+  * what to patch. */
+ struct paravirt_patch_template {
+ 	struct pv_init_ops	init;
+-	struct pv_time_ops	time;
+ 	struct pv_cpu_ops	cpu;
+ 	struct pv_irq_ops	irq;
+ 	struct pv_mmu_ops	mmu;
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+index c6ede3b3d302..84fb8e3f3d1b 100644
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -27,6 +27,7 @@
+ #include <linux/clocksource.h>
+ #include <linux/cpu.h>
+ #include <linux/reboot.h>
++#include <linux/static_call.h>
+ #include <asm/div64.h>
+ #include <asm/x86_init.h>
+ #include <asm/hypervisor.h>
+@@ -336,11 +337,11 @@ static void __init vmware_paravirt_ops_setup(void)
+ 	vmware_cyc2ns_setup();
+ 
+ 	if (vmw_sched_clock)
+-		pv_ops.time.sched_clock = vmware_sched_clock;
++		paravirt_set_sched_clock(vmware_sched_clock);
+ 
+ 	if (vmware_is_stealclock_available()) {
+ 		has_steal_clock = true;
+-		pv_ops.time.steal_clock = vmware_steal_clock;
++		static_call_update(pv_steal_clock, vmware_steal_clock);
+ 
+ 		/* We use reboot notifier only to disable steal clock */
+ 		register_reboot_notifier(&vmware_pv_reboot_nb);
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 5e78e01ca3b4..351ba99f6009 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -650,7 +650,7 @@ static void __init kvm_guest_init(void)
+ 
+ 	if (kvm_para_has_feature(KVM_FEATURE_STEAL_TIME)) {
+ 		has_steal_clock = 1;
+-		pv_ops.time.steal_clock = kvm_steal_clock;
++		static_call_update(pv_steal_clock, kvm_steal_clock);
+ 	}
+ 
+ 	if (pv_tlb_flush_supported()) {
+diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
+index aa593743acf6..01e7c1839ace 100644
+--- a/arch/x86/kernel/kvmclock.c
++++ b/arch/x86/kernel/kvmclock.c
+@@ -106,7 +106,7 @@ static inline void kvm_sched_clock_init(bool stable)
+ 	if (!stable)
+ 		clear_sched_clock_stable();
+ 	kvm_sched_clock_offset = kvm_clock_read();
+-	pv_ops.time.sched_clock = kvm_sched_clock_read;
++	paravirt_set_sched_clock(kvm_sched_clock_read);
+ 
+ 	pr_info("kvm-clock: using sched offset of %llu cycles",
+ 		kvm_sched_clock_offset);
 diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 5e5fcf5c376d..18560b71e717 100644
+index c60222ab8ab9..44e5b0fe28cb 100644
 --- a/arch/x86/kernel/paravirt.c
 +++ b/arch/x86/kernel/paravirt.c
-@@ -135,8 +135,7 @@ unsigned paravirt_patch_default(u8 type, void *insn_buff,
- 	else if (opfunc == _paravirt_ident_64)
- 		ret = paravirt_patch_ident_64(insn_buff, len);
+@@ -14,6 +14,7 @@
+ #include <linux/highmem.h>
+ #include <linux/kprobes.h>
+ #include <linux/pgtable.h>
++#include <linux/static_call.h>
  
--	else if (type == PARAVIRT_PATCH(cpu.iret) ||
--		 type == PARAVIRT_PATCH(cpu.usergs_sysret64))
-+	else if (type == PARAVIRT_PATCH(cpu.iret))
- 		/* If operation requires a jmp, then jmp */
- 		ret = paravirt_patch_jmp(insn_buff, opfunc, addr, len);
- #endif
-@@ -170,7 +169,6 @@ static u64 native_steal_clock(int cpu)
+ #include <asm/bug.h>
+ #include <asm/paravirt.h>
+@@ -167,6 +168,17 @@ static u64 native_steal_clock(int cpu)
+ 	return 0;
+ }
  
++DEFINE_STATIC_CALL(pv_steal_clock, native_steal_clock);
++DEFINE_STATIC_CALL(pv_sched_clock, native_sched_clock);
++
++bool paravirt_using_native_sched_clock = true;
++
++void paravirt_set_sched_clock(u64 (*func)(void))
++{
++	static_call_update(pv_sched_clock, func);
++	paravirt_using_native_sched_clock = (func == native_sched_clock);
++}
++
  /* These are in entry.S */
  extern void native_iret(void);
--extern void native_usergs_sysret64(void);
  
- static struct resource reserve_ioports = {
- 	.start = 0,
-@@ -310,7 +308,6 @@ struct paravirt_patch_template pv_ops = {
+@@ -272,10 +284,6 @@ struct paravirt_patch_template pv_ops = {
+ 	/* Init ops. */
+ 	.init.patch		= native_patch,
  
- 	.cpu.load_sp0		= native_load_sp0,
- 
--	.cpu.usergs_sysret64	= native_usergs_sysret64,
- 	.cpu.iret		= native_iret,
- 
- #ifdef CONFIG_X86_IOPL_IOPERM
-diff --git a/arch/x86/kernel/paravirt_patch.c b/arch/x86/kernel/paravirt_patch.c
-index 7c518b08aa3c..2fada2c347c9 100644
---- a/arch/x86/kernel/paravirt_patch.c
-+++ b/arch/x86/kernel/paravirt_patch.c
-@@ -27,7 +27,6 @@ struct patch_xxl {
- 	const unsigned char	mmu_write_cr3[3];
- 	const unsigned char	irq_restore_fl[2];
- 	const unsigned char	cpu_wbinvd[2];
--	const unsigned char	cpu_usergs_sysret64[6];
- 	const unsigned char	mov64[3];
- };
- 
-@@ -40,8 +39,6 @@ static const struct patch_xxl patch_data_xxl = {
- 	.mmu_write_cr3		= { 0x0f, 0x22, 0xdf },	// mov %rdi, %cr3
- 	.irq_restore_fl		= { 0x57, 0x9d },	// push %rdi; popfq
- 	.cpu_wbinvd		= { 0x0f, 0x09 },	// wbinvd
--	.cpu_usergs_sysret64	= { 0x0f, 0x01, 0xf8,
--				    0x48, 0x0f, 0x07 },	// swapgs; sysretq
- 	.mov64			= { 0x48, 0x89, 0xf8 },	// mov %rdi, %rax
- };
- 
-@@ -83,7 +80,6 @@ unsigned int native_patch(u8 type, void *insn_buff, unsigned long addr,
- 	PATCH_CASE(mmu, read_cr3, xxl, insn_buff, len);
- 	PATCH_CASE(mmu, write_cr3, xxl, insn_buff, len);
- 
--	PATCH_CASE(cpu, usergs_sysret64, xxl, insn_buff, len);
- 	PATCH_CASE(cpu, wbinvd, xxl, insn_buff, len);
- #endif
- 
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 44bb18adfb51..5476423fc6d0 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1060,7 +1060,6 @@ static const struct pv_cpu_ops xen_cpu_ops __initconst = {
- 	.read_pmc = xen_read_pmc,
- 
- 	.iret = xen_iret,
--	.usergs_sysret64 = xen_sysret64,
- 
- 	.load_tr_desc = paravirt_nop,
- 	.set_ldt = xen_set_ldt,
-diff --git a/arch/x86/xen/xen-asm.S b/arch/x86/xen/xen-asm.S
-index 1d054c915046..c0630fd9f44e 100644
---- a/arch/x86/xen/xen-asm.S
-+++ b/arch/x86/xen/xen-asm.S
-@@ -214,26 +214,6 @@ SYM_CODE_START(xen_iret)
- 	jmp hypercall_iret
- SYM_CODE_END(xen_iret)
- 
--SYM_CODE_START(xen_sysret64)
--	/*
--	 * We're already on the usermode stack at this point, but
--	 * still with the kernel gs, so we can easily switch back.
--	 *
--	 * tss.sp2 is scratch space.
--	 */
--	movq %rsp, PER_CPU_VAR(cpu_tss_rw + TSS_sp2)
--	movq PER_CPU_VAR(cpu_current_top_of_stack), %rsp
+-	/* Time ops. */
+-	.time.sched_clock	= native_sched_clock,
+-	.time.steal_clock	= native_steal_clock,
 -
--	pushq $__USER_DS
--	pushq PER_CPU_VAR(cpu_tss_rw + TSS_sp2)
--	pushq %r11
--	pushq $__USER_CS
--	pushq %rcx
+ 	/* Cpu ops. */
+ 	.cpu.io_delay		= native_io_delay,
+ 
+diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
+index f70dffc2771f..b6f7853d8077 100644
+--- a/arch/x86/kernel/tsc.c
++++ b/arch/x86/kernel/tsc.c
+@@ -254,7 +254,7 @@ unsigned long long sched_clock(void)
+ 
+ bool using_native_sched_clock(void)
+ {
+-	return pv_ops.time.sched_clock == native_sched_clock;
++	return paravirt_using_native_sched_clock;
+ }
+ #else
+ unsigned long long
+diff --git a/arch/x86/xen/time.c b/arch/x86/xen/time.c
+index 91f5b330dcc6..01930e182e99 100644
+--- a/arch/x86/xen/time.c
++++ b/arch/x86/xen/time.c
+@@ -379,11 +379,6 @@ void xen_timer_resume(void)
+ 	}
+ }
+ 
+-static const struct pv_time_ops xen_time_ops __initconst = {
+-	.sched_clock = xen_sched_clock,
+-	.steal_clock = xen_steal_clock,
+-};
 -
--	pushq $VGCF_in_syscall
--	jmp hypercall_iret
--SYM_CODE_END(xen_sysret64)
--
- /*
-  * Xen handles syscall callbacks much like ordinary exceptions, which
-  * means we have:
-diff --git a/arch/x86/xen/xen-ops.h b/arch/x86/xen/xen-ops.h
-index 9546c3384c75..b2fd80a01a36 100644
---- a/arch/x86/xen/xen-ops.h
-+++ b/arch/x86/xen/xen-ops.h
-@@ -138,8 +138,6 @@ __visible unsigned long xen_read_cr2_direct(void);
+ static struct pvclock_vsyscall_time_info *xen_clock __read_mostly;
+ static u64 xen_clock_value_saved;
  
- /* These are not functions, and cannot be called normally */
- __visible void xen_iret(void);
--__visible void xen_sysret32(void);
--__visible void xen_sysret64(void);
+@@ -528,7 +523,8 @@ static void __init xen_time_init(void)
+ void __init xen_init_time_ops(void)
+ {
+ 	xen_sched_clock_offset = xen_clocksource_read();
+-	pv_ops.time = xen_time_ops;
++	static_call_update(pv_steal_clock, xen_steal_clock);
++	paravirt_set_sched_clock(xen_sched_clock);
  
- extern int xen_panic_handler_init(void);
+ 	x86_init.timers.timer_init = xen_time_init;
+ 	x86_init.timers.setup_percpu_clockev = x86_init_noop;
+@@ -570,7 +566,8 @@ void __init xen_hvm_init_time_ops(void)
+ 	}
  
+ 	xen_sched_clock_offset = xen_clocksource_read();
+-	pv_ops.time = xen_time_ops;
++	static_call_update(pv_steal_clock, xen_steal_clock);
++	paravirt_set_sched_clock(xen_sched_clock);
+ 	x86_init.timers.setup_percpu_clockev = xen_time_init;
+ 	x86_cpuinit.setup_percpu_clockev = xen_hvm_setup_cpu_clockevents;
+ 
+diff --git a/drivers/clocksource/hyperv_timer.c b/drivers/clocksource/hyperv_timer.c
+index ba04cb381cd3..bf3bf20bc6bd 100644
+--- a/drivers/clocksource/hyperv_timer.c
++++ b/drivers/clocksource/hyperv_timer.c
+@@ -18,6 +18,7 @@
+ #include <linux/sched_clock.h>
+ #include <linux/mm.h>
+ #include <linux/cpuhotplug.h>
++#include <linux/static_call.h>
+ #include <clocksource/hyperv_timer.h>
+ #include <asm/hyperv-tlfs.h>
+ #include <asm/mshyperv.h>
+@@ -445,7 +446,7 @@ static bool __init hv_init_tsc_clocksource(void)
+ 	clocksource_register_hz(&hyperv_cs_tsc, NSEC_PER_SEC/100);
+ 
+ 	hv_sched_clock_offset = hv_read_reference_counter();
+-	hv_setup_sched_clock(read_hv_sched_clock_tsc);
++	paravirt_set_sched_clock(read_hv_sched_clock_tsc);
+ 
+ 	return true;
+ }
+@@ -470,6 +471,6 @@ void __init hv_init_clocksource(void)
+ 	clocksource_register_hz(&hyperv_cs_msr, NSEC_PER_SEC/100);
+ 
+ 	hv_sched_clock_offset = hv_read_reference_counter();
+-	hv_setup_sched_clock(read_hv_sched_clock_msr);
++	static_call_update(pv_sched_clock, read_hv_sched_clock_msr);
+ }
+ EXPORT_SYMBOL_GPL(hv_init_clocksource);
+diff --git a/drivers/xen/time.c b/drivers/xen/time.c
+index 108edbcbc040..199c016834ed 100644
+--- a/drivers/xen/time.c
++++ b/drivers/xen/time.c
+@@ -175,7 +175,7 @@ void __init xen_time_setup_guest(void)
+ 	xen_runstate_remote = !HYPERVISOR_vm_assist(VMASST_CMD_enable,
+ 					VMASST_TYPE_runstate_update_flag);
+ 
+-	pv_ops.time.steal_clock = xen_steal_clock;
++	static_call_update(pv_steal_clock, xen_steal_clock);
+ 
+ 	static_key_slow_inc(&paravirt_steal_enabled);
+ 	if (xen_runstate_remote)
 -- 
 2.26.2
 
