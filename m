@@ -2,104 +2,112 @@ Return-Path: <SRS0=zQmE=GX=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6A6BC433DB
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 17:08:58 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ECA7AC433E0
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 18:45:17 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2722D233EB
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 17:08:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2722D233EB
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=soleen.com
+	by mail.kernel.org (Postfix) with ESMTPS id 500FA206CA
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 18:45:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 500FA206CA
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 81C7985C28;
-	Wed, 20 Jan 2021 17:08:57 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hIM4ma2XISnQ; Wed, 20 Jan 2021 17:08:56 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id A98DC859BE;
-	Wed, 20 Jan 2021 17:08:56 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8B1AAC088B;
-	Wed, 20 Jan 2021 17:08:56 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8BD25C013A
- for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 17:08:55 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 72047203A6
- for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 17:08:55 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 97B6C2036D;
+	Wed, 20 Jan 2021 18:45:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pnEi3LUmSYDu; Wed, 20 Jan 2021 18:45:15 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id 4DF6620243;
+	Wed, 20 Jan 2021 18:45:15 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 28AC0C08A1;
+	Wed, 20 Jan 2021 18:45:15 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B4502C013A
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 20 Jan 2021 18:45:13 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id A1F36863A3
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 20 Jan 2021 18:45:13 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lAakBm36KTeL
+ with ESMTP id JMAvdPF4JXIw
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 17:08:54 +0000 (UTC)
-X-Greylist: delayed 01:04:59 by SQLgrey-1.7.6
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com
- [209.85.218.53])
- by silver.osuosl.org (Postfix) with ESMTPS id 2353520397
+ Wed, 20 Jan 2021 18:45:12 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com
+ [209.85.167.54])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 6EF8A85CD0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 17:08:54 +0000 (UTC)
-Received: by mail-ej1-f53.google.com with SMTP id a10so17922511ejg.10
+ Wed, 20 Jan 2021 18:45:11 +0000 (UTC)
+Received: by mail-lf1-f54.google.com with SMTP id o13so35534387lfr.3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 09:08:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=soleen.com; s=google;
+ Wed, 20 Jan 2021 10:45:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=qaBbcFFWtwH73KKkHPV2dAAEp83v3RAFbPyaNgV/jIA=;
- b=on1TzcIQfB0S+jMkItagEJtX8hz1tNnjBcnUtaJWlF9V6USnFvBrmlsf+hgKeuoHzg
- fHXarQilEi/Z1srXltN0diMlHMbSDa0P1lRdEw2fafXT9lYdDcUCNJCdWXc9aXmvvjie
- BRVYlaez6uS7Xpon2IXP3iVJMV1PHrWsQXZ6PAA0SdZLYh31u/j2HbzbttRSevVbCqn+
- nV8DpomSlRxtSnh4hLOliPHOECsNLhUPi2JYLCTO8X+jnNqakzuTardr31/bn0B45K6K
- jm0UELIHadLwshBArvF3Layo+XQsGrbgjxf7OiPKuwCJKVR/XQjK2YcWIJM1l5VjgATz
- ksiw==
+ :cc; bh=zrMNRZvlEESWdG6jggtCoB+4numwazy+fXWH/nTPU9U=;
+ b=GbiCYI2AOS9Mde7ZZGAB8iKTEaPVyUk3NJn7BsJ4aNMPDW3bfjjQOlDjJVeyI01LfK
+ yGrcSPsCfKcKMod8xBD3FRFhA2PKjb0+UA9u+c+PLBc6ucvOs4H76CCyWbj5qRgGzSxL
+ YYeBDYP7YKSgdZ2tcOGzhxRWs+uk1fru9f/FsIBpFq4b3uFMzw/dOgkhsRnbJz85JTGD
+ OFp28kiITVDeZNpIvktOImEsP9FYI+HUZ15TQ4xgjNS0A45AjvFeCkc/hiGkbKW6oV51
+ UkYN9KTEvNSswvk+NvyWRYiqpqIG5SqjCPISQdicL2egTc1jJYF1v01KBc8Pl6R7uTGn
+ P/AA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=qaBbcFFWtwH73KKkHPV2dAAEp83v3RAFbPyaNgV/jIA=;
- b=Rio40A2aI8ZWLOdJQIs74UEC6UpsMbpguR6LtCK1CHFy0vupG1Ssr8PTy1EbntmxZH
- 2FRepOZGEYe3yxvw1v17ZxZoUqmcbxWTk7qDNDSwvmSs3BHqjhemRVJccR7buY2NCFQi
- 9GNkKyXy32bhGD6tVeUASZ4BZVnn4S1K1cfZtzuPZ6DE6iWZ1VJGgc4K59AfsRIm16WB
- xX621xz6GwVR7+KfrCEZPRBT1VgCrgsg2F3T6VJXmJMVxligPEQALzhFq8zvhWwRvqDU
- KibbQD5TZrHYUCWGOolR87Qmmp7eWCqd/gJlqYep2VCmTOu8rvX0zo08ZaVpaFdXgjyw
- 8d9w==
-X-Gm-Message-State: AOAM5304VgQ/FzBBEzSau2MXaDQYZypGvxmm91wjHK3a0i6oTccoGAsZ
- o47B9YpHDsYFsJLFPbvabRMdiEELdNf7eSk1YTwSex0AacLiEg==
-X-Google-Smtp-Source: ABdhPJz49BI1HhzhHVlsG76ZtgvDppRgVafvcapbZeJzfe0AK+OqaaTzGsJ0BE7BJebcMbhE517Q3MPcEI8WBx1tDMA=
-X-Received: by 2002:a17:906:eb95:: with SMTP id
- mh21mr6793469ejb.175.1611158633954; 
- Wed, 20 Jan 2021 08:03:53 -0800 (PST)
+ bh=zrMNRZvlEESWdG6jggtCoB+4numwazy+fXWH/nTPU9U=;
+ b=m80AXq48hs8pU4HBo15FA9yo9rYG/LcP8VsWhJN56AqI3OvWfAaKgmvjMDIC3ZgGa/
+ Tr5viLQsjo/FRZBhO9xt0YSTp8LUxJlokOHT1ESs8NfSTX2PzrAqnGyGIKTwCInZERH9
+ Wfxc920eVKaIACuv2os3fb7Mzs0fH3HtZZnRB7hIPvhchYCXH70ZV9fZK0IsA5I4vx2x
+ G4ZYBHFMapkLX7ISjwYHCQv/sZ7FQb5yezYxqhLtrqcPAY6xD8wxMdgEddHAWFREe7VV
+ pO0fNhDWeuS7aIsPnYLVV1alBZkJuWI2UblD4dVK90EBHT3yjWq2iPjXWjHMa4wHZXdQ
+ hTlQ==
+X-Gm-Message-State: AOAM530d6Qc/HjvR1+8m1AkS0VW7idkzxvhhJS3Jr9QYhd2BzB3Bpk47
+ 64n/iR/3FoewZaB0q6uPhRMXxIj40uEaKXlPvto=
+X-Google-Smtp-Source: ABdhPJysfNizrzDQUVINGOhhgWus7azEpICiAnwV+p4EXlvDkyaX1pVlGFfbUwglU72IpLHWW5TDXiNALg3A++evFDI=
+X-Received: by 2002:a05:6512:34c5:: with SMTP id
+ w5mr4908698lfr.214.1611168309505; 
+ Wed, 20 Jan 2021 10:45:09 -0800 (PST)
 MIME-Version: 1.0
-References: <20210120120058.29138-1-wei.liu@kernel.org>
- <20210120120058.29138-3-wei.liu@kernel.org>
-In-Reply-To: <20210120120058.29138-3-wei.liu@kernel.org>
-From: Pavel Tatashin <pasha.tatashin@soleen.com>
-Date: Wed, 20 Jan 2021 11:03:18 -0500
-Message-ID: <CA+CK2bDHYxTr_ttbC88u1OvT-=cm5do5RmyoxC+joz=GjK1WtA@mail.gmail.com>
-Subject: Re: [PATCH v5 02/16] x86/hyperv: detect if Linux is the root partition
-To: Wei Liu <wei.liu@kernel.org>
-Cc: Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
- Stephen Hemminger <sthemmin@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>,
- "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
- Linux Kernel List <linux-kernel@vger.kernel.org>,
- Michael Kelley <mikelley@microsoft.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
- Nuno Das Neves <nunodasneves@linux.microsoft.com>,
- Sunil Muthuswamy <sunilmut@microsoft.com>,
- virtualization@lists.linux-foundation.org,
- Vineeth Pillai <viremana@linux.microsoft.com>,
- Thomas Gleixner <tglx@linutronix.de>
+References: <20210112194143.1494-1-yuri.benditovich@daynix.com>
+ <20210112194143.1494-4-yuri.benditovich@daynix.com>
+ <CAOEp5Ocz-xGq5=e=WY0aipEYHEhN-wxekNaAiqAS+HsOF8TcDQ@mail.gmail.com>
+ <CAOEp5OevYR5FWVMfQ_esmWTKtz9_ddTupbe7FtBFQ=sv2kEt2w@mail.gmail.com>
+In-Reply-To: <CAOEp5OevYR5FWVMfQ_esmWTKtz9_ddTupbe7FtBFQ=sv2kEt2w@mail.gmail.com>
+From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Date: Wed, 20 Jan 2021 10:44:58 -0800
+Message-ID: <CAADnVQJLN0sFyKdAmc6Pikv8Ww9OocnK_VXMG=ZLSMONHkqe4Q@mail.gmail.com>
+Subject: Re: [RFC PATCH 3/7] tun: allow use of BPF_PROG_TYPE_SCHED_CLS program
+ type
+To: Yuri Benditovich <yuri.benditovich@daynix.com>
+Cc: Song Liu <songliubraving@fb.com>, kvm@vger.kernel.org,
+ "Michael S . Tsirkin" <mst@redhat.com>,
+ John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>, Yan Vugenfirer <yan@daynix.com>,
+ Steffen Klassert <steffen.klassert@secunet.com>,
+ Herbert Xu <herbert@gondor.apana.org.au>,
+ Daniel Borkmann <daniel@iogearbox.net>, decui@microsoft.com,
+ Andrii Nakryiko <andrii@kernel.org>, Yonghong Song <yhs@fb.com>,
+ Paolo Abeni <pabeni@redhat.com>, Pablo Neira Ayuso <pablo@netfilter.org>,
+ Marco Elver <elver@google.com>, KP Singh <kpsingh@kernel.org>, cai@lca.pw,
+ Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org,
+ Jakub Sitnicki <jakub@cloudflare.com>, Willem de Bruijn <willemb@google.com>,
+ Network Development <netdev@vger.kernel.org>,
+ Randy Dunlap <rdunlap@infradead.org>, gustavoars@kernel.org,
+ "David S. Miller" <davem@davemloft.net>, bpf <bpf@vger.kernel.org>,
+ Martin KaFai Lau <kafai@fb.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,111 +124,71 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jan 20, 2021 at 7:01 AM Wei Liu <wei.liu@kernel.org> wrote:
+On Tue, Jan 12, 2021 at 12:55 PM Yuri Benditovich
+<yuri.benditovich@daynix.com> wrote:
 >
-> For now we can use the privilege flag to check. Stash the value to be
-> used later.
+> On Tue, Jan 12, 2021 at 10:40 PM Yuri Benditovich
+> <yuri.benditovich@daynix.com> wrote:
+> >
+> > On Tue, Jan 12, 2021 at 9:42 PM Yuri Benditovich
+> > <yuri.benditovich@daynix.com> wrote:
+> > >
+> > > This program type can set skb hash value. It will be useful
+> > > when the tun will support hash reporting feature if virtio-net.
+> > >
+> > > Signed-off-by: Yuri Benditovich <yuri.benditovich@daynix.com>
+> > > ---
+> > >  drivers/net/tun.c | 2 ++
+> > >  1 file changed, 2 insertions(+)
+> > >
+> > > diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> > > index 7959b5c2d11f..455f7afc1f36 100644
+> > > --- a/drivers/net/tun.c
+> > > +++ b/drivers/net/tun.c
+> > > @@ -2981,6 +2981,8 @@ static int tun_set_ebpf(struct tun_struct *tun, struct tun_prog __rcu **prog_p,
+> > >                 prog = NULL;
+> > >         } else {
+> > >                 prog = bpf_prog_get_type(fd, BPF_PROG_TYPE_SOCKET_FILTER);
+> > > +               if (IS_ERR(prog))
+> > > +                       prog = bpf_prog_get_type(fd, BPF_PROG_TYPE_SCHED_CLS);
+> > >                 if (IS_ERR(prog))
+> > >                         return PTR_ERR(prog);
+> > >         }
+> >
+> > Comment from Alexei Starovoitov:
+> > Patches 1 and 2 are missing for me, so I couldn't review properly,
+> > but this diff looks odd.
+> > It allows sched_cls prog type to attach to tun.
+> > That means everything that sched_cls progs can do will be done from tun hook?
 >
-> Put in a bunch of defines for future use when we want to have more
-> fine-grained detection.
->
-> Signed-off-by: Wei Liu <wei.liu@kernel.org>
-> ---
-> v3: move hv_root_partition to mshyperv.c
-> ---
->  arch/x86/include/asm/hyperv-tlfs.h | 10 ++++++++++
->  arch/x86/include/asm/mshyperv.h    |  2 ++
->  arch/x86/kernel/cpu/mshyperv.c     | 20 ++++++++++++++++++++
->  3 files changed, 32 insertions(+)
->
-> diff --git a/arch/x86/include/asm/hyperv-tlfs.h b/arch/x86/include/asm/hyperv-tlfs.h
-> index 6bf42aed387e..204010350604 100644
-> --- a/arch/x86/include/asm/hyperv-tlfs.h
-> +++ b/arch/x86/include/asm/hyperv-tlfs.h
-> @@ -21,6 +21,7 @@
->  #define HYPERV_CPUID_FEATURES                  0x40000003
->  #define HYPERV_CPUID_ENLIGHTMENT_INFO          0x40000004
->  #define HYPERV_CPUID_IMPLEMENT_LIMITS          0x40000005
-> +#define HYPERV_CPUID_CPU_MANAGEMENT_FEATURES   0x40000007
->  #define HYPERV_CPUID_NESTED_FEATURES           0x4000000A
->
->  #define HYPERV_CPUID_VIRT_STACK_INTERFACE      0x40000081
-> @@ -110,6 +111,15 @@
->  /* Recommend using enlightened VMCS */
->  #define HV_X64_ENLIGHTENED_VMCS_RECOMMENDED            BIT(14)
->
-> +/*
-> + * CPU management features identification.
-> + * These are HYPERV_CPUID_CPU_MANAGEMENT_FEATURES.EAX bits.
-> + */
-> +#define HV_X64_START_LOGICAL_PROCESSOR                 BIT(0)
-> +#define HV_X64_CREATE_ROOT_VIRTUAL_PROCESSOR           BIT(1)
-> +#define HV_X64_PERFORMANCE_COUNTER_SYNC                        BIT(2)
-> +#define HV_X64_RESERVED_IDENTITY_BIT                   BIT(31)
-> +
->  /*
->   * Virtual processor will never share a physical core with another virtual
->   * processor, except for virtual processors that are reported as sibling SMT
-> diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
-> index ffc289992d1b..ac2b0d110f03 100644
-> --- a/arch/x86/include/asm/mshyperv.h
-> +++ b/arch/x86/include/asm/mshyperv.h
-> @@ -237,6 +237,8 @@ int hyperv_fill_flush_guest_mapping_list(
->                 struct hv_guest_mapping_flush_list *flush,
->                 u64 start_gfn, u64 end_gfn);
->
-> +extern bool hv_root_partition;
-> +
->  #ifdef CONFIG_X86_64
->  void hv_apic_init(void);
->  void __init hv_init_spinlocks(void);
-> diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
-> index f628e3dc150f..c376d191a260 100644
-> --- a/arch/x86/kernel/cpu/mshyperv.c
-> +++ b/arch/x86/kernel/cpu/mshyperv.c
-> @@ -32,6 +32,10 @@
->  #include <asm/nmi.h>
->  #include <clocksource/hyperv_timer.h>
->
-> +/* Is Linux running as the root partition? */
-> +bool hv_root_partition;
-> +EXPORT_SYMBOL_GPL(hv_root_partition);
-> +
->  struct ms_hyperv_info ms_hyperv;
->  EXPORT_SYMBOL_GPL(ms_hyperv);
->
-> @@ -237,6 +241,22 @@ static void __init ms_hyperv_init_platform(void)
->         pr_debug("Hyper-V: max %u virtual processors, %u logical processors\n",
->                  ms_hyperv.max_vp_index, ms_hyperv.max_lp_index);
->
-> +       /*
-> +        * Check CPU management privilege.
-> +        *
-> +        * To mirror what Windows does we should extract CPU management
-> +        * features and use the ReservedIdentityBit to detect if Linux is the
-> +        * root partition. But that requires negotiating CPU management
-> +        * interface (a process to be finalized).
+> We do not have an intention to modify the packet in this steering eBPF.
 
-Is this comment relevant? Do we have to mirror what Windows does?
+The intent is irrelevant. Using SCHED_CLS here will let users modify the packet
+and some users will do so. Hence the tun code has to support it.
 
-> +        *
-> +        * For now, use the privilege flag as the indicator for running as
-> +        * root.
-> +        */
-> +       if (cpuid_ebx(HYPERV_CPUID_FEATURES) & HV_CPU_MANAGEMENT) {
-> +               hv_root_partition = true;
-> +               pr_info("Hyper-V: running as root partition\n");
-> +       }
-> +
-
-Reviewed-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-
->         /*
->          * Extract host information.
->          */
-> --
-> 2.20.1
+> There is just one function that unavailable for BPF_PROG_TYPE_SOCKET_FILTER
+> that the eBPF needs to make possible to deliver the hash to the guest
+> VM - it is 'bpf_set_hash'
 >
+> Does it mean that we need to define a new eBPF type for socket filter
+> operations + set_hash?
+>
+> Our problem is that the eBPF calculates 32-bit hash, 16-bit queue
+> index and 8-bit of hash type.
+> But it is able to return only 32-bit integer, so in this set of
+> patches the eBPF returns
+> queue index and hash type and saves the hash in skb->hash using bpf_set_hash().
+
+bpf prog can only return a 32-bit integer. That's true.
+But the prog can use helpers to set any number of bits and variables.
+bpf_set_hash_v2() with hash, queue and index arguments could fit this purpose,
+but if you allow it for SCHED_CLS type,
+tc side of the code should be ready to deal with that too and this extended
+helper should be meaningful for both tc and tun.
+
+In general if the purpose of the prog is to compute three values they better be
+grouped together. Returned two of them via ORed 32-bit integer and
+returning 32-bit via bpf_set_hash is an awkward api.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
