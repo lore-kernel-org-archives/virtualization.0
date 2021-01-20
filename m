@@ -7,97 +7,99 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25DD0C433DB
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 07:57:49 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F30CC433E0
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 08:11:19 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B37FB23158
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 07:57:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B37FB23158
+	by mail.kernel.org (Postfix) with ESMTPS id E53BC2332B
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 08:11:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E53BC2332B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 102668691E;
-	Wed, 20 Jan 2021 07:57:48 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 33B9884AA7;
+	Wed, 20 Jan 2021 08:11:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gyD1NxkyHi1I; Wed, 20 Jan 2021 07:57:45 +0000 (UTC)
+	with ESMTP id 4fXMV17nAG8u; Wed, 20 Jan 2021 08:11:15 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id D17B2868B6;
-	Wed, 20 Jan 2021 07:57:45 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 7802D806F7;
+	Wed, 20 Jan 2021 08:11:15 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A05C4C088B;
-	Wed, 20 Jan 2021 07:57:45 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 59DA3C08A1;
+	Wed, 20 Jan 2021 08:11:15 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C6A9DC013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E3E70C013A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 07:57:43 +0000 (UTC)
+ Wed, 20 Jan 2021 08:11:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id B54F586D52
+ by hemlock.osuosl.org (Postfix) with ESMTP id DF96186FC9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 07:57:43 +0000 (UTC)
+ Wed, 20 Jan 2021 08:11:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hgf9v2mRk6CQ
+ with ESMTP id 6JTLu2OOny3Y
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 07:57:43 +0000 (UTC)
+ Wed, 20 Jan 2021 08:11:12 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 232738693C
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 5517786FC6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 07:57:43 +0000 (UTC)
+ Wed, 20 Jan 2021 08:11:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1611129462;
+ s=mimecast20190719; t=1611130271;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=6UrxbpNYHnK4DEP6WSgA1c696nQ5LZj2MHb845FTR0o=;
- b=JfaiPu/Ton8/Of7IxLmCwZ1eB5RJt5u+/eW7JyxyVxouHCDfLt/KUxbVLI1lLaY69C9jNa
- rU1Q43WsLRQ+oavZ004yx50VUrtCIdOga3zxZSwbyF27P/ijYaimQeNbYe8ZhAvV+YRJBG
- v1wEptLCLXXmM7Y09vynoewdnbsLfBU=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-452-pJmoLd1eOYqKdj3i0ttdsQ-1; Wed, 20 Jan 2021 02:57:40 -0500
-X-MC-Unique: pJmoLd1eOYqKdj3i0ttdsQ-1
-Received: by mail-wm1-f72.google.com with SMTP id 184so314508wmb.4
+ bh=WYlBb00a1Y6CTzqOK72/0+v2yGyDzKaR7ND9mWSLlUg=;
+ b=Ky6lSC/iQN9OwF4/2YPTe5S42bqiD76aXvsCNZhYnlpYR0oNc7+qfY69ryQrnfR28LI7bu
+ rmvL4sfD91YRdQM3ME4yccBJD6cWpOUPWAwv4pNNTnl0yC1x/dguVz+smubr4QGreZV76o
+ FKn79MTgiA1RjawEpGBpD6umZYT70DM=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-433-7NRe24rnO3afSiOKiSM2sQ-1; Wed, 20 Jan 2021 03:11:06 -0500
+X-MC-Unique: 7NRe24rnO3afSiOKiSM2sQ-1
+Received: by mail-wr1-f71.google.com with SMTP id d7so1902790wri.23
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Jan 2021 23:57:40 -0800 (PST)
+ Wed, 20 Jan 2021 00:11:05 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=6UrxbpNYHnK4DEP6WSgA1c696nQ5LZj2MHb845FTR0o=;
- b=ZQMFK1Pbkc6Yy+5JY88XZ33+gu59GTXwmocr/Cox/iGSdPKfyjJn7Pkaqg2uHXG71U
- xJ3m0o63VnXkTpCV29qkNpPGGPpaNFpyzZJjIPF7HG8NpfLWJn0YZvuzWsNXkZjk0oaE
- q+CCt+UUL+5hOX6pO+hQywSqPSWMeAbJ7yX9XBnVszjXV0obs63DUaTQAUnvsYgndQhE
- jgGnfFCkuzvZVjKLanyL6Rb7jkiiv4liZfZhZI9oduorKP5gQyDZ+lIOftN+0PKd6xQ/
- idzO5VnQIRwCxrYyodMQFoGeKWBxWw+zTLw38UASmW3nZPh456vnAnxTi/744RcBFHTp
- AA8Q==
-X-Gm-Message-State: AOAM5335YsQBX3U9QqNVlZrAT4PHZHt664srqgI9/zPdpIQNl4+ynXAY
- YllJyfxi6/sR1ETIA5fsJkQxO1+/YHJWwpRMYmNjy8Knl09fw2eHer9HAb0x1B7JFJeku/UYPb7
- wo7j7sLpnKB4Oxj3VDdSN07lENy6Bu960yQhdh0JLTQ==
-X-Received: by 2002:a1c:a784:: with SMTP id q126mr3058496wme.52.1611129459058; 
- Tue, 19 Jan 2021 23:57:39 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwIpBmdXLlNr8vbRKHAMR3mn1UgNMPNu1agQMsKN5OdQKV4XJ/XAHPr6RwZNDY4dCN1R7xGyw==
-X-Received: by 2002:a1c:a784:: with SMTP id q126mr3058476wme.52.1611129458879; 
- Tue, 19 Jan 2021 23:57:38 -0800 (PST)
+ bh=WYlBb00a1Y6CTzqOK72/0+v2yGyDzKaR7ND9mWSLlUg=;
+ b=O1sXwzP9kkjB5o8VRyCeZKNXehXVXj0PvPr6jB+SL/OcpY/bWBLw7cGzP60kQbIijZ
+ eKacW6w0faWZndE8WxnbjcVjykL005HtEeTXE8hClctMfCszyBd2lCpR6X20iJaE/87L
+ dEHueMMrYyX8HgwWQ7oo38RGEwvllSDGta7PeXc4NKdljj/wrFfxpnN8gKepGnF5QrEa
+ +LUITgEYRPdEezdz0JNMS34rt1R9Qc8GcZ3IBOVwaRCsaaMmoi9xevQ2wJLvvb6M/BeH
+ OsLh6YY0PquZKGVKewM8tCiDplakgIAMIfx2YhH/jYHvEjOOv9PR7YKPZMVyGANSs5Xm
+ fb2g==
+X-Gm-Message-State: AOAM531uq3wQzhcwevKxYUSOq7yHVnYOjqOlW6g1HOI/Pt5iTo/Rhyug
+ 7vb/OmwYtepyp2OysTRo+DPyU8/RwubkbwkV2K8IFIxA/MWgBLPgOwBBzDmiJHUGgxYN2xYVhx8
+ 2/LBN7lCmwdT5s0QA8oXAviJwbJi3AHqMGg2J/90LwA==
+X-Received: by 2002:a05:6000:108b:: with SMTP id
+ y11mr7802702wrw.379.1611130264816; 
+ Wed, 20 Jan 2021 00:11:04 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwDkrxOIJwK6Xun2twNrtjYorn/nFwJo1WNi898JtlETus/g4f0F8ik3DrV6+aLfPMu0mMKvg==
+X-Received: by 2002:a05:6000:108b:: with SMTP id
+ y11mr7802669wrw.379.1611130264602; 
+ Wed, 20 Jan 2021 00:11:04 -0800 (PST)
 Received: from redhat.com (bzq-79-177-39-148.red.bezeqint.net. [79.177.39.148])
- by smtp.gmail.com with ESMTPSA id k9sm2510093wma.17.2021.01.19.23.57.36
+ by smtp.gmail.com with ESMTPSA id u26sm2380200wmm.24.2021.01.20.00.11.01
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 19 Jan 2021 23:57:38 -0800 (PST)
-Date: Wed, 20 Jan 2021 02:57:34 -0500
+ Wed, 20 Jan 2021 00:11:03 -0800 (PST)
+Date: Wed, 20 Jan 2021 03:10:59 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v2 2/3] virtio-net: support IFF_TX_SKB_NO_LINEAR
-Message-ID: <20210120025729-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH net-next v2 3/3] xsk: build skb by page
+Message-ID: <20210120030418-mutt-send-email-mst@kernel.org>
 References: <cover.1611128806.git.xuanzhuo@linux.alibaba.com>
- <d54438cec1fc86a1cb0166098493b1aa6a15885a.1611128806.git.xuanzhuo@linux.alibaba.com>
+ <6787e9a100eba47efbff81939e21e97fef492d07.1611128806.git.xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <d54438cec1fc86a1cb0166098493b1aa6a15885a.1611128806.git.xuanzhuo@linux.alibaba.com>
+In-Reply-To: <6787e9a100eba47efbff81939e21e97fef492d07.1611128806.git.xuanzhuo@linux.alibaba.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -130,32 +132,187 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jan 20, 2021 at 03:49:10PM +0800, Xuan Zhuo wrote:
-> Virtio net supports the case where the skb linear space is empty, so add
-> priv_flags.
+On Wed, Jan 20, 2021 at 03:50:01PM +0800, Xuan Zhuo wrote:
+> This patch is used to construct skb based on page to save memory copy
+> overhead.
+> 
+> This function is implemented based on IFF_TX_SKB_NO_LINEAR. Only the
+> network card priv_flags supports IFF_TX_SKB_NO_LINEAR will use page to
+> directly construct skb. If this feature is not supported, it is still
+> necessary to copy data to construct skb.
+> 
+> ---------------- Performance Testing ------------
+> 
+> The test environment is Aliyun ECS server.
+> Test cmd:
+> ```
+> xdpsock -i eth0 -t  -S -s <msg size>
+> ```
+> 
+> Test result data:
+> 
+> size    64      512     1024    1500
+> copy    1916747 1775988 1600203 1440054
+> page    1974058 1953655 1945463 1904478
+> percent 3.0%    10.0%   21.58%  32.3%
 > 
 > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+I can't see the cover letter or 1/3 in this series - was probably
+threaded incorrectly?
+
 
 > ---
->  drivers/net/virtio_net.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  net/xdp/xsk.c | 104 ++++++++++++++++++++++++++++++++++++++++++++++++----------
+>  1 file changed, 86 insertions(+), 18 deletions(-)
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index ba8e637..f2ff6c3 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2972,7 +2972,8 @@ static int virtnet_probe(struct virtio_device *vdev)
->  		return -ENOMEM;
+> diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
+> index 8037b04..817a3a5 100644
+> --- a/net/xdp/xsk.c
+> +++ b/net/xdp/xsk.c
+> @@ -430,6 +430,87 @@ static void xsk_destruct_skb(struct sk_buff *skb)
+>  	sock_wfree(skb);
+>  }
 >  
->  	/* Set up network device as normal. */
-> -	dev->priv_flags |= IFF_UNICAST_FLT | IFF_LIVE_ADDR_CHANGE;
-> +	dev->priv_flags |= IFF_UNICAST_FLT | IFF_LIVE_ADDR_CHANGE |
-> +			   IFF_TX_SKB_NO_LINEAR;
->  	dev->netdev_ops = &virtnet_netdev;
->  	dev->features = NETIF_F_HIGHDMA;
+> +static struct sk_buff *xsk_build_skb_zerocopy(struct xdp_sock *xs,
+> +					      struct xdp_desc *desc)
+> +{
+> +	u32 len, offset, copy, copied;
+> +	struct sk_buff *skb;
+> +	struct page *page;
+> +	char *buffer;
+
+Actually, make this void *, this way you will not need
+casts down the road. I know this is from xsk_generic_xmit -
+I don't know why it's char * there, either.
+
+> +	int err, i;
+> +	u64 addr;
+> +
+> +	skb = sock_alloc_send_skb(&xs->sk, 0, 1, &err);
+> +	if (unlikely(!skb))
+> +		return ERR_PTR(err);
+> +
+> +	addr = desc->addr;
+> +	len = desc->len;
+> +
+> +	buffer = xsk_buff_raw_get_data(xs->pool, addr);
+> +	offset = offset_in_page(buffer);
+> +	addr = buffer - (char *)xs->pool->addrs;
+> +
+> +	for (copied = 0, i = 0; copied < len; i++) {
+> +		page = xs->pool->umem->pgs[addr >> PAGE_SHIFT];
+> +
+> +		get_page(page);
+> +
+> +		copy = min_t(u32, PAGE_SIZE - offset, len - copied);
+> +
+> +		skb_fill_page_desc(skb, i, page, offset, copy);
+> +
+> +		copied += copy;
+> +		addr += copy;
+> +		offset = 0;
+> +	}
+> +
+> +	skb->len += len;
+> +	skb->data_len += len;
+> +	skb->truesize += len;
+> +
+> +	refcount_add(len, &xs->sk.sk_wmem_alloc);
+> +
+> +	return skb;
+> +}
+> +
+> +static struct sk_buff *xsk_build_skb(struct xdp_sock *xs,
+> +				     struct xdp_desc *desc)
+> +{
+> +	struct sk_buff *skb = NULL;
+> +
+> +	if (xs->dev->priv_flags & IFF_TX_SKB_NO_LINEAR) {
+> +		skb = xsk_build_skb_zerocopy(xs, desc);
+> +		if (IS_ERR(skb))
+> +			return skb;
+> +	} else {
+> +		char *buffer;
+> +		u32 len;
+> +		int err;
+> +
+> +		len = desc->len;
+> +		skb = sock_alloc_send_skb(&xs->sk, len, 1, &err);
+> +		if (unlikely(!skb))
+> +			return ERR_PTR(err);
+> +
+> +		skb_put(skb, len);
+> +		buffer = xsk_buff_raw_get_data(xs->pool, desc->addr);
+> +		err = skb_store_bits(skb, 0, buffer, len);
+> +		if (unlikely(err)) {
+> +			kfree_skb(skb);
+> +			return ERR_PTR(err);
+> +		}
+> +	}
+> +
+> +	skb->dev = xs->dev;
+> +	skb->priority = xs->sk.sk_priority;
+> +	skb->mark = xs->sk.sk_mark;
+> +	skb_shinfo(skb)->destructor_arg = (void *)(long)desc->addr;
+> +	skb->destructor = xsk_destruct_skb;
+> +
+> +	return skb;
+> +}
+> +
+>  static int xsk_generic_xmit(struct sock *sk)
+>  {
+>  	struct xdp_sock *xs = xdp_sk(sk);
+> @@ -446,43 +527,30 @@ static int xsk_generic_xmit(struct sock *sk)
+>  		goto out;
 >  
+>  	while (xskq_cons_peek_desc(xs->tx, &desc, xs->pool)) {
+> -		char *buffer;
+> -		u64 addr;
+> -		u32 len;
+> -
+>  		if (max_batch-- == 0) {
+>  			err = -EAGAIN;
+>  			goto out;
+>  		}
+>  
+> -		len = desc.len;
+> -		skb = sock_alloc_send_skb(sk, len, 1, &err);
+> -		if (unlikely(!skb))
+> +		skb = xsk_build_skb(xs, &desc);
+> +		if (IS_ERR(skb)) {
+> +			err = PTR_ERR(skb);
+>  			goto out;
+> +		}
+>  
+> -		skb_put(skb, len);
+> -		addr = desc.addr;
+> -		buffer = xsk_buff_raw_get_data(xs->pool, addr);
+> -		err = skb_store_bits(skb, 0, buffer, len);
+>  		/* This is the backpressure mechanism for the Tx path.
+>  		 * Reserve space in the completion queue and only proceed
+>  		 * if there is space in it. This avoids having to implement
+>  		 * any buffering in the Tx path.
+>  		 */
+>  		spin_lock_irqsave(&xs->pool->cq_lock, flags);
+> -		if (unlikely(err) || xskq_prod_reserve(xs->pool->cq)) {
+> +		if (xskq_prod_reserve(xs->pool->cq)) {
+>  			spin_unlock_irqrestore(&xs->pool->cq_lock, flags);
+>  			kfree_skb(skb);
+>  			goto out;
+>  		}
+>  		spin_unlock_irqrestore(&xs->pool->cq_lock, flags);
+>  
+> -		skb->dev = xs->dev;
+> -		skb->priority = sk->sk_priority;
+> -		skb->mark = sk->sk_mark;
+> -		skb_shinfo(skb)->destructor_arg = (void *)(long)desc.addr;
+> -		skb->destructor = xsk_destruct_skb;
+> -
+>  		err = __dev_direct_xmit(skb, xs->queue_id);
+>  		if  (err == NETDEV_TX_BUSY) {
+>  			/* Tell user-space to retry the send */
 > -- 
 > 1.8.3.1
 
