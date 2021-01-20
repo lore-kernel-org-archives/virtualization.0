@@ -7,116 +7,104 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A170BC433E0
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 08:12:06 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0CA8C433E0
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 08:20:10 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0E9B423131
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 08:12:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0E9B423131
+	by mail.kernel.org (Postfix) with ESMTPS id EEF9223131
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 08:20:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EEF9223131
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 9DA7D86D42;
-	Wed, 20 Jan 2021 08:12:05 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 572762051C;
+	Wed, 20 Jan 2021 08:20:07 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from silver.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id q+WYndqm7R+G; Wed, 20 Jan 2021 08:20:04 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id 0B4BF2075B;
+	Wed, 20 Jan 2021 08:20:04 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D7994C08A1;
+	Wed, 20 Jan 2021 08:20:03 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 78C52C013A
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 20 Jan 2021 08:20:02 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id 5C70E86370
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 20 Jan 2021 08:20:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3t4cG9AUm71H; Wed, 20 Jan 2021 08:12:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id C364B86631;
-	Wed, 20 Jan 2021 08:12:04 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BB56FC08A1;
-	Wed, 20 Jan 2021 08:12:04 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 81AFFC013A
- for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 08:12:03 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 7DE7D80CEC
- for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 08:12:03 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GULVpr-TzmuE
+ with ESMTP id 7qKhVRSwBSLl
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 08:12:02 +0000 (UTC)
+ Wed, 20 Jan 2021 08:20:01 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 0F123806F7
+ by hemlock.osuosl.org (Postfix) with ESMTPS id E015B86221
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 08:12:01 +0000 (UTC)
+ Wed, 20 Jan 2021 08:20:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1611130320;
+ s=mimecast20190719; t=1611130799;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=SgoON6JCbiRoEe3MsxmL7+i8CTj6HRhH96NwSvSwXcc=;
- b=W5VvnZPPTNXyseReGbsJiWrDLKquynG3QR4UJPJ4UCVoUaxmXSdj+m0gYBCuvVUp1N82fb
- khotffMened5jjWTsy/D+1NjoK786QFF2BBvdJKiJ1SEekOqVMcEImmYp81dVmiYzXFCJ8
- hnobXFIZvHGwQpSJRx75OBC9vDVH9c8=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-272-6D2LtGO6MSCsMbrRVOC_OA-1; Wed, 20 Jan 2021 03:11:58 -0500
-X-MC-Unique: 6D2LtGO6MSCsMbrRVOC_OA-1
-Received: by mail-wm1-f69.google.com with SMTP id r1so971705wmn.8
+ bh=iB9CZ7e+nNRLOdaYJPit2SgCEWU/AVOuwEo9CHK9FyM=;
+ b=Y/n2wqB2xKFoN8YlLBGQLxbdH1/JnvxQSzosCvHu/XNMHDE+7Q3mby4mqMWR53CHmckT5c
+ TIf7QawJ83EgEIfmx/5YFjJYyrBjhWCXWoyJEMiiCjYgjlstDnrV3Cq7BK7Emi0QGKiZu5
+ uFGwRwWmJkHLxNVGuDpvuF7HBYhaMAI=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-250-h0bgIze8MgOldnct4evdBw-1; Wed, 20 Jan 2021 03:19:56 -0500
+X-MC-Unique: h0bgIze8MgOldnct4evdBw-1
+Received: by mail-wr1-f70.google.com with SMTP id y4so617340wrt.18
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 00:11:58 -0800 (PST)
+ Wed, 20 Jan 2021 00:19:56 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=SgoON6JCbiRoEe3MsxmL7+i8CTj6HRhH96NwSvSwXcc=;
- b=klLLNNEW7b0IPwX0Tgoog3np+QQ3Euj4h0Wax4RfK5szFSuUvQG1Qd/4qnuNDArEEt
- FPMBgZNrsdiicjSlHygw1Di87Nw9EIt8lXJZc/v5gtCm/6a/aZdkyd/f4P9rgewhv8R+
- FUszDED3JnrPrgC1JcqoKQFtzSDp+xwWR/qEmjFBYVVQk5m8C7gjneWC63ZzlU88NlmZ
- 5qdBnrC2x+tv+YgZb8WQaF2Ip4xxJa12LVnkt7LcmpZJU4sztRQYMMvriBxXmS4eVrn3
- AzWS6beCpSzL7v1Dg560tALa+Nq9Qo8uHvKbaNFy4p2hpZEuv/VSyDx3NdDE5m2mk5iC
- KwZA==
-X-Gm-Message-State: AOAM5333TGjNeL4LeK8oLZRiQsyZUBwIUoecp2sCqkobzKSTz006Z4Vp
- maOUQ00oJd4GPgS/IvxX7frp4P1DjqJ+gyCN2L6VjDYGidra/9xbSW2M1BfML3GMdeOpph/9b/e
- +wLw+E7jd48QJwl+MsHLCeEd8JA3bsm3Aqpnj9ZJsYA==
-X-Received: by 2002:a05:6000:11c1:: with SMTP id
- i1mr8130847wrx.16.1611130317171; 
- Wed, 20 Jan 2021 00:11:57 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJy+qxq/9yALfuQf8DHvIqACZWEbB+C15hwmEqydGIBZ5tMlhik23jRChzHH2VZSQ71fjPH6aw==
-X-Received: by 2002:a05:6000:11c1:: with SMTP id
- i1mr8130807wrx.16.1611130316948; 
- Wed, 20 Jan 2021 00:11:56 -0800 (PST)
+ bh=iB9CZ7e+nNRLOdaYJPit2SgCEWU/AVOuwEo9CHK9FyM=;
+ b=DWAxaWn8AdTSFZ56272wUvETFo0Jg8RcphpmrNNHiqNJONRaVMS7Kpc/KHbptrxiEA
+ QUUyQx7BlDCS30Y1kRb01G4/S2jltjiaKErTQM2XdIpyXoMhY5s8kvkTi/musNF1Bg96
+ 9OnkUTfr1yJPCqkL5lzSdiJU9DEmXDAI2vzWO4fbFHRuXvxk+dUjUZDMlMkAYiaAQdZi
+ S/VTnM0Zz7FXTw0a/6BM1nUkA493LrjUelM3+7IavvVm5iev3taD8lDw7l+3Dqz4L6NR
+ n5L/Htdoam1/TIcQ2KhU9sv2N/ubyxbM4M6GqdIbKEnkKT00Qtm3x30ocdEkAOxm2qcx
+ 50gw==
+X-Gm-Message-State: AOAM533dLqfmiOOg/Xb0jpOf+CT4pJcY+nj1KcXZRggzIyskVm7F7RHk
+ MsVIFsX42tohFkWC9YRT4vtProkMvbxWyWi4tIKqEXKooc8syTc0jwkRNpdkQNOsXG+jicxLqHS
+ PMx4RtJqqkLu2Ypqai6VDsYveK/sc5alBZ9TzVTBiZw==
+X-Received: by 2002:a1c:2155:: with SMTP id h82mr1326558wmh.132.1611130795457; 
+ Wed, 20 Jan 2021 00:19:55 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxw8F1y8tM2i50NZrvxAqb0fmPBioG07/YhVEr0Xuhuk3j2tC/h//XZcSVvqkhFwCTS/qQ+qg==
+X-Received: by 2002:a1c:2155:: with SMTP id h82mr1326543wmh.132.1611130795188; 
+ Wed, 20 Jan 2021 00:19:55 -0800 (PST)
 Received: from redhat.com (bzq-79-177-39-148.red.bezeqint.net. [79.177.39.148])
- by smtp.gmail.com with ESMTPSA id h9sm2367974wre.24.2021.01.20.00.11.54
+ by smtp.gmail.com with ESMTPSA id w1sm2360284wrr.84.2021.01.20.00.19.53
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 20 Jan 2021 00:11:56 -0800 (PST)
-Date: Wed, 20 Jan 2021 03:11:52 -0500
+ Wed, 20 Jan 2021 00:19:54 -0800 (PST)
+Date: Wed, 20 Jan 2021 03:19:51 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v2 3/3] xsk: build skb by page
-Message-ID: <20210120031130-mutt-send-email-mst@kernel.org>
-References: <cover.1611128806.git.xuanzhuo@linux.alibaba.com>
- <6787e9a100eba47efbff81939e21e97fef492d07.1611128806.git.xuanzhuo@linux.alibaba.com>
- <20210120030418-mutt-send-email-mst@kernel.org>
+To: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+Subject: Re: [PATCH 2/7] uapi: virtio_snd: add the sound device header file
+Message-ID: <20210120031818-mutt-send-email-mst@kernel.org>
+References: <20210120003638.3339987-1-anton.yakovlev@opensynergy.com>
+ <20210120003638.3339987-3-anton.yakovlev@opensynergy.com>
 MIME-Version: 1.0
-In-Reply-To: <20210120030418-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20210120003638.3339987-3-anton.yakovlev@opensynergy.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Song Liu <songliubraving@fb.com>, Martin KaFai Lau <kafai@fb.com>,
- linux-kernel@vger.kernel.org, Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, Alexander Lobakin <alobakin@pm.me>,
- Yonghong Song <yhs@fb.com>, John Fastabend <john.fastabend@gmail.com>,
- Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>,
- netdev@vger.kernel.org, Jonathan Lemon <jonathan.lemon@gmail.com>,
- KP Singh <kpsingh@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
- bpf@vger.kernel.org, bjorn.topel@intel.com,
- virtualization@lists.linux-foundation.org,
- "David S. Miller" <davem@davemloft.net>,
- Magnus Karlsson <magnus.karlsson@intel.com>
+Cc: virtio-dev@lists.oasis-open.org, alsa-devel@alsa-project.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -133,193 +121,408 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jan 20, 2021 at 03:11:04AM -0500, Michael S. Tsirkin wrote:
-> On Wed, Jan 20, 2021 at 03:50:01PM +0800, Xuan Zhuo wrote:
-> > This patch is used to construct skb based on page to save memory copy
-> > overhead.
-> > 
-> > This function is implemented based on IFF_TX_SKB_NO_LINEAR. Only the
-> > network card priv_flags supports IFF_TX_SKB_NO_LINEAR will use page to
-> > directly construct skb. If this feature is not supported, it is still
-> > necessary to copy data to construct skb.
-> > 
-> > ---------------- Performance Testing ------------
-> > 
-> > The test environment is Aliyun ECS server.
-> > Test cmd:
-> > ```
-> > xdpsock -i eth0 -t  -S -s <msg size>
-> > ```
-> > 
-> > Test result data:
-> > 
-> > size    64      512     1024    1500
-> > copy    1916747 1775988 1600203 1440054
-> > page    1974058 1953655 1945463 1904478
-> > percent 3.0%    10.0%   21.58%  32.3%
-> > 
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+On Wed, Jan 20, 2021 at 01:36:30AM +0100, Anton Yakovlev wrote:
+> The file contains the definitions for the sound device from the OASIS
+> virtio spec.
 > 
-> I can't see the cover letter or 1/3 in this series - was probably
-> threaded incorrectly?
+> Signed-off-by: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+> ---
+>  MAINTAINERS                     |   6 +
+>  include/uapi/linux/virtio_snd.h | 361 ++++++++++++++++++++++++++++++++
+>  2 files changed, 367 insertions(+)
+>  create mode 100644 include/uapi/linux/virtio_snd.h
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 00836f6452f0..6dfd59eafe82 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -18936,6 +18936,12 @@ W:	https://virtio-mem.gitlab.io/
+>  F:	drivers/virtio/virtio_mem.c
+>  F:	include/uapi/linux/virtio_mem.h
+>  
+> +VIRTIO SOUND DRIVER
+> +M:	Anton Yakovlev <anton.yakovlev@opensynergy.com>
+> +L:	virtualization@lists.linux-foundation.org
+> +S:	Maintained
+> +F:	include/uapi/linux/virtio_snd.h
+> +
+>  VIRTUAL BOX GUEST DEVICE DRIVER
+>  M:	Hans de Goede <hdegoede@redhat.com>
+>  M:	Arnd Bergmann <arnd@arndb.de>
 
+You want sound/virtio here too, right?
+I'd just squash this with the next patch in series.
 
-Hmm looked again and now I do see them. My mistake pls ignore.
-
+> diff --git a/include/uapi/linux/virtio_snd.h b/include/uapi/linux/virtio_snd.h
+> new file mode 100644
+> index 000000000000..1ff6310e54d6
+> --- /dev/null
+> +++ b/include/uapi/linux/virtio_snd.h
+> @@ -0,0 +1,361 @@
+> +/* SPDX-License-Identifier: BSD-3-Clause */
+> +/*
+> + * Copyright (C) 2020  OpenSynergy GmbH
+> + *
+> + * This header is BSD licensed so anyone can use the definitions to
+> + * implement compatible drivers/servers.
+> + *
+> + * Redistribution and use in source and binary forms, with or without
+> + * modification, are permitted provided that the following conditions
+> + * are met:
+> + * 1. Redistributions of source code must retain the above copyright
+> + *    notice, this list of conditions and the following disclaimer.
+> + * 2. Redistributions in binary form must reproduce the above copyright
+> + *    notice, this list of conditions and the following disclaimer in the
+> + *    documentation and/or other materials provided with the distribution.
+> + * 3. Neither the name of OpenSynergy GmbH nor the names of its contributors
+> + *    may be used to endorse or promote products derived from this software
+> + *    without specific prior written permission.
+> + * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+> + * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+> + * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+> + * FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL IBM OR
+> + * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+> + * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+> + * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+> + * USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+> + * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+> + * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+> + * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+> + * SUCH DAMAGE.
+> + */
+> +#ifndef VIRTIO_SND_IF_H
+> +#define VIRTIO_SND_IF_H
+> +
+> +#include <linux/virtio_types.h>
+> +
+> +/*******************************************************************************
+> + * CONFIGURATION SPACE
+> + */
+> +struct virtio_snd_config {
+> +	/* # of available physical jacks */
+> +	__le32 jacks;
+> +	/* # of available PCM streams */
+> +	__le32 streams;
+> +	/* # of available channel maps */
+> +	__le32 chmaps;
+> +};
+> +
+> +enum {
+> +	/* device virtqueue indexes */
+> +	VIRTIO_SND_VQ_CONTROL = 0,
+> +	VIRTIO_SND_VQ_EVENT,
+> +	VIRTIO_SND_VQ_TX,
+> +	VIRTIO_SND_VQ_RX,
+> +	/* # of device virtqueues */
+> +	VIRTIO_SND_VQ_MAX
+> +};
+> +
+> +/*******************************************************************************
+> + * COMMON DEFINITIONS
+> + */
+> +
+> +/* supported dataflow directions */
+> +enum {
+> +	VIRTIO_SND_D_OUTPUT = 0,
+> +	VIRTIO_SND_D_INPUT
+> +};
+> +
+> +enum {
+> +	/* jack control request types */
+> +	VIRTIO_SND_R_JACK_INFO = 1,
+> +	VIRTIO_SND_R_JACK_REMAP,
+> +
+> +	/* PCM control request types */
+> +	VIRTIO_SND_R_PCM_INFO = 0x0100,
+> +	VIRTIO_SND_R_PCM_SET_PARAMS,
+> +	VIRTIO_SND_R_PCM_PREPARE,
+> +	VIRTIO_SND_R_PCM_RELEASE,
+> +	VIRTIO_SND_R_PCM_START,
+> +	VIRTIO_SND_R_PCM_STOP,
+> +
+> +	/* channel map control request types */
+> +	VIRTIO_SND_R_CHMAP_INFO = 0x0200,
+> +
+> +	/* jack event types */
+> +	VIRTIO_SND_EVT_JACK_CONNECTED = 0x1000,
+> +	VIRTIO_SND_EVT_JACK_DISCONNECTED,
+> +
+> +	/* PCM event types */
+> +	VIRTIO_SND_EVT_PCM_PERIOD_ELAPSED = 0x1100,
+> +	VIRTIO_SND_EVT_PCM_XRUN,
+> +
+> +	/* common status codes */
+> +	VIRTIO_SND_S_OK = 0x8000,
+> +	VIRTIO_SND_S_BAD_MSG,
+> +	VIRTIO_SND_S_NOT_SUPP,
+> +	VIRTIO_SND_S_IO_ERR
+> +};
+> +
+> +/* common header */
+> +struct virtio_snd_hdr {
+> +	__le32 code;
+> +};
+> +
+> +/* event notification */
+> +struct virtio_snd_event {
+> +	/* VIRTIO_SND_EVT_XXX */
+> +	struct virtio_snd_hdr hdr;
+> +	/* optional event data */
+> +	__le32 data;
+> +};
+> +
+> +/* common control request to query an item information */
+> +struct virtio_snd_query_info {
+> +	/* VIRTIO_SND_R_XXX_INFO */
+> +	struct virtio_snd_hdr hdr;
+> +	/* item start identifier */
+> +	__le32 start_id;
+> +	/* item count to query */
+> +	__le32 count;
+> +	/* item information size in bytes */
+> +	__le32 size;
+> +};
+> +
+> +/* common item information header */
+> +struct virtio_snd_info {
+> +	/* function group node id (High Definition Audio Specification 7.1.2) */
+> +	__le32 hda_fn_nid;
+> +};
+> +
+> +/*******************************************************************************
+> + * JACK CONTROL MESSAGES
+> + */
+> +struct virtio_snd_jack_hdr {
+> +	/* VIRTIO_SND_R_JACK_XXX */
+> +	struct virtio_snd_hdr hdr;
+> +	/* 0 ... virtio_snd_config::jacks - 1 */
+> +	__le32 jack_id;
+> +};
+> +
+> +/* supported jack features */
+> +enum {
+> +	VIRTIO_SND_JACK_F_REMAP = 0
+> +};
+> +
+> +struct virtio_snd_jack_info {
+> +	/* common header */
+> +	struct virtio_snd_info hdr;
+> +	/* supported feature bit map (1 << VIRTIO_SND_JACK_F_XXX) */
+> +	__le32 features;
+> +	/* pin configuration (High Definition Audio Specification 7.3.3.31) */
+> +	__le32 hda_reg_defconf;
+> +	/* pin capabilities (High Definition Audio Specification 7.3.4.9) */
+> +	__le32 hda_reg_caps;
+> +	/* current jack connection status (0: disconnected, 1: connected) */
+> +	__u8 connected;
+> +
+> +	__u8 padding[7];
+> +};
+> +
+> +/* jack remapping control request */
+> +struct virtio_snd_jack_remap {
+> +	/* .code = VIRTIO_SND_R_JACK_REMAP */
+> +	struct virtio_snd_jack_hdr hdr;
+> +	/* selected association number */
+> +	__le32 association;
+> +	/* selected sequence number */
+> +	__le32 sequence;
+> +};
+> +
+> +/*******************************************************************************
+> + * PCM CONTROL MESSAGES
+> + */
+> +struct virtio_snd_pcm_hdr {
+> +	/* VIRTIO_SND_R_PCM_XXX */
+> +	struct virtio_snd_hdr hdr;
+> +	/* 0 ... virtio_snd_config::streams - 1 */
+> +	__le32 stream_id;
+> +};
+> +
+> +/* supported PCM stream features */
+> +enum {
+> +	VIRTIO_SND_PCM_F_SHMEM_HOST = 0,
+> +	VIRTIO_SND_PCM_F_SHMEM_GUEST,
+> +	VIRTIO_SND_PCM_F_MSG_POLLING,
+> +	VIRTIO_SND_PCM_F_EVT_SHMEM_PERIODS,
+> +	VIRTIO_SND_PCM_F_EVT_XRUNS
+> +};
+> +
+> +/* supported PCM sample formats */
+> +enum {
+> +	/* analog formats (width / physical width) */
+> +	VIRTIO_SND_PCM_FMT_IMA_ADPCM = 0,	/*  4 /  4 bits */
+> +	VIRTIO_SND_PCM_FMT_MU_LAW,		/*  8 /  8 bits */
+> +	VIRTIO_SND_PCM_FMT_A_LAW,		/*  8 /  8 bits */
+> +	VIRTIO_SND_PCM_FMT_S8,			/*  8 /  8 bits */
+> +	VIRTIO_SND_PCM_FMT_U8,			/*  8 /  8 bits */
+> +	VIRTIO_SND_PCM_FMT_S16,			/* 16 / 16 bits */
+> +	VIRTIO_SND_PCM_FMT_U16,			/* 16 / 16 bits */
+> +	VIRTIO_SND_PCM_FMT_S18_3,		/* 18 / 24 bits */
+> +	VIRTIO_SND_PCM_FMT_U18_3,		/* 18 / 24 bits */
+> +	VIRTIO_SND_PCM_FMT_S20_3,		/* 20 / 24 bits */
+> +	VIRTIO_SND_PCM_FMT_U20_3,		/* 20 / 24 bits */
+> +	VIRTIO_SND_PCM_FMT_S24_3,		/* 24 / 24 bits */
+> +	VIRTIO_SND_PCM_FMT_U24_3,		/* 24 / 24 bits */
+> +	VIRTIO_SND_PCM_FMT_S20,			/* 20 / 32 bits */
+> +	VIRTIO_SND_PCM_FMT_U20,			/* 20 / 32 bits */
+> +	VIRTIO_SND_PCM_FMT_S24,			/* 24 / 32 bits */
+> +	VIRTIO_SND_PCM_FMT_U24,			/* 24 / 32 bits */
+> +	VIRTIO_SND_PCM_FMT_S32,			/* 32 / 32 bits */
+> +	VIRTIO_SND_PCM_FMT_U32,			/* 32 / 32 bits */
+> +	VIRTIO_SND_PCM_FMT_FLOAT,		/* 32 / 32 bits */
+> +	VIRTIO_SND_PCM_FMT_FLOAT64,		/* 64 / 64 bits */
+> +	/* digital formats (width / physical width) */
+> +	VIRTIO_SND_PCM_FMT_DSD_U8,		/*  8 /  8 bits */
+> +	VIRTIO_SND_PCM_FMT_DSD_U16,		/* 16 / 16 bits */
+> +	VIRTIO_SND_PCM_FMT_DSD_U32,		/* 32 / 32 bits */
+> +	VIRTIO_SND_PCM_FMT_IEC958_SUBFRAME	/* 32 / 32 bits */
+> +};
+> +
+> +/* supported PCM frame rates */
+> +enum {
+> +	VIRTIO_SND_PCM_RATE_5512 = 0,
+> +	VIRTIO_SND_PCM_RATE_8000,
+> +	VIRTIO_SND_PCM_RATE_11025,
+> +	VIRTIO_SND_PCM_RATE_16000,
+> +	VIRTIO_SND_PCM_RATE_22050,
+> +	VIRTIO_SND_PCM_RATE_32000,
+> +	VIRTIO_SND_PCM_RATE_44100,
+> +	VIRTIO_SND_PCM_RATE_48000,
+> +	VIRTIO_SND_PCM_RATE_64000,
+> +	VIRTIO_SND_PCM_RATE_88200,
+> +	VIRTIO_SND_PCM_RATE_96000,
+> +	VIRTIO_SND_PCM_RATE_176400,
+> +	VIRTIO_SND_PCM_RATE_192000,
+> +	VIRTIO_SND_PCM_RATE_384000
+> +};
+> +
+> +struct virtio_snd_pcm_info {
+> +	/* common header */
+> +	struct virtio_snd_info hdr;
+> +	/* supported feature bit map (1 << VIRTIO_SND_PCM_F_XXX) */
+> +	__le32 features;
+> +	/* supported sample format bit map (1 << VIRTIO_SND_PCM_FMT_XXX) */
+> +	__le64 formats;
+> +	/* supported frame rate bit map (1 << VIRTIO_SND_PCM_RATE_XXX) */
+> +	__le64 rates;
+> +	/* dataflow direction (VIRTIO_SND_D_XXX) */
+> +	__u8 direction;
+> +	/* minimum # of supported channels */
+> +	__u8 channels_min;
+> +	/* maximum # of supported channels */
+> +	__u8 channels_max;
+> +
+> +	__u8 padding[5];
+> +};
+> +
+> +/* set PCM stream format */
+> +struct virtio_snd_pcm_set_params {
+> +	/* .code = VIRTIO_SND_R_PCM_SET_PARAMS */
+> +	struct virtio_snd_pcm_hdr hdr;
+> +	/* size of the hardware buffer */
+> +	__le32 buffer_bytes;
+> +	/* size of the hardware period */
+> +	__le32 period_bytes;
+> +	/* selected feature bit map (1 << VIRTIO_SND_PCM_F_XXX) */
+> +	__le32 features;
+> +	/* selected # of channels */
+> +	__u8 channels;
+> +	/* selected sample format (VIRTIO_SND_PCM_FMT_XXX) */
+> +	__u8 format;
+> +	/* selected frame rate (VIRTIO_SND_PCM_RATE_XXX) */
+> +	__u8 rate;
+> +
+> +	__u8 padding;
+> +};
+> +
+> +/*******************************************************************************
+> + * PCM I/O MESSAGES
+> + */
+> +
+> +/* I/O request header */
+> +struct virtio_snd_pcm_xfer {
+> +	/* 0 ... virtio_snd_config::streams - 1 */
+> +	__le32 stream_id;
+> +};
+> +
+> +/* I/O request status */
+> +struct virtio_snd_pcm_status {
+> +	/* VIRTIO_SND_S_XXX */
+> +	__le32 status;
+> +	/* current device latency */
+> +	__le32 latency_bytes;
+> +};
+> +
+> +/*******************************************************************************
+> + * CHANNEL MAP CONTROL MESSAGES
+> + */
+> +struct virtio_snd_chmap_hdr {
+> +	/* VIRTIO_SND_R_CHMAP_XXX */
+> +	struct virtio_snd_hdr hdr;
+> +	/* 0 ... virtio_snd_config::chmaps - 1 */
+> +	__le32 chmap_id;
+> +};
+> +
+> +/* standard channel position definition */
+> +enum {
+> +	VIRTIO_SND_CHMAP_NONE = 0,	/* undefined */
+> +	VIRTIO_SND_CHMAP_NA,		/* silent */
+> +	VIRTIO_SND_CHMAP_MONO,		/* mono stream */
+> +	VIRTIO_SND_CHMAP_FL,		/* front left */
+> +	VIRTIO_SND_CHMAP_FR,		/* front right */
+> +	VIRTIO_SND_CHMAP_RL,		/* rear left */
+> +	VIRTIO_SND_CHMAP_RR,		/* rear right */
+> +	VIRTIO_SND_CHMAP_FC,		/* front center */
+> +	VIRTIO_SND_CHMAP_LFE,		/* low frequency (LFE) */
+> +	VIRTIO_SND_CHMAP_SL,		/* side left */
+> +	VIRTIO_SND_CHMAP_SR,		/* side right */
+> +	VIRTIO_SND_CHMAP_RC,		/* rear center */
+> +	VIRTIO_SND_CHMAP_FLC,		/* front left center */
+> +	VIRTIO_SND_CHMAP_FRC,		/* front right center */
+> +	VIRTIO_SND_CHMAP_RLC,		/* rear left center */
+> +	VIRTIO_SND_CHMAP_RRC,		/* rear right center */
+> +	VIRTIO_SND_CHMAP_FLW,		/* front left wide */
+> +	VIRTIO_SND_CHMAP_FRW,		/* front right wide */
+> +	VIRTIO_SND_CHMAP_FLH,		/* front left high */
+> +	VIRTIO_SND_CHMAP_FCH,		/* front center high */
+> +	VIRTIO_SND_CHMAP_FRH,		/* front right high */
+> +	VIRTIO_SND_CHMAP_TC,		/* top center */
+> +	VIRTIO_SND_CHMAP_TFL,		/* top front left */
+> +	VIRTIO_SND_CHMAP_TFR,		/* top front right */
+> +	VIRTIO_SND_CHMAP_TFC,		/* top front center */
+> +	VIRTIO_SND_CHMAP_TRL,		/* top rear left */
+> +	VIRTIO_SND_CHMAP_TRR,		/* top rear right */
+> +	VIRTIO_SND_CHMAP_TRC,		/* top rear center */
+> +	VIRTIO_SND_CHMAP_TFLC,		/* top front left center */
+> +	VIRTIO_SND_CHMAP_TFRC,		/* top front right center */
+> +	VIRTIO_SND_CHMAP_TSL,		/* top side left */
+> +	VIRTIO_SND_CHMAP_TSR,		/* top side right */
+> +	VIRTIO_SND_CHMAP_LLFE,		/* left LFE */
+> +	VIRTIO_SND_CHMAP_RLFE,		/* right LFE */
+> +	VIRTIO_SND_CHMAP_BC,		/* bottom center */
+> +	VIRTIO_SND_CHMAP_BLC,		/* bottom left center */
+> +	VIRTIO_SND_CHMAP_BRC		/* bottom right center */
+> +};
+> +
+> +/* maximum possible number of channels */
+> +#define VIRTIO_SND_CHMAP_MAX_SIZE	18
+> +
+> +struct virtio_snd_chmap_info {
+> +	/* common header */
+> +	struct virtio_snd_info hdr;
+> +	/* dataflow direction (VIRTIO_SND_D_XXX) */
+> +	__u8 direction;
+> +	/* # of valid channel position values */
+> +	__u8 channels;
+> +	/* channel position values (VIRTIO_SND_CHMAP_XXX) */
+> +	__u8 positions[VIRTIO_SND_CHMAP_MAX_SIZE];
+> +};
+> +
+> +#endif /* VIRTIO_SND_IF_H */
+> -- 
+> 2.30.0
 > 
-> > ---
-> >  net/xdp/xsk.c | 104 ++++++++++++++++++++++++++++++++++++++++++++++++----------
-> >  1 file changed, 86 insertions(+), 18 deletions(-)
-> > 
-> > diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
-> > index 8037b04..817a3a5 100644
-> > --- a/net/xdp/xsk.c
-> > +++ b/net/xdp/xsk.c
-> > @@ -430,6 +430,87 @@ static void xsk_destruct_skb(struct sk_buff *skb)
-> >  	sock_wfree(skb);
-> >  }
-> >  
-> > +static struct sk_buff *xsk_build_skb_zerocopy(struct xdp_sock *xs,
-> > +					      struct xdp_desc *desc)
-> > +{
-> > +	u32 len, offset, copy, copied;
-> > +	struct sk_buff *skb;
-> > +	struct page *page;
-> > +	char *buffer;
-> 
-> Actually, make this void *, this way you will not need
-> casts down the road. I know this is from xsk_generic_xmit -
-> I don't know why it's char * there, either.
-> 
-> > +	int err, i;
-> > +	u64 addr;
-> > +
-> > +	skb = sock_alloc_send_skb(&xs->sk, 0, 1, &err);
-> > +	if (unlikely(!skb))
-> > +		return ERR_PTR(err);
-> > +
-> > +	addr = desc->addr;
-> > +	len = desc->len;
-> > +
-> > +	buffer = xsk_buff_raw_get_data(xs->pool, addr);
-> > +	offset = offset_in_page(buffer);
-> > +	addr = buffer - (char *)xs->pool->addrs;
-> > +
-> > +	for (copied = 0, i = 0; copied < len; i++) {
-> > +		page = xs->pool->umem->pgs[addr >> PAGE_SHIFT];
-> > +
-> > +		get_page(page);
-> > +
-> > +		copy = min_t(u32, PAGE_SIZE - offset, len - copied);
-> > +
-> > +		skb_fill_page_desc(skb, i, page, offset, copy);
-> > +
-> > +		copied += copy;
-> > +		addr += copy;
-> > +		offset = 0;
-> > +	}
-> > +
-> > +	skb->len += len;
-> > +	skb->data_len += len;
-> > +	skb->truesize += len;
-> > +
-> > +	refcount_add(len, &xs->sk.sk_wmem_alloc);
-> > +
-> > +	return skb;
-> > +}
-> > +
-> > +static struct sk_buff *xsk_build_skb(struct xdp_sock *xs,
-> > +				     struct xdp_desc *desc)
-> > +{
-> > +	struct sk_buff *skb = NULL;
-> > +
-> > +	if (xs->dev->priv_flags & IFF_TX_SKB_NO_LINEAR) {
-> > +		skb = xsk_build_skb_zerocopy(xs, desc);
-> > +		if (IS_ERR(skb))
-> > +			return skb;
-> > +	} else {
-> > +		char *buffer;
-> > +		u32 len;
-> > +		int err;
-> > +
-> > +		len = desc->len;
-> > +		skb = sock_alloc_send_skb(&xs->sk, len, 1, &err);
-> > +		if (unlikely(!skb))
-> > +			return ERR_PTR(err);
-> > +
-> > +		skb_put(skb, len);
-> > +		buffer = xsk_buff_raw_get_data(xs->pool, desc->addr);
-> > +		err = skb_store_bits(skb, 0, buffer, len);
-> > +		if (unlikely(err)) {
-> > +			kfree_skb(skb);
-> > +			return ERR_PTR(err);
-> > +		}
-> > +	}
-> > +
-> > +	skb->dev = xs->dev;
-> > +	skb->priority = xs->sk.sk_priority;
-> > +	skb->mark = xs->sk.sk_mark;
-> > +	skb_shinfo(skb)->destructor_arg = (void *)(long)desc->addr;
-> > +	skb->destructor = xsk_destruct_skb;
-> > +
-> > +	return skb;
-> > +}
-> > +
-> >  static int xsk_generic_xmit(struct sock *sk)
-> >  {
-> >  	struct xdp_sock *xs = xdp_sk(sk);
-> > @@ -446,43 +527,30 @@ static int xsk_generic_xmit(struct sock *sk)
-> >  		goto out;
-> >  
-> >  	while (xskq_cons_peek_desc(xs->tx, &desc, xs->pool)) {
-> > -		char *buffer;
-> > -		u64 addr;
-> > -		u32 len;
-> > -
-> >  		if (max_batch-- == 0) {
-> >  			err = -EAGAIN;
-> >  			goto out;
-> >  		}
-> >  
-> > -		len = desc.len;
-> > -		skb = sock_alloc_send_skb(sk, len, 1, &err);
-> > -		if (unlikely(!skb))
-> > +		skb = xsk_build_skb(xs, &desc);
-> > +		if (IS_ERR(skb)) {
-> > +			err = PTR_ERR(skb);
-> >  			goto out;
-> > +		}
-> >  
-> > -		skb_put(skb, len);
-> > -		addr = desc.addr;
-> > -		buffer = xsk_buff_raw_get_data(xs->pool, addr);
-> > -		err = skb_store_bits(skb, 0, buffer, len);
-> >  		/* This is the backpressure mechanism for the Tx path.
-> >  		 * Reserve space in the completion queue and only proceed
-> >  		 * if there is space in it. This avoids having to implement
-> >  		 * any buffering in the Tx path.
-> >  		 */
-> >  		spin_lock_irqsave(&xs->pool->cq_lock, flags);
-> > -		if (unlikely(err) || xskq_prod_reserve(xs->pool->cq)) {
-> > +		if (xskq_prod_reserve(xs->pool->cq)) {
-> >  			spin_unlock_irqrestore(&xs->pool->cq_lock, flags);
-> >  			kfree_skb(skb);
-> >  			goto out;
-> >  		}
-> >  		spin_unlock_irqrestore(&xs->pool->cq_lock, flags);
-> >  
-> > -		skb->dev = xs->dev;
-> > -		skb->priority = sk->sk_priority;
-> > -		skb->mark = sk->sk_mark;
-> > -		skb_shinfo(skb)->destructor_arg = (void *)(long)desc.addr;
-> > -		skb->destructor = xsk_destruct_skb;
-> > -
-> >  		err = __dev_direct_xmit(skb, xs->queue_id);
-> >  		if  (err == NETDEV_TX_BUSY) {
-> >  			/* Tell user-space to retry the send */
-> > -- 
-> > 1.8.3.1
 
 _______________________________________________
 Virtualization mailing list
