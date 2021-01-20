@@ -1,68 +1,76 @@
 Return-Path: <SRS0=zQmE=GX=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: **
-X-Spam-Status: No, score=2.4 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-	HTML_MESSAGE,MAILING_LIST_MULTI,MIME_HTML_MOSTLY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Level: 
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56002C433E0
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 12:50:59 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D11EC433DB
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 13:26:22 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D886F23355
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 12:50:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D886F23355
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 4AD562339D
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 13:26:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4AD562339D
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 46F43870B6;
-	Wed, 20 Jan 2021 12:50:58 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id j69KGb6ub7lj; Wed, 20 Jan 2021 12:50:55 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 1ECE3870B4;
-	Wed, 20 Jan 2021 12:50:55 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 07B00C08A1;
-	Wed, 20 Jan 2021 12:50:55 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 93FB1C013A
- for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 12:50:53 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 6E15085F2D
- for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 12:50:53 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id ACD1785F35;
+	Wed, 20 Jan 2021 13:26:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id mpDX83mj5CsZ; Wed, 20 Jan 2021 13:26:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 8654085F37;
+	Wed, 20 Jan 2021 13:26:19 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5AEB9C1E72;
+	Wed, 20 Jan 2021 13:26:19 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 90881C013A
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 20 Jan 2021 13:26:17 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id 81FE1859AE
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 20 Jan 2021 13:26:17 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id EKLDJpvjuV1k
+ with ESMTP id UeAr8YPOLLE6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 12:50:09 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
- [5.45.125.222])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 87E3785E60
+ Wed, 20 Jan 2021 13:26:16 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 1171685926
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 12:50:07 +0000 (UTC)
-Received: from [37.189.17.205] (helo=LAPTOP-EPOV2LRR)
- by s052d7dde.fastvps-server.com with esmtpsa
- (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
- (envelope-from <marle@saisti.eu>) id 1l2CGA-0007gT-UM
- for virtualization@lists.linux-foundation.org; Wed, 20 Jan 2021 15:06:51 +0300
-From: "ML" <marialemos72@gmail.com>
-Subject: Doctoral Symposium - CISTI 2021, Chaves, Portugal
-To: virtualization@lists.linux-foundation.org
+ Wed, 20 Jan 2021 13:26:16 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1611149174; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+ mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=s9jYYrCp5NMm5yGKLL/4edua8SOODyzTExPxz/HtQyc=;
+ b=QP2FULy55KmWDvGgt8sDw3JmOCnmwJCNdxTNb0HWDP2CjacJAG5sYeekXCk431qTn7p5La
+ u5rucDxKNrWxZCEiqwoSPgIxgmPSuRXK88eWJsLPnFTRrDIJNSclJoMVCIGWrrhCI7aYCM
+ JOMHwOWEzMOcwotUjCxvX1I+oWAhvVQ=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+ by mx2.suse.de (Postfix) with ESMTP id A65D4AE65;
+ Wed, 20 Jan 2021 13:26:14 +0000 (UTC)
+To: bpetkov@suse.com, x86@kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
+Subject: [PATCH v4 05/15] x86/xen: drop USERGS_SYSRET64 paravirt call
+Date: Wed, 20 Jan 2021 14:26:03 +0100
+Message-Id: <20210120132613.31487-6-jgross@suse.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210120132613.31487-1-jgross@suse.com>
+References: <20210120132613.31487-1-jgross@suse.com>
 MIME-Version: 1.0
-Date: Wed, 20 Jan 2021 12:06:51 +0000
-Message-ID: <1651271960531@gmail-com>
-X-Antivirus: AVG (VPS 210119-6, 19/01/2021), Outbound message
-X-Antivirus-Status: Clean
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -74,542 +82,276 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: cistiforever@gmail.com
-Content-Type: multipart/mixed; boundary="===============9120043526789958109=="
+From: Juergen Gross via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Juergen Gross <jgross@suse.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is a multi-part message in MIME format
+USERGS_SYSRET64 is used to return from a syscall via sysret, but
+a Xen PV guest will nevertheless use the iret hypercall, as there
+is no sysret PV hypercall defined.
 
---===============9120043526789958109==
-Content-Type: multipart/alternative; charset=utf-8; boundary="q48AiKyJ9KOXWpGrq6Pep8=_Ayx8qiBc7D"
+So instead of testing all the prerequisites for doing a sysret and
+then mangling the stack for Xen PV again for doing an iret just use
+the iret exit from the beginning.
 
-This is a multi-part message in MIME format
+This can easily be done via an ALTERNATIVE like it is done for the
+sysenter compat case already.
 
---q48AiKyJ9KOXWpGrq6Pep8=_Ayx8qiBc7D
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+It should be noted that this drops the optimization in Xen for not
+restoring a few registers when returning to user mode, but it seems
+as if the saved instructions in the kernel more than compensate for
+this drop (a kernel build in a Xen PV guest was slightly faster with
+this patch applied).
 
-------------------------------    ------------------------------    -------=
------------------------    ---------- 
-Doctoral Symposium 
+While at it remove the stale sysret32 remnants.
 
-CISTI 2021 - 16th Iberian Conference on Information Systems and Technologie=
-s, Chaves, Portugal, 23 - 26 June 2021
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+V3:
+- simplify ALTERNATIVE (Boris Petkov)
+---
+ arch/x86/entry/entry_64.S             | 16 +++++++---------
+ arch/x86/include/asm/irqflags.h       |  6 ------
+ arch/x86/include/asm/paravirt.h       |  5 -----
+ arch/x86/include/asm/paravirt_types.h |  8 --------
+ arch/x86/kernel/asm-offsets_64.c      |  2 --
+ arch/x86/kernel/paravirt.c            |  5 +----
+ arch/x86/kernel/paravirt_patch.c      |  4 ----
+ arch/x86/xen/enlighten_pv.c           |  1 -
+ arch/x86/xen/xen-asm.S                | 20 --------------------
+ arch/x86/xen/xen-ops.h                |  2 --
+ 10 files changed, 8 insertions(+), 61 deletions(-)
 
-http://www.cisti.eu/ <http://www.cisti.eu/>
-
-------------------------------    ------------------------------    -------=
------------------------    --------- 
+diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
+index a876204a73e0..ce0464d630a2 100644
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -46,14 +46,6 @@
+ .code64
+ .section .entry.text, "ax"
  
-
-The purpose of CISTI'2021=E2=80=99s Doctoral Symposium is to provide gradua=
-te students a setting where they can, informally, expose and discuss their =
-work, collecting valuable expert opinions and sharing new ideas, methods an=
-d applications. The Doctoral Symposium is an excellent opportunity for PhD =
-students to present and discuss their work in a Workshop format. Each prese=
-ntation will be evaluated by a panel composed by at least three Information=
- Systems and Technologies experts.
-
+-#ifdef CONFIG_PARAVIRT_XXL
+-SYM_CODE_START(native_usergs_sysret64)
+-	UNWIND_HINT_EMPTY
+-	swapgs
+-	sysretq
+-SYM_CODE_END(native_usergs_sysret64)
+-#endif /* CONFIG_PARAVIRT_XXL */
+-
+ /*
+  * 64-bit SYSCALL instruction entry. Up to 6 arguments in registers.
+  *
+@@ -123,7 +115,12 @@ SYM_INNER_LABEL(entry_SYSCALL_64_after_hwframe, SYM_L_GLOBAL)
+ 	 * Try to use SYSRET instead of IRET if we're returning to
+ 	 * a completely clean 64-bit userspace context.  If we're not,
+ 	 * go to the slow exit path.
++	 * In the Xen PV case we must use iret anyway.
+ 	 */
++
++	ALTERNATIVE "", "jmp	swapgs_restore_regs_and_return_to_usermode", \
++		X86_FEATURE_XENPV
++
+ 	movq	RCX(%rsp), %rcx
+ 	movq	RIP(%rsp), %r11
  
-
-Contributions Submission 
-
-The Doctoral Symposium is opened to PhD students whose research area includ=
-es the themes proposed for this Conference. Submissions must include an ext=
-ended abstract (maximum 4 pages), following the Conference style guide. All=
- selected contributions will be published with the Conference Proceedings i=
-n electronic format with ISBN. These contributions will be available in the=
- IEEE Xplore Digital Library and will be sent for indexing in ISI, Scopus, =
-EI-Compendex, INSPEC and Google Scholar.
-
-Submissions must include the field, the PhD institution and the number of m=
-onths devoted to the development of the work. Additionally, they should inc=
-lude in a clear and succinct manner:
-
-   =E2=80=A2    The problem approached and its significance or relevance 
-   =E2=80=A2    The research objectives and related investigation topics 
-   =E2=80=A2    A brief display of what is already known 
-   =E2=80=A2    A proposed solution methodology for the problem 
-   =E2=80=A2    Expected results 
-
+@@ -215,7 +212,8 @@ syscall_return_via_sysret:
  
-
-Important Dates 
-
-Paper submission: February 14, 2021
-
-Notification of acceptance: March 28, 2021
-
-Submission of accepted papers: April 11, 2021
-
-Payment of registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: April 11, 2021
-
+ 	popq	%rdi
+ 	popq	%rsp
+-	USERGS_SYSRET64
++	swapgs
++	sysretq
+ SYM_CODE_END(entry_SYSCALL_64)
  
-
-Organizing Committee 
-
-=C3=81lvaro Rocha, ISEG, Universidade de Lisboa
-
-Francisco Garc=C3=ADa-Pe=C3=B1alvo, Universidad de Salamanca
-
+ /*
+diff --git a/arch/x86/include/asm/irqflags.h b/arch/x86/include/asm/irqflags.h
+index 8c86edefa115..e585a4705b8d 100644
+--- a/arch/x86/include/asm/irqflags.h
++++ b/arch/x86/include/asm/irqflags.h
+@@ -132,12 +132,6 @@ static __always_inline unsigned long arch_local_irq_save(void)
+ #endif
  
-
-Scientific Committee 
-
-Francisco Garc=C3=ADa-Pe=C3=B1alvo, Universidad de Salamanca (Chair)
-
-A. Augusto Sousa, FEUP, Universidade do Porto
-
-Ad=C3=A9rito Fernandes-Marcos, Universidade Aberta
-
-Adolfo Lozano Tello, Universidad de Extremadura
-
-Alicia Garc=C3=ADa Holgado, Universidad de Salamanca
-
-=C3=81lvaro Rocha, ISEG, Universidade de Lisboa
-
-Ana Am=C3=A9lia Carvalho, Universidade de Coimbra
-
-Ant=C3=B3nio Palma do Reis, ISEG, Universidade de Lisboa
-
-Arnaldo Martins, Universidade de Aveiro
-
-Borja Bordel, Universidad Polit=C3=A9cnica de Madrid
-
-Br=C3=A1ulio Alturas, ISCTE - Instituto Universit=C3=A1rio de Lisboa
-
-Carina Soledad Gonz=C3=A1lez, Universidad de La Laguna
-
-Carlos Costa, ISEG, Universidade de Lisboa
-
-Carlos Ferr=C3=A1s Sexto, Universidad de Santiago de Compostela
-
-Cesar Collazos, Universidad del Cauca
-
-Daniel Amo, La Salle, Universidad Ramon Llull
-
-David Fonseca, La Salle, Universitat Ramon Llull
-
-Eduardo S=C3=A1nchez Vila, Universidade de Santiago de Compostela
-
-Fernando Moreira, Universidade Portucalense
-
-Fernando Ramos, Universidade de Aveiro
-
-Francisco Restivo, Universidade Cat=C3=B3lica Portuguesa
-
-Gon=C3=A7alo Paiva Dias, Universidade de Aveiro
-
-Jo=C3=A3o Costa, Universidade de Coimbra
-
-Jo=C3=A3o Manuel R.S. Tavares, FEUP, Universidade do Porto
-
-Jo=C3=A3o Pascoal Faria, FEUP, Universidade do Porto
-
-Jos=C3=A9 Machado, Universidade do Minho
-
-Luis Camarinha-Matos, FCT, Universidade NOVA de Lisboa
-
-Lu=C3=ADs Paulo Reis, FEUP, Universidade do Porto
-
-Marcelo Marciszack, Universidad Tecnol=C3=B3gica Nacional
-
-Marco Painho, NOVA IMS
-
-Mar=C3=ADa J Lado, Universidade de Vigo
-
-Mar=C3=ADa Pilar Mareca Lopez, Universidad Polit=C3=A9cnica de Madrid
-
-M=C3=A1rio Piattini, Universidad de Castilla-La Mancha
-
-Martin Llamas Nistal, Universidad de Vigo
-
-Miguel Casquilho, IST, Universidade de Lisboa
-
-Miguel de Castro Neto, NOVA IMS
-
-Miguel Ram=C3=B3n Gonz=C3=A1lez-Castro, ENCE
-
-Nelson Rocha, Universidade de Aveiro
-
-=C3=93scar Mealha, Universidade de Aveiro
-
-Paulo Pinto, FCT, Universidade Nova de Lisboa
-
-Ramiro Gon=C3=A7alves, Universidade de Tr=C3=A1s-os-Montes e Alto Douro
-
-Tomas San Feliu, Universidad Polit=C3=A9cnica de Madrid
-
-Vitor Santos, NOVA IMS
-
+ #define INTERRUPT_RETURN	jmp native_iret
+-#define USERGS_SYSRET64				\
+-	swapgs;					\
+-	sysretq;
+-#define USERGS_SYSRET32				\
+-	swapgs;					\
+-	sysretl
  
-
-Website of CISTI'2021: http://www.cisti.eu/ <http://www.cisti.eu/>
-
+ #else
+ #define INTERRUPT_RETURN		iret
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index f2ebe109a37e..dd43b1100a87 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -776,11 +776,6 @@ extern void default_banner(void);
  
-
-CISTI 2021 Team
-
-http://www.cisti.eu/ <http://www.cisti.eu/>
-
-
+ #ifdef CONFIG_X86_64
+ #ifdef CONFIG_PARAVIRT_XXL
+-#define USERGS_SYSRET64							\
+-	PARA_SITE(PARA_PATCH(PV_CPU_usergs_sysret64),			\
+-		  ANNOTATE_RETPOLINE_SAFE;				\
+-		  jmp PARA_INDIRECT(pv_ops+PV_CPU_usergs_sysret64);)
+-
+ #ifdef CONFIG_DEBUG_ENTRY
+ #define SAVE_FLAGS(clobbers)                                        \
+ 	PARA_SITE(PARA_PATCH(PV_IRQ_save_fl),			    \
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index 130f428b0cc8..0169365f1403 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -156,14 +156,6 @@ struct pv_cpu_ops {
+ 
+ 	u64 (*read_pmc)(int counter);
+ 
+-	/*
+-	 * Switch to usermode gs and return to 64-bit usermode using
+-	 * sysret.  Only used in 64-bit kernels to return to 64-bit
+-	 * processes.  Usermode register state, including %rsp, must
+-	 * already be restored.
+-	 */
+-	void (*usergs_sysret64)(void);
+-
+ 	/* Normal iret.  Jump to this with the standard iret stack
+ 	   frame set up. */
+ 	void (*iret)(void);
+diff --git a/arch/x86/kernel/asm-offsets_64.c b/arch/x86/kernel/asm-offsets_64.c
+index 1354bc30614d..b14533af7676 100644
+--- a/arch/x86/kernel/asm-offsets_64.c
++++ b/arch/x86/kernel/asm-offsets_64.c
+@@ -13,8 +13,6 @@ int main(void)
+ {
+ #ifdef CONFIG_PARAVIRT
+ #ifdef CONFIG_PARAVIRT_XXL
+-	OFFSET(PV_CPU_usergs_sysret64, paravirt_patch_template,
+-	       cpu.usergs_sysret64);
+ #ifdef CONFIG_DEBUG_ENTRY
+ 	OFFSET(PV_IRQ_save_fl, paravirt_patch_template, irq.save_fl);
+ #endif
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index 5e5fcf5c376d..18560b71e717 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -135,8 +135,7 @@ unsigned paravirt_patch_default(u8 type, void *insn_buff,
+ 	else if (opfunc == _paravirt_ident_64)
+ 		ret = paravirt_patch_ident_64(insn_buff, len);
+ 
+-	else if (type == PARAVIRT_PATCH(cpu.iret) ||
+-		 type == PARAVIRT_PATCH(cpu.usergs_sysret64))
++	else if (type == PARAVIRT_PATCH(cpu.iret))
+ 		/* If operation requires a jmp, then jmp */
+ 		ret = paravirt_patch_jmp(insn_buff, opfunc, addr, len);
+ #endif
+@@ -170,7 +169,6 @@ static u64 native_steal_clock(int cpu)
+ 
+ /* These are in entry.S */
+ extern void native_iret(void);
+-extern void native_usergs_sysret64(void);
+ 
+ static struct resource reserve_ioports = {
+ 	.start = 0,
+@@ -310,7 +308,6 @@ struct paravirt_patch_template pv_ops = {
+ 
+ 	.cpu.load_sp0		= native_load_sp0,
+ 
+-	.cpu.usergs_sysret64	= native_usergs_sysret64,
+ 	.cpu.iret		= native_iret,
+ 
+ #ifdef CONFIG_X86_IOPL_IOPERM
+diff --git a/arch/x86/kernel/paravirt_patch.c b/arch/x86/kernel/paravirt_patch.c
+index 7c518b08aa3c..2fada2c347c9 100644
+--- a/arch/x86/kernel/paravirt_patch.c
++++ b/arch/x86/kernel/paravirt_patch.c
+@@ -27,7 +27,6 @@ struct patch_xxl {
+ 	const unsigned char	mmu_write_cr3[3];
+ 	const unsigned char	irq_restore_fl[2];
+ 	const unsigned char	cpu_wbinvd[2];
+-	const unsigned char	cpu_usergs_sysret64[6];
+ 	const unsigned char	mov64[3];
+ };
+ 
+@@ -40,8 +39,6 @@ static const struct patch_xxl patch_data_xxl = {
+ 	.mmu_write_cr3		= { 0x0f, 0x22, 0xdf },	// mov %rdi, %cr3
+ 	.irq_restore_fl		= { 0x57, 0x9d },	// push %rdi; popfq
+ 	.cpu_wbinvd		= { 0x0f, 0x09 },	// wbinvd
+-	.cpu_usergs_sysret64	= { 0x0f, 0x01, 0xf8,
+-				    0x48, 0x0f, 0x07 },	// swapgs; sysretq
+ 	.mov64			= { 0x48, 0x89, 0xf8 },	// mov %rdi, %rax
+ };
+ 
+@@ -83,7 +80,6 @@ unsigned int native_patch(u8 type, void *insn_buff, unsigned long addr,
+ 	PATCH_CASE(mmu, read_cr3, xxl, insn_buff, len);
+ 	PATCH_CASE(mmu, write_cr3, xxl, insn_buff, len);
+ 
+-	PATCH_CASE(cpu, usergs_sysret64, xxl, insn_buff, len);
+ 	PATCH_CASE(cpu, wbinvd, xxl, insn_buff, len);
+ #endif
+ 
+diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
+index 44bb18adfb51..5476423fc6d0 100644
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1060,7 +1060,6 @@ static const struct pv_cpu_ops xen_cpu_ops __initconst = {
+ 	.read_pmc = xen_read_pmc,
+ 
+ 	.iret = xen_iret,
+-	.usergs_sysret64 = xen_sysret64,
+ 
+ 	.load_tr_desc = paravirt_nop,
+ 	.set_ldt = xen_set_ldt,
+diff --git a/arch/x86/xen/xen-asm.S b/arch/x86/xen/xen-asm.S
+index 1d054c915046..c0630fd9f44e 100644
+--- a/arch/x86/xen/xen-asm.S
++++ b/arch/x86/xen/xen-asm.S
+@@ -214,26 +214,6 @@ SYM_CODE_START(xen_iret)
+ 	jmp hypercall_iret
+ SYM_CODE_END(xen_iret)
+ 
+-SYM_CODE_START(xen_sysret64)
+-	/*
+-	 * We're already on the usermode stack at this point, but
+-	 * still with the kernel gs, so we can easily switch back.
+-	 *
+-	 * tss.sp2 is scratch space.
+-	 */
+-	movq %rsp, PER_CPU_VAR(cpu_tss_rw + TSS_sp2)
+-	movq PER_CPU_VAR(cpu_current_top_of_stack), %rsp
+-
+-	pushq $__USER_DS
+-	pushq PER_CPU_VAR(cpu_tss_rw + TSS_sp2)
+-	pushq %r11
+-	pushq $__USER_CS
+-	pushq %rcx
+-
+-	pushq $VGCF_in_syscall
+-	jmp hypercall_iret
+-SYM_CODE_END(xen_sysret64)
+-
+ /*
+  * Xen handles syscall callbacks much like ordinary exceptions, which
+  * means we have:
+diff --git a/arch/x86/xen/xen-ops.h b/arch/x86/xen/xen-ops.h
+index 9546c3384c75..b2fd80a01a36 100644
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -138,8 +138,6 @@ __visible unsigned long xen_read_cr2_direct(void);
+ 
+ /* These are not functions, and cannot be called normally */
+ __visible void xen_iret(void);
+-__visible void xen_sysret32(void);
+-__visible void xen_sysret64(void);
+ 
+ extern int xen_panic_handler_init(void);
+ 
 -- 
-This email has been checked for viruses by AVG.
-https://www.avg.com
-
---q48AiKyJ9KOXWpGrq6Pep8=_Ayx8qiBc7D
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">------------------------------ 
-      <wbr>&nbsp;</wbr>&nbsp;&nbsp;------------------------------ 
-      <wbr>&nbsp;</wbr>&nbsp;&nbsp;------------------------------ 
-      <wbr>&nbsp;</wbr>&nbsp;&nbsp;---------- 
-    </p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%"><strong>Doctoral Symposium</strong> </p>=
-
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">CISTI 2021 - 16th Iberian Conference on =
-Information Systems and Technologies, Chaves, Portugal, 23 - 26 June 2021</=
-p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%"><a href=3D"http://www.cisti.eu/" target=
-=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttp://w=
-ww.cisti.eu/&source=3Dgmail&ust=3D1606828157836000&usg=3DAFQjCNHYuKquL9ivSq=
-eC_9iq3du8iRglzg">http://www.cisti.eu/</a></p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">------------------------------ 
-      <wbr>&nbsp;</wbr>&nbsp;&nbsp;------------------------------ 
-      <wbr>&nbsp;</wbr>&nbsp;&nbsp;------------------------------ 
-      <wbr>&nbsp;</wbr>&nbsp;&nbsp;--------- 
-    </p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">&nbsp;</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">The purpose of CISTI'2021&rsquo;s Doctor=
-al Symposium is to provide graduate students a setting where they can, info=
-rmally, expose and discuss their work, collecting valuable expert opinions =
-and sharing new ideas, methods and applications. The Doctoral Symposium is =
-an excellent opportunity for PhD students to present and discuss their work=
- in a Workshop format. Each presentation will be evaluated by a panel compo=
-sed by at least three Information Systems and Technologies experts.</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">&nbsp;</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%"><strong>Contributions Submission</strong=
-> </p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">The Doctoral Symposium is opened to PhD =
-students whose research area includes the themes proposed for this Conferen=
-ce. Submissions must include an extended abstract (maximum 4 pages), follow=
-ing the Conference style guide. All selected contributions will be publishe=
-d with the Conference Proceedings in electronic format with ISBN. These con=
-tributions will be available in the IEEE Xplore Digital Library and will be=
- sent for indexing in ISI, Scopus, EI-Compendex, INSPEC and Google Scholar.=
-</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Submissions must include the field, the =
-PhD institution and the number of months devoted to the development of the =
-work. Additionally, they should include in a clear and succinct manner:</p>=
-
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">&nbsp; &nbsp;&bull; &nbsp; &nbsp;The pro=
-blem approached and its significance or relevance <br />&nbsp; &nbsp;&bull;=
- &nbsp; &nbsp;The research objectives and related investigation topics <br =
-/>&nbsp; &nbsp;&bull; &nbsp; &nbsp;A brief display of what is already known=
- <br />&nbsp; &nbsp;&bull; &nbsp; &nbsp;A proposed solution methodology for=
- the problem <br />&nbsp; &nbsp;&bull; &nbsp; &nbsp;Expected results </p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">&nbsp;</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%"><strong>Important Dates</strong> </p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Paper submission: February 14, 2021</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Notification of acceptance: March 28, 20=
-21</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Submission of accepted papers: April 11,=
- 2021</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Payment of registration, to ensure the i=
-nclusion of an accepted paper in the conference proceedings: April 11, 2021=
-</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">&nbsp;</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%"><strong>Organizing Committee</strong> </=
-p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">&Aacute;lvaro Rocha, ISEG, Universidade =
-de Lisboa</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Francisco Garc&iacute;a-Pe&ntilde;alvo, =
-Universidad de Salamanca</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">&nbsp;</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%"><strong>Scientific Committee</strong> </=
-p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Francisco Garc&iacute;a-Pe&ntilde;alvo, =
-Universidad de Salamanca (Chair)</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">A. Augusto Sousa, FEUP, Universidade do =
-Porto</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Ad&eacute;rito Fernandes-Marcos, Univers=
-idade Aberta</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Adolfo Lozano Tello, Universidad de Extr=
-emadura</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Alicia Garc&iacute;a Holgado, Universida=
-d de Salamanca</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">&Aacute;lvaro Rocha, ISEG, Universidade =
-de Lisboa</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Ana Am&eacute;lia Carvalho, Universidade=
- de Coimbra</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Ant&oacute;nio Palma do Reis, ISEG, Univ=
-ersidade de Lisboa</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Arnaldo Martins, Universidade de Aveiro<=
-/p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Borja Bordel, Universidad Polit&eacute;c=
-nica de Madrid</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Br&aacute;ulio Alturas, ISCTE - Institut=
-o Universit&aacute;rio de Lisboa</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Carina Soledad Gonz&aacute;lez, Universi=
-dad de La Laguna</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Carlos Costa, ISEG, Universidade de Lisb=
-oa</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Carlos Ferr&aacute;s Sexto, Universidad =
-de Santiago de Compostela</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Cesar Collazos, Universidad del Cauca</p=
->
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Daniel Amo, La Salle, Universidad Ramon =
-Llull</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">David Fonseca, La Salle, Universitat Ram=
-on Llull</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Eduardo S&aacute;nchez Vila, Universidad=
-e de Santiago de Compostela</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Fernando Moreira, Universidade Portucale=
-nse</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Fernando Ramos, Universidade de Aveiro</=
-p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Francisco Restivo, Universidade Cat&oacu=
-te;lica Portuguesa</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Gon&ccedil;alo Paiva Dias, Universidade =
-de Aveiro</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Jo&atilde;o Costa, Universidade de Coimb=
-ra</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Jo&atilde;o Manuel R.S. Tavares, FEUP, U=
-niversidade do Porto</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Jo&atilde;o Pascoal Faria, FEUP, Univers=
-idade do Porto</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Jos&eacute; Machado, Universidade do Min=
-ho</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Luis Camarinha-Matos, FCT, Universidade =
-NOVA de Lisboa</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Lu&iacute;s Paulo Reis, FEUP, Universida=
-de do Porto</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Marcelo Marciszack, Universidad Tecnol&o=
-acute;gica Nacional</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Marco Painho, NOVA IMS</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Mar&iacute;a J Lado, Universidade de Vig=
-o</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Mar&iacute;a Pilar Mareca Lopez, Univers=
-idad Polit&eacute;cnica de Madrid</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">M&aacute;rio Piattini, Universidad de Ca=
-stilla-La Mancha</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Martin Llamas Nistal, Universidad de Vig=
-o</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Miguel Casquilho, IST, Universidade de L=
-isboa</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Miguel de Castro Neto, NOVA IMS</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Miguel Ram&oacute;n Gonz&aacute;lez-Cast=
-ro, ENCE</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Nelson Rocha, Universidade de Aveiro</p>=
-
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">&Oacute;scar Mealha, Universidade de Ave=
-iro</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Paulo Pinto, FCT, Universidade Nova de L=
-isboa</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Ramiro Gon&ccedil;alves, Universidade de=
- Tr&aacute;s-os-Montes e Alto Douro</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Tomas San Feliu, Universidad Polit&eacut=
-e;cnica de Madrid</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Vitor Santos, NOVA IMS</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">&nbsp;</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">Website of CISTI'2021: <a href=3D"http:/=
-/www.cisti.eu/" target=3D"_blank" data-saferedirecturl=3D"https://www.googl=
-e.com/url?q=3Dhttp://www.cisti.eu/&source=3Dgmail&ust=3D1606828157836000&us=
-g=3DAFQjCNHYuKquL9ivSqeC_9iq3du8iRglzg">http://www.cisti.eu/</a></p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">&nbsp;</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%">CISTI 2021 Team</p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%"><a href=3D"http://www.cisti.eu/" target=
-=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttp://w=
-ww.cisti.eu/&source=3Dgmail&ust=3D1606828157836000&usg=3DAFQjCNHYuKquL9ivSq=
-eC_9iq3du8iRglzg">http://www.cisti.eu/</a></p>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
-<table style=3D"border-top: 1px solid #D3D4DE;">
-	<tr>
-        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
-=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
-n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
-s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
-=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
-a></td>
-		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
-13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
-free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
-source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
-"_blank" style=3D"color: #4453ea;">www.avg.com</a>
-		</td>
-	</tr>
-</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
-t=3D"1"> </a></div></body>
-</html>
-
---q48AiKyJ9KOXWpGrq6Pep8=_Ayx8qiBc7D--
-
-
---===============9120043526789958109==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+2.26.2
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============9120043526789958109==--
-
