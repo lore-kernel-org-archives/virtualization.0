@@ -2,112 +2,103 @@ Return-Path: <SRS0=zQmE=GX=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
-	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECA7AC433E0
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 18:45:17 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6270FC433E0
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 19:45:18 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 500FA206CA
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 18:45:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 500FA206CA
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id CB5372343B
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 19:45:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CB5372343B
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=soleen.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 97B6C2036D;
-	Wed, 20 Jan 2021 18:45:16 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 34E3A84EA7;
+	Wed, 20 Jan 2021 19:45:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pnEi3LUmSYDu; Wed, 20 Jan 2021 18:45:15 +0000 (UTC)
+	with ESMTP id nxXW_hIm1dHW; Wed, 20 Jan 2021 19:45:16 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 4DF6620243;
-	Wed, 20 Jan 2021 18:45:15 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 6941B84138;
+	Wed, 20 Jan 2021 19:45:16 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 28AC0C08A1;
-	Wed, 20 Jan 2021 18:45:15 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B4502C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 54EC6C088B;
+	Wed, 20 Jan 2021 19:45:16 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 87322C013A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 18:45:13 +0000 (UTC)
+ Wed, 20 Jan 2021 19:45:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id A1F36863A3
+ by hemlock.osuosl.org (Postfix) with ESMTP id 836B986E1D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 18:45:13 +0000 (UTC)
+ Wed, 20 Jan 2021 19:45:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JMAvdPF4JXIw
+ with ESMTP id CwVYyzTAH4sq
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 18:45:12 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com
- [209.85.167.54])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 6EF8A85CD0
+ Wed, 20 Jan 2021 19:45:12 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
+Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com
+ [209.85.208.53])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 3623A86CAC
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 18:45:11 +0000 (UTC)
-Received: by mail-lf1-f54.google.com with SMTP id o13so35534387lfr.3
+ Wed, 20 Jan 2021 19:45:12 +0000 (UTC)
+Received: by mail-ed1-f53.google.com with SMTP id c6so20068335ede.0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 10:45:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ Wed, 20 Jan 2021 11:45:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=soleen.com; s=google;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=zrMNRZvlEESWdG6jggtCoB+4numwazy+fXWH/nTPU9U=;
- b=GbiCYI2AOS9Mde7ZZGAB8iKTEaPVyUk3NJn7BsJ4aNMPDW3bfjjQOlDjJVeyI01LfK
- yGrcSPsCfKcKMod8xBD3FRFhA2PKjb0+UA9u+c+PLBc6ucvOs4H76CCyWbj5qRgGzSxL
- YYeBDYP7YKSgdZ2tcOGzhxRWs+uk1fru9f/FsIBpFq4b3uFMzw/dOgkhsRnbJz85JTGD
- OFp28kiITVDeZNpIvktOImEsP9FYI+HUZ15TQ4xgjNS0A45AjvFeCkc/hiGkbKW6oV51
- UkYN9KTEvNSswvk+NvyWRYiqpqIG5SqjCPISQdicL2egTc1jJYF1v01KBc8Pl6R7uTGn
- P/AA==
+ :cc; bh=UqXhr6U1RGBGjv0Nmx2hKPUeAH0sokB4LM4fa/b0g0Q=;
+ b=R+IWStL2+wlSzaEPF5grre/1r+Jaffw+FsSinFtR7GqGC4E2gIGppNZ48FLSAM1P7V
+ qmOSQXfMkfMvZdsjTxKcjGptYXy54nxR82l+BpQkvK4R5NMIJd7MNHbu+ZZs3+OD+aSP
+ A/aOYQcz6NfqfQoK/m5hgsDdS5u8yBivB/ibpaQimmRiM+LXerCEUiNaw1WxlXSfayCO
+ RDh9CfRYuEHhLrQI7nCm9ERtXoOuf3fAdpNPmGAHBLeqsGgN+X3hX0i3Z+vflrYKvBuv
+ 6TqFt5BK8O+lYEg936dFG4VwU4JjTpoOeDwoCeHHKrfIY47nUARkbZ6uIlK3RU07mG5K
+ ThBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=zrMNRZvlEESWdG6jggtCoB+4numwazy+fXWH/nTPU9U=;
- b=m80AXq48hs8pU4HBo15FA9yo9rYG/LcP8VsWhJN56AqI3OvWfAaKgmvjMDIC3ZgGa/
- Tr5viLQsjo/FRZBhO9xt0YSTp8LUxJlokOHT1ESs8NfSTX2PzrAqnGyGIKTwCInZERH9
- Wfxc920eVKaIACuv2os3fb7Mzs0fH3HtZZnRB7hIPvhchYCXH70ZV9fZK0IsA5I4vx2x
- G4ZYBHFMapkLX7ISjwYHCQv/sZ7FQb5yezYxqhLtrqcPAY6xD8wxMdgEddHAWFREe7VV
- pO0fNhDWeuS7aIsPnYLVV1alBZkJuWI2UblD4dVK90EBHT3yjWq2iPjXWjHMa4wHZXdQ
- hTlQ==
-X-Gm-Message-State: AOAM530d6Qc/HjvR1+8m1AkS0VW7idkzxvhhJS3Jr9QYhd2BzB3Bpk47
- 64n/iR/3FoewZaB0q6uPhRMXxIj40uEaKXlPvto=
-X-Google-Smtp-Source: ABdhPJysfNizrzDQUVINGOhhgWus7azEpICiAnwV+p4EXlvDkyaX1pVlGFfbUwglU72IpLHWW5TDXiNALg3A++evFDI=
-X-Received: by 2002:a05:6512:34c5:: with SMTP id
- w5mr4908698lfr.214.1611168309505; 
- Wed, 20 Jan 2021 10:45:09 -0800 (PST)
+ bh=UqXhr6U1RGBGjv0Nmx2hKPUeAH0sokB4LM4fa/b0g0Q=;
+ b=TuImBZSEH3/ADAgqXK33RYTDRQA4cYXxZFewmsqsIBdbB6KFqfb3H9z2pIv9XwxTTx
+ ombG4rOFAxMscJTNKyVG5boBo4y6dTl82DAi0gs9C514fiRbnJgOXmcVcp6UEWRZ9dY9
+ 8nM3m+ikzeo75Oq9rYSgtNamKMn8J0v0MoQN/JUZBgN92TcQfLC7bivCtuGzKtf/5g+e
+ 1VQ4TESSJ7teMFn9p6RJloEe+R5jPCT+6ALCuLACLpWH9JPhOQMLL5Ptzo8yDlLFyGEC
+ zIWpYrpVSSvdYyWKgGTMkV7rtWYj8zhsMVjQJxK7McQ9j32tkT/X2ctP6IdjdX1F6HWB
+ KG4A==
+X-Gm-Message-State: AOAM533d5AcSXev4OmfQKo0tgdsJlR03Hp3+pfJzIRf+EQB7bmngnVFr
+ 562qAU6KrQ4jOJwWKNYqHeK1hiJMRk4w9MI6l0i3LQ==
+X-Google-Smtp-Source: ABdhPJxvb1wfnaERyYy/x1se5fCDDeRdAl7RuDhoERoccNXJ6VsNibgl6cUEjC5ZVp2ZI7TxxiJV79nr+G+lpZJH5es=
+X-Received: by 2002:a50:934a:: with SMTP id n10mr8420776eda.26.1611171910694; 
+ Wed, 20 Jan 2021 11:45:10 -0800 (PST)
 MIME-Version: 1.0
-References: <20210112194143.1494-1-yuri.benditovich@daynix.com>
- <20210112194143.1494-4-yuri.benditovich@daynix.com>
- <CAOEp5Ocz-xGq5=e=WY0aipEYHEhN-wxekNaAiqAS+HsOF8TcDQ@mail.gmail.com>
- <CAOEp5OevYR5FWVMfQ_esmWTKtz9_ddTupbe7FtBFQ=sv2kEt2w@mail.gmail.com>
-In-Reply-To: <CAOEp5OevYR5FWVMfQ_esmWTKtz9_ddTupbe7FtBFQ=sv2kEt2w@mail.gmail.com>
-From: Alexei Starovoitov <alexei.starovoitov@gmail.com>
-Date: Wed, 20 Jan 2021 10:44:58 -0800
-Message-ID: <CAADnVQJLN0sFyKdAmc6Pikv8Ww9OocnK_VXMG=ZLSMONHkqe4Q@mail.gmail.com>
-Subject: Re: [RFC PATCH 3/7] tun: allow use of BPF_PROG_TYPE_SCHED_CLS program
- type
-To: Yuri Benditovich <yuri.benditovich@daynix.com>
-Cc: Song Liu <songliubraving@fb.com>, kvm@vger.kernel.org,
- "Michael S . Tsirkin" <mst@redhat.com>,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
- LKML <linux-kernel@vger.kernel.org>, Yan Vugenfirer <yan@daynix.com>,
- Steffen Klassert <steffen.klassert@secunet.com>,
- Herbert Xu <herbert@gondor.apana.org.au>,
- Daniel Borkmann <daniel@iogearbox.net>, decui@microsoft.com,
- Andrii Nakryiko <andrii@kernel.org>, Yonghong Song <yhs@fb.com>,
- Paolo Abeni <pabeni@redhat.com>, Pablo Neira Ayuso <pablo@netfilter.org>,
- Marco Elver <elver@google.com>, KP Singh <kpsingh@kernel.org>, cai@lca.pw,
- Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org,
- Jakub Sitnicki <jakub@cloudflare.com>, Willem de Bruijn <willemb@google.com>,
- Network Development <netdev@vger.kernel.org>,
- Randy Dunlap <rdunlap@infradead.org>, gustavoars@kernel.org,
- "David S. Miller" <davem@davemloft.net>, bpf <bpf@vger.kernel.org>,
- Martin KaFai Lau <kafai@fb.com>
+References: <20210120120058.29138-1-wei.liu@kernel.org>
+ <20210120120058.29138-7-wei.liu@kernel.org>
+In-Reply-To: <20210120120058.29138-7-wei.liu@kernel.org>
+From: Pavel Tatashin <pasha.tatashin@soleen.com>
+Date: Wed, 20 Jan 2021 14:44:34 -0500
+Message-ID: <CA+CK2bDOhzx1_TcWQp2zFUb5+59ayFby=ZSoNyApNEQ0FRJUFA@mail.gmail.com>
+Subject: Re: [PATCH v5 06/16] x86/hyperv: allocate output arg pages if required
+To: Wei Liu <wei.liu@kernel.org>
+Cc: Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
+ Stephen Hemminger <sthemmin@microsoft.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>,
+ "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
+ Linux Kernel List <linux-kernel@vger.kernel.org>,
+ Michael Kelley <mikelley@microsoft.com>, Ingo Molnar <mingo@redhat.com>,
+ Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>,
+ Nuno Das Neves <nunodasneves@linux.microsoft.com>,
+ Borislav Petkov <bp@alien8.de>, Sunil Muthuswamy <sunilmut@microsoft.com>,
+ virtualization@lists.linux-foundation.org,
+ Vineeth Pillai <viremana@linux.microsoft.com>,
+ Lillian Grassin-Drake <ligrassi@microsoft.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,71 +115,123 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jan 12, 2021 at 12:55 PM Yuri Benditovich
-<yuri.benditovich@daynix.com> wrote:
+On Wed, Jan 20, 2021 at 7:01 AM Wei Liu <wei.liu@kernel.org> wrote:
 >
-> On Tue, Jan 12, 2021 at 10:40 PM Yuri Benditovich
-> <yuri.benditovich@daynix.com> wrote:
-> >
-> > On Tue, Jan 12, 2021 at 9:42 PM Yuri Benditovich
-> > <yuri.benditovich@daynix.com> wrote:
-> > >
-> > > This program type can set skb hash value. It will be useful
-> > > when the tun will support hash reporting feature if virtio-net.
-> > >
-> > > Signed-off-by: Yuri Benditovich <yuri.benditovich@daynix.com>
-> > > ---
-> > >  drivers/net/tun.c | 2 ++
-> > >  1 file changed, 2 insertions(+)
-> > >
-> > > diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-> > > index 7959b5c2d11f..455f7afc1f36 100644
-> > > --- a/drivers/net/tun.c
-> > > +++ b/drivers/net/tun.c
-> > > @@ -2981,6 +2981,8 @@ static int tun_set_ebpf(struct tun_struct *tun, struct tun_prog __rcu **prog_p,
-> > >                 prog = NULL;
-> > >         } else {
-> > >                 prog = bpf_prog_get_type(fd, BPF_PROG_TYPE_SOCKET_FILTER);
-> > > +               if (IS_ERR(prog))
-> > > +                       prog = bpf_prog_get_type(fd, BPF_PROG_TYPE_SCHED_CLS);
-> > >                 if (IS_ERR(prog))
-> > >                         return PTR_ERR(prog);
-> > >         }
-> >
-> > Comment from Alexei Starovoitov:
-> > Patches 1 and 2 are missing for me, so I couldn't review properly,
-> > but this diff looks odd.
-> > It allows sched_cls prog type to attach to tun.
-> > That means everything that sched_cls progs can do will be done from tun hook?
+> When Linux runs as the root partition, it will need to make hypercalls
+> which return data from the hypervisor.
 >
-> We do not have an intention to modify the packet in this steering eBPF.
-
-The intent is irrelevant. Using SCHED_CLS here will let users modify the packet
-and some users will do so. Hence the tun code has to support it.
-
-> There is just one function that unavailable for BPF_PROG_TYPE_SOCKET_FILTER
-> that the eBPF needs to make possible to deliver the hash to the guest
-> VM - it is 'bpf_set_hash'
+> Allocate pages for storing results when Linux runs as the root
+> partition.
 >
-> Does it mean that we need to define a new eBPF type for socket filter
-> operations + set_hash?
+> Signed-off-by: Lillian Grassin-Drake <ligrassi@microsoft.com>
+> Co-Developed-by: Lillian Grassin-Drake <ligrassi@microsoft.com>
+> Signed-off-by: Wei Liu <wei.liu@kernel.org>
+
+Reviewed-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+
+The new warnings reported by the robot are the same as for the input argument.
+
+Pasha
+
+> ---
+> v3: Fix hv_cpu_die to use free_pages.
+> v2: Address Vitaly's comments
+> ---
+>  arch/x86/hyperv/hv_init.c       | 35 ++++++++++++++++++++++++++++-----
+>  arch/x86/include/asm/mshyperv.h |  1 +
+>  2 files changed, 31 insertions(+), 5 deletions(-)
 >
-> Our problem is that the eBPF calculates 32-bit hash, 16-bit queue
-> index and 8-bit of hash type.
-> But it is able to return only 32-bit integer, so in this set of
-> patches the eBPF returns
-> queue index and hash type and saves the hash in skb->hash using bpf_set_hash().
-
-bpf prog can only return a 32-bit integer. That's true.
-But the prog can use helpers to set any number of bits and variables.
-bpf_set_hash_v2() with hash, queue and index arguments could fit this purpose,
-but if you allow it for SCHED_CLS type,
-tc side of the code should be ready to deal with that too and this extended
-helper should be meaningful for both tc and tun.
-
-In general if the purpose of the prog is to compute three values they better be
-grouped together. Returned two of them via ORed 32-bit integer and
-returning 32-bit via bpf_set_hash is an awkward api.
+> diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
+> index e04d90af4c27..6f4cb40e53fe 100644
+> --- a/arch/x86/hyperv/hv_init.c
+> +++ b/arch/x86/hyperv/hv_init.c
+> @@ -41,6 +41,9 @@ EXPORT_SYMBOL_GPL(hv_vp_assist_page);
+>  void  __percpu **hyperv_pcpu_input_arg;
+>  EXPORT_SYMBOL_GPL(hyperv_pcpu_input_arg);
+>
+> +void  __percpu **hyperv_pcpu_output_arg;
+> +EXPORT_SYMBOL_GPL(hyperv_pcpu_output_arg);
+> +
+>  u32 hv_max_vp_index;
+>  EXPORT_SYMBOL_GPL(hv_max_vp_index);
+>
+> @@ -73,12 +76,19 @@ static int hv_cpu_init(unsigned int cpu)
+>         void **input_arg;
+>         struct page *pg;
+>
+> -       input_arg = (void **)this_cpu_ptr(hyperv_pcpu_input_arg);
+>         /* hv_cpu_init() can be called with IRQs disabled from hv_resume() */
+> -       pg = alloc_page(irqs_disabled() ? GFP_ATOMIC : GFP_KERNEL);
+> +       pg = alloc_pages(irqs_disabled() ? GFP_ATOMIC : GFP_KERNEL, hv_root_partition ? 1 : 0);
+>         if (unlikely(!pg))
+>                 return -ENOMEM;
+> +
+> +       input_arg = (void **)this_cpu_ptr(hyperv_pcpu_input_arg);
+>         *input_arg = page_address(pg);
+> +       if (hv_root_partition) {
+> +               void **output_arg;
+> +
+> +               output_arg = (void **)this_cpu_ptr(hyperv_pcpu_output_arg);
+> +               *output_arg = page_address(pg + 1);
+> +       }
+>
+>         hv_get_vp_index(msr_vp_index);
+>
+> @@ -205,14 +215,23 @@ static int hv_cpu_die(unsigned int cpu)
+>         unsigned int new_cpu;
+>         unsigned long flags;
+>         void **input_arg;
+> -       void *input_pg = NULL;
+> +       void *pg;
+>
+>         local_irq_save(flags);
+>         input_arg = (void **)this_cpu_ptr(hyperv_pcpu_input_arg);
+> -       input_pg = *input_arg;
+> +       pg = *input_arg;
+>         *input_arg = NULL;
+> +
+> +       if (hv_root_partition) {
+> +               void **output_arg;
+> +
+> +               output_arg = (void **)this_cpu_ptr(hyperv_pcpu_output_arg);
+> +               *output_arg = NULL;
+> +       }
+> +
+>         local_irq_restore(flags);
+> -       free_page((unsigned long)input_pg);
+> +
+> +       free_pages((unsigned long)pg, hv_root_partition ? 1 : 0);
+>
+>         if (hv_vp_assist_page && hv_vp_assist_page[cpu])
+>                 wrmsrl(HV_X64_MSR_VP_ASSIST_PAGE, 0);
+> @@ -346,6 +365,12 @@ void __init hyperv_init(void)
+>
+>         BUG_ON(hyperv_pcpu_input_arg == NULL);
+>
+> +       /* Allocate the per-CPU state for output arg for root */
+> +       if (hv_root_partition) {
+> +               hyperv_pcpu_output_arg = alloc_percpu(void *);
+> +               BUG_ON(hyperv_pcpu_output_arg == NULL);
+> +       }
+> +
+>         /* Allocate percpu VP index */
+>         hv_vp_index = kmalloc_array(num_possible_cpus(), sizeof(*hv_vp_index),
+>                                     GFP_KERNEL);
+> diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
+> index ac2b0d110f03..62d9390f1ddf 100644
+> --- a/arch/x86/include/asm/mshyperv.h
+> +++ b/arch/x86/include/asm/mshyperv.h
+> @@ -76,6 +76,7 @@ static inline void hv_disable_stimer0_percpu_irq(int irq) {}
+>  #if IS_ENABLED(CONFIG_HYPERV)
+>  extern void *hv_hypercall_pg;
+>  extern void  __percpu  **hyperv_pcpu_input_arg;
+> +extern void  __percpu  **hyperv_pcpu_output_arg;
+>
+>  static inline u64 hv_do_hypercall(u64 control, void *input, void *output)
+>  {
+> --
+> 2.20.1
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
