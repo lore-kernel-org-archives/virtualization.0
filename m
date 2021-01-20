@@ -1,86 +1,101 @@
-Return-Path: <SRS0=ogTN=GW=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=zQmE=GX=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_RED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B39BFC433DB
-	for <virtualization@archiver.kernel.org>; Tue, 19 Jan 2021 18:49:08 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B79FEC433E0
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 00:14:57 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EDB902312B
-	for <virtualization@archiver.kernel.org>; Tue, 19 Jan 2021 18:49:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EDB902312B
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+	by mail.kernel.org (Postfix) with ESMTPS id 4831422CE3
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 00:14:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4831422CE3
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 5B9DE84B80;
-	Tue, 19 Jan 2021 17:54:15 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id F2A5E864D7;
+	Wed, 20 Jan 2021 00:14:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uDaaTKeXbClm; Tue, 19 Jan 2021 17:54:14 +0000 (UTC)
+	with ESMTP id q8Q55m9ANTEH; Wed, 20 Jan 2021 00:14:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id A0CCE8456F;
-	Tue, 19 Jan 2021 17:54:14 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id D409F864D4;
+	Wed, 20 Jan 2021 00:14:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 854E1C088B;
-	Tue, 19 Jan 2021 17:54:14 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3834BC013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B56CCC08A1;
+	Wed, 20 Jan 2021 00:14:55 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CE714C013A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Jan 2021 17:54:13 +0000 (UTC)
+ Wed, 20 Jan 2021 00:14:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 1B4332043E
+ by hemlock.osuosl.org (Postfix) with ESMTP id C3B3E86F8F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Jan 2021 17:54:13 +0000 (UTC)
+ Wed, 20 Jan 2021 00:14:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qm7LgP84bMqG
+ with ESMTP id Awfbfcg3V1W0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Jan 2021 17:54:11 +0000 (UTC)
+ Wed, 20 Jan 2021 00:14:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from merlin.infradead.org (merlin.infradead.org [205.233.59.134])
- by silver.osuosl.org (Postfix) with ESMTPS id 46614203BA
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id D5D0886F8D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 19 Jan 2021 17:54:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=merlin.20170209; h=Content-Transfer-Encoding:Content-Type:
- In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
- :Reply-To:Content-ID:Content-Description;
- bh=bem/4M8L62Jn47zv1wRCWw9J4rfbubNfeTQT1T3mqyg=; b=QvmCgohUW026YsJwX313hXd8Jr
- x7vvDHWSJjtQLA3V95OFuAyAYNMBfNbcNaSYAKsknQTQydAjdn9htC3xIaF8QXf/eofbkuUOPRnEe
- 9gaJ698oMxw9WSiPyC9FaQKsnBQkMdkdFUEGtUGcdCCgUeuB+x7QAZHtFU4Mx2o5+R9dy4TGDVxkT
- owoSf4FZa6ieBgfyMW9q18FJRdhQ+3B74KHEFf7Xck3H+YIPUunSzUYHizgHW75sb+VGBYjjBLbV9
- aqrNQm6Ehz6PWM3dKR4J/ILgyzls/a2xwA/tSrS5Kz/efsuUuit8GnM+NvDDsSFNxUiaQrW3thId0
- QE0ymqEg==;
-Received: from [2601:1c0:6280:3f0::9abc]
- by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
- id 1l1vCd-00029A-NS; Tue, 19 Jan 2021 17:54:04 +0000
-Subject: Re: [RFC v3 08/11] vduse: Introduce VDUSE - vDPA Device in Userspace
-To: Xie Yongji <xieyongji@bytedance.com>, mst@redhat.com,
- jasowang@redhat.com, stefanha@redhat.com, sgarzare@redhat.com,
- parav@nvidia.com, bob.liu@oracle.com, hch@infradead.org,
- willy@infradead.org, viro@zeniv.linux.org.uk, axboe@kernel.dk,
- bcrl@kvack.org, corbet@lwn.net
-References: <20210119045920.447-1-xieyongji@bytedance.com>
- <20210119050756.600-1-xieyongji@bytedance.com>
- <20210119050756.600-2-xieyongji@bytedance.com>
-From: Randy Dunlap <rdunlap@infradead.org>
-Message-ID: <cfdc418c-7559-c6b1-6d8d-8f3a91a24f2b@infradead.org>
-Date: Tue, 19 Jan 2021 09:53:55 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
-MIME-Version: 1.0
-In-Reply-To: <20210119050756.600-2-xieyongji@bytedance.com>
+ Wed, 20 Jan 2021 00:14:52 +0000 (UTC)
+IronPort-SDR: ++x2X5yQKTHmqYHuLM75uFsBqYqGuP/TV3h5lhlKKH22ePIZ1+gS0lsbkI5hJrNWydGCEL9C0+
+ kzQZBrzwHzAQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9869"; a="176447470"
+X-IronPort-AV: E=Sophos;i="5.79,359,1602572400"; d="scan'208";a="176447470"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+ by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 19 Jan 2021 16:14:50 -0800
+IronPort-SDR: jgFWRhZEtk36yrNAm0zdpaObTL6Ej/nLYui9dA2xZSEVMV7qUN0wNLfNzTF+4uPqhkoV2RTEQy
+ F1EOwuF2+0+A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.79,359,1602572400"; d="scan'208";a="353963107"
+Received: from orsmsx604.amr.corp.intel.com ([10.22.229.17])
+ by orsmga006.jf.intel.com with ESMTP; 19 Jan 2021 16:14:50 -0800
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX604.amr.corp.intel.com (10.22.229.17) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Tue, 19 Jan 2021 16:14:50 -0800
+Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Tue, 19 Jan 2021 16:14:49 -0800
+Received: from orsmsx611.amr.corp.intel.com ([10.22.229.24]) by
+ ORSMSX611.amr.corp.intel.com ([10.22.229.24]) with mapi id 15.01.1713.004;
+ Tue, 19 Jan 2021 16:14:49 -0800
+From: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>
+To: Alex Williamson <alex.williamson@redhat.com>
+Subject: RE: [RFC 3/3] vfio: Share the KVM instance with Vdmabuf
+Thread-Topic: [RFC 3/3] vfio: Share the KVM instance with Vdmabuf
+Thread-Index: AQHW7j6Sb7QSbmMgzEq63xXMOAt6Q6ovnEqA///v1aA=
+Date: Wed, 20 Jan 2021 00:14:49 +0000
+Message-ID: <b4a93e926d424ff199ab91ff88399087@intel.com>
+References: <20210119082812.822291-1-vivek.kasireddy@intel.com>
+ <20210119082812.822291-4-vivek.kasireddy@intel.com>
+ <20210119083955.1cc9eae3@omen.home.shazbot.org>
+In-Reply-To: <20210119083955.1cc9eae3@omen.home.shazbot.org>
+Accept-Language: en-US
 Content-Language: en-US
-Cc: linux-aio@kvack.org, netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.5.1.3
+dlp-reaction: no-action
+x-originating-ip: [10.22.254.132]
+MIME-Version: 1.0
+Cc: "Kim, Dongwon" <dongwon.kim@intel.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -97,121 +112,95 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi,
+Hi Alex,
 
-Documentation comments only:
-
-On 1/18/21 9:07 PM, Xie Yongji wrote:
+> -----Original Message-----
+> From: Alex Williamson <alex.williamson@redhat.com>
+> Sent: Tuesday, January 19, 2021 7:40 AM
+> To: Kasireddy, Vivek <vivek.kasireddy@intel.com>
+> Cc: virtualization@lists.linux-foundation.org; Kim, Dongwon <dongwon.kim@intel.com>
+> Subject: Re: [RFC 3/3] vfio: Share the KVM instance with Vdmabuf
 > 
-> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> ---
->  Documentation/driver-api/vduse.rst                 |   85 ++
+> On Tue, 19 Jan 2021 00:28:12 -0800
+> Vivek Kasireddy <vivek.kasireddy@intel.com> wrote:
 > 
-> diff --git a/Documentation/driver-api/vduse.rst b/Documentation/driver-api/vduse.rst
-> new file mode 100644
-> index 000000000000..9418a7f6646b
-> --- /dev/null
-> +++ b/Documentation/driver-api/vduse.rst
-> @@ -0,0 +1,85 @@
-> +==================================
-> +VDUSE - "vDPA Device in Userspace"
-> +==================================
-> +
-> +vDPA (virtio data path acceleration) device is a device that uses a
-> +datapath which complies with the virtio specifications with vendor
-> +specific control path. vDPA devices can be both physically located on
-> +the hardware or emulated by software. VDUSE is a framework that makes it
-> +possible to implement software-emulated vDPA devices in userspace.
-> +
-> +How VDUSE works
-> +------------
-> +Each userspace vDPA device is created by the VDUSE_CREATE_DEV ioctl on
-> +the VDUSE character device (/dev/vduse). Then a file descriptor pointing
-> +to the new resources will be returned, which can be used to implement the
-> +userspace vDPA device's control path and data path.
-> +
-> +To implement control path, the read/write operations to the file descriptor
-> +will be used to receive/reply the control messages from/to VDUSE driver.
-> +Those control messages are mostly based on the vdpa_config_ops which defines
-> +a unified interface to control different types of vDPA device.
-> +
-> +The following types of messages are provided by the VDUSE framework now:
-> +
-> +- VDUSE_SET_VQ_ADDR: Set the addresses of the different aspects of virtqueue.
-> +
-> +- VDUSE_SET_VQ_NUM: Set the size of virtqueue
-> +
-> +- VDUSE_SET_VQ_READY: Set ready status of virtqueue
-> +
-> +- VDUSE_GET_VQ_READY: Get ready status of virtqueue
-> +
-> +- VDUSE_SET_VQ_STATE: Set the state (last_avail_idx) for virtqueue
-> +
-> +- VDUSE_GET_VQ_STATE: Get the state (last_avail_idx) for virtqueue
-> +
-> +- VDUSE_SET_FEATURES: Set virtio features supported by the driver
-> +
-> +- VDUSE_GET_FEATURES: Get virtio features supported by the device
-> +
-> +- VDUSE_SET_STATUS: Set the device status
-> +
-> +- VDUSE_GET_STATUS: Get the device status
-> +
-> +- VDUSE_SET_CONFIG: Write to device specific configuration space
-> +
-> +- VDUSE_GET_CONFIG: Read from device specific configuration space
-> +
-> +- VDUSE_UPDATE_IOTLB: Notify userspace to update the memory mapping in device IOTLB
-> +
-> +Please see include/linux/vdpa.h for details.
-> +
-> +In the data path, vDPA device's iova regions will be mapped into userspace with
-> +the help of VDUSE_IOTLB_GET_FD ioctl on the userspace vDPA device fd:
-> +
-> +- VDUSE_IOTLB_GET_FD: get the file descriptor to iova region. Userspace can
-> +  access this iova region by passing the fd to mmap(2).
-> +
-> +Besides, the eventfd mechanism is used to trigger interrupt callbacks and
-> +receive virtqueue kicks in userspace. The following ioctls on the userspace
-> +vDPA device fd are provided to support that:
-> +
-> +- VDUSE_VQ_SETUP_KICKFD: set the kickfd for virtqueue, this eventfd is used
-> +  by VDUSE driver to notify userspace to consume the vring.
-> +
-> +- VDUSE_VQ_SETUP_IRQFD: set the irqfd for virtqueue, this eventfd is used
-> +  by userspace to notify VDUSE driver to trigger interrupt callbacks.
-> +
-> +MMU-based IOMMU Driver
-> +----------------------
-> +In virtio-vdpa case, VDUSE framework implements a MMU-based on-chip IOMMU
+> > Getting a copy of the KVM instance is necessary for mapping Guest
+> > pages in the Host.
+> >
+> > TODO: Instead of invoking the symbol directly, there needs to be a
+> > better way of getting a copy of the KVM instance probably by using
+> > other notifiers. However, currently, KVM shares its instance only
+> > with VFIO and therefore we are compelled to bind the passthrough'd
+> > device to vfio-pci.
+> 
+> Yeah, this is a bad solution, sorry, vfio is not going to gratuitously
+> call out to vhost to share a kvm pointer.  I'd prefer to get rid of
+> vfio having any knowledge or visibility of the kvm pointer.  Thanks,
 
-                                                   an MMU-based
+[Kasireddy, Vivek] I agree that this is definitely not ideal as I recognize it
+in the TODO. However, it looks like VFIO also gets a copy of the KVM 
+pointer in a similar manner:
 
-> +driver to support mapping the kernel dma buffer into the userspace iova
+virt/kvm/vfio.c
 
-                                        DMA
+static void kvm_vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
+{
+        void (*fn)(struct vfio_group *, struct kvm *);
 
-> +region dynamically.
-> +
-> +The basic idea behind this driver is treating MMU (VA->PA) as IOMMU (IOVA->PA).
-> +The driver will set up MMU mapping instead of IOMMU mapping for the DMA transfer
-> +so that the userspace process is able to use its virtual address to access
-> +the dma buffer in kernel.
+        fn = symbol_get(vfio_group_set_kvm);
+        if (!fn)
+                return;
 
-       DMA
+        fn(group, kvm);
 
-> +
-> +And to avoid security issue, a bounce-buffering mechanism is introduced to
-> +prevent userspace accessing the original buffer directly which may contain other
-> +kernel data. During the mapping, unmapping, the driver will copy the data from
-> +the original buffer to the bounce buffer and back, depending on the direction of
-> +the transfer. And the bounce-buffer addresses will be mapped into the user address
-> +space instead of the original one.
+        symbol_put(vfio_group_set_kvm);
+}
 
+With this patch, I am not suggesting that this is a precedent that should be followed 
+but it appears there doesn't seem to be an alternative way of getting a copy of the KVM 
+pointer that is clean and elegant -- unless I have not looked hard enough. I guess we
+could create a notifier chain with callbacks for VFIO and Vhost that KVM would call 
+but this would mean modifying KVM.
 
-thanks.
--- 
-~Randy
+Also, if I understand correctly, if VFIO does not want to share the KVM pointer with
+VFIO groups, then I think it would break stuff like mdev which counts on it. 
+
+Thanks,
+Vivek
+
+> Alex
+> 
+> > Signed-off-by: Vivek Kasireddy <vivek.kasireddy@intel.com>
+> > ---
+> >  drivers/vfio/vfio.c | 9 +++++++++
+> >  1 file changed, 9 insertions(+)
+> >
+> > diff --git a/drivers/vfio/vfio.c b/drivers/vfio/vfio.c
+> > index 4ad8a35667a7..9fb11b1ad3cd 100644
+> > --- a/drivers/vfio/vfio.c
+> > +++ b/drivers/vfio/vfio.c
+> > @@ -2213,11 +2213,20 @@ static int vfio_unregister_iommu_notifier(struct vfio_group
+> *group,
+> >  	return ret;
+> >  }
+> >
+> > +extern void vhost_vdmabuf_get_kvm(unsigned long action, void *data);
+> >  void vfio_group_set_kvm(struct vfio_group *group, struct kvm *kvm)
+> >  {
+> > +	void (*fn)(unsigned long, void *);
+> > +
+> >  	group->kvm = kvm;
+> >  	blocking_notifier_call_chain(&group->notifier,
+> >  				VFIO_GROUP_NOTIFY_SET_KVM, kvm);
+> > +
+> > +	fn = symbol_get(vhost_vdmabuf_get_kvm);
+> > +	if (fn) {
+> > +		fn(VFIO_GROUP_NOTIFY_SET_KVM, kvm);
+> > +		symbol_put(vhost_vdmabuf_get_kvm);
+> > +	}
+> >  }
+> >  EXPORT_SYMBOL_GPL(vfio_group_set_kvm);
+> >
 
 _______________________________________________
 Virtualization mailing list
