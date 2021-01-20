@@ -2,76 +2,98 @@ Return-Path: <SRS0=zQmE=GX=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68853C433E0
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 13:26:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC239C433E6
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 13:33:57 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id ED39D23380
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 13:26:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org ED39D23380
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id 4CF1B2245C
+	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 13:33:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4CF1B2245C
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 57852869F0;
-	Wed, 20 Jan 2021 13:26:29 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id D3C23862F4;
+	Wed, 20 Jan 2021 13:33:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 72iizijxtYGT; Wed, 20 Jan 2021 13:26:26 +0000 (UTC)
+	with ESMTP id DSnf23No969G; Wed, 20 Jan 2021 13:33:55 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 7EB1A869FD;
-	Wed, 20 Jan 2021 13:26:26 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id CE86186165;
+	Wed, 20 Jan 2021 13:33:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 76646C1DA9;
-	Wed, 20 Jan 2021 13:26:26 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AD0BAC088B;
+	Wed, 20 Jan 2021 13:33:55 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9EADAC013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 144DFC013A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 13:26:24 +0000 (UTC)
+ Wed, 20 Jan 2021 13:33:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 72D6C2078D
+ by silver.osuosl.org (Postfix) with ESMTP id E300020410
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 13:26:24 +0000 (UTC)
+ Wed, 20 Jan 2021 13:33:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id joqYtA3YlHWb
+ with ESMTP id MZoLwXeTbE4v
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 13:26:18 +0000 (UTC)
+ Wed, 20 Jan 2021 13:33:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTPS id F36DC20410
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by silver.osuosl.org (Postfix) with ESMTPS id 00E7D203C3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 13:26:17 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1611149176; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
- mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
+ Wed, 20 Jan 2021 13:33:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1611149630;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=RBKvQ1quKphV0aHG3HdcZk3u50wSNWiZ3dhB2CG4DY0=;
- b=ilCtO+ArYkjYsGZNMn5WNRykBIZJQ2nh/XXz1tTZICDUd95FcEsIlx2Sxa0hXJ5KaE/FmI
- ypXhJlNsgfcpsN85PPZk/QcQjEvQAPNmCYMskp85IgtdJ7bLjAuJGThHXrPiQMn0YOlp1r
- DV4Wuv5gfoHiri93eX6E1FJOfW63+2k=
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 05005B3E8;
- Wed, 20 Jan 2021 13:26:16 +0000 (UTC)
-To: bpetkov@suse.com, x86@kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org
-Subject: [PATCH v4 14/15] x86/paravirt: switch functions with custom code to
- ALTERNATIVE
-Date: Wed, 20 Jan 2021 14:26:12 +0100
-Message-Id: <20210120132613.31487-15-jgross@suse.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210120132613.31487-1-jgross@suse.com>
-References: <20210120132613.31487-1-jgross@suse.com>
+ bh=TuZhxXX0vx11B3Qj3wPxkPeJCMw+rTZdku7noaOiFM4=;
+ b=XSA7EfN7vUqjqjuzrZYo6VdrQNeH6AoYH+KhryY/Wy2h62Xyj7QKjT13tjlvn0dx39+IFI
+ gCZLS70oRtpyLKn+dB74SLMYT0QBBneNLk+0PrEPzkM3zmKdO5EDKxzxYGd08co/IBZtmI
+ ATDLgGrepUDtOrYg7yBdDyY8hwuAPv8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-298-Cf47LavbMFGCejYLZROe5w-1; Wed, 20 Jan 2021 08:33:48 -0500
+X-MC-Unique: Cf47LavbMFGCejYLZROe5w-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
+ [10.5.11.22])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1AF84107ACE3;
+ Wed, 20 Jan 2021 13:33:47 +0000 (UTC)
+Received: from sirius.home.kraxel.org (ovpn-112-182.ams2.redhat.com
+ [10.36.112.182])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 857A610023B6;
+ Wed, 20 Jan 2021 13:33:46 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+ id E6BAF18000B3; Wed, 20 Jan 2021 14:33:44 +0100 (CET)
+Date: Wed, 20 Jan 2021 14:33:44 +0100
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Yiwei Zhang <zzyiwei@android.com>
+Subject: Re: [PATCH v2] drm/virtio: Track total GPU memory for virtio driver
+Message-ID: <20210120133344.7kln44nbwb5rjjgu@sirius.home.kraxel.org>
+References: <CAKB3++adfpdBHFEyGZ3v2V6zyW+ayg86CLDRKx1ty+OytjYFNw@mail.gmail.com>
+ <20210118234057.270930-1-zzyiwei@android.com>
+ <CAKMK7uE+7S5q8bU0ibyepb8yQL3QYNjZE+Jwf13+bVfAmoSuhw@mail.gmail.com>
+ <CAKB3++aNtrjzFoq4icMWSUvXw7bL69FRM+9t69firXHkiuTwDQ@mail.gmail.com>
+ <YAfzxS95Yy86qnBi@phenom.ffwll.local>
+ <CAKB3++ZYacAN2ZVSGGm0uEDQtowcS9LDPPYCqt6Pj+-WEFxMSQ@mail.gmail.com>
 MIME-Version: 1.0
+Content-Disposition: inline
+In-Reply-To: <CAKB3++ZYacAN2ZVSGGm0uEDQtowcS9LDPPYCqt6Pj+-WEFxMSQ@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+Cc: David Airlie <airlied@linux.ie>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
+ NET..." <virtualization@lists.linux-foundation.org>,
+ Daniel Vetter <daniel@ffwll.ch>, Android Kernel Team <kernel-team@android.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -83,474 +105,94 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Juergen Gross via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Juergen Gross <jgross@suse.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Instead of using paravirt patching for custom code sequences use
-ALTERNATIVE for the functions with custom code replacements.
+  Hi,
 
-Instead of patching an ud2 instruction for unpopulated vector entries
-into the caller site, use a simple function just calling BUG() as a
-replacement.
+> > > > > +       select TRACE_GPU_MEM
 
-Simplify the register defines for assembler paravirt calling, as there
-isn't much usage left.
+> > > > > +#ifdef CONFIG_TRACE_GPU_MEM
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
-V4:
-- fixed SAVE_FLAGS() (kernel test robot)
-- added assembler paravirt cleanup
----
- arch/x86/entry/entry_64.S             |  2 +-
- arch/x86/include/asm/irqflags.h       |  2 +-
- arch/x86/include/asm/paravirt.h       | 99 +++++++++++++--------------
- arch/x86/include/asm/paravirt_types.h |  6 --
- arch/x86/kernel/paravirt.c            | 16 ++---
- arch/x86/kernel/paravirt_patch.c      | 88 ------------------------
- 6 files changed, 56 insertions(+), 157 deletions(-)
+That doesn't make sense btw.
 
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index ce0464d630a2..714af508fe30 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -305,7 +305,7 @@ SYM_CODE_END(ret_from_fork)
- .macro DEBUG_ENTRY_ASSERT_IRQS_OFF
- #ifdef CONFIG_DEBUG_ENTRY
- 	pushq %rax
--	SAVE_FLAGS(CLBR_RAX)
-+	SAVE_FLAGS
- 	testl $X86_EFLAGS_IF, %eax
- 	jz .Lokay_\@
- 	ud2
-diff --git a/arch/x86/include/asm/irqflags.h b/arch/x86/include/asm/irqflags.h
-index a0efbcd24b86..c5ce9845c999 100644
---- a/arch/x86/include/asm/irqflags.h
-+++ b/arch/x86/include/asm/irqflags.h
-@@ -111,7 +111,7 @@ static __always_inline unsigned long arch_local_irq_save(void)
- 
- #ifdef CONFIG_X86_64
- #ifdef CONFIG_DEBUG_ENTRY
--#define SAVE_FLAGS(x)		pushfq; popq %rax
-+#define SAVE_FLAGS		pushfq; popq %rax
- #endif
- 
- #define INTERRUPT_RETURN	jmp native_iret
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 36cd71fa097f..04b3067f31b5 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -137,7 +137,8 @@ static inline void write_cr0(unsigned long x)
- 
- static inline unsigned long read_cr2(void)
- {
--	return PVOP_CALLEE0(unsigned long, mmu.read_cr2);
-+	return PVOP_ALT_CALLEE0(unsigned long, mmu.read_cr2,
-+				"mov %%cr2, %%rax;", ~X86_FEATURE_XENPV);
- }
- 
- static inline void write_cr2(unsigned long x)
-@@ -147,12 +148,14 @@ static inline void write_cr2(unsigned long x)
- 
- static inline unsigned long __read_cr3(void)
- {
--	return PVOP_CALL0(unsigned long, mmu.read_cr3);
-+	return PVOP_ALT_CALL0(unsigned long, mmu.read_cr3,
-+			      "mov %%cr3, %%rax;", ~X86_FEATURE_XENPV);
- }
- 
- static inline void write_cr3(unsigned long x)
- {
--	PVOP_VCALL1(mmu.write_cr3, x);
-+	PVOP_ALT_VCALL1(mmu.write_cr3, x,
-+			"mov %%rdi, %%cr3", ~X86_FEATURE_XENPV);
- }
- 
- static inline void __write_cr4(unsigned long x)
-@@ -172,7 +175,7 @@ static inline void halt(void)
- 
- static inline void wbinvd(void)
- {
--	PVOP_VCALL0(cpu.wbinvd);
-+	PVOP_ALT_VCALL0(cpu.wbinvd, "wbinvd", ~X86_FEATURE_XENPV);
- }
- 
- static inline u64 paravirt_read_msr(unsigned msr)
-@@ -386,22 +389,28 @@ static inline void paravirt_release_p4d(unsigned long pfn)
- 
- static inline pte_t __pte(pteval_t val)
- {
--	return (pte_t) { PVOP_CALLEE1(pteval_t, mmu.make_pte, val) };
-+	return (pte_t) { PVOP_ALT_CALLEE1(pteval_t, mmu.make_pte, val,
-+					  "mov %%rdi, %%rax",
-+					  ~X86_FEATURE_XENPV) };
- }
- 
- static inline pteval_t pte_val(pte_t pte)
- {
--	return PVOP_CALLEE1(pteval_t, mmu.pte_val, pte.pte);
-+	return PVOP_ALT_CALLEE1(pteval_t, mmu.pte_val, pte.pte,
-+				"mov %%rdi, %%rax", ~X86_FEATURE_XENPV);
- }
- 
- static inline pgd_t __pgd(pgdval_t val)
- {
--	return (pgd_t) { PVOP_CALLEE1(pgdval_t, mmu.make_pgd, val) };
-+	return (pgd_t) { PVOP_ALT_CALLEE1(pgdval_t, mmu.make_pgd, val,
-+					  "mov %%rdi, %%rax",
-+					  ~X86_FEATURE_XENPV) };
- }
- 
- static inline pgdval_t pgd_val(pgd_t pgd)
- {
--	return PVOP_CALLEE1(pgdval_t, mmu.pgd_val, pgd.pgd);
-+	return PVOP_ALT_CALLEE1(pgdval_t, mmu.pgd_val, pgd.pgd,
-+				"mov %%rdi, %%rax", ~X86_FEATURE_XENPV);
- }
- 
- #define  __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION
-@@ -434,12 +443,15 @@ static inline void set_pmd(pmd_t *pmdp, pmd_t pmd)
- 
- static inline pmd_t __pmd(pmdval_t val)
- {
--	return (pmd_t) { PVOP_CALLEE1(pmdval_t, mmu.make_pmd, val) };
-+	return (pmd_t) { PVOP_ALT_CALLEE1(pmdval_t, mmu.make_pmd, val,
-+					  "mov %%rdi, %%rax",
-+					  ~X86_FEATURE_XENPV) };
- }
- 
- static inline pmdval_t pmd_val(pmd_t pmd)
- {
--	return PVOP_CALLEE1(pmdval_t, mmu.pmd_val, pmd.pmd);
-+	return PVOP_ALT_CALLEE1(pmdval_t, mmu.pmd_val, pmd.pmd,
-+				"mov %%rdi, %%rax", ~X86_FEATURE_XENPV);
- }
- 
- static inline void set_pud(pud_t *pudp, pud_t pud)
-@@ -451,14 +463,16 @@ static inline pud_t __pud(pudval_t val)
- {
- 	pudval_t ret;
- 
--	ret = PVOP_CALLEE1(pudval_t, mmu.make_pud, val);
-+	ret = PVOP_ALT_CALLEE1(pudval_t, mmu.make_pud, val,
-+			       "mov %%rdi, %%rax", ~X86_FEATURE_XENPV);
- 
- 	return (pud_t) { ret };
- }
- 
- static inline pudval_t pud_val(pud_t pud)
- {
--	return PVOP_CALLEE1(pudval_t, mmu.pud_val, pud.pud);
-+	return PVOP_ALT_CALLEE1(pudval_t, mmu.pud_val, pud.pud,
-+				"mov %%rdi, %%rax", ~X86_FEATURE_XENPV);
- }
- 
- static inline void pud_clear(pud_t *pudp)
-@@ -477,14 +491,16 @@ static inline void set_p4d(p4d_t *p4dp, p4d_t p4d)
- 
- static inline p4d_t __p4d(p4dval_t val)
- {
--	p4dval_t ret = PVOP_CALLEE1(p4dval_t, mmu.make_p4d, val);
-+	p4dval_t ret = PVOP_ALT_CALLEE1(p4dval_t, mmu.make_p4d, val,
-+					"mov %%rdi, %%rax", ~X86_FEATURE_XENPV);
- 
- 	return (p4d_t) { ret };
- }
- 
- static inline p4dval_t p4d_val(p4d_t p4d)
- {
--	return PVOP_CALLEE1(p4dval_t, mmu.p4d_val, p4d.p4d);
-+	return PVOP_ALT_CALLEE1(p4dval_t, mmu.p4d_val, p4d.p4d,
-+				"mov %%rdi, %%rax", ~X86_FEATURE_XENPV);
- }
- 
- static inline void __set_pgd(pgd_t *pgdp, pgd_t pgd)
-@@ -571,7 +587,9 @@ static __always_inline void pv_queued_spin_lock_slowpath(struct qspinlock *lock,
- 
- static __always_inline void pv_queued_spin_unlock(struct qspinlock *lock)
- {
--	PVOP_VCALLEE1(lock.queued_spin_unlock, lock);
-+	PVOP_ALT_VCALLEE1(lock.queued_spin_unlock, lock,
-+			  "movb $0, (%%" _ASM_ARG1 ");",
-+			  ~X86_FEATURE_PVUNLOCK);
- }
- 
- static __always_inline void pv_wait(u8 *ptr, u8 val)
-@@ -586,7 +604,9 @@ static __always_inline void pv_kick(int cpu)
- 
- static __always_inline bool pv_vcpu_is_preempted(long cpu)
- {
--	return PVOP_CALLEE1(bool, lock.vcpu_is_preempted, cpu);
-+	return PVOP_ALT_CALLEE1(bool, lock.vcpu_is_preempted, cpu,
-+				"xor %%" _ASM_AX ", %%" _ASM_AX ";",
-+				~X86_FEATURE_VCPUPREEMPT);
- }
- 
- void __raw_callee_save___native_queued_spin_unlock(struct qspinlock *lock);
-@@ -660,17 +680,18 @@ bool __raw_callee_save___native_vcpu_is_preempted(long cpu);
- #ifdef CONFIG_PARAVIRT_XXL
- static inline notrace unsigned long arch_local_save_flags(void)
- {
--	return PVOP_CALLEE0(unsigned long, irq.save_fl);
-+	return PVOP_ALT_CALLEE0(unsigned long, irq.save_fl,
-+				"pushf; pop %%rax;", ~X86_FEATURE_XENPV);
- }
- 
- static inline notrace void arch_local_irq_disable(void)
- {
--	PVOP_VCALLEE0(irq.irq_disable);
-+	PVOP_ALT_VCALLEE0(irq.irq_disable, "cli;", ~X86_FEATURE_XENPV);
- }
- 
- static inline notrace void arch_local_irq_enable(void)
- {
--	PVOP_VCALLEE0(irq.irq_enable);
-+	PVOP_ALT_VCALLEE0(irq.irq_enable, "sti;", ~X86_FEATURE_XENPV);
- }
- 
- static inline notrace unsigned long arch_local_irq_save(void)
-@@ -715,35 +736,9 @@ extern void default_banner(void);
- 	.popsection
- 
- 
--#define COND_PUSH(set, mask, reg)			\
--	.if ((~(set)) & mask); push %reg; .endif
--#define COND_POP(set, mask, reg)			\
--	.if ((~(set)) & mask); pop %reg; .endif
--
- #ifdef CONFIG_X86_64
- #ifdef CONFIG_PARAVIRT_XXL
- 
--#define PV_SAVE_REGS(set)			\
--	COND_PUSH(set, CLBR_RAX, rax);		\
--	COND_PUSH(set, CLBR_RCX, rcx);		\
--	COND_PUSH(set, CLBR_RDX, rdx);		\
--	COND_PUSH(set, CLBR_RSI, rsi);		\
--	COND_PUSH(set, CLBR_RDI, rdi);		\
--	COND_PUSH(set, CLBR_R8, r8);		\
--	COND_PUSH(set, CLBR_R9, r9);		\
--	COND_PUSH(set, CLBR_R10, r10);		\
--	COND_PUSH(set, CLBR_R11, r11)
--#define PV_RESTORE_REGS(set)			\
--	COND_POP(set, CLBR_R11, r11);		\
--	COND_POP(set, CLBR_R10, r10);		\
--	COND_POP(set, CLBR_R9, r9);		\
--	COND_POP(set, CLBR_R8, r8);		\
--	COND_POP(set, CLBR_RDI, rdi);		\
--	COND_POP(set, CLBR_RSI, rsi);		\
--	COND_POP(set, CLBR_RDX, rdx);		\
--	COND_POP(set, CLBR_RCX, rcx);		\
--	COND_POP(set, CLBR_RAX, rax)
--
- #define PARA_PATCH(off)		((off) / 8)
- #define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops, .quad, 8)
- #define PARA_INDIRECT(addr)	*addr(%rip)
-@@ -754,12 +749,14 @@ extern void default_banner(void);
- 		X86_FEATURE_XENPV, "jmp xen_iret;", "jmp native_iret;")
- 
- #ifdef CONFIG_DEBUG_ENTRY
--#define SAVE_FLAGS(clobbers)                                        \
--	PARA_SITE(PARA_PATCH(PV_IRQ_save_fl),			    \
--		  PV_SAVE_REGS(clobbers | CLBR_CALLEE_SAVE);        \
--		  ANNOTATE_RETPOLINE_SAFE;			    \
--		  call PARA_INDIRECT(pv_ops+PV_IRQ_save_fl);	    \
--		  PV_RESTORE_REGS(clobbers | CLBR_CALLEE_SAVE);)
-+.macro PARA_IRQ_save_fl
-+	PARA_SITE(PARA_PATCH(PV_IRQ_save_fl),
-+		  ANNOTATE_RETPOLINE_SAFE;
-+		  call PARA_INDIRECT(pv_ops+PV_IRQ_save_fl);)
-+.endm
-+
-+#define SAVE_FLAGS	ALTERNATIVE "PARA_IRQ_save_fl;", "pushf; pop %rax;", \
-+				    ~X86_FEATURE_XENPV
- #endif
- #endif /* CONFIG_PARAVIRT_XXL */
- #endif	/* CONFIG_X86_64 */
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 0ed976286d49..588ff14ce969 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -3,7 +3,6 @@
- #define _ASM_X86_PARAVIRT_TYPES_H
- 
- /* Bitmask of what can be clobbered: usually at least eax. */
--#define CLBR_NONE 0
- #define CLBR_EAX  (1 << 0)
- #define CLBR_ECX  (1 << 1)
- #define CLBR_EDX  (1 << 2)
-@@ -15,7 +14,6 @@
- 
- #define CLBR_ARG_REGS	(CLBR_EAX | CLBR_EDX | CLBR_ECX)
- #define CLBR_RET_REG	(CLBR_EAX | CLBR_EDX)
--#define CLBR_SCRATCH	(0)
- #else
- #define CLBR_RAX  CLBR_EAX
- #define CLBR_RCX  CLBR_ECX
-@@ -32,12 +30,9 @@
- #define CLBR_ARG_REGS	(CLBR_RDI | CLBR_RSI | CLBR_RDX | \
- 			 CLBR_RCX | CLBR_R8 | CLBR_R9)
- #define CLBR_RET_REG	(CLBR_RAX)
--#define CLBR_SCRATCH	(CLBR_R10 | CLBR_R11)
- 
- #endif /* X86_64 */
- 
--#define CLBR_CALLEE_SAVE ((CLBR_ARG_REGS | CLBR_SCRATCH) & ~CLBR_RET_REG)
--
- #ifndef __ASSEMBLY__
- 
- #include <asm/desc_defs.h>
-@@ -322,7 +317,6 @@ extern void (*paravirt_iret)(void);
- /* Simple instruction patching code. */
- #define NATIVE_LABEL(a,x,b) "\n\t.globl " a #x "_" #b "\n" a #x "_" #b ":\n\t"
- 
--unsigned paravirt_patch_ident_64(void *insn_buff, unsigned len);
- unsigned paravirt_patch_default(u8 type, void *insn_buff, unsigned long addr, unsigned len);
- unsigned paravirt_patch_insns(void *insn_buff, unsigned len, const char *start, const char *end);
- 
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 0553a339d850..082954930809 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -53,7 +53,10 @@ void __init default_banner(void)
- }
- 
- /* Undefined instruction for dealing with missing ops pointers. */
--static const unsigned char ud2a[] = { 0x0f, 0x0b };
-+static void paravirt_BUG(void)
-+{
-+	BUG();
-+}
- 
- struct branch {
- 	unsigned char opcode;
-@@ -107,17 +110,10 @@ unsigned paravirt_patch_default(u8 type, void *insn_buff,
- 	unsigned ret;
- 
- 	if (opfunc == NULL)
--		/* If there's no function, patch it with a ud2a (BUG) */
--		ret = paravirt_patch_insns(insn_buff, len, ud2a, ud2a+sizeof(ud2a));
-+		/* If there's no function, patch it with paravirt_BUG() */
-+		ret = paravirt_patch_call(insn_buff, paravirt_BUG, addr, len);
- 	else if (opfunc == _paravirt_nop)
- 		ret = 0;
--
--#ifdef CONFIG_PARAVIRT_XXL
--	/* identity functions just return their single argument */
--	else if (opfunc == _paravirt_ident_64)
--		ret = paravirt_patch_ident_64(insn_buff, len);
--
--#endif
- 	else
- 		/* Otherwise call the function. */
- 		ret = paravirt_patch_call(insn_buff, opfunc, addr, len);
-diff --git a/arch/x86/kernel/paravirt_patch.c b/arch/x86/kernel/paravirt_patch.c
-index abd27ec67397..10543dcc8211 100644
---- a/arch/x86/kernel/paravirt_patch.c
-+++ b/arch/x86/kernel/paravirt_patch.c
-@@ -4,96 +4,8 @@
- #include <asm/paravirt.h>
- #include <asm/asm-offsets.h>
- 
--#define PSTART(d, m)							\
--	patch_data_##d.m
--
--#define PEND(d, m)							\
--	(PSTART(d, m) + sizeof(patch_data_##d.m))
--
--#define PATCH(d, m, insn_buff, len)						\
--	paravirt_patch_insns(insn_buff, len, PSTART(d, m), PEND(d, m))
--
--#define PATCH_CASE(ops, m, data, insn_buff, len)				\
--	case PARAVIRT_PATCH(ops.m):					\
--		return PATCH(data, ops##_##m, insn_buff, len)
--
--#ifdef CONFIG_PARAVIRT_XXL
--struct patch_xxl {
--	const unsigned char	irq_irq_disable[1];
--	const unsigned char	irq_irq_enable[1];
--	const unsigned char	irq_save_fl[2];
--	const unsigned char	mmu_read_cr2[3];
--	const unsigned char	mmu_read_cr3[3];
--	const unsigned char	mmu_write_cr3[3];
--	const unsigned char	cpu_wbinvd[2];
--	const unsigned char	mov64[3];
--};
--
--static const struct patch_xxl patch_data_xxl = {
--	.irq_irq_disable	= { 0xfa },		// cli
--	.irq_irq_enable		= { 0xfb },		// sti
--	.irq_save_fl		= { 0x9c, 0x58 },	// pushf; pop %[re]ax
--	.mmu_read_cr2		= { 0x0f, 0x20, 0xd0 },	// mov %cr2, %[re]ax
--	.mmu_read_cr3		= { 0x0f, 0x20, 0xd8 },	// mov %cr3, %[re]ax
--	.mmu_write_cr3		= { 0x0f, 0x22, 0xdf },	// mov %rdi, %cr3
--	.cpu_wbinvd		= { 0x0f, 0x09 },	// wbinvd
--	.mov64			= { 0x48, 0x89, 0xf8 },	// mov %rdi, %rax
--};
--
--unsigned int paravirt_patch_ident_64(void *insn_buff, unsigned int len)
--{
--	return PATCH(xxl, mov64, insn_buff, len);
--}
--# endif /* CONFIG_PARAVIRT_XXL */
--
--#ifdef CONFIG_PARAVIRT_SPINLOCKS
--struct patch_lock {
--	unsigned char queued_spin_unlock[3];
--	unsigned char vcpu_is_preempted[2];
--};
--
--static const struct patch_lock patch_data_lock = {
--	.vcpu_is_preempted	= { 0x31, 0xc0 },	// xor %eax, %eax
--
--# ifdef CONFIG_X86_64
--	.queued_spin_unlock	= { 0xc6, 0x07, 0x00 },	// movb $0, (%rdi)
--# else
--	.queued_spin_unlock	= { 0xc6, 0x00, 0x00 },	// movb $0, (%eax)
--# endif
--};
--#endif /* CONFIG_PARAVIRT_SPINLOCKS */
--
- unsigned int native_patch(u8 type, void *insn_buff, unsigned long addr,
- 			  unsigned int len)
- {
--	switch (type) {
--
--#ifdef CONFIG_PARAVIRT_XXL
--	PATCH_CASE(irq, save_fl, xxl, insn_buff, len);
--	PATCH_CASE(irq, irq_enable, xxl, insn_buff, len);
--	PATCH_CASE(irq, irq_disable, xxl, insn_buff, len);
--
--	PATCH_CASE(mmu, read_cr2, xxl, insn_buff, len);
--	PATCH_CASE(mmu, read_cr3, xxl, insn_buff, len);
--	PATCH_CASE(mmu, write_cr3, xxl, insn_buff, len);
--
--	PATCH_CASE(cpu, wbinvd, xxl, insn_buff, len);
--#endif
--
--#ifdef CONFIG_PARAVIRT_SPINLOCKS
--	case PARAVIRT_PATCH(lock.queued_spin_unlock):
--		if (pv_is_native_spin_unlock())
--			return PATCH(lock, queued_spin_unlock, insn_buff, len);
--		break;
--
--	case PARAVIRT_PATCH(lock.vcpu_is_preempted):
--		if (pv_is_native_vcpu_is_preempted())
--			return PATCH(lock, vcpu_is_preempted, insn_buff, len);
--		break;
--#endif
--	default:
--		break;
--	}
--
- 	return paravirt_patch_default(type, insn_buff, addr, len);
- }
--- 
-2.26.2
+> > > > > +#ifdef CONFIG_TRACE_GPU_MEM
+> > > > > +static inline void virtio_gpu_trace_total_mem(struct virtio_gpu_device *vgdev,
+> > > > > +                                             s64 delta)
+> > > > > +{
+> > > > > +       u64 total_mem = atomic64_add_return(delta, &vgdev->total_mem);
+> > > > > +
+> > > > > +       trace_gpu_mem_total(0, 0, total_mem);
+
+Hmm, so no per process tracking (pid arg hard-coded to zero)?
+Any plans for that?
+The cgroups patches mentioned by Daniel should address that btw.
+
+The gpu_id is hardcoded to zero too.  Shouldn't that be something like
+the minor number of the drm device?  Or maybe something else in case you
+need drm and non-drm gpu devices work side-by-side?
+
+> > > Thanks for your reply! Android Cuttlefish virtual platform is using
+> > > the virtio-gpu driver, and we currently are carrying this small patch
+> > > at the downstream side. This is essential for us because:
+> > > (1) Android has deprecated debugfs on production devices already
+
+IIRC there have been discussions about a statfs, so you can export stats
+with a sane interface without also enabling all the power provided by
+debugfs, exactly because of the concerns to do that on production
+systems.
+
+Not sure what the state is, seems to not be upstream yet.  That would be
+(beside cgroups) another thing to look at.
+
+> > > Android relies on this tracepoint + eBPF to make the GPU memory totals
+> > > available at runtime on production devices, which has been enforced
+> > > already. Not only game developers can have a reliable kernel total GPU
+> > > memory to look at, but also Android leverages this to take GPU memory
+> > > usage out from the system lost ram.
+
+Sounds like you define "gpu memory" as "system memory used to store gpu
+data".  Is that correct?  What about device memory?
+
+> > > I'm not sure whether the other DRM drivers would like to integrate
+> > > this tracepoint(maybe upstream drivers will move away from debugfs
+> > > later as well?), but at least we hope virtio-gpu can take this.
+
+Well, it is basically the same for all drivers using the gem shmem
+helpers.  So I see little reason why we should do that at virtio-gpu
+level.
+
+> Android GPU vendors have integrated this tracepoint to track gpu
+> memory usage total(mapped into the gpu address space), which consists
+> of below:
+> (1) directly allocated via physical page allocator
+> (2) imported external memory backed by dma-bufs
+> (3) allocated exportable memory backed by dma-bufs
+
+Hmm, the tracepoint doesn't track which of the three groups the memory
+belongs to.  Which I think is important, specifically group (2) because
+that might already be accounted for by the exporting driver ...
+
+> Our Android kernel team is leading the other side of effort to help
+> remove the dma-bufs overlap(those mapped into a gpu device) as a joint
+> effort, so that we can accurately explain the memory usage of the
+> entire Android system.
+
+I suspect once you figured that you'll notice that this little hack is
+rather incomplete.
+
+> For virtio-gpu, since that's used by our reference platform
+> Cuttlefish(Cloud Android), we have to integrate the same tracepoint as
+> well to enforce the use of this tracepoint and the eBPF stuff built on
+> top to support runtime query of gpu memory on production devices. For
+> virtio-gpu at this moment, we only want to track GEM allocations since
+> PRIME import is currently not supported/used in Cuttlefish. That's all
+> we are doing in this small patch.
+
+take care,
+  Gerd
 
 _______________________________________________
 Virtualization mailing list
