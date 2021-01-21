@@ -1,104 +1,106 @@
-Return-Path: <SRS0=zQmE=GX=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=O+Fm=GY=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6270FC433E0
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 19:45:18 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15923C433DB
+	for <virtualization@archiver.kernel.org>; Thu, 21 Jan 2021 03:15:10 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CB5372343B
-	for <virtualization@archiver.kernel.org>; Wed, 20 Jan 2021 19:45:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CB5372343B
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=soleen.com
+	by mail.kernel.org (Postfix) with ESMTPS id 4E48423888
+	for <virtualization@archiver.kernel.org>; Thu, 21 Jan 2021 03:15:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4E48423888
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 34E3A84EA7;
-	Wed, 20 Jan 2021 19:45:17 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id B1FCD2052F;
+	Thu, 21 Jan 2021 03:15:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nxXW_hIm1dHW; Wed, 20 Jan 2021 19:45:16 +0000 (UTC)
+	with ESMTP id jiOjRkAcUKnb; Thu, 21 Jan 2021 03:15:06 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 6941B84138;
-	Wed, 20 Jan 2021 19:45:16 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 7F3EE20527;
+	Thu, 21 Jan 2021 03:15:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 54EC6C088B;
-	Wed, 20 Jan 2021 19:45:16 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 87322C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5FA5CC08A1;
+	Thu, 21 Jan 2021 03:15:06 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B0E23C013A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 19:45:14 +0000 (UTC)
+ Thu, 21 Jan 2021 03:15:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 836B986E1D
+ by whitealder.osuosl.org (Postfix) with ESMTP id 97322863B2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 19:45:14 +0000 (UTC)
+ Thu, 21 Jan 2021 03:15:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CwVYyzTAH4sq
+ with ESMTP id d1CZutCY1I2w
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 19:45:12 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com
- [209.85.208.53])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 3623A86CAC
+ Thu, 21 Jan 2021 03:15:03 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id D2F4186130
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 19:45:12 +0000 (UTC)
-Received: by mail-ed1-f53.google.com with SMTP id c6so20068335ede.0
- for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Jan 2021 11:45:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=soleen.com; s=google;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=UqXhr6U1RGBGjv0Nmx2hKPUeAH0sokB4LM4fa/b0g0Q=;
- b=R+IWStL2+wlSzaEPF5grre/1r+Jaffw+FsSinFtR7GqGC4E2gIGppNZ48FLSAM1P7V
- qmOSQXfMkfMvZdsjTxKcjGptYXy54nxR82l+BpQkvK4R5NMIJd7MNHbu+ZZs3+OD+aSP
- A/aOYQcz6NfqfQoK/m5hgsDdS5u8yBivB/ibpaQimmRiM+LXerCEUiNaw1WxlXSfayCO
- RDh9CfRYuEHhLrQI7nCm9ERtXoOuf3fAdpNPmGAHBLeqsGgN+X3hX0i3Z+vflrYKvBuv
- 6TqFt5BK8O+lYEg936dFG4VwU4JjTpoOeDwoCeHHKrfIY47nUARkbZ6uIlK3RU07mG5K
- ThBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=UqXhr6U1RGBGjv0Nmx2hKPUeAH0sokB4LM4fa/b0g0Q=;
- b=TuImBZSEH3/ADAgqXK33RYTDRQA4cYXxZFewmsqsIBdbB6KFqfb3H9z2pIv9XwxTTx
- ombG4rOFAxMscJTNKyVG5boBo4y6dTl82DAi0gs9C514fiRbnJgOXmcVcp6UEWRZ9dY9
- 8nM3m+ikzeo75Oq9rYSgtNamKMn8J0v0MoQN/JUZBgN92TcQfLC7bivCtuGzKtf/5g+e
- 1VQ4TESSJ7teMFn9p6RJloEe+R5jPCT+6ALCuLACLpWH9JPhOQMLL5Ptzo8yDlLFyGEC
- zIWpYrpVSSvdYyWKgGTMkV7rtWYj8zhsMVjQJxK7McQ9j32tkT/X2ctP6IdjdX1F6HWB
- KG4A==
-X-Gm-Message-State: AOAM533d5AcSXev4OmfQKo0tgdsJlR03Hp3+pfJzIRf+EQB7bmngnVFr
- 562qAU6KrQ4jOJwWKNYqHeK1hiJMRk4w9MI6l0i3LQ==
-X-Google-Smtp-Source: ABdhPJxvb1wfnaERyYy/x1se5fCDDeRdAl7RuDhoERoccNXJ6VsNibgl6cUEjC5ZVp2ZI7TxxiJV79nr+G+lpZJH5es=
-X-Received: by 2002:a50:934a:: with SMTP id n10mr8420776eda.26.1611171910694; 
- Wed, 20 Jan 2021 11:45:10 -0800 (PST)
+ Thu, 21 Jan 2021 03:15:03 +0000 (UTC)
+IronPort-SDR: /jO7ynIRhhgy/blk0jCAYVwAYx361jB1DIJVHllC+O8HLOu0aBQnhUVz8wWcDiu+rP809r3T7D
+ kuiiTsFWTazQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9870"; a="178432466"
+X-IronPort-AV: E=Sophos;i="5.79,362,1602572400"; d="scan'208";a="178432466"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+ by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 20 Jan 2021 19:15:03 -0800
+IronPort-SDR: 7Q3oL1fgY6LpmQX4JGjQvhKC46uBpgTG9LFzfoVOhZv/tZZCGmDFgUq+HlPbDF7pFCzFWCz1iF
+ bH2GUtW+z7/A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.79,362,1602572400"; d="scan'208";a="391776714"
+Received: from orsmsx601.amr.corp.intel.com ([10.22.229.14])
+ by orsmga007.jf.intel.com with ESMTP; 20 Jan 2021 19:15:02 -0800
+Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
+ ORSMSX601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Wed, 20 Jan 2021 19:15:02 -0800
+Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Wed, 20 Jan 2021 19:15:01 -0800
+Received: from orsmsx611.amr.corp.intel.com ([10.22.229.24]) by
+ ORSMSX611.amr.corp.intel.com ([10.22.229.24]) with mapi id 15.01.1713.004;
+ Wed, 20 Jan 2021 19:15:01 -0800
+From: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>
+To: Alex Williamson <alex.williamson@redhat.com>, "Tian, Kevin"
+ <kevin.tian@intel.com>
+Subject: RE: [RFC 3/3] vfio: Share the KVM instance with Vdmabuf
+Thread-Topic: [RFC 3/3] vfio: Share the KVM instance with Vdmabuf
+Thread-Index: AQHW7j6Sb7QSbmMgzEq63xXMOAt6Q6ovnEqA///v1aCAAKoggIAAJa6AgAAItACAAO9UUA==
+Date: Thu, 21 Jan 2021 03:15:01 +0000
+Message-ID: <04429d865db84e91ad72d9238ad9486b@intel.com>
+References: <20210119082812.822291-1-vivek.kasireddy@intel.com>
+ <20210119082812.822291-4-vivek.kasireddy@intel.com>
+ <20210119083955.1cc9eae3@omen.home.shazbot.org>
+ <b4a93e926d424ff199ab91ff88399087@intel.com>
+ <20210119175057.5768b26b@x1.home.shazbot.org>
+ <MWHPR11MB1886CC23DA5EF4695506AB308CA20@MWHPR11MB1886.namprd11.prod.outlook.com>
+ <20210119203658.75d4e303@x1.home.shazbot.org>
+In-Reply-To: <20210119203658.75d4e303@x1.home.shazbot.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.5.1.3
+dlp-reaction: no-action
+x-originating-ip: [10.1.200.100]
 MIME-Version: 1.0
-References: <20210120120058.29138-1-wei.liu@kernel.org>
- <20210120120058.29138-7-wei.liu@kernel.org>
-In-Reply-To: <20210120120058.29138-7-wei.liu@kernel.org>
-From: Pavel Tatashin <pasha.tatashin@soleen.com>
-Date: Wed, 20 Jan 2021 14:44:34 -0500
-Message-ID: <CA+CK2bDOhzx1_TcWQp2zFUb5+59ayFby=ZSoNyApNEQ0FRJUFA@mail.gmail.com>
-Subject: Re: [PATCH v5 06/16] x86/hyperv: allocate output arg pages if required
-To: Wei Liu <wei.liu@kernel.org>
-Cc: Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
- Stephen Hemminger <sthemmin@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>,
- "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
- Linux Kernel List <linux-kernel@vger.kernel.org>,
- Michael Kelley <mikelley@microsoft.com>, Ingo Molnar <mingo@redhat.com>,
- Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>,
- Nuno Das Neves <nunodasneves@linux.microsoft.com>,
- Borislav Petkov <bp@alien8.de>, Sunil Muthuswamy <sunilmut@microsoft.com>,
- virtualization@lists.linux-foundation.org,
- Vineeth Pillai <viremana@linux.microsoft.com>,
- Lillian Grassin-Drake <ligrassi@microsoft.com>
+Cc: "Zhao, Yan Y" <yan.y.zhao@intel.com>, "Kim,
+ Dongwon" <dongwon.kim@intel.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,123 +117,118 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jan 20, 2021 at 7:01 AM Wei Liu <wei.liu@kernel.org> wrote:
->
-> When Linux runs as the root partition, it will need to make hypercalls
-> which return data from the hypervisor.
->
-> Allocate pages for storing results when Linux runs as the root
-> partition.
->
-> Signed-off-by: Lillian Grassin-Drake <ligrassi@microsoft.com>
-> Co-Developed-by: Lillian Grassin-Drake <ligrassi@microsoft.com>
-> Signed-off-by: Wei Liu <wei.liu@kernel.org>
+Hi Alex,
 
-Reviewed-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+> -----Original Message-----
+> From: Alex Williamson <alex.williamson@redhat.com>
+> Sent: Tuesday, January 19, 2021 7:37 PM
+> To: Tian, Kevin <kevin.tian@intel.com>
+> Cc: Kasireddy, Vivek <vivek.kasireddy@intel.com>; Kim, Dongwon
+> <dongwon.kim@intel.com>; virtualization@lists.linux-foundation.org; Zhao, Yan Y
+> <yan.y.zhao@intel.com>
+> Subject: Re: [RFC 3/3] vfio: Share the KVM instance with Vdmabuf
+> 
+> On Wed, 20 Jan 2021 03:05:49 +0000
+> "Tian, Kevin" <kevin.tian@intel.com> wrote:
+> 
+> > > From: Alex Williamson
+> > > Sent: Wednesday, January 20, 2021 8:51 AM
+> > >
+> > > On Wed, 20 Jan 2021 00:14:49 +0000
+> > > "Kasireddy, Vivek" <vivek.kasireddy@intel.com> wrote:
+> > >
+> > > > Hi Alex,
+> > > >
+> > > > > -----Original Message-----
+> > > > > From: Alex Williamson <alex.williamson@redhat.com>
+> > > > > Sent: Tuesday, January 19, 2021 7:40 AM
+> > > > > To: Kasireddy, Vivek <vivek.kasireddy@intel.com>
+> > > > > Cc: virtualization@lists.linux-foundation.org; Kim, Dongwon
+> > > <dongwon.kim@intel.com>
+> > > > > Subject: Re: [RFC 3/3] vfio: Share the KVM instance with Vdmabuf
+> > > > >
+> > > > > On Tue, 19 Jan 2021 00:28:12 -0800
+> > > > > Vivek Kasireddy <vivek.kasireddy@intel.com> wrote:
+> > > > >
+> > > > > > Getting a copy of the KVM instance is necessary for mapping Guest
+> > > > > > pages in the Host.
+> > > > > >
+> > > > > > TODO: Instead of invoking the symbol directly, there needs to be a
+> > > > > > better way of getting a copy of the KVM instance probably by using
+> > > > > > other notifiers. However, currently, KVM shares its instance only
+> > > > > > with VFIO and therefore we are compelled to bind the passthrough'd
+> > > > > > device to vfio-pci.
+> > > > >
+> > > > > Yeah, this is a bad solution, sorry, vfio is not going to gratuitously
+> > > > > call out to vhost to share a kvm pointer.  I'd prefer to get rid of
+> > > > > vfio having any knowledge or visibility of the kvm pointer.  Thanks,
+> > > >
+> > > > [Kasireddy, Vivek] I agree that this is definitely not ideal as I recognize it
+> > > > in the TODO. However, it looks like VFIO also gets a copy of the KVM
+> > > > pointer in a similar manner:
+> > > >
+> > > > virt/kvm/vfio.c
+> > > >
+> > > > static void kvm_vfio_group_set_kvm(struct vfio_group *group, struct kvm
+> > > *kvm)
+> > > > {
+> > > >         void (*fn)(struct vfio_group *, struct kvm *);
+> > > >
+> > > >         fn = symbol_get(vfio_group_set_kvm);
+> > > >         if (!fn)
+> > > >                 return;
+> > > >
+> > > >         fn(group, kvm);
+> > > >
+> > > >         symbol_put(vfio_group_set_kvm);
+> > > > }
+> > >
+> > > You're equating the mechanism with the architecture.  We use symbols
+> > > here to avoid module dependencies between kvm and vfio, but this is
+> > > just propagating data that userspace is specifically registering
+> > > between kvm and vfio.  vhost doesn't get to piggyback on that channel.
+> > >
+> > > > With this patch, I am not suggesting that this is a precedent that should be
+> > > followed
+> > > > but it appears there doesn't seem to be an alternative way of getting a copy
+> > > of the KVM
+> > > > pointer that is clean and elegant -- unless I have not looked hard enough. I
+> > > guess we
+> > > > could create a notifier chain with callbacks for VFIO and Vhost that KVM
+> > > would call
+> > > > but this would mean modifying KVM.
+> > > >
+> > > > Also, if I understand correctly, if VFIO does not want to share the KVM
+> > > pointer with
+> > > > VFIO groups, then I think it would break stuff like mdev which counts on it.
+> > >
+> > > Only kvmgt requires the kvm pointer and the use case there is pretty
+> > > questionable, I wonder if it actually still exists now that we have the
+> > > DMA r/w interface through vfio.  Thanks,
+> > >
+> >
+> > IIRC, kvmgt still needs the kvm pointer to use kvm page tracking interface
+> > for write-protecting guest pgtable.
+> 
+> Thanks, Kevin.  Either way, a vhost device has no stake in the game wrt
+> the kvm pointer lifecycle here and no business adding a callout.  I'm
+> reluctant to add any further use cases even for mdevs as ideally mdevs
+> should have no dependency on kvm.  Thanks,
 
-The new warnings reported by the robot are the same as for the input argument.
+[Kasireddy, Vivek] All I am trying to do is leverage existing mechanism(s) 
+instead of creating new ones. So, if Vhost cannot get the kvm pointer from 
+VFIO in any manner, my only option, as it appears is to add a new 
+notifier_block to KVM that gets triggered in kvm_create_vm() and 
+kvm_destroy_vm(). However, I am not sure if that would be acceptable to 
+the KVM maintainers. Does anyone know if there is another cleaner option 
+available rather than having to modify KVM?
 
-Pasha
+Thanks,
+Vivek
 
-> ---
-> v3: Fix hv_cpu_die to use free_pages.
-> v2: Address Vitaly's comments
-> ---
->  arch/x86/hyperv/hv_init.c       | 35 ++++++++++++++++++++++++++++-----
->  arch/x86/include/asm/mshyperv.h |  1 +
->  2 files changed, 31 insertions(+), 5 deletions(-)
->
-> diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
-> index e04d90af4c27..6f4cb40e53fe 100644
-> --- a/arch/x86/hyperv/hv_init.c
-> +++ b/arch/x86/hyperv/hv_init.c
-> @@ -41,6 +41,9 @@ EXPORT_SYMBOL_GPL(hv_vp_assist_page);
->  void  __percpu **hyperv_pcpu_input_arg;
->  EXPORT_SYMBOL_GPL(hyperv_pcpu_input_arg);
->
-> +void  __percpu **hyperv_pcpu_output_arg;
-> +EXPORT_SYMBOL_GPL(hyperv_pcpu_output_arg);
-> +
->  u32 hv_max_vp_index;
->  EXPORT_SYMBOL_GPL(hv_max_vp_index);
->
-> @@ -73,12 +76,19 @@ static int hv_cpu_init(unsigned int cpu)
->         void **input_arg;
->         struct page *pg;
->
-> -       input_arg = (void **)this_cpu_ptr(hyperv_pcpu_input_arg);
->         /* hv_cpu_init() can be called with IRQs disabled from hv_resume() */
-> -       pg = alloc_page(irqs_disabled() ? GFP_ATOMIC : GFP_KERNEL);
-> +       pg = alloc_pages(irqs_disabled() ? GFP_ATOMIC : GFP_KERNEL, hv_root_partition ? 1 : 0);
->         if (unlikely(!pg))
->                 return -ENOMEM;
-> +
-> +       input_arg = (void **)this_cpu_ptr(hyperv_pcpu_input_arg);
->         *input_arg = page_address(pg);
-> +       if (hv_root_partition) {
-> +               void **output_arg;
-> +
-> +               output_arg = (void **)this_cpu_ptr(hyperv_pcpu_output_arg);
-> +               *output_arg = page_address(pg + 1);
-> +       }
->
->         hv_get_vp_index(msr_vp_index);
->
-> @@ -205,14 +215,23 @@ static int hv_cpu_die(unsigned int cpu)
->         unsigned int new_cpu;
->         unsigned long flags;
->         void **input_arg;
-> -       void *input_pg = NULL;
-> +       void *pg;
->
->         local_irq_save(flags);
->         input_arg = (void **)this_cpu_ptr(hyperv_pcpu_input_arg);
-> -       input_pg = *input_arg;
-> +       pg = *input_arg;
->         *input_arg = NULL;
-> +
-> +       if (hv_root_partition) {
-> +               void **output_arg;
-> +
-> +               output_arg = (void **)this_cpu_ptr(hyperv_pcpu_output_arg);
-> +               *output_arg = NULL;
-> +       }
-> +
->         local_irq_restore(flags);
-> -       free_page((unsigned long)input_pg);
-> +
-> +       free_pages((unsigned long)pg, hv_root_partition ? 1 : 0);
->
->         if (hv_vp_assist_page && hv_vp_assist_page[cpu])
->                 wrmsrl(HV_X64_MSR_VP_ASSIST_PAGE, 0);
-> @@ -346,6 +365,12 @@ void __init hyperv_init(void)
->
->         BUG_ON(hyperv_pcpu_input_arg == NULL);
->
-> +       /* Allocate the per-CPU state for output arg for root */
-> +       if (hv_root_partition) {
-> +               hyperv_pcpu_output_arg = alloc_percpu(void *);
-> +               BUG_ON(hyperv_pcpu_output_arg == NULL);
-> +       }
-> +
->         /* Allocate percpu VP index */
->         hv_vp_index = kmalloc_array(num_possible_cpus(), sizeof(*hv_vp_index),
->                                     GFP_KERNEL);
-> diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
-> index ac2b0d110f03..62d9390f1ddf 100644
-> --- a/arch/x86/include/asm/mshyperv.h
-> +++ b/arch/x86/include/asm/mshyperv.h
-> @@ -76,6 +76,7 @@ static inline void hv_disable_stimer0_percpu_irq(int irq) {}
->  #if IS_ENABLED(CONFIG_HYPERV)
->  extern void *hv_hypercall_pg;
->  extern void  __percpu  **hyperv_pcpu_input_arg;
-> +extern void  __percpu  **hyperv_pcpu_output_arg;
->
->  static inline u64 hv_do_hypercall(u64 control, void *input, void *output)
->  {
-> --
-> 2.20.1
->
+> 
+> Alex
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
