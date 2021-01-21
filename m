@@ -2,105 +2,179 @@ Return-Path: <SRS0=O+Fm=GY=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15923C433DB
-	for <virtualization@archiver.kernel.org>; Thu, 21 Jan 2021 03:15:10 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5E3DC433DB
+	for <virtualization@archiver.kernel.org>; Thu, 21 Jan 2021 05:03:55 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4E48423888
-	for <virtualization@archiver.kernel.org>; Thu, 21 Jan 2021 03:15:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4E48423888
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 2D0D8238D7
+	for <virtualization@archiver.kernel.org>; Thu, 21 Jan 2021 05:03:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2D0D8238D7
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id B1FCD2052F;
-	Thu, 21 Jan 2021 03:15:08 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 7BA9B87196;
+	Thu, 21 Jan 2021 05:03:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jiOjRkAcUKnb; Thu, 21 Jan 2021 03:15:06 +0000 (UTC)
+	with ESMTP id 9OF-rxyNzOCd; Thu, 21 Jan 2021 05:03:53 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 7F3EE20527;
-	Thu, 21 Jan 2021 03:15:06 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id EED3D87190;
+	Thu, 21 Jan 2021 05:03:52 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5FA5CC08A1;
-	Thu, 21 Jan 2021 03:15:06 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B0E23C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A3BB4C0FA7;
+	Thu, 21 Jan 2021 05:03:52 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 48E55C088B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Jan 2021 03:15:04 +0000 (UTC)
+ Thu, 21 Jan 2021 05:03:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 97322863B2
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 2750D861C5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Jan 2021 03:15:04 +0000 (UTC)
+ Thu, 21 Jan 2021 05:03:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id d1CZutCY1I2w
+ with ESMTP id g23KxaWd5tmS
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Jan 2021 03:15:03 +0000 (UTC)
+ Thu, 21 Jan 2021 05:03:47 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
- by whitealder.osuosl.org (Postfix) with ESMTPS id D2F4186130
+Received: from aserp2120.oracle.com (aserp2120.oracle.com [141.146.126.78])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 3B45F861BC
  for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Jan 2021 03:15:03 +0000 (UTC)
-IronPort-SDR: /jO7ynIRhhgy/blk0jCAYVwAYx361jB1DIJVHllC+O8HLOu0aBQnhUVz8wWcDiu+rP809r3T7D
- kuiiTsFWTazQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9870"; a="178432466"
-X-IronPort-AV: E=Sophos;i="5.79,362,1602572400"; d="scan'208";a="178432466"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
- by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 20 Jan 2021 19:15:03 -0800
-IronPort-SDR: 7Q3oL1fgY6LpmQX4JGjQvhKC46uBpgTG9LFzfoVOhZv/tZZCGmDFgUq+HlPbDF7pFCzFWCz1iF
- bH2GUtW+z7/A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.79,362,1602572400"; d="scan'208";a="391776714"
-Received: from orsmsx601.amr.corp.intel.com ([10.22.229.14])
- by orsmga007.jf.intel.com with ESMTP; 20 Jan 2021 19:15:02 -0800
-Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
- ORSMSX601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Wed, 20 Jan 2021 19:15:02 -0800
-Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
- ORSMSX612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Wed, 20 Jan 2021 19:15:01 -0800
-Received: from orsmsx611.amr.corp.intel.com ([10.22.229.24]) by
- ORSMSX611.amr.corp.intel.com ([10.22.229.24]) with mapi id 15.01.1713.004;
- Wed, 20 Jan 2021 19:15:01 -0800
-From: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>
-To: Alex Williamson <alex.williamson@redhat.com>, "Tian, Kevin"
- <kevin.tian@intel.com>
-Subject: RE: [RFC 3/3] vfio: Share the KVM instance with Vdmabuf
-Thread-Topic: [RFC 3/3] vfio: Share the KVM instance with Vdmabuf
-Thread-Index: AQHW7j6Sb7QSbmMgzEq63xXMOAt6Q6ovnEqA///v1aCAAKoggIAAJa6AgAAItACAAO9UUA==
-Date: Thu, 21 Jan 2021 03:15:01 +0000
-Message-ID: <04429d865db84e91ad72d9238ad9486b@intel.com>
-References: <20210119082812.822291-1-vivek.kasireddy@intel.com>
- <20210119082812.822291-4-vivek.kasireddy@intel.com>
- <20210119083955.1cc9eae3@omen.home.shazbot.org>
- <b4a93e926d424ff199ab91ff88399087@intel.com>
- <20210119175057.5768b26b@x1.home.shazbot.org>
- <MWHPR11MB1886CC23DA5EF4695506AB308CA20@MWHPR11MB1886.namprd11.prod.outlook.com>
- <20210119203658.75d4e303@x1.home.shazbot.org>
-In-Reply-To: <20210119203658.75d4e303@x1.home.shazbot.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-version: 11.5.1.3
-dlp-reaction: no-action
-x-originating-ip: [10.1.200.100]
+ Thu, 21 Jan 2021 05:03:47 +0000 (UTC)
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+ by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10L520Af147649;
+ Thu, 21 Jan 2021 05:03:45 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=from : to : cc :
+ subject : date : message-id : content-type : mime-version;
+ s=corp-2020-01-29; bh=zKlunICeRZRHzu7ogVf19W538S3T89UdmgDP0LASK8c=;
+ b=V2D7Mq/Kh0ghlPOptODm5KhmfsGmZonFc0C+av3Kih/E+PBRoJWpEAb/ZSBm+3KoRwX2
+ jRW7ANysBbp+Caqxln9PxYiFqxkahBmNAFdvJ1wZVhjgdir3wIJPEZgMLrw7MAP6+1n8
+ UCUgR9EBy6ja5z81h5XqUkSyJv9qJwbgqQxmturqaYwYJLQDayJGldFQ4KU6SiPYvSJW
+ 3TqOL6XPymxZf2vpg/IhcBj2ygHEu2Les+R6bdiinNLPOXxVZFC7aX9MDu8rFQQ1yKgm
+ WQ2vRfKeNUWZeVo2TBCoZmgKmw9wlTK+JzpwDp4yAc2QTaQ+0Ps/c00thjJfFd8ddlJ9 pw== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+ by aserp2120.oracle.com with ESMTP id 3668qmwhjm-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Thu, 21 Jan 2021 05:03:45 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+ by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10L4xqIk061313;
+ Thu, 21 Jan 2021 05:01:45 GMT
+Received: from nam02-cy1-obe.outbound.protection.outlook.com
+ (mail-cys01nam02lp2052.outbound.protection.outlook.com [104.47.37.52])
+ by aserp3020.oracle.com with ESMTP id 3668rf39p5-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Thu, 21 Jan 2021 05:01:45 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=naTgH9Wt0kPBxh9BA3gbwodVgzYphvap9rzX3jo7EO03xzzhsfTm6MmcOQhSZOdBqIZzQYqyllUZdNL24UmWzRnPQiVie2nQu7a35uBVLIk3BRSWkOoWB3RYZ6AgZEZ7X0qSUhRp3jtju1braN80NpGaAHd6aFsS81NDd89KY1fgpqPR0CoLAEKQIkZbpCdWYPtY3pZUGyU6x9HupPelURnoPgby/ejfODex/PYuE93YHpDPqde/eg+1MfdCM8KMLPLT+0dz4/fD4OtOeql0yBS/TSRfbbfh4iQ5GAFOukdlmK/qJySDxj3ExNC1yIvrCN/D2RKOAf+AUYGoqcpgBw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zKlunICeRZRHzu7ogVf19W538S3T89UdmgDP0LASK8c=;
+ b=TGdeiLNkfQKhmmoJICeWl8VNO4J2CwrkLhYtQDoJ9th4sC+xYSoTN2dEvMXDaHLCbmUGhL+rz9V3++UnTNW00xEt/2NqjrVrW/iu/O4AtbB4v3c7dwsScKowJ1L8m2AEc5IlFedpB6hbzPZpVT59qKf4F+mV7siyW/2tNvCmLwDxcAIlPoEQ52RHCtD/i9vY3lb5a3ltdUunpwxGTTJDAN/5k+Ve2fZqEI1p+cFtuFz0ANRyoSPsVmrRNvNSLCCM2YiN1/acKCaSVJmOY7P317gwqw04DE+AgXPgpe4BYUH7eQ6LJKK+Kd7ZLloqI3g7yuEBk/Y+ssBF7rvbtsFtCw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zKlunICeRZRHzu7ogVf19W538S3T89UdmgDP0LASK8c=;
+ b=sClci4VlLwi48BwNEniuGAyKEFhxQ7J6LCVAHvdFZhkndPKUEz2Cu3Hyl83oOKUyNdBhpj/tP5uVuCYW/GMrWaQCphd16RuF6Oh1wfo8r1NnjSnaHwJIt+WCuYsf9KCsZ4gC0b6p5NSj1MsFWAIG0R5/alPJJMo9volC5G5viq0=
+Authentication-Results: lists.linux-foundation.org; dkim=none (message not
+ signed) header.d=none;lists.linux-foundation.org; dmarc=none action=none
+ header.from=oracle.com;
+Received: from BYAPR10MB2663.namprd10.prod.outlook.com (2603:10b6:a02:a9::20)
+ by BYAPR10MB3255.namprd10.prod.outlook.com (2603:10b6:a03:156::22)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3763.10; Thu, 21 Jan
+ 2021 05:01:43 +0000
+Received: from BYAPR10MB2663.namprd10.prod.outlook.com
+ ([fe80::644d:92e4:7b5d:f8c1]) by BYAPR10MB2663.namprd10.prod.outlook.com
+ ([fe80::644d:92e4:7b5d:f8c1%5]) with mapi id 15.20.3784.013; Thu, 21 Jan 2021
+ 05:01:43 +0000
+From: Dongli Zhang <dongli.zhang@oracle.com>
+To: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
+ netdev@vger.kernel.org
+Subject: [PATCH 1/1] vhost scsi: allocate vhost_scsi with GFP_NOWAIT to avoid
+ delay
+Date: Wed, 20 Jan 2021 21:03:28 -0800
+Message-Id: <20210121050328.7891-1-dongli.zhang@oracle.com>
+X-Mailer: git-send-email 2.17.1
+X-Originating-IP: [138.3.200.16]
+X-ClientProxiedBy: CH0PR13CA0029.namprd13.prod.outlook.com
+ (2603:10b6:610:b1::34) To BYAPR10MB2663.namprd10.prod.outlook.com
+ (2603:10b6:a02:a9::20)
 MIME-Version: 1.0
-Cc: "Zhao, Yan Y" <yan.y.zhao@intel.com>, "Kim,
- Dongwon" <dongwon.kim@intel.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from localhost.localdomain (138.3.200.16) by
+ CH0PR13CA0029.namprd13.prod.outlook.com (2603:10b6:610:b1::34) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.3784.8 via Frontend Transport; Thu, 21 Jan 2021 05:01:41 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 37813143-6823-431c-3364-08d8bdc9a542
+X-MS-TrafficTypeDiagnostic: BYAPR10MB3255:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <BYAPR10MB32558115C01C3555EDE28AB2F0A10@BYAPR10MB3255.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:519;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: n4ZHJ4jt1Oa6YWUrEvh0Sd1NOmREhKxD4e58V5DZPkbTK+ilv2+4rccYBfsEmmRfsM8tQSFzTR1lOsUNUnd+usPr+yXEJqys7jjxDwNo9AgENJm88hP3qbPz30EZhFeItxVZ8N6EgLr49z9UMCExLMTWvad0BEKLRBxqPgbg4FZ0SqjSLPHY8Teyq3wh29eR1SJoH6MwZYi/cJ4php5zZJn1OTFjdFxvJ6b4gZFaVN/UbH2GAolf9+RcztWh1WKQksgpWvUfxvLYWSXbqGw4FFo6UuWJxHyOHlaZzbjNPEUOSGVJc+y3r8PBo9jz3q20EjgQ51PU3blrFyqw2CNDFCbAhvKuMpzvWnEnvys5jIYekvHV1C5AnhczeYt5znQeUPuoZAfQgub+3klZRJvFIqEb10RDje0vJ0vuP0Bl5hmNAJ9dvevn2m9JCsch23eYMhGYMaZ+41AdGycxBViKLQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR10MB2663.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(346002)(136003)(396003)(366004)(376002)(39860400002)(5660300002)(86362001)(8936002)(36756003)(186003)(508600001)(2616005)(83380400001)(316002)(6506007)(66476007)(52116002)(956004)(66946007)(8676002)(4326008)(44832011)(107886003)(66556008)(2906002)(1076003)(69590400011)(6512007)(6666004)(26005)(16526019)(6486002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?s7dBf+6Bc4hmkHwqtALaDHXiuZk0nreKrdl5BTpoTqOcLJvlL0TlH7fBMfi7?=
+ =?us-ascii?Q?+umrQ22rSCafCIS3dulD9AOOCYxgHD9EHffcZgByO3VwYtczmYZ/mflYrScz?=
+ =?us-ascii?Q?lyZpfAY2b6PqMEQuVkzm8CCRaMF/u7RaUzTrOaLI8mq2lK6cLTnKlu1u6Yuz?=
+ =?us-ascii?Q?62HIApO3bfy0X647UQMdC3NPSD45N0WJPl/z+LJmxO9Hb8wEWuVqKT2hRINj?=
+ =?us-ascii?Q?4w+Cgr2lvRN0U4AbIYXIkuI081srCjMyO0WRsTde2iFNmXBWf1lQxtaNAoIq?=
+ =?us-ascii?Q?ZfzIsc++wtUXb8x9vA7LpPgqV+TIDqo2qiy1lym04GL976O5YmPk6azdDcqD?=
+ =?us-ascii?Q?bZR50bG457b+flcIlUizNWKesN7fUEdWsSNtGTo89rfnCbllJx5gRdHnwNJU?=
+ =?us-ascii?Q?IoN0Eo2jYzqe4k9k8UXdCrU8UgOMQBqZEUzOtJ7HLNHeFKL1w6bdbzd8czRb?=
+ =?us-ascii?Q?hGEn96SxWBrerkqWLXsnDzk5AnGxQR9OJsiV/1RGJx1hwt9+JVXw+uQPZ4qb?=
+ =?us-ascii?Q?jSUiVTuQ68SemEe6Y2emx+BhHd9290Ytdc2bv0SbBv+I30G2tXV0w3My/tJm?=
+ =?us-ascii?Q?DbeOTbqKAhTpXegj0eH6B5lEcWMWGdC6LE/K56vughBNRVczV1/hCpa1K0p5?=
+ =?us-ascii?Q?8kMfh4cSzw7TuOuzCkG9Pqoe+wVUTYv4QjpTIWepVwStunXev+4VWtmf6rl7?=
+ =?us-ascii?Q?gWmCSnNroXqELAi2PzOAyglvNkzWT1oW/O7FTrwnFKGA2OboKbXSBKQDuGO8?=
+ =?us-ascii?Q?G+2JlFJeRspQf4vfctaTRN8Wyym53+wpFQtPi1MdRzJAdovk311IW53Io7NI?=
+ =?us-ascii?Q?WX/aErIxy/QilmWicoVzzNKfivgLLED4ZC1MLAWIq2eIsOP7Bf5x3V+TyUqI?=
+ =?us-ascii?Q?6A+TRDFZGgPvcxsOABg9KOOcns/StJlMVg6lmtOA3eYUgbfLSBwxBMtGPftA?=
+ =?us-ascii?Q?ycxpRZrDeERDbL8gV4Cq6gK8tUQyCOQ7CE6ANAbUxLc=3D?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 37813143-6823-431c-3364-08d8bdc9a542
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB2663.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Jan 2021 05:01:43.3779 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: TNqSupVapbHCXJfqpXi5oGjpriUC1UrC6UX7/6Bup8tHPOcsI+AKWX5JqUC+mm8+q5g8JWyHh8ZE0zlweBWh3A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR10MB3255
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9870
+ signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0
+ spamscore=0 suspectscore=0
+ adultscore=0 mlxlogscore=999 bulkscore=0 malwarescore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2101210023
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9870
+ signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
+ priorityscore=1501
+ adultscore=0 impostorscore=0 mlxlogscore=999 spamscore=0 suspectscore=0
+ phishscore=0 clxscore=1011 bulkscore=0 mlxscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2101210023
+Cc: aruna.ramakrishna@oracle.com, mst@redhat.com, joe.jin@oracle.com,
+ linux-kernel@vger.kernel.org, stefanha@redhat.com, pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,117 +191,43 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Alex,
+The size of 'struct vhost_scsi' is order-10 (~2.3MB). It may take long time
+delay by kzalloc() to compact memory pages when there is a lack of
+high-order pages. As a result, there is latency to create a VM (with
+vhost-scsi) or to hotadd vhost-scsi-based storage.
 
-> -----Original Message-----
-> From: Alex Williamson <alex.williamson@redhat.com>
-> Sent: Tuesday, January 19, 2021 7:37 PM
-> To: Tian, Kevin <kevin.tian@intel.com>
-> Cc: Kasireddy, Vivek <vivek.kasireddy@intel.com>; Kim, Dongwon
-> <dongwon.kim@intel.com>; virtualization@lists.linux-foundation.org; Zhao, Yan Y
-> <yan.y.zhao@intel.com>
-> Subject: Re: [RFC 3/3] vfio: Share the KVM instance with Vdmabuf
-> 
-> On Wed, 20 Jan 2021 03:05:49 +0000
-> "Tian, Kevin" <kevin.tian@intel.com> wrote:
-> 
-> > > From: Alex Williamson
-> > > Sent: Wednesday, January 20, 2021 8:51 AM
-> > >
-> > > On Wed, 20 Jan 2021 00:14:49 +0000
-> > > "Kasireddy, Vivek" <vivek.kasireddy@intel.com> wrote:
-> > >
-> > > > Hi Alex,
-> > > >
-> > > > > -----Original Message-----
-> > > > > From: Alex Williamson <alex.williamson@redhat.com>
-> > > > > Sent: Tuesday, January 19, 2021 7:40 AM
-> > > > > To: Kasireddy, Vivek <vivek.kasireddy@intel.com>
-> > > > > Cc: virtualization@lists.linux-foundation.org; Kim, Dongwon
-> > > <dongwon.kim@intel.com>
-> > > > > Subject: Re: [RFC 3/3] vfio: Share the KVM instance with Vdmabuf
-> > > > >
-> > > > > On Tue, 19 Jan 2021 00:28:12 -0800
-> > > > > Vivek Kasireddy <vivek.kasireddy@intel.com> wrote:
-> > > > >
-> > > > > > Getting a copy of the KVM instance is necessary for mapping Guest
-> > > > > > pages in the Host.
-> > > > > >
-> > > > > > TODO: Instead of invoking the symbol directly, there needs to be a
-> > > > > > better way of getting a copy of the KVM instance probably by using
-> > > > > > other notifiers. However, currently, KVM shares its instance only
-> > > > > > with VFIO and therefore we are compelled to bind the passthrough'd
-> > > > > > device to vfio-pci.
-> > > > >
-> > > > > Yeah, this is a bad solution, sorry, vfio is not going to gratuitously
-> > > > > call out to vhost to share a kvm pointer.  I'd prefer to get rid of
-> > > > > vfio having any knowledge or visibility of the kvm pointer.  Thanks,
-> > > >
-> > > > [Kasireddy, Vivek] I agree that this is definitely not ideal as I recognize it
-> > > > in the TODO. However, it looks like VFIO also gets a copy of the KVM
-> > > > pointer in a similar manner:
-> > > >
-> > > > virt/kvm/vfio.c
-> > > >
-> > > > static void kvm_vfio_group_set_kvm(struct vfio_group *group, struct kvm
-> > > *kvm)
-> > > > {
-> > > >         void (*fn)(struct vfio_group *, struct kvm *);
-> > > >
-> > > >         fn = symbol_get(vfio_group_set_kvm);
-> > > >         if (!fn)
-> > > >                 return;
-> > > >
-> > > >         fn(group, kvm);
-> > > >
-> > > >         symbol_put(vfio_group_set_kvm);
-> > > > }
-> > >
-> > > You're equating the mechanism with the architecture.  We use symbols
-> > > here to avoid module dependencies between kvm and vfio, but this is
-> > > just propagating data that userspace is specifically registering
-> > > between kvm and vfio.  vhost doesn't get to piggyback on that channel.
-> > >
-> > > > With this patch, I am not suggesting that this is a precedent that should be
-> > > followed
-> > > > but it appears there doesn't seem to be an alternative way of getting a copy
-> > > of the KVM
-> > > > pointer that is clean and elegant -- unless I have not looked hard enough. I
-> > > guess we
-> > > > could create a notifier chain with callbacks for VFIO and Vhost that KVM
-> > > would call
-> > > > but this would mean modifying KVM.
-> > > >
-> > > > Also, if I understand correctly, if VFIO does not want to share the KVM
-> > > pointer with
-> > > > VFIO groups, then I think it would break stuff like mdev which counts on it.
-> > >
-> > > Only kvmgt requires the kvm pointer and the use case there is pretty
-> > > questionable, I wonder if it actually still exists now that we have the
-> > > DMA r/w interface through vfio.  Thanks,
-> > >
-> >
-> > IIRC, kvmgt still needs the kvm pointer to use kvm page tracking interface
-> > for write-protecting guest pgtable.
-> 
-> Thanks, Kevin.  Either way, a vhost device has no stake in the game wrt
-> the kvm pointer lifecycle here and no business adding a callout.  I'm
-> reluctant to add any further use cases even for mdevs as ideally mdevs
-> should have no dependency on kvm.  Thanks,
+The prior commit 595cb754983d ("vhost/scsi: use vmalloc for order-10
+allocation") prefers to fallback only when really needed, while this patch
+changes allocation to GFP_NOWAIT in order to avoid the delay caused by
+memory page compact.
 
-[Kasireddy, Vivek] All I am trying to do is leverage existing mechanism(s) 
-instead of creating new ones. So, if Vhost cannot get the kvm pointer from 
-VFIO in any manner, my only option, as it appears is to add a new 
-notifier_block to KVM that gets triggered in kvm_create_vm() and 
-kvm_destroy_vm(). However, I am not sure if that would be acceptable to 
-the KVM maintainers. Does anyone know if there is another cleaner option 
-available rather than having to modify KVM?
+Cc: Aruna Ramakrishna <aruna.ramakrishna@oracle.com>
+Cc: Joe Jin <joe.jin@oracle.com>
+Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+---
+Another option is to rework by reducing the size of 'struct vhost_scsi',
+e.g., by replacing inline vhost_scsi.vqs with just memory pointers while
+each vhost_scsi.vqs[i] should be allocated separately. Please let me
+know if that option is better.
 
-Thanks,
-Vivek
+ drivers/vhost/scsi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> 
-> Alex
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 4ce9f00ae10e..85eaa4e883f4 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -1814,7 +1814,7 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
+ 	struct vhost_virtqueue **vqs;
+ 	int r = -ENOMEM, i;
+ 
+-	vs = kzalloc(sizeof(*vs), GFP_KERNEL | __GFP_NOWARN | __GFP_RETRY_MAYFAIL);
++	vs = kzalloc(sizeof(*vs), GFP_NOWAIT | __GFP_NOWARN);
+ 	if (!vs) {
+ 		vs = vzalloc(sizeof(*vs));
+ 		if (!vs)
+-- 
+2.17.1
 
 _______________________________________________
 Virtualization mailing list
