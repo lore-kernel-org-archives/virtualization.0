@@ -2,107 +2,74 @@ Return-Path: <SRS0=TOd4=GZ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.5 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92674C433DB
-	for <virtualization@archiver.kernel.org>; Fri, 22 Jan 2021 07:44:57 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F0A2C433DB
+	for <virtualization@archiver.kernel.org>; Fri, 22 Jan 2021 08:06:40 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1E82222DBF
-	for <virtualization@archiver.kernel.org>; Fri, 22 Jan 2021 07:44:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1E82222DBF
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=cloud.ionos.com
+	by mail.kernel.org (Postfix) with ESMTPS id D5F2B230F9
+	for <virtualization@archiver.kernel.org>; Fri, 22 Jan 2021 08:06:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D5F2B230F9
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 8D85686D79;
-	Fri, 22 Jan 2021 07:44:56 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 3CB7F22926;
+	Fri, 22 Jan 2021 08:06:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LJQHgliQ7okE; Fri, 22 Jan 2021 07:44:56 +0000 (UTC)
+	with ESMTP id 0+UEWkSjyd-K; Fri, 22 Jan 2021 08:06:38 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 14CC086D70;
-	Fri, 22 Jan 2021 07:44:56 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 103C22033D;
+	Fri, 22 Jan 2021 08:06:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F2239C08A1;
-	Fri, 22 Jan 2021 07:44:55 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A5679C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E903AC08A1;
+	Fri, 22 Jan 2021 08:06:37 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7075BC013A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Jan 2021 07:44:54 +0000 (UTC)
+ Fri, 22 Jan 2021 08:06:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 8C45A86D79
+ by hemlock.osuosl.org (Postfix) with ESMTP id 6805B87272
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Jan 2021 07:44:54 +0000 (UTC)
+ Fri, 22 Jan 2021 08:06:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id igP3Dfg9HIIE
+ with ESMTP id M+C7k2QjFg1T
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Jan 2021 07:44:53 +0000 (UTC)
-X-Greylist: delayed 17:07:52 by SQLgrey-1.7.6
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com
- [209.85.221.41])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 9AD7C86D70
+ Fri, 22 Jan 2021 08:06:14 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 0A5AC871F2
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Jan 2021 07:44:53 +0000 (UTC)
-Received: by mail-wr1-f41.google.com with SMTP id a1so4127352wrq.6
- for <virtualization@lists.linux-foundation.org>;
- Thu, 21 Jan 2021 23:44:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=cloud.ionos.com; s=google;
- h=subject:to:cc:references:from:message-id:date:user-agent
- :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=xnObBx7qCVcq4Xmng0HzOiOYW//hrsobDgYRbXW2qoA=;
- b=dfhsrZgi1qJDI2m/ilO0UZ7ihv26w0btzlf1zmTicpi6ZJPqGMSAzlb7G4wGiF0FW3
- Gijmj6YCtu3PwTEsxPDNKVLwzNJfoZ+kzsARJbaXfKhjIPk0hIdEI6k7+iABd3J0Ge6o
- E21BaI1DVfxYzhQmtffSyiTWTX0ggTKcY1OLoksddvORRrvfQMQGbsphmp1xU/IKzC+G
- sD/zie7QvCQK1vih68EwWOxT3P4AOnndd/VBNtbw7iZsbzo+OPZQFBdc76x6uF8HLA4t
- egiWvXKCvt0EJ4zf4Nru3997s4IFCMrrcBcXNTQ8OpxxqBRXA3kIBOHmAEsIKhM9WxEA
- fFbw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:subject:to:cc:references:from:message-id:date
- :user-agent:mime-version:in-reply-to:content-language
- :content-transfer-encoding;
- bh=xnObBx7qCVcq4Xmng0HzOiOYW//hrsobDgYRbXW2qoA=;
- b=gOmWmjZlLB0IIvf0Rhnngty3XuXbXA7WMZtW0oo3EXxyJLRyg1x1Qp7MrDOeM+ZVbM
- z03fE3COm4TH6jCOncrPXxGnOl1bQdDBKsIK6PXcnotoECF4fBbtEHy1dj9y+HSNE7CN
- xPeDgVIWo/o94Tx/YYQPxhuwEd8izcuVjYGHHuDrDCjW3OyxnSdqV2of5TigLqUsdJTI
- uhQJcKwoWRThIx35DggqUfIf5ljhF7qievzMvy9d0xwVRSM5BDW92K57XzoGxr8SljEl
- BJWzcefQSpVd+AKonzI7/y6NJ6okr5rDxYg/3Ucwh1CMsxFwokMNx0r9Uptxzoh71IWn
- G9Yg==
-X-Gm-Message-State: AOAM532sA8PenEWCK71DuFCJoMRDossf3hYHxqDE/OEwRDG4k2KEaMUc
- +YRZSOYUFg3znyMo3J5lMm9RLqPZZQ2fV1Mp
-X-Google-Smtp-Source: ABdhPJwPLaEjEPKwC34UrAC2gsulKg3s4j7+J97bZTNNIKaoZ/lJu48wNw2Iwm4BkDrJnbbca6y71A==
-X-Received: by 2002:a63:1f18:: with SMTP id f24mr3506723pgf.133.1611301030526; 
- Thu, 21 Jan 2021 23:37:10 -0800 (PST)
-Received: from [10.8.0.116] ([196.245.9.36])
- by smtp.gmail.com with ESMTPSA id fh7sm7835085pjb.43.2021.01.21.23.37.01
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 21 Jan 2021 23:37:09 -0800 (PST)
-Subject: Re: [PATCH 1/2] block: remove unnecessary argument from
- blk_execute_rq_nowait
-To: Christoph Hellwig <hch@infradead.org>
-References: <20210121142905.13089-1-guoqing.jiang@cloud.ionos.com>
- <20210121142905.13089-2-guoqing.jiang@cloud.ionos.com>
- <20210121170257.GA4120717@infradead.org>
-From: Guoqing Jiang <guoqing.jiang@cloud.ionos.com>
-Message-ID: <b87591b9-e598-6436-d41f-80cc56640549@cloud.ionos.com>
-Date: Fri, 22 Jan 2021 08:36:45 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ Fri, 22 Jan 2021 08:06:12 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+ by mx2.suse.de (Postfix) with ESMTP id 086F7AB9F;
+ Fri, 22 Jan 2021 08:06:10 +0000 (UTC)
+Subject: Re: [PATCH v3 1/4] drm/qxl: use drmm_mode_config_init
+To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
+References: <20210120111240.2509679-1-kraxel@redhat.com>
+ <20210120111240.2509679-2-kraxel@redhat.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Message-ID: <8988c58f-6ee1-60b7-58dd-a402040e3bce@suse.de>
+Date: Fri, 22 Jan 2021 09:06:08 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 MIME-Version: 1.0
-In-Reply-To: <20210121170257.GA4120717@infradead.org>
-Content-Language: en-US
-Cc: axboe@kernel.dk, linux-nfs@vger.kernel.org, linux-scsi@vger.kernel.org,
- linux-mmc@vger.kernel.org, linux-nvme@lists.infradead.org,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- linux-ide@vger.kernel.org, target-devel@vger.kernel.org
+In-Reply-To: <20210120111240.2509679-2-kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>,
+ open list <linux-kernel@vger.kernel.org>,
+ "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
+ <virtualization@lists.linux-foundation.org>,
+ "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>,
+ Dave Airlie <airlied@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,25 +81,117 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: multipart/mixed; boundary="===============3966896822797166825=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============3966896822797166825==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="L5u4lsu2LyjYt2nFvFiZz28cTTZkO1L4F"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--L5u4lsu2LyjYt2nFvFiZz28cTTZkO1L4F
+Content-Type: multipart/mixed; boundary="8WbsdIL5Uw82v3Wn0JToA9byK1kZ0oGHP";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>,
+ open list <linux-kernel@vger.kernel.org>,
+ "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
+ <virtualization@lists.linux-foundation.org>,
+ "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
+ <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
+Message-ID: <8988c58f-6ee1-60b7-58dd-a402040e3bce@suse.de>
+Subject: Re: [PATCH v3 1/4] drm/qxl: use drmm_mode_config_init
+References: <20210120111240.2509679-1-kraxel@redhat.com>
+ <20210120111240.2509679-2-kraxel@redhat.com>
+In-Reply-To: <20210120111240.2509679-2-kraxel@redhat.com>
+
+--8WbsdIL5Uw82v3Wn0JToA9byK1kZ0oGHP
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
 
-On 1/21/21 18:02, Christoph Hellwig wrote:
-> On Thu, Jan 21, 2021 at 03:29:04PM +0100, Guoqing Jiang wrote:
->> The 'q' is not used since commit a1ce35fa4985 ("block: remove dead
->> elevator code"), also update the comment of the function.
-> 
-> And more importantly it never really was needed to start with given
-> that we can triviall derive it from struct request.
 
-Thanks Christoph, will add the above to header and send new version.
+Am 20.01.21 um 12:12 schrieb Gerd Hoffmann:
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-Guoqing
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+
+> ---
+>   drivers/gpu/drm/qxl/qxl_display.c | 5 +++--
+>   1 file changed, 3 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qx=
+l_display.c
+> index 012bce0cdb65..38d6b596094d 100644
+> --- a/drivers/gpu/drm/qxl/qxl_display.c
+> +++ b/drivers/gpu/drm/qxl/qxl_display.c
+> @@ -1195,7 +1195,9 @@ int qxl_modeset_init(struct qxl_device *qdev)
+>   	int i;
+>   	int ret;
+>  =20
+> -	drm_mode_config_init(&qdev->ddev);
+> +	ret =3D drmm_mode_config_init(&qdev->ddev);
+> +	if (ret)
+> +		return ret;
+>  =20
+>   	ret =3D qxl_create_monitors_object(qdev);
+>   	if (ret)
+> @@ -1228,5 +1230,4 @@ int qxl_modeset_init(struct qxl_device *qdev)
+>   void qxl_modeset_fini(struct qxl_device *qdev)
+>   {
+>   	qxl_destroy_monitors_object(qdev);
+> -	drm_mode_config_cleanup(&qdev->ddev);
+>   }
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+
+
+--8WbsdIL5Uw82v3Wn0JToA9byK1kZ0oGHP--
+
+--L5u4lsu2LyjYt2nFvFiZz28cTTZkO1L4F
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmAKh3AFAwAAAAAACgkQlh/E3EQov+Cj
+rxAAiqNcLRt/tMMPI7b9KfBqOr7G+fMePF7aVUMfgQmjciB0GV9ScIkclwElPluhFSfG8MRU8zXK
+9FwuFFCny0msMQE620P1fe9gLmh1AG8koraebgXyOqYuKnY9BwgUbueOv8sJkeiQt5mjIN0McYRx
+GdLVoRO27f2pDv4eBvQbT1FlnV9J7E4D/VMiA6ZayDHwTxN2tw06XEj0J1MQsBagb1cypBy9WbN2
+ql1R5AsHKTm4bwhT/+C91qJcCCJB1J7Gg1zX6lOH7pBSQF7JL8a1qvhwQ8+fVKtsIdrvNzj4heja
++HzzyLo+Wq9liMPtzoCKvf2MXEZsSrO/bboSI7lJ9KoH9o3D1QaxbIqaWhHBj0vfxYVfpt3Bxhms
+VARBhKRffVTv50K22NQFDwXldIo7jh9mC9NT15Q/ljjdV7cfdMFFKAVqedXqAirgx8JnXSqQW+jX
+gctBygpRXK8BlL07XVl2U0v6PR/adrHAXSZcAY57sjWpJmHY8zK8YLqsKLHO6bgrj87wlUSs/CiE
+pE63WaorEGMt3kV3sNrjvq7v90WviQjgiw8SiHJaeE4Bnby2jd6Iirrup9sc0/Lw+VsTIcYb7fmh
+AF/Fk2E3HhNXLhip1ydVVjMVF3iS+lv4pciAdSMU1SQErAPf+y5WEEiVzH2vfTDpKUz20OyvEkMN
+Ljs=
+=cNm8
+-----END PGP SIGNATURE-----
+
+--L5u4lsu2LyjYt2nFvFiZz28cTTZkO1L4F--
+
+--===============3966896822797166825==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3966896822797166825==--
