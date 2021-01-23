@@ -2,179 +2,188 @@ Return-Path: <SRS0=XTWN=G2=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD3C2C433DB
-	for <virtualization@archiver.kernel.org>; Sat, 23 Jan 2021 08:07:09 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5251C433DB
+	for <virtualization@archiver.kernel.org>; Sat, 23 Jan 2021 20:16:59 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4DFD1224D4
-	for <virtualization@archiver.kernel.org>; Sat, 23 Jan 2021 08:07:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4DFD1224D4
+	by mail.kernel.org (Postfix) with ESMTPS id 452C422D50
+	for <virtualization@archiver.kernel.org>; Sat, 23 Jan 2021 20:16:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 452C422D50
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 7D9472E146;
-	Sat, 23 Jan 2021 08:07:08 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id E602D86BF9;
+	Sat, 23 Jan 2021 20:16:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CJkiEIPe8Ckf; Sat, 23 Jan 2021 08:07:07 +0000 (UTC)
+	with ESMTP id lz3wAqoK6Nui; Sat, 23 Jan 2021 20:16:58 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id E8F7020130;
-	Sat, 23 Jan 2021 08:07:06 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 372B686BE9;
+	Sat, 23 Jan 2021 20:16:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C8A27C088B;
-	Sat, 23 Jan 2021 08:07:06 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 29FF3C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 134CDC08A1;
+	Sat, 23 Jan 2021 20:16:58 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E9ED1C013A
  for <virtualization@lists.linux-foundation.org>;
- Sat, 23 Jan 2021 08:07:06 +0000 (UTC)
+ Sat, 23 Jan 2021 20:16:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 0D00B20431
+ by whitealder.osuosl.org (Postfix) with ESMTP id E108786BF1
  for <virtualization@lists.linux-foundation.org>;
- Sat, 23 Jan 2021 08:07:06 +0000 (UTC)
+ Sat, 23 Jan 2021 20:16:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BmZ1Rij1GfkD
+ with ESMTP id DnbZ7MmHqlbx
  for <virtualization@lists.linux-foundation.org>;
- Sat, 23 Jan 2021 08:07:05 +0000 (UTC)
+ Sat, 23 Jan 2021 20:16:55 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from aserp2130.oracle.com (aserp2130.oracle.com [141.146.126.79])
- by silver.osuosl.org (Postfix) with ESMTPS id E06BC20130
+Received: from userp2130.oracle.com (userp2130.oracle.com [156.151.31.86])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 15C8F86BE9
  for <virtualization@lists.linux-foundation.org>;
- Sat, 23 Jan 2021 08:07:04 +0000 (UTC)
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
- by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10N82a1E163131;
- Sat, 23 Jan 2021 08:07:02 GMT
+ Sat, 23 Jan 2021 20:16:54 +0000 (UTC)
+Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
+ by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10NKFVHN065242;
+ Sat, 23 Jan 2021 20:16:53 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=from : to : cc :
- subject : date : message-id : content-type : mime-version;
- s=corp-2020-01-29; bh=llzIADoeB26bjAHBPE/Oyqk0bSJd6IFuUBZT7dJQ/k4=;
- b=hr8a9Z9sNANp0tCBh6Qef0EuZykgYTJI1HnUDMGYxmAHbydjaw9qu73jP2s5tdYVxueJ
- zrUbrgkdMrkJbjgH3bAOsRiUaH7p78axntHunzeDwEBfr52DGOGzvmfNbczb1g9/BgLz
- XTgK1U51XHFsvGEBTB4tw8w3JzT72zm9cKvGZEbygSmGDNg+3SmdrG+qIszpASMeXbtA
- 7TlnXwcfN64HvjZtMfp3j44217cIrDEdhYleFB3hGtiy5AudDpUcc+xFBXtMHi3IbbUK
- Xmj1WNYrJVzAoXcA/RwvixhqitNU9wkv0ShtYxD3HXi1hHWZGbtrNGN/H2iRcJLEhvwu Mw== 
+ h=subject : from : to :
+ cc : references : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2020-01-29;
+ bh=Pca1rxI0gblrJuQE/QlEB65MkVlJLGitv2DYHKd1oAg=;
+ b=AwZT2qYqc4bqtNPshaoOZI7YOtcLxSrqJnYf5SuIO2AHOL5oHjPCTQHXgwyM6CFjL6bc
+ uASCkyIxwd1dU2sEZEwZAG0okJtq3WF5APvhGxA+sk9+4JvzwR9cfLbL8YQMdahVmbTn
+ UbhU9T6gtAy7LGiPjCSHLuACnow5XqzwJcHCoDT639mzmD/FaSJDiFK3ivGEf8Dh8su3
+ TW8GbNyBF1mab0UzjnaIF3rXnYBqAJ36ByfaAlz19LpXxsfWeLp08ZxqIwhH78859Pms
+ fl2xfYqOQDp90I7dvg5pWpx9UeNWoiNtGbF/G7Bvs9dUJ1W/iFY2H2ZwJMip1+7O4X1S Og== 
 Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
- by aserp2130.oracle.com with ESMTP id 3689aa8hch-1
+ by userp2130.oracle.com with ESMTP id 368b7qherg-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Sat, 23 Jan 2021 08:07:02 +0000
+ Sat, 23 Jan 2021 20:16:53 +0000
 Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
- by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10N80rxC155890;
- Sat, 23 Jan 2021 08:07:02 GMT
-Received: from nam04-bn3-obe.outbound.protection.outlook.com
- (mail-bn3nam04lp2052.outbound.protection.outlook.com [104.47.46.52])
- by aserp3030.oracle.com with ESMTP id 3689u9022h-1
+ by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 10NKEqQw009092;
+ Sat, 23 Jan 2021 20:14:52 GMT
+Received: from nam02-bl2-obe.outbound.protection.outlook.com
+ (mail-bl2nam02lp2050.outbound.protection.outlook.com [104.47.38.50])
+ by aserp3030.oracle.com with ESMTP id 3689u9b80u-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Sat, 23 Jan 2021 08:07:02 +0000
+ Sat, 23 Jan 2021 20:14:52 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Z42n7R608MdB4vZmuGcTno3XLlNH0vZ8yYuJfJNf2edl0SCK0CuFO6qopALj70aS2BQa+d0tTqX7ouSyxTp28amoZP6g+AET8AY0gRAFnMGf2GvsLgZjgcwhAhNvax1BqujYhlqEREkx//6rErdliP/RCYRM4deFg4uA9Qan9yienN4X2lk1ydyijt+R6k2lV9PB4vSiXz12dTB7D+1dmMlr4v7Z2l6CiaQW+jI90qz+cp8g40wF1lxjTaPHygcA2QFGNNYYubhSL2iw0HplHEERElBZr1BRKShhrWD/WwvmRjhUjkxAp2Vfc76MNGabWaLlsVb+SWyCbMz8VDa3oA==
+ b=eRYuYK6U7sz80hdC4l76wz5o/8AnznWOhAqS8sMSj0nwQ06wWnooVjthYJS9rK453IreMcg8LILzgBXx+5tMcCv4aIYO1DUkFVEL5dyrX9ynnubgPpi8okAYOItkhGye3cbYorNW8qxdOCNMMumUmusqpkhaqj1AYbsmSU1XYtyJVjqDYbi697LUKeuPqaZf0nNFHpiqPejPHZfi6PCw1k2lh91NCW/W0emj7/EgXtZBl52s3uJZDoRuqkOcH4a0tQqdvu/BHEk026HQfzNa0tSycoHoOMJHijD09tJtywGR0nEkYPH5V9COLQV8YgJ+5sM9Zu4djoL6zYlZCY5PEA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=llzIADoeB26bjAHBPE/Oyqk0bSJd6IFuUBZT7dJQ/k4=;
- b=TmS7LeWWvUmc9odKLc7I5HMh2Nuk2yd3Dn0CWjd7F1alE8FU/93ohl5+rqqi4gaJlamsW1eaI9L1XcsBlS3CHKPtcmTf5mDMU/5i7mDP4PbRHv9Z+SOXe6NOJ/lQruZ/m37AxtdfeLZ/eElof0oj57n8HUwCtGdzgeKQZt4rguyHzo25PbF2aOn37FolNPlcoQwKKd8jvlPhU2SrYxQ51KfX1YqKPPucskbE6VMO93m5Iy4uztCsDNsnUJiIDunpd+5sMhkwoj427s6rf8K+OJtDp6+11NKUz1wS/2zj5BIF7tAxU5oDH0ks9In55zn6FP/3vRWzSwQK9j1JxQbC6w==
+ bh=Pca1rxI0gblrJuQE/QlEB65MkVlJLGitv2DYHKd1oAg=;
+ b=KCSithAIO3B1GU/fpVSjZ3Z7N2rUtZ8VlBd1vKHyfF7SUEUKjqh63kp8USyQWoFgy8h0jQuGao+xNFUjfowux9xPU4tru7QnvBGlPDsDUeGZl+6uLh4Hrhay2RKbg7gm9HXLE0nZjK8U+2DszIdIGoVuHhejTYJAIgGyU0afkGD9+feqX4yXuZl9wfPdElL1ua1AtLrxkXgWGaeMu1qe26b2fXAci2W7T5RLJi9WZqJ5eK/kgRVROrSgNtqX2jloOVyZF4aD7zyjgdd95gDBLBh5m9wRLiBWZKBfmUa6A8k9etwQlEca6Vg0gzYmLNHxyk9vlfPzXnKVwtlmXpNXXw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=llzIADoeB26bjAHBPE/Oyqk0bSJd6IFuUBZT7dJQ/k4=;
- b=FaHWBDHmas81kPUI+thxrHOmWfrsrYAy3Yvx1hbGnNSIxIDzGEGpYwWWNIABRCQ+WvRcYakbMV9UYzdzghlw/07RdnS/DSbU4zfdIwoki5+CJ9tnZt6D/4wVllYUdg1IAInoAKYbvnDH0HKSESYE6hTVp79DumgAHvonUKquZEE=
-Authentication-Results: lists.linux-foundation.org; dkim=none (message not
- signed) header.d=none;lists.linux-foundation.org; dmarc=none action=none
- header.from=oracle.com;
+ bh=Pca1rxI0gblrJuQE/QlEB65MkVlJLGitv2DYHKd1oAg=;
+ b=Zu+pSP26L1/aS15TfkmCruf941wh0VGLhECLOyhwOJyKh9prQzQah94AHaP3Pldy5Al7F0LR9c2MSVOBvNp3+XsnnFHYIxRaYn9EtpCDMpWjzwXr87W8f3BtUViXrCFWhcOsqERSZe+NBfXfTBJbjyW+Der6hJcNrj4au2/8imA=
+Authentication-Results: redhat.com; dkim=none (message not signed)
+ header.d=none;redhat.com; dmarc=none action=none header.from=oracle.com;
 Received: from BYAPR10MB2663.namprd10.prod.outlook.com (2603:10b6:a02:a9::20)
- by BYAPR10MB3445.namprd10.prod.outlook.com (2603:10b6:a03:81::11)
+ by BYAPR10MB3590.namprd10.prod.outlook.com (2603:10b6:a03:11a::15)
  with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3784.11; Sat, 23 Jan
- 2021 08:07:00 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3784.13; Sat, 23 Jan
+ 2021 20:14:39 +0000
 Received: from BYAPR10MB2663.namprd10.prod.outlook.com
  ([fe80::644d:92e4:7b5d:f8c1]) by BYAPR10MB2663.namprd10.prod.outlook.com
  ([fe80::644d:92e4:7b5d:f8c1%5]) with mapi id 15.20.3784.016; Sat, 23 Jan 2021
- 08:06:59 +0000
+ 20:14:38 +0000
+Subject: Re: [PATCH v2 1/1] vhost scsi: alloc vhost_scsi with kvzalloc() to
+ avoid delay
 From: Dongli Zhang <dongli.zhang@oracle.com>
 To: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
  netdev@vger.kernel.org
-Subject: [PATCH v2 1/1] vhost scsi: alloc vhost_scsi with kvzalloc() to avoid
- delay
-Date: Sat, 23 Jan 2021 00:08:53 -0800
-Message-Id: <20210123080853.4214-1-dongli.zhang@oracle.com>
-X-Mailer: git-send-email 2.17.1
-X-Originating-IP: [138.3.200.16]
-X-ClientProxiedBy: BY5PR03CA0012.namprd03.prod.outlook.com
- (2603:10b6:a03:1e0::22) To BYAPR10MB2663.namprd10.prod.outlook.com
+References: <20210123080853.4214-1-dongli.zhang@oracle.com>
+Message-ID: <b85fb58d-72b4-2c0a-a412-3dbdb437e042@oracle.com>
+Date: Sat, 23 Jan 2021 12:14:34 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.1
+In-Reply-To: <20210123080853.4214-1-dongli.zhang@oracle.com>
+Content-Language: en-US
+X-Originating-IP: [2601:646:c303:6700::a4a4]
+X-ClientProxiedBy: CH2PR11CA0028.namprd11.prod.outlook.com
+ (2603:10b6:610:54::38) To BYAPR10MB2663.namprd10.prod.outlook.com
  (2603:10b6:a02:a9::20)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from localhost.localdomain (138.3.200.16) by
- BY5PR03CA0012.namprd03.prod.outlook.com (2603:10b6:a03:1e0::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3784.12 via Frontend
- Transport; Sat, 23 Jan 2021 08:06:59 +0000
+Received: from [IPv6:2601:646:c303:6700::a4a4] (2601:646:c303:6700::a4a4) by
+ CH2PR11CA0028.namprd11.prod.outlook.com (2603:10b6:610:54::38) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.3784.14 via Frontend Transport; Sat, 23 Jan 2021 20:14:37 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: a1e8f6f0-e7e0-4900-f053-08d8bf75dc0e
-X-MS-TrafficTypeDiagnostic: BYAPR10MB3445:
+X-MS-Office365-Filtering-Correlation-Id: 679245d3-5164-4045-23c2-08d8bfdb82b2
+X-MS-TrafficTypeDiagnostic: BYAPR10MB3590:
 X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <BYAPR10MB3445C5F804893F9EA8821934F0BF9@BYAPR10MB3445.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:635;
+X-Microsoft-Antispam-PRVS: <BYAPR10MB3590F2F7E51463025BBEFF21F0BF9@BYAPR10MB3590.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:820;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 6Hgtt9xmblV3c+dlmiiote90Yzuq3FoqXtf2kBCcIhJZUiuU65xyQ4NgIP/Gttl2/UZZGvyskA+Il2+AaVL7rO6KeDcxvSQs0So4+ivHtZoGed2fHasFWw6fsJFB6EY8arnPvvH2I1u845OEiVb3o5nEAwnwMwFAvxWQAJWjlq4NVciuLJSKrB67pwP3Jzwx2dsmu7N+644LBsZ+VVetRSKnK5e1j8tNY8xaK4nQXBt5haMDcJUYEN0j+hJ9cMaGp+39J4L7H1oi3d3C8XBTqJykquk3dsQDkqnW+JvA1HK5FDqLnXpqYKHHzxxpqzNgsYOyoxH84CYA7R50CtDfJXNzKviwsh65Lf7TgV5shrILMssr7gfgdcuQR/ArtjVPmKBPOMPEf0LpXsFLrYx62L8iGTPoRNJIFcubfE+g1zVbDo+Kh9SNj5w6BHH6L4COyBbw+uHBvzqhEw0GixuZzr9pjWug51+VL0CiUGRwbWn7Isup/2c+ESVWi2gJ6StJEirUk8zm4q1K2LE4geKpd615pRILGjNBPvJJeAwawMVLEej++8FFrqytmDOut04bQ3JlJuifInQIEK1A41pEQQ==
+X-Microsoft-Antispam-Message-Info: vMzZXePu2X1p4oHJE8ogQ3iZEo8e/JpaedpF5E/xYyuPEllSycTLAAhX+at2CMs+Cc5OHwSpa0H6UxhypMLw2AylEh3rVs+7A02Z4rOWHyPGQX3JByqMIeRJ32pv94KmHiVVTfpfx8lgEiFt241XGr/VHGRBasgdbd+rVVgEalNYYBJQYaVKU6RUTfLFloACt79etznOIHp3+MhbSHdGDZ9xx2g4FwCuk92t7Mq3X0SnnRASFUS0hm3rcEwEUVMx5Cn3T086BNOF6ZjqXL/5VBCJBGsRq+zPm/loncwwu0XebuMDG13CBWfUwLMkX12priwxC1wkSH8ECh/nzvPTOVSfT2SQHJqBZa03nMB0NqoVGgiX0qCJT5yWkapmaUcvjcTmuUh3XjEdsp7/qTNLKYJniQeK4fbrQr/WPB0HO6oFNdabbrej0wzChFN0OPKP+gZ4YQVkD/hzCqdDMJ/cCNgr5paTkZuY+2WcCySsiIA=
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:BYAPR10MB2663.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(376002)(396003)(346002)(39860400002)(366004)(136003)(6486002)(83380400001)(44832011)(2906002)(1076003)(316002)(52116002)(4326008)(69590400011)(8676002)(956004)(6666004)(478600001)(66946007)(107886003)(5660300002)(66556008)(186003)(66476007)(26005)(6506007)(36756003)(86362001)(2616005)(8936002)(16526019)(6512007);
+ SFS:(366004)(136003)(39860400002)(376002)(346002)(396003)(66946007)(66476007)(66556008)(2616005)(8676002)(16526019)(186003)(44832011)(31686004)(2906002)(4326008)(6486002)(36756003)(8936002)(478600001)(53546011)(83380400001)(316002)(86362001)(5660300002)(31696002)(6666004)(45980500001)(43740500002);
  DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?+DOKApOjMVe4gBtY594LU4WXkPDebK75hAkpFHBwq8o+pIACKzjWnClTtdc5?=
- =?us-ascii?Q?TO1q3u//8XRFmP9I0fYSkIolFJjD+qt55dk9hw/w2KBecVGow3bdpA4yIk+q?=
- =?us-ascii?Q?jXgFtAHs7PEYkHQfcUVjvhtI+sH8b/DIrJ0J7f3ba09afvRTub9hBuoSsaRs?=
- =?us-ascii?Q?YMPZW3c/hvlmXYeIhEgqxMxQZhwkxRbu+WR2uy/5sSSCNHZ0J0NMFKlBYHm1?=
- =?us-ascii?Q?BIwRdywDz6bljsBnCaPczQmhGikmzw/FFrknhrFMGRBcjk+OiVk+JO9KQFv/?=
- =?us-ascii?Q?WwpCvNY7upEXAqVo6OoRzRJS12i56XzHU2nGxIPgUFDT6aEoWRZLEUe3FK96?=
- =?us-ascii?Q?xRPN7reG6r3tT4pUW5dhjsoFVcKxiPSW/Mf+Tlw4evYULAAOhrqmR+BBKoR7?=
- =?us-ascii?Q?zF/BBacKppvvrB8IZfGZiPPYqmpgVOCtxoleoT5aLZFps6hFgQsgYpKUWZd7?=
- =?us-ascii?Q?ci2dyAQ6SrqXiGJ9SbCo5gwrsz4NhpO0Ul0OJeFsP7vAhksRZBlMI/4v239x?=
- =?us-ascii?Q?0FW9qnd28BC51GdxJsRi5D5r9OBOuyrt3MTx/FMtu6H/HQyFDLS367K60AfM?=
- =?us-ascii?Q?j4o6vjsFnXbtJu/WqzjB6voEhWWsUg1rLhMNXvL3DKvpLbdumLrCYE0SB4CQ?=
- =?us-ascii?Q?0gaixfa1LYegE8aKLkFRvvQFCvy0jtJwTikvz6yAmaMPlQ+2VPsvQzgI0I0H?=
- =?us-ascii?Q?87UZhGGRhkFzxcgj/a5bgobLX2eneG3cV7POghU/VHXQsCeFabgDco3fZSiW?=
- =?us-ascii?Q?R+kJqQR3qVaAV8Rp1Jtrb5YbR84OX+OJoHS4aJxQaL5AjKKRuSazbCCurrl6?=
- =?us-ascii?Q?2yOOGNy7bkGROAyRT1zuB5MHzwk92NdRLJM8pXCgflUR2Ppgkonv5LKhKVUi?=
- =?us-ascii?Q?cXAw50KL2p+9S8lugohFX1Zq1aSs7nQjhdPTLTIl99a2GhF/93RaBSFmd136?=
- =?us-ascii?Q?d5ROPk6QxLw/8zNp0jYDWS25EXUFL2z4dl/Ris/1imITBDJbM3vqYovvOgPQ?=
- =?us-ascii?Q?JS/8?=
+X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?YTZwUElJUFhORGU4ZUdFYm9IcEx5VnovME5oRWpTcnU1cVNpbmp4bi94akkv?=
+ =?utf-8?B?U2tNeEpxZmFTSEJ6RndLcGdMOU13OHRaQytYNitiVnZ1VDVwK0V1VUZUQUJF?=
+ =?utf-8?B?KzZ6dVBHeUJvaUcwYmF5L1hSb1UxditNcW1Xak1KUzdEaVU4ZmlrVWI2TmUv?=
+ =?utf-8?B?Nmo3bS9XUTY2eUIrdDg2RkpCd1IyUy9aK211bmNIcjB3TWY4MU5XS0FYbUxN?=
+ =?utf-8?B?NFljeHBCei9DbVMxb1U0ODRNdk5sMGtITGJ5cEFCQ285alZzL1RJTDZ3cFc4?=
+ =?utf-8?B?ZTVyaUhXM0IzUWRMK0xZekVxMEtodU5aTlVFbDFhNFAwalJMM0hOaC91QWlz?=
+ =?utf-8?B?UnNBQ0h6ejg3dkxnaHNZcHZkSGYvUUJSNElZVkxCZCt1THpqTzErSXd6cjJ0?=
+ =?utf-8?B?YUdGQ21IODRFMnRpaFduQTF5OGxCcVo4T21Qb2ZkeExDenowY1BjcWxqQS90?=
+ =?utf-8?B?NThyajlBYzdLQUNkeEJTaDFWWXo3OUFkMlgzanlLRGxIZDdyRnhBd0tFU1dO?=
+ =?utf-8?B?cERPK0o1SHd5TjFNc2hSdU11c2VYSmFxelNyRkNLVkZwWTFiamtvV2U5REx5?=
+ =?utf-8?B?U29sbGV1eUV5QU90MGNCa1I3cndTOWtqemM4cFJzK3MvWUMybVBTOHJKSkZG?=
+ =?utf-8?B?UzRvOWRLakJoMzJiNjVrYnNkRHRlSGNvNFF3SjJJdHFDTGlwRFNXVEZ5eCti?=
+ =?utf-8?B?QVJKU2JlaERXQm94MTkxeEpVcHJGVjZnN2pKdFlmNnJFSVQvMldUMlZLREp5?=
+ =?utf-8?B?dVcrazJqVjJNc2I5cWpXTDhnSGZRZWQvck4zT0NRaEo3NUVKMGtJYzQ5U2J0?=
+ =?utf-8?B?N0h1ZXM5VVhZYllvVWN5SCtuWG53SldHNUp6UmtXU1RXUGlFR1V4UVRjaFJT?=
+ =?utf-8?B?S0lHYnFKU0ZnYTVGa0prelZaMUNFaDQzUndLVWtsVE1sWHA5QTlIWnZ4K2g5?=
+ =?utf-8?B?dTlPNG9tZ0p4Z1VIcUcvM2dMTzNVUEJRTGk4ZWd1UVZLS1lXbmhvK2ZEalh4?=
+ =?utf-8?B?clQ4MHpqTkZJRHNmMllTdjlmTzdtQXdPZ29teW9DZEY2emp6VnRoYjFFV0Fs?=
+ =?utf-8?B?cTk5Y2w1QWtOOXJKMDI0NEVwcko1dEIxcXFPYmxzMStwaFBrd2RsWUNMaDhu?=
+ =?utf-8?B?QUd3TURZVXFlS3loa3h5WnRkU0NRNzJXakxjRXZXTklvM3lHdnY3bXNWVURG?=
+ =?utf-8?B?MklNbE5vNE9RdlNvS3RMZ3ExQVh0UWdWb1RkU2paL1RjQzF5Sk1vVk40bXFE?=
+ =?utf-8?B?VWhiTjUwZHhJK0RBd05MQ08wZWttWlczQVJvODNiekU2QkQ1b2tsYVdTbHJQ?=
+ =?utf-8?B?d1ZoL1ZwMFcwbGNQYVIyckVuclNHU2tOaXErNzhOWndKdWVLb1FMczRyOExx?=
+ =?utf-8?B?NzNKNGk1RmlUUlE9PQ==?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a1e8f6f0-e7e0-4900-f053-08d8bf75dc0e
+X-MS-Exchange-CrossTenant-Network-Message-Id: 679245d3-5164-4045-23c2-08d8bfdb82b2
 X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB2663.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Jan 2021 08:06:59.8539 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Jan 2021 20:14:38.8678 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: LDLTZd+7YWNr64zbVxKAXuzDTCO900wUMIVVRQZXV0rmGpK/BHQeW0b+uGN72lfqOmGmeoprH0U9J+B56DxzdA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR10MB3445
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9872
+X-MS-Exchange-CrossTenant-UserPrincipalName: Rr27xgnzmfzq0Pyeg9ehfyXvK7JaYICI+6j2GgcQQDBGQB33R3DS8oRmddagDhnHYJDg89E7Lv50AMv1yD3meA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR10MB3590
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9873
  signatures=668683
 X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0
- spamscore=0 mlxlogscore=785
+ spamscore=0 mlxlogscore=999
  adultscore=0 suspectscore=0 phishscore=0 mlxscore=0 malwarescore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2101230043
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9872
+ definitions=main-2101230117
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9873
  signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
- adultscore=0
- lowpriorityscore=0 mlxlogscore=907 clxscore=1015 phishscore=0 bulkscore=0
- spamscore=0 priorityscore=1501 mlxscore=0 suspectscore=0 impostorscore=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
+ spamscore=0 phishscore=0
+ adultscore=0 impostorscore=0 malwarescore=0 lowpriorityscore=0 bulkscore=0
+ priorityscore=1501 mlxscore=0 clxscore=1015 mlxlogscore=999
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2101230043
+ definitions=main-2101230117
 Cc: aruna.ramakrishna@oracle.com, mst@redhat.com, joe.jin@oracle.com,
  linux-kernel@vger.kernel.org, stefanha@redhat.com, pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -193,53 +202,59 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The size of 'struct vhost_scsi' is order-10 (~2.3MB). It may take long time
-delay by kzalloc() to compact memory pages by retrying multiple times when
-there is a lack of high-order pages. As a result, there is latency to
-create a VM (with vhost-scsi) or to hotadd vhost-scsi-based storage.
+According to my "git send-email" history, I have CCed jasowang@redhat.com. Not
+sure why Jason is not on the list.
 
-The prior commit 595cb754983d ("vhost/scsi: use vmalloc for order-10
-allocation") prefers to fallback only when really needed, while this patch
-allocates with kvzalloc() with __GFP_NORETRY implicitly set to avoid
-retrying memory pages compact for multiple times.
+CCed Jason. Thank you very much!
 
-The __GFP_NORETRY is implicitly set if the size to allocate is more than
-PAGE_SZIE and when __GFP_RETRY_MAYFAIL is not explicitly set.
+Dongli Zhang
 
-Cc: Aruna Ramakrishna <aruna.ramakrishna@oracle.com>
-Cc: Joe Jin <joe.jin@oracle.com>
-Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
----
-Changed since v1:
-  - To combine kzalloc() and vzalloc() as kvzalloc()
-    (suggested by Jason Wang)
-
- drivers/vhost/scsi.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 4ce9f00ae10e..5de21ad4bd05 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -1814,12 +1814,9 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
- 	struct vhost_virtqueue **vqs;
- 	int r = -ENOMEM, i;
- 
--	vs = kzalloc(sizeof(*vs), GFP_KERNEL | __GFP_NOWARN | __GFP_RETRY_MAYFAIL);
--	if (!vs) {
--		vs = vzalloc(sizeof(*vs));
--		if (!vs)
--			goto err_vs;
--	}
-+	vs = kvzalloc(sizeof(*vs), GFP_KERNEL);
-+	if (!vs)
-+		goto err_vs;
- 
- 	vqs = kmalloc_array(VHOST_SCSI_MAX_VQ, sizeof(*vqs), GFP_KERNEL);
- 	if (!vqs)
--- 
-2.17.1
-
+On 1/23/21 12:08 AM, Dongli Zhang wrote:
+> The size of 'struct vhost_scsi' is order-10 (~2.3MB). It may take long time
+> delay by kzalloc() to compact memory pages by retrying multiple times when
+> there is a lack of high-order pages. As a result, there is latency to
+> create a VM (with vhost-scsi) or to hotadd vhost-scsi-based storage.
+> 
+> The prior commit 595cb754983d ("vhost/scsi: use vmalloc for order-10
+> allocation") prefers to fallback only when really needed, while this patch
+> allocates with kvzalloc() with __GFP_NORETRY implicitly set to avoid
+> retrying memory pages compact for multiple times.
+> 
+> The __GFP_NORETRY is implicitly set if the size to allocate is more than
+> PAGE_SZIE and when __GFP_RETRY_MAYFAIL is not explicitly set.
+> 
+> Cc: Aruna Ramakrishna <aruna.ramakrishna@oracle.com>
+> Cc: Joe Jin <joe.jin@oracle.com>
+> Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
+> ---
+> Changed since v1:
+>   - To combine kzalloc() and vzalloc() as kvzalloc()
+>     (suggested by Jason Wang)
+> 
+>  drivers/vhost/scsi.c | 9 +++------
+>  1 file changed, 3 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+> index 4ce9f00ae10e..5de21ad4bd05 100644
+> --- a/drivers/vhost/scsi.c
+> +++ b/drivers/vhost/scsi.c
+> @@ -1814,12 +1814,9 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
+>  	struct vhost_virtqueue **vqs;
+>  	int r = -ENOMEM, i;
+>  
+> -	vs = kzalloc(sizeof(*vs), GFP_KERNEL | __GFP_NOWARN | __GFP_RETRY_MAYFAIL);
+> -	if (!vs) {
+> -		vs = vzalloc(sizeof(*vs));
+> -		if (!vs)
+> -			goto err_vs;
+> -	}
+> +	vs = kvzalloc(sizeof(*vs), GFP_KERNEL);
+> +	if (!vs)
+> +		goto err_vs;
+>  
+>  	vqs = kmalloc_array(VHOST_SCSI_MAX_VQ, sizeof(*vqs), GFP_KERNEL);
+>  	if (!vqs)
+> 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
