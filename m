@@ -7,85 +7,87 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69A27C43381
-	for <virtualization@archiver.kernel.org>; Tue, 26 Jan 2021 16:58:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21AA0C433E6
+	for <virtualization@archiver.kernel.org>; Tue, 26 Jan 2021 16:58:33 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 080E822D04
-	for <virtualization@archiver.kernel.org>; Tue, 26 Jan 2021 16:58:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 080E822D04
+	by mail.kernel.org (Postfix) with ESMTPS id B4F9D20780
+	for <virtualization@archiver.kernel.org>; Tue, 26 Jan 2021 16:58:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B4F9D20780
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 9FD3E87060;
-	Tue, 26 Jan 2021 16:58:31 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 4E3E187053;
+	Tue, 26 Jan 2021 16:58:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id agZ3aFinvqF5; Tue, 26 Jan 2021 16:58:31 +0000 (UTC)
+	with ESMTP id 5Pd-FhJWrOMt; Tue, 26 Jan 2021 16:58:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 6C8E88703C;
+	by hemlock.osuosl.org (Postfix) with ESMTP id 8DCC58702A;
 	Tue, 26 Jan 2021 16:58:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2302AC0FA7;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 61966C1DA8;
 	Tue, 26 Jan 2021 16:58:31 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8CAF8C013A
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C4D93C1DA7
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jan 2021 16:58:26 +0000 (UTC)
+ Tue, 26 Jan 2021 16:58:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 85A0B20395
+ by whitealder.osuosl.org (Postfix) with ESMTP id 9622B84906
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 26 Jan 2021 16:58:27 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id OWec-kEJwVHV
  for <virtualization@lists.linux-foundation.org>;
  Tue, 26 Jan 2021 16:58:26 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rzGv8QLUr5Vn
- for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jan 2021 16:58:25 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by silver.osuosl.org (Postfix) with ESMTPS id 90E4A20479
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 9A5A686774
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jan 2021 16:58:25 +0000 (UTC)
+ Tue, 26 Jan 2021 16:58:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1611680304;
+ s=mimecast20190719; t=1611680305;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=MZEflyF1dwhYzK+trMWmGhMpiUlZ0r/+H0hd8wKKx1w=;
- b=i/lJTi12wib9B5IgS6ZvFvwEBcAhmxBif5ZxbDHIgr69JZAr3YcZfPv7ngnBnHM+3+4F72
- /O8iqJo65gZ7F2b2MbgW8Zutiszb7iAz63R0l/itnc2m4VWSRMaIAGmroGsr5npYGXwSzN
- QMhla53kjy7HaqI2QF4p3rgHeH3oGeo=
+ bh=1oIZf7f/oo6PVRncKORJAVfkEWNMyNF7ALcrFfX4auY=;
+ b=SVkqMSXm2ex5bcFURaM8ll4CTQr9BJZJhfys5BLn5Xvu9gEKgOnGojQ4Fj0mvGnBHqLOgo
+ AP7HoZcNdoNIUgxJDaB17iieRXHN5MC+DTDb/T5OoP0jbV6r+7UqJlKjlj3sNa//LtRS1Q
+ a6s9iYwCM4hP5kjkxqJXHk8Assuce2g=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-407-YJgdJSw_PMaw0iQ-Fb1CJQ-1; Tue, 26 Jan 2021 11:58:20 -0500
-X-MC-Unique: YJgdJSw_PMaw0iQ-Fb1CJQ-1
+ us-mta-263-YDsllnBeMdWIsta4iMlMzw-1; Tue, 26 Jan 2021 11:58:20 -0500
+X-MC-Unique: YDsllnBeMdWIsta4iMlMzw-1
 Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
  [10.5.11.23])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3104A1005504;
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 31E40801AA7;
  Tue, 26 Jan 2021 16:58:19 +0000 (UTC)
 Received: from sirius.home.kraxel.org (ovpn-113-27.ams2.redhat.com
  [10.36.113.27])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id DA4DC19D61;
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id DA2DC19C46;
  Tue, 26 Jan 2021 16:58:15 +0000 (UTC)
 Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
- id 294FE180038A; Tue, 26 Jan 2021 17:58:13 +0100 (CET)
+ id 0D0451800389; Tue, 26 Jan 2021 17:58:13 +0100 (CET)
 From: Gerd Hoffmann <kraxel@redhat.com>
 To: dri-devel@lists.freedesktop.org
-Subject: [PATCH v4 2/5] drm/qxl: unpin release objects
-Date: Tue, 26 Jan 2021 17:58:09 +0100
-Message-Id: <20210126165812.1661512-3-kraxel@redhat.com>
+Subject: [PATCH v4 1/5] drm/qxl: use drmm_mode_config_init
+Date: Tue, 26 Jan 2021 17:58:08 +0100
+Message-Id: <20210126165812.1661512-2-kraxel@redhat.com>
 In-Reply-To: <20210126165812.1661512-1-kraxel@redhat.com>
 References: <20210126165812.1661512-1-kraxel@redhat.com>
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>,
+Cc: Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@linux.ie>,
+ Daniel Vetter <daniel.vetter@ffwll.ch>,
+ open list <linux-kernel@vger.kernel.org>,
  "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
  <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>,
  "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>,
@@ -106,26 +108,34 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Balances the qxl_create_bo(..., pinned=true, ...);
-call in qxl_release_bo_alloc().
-
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/qxl/qxl_release.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/qxl/qxl_display.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
-index c52412724c26..28013fd1f8ea 100644
---- a/drivers/gpu/drm/qxl/qxl_release.c
-+++ b/drivers/gpu/drm/qxl/qxl_release.c
-@@ -347,6 +347,7 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 012bce0cdb65..38d6b596094d 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -1195,7 +1195,9 @@ int qxl_modeset_init(struct qxl_device *qdev)
+ 	int i;
+ 	int ret;
  
- 	mutex_lock(&qdev->release_mutex);
- 	if (qdev->current_release_bo_offset[cur_idx] + 1 >= releases_per_bo[cur_idx]) {
-+		qxl_bo_unpin(qdev->current_release_bo[cur_idx]);
- 		qxl_bo_unref(&qdev->current_release_bo[cur_idx]);
- 		qdev->current_release_bo_offset[cur_idx] = 0;
- 		qdev->current_release_bo[cur_idx] = NULL;
+-	drm_mode_config_init(&qdev->ddev);
++	ret = drmm_mode_config_init(&qdev->ddev);
++	if (ret)
++		return ret;
+ 
+ 	ret = qxl_create_monitors_object(qdev);
+ 	if (ret)
+@@ -1228,5 +1230,4 @@ int qxl_modeset_init(struct qxl_device *qdev)
+ void qxl_modeset_fini(struct qxl_device *qdev)
+ {
+ 	qxl_destroy_monitors_object(qdev);
+-	drm_mode_config_cleanup(&qdev->ddev);
+ }
 -- 
 2.29.2
 
