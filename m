@@ -2,160 +2,104 @@ Return-Path: <SRS0=+Z4V=G5=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D34CCC433DB
-	for <virtualization@archiver.kernel.org>; Tue, 26 Jan 2021 03:57:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61FB2C433E0
+	for <virtualization@archiver.kernel.org>; Tue, 26 Jan 2021 04:22:41 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 193C622597
-	for <virtualization@archiver.kernel.org>; Tue, 26 Jan 2021 03:57:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 193C622597
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id ACB2422B51
+	for <virtualization@archiver.kernel.org>; Tue, 26 Jan 2021 04:22:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org ACB2422B51
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id B4AAB87122;
-	Tue, 26 Jan 2021 03:57:48 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 11E1A87134;
+	Tue, 26 Jan 2021 04:22:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id b7WfpxYe4tNq; Tue, 26 Jan 2021 03:57:46 +0000 (UTC)
+	with ESMTP id iGIoL-W6x78i; Tue, 26 Jan 2021 04:22:38 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id CB3B7870E9;
-	Tue, 26 Jan 2021 03:57:46 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 09CF186F81;
+	Tue, 26 Jan 2021 04:22:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id ACD50C0FA7;
-	Tue, 26 Jan 2021 03:57:46 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 77274C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EB851C08A1;
+	Tue, 26 Jan 2021 04:22:37 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D80E4C013A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jan 2021 03:57:45 +0000 (UTC)
+ Tue, 26 Jan 2021 04:22:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 56E7D20475
+ by hemlock.osuosl.org (Postfix) with ESMTP id CC1CC86F92
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jan 2021 03:57:45 +0000 (UTC)
+ Tue, 26 Jan 2021 04:22:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5GYbwEfvcUSE
+ with ESMTP id UeA05gu3-GEw
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jan 2021 03:57:44 +0000 (UTC)
-X-Greylist: delayed 01:44:03 by SQLgrey-1.7.6
-Received: from NAM02-CY1-obe.outbound.protection.outlook.com
- (mail-eopbgr760134.outbound.protection.outlook.com [40.107.76.134])
- by silver.osuosl.org (Postfix) with ESMTPS id 5196E203AA
+ Tue, 26 Jan 2021 04:22:34 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mail-ot1-f48.google.com (mail-ot1-f48.google.com
+ [209.85.210.48])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id AC31886F81
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jan 2021 03:57:44 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Gapo81IjsPgf6pES0CvZw1SH6kmFsyFt/n642KIWLxGJByBX1gRrUWAsyWiYXvzbZzrILWH4oOi7e7SZT7uxQbfhnWAw2Z4O7kPA9DhF73ioi67pTHZEvIf4yl1KfO9nt5G7n4FX+/KN8GY6cWcTkpPw0yoSKYDRDiH3gyZXa3S5xxlPbsu9N1LaEc1kl/DeLPY67goWx/6LUV7mrf1mnJATP1A+3LESR8lju6b5UUIBKOrcNbbs1qf1MQn05Gro2KQ9fI5r+w5Lr1TFiWicJrwiStdqUYG0whlpi2WLAUbp5UPMZK1HpKIhy+USsWp1ZGiq4SRfvbGEPSxRGFHziQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mjVe6hOj0cgr4Do+eH6LO1gUlHiW4G89pJ2Y2NQIP8U=;
- b=mNeTL/Dwh7NlIXROI65nQ+NP2aMHXWmbkXLxqy9vGYl2qM7lVusr/J7zSjtvUPvwdgn9Q6j5V7fEBvSDNcBUbAXw5aEsyM4kewBjXNGbRJdSfRwPOw+Kgg8aJzRFMlgBb4HyM1shfmIRxekvaGGH1fNB4dYS+AxuuxiMY6Vq5bxvf4CGXEVmgh/5eyMoJRRmvgQdjHeJydktcuNg8A3+q2Ez+D6YIpVSGjzeI761mBwhAiq/BJeR34dIgZGpjuDIyC63rD/9rGYsXbwCGmZotAPSOIVPqIgWl6aM7+aFEVoC8HtXLmUnolcpuhX3XWl8V9W4LUsq3RWXVyE22aXcvA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=mjVe6hOj0cgr4Do+eH6LO1gUlHiW4G89pJ2Y2NQIP8U=;
- b=JohllkHTOzyR2tdFs3wVRBQj9Lp1ncPJA9FFVbfRMk50GGE7YrAPPgPOec8XQw52PTF/7O2GdTfX8YMQ5Guy4UEMBcyUDwTBGNva02gs2fMplqRH8k/VB/VhEXkwTcLZY5E9dxzJmkcu0iTXN8RO3DMburtXE2XYp396DIChJRY=
-Received: from (2603:10b6:301:7c::11) by
- MWHPR2101MB0873.namprd21.prod.outlook.com (2603:10b6:301:7e::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3825.6; Tue, 26 Jan
- 2021 01:23:03 +0000
-Received: from MWHPR21MB1593.namprd21.prod.outlook.com
- ([fe80::9c8:94c9:faf1:17c2]) by MWHPR21MB1593.namprd21.prod.outlook.com
- ([fe80::9c8:94c9:faf1:17c2%9]) with mapi id 15.20.3825.003; Tue, 26 Jan 2021
- 01:23:03 +0000
-To: Wei Liu <wei.liu@kernel.org>, Linux on Hyper-V List
- <linux-hyperv@vger.kernel.org>
-Subject: RE: [PATCH v5 12/16] asm-generic/hyperv: update hv_interrupt_entry
-Thread-Topic: [PATCH v5 12/16] asm-generic/hyperv: update hv_interrupt_entry
-Thread-Index: AQHW7yP2wwc4EqBA8EWKcKJ5oJD2lqo5JReA
-Date: Tue, 26 Jan 2021 01:23:03 +0000
-Message-ID: <MWHPR21MB15936D273DDF0D6790DEE8FDD7BC9@MWHPR21MB1593.namprd21.prod.outlook.com>
-References: <20210120120058.29138-1-wei.liu@kernel.org>
- <20210120120058.29138-13-wei.liu@kernel.org>
-In-Reply-To: <20210120120058.29138-13-wei.liu@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2021-01-26T01:23:01Z; 
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=43a75e13-b0f8-4fed-acb4-6ede6cfd6036;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0
-authentication-results: kernel.org; dkim=none (message not signed)
- header.d=none;kernel.org; dmarc=none action=none header.from=microsoft.com;
-x-originating-ip: [66.75.126.197]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 892f0b97-8002-4d10-fed9-08d8c198ed75
-x-ms-traffictypediagnostic: MWHPR2101MB0873:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <MWHPR2101MB0873996A0573E06CC0909077D7BC9@MWHPR2101MB0873.namprd21.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:3826;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 57+mykKnUjGGfqTNrl22h2nJLBxdKfuxtNNumVhfYSZwlxVNI3Rua03oUJfX23bKGBpzSiTa+zfCC8hUSDaogH7dnJiQZh9kTLuW/x0VW+2+gqyYx3qYpbskquHZymKs17+tvKF2CFa3/7wH40/L6LOQOM56l9osbP4c/w3tLdBAkF5mUskm+P4ZA77JEUthdPCxDwbVyjGs3cR7fR+UZrNjQXhTI3TpoYPAOEi3b/hT6/5nVg4FnMI410QM4KqYtPKGxuAH3GNzhpz/io4wSl93Vlxr31HLtAIfN9ZlXa5cYSqm5dGamdLjAW64ToQ5FlKj/hqZNxvTlC1qWvM4Smhh5Gy6uyXzfZBXrzDB+YDCNfFmqIysDxsV23SeUqXtcBnmiXyOqY39hu4Cbev9bPkowIR9h9qbRNQoG/7goBAzRD/FMcupbXUugADijT3y7OULOMGw8WZvKMSPd5LQvrk8r6v2RNExGOO/fnPam01E9xGiVBJZup8H071yXv6CMPEJ40UpWSUbcYRL6MI/86yC5Ca4oRXgUFDX/iKwUyDxWEFcmggNLXqXRqV/DMZe
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:MWHPR21MB1593.namprd21.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(366004)(346002)(136003)(396003)(376002)(39860400002)(478600001)(52536014)(66446008)(71200400001)(55016002)(8936002)(7416002)(54906003)(4326008)(66946007)(76116006)(64756008)(110136005)(83380400001)(9686003)(66476007)(66556008)(86362001)(7696005)(15650500001)(6506007)(8990500004)(82960400001)(82950400001)(33656002)(8676002)(26005)(186003)(316002)(10290500003)(5660300002)(2906002)(41533002);
- DIR:OUT; SFP:1102; 
-x-ms-exchange-antispam-messagedata: =?us-ascii?Q?vHF2gMoEvR9KH/OHXAdgacc4r8wRZPtO2IogfyY6wRR10Z2N3QiW9rRSXC0z?=
- =?us-ascii?Q?Mb8G7o0linSUn35K6wG1mWks81fGbyLcVe0x34BRS/TOocPtKafLjFWi0vh+?=
- =?us-ascii?Q?nxtmpNiqZwKT8uv5SzUejyhCcYfANQrx6Ytb6QXcmZBwLBb232DVuI3PP6Lk?=
- =?us-ascii?Q?iBGeCLP/jkDl4hy4JTmB3w5TaHxyqSkv0Kw+SD6hIZ4F3IZPQYNPujkw3XdA?=
- =?us-ascii?Q?5toEb5byeK9raJVqdG1UvKuolh/U48USzMIlpWsXvmHKbnfNpyXn06t9/tv2?=
- =?us-ascii?Q?MhqEvRCFr28SCBuEZoUOjk5ShCA1Yb0n/TFZdpgjpyl60J092TPIle7pW28k?=
- =?us-ascii?Q?94n/y7297SnHMk2HmeoSKqOfKjAmMNHiwJWefk20AMCL7LhPA/fg39nmTfB0?=
- =?us-ascii?Q?ijFYxzflare2qM/gxH2pghC8MlTnTu0RizldknkrZFDP8FQM4iqcuq9X3soF?=
- =?us-ascii?Q?7bJdMzoRt4fJ4/sMepXOEUTOHp9EJZW/YcbU6zjkpJbrGAc6n+ylqCr4XnXr?=
- =?us-ascii?Q?qikxqvt28goN4mkAXvpuByToNQIWU19vyIDKADr8j3ph7UzNxhnPvZ8zjjRb?=
- =?us-ascii?Q?67W0Nmt2qPNHi1hiDsoct0BzVCjrZWOrbRAl4ed3kXsC/5XYkPpepACUYXfL?=
- =?us-ascii?Q?o0zA9eRHELdl3ctLUr3EJY9+SCJftH9z803815wcF9oxj1AGHZvohKYsFzCB?=
- =?us-ascii?Q?95QFJTbCYkIOZjHfbhdRDBxrEZdTC/1VFfUhh2Y3Rag6enP01QAHZTIQMyfi?=
- =?us-ascii?Q?wXEkl+dsUO7PKGqcnWofxyOggSwbjx4Nc2kE77M2dB5JquyHjEJ9bPMf2zyL?=
- =?us-ascii?Q?YXW4tIVGMnzSuokpxg7gdo1oM88SAs5BLGUYY4C2+sz8wwNcb+odmhPNFRwy?=
- =?us-ascii?Q?KeGJE4bgaX2ljBZbXlArbC67Mueo33gzlRRjzdS87Rt6eMq+C2kacsSfHhdp?=
- =?us-ascii?Q?r4hrsauHJwEjKI91UyTYoLDq5BEGEeXcyIVCpUuLTlVDaN29h6T+fVYoOtJx?=
- =?us-ascii?Q?eFwiGP1a7JLpEWRposUC0yVzpIxbbuLfwvfUlQDMp7uN03pf3A1Zlm7ihXBQ?=
- =?us-ascii?Q?ny+gpwYj?=
+ Tue, 26 Jan 2021 04:22:34 +0000 (UTC)
+Received: by mail-ot1-f48.google.com with SMTP id n42so15077103ota.12
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 25 Jan 2021 20:22:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=subject:to:references:from:message-id:date:user-agent:mime-version
+ :in-reply-to:content-language:content-transfer-encoding;
+ bh=+71kVpH7e3NkfcR/YReIM3Qg42vh5Tdnoamk96i2uW4=;
+ b=ORzoIFlfX5G234tbb1uzGfyrKmnes0kmDxGUbRRZ6b2Ql7tkJlvh2rNUxiP/NAI0Xz
+ EQELT3qEG8G5F9+0Qwh0yk8zxkFRZMAJSh2UBgdY4p4MdFbyp8Vqr64yrEyWp47ZG1J8
+ /dSdRy5EhXRcRHFwxd0WdZlbvlvhR2LcqoBxUvwZBVNmAhj4uir9TzWUDBMLPFRrznQK
+ jYoTafhTZCSSfTRrN5l7zV8WLVV2FuX3ecgDhfxaLeFFCWRDgFRywx5DMkinZ9YW3ExZ
+ sLM5ECuT0SxMxmPJ4kYPWx8kD4rUOMIqRC9+IYSxoSgN5PaWqd9XJsH87R8/6bVjmmpS
+ 0GGw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:subject:to:references:from:message-id:date
+ :user-agent:mime-version:in-reply-to:content-language
+ :content-transfer-encoding;
+ bh=+71kVpH7e3NkfcR/YReIM3Qg42vh5Tdnoamk96i2uW4=;
+ b=EJLaIUVQYYQq7kTpo9LvZtXdQqcMK+AO+ee+dq6lt99BW2CvO8TVfUU/8TBTjstOZS
+ 9wqqDmPdRH2rj2xUCF8aEJ9dCNrNjPTCAA+fRp7VlqKlfAZF1+yhnK/f8RTUhe2GVSvT
+ tA8MSt8gVt8hzzEoJYcHYwVocMM+Qn4Hg9bgq6678EAAwOs8kPojxCXFSomo5hLGabpf
+ xZvA3gnTBKg1877npBPv4ONgWRE28AFsgjRiHxXjEg1CRCVRuewojrg4DT0ryJ2YFbHG
+ YrRJcCGNXcjV/cBDtIy+daPMtjcDiLZAD3e7wY6b2hMsGhKnk7lwpK0yYdAV+utYhMmO
+ WRtg==
+X-Gm-Message-State: AOAM533XxwbSCVT1NNCVz9kZld2cSdW0rSynUb6jC7Tbs4RJlUXJ52I2
+ Da12slwoUOWRJJxuytT6uYs=
+X-Google-Smtp-Source: ABdhPJz8dSZOMmbbmrg1v7N3OMYJza7i3D+SGcGzdRrqKLZVxcu6x2n7XAXWKmZp1DKIrDNpjdjX6Q==
+X-Received: by 2002:a9d:3b43:: with SMTP id z61mr2753282otb.217.1611634953934; 
+ Mon, 25 Jan 2021 20:22:33 -0800 (PST)
+Received: from Davids-MacBook-Pro.local
+ ([2601:282:800:dc80:f5f4:6dbf:d358:29ee])
+ by smtp.googlemail.com with ESMTPSA id z3sm3737994ooj.26.2021.01.25.20.22.32
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 25 Jan 2021 20:22:33 -0800 (PST)
+Subject: Re: [PATCH iproute2-next 2/2] vdpa: Add vdpa tool
+To: Parav Pandit <parav@nvidia.com>,
+ virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+ stephen@networkplumber.org, mst@redhat.com, jasowang@redhat.com
+References: <20210122112654.9593-1-parav@nvidia.com>
+ <20210122112654.9593-3-parav@nvidia.com>
+From: David Ahern <dsahern@gmail.com>
+Message-ID: <dc59454f-5e8b-2fce-9837-44808df933d4@gmail.com>
+Date: Mon, 25 Jan 2021 21:22:31 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.16; rv:78.0)
+ Gecko/20100101 Thunderbird/78.6.1
 MIME-Version: 1.0
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR21MB1593.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 892f0b97-8002-4d10-fed9-08d8c198ed75
-X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Jan 2021 01:23:03.4349 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: ENzL5vaoyd3JUoZX628AQtysewUIaYYfrfvjArl/So35WLUIIB1In/IanMkRJe3f2mqDGFvvJLHhgAMGrvIQZzdOTKGVufFZUaQeAKsDKJs=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR2101MB0873
-Cc: "open list:GENERIC INCLUDE/ASM HEADER
- FILES" <linux-arch@vger.kernel.org>, Rob Herring <robh@kernel.org>,
- Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
- Stephen Hemminger <sthemmin@microsoft.com>,
- "pasha.tatashin@soleen.com" <pasha.tatashin@soleen.com>,
- Arnd Bergmann <arnd@arndb.de>, "open list:PCI NATIVE HOST BRIDGE AND ENDPOINT
- DRIVERS" <linux-pci@vger.kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>,
- Linux Kernel List <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- Bjorn Helgaas <bhelgaas@google.com>,
- Nuno Das Neves <nunodasneves@linux.microsoft.com>,
- Sunil Muthuswamy <sunilmut@microsoft.com>,
- Vineeth Pillai <viremana@linux.microsoft.com>
+In-Reply-To: <20210122112654.9593-3-parav@nvidia.com>
+Content-Language: en-US
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -167,104 +111,292 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Michael Kelley via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Michael Kelley <mikelley@microsoft.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Wei Liu <wei.liu@kernel.org> Sent: Wednesday, January 20, 2021 4:01 AM
-> 
-> We will soon use the same structure to handle IO-APIC interrupts as
-> well. Introduce an enum to identify the source and a data structure for
-> IO-APIC RTE.
-> 
-> While at it, update pci-hyperv.c to use the enum.
-> 
-> No functional change.
-> 
-> Signed-off-by: Wei Liu <wei.liu@kernel.org>
-> Acked-by: Rob Herring <robh@kernel.org>
-> ---
->  drivers/pci/controller/pci-hyperv.c |  2 +-
->  include/asm-generic/hyperv-tlfs.h   | 36 +++++++++++++++++++++++++++--
->  2 files changed, 35 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/pci/controller/pci-hyperv.c b/drivers/pci/controller/pci-hyperv.c
-> index 6db8d96a78eb..87aa62ee0368 100644
-> --- a/drivers/pci/controller/pci-hyperv.c
-> +++ b/drivers/pci/controller/pci-hyperv.c
-> @@ -1216,7 +1216,7 @@ static void hv_irq_unmask(struct irq_data *data)
->  	params = &hbus->retarget_msi_interrupt_params;
->  	memset(params, 0, sizeof(*params));
->  	params->partition_id = HV_PARTITION_ID_SELF;
-> -	params->int_entry.source = 1; /* MSI(-X) */
-> +	params->int_entry.source = HV_INTERRUPT_SOURCE_MSI;
->  	hv_set_msi_entry_from_desc(&params->int_entry.msi_entry, msi_desc);
->  	params->device_id = (hbus->hdev->dev_instance.b[5] << 24) |
->  			   (hbus->hdev->dev_instance.b[4] << 16) |
-> diff --git a/include/asm-generic/hyperv-tlfs.h b/include/asm-generic/hyperv-tlfs.h
-> index 7e103be42799..8423bf53c237 100644
-> --- a/include/asm-generic/hyperv-tlfs.h
-> +++ b/include/asm-generic/hyperv-tlfs.h
-> @@ -480,6 +480,11 @@ struct hv_create_vp {
->  	u64 flags;
->  } __packed;
-> 
-> +enum hv_interrupt_source {
-> +	HV_INTERRUPT_SOURCE_MSI = 1, /* MSI and MSI-X */
-> +	HV_INTERRUPT_SOURCE_IOAPIC,
+Looks fine. A few comments below around code re-use.
+
+On 1/22/21 4:26 AM, Parav Pandit wrote:
+> diff --git a/vdpa/vdpa.c b/vdpa/vdpa.c
+> new file mode 100644
+> index 00000000..942524b7
+> --- /dev/null
+> +++ b/vdpa/vdpa.c
+> @@ -0,0 +1,828 @@
+> +// SPDX-License-Identifier: GPL-2.0+
+> +
+> +#include <stdio.h>
+> +#include <getopt.h>
+> +#include <errno.h>
+> +#include <linux/genetlink.h>
+> +#include <linux/vdpa.h>
+> +#include <linux/virtio_ids.h>
+> +#include <linux/netlink.h>
+> +#include <libmnl/libmnl.h>
+> +#include "mnl_utils.h"
+> +
+> +#include "version.h"
+> +#include "json_print.h"
+> +#include "utils.h"
+> +
+> +static int g_indent_level;
+> +
+> +#define INDENT_STR_STEP 2
+> +#define INDENT_STR_MAXLEN 32
+> +static char g_indent_str[INDENT_STR_MAXLEN + 1] = "";
+
+The indent code has a lot of parallels with devlink -- including helpers
+below around indent_inc and _dec. Please take a look at how to refactor
+and re-use.
+
+> +
+> +struct vdpa_socket {
+> +	struct mnl_socket *nl;
+> +	char *buf;
+> +	uint32_t family;
+> +	unsigned int seq;
 > +};
 > +
->  union hv_msi_address_register {
->  	u32 as_uint32;
->  	struct {
-> @@ -513,10 +518,37 @@ union hv_msi_entry {
->  	} __packed;
->  };
-> 
-> +union hv_ioapic_rte {
-> +	u64 as_uint64;
+> +static int vdpa_socket_sndrcv(struct vdpa_socket *nlg, const struct nlmsghdr *nlh,
+> +			      mnl_cb_t data_cb, void *data)
+> +{
+> +	int err;
 > +
-> +	struct {
-> +		u32 vector:8;
-> +		u32 delivery_mode:3;
-> +		u32 destination_mode:1;
-> +		u32 delivery_status:1;
-> +		u32 interrupt_polarity:1;
-> +		u32 remote_irr:1;
-> +		u32 trigger_mode:1;
-> +		u32 interrupt_mask:1;
-> +		u32 reserved1:15;
+> +	err = mnl_socket_sendto(nlg->nl, nlh, nlh->nlmsg_len);
+> +	if (err < 0) {
+> +		perror("Failed to send data");
+> +		return -errno;
+> +	}
 > +
-> +		u32 reserved2:24;
-> +		u32 destination_id:8;
-> +	};
+> +	err = mnlu_socket_recv_run(nlg->nl, nlh->nlmsg_seq, nlg->buf, MNL_SOCKET_BUFFER_SIZE,
+> +				   data_cb, data);
+> +	if (err < 0) {
+> +		fprintf(stderr, "vdpa answers: %s\n", strerror(errno));
+> +		return -errno;
+> +	}
+> +	return 0;
+> +}
 > +
-> +	struct {
-> +		u32 low_uint32;
-> +		u32 high_uint32;
-> +	};
-> +} __packed;
+> +static int get_family_id_attr_cb(const struct nlattr *attr, void *data)
+> +{
+> +	int type = mnl_attr_get_type(attr);
+> +	const struct nlattr **tb = data;
 > +
->  struct hv_interrupt_entry {
-> -	u32 source;			/* 1 for MSI(-X) */
-> +	u32 source;
->  	u32 reserved1;
-> -	union hv_msi_entry msi_entry;
-> +	union {
-> +		union hv_msi_entry msi_entry;
-> +		union hv_ioapic_rte ioapic_rte;
-> +	};
->  } __packed;
-> 
->  /*
-> --
-> 2.20.1
+> +	if (mnl_attr_type_valid(attr, CTRL_ATTR_MAX) < 0)
+> +		return MNL_CB_ERROR;
+> +
+> +	if (type == CTRL_ATTR_FAMILY_ID &&
+> +	    mnl_attr_validate(attr, MNL_TYPE_U16) < 0)
+> +		return MNL_CB_ERROR;
+> +	tb[type] = attr;
+> +	return MNL_CB_OK;
+> +}
+> +
+> +static int get_family_id_cb(const struct nlmsghdr *nlh, void *data)
+> +{
+> +	struct genlmsghdr *genl = mnl_nlmsg_get_payload(nlh);
+> +	struct nlattr *tb[CTRL_ATTR_MAX + 1] = {};
+> +	uint32_t *p_id = data;
+> +
+> +	mnl_attr_parse(nlh, sizeof(*genl), get_family_id_attr_cb, tb);
+> +	if (!tb[CTRL_ATTR_FAMILY_ID])
+> +		return MNL_CB_ERROR;
+> +	*p_id = mnl_attr_get_u16(tb[CTRL_ATTR_FAMILY_ID]);
+> +	return MNL_CB_OK;
+> +}
+> +
+> +static int family_get(struct vdpa_socket *nlg)
+> +{
+> +	struct genlmsghdr hdr = {};
+> +	struct nlmsghdr *nlh;
+> +	int err;
+> +
+> +	hdr.cmd = CTRL_CMD_GETFAMILY;
+> +	hdr.version = 0x1;
+> +
+> +	nlh = mnlu_msg_prepare(nlg->buf, GENL_ID_CTRL,
+> +			       NLM_F_REQUEST | NLM_F_ACK,
+> +			       &hdr, sizeof(hdr));
+> +
+> +	mnl_attr_put_strz(nlh, CTRL_ATTR_FAMILY_NAME, VDPA_GENL_NAME);
+> +
+> +	err = mnl_socket_sendto(nlg->nl, nlh, nlh->nlmsg_len);
+> +	if (err < 0)
+> +		return err;
+> +
+> +	err = mnlu_socket_recv_run(nlg->nl, nlh->nlmsg_seq, nlg->buf,
+> +				   MNL_SOCKET_BUFFER_SIZE,
+> +				   get_family_id_cb, &nlg->family);
+> +	return err;
+> +}
+> +
+> +static int vdpa_socket_open(struct vdpa_socket *nlg)
+> +{
+> +	int err;
+> +
+> +	nlg->buf = malloc(MNL_SOCKET_BUFFER_SIZE);
+> +	if (!nlg->buf)
+> +		goto err_buf_alloc;
+> +
+> +	nlg->nl = mnlu_socket_open(NETLINK_GENERIC);
+> +	if (!nlg->nl)
+> +		goto err_socket_open;
+> +
+> +	err = family_get(nlg);
+> +	if (err)
+> +		goto err_socket;
+> +
+> +	return 0;
+> +
+> +err_socket:
+> +	mnl_socket_close(nlg->nl);
+> +err_socket_open:
+> +	free(nlg->buf);
+> +err_buf_alloc:
+> +	return -1;
+> +}
 
-Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+The above 4 functions duplicate a lot of devlink functionality. Please
+create a helper in lib/mnl_utils.c that can be used in both.
+
+> +
+> +static void vdpa_socket_close(struct vdpa_socket *nlg)
+> +{
+> +	mnl_socket_close(nlg->nl);
+> +	free(nlg->buf);
+> +}
+> +
+> +#define VDPA_OPT_MGMTDEV_HANDLE		BIT(0)
+> +#define VDPA_OPT_VDEV_MGMTDEV_HANDLE	BIT(1)
+> +#define VDPA_OPT_VDEV_NAME 		BIT(2)
+> +#define VDPA_OPT_VDEV_HANDLE 		BIT(3)
+> +
+> +struct vdpa_opts {
+> +	uint64_t present; /* flags of present items */
+> +	const char *mdev_bus_name;
+> +	const char *mdev_name;
+> +	const char *vdev_name;
+> +	unsigned int device_id;
+> +};
+> +
+> +struct vdpa {
+> +	struct vdpa_socket nlg;
+> +	struct vdpa_opts opts;
+> +	bool json_output;
+> +};
+> +
+> +static void indent_inc(void)
+> +{
+> +	if (g_indent_level + INDENT_STR_STEP > INDENT_STR_MAXLEN)
+> +		return;
+> +	g_indent_level += INDENT_STR_STEP;
+> +	memset(g_indent_str, ' ', sizeof(g_indent_str));
+> +	g_indent_str[g_indent_level] = '\0';
+> +}
+> +
+> +static void indent_dec(void)
+> +{
+> +	if (g_indent_level - INDENT_STR_STEP < 0)
+> +		return;
+> +	g_indent_level -= INDENT_STR_STEP;
+> +	g_indent_str[g_indent_level] = '\0';
+> +}
+> +
+> +static void indent_print(void)
+> +{
+> +	if (g_indent_level)
+> +		printf("%s", g_indent_str);
+> +}
+> +
+> +static void pr_out_section_start(struct vdpa *vdpa, const char *name)
+> +{
+> +	open_json_object(NULL);
+> +	open_json_object(name);
+> +}
+> +
+> +static void pr_out_section_end(struct vdpa *vdpa)
+> +{
+> +	close_json_object();
+> +	close_json_object();
+> +}
+> +
+> +static void pr_out_array_start(struct vdpa *vdpa, const char *name)
+> +{
+> +	if (!vdpa->json_output) {
+> +		print_nl();
+> +		indent_inc();
+> +		indent_print();
+> +	}
+> +	open_json_array(PRINT_ANY, name);
+> +}
+> +
+> +static void pr_out_array_end(struct vdpa *vdpa)
+> +{
+> +	close_json_array(PRINT_JSON, NULL);
+> +	if (!vdpa->json_output)
+> +		indent_dec();
+> +}
+> +
+> +static const enum mnl_attr_data_type vdpa_policy[VDPA_ATTR_MAX + 1] = {
+> +	[VDPA_ATTR_MGMTDEV_BUS_NAME] = MNL_TYPE_NUL_STRING,
+> +	[VDPA_ATTR_MGMTDEV_DEV_NAME] = MNL_TYPE_NUL_STRING,
+> +	[VDPA_ATTR_DEV_NAME] = MNL_TYPE_STRING,
+> +	[VDPA_ATTR_DEV_ID] = MNL_TYPE_U32,
+> +	[VDPA_ATTR_DEV_VENDOR_ID] = MNL_TYPE_U32,
+> +	[VDPA_ATTR_DEV_MAX_VQS] = MNL_TYPE_U32,
+> +	[VDPA_ATTR_DEV_MAX_VQ_SIZE] = MNL_TYPE_U16,
+> +};
+> +
+> +static int attr_cb(const struct nlattr *attr, void *data)
+> +{
+> +	const struct nlattr **tb = data;
+> +	int type;
+> +
+> +	if (mnl_attr_type_valid(attr, VDPA_ATTR_MAX) < 0)
+> +		return MNL_CB_OK;
+> +
+> +	type = mnl_attr_get_type(attr);
+> +	if (mnl_attr_validate(attr, vdpa_policy[type]) < 0)
+> +		return MNL_CB_ERROR;
+> +
+> +	tb[type] = attr;
+> +	return MNL_CB_OK;
+> +}
+> +
+> +static unsigned int strslashcount(char *str)
+> +{
+> +	unsigned int count = 0;
+> +	char *pos = str;
+> +
+> +	while ((pos = strchr(pos, '/'))) {
+> +		count++;
+> +		pos++;
+> +	}
+> +	return count;
+> +}
+
+you could make that a generic function (e.g., str_char_count) by passing
+'/' as an input.
+
+> +
+> +static int strslashrsplit(char *str, const char **before, const char **after)
+> +{
+> +	char *slash;
+> +
+> +	slash = strrchr(str, '/');
+> +	if (!slash)
+> +		return -EINVAL;
+> +	*slash = '\0';
+> +	*before = str;
+> +	*after = slash + 1;
+> +	return 0;
+> +}
+
+similarly here. If you start with things like this in lib/utils you make
+it easier for follow on users to find.
+
 
 _______________________________________________
 Virtualization mailing list
