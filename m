@@ -1,81 +1,159 @@
-Return-Path: <SRS0=TROJ=G4=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=+Z4V=G5=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0114C433E0
-	for <virtualization@archiver.kernel.org>; Mon, 25 Jan 2021 16:59:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D05DC433E0
+	for <virtualization@archiver.kernel.org>; Tue, 26 Jan 2021 00:31:42 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 404942223E
-	for <virtualization@archiver.kernel.org>; Mon, 25 Jan 2021 16:59:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 404942223E
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 29FAF22DD6
+	for <virtualization@archiver.kernel.org>; Tue, 26 Jan 2021 00:31:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 29FAF22DD6
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id EE283868B0;
-	Mon, 25 Jan 2021 16:59:16 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 9820186A6B;
+	Tue, 26 Jan 2021 00:31:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KB12CnuQukAr; Mon, 25 Jan 2021 16:59:15 +0000 (UTC)
+	with ESMTP id JnQ9gyD0It6b; Tue, 26 Jan 2021 00:31:39 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id CEB9E86788;
-	Mon, 25 Jan 2021 16:59:15 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id DF3C48688B;
+	Tue, 26 Jan 2021 00:31:39 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AC4EBC08A1;
-	Mon, 25 Jan 2021 16:59:15 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 31963C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C1ABBC08A1;
+	Tue, 26 Jan 2021 00:31:39 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E504EC013A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Jan 2021 16:59:14 +0000 (UTC)
+ Tue, 26 Jan 2021 00:31:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 2C966868B0
+ by silver.osuosl.org (Postfix) with ESMTP id A652620399
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Jan 2021 16:59:14 +0000 (UTC)
+ Tue, 26 Jan 2021 00:31:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XEYl+TG-tgVK
+ with ESMTP id IWWvtEz8KYEr
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Jan 2021 16:59:12 +0000 (UTC)
+ Tue, 26 Jan 2021 00:31:36 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mga06.intel.com (mga06.intel.com [134.134.136.31])
- by whitealder.osuosl.org (Postfix) with ESMTPS id CA1B486788
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam10on2098.outbound.protection.outlook.com [40.107.93.98])
+ by silver.osuosl.org (Postfix) with ESMTPS id CDB6120131
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Jan 2021 16:59:12 +0000 (UTC)
-IronPort-SDR: OmjdSEnOdYzN5xuY7ORU5hUvSObI407hz5Kz9AM/OBut5SMpTt70p1DYBshHS4cx5SZft7PE4/
- /TNysV5mQspA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9875"; a="241295279"
-X-IronPort-AV: E=Sophos;i="5.79,374,1602572400"; d="scan'208";a="241295279"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
- by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 25 Jan 2021 08:59:11 -0800
-IronPort-SDR: pONRZTpEtEfmhFaQ89E5gnGXV7ibicYbzBDpUDLKNSeVgNRHw/kMcGNiBhSE/45osSvWCDAIph
- cJIqxzqJWvFQ==
-X-IronPort-AV: E=Sophos;i="5.79,374,1602572400"; d="scan'208";a="387460794"
-Received: from gliakhov-mobl2.ger.corp.intel.com (HELO ubuntu)
- ([10.249.45.174])
- by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 25 Jan 2021 08:59:09 -0800
-Date: Mon, 25 Jan 2021 17:59:06 +0100 (CET)
-From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-To: Anton Yakovlev <anton.yakovlev@opensynergy.com>
-Subject: Re: [PATCH v2 6/9] ALSA: virtio: PCM substream operators
-In-Reply-To: <20210124165408.1122868-7-anton.yakovlev@opensynergy.com>
-Message-ID: <7b4fa4c1-4af1-47b5-d2e6-bb2f81e75488@intel.com>
-References: <20210124165408.1122868-1-anton.yakovlev@opensynergy.com>
- <20210124165408.1122868-7-anton.yakovlev@opensynergy.com>
+ Tue, 26 Jan 2021 00:31:35 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=jRQDY/bxuziyW09y/06Q52brwJrYFb87/jGbbmTYUi5qd4Dp1B0ljvhewxteeb/PdYhzOSzNtH3fgpJaSgC6igtTFBU3P13wKQ1rVS1ncl69AUYVHUh6H5yvGC2bI1YQ4r+Yck1UC+XjIkDj6DIIswUcWI5Y9T01Vr5jm1aDDF5uM3zzCWKisTH9ktWoEOpFpU0Iw/RZyIwcE0Rms8UBvWjRkZq0MCGPmcXTlhZgSQHIYtB4HNLpcGDeOUfyh92YATGH6Cv4QIg6jBi60DEODga58q2xPkHw0PG3zdj5S1UwPAli+dDpPxN7rm0PzxdYU8/UGSOUnfDp9zihLDfs3A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=uOVAqUgOQa3ji4pJdHOEu55JcTrFUWnbQhlL17Z3bZ4=;
+ b=K0/32TqGKGCdo7oK5KtsMCdBsXx+XZvGNc69SmM0Q/H+yyA2S6feMV7EiIykMvX+h5mNN+7l8KeBDKqoWBc+DVu4DBGl955Hae1Bp7dvpYIyCVuQOKd0GqMiCwsWoxUkvB3Bx+brOJ4kLrp/n5KxauecfrYJfCoHAarL+eG4muhKTsWMru5qzOAqYSykz46hHQNjLugspLM/tgYA2RBN+xecbnx6IDilm+qH2iyOPoNUINn+GiYKvX2n2URtUnJm8ShWi8Kbj2F7mHapFlLwkDHMsJv+F0isXbJ86I3pRGf/IWpEFoijZ59AJ/NxIHstgoaUYYv5LCizu/VO1R+IAQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=uOVAqUgOQa3ji4pJdHOEu55JcTrFUWnbQhlL17Z3bZ4=;
+ b=WsWlkTeHtHKYO425chBpxntw4hFIpYtkyl4bWUEOdcDOuYxcmRqXT2xc67X+hpq1el+H9ZjthTyfS0HKGMeNPRnRG3Ni9wMuCHzpyWL+9hTveFfVb3BB57pvETQEer4ea1tTk2mlsNJYtAEa8e82IgE+NCeoz7qOI0s7fRBKJs0=
+Received: from (2603:10b6:301:7c::11) by
+ MWHPR21MB0862.namprd21.prod.outlook.com (2603:10b6:300:77::16) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.3825.1; Tue, 26 Jan 2021 00:31:31 +0000
+Received: from MWHPR21MB1593.namprd21.prod.outlook.com
+ ([fe80::9c8:94c9:faf1:17c2]) by MWHPR21MB1593.namprd21.prod.outlook.com
+ ([fe80::9c8:94c9:faf1:17c2%9]) with mapi id 15.20.3825.003; Tue, 26 Jan 2021
+ 00:31:31 +0000
+To: Wei Liu <wei.liu@kernel.org>, Linux on Hyper-V List
+ <linux-hyperv@vger.kernel.org>
+Subject: RE: [PATCH v5 02/16] x86/hyperv: detect if Linux is the root partition
+Thread-Topic: [PATCH v5 02/16] x86/hyperv: detect if Linux is the root
+ partition
+Thread-Index: AQHW7yPvqzTQq44n9EKlBqAzieFq1qo5FUJA
+Date: Tue, 26 Jan 2021 00:31:31 +0000
+Message-ID: <MWHPR21MB159358B1D6151AC5B5D38C7FD7BC9@MWHPR21MB1593.namprd21.prod.outlook.com>
+References: <20210120120058.29138-1-wei.liu@kernel.org>
+ <20210120120058.29138-3-wei.liu@kernel.org>
+In-Reply-To: <20210120120058.29138-3-wei.liu@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2021-01-26T00:31:29Z; 
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=578ca824-e84b-4ffb-abb5-5b2ddd2cbd43;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0
+authentication-results: kernel.org; dkim=none (message not signed)
+ header.d=none;kernel.org; dmarc=none action=none header.from=microsoft.com;
+x-originating-ip: [66.75.126.197]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 1b2ecc36-7574-49ba-e7c6-08d8c191ba72
+x-ms-traffictypediagnostic: MWHPR21MB0862:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <MWHPR21MB08622467D62F271DDB1F8C09D7BC9@MWHPR21MB0862.namprd21.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:2733;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: QMMOaBK9DJQ4oBmTkD5X3td/SmjIEE+qq1ZmEWfHUXAedGyUrRIZsziMmHN7tGarm2qY/Kxn4zoOdlBCc4FLME25C9/izHkS7l+BrO91ILu8LrDj1D/173mK8P/2MgZGZ90/1QDditroHyjrhuJf1JdMTNpAWtAX1uSb7sx3lNwy07TSLp8ohizX/IWlJxNUTMfC2+wgO6RsJ0LibRZWtQxyhHNSSUEUMcgCpSVKzmHZT9JQNXbuFnoMNbeanw6I25t99whMsMb6WFfLonZ8Pm9ZjI86Ba0I0+hijkurzSMQO/RMiZti19XeZ+1cH2Tw4E5AwneVZKhPQcUXFzn0ZrFZLBscaVuSUKDxcSlb6aze5U+/TanCkHR+ImMYWgZeT3Dcai4wqnDWmAtaf1TQ/9ylpM9Rhaxo3Tq5St11YRzxjsy5Mmrqvn8t/jIiEkGOoPibrNpyTheGZ2ii+XkiBde3p77XrePq2kJMkeaZxISWuD1pNFI4h5fG+DHOZwRG1sdJwV+5A44twjQahbQS4g==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:MWHPR21MB1593.namprd21.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(4636009)(39860400002)(136003)(366004)(396003)(346002)(376002)(83380400001)(7696005)(66556008)(76116006)(8936002)(9686003)(8676002)(66946007)(86362001)(66446008)(64756008)(82960400001)(82950400001)(66476007)(55016002)(8990500004)(10290500003)(33656002)(71200400001)(5660300002)(316002)(478600001)(4326008)(7416002)(26005)(6506007)(52536014)(2906002)(186003)(54906003)(110136005);
+ DIR:OUT; SFP:1102; 
+x-ms-exchange-antispam-messagedata: =?us-ascii?Q?iIl9XN4ovmqBeGYLfkxpjxqcmnJcTVhenZYn+OZMhQlv43thscOch2HLFO8q?=
+ =?us-ascii?Q?PPAfbtteceryrWgJ+fa3HFGFoisrYF4wTST/UyHEYN5B9qBPkHOxGv/Qrztp?=
+ =?us-ascii?Q?wvAOkLSBHfq1zSbjkwdswf5j50gBvAsWafVY9INgdzY9i3Am4zI6cVisezY0?=
+ =?us-ascii?Q?og/VdMkKnlf4/rj5/PZ1YpHNIF7z6pPqRvM058PMnH8eaE31JR96BysfxkwV?=
+ =?us-ascii?Q?PQ6qN0SxsllRQMX+qGfuLHc32TTMHDqb1pRQCx3GJy7/wGWgKb8v+5KrnNpI?=
+ =?us-ascii?Q?aqiqBuJGHhi7F8DDlOqiDLZYxNoZ4/dA6jIr0cpZfx7Pr63Iwgp4k46S3cG6?=
+ =?us-ascii?Q?Rz1YKcNfPttt8qOi5ChojWWd4iN8wLkiO/J2m04Rzwb6/bvNu8oyf4eFMweS?=
+ =?us-ascii?Q?YiqvUJgtJvxjMv3HSHxcmRN53Ac1uKXTR7jTGwlUJj9oQwbNZcsjnRFxfoWC?=
+ =?us-ascii?Q?PGy9LWtbhzJjS0N5A7ED7n/6jhVXRTosrrP203bhfE6cMfzgjyEErpYGtgqA?=
+ =?us-ascii?Q?Kfly+PMnD5PALlUHboqm1lq5YgaoS2wi/CyqoX40UWEeMcEaAMi1Y87IZ5tH?=
+ =?us-ascii?Q?jBMaNofPfYd0vsx7ty8Dd2VpmH1goMeQ0QYFrNKyoY8yM/G0pFyioyHsLt1U?=
+ =?us-ascii?Q?hn6+8HpStuoZyWQPhPMwiKQMnNlZgjSO20aMZsAtEtnLaldH7tIRRb0OruyJ?=
+ =?us-ascii?Q?fS+Ja1b9gW1t6+qptzUiyptHJd1gdAS0M4NspiFdTX8aSgAWRytmcD+37EY+?=
+ =?us-ascii?Q?cHKswDBdLEPYcG+ePGZeaPzBxiMSA/lzRbvVApvB1mC/iepz3Z9S5rvYHgb+?=
+ =?us-ascii?Q?3fo77APiz91YLQGD85VGdEw5+cEqXAfxFOyz+2qbDnP85kAGtlgzMNFwEz1V?=
+ =?us-ascii?Q?wXF5kCSC3MYAE6BXot19DB6V5avPbNsf7xV54AylqQmqkDpBrep/6K1b/rCO?=
+ =?us-ascii?Q?n774YIHvkCELus/HL9hI2xwZ54zO9OMQ4u6/bxHS1uU4qPpiAZEmt7waGO/T?=
+ =?us-ascii?Q?Y0OIa514XbGzrbSm3KFXMfAaxUEZNkKXlOXBYpDPGlnaDun5pg83B1A1b9hZ?=
+ =?us-ascii?Q?gbHdzGRz?=
 MIME-Version: 1.0
-Cc: virtio-dev@lists.oasis-open.org, alsa-devel@alsa-project.org,
- "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
- Takashi Iwai <tiwai@suse.com>, Jaroslav Kysela <perex@perex.cz>,
- virtualization@lists.linux-foundation.org
+X-OriginatorOrg: microsoft.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR21MB1593.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1b2ecc36-7574-49ba-e7c6-08d8c191ba72
+X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Jan 2021 00:31:31.4087 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 9zNLjjCqNIb2XEQThag1zfAMjiNxqAHCiYFhrolUuEPVtCtAC77xYKkzoGv/t7G1JIG8ZspIOQqtnKHUNHh/wqlV1DO+0SqUDhiP1Q8NbBs=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR21MB0862
+Cc: Stephen Hemminger <sthemmin@microsoft.com>,
+ "pasha.tatashin@soleen.com" <pasha.tatashin@soleen.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>,
+ "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
+ Linux Kernel List <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, "H. Peter
+ Anvin" <hpa@zytor.com>, Nuno Das Neves <nunodasneves@linux.microsoft.com>,
+ Sunil Muthuswamy <sunilmut@microsoft.com>,
+ Vineeth Pillai <viremana@linux.microsoft.com>,
+ Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -87,469 +165,127 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Michael Kelley via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Michael Kelley <mikelley@microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-On Sun, 24 Jan 2021, Anton Yakovlev wrote:
-
-> Introduce the operators required for the operation of substreams.
->
-> Signed-off-by: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+From: Wei Liu <wei.liu@kernel.org> Sent: Wednesday, January 20, 2021 4:01 AM
+> 
+> For now we can use the privilege flag to check. Stash the value to be
+> used later.
+> 
+> Put in a bunch of defines for future use when we want to have more
+> fine-grained detection.
+> 
+> Signed-off-by: Wei Liu <wei.liu@kernel.org>
 > ---
-> sound/virtio/Makefile         |   3 +-
-> sound/virtio/virtio_pcm.c     |   5 +-
-> sound/virtio/virtio_pcm.h     |   2 +
-> sound/virtio/virtio_pcm_ops.c | 513 ++++++++++++++++++++++++++++++++++
-> 4 files changed, 521 insertions(+), 2 deletions(-)
-> create mode 100644 sound/virtio/virtio_pcm_ops.c
-
-[snip]
-
-> diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
-> new file mode 100644
-> index 000000000000..19882777fcd6
-> --- /dev/null
-> +++ b/sound/virtio/virtio_pcm_ops.c
-> @@ -0,0 +1,513 @@
-
-[snip]
-
-> +/**
-> + * virtsnd_pcm_release() - Release the PCM substream on the device side.
-> + * @substream: VirtIO substream.
-> + *
-> + * Context: Any context that permits to sleep.
-> + * Return: 0 on success, -errno on failure.
+> v3: move hv_root_partition to mshyperv.c
+> ---
+>  arch/x86/include/asm/hyperv-tlfs.h | 10 ++++++++++
+>  arch/x86/include/asm/mshyperv.h    |  2 ++
+>  arch/x86/kernel/cpu/mshyperv.c     | 20 ++++++++++++++++++++
+>  3 files changed, 32 insertions(+)
+> 
+> diff --git a/arch/x86/include/asm/hyperv-tlfs.h b/arch/x86/include/asm/hyperv-tlfs.h
+> index 6bf42aed387e..204010350604 100644
+> --- a/arch/x86/include/asm/hyperv-tlfs.h
+> +++ b/arch/x86/include/asm/hyperv-tlfs.h
+> @@ -21,6 +21,7 @@
+>  #define HYPERV_CPUID_FEATURES			0x40000003
+>  #define HYPERV_CPUID_ENLIGHTMENT_INFO		0x40000004
+>  #define HYPERV_CPUID_IMPLEMENT_LIMITS		0x40000005
+> +#define HYPERV_CPUID_CPU_MANAGEMENT_FEATURES	0x40000007
+>  #define HYPERV_CPUID_NESTED_FEATURES		0x4000000A
+> 
+>  #define HYPERV_CPUID_VIRT_STACK_INTERFACE	0x40000081
+> @@ -110,6 +111,15 @@
+>  /* Recommend using enlightened VMCS */
+>  #define HV_X64_ENLIGHTENED_VMCS_RECOMMENDED		BIT(14)
+> 
+> +/*
+> + * CPU management features identification.
+> + * These are HYPERV_CPUID_CPU_MANAGEMENT_FEATURES.EAX bits.
 > + */
-> +static inline bool virtsnd_pcm_released(struct virtio_pcm_substream *substream)
-> +{
+> +#define HV_X64_START_LOGICAL_PROCESSOR			BIT(0)
+> +#define HV_X64_CREATE_ROOT_VIRTUAL_PROCESSOR		BIT(1)
+> +#define HV_X64_PERFORMANCE_COUNTER_SYNC			BIT(2)
+> +#define HV_X64_RESERVED_IDENTITY_BIT			BIT(31)
+> +
+
+I wonder if these bit definitions should go in the asm-generic part of
+hyperv-tlfs.h instead of the X64 specific part.  They look very architecture
+neutral (in which case the X64 should be dropped from the name
+as well).  Of course, they can be moved later when/if we get to that point
+and have a firmer understanding of what is and isn't arch neutral.
+
+>  /*
+>   * Virtual processor will never share a physical core with another virtual
+>   * processor, except for virtual processors that are reported as sibling SMT
+> diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
+> index ffc289992d1b..ac2b0d110f03 100644
+> --- a/arch/x86/include/asm/mshyperv.h
+> +++ b/arch/x86/include/asm/mshyperv.h
+> @@ -237,6 +237,8 @@ int hyperv_fill_flush_guest_mapping_list(
+>  		struct hv_guest_mapping_flush_list *flush,
+>  		u64 start_gfn, u64 end_gfn);
+> 
+> +extern bool hv_root_partition;
+> +
+>  #ifdef CONFIG_X86_64
+>  void hv_apic_init(void);
+>  void __init hv_init_spinlocks(void);
+> diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+> index f628e3dc150f..c376d191a260 100644
+> --- a/arch/x86/kernel/cpu/mshyperv.c
+> +++ b/arch/x86/kernel/cpu/mshyperv.c
+> @@ -32,6 +32,10 @@
+>  #include <asm/nmi.h>
+>  #include <clocksource/hyperv_timer.h>
+> 
+> +/* Is Linux running as the root partition? */
+> +bool hv_root_partition;
+> +EXPORT_SYMBOL_GPL(hv_root_partition);
+> +
+>  struct ms_hyperv_info ms_hyperv;
+>  EXPORT_SYMBOL_GPL(ms_hyperv);
+> 
+> @@ -237,6 +241,22 @@ static void __init ms_hyperv_init_platform(void)
+>  	pr_debug("Hyper-V: max %u virtual processors, %u logical processors\n",
+>  		 ms_hyperv.max_vp_index, ms_hyperv.max_lp_index);
+> 
 > +	/*
-> +	 * The spec states that upon receipt of the RELEASE command "the device
-> +	 * MUST complete all pending I/O messages for the specified stream ID".
-> +	 * Thus, we consider the absence of I/O messages in the queue as an
-> +	 * indication that the substream has been released.
+> +	 * Check CPU management privilege.
+> +	 *
+> +	 * To mirror what Windows does we should extract CPU management
+> +	 * features and use the ReservedIdentityBit to detect if Linux is the
+> +	 * root partition. But that requires negotiating CPU management
+> +	 * interface (a process to be finalized).
+> +	 *
+> +	 * For now, use the privilege flag as the indicator for running as
+> +	 * root.
 > +	 */
-> +	return atomic_read(&substream->msg_count) == 0;
+> +	if (cpuid_ebx(HYPERV_CPUID_FEATURES) & HV_CPU_MANAGEMENT) {
 
-Also here having it atomic doesn't really seem to help. This just means, 
-that at some point of time it was == 0.
+Should the EBX value be captured in the ms_hyperv structure with the
+other similar values, and then used from there?
 
-> +}
-> +
-> +static int virtsnd_pcm_release(struct virtio_pcm_substream *substream)
+Michael
 
-kernel-doc missing
-
-> +{
-> +	struct virtio_snd *snd = substream->snd;
-> +	struct virtio_snd_msg *msg;
-> +	unsigned int js = msecs_to_jiffies(msg_timeout_ms);
-> +	int rc;
-> +
-> +	msg = virtsnd_pcm_ctl_msg_alloc(substream, VIRTIO_SND_R_PCM_RELEASE,
-> +					GFP_KERNEL);
-> +	if (IS_ERR(msg))
-> +		return PTR_ERR(msg);
-> +
-> +	rc = virtsnd_ctl_msg_send_sync(snd, msg);
-> +	if (rc)
-> +		return rc;
-> +
-> +	return wait_event_interruptible_timeout(substream->msg_empty,
-> +						virtsnd_pcm_released(substream),
-> +						js);
-> +}
-> +
-> +/**
-> + * virtsnd_pcm_open() - Open the PCM substream.
-> + * @substream: Kernel ALSA substream.
-> + *
-> + * Context: Any context.
-> + * Return: 0 on success, -errno on failure.
-> + */
-> +static int virtsnd_pcm_open(struct snd_pcm_substream *substream)
-> +{
-> +	struct virtio_pcm *pcm = snd_pcm_substream_chip(substream);
-> +	struct virtio_pcm_substream *ss = NULL;
-> +
-> +	if (pcm) {
-> +		switch (substream->stream) {
-> +		case SNDRV_PCM_STREAM_PLAYBACK:
-> +		case SNDRV_PCM_STREAM_CAPTURE: {
-> +			struct virtio_pcm_stream *stream =
-> +				&pcm->streams[substream->stream];
-> +
-> +			if (substream->number < stream->nsubstreams)
-
-Can this condition ever be false?
-
-> +				ss = stream->substreams[substream->number];
-> +			break;
-> +		}
-> +		}
+> +		hv_root_partition = true;
+> +		pr_info("Hyper-V: running as root partition\n");
 > +	}
 > +
-> +	if (!ss)
-> +		return -EBADFD;
-> +
-> +	substream->runtime->hw = ss->hw;
-> +	substream->private_data = ss;
-> +
-> +	return 0;
-> +}
-> +
-> +/**
-> + * virtsnd_pcm_close() - Close the PCM substream.
-> + * @substream: Kernel ALSA substream.
-> + *
-> + * Context: Any context.
-> + * Return: 0.
-> + */
-> +static int virtsnd_pcm_close(struct snd_pcm_substream *substream)
-> +{
-> +	return 0;
-> +}
-> +
-> +/**
-> + * virtsnd_pcm_hw_params() - Set the parameters of the PCM substream.
-> + * @substream: Kernel ALSA substream.
-> + * @hw_params: Hardware parameters (can be NULL).
-> + *
-> + * The function can be called both from the upper level (in this case,
-> + * @hw_params is not NULL) or from the driver itself (in this case, @hw_params
-> + * is NULL, and the parameter values are taken from the runtime structure).
-> + *
-> + * In all cases, the function:
-> + *   1. checks the state of the virtqueue and, if necessary, tries to fix it,
-> + *   2. sets the parameters on the device side,
-> + *   3. allocates a hardware buffer and I/O messages.
-> + *
-> + * Context: Any context that permits to sleep.
-> + * Return: 0 on success, -errno on failure.
-> + */
-> +static int virtsnd_pcm_hw_params(struct snd_pcm_substream *substream,
-> +				 struct snd_pcm_hw_params *hw_params)
-> +{
-> +	struct snd_pcm_runtime *runtime = substream->runtime;
-> +	struct virtio_pcm_substream *ss = snd_pcm_substream_chip(substream);
-> +	struct virtio_device *vdev = ss->snd->vdev;
-> +	struct virtio_snd_msg *msg;
-> +	struct virtio_snd_pcm_set_params *request;
-> +	snd_pcm_format_t format;
-> +	unsigned int channels;
-> +	unsigned int rate;
-> +	unsigned int buffer_bytes;
-> +	unsigned int period_bytes;
-> +	unsigned int periods;
-> +	unsigned int i;
-> +	int vformat = -1;
-> +	int vrate = -1;
-> +	int rc;
-> +
-> +	/*
-> +	 * If we got here after ops->trigger() was called, the queue may
-> +	 * still contain messages. In this case, we need to release the
-> +	 * substream first.
-> +	 */
-> +	if (atomic_read(&ss->msg_count)) {
-> +		rc = virtsnd_pcm_release(ss);
-> +		if (rc) {
-> +			dev_err(&vdev->dev,
-> +				"SID %u: invalid I/O queue state\n",
-> +				ss->sid);
-> +			return rc;
-> +		}
-> +	}
-> +
-> +	/* Set hardware parameters in device */
-> +	if (hw_params) {
-> +		format = params_format(hw_params);
-> +		channels = params_channels(hw_params);
-> +		rate = params_rate(hw_params);
-> +		buffer_bytes = params_buffer_bytes(hw_params);
-> +		period_bytes = params_period_bytes(hw_params);
-> +		periods = params_periods(hw_params);
-> +	} else {
-> +		format = runtime->format;
-> +		channels = runtime->channels;
-> +		rate = runtime->rate;
-> +		buffer_bytes = frames_to_bytes(runtime, runtime->buffer_size);
-> +		period_bytes = frames_to_bytes(runtime, runtime->period_size);
-> +		periods = runtime->periods;
-> +	}
-> +
-> +	for (i = 0; i < ARRAY_SIZE(g_a2v_format_map); ++i)
-> +		if (g_a2v_format_map[i].alsa_bit == format) {
-> +			vformat = g_a2v_format_map[i].vio_bit;
-> +
-> +			break;
-> +		}
-> +
-> +	for (i = 0; i < ARRAY_SIZE(g_a2v_rate_map); ++i)
-> +		if (g_a2v_rate_map[i].rate == rate) {
-> +			vrate = g_a2v_rate_map[i].vio_bit;
-> +
-> +			break;
-> +		}
-> +
-> +	if (vformat == -1 || vrate == -1)
-> +		return -EINVAL;
-> +
-> +	msg = virtsnd_pcm_ctl_msg_alloc(ss, VIRTIO_SND_R_PCM_SET_PARAMS,
-> +					GFP_KERNEL);
-> +	if (IS_ERR(msg))
-> +		return PTR_ERR(msg);
-> +
-> +	request = sg_virt(&msg->sg_request);
-> +
-> +	request->buffer_bytes = cpu_to_virtio32(vdev, buffer_bytes);
-> +	request->period_bytes = cpu_to_virtio32(vdev, period_bytes);
-> +	request->channels = channels;
-> +	request->format = vformat;
-> +	request->rate = vrate;
+>  	/*
+>  	 * Extract host information.
+>  	 */
+> --
+> 2.20.1
 
-I presume the latter three fields don't have to be endienness-converted, 
-perhaps they're 8-bit wide only.
 
-> +
-> +	if (ss->features & (1U << VIRTIO_SND_PCM_F_MSG_POLLING))
-> +		request->features |=
-> +			cpu_to_virtio32(vdev,
-> +					1U << VIRTIO_SND_PCM_F_MSG_POLLING);
-> +
-> +	if (ss->features & (1U << VIRTIO_SND_PCM_F_EVT_XRUNS))
-> +		request->features |=
-> +			cpu_to_virtio32(vdev,
-> +					1U << VIRTIO_SND_PCM_F_EVT_XRUNS);
-> +
-> +	rc = virtsnd_ctl_msg_send_sync(ss->snd, msg);
-
-Wouldn't it be better to only try to send the message after below 
-allocations completed successfully?
-
-> +	if (rc)
-> +		return rc;
-> +
-> +	/* If the buffer was already allocated earlier, do nothing. */
-> +	if (runtime->dma_area)
-> +		return 0;
-> +
-> +	/* Allocate hardware buffer */
-> +	rc = snd_pcm_lib_malloc_pages(substream, buffer_bytes);
-> +	if (rc < 0)
-> +		return rc;
-> +
-> +	/* Allocate and initialize I/O messages */
-> +	rc = virtsnd_pcm_msg_alloc(ss, periods, runtime->dma_area,
-> +				   period_bytes);
-> +	if (rc)
-> +		snd_pcm_lib_free_pages(substream);
-> +
-> +	return rc;
-> +}
-> +
-> +/**
-> + * virtsnd_pcm_hw_free() - Reset the parameters of the PCM substream.
-> + * @substream: Kernel ALSA substream.
-> + *
-> + * The function does the following:
-> + *   1. tries to release the PCM substream on the device side,
-> + *   2. frees the hardware buffer.
-> + *
-> + * Context: Any context that permits to sleep.
-> + * Return: 0 on success, -errno on failure.
-> + */
-> +static int virtsnd_pcm_hw_free(struct snd_pcm_substream *substream)
-> +{
-> +	struct virtio_pcm_substream *ss = snd_pcm_substream_chip(substream);
-> +	int rc;
-> +
-> +	rc = virtsnd_pcm_release(ss);
-> +
-> +	/*
-> +	 * Even if we failed to send the RELEASE message or wait for the queue
-> +	 * flush to complete, we can safely delete the buffer. Because after
-> +	 * receiving the STOP command, the device must stop all I/O message
-> +	 * processing. If there are still pending messages in the queue, the
-> +	 * next ops->hw_params() call should deal with this.
-> +	 */
-> +	snd_pcm_lib_free_pages(substream);
-> +
-> +	return rc;
-> +}
-> +
-> +/**
-> + * virtsnd_pcm_hw_params() - Prepare the PCM substream.
-
-copy-paste: this is virtsnd_pcm_prepare()
-
-> + * @substream: Kernel ALSA substream.
-> + *
-> + * The function can be called both from the upper level or from the driver
-> + * itself.
-> + *
-> + * In all cases, the function:
-> + *   1. checks the state of the virtqueue and, if necessary, tries to fix it,
-> + *   2. prepares the substream on the device side.
-> + *
-> + * Context: Any context that permits to sleep. May take and release the tx/rx
-> + *          queue spinlock.
-> + * Return: 0 on success, -errno on failure.
-> + */
-> +static int virtsnd_pcm_prepare(struct snd_pcm_substream *substream)
-> +{
-> +	struct virtio_pcm_substream *ss = snd_pcm_substream_chip(substream);
-> +	struct virtio_snd_queue *queue = virtsnd_pcm_queue(ss);
-> +	struct virtio_snd_msg *msg;
-> +	unsigned long flags;
-> +	int rc;
-> +
-> +	/*
-> +	 * If we got here after ops->trigger() was called, the queue may
-> +	 * still contain messages. In this case, we need to reset the
-> +	 * substream first.
-> +	 */
-> +	if (atomic_read(&ss->msg_count)) {
-> +		rc = virtsnd_pcm_hw_params(substream, NULL);
-> +		if (rc)
-> +			return rc;
-> +	}
-> +
-> +	spin_lock_irqsave(&queue->lock, flags);
-> +	ss->msg_last_enqueued = -1;
-> +	spin_unlock_irqrestore(&queue->lock, flags);
-> +
-> +	/*
-> +	 * Since I/O messages are asynchronous, they can be completed
-> +	 * when the runtime structure no longer exists. Since each
-> +	 * completion implies incrementing the hw_ptr, we cache all the
-> +	 * current values needed to compute the new hw_ptr value.
-> +	 */
-> +	ss->frame_bytes = substream->runtime->frame_bits >> 3;
-> +	ss->period_size = substream->runtime->period_size;
-> +	ss->buffer_size = substream->runtime->buffer_size;
-> +
-> +	atomic_set(&ss->hw_ptr, 0);
-> +	atomic_set(&ss->xfer_xrun, 0);
-> +	atomic_set(&ss->msg_count, 0);
-> +
-> +	msg = virtsnd_pcm_ctl_msg_alloc(ss, VIRTIO_SND_R_PCM_PREPARE,
-> +					GFP_KERNEL);
-> +	if (IS_ERR(msg))
-> +		return PTR_ERR(msg);
-> +
-> +	return virtsnd_ctl_msg_send_sync(ss->snd, msg);
-> +}
-> +
-> +/**
-> + * virtsnd_pcm_trigger() - Process command for the PCM substream.
-> + * @substream: Kernel ALSA substream.
-> + * @command: Substream command (SNDRV_PCM_TRIGGER_XXX).
-> + *
-> + * Depending on the command, the function does the following:
-> + *   1. enables/disables data transmission,
-> + *   2. starts/stops the substream on the device side.
-> + *
-> + * Context: Atomic context. May take and release the tx/rx queue spinlock.
-
-Really? Cannot .trigger() sleep? E.g. I see mdelay(25) in 
-snd_es18xx_playback1_trigger()
-
-> + * Return: 0 on success, -errno on failure.
-> + */
-> +static int virtsnd_pcm_trigger(struct snd_pcm_substream *substream, int command)
-> +{
-> +	struct virtio_pcm_substream *ss = snd_pcm_substream_chip(substream);
-> +	struct virtio_snd *snd = ss->snd;
-> +	struct virtio_snd_queue *queue = virtsnd_pcm_queue(ss);
-> +	struct virtio_snd_msg *msg;
-> +
-> +	switch (command) {
-> +	case SNDRV_PCM_TRIGGER_START:
-> +	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE: {
-> +		int rc;
-> +
-> +		spin_lock(&queue->lock);
-> +		rc = virtsnd_pcm_msg_send(ss);
-> +		spin_unlock(&queue->lock);
-
-Maybe it would be good to explain why locking is required here and isn't 
-required in most other locations, where messages are sent?
-
-Thanks
-Guennadi
-
-> +		if (rc)
-> +			return rc;
-> +
-> +		atomic_set(&ss->xfer_enabled, 1);
-> +
-> +		msg = virtsnd_pcm_ctl_msg_alloc(ss, VIRTIO_SND_R_PCM_START,
-> +						GFP_ATOMIC);
-> +		if (IS_ERR(msg))
-> +			return PTR_ERR(msg);
-> +
-> +		return virtsnd_ctl_msg_send(snd, msg);
-> +	}
-> +	case SNDRV_PCM_TRIGGER_STOP:
-> +	case SNDRV_PCM_TRIGGER_PAUSE_PUSH: {
-> +		atomic_set(&ss->xfer_enabled, 0);
-> +
-> +		msg = virtsnd_pcm_ctl_msg_alloc(ss, VIRTIO_SND_R_PCM_STOP,
-> +						GFP_ATOMIC);
-> +		if (IS_ERR(msg))
-> +			return PTR_ERR(msg);
-> +
-> +		return virtsnd_ctl_msg_send(snd, msg);
-> +	}
-> +	default: {
-> +		return -EINVAL;
-> +	}
-> +	}
-> +}
-> +
-> +/**
-> + * virtsnd_pcm_pointer() - Get the current hardware position for the PCM
-> + *                         substream.
-> + * @substream: Kernel ALSA substream.
-> + *
-> + * Context: Atomic context.
-> + * Return: Hardware position in frames inside [0 ... buffer_size) range.
-> + */
-> +static snd_pcm_uframes_t
-> +virtsnd_pcm_pointer(struct snd_pcm_substream *substream)
-> +{
-> +	struct virtio_pcm_substream *ss = snd_pcm_substream_chip(substream);
-> +
-> +	if (atomic_read(&ss->xfer_xrun))
-> +		return SNDRV_PCM_POS_XRUN;
-> +
-> +	return (snd_pcm_uframes_t)atomic_read(&ss->hw_ptr);
-> +}
-> +
-> +/* PCM substream operators map. */
-> +const struct snd_pcm_ops virtsnd_pcm_ops = {
-> +	.open = virtsnd_pcm_open,
-> +	.close = virtsnd_pcm_close,
-> +	.ioctl = snd_pcm_lib_ioctl,
-> +	.hw_params = virtsnd_pcm_hw_params,
-> +	.hw_free = virtsnd_pcm_hw_free,
-> +	.prepare = virtsnd_pcm_prepare,
-> +	.trigger = virtsnd_pcm_trigger,
-> +	.pointer = virtsnd_pcm_pointer,
-> +};
-> -- 
-> 2.30.0
->
->
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
->
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
