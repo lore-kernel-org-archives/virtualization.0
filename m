@@ -7,151 +7,149 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01A39C433DB
-	for <virtualization@archiver.kernel.org>; Tue, 26 Jan 2021 00:32:43 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D2D4C433DB
+	for <virtualization@archiver.kernel.org>; Tue, 26 Jan 2021 00:33:37 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8E09E22E03
-	for <virtualization@archiver.kernel.org>; Tue, 26 Jan 2021 00:32:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8E09E22E03
+	by mail.kernel.org (Postfix) with ESMTPS id DF68622E03
+	for <virtualization@archiver.kernel.org>; Tue, 26 Jan 2021 00:33:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DF68622E03
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 2BC26203BE;
-	Tue, 26 Jan 2021 00:32:42 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 5CABB87144;
+	Tue, 26 Jan 2021 00:33:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wMWWsSdSnblx; Tue, 26 Jan 2021 00:32:41 +0000 (UTC)
+	with ESMTP id fnto7BSlSjin; Tue, 26 Jan 2021 00:33:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 5DE2620131;
-	Tue, 26 Jan 2021 00:32:41 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id D96B98711C;
+	Tue, 26 Jan 2021 00:33:34 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 39862C08A1;
-	Tue, 26 Jan 2021 00:32:41 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E2BA4C013A
- for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jan 2021 00:32:39 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BA9A5C1E71;
+	Tue, 26 Jan 2021 00:33:34 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A9B53C013A;
+ Tue, 26 Jan 2021 00:33:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id B8E1420399
- for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jan 2021 00:32:39 +0000 (UTC)
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 9252985F53;
+ Tue, 26 Jan 2021 00:33:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tw6ofbgAAem2
- for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jan 2021 00:32:39 +0000 (UTC)
-X-Greylist: delayed 00:07:06 by SQLgrey-1.7.6
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com
- (mail-dm6nam11on2131.outbound.protection.outlook.com [40.107.223.131])
- by silver.osuosl.org (Postfix) with ESMTPS id F350720131
- for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Jan 2021 00:32:38 +0000 (UTC)
+ with ESMTP id OJn0JFyKt1xJ; Tue, 26 Jan 2021 00:33:32 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam10on2101.outbound.protection.outlook.com [40.107.93.101])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 5131785F10;
+ Tue, 26 Jan 2021 00:33:32 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Tj240ytOeAftgzAHtv277rk0rcPaXGxycX1ljRF0Ggp/knEsXq0guusgMnS5h2bsva2W6p0+W9VkO6ejo9uaZXbdEzeAsAaWU0pAF5z+BUvga2WDbf1aFWlRby3ef4mdA2Nhk9qSZxfxCdAffauTt+N6zZEZShtLa5v3e4t9vayYzHbyBbCm7y35qSSK8JZ3rnCl9VM5zdmMhVudKuWhh5y+TQ7vOVxRrWqGuAoPepxOSIFuecVGEd9AD9b+Gfbp/arzLA9rWvoDEGUSGU/Vr/vRZ+FSwnupRHQfVL0Hjo3eDVl+b9SWh2mReSOJeEi3j2FlDMRUvV/E9vnEMnJI8A==
+ b=BF4C3UHuqFah7A199dzc8+dLfd9agxiohlPp8FANJrymcsk+3dN1ci79vr6TbQ3Y9W0HsSqgLIRkd3kP4CuLpLbW/XvhQWvaC6EVHEeipIRa8JTXdgpHAQjNuSlbi8zAd+HBDgeohQLkiBUt2bw/I5fIjm4JwuEL2krOUCIeHhETzxA9vXdL8AryiRZrR1dgk9CtIh18vXkXaLet9PYI3LQ0r+ZwOnpUdqPiCthe3TX6H/mzDRXjRmRC9EYZQscVV+GyzmCFS2xPcZgO3Q4Gwfr1JxEIdFCA3WcDhGbCTVWzQAxGCyOXvA/9Kw7ZMuYhaV+A2ZtjWssBEKM59Sg8yQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=YFED4gD4RHSpyUuZ0qI1HjioY9Uk7X/CocCy1zD0VSs=;
- b=fCShE5TVlca75eE/EOnENMbcdzJidIPVBCop8NK40yrh50WZpdP27T86d4+xFE1a4YKTbV+QebWqWxmBeyGCPrduIsRfK/1EyiO87FFL6ypkFKH31vSL6jB4Yu0FePsyminL+h6/iw9EorfY5uSxtuhsIp0fr2vUQXErPYLZt8PIOehQ1ilFEpz1QrW7gY0S8aON+Gi/VwcHwFG1xkZ9jsnf6rci2k7+/HCqwlJpuK0hgk33QLrvZuXY9HYclYd0Azwr5g5wEyDfFljw2SUWlPQJd7jEmpw5zd7bkgolsHZanF4CBmLz5gWhYa3hqSSrgjn+L01Dgn71K1n6LuxDPA==
+ bh=VHLLC0zOIxrSO97vcNgIlkW8rZQd4dKZiAeYubKHHSw=;
+ b=kbKLqQzsNNAE/EAipx1irezzYv1X4WnaVEX0S+lOb1n7+ye65Bxr66+dCJaV1LBuvD/3LS/NMQSM+Uol2fvv3xkzBeSNk4OvVP4OTOB6icz9HXBPfDdtLBGWExPVqCSz6zMFBGhxdsCEQ+rJU1w34BlP4vybi+bQFLnPpQC/Zx9vxJLJNE0Pdpf1z9JwEdm/p7dXp0X79fM517tD3fhF4y2NPNJwWRTBKXfH97t2QtMloQcICwTidNbtaS+PWVgHhHp+Up3QHVLOoUgpgw1/thaZVt58LDi2qzufJ5nfjaTOmEUFkFDAEdPALK7FeWznasuoKda47JMtT3fK6qg6rQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=microsoft.com; dmarc=pass action=none
  header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=YFED4gD4RHSpyUuZ0qI1HjioY9Uk7X/CocCy1zD0VSs=;
- b=OQMC+xqPkYdqUVS/1vxkBjeOBgfb53Fv3NMD4AqQp6DA15vPkgm9AT7/+oWsHC1bO5pgyDD+kfnijnzOyazmJnyYVFDQJs+4kuIQ7e23AVp97No7BELmxmclurwQyZcaP19Jd8nOBbM03XqoiM0B3fErSK9BngDgM/fDFWKhpP0=
+ bh=VHLLC0zOIxrSO97vcNgIlkW8rZQd4dKZiAeYubKHHSw=;
+ b=NpIGoWQyrIHHhfYAZHLvLnBlqCjTTLDms/hDGRBwklnaXveqq0jCs7At80hEw1KbyDoXwenTRh/diCg/+7Q8ktFG/c1D3q0+ekbY+6ErW+P1O20ZInbDcFY4Ax4V+rQQCAf1OaqBJIL8V8ApYgfvmmXdW9ou1nCbhuHWbm5wTFE=
 Received: from (2603:10b6:301:7c::11) by
  MWHPR21MB0862.namprd21.prod.outlook.com (2603:10b6:300:77::16) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3825.1; Tue, 26 Jan 2021 00:32:37 +0000
+ 15.20.3825.1; Tue, 26 Jan 2021 00:33:28 +0000
 Received: from MWHPR21MB1593.namprd21.prod.outlook.com
  ([fe80::9c8:94c9:faf1:17c2]) by MWHPR21MB1593.namprd21.prod.outlook.com
  ([fe80::9c8:94c9:faf1:17c2%9]) with mapi id 15.20.3825.003; Tue, 26 Jan 2021
- 00:32:36 +0000
+ 00:33:28 +0000
 To: Wei Liu <wei.liu@kernel.org>, Linux on Hyper-V List
  <linux-hyperv@vger.kernel.org>
-Subject: RE: [PATCH v5 03/16] Drivers: hv: vmbus: skip VMBus initialization if
- Linux is root
-Thread-Topic: [PATCH v5 03/16] Drivers: hv: vmbus: skip VMBus initialization
- if Linux is root
-Thread-Index: AQHW7yPwbHRjbrp+3062gSh4P5hdm6o5FvSg
-Date: Tue, 26 Jan 2021 00:32:36 +0000
-Message-ID: <MWHPR21MB1593BE5FD96AF79193D6EAC9D7BC9@MWHPR21MB1593.namprd21.prod.outlook.com>
+Subject: RE: [PATCH v5 04/16] iommu/hyperv: don't setup IRQ remapping when
+ running as root
+Thread-Topic: [PATCH v5 04/16] iommu/hyperv: don't setup IRQ remapping when
+ running as root
+Thread-Index: AQHW7yPxJdqCn1uKJkS6fh32VfxBCao5Fz3Q
+Date: Tue, 26 Jan 2021 00:33:28 +0000
+Message-ID: <MWHPR21MB159335A01C1DD12F021C7F21D7BC9@MWHPR21MB1593.namprd21.prod.outlook.com>
 References: <20210120120058.29138-1-wei.liu@kernel.org>
- <20210120120058.29138-4-wei.liu@kernel.org>
-In-Reply-To: <20210120120058.29138-4-wei.liu@kernel.org>
+ <20210120120058.29138-5-wei.liu@kernel.org>
+In-Reply-To: <20210120120058.29138-5-wei.liu@kernel.org>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2021-01-26T00:32:34Z; 
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2021-01-26T00:33:26Z; 
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=2394a8b3-a653-4d5d-a69b-2e425496b817;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=23d4087c-2144-4232-9179-dcacad4f6c3a;
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0
 authentication-results: kernel.org; dkim=none (message not signed)
  header.d=none;kernel.org; dmarc=none action=none header.from=microsoft.com;
 x-originating-ip: [66.75.126.197]
 x-ms-publictraffictype: Email
 x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 4e8ac8eb-9759-4d37-8a7c-08d8c191e171
+x-ms-office365-filtering-correlation-id: f2fe146a-f44a-4be9-bead-08d8c192004a
 x-ms-traffictypediagnostic: MWHPR21MB0862:
 x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <MWHPR21MB0862193EAC7905E36C5E6F40D7BC9@MWHPR21MB0862.namprd21.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:1824;
+x-ld-processed: 72f988bf-86f1-41af-91ab-2d7cd011db47,ExtAddr
+x-microsoft-antispam-prvs: <MWHPR21MB0862F5EF894F6D8C70A9FCAFD7BC9@MWHPR21MB0862.namprd21.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:2089;
 x-ms-exchange-senderadcheck: 1
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: ezcfOIJ37E1WvJAj9xhleKldHOjhx1ox4sLCTzFHNVNwMqv8F0d9moPhgxVpaHZ25pxYWZOn8aEc0Ix6Eba8Ybp++qeQ9xvaKhswFyqf2/X4SrcsQPhX3TpCuoDZvUnF6WDGVacL9sAZq3wmgBb40ZUePpqWrxzElVMLWt0WW+3A//VysKhNKpd0cohJ7mZII6wAwb+oHo2NXCOoqqJEIBs1OLg8gNUYTzj1ts6h5AZ9p65V8CVTzkG2hvjrhMg3ZwE3ZPX1cGqOqGEO8d2a05G/Qt+jtTL4npEPA8K8SflTgHC53FIk36Xhs+jn7M81e8iq4e7TebRQgzGZNkvZmer45Edcq71ffQJa4S3RIQmRjv5fa6vhFoZHAIiRczCheQo3zDxm/Nd6lh10CJM0D/eojQwA662qJfmxAsop/8K9aN9agQiYYAUA5FinKA+nzJ5c5VcPyut0Et5heSLB+eTznIVE+uqexSkePtXylkWWoAba+//FWP4qkW6OLq6vq3JL41O6NEINanjXwx8uWw==
+x-microsoft-antispam-message-info: ys3xti8yxs0Yz9VGPLLobWT9QwpHXYx/Zm4COPbEGQ7gsJKofclCP1EsA16mAouaVURMm7SGCQpxIQawOgCxR93sOj+hdiZhIMX9pyeYgXsLIWwmZBlLi49YlE296BdU1mjEr6exiLU4JqFF8uZvH6gPz1MSyO+KCefNM5HwHFDrXGBvcQZosRSGbsx0Dy5IYs12K/0IQkNeo2HVKVSxkRvu9QT53uhhIWi7k5bQm4VN/NRuCpGdODfA8uec6nyxg9akfAaPwtr+/zQT328wu9DEx1x+sx4ED7d1WcUYllU/gg31QGx47O3KOuwBUx02SR9YRl39YdPQFdlKO6jtRAjPYwsS2Ejj6y4f7ryVW41tsnbSHylMMYOaOhku/3Otq+RiCGDBuxKJAb6wl6O3XScX/OpU+CXrG8fqH07tBBuRCvS8yxwzCMyUrlzbUwH8S0RQI2reuQCmkRGiuhNJquSdQP7SCPkqZM0qnLQu+Ais8BcX1UUgGiZEmBTF2Fbd/jt7gJKh82FXAXPYCp6t9A==
 x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:MWHPR21MB1593.namprd21.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(39860400002)(136003)(366004)(396003)(346002)(376002)(7696005)(66556008)(76116006)(8936002)(9686003)(8676002)(66946007)(86362001)(66446008)(64756008)(82960400001)(82950400001)(107886003)(66476007)(55016002)(8990500004)(10290500003)(33656002)(4744005)(71200400001)(5660300002)(316002)(478600001)(4326008)(26005)(6506007)(52536014)(2906002)(186003)(54906003)(110136005);
+ SFS:(4636009)(39860400002)(136003)(366004)(396003)(346002)(376002)(83380400001)(7696005)(66556008)(76116006)(8936002)(9686003)(8676002)(66946007)(86362001)(66446008)(64756008)(82960400001)(82950400001)(66476007)(55016002)(8990500004)(10290500003)(33656002)(71200400001)(5660300002)(316002)(478600001)(4326008)(7416002)(26005)(6506007)(52536014)(2906002)(186003)(54906003)(110136005);
  DIR:OUT; SFP:1102; 
-x-ms-exchange-antispam-messagedata: =?us-ascii?Q?nYqoZSaNj3iNS3gn+ThJS3cxSR5QLiINrx4T6zSoHjF57cyEzq/QEnwiwgb/?=
- =?us-ascii?Q?dYL8GVBDf8R53X8B3FvRRYSyG+lEpugszqMczfZfCVa9hHb2JDQE7hDfAYBI?=
- =?us-ascii?Q?DnfDM1drOmNlHIkIEL3zYw+juV+glA6RiN2N3PqlgrXLMsAqj2GvZl6q4kU7?=
- =?us-ascii?Q?UUYbeWIUTDGmRMaMPhDe73azuIZD5Ejr6py4wAHob0/OHBdcECru4CTKZPvN?=
- =?us-ascii?Q?dv0HgHgSdJ9/c0YB1NXAzzEDbI2EGqv9kXMMnBkqkZ8KHN6KDhTwxrc6B6Yc?=
- =?us-ascii?Q?NmuQdlMo0XGZrzYKr80pyxFlXo/78OXOrexzgiQoTrge83SW57eRBrDpNX3H?=
- =?us-ascii?Q?O8V9uCB7HijiOSAkM/viA3RpddSAvxq0WyGEu0xbBUcVUyKALiuiBt4TraZU?=
- =?us-ascii?Q?UlLa8llkrwxso0Ye78phdliSzBWQnUo/Su2JE1Tga5VFEoQuvHWtkPPBrnuB?=
- =?us-ascii?Q?dRcBE+SQO6R+5uaDgVMpI8LLhMg+RJDCQWRiBz5zmsDMrQwOHqudlYQiaDCb?=
- =?us-ascii?Q?mOlMoPFoHiEfWWW8GKQ/YdpQwuJPpeHmbJ131rnNBUZeR5vrvFloSDkzXyqd?=
- =?us-ascii?Q?wLK1XSVMJHfRqWX2G7IN2TeUg0F6EVQMJdxlDqas3y2MQgkOVxwuFVEh15/U?=
- =?us-ascii?Q?LD6Tpzs3PeGVkAQJnywk0MDuPp+MrE0IlbgcmBCXJ3gUBd5z2EhgV8DKpvyK?=
- =?us-ascii?Q?PKkwBTRQZG/GtRR84HjUd//K+MMkMaJ7tUkRnTt4WTB1xcjosX22Dn4st0DN?=
- =?us-ascii?Q?oG2h0dydiLU8Z8mNNNyJ/O3ZmIVW5gWjj7rkErzavnq/mQBM5Xtkn1zKHQxZ?=
- =?us-ascii?Q?EbQpsevqyqOCF8RLpXMUvd/l5u/zgwua2rljXCfVDZDLLV/h+wZI3vhKlXep?=
- =?us-ascii?Q?cYQ/uWuoHrSjosj0YpHQ/FWcPyojYvz0fG1+QJ+EOeXLWN+spT0rC0D4iQao?=
- =?us-ascii?Q?7kHYVBHXVHG/pWSpHSPoW42/6r19aakTV7wosFj7dkzvQu4qU7xb6MGQpCv0?=
- =?us-ascii?Q?tcNf/bez5KiFC/9nDKQtwuy76xC53ZX0UwOXZJC/ciRhdmUpDZS/NRAfTtjp?=
- =?us-ascii?Q?ObB6iQp2?=
+x-ms-exchange-antispam-messagedata: =?us-ascii?Q?nhz+sShRCX+ZzAFqvcN1x7b2ztg9d9SI+MzN+SOnbbz3/D8wlGTGc42FKqm9?=
+ =?us-ascii?Q?RxzzOtzJxjzDmumW4IpR33fEqwJ4dpBzURjsvi5EkO0SH9rCGPnivXm8RTDL?=
+ =?us-ascii?Q?igPmjstVGfwa2TRVplhr3uvqhgfUyubfjnmMDgvMQs73MqoGB9lVEnk9u3z0?=
+ =?us-ascii?Q?sNtiuRPe5Lkxk7DTimEPmwzyrSdEsOhEwbTDuMHEJ6vckqA1eflacGb8hcO2?=
+ =?us-ascii?Q?BQ80CpFRjXb7Fx57Z7Z6EI7l1qmS7rdynyGsPImK8rbUaD8dmX2xWt2pPMUk?=
+ =?us-ascii?Q?o4k6YjAbBCDw57Q9NUDoZoLAz71r6KpW2sk78szuezFR0bg4GLvoOeJT7bNT?=
+ =?us-ascii?Q?Kk3xItPT8mN+DgWoIoITiPILV/nGSKMDxOfXUnliphfCNu7yQ1tThBUU1nh1?=
+ =?us-ascii?Q?Qj5rDThPh0RDrZV4vGIEZtX5FO6c8lcgxod7Ik/0QXrz/nNqFaHcyl9MyHnz?=
+ =?us-ascii?Q?H+qxpaU9aejw0Jgcw4ByBQxQqHa2iSdS6wFsSVyb7wvU2kNd4rvLJk5zr0Qk?=
+ =?us-ascii?Q?L+i355rqwS7jhzN6qhTrxzVm6jmiEqkB1ldHuyeYhZBzy4DuHFoop9Jk7Y58?=
+ =?us-ascii?Q?uFuGjaHwa/h5ofGfGy+X/KDGr+4j0W30kV+xoFKtbKzaeNW/0iUYEe61KVDW?=
+ =?us-ascii?Q?+4Czkj+0SfPojIoKfktSAFX0c0zXd0COCsVa760EYBgcuiAhWG4zt30c662P?=
+ =?us-ascii?Q?EoC9O/VEX4AsbL0Z4fGaWDN6UL6CtAxy8LaIo65Q8oHM6S7y4/v5AZmdL+zj?=
+ =?us-ascii?Q?CXUkYRm3JCD5KFN8kHRPIxWKa5DecR5Ls/Fbb/aluhBVM4WZ/GFFsVIxGg5y?=
+ =?us-ascii?Q?/wuvFncRvE0UDzS20GR1kZubS5omzp/PRhbsyO1XmREZxpo54fubBI9vj1sJ?=
+ =?us-ascii?Q?vhFvVbWrDoeAxk+95OnEe3PK9ebVwZJir4EsmRQcEsejp5FY4xgJ/YBibewz?=
+ =?us-ascii?Q?AVntwlQYUR1BWRi0jW2cAaWB6sJPcjqdG9wRtCB/MGVBDlE81PEIWzzFtipj?=
+ =?us-ascii?Q?aXaml3+R5QMz2aRMXRnnQI7T+HqDJkf5d6ocp1/9PmA6usgqfDPsvXThSTAu?=
+ =?us-ascii?Q?/+W+Tf7e?=
 MIME-Version: 1.0
 X-OriginatorOrg: microsoft.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: MWHPR21MB1593.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4e8ac8eb-9759-4d37-8a7c-08d8c191e171
-X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Jan 2021 00:32:36.7729 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: f2fe146a-f44a-4be9-bead-08d8c192004a
+X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Jan 2021 00:33:28.5650 (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 6EvMcn6J52Eq1JU1WnWuf7uz4xQgSZXUYH2105iYiVv9IWey6OdR2/gB+NiLfiS4ijv7DA8Xgw2BUSWKB+Jp+MSYGvUcsy+fsCHIqPAzUJU=
+X-MS-Exchange-CrossTenant-userprincipalname: MDffzNGyAFmqAsUxSxf6SL5hdp3xUJKju9NtNcGGDXmUCnxhyLWciUW6Bc1AhCl2V+NFa5slL0KLOM5vRhSsHWhztxEahQ+SkWyDPCByHSk=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR21MB0862
-Cc: Stephen Hemminger <sthemmin@microsoft.com>,
+Cc: Joerg Roedel <jroedel@suse.de>, Stephen Hemminger <sthemmin@microsoft.com>,
  "pasha.tatashin@soleen.com" <pasha.tatashin@soleen.com>,
- Haiyang Zhang <haiyangz@microsoft.com>,
+ Will Deacon <will@kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>,
  Linux Kernel List <linux-kernel@vger.kernel.org>,
  "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>,
+ "open list:IOMMU DRIVERS" <iommu@lists.linux-foundation.org>,
  Nuno Das Neves <nunodasneves@linux.microsoft.com>,
  Sunil Muthuswamy <sunilmut@microsoft.com>,
- Vineeth Pillai <viremana@linux.microsoft.com>
+ Vineeth Pillai <viremana@linux.microsoft.com>, Joerg Roedel <joro@8bytes.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -173,34 +171,42 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Wei Liu <wei.liu@kernel.org> Sent: Wednesday, January 20, 2021 4:01 AM
 > 
-> There is no VMBus and the other infrastructures initialized in
-> hv_acpi_init when Linux is running as the root partition.
+> The IOMMU code needs more work. We're sure for now the IRQ remapping
+> hooks are not applicable when Linux is the root partition.
 > 
 > Signed-off-by: Wei Liu <wei.liu@kernel.org>
+> Acked-by: Joerg Roedel <jroedel@suse.de>
+> Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
 > ---
-> v3: Return 0 instead of -ENODEV.
-> ---
->  drivers/hv/vmbus_drv.c | 3 +++
->  1 file changed, 3 insertions(+)
+>  drivers/iommu/hyperv-iommu.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
 > 
-> diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
-> index 502f8cd95f6d..ee27b3670a51 100644
-> --- a/drivers/hv/vmbus_drv.c
-> +++ b/drivers/hv/vmbus_drv.c
-> @@ -2620,6 +2620,9 @@ static int __init hv_acpi_init(void)
->  	if (!hv_is_hyperv_initialized())
+> diff --git a/drivers/iommu/hyperv-iommu.c b/drivers/iommu/hyperv-iommu.c
+> index 1d21a0b5f724..b7db6024e65c 100644
+> --- a/drivers/iommu/hyperv-iommu.c
+> +++ b/drivers/iommu/hyperv-iommu.c
+> @@ -20,6 +20,7 @@
+>  #include <asm/io_apic.h>
+>  #include <asm/irq_remapping.h>
+>  #include <asm/hypervisor.h>
+> +#include <asm/mshyperv.h>
+> 
+>  #include "irq_remapping.h"
+> 
+> @@ -122,7 +123,7 @@ static int __init hyperv_prepare_irq_remapping(void)
+> 
+>  	if (!hypervisor_is_type(X86_HYPER_MS_HYPERV) ||
+>  	    x86_init.hyper.msi_ext_dest_id() ||
+> -	    !x2apic_supported())
+> +	    !x2apic_supported() || hv_root_partition)
 >  		return -ENODEV;
 > 
-> +	if (hv_root_partition)
-> +		return 0;
-> +
->  	init_completion(&probe_event);
-> 
->  	/*
+>  	fn = irq_domain_alloc_named_id_fwnode("HYPERV-IR", 0);
 > --
 > 2.20.1
 
 Reviewed-by: Michael Kelley <mikelley@microsoft.com>
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
