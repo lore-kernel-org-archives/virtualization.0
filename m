@@ -7,154 +7,151 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FA00C433E0
-	for <virtualization@archiver.kernel.org>; Wed, 27 Jan 2021 05:47:12 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69358C433DB
+	for <virtualization@archiver.kernel.org>; Wed, 27 Jan 2021 05:47:16 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AB69320709
-	for <virtualization@archiver.kernel.org>; Wed, 27 Jan 2021 05:47:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AB69320709
+	by mail.kernel.org (Postfix) with ESMTPS id 0C9DE20709
+	for <virtualization@archiver.kernel.org>; Wed, 27 Jan 2021 05:47:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0C9DE20709
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 40A7A20531;
-	Wed, 27 Jan 2021 05:47:11 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id C1A1287129;
+	Wed, 27 Jan 2021 05:47:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id oT7GHDv7b+Xh; Wed, 27 Jan 2021 05:47:09 +0000 (UTC)
+	with ESMTP id LLvVrR0Gaerq; Wed, 27 Jan 2021 05:47:14 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 60BB0200ED;
-	Wed, 27 Jan 2021 05:47:09 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id A175387123;
+	Wed, 27 Jan 2021 05:47:14 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4E50DC08A1;
-	Wed, 27 Jan 2021 05:47:09 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8AF7DC08A1;
+	Wed, 27 Jan 2021 05:47:14 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 88E43C013A
- for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Jan 2021 05:47:08 +0000 (UTC)
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9C2B0C013A;
+ Wed, 27 Jan 2021 05:47:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 845648554A
- for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Jan 2021 05:47:08 +0000 (UTC)
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 8ABCA85683;
+ Wed, 27 Jan 2021 05:47:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Jy6d6Zqd8hTL
- for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Jan 2021 05:47:06 +0000 (UTC)
+ with ESMTP id EPYKKKLwWKej; Wed, 27 Jan 2021 05:47:10 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from NAM10-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam10on2130.outbound.protection.outlook.com [40.107.94.130])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 8E63184EF0
- for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Jan 2021 05:47:06 +0000 (UTC)
+ (mail-mw2nam10on2113.outbound.protection.outlook.com [40.107.94.113])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id DE8D28554A;
+ Wed, 27 Jan 2021 05:47:10 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Abq3C/jG1fKYhV9/sXiwars//zxyOP2kHKLBr0z7HW6+vh3yN4oJGlWBtwQAqThdXPcSs+Bp/hWQqCLR0G+SSVXC17te/5h6M3gxVm5cSnVhtSIdSp9MUa+zSQP57qnZ7+YDSUb2dJT07mn3DtRfwfnsA/hR2wwUKiK9lq+5JfLwbRZA5Rvmi4U6HOjQBEVqpaHYefT4YNxejPUciCzrEiO0UnpD+/cBUoniZt6TQv+SqXGGQ4yF1hkaZEOUNkB6U4bTuyr5gUphRqMrZ6uYjD3uKeZid85LDR90gn9nBhE+YHWXufPWjZ7nNSm5WWb9Pm0i6G8Otv9JwWlLsrUN7w==
+ b=UWCdnlD663lgkZpeOo0agjmrilm03m/+qG29F66P48Mjo/zrkiIiqd/QWBPzypCUXWWWpi73mOpAmAvGbL4yfAwrj+YjDMkux7tIJNXdjRszak9OQQcTp8n88DVDcm5mrHeUONMmbWpqMB3kfgfq9XnwDoX8Im2P0BtXqH99hCaM2cCfQM1hg9Bx7np05fw4n2pOILj4SoC82fRtJedZMcP9dGXE1n+Q8EEP1794q2FhkxUeObmVxSuHe5k5AoFVsXR8eFE75iDFdS4Ezk0rAjesxW3Y+Mxvj6Nrk0510mFs3CsiiWASCdSgOtpI90yLeRNI1zOFscLc21PMhunt9A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fZ9z5X96EewKkfj7Wk7lxHDa9VSWI3z5dMotn8jnYMY=;
- b=U742e5NkrxnkblEaPXra62CQaSeaXXku/T4u1Acc1vTP6uP/sqwzZB/3iWN6KURMcioyIgSFvBl8JmHnH4AXLMpYUq1AUoe8gl+oFJtj40jh8W3S29vdnXAvcLg5Yl8Eq4kY6CcgQF2ApQ+GO/p8WWF0Of/ZIDQMQy1XwAhdoZhY/6vFgUzL7tyT9wOdJMl2wBGaXWPX9jjDRT8OBgoSsbjvAkBGpb58dH41RtqdKDtpq0Mp4rAh6ipwIZVLej4hste839RyP8lf38jodbL8h0yrdMQ9wXXe4/PjKbRRLxeWY9LGkDCeWw3GtRWZn1zhO3+zbbWV4DPu4J2j+/AWqw==
+ bh=bhm60HSubGtCpzNeOFHz36wwAA8Nc2/oOCScsQH7yTA=;
+ b=k9URkMRyaR3JUj1dcEJRLOTgK+hBxHTgFNCECc9FJC85E2XBan3crwdXf922htef0jfGLGrVv6oPYZ4M6bb/RoFI1x/wIkrXDHl8HpmJfTHoUa6DgSefTmysTmtGOtSg9IVC27lqRIASkNm4RqGWxkGnHYqcresZN+zRgBFe6gfkOarYZalYJYbuf7Y5kXw2Xzu141Sk8D7BQ8kMwW9JXaEyuw9alwhYfrqAs/D9kGVjFH95mfVX2z4w19ycYcQWefbcjPeDhjhHN7jiWAl5tarErjjee5nNFwTNkcviBB4awLC23hSPZaGCSk3NZVdjRJ9MeFqHM2xLJvrnzfn0ew==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=microsoft.com; dmarc=pass action=none
  header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fZ9z5X96EewKkfj7Wk7lxHDa9VSWI3z5dMotn8jnYMY=;
- b=KRKcHV8YBDpzJqnG+zBEiA4bJtK8N6d7yqLdN7kBmf/TTUal35w8Ywv0J8G5NHBa/vZSCnFUJHBhNbThc7B879OGo0FqWubZ637vk/ft+hyWuALeStCqqrwlxQDZ6k7r05mSq3fpbglP/m4Y7ceU+SDY9XkeVNZOO5p5vBZbjwY=
+ bh=bhm60HSubGtCpzNeOFHz36wwAA8Nc2/oOCScsQH7yTA=;
+ b=JvIn+3xtJ8ZhzmtV4csxwGljCIucSdL+bwdIDR2his8akWSLbNMlbZ5KQU6NBJVrzOPBq+u3ojJNGgWIFScN/sJQL/b59XaKUL19vwzS/90Gyx4tpp5fj0VF8gU/rfgmJJaHvptQj7/xwc+Teu5pMBvoyFUZb1AfiAaIT9GQnkE=
 Received: from (2603:10b6:301:7c::11) by
  MW4PR21MB1987.namprd21.prod.outlook.com (2603:10b6:303:78::10) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3825.2; Wed, 27 Jan 2021 05:47:04 +0000
+ 15.20.3825.2; Wed, 27 Jan 2021 05:47:08 +0000
 Received: from MWHPR21MB1593.namprd21.prod.outlook.com
  ([fe80::9c8:94c9:faf1:17c2]) by MWHPR21MB1593.namprd21.prod.outlook.com
  ([fe80::9c8:94c9:faf1:17c2%9]) with mapi id 15.20.3825.003; Wed, 27 Jan 2021
- 05:47:04 +0000
+ 05:47:08 +0000
 To: Wei Liu <wei.liu@kernel.org>, Linux on Hyper-V List
  <linux-hyperv@vger.kernel.org>
-Subject: RE: [PATCH v5 15/16] x86/hyperv: implement an MSI domain for root
- partition
-Thread-Topic: [PATCH v5 15/16] x86/hyperv: implement an MSI domain for root
- partition
-Thread-Index: AQHW7yP6HaVdmem27E2jxVVgXGHGnKo6+Dxg
-Date: Wed, 27 Jan 2021 05:47:04 +0000
-Message-ID: <MWHPR21MB1593FFC6005966A3D9BEA3EFD7BB9@MWHPR21MB1593.namprd21.prod.outlook.com>
+Subject: RE: [PATCH v5 16/16] iommu/hyperv: setup an IO-APIC IRQ remapping
+ domain for root partition
+Thread-Topic: [PATCH v5 16/16] iommu/hyperv: setup an IO-APIC IRQ remapping
+ domain for root partition
+Thread-Index: AQHW7yP8YtCnZy7E10m8VGWiVVtuDao6/Hmg
+Date: Wed, 27 Jan 2021 05:47:08 +0000
+Message-ID: <MWHPR21MB15936ED25B56AF897B655B76D7BB9@MWHPR21MB1593.namprd21.prod.outlook.com>
 References: <20210120120058.29138-1-wei.liu@kernel.org>
- <20210120120058.29138-16-wei.liu@kernel.org>
-In-Reply-To: <20210120120058.29138-16-wei.liu@kernel.org>
+ <20210120120058.29138-17-wei.liu@kernel.org>
+In-Reply-To: <20210120120058.29138-17-wei.liu@kernel.org>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2021-01-27T05:47:02Z; 
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2021-01-27T05:47:06Z; 
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=a867e241-d853-41ae-a1dd-f1e6507754aa;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=65c0181f-1d15-4327-8596-032df4eec16b;
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0
 authentication-results: kernel.org; dkim=none (message not signed)
  header.d=none;kernel.org; dmarc=none action=none header.from=microsoft.com;
 x-originating-ip: [66.75.126.197]
 x-ms-publictraffictype: Email
 x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 82b20901-dbb2-4b47-5814-08d8c286f9e2
+x-ms-office365-filtering-correlation-id: 46aee165-deef-40c6-03eb-08d8c286fc61
 x-ms-traffictypediagnostic: MW4PR21MB1987:
 x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <MW4PR21MB19874D85D74818DA403082B6D7BB9@MW4PR21MB1987.namprd21.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:1122;
+x-microsoft-antispam-prvs: <MW4PR21MB19871738F9A47DCD6D87DF09D7BB9@MW4PR21MB1987.namprd21.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:862;
 x-ms-exchange-senderadcheck: 1
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: MA4MiQAXfSFZSC6Qk4OIwrdbTk6EEgLbl/OXFROr0JPiaZIrhzzdhWa5rzGEl30P9acSct2ILjyiVMGtKGsxAncSW9nflsFGqWwne2ysOyQushsc0aUPBXkVxy0uEd9OBeFpYet5Z0D3q+kyUz6higrUtaS/vdTWYnXsAwrf+V4B46Cv/FwOe3SruTQvj/eNvhbm7CTr7b0x9tVXrq55vC3DVnHTs0DT9giQ/0kRHNkO7ynFiadtJSMxP5H0+WNkHtg4EXIyDHLvZIJKQngOdihAYHKHWTDYdbCOxE75BsdLvSDduPMQXyYy2zfiHk3flIfc1gsQCG0G2V0KlnZCVw1hBuundQoioxNAl9RnGmGcjaqMCWLPIr4vsNGbjy6tELG/yAselcyLpMxZZ2IwwIIKHqxKNJ/OZplD5502MiPhNUxzGQqBJkox8isE4mR/Ch5GPD6CoEbYWgR+lDnWWIv1VM30mXrti4spuNbLinhs4Y4AwtQ3Pw+GjkK12eMv8j6fnMyszxKlrgLhzyIYTw==
+x-microsoft-antispam-message-info: rbJAzdA9/1YKdHT3iYEelTpAj6S5FXsVs+2vCU3yOrtc8sgvjFpYSNGhCUSD103aSz6c07y6sG1uKV4nBAketTEao97Wf6xiHdZ6i9f6x6FRCVQOAKE9y/YuZ89F9tK5dDcDER4cJY5M8R0VteC3Vi+5NX+fywGR18CpSy5yHzpRTUxtRbZx8KHOnIsvgKVQwYV4f8jmjvgUL97KZoqNTNAJrzJWZ/ZK7RZ2TTsJNYKveKwfRWlqvJPb4UdsQQ3KkL4ZAR0DXeySsJxIo0TEv43Y9j2+zvbKfAulTyzdUhcPjDTO0KuauTtYmC43vuk1uIl2/2RgrQu4DoIcDxilkq538gP8U/4b6KeDzon/Cx5J9rVadVMzLY9u0Dnmat7A6syZ75CYoxJwiwi3t1Zi7RAZR/sM1W+zTmtAKz5akYH/gFQYswkX/FEvQ3WmQbdUzGPk1yoPGSvU6wpal3wFPCvA47wrt864/FYuAGGEF/fZ1OnJPaYAX8Qm3GtUPXzaoQ0nJ2716kAcOc8JMRWz5A==
 x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:MWHPR21MB1593.namprd21.prod.outlook.com; PTR:; CAT:NONE;
  SFS:(4636009)(396003)(376002)(366004)(39860400002)(136003)(346002)(186003)(26005)(7696005)(2906002)(30864003)(8936002)(83380400001)(64756008)(55016002)(5660300002)(8676002)(6506007)(9686003)(10290500003)(478600001)(66946007)(33656002)(110136005)(52536014)(76116006)(86362001)(54906003)(71200400001)(8990500004)(4326008)(316002)(66476007)(66446008)(82950400001)(7416002)(66556008)(82960400001);
  DIR:OUT; SFP:1102; 
-x-ms-exchange-antispam-messagedata: =?us-ascii?Q?pYjNtKRZ9jswC08uH4tGMGJTyfW2BGULAxTPNxfVbF+e+2JoESEhXaOXdB+h?=
- =?us-ascii?Q?a7ppIKOmD/qDhHEzXsvyBmHWu4eXIRYP8NLk0PnVV2vtOqvfNH/wOc4bbS25?=
- =?us-ascii?Q?ZVPKGKIZxf6PD9uVonNsuYr90+Rfyp41sqsjK2m99cWwmkvSqRLBu8PxYpQc?=
- =?us-ascii?Q?2you/XZtcBHNSC1mq9tR9p+tB68GUxWRt9SjPeFMqqIEdxzzoZyreglW8W9M?=
- =?us-ascii?Q?H+Bc5GCOzeH5et0Wyo20YBxxBBTxDJyy7C0DW/aX6IpY7K7r2jnibUD56WlX?=
- =?us-ascii?Q?YGAODKBsjDe4U/ntP9M/NnveXsmXyU8RqDIKdQ4EAQJcbCTOIAZ4IvQ+QlCx?=
- =?us-ascii?Q?vNwtUThitEmp8qCbVEqA7jOLapI6i5mOmuZMLOtxVdkDeJZv7bskXZqv2WxZ?=
- =?us-ascii?Q?Sp/mqdbEUgDIpb0Uq+f3SvEXoukDNQvh7pMmwMTXaShbM76fjVLy+l+ZYJzD?=
- =?us-ascii?Q?SuSr7nYqZoTUNUdtEsVvaUpwLRtQ70Oc/oo+3qrqO124qW0Eq27q6RjbAPjY?=
- =?us-ascii?Q?Enrr1k3uG99Zr20uqhq/h0Y0iE+wazMSB0nDb/AXfkvC8Vhv3exeoTs3XGlP?=
- =?us-ascii?Q?jD/ZIE7XDKW1oQX+j7/mq59tDP46rlohMjwO1JdzrfIcfpcFP5l3rSeej/+J?=
- =?us-ascii?Q?GZ5dmYIrQso/9yrOtqaziyaeyHW/P2Vbt8PImGxxyKbFkAPy24Jk0FNR9937?=
- =?us-ascii?Q?gMdU96KdJxGJ2i1LAloZd9ypfFA3DlRYWgE17+KQICiJDGkKLu0NjuHPpQbu?=
- =?us-ascii?Q?VEbE+MX+dDJYyDnofgCgfQYLAihyJbL27IlwGq5JRa5w32vA62y4fPW6KeH7?=
- =?us-ascii?Q?OoAea83NlbKa2dYTqVkwYFgOv1jqTv0SZZsZpfLPAW7i6rg7y/IAc5f32Wws?=
- =?us-ascii?Q?/qKnSkW+YIEZrK0p8vQ6/ZcPLF8iYYksPgw2d3+6OLxac979A9+H2OrIk/ar?=
- =?us-ascii?Q?/tFZOlQQDuxwJMDA7Z9xEMedVilpiRqrsH5uLjSbPIaI2QxJTi8B3fE+7B/M?=
- =?us-ascii?Q?YOhxJQpIjH7FPoB0AUXGYTo1mJ3U+0HF9iAXC0wOqWQtG7sM61eB5pZms4/V?=
- =?us-ascii?Q?Epa0MrXJ?=
+x-ms-exchange-antispam-messagedata: =?us-ascii?Q?ILVhpiJgW3BokwwAwobXEXDlcZy3tm1muI+AAvx95kkwHuei5GDaggedBy9w?=
+ =?us-ascii?Q?EdOKsAPLzfeD723SUW+48UE6myre2Vhf4RX0CWTnS2yYANBoSe44oA6OB7Wi?=
+ =?us-ascii?Q?ixMMYt6sM+WMAVlrVHv7uZWKU64ejOy4QwMpxg8BZZMQn2bkpblJydaSBmXX?=
+ =?us-ascii?Q?vaj2QYjzFKN0HobIZ715iB1dp+RmUs+83GSiOTrRArz8mbq3irO+pMwtE026?=
+ =?us-ascii?Q?uv49As/1h4oI+BRC4WFaBMF+q70w3Q82XNFHHVjpp+VCX+mHpisPQz9N/8DT?=
+ =?us-ascii?Q?4fg/6/rGu5Zw042ctjYy9qoepKsFS66u4l/v96W5fh1wyNG2aYoC/4ZBlAwr?=
+ =?us-ascii?Q?FDTBYSOfdeJfaGQycj5Hd6llgdGMbDYLiDd9U9mPwZPYrrUP3mA/cpeCnDJ7?=
+ =?us-ascii?Q?A6Oy3fK5CQ4bxJctUXu5gLPzDsvDHqh+r4PPrMm99O4SHcsWW6j9R4r2EZsj?=
+ =?us-ascii?Q?R4+JPe1QUG2KPnBRqKkPjDUnNz3T+ITJ/GN/c59Avts1gcPvj08cFvb91XQT?=
+ =?us-ascii?Q?zMrkt7LzF3OJ/W/XihebVQjk4mShlpsyAHB3BvAcxZU/wiXrIiMGESJPAiHM?=
+ =?us-ascii?Q?uq2TaQr9ihyCV2Xi3qvL2MqkEtTvApJwimdSKI925B+wJ8mvZLHAidwsCOEX?=
+ =?us-ascii?Q?7otPw5kVxBD429ABqrnbX8xbuy207qMadfhD+f+3/ESMXA8hj5uUCHFGAYqB?=
+ =?us-ascii?Q?XhvpE6T6M89Uh5G4S7oz383BIwyWEGBQ8zADaEaOnJlODttFSrWJ7/IbPIqu?=
+ =?us-ascii?Q?WyffNnA167AwfKj4qBMpOWwjwOjFIgm1dABxPaSvrc8rps46zM5PiewQxqUi?=
+ =?us-ascii?Q?lIUKtR+Xwha8B7XjY+U7ducvkWt/pEuaf3XfyB2/sndkphllqT8l34AkXi4L?=
+ =?us-ascii?Q?TIBDdCgxsVBNuRC+UMfGpmr3iiePrVvcSK2vfya4KFAWMc+k0GCW1Ukes3Kx?=
+ =?us-ascii?Q?wSBL2Zumjm0MLis0vunU/5/0BXZbz279hBhitiXs2oGv2Va4tllpwCpE7+2y?=
+ =?us-ascii?Q?s9qtFsbG1ZKpe8bPGugZ5AtQkDIPpJScMg/isabCdkQPHAkwG6shbuPZnz99?=
+ =?us-ascii?Q?dFsACQBo?=
 MIME-Version: 1.0
 X-OriginatorOrg: microsoft.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: MWHPR21MB1593.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 82b20901-dbb2-4b47-5814-08d8c286f9e2
-X-MS-Exchange-CrossTenant-originalarrivaltime: 27 Jan 2021 05:47:04.4583 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 46aee165-deef-40c6-03eb-08d8c286fc61
+X-MS-Exchange-CrossTenant-originalarrivaltime: 27 Jan 2021 05:47:08.7208 (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: sMvLe51tPffI4LueOQzPBwngdnSpFQlCdsqHY33y6lDjMbXRe/WwMfWacaLBfRlilECWqXiznvr7DlyQEgl/kLi/wcUNeMTprtFlBqLQtpI=
+X-MS-Exchange-CrossTenant-userprincipalname: bzbu5X/5dJ02NyOarg4pzTzr3RkyzXkErJ+w9CD8j1ohoc1zzVBNUVZzhnKTIVJWbQTd6i6U/Xor/I350MUiH4un3GEaaXJp5omosO9umow=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR21MB1987
 Cc: Stephen Hemminger <sthemmin@microsoft.com>,
  "pasha.tatashin@soleen.com" <pasha.tatashin@soleen.com>,
- Haiyang Zhang <haiyangz@microsoft.com>,
+ Will Deacon <will@kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>,
  "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
  Linux Kernel List <linux-kernel@vger.kernel.org>,
  "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "H. Peter
+ <virtualization@lists.linux-foundation.org>,
+ "open list:IOMMU DRIVERS" <iommu@lists.linux-foundation.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter
  Anvin" <hpa@zytor.com>, Nuno Das Neves <nunodasneves@linux.microsoft.com>,
  Sunil Muthuswamy <sunilmut@microsoft.com>,
  Vineeth Pillai <viremana@linux.microsoft.com>,
- Thomas Gleixner <tglx@linutronix.de>
+ Thomas Gleixner <tglx@linutronix.de>, Joerg Roedel <joro@8bytes.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -176,437 +173,343 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Wei Liu <wei.liu@kernel.org> Sent: Wednesday, January 20, 2021 4:01 AM
 > 
-> When Linux runs as the root partition on Microsoft Hypervisor, its
-> interrupts are remapped.  Linux will need to explicitly map and unmap
-> interrupts for hardware.
+> Just like MSI/MSI-X, IO-APIC interrupts are remapped by Microsoft
+> Hypervisor when Linux runs as the root partition. Implement an IRQ
+> domain to handle mapping and unmapping of IO-APIC interrupts.
 > 
-> Implement an MSI domain to issue the correct hypercalls. And initialize
-> this irqdomain as the default MSI irq domain.
-> 
-> Signed-off-by: Sunil Muthuswamy <sunilmut@microsoft.com>
-> Co-Developed-by: Sunil Muthuswamy <sunilmut@microsoft.com>
 > Signed-off-by: Wei Liu <wei.liu@kernel.org>
 > ---
-> v4: Fix compilation issue when CONFIG_PCI_MSI is not set.
-> v3: build irqdomain.o for 32bit as well.
-
-I'm not clear on the intent for 32-bit builds.  Given that hv_proc.c is built
-only for 64-bit, I'm assuming running Linux in the root partition
-is only functional for 64-bit builds.  So is the goal simply that 32-bit
-builds will compile correctly?  Seems like maybe there should be
-a CONFIG option for running Linux in the root partition, and that
-option would force 64-bit.
-
-> v2: This patch is simplified due to upstream changes.
-> ---
->  arch/x86/hyperv/Makefile        |   2 +-
->  arch/x86/hyperv/hv_init.c       |   9 +
->  arch/x86/hyperv/irqdomain.c     | 332 ++++++++++++++++++++++++++++++++
->  arch/x86/include/asm/mshyperv.h |   2 +
->  4 files changed, 344 insertions(+), 1 deletion(-)
->  create mode 100644 arch/x86/hyperv/irqdomain.c
+>  arch/x86/hyperv/irqdomain.c     |  54 ++++++++++
+>  arch/x86/include/asm/mshyperv.h |   4 +
+>  drivers/iommu/hyperv-iommu.c    | 179 +++++++++++++++++++++++++++++++-
+>  3 files changed, 233 insertions(+), 4 deletions(-)
 > 
-> diff --git a/arch/x86/hyperv/Makefile b/arch/x86/hyperv/Makefile
-> index 565358020921..48e2c51464e8 100644
-> --- a/arch/x86/hyperv/Makefile
-> +++ b/arch/x86/hyperv/Makefile
-> @@ -1,5 +1,5 @@
->  # SPDX-License-Identifier: GPL-2.0-only
-> -obj-y			:= hv_init.o mmu.o nested.o
-> +obj-y			:= hv_init.o mmu.o nested.o irqdomain.o
->  obj-$(CONFIG_X86_64)	+= hv_apic.o hv_proc.o
-> 
->  ifdef CONFIG_X86_64
-> diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
-> index ad8e77859b32..1cb2f7d1850a 100644
-> --- a/arch/x86/hyperv/hv_init.c
-> +++ b/arch/x86/hyperv/hv_init.c
-> @@ -484,6 +484,15 @@ void __init hyperv_init(void)
-> 
->  	BUG_ON(hv_root_partition && hv_current_partition_id == ~0ull);
-> 
-> +#ifdef CONFIG_PCI_MSI
-> +	/*
-> +	 * If we're running as root, we want to create our own PCI MSI domain.
-> +	 * We can't set this in hv_pci_init because that would be too late.
-> +	 */
-> +	if (hv_root_partition)
-> +		x86_init.irqs.create_pci_msi_domain = hv_create_pci_msi_domain;
-> +#endif
-> +
->  	return;
-> 
->  remove_cpuhp_state:
 > diff --git a/arch/x86/hyperv/irqdomain.c b/arch/x86/hyperv/irqdomain.c
-> new file mode 100644
-> index 000000000000..19637cd60231
-> --- /dev/null
+> index 19637cd60231..8e2b4e478b70 100644
+> --- a/arch/x86/hyperv/irqdomain.c
 > +++ b/arch/x86/hyperv/irqdomain.c
-> @@ -0,0 +1,332 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +//
-> +// Irqdomain for Linux to run as the root partition on Microsoft Hypervisor.
-> +//
-> +// Authors:
-> +//   Sunil Muthuswamy <sunilmut@microsoft.com>
-> +//   Wei Liu <wei.liu@kernel.org>
-
-I think the // comment style should only be used for the SPDX line.
-
+> @@ -330,3 +330,57 @@ struct irq_domain * __init hv_create_pci_msi_domain(void)
+>  }
+> 
+>  #endif /* CONFIG_PCI_MSI */
 > +
-> +#include <linux/pci.h>
-> +#include <linux/irq.h>
-> +#include <asm/mshyperv.h>
+> +int hv_unmap_ioapic_interrupt(int ioapic_id, struct hv_interrupt_entry *entry)
+> +{
+> +	union hv_device_id device_id;
 > +
-> +static int hv_unmap_interrupt(u64 id, struct hv_interrupt_entry *old_entry)
+> +	device_id.as_uint64 = 0;
+> +	device_id.device_type = HV_DEVICE_TYPE_IOAPIC;
+> +	device_id.ioapic.ioapic_id = (u8)ioapic_id;
+> +
+> +	return hv_unmap_interrupt(device_id.as_uint64, entry) & HV_HYPERCALL_RESULT_MASK;
+
+The masking is already done in hv_unmap_interrupt.
+
+> +}
+> +EXPORT_SYMBOL_GPL(hv_unmap_ioapic_interrupt);
+> +
+> +int hv_map_ioapic_interrupt(int ioapic_id, bool level, int vcpu, int vector,
+> +		struct hv_interrupt_entry *entry)
 > +{
 > +	unsigned long flags;
-> +	struct hv_input_unmap_device_interrupt *input;
-> +	struct hv_interrupt_entry *intr_entry;
-> +	u16 status;
-> +
-> +	local_irq_save(flags);
-> +	input = *this_cpu_ptr(hyperv_pcpu_input_arg);
-> +
-> +	memset(input, 0, sizeof(*input));
-> +	intr_entry = &input->interrupt_entry;
-> +	input->partition_id = hv_current_partition_id;
-> +	input->device_id = id;
-> +	*intr_entry = *old_entry;
-> +
-> +	status = hv_do_rep_hypercall(HVCALL_UNMAP_DEVICE_INTERRUPT, 0, 0, input, NULL) &
-> +			 HV_HYPERCALL_RESULT_MASK;
-> +	local_irq_restore(flags);
-> +
-> +	return status;
-> +}
-> +
-> +#ifdef CONFIG_PCI_MSI
-> +struct rid_data {
-> +	struct pci_dev *bridge;
-> +	u32 rid;
-> +};
-> +
-> +static int get_rid_cb(struct pci_dev *pdev, u16 alias, void *data)
-> +{
-> +	struct rid_data *rd = data;
-> +	u8 bus = PCI_BUS_NUM(rd->rid);
-> +
-> +	if (pdev->bus->number != bus || PCI_BUS_NUM(alias) != bus) {
-> +		rd->bridge = pdev;
-> +		rd->rid = alias;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static union hv_device_id hv_build_pci_dev_id(struct pci_dev *dev)
-> +{
-> +	union hv_device_id dev_id;
-> +	struct rid_data data = {
-> +		.bridge = NULL,
-> +		.rid = PCI_DEVID(dev->bus->number, dev->devfn)
-> +	};
-> +
-> +	pci_for_each_dma_alias(dev, get_rid_cb, &data);
-> +
-> +	dev_id.as_uint64 = 0;
-> +	dev_id.device_type = HV_DEVICE_TYPE_PCI;
-> +	dev_id.pci.segment = pci_domain_nr(dev->bus);
-> +
-> +	dev_id.pci.bdf.bus = PCI_BUS_NUM(data.rid);
-> +	dev_id.pci.bdf.device = PCI_SLOT(data.rid);
-> +	dev_id.pci.bdf.function = PCI_FUNC(data.rid);
-> +	dev_id.pci.source_shadow = HV_SOURCE_SHADOW_NONE;
-> +
-> +	if (data.bridge) {
-> +		int pos;
-> +
-> +		/*
-> +		 * Microsoft Hypervisor requires a bus range when the bridge is
-> +		 * running in PCI-X mode.
-> +		 *
-> +		 * To distinguish conventional vs PCI-X bridge, we can check
-> +		 * the bridge's PCI-X Secondary Status Register, Secondary Bus
-> +		 * Mode and Frequency bits. See PCI Express to PCI/PCI-X Bridge
-> +		 * Specification Revision 1.0 5.2.2.1.3.
-> +		 *
-> +		 * Value zero means it is in conventional mode, otherwise it is
-> +		 * in PCI-X mode.
-> +		 */
-> +
-> +		pos = pci_find_capability(data.bridge, PCI_CAP_ID_PCIX);
-> +		if (pos) {
-> +			u16 status;
-> +
-> +			pci_read_config_word(data.bridge, pos +
-> +					PCI_X_BRIDGE_SSTATUS, &status);
-> +
-> +			if (status & PCI_X_SSTATUS_FREQ) {
-> +				/* Non-zero, PCI-X mode */
-> +				u8 sec_bus, sub_bus;
-> +
-> +				dev_id.pci.source_shadow = HV_SOURCE_SHADOW_BRIDGE_BUS_RANGE;
-> +
-> +				pci_read_config_byte(data.bridge, PCI_SECONDARY_BUS, &sec_bus);
-> +				dev_id.pci.shadow_bus_range.secondary_bus = sec_bus;
-> +				pci_read_config_byte(data.bridge, PCI_SUBORDINATE_BUS, &sub_bus);
-> +				dev_id.pci.shadow_bus_range.subordinate_bus = sub_bus;
-> +			}
-> +		}
-> +	}
-> +
-> +	return dev_id;
-> +}
-> +
-> +static int hv_map_msi_interrupt(struct pci_dev *dev, int vcpu, int vector,
-> +				struct hv_interrupt_entry *entry)
-> +{
 > +	struct hv_input_map_device_interrupt *input;
 > +	struct hv_output_map_device_interrupt *output;
+> +	union hv_device_id device_id;
 > +	struct hv_device_interrupt_descriptor *intr_desc;
-> +	unsigned long flags;
 > +	u16 status;
 > +
-> +	local_irq_save(flags);
+> +	device_id.as_uint64 = 0;
+> +	device_id.device_type = HV_DEVICE_TYPE_IOAPIC;
+> +	device_id.ioapic.ioapic_id = (u8)ioapic_id;
 > +
+> +	local_irq_save(flags);
 > +	input = *this_cpu_ptr(hyperv_pcpu_input_arg);
 > +	output = *this_cpu_ptr(hyperv_pcpu_output_arg);
-> +
-> +	intr_desc = &input->interrupt_descriptor;
 > +	memset(input, 0, sizeof(*input));
+> +	intr_desc = &input->interrupt_descriptor;
 > +	input->partition_id = hv_current_partition_id;
-> +	input->device_id = hv_build_pci_dev_id(dev).as_uint64;
+> +	input->device_id = device_id.as_uint64;
 > +	intr_desc->interrupt_type = HV_X64_INTERRUPT_TYPE_FIXED;
-> +	intr_desc->trigger_mode = HV_INTERRUPT_TRIGGER_MODE_EDGE;
-> +	intr_desc->vector_count = 1;
 > +	intr_desc->target.vector = vector;
-> +	__set_bit(vcpu, (unsigned long*)&intr_desc->target.vp_mask);
-
-This is using the CPU bitmap format that supports up to 64 vCPUs.  Any reason not
-to use the format that supports a larger number of CPUs?   In either case, perhaps
-a check for the value of vcpu against the max of 64 (or the larger number if you
-change the bitmap format) would be appropriate.
-
+> +	intr_desc->vector_count = 1;
+> +
+> +	if (level)
+> +		intr_desc->trigger_mode = HV_INTERRUPT_TRIGGER_MODE_LEVEL;
+> +	else
+> +		intr_desc->trigger_mode = HV_INTERRUPT_TRIGGER_MODE_EDGE;
+> +
+> +	__set_bit(vcpu, (unsigned long *)&intr_desc->target.vp_mask);
 > +
 > +	status = hv_do_rep_hypercall(HVCALL_MAP_DEVICE_INTERRUPT, 0, 0, input, output) &
 > +			 HV_HYPERCALL_RESULT_MASK;
-> +	*entry = output->interrupt_entry;
-> +
 > +	local_irq_restore(flags);
 > +
-> +	if (status != HV_STATUS_SUCCESS)
-> +		pr_err("%s: hypercall failed, status %d\n", __func__, status);
+> +	*entry = output->interrupt_entry;
 > +
 > +	return status;
-> +}
-> +
-> +static inline void entry_to_msi_msg(struct hv_interrupt_entry *entry, struct msi_msg *msg)
-> +{
-> +	/* High address is always 0 */
-> +	msg->address_hi = 0;
-> +	msg->address_lo = entry->msi_entry.address.as_uint32;
-> +	msg->data = entry->msi_entry.data.as_uint32;
-> +}
-> +
-> +static int hv_unmap_msi_interrupt(struct pci_dev *dev, struct hv_interrupt_entry *old_entry);
-> +static void hv_irq_compose_msi_msg(struct irq_data *data, struct msi_msg *msg)
-> +{
-> +	struct msi_desc *msidesc;
-> +	struct pci_dev *dev;
-> +	struct hv_interrupt_entry out_entry, *stored_entry;
-> +	struct irq_cfg *cfg = irqd_cfg(data);
-> +	struct cpumask *affinity;
-> +	int cpu, vcpu;
-> +	u16 status;
-> +
-> +	msidesc = irq_data_get_msi_desc(data);
-> +	dev = msi_desc_to_pci_dev(msidesc);
-> +
-> +	if (!cfg) {
-> +		pr_debug("%s: cfg is NULL", __func__);
-> +		return;
-> +	}
-> +
-> +	affinity = irq_data_get_effective_affinity_mask(data);
-> +	cpu = cpumask_first_and(affinity, cpu_online_mask);
-> +	vcpu = hv_cpu_number_to_vp_number(cpu);
-> +
-> +	if (data->chip_data) {
-> +		/*
-> +		 * This interrupt is already mapped. Let's unmap first.
-> +		 *
-> +		 * We don't use retarget interrupt hypercalls here because
-> +		 * Microsoft Hypervisor doens't allow root to change the vector
-> +		 * or specify VPs outside of the set that is initially used
-> +		 * during mapping.
-> +		 */
-> +		stored_entry = data->chip_data;
-> +		data->chip_data = NULL;
-> +
-> +		status = hv_unmap_msi_interrupt(dev, stored_entry);
-> +
-> +		kfree(stored_entry);
-> +
-> +		if (status != HV_STATUS_SUCCESS) {
-> +			pr_debug("%s: failed to unmap, status %d", __func__, status);
-> +			return;
-> +		}
-> +	}
-> +
-> +	stored_entry = kzalloc(sizeof(*stored_entry), GFP_ATOMIC);
-> +	if (!stored_entry) {
-> +		pr_debug("%s: failed to allocate chip data\n", __func__);
-> +		return;
-> +	}
-> +
-> +	status = hv_map_msi_interrupt(dev, vcpu, cfg->vector, &out_entry);
-> +	if (status != HV_STATUS_SUCCESS) {
-> +		kfree(stored_entry);
-> +		return;
-> +	}
-> +
-> +	*stored_entry = out_entry;
-> +	data->chip_data = stored_entry;
-> +	entry_to_msi_msg(&out_entry, msg);
-> +
-> +	return;
-> +}
-> +
-> +static int hv_unmap_msi_interrupt(struct pci_dev *dev, struct hv_interrupt_entry
-> *old_entry)
-> +{
-> +	return hv_unmap_interrupt(hv_build_pci_dev_id(dev).as_uint64, old_entry)
-> +		& HV_HYPERCALL_RESULT_MASK;
 
-The masking with HV_HYPERCALL_RESULT_MASK is already done in
-hv_unmap_interrupt().
+As a cross-check, I was comparing this code against hv_map_msi_interrupt().  They are
+mostly parallel, though some of the assignments are done in a different order.  It's a nit,
+but making them as parallel as possible would be nice. :-)
+
+Same 64 vCPU comment applies here as well.
+
 
 > +}
-> +
-> +static void hv_teardown_msi_irq_common(struct pci_dev *dev, struct msi_desc
-> *msidesc, int irq)
-> +{
-> +	u16 status;
-> +	struct hv_interrupt_entry old_entry;
-> +	struct irq_desc *desc;
-> +	struct irq_data *data;
-> +	struct msi_msg msg;
-> +
-> +	desc = irq_to_desc(irq);
-> +	if (!desc) {
-> +		pr_debug("%s: no irq desc\n", __func__);
-> +		return;
-> +	}
-> +
-> +	data = &desc->irq_data;
-> +	if (!data) {
-> +		pr_debug("%s: no irq data\n", __func__);
-> +		return;
-> +	}
-> +
-> +	if (!data->chip_data) {
-> +		pr_debug("%s: no chip data\n!", __func__);
-> +		return;
-> +	}
-> +
-> +	old_entry = *(struct hv_interrupt_entry *)data->chip_data;
-> +	entry_to_msi_msg(&old_entry, &msg);
-> +
-> +	kfree(data->chip_data);
-> +	data->chip_data = NULL;
-> +
-> +	status = hv_unmap_msi_interrupt(dev, &old_entry);
-> +
-> +	if (status != HV_STATUS_SUCCESS) {
-> +		pr_err("%s: hypercall failed, status %d\n", __func__, status);
-> +		return;
-> +	}
-> +}
-> +
-> +static void hv_msi_domain_free_irqs(struct irq_domain *domain, struct device *dev)
-> +{
-> +	int i;
-> +	struct msi_desc *entry;
-> +	struct pci_dev *pdev;
-> +
-> +	if (WARN_ON_ONCE(!dev_is_pci(dev)))
-> +		return;
-> +
-> +	pdev = to_pci_dev(dev);
-> +
-> +	for_each_pci_msi_entry(entry, pdev) {
-> +		if (entry->irq) {
-> +			for (i = 0; i < entry->nvec_used; i++) {
-> +				hv_teardown_msi_irq_common(pdev, entry, entry->irq +
-> i);
-> +				irq_domain_free_irqs(entry->irq + i, 1);
-> +			}
-> +		}
-> +	}
-> +}
-> +
-> +/*
-> + * IRQ Chip for MSI PCI/PCI-X/PCI-Express Devices,
-> + * which implement the MSI or MSI-X Capability Structure.
-> + */
-> +static struct irq_chip hv_pci_msi_controller = {
-> +	.name			= "HV-PCI-MSI",
-> +	.irq_unmask		= pci_msi_unmask_irq,
-> +	.irq_mask		= pci_msi_mask_irq,
-> +	.irq_ack		= irq_chip_ack_parent,
-> +	.irq_retrigger		= irq_chip_retrigger_hierarchy,
-> +	.irq_compose_msi_msg	= hv_irq_compose_msi_msg,
-> +	.irq_set_affinity	= msi_domain_set_affinity,
-> +	.flags			= IRQCHIP_SKIP_SET_WAKE,
-> +};
-> +
-> +static struct msi_domain_ops pci_msi_domain_ops = {
-> +	.domain_free_irqs	= hv_msi_domain_free_irqs,
-> +	.msi_prepare		= pci_msi_prepare,
-> +};
-> +
-> +static struct msi_domain_info hv_pci_msi_domain_info = {
-> +	.flags		= MSI_FLAG_USE_DEF_DOM_OPS |
-> MSI_FLAG_USE_DEF_CHIP_OPS |
-> +			  MSI_FLAG_PCI_MSIX,
-> +	.ops		= &pci_msi_domain_ops,
-> +	.chip		= &hv_pci_msi_controller,
-> +	.handler	= handle_edge_irq,
-> +	.handler_name	= "edge",
-> +};
-> +
-> +struct irq_domain * __init hv_create_pci_msi_domain(void)
-> +{
-> +	struct irq_domain *d = NULL;
-> +	struct fwnode_handle *fn;
-> +
-> +	fn = irq_domain_alloc_named_fwnode("HV-PCI-MSI");
-> +	if (fn)
-> +		d = pci_msi_create_irq_domain(fn, &hv_pci_msi_domain_info,
-> x86_vector_domain);
-> +
-> +	/* No point in going further if we can't get an irq domain */
-> +	BUG_ON(!d);
-> +
-> +	return d;
-> +}
-> +
-> +#endif /* CONFIG_PCI_MSI */
+> +EXPORT_SYMBOL_GPL(hv_map_ioapic_interrupt);
 > diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
-> index cbee72550a12..ccc849e25d5e 100644
+> index ccc849e25d5e..345d7c6f8c37 100644
 > --- a/arch/x86/include/asm/mshyperv.h
 > +++ b/arch/x86/include/asm/mshyperv.h
-> @@ -261,6 +261,8 @@ static inline void hv_set_msi_entry_from_desc(union hv_msi_entry
-> *msi_entry,
->  	msi_entry->data.as_uint32 = msi_desc->msg.data;
->  }
+> @@ -263,6 +263,10 @@ static inline void hv_set_msi_entry_from_desc(union
+> hv_msi_entry *msi_entry,
 > 
-> +struct irq_domain *hv_create_pci_msi_domain(void);
+>  struct irq_domain *hv_create_pci_msi_domain(void);
+> 
+> +int hv_map_ioapic_interrupt(int ioapic_id, bool level, int vcpu, int vector,
+> +		struct hv_interrupt_entry *entry);
+> +int hv_unmap_ioapic_interrupt(int ioapic_id, struct hv_interrupt_entry *entry);
 > +
 >  #else /* CONFIG_HYPERV */
 >  static inline void hyperv_init(void) {}
 >  static inline void hyperv_setup_mmu_ops(void) {}
+> diff --git a/drivers/iommu/hyperv-iommu.c b/drivers/iommu/hyperv-iommu.c
+> index b7db6024e65c..6d35e4c303c6 100644
+> --- a/drivers/iommu/hyperv-iommu.c
+> +++ b/drivers/iommu/hyperv-iommu.c
+> @@ -116,30 +116,43 @@ static const struct irq_domain_ops hyperv_ir_domain_ops = {
+>  	.free = hyperv_irq_remapping_free,
+>  };
+> 
+> +static const struct irq_domain_ops hyperv_root_ir_domain_ops;
+>  static int __init hyperv_prepare_irq_remapping(void)
+>  {
+>  	struct fwnode_handle *fn;
+>  	int i;
+> +	const char *name;
+> +	const struct irq_domain_ops *ops;
+> 
+>  	if (!hypervisor_is_type(X86_HYPER_MS_HYPERV) ||
+>  	    x86_init.hyper.msi_ext_dest_id() ||
+> -	    !x2apic_supported() || hv_root_partition)
+> +	    !x2apic_supported())
+
+Any reason that the check for hv_root_partition was added
+in patch #4  of this series, and then removed here?  Could
+patch #4 just be dropped?
+
+>  		return -ENODEV;
+> 
+> -	fn = irq_domain_alloc_named_id_fwnode("HYPERV-IR", 0);
+> +	if (hv_root_partition) {
+> +		name = "HYPERV-ROOT-IR";
+> +		ops = &hyperv_root_ir_domain_ops;
+> +	} else {
+> +		name = "HYPERV-IR";
+> +		ops = &hyperv_ir_domain_ops;
+> +	}
+> +
+> +	fn = irq_domain_alloc_named_id_fwnode(name, 0);
+>  	if (!fn)
+>  		return -ENOMEM;
+> 
+>  	ioapic_ir_domain =
+>  		irq_domain_create_hierarchy(arch_get_ir_parent_domain(),
+> -				0, IOAPIC_REMAPPING_ENTRY, fn,
+> -				&hyperv_ir_domain_ops, NULL);
+> +				0, IOAPIC_REMAPPING_ENTRY, fn, ops, NULL);
+> 
+>  	if (!ioapic_ir_domain) {
+>  		irq_domain_free_fwnode(fn);
+>  		return -ENOMEM;
+>  	}
+> 
+> +	if (hv_root_partition)
+> +		return 0; /* The rest is only relevant to guests */
+> +
+>  	/*
+>  	 * Hyper-V doesn't provide irq remapping function for
+>  	 * IO-APIC and so IO-APIC only accepts 8-bit APIC ID.
+> @@ -167,4 +180,162 @@ struct irq_remap_ops hyperv_irq_remap_ops = {
+>  	.enable			= hyperv_enable_irq_remapping,
+>  };
+> 
+> +/* IRQ remapping domain when Linux runs as the root partition */
+> +struct hyperv_root_ir_data {
+> +	u8 ioapic_id;
+> +	bool is_level;
+> +	struct hv_interrupt_entry entry;
+> +};
+> +
+> +static void
+> +hyperv_root_ir_compose_msi_msg(struct irq_data *irq_data, struct msi_msg *msg)
+> +{
+> +	u16 status;
+> +	u32 vector;
+> +	struct irq_cfg *cfg;
+> +	int ioapic_id;
+> +	struct cpumask *affinity;
+> +	int cpu, vcpu;
+> +	struct hv_interrupt_entry entry;
+> +	struct hyperv_root_ir_data *data = irq_data->chip_data;
+> +	struct IO_APIC_route_entry e;
+> +
+> +	cfg = irqd_cfg(irq_data);
+> +	affinity = irq_data_get_effective_affinity_mask(irq_data);
+> +	cpu = cpumask_first_and(affinity, cpu_online_mask);
+> +	vcpu = hv_cpu_number_to_vp_number(cpu);
+> +
+> +	vector = cfg->vector;
+> +	ioapic_id = data->ioapic_id;
+> +
+> +	if (data->entry.source == HV_DEVICE_TYPE_IOAPIC
+
+Does 'data' need to be checked to be non-NULL?  The parallel code in
+hv_irq_compose_msi_msg() makes such a check.
+
+> +	    && data->entry.ioapic_rte.as_uint64) {
+> +		entry = data->entry;
+> +
+> +		status = hv_unmap_ioapic_interrupt(ioapic_id, &entry);
+> +
+> +		if (status != HV_STATUS_SUCCESS)
+> +			pr_debug("%s: unexpected unmap status %d\n", __func__, status);
+> +
+> +		data->entry.ioapic_rte.as_uint64 = 0;
+> +		data->entry.source = 0; /* Invalid source */
+
+Again comparing, hv_irq_compose_msi_msg() frees the old
+entry, and then allocates a new one.   This code reuses the old entry. 
+Any reason for the difference?
+
+> +	}
+> +
+> +
+> +	status = hv_map_ioapic_interrupt(ioapic_id, data->is_level, vcpu,
+> +					vector, &entry);
+> +
+> +	if (status != HV_STATUS_SUCCESS) {
+> +		pr_err("%s: map hypercall failed, status %d\n", __func__, status);
+> +		return;
+> +	}
+> +
+> +	data->entry = entry;
+> +
+> +	/* Turn it into an IO_APIC_route_entry, and generate MSI MSG. */
+> +	e.w1 = entry.ioapic_rte.low_uint32;
+> +	e.w2 = entry.ioapic_rte.high_uint32;
+> +
+> +	memset(msg, 0, sizeof(*msg));
+> +	msg->arch_data.vector = e.vector;
+> +	msg->arch_data.delivery_mode = e.delivery_mode;
+> +	msg->arch_addr_lo.dest_mode_logical = e.dest_mode_logical;
+> +	msg->arch_addr_lo.dmar_format = e.ir_format;
+> +	msg->arch_addr_lo.dmar_index_0_14 = e.ir_index_0_14;
+> +}
+
+Having this whole function be more parallel to hv_irq_compose_msi_msg()
+would be nice. :-)
+
+> +
+> +static int hyperv_root_ir_set_affinity(struct irq_data *data,
+> +		const struct cpumask *mask, bool force)
+> +{
+> +	struct irq_data *parent = data->parent_data;
+> +	struct irq_cfg *cfg = irqd_cfg(data);
+> +	int ret;
+> +
+> +	ret = parent->chip->irq_set_affinity(parent, mask, force);
+> +	if (ret < 0 || ret == IRQ_SET_MASK_OK_DONE)
+> +		return ret;
+> +
+> +	send_cleanup_vector(cfg);
+> +
+> +	return 0;
+> +}
+> +
+> +static struct irq_chip hyperv_root_ir_chip = {
+> +	.name			= "HYPERV-ROOT-IR",
+> +	.irq_ack		= apic_ack_irq,
+> +	.irq_set_affinity	= hyperv_root_ir_set_affinity,
+> +	.irq_compose_msi_msg	= hyperv_root_ir_compose_msi_msg,
+> +};
+> +
+> +static int hyperv_root_irq_remapping_alloc(struct irq_domain *domain,
+> +				     unsigned int virq, unsigned int nr_irqs,
+> +				     void *arg)
+> +{
+> +	struct irq_alloc_info *info = arg;
+> +	struct irq_data *irq_data;
+> +	struct hyperv_root_ir_data *data;
+> +	int ret = 0;
+> +
+> +	if (!info || info->type != X86_IRQ_ALLOC_TYPE_IOAPIC || nr_irqs > 1)
+> +		return -EINVAL;
+> +
+> +	ret = irq_domain_alloc_irqs_parent(domain, virq, nr_irqs, arg);
+> +	if (ret < 0)
+> +		return ret;
+> +
+> +	data = kzalloc(sizeof(*data), GFP_KERNEL);
+> +	if (!data) {
+> +		irq_domain_free_irqs_common(domain, virq, nr_irqs);
+> +		return -ENOMEM;
+> +	}
+> +
+> +	irq_data = irq_domain_get_irq_data(domain, virq);
+> +	if (!irq_data) {
+> +		kfree(data);
+> +		irq_domain_free_irqs_common(domain, virq, nr_irqs);
+> +		return -EINVAL;
+> +	}
+> +
+> +	data->ioapic_id = info->devid;
+> +	data->is_level = info->ioapic.is_level;
+> +
+> +	irq_data->chip = &hyperv_root_ir_chip;
+> +	irq_data->chip_data = data;
+> +
+> +	return 0;
+> +}
+> +
+> +static void hyperv_root_irq_remapping_free(struct irq_domain *domain,
+> +				 unsigned int virq, unsigned int nr_irqs)
+> +{
+> +	struct irq_data *irq_data;
+> +	struct hyperv_root_ir_data *data;
+> +	struct hv_interrupt_entry *e;
+> +	int i;
+> +
+> +	for (i = 0; i < nr_irqs; i++) {
+> +		irq_data = irq_domain_get_irq_data(domain, virq + i);
+> +
+> +		if (irq_data && irq_data->chip_data) {
+> +			data = irq_data->chip_data;
+
+Set irq_data->chip_data to NULL?  That seems to be done in other
+similar places in your code.
+
+> +			e = &data->entry;
+> +
+> +			if (e->source == HV_DEVICE_TYPE_IOAPIC
+> +			      && e->ioapic_rte.as_uint64)
+> +				hv_unmap_ioapic_interrupt(data->ioapic_id,
+> +							&data->entry);
+> +
+> +			kfree(data);
+> +		}
+> +	}
+> +
+> +	irq_domain_free_irqs_common(domain, virq, nr_irqs);
+> +}
+> +
+> +static const struct irq_domain_ops hyperv_root_ir_domain_ops = {
+> +	.select = hyperv_irq_remapping_select,
+> +	.alloc = hyperv_root_irq_remapping_alloc,
+> +	.free = hyperv_root_irq_remapping_free,
+> +};
+> +
+>  #endif
 > --
 > 2.20.1
 
