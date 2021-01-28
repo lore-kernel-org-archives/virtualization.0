@@ -7,98 +7,98 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78D82C433E0
-	for <virtualization@archiver.kernel.org>; Thu, 28 Jan 2021 16:55:31 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 697ECC433E0
+	for <virtualization@archiver.kernel.org>; Thu, 28 Jan 2021 17:04:37 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id F3AB364E07
-	for <virtualization@archiver.kernel.org>; Thu, 28 Jan 2021 16:55:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F3AB364E07
+	by mail.kernel.org (Postfix) with ESMTPS id E6C3F64E15
+	for <virtualization@archiver.kernel.org>; Thu, 28 Jan 2021 17:04:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E6C3F64E15
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 4F6472041A;
-	Thu, 28 Jan 2021 16:55:30 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id ACD6186224;
+	Thu, 28 Jan 2021 17:04:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id V12TreFUa5uT; Thu, 28 Jan 2021 16:55:29 +0000 (UTC)
+	with ESMTP id RuamLmnykiTg; Thu, 28 Jan 2021 17:04:36 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 2686E20336;
-	Thu, 28 Jan 2021 16:55:29 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 0217A844A7;
+	Thu, 28 Jan 2021 17:04:35 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 031FEC0FA8;
-	Thu, 28 Jan 2021 16:55:29 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BF82AC08A1
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DC612C0FA8;
+	Thu, 28 Jan 2021 17:04:35 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 665D9C08A1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jan 2021 16:55:27 +0000 (UTC)
+ Thu, 28 Jan 2021 17:04:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id AE07687406
+ by whitealder.osuosl.org (Postfix) with ESMTP id 5428F864D4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jan 2021 16:55:27 +0000 (UTC)
+ Thu, 28 Jan 2021 17:04:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KaoA3Ro918TD
+ with ESMTP id fuEilijQzPJZ
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jan 2021 16:55:27 +0000 (UTC)
+ Thu, 28 Jan 2021 17:04:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id E0770873D4
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 74B2D86E6B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jan 2021 16:55:26 +0000 (UTC)
+ Thu, 28 Jan 2021 17:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1611852925;
+ s=mimecast20190719; t=1611853473;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=HgtxAPALtY+nCny47e18Ou0vNrOzLT1OduAQqQAsR8o=;
- b=dEF+xAKD3c90Ckg9ajmBEyYf4esEiK8KqqWcUEFXdKyMg1WTnavLwtr03Doug6PuwFkXwk
- hBbI5hXXCKibR2DHOc4aptOV+Y0EToCgePzqXWWRZE/C+q6+mQbR0HAa4EdnzA1ESykkBT
- I18uazIpo3+OKiCVFaF0jN8Mwy1TQwU=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-132-ZQ2NH_mMOqC8fb9tB8yoBA-1; Thu, 28 Jan 2021 11:55:23 -0500
-X-MC-Unique: ZQ2NH_mMOqC8fb9tB8yoBA-1
-Received: by mail-wr1-f69.google.com with SMTP id n18so3422476wrm.8
+ bh=LvcQzCTMhw0EZfzlSb3F515FxbS4cvGqc8hLzWtIraw=;
+ b=JcDnJh5pewXv5NoDV+Wsn4MLDtPKTQJHuCf1YH3OcwfNxXwsCoImJLW1YdIKyib2q8nluV
+ a2hg3Pb7mAujnj0zj8AKS6UrscBXebqoLA06j/BJ9LDOVqJQ7WeUwy67X7YcuFrLIfDo97
+ dld42Mua92RJOIDALSNiLBW9n+aEwgc=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-287-P6B1LwvsNpWbMNTGZrVGiw-1; Thu, 28 Jan 2021 12:04:31 -0500
+X-MC-Unique: P6B1LwvsNpWbMNTGZrVGiw-1
+Received: by mail-wr1-f71.google.com with SMTP id n14so3446493wru.6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jan 2021 08:55:23 -0800 (PST)
+ Thu, 28 Jan 2021 09:04:31 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=HgtxAPALtY+nCny47e18Ou0vNrOzLT1OduAQqQAsR8o=;
- b=H9s00ge7tuYw+aEhaveepOhzWX62m6jN6463+SgGwdfhG95gPf26a9xhL3AWLtQB9M
- kbnAXakp141s7kwWt0b75hXlW2YtMjHSd+n1UHYhPxKQ/ph18ifLQsCmOUFEaoJZQ/di
- wysoY5ocxKwavc1c4zZcrUxp41XivvEZB+v1ZWLRo5LqnoAad2mZJ74sxv/p3RggmmI6
- WDezGqL/An+tbCFZaoGveqoMd8M4PdRb/zmzYvjfxUze02MutZuO2JCmcZvU5AjFZTmz
- d09xXzg4DYIbDbUhW1cxQRwZS0jzDWAiB7atp0jKT9bTdJKgnFRW8WvjCczoZXwW3gam
- bv+g==
-X-Gm-Message-State: AOAM530RaiV+o60lFyl0pDZjq8ATxC2Nbvx7bcywQRKiu06pPiVZVU3N
- M+npCCQImOdQS8uqQrzXRRtUbv7P2F7iV8IEiV6VayY+LHznWXD+v2qu7MlE58+f+1PR9ouPMTx
- WgJpUXdIzDPCy/NPG+W3Pdl+C4BA487fS0fRqlcNHEw==
-X-Received: by 2002:a1c:a549:: with SMTP id o70mr135298wme.71.1611852922174;
- Thu, 28 Jan 2021 08:55:22 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyb6UPtRnhkfUKRNkSJfjFxJ3q1MvMrhDM7KtpKfLvcGV1YzLJVQtRahOZNlCd6vpRf46h8cQ==
-X-Received: by 2002:a1c:a549:: with SMTP id o70mr135279wme.71.1611852921999;
- Thu, 28 Jan 2021 08:55:21 -0800 (PST)
+ bh=LvcQzCTMhw0EZfzlSb3F515FxbS4cvGqc8hLzWtIraw=;
+ b=Q03s7la/dY0OioEkDO4rKDgzItSwbIKDhZuNAYh70AMe+9FKRlwQhsFU19U+sBOjtH
+ EI24Zch+Jn1PspZOKtA0UcgaxObv8uGsGVcJDylkW19OJ9oG7okc2JQ3xWXHV0BBxt2b
+ ydgus+M5FWs0fjmMY5s8cQWro4IFqIcdXUWCiCmFKA0on4/8jNT+XA0mt1OksoX7bkMA
+ sMgWrynTuq1o3BD098En0QoDVL9oTwt5UlLSca4CT4rsNQM03DnCJYo/o3rRQmiI+x/L
+ O8BkB/sFxVvb9mTIEeAc8p3dt+VRdkQ2/ByNPAoCdv+XEx4zhtGPJ5gqkVRrASYUZjG+
+ YE3A==
+X-Gm-Message-State: AOAM533kSafbdb+uAFhFG5AfcD7yceML3Rc3hDRdvCP+PRUA9rG1i+hN
+ sNYCxTeHente3izwdDLOCTopDcKN/Ceo95+fWuozXA9ElnaTmvlpunCyo9mWLaLYzl4lVz3xz3m
+ zG4iGZVR3LNIdYPUKQef1w0mixfA3ibp6BX9EU2AlOA==
+X-Received: by 2002:adf:9148:: with SMTP id j66mr47597wrj.28.1611853470441;
+ Thu, 28 Jan 2021 09:04:30 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyFXNXAEEeUISjmsj6o5JuE/Q8ctqnwUsP41thgGGDQLpC8xK5225WjWWJKnBOg3AVOH+RIYQ==
+X-Received: by 2002:adf:9148:: with SMTP id j66mr47572wrj.28.1611853470215;
+ Thu, 28 Jan 2021 09:04:30 -0800 (PST)
 Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
  [79.34.249.199])
- by smtp.gmail.com with ESMTPSA id q6sm6320451wmj.32.2021.01.28.08.55.20
+ by smtp.gmail.com with ESMTPSA id v4sm8574382wrw.42.2021.01.28.09.04.28
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 28 Jan 2021 08:55:21 -0800 (PST)
-Date: Thu, 28 Jan 2021 17:55:18 +0100
+ Thu, 28 Jan 2021 09:04:29 -0800 (PST)
+Date: Thu, 28 Jan 2021 18:04:26 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [RFC PATCH v3 03/13] af_vsock: implement SEQPACKET rx loop
-Message-ID: <20210128165518.ho3csm5u7v5pnwnd@steredhat>
+Subject: Re: [RFC PATCH v3 05/13] af_vsock: rest of SEQPACKET support
+Message-ID: <20210128170426.522mpkocdd35bt2e@steredhat>
 References: <20210125110903.597155-1-arseny.krasnov@kaspersky.com>
- <20210125111239.598377-1-arseny.krasnov@kaspersky.com>
+ <20210125111321.598653-1-arseny.krasnov@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <20210125111239.598377-1-arseny.krasnov@kaspersky.com>
+In-Reply-To: <20210125111321.598653-1-arseny.krasnov@kaspersky.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -127,169 +127,174 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jan 25, 2021 at 02:12:36PM +0300, Arseny Krasnov wrote:
->This adds receive loop for SEQPACKET. It looks like receive loop for
->SEQPACKET, but there is a little bit difference:
->1) It doesn't call notify callbacks.
->2) It doesn't care about 'SO_SNDLOWAT' and 'SO_RCVLOWAT' values, because
->   there is no sense for these values in SEQPACKET case.
->3) It waits until whole record is received or error is found during
->   receiving.
->4) It processes and sets 'MSG_TRUNC' flag.
->
->So to avoid extra conditions for two types of socket inside one loop, two
->independent functions were created.
+On Mon, Jan 25, 2021 at 02:13:18PM +0300, Arseny Krasnov wrote:
+>This does rest of SOCK_SEQPACKET support:
+>1) Adds socket ops for SEQPACKET type.
+>2) Allows to create socket with SEQPACKET type.
 >
 >Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
 >---
-> include/net/af_vsock.h   |   5 ++
-> net/vmw_vsock/af_vsock.c | 102 ++++++++++++++++++++++++++++++++++++++-
-> 2 files changed, 106 insertions(+), 1 deletion(-)
+> net/vmw_vsock/af_vsock.c | 71 ++++++++++++++++++++++++++++++++++++++++
+> 1 file changed, 71 insertions(+)
 >
->diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
->index b1c717286993..46073842d489 100644
->--- a/include/net/af_vsock.h
->+++ b/include/net/af_vsock.h
->@@ -135,6 +135,11 @@ struct vsock_transport {
-> 	bool (*stream_is_active)(struct vsock_sock *);
-> 	bool (*stream_allow)(u32 cid, u32 port);
->
->+	/* SEQ_PACKET. */
->+	size_t (*seqpacket_seq_get_len)(struct vsock_sock *);
->+	ssize_t (*seqpacket_dequeue)(struct vsock_sock *, struct msghdr *,
->+				     size_t len, int flags);
->+
-> 	/* Notification. */
-> 	int (*notify_poll_in)(struct vsock_sock *, size_t, bool *);
-> 	int (*notify_poll_out)(struct vsock_sock *, size_t, bool *);
 >diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 524df8fc84cd..3b266880b7c8 100644
+>index 4600c1ec3bb3..bbc3c31085aa 100644
 >--- a/net/vmw_vsock/af_vsock.c
 >+++ b/net/vmw_vsock/af_vsock.c
->@@ -2006,7 +2006,107 @@ static int __vsock_stream_recvmsg(struct sock *sk, struct msghdr *msg,
-> static int __vsock_seqpacket_recvmsg(struct sock *sk, struct msghdr *msg,
-> 				     size_t len, int flags)
-> {
->-	return -1;
->+	const struct vsock_transport *transport;
->+	const struct iovec *orig_iov;
->+	unsigned long orig_nr_segs;
->+	ssize_t dequeued_total = 0;
->+	struct vsock_sock *vsk;
->+	size_t record_len;
->+	long timeout;
->+	int err = 0;
->+	DEFINE_WAIT(wait);
+>@@ -452,6 +452,7 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+> 		new_transport = transport_dgram;
+> 		break;
+> 	case SOCK_STREAM:
+>+	case SOCK_SEQPACKET:
+> 		if (vsock_use_local_transport(remote_cid))
+> 			new_transport = transport_local;
+> 		else if (remote_cid <= VMADDR_CID_HOST || !transport_h2g ||
+>@@ -459,6 +460,13 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+> 			new_transport = transport_g2h;
+> 		else
+> 			new_transport = transport_h2g;
 >+
->+	vsk = vsock_sk(sk);
->+	transport = vsk->transport;
->+
->+	timeout = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
->+	msg->msg_flags &= ~MSG_EOR;
+>+		if (sk->sk_type == SOCK_SEQPACKET) {
 
-Maybe add a comment about why we need to clear MSG_EOR.
+I think you must also check that new_transport is not NULL.
 
->+	orig_nr_segs = msg->msg_iter.nr_segs;
->+	orig_iov = msg->msg_iter.iov;
->+
->+	while (1) {
->+		ssize_t dequeued;
->+		s64 ready;
->+
->+		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
->+		ready = vsock_stream_has_data(vsk);
->+
->+		if (ready == 0) {
->+			if (vsock_wait_data(sk, &wait, timeout, NULL, 0)) {
->+				/* In case of any loop break(timeout, signal
->+				 * interrupt or shutdown), we report user that
->+				 * nothing was copied.
->+				 */
->+				dequeued_total = 0;
->+				break;
->+			}
->+			continue;
+>+			if (!new_transport->seqpacket_seq_send_len ||
+>+			    !new_transport->seqpacket_seq_get_len ||
+>+			    !new_transport->seqpacket_dequeue)
+>+				return -ENODEV;
+
+I'm not sure about ENODEV is the better choice in this case, since the 
+transport exists, but it doesn't support SOCK_SEQPACKET, so maybe is 
+better ESOCKTNOSUPPORT.
+
 >+		}
->+
->+		finish_wait(sk_sleep(sk), &wait);
->+
->+		if (ready < 0) {
->+			err = -ENOMEM;
->+			goto out;
->+		}
->+
->+		if (dequeued_total == 0) {
->+			record_len =
->+				transport->seqpacket_seq_get_len(vsk);
->+
->+			if (record_len == 0)
->+				continue;
->+		}
->+
->+		/* 'msg_iter.count' is number of unused bytes in iov.
->+		 * On every copy to iov iterator it is decremented at
->+		 * size of data.
->+		 */
->+		dequeued = transport->seqpacket_dequeue(vsk, msg,
->+					msg->msg_iter.count, flags);
-                                         ^
-                                         Is this needed or 'msg' can be 
-                                         used in the transport?
->+
->+		if (dequeued < 0) {
->+			dequeued_total = 0;
->+
->+			if (dequeued == -EAGAIN) {
->+				iov_iter_init(&msg->msg_iter, READ,
->+					      orig_iov, orig_nr_segs,
->+					      len);
->+				msg->msg_flags &= ~MSG_EOR;
->+				continue;
-
-Why we need to reset MSG_EOR here?
-
->+			}
->+
->+			err = -ENOMEM;
->+			break;
->+		}
->+
->+		dequeued_total += dequeued;
->+
->+		if (dequeued_total >= record_len)
->+			break;
->+	}
-
-Maybe a new line here.
-
->+	if (sk->sk_err)
->+		err = -sk->sk_err;
->+	else if (sk->sk_shutdown & RCV_SHUTDOWN)
->+		err = 0;
->+
->+	if (dequeued_total > 0) {
->+		/* User sets MSG_TRUNC, so return real length of
->+		 * packet.
->+		 */
->+		if (flags & MSG_TRUNC)
->+			err = record_len;
->+		else
->+			err = len - msg->msg_iter.count;
->+
->+		/* Always set MSG_TRUNC if real length of packet is
->+		 * bigger that user buffer.
-
-s/that/than
-
->+		 */
->+		if (record_len > len)
->+			msg->msg_flags |= MSG_TRUNC;
->+	}
->+out:
->+	return err;
+> 		break;
+> 	default:
+> 		return -ESOCKTNOSUPPORT;
+>@@ -684,6 +692,7 @@ static int __vsock_bind(struct sock *sk, struct sockaddr_vm *addr)
+>
+> 	switch (sk->sk_socket->type) {
+> 	case SOCK_STREAM:
+>+	case SOCK_SEQPACKET:
+> 		spin_lock_bh(&vsock_table_lock);
+> 		retval = __vsock_bind_connectible(vsk, addr);
+> 		spin_unlock_bh(&vsock_table_lock);
+>@@ -1406,6 +1415,12 @@ static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
+> 	return vsock_connect(sock, addr, addr_len, flags);
 > }
 >
-> static int
+>+static int vsock_seqpacket_connect(struct socket *sock, struct sockaddr *addr,
+>+				   int addr_len, int flags)
+>+{
+>+	return vsock_connect(sock, addr, addr_len, flags);
+>+}
+>+
+> static int vsock_accept(struct socket *sock, struct socket *newsock, int flags,
+> 			bool kern)
+> {
+>@@ -1633,6 +1648,16 @@ static int vsock_stream_setsockopt(struct socket *sock,
+> 					    optlen);
+> }
+>
+>+static int vsock_seqpacket_setsockopt(struct socket *sock,
+>+				      int level,
+>+				      int optname,
+>+				      sockptr_t optval,
+>+				      unsigned int optlen)
+>+{
+>+	return vsock_connectible_setsockopt(sock, level, optname, optval,
+>+					    optlen);
+>+}
+>+
+> static int vsock_connectible_getsockopt(struct socket *sock,
+> 					int level, int optname,
+> 					char __user *optval,
+>@@ -1713,6 +1738,15 @@ static int vsock_stream_getsockopt(struct socket *sock,
+> 					    optlen);
+> }
+>
+>+static int vsock_seqpacket_getsockopt(struct socket *sock,
+>+				      int level, int optname,
+>+				      char __user *optval,
+>+				      int __user *optlen)
+>+{
+>+	return vsock_connectible_getsockopt(sock, level, optname, optval,
+>+					    optlen);
+>+}
+>+
+> static int vsock_connectible_sendmsg(struct socket *sock, struct msghdr *msg,
+> 				     size_t len)
+> {
+>@@ -1870,6 +1904,12 @@ static int vsock_stream_sendmsg(struct socket *sock, struct msghdr *msg,
+> 	return vsock_connectible_sendmsg(sock, msg, len);
+> }
+>
+>+static int vsock_seqpacket_sendmsg(struct socket *sock, struct msghdr *msg,
+>+				   size_t len)
+>+{
+>+	return vsock_connectible_sendmsg(sock, msg, len);
+>+}
+>+
+> static int vsock_wait_data(struct sock *sk, struct wait_queue_entry *wait,
+> 			   long timeout,
+> 			   struct vsock_transport_recv_notify_data *recv_data,
+>@@ -2184,6 +2224,13 @@ vsock_stream_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+> 	return vsock_connectible_recvmsg(sock, msg, len, flags);
+> }
+>
+>+static int
+>+vsock_seqpacket_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+>+			int flags)
+>+{
+>+	return vsock_connectible_recvmsg(sock, msg, len, flags);
+>+}
+>+
+
+As I said, I think you don't need to implement all of this helpers and 
+you can directly assign the vsock_connectible_* functions in the 
+'vsock_seqpacket_ops'.
+
+> static const struct proto_ops vsock_stream_ops = {
+> 	.family = PF_VSOCK,
+> 	.owner = THIS_MODULE,
+>@@ -2205,6 +2252,27 @@ static const struct proto_ops vsock_stream_ops = {
+> 	.sendpage = sock_no_sendpage,
+> };
+>
+>+static const struct proto_ops vsock_seqpacket_ops = {
+>+	.family = PF_VSOCK,
+>+	.owner = THIS_MODULE,
+>+	.release = vsock_release,
+>+	.bind = vsock_bind,
+>+	.connect = vsock_seqpacket_connect,
+>+	.socketpair = sock_no_socketpair,
+>+	.accept = vsock_accept,
+>+	.getname = vsock_getname,
+>+	.poll = vsock_poll,
+>+	.ioctl = sock_no_ioctl,
+>+	.listen = vsock_listen,
+>+	.shutdown = vsock_shutdown,
+>+	.setsockopt = vsock_seqpacket_setsockopt,
+>+	.getsockopt = vsock_seqpacket_getsockopt,
+>+	.sendmsg = vsock_seqpacket_sendmsg,
+>+	.recvmsg = vsock_seqpacket_recvmsg,
+>+	.mmap = sock_no_mmap,
+>+	.sendpage = sock_no_sendpage,
+>+};
+>+
+> static int vsock_create(struct net *net, struct socket *sock,
+> 			int protocol, int kern)
+> {
+>@@ -2225,6 +2293,9 @@ static int vsock_create(struct net *net, struct socket *sock,
+> 	case SOCK_STREAM:
+> 		sock->ops = &vsock_stream_ops;
+> 		break;
+>+	case SOCK_SEQPACKET:
+>+		sock->ops = &vsock_seqpacket_ops;
+>+		break;
+> 	default:
+> 		return -ESOCKTNOSUPPORT;
+> 	}
 >-- 
 >2.25.1
 >
