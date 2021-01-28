@@ -7,83 +7,82 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8004BC433DB
-	for <virtualization@archiver.kernel.org>; Thu, 28 Jan 2021 14:41:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02B03C433DB
+	for <virtualization@archiver.kernel.org>; Thu, 28 Jan 2021 14:42:32 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1AC6F64DDE
-	for <virtualization@archiver.kernel.org>; Thu, 28 Jan 2021 14:41:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1AC6F64DDE
+	by mail.kernel.org (Postfix) with ESMTPS id 63CC064DE0
+	for <virtualization@archiver.kernel.org>; Thu, 28 Jan 2021 14:42:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 63CC064DE0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 9368B86DA9;
-	Thu, 28 Jan 2021 14:41:52 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id EA05186DBE;
+	Thu, 28 Jan 2021 14:42:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id D8MyHubenSgB; Thu, 28 Jan 2021 14:41:52 +0000 (UTC)
+	with ESMTP id mxRDZYXXuW-w; Thu, 28 Jan 2021 14:42:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 0D0CB86DAE;
-	Thu, 28 Jan 2021 14:41:52 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 5E7F286DAE;
+	Thu, 28 Jan 2021 14:42:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EDBC4C0FA8;
-	Thu, 28 Jan 2021 14:41:51 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D1006C08A1
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 48BAFC0FA8;
+	Thu, 28 Jan 2021 14:42:30 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 020A8C08A1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jan 2021 14:41:49 +0000 (UTC)
+ Thu, 28 Jan 2021 14:42:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id C786F86DD3
+ by hemlock.osuosl.org (Postfix) with ESMTP id E4B2487253
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jan 2021 14:41:49 +0000 (UTC)
+ Thu, 28 Jan 2021 14:42:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BEq0Y8a+zTxw
+ with ESMTP id Fj8QAAo9R4b3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jan 2021 14:41:48 +0000 (UTC)
+ Thu, 28 Jan 2021 14:42:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id A2F0F86DBE
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 10D2085BA1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Jan 2021 14:41:48 +0000 (UTC)
+ Thu, 28 Jan 2021 14:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1611844907;
+ s=mimecast20190719; t=1611844946;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=Vra/8R9BJFPpbB1vr+cBu428jEwk9zi9qo7gpPVDYWY=;
- b=N+sKNSyFt6kjNLZ8S3xALs1G/ztpELyI34RkVsADtwTY9LyIOiLwisqpdhFPJ1m55OMOGa
- xBk4kS4CBjvSCU1v7bUgUi3Nd17FVYZEyBWigrh6VXEBG/En5U3tXAmVC0emzszf0V3+C2
- bh10ZUu0O08W4vF73mThwrKj3J3aIJs=
+ bh=dMfBbPjDPZ4dIyXQtS0tJU0Oae1keECk1ejt9iIRqJg=;
+ b=U/7lAwf5Hx6ghL0gZW9GJv+d4/iOvzNp4sLtd6436+BNTwD7Yxgzu2fjKriBL0IjeVbNV2
+ tGLHcVkHc8n35ERuZcvxiJgbE9yQwwE8lmLH1Pt8ZpjiZOi6er6TJSA+hO8TcO5qisNYrB
+ z2iYpps3TdnDpghD24iFVoqXGf4x448=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-207-91Ui66JCMViZtffPQ_YwDg-1; Thu, 28 Jan 2021 09:41:45 -0500
-X-MC-Unique: 91Ui66JCMViZtffPQ_YwDg-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
+ us-mta-524-UzL0ZiMJPbiRkiCf77zeAA-1; Thu, 28 Jan 2021 09:42:25 -0500
+X-MC-Unique: UzL0ZiMJPbiRkiCf77zeAA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
+ [10.5.11.15])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7606410054FF;
- Thu, 28 Jan 2021 14:41:44 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CA868801B2E;
+ Thu, 28 Jan 2021 14:42:23 +0000 (UTC)
 Received: from steredhat.redhat.com (ovpn-113-219.ams2.redhat.com
  [10.36.113.219])
- by smtp.corp.redhat.com (Postfix) with ESMTP id F39F060CF1;
- Thu, 28 Jan 2021 14:41:41 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id A0F9E19443;
+ Thu, 28 Jan 2021 14:42:05 +0000 (UTC)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH RFC v2 03/10] vringh: reset kiov 'consumed' field in
- __vringh_iov()
-Date: Thu, 28 Jan 2021 15:41:20 +0100
-Message-Id: <20210128144127.113245-4-sgarzare@redhat.com>
+Subject: [PATCH RFC v2 04/10] vringh: implement vringh_kiov_advance()
+Date: Thu, 28 Jan 2021 15:41:21 +0100
+Message-Id: <20210128144127.113245-5-sgarzare@redhat.com>
 In-Reply-To: <20210128144127.113245-1-sgarzare@redhat.com>
 References: <20210128144127.113245-1-sgarzare@redhat.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Cc: Laurent Vivier <lvivier@redhat.com>, Max Gurtovoy <mgurtovoy@nvidia.com>,
  kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
  linux-kernel@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
@@ -104,31 +103,92 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-__vringh_iov() overwrites the contents of riov and wiov, in fact it
-resets the 'i' and 'used' fields, but also the consumed field should
-be reset to avoid an inconsistent state.
+In some cases, it may be useful to provide a way to skip a number
+of bytes in a vringh_kiov.
+
+Let's implement vringh_kiov_advance() for this purpose, reusing the
+code from vringh_iov_xfer().
+We replace that code calling the new vringh_kiov_advance().
 
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- drivers/vhost/vringh.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/vringh.h |  2 ++
+ drivers/vhost/vringh.c | 41 +++++++++++++++++++++++++++++------------
+ 2 files changed, 31 insertions(+), 12 deletions(-)
 
+diff --git a/include/linux/vringh.h b/include/linux/vringh.h
+index 9c077863c8f6..755211ebd195 100644
+--- a/include/linux/vringh.h
++++ b/include/linux/vringh.h
+@@ -199,6 +199,8 @@ static inline void vringh_kiov_cleanup(struct vringh_kiov *kiov)
+ 	kiov->iov = NULL;
+ }
+ 
++void vringh_kiov_advance(struct vringh_kiov *kiov, size_t len);
++
+ int vringh_getdesc_kern(struct vringh *vrh,
+ 			struct vringh_kiov *riov,
+ 			struct vringh_kiov *wiov,
 diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index f68122705719..bee63d68201a 100644
+index bee63d68201a..4d800e4f31ca 100644
 --- a/drivers/vhost/vringh.c
 +++ b/drivers/vhost/vringh.c
-@@ -290,9 +290,9 @@ __vringh_iov(struct vringh *vrh, u16 i,
- 		return -EINVAL;
+@@ -75,6 +75,34 @@ static inline int __vringh_get_head(const struct vringh *vrh,
+ 	return head;
+ }
  
- 	if (riov)
--		riov->i = riov->used = 0;
-+		riov->i = riov->used = riov->consumed = 0;
- 	if (wiov)
--		wiov->i = wiov->used = 0;
-+		wiov->i = wiov->used = wiov->consumed = 0;
++/**
++ * vringh_kiov_advance - skip bytes from vring_kiov
++ * @iov: an iov passed to vringh_getdesc_*() (updated as we consume)
++ * @len: the maximum length to advance
++ */
++void vringh_kiov_advance(struct vringh_kiov *iov, size_t len)
++{
++	while (len && iov->i < iov->used) {
++		size_t partlen = min(iov->iov[iov->i].iov_len, len);
++
++		iov->consumed += partlen;
++		iov->iov[iov->i].iov_len -= partlen;
++		iov->iov[iov->i].iov_base += partlen;
++
++		if (!iov->iov[iov->i].iov_len) {
++			/* Fix up old iov element then increment. */
++			iov->iov[iov->i].iov_len = iov->consumed;
++			iov->iov[iov->i].iov_base -= iov->consumed;
++
++			iov->consumed = 0;
++			iov->i++;
++		}
++
++		len -= partlen;
++	}
++}
++EXPORT_SYMBOL(vringh_kiov_advance);
++
+ /* Copy some bytes to/from the iovec.  Returns num copied. */
+ static inline ssize_t vringh_iov_xfer(struct vringh *vrh,
+ 				      struct vringh_kiov *iov,
+@@ -95,19 +123,8 @@ static inline ssize_t vringh_iov_xfer(struct vringh *vrh,
+ 		done += partlen;
+ 		len -= partlen;
+ 		ptr += partlen;
+-		iov->consumed += partlen;
+-		iov->iov[iov->i].iov_len -= partlen;
+-		iov->iov[iov->i].iov_base += partlen;
  
- 	for (;;) {
- 		void *addr;
+-		if (!iov->iov[iov->i].iov_len) {
+-			/* Fix up old iov element then increment. */
+-			iov->iov[iov->i].iov_len = iov->consumed;
+-			iov->iov[iov->i].iov_base -= iov->consumed;
+-
+-			
+-			iov->consumed = 0;
+-			iov->i++;
+-		}
++		vringh_kiov_advance(iov, partlen);
+ 	}
+ 	return done;
+ }
 -- 
 2.29.2
 
