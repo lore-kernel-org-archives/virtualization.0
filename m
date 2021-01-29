@@ -7,113 +7,119 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 713B7C433E0
-	for <virtualization@archiver.kernel.org>; Fri, 29 Jan 2021 09:19:02 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94B96C433E0
+	for <virtualization@archiver.kernel.org>; Fri, 29 Jan 2021 09:22:13 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D22CB64E16
-	for <virtualization@archiver.kernel.org>; Fri, 29 Jan 2021 09:19:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D22CB64E16
+	by mail.kernel.org (Postfix) with ESMTPS id 0CF5264DDB
+	for <virtualization@archiver.kernel.org>; Fri, 29 Jan 2021 09:22:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0CF5264DDB
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 664F686A14;
-	Fri, 29 Jan 2021 09:19:01 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 75D5F87098;
+	Fri, 29 Jan 2021 09:22:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NrHZbdZQuyDA; Fri, 29 Jan 2021 09:19:00 +0000 (UTC)
+	with ESMTP id K8PM-gjfml4O; Fri, 29 Jan 2021 09:22:11 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id A81B386A02;
-	Fri, 29 Jan 2021 09:19:00 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 76B808708C;
+	Fri, 29 Jan 2021 09:22:11 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7C322C0FA8;
-	Fri, 29 Jan 2021 09:19:00 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BDD34C08A1
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 62600C0FA8;
+	Fri, 29 Jan 2021 09:22:11 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2248FC08A1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Jan 2021 09:18:58 +0000 (UTC)
+ Fri, 29 Jan 2021 09:22:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id AA4F187307
+ by whitealder.osuosl.org (Postfix) with ESMTP id 1685987098
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Jan 2021 09:18:58 +0000 (UTC)
+ Fri, 29 Jan 2021 09:22:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BdTk+uo9MSyc
+ with ESMTP id hX7XzWPWPXQx
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Jan 2021 09:18:57 +0000 (UTC)
+ Fri, 29 Jan 2021 09:22:09 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 8540987302
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id C42508708C
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Jan 2021 09:18:57 +0000 (UTC)
+ Fri, 29 Jan 2021 09:22:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1611911936;
+ s=mimecast20190719; t=1611912127;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=gBiMzqF4ldVHdPCVdvTe25OGWfu60cgEQJVVkz3Qdhk=;
- b=gUkd8SOwgglwhMJzzQnXTWGDPjpS3m7IJiXqgXH7C4yqseW33qirRgJ2CfdKyfSbNDDbRy
- sitie3nicoHfU60OqOOAyC7xRItc2GaCBCu2/alc8POUzqQMWcVHk9W1VjHVyP2j8uaIAs
- N4WySfz18BTjsxmeMyBKbp6yl0BAmBA=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-423-tWworg6cMpurGp0UkWej5g-1; Fri, 29 Jan 2021 04:18:54 -0500
-X-MC-Unique: tWworg6cMpurGp0UkWej5g-1
-Received: by mail-ed1-f71.google.com with SMTP id u26so3722743edv.18
+ bh=jY8FyDpLqcLWFmfjZij8pPOXIS4EA/lvfqNuCzUfJtw=;
+ b=Am7Z8gh3gW+Y+dETaciTVojCB7aUlGjbs8xPFjMrkZFwR+uKXLxsT7oLh2/VCHAVk0pjnq
+ cYbVfS4CgCgIkw4EiTcl8hmCSMt0OTas24d9Hk3AnGJxej0X1gpTL4VwlSxpGLQ2NVWsf8
+ ZNROCZ+hz/E7sr3TGsLtgFWaf9p++Bk=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-512-2dOqNajWN7O8d5EeiIXPmg-1; Fri, 29 Jan 2021 04:22:03 -0500
+X-MC-Unique: 2dOqNajWN7O8d5EeiIXPmg-1
+Received: by mail-ej1-f69.google.com with SMTP id d15so3640453ejc.21
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Jan 2021 01:18:54 -0800 (PST)
+ Fri, 29 Jan 2021 01:22:03 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=gBiMzqF4ldVHdPCVdvTe25OGWfu60cgEQJVVkz3Qdhk=;
- b=Igum3ztvnPJZhOZFWkTPXvn8/zJ5f7PBC+p5daQMyipA+uJD6eZ4HCNZCyG7biWYPJ
- Nu1UpCgAbWbIs+8Miw0VLGCnX+ipQtEVcaO4T9hSb/ScM9PEwES54P0xprIkErp/y27v
- dXluvq+DqYl1sA5uLfjgsl6G+qCd19ijfcQ+tJYJv2yehHPesEiqshwZxE/Fvi7vmcZl
- bgJjGfYQDORCf7KlDFbYi1l60BeUdYT0VWCF6zsNYDEzTaRySb+O3bJXfQxsZMmtKYeC
- 1XE1TRk15bg9gTMD4ek+VxDZvnsM/EG+lLHW+OTFE/gEktGK57MAx9WIDfNNHfCBZpNS
- Z06A==
-X-Gm-Message-State: AOAM5319IzJYRHVm4kD6Ia7L8RN5AkPo4NDRvejKyAJ96NGhNE+Fmc70
- 4ahJDoXjZegu6b62DN1HQdXxBWkIcdXuGtG4Ep+4s+Gkl+r8eFCIjbfvI797j66wSn+gwCBjjdb
- Vman0jM04D/j+4rXz5euim54des+W1tnDkqPdV+J36g==
-X-Received: by 2002:a05:6402:2c5:: with SMTP id
- b5mr4212993edx.258.1611911933289; 
- Fri, 29 Jan 2021 01:18:53 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxv70UsNPlttHGeVr2Utze3TPdP0/C2Ahli6ZoBUqAlIj5guXO9TEAHWS9puKSLQ1oETd/nlw==
-X-Received: by 2002:a05:6402:2c5:: with SMTP id
- b5mr4212974edx.258.1611911933077; 
- Fri, 29 Jan 2021 01:18:53 -0800 (PST)
+ :mime-version:content-disposition:in-reply-to;
+ bh=jY8FyDpLqcLWFmfjZij8pPOXIS4EA/lvfqNuCzUfJtw=;
+ b=Jry99TdhTdtjeIeD2aqtTzdJfu/mCLQD0VO39AX3jiHqG147m8GWopUO4avuvF9IuX
+ HyqI4pyPZxKZbhYO6oaCkLNZErcWFnmrL9kqK6QSQkbrevDP9QGBUotH9Zxe3prY4oR+
+ puCVMNZE0HolGZ7AdUWRKoFaPMGLAmUAMlL5ZtTQc7/h8OUa7bG3EX+565eWuc3F4fhO
+ wMihQPLb0Ud3wv63t5EsLkknAepaJGpPYoVOXkusCnGQ8KIupMrrHtW7POC/uLI3jTw8
+ rUR5eJeUQtxRpYiaRgYzmKaFFSn/YWIfY7rlCtRhy/Z49PRtHoyKpuoxvjW5e+7l6qpq
+ Kv5Q==
+X-Gm-Message-State: AOAM5322FkORYNtutQq4s+0s5QJEp5ja3RPa0DtuH+UvMbiWUptWYxfw
+ giYPVSfzF7DcTQys5m5KEKKZ35y+NLEJIE1iijTg/3RQ9yaIfkrk6cvFopDzNewHgrrCBt7SGQ8
+ x41Cvu5C+3N0S5hlCcA1Y/jRz0kL6ocdX/AlglIiy9Q==
+X-Received: by 2002:a05:6402:1a57:: with SMTP id
+ bf23mr4051388edb.183.1611912122336; 
+ Fri, 29 Jan 2021 01:22:02 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzaOr0zZ9BCjy26IVAs+XU9b6i/n0E03C+Iwjgswvejm9cT+cXF6klByXm9N/eedm5M6+RQ4w==
+X-Received: by 2002:a05:6402:1a57:: with SMTP id
+ bf23mr4051377edb.183.1611912122157; 
+ Fri, 29 Jan 2021 01:22:02 -0800 (PST)
 Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
  [79.34.249.199])
- by smtp.gmail.com with ESMTPSA id s1sm3578043ejx.25.2021.01.29.01.18.51
+ by smtp.gmail.com with ESMTPSA id z20sm4290868edx.15.2021.01.29.01.22.00
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 29 Jan 2021 01:18:52 -0800 (PST)
-Date: Fri, 29 Jan 2021 10:18:50 +0100
+ Fri, 29 Jan 2021 01:22:01 -0800 (PST)
+Date: Fri, 29 Jan 2021 10:21:58 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC v2 02/10] vringh: add 'iotlb_lock' to synchronize
- iotlb accesses
-Message-ID: <20210129091850.gatf3ih3knw2p4l4@steredhat>
-References: <20210128144127.113245-1-sgarzare@redhat.com>
- <20210128144127.113245-3-sgarzare@redhat.com>
- <017f6e69-b2ec-aed0-5920-a389199e4cf9@redhat.com>
+To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+Subject: Re: [RFC PATCH v3 03/13] af_vsock: implement SEQPACKET rx loop
+Message-ID: <20210129092158.tm2bdwpqufsneaxw@steredhat>
+References: <20210125110903.597155-1-arseny.krasnov@kaspersky.com>
+ <20210125111239.598377-1-arseny.krasnov@kaspersky.com>
+ <20210128165518.ho3csm5u7v5pnwnd@steredhat>
+ <5e000f18-1457-068d-10c5-0a349c938497@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <017f6e69-b2ec-aed0-5920-a389199e4cf9@redhat.com>
+In-Reply-To: <5e000f18-1457-068d-10c5-0a349c938497@kaspersky.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Laurent Vivier <lvivier@redhat.com>, Max Gurtovoy <mgurtovoy@nvidia.com>,
- kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Xie Yongji <xieyongji@bytedance.com>, Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Andra Paraschiv <andraprs@amazon.com>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jeff Vander Stoep <jeffv@google.com>,
+ "stsp2@yandex.ru" <stsp2@yandex.ru>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "oxffffaa@gmail.com" <oxffffaa@gmail.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,82 +131,147 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCBKYW4gMjksIDIwMjEgYXQgMDM6NDM6NDBQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPgo+T24gMjAyMS8xLzI4IOS4i+WNiDEwOjQxLCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6
-Cj4+VXN1YWxseSBpb3RsYiBhY2Nlc3NlcyBhcmUgc3luY2hyb25pemVkIHdpdGggYSBzcGlubG9j
-ay4KPj5MZXQncyByZXF1ZXN0IGl0IGFzIGEgbmV3IHBhcmFtZXRlciBpbiB2cmluZ2hfc2V0X2lv
-dGxiKCkgYW5kCj4+aG9sZCBpdCB3aGVuIHdlIG5hdmlnYXRlIHRoZSBpb3RsYiBpbiBpb3RsYl90
-cmFuc2xhdGUoKSB0byBhdm9pZAo+PnJhY2UgY29uZGl0aW9ucyB3aXRoIGFueSBuZXcgYWRkaXRp
-b25zL2RlbGV0aW9ucyBvZiByYW5nZXMgZnJvbQo+PnRoZSBpb2x0Yi4KPgo+Cj5QYXRjaCBsb29r
-cyBmaW5lIGJ1dCBJIHdvbmRlciBpZiB0aGlzIGlzIHRoZSBiZXN0IGFwcHJvYWNoIGNvbXBhcmlu
-ZyAKPnRvIGRvIGxvY2tpbmcgYnkgdGhlIGNhbGxlci4KCkluaXRpYWxseSBJIHRyaWVkIHRvIGhv
-bGQgdGhlIGxvY2sgaW4gdGhlIHZkcGFzaW1fYmxrX3dvcmsoKSwgYnV0IHNpbmNlCndlIGhhdmUg
-YSBsb3Qgb2YgZGlmZmVyZW50IGZ1bmN0aW9ucyBmb3IgdnJpbmdoLCBJIG9wdGVkIHRvIHRha2Ug
-dGhlIApsb2NrIGF0IHRoZSBiZWdpbm5pbmcgYW5kIHJlbGVhc2UgaXQgYXQgdGhlIGVuZC4KQWxz
-byBiZWNhdXNlIHNldmVyYWwgdGltZXMgSSB3ZW50IHRvIHNlZSBpZiB0aGF0IGNhbGwgdXNlZCAK
-aW90bGJfdHJhbnNsYXRlIG9yIG5vdC4KClRoaXMgY291bGQgYmUgYSBwcm9ibGVtIGZvciBleGFt
-cGxlIGlmIHdlIGhhdmUgbXVsdGlwbGUgd29ya2VycyB0byAKaGFuZGxlIG11bHRpcGxlIHF1ZXVl
-cy4KCkFsc28sIHNvbWUgZnVuY3Rpb25zIGFyZSBxdWl0ZSBsb25nIChlLmcuIHZyaW5naF9nZXRk
-ZXNjX2lvdGxiKSBhbmQgCmhvbGRpbmcgdGhlIGxvY2sgZm9yIHRoYXQgbG9uZyBjb3VsZCByZWR1
-Y2UgcGFyYWxsZWxpc20uCgpGb3IgdGhlc2UgcmVhc29ucyBJIHRob3VnaHQgaXQgd2FzIGJldHRl
-ciB0byBoaWRlIGV2ZXJ5dGhpbmcgZnJvbSB0aGUgCmNhbGxlciB3aG8gZG9lc24ndCBoYXZlIHRv
-IHdvcnJ5IGFib3V0IHdoaWNoIGZ1bmN0aW9uIGNhbGxzIAppb3RsYl90cmFuc2xhdGUoKSBhbmQg
-dGh1cyBob2xkIHRoZSBsb2NrLgoKVGhhbmtzLApTdGVmYW5vCgo+Cj5UaGFua3MKPgo+Cj4+Cj4+
-U2lnbmVkLW9mZi1ieTogU3RlZmFubyBHYXJ6YXJlbGxhIDxzZ2FyemFyZUByZWRoYXQuY29tPgo+
-Pi0tLQo+PiAgaW5jbHVkZS9saW51eC92cmluZ2guaCAgICAgICAgICAgfCA2ICsrKysrLQo+PiAg
-ZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmMgfCAzICsrLQo+PiAgZHJpdmVycy92aG9z
-dC92cmluZ2guYyAgICAgICAgICAgfCA5ICsrKysrKysrLQo+PiAgMyBmaWxlcyBjaGFuZ2VkLCAx
-NSBpbnNlcnRpb25zKCspLCAzIGRlbGV0aW9ucygtKQo+Pgo+PmRpZmYgLS1naXQgYS9pbmNsdWRl
-L2xpbnV4L3ZyaW5naC5oIGIvaW5jbHVkZS9saW51eC92cmluZ2guaAo+PmluZGV4IDU5YmQ1MGY5
-OTI5MS4uOWMwNzc4NjNjOGY2IDEwMDY0NAo+Pi0tLSBhL2luY2x1ZGUvbGludXgvdnJpbmdoLmgK
-Pj4rKysgYi9pbmNsdWRlL2xpbnV4L3ZyaW5naC5oCj4+QEAgLTQ2LDYgKzQ2LDkgQEAgc3RydWN0
-IHZyaW5naCB7Cj4+ICAJLyogSU9UTEIgZm9yIHRoaXMgdnJpbmcgKi8KPj4gIAlzdHJ1Y3Qgdmhv
-c3RfaW90bGIgKmlvdGxiOwo+PisJLyogc3BpbmxvY2sgdG8gc3luY2hyb25pemUgSU9UTEIgYWNj
-ZXNzZXMgKi8KPj4rCXNwaW5sb2NrX3QgKmlvdGxiX2xvY2s7Cj4+Kwo+PiAgCS8qIFRoZSBmdW5j
-dGlvbiB0byBjYWxsIHRvIG5vdGlmeSB0aGUgZ3Vlc3QgYWJvdXQgYWRkZWQgYnVmZmVycyAqLwo+
-PiAgCXZvaWQgKCpub3RpZnkpKHN0cnVjdCB2cmluZ2ggKik7Cj4+ICB9Owo+PkBAIC0yNTgsNyAr
-MjYxLDggQEAgc3RhdGljIGlubGluZSBfX3ZpcnRpbzY0IGNwdV90b192cmluZ2g2NChjb25zdCBz
-dHJ1Y3QgdnJpbmdoICp2cmgsIHU2NCB2YWwpCj4+ICAjaWYgSVNfUkVBQ0hBQkxFKENPTkZJR19W
-SE9TVF9JT1RMQikKPj4tdm9pZCB2cmluZ2hfc2V0X2lvdGxiKHN0cnVjdCB2cmluZ2ggKnZyaCwg
-c3RydWN0IHZob3N0X2lvdGxiICppb3RsYik7Cj4+K3ZvaWQgdnJpbmdoX3NldF9pb3RsYihzdHJ1
-Y3QgdnJpbmdoICp2cmgsIHN0cnVjdCB2aG9zdF9pb3RsYiAqaW90bGIsCj4+KwkJICAgICAgc3Bp
-bmxvY2tfdCAqaW90bGJfbG9jayk7Cj4+ICBpbnQgdnJpbmdoX2luaXRfaW90bGIoc3RydWN0IHZy
-aW5naCAqdnJoLCB1NjQgZmVhdHVyZXMsCj4+ICAJCSAgICAgIHVuc2lnbmVkIGludCBudW0sIGJv
-b2wgd2Vha19iYXJyaWVycywKPj5kaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3Zk
-cGFfc2ltLmMgYi9kcml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW0uYwo+PmluZGV4IDIxODNh
-ODMzZmNmNC4uNTMyMzg5ODk3MTNkIDEwMDY0NAo+Pi0tLSBhL2RyaXZlcnMvdmRwYS92ZHBhX3Np
-bS92ZHBhX3NpbS5jCj4+KysrIGIvZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmMKPj5A
-QCAtMjg0LDcgKzI4NCw4IEBAIHN0cnVjdCB2ZHBhc2ltICp2ZHBhc2ltX2NyZWF0ZShzdHJ1Y3Qg
-dmRwYXNpbV9kZXZfYXR0ciAqZGV2X2F0dHIpCj4+ICAJCWdvdG8gZXJyX2lvbW11Owo+PiAgCWZv
-ciAoaSA9IDA7IGkgPCBkZXZfYXR0ci0+bnZxczsgaSsrKQo+Pi0JCXZyaW5naF9zZXRfaW90bGIo
-JnZkcGFzaW0tPnZxc1tpXS52cmluZywgdmRwYXNpbS0+aW9tbXUpOwo+PisJCXZyaW5naF9zZXRf
-aW90bGIoJnZkcGFzaW0tPnZxc1tpXS52cmluZywgdmRwYXNpbS0+aW9tbXUsCj4+KwkJCQkgJnZk
-cGFzaW0tPmlvbW11X2xvY2spOwo+PiAgCXJldCA9IGlvdmFfY2FjaGVfZ2V0KCk7Cj4+ICAJaWYg
-KHJldCkKPj5kaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC92cmluZ2guYyBiL2RyaXZlcnMvdmhv
-c3QvdnJpbmdoLmMKPj5pbmRleCA4NWQ4NWZhYmEwNTguLmY2ODEyMjcwNTcxOSAxMDA2NDQKPj4t
-LS0gYS9kcml2ZXJzL3Zob3N0L3ZyaW5naC5jCj4+KysrIGIvZHJpdmVycy92aG9zdC92cmluZ2gu
-Ywo+PkBAIC0xMDc0LDYgKzEwNzQsOCBAQCBzdGF0aWMgaW50IGlvdGxiX3RyYW5zbGF0ZShjb25z
-dCBzdHJ1Y3QgdnJpbmdoICp2cmgsCj4+ICAJaW50IHJldCA9IDA7Cj4+ICAJdTY0IHMgPSAwOwo+
-PisJc3Bpbl9sb2NrKHZyaC0+aW90bGJfbG9jayk7Cj4+Kwo+PiAgCXdoaWxlIChsZW4gPiBzKSB7
-Cj4+ICAJCXU2NCBzaXplLCBwYSwgcGZuOwo+PkBAIC0xMTAzLDYgKzExMDUsOCBAQCBzdGF0aWMg
-aW50IGlvdGxiX3RyYW5zbGF0ZShjb25zdCBzdHJ1Y3QgdnJpbmdoICp2cmgsCj4+ICAJCSsrcmV0
-Owo+PiAgCX0KPj4rCXNwaW5fdW5sb2NrKHZyaC0+aW90bGJfbG9jayk7Cj4+Kwo+PiAgCXJldHVy
-biByZXQ7Cj4+ICB9Cj4+QEAgLTEyNjIsMTAgKzEyNjYsMTMgQEAgRVhQT1JUX1NZTUJPTCh2cmlu
-Z2hfaW5pdF9pb3RsYik7Cj4+ICAgKiB2cmluZ2hfc2V0X2lvdGxiIC0gaW5pdGlhbGl6ZSBhIHZy
-aW5naCBmb3IgYSByaW5nIHdpdGggSU9UTEIuCj4+ICAgKiBAdnJoOiB0aGUgdnJpbmcKPj4gICAq
-IEBpb3RsYjogaW90bGIgYXNzb2NpYXRlZCB3aXRoIHRoaXMgdnJpbmcKPj4rICogQGlvdGxiX2xv
-Y2s6IHNwaW5sb2NrIHRvIHN5bmNocm9uaXplIHRoZSBpb3RsYiBhY2Nlc3Nlcwo+PiAgICovCj4+
-LXZvaWQgdnJpbmdoX3NldF9pb3RsYihzdHJ1Y3QgdnJpbmdoICp2cmgsIHN0cnVjdCB2aG9zdF9p
-b3RsYiAqaW90bGIpCj4+K3ZvaWQgdnJpbmdoX3NldF9pb3RsYihzdHJ1Y3QgdnJpbmdoICp2cmgs
-IHN0cnVjdCB2aG9zdF9pb3RsYiAqaW90bGIsCj4+KwkJICAgICAgc3BpbmxvY2tfdCAqaW90bGJf
-bG9jaykKPj4gIHsKPj4gIAl2cmgtPmlvdGxiID0gaW90bGI7Cj4+Kwl2cmgtPmlvdGxiX2xvY2sg
-PSBpb3RsYl9sb2NrOwo+PiAgfQo+PiAgRVhQT1JUX1NZTUJPTCh2cmluZ2hfc2V0X2lvdGxiKTsK
-PgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+On Fri, Jan 29, 2021 at 09:28:49AM +0300, Arseny Krasnov wrote:
+>
+>On 28.01.2021 19:55, Stefano Garzarella wrote:
+>> On Mon, Jan 25, 2021 at 02:12:36PM +0300, Arseny Krasnov wrote:
+>>> This adds receive loop for SEQPACKET. It looks like receive loop for
+>>> SEQPACKET, but there is a little bit difference:
+>>> 1) It doesn't call notify callbacks.
+>>> 2) It doesn't care about 'SO_SNDLOWAT' and 'SO_RCVLOWAT' values, because
+>>>   there is no sense for these values in SEQPACKET case.
+>>> 3) It waits until whole record is received or error is found during
+>>>   receiving.
+>>> 4) It processes and sets 'MSG_TRUNC' flag.
+>>>
+>>> So to avoid extra conditions for two types of socket inside one loop, two
+>>> independent functions were created.
+>>>
+>>> Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+>>> ---
+>>> include/net/af_vsock.h   |   5 ++
+>>> net/vmw_vsock/af_vsock.c | 102 ++++++++++++++++++++++++++++++++++++++-
+>>> 2 files changed, 106 insertions(+), 1 deletion(-)
+>>>
+>>> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+>>> index b1c717286993..46073842d489 100644
+>>> --- a/include/net/af_vsock.h
+>>> +++ b/include/net/af_vsock.h
+>>> @@ -135,6 +135,11 @@ struct vsock_transport {
+>>> 	bool (*stream_is_active)(struct vsock_sock *);
+>>> 	bool (*stream_allow)(u32 cid, u32 port);
+>>>
+>>> +	/* SEQ_PACKET. */
+>>> +	size_t (*seqpacket_seq_get_len)(struct vsock_sock *);
+>>> +	ssize_t (*seqpacket_dequeue)(struct vsock_sock *, struct msghdr *,
+>>> +				     size_t len, int flags);
+>>> +
+>>> 	/* Notification. */
+>>> 	int (*notify_poll_in)(struct vsock_sock *, size_t, bool *);
+>>> 	int (*notify_poll_out)(struct vsock_sock *, size_t, bool *);
+>>> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>>> index 524df8fc84cd..3b266880b7c8 100644
+>>> --- a/net/vmw_vsock/af_vsock.c
+>>> +++ b/net/vmw_vsock/af_vsock.c
+>>> @@ -2006,7 +2006,107 @@ static int __vsock_stream_recvmsg(struct sock *sk, struct msghdr *msg,
+>>> static int __vsock_seqpacket_recvmsg(struct sock *sk, struct msghdr *msg,
+>>> 				     size_t len, int flags)
+>>> {
+>>> -	return -1;
+>>> +	const struct vsock_transport *transport;
+>>> +	const struct iovec *orig_iov;
+>>> +	unsigned long orig_nr_segs;
+>>> +	ssize_t dequeued_total = 0;
+>>> +	struct vsock_sock *vsk;
+>>> +	size_t record_len;
+>>> +	long timeout;
+>>> +	int err = 0;
+>>> +	DEFINE_WAIT(wait);
+>>> +
+>>> +	vsk = vsock_sk(sk);
+>>> +	transport = vsk->transport;
+>>> +
+>>> +	timeout = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
+>>> +	msg->msg_flags &= ~MSG_EOR;
+>> Maybe add a comment about why we need to clear MSG_EOR.
+>>
+>>> +	orig_nr_segs = msg->msg_iter.nr_segs;
+>>> +	orig_iov = msg->msg_iter.iov;
+>>> +
+>>> +	while (1) {
+>>> +		ssize_t dequeued;
+>>> +		s64 ready;
+>>> +
+>>> +		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
+>>> +		ready = vsock_stream_has_data(vsk);
+>>> +
+>>> +		if (ready == 0) {
+>>> +			if (vsock_wait_data(sk, &wait, timeout, NULL, 0)) {
+>>> +				/* In case of any loop break(timeout, signal
+>>> +				 * interrupt or shutdown), we report user that
+>>> +				 * nothing was copied.
+>>> +				 */
+>>> +				dequeued_total = 0;
+>>> +				break;
+>>> +			}
+>>> +			continue;
+>>> +		}
+>>> +
+>>> +		finish_wait(sk_sleep(sk), &wait);
+>>> +
+>>> +		if (ready < 0) {
+>>> +			err = -ENOMEM;
+>>> +			goto out;
+>>> +		}
+>>> +
+>>> +		if (dequeued_total == 0) {
+>>> +			record_len =
+>>> +				transport->seqpacket_seq_get_len(vsk);
+>>> +
+>>> +			if (record_len == 0)
+>>> +				continue;
+>>> +		}
+>>> +
+>>> +		/* 'msg_iter.count' is number of unused bytes in iov.
+>>> +		 * On every copy to iov iterator it is decremented at
+>>> +		 * size of data.
+>>> +		 */
+>>> +		dequeued = transport->seqpacket_dequeue(vsk, msg,
+>>> +					msg->msg_iter.count, flags);
+>>                                          ^
+>>                                          Is this needed or 'msg' can be
+>>                                          used in the transport?
+>Yes, right
+>>> +
+>>> +		if (dequeued < 0) {
+>>> +			dequeued_total = 0;
+>>> +
+>>> +			if (dequeued == -EAGAIN) {
+>>> +				iov_iter_init(&msg->msg_iter, READ,
+>>> +					      orig_iov, orig_nr_segs,
+>>> +					      len);
+>>> +				msg->msg_flags &= ~MSG_EOR;
+>>> +				continue;
+>> Why we need to reset MSG_EOR here?
+>
+>Because if previous attempt to receive record was failed, but
+>
+>MSG_EOR was set, so we clear it for next attempt to get record
+
+Yes, I saw later when I looked at the implementation in the transport.
+
+Maybe better to put a comment saying that seqpacket_dequeue() can set 
+that flag.
+
+Thanks,
+Stefano
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
