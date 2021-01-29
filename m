@@ -2,105 +2,103 @@ Return-Path: <SRS0=XmMV=HA=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
+	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12C2DC433DB
-	for <virtualization@archiver.kernel.org>; Fri, 29 Jan 2021 10:56:03 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13F3FC433DB
+	for <virtualization@archiver.kernel.org>; Fri, 29 Jan 2021 11:04:07 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4B49C64ECF
-	for <virtualization@archiver.kernel.org>; Fri, 29 Jan 2021 10:55:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4B49C64ECF
+	by mail.kernel.org (Postfix) with ESMTPS id 8B05564DFA
+	for <virtualization@archiver.kernel.org>; Fri, 29 Jan 2021 11:04:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8B05564DFA
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id A5C6586AB1;
-	Fri, 29 Jan 2021 10:55:59 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id F21FA87106;
+	Fri, 29 Jan 2021 11:04:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LRTLVsylGyd0; Fri, 29 Jan 2021 10:55:58 +0000 (UTC)
+	with ESMTP id EpImXqNrYtOn; Fri, 29 Jan 2021 11:04:03 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id EAF3086AA4;
-	Fri, 29 Jan 2021 10:55:58 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 0E5A185823;
+	Fri, 29 Jan 2021 11:04:03 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D1EAFC0FA7;
-	Fri, 29 Jan 2021 10:55:58 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 97520C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E9147C0FA7;
+	Fri, 29 Jan 2021 11:04:02 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 05EE6C013A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Jan 2021 10:55:57 +0000 (UTC)
+ Fri, 29 Jan 2021 11:04:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 7D98B86AA4
+ by silver.osuosl.org (Postfix) with ESMTP id EB088228AC
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Jan 2021 10:55:57 +0000 (UTC)
+ Fri, 29 Jan 2021 11:04:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hAAAyl5_1Ojf
+ with ESMTP id b3YvDjGyqdoH
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Jan 2021 10:55:56 +0000 (UTC)
+ Fri, 29 Jan 2021 11:03:58 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 25B1486A94
+ by silver.osuosl.org (Postfix) with ESMTPS id 207FC20390
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Jan 2021 10:55:56 +0000 (UTC)
+ Fri, 29 Jan 2021 11:03:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1611917754;
+ s=mimecast20190719; t=1611918236;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=XWftcXiQm+nogOviCUKyywzv+wx/sp0R6J9AC7Pstoo=;
- b=W3WNhqpHe83i2gF5BtG3P2dd288N5IkBIE2uUJqzsxBAuMI0T/TdRDdbwF8jPYPpF9jnpB
- vxcUk/V7rO3ixvlsoci5zBQIBzk0mIkrn6qecZ+XNJ32gtFcM2Z7jknEuRRQox4x2WsaiN
- 7dFdWQiR8c/+AYv3zBoZndhQ57dYKXk=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-576-jw9CoVmPMy6hkZJAKhnLpQ-1; Fri, 29 Jan 2021 05:55:51 -0500
-X-MC-Unique: jw9CoVmPMy6hkZJAKhnLpQ-1
-Received: by mail-ej1-f70.google.com with SMTP id k3so3741944ejr.16
+ bh=h8jNn1RZu65PFh0teeF8sFRisJ8tiLMNz3mLh0OpgZ0=;
+ b=TGYNUzd0ufd83tnzypS/yvs6ropvMC85DCC7Xj2DhbK35eeWgRHQ+B/gNuMfAgtMBdFgrF
+ rjlU5qmWxLHXF6GmdrXrYZZmO9k6oTECRvYeIIX+23asKwkSF3WKAfHx1y8FUjg1V1BUNX
+ p1V7SWWSIvwr1FO5bryZOxp2u8hPmAM=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-406-kuarBqiMN-G19cuWW2v1qg-1; Fri, 29 Jan 2021 06:03:55 -0500
+X-MC-Unique: kuarBqiMN-G19cuWW2v1qg-1
+Received: by mail-ed1-f71.google.com with SMTP id v19so4731350edx.22
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Jan 2021 02:55:50 -0800 (PST)
+ Fri, 29 Jan 2021 03:03:54 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=XWftcXiQm+nogOviCUKyywzv+wx/sp0R6J9AC7Pstoo=;
- b=B9VD4r0N8XlCbnHp6L2okP8PnwI+4w/F2xzdIrDNy6fsO6nENfwzb2aEkfMgXk0BQI
- DDGqm3LWcpEPfE7SBtgWdu4AiBkFScbJ9fZbxN+Jona33sQt8LoNBf9gAouBy0hJ24gw
- Xadk9X5F8p8z6J7gBNDvKpAjMKnKExNke6GpcvTtqC7xkeV3k8qXArqjiLcUc4QOw/7q
- aQaQ5MnfvKIS1k2mzIQ9wC8cSMGCX9nA42e47bOgRfWV9OY1uBxuZsNCDCJCSW4Db4Ve
- z4k1Vz0wtBe33YUX/wvKW6CyODgcT36TX/y5aXSFTl7x1/GxtDX6XqVDNkRkDSxSTrAv
- G2Wg==
-X-Gm-Message-State: AOAM533gqElb1vVSRxMTy2eHhzjJBaEEG2nWEqPjGeuWnDZQL5Y9F10U
- IMQsXFZ+1eaIgnbi+esCnfomfjmeV9YY8sgsIG0jxbrVgWplqcyFr0dXV3+F257XQo5gDTVi37c
- 1ODZK1+sWRpRgGKdtolXpYsv0Fyytr1yvOjE3kdRBpg==
-X-Received: by 2002:a17:906:4a19:: with SMTP id
- w25mr3916249eju.153.1611917749759; 
- Fri, 29 Jan 2021 02:55:49 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyisY3z4Ew2R/eytJ5ChjJ5KuGRuf51nFfuQ7gRtgRHv233dPug6u8MF3C6/qSNTmtXmRistg==
-X-Received: by 2002:a17:906:4a19:: with SMTP id
- w25mr3916232eju.153.1611917749595; 
- Fri, 29 Jan 2021 02:55:49 -0800 (PST)
+ bh=h8jNn1RZu65PFh0teeF8sFRisJ8tiLMNz3mLh0OpgZ0=;
+ b=qN9s34oM4NQjVrObpRv5KHjDJXJH4nneRnoTRKR14K6gOH367ZaCJLzhVICfKCNdkB
+ 5Xc+m1LHzLmEik+ZK6LSKWAdLsIcqDwpz24deNmoXylfQcPExrRyeHsdDkqE8nInZc2C
+ oQ1VSMS98CaAB7SkIhHqAhTKQchJaTPKHB0K7EiInNjIiUrCs3GXRFv7V21axoSIK1by
+ JeVdKSt8XmWqQWH5S4+zA1e9Dl322Kd7VzPTky8LTeUzjzZulL/R7E9fzKIe2KDnW7U7
+ ClNv1eP85os7XVFh1xDQryNsAthdtQNeh5PPw/ib+7k7lJTlB+lktdqeeUlp9DXr3maK
+ pIvg==
+X-Gm-Message-State: AOAM531ZqgEy1ctJzSUo7VyfqnjhGOJrRlpGp+0GVxWWiDDdoifQCp6k
+ gAFI3bOyz17j6y9Fc7B4iht6eXBfWw8qxpC+RvYqrNEPmCLCZoJpkRnG4ryWZjXnc1o3o5kMTJI
+ AM62fBsTUlgDS3qEJMYe01haZOy6k7r0n1TLLt5dYgQ==
+X-Received: by 2002:aa7:c6cc:: with SMTP id b12mr4373651eds.67.1611918233834; 
+ Fri, 29 Jan 2021 03:03:53 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyb0Lr6bACIBTquxcxynTIuAK83D3avZb9nheN2qG6OQXcB00hyEZVtxym0C22PxoPxlkOgTQ==
+X-Received: by 2002:aa7:c6cc:: with SMTP id b12mr4373629eds.67.1611918233633; 
+ Fri, 29 Jan 2021 03:03:53 -0800 (PST)
 Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
  [79.34.249.199])
- by smtp.gmail.com with ESMTPSA id r26sm4675315edc.95.2021.01.29.02.55.48
+ by smtp.gmail.com with ESMTPSA id s18sm4582235edw.66.2021.01.29.03.03.52
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 29 Jan 2021 02:55:49 -0800 (PST)
-Date: Fri, 29 Jan 2021 11:55:46 +0100
+ Fri, 29 Jan 2021 03:03:52 -0800 (PST)
+Date: Fri, 29 Jan 2021 12:03:50 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [RFC PATCH v3 09/13] virtio/vsock: add SEQPACKET receive logic
-Message-ID: <20210129105546.ldose6xjjjh3crye@steredhat>
+Subject: Re: [RFC PATCH v3 10/13] virtio/vsock: rest of SOCK_SEQPACKET support
+Message-ID: <20210129110350.p5h2wtb2xj42rbm4@steredhat>
 References: <20210125110903.597155-1-arseny.krasnov@kaspersky.com>
- <20210125111444.599211-1-arseny.krasnov@kaspersky.com>
+ <20210125111529.599448-1-arseny.krasnov@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <20210125111444.599211-1-arseny.krasnov@kaspersky.com>
+In-Reply-To: <20210125111529.599448-1-arseny.krasnov@kaspersky.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -111,8 +109,8 @@ Cc: Andra Paraschiv <andraprs@amazon.com>, kvm@vger.kernel.org,
  stsp2@yandex.ru, linux-kernel@vger.kernel.org,
  virtualization@lists.linux-foundation.org, oxffffaa@gmail.com,
  netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
- Jakub Kicinski <kuba@kernel.org>, Colin Ian King <colin.king@canonical.com>,
- "David S. Miller" <davem@davemloft.net>
+ Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -129,170 +127,214 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jan 25, 2021 at 02:14:41PM +0300, Arseny Krasnov wrote:
->This modifies current receive logic for SEQPACKET support:
->1) Inserts 'SEQ_BEGIN' packet to socket's rx queue.
->2) Inserts 'RW' packet to socket's rx queue, but without merging with
->   buffer of last packet in queue.
->3) Performs check for packet and socket types on receive(if mismatch,
->   then reset connection).
+On Mon, Jan 25, 2021 at 02:15:26PM +0300, Arseny Krasnov wrote:
+>This adds rest of logic for SEQPACKET:
+>1) Shared functions for packet sending now set valid type of packet
+>   according socket type.
+>2) SEQPACKET specific function like SEQ_BEGIN send and data dequeue.
+>3) TAP support for SEQPACKET is not so easy if it is necessary to
+>send whole record to TAP interface. This could be done by allocating
+>new packet when whole record is received, data of record must be
+>copied to TAP packet.
 >
 >Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
 >---
-> net/vmw_vsock/virtio_transport_common.c | 79 ++++++++++++++++++-------
-> 1 file changed, 58 insertions(+), 21 deletions(-)
+> include/linux/virtio_vsock.h            |  7 ++++
+> net/vmw_vsock/virtio_transport_common.c | 55 +++++++++++++++++++++----
+> 2 files changed, 55 insertions(+), 7 deletions(-)
+>
+>diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+>index af8705ea8b95..ad9783df97c9 100644
+>--- a/include/linux/virtio_vsock.h
+>+++ b/include/linux/virtio_vsock.h
+>@@ -84,7 +84,14 @@ virtio_transport_dgram_dequeue(struct vsock_sock *vsk,
+> 			       struct msghdr *msg,
+> 			       size_t len, int flags);
+>
+>+bool virtio_transport_seqpacket_seq_send_len(struct vsock_sock *vsk, size_t len);
+> size_t virtio_transport_seqpacket_seq_get_len(struct vsock_sock *vsk);
+>+ssize_t
+>+virtio_transport_seqpacket_dequeue(struct vsock_sock *vsk,
+>+				   struct msghdr *msg,
+>+				   size_t len,
+>+				   int type);
+>+
+> s64 virtio_transport_stream_has_data(struct vsock_sock *vsk);
+> s64 virtio_transport_stream_has_space(struct vsock_sock *vsk);
 >
 >diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index dcce35d7b462..90f9feef9d8f 100644
+>index 90f9feef9d8f..fab14679ca7b 100644
 >--- a/net/vmw_vsock/virtio_transport_common.c
 >+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -397,6 +397,14 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
-> 	return err;
+>@@ -139,6 +139,7 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
+> 		break;
+> 	case VIRTIO_VSOCK_OP_CREDIT_UPDATE:
+> 	case VIRTIO_VSOCK_OP_CREDIT_REQUEST:
+>+	case VIRTIO_VSOCK_OP_SEQ_BEGIN:
+> 		hdr->op = cpu_to_le16(AF_VSOCK_OP_CONTROL);
+> 		break;
+> 	default:
+>@@ -157,6 +158,10 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
+>
+> void virtio_transport_deliver_tap_pkt(struct virtio_vsock_pkt *pkt)
+> {
+>+	/* TODO: implement tap support for SOCK_SEQPACKET. */
+
+I think we should do this before merging SOCK_SEQPACKET support because 
+it can be very useful to use tcpdump to figure out what's going on, do 
+you think it's complicated?
+
+>+	if (le16_to_cpu(pkt->hdr.type) == VIRTIO_VSOCK_TYPE_SEQPACKET)
+>+		return;
+>+
+> 	if (pkt->tap_delivered)
+> 		return;
+>
+>@@ -405,6 +410,19 @@ static u16 virtio_transport_get_type(struct sock *sk)
+> 		return VIRTIO_VSOCK_TYPE_SEQPACKET;
 > }
 >
->+static u16 virtio_transport_get_type(struct sock *sk)
+>+bool virtio_transport_seqpacket_seq_send_len(struct vsock_sock *vsk, size_t len)
 >+{
->+	if (sk->sk_type == SOCK_STREAM)
->+		return VIRTIO_VSOCK_TYPE_STREAM;
->+	else
->+		return VIRTIO_VSOCK_TYPE_SEQPACKET;
+>+	struct virtio_vsock_pkt_info info = {
+>+		.type = VIRTIO_VSOCK_TYPE_SEQPACKET,
+>+		.op = VIRTIO_VSOCK_OP_SEQ_BEGIN,
+>+		.vsk = vsk,
+>+		.flags = len
+>+	};
+>+
+>+	return virtio_transport_send_pkt_info(vsk, &info);
 >+}
+>+EXPORT_SYMBOL_GPL(virtio_transport_seqpacket_seq_send_len);
 >+
 > static inline void virtio_transport_del_n_free_pkt(struct virtio_vsock_pkt *pkt)
 > {
 > 	list_del(&pkt->list);
->@@ -1050,39 +1058,49 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
-> 			      struct virtio_vsock_pkt *pkt)
+>@@ -576,6 +594,18 @@ virtio_transport_stream_dequeue(struct vsock_sock *vsk,
+> }
+> EXPORT_SYMBOL_GPL(virtio_transport_stream_dequeue);
+>
+>+ssize_t
+>+virtio_transport_seqpacket_dequeue(struct vsock_sock *vsk,
+>+				   struct msghdr *msg,
+>+				   size_t len, int flags)
+>+{
+>+	if (flags & MSG_PEEK)
+>+		return -EOPNOTSUPP;
+>+
+>+	return virtio_transport_seqpacket_do_dequeue(vsk, msg, len);
+>+}
+>+EXPORT_SYMBOL_GPL(virtio_transport_seqpacket_dequeue);
+>+
+> int
+> virtio_transport_dgram_dequeue(struct vsock_sock *vsk,
+> 			       struct msghdr *msg,
+>@@ -659,14 +689,15 @@ EXPORT_SYMBOL_GPL(virtio_transport_do_socket_init);
+> void virtio_transport_notify_buffer_size(struct vsock_sock *vsk, u64 *val)
 > {
 > 	struct virtio_vsock_sock *vvs = vsk->trans;
->-	bool can_enqueue, free_pkt = false;
->+	bool free_pkt = false;
+>+	int type;
 >
-> 	pkt->len = le32_to_cpu(pkt->hdr.len);
-> 	pkt->off = 0;
+> 	if (*val > VIRTIO_VSOCK_MAX_BUF_SIZE)
+> 		*val = VIRTIO_VSOCK_MAX_BUF_SIZE;
 >
-> 	spin_lock_bh(&vvs->rx_lock);
+> 	vvs->buf_alloc = *val;
 >
->-	can_enqueue = virtio_transport_inc_rx_pkt(vvs, pkt);
->-	if (!can_enqueue) {
->+	if (!virtio_transport_inc_rx_pkt(vvs, pkt)) {
+>-	virtio_transport_send_credit_update(vsk, VIRTIO_VSOCK_TYPE_STREAM,
+>-					    NULL);
+>+	type = virtio_transport_get_type(sk_vsock(vsk));
 
-This is an unnecessary change, it should go in another patch.
+How about setting the type in virtio_transport_send_pkt_info(), so we 
+can avoid all these changes?
 
-> 		free_pkt = true;
-> 		goto out;
-> 	}
+
+>+	virtio_transport_send_credit_update(vsk, type, NULL);
+> }
+> EXPORT_SYMBOL_GPL(virtio_transport_notify_buffer_size);
 >
->-	/* Try to copy small packets into the buffer of last packet queued,
->-	 * to avoid wasting memory queueing the entire buffer with a small
->-	 * payload.
->-	 */
->-	if (pkt->len <= GOOD_COPY_LEN && !list_empty(&vvs->rx_queue)) {
->-		struct virtio_vsock_pkt *last_pkt;
->+	switch (le16_to_cpu(pkt->hdr.type)) {
->+	case VIRTIO_VSOCK_TYPE_STREAM: {
-
-We already checked the 'type' in virtio_transport_recv_pkt(), so there 
-is no need to this switch, I think you can simply add
-
-        if (le16_to_cpu(pkt->hdr.type) == VIRTIO_VSOCK_TYPE_STREAM) {
-
->+		/* Try to copy small packets into the buffer of last packet queued,
->+		 * to avoid wasting memory queueing the entire buffer with a small
->+		 * payload.
->+		 */
->+		if (pkt->len <= GOOD_COPY_LEN && !list_empty(&vvs->rx_queue)) {
->+			struct virtio_vsock_pkt *last_pkt;
+>@@ -793,10 +824,11 @@ int virtio_transport_connect(struct vsock_sock *vsk)
+> {
+> 	struct virtio_vsock_pkt_info info = {
+> 		.op = VIRTIO_VSOCK_OP_REQUEST,
+>-		.type = VIRTIO_VSOCK_TYPE_STREAM,
+> 		.vsk = vsk,
+> 	};
 >
->-		last_pkt = list_last_entry(&vvs->rx_queue,
->-					   struct virtio_vsock_pkt, list);
->+			last_pkt = list_last_entry(&vvs->rx_queue,
->+						   struct virtio_vsock_pkt, list);
->
->-		/* If there is space in the last packet queued, we copy the
->-		 * new packet in its buffer.
->-		 */
->-		if (pkt->len <= last_pkt->buf_len - last_pkt->len) {
->-			memcpy(last_pkt->buf + last_pkt->len, pkt->buf,
->-			       pkt->len);
->-			last_pkt->len += pkt->len;
->-			free_pkt = true;
->-			goto out;
->+			/* If there is space in the last packet queued, we copy the
->+			 * new packet in its buffer.
->+			 */
->+			if (pkt->len <= last_pkt->buf_len - last_pkt->len) {
->+				memcpy(last_pkt->buf + last_pkt->len, pkt->buf,
->+				       pkt->len);
->+				last_pkt->len += pkt->len;
->+				free_pkt = true;
->+				goto out;
->+			}
-> 		}
+>+	info.type = virtio_transport_get_type(sk_vsock(vsk));
 >+
->+		break;
->+	}
->+	case VIRTIO_VSOCK_TYPE_SEQPACKET: {
->+		break;
->+	}
->+	default:
->+		goto out;
-> 	}
+> 	return virtio_transport_send_pkt_info(vsk, &info);
+> }
+> EXPORT_SYMBOL_GPL(virtio_transport_connect);
+>@@ -805,7 +837,6 @@ int virtio_transport_shutdown(struct vsock_sock *vsk, int mode)
+> {
+> 	struct virtio_vsock_pkt_info info = {
+> 		.op = VIRTIO_VSOCK_OP_SHUTDOWN,
+>-		.type = VIRTIO_VSOCK_TYPE_STREAM,
+> 		.flags = (mode & RCV_SHUTDOWN ?
+> 			  VIRTIO_VSOCK_SHUTDOWN_RCV : 0) |
+> 			 (mode & SEND_SHUTDOWN ?
+>@@ -813,6 +844,8 @@ int virtio_transport_shutdown(struct vsock_sock *vsk, int mode)
+> 		.vsk = vsk,
+> 	};
 >
-> 	list_add_tail(&pkt->list, &vvs->rx_queue);
->@@ -1101,6 +1119,14 @@ virtio_transport_recv_connected(struct sock *sk,
-> 	int err = 0;
->
-> 	switch (le16_to_cpu(pkt->hdr.op)) {
->+	case VIRTIO_VSOCK_OP_SEQ_BEGIN: {
->+		struct virtio_vsock_sock *vvs = vsk->trans;
+>+	info.type = virtio_transport_get_type(sk_vsock(vsk));
 >+
->+		spin_lock_bh(&vvs->rx_lock);
->+		list_add_tail(&pkt->list, &vvs->rx_queue);
->+		spin_unlock_bh(&vvs->rx_lock);
->+		return err;
->+	}
-
-Are there any problems if we use virtio_transport_recv_enqueue() in this 
-case?
-
-> 	case VIRTIO_VSOCK_OP_RW:
-> 		virtio_transport_recv_enqueue(vsk, pkt);
-> 		sk->sk_data_ready(sk);
->@@ -1247,6 +1273,12 @@ virtio_transport_recv_listen(struct sock *sk, struct virtio_vsock_pkt *pkt,
-> 	return 0;
+> 	return virtio_transport_send_pkt_info(vsk, &info);
+> }
+> EXPORT_SYMBOL_GPL(virtio_transport_shutdown);
+>@@ -834,12 +867,18 @@ virtio_transport_stream_enqueue(struct vsock_sock *vsk,
+> {
+> 	struct virtio_vsock_pkt_info info = {
+> 		.op = VIRTIO_VSOCK_OP_RW,
+>-		.type = VIRTIO_VSOCK_TYPE_STREAM,
+> 		.msg = msg,
+> 		.pkt_len = len,
+> 		.vsk = vsk,
+>+		.flags = 0,
+> 	};
+>
+>+	info.type = virtio_transport_get_type(sk_vsock(vsk));
+>+
+>+	if (info.type == VIRTIO_VSOCK_TYPE_SEQPACKET &&
+>+	    msg->msg_flags & MSG_EOR)
+>+		info.flags |= VIRTIO_VSOCK_RW_EOR;
+>+
+> 	return virtio_transport_send_pkt_info(vsk, &info);
+> }
+> EXPORT_SYMBOL_GPL(virtio_transport_stream_enqueue);
+>@@ -857,7 +896,6 @@ static int virtio_transport_reset(struct vsock_sock *vsk,
+> {
+> 	struct virtio_vsock_pkt_info info = {
+> 		.op = VIRTIO_VSOCK_OP_RST,
+>-		.type = VIRTIO_VSOCK_TYPE_STREAM,
+> 		.reply = !!pkt,
+> 		.vsk = vsk,
+> 	};
+>@@ -866,6 +904,8 @@ static int virtio_transport_reset(struct vsock_sock *vsk,
+> 	if (pkt && le16_to_cpu(pkt->hdr.op) == VIRTIO_VSOCK_OP_RST)
+> 		return 0;
+>
+>+	info.type = virtio_transport_get_type(sk_vsock(vsk));
+>+
+> 	return virtio_transport_send_pkt_info(vsk, &info);
 > }
 >
->+static bool virtio_transport_valid_type(u16 type)
->+{
->+	return (type == VIRTIO_VSOCK_TYPE_STREAM) ||
->+	       (type == VIRTIO_VSOCK_TYPE_SEQPACKET);
->+}
+>@@ -1177,13 +1217,14 @@ virtio_transport_send_response(struct vsock_sock *vsk,
+> {
+> 	struct virtio_vsock_pkt_info info = {
+> 		.op = VIRTIO_VSOCK_OP_RESPONSE,
+>-		.type = VIRTIO_VSOCK_TYPE_STREAM,
+> 		.remote_cid = le64_to_cpu(pkt->hdr.src_cid),
+> 		.remote_port = le32_to_cpu(pkt->hdr.src_port),
+> 		.reply = true,
+> 		.vsk = vsk,
+> 	};
+>
+>+	info.type = virtio_transport_get_type(sk_vsock(vsk));
 >+
-> /* We are under the virtio-vsock's vsock->rx_lock or vhost-vsock's vq->mutex
->  * lock.
->  */
->@@ -1272,7 +1304,7 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
-> 					le32_to_cpu(pkt->hdr.buf_alloc),
-> 					le32_to_cpu(pkt->hdr.fwd_cnt));
+> 	return virtio_transport_send_pkt_info(vsk, &info);
+> }
 >
->-	if (le16_to_cpu(pkt->hdr.type) != VIRTIO_VSOCK_TYPE_STREAM) {
->+	if (!virtio_transport_valid_type(le16_to_cpu(pkt->hdr.type))) {
-> 		(void)virtio_transport_reset_no_sock(t, pkt);
-> 		goto free_pkt;
-> 	}
->@@ -1289,6 +1321,11 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
-> 		}
-> 	}
->
->+	if (virtio_transport_get_type(sk) != le16_to_cpu(pkt->hdr.type)) {
->+		(void)virtio_transport_reset_no_sock(t, pkt);
->+		goto free_pkt;
->+	}
->+
-> 	vsk = vsock_sk(sk);
->
-> 	space_available = virtio_transport_space_update(sk, pkt);
 >-- 
 >2.25.1
 >
