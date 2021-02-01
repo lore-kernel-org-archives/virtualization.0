@@ -2,91 +2,84 @@ Return-Path: <SRS0=ow7J=HD=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6319EC433DB
-	for <virtualization@archiver.kernel.org>; Mon,  1 Feb 2021 19:48:39 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7D83C433DB
+	for <virtualization@archiver.kernel.org>; Mon,  1 Feb 2021 23:18:20 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A410664EC6
-	for <virtualization@archiver.kernel.org>; Mon,  1 Feb 2021 19:48:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A410664EC6
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=alien8.de
+	by mail.kernel.org (Postfix) with ESMTPS id 75F6B64E2A
+	for <virtualization@archiver.kernel.org>; Mon,  1 Feb 2021 23:18:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 75F6B64E2A
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=opensynergy.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 658A48562D;
-	Mon,  1 Feb 2021 19:48:38 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 3100C85B8D;
+	Mon,  1 Feb 2021 23:18:20 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1dtlfTusbm39; Mon,  1 Feb 2021 23:18:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by whitealder.osuosl.org (Postfix) with ESMTP id 535C1855D8;
+	Mon,  1 Feb 2021 23:18:19 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 35C7BC0FA7;
+	Mon,  1 Feb 2021 23:18:19 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 663C2C013A
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  1 Feb 2021 23:18:17 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 4D68785660
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  1 Feb 2021 23:18:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id llRjQQ9nEpww; Mon,  1 Feb 2021 19:48:37 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 278B885621;
-	Mon,  1 Feb 2021 19:48:37 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 13A60C0FA7;
-	Mon,  1 Feb 2021 19:48:37 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1FA9FC013A
- for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Feb 2021 19:48:36 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 1563420773
- for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Feb 2021 19:48:36 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id r0IWCsDX1VhW
+ with ESMTP id glUr62bIwLZs
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Feb 2021 19:48:33 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
- by silver.osuosl.org (Postfix) with ESMTPS id 867B420764
+ Mon,  1 Feb 2021 23:18:16 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mx1.opensynergy.com (mx1.opensynergy.com [217.66.60.4])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 3B49184C26
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Feb 2021 19:48:33 +0000 (UTC)
-Received: from zn.tnic (p200300ec2f06fe00e55f3102cc5eb27e.dip0.t-ipconnect.de
- [IPv6:2003:ec:2f06:fe00:e55f:3102:cc5e:b27e])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 26BD61EC0253;
- Mon,  1 Feb 2021 20:48:30 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
- t=1612208910;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=lOkZrEeAn9oVnNn743NqAyVIKQ3k9/Lp3V74SDhkd64=;
- b=EM+rZpLJ9tNc2VbuYUaopFlP03mUsRMmq8qq/pgZ3JJsI6Y/KowJvU44oGPkeeGAD2qPsa
- j3K801BVFENduL2KRFMJ4dbHjY93xQqSdkCzV0oRKi2WduQAxPNz6//O0rJUMn7L41a83g
- pwy9/FLLvDRay4tdxWs6a0Sjt8mlIoM=
-Date: Mon, 1 Feb 2021 20:48:28 +0100
-From: Borislav Petkov <bp@alien8.de>
-To: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v4 07/15] x86/paravirt: switch time pvops functions to
- use static_call()
-Message-ID: <20210201194828.GB14590@zn.tnic>
-References: <20210120135555.32594-1-jgross@suse.com>
- <20210120135555.32594-8-jgross@suse.com>
+ Mon,  1 Feb 2021 23:18:16 +0000 (UTC)
+Received: from SR-MAILGATE-02.opensynergy.com (localhost.localdomain
+ [127.0.0.1])
+ by mx1.opensynergy.com (Proxmox) with ESMTP id 80A95A1569;
+ Tue,  2 Feb 2021 00:18:12 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=opensynergy.com;
+ h=cc:cc:content-transfer-encoding:content-type:content-type
+ :date:from:from:in-reply-to:message-id:mime-version:references
+ :reply-to:subject:subject:to:to; s=srmailgate02; bh=lUMI46TQw0fr
+ jF2ARY5V4xhdbBHFJlxLuLVTz4ns2iQ=; b=TkEsI5KLXCuVRFyJkEdLrRZI97d0
+ x0e1DpOxZ34WCeJucEcMvvUokEBuXuT9ZcESYewcCwCHu2a3i4OmAHKs/KBbRsKZ
+ So5yoUc61267K8VfzO6qL3SEB86qQyDAicDRcqBUtjWvMoM9Cs8A5DwsD4XbwmJI
+ YDYSjuHAiHz0BEd/1eHF9hYDBAohHvFdKtu493uJJ8JUVdL0ufOzng8OOQsRx0/H
+ zkwPFb0oU1g6xUNSFoG6hGBnh+1DCEg2mI2Lt28e94SyU2uWe6GFpA8z+lCQmTEX
+ Rrjpm8gnqLmj/X0W6N/BEPD1vmjqXzXDuQLzymE7ShOwqb9WiaqElkvK8A==
+Subject: Re: [virtio-dev] Re: [PATCH v2 2/9] ALSA: virtio: add virtio sound
+ driver
+To: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+References: <20210124165408.1122868-1-anton.yakovlev@opensynergy.com>
+ <20210124165408.1122868-3-anton.yakovlev@opensynergy.com>
+ <8754dae8-114-6383-510-de2ba9dc4fa@intel.com>
+From: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+Message-ID: <52f71ac6-3ec7-2884-7a64-1995f416d20a@opensynergy.com>
+Date: Tue, 2 Feb 2021 00:18:09 +0100
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20210120135555.32594-8-jgross@suse.com>
-Cc: linux-hyperv@vger.kernel.org, Daniel Lezcano <daniel.lezcano@linaro.org>,
- Wanpeng Li <wanpengli@tencent.com>, kvm@vger.kernel.org, "VMware,
- Inc." <pv-drivers@vmware.com>, virtualization@lists.linux-foundation.org,
- "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>,
- Wei Liu <wei.liu@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>,
- Stephen Hemminger <sthemmin@microsoft.com>, Joerg Roedel <joro@8bytes.org>,
- x86@kernel.org, Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org,
- Haiyang Zhang <haiyangz@microsoft.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Jim Mattson <jmattson@google.com>, Sean Christopherson <seanjc@google.com>,
- linux-kernel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <8754dae8-114-6383-510-de2ba9dc4fa@intel.com>
+Content-Language: en-US
+X-ClientProxiedBy: SR-MAIL-02.open-synergy.com (10.26.10.22) To
+ SR-MAIL-01.open-synergy.com (10.26.10.21)
+Cc: virtio-dev@lists.oasis-open.org, alsa-devel@alsa-project.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
+ Takashi Iwai <tiwai@suse.com>, Jaroslav Kysela <perex@perex.cz>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,106 +91,178 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCBKYW4gMjAsIDIwMjEgYXQgMDI6NTU6NDdQTSArMDEwMCwgSnVlcmdlbiBHcm9zcyB3
-cm90ZToKPiBUaGUgdGltZSBwdm9wcyBmdW5jdGlvbnMgYXJlIHRoZSBvbmx5IG9uZXMgbGVmdCB3
-aGljaCBtaWdodCBiZQo+IHVzZWQgaW4gMzItYml0IG1vZGUgYW5kIHdoaWNoIHJldHVybiBhIDY0
-LWJpdCB2YWx1ZS4KPiAKPiBTd2l0Y2ggdGhlbSB0byB1c2UgdGhlIHN0YXRpY19jYWxsKCkgbWVj
-aGFuaXNtIGluc3RlYWQgb2YgcHZvcHMsIGFzCj4gdGhpcyBhbGxvd3MgcXVpdGUgc29tZSBzaW1w
-bGlmaWNhdGlvbiBvZiB0aGUgcHZvcHMgaW1wbGVtZW50YXRpb24uCj4gCj4gU2lnbmVkLW9mZi1i
-eTogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29tPgo+IC0tLQo+IFY0Ogo+IC0gZHJvcCBw
-YXJhdmlydF90aW1lLmggYWdhaW4KPiAtIGRvbid0IG1vdmUgSHlwZXItViBjb2RlIChNaWNoYWVs
-IEtlbGxleSkKPiAtLS0KPiAgYXJjaC94ODYvS2NvbmZpZyAgICAgICAgICAgICAgICAgICAgICB8
-ICAxICsKPiAgYXJjaC94ODYvaW5jbHVkZS9hc20vbXNoeXBlcnYuaCAgICAgICB8ICAyICstCj4g
-IGFyY2gveDg2L2luY2x1ZGUvYXNtL3BhcmF2aXJ0LmggICAgICAgfCAxNyArKysrKysrKysrKysr
-Ky0tLQo+ICBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydF90eXBlcy5oIHwgIDYgLS0tLS0t
-Cj4gIGFyY2gveDg2L2tlcm5lbC9jcHUvdm13YXJlLmMgICAgICAgICAgfCAgNSArKystLQo+ICBh
-cmNoL3g4Ni9rZXJuZWwva3ZtLmMgICAgICAgICAgICAgICAgIHwgIDIgKy0KPiAgYXJjaC94ODYv
-a2VybmVsL2t2bWNsb2NrLmMgICAgICAgICAgICB8ICAyICstCj4gIGFyY2gveDg2L2tlcm5lbC9w
-YXJhdmlydC5jICAgICAgICAgICAgfCAxNiArKysrKysrKysrKystLS0tCj4gIGFyY2gveDg2L2tl
-cm5lbC90c2MuYyAgICAgICAgICAgICAgICAgfCAgMiArLQo+ICBhcmNoL3g4Ni94ZW4vdGltZS5j
-ICAgICAgICAgICAgICAgICAgIHwgMTEgKysrKy0tLS0tLS0KPiAgZHJpdmVycy9jbG9ja3NvdXJj
-ZS9oeXBlcnZfdGltZXIuYyAgICB8ICA1ICsrKy0tCj4gIGRyaXZlcnMveGVuL3RpbWUuYyAgICAg
-ICAgICAgICAgICAgICAgfCAgMiArLQo+ICAxMiBmaWxlcyBjaGFuZ2VkLCA0MiBpbnNlcnRpb25z
-KCspLCAyOSBkZWxldGlvbnMoLSkKPiAKPiBkaWZmIC0tZ2l0IGEvYXJjaC94ODYvS2NvbmZpZyBi
-L2FyY2gveDg2L0tjb25maWcKPiBpbmRleCAyMWY4NTExNzlmZjAuLjdjY2Q0YTgwNzg4YyAxMDA2
-NDQKPiAtLS0gYS9hcmNoL3g4Ni9LY29uZmlnCj4gKysrIGIvYXJjaC94ODYvS2NvbmZpZwo+IEBA
-IC03NzEsNiArNzcxLDcgQEAgaWYgSFlQRVJWSVNPUl9HVUVTVAo+ICAKPiAgY29uZmlnIFBBUkFW
-SVJUCj4gIAlib29sICJFbmFibGUgcGFyYXZpcnR1YWxpemF0aW9uIGNvZGUiCj4gKwlkZXBlbmRz
-IG9uIEhBVkVfU1RBVElDX0NBTEwKPiAgCWhlbHAKPiAgCSAgVGhpcyBjaGFuZ2VzIHRoZSBrZXJu
-ZWwgc28gaXQgY2FuIG1vZGlmeSBpdHNlbGYgd2hlbiBpdCBpcyBydW4KPiAgCSAgdW5kZXIgYSBo
-eXBlcnZpc29yLCBwb3RlbnRpYWxseSBpbXByb3ZpbmcgcGVyZm9ybWFuY2Ugc2lnbmlmaWNhbnRs
-eQo+IGRpZmYgLS1naXQgYS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9tc2h5cGVydi5oIGIvYXJjaC94
-ODYvaW5jbHVkZS9hc20vbXNoeXBlcnYuaAo+IGluZGV4IDMwZjc2Yjk2Njg1Ny4uYjRlZTMzMWQy
-OWE3IDEwMDY0NAo+IC0tLSBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL21zaHlwZXJ2LmgKPiArKysg
-Yi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9tc2h5cGVydi5oCj4gQEAgLTYzLDcgKzYzLDcgQEAgdHlw
-ZWRlZiBpbnQgKCpoeXBlcnZfZmlsbF9mbHVzaF9saXN0X2Z1bmMpKAo+ICBzdGF0aWMgX19hbHdh
-eXNfaW5saW5lIHZvaWQgaHZfc2V0dXBfc2NoZWRfY2xvY2sodm9pZCAqc2NoZWRfY2xvY2spCj4g
-IHsKPiAgI2lmZGVmIENPTkZJR19QQVJBVklSVAo+IC0JcHZfb3BzLnRpbWUuc2NoZWRfY2xvY2sg
-PSBzY2hlZF9jbG9jazsKPiArCXBhcmF2aXJ0X3NldF9zY2hlZF9jbG9jayhzY2hlZF9jbG9jayk7
-Cj4gICNlbmRpZgo+ICB9Cj4gIAo+IGRpZmYgLS1naXQgYS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9w
-YXJhdmlydC5oIGIvYXJjaC94ODYvaW5jbHVkZS9hc20vcGFyYXZpcnQuaAo+IGluZGV4IDRhYmYx
-MTBlMjI0My4uMWU0NWI0NmZhZTg0IDEwMDY0NAo+IC0tLSBhL2FyY2gveDg2L2luY2x1ZGUvYXNt
-L3BhcmF2aXJ0LmgKPiArKysgYi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydC5oCj4gQEAg
-LTE1LDExICsxNSwyMiBAQAo+ICAjaW5jbHVkZSA8bGludXgvYnVnLmg+Cj4gICNpbmNsdWRlIDxs
-aW51eC90eXBlcy5oPgo+ICAjaW5jbHVkZSA8bGludXgvY3B1bWFzay5oPgo+ICsjaW5jbHVkZSA8
-bGludXgvc3RhdGljX2NhbGxfdHlwZXMuaD4KPiAgI2luY2x1ZGUgPGFzbS9mcmFtZS5oPgo+ICAK
-PiAtc3RhdGljIGlubGluZSB1bnNpZ25lZCBsb25nIGxvbmcgcGFyYXZpcnRfc2NoZWRfY2xvY2so
-dm9pZCkKPiArdTY0IGR1bW15X3N0ZWFsX2Nsb2NrKGludCBjcHUpOwo+ICt1NjQgZHVtbXlfc2No
-ZWRfY2xvY2sodm9pZCk7Cj4gKwo+ICtERUNMQVJFX1NUQVRJQ19DQUxMKHB2X3N0ZWFsX2Nsb2Nr
-LCBkdW1teV9zdGVhbF9jbG9jayk7Cj4gK0RFQ0xBUkVfU1RBVElDX0NBTEwocHZfc2NoZWRfY2xv
-Y2ssIGR1bW15X3NjaGVkX2Nsb2NrKTsKCkRpZCB5b3UgYnVpbGQgdGhpcyBiZWZvcmUgc2VuZGlu
-Zz8KCkknbSB0ZXN0LWFwcGx5aW5nIHRoaXMgb24gcmM2ICsgdGlwL21hc3RlciBzbyBJIHByb2Jh
-Ymx5IGFtIHVzaW5nIGEKZGlmZmVyZW50IHRyZWUgc28gaXQgbG9va3MgbGlrZSBzb21ldGhpbmcg
-aGFzIGNoYW5nZWQgaW4gdGhlIG1lYW50aW1lLgotcmM2IGhhcyBhIGNvdXBsZSBvZiBYZW4gY2hh
-bmdlcyB3aGljaCBtYWRlIGFwcGx5aW5nIHRob3NlIHRvIG5lZWQgc29tZQp3aWdnbGluZyBpbi4u
-LgoKTWF5YmUgeW91IHNob3VsZCByZWRvIHRoZW0gb250b3Agb2YgdGlwL21hc3Rlci4gVGhhdCBp
-cywgKmlmKiB0aGV5J3JlCmdvaW5nIHRvIGV2ZW50dWFsbHkgZ28gdGhyb3VnaCB0aXAuIFRoZSBk
-aWZmc3RhdCBoYXMgWGVuIHN0dWZmIHRvbyBzbyB3ZQptaWdodCBuZWVkIHNvbWUgc3luY2hyb25p
-emF0aW9uIGhlcmUgd2hhdCBnb2VzIHdoZXJlIGhvdy4uLgoKLi9hcmNoL3g4Ni9pbmNsdWRlL2Fz
-bS9wYXJhdmlydC5oOjI0OjE6IHdhcm5pbmc6IGRhdGEgZGVmaW5pdGlvbiBoYXMgbm8gdHlwZSBv
-ciBzdG9yYWdlIGNsYXNzCiAgIDI0IHwgREVDTEFSRV9TVEFUSUNfQ0FMTChwdl9zdGVhbF9jbG9j
-aywgZHVtbXlfc3RlYWxfY2xvY2spOwogICAgICB8IF5+fn5+fn5+fn5+fn5+fn5+fn4KLi9hcmNo
-L3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydC5oOjI0OjE6IGVycm9yOiB0eXBlIGRlZmF1bHRzIHRv
-IOKAmGludOKAmSBpbiBkZWNsYXJhdGlvbiBvZiDigJhERUNMQVJFX1NUQVRJQ19DQUxM4oCZIFst
-V2Vycm9yPWltcGxpY2l0LWludF0KLi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydC5oOjI0
-OjE6IHdhcm5pbmc6IHBhcmFtZXRlciBuYW1lcyAod2l0aG91dCB0eXBlcykgaW4gZnVuY3Rpb24g
-ZGVjbGFyYXRpb24KLi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydC5oOjI1OjE6IHdhcm5p
-bmc6IGRhdGEgZGVmaW5pdGlvbiBoYXMgbm8gdHlwZSBvciBzdG9yYWdlIGNsYXNzCiAgIDI1IHwg
-REVDTEFSRV9TVEFUSUNfQ0FMTChwdl9zY2hlZF9jbG9jaywgZHVtbXlfc2NoZWRfY2xvY2spOwog
-ICAgICB8IF5+fn5+fn5+fn5+fn5+fn5+fn4KLi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmly
-dC5oOjI1OjE6IGVycm9yOiB0eXBlIGRlZmF1bHRzIHRvIOKAmGludOKAmSBpbiBkZWNsYXJhdGlv
-biBvZiDigJhERUNMQVJFX1NUQVRJQ19DQUxM4oCZIFstV2Vycm9yPWltcGxpY2l0LWludF0KLi9h
-cmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydC5oOjI1OjE6IHdhcm5pbmc6IHBhcmFtZXRlciBu
-YW1lcyAod2l0aG91dCB0eXBlcykgaW4gZnVuY3Rpb24gZGVjbGFyYXRpb24KLi9hcmNoL3g4Ni9p
-bmNsdWRlL2FzbS9wYXJhdmlydC5oOiBJbiBmdW5jdGlvbiDigJhwYXJhdmlydF9zY2hlZF9jbG9j
-a+KAmToKLi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9wYXJhdmlydC5oOjMzOjk6IGVycm9yOiBpbXBs
-aWNpdCBkZWNsYXJhdGlvbiBvZiBmdW5jdGlvbiDigJhzdGF0aWNfY2FsbOKAmSBbLVdlcnJvcj1p
-bXBsaWNpdC1mdW5jdGlvbi1kZWNsYXJhdGlvbl0KICAgMzMgfCAgcmV0dXJuIHN0YXRpY19jYWxs
-KHB2X3NjaGVkX2Nsb2NrKSgpOwogICAgICB8ICAgICAgICAgXn5+fn5+fn5+fn4KLi9hcmNoL3g4
-Ni9pbmNsdWRlL2FzbS9wYXJhdmlydC5oOjMzOjIxOiBlcnJvcjog4oCYcHZfc2NoZWRfY2xvY2vi
-gJkgdW5kZWNsYXJlZCAoZmlyc3QgdXNlIGluIHRoaXMgZnVuY3Rpb24pOyBkaWQgeW91IG1lYW4g
-4oCYZHVtbXlfc2NoZWRfY2xvY2vigJk/CiAgIDMzIHwgIHJldHVybiBzdGF0aWNfY2FsbChwdl9z
-Y2hlZF9jbG9jaykoKTsKICAgICAgfCAgICAgICAgICAgICAgICAgICAgIF5+fn5+fn5+fn5+fn5+
-CiAgICAgIHwgICAgICAgICAgICAgICAgICAgICBkdW1teV9zY2hlZF9jbG9jawouL2FyY2gveDg2
-L2luY2x1ZGUvYXNtL3BhcmF2aXJ0Lmg6MzM6MjE6IG5vdGU6IGVhY2ggdW5kZWNsYXJlZCBpZGVu
-dGlmaWVyIGlzIHJlcG9ydGVkIG9ubHkgb25jZSBmb3IgZWFjaCBmdW5jdGlvbiBpdCBhcHBlYXJz
-IGluCi4vYXJjaC94ODYvaW5jbHVkZS9hc20vcGFyYXZpcnQuaDogSW4gZnVuY3Rpb24g4oCYcGFy
-YXZpcnRfc3RlYWxfY2xvY2vigJk6Ci4vYXJjaC94ODYvaW5jbHVkZS9hc20vcGFyYXZpcnQuaDo0
-NzoyMTogZXJyb3I6IOKAmHB2X3N0ZWFsX2Nsb2Nr4oCZIHVuZGVjbGFyZWQgKGZpcnN0IHVzZSBp
-biB0aGlzIGZ1bmN0aW9uKTsgZGlkIHlvdSBtZWFuIOKAmGR1bW15X3N0ZWFsX2Nsb2Nr4oCZPwog
-ICA0NyB8ICByZXR1cm4gc3RhdGljX2NhbGwocHZfc3RlYWxfY2xvY2spKGNwdSk7CiAgICAgIHwg
-ICAgICAgICAgICAgICAgICAgICBefn5+fn5+fn5+fn5+fgogICAgICB8ICAgICAgICAgICAgICAg
-ICAgICAgZHVtbXlfc3RlYWxfY2xvY2sKY2MxOiBzb21lIHdhcm5pbmdzIGJlaW5nIHRyZWF0ZWQg
-YXMgZXJyb3JzCm1ha2VbMV06ICoqKiBbc2NyaXB0cy9NYWtlZmlsZS5idWlsZDoxMTc6IGFyY2gv
-eDg2L2tlcm5lbC9hc20tb2Zmc2V0cy5zXSBFcnJvciAxCm1ha2U6ICoqKiBbTWFrZWZpbGU6MTIw
-MDogcHJlcGFyZTBdIEVycm9yIDIKClRoeC4KCi0tIApSZWdhcmRzL0dydXNzLAogICAgQm9yaXMu
-CgpodHRwczovL3Blb3BsZS5rZXJuZWwub3JnL3RnbHgvbm90ZXMtYWJvdXQtbmV0aXF1ZXR0ZQpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+Hi Guennadi,
+
+Sorry for the late reply and thanks for your comments, they helped me a
+lot! Please see my answers inline.
+
+
+On 25.01.2021 15:54, Guennadi Liakhovetski wrote:
+
+...[snip]...
+
+ >
+ >> + * 1. Redistributions of source code must retain the above copyright
+ >> + *    notice, this list of conditions and the following disclaimer.
+ >> + * 2. Redistributions in binary form must reproduce the above copyright
+ >> + *    notice, this list of conditions and the following disclaimer in
+ >> the
+ >> + *    documentation and/or other materials provided with the
+ >> distribution.
+ >> + * 3. Neither the name of OpenSynergy GmbH nor the names of its
+ >> contributors
+ >> + *    may be used to endorse or promote products derived from this
+ >> software
+ >> + *    without specific prior written permission.
+ >> + * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ >> + * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ >> + * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ >> + * FOR A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL IBM OR
+ >
+ > IBM? Also no idea whether this warranty disclaimer is appropriate here. I
+ > thought we were transitioning to those SPDX identifiers to eliminate all
+ > these headers.
+
+It was a copy-paste mistake, I will edit these lines.
+
+
+...[snip]...
+
+ >> +
+ >> +/**
+ >> + * virtsnd_disable_vqs() - Disable all virtqueues.
+ >> + * @snd: VirtIO sound device.
+ >> + *
+ >> + * Also free all allocated events and control messages.
+ >> + *
+ >> + * Context: Any context.
+ >> + */
+ >> +static void virtsnd_disable_vqs(struct virtio_snd *snd)
+ >> +{
+ >> +     struct virtio_device *vdev = snd->vdev;
+ >> +     unsigned int i;
+ >> +     unsigned long flags;
+ >> +
+ >> +     for (i = 0; i < VIRTIO_SND_VQ_MAX; ++i) {
+ >> +             struct virtio_snd_queue *queue = &snd->queues[i];
+ >> +
+ >> +             spin_lock_irqsave(&queue->lock, flags);
+ >> +             /* Prohibit the use of the queue */
+ >> +             if (queue->vqueue)
+ >> +                     virtqueue_disable_cb(queue->vqueue);
+ >> +             queue->vqueue = NULL;
+ >> +             spin_unlock_irqrestore(&queue->lock, flags);
+ >> +     }
+ >> +
+ >> +     if (snd->event_msgs)
+ >
+ > Check not needed, kfree(NULL) is ok.
+
+Yes, you are right here. I didn't notice that devm_kfree() now works
+fine with NULL argument too.
+
+
+ >> +             devm_kfree(&vdev->dev, snd->event_msgs);
+ >
+ > I think there are very few cases when managed resources have to be
+ > explicitly freed. If explicit freeing is always required, then there's no
+ > need to have them managed. If there's a clear case for managed resources,
+ > usually you don't need to free them explicitly. Here.event_msgs are
+ > allocated in virtsnd_find_vqs() above, which is only called during
+ > probing. And this function is only called during release. So, I'd assume,
+ > that you don't need to free memory explicitly here.
+
+Here, the reason for explicitly freeing managed resources is in the
+current device reset handling logic. At the moment, executing the reset
+worker results in a call to virtsnd_disable_vqs. After which the device
+is recreated. And since in this case the driver is not detached from the
+device, the managed resources are not automatically freed. On the other
+hand, managed resources allow not to worry about deallocation if the
+probing function returns an error.
+
+
+ >> +
+ >> +     snd->event_msgs = NULL;
+ >
+ > snd is about to be freed, so do you really need this?
+
+No :)
+
+
+ >> +}
+ >> +
+ >> +/**
+ >> + * virtsnd_reset_fn() - Kernel worker's function to reset the device.
+ >> + * @work: Reset device work.
+ >> + *
+ >> + * Context: Process context.
+ >> + */
+ >> +static void virtsnd_reset_fn(struct work_struct *work)
+ >> +{
+ >> +     struct virtio_snd *snd =
+ >> +             container_of(work, struct virtio_snd, reset_work);
+ >> +     struct virtio_device *vdev = snd->vdev;
+ >> +     struct device *dev = &vdev->dev;
+ >> +     int rc;
+ >> +
+ >> +     dev_info(dev, "sound device needs reset\n");
+ >> +
+ >> +     /*
+ >> +      * It seems that the only way to properly reset the device is to
+ >> remove
+ >> +      * and re-create the ALSA sound card device.
+ >> +      *
+ >> +      * Also resetting the device involves a number of steps with
+ >> setting the
+ >> +      * status bits described in the virtio specification. And the
+ >> easiest
+ >> +      * way to get everything right is to use the virtio bus interface.
+ >> +      */
+ >> +     rc = dev->bus->remove(dev);
+ >> +     if (rc)
+ >> +             dev_warn(dev, "bus->remove() failed: %d", rc);
+ >> +
+ >> +     rc = dev->bus->probe(dev);
+ >> +     if (rc)
+ >> +             dev_err(dev, "bus->probe() failed: %d", rc);
+ >
+ > This looks very suspicious to me. Wondering what ALSA maintainers 
+will say
+ > to this.
+
+I'm also wondering what the virtio people have to say. This part is a
+purely virtio specific thing. And since none of the existing virtio
+drivers processes the request to reset the device, it is not clear what
+is the best way to proceed here. For this reason, the most
+straightforward and simple solution was chosen.
+
+
+...[snip]...
+
+ >
+ > Thanks
+ > Guennadi
+ >
+ > ---------------------------------------------------------------------
+ > To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
+ > For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+ >
+ >
+-- 
+Anton Yakovlev
+Senior Software Engineer
+
+OpenSynergy GmbH
+Rotherstr. 20, 10245 Berlin
+
+www.opensynergy.com
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
