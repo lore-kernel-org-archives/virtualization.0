@@ -7,77 +7,77 @@ X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3230CC433E0
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 13:06:06 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AC26C433E0
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 13:48:00 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A727764F45
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 13:06:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A727764F45
+	by mail.kernel.org (Postfix) with ESMTPS id 2C26165007
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 13:48:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2C26165007
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 795FC859D6;
-	Tue,  2 Feb 2021 13:06:05 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id ED12086788;
+	Tue,  2 Feb 2021 13:47:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id E32xzfkFkgjr; Tue,  2 Feb 2021 13:06:00 +0000 (UTC)
+	with ESMTP id EAAMoRCBlugs; Tue,  2 Feb 2021 13:47:58 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 4E49084826;
-	Tue,  2 Feb 2021 13:06:00 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id E66BA8678E;
+	Tue,  2 Feb 2021 13:47:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 27C85C0FA7;
-	Tue,  2 Feb 2021 13:06:00 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2C46BC013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C73D1C0174;
+	Tue,  2 Feb 2021 13:47:58 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 575B0C013A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 13:05:58 +0000 (UTC)
+ Tue,  2 Feb 2021 13:47:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 1564386E88
+ by whitealder.osuosl.org (Postfix) with ESMTP id 320848678E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 13:05:58 +0000 (UTC)
+ Tue,  2 Feb 2021 13:47:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3CSx1ZnD8m37
+ with ESMTP id DkqP6fOruuF2
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 13:05:54 +0000 (UTC)
+ Tue,  2 Feb 2021 13:47:54 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
- by hemlock.osuosl.org (Postfix) with ESMTPS id E1C0B86C66
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 826AB86788
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 13:05:53 +0000 (UTC)
-IronPort-SDR: PfluEPnmbOOlpiT9hCLmUyg8wLZSdBOLVf6vzcl0+8Q584MrE32S3V8HAGFckiLOZ2YGYHg/c2
- V6BXU0wZ9G1w==
-X-IronPort-AV: E=McAfee;i="6000,8403,9882"; a="168526531"
+ Tue,  2 Feb 2021 13:47:54 +0000 (UTC)
+IronPort-SDR: w8HQWfAyPUfKMUnEzNZb6Kcpo427bml9ZEJiQvF/hx1aEdWtAwkhOpOmHdSiT49/34GyLO7gCX
+ 0srSt2XaTNlA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9882"; a="160619604"
 X-IronPort-AV: E=Sophos;i="5.79,395,1602572400"; 
- d="gz'50?scan'50,208,50";a="168526531"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
- by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 02 Feb 2021 05:05:52 -0800
-IronPort-SDR: m7X3mAoLQTeaPURkr1kLJZPoXvzHPPer270DNj+k+6hlxW0xqJQyN6jYQoXe1BUgIy4CmGOom/
- gH7a1uxWRR0g==
+ d="gz'50?scan'50,208,50";a="160619604"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+ by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 02 Feb 2021 05:47:53 -0800
+IronPort-SDR: C6NaD42pN5LuLUryBQhELDbybBRkbU92jEdLfG+Ot+bVC/+mPHKzHbA+wtaiD1+gmy8q0uJag9
+ grV/CybOUkeQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.79,395,1602572400"; 
- d="gz'50?scan'50,208,50";a="413584496"
+ d="gz'50?scan'50,208,50";a="479761490"
 Received: from lkp-server02.sh.intel.com (HELO 625d3a354f04) ([10.239.97.151])
- by fmsmga002.fm.intel.com with ESMTP; 02 Feb 2021 05:05:48 -0800
+ by fmsmga001.fm.intel.com with ESMTP; 02 Feb 2021 05:47:51 -0800
 Received: from kbuild by 625d3a354f04 with local (Exim 4.92)
  (envelope-from <lkp@intel.com>)
- id 1l6vNL-0009Lv-Mm; Tue, 02 Feb 2021 13:05:47 +0000
-Date: Tue, 2 Feb 2021 21:05:05 +0800
+ id 1l6w22-0009OM-GR; Tue, 02 Feb 2021 13:47:50 +0000
+Date: Tue, 2 Feb 2021 21:47:36 +0800
 From: kernel test robot <lkp@intel.com>
 To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
  virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH rfc 2/3] virtio-net: support receive timestamp
-Message-ID: <202102022044.bB8QxxLD-lkp@intel.com>
-References: <20201228162233.2032571-3-willemdebruijn.kernel@gmail.com>
+Subject: Re: [PATCH rfc 3/3] virtio-net: support transmit timestamp
+Message-ID: <202102022115.kdf1O7ya-lkp@intel.com>
+References: <20201228162233.2032571-4-willemdebruijn.kernel@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="k1lZvvs/B4yU6o8G"
+Content-Type: multipart/mixed; boundary="6c2NcOVqGQ03X4Wi"
 Content-Disposition: inline
-In-Reply-To: <20201228162233.2032571-3-willemdebruijn.kernel@gmail.com>
+In-Reply-To: <20201228162233.2032571-4-willemdebruijn.kernel@gmail.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Cc: netdev@vger.kernel.org, kbuild-all@lists.01.org,
  Willem de Bruijn <willemb@google.com>, mst@redhat.com
@@ -96,7 +96,7 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
---k1lZvvs/B4yU6o8G
+--6c2NcOVqGQ03X4Wi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
@@ -117,10 +117,10 @@ compiler: gcc-9 (Debian 9.3.0-15) 9.3.0
 reproduce:
         # apt-get install sparse
         # sparse version: v0.6.3-215-g0fb77bb6-dirty
-        # https://github.com/0day-ci/linux/commit/d309db6857fa35b0d7a11cc5229436d6d71ab274
+        # https://github.com/0day-ci/linux/commit/be9cab7692382c7886333b498d1d8adbba1881f7
         git remote add linux-review https://github.com/0day-ci/linux
         git fetch --no-tags linux-review Willem-de-Bruijn/virtio-net-add-tx-hash-rx-tstamp-and-tx-tstamp/20201229-002604
-        git checkout d309db6857fa35b0d7a11cc5229436d6d71ab274
+        git checkout be9cab7692382c7886333b498d1d8adbba1881f7
         # save the attached .config to linux build tree
         make W=1 C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__' ARCH=x86_64 
 
@@ -129,92 +129,88 @@ Reported-by: kernel test robot <lkp@intel.com>
 
 
 "sparse warnings: (new ones prefixed by >>)"
->> drivers/net/virtio_net.c:1096:80: sparse: sparse: incorrect type in argument 1 (different base types) @@     expected unsigned long long [usertype] ns @@     got restricted __virtio64 [usertype] tstamp @@
-   drivers/net/virtio_net.c:1096:80: sparse:     expected unsigned long long [usertype] ns
-   drivers/net/virtio_net.c:1096:80: sparse:     got restricted __virtio64 [usertype] tstamp
-   drivers/net/virtio_net.c:1580:32: sparse: sparse: incorrect type in assignment (different base types) @@     expected restricted __le32 [usertype] hash_value @@     got restricted __virtio32 @@
-   drivers/net/virtio_net.c:1580:32: sparse:     expected restricted __le32 [usertype] hash_value
-   drivers/net/virtio_net.c:1580:32: sparse:     got restricted __virtio32
-   drivers/net/virtio_net.c:1581:33: sparse: sparse: incorrect type in assignment (different base types) @@     expected restricted __le16 [usertype] hash_report @@     got int @@
-   drivers/net/virtio_net.c:1581:33: sparse:     expected restricted __le16 [usertype] hash_report
-   drivers/net/virtio_net.c:1581:33: sparse:     got int
+   drivers/net/virtio_net.c:1099:80: sparse: sparse: incorrect type in argument 1 (different base types) @@     expected unsigned long long [usertype] ns @@     got restricted __virtio64 [usertype] tstamp @@
+   drivers/net/virtio_net.c:1099:80: sparse:     expected unsigned long long [usertype] ns
+   drivers/net/virtio_net.c:1099:80: sparse:     got restricted __virtio64 [usertype] tstamp
+>> drivers/net/virtio_net.c:1583:33: sparse: sparse: incorrect type in assignment (different base types) @@     expected restricted __le32 [usertype] value @@     got restricted __virtio32 @@
+   drivers/net/virtio_net.c:1583:33: sparse:     expected restricted __le32 [usertype] value
+   drivers/net/virtio_net.c:1583:33: sparse:     got restricted __virtio32
+>> drivers/net/virtio_net.c:1584:34: sparse: sparse: incorrect type in assignment (different base types) @@     expected restricted __le16 [usertype] report @@     got int @@
+   drivers/net/virtio_net.c:1584:34: sparse:     expected restricted __le16 [usertype] report
+   drivers/net/virtio_net.c:1584:34: sparse:     got int
 
-vim +1096 drivers/net/virtio_net.c
+vim +1583 drivers/net/virtio_net.c
 
-  1048	
-  1049	static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
-  1050				void *buf, unsigned int len, void **ctx,
-  1051				unsigned int *xdp_xmit,
-  1052				struct virtnet_rq_stats *stats)
-  1053	{
-  1054		struct net_device *dev = vi->dev;
-  1055		struct sk_buff *skb;
-  1056		struct virtio_net_hdr_mrg_rxbuf *hdr;
-  1057	
-  1058		if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
-  1059			pr_debug("%s: short packet %i\n", dev->name, len);
-  1060			dev->stats.rx_length_errors++;
-  1061			if (vi->mergeable_rx_bufs) {
-  1062				put_page(virt_to_head_page(buf));
-  1063			} else if (vi->big_packets) {
-  1064				give_pages(rq, buf);
-  1065			} else {
-  1066				put_page(virt_to_head_page(buf));
-  1067			}
-  1068			return;
-  1069		}
-  1070	
-  1071		if (vi->mergeable_rx_bufs)
-  1072			skb = receive_mergeable(dev, vi, rq, buf, ctx, len, xdp_xmit,
-  1073						stats);
-  1074		else if (vi->big_packets)
-  1075			skb = receive_big(dev, vi, rq, buf, len, stats);
-  1076		else
-  1077			skb = receive_small(dev, vi, rq, buf, ctx, len, xdp_xmit, stats);
-  1078	
-  1079		if (unlikely(!skb))
-  1080			return;
-  1081	
-  1082		hdr = skb_vnet_hdr(skb);
-  1083	
-  1084		if (hdr->hdr.flags & VIRTIO_NET_HDR_F_DATA_VALID)
-  1085			skb->ip_summed = CHECKSUM_UNNECESSARY;
-  1086	
-  1087		if (virtio_net_hdr_to_skb(skb, &hdr->hdr,
-  1088					  virtio_is_little_endian(vi->vdev))) {
-  1089			net_warn_ratelimited("%s: bad gso: type: %u, size: %u\n",
-  1090					     dev->name, hdr->hdr.gso_type,
-  1091					     hdr->hdr.gso_size);
-  1092			goto frame_err;
-  1093		}
-  1094	
-  1095		if (vi->has_rx_tstamp)
-> 1096			skb_hwtstamps(skb)->hwtstamp = ns_to_ktime(skb_vnet_hdr_12(skb)->tstamp);
-  1097	
-  1098		skb_record_rx_queue(skb, vq2rxq(rq->vq));
-  1099		skb->protocol = eth_type_trans(skb, dev);
-  1100		pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
-  1101			 ntohs(skb->protocol), skb->len, skb->pkt_type);
-  1102	
-  1103		napi_gro_receive(&rq->napi, skb);
-  1104		return;
-  1105	
-  1106	frame_err:
-  1107		dev->stats.rx_frame_errors++;
-  1108		dev_kfree_skb(skb);
-  1109	}
-  1110	
+  1550	
+  1551	static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+  1552	{
+  1553		struct virtio_net_hdr_mrg_rxbuf *hdr;
+  1554		const unsigned char *dest = ((struct ethhdr *)skb->data)->h_dest;
+  1555		struct virtnet_info *vi = sq->vq->vdev->priv;
+  1556		struct virtio_net_hdr_v12 *h12;
+  1557		int num_sg;
+  1558		unsigned hdr_len = vi->hdr_len;
+  1559		bool can_push;
+  1560	
+  1561		pr_debug("%s: xmit %p %pM\n", vi->dev->name, skb, dest);
+  1562	
+  1563		can_push = vi->any_header_sg &&
+  1564			!((unsigned long)skb->data & (__alignof__(*hdr) - 1)) &&
+  1565			!skb_header_cloned(skb) && skb_headroom(skb) >= hdr_len;
+  1566		/* Even if we can, don't push here yet as this would skew
+  1567		 * csum_start offset below. */
+  1568		if (can_push)
+  1569			hdr = (struct virtio_net_hdr_mrg_rxbuf *)(skb->data - hdr_len);
+  1570		else
+  1571			hdr = skb_vnet_hdr(skb);
+  1572	
+  1573		if (virtio_net_hdr_from_skb(skb, &hdr->hdr,
+  1574					    virtio_is_little_endian(vi->vdev), false,
+  1575					    0))
+  1576			BUG();
+  1577	
+  1578		if (vi->mergeable_rx_bufs)
+  1579			hdr->num_buffers = 0;
+  1580	
+  1581		h12 = (void *)hdr;
+  1582		if (vi->has_tx_hash) {
+> 1583			h12->hash.value = cpu_to_virtio32(vi->vdev, skb->hash);
+> 1584			h12->hash.report = skb->l4_hash ? VIRTIO_NET_HASH_REPORT_L4 :
+  1585							  VIRTIO_NET_HASH_REPORT_OTHER;
+  1586			h12->hash.flow_state = VIRTIO_NET_HASH_STATE_DEFAULT;
+  1587		}
+  1588		if (vi->has_tx_tstamp)
+  1589			h12->tstamp = cpu_to_virtio64(vi->vdev, skb->tstamp);
+  1590	
+  1591		sg_init_table(sq->sg, skb_shinfo(skb)->nr_frags + (can_push ? 1 : 2));
+  1592		if (can_push) {
+  1593			__skb_push(skb, hdr_len);
+  1594			num_sg = skb_to_sgvec(skb, sq->sg, 0, skb->len);
+  1595			if (unlikely(num_sg < 0))
+  1596				return num_sg;
+  1597			/* Pull header back to avoid skew in tx bytes calculations. */
+  1598			__skb_pull(skb, hdr_len);
+  1599		} else {
+  1600			sg_set_buf(sq->sg, hdr, hdr_len);
+  1601			num_sg = skb_to_sgvec(skb, sq->sg + 1, 0, skb->len);
+  1602			if (unlikely(num_sg < 0))
+  1603				return num_sg;
+  1604			num_sg++;
+  1605		}
+  1606		return virtqueue_add_outbuf(sq->vq, sq->sg, num_sg, skb, GFP_ATOMIC);
+  1607	}
+  1608	
 
 ---
 0-DAY CI Kernel Test Service, Intel Corporation
 https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
 
---k1lZvvs/B4yU6o8G
+--6c2NcOVqGQ03X4Wi
 Content-Type: application/gzip
 Content-Disposition: attachment; filename=".config.gz"
 Content-Transfer-Encoding: base64
 
-H4sICHE/GWAAAy5jb25maWcAjFzLd9w2r9/3r5jjbtpF8tmO7Zuee7zgSNSIHUlUSWoe3ui4
+H4sICAxOGWAAAy5jb25maWcAjFzLd9w2r9/3r5jjbtpF8tmO7Zuee7zgSNSIHUlUSWoe3ui4
 ziT1qWP3+vG1+e8vQOpBUtA0WbQeAnyDwA8gqB9/+HHB3l6fvt6+3t/dPjx8W3w5PB6eb18P
 nxaf7x8O/7tI5aKSZsFTYd4Dc3H/+PbPf/75eNVeXSwu35+dvj9drA/Pj4eHRfL0+Pn+yxtU
 vn96/OHHHxJZZWLVJkm74UoLWbWG78z1yZe7u3e/LH5KD7/f3z4ufnn/4f3pu7PLn91fJ141
@@ -847,7 +843,7 @@ w5CremGetakrTEBysZtH0umjlqsfMBKdFjd4kwrcSOY76KoH7znEIJRviiiQgoRaW2VNARrk
 wkRyKkZ5x2UdcMI8ZW4tXqHisyL7Z7dLEWH4RHrnAnTZ/sJeuCAP6J1A+UeCyWKYD6kiiWDV
 LzaDhomAnDo2ErBG89wj56AUKs62AlHAuFlThZukZ/Fk9jIJsAPA/wAhWPhADhUCAA==
 
---k1lZvvs/B4yU6o8G
+--6c2NcOVqGQ03X4Wi
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -857,4 +853,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---k1lZvvs/B4yU6o8G--
+--6c2NcOVqGQ03X4Wi--
