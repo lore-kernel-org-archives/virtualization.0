@@ -2,158 +2,111 @@ Return-Path: <SRS0=DeSX=HE=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A5A2C4332D
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 22:34:47 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4595BC433DB
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 23:02:46 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8708A64E38
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 22:34:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8708A64E38
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=amd.com
+	by mail.kernel.org (Postfix) with ESMTPS id D49E0601FB
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 23:02:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D49E0601FB
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 38582228E7;
-	Tue,  2 Feb 2021 22:34:23 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7rIZ9I0ULPJ1; Tue,  2 Feb 2021 22:34:19 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 12AC0228D1;
-	Tue,  2 Feb 2021 22:34:19 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EA3B0C1DA8;
-	Tue,  2 Feb 2021 22:34:18 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E60F9C013A;
- Tue,  2 Feb 2021 22:34:16 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id E11A4870D1;
- Tue,  2 Feb 2021 22:34:16 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 81C9E870D1;
+	Tue,  2 Feb 2021 23:02:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id jpD+BIDhu+lc; Tue,  2 Feb 2021 23:02:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by hemlock.osuosl.org (Postfix) with ESMTP id AFA998706C;
+	Tue,  2 Feb 2021 23:02:44 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 88227C0FA7;
+	Tue,  2 Feb 2021 23:02:44 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B77FFC013A
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  2 Feb 2021 23:02:43 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by fraxinus.osuosl.org (Postfix) with ESMTP id A865F85E77
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  2 Feb 2021 23:02:43 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Pot9Y6OyQYl8; Tue,  2 Feb 2021 22:34:15 +0000 (UTC)
+ with ESMTP id gP_u2w48NDdA
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  2 Feb 2021 23:02:43 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com
- (mail-co1nam11on2057.outbound.protection.outlook.com [40.107.220.57])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 06604870C8;
- Tue,  2 Feb 2021 22:34:15 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=jR9EsdbF5CHRVoAurA8NqOdGNZJRifElt9GtDe3kIxuZFi4CSnVa9lTUCtxCfIY7gUPn7ENh2sYaO4QkI8AKsmIi93x1ZNgGXB0MVraEbQ326dPQm3gDPIDF5QD9kxBfvlKCeCMYzWFIr54ELD6EgY2E0udUONlktBKcoKYcXs127/Uk+/g62hljDebSqZELMtlkP8iWCxLI5lzrzyZ2jiaM3ennmiImh/Th0Qyl+LeZi5UrvJnI0uI7dxXgG4mYuXVh+MUts5+vIKo8RJVLOxUDbyOtQm9c3b9AQtGag0lhCd7iDS68LgWA4ug0BfRay8+wgWOcOZy5maxVDM2AcA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QJbpCd7ikuwa7Ken4CiBTXl/Wt9bTmToSDb6XExlpCE=;
- b=n5ShS7+KL99ru031YqCbN2Gx3GSVx7oiPCHBYvtbzFdUXOENuv3tFWJIEI0yBCnnsCyjlkGoQcfQRfdzY4hvqlsqsaX5uEcsdMEPRzfRCrzOsio3bbxx/bqD1rQPnA2SJDRg2ZurPUsIfEapSnw08gzVhyQu85W2H+/2jClH5EJDu5go/JU1om7fFHR7knHJbg3vEj/oLHaLVSalVOnJMMLiAKzZ+8mRuPaWMV786SaFcsOnHto3ISvq3lpisSQl8StHP+ukWX30BrUxqnLc+YLsHw/KKTvUEh7ynycmZCN0OwKg3V0lxc0tZUVLzto9aqItkBxpq6C/EIxihc1ptg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=QJbpCd7ikuwa7Ken4CiBTXl/Wt9bTmToSDb6XExlpCE=;
- b=zYBS1A7mYSRocMSx679vIlM/pDKrbde6/0LAe459s3ZO5utWSwW9cJ7ApRtSQOzF/St9sP3GCQuDEx3vpbxUNISfsJziZAvabpsPWI9MMULzlcSkKIDH79F4hWdv5zhTz3JdzLC+fQPCVV4wVKHsQrspc5gl/6L3MVQzXVk+3LQ=
-Authentication-Results: linux.intel.com; dkim=none (message not signed)
- header.d=none;linux.intel.com; dmarc=none action=none header.from=amd.com;
-Received: from CY4PR12MB1352.namprd12.prod.outlook.com (2603:10b6:903:3a::13)
- by CY4PR1201MB0021.namprd12.prod.outlook.com (2603:10b6:910:1a::20)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3805.24; Tue, 2 Feb
- 2021 22:34:13 +0000
-Received: from CY4PR12MB1352.namprd12.prod.outlook.com
- ([fe80::8e8:e699:d479:7e16]) by CY4PR12MB1352.namprd12.prod.outlook.com
- ([fe80::8e8:e699:d479:7e16%8]) with mapi id 15.20.3805.028; Tue, 2 Feb 2021
- 22:34:12 +0000
-Subject: Re: [PATCH] swiotlb: Validate bounce size in the sync/unmap path
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
- Martin Radev <martin.b.radev@gmail.com>
-References: <X/27MSbfDGCY9WZu@martin> <20210113113017.GA28106@lst.de>
- <YAV0uhfkimXn1izW@martin> <20210118151428.GA72213@fedora>
- <YA8O/2qBBzZo5hi7@martin> <YBl/4c9j+KCTA0iQ@Konrads-MacBook-Pro.local>
-From: Tom Lendacky <thomas.lendacky@amd.com>
-Message-ID: <62ac054d-f520-6b8e-2dcc-d1a81bbab4ec@amd.com>
-Date: Tue, 2 Feb 2021 16:34:09 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-In-Reply-To: <YBl/4c9j+KCTA0iQ@Konrads-MacBook-Pro.local>
-Content-Language: en-US
-X-Originating-IP: [165.204.77.1]
-X-ClientProxiedBy: SA0PR11CA0171.namprd11.prod.outlook.com
- (2603:10b6:806:1bb::26) To CY4PR12MB1352.namprd12.prod.outlook.com
- (2603:10b6:903:3a::13)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id BEBF5854CC
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  2 Feb 2021 23:02:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1612306961;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=LDg4iKymZ53hNxtNIr/W8exxkDX1y1fBofy+s8scyQM=;
+ b=Se4zi40Wuv+ykkkndtF0v4fvxMOfDWLgIFUcy8305ZXfM7IMedn3ayxaeRXPsT/AovjkLr
+ GPUDDxonlWWnERy8sg+Hibt1ESEaMSwGwY6ynDvROU22txhmNsql3581zR8DVIVUDMA01x
+ jHeoS/YYJ/TEjgU+isUrZ1HOmvbexsM=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-306-P0LRx04_NEuGd16Rm0DPoA-1; Tue, 02 Feb 2021 18:02:40 -0500
+X-MC-Unique: P0LRx04_NEuGd16Rm0DPoA-1
+Received: by mail-wm1-f70.google.com with SMTP id z67so2149476wme.3
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 02 Feb 2021 15:02:39 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=LDg4iKymZ53hNxtNIr/W8exxkDX1y1fBofy+s8scyQM=;
+ b=r+gobQ8wVd6+M7Tt6Xu+0289KpRP1dSwW1p4xyEUu06tMNpKnYorZKtdc3t2pRZI79
+ LuxuvDRtv8OMkvzp1SrfEWxKv1EnHuQzCNrEH4sGKKvEHjKopcPcXLxusyBI8S9+K/rf
+ cOsdolazhRYcprtXb2tSDM6Tbd9Lr6R89iEb0y2ooZDPxm+GOdfChESfMj+UnSiWH00B
+ /ZwozeBfaIA+UWkeVVLjSKxsZoPKH4ADCAfU8rrZRu9EtLqOkOjbR5YWIGzAFvvFn7ox
+ bAt38sJxLeEdCbaHugWhj3PM5PUuoCKr2r9YynE1HfueOc1hg30y0Mqvds6B8I/ScRwz
+ x9/g==
+X-Gm-Message-State: AOAM532Ax6Hfdckqhpj759EhA1KJ2gV+zHDAr4aHirkMe2DHZRMJRQcr
+ MYxYPxZKNZT0jvxb3D9htGcrJlxQwnHje6Q1DzqkybkE7MpWv5x/NYvWsAskwAnwmOR0FbVRxj5
+ hpGMLx2/z8W0dhSg/gBXaeygDIiJbzqh3iPdrGoX9Tg==
+X-Received: by 2002:adf:cd83:: with SMTP id q3mr317045wrj.225.1612306958848;
+ Tue, 02 Feb 2021 15:02:38 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy7ozq2UgBjdAGg7+Fmg2ziWMUdJw6kuyXQQMlyA3fQ392T9ZIlR5Tv21sW6hC+KMtJGHELFg==
+X-Received: by 2002:adf:cd83:: with SMTP id q3mr317029wrj.225.1612306958663;
+ Tue, 02 Feb 2021 15:02:38 -0800 (PST)
+Received: from redhat.com (bzq-79-177-39-148.red.bezeqint.net. [79.177.39.148])
+ by smtp.gmail.com with ESMTPSA id s4sm89994wrt.85.2021.02.02.15.02.37
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 02 Feb 2021 15:02:37 -0800 (PST)
+Date: Tue, 2 Feb 2021 18:02:35 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: Re: [PATCH rfc 2/3] virtio-net: support receive timestamp
+Message-ID: <20210202175934-mutt-send-email-mst@kernel.org>
+References: <20201228162233.2032571-1-willemdebruijn.kernel@gmail.com>
+ <20201228162233.2032571-3-willemdebruijn.kernel@gmail.com>
+ <20210202090724-mutt-send-email-mst@kernel.org>
+ <CA+FuTSeEVvtmmQ2HioTUrA6nX9s6yLEvNXfg=fLKw6X+E9wWow@mail.gmail.com>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [10.236.30.118] (165.204.77.1) by
- SA0PR11CA0171.namprd11.prod.outlook.com (2603:10b6:806:1bb::26) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3805.21 via Frontend
- Transport; Tue, 2 Feb 2021 22:34:11 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-HT: Tenant
-X-MS-Office365-Filtering-Correlation-Id: 66108189-beda-4da1-dcf8-08d8c7caa9d8
-X-MS-TrafficTypeDiagnostic: CY4PR1201MB0021:
-X-Microsoft-Antispam-PRVS: <CY4PR1201MB0021A92266D8C916C7EA993EECB59@CY4PR1201MB0021.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: tBJVNwbgBuzCM8Sw9Sati/25x0Q5UDkQN3vgyzI5TdnaLWLdpXEKXbU08pH5OFflXYr9QzCgEeJvMz8rRt0Mc4L0S2xEhe7hOIyVDAtC17eAGM729ADYvBcfIdvYy5YSfDd02/dfjxFS4ueOyYndGd/R/mY44QXQqPJontDz2BGkAKSFEl+ADgsuL9nPWPjPHhP3yazhhUmPbguZBMFIq5fXJu662pu4TXhI0GUk+hVajMXO8HPxT6D1PJWKkDaulP06xGPNvyqis3IpSjZdX9tgj/uPhN3xo2QFOlR1ZNGS8Lt16QgNwjR6WHxrL1FTMBmUTLuW34jDcuHk1sM4VHQSFNU+iaXBy7IY/uLaezIA8i12FgKkjigBsR6bHOscygOZomZGwT1Vq3zx4BLsP/PYwDs+T/WWF+XfFpebpsluM9v4ksrYoZ2JLIUXsMTUCueKY60F9Jt82P3meESIIJt0XDbKnXlmlCryfn/5b2ER9JNtNV5ydNUUwLrETwpeb3JSeKVZlDO0ICXZ6neJnfTRLmnHVGXlbi3AwKaNuXw1DM2s8hvBPQHs9cgsfTmISOXmtxwjic9yKIicJChU0A4ESD4bXVGtCbNVaRowyIqOa5Mc24q8FNbMq38bKhc24iDkmfyFSxFVmepawJ9Iz+Eh7F5X73z1kMFkcCPWzVxt09KHeGhUWAEiOKz7LCS3
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:CY4PR12MB1352.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(136003)(396003)(346002)(39860400002)(376002)(366004)(7416002)(31686004)(45080400002)(4326008)(8676002)(2616005)(966005)(52116002)(478600001)(316002)(16576012)(36756003)(110136005)(6486002)(66476007)(956004)(186003)(66946007)(16526019)(53546011)(26005)(8936002)(54906003)(2906002)(5660300002)(66556008)(83380400001)(31696002)(86362001)(45980500001)(43740500002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?YUtVM3BxS3VkWXN5aDVMd1dGUTd4TWxaaFdVUTJOWlAyaFVaYkR4NEIvaUlI?=
- =?utf-8?B?VU5pMVRaNFo1QU9wSTB6bGxlclRiMnQ3czRPUnNHUHg3TUQ4a1YrbDl5N21w?=
- =?utf-8?B?NzBsUHVMSDh1Y2RJbTR3TXVIZGVPVUhHemd1b3FyQUphUWFQQjcxbmxsNlFB?=
- =?utf-8?B?dmw3QS9OUU5HZGR6UzVEeWVSeXJKTlpuMytUdnYzL0R1TmFEZ3I0b3V0cHZx?=
- =?utf-8?B?cC94TlF2KzZaRTdNVis0QzA5WkF1YTNtSDNzMCt1Z1VEWk1wT2xUNlJ2bVlr?=
- =?utf-8?B?NlhDVElMaEx2dmtPVWU0ZDllcEFsVzFCcmJXK242ak9QS2RjNzVLWFBFa1RZ?=
- =?utf-8?B?dFdPY1V6aFUzNmkrMkJ3QlU5NU5iNTUxQkppQytIL25yVFNIeDBqbG0xd1c5?=
- =?utf-8?B?N2JZajZ4cHA3dmZubnBCOWdHSDY5TVg5YWh1Sk9WdXBDSnVRMy9CcFBnM1Qw?=
- =?utf-8?B?RXpQblhXdzZVaTU5Sm5CRlN0VGdJbi9WS1V1RmZiZjJidkJvOFVYN0lYWFZ2?=
- =?utf-8?B?dFBFVWV0bFpraGNGSCtXVzJ6cmdvRlc5azVWVjBDcjJFZG82WnpnL3RadDlG?=
- =?utf-8?B?ekRISFExOC9OTzlwVlhSZk9JY3ZNeDUraFp1cEtiNXNJTmdRclM5RWdBNEVr?=
- =?utf-8?B?cjlEK1h5eldBeVQ5MnNqdUtqS2FNRUZTc28xTWNPS3JRUHJnMTQ0TGtPa0FR?=
- =?utf-8?B?aEVUTE40VXV3eXl5Sis3dVN6VWdvOWRSR20zTnRMRnIzU1RwVzBxR0U3Rys2?=
- =?utf-8?B?Vys3UTJ0Qlo1cTIzdXg5YVMzQUtHaVBFZmhFa2tnWjI2N2pDWk5hbzdEeFBx?=
- =?utf-8?B?K0p4VXJTWDZ6ZXJxcWV0Ni92c2tlNHdkQ3VPL1FZdkNaTklFUFRLcE12QS9P?=
- =?utf-8?B?YTNQYVVYYkVFR216dEQrbzRVTkVzaXFkSnR3TDdrUGd5OElneWQrMkNHdmsv?=
- =?utf-8?B?VFJoZnI4ZjAzQytUODNYaXNDRkJ5Smh5dHAvcC8wdUFndTdEUnNsclYxallN?=
- =?utf-8?B?VFBCeWoyZnE0QXNXbHJNcGtCUm9sYU4zL3BBRDhicHllRWQ2Mk8zT29EbjdE?=
- =?utf-8?B?QXlOWFkwalNiS3JPUk9xaTNjbGR1blQxK09CRXVJaTY1SHlRR29qV1dWZS9h?=
- =?utf-8?B?c3duVDdIeDNSeXhPcC93Uzl5NEd0aVFOLzNDemlnWWhrdWxMZE41NHhESlFC?=
- =?utf-8?B?UWQ4N0J5Q0UyQWdlcUhoMDFTOE93Wm4zOFA4WWZ0MFJoMTBGS1ZwOXdVdVZG?=
- =?utf-8?B?TUgwNWZITmUraWFaNXZsSndpOTJtZElOSGpOWVUyekpWV0M4bVpBWnRMakFS?=
- =?utf-8?B?Rm15K1RYdm5ZUG10eGJUbVJvL0tzeXcxbWpCLzgzN0sydGMvYnd0SVg1dm1B?=
- =?utf-8?B?VHhmVXZzNzcveXVYTWIzWlYvaHByQVFuRjFtbjdXRHM3czlwbXM4bkxIcjVY?=
- =?utf-8?B?TjZaU2R4aVRJWlI3eVRUdjlZRHcraHVzQXlQSzJhUzdtVWhyUkR2TFM4SkpI?=
- =?utf-8?B?Q285THc0NDg1bUkvNFZWM0F5dUFtYTdLVlFEZ3c2Qlh3Y0RIc0p0bk85OUVE?=
- =?utf-8?B?ZlloelZtQXUzQU1oM3NtOXhFbzRBOHExK01hK1crKzAyUDlHTHZRMmZhNit3?=
- =?utf-8?B?OUNITEJSQmNaS0R6d1ZuVEgrRFZCU1FlWjUzZE1iM092UXVUYzdSN0Zzdno1?=
- =?utf-8?B?MjJKSUFpN3N5Tjdna1o2bGlNTk1nMGc5cGxFU2UxQXcvWjZ4YXllOHdMcUtE?=
- =?utf-8?Q?P9uH5jYSGqk64xKFOPMlmWt6ALq3GZE2QfFxhFu?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 66108189-beda-4da1-dcf8-08d8c7caa9d8
-X-MS-Exchange-CrossTenant-AuthSource: CY4PR12MB1352.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Feb 2021 22:34:12.8593 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: jTxIc5imfxCkSpzwW/PJoJYJio3IHsds1f2XHD2e/gAOTCdCDCryl26aYYHEpEkTSoJSUE9DdmpLsLMrW4HzLQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR1201MB0021
-Cc: file@sect.tu-berlin.de, robert.buhren@sect.tu-berlin.de,
- kvm@vger.kernel.org, robin.murphy@arm.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org,
- Konrad Rzeszutek Wilk <konrad@darnok.org>,
- mathias.morbitzer@aisec.fraunhofer.de, Christoph Hellwig <hch@lst.de>,
- kirill.shutemov@linux.intel.com
+In-Reply-To: <CA+FuTSeEVvtmmQ2HioTUrA6nX9s6yLEvNXfg=fLKw6X+E9wWow@mail.gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Network Development <netdev@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -170,101 +123,147 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 2/2/21 10:37 AM, Konrad Rzeszutek Wilk wrote:
-> On Mon, Jan 25, 2021 at 07:33:35PM +0100, Martin Radev wrote:
->> On Mon, Jan 18, 2021 at 10:14:28AM -0500, Konrad Rzeszutek Wilk wrote:
->>> On Mon, Jan 18, 2021 at 12:44:58PM +0100, Martin Radev wrote:
->>>> On Wed, Jan 13, 2021 at 12:30:17PM +0100, Christoph Hellwig wrote:
->>>>> On Tue, Jan 12, 2021 at 04:07:29PM +0100, Martin Radev wrote:
->>>>>> The size of the buffer being bounced is not checked if it happens
->>>>>> to be larger than the size of the mapped buffer. Because the size
->>>>>> can be controlled by a device, as it's the case with virtio devices,
->>>>>> this can lead to memory corruption.
->>>>>>
->>>>>
->>>>> I'm really worried about all these hodge podge hacks for not trusted
->>>>> hypervisors in the I/O stack.  Instead of trying to harden protocols
->>>>> that are fundamentally not designed for this, how about instead coming
->>>>> up with a new paravirtualized I/O interface that is specifically
->>>>> designed for use with an untrusted hypervisor from the start?
->>>>
->>>> Your comment makes sense but then that would require the cooperation
->>>> of these vendors and the cloud providers to agree on something meaningful.
->>>> I am also not sure whether the end result would be better than hardening
->>>> this interface to catch corruption. There is already some validation in
->>>> unmap path anyway.
->>>>
->>>> Another possibility is to move this hardening to the common virtio code,
->>>> but I think the code may become more complicated there since it would
->>>> require tracking both the dma_addr and length for each descriptor.
->>>
->>> Christoph,
->>>
->>> I've been wrestling with the same thing - this is specific to busted
->>> drivers. And in reality you could do the same thing with a hardware
->>> virtio device (see example in https://nam11.safelinks.protection.outlook.com/?url=http%3A%2F%2Fthunderclap.io%2F&amp;data=04%7C01%7Cthomas.lendacky%40amd.com%7Cfc27af49d9a943699f6c08d8c798eed4%7C3dd8961fe4884e608e11a82d994e183d%7C0%7C0%7C637478806973542212%7CUnknown%7CTWFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0%3D%7C1000&amp;sdata=aUVqobkOSDfDhCAEauABOUvCAaIcw%2FTh07YFxeBjBDU%3D&amp;reserved=0) - where the
->>> mitigation is 'enable the IOMMU to do its job.'.
->>>
->>> AMD SEV documents speak about utilizing IOMMU to do this (AMD SEV-SNP)..
->>> and while that is great in the future, SEV without IOMMU is now here.
->>>
->>> Doing a full circle here, this issue can be exploited with virtio
->>> but you could say do that with real hardware too if you hacked the
->>> firmware, so if you say used Intel SR-IOV NIC that was compromised
->>> on an AMD SEV machine, and plumbed in the guest - the IOMMU inside
->>> of the guest would be SWIOTLB code. Last line of defense against
->>> bad firmware to say.
->>>
->>> As such I am leaning towards taking this code, but I am worried
->>> about the performance hit .. but perhaps I shouldn't as if you
->>> are using SWIOTLB=force already you are kind of taking a
->>> performance hit?
->>>
->>
->> I have not measured the performance degradation. This will hit all AMD SEV,
->> Intel TDX, IBM Protected Virtualization VMs. I don't expect the hit to
->> be large since there are only few added operations per hundreads of copied
->> bytes. I could try to measure the performance hit by running some benchmark
->> with virtio-net/virtio-blk/virtio-rng.
->>
->> Earlier I said:
->>>> Another possibility is to move this hardening to the common virtio code,
->>>> but I think the code may become more complicated there since it would
->>>> require tracking both the dma_addr and length for each descriptor.
->>
->> Unfortunately, this doesn't make sense. Even if there's validation for
->> the size in the common virtio layer, there will be some other device
->> which controls a dma_addr and length passed to dma_unmap* in the
->> corresponding driver. The device can target a specific dma-mapped private
->> buffer by changing the dma_addr and set a good length to overwrite buffers
->> following it.
->>
->> So, instead of doing the check in every driver and hitting a performance
->> cost even when swiotlb is not used, it's probably better to fix it in
->> swiotlb.
->>
->> @Tom Lendacky, do you think that it makes sense to harden swiotlb or
->> some other approach may be better for the SEV features?
+On Tue, Feb 02, 2021 at 05:17:13PM -0500, Willem de Bruijn wrote:
+> On Tue, Feb 2, 2021 at 9:08 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Mon, Dec 28, 2020 at 11:22:32AM -0500, Willem de Bruijn wrote:
+> > > From: Willem de Bruijn <willemb@google.com>
+> > >
+> > > Add optional PTP hardware timestamp offload for virtio-net.
+> > >
+> > > Accurate RTT measurement requires timestamps close to the wire.
+> > > Introduce virtio feature VIRTIO_NET_F_RX_TSTAMP. If negotiated, the
+> > > virtio-net header is expanded with room for a timestamp. A host may
+> > > pass receive timestamps for all or some packets. A timestamp is valid
+> > > if non-zero.
+> > >
+> > > The timestamp straddles (virtual) hardware domains. Like PTP, use
+> > > international atomic time (CLOCK_TAI) as global clock base. It is
+> > > guest responsibility to sync with host, e.g., through kvm-clock.
+> > >
+> > > Signed-off-by: Willem de Bruijn <willemb@google.com>
+> > > ---
+> > >  drivers/net/virtio_net.c        | 20 +++++++++++++++++++-
+> > >  include/uapi/linux/virtio_net.h | 12 ++++++++++++
+> > >  2 files changed, 31 insertions(+), 1 deletion(-)
+> > >
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index b917b7333928..57744bb6a141 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -204,6 +204,9 @@ struct virtnet_info {
+> > >       /* Guest will pass tx path info to the host */
+> > >       bool has_tx_hash;
+> > >
+> > > +     /* Host will pass CLOCK_TAI receive time to the guest */
+> > > +     bool has_rx_tstamp;
+> > > +
+> > >       /* Has control virtqueue */
+> > >       bool has_cvq;
+> > >
+> > > @@ -292,6 +295,13 @@ static inline struct virtio_net_hdr_mrg_rxbuf *skb_vnet_hdr(struct sk_buff *skb)
+> > >       return (struct virtio_net_hdr_mrg_rxbuf *)skb->cb;
+> > >  }
+> > >
+> > > +static inline struct virtio_net_hdr_v12 *skb_vnet_hdr_12(struct sk_buff *skb)
+> > > +{
+> > > +     BUILD_BUG_ON(sizeof(struct virtio_net_hdr_v12) > sizeof(skb->cb));
+> > > +
+> > > +     return (void *)skb->cb;
+> > > +}
+> > > +
+> > >  /*
+> > >   * private is used to chain pages for big packets, put the whole
+> > >   * most recent used list in the beginning for reuse
+> > > @@ -1082,6 +1092,9 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+> > >               goto frame_err;
+> > >       }
+> > >
+> > > +     if (vi->has_rx_tstamp)
+> > > +             skb_hwtstamps(skb)->hwtstamp = ns_to_ktime(skb_vnet_hdr_12(skb)->tstamp);
+> > > +
+> > >       skb_record_rx_queue(skb, vq2rxq(rq->vq));
+> > >       skb->protocol = eth_type_trans(skb, dev);
+> > >       pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
+> > > @@ -3071,6 +3084,11 @@ static int virtnet_probe(struct virtio_device *vdev)
+> > >               vi->hdr_len = sizeof(struct virtio_net_hdr_v1_hash);
+> > >       }
+> > >
+> > > +     if (virtio_has_feature(vdev, VIRTIO_NET_F_RX_TSTAMP)) {
+> > > +             vi->has_rx_tstamp = true;
+> > > +             vi->hdr_len = sizeof(struct virtio_net_hdr_v12);
+> > > +     }
+> > > +
+> > >       if (virtio_has_feature(vdev, VIRTIO_F_ANY_LAYOUT) ||
+> > >           virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
+> > >               vi->any_header_sg = true;
+> > > @@ -3261,7 +3279,7 @@ static struct virtio_device_id id_table[] = {
+> > >       VIRTIO_NET_F_CTRL_MAC_ADDR, \
+> > >       VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
+> > >       VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY, \
+> > > -     VIRTIO_NET_F_TX_HASH
+> > > +     VIRTIO_NET_F_TX_HASH, VIRTIO_NET_F_RX_TSTAMP
+> > >
+> > >  static unsigned int features[] = {
+> > >       VIRTNET_FEATURES,
+> > > diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> > > index f6881b5b77ee..0ffe2eeebd4a 100644
+> > > --- a/include/uapi/linux/virtio_net.h
+> > > +++ b/include/uapi/linux/virtio_net.h
+> > > @@ -57,6 +57,7 @@
+> > >                                        * Steering */
+> > >  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23        /* Set MAC address */
+> > >
+> > > +#define VIRTIO_NET_F_RX_TSTAMP         55    /* Host sends TAI receive time */
+> > >  #define VIRTIO_NET_F_TX_HASH   56    /* Guest sends hash report */
+> > >  #define VIRTIO_NET_F_HASH_REPORT  57 /* Supports hash report */
+> > >  #define VIRTIO_NET_F_RSS       60    /* Supports RSS RX steering */
+> > > @@ -182,6 +183,17 @@ struct virtio_net_hdr_v1_hash {
+> > >       };
+> > >  };
+> > >
+> > > +struct virtio_net_hdr_v12 {
+> > > +     struct virtio_net_hdr_v1 hdr;
+> > > +     struct {
+> > > +             __le32 value;
+> > > +             __le16 report;
+> > > +             __le16 flow_state;
+> > > +     } hash;
+> > > +     __virtio32 reserved;
+> >
+> >
+> > Does endian-ness matter? If not - just u32?
 > 
-> I am not Tom, but this change seems the right way forward regardless if
-> is TDX, AMD SEV, or any other architecture that encrypt memory and use
-> SWIOTLB.
+> I suppose it does not matter as long as this is reserved. Should it be
+> __le32, at least?
 
-Sorry, I missed the @Tom before. I'm with Konrad and believe it makes
-sense to add these checks.
+One can safely assign 0 to any value.
 
-I'm not sure if there would be a better approach for all confidential
-computing technologies. SWIOTLB works nicely, but is limited because of
-the 32-bit compatible memory location. Being able to have buffers above
-the 32-bit limit would alleviate that, but that is support that would have
-to be developed.
 
-Thanks,
-Tom
+> > > +     __virtio64 tstamp;
+> > > +};
+> > > +
+> >
+> > Given it's only available in modern devices, I think we
+> > can make this __le64 tstamp.
+> 
+> Actually, would it be possible to make new features available on
+> legacy devices? There is nothing in the features bits precluding it.
+
+I think it won't be possible: you are using feature bit 55,
+legacy devices have up to 32 feature bits. And of course the
+header looks a bit differently for legacy, you would have to add special
+code to handle that when mergeable buffers are off.
 
 > 
-> Let me queue it up in development branch and do some regression testing.
->>
+> I have a revised patchset almost ready. I suppose I should send it as
+> RFC again, and simultaneously file an OASIS ballot for each feature?
+
+that would be great.
+
+-- 
+MST
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
