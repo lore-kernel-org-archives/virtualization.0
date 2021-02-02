@@ -7,112 +7,104 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CA58C433DB
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 14:06:33 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78C87C433E0
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 14:08:43 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 07BC760234
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 14:06:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 07BC760234
+	by mail.kernel.org (Postfix) with ESMTPS id 3003164E9E
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 14:08:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3003164E9E
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id A50A685ABE;
-	Tue,  2 Feb 2021 14:06:32 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id EDD0986D37;
+	Tue,  2 Feb 2021 14:08:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kJX2ov4eFj-y; Tue,  2 Feb 2021 14:06:30 +0000 (UTC)
+	with ESMTP id FLPzIr1EFayy; Tue,  2 Feb 2021 14:08:39 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id CF3F285A49;
-	Tue,  2 Feb 2021 14:06:30 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 4D2FD8632E;
+	Tue,  2 Feb 2021 14:08:39 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C29A6C0174;
-	Tue,  2 Feb 2021 14:06:30 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3A818C0174;
+	Tue,  2 Feb 2021 14:08:39 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DDBECC013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7EF82C013A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 14:06:28 +0000 (UTC)
+ Tue,  2 Feb 2021 14:08:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id B606A20387
+ by silver.osuosl.org (Postfix) with ESMTP id 50A052037A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 14:06:28 +0000 (UTC)
+ Tue,  2 Feb 2021 14:08:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HUVO6qlYDsv0
+ with ESMTP id foaYwlrLhnJ1
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 14:06:26 +0000 (UTC)
+ Tue,  2 Feb 2021 14:08:36 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by silver.osuosl.org (Postfix) with ESMTPS id 0A1612037A
+ by silver.osuosl.org (Postfix) with ESMTPS id 1DD722038D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 14:06:25 +0000 (UTC)
+ Tue,  2 Feb 2021 14:08:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1612274784;
+ s=mimecast20190719; t=1612274915;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=HoV6WmzOM8JYFHRnbfZo8tVfL3dwzU/hINcFi1knTHc=;
- b=XdOENgkvd8cmfnUccX7rF6hlKCiuqTtBIxsmDjpZ2YR26jORetIwvgAU7qJnzJ3V2B+arW
- Gnad8E++TJ1An6rtvQIyGM+6Ms32KHnZYeGicV6u07zYVv7zRD3wLBYNJanERucDxmiafM
- hWPZrp+pK2ruN4EzDJEIAyMcdL870Po=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-132-DhS5mATjNZWF01Ev6rmhSQ-1; Tue, 02 Feb 2021 09:06:22 -0500
-X-MC-Unique: DhS5mATjNZWF01Ev6rmhSQ-1
-Received: by mail-wm1-f71.google.com with SMTP id y9so1476366wmi.8
+ bh=mirZa3yUEq++3JqI3oR6Gzaq1R19rjhpMm3CizTMdhM=;
+ b=iSmy2nU4fKTL4XjvRaktj/PxYx5WZnxPDsfMPEcM9Use0x/3YO/4acx0MAqKCc7ePsxatO
+ U3zOvM0M9C/LzIU2t0H+qnHDbbzhEYe4JMwvwva/nE2ZDYwHmj4A6bQVyIJtXQyXPGRDhj
+ Xqthzjau0bLXrt1XO7DHnVrGzdTcMTM=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-512-Q0--T42vMBeQcvLo4iQzvw-1; Tue, 02 Feb 2021 09:08:32 -0500
+X-MC-Unique: Q0--T42vMBeQcvLo4iQzvw-1
+Received: by mail-wr1-f72.google.com with SMTP id h18so12658436wrr.5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 02 Feb 2021 06:06:22 -0800 (PST)
+ Tue, 02 Feb 2021 06:08:32 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=HoV6WmzOM8JYFHRnbfZo8tVfL3dwzU/hINcFi1knTHc=;
- b=T1GKQ/UO3ER8mm6TID3fBqqg96nzujIXB0YUmlp99uqb3sjM1BtHFSN0uHLalSSvI3
- hgB4/9LyZJoQcZ7LfkjeP0YCUBMMbCZ/72VxUq+4LDkte2/jtykcle+tm3rzcV6rcHC3
- Jn3hv4NlrI1DRW1Ty3gr63vNryUTshIwJtk1Ae7eCW2eR/8ctEy1o+690SaqIxzbY1y9
- 96JqfziohmX6JNJRv+m46Q1ytdN3aaK+rj0U0T+vZ5U3bKwEP1T1y3Pkv67Ls7kGbJVw
- 08eFZySzT51fwCRQEERI0HcWr1jKCZssaCHqJqynhrp4roLGeXX6k332vVrfBkdBP2od
- A4bQ==
-X-Gm-Message-State: AOAM532louftgiElDrjqFlG04DPpYhDOrJXMp+PMYAmHDf9l/gd98Y+6
- +orvvlYqUBqJzqzpulD4ZUAykZmaSyX1slKBy3117buFR4w+4eShOoYMDTFeGp5gc4sPp0xllyc
- /lmzpttKPeFLItkuTI/SaMbdWwnUNVomOFi03G9KYNA==
-X-Received: by 2002:a1c:2d0b:: with SMTP id t11mr3742613wmt.109.1612274781425; 
- Tue, 02 Feb 2021 06:06:21 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwLuu9HSbHaNq2JSTJGYoIuanz10/6LwyOztA42Q7LIGokzZlY2asGRgWOD0wv1yz3mEZn6wA==
-X-Received: by 2002:a1c:2d0b:: with SMTP id t11mr3742583wmt.109.1612274781204; 
- Tue, 02 Feb 2021 06:06:21 -0800 (PST)
+ :mime-version:content-disposition:in-reply-to;
+ bh=mirZa3yUEq++3JqI3oR6Gzaq1R19rjhpMm3CizTMdhM=;
+ b=Gw18wyAb8JUb8Un7UhuXemQ/h0i+A7osnhl/t2kHpxoksEFx9kdAXT4exYoM/p89oZ
+ AqrDzcp2eHMauJQsPm350byqD8fofBH7V8hoduXa7TtyaFbUyCnvRPdxsASJmgMzTOFr
+ No8kDwzUe/pt+9FC9jbYKhIdkcROnN+SH/+o44tecsc33LBeV5xvbysr9/nu3HIztDoC
+ 6S7XPNl62EAKfyK0WHd8+nm87J+3uID5knz9eh+01Y25hsvPJs5TGriZqz80aF/ixVX2
+ ho79RqM5Gs4XOufJgfCQaxXrUtu5cvG7F7ICZDiR16pvAdRZITnoLdt0hfbr4YB39yn4
+ xsjA==
+X-Gm-Message-State: AOAM530MurScsApKYJR5joNo4kFZmK0CatsFnrdtgToOpXHx/BGuyDAe
+ PlNrmHMEjNTglCMg1h4tdTIDvofkaOm7IymB2Sl3yoAbK2yte7m8FSVfMrFVCsUW2bZvWakpa8o
+ SIByz8+NV/iH6ep1XmvnEEPe2IlPFwW3pXfufdqXecg==
+X-Received: by 2002:adf:ef03:: with SMTP id e3mr24504229wro.98.1612274911068; 
+ Tue, 02 Feb 2021 06:08:31 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzZRkxiviUbtukpHiXMaZugKQ5wX+jo3TqMX5lDlVQwa7h3bPyo3TcCw4rmgquEI1Yqy1k4hw==
+X-Received: by 2002:adf:ef03:: with SMTP id e3mr24504206wro.98.1612274910855; 
+ Tue, 02 Feb 2021 06:08:30 -0800 (PST)
 Received: from redhat.com (bzq-79-177-39-148.red.bezeqint.net. [79.177.39.148])
- by smtp.gmail.com with ESMTPSA id o124sm3431503wmb.5.2021.02.02.06.06.18
+ by smtp.gmail.com with ESMTPSA id p18sm3197717wmc.31.2021.02.02.06.08.29
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 02 Feb 2021 06:06:20 -0800 (PST)
-Date: Tue, 2 Feb 2021 09:06:17 -0500
+ Tue, 02 Feb 2021 06:08:29 -0800 (PST)
+Date: Tue, 2 Feb 2021 09:08:27 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eli Cohen <elic@nvidia.com>
-Subject: Re: [PATCH 1/2] vdpa/mlx5: Avoid unnecessary query virtqueue
-Message-ID: <20210202090558-mutt-send-email-mst@kernel.org>
-References: <20210128134130.3051-1-elic@nvidia.com>
- <20210128134130.3051-2-elic@nvidia.com>
- <CAPWQSg0XtEQ1U5N3a767Ak_naoyPdVF1CeE4r3hmN11a-aoBxg@mail.gmail.com>
- <CAPWQSg3U9DCSK_01Kzuea5B1X+Ef9JB23wBY82A3ss-UXGek_Q@mail.gmail.com>
- <9d6058d6-5ce1-0442-8fd9-5a6fe6a0bc6b@redhat.com>
- <CAPWQSg3KOAypcrs9krW8cGE7EDLTehCUCYFZMUYYNaYPH1oBZQ@mail.gmail.com>
- <20210202070055.GB232587@mtl-vdi-166.wap.labs.mlnx>
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: Re: [PATCH rfc 2/3] virtio-net: support receive timestamp
+Message-ID: <20210202090724-mutt-send-email-mst@kernel.org>
+References: <20201228162233.2032571-1-willemdebruijn.kernel@gmail.com>
+ <20201228162233.2032571-3-willemdebruijn.kernel@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20210202070055.GB232587@mtl-vdi-166.wap.labs.mlnx>
+In-Reply-To: <20201228162233.2032571-3-willemdebruijn.kernel@gmail.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Si-Wei Liu <siwliu.kernel@gmail.com>, lulu@redhat.com,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Si-Wei Liu <si-wei.liu@oracle.com>
+Cc: netdev@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,83 +116,133 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVHVlLCBGZWIgMDIsIDIwMjEgYXQgMDk6MDA6NTVBTSArMDIwMCwgRWxpIENvaGVuIHdyb3Rl
-Ogo+IE9uIE1vbiwgRmViIDAxLCAyMDIxIGF0IDA4OjE1OjI5UE0gLTA4MDAsIFNpLVdlaSBMaXUg
-d3JvdGU6Cj4gPiBPbiBNb24sIEZlYiAxLCAyMDIxIGF0IDc6MTMgUE0gSmFzb24gV2FuZyA8amFz
-b3dhbmdAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPiA+Cj4gPiA+Cj4gPiA+IE9uIDIwMjEvMi8yIOS4
-iuWNiDM6MTcsIFNpLVdlaSBMaXUgd3JvdGU6Cj4gPiA+ID4gT24gTW9uLCBGZWIgMSwgMjAyMSBh
-dCAxMDo1MSBBTSBTaS1XZWkgTGl1IDxzaXdsaXUua2VybmVsQGdtYWlsLmNvbT4gd3JvdGU6Cj4g
-PiA+ID4+IE9uIFRodSwgSmFuIDI4LCAyMDIxIGF0IDU6NDYgQU0gRWxpIENvaGVuIDxlbGljQG52
-aWRpYS5jb20+IHdyb3RlOgo+ID4gPiA+Pj4gc3VzcGVuZF92cSBzaG91bGQgb25seSBzdXNwZW5k
-IHRoZSBWUSBvbiBub3Qgc2F2ZSB0aGUgY3VycmVudCBhdmFpbGFibGUKPiA+ID4gPj4+IGluZGV4
-LiBUaGlzIGlzIGRvbmUgd2hlbiBhIGNoYW5nZSBvZiBtYXAgb2NjdXJzIHdoZW4gdGhlIGRyaXZl
-ciBjYWxscwo+ID4gPiA+Pj4gc2F2ZV9jaGFubmVsX2luZm8oKS4KPiA+ID4gPj4gSG1tbSwgc3Vz
-cGVuZF92cSgpIGlzIGFsc28gY2FsbGVkIGJ5IHRlYXJkb3duX3ZxKCksIHRoZSBsYXR0ZXIgb2YK
-PiA+ID4gPj4gd2hpY2ggZG9lc24ndCBzYXZlIHRoZSBhdmFpbGFibGUgaW5kZXggYXMgc2F2ZV9j
-aGFubmVsX2luZm8oKSBkb2Vzbid0Cj4gPiA+ID4+IGdldCBjYWxsZWQgaW4gdGhhdCBwYXRoIGF0
-IGFsbC4gSG93IGRvZXMgaXQgaGFuZGxlIHRoZSBjYXNlIHRoYXQKPiA+ID4gPj4gYWdldF92cV9z
-dGF0ZSgpIGlzIGNhbGxlZCBmcm9tIHVzZXJzcGFjZSAoZS5nLiBRRU1VKSB3aGlsZSB0aGUKPiA+
-ID4gPj4gaGFyZHdhcmUgVlEgb2JqZWN0IHdhcyB0b3JuIGRvd24sIGJ1dCB1c2Vyc3BhY2Ugc3Rp
-bGwgd2FudHMgdG8gYWNjZXNzCj4gPiA+ID4+IHRoZSBxdWV1ZSBpbmRleD8KPiA+ID4gPj4KPiA+
-ID4gPj4gUmVmZXIgdG8gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvbmV0ZGV2LzE2MDE1ODM1MTEt
-MTUxMzgtMS1naXQtc2VuZC1lbWFpbC1zaS13ZWkubGl1QG9yYWNsZS5jb20vCj4gPiA+ID4+Cj4g
-PiA+ID4+IHZob3N0IFZRIDAgcmluZyByZXN0b3JlIGZhaWxlZDogLTE6IFJlc291cmNlIHRlbXBv
-cmFyaWx5IHVuYXZhaWxhYmxlICgxMSkKPiA+ID4gPj4gdmhvc3QgVlEgMSByaW5nIHJlc3RvcmUg
-ZmFpbGVkOiAtMTogUmVzb3VyY2UgdGVtcG9yYXJpbHkgdW5hdmFpbGFibGUgKDExKQo+ID4gPiA+
-Pgo+ID4gPiA+PiBRRU1VIHdpbGwgY29tcGxhaW4gd2l0aCB0aGUgYWJvdmUgd2FybmluZyB3aGls
-ZSBWTSBpcyBiZWluZyByZWJvb3RlZAo+ID4gPiA+PiBvciBzaHV0IGRvd24uCj4gPiA+ID4+Cj4g
-PiA+ID4+IExvb2tzIHRvIG1lIGVpdGhlciB0aGUga2VybmVsIGRyaXZlciBzaG91bGQgY292ZXIg
-dGhpcyByZXF1aXJlbWVudCwgb3IKPiA+ID4gPj4gdGhlIHVzZXJzcGFjZSBoYXMgdG8gYmVhciB0
-aGUgYnVyZGVuIGluIHNhdmluZyB0aGUgaW5kZXggYW5kIG5vdCBjYWxsCj4gPiA+ID4+IGludG8g
-a2VybmVsIGlmIFZRIGlzIGRlc3Ryb3llZC4KPiA+ID4gPiBBY3R1YWxseSwgdGhlIHVzZXJzcGFj
-ZSBkb2Vzbid0IGhhdmUgdGhlIGluc2lnaHRzIHdoZXRoZXIgdmlydCBxdWV1ZQo+ID4gPiA+IHdp
-bGwgYmUgZGVzdHJveWVkIGlmIGp1c3QgY2hhbmdpbmcgdGhlIGRldmljZSBzdGF0dXMgdmlhIHNl
-dF9zdGF0dXMoKS4KPiA+ID4gPiBMb29raW5nIGF0IG90aGVyIHZkcGEgZHJpdmVyIGluIHRyZWUg
-aS5lLiBpZmN2ZiBpdCBkb2Vzbid0IGJlaGF2ZSBsaWtlCj4gPiA+ID4gc28uIEhlbmNlIHRoaXMg
-c3RpbGwgbG9va3MgdG8gbWUgdG8gYmUgTWVsbGFub3ggc3BlY2lmaWNzIGFuZAo+ID4gPiA+IG1s
-eDVfdmRwYSBpbXBsZW1lbnRhdGlvbiBkZXRhaWwgdGhhdCBzaG91bGRuJ3QgZXhwb3NlIHRvIHVz
-ZXJzcGFjZS4KPiA+ID4KPiA+ID4KPiA+ID4gU28gSSB0aGluayB3ZSBjYW4gc2ltcGx5IGRyb3Ag
-dGhpcyBwYXRjaD8KPiA+IAo+ID4gWWVwLCBJIHRoaW5rIHNvLiBUbyBiZSBob25lc3QgSSBkb24n
-dCBrbm93IHdoeSBpdCBoYXMgYW55dGhpbmcgdG8gZG8KPiA+IHdpdGggdGhlIG1lbW9yeSBob3Rw
-bHVnIGlzc3VlLgo+IAo+IE5vIHJlbGF0aW9uLiBUaGF0J3Mgd2h5IEkgcHV0IHRoZW0gaW4gdHdv
-IGRpZmZlcmVudCBwYXRjaGVzLiBPbmx5IHRoZQo+IHNlY29uZCBvbmUgaXMgdGhlIGZpeCBhcyBJ
-IHN0YXRlZCBpbiB0aGUgY292ZXIgbGV0dGVyLgo+IAo+IEFueXdheSwgbGV0J3MganVzdCB0YWtl
-IHRoZSBzZWNvbmQgcGF0Y2guCj4gCj4gTWljaGFlbCwgZG8geW91IG5lZWQgbWUgdG8gc2VuZCBQ
-QVRDSCAyIGFnYWluIGFzIGEgc2luZ2xlIHBhdGNoIG9yIGNhbgo+IHlvdSBqdXN0IHRha2UgaXQ/
-CgpQbHMgcG9zdCBmaXhlcyBzZXBhcmF0ZWx5LiBUaGFua3MhCgo+IAo+ID4gCj4gPiAtU2l3ZWkK
-PiA+IAo+ID4gPgo+ID4gPiBUaGFua3MKPiA+ID4KPiA+ID4KPiA+ID4gPj4gLVNpd2VpCj4gPiA+
-ID4+Cj4gPiA+ID4+Cj4gPiA+ID4+PiBTaWduZWQtb2ZmLWJ5OiBFbGkgQ29oZW4gPGVsaWNAbnZp
-ZGlhLmNvbT4KPiA+ID4gPj4+IC0tLQo+ID4gPiA+Pj4gICBkcml2ZXJzL3ZkcGEvbWx4NS9uZXQv
-bWx4NV92bmV0LmMgfCA4IC0tLS0tLS0tCj4gPiA+ID4+PiAgIDEgZmlsZSBjaGFuZ2VkLCA4IGRl
-bGV0aW9ucygtKQo+ID4gPiA+Pj4KPiA+ID4gPj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEv
-bWx4NS9uZXQvbWx4NV92bmV0LmMgYi9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMK
-PiA+ID4gPj4+IGluZGV4IDg4ZGRlMzQ1NWJmZC4uNTQ5ZGVkMDc0ZmYzIDEwMDY0NAo+ID4gPiA+
-Pj4gLS0tIGEvZHJpdmVycy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5jCj4gPiA+ID4+PiArKysg
-Yi9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMKPiA+ID4gPj4+IEBAIC0xMTQ4LDgg
-KzExNDgsNiBAQCBzdGF0aWMgaW50IHNldHVwX3ZxKHN0cnVjdCBtbHg1X3ZkcGFfbmV0ICpuZGV2
-LCBzdHJ1Y3QgbWx4NV92ZHBhX3ZpcnRxdWV1ZSAqbXZxKQo+ID4gPiA+Pj4KPiA+ID4gPj4+ICAg
-c3RhdGljIHZvaWQgc3VzcGVuZF92cShzdHJ1Y3QgbWx4NV92ZHBhX25ldCAqbmRldiwgc3RydWN0
-IG1seDVfdmRwYV92aXJ0cXVldWUgKm12cSkKPiA+ID4gPj4+ICAgewo+ID4gPiA+Pj4gLSAgICAg
-ICBzdHJ1Y3QgbWx4NV92aXJ0cV9hdHRyIGF0dHI7Cj4gPiA+ID4+PiAtCj4gPiA+ID4+PiAgICAg
-ICAgICBpZiAoIW12cS0+aW5pdGlhbGl6ZWQpCj4gPiA+ID4+PiAgICAgICAgICAgICAgICAgIHJl
-dHVybjsKPiA+ID4gPj4+Cj4gPiA+ID4+PiBAQCAtMTE1OCwxMiArMTE1Niw2IEBAIHN0YXRpYyB2
-b2lkIHN1c3BlbmRfdnEoc3RydWN0IG1seDVfdmRwYV9uZXQgKm5kZXYsIHN0cnVjdCBtbHg1X3Zk
-cGFfdmlydHF1ZXVlICptCj4gPiA+ID4+Pgo+ID4gPiA+Pj4gICAgICAgICAgaWYgKG1vZGlmeV92
-aXJ0cXVldWUobmRldiwgbXZxLCBNTFg1X1ZJUlRJT19ORVRfUV9PQkpFQ1RfU1RBVEVfU1VTUEVO
-RCkpCj4gPiA+ID4+PiAgICAgICAgICAgICAgICAgIG1seDVfdmRwYV93YXJuKCZuZGV2LT5tdmRl
-diwgIm1vZGlmeSB0byBzdXNwZW5kIGZhaWxlZFxuIik7Cj4gPiA+ID4+PiAtCj4gPiA+ID4+PiAt
-ICAgICAgIGlmIChxdWVyeV92aXJ0cXVldWUobmRldiwgbXZxLCAmYXR0cikpIHsKPiA+ID4gPj4+
-IC0gICAgICAgICAgICAgICBtbHg1X3ZkcGFfd2FybigmbmRldi0+bXZkZXYsICJmYWlsZWQgdG8g
-cXVlcnkgdmlydHF1ZXVlXG4iKTsKPiA+ID4gPj4+IC0gICAgICAgICAgICAgICByZXR1cm47Cj4g
-PiA+ID4+PiAtICAgICAgIH0KPiA+ID4gPj4+IC0gICAgICAgbXZxLT5hdmFpbF9pZHggPSBhdHRy
-LmF2YWlsYWJsZV9pbmRleDsKPiA+ID4gPj4+ICAgfQo+ID4gPiA+Pj4KPiA+ID4gPj4+ICAgc3Rh
-dGljIHZvaWQgc3VzcGVuZF92cXMoc3RydWN0IG1seDVfdmRwYV9uZXQgKm5kZXYpCj4gPiA+ID4+
-PiAtLQo+ID4gPiA+Pj4gMi4yOS4yCj4gPiA+ID4+Pgo+ID4gPgoKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
-ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
-bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Mon, Dec 28, 2020 at 11:22:32AM -0500, Willem de Bruijn wrote:
+> From: Willem de Bruijn <willemb@google.com>
+> 
+> Add optional PTP hardware timestamp offload for virtio-net.
+> 
+> Accurate RTT measurement requires timestamps close to the wire.
+> Introduce virtio feature VIRTIO_NET_F_RX_TSTAMP. If negotiated, the
+> virtio-net header is expanded with room for a timestamp. A host may
+> pass receive timestamps for all or some packets. A timestamp is valid
+> if non-zero.
+> 
+> The timestamp straddles (virtual) hardware domains. Like PTP, use
+> international atomic time (CLOCK_TAI) as global clock base. It is
+> guest responsibility to sync with host, e.g., through kvm-clock.
+> 
+> Signed-off-by: Willem de Bruijn <willemb@google.com>
+> ---
+>  drivers/net/virtio_net.c        | 20 +++++++++++++++++++-
+>  include/uapi/linux/virtio_net.h | 12 ++++++++++++
+>  2 files changed, 31 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index b917b7333928..57744bb6a141 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -204,6 +204,9 @@ struct virtnet_info {
+>  	/* Guest will pass tx path info to the host */
+>  	bool has_tx_hash;
+>  
+> +	/* Host will pass CLOCK_TAI receive time to the guest */
+> +	bool has_rx_tstamp;
+> +
+>  	/* Has control virtqueue */
+>  	bool has_cvq;
+>  
+> @@ -292,6 +295,13 @@ static inline struct virtio_net_hdr_mrg_rxbuf *skb_vnet_hdr(struct sk_buff *skb)
+>  	return (struct virtio_net_hdr_mrg_rxbuf *)skb->cb;
+>  }
+>  
+> +static inline struct virtio_net_hdr_v12 *skb_vnet_hdr_12(struct sk_buff *skb)
+> +{
+> +	BUILD_BUG_ON(sizeof(struct virtio_net_hdr_v12) > sizeof(skb->cb));
+> +
+> +	return (void *)skb->cb;
+> +}
+> +
+>  /*
+>   * private is used to chain pages for big packets, put the whole
+>   * most recent used list in the beginning for reuse
+> @@ -1082,6 +1092,9 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+>  		goto frame_err;
+>  	}
+>  
+> +	if (vi->has_rx_tstamp)
+> +		skb_hwtstamps(skb)->hwtstamp = ns_to_ktime(skb_vnet_hdr_12(skb)->tstamp);
+> +
+>  	skb_record_rx_queue(skb, vq2rxq(rq->vq));
+>  	skb->protocol = eth_type_trans(skb, dev);
+>  	pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
+> @@ -3071,6 +3084,11 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  		vi->hdr_len = sizeof(struct virtio_net_hdr_v1_hash);
+>  	}
+>  
+> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_RX_TSTAMP)) {
+> +		vi->has_rx_tstamp = true;
+> +		vi->hdr_len = sizeof(struct virtio_net_hdr_v12);
+> +	}
+> +
+>  	if (virtio_has_feature(vdev, VIRTIO_F_ANY_LAYOUT) ||
+>  	    virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
+>  		vi->any_header_sg = true;
+> @@ -3261,7 +3279,7 @@ static struct virtio_device_id id_table[] = {
+>  	VIRTIO_NET_F_CTRL_MAC_ADDR, \
+>  	VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
+>  	VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY, \
+> -	VIRTIO_NET_F_TX_HASH
+> +	VIRTIO_NET_F_TX_HASH, VIRTIO_NET_F_RX_TSTAMP
+>  
+>  static unsigned int features[] = {
+>  	VIRTNET_FEATURES,
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> index f6881b5b77ee..0ffe2eeebd4a 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -57,6 +57,7 @@
+>  					 * Steering */
+>  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
+>  
+> +#define VIRTIO_NET_F_RX_TSTAMP	  55	/* Host sends TAI receive time */
+>  #define VIRTIO_NET_F_TX_HASH	  56	/* Guest sends hash report */
+>  #define VIRTIO_NET_F_HASH_REPORT  57	/* Supports hash report */
+>  #define VIRTIO_NET_F_RSS	  60	/* Supports RSS RX steering */
+> @@ -182,6 +183,17 @@ struct virtio_net_hdr_v1_hash {
+>  	};
+>  };
+>  
+> +struct virtio_net_hdr_v12 {
+> +	struct virtio_net_hdr_v1 hdr;
+> +	struct {
+> +		__le32 value;
+> +		__le16 report;
+> +		__le16 flow_state;
+> +	} hash;
+> +	__virtio32 reserved;
+
+
+Does endian-ness matter? If not - just u32?
+
+> +	__virtio64 tstamp;
+> +};
+> +
+
+Given it's only available in modern devices, I think we
+can make this __le64 tstamp.
+
+>  #ifndef VIRTIO_NET_NO_LEGACY
+>  /* This header comes first in the scatter-gather list.
+>   * For legacy virtio, if VIRTIO_F_ANY_LAYOUT is not negotiated, it must
+> -- 
+> 2.29.2.729.g45daf8777d-goog
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
