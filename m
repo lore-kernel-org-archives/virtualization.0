@@ -7,106 +7,104 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4595BC433DB
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 23:02:46 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6806C433E6
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 23:12:07 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D49E0601FB
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 23:02:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D49E0601FB
+	by mail.kernel.org (Postfix) with ESMTPS id 4CD3E64DAF
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 23:12:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4CD3E64DAF
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 81C9E870D1;
-	Tue,  2 Feb 2021 23:02:45 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id DEC01868D2;
+	Tue,  2 Feb 2021 23:12:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jpD+BIDhu+lc; Tue,  2 Feb 2021 23:02:44 +0000 (UTC)
+	with ESMTP id sPifxZwvRv4h; Tue,  2 Feb 2021 23:12:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id AFA998706C;
-	Tue,  2 Feb 2021 23:02:44 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id E377184E66;
+	Tue,  2 Feb 2021 23:12:05 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 88227C0FA7;
-	Tue,  2 Feb 2021 23:02:44 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D3B07C0FA7;
+	Tue,  2 Feb 2021 23:12:05 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B77FFC013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5FD78C013A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 23:02:43 +0000 (UTC)
+ Tue,  2 Feb 2021 23:12:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id A865F85E77
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 533DD85359
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 23:02:43 +0000 (UTC)
+ Tue,  2 Feb 2021 23:12:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gP_u2w48NDdA
+ with ESMTP id 8wl3nb1tzAUt
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 23:02:43 +0000 (UTC)
+ Tue,  2 Feb 2021 23:12:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id BEBF5854CC
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 2867285085
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 23:02:42 +0000 (UTC)
+ Tue,  2 Feb 2021 23:12:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1612306961;
+ s=mimecast20190719; t=1612307520;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=LDg4iKymZ53hNxtNIr/W8exxkDX1y1fBofy+s8scyQM=;
- b=Se4zi40Wuv+ykkkndtF0v4fvxMOfDWLgIFUcy8305ZXfM7IMedn3ayxaeRXPsT/AovjkLr
- GPUDDxonlWWnERy8sg+Hibt1ESEaMSwGwY6ynDvROU22txhmNsql3581zR8DVIVUDMA01x
- jHeoS/YYJ/TEjgU+isUrZ1HOmvbexsM=
+ bh=p990RZMi8C61rNselXGUhwIY4CsNl6vMdGACytrGF44=;
+ b=IxxOvpDvWKHf52hs2fWvV15gMWpcGgsYtKsOoMDQAv5tYcb2Pd7tXMiB9zTGSCgE0lVnyd
+ bKZXbsmyKlloVOYphCTRBIBeZdInRlY3z50NBX1P2kMAiSpqXK4DKref0mclBakORUwRJ+
+ pXTkY68HNpzUnZsV+FBTsCCs8Z1ww0w=
 Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
  [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-306-P0LRx04_NEuGd16Rm0DPoA-1; Tue, 02 Feb 2021 18:02:40 -0500
-X-MC-Unique: P0LRx04_NEuGd16Rm0DPoA-1
-Received: by mail-wm1-f70.google.com with SMTP id z67so2149476wme.3
+ us-mta-25-AO9-o3vSPhGHDQfRsD-xMw-1; Tue, 02 Feb 2021 18:11:58 -0500
+X-MC-Unique: AO9-o3vSPhGHDQfRsD-xMw-1
+Received: by mail-wm1-f70.google.com with SMTP id u15so509076wmj.2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 02 Feb 2021 15:02:39 -0800 (PST)
+ Tue, 02 Feb 2021 15:11:58 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=LDg4iKymZ53hNxtNIr/W8exxkDX1y1fBofy+s8scyQM=;
- b=r+gobQ8wVd6+M7Tt6Xu+0289KpRP1dSwW1p4xyEUu06tMNpKnYorZKtdc3t2pRZI79
- LuxuvDRtv8OMkvzp1SrfEWxKv1EnHuQzCNrEH4sGKKvEHjKopcPcXLxusyBI8S9+K/rf
- cOsdolazhRYcprtXb2tSDM6Tbd9Lr6R89iEb0y2ooZDPxm+GOdfChESfMj+UnSiWH00B
- /ZwozeBfaIA+UWkeVVLjSKxsZoPKH4ADCAfU8rrZRu9EtLqOkOjbR5YWIGzAFvvFn7ox
- bAt38sJxLeEdCbaHugWhj3PM5PUuoCKr2r9YynE1HfueOc1hg30y0Mqvds6B8I/ScRwz
- x9/g==
-X-Gm-Message-State: AOAM532Ax6Hfdckqhpj759EhA1KJ2gV+zHDAr4aHirkMe2DHZRMJRQcr
- MYxYPxZKNZT0jvxb3D9htGcrJlxQwnHje6Q1DzqkybkE7MpWv5x/NYvWsAskwAnwmOR0FbVRxj5
- hpGMLx2/z8W0dhSg/gBXaeygDIiJbzqh3iPdrGoX9Tg==
-X-Received: by 2002:adf:cd83:: with SMTP id q3mr317045wrj.225.1612306958848;
- Tue, 02 Feb 2021 15:02:38 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJy7ozq2UgBjdAGg7+Fmg2ziWMUdJw6kuyXQQMlyA3fQ392T9ZIlR5Tv21sW6hC+KMtJGHELFg==
-X-Received: by 2002:adf:cd83:: with SMTP id q3mr317029wrj.225.1612306958663;
- Tue, 02 Feb 2021 15:02:38 -0800 (PST)
+ bh=p990RZMi8C61rNselXGUhwIY4CsNl6vMdGACytrGF44=;
+ b=pQcoiwpYOkktgkCG3Qty9UNpakxVhBLkzDTCj5TxSQtcIOlMnI34P2leN4LBzanQ2T
+ WzU2oUhKzJq22UTnfihoLpwH4FrApjY8b5Xj+gi7WjkXDQXlNxdaJGi0Un66Fy1Q8sYL
+ lgkYvUd0xExrEAAlTnrDRCx36ewbDZAJfhCQ79WrcZGfMyhNYTuKjuIUwGFlPiU3vo/L
+ cpaxEQmixNZALR3Gj45stonE/3LD3YJyAmn2zo+RTp56kWgQecJGWgd+/cE3x8IggjV8
+ EnwGYTGl9Tc+u8pjAmNDWVhNGWFLWbA6By64bykUEd2YhKPn4mB946lWeH0h5yx5bxLr
+ Fu/g==
+X-Gm-Message-State: AOAM533vfUkTKji81newYjdF8jGU+WjAN5BxQJMXS7JBN21+AY9ElJAO
+ vGjsc6RAaNpkhQWBiy7KmTky/+uChJ+ArUiJPY5ZNjDE/WykZsTrvbtoAT7kTwlf9oAL5488Ugu
+ zH35QmNXU6sn1cdo+U1n2jyW9lqUZWoc+u0hNeEjksQ==
+X-Received: by 2002:a1c:6602:: with SMTP id a2mr272108wmc.74.1612307517584;
+ Tue, 02 Feb 2021 15:11:57 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJz5PAplDAsbPdIMbTXF8udNdAvRTiXJ/fkDLcpjYpRjHB4MQwPRwuGC1G/4OqNgJfEKU8YTzw==
+X-Received: by 2002:a1c:6602:: with SMTP id a2mr272088wmc.74.1612307517225;
+ Tue, 02 Feb 2021 15:11:57 -0800 (PST)
 Received: from redhat.com (bzq-79-177-39-148.red.bezeqint.net. [79.177.39.148])
- by smtp.gmail.com with ESMTPSA id s4sm89994wrt.85.2021.02.02.15.02.37
+ by smtp.gmail.com with ESMTPSA id n15sm212671wrx.2.2021.02.02.15.11.55
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 02 Feb 2021 15:02:37 -0800 (PST)
-Date: Tue, 2 Feb 2021 18:02:35 -0500
+ Tue, 02 Feb 2021 15:11:56 -0800 (PST)
+Date: Tue, 2 Feb 2021 18:11:54 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [PATCH rfc 2/3] virtio-net: support receive timestamp
-Message-ID: <20210202175934-mutt-send-email-mst@kernel.org>
-References: <20201228162233.2032571-1-willemdebruijn.kernel@gmail.com>
- <20201228162233.2032571-3-willemdebruijn.kernel@gmail.com>
- <20210202090724-mutt-send-email-mst@kernel.org>
- <CA+FuTSeEVvtmmQ2HioTUrA6nX9s6yLEvNXfg=fLKw6X+E9wWow@mail.gmail.com>
+To: Wei Wang <weiwan@google.com>
+Subject: Re: [PATCH net] virtio-net: suppress bad irq warning for tx napi
+Message-ID: <20210202180807-mutt-send-email-mst@kernel.org>
+References: <20210129002136.70865-1-weiwan@google.com>
 MIME-Version: 1.0
-In-Reply-To: <CA+FuTSeEVvtmmQ2HioTUrA6nX9s6yLEvNXfg=fLKw6X+E9wWow@mail.gmail.com>
+In-Reply-To: <20210129002136.70865-1-weiwan@google.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Network Development <netdev@vger.kernel.org>,
- virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+ virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>,
+ Jakub Kicinski <kuba@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,146 +121,188 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Feb 02, 2021 at 05:17:13PM -0500, Willem de Bruijn wrote:
-> On Tue, Feb 2, 2021 at 9:08 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Mon, Dec 28, 2020 at 11:22:32AM -0500, Willem de Bruijn wrote:
-> > > From: Willem de Bruijn <willemb@google.com>
-> > >
-> > > Add optional PTP hardware timestamp offload for virtio-net.
-> > >
-> > > Accurate RTT measurement requires timestamps close to the wire.
-> > > Introduce virtio feature VIRTIO_NET_F_RX_TSTAMP. If negotiated, the
-> > > virtio-net header is expanded with room for a timestamp. A host may
-> > > pass receive timestamps for all or some packets. A timestamp is valid
-> > > if non-zero.
-> > >
-> > > The timestamp straddles (virtual) hardware domains. Like PTP, use
-> > > international atomic time (CLOCK_TAI) as global clock base. It is
-> > > guest responsibility to sync with host, e.g., through kvm-clock.
-> > >
-> > > Signed-off-by: Willem de Bruijn <willemb@google.com>
-> > > ---
-> > >  drivers/net/virtio_net.c        | 20 +++++++++++++++++++-
-> > >  include/uapi/linux/virtio_net.h | 12 ++++++++++++
-> > >  2 files changed, 31 insertions(+), 1 deletion(-)
-> > >
-> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > index b917b7333928..57744bb6a141 100644
-> > > --- a/drivers/net/virtio_net.c
-> > > +++ b/drivers/net/virtio_net.c
-> > > @@ -204,6 +204,9 @@ struct virtnet_info {
-> > >       /* Guest will pass tx path info to the host */
-> > >       bool has_tx_hash;
-> > >
-> > > +     /* Host will pass CLOCK_TAI receive time to the guest */
-> > > +     bool has_rx_tstamp;
-> > > +
-> > >       /* Has control virtqueue */
-> > >       bool has_cvq;
-> > >
-> > > @@ -292,6 +295,13 @@ static inline struct virtio_net_hdr_mrg_rxbuf *skb_vnet_hdr(struct sk_buff *skb)
-> > >       return (struct virtio_net_hdr_mrg_rxbuf *)skb->cb;
-> > >  }
-> > >
-> > > +static inline struct virtio_net_hdr_v12 *skb_vnet_hdr_12(struct sk_buff *skb)
-> > > +{
-> > > +     BUILD_BUG_ON(sizeof(struct virtio_net_hdr_v12) > sizeof(skb->cb));
-> > > +
-> > > +     return (void *)skb->cb;
-> > > +}
-> > > +
-> > >  /*
-> > >   * private is used to chain pages for big packets, put the whole
-> > >   * most recent used list in the beginning for reuse
-> > > @@ -1082,6 +1092,9 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
-> > >               goto frame_err;
-> > >       }
-> > >
-> > > +     if (vi->has_rx_tstamp)
-> > > +             skb_hwtstamps(skb)->hwtstamp = ns_to_ktime(skb_vnet_hdr_12(skb)->tstamp);
-> > > +
-> > >       skb_record_rx_queue(skb, vq2rxq(rq->vq));
-> > >       skb->protocol = eth_type_trans(skb, dev);
-> > >       pr_debug("Receiving skb proto 0x%04x len %i type %i\n",
-> > > @@ -3071,6 +3084,11 @@ static int virtnet_probe(struct virtio_device *vdev)
-> > >               vi->hdr_len = sizeof(struct virtio_net_hdr_v1_hash);
-> > >       }
-> > >
-> > > +     if (virtio_has_feature(vdev, VIRTIO_NET_F_RX_TSTAMP)) {
-> > > +             vi->has_rx_tstamp = true;
-> > > +             vi->hdr_len = sizeof(struct virtio_net_hdr_v12);
-> > > +     }
-> > > +
-> > >       if (virtio_has_feature(vdev, VIRTIO_F_ANY_LAYOUT) ||
-> > >           virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
-> > >               vi->any_header_sg = true;
-> > > @@ -3261,7 +3279,7 @@ static struct virtio_device_id id_table[] = {
-> > >       VIRTIO_NET_F_CTRL_MAC_ADDR, \
-> > >       VIRTIO_NET_F_MTU, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS, \
-> > >       VIRTIO_NET_F_SPEED_DUPLEX, VIRTIO_NET_F_STANDBY, \
-> > > -     VIRTIO_NET_F_TX_HASH
-> > > +     VIRTIO_NET_F_TX_HASH, VIRTIO_NET_F_RX_TSTAMP
-> > >
-> > >  static unsigned int features[] = {
-> > >       VIRTNET_FEATURES,
-> > > diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-> > > index f6881b5b77ee..0ffe2eeebd4a 100644
-> > > --- a/include/uapi/linux/virtio_net.h
-> > > +++ b/include/uapi/linux/virtio_net.h
-> > > @@ -57,6 +57,7 @@
-> > >                                        * Steering */
-> > >  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23        /* Set MAC address */
-> > >
-> > > +#define VIRTIO_NET_F_RX_TSTAMP         55    /* Host sends TAI receive time */
-> > >  #define VIRTIO_NET_F_TX_HASH   56    /* Guest sends hash report */
-> > >  #define VIRTIO_NET_F_HASH_REPORT  57 /* Supports hash report */
-> > >  #define VIRTIO_NET_F_RSS       60    /* Supports RSS RX steering */
-> > > @@ -182,6 +183,17 @@ struct virtio_net_hdr_v1_hash {
-> > >       };
-> > >  };
-> > >
-> > > +struct virtio_net_hdr_v12 {
-> > > +     struct virtio_net_hdr_v1 hdr;
-> > > +     struct {
-> > > +             __le32 value;
-> > > +             __le16 report;
-> > > +             __le16 flow_state;
-> > > +     } hash;
-> > > +     __virtio32 reserved;
-> >
-> >
-> > Does endian-ness matter? If not - just u32?
+On Thu, Jan 28, 2021 at 04:21:36PM -0800, Wei Wang wrote:
+> With the implementation of napi-tx in virtio driver, we clean tx
+> descriptors from rx napi handler, for the purpose of reducing tx
+> complete interrupts. But this could introduce a race where tx complete
+> interrupt has been raised, but the handler found there is no work to do
+> because we have done the work in the previous rx interrupt handler.
+> This could lead to the following warning msg:
+> [ 3588.010778] irq 38: nobody cared (try booting with the
+> "irqpoll" option)
+> [ 3588.017938] CPU: 4 PID: 0 Comm: swapper/4 Not tainted
+> 5.3.0-19-generic #20~18.04.2-Ubuntu
+> [ 3588.017940] Call Trace:
+> [ 3588.017942]  <IRQ>
+> [ 3588.017951]  dump_stack+0x63/0x85
+> [ 3588.017953]  __report_bad_irq+0x35/0xc0
+> [ 3588.017955]  note_interrupt+0x24b/0x2a0
+> [ 3588.017956]  handle_irq_event_percpu+0x54/0x80
+> [ 3588.017957]  handle_irq_event+0x3b/0x60
+> [ 3588.017958]  handle_edge_irq+0x83/0x1a0
+> [ 3588.017961]  handle_irq+0x20/0x30
+> [ 3588.017964]  do_IRQ+0x50/0xe0
+> [ 3588.017966]  common_interrupt+0xf/0xf
+> [ 3588.017966]  </IRQ>
+> [ 3588.017989] handlers:
+> [ 3588.020374] [<000000001b9f1da8>] vring_interrupt
+> [ 3588.025099] Disabling IRQ #38
 > 
-> I suppose it does not matter as long as this is reserved. Should it be
-> __le32, at least?
-
-One can safely assign 0 to any value.
-
-
-> > > +     __virtio64 tstamp;
-> > > +};
-> > > +
-> >
-> > Given it's only available in modern devices, I think we
-> > can make this __le64 tstamp.
+> This patch adds a new param to struct vring_virtqueue, and we set it for
+> tx virtqueues if napi-tx is enabled, to suppress the warning in such
+> case.
 > 
-> Actually, would it be possible to make new features available on
-> legacy devices? There is nothing in the features bits precluding it.
+> Fixes: 7b0411ef4aa6 ("virtio-net: clean tx descriptors from rx napi")
+> Reported-by: Rick Jones <jonesrick@google.com>
+> Signed-off-by: Wei Wang <weiwan@google.com>
+> Signed-off-by: Willem de Bruijn <willemb@google.com>
 
-I think it won't be possible: you are using feature bit 55,
-legacy devices have up to 32 feature bits. And of course the
-header looks a bit differently for legacy, you would have to add special
-code to handle that when mergeable buffers are off.
 
+This description does not make sense to me.
+
+irq X: nobody cared
+only triggers after an interrupt is unhandled repeatedly.
+
+So something causes a storm of useless tx interrupts here.
+
+Let's find out what it was please. What you are doing is
+just preventing linux from complaining.
+
+
+
+> ---
+>  drivers/net/virtio_net.c     | 19 ++++++++++++++-----
+>  drivers/virtio/virtio_ring.c | 16 ++++++++++++++++
+>  include/linux/virtio.h       |  2 ++
+>  3 files changed, 32 insertions(+), 5 deletions(-)
 > 
-> I have a revised patchset almost ready. I suppose I should send it as
-> RFC again, and simultaneously file an OASIS ballot for each feature?
-
-that would be great.
-
--- 
-MST
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 508408fbe78f..e9a3f30864e8 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1303,13 +1303,22 @@ static void virtnet_napi_tx_enable(struct virtnet_info *vi,
+>  		return;
+>  	}
+>  
+> +	/* With napi_tx enabled, free_old_xmit_skbs() could be called from
+> +	 * rx napi handler. Set work_steal to suppress bad irq warning for
+> +	 * IRQ_NONE case from tx complete interrupt handler.
+> +	 */
+> +	virtqueue_set_work_steal(vq, true);
+> +
+>  	return virtnet_napi_enable(vq, napi);
+>  }
+>  
+> -static void virtnet_napi_tx_disable(struct napi_struct *napi)
+> +static void virtnet_napi_tx_disable(struct virtqueue *vq,
+> +				    struct napi_struct *napi)
+>  {
+> -	if (napi->weight)
+> +	if (napi->weight) {
+>  		napi_disable(napi);
+> +		virtqueue_set_work_steal(vq, false);
+> +	}
+>  }
+>  
+>  static void refill_work(struct work_struct *work)
+> @@ -1835,7 +1844,7 @@ static int virtnet_close(struct net_device *dev)
+>  	for (i = 0; i < vi->max_queue_pairs; i++) {
+>  		xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
+>  		napi_disable(&vi->rq[i].napi);
+> -		virtnet_napi_tx_disable(&vi->sq[i].napi);
+> +		virtnet_napi_tx_disable(vi->sq[i].vq, &vi->sq[i].napi);
+>  	}
+>  
+>  	return 0;
+> @@ -2315,7 +2324,7 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+>  	if (netif_running(vi->dev)) {
+>  		for (i = 0; i < vi->max_queue_pairs; i++) {
+>  			napi_disable(&vi->rq[i].napi);
+> -			virtnet_napi_tx_disable(&vi->sq[i].napi);
+> +			virtnet_napi_tx_disable(vi->sq[i].vq, &vi->sq[i].napi);
+>  		}
+>  	}
+>  }
+> @@ -2440,7 +2449,7 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+>  	if (netif_running(dev)) {
+>  		for (i = 0; i < vi->max_queue_pairs; i++) {
+>  			napi_disable(&vi->rq[i].napi);
+> -			virtnet_napi_tx_disable(&vi->sq[i].napi);
+> +			virtnet_napi_tx_disable(vi->sq[i].vq, &vi->sq[i].napi);
+>  		}
+>  	}
+>  
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 71e16b53e9c1..f7c5d697c302 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -105,6 +105,9 @@ struct vring_virtqueue {
+>  	/* Host publishes avail event idx */
+>  	bool event;
+>  
+> +	/* Tx side napi work could be done from rx side. */
+> +	bool work_steal;
+> +
+>  	/* Head of free buffer list. */
+>  	unsigned int free_head;
+>  	/* Number we've added since last sync. */
+> @@ -1604,6 +1607,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
+>  	vq->notify = notify;
+>  	vq->weak_barriers = weak_barriers;
+>  	vq->broken = false;
+> +	vq->work_steal = false;
+>  	vq->last_used_idx = 0;
+>  	vq->num_added = 0;
+>  	vq->packed_ring = true;
+> @@ -2038,6 +2042,9 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
+>  
+>  	if (!more_used(vq)) {
+>  		pr_debug("virtqueue interrupt with no work for %p\n", vq);
+> +		if (vq->work_steal)
+> +			return IRQ_HANDLED;
+> +
+>  		return IRQ_NONE;
+>  	}
+>  
+> @@ -2082,6 +2089,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+>  	vq->notify = notify;
+>  	vq->weak_barriers = weak_barriers;
+>  	vq->broken = false;
+> +	vq->work_steal = false;
+>  	vq->last_used_idx = 0;
+>  	vq->num_added = 0;
+>  	vq->use_dma_api = vring_use_dma_api(vdev);
+> @@ -2266,6 +2274,14 @@ bool virtqueue_is_broken(struct virtqueue *_vq)
+>  }
+>  EXPORT_SYMBOL_GPL(virtqueue_is_broken);
+>  
+> +void virtqueue_set_work_steal(struct virtqueue *_vq, bool val)
+> +{
+> +	struct vring_virtqueue *vq = to_vvq(_vq);
+> +
+> +	vq->work_steal = val;
+> +}
+> +EXPORT_SYMBOL_GPL(virtqueue_set_work_steal);
+> +
+>  /*
+>   * This should prevent the device from being used, allowing drivers to
+>   * recover.  You may need to grab appropriate locks to flush.
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index 55ea329fe72a..091c30f21ff9 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -84,6 +84,8 @@ unsigned int virtqueue_get_vring_size(struct virtqueue *vq);
+>  
+>  bool virtqueue_is_broken(struct virtqueue *vq);
+>  
+> +void virtqueue_set_work_steal(struct virtqueue *vq, bool val);
+> +
+>  const struct vring *virtqueue_get_vring(struct virtqueue *vq);
+>  dma_addr_t virtqueue_get_desc_addr(struct virtqueue *vq);
+>  dma_addr_t virtqueue_get_avail_addr(struct virtqueue *vq);
+> -- 
+> 2.30.0.365.g02bc693789-goog
+> 
 
 _______________________________________________
 Virtualization mailing list
