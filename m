@@ -2,182 +2,165 @@ Return-Path: <SRS0=DeSX=HE=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2939AC433E0
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 16:38:38 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 38985C433E6
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 18:15:30 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id BA18B64F76
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 16:38:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BA18B64F76
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
+	by mail.kernel.org (Postfix) with ESMTPS id B68CA64F68
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 18:15:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B68CA64F68
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 6AC828704B;
-	Tue,  2 Feb 2021 16:38:37 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 7C9A822882;
+	Tue,  2 Feb 2021 18:15:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id H6NtFgDA1ME1; Tue,  2 Feb 2021 16:38:36 +0000 (UTC)
+	with ESMTP id mPR9eMbqFkVi; Tue,  2 Feb 2021 18:15:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 6131B86D52;
-	Tue,  2 Feb 2021 16:38:36 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 4648A226EA;
+	Tue,  2 Feb 2021 18:15:28 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 415D6C0FA7;
-	Tue,  2 Feb 2021 16:38:36 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 49DC5C013A;
- Tue,  2 Feb 2021 16:38:35 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1B517C0FA7;
+	Tue,  2 Feb 2021 18:15:28 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CA14FC013A
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  2 Feb 2021 18:15:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 36401867D2;
- Tue,  2 Feb 2021 16:38:35 +0000 (UTC)
+ by silver.osuosl.org (Postfix) with ESMTP id BEE9C226EA
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  2 Feb 2021 18:15:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GvQkVUspmegf; Tue,  2 Feb 2021 16:38:33 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from aserp2130.oracle.com (aserp2130.oracle.com [141.146.126.79])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 9D48B867DE;
- Tue,  2 Feb 2021 16:38:33 +0000 (UTC)
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
- by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 112GJhOY009437;
- Tue, 2 Feb 2021 16:38:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=date : from : to : cc
- : subject : message-id : references : content-type : in-reply-to :
- mime-version; s=corp-2020-01-29;
- bh=KNjrX0rK55s9aWETWv1OLbCJnKqJuWYa5q+oV4dZTfE=;
- b=eh9M60Ig82Y0s8W/59/crxYMJpnbPLOxnuwRH7httzRf6kCLen3YxyDd0w1dGpfpBmLP
- oMQKuscj52l2sSjXjKi6G3zC7O/+P2z0ePEydRW2acZYyD+aB7IYr7ymijB2+VrtFAad
- J/BRVeJoBzcdQ68hqf9r+9jhAwvOoRt4Ts/n/JnjYcJ4XzDhcr8ADluLln5TVfREaayz
- IwPPrXFLKi+7UVwSXramYklVL0dHF2agj5vUYmO3u5UnrpOnZq90g8x0qXCYgoG3YMGa
- ycoKYlK7OG8QbE3MZghXHC4enmJhdP6T9VNmSYSuKhKD86GGnAoXy4lM/6q/cUUvVtv2 Dg== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
- by aserp2130.oracle.com with ESMTP id 36cvyauwb7-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 02 Feb 2021 16:38:05 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
- by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 112GGfN2095797;
- Tue, 2 Feb 2021 16:38:04 GMT
-Received: from nam12-dm6-obe.outbound.protection.outlook.com
- (mail-dm6nam12lp2173.outbound.protection.outlook.com [104.47.59.173])
- by userp3030.oracle.com with ESMTP id 36dhcwyj9w-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 02 Feb 2021 16:38:04 +0000
+ with ESMTP id Zn0LE5kFL9EH
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  2 Feb 2021 18:15:25 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com
+ (mail-mw2nam10on2105.outbound.protection.outlook.com [40.107.94.105])
+ by silver.osuosl.org (Postfix) with ESMTPS id A76F2226D4
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  2 Feb 2021 18:15:25 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=dnhbZoXIBljYbeuVqjTuz8NVZu9cxsl8bg9MvSkCa1kfnHnV4W7uDd1u8pdxah9XqUK7EoeNaNLDrHaMr6pJUfNy6vlB710iVBU0ZWxB9eq/3cH/mVwKEW6G0MSAciyhe/wycrPK6SFBWHY687y47p6cRS4Kv7G9Q0SiIYfAqSL1q53kafRl0jeAqcRiQEpUywmVb46Y48qK0nnydPWkURLakbCWC45QDJ0eI8uruYTY9qqPObggnCf1fQpAzmUymg9AXTqFG7HnxqILSxcpxHkVq9TvvQNhC6lorB8lCwsDqHJifP3aId2PFAfyA2g6RObhbW0CCJzXWIret5HrvQ==
+ b=XrAqJ8yERDqM5U+/2lp1B0h/mhqZd9FOZ6xsJ/Ms8pTSYjILHmHQ+HKy6kS09crsA05M5+GWwF+IfcTegjqdJ/q9rIrmZTLRMxdiCZfyEwdfgWJ3yhOp27b8g0CHgi/lcng8jBTHbRdhjeKMKbwWdtLNlALtoB6uTOt64EsB4i2Uqpvdn/L6AjAF6MDBDUnjobvv8BAvwl0jQ8r9ClwVeBemk6OgPPt/g1l+X7pwPLCgNiFhrJoev2/JvxmHdl7qrIKR7S5htYjb9HrWX7lrJHx6deKCZSsyh3Y752b013W8m+x5iUyb2XZcT/WID8tKbubahFPtgIURRBs2/GGAJA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KNjrX0rK55s9aWETWv1OLbCJnKqJuWYa5q+oV4dZTfE=;
- b=lyq7gqbyIjqVHA9C6YWl6puvapxy82ajRS9SOLAbzekI4SBB4Dpx4GcsNHxXwTaUiZaXsPQTLCmXKTqnj6l1RKsqv0OV0blNeSy/QapS1DVkU0AlVIErjaXFAj6btyf22/PAy/ASLkgUTYLSlMnTsb6qbLvLgMfBqvtCikWEVcueXB67XEmLM6iByQfXLoOJbpzu8QJQSPzgEoSiR3jDIr5yNugtBxRWlC8WicVy3T2p5TDuxbz6n2Z7C3NRgzWvACNoDBN6RuhHJI8UNUv1kPFMb/mduI5VSaBZKA1O/NCVSMm5sf4uJiEIDSk74QpnKpF8B5tADv/HQsDJmLy1sw==
+ bh=JErsqbaIFT9wVPKx23BjdpP02l4DuSsKdBHs+iOsLmg=;
+ b=b0eBvnm5PZnXas3ntGNzBmeAMeB5KbA474Uf3ZKU3glVBuj3irP7kf5mNQDfm8ol/LR3tb91uys8jnvUQM8tTckUgJJKHjMRsId8+V1hb/HY8KAc+yjINbE5I5Sa1CmcyogOVjjXCL6BZKBQZkZLmDaHTCAhaap0DU+VDZlktQXI6Ybz4CE8gv7Q76FkcuXXDf9hGpcjo9FAaytPgsD1M4cdcL8t0QNDfZ6sQ9iIJ0x0fX8jz2J2ILJP6y9JsBsFF0giQKkp7F+L+l9DPs67KQ27QT44fGfIelRthM0SBxR5IBW2W/EtVI/BWguSIkIfBYYXxlszZfiGp9XVm1MBiQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KNjrX0rK55s9aWETWv1OLbCJnKqJuWYa5q+oV4dZTfE=;
- b=pw4M6ocrqjDOOc/zcon9ry+oIGgXAEZhVL4v1w30JvXUrcbp2bjm6CA9waV+kh2hlMXMu7c9bHcHf0nXvrjl83x0K/ACSYCuVrBwehJhBl7JA+vMOy6PclGuNH5x3aeNTk8yyE/ubJbW98IAu5NxRY1Z4JWX2saLH9r0sWYDHIo=
-Authentication-Results: gmail.com; dkim=none (message not signed)
- header.d=none;gmail.com; dmarc=none action=none header.from=oracle.com;
-Received: from BYAPR10MB2999.namprd10.prod.outlook.com (2603:10b6:a03:85::27)
- by BY5PR10MB4115.namprd10.prod.outlook.com (2603:10b6:a03:213::14)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3805.17; Tue, 2 Feb
- 2021 16:38:01 +0000
-Received: from BYAPR10MB2999.namprd10.prod.outlook.com
- ([fe80::e180:1ba2:d87:456]) by BYAPR10MB2999.namprd10.prod.outlook.com
- ([fe80::e180:1ba2:d87:456%4]) with mapi id 15.20.3825.019; Tue, 2 Feb 2021
- 16:38:01 +0000
-Date: Tue, 2 Feb 2021 11:37:53 -0500
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-To: Martin Radev <martin.b.radev@gmail.com>
-Subject: Re: [PATCH] swiotlb: Validate bounce size in the sync/unmap path
-Message-ID: <YBl/4c9j+KCTA0iQ@Konrads-MacBook-Pro.local>
-References: <X/27MSbfDGCY9WZu@martin> <20210113113017.GA28106@lst.de>
- <YAV0uhfkimXn1izW@martin> <20210118151428.GA72213@fedora>
- <YA8O/2qBBzZo5hi7@martin>
-Content-Disposition: inline
-In-Reply-To: <YA8O/2qBBzZo5hi7@martin>
-X-Originating-IP: [138.3.200.4]
-X-ClientProxiedBy: MWHPR22CA0037.namprd22.prod.outlook.com
- (2603:10b6:300:69::23) To BYAPR10MB2999.namprd10.prod.outlook.com
- (2603:10b6:a03:85::27)
-MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from Konrads-MacBook-Pro.local (138.3.200.4) by
- MWHPR22CA0037.namprd22.prod.outlook.com (2603:10b6:300:69::23) with Microsoft
+ bh=JErsqbaIFT9wVPKx23BjdpP02l4DuSsKdBHs+iOsLmg=;
+ b=YEYgGg+8JugyZWytozLYyt80vepF7EQc77NebcmjTk3+MGTf25C2Bx/IWxizMgQKMWdyx43XThoh+JFYDvxtC2ES5lX2yQ1FzWVjnLp28yUCZnewjq85QlO5MMVOI6eR3ZQKm8nDrhQ89h+7dyAfMYBDZz8Tpw5jOH0XBgGapkE=
+Received: from (2603:10b6:301:7c::11) by
+ MWHPR21MB0863.namprd21.prod.outlook.com (2603:10b6:300:77::17) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3805.16 via Frontend Transport; Tue, 2 Feb 2021 16:37:58 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 4549ced7-10a7-4951-911b-08d8c798e7b8
-X-MS-TrafficTypeDiagnostic: BY5PR10MB4115:
-X-Microsoft-Antispam-PRVS: <BY5PR10MB4115F6B824B114B011A7667D89B59@BY5PR10MB4115.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: pz3YfKUoMuDBvS1njt8CXWXJojnL04ZzBRJtdA6DLcfYX8gFKS42fnO/Ejhan6WmqBv/Vmu6BxIz9b7hb5v462MzX719VxiLGwtTNlySDeJb9jcPtO7ozzoWHA19NRigXsoPBuO5puu2CxKu0tNWA2uF3Ymye9ZY0x3GEwlxQIUSJvIi6+NT8tTjEqXPi5wU4QTavAT9roL4pALWS+uD94ENxqz6WHeRcI4OXc3Ib9qovK24IDK8dR2lvb1fuiahjw0IKOtH8o/e6WPhHv8a708mPxrOdMYgfOZGaGFG1T+d+Z1oug5setLp2j40F1prvjZhk8PIQRPTgeYK7ApYtSsCg6qHvJaVbgtnrji7WSvswXh+0wfkThEPnAg0heW0LiO3i0nKNXxyvB6LulL5y37Ffcy2sEyXcXgdETnxY6h4pIrjXDSe6XTTOh1MQa/b0y+lY+NLOJfMHNQKdO5a7618N5vyws6IfEEtIpCyI42zy/O1BWtjmdikBEQJ5Dk5Tg9HLkr+2umif6DpVWqesOXhCJ901P1IyrAaKd0iiNUIEBv+RuxeCq5Mv7Qa8NREZIPoMX6P5ZbD+YVr9SGDt8mGZiSKurhRKASS1HYZEMw=
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BYAPR10MB2999.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(366004)(136003)(376002)(39860400002)(346002)(396003)(16526019)(478600001)(86362001)(6666004)(186003)(6506007)(966005)(55016002)(26005)(9686003)(83380400001)(5660300002)(2906002)(54906003)(66556008)(316002)(956004)(8936002)(6916009)(52116002)(66946007)(66476007)(7696005)(7416002)(8676002)(4326008);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?T5iFtJautGxKGgRlTBFkAqU12YZ8LrteL7YthkwCHlBAahUF1mMvMKdVkpYY?=
- =?us-ascii?Q?RdJ3iHK2P2jRX2IvneHUOrG8Cywowkqh8n6sqB7Uuquh5rSlBcDboYi+GVMJ?=
- =?us-ascii?Q?njx6ZMLu4lA+aJbLAc28mxS0Dxb6UWkltQIFTqifCAMfuO0fz3voNJhKW9FM?=
- =?us-ascii?Q?BuSwKhqriA7N8uisf99G+KYU2i7D/Sk8F31wIBQtOdXdDAZuJEhkb7sinCVO?=
- =?us-ascii?Q?+gmMvR0/N9wabNgGx+Ty2/WVAFqRJeaOvIh4lhfi8iHiBWRkAr1P5mqAjgS/?=
- =?us-ascii?Q?IR3SyBGQNWMjTknrfKuLhODfKqcig/gzE9UntIRtTTfcdJ+R7D71GyZUeSXS?=
- =?us-ascii?Q?aFQo6uLNRlW7nCyz3BFgmO+sqDRB8v8MHXEyrzTFRRFiGacr6F1R27qIWBwH?=
- =?us-ascii?Q?/UreUTpP6fqlT10i4FlOmMTKbCzwnthoaTE/G4s5cuKp9zGJ24BgnB7H6ZdK?=
- =?us-ascii?Q?otxGg4YPQhk0uITJ3ItBOPwoE1lpyASY6garoK4FBYqQ+2g5EfoK0MejRFJQ?=
- =?us-ascii?Q?KXYpYMS8spRUyGiM+ASFl9Z/uTP3acG8zpG3Qhi21qvEc2VRG8PrV+EMTwQy?=
- =?us-ascii?Q?DJGdQcNgYwmGEPRl6iYuVixq+1qzgP2oIkDn5z6yTY3m6nGJ7bo0ruvYOTud?=
- =?us-ascii?Q?UHKAdkvVKORL9fjB6i6Hel2MhQV75i3/UMRWau9dcMHN2MqGKc/tWBN3vNub?=
- =?us-ascii?Q?cz58jFVOH/MsL3DPlCT9fF9f70XGWyr1TAaRQQsgMTE2kEWVuDeVt/l4CbpH?=
- =?us-ascii?Q?f9El/iAFHoSwM3wLSEsl0lIgmmH5qeVwo7+Dd9TSnWU4piAfuIyjard80N6e?=
- =?us-ascii?Q?0/MlmQJOjAVfTLZZAhum97DcghFGUsq6iOJV87Pmu3P4aMVy/JoTfTxTKLqd?=
- =?us-ascii?Q?y6s9CUXrstZkY0NdRaau3KWscDMu/e8YLtsRnPZBCY8+l5vKvyWFfF/teDne?=
- =?us-ascii?Q?3RW/AIa3oKLK3A2g/GdA7qTFDmeYSBMu7HLXdOUa6iWaypQgvXGLERgsDWVr?=
- =?us-ascii?Q?9xmuSiSI0ZNo9q6x+r/9/qVQs+M/plFQvd6RRk7K0fbzRom+jbuLdizKjOj1?=
- =?us-ascii?Q?7Ob3ke2s?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4549ced7-10a7-4951-911b-08d8c798e7b8
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB2999.namprd10.prod.outlook.com
+ 15.20.3846.3; Tue, 2 Feb 2021 18:15:23 +0000
+Received: from MWHPR21MB1593.namprd21.prod.outlook.com
+ ([fe80::9c8:94c9:faf1:17c2]) by MWHPR21MB1593.namprd21.prod.outlook.com
+ ([fe80::9c8:94c9:faf1:17c2%9]) with mapi id 15.20.3846.006; Tue, 2 Feb 2021
+ 18:15:23 +0000
+To: Wei Liu <wei.liu@kernel.org>
+Subject: RE: [PATCH v5 15/16] x86/hyperv: implement an MSI domain for root
+ partition
+Thread-Topic: [PATCH v5 15/16] x86/hyperv: implement an MSI domain for root
+ partition
+Thread-Index: AQHW7yP6HaVdmem27E2jxVVgXGHGnKo6+DxggAo8E4CAAAsYcA==
+Date: Tue, 2 Feb 2021 18:15:23 +0000
+Message-ID: <MWHPR21MB1593248BE6E343117897FE82D7B59@MWHPR21MB1593.namprd21.prod.outlook.com>
+References: <20210120120058.29138-1-wei.liu@kernel.org>
+ <20210120120058.29138-16-wei.liu@kernel.org>
+ <MWHPR21MB1593FFC6005966A3D9BEA3EFD7BB9@MWHPR21MB1593.namprd21.prod.outlook.com>
+ <20210202173153.jkbvwck2vsjlbjbz@liuwe-devbox-debian-v2>
+In-Reply-To: <20210202173153.jkbvwck2vsjlbjbz@liuwe-devbox-debian-v2>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2021-02-02T18:15:21Z; 
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=78830b72-2475-4687-9056-08988f88c1c3;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0
+authentication-results: kernel.org; dkim=none (message not signed)
+ header.d=none;kernel.org; dmarc=none action=none header.from=microsoft.com;
+x-originating-ip: [24.22.167.197]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 3b8759b1-1e33-4be1-925d-08d8c7a68242
+x-ms-traffictypediagnostic: MWHPR21MB0863:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <MWHPR21MB086335EF584DAC8527053222D7B59@MWHPR21MB0863.namprd21.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:6790;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: qJURzqnSMWuXTCCmaoVY/ipfg7G+BoqQCSPdx7aoGdL/Iyheeh2mfUntFx/M7/AaQXYlJZSmyX2IU6U0Rz0yeSTlTiuz8Vf2/BYNXNmm9jSyQjM1rcJgmJQHDq1U9qx2dhTf8ysGXdpOqaBxAJp2dJNg6yHrv9vfiC9lFRuTA7y3sHR5Gt8Z7y6REuZgFMnkuvJ39hMJfRvbzHtpogWN2kq7u90gRNVQilOayqMHidTnWRPbqYyc1lDZTiSpTjazomNRBGPK0Me1Ao49YjuuZCqzghOK6ZG6I9+XRtAmPVArpBF9LN5JKfgLEdUmtrebm4VO7Rs0e9BMzze1cq/3HfURxbFGte5KmTHZuwsJAT8yz8fW+EADgOz5R1QGprpyHOt8vtG6ConbypcPjDJWD80iG/UZciB4Hi/fDdBOYna9TcEhhMWG68QJ33mBzp6wHg6MCMmLM5zekeiqDqQnARrmIhWhjvuyb1MdM+uukSsRLiKT5uW16VXbFrF30gD7YLhu3CFltQMlr3yRijohTw==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:MWHPR21MB1593.namprd21.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(4636009)(396003)(136003)(366004)(39860400002)(346002)(376002)(86362001)(6916009)(10290500003)(6506007)(2906002)(186003)(26005)(8990500004)(71200400001)(7696005)(478600001)(4326008)(7416002)(82950400001)(8676002)(8936002)(33656002)(66476007)(5660300002)(76116006)(66946007)(55016002)(54906003)(64756008)(316002)(52536014)(82960400001)(66556008)(66446008)(9686003);
+ DIR:OUT; SFP:1102; 
+x-ms-exchange-antispam-messagedata: =?us-ascii?Q?WJzOnMMEiLiCxnc9KU7tDWPtolKqYmDxUgjAEQXe9Fq4UkrqdUljhF+YcZJY?=
+ =?us-ascii?Q?D0I9fS6mNvKWx5C8FEkEavszCSeXpCoj8rvlFLJlb51mKb3/SWGsBc4OvUxJ?=
+ =?us-ascii?Q?ZSph9Ejprna6CE/BwCweSD2hRaXO6PBLHPsb8G8Ige04rN8TSyeSomzv8av3?=
+ =?us-ascii?Q?Vw6mTDDWAupOhXpqKZHGdw54dV/OVDUjMnIRx8ClSvXvX3wCzYd7/6l1UkRm?=
+ =?us-ascii?Q?QSok+oX95amR35qK8unFdHxgm3OfcArXk9eRrKdWfAVbwiPOWiJYfEx8zvWj?=
+ =?us-ascii?Q?/7DIjnW7Zms3RT4OMWaybQEc/7cBGt6ea5qMsToOrUO4Cj9bmo/T0y5M7zbG?=
+ =?us-ascii?Q?9MS8RszXzuggWgHKooAwzDCd7JQwLcr2DFgxI9ZOyLtKUViDWAc59VISpd97?=
+ =?us-ascii?Q?OP5WR56/D2HlOVgFycrnWG/roOR0b3QoK2aWMwZNDnkhWqOmZ5GzQBVD0X80?=
+ =?us-ascii?Q?Ao/z1sovRXeij4icOStkxa8qvi/ZouNT3DGNfDdgsvmXBAdQOpbiTxLfdPNl?=
+ =?us-ascii?Q?4OVG0R81U47TRZZUSuYtT8q3x/xlARlBVHoWEQSFnfCeoqsuxAbLjbcf7hc6?=
+ =?us-ascii?Q?zGsP+f4GMO7DDiJ/GFsrkafVOQnEa1T9fukK4a3ewBuP4xgCHrduU4+MD3bP?=
+ =?us-ascii?Q?8FJMcbOFztbGHCXy4EJ1Un/5nhFXAMguWMhpTXKZXotFjZB1pKJDP7rL638k?=
+ =?us-ascii?Q?cAhJEezJuZA11a7t8bysf1X/eLcsoIpBVlqKGaTvViUKvjVIdpAiTx6NLl6O?=
+ =?us-ascii?Q?HVW5Ck7T/y+zxtrotTr+0JXrtkfgsJ95mwM1thhoxCndDZoKGOz23mJZFA8z?=
+ =?us-ascii?Q?oznIT14tiaf3NpR0eMwGzoqlmJGagjkfBcM4lmfkD0hzQTSeQYA/uFJKpG19?=
+ =?us-ascii?Q?bw4h0d5sY7wLNU4JsL8TYNYaob+uQDV327wWRaj4UIFmNfeA6QRzXllIEv7N?=
+ =?us-ascii?Q?XQzHalEeQ/xrrnNwBKy9agJPdnIuSYATgDN412VIvC2BxiGVeXMFu8aG0lO7?=
+ =?us-ascii?Q?l6vsGpHCWf5g8ViYich2Zz979UFm96wDo/0F9HoUqWOI/F1kgTEzU6DV9h60?=
+ =?us-ascii?Q?wSIZHhGrW1n7oJC+mFSEv6j0k92Vp6biYJW2/iUzL+wPA23EInf1dqmdMjkp?=
+ =?us-ascii?Q?v2lvTbbOxQReNBHSndnqIvneNVfdpIq47WmPr/BQgEkao8cHxyryijiQLMHJ?=
+ =?us-ascii?Q?TjN+ceCn55nFzpj4TZ8v6EkhyKJIkeA+Ly7hfcFVm3O8RN37X08TBZcUJAWl?=
+ =?us-ascii?Q?PhUh6EKaCwZQiAua/zCvjJ8X+h91pAyxrcPGdhu8J2VZqRfprxS/ObkQEV4D?=
+ =?us-ascii?Q?cSwzsauHH5X0Kgg2rCjte7P0?=
+MIME-Version: 1.0
+X-OriginatorOrg: microsoft.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Feb 2021 16:38:01.7059 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: X+KNOeZQpiAXrpqkQIT59g+IJArD5HXCQsl/x6i6yWxmLIhcL+wo72xmizkxrfsWoUbzLudefGh2dgWAkew90Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR10MB4115
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9883
- signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0
- mlxlogscore=999 phishscore=0
- spamscore=0 suspectscore=0 malwarescore=0 adultscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2102020108
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9883
- signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 clxscore=1011
- impostorscore=0
- mlxscore=0 spamscore=0 bulkscore=0 priorityscore=1501 adultscore=0
- lowpriorityscore=0 malwarescore=0 phishscore=0 mlxlogscore=999
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102020108
-Cc: thomas.lendacky@amd.com, file@sect.tu-berlin.de,
- robert.buhren@sect.tu-berlin.de, kvm@vger.kernel.org, robin.murphy@arm.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- iommu@lists.linux-foundation.org, Konrad Rzeszutek Wilk <konrad@darnok.org>,
- mathias.morbitzer@aisec.fraunhofer.de, Christoph Hellwig <hch@lst.de>,
- kirill.shutemov@linux.intel.com
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR21MB1593.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3b8759b1-1e33-4be1-925d-08d8c7a68242
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Feb 2021 18:15:23.5935 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: QTYa4kuDgldT6+0x6Y4jrsgiinqvDb67+J6PdzuQyFaY4U9WCqSclC2W+a9MzrZQu4AU/nKrCMibKtBfawFxwrogRQ8cc9bpzX8O7zDg+SU=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR21MB0863
+Cc: Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
+ Stephen Hemminger <sthemmin@microsoft.com>,
+ "pasha.tatashin@soleen.com" <pasha.tatashin@soleen.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>,
+ "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
+ Linux Kernel List <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, "H. Peter
+ Anvin" <hpa@zytor.com>, Nuno Das Neves <nunodasneves@linux.microsoft.com>,
+ Sunil Muthuswamy <sunilmut@microsoft.com>,
+ Vineeth Pillai <viremana@linux.microsoft.com>,
+ Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -189,92 +172,51 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Michael Kelley via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Michael Kelley <mikelley@microsoft.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jan 25, 2021 at 07:33:35PM +0100, Martin Radev wrote:
-> On Mon, Jan 18, 2021 at 10:14:28AM -0500, Konrad Rzeszutek Wilk wrote:
-> > On Mon, Jan 18, 2021 at 12:44:58PM +0100, Martin Radev wrote:
-> > > On Wed, Jan 13, 2021 at 12:30:17PM +0100, Christoph Hellwig wrote:
-> > > > On Tue, Jan 12, 2021 at 04:07:29PM +0100, Martin Radev wrote:
-> > > > > The size of the buffer being bounced is not checked if it happens
-> > > > > to be larger than the size of the mapped buffer. Because the size
-> > > > > can be controlled by a device, as it's the case with virtio devices,
-> > > > > this can lead to memory corruption.
-> > > > > 
-> > > > 
-> > > > I'm really worried about all these hodge podge hacks for not trusted
-> > > > hypervisors in the I/O stack.  Instead of trying to harden protocols
-> > > > that are fundamentally not designed for this, how about instead coming
-> > > > up with a new paravirtualized I/O interface that is specifically
-> > > > designed for use with an untrusted hypervisor from the start?
-> > > 
-> > > Your comment makes sense but then that would require the cooperation
-> > > of these vendors and the cloud providers to agree on something meaningful.
-> > > I am also not sure whether the end result would be better than hardening
-> > > this interface to catch corruption. There is already some validation in
-> > > unmap path anyway.
-> > > 
-> > > Another possibility is to move this hardening to the common virtio code,
-> > > but I think the code may become more complicated there since it would
-> > > require tracking both the dma_addr and length for each descriptor.
-> > 
-> > Christoph,
-> > 
-> > I've been wrestling with the same thing - this is specific to busted
-> > drivers. And in reality you could do the same thing with a hardware
-> > virtio device (see example in http://thunderclap.io/) - where the
-> > mitigation is 'enable the IOMMU to do its job.'.
-> > 
-> > AMD SEV documents speak about utilizing IOMMU to do this (AMD SEV-SNP)..
-> > and while that is great in the future, SEV without IOMMU is now here.
-> > 
-> > Doing a full circle here, this issue can be exploited with virtio
-> > but you could say do that with real hardware too if you hacked the
-> > firmware, so if you say used Intel SR-IOV NIC that was compromised
-> > on an AMD SEV machine, and plumbed in the guest - the IOMMU inside
-> > of the guest would be SWIOTLB code. Last line of defense against
-> > bad firmware to say.
-> > 
-> > As such I am leaning towards taking this code, but I am worried
-> > about the performance hit .. but perhaps I shouldn't as if you
-> > are using SWIOTLB=force already you are kind of taking a
-> > performance hit?
-> > 
+From: Wei Liu <wei.liu@kernel.org> Sent: Tuesday, February 2, 2021 9:32 AM
 > 
-> I have not measured the performance degradation. This will hit all AMD SEV,
-> Intel TDX, IBM Protected Virtualization VMs. I don't expect the hit to
-> be large since there are only few added operations per hundreads of copied
-> bytes. I could try to measure the performance hit by running some benchmark
-> with virtio-net/virtio-blk/virtio-rng.
+> On Wed, Jan 27, 2021 at 05:47:04AM +0000, Michael Kelley wrote:
+> > From: Wei Liu <wei.liu@kernel.org> Sent: Wednesday, January 20, 2021 4:01 AM
+> > >
+> > > When Linux runs as the root partition on Microsoft Hypervisor, its
+> > > interrupts are remapped.  Linux will need to explicitly map and unmap
+> > > interrupts for hardware.
+> > >
+> > > Implement an MSI domain to issue the correct hypercalls. And initialize
+> > > this irqdomain as the default MSI irq domain.
+> > >
+> > > Signed-off-by: Sunil Muthuswamy <sunilmut@microsoft.com>
+> > > Co-Developed-by: Sunil Muthuswamy <sunilmut@microsoft.com>
+> > > Signed-off-by: Wei Liu <wei.liu@kernel.org>
+> > > ---
+> > > v4: Fix compilation issue when CONFIG_PCI_MSI is not set.
+> > > v3: build irqdomain.o for 32bit as well.
+> >
+> > I'm not clear on the intent for 32-bit builds.  Given that hv_proc.c is built
+> > only for 64-bit, I'm assuming running Linux in the root partition
+> > is only functional for 64-bit builds.  So is the goal simply that 32-bit
+> > builds will compile correctly?  Seems like maybe there should be
+> > a CONFIG option for running Linux in the root partition, and that
+> > option would force 64-bit.
 > 
-> Earlier I said:
-> > > Another possibility is to move this hardening to the common virtio code,
-> > > but I think the code may become more complicated there since it would
-> > > require tracking both the dma_addr and length for each descriptor.
+> To ensure 32 bit kernel builds and 32 bit guests still work.
 > 
-> Unfortunately, this doesn't make sense. Even if there's validation for
-> the size in the common virtio layer, there will be some other device
-> which controls a dma_addr and length passed to dma_unmap* in the
-> corresponding driver. The device can target a specific dma-mapped private
-> buffer by changing the dma_addr and set a good length to overwrite buffers
-> following it.
+> The config option ROOT_API is to be introduced by Nuno's /dev/mshv
+> series. We can use that option to gate some objects when that's
+> available.
 > 
-> So, instead of doing the check in every driver and hitting a performance
-> cost even when swiotlb is not used, it's probably better to fix it in
-> swiotlb.
-> 
-> @Tom Lendacky, do you think that it makes sense to harden swiotlb or
-> some other approach may be better for the SEV features?
 
-I am not Tom, but this change seems the right way forward regardless if
-is TDX, AMD SEV, or any other architecture that encrypt memory and use
-SWIOTLB.
+But just so I'm 100% clear, is there intent to run 32-bit Linux in the root
+partition?  I'm assuming not.
 
-Let me queue it up in development branch and do some regression testing.
-> 
+Michael
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
