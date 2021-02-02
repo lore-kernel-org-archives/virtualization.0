@@ -2,86 +2,91 @@ Return-Path: <SRS0=DeSX=HE=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 821A9C433E0
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 10:35:49 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A531BC433DB
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 10:41:01 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0AEB964E2C
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 10:35:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0AEB964E2C
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=nvidia.com
+	by mail.kernel.org (Postfix) with ESMTPS id E596364ED7
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 10:41:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E596364ED7
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id A905D86DEE;
-	Tue,  2 Feb 2021 10:35:48 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 99BA586742;
+	Tue,  2 Feb 2021 10:41:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ndAvJz1nyyIh; Tue,  2 Feb 2021 10:35:46 +0000 (UTC)
+	with ESMTP id gjmvZty+pwhM; Tue,  2 Feb 2021 10:40:59 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 794C986D52;
-	Tue,  2 Feb 2021 10:35:46 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 6190C84718;
+	Tue,  2 Feb 2021 10:40:59 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 65160C0FA7;
-	Tue,  2 Feb 2021 10:35:46 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 41CCDC0FA7;
+	Tue,  2 Feb 2021 10:40:59 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 062E7C013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DA044C013A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 10:35:45 +0000 (UTC)
+ Tue,  2 Feb 2021 10:40:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id E9A8586691
+ by whitealder.osuosl.org (Postfix) with ESMTP id C83188673D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 10:35:44 +0000 (UTC)
+ Tue,  2 Feb 2021 10:40:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0GqzIxP1xvSA
+ with ESMTP id N1ScgT3WcTjR
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 10:35:41 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from hqnvemgate25.nvidia.com (hqnvemgate25.nvidia.com
- [216.228.121.64])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 28DD986689
+ Tue,  2 Feb 2021 10:40:56 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
+Received: from merlin.infradead.org (merlin.infradead.org [205.233.59.134])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id BF44884718
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 10:35:41 +0000 (UTC)
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by
- hqnvemgate25.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
- id <B60192afc0000>; Tue, 02 Feb 2021 02:35:40 -0800
-Received: from sw-mtx-036.mtx.labs.mlnx (172.20.145.6) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3;
- Tue, 2 Feb 2021 10:35:39 +0000
-From: Parav Pandit <parav@nvidia.com>
-To: <virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
- <dsahern@gmail.com>, <stephen@networkplumber.org>, <mst@redhat.com>,
- <jasowang@redhat.com>
-Subject: [PATCH iproute2-next v3 5/5] vdpa: Add vdpa tool
-Date: Tue, 2 Feb 2021 12:35:18 +0200
-Message-ID: <20210202103518.3858-6-parav@nvidia.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210202103518.3858-1-parav@nvidia.com>
-References: <20210122112654.9593-3-parav@nvidia.com>
- <20210202103518.3858-1-parav@nvidia.com>
-MIME-Version: 1.0
-X-Originating-IP: [172.20.145.6]
-X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
- HQMAIL107.nvidia.com (172.20.187.13)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1612262140; bh=z7sryTrXYLILEqH4Hu7FHNiCUSVQEG1ECrI1QzICLrM=;
- h=From:To:CC:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
- References:MIME-Version:Content-Transfer-Encoding:Content-Type:
- X-Originating-IP:X-ClientProxiedBy;
- b=Dyhs065oshWoRpkplVaYG2l9KPRLs91krsTRGe9+L/s1PSRUZ0w9NZmDZKIGxqDI8
- VUp7qAnEoyeYftbzwLo6ltBQt5boJbW0J1TlemlER4l9E1Np6hzSl3VLQ8aVU/7dbE
- pEYLR2LBXdTVX6tMC1s17ma9i+vZBig6RvhwidPfDO7GjsE5GjpRV2ORyADI0vaWhw
- h0cTxefl+XCvgLVKcuW9ryF0On5Bbki905HSpiZrM1rYesNC/ISSKsJBW00SH0KrTi
- vSzOP0NccrbVLES221NzfMDdcKw7JZyiJSB9Rix/HxcY+Q34Tcn0Yv2dYFgCsb0i9N
- 0j/QDWw/cnKHQ==
+ Tue,  2 Feb 2021 10:40:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=merlin.20170209; h=Mime-Version:Content-Type:References:
+ In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=5VE0kN55Y9p7x7D4PahUFNxeyTeQIhFMH31xYdvB7UQ=; b=SoF2oOIWP3qSB67hNBsJmXxGwa
+ sRAiDMyFrpwCwky0YBICPdiLP752LRrR0pq7URATM20ZrqjJl9a7+HQWTMjlBv0cMtgMJico0f17j
+ h1lANMv8SATV31loolZ7ERMzZSMcwRAyLjJ8tHsDz3Lx55bnbedo1wXr79h7B0XQ6oNu4Ayf6sgre
+ kshk53AH9G3P5u8kfcy4kS5RSEb9+Q+YGiA2gNKPgPLn3LdDIdtbkRqPRxdfBQHU/m8gU/SPTZow9
+ 28TyyZUNSaHkdIsAMLp2yEl/+deWlXWsWHRKoiHh3wZCBvaVaJnU1GLiEvu7M6xoT9ErfrZZl7fDK
+ X/y9w4HA==;
+Received: from 54-240-197-238.amazon.com ([54.240.197.238]
+ helo=u3832b3a9db3152.ant.amazon.com)
+ by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+ id 1l6t6z-0000bb-RH; Tue, 02 Feb 2021 10:40:46 +0000
+Message-ID: <c39553770dc895d7a4f172c337f3bad77642f131.camel@infradead.org>
+Subject: Re: [PATCH v3 00/17] Introducing Linux root partition support for
+ Microsoft Hypervisor
+From: David Woodhouse <dwmw2@infradead.org>
+To: Wei Liu <wei.liu@kernel.org>, "Enrico Weigelt, metux IT consult"
+ <lkml@metux.net>, kvm <kvm@vger.kernel.org>
+Date: Tue, 02 Feb 2021 10:40:43 +0000
+In-Reply-To: <20201215164245.yrorpipw2476w35e@liuwe-devbox-debian-v2>
+References: <20201124170744.112180-1-wei.liu@kernel.org>
+ <227127cf-bfea-4a06-fcbc-f6c46102e9e6@metux.net>
+ <20201202232234.5buzu5wysiaro3hc@liuwe-devbox-debian-v2>
+ <87d94c39-e801-fbc6-8f7f-1f1b00fa719d@metux.net>
+ <20201215164245.yrorpipw2476w35e@liuwe-devbox-debian-v2>
+X-Mailer: Evolution 3.28.5-0ubuntu0.18.04.2 
+Mime-Version: 1.0
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by
+ merlin.infradead.org. See http://www.infradead.org/rpr.html
+Cc: Linux on Hyper-V List <linux-hyperv@vger.kernel.org>, sameo@linux.intel.com,
+ robert.bradford@intel.com, Linux Kernel List <linux-kernel@vger.kernel.org>,
+ Michael Kelley <mikelley@microsoft.com>, sebastien.boeuf@intel.com,
+ Nuno Das Neves <nunodasneves@linux.microsoft.com>,
+ Sunil Muthuswamy <sunilmut@microsoft.com>,
+ virtualization@lists.linux-foundation.org,
+ Vineeth Pillai <viremana@linux.microsoft.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,1039 +98,162 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8833162592083015392=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-vdpa tool is created to create, delete and query vdpa devices.
-examples:
-Show vdpa management device that supports creating, deleting vdpa devices.
 
-$ vdpa mgmtdev show
-vdpasim:
-  supported_classes net
+--===============8833162592083015392==
+Content-Type: multipart/signed; micalg="sha-256";
+	protocol="application/x-pkcs7-signature";
+	boundary="=-kLFAJ4/obeaR1Gl4vmVh"
 
-$ vdpa mgmtdev show -jp
-{
-    "show": {
-        "vdpasim": {
-            "supported_classes": [ "net" ]
-        }
-    }
-}
 
-Create a vdpa device of type networking named as "foo2" from
-the management device vdpasim_net:
+--=-kLFAJ4/obeaR1Gl4vmVh
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-$ vdpa dev add mgmtdev vdpasim_net name foo2
+On Tue, 2020-12-15 at 16:42 +0000, Wei Liu wrote:
+> On Tue, Dec 15, 2020 at 04:25:03PM +0100, Enrico Weigelt, metux IT consul=
+t wrote:
+> > On 03.12.20 00:22, Wei Liu wrote:
+> >=20
+> > Hi,
+> >=20
+> > > I don't follow. Do you mean reusing /dev/kvm but with a different set=
+ of
+> > > APIs underneath? I don't think that will work.
+> >=20
+> > My idea was using the same uapi for both hypervisors, so that we can us=
+e
+> > the same userlands for both.
+> >=20
+> > Are the semantis so different that we can't provide the same API ?
+>=20
+> We can provide some similar APIs for ease of porting, but can't provide
+> 1:1 mappings. By definition KVM and MSHV are two different things. There
+> is no goal to make one ABI / API compatible with the other.
 
-Show the newly created vdpa device by its name:
-$ vdpa dev show foo2
-foo2: type network mgmtdev vdpasim_net vendor_id 0 max_vqs 2 max_vq_size 256
+I'm not sure I understand.
 
-$ vdpa dev show foo2 -jp
-{
-    "dev": {
-        "foo2": {
-            "type": "network",
-            "mgmtdev": "vdpasim_net",
-            "vendor_id": 0,
-            "max_vqs": 2,
-            "max_vq_size": 256
-        }
-    }
-}
+KVM is the Linux userspace API for virtualisation. It is designed to be
+versatile enough that it can support multiple implementations across
+multiple architectures, including both AMD SVM and Intel VMX on x86.
 
-Delete the vdpa device after its use:
-$ vdpa dev del foo2
+Are you saying that KVM has *failed* to be versatile enough that this
+can be "just another implementation"? What are the problems? Is it
+unfixable?=20
 
-Signed-off-by: Parav Pandit <parav@nvidia.com>
----
- Makefile                |   2 +-
- man/man8/vdpa-dev.8     |  96 ++++++
- man/man8/vdpa-mgmtdev.8 |  53 ++++
- man/man8/vdpa.8         |  76 +++++
- vdpa/Makefile           |  24 ++
- vdpa/vdpa.c             | 675 ++++++++++++++++++++++++++++++++++++++++
- 6 files changed, 925 insertions(+), 1 deletion(-)
- create mode 100644 man/man8/vdpa-dev.8
- create mode 100644 man/man8/vdpa-mgmtdev.8
- create mode 100644 man/man8/vdpa.8
- create mode 100644 vdpa/Makefile
- create mode 100644 vdpa/vdpa.c
+--=-kLFAJ4/obeaR1Gl4vmVh
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
 
-diff --git a/Makefile b/Makefile
-index e64c6599..19bd163e 100644
---- a/Makefile
-+++ b/Makefile
-@@ -55,7 +55,7 @@ WFLAGS += -Wmissing-declarations -Wold-style-definition -Wformat=2
- CFLAGS := $(WFLAGS) $(CCOPTS) -I../include -I../include/uapi $(DEFINES) $(CFLAGS)
- YACCFLAGS = -d -t -v
- 
--SUBDIRS=lib ip tc bridge misc netem genl tipc devlink rdma dcb man
-+SUBDIRS=lib ip tc bridge misc netem genl tipc devlink rdma dcb man vdpa
- 
- LIBNETLINK=../lib/libutil.a ../lib/libnetlink.a
- LDLIBS += $(LIBNETLINK)
-diff --git a/man/man8/vdpa-dev.8 b/man/man8/vdpa-dev.8
-new file mode 100644
-index 00000000..36433519
---- /dev/null
-+++ b/man/man8/vdpa-dev.8
-@@ -0,0 +1,96 @@
-+.TH DEVLINK\-DEV 8 "5 Jan 2021" "iproute2" "Linux"
-+.SH NAME
-+vdpa-dev \- vdpa device configuration
-+.SH SYNOPSIS
-+.sp
-+.ad l
-+.in +8
-+.ti -8
-+.B vdpa
-+.B dev
-+.RI "[ " OPTIONS " ] "
-+.RI  " { " COMMAND | " "
-+.BR help " }"
-+.sp
-+
-+.ti -8
-+.IR OPTIONS " := { "
-+\fB\-V\fR[\fIersion\fR]
-+}
-+
-+.ti -8
-+.B vdpa dev show
-+.RI "[ " DEV " ]"
-+
-+.ti -8
-+.B vdpa dev help
-+
-+.ti -8
-+.B vdpa dev add
-+.B name
-+.I NAME
-+.B mgmtdev
-+.I MGMTDEV
-+
-+.ti -8
-+.B vdpa dev del
-+.I DEV
-+
-+.SH "DESCRIPTION"
-+.SS vdpa dev show - display vdpa device attributes
-+
-+.PP
-+.I "DEV"
-+- specifies the vdpa device to show.
-+If this argument is omitted all devices are listed.
-+
-+.in +4
-+Format is:
-+.in +2
-+VDPA_DEVICE_NAME
-+
-+.SS vdpa dev add - add a new vdpa device.
-+
-+.TP
-+.BI name " NAME"
-+Name of the new vdpa device to add.
-+
-+.TP
-+.BI mgmtdev " MGMTDEV"
-+Name of the management device to use for device addition.
-+
-+.SS vdpa dev del - Delete the vdpa device.
-+
-+.PP
-+.I "DEV"
-+- specifies the vdpa device to delete.
-+
-+.SH "EXAMPLES"
-+.PP
-+vdpa dev show
-+.RS 4
-+Shows the all vdpa devices on the system.
-+.RE
-+.PP
-+vdpa dev show foo
-+.RS 4
-+Shows the specified vdpa device.
-+.RE
-+.PP
-+vdpa dev add name foo mgmtdev vdpa_sim_net
-+.RS 4
-+Add the vdpa device named foo on the management device vdpa_sim_net.
-+.RE
-+.PP
-+vdpa dev del foo
-+.RS 4
-+Delete the vdpa device named foo which was previously created.
-+.RE
-+
-+.SH SEE ALSO
-+.BR vdpa (8),
-+.BR vdpa-mgmtdev (8),
-+.br
-+
-+.SH AUTHOR
-+Parav Pandit <parav@nvidia.com>
-diff --git a/man/man8/vdpa-mgmtdev.8 b/man/man8/vdpa-mgmtdev.8
-new file mode 100644
-index 00000000..cae2cbd0
---- /dev/null
-+++ b/man/man8/vdpa-mgmtdev.8
-@@ -0,0 +1,53 @@
-+.TH DEVLINK\-DEV 8 "5 Jan 2021" "iproute2" "Linux"
-+.SH NAME
-+vdpa-dev \- vdpa management device view
-+.SH SYNOPSIS
-+.sp
-+.ad l
-+.in +8
-+.ti -8
-+.B vdpa
-+.B mgmtdev
-+.RI  " { " COMMAND | " "
-+.BR help " }"
-+.sp
-+
-+.ti -8
-+.IR OPTIONS " := { "
-+\fB\-V\fR[\fIersion\fR]
-+}
-+
-+.ti -8
-+.B vdpa mgmtdev show
-+.RI "[ " MGMTDEV " ]"
-+
-+.ti -8
-+.B vdpa mgmtdev help
-+
-+.SH "DESCRIPTION"
-+.SS vdpa mgmtdev show - display vdpa management device attributes
-+
-+.PP
-+.I "MGMTDEV"
-+- specifies the vdpa management device to show.
-+If this argument is omitted all management devices are listed.
-+
-+.SH "EXAMPLES"
-+.PP
-+vdpa mgmtdev show
-+.RS 4
-+Shows all the vdpa management devices on the system.
-+.RE
-+.PP
-+vdpa mgmtdev show bar
-+.RS 4
-+Shows the specified vdpa management device.
-+.RE
-+
-+.SH SEE ALSO
-+.BR vdpa (8),
-+.BR vdpa-dev (8),
-+.br
-+
-+.SH AUTHOR
-+Parav Pandit <parav@nvidia.com>
-diff --git a/man/man8/vdpa.8 b/man/man8/vdpa.8
-new file mode 100644
-index 00000000..d1aaecec
---- /dev/null
-+++ b/man/man8/vdpa.8
-@@ -0,0 +1,76 @@
-+.TH VDPA 8 "5 Jan 2021" "iproute2" "Linux"
-+.SH NAME
-+vdpa \- vdpa management tool
-+.SH SYNOPSIS
-+.sp
-+.ad l
-+.in +8
-+.ti -8
-+.B vdpa
-+.RI "[ " OPTIONS " ] { " dev | mgmtdev " } { " COMMAND " | "
-+.BR help " }"
-+.sp
-+
-+.SH OPTIONS
-+
-+.TP
-+.BR "\-V" , " --Version"
-+Print the version of the
-+.B vdpa
-+utility and exit.
-+
-+.TP
-+.BR "\-j" , " --json"
-+Generate JSON output.
-+
-+.TP
-+.BR "\-p" , " --pretty"
-+When combined with -j generate a pretty JSON output.
-+
-+.SS
-+.I OBJECT
-+
-+.TP
-+.B dev
-+- vdpa device.
-+
-+.TP
-+.B mgmtdev
-+- vdpa management device.
-+
-+.SS
-+.I COMMAND
-+
-+Specifies the action to perform on the object.
-+The set of possible actions depends on the object type.
-+It is possible to
-+.B show
-+(or
-+.B list
-+) objects. The
-+.B help
-+command is available for all objects. It prints
-+out a list of available commands and argument syntax conventions.
-+.sp
-+If no command is given, some default command is assumed.
-+Usually it is
-+.B show
-+or, if the objects of this class cannot be listed,
-+.BR "help" .
-+
-+.SH EXIT STATUS
-+Exit status is 0 if command was successful or a positive integer upon failure.
-+
-+.SH SEE ALSO
-+.BR vdpa-dev (8),
-+.BR vdpa-mgmtdev (8),
-+.br
-+
-+.SH REPORTING BUGS
-+Report any bugs to the Network Developers mailing list
-+.B <netdev@vger.kernel.org>
-+where the development and maintenance is primarily done.
-+You do not have to be subscribed to the list to send a message there.
-+
-+.SH AUTHOR
-+Parav Pandit <parav@nvidia.com>
-diff --git a/vdpa/Makefile b/vdpa/Makefile
-new file mode 100644
-index 00000000..275f9ded
---- /dev/null
-+++ b/vdpa/Makefile
-@@ -0,0 +1,24 @@
-+# SPDX-License-Identifier: GPL-2.0
-+include ../config.mk
-+
-+TARGETS :=
-+
-+ifeq ($(HAVE_MNL),y)
-+
-+VDPAOBJ = vdpa.o
-+TARGETS += vdpa
-+
-+endif
-+
-+all: $(TARGETS) $(LIBS)
-+
-+vdpa: $(VDPAOBJ)
-+	$(QUIET_LINK)$(CC) $^ $(LDFLAGS) $(LDLIBS) -o $@
-+
-+install: all
-+	for i in $(TARGETS); \
-+	do install -m 0755 $$i $(DESTDIR)$(SBINDIR); \
-+	done
-+
-+clean:
-+	rm -f $(VDPAOBJ) $(TARGETS)
-diff --git a/vdpa/vdpa.c b/vdpa/vdpa.c
-new file mode 100644
-index 00000000..7fdb36b9
---- /dev/null
-+++ b/vdpa/vdpa.c
-@@ -0,0 +1,675 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+
-+#include <stdio.h>
-+#include <getopt.h>
-+#include <errno.h>
-+#include <linux/genetlink.h>
-+#include <linux/vdpa.h>
-+#include <linux/virtio_ids.h>
-+#include <linux/netlink.h>
-+#include <libmnl/libmnl.h>
-+#include "mnl_utils.h"
-+
-+#include "version.h"
-+#include "json_print.h"
-+#include "utils.h"
-+
-+#define VDPA_OPT_MGMTDEV_HANDLE		BIT(0)
-+#define VDPA_OPT_VDEV_MGMTDEV_HANDLE	BIT(1)
-+#define VDPA_OPT_VDEV_NAME		BIT(2)
-+#define VDPA_OPT_VDEV_HANDLE		BIT(3)
-+
-+struct vdpa_opts {
-+	uint64_t present; /* flags of present items */
-+	char *mdev_bus_name;
-+	char *mdev_name;
-+	const char *vdev_name;
-+	unsigned int device_id;
-+};
-+
-+struct vdpa {
-+	struct mnlu_gen_socket nlg;
-+	struct vdpa_opts opts;
-+	bool json_output;
-+	struct indent_mem *indent;
-+};
-+
-+static void pr_out_section_start(struct vdpa *vdpa, const char *name)
-+{
-+	open_json_object(NULL);
-+	open_json_object(name);
-+}
-+
-+static void pr_out_section_end(struct vdpa *vdpa)
-+{
-+	close_json_object();
-+	close_json_object();
-+}
-+
-+static void pr_out_array_start(struct vdpa *vdpa, const char *name)
-+{
-+	if (!vdpa->json_output) {
-+		print_nl();
-+		inc_indent(vdpa->indent);
-+		print_indent(vdpa->indent);
-+	}
-+	open_json_array(PRINT_ANY, name);
-+}
-+
-+static void pr_out_array_end(struct vdpa *vdpa)
-+{
-+	close_json_array(PRINT_JSON, NULL);
-+	if (!vdpa->json_output)
-+		dec_indent(vdpa->indent);
-+}
-+
-+static const enum mnl_attr_data_type vdpa_policy[VDPA_ATTR_MAX + 1] = {
-+	[VDPA_ATTR_MGMTDEV_BUS_NAME] = MNL_TYPE_NUL_STRING,
-+	[VDPA_ATTR_MGMTDEV_DEV_NAME] = MNL_TYPE_NUL_STRING,
-+	[VDPA_ATTR_DEV_NAME] = MNL_TYPE_STRING,
-+	[VDPA_ATTR_DEV_ID] = MNL_TYPE_U32,
-+	[VDPA_ATTR_DEV_VENDOR_ID] = MNL_TYPE_U32,
-+	[VDPA_ATTR_DEV_MAX_VQS] = MNL_TYPE_U32,
-+	[VDPA_ATTR_DEV_MAX_VQ_SIZE] = MNL_TYPE_U16,
-+};
-+
-+static int attr_cb(const struct nlattr *attr, void *data)
-+{
-+	const struct nlattr **tb = data;
-+	int type;
-+
-+	if (mnl_attr_type_valid(attr, VDPA_ATTR_MAX) < 0)
-+		return MNL_CB_OK;
-+
-+	type = mnl_attr_get_type(attr);
-+	if (mnl_attr_validate(attr, vdpa_policy[type]) < 0)
-+		return MNL_CB_ERROR;
-+
-+	tb[type] = attr;
-+	return MNL_CB_OK;
-+}
-+
-+static int vdpa_argv_handle(struct vdpa *vdpa, int argc, char **argv,
-+			    char **p_mdev_bus_name,
-+			    char **p_mdev_name)
-+{
-+	unsigned int slashcount;
-+	char *str;
-+
-+	if (argc <= 0 || *argv == NULL) {
-+		fprintf(stderr,
-+			"vdpa identification (\"mgmtdev_bus_name/mgmtdev_name\") expected\n");
-+		return -EINVAL;
-+	}
-+	str = *argv;
-+	slashcount = get_str_char_count(str, '/');
-+	if (slashcount > 1) {
-+		fprintf(stderr,
-+			"Wrong vdpa mgmtdev identification string format\n");
-+		fprintf(stderr, "Expected \"mgmtdev_bus_name/mgmtdev_name\"\n");
-+		fprintf(stderr, "Expected \"mgmtdev_name\"\n");
-+		return -EINVAL;
-+	}
-+	switch (slashcount) {
-+	case 0:
-+		*p_mdev_bus_name = NULL;
-+		*p_mdev_name = str;
-+		return 0;
-+	case 1:
-+		str_split_by_char(str, p_mdev_bus_name, p_mdev_name, '/');
-+		return 0;
-+	default:
-+		return -EINVAL;
-+	}
-+}
-+
-+static int vdpa_argv_str(struct vdpa *vdpa, int argc, char **argv,
-+			 const char **p_str)
-+{
-+	if (argc <= 0 || *argv == NULL) {
-+		fprintf(stderr, "String parameter expected\n");
-+		return -EINVAL;
-+	}
-+	*p_str = *argv;
-+	return 0;
-+}
-+
-+struct vdpa_args_metadata {
-+	uint64_t o_flag;
-+	const char *err_msg;
-+};
-+
-+static const struct vdpa_args_metadata vdpa_args_required[] = {
-+	{VDPA_OPT_VDEV_MGMTDEV_HANDLE, "management device handle not set."},
-+	{VDPA_OPT_VDEV_NAME, "device name is not set."},
-+	{VDPA_OPT_VDEV_HANDLE, "device name is not set."},
-+};
-+
-+static int vdpa_args_finding_required_validate(uint64_t o_required,
-+					       uint64_t o_found)
-+{
-+	uint64_t o_flag;
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(vdpa_args_required); i++) {
-+		o_flag = vdpa_args_required[i].o_flag;
-+		if ((o_required & o_flag) && !(o_found & o_flag)) {
-+			fprintf(stderr, "%s\n", vdpa_args_required[i].err_msg);
-+			return -EINVAL;
-+		}
-+	}
-+	if (o_required & ~o_found) {
-+		fprintf(stderr,
-+			"BUG: unknown argument required but not found\n");
-+		return -EINVAL;
-+	}
-+	return 0;
-+}
-+
-+static void vdpa_opts_put(struct nlmsghdr *nlh, struct vdpa *vdpa)
-+{
-+	struct vdpa_opts *opts = &vdpa->opts;
-+
-+	if ((opts->present & VDPA_OPT_MGMTDEV_HANDLE) ||
-+	    (opts->present & VDPA_OPT_VDEV_MGMTDEV_HANDLE)) {
-+		if (opts->mdev_bus_name)
-+			mnl_attr_put_strz(nlh, VDPA_ATTR_MGMTDEV_BUS_NAME,
-+					  opts->mdev_bus_name);
-+		mnl_attr_put_strz(nlh, VDPA_ATTR_MGMTDEV_DEV_NAME,
-+				  opts->mdev_name);
-+	}
-+	if ((opts->present & VDPA_OPT_VDEV_NAME) ||
-+	    (opts->present & VDPA_OPT_VDEV_HANDLE))
-+		mnl_attr_put_strz(nlh, VDPA_ATTR_DEV_NAME, opts->vdev_name);
-+}
-+
-+static int vdpa_argv_parse(struct vdpa *vdpa, int argc, char **argv,
-+			   uint64_t o_required)
-+{
-+	struct vdpa_opts *opts = &vdpa->opts;
-+	uint64_t o_all = o_required;
-+	uint64_t o_found = 0;
-+	int err;
-+
-+	if (o_required & VDPA_OPT_MGMTDEV_HANDLE) {
-+		err = vdpa_argv_handle(vdpa, argc, argv, &opts->mdev_bus_name,
-+				       &opts->mdev_name);
-+		if (err)
-+			return err;
-+
-+		NEXT_ARG_FWD();
-+		o_found |= VDPA_OPT_MGMTDEV_HANDLE;
-+	} else if (o_required & VDPA_OPT_VDEV_HANDLE) {
-+		err = vdpa_argv_str(vdpa, argc, argv, &opts->vdev_name);
-+		if (err)
-+			return err;
-+
-+		NEXT_ARG_FWD();
-+		o_found |= VDPA_OPT_VDEV_HANDLE;
-+	}
-+
-+	while (NEXT_ARG_OK()) {
-+		if ((matches(*argv, "name") == 0) &&
-+		    (o_all & VDPA_OPT_VDEV_NAME)) {
-+			const char *namestr;
-+
-+			NEXT_ARG_FWD();
-+			err = vdpa_argv_str(vdpa, argc, argv, &namestr);
-+			if (err)
-+				return err;
-+			opts->vdev_name = namestr;
-+			NEXT_ARG_FWD();
-+			o_found |= VDPA_OPT_VDEV_NAME;
-+		} else if ((matches(*argv, "mgmtdev")  == 0) &&
-+			   (o_all & VDPA_OPT_VDEV_MGMTDEV_HANDLE)) {
-+			NEXT_ARG_FWD();
-+			err = vdpa_argv_handle(vdpa, argc, argv,
-+					       &opts->mdev_bus_name,
-+					       &opts->mdev_name);
-+			if (err)
-+				return err;
-+
-+			NEXT_ARG_FWD();
-+			o_found |= VDPA_OPT_VDEV_MGMTDEV_HANDLE;
-+		} else {
-+			fprintf(stderr, "Unknown option \"%s\"\n", *argv);
-+			return -EINVAL;
-+		}
-+	}
-+
-+	opts->present = o_found;
-+
-+	return vdpa_args_finding_required_validate(o_required, o_found);
-+}
-+
-+static int vdpa_argv_parse_put(struct nlmsghdr *nlh, struct vdpa *vdpa,
-+			       int argc, char **argv,
-+			       uint64_t o_required)
-+{
-+	int err;
-+
-+	err = vdpa_argv_parse(vdpa, argc, argv, o_required);
-+	if (err)
-+		return err;
-+	vdpa_opts_put(nlh, vdpa);
-+	return 0;
-+}
-+
-+static void cmd_mgmtdev_help(void)
-+{
-+	fprintf(stderr, "Usage: vdpa mgmtdev show [ DEV ]\n");
-+}
-+
-+static void pr_out_handle_start(struct vdpa *vdpa, struct nlattr **tb)
-+{
-+	const char *mdev_bus_name = NULL;
-+	const char *mdev_name;
-+	SPRINT_BUF(buf);
-+
-+	mdev_name = mnl_attr_get_str(tb[VDPA_ATTR_MGMTDEV_DEV_NAME]);
-+	if (tb[VDPA_ATTR_MGMTDEV_BUS_NAME]) {
-+		mdev_bus_name = mnl_attr_get_str(tb[VDPA_ATTR_MGMTDEV_BUS_NAME]);
-+		sprintf(buf, "%s/%s", mdev_bus_name, mdev_name);
-+	} else {
-+		sprintf(buf, "%s", mdev_name);
-+	}
-+
-+	if (vdpa->json_output)
-+		open_json_object(buf);
-+	else
-+		printf("%s: ", buf);
-+}
-+
-+static void pr_out_handle_end(struct vdpa *vdpa)
-+{
-+	if (vdpa->json_output)
-+		close_json_object();
-+	else
-+		print_nl();
-+}
-+
-+static void __pr_out_vdev_handle_start(struct vdpa *vdpa, const char *vdev_name)
-+{
-+	SPRINT_BUF(buf);
-+
-+	sprintf(buf, "%s", vdev_name);
-+	if (vdpa->json_output)
-+		open_json_object(buf);
-+	else
-+		printf("%s: ", buf);
-+}
-+
-+static void pr_out_vdev_handle_start(struct vdpa *vdpa, struct nlattr **tb)
-+{
-+	const char *vdev_name;
-+
-+	vdev_name = mnl_attr_get_str(tb[VDPA_ATTR_DEV_NAME]);
-+	__pr_out_vdev_handle_start(vdpa, vdev_name);
-+}
-+
-+static void pr_out_vdev_handle_end(struct vdpa *vdpa)
-+{
-+	if (vdpa->json_output)
-+		close_json_object();
-+	else
-+		print_nl();
-+}
-+
-+static struct str_num_map class_map[] = {
-+	{ .str = "net", .num = VIRTIO_ID_NET },
-+	{ .str = "block", .num = VIRTIO_ID_BLOCK },
-+	{ .str = NULL, },
-+};
-+
-+static const char *parse_class(int num)
-+{
-+	const char *class;
-+
-+	class = str_map_lookup_uint(class_map, num);
-+	return class ? class : "< unknown class >";
-+}
-+
-+static void pr_out_mgmtdev_show(struct vdpa *vdpa, const struct nlmsghdr *nlh,
-+				struct nlattr **tb)
-+{
-+	const char *class;
-+	unsigned int i;
-+
-+	pr_out_handle_start(vdpa, tb);
-+
-+	if (tb[VDPA_ATTR_MGMTDEV_SUPPORTED_CLASSES]) {
-+		uint64_t classes = mnl_attr_get_u64(tb[VDPA_ATTR_MGMTDEV_SUPPORTED_CLASSES]);
-+
-+		pr_out_array_start(vdpa, "supported_classes");
-+
-+		for (i = 1; i < 64; i++) {
-+			if ((classes & (1ULL << i)) == 0)
-+				continue;
-+
-+			class = parse_class(i);
-+			print_string(PRINT_ANY, NULL, " %s", class);
-+		}
-+		pr_out_array_end(vdpa);
-+	}
-+
-+	pr_out_handle_end(vdpa);
-+}
-+
-+static int cmd_mgmtdev_show_cb(const struct nlmsghdr *nlh, void *data)
-+{
-+	struct genlmsghdr *genl = mnl_nlmsg_get_payload(nlh);
-+	struct nlattr *tb[VDPA_ATTR_MAX + 1] = {};
-+	struct vdpa *vdpa = data;
-+
-+	mnl_attr_parse(nlh, sizeof(*genl), attr_cb, tb);
-+
-+	if (!tb[VDPA_ATTR_MGMTDEV_DEV_NAME])
-+		return MNL_CB_ERROR;
-+
-+	pr_out_mgmtdev_show(vdpa, nlh, tb);
-+
-+	return MNL_CB_OK;
-+}
-+
-+static int cmd_mgmtdev_show(struct vdpa *vdpa, int argc, char **argv)
-+{
-+	uint16_t flags = NLM_F_REQUEST | NLM_F_ACK;
-+	struct nlmsghdr *nlh;
-+	int err;
-+
-+	if (argc == 0)
-+		flags |= NLM_F_DUMP;
-+
-+	nlh = mnlu_gen_socket_cmd_prepare(&vdpa->nlg, VDPA_CMD_MGMTDEV_GET,
-+					  flags);
-+	if (argc > 0) {
-+		err = vdpa_argv_parse_put(nlh, vdpa, argc, argv,
-+					  VDPA_OPT_MGMTDEV_HANDLE);
-+		if (err)
-+			return err;
-+	}
-+
-+	pr_out_section_start(vdpa, "mgmtdev");
-+	err = mnlu_gen_socket_sndrcv(&vdpa->nlg, nlh, cmd_mgmtdev_show_cb, vdpa);
-+	pr_out_section_end(vdpa);
-+	return err;
-+}
-+
-+static int cmd_mgmtdev(struct vdpa *vdpa, int argc, char **argv)
-+{
-+	if (!argc || matches(*argv, "help") == 0) {
-+		cmd_mgmtdev_help();
-+		return 0;
-+	} else if (matches(*argv, "show") == 0 ||
-+		   matches(*argv, "list") == 0) {
-+		return cmd_mgmtdev_show(vdpa, argc - 1, argv + 1);
-+	}
-+	fprintf(stderr, "Command \"%s\" not found\n", *argv);
-+	return -ENOENT;
-+}
-+
-+static void cmd_dev_help(void)
-+{
-+	fprintf(stderr, "Usage: vdpa dev show [ DEV ]\n");
-+	fprintf(stderr, "       vdpa dev add name NAME mgmtdev MANAGEMENTDEV\n");
-+	fprintf(stderr, "       vdpa dev del DEV\n");
-+}
-+
-+static const char *device_type_name(uint32_t type)
-+{
-+	switch (type) {
-+	case 0x1: return "network";
-+	case 0x2: return "block";
-+	default: return "<unknown type>";
-+	}
-+}
-+
-+static void pr_out_dev(struct vdpa *vdpa, struct nlattr **tb)
-+{
-+	const char *mdev_name = mnl_attr_get_str(tb[VDPA_ATTR_MGMTDEV_DEV_NAME]);
-+	uint32_t device_id = mnl_attr_get_u32(tb[VDPA_ATTR_DEV_ID]);
-+	const char *mdev_bus_name = NULL;
-+	char mgmtdev_buf[128];
-+
-+	if (tb[VDPA_ATTR_MGMTDEV_BUS_NAME])
-+		mdev_bus_name = mnl_attr_get_str(tb[VDPA_ATTR_MGMTDEV_BUS_NAME]);
-+
-+	if (mdev_bus_name)
-+		sprintf(mgmtdev_buf, "%s/%s", mdev_bus_name, mdev_name);
-+	else
-+		sprintf(mgmtdev_buf, "%s", mdev_name);
-+	pr_out_vdev_handle_start(vdpa, tb);
-+	print_string(PRINT_ANY, "type", "type %s", device_type_name(device_id));
-+	print_string(PRINT_ANY, "mgmtdev", " mgmtdev %s", mgmtdev_buf);
-+
-+	if (tb[VDPA_ATTR_DEV_VENDOR_ID])
-+		print_uint(PRINT_ANY, "vendor_id", " vendor_id %u",
-+			   mnl_attr_get_u32(tb[VDPA_ATTR_DEV_VENDOR_ID]));
-+	if (tb[VDPA_ATTR_DEV_MAX_VQS])
-+		print_uint(PRINT_ANY, "max_vqs", " max_vqs %u",
-+			   mnl_attr_get_u32(tb[VDPA_ATTR_DEV_MAX_VQS]));
-+	if (tb[VDPA_ATTR_DEV_MAX_VQ_SIZE])
-+		print_uint(PRINT_ANY, "max_vq_size", " max_vq_size %u",
-+			   mnl_attr_get_u16(tb[VDPA_ATTR_DEV_MAX_VQ_SIZE]));
-+	pr_out_vdev_handle_end(vdpa);
-+}
-+
-+static int cmd_dev_show_cb(const struct nlmsghdr *nlh, void *data)
-+{
-+	struct genlmsghdr *genl = mnl_nlmsg_get_payload(nlh);
-+	struct nlattr *tb[VDPA_ATTR_MAX + 1] = {};
-+	struct vdpa *vdpa = data;
-+
-+	mnl_attr_parse(nlh, sizeof(*genl), attr_cb, tb);
-+	if (!tb[VDPA_ATTR_MGMTDEV_DEV_NAME] ||
-+	    !tb[VDPA_ATTR_DEV_NAME] || !tb[VDPA_ATTR_DEV_ID])
-+		return MNL_CB_ERROR;
-+	pr_out_dev(vdpa, tb);
-+	return MNL_CB_OK;
-+}
-+
-+static int cmd_dev_show(struct vdpa *vdpa, int argc, char **argv)
-+{
-+	uint16_t flags = NLM_F_REQUEST | NLM_F_ACK;
-+	struct nlmsghdr *nlh;
-+	int err;
-+
-+	if (argc <= 0)
-+		flags |= NLM_F_DUMP;
-+
-+	nlh = mnlu_gen_socket_cmd_prepare(&vdpa->nlg, VDPA_CMD_DEV_GET, flags);
-+	if (argc > 0) {
-+		err = vdpa_argv_parse_put(nlh, vdpa, argc, argv,
-+					  VDPA_OPT_VDEV_HANDLE);
-+		if (err)
-+			return err;
-+	}
-+
-+	pr_out_section_start(vdpa, "dev");
-+	err = mnlu_gen_socket_sndrcv(&vdpa->nlg, nlh, cmd_dev_show_cb, vdpa);
-+	pr_out_section_end(vdpa);
-+	return err;
-+}
-+
-+static int cmd_dev_add(struct vdpa *vdpa, int argc, char **argv)
-+{
-+	struct nlmsghdr *nlh;
-+	int err;
-+
-+	nlh = mnlu_gen_socket_cmd_prepare(&vdpa->nlg, VDPA_CMD_DEV_NEW,
-+					  NLM_F_REQUEST | NLM_F_ACK);
-+	err = vdpa_argv_parse_put(nlh, vdpa, argc, argv,
-+				  VDPA_OPT_VDEV_MGMTDEV_HANDLE | VDPA_OPT_VDEV_NAME);
-+	if (err)
-+		return err;
-+
-+	return mnlu_gen_socket_sndrcv(&vdpa->nlg, nlh, NULL, NULL);
-+}
-+
-+static int cmd_dev_del(struct vdpa *vdpa,  int argc, char **argv)
-+{
-+	struct nlmsghdr *nlh;
-+	int err;
-+
-+	nlh = mnlu_gen_socket_cmd_prepare(&vdpa->nlg, VDPA_CMD_DEV_DEL,
-+					  NLM_F_REQUEST | NLM_F_ACK);
-+	err = vdpa_argv_parse_put(nlh, vdpa, argc, argv, VDPA_OPT_VDEV_HANDLE);
-+	if (err)
-+		return err;
-+
-+	return mnlu_gen_socket_sndrcv(&vdpa->nlg, nlh, NULL, NULL);
-+}
-+
-+static int cmd_dev(struct vdpa *vdpa, int argc, char **argv)
-+{
-+	if (!argc)
-+		return cmd_dev_show(vdpa, argc - 1, argv + 1);
-+
-+	if (matches(*argv, "help") == 0) {
-+		cmd_dev_help();
-+		return 0;
-+	} else if (matches(*argv, "show") == 0 ||
-+		   matches(*argv, "list") == 0) {
-+		return cmd_dev_show(vdpa, argc - 1, argv + 1);
-+	} else if (matches(*argv, "add") == 0) {
-+		return cmd_dev_add(vdpa, argc - 1, argv + 1);
-+	} else if (matches(*argv, "del") == 0) {
-+		return cmd_dev_del(vdpa, argc - 1, argv + 1);
-+	}
-+	fprintf(stderr, "Command \"%s\" not found\n", *argv);
-+	return -ENOENT;
-+}
-+
-+static void help(void)
-+{
-+	fprintf(stderr,
-+		"Usage: vdpa [ OPTIONS ] OBJECT { COMMAND | help }\n"
-+		"where  OBJECT := { mgmtdev | dev }\n"
-+		"       OPTIONS := { -V[ersion] | -n[o-nice-names] | -j[son] | -p[retty] | -v[erbose] }\n");
-+}
-+
-+static int vdpa_cmd(struct vdpa *vdpa, int argc, char **argv)
-+{
-+	if (!argc || matches(*argv, "help") == 0) {
-+		help();
-+		return 0;
-+	} else if (matches(*argv, "mgmtdev") == 0) {
-+		return cmd_mgmtdev(vdpa, argc - 1, argv + 1);
-+	} else if (matches(*argv, "dev") == 0) {
-+		return cmd_dev(vdpa, argc - 1, argv + 1);
-+	}
-+	fprintf(stderr, "Object \"%s\" not found\n", *argv);
-+	return -ENOENT;
-+}
-+
-+static int vdpa_init(struct vdpa *vdpa)
-+{
-+	int err;
-+
-+	err = mnlu_gen_socket_open(&vdpa->nlg, VDPA_GENL_NAME,
-+				   VDPA_GENL_VERSION);
-+	if (err) {
-+		fprintf(stderr, "Failed to connect to vdpa Netlink\n");
-+		return -errno;
-+	}
-+	new_json_obj_plain(vdpa->json_output);
-+	return 0;
-+}
-+
-+static void vdpa_fini(struct vdpa *vdpa)
-+{
-+	delete_json_obj_plain();
-+	mnlu_gen_socket_close(&vdpa->nlg);
-+}
-+
-+static struct vdpa *vdpa_alloc(void)
-+{
-+	struct vdpa *vdpa = calloc(1, sizeof(struct vdpa));
-+
-+	if (!vdpa)
-+		return NULL;
-+
-+	vdpa->indent = alloc_indent_mem();
-+	if (!vdpa->indent)
-+		goto indent_err;
-+
-+	return vdpa;
-+
-+indent_err:
-+	free(vdpa);
-+	return NULL;
-+}
-+
-+static void vdpa_free(struct vdpa *vdpa)
-+{
-+	free_indent_mem(vdpa->indent);
-+	free(vdpa);
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	static const struct option long_options[] = {
-+		{ "Version",		no_argument,	NULL, 'V' },
-+		{ "json",		no_argument,	NULL, 'j' },
-+		{ "pretty",		no_argument,	NULL, 'p' },
-+		{ "help",		no_argument,	NULL, 'h' },
-+		{ NULL, 0, NULL, 0 }
-+	};
-+	struct vdpa *vdpa;
-+	int opt;
-+	int err;
-+	int ret;
-+
-+	vdpa = vdpa_alloc();
-+	if (!vdpa) {
-+		fprintf(stderr, "Failed to allocate memory for vdpa\n");
-+		return EXIT_FAILURE;
-+	}
-+
-+	while ((opt = getopt_long(argc, argv, "Vjpsh", long_options, NULL)) >= 0) {
-+		switch (opt) {
-+		case 'V':
-+			printf("vdpa utility, iproute2-%s\n", version);
-+			ret = EXIT_SUCCESS;
-+			goto vdpa_free;
-+		case 'j':
-+			vdpa->json_output = true;
-+			break;
-+		case 'p':
-+			pretty = true;
-+			break;
-+		case 'h':
-+			help();
-+			ret = EXIT_SUCCESS;
-+			goto vdpa_free;
-+		default:
-+			fprintf(stderr, "Unknown option.\n");
-+			help();
-+			ret = EXIT_FAILURE;
-+			goto vdpa_free;
-+		}
-+	}
-+
-+	argc -= optind;
-+	argv += optind;
-+
-+	err = vdpa_init(vdpa);
-+	if (err) {
-+		ret = EXIT_FAILURE;
-+		goto vdpa_free;
-+	}
-+
-+	err = vdpa_cmd(vdpa, argc, argv);
-+	if (err) {
-+		ret = EXIT_FAILURE;
-+		goto vdpa_fini;
-+	}
-+
-+	ret = EXIT_SUCCESS;
-+
-+vdpa_fini:
-+	vdpa_fini(vdpa);
-+vdpa_free:
-+	vdpa_free(vdpa);
-+	return ret;
-+}
--- 
-2.26.2
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCECow
+ggUcMIIEBKADAgECAhEA4rtJSHkq7AnpxKUY8ZlYZjANBgkqhkiG9w0BAQsFADCBlzELMAkGA1UE
+BhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgG
+A1UEChMRQ09NT0RPIENBIExpbWl0ZWQxPTA7BgNVBAMTNENPTU9ETyBSU0EgQ2xpZW50IEF1dGhl
+bnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1haWwgQ0EwHhcNMTkwMTAyMDAwMDAwWhcNMjIwMTAxMjM1
+OTU5WjAkMSIwIAYJKoZIhvcNAQkBFhNkd213MkBpbmZyYWRlYWQub3JnMIIBIjANBgkqhkiG9w0B
+AQEFAAOCAQ8AMIIBCgKCAQEAsv3wObLTCbUA7GJqKj9vHGf+Fa+tpkO+ZRVve9EpNsMsfXhvFpb8
+RgL8vD+L133wK6csYoDU7zKiAo92FMUWaY1Hy6HqvVr9oevfTV3xhB5rQO1RHJoAfkvhy+wpjo7Q
+cXuzkOpibq2YurVStHAiGqAOMGMXhcVGqPuGhcVcVzVUjsvEzAV9Po9K2rpZ52FE4rDkpDK1pBK+
+uOAyOkgIg/cD8Kugav5tyapydeWMZRJQH1vMQ6OVT24CyAn2yXm2NgTQMS1mpzStP2ioPtTnszIQ
+Ih7ASVzhV6csHb8Yrkx8mgllOyrt9Y2kWRRJFm/FPRNEurOeNV6lnYAXOymVJwIDAQABo4IB0zCC
+Ac8wHwYDVR0jBBgwFoAUgq9sjPjF/pZhfOgfPStxSF7Ei8AwHQYDVR0OBBYEFLfuNf820LvaT4AK
+xrGK3EKx1DE7MA4GA1UdDwEB/wQEAwIFoDAMBgNVHRMBAf8EAjAAMB0GA1UdJQQWMBQGCCsGAQUF
+BwMEBggrBgEFBQcDAjBGBgNVHSAEPzA9MDsGDCsGAQQBsjEBAgEDBTArMCkGCCsGAQUFBwIBFh1o
+dHRwczovL3NlY3VyZS5jb21vZG8ubmV0L0NQUzBaBgNVHR8EUzBRME+gTaBLhklodHRwOi8vY3Js
+LmNvbW9kb2NhLmNvbS9DT01PRE9SU0FDbGllbnRBdXRoZW50aWNhdGlvbmFuZFNlY3VyZUVtYWls
+Q0EuY3JsMIGLBggrBgEFBQcBAQR/MH0wVQYIKwYBBQUHMAKGSWh0dHA6Ly9jcnQuY29tb2RvY2Eu
+Y29tL0NPTU9ET1JTQUNsaWVudEF1dGhlbnRpY2F0aW9uYW5kU2VjdXJlRW1haWxDQS5jcnQwJAYI
+KwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmNvbW9kb2NhLmNvbTAeBgNVHREEFzAVgRNkd213MkBpbmZy
+YWRlYWQub3JnMA0GCSqGSIb3DQEBCwUAA4IBAQALbSykFusvvVkSIWttcEeifOGGKs7Wx2f5f45b
+nv2ghcxK5URjUvCnJhg+soxOMoQLG6+nbhzzb2rLTdRVGbvjZH0fOOzq0LShq0EXsqnJbbuwJhK+
+PnBtqX5O23PMHutP1l88AtVN+Rb72oSvnD+dK6708JqqUx2MAFLMevrhJRXLjKb2Mm+/8XBpEw+B
+7DisN4TMlLB/d55WnT9UPNHmQ+3KFL7QrTO8hYExkU849g58Dn3Nw3oCbMUgny81ocrLlB2Z5fFG
+Qu1AdNiBA+kg/UxzyJZpFbKfCITd5yX49bOriL692aMVDyqUvh8fP+T99PqorH4cIJP6OxSTdxKM
+MIIFHDCCBASgAwIBAgIRAOK7SUh5KuwJ6cSlGPGZWGYwDQYJKoZIhvcNAQELBQAwgZcxCzAJBgNV
+BAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAY
+BgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMT0wOwYDVQQDEzRDT01PRE8gUlNBIENsaWVudCBBdXRo
+ZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMB4XDTE5MDEwMjAwMDAwMFoXDTIyMDEwMTIz
+NTk1OVowJDEiMCAGCSqGSIb3DQEJARYTZHdtdzJAaW5mcmFkZWFkLm9yZzCCASIwDQYJKoZIhvcN
+AQEBBQADggEPADCCAQoCggEBALL98Dmy0wm1AOxiaio/bxxn/hWvraZDvmUVb3vRKTbDLH14bxaW
+/EYC/Lw/i9d98CunLGKA1O8yogKPdhTFFmmNR8uh6r1a/aHr301d8YQea0DtURyaAH5L4cvsKY6O
+0HF7s5DqYm6tmLq1UrRwIhqgDjBjF4XFRqj7hoXFXFc1VI7LxMwFfT6PStq6WedhROKw5KQytaQS
+vrjgMjpICIP3A/CroGr+bcmqcnXljGUSUB9bzEOjlU9uAsgJ9sl5tjYE0DEtZqc0rT9oqD7U57My
+ECIewElc4VenLB2/GK5MfJoJZTsq7fWNpFkUSRZvxT0TRLqznjVepZ2AFzsplScCAwEAAaOCAdMw
+ggHPMB8GA1UdIwQYMBaAFIKvbIz4xf6WYXzoHz0rcUhexIvAMB0GA1UdDgQWBBS37jX/NtC72k+A
+CsaxitxCsdQxOzAOBgNVHQ8BAf8EBAMCBaAwDAYDVR0TAQH/BAIwADAdBgNVHSUEFjAUBggrBgEF
+BQcDBAYIKwYBBQUHAwIwRgYDVR0gBD8wPTA7BgwrBgEEAbIxAQIBAwUwKzApBggrBgEFBQcCARYd
+aHR0cHM6Ly9zZWN1cmUuY29tb2RvLm5ldC9DUFMwWgYDVR0fBFMwUTBPoE2gS4ZJaHR0cDovL2Ny
+bC5jb21vZG9jYS5jb20vQ09NT0RPUlNBQ2xpZW50QXV0aGVudGljYXRpb25hbmRTZWN1cmVFbWFp
+bENBLmNybDCBiwYIKwYBBQUHAQEEfzB9MFUGCCsGAQUFBzAChklodHRwOi8vY3J0LmNvbW9kb2Nh
+LmNvbS9DT01PRE9SU0FDbGllbnRBdXRoZW50aWNhdGlvbmFuZFNlY3VyZUVtYWlsQ0EuY3J0MCQG
+CCsGAQUFBzABhhhodHRwOi8vb2NzcC5jb21vZG9jYS5jb20wHgYDVR0RBBcwFYETZHdtdzJAaW5m
+cmFkZWFkLm9yZzANBgkqhkiG9w0BAQsFAAOCAQEAC20spBbrL71ZEiFrbXBHonzhhirO1sdn+X+O
+W579oIXMSuVEY1LwpyYYPrKMTjKECxuvp24c829qy03UVRm742R9Hzjs6tC0oatBF7KpyW27sCYS
+vj5wbal+TttzzB7rT9ZfPALVTfkW+9qEr5w/nSuu9PCaqlMdjABSzHr64SUVy4ym9jJvv/FwaRMP
+gew4rDeEzJSwf3eeVp0/VDzR5kPtyhS+0K0zvIWBMZFPOPYOfA59zcN6AmzFIJ8vNaHKy5QdmeXx
+RkLtQHTYgQPpIP1Mc8iWaRWynwiE3ecl+PWzq4i+vdmjFQ8qlL4fHz/k/fT6qKx+HCCT+jsUk3cS
+jDCCBeYwggPOoAMCAQICEGqb4Tg7/ytrnwHV2binUlYwDQYJKoZIhvcNAQEMBQAwgYUxCzAJBgNV
+BAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAY
+BgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMSswKQYDVQQDEyJDT01PRE8gUlNBIENlcnRpZmljYXRp
+b24gQXV0aG9yaXR5MB4XDTEzMDExMDAwMDAwMFoXDTI4MDEwOTIzNTk1OVowgZcxCzAJBgNVBAYT
+AkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAYBgNV
+BAoTEUNPTU9ETyBDQSBMaW1pdGVkMT0wOwYDVQQDEzRDT01PRE8gUlNBIENsaWVudCBBdXRoZW50
+aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC
+AQEAvrOeV6wodnVAFsc4A5jTxhh2IVDzJXkLTLWg0X06WD6cpzEup/Y0dtmEatrQPTRI5Or1u6zf
++bGBSyD9aH95dDSmeny1nxdlYCeXIoymMv6pQHJGNcIDpFDIMypVpVSRsivlJTRENf+RKwrB6vcf
+WlP8dSsE3Rfywq09N0ZfxcBa39V0wsGtkGWC+eQKiz4pBZYKjrc5NOpG9qrxpZxyb4o4yNNwTqza
+aPpGRqXB7IMjtf7tTmU2jqPMLxFNe1VXj9XB1rHvbRikw8lBoNoSWY66nJN/VCJv5ym6Q0mdCbDK
+CMPybTjoNCQuelc0IAaO4nLUXk0BOSxSxt8kCvsUtQIDAQABo4IBPDCCATgwHwYDVR0jBBgwFoAU
+u69+Aj36pvE8hI6t7jiY7NkyMtQwHQYDVR0OBBYEFIKvbIz4xf6WYXzoHz0rcUhexIvAMA4GA1Ud
+DwEB/wQEAwIBhjASBgNVHRMBAf8ECDAGAQH/AgEAMBEGA1UdIAQKMAgwBgYEVR0gADBMBgNVHR8E
+RTBDMEGgP6A9hjtodHRwOi8vY3JsLmNvbW9kb2NhLmNvbS9DT01PRE9SU0FDZXJ0aWZpY2F0aW9u
+QXV0aG9yaXR5LmNybDBxBggrBgEFBQcBAQRlMGMwOwYIKwYBBQUHMAKGL2h0dHA6Ly9jcnQuY29t
+b2RvY2EuY29tL0NPTU9ET1JTQUFkZFRydXN0Q0EuY3J0MCQGCCsGAQUFBzABhhhodHRwOi8vb2Nz
+cC5jb21vZG9jYS5jb20wDQYJKoZIhvcNAQEMBQADggIBAHhcsoEoNE887l9Wzp+XVuyPomsX9vP2
+SQgG1NgvNc3fQP7TcePo7EIMERoh42awGGsma65u/ITse2hKZHzT0CBxhuhb6txM1n/y78e/4ZOs
+0j8CGpfb+SJA3GaBQ+394k+z3ZByWPQedXLL1OdK8aRINTsjk/H5Ns77zwbjOKkDamxlpZ4TKSDM
+KVmU/PUWNMKSTvtlenlxBhh7ETrN543j/Q6qqgCWgWuMAXijnRglp9fyadqGOncjZjaaSOGTTFB+
+E2pvOUtY+hPebuPtTbq7vODqzCM6ryEhNhzf+enm0zlpXK7q332nXttNtjv7VFNYG+I31gnMrwfH
+M5tdhYF/8v5UY5g2xANPECTQdu9vWPoqNSGDt87b3gXb1AiGGaI06vzgkejL580ul+9hz9D0S0U4
+jkhJiA7EuTecP/CFtR72uYRBcunwwH3fciPjviDDAI9SnC/2aPY8ydehzuZutLbZdRJ5PDEJM/1t
+yZR2niOYihZ+FCbtf3D9mB12D4ln9icgc7CwaxpNSCPt8i/GqK2HsOgkL3VYnwtx7cJUmpvVdZ4o
+gnzgXtgtdk3ShrtOS1iAN2ZBXFiRmjVzmehoMof06r1xub+85hFQzVxZx5/bRaTKTlL8YXLI8nAb
+R9HWdFqzcOoB/hxfEyIQpx9/s81rgzdEZOofSlZHynoSMYIDyjCCA8YCAQEwga0wgZcxCzAJBgNV
+BAYTAkdCMRswGQYDVQQIExJHcmVhdGVyIE1hbmNoZXN0ZXIxEDAOBgNVBAcTB1NhbGZvcmQxGjAY
+BgNVBAoTEUNPTU9ETyBDQSBMaW1pdGVkMT0wOwYDVQQDEzRDT01PRE8gUlNBIENsaWVudCBBdXRo
+ZW50aWNhdGlvbiBhbmQgU2VjdXJlIEVtYWlsIENBAhEA4rtJSHkq7AnpxKUY8ZlYZjANBglghkgB
+ZQMEAgEFAKCCAe0wGAYJKoZIhvcNAQkDMQsGCSqGSIb3DQEHATAcBgkqhkiG9w0BCQUxDxcNMjEw
+MjAyMTA0MDQzWjAvBgkqhkiG9w0BCQQxIgQgijVpqtIUcXTOUv4mGcdQy7SKajKX2A5m8RiCNSDf
+iccwgb4GCSsGAQQBgjcQBDGBsDCBrTCBlzELMAkGA1UEBhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIg
+TWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgGA1UEChMRQ09NT0RPIENBIExpbWl0ZWQx
+PTA7BgNVBAMTNENPTU9ETyBSU0EgQ2xpZW50IEF1dGhlbnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1h
+aWwgQ0ECEQDiu0lIeSrsCenEpRjxmVhmMIHABgsqhkiG9w0BCRACCzGBsKCBrTCBlzELMAkGA1UE
+BhMCR0IxGzAZBgNVBAgTEkdyZWF0ZXIgTWFuY2hlc3RlcjEQMA4GA1UEBxMHU2FsZm9yZDEaMBgG
+A1UEChMRQ09NT0RPIENBIExpbWl0ZWQxPTA7BgNVBAMTNENPTU9ETyBSU0EgQ2xpZW50IEF1dGhl
+bnRpY2F0aW9uIGFuZCBTZWN1cmUgRW1haWwgQ0ECEQDiu0lIeSrsCenEpRjxmVhmMA0GCSqGSIb3
+DQEBAQUABIIBACp4E8VAelT1r75eyDv1wzeT9G853/mXznBVzVSkuaKaBOl3ecnN3EsDYjqB05SH
+8IOwWLPdOPar32yVmuC/VOvOEJ3HHgY1kl9toJUHWMbfqazI6woxMBgaZpav/ERdL7ZNN2hy96uM
+9+KhuQ+uZVqs43ZR2pF34tAo3+Yd3qbDSCDufsUeehZ2UIudZ+Q0VK6zbapR8Mas97GokdzzJD9p
+AtyV2Ogv9PVg45NXQcE/idwbAG7Ds8J9c+wjmT4WhGASoW4+XPrqkthIl28tthbjSz9jNZUuuDJi
+ezVS3jZj5NvvADRgiD0OSpBVON/itaIeltcOpu1+VaZeecbkTkcAAAAAAAA=
+
+
+--=-kLFAJ4/obeaR1Gl4vmVh--
+
+
+--===============8833162592083015392==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8833162592083015392==--
+
