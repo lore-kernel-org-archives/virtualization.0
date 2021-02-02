@@ -2,67 +2,68 @@ Return-Path: <SRS0=DeSX=HE=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-21.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 148ADC433E6
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 10:35:41 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0712DC433E9
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 10:35:42 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 91C9764F5C
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 10:35:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 91C9764F5C
+	by mail.kernel.org (Postfix) with ESMTPS id 86A3A64F58
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 10:35:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 86A3A64F58
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=nvidia.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 4A3788667A;
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 2DAD3858DA;
+	Tue,  2 Feb 2021 10:35:41 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id C1LCoduVBfpj; Tue,  2 Feb 2021 10:35:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 9833385092;
 	Tue,  2 Feb 2021 10:35:40 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8F7F1C0FA7;
+	Tue,  2 Feb 2021 10:35:40 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 348B9C013A
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  2 Feb 2021 10:35:39 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id 2E8A886650
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  2 Feb 2021 10:35:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Hyg3pN2Hu6ZV; Tue,  2 Feb 2021 10:35:39 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 654FA8651C;
-	Tue,  2 Feb 2021 10:35:39 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5EDB8C0FA7;
-	Tue,  2 Feb 2021 10:35:39 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D99EEC013A
- for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 10:35:37 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id C8BB286C82
- for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 10:35:37 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id EovJg7zViz5W
+ with ESMTP id Gn9fB-ZGb+HQ
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 10:35:36 +0000 (UTC)
+ Tue,  2 Feb 2021 10:35:38 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from hqnvemgate24.nvidia.com (hqnvemgate24.nvidia.com
- [216.228.121.143])
- by hemlock.osuosl.org (Postfix) with ESMTPS id A7B3586C3A
+Received: from hqnvemgate26.nvidia.com (hqnvemgate26.nvidia.com
+ [216.228.121.65])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 010218651C
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 10:35:36 +0000 (UTC)
+ Tue,  2 Feb 2021 10:35:37 +0000 (UTC)
 Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by
- hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
- id <B60192af80000>; Tue, 02 Feb 2021 02:35:36 -0800
+ hqnvemgate26.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+ id <B60192af90002>; Tue, 02 Feb 2021 02:35:37 -0800
 Received: from sw-mtx-036.mtx.labs.mlnx (172.20.145.6) by HQMAIL107.nvidia.com
  (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3;
- Tue, 2 Feb 2021 10:35:35 +0000
+ Tue, 2 Feb 2021 10:35:36 +0000
 From: Parav Pandit <parav@nvidia.com>
 To: <virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
  <dsahern@gmail.com>, <stephen@networkplumber.org>, <mst@redhat.com>,
  <jasowang@redhat.com>
-Subject: [PATCH iproute2-next v3 1/5] Add kernel headers
-Date: Tue, 2 Feb 2021 12:35:14 +0200
-Message-ID: <20210202103518.3858-2-parav@nvidia.com>
+Subject: [PATCH iproute2-next v3 2/5] utils: Add helper routines for indent
+ handling
+Date: Tue, 2 Feb 2021 12:35:15 +0200
+Message-ID: <20210202103518.3858-3-parav@nvidia.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210202103518.3858-1-parav@nvidia.com>
 References: <20210122112654.9593-3-parav@nvidia.com>
@@ -72,16 +73,16 @@ X-Originating-IP: [172.20.145.6]
 X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
  HQMAIL107.nvidia.com (172.20.187.13)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1612262136; bh=Zx7Y+EElvznYsinOctSzijr05C7rIpbbJtcqWI5Cu0w=;
+ t=1612262137; bh=HDT133gXudxB52omx1TuwZ9j1XEiBgbv7aS9W5cuFWc=;
  h=From:To:CC:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
  References:MIME-Version:Content-Transfer-Encoding:Content-Type:
  X-Originating-IP:X-ClientProxiedBy;
- b=HNyQ1qychsYEuJ5VGRJHtmCAF/hGUBjytRmNIYszWiRpM8GStR8Zv97CI3pl2fd7b
- NAdM31JvbhhJYGwvC8Fn+y2jtWySPfHzHnQcKxbNxCkpw3bc40u2yLO9guM265eUT6
- xUl1a8uWzcTWYw+yG7YeAtALXlTlh4AnYau08j0bhaBU9WjxVdc5MI9OZvoGwYq3X6
- V4Y/AE1z54WYbqfEvgf29A+gd9kemml4KRsb0lzxIgiBBKcmgDlvB2j11orOVCaP1v
- u2SOrUFAH3iHzdNGh6gJT7ojskB64TsHDXNi4sfaHUjbSQUaxxWba+52ZyNciDMNj4
- qgQyo+mKBFK3Q==
+ b=F0kHY59seyuMIo83PNO700wEQKWx/LGg2pWsTnPsgm2xuLlGaZiY8lopzEdksj28v
+ JqSQNS0+0u4IFyjuPICUZ868WR1AjbZtzSeLwESS1tcY313aHvoN3J6Iynrrpm0Ols
+ b2V7uFKTK/B5p3rc6Xrcz5T0VVCAHefePb1F24oUhZet7iUqVFu2wpEu8rt2XIG5/w
+ l/J5ypU9osePvD9H+2AEU7U2nlWgcXIxIYBLfWDEvnsa94yUvbpOGQke8O8BWaaO8H
+ HX2XoUkQPxpPJYpt9oij3Fhlznm47GPdaGungMX+ARRQH8Xy4bC41poY3rM6Xasl9x
+ d26ApxyZeeHyA==
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,129 +99,119 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Add kernel headers to commit from kernel tree [1].
-   79991caf5202c7 ("vdpa_sim_net: Add support for user supported devices")
-
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git branch: linux-next
+Subsequent patch needs to use 2 char indentation for nested objects.
+Hence introduce a generic helpers to allocate, deallocate, increment,
+decrement and to print indent block.
 
 Signed-off-by: Parav Pandit <parav@nvidia.com>
 ---
- include/uapi/linux/vdpa.h       | 40 +++++++++++++++++++++++
- include/uapi/linux/virtio_ids.h | 58 +++++++++++++++++++++++++++++++++
- 2 files changed, 98 insertions(+)
- create mode 100644 include/uapi/linux/vdpa.h
- create mode 100644 include/uapi/linux/virtio_ids.h
+changelog:
+v2->v3:
+ - patch split from vdpa tool patch
+---
+ include/utils.h | 16 ++++++++++++
+ lib/utils.c     | 66 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 82 insertions(+)
 
-diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
-new file mode 100644
-index 00000000..66a41e4e
---- /dev/null
-+++ b/include/uapi/linux/vdpa.h
-@@ -0,0 +1,40 @@
-+/* SPDX-License-Identifier: GPL-2.0+ WITH Linux-syscall-note */
-+/*
-+ * vdpa device management interface
-+ * Copyright (c) 2020 Mellanox Technologies Ltd. All rights reserved.
-+ */
+diff --git a/include/utils.h b/include/utils.h
+index e66090ae..9b76c92a 100644
+--- a/include/utils.h
++++ b/include/utils.h
+@@ -349,4 +349,20 @@ int str_map_lookup_str(const struct str_num_map *map, const char *needle);
+ const char *str_map_lookup_u16(const struct str_num_map *map, uint16_t val);
+ const char *str_map_lookup_u8(const struct str_num_map *map, uint8_t val);
+ 
++unsigned int get_str_char_count(const char *str, int match);
++int str_split_by_char(char *str, char **before, char **after, int match);
 +
-+#ifndef _UAPI_LINUX_VDPA_H_
-+#define _UAPI_LINUX_VDPA_H_
++#define INDENT_STR_MAXLEN 32
 +
-+#define VDPA_GENL_NAME "vdpa"
-+#define VDPA_GENL_VERSION 0x1
-+
-+enum vdpa_command {
-+	VDPA_CMD_UNSPEC,
-+	VDPA_CMD_MGMTDEV_NEW,
-+	VDPA_CMD_MGMTDEV_GET,		/* can dump */
-+	VDPA_CMD_DEV_NEW,
-+	VDPA_CMD_DEV_DEL,
-+	VDPA_CMD_DEV_GET,		/* can dump */
++struct indent_mem {
++	int indent_level;
++	char indent_str[INDENT_STR_MAXLEN + 1];
 +};
 +
-+enum vdpa_attr {
-+	VDPA_ATTR_UNSPEC,
++struct indent_mem *alloc_indent_mem(void);
++void free_indent_mem(struct indent_mem *mem);
++void inc_indent(struct indent_mem *mem);
++void dec_indent(struct indent_mem *mem);
++void print_indent(struct indent_mem *mem);
 +
-+	/* bus name (optional) + dev name together make the parent device handle */
-+	VDPA_ATTR_MGMTDEV_BUS_NAME,		/* string */
-+	VDPA_ATTR_MGMTDEV_DEV_NAME,		/* string */
-+	VDPA_ATTR_MGMTDEV_SUPPORTED_CLASSES,	/* u64 */
+ #endif /* __UTILS_H__ */
+diff --git a/lib/utils.c b/lib/utils.c
+index af1b553c..cc6d0e34 100644
+--- a/lib/utils.c
++++ b/lib/utils.c
+@@ -1978,3 +1978,69 @@ const char *str_map_lookup_u8(const struct str_num_map *map, uint8_t val)
+ 	}
+ 	return NULL;
+ }
 +
-+	VDPA_ATTR_DEV_NAME,			/* string */
-+	VDPA_ATTR_DEV_ID,			/* u32 */
-+	VDPA_ATTR_DEV_VENDOR_ID,		/* u32 */
-+	VDPA_ATTR_DEV_MAX_VQS,			/* u32 */
-+	VDPA_ATTR_DEV_MAX_VQ_SIZE,		/* u16 */
++unsigned int get_str_char_count(const char *str, int match)
++{
++	unsigned int count = 0;
++	const char *pos = str;
 +
-+	/* new attributes must be added above here */
-+	VDPA_ATTR_MAX,
-+};
++	while ((pos = strchr(pos, match))) {
++		count++;
++		pos++;
++	}
++	return count;
++}
 +
-+#endif
-diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
-new file mode 100644
-index 00000000..bc1c0621
---- /dev/null
-+++ b/include/uapi/linux/virtio_ids.h
-@@ -0,0 +1,58 @@
-+#ifndef _LINUX_VIRTIO_IDS_H
-+#define _LINUX_VIRTIO_IDS_H
-+/*
-+ * Virtio IDs
-+ *
-+ * This header is BSD licensed so anyone can use the definitions to implement
-+ * compatible drivers/servers.
-+ *
-+ * Redistribution and use in source and binary forms, with or without
-+ * modification, are permitted provided that the following conditions
-+ * are met:
-+ * 1. Redistributions of source code must retain the above copyright
-+ *    notice, this list of conditions and the following disclaimer.
-+ * 2. Redistributions in binary form must reproduce the above copyright
-+ *    notice, this list of conditions and the following disclaimer in the
-+ *    documentation and/or other materials provided with the distribution.
-+ * 3. Neither the name of IBM nor the names of its contributors
-+ *    may be used to endorse or promote products derived from this software
-+ *    without specific prior written permission.
-+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND
-+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-+ * ARE DISCLAIMED.  IN NO EVENT SHALL IBM OR CONTRIBUTORS BE LIABLE
-+ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-+ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-+ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-+ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-+ * SUCH DAMAGE. */
++int str_split_by_char(char *str, char **before, char **after, int match)
++{
++	char *slash;
 +
-+#define VIRTIO_ID_NET			1 /* virtio net */
-+#define VIRTIO_ID_BLOCK			2 /* virtio block */
-+#define VIRTIO_ID_CONSOLE		3 /* virtio console */
-+#define VIRTIO_ID_RNG			4 /* virtio rng */
-+#define VIRTIO_ID_BALLOON		5 /* virtio balloon */
-+#define VIRTIO_ID_IOMEM			6 /* virtio ioMemory */
-+#define VIRTIO_ID_RPMSG			7 /* virtio remote processor messaging */
-+#define VIRTIO_ID_SCSI			8 /* virtio scsi */
-+#define VIRTIO_ID_9P			9 /* 9p virtio console */
-+#define VIRTIO_ID_MAC80211_WLAN		10 /* virtio WLAN MAC */
-+#define VIRTIO_ID_RPROC_SERIAL		11 /* virtio remoteproc serial link */
-+#define VIRTIO_ID_CAIF			12 /* Virtio caif */
-+#define VIRTIO_ID_MEMORY_BALLOON	13 /* virtio memory balloon */
-+#define VIRTIO_ID_GPU			16 /* virtio GPU */
-+#define VIRTIO_ID_CLOCK			17 /* virtio clock/timer */
-+#define VIRTIO_ID_INPUT			18 /* virtio input */
-+#define VIRTIO_ID_VSOCK			19 /* virtio vsock transport */
-+#define VIRTIO_ID_CRYPTO		20 /* virtio crypto */
-+#define VIRTIO_ID_SIGNAL_DIST		21 /* virtio signal distribution device */
-+#define VIRTIO_ID_PSTORE		22 /* virtio pstore device */
-+#define VIRTIO_ID_IOMMU			23 /* virtio IOMMU */
-+#define VIRTIO_ID_MEM			24 /* virtio mem */
-+#define VIRTIO_ID_FS			26 /* virtio filesystem */
-+#define VIRTIO_ID_PMEM			27 /* virtio pmem */
-+#define VIRTIO_ID_MAC80211_HWSIM	29 /* virtio mac80211-hwsim */
++	slash = strrchr(str, match);
++	if (!slash)
++		return -EINVAL;
++	*slash = '\0';
++	*before = str;
++	*after = slash + 1;
++	return 0;
++}
 +
-+#endif /* _LINUX_VIRTIO_IDS_H */
++struct indent_mem *alloc_indent_mem(void)
++{
++	struct indent_mem *mem = malloc(sizeof(*mem));
++
++	if (!mem)
++		return NULL;
++	strcpy(mem->indent_str, "");
++	mem->indent_level = 0;
++	return mem;
++}
++
++void free_indent_mem(struct indent_mem *mem)
++{
++	free(mem);
++}
++
++#define INDENT_STR_STEP 2
++
++void inc_indent(struct indent_mem *mem)
++{
++	if (mem->indent_level + INDENT_STR_STEP > INDENT_STR_MAXLEN)
++		return;
++	mem->indent_level += INDENT_STR_STEP;
++	memset(mem->indent_str, ' ', sizeof(mem->indent_str));
++	mem->indent_str[mem->indent_level] = '\0';
++}
++
++void dec_indent(struct indent_mem *mem)
++{
++	if (mem->indent_level - INDENT_STR_STEP < 0)
++		return;
++	mem->indent_level -= INDENT_STR_STEP;
++	mem->indent_str[mem->indent_level] = '\0';
++}
++
++void print_indent(struct indent_mem *mem)
++{
++	if (mem->indent_level)
++		printf("%s", mem->indent_str);
++}
 -- 
 2.26.2
 
