@@ -2,157 +2,98 @@ Return-Path: <SRS0=DeSX=HE=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.2 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F143C433DB
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 14:34:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAF92C433E0
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 14:38:30 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9F01964DF5
-	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 14:34:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9F01964DF5
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=embeddedor.com
+	by mail.kernel.org (Postfix) with ESMTPS id 8F69364ED7
+	for <virtualization@archiver.kernel.org>; Tue,  2 Feb 2021 14:38:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8F69364ED7
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 6AB8485784;
-	Tue,  2 Feb 2021 14:34:11 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 5C69B86429;
+	Tue,  2 Feb 2021 14:38:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4IN4You2uvxZ; Tue,  2 Feb 2021 14:34:10 +0000 (UTC)
+	with ESMTP id Xk+SVtMNb9Ke; Tue,  2 Feb 2021 14:38:29 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 5EDD084D35;
-	Tue,  2 Feb 2021 14:34:10 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 88ED385540;
+	Tue,  2 Feb 2021 14:38:29 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 45A6FC0FA7;
-	Tue,  2 Feb 2021 14:34:10 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 274B4C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7B58EC0FA7;
+	Tue,  2 Feb 2021 14:38:29 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 66F52C013A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 14:34:09 +0000 (UTC)
+ Tue,  2 Feb 2021 14:38:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 14EBF84AE7
+ by hemlock.osuosl.org (Postfix) with ESMTP id 527B4861A2
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 14:34:09 +0000 (UTC)
+ Tue,  2 Feb 2021 14:38:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qDbiGATT2fGe
+ with ESMTP id IADc8pwjN8Kl
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 14:34:05 +0000 (UTC)
-X-Greylist: delayed 00:23:19 by SQLgrey-1.7.6
-Received: from gateway32.websitewelcome.com (gateway32.websitewelcome.com
- [192.185.145.187])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 3DE328011C
+ Tue,  2 Feb 2021 14:38:26 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com
+ [209.85.218.41])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 0EBFB86135
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 14:34:05 +0000 (UTC)
-Received: from cm16.websitewelcome.com (cm16.websitewelcome.com [100.42.49.19])
- by gateway32.websitewelcome.com (Postfix) with ESMTP id 58FD1ABEBE
+ Tue,  2 Feb 2021 14:38:26 +0000 (UTC)
+Received: by mail-ej1-f41.google.com with SMTP id lg21so2996662ejb.3
  for <virtualization@lists.linux-foundation.org>;
- Tue,  2 Feb 2021 08:08:59 -0600 (CST)
-Received: from gator4166.hostgator.com ([108.167.133.22]) by cmsmtp with SMTP
- id 6wMUlFpHEHPnU6wMUlqSsH; Tue, 02 Feb 2021 08:08:58 -0600
-X-Authority-Reason: nr=8
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=embeddedor.com; s=default; h=Content-Transfer-Encoding:Content-Type:
- In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
- :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
- Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
- List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=C3XhUBXVHzGKu9gvPWMGABm5abN0CUO1QrXaobnAmQw=; b=OeqB5GwK3pRQzUouuotG0BU2dz
- YwM0b/gLsvYLu/iVhRSLeiS7ZExVVsWtQVIENmnEcDJxlcwhYXJj9mmLxld6kPx7in+gizp5DPQkH
- vUyrCeH82nFvaMoaGKJzw/9dSXYefk8TLYTzZ4VtIXhdafHAScEMKaJnYSZgmH7ue2rKgKdrYnp2h
- yX2VE6GcaL29I9tqElASP2HfouwDIgQJx85P9ROVtF9yScft3b7dPqbUcBWuEbddCkkXhOM2qzJIo
- JfwSgcfhdOZlyFp/NnwJ2HuHcRg+Uv5OvtGKYjpl/dbpgJZFgDd1wyN4MFbDU4s77ts7/sXXPcPZB
- baT5bfsA==;
-Received: from 187-162-31-110.static.axtel.net ([187.162.31.110]:37658
- helo=[192.168.15.8])
- by gator4166.hostgator.com with esmtpsa (TLS1.2) tls
- TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (Exim 4.93)
- (envelope-from <gustavo@embeddedor.com>)
- id 1l6wMT-001SA6-TU; Tue, 02 Feb 2021 08:08:57 -0600
-Subject: Re: [PATCH 136/141] virtio_net: Fix fall-through warnings for Clang
-To: "Gustavo A. R. Silva" <gustavoars@kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
-References: <cover.1605896059.git.gustavoars@kernel.org>
- <cb9b9534572bc476f4fb7b49a73dc8646b780c84.1605896060.git.gustavoars@kernel.org>
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Autocrypt: addr=gustavo@embeddedor.com; keydata=
- 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
- VtSixD1uOgytAP7RWS474w==
-Message-ID: <968a2162-c97a-cf6d-d6b0-58ea87d2887f@embeddedor.com>
-Date: Tue, 2 Feb 2021 08:08:54 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ Tue, 02 Feb 2021 06:38:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc:content-transfer-encoding;
+ bh=sJBLZtGoam24iH2FvzLjuKUNzi7tkEBGkd3QuKnfqzM=;
+ b=nTpvMjoaKg7z31XgCm+eqDiAo1l3Yh1WP+BjxPxK8f2kk9sZmuD0sNs0AQKV9louDI
+ OTc1XZEJfAIY5g8f46ylTRIgtOr1yUKSxNDoIr9BiqEAXt4grBAykEvbu20d9nl23yld
+ eV2jP0APc50wwBzUnFRVOqsKuO1Bq4vSNjDqvyD9jVRdejRtaO8qkJFG6bSKk0TYqP4D
+ 62XeHumgJjmFL9rNMSvFeehQ7PGA0w2kKuK9eEPDXd0qhLtCENLB0fmSLEWbOHbO4oGj
+ sfZaCuxSqyL10A5F7PG8vs7FZOy+0PUuy7n4AU9KGWFSVUz2aAkCExSvdkOhYE8M/ix/
+ bA+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc:content-transfer-encoding;
+ bh=sJBLZtGoam24iH2FvzLjuKUNzi7tkEBGkd3QuKnfqzM=;
+ b=HmPslZlp4p+/D04F1kcu6cdfsf8fsYiEJI//hAvbXOZ2SN9qw1aWLqeXPpH63w4TSX
+ JpCbqIe9ypL+ZDmiBNw43mMEX4bM93h67a/oQ/9VjiTRy8WcOs7pG8nIlVUmukhREK49
+ N+PhWWD7W4pDZokSUeNopHLYl11WKr6pVOGcA8W/JlIK2VEF4bNCwAMr5OuKDtRRKmQc
+ ic+ZnJp8JPSovCwSiNDHEn9UAHiR/PWnjzk1CdkodghwibbbMC1CwG0DtsKjfGI+eIdf
+ xLoChe8tQYE+CRCI4HuRn/uM9vuprED6VOSdV/dL0Wr4LT8tFFyEfsqbHZPe5fRpsHUn
+ 9OOg==
+X-Gm-Message-State: AOAM532zHkl4eIheTgO/43/80yzUeVq2PWY1r2ZRCpn+hL1hpjq84RR/
+ OS77NlXClnJq26p6hZ2xA/yd/9TZjgJfz2zPdx8=
+X-Google-Smtp-Source: ABdhPJz7Wkol/Clz5Me9ulCgBXb4UGPaU7Uh1nT5QODx6s1RWG7NxLiq5yPvsaPsLBOaJ6Jv+lOfvqON2cJRkpWN6Ig=
+X-Received: by 2002:a17:906:4dc5:: with SMTP id
+ f5mr10797619ejw.11.1612276704131; 
+ Tue, 02 Feb 2021 06:38:24 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <cb9b9534572bc476f4fb7b49a73dc8646b780c84.1605896060.git.gustavoars@kernel.org>
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse,
- please include it with any abuse report
-X-AntiAbuse: Primary Hostname - gator4166.hostgator.com
-X-AntiAbuse: Original Domain - lists.linux-foundation.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - embeddedor.com
-X-BWhitelist: no
-X-Source-IP: 187.162.31.110
-X-Source-L: No
-X-Exim-ID: 1l6wMT-001SA6-TU
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: 187-162-31-110.static.axtel.net ([192.168.15.8])
- [187.162.31.110]:37658
-X-Source-Auth: gustavo@embeddedor.com
-X-Email-Count: 81
-X-Source-Cap: Z3V6aWRpbmU7Z3V6aWRpbmU7Z2F0b3I0MTY2Lmhvc3RnYXRvci5jb20=
-X-Local-Domain: yes
-Cc: netdev@vger.kernel.org, linux-hardening@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+References: <20210129002136.70865-1-weiwan@google.com>
+ <a0b2cb8d-eb8f-30fb-2a22-678e6dd2f58f@redhat.com>
+In-Reply-To: <a0b2cb8d-eb8f-30fb-2a22-678e6dd2f58f@redhat.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date: Tue, 2 Feb 2021 09:37:46 -0500
+Message-ID: <CAF=yD-+aPBF2RaCR8L5orTM37bf7Z4Z8Qko2D2LZjOz0khHTUg@mail.gmail.com>
+Subject: Re: [PATCH net] virtio-net: suppress bad irq warning for tx napi
+To: Jason Wang <jasowang@redhat.com>
+Cc: Willem de Bruijn <willemb@google.com>,
+ Network Development <netdev@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org, Jakub Kicinski <kuba@kernel.org>,
+ Wei Wang <weiwan@google.com>, David Miller <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -164,44 +105,128 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi all,
-
-Who can take this? :)
-
-Thanks
---
-Gustavo
-
-On 11/20/20 12:40, Gustavo A. R. Silva wrote:
-> In preparation to enable -Wimplicit-fallthrough for Clang, fix a warning
-> by explicitly adding a goto statement instead of letting the code fall
-> through to the next case.
-> 
-> Link: https://github.com/KSPP/linux/issues/115
-> Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-> ---
->  drivers/net/virtio_net.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 21b71148c532..fd326dc586aa 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -732,6 +732,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
->  			fallthrough;
->  		case XDP_ABORTED:
->  			trace_xdp_exception(vi->dev, xdp_prog, act);
-> +			goto err_xdp;
->  		case XDP_DROP:
->  			goto err_xdp;
->  		}
-> 
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gTW9uLCBGZWIgMSwgMjAyMSBhdCAxMDowOSBQTSBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
+YXQuY29tPiB3cm90ZToKPgo+Cj4gT24gMjAyMS8xLzI5IOS4iuWNiDg6MjEsIFdlaSBXYW5nIHdy
+b3RlOgo+ID4gV2l0aCB0aGUgaW1wbGVtZW50YXRpb24gb2YgbmFwaS10eCBpbiB2aXJ0aW8gZHJp
+dmVyLCB3ZSBjbGVhbiB0eAo+ID4gZGVzY3JpcHRvcnMgZnJvbSByeCBuYXBpIGhhbmRsZXIsIGZv
+ciB0aGUgcHVycG9zZSBvZiByZWR1Y2luZyB0eAo+ID4gY29tcGxldGUgaW50ZXJydXB0cy4gQnV0
+IHRoaXMgY291bGQgaW50cm9kdWNlIGEgcmFjZSB3aGVyZSB0eCBjb21wbGV0ZQo+ID4gaW50ZXJy
+dXB0IGhhcyBiZWVuIHJhaXNlZCwgYnV0IHRoZSBoYW5kbGVyIGZvdW5kIHRoZXJlIGlzIG5vIHdv
+cmsgdG8gZG8KPiA+IGJlY2F1c2Ugd2UgaGF2ZSBkb25lIHRoZSB3b3JrIGluIHRoZSBwcmV2aW91
+cyByeCBpbnRlcnJ1cHQgaGFuZGxlci4KPiA+IFRoaXMgY291bGQgbGVhZCB0byB0aGUgZm9sbG93
+aW5nIHdhcm5pbmcgbXNnOgo+ID4gWyAzNTg4LjAxMDc3OF0gaXJxIDM4OiBub2JvZHkgY2FyZWQg
+KHRyeSBib290aW5nIHdpdGggdGhlCj4gPiAiaXJxcG9sbCIgb3B0aW9uKQo+ID4gWyAzNTg4LjAx
+NzkzOF0gQ1BVOiA0IFBJRDogMCBDb21tOiBzd2FwcGVyLzQgTm90IHRhaW50ZWQKPiA+IDUuMy4w
+LTE5LWdlbmVyaWMgIzIwfjE4LjA0LjItVWJ1bnR1Cj4gPiBbIDM1ODguMDE3OTQwXSBDYWxsIFRy
+YWNlOgo+ID4gWyAzNTg4LjAxNzk0Ml0gIDxJUlE+Cj4gPiBbIDM1ODguMDE3OTUxXSAgZHVtcF9z
+dGFjaysweDYzLzB4ODUKPiA+IFsgMzU4OC4wMTc5NTNdICBfX3JlcG9ydF9iYWRfaXJxKzB4MzUv
+MHhjMAo+ID4gWyAzNTg4LjAxNzk1NV0gIG5vdGVfaW50ZXJydXB0KzB4MjRiLzB4MmEwCj4gPiBb
+IDM1ODguMDE3OTU2XSAgaGFuZGxlX2lycV9ldmVudF9wZXJjcHUrMHg1NC8weDgwCj4gPiBbIDM1
+ODguMDE3OTU3XSAgaGFuZGxlX2lycV9ldmVudCsweDNiLzB4NjAKPiA+IFsgMzU4OC4wMTc5NThd
+ICBoYW5kbGVfZWRnZV9pcnErMHg4My8weDFhMAo+ID4gWyAzNTg4LjAxNzk2MV0gIGhhbmRsZV9p
+cnErMHgyMC8weDMwCj4gPiBbIDM1ODguMDE3OTY0XSAgZG9fSVJRKzB4NTAvMHhlMAo+ID4gWyAz
+NTg4LjAxNzk2Nl0gIGNvbW1vbl9pbnRlcnJ1cHQrMHhmLzB4Zgo+ID4gWyAzNTg4LjAxNzk2Nl0g
+IDwvSVJRPgo+ID4gWyAzNTg4LjAxNzk4OV0gaGFuZGxlcnM6Cj4gPiBbIDM1ODguMDIwMzc0XSBb
+PDAwMDAwMDAwMWI5ZjFkYTg+XSB2cmluZ19pbnRlcnJ1cHQKPiA+IFsgMzU4OC4wMjUwOTldIERp
+c2FibGluZyBJUlEgIzM4Cj4gPgo+ID4gVGhpcyBwYXRjaCBhZGRzIGEgbmV3IHBhcmFtIHRvIHN0
+cnVjdCB2cmluZ192aXJ0cXVldWUsIGFuZCB3ZSBzZXQgaXQgZm9yCj4gPiB0eCB2aXJ0cXVldWVz
+IGlmIG5hcGktdHggaXMgZW5hYmxlZCwgdG8gc3VwcHJlc3MgdGhlIHdhcm5pbmcgaW4gc3VjaAo+
+ID4gY2FzZS4KPiA+Cj4gPiBGaXhlczogN2IwNDExZWY0YWE2ICgidmlydGlvLW5ldDogY2xlYW4g
+dHggZGVzY3JpcHRvcnMgZnJvbSByeCBuYXBpIikKPiA+IFJlcG9ydGVkLWJ5OiBSaWNrIEpvbmVz
+IDxqb25lc3JpY2tAZ29vZ2xlLmNvbT4KPiA+IFNpZ25lZC1vZmYtYnk6IFdlaSBXYW5nIDx3ZWl3
+YW5AZ29vZ2xlLmNvbT4KPiA+IFNpZ25lZC1vZmYtYnk6IFdpbGxlbSBkZSBCcnVpam4gPHdpbGxl
+bWJAZ29vZ2xlLmNvbT4KPgo+Cj4gUGxlYXNlIHVzZSBnZXRfbWFpbnRhaW5lci5wbCB0byBtYWtl
+IHN1cmUgTWljaGFlbCBhbmQgbWUgd2VyZSBjY2VkLgoKV2lsbCBkby4gU29ycnkgYWJvdXQgdGhh
+dC4gSSBzdWdnZXN0ZWQganVzdCB0aGUgdmlydHVhbGl6YXRpb24gbGlzdCwgbXkgYmFkLgoKPgo+
+ID4gLS0tCj4gPiAgIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyAgICAgfCAxOSArKysrKysrKysr
+KysrKy0tLS0tCj4gPiAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgfCAxNiArKysrKysr
+KysrKysrKysrCj4gPiAgIGluY2x1ZGUvbGludXgvdmlydGlvLmggICAgICAgfCAgMiArKwo+ID4g
+ICAzIGZpbGVzIGNoYW5nZWQsIDMyIGluc2VydGlvbnMoKyksIDUgZGVsZXRpb25zKC0pCj4gPgo+
+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3Zp
+cnRpb19uZXQuYwo+ID4gaW5kZXggNTA4NDA4ZmJlNzhmLi5lOWEzZjMwODY0ZTggMTAwNjQ0Cj4g
+PiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiA+ICsrKyBiL2RyaXZlcnMvbmV0L3Zp
+cnRpb19uZXQuYwo+ID4gQEAgLTEzMDMsMTMgKzEzMDMsMjIgQEAgc3RhdGljIHZvaWQgdmlydG5l
+dF9uYXBpX3R4X2VuYWJsZShzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSwKPiA+ICAgICAgICAgICAg
+ICAgcmV0dXJuOwo+ID4gICAgICAgfQo+ID4KPiA+ICsgICAgIC8qIFdpdGggbmFwaV90eCBlbmFi
+bGVkLCBmcmVlX29sZF94bWl0X3NrYnMoKSBjb3VsZCBiZSBjYWxsZWQgZnJvbQo+ID4gKyAgICAg
+ICogcnggbmFwaSBoYW5kbGVyLiBTZXQgd29ya19zdGVhbCB0byBzdXBwcmVzcyBiYWQgaXJxIHdh
+cm5pbmcgZm9yCj4gPiArICAgICAgKiBJUlFfTk9ORSBjYXNlIGZyb20gdHggY29tcGxldGUgaW50
+ZXJydXB0IGhhbmRsZXIuCj4gPiArICAgICAgKi8KPiA+ICsgICAgIHZpcnRxdWV1ZV9zZXRfd29y
+a19zdGVhbCh2cSwgdHJ1ZSk7Cj4gPiArCj4gPiAgICAgICByZXR1cm4gdmlydG5ldF9uYXBpX2Vu
+YWJsZSh2cSwgbmFwaSk7Cj4KPgo+IERvIHdlIG5lZWQgdG8gZm9yY2UgdGhlIG9yZGVyaW5nIGJl
+dHdlZW4gc3RlYWwgc2V0IGFuZCBuYXBpIGVuYWJsZT8KClRoZSB3YXJuaW5nIG9ubHkgb2NjdXJz
+IGFmdGVyIG9uZSBodW5kcmVkIHNwdXJpb3VzIGludGVycnVwdHMsIHNvIG5vdApyZWFsbHkuCgo+
+Cj4gPiAgIH0KPiA+Cj4gPiAtc3RhdGljIHZvaWQgdmlydG5ldF9uYXBpX3R4X2Rpc2FibGUoc3Ry
+dWN0IG5hcGlfc3RydWN0ICpuYXBpKQo+ID4gK3N0YXRpYyB2b2lkIHZpcnRuZXRfbmFwaV90eF9k
+aXNhYmxlKHN0cnVjdCB2aXJ0cXVldWUgKnZxLAo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgIHN0cnVjdCBuYXBpX3N0cnVjdCAqbmFwaSkKPiA+ICAgewo+ID4gLSAgICAgaWYg
+KG5hcGktPndlaWdodCkKPiA+ICsgICAgIGlmIChuYXBpLT53ZWlnaHQpIHsKPiA+ICAgICAgICAg
+ICAgICAgbmFwaV9kaXNhYmxlKG5hcGkpOwo+ID4gKyAgICAgICAgICAgICB2aXJ0cXVldWVfc2V0
+X3dvcmtfc3RlYWwodnEsIGZhbHNlKTsKPiA+ICsgICAgIH0KPiA+ICAgfQo+ID4KPiA+ICAgc3Rh
+dGljIHZvaWQgcmVmaWxsX3dvcmsoc3RydWN0IHdvcmtfc3RydWN0ICp3b3JrKQo+ID4gQEAgLTE4
+MzUsNyArMTg0NCw3IEBAIHN0YXRpYyBpbnQgdmlydG5ldF9jbG9zZShzdHJ1Y3QgbmV0X2Rldmlj
+ZSAqZGV2KQo+ID4gICAgICAgZm9yIChpID0gMDsgaSA8IHZpLT5tYXhfcXVldWVfcGFpcnM7IGkr
+Kykgewo+ID4gICAgICAgICAgICAgICB4ZHBfcnhxX2luZm9fdW5yZWcoJnZpLT5ycVtpXS54ZHBf
+cnhxKTsKPiA+ICAgICAgICAgICAgICAgbmFwaV9kaXNhYmxlKCZ2aS0+cnFbaV0ubmFwaSk7Cj4g
+PiAtICAgICAgICAgICAgIHZpcnRuZXRfbmFwaV90eF9kaXNhYmxlKCZ2aS0+c3FbaV0ubmFwaSk7
+Cj4gPiArICAgICAgICAgICAgIHZpcnRuZXRfbmFwaV90eF9kaXNhYmxlKHZpLT5zcVtpXS52cSwg
+JnZpLT5zcVtpXS5uYXBpKTsKPiA+ICAgICAgIH0KPiA+Cj4gPiAgICAgICByZXR1cm4gMDsKPiA+
+IEBAIC0yMzE1LDcgKzIzMjQsNyBAQCBzdGF0aWMgdm9pZCB2aXJ0bmV0X2ZyZWV6ZV9kb3duKHN0
+cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ID4gICAgICAgaWYgKG5ldGlmX3J1bm5pbmcodmkt
+PmRldikpIHsKPiA+ICAgICAgICAgICAgICAgZm9yIChpID0gMDsgaSA8IHZpLT5tYXhfcXVldWVf
+cGFpcnM7IGkrKykgewo+ID4gICAgICAgICAgICAgICAgICAgICAgIG5hcGlfZGlzYWJsZSgmdmkt
+PnJxW2ldLm5hcGkpOwo+ID4gLSAgICAgICAgICAgICAgICAgICAgIHZpcnRuZXRfbmFwaV90eF9k
+aXNhYmxlKCZ2aS0+c3FbaV0ubmFwaSk7Cj4gPiArICAgICAgICAgICAgICAgICAgICAgdmlydG5l
+dF9uYXBpX3R4X2Rpc2FibGUodmktPnNxW2ldLnZxLCAmdmktPnNxW2ldLm5hcGkpOwo+ID4gICAg
+ICAgICAgICAgICB9Cj4gPiAgICAgICB9Cj4gPiAgIH0KPiA+IEBAIC0yNDQwLDcgKzI0NDksNyBA
+QCBzdGF0aWMgaW50IHZpcnRuZXRfeGRwX3NldChzdHJ1Y3QgbmV0X2RldmljZSAqZGV2LCBzdHJ1
+Y3QgYnBmX3Byb2cgKnByb2csCj4gPiAgICAgICBpZiAobmV0aWZfcnVubmluZyhkZXYpKSB7Cj4g
+PiAgICAgICAgICAgICAgIGZvciAoaSA9IDA7IGkgPCB2aS0+bWF4X3F1ZXVlX3BhaXJzOyBpKysp
+IHsKPiA+ICAgICAgICAgICAgICAgICAgICAgICBuYXBpX2Rpc2FibGUoJnZpLT5ycVtpXS5uYXBp
+KTsKPiA+IC0gICAgICAgICAgICAgICAgICAgICB2aXJ0bmV0X25hcGlfdHhfZGlzYWJsZSgmdmkt
+PnNxW2ldLm5hcGkpOwo+ID4gKyAgICAgICAgICAgICAgICAgICAgIHZpcnRuZXRfbmFwaV90eF9k
+aXNhYmxlKHZpLT5zcVtpXS52cSwgJnZpLT5zcVtpXS5uYXBpKTsKPiA+ICAgICAgICAgICAgICAg
+fQo+ID4gICAgICAgfQo+ID4KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9f
+cmluZy5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4gaW5kZXggNzFlMTZiNTNl
+OWMxLi5mN2M1ZDY5N2MzMDIgMTAwNjQ0Cj4gPiAtLS0gYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9f
+cmluZy5jCj4gPiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gPiBAQCAtMTA1
+LDYgKzEwNSw5IEBAIHN0cnVjdCB2cmluZ192aXJ0cXVldWUgewo+ID4gICAgICAgLyogSG9zdCBw
+dWJsaXNoZXMgYXZhaWwgZXZlbnQgaWR4ICovCj4gPiAgICAgICBib29sIGV2ZW50Owo+ID4KPiA+
+ICsgICAgIC8qIFR4IHNpZGUgbmFwaSB3b3JrIGNvdWxkIGJlIGRvbmUgZnJvbSByeCBzaWRlLiAq
+Lwo+ID4gKyAgICAgYm9vbCB3b3JrX3N0ZWFsOwo+Cj4KPiBTbyB2cmluZ192cml0cXVldWUgaXMg
+YSBnZW5lcmFsIHN0cnVjdHVyZSwgbGV0J3MgYXZvaWQgbWVudGlvbmluZwo+IG5ldHdvcmsgc3Bl
+Y2lmaWMgc3R1ZmZzIGhlcmUuIEFuZCB3ZSBuZWVkIGEgYmV0dGVyIG5hbWUgbGlrZQo+ICJub19p
+bnRlcnJ1cHRfY2hlY2siPwo+Cj4gQW5kIHdlIG5lZWQgYSBzZXBhcmF0ZSBwYXRjaCBmb3Igdmly
+dGlvIGNvcmUgY2hhbmdlcy4KCkFjay4gV2lsbCBjaGFuZ2UuCgo+Cj4gPiArCj4gPiAgICAgICAv
+KiBIZWFkIG9mIGZyZWUgYnVmZmVyIGxpc3QuICovCj4gPiAgICAgICB1bnNpZ25lZCBpbnQgZnJl
+ZV9oZWFkOwo+ID4gICAgICAgLyogTnVtYmVyIHdlJ3ZlIGFkZGVkIHNpbmNlIGxhc3Qgc3luYy4g
+Ki8KPiA+IEBAIC0xNjA0LDYgKzE2MDcsNyBAQCBzdGF0aWMgc3RydWN0IHZpcnRxdWV1ZSAqdnJp
+bmdfY3JlYXRlX3ZpcnRxdWV1ZV9wYWNrZWQoCj4gPiAgICAgICB2cS0+bm90aWZ5ID0gbm90aWZ5
+Owo+ID4gICAgICAgdnEtPndlYWtfYmFycmllcnMgPSB3ZWFrX2JhcnJpZXJzOwo+ID4gICAgICAg
+dnEtPmJyb2tlbiA9IGZhbHNlOwo+ID4gKyAgICAgdnEtPndvcmtfc3RlYWwgPSBmYWxzZTsKPiA+
+ICAgICAgIHZxLT5sYXN0X3VzZWRfaWR4ID0gMDsKPiA+ICAgICAgIHZxLT5udW1fYWRkZWQgPSAw
+Owo+ID4gICAgICAgdnEtPnBhY2tlZF9yaW5nID0gdHJ1ZTsKPiA+IEBAIC0yMDM4LDYgKzIwNDIs
+OSBAQCBpcnFyZXR1cm5fdCB2cmluZ19pbnRlcnJ1cHQoaW50IGlycSwgdm9pZCAqX3ZxKQo+ID4K
+PiA+ICAgICAgIGlmICghbW9yZV91c2VkKHZxKSkgewo+ID4gICAgICAgICAgICAgICBwcl9kZWJ1
+ZygidmlydHF1ZXVlIGludGVycnVwdCB3aXRoIG5vIHdvcmsgZm9yICVwXG4iLCB2cSk7Cj4KPgo+
+IERvIHdlIHN0aWxsIG5lZWQgdG8ga2VlcCB0aGlzIHdhcm5pbmc/CgpDb21lIHRvIHRoaW5rIG9m
+IGl0LCBJIHdvdWxkIHNheSBubywgaW4gdGhpcyBjYXNlLgoKPgo+Cj4gPiArICAgICAgICAgICAg
+IGlmICh2cS0+d29ya19zdGVhbCkKPiA+ICsgICAgICAgICAgICAgICAgICAgICByZXR1cm4gSVJR
+X0hBTkRMRUQ7Cj4KPgo+IFNvIEkgd29uZGVyIGluc3RlYWQgb2YgZG9pbmcgdHJpY2sgbGlrZSB0
+aGlzLCBtYXliZSBpdCdzIHRpbWUgdG8gdW5pZnkKPiBUWC9SWCBOQVBJIHdpdGggdGhlIGhlbHAg
+b2ZbMV0gKHZpcnRpby1uZXQgdXNlIHF1ZXVlIHBhaXJzKS4KPgo+IFRoYW5rcwo+Cj4gWzFdIGh0
+dHBzOi8vbGttbC5vcmcvbGttbC8yMDE0LzEyLzI1LzE2OQoKSW50ZXJlc3RpbmcgaWRlYS4gSXQg
+ZG9lcyBzb3VuZCBsaWtlIGEgZ29vZCBmaXQgZm9yIHRoaXMgbW9kZWwuIFRoZQpwYXRjaCBpbiB0
+aGUgRml4ZXMgbGluZSBwcm92ZWQgZWZmZWN0aXZlIGF0IHN1cHByZXNzaW5nIHVubmVjZXNzYXJ5
+IFRYCmludGVycnVwdHMgd2hlbiBwcm9jZXNzaW5nIGluIFJYIGludGVycnVwdCBoYW5kbGVyLiBT
+byBub3Qgc3VyZSBob3cKbXVjaCB3aWxsIGhlbHAgaW4gcHJhY3RpY2UuIE1pZ2h0IGJlIGEgbmlj
+ZSBwcm9qZWN0IHRvIGV2YWx1YXRlCnNlcGFyYXRlIGZvciBuZXQtbmV4dCBhdCBzb21lIHBvaW50
+LgoKVGhhbmtzIGZvciB0aGUgcmV2aWV3IQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
+b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
