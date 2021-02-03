@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C222C433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35EE3C43381
 	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 13:10:59 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7C96464F95
+	by mail.kernel.org (Postfix) with ESMTPS id AB42A64F99
 	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 13:10:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7C96464F95
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AB42A64F99
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 15B598684A;
+	by hemlock.osuosl.org (Postfix) with ESMTP id 6DCDA8712B;
 	Wed,  3 Feb 2021 13:10:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LoefutqLSMaG; Wed,  3 Feb 2021 13:10:57 +0000 (UTC)
+	with ESMTP id OCLOcjjjddut; Wed,  3 Feb 2021 13:10:57 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 1147386691;
+	by hemlock.osuosl.org (Postfix) with ESMTP id 5927A87116;
 	Wed,  3 Feb 2021 13:10:57 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F0466C0174;
-	Wed,  3 Feb 2021 13:10:56 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6E690C0FA7
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 44B50C1DA7;
+	Wed,  3 Feb 2021 13:10:57 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6023FC013A
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Feb 2021 13:10:53 +0000 (UTC)
+ Wed,  3 Feb 2021 13:10:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 630A285F32
+ by whitealder.osuosl.org (Postfix) with ESMTP id 412408683A
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Feb 2021 13:10:53 +0000 (UTC)
+ Wed,  3 Feb 2021 13:10:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Ap0wkr_6h1Kw
+ with ESMTP id zuvz02gTtCEY
  for <virtualization@lists.linux-foundation.org>;
  Wed,  3 Feb 2021 13:10:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 73EEF854B4
+ by whitealder.osuosl.org (Postfix) with ESMTPS id E2C6E86399
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Feb 2021 13:10:52 +0000 (UTC)
+ Wed,  3 Feb 2021 13:10:51 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 12487B12F;
- Wed,  3 Feb 2021 13:10:51 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id 7B402B12C;
+ Wed,  3 Feb 2021 13:10:50 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: daniel@ffwll.ch, airlied@linux.ie, maarten.lankhorst@linux.intel.com,
  mripard@kernel.org, kraxel@redhat.com, hdegoede@redhat.com,
  sean@poorly.run, sam@ravnborg.org, noralf@tronnes.org
-Subject: [PATCH 4/6] drm/cirrus: Move vmap out of commit tail
-Date: Wed,  3 Feb 2021 14:10:44 +0100
-Message-Id: <20210203131046.22371-5-tzimmermann@suse.de>
+Subject: [PATCH 3/6] drm/mgag200: Move vmap out of commit tail
+Date: Wed,  3 Feb 2021 14:10:43 +0100
+Message-Id: <20210203131046.22371-4-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210203131046.22371-1-tzimmermann@suse.de>
 References: <20210203131046.22371-1-tzimmermann@suse.de>
@@ -91,139 +91,104 @@ callbacks use the established mapping for damage handling.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/tiny/Kconfig  |  3 ++-
- drivers/gpu/drm/tiny/cirrus.c | 45 +++++++++++++++--------------------
- 2 files changed, 21 insertions(+), 27 deletions(-)
+ drivers/gpu/drm/mgag200/Kconfig        |  1 +
+ drivers/gpu/drm/mgag200/mgag200_mode.c | 25 ++++++++++---------------
+ 2 files changed, 11 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/tiny/Kconfig b/drivers/gpu/drm/tiny/Kconfig
-index 2b6414f0fa75..e0aef6cf8e26 100644
---- a/drivers/gpu/drm/tiny/Kconfig
-+++ b/drivers/gpu/drm/tiny/Kconfig
-@@ -3,8 +3,9 @@
- config DRM_CIRRUS_QEMU
- 	tristate "Cirrus driver for QEMU emulated device"
+diff --git a/drivers/gpu/drm/mgag200/Kconfig b/drivers/gpu/drm/mgag200/Kconfig
+index eec59658a938..b4e5a1eb57ce 100644
+--- a/drivers/gpu/drm/mgag200/Kconfig
++++ b/drivers/gpu/drm/mgag200/Kconfig
+@@ -3,6 +3,7 @@ config DRM_MGAG200
+ 	tristate "Matrox G200"
  	depends on DRM && PCI && MMU
--	select DRM_KMS_HELPER
  	select DRM_GEM_SHMEM_HELPER
 +	select DRM_GEM_SHMEM_KMS_HELPER
-+	select DRM_KMS_HELPER
+ 	select DRM_KMS_HELPER
  	help
- 	 This is a KMS driver for emulated cirrus device in qemu.
- 	 It is *NOT* intended for real cirrus devices. This requires
-diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
-index a043e602199e..aac627615b2d 100644
---- a/drivers/gpu/drm/tiny/cirrus.c
-+++ b/drivers/gpu/drm/tiny/cirrus.c
-@@ -33,8 +33,9 @@
- #include <drm/drm_file.h>
+ 	 This is a KMS driver for Matrox G200 chips. It supports the original
+diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
+index 1dfc42170059..70040a02ee98 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_mode.c
++++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
+@@ -18,6 +18,7 @@
  #include <drm/drm_format_helper.h>
  #include <drm/drm_fourcc.h>
--#include <drm/drm_gem_shmem_helper.h>
  #include <drm/drm_gem_framebuffer_helper.h>
-+#include <drm/drm_gem_shmem_helper.h>
 +#include <drm/drm_gem_shmem_kms_helper.h>
- #include <drm/drm_ioctl.h>
- #include <drm/drm_managed.h>
- #include <drm/drm_modeset_helper_vtables.h>
-@@ -311,22 +312,15 @@ static int cirrus_mode_set(struct cirrus_device *cirrus,
- 	return 0;
- }
+ #include <drm/drm_plane_helper.h>
+ #include <drm/drm_print.h>
+ #include <drm/drm_probe_helper.h>
+@@ -1549,22 +1550,12 @@ mgag200_simple_display_pipe_mode_valid(struct drm_simple_display_pipe *pipe,
  
--static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
-+static int cirrus_fb_blit_rect(struct drm_framebuffer *fb, const struct dma_buf_map *map,
- 			       struct drm_rect *rect)
+ static void
+ mgag200_handle_damage(struct mga_device *mdev, struct drm_framebuffer *fb,
+-		      struct drm_rect *clip)
++		      struct drm_rect *clip, const struct dma_buf_map *map)
  {
- 	struct cirrus_device *cirrus = to_cirrus(fb->dev);
+-	struct drm_device *dev = &mdev->base;
 -	struct dma_buf_map map;
 -	void *vmap;
--	int idx, ret;
-+	void *vmap = map->vaddr; /* TODO: Use mapping abstraction properly */
-+	int idx;
- 
--	ret = -ENODEV;
- 	if (!drm_dev_enter(&cirrus->dev, &idx))
--		goto out;
+-	int ret;
 -
 -	ret = drm_gem_shmem_vmap(fb->obj[0], &map);
--	if (ret)
--		goto out_dev_exit;
+-	if (drm_WARN_ON(dev, ret))
+-		return; /* BUG: SHMEM BO should always be vmapped */
 -	vmap = map.vaddr; /* TODO: Use mapping abstraction properly */
-+		return -ENODEV;
++	void *vmap = map->vaddr; /* TODO: Use mapping abstraction properly */
  
- 	if (cirrus->cpp == fb->format->cpp[0])
- 		drm_fb_memcpy_dstclip(cirrus->vram,
-@@ -345,16 +339,12 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
- 	else
- 		WARN_ON_ONCE("cpp mismatch");
+ 	drm_fb_memcpy_dstclip(mdev->vram, vmap, fb, clip);
  
 -	drm_gem_shmem_vunmap(fb->obj[0], &map);
--	ret = 0;
 -
--out_dev_exit:
- 	drm_dev_exit(idx);
--out:
--	return ret;
-+
-+	return 0;
- }
- 
--static int cirrus_fb_blit_fullscreen(struct drm_framebuffer *fb)
-+static int cirrus_fb_blit_fullscreen(struct drm_framebuffer *fb, const struct dma_buf_map *map)
- {
- 	struct drm_rect fullscreen = {
- 		.x1 = 0,
-@@ -362,7 +352,7 @@ static int cirrus_fb_blit_fullscreen(struct drm_framebuffer *fb)
- 		.y1 = 0,
- 		.y2 = fb->height,
- 	};
--	return cirrus_fb_blit_rect(fb, &fullscreen);
-+	return cirrus_fb_blit_rect(fb, map, &fullscreen);
- }
- 
- static int cirrus_check_size(int width, int height,
-@@ -441,9 +431,11 @@ static void cirrus_pipe_enable(struct drm_simple_display_pipe *pipe,
- 			       struct drm_plane_state *plane_state)
- {
- 	struct cirrus_device *cirrus = to_cirrus(pipe->crtc.dev);
+ 	/* Always scanout image at VRAM offset 0 */
+ 	mgag200_set_startadd(mdev, (u32)0);
+ 	mgag200_set_offset(mdev, fb);
+@@ -1580,6 +1571,8 @@ mgag200_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
+ 	struct mga_device *mdev = to_mga_device(dev);
+ 	struct drm_display_mode *adjusted_mode = &crtc_state->adjusted_mode;
+ 	struct drm_framebuffer *fb = plane_state->fb;
 +	struct drm_gem_shmem_shadow_plane_state *shadow_plane_state =
 +		to_drm_gem_shmem_shadow_plane_state(plane_state);
+ 	struct drm_rect fullscreen = {
+ 		.x1 = 0,
+ 		.x2 = fb->width,
+@@ -1608,7 +1601,7 @@ mgag200_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
+ 	mga_crtc_load_lut(crtc);
+ 	mgag200_enable_display(mdev);
  
- 	cirrus_mode_set(cirrus, &crtc_state->mode, plane_state->fb);
--	cirrus_fb_blit_fullscreen(plane_state->fb);
-+	cirrus_fb_blit_fullscreen(plane_state->fb, &shadow_plane_state->map[0]);
+-	mgag200_handle_damage(mdev, fb, &fullscreen);
++	mgag200_handle_damage(mdev, fb, &fullscreen, &shadow_plane_state->map[0]);
  }
  
- static void cirrus_pipe_update(struct drm_simple_display_pipe *pipe,
-@@ -451,16 +443,16 @@ static void cirrus_pipe_update(struct drm_simple_display_pipe *pipe,
- {
- 	struct cirrus_device *cirrus = to_cirrus(pipe->crtc.dev);
- 	struct drm_plane_state *state = pipe->plane.state;
+ static void
+@@ -1649,6 +1642,8 @@ mgag200_simple_display_pipe_update(struct drm_simple_display_pipe *pipe,
+ 	struct drm_device *dev = plane->dev;
+ 	struct mga_device *mdev = to_mga_device(dev);
+ 	struct drm_plane_state *state = plane->state;
 +	struct drm_gem_shmem_shadow_plane_state *shadow_plane_state =
 +		to_drm_gem_shmem_shadow_plane_state(state);
- 	struct drm_crtc *crtc = &pipe->crtc;
- 	struct drm_rect rect;
+ 	struct drm_framebuffer *fb = state->fb;
+ 	struct drm_rect damage;
  
--	if (pipe->plane.state->fb &&
--	    cirrus->cpp != cirrus_cpp(pipe->plane.state->fb))
--		cirrus_mode_set(cirrus, &crtc->mode,
--				pipe->plane.state->fb);
-+	if (state->fb && cirrus->cpp != cirrus_cpp(state->fb))
-+		cirrus_mode_set(cirrus, &crtc->mode, state->fb);
+@@ -1656,7 +1651,7 @@ mgag200_simple_display_pipe_update(struct drm_simple_display_pipe *pipe,
+ 		return;
  
- 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
--		cirrus_fb_blit_rect(pipe->plane.state->fb, &rect);
-+		cirrus_fb_blit_rect(state->fb, &shadow_plane_state->map[0], &rect);
+ 	if (drm_atomic_helper_damage_merged(old_state, state, &damage))
+-		mgag200_handle_damage(mdev, fb, &damage);
++		mgag200_handle_damage(mdev, fb, &damage, &shadow_plane_state->map[0]);
  }
  
- static const struct drm_simple_display_pipe_funcs cirrus_pipe_funcs = {
-@@ -468,6 +460,7 @@ static const struct drm_simple_display_pipe_funcs cirrus_pipe_funcs = {
- 	.check	    = cirrus_pipe_check,
- 	.enable	    = cirrus_pipe_enable,
- 	.update	    = cirrus_pipe_update,
+ static const struct drm_simple_display_pipe_funcs
+@@ -1666,7 +1661,7 @@ mgag200_simple_display_pipe_funcs = {
+ 	.disable    = mgag200_simple_display_pipe_disable,
+ 	.check	    = mgag200_simple_display_pipe_check,
+ 	.update	    = mgag200_simple_display_pipe_update,
+-	.prepare_fb = drm_gem_fb_simple_display_pipe_prepare_fb,
 +	DRM_GEM_SHMEM_SIMPLE_DISPLAY_PIPE_SHADOW_PLANE_FUNCS,
  };
  
- static const uint32_t cirrus_formats[] = {
+ static const uint32_t mgag200_simple_display_pipe_formats[] = {
 -- 
 2.30.0
 
