@@ -2,108 +2,116 @@ Return-Path: <SRS0=+GVp=HF=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 462B0C433E0
-	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 10:15:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A24FC433DB
+	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 10:38:14 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id BAD7664F59
-	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 10:15:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BAD7664F59
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
+	by mail.kernel.org (Postfix) with ESMTPS id 1A99264F58
+	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 10:38:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1A99264F58
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 07323870E4;
-	Wed,  3 Feb 2021 10:15:52 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id BC94E870BD;
+	Wed,  3 Feb 2021 10:38:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FQIhcVgpXj6W; Wed,  3 Feb 2021 10:15:49 +0000 (UTC)
+	with ESMTP id 2qFwjBbuvL5p; Wed,  3 Feb 2021 10:38:13 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 3BAA28653F;
-	Wed,  3 Feb 2021 10:15:49 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 033278704C;
+	Wed,  3 Feb 2021 10:38:12 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 22B83C0174;
-	Wed,  3 Feb 2021 10:15:49 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BA715C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DD0F9C0174;
+	Wed,  3 Feb 2021 10:38:12 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B9FE2C013A
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Feb 2021 10:15:47 +0000 (UTC)
+ Wed,  3 Feb 2021 10:38:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id A315584DDC
+ by hemlock.osuosl.org (Postfix) with ESMTP id A801F87051
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Feb 2021 10:15:47 +0000 (UTC)
+ Wed,  3 Feb 2021 10:38:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Z7bImFiHzCzi
+ with ESMTP id WQMjKrq7qf5u
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Feb 2021 10:15:46 +0000 (UTC)
+ Wed,  3 Feb 2021 10:38:09 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com
- [209.85.221.54])
- by whitealder.osuosl.org (Postfix) with ESMTPS id C50E28493F
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 73AF68704C
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Feb 2021 10:15:45 +0000 (UTC)
-Received: by mail-wr1-f54.google.com with SMTP id b3so5365308wrj.5
+ Wed,  3 Feb 2021 10:38:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1612348688;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=3HhHobMYPlFQFvUioE6L5w9d4HmDVhf6ksQ/kPlrnbc=;
+ b=WCaOgIbvywegvHRj9m91Mm4NaU0mMdgzx/J44cD+cGxmtS8kZaHJR4VAD9olnRjuy4RbnS
+ oh6cNzDBLSYwxS3cDtgSB3xjYVUeYbp1v8VuFRaOMFjMS2CI+HG/19R1ZegG7r6lK5F8Ec
+ WQ61liWvQm55vPVKp3RAaHhpX4aYRu0=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-500-Yj_EYtDwPtu3lRrQosy4Kg-1; Wed, 03 Feb 2021 05:38:05 -0500
+X-MC-Unique: Yj_EYtDwPtu3lRrQosy4Kg-1
+Received: by mail-ej1-f71.google.com with SMTP id w16so4176893ejk.7
  for <virtualization@lists.linux-foundation.org>;
- Wed, 03 Feb 2021 02:15:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
- h=date:from:to:cc:subject:message-id:mail-followup-to:references
- :mime-version:content-disposition:in-reply-to;
- bh=a321zpi9EYFPKrHa/w5wiDf7FzXZmd2yWZ5PnRvh2oY=;
- b=RCZYqjo8I8AawXH9nn6NQo2bQR2kzFkM3XePpRANJJFh+lczMkaDb319tOYYIL1zXa
- yxn6aF18WkJpG3iAp/H1LKgx52iDyHPIS7MGdZknlRvHXfaNZJXshs8+A0/iv6kNsVrB
- JXrIIwgJ+TTIv7ID15/NbNfrIDf5JA+9CfuIY=
+ Wed, 03 Feb 2021 02:38:05 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id
- :mail-followup-to:references:mime-version:content-disposition
- :in-reply-to;
- bh=a321zpi9EYFPKrHa/w5wiDf7FzXZmd2yWZ5PnRvh2oY=;
- b=K5PBXR2ztvgZoM8LpBGx0sJysDM6gBJ5pTQ8MuumZepl2W+gcZMk6mijTtN7hSgsYA
- dOZ1O9KSJ19wC47x07lOVFeFNyA3Npqs6i5OEwDt4l8Akrcf3vDgdSZvRO4gOIb4W86m
- 1P5lAbtXKDZyMrTi4qpklpTpqytwDCe861SUt5ioYIRqeY8V33mSrAjkbRZZxbmzI3kf
- Nq5GtCvcPUzNFTMYhDvLziuY2945q2G/3AH02hJK47nzTkrulQJKd6E4q+DaBFARPhMG
- f8FLzRAHxDHGleE9JNPXyfF8GIz2+72NR9hhetqK2cgX5GaWXmW7HrcqY99QNouu85T6
- vhtw==
-X-Gm-Message-State: AOAM533TdFYWhx5S+xoex7xwXHx6tgPlQpQjieamLa0dAMheDln81uRG
- SIY1xL9Au2VaCH805amUIZIZnQ==
-X-Google-Smtp-Source: ABdhPJzHB+ffvr9s3UM8FPaGZKcUXhORlDn7t4V0qu+UbQAlINgveENCa31EtHjKs1ycCeGI9sFg6g==
-X-Received: by 2002:adf:f743:: with SMTP id z3mr2655431wrp.165.1612347344092; 
- Wed, 03 Feb 2021 02:15:44 -0800 (PST)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
- by smtp.gmail.com with ESMTPSA id f4sm2825617wrs.34.2021.02.03.02.15.42
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=3HhHobMYPlFQFvUioE6L5w9d4HmDVhf6ksQ/kPlrnbc=;
+ b=RL8JwrLGqrrCoTE0btpSe7g9PhK4K9OxQYtqPlN3oHxuHTzppMc/tNbBgAOPakpusy
+ rq9pw/3YDojId9zQ/sleUc+sVW9IQ1eD21WS3SV7nBuPWLfgsg6mr7ghLtYh9AHa9aUZ
+ xD3/y6G1T8jd8A9GTRrmzJgdd1yOfII8nHon37HScdYGyZNNkUMby5A5YojIFv0vV4ce
+ 2k8JJcax6JR3852nwybI9RtnY70bP+kaOSLKOY5ml2fdCVvBRwguVln3HtosyM1Jj1A7
+ Ye6xJ96kfTPK+Jb1BAdpIP+z+XuOIrx+6sgEgw51Vno1c3HuIC6qyTR03eIav7pcF47D
+ P5bw==
+X-Gm-Message-State: AOAM532+X1yQfgIgCo/V9j5fUfmYzOHimlJFgFNr3iHSBs7qnM7Wmjn8
+ m9FZQUsAtDHqNMjUovqADyV3HTSqZRVuig5MieTO9upVC3vgPPjJL3dDFef66PeQs/cN6HyOWKx
+ kN5nkeyFD2Ov0I6PG/qzPAdH3L/cJFI3dIe9N0Lj6vQ==
+X-Received: by 2002:a17:906:8612:: with SMTP id
+ o18mr273042ejx.435.1612348684510; 
+ Wed, 03 Feb 2021 02:38:04 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy3BttvpnMp9X40MrIlhHe3DQXpcUanIXY0JNhaRMWqQ677k1dGvdGIQidvFbsT1CZuMHmd5w==
+X-Received: by 2002:a17:906:8612:: with SMTP id
+ o18mr273035ejx.435.1612348684314; 
+ Wed, 03 Feb 2021 02:38:04 -0800 (PST)
+Received: from redhat.com (bzq-109-67-102-221.red.bezeqint.net.
+ [109.67.102.221])
+ by smtp.gmail.com with ESMTPSA id hr3sm792896ejc.41.2021.02.03.02.38.01
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 03 Feb 2021 02:15:43 -0800 (PST)
-Date: Wed, 3 Feb 2021 11:15:41 +0100
-From: Daniel Vetter <daniel@ffwll.ch>
-To: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v4 5/5] drm/qxl: properly free qxl releases
-Message-ID: <YBp3zQqomQziZbPT@phenom.ffwll.local>
-Mail-Followup-To: Gerd Hoffmann <kraxel@redhat.com>,
- dri-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>,
- David Airlie <airlied@linux.ie>,
- "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
- <virtualization@lists.linux-foundation.org>, 
- "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>,
- open list <linux-kernel@vger.kernel.org>
-References: <20210126165812.1661512-1-kraxel@redhat.com>
- <20210126165812.1661512-6-kraxel@redhat.com>
+ Wed, 03 Feb 2021 02:38:03 -0800 (PST)
+Date: Wed, 3 Feb 2021 05:38:00 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Willem de Bruijn <willemb@google.com>
+Subject: Re: [PATCH net] virtio-net: suppress bad irq warning for tx napi
+Message-ID: <20210203052924-mutt-send-email-mst@kernel.org>
+References: <20210129002136.70865-1-weiwan@google.com>
+ <20210202180807-mutt-send-email-mst@kernel.org>
+ <CAEA6p_Arqm2cgjc7rKibautqeVyxPkkMV7y20DU1sDaoCnLvzQ@mail.gmail.com>
+ <CA+FuTSe-6MSpB4hwwvwPgDqHkxYJoxMZMDbOusNqiq0Gwa1eiQ@mail.gmail.com>
+ <CA+FuTSdkJcj_ikNnJmGadBZ1fa7q26MZ1g3ERf8Ax+YbXvgcng@mail.gmail.com>
 MIME-Version: 1.0
+In-Reply-To: <CA+FuTSdkJcj_ikNnJmGadBZ1fa7q26MZ1g3ERf8Ax+YbXvgcng@mail.gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <20210126165812.1661512-6-kraxel@redhat.com>
-X-Operating-System: Linux phenom 5.7.0-1-amd64 
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>,
- dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
- <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>,
- "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>,
- Dave Airlie <airlied@redhat.com>
+Cc: Linux Kernel Network Developers <netdev@vger.kernel.org>,
+ Wei Wang <weiwan@google.com>, virtualization@lists.linux-foundation.org,
+ David Miller <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,100 +128,98 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Jan 26, 2021 at 05:58:12PM +0100, Gerd Hoffmann wrote:
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  drivers/gpu/drm/qxl/qxl_drv.h     |  1 +
->  drivers/gpu/drm/qxl/qxl_kms.c     | 22 ++++++++++++++++++++--
->  drivers/gpu/drm/qxl/qxl_release.c |  2 ++
->  3 files changed, 23 insertions(+), 2 deletions(-)
+On Tue, Feb 02, 2021 at 07:06:53PM -0500, Willem de Bruijn wrote:
+> On Tue, Feb 2, 2021 at 6:53 PM Willem de Bruijn <willemb@google.com> wrote:
+> >
+> > On Tue, Feb 2, 2021 at 6:47 PM Wei Wang <weiwan@google.com> wrote:
+> > >
+> > > On Tue, Feb 2, 2021 at 3:12 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > >
+> > > > On Thu, Jan 28, 2021 at 04:21:36PM -0800, Wei Wang wrote:
+> > > > > With the implementation of napi-tx in virtio driver, we clean tx
+> > > > > descriptors from rx napi handler, for the purpose of reducing tx
+> > > > > complete interrupts. But this could introduce a race where tx complete
+> > > > > interrupt has been raised, but the handler found there is no work to do
+> > > > > because we have done the work in the previous rx interrupt handler.
+> > > > > This could lead to the following warning msg:
+> > > > > [ 3588.010778] irq 38: nobody cared (try booting with the
+> > > > > "irqpoll" option)
+> > > > > [ 3588.017938] CPU: 4 PID: 0 Comm: swapper/4 Not tainted
+> > > > > 5.3.0-19-generic #20~18.04.2-Ubuntu
+> > > > > [ 3588.017940] Call Trace:
+> > > > > [ 3588.017942]  <IRQ>
+> > > > > [ 3588.017951]  dump_stack+0x63/0x85
+> > > > > [ 3588.017953]  __report_bad_irq+0x35/0xc0
+> > > > > [ 3588.017955]  note_interrupt+0x24b/0x2a0
+> > > > > [ 3588.017956]  handle_irq_event_percpu+0x54/0x80
+> > > > > [ 3588.017957]  handle_irq_event+0x3b/0x60
+> > > > > [ 3588.017958]  handle_edge_irq+0x83/0x1a0
+> > > > > [ 3588.017961]  handle_irq+0x20/0x30
+> > > > > [ 3588.017964]  do_IRQ+0x50/0xe0
+> > > > > [ 3588.017966]  common_interrupt+0xf/0xf
+> > > > > [ 3588.017966]  </IRQ>
+> > > > > [ 3588.017989] handlers:
+> > > > > [ 3588.020374] [<000000001b9f1da8>] vring_interrupt
+> > > > > [ 3588.025099] Disabling IRQ #38
+> > > > >
+> > > > > This patch adds a new param to struct vring_virtqueue, and we set it for
+> > > > > tx virtqueues if napi-tx is enabled, to suppress the warning in such
+> > > > > case.
+> > > > >
+> > > > > Fixes: 7b0411ef4aa6 ("virtio-net: clean tx descriptors from rx napi")
+> > > > > Reported-by: Rick Jones <jonesrick@google.com>
+> > > > > Signed-off-by: Wei Wang <weiwan@google.com>
+> > > > > Signed-off-by: Willem de Bruijn <willemb@google.com>
+> > > >
+> > > >
+> > > > This description does not make sense to me.
+> > > >
+> > > > irq X: nobody cared
+> > > > only triggers after an interrupt is unhandled repeatedly.
+> > > >
+> > > > So something causes a storm of useless tx interrupts here.
+> > > >
+> > > > Let's find out what it was please. What you are doing is
+> > > > just preventing linux from complaining.
+> > >
+> > > The traffic that causes this warning is a netperf tcp_stream with at
+> > > least 128 flows between 2 hosts. And the warning gets triggered on the
+> > > receiving host, which has a lot of rx interrupts firing on all queues,
+> > > and a few tx interrupts.
+> > > And I think the scenario is: when the tx interrupt gets fired, it gets
+> > > coalesced with the rx interrupt. Basically, the rx and tx interrupts
+> > > get triggered very close to each other, and gets handled in one round
+> > > of do_IRQ(). And the rx irq handler gets called first, which calls
+> > > virtnet_poll(). However, virtnet_poll() calls virtnet_poll_cleantx()
+> > > to try to do the work on the corresponding tx queue as well. That's
+> > > why when tx interrupt handler gets called, it sees no work to do.
+> > > And the reason for the rx handler to handle the tx work is here:
+> > > https://lists.linuxfoundation.org/pipermail/virtualization/2017-April/034740.html
+> >
+> > Indeed. It's not a storm necessarily. The warning occurs after one
+> > hundred such events, since boot, which is a small number compared real
+> > interrupt load.
 > 
-> diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
-> index 01354b43c413..1c57b587b6a7 100644
-> --- a/drivers/gpu/drm/qxl/qxl_drv.h
-> +++ b/drivers/gpu/drm/qxl/qxl_drv.h
-> @@ -214,6 +214,7 @@ struct qxl_device {
->  	spinlock_t	release_lock;
->  	struct idr	release_idr;
->  	uint32_t	release_seqno;
-> +	atomic_t	release_count;
->  	spinlock_t release_idr_lock;
->  	struct mutex	async_io_mutex;
->  	unsigned int last_sent_io_cmd;
-> diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
-> index 4a60a52ab62e..f177f72bfc12 100644
-> --- a/drivers/gpu/drm/qxl/qxl_kms.c
-> +++ b/drivers/gpu/drm/qxl/qxl_kms.c
-> @@ -25,6 +25,7 @@
->  
->  #include <linux/io-mapping.h>
->  #include <linux/pci.h>
-> +#include <linux/delay.h>
->  
->  #include <drm/drm_drv.h>
->  #include <drm/drm_managed.h>
-> @@ -286,8 +287,25 @@ int qxl_device_init(struct qxl_device *qdev,
->  
->  void qxl_device_fini(struct qxl_device *qdev)
->  {
-> -	qxl_bo_unref(&qdev->current_release_bo[0]);
-> -	qxl_bo_unref(&qdev->current_release_bo[1]);
-> +	int cur_idx, try;
-> +
-> +	for (cur_idx = 0; cur_idx < 3; cur_idx++) {
-> +		if (!qdev->current_release_bo[cur_idx])
-> +			continue;
-> +		qxl_bo_unpin(qdev->current_release_bo[cur_idx]);
-> +		qxl_bo_unref(&qdev->current_release_bo[cur_idx]);
-> +		qdev->current_release_bo_offset[cur_idx] = 0;
-> +		qdev->current_release_bo[cur_idx] = NULL;
-> +	}
-> +
-> +	/*
-> +	 * Ask host to release resources (+fill release ring),
-> +	 * then wait for the release actually happening.
-> +	 */
-> +	qxl_io_notify_oom(qdev);
-> +	for (try = 0; try < 20 && atomic_read(&qdev->release_count) > 0; try++)
-> +		msleep(20);
-
-A bit icky, why not use a wait queue or something like that instead of
-hand-rolling this? Not for perf reasons, just so it's a bit clear who
-waits for whom and why.
--Daniel
-
-> +
->  	qxl_gem_fini(qdev);
->  	qxl_bo_fini(qdev);
->  	flush_work(&qdev->gc_work);
-> diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
-> index 28013fd1f8ea..43a5436853b7 100644
-> --- a/drivers/gpu/drm/qxl/qxl_release.c
-> +++ b/drivers/gpu/drm/qxl/qxl_release.c
-> @@ -196,6 +196,7 @@ qxl_release_free(struct qxl_device *qdev,
->  		qxl_release_free_list(release);
->  		kfree(release);
->  	}
-> +	atomic_dec(&qdev->release_count);
->  }
->  
->  static int qxl_release_bo_alloc(struct qxl_device *qdev,
-> @@ -344,6 +345,7 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
->  			*rbo = NULL;
->  		return idr_ret;
->  	}
-> +	atomic_inc(&qdev->release_count);
->  
->  	mutex_lock(&qdev->release_mutex);
->  	if (qdev->current_release_bo_offset[cur_idx] + 1 >= releases_per_bo[cur_idx]) {
-> -- 
-> 2.29.2
+> Sorry, this is wrong. It is the other call to __report_bad_irq from
+> note_interrupt that applies here.
 > 
+> > Occasionally seeing an interrupt with no work is expected after
+> > 7b0411ef4aa6 ("virtio-net: clean tx descriptors from rx napi"). As
+> > long as this rate of events is very low compared to useful interrupts,
+> > and total interrupt count is greatly reduced vs not having work
+> > stealing, it is a net win.
+
+Right, but if 99900 out of 100000 interrupts were wasted, then it is
+surely an even greater win to disable interrupts while polling like
+this.  Might be tricky to detect, disabling/enabling aggressively every
+time even if there's nothing in the queue is sure to cause lots of cache
+line bounces, and we don't want to enable callbacks if they were not
+enabled e.g. by start_xmit ...  Some kind of counter?
+
 
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+MST
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
