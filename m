@@ -2,108 +2,108 @@ Return-Path: <SRS0=+GVp=HF=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43B88C433E0
-	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 09:54:50 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 462B0C433E0
+	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 10:15:53 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id ACE1464F60
-	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 09:54:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org ACE1464F60
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
+	by mail.kernel.org (Postfix) with ESMTPS id BAD7664F59
+	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 10:15:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BAD7664F59
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 48097867A7;
-	Wed,  3 Feb 2021 09:54:49 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 07323870E4;
+	Wed,  3 Feb 2021 10:15:52 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FQIhcVgpXj6W; Wed,  3 Feb 2021 10:15:49 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by hemlock.osuosl.org (Postfix) with ESMTP id 3BAA28653F;
+	Wed,  3 Feb 2021 10:15:49 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 22B83C0174;
+	Wed,  3 Feb 2021 10:15:49 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BA715C013A
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  3 Feb 2021 10:15:47 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id A315584DDC
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  3 Feb 2021 10:15:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sQDRz0Laa1dB; Wed,  3 Feb 2021 09:54:48 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 9A93C867A8;
-	Wed,  3 Feb 2021 09:54:48 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8A2FFC0FA7;
-	Wed,  3 Feb 2021 09:54:48 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 77BF9C013A
- for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Feb 2021 09:54:47 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 5F2D385D72
- for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Feb 2021 09:54:47 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6DU6ZOCghz8q
+ with ESMTP id Z7bImFiHzCzi
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Feb 2021 09:54:47 +0000 (UTC)
+ Wed,  3 Feb 2021 10:15:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from aserp2120.oracle.com (aserp2120.oracle.com [141.146.126.78])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id DB69885C54
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com
+ [209.85.221.54])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id C50E28493F
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Feb 2021 09:54:46 +0000 (UTC)
-Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
- by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 1139nxjF010981;
- Wed, 3 Feb 2021 09:54:37 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=date : from : to : cc
- : subject : message-id : mime-version : content-type; s=corp-2020-01-29;
- bh=W0gTtf1J4ME9UXACICdrUSgWMHPzwXYbEDjcld2NgXI=;
- b=SsRRnsJRnOAWxHtFtdMKlB3yZMLQ3d/D4Ue/L3VVzbh12VY8XPqJPu7QOnB1+pjXNkul
- 2mYfnZPs/9PKIsxo+cARlu77ode9YZQdhcwMDY5VYC9wwklRREjvZ2OZVNU9H7WMbU6B
- I4hi6REvK3DL6tHmF1J19gqh6aOR6vsGWKliZTlAez3sLn/zKFr1vCWRcQRaMjQKc0JP
- 6AuYhcW6a05xdF08gg+ljBBRTZcQaUbaGgXZaLiJ3eB0RfLRfOI7QJhwFrtBzPICuO22
- o7eJAAVwZ+PYVpyDn7I2V8yoQgVh9Ov0Dr+GhwAadUkQ1qcV1iu8svP40ElymIn5P9bv Cg== 
-Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
- by aserp2120.oracle.com with ESMTP id 36cydkyjpd-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 03 Feb 2021 09:54:37 +0000
-Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
- by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 1139oaTp149099;
- Wed, 3 Feb 2021 09:54:35 GMT
-Received: from aserv0122.oracle.com (aserv0122.oracle.com [141.146.126.236])
- by userp3030.oracle.com with ESMTP id 36dhcyaaj3-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 03 Feb 2021 09:54:35 +0000
-Received: from abhmp0005.oracle.com (abhmp0005.oracle.com [141.146.116.11])
- by aserv0122.oracle.com (8.14.4/8.14.4) with ESMTP id 1139sVrM020370;
- Wed, 3 Feb 2021 09:54:31 GMT
-Received: from mwanda (/10.175.206.62) by default (Oracle Beehive Gateway v4.0)
- with ESMTP ; Wed, 03 Feb 2021 01:54:30 -0800
-Date: Wed, 3 Feb 2021 12:54:24 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] drm/virtio: fix an error code in virtio_gpu_init()
-Message-ID: <YBpy0GS7GfmafMfe@mwanda>
+ Wed,  3 Feb 2021 10:15:45 +0000 (UTC)
+Received: by mail-wr1-f54.google.com with SMTP id b3so5365308wrj.5
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 03 Feb 2021 02:15:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
+ h=date:from:to:cc:subject:message-id:mail-followup-to:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=a321zpi9EYFPKrHa/w5wiDf7FzXZmd2yWZ5PnRvh2oY=;
+ b=RCZYqjo8I8AawXH9nn6NQo2bQR2kzFkM3XePpRANJJFh+lczMkaDb319tOYYIL1zXa
+ yxn6aF18WkJpG3iAp/H1LKgx52iDyHPIS7MGdZknlRvHXfaNZJXshs8+A0/iv6kNsVrB
+ JXrIIwgJ+TTIv7ID15/NbNfrIDf5JA+9CfuIY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id
+ :mail-followup-to:references:mime-version:content-disposition
+ :in-reply-to;
+ bh=a321zpi9EYFPKrHa/w5wiDf7FzXZmd2yWZ5PnRvh2oY=;
+ b=K5PBXR2ztvgZoM8LpBGx0sJysDM6gBJ5pTQ8MuumZepl2W+gcZMk6mijTtN7hSgsYA
+ dOZ1O9KSJ19wC47x07lOVFeFNyA3Npqs6i5OEwDt4l8Akrcf3vDgdSZvRO4gOIb4W86m
+ 1P5lAbtXKDZyMrTi4qpklpTpqytwDCe861SUt5ioYIRqeY8V33mSrAjkbRZZxbmzI3kf
+ Nq5GtCvcPUzNFTMYhDvLziuY2945q2G/3AH02hJK47nzTkrulQJKd6E4q+DaBFARPhMG
+ f8FLzRAHxDHGleE9JNPXyfF8GIz2+72NR9hhetqK2cgX5GaWXmW7HrcqY99QNouu85T6
+ vhtw==
+X-Gm-Message-State: AOAM533TdFYWhx5S+xoex7xwXHx6tgPlQpQjieamLa0dAMheDln81uRG
+ SIY1xL9Au2VaCH805amUIZIZnQ==
+X-Google-Smtp-Source: ABdhPJzHB+ffvr9s3UM8FPaGZKcUXhORlDn7t4V0qu+UbQAlINgveENCa31EtHjKs1ycCeGI9sFg6g==
+X-Received: by 2002:adf:f743:: with SMTP id z3mr2655431wrp.165.1612347344092; 
+ Wed, 03 Feb 2021 02:15:44 -0800 (PST)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+ by smtp.gmail.com with ESMTPSA id f4sm2825617wrs.34.2021.02.03.02.15.42
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 03 Feb 2021 02:15:43 -0800 (PST)
+Date: Wed, 3 Feb 2021 11:15:41 +0100
+From: Daniel Vetter <daniel@ffwll.ch>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH v4 5/5] drm/qxl: properly free qxl releases
+Message-ID: <YBp3zQqomQziZbPT@phenom.ffwll.local>
+Mail-Followup-To: Gerd Hoffmann <kraxel@redhat.com>,
+ dri-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>,
+ David Airlie <airlied@linux.ie>,
+ "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
+ <virtualization@lists.linux-foundation.org>, 
+ "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>,
+ open list <linux-kernel@vger.kernel.org>
+References: <20210126165812.1661512-1-kraxel@redhat.com>
+ <20210126165812.1661512-6-kraxel@redhat.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-X-Mailer: git-send-email haha only kidding
-X-Proofpoint-IMR: 1
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9883
- signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0
- mlxlogscore=999 phishscore=0
- spamscore=0 suspectscore=0 malwarescore=0 adultscore=0 bulkscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2102030061
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9883
- signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0
- adultscore=0
- priorityscore=1501 impostorscore=0 malwarescore=0 clxscore=1011
- spamscore=0 lowpriorityscore=0 phishscore=0 mlxlogscore=999 mlxscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102030061
-Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, kernel-janitors@vger.kernel.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
+In-Reply-To: <20210126165812.1661512-6-kraxel@redhat.com>
+X-Operating-System: Linux phenom 5.7.0-1-amd64 
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>,
+ dri-devel@lists.freedesktop.org, "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
+ <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>,
+ "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>,
+ Dave Airlie <airlied@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,30 +120,100 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-If devm_request_mem_region() fails this code currently returns success
-but it should return -EBUSY.
+On Tue, Jan 26, 2021 at 05:58:12PM +0100, Gerd Hoffmann wrote:
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>  drivers/gpu/drm/qxl/qxl_drv.h     |  1 +
+>  drivers/gpu/drm/qxl/qxl_kms.c     | 22 ++++++++++++++++++++--
+>  drivers/gpu/drm/qxl/qxl_release.c |  2 ++
+>  3 files changed, 23 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+> index 01354b43c413..1c57b587b6a7 100644
+> --- a/drivers/gpu/drm/qxl/qxl_drv.h
+> +++ b/drivers/gpu/drm/qxl/qxl_drv.h
+> @@ -214,6 +214,7 @@ struct qxl_device {
+>  	spinlock_t	release_lock;
+>  	struct idr	release_idr;
+>  	uint32_t	release_seqno;
+> +	atomic_t	release_count;
+>  	spinlock_t release_idr_lock;
+>  	struct mutex	async_io_mutex;
+>  	unsigned int last_sent_io_cmd;
+> diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
+> index 4a60a52ab62e..f177f72bfc12 100644
+> --- a/drivers/gpu/drm/qxl/qxl_kms.c
+> +++ b/drivers/gpu/drm/qxl/qxl_kms.c
+> @@ -25,6 +25,7 @@
+>  
+>  #include <linux/io-mapping.h>
+>  #include <linux/pci.h>
+> +#include <linux/delay.h>
+>  
+>  #include <drm/drm_drv.h>
+>  #include <drm/drm_managed.h>
+> @@ -286,8 +287,25 @@ int qxl_device_init(struct qxl_device *qdev,
+>  
+>  void qxl_device_fini(struct qxl_device *qdev)
+>  {
+> -	qxl_bo_unref(&qdev->current_release_bo[0]);
+> -	qxl_bo_unref(&qdev->current_release_bo[1]);
+> +	int cur_idx, try;
+> +
+> +	for (cur_idx = 0; cur_idx < 3; cur_idx++) {
+> +		if (!qdev->current_release_bo[cur_idx])
+> +			continue;
+> +		qxl_bo_unpin(qdev->current_release_bo[cur_idx]);
+> +		qxl_bo_unref(&qdev->current_release_bo[cur_idx]);
+> +		qdev->current_release_bo_offset[cur_idx] = 0;
+> +		qdev->current_release_bo[cur_idx] = NULL;
+> +	}
+> +
+> +	/*
+> +	 * Ask host to release resources (+fill release ring),
+> +	 * then wait for the release actually happening.
+> +	 */
+> +	qxl_io_notify_oom(qdev);
+> +	for (try = 0; try < 20 && atomic_read(&qdev->release_count) > 0; try++)
+> +		msleep(20);
 
-Fixes: 6076a9711dc5 ("drm/virtio: implement blob resources: probe for host visible region")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
----
- drivers/gpu/drm/virtio/virtgpu_kms.c | 1 +
- 1 file changed, 1 insertion(+)
+A bit icky, why not use a wait queue or something like that instead of
+hand-rolling this? Not for perf reasons, just so it's a bit clear who
+waits for whom and why.
+-Daniel
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index b4ec479c32cd..b375394193be 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -163,6 +163,7 @@ int virtio_gpu_init(struct drm_device *dev)
- 					     vgdev->host_visible_region.len,
- 					     dev_name(&vgdev->vdev->dev))) {
- 			DRM_ERROR("Could not reserve host visible region\n");
-+			ret = -EBUSY;
- 			goto err_vqs;
- 		}
- 
+> +
+>  	qxl_gem_fini(qdev);
+>  	qxl_bo_fini(qdev);
+>  	flush_work(&qdev->gc_work);
+> diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
+> index 28013fd1f8ea..43a5436853b7 100644
+> --- a/drivers/gpu/drm/qxl/qxl_release.c
+> +++ b/drivers/gpu/drm/qxl/qxl_release.c
+> @@ -196,6 +196,7 @@ qxl_release_free(struct qxl_device *qdev,
+>  		qxl_release_free_list(release);
+>  		kfree(release);
+>  	}
+> +	atomic_dec(&qdev->release_count);
+>  }
+>  
+>  static int qxl_release_bo_alloc(struct qxl_device *qdev,
+> @@ -344,6 +345,7 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
+>  			*rbo = NULL;
+>  		return idr_ret;
+>  	}
+> +	atomic_inc(&qdev->release_count);
+>  
+>  	mutex_lock(&qdev->release_mutex);
+>  	if (qdev->current_release_bo_offset[cur_idx] + 1 >= releases_per_bo[cur_idx]) {
+> -- 
+> 2.29.2
+> 
+
 -- 
-2.30.0
-
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
