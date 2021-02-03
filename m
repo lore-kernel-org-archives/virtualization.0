@@ -5,61 +5,61 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17875C433E9
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52AB9C433E0
 	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 13:11:02 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9CA3064F92
-	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 13:11:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9CA3064F92
+	by mail.kernel.org (Postfix) with ESMTPS id 0C93664F9A
+	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 13:11:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0C93664F9A
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 0DF178711E;
+	by hemlock.osuosl.org (Postfix) with ESMTP id 9723F87121;
 	Wed,  3 Feb 2021 13:11:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kTcaTYMSQfAu; Wed,  3 Feb 2021 13:10:58 +0000 (UTC)
+	with ESMTP id ZzZd6k2CH4Wz; Wed,  3 Feb 2021 13:10:59 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id D3C168711F;
-	Wed,  3 Feb 2021 13:10:57 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 1F86287126;
+	Wed,  3 Feb 2021 13:10:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AEC45C1DA7;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F1321C1DA7;
 	Wed,  3 Feb 2021 13:10:57 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 38231C013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8A92AC013A
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Feb 2021 13:10:55 +0000 (UTC)
+ Wed,  3 Feb 2021 13:10:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 33978204C0
+ by silver.osuosl.org (Postfix) with ESMTP id 72EA62045E
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Feb 2021 13:10:55 +0000 (UTC)
+ Wed,  3 Feb 2021 13:10:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KvVpkaluqwgM
+ with ESMTP id o-dBPbPL+cyq
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Feb 2021 13:10:53 +0000 (UTC)
+ Wed,  3 Feb 2021 13:10:51 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTPS id 17BA02045E
+ by silver.osuosl.org (Postfix) with ESMTPS id 4FA882001A
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Feb 2021 13:10:53 +0000 (UTC)
+ Wed,  3 Feb 2021 13:10:51 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id A8B8CB131;
- Wed,  3 Feb 2021 13:10:51 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id CE307B12B;
+ Wed,  3 Feb 2021 13:10:49 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: daniel@ffwll.ch, airlied@linux.ie, maarten.lankhorst@linux.intel.com,
  mripard@kernel.org, kraxel@redhat.com, hdegoede@redhat.com,
  sean@poorly.run, sam@ravnborg.org, noralf@tronnes.org
-Subject: [PATCH 5/6] drm/gm12u320: Move vmap out of commit tail
-Date: Wed,  3 Feb 2021 14:10:45 +0100
-Message-Id: <20210203131046.22371-6-tzimmermann@suse.de>
+Subject: [PATCH 2/6] drm/shmem-helper: Add additional KMS helpers
+Date: Wed,  3 Feb 2021 14:10:42 +0100
+Message-Id: <20210203131046.22371-3-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210203131046.22371-1-tzimmermann@suse.de>
 References: <20210203131046.22371-1-tzimmermann@suse.de>
@@ -82,156 +82,289 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Vmap operations may acquire the dmabuf reservation lock, which is not
-allowed within atomic commit-tail functions. Therefore move vmap and
-vunmap from the damage handler into prepare_fb and cleanup_fb callbacks.
+Several drivers use GEM SHMEM buffer objects as shadow buffers for
+the actual framebuffer memory. Right now, drivers do these vmap
+operations in their commit tail, which is actually not allowed by the
+locking rules for the dma-buf reservation lock. The involved SHMEM
+BO has to be vmapped in the plane's prepare_fb callback and vunmapped
+in cleanup_fb.
 
-The mapping is provided as GEM SHMEM shadow plane. The enable and prepare
-callbacks use the established mapping for damage handling.
+This patch introduces a DRM library that implements KMS helpers for
+GEM SHMEM buffer objects. The first set of helpers is the plane state
+for shadow planes. The provided implementations for prepare_fb and
+cleanup_fb vmap and vunmap all BOs of struct drm_plane_state.fb. The
+mappings are afterwards available in the plane's commit-tail functions.
+
+All rsp drivers use the simple KMS helpers, so we add the plane callbacks
+and wrappers for simple KMS.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/tiny/Kconfig    |  3 ++-
- drivers/gpu/drm/tiny/gm12u320.c | 30 +++++++++++++++---------------
- 2 files changed, 17 insertions(+), 16 deletions(-)
+ drivers/gpu/drm/Kconfig                    |   7 +
+ drivers/gpu/drm/Makefile                   |   1 +
+ drivers/gpu/drm/drm_gem_shmem_kms_helper.c | 159 +++++++++++++++++++++
+ include/drm/drm_gem_shmem_kms_helper.h     |  56 ++++++++
+ 4 files changed, 223 insertions(+)
+ create mode 100644 drivers/gpu/drm/drm_gem_shmem_kms_helper.c
+ create mode 100644 include/drm/drm_gem_shmem_kms_helper.h
 
-diff --git a/drivers/gpu/drm/tiny/Kconfig b/drivers/gpu/drm/tiny/Kconfig
-index e0aef6cf8e26..faf3926fd4fa 100644
---- a/drivers/gpu/drm/tiny/Kconfig
-+++ b/drivers/gpu/drm/tiny/Kconfig
-@@ -23,8 +23,9 @@ config DRM_CIRRUS_QEMU
- config DRM_GM12U320
- 	tristate "GM12U320 driver for USB projectors"
- 	depends on DRM && USB
--	select DRM_KMS_HELPER
- 	select DRM_GEM_SHMEM_HELPER
-+	select DRM_GEM_SHMEM_KMS_HELPER
-+	select DRM_KMS_HELPER
+diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
+index 8bf103de1594..b8d8b00ab5d4 100644
+--- a/drivers/gpu/drm/Kconfig
++++ b/drivers/gpu/drm/Kconfig
+@@ -214,6 +214,13 @@ config DRM_GEM_SHMEM_HELPER
  	help
- 	 This is a KMS driver for projectors which use the GM12U320 chipset
- 	 for video transfer over USB2/3, such as the Acer C120 mini projector.
-diff --git a/drivers/gpu/drm/tiny/gm12u320.c b/drivers/gpu/drm/tiny/gm12u320.c
-index 33f65f4626e5..1d20949f429a 100644
---- a/drivers/gpu/drm/tiny/gm12u320.c
-+++ b/drivers/gpu/drm/tiny/gm12u320.c
-@@ -16,8 +16,9 @@
- #include <drm/drm_file.h>
- #include <drm/drm_format_helper.h>
- #include <drm/drm_fourcc.h>
--#include <drm/drm_gem_shmem_helper.h>
- #include <drm/drm_gem_framebuffer_helper.h>
+ 	  Choose this if you need the GEM shmem helper functions
+ 
++config DRM_GEM_SHMEM_KMS_HELPER
++	bool
++	depends on DRM_GEM_SHMEM_HELPER
++	help
++	help
++	  Choose this if you need the GEM SHMEM helper functions for KMS
++
+ config DRM_SCHED
+ 	tristate
+ 	depends on DRM
+diff --git a/drivers/gpu/drm/Makefile b/drivers/gpu/drm/Makefile
+index 926adef289db..37a73dee5baf 100644
+--- a/drivers/gpu/drm/Makefile
++++ b/drivers/gpu/drm/Makefile
+@@ -53,6 +53,7 @@ drm_kms_helper-$(CONFIG_DRM_FBDEV_EMULATION) += drm_fb_helper.o
+ drm_kms_helper-$(CONFIG_DRM_KMS_CMA_HELPER) += drm_fb_cma_helper.o
+ drm_kms_helper-$(CONFIG_DRM_DP_AUX_CHARDEV) += drm_dp_aux_dev.o
+ drm_kms_helper-$(CONFIG_DRM_DP_CEC) += drm_dp_cec.o
++drm_kms_helper-$(CONFIG_DRM_GEM_SHMEM_KMS_HELPER) += drm_gem_shmem_kms_helper.o
+ 
+ obj-$(CONFIG_DRM_KMS_HELPER) += drm_kms_helper.o
+ obj-$(CONFIG_DRM_DEBUG_SELFTEST) += selftests/
+diff --git a/drivers/gpu/drm/drm_gem_shmem_kms_helper.c b/drivers/gpu/drm/drm_gem_shmem_kms_helper.c
+new file mode 100644
+index 000000000000..8843c5837f98
+--- /dev/null
++++ b/drivers/gpu/drm/drm_gem_shmem_kms_helper.c
+@@ -0,0 +1,159 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include <drm/drm_atomic_state_helper.h>
++#include <drm/drm_gem_framebuffer_helper.h>
 +#include <drm/drm_gem_shmem_helper.h>
 +#include <drm/drm_gem_shmem_kms_helper.h>
- #include <drm/drm_ioctl.h>
- #include <drm/drm_managed.h>
- #include <drm/drm_modeset_helper_vtables.h>
-@@ -94,6 +95,7 @@ struct gm12u320_device {
- 		struct drm_rect          rect;
- 		int frame;
- 		int draw_status_timeout;
-+		struct dma_buf_map src_map;
- 	} fb_update;
- };
- 
-@@ -250,7 +252,6 @@ static void gm12u320_copy_fb_to_blocks(struct gm12u320_device *gm12u320)
- {
- 	int block, dst_offset, len, remain, ret, x1, x2, y1, y2;
- 	struct drm_framebuffer *fb;
--	struct dma_buf_map map;
- 	void *vaddr;
- 	u8 *src;
- 
-@@ -264,20 +265,14 @@ static void gm12u320_copy_fb_to_blocks(struct gm12u320_device *gm12u320)
- 	x2 = gm12u320->fb_update.rect.x2;
- 	y1 = gm12u320->fb_update.rect.y1;
- 	y2 = gm12u320->fb_update.rect.y2;
--
--	ret = drm_gem_shmem_vmap(fb->obj[0], &map);
--	if (ret) {
--		GM12U320_ERR("failed to vmap fb: %d\n", ret);
--		goto put_fb;
--	}
--	vaddr = map.vaddr; /* TODO: Use mapping abstraction properly */
-+	vaddr = gm12u320->fb_update.src_map.vaddr; /* TODO: Use mapping abstraction properly */
- 
- 	if (fb->obj[0]->import_attach) {
- 		ret = dma_buf_begin_cpu_access(
- 			fb->obj[0]->import_attach->dmabuf, DMA_FROM_DEVICE);
- 		if (ret) {
- 			GM12U320_ERR("dma_buf_begin_cpu_access err: %d\n", ret);
--			goto vunmap;
-+			goto put_fb;
- 		}
- 	}
- 
-@@ -321,8 +316,6 @@ static void gm12u320_copy_fb_to_blocks(struct gm12u320_device *gm12u320)
- 		if (ret)
- 			GM12U320_ERR("dma_buf_end_cpu_access err: %d\n", ret);
- 	}
--vunmap:
--	drm_gem_shmem_vunmap(fb->obj[0], &map);
- put_fb:
- 	drm_framebuffer_put(fb);
- 	gm12u320->fb_update.fb = NULL;
-@@ -410,7 +403,7 @@ static void gm12u320_fb_update_work(struct work_struct *work)
- 		GM12U320_ERR("Frame update error: %d\n", ret);
- }
- 
--static void gm12u320_fb_mark_dirty(struct drm_framebuffer *fb,
-+static void gm12u320_fb_mark_dirty(struct drm_framebuffer *fb, const struct dma_buf_map *map,
- 				   struct drm_rect *dirty)
- {
- 	struct gm12u320_device *gm12u320 = to_gm12u320(fb->dev);
-@@ -424,6 +417,7 @@ static void gm12u320_fb_mark_dirty(struct drm_framebuffer *fb,
- 		drm_framebuffer_get(fb);
- 		gm12u320->fb_update.fb = fb;
- 		gm12u320->fb_update.rect = *dirty;
-+		gm12u320->fb_update.src_map = *map;
- 		wakeup = true;
- 	} else {
- 		struct drm_rect *rect = &gm12u320->fb_update.rect;
-@@ -452,6 +446,7 @@ static void gm12u320_stop_fb_update(struct gm12u320_device *gm12u320)
- 	mutex_lock(&gm12u320->fb_update.lock);
- 	old_fb = gm12u320->fb_update.fb;
- 	gm12u320->fb_update.fb = NULL;
-+	dma_buf_map_clear(&gm12u320->fb_update.src_map);
- 	mutex_unlock(&gm12u320->fb_update.lock);
- 
- 	drm_framebuffer_put(old_fb);
-@@ -564,9 +559,11 @@ static void gm12u320_pipe_enable(struct drm_simple_display_pipe *pipe,
- {
- 	struct drm_rect rect = { 0, 0, GM12U320_USER_WIDTH, GM12U320_HEIGHT };
- 	struct gm12u320_device *gm12u320 = to_gm12u320(pipe->crtc.dev);
++#include <drm/drm_simple_kms_helper.h>
++
++/*
++ * Helpers for struct drm_plane_funcs
++ *
++ */
++
++static struct drm_plane_state *
++drm_gem_shmem_duplicate_shadow_plane_state(struct drm_plane *plane,
++					   struct drm_plane_state *plane_state)
++{
++	struct drm_gem_shmem_shadow_plane_state *new_shadow_plane_state;
++
++	if (!plane_state)
++		return NULL;
++
++	new_shadow_plane_state = kzalloc(sizeof(*new_shadow_plane_state), GFP_KERNEL);
++	if (!new_shadow_plane_state)
++		return NULL;
++	__drm_atomic_helper_plane_duplicate_state(plane, &new_shadow_plane_state->base);
++
++	return &new_shadow_plane_state->base;
++}
++
++static void drm_gem_shmem_destroy_shadow_plane_state(struct drm_plane *plane,
++						     struct drm_plane_state *plane_state)
++{
 +	struct drm_gem_shmem_shadow_plane_state *shadow_plane_state =
 +		to_drm_gem_shmem_shadow_plane_state(plane_state);
- 
- 	gm12u320->fb_update.draw_status_timeout = FIRST_FRAME_TIMEOUT;
--	gm12u320_fb_mark_dirty(plane_state->fb, &rect);
-+	gm12u320_fb_mark_dirty(plane_state->fb, &shadow_plane_state->map[0], &rect);
- }
- 
- static void gm12u320_pipe_disable(struct drm_simple_display_pipe *pipe)
-@@ -580,16 +577,19 @@ static void gm12u320_pipe_update(struct drm_simple_display_pipe *pipe,
- 				 struct drm_plane_state *old_state)
- {
- 	struct drm_plane_state *state = pipe->plane.state;
++
++	__drm_atomic_helper_plane_destroy_state(&shadow_plane_state->base);
++	kfree(shadow_plane_state);
++}
++
++static void drm_gem_shmem_reset_shadow_plane(struct drm_plane *plane)
++{
++	struct drm_gem_shmem_shadow_plane_state *shadow_plane_state;
++
++	if (plane->state) {
++		drm_gem_shmem_destroy_shadow_plane_state(plane, plane->state);
++		plane->state = NULL; /* must be set to NULL here */
++	}
++
++	shadow_plane_state = kzalloc(sizeof(*shadow_plane_state), GFP_KERNEL);
++	if (!shadow_plane_state)
++		return;
++	__drm_atomic_helper_plane_reset(plane, &shadow_plane_state->base);
++}
++
++/*
++ * Helpers for struct drm_plane_helper_funcs
++ */
++
++static int drm_gem_shmem_prepare_shadow_fb(struct drm_plane *plane,
++					   struct drm_plane_state *plane_state)
++{
 +	struct drm_gem_shmem_shadow_plane_state *shadow_plane_state =
-+		to_drm_gem_shmem_shadow_plane_state(state);
- 	struct drm_rect rect;
- 
- 	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
--		gm12u320_fb_mark_dirty(pipe->plane.state->fb, &rect);
-+		gm12u320_fb_mark_dirty(state->fb, &shadow_plane_state->map[0], &rect);
- }
- 
- static const struct drm_simple_display_pipe_funcs gm12u320_pipe_funcs = {
- 	.enable	    = gm12u320_pipe_enable,
- 	.disable    = gm12u320_pipe_disable,
- 	.update	    = gm12u320_pipe_update,
-+	DRM_GEM_SHMEM_SIMPLE_DISPLAY_PIPE_SHADOW_PLANE_FUNCS,
- };
- 
- static const uint32_t gm12u320_pipe_formats[] = {
++		to_drm_gem_shmem_shadow_plane_state(plane_state);
++	struct drm_framebuffer *fb = plane_state->fb;
++	struct drm_gem_object *obj;
++	struct dma_buf_map map;
++	int ret;
++	size_t i;
++
++	if (!fb)
++		return 0;
++
++	ret = drm_gem_fb_prepare_fb(plane, plane_state);
++	if (ret)
++		return ret;
++
++	for (i = 0; i < ARRAY_SIZE(shadow_plane_state->map); ++i) {
++		obj = drm_gem_fb_get_obj(fb, i);
++		if (!obj)
++			continue;
++		ret = drm_gem_shmem_vmap(obj, &map);
++		if (ret)
++			goto err_drm_gem_shmem_vunmap;
++		shadow_plane_state->map[i] = map;
++	}
++
++	return 0;
++
++err_drm_gem_shmem_vunmap:
++	while (i) {
++		--i;
++		obj = drm_gem_fb_get_obj(fb, i);
++		if (!obj)
++			continue;
++		drm_gem_shmem_vunmap(obj, &shadow_plane_state->map[i]);
++	}
++	return ret;
++}
++
++static void drm_gem_shmem_cleanup_shadow_fb(struct drm_plane *plane,
++					    struct drm_plane_state *plane_state)
++{
++	struct drm_gem_shmem_shadow_plane_state *shadow_plane_state =
++		to_drm_gem_shmem_shadow_plane_state(plane_state);
++	struct drm_framebuffer *fb = plane_state->fb;
++	size_t i = ARRAY_SIZE(shadow_plane_state->map);
++	struct drm_gem_object *obj;
++
++	if (!fb)
++		return;
++
++	while (i) {
++		--i;
++		obj = drm_gem_fb_get_obj(fb, i);
++		if (!obj)
++			continue;
++		drm_gem_shmem_vunmap(obj, &shadow_plane_state->map[i]);
++	}
++}
++
++/*
++ * Simple KMS helpers
++ */
++
++int drm_gem_shmem_simple_kms_prepare_shadow_fb(struct drm_simple_display_pipe *pipe,
++					       struct drm_plane_state *plane_state)
++{
++	return drm_gem_shmem_prepare_shadow_fb(&pipe->plane, plane_state);
++}
++EXPORT_SYMBOL(drm_gem_shmem_simple_kms_prepare_shadow_fb);
++
++void drm_gem_shmem_simple_kms_cleanup_shadow_fb(struct drm_simple_display_pipe *pipe,
++						struct drm_plane_state *plane_state)
++{
++	drm_gem_shmem_cleanup_shadow_fb(&pipe->plane, plane_state);
++}
++EXPORT_SYMBOL(drm_gem_shmem_simple_kms_cleanup_shadow_fb);
++
++void drm_gem_shmem_simple_kms_reset_shadow_plane(struct drm_simple_display_pipe *pipe)
++{
++	drm_gem_shmem_reset_shadow_plane(&pipe->plane);
++}
++EXPORT_SYMBOL(drm_gem_shmem_simple_kms_reset_shadow_plane);
++
++struct drm_plane_state *
++drm_gem_shmem_simple_kms_duplicate_shadow_plane_state(struct drm_simple_display_pipe *pipe,
++						      struct drm_plane_state *plane_state)
++{
++	return drm_gem_shmem_duplicate_shadow_plane_state(&pipe->plane, plane_state);
++}
++EXPORT_SYMBOL(drm_gem_shmem_simple_kms_duplicate_shadow_plane_state);
++
++void drm_gem_shmem_simple_kms_destroy_shadow_plane_state(struct drm_simple_display_pipe *pipe,
++							 struct drm_plane_state *plane_state)
++{
++	drm_gem_shmem_destroy_shadow_plane_state(&pipe->plane, plane_state);
++}
++EXPORT_SYMBOL(drm_gem_shmem_simple_kms_destroy_shadow_plane_state);
+diff --git a/include/drm/drm_gem_shmem_kms_helper.h b/include/drm/drm_gem_shmem_kms_helper.h
+new file mode 100644
+index 000000000000..bd42c9c0a39e
+--- /dev/null
++++ b/include/drm/drm_gem_shmem_kms_helper.h
+@@ -0,0 +1,56 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++
++#ifndef __DRM_GEM_SHMEM_KMS_HELPER_H__
++#define __DRM_GEM_SHMEM_KMS_HELPER_H__
++
++#include <linux/dma-buf-map.h>
++
++#include <drm/drm_plane.h>
++
++struct drm_simple_display_pipe;
++
++struct drm_gem_shmem_shadow_plane_state {
++	struct drm_plane_state base;
++
++	/* Transitional state - do not export or duplicate */
++
++	struct dma_buf_map map[4];
++};
++
++static inline struct drm_gem_shmem_shadow_plane_state *
++to_drm_gem_shmem_shadow_plane_state(struct drm_plane_state *state)
++{
++	return container_of(state, struct drm_gem_shmem_shadow_plane_state, base);
++}
++
++/*
++ * Simple KMS helpers
++ */
++
++int drm_gem_shmem_simple_kms_prepare_shadow_fb(struct drm_simple_display_pipe *pipe,
++					       struct drm_plane_state *plane_state);
++void drm_gem_shmem_simple_kms_cleanup_shadow_fb(struct drm_simple_display_pipe *pipe,
++						struct drm_plane_state *plane_state);
++void drm_gem_shmem_simple_kms_reset_shadow_plane(struct drm_simple_display_pipe *pipe);
++struct drm_plane_state *
++drm_gem_shmem_simple_kms_duplicate_shadow_plane_state(struct drm_simple_display_pipe *pipe,
++						      struct drm_plane_state *plane_state);
++void
++drm_gem_shmem_simple_kms_destroy_shadow_plane_state(struct drm_simple_display_pipe *pipe,
++						    struct drm_plane_state *plane_state);
++
++/**
++ * DRM_GEM_SHMEM_SIMPLE_DISPLAY_PIPE_SHADOW_PLANE_FUNCS -
++ *	Initializes struct drm_simple_display_pipe_funcs for SHMEM shadow planes
++ *
++ * Drivers may use GEM SHMEM BOs as shadow buffers over the framebuffer memory. This
++ * macro initializes struct drm_simple_display_pipe_funcs to use the rsp helper functions.
++ */
++#define DRM_GEM_SHMEM_SIMPLE_DISPLAY_PIPE_SHADOW_PLANE_FUNCS \
++	.prepare_fb = drm_gem_shmem_simple_kms_prepare_shadow_fb, \
++	.cleanup_fb = drm_gem_shmem_simple_kms_cleanup_shadow_fb, \
++	.reset_plane = drm_gem_shmem_simple_kms_reset_shadow_plane, \
++	.duplicate_plane_state = drm_gem_shmem_simple_kms_duplicate_shadow_plane_state, \
++	.destroy_plane_state   = drm_gem_shmem_simple_kms_destroy_shadow_plane_state
++
++#endif /* __DRM_GEM_SHMEM_KMS_HELPER_H__ */
 -- 
 2.30.0
 
