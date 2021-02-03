@@ -2,181 +2,118 @@ Return-Path: <SRS0=+GVp=HF=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9B13C433DB
-	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 19:37:20 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7940C433E0
+	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 23:10:10 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2316864DDC
-	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 19:37:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2316864DDC
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
+	by mail.kernel.org (Postfix) with ESMTPS id 1D97364E46
+	for <virtualization@archiver.kernel.org>; Wed,  3 Feb 2021 23:10:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1D97364E46
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id B48D186A78;
-	Wed,  3 Feb 2021 19:37:19 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id B8DB7861E3;
+	Wed,  3 Feb 2021 23:10:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dn5vZzxtQldf; Wed,  3 Feb 2021 19:37:16 +0000 (UTC)
+	with ESMTP id 1LQvSImii58o; Wed,  3 Feb 2021 23:10:08 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id B63AB86AF0;
-	Wed,  3 Feb 2021 19:37:16 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 9B8A3861DD;
+	Wed,  3 Feb 2021 23:10:08 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 95916C1DA7;
-	Wed,  3 Feb 2021 19:37:16 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 49BAEC1DA7;
- Wed,  3 Feb 2021 19:37:14 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 86F79C0FA7;
+	Wed,  3 Feb 2021 23:10:08 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E237FC013A
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  3 Feb 2021 23:10:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 433B68719E;
- Wed,  3 Feb 2021 19:37:14 +0000 (UTC)
+ by silver.osuosl.org (Postfix) with ESMTP id BEDA220484
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  3 Feb 2021 23:10:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6hhK1elMZMad; Wed,  3 Feb 2021 19:37:10 +0000 (UTC)
+ with ESMTP id eNnViiLa+a2C
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  3 Feb 2021 23:10:04 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from aserp2130.oracle.com (aserp2130.oracle.com [141.146.126.79])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 49FBA871C6;
- Wed,  3 Feb 2021 19:37:06 +0000 (UTC)
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
- by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 113JXj9m081606;
- Wed, 3 Feb 2021 19:36:46 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=date : from : to : cc
- : subject : message-id : references : content-type : in-reply-to :
- mime-version; s=corp-2020-01-29;
- bh=TwDL1n6THzt6CQY6jlDDIVUNhEwL2Ly+10+fkkTHLbI=;
- b=uDYVm4eX46ZjOIvBeNJL2Br1hGsZW5dq642uVJvSzPuwhO+pWtp/UuagcLp8Yv9MCuQQ
- Rdo8beWJVWXWilE9oPhmRbtgRfNi5UQ/ddPrgWzKO4E2kQL9Zdo+7K1Hufiv9Sfrej/F
- 8p2Xfinv+u9v0XwYwkjlwUgszWEdORtrxmCaW0TN604ohyt9e2oYNQCfoGrT3wJCocCr
- Ci39yD3Uc4AMXWVJF6e7rYmy8Lz9JMa1iflzaXG8cFKr+ki9ZNWUq+4sHd9699dSjzYW
- 56NYG+4trMLYnEtWjrHUXQ4bpndL3Y7ItUN7tqDERi1MFbwMiS3epHRiGdXz8kSl9hE9 0g== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
- by aserp2130.oracle.com with ESMTP id 36cvyb20ka-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 03 Feb 2021 19:36:46 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
- by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 113JUHUI078891;
- Wed, 3 Feb 2021 19:36:45 GMT
-Received: from nam02-bl2-obe.outbound.protection.outlook.com
- (mail-bl2nam02lp2056.outbound.protection.outlook.com [104.47.38.56])
- by userp3020.oracle.com with ESMTP id 36dh7u19ee-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 03 Feb 2021 19:36:45 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=IPWBAwRPoIW5a6fJWL/EL+DZFilrB6sV8D7PpEYWJO0Ds4ZNCUIPw3XI1lBOol/1VFWZgvDb6/+0+OqCXs1DuooOIhSsK1r2JypLWEE7p7Gwyxyg44oYNUuaVVx3PvDyMjyVv17vyFBY/zbMJtG9CUN7EEUwWWhvqrh77r1SHnR85kBSPUGFMaKEYpJSPAa1WIg5s1x+dFUSvco8nqAh60f/IEqYv56efxNWhHxQMeF58wuz6wvGbyUNdKxV7BkpUlZa2rnDDx5EtS+4YSKxOpU/4TZ8Do89H4dYSmtZ/25DK9ysC06NcgPcdi+Tfm57Wk4fClSYyZPumSBcRWAACQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=TwDL1n6THzt6CQY6jlDDIVUNhEwL2Ly+10+fkkTHLbI=;
- b=BEChOvnigolOMQj9wGS/dX7SjWb4hUST5vaOqcIH/EGwi+UqgHPCde84uXZUPgXMNi57nIQcqmBMJZgz6KX9E3vFaB9BrK49wdcMtId+05m6kua+wTA2D7jV4f/8QiIM0CZVWvTN6fRmhPvmVxIXoWoDx1KvGykJW3Q+wmcBOxUxLt0WkUgOT1S8SEv0GkQkayUma02eoqmwMxYItAGa2AzGwxSbOYGs/Q2gik5szwpsfvz58IOod/euDfSsHFfYcpnebff3ykQCAvIyNZggCt5X9A2xfJIeVQc9W5EeyxWGJGPg8f5ZtTn6EIBjgfz/r/ZkBF+qAIPEd51r7Q7lkA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=TwDL1n6THzt6CQY6jlDDIVUNhEwL2Ly+10+fkkTHLbI=;
- b=d/Wl+SGq4ARzt7twsZh9QWFjHYkaaFUnZLtHlYv77Ewv3QJYygpXcqXVAZw/a7aHbR7B3mq2WsbG+l7A20Ow4KXI5feGskFjegMmI8wFORiCBZG2HINAOSrxdHerpph6YZK4qA+8UsSEpDzYkUgedKZ6yPHPdRuKRUW5hnPP0WQ=
-Authentication-Results: lst.de; dkim=none (message not signed)
- header.d=none;lst.de; dmarc=none action=none header.from=oracle.com;
-Received: from BYAPR10MB2999.namprd10.prod.outlook.com (2603:10b6:a03:85::27)
- by BY5PR10MB4178.namprd10.prod.outlook.com (2603:10b6:a03:210::14)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3805.17; Wed, 3 Feb
- 2021 19:36:43 +0000
-Received: from BYAPR10MB2999.namprd10.prod.outlook.com
- ([fe80::e180:1ba2:d87:456]) by BYAPR10MB2999.namprd10.prod.outlook.com
- ([fe80::e180:1ba2:d87:456%4]) with mapi id 15.20.3825.019; Wed, 3 Feb 2021
- 19:36:43 +0000
-Date: Wed, 3 Feb 2021 14:36:38 -0500
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-To: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH] swiotlb: Validate bounce size in the sync/unmap path
-Message-ID: <20210203193638.GA325136@fedora>
-References: <X/27MSbfDGCY9WZu@martin> <20210113113017.GA28106@lst.de>
- <YAV0uhfkimXn1izW@martin> <20210203124922.GB16923@lst.de>
-Content-Disposition: inline
-In-Reply-To: <20210203124922.GB16923@lst.de>
-X-Originating-IP: [209.6.208.110]
-X-ClientProxiedBy: BL0PR0102CA0031.prod.exchangelabs.com
- (2603:10b6:207:18::44) To BYAPR10MB2999.namprd10.prod.outlook.com
- (2603:10b6:a03:85::27)
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by silver.osuosl.org (Postfix) with ESMTPS id 9A5AD2034A
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  3 Feb 2021 23:10:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1612393803;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=LtzGg6dZpqPJQB7lGKdN2ttxSh+zZAXIh6EOub7tjwE=;
+ b=VRj8c6KbOyBuGTIFsYU3XTLx3Vd5PjBDiWm1BJ2riGdY011Ek9ONRqwrFR/gMPGnL6R+9h
+ Evu0MRI6CZ8TPFHNaS3bSgSBf/WnmPdWb2994NFswQOj5uoQn7dGx1PDRX039QHy11GjJR
+ x5OLn/t0N0JhZaI1dxJRxYrt7t0UuLw=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-577-DOjAcu6cN22-abpq-QKUNQ-1; Wed, 03 Feb 2021 18:10:00 -0500
+X-MC-Unique: DOjAcu6cN22-abpq-QKUNQ-1
+Received: by mail-ed1-f71.google.com with SMTP id g6so1001838edy.9
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 03 Feb 2021 15:10:00 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=LtzGg6dZpqPJQB7lGKdN2ttxSh+zZAXIh6EOub7tjwE=;
+ b=r3b9fAQext7Vt19lIdmS15EHvvr7IidFjVr/1sVc9sbl1MOHolpOHNBOwwqSN3DeOh
+ oZf1XQEYpHBfc7SjSxR8XKZHvygQimcSYar7AAIR0BPEZb2dfJRW2TqCiKH+QdrOs4HF
+ tXKkidnsAemRp42NG49kMAXaaH60YmH5ovucPVvk5BKJUGb1wpUgw6iCj/fqJZMfw1mW
+ 57t+WHBSpNx0y+/S4v1x+mXVHylBbzYvpWDW1qLaw1dLU4Iv6tdOiFbsIuw5qd11avsk
+ S9jKw/PAFLQl6k8bISujzpb7i9iiiefqKmudYVxynRbIg64UDCGWYqQtISGHhAGuOSK5
+ 81NA==
+X-Gm-Message-State: AOAM533n1sd0F3VYfKOJQLc2J9q/qZ8fYu1F3Iw9E0ujH3QigO/7VObg
+ YK9qJ4aie7ak2gGE/YTFd5aFj8u0l6w7SV+E2J/1RpYUIwxF6qu/hplFVDxTg+UfnKq0omVytU6
+ IDJ67nQTgYaqbTTE8uqRvFBvSg8ULOJFMc02NlHYvvA==
+X-Received: by 2002:a05:6402:702:: with SMTP id
+ w2mr5619999edx.78.1612393799497; 
+ Wed, 03 Feb 2021 15:09:59 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx7uuyn7GsgjD7SgLw/k1gUkxWYIzXI9BcVKuOiANjROSuZVhWfyl1m56Xp7IHob7FtY1oJzg==
+X-Received: by 2002:a05:6402:702:: with SMTP id
+ w2mr5619986edx.78.1612393799288; 
+ Wed, 03 Feb 2021 15:09:59 -0800 (PST)
+Received: from redhat.com (bzq-79-180-2-31.red.bezeqint.net. [79.180.2.31])
+ by smtp.gmail.com with ESMTPSA id r11sm1558107edt.58.2021.02.03.15.09.57
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 03 Feb 2021 15:09:58 -0800 (PST)
+Date: Wed, 3 Feb 2021 18:09:55 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: Re: [PATCH net] virtio-net: suppress bad irq warning for tx napi
+Message-ID: <20210203175837-mutt-send-email-mst@kernel.org>
+References: <20210129002136.70865-1-weiwan@google.com>
+ <20210202180807-mutt-send-email-mst@kernel.org>
+ <CAEA6p_Arqm2cgjc7rKibautqeVyxPkkMV7y20DU1sDaoCnLvzQ@mail.gmail.com>
+ <CA+FuTSe-6MSpB4hwwvwPgDqHkxYJoxMZMDbOusNqiq0Gwa1eiQ@mail.gmail.com>
+ <CA+FuTSdkJcj_ikNnJmGadBZ1fa7q26MZ1g3ERf8Ax+YbXvgcng@mail.gmail.com>
+ <20210203052924-mutt-send-email-mst@kernel.org>
+ <CAF=yD-J8rsr9JWdMGBSc-muFGMG2=YCWYwWOiQBQZuryioBUoA@mail.gmail.com>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from fedora (209.6.208.110) by BL0PR0102CA0031.prod.exchangelabs.com
- (2603:10b6:207:18::44) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3825.20 via Frontend
- Transport; Wed, 3 Feb 2021 19:36:41 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 9802d648-09dc-4859-e017-08d8c87b08d7
-X-MS-TrafficTypeDiagnostic: BY5PR10MB4178:
-X-Microsoft-Antispam-PRVS: <BY5PR10MB41785885EA430214E62DA08289B49@BY5PR10MB4178.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:644;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: BJ1CpNlkHFV/BJx5ZjTeNcMBfPj69nCfIOwf7gnCTVnWS9PXbIKP7O/j8f4ekI9c2eWqxJS8saxSIAHyJmEs+9NS6PoUVR+YSAbN1OHcky4Y8NM9eNQAmvfcl0GpqEyhzEAQpq1NdLa1iNcJqfDeG9f5s32Yfhozc60CZFBKYRkjWeOGQLW8t+6X7s9fKwPWfjekgWXQEyNs1YcL8Xyqgz8aG4Qhf5rIZe9GWKRGhf9nCz21wiHCDBRVvsdjWP9yfrIGsttidN96KsXQRblNNXaL4MSAMdoGd2c1tl1wFL5pZMUKR+A1mZMzaKsUk4Gb29tZ2LqMIYJhSmDoE2XDzrbhFtac2bY2mTik2XuaZYZTY145JmrORdIFZfYyM/qxYijpExdzF0WsbKYawj954lX6AZ0d6NF27WVQlAIE5i5FAKGM4Cjzu98ZMLozrAE/psIdO8bifCQzIsnfZeWYAhPsjMtw3mH95iFyhQriskE2BxkB3g0geBZwoc3660LML0wSkIEuEL7/hkw5S7qWJQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BYAPR10MB2999.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(376002)(39860400002)(346002)(396003)(136003)(366004)(1076003)(6666004)(66946007)(66476007)(66556008)(5660300002)(956004)(186003)(26005)(4326008)(52116002)(6496006)(2906002)(7416002)(86362001)(9686003)(55016002)(8936002)(33656002)(9576002)(478600001)(316002)(6916009)(8676002)(83380400001)(33716001)(16526019);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?RoeWCw1F1uWE7oDQACHht4M5HLCzv/aL2+TkUI+j8iDj9AmxfCJ7TCMPn2Ui?=
- =?us-ascii?Q?eOKb6pwip50RZ9aproEAVaKfq7g/UKYYQJuD6qssBY1cFel7PE/9x7G/WX01?=
- =?us-ascii?Q?tmsA0Qmnr+KkYxCV/WFYlv/K8dYVvGONVUKxsklfM/6HXUl4cDHEuPEp3UQp?=
- =?us-ascii?Q?R1JzKJveYbKb7udpqIqPmhSSZOf/AYvu7P51QsMYq5px58i+i2L2Px9Bu3T/?=
- =?us-ascii?Q?0CD5IgONzFru35ZeHph5eFEJ3GaUW1lsiTr3RcQdjI7oDa2qb50ONLWGgQXn?=
- =?us-ascii?Q?eT/c8hHYkow/OTPC393xMAyxx9XNhhrSppVkGCgp8f5V5SehnHNMTfp/FpiB?=
- =?us-ascii?Q?62y7+UbGM/0YioTJjM+jr+XgFNbJCRyAK96OUF3cqx7ZL0sFeHRElWvf2i/o?=
- =?us-ascii?Q?GPOd95IsByoDpQwOzarA9fUiJzCe4YEbWd/f7Gk2oh2I4CKcduLR3UNXOuAI?=
- =?us-ascii?Q?bML9ZII4xRb5gT2/zZ06UvMIF0NsGuHBu68W4bmUF+xcWPPtoXeRIY9LzQPz?=
- =?us-ascii?Q?9gLInc95aFI+qcRCuWJxbV502O6lgVsKgmLZY7UHTZS04PLh2+PxLdxs/ATV?=
- =?us-ascii?Q?1hggyh6BSFB7CDFDjlg/bJ9TPu7glyhQxMYsjP73wWqF29vZZgeoKYC8VBya?=
- =?us-ascii?Q?nDBE/2jWZkx+nURRr0N9OqOR+kejRdSUee8QetRZ2I+eANp7x7JslYrZ2Oce?=
- =?us-ascii?Q?Yfm99PupU5JYt0sn9elQ5HnNaHSqBT9fVQmtb9GOb2RcK9kpn3j3xV9WP6tn?=
- =?us-ascii?Q?EerV2v2U409dUmWvxmlhl+FYXVSFOYe+akZ9KdxKiI8P8aFBNCbuJ+J/DlPa?=
- =?us-ascii?Q?G+DiDJBmYENrN/LtdzjwERxJNPcgTb7/6hb24LxP9wexZCtEOWURsDJPTk1O?=
- =?us-ascii?Q?jI0TqzFXTUoTmyA0aBamJQjab5Njiled+doOVYn/iupbgoDEPB8PzMQDXmwZ?=
- =?us-ascii?Q?wNyszMit3vb3BXaK2ZOLizppXZLA8cjsKNUkqxbn+vCGPezl5f24wW5PWr31?=
- =?us-ascii?Q?la4uhh9p7zFHigDntSsnwhWMVVwP55902FZZXJ62Ob8unDkFJT2qEzzVWk1t?=
- =?us-ascii?Q?V/eGEYyI?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9802d648-09dc-4859-e017-08d8c87b08d7
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB2999.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Feb 2021 19:36:43.0071 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 5oiV7jULjT/RrDqtJmrYyuTiWWd6uQ8Kp7vRFG3fNzjPIA8AbRGwoXqTtvqn3eCQ7AogY/V+h7x4hYG7zhZpBA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR10MB4178
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9884
- signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
- mlxscore=0
- suspectscore=0 spamscore=0 mlxlogscore=982 phishscore=0 adultscore=0
- bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102030114
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9884
- signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 clxscore=1015
- impostorscore=0
- mlxscore=0 spamscore=0 bulkscore=0 priorityscore=1501 adultscore=0
- lowpriorityscore=0 malwarescore=0 phishscore=0 mlxlogscore=999
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2102030114
-Cc: Martin Radev <martin.b.radev@gmail.com>, thomas.lendacky@amd.com,
- file@sect.tu-berlin.de, robert.buhren@sect.tu-berlin.de, kvm@vger.kernel.org,
- mathias.morbitzer@aisec.fraunhofer.de, joro@8bytes.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- iommu@lists.linux-foundation.org, robin.murphy@arm.com,
- kirill.shutemov@linux.intel.com, m.szyprowski@samsung.com
+In-Reply-To: <CAF=yD-J8rsr9JWdMGBSc-muFGMG2=YCWYwWOiQBQZuryioBUoA@mail.gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Willem de Bruijn <willemb@google.com>,
+ Linux Kernel Network Developers <netdev@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org, Jakub Kicinski <kuba@kernel.org>,
+ Wei Wang <weiwan@google.com>, David Miller <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -193,31 +130,130 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Feb 03, 2021 at 01:49:22PM +0100, Christoph Hellwig wrote:
-> On Mon, Jan 18, 2021 at 12:44:58PM +0100, Martin Radev wrote:
-> > Your comment makes sense but then that would require the cooperation
-> > of these vendors and the cloud providers to agree on something meaningful.
-> > I am also not sure whether the end result would be better than hardening
-> > this interface to catch corruption. There is already some validation in
-> > unmap path anyway.
+On Wed, Feb 03, 2021 at 01:24:08PM -0500, Willem de Bruijn wrote:
+> On Wed, Feb 3, 2021 at 5:42 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Tue, Feb 02, 2021 at 07:06:53PM -0500, Willem de Bruijn wrote:
+> > > On Tue, Feb 2, 2021 at 6:53 PM Willem de Bruijn <willemb@google.com> wrote:
+> > > >
+> > > > On Tue, Feb 2, 2021 at 6:47 PM Wei Wang <weiwan@google.com> wrote:
+> > > > >
+> > > > > On Tue, Feb 2, 2021 at 3:12 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > >
+> > > > > > On Thu, Jan 28, 2021 at 04:21:36PM -0800, Wei Wang wrote:
+> > > > > > > With the implementation of napi-tx in virtio driver, we clean tx
+> > > > > > > descriptors from rx napi handler, for the purpose of reducing tx
+> > > > > > > complete interrupts. But this could introduce a race where tx complete
+> > > > > > > interrupt has been raised, but the handler found there is no work to do
+> > > > > > > because we have done the work in the previous rx interrupt handler.
+> > > > > > > This could lead to the following warning msg:
+> > > > > > > [ 3588.010778] irq 38: nobody cared (try booting with the
+> > > > > > > "irqpoll" option)
+> > > > > > > [ 3588.017938] CPU: 4 PID: 0 Comm: swapper/4 Not tainted
+> > > > > > > 5.3.0-19-generic #20~18.04.2-Ubuntu
+> > > > > > > [ 3588.017940] Call Trace:
+> > > > > > > [ 3588.017942]  <IRQ>
+> > > > > > > [ 3588.017951]  dump_stack+0x63/0x85
+> > > > > > > [ 3588.017953]  __report_bad_irq+0x35/0xc0
+> > > > > > > [ 3588.017955]  note_interrupt+0x24b/0x2a0
+> > > > > > > [ 3588.017956]  handle_irq_event_percpu+0x54/0x80
+> > > > > > > [ 3588.017957]  handle_irq_event+0x3b/0x60
+> > > > > > > [ 3588.017958]  handle_edge_irq+0x83/0x1a0
+> > > > > > > [ 3588.017961]  handle_irq+0x20/0x30
+> > > > > > > [ 3588.017964]  do_IRQ+0x50/0xe0
+> > > > > > > [ 3588.017966]  common_interrupt+0xf/0xf
+> > > > > > > [ 3588.017966]  </IRQ>
+> > > > > > > [ 3588.017989] handlers:
+> > > > > > > [ 3588.020374] [<000000001b9f1da8>] vring_interrupt
+> > > > > > > [ 3588.025099] Disabling IRQ #38
+> > > > > > >
+> > > > > > > This patch adds a new param to struct vring_virtqueue, and we set it for
+> > > > > > > tx virtqueues if napi-tx is enabled, to suppress the warning in such
+> > > > > > > case.
+> > > > > > >
+> > > > > > > Fixes: 7b0411ef4aa6 ("virtio-net: clean tx descriptors from rx napi")
+> > > > > > > Reported-by: Rick Jones <jonesrick@google.com>
+> > > > > > > Signed-off-by: Wei Wang <weiwan@google.com>
+> > > > > > > Signed-off-by: Willem de Bruijn <willemb@google.com>
+> > > > > >
+> > > > > >
+> > > > > > This description does not make sense to me.
+> > > > > >
+> > > > > > irq X: nobody cared
+> > > > > > only triggers after an interrupt is unhandled repeatedly.
+> > > > > >
+> > > > > > So something causes a storm of useless tx interrupts here.
+> > > > > >
+> > > > > > Let's find out what it was please. What you are doing is
+> > > > > > just preventing linux from complaining.
+> > > > >
+> > > > > The traffic that causes this warning is a netperf tcp_stream with at
+> > > > > least 128 flows between 2 hosts. And the warning gets triggered on the
+> > > > > receiving host, which has a lot of rx interrupts firing on all queues,
+> > > > > and a few tx interrupts.
+> > > > > And I think the scenario is: when the tx interrupt gets fired, it gets
+> > > > > coalesced with the rx interrupt. Basically, the rx and tx interrupts
+> > > > > get triggered very close to each other, and gets handled in one round
+> > > > > of do_IRQ(). And the rx irq handler gets called first, which calls
+> > > > > virtnet_poll(). However, virtnet_poll() calls virtnet_poll_cleantx()
+> > > > > to try to do the work on the corresponding tx queue as well. That's
+> > > > > why when tx interrupt handler gets called, it sees no work to do.
+> > > > > And the reason for the rx handler to handle the tx work is here:
+> > > > > https://lists.linuxfoundation.org/pipermail/virtualization/2017-April/034740.html
+> > > >
+> > > > Indeed. It's not a storm necessarily. The warning occurs after one
+> > > > hundred such events, since boot, which is a small number compared real
+> > > > interrupt load.
+> > >
+> > > Sorry, this is wrong. It is the other call to __report_bad_irq from
+> > > note_interrupt that applies here.
+> > >
+> > > > Occasionally seeing an interrupt with no work is expected after
+> > > > 7b0411ef4aa6 ("virtio-net: clean tx descriptors from rx napi"). As
+> > > > long as this rate of events is very low compared to useful interrupts,
+> > > > and total interrupt count is greatly reduced vs not having work
+> > > > stealing, it is a net win.
+> >
+> > Right, but if 99900 out of 100000 interrupts were wasted, then it is
+> > surely an even greater win to disable interrupts while polling like
+> > this.  Might be tricky to detect, disabling/enabling aggressively every
+> > time even if there's nothing in the queue is sure to cause lots of cache
+> > line bounces, and we don't want to enable callbacks if they were not
+> > enabled e.g. by start_xmit ...  Some kind of counter?
 > 
-> So what?  If you guys want to provide a new capability you'll have to do
-> work.  And designing a new protocol based around the fact that the
-> hardware/hypervisor is not trusted and a copy is always required makes
-> a lot of more sense than throwing in band aids all over the place.
+> Yes. It was known that the work stealing is more effective in some
+> workloads than others. But a 99% spurious rate I had not anticipated.
+> 
+> Most interesting is the number of interrupts suppressed as a result of
+> the feature. That is not captured by this statistic.
+> 
+> In any case, we'll take a step back to better understand behavior. And
+> especially why this high spurious rate exhibits in this workload with
+> many concurrent flows.
 
-If you don't trust the hypervisor, what would this capability be in?
 
-I suppose you mean this would need to be in the the guest kernel and
-this protocol would depend on .. not-hypervisor and most certainly not
-the virtio or any SR-IOV device. That removes a lot of options.
+I've been thinking about it. Imagine work stealing working perfectly.
+Each time we xmit a packet, it is stolen and freed.
+Since xmit enables callbacks (just in case!) we also
+get an interrupt, which is automatically spurious.
 
-The one sensibile one (since folks will trust OEM vendors like Intel
-or AMD to provide the memory encryption so they will also trust the
-IOMMU - I hope?) - and they do have plans for that with their IOMMU
-frameworks which will remove the need for SWIOTLB (I hope).
+My conclusion is that we shouldn't just work around it but instead
+(or additionally?)
+reduce the number of interrupts by disabling callbacks e.g. when
+a. we are currently stealing packets
+or
+b. we stole all packets
 
-But that is not now, but in future.
+This should be enough to reduce the chances below 99% ;)
+
+One annoying thing is that with split and event index, we do not disable
+interrupts. Could be worth revisiting, for now maybe just disable the
+event index feature? I am not sure it is actually worth it with
+stealing.
+
+-- 
+MST
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
