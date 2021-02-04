@@ -2,162 +2,165 @@ Return-Path: <SRS0=AmYR=HG=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 154F6C433E0
-	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 16:41:56 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84130C433E0
+	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 16:46:22 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8202164F43
-	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 16:41:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8202164F43
+	by mail.kernel.org (Postfix) with ESMTPS id E926C64F43
+	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 16:46:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E926C64F43
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 7475886470;
-	Thu,  4 Feb 2021 16:41:54 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 942B7274ED;
+	Thu,  4 Feb 2021 16:46:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zZDvEs_xTL0B; Thu,  4 Feb 2021 16:41:52 +0000 (UTC)
+	with ESMTP id BaSgJobePMVp; Thu,  4 Feb 2021 16:46:20 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 9B43F864AB;
-	Thu,  4 Feb 2021 16:41:52 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 7B39B2039B;
+	Thu,  4 Feb 2021 16:46:20 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 79935C1834;
-	Thu,  4 Feb 2021 16:41:52 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EAA81C013A;
- Thu,  4 Feb 2021 16:41:50 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5DA16C0174;
+	Thu,  4 Feb 2021 16:46:20 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B7FD2C013A
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  4 Feb 2021 16:46:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id D74188643D;
- Thu,  4 Feb 2021 16:41:50 +0000 (UTC)
+ by hemlock.osuosl.org (Postfix) with ESMTP id A36B187214
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  4 Feb 2021 16:46:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id S8bLnMbs5Tgu; Thu,  4 Feb 2021 16:41:49 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+ with ESMTP id no8kVHZAc8Nb
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  4 Feb 2021 16:46:17 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from NAM10-DM6-obe.outbound.protection.outlook.com
- (mail-dm6nam10on2110.outbound.protection.outlook.com [40.107.93.110])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 9510086432;
- Thu,  4 Feb 2021 16:41:49 +0000 (UTC)
+ (mail-dm6nam10on2119.outbound.protection.outlook.com [40.107.93.119])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 57FF28720F
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  4 Feb 2021 16:46:17 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BQX71XvIydrbYqE11zO1ADLJ0JX0R0qsD9ChlRnzg1GecEGGtjPMo6jRYPQ+yWBKsnzKPKI0CMFTIQXTStTkbnBK/vD9miCaJKH5APmsJuhdKE42OGGLFK62wShsdMmqBinFmmnYqEVIv2OWp0VnND1LOg0hqfcral+cpAZqHMmk7pshA1g2uk4bGqrI3wSIUgo/jLOmibj9DSaqOAjTYWwrI+JdU4nAnqXOHVQKNK/rTrYEqfkZaPFDfRXxgAxQhR1xM6HmOcUe4s2GhTRvcTZWklKsDWXyj0AHMKV3iIymKyzZuNV1Yx2gLuPmvNiaZR2nD/SFFMPOYHKVoHuRUw==
+ b=WYEA0Z4aGqW4hi0xqUtDLUSQ6mWyJ8diJkhK5sAdmOr4QtmkrdwZHU5ZOoQHSsoUA6Cki/ZDKjCFeeYM4fGcnMZVsDGm0MsHJNAWLlZbwMUhM7Ox36x2Kn0NJt57Czpnbr7/q7Zl6oqF27R3XuMI4XFyng4hK4PQqDEJlHC55aIlRs3S36IK+tu7KikMxNT8t5Bd54riEpwwTZmu0Wy+uIiuLkVkid50LqgJjNknedIDK91QiOVFZYYf/COYQ1zm82xZzRiaZIeaUUacsTu0fxTIUlimxoNK7BM/j0l/p/MuoFXsRui4A4avoo/xzygHHQG9PhjMCqNzwvluwZTCcA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=SA8L9Fbzy0Nij5mAuO2b4fzh/TjRYtQYuL2l1Ef3rcM=;
- b=n7g23Dp5lje52hdTxeK4cVmYsZWnMooeffBXXRlg9lPT1reJGObJs1Cu90KUFJvElEq4OdOeNTBdMEtK8r7TaHwh0bA4Woi2y3LLlWCFlxaTN+dE7nc6o5UsWJ5f6J4shkA4VoH2IGCCEI49os8O4gpZVh6xNdNmy0pWGsfSS/b23+DxZdlNf0zuenLISWNFpuh1I+CZHRBePRjR8xskMDdPJItxpAJVKIvUf+FHi4RZgQdqXqHsEMRd1Gghozv7bPZZbmy9jkqkJsPNZQKtcLeP+m6YYu8180DcJTBqKE92QUcGC9Iwc+TV000Jh0gMh+Ph5TVdXbIrCVZmittbYQ==
+ bh=+fmllhiJL868aD5I8hJGzKfZ7SNim/ZdzlMRxKubEuc=;
+ b=BxLyMPPZkCcoGobvnXJ7PMKcZCZK/+K3etyPEs9H3430y1OGSMmdvOaFth9Ud8ae2RDsS9SU/5PBqskRL+GMl/QitGL/G7IL2fiXUFZS2+/oqEFQaOrIM9yiiK+We9Rn45T9UzSiicug5DyW0ptAAzAzhC9t06L99GHd3qaqebUJv3f0+8OVlKlm57UCdyCbgHnnsCzyoru14A77kUyB1MWXe2AIDSm3cs+4zgwCZJNVkQaKigbLjet7zOtHbqQK0QzQtKIUipky1krUAVGMUq0ZDXh3UgDmKA2Htf+J9MhRF23mbf1XBluuwbauX86wqLmFijBWVYIakE6KumO11Q==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=microsoft.com; dmarc=pass action=none
  header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=SA8L9Fbzy0Nij5mAuO2b4fzh/TjRYtQYuL2l1Ef3rcM=;
- b=eD8PI5hmMo5jCB9DpQS4iTmVtB76qeGbUom1FidWnOrSRjbdixaN3LyHWK2CQKgmPbPrucleEfP4FEq2/DPvoJb/3yskqGXY0nwOpCuOgfqNe+ZR9U/J2IfDhSZYgIYIQPZYaSJEzDd1XbN9IWkwnnJL3Dlrh/cWd6NmIrRXdhY=
+ bh=+fmllhiJL868aD5I8hJGzKfZ7SNim/ZdzlMRxKubEuc=;
+ b=UkyGdaqePc44ckJSeepATg+NGTiczdFoTIbR2x+Z9bxxgHDPZdqMx61tdbGRSVftWaBlum45OA+PjhX9ddxG5WuM7T9CN77C6ckG6eQDyYRM3JdwNBH9VLpJe3FEKWwOVmaoZehuBqnuvLk885lFgs7yO63i+fTBwf6c21wy0gU=
 Received: from (2603:10b6:301:7c::11) by
  MW4PR21MB1874.namprd21.prod.outlook.com (2603:10b6:303:73::9) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3846.3; Thu, 4 Feb 2021 16:41:47 +0000
+ 15.20.3846.3; Thu, 4 Feb 2021 16:46:15 +0000
 Received: from MWHPR21MB1593.namprd21.prod.outlook.com
  ([fe80::9c8:94c9:faf1:17c2]) by MWHPR21MB1593.namprd21.prod.outlook.com
  ([fe80::9c8:94c9:faf1:17c2%9]) with mapi id 15.20.3846.006; Thu, 4 Feb 2021
- 16:41:47 +0000
-To: Wei Liu <wei.liu@kernel.org>
-Subject: RE: [PATCH v5 16/16] iommu/hyperv: setup an IO-APIC IRQ remapping
- domain for root partition
-Thread-Topic: [PATCH v5 16/16] iommu/hyperv: setup an IO-APIC IRQ remapping
- domain for root partition
-Thread-Index: AQHW7yP8YtCnZy7E10m8VGWiVVtuDao6/HmggAt6kgCAAdJPsA==
-Date: Thu, 4 Feb 2021 16:41:47 +0000
-Message-ID: <MWHPR21MB1593F0BB81545B450D2ACBE6D7B39@MWHPR21MB1593.namprd21.prod.outlook.com>
+ 16:46:14 +0000
+To: Wei Liu <wei.liu@kernel.org>, Arnd Bergmann <arnd@kernel.org>
+Subject: RE: [PATCH v5 13/16] asm-generic/hyperv: introduce hv_device_id and
+ auxiliary structures
+Thread-Topic: [PATCH v5 13/16] asm-generic/hyperv: introduce hv_device_id and
+ auxiliary structures
+Thread-Index: AQHW7yP3XhY0LOeCcky/eXuYzxnTqao5JVQwgAwG2wCAAVXDgIAABquAgAAFXwCAAb2OcA==
+Date: Thu, 4 Feb 2021 16:46:14 +0000
+Message-ID: <MWHPR21MB1593E9C0DAF03C9B651D15FBD7B39@MWHPR21MB1593.namprd21.prod.outlook.com>
 References: <20210120120058.29138-1-wei.liu@kernel.org>
- <20210120120058.29138-17-wei.liu@kernel.org>
- <MWHPR21MB15936ED25B56AF897B655B76D7BB9@MWHPR21MB1593.namprd21.prod.outlook.com>
- <20210203124700.ugx5vd526455u7lb@liuwe-devbox-debian-v2>
-In-Reply-To: <20210203124700.ugx5vd526455u7lb@liuwe-devbox-debian-v2>
+ <20210120120058.29138-14-wei.liu@kernel.org>
+ <MWHPR21MB1593959647DA60219E19C25ED7BC9@MWHPR21MB1593.namprd21.prod.outlook.com>
+ <20210202170248.4hds554cyxpuayqc@liuwe-devbox-debian-v2>
+ <20210203132601.ftpwgs57qtok47cg@liuwe-devbox-debian-v2>
+ <CAK8P3a0m8jEij-RdP1PTcNcJW2+mXQ1dA4=s+JLXhnv+NyFiHw@mail.gmail.com>
+ <20210203140906.g35zr7366hh7p5f3@liuwe-devbox-debian-v2>
+In-Reply-To: <20210203140906.g35zr7366hh7p5f3@liuwe-devbox-debian-v2>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2021-02-04T16:41:45Z; 
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2021-02-04T16:46:13Z; 
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=1bdeb6aa-cb4a-406c-933b-e8e4beb73466;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=650ddec4-4cf3-4e24-8b94-27b26c42fb3c;
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0
 authentication-results: kernel.org; dkim=none (message not signed)
  header.d=none;kernel.org; dmarc=none action=none header.from=microsoft.com;
 x-originating-ip: [24.22.167.197]
 x-ms-publictraffictype: Email
 x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: b17701db-3e6b-4ebb-a95c-08d8c92bc389
+x-ms-office365-filtering-correlation-id: ce517e70-8b76-46ea-758d-08d8c92c6301
 x-ms-traffictypediagnostic: MW4PR21MB1874:
 x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <MW4PR21MB1874F30B9FA81B490AEF6749D7B39@MW4PR21MB1874.namprd21.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:2150;
+x-microsoft-antispam-prvs: <MW4PR21MB1874714BE877DD3E444FB5B5D7B39@MW4PR21MB1874.namprd21.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8882;
 x-ms-exchange-senderadcheck: 1
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: oW5DtwBz/pRxtHjDF0HyLvIC0oae4eMXTgBcknaOUZcVW/6MA+0pr2KJkSrjSoZNXerJUHlrFZV0iKIBv627ECjCMieuMvcDn7//DYAh/vw+VG1+uAox1QeVgmdhCPomYNp2wTEG8yxEgSesnTOiZk6goy5gisbp7HB7aIEpLDhfrEhWMICjsuoYN3FyzCQv41g39IgiTc1lU/dANuouFaoYxN9l/I+TMkxxM36+AKLLWMiJs8A86il1S5C7CxFqz8pn17E2BYHiK6sFMhOBGP1gxw0xYr2qElQeQ+VkVYDAvIsYAHuOCHRDUjOOkewP5JJhKXWPpxS9OFW5tpDUYipiOscijoRoVHDYwZEEtA1G2AQJZqYx/+DWHR8RG+6b0S4Y+rJIOLy6pL4xBxT2qmK10+XJ0uuk+s/Ya9nZuSWZbMN/BomeJJtOv4VVmCezAkyG5yEt5nkC2L7IhtsG+GKOF7V6xhXeDJ3EjVi59mDm7SXHnQl9J0tNK32n1NIFt0yDmYw5KSqzJ45i8YBFnw==
+x-microsoft-antispam-message-info: CQlf28DwhaeQ/++jo7N3rzsaOUd2H5+OvkAx2v3vgx2wgPlvQxB/mYetWLCeB2MeeGunyVfPbQIVR1lcT2vsraw6K0NKG2KQucCYhVdSE7ZlDkmKgm8U3YB2jvS1HpvehKVTjOgarpkwIC+OtJGlIoOH4ElgsKDNsV/JEgm99HORBWp3HrYP3j2t9aHHOPcNu3uUTnU7+/tUvI7WwseUmYSML8Rrrd7YHY5WuOFuVOdsdmP9k6zQndkDMlkSnYa3XOVVqoAf0YC8dOf6CNRSMPo72TX7jJd3y2eXr/eA/0lZUYZdZimHh6opfNyA9TV+YZRQPz/7wkeZq0KTiMaxsIQ08qBUGYQ5fF87a3MbsRP5aWiaT+68aIrzNtvDt0p6B7uSdOmox+g3zZkIVhYwunuDOxsRc8tC2gA75n6HBGTth+Vv9sGLV7JFN9W4oXajn2on7j2lIIhF+VJ+qjBDHYnAJg/CedYQliufLYV00mMcxSHkfUwxfsj+q+Bz+CM5He8q/YB1+HkP4puIqI6j7A+/M076zb76hFAEs34kzR3FF3ItVWT4zN0txxWLRh+6
 x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:MWHPR21MB1593.namprd21.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(396003)(39860400002)(376002)(136003)(346002)(366004)(86362001)(8990500004)(9686003)(10290500003)(26005)(55016002)(33656002)(6506007)(186003)(7696005)(54906003)(8936002)(316002)(2906002)(478600001)(82960400001)(82950400001)(64756008)(66446008)(30864003)(6916009)(52536014)(76116006)(71200400001)(4326008)(83380400001)(5660300002)(8676002)(66946007)(66476007)(66556008)(7416002);
+ SFS:(4636009)(366004)(346002)(136003)(39860400002)(396003)(376002)(71200400001)(83380400001)(4326008)(76116006)(53546011)(82960400001)(82950400001)(52536014)(64756008)(66446008)(66556008)(66476007)(8676002)(66946007)(5660300002)(26005)(55016002)(9686003)(86362001)(8990500004)(10290500003)(8936002)(316002)(2906002)(478600001)(33656002)(7696005)(54906003)(110136005)(6506007)(186003)(41533002);
  DIR:OUT; SFP:1102; 
-x-ms-exchange-antispam-messagedata: =?us-ascii?Q?2QTFpTtlDj6HEvkFvPefAtln9oGi0tzK7+FCIHl+6u3FfeZR2RNqv7YenIqf?=
- =?us-ascii?Q?TAzb8PdkPeB+ZMXUcjWR8sxWG838+ce1nQiO6L1LVfOC2sDnGkzUF4tdKmiK?=
- =?us-ascii?Q?IBKOXSgyBUSMGMhYmxVx9nhu3u2SJywKQlkH3IRynHh9ear7wCwQCrGN6ZA+?=
- =?us-ascii?Q?YtgGTHcvH1jU7BkZXCduVpO20BWgbRpX11JWJuGv858d1xceTc683TzLPyQW?=
- =?us-ascii?Q?3mpyNBo7YqdIB7LhZYpDLlrkOXsVqMnYIxJJ6VEyARE/8YLiPQQvCo5JHCXb?=
- =?us-ascii?Q?Y7WgPnDEM25eAQ7z3VEbWDW8CE24U9y2CYmpSOPugElXERxiynjUyIAzJ1L+?=
- =?us-ascii?Q?YDye9tzq8PpSKStj1WsUu8OdQKzUvHekq//qOXmLa49SerNiPuaHVu58qs2h?=
- =?us-ascii?Q?6nrZPRK/L6HZ2QGsZHbxpz77kFGIPvqe3HxvL06+yN+DOVu6Lk9KenFPV8N5?=
- =?us-ascii?Q?ddylBooWilSSiNYy7MDsDVgqq5HFKgdhicgv4MSw6PmtOefcoQY0SnElqPnQ?=
- =?us-ascii?Q?1r0WvG4g82dRlnBrdiZtX0dQmIXW8qmU+EiRq4uC+MyNr5ST9GHofcuXZg/R?=
- =?us-ascii?Q?QHxCutcHY5FOwkmli8mK0sExlot7bZJ9bTYNkSw4azP/rtxfQXfeCa7Ad14Z?=
- =?us-ascii?Q?J+8pUuT/ftL9BXRExBwqOpm/HuYRVM1MWGm3P0AyuwZ+XhS/xBl0az/XA2ht?=
- =?us-ascii?Q?Uj3L2lLZxvh9t173oQUFWMDAqzmNbdE6lXXd/zFpgigTdtkGREKoR5JlSilK?=
- =?us-ascii?Q?+37FXSKLfEvXAluulZACYJ1xbnQTsc/n0XRFsEbtK2+UgEdQE5+2Cc62pf3I?=
- =?us-ascii?Q?lrIN075zXmBTANP1gAECs8VsnN3JMrIBoDuRvY1Ycps9uKZN3e+vneGLzGG1?=
- =?us-ascii?Q?sL73E8mcj+RenKBOluGGDV5sKkZBSCdUYd22cxelPg0u2x1y4ooQbVaXbNyp?=
- =?us-ascii?Q?QviOkLYyZiPA4ugm12CYx/yKR61jJoxuj9Wh4FCClWhk5arW1hY4iSFVfdTi?=
- =?us-ascii?Q?AWkeF6/ukLdHMZ9OQyTPxwiaW0tdKV6MhgT3BYXBDG14xEmwntR03jU9exNJ?=
- =?us-ascii?Q?IwJXE5W1rFTz/QTXInw2ORwAMd+QmbIoQrhboE/1ERe6kXEzBaeRVUDuziUg?=
- =?us-ascii?Q?KDNYTprqJnz8TiMeBUee8jPsT4I8V/2NJfTVsHGy4BM/CwHFKCL2c4Gv7MyI?=
- =?us-ascii?Q?Z0QbRK1e86wiCfsjGCCWs4F6FhowKeBedwVyvCqV9ZHtBMOlOV76Q/kf9lLA?=
- =?us-ascii?Q?7iYKqyyo3PqDuyf+KTIedzNiPYM+hJfn/ExOzoTy2//PO7S+CULmldJ2vZ9N?=
- =?us-ascii?Q?1SoK2eOwdR8Xo+5fksnHBiaJ?=
+x-ms-exchange-antispam-messagedata: =?us-ascii?Q?vguOHSziFoucmR78902z0Nar/MjbTjp4yaR999vT5L6P5BIPDil77NRDKaYV?=
+ =?us-ascii?Q?Wzq23M3BX44EeGEiX1ssqJt8Mp43EyMFVzZDhO+5IuKGFa39MZXiRVGRomZi?=
+ =?us-ascii?Q?t3pJK6mHdUUsDUYCiqM851469mkD6W3wdY2xLNnVYRo8A6bBhuRreSOtoOAS?=
+ =?us-ascii?Q?fsscO0KLvRucJMPoAXUfpYldmDdzgY8mXwRrDhDKFzqwJYC4MCUo2WoUBrNo?=
+ =?us-ascii?Q?nFxrYIzUh7VdsUeBXrt4x86ajlAZgteDEhXzVZuEKYWu+YDPhnL+/h7tPOBF?=
+ =?us-ascii?Q?xSMSyDg9iNMaLUZ/960sd6w2XrDK+tahOb93jOkBxklIcILv7LQ7CMfPFzGU?=
+ =?us-ascii?Q?6pV4FsQEPYo3kBKp83hdwqkSiyRCI6Mz3CVa0aNFfo4jleoeP9BkcKEGeAP/?=
+ =?us-ascii?Q?PoXGk676wAVMEgo+F6EfR/c7j0kwMB2aLow/hXyOCEyYXMTlhi+lOWfM1cdb?=
+ =?us-ascii?Q?Kel4MFUDnR0SPMQ4i0LH79GBq+vuXcAhFS7p1Teb/HjrFCoci9twnkd0ASF1?=
+ =?us-ascii?Q?HMYbMm95pB3yMwGjktlgDj5LzGaejHGeBWedEpXkw2BKmxtzCvy++un2k07S?=
+ =?us-ascii?Q?EAhCw24AZMG6vJMhAlJ1YNvSOrEetTbK3owdLAUWDJGI5dsRtOB4hmY0xCTP?=
+ =?us-ascii?Q?O0VOXLHqL8jfvwhWZOdckAfdOTG6mpTtFiQqQi9JvzGpc6TT19R/8N031/dp?=
+ =?us-ascii?Q?6TBlSsIj4s+CdYrjuTj9t0XX3mwI5jRi9Xp7bEAQT5zJ9QtWO4zyo+PNX+Ws?=
+ =?us-ascii?Q?auX3Y35uVGpp8ucBgaG3FwUp1ehtOlnJrezBXeek+afdbCBGk2ZMlcs4iJky?=
+ =?us-ascii?Q?r4mf/qkuMdTpIBN4p35LYrzgieBBaCp9rRTNLQdj7nMvkt/KwbU/o9RVsvIa?=
+ =?us-ascii?Q?37KuG2wR3N1PkOpXVFNGtTk+1FPgSoGLymq3gnR5UW2KE/D7t0Zcl9orTg7V?=
+ =?us-ascii?Q?W1BZsW9hfldSWfjvexgUoexiiKZGdzqeVwLhtBoZv5Y4HjarlcMTMtutzLK8?=
+ =?us-ascii?Q?shXVBp1tSu4tK/WtK1vPzOxCYZ3ZhMGHTGWVfA8I9kjQkmDwAeB0bCNxCEwR?=
+ =?us-ascii?Q?yry6lcswQVT461mY+pRE7IElIk/4IfSEd+KzeeOnUDidLcc9dp8dRSDK2TZS?=
+ =?us-ascii?Q?ngTqicvhtUzXCJM4Jwzg/1gdObOfMiv0SPGhzewJTPVfNQO+dWnIACeJRQtE?=
+ =?us-ascii?Q?NP+eU1HuNTkRpccFaQMOnRqietKOWxzTggyqrqazXjucFeNOmIa7x44yq5E3?=
+ =?us-ascii?Q?x9/Igq0BizzINTNEBmikigp+Al28CwMI7f44jMjw1hyLpIf6XfIsR0vEFkwp?=
+ =?us-ascii?Q?v3Pdq2w2ZIJOvf8U5yMYzc7Q?=
 MIME-Version: 1.0
 X-OriginatorOrg: microsoft.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: MWHPR21MB1593.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b17701db-3e6b-4ebb-a95c-08d8c92bc389
-X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Feb 2021 16:41:47.1772 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: ce517e70-8b76-46ea-758d-08d8c92c6301
+X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Feb 2021 16:46:14.8110 (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: IDQ5uEzjVTdRe8XO2Yk0BePktBSsjriIeb3ehjbJCHOmRSu6mgnNlB2O5YPOZQWTs6c1+nnXKFuU+OBlprG9Zn6tbDb/8Wrx/AXJLUHg6BY=
+X-MS-Exchange-CrossTenant-userprincipalname: HhTimow/kBox0In2o22jnXnHTEEHLI9M+nbt/1Vg/0/eYgSe9A0qDNLcVfCkWa/NlDX4fZHk+aFABW+bgibKCa+qeEagPAQD0KIPzGgAcN4=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR21MB1874
-Cc: Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
+Cc: "open list:GENERIC INCLUDE/ASM HEADER FILES" <linux-arch@vger.kernel.org>,
+ Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
  Stephen Hemminger <sthemmin@microsoft.com>,
  "pasha.tatashin@soleen.com" <pasha.tatashin@soleen.com>,
- Will Deacon <will@kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>,
- "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
+ Arnd Bergmann <arnd@arndb.de>, Haiyang Zhang <haiyangz@microsoft.com>,
  Linux Kernel List <linux-kernel@vger.kernel.org>,
  "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>,
- "open list:IOMMU DRIVERS" <iommu@lists.linux-foundation.org>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter
- Anvin" <hpa@zytor.com>, Nuno Das Neves <nunodasneves@linux.microsoft.com>,
+ Nuno Das Neves <nunodasneves@linux.microsoft.com>,
  Sunil Muthuswamy <sunilmut@microsoft.com>,
- Vineeth Pillai <viremana@linux.microsoft.com>,
- Thomas Gleixner <tglx@linutronix.de>, Joerg Roedel <joro@8bytes.org>
+ Vineeth Pillai <viremana@linux.microsoft.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -177,347 +180,67 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Wei Liu <wei.liu@kernel.org> Sent: Wednesday, February 3, 2021 4:47 AM
+From: Wei Liu <wei.liu@kernel.org> Sent: Wednesday, February 3, 2021 6:09 AM
 > 
-> On Wed, Jan 27, 2021 at 05:47:08AM +0000, Michael Kelley wrote:
-> > From: Wei Liu <wei.liu@kernel.org> Sent: Wednesday, January 20, 2021 4:01 AM
+> On Wed, Feb 03, 2021 at 02:49:53PM +0100, Arnd Bergmann wrote:
+> > On Wed, Feb 3, 2021 at 2:26 PM Wei Liu <wei.liu@kernel.org> wrote:
+> > > On Tue, Feb 02, 2021 at 05:02:48PM +0000, Wei Liu wrote:
+> > > > On Tue, Jan 26, 2021 at 01:26:52AM +0000, Michael Kelley wrote:
+> > > > > From: Wei Liu <wei.liu@kernel.org> Sent: Wednesday, January 20, 2021 4:01 AM
+> > > > > > +union hv_device_id {
+> > > > > > + u64 as_uint64;
+> > > > > > +
+> > > > > > + struct {
+> > > > > > +         u64 :62;
+> > > > > > +         u64 device_type:2;
+> > > > > > + };
+> > > > >
+> > > > > Are the above 4 lines extraneous junk?
+> > > > > If not, a comment would be helpful.  And we
+> > > > > would normally label the 62 bit field as
+> > > > > "reserved0" or something similar.
+> > > > >
+> > > >
+> > > > No. It is not junk. I got this from a header in tree.
+> > > >
+> > > > I am inclined to just drop this hunk. If that breaks things, I will use
+> > > > "reserved0".
+> > > >
 > > >
-> > > Just like MSI/MSI-X, IO-APIC interrupts are remapped by Microsoft
-> > > Hypervisor when Linux runs as the root partition. Implement an IRQ
-> > > domain to handle mapping and unmapping of IO-APIC interrupts.
-> > >
-> > > Signed-off-by: Wei Liu <wei.liu@kernel.org>
-> > > ---
-> > >  arch/x86/hyperv/irqdomain.c     |  54 ++++++++++
-> > >  arch/x86/include/asm/mshyperv.h |   4 +
-> > >  drivers/iommu/hyperv-iommu.c    | 179 +++++++++++++++++++++++++++++++-
-> > >  3 files changed, 233 insertions(+), 4 deletions(-)
-> > >
-> > > diff --git a/arch/x86/hyperv/irqdomain.c b/arch/x86/hyperv/irqdomain.c
-> > > index 19637cd60231..8e2b4e478b70 100644
-> > > --- a/arch/x86/hyperv/irqdomain.c
-> > > +++ b/arch/x86/hyperv/irqdomain.c
-> > > @@ -330,3 +330,57 @@ struct irq_domain * __init hv_create_pci_msi_domain(void)
-> > >  }
-> > >
-> > >  #endif /* CONFIG_PCI_MSI */
-> > > +
-> > > +int hv_unmap_ioapic_interrupt(int ioapic_id, struct hv_interrupt_entry *entry)
-> > > +{
-> > > +	union hv_device_id device_id;
-> > > +
-> > > +	device_id.as_uint64 = 0;
-> > > +	device_id.device_type = HV_DEVICE_TYPE_IOAPIC;
-> > > +	device_id.ioapic.ioapic_id = (u8)ioapic_id;
-> > > +
-> > > +	return hv_unmap_interrupt(device_id.as_uint64, entry) &
-> HV_HYPERCALL_RESULT_MASK;
+> > > It turns out adding reserved0 is required. Dropping this hunk does not
+> > > work.
 > >
-> > The masking is already done in hv_unmap_interrupt.
+> > Generally speaking, bitfields are not great for specifying binary interfaces,
+> > as the actual bit order can differ by architecture. The normal way we get
+> > around it in the kernel is to use basic integer types and define macros
+> > for bit masks. Ideally, each such field should also be marked with a
+> > particular endianess as __le64 or __be64, in case this is ever used with
+> > an Arm guest running a big-endian kernel.
 > 
-> Fixed.
+> Thanks for the information.
+> 
+> I think we will need to wait until Microsoft Hypervisor clearly defines
+> the endianess in its header(s) before we can make changes to the copy in
+> Linux.
 > 
 > >
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(hv_unmap_ioapic_interrupt);
-> > > +
-> > > +int hv_map_ioapic_interrupt(int ioapic_id, bool level, int vcpu, int vector,
-> > > +		struct hv_interrupt_entry *entry)
-> > > +{
-> > > +	unsigned long flags;
-> > > +	struct hv_input_map_device_interrupt *input;
-> > > +	struct hv_output_map_device_interrupt *output;
-> > > +	union hv_device_id device_id;
-> > > +	struct hv_device_interrupt_descriptor *intr_desc;
-> > > +	u16 status;
-> > > +
-> > > +	device_id.as_uint64 = 0;
-> > > +	device_id.device_type = HV_DEVICE_TYPE_IOAPIC;
-> > > +	device_id.ioapic.ioapic_id = (u8)ioapic_id;
-> > > +
-> > > +	local_irq_save(flags);
-> > > +	input = *this_cpu_ptr(hyperv_pcpu_input_arg);
-> > > +	output = *this_cpu_ptr(hyperv_pcpu_output_arg);
-> > > +	memset(input, 0, sizeof(*input));
-> > > +	intr_desc = &input->interrupt_descriptor;
-> > > +	input->partition_id = hv_current_partition_id;
-> > > +	input->device_id = device_id.as_uint64;
-> > > +	intr_desc->interrupt_type = HV_X64_INTERRUPT_TYPE_FIXED;
-> > > +	intr_desc->target.vector = vector;
-> > > +	intr_desc->vector_count = 1;
-> > > +
-> > > +	if (level)
-> > > +		intr_desc->trigger_mode = HV_INTERRUPT_TRIGGER_MODE_LEVEL;
-> > > +	else
-> > > +		intr_desc->trigger_mode = HV_INTERRUPT_TRIGGER_MODE_EDGE;
-> > > +
-> > > +	__set_bit(vcpu, (unsigned long *)&intr_desc->target.vp_mask);
-> > > +
-> > > +	status = hv_do_rep_hypercall(HVCALL_MAP_DEVICE_INTERRUPT, 0, 0, input,
-> output) &
-> > > +			 HV_HYPERCALL_RESULT_MASK;
-> > > +	local_irq_restore(flags);
-> > > +
-> > > +	*entry = output->interrupt_entry;
-> > > +
-> > > +	return status;
-> >
-> > As a cross-check, I was comparing this code against hv_map_msi_interrupt().  They are
-> > mostly parallel, though some of the assignments are done in a different order.  It's a nit,
-> > but making them as parallel as possible would be nice. :-)
-> >
+> > That said, if you do not care about the specific order of the bits, having
+> > anonymous bitfields for the reserved members is fine, I don't see a
+> > reason to name it as reserved.
 > 
-> Indeed. I will see about factoring out a function.
+> Michael, let me know what you think. I'm not too fussed either way.
+> 
+> Wei.
 
-If factoring out a separate helper function is clumsy, just having the parallel code
-in the two functions be as similar as possible makes it easier to see what's the
-same and what's different.
+I'm OK either way.  In the Hyper-V code we've typically given such
+fields a name rather than leave them anonymous, which is why it stuck
+out.
 
-> 
-> > Same 64 vCPU comment applies here as well.
-> >
-> 
-> This is changed to use vpset instead. Took me a bit of time to get it
-> working because document is a bit lacking.
-> 
-> >
-> > > +}
-> > > +EXPORT_SYMBOL_GPL(hv_map_ioapic_interrupt);
-> > > diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
-> > > index ccc849e25d5e..345d7c6f8c37 100644
-> > > --- a/arch/x86/include/asm/mshyperv.h
-> > > +++ b/arch/x86/include/asm/mshyperv.h
-> > > @@ -263,6 +263,10 @@ static inline void hv_set_msi_entry_from_desc(union
-> > > hv_msi_entry *msi_entry,
-> > >
-> > >  struct irq_domain *hv_create_pci_msi_domain(void);
-> > >
-> > > +int hv_map_ioapic_interrupt(int ioapic_id, bool level, int vcpu, int vector,
-> > > +		struct hv_interrupt_entry *entry);
-> > > +int hv_unmap_ioapic_interrupt(int ioapic_id, struct hv_interrupt_entry *entry);
-> > > +
-> > >  #else /* CONFIG_HYPERV */
-> > >  static inline void hyperv_init(void) {}
-> > >  static inline void hyperv_setup_mmu_ops(void) {}
-> > > diff --git a/drivers/iommu/hyperv-iommu.c b/drivers/iommu/hyperv-iommu.c
-> > > index b7db6024e65c..6d35e4c303c6 100644
-> > > --- a/drivers/iommu/hyperv-iommu.c
-> > > +++ b/drivers/iommu/hyperv-iommu.c
-> > > @@ -116,30 +116,43 @@ static const struct irq_domain_ops hyperv_ir_domain_ops = {
-> > >  	.free = hyperv_irq_remapping_free,
-> > >  };
-> > >
-> > > +static const struct irq_domain_ops hyperv_root_ir_domain_ops;
-> > >  static int __init hyperv_prepare_irq_remapping(void)
-> > >  {
-> > >  	struct fwnode_handle *fn;
-> > >  	int i;
-> > > +	const char *name;
-> > > +	const struct irq_domain_ops *ops;
-> > >
-> > >  	if (!hypervisor_is_type(X86_HYPER_MS_HYPERV) ||
-> > >  	    x86_init.hyper.msi_ext_dest_id() ||
-> > > -	    !x2apic_supported() || hv_root_partition)
-> > > +	    !x2apic_supported())
-> >
-> > Any reason that the check for hv_root_partition was added
-> > in patch #4  of this series, and then removed here?  Could
-> > patch #4 just be dropped?
-> >
-> 
-> Before v5 (or v4?) IO-APIC was not handled via Hyper-V IOMMU. Now it is.
-> 
-> Patch 4 has become redundant with that change. I already dropped patch 4
-> in the v6 branch I have locally.
-> 
-> > >  		return -ENODEV;
-> > >
-> > > -	fn = irq_domain_alloc_named_id_fwnode("HYPERV-IR", 0);
-> > > +	if (hv_root_partition) {
-> > > +		name = "HYPERV-ROOT-IR";
-> > > +		ops = &hyperv_root_ir_domain_ops;
-> > > +	} else {
-> > > +		name = "HYPERV-IR";
-> > > +		ops = &hyperv_ir_domain_ops;
-> > > +	}
-> > > +
-> [...]
-> > > +static void
-> > > +hyperv_root_ir_compose_msi_msg(struct irq_data *irq_data, struct msi_msg *msg)
-> > > +{
-> > > +	u16 status;
-> > > +	u32 vector;
-> > > +	struct irq_cfg *cfg;
-> > > +	int ioapic_id;
-> > > +	struct cpumask *affinity;
-> > > +	int cpu, vcpu;
-> > > +	struct hv_interrupt_entry entry;
-> > > +	struct hyperv_root_ir_data *data = irq_data->chip_data;
-> > > +	struct IO_APIC_route_entry e;
-> > > +
-> > > +	cfg = irqd_cfg(irq_data);
-> > > +	affinity = irq_data_get_effective_affinity_mask(irq_data);
-> > > +	cpu = cpumask_first_and(affinity, cpu_online_mask);
-> > > +	vcpu = hv_cpu_number_to_vp_number(cpu);
-> > > +
-> > > +	vector = cfg->vector;
-> > > +	ioapic_id = data->ioapic_id;
-> > > +
-> > > +	if (data->entry.source == HV_DEVICE_TYPE_IOAPIC
-> >
-> > Does 'data' need to be checked to be non-NULL?  The parallel code in
-> > hv_irq_compose_msi_msg() makes such a check.
-> 
-> The usage of irq_data->chip_data is different in these two functions.
-> 
-> In this function, we're sure it is correctly allocated by
-> hyperv_root_ir_remapping_alloc at some point before.
-> 
-> In hv_irq_compose_msi_msg, irq_data->chip_data is instead used as a
-> temporary place to stash some state that is controlled solely by the
-> said function.
-> 
-> Once we get to the point of introducing a paravirtualized IOMMU for the
-> root partition, we can then unify these two paths.
-
-OK, thanks for the explanation.
+Michael
 
 > 
 > >
-> > > +	    && data->entry.ioapic_rte.as_uint64) {
-> > > +		entry = data->entry;
-> > > +
-> > > +		status = hv_unmap_ioapic_interrupt(ioapic_id, &entry);
-> > > +
-> > > +		if (status != HV_STATUS_SUCCESS)
-> > > +			pr_debug("%s: unexpected unmap status %d\n", __func__,
-> status);
-> > > +
-> > > +		data->entry.ioapic_rte.as_uint64 = 0;
-> > > +		data->entry.source = 0; /* Invalid source */
-> >
-> > Again comparing, hv_irq_compose_msi_msg() frees the old
-> > entry, and then allocates a new one.   This code reuses the old entry.
-> > Any reason for the difference?
-> >
-> 
-> See above.
-> 
-> I can perhaps tweak the logic a bit to reuse the same entry, but the
-> overall design won't change. I opted to always reallocate because that
-> looked more straight-forward to me.
-> 
-> Let me know if you feel strongly about reusing.
-
-I don't feel strongly about reusing.  I was just comparing/contrasting
-the two functions.
-
-> 
-> > > +	}
-> > > +
-> > > +
-> > > +	status = hv_map_ioapic_interrupt(ioapic_id, data->is_level, vcpu,
-> > > +					vector, &entry);
-> > > +
-> > > +	if (status != HV_STATUS_SUCCESS) {
-> > > +		pr_err("%s: map hypercall failed, status %d\n", __func__, status);
-> > > +		return;
-> > > +	}
-> > > +
-> > > +	data->entry = entry;
-> > > +
-> > > +	/* Turn it into an IO_APIC_route_entry, and generate MSI MSG. */
-> > > +	e.w1 = entry.ioapic_rte.low_uint32;
-> > > +	e.w2 = entry.ioapic_rte.high_uint32;
-> > > +
-> > > +	memset(msg, 0, sizeof(*msg));
-> > > +	msg->arch_data.vector = e.vector;
-> > > +	msg->arch_data.delivery_mode = e.delivery_mode;
-> > > +	msg->arch_addr_lo.dest_mode_logical = e.dest_mode_logical;
-> > > +	msg->arch_addr_lo.dmar_format = e.ir_format;
-> > > +	msg->arch_addr_lo.dmar_index_0_14 = e.ir_index_0_14;
-> > > +}
-> >
-> > Having this whole function be more parallel to hv_irq_compose_msi_msg()
-> > would be nice. :-)
-> >
-> 
-> Unlike hv_map_ioapic_interrupt and hv_map_msi_interrupt, which can
-> benefit from unifying now, this and hv_irq_compose_msi_msg will need to
-> wait till we have an IOMMU for the reason I stated above.
-
-OK.  Just having the code in the two functions be more parallel where
-possible would make it easier to see similarities and differences.  But
-it's not a big deal.
-
-> 
-> > > +
-> > > +static int hyperv_root_ir_set_affinity(struct irq_data *data,
-> > > +		const struct cpumask *mask, bool force)
-> > > +{
-> > > +	struct irq_data *parent = data->parent_data;
-> > > +	struct irq_cfg *cfg = irqd_cfg(data);
-> > > +	int ret;
-> > > +
-> > > +	ret = parent->chip->irq_set_affinity(parent, mask, force);
-> > > +	if (ret < 0 || ret == IRQ_SET_MASK_OK_DONE)
-> > > +		return ret;
-> > > +
-> > > +	send_cleanup_vector(cfg);
-> > > +
-> > > +	return 0;
-> > > +}
-> > > +
-> [...]
-> > > +
-> > > +static void hyperv_root_irq_remapping_free(struct irq_domain *domain,
-> > > +				 unsigned int virq, unsigned int nr_irqs)
-> > > +{
-> > > +	struct irq_data *irq_data;
-> > > +	struct hyperv_root_ir_data *data;
-> > > +	struct hv_interrupt_entry *e;
-> > > +	int i;
-> > > +
-> > > +	for (i = 0; i < nr_irqs; i++) {
-> > > +		irq_data = irq_domain_get_irq_data(domain, virq + i);
-> > > +
-> > > +		if (irq_data && irq_data->chip_data) {
-> > > +			data = irq_data->chip_data;
-> >
-> > Set irq_data->chip_data to NULL?  That seems to be done in other
-> > similar places in your code.
-> 
-> There is no need to do that. By the time this function returns, irq_data
-> will be gone too -- freed by irq_domain_free_irqs_common.
-
-OK
-
-> 
-> >
-> > > +			e = &data->entry;
-> > > +
-> > > +			if (e->source == HV_DEVICE_TYPE_IOAPIC
-> > > +			      && e->ioapic_rte.as_uint64)
-> > > +				hv_unmap_ioapic_interrupt(data->ioapic_id,
-> > > +							&data->entry);
-> > > +
-> > > +			kfree(data);
-> > > +		}
-> > > +	}
-> > > +
-> > > +	irq_domain_free_irqs_common(domain, virq, nr_irqs);
-> > > +}
-> > > +
-> > > +static const struct irq_domain_ops hyperv_root_ir_domain_ops = {
-> > > +	.select = hyperv_irq_remapping_select,
-> > > +	.alloc = hyperv_root_irq_remapping_alloc,
-> > > +	.free = hyperv_root_irq_remapping_free,
-> > > +};
-> > > +
-> > >  #endif
-> > > --
-> > > 2.20.1
-> >
+> >       Arnd
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
