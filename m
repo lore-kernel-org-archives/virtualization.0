@@ -4,71 +4,73 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-15.4 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56478C433DB
-	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 18:22:32 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77856C433DB
+	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 18:34:38 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CEA2064F67
-	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 18:22:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CEA2064F67
+	by mail.kernel.org (Postfix) with ESMTPS id EB4CE64D9A
+	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 18:34:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EB4CE64D9A
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 75EC0865AB;
-	Thu,  4 Feb 2021 18:22:31 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 99B1686CE2;
+	Thu,  4 Feb 2021 18:34:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ZSbhP_ohu0KX; Thu,  4 Feb 2021 18:22:30 +0000 (UTC)
+	with ESMTP id Gfe0G6Tm+gUw; Thu,  4 Feb 2021 18:34:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 28A778655C;
-	Thu,  4 Feb 2021 18:22:30 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 9EB7786CDE;
+	Thu,  4 Feb 2021 18:34:35 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0ED9DC0174;
-	Thu,  4 Feb 2021 18:22:30 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B32F9C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 86763C0174;
+	Thu,  4 Feb 2021 18:34:35 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A00D4C013A
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 18:22:28 +0000 (UTC)
+ Thu,  4 Feb 2021 18:34:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id AE68D8655C
+ by whitealder.osuosl.org (Postfix) with ESMTP id 8CE2A85BCC
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 18:22:28 +0000 (UTC)
+ Thu,  4 Feb 2021 18:34:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fsgM299lbaVK
+ with ESMTP id 8+S3DKOYsRxJ
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 18:22:27 +0000 (UTC)
+ Thu,  4 Feb 2021 18:34:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 54D058654C
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 8733F86CDE
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 18:22:27 +0000 (UTC)
+ Thu,  4 Feb 2021 18:34:33 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id DEA59AE95;
- Thu,  4 Feb 2021 18:22:25 +0000 (UTC)
-Subject: Re: [PATCH v6 10/10] drm/qxl: allocate dumb buffers in ram
+ by mx2.suse.de (Postfix) with ESMTP id F2FE0AC45;
+ Thu,  4 Feb 2021 18:34:31 +0000 (UTC)
 To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
 References: <20210204145712.1531203-1-kraxel@redhat.com>
- <20210204145712.1531203-11-kraxel@redhat.com>
+ <20210204145712.1531203-3-kraxel@redhat.com>
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <494099f2-01d7-fa62-9101-eb09765d7b98@suse.de>
-Date: Thu, 4 Feb 2021 19:22:24 +0100
+Subject: Re: [PATCH v6 02/10] Revert "drm/qxl: do not run release if qxl
+ failed to init"
+Message-ID: <d217112e-e49d-bd1f-0c39-3eac2dd721fd@suse.de>
+Date: Thu, 4 Feb 2021 19:34:30 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.6.1
 MIME-Version: 1.0
-In-Reply-To: <20210204145712.1531203-11-kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
- <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>,
+In-Reply-To: <20210204145712.1531203-3-kraxel@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, Tong Zhang <ztong0001@gmail.com>,
  open list <linux-kernel@vger.kernel.org>,
  "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
- <virtualization@lists.linux-foundation.org>
+ <virtualization@lists.linux-foundation.org>,
+ "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>,
+ Dave Airlie <airlied@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -80,73 +82,86 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============9177881618094260130=="
+Content-Type: multipart/mixed; boundary="===============9058370546907699172=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============9177881618094260130==
+--===============9058370546907699172==
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="pyZR8drgja7WQpmkmetYozYATek7dMo4p"
+ boundary="fUCwg7Kcf5XhUz7W2mxvD8yfyNdVSH3DV"
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---pyZR8drgja7WQpmkmetYozYATek7dMo4p
-Content-Type: multipart/mixed; boundary="9hodCVcSmlM4NSTMnLoweg2r3f8cZ8USb";
+--fUCwg7Kcf5XhUz7W2mxvD8yfyNdVSH3DV
+Content-Type: multipart/mixed; boundary="4nf4HqZJIJd5ZZmzyylTjIkZZmnhoKFoz";
  protected-headers="v1"
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list
- <linux-kernel@vger.kernel.org>,
+Cc: David Airlie <airlied@linux.ie>, Tong Zhang <ztong0001@gmail.com>,
+ open list <linux-kernel@vger.kernel.org>,
  "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
  <virtualization@lists.linux-foundation.org>,
  "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
  <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
-Message-ID: <494099f2-01d7-fa62-9101-eb09765d7b98@suse.de>
-Subject: Re: [PATCH v6 10/10] drm/qxl: allocate dumb buffers in ram
+Message-ID: <d217112e-e49d-bd1f-0c39-3eac2dd721fd@suse.de>
+Subject: Re: [PATCH v6 02/10] Revert "drm/qxl: do not run release if qxl
+ failed to init"
 References: <20210204145712.1531203-1-kraxel@redhat.com>
- <20210204145712.1531203-11-kraxel@redhat.com>
-In-Reply-To: <20210204145712.1531203-11-kraxel@redhat.com>
+ <20210204145712.1531203-3-kraxel@redhat.com>
+In-Reply-To: <20210204145712.1531203-3-kraxel@redhat.com>
 
---9hodCVcSmlM4NSTMnLoweg2r3f8cZ8USb
+--4nf4HqZJIJd5ZZmzyylTjIkZZmnhoKFoz
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
-
+Hi
 
 Am 04.02.21 um 15:57 schrieb Gerd Hoffmann:
-> dumb buffers are shadowed anyway, so there is no need to store them
-> in device memory.  Use QXL_GEM_DOMAIN_CPU (TTM_PL_SYSTEM) instead.
+> This reverts commit b91907a6241193465ca92e357adf16822242296d.
 
-Makes sense. I had similar issues in other drivers about the placement=20
-of buffers. For them, all new buffers now go into system ram by default, =
+This should be in the correct format, as given by 'dim cite'.
 
-and only move into device memory when they have to.
+  dim cite b91907a6241193465ca92e357adf16822242296d
+b91907a62411 ("drm/qxl: do not run release if qxl failed to init")
 
 >=20
+> Patch is broken, it effectively makes qxl_drm_release() a nop
+> because on normal driver shutdown qxl_drm_release() is called
+> *after* drm_dev_unregister().
+>=20
+> Cc: Tong Zhang <ztong0001@gmail.com>
 > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>   drivers/gpu/drm/qxl/qxl_drv.c | 2 --
+>   1 file changed, 2 deletions(-)
+>=20
+> diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_dr=
+v.c
+> index 34c8b25b5780..fb5f6a5e81d7 100644
+> --- a/drivers/gpu/drm/qxl/qxl_drv.c
+> +++ b/drivers/gpu/drm/qxl/qxl_drv.c
+> @@ -144,8 +144,6 @@ static void qxl_drm_release(struct drm_device *dev)=
+
+>   	 * reodering qxl_modeset_fini() + qxl_device_fini() calls is
+>   	 * non-trivial though.
+>   	 */
+> -	if (!dev->registered)
+> -		return;
+
+I'm not sure what the original problem was, but I'm sure that this isn't =
+
+the fix for it. If there's a problem with shutdown, the operations=20
+rather have to be reordered correctly.
+
+With the citation style address:
 
 Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
 
-> ---
->   drivers/gpu/drm/qxl/qxl_dumb.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/gpu/drm/qxl/qxl_dumb.c b/drivers/gpu/drm/qxl/qxl_d=
-umb.c
-> index c04cd5a2553c..48a58ba1db96 100644
-> --- a/drivers/gpu/drm/qxl/qxl_dumb.c
-> +++ b/drivers/gpu/drm/qxl/qxl_dumb.c
-> @@ -59,7 +59,7 @@ int qxl_mode_dumb_create(struct drm_file *file_priv,
->   	surf.stride =3D pitch;
->   	surf.format =3D format;
->   	r =3D qxl_gem_object_create_with_handle(qdev, file_priv,
-> -					      QXL_GEM_DOMAIN_SURFACE,
-> +					      QXL_GEM_DOMAIN_CPU,
->   					      args->size, &surf, &qobj,
->   					      &handle);
->   	if (r)
+>   	qxl_modeset_fini(qdev);
+>   	qxl_device_fini(qdev);
+>   }
 >=20
 
 --=20
@@ -158,32 +173,32 @@ Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
 Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
 
 
---9hodCVcSmlM4NSTMnLoweg2r3f8cZ8USb--
+--4nf4HqZJIJd5ZZmzyylTjIkZZmnhoKFoz--
 
---pyZR8drgja7WQpmkmetYozYATek7dMo4p
+--fUCwg7Kcf5XhUz7W2mxvD8yfyNdVSH3DV
 Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="OpenPGP_signature"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmAcO2AFAwAAAAAACgkQlh/E3EQov+Dq
-Tw//Ss7qrE339QgFvgUo6KSyLaTR9reuXmew3gm2M+w7BM02VQBDcHJ6uEWDOHTQpxcki4wApp40
-/UQ5tZ6lRKqSPdYcz9CVNAwj0gYIqREeNIubHQd08Lzzx/kGv4Y/8xQ1Q1GrjIVejJvXOYe9KJhR
-dtAklxDPn1pRe8reSY5NRHuijsxX3RPIgUYgwPn1AwxS3faEIM1801ylnXdfdcgk7l4NvoXgt3D4
-dZSltupfezt3qIsQHmZX3f1BmYj8mvJDi9cGYhl4ij8LVcTlePQCV52wkW5aQiajpGJPxbVOIbMv
-G8jOx66aV2A92ZdO010Rfhz8kWL/StnjqvOhzYmmhoXeHrqUQNd28LGqgEbA8KMRVf9cYv5co9PW
-ouaNVKV1wzeuGSqYzWcDQ/7zirLjqh2Al+OvweNkG+5MGazdcjH/LMSH00PCJRIsUXZFt/obw6P6
-SPFmMpQARcaR/s2X5i9Aq8/mm9RPLzDLF35fs/pB+t4ZuJU5DM8o0+70GUpw4jF3f5ExLLhbQ13g
-7yrkjQkaavTeUAuk7TXmyDc0rKPrTr9KghpS0qxPT5OKHLsOIXiH5Er3RLo2JLGs76itxag0Scyo
-qh2icQZMUuPJP3MAXP5YL6oxB65ZoJbTB3VYBR9/1Y1AYrCX2qQJlBDKr0Xi/0zjnFrr1KE/3HVk
-dno=
-=OQ9o
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmAcPjYFAwAAAAAACgkQlh/E3EQov+Ci
+Cg//ZZKtx6YvhV4s/9QZ4Jb7GrH79ZKQGgATuoR0elTnN2QOyUA6Zvo33IQzsQ4sBsWIsystjEQu
+wNcvAebdbIj8Hiu87T8+1xfVRrzTo8p0gTo7yqtOs4L3mFA3NAqPkoY82USp+R4vk2szyh5CMHeZ
+L9wbNiDcMBXerPz/vpQbLQs0WmhLAG0EBCDz26cnNhQVkn7t0gM76qXRFQzzqSFmkmLIgRtflHFV
+7WNu8AAh0gIpCIN8re829yAIEvul4AaoeFIsGDOGnZu+E47m6sj2VEpiQM83/GVarZXGm7UljMQc
+yVBnACDlK+uYEyXZIK8vYv1lVZmjg/T0XPBP/n7K00noJORqeXx5qYNuPP9wt60tZfOQVQF2Y6f6
+lA6tCp/Din72pvQ4JxRgd3/TTuMI/wM5pHEzO61fFp60rMoBtgDMpWP6O6rT/2+lx1Vfm3ukxzCp
+2xzqMKnvlFiH+4Texw067JiZIjfJcXk0dwXjZuevLvilVDFPIkPhGiuSi1dyaxP/T24TxFh/uLjM
+lroeQWyPcBhg9tVAyeMZNvqC2GGCo9SH/Sv4sT90F6lu9+9GkZXTgMgg7gnAt1SHTOYiNDTlZ+F2
+lSNKqF20h4zJFcsSGtWbD459zb8hlqDsc/pE+y0LbkFjqcR6ExKDUVcM/p/PnT8K3hE+x8G195AQ
+gf8=
+=Vk0W
 -----END PGP SIGNATURE-----
 
---pyZR8drgja7WQpmkmetYozYATek7dMo4p--
+--fUCwg7Kcf5XhUz7W2mxvD8yfyNdVSH3DV--
 
---===============9177881618094260130==
+--===============9058370546907699172==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -193,4 +208,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============9177881618094260130==--
+--===============9058370546907699172==--
