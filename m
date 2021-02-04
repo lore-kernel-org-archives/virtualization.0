@@ -7,160 +7,159 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10559C433DB
-	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 17:09:09 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7825C433DB
+	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 17:12:27 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8BF6D64E8C
-	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 17:09:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8BF6D64E8C
+	by mail.kernel.org (Postfix) with ESMTPS id 751FB64DFA
+	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 17:12:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 751FB64DFA
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 4E9EE8721F;
-	Thu,  4 Feb 2021 17:09:08 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hJCG8GeuOwsw; Thu,  4 Feb 2021 17:09:06 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 49A82871F3;
-	Thu,  4 Feb 2021 17:09:06 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 30C89C0174;
-	Thu,  4 Feb 2021 17:09:06 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 814D3C013A
- for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 17:09:04 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 76B1D27484
- for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 17:09:04 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 0DE9B274FC;
+	Thu,  4 Feb 2021 17:12:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pCHdHEQJvdwo
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VXzymX435yPp; Thu,  4 Feb 2021 17:12:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id EB84E20023;
+	Thu,  4 Feb 2021 17:12:23 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C6980C0174;
+	Thu,  4 Feb 2021 17:12:23 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AB6BCC013A
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 17:09:03 +0000 (UTC)
+ Thu,  4 Feb 2021 17:12:21 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id 9213B86CC7
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  4 Feb 2021 17:12:21 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ERCPuW9ufGu4
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  4 Feb 2021 17:12:20 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from NAM02-SN1-obe.outbound.protection.outlook.com
- (mail-eopbgr770105.outbound.protection.outlook.com [40.107.77.105])
- by silver.osuosl.org (Postfix) with ESMTPS id 1B789203F7
+ (mail-eopbgr770135.outbound.protection.outlook.com [40.107.77.135])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id C6F8A86CC4
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 17:09:03 +0000 (UTC)
+ Thu,  4 Feb 2021 17:12:20 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=PByxfpBWME26MQKfI7qAqyT+us0UHoatzS6Hk/Gz0wfFhUqaoQ7T5GLvTTa33tLCUcD/3LnDzakpfVCJee4+Y0Ht2xlCLyIN7RARo6568a37z4lYHaIQSzLMJt1r5PD+YANP6onNPv1/e4QwxsslHFvEmpVovEA7ym/21URI4a2yqqwycF6cHVRE/mesj7KORPnh4GDuEjGv/LUHX8DQe3ONq87NVg0o1neIPXDCBOG2W8uZ8zm4K0Txeuhx5a04RIV6rqsb4UFof+wmXbTu8T6d0fiwC4muzYqM/bbyoNXyheuhacuR22+JajQS/cKrCBz1cgc8cjUEwS4Dk9vuag==
+ b=B07F0Wu/hAfccZLsfYLtel+hNlHWH2a7c/TYNArH0GKmbCEGSDjWkZV2m8sOYe+LfVLgiJFXvTgBX4CPiPe1oe9OTCeAZeNIURehFA4xNMr0xmSbXvkW2VdAvxtkX9ueDmc2AaXNWZTgUjbhuVmEYBj38A/02rX1qPxhiPButY+BLr1yvN+AEzUsW0u8mTJVwxwV7evJAkmnEXqAmMhwSoRrenZBcWUJLgY7+Wtf8R3KKCvMbzE99ABCV7gbswWEtywaOFh6tcphdfnQrp3sloW7T3u/9ueB4LjNEOc67DxUHNVbSvM96sIbCIvBG+gthch2JdZ8CLHi0wxUE2GgAA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0t6jmafsk6s3SwO3MbPVA0qGk3BgqPgerl5NO0nohjg=;
- b=k+k3JgrqwdmH9PoZJahXiWvuix5yZlfrAzQ+vswihynrs459ZvW0Z/e9XOKFFKlZ7P+bLKLIKMb3MSajenL9vyyiuCTkpNBla7WqpBvOa2i3v59c+Hx6xmvv5GLH8GAOho8meZ5YKEPW20ehcGnzn25Heoyu4bOw7s6COSpV65uWjOYQBYsWg+1ZLtU4suMFAXtbtJOKC3gJaLX8G+ugEC9eA/Wc1nj7EPS/JLflUJMwymiS2qrOGYdKRiHbHVqad7Qcd3m1w4AfmcXAvsWdHMg10i64p8wuimpDxf0WpQ1s7IyClxqsk+wVHI9S9I9FeO8ufzp92SABigN9Qx+Jlg==
+ bh=PZsx/AqAxbtrUh1BM/UkUEitlxP89ueP/CNNjw8SZ54=;
+ b=hGnj/FwKtXpT5qdIGojYNbLuqnjPUx3AX2ZBkxL4Ubmn0IaPyuBMXXKhNpQn+YN5NExSekW754scjxS8bkZOw3T7Bz27OuQ73l3N/Eg16O4xNU8kV7SCjomCx5Y2kD4vTzIp+dTY4XElnuiaZOvf9HUj3XvpGFRcR9z9gKV6iok4zShvqh0G+rYtrvQfivVK2DhDJe435jyzXAfpI0IDjNkBE4gkxJvN+oDAGXFMgudsW9dMxuBmYOms0rWdT3Mu91lksJuS0+zpvQ66yN3pIpk2JXNy7Oxp2d5MNItW9AY1Y1G2Q+skJ2UY6bwOibaQuYJgieoKBAmF1Zuwg0hIUg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=microsoft.com; dmarc=pass action=none
  header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=0t6jmafsk6s3SwO3MbPVA0qGk3BgqPgerl5NO0nohjg=;
- b=AtIc7BKZykkpXfPH72iuruuMn3Ko9psWBU+6U4Hd79Sj0ULY7od1I2Oh4S5fo1Jmc/VISKfyXvHn6mUt1UODrDL+pPyr7pB9opXvPJH5BCnNFFcHSh+sph8EarkbwRGlMc4MQgO72jA3sRMWSljFZr/65x7EqXu279fxTF35MhM=
+ bh=PZsx/AqAxbtrUh1BM/UkUEitlxP89ueP/CNNjw8SZ54=;
+ b=HrQ4WvuGoz5k36haj7vaSSpT5NC7NzBDiv7LRbfuxhxtFkz8F7yF30N3YQGOb3g05CPaqenwvRi94aKNUEAwiIxE8K53nY9TgNFOAqYM4zLvH4sDLLreF/hvTdE8r5RtVF1mtltxNuOV8j5zPU36z8oHl0s29dLkksGK5X20vs8=
 Received: from (2603:10b6:301:7c::11) by
  MW4PR21MB1971.namprd21.prod.outlook.com (2603:10b6:303:7d::23) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3846.3; Thu, 4 Feb 2021 16:54:56 +0000
+ 15.20.3846.3; Thu, 4 Feb 2021 16:57:00 +0000
 Received: from MWHPR21MB1593.namprd21.prod.outlook.com
  ([fe80::9c8:94c9:faf1:17c2]) by MWHPR21MB1593.namprd21.prod.outlook.com
  ([fe80::9c8:94c9:faf1:17c2%9]) with mapi id 15.20.3846.006; Thu, 4 Feb 2021
- 16:54:56 +0000
+ 16:57:00 +0000
 To: Wei Liu <wei.liu@kernel.org>, Linux on Hyper-V List
  <linux-hyperv@vger.kernel.org>
-Subject: RE: [PATCH v6 06/16] x86/hyperv: extract partition ID from Microsoft
- Hypervisor if necessary
-Thread-Topic: [PATCH v6 06/16] x86/hyperv: extract partition ID from Microsoft
- Hypervisor if necessary
-Thread-Index: AQHW+j3rORXmRlz8l0CnO8y8wM/FrqpIOC5g
-Date: Thu, 4 Feb 2021 16:54:56 +0000
-Message-ID: <MWHPR21MB1593B4FB343237A75D45E43FD7B39@MWHPR21MB1593.namprd21.prod.outlook.com>
+Subject: RE: [PATCH v6 08/16] ACPI / NUMA: add a stub function for
+ node_to_pxm()
+Thread-Topic: [PATCH v6 08/16] ACPI / NUMA: add a stub function for
+ node_to_pxm()
+Thread-Index: AQHW+j3qq5sQ0lOpw0S/7GiCHvmsdKpION2Q
+Date: Thu, 4 Feb 2021 16:56:59 +0000
+Message-ID: <MWHPR21MB159326FF807138DD759531F5D7B39@MWHPR21MB1593.namprd21.prod.outlook.com>
 References: <20210203150435.27941-1-wei.liu@kernel.org>
- <20210203150435.27941-7-wei.liu@kernel.org>
-In-Reply-To: <20210203150435.27941-7-wei.liu@kernel.org>
+ <20210203150435.27941-9-wei.liu@kernel.org>
+In-Reply-To: <20210203150435.27941-9-wei.liu@kernel.org>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2021-02-04T16:54:54Z; 
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2021-02-04T16:56:58Z; 
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=1852fe12-d2f1-43e4-ab64-b7566707f9e3;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=34a429a6-9374-47da-9691-415aa7d0499a;
  MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0
 authentication-results: kernel.org; dkim=none (message not signed)
  header.d=none;kernel.org; dmarc=none action=none header.from=microsoft.com;
 x-originating-ip: [24.22.167.197]
 x-ms-publictraffictype: Email
 x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 77ad9277-c4af-4261-b09f-08d8c92d9a07
+x-ms-office365-filtering-correlation-id: 90026fad-8335-4d54-b2e2-08d8c92de38d
 x-ms-traffictypediagnostic: MW4PR21MB1971:
 x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <MW4PR21MB197150ECD878105E7967C3FFD7B39@MW4PR21MB1971.namprd21.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:2733;
+x-ld-processed: 72f988bf-86f1-41af-91ab-2d7cd011db47,ExtAddr
+x-microsoft-antispam-prvs: <MW4PR21MB19710E3AB21403A84226C5E3D7B39@MW4PR21MB1971.namprd21.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:2657;
 x-ms-exchange-senderadcheck: 1
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 9DXh7MSPHqtaPiDn78lZQ2Df5c8/HbjsBGX0apDzyEN65SI8AqPB1uEWqT7Dvsgpd0X2NDvb7kYXv0046mR0xi+0jJr80C1GXZDWOxyciZ+BNDxjJmQGgS+D0cnJIrENxytQDiyY+0hJgsYFQgQ+Wv5uqdt/iXZwqzcK4PGyZ4IHVf7cWjXD4F3uharGBINhraqQc+c7Ye0wt8eN9dSCJJlMzHyIvPi4ABKqb7oHsZz0RRtGJmnVpmI4o0Hsh/OO4fbG4qjUc7+XnG8tKouqR891Dmqb1V7wRhNb7D0QFwC42cm9t5uMzfuUXzZxe3jnQdLAe6Oo5Q5J3tNVLsuKGQ0XiGHRfNUaIhfLkcfv1ttr949OB8cilpyjzMjo+H7EXtH+YNc285XyJoBnJlBl1DK9S27nXdyczsZRuix8wqiW1mHWK44fmgeEvy2gifKv4Yhq8MOKKjZxV5uvL4rBbxrepxXAt5cZn1MqtlEzi+BtaxYB0pSuOK2T4uVDtFcndJTVN9eIgdTo0JMo2hvsfg==
+x-microsoft-antispam-message-info: Fy9QxIGg+PQB6CyZE0xacOEZAbHjyT+xlTB3I4mYNNJNjYjVnrIcdEefwpPzd2oJ5bP8b8y139yB0dn7kDwS2316+z71eIILl1XqoujajyFlxygUx0Ij+qkVNcXWmfPdvfgLNOD0YKWWT9MTtIDLwtCWCxtGBFQlHc4b+Pq0aMZilKtqAkzgrX1xAA93VJFLbTlKUHUVZrv2qxphQzZaHpuUWn+LeuJdOuP3F8GCbuEtmk7BNZ6eCuAF36o+fDS76r/TG+z/s7Bbh/gWQkcmZByRj8TNeQtcnmPV97Hxva1CjEioOmFpFwOq3gTp8VBy4OoEepetoe+T6QSTA/EoTSlWykowlailFA26eN72qHWDo1JqxYZmsBefnkZasbrLmhAJwXP+r5a8GB6vjVfTDKLosC6QpEi9NgUPUqB2vErp+ALJVtRnos16g/5M5gPokgRT/hBL/I+xJAF0t25ESTWBd76YcGTxTdks/mmLiBAPsCDT5GlxbwUzpTGSm5pjRO1XvMS/p59NHrRTkjyNvg==
 x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:MWHPR21MB1593.namprd21.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(346002)(366004)(39860400002)(376002)(136003)(396003)(47530400004)(64756008)(66476007)(52536014)(66556008)(66446008)(478600001)(86362001)(83380400001)(6506007)(7696005)(8676002)(55016002)(33656002)(7416002)(9686003)(66946007)(4326008)(5660300002)(82960400001)(76116006)(54906003)(71200400001)(2906002)(110136005)(82950400001)(186003)(8990500004)(26005)(8936002)(316002)(10290500003);
+ SFS:(4636009)(366004)(64756008)(66476007)(52536014)(66556008)(66446008)(86362001)(498600001)(6506007)(7696005)(8676002)(4744005)(55016002)(33656002)(7416002)(9686003)(66946007)(4326008)(5660300002)(82960400001)(76116006)(54906003)(71200400001)(2906002)(110136005)(82950400001)(186003)(8990500004)(26005)(8936002)(10290500003);
  DIR:OUT; SFP:1102; 
-x-ms-exchange-antispam-messagedata: =?us-ascii?Q?QV8nDWhcFuFO5QPdFCVEywnvYpRphJ4QW+ROXE6BFOpYvsvJ7LL0a4KA/B5V?=
- =?us-ascii?Q?tugdBP/GT1myXibVRrXjLJTNk+Mnt9kAH5Bn5GbFwbTey721xKlrPwjNw/hz?=
- =?us-ascii?Q?Nz7wMK1gQVO6kia+guitZfYoWWbw/L4cNS+BW/Z5HX0TQ9MDRt52cxa17Bjm?=
- =?us-ascii?Q?VPcAAVkaNzqjJs3ZThYLbI9enIigFjUrCzfyuGt6MIE9k8yXBihhgTzp4cL0?=
- =?us-ascii?Q?WjjMPYOtJ6N/C3y6m8EynWxVgFcfO2/NKWi23DILGCaHXavBWhkX5S32e2jR?=
- =?us-ascii?Q?JucIe8QF+JMf/AH8TeOQVGO6cRiTGT1wMQsVmOh3AQ1QShl/R0QUCDNBlkHF?=
- =?us-ascii?Q?z4gx4QczOxjYNOKjcSdtuwkZMGMt53QbCFCCeasBX24T9syz7cpw0h3i8wP9?=
- =?us-ascii?Q?dOvMuJvTJHyOgudswr+PbwH+4V2zxmCRD/WZEbu5OjZ1C4Ubz41NyQ7JZNGz?=
- =?us-ascii?Q?y6V97BsAAjKyVIJlX5GwLT4hkfRZ9rBQ6hojpb+IPqWQTlbCrZKNYSl6OHIq?=
- =?us-ascii?Q?g4t/1q1HzlS+HzW0VatlyDTIXN9AnPFFRT2Nl+kxcT2MKpYMBNNCr81HrgK1?=
- =?us-ascii?Q?8yuRFbGDq4okdjZ+QgzpMEzRq4OdM0wrldyDVfGecDhdIQnLEnawfrQrXUrL?=
- =?us-ascii?Q?2RY5eIK/O/Iw4w18euQWcuw8eG2rYuisDqum+9H8e5rvHIb069/t16//f6dG?=
- =?us-ascii?Q?q37E5rkuToiCawfyYr02VlsKDXFTUY3vlqUim7qwLc/dP1+BNFnr54DxNojU?=
- =?us-ascii?Q?C0icNt0v6bXVLCmaAGY72Dr9zT1oSdxt5Jga2LV6j/mMgyvI+OxF3P+XJ0DD?=
- =?us-ascii?Q?1+3c4n99npOZzENHSOpx4bkqKAr0Sa+As9CVkcBw5Iv/dy+S3d5Acz3aYweQ?=
- =?us-ascii?Q?I9BFfXLMbgZlYv2ws1pk2zXQxPnjLq6b1dTUzdovotNQpi1UPwULMMTsHsFf?=
- =?us-ascii?Q?WJedL+xw1TrTCfY9Zr94Unyige333anCr5tjR0P8vIelyc8PbD68GzXSeBdG?=
- =?us-ascii?Q?OWcZLnCr5+JA/V9pomwqFkkR+rMRar+gcUDxUg3j0UPMMmH8fZzik8gss2KO?=
- =?us-ascii?Q?HIcNAddF38mYEHcz552omZ0TWDb+JoBroU3uJYUO0zHA/THWWF09GprXIlIN?=
- =?us-ascii?Q?h7RdbqNg9+hxSp7KpWdnRJLcJc9IjP09X/nBnXlinGPhXGs9KHqfRUq8E6XQ?=
- =?us-ascii?Q?9TzsvKv/VacLaLZ36ITPQ0OZ4IrVDbYG4bWfvlf+mvzM5+ix/zDntvuTt/oa?=
- =?us-ascii?Q?/FYVqhf/XigmEGA2JNy/hL1gtEaodS5trDEJ6gdf8AksfzpLFGMvheKWRm1W?=
- =?us-ascii?Q?wgEQmNhpNo8AuaWGHlPZZ/Ia?=
+x-ms-exchange-antispam-messagedata: =?us-ascii?Q?Sep6eGZaG9uPlMWOka8Xo5n/jAaedPECjIFPVJfUUBNorPTAc2O9iB993ose?=
+ =?us-ascii?Q?ET0XYVC3tx9JkxxrelfZ4Tve39/sfQ/Uds75tqkGQRBPrM4+6PXSi9VXaHch?=
+ =?us-ascii?Q?GyDLGYL3hvS77t3OLwUtKzR1HQ+FkoaOVSI9o3tEbBbhnZOo9VFI1UyOKgGv?=
+ =?us-ascii?Q?BpRSw2+jLs65QYumwz78UUgK1MHUevSG6j85W5sm4tdb7Wx0N0vBYaNJnUq7?=
+ =?us-ascii?Q?2jKpth8iP0OC9/blbiZZGWFDz43GxN9eCxFz5Kg5DXbgww9lHFzrJ2mZVcCg?=
+ =?us-ascii?Q?uC2TusDKyPhPzpTUiEOhpmXIuagdIgSOpBb04utg0Y8U66j6QTsCopq8qbW9?=
+ =?us-ascii?Q?p/AreVGeyvBXpdXrJF+x/4pebagZi4Gkw/RMmo5r4p3nMnjw6PnCrLhsbSV4?=
+ =?us-ascii?Q?2iRuT5SBOykYEhs2j7neooeIMwN02EfFE8qpofllj/GLu3lBpwy276qejtGK?=
+ =?us-ascii?Q?HMOsTCJ0t0xxL+MbToxyx184OseEx7JZ4sxJxjYGN1wDYrdxTxNeYnqK1tL/?=
+ =?us-ascii?Q?ZoE1xrKO8dejZhMN/wdF3BCUKnEFW3lr/4g5cc6rAHePr80VZWCDVHWBbXIu?=
+ =?us-ascii?Q?Yugvd751lPJRyQQ7f5b+xs+u/8EJrL5tF5MAlw+lCY9R5g6n0X28hBLo6ilL?=
+ =?us-ascii?Q?cGdUhINRf7kQ6Jyhnl1LZCYGh4F5OLnnxBKg0S+xlPquJli23QHhjdjjFE/c?=
+ =?us-ascii?Q?rQrMQfS0zhzTDot+pXy0C2SjeCSro7hGT71UJspUlY+3W39NrcHvx9EvYJ50?=
+ =?us-ascii?Q?NwPxda+wm5NNhTAY77xAy3W9kWCRlDWTwqchc1ILZU8uHC/BafptH2eKEjOB?=
+ =?us-ascii?Q?SObFeipxQYFbP6m8Zqre0nmrIX1UbU75CquF4NUDLA5RqSbowmDieY0a1d28?=
+ =?us-ascii?Q?jtmgr3FDGe6cUov8n8wtCf+gq4arYueV1XvLbYA5s26JBRFVIldj/Y3cqHbN?=
+ =?us-ascii?Q?Beo8ydZXl1OMgnfjaxWUGoX7yyzQsU2xMbHJkGKFenx9QCyuTYmVIKb37dib?=
+ =?us-ascii?Q?CwNSWsIlQGZZgtj2ClsJmcjS4ybM9pLSguJQH8BTAaeeZrOThdkPAdnRu+++?=
+ =?us-ascii?Q?5UEnAy3RDecViCZf23Y6IqjNh5T/wgPDbjS/093eN3wlXH1JGTzXFjV9yIGq?=
+ =?us-ascii?Q?aB61rUOLr+FoUuNMic/sdE5bse1h39OelR+FYZ6bIGKscInV8XuX+60HO3lh?=
+ =?us-ascii?Q?KYCEUdL3xBpHFf/szd9QFoKcL96XCCQ6h4L5UjUro3DOUmtIVn6fVpK+YAoL?=
+ =?us-ascii?Q?/oFPr4zF2KN38O1uAgUJJzWv4da9VavDNkxyQ7YABSz0y/ywtYW/qrZVDU0D?=
+ =?us-ascii?Q?qTYoMIrxsnHfXTMwoxHSuPdS?=
 MIME-Version: 1.0
 X-OriginatorOrg: microsoft.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: MWHPR21MB1593.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 77ad9277-c4af-4261-b09f-08d8c92d9a07
-X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Feb 2021 16:54:56.5373 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 90026fad-8335-4d54-b2e2-08d8c92de38d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Feb 2021 16:56:59.9641 (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 0eoByIMDfFIHmQLT/dSp9QA7w6X8nJkopDHplTP0TKEAoQA3whm8ijcknye+KPuTxPx+81G+z+r7+wVMXJtEXZCkL6DgtnI0ZezpYDDuyhI=
+X-MS-Exchange-CrossTenant-userprincipalname: H17FC8O/nb0BziOFkktbdWVWGX1ElqLCooXESPiEOrhnC0+Gg2BLpfrq5pKLfSAMe5jLNVo7ECmPZQKCTFiVnl9QoLt6qLoCeCEnXwIGGcQ=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR21MB1971
-Cc: "open list:GENERIC INCLUDE/ASM HEADER FILES" <linux-arch@vger.kernel.org>,
- Stephen Hemminger <sthemmin@microsoft.com>,
- "pasha.tatashin@soleen.com" <pasha.tatashin@soleen.com>,
- Arnd Bergmann <arnd@arndb.de>,
- Lillian Grassin-Drake <Lillian.GrassinDrake@microsoft.com>,
- "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
+Cc: "pasha.tatashin@soleen.com" <pasha.tatashin@soleen.com>, "open
+ list:ACPI COMPONENT ARCHITECTURE \(ACPICA\)" <linux-acpi@vger.kernel.org>,
+ "Kaneda, Erik" <erik.schmauss@intel.com>, "Rafael
+ J. Wysocki" <rafael.j.wysocki@intel.com>,
  Linux Kernel List <linux-kernel@vger.kernel.org>,
  "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>,
- Thomas Gleixner <tglx@linutronix.de>, "H. Peter
- Anvin" <hpa@zytor.com>, Nuno Das Neves <nunodasneves@linux.microsoft.com>,
- Borislav Petkov <bp@alien8.de>, Sunil Muthuswamy <sunilmut@microsoft.com>,
- Vineeth Pillai <viremana@linux.microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>
+ <virtualization@lists.linux-foundation.org>,
+ "robert.moore" <robert.moore@intel.com>,
+ Nuno Das Neves <nunodasneves@linux.microsoft.com>,
+ Sunil Muthuswamy <sunilmut@microsoft.com>,
+ "open list:ACPI COMPONENT ARCHITECTURE \(ACPICA\)" <devel@acpica.org>,
+ Vineeth Pillai <viremana@linux.microsoft.com>, Len Brown <lenb@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -182,112 +181,33 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Wei Liu <wei.liu@kernel.org> Sent: Wednesday, February 3, 2021 7:04 AM
 > 
-> We will need the partition ID for executing some hypercalls later.
+> There is already a stub function for pxm_to_node but conversion to the
+> other direction is missing.
 > 
-> Signed-off-by: Lillian Grassin-Drake <ligrassi@microsoft.com>
-> Co-Developed-by: Sunil Muthuswamy <sunilmut@microsoft.com>
+> It will be used by Microsoft Hypervisor code later.
+> 
 > Signed-off-by: Wei Liu <wei.liu@kernel.org>
 > ---
-> v6:
-> 1. Use u64 status.
-> 
-> v3:
-> 1. Make hv_get_partition_id static.
-> 2. Change code structure a bit.
+> v6: new
 > ---
->  arch/x86/hyperv/hv_init.c         | 26 ++++++++++++++++++++++++++
->  arch/x86/include/asm/mshyperv.h   |  2 ++
->  include/asm-generic/hyperv-tlfs.h |  6 ++++++
->  3 files changed, 34 insertions(+)
+>  include/acpi/acpi_numa.h | 4 ++++
+>  1 file changed, 4 insertions(+)
 > 
-> diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
-> index 6f4cb40e53fe..5b90a7290177 100644
-> --- a/arch/x86/hyperv/hv_init.c
-> +++ b/arch/x86/hyperv/hv_init.c
-> @@ -26,6 +26,9 @@
->  #include <linux/syscore_ops.h>
->  #include <clocksource/hyperv_timer.h>
-> 
-> +u64 hv_current_partition_id = ~0ull;
-> +EXPORT_SYMBOL_GPL(hv_current_partition_id);
-> +
->  void *hv_hypercall_pg;
->  EXPORT_SYMBOL_GPL(hv_hypercall_pg);
-> 
-> @@ -331,6 +334,24 @@ static struct syscore_ops hv_syscore_ops = {
->  	.resume		= hv_resume,
->  };
-> 
-> +static void __init hv_get_partition_id(void)
-> +{
-> +	struct hv_get_partition_id *output_page;
-> +	u64 status;
-> +	unsigned long flags;
-> +
-> +	local_irq_save(flags);
-> +	output_page = *this_cpu_ptr(hyperv_pcpu_output_arg);
-> +	status = hv_do_hypercall(HVCALL_GET_PARTITION_ID, NULL, output_page);
-> +	if ((status & HV_HYPERCALL_RESULT_MASK) != HV_STATUS_SUCCESS) {
-> +		/* No point in proceeding if this failed */
-> +		pr_err("Failed to get partition ID: %lld\n", status);
-> +		BUG();
-> +	}
-> +	hv_current_partition_id = output_page->partition_id;
-> +	local_irq_restore(flags);
-> +}
-> +
->  /*
->   * This function is to be invoked early in the boot sequence after the
->   * hypervisor has been detected.
-> @@ -426,6 +447,11 @@ void __init hyperv_init(void)
-> 
->  	register_syscore_ops(&hv_syscore_ops);
-> 
-> +	if (cpuid_ebx(HYPERV_CPUID_FEATURES) & HV_ACCESS_PARTITION_ID)
-> +		hv_get_partition_id();
-> +
-> +	BUG_ON(hv_root_partition && hv_current_partition_id == ~0ull);
-> +
->  	return;
-> 
->  remove_cpuhp_state:
-> diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
-> index 62d9390f1ddf..67f5d35a73d3 100644
-> --- a/arch/x86/include/asm/mshyperv.h
-> +++ b/arch/x86/include/asm/mshyperv.h
-> @@ -78,6 +78,8 @@ extern void *hv_hypercall_pg;
->  extern void  __percpu  **hyperv_pcpu_input_arg;
->  extern void  __percpu  **hyperv_pcpu_output_arg;
-> 
-> +extern u64 hv_current_partition_id;
-> +
->  static inline u64 hv_do_hypercall(u64 control, void *input, void *output)
+> diff --git a/include/acpi/acpi_numa.h b/include/acpi/acpi_numa.h
+> index a4c6ef809e27..40a91ce87e04 100644
+> --- a/include/acpi/acpi_numa.h
+> +++ b/include/acpi/acpi_numa.h
+> @@ -30,6 +30,10 @@ static inline int pxm_to_node(int pxm)
 >  {
->  	u64 input_address = input ? virt_to_phys(input) : 0;
-> diff --git a/include/asm-generic/hyperv-tlfs.h b/include/asm-generic/hyperv-tlfs.h
-> index e6903589a82a..87b1a79b19eb 100644
-> --- a/include/asm-generic/hyperv-tlfs.h
-> +++ b/include/asm-generic/hyperv-tlfs.h
-> @@ -141,6 +141,7 @@ struct ms_hyperv_tsc_page {
->  #define HVCALL_FLUSH_VIRTUAL_ADDRESS_SPACE_EX	0x0013
->  #define HVCALL_FLUSH_VIRTUAL_ADDRESS_LIST_EX	0x0014
->  #define HVCALL_SEND_IPI_EX			0x0015
-> +#define HVCALL_GET_PARTITION_ID			0x0046
->  #define HVCALL_GET_VP_REGISTERS			0x0050
->  #define HVCALL_SET_VP_REGISTERS			0x0051
->  #define HVCALL_POST_MESSAGE			0x005c
-> @@ -407,6 +408,11 @@ struct hv_tlb_flush_ex {
->  	u64 gva_list[];
->  } __packed;
+>  	return 0;
+>  }
+> +static inline int node_to_pxm(int node)
+> +{
+> +	return 0;
+> +}
+>  #endif				/* CONFIG_ACPI_NUMA */
 > 
-> +/* HvGetPartitionId hypercall (output only) */
-> +struct hv_get_partition_id {
-> +	u64 partition_id;
-> +} __packed;
-> +
->  /* HvRetargetDeviceInterrupt hypercall */
->  union hv_msi_entry {
->  	u64 as_uint64;
+>  #ifdef CONFIG_ACPI_HMAT
 > --
 > 2.20.1
 
