@@ -7,78 +7,78 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAE94C433E6
-	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 17:24:39 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 294CDC433DB
+	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 17:24:45 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3D2E164F65
-	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 17:24:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3D2E164F65
+	by mail.kernel.org (Postfix) with ESMTPS id A1BF164F67
+	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 17:24:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A1BF164F67
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 05FEC87227;
-	Thu,  4 Feb 2021 17:24:39 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 5FC232C35C;
+	Thu,  4 Feb 2021 17:24:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id U4z7JlqVd28U; Thu,  4 Feb 2021 17:24:38 +0000 (UTC)
+	with ESMTP id cS+kLEO-EtCa; Thu,  4 Feb 2021 17:24:43 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 3B29887226;
-	Thu,  4 Feb 2021 17:24:38 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 9BB7B27A4E;
+	Thu,  4 Feb 2021 17:24:43 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 32468C07FD;
-	Thu,  4 Feb 2021 17:24:38 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 87821C07FD;
+	Thu,  4 Feb 2021 17:24:43 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EA48AC013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6A447C013A
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 17:24:36 +0000 (UTC)
+ Thu,  4 Feb 2021 17:24:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id E3E1929C87
+ by silver.osuosl.org (Postfix) with ESMTP id 42C5F29C87
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 17:24:36 +0000 (UTC)
+ Thu,  4 Feb 2021 17:24:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZVtVHupWCBvD
+ with ESMTP id CBUzkbsKeS1u
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 17:24:36 +0000 (UTC)
+ Thu,  4 Feb 2021 17:24:41 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by silver.osuosl.org (Postfix) with ESMTPS id A5A35275B0
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by silver.osuosl.org (Postfix) with ESMTPS id 9315027A4E
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 17:24:35 +0000 (UTC)
+ Thu,  4 Feb 2021 17:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1612459474;
+ s=mimecast20190719; t=1612459480;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=uGL2XxxvonoRKn9Qyx3ijyw5nyfnwA232pR9zEDfWZY=;
- b=JqP95IJdDNQ6nMlGpKxOC5lW7QopCZbwcFWMXlMDzeQh97u1DX0j4cUWLv9dvW6yJnl+D+
- yBEXtj0WCMcwC2+CY4yd64iG93zZI+EMm+ptbPbUiw5mk/uAcR+9Iriqf7UXzm173pzrPJ
- i1FA3xeO39ljaJLUropI+6r3gh/Qfe8=
+ bh=4j9zpih3Ykwem+k26aYRkULpCXmZClGuMDmmSgi8w0A=;
+ b=e9JaO/w0KPBNxB+Lwu5yjfQ2FMl43/nE8SYrMsKVIxscwp8jMFZJsOcO/m0sLGFtt4akFA
+ sGIgoaM7Vllf69/8DrhLa5pIEoOGEqpN1Knt3TpEKTuA6An3Mo5I1PpxS/wVug0gcm9nIH
+ 4mnIADWI4bhAKPAmdv59Fz4xW0Jn8sI=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-366-JtwcKtCtOoCOz41VprIDMA-1; Thu, 04 Feb 2021 12:24:32 -0500
-X-MC-Unique: JtwcKtCtOoCOz41VprIDMA-1
+ us-mta-239-o2Nj-lmQOB2Y9X-alkiFkw-1; Thu, 04 Feb 2021 12:24:37 -0500
+X-MC-Unique: o2Nj-lmQOB2Y9X-alkiFkw-1
 Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
  [10.5.11.16])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 992B957052;
- Thu,  4 Feb 2021 17:24:30 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 625298799ED;
+ Thu,  4 Feb 2021 17:24:35 +0000 (UTC)
 Received: from steredhat.redhat.com (ovpn-113-213.ams2.redhat.com
  [10.36.113.213])
- by smtp.corp.redhat.com (Postfix) with ESMTP id A62705C290;
- Thu,  4 Feb 2021 17:24:21 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id EA8B35C3FD;
+ Thu,  4 Feb 2021 17:24:30 +0000 (UTC)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH v3 12/13] vdpa_sim_blk: implement ramdisk behaviour
-Date: Thu,  4 Feb 2021 18:22:29 +0100
-Message-Id: <20210204172230.85853-13-sgarzare@redhat.com>
+Subject: [PATCH v3 13/13] vdpa_sim_blk: handle VIRTIO_BLK_T_GET_ID
+Date: Thu,  4 Feb 2021 18:22:30 +0100
+Message-Id: <20210204172230.85853-14-sgarzare@redhat.com>
 In-Reply-To: <20210204172230.85853-1-sgarzare@redhat.com>
 References: <20210204172230.85853-1-sgarzare@redhat.com>
 MIME-Version: 1.0
@@ -103,136 +103,42 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The previous implementation wrote only the status of each request.
-This patch implements a more accurate block device simulator,
-providing a ramdisk-like behavior and adding input validation.
+Handle VIRTIO_BLK_T_GET_ID request, always answering the
+"vdpa_blk_sim" string.
 
 Acked-by: Jason Wang <jasowang@redhat.com>
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
 v2:
-- used %zd %zx to print size_t and ssize_t variables in dev_err()
-- removed unnecessary new line [Jason]
-- moved VIRTIO_BLK_T_GET_ID in another patch [Jason]
-- used push/pull instead of write/read terminology
-- added vdpasim_blk_check_range() to avoid overflows [Stefan]
-- use vdpasim*_to_cpu instead of le*_to_cpu
-- used vringh_kiov_length() helper [Jason]
+- made 'vdpasim_blk_id' static [Jason]
 ---
- drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 164 ++++++++++++++++++++++++---
- 1 file changed, 146 insertions(+), 18 deletions(-)
+ drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
 diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
-index 9822f9edc511..2652a499fb34 100644
+index 2652a499fb34..4e4112dda616 100644
 --- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
 +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
-@@ -3,6 +3,7 @@
-  * VDPA simulator for block device.
-  *
-  * Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
-+ * Copyright (c) 2021, Red Hat Inc. All rights reserved.
-  *
-  */
- 
-@@ -13,6 +14,7 @@
- #include <linux/sched.h>
- #include <linux/vringh.h>
- #include <linux/vdpa.h>
-+#include <linux/blkdev.h>
- #include <uapi/linux/virtio_blk.h>
- 
- #include "vdpa_sim.h"
-@@ -36,10 +38,151 @@
+@@ -37,6 +37,7 @@
+ #define VDPASIM_BLK_VQ_NUM	1
  
  static struct vdpasim *vdpasim_blk_dev;
++static char vdpasim_blk_id[VIRTIO_BLK_ID_BYTES] = "vdpa_blk_sim";
  
-+static bool vdpasim_blk_check_range(u64 start_sector, size_t range_size)
-+{
-+	u64 range_sectors = range_size >> SECTOR_SHIFT;
-+
-+	if (range_size > VDPASIM_BLK_SIZE_MAX * VDPASIM_BLK_SEG_MAX)
-+		return false;
-+
-+	if (start_sector > VDPASIM_BLK_CAPACITY)
-+		return false;
-+
-+	if (range_sectors > VDPASIM_BLK_CAPACITY - start_sector)
-+		return false;
-+
-+	return true;
-+}
-+
-+/* Returns 'true' if the request is handled (with or without an I/O error)
-+ * and the status is correctly written in the last byte of the 'in iov',
-+ * 'false' otherwise.
-+ */
-+static bool vdpasim_blk_handle_req(struct vdpasim *vdpasim,
-+				   struct vdpasim_virtqueue *vq)
-+{
-+	size_t pushed = 0, to_pull, to_push;
-+	struct virtio_blk_outhdr hdr;
-+	ssize_t bytes;
-+	loff_t offset;
-+	u64 sector;
-+	u8 status;
-+	u32 type;
-+	int ret;
-+
-+	ret = vringh_getdesc_iotlb(&vq->vring, &vq->out_iov, &vq->in_iov,
-+				   &vq->head, GFP_ATOMIC);
-+	if (ret != 1)
-+		return false;
-+
-+	if (vq->out_iov.used < 1 || vq->in_iov.used < 1) {
-+		dev_err(&vdpasim->vdpa.dev, "missing headers - out_iov: %u in_iov %u\n",
-+			vq->out_iov.used, vq->in_iov.used);
-+		return false;
-+	}
-+
-+	if (vq->in_iov.iov[vq->in_iov.used - 1].iov_len < 1) {
-+		dev_err(&vdpasim->vdpa.dev, "request in header too short\n");
-+		return false;
-+	}
-+
-+	/* The last byte is the status and we checked if the last iov has
-+	 * enough room for it.
-+	 */
-+	to_push = vringh_kiov_length(&vq->in_iov) - 1;
-+
-+	to_pull = vringh_kiov_length(&vq->out_iov);
-+
-+	bytes = vringh_iov_pull_iotlb(&vq->vring, &vq->out_iov, &hdr,
-+				      sizeof(hdr));
-+	if (bytes != sizeof(hdr)) {
-+		dev_err(&vdpasim->vdpa.dev, "request out header too short\n");
-+		return false;
-+	}
-+
-+	to_pull -= bytes;
-+
-+	type = vdpasim32_to_cpu(vdpasim, hdr.type);
-+	sector = vdpasim64_to_cpu(vdpasim, hdr.sector);
-+	offset = sector << SECTOR_SHIFT;
-+	status = VIRTIO_BLK_S_OK;
-+
-+	switch (type) {
-+	case VIRTIO_BLK_T_IN:
-+		if (!vdpasim_blk_check_range(sector, to_push)) {
-+			dev_err(&vdpasim->vdpa.dev,
-+				"reading over the capacity - offset: 0x%llx len: 0x%zx\n",
-+				offset, to_push);
-+			status = VIRTIO_BLK_S_IOERR;
-+			break;
-+		}
-+
+ static bool vdpasim_blk_check_range(u64 start_sector, size_t range_size)
+ {
+@@ -152,6 +153,20 @@ static bool vdpasim_blk_handle_req(struct vdpasim *vdpasim,
+ 		}
+ 		break;
+ 
++	case VIRTIO_BLK_T_GET_ID:
 +		bytes = vringh_iov_push_iotlb(&vq->vring, &vq->in_iov,
-+					      vdpasim->buffer + offset,
-+					      to_push);
++					      vdpasim_blk_id,
++					      VIRTIO_BLK_ID_BYTES);
 +		if (bytes < 0) {
 +			dev_err(&vdpasim->vdpa.dev,
-+				"vringh_iov_push_iotlb() error: %zd offset: 0x%llx len: 0x%zx\n",
-+				bytes, offset, to_push);
++				"vringh_iov_push_iotlb() error: %zd\n", bytes);
 +			status = VIRTIO_BLK_S_IOERR;
 +			break;
 +		}
@@ -240,95 +146,9 @@ index 9822f9edc511..2652a499fb34 100644
 +		pushed += bytes;
 +		break;
 +
-+	case VIRTIO_BLK_T_OUT:
-+		if (!vdpasim_blk_check_range(sector, to_pull)) {
-+			dev_err(&vdpasim->vdpa.dev,
-+				"writing over the capacity - offset: 0x%llx len: 0x%zx\n",
-+				offset, to_pull);
-+			status = VIRTIO_BLK_S_IOERR;
-+			break;
-+		}
-+
-+		bytes = vringh_iov_pull_iotlb(&vq->vring, &vq->out_iov,
-+					      vdpasim->buffer + offset,
-+					      to_pull);
-+		if (bytes < 0) {
-+			dev_err(&vdpasim->vdpa.dev,
-+				"vringh_iov_pull_iotlb() error: %zd offset: 0x%llx len: 0x%zx\n",
-+				bytes, offset, to_pull);
-+			status = VIRTIO_BLK_S_IOERR;
-+			break;
-+		}
-+		break;
-+
-+	default:
-+		dev_warn(&vdpasim->vdpa.dev,
-+			 "Unsupported request type %d\n", type);
-+		status = VIRTIO_BLK_S_IOERR;
-+		break;
-+	}
-+
-+	/* If some operations fail, we need to skip the remaining bytes
-+	 * to put the status in the last byte
-+	 */
-+	if (to_push - pushed > 0)
-+		vringh_kiov_advance(&vq->in_iov, to_push - pushed);
-+
-+	/* Last byte is the status */
-+	bytes = vringh_iov_push_iotlb(&vq->vring, &vq->in_iov, &status, 1);
-+	if (bytes != 1)
-+		return false;
-+
-+	pushed += bytes;
-+
-+	/* Make sure data is wrote before advancing index */
-+	smp_wmb();
-+
-+	vringh_complete_iotlb(&vq->vring, vq->head, pushed);
-+
-+	return true;
-+}
-+
- static void vdpasim_blk_work(struct work_struct *work)
- {
- 	struct vdpasim *vdpasim = container_of(work, struct vdpasim, work);
--	u8 status = VIRTIO_BLK_S_OK;
- 	int i;
- 
- 	spin_lock(&vdpasim->lock);
-@@ -53,22 +196,7 @@ static void vdpasim_blk_work(struct work_struct *work)
- 		if (!vq->ready)
- 			continue;
- 
--		while (vringh_getdesc_iotlb(&vq->vring, &vq->out_iov,
--					    &vq->in_iov, &vq->head,
--					    GFP_ATOMIC) > 0) {
--			int write;
--
--			vq->in_iov.i = vq->in_iov.used - 1;
--			write = vringh_iov_push_iotlb(&vq->vring, &vq->in_iov,
--						      &status, 1);
--			if (write <= 0)
--				break;
--
--			/* Make sure data is wrote before advancing index */
--			smp_wmb();
--
--			vringh_complete_iotlb(&vq->vring, vq->head, write);
--
-+		while (vdpasim_blk_handle_req(vdpasim, vq)) {
- 			/* Make sure used is visible before rasing the interrupt. */
- 			smp_wmb();
- 
-@@ -109,7 +237,7 @@ static int __init vdpasim_blk_init(void)
- 	dev_attr.config_size = sizeof(struct virtio_blk_config);
- 	dev_attr.get_config = vdpasim_blk_get_config;
- 	dev_attr.work_fn = vdpasim_blk_work;
--	dev_attr.buffer_size = PAGE_SIZE;
-+	dev_attr.buffer_size = VDPASIM_BLK_CAPACITY << SECTOR_SHIFT;
- 
- 	vdpasim_blk_dev = vdpasim_create(&dev_attr);
- 	if (IS_ERR(vdpasim_blk_dev)) {
+ 	default:
+ 		dev_warn(&vdpasim->vdpa.dev,
+ 			 "Unsupported request type %d\n", type);
 -- 
 2.29.2
 
