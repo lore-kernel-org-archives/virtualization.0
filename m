@@ -2,65 +2,64 @@ Return-Path: <SRS0=AmYR=HG=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86D10C433E0
-	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 20:03:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D354BC433E6
+	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 20:03:21 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 28F8164F6A
-	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 20:03:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 28F8164F6A
+	by mail.kernel.org (Postfix) with ESMTPS id 739E264F45
+	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 20:03:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 739E264F45
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id D69C987244;
-	Thu,  4 Feb 2021 20:03:19 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 1A77687262;
+	Thu,  4 Feb 2021 20:03:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rokcTcUnIDsi; Thu,  4 Feb 2021 20:03:19 +0000 (UTC)
+	with ESMTP id VAhtgeAZv176; Thu,  4 Feb 2021 20:03:20 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 2572A8723C;
-	Thu,  4 Feb 2021 20:03:19 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 2611387241;
+	Thu,  4 Feb 2021 20:03:20 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D3585C1D9F;
-	Thu,  4 Feb 2021 20:03:18 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 64824C07FD
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 04327C1825;
+	Thu,  4 Feb 2021 20:03:20 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 766E1C07FD
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 20:03:16 +0000 (UTC)
+ Thu,  4 Feb 2021 20:03:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 462FD204C6
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 63ED986542
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  4 Feb 2021 20:03:17 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id SsHPZyD9kLsV
  for <virtualization@lists.linux-foundation.org>;
  Thu,  4 Feb 2021 20:03:16 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fVQ0a+U2dVf0
- for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 20:03:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTPS id 9FEEE20471
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 80DBC86502
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 20:03:14 +0000 (UTC)
+ Thu,  4 Feb 2021 20:03:16 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 15F92AD19;
- Thu,  4 Feb 2021 20:03:13 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id 1BCA1ADD3;
+ Thu,  4 Feb 2021 20:03:15 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: daniel@ffwll.ch, airlied@linux.ie, maarten.lankhorst@linux.intel.com,
  mripard@kernel.org, kraxel@redhat.com, hdegoede@redhat.com,
  sean@poorly.run, sam@ravnborg.org, noralf@tronnes.org
-Subject: [PATCH 1/6] drm/simple-kms: Add plane-state helpers
-Date: Thu,  4 Feb 2021 21:03:03 +0100
-Message-Id: <20210204200308.24216-2-tzimmermann@suse.de>
+Subject: [PATCH 3/6] drm/mgag200: Move vmap out of commit tail
+Date: Thu,  4 Feb 2021 21:03:05 +0100
+Message-Id: <20210204200308.24216-4-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210204200308.24216-1-tzimmermann@suse.de>
 References: <20210204200308.24216-1-tzimmermann@suse.de>
@@ -83,109 +82,98 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Just like regular plane-state helpers, drivers can use these new
-callbacks to create and destroy private plane state.
+Vmap operations may acquire the dmabuf reservation lock, which is not
+allowed within atomic commit-tail functions. Therefore move vmap and
+vunmap from the damage handler into prepare_fb and cleanup_fb callbacks.
+
+The mapping is provided as GEM shadow-buffered plane. The functions in
+the commit tail use the pre-established mapping for damage handling.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/drm_simple_kms_helper.c | 40 +++++++++++++++++++++++--
- include/drm/drm_simple_kms_helper.h     | 28 +++++++++++++++++
- 2 files changed, 65 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/mgag200/mgag200_mode.c | 23 ++++++++---------------
+ 1 file changed, 8 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_simple_kms_helper.c b/drivers/gpu/drm/drm_simple_kms_helper.c
-index 6ce8f5cd1eb5..0c5bb0f98fa0 100644
---- a/drivers/gpu/drm/drm_simple_kms_helper.c
-+++ b/drivers/gpu/drm/drm_simple_kms_helper.c
-@@ -253,13 +253,47 @@ static const struct drm_plane_helper_funcs drm_simple_kms_plane_helper_funcs = {
- 	.atomic_update = drm_simple_kms_plane_atomic_update,
+diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
+index 1dfc42170059..f871753e898e 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_mode.c
++++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
+@@ -17,6 +17,7 @@
+ #include <drm/drm_damage_helper.h>
+ #include <drm/drm_format_helper.h>
+ #include <drm/drm_fourcc.h>
++#include <drm/drm_gem_atomic_helper.h>
+ #include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_plane_helper.h>
+ #include <drm/drm_print.h>
+@@ -1549,22 +1550,12 @@ mgag200_simple_display_pipe_mode_valid(struct drm_simple_display_pipe *pipe,
+ 
+ static void
+ mgag200_handle_damage(struct mga_device *mdev, struct drm_framebuffer *fb,
+-		      struct drm_rect *clip)
++		      struct drm_rect *clip, const struct dma_buf_map *map)
+ {
+-	struct drm_device *dev = &mdev->base;
+-	struct dma_buf_map map;
+-	void *vmap;
+-	int ret;
+-
+-	ret = drm_gem_shmem_vmap(fb->obj[0], &map);
+-	if (drm_WARN_ON(dev, ret))
+-		return; /* BUG: SHMEM BO should always be vmapped */
+-	vmap = map.vaddr; /* TODO: Use mapping abstraction properly */
++	void *vmap = map->vaddr; /* TODO: Use mapping abstraction properly */
+ 
+ 	drm_fb_memcpy_dstclip(mdev->vram, vmap, fb, clip);
+ 
+-	drm_gem_shmem_vunmap(fb->obj[0], &map);
+-
+ 	/* Always scanout image at VRAM offset 0 */
+ 	mgag200_set_startadd(mdev, (u32)0);
+ 	mgag200_set_offset(mdev, fb);
+@@ -1580,6 +1571,7 @@ mgag200_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
+ 	struct mga_device *mdev = to_mga_device(dev);
+ 	struct drm_display_mode *adjusted_mode = &crtc_state->adjusted_mode;
+ 	struct drm_framebuffer *fb = plane_state->fb;
++	struct drm_shadow_plane_state *shadow_plane_state = to_drm_shadow_plane_state(plane_state);
+ 	struct drm_rect fullscreen = {
+ 		.x1 = 0,
+ 		.x2 = fb->width,
+@@ -1608,7 +1600,7 @@ mgag200_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
+ 	mga_crtc_load_lut(crtc);
+ 	mgag200_enable_display(mdev);
+ 
+-	mgag200_handle_damage(mdev, fb, &fullscreen);
++	mgag200_handle_damage(mdev, fb, &fullscreen, &shadow_plane_state->map[0]);
+ }
+ 
+ static void
+@@ -1649,6 +1641,7 @@ mgag200_simple_display_pipe_update(struct drm_simple_display_pipe *pipe,
+ 	struct drm_device *dev = plane->dev;
+ 	struct mga_device *mdev = to_mga_device(dev);
+ 	struct drm_plane_state *state = plane->state;
++	struct drm_shadow_plane_state *shadow_plane_state = to_drm_shadow_plane_state(state);
+ 	struct drm_framebuffer *fb = state->fb;
+ 	struct drm_rect damage;
+ 
+@@ -1656,7 +1649,7 @@ mgag200_simple_display_pipe_update(struct drm_simple_display_pipe *pipe,
+ 		return;
+ 
+ 	if (drm_atomic_helper_damage_merged(old_state, state, &damage))
+-		mgag200_handle_damage(mdev, fb, &damage);
++		mgag200_handle_damage(mdev, fb, &damage, &shadow_plane_state->map[0]);
+ }
+ 
+ static const struct drm_simple_display_pipe_funcs
+@@ -1666,7 +1659,7 @@ mgag200_simple_display_pipe_funcs = {
+ 	.disable    = mgag200_simple_display_pipe_disable,
+ 	.check	    = mgag200_simple_display_pipe_check,
+ 	.update	    = mgag200_simple_display_pipe_update,
+-	.prepare_fb = drm_gem_fb_simple_display_pipe_prepare_fb,
++	DRM_GEM_SIMPLE_DISPLAY_PIPE_SHADOW_PLANE_FUNCS,
  };
  
-+static void drm_simple_kms_plane_reset(struct drm_plane *plane)
-+{
-+	struct drm_simple_display_pipe *pipe;
-+
-+	pipe = container_of(plane, struct drm_simple_display_pipe, plane);
-+	if (!pipe->funcs || !pipe->funcs->reset_plane)
-+		return drm_atomic_helper_plane_reset(plane);
-+
-+	return pipe->funcs->reset_plane(pipe);
-+}
-+
-+static struct drm_plane_state *drm_simple_kms_plane_duplicate_state(struct drm_plane *plane)
-+{
-+	struct drm_simple_display_pipe *pipe;
-+
-+	pipe = container_of(plane, struct drm_simple_display_pipe, plane);
-+	if (!pipe->funcs || !pipe->funcs->duplicate_plane_state)
-+		return drm_atomic_helper_plane_duplicate_state(plane);
-+
-+	return pipe->funcs->duplicate_plane_state(pipe, plane->state);
-+}
-+
-+static void drm_simple_kms_plane_destroy_state(struct drm_plane *plane,
-+					       struct drm_plane_state *state)
-+{
-+	struct drm_simple_display_pipe *pipe;
-+
-+	pipe = container_of(plane, struct drm_simple_display_pipe, plane);
-+	if (!pipe->funcs || !pipe->funcs->destroy_plane_state)
-+		drm_atomic_helper_plane_destroy_state(plane, state);
-+	else
-+		pipe->funcs->destroy_plane_state(pipe, state);
-+}
-+
- static const struct drm_plane_funcs drm_simple_kms_plane_funcs = {
- 	.update_plane		= drm_atomic_helper_update_plane,
- 	.disable_plane		= drm_atomic_helper_disable_plane,
- 	.destroy		= drm_plane_cleanup,
--	.reset			= drm_atomic_helper_plane_reset,
--	.atomic_duplicate_state	= drm_atomic_helper_plane_duplicate_state,
--	.atomic_destroy_state	= drm_atomic_helper_plane_destroy_state,
-+	.reset			= drm_simple_kms_plane_reset,
-+	.atomic_duplicate_state	= drm_simple_kms_plane_duplicate_state,
-+	.atomic_destroy_state	= drm_simple_kms_plane_destroy_state,
- 	.format_mod_supported   = drm_simple_kms_format_mod_supported,
- };
- 
-diff --git a/include/drm/drm_simple_kms_helper.h b/include/drm/drm_simple_kms_helper.h
-index e6dbf3161c2f..0c1a2e07caf2 100644
---- a/include/drm/drm_simple_kms_helper.h
-+++ b/include/drm/drm_simple_kms_helper.h
-@@ -149,6 +149,34 @@ struct drm_simple_display_pipe_funcs {
- 	 * more details.
- 	 */
- 	void (*disable_vblank)(struct drm_simple_display_pipe *pipe);
-+
-+	/**
-+	 * @reset_plane:
-+	 *
-+	 * Optional, called by &drm_plane_funcs.reset. Please read the
-+	 * documentation for the &drm_plane_funcs.reset hook for more details.
-+	 */
-+	void (*reset_plane)(struct drm_simple_display_pipe *pipe);
-+
-+	/**
-+	 * @duplicate_plane_state:
-+	 *
-+	 * Optional, called by &drm_plane_funcs.atomic_duplicate_state.  Please
-+	 * read the documentation for the &drm_plane_funcs.atomic_duplicate_state
-+	 * hook for more details.
-+	 */
-+	struct drm_plane_state * (*duplicate_plane_state)(struct drm_simple_display_pipe *pipe,
-+							  struct drm_plane_state *plane_state);
-+
-+	/**
-+	 * @destroy_plane_state:
-+	 *
-+	 * Optional, called by &drm_plane_funcs.atomic_destroy_state.  Please
-+	 * read the documentation for the &drm_plane_funcs.atomic_destroy_state
-+	 * hook for more details.
-+	 */
-+	void (*destroy_plane_state)(struct drm_simple_display_pipe *pipe,
-+				    struct drm_plane_state *plane_state);
- };
- 
- /**
+ static const uint32_t mgag200_simple_display_pipe_formats[] = {
 -- 
 2.30.0
 
