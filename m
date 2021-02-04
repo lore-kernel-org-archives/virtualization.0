@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F19DAC4332B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEE9DC433DB
 	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 20:03:23 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7717A64E35
+	by mail.kernel.org (Postfix) with ESMTPS id 8105964F45
 	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 20:03:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7717A64E35
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8105964F45
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 8D2CB2D941;
-	Thu,  4 Feb 2021 20:03:22 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 2BF1D87264;
+	Thu,  4 Feb 2021 20:03:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LKoAo1Hq+hst; Thu,  4 Feb 2021 20:03:21 +0000 (UTC)
+	with ESMTP id kJOvhPnIvcZc; Thu,  4 Feb 2021 20:03:20 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 97B6E20471;
+	by hemlock.osuosl.org (Postfix) with ESMTP id 7466387225;
 	Thu,  4 Feb 2021 20:03:20 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8DFE2C1834;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 50AF5C1834;
 	Thu,  4 Feb 2021 20:03:20 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B2786C1825
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9FDD8C07FD
  for <virtualization@lists.linux-foundation.org>;
  Thu,  4 Feb 2021 20:03:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 951C22DCF1
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 8979A86559
  for <virtualization@lists.linux-foundation.org>;
  Thu,  4 Feb 2021 20:03:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eHhwdsumBNaH
+ with ESMTP id 9KaQvLMAihXo
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 20:03:17 +0000 (UTC)
+ Thu,  4 Feb 2021 20:03:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTPS id 6899E20471
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 4032886502
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 20:03:17 +0000 (UTC)
+ Thu,  4 Feb 2021 20:03:18 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id F1C3FAE03;
- Thu,  4 Feb 2021 20:03:15 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id CBAD4AE14;
+ Thu,  4 Feb 2021 20:03:16 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: daniel@ffwll.ch, airlied@linux.ie, maarten.lankhorst@linux.intel.com,
  mripard@kernel.org, kraxel@redhat.com, hdegoede@redhat.com,
  sean@poorly.run, sam@ravnborg.org, noralf@tronnes.org
-Subject: [PATCH 4/6] drm/cirrus: Move vmap out of commit tail
-Date: Thu,  4 Feb 2021 21:03:06 +0100
-Message-Id: <20210204200308.24216-5-tzimmermann@suse.de>
+Subject: [PATCH 5/6] drm/gm12u320: Move vmap out of commit tail
+Date: Thu,  4 Feb 2021 21:03:07 +0100
+Message-Id: <20210204200308.24216-6-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210204200308.24216-1-tzimmermann@suse.de>
 References: <20210204200308.24216-1-tzimmermann@suse.de>
@@ -91,14 +91,14 @@ the commit tail use the pre-established mapping for damage handling.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/tiny/cirrus.c | 43 ++++++++++++++---------------------
- 1 file changed, 17 insertions(+), 26 deletions(-)
+ drivers/gpu/drm/tiny/gm12u320.c | 28 +++++++++++++---------------
+ 1 file changed, 13 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
-index a043e602199e..ad922c3ec681 100644
---- a/drivers/gpu/drm/tiny/cirrus.c
-+++ b/drivers/gpu/drm/tiny/cirrus.c
-@@ -33,8 +33,9 @@
+diff --git a/drivers/gpu/drm/tiny/gm12u320.c b/drivers/gpu/drm/tiny/gm12u320.c
+index 33f65f4626e5..0b4f4f2af1ef 100644
+--- a/drivers/gpu/drm/tiny/gm12u320.c
++++ b/drivers/gpu/drm/tiny/gm12u320.c
+@@ -16,8 +16,9 @@
  #include <drm/drm_file.h>
  #include <drm/drm_format_helper.h>
  #include <drm/drm_fourcc.h>
@@ -109,103 +109,111 @@ index a043e602199e..ad922c3ec681 100644
  #include <drm/drm_ioctl.h>
  #include <drm/drm_managed.h>
  #include <drm/drm_modeset_helper_vtables.h>
-@@ -311,22 +312,15 @@ static int cirrus_mode_set(struct cirrus_device *cirrus,
- 	return 0;
- }
+@@ -94,6 +95,7 @@ struct gm12u320_device {
+ 		struct drm_rect          rect;
+ 		int frame;
+ 		int draw_status_timeout;
++		struct dma_buf_map src_map;
+ 	} fb_update;
+ };
  
--static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
-+static int cirrus_fb_blit_rect(struct drm_framebuffer *fb, const struct dma_buf_map *map,
- 			       struct drm_rect *rect)
+@@ -250,7 +252,6 @@ static void gm12u320_copy_fb_to_blocks(struct gm12u320_device *gm12u320)
  {
- 	struct cirrus_device *cirrus = to_cirrus(fb->dev);
+ 	int block, dst_offset, len, remain, ret, x1, x2, y1, y2;
+ 	struct drm_framebuffer *fb;
 -	struct dma_buf_map map;
--	void *vmap;
--	int idx, ret;
-+	void *vmap = map->vaddr; /* TODO: Use mapping abstraction properly */
-+	int idx;
+ 	void *vaddr;
+ 	u8 *src;
  
--	ret = -ENODEV;
- 	if (!drm_dev_enter(&cirrus->dev, &idx))
--		goto out;
+@@ -264,20 +265,14 @@ static void gm12u320_copy_fb_to_blocks(struct gm12u320_device *gm12u320)
+ 	x2 = gm12u320->fb_update.rect.x2;
+ 	y1 = gm12u320->fb_update.rect.y1;
+ 	y2 = gm12u320->fb_update.rect.y2;
 -
 -	ret = drm_gem_shmem_vmap(fb->obj[0], &map);
--	if (ret)
--		goto out_dev_exit;
--	vmap = map.vaddr; /* TODO: Use mapping abstraction properly */
-+		return -ENODEV;
+-	if (ret) {
+-		GM12U320_ERR("failed to vmap fb: %d\n", ret);
+-		goto put_fb;
+-	}
+-	vaddr = map.vaddr; /* TODO: Use mapping abstraction properly */
++	vaddr = gm12u320->fb_update.src_map.vaddr; /* TODO: Use mapping abstraction properly */
  
- 	if (cirrus->cpp == fb->format->cpp[0])
- 		drm_fb_memcpy_dstclip(cirrus->vram,
-@@ -345,16 +339,12 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
- 	else
- 		WARN_ON_ONCE("cpp mismatch");
+ 	if (fb->obj[0]->import_attach) {
+ 		ret = dma_buf_begin_cpu_access(
+ 			fb->obj[0]->import_attach->dmabuf, DMA_FROM_DEVICE);
+ 		if (ret) {
+ 			GM12U320_ERR("dma_buf_begin_cpu_access err: %d\n", ret);
+-			goto vunmap;
++			goto put_fb;
+ 		}
+ 	}
  
+@@ -321,8 +316,6 @@ static void gm12u320_copy_fb_to_blocks(struct gm12u320_device *gm12u320)
+ 		if (ret)
+ 			GM12U320_ERR("dma_buf_end_cpu_access err: %d\n", ret);
+ 	}
+-vunmap:
 -	drm_gem_shmem_vunmap(fb->obj[0], &map);
--	ret = 0;
--
--out_dev_exit:
- 	drm_dev_exit(idx);
--out:
--	return ret;
-+
-+	return 0;
+ put_fb:
+ 	drm_framebuffer_put(fb);
+ 	gm12u320->fb_update.fb = NULL;
+@@ -410,7 +403,7 @@ static void gm12u320_fb_update_work(struct work_struct *work)
+ 		GM12U320_ERR("Frame update error: %d\n", ret);
  }
  
--static int cirrus_fb_blit_fullscreen(struct drm_framebuffer *fb)
-+static int cirrus_fb_blit_fullscreen(struct drm_framebuffer *fb, const struct dma_buf_map *map)
+-static void gm12u320_fb_mark_dirty(struct drm_framebuffer *fb,
++static void gm12u320_fb_mark_dirty(struct drm_framebuffer *fb, const struct dma_buf_map *map,
+ 				   struct drm_rect *dirty)
  {
- 	struct drm_rect fullscreen = {
- 		.x1 = 0,
-@@ -362,7 +352,7 @@ static int cirrus_fb_blit_fullscreen(struct drm_framebuffer *fb)
- 		.y1 = 0,
- 		.y2 = fb->height,
- 	};
--	return cirrus_fb_blit_rect(fb, &fullscreen);
-+	return cirrus_fb_blit_rect(fb, map, &fullscreen);
- }
+ 	struct gm12u320_device *gm12u320 = to_gm12u320(fb->dev);
+@@ -424,6 +417,7 @@ static void gm12u320_fb_mark_dirty(struct drm_framebuffer *fb,
+ 		drm_framebuffer_get(fb);
+ 		gm12u320->fb_update.fb = fb;
+ 		gm12u320->fb_update.rect = *dirty;
++		gm12u320->fb_update.src_map = *map;
+ 		wakeup = true;
+ 	} else {
+ 		struct drm_rect *rect = &gm12u320->fb_update.rect;
+@@ -452,6 +446,7 @@ static void gm12u320_stop_fb_update(struct gm12u320_device *gm12u320)
+ 	mutex_lock(&gm12u320->fb_update.lock);
+ 	old_fb = gm12u320->fb_update.fb;
+ 	gm12u320->fb_update.fb = NULL;
++	dma_buf_map_clear(&gm12u320->fb_update.src_map);
+ 	mutex_unlock(&gm12u320->fb_update.lock);
  
- static int cirrus_check_size(int width, int height,
-@@ -441,9 +431,10 @@ static void cirrus_pipe_enable(struct drm_simple_display_pipe *pipe,
- 			       struct drm_plane_state *plane_state)
+ 	drm_framebuffer_put(old_fb);
+@@ -564,9 +559,10 @@ static void gm12u320_pipe_enable(struct drm_simple_display_pipe *pipe,
  {
- 	struct cirrus_device *cirrus = to_cirrus(pipe->crtc.dev);
+ 	struct drm_rect rect = { 0, 0, GM12U320_USER_WIDTH, GM12U320_HEIGHT };
+ 	struct gm12u320_device *gm12u320 = to_gm12u320(pipe->crtc.dev);
 +	struct drm_shadow_plane_state *shadow_plane_state = to_drm_shadow_plane_state(plane_state);
  
- 	cirrus_mode_set(cirrus, &crtc_state->mode, plane_state->fb);
--	cirrus_fb_blit_fullscreen(plane_state->fb);
-+	cirrus_fb_blit_fullscreen(plane_state->fb, &shadow_plane_state->map[0]);
+ 	gm12u320->fb_update.draw_status_timeout = FIRST_FRAME_TIMEOUT;
+-	gm12u320_fb_mark_dirty(plane_state->fb, &rect);
++	gm12u320_fb_mark_dirty(plane_state->fb, &shadow_plane_state->map[0], &rect);
  }
  
- static void cirrus_pipe_update(struct drm_simple_display_pipe *pipe,
-@@ -451,16 +442,15 @@ static void cirrus_pipe_update(struct drm_simple_display_pipe *pipe,
+ static void gm12u320_pipe_disable(struct drm_simple_display_pipe *pipe)
+@@ -580,16 +576,18 @@ static void gm12u320_pipe_update(struct drm_simple_display_pipe *pipe,
+ 				 struct drm_plane_state *old_state)
  {
- 	struct cirrus_device *cirrus = to_cirrus(pipe->crtc.dev);
  	struct drm_plane_state *state = pipe->plane.state;
 +	struct drm_shadow_plane_state *shadow_plane_state = to_drm_shadow_plane_state(state);
- 	struct drm_crtc *crtc = &pipe->crtc;
  	struct drm_rect rect;
  
--	if (pipe->plane.state->fb &&
--	    cirrus->cpp != cirrus_cpp(pipe->plane.state->fb))
--		cirrus_mode_set(cirrus, &crtc->mode,
--				pipe->plane.state->fb);
-+	if (state->fb && cirrus->cpp != cirrus_cpp(state->fb))
-+		cirrus_mode_set(cirrus, &crtc->mode, state->fb);
- 
  	if (drm_atomic_helper_damage_merged(old_state, state, &rect))
--		cirrus_fb_blit_rect(pipe->plane.state->fb, &rect);
-+		cirrus_fb_blit_rect(state->fb, &shadow_plane_state->map[0], &rect);
+-		gm12u320_fb_mark_dirty(pipe->plane.state->fb, &rect);
++		gm12u320_fb_mark_dirty(state->fb, &shadow_plane_state->map[0], &rect);
  }
  
- static const struct drm_simple_display_pipe_funcs cirrus_pipe_funcs = {
-@@ -468,6 +458,7 @@ static const struct drm_simple_display_pipe_funcs cirrus_pipe_funcs = {
- 	.check	    = cirrus_pipe_check,
- 	.enable	    = cirrus_pipe_enable,
- 	.update	    = cirrus_pipe_update,
+ static const struct drm_simple_display_pipe_funcs gm12u320_pipe_funcs = {
+ 	.enable	    = gm12u320_pipe_enable,
+ 	.disable    = gm12u320_pipe_disable,
+ 	.update	    = gm12u320_pipe_update,
 +	DRM_GEM_SIMPLE_DISPLAY_PIPE_SHADOW_PLANE_FUNCS,
  };
  
- static const uint32_t cirrus_formats[] = {
+ static const uint32_t gm12u320_pipe_formats[] = {
 -- 
 2.30.0
 
