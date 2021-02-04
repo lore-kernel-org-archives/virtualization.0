@@ -7,80 +7,80 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C7D0C433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5132C433DB
 	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 14:57:28 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E09DE64D9F
-	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 14:57:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E09DE64D9F
+	by mail.kernel.org (Postfix) with ESMTPS id 5D55464DE7
+	for <virtualization@archiver.kernel.org>; Thu,  4 Feb 2021 14:57:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5D55464DE7
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 79E2A27428;
+	by whitealder.osuosl.org (Postfix) with ESMTP id 2BCB5869D3;
 	Thu,  4 Feb 2021 14:57:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OFcKhrUjLSjN; Thu,  4 Feb 2021 14:57:25 +0000 (UTC)
+	with ESMTP id GYR2RWxKuEIJ; Thu,  4 Feb 2021 14:57:26 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id B7FE2272AB;
-	Thu,  4 Feb 2021 14:57:25 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 0894B86A1A;
+	Thu,  4 Feb 2021 14:57:26 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9762FC08A1;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D2125C1D9F;
 	Thu,  4 Feb 2021 14:57:25 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 509A1C1834
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5FA7BC1D9F
  for <virtualization@lists.linux-foundation.org>;
  Thu,  4 Feb 2021 14:57:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 397AD86130
+ by silver.osuosl.org (Postfix) with ESMTP id 56B6A226E9
  for <virtualization@lists.linux-foundation.org>;
  Thu,  4 Feb 2021 14:57:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dUEk2Eur0MWM
+ with ESMTP id KT5NOX7OB26H
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 14:57:23 +0000 (UTC)
+ Thu,  4 Feb 2021 14:57:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 577988612E
+ by silver.osuosl.org (Postfix) with ESMTPS id F1FBE20480
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Feb 2021 14:57:23 +0000 (UTC)
+ Thu,  4 Feb 2021 14:57:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1612450642;
+ s=mimecast20190719; t=1612450640;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=NBs15qRjjzjdlUKrkJJe9FgGE4IM/0kRP7oncF/GMkk=;
- b=ejb1QP82rn9qhkZ+0uus96vXDOU1us8zlwAqatcJ6r5w1mOOGf0++Lf1WZMCBEKkwIBGv8
- U5jyTtq5756OwoxUcPEyIzC8aH2Fustf7MqtAANqVYyRuW3tMClovwuLpXbrPm/1sa6DIa
- LnwHGtLGuUwBekpj1RdZfWdBha7RZBY=
+ bh=ZFZ6ubUzI5ODvIBcEa2tm5y3uImpA1BuyZlcf1Y7zLo=;
+ b=Hx+DzefBm883aKouh+p/BEpIEJ1jjM+6HF/PHvPrlaot+YZCS8QhUqG7hlNRwtjiibuU+n
+ F3Xr70Q1Dt0dgmk3M1GM3tQKAG7kY8jhwhzulFvPgeSipkqe4Wc3llSE/f2mLRQKSvBvTD
+ LXvT9haF7JKcJyeyl39pnigykWmYyqY=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-310-8N-LUYrQPYuG6999JiEovQ-1; Thu, 04 Feb 2021 09:57:20 -0500
-X-MC-Unique: 8N-LUYrQPYuG6999JiEovQ-1
+ us-mta-586-GIZfCDfKMVG57zu0Kkt__w-1; Thu, 04 Feb 2021 09:57:18 -0500
+X-MC-Unique: GIZfCDfKMVG57zu0Kkt__w-1
 Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
  [10.5.11.22])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 360A3107ACE6;
- Thu,  4 Feb 2021 14:57:19 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5D4079127E;
+ Thu,  4 Feb 2021 14:57:17 +0000 (UTC)
 Received: from sirius.home.kraxel.org (ovpn-113-108.ams2.redhat.com
  [10.36.113.108])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id EC460100F493;
- Thu,  4 Feb 2021 14:57:18 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 1EA3410016FC;
+ Thu,  4 Feb 2021 14:57:14 +0000 (UTC)
 Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
- id DE1C31801023; Thu,  4 Feb 2021 15:57:12 +0100 (CET)
+ id 8575F1801020; Thu,  4 Feb 2021 15:57:12 +0100 (CET)
 From: Gerd Hoffmann <kraxel@redhat.com>
 To: dri-devel@lists.freedesktop.org
-Subject: [PATCH v6 07/10] drm/qxl: handle shadow in primary destroy
-Date: Thu,  4 Feb 2021 15:57:08 +0100
-Message-Id: <20210204145712.1531203-8-kraxel@redhat.com>
+Subject: [PATCH v6 04/10] drm/qxl: unpin release objects
+Date: Thu,  4 Feb 2021 15:57:05 +0100
+Message-Id: <20210204145712.1531203-5-kraxel@redhat.com>
 In-Reply-To: <20210204145712.1531203-1-kraxel@redhat.com>
 References: <20210204145712.1531203-1-kraxel@redhat.com>
 MIME-Version: 1.0
@@ -107,28 +107,27 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-qxl_primary_atomic_disable must check whenever the framebuffer bo has a
-shadow surface and in case it has check the shadow primary status.
+Balances the qxl_create_bo(..., pinned=true, ...);
+call in qxl_release_bo_alloc().
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/qxl/qxl_release.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index d25fd3acc891..c326412136c5 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -562,6 +562,8 @@ static void qxl_primary_atomic_disable(struct drm_plane *plane,
- 	if (old_state->fb) {
- 		struct qxl_bo *bo = gem_to_qxl_bo(old_state->fb->obj[0]);
+diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
+index c52412724c26..28013fd1f8ea 100644
+--- a/drivers/gpu/drm/qxl/qxl_release.c
++++ b/drivers/gpu/drm/qxl/qxl_release.c
+@@ -347,6 +347,7 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
  
-+		if (bo->shadow)
-+			bo = bo->shadow;
- 		if (bo->is_primary) {
- 			qxl_io_destroy_primary(qdev);
- 			bo->is_primary = false;
+ 	mutex_lock(&qdev->release_mutex);
+ 	if (qdev->current_release_bo_offset[cur_idx] + 1 >= releases_per_bo[cur_idx]) {
++		qxl_bo_unpin(qdev->current_release_bo[cur_idx]);
+ 		qxl_bo_unref(&qdev->current_release_bo[cur_idx]);
+ 		qdev->current_release_bo_offset[cur_idx] = 0;
+ 		qdev->current_release_bo[cur_idx] = NULL;
 -- 
 2.29.2
 
