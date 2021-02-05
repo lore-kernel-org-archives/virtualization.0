@@ -7,62 +7,63 @@ X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E33BEC433DB
-	for <virtualization@archiver.kernel.org>; Fri,  5 Feb 2021 18:10:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C114FC433DB
+	for <virtualization@archiver.kernel.org>; Fri,  5 Feb 2021 18:10:59 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 76F4C64E4D
-	for <virtualization@archiver.kernel.org>; Fri,  5 Feb 2021 18:10:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 76F4C64E4D
+	by mail.kernel.org (Postfix) with ESMTPS id 5CC4364E4A
+	for <virtualization@archiver.kernel.org>; Fri,  5 Feb 2021 18:10:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5CC4364E4A
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=nvidia.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 350C687391;
-	Fri,  5 Feb 2021 18:10:54 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 273D587385;
+	Fri,  5 Feb 2021 18:10:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rImSxAp7Y3hj; Fri,  5 Feb 2021 18:10:53 +0000 (UTC)
+	with ESMTP id Y+MQb+S0TtrG; Fri,  5 Feb 2021 18:10:58 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 7CEE28738A;
-	Fri,  5 Feb 2021 18:10:53 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 3F8598738B;
+	Fri,  5 Feb 2021 18:10:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6745DC0174;
-	Fri,  5 Feb 2021 18:10:53 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BECD3C0FA7
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1BB47C0174;
+	Fri,  5 Feb 2021 18:10:58 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 73079C013A
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Feb 2021 18:10:52 +0000 (UTC)
+ Fri,  5 Feb 2021 18:10:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id B439F8738A
+ by whitealder.osuosl.org (Postfix) with ESMTP id 61A2C8717A
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  5 Feb 2021 18:10:54 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Tb7tjy0qPPPo
  for <virtualization@lists.linux-foundation.org>;
  Fri,  5 Feb 2021 18:10:52 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sg+I+blKHO4r
- for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Feb 2021 18:10:51 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from hqnvemgate24.nvidia.com (hqnvemgate24.nvidia.com
- [216.228.121.143])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 946F787387
+Received: from hqnvemgate26.nvidia.com (hqnvemgate26.nvidia.com
+ [216.228.121.65])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 7FBD287317
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Feb 2021 18:10:51 +0000 (UTC)
+ Fri,  5 Feb 2021 18:10:52 +0000 (UTC)
 Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by
- hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
- id <B601d8a2b0000>; Fri, 05 Feb 2021 10:10:51 -0800
+ hqnvemgate26.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+ id <B601d8a2c0000>; Fri, 05 Feb 2021 10:10:52 -0800
 Received: from sw-mtx-036.mtx.labs.mlnx (172.20.145.6) by HQMAIL107.nvidia.com
  (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3;
- Fri, 5 Feb 2021 18:10:50 +0000
+ Fri, 5 Feb 2021 18:10:51 +0000
 From: Parav Pandit <parav@nvidia.com>
 To: <virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
  <dsahern@gmail.com>, <stephen@networkplumber.org>, <mst@redhat.com>,
  <jasowang@redhat.com>
-Subject: [PATCH iproute2-next v4 3/5] utils: Add generic socket helpers
-Date: Fri, 5 Feb 2021 20:10:27 +0200
-Message-ID: <20210205181029.365461-4-parav@nvidia.com>
+Subject: [PATCH iproute2-next v4 4/5] utils: Add helper to map string to
+ unsigned int
+Date: Fri, 5 Feb 2021 20:10:28 +0200
+Message-ID: <20210205181029.365461-5-parav@nvidia.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210205181029.365461-1-parav@nvidia.com>
 References: <20210122112654.9593-3-parav@nvidia.com>
@@ -72,16 +73,16 @@ X-Originating-IP: [172.20.145.6]
 X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
  HQMAIL107.nvidia.com (172.20.187.13)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1612548651; bh=0vc9oIhSCphJBgS2b+BRbxBgWC7qIQCJt2iCtMo/YR4=;
+ t=1612548652; bh=wb+dkpPaTiWpTz3BlBWkumEuJWVmUA/mgN3gQd43q88=;
  h=From:To:CC:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
  References:MIME-Version:Content-Transfer-Encoding:Content-Type:
  X-Originating-IP:X-ClientProxiedBy;
- b=mcdjeq3O/kd4pTn9v4DzBG8i3WtPRAdiRvwIJLO5NOB70OlAnbbiCfP0A6c3xGqkZ
- lNcvXa6HlsJllpvjP+B1bgz+/OVFW2JLOtZajkNvYGhgs/nEXCxTxcTZJazcpLleOK
- 18/BO/1vTq6U5LwpshF+5GqVqRu90Ms2OV6oNFepIUd7LjiUVMXzbgUoofgJgLwX1z
- 65rOtdmT/YNX/CG7mhlieqxecx+b6TbH68ZRaRQM8UTGHT7uIN/BHTsPZMCwHHoc/V
- 13EfCWXkuP2fHEoWuiu74A6AOKPatlBxWRN4Cd4wfR5fZbdwLLui71dmHyBcVkQ7jU
- AHliLwwDpIlew==
+ b=KT/9t2HrAlGVTZTatkZfxoExmMHe07MZLz0cSAfKOt4BalM1FdRlIJ/iXT4Q8AkqF
+ jF9HgTvR0uht5Eo3srfHH1v2P28Zbl85/a5uVZVnEY2SumolDwhqQlD7lXK0JSAQqZ
+ j6NY5cTUUstGo08Z1oKM7P1l5hTGBh6lmxIolamoj4Ak/+2S0j3rTfpkJ8Tcvj6p3f
+ 41m9UmQtao9w1vh03BHRk3863xM91NRbRVTA14j7pncnGBERs6ghof3kk39zb/+EJV
+ HbJ8e0w+olu8uoFESSZQ8kB/0XRPhCmXbbaLTzDV93a5VbJ8OMyRq8y0S9Gqa/oMFN
+ dNcQUKqMTgjKA==
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,186 +99,74 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Subsequent patch needs to
-(a) query and use socket family
-(b) send/receive messages using this family
-
-Hence add helper routines to open, close, query family and to perform
-send receive operations.
+In subsequent patch need to map a string to a unsigned int.
+Hence, add an API to map a string to unsigned int.
 
 Signed-off-by: Parav Pandit <parav@nvidia.com>
 ---
 changelog:
 v2->v3:
- - split patch from add vdpa tool for socket helpers
+ - new patch to reuse string to unsigned int mapping
 ---
- include/mnl_utils.h |  16 ++++++
- lib/mnl_utils.c     | 121 ++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 137 insertions(+)
+ include/utils.h |  4 +++-
+ lib/utils.c     | 17 +++++++++++++++--
+ 2 files changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/include/mnl_utils.h b/include/mnl_utils.h
-index fa826ef1..9e7d6879 100644
---- a/include/mnl_utils.h
-+++ b/include/mnl_utils.h
-@@ -2,6 +2,22 @@
- #ifndef __MNL_UTILS_H__
- #define __MNL_UTILS_H__ 1
+diff --git a/include/utils.h b/include/utils.h
+index 9b76c92a..b29c3798 100644
+--- a/include/utils.h
++++ b/include/utils.h
+@@ -342,10 +342,12 @@ int parse_mapping(int *argcp, char ***argvp, bool allow_all,
  
-+struct mnlu_gen_socket {
-+	struct mnl_socket *nl;
-+	char *buf;
-+	uint32_t family;
-+	unsigned int seq;
-+	uint8_t version;
-+};
-+
-+int mnlu_gen_socket_open(struct mnlu_gen_socket *nlg, const char *family_name,
-+			 uint8_t version);
-+void mnlu_gen_socket_close(struct mnlu_gen_socket *nlg);
-+struct nlmsghdr *mnlu_gen_socket_cmd_prepare(struct mnlu_gen_socket *nlg,
-+					     uint8_t cmd, uint16_t flags);
-+int mnlu_gen_socket_sndrcv(struct mnlu_gen_socket *nlg, const struct nlmsghdr *nlh,
-+			   mnl_cb_t data_cb, void *data);
-+
- struct mnl_socket *mnlu_socket_open(int bus);
- struct nlmsghdr *mnlu_msg_prepare(void *buf, uint32_t nlmsg_type, uint16_t flags,
- 				  void *extra_header, size_t extra_header_size);
-diff --git a/lib/mnl_utils.c b/lib/mnl_utils.c
-index 46384ff8..4f699455 100644
---- a/lib/mnl_utils.c
-+++ b/lib/mnl_utils.c
-@@ -7,6 +7,7 @@
- #include <string.h>
- #include <time.h>
- #include <libmnl/libmnl.h>
-+#include <linux/genetlink.h>
+ struct str_num_map {
+ 	const char *str;
+-	int num;
++	unsigned int num;
+ };
  
- #include "libnetlink.h"
- #include "mnl_utils.h"
-@@ -108,3 +109,123 @@ int mnlu_socket_recv_run(struct mnl_socket *nl, unsigned int seq, void *buf, siz
+ int str_map_lookup_str(const struct str_num_map *map, const char *needle);
++const char *str_map_lookup_uint(const struct str_num_map *map,
++				unsigned int val);
+ const char *str_map_lookup_u16(const struct str_num_map *map, uint16_t val);
+ const char *str_map_lookup_u8(const struct str_num_map *map, uint8_t val);
  
- 	return err;
+diff --git a/lib/utils.c b/lib/utils.c
+index cc6d0e34..633f6359 100644
+--- a/lib/utils.c
++++ b/lib/utils.c
+@@ -1953,9 +1953,22 @@ int str_map_lookup_str(const struct str_num_map *map, const char *needle)
+ 	return -EINVAL;
  }
-+
-+static int get_family_id_attr_cb(const struct nlattr *attr, void *data)
+ 
++const char *str_map_lookup_uint(const struct str_num_map *map, unsigned int val)
 +{
-+	int type = mnl_attr_get_type(attr);
-+	const struct nlattr **tb = data;
++	unsigned int num = val;
 +
-+	if (mnl_attr_type_valid(attr, CTRL_ATTR_MAX) < 0)
-+		return MNL_CB_ERROR;
++	while (map && map->str) {
++		if (num == map->num)
++			return map->str;
 +
-+	if (type == CTRL_ATTR_FAMILY_ID &&
-+	    mnl_attr_validate(attr, MNL_TYPE_U16) < 0)
-+		return MNL_CB_ERROR;
-+	tb[type] = attr;
-+	return MNL_CB_OK;
-+}
-+
-+static int get_family_id_cb(const struct nlmsghdr *nlh, void *data)
-+{
-+	struct genlmsghdr *genl = mnl_nlmsg_get_payload(nlh);
-+	struct nlattr *tb[CTRL_ATTR_MAX + 1] = {};
-+	uint32_t *p_id = data;
-+
-+	mnl_attr_parse(nlh, sizeof(*genl), get_family_id_attr_cb, tb);
-+	if (!tb[CTRL_ATTR_FAMILY_ID])
-+		return MNL_CB_ERROR;
-+	*p_id = mnl_attr_get_u16(tb[CTRL_ATTR_FAMILY_ID]);
-+	return MNL_CB_OK;
-+}
-+
-+static int family_get(struct mnlu_gen_socket *nlg, const char *family_name)
-+{
-+	struct genlmsghdr hdr = {};
-+	struct nlmsghdr *nlh;
-+	int err;
-+
-+	hdr.cmd = CTRL_CMD_GETFAMILY;
-+	hdr.version = 0x1;
-+
-+	nlh = mnlu_msg_prepare(nlg->buf, GENL_ID_CTRL,
-+			       NLM_F_REQUEST | NLM_F_ACK,
-+			       &hdr, sizeof(hdr));
-+
-+	mnl_attr_put_strz(nlh, CTRL_ATTR_FAMILY_NAME, family_name);
-+
-+	err = mnl_socket_sendto(nlg->nl, nlh, nlh->nlmsg_len);
-+	if (err < 0)
-+		return err;
-+
-+	err = mnlu_socket_recv_run(nlg->nl, nlh->nlmsg_seq, nlg->buf,
-+				   MNL_SOCKET_BUFFER_SIZE,
-+				   get_family_id_cb, &nlg->family);
-+	return err;
-+}
-+
-+int mnlu_gen_socket_open(struct mnlu_gen_socket *nlg, const char *family_name,
-+			 uint8_t version)
-+{
-+	int err;
-+
-+	nlg->buf = malloc(MNL_SOCKET_BUFFER_SIZE);
-+	if (!nlg->buf)
-+		goto err_buf_alloc;
-+
-+	nlg->nl = mnlu_socket_open(NETLINK_GENERIC);
-+	if (!nlg->nl)
-+		goto err_socket_open;
-+
-+	err = family_get(nlg, family_name);
-+	if (err)
-+		goto err_socket;
-+
-+	return 0;
-+
-+err_socket:
-+	mnl_socket_close(nlg->nl);
-+err_socket_open:
-+	free(nlg->buf);
-+err_buf_alloc:
-+	return -1;
-+}
-+
-+void mnlu_gen_socket_close(struct mnlu_gen_socket *nlg)
-+{
-+	mnl_socket_close(nlg->nl);
-+	free(nlg->buf);
-+}
-+
-+struct nlmsghdr *mnlu_gen_socket_cmd_prepare(struct mnlu_gen_socket *nlg,
-+					     uint8_t cmd, uint16_t flags)
-+{
-+	struct genlmsghdr hdr = {};
-+	struct nlmsghdr *nlh;
-+
-+	hdr.cmd = cmd;
-+	hdr.version = nlg->version;
-+	nlh = mnlu_msg_prepare(nlg->buf, nlg->family, flags, &hdr, sizeof(hdr));
-+	nlg->seq = nlh->nlmsg_seq;
-+	return nlh;
-+}
-+
-+int mnlu_gen_socket_sndrcv(struct mnlu_gen_socket *nlg, const struct nlmsghdr *nlh,
-+			   mnl_cb_t data_cb, void *data)
-+{
-+	int err;
-+
-+	err = mnl_socket_sendto(nlg->nl, nlh, nlh->nlmsg_len);
-+	if (err < 0) {
-+		perror("Failed to send data");
-+		return -errno;
++		map++;
 +	}
-+
-+	err = mnlu_socket_recv_run(nlg->nl, nlh->nlmsg_seq, nlg->buf,
-+				   MNL_SOCKET_BUFFER_SIZE,
-+				   data_cb, data);
-+	if (err < 0) {
-+		fprintf(stderr, "kernel answers: %s\n", strerror(errno));
-+		return -errno;
-+	}
-+	return 0;
++	return NULL;
 +}
++
+ const char *str_map_lookup_u16(const struct str_num_map *map, uint16_t val)
+ {
+-	int num = val;
++	unsigned int num = val;
+ 
+ 	while (map && map->str) {
+ 		if (num == map->num)
+@@ -1968,7 +1981,7 @@ const char *str_map_lookup_u16(const struct str_num_map *map, uint16_t val)
+ 
+ const char *str_map_lookup_u8(const struct str_num_map *map, uint8_t val)
+ {
+-	int num = val;
++	unsigned int num = val;
+ 
+ 	while (map && map->str) {
+ 		if (num == map->num)
 -- 
 2.26.2
 
