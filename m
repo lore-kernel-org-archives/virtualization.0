@@ -2,116 +2,86 @@ Return-Path: <SRS0=ITlz=HH=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.4 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D0B7C433E0
-	for <virtualization@archiver.kernel.org>; Fri,  5 Feb 2021 18:07:10 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E33BEC433DB
+	for <virtualization@archiver.kernel.org>; Fri,  5 Feb 2021 18:10:54 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D15F564E16
-	for <virtualization@archiver.kernel.org>; Fri,  5 Feb 2021 18:07:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D15F564E16
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 76F4C64E4D
+	for <virtualization@archiver.kernel.org>; Fri,  5 Feb 2021 18:10:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 76F4C64E4D
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=nvidia.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 562D32305A;
-	Fri,  5 Feb 2021 18:07:09 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 350C687391;
+	Fri,  5 Feb 2021 18:10:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3DVWiQDpSWFU; Fri,  5 Feb 2021 18:07:08 +0000 (UTC)
+	with ESMTP id rImSxAp7Y3hj; Fri,  5 Feb 2021 18:10:53 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 2478820367;
-	Fri,  5 Feb 2021 18:07:08 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 7CEE28738A;
+	Fri,  5 Feb 2021 18:10:53 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0DFCFC08A1;
-	Fri,  5 Feb 2021 18:07:08 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6745DC0174;
+	Fri,  5 Feb 2021 18:10:53 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 04F97C013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BECD3C0FA7
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Feb 2021 18:07:07 +0000 (UTC)
+ Fri,  5 Feb 2021 18:10:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id E800387370
+ by hemlock.osuosl.org (Postfix) with ESMTP id B439F8738A
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Feb 2021 18:07:06 +0000 (UTC)
+ Fri,  5 Feb 2021 18:10:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id EkKqr6-yWEnQ
+ with ESMTP id sg+I+blKHO4r
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Feb 2021 18:07:05 +0000 (UTC)
+ Fri,  5 Feb 2021 18:10:51 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 91BBC87362
+Received: from hqnvemgate24.nvidia.com (hqnvemgate24.nvidia.com
+ [216.228.121.143])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 946F787387
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Feb 2021 18:07:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1612548424;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=IxMeTZ/n+Vn7dQU1j1tpbmFULO4aEKZmIFDiE1FTlAw=;
- b=LZTRCn3BrwCOeh/rEhQtMLT+vn4n3JEUv2EFpi6AMz1XJV+/MudMTb29IQU4syJr2+oxyJ
- ltNowIGijHxfn0SY+oB8ALE09iyz0QHrm8N54qxJgbvA4HE0wtKYtY1k/OYAwwGYQQ2zbO
- TgfwyeBq27gRSzFiZBDkPg3E6yhHj4w=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-504-qv9tseWRPwKhlDFB9khcBg-1; Fri, 05 Feb 2021 13:07:02 -0500
-X-MC-Unique: qv9tseWRPwKhlDFB9khcBg-1
-Received: by mail-wm1-f69.google.com with SMTP id h25so3144252wmb.6
- for <virtualization@lists.linux-foundation.org>;
- Fri, 05 Feb 2021 10:07:02 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:subject:to:references:from:message-id:date
- :user-agent:mime-version:in-reply-to:content-language
- :content-transfer-encoding;
- bh=IxMeTZ/n+Vn7dQU1j1tpbmFULO4aEKZmIFDiE1FTlAw=;
- b=CRVPHpaZdzW+6nolQbU8+DE+Rrbxaf+nfyllG113ieApfujFMkT+2RDCE9RFjX9yCV
- Wf/XnPN41Csc/5GV5f1lCU6lm00w0Wj8vFU9M5qFyeQ15iLqohsq3Ug6fvnETAWVk0xL
- FdbZJu1XEr4DXQdjA8udaiqSVTElfZsV/zgkF5qM2J7CWG4ry1APP+jAVgYuOfvu6WQW
- Vn41l9g0szqht7rnKQu4giHJEf2e2sNGaRSNhlxi3uyRfcGwj2ZDotrgfUDxcGxbmIEb
- SciOhPuhPWFcVP2+WCbCzrxl9fxN/T07TnEwLTz+y6T1PWAjm0LFY4SIaYIVskuM6tsu
- LRbQ==
-X-Gm-Message-State: AOAM530aY4EANrs8tTZ/DsPO4m8ZND6PESyGmm1w2LFplPXaWA7lcxfD
- mEyPI5xq+w1Wq+PNdCHbNqu9nEPqUx1N9YmokCvLuXtvb8N+dnQGX6SCIfMk0LCNPO2OFOj8gnb
- exQPWs8VF27IpnjsD0/CO4U2Ggz1D0RxUfinMTxZkcQ==
-X-Received: by 2002:adf:f647:: with SMTP id x7mr6176354wrp.160.1612548421619; 
- Fri, 05 Feb 2021 10:07:01 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJz9mO7p2mb6binBIQPLBJQ4QFCHvu/+u1ljqwZ7soxl9KQgsExNxcqKPsHS6dmprbR05F+aXA==
-X-Received: by 2002:adf:f647:: with SMTP id x7mr6176341wrp.160.1612548421486; 
- Fri, 05 Feb 2021 10:07:01 -0800 (PST)
-Received: from amorenoz.users.ipa.redhat.com ([94.73.56.18])
- by smtp.gmail.com with ESMTPSA id r12sm13451334wrp.13.2021.02.05.10.07.00
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Fri, 05 Feb 2021 10:07:00 -0800 (PST)
-Subject: Re: [PATCH iproute2-next v3 0/5] Add vdpa device management tool
-To: Jason Wang <jasowang@redhat.com>, Parav Pandit <parav@nvidia.com>,
- virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
- dsahern@gmail.com, stephen@networkplumber.org, mst@redhat.com
+ Fri,  5 Feb 2021 18:10:51 +0000 (UTC)
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by
+ hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+ id <B601d8a2b0000>; Fri, 05 Feb 2021 10:10:51 -0800
+Received: from sw-mtx-036.mtx.labs.mlnx (172.20.145.6) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3;
+ Fri, 5 Feb 2021 18:10:50 +0000
+From: Parav Pandit <parav@nvidia.com>
+To: <virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
+ <dsahern@gmail.com>, <stephen@networkplumber.org>, <mst@redhat.com>,
+ <jasowang@redhat.com>
+Subject: [PATCH iproute2-next v4 3/5] utils: Add generic socket helpers
+Date: Fri, 5 Feb 2021 20:10:27 +0200
+Message-ID: <20210205181029.365461-4-parav@nvidia.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210205181029.365461-1-parav@nvidia.com>
 References: <20210122112654.9593-3-parav@nvidia.com>
- <20210202103518.3858-1-parav@nvidia.com>
- <99106d07-1730-6ed8-c847-0400be0dcd57@redhat.com>
- <1d1ff638-d498-6675-ead5-6e09213af3a8@redhat.com>
- <0017c3d7-9b04-d26c-94e2-485e4da6a778@redhat.com>
-From: Adrian Moreno <amorenoz@redhat.com>
-Message-ID: <765b73c5-b3a1-99b0-0e3c-a23a38aedf60@redhat.com>
-Date: Fri, 5 Feb 2021 19:07:00 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+ <20210205181029.365461-1-parav@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <0017c3d7-9b04-d26c-94e2-485e4da6a778@redhat.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=amorenoz@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
+X-Originating-IP: [172.20.145.6]
+X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+ t=1612548651; bh=0vc9oIhSCphJBgS2b+BRbxBgWC7qIQCJt2iCtMo/YR4=;
+ h=From:To:CC:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
+ References:MIME-Version:Content-Transfer-Encoding:Content-Type:
+ X-Originating-IP:X-ClientProxiedBy;
+ b=mcdjeq3O/kd4pTn9v4DzBG8i3WtPRAdiRvwIJLO5NOB70OlAnbbiCfP0A6c3xGqkZ
+ lNcvXa6HlsJllpvjP+B1bgz+/OVFW2JLOtZajkNvYGhgs/nEXCxTxcTZJazcpLleOK
+ 18/BO/1vTq6U5LwpshF+5GqVqRu90Ms2OV6oNFepIUd7LjiUVMXzbgUoofgJgLwX1z
+ 65rOtdmT/YNX/CG7mhlieqxecx+b6TbH68ZRaRQM8UTGHT7uIN/BHTsPZMCwHHoc/V
+ 13EfCWXkuP2fHEoWuiu74A6AOKPatlBxWRN4Cd4wfR5fZbdwLLui71dmHyBcVkQ7jU
+ AHliLwwDpIlew==
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,44 +93,195 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CgpPbiAyLzUvMjEgNDo0MCBBTSwgSmFzb24gV2FuZyB3cm90ZToKPiAKPiBPbiAyMDIxLzIvNCDk
-uIvljYg3OjE1LCBBZHJpYW4gTW9yZW5vIHdyb3RlOgo+PiBTb3JyeSBJIGhhdmUgbm90IGZvbGxv
-d2VkIHRoaXMgd29yayBhcyBjbG9zZSBhcyBJIHdvdWxkIGhhdmUgd2FudGVkLgo+PiBTb21lIHF1
-ZXN0aW9ucyBiZWxvdy4KPj4KPj4gT24gMi80LzIxIDQ6MTYgQU0sIEphc29uIFdhbmcgd3JvdGU6
-Cj4+PiBPbiAyMDIxLzIvMiDkuIvljYg2OjM1LCBQYXJhdiBQYW5kaXQgd3JvdGU6Cj4+Pj4gTGlu
-dXggdmRwYSBpbnRlcmZhY2UgYWxsb3dzIHZkcGEgZGV2aWNlIG1hbmFnZW1lbnQgZnVuY3Rpb25h
-bGl0eS4KPj4+PiBUaGlzIGluY2x1ZGVzIGFkZGluZywgcmVtb3ZpbmcsIHF1ZXJ5aW5nIHZkcGEg
-ZGV2aWNlcy4KPj4+Pgo+Pj4+IHZkcGEgaW50ZXJmYWNlIGFsc28gaW5jbHVkZXMgc2hvd2luZyBz
-dXBwb3J0ZWQgbWFuYWdlbWVudCBkZXZpY2VzCj4+Pj4gd2hpY2ggc3VwcG9ydCBzdWNoIG9wZXJh
-dGlvbnMuCj4+Pj4KPj4+PiBUaGlzIHBhdGNoc2V0IGluY2x1ZGVzIGtlcm5lbCB1YXBpIGhlYWRl
-cnMgYW5kIGEgdmRwYSB0b29sLgo+Pj4+Cj4+Pj4gZXhhbXBsZXM6Cj4+Pj4KPj4+PiAkIHZkcGEg
-bWdtdGRldiBzaG93Cj4+Pj4gdmRwYXNpbToKPj4+PiDCoMKgwqAgc3VwcG9ydGVkX2NsYXNzZXMg
-bmV0Cj4+Pj4KPj4+PiAkIHZkcGEgbWdtdGRldiBzaG93IC1qcAo+Pj4+IHsKPj4+PiDCoMKgwqDC
-oMKgICJzaG93Ijogewo+Pj4+IMKgwqDCoMKgwqDCoMKgwqDCoCAidmRwYXNpbSI6IHsKPj4+PiDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAic3VwcG9ydGVkX2NsYXNzZXMiOiBbICJuZXQiIF0K
-Pj4+PiDCoMKgwqDCoMKgwqDCoMKgwqAgfQo+Pj4+IMKgwqDCoMKgwqAgfQo+Pj4+IH0KPj4+Pgo+
-PiBIb3cgY2FuIGEgdXNlciBlc3RhYmxpc2ggdGhlIHJlbGF0aW9uc2hpcCBiZXR3ZWVuIGEgbWdt
-dGRldiBhbmQgaXQncyBwYXJlbnQKPj4gZGV2aWNlIChwY2kgdmYsIHNmLCBldGMpPwo+IAo+IAo+
-IFBhcmF2IHNob3VsZCBrbm93IG1vcmUgYnV0IEkgdHJ5IHRvIGFuc3dlci4KPiAKPiBJIHRoaW5r
-IHRoZXJlIHNob3VsZCBiZSBCREYgaW5mb3JtYXRpb24gaW4gdGhlIG1nbXRkZXYgc2hvdyBjb21t
-YW5kIGlmIHRoZQo+IHBhcmVudCBpcyBhIFBDSSBkZXZpY2UsIG9yIHdlIGNhbiBzaW1wbHkgc2hv
-dyB0aGUgcGFyZW50IGhlcmU/Cj4gCj4gCj4+Cj4+Pj4gQ3JlYXRlIGEgdmRwYSBkZXZpY2Ugb2Yg
-dHlwZSBuZXR3b3JraW5nIG5hbWVkIGFzICJmb28yIiBmcm9tCj4+Pj4gdGhlIG1hbmFnZW1lbnQg
-ZGV2aWNlIHZkcGFzaW1fbmV0Ogo+Pj4+Cj4+Pj4gJCB2ZHBhIGRldiBhZGQgbWdtdGRldiB2ZHBh
-c2ltX25ldCBuYW1lIGZvbzIKPj4+Pgo+PiBJIGd1ZXNzIHRoaXMgY29tbWFuZCB3aWxsIGFjY2Vw
-dCBhICd0eXBlJyBwYXJhbWV0ZXIgb25jZSBtb3JlIHN1cHBvcnRlZF9jbGFzc2VzCj4+IGFyZSBh
-ZGRlZD8KPiAKPiAKPiBUaGlzIGNvdWxkIGJlIGV4dGVuZGVkIGluIHRoZSBmdXR1cmUuCj4gCj4g
-Cj4+Cj4+IEFsc28sIHdpbGwgdGhpcyB0b29sIGFsc28gaGFuZGxlIHRoZSB2ZHBhIGRyaXZlciBi
-aW5kaW5nIG9yIHdpbGwgdGhlIHVzZXIgaGFuZGxlCj4+IHRoYXQgdGhyb3VnaCB0aGUgdmRwYSBi
-dXMnIHN5c2ZzIGludGVyZmFjZT8KPiAKPiAKPiBJIHRoaW5rIG5vdCwgaXQncyB0aGUgY29uZmln
-dXJhdGlvbiBiZWxvdyB0aGUgdmRwYSBidXMuIFRoZSBzeXNmcyBzaG91bGQgYmUgdGhlCj4gb25s
-eSBpbnRlcmZhY2UgZm9yIG1hbmFnaW5nIGRyaXZlciBiaW5kaW5nLgo+IApVbmRlcnN0b29kLCB0
-aGFua3MuCgotLSAKQWRyacOhbiBNb3Jlbm8KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Subsequent patch needs to
+(a) query and use socket family
+(b) send/receive messages using this family
+
+Hence add helper routines to open, close, query family and to perform
+send receive operations.
+
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+---
+changelog:
+v2->v3:
+ - split patch from add vdpa tool for socket helpers
+---
+ include/mnl_utils.h |  16 ++++++
+ lib/mnl_utils.c     | 121 ++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 137 insertions(+)
+
+diff --git a/include/mnl_utils.h b/include/mnl_utils.h
+index fa826ef1..9e7d6879 100644
+--- a/include/mnl_utils.h
++++ b/include/mnl_utils.h
+@@ -2,6 +2,22 @@
+ #ifndef __MNL_UTILS_H__
+ #define __MNL_UTILS_H__ 1
+ 
++struct mnlu_gen_socket {
++	struct mnl_socket *nl;
++	char *buf;
++	uint32_t family;
++	unsigned int seq;
++	uint8_t version;
++};
++
++int mnlu_gen_socket_open(struct mnlu_gen_socket *nlg, const char *family_name,
++			 uint8_t version);
++void mnlu_gen_socket_close(struct mnlu_gen_socket *nlg);
++struct nlmsghdr *mnlu_gen_socket_cmd_prepare(struct mnlu_gen_socket *nlg,
++					     uint8_t cmd, uint16_t flags);
++int mnlu_gen_socket_sndrcv(struct mnlu_gen_socket *nlg, const struct nlmsghdr *nlh,
++			   mnl_cb_t data_cb, void *data);
++
+ struct mnl_socket *mnlu_socket_open(int bus);
+ struct nlmsghdr *mnlu_msg_prepare(void *buf, uint32_t nlmsg_type, uint16_t flags,
+ 				  void *extra_header, size_t extra_header_size);
+diff --git a/lib/mnl_utils.c b/lib/mnl_utils.c
+index 46384ff8..4f699455 100644
+--- a/lib/mnl_utils.c
++++ b/lib/mnl_utils.c
+@@ -7,6 +7,7 @@
+ #include <string.h>
+ #include <time.h>
+ #include <libmnl/libmnl.h>
++#include <linux/genetlink.h>
+ 
+ #include "libnetlink.h"
+ #include "mnl_utils.h"
+@@ -108,3 +109,123 @@ int mnlu_socket_recv_run(struct mnl_socket *nl, unsigned int seq, void *buf, siz
+ 
+ 	return err;
+ }
++
++static int get_family_id_attr_cb(const struct nlattr *attr, void *data)
++{
++	int type = mnl_attr_get_type(attr);
++	const struct nlattr **tb = data;
++
++	if (mnl_attr_type_valid(attr, CTRL_ATTR_MAX) < 0)
++		return MNL_CB_ERROR;
++
++	if (type == CTRL_ATTR_FAMILY_ID &&
++	    mnl_attr_validate(attr, MNL_TYPE_U16) < 0)
++		return MNL_CB_ERROR;
++	tb[type] = attr;
++	return MNL_CB_OK;
++}
++
++static int get_family_id_cb(const struct nlmsghdr *nlh, void *data)
++{
++	struct genlmsghdr *genl = mnl_nlmsg_get_payload(nlh);
++	struct nlattr *tb[CTRL_ATTR_MAX + 1] = {};
++	uint32_t *p_id = data;
++
++	mnl_attr_parse(nlh, sizeof(*genl), get_family_id_attr_cb, tb);
++	if (!tb[CTRL_ATTR_FAMILY_ID])
++		return MNL_CB_ERROR;
++	*p_id = mnl_attr_get_u16(tb[CTRL_ATTR_FAMILY_ID]);
++	return MNL_CB_OK;
++}
++
++static int family_get(struct mnlu_gen_socket *nlg, const char *family_name)
++{
++	struct genlmsghdr hdr = {};
++	struct nlmsghdr *nlh;
++	int err;
++
++	hdr.cmd = CTRL_CMD_GETFAMILY;
++	hdr.version = 0x1;
++
++	nlh = mnlu_msg_prepare(nlg->buf, GENL_ID_CTRL,
++			       NLM_F_REQUEST | NLM_F_ACK,
++			       &hdr, sizeof(hdr));
++
++	mnl_attr_put_strz(nlh, CTRL_ATTR_FAMILY_NAME, family_name);
++
++	err = mnl_socket_sendto(nlg->nl, nlh, nlh->nlmsg_len);
++	if (err < 0)
++		return err;
++
++	err = mnlu_socket_recv_run(nlg->nl, nlh->nlmsg_seq, nlg->buf,
++				   MNL_SOCKET_BUFFER_SIZE,
++				   get_family_id_cb, &nlg->family);
++	return err;
++}
++
++int mnlu_gen_socket_open(struct mnlu_gen_socket *nlg, const char *family_name,
++			 uint8_t version)
++{
++	int err;
++
++	nlg->buf = malloc(MNL_SOCKET_BUFFER_SIZE);
++	if (!nlg->buf)
++		goto err_buf_alloc;
++
++	nlg->nl = mnlu_socket_open(NETLINK_GENERIC);
++	if (!nlg->nl)
++		goto err_socket_open;
++
++	err = family_get(nlg, family_name);
++	if (err)
++		goto err_socket;
++
++	return 0;
++
++err_socket:
++	mnl_socket_close(nlg->nl);
++err_socket_open:
++	free(nlg->buf);
++err_buf_alloc:
++	return -1;
++}
++
++void mnlu_gen_socket_close(struct mnlu_gen_socket *nlg)
++{
++	mnl_socket_close(nlg->nl);
++	free(nlg->buf);
++}
++
++struct nlmsghdr *mnlu_gen_socket_cmd_prepare(struct mnlu_gen_socket *nlg,
++					     uint8_t cmd, uint16_t flags)
++{
++	struct genlmsghdr hdr = {};
++	struct nlmsghdr *nlh;
++
++	hdr.cmd = cmd;
++	hdr.version = nlg->version;
++	nlh = mnlu_msg_prepare(nlg->buf, nlg->family, flags, &hdr, sizeof(hdr));
++	nlg->seq = nlh->nlmsg_seq;
++	return nlh;
++}
++
++int mnlu_gen_socket_sndrcv(struct mnlu_gen_socket *nlg, const struct nlmsghdr *nlh,
++			   mnl_cb_t data_cb, void *data)
++{
++	int err;
++
++	err = mnl_socket_sendto(nlg->nl, nlh, nlh->nlmsg_len);
++	if (err < 0) {
++		perror("Failed to send data");
++		return -errno;
++	}
++
++	err = mnlu_socket_recv_run(nlg->nl, nlh->nlmsg_seq, nlg->buf,
++				   MNL_SOCKET_BUFFER_SIZE,
++				   data_cb, data);
++	if (err < 0) {
++		fprintf(stderr, "kernel answers: %s\n", strerror(errno));
++		return -errno;
++	}
++	return 0;
++}
+-- 
+2.26.2
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
