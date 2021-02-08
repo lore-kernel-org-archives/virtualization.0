@@ -2,102 +2,159 @@ Return-Path: <SRS0=X+k7=HK=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
-	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D5FCC433DB
-	for <virtualization@archiver.kernel.org>; Mon,  8 Feb 2021 19:09:10 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E84FC433DB
+	for <virtualization@archiver.kernel.org>; Mon,  8 Feb 2021 19:40:44 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1982764E5A
-	for <virtualization@archiver.kernel.org>; Mon,  8 Feb 2021 19:09:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1982764E5A
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 8E42864DDD
+	for <virtualization@archiver.kernel.org>; Mon,  8 Feb 2021 19:40:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8E42864DDD
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 8CA0387114;
-	Mon,  8 Feb 2021 19:09:09 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id B5209214EC;
+	Mon,  8 Feb 2021 19:40:42 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from silver.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ptrCmzoWaelt; Mon,  8 Feb 2021 19:40:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id 67DDC20468;
+	Mon,  8 Feb 2021 19:40:40 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4556DC0174;
+	Mon,  8 Feb 2021 19:40:40 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 34B7FC013A
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  8 Feb 2021 19:40:39 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id 2298C87119
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  8 Feb 2021 19:40:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6sdsieaK+ars; Mon,  8 Feb 2021 19:09:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id B59EC870EA;
-	Mon,  8 Feb 2021 19:09:08 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6ABDDC0891;
-	Mon,  8 Feb 2021 19:09:08 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4819DC013A
- for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Feb 2021 19:09:07 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 2E7D28454E
- for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Feb 2021 19:09:07 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lG5MtIojvZwY
+ with ESMTP id mJ6NqNYi0l-c
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Feb 2021 19:09:05 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com
- [209.85.208.54])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 3F199842B2
+ Mon,  8 Feb 2021 19:40:37 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam11on2109.outbound.protection.outlook.com [40.107.223.109])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 6C9F28708F
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Feb 2021 19:09:05 +0000 (UTC)
-Received: by mail-ed1-f54.google.com with SMTP id s26so14237004edt.10
- for <virtualization@lists.linux-foundation.org>;
- Mon, 08 Feb 2021 11:09:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc:content-transfer-encoding;
- bh=l0kbrSaQgUXnEY1P7PcjdolquDqjSA58IJTFJAK0lBc=;
- b=pZSi6AjgTzOb5nK5lYZzBBmmH71S7J5hcYyYCI/j+LZgR+XB/OEBx583W9IvuD3OmO
- Gh9yAkRs7VivwAQH/DpjjIx4/kSgX3x4xPwL/Ynz6MT6jVab9uVkiqSA4KUob9JSv9zd
- DYZZj9hRKIUHDDQM7eO0f3fmzd7WQHf291nYmuV9TqKFWlUEmz2V45l2CP99wGE6hHs5
- xp2JWFLVVgUUThvW6unDGE+8hJw/a56AZneBjxfUSxcoFaGwJlqzBYeToU/13zx6xQuW
- J7u3PwDgBhq7QXlCj8aeDm/puefJf6LpqINcZee+M9iJQvFvkNUjoSRIyjKnGxrrIiXs
- NZ/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc:content-transfer-encoding;
- bh=l0kbrSaQgUXnEY1P7PcjdolquDqjSA58IJTFJAK0lBc=;
- b=H5QNZZ2QdDBnrDMMCu3f0CLvSFJ1qzN1UwDpPToI+X4N/0kKGkI1atAdNxcewm5KCG
- XHfRsT4K7ykezOlqQYmnIvMbhQrfmJGGf00XzsW/xQ7UB+gYgN2cv3aIsHtDBz8Zh7wy
- 1gmHFPIYwTlsK1g4L742UyAj8scVmvV5o+N3ZCWbJlwqpqjRGR/xV6yyXAd9L6OCO3Wo
- TFXVFGR0uoh06O1dkXQxFY2zgc2gChjFAtoQXbNJznl3DrNkQl4DaJFPdZxy86Jim5QR
- /ughdaFBsMqkHJl4wo67Abesla2ma2HRSJur0+3WZSDxaGmm4RAGcyrMftz+fk3KeLfp
- K5xA==
-X-Gm-Message-State: AOAM5324B5OmeqpMiYh37giiVbyB+w8MSd7qkw+24G1vteYHP7cVth8n
- /x0Q/CwRpPeh13JQL6u6Qb3ygfil7+cXgSypXCY=
-X-Google-Smtp-Source: ABdhPJxF/8gMEIpp3RevkkNsme+QbmBql5G+BJf6SWQ5H8PvnybBbCf5zSqSrZK7g3ZZiquPGd4IV15YthKlqI8F5eY=
-X-Received: by 2002:aa7:da17:: with SMTP id r23mr18113059eds.176.1612811343705; 
- Mon, 08 Feb 2021 11:09:03 -0800 (PST)
+ Mon,  8 Feb 2021 19:40:37 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=jLflB/X575lkqhJWO2A1wOzLB4ssh+Zg4YCYcR4D+X44GLcwSCxWe/vDbpOqDNYN8Gokd7K2dcbru9dO5DydkV/HaYKZ4/7WCDuR+MSfZMDFzNVCtiqC2J8vji/EntyYS1BW6R2JlP9pFJoMV2roHGRRRmkuKQNCpjiD4FrLlgfsvy71QPscBYWb/poEgp7uzYe4q6LNpdHT/kqN6D5ykwt8n9DDT1fcUdEtDRUoYCGFjM8kbQxtbVhJKAxBB0gcJAxr1ojg3JJRSaVeDi+btVLFzUCXy9eKkjPXNJCuHQx8d12aZrZLqrxNWD6O//iTh0JoB3yk01F9mAtk/TPJVw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=xR5I4HzABbKWAAYgjuiM6N3g88DUNSRVGH8J6HuAqWM=;
+ b=F6AvFuJynikARGL2wF8PlBIj87im1+7OLhc10ijYIycEeh74o5N+cxsll8Azz6DnuyGIXVbz6/f8swdIkFrC+LdZ4h+MvMkaGS6sL1goNweB3zu41EvpLKK+D6LNM2bQl3NaTBN0QtxS71kbOZECQ2K328IPy+UjY3g5tU4lE25NYMgf/9db57Usj9Vso21oWn1Ob1h0SpZWOZtDZ9ExzEOHJoSo8VTWY4JAxB29XorqV4/ylTxKlwzxifTZSIVFrXqDV/Mv9WOn46J16maQEQCNFrdA/fWTslXDEjVVJETnyxrQReN5nIPHIbHwY00L9UHMzwRll/p2EhnMKjh3pQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=xR5I4HzABbKWAAYgjuiM6N3g88DUNSRVGH8J6HuAqWM=;
+ b=SCYHYrTirQ8ZH9VmCm5vHXGM5KL/S1MQdFF87YdRUKMPXQXvBDfKqa0zpyfoQgxRtFL3TFcplKH/2AcirkvVaqOHc3i1y+5X2lpoOJPRyVHzrOq+YWcy8Em2ZYZhg1YzY7gizMVaihw/dEpRxX5Cm8NxgVr8E7PVnNZJw5UK7po=
+Received: from MWHPR21MB1593.namprd21.prod.outlook.com (2603:10b6:301:7c::11)
+ by MW4PR21MB1890.namprd21.prod.outlook.com (2603:10b6:303:64::10)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3868.5; Mon, 8 Feb
+ 2021 19:40:34 +0000
+Received: from MWHPR21MB1593.namprd21.prod.outlook.com
+ ([fe80::9c8:94c9:faf1:17c2]) by MWHPR21MB1593.namprd21.prod.outlook.com
+ ([fe80::9c8:94c9:faf1:17c2%9]) with mapi id 15.20.3868.006; Mon, 8 Feb 2021
+ 19:40:34 +0000
+To: Nuno Das Neves <nunodasneves@linux.microsoft.com>,
+ "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>
+Subject: RE: [RFC PATCH 00/18] Microsoft Hypervisor root partition ioctl
+ interface
+Thread-Topic: [RFC PATCH 00/18] Microsoft Hypervisor root partition ioctl
+ interface
+Thread-Index: AQHWv52RzpNHORzDhkSH9WyLC+YTBKpPFSuQ
+Date: Mon, 8 Feb 2021 19:40:34 +0000
+Message-ID: <MWHPR21MB1593320EC0EFAD45DA50E1A9D78F9@MWHPR21MB1593.namprd21.prod.outlook.com>
+References: <1605918637-12192-1-git-send-email-nunodasneves@linux.microsoft.com>
+In-Reply-To: <1605918637-12192-1-git-send-email-nunodasneves@linux.microsoft.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2021-02-08T19:40:30Z; 
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=66e485dc-965a-4202-9ad4-916a574f3556;
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0
+authentication-results: linux.microsoft.com; dkim=none (message not signed)
+ header.d=none;linux.microsoft.com; dmarc=none action=none
+ header.from=microsoft.com;
+x-originating-ip: [24.22.167.197]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: feffa7f6-7e86-4a59-a9e4-08d8cc696725
+x-ms-traffictypediagnostic: MW4PR21MB1890:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <MW4PR21MB18902711C68B17BB5A82FADED78F9@MW4PR21MB1890.namprd21.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:10000;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: j/NuTxYSRfOscJc1+xOoVmAPYLEd6wm7Bvo6M2NM4x3oCwHZE5jRsJprHprdI4igqC/JxT0aBImxTfhu+a0jBMfWtzilIZmL0mSJfKx54xzEXPm/tc37aKqWIS+uSVd4W+jqZJreA22sO3aDuRMhBEpWl0xIxAAa+1qaK27uN+PXxV8sby+29isOYoPk207hUTGVn9TuaWEvDir2SVNVvZ6yCCNBC+g/S0gQOReyJIlbDiN/rGyRi5A4b7cGYbkK0bjv73rEiiGzR3Lpkwcp+Z5kwPw1lFuwyIDBVQpavydJcdSNqPz027aX+pI+J0y6dME6LmEJU8v4O+HXGWiIKOV6jg3KGzJhk8y17scmIrbvaKeHzrmee9A2I393UltQwcTkPuciRB45ppErvGDW0dyitAKrNV7FRTJhh2f/VV9TzpJPTKYPCsp+mtyFFn6s9EDlcN0pHCeYN9Ep/1GCTg73DPfsYJE0NEdQm8Ijpja5kkChucKqh+xvcYK9ebOH/6OZ6EXz7wWRGncLR8PuzDh4h2GbVPSkNWcpN+WwieWHeOwssWmjyM/3LAkLuPuDdev9iCFqIqefVqBBDgxXkk+8njK9FSuo/834jWYMWbc=
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:MWHPR21MB1593.namprd21.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(4636009)(136003)(346002)(39860400002)(396003)(376002)(366004)(47530400004)(66446008)(8990500004)(966005)(66476007)(64756008)(186003)(83380400001)(8936002)(66556008)(33656002)(478600001)(2906002)(66946007)(52536014)(82960400001)(76116006)(7696005)(5660300002)(316002)(82950400001)(8676002)(107886003)(9686003)(55016002)(6506007)(110136005)(26005)(71200400001)(4326008)(10290500003)(54906003)(86362001);
+ DIR:OUT; SFP:1102; 
+x-ms-exchange-antispam-messagedata: =?us-ascii?Q?ej9rPf/vvnBpA0wqlZbiw9sD3cXKy6rnWoyYPFLJG+912BZKoAVI0WULuIdb?=
+ =?us-ascii?Q?H6f4AK57QJLVYGF24VKEW2A/j37BJVhjw2A+gbyeZcZ8bmcZPcqN+cZfJh09?=
+ =?us-ascii?Q?6An3D1RlSsXDAOCZtDC3A5tKG6JAZWfLdtYIlB/wLEVEx/mlg3zvVIBjMAhb?=
+ =?us-ascii?Q?h/EbcH18Cpg0IZ7ZGwH6jxVoCFiPGzFsLiFg9nSWhNPDeQFlk4mo5Uj5P6gj?=
+ =?us-ascii?Q?sgm/pLcmE/I/nwQjQ67IqlorpDO+TvUcNyNKmFFGFfp7s8oQwyJ/5Mn4CQrO?=
+ =?us-ascii?Q?tzvKgWh2huzhmXZKj4hb6i9rOe+er7ViY0kn9b9IT6hjKZmLKSzdN4fnwevm?=
+ =?us-ascii?Q?mv2WRca8C7HjxRh4hAAk7LEfvULZf/SN4BHVQ5JCDdtYAwaWPc61HOldJ8C5?=
+ =?us-ascii?Q?zy0bSjHAVriugv27BVVb8tKXw7F2iqt+lAcvwIRE9bQ75ngo0NJ/OPdglYCA?=
+ =?us-ascii?Q?OjKRCaZn7d3+fk5i/OeEu5vrIS6Rkqpes7Y2ecRdnDxQxP87nmf7Qab6sVPC?=
+ =?us-ascii?Q?V71h0IVT86Soby7dXRso2aGyk4HfHoIbI5OqIeJeWsQqXxlamuD6Ic9/t0UE?=
+ =?us-ascii?Q?VU/g3vL1+yspZokXY1BaLVOJU2o9jUIVECvcROtC8TSNx7bQYx1Hswx4CjDF?=
+ =?us-ascii?Q?blYKurhLWyajt0cIoSjx5g8K135QpY66czheW+r8gsFDRz1KMF7Ph2+2Ftnf?=
+ =?us-ascii?Q?uD8QdpWoSO7UZRApyx310ctoqix8tb5mCS77UpR0YfUe4VlI6+dLNJWaKBsp?=
+ =?us-ascii?Q?HiGHrZoJ8VaY3Vj5fdBqoV5EaH0jbruyQrkbSe3NihKaa2NyRiV7IvsMvZ/F?=
+ =?us-ascii?Q?UqCUadqJZZgnOmVdzgha0aNuVXgpSlo3DtHaqGsLRVud6UfPBWJ2ydMdGYXf?=
+ =?us-ascii?Q?bEbvSEbR0ye8pYjGQoU90lDrmujqww1WBj2LBRTlPfOSFRLt5JDt+1fkEyiQ?=
+ =?us-ascii?Q?tQF9fCRRd5VkuFkOqg930D4+GHv7djXZo/ep01DikxEwq9gin98kk/qWS3u/?=
+ =?us-ascii?Q?Dtw/+d8Tkbw+b8tAsj6bl/PUv1QlqvFXmbT2s6/PfmmNjchudBhyqOx7y89S?=
+ =?us-ascii?Q?jM/SolJUHOZ0t0EcJhwJG7+wirrcBkL/lrqPG6hayqg282hQLnDRp5e+R7a4?=
+ =?us-ascii?Q?4Z+6673IQsaukksSLRI5RoEHeilaX5eg7q7KQB+X9n44tUPU6cszyhO/WSMz?=
+ =?us-ascii?Q?YmbBrz9oc6NBReqJpBX4ggYJfu8v+nOZhhKsOhtFFaMAK3vKPGWUV2CSruQe?=
+ =?us-ascii?Q?mjQXQo8cvwlQithPVp/b9JAatOVD+Ubq/EnrlQ1uHFVPXiuzXCtolyv3s8od?=
+ =?us-ascii?Q?OGXMQrEFLZSx54npZ+rGz+CU?=
 MIME-Version: 1.0
-References: <20210129002136.70865-1-weiwan@google.com>
- <a0b2cb8d-eb8f-30fb-2a22-678e6dd2f58f@redhat.com>
- <CAF=yD-+aPBF2RaCR8L5orTM37bf7Z4Z8Qko2D2LZjOz0khHTUg@mail.gmail.com>
- <3a3e005d-f9b2-c16a-5ada-6e04242c618e@redhat.com>
- <CAF=yD-+NVKiwS6P2=cS=gk2nLcsWP1anMyy4ghdPiNrhOmLRDw@mail.gmail.com>
- <9b0b8f2a-8476-697e-9002-e9947e3eab63@redhat.com>
- <CA+FuTScVOuoHKtrdrRFswjA3Zq1-7sgMVhnP2iMB5sYFFS8NFg@mail.gmail.com>
- <50ae0b71-df87-f26c-8b4d-8035f9f6a58d@redhat.com>
-In-Reply-To: <50ae0b71-df87-f26c-8b4d-8035f9f6a58d@redhat.com>
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Mon, 8 Feb 2021 14:08:26 -0500
-Message-ID: <CAF=yD-J5-60D=JDwvpecjaO6J03SZHoHJyCsR3B1HbP1-jbqng@mail.gmail.com>
-Subject: Re: [PATCH net] virtio-net: suppress bad irq warning for tx napi
-To: Jason Wang <jasowang@redhat.com>
-Cc: Network Development <netdev@vger.kernel.org>, Wei Wang <weiwan@google.com>,
- virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>,
- Jakub Kicinski <kuba@kernel.org>
+X-OriginatorOrg: microsoft.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR21MB1593.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: feffa7f6-7e86-4a59-a9e4-08d8cc696725
+X-MS-Exchange-CrossTenant-originalarrivaltime: 08 Feb 2021 19:40:34.5959 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: Y+wfyTJv9c2XUsQqf89Qfc4LzcQBnEEMT+hl8F/TOB4EnePrNUd2+OWi95StQlKP6I8LHwJcCarkHjHBHmzktgOisu8NB0uVWngs4pwYaHg=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR21MB1890
+Cc: "wei.liu@kernel.org" <wei.liu@kernel.org>,
+ Lillian Grassin-Drake <Lillian.GrassinDrake@microsoft.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ Sunil Muthuswamy <sunilmut@microsoft.com>,
+ "viremana@linux.microsoft.com" <viremana@linux.microsoft.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -109,114 +166,161 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Michael Kelley via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Michael Kelley <mikelley@microsoft.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gU3VuLCBGZWIgNywgMjAyMSBhdCAxMDoyOSBQTSBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
-YXQuY29tPiB3cm90ZToKPgo+Cj4gT24gMjAyMS8yLzUg5LiK5Y2INDo1MCwgV2lsbGVtIGRlIEJy
-dWlqbiB3cm90ZToKPiA+IE9uIFdlZCwgRmViIDMsIDIwMjEgYXQgMTA6MDYgUE0gSmFzb24gV2Fu
-ZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4gd3JvdGU6Cj4gPj4KPiA+PiBPbiAyMDIxLzIvNCDkuIrl
-jYgyOjI4LCBXaWxsZW0gZGUgQnJ1aWpuIHdyb3RlOgo+ID4+PiBPbiBXZWQsIEZlYiAzLCAyMDIx
-IGF0IDEyOjMzIEFNIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4+
-Pj4gT24gMjAyMS8yLzIg5LiL5Y2IMTA6MzcsIFdpbGxlbSBkZSBCcnVpam4gd3JvdGU6Cj4gPj4+
-Pj4gT24gTW9uLCBGZWIgMSwgMjAyMSBhdCAxMDowOSBQTSBKYXNvbiBXYW5nIDxqYXNvd2FuZ0By
-ZWRoYXQuY29tPiB3cm90ZToKPiA+Pj4+Pj4gT24gMjAyMS8xLzI5IOS4iuWNiDg6MjEsIFdlaSBX
-YW5nIHdyb3RlOgo+ID4+Pj4+Pj4gV2l0aCB0aGUgaW1wbGVtZW50YXRpb24gb2YgbmFwaS10eCBp
-biB2aXJ0aW8gZHJpdmVyLCB3ZSBjbGVhbiB0eAo+ID4+Pj4+Pj4gZGVzY3JpcHRvcnMgZnJvbSBy
-eCBuYXBpIGhhbmRsZXIsIGZvciB0aGUgcHVycG9zZSBvZiByZWR1Y2luZyB0eAo+ID4+Pj4+Pj4g
-Y29tcGxldGUgaW50ZXJydXB0cy4gQnV0IHRoaXMgY291bGQgaW50cm9kdWNlIGEgcmFjZSB3aGVy
-ZSB0eCBjb21wbGV0ZQo+ID4+Pj4+Pj4gaW50ZXJydXB0IGhhcyBiZWVuIHJhaXNlZCwgYnV0IHRo
-ZSBoYW5kbGVyIGZvdW5kIHRoZXJlIGlzIG5vIHdvcmsgdG8gZG8KPiA+Pj4+Pj4+IGJlY2F1c2Ug
-d2UgaGF2ZSBkb25lIHRoZSB3b3JrIGluIHRoZSBwcmV2aW91cyByeCBpbnRlcnJ1cHQgaGFuZGxl
-ci4KPiA+Pj4+Pj4+IFRoaXMgY291bGQgbGVhZCB0byB0aGUgZm9sbG93aW5nIHdhcm5pbmcgbXNn
-Ogo+ID4+Pj4+Pj4gWyAzNTg4LjAxMDc3OF0gaXJxIDM4OiBub2JvZHkgY2FyZWQgKHRyeSBib290
-aW5nIHdpdGggdGhlCj4gPj4+Pj4+PiAiaXJxcG9sbCIgb3B0aW9uKQo+ID4+Pj4+Pj4gWyAzNTg4
-LjAxNzkzOF0gQ1BVOiA0IFBJRDogMCBDb21tOiBzd2FwcGVyLzQgTm90IHRhaW50ZWQKPiA+Pj4+
-Pj4+IDUuMy4wLTE5LWdlbmVyaWMgIzIwfjE4LjA0LjItVWJ1bnR1Cj4gPj4+Pj4+PiBbIDM1ODgu
-MDE3OTQwXSBDYWxsIFRyYWNlOgo+ID4+Pj4+Pj4gWyAzNTg4LjAxNzk0Ml0gIDxJUlE+Cj4gPj4+
-Pj4+PiBbIDM1ODguMDE3OTUxXSAgZHVtcF9zdGFjaysweDYzLzB4ODUKPiA+Pj4+Pj4+IFsgMzU4
-OC4wMTc5NTNdICBfX3JlcG9ydF9iYWRfaXJxKzB4MzUvMHhjMAo+ID4+Pj4+Pj4gWyAzNTg4LjAx
-Nzk1NV0gIG5vdGVfaW50ZXJydXB0KzB4MjRiLzB4MmEwCj4gPj4+Pj4+PiBbIDM1ODguMDE3OTU2
-XSAgaGFuZGxlX2lycV9ldmVudF9wZXJjcHUrMHg1NC8weDgwCj4gPj4+Pj4+PiBbIDM1ODguMDE3
-OTU3XSAgaGFuZGxlX2lycV9ldmVudCsweDNiLzB4NjAKPiA+Pj4+Pj4+IFsgMzU4OC4wMTc5NThd
-ICBoYW5kbGVfZWRnZV9pcnErMHg4My8weDFhMAo+ID4+Pj4+Pj4gWyAzNTg4LjAxNzk2MV0gIGhh
-bmRsZV9pcnErMHgyMC8weDMwCj4gPj4+Pj4+PiBbIDM1ODguMDE3OTY0XSAgZG9fSVJRKzB4NTAv
-MHhlMAo+ID4+Pj4+Pj4gWyAzNTg4LjAxNzk2Nl0gIGNvbW1vbl9pbnRlcnJ1cHQrMHhmLzB4Zgo+
-ID4+Pj4+Pj4gWyAzNTg4LjAxNzk2Nl0gIDwvSVJRPgo+ID4+Pj4+Pj4gWyAzNTg4LjAxNzk4OV0g
-aGFuZGxlcnM6Cj4gPj4+Pj4+PiBbIDM1ODguMDIwMzc0XSBbPDAwMDAwMDAwMWI5ZjFkYTg+XSB2
-cmluZ19pbnRlcnJ1cHQKPiA+Pj4+Pj4+IFsgMzU4OC4wMjUwOTldIERpc2FibGluZyBJUlEgIzM4
-Cj4gPj4+Pj4+Pgo+ID4+Pj4+Pj4gVGhpcyBwYXRjaCBhZGRzIGEgbmV3IHBhcmFtIHRvIHN0cnVj
-dCB2cmluZ192aXJ0cXVldWUsIGFuZCB3ZSBzZXQgaXQgZm9yCj4gPj4+Pj4+PiB0eCB2aXJ0cXVl
-dWVzIGlmIG5hcGktdHggaXMgZW5hYmxlZCwgdG8gc3VwcHJlc3MgdGhlIHdhcm5pbmcgaW4gc3Vj
-aAo+ID4+Pj4+Pj4gY2FzZS4KPiA+Pj4+Pj4+Cj4gPj4+Pj4+PiBGaXhlczogN2IwNDExZWY0YWE2
-ICgidmlydGlvLW5ldDogY2xlYW4gdHggZGVzY3JpcHRvcnMgZnJvbSByeCBuYXBpIikKPiA+Pj4+
-Pj4+IFJlcG9ydGVkLWJ5OiBSaWNrIEpvbmVzIDxqb25lc3JpY2tAZ29vZ2xlLmNvbT4KPiA+Pj4+
-Pj4+IFNpZ25lZC1vZmYtYnk6IFdlaSBXYW5nIDx3ZWl3YW5AZ29vZ2xlLmNvbT4KPiA+Pj4+Pj4+
-IFNpZ25lZC1vZmYtYnk6IFdpbGxlbSBkZSBCcnVpam4gPHdpbGxlbWJAZ29vZ2xlLmNvbT4KPiA+
-Pj4+Pj4gUGxlYXNlIHVzZSBnZXRfbWFpbnRhaW5lci5wbCB0byBtYWtlIHN1cmUgTWljaGFlbCBh
-bmQgbWUgd2VyZSBjY2VkLgo+ID4+Pj4+IFdpbGwgZG8uIFNvcnJ5IGFib3V0IHRoYXQuIEkgc3Vn
-Z2VzdGVkIGp1c3QgdGhlIHZpcnR1YWxpemF0aW9uIGxpc3QsIG15IGJhZC4KPiA+Pj4+Pgo+ID4+
-Pj4+Pj4gLS0tCj4gPj4+Pj4+PiAgICAgIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyAgICAgfCAx
-OSArKysrKysrKysrKysrKy0tLS0tCj4gPj4+Pj4+PiAgICAgIGRyaXZlcnMvdmlydGlvL3ZpcnRp
-b19yaW5nLmMgfCAxNiArKysrKysrKysrKysrKysrCj4gPj4+Pj4+PiAgICAgIGluY2x1ZGUvbGlu
-dXgvdmlydGlvLmggICAgICAgfCAgMiArKwo+ID4+Pj4+Pj4gICAgICAzIGZpbGVzIGNoYW5nZWQs
-IDMyIGluc2VydGlvbnMoKyksIDUgZGVsZXRpb25zKC0pCj4gPj4+Pj4+Pgo+ID4+Pj4+Pj4gZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19u
-ZXQuYwo+ID4+Pj4+Pj4gaW5kZXggNTA4NDA4ZmJlNzhmLi5lOWEzZjMwODY0ZTggMTAwNjQ0Cj4g
-Pj4+Pj4+PiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMKPiA+Pj4+Pj4+ICsrKyBiL2Ry
-aXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4+Pj4+Pj4gQEAgLTEzMDMsMTMgKzEzMDMsMjIgQEAg
-c3RhdGljIHZvaWQgdmlydG5ldF9uYXBpX3R4X2VuYWJsZShzdHJ1Y3QgdmlydG5ldF9pbmZvICp2
-aSwKPiA+Pj4+Pj4+ICAgICAgICAgICAgICAgICAgcmV0dXJuOwo+ID4+Pj4+Pj4gICAgICAgICAg
-fQo+ID4+Pj4+Pj4KPiA+Pj4+Pj4+ICsgICAgIC8qIFdpdGggbmFwaV90eCBlbmFibGVkLCBmcmVl
-X29sZF94bWl0X3NrYnMoKSBjb3VsZCBiZSBjYWxsZWQgZnJvbQo+ID4+Pj4+Pj4gKyAgICAgICog
-cnggbmFwaSBoYW5kbGVyLiBTZXQgd29ya19zdGVhbCB0byBzdXBwcmVzcyBiYWQgaXJxIHdhcm5p
-bmcgZm9yCj4gPj4+Pj4+PiArICAgICAgKiBJUlFfTk9ORSBjYXNlIGZyb20gdHggY29tcGxldGUg
-aW50ZXJydXB0IGhhbmRsZXIuCj4gPj4+Pj4+PiArICAgICAgKi8KPiA+Pj4+Pj4+ICsgICAgIHZp
-cnRxdWV1ZV9zZXRfd29ya19zdGVhbCh2cSwgdHJ1ZSk7Cj4gPj4+Pj4+PiArCj4gPj4+Pj4+PiAg
-ICAgICAgICByZXR1cm4gdmlydG5ldF9uYXBpX2VuYWJsZSh2cSwgbmFwaSk7Cj4gPj4+Pj4+IERv
-IHdlIG5lZWQgdG8gZm9yY2UgdGhlIG9yZGVyaW5nIGJldHdlZW4gc3RlYWwgc2V0IGFuZCBuYXBp
-IGVuYWJsZT8KPiA+Pj4+PiBUaGUgd2FybmluZyBvbmx5IG9jY3VycyBhZnRlciBvbmUgaHVuZHJl
-ZCBzcHVyaW91cyBpbnRlcnJ1cHRzLCBzbyBub3QKPiA+Pj4+PiByZWFsbHkuCj4gPj4+PiBPaywg
-c28gaXQgbG9va3MgbGlrZSBhIGhpbnQuIFRoZW4gSSB3b25kZXIgaG93IG11Y2ggdmFsdWUgZG8g
-d2UgbmVlZCB0bwo+ID4+Pj4gaW50cm9kdWNlIGhlbHBlciBsaWtlIHZpcnRxdWV1ZV9zZXRfd29y
-a19zdGVhbCgpIHRoYXQgYWxsb3dzIHRoZSBjYWxsZXIKPiA+Pj4+IHRvIHRvZ2dsZS4gSG93IGFi
-b3V0IGRpc2FibGUgdGhlIGNoZWNrIGZvcmV2ZXIgZHVyaW5nIHZpcnRxdWV1ZQo+ID4+Pj4gaW5p
-dGlhbGl6YXRpb24/Cj4gPj4+IFllcywgdGhhdCBpcyBldmVuIHNpbXBsZXIuCj4gPj4+Cj4gPj4+
-IFdlIHN0aWxsIG5lZWQgdGhlIGhlbHBlciwgYXMgdGhlIGludGVybmFsIHZhcmlhYmxlcyBvZiB2
-cmluZ192aXJ0cXVldWUKPiA+Pj4gYXJlIG5vdCBhY2Nlc3NpYmxlIGZyb20gdmlydGlvLW5ldC4g
-QW4gZWFybGllciBwYXRjaCBhZGRlZCB0aGUKPiA+Pj4gdmFyaWFibGUgdG8gdmlydHF1ZXVlIGl0
-c2VsZiwgYnV0IEkgdGhpbmsgaXQgYmVsb25ncyBpbgo+ID4+PiB2cmluZ192aXJ0cXVldWUuIEFu
-ZCB0aGUgaGVscGVyIGlzIG5vdCBhIGxvdCBvZiBjb2RlLgo+ID4+Cj4gPj4gSXQncyBiZXR0ZXIg
-dG8gZG8gdGhpcyBiZWZvcmUgdGhlIGFsbG9jYXRpbmcgdGhlIGlycS4gQnV0IGl0IGxvb2tzIG5v
-dAo+ID4+IGVhc3kgdW5sZXNzIHdlIGV4dGVuZCBmaW5kX3ZxcygpLgo+ID4gQ2FuIHlvdSBlbGFi
-b3JhdGUgd2h5IHRoYXQgaXMgYmV0dGVyPyBBdCB2aXJ0bmV0X29wZW4gdGhlIGludGVycnVwdHMK
-PiA+IGFyZSBub3QgZmlyaW5nIGVpdGhlci4KPgo+Cj4gSSB0aGluayB5b3UgbWVhbnQgTkFQSSBh
-Y3R1YWxseT8KCkkgbWVhbnQgaW50ZXJydXB0OiB3ZSBkb24ndCBoYXZlIHRvIHdvcnJ5IGFib3V0
-IHRoZSBzcHVyaW91cyBpbnRlcnJ1cHQKd2FybmluZyB3aGVuIG5vIGludGVycnVwdHMgd2lsbCBi
-ZSBmaXJpbmcuIFVudGlsIHZpcnRuZXRfb3Blbgpjb21wbGV0ZXMsIHRoZSBkZXZpY2UgaXMgZG93
-bi4KCgo+Cj4gPgo+ID4gSSBoYXZlIG5vIHByZWZlcmVuY2UuIEp1c3QgY3VyaW91cywgZXNwZWNp
-YWxseSBpZiBpdCBjb21wbGljYXRlcyB0aGUgcGF0Y2guCj4gPgo+Cj4gTXkgdW5kZXJzdGFuZGlu
-ZyBpcyB0aGF0LiBJdCdzIHByb2JhYmx5IG9rIGZvciBuZXQuIEJ1dCB3ZSBwcm9iYWJseSBuZWVk
-Cj4gdG8gZG9jdW1lbnQgdGhlIGFzc3VtcHRpb25zIHRvIG1ha2Ugc3VyZSBpdCB3YXMgbm90IGFi
-dXNlZCBpbiBvdGhlciBkcml2ZXJzLgo+Cj4gSW50cm9kdWNlIG5ldyBwYXJhbWV0ZXJzIGZvciBm
-aW5kX3ZxcygpIGNhbiBoZWxwIHRvIGVsaW1pbmF0ZSB0aGUgc3VidGxlCj4gc3R1ZmZzIGJ1dCBJ
-IGFncmVlIGl0IGxvb2tzIGxpa2UgYSBvdmVya2lsbC4KPgo+IChCdHcsIEkgZm9yZ2V0IHRoZSBu
-dW1iZXJzIGJ1dCB3b25kZXIgaG93IG11Y2ggZGlmZmVyZW5jZSBpZiB3ZSBzaW1wbGUKPiByZW1v
-dmUgdGhlIGZyZWVfb2xkX3htaXRzKCkgZnJvbSB0aGUgcnggTkFQSSBwYXRoPykKClRoZSBjb21t
-aXR0ZWQgcGF0Y2hzZXQgZGlkIG5vdCByZWNvcmQgdGhvc2UgbnVtYmVycywgYnV0IEkgZm91bmQg
-dGhlbQppbiBhbiBlYXJsaWVyIGl0ZXJhdGlvbjoKCiAgW1BBVENIIG5ldC1uZXh0IDAvM10gdmly
-dGlvLW5ldCB0eCBuYXBpCiAgaHR0cHM6Ly9saXN0cy5vcGVud2FsbC5uZXQvbmV0ZGV2LzIwMTcv
-MDQvMDIvNTUKCkl0IGRpZCBzZWVtIHRvIHNpZ25pZmljYW50bHkgcmVkdWNlIGNvbXB1dGUgY3lj
-bGVzICgiR2N5YyIpIGF0IHRoZQp0aW1lLiBGb3IgaW5zdGFuY2U6CgogICAgVENQX1JSIExhdGVu
-Y3kgKHVzKToKICAgIDF4OgogICAgICBwNTAgICAgICAgICAgICAgIDI0ICAgICAgIDI0ICAgICAg
-IDIxCiAgICAgIHA5OSAgICAgICAgICAgICAgMjcgICAgICAgMjcgICAgICAgMjcKICAgICAgR2N5
-Y2xlcyAgICAgICAgIDI5OSAgICAgIDQzMiAgICAgIDMwOAoKSSdtIGNvbmNlcm5lZCB0aGF0IHJl
-bW92aW5nIGl0IG5vdyBtYXkgY2F1c2UgYSByZWdyZXNzaW9uIHJlcG9ydCBpbiBhCmZldyBtb250
-aHMuIFRoYXQgaXMgaGlnaGVyIHJpc2sgdGhhbiB0aGUgc3B1cmlvdXMgaW50ZXJydXB0IHdhcm5p
-bmcKdGhhdCB3YXMgb25seSByZXBvcnRlZCBhZnRlciB5ZWFycyBvZiB1c2UuCl9fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
-bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
-L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
-bg==
+From: Nuno Das Neves <nunodasneves@linux.microsoft.com> Sent: Friday, November 20, 2020 4:30 PM
+> 
+> This patch series provides a userspace interface for creating and running guest
+> virtual machines while running on the Microsoft Hypervisor [0].
+> 
+> Since managing guest machines can only be done when Linux is the root partition,
+> this series depends on the RFC already posted by Wei Liu:
+> https://lore.kernel.org/linux-hyperv/20201105165814.29233-1-wei.liu@kernel.org/T/#t
+> 
+> The first two patches provide some helpers for converting hypervisor status
+> codes to linux error codes, and easily printing hypervisor status codes to dmesg
+> for debugging.
+> 
+> Hyper-V related headers asm-generic/hyperv-tlfs.h and x86/asm/hyperv-tlfs.h are
+> split into uapi and non-uapi. The uapi versions contain structures used in both
+> the ioctl interface and the kernel.
+> 
+> The mshv API is introduced in virt/mshv/mshv_main.c. As each interface is
+> introduced, documentation is added in Documentation/virt/mshv/api.rst.
+> The API is file-desciptor based, like KVM. The entry point is /dev/mshv.
+> 
+> /dev/mshv ioctls:
+> MSHV_REQUEST_VERSION
+> MSHV_CREATE_PARTITION
+> 
+> Partition (vm) ioctls:
+> MSHV_MAP_GUEST_MEMORY, MSHV_UNMAP_GUEST_MEMORY
+> MSHV_INSTALL_INTERCEPT
+> MSHV_ASSERT_INTERRUPT
+> MSHV_GET_PARTITION_PROPERTY, MSHV_SET_PARTITION_PROPERTY
+> MSHV_CREATE_VP
+> 
+> Vp (vcpu) ioctls:
+> MSHV_GET_VP_REGISTERS, MSHV_SET_VP_REGISTERS
+> MSHV_RUN_VP
+> MSHV_GET_VP_STATE, MSHV_SET_VP_STATE
+> mmap() (register page)
+> 
+> [0] Hyper-V is more well-known, but it really refers to the whole stack
+>     including the hypervisor and other components that run in Windows kernel
+>     and userspace.
+> 
+> Nuno Das Neves (18):
+>   x86/hyperv: convert hyperv statuses to linux error codes
+>   asm-generic/hyperv: convert hyperv statuses to strings
+>   virt/mshv: minimal mshv module (/dev/mshv/)
+>   virt/mshv: request version ioctl
+>   virt/mshv: create partition ioctl
+>   virt/mshv: create, initialize, finalize, delete partition hypercalls
+>   virt/mshv: withdraw memory hypercall
+>   virt/mshv: map and unmap guest memory
+>   virt/mshv: create vcpu ioctl
+>   virt/mshv: get and set vcpu registers ioctls
+>   virt/mshv: set up synic pages for intercept messages
+>   virt/mshv: run vp ioctl and isr
+>   virt/mshv: install intercept ioctl
+>   virt/mshv: assert interrupt ioctl
+>   virt/mshv: get and set vp state ioctls
+>   virt/mshv: mmap vp register page
+>   virt/mshv: get and set partition property ioctls
+>   virt/mshv: Add enlightenment bits to create partition ioctl
+> 
+>  .../userspace-api/ioctl/ioctl-number.rst      |    2 +
+>  Documentation/virt/mshv/api.rst               |  173 ++
+>  arch/x86/Kconfig                              |    2 +
+>  arch/x86/hyperv/Kconfig                       |   22 +
+>  arch/x86/hyperv/Makefile                      |    4 +
+>  arch/x86/hyperv/hv_init.c                     |    2 +-
+>  arch/x86/hyperv/hv_proc.c                     |   40 +-
+>  arch/x86/include/asm/hyperv-tlfs.h            |   44 +-
+>  arch/x86/include/asm/mshyperv.h               |    1 +
+>  arch/x86/include/uapi/asm/hyperv-tlfs.h       | 1312 +++++++++++
+>  arch/x86/kernel/cpu/mshyperv.c                |   16 +
+>  include/asm-generic/hyperv-tlfs.h             |  324 ++-
+>  include/asm-generic/mshyperv.h                |    3 +
+>  include/linux/mshv.h                          |   61 +
+>  include/uapi/asm-generic/hyperv-tlfs.h        |  160 ++
+>  include/uapi/linux/mshv.h                     |  109 +
+>  virt/mshv/mshv_main.c                         | 2054 +++++++++++++++++
+>  17 files changed, 4178 insertions(+), 151 deletions(-)
+>  create mode 100644 Documentation/virt/mshv/api.rst
+>  create mode 100644 arch/x86/hyperv/Kconfig
+>  create mode 100644 arch/x86/include/uapi/asm/hyperv-tlfs.h
+>  create mode 100644 include/linux/mshv.h
+>  create mode 100644 include/uapi/asm-generic/hyperv-tlfs.h
+>  create mode 100644 include/uapi/linux/mshv.h
+>  create mode 100644 virt/mshv/mshv_main.c
+> 
+> --
+> 2.25.1
+
+I finally made it through reviewing this patch series.  Nice
+work -- to you, and to Lillian as the original author of significant
+portions!  There's a lot code, but it is well organized for reviewing
+and overall is done well.
+
+I have a three general comments:
+
+1) Historically we have very precisely specified the layout of data
+structures that are shared with Hyper-V.  Each field has an explicit
+width (i.e., u16, u32, u64, etc.) and we have avoided field types that
+lack an explicit width (int, enum, bool, etc.).  These patches make
+liberal use of enum types in the Hyper-V data structures, and I saw
+one occurrence of bool.  While treating enum and bool as 32 bits
+works, I have a concern that such specifications aren't consistent
+with the original rigor we tried to use.
+
+Related, there are several places where the proper layout depends
+on the compiler inserting padding (and not inserting padding in the
+wrong places) to achieve the needed alignment.  In my view, we
+should be explicitly adding the padding.  A couple years back at
+Vitaly Kuznetsov's initiative, we added __packed on all the data
+structures to instruct the compiler to not add padding, so as to
+prevent padding being added at any inappropriate places.
+
+I started by flagging all of these places I saw either of these two
+Issues, but I stopped doing so in some of the later patches, figuring
+that you could find the issues across the entire series.
+
+2) With all the new hypercalls added with this patch series, and with
+Wei Liu's patch series for Linux in the root partition, I've noticed that
+we're inconsistent in how the hypercall status is checked.   The
+current code works, but is sloppy with types and doesn't always
+conform to the letter of the TLFS.  Your new hv_status_to_errno() is
+a nice addition, but I think we would be well served by using a 
+consistent pattern.  I'm planning to send out a separate email to
+the linux-hyperv mailing list with a specific suggestion that we can
+all review and comment on.  Once we have agreement, we can do
+a cleanup exercise on existing code and on recent patches.
+
+3) I've flagged a few places where the code does not handle configurations
+where PAGE_SIZE is other than 4 Kbytes.  While this will never happen
+on x86/x64, it could happen on other architectures like ARM64.  Of course,
+we may never want to run Linux in the root partition with a page size
+other than 4 Kbytes, even on ARM64, so I'm OK with not fixing all these
+places.  But I've flagged some places where HV_HYP_PAGE_SIZE would
+be more appropriate than PAGE_SIZE (and similar) and I think it makes
+sense to fix those now, if just to express that the usage is tied to the
+page size used by the Hyper-V interface, and not the guest page size.
+
+I'll also send replies to many of the individual patches with specific
+comments embedded.  I have not given "Reviewed-by:" on any of the
+patches since they were submitted as RFC, but I can do so for a few
+of the patches if that would be helpful.
+
+Michael
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
