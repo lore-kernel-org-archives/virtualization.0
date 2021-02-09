@@ -2,111 +2,99 @@ Return-Path: <SRS0=H/CR=HL=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A48A9C433DB
-	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 13:15:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59DF0C433E0
+	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 13:54:23 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4AD9064EC3
-	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 13:15:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4AD9064EC3
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id BADFD64ED5
+	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 13:54:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BADFD64ED5
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 169B986916;
-	Tue,  9 Feb 2021 13:15:55 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 56D9186B74;
+	Tue,  9 Feb 2021 13:54:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UXy6g5ldYPr0; Tue,  9 Feb 2021 13:15:52 +0000 (UTC)
+	with ESMTP id TDtbESMFai0h; Tue,  9 Feb 2021 13:54:21 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 1ED8B85FC0;
-	Tue,  9 Feb 2021 13:15:52 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 38A42869AC;
+	Tue,  9 Feb 2021 13:54:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 00B81C0891;
-	Tue,  9 Feb 2021 13:15:52 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5BB2AC013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 234B1C0891;
+	Tue,  9 Feb 2021 13:54:21 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 731D5C013A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 13:15:51 +0000 (UTC)
+ Tue,  9 Feb 2021 13:54:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 570E1872BD
+ by whitealder.osuosl.org (Postfix) with ESMTP id 5F4A286B2D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 13:15:51 +0000 (UTC)
+ Tue,  9 Feb 2021 13:54:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id m0HcuS1gT5th
+ with ESMTP id Py2IX+qMTa+n
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 13:15:46 +0000 (UTC)
+ Tue,  9 Feb 2021 13:54:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 62C92872D0
+Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com
+ [209.85.218.41])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 476EA86A08
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 13:15:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1612876545;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=dGXe5gfbBWR1g71oFIRA7vxXEcCc5TjDpBoP7esDi98=;
- b=ec0zoF4hBaXz0W8zqsQABvMgZGLf+6z9bnP0SSewxVbAHCKxSKuJA+He+g5sukDoqZjw+J
- tka4cxAGATdnkOjAo4v0sanNUd7JKG6pdg69JfPMAvi/7H3hlAs2DXkz4eU5ufMK6bclej
- zEIaZ7nDdUJx4CuXgUpaF6ypsPLLDBE=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-502-wRQKKij6O7CdpR0OEasEwQ-1; Tue, 09 Feb 2021 08:15:43 -0500
-X-MC-Unique: wRQKKij6O7CdpR0OEasEwQ-1
-Received: by mail-ed1-f69.google.com with SMTP id g2so17744092edq.14
+ Tue,  9 Feb 2021 13:54:18 +0000 (UTC)
+Received: by mail-ej1-f41.google.com with SMTP id f14so31567307ejc.8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 09 Feb 2021 05:15:43 -0800 (PST)
+ Tue, 09 Feb 2021 05:54:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc:content-transfer-encoding;
+ bh=LHXxRnsLKoOvgd0yvx6F4xuhgUe7ABigB+ckGTWSYwg=;
+ b=Ft2JbOoNS11xYnG4jPafmaaqHhG1EEGHT7MA8DfFZxSLfyvH3n0DGPDVzkntupT43E
+ +bjzWtJmfui/DGFuFDIoqmHBcQZeiCglr4ynd28Z3pqgJleOYcpaKvfC0RoiW+szcGKa
+ CLmMJhbwaCXUD/O4NzezKg9O0NXgTBy3oFVNKuI6IL+6a/O1Ho5LGoOG858DdW7kMgOi
+ 40jW6XqilwMS4/eBnplOvOIVqEd0WwXB8wOCQppbKmxfNwBZVPLeU1hutD8TRyLvnWgT
+ 5SXPw9Se3AUZ9+xUxyr03aesF9vnfSWiq0jpjO5EKWJ19yWAwOvMb20BpcQ/cBFN7wfR
+ LtYQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
- :message-id:mime-version;
- bh=dGXe5gfbBWR1g71oFIRA7vxXEcCc5TjDpBoP7esDi98=;
- b=Mksb/aV1q1xfxc3dX/wlkZgNGlOadZ2GKZgH5e/nqmvHW9RHJnb2ZZMQVZm6Lqeydb
- xoE6PukeSN0EiwQSe2YPdOEffAgQmNsclPtfdiuH9o3HIpr6j87ynTxmTv7eWsmtEqBU
- B5cVkGEwchbkE8BAsvzCzI03lNwYixr9kApmwiqX6zg/cClBItUr8SStcSDiVEapV/vg
- sslxS/yaaJhHxIdl/eO5lW4RP2nzCmUkfcYkDJaEORjXAyxAau537qvjUWoyJYtcwvMU
- YJcuyvOxyWEiEbJ9rYmAh++wmB3dxbzl3/1B9akdKuREd1IxIXp7r26/1M4QGvDI1TNP
- XgEg==
-X-Gm-Message-State: AOAM532PChgP/nwqdr+PcFEO3TSv265pm+zmQSNsTogW2XG9h5K9PkIA
- VWJbXR7qIsFZsMG/eUi4NN02EMpu44vDYdeELStTnIwGXkWCJ/qkgkdigbKqnzV9tH5dV3FYHMh
- wKYZFwuTtjc0BrNMKTkRIaegfikD0fcAiq/WwznvQQw==
-X-Received: by 2002:a50:c04d:: with SMTP id u13mr22624228edd.226.1612876542178; 
- Tue, 09 Feb 2021 05:15:42 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwoyjHqzlRpgqVe8eCPC3VMyolVgAIS9ATAXJfjgAkueLm2Hq9ITo+qbjWynvp4Yf3uSgvUjg==
-X-Received: by 2002:a50:c04d:: with SMTP id u13mr22624195edd.226.1612876541939; 
- Tue, 09 Feb 2021 05:15:41 -0800 (PST)
-Received: from vitty.brq.redhat.com (g-server-2.ign.cz. [91.219.240.2])
- by smtp.gmail.com with ESMTPSA id f6sm11842257edk.13.2021.02.09.05.15.40
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 09 Feb 2021 05:15:41 -0800 (PST)
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
-To: Nuno Das Neves <nunodasneves@linux.microsoft.com>,
- linux-hyperv@vger.kernel.org
-Subject: Re: [RFC PATCH 05/18] virt/mshv: create partition ioctl
-In-Reply-To: <1605918637-12192-6-git-send-email-nunodasneves@linux.microsoft.com>
-References: <1605918637-12192-1-git-send-email-nunodasneves@linux.microsoft.com>
- <1605918637-12192-6-git-send-email-nunodasneves@linux.microsoft.com>
-Date: Tue, 09 Feb 2021 14:15:40 +0100
-Message-ID: <87v9b1mlfn.fsf@vitty.brq.redhat.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc:content-transfer-encoding;
+ bh=LHXxRnsLKoOvgd0yvx6F4xuhgUe7ABigB+ckGTWSYwg=;
+ b=TCUr3Cq1stMhFKIwekZiGQb82qGbkuzcBT5yz+qKMIadIANqgSse+Ie+AOUEyFOJgl
+ EfQXGo9WK2h1A/bnlw1zcWQXKIseWvKrC9cfgHM/qdi1PxCI2gXGVd6bVsvkBWiTOogu
+ +PZLUBFQfaGdDAdbvv29ZnEqcKaN/QeWzElKxGBqPctiRlaR3PCgFW+0HXwEu8/P1n0I
+ s3qvozwNPFcm8lrEjKAWdLOEWTPggoCZOUagaNAlyqxa4HTPsFgTQaUBGyFkyVJDWjdm
+ eSeVK6RMCXv21G1zLn4ZZeO4NzO6fR1MpDpEHd39LkCHSjUXwz8WcOgNS+P65xJcjO6b
+ tYkQ==
+X-Gm-Message-State: AOAM532Y+kTBgOcKAaJSKYjFeXovZQs2y/oTIeEx5fd+/Uzsx2X/P7AW
+ j/mybt4I6X3OHJ7mDLovbcaac+AnLqlrTIh8Z9g=
+X-Google-Smtp-Source: ABdhPJwxdUAn9WHjqsT4NJBsFmkI4fLufcraU6RK4VvOJrza9m3CIZ7ManUXZ4AXC4z/SfN0G3UI3LDwT9GWibA5Vdk=
+X-Received: by 2002:a17:906:4dc5:: with SMTP id
+ f5mr22171118ejw.11.1612878856672; 
+ Tue, 09 Feb 2021 05:54:16 -0800 (PST)
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=vkuznets@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: wei.liu@kernel.org, linux-kernel@vger.kernel.org, mikelley@microsoft.com,
- nunodasneves@linux.microsoft.com, sunilmut@microsoft.com,
- virtualization@lists.linux-foundation.org, viremana@linux.microsoft.com,
- ligrassi@microsoft.com
+References: <20210208185558.995292-1-willemdebruijn.kernel@gmail.com>
+ <20210208185558.995292-3-willemdebruijn.kernel@gmail.com>
+ <c089cb3e-96cb-b42a-5ce1-d54d298987c4@redhat.com>
+In-Reply-To: <c089cb3e-96cb-b42a-5ce1-d54d298987c4@redhat.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date: Tue, 9 Feb 2021 08:53:40 -0500
+Message-ID: <CAF=yD-Jkm-Cfs2tHKhC17KfPp+=18y=9_XSuY-LNgkC-2_NfLA@mail.gmail.com>
+Subject: Re: [PATCH RFC v2 2/4] virtio-net: support receive timestamp
+To: Jason Wang <jasowang@redhat.com>
+Cc: Network Development <netdev@vger.kernel.org>,
+ Richard Cochran <richardcochran@gmail.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Willem de Bruijn <willemb@google.com>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,513 +106,107 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Nuno Das Neves <nunodasneves@linux.microsoft.com> writes:
-
-> Add MSHV_CREATE_PARTITION, which creates an fd to track a new partition.
-> Partition is not yet created in the hypervisor itself.
-> Introduce header files for userspace-facing hyperv structures.
->
-> Co-developed-by: Lillian Grassin-Drake <ligrassi@microsoft.com>
-> Signed-off-by: Lillian Grassin-Drake <ligrassi@microsoft.com>
-> Signed-off-by: Nuno Das Neves <nunodasneves@linux.microsoft.com>
-> ---
->  Documentation/virt/mshv/api.rst         |  12 ++
->  arch/x86/include/asm/hyperv-tlfs.h      |   1 +
->  arch/x86/include/uapi/asm/hyperv-tlfs.h | 124 ++++++++++++++++
->  include/asm-generic/hyperv-tlfs.h       |   1 +
->  include/linux/mshv.h                    |  16 +++
->  include/uapi/asm-generic/hyperv-tlfs.h  |  14 ++
->  include/uapi/linux/mshv.h               |   7 +
->  virt/mshv/mshv_main.c                   | 179 +++++++++++++++++++++---
->  8 files changed, 338 insertions(+), 16 deletions(-)
->  create mode 100644 arch/x86/include/uapi/asm/hyperv-tlfs.h
->  create mode 100644 include/uapi/asm-generic/hyperv-tlfs.h
->
-> diff --git a/Documentation/virt/mshv/api.rst b/Documentation/virt/mshv/api.rst
-> index 82e32de48d03..ce651a1738e0 100644
-> --- a/Documentation/virt/mshv/api.rst
-> +++ b/Documentation/virt/mshv/api.rst
-> @@ -39,6 +39,9 @@ root partition can use mshv APIs to create guest partitions.
->  
->  The module is named mshv and can be configured with CONFIG_HYPERV_ROOT_API.
->  
-> +The uapi header files you need are linux/mshv.h, asm/hyperv-tlfs.h, and
-> +asm-generic/hyperv-tlfs.h.
-> +
->  Mshv is file descriptor-based, following a similar pattern to KVM.
->  
->  To get a handle to the mshv driver, use open("/dev/mshv").
-> @@ -60,3 +63,12 @@ if one of them matches.
->  This /dev/mshv file descriptor will remain 'locked' to that version as long as
->  it is open - this ioctl can only be called once per open.
->  
-> +3.2 MSHV_CREATE_PARTITION
-> +-------------------------
-> +:Type: /dev/mshv ioctl
-> +:Parameters: struct mshv_create_partition
-> +:Returns: partition file descriptor, or -1 on failure
-> +
-> +This ioctl creates a guest partition, returning a file descriptor to use as a
-> +handle for partition ioctls.
-> +
-> diff --git a/arch/x86/include/asm/hyperv-tlfs.h b/arch/x86/include/asm/hyperv-tlfs.h
-> index 592c75e51e0f..4cd44ae9bffb 100644
-> --- a/arch/x86/include/asm/hyperv-tlfs.h
-> +++ b/arch/x86/include/asm/hyperv-tlfs.h
-> @@ -11,6 +11,7 @@
->  
->  #include <linux/types.h>
->  #include <asm/page.h>
-> +#include <uapi/asm/hyperv-tlfs.h>
->  /*
->   * The below CPUID leaves are present if VersionAndFeatures.HypervisorPresent
->   * is set by CPUID(HvCpuIdFunctionVersionAndFeatures).
-> diff --git a/arch/x86/include/uapi/asm/hyperv-tlfs.h b/arch/x86/include/uapi/asm/hyperv-tlfs.h
-> new file mode 100644
-> index 000000000000..72150c25ffe6
-> --- /dev/null
-> +++ b/arch/x86/include/uapi/asm/hyperv-tlfs.h
-> @@ -0,0 +1,124 @@
-> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-> +#ifndef _UAPI_ASM_X86_HYPERV_TLFS_USER_H
-> +#define _UAPI_ASM_X86_HYPERV_TLFS_USER_H
-> +
-> +#include <linux/types.h>
-> +
-> +#define HV_PARTITION_PROCESSOR_FEATURE_BANKS 2
-> +
-> +union hv_partition_processor_features {
-> +	struct {
-> +		__u64 sse3_support:1;
-> +		__u64 lahf_sahf_support:1;
-> +		__u64 ssse3_support:1;
-> +		__u64 sse4_1_support:1;
-> +		__u64 sse4_2_support:1;
-> +		__u64 sse4a_support:1;
-> +		__u64 xop_support:1;
-> +		__u64 pop_cnt_support:1;
-> +		__u64 cmpxchg16b_support:1;
-> +		__u64 altmovcr8_support:1;
-> +		__u64 lzcnt_support:1;
-> +		__u64 mis_align_sse_support:1;
-> +		__u64 mmx_ext_support:1;
-> +		__u64 amd3dnow_support:1;
-> +		__u64 extended_amd3dnow_support:1;
-> +		__u64 page_1gb_support:1;
-> +		__u64 aes_support:1;
-> +		__u64 pclmulqdq_support:1;
-> +		__u64 pcid_support:1;
-> +		__u64 fma4_support:1;
-> +		__u64 f16c_support:1;
-> +		__u64 rd_rand_support:1;
-> +		__u64 rd_wr_fs_gs_support:1;
-> +		__u64 smep_support:1;
-> +		__u64 enhanced_fast_string_support:1;
-> +		__u64 bmi1_support:1;
-> +		__u64 bmi2_support:1;
-> +		__u64 hle_support_deprecated:1;
-> +		__u64 rtm_support_deprecated:1;
-> +		__u64 movbe_support:1;
-> +		__u64 npiep1_support:1;
-> +		__u64 dep_x87_fpu_save_support:1;
-> +		__u64 rd_seed_support:1;
-> +		__u64 adx_support:1;
-> +		__u64 intel_prefetch_support:1;
-> +		__u64 smap_support:1;
-> +		__u64 hle_support:1;
-> +		__u64 rtm_support:1;
-> +		__u64 rdtscp_support:1;
-> +		__u64 clflushopt_support:1;
-> +		__u64 clwb_support:1;
-> +		__u64 sha_support:1;
-> +		__u64 x87_pointers_saved_support:1;
-> +		__u64 invpcid_support:1;
-> +		__u64 ibrs_support:1;
-> +		__u64 stibp_support:1;
-> +		__u64 ibpb_support: 1;
-> +		__u64 unrestricted_guest_support:1;
-> +		__u64 mdd_support:1;
-> +		__u64 fast_short_rep_mov_support:1;
-> +		__u64 l1dcache_flush_support:1;
-> +		__u64 rdcl_no_support:1;
-> +		__u64 ibrs_all_support:1;
-> +		__u64 skip_l1df_support:1;
-> +		__u64 ssb_no_support:1;
-> +		__u64 rsb_a_no_support:1;
-> +		__u64 virt_spec_ctrl_support:1;
-> +		__u64 rd_pid_support:1;
-> +		__u64 umip_support:1;
-> +		__u64 mbs_no_support:1;
-> +		__u64 mb_clear_support:1;
-> +		__u64 taa_no_support:1;
-> +		__u64 tsx_ctrl_support:1;
-> +		/*
-> +		 * N.B. The final processor feature bit in bank 0 is reserved to
-> +		 * simplify potential downlevel backports.
-> +		 */
-> +		__u64 reserved_bank0:1;
-> +
-> +		/* N.B. Begin bank 1 processor features. */
-> +		__u64 acount_mcount_support:1;
-> +		__u64 tsc_invariant_support:1;
-> +		__u64 cl_zero_support:1;
-> +		__u64 rdpru_support:1;
-> +		__u64 la57_support:1;
-> +		__u64 mbec_support:1;
-> +		__u64 nested_virt_support:1;
-> +		__u64 psfd_support:1;
-> +		__u64 cet_ss_support:1;
-> +		__u64 cet_ibt_support:1;
-> +		__u64 vmx_exception_inject_support:1;
-> +		__u64 enqcmd_support:1;
-> +		__u64 umwait_tpause_support:1;
-> +		__u64 movdiri_support:1;
-> +		__u64 movdir64b_support:1;
-> +		__u64 cldemote_support:1;
-> +		__u64 serialize_support:1;
-> +		__u64 tsc_deadline_tmr_support:1;
-> +		__u64 tsc_adjust_support:1;
-> +		__u64 fzlrep_movsb:1;
-> +		__u64 fsrep_stosb:1;
-> +		__u64 fsrep_cmpsb:1;
-> +		__u64 reserved_bank1:42;
-> +	};
-> +	__u64 as_uint64[HV_PARTITION_PROCESSOR_FEATURE_BANKS];
-> +};
-> +
-> +union hv_partition_processor_xsave_features {
-> +	struct {
-> +		__u64 xsave_support : 1;
-> +		__u64 xsaveopt_support : 1;
-> +		__u64 avx_support : 1;
-> +		__u64 reserved1 : 61;
-> +	};
-> +	__u64 as_uint64;
-> +};
-> +
-> +struct hv_partition_creation_properties {
-> +	union hv_partition_processor_features disabled_processor_features;
-> +	union hv_partition_processor_xsave_features
-> +		disabled_processor_xsave_features;
-> +};
-> +
-> +#endif
-> diff --git a/include/asm-generic/hyperv-tlfs.h b/include/asm-generic/hyperv-tlfs.h
-> index 05b9dc9896ab..2ff580780ce4 100644
-> --- a/include/asm-generic/hyperv-tlfs.h
-> +++ b/include/asm-generic/hyperv-tlfs.h
-> @@ -12,6 +12,7 @@
->  #include <linux/types.h>
->  #include <linux/bits.h>
->  #include <linux/time64.h>
-> +#include <uapi/asm-generic/hyperv-tlfs.h>
->  
->  /*
->   * While not explicitly listed in the TLFS, Hyper-V always runs with a page size
-> diff --git a/include/linux/mshv.h b/include/linux/mshv.h
-> index a0982fe2c0b8..fc4f35089b2c 100644
-> --- a/include/linux/mshv.h
-> +++ b/include/linux/mshv.h
-> @@ -6,6 +6,22 @@
->   * Microsoft Hypervisor root partition driver for /dev/mshv
->   */
->  
-> +#include <linux/spinlock.h>
->  #include <uapi/linux/mshv.h>
->  
-> +#define MSHV_MAX_PARTITIONS		128
-> +
-> +struct mshv_partition {
-> +	u64 id;
-> +	refcount_t ref_count;
-> +};
-> +
-> +struct mshv {
-> +	struct {
-> +		spinlock_t lock;
-> +		u64 count;
-> +		struct mshv_partition *array[MSHV_MAX_PARTITIONS];
-> +	} partitions;
-> +};
-> +
->  #endif
-> diff --git a/include/uapi/asm-generic/hyperv-tlfs.h b/include/uapi/asm-generic/hyperv-tlfs.h
-> new file mode 100644
-> index 000000000000..140cc0b4f98f
-> --- /dev/null
-> +++ b/include/uapi/asm-generic/hyperv-tlfs.h
-> @@ -0,0 +1,14 @@
-> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-> +#ifndef _UAPI_ASM_GENERIC_HYPERV_TLFS_USER_H
-> +#define _UAPI_ASM_GENERIC_HYPERV_TLFS_USER_H
-> +
-> +#ifndef BIT
-> +#define BIT(X)	(1ULL << (X))
-> +#endif
-> +
-> +#define HV_PARTITION_CREATION_FLAG_SMT_ENABLED_GUEST                BIT(0)
-> +#define HV_PARTITION_CREATION_FLAG_GPA_LARGE_PAGES_DISABLED         BIT(3)
-> +#define HV_PARTITION_CREATION_FLAG_GPA_SUPER_PAGES_ENABLED          BIT(4)
-> +#define HV_PARTITION_CREATION_FLAG_LAPIC_ENABLED                    BIT(13)
-> +
-> +#endif
-> diff --git a/include/uapi/linux/mshv.h b/include/uapi/linux/mshv.h
-> index dd30fc2f0a80..3788f8bc5caa 100644
-> --- a/include/uapi/linux/mshv.h
-> +++ b/include/uapi/linux/mshv.h
-> @@ -8,12 +8,19 @@
->   */
->  
->  #include <linux/types.h>
-> +#include <asm/hyperv-tlfs.h>
->  
->  #define MSHV_VERSION	0x0
->  
-> +struct mshv_create_partition {
-> +	__u64 flags;
-> +	struct hv_partition_creation_properties partition_creation_properties;
-> +};
-> +
->  #define MSHV_IOCTL 0xB8
->  
->  /* mshv device */
->  #define MSHV_REQUEST_VERSION	_IOW(MSHV_IOCTL, 0x00, __u32)
-> +#define MSHV_CREATE_PARTITION	_IOW(MSHV_IOCTL, 0x01, struct mshv_create_partition)
->  
->  #endif
-> diff --git a/virt/mshv/mshv_main.c b/virt/mshv/mshv_main.c
-> index 62f631f85301..4dcbe4907430 100644
-> --- a/virt/mshv/mshv_main.c
-> +++ b/virt/mshv/mshv_main.c
-> @@ -12,6 +12,8 @@
->  #include <linux/fs.h>
->  #include <linux/miscdevice.h>
->  #include <linux/slab.h>
-> +#include <linux/file.h>
-> +#include <linux/anon_inodes.h>
->  #include <linux/mshv.h>
->  
->  MODULE_AUTHOR("Microsoft");
-> @@ -24,6 +26,161 @@ static u32 supported_versions[] = {
->  	MSHV_CURRENT_VERSION,
->  };
->  
-> +static struct mshv mshv = {};
-> +
-> +static void mshv_partition_put(struct mshv_partition *partition);
-> +static int mshv_partition_release(struct inode *inode, struct file *filp);
-> +static long mshv_partition_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg);
-> +
-> +static int mshv_dev_open(struct inode *inode, struct file *filp);
-> +static int mshv_dev_release(struct inode *inode, struct file *filp);
-> +static long mshv_dev_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg);
-> +
-> +static const struct file_operations mshv_partition_fops = {
-> +	.release = mshv_partition_release,
-> +	.unlocked_ioctl = mshv_partition_ioctl,
-> +	.llseek = noop_llseek,
-> +};
-> +
-> +static const struct file_operations mshv_dev_fops = {
-> +	.owner = THIS_MODULE,
-> +	.open = mshv_dev_open,
-> +	.release = mshv_dev_release,
-> +	.unlocked_ioctl = mshv_dev_ioctl,
-> +	.llseek = noop_llseek,
-> +};
-> +
-> +static struct miscdevice mshv_dev = {
-> +	.minor = MISC_DYNAMIC_MINOR,
-> +	.name = "mshv",
-> +	.fops = &mshv_dev_fops,
-> +	.mode = 600,
-> +};
-> +
-> +static long
-> +mshv_partition_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
-> +{
-> +	return -ENOTTY;
-> +}
-> +
-> +static void
-> +destroy_partition(struct mshv_partition *partition)
-> +{
-> +	unsigned long flags;
-> +	int i;
-> +
-> +	/* Remove from list of partitions */
-> +	spin_lock_irqsave(&mshv.partitions.lock, flags);
-> +
-> +	for (i = 0; i < MSHV_MAX_PARTITIONS; ++i) {
-> +		if (mshv.partitions.array[i] == partition)
-> +			break;
-> +	}
-> +
-> +	if (i == MSHV_MAX_PARTITIONS) {
-> +		pr_err("%s: failed to locate partition in array\n", __func__);
-> +	} else {
-> +		mshv.partitions.count--;
-> +		mshv.partitions.array[i] = NULL;
-> +	}
-> +
-> +	spin_unlock_irqrestore(&mshv.partitions.lock, flags);
-> +
-> +	kfree(partition);
-> +}
-> +
-> +static void
-> +mshv_partition_put(struct mshv_partition *partition)
-> +{
-> +	if (refcount_dec_and_test(&partition->ref_count))
-> +		destroy_partition(partition);
-> +}
-> +
-> +static int
-> +mshv_partition_release(struct inode *inode, struct file *filp)
-> +{
-> +	struct mshv_partition *partition = filp->private_data;
-> +
-> +	mshv_partition_put(partition);
-> +
-> +	return 0;
-> +}
-> +
-> +static int
-> +add_partition(struct mshv_partition *partition)
-> +{
-> +	unsigned long flags;
-> +	int i, ret = 0;
-> +
-> +	spin_lock_irqsave(&mshv.partitions.lock, flags);
-> +
-> +	if (mshv.partitions.count >= MSHV_MAX_PARTITIONS) {
-> +		pr_err("%s: too many partitions\n", __func__);
-> +		ret = -ENOSPC;
-> +		goto out_unlock;
-> +	}
-> +
-> +	for (i = 0; i < MSHV_MAX_PARTITIONS; ++i) {
-> +		if (!mshv.partitions.array[i])
-> +			break;
-> +	}
-> +
-> +	mshv.partitions.count++;
-> +	mshv.partitions.array[i] = partition;
-> +
-> +out_unlock:
-> +	spin_unlock_irqrestore(&mshv.partitions.lock, flags);
-> +
-> +	return ret;
-> +}
-> +
-> +static long
-> +mshv_ioctl_create_partition(void __user *user_arg)
-> +{
-> +	struct mshv_create_partition args;
-> +	struct mshv_partition *partition;
-> +	struct file *file;
-> +	int fd;
-> +	long ret;
-> +
-> +	if (copy_from_user(&args, user_arg, sizeof(args)))
-> +		return -EFAULT;
-> +
-> +	partition = kzalloc(sizeof(*partition), GFP_KERNEL);
-> +	if (!partition)
-> +		return -ENOMEM;
-> +
-> +	fd = get_unused_fd_flags(O_CLOEXEC);
-> +	if (fd < 0) {
-> +		ret = fd;
-> +		goto free_partition;
-> +	}
-> +
-> +	file = anon_inode_getfile("mshv_partition", &mshv_partition_fops,
-> +				  partition, O_RDWR);
-> +	if (IS_ERR(file)) {
-> +		ret = PTR_ERR(file);
-> +		goto put_fd;
-> +	}
-> +	refcount_set(&partition->ref_count, 1);
-> +
-> +	ret = add_partition(partition);
-> +	if (ret)
-> +		goto release_file;
-> +
-> +	fd_install(fd, file);
-> +
-> +	return fd;
-> +
-> +release_file:
-> +	file->f_op->release(file->f_inode, file);
-> +put_fd:
-> +	put_unused_fd(fd);
-> +free_partition:
-> +	kfree(partition);
-> +	return ret;
-> +}
-> +
->  static long
->  mshv_ioctl_request_version(u32 *version, void __user *user_arg)
->  {
-> @@ -59,7 +216,10 @@ mshv_dev_ioctl(struct file *filp, unsigned int ioctl, unsigned long arg)
->  	if (*version == MSHV_INVALID_VERSION)
->  		return -EBADFD;
->  
-> -	/* TODO other ioctls */
-> +	switch (ioctl) {
-> +	case MSHV_CREATE_PARTITION:
-> +		return mshv_ioctl_create_partition((void __user *)arg);
-> +	}
->  
->  	return -ENOTTY;
->  }
-> @@ -82,21 +242,6 @@ mshv_dev_release(struct inode *inode, struct file *filp)
->  	return 0;
->  }
->  
-> -static const struct file_operations mshv_dev_fops = {
-> -	.owner = THIS_MODULE,
-> -	.open = mshv_dev_open,
-> -	.release = mshv_dev_release,
-> -	.unlocked_ioctl = mshv_dev_ioctl,
-> -	.llseek = noop_llseek,
-> -};
-> -
-> -static struct miscdevice mshv_dev = {
-> -	.minor = MISC_DYNAMIC_MINOR,
-> -	.name = "mshv",
-> -	.fops = &mshv_dev_fops,
-> -	.mode = 600,
-> -};
-> -
-
-This looks like an unneeded code churn as these structs just got added a
-few patches ago. It would probably be possible to put it to the right
-place from the very beginning so you don't need to move it in this
-patch.
-
->  static int
->  __init mshv_init(void)
->  {
-> @@ -106,6 +251,8 @@ __init mshv_init(void)
->  	if (r)
->  		pr_err("%s: misc device register failed\n", __func__);
->  
-> +	spin_lock_init(&mshv.partitions.lock);
-> +
->  	return r;
->  }
-
--- 
-Vitaly
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gTW9uLCBGZWIgOCwgMjAyMSBhdCAxMToxMyBQTSBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRo
+YXQuY29tPiB3cm90ZToKPgo+Cj4gT24gMjAyMS8yLzkg5LiK5Y2IMjo1NSwgV2lsbGVtIGRlIEJy
+dWlqbiB3cm90ZToKPiA+IEZyb206IFdpbGxlbSBkZSBCcnVpam4gPHdpbGxlbWJAZ29vZ2xlLmNv
+bT4KPiA+Cj4gPiBBZGQgb3B0aW9uYWwgUFRQIGhhcmR3YXJlIHJ4IHRpbWVzdGFtcCBvZmZsb2Fk
+IGZvciB2aXJ0aW8tbmV0Lgo+ID4KPiA+IEFjY3VyYXRlIFJUVCBtZWFzdXJlbWVudCByZXF1aXJl
+cyB0aW1lc3RhbXBzIGNsb3NlIHRvIHRoZSB3aXJlLgo+ID4gSW50cm9kdWNlIHZpcnRpbyBmZWF0
+dXJlIFZJUlRJT19ORVRfRl9SWF9UU1RBTVAuIElmIG5lZ290aWF0ZWQsIHRoZQo+ID4gdmlydGlv
+LW5ldCBoZWFkZXIgaXMgZXhwYW5kZWQgd2l0aCByb29tIGZvciBhIHRpbWVzdGFtcC4KPiA+Cj4g
+PiBBIGRldmljZSBtYXkgcGFzcyByZWNlaXZlIHRpbWVzdGFtcHMgZm9yIGFsbCBvciBzb21lIHBh
+Y2tldHMuIEZsYWcKPiA+IFZJUlRJT19ORVRfSERSX0ZfVFNUQU1QIHNpZ25hbHMgd2hldGhlciBh
+IHRpbWVzdGFtcCBpcyByZWNvcmRlZC4KPiA+Cj4gPiBBIGRyaXZlciB0aGF0IHN1cHBvcnRzIGhh
+cmR3YXJlIHRpbWVzdGFtcGluZyBtdXN0IGFsc28gc3VwcG9ydAo+ID4gaW9jdGwgU0lPQ1NIV1RT
+VEFNUC4gSW1wbGVtZW50IHRoYXQsIGFzIHdlbGwgYXMgaW5mb3JtYXRpb24gZ2V0dGVycwo+ID4g
+aW9jdGwgU0lPQ0dIV1RTVEFNUCBhbmQgZXRodG9vbCBnZXRfdHNfaW5mbyAoYGV0aHRvb2wgLVQg
+JERFVmApLgo+ID4KPiA+IFRoZSB0aW1lc3RhbXAgc3RyYWRkbGVzICh2aXJ0dWFsKSBoYXJkd2Fy
+ZSBkb21haW5zLiBMaWtlIFBUUCwgdXNlCj4gPiBpbnRlcm5hdGlvbmFsIGF0b21pYyB0aW1lIChD
+TE9DS19UQUkpIGFzIGdsb2JhbCBjbG9jayBiYXNlLiBUaGUgZHJpdmVyCj4gPiBtdXN0IHN5bmMg
+d2l0aCB0aGUgZGV2aWNlLCBlLmcuLCB0aHJvdWdoIGt2bS1jbG9jay4KPiA+Cj4gPiBUZXN0ZWQ6
+Cj4gPiAgICBndWVzdDogLi90aW1lc3RhbXBpbmcgZXRoMCBcCj4gPiAgICAgICAgICAgIFNPRl9U
+SU1FU1RBTVBJTkdfUkFXX0hBUkRXQVJFIFwKPiA+ICAgICAgICAgICAgU09GX1RJTUVTVEFNUElO
+R19SWF9IQVJEV0FSRQo+ID4gICAgaG9zdDogbmMgLTQgLXUgMTkyLjE2OC4xLjEgMzE5Cj4gPgo+
+ID4gQ2hhbmdlcyBSRkMgLT4gUkZDdjIKPiA+ICAgIC0gcmVuYW1lIHZpcnRpb19uZXRfaGRyX3Yx
+MiB0byB2aXJ0aW9fbmV0X2hkcl9oYXNoX3RzCj4gPiAgICAtIGFkZCBldGh0b29sIC5nZXRfdHNf
+aW5mbyB0byBxdWVyeSBjYXBhYmlsaXRpZXMKPiA+ICAgIC0gYWRkIGlvY3RsIFNJT0NbR1NdSFdU
+U1RBTVAgdG8gY29uZmlndXJlIGZlYXR1cmUKPiA+ICAgIC0gYWRkIHZpLT5lbmFibGVfcnhfdHN0
+YW1wIHRvIHN0b3JlIGNvbmZpZ3VyYXRpb24KPiA+ICAgIC0gY29udmVydCB2aXJ0aW9YWF90b19j
+cHUgdG8gbGVYWF90b19jcHUKPiA+ICAgIC0gY29udmVydCByZXNlcnZlZCB0byBfX3UzMgo+ID4K
+PiA+IFNpZ25lZC1vZmYtYnk6IFdpbGxlbSBkZSBCcnVpam4gPHdpbGxlbWJAZ29vZ2xlLmNvbT4K
+Cj4gPiAgIHN0YXRpYyBjb25zdCBzdHJ1Y3QgbmV0X2RldmljZV9vcHMgdmlydG5ldF9uZXRkZXYg
+PSB7Cj4gPiAgICAgICAubmRvX29wZW4gICAgICAgICAgICA9IHZpcnRuZXRfb3BlbiwKPiA+ICAg
+ICAgIC5uZG9fc3RvcCAgICAgICAgICAgID0gdmlydG5ldF9jbG9zZSwKPiA+IEBAIC0yNTczLDYg
+KzI2NzYsNyBAQCBzdGF0aWMgY29uc3Qgc3RydWN0IG5ldF9kZXZpY2Vfb3BzIHZpcnRuZXRfbmV0
+ZGV2ID0gewo+ID4gICAgICAgLm5kb19mZWF0dXJlc19jaGVjayAgICAgPSBwYXNzdGhydV9mZWF0
+dXJlc19jaGVjaywKPiA+ICAgICAgIC5uZG9fZ2V0X3BoeXNfcG9ydF9uYW1lID0gdmlydG5ldF9n
+ZXRfcGh5c19wb3J0X25hbWUsCj4gPiAgICAgICAubmRvX3NldF9mZWF0dXJlcyAgICAgICA9IHZp
+cnRuZXRfc2V0X2ZlYXR1cmVzLAo+ID4gKyAgICAgLm5kb19kb19pb2N0bCAgICAgICAgICAgPSB2
+aXJ0bmV0X2lvY3RsLAo+ID4gICB9Owo+ID4KPiA+ICAgc3RhdGljIHZvaWQgdmlydG5ldF9jb25m
+aWdfY2hhbmdlZF93b3JrKHN0cnVjdCB3b3JrX3N0cnVjdCAqd29yaykKPiA+IEBAIC0zMDY5LDYg
+KzMxNzMsMTEgQEAgc3RhdGljIGludCB2aXJ0bmV0X3Byb2JlKHN0cnVjdCB2aXJ0aW9fZGV2aWNl
+ICp2ZGV2KQo+ID4gICAgICAgICAgICAgICB2aS0+aGRyX2xlbiA9IHNpemVvZihzdHJ1Y3Qgdmly
+dGlvX25ldF9oZHJfdjFfaGFzaCk7Cj4gPiAgICAgICB9Cj4gPgo+ID4gKyAgICAgaWYgKHZpcnRp
+b19oYXNfZmVhdHVyZSh2ZGV2LCBWSVJUSU9fTkVUX0ZfUlhfVFNUQU1QKSkgewo+ID4gKyAgICAg
+ICAgICAgICB2aS0+aGFzX3J4X3RzdGFtcCA9IHRydWU7Cj4gPiArICAgICAgICAgICAgIHZpLT5o
+ZHJfbGVuID0gc2l6ZW9mKHN0cnVjdCB2aXJ0aW9fbmV0X2hkcl9oYXNoX3RzKTsKPgo+Cj4gRG9l
+cyB0aGlzIG1lYW4gZXZlbiBpZiB0aGUgZGV2aWNlIGRvZXNuJ3QgcGFzcyB0aW1lc3RhbXAsIHRo
+ZSBoZWFkZXIKPiBzdGlsbCBjb250YWlucyB0aGUgdGltZXN0YW1wIGZpZWxkcy4KClllcy4gQXMg
+aW1wbGVtZW50ZWQsIHRoZSBzaXplIG9mIHRoZSBoZWFkZXIgaXMgY29uc3RhbnQgYWNyb3NzCnBh
+Y2tldHMuIElmIGJvdGggc2lkZXMgbmVnb3RpYXRlIHRoZSBmZWF0dXJlLCB0aGVuIGFsbCBoZWFk
+ZXJzIHJlc2VydmUKc3BhY2UsIHdoZXRoZXIgb3Igbm90IHRoZSBzcGVjaWZpYyBwYWNrZXQgaGFz
+IGEgdGltZXN0YW1wLgoKU28gZmFyIGhlYWRlcnMgYXJlIGZpeGVkIHNpemUuIEkgc3VwcG9zZSB3
+ZSBjb3VsZCBpbnZlc3RpZ2F0ZSB2YXJpYWJsZQpzaXplIGhlYWRlcnMuIFRoaXMgZ29lcyBiYWNr
+IHRvIG91ciBkaXNjdXNzaW9uIGluIHRoZSBwcmV2aW91cwpwYXRjaHNldCwgdGhhdCB3ZSBjYW4g
+YWx3YXlzIGFkZCBhIHBhY2tlZC1oZWFkZXIgZmVhdHVyZSBsYXRlciwgaWYgdGhlCm51bWJlciBv
+ZiBvcHRpb25hbCBmZWF0dXJlcyByZWFjaGVzIGEgc2l6ZSB0aGF0IG1ha2VzIHRoZSBjb21wbGV4
+aXR5CndvcnRod2hpbGUuCgo+ID4gKyAgICAgfQo+ID4gKwo+ID4gICAgICAgaWYgKHZpcnRpb19o
+YXNfZmVhdHVyZSh2ZGV2LCBWSVJUSU9fRl9BTllfTEFZT1VUKSB8fAo+ID4gICAgICAgICAgIHZp
+cnRpb19oYXNfZmVhdHVyZSh2ZGV2LCBWSVJUSU9fRl9WRVJTSU9OXzEpKQo+ID4gICAgICAgICAg
+ICAgICB2aS0+YW55X2hlYWRlcl9zZyA9IHRydWU7Cj4gPiBAQCAtMzI2MCw3ICszMzY5LDcgQEAg
+c3RhdGljIHN0cnVjdCB2aXJ0aW9fZGV2aWNlX2lkIGlkX3RhYmxlW10gPSB7Cj4gPiAgICAgICBW
+SVJUSU9fTkVUX0ZfQ1RSTF9NQUNfQUREUiwgXAo+ID4gICAgICAgVklSVElPX05FVF9GX01UVSwg
+VklSVElPX05FVF9GX0NUUkxfR1VFU1RfT0ZGTE9BRFMsIFwKPiA+ICAgICAgIFZJUlRJT19ORVRf
+Rl9TUEVFRF9EVVBMRVgsIFZJUlRJT19ORVRfRl9TVEFOREJZLCBcCj4gPiAtICAgICBWSVJUSU9f
+TkVUX0ZfVFhfSEFTSAo+ID4gKyAgICAgVklSVElPX05FVF9GX1RYX0hBU0gsIFZJUlRJT19ORVRf
+Rl9SWF9UU1RBTVAKPiA+Cj4gPiAgIHN0YXRpYyB1bnNpZ25lZCBpbnQgZmVhdHVyZXNbXSA9IHsK
+PiA+ICAgICAgIFZJUlRORVRfRkVBVFVSRVMsCj4gPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBp
+L2xpbnV4L3ZpcnRpb19uZXQuaCBiL2luY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fbmV0LmgKPiA+
+IGluZGV4IDI3M2Q0M2MzNWY1OS4uYTVjODQ0MTBjZjkyIDEwMDY0NAo+ID4gLS0tIGEvaW5jbHVk
+ZS91YXBpL2xpbnV4L3ZpcnRpb19uZXQuaAo+ID4gKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L3Zp
+cnRpb19uZXQuaAo+ID4gQEAgLTU3LDYgKzU3LDcgQEAKPiA+ICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICogU3RlZXJpbmcgKi8KPiA+ICAgI2RlZmluZSBWSVJUSU9fTkVU
+X0ZfQ1RSTF9NQUNfQUREUiAyMyAgICAgICAvKiBTZXQgTUFDIGFkZHJlc3MgKi8KPiA+Cj4gPiAr
+I2RlZmluZSBWSVJUSU9fTkVUX0ZfUlhfVFNUQU1QICAgICAgICAgNTUgICAgLyogRGV2aWNlIHNl
+bmRzIFRBSSByZWNlaXZlIHRpbWUgKi8KPiA+ICAgI2RlZmluZSBWSVJUSU9fTkVUX0ZfVFhfSEFT
+SCAgICAgICAgICA1NiAgICAvKiBEcml2ZXIgc2VuZHMgaGFzaCByZXBvcnQgKi8KPiA+ICAgI2Rl
+ZmluZSBWSVJUSU9fTkVUX0ZfSEFTSF9SRVBPUlQgIDU3ICAgICAgICAvKiBTdXBwb3J0cyBoYXNo
+IHJlcG9ydCAqLwo+ID4gICAjZGVmaW5lIFZJUlRJT19ORVRfRl9SU1MgICAgICA2MCAgICAvKiBT
+dXBwb3J0cyBSU1MgUlggc3RlZXJpbmcgKi8KPiA+IEBAIC0xMjYsNiArMTI3LDcgQEAgc3RydWN0
+IHZpcnRpb19uZXRfaGRyX3YxIHsKPiA+ICAgI2RlZmluZSBWSVJUSU9fTkVUX0hEUl9GX05FRURT
+X0NTVU0gMSAgICAgICAvKiBVc2UgY3N1bV9zdGFydCwgY3N1bV9vZmZzZXQgKi8KPiA+ICAgI2Rl
+ZmluZSBWSVJUSU9fTkVUX0hEUl9GX0RBVEFfVkFMSUQgMiAgICAgICAvKiBDc3VtIGlzIHZhbGlk
+ICovCj4gPiAgICNkZWZpbmUgVklSVElPX05FVF9IRFJfRl9SU0NfSU5GTyAgIDQgICAgICAgLyog
+cnNjIGluZm8gaW4gY3N1bV8gZmllbGRzICovCj4gPiArI2RlZmluZSBWSVJUSU9fTkVUX0hEUl9G
+X1RTVEFNUCAgICAgICAgICAgICAgOCAgICAgICAvKiB0aW1lc3RhbXAgaXMgcmVjb3JkZWQgKi8K
+PiA+ICAgICAgIF9fdTggZmxhZ3M7Cj4gPiAgICNkZWZpbmUgVklSVElPX05FVF9IRFJfR1NPX05P
+TkUgICAgICAgICAgICAgMCAgICAgICAvKiBOb3QgYSBHU08gZnJhbWUgKi8KPiA+ICAgI2RlZmlu
+ZSBWSVJUSU9fTkVUX0hEUl9HU09fVENQVjQgICAgMSAgICAgICAvKiBHU08gZnJhbWUsIElQdjQg
+VENQIChUU08pICovCj4gPiBAQCAtMTgxLDYgKzE4MywxNyBAQCBzdHJ1Y3QgdmlydGlvX25ldF9o
+ZHJfdjFfaGFzaCB7Cj4gPiAgICAgICB9Owo+ID4gICB9Owo+ID4KPiA+ICtzdHJ1Y3QgdmlydGlv
+X25ldF9oZHJfaGFzaF90cyB7Cj4gPiArICAgICBzdHJ1Y3QgdmlydGlvX25ldF9oZHJfdjEgaGRy
+Owo+ID4gKyAgICAgc3RydWN0IHsKPiA+ICsgICAgICAgICAgICAgX19sZTMyIHZhbHVlOwo+ID4g
+KyAgICAgICAgICAgICBfX2xlMTYgcmVwb3J0Owo+ID4gKyAgICAgICAgICAgICBfX2xlMTYgZmxv
+d19zdGF0ZTsKPiA+ICsgICAgIH0gaGFzaDsKPgo+Cj4gQW55IHJlYXNvbiBmb3Igbm90IGVtYmVk
+ZGluZyBzdHJ1Y3R1cmUgdmlydGlvX25ldF9oZHJfdjFfaGFzaD8KCkp1c3QgdGhhdCBpdCBiZWNv
+bWVzIGFuIG9uaW9uIG9mIHN0cnVjdCBpbnNpZGUgc3RydWN0cy4gSSBjYW4gY2hhbmdlCmlmIHlv
+dSBwcmVmZXIuCgo+IFRoYW5rcwoKQXMgYWx3YXlzLCB0aGFua3MgZm9yIHJldmlld2luZywgSmFz
+b24uCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
