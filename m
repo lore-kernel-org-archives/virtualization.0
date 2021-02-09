@@ -7,69 +7,68 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56CD8C433DB
-	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 12:40:54 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04622C433DB
+	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 12:41:07 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D0B5C64EB1
-	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 12:40:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D0B5C64EB1
+	by mail.kernel.org (Postfix) with ESMTPS id 9D2E064EB1
+	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 12:41:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9D2E064EB1
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=opensynergy.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id A44ED86475;
-	Tue,  9 Feb 2021 12:40:53 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rVCAuy8uGRe6; Tue,  9 Feb 2021 12:40:52 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 51BFB86303;
-	Tue,  9 Feb 2021 12:40:52 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2F801C0174;
-	Tue,  9 Feb 2021 12:40:52 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 54B9BC013A
- for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 12:40:50 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 43497871C4
- for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 12:40:50 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 75A118715E;
+	Tue,  9 Feb 2021 12:41:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id UMQlg-MN1T9G
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1Iy2+1SDNSqN; Tue,  9 Feb 2021 12:41:05 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by hemlock.osuosl.org (Postfix) with ESMTP id 8F85187152;
+	Tue,  9 Feb 2021 12:41:05 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 79F7CC0174;
+	Tue,  9 Feb 2021 12:41:05 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A8B1AC013A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 12:40:48 +0000 (UTC)
+ Tue,  9 Feb 2021 12:41:03 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by fraxinus.osuosl.org (Postfix) with ESMTP id A4EB786433
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Feb 2021 12:41:03 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ANJ1RnbyN89T
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Feb 2021 12:41:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx1.opensynergy.com (mx1.opensynergy.com [217.66.60.4])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 22B5D87152
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 8A0208641E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 12:40:48 +0000 (UTC)
+ Tue,  9 Feb 2021 12:41:02 +0000 (UTC)
 Received: from SR-MAILGATE-02.opensynergy.com (localhost.localdomain
  [127.0.0.1])
- by mx1.opensynergy.com (Proxmox) with ESMTP id BB82FA160A;
- Tue,  9 Feb 2021 13:40:46 +0100 (CET)
+ by mx1.opensynergy.com (Proxmox) with ESMTP id E7A7CA1610;
+ Tue,  9 Feb 2021 13:41:00 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=opensynergy.com;
  h=cc:cc:content-transfer-encoding:content-type:content-type
  :date:from:from:in-reply-to:message-id:mime-version:references
- :reply-to:subject:subject:to:to; s=srmailgate02; bh=4YEjn2c9Uoo2
- uQ5zVqQaYFCDe5A3c2FRiysy5u0ypDo=; b=1pLhKYC6yKZjWgqJAZpBRxTUGwXf
- Eq6LZxubCrIJrYZ8iQghZatD6hpzMiJuDz3HuVbtfKD9mn5tVC6AhYCgxi2TvH80
- FJdRRecOlYcPvYHRNcg3ZoHGVZLsZvzShXjfL39ZzqceY2M++D8er6doWs9D1VDC
- JDVlkl7ztYZPzyiruW7FQvASOS7BMLgmFt556Pyr0Kdd2qNDqdCklOkoyfswoPH6
- NgkFyw7SFNBHJ3MgV446zVxcWJnotywg3Msl+xBrwGN7bKsA8utZVCK+cU31ltMz
- CMEgGrWAhNRv9A+Nj9mVYxlPr8fR3t2bD0v6W8GkJU0diBSpJp6+58MqqA==
+ :reply-to:subject:subject:to:to; s=srmailgate02; bh=rxMmKKZTRgUm
+ d2FkfYRWMBcqlmAD7VPGS8jiNI5r6uM=; b=QdxQMOe2/8ATnKDlapDfWIzHYZRL
+ r/rjQLFwTpYWIAUTNF7PJg5K4NHUADO+ksVs03lR3ZhKTsLu/ZGv87S2+jWV3U0d
+ VUz0CAMaOZaE/PAlJPdx8JpxIt/xWVy/gcr4xDwpEWMgyihimz8jBpp/+jJyyux7
+ lduRyq16p/RN9wTRSZMhsExVyzvnW95G5g+/4H9bgi1Rfxq0v//DpJ4tTgqVdrp/
+ NQzZn86Z9Qh/72pLRBGbZFImXvtf3OfcD1qCkVbgRg2dK7+Aj4jgYqo1M8CB6sIC
+ 5Lk8RWHT2+eMPV57jUfzJpWX9eard9XNfVyGeH83IMffj910gYaaL1XbTw==
 From: Anton Yakovlev <anton.yakovlev@opensynergy.com>
 To: <virtualization@lists.linux-foundation.org>,
  <alsa-devel@alsa-project.org>, <virtio-dev@lists.oasis-open.org>
-Subject: [PATCH v3 5/9] ALSA: virtio: handling control and I/O messages for
- the PCM device
-Date: Tue, 9 Feb 2021 13:40:06 +0100
-Message-ID: <20210209124011.1224628-6-anton.yakovlev@opensynergy.com>
+Subject: [PATCH v3 7/9] ALSA: virtio: introduce jack support
+Date: Tue, 9 Feb 2021 13:40:08 +0100
+Message-ID: <20210209124011.1224628-8-anton.yakovlev@opensynergy.com>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210209124011.1224628-1-anton.yakovlev@opensynergy.com>
 References: <20210209124011.1224628-1-anton.yakovlev@opensynergy.com>
@@ -94,624 +93,348 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The driver implements a message-based transport for I/O substream
-operations. Before the start of the substream, the hardware buffer is
-sliced into I/O messages, the number of which is equal to the current
-number of periods. The size of each message is equal to the current
-size of one period.
+Enumerate all available jacks and create ALSA controls.
 
-I/O messages are organized in an ordered queue. The completion of the
-I/O message indicates an elapsed period (the only exception is the end
-of the stream for the capture substream). Upon completion, the message
-is automatically re-added to the end of the queue.
+At the moment jacks have a simple implementation and can only be used
+to receive notifications about a plugged in/out device.
 
 Signed-off-by: Anton Yakovlev <anton.yakovlev@opensynergy.com>
 ---
- sound/virtio/Makefile         |   3 +-
- sound/virtio/virtio_card.c    |  18 +-
- sound/virtio/virtio_card.h    |   9 +
- sound/virtio/virtio_pcm.c     |  32 +++
- sound/virtio/virtio_pcm.h     |  42 ++++
- sound/virtio/virtio_pcm_msg.c | 393 ++++++++++++++++++++++++++++++++++
- 6 files changed, 494 insertions(+), 3 deletions(-)
- create mode 100644 sound/virtio/virtio_pcm_msg.c
+ sound/virtio/Makefile      |   1 +
+ sound/virtio/virtio_card.c |  14 +++
+ sound/virtio/virtio_card.h |  12 ++
+ sound/virtio/virtio_jack.c | 233 +++++++++++++++++++++++++++++++++++++
+ 4 files changed, 260 insertions(+)
+ create mode 100644 sound/virtio/virtio_jack.c
 
 diff --git a/sound/virtio/Makefile b/sound/virtio/Makefile
-index 69162a545a41..626af3cc3ed7 100644
+index 34493226793f..09f485291285 100644
 --- a/sound/virtio/Makefile
 +++ b/sound/virtio/Makefile
-@@ -5,5 +5,6 @@ obj-$(CONFIG_SND_VIRTIO) += virtio_snd.o
+@@ -5,6 +5,7 @@ obj-$(CONFIG_SND_VIRTIO) += virtio_snd.o
  virtio_snd-objs := \
  	virtio_card.o \
  	virtio_ctl_msg.o \
--	virtio_pcm.o
-+	virtio_pcm.o \
-+	virtio_pcm_msg.o
- 
++	virtio_jack.o \
+ 	virtio_pcm.o \
+ 	virtio_pcm_msg.o \
+ 	virtio_pcm_ops.o
 diff --git a/sound/virtio/virtio_card.c b/sound/virtio/virtio_card.c
-index 235afc25fce7..a845978111d6 100644
+index a845978111d6..4578d0ce0726 100644
 --- a/sound/virtio/virtio_card.c
 +++ b/sound/virtio/virtio_card.c
-@@ -65,8 +65,16 @@ static void virtsnd_event_notify_cb(struct virtqueue *vqueue)
- 	spin_lock_irqsave(&queue->lock, flags);
- 	do {
+@@ -67,6 +67,10 @@ static void virtsnd_event_notify_cb(struct virtqueue *vqueue)
  		virtqueue_disable_cb(vqueue);
--		while ((event = virtqueue_get_buf(vqueue, &length)))
-+		while ((event = virtqueue_get_buf(vqueue, &length))) {
-+			switch (le32_to_cpu(event->hdr.code)) {
-+			case VIRTIO_SND_EVT_PCM_PERIOD_ELAPSED:
-+			case VIRTIO_SND_EVT_PCM_XRUN:
-+				virtsnd_pcm_event(snd, event);
+ 		while ((event = virtqueue_get_buf(vqueue, &length))) {
+ 			switch (le32_to_cpu(event->hdr.code)) {
++			case VIRTIO_SND_EVT_JACK_CONNECTED:
++			case VIRTIO_SND_EVT_JACK_DISCONNECTED:
++				virtsnd_jack_event(snd, event);
 +				break;
-+			}
+ 			case VIRTIO_SND_EVT_PCM_PERIOD_ELAPSED:
+ 			case VIRTIO_SND_EVT_PCM_XRUN:
+ 				virtsnd_pcm_event(snd, event);
+@@ -210,10 +214,20 @@ static int virtsnd_build_devs(struct virtio_snd *snd)
+ 			 VIRTIO_SND_CARD_NAME " at %s/%s",
+ 			 dev_name(dev->parent), dev_name(dev));
+ 
++	rc = virtsnd_jack_parse_cfg(snd);
++	if (rc)
++		return rc;
 +
- 			virtsnd_event_send(vqueue, event, true, GFP_ATOMIC);
-+		}
- 		if (unlikely(virtqueue_is_broken(vqueue)))
- 			break;
- 	} while (!virtqueue_enable_cb(vqueue));
-@@ -87,7 +95,9 @@ static int virtsnd_find_vqs(struct virtio_snd *snd)
- 	struct virtio_device *vdev = snd->vdev;
- 	vq_callback_t *callbacks[VIRTIO_SND_VQ_MAX] = {
- 		[VIRTIO_SND_VQ_CONTROL] = virtsnd_ctl_notify_cb,
--		[VIRTIO_SND_VQ_EVENT] = virtsnd_event_notify_cb
-+		[VIRTIO_SND_VQ_EVENT] = virtsnd_event_notify_cb,
-+		[VIRTIO_SND_VQ_TX] = virtsnd_pcm_tx_notify_cb,
-+		[VIRTIO_SND_VQ_RX] = virtsnd_pcm_rx_notify_cb
- 	};
- 	const char *names[VIRTIO_SND_VQ_MAX] = {
- 		[VIRTIO_SND_VQ_CONTROL] = "virtsnd-ctl",
-@@ -299,6 +309,7 @@ static int virtsnd_probe(struct virtio_device *vdev)
- static void virtsnd_remove(struct virtio_device *vdev)
- {
- 	struct virtio_snd *snd = vdev->priv;
-+	unsigned int i;
+ 	rc = virtsnd_pcm_parse_cfg(snd);
+ 	if (rc)
+ 		return rc;
  
- 	/* Stop all the virtqueues. */
- 	vdev->config->reset(vdev);
-@@ -310,6 +321,9 @@ static void virtsnd_remove(struct virtio_device *vdev)
- 
- 	vdev->config->del_vqs(vdev);
- 
-+	for (i = 0; snd->substreams && i < snd->nsubstreams; ++i)
-+		virtsnd_pcm_msg_free(&snd->substreams[i]);
++	if (snd->njacks) {
++		rc = virtsnd_jack_build_devs(snd);
++		if (rc)
++			return rc;
++	}
 +
- 	kfree(snd->event_msgs);
- }
- 
+ 	if (snd->nsubstreams) {
+ 		rc = virtsnd_pcm_build_devs(snd);
+ 		if (rc)
 diff --git a/sound/virtio/virtio_card.h b/sound/virtio/virtio_card.h
-index 687d3ed6d1c3..aca87059564e 100644
+index aca87059564e..9e6cd79eda25 100644
 --- a/sound/virtio/virtio_card.h
 +++ b/sound/virtio/virtio_card.h
-@@ -81,4 +81,13 @@ virtsnd_rx_queue(struct virtio_snd *snd)
- 	return &snd->queues[VIRTIO_SND_VQ_RX];
- }
+@@ -18,6 +18,7 @@
+ #define VIRTIO_SND_CARD_NAME	"VirtIO SoundCard"
+ #define VIRTIO_SND_PCM_NAME	"VirtIO PCM"
  
-+static inline struct virtio_snd_queue *
-+virtsnd_pcm_queue(struct virtio_pcm_substream *vss)
-+{
-+	if (vss->direction == SNDRV_PCM_STREAM_PLAYBACK)
-+		return virtsnd_tx_queue(vss->snd);
-+	else
-+		return virtsnd_rx_queue(vss->snd);
-+}
-+
- #endif /* VIRTIO_SND_CARD_H */
-diff --git a/sound/virtio/virtio_pcm.c b/sound/virtio/virtio_pcm.c
-index 92f2f4cb338f..a74fbfb9f35c 100644
---- a/sound/virtio/virtio_pcm.c
-+++ b/sound/virtio/virtio_pcm.c
-@@ -338,6 +338,8 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
- 
- 		vss->snd = snd;
- 		vss->sid = i;
-+		init_waitqueue_head(&vss->msg_empty);
-+		spin_lock_init(&vss->lock);
- 
- 		rc = virtsnd_pcm_build_hw(vss, &info[i]);
- 		if (rc)
-@@ -462,3 +464,33 @@ int virtsnd_pcm_build_devs(struct virtio_snd *snd)
- 
- 	return 0;
- }
-+
-+/**
-+ * virtsnd_pcm_event() - Handle the PCM device event notification.
-+ * @snd: VirtIO sound device.
-+ * @event: VirtIO sound event.
-+ *
-+ * Context: Interrupt context.
-+ */
-+void virtsnd_pcm_event(struct virtio_snd *snd, struct virtio_snd_event *event)
-+{
-+	struct virtio_pcm_substream *vss;
-+	unsigned int sid = le32_to_cpu(event->data);
-+
-+	if (sid >= snd->nsubstreams)
-+		return;
-+
-+	vss = &snd->substreams[sid];
-+
-+	switch (le32_to_cpu(event->hdr.code)) {
-+	case VIRTIO_SND_EVT_PCM_PERIOD_ELAPSED:
-+		/* TODO: deal with shmem elapsed period */
-+		break;
-+	case VIRTIO_SND_EVT_PCM_XRUN:
-+		spin_lock(&vss->lock);
-+		if (vss->xfer_enabled)
-+			vss->xfer_xrun = true;
-+		spin_unlock(&vss->lock);
-+		break;
-+	}
-+}
-diff --git a/sound/virtio/virtio_pcm.h b/sound/virtio/virtio_pcm.h
-index 42d592da41e5..d6be62b52421 100644
---- a/sound/virtio/virtio_pcm.h
-+++ b/sound/virtio/virtio_pcm.h
-@@ -22,6 +22,19 @@ struct virtio_pcm_msg;
-  * @features: Stream VirtIO feature bit map (1 << VIRTIO_SND_PCM_F_XXX).
-  * @substream: Kernel ALSA substream.
-  * @hw: Kernel ALSA substream hardware descriptor.
-+ * @frame_bytes: Current frame size in bytes.
-+ * @period_size: Current period size in frames.
-+ * @buffer_size: Current buffer size in frames.
-+ * @lock: Spinlock that protects fields shared by interrupt handlers and
-+ *        substream operators.
-+ * @hw_ptr: Substream hardware pointer value in frames [0 ... buffer_size).
-+ * @xfer_enabled: Data transfer state (0 - off, 1 - on).
-+ * @xfer_xrun: Data underflow/overflow state (0 - no xrun, 1 - xrun).
-+ * @msgs: Allocated I/O messages.
-+ * @nmsgs: Number of allocated I/O messages.
-+ * @msg_last_enqueued: Index of the last I/O message added to the virtqueue.
-+ * @msg_count: Number of pending I/O messages in the virtqueue.
-+ * @msg_empty: Notify when msg_count is zero.
-  */
- struct virtio_pcm_substream {
- 	struct virtio_snd *snd;
-@@ -31,6 +44,18 @@ struct virtio_pcm_substream {
- 	u32 features;
- 	struct snd_pcm_substream *substream;
- 	struct snd_pcm_hardware hw;
-+	unsigned int frame_bytes;
-+	snd_pcm_uframes_t period_size;
-+	snd_pcm_uframes_t buffer_size;
-+	spinlock_t lock;
-+	snd_pcm_uframes_t hw_ptr;
-+	bool xfer_enabled;
-+	bool xfer_xrun;
-+	struct virtio_pcm_msg **msgs;
-+	unsigned int nmsgs;
-+	int msg_last_enqueued;
-+	unsigned int msg_count;
-+	wait_queue_head_t msg_empty;
- };
++struct virtio_jack;
+ struct virtio_pcm_substream;
  
  /**
-@@ -63,9 +88,26 @@ int virtsnd_pcm_parse_cfg(struct virtio_snd *snd);
+@@ -39,6 +40,8 @@ struct virtio_snd_queue {
+  * @ctl_msgs: Pending control request list.
+  * @event_msgs: Device events.
+  * @pcm_list: VirtIO PCM device list.
++ * @jacks: VirtIO jacks.
++ * @njacks: Number of jacks.
+  * @substreams: VirtIO PCM substreams.
+  * @nsubstreams: Number of PCM substreams.
+  */
+@@ -50,6 +53,8 @@ struct virtio_snd {
+ 	struct list_head ctl_msgs;
+ 	struct virtio_snd_event *event_msgs;
+ 	struct list_head pcm_list;
++	struct virtio_jack *jacks;
++	unsigned int njacks;
+ 	struct virtio_pcm_substream *substreams;
+ 	unsigned int nsubstreams;
+ };
+@@ -90,4 +95,11 @@ virtsnd_pcm_queue(struct virtio_pcm_substream *vss)
+ 		return virtsnd_rx_queue(vss->snd);
+ }
  
- int virtsnd_pcm_build_devs(struct virtio_snd *snd);
- 
-+void virtsnd_pcm_event(struct virtio_snd *snd, struct virtio_snd_event *event);
++int virtsnd_jack_parse_cfg(struct virtio_snd *snd);
 +
-+void virtsnd_pcm_tx_notify_cb(struct virtqueue *vqueue);
++int virtsnd_jack_build_devs(struct virtio_snd *snd);
 +
-+void virtsnd_pcm_rx_notify_cb(struct virtqueue *vqueue);
++void virtsnd_jack_event(struct virtio_snd *snd,
++			struct virtio_snd_event *event);
 +
- struct virtio_pcm *virtsnd_pcm_find(struct virtio_snd *snd, unsigned int nid);
- 
- struct virtio_pcm *virtsnd_pcm_find_or_create(struct virtio_snd *snd,
- 					      unsigned int nid);
- 
-+struct virtio_snd_msg *
-+virtsnd_pcm_ctl_msg_alloc(struct virtio_pcm_substream *vss,
-+			  unsigned int command, gfp_t gfp);
-+
-+int virtsnd_pcm_msg_alloc(struct virtio_pcm_substream *vss,
-+			  unsigned int periods, unsigned int period_bytes);
-+
-+void virtsnd_pcm_msg_free(struct virtio_pcm_substream *vss);
-+
-+int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss);
-+
- #endif /* VIRTIO_SND_PCM_H */
-diff --git a/sound/virtio/virtio_pcm_msg.c b/sound/virtio/virtio_pcm_msg.c
+ #endif /* VIRTIO_SND_CARD_H */
+diff --git a/sound/virtio/virtio_jack.c b/sound/virtio/virtio_jack.c
 new file mode 100644
-index 000000000000..38748e93b5b4
+index 000000000000..a78cf465171d
 --- /dev/null
-+++ b/sound/virtio/virtio_pcm_msg.c
-@@ -0,0 +1,393 @@
++++ b/sound/virtio/virtio_jack.c
+@@ -0,0 +1,233 @@
 +// SPDX-License-Identifier: GPL-2.0+
 +/*
 + * virtio-snd: Virtio sound device
 + * Copyright (C) 2021 OpenSynergy GmbH
 + */
-+#include <sound/pcm_params.h>
++#include <linux/virtio_config.h>
++#include <sound/jack.h>
++#include <sound/hda_verbs.h>
 +
 +#include "virtio_card.h"
 +
 +/**
-+ * struct virtio_pcm_msg - VirtIO I/O message.
-+ * @substream: VirtIO PCM substream.
-+ * @xfer: Request header payload.
-+ * @status: Response header payload.
-+ * @sgs: Payload scatter-gather table.
++ * DOC: Implementation Status
++ *
++ * At the moment jacks have a simple implementation and can only be used to
++ * receive notifications about a plugged in/out device.
++ *
++ * VIRTIO_SND_R_JACK_REMAP
++ *   is not supported
 + */
-+struct virtio_pcm_msg {
-+	struct virtio_pcm_substream *substream;
-+	struct virtio_snd_pcm_xfer xfer;
-+	struct virtio_snd_pcm_status status;
-+	struct scatterlist sgs[0];
++
++/**
++ * struct virtio_jack - VirtIO jack.
++ * @jack: Kernel jack control.
++ * @nid: Functional group node identifier.
++ * @features: Jack virtio feature bit map (1 << VIRTIO_SND_JACK_F_XXX).
++ * @defconf: Pin default configuration value.
++ * @caps: Pin capabilities value.
++ * @connected: Current jack connection status.
++ * @type: Kernel jack type (SND_JACK_XXX).
++ */
++struct virtio_jack {
++	struct snd_jack *jack;
++	unsigned int nid;
++	unsigned int features;
++	unsigned int defconf;
++	unsigned int caps;
++	bool connected;
++	int type;
 +};
 +
 +/**
-+ * enum pcm_msg_sg_index - Index values for the virtio_pcm_msg->sgs field in
-+ *                         an I/O message.
-+ * @PCM_MSG_SG_XFER: Element containing a virtio_snd_pcm_xfer structure.
-+ * @PCM_MSG_SG_STATUS: Element containing a virtio_snd_pcm_status structure.
-+ * @PCM_MSG_SG_DATA: The first element containing a data buffer.
-+ */
-+enum pcm_msg_sg_index {
-+	PCM_MSG_SG_XFER = 0,
-+	PCM_MSG_SG_STATUS,
-+	PCM_MSG_SG_DATA
-+};
-+
-+/**
-+ * virtsnd_pcm_sg_num() - Count the number of sg-elements required to represent
-+ *                        vmalloc'ed buffer.
-+ * @data: Pointer to vmalloc'ed buffer.
-+ * @length: Buffer size.
++ * virtsnd_jack_get_label() - Get the name string for the jack.
++ * @vjack: VirtIO jack.
++ *
++ * Returns the jack name based on the default pin configuration value (see HDA
++ * specification).
 + *
 + * Context: Any context.
-+ * Return: Number of physically contiguous parts in the @data.
++ * Return: Name string.
 + */
-+static int virtsnd_pcm_sg_num(u8 *data, unsigned int length)
++static const char *virtsnd_jack_get_label(struct virtio_jack *vjack)
 +{
-+	phys_addr_t sg_address;
-+	unsigned int sg_length;
-+	int num = 0;
++	unsigned int defconf = vjack->defconf;
++	unsigned int device =
++		(defconf & AC_DEFCFG_DEVICE) >> AC_DEFCFG_DEVICE_SHIFT;
++	unsigned int location =
++		(defconf & AC_DEFCFG_LOCATION) >> AC_DEFCFG_LOCATION_SHIFT;
 +
-+	while (length) {
-+		struct page *pg = vmalloc_to_page(data);
-+		phys_addr_t pg_address = page_to_phys(pg);
-+		size_t pg_length;
-+
-+		pg_length = PAGE_SIZE - offset_in_page(data);
-+		if (pg_length > length)
-+			pg_length = length;
-+
-+		if (!num || sg_address + sg_length != pg_address) {
-+			sg_address = pg_address;
-+			sg_length = pg_length;
-+			num++;
-+		} else {
-+			sg_length += pg_length;
-+		}
-+
-+		data += pg_length;
-+		length -= pg_length;
++	switch (device) {
++	case AC_JACK_LINE_OUT:
++		return "Line Out";
++	case AC_JACK_SPEAKER:
++		return "Speaker";
++	case AC_JACK_HP_OUT:
++		return "Headphone";
++	case AC_JACK_CD:
++		return "CD";
++	case AC_JACK_SPDIF_OUT:
++	case AC_JACK_DIG_OTHER_OUT:
++		if (location == AC_JACK_LOC_HDMI)
++			return "HDMI Out";
++		else
++			return "SPDIF Out";
++	case AC_JACK_LINE_IN:
++		return "Line";
++	case AC_JACK_AUX:
++		return "Aux";
++	case AC_JACK_MIC_IN:
++		return "Mic";
++	case AC_JACK_SPDIF_IN:
++		return "SPDIF In";
++	case AC_JACK_DIG_OTHER_IN:
++		return "Digital In";
++	default:
++		return "Misc";
 +	}
-+
-+	return num;
 +}
 +
 +/**
-+ * virtsnd_pcm_sg_from() - Build sg-list from vmalloc'ed buffer.
-+ * @sgs: Preallocated sg-list to populate.
-+ * @nsgs: The maximum number of elements in the @sgs.
-+ * @data: Pointer to vmalloc'ed buffer.
-+ * @length: Buffer size.
++ * virtsnd_jack_get_type() - Get the type for the jack.
++ * @vjack: VirtIO jack.
 + *
-+ * Splits the buffer into physically contiguous parts and makes an sg-list of
-+ * such parts.
++ * Returns the jack type based on the default pin configuration value (see HDA
++ * specification).
 + *
 + * Context: Any context.
++ * Return: SND_JACK_XXX value.
 + */
-+static void virtsnd_pcm_sg_from(struct scatterlist *sgs, int nsgs, u8 *data,
-+				unsigned int length)
++static int virtsnd_jack_get_type(struct virtio_jack *vjack)
 +{
-+	int idx = -1;
++	unsigned int defconf = vjack->defconf;
++	unsigned int device =
++		(defconf & AC_DEFCFG_DEVICE) >> AC_DEFCFG_DEVICE_SHIFT;
 +
-+	while (length) {
-+		struct page *pg = vmalloc_to_page(data);
-+		size_t pg_length;
-+
-+		pg_length = PAGE_SIZE - offset_in_page(data);
-+		if (pg_length > length)
-+			pg_length = length;
-+
-+		if (idx == -1 ||
-+		    sg_phys(&sgs[idx]) + sgs[idx].length != page_to_phys(pg)) {
-+			if (idx + 1 == nsgs)
-+				break;
-+			sg_set_page(&sgs[++idx], pg, pg_length,
-+				    offset_in_page(data));
-+		} else {
-+			sgs[idx].length += pg_length;
-+		}
-+
-+		data += pg_length;
-+		length -= pg_length;
++	switch (device) {
++	case AC_JACK_LINE_OUT:
++	case AC_JACK_SPEAKER:
++		return SND_JACK_LINEOUT;
++	case AC_JACK_HP_OUT:
++		return SND_JACK_HEADPHONE;
++	case AC_JACK_SPDIF_OUT:
++	case AC_JACK_DIG_OTHER_OUT:
++		return SND_JACK_AVOUT;
++	case AC_JACK_MIC_IN:
++		return SND_JACK_MICROPHONE;
++	default:
++		return SND_JACK_LINEIN;
 +	}
-+
-+	sg_mark_end(&sgs[idx]);
 +}
 +
 +/**
-+ * virtsnd_pcm_msg_alloc() - Allocate I/O messages.
-+ * @vss: VirtIO PCM substream.
-+ * @periods: Current number of periods.
-+ * @period_bytes: Current period size in bytes.
++ * virtsnd_jack_parse_cfg() - Parse the jack configuration.
++ * @snd: VirtIO sound device.
 + *
-+ * The function slices the buffer into @periods parts (each with the size of
-+ * @period_bytes), and creates @periods corresponding I/O messages.
++ * This function is called during initial device initialization.
 + *
 + * Context: Any context that permits to sleep.
-+ * Return: 0 on success, -ENOMEM on failure.
-+ */
-+int virtsnd_pcm_msg_alloc(struct virtio_pcm_substream *vss,
-+			  unsigned int periods, unsigned int period_bytes)
-+{
-+	struct snd_pcm_runtime *runtime = vss->substream->runtime;
-+	unsigned int i;
-+
-+	/* Free previously allocated messages (if any). */
-+	virtsnd_pcm_msg_free(vss);
-+
-+	vss->msgs = kcalloc(periods, sizeof(*vss->msgs), GFP_KERNEL);
-+	if (!vss->msgs)
-+		return -ENOMEM;
-+
-+	vss->nmsgs = periods;
-+
-+	for (i = 0; i < periods; ++i) {
-+		u8 *data = runtime->dma_area + period_bytes * i;
-+		int sg_num = virtsnd_pcm_sg_num(data, period_bytes);
-+		struct virtio_pcm_msg *msg;
-+
-+		msg = kzalloc(sizeof(*msg) + sizeof(*msg->sgs) * (sg_num + 2),
-+			      GFP_KERNEL);
-+		if (!msg)
-+			return -ENOMEM;
-+
-+		msg->substream = vss;
-+		sg_init_one(&msg->sgs[PCM_MSG_SG_XFER], &msg->xfer,
-+			    sizeof(msg->xfer));
-+		sg_init_one(&msg->sgs[PCM_MSG_SG_STATUS], &msg->status,
-+			    sizeof(msg->status));
-+		virtsnd_pcm_sg_from(&msg->sgs[PCM_MSG_SG_DATA], sg_num, data,
-+				    period_bytes);
-+
-+		vss->msgs[i] = msg;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * virtsnd_pcm_msg_free() - Free all allocated I/O messages.
-+ * @vss: VirtIO PCM substream.
-+ *
-+ * Context: Any context.
-+ */
-+void virtsnd_pcm_msg_free(struct virtio_pcm_substream *vss)
-+{
-+	unsigned int i;
-+
-+	for (i = 0; i < vss->nmsgs; ++i)
-+		kfree(vss->msgs[i]);
-+	kfree(vss->msgs);
-+
-+	vss->msgs = NULL;
-+	vss->nmsgs = 0;
-+}
-+
-+/**
-+ * virtsnd_pcm_msg_send() - Send asynchronous I/O messages.
-+ * @vss: VirtIO PCM substream.
-+ *
-+ * All messages are organized in an ordered circular list. Each time the
-+ * function is called, all currently non-enqueued messages are added to the
-+ * virtqueue. For this, the function keeps track of two values:
-+ *
-+ *   msg_last_enqueued = index of the last enqueued message,
-+ *   msg_count = # of pending messages in the virtqueue.
-+ *
-+ * Context: Any context. Expects the tx/rx queue and the VirtIO substream
-+ *          spinlocks to be held by caller.
 + * Return: 0 on success, -errno on failure.
 + */
-+int virtsnd_pcm_msg_send(struct virtio_pcm_substream *vss)
++int virtsnd_jack_parse_cfg(struct virtio_snd *snd)
 +{
-+	struct snd_pcm_runtime *runtime = vss->substream->runtime;
-+	struct virtio_snd *snd = vss->snd;
 +	struct virtio_device *vdev = snd->vdev;
-+	struct virtqueue *vqueue = virtsnd_pcm_queue(vss)->vqueue;
-+	int i;
-+	int n;
-+	bool notify = false;
++	struct virtio_snd_jack_info *info;
++	unsigned int i;
++	int rc;
 +
-+	i = (vss->msg_last_enqueued + 1) % runtime->periods;
-+	n = runtime->periods - vss->msg_count;
++	virtio_cread(snd->vdev, struct virtio_snd_config, jacks, &snd->njacks);
++	if (!snd->njacks)
++		return 0;
 +
-+	for (; n; --n, i = (i + 1) % runtime->periods) {
-+		struct virtio_pcm_msg *msg = vss->msgs[i];
-+		struct scatterlist *psgs[] = {
-+			&msg->sgs[PCM_MSG_SG_XFER],
-+			&msg->sgs[PCM_MSG_SG_DATA],
-+			&msg->sgs[PCM_MSG_SG_STATUS]
-+		};
-+		int rc;
++	snd->jacks = devm_kcalloc(&vdev->dev, snd->njacks, sizeof(*snd->jacks),
++				  GFP_KERNEL);
++	if (!snd->jacks)
++		return -ENOMEM;
 +
-+		msg->xfer.stream_id = cpu_to_virtio32(vdev, vss->sid);
-+		memset(&msg->status, 0, sizeof(msg->status));
++	info = kcalloc(snd->njacks, sizeof(*info), GFP_KERNEL);
++	if (!info)
++		return -ENOMEM;
 +
-+		if (vss->direction == SNDRV_PCM_STREAM_PLAYBACK)
-+			rc = virtqueue_add_sgs(vqueue, psgs, 2, 1, msg,
-+					       GFP_ATOMIC);
-+		else
-+			rc = virtqueue_add_sgs(vqueue, psgs, 1, 2, msg,
-+					       GFP_ATOMIC);
++	rc = virtsnd_ctl_query_info(snd, VIRTIO_SND_R_JACK_INFO, 0, snd->njacks,
++				    sizeof(*info), info);
++	if (rc)
++		goto on_exit;
 +
-+		if (rc) {
-+			dev_err(&vdev->dev,
-+				"SID %u: failed to send I/O message\n",
-+				vss->sid);
-+			return rc;
-+		}
++	for (i = 0; i < snd->njacks; ++i) {
++		struct virtio_jack *vjack = &snd->jacks[i];
 +
-+		vss->msg_last_enqueued = i;
-+		vss->msg_count++;
++		vjack->nid = le32_to_cpu(info[i].hdr.hda_fn_nid);
++		vjack->features = le32_to_cpu(info[i].features);
++		vjack->defconf = le32_to_cpu(info[i].hda_reg_defconf);
++		vjack->caps = le32_to_cpu(info[i].hda_reg_caps);
++		vjack->connected = info[i].connected;
 +	}
 +
-+	if (!(vss->features & (1U << VIRTIO_SND_PCM_F_MSG_POLLING)))
-+		notify = virtqueue_kick_prepare(vqueue);
++on_exit:
++	kfree(info);
 +
-+	if (notify)
-+		virtqueue_notify(vqueue);
++	return rc;
++}
++
++/**
++ * virtsnd_jack_build_devs() - Build ALSA controls for jacks.
++ * @snd: VirtIO sound device.
++ *
++ * Context: Any context that permits to sleep.
++ * Return: 0 on success, -errno on failure.
++ */
++int virtsnd_jack_build_devs(struct virtio_snd *snd)
++{
++	unsigned int i;
++	int rc;
++
++	for (i = 0; i < snd->njacks; ++i) {
++		struct virtio_jack *vjack = &snd->jacks[i];
++
++		vjack->type = virtsnd_jack_get_type(vjack);
++
++		rc = snd_jack_new(snd->card, virtsnd_jack_get_label(vjack),
++				  vjack->type, &vjack->jack, true, true);
++		if (rc)
++			return rc;
++
++		if (vjack->jack)
++			vjack->jack->private_data = vjack;
++
++		snd_jack_report(vjack->jack,
++				vjack->connected ? vjack->type : 0);
++	}
 +
 +	return 0;
 +}
 +
 +/**
-+ * virtsnd_pcm_msg_complete() - Complete an I/O message.
-+ * @msg: I/O message.
-+ * @size: Number of bytes written.
-+ *
-+ * Completion of the message means the elapsed period.
-+ *
-+ * Context: Interrupt context. Takes and releases the VirtIO substream spinlock.
-+ */
-+static void virtsnd_pcm_msg_complete(struct virtio_pcm_msg *msg, size_t size)
-+{
-+	struct virtio_pcm_substream *vss = msg->substream;
-+
-+	/*
-+	 * hw_ptr always indicates the buffer position of the first I/O message
-+	 * in the virtqueue. Therefore, on each completion of an I/O message,
-+	 * the hw_ptr value is unconditionally advanced.
-+	 */
-+	spin_lock(&vss->lock);
-+	/*
-+	 * If the capture substream returned an incorrect status, then just
-+	 * increase the hw_ptr by the period size.
-+	 */
-+	if (vss->direction == SNDRV_PCM_STREAM_PLAYBACK ||
-+	    size <= sizeof(msg->status)) {
-+		vss->hw_ptr += vss->period_size;
-+	} else {
-+		size -= sizeof(msg->status);
-+		vss->hw_ptr += size / vss->frame_bytes;
-+	}
-+
-+	vss->hw_ptr %= vss->buffer_size;
-+	vss->xfer_xrun = false;
-+	vss->msg_count--;
-+
-+	if (vss->xfer_enabled) {
-+		struct snd_pcm_runtime *runtime = vss->substream->runtime;
-+
-+		runtime->delay =
-+			bytes_to_frames(runtime,
-+					le32_to_cpu(msg->status.latency_bytes));
-+
-+		spin_unlock(&vss->lock);
-+		snd_pcm_period_elapsed(vss->substream);
-+		spin_lock(&vss->lock);
-+
-+		virtsnd_pcm_msg_send(vss);
-+	} else if (!vss->msg_count) {
-+		wake_up_all(&vss->msg_empty);
-+	}
-+	spin_unlock(&vss->lock);
-+}
-+
-+/**
-+ * virtsnd_pcm_notify_cb() - Process all completed I/O messages.
-+ * @queue: Underlying tx/rx virtqueue.
-+ *
-+ * If transmission is allowed, then each completed message is immediately placed
-+ * back at the end of the queue.
-+ *
-+ * Context: Interrupt context. Takes and releases the tx/rx queue spinlock.
-+ */
-+static inline void virtsnd_pcm_notify_cb(struct virtio_snd_queue *queue)
-+{
-+	struct virtio_pcm_msg *msg;
-+	u32 length;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&queue->lock, flags);
-+	do {
-+		virtqueue_disable_cb(queue->vqueue);
-+		while ((msg = virtqueue_get_buf(queue->vqueue, &length)))
-+			virtsnd_pcm_msg_complete(msg, length);
-+		if (unlikely(virtqueue_is_broken(queue->vqueue)))
-+			break;
-+	} while (!virtqueue_enable_cb(queue->vqueue));
-+	spin_unlock_irqrestore(&queue->lock, flags);
-+}
-+
-+/**
-+ * virtsnd_pcm_tx_notify_cb() - Process all completed TX messages.
-+ * @vqueue: Underlying tx virtqueue.
++ * virtsnd_jack_event() - Handle the jack event notification.
++ * @snd: VirtIO sound device.
++ * @event: VirtIO sound event.
 + *
 + * Context: Interrupt context.
 + */
-+void virtsnd_pcm_tx_notify_cb(struct virtqueue *vqueue)
++void virtsnd_jack_event(struct virtio_snd *snd, struct virtio_snd_event *event)
 +{
-+	struct virtio_snd *snd = vqueue->vdev->priv;
++	unsigned int jack_id = le32_to_cpu(event->data);
++	struct virtio_jack *vjack;
 +
-+	virtsnd_pcm_notify_cb(virtsnd_tx_queue(snd));
-+}
++	if (jack_id >= snd->njacks)
++		return;
 +
-+/**
-+ * virtsnd_pcm_rx_notify_cb() - Process all completed RX messages.
-+ * @vqueue: Underlying rx virtqueue.
-+ *
-+ * Context: Interrupt context.
-+ */
-+void virtsnd_pcm_rx_notify_cb(struct virtqueue *vqueue)
-+{
-+	struct virtio_snd *snd = vqueue->vdev->priv;
++	vjack = &snd->jacks[jack_id];
 +
-+	virtsnd_pcm_notify_cb(virtsnd_rx_queue(snd));
-+}
-+
-+/**
-+ * virtsnd_pcm_ctl_msg_alloc() - Allocate and initialize the PCM device control
-+ *                               message for the specified substream.
-+ * @vss: VirtIO PCM substream.
-+ * @command: Control request code (VIRTIO_SND_R_PCM_XXX).
-+ * @gfp: Kernel flags for memory allocation.
-+ *
-+ * Context: Any context. May sleep if @gfp flags permit.
-+ * Return: Allocated message on success, NULL on failure.
-+ */
-+struct virtio_snd_msg *
-+virtsnd_pcm_ctl_msg_alloc(struct virtio_pcm_substream *vss,
-+			  unsigned int command, gfp_t gfp)
-+{
-+	struct virtio_device *vdev = vss->snd->vdev;
-+	size_t request_size = sizeof(struct virtio_snd_pcm_hdr);
-+	size_t response_size = sizeof(struct virtio_snd_hdr);
-+	struct virtio_snd_msg *msg;
-+
-+	switch (command) {
-+	case VIRTIO_SND_R_PCM_SET_PARAMS:
-+		request_size = sizeof(struct virtio_snd_pcm_set_params);
++	switch (le32_to_cpu(event->hdr.code)) {
++	case VIRTIO_SND_EVT_JACK_CONNECTED:
++		vjack->connected = true;
 +		break;
++	case VIRTIO_SND_EVT_JACK_DISCONNECTED:
++		vjack->connected = false;
++		break;
++	default:
++		return;
 +	}
 +
-+	msg = virtsnd_ctl_msg_alloc(request_size, response_size, gfp);
-+	if (msg) {
-+		struct virtio_snd_pcm_hdr *hdr = virtsnd_ctl_msg_request(msg);
-+
-+		hdr->hdr.code = cpu_to_virtio32(vdev, command);
-+		hdr->stream_id = cpu_to_virtio32(vdev, vss->sid);
-+	}
-+
-+	return msg;
++	snd_jack_report(vjack->jack, vjack->connected ? vjack->type : 0);
 +}
 -- 
 2.30.0
