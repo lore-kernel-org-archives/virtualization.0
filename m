@@ -2,85 +2,114 @@ Return-Path: <SRS0=H/CR=HL=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E121C433DB
-	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 12:41:21 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B401C433DB
+	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 13:04:40 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DE27364E60
-	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 12:41:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DE27364E60
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=opensynergy.com
+	by mail.kernel.org (Postfix) with ESMTPS id 8234B64E75
+	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 13:04:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8234B64E75
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A4B116F185
-	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 12:41:20 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 2D06E863E0;
+	Tue,  9 Feb 2021 13:04:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id D-5t0jyDTlNM for <virtualization@archiver.kernel.org>;
-	Tue,  9 Feb 2021 12:41:18 +0000 (UTC)
-Received: by smtp3.osuosl.org (Postfix, from userid 1001)
-	id 3DDC06F8A2; Tue,  9 Feb 2021 12:41:18 +0000 (UTC)
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id z0I0aX3wGJbg; Tue,  9 Feb 2021 13:04:38 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 15F0A6F557;
-	Tue,  9 Feb 2021 12:40:48 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 7D355848FA;
+	Tue,  9 Feb 2021 13:04:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F30E4C0174;
-	Tue,  9 Feb 2021 12:40:47 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 06789C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6ACFCC0174;
+	Tue,  9 Feb 2021 13:04:38 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7736BC013A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 12:40:47 +0000 (UTC)
+ Tue,  9 Feb 2021 13:04:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id E88CE871C4
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 66559855C6
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 12:40:46 +0000 (UTC)
+ Tue,  9 Feb 2021 13:04:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5EAuGYHCLJvm
+ with ESMTP id ihTflpanv4C6
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 12:40:45 +0000 (UTC)
+ Tue,  9 Feb 2021 13:04:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx1.opensynergy.com (mx1.opensynergy.com [217.66.60.4])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 30CD287152
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 619FA848FA
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 12:40:45 +0000 (UTC)
-Received: from SR-MAILGATE-02.opensynergy.com (localhost.localdomain
- [127.0.0.1])
- by mx1.opensynergy.com (Proxmox) with ESMTP id C744EA1608;
- Tue,  9 Feb 2021 13:40:43 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=opensynergy.com;
- h=cc:cc:content-transfer-encoding:content-type:content-type
- :date:from:from:in-reply-to:message-id:mime-version:references
- :reply-to:subject:subject:to:to; s=srmailgate02; bh=NzIYWgOed34K
- drV4S1YmijLemUPkYcXpdt9USfWFsS0=; b=qzxrGnRVmBtrGuCC3VFj/inJTzMh
- q1kZQVg2tnj6gh9NAa2C47KVN42bKh5D3U0odAPr7HBSh/eGg7ztHxnNeQyxRjWE
- ZeLXoHAiNilV6OUKcirVNG231vxi5J9DCALfE2Kqk/KWhPUSIpXpCcjy0UH+76Qo
- N0xaU/l1gJdwugTNY2lyvWPdYmRhTScvANXwHUEe/dT1EPZy8RlZytgIBMHscTl1
- 1pCVxGBZHfwjDkokf9UhYnVsJoFP1XXH2zP5riXoMSFeVcp4DRe4TmOZ1kqg++fD
- IuyRomu6imHMROsDw9sMZDHdvB9LWfcYpXDn1Ke1+GDmoXWj3oUtfI+Ezg==
-From: Anton Yakovlev <anton.yakovlev@opensynergy.com>
-To: <virtualization@lists.linux-foundation.org>,
- <alsa-devel@alsa-project.org>, <virtio-dev@lists.oasis-open.org>
-Subject: [PATCH v3 4/9] ALSA: virtio: build PCM devices and substream hardware
- descriptors
-Date: Tue, 9 Feb 2021 13:40:05 +0100
-Message-ID: <20210209124011.1224628-5-anton.yakovlev@opensynergy.com>
-X-Mailer: git-send-email 2.30.0
-In-Reply-To: <20210209124011.1224628-1-anton.yakovlev@opensynergy.com>
-References: <20210209124011.1224628-1-anton.yakovlev@opensynergy.com>
+ Tue,  9 Feb 2021 13:04:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1612875872;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=YlDBN62QT+LjsTA/QUxGQGe58lH6AMBqtq7gFGvrAJU=;
+ b=NMT656npJF8K+cYccJYSzLgrUH5QmACN1deE61dczkyduSPMAcZruEFND1zmfUWWNVdFBr
+ N0qDmJXY+ao5eSkiRxYQVlNU6FYsPBHma3flbrpy3dj84307Hj47HLqhkjFxzntWDh8nVz
+ V1JqBp1dlW0R0KM6rafh1BwTnzZ82Q4=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-236-pd-1B7gDOE69sUq46q66OA-1; Tue, 09 Feb 2021 08:04:30 -0500
+X-MC-Unique: pd-1B7gDOE69sUq46q66OA-1
+Received: by mail-ed1-f69.google.com with SMTP id p18so17472284edr.20
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 09 Feb 2021 05:04:30 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
+ :message-id:mime-version;
+ bh=YlDBN62QT+LjsTA/QUxGQGe58lH6AMBqtq7gFGvrAJU=;
+ b=URH0oq1Vum7M/5CkvGrlHi6Ur9wAPE5223fXzZHxp0jLm6b8PjXks/SQ10LQ+1wlqg
+ 7M2J+uby0+w2rMcECRAaOsVgU7jzMrfAZeKTLN9Y9rjlZk4kxNnpaCQyNUcMPlFHp75L
+ h7vcCwgohaRJn7GS+SiYzd3gAY7bWFvVPks8+yaZl3FtxRxjg5bA2vNOHcoQFf/+Fzft
+ yR5JSPRpuTqlKTnzJe2GNEWBC9u6h8Pbsnunl1zXsxQajjA0hLV96w0zW08X9Ob4aH9q
+ Tav2glEKQlPQN1HpxczNX2rxUf4Hl+0c3MNc8Wl/NxvXFm9PgWxNcUs7yrSD8iaU9Dmp
+ YXPg==
+X-Gm-Message-State: AOAM531iLhD/hXXlYjaSatoAEdtNa7pnCu3fNTkbbH8YlCcZOA6G9Ckx
+ eQj/Dc98saTFzpeVOzByzqIJkVjz79Hr+jEVsla0C02zTYgNnxsgO4xzDv7/pgW6FJv25SX3yxR
+ UrkEwTbn8pw06uIPU8zGzDJr3bPk48inzYdki3CWlUw==
+X-Received: by 2002:a05:6402:104e:: with SMTP id
+ e14mr23107268edu.316.1612875869256; 
+ Tue, 09 Feb 2021 05:04:29 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyo4HIuR+0T9rUcQDNRaZ095+7jSeihXr6nVh2iiZp6SzMTP3xc+j9f2+Ss547tuohb9vi9EQ==
+X-Received: by 2002:a05:6402:104e:: with SMTP id
+ e14mr23107248edu.316.1612875869035; 
+ Tue, 09 Feb 2021 05:04:29 -0800 (PST)
+Received: from vitty.brq.redhat.com (g-server-2.ign.cz. [91.219.240.2])
+ by smtp.gmail.com with ESMTPSA id a25sm11417578eds.48.2021.02.09.05.04.27
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 09 Feb 2021 05:04:28 -0800 (PST)
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
+To: Nuno Das Neves <nunodasneves@linux.microsoft.com>,
+ linux-hyperv@vger.kernel.org
+Subject: Re: [RFC PATCH 01/18] x86/hyperv: convert hyperv statuses to linux
+ error codes
+In-Reply-To: <1605918637-12192-2-git-send-email-nunodasneves@linux.microsoft.com>
+References: <1605918637-12192-1-git-send-email-nunodasneves@linux.microsoft.com>
+ <1605918637-12192-2-git-send-email-nunodasneves@linux.microsoft.com>
+Date: Tue, 09 Feb 2021 14:04:27 +0100
+Message-ID: <871rdpo0is.fsf@vitty.brq.redhat.com>
 MIME-Version: 1.0
-X-ClientProxiedBy: SR-MAIL-02.open-synergy.com (10.26.10.22) To
- SR-MAIL-01.open-synergy.com (10.26.10.21)
-Cc: linux-kernel@vger.kernel.org, Jaroslav Kysela <perex@perex.cz>,
- Takashi Iwai <tiwai@suse.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=vkuznets@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: wei.liu@kernel.org, linux-kernel@vger.kernel.org, mikelley@microsoft.com,
+ nunodasneves@linux.microsoft.com, sunilmut@microsoft.com,
+ virtualization@lists.linux-foundation.org, viremana@linux.microsoft.com,
+ ligrassi@microsoft.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -97,669 +126,142 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Like the HDA specification, the virtio sound device specification links
-PCM substreams, jacks and PCM channel maps into functional groups. For
-each discovered group, a PCM device is created, the number of which
-coincides with the group number.
+Nuno Das Neves <nunodasneves@linux.microsoft.com> writes:
 
-Introduce the module parameters for setting the hardware buffer
-parameters:
-  pcm_buffer_ms [=160]
-  pcm_periods_min [=2]
-  pcm_periods_max [=16]
-  pcm_period_ms_min [=10]
-  pcm_period_ms_max [=80]
+> Return linux-friendly error codes from hypercall wrapper functions.
+> This will be needed in the mshv module.
+>
+> Signed-off-by: Nuno Das Neves <nunodasneves@linux.microsoft.com>
+> ---
+>  arch/x86/hyperv/hv_proc.c         | 30 ++++++++++++++++++++++++++---
+>  arch/x86/include/asm/mshyperv.h   |  1 +
+>  include/asm-generic/hyperv-tlfs.h | 32 +++++++++++++++++++++----------
+>  3 files changed, 50 insertions(+), 13 deletions(-)
+>
+> diff --git a/arch/x86/hyperv/hv_proc.c b/arch/x86/hyperv/hv_proc.c
+> index 0fd972c9129a..8f86f8e86748 100644
+> --- a/arch/x86/hyperv/hv_proc.c
+> +++ b/arch/x86/hyperv/hv_proc.c
+> @@ -18,6 +18,30 @@
+>  #define HV_DEPOSIT_MAX_ORDER (8)
+>  #define HV_DEPOSIT_MAX (1 << HV_DEPOSIT_MAX_ORDER)
+>  
+> +int hv_status_to_errno(int hv_status)
+> +{
+> +	switch (hv_status) {
+> +	case HV_STATUS_SUCCESS:
+> +		return 0;
+> +	case HV_STATUS_INVALID_PARAMETER:
+> +	case HV_STATUS_UNKNOWN_PROPERTY:
+> +	case HV_STATUS_PROPERTY_VALUE_OUT_OF_RANGE:
+> +	case HV_STATUS_INVALID_VP_INDEX:
+> +	case HV_STATUS_INVALID_REGISTER_VALUE:
+> +	case HV_STATUS_INVALID_LP_INDEX:
+> +		return EINVAL;
+> +	case HV_STATUS_ACCESS_DENIED:
+> +	case HV_STATUS_OPERATION_DENIED:
+> +		return EACCES;
+> +	case HV_STATUS_NOT_ACKNOWLEDGED:
+> +	case HV_STATUS_INVALID_VP_STATE:
+> +	case HV_STATUS_INVALID_PARTITION_STATE:
+> +		return EBADFD;
+> +	}
+> +	return ENOTRECOVERABLE;
+> +}
+> +EXPORT_SYMBOL_GPL(hv_status_to_errno);
+> +
+>  /*
+>   * Deposits exact number of pages
+>   * Must be called with interrupts enabled
+> @@ -99,7 +123,7 @@ int hv_call_deposit_pages(int node, u64 partition_id, u32 num_pages)
+>  
+>  	if (status != HV_STATUS_SUCCESS) {
+>  		pr_err("Failed to deposit pages: %d\n", status);
+> -		ret = status;
+> +		ret = -hv_status_to_errno(status);
 
-Signed-off-by: Anton Yakovlev <anton.yakovlev@opensynergy.com>
----
- sound/virtio/Makefile      |   3 +-
- sound/virtio/virtio_card.c |  14 ++
- sound/virtio/virtio_card.h |  10 +
- sound/virtio/virtio_pcm.c  | 464 +++++++++++++++++++++++++++++++++++++
- sound/virtio/virtio_pcm.h  |  71 ++++++
- 5 files changed, 561 insertions(+), 1 deletion(-)
- create mode 100644 sound/virtio/virtio_pcm.c
- create mode 100644 sound/virtio/virtio_pcm.h
+"-hv_status_to_errno" looks weird, could we just return
+'-EINVAL'/'-EACCES'/... from hv_status_to_errno() instead?
 
-diff --git a/sound/virtio/Makefile b/sound/virtio/Makefile
-index dc551e637441..69162a545a41 100644
---- a/sound/virtio/Makefile
-+++ b/sound/virtio/Makefile
-@@ -4,5 +4,6 @@ obj-$(CONFIG_SND_VIRTIO) += virtio_snd.o
- 
- virtio_snd-objs := \
- 	virtio_card.o \
--	virtio_ctl_msg.o
-+	virtio_ctl_msg.o \
-+	virtio_pcm.o
- 
-diff --git a/sound/virtio/virtio_card.c b/sound/virtio/virtio_card.c
-index c62b3a2da148..235afc25fce7 100644
---- a/sound/virtio/virtio_card.c
-+++ b/sound/virtio/virtio_card.c
-@@ -200,6 +200,16 @@ static int virtsnd_build_devs(struct virtio_snd *snd)
- 			 VIRTIO_SND_CARD_NAME " at %s/%s",
- 			 dev_name(dev->parent), dev_name(dev));
- 
-+	rc = virtsnd_pcm_parse_cfg(snd);
-+	if (rc)
-+		return rc;
-+
-+	if (snd->nsubstreams) {
-+		rc = virtsnd_pcm_build_devs(snd);
-+		if (rc)
-+			return rc;
-+	}
-+
- 	return snd_card_register(snd->card);
- }
- 
-@@ -228,6 +238,9 @@ static int virtsnd_validate(struct virtio_device *vdev)
- 		return -EINVAL;
- 	}
- 
-+	if (virtsnd_pcm_validate(vdev))
-+		return -EINVAL;
-+
- 	return 0;
- }
- 
-@@ -251,6 +264,7 @@ static int virtsnd_probe(struct virtio_device *vdev)
- 	snd->vdev = vdev;
- 	INIT_WORK(&snd->reset_work, virtsnd_reset_fn);
- 	INIT_LIST_HEAD(&snd->ctl_msgs);
-+	INIT_LIST_HEAD(&snd->pcm_list);
- 
- 	vdev->priv = snd;
- 
-diff --git a/sound/virtio/virtio_card.h b/sound/virtio/virtio_card.h
-index c51a71a79388..687d3ed6d1c3 100644
---- a/sound/virtio/virtio_card.h
-+++ b/sound/virtio/virtio_card.h
-@@ -12,9 +12,13 @@
- #include <uapi/linux/virtio_snd.h>
- 
- #include "virtio_ctl_msg.h"
-+#include "virtio_pcm.h"
- 
- #define VIRTIO_SND_CARD_DRIVER	"virtio-snd"
- #define VIRTIO_SND_CARD_NAME	"VirtIO SoundCard"
-+#define VIRTIO_SND_PCM_NAME	"VirtIO PCM"
-+
-+struct virtio_pcm_substream;
- 
- /**
-  * struct virtio_snd_queue - Virtqueue wrapper structure.
-@@ -34,6 +38,9 @@ struct virtio_snd_queue {
-  * @card: ALSA sound card.
-  * @ctl_msgs: Pending control request list.
-  * @event_msgs: Device events.
-+ * @pcm_list: VirtIO PCM device list.
-+ * @substreams: VirtIO PCM substreams.
-+ * @nsubstreams: Number of PCM substreams.
-  */
- struct virtio_snd {
- 	struct virtio_device *vdev;
-@@ -42,6 +49,9 @@ struct virtio_snd {
- 	struct snd_card *card;
- 	struct list_head ctl_msgs;
- 	struct virtio_snd_event *event_msgs;
-+	struct list_head pcm_list;
-+	struct virtio_pcm_substream *substreams;
-+	unsigned int nsubstreams;
- };
- 
- /* Message completion timeout in milliseconds (module parameter). */
-diff --git a/sound/virtio/virtio_pcm.c b/sound/virtio/virtio_pcm.c
-new file mode 100644
-index 000000000000..92f2f4cb338f
---- /dev/null
-+++ b/sound/virtio/virtio_pcm.c
-@@ -0,0 +1,464 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * virtio-snd: Virtio sound device
-+ * Copyright (C) 2021 OpenSynergy GmbH
-+ */
-+#include <linux/moduleparam.h>
-+#include <linux/virtio_config.h>
-+
-+#include "virtio_card.h"
-+
-+static unsigned int pcm_buffer_ms = 160;
-+module_param(pcm_buffer_ms, uint, 0644);
-+MODULE_PARM_DESC(pcm_buffer_ms, "PCM substream buffer time in milliseconds");
-+
-+static unsigned int pcm_periods_min = 2;
-+module_param(pcm_periods_min, uint, 0644);
-+MODULE_PARM_DESC(pcm_periods_min, "Minimum number of PCM periods");
-+
-+static unsigned int pcm_periods_max = 16;
-+module_param(pcm_periods_max, uint, 0644);
-+MODULE_PARM_DESC(pcm_periods_max, "Maximum number of PCM periods");
-+
-+static unsigned int pcm_period_ms_min = 10;
-+module_param(pcm_period_ms_min, uint, 0644);
-+MODULE_PARM_DESC(pcm_period_ms_min, "Minimum PCM period time in milliseconds");
-+
-+static unsigned int pcm_period_ms_max = 80;
-+module_param(pcm_period_ms_max, uint, 0644);
-+MODULE_PARM_DESC(pcm_period_ms_max, "Maximum PCM period time in milliseconds");
-+
-+/* Map for converting VirtIO format to ALSA format. */
-+static const unsigned int g_v2a_format_map[] = {
-+	[VIRTIO_SND_PCM_FMT_IMA_ADPCM] = SNDRV_PCM_FORMAT_IMA_ADPCM,
-+	[VIRTIO_SND_PCM_FMT_MU_LAW] = SNDRV_PCM_FORMAT_MU_LAW,
-+	[VIRTIO_SND_PCM_FMT_A_LAW] = SNDRV_PCM_FORMAT_A_LAW,
-+	[VIRTIO_SND_PCM_FMT_S8] = SNDRV_PCM_FORMAT_S8,
-+	[VIRTIO_SND_PCM_FMT_U8] = SNDRV_PCM_FORMAT_U8,
-+	[VIRTIO_SND_PCM_FMT_S16] = SNDRV_PCM_FORMAT_S16_LE,
-+	[VIRTIO_SND_PCM_FMT_U16] = SNDRV_PCM_FORMAT_U16_LE,
-+	[VIRTIO_SND_PCM_FMT_S18_3] = SNDRV_PCM_FORMAT_S18_3LE,
-+	[VIRTIO_SND_PCM_FMT_U18_3] = SNDRV_PCM_FORMAT_U18_3LE,
-+	[VIRTIO_SND_PCM_FMT_S20_3] = SNDRV_PCM_FORMAT_S20_3LE,
-+	[VIRTIO_SND_PCM_FMT_U20_3] = SNDRV_PCM_FORMAT_U20_3LE,
-+	[VIRTIO_SND_PCM_FMT_S24_3] = SNDRV_PCM_FORMAT_S24_3LE,
-+	[VIRTIO_SND_PCM_FMT_U24_3] = SNDRV_PCM_FORMAT_U24_3LE,
-+	[VIRTIO_SND_PCM_FMT_S20] = SNDRV_PCM_FORMAT_S20_LE,
-+	[VIRTIO_SND_PCM_FMT_U20] = SNDRV_PCM_FORMAT_U20_LE,
-+	[VIRTIO_SND_PCM_FMT_S24] = SNDRV_PCM_FORMAT_S24_LE,
-+	[VIRTIO_SND_PCM_FMT_U24] = SNDRV_PCM_FORMAT_U24_LE,
-+	[VIRTIO_SND_PCM_FMT_S32] = SNDRV_PCM_FORMAT_S32_LE,
-+	[VIRTIO_SND_PCM_FMT_U32] = SNDRV_PCM_FORMAT_U32_LE,
-+	[VIRTIO_SND_PCM_FMT_FLOAT] = SNDRV_PCM_FORMAT_FLOAT_LE,
-+	[VIRTIO_SND_PCM_FMT_FLOAT64] = SNDRV_PCM_FORMAT_FLOAT64_LE,
-+	[VIRTIO_SND_PCM_FMT_DSD_U8] = SNDRV_PCM_FORMAT_DSD_U8,
-+	[VIRTIO_SND_PCM_FMT_DSD_U16] = SNDRV_PCM_FORMAT_DSD_U16_LE,
-+	[VIRTIO_SND_PCM_FMT_DSD_U32] = SNDRV_PCM_FORMAT_DSD_U32_LE,
-+	[VIRTIO_SND_PCM_FMT_IEC958_SUBFRAME] =
-+		SNDRV_PCM_FORMAT_IEC958_SUBFRAME_LE
-+};
-+
-+/* Map for converting VirtIO frame rate to ALSA frame rate. */
-+struct virtsnd_v2a_rate {
-+	unsigned int alsa_bit;
-+	unsigned int rate;
-+};
-+
-+static const struct virtsnd_v2a_rate g_v2a_rate_map[] = {
-+	[VIRTIO_SND_PCM_RATE_5512] = { SNDRV_PCM_RATE_5512, 5512 },
-+	[VIRTIO_SND_PCM_RATE_8000] = { SNDRV_PCM_RATE_8000, 8000 },
-+	[VIRTIO_SND_PCM_RATE_11025] = { SNDRV_PCM_RATE_11025, 11025 },
-+	[VIRTIO_SND_PCM_RATE_16000] = { SNDRV_PCM_RATE_16000, 16000 },
-+	[VIRTIO_SND_PCM_RATE_22050] = { SNDRV_PCM_RATE_22050, 22050 },
-+	[VIRTIO_SND_PCM_RATE_32000] = { SNDRV_PCM_RATE_32000, 32000 },
-+	[VIRTIO_SND_PCM_RATE_44100] = { SNDRV_PCM_RATE_44100, 44100 },
-+	[VIRTIO_SND_PCM_RATE_48000] = { SNDRV_PCM_RATE_48000, 48000 },
-+	[VIRTIO_SND_PCM_RATE_64000] = { SNDRV_PCM_RATE_64000, 64000 },
-+	[VIRTIO_SND_PCM_RATE_88200] = { SNDRV_PCM_RATE_88200, 88200 },
-+	[VIRTIO_SND_PCM_RATE_96000] = { SNDRV_PCM_RATE_96000, 96000 },
-+	[VIRTIO_SND_PCM_RATE_176400] = { SNDRV_PCM_RATE_176400, 176400 },
-+	[VIRTIO_SND_PCM_RATE_192000] = { SNDRV_PCM_RATE_192000, 192000 }
-+};
-+
-+/**
-+ * virtsnd_pcm_build_hw() - Parse substream config and build HW descriptor.
-+ * @vss: VirtIO substream.
-+ * @info: VirtIO substream information entry.
-+ *
-+ * Context: Any context.
-+ * Return: 0 on success, -EINVAL if configuration is invalid.
-+ */
-+static int virtsnd_pcm_build_hw(struct virtio_pcm_substream *vss,
-+				struct virtio_snd_pcm_info *info)
-+{
-+	struct virtio_device *vdev = vss->snd->vdev;
-+	unsigned int i;
-+	u64 values;
-+	size_t sample_max = 0;
-+	size_t sample_min = 0;
-+
-+	vss->features = le32_to_cpu(info->features);
-+
-+	/*
-+	 * TODO: set SNDRV_PCM_INFO_{BATCH,BLOCK_TRANSFER} if device supports
-+	 * only message-based transport.
-+	 */
-+	vss->hw.info =
-+		SNDRV_PCM_INFO_MMAP |
-+		SNDRV_PCM_INFO_MMAP_VALID |
-+		SNDRV_PCM_INFO_BATCH |
-+		SNDRV_PCM_INFO_BLOCK_TRANSFER |
-+		SNDRV_PCM_INFO_INTERLEAVED |
-+		SNDRV_PCM_INFO_PAUSE;
-+
-+	if (!info->channels_min || info->channels_min > info->channels_max) {
-+		dev_err(&vdev->dev,
-+			"SID %u: invalid channel range [%u %u]\n",
-+			vss->sid, info->channels_min, info->channels_max);
-+		return -EINVAL;
-+	}
-+
-+	vss->hw.channels_min = info->channels_min;
-+	vss->hw.channels_max = info->channels_max;
-+
-+	values = le64_to_cpu(info->formats);
-+
-+	vss->hw.formats = 0;
-+
-+	for (i = 0; i < ARRAY_SIZE(g_v2a_format_map); ++i)
-+		if (values & (1ULL << i)) {
-+			unsigned int alsa_fmt = g_v2a_format_map[i];
-+			int bytes = snd_pcm_format_physical_width(alsa_fmt) / 8;
-+
-+			if (!sample_min || sample_min > bytes)
-+				sample_min = bytes;
-+
-+			if (sample_max < bytes)
-+				sample_max = bytes;
-+
-+			vss->hw.formats |= (1ULL << alsa_fmt);
-+		}
-+
-+	if (!vss->hw.formats) {
-+		dev_err(&vdev->dev,
-+			"SID %u: no supported PCM sample formats found\n",
-+			vss->sid);
-+		return -EINVAL;
-+	}
-+
-+	values = le64_to_cpu(info->rates);
-+
-+	vss->hw.rates = 0;
-+
-+	for (i = 0; i < ARRAY_SIZE(g_v2a_rate_map); ++i)
-+		if (values & (1ULL << i)) {
-+			if (!vss->hw.rate_min ||
-+			    vss->hw.rate_min > g_v2a_rate_map[i].rate)
-+				vss->hw.rate_min = g_v2a_rate_map[i].rate;
-+
-+			if (vss->hw.rate_max < g_v2a_rate_map[i].rate)
-+				vss->hw.rate_max = g_v2a_rate_map[i].rate;
-+
-+			vss->hw.rates |= g_v2a_rate_map[i].alsa_bit;
-+		}
-+
-+	if (!vss->hw.rates) {
-+		dev_err(&vdev->dev,
-+			"SID %u: no supported PCM frame rates found\n",
-+			vss->sid);
-+		return -EINVAL;
-+	}
-+
-+	vss->hw.periods_min = pcm_periods_min;
-+	vss->hw.periods_max = pcm_periods_max;
-+
-+	/*
-+	 * We must ensure that there is enough space in the buffer to store
-+	 * pcm_buffer_ms ms for the combination (Cmax, Smax, Rmax), where:
-+	 *   Cmax = maximum supported number of channels,
-+	 *   Smax = maximum supported sample size in bytes,
-+	 *   Rmax = maximum supported frame rate.
-+	 */
-+	vss->hw.buffer_bytes_max =
-+		sample_max * vss->hw.channels_max * pcm_buffer_ms *
-+		(vss->hw.rate_max / MSEC_PER_SEC);
-+
-+	/* Align the buffer size to the page size */
-+	vss->hw.buffer_bytes_max =
-+		(vss->hw.buffer_bytes_max + PAGE_SIZE - 1) & -PAGE_SIZE;
-+
-+	/*
-+	 * We must ensure that the minimum period size is enough to store
-+	 * pcm_period_ms_min ms for the combination (Cmin, Smin, Rmin), where:
-+	 *   Cmin = minimum supported number of channels,
-+	 *   Smin = minimum supported sample size in bytes,
-+	 *   Rmin = minimum supported frame rate.
-+	 */
-+	vss->hw.period_bytes_min =
-+		sample_min * vss->hw.channels_min * pcm_period_ms_min *
-+		(vss->hw.rate_min / MSEC_PER_SEC);
-+
-+	/*
-+	 * We must ensure that the maximum period size is enough to store
-+	 * pcm_period_ms_max ms for the combination (Cmax, Smax, Rmax).
-+	 */
-+	vss->hw.period_bytes_max =
-+		sample_max * vss->hw.channels_max * pcm_period_ms_max *
-+		(vss->hw.rate_max / MSEC_PER_SEC);
-+
-+	return 0;
-+}
-+
-+/**
-+ * virtsnd_pcm_find() - Find the PCM device for the specified node ID.
-+ * @snd: VirtIO sound device.
-+ * @nid: Function node ID.
-+ *
-+ * Context: Any context.
-+ * Return: a pointer to the PCM device or ERR_PTR(-ENOENT).
-+ */
-+struct virtio_pcm *virtsnd_pcm_find(struct virtio_snd *snd, unsigned int nid)
-+{
-+	struct virtio_pcm *vpcm;
-+
-+	list_for_each_entry(vpcm, &snd->pcm_list, list)
-+		if (vpcm->nid == nid)
-+			return vpcm;
-+
-+	return ERR_PTR(-ENOENT);
-+}
-+
-+/**
-+ * virtsnd_pcm_find_or_create() - Find or create the PCM device for the
-+ *                                specified node ID.
-+ * @snd: VirtIO sound device.
-+ * @nid: Function node ID.
-+ *
-+ * Context: Any context that permits to sleep.
-+ * Return: a pointer to the PCM device or ERR_PTR(-errno).
-+ */
-+struct virtio_pcm *virtsnd_pcm_find_or_create(struct virtio_snd *snd,
-+					      unsigned int nid)
-+{
-+	struct virtio_device *vdev = snd->vdev;
-+	struct virtio_pcm *vpcm;
-+
-+	vpcm = virtsnd_pcm_find(snd, nid);
-+	if (!IS_ERR(vpcm))
-+		return vpcm;
-+
-+	vpcm = devm_kzalloc(&vdev->dev, sizeof(*vpcm), GFP_KERNEL);
-+	if (!vpcm)
-+		return ERR_PTR(-ENOMEM);
-+
-+	vpcm->nid = nid;
-+	list_add_tail(&vpcm->list, &snd->pcm_list);
-+
-+	return vpcm;
-+}
-+
-+/**
-+ * virtsnd_pcm_validate() - Validate if the device can be started.
-+ * @vdev: VirtIO parent device.
-+ *
-+ * Context: Any context.
-+ * Return: 0 on success, -EINVAL on failure.
-+ */
-+int virtsnd_pcm_validate(struct virtio_device *vdev)
-+{
-+	if (pcm_periods_min < 2 || pcm_periods_min > pcm_periods_max) {
-+		dev_err(&vdev->dev,
-+			"invalid range [%u %u] of the number of PCM periods\n",
-+			pcm_periods_min, pcm_periods_max);
-+		return -EINVAL;
-+	}
-+
-+	if (!pcm_period_ms_min || pcm_period_ms_min > pcm_period_ms_max) {
-+		dev_err(&vdev->dev,
-+			"invalid range [%u %u] of the size of the PCM period\n",
-+			pcm_period_ms_min, pcm_period_ms_max);
-+		return -EINVAL;
-+	}
-+
-+	if (pcm_buffer_ms < pcm_periods_min * pcm_period_ms_min) {
-+		dev_err(&vdev->dev,
-+			"pcm_buffer_ms(=%u) value cannot be < %u ms\n",
-+			pcm_buffer_ms, pcm_periods_min * pcm_period_ms_min);
-+		return -EINVAL;
-+	}
-+
-+	if (pcm_period_ms_max > pcm_buffer_ms / 2) {
-+		dev_err(&vdev->dev,
-+			"pcm_period_ms_max(=%u) value cannot be > %u ms\n",
-+			pcm_period_ms_max, pcm_buffer_ms / 2);
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ * virtsnd_pcm_parse_cfg() - Parse the stream configuration.
-+ * @snd: VirtIO sound device.
-+ *
-+ * This function is called during initial device initialization.
-+ *
-+ * Context: Any context that permits to sleep.
-+ * Return: 0 on success, -errno on failure.
-+ */
-+int virtsnd_pcm_parse_cfg(struct virtio_snd *snd)
-+{
-+	struct virtio_device *vdev = snd->vdev;
-+	struct virtio_snd_pcm_info *info;
-+	unsigned int i;
-+	int rc;
-+
-+	virtio_cread(vdev, struct virtio_snd_config, streams,
-+		     &snd->nsubstreams);
-+	if (!snd->nsubstreams)
-+		return 0;
-+
-+	snd->substreams = devm_kcalloc(&vdev->dev, snd->nsubstreams,
-+				       sizeof(*snd->substreams), GFP_KERNEL);
-+	if (!snd->substreams)
-+		return -ENOMEM;
-+
-+	info = kcalloc(snd->nsubstreams, sizeof(*info), GFP_KERNEL);
-+	if (!info)
-+		return -ENOMEM;
-+
-+	rc = virtsnd_ctl_query_info(snd, VIRTIO_SND_R_PCM_INFO, 0,
-+				    snd->nsubstreams, sizeof(*info), info);
-+	if (rc)
-+		goto on_exit;
-+
-+	for (i = 0; i < snd->nsubstreams; ++i) {
-+		struct virtio_pcm_substream *vss = &snd->substreams[i];
-+		struct virtio_pcm *vpcm;
-+
-+		vss->snd = snd;
-+		vss->sid = i;
-+
-+		rc = virtsnd_pcm_build_hw(vss, &info[i]);
-+		if (rc)
-+			goto on_exit;
-+
-+		vss->nid = le32_to_cpu(info[i].hdr.hda_fn_nid);
-+
-+		vpcm = virtsnd_pcm_find_or_create(snd, vss->nid);
-+		if (IS_ERR(vpcm)) {
-+			rc = PTR_ERR(vpcm);
-+			goto on_exit;
-+		}
-+
-+		switch (info[i].direction) {
-+		case VIRTIO_SND_D_OUTPUT:
-+			vss->direction = SNDRV_PCM_STREAM_PLAYBACK;
-+			break;
-+		case VIRTIO_SND_D_INPUT:
-+			vss->direction = SNDRV_PCM_STREAM_CAPTURE;
-+			break;
-+		default:
-+			dev_err(&vdev->dev, "SID %u: unknown direction (%u)\n",
-+				vss->sid, info[i].direction);
-+			rc = -EINVAL;
-+			goto on_exit;
-+		}
-+
-+		vpcm->streams[vss->direction].nsubstreams++;
-+	}
-+
-+on_exit:
-+	kfree(info);
-+
-+	return rc;
-+}
-+
-+/**
-+ * virtsnd_pcm_build_devs() - Build ALSA PCM devices.
-+ * @snd: VirtIO sound device.
-+ *
-+ * Context: Any context that permits to sleep.
-+ * Return: 0 on success, -errno on failure.
-+ */
-+int virtsnd_pcm_build_devs(struct virtio_snd *snd)
-+{
-+	struct virtio_device *vdev = snd->vdev;
-+	struct virtio_pcm *vpcm;
-+	unsigned int i;
-+	int rc;
-+
-+	list_for_each_entry(vpcm, &snd->pcm_list, list) {
-+		unsigned int npbs =
-+			vpcm->streams[SNDRV_PCM_STREAM_PLAYBACK].nsubstreams;
-+		unsigned int ncps =
-+			vpcm->streams[SNDRV_PCM_STREAM_CAPTURE].nsubstreams;
-+
-+		if (!npbs && !ncps)
-+			continue;
-+
-+		rc = snd_pcm_new(snd->card, VIRTIO_SND_CARD_DRIVER, vpcm->nid,
-+				 npbs, ncps, &vpcm->pcm);
-+		if (rc) {
-+			dev_err(&vdev->dev, "snd_pcm_new[%u] failed: %d\n",
-+				vpcm->nid, rc);
-+			return rc;
-+		}
-+
-+		vpcm->pcm->info_flags = 0;
-+		vpcm->pcm->dev_class = SNDRV_PCM_CLASS_GENERIC;
-+		vpcm->pcm->dev_subclass = SNDRV_PCM_SUBCLASS_GENERIC_MIX;
-+		snprintf(vpcm->pcm->name, sizeof(vpcm->pcm->name),
-+			 VIRTIO_SND_PCM_NAME " %u", vpcm->pcm->device);
-+		vpcm->pcm->private_data = vpcm;
-+		vpcm->pcm->nonatomic = true;
-+
-+		for (i = 0; i < ARRAY_SIZE(vpcm->streams); ++i) {
-+			struct virtio_pcm_stream *stream = &vpcm->streams[i];
-+
-+			if (!stream->nsubstreams)
-+				continue;
-+
-+			stream->substreams =
-+				devm_kcalloc(&vdev->dev, stream->nsubstreams,
-+					     sizeof(*stream->substreams),
-+					     GFP_KERNEL);
-+			if (!stream->substreams)
-+				return -ENOMEM;
-+
-+			stream->nsubstreams = 0;
-+		}
-+	}
-+
-+	for (i = 0; i < snd->nsubstreams; ++i) {
-+		struct virtio_pcm_stream *vs;
-+		struct virtio_pcm_substream *vss = &snd->substreams[i];
-+
-+		vpcm = virtsnd_pcm_find(snd, vss->nid);
-+		if (IS_ERR(vpcm))
-+			return PTR_ERR(vpcm);
-+
-+		vs = &vpcm->streams[vss->direction];
-+		vs->substreams[vs->nsubstreams++] = vss;
-+	}
-+
-+	list_for_each_entry(vpcm, &snd->pcm_list, list) {
-+		for (i = 0; i < ARRAY_SIZE(vpcm->streams); ++i) {
-+			struct virtio_pcm_stream *vs = &vpcm->streams[i];
-+			struct snd_pcm_str *ks = &vpcm->pcm->streams[i];
-+			struct snd_pcm_substream *kss;
-+
-+			if (!vs->nsubstreams)
-+				continue;
-+
-+			for (kss = ks->substream; kss; kss = kss->next)
-+				vs->substreams[kss->number]->substream = kss;
-+		}
-+
-+		snd_pcm_set_managed_buffer_all(vpcm->pcm,
-+					       SNDRV_DMA_TYPE_VMALLOC, NULL,
-+					       0, 0);
-+	}
-+
-+	return 0;
-+}
-diff --git a/sound/virtio/virtio_pcm.h b/sound/virtio/virtio_pcm.h
-new file mode 100644
-index 000000000000..42d592da41e5
---- /dev/null
-+++ b/sound/virtio/virtio_pcm.h
-@@ -0,0 +1,71 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
-+/*
-+ * virtio-snd: Virtio sound device
-+ * Copyright (C) 2021 OpenSynergy GmbH
-+ */
-+#ifndef VIRTIO_SND_PCM_H
-+#define VIRTIO_SND_PCM_H
-+
-+#include <linux/atomic.h>
-+#include <linux/virtio_config.h>
-+#include <sound/pcm.h>
-+
-+struct virtio_pcm;
-+struct virtio_pcm_msg;
-+
-+/**
-+ * struct virtio_pcm_substream - VirtIO PCM substream.
-+ * @snd: VirtIO sound device.
-+ * @nid: Function group node identifier.
-+ * @sid: Stream identifier.
-+ * @direction: Stream data flow direction (SNDRV_PCM_STREAM_XXX).
-+ * @features: Stream VirtIO feature bit map (1 << VIRTIO_SND_PCM_F_XXX).
-+ * @substream: Kernel ALSA substream.
-+ * @hw: Kernel ALSA substream hardware descriptor.
-+ */
-+struct virtio_pcm_substream {
-+	struct virtio_snd *snd;
-+	unsigned int nid;
-+	unsigned int sid;
-+	u32 direction;
-+	u32 features;
-+	struct snd_pcm_substream *substream;
-+	struct snd_pcm_hardware hw;
-+};
-+
-+/**
-+ * struct virtio_pcm_stream - VirtIO PCM stream.
-+ * @substreams: VirtIO substreams belonging to the stream.
-+ * @nsubstreams: Number of substreams.
-+ */
-+struct virtio_pcm_stream {
-+	struct virtio_pcm_substream **substreams;
-+	unsigned int nsubstreams;
-+};
-+
-+/**
-+ * struct virtio_pcm - VirtIO PCM device.
-+ * @list: VirtIO PCM list entry.
-+ * @nid: Function group node identifier.
-+ * @pcm: Kernel PCM device.
-+ * @streams: VirtIO PCM streams (playback and capture).
-+ */
-+struct virtio_pcm {
-+	struct list_head list;
-+	unsigned int nid;
-+	struct snd_pcm *pcm;
-+	struct virtio_pcm_stream streams[SNDRV_PCM_STREAM_LAST + 1];
-+};
-+
-+int virtsnd_pcm_validate(struct virtio_device *vdev);
-+
-+int virtsnd_pcm_parse_cfg(struct virtio_snd *snd);
-+
-+int virtsnd_pcm_build_devs(struct virtio_snd *snd);
-+
-+struct virtio_pcm *virtsnd_pcm_find(struct virtio_snd *snd, unsigned int nid);
-+
-+struct virtio_pcm *virtsnd_pcm_find_or_create(struct virtio_snd *snd,
-+					      unsigned int nid);
-+
-+#endif /* VIRTIO_SND_PCM_H */
+>  		goto err_free_allocations;
+>  	}
+>  
+> @@ -155,7 +179,7 @@ int hv_call_add_logical_proc(int node, u32 lp_index, u32 apic_id)
+>  			if (status != HV_STATUS_SUCCESS) {
+>  				pr_err("%s: cpu %u apic ID %u, %d\n", __func__,
+>  				       lp_index, apic_id, status);
+> -				ret = status;
+> +				ret = -hv_status_to_errno(status);
+>  			}
+>  			break;
+>  		}
+> @@ -203,7 +227,7 @@ int hv_call_create_vp(int node, u64 partition_id, u32 vp_index, u32 flags)
+>  			if (status != HV_STATUS_SUCCESS) {
+>  				pr_err("%s: vcpu %u, lp %u, %d\n", __func__,
+>  				       vp_index, flags, status);
+> -				ret = status;
+> +				ret = -hv_status_to_errno(status);
+>  			}
+>  			break;
+>  		}
+> diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
+> index cbee72550a12..eb75faa4d4c5 100644
+> --- a/arch/x86/include/asm/mshyperv.h
+> +++ b/arch/x86/include/asm/mshyperv.h
+> @@ -243,6 +243,7 @@ int hyperv_flush_guest_mapping_range(u64 as,
+>  int hyperv_fill_flush_guest_mapping_list(
+>  		struct hv_guest_mapping_flush_list *flush,
+>  		u64 start_gfn, u64 end_gfn);
+> +int hv_status_to_errno(int hv_status);
+>  
+>  extern bool hv_root_partition;
+>  
+> diff --git a/include/asm-generic/hyperv-tlfs.h b/include/asm-generic/hyperv-tlfs.h
+> index dd385c6a71b5..445244192fa4 100644
+> --- a/include/asm-generic/hyperv-tlfs.h
+> +++ b/include/asm-generic/hyperv-tlfs.h
+> @@ -181,16 +181,28 @@ enum HV_GENERIC_SET_FORMAT {
+>  #define HV_HYPERCALL_REP_START_MASK	GENMASK_ULL(59, 48)
+>  
+>  /* hypercall status code */
+> -#define HV_STATUS_SUCCESS			0
+> -#define HV_STATUS_INVALID_HYPERCALL_CODE	2
+> -#define HV_STATUS_INVALID_HYPERCALL_INPUT	3
+> -#define HV_STATUS_INVALID_ALIGNMENT		4
+> -#define HV_STATUS_INVALID_PARAMETER		5
+> -#define HV_STATUS_OPERATION_DENIED		8
+> -#define HV_STATUS_INSUFFICIENT_MEMORY		11
+> -#define HV_STATUS_INVALID_PORT_ID		17
+> -#define HV_STATUS_INVALID_CONNECTION_ID		18
+> -#define HV_STATUS_INSUFFICIENT_BUFFERS		19
+> +#define HV_STATUS_SUCCESS			0x0
+> +#define HV_STATUS_INVALID_HYPERCALL_CODE	0x2
+> +#define HV_STATUS_INVALID_HYPERCALL_INPUT	0x3
+> +#define HV_STATUS_INVALID_ALIGNMENT		0x4
+> +#define HV_STATUS_INVALID_PARAMETER		0x5
+> +#define HV_STATUS_ACCESS_DENIED			0x6
+> +#define HV_STATUS_INVALID_PARTITION_STATE	0x7
+> +#define HV_STATUS_OPERATION_DENIED		0x8
+> +#define HV_STATUS_UNKNOWN_PROPERTY		0x9
+> +#define HV_STATUS_PROPERTY_VALUE_OUT_OF_RANGE	0xA
+> +#define HV_STATUS_INSUFFICIENT_MEMORY		0xB
+> +#define HV_STATUS_INVALID_PARTITION_ID		0xD
+> +#define HV_STATUS_INVALID_VP_INDEX		0xE
+> +#define HV_STATUS_NOT_FOUND			0x10
+> +#define HV_STATUS_INVALID_PORT_ID		0x11
+> +#define HV_STATUS_INVALID_CONNECTION_ID		0x12
+> +#define HV_STATUS_INSUFFICIENT_BUFFERS		0x13
+> +#define HV_STATUS_NOT_ACKNOWLEDGED		0x14
+> +#define HV_STATUS_INVALID_VP_STATE		0x15
+> +#define HV_STATUS_NO_RESOURCES			0x1D
+> +#define HV_STATUS_INVALID_LP_INDEX		0x41
+> +#define HV_STATUS_INVALID_REGISTER_VALUE	0x50
+>  
+>  /*
+>   * The Hyper-V TimeRefCount register and the TSC
+
 -- 
-2.30.0
-
+Vitaly
 
 _______________________________________________
 Virtualization mailing list
