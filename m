@@ -2,130 +2,115 @@ Return-Path: <SRS0=H/CR=HL=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 855AEC433DB
-	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 09:27:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5DBFC433DB
+	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 09:28:10 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1DD0264EB4
-	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 09:27:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1DD0264EB4
+	by mail.kernel.org (Postfix) with ESMTPS id 5D64464E16
+	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 09:28:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5D64464E16
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id DA39A873C0;
-	Tue,  9 Feb 2021 09:27:54 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 1B4DD8737E;
+	Tue,  9 Feb 2021 09:28:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Dck3YuFUQ1U3; Tue,  9 Feb 2021 09:27:53 +0000 (UTC)
+	with ESMTP id WOsgbBPDU9OK; Tue,  9 Feb 2021 09:28:09 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id E8F3486A4E;
-	Tue,  9 Feb 2021 09:27:53 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 231A6873C6;
+	Tue,  9 Feb 2021 09:28:09 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D2F59C0891;
-	Tue,  9 Feb 2021 09:27:53 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D4FD6C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1AAC6C0891;
+	Tue,  9 Feb 2021 09:28:09 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 05A56C013A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 09:27:52 +0000 (UTC)
+ Tue,  9 Feb 2021 09:28:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id D064B872E3
+ by whitealder.osuosl.org (Postfix) with ESMTP id E15C88737E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 09:27:52 +0000 (UTC)
+ Tue,  9 Feb 2021 09:28:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CpjBbW4bZLLh
+ with ESMTP id TXcLRGegw4BJ
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 09:27:51 +0000 (UTC)
+ Tue,  9 Feb 2021 09:28:06 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTP id 3E3DD87292
+ by whitealder.osuosl.org (Postfix) with ESMTPS id A852386B05
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 09:25:23 +0000 (UTC)
+ Tue,  9 Feb 2021 09:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1612861220;
+ s=mimecast20190719; t=1612862611;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=ssXcbCxajiNCzH/D1KYh6ScyY3wgkyKhopHLnboLrLI=;
- b=GlJHpkFCSfhL5o1AIBP5hKA8FTVA3pjnZSDMN78maQUcunEaXZ99qj0PCL/vOXtAkgwke2
- 4ejXnPRFlOleVQM6LDkEcfp+xjBaXBY1vAKSkEWXYFVW+IawCca4r15kGRmoaG51UcmYZW
- mVm4ujgnBT8v4hzyCJgOlzC05SIyMg8=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1612861821;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=ssXcbCxajiNCzH/D1KYh6ScyY3wgkyKhopHLnboLrLI=;
- b=VIBiHZPFAWQlvhxqsSvOJ8Ed3g+aaIz4J9HA7MMViFh/8FhH1fa+jDE+g1T6PrTHMtr+IY
- BXb536coTPr+mmbnRLGdT02Y220z7O7wn3S6ECJquSwCoPixNi+kfkfBnhzoeGNq44Uanz
- +Uyoz/yYRlfiibv+uq0jByyDySfbzTw=
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1612862422;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=ssXcbCxajiNCzH/D1KYh6ScyY3wgkyKhopHLnboLrLI=;
- b=SW/7Kc17jd8/EdQQ7LfLrjL7OY4V8Vs83lSXoYEKmtsnajRahI5EbYO6ACWBvJ+KYr3Ivs
- bPEoaRINvMo+y9m/pHh2TZtI+g0KpVUChBSCmKTUYmmP2AutqjWH2p1D+JGgE56rbq6jEV
- yc0QoDBGSqL36U+h8gL51a0rhBkbFoM=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-388-kOecvQWqNYi-GJVSXeiwKA-1; Tue, 09 Feb 2021 04:00:18 -0500
-X-MC-Unique: kOecvQWqNYi-GJVSXeiwKA-1
-Received: by mail-ej1-f72.google.com with SMTP id jl9so10531141ejc.18
+ bh=BVmWIv//iucXq6uCAj+vo+FMJ8H4hs+IHQRTElKDAL8=;
+ b=NiUYgfsMOvf//2eFXzWnq7cUAgH7kFuXTgb63TpXg4U+LjS404Lg2+d18P82WefULQLq66
+ Xpb7p0Td0Sp/1qcB+FxP2OFvnHu5k3ETLiHDYA4DVy6PirOvgfM4Ogp5NW1NRtDtsZJg//
+ y2umQBCv/oIge2O+jsWrFVZ+A5icviA=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-326-Jtw2CXPjO3WGpWwlIcMuSg-1; Tue, 09 Feb 2021 04:23:27 -0500
+X-MC-Unique: Jtw2CXPjO3WGpWwlIcMuSg-1
+Received: by mail-wr1-f70.google.com with SMTP id l7so16362053wrp.1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 09 Feb 2021 01:00:18 -0800 (PST)
+ Tue, 09 Feb 2021 01:23:27 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=ssXcbCxajiNCzH/D1KYh6ScyY3wgkyKhopHLnboLrLI=;
- b=PKawecKlSPlQnBxvpJFnJpNNuX0pxS41LAXf0XGqyffufmj4uqUWFqJ2TOEzdnSnof
- VA2g3qZ54ZYWjJNy/ZDTAuaBYxvpDIR+N7g0P3mYwvzESLHcDMjVMXlFju0gZpWtS/Z1
- U+x/dnDwtBE9x+trUCR/i3E/FmWUkeGm12U5ugaCpK7EzF7AROaxa4pyF7p4x6pbcyTw
- Kfgyl67THtVfS0oRxtzUI8Ns4c4Vt5KNT/IMvR2bZ/S4C2fp1nc9IOFomJ+/L3x2ZrKO
- pCLzSY61tuR4auCsArOpZczK8J37pQ77mJzkDVmzWb94u5hkRW8VhGQ4hdBSBV0iH0yO
- SliA==
-X-Gm-Message-State: AOAM530GuE75lQucqxuaQVPWZkSDYjbuPSdY4pXbvy6QO2qokZzW28Nz
- 94ejAOqKesRsmQgBmX1RU8PRfOhwi8HbaeszpkSFDStadtmF8oUHveUqJ4IfFswyOwHx3DyVPFx
- Ou0RBJwmDlLfixtcAJy1Myuka0aqTD1+Ui61vP5Hhrg==
-X-Received: by 2002:a17:906:ca0d:: with SMTP id
- jt13mr20677919ejb.170.1612861217139; 
- Tue, 09 Feb 2021 01:00:17 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxFhMR1s45N9hKd52KF7rZ7SoHNdNI4kdNR6gUmrzh6kavL86rdUETsPkBxOC2mPkBcOuN80g==
-X-Received: by 2002:a17:906:ca0d:: with SMTP id
- jt13mr20677901ejb.170.1612861216952; 
- Tue, 09 Feb 2021 01:00:16 -0800 (PST)
-Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
- [79.34.249.199])
- by smtp.gmail.com with ESMTPSA id a7sm10239416eje.96.2021.02.09.01.00.16
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=BVmWIv//iucXq6uCAj+vo+FMJ8H4hs+IHQRTElKDAL8=;
+ b=YihYfXLzgtrL7h7JpN0vqlmz/+XtpRH9D/W/rBb7/fLpnjeY9N90uTTyV1oN+heO4H
+ CVlkhSmtvCmYSnUH8tuMNFu11gavfudauKbdTdUeqaEnusL4xuKtoSDIehiGNeFziusA
+ ed8GbWzQpVsqLOZttoTtIjDTgZn8oyexRFuPCQSVVsT65yP0ib2CMXuzDWBxXst++0nr
+ Fqt4lbrO1tEXl+lo9BkZ/IHgwGO9dIdGSeZTGGoxqRLU/Z8Ecf2s1YCdhyiqziyH+tec
+ FFKWhQVcedK+X6OfW49WgHGUpLgD84OLkYQev4qOKfJfoq9RW7tgLXEk1d7Sj2IF6W7/
+ i7OQ==
+X-Gm-Message-State: AOAM530g8TMO82m06XaT3+yVYi67QO6IV7dP9aFjNoCdeAfKFeakVo3E
+ boPezaIcP3LhZfvvx+Jv6Op42yV1f0qf9DEQDpAGPhSW+1uDozAYbSPUPdTZBqCQ1lXTXGm/4nT
+ R3X8vRFpGn4UfxYW9Kaj/EOzy7ECtcADhpvXNijtsLQ==
+X-Received: by 2002:a5d:6189:: with SMTP id j9mr24283587wru.256.1612862606525; 
+ Tue, 09 Feb 2021 01:23:26 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyEgCfd2YHE4LE5EhAHm3i1Bv4aGPtqQBNsL7PCyfGHd2rtLbahxTUalPUc43FnbGJPrFPd3w==
+X-Received: by 2002:a5d:6189:: with SMTP id j9mr24283573wru.256.1612862606374; 
+ Tue, 09 Feb 2021 01:23:26 -0800 (PST)
+Received: from redhat.com (bzq-79-180-2-31.red.bezeqint.net. [79.180.2.31])
+ by smtp.gmail.com with ESMTPSA id t17sm3415997wmi.20.2021.02.09.01.23.23
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 09 Feb 2021 01:00:16 -0800 (PST)
-Date: Tue, 9 Feb 2021 10:00:14 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Eli Cohen <elic@nvidia.com>
-Subject: Re: [PATCH] vdpa/mlx5: fix param validation in mlx5_vdpa_get_config()
-Message-ID: <20210209090014.xolf5kxri3xdmacz@steredhat>
-References: <20210208161741.104939-1-sgarzare@redhat.com>
- <20210209054302.GA210455@mtl-vdi-166.wap.labs.mlnx>
+ Tue, 09 Feb 2021 01:23:25 -0800 (PST)
+Date: Tue, 9 Feb 2021 04:23:21 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V3 16/19] virtio-pci: introduce modern device module
+Message-ID: <20210209042000-mutt-send-email-mst@kernel.org>
+References: <20210104065503.199631-1-jasowang@redhat.com>
+ <20210104065503.199631-17-jasowang@redhat.com>
+ <20210205103214-mutt-send-email-mst@kernel.org>
+ <24cb3ebe-1248-3e31-0716-cf498cf1d728@redhat.com>
+ <20210208070253-mutt-send-email-mst@kernel.org>
+ <fe639f0f-d639-3c3c-e297-042127788aca@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20210209054302.GA210455@mtl-vdi-166.wap.labs.mlnx>
+In-Reply-To: <fe639f0f-d639-3c3c-e297-042127788aca@redhat.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+Cc: shahafs@mellanox.com, lulu@redhat.com, rdunlap@infradead.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -137,59 +122,40 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Feb 09, 2021 at 07:43:02AM +0200, Eli Cohen wrote:
->On Mon, Feb 08, 2021 at 05:17:41PM +0100, Stefano Garzarella wrote:
->> It's legal to have 'offset + len' equal to
->> sizeof(struct virtio_net_config), since 'ndev->config' is a
->> 'struct virtio_net_config', so we can safely copy its content under
->> this condition.
->>
->> Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
->
->Acked-by: Eli Cohen <elic@nvidia.com>
->
->BTW, same error in vdpa_sim you may want to fix.
->
-
-Commit 65b709586e22 ("vdpa_sim: add get_config callback in 
-vdpasim_dev_attr") unintentionally solved it.
-
-Since it's a simulator, maybe we can avoid solving it in the stable 
-branches. Or does it matter?
-
-Thanks,
-Stefano
-
->> ---
->>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 2 +-
->>  1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
->> index dc88559a8d49..10e9b09932eb 100644
->> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
->> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
->> @@ -1820,7 +1820,7 @@ static void mlx5_vdpa_get_config(struct vdpa_device *vdev, unsigned int offset,
->>  	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
->>  	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
->>
->> -	if (offset + len < sizeof(struct virtio_net_config))
->> +	if (offset + len <= sizeof(struct virtio_net_config))
->>  		memcpy(buf, (u8 *)&ndev->config + offset, len);
->>  }
->>
->> --
->> 2.29.2
->>
->
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVHVlLCBGZWIgMDksIDIwMjEgYXQgMTE6Mjk6NDZBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDIxLzIvOCDkuIvljYg4OjA0LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6
+Cj4gPiBPbiBNb24sIEZlYiAwOCwgMjAyMSBhdCAwMTo0MjoyN1BNICswODAwLCBKYXNvbiBXYW5n
+IHdyb3RlOgo+ID4gPiBPbiAyMDIxLzIvNSDkuIvljYgxMTozNCwgTWljaGFlbCBTLiBUc2lya2lu
+IHdyb3RlOgo+ID4gPiA+IE9uIE1vbiwgSmFuIDA0LCAyMDIxIGF0IDAyOjU1OjAwUE0gKzA4MDAs
+IEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4gPiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBXYW5nPGph
+c293YW5nQHJlZGhhdC5jb20+Cj4gPiA+ID4gSSBkb24ndCBleGFjdGx5IGdldCB3aHkgd2UgbmVl
+ZCB0byBzcGxpdCB0aGUgbW9kZXJuIGRyaXZlciBvdXQsCj4gPiA+ID4gYW5kIGl0IGNhbiBjb25m
+dXNlIHBlb3BsZSB3aG8gYXJlIHVzZWQgdG8gYmUgc2VlaW5nIHZpcnRpby1wY2kuCj4gPiA+IAo+
+ID4gPiBUaGUgdmlydGlvLXBjaSBtb2R1bGUgc3RpbGwgdGhlcmUuIE5vIHVzZXIgdmlzaWJsZSBj
+aGFuZ2VzLiBKdXN0IHNvbWUgY29kZXMKPiA+ID4gdGhhdCBjb3VsZCBiZSBzaGFyZWQgd2l0aCBv
+dGhlciBkcml2ZXIgd2VyZSBzcGxpdCBvdXQuCj4gPiA+IAo+ID4gV2hhdCBJIGFtIHNheWluZyBp
+cyB0aGlzOiB3ZSBjYW4gaGF2ZSB2aXJ0aW8tdmRwYSBkZXBlbmQgb24KPiA+IHZpcnRpby1wY2kg
+d2l0aG91dCBzcGxpdHRpbmcgdGhlIGNvbW1vbiBjb2RlIG91dCB0byBhbgo+ID4gZXh0cmEgbW9k
+dWxlLgo+IAo+IAo+IE9rLgo+IAo+IAo+ID4gCj4gPiA+ID4gVGhlIHZkcGEgdGhpbmcgc28gZmFy
+IGxvb2tzIGxpa2UgYSBkZXZlbG9wbWVudCB0b29sLCB3aHkgZG8KPiA+ID4gPiB3ZSBjYXJlIHRo
+YXQgaXQgZGVwZW5kcyBvbiBhIGJpdCBvZiBleHRyYSBjb2RlPwo+ID4gPiAKPiA+ID4gSWYgSSdt
+IG5vdCBtaXN1bmRlcnN0YW5kaW5nLCB0cnlpbmcgdG8gc2hhcmUgY29kZXMgaXMgcHJvcG9zZWQg
+YnkgeW91IGhlcmU6Cj4gPiA+IAo+ID4gPiBodHRwczovL2xrbWwub3JnL2xrbWwvMjAyMC82LzEw
+LzIzMgo+ID4gPiAKPiA+ID4gV2UgYWxzbyBoYWQgdGhlIHBsYW4gdG8gY29udmVydCBJRkNWRiB0
+byB1c2UgdGhpcyBsaWJyYXJ5Lgo+ID4gPiAKPiA+ID4gVGhhbmtzCj4gPiBJZiB0aGF0IGhhcHBl
+bnMgdGhlbiBhbiBleHRyYSBtb2R1bGUgbWlnaHQgYmVjb21lIHVzZWZ1bC4KPiAKPiAKPiBTbyBk
+b2VzIGl0IG1ha2Ugc2Vuc2UgdGhhdCBJIHBvc3QgYSBuZXcgdmVyc2lvbiBhbmQgbGV0J3MgbWVy
+Z2UgaXQgZmlyc3QuCj4gVGhlbiBJbnRlbCBvciBJIGNhbiBjb252ZXJ0IElGQ1ZGIHRvIHVzZSB0
+aGUgbGlicmFyeT8KPiAKPiBUaGFua3MKCkdlbmVyYWxseSBpdCdzIGJlc3QgaWYgd2UgYWN0dWFs
+bHkgaGF2ZSBhIGNvdXBsZSBvZiB1c2VycyBiZWZvcmUgd2UgYm90aGVyCndpdGggcmVmYWN0b3Jp
+bmcgLSBpdCdzIGhhcmQgdG8gcHJlZGljdCB0aGUgZnV0dXJlLApzbyB3ZSBkb24ndCByZWFsbHkg
+a25vdyB3aGF0IGtpbmQgb2YgcmVmYWN0b3Jpbmcgd2lsbCB3b3JrIGZvciBJRkNWRiAuLi4KCj4g
+Cj4gPiAKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
