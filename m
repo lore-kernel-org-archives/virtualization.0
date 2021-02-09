@@ -2,108 +2,197 @@ Return-Path: <SRS0=H/CR=HL=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,URIBL_RED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23441C433DB
-	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 00:25:16 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB610C433DB
+	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 01:20:20 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9ADAD64DED
-	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 00:25:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9ADAD64DED
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 522B764EB1
+	for <virtualization@archiver.kernel.org>; Tue,  9 Feb 2021 01:20:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 522B764EB1
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 5E411870FA;
-	Tue,  9 Feb 2021 00:25:15 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 182BE8738E;
+	Tue,  9 Feb 2021 01:20:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JmrFMbb9QGmb; Tue,  9 Feb 2021 00:25:13 +0000 (UTC)
+	with ESMTP id IpmTodrksAvi; Tue,  9 Feb 2021 01:20:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id F0829870E8;
-	Tue,  9 Feb 2021 00:25:12 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 6FBE38737B;
+	Tue,  9 Feb 2021 01:20:19 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CA574C0891;
-	Tue,  9 Feb 2021 00:25:12 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3CB8CC0174;
+	Tue,  9 Feb 2021 01:20:19 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B6F75C013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4C36AC013A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 00:25:10 +0000 (UTC)
+ Tue,  9 Feb 2021 01:20:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 903FD86964
+ by whitealder.osuosl.org (Postfix) with ESMTP id 3E9278737E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 00:25:10 +0000 (UTC)
+ Tue,  9 Feb 2021 01:20:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id O8TjRpSYHPUo
+ with ESMTP id UEYnCXAIXN5H
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 00:25:08 +0000 (UTC)
+ Tue,  9 Feb 2021 01:20:17 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
- by whitealder.osuosl.org (Postfix) with ESMTPS id BF102868E3
+Received: from userp2120.oracle.com (userp2120.oracle.com [156.151.31.85])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 54E898737B
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Feb 2021 00:25:08 +0000 (UTC)
-IronPort-SDR: RfGPSvDmMCNcYbRiw00CrUZOlMzDb4/arrd+4u0Gxa42tICOlwBm8jtEMi5VKr1yFYorO6szwM
- j1NWtv6HxJQQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9889"; a="181869277"
-X-IronPort-AV: E=Sophos;i="5.81,163,1610438400"; d="scan'208";a="181869277"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
- by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 08 Feb 2021 16:25:08 -0800
-IronPort-SDR: 8cXSzg6B06Zwof+mHWXy6smKkPSQ+JKRoAEUvaZZxmOIT96pmjvWFFeEffAGf1gRiT1gIId+KE
- 4eXyAgtKGpJA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,163,1610438400"; d="scan'208";a="585866831"
-Received: from orsmsx604.amr.corp.intel.com ([10.22.229.17])
- by fmsmga005.fm.intel.com with ESMTP; 08 Feb 2021 16:25:07 -0800
-Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
- ORSMSX604.amr.corp.intel.com (10.22.229.17) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2106.2; Mon, 8 Feb 2021 16:25:06 -0800
-Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
- ORSMSX612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2106.2; Mon, 8 Feb 2021 16:25:06 -0800
-Received: from orsmsx611.amr.corp.intel.com ([10.22.229.24]) by
- ORSMSX611.amr.corp.intel.com ([10.22.229.24]) with mapi id 15.01.2106.002;
- Mon, 8 Feb 2021 16:25:06 -0800
-From: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>
-To: Daniel Vetter <daniel@ffwll.ch>, Gerd Hoffmann <kraxel@redhat.com>
-Subject: RE: [RFC v3 2/3] virtio: Introduce Vdmabuf driver
-Thread-Topic: [RFC v3 2/3] virtio: Introduce Vdmabuf driver
-Thread-Index: AQHW+gCTpvRVWdGfdEuO7KEMCe95EKpKQvKAgAQvVwCAABxAAIAAXFfg
-Date: Tue, 9 Feb 2021 00:25:06 +0000
-Message-ID: <8ba4ad64be3546bda9a2ed2129bf98e4@intel.com>
-References: <20210203073517.1908882-1-vivek.kasireddy@intel.com>
- <20210203073517.1908882-3-vivek.kasireddy@intel.com>
- <YB1sRx1GrT8rATEg@phenom.ffwll.local>
- <20210208075748.xejgcb4il2egow2u@sirius.home.kraxel.org>
- <YCEGrrT0/eqqz/ok@phenom.ffwll.local>
-In-Reply-To: <YCEGrrT0/eqqz/ok@phenom.ffwll.local>
-Accept-Language: en-US
+ Tue,  9 Feb 2021 01:20:17 +0000 (UTC)
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+ by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 1191JrHT105782;
+ Tue, 9 Feb 2021 01:20:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=subject : to : cc :
+ references : from : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2020-01-29;
+ bh=mhCfD80h0cpW2adQlm0o6e0Bll1L4SQRPr9z5RrrLwY=;
+ b=f4O2VWIM5SpeN1Fmk5mfMzaB0V1DNDhS63jprLPJTmjFcJhAghAZWsUiP1/vIDnJtKLM
+ B9iWbkqU10zBQ+hchxJyLsnK6FeRJpYb2Ak2aSOK8DZM9LB+HeXFRBQ9fGn+D95wB2T9
+ 56gnCBP59RzsoItRNpcB0/pLBvtxPea+XGfv7s1ltwZ0URwb3/aEnVYE215spFyAIQCV
+ d9rreVmIAlegzG58tpaiP9L1vWn8SjoSW1u2Xtt+AZDLk2fMdWVJRfplZQjgbtAbU608
+ HNXqjLmsRAzgEyAjU0Z7MfSFa03WUr11rwpNrIAOynlr9REDxLJpoSPrvu/+e5n0g6fh Pw== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+ by userp2120.oracle.com with ESMTP id 36hkrmwv2w-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 09 Feb 2021 01:20:16 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+ by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 1190evgL080123;
+ Tue, 9 Feb 2021 01:20:15 GMT
+Received: from nam02-bl2-obe.outbound.protection.outlook.com
+ (mail-bl2nam02lp2053.outbound.protection.outlook.com [104.47.38.53])
+ by userp3030.oracle.com with ESMTP id 36j51vck6g-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 09 Feb 2021 01:20:15 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=MhknsMY8MRZ8pWcCzEXzefOnQ/5fClmpaEOZP6YDFAUE7VPn9pULNNdOlQ87PFMSsYC8ot/FEeE74zw5Mz/vd07d38TcDo4IalqUBFa8CHNDZH2toS/HjQ5cnqwyNcqt9xn0U7TztiN9UDEejlvQtP80CHOXEgL8jfqTjUEYASSRKZtV9KqJhYel7uXPyudc9d1FTofjTqqiC0O5hO9gtr74NxX9wvDXMzD58UJhXv7ugG5apXJkA2LjG4jKwlxJG03pafFVpD++c4j+ytIvSV4QFeToQwx5A27ZdWqJsOKT6Vf6uvDUMU9Z2h4HQm/qo5S2Yb/6T6y3aJj3HvlOfQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=mhCfD80h0cpW2adQlm0o6e0Bll1L4SQRPr9z5RrrLwY=;
+ b=fuUAOklE3qFd1akafc0Yrec7xU2s4VVniHRXyhCIaeVrHkBY4LevnSXw6EDpRBUfU03Fdl56NlVf3r93gyEZtMeHxVl0pr7o/C0HNRdB+aENgcGsSwPtJ4qQCPdvdxrYasKfE4aFSbApty/9ij+Fn+2SLizY1A7w8f7wPepbhVcjqBp6iQ3R2pegVTgGX/L3JYbHqJ1KXzGREYJSW9M03aN1jA2cvFnRbmbupRoJABtw9O2574aCFO/oXvzas2qZIMrGx0DnkrG50pwujuHO4UirgqbAA789cmQARfPjwo2Qq6Ncr+PED/Tf/30RGYP8PiJWOib7yIHEE8AtTbmxCg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=mhCfD80h0cpW2adQlm0o6e0Bll1L4SQRPr9z5RrrLwY=;
+ b=W7cED/edtXfXVt2lZub6OmzSFDrlSpthPpnqSxE91gXjy77nGFnYgsy+jrgbuGBfuO91zrHOSmYQXRxpQGca53knWjXQFzuqzm5YcucJs7NXXmMOsEH2IT9VH5aD5PGKEPy9EA1t+/neDWYnbb7Txnqo6VsnVwc9bz3E+NEzcQU=
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none; vger.kernel.org; dmarc=none action=none header.from=oracle.com; 
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
+ by BY5PR10MB4308.namprd10.prod.outlook.com (2603:10b6:a03:203::22)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3825.20; Tue, 9 Feb
+ 2021 01:20:13 +0000
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::45b5:49d:d171:5359]) by BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::45b5:49d:d171:5359%5]) with mapi id 15.20.3825.030; Tue, 9 Feb 2021
+ 01:20:13 +0000
+Subject: Re: [PATCH 2/3] mlx5_vdpa: fix feature negotiation across device reset
+To: Eli Cohen <elic@nvidia.com>
+References: <1612614564-4220-1-git-send-email-si-wei.liu@oracle.com>
+ <1612614564-4220-2-git-send-email-si-wei.liu@oracle.com>
+ <20210208053500.GA137517@mtl-vdi-166.wap.labs.mlnx>
+From: Si-Wei Liu <si-wei.liu@oracle.com>
+Organization: Oracle Corporation
+Message-ID: <061486d5-6235-731b-d036-f5d5e9fac22e@oracle.com>
+Date: Mon, 8 Feb 2021 17:20:11 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.1
+In-Reply-To: <20210208053500.GA137517@mtl-vdi-166.wap.labs.mlnx>
 Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-version: 11.5.1.3
-dlp-reaction: no-action
-x-originating-ip: [10.22.254.132]
+X-Originating-IP: [73.189.186.83]
+X-ClientProxiedBy: SJ0PR03CA0109.namprd03.prod.outlook.com
+ (2603:10b6:a03:333::24) To BYAPR10MB3287.namprd10.prod.outlook.com
+ (2603:10b6:a03:15c::11)
 MIME-Version: 1.0
-Cc: "Kim, Dongwon" <dongwon.kim@intel.com>,
- "christian.koenig@amd.com" <christian.koenig@amd.com>,
- "daniel.vetter@ffwll.ch" <daniel.vetter@ffwll.ch>,
- "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, "Vetter, 
- Daniel" <daniel.vetter@intel.com>,
- "sumit.semwal@linaro.org" <sumit.semwal@linaro.org>,
- "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from [192.168.0.19] (73.189.186.83) by
+ SJ0PR03CA0109.namprd03.prod.outlook.com (2603:10b6:a03:333::24) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3825.21 via Frontend
+ Transport; Tue, 9 Feb 2021 01:20:13 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 1b00704b-8c22-4b15-b07a-08d8cc98d9bc
+X-MS-TrafficTypeDiagnostic: BY5PR10MB4308:
+X-Microsoft-Antispam-PRVS: <BY5PR10MB43081CDA493582C8EFE934F5B18E9@BY5PR10MB4308.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: X9Ni+OhdzXOWwYPRfC3YUoeRJJelNsbAWY6JLDmHVDAnMGjZotnUXj9byouJIpV9GmMzAbrTkWkP02h4wj+WwCoMYv55j76iKKNUmGZpd8VHCOPAYd4aMx4Qvfm7CrBLrY+pBe6DVwYUR9lD0GfudzCsJJ6vKoDcccr+MPUDMABC3pgqfvt4y6YQY/p+xSgp5U0hzuMPONysmBl6W1h9+gVbQ80mnK60XwVuXvPbsdd272xUXLKB/ZkRgM92HOA0T2h84gYHry4aw6+9MCU2JDf12QsHEcWYtwC+2BjmeP7YYs3vTwBQbmrI25OT6ufz2h6ipxP+GUI+yPYnD4uMUnBvONG6qhdOtRay/Wk/TFZej23JsxN8SA0IJCWpjYi3uav3zeu78cAw/XDHxMbace9ctffSK7pGy8lKFEt//TPAqcM03M+b4oNxRUAq0KisNp1Ayn1J4AQqu9yUCr5VF64YELDa548zaT9ZCRDJ/2g7OEyQOgfDMnOTnbzevFLWnR4yYWkiJiSPcrzS2V3CFIQ0eu1hOrnt9bxX9+SDZ+6OSSzhS0T95K24ud6vgskBZ8CNveztWtW+mLcyb2OsKuG/VIQBOaFEzuoW2A1GRBk=
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(376002)(39860400002)(346002)(396003)(366004)(136003)(31696002)(6916009)(36756003)(53546011)(26005)(83380400001)(8676002)(5660300002)(478600001)(36916002)(16526019)(4326008)(2906002)(6486002)(66556008)(66946007)(8936002)(31686004)(66476007)(86362001)(316002)(956004)(2616005)(186003)(16576012)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?VGJCV08yUWdEM3lsK0VpWHNWUzEwM0IvNGpTajBoNEpiSXBHL2wxamFYTmg2?=
+ =?utf-8?B?Z3VvWnhmczlNWXRqQVNCY2pMWTN0NG9sUkhGTElvYzl6WWx4eG5XK2JtbTYr?=
+ =?utf-8?B?TUZrTU5qMmdOMWlZTE1MMDNOWGRTWC9MWFBkZEVXV3k4NXQyWU9mT25QTTRB?=
+ =?utf-8?B?U0dNUHVTVkEvNHI5RTE2YklORW9BK2owT1ZrTUFaenZNa0FldTVuNFRxOVE0?=
+ =?utf-8?B?ai9qa3R0SzVtVEowUUwvU0V6cXdIYkpQRWpZRk1SaVJXMWl0MUlKWE0xa3lK?=
+ =?utf-8?B?SmZucitPdEJzQk5YM3BCeDFwSFgyZGV1VEc1bE5rL1NiaDRCTUVZVUVtYm4w?=
+ =?utf-8?B?YzBsZXZXdk5XT0lFUmxxNlZrK2d1OU1EdnlyeDVKMkpkUTNLZ2t5Ui91cnFu?=
+ =?utf-8?B?dStXaFNHUjZoL1pGRmgyL0k1ZkxXazY0Q3p1N1ZuQi9VN3d3RDRFaVQrUmlC?=
+ =?utf-8?B?TUppcm1Db09XL0lKUG12bjBtLzZXc25zSDBZempoN1J6NHF1eS9hR2FoVFBU?=
+ =?utf-8?B?MDBHUjZSMVdHQ29CclIyOWRRM1dWYTdqU3I5NENhTnVSL1JqanpmS2ZzOHo5?=
+ =?utf-8?B?L2xmZFlYWU9mOUZRT2UxNHkzYkN4VUFUbFVFeHJsYi9uT2h2TXRac1R3RHJz?=
+ =?utf-8?B?R1RlNUhPZzN3ZUlaTGZxWk80bXE4NXhvRU1sWk5HV3ZRbnZ1cjQ1VXJqRkZm?=
+ =?utf-8?B?WVAyR3FjL1hUZytBQ3pWTzA2ODFhdnlWMlVRMkROcjBxNTdmakpmRGk2ZWRK?=
+ =?utf-8?B?SkY5TFlTd1kwbTFGblJ6Nlp2eENhYTZ6RHZId0xzdnZTYklmNDFWMUowV2Ny?=
+ =?utf-8?B?cXh1Q2hzS1BhQjI4SFh2bm5CMUEyelNrby9RMlBaUk03V2NGOWpPcDZYenhF?=
+ =?utf-8?B?UnM2dVEyRThRM1pVWE5yZ3RHZ2hlb25hUzZYa2tyM1Y3K2VkbEx4a3FQYlZW?=
+ =?utf-8?B?ZEJhcEpSbWpSOVZBNUoraDZ2c2IxajlaZjlsRDE4dENFemFFakx4T1BuZ1hT?=
+ =?utf-8?B?aG5TUFRGMUd1RXg2dE91RkpnRHJHT3AwaDVldWI2cU9wWEdieEdiTUVxQ3hX?=
+ =?utf-8?B?VkFMY0szWEJLMG9nWTg1RGp1cm1KR1cwbjNNdEptNGtNSTd2dlhKR09IdCtJ?=
+ =?utf-8?B?VjY2Mk92c2htOUkvQWJhTzM5UGVJbnljMS9ZMk1TRS9Icm9nT0tSbnhFVU9U?=
+ =?utf-8?B?K3d2WDFGdFVQckp1dHloWFA3SndPanNCY05uandYeTJ4MTZIZjAzaHNSK2N5?=
+ =?utf-8?B?WWhuOWl6MUZEengxc3AraEtlNnRkV1ZKcjF2Z29ZVXJOZjhsam41Ly9DenlU?=
+ =?utf-8?B?eC90M1luYVJHQ0MyZW1HT0k0ZVlxWGVHa216Nm1QRXExRW9PWEpPYnVRR2hQ?=
+ =?utf-8?B?N2pNWUxsWWpMME5kYzZSRGYxd1VpaDl1b1BVY1JMMFE3RDZyMnpaK0VRL1Av?=
+ =?utf-8?B?K09oRnI5Wi92ZGxSRlkvN1h2aUNQdXc0MW8xMnhBNERuTTc1cGZLc1NacVNS?=
+ =?utf-8?B?WEJBNW4xSjJwVDdMcUk5ejk3RTZpTys2NEVmaWVPaWVyUW5NaUJqU3ozei8y?=
+ =?utf-8?B?cmdzdDc0aGN4MkI5U3VBWmNsNnRrRzg5cjZBVnlKMVBZUTAvNnl0YVdMdTNz?=
+ =?utf-8?B?Tk9pYU0zVFd0UzEyOUgyWmlOWDMyemtIQkRTZGlzL25NRDYwRU5kdGRXWlFV?=
+ =?utf-8?B?TDZVakFrVUV6UC9qZ29TeDRVOHVaNEpJWlFvZzdBRnFmYTlpQnZ6UmRyTjhO?=
+ =?utf-8?Q?BlLpE3a+NEa7wm/Nvgl0nOwBG8DRsalA26ichXE?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1b00704b-8c22-4b15-b07a-08d8cc98d9bc
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Feb 2021 01:20:13.4011 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: RUnMoWTQ13C1SlyFuEf8Ripyg72+8B3FPzZI3ttKgZELOZ+8kd9E1G7GnKtacIypllyBBxiNcXeruc1hxnWH9A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR10MB4308
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9889
+ signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
+ spamscore=0 phishscore=0
+ mlxscore=0 malwarescore=0 mlxlogscore=999 bulkscore=0 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2102090001
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9889
+ signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0
+ malwarescore=0
+ priorityscore=1501 bulkscore=0 spamscore=0 impostorscore=0 mlxscore=0
+ suspectscore=0 mlxlogscore=999 adultscore=0 clxscore=1015
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102090002
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,138 +204,75 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Gerd, Daniel,
 
-> -----Original Message-----
-> From: Daniel Vetter <daniel@ffwll.ch>
-> Sent: Monday, February 08, 2021 1:39 AM
-> To: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: Daniel Vetter <daniel@ffwll.ch>; Kasireddy, Vivek <vivek.kasireddy@intel.com>;
-> virtualization@lists.linux-foundation.org; dri-devel@lists.freedesktop.org; Vetter, Daniel
-> <daniel.vetter@intel.com>; daniel.vetter@ffwll.ch; Kim, Dongwon
-> <dongwon.kim@intel.com>; sumit.semwal@linaro.org; christian.koenig@amd.com;
-> linux-media@vger.kernel.org
-> Subject: Re: [RFC v3 2/3] virtio: Introduce Vdmabuf driver
-> 
-> On Mon, Feb 08, 2021 at 08:57:48AM +0100, Gerd Hoffmann wrote:
-> >   Hi,
-> >
-> > > > +/* extract pages referenced by sgt */ static struct page
-> > > > +**extr_pgs(struct sg_table *sgt, int *nents, int *last_len)
-> > >
-> > > Nack, this doesn't work on dma-buf. And it'll blow up at runtime
-> > > when you enable the very recently merged CONFIG_DMABUF_DEBUG (would
-> > > be good to test with that, just to make sure).
-[Kasireddy, Vivek] Although, I have not tested it yet but it looks like this will
-throw a wrench in our solution as we use sg_next to iterate over all the struct page *
-and get their PFNs. I wonder if there is any other clean way to get the PFNs of all 
-the pages associated with a dmabuf.
 
-> >
-> > > Aside from this, for virtio/kvm use-cases we've already merged the
-> > > udmabuf driver. Does this not work for your usecase?
-> >
-> > udmabuf can be used on the host side to make a collection of guest
-> > pages available as host dmabuf.  It's part of the puzzle, but not a
-> > complete solution.
-> >
-> > As I understand it the intended workflow is this:
-> >
-> >   (1) guest gpu driver exports some object as dma-buf
-> >   (2) dma-buf is imported into this new driver.
-> >   (3) driver sends the pages to the host.
-> >   (4) hypervisor uses udmabuf to create a host dma-buf.
-> >   (5) host dma-buf is passed on.
-> >
-> > And step (3) is the problematic one as this will not work in case the
-> > dma-buf doesn't live in guest ram but in -- for example -- gpu device
-> > memory.
-> 
-> Yup, vram or similar special ram is the reason why an importer can't look at the pages
-> behind a dma-buf sg table.
-[Kasireddy, Vivek] To exclude such cases, would it not be OK to limit the scope 
-of this solution (Vdmabuf) to make it clear that the dma-buf has to live in Guest RAM?
-Or, are there any ways to pin the dma-buf pages in Guest RAM to make this
-solution work?
+On 2/7/2021 9:35 PM, Eli Cohen wrote:
+> On Sat, Feb 06, 2021 at 04:29:23AM -0800, Si-Wei Liu wrote:
+>> The mlx_features denotes the capability for which
+>> set of virtio features is supported by device. In
+>> principle, this field needs not be cleared during
+>> virtio device reset, as this capability is static
+>> and does not change across reset.
+>>
+>> In fact, the current code may have the assumption
+>> that mlx_features can be reloaded from firmware
+>> via the .get_features ops after device is reset
+>> (via the .set_status ops), which is unfortunately
+>> not true. The userspace VMM might save a copy
+>> of backend capable features and won't call into
+>> kernel again to get it on reset. This causes all
+>> virtio features getting disabled on newly created
+>> virtqs after device reset, while guest would hold
+>> mismatched view of available features. For e.g.,
+>> the guest may still assume tx checksum offload
+>> is available after reset and feature negotiation,
+>> causing frames with bogus (incomplete) checksum
+>> transmitted on the wire.
+>>
+>> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+>> ---
+>>   drivers/vdpa/mlx5/net/mlx5_vnet.c | 1 -
+>>   1 file changed, 1 deletion(-)
+>>
+>> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+>> index b8416c4..aa6f8cd 100644
+>> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+>> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+>> @@ -1788,7 +1788,6 @@ static void mlx5_vdpa_set_status(struct vdpa_device *vdev, u8 status)
+>>   		clear_virtqueues(ndev);
+>>   		mlx5_vdpa_destroy_mr(&ndev->mvdev);
+>>   		ndev->mvdev.status = 0;
+>> -		ndev->mvdev.mlx_features = 0;
+>>   		++mvdev->generation;
+>>   		return;
+>>   	}
+> Since we assume that device capabilities don't change, I think I would
+> get the features through a call done in mlx5v_probe after the netdev
+> object is created and change mlx5_vdpa_get_features() to just return
+> ndev->mvdev.mlx_features.
+Yep, it makes sense. Will post a revised patch. If vdpa tool allows 
+reconfiguration post probing, the code has to be reconciled then.
 
-> 
-> > Reversing the driver roles in the guest (virtio driver allocates pages
-> > and exports the dma-buf to the guest gpu driver) should work fine.
-> 
-> Yup, this needs to flow the other way round than in these patches.
-[Kasireddy, Vivek] That might work but I am afraid it means making invasive changes
-to the Guest GPU driver (i915 in our case) which we are trying to avoid to
-keep this solution more generic.
+>
+> Did you actually see this issue in action? If you did, can you share
+> with us how you trigerred this?
+Issue is indeed seen in action. The mismatched tx-checksum offload as 
+described in the commit message was one of such examples. You would need 
+a guest reboot though (triggering device reset via the .set_status ops 
+and zero'ed mlx_features was loaded to deduce new actual_features for 
+creating the h/w virtq object) for repro.
 
-> 
-> > Which btw is something you can do today with virtio-gpu.
-> > Maybe it makes sense to have the option to run virtio-gpu in
-> > render-only mode for that use case.
-> 
-> Yeah that sounds like a useful addition.
-> 
-> Also, the same flow should work for real gpus passed through as pci devices. What we
-> need is some way to surface the dma-buf on the guest side, which I think doesn't exist yet
-> stand-alone. But this role could be fulfilled by virtio-gpu in render-only mode I think. And
-> (assuming I've understood the recent discussions around virtio dma-buf sharing using
-> virtio ids) this would give you some neat zero-copy tricks for free if you share multiple
-> devices.
-> 
-> Also if you really want seamless buffer sharing between devices that are passed to the
-> guest and devices on the host side (like displays I guess?
-> or maybe video encode if this is for cloug gaming?), then using virtio-gpu in render mode
-> should also allow you to pass the dma_fence back&forth.
-> Which we'll need too, not just the dma-buf.
-> 
-> So at a first guess I'd say "render-only virtio-gpu mode" sounds like something rather
-> useful. But I might be totally off here.
-[Kasireddy, Vivek] Let me present more details about the use-case we are trying to solve;
-Sorry for the crude graphic below:
+-Siwei
+>
+>> -- 
+>> 1.8.3.1
+>>
 
-Guest:						Host:
-+-----------+					+----------------+
-|   Weston  |					|    Qemu UI	|
-|(Headless)|					|		|
-+-----------+					+-^--------------+
-         |  (1. Export prime fd	  (3.Share UUID |	       |  (4. Qemu calls Import using this UUID and a gets a new Dmabuf
-         |   of scanout buffer)	     with Qemu)   |	       |   fd that is used with EGL_LINUX_DMA_BUF_EXT)
-+-----v-------------+				+------------v-----+
-|Virtio-Vdmabuf  |------------------------------->|Vhost-Vdmabuf|
-|                            | (2.Generate & share UUID|	                |
-+--------------------+ and PFNs for this buffer) +------------------+
-
-Here is a link to the Weston Headless backend that we tested:
-https://github.com/vivekkreddy/Intel-Distribution-of-Weston/blob/vdmabuf/libweston/backend-headless/headless.c#L287
-And, here is the link to the Qemu part:
-https://lists.nongnu.org/archive/html/qemu-devel/2021-02/msg02976.html
-
-IIUC, Virtio GPU is used to present a virtual GPU to the Guest and all the rendering 
-commands are captured and forwarded to the Host GPU via Virtio. However, in our
-use-case, we are passthrough'ing a real GPU (claimed by i915 running in the Guest)
-that is Headless; hence, we need to use Weston with the headless backend. The 
-rendering in the Guest is accomplished via the unmodified native stack that includes 
-Iris and i915. Therefore, it would not be efficient to use virtio-gpu for rendering or
-for any other purpose in the Guest given that we could use the native stack which
-is definitely faster. 
-
-We really want to make this solution GPU driver (Host and Guest) agnostic and for
-that reason it would need to rely on Dmabuf interfaces/APIs and preferrably avoid
-making modifications to the native DRM drivers.
-
-Thanks,
-Vivek
-
-> 
-> Cheers, Daniel
-> --
-> Daniel Vetter
-> Software Engineer, Intel Corporation
-> http://blog.ffwll.ch
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
