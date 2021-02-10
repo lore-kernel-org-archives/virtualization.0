@@ -2,68 +2,67 @@ Return-Path: <SRS0=QvMg=HM=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-21.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C5D7C433E0
-	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 18:35:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D978EC433E6
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 18:35:11 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2B06964E0B
-	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 18:35:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2B06964E0B
+	by mail.kernel.org (Postfix) with ESMTPS id 8B48064DD4
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 18:35:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8B48064DD4
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=nvidia.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id EB23B86EE2;
-	Wed, 10 Feb 2021 18:35:09 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 6B61B86ED8;
+	Wed, 10 Feb 2021 18:35:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JvC432CLpa3y; Wed, 10 Feb 2021 18:35:06 +0000 (UTC)
+	with ESMTP id nULlHXFT6ffH; Wed, 10 Feb 2021 18:35:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id E199686EBA;
+	by whitealder.osuosl.org (Postfix) with ESMTP id B929286E0D;
 	Wed, 10 Feb 2021 18:35:05 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B93B5C013A;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 70A40C1E6F;
 	Wed, 10 Feb 2021 18:35:05 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 91947C013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 69DDDC013A
  for <virtualization@lists.linux-foundation.org>;
  Wed, 10 Feb 2021 18:35:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 80C278737C
+ by hemlock.osuosl.org (Postfix) with ESMTP id 5896587385
  for <virtualization@lists.linux-foundation.org>;
  Wed, 10 Feb 2021 18:35:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sg82qGMIeGbC
+ with ESMTP id HoHk+nrgckvi
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 18:35:02 +0000 (UTC)
+ Wed, 10 Feb 2021 18:35:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from hqnvemgate24.nvidia.com (hqnvemgate24.nvidia.com
- [216.228.121.143])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 674958737E
+Received: from hqnvemgate26.nvidia.com (hqnvemgate26.nvidia.com
+ [216.228.121.65])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 652258737C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 18:35:02 +0000 (UTC)
+ Wed, 10 Feb 2021 18:35:00 +0000 (UTC)
 Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by
- hqnvemgate24.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
- id <B602427560000>; Wed, 10 Feb 2021 10:35:02 -0800
+ hqnvemgate26.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+ id <B602427530001>; Wed, 10 Feb 2021 10:34:59 -0800
 Received: from sw-mtx-036.mtx.labs.mlnx (172.20.145.6) by HQMAIL107.nvidia.com
  (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3;
- Wed, 10 Feb 2021 18:35:01 +0000
+ Wed, 10 Feb 2021 18:34:59 +0000
 From: Parav Pandit <parav@nvidia.com>
 To: <virtualization@lists.linux-foundation.org>, <netdev@vger.kernel.org>,
  <dsahern@gmail.com>, <stephen@networkplumber.org>, <mst@redhat.com>,
  <jasowang@redhat.com>
-Subject: [PATCH iproute2-next v5 4/5] utils: Add helper to map string to
- unsigned int
-Date: Wed, 10 Feb 2021 20:34:44 +0200
-Message-ID: <20210210183445.1009795-5-parav@nvidia.com>
+Subject: [PATCH iproute2-next v5 1/5] Add kernel headers
+Date: Wed, 10 Feb 2021 20:34:41 +0200
+Message-ID: <20210210183445.1009795-2-parav@nvidia.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210210183445.1009795-1-parav@nvidia.com>
 References: <20210210183445.1009795-1-parav@nvidia.com>
@@ -72,16 +71,16 @@ X-Originating-IP: [172.20.145.6]
 X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
  HQMAIL107.nvidia.com (172.20.187.13)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1612982102; bh=wb+dkpPaTiWpTz3BlBWkumEuJWVmUA/mgN3gQd43q88=;
+ t=1612982100; bh=nWIJ6P32mwLsw6VZK8WXUs+f1FUPDbhQ34u3t99XSpk=;
  h=From:To:CC:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
  References:MIME-Version:Content-Transfer-Encoding:Content-Type:
  X-Originating-IP:X-ClientProxiedBy;
- b=iH7uuOwp92t21QGALRaCPgn4B9YX9YJY4k8FX1ddXR5pLn4GCUaBKPixY16c3jc2A
- Ivt4cW7UB9B+vbQVEhF25+a97OUzTxVFUXTcXCJWN77xI3qcSQ2797iH8MBjpB2C+Z
- 0Wlj0LUOpOmNE47TMRBeTKbf3hK9je4MINy0PAQCE0PKgeRxjGw2VvqwX7zNgK0XWQ
- hulcfYbLtzU/G231hw+XCi7KMErBQseXCdCSh858v+CcaPK5SSt3dmQ7FnhJ4P6g33
- IM7x7QvcHPzi1VuW8oroZHTs0TWoEyHIqhpUSKogqFUJnw/fFei73ixGYdsxsrr2V4
- Lc48+wM5rdCrQ==
+ b=RDrHHUXn3n3kfXvHYMFQZRvnu9uMypqB8CxlakuSwrJbPtCr04LVhpIYTNxtaauF7
+ ydm5EzPLqg+058WF+VvtSpbrkpr6LbrsmVXEQp7hBn1wzSB66UezM4DNTMGqtfUCZQ
+ 4QlQhsI6ll8Np6PxUkC7/0fW1IvgxXo9QLtlkssrVtODc5EQN0ef8b9SeU5LQl0Iv4
+ 3AKcGEvcG1cga31OxMQRIdf7KvDVE3DyrTGso+405+Pxe96As60m2uQhKod3ZSVVzc
+ pXVql78NxUHeJZ7Z/fgz6B1HfELAnVNDZiEMdoBfKiHzGjDeZEuXM0BAmHSMXkquUf
+ YUIlOQXSuMoGQ==
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,74 +97,136 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-In subsequent patch need to map a string to a unsigned int.
-Hence, add an API to map a string to unsigned int.
+Add kernel headers to commit from kernel tree [1].
+  6acba4951632 ("vdpa_sim_net: Add support for user supported devices")
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git
 
 Signed-off-by: Parav Pandit <parav@nvidia.com>
 ---
 changelog:
-v2->v3:
- - new patch to reuse string to unsigned int mapping
+v4->v5:
+ - avoided UAPI prefix in the vdpa.h header file
+ - updated commit id to commit of linux-next tree
+v3->v4:
+ - relocated header files to vdpa/include/uapi/linux
 ---
- include/utils.h |  4 +++-
- lib/utils.c     | 17 +++++++++++++++--
- 2 files changed, 18 insertions(+), 3 deletions(-)
+ vdpa/include/uapi/linux/vdpa.h       | 40 +++++++++++++++++++
+ vdpa/include/uapi/linux/virtio_ids.h | 58 ++++++++++++++++++++++++++++
+ 2 files changed, 98 insertions(+)
+ create mode 100644 vdpa/include/uapi/linux/vdpa.h
+ create mode 100644 vdpa/include/uapi/linux/virtio_ids.h
 
-diff --git a/include/utils.h b/include/utils.h
-index 9b76c92a..b29c3798 100644
---- a/include/utils.h
-+++ b/include/utils.h
-@@ -342,10 +342,12 @@ int parse_mapping(int *argcp, char ***argvp, bool allow_all,
- 
- struct str_num_map {
- 	const char *str;
--	int num;
-+	unsigned int num;
- };
- 
- int str_map_lookup_str(const struct str_num_map *map, const char *needle);
-+const char *str_map_lookup_uint(const struct str_num_map *map,
-+				unsigned int val);
- const char *str_map_lookup_u16(const struct str_num_map *map, uint16_t val);
- const char *str_map_lookup_u8(const struct str_num_map *map, uint8_t val);
- 
-diff --git a/lib/utils.c b/lib/utils.c
-index cc6d0e34..633f6359 100644
---- a/lib/utils.c
-+++ b/lib/utils.c
-@@ -1953,9 +1953,22 @@ int str_map_lookup_str(const struct str_num_map *map, const char *needle)
- 	return -EINVAL;
- }
- 
-+const char *str_map_lookup_uint(const struct str_num_map *map, unsigned int val)
-+{
-+	unsigned int num = val;
+diff --git a/vdpa/include/uapi/linux/vdpa.h b/vdpa/include/uapi/linux/vdpa.h
+new file mode 100644
+index 00000000..37ae26b6
+--- /dev/null
++++ b/vdpa/include/uapi/linux/vdpa.h
+@@ -0,0 +1,40 @@
++/* SPDX-License-Identifier: GPL-2.0+ WITH Linux-syscall-note */
++/*
++ * vdpa device management interface
++ * Copyright (c) 2020 Mellanox Technologies Ltd. All rights reserved.
++ */
 +
-+	while (map && map->str) {
-+		if (num == map->num)
-+			return map->str;
++#ifndef _LINUX_VDPA_H_
++#define _LINUX_VDPA_H_
 +
-+		map++;
-+	}
-+	return NULL;
-+}
++#define VDPA_GENL_NAME "vdpa"
++#define VDPA_GENL_VERSION 0x1
 +
- const char *str_map_lookup_u16(const struct str_num_map *map, uint16_t val)
- {
--	int num = val;
-+	unsigned int num = val;
- 
- 	while (map && map->str) {
- 		if (num == map->num)
-@@ -1968,7 +1981,7 @@ const char *str_map_lookup_u16(const struct str_num_map *map, uint16_t val)
- 
- const char *str_map_lookup_u8(const struct str_num_map *map, uint8_t val)
- {
--	int num = val;
-+	unsigned int num = val;
- 
- 	while (map && map->str) {
- 		if (num == map->num)
++enum vdpa_command {
++	VDPA_CMD_UNSPEC,
++	VDPA_CMD_MGMTDEV_NEW,
++	VDPA_CMD_MGMTDEV_GET,		/* can dump */
++	VDPA_CMD_DEV_NEW,
++	VDPA_CMD_DEV_DEL,
++	VDPA_CMD_DEV_GET,		/* can dump */
++};
++
++enum vdpa_attr {
++	VDPA_ATTR_UNSPEC,
++
++	/* bus name (optional) + dev name together make the parent device handle */
++	VDPA_ATTR_MGMTDEV_BUS_NAME,		/* string */
++	VDPA_ATTR_MGMTDEV_DEV_NAME,		/* string */
++	VDPA_ATTR_MGMTDEV_SUPPORTED_CLASSES,	/* u64 */
++
++	VDPA_ATTR_DEV_NAME,			/* string */
++	VDPA_ATTR_DEV_ID,			/* u32 */
++	VDPA_ATTR_DEV_VENDOR_ID,		/* u32 */
++	VDPA_ATTR_DEV_MAX_VQS,			/* u32 */
++	VDPA_ATTR_DEV_MAX_VQ_SIZE,		/* u16 */
++
++	/* new attributes must be added above here */
++	VDPA_ATTR_MAX,
++};
++
++#endif
+diff --git a/vdpa/include/uapi/linux/virtio_ids.h b/vdpa/include/uapi/linux/virtio_ids.h
+new file mode 100644
+index 00000000..bc1c0621
+--- /dev/null
++++ b/vdpa/include/uapi/linux/virtio_ids.h
+@@ -0,0 +1,58 @@
++#ifndef _LINUX_VIRTIO_IDS_H
++#define _LINUX_VIRTIO_IDS_H
++/*
++ * Virtio IDs
++ *
++ * This header is BSD licensed so anyone can use the definitions to implement
++ * compatible drivers/servers.
++ *
++ * Redistribution and use in source and binary forms, with or without
++ * modification, are permitted provided that the following conditions
++ * are met:
++ * 1. Redistributions of source code must retain the above copyright
++ *    notice, this list of conditions and the following disclaimer.
++ * 2. Redistributions in binary form must reproduce the above copyright
++ *    notice, this list of conditions and the following disclaimer in the
++ *    documentation and/or other materials provided with the distribution.
++ * 3. Neither the name of IBM nor the names of its contributors
++ *    may be used to endorse or promote products derived from this software
++ *    without specific prior written permission.
++ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS ``AS IS'' AND
++ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
++ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
++ * ARE DISCLAIMED.  IN NO EVENT SHALL IBM OR CONTRIBUTORS BE LIABLE
++ * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
++ * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
++ * OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
++ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
++ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
++ * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
++ * SUCH DAMAGE. */
++
++#define VIRTIO_ID_NET			1 /* virtio net */
++#define VIRTIO_ID_BLOCK			2 /* virtio block */
++#define VIRTIO_ID_CONSOLE		3 /* virtio console */
++#define VIRTIO_ID_RNG			4 /* virtio rng */
++#define VIRTIO_ID_BALLOON		5 /* virtio balloon */
++#define VIRTIO_ID_IOMEM			6 /* virtio ioMemory */
++#define VIRTIO_ID_RPMSG			7 /* virtio remote processor messaging */
++#define VIRTIO_ID_SCSI			8 /* virtio scsi */
++#define VIRTIO_ID_9P			9 /* 9p virtio console */
++#define VIRTIO_ID_MAC80211_WLAN		10 /* virtio WLAN MAC */
++#define VIRTIO_ID_RPROC_SERIAL		11 /* virtio remoteproc serial link */
++#define VIRTIO_ID_CAIF			12 /* Virtio caif */
++#define VIRTIO_ID_MEMORY_BALLOON	13 /* virtio memory balloon */
++#define VIRTIO_ID_GPU			16 /* virtio GPU */
++#define VIRTIO_ID_CLOCK			17 /* virtio clock/timer */
++#define VIRTIO_ID_INPUT			18 /* virtio input */
++#define VIRTIO_ID_VSOCK			19 /* virtio vsock transport */
++#define VIRTIO_ID_CRYPTO		20 /* virtio crypto */
++#define VIRTIO_ID_SIGNAL_DIST		21 /* virtio signal distribution device */
++#define VIRTIO_ID_PSTORE		22 /* virtio pstore device */
++#define VIRTIO_ID_IOMMU			23 /* virtio IOMMU */
++#define VIRTIO_ID_MEM			24 /* virtio mem */
++#define VIRTIO_ID_FS			26 /* virtio filesystem */
++#define VIRTIO_ID_PMEM			27 /* virtio pmem */
++#define VIRTIO_ID_MAC80211_HWSIM	29 /* virtio mac80211-hwsim */
++
++#endif /* _LINUX_VIRTIO_IDS_H */
 -- 
 2.26.2
 
