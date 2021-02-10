@@ -7,59 +7,60 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 528ECC433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F91BC433DB
 	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 10:22:06 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CFB8D61490
+	by mail.kernel.org (Postfix) with ESMTPS id 8E19E64E32
 	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 10:22:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CFB8D61490
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8E19E64E32
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 5D8488726D;
-	Wed, 10 Feb 2021 10:22:05 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id A0A2885FA3;
+	Wed, 10 Feb 2021 10:22:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 11o-kKVtOfux; Wed, 10 Feb 2021 10:22:04 +0000 (UTC)
+	with ESMTP id dE1H8bL5ga8B; Wed, 10 Feb 2021 10:22:04 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id B1AB987278;
-	Wed, 10 Feb 2021 10:22:04 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 8C0A585BD1;
+	Wed, 10 Feb 2021 10:22:03 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 96849C1DA9;
-	Wed, 10 Feb 2021 10:22:04 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4DE4EC1E6F;
+	Wed, 10 Feb 2021 10:22:03 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id ABF48C013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C3258C013A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 10:22:02 +0000 (UTC)
+ Wed, 10 Feb 2021 10:22:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 9A4A88554A
+ by fraxinus.osuosl.org (Postfix) with ESMTP id B1F9D8554A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 10:22:02 +0000 (UTC)
+ Wed, 10 Feb 2021 10:22:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pL5INX_wzEgh
+ with ESMTP id tp4MsH_AkIMC
  for <virtualization@lists.linux-foundation.org>;
  Wed, 10 Feb 2021 10:22:00 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 3B07285569
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 1253A85550
  for <virtualization@lists.linux-foundation.org>;
  Wed, 10 Feb 2021 10:22:00 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549adcf6.dip0.t-ipconnect.de
  [84.154.220.246])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 1FBD846E;
- Wed, 10 Feb 2021 11:21:57 +0100 (CET)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 720283A7;
+ Wed, 10 Feb 2021 11:21:55 +0100 (CET)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH 4/7] x86/boot/compressed/64: Add 32-bit boot #VC handler
-Date: Wed, 10 Feb 2021 11:21:32 +0100
-Message-Id: <20210210102135.30667-5-joro@8bytes.org>
+Subject: [PATCH 1/7] x86/boot/compressed/64: Cleanup exception handling before
+ booting kernel
+Date: Wed, 10 Feb 2021 11:21:29 +0100
+Message-Id: <20210210102135.30667-2-joro@8bytes.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210210102135.30667-1-joro@8bytes.org>
 References: <20210210102135.30667-1-joro@8bytes.org>
@@ -95,131 +96,74 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Add a #VC exception handler which is used when the kernel still executes
-in protected mode. This boot-path already uses CPUID, which will cause #VC
-exceptions in an SEV-ES guest.
+Disable the exception handling before booting the kernel to make sure
+any exceptions that happen during early kernel boot are not directed to
+the pre-decompression code.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/head_64.S     |  6 ++
- arch/x86/boot/compressed/mem_encrypt.S | 77 +++++++++++++++++++++++++-
- 2 files changed, 82 insertions(+), 1 deletion(-)
+ arch/x86/boot/compressed/idt_64.c | 14 ++++++++++++++
+ arch/x86/boot/compressed/misc.c   |  7 ++-----
+ arch/x86/boot/compressed/misc.h   |  6 ++++++
+ 3 files changed, 22 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
-index 8deeec78cdb4..eadaa0a082b8 100644
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -34,6 +34,7 @@
- #include <asm/asm-offsets.h>
- #include <asm/bootparam.h>
- #include <asm/desc_defs.h>
-+#include <asm/trapnr.h>
- #include "pgtable.h"
+diff --git a/arch/x86/boot/compressed/idt_64.c b/arch/x86/boot/compressed/idt_64.c
+index 804a502ee0d2..9b93567d663a 100644
+--- a/arch/x86/boot/compressed/idt_64.c
++++ b/arch/x86/boot/compressed/idt_64.c
+@@ -52,3 +52,17 @@ void load_stage2_idt(void)
  
- /*
-@@ -856,6 +857,11 @@ SYM_FUNC_START(startup32_set_idt_entry)
- SYM_FUNC_END(startup32_set_idt_entry)
+ 	load_boot_idt(&boot_idt_desc);
+ }
++
++void cleanup_exception_handling(void)
++{
++	/*
++	 * Flush GHCB from cache and map it encrypted again when running as
++	 * SEV-ES guest.
++	 */
++	sev_es_shutdown_ghcb();
++
++	/* Set a null-idt, disabling #PF and #VC handling */
++	boot_idt_desc.size    = 0;
++	boot_idt_desc.address = 0;
++	load_boot_idt(&boot_idt_desc);
++}
+diff --git a/arch/x86/boot/compressed/misc.c b/arch/x86/boot/compressed/misc.c
+index 267e7f93050e..cc9fd0e8766a 100644
+--- a/arch/x86/boot/compressed/misc.c
++++ b/arch/x86/boot/compressed/misc.c
+@@ -443,11 +443,8 @@ asmlinkage __visible void *extract_kernel(void *rmode, memptr heap,
+ 	handle_relocations(output, output_len, virt_addr);
+ 	debug_putstr("done.\nBooting the kernel.\n");
  
- SYM_FUNC_START(startup32_load_idt)
-+	/* #VC handler */
-+	leal    rva(startup32_vc_handler)(%ebp), %eax
-+	movl    $X86_TRAP_VC, %edx
-+	call    startup32_set_idt_entry
-+
- 	/* Load IDT */
- 	leal	rva(boot32_idt)(%ebp), %eax
- 	movl	%eax, rva(boot32_idt_desc+2)(%ebp)
-diff --git a/arch/x86/boot/compressed/mem_encrypt.S b/arch/x86/boot/compressed/mem_encrypt.S
-index aa561795efd1..350ecb56c7e4 100644
---- a/arch/x86/boot/compressed/mem_encrypt.S
-+++ b/arch/x86/boot/compressed/mem_encrypt.S
-@@ -67,10 +67,85 @@ SYM_FUNC_START(get_sev_encryption_bit)
- 	ret
- SYM_FUNC_END(get_sev_encryption_bit)
+-	/*
+-	 * Flush GHCB from cache and map it encrypted again when running as
+-	 * SEV-ES guest.
+-	 */
+-	sev_es_shutdown_ghcb();
++	/* Disable exception handling before booting the kernel */
++	cleanup_exception_handling();
  
-+/*
-+ * Emit code to request an CPUID register from the Hypervisor using
-+ * the MSR-based protocol.
-+ *
-+ * fn: The register containing the CPUID function
-+ * reg: Register requested
-+ *	1 = EAX
-+ *	2 = EBX
-+ *	3 = ECX
-+ *	4 = EDX
-+ *
-+ * Result is in EDX. Jumps to .Lfail on error
-+ */
-+.macro	SEV_ES_REQ_CPUID fn:req reg:req
-+	/* Request CPUID[%ebx].EAX */
-+	movl	$\reg, %eax
-+	shll	$30, %eax
-+	orl	$0x00000004, %eax
-+	movl	\fn, %edx
-+	movl	$MSR_AMD64_SEV_ES_GHCB, %ecx
-+	wrmsr
-+	rep; vmmcall
-+	rdmsr
-+	/* Check response code */
-+	andl	$0xfff, %eax
-+	cmpl	$5, %eax
-+	jne	.Lfail
-+	/* All good */
-+.endm
-+
-+SYM_CODE_START(startup32_vc_handler)
-+	pushl	%eax
-+	pushl	%ebx
-+	pushl	%ecx
-+	pushl	%edx
-+
-+	/* Keep CPUID function in %ebx */
-+	movl	%eax, %ebx
-+
-+	/* Check if error-code == SVM_EXIT_CPUID */
-+	cmpl	$0x72, 16(%esp)
-+	jne	.Lfail
-+
-+	/* Request CPUID[%ebx].EAX */
-+	SEV_ES_REQ_CPUID fn=%ebx reg=0
-+	movl	%edx, 12(%esp)
-+
-+	/* Request CPUID[%ebx].EBX */
-+	SEV_ES_REQ_CPUID fn=%ebx reg=1
-+	movl	%edx, 8(%esp)
-+
-+	/* Request CPUID[%ebx].ECX */
-+	SEV_ES_REQ_CPUID fn=%ebx reg=2
-+	movl	%edx, 4(%esp)
-+
-+	/* Request CPUID[%ebx].EDX */
-+	SEV_ES_REQ_CPUID fn=%ebx reg=3
-+	movl	%edx, (%esp)
-+
-+	popl	%edx
-+	popl	%ecx
-+	popl	%ebx
-+	popl	%eax
-+
-+	/* Remove error code */
-+	addl	$4, %esp
-+
-+	/* Jump over CPUID instruction */
-+	addl	$2, (%esp)
-+
-+	iret
-+.Lfail:
-+	hlt
-+	jmp .Lfail
-+SYM_CODE_END(startup32_vc_handler)
-+
- 	.code64
+ 	return output;
+ }
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index 901ea5ebec22..e5612f035498 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -155,6 +155,12 @@ extern pteval_t __default_kernel_pte_mask;
+ extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
+ extern struct desc_ptr boot_idt_desc;
  
- #include "../../kernel/sev_verify_cbit.S"
--
- SYM_FUNC_START(set_sev_encryption_mask)
- #ifdef CONFIG_AMD_MEM_ENCRYPT
- 	push	%rbp
++#ifdef CONFIG_X86_64
++void cleanup_exception_handling(void);
++#else
++static inline void cleanup_exception_handling(void) { }
++#endif
++
+ /* IDT Entry Points */
+ void boot_page_fault(void);
+ void boot_stage1_vc(void);
 -- 
 2.30.0
 
