@@ -2,95 +2,112 @@ Return-Path: <SRS0=QvMg=HM=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84E10C433DB
-	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 04:44:20 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A84B2C433DB
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 04:47:49 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1EA5364E25
-	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 04:44:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1EA5364E25
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 3F44E60231
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 04:47:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3F44E60231
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id E1CD386788;
-	Wed, 10 Feb 2021 04:44:19 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3Ilmq8yvMlDE; Wed, 10 Feb 2021 04:44:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 2833F86730;
-	Wed, 10 Feb 2021 04:44:18 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E842FC0174;
-	Wed, 10 Feb 2021 04:44:17 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 08911C013A
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 04:44:17 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id D55676F558
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 04:44:16 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id DE6DE6F634
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 04:47:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NtRmu4Qe5hK4
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 04:44:16 +0000 (UTC)
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id IM6t9ILit1ED for <virtualization@archiver.kernel.org>;
+	Wed, 10 Feb 2021 04:47:46 +0000 (UTC)
 Received: by smtp3.osuosl.org (Postfix, from userid 1001)
- id 173516F57E; Wed, 10 Feb 2021 04:44:16 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 85AEB6F558
+	id 5B18D6F5B2; Wed, 10 Feb 2021 04:47:46 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTP id CE61A6F558;
+	Wed, 10 Feb 2021 04:47:40 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A09D3C0174;
+	Wed, 10 Feb 2021 04:47:40 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8D348C013A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 04:44:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1612932253;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=34e+K3bIAHZ2pffqYYmkrbH3MIGZjfK+/+CoC5oZ8Qk=;
- b=fRBhF7Po+YdhyXBr+GvC4Amf5e12LyzUfqiDBTmQPyzgqtT+t6xa2F/TxgSELgCB973lXx
- 8UEF1+PDELMi1SKoGRS1gPIL+DISUQFkxr0g1lZTON2YcunWi9DGsQjBZQDNbo0D4hxoxN
- Li67zwyxbLfZ4H0crvlcnP2QAZTSF84=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-397-moaQdiKINfSIGndpbArQsg-1; Tue, 09 Feb 2021 23:44:11 -0500
-X-MC-Unique: moaQdiKINfSIGndpbArQsg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
- [10.5.11.22])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3AA941005501;
- Wed, 10 Feb 2021 04:44:10 +0000 (UTC)
-Received: from [10.72.12.223] (ovpn-12-223.pek2.redhat.com [10.72.12.223])
- by smtp.corp.redhat.com (Postfix) with ESMTP id CB9DD10013D7;
- Wed, 10 Feb 2021 04:44:04 +0000 (UTC)
-Subject: Re: [PATCH V3 16/19] virtio-pci: introduce modern device module
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20210104065503.199631-1-jasowang@redhat.com>
- <20210104065503.199631-17-jasowang@redhat.com>
- <20210209091916-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <721bf1dc-0b06-7f2a-9685-064a7c281366@redhat.com>
-Date: Wed, 10 Feb 2021 12:44:03 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <20210209091916-mutt-send-email-mst@kernel.org>
+ Wed, 10 Feb 2021 04:47:39 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 73CBF85EA5
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Feb 2021 04:47:39 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Q5otwdax7R1e
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Feb 2021 04:47:38 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 2677685E98
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Feb 2021 04:47:38 +0000 (UTC)
+IronPort-SDR: NI4KM1gxq050hbdVJv+HA44qiT1Phel5jiJtn4hv9LdgamJJ23Gr11SU+3itTU1JbB57yJqbzF
+ Wr62Uq0I1E/Q==
+X-IronPort-AV: E=McAfee;i="6000,8403,9890"; a="181237918"
+X-IronPort-AV: E=Sophos;i="5.81,167,1610438400"; d="scan'208";a="181237918"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+ by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 09 Feb 2021 20:47:37 -0800
+IronPort-SDR: 8EC8R07VArU+UoK5+habZ6og9xLT3HySHjD+4ostF+kznOsPB6hf5vjVM/Qp88JpYTG6GYi2Dz
+ +8fORKQQ+f4g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.81,167,1610438400"; d="scan'208";a="361167002"
+Received: from orsmsx606.amr.corp.intel.com ([10.22.229.19])
+ by fmsmga007.fm.intel.com with ESMTP; 09 Feb 2021 20:47:37 -0800
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX606.amr.corp.intel.com (10.22.229.19) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2106.2; Tue, 9 Feb 2021 20:47:37 -0800
+Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
+ ORSMSX610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2106.2; Tue, 9 Feb 2021 20:47:36 -0800
+Received: from orsmsx611.amr.corp.intel.com ([10.22.229.24]) by
+ ORSMSX611.amr.corp.intel.com ([10.22.229.24]) with mapi id 15.01.2106.002;
+ Tue, 9 Feb 2021 20:47:36 -0800
+From: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Subject: RE: [RFC v3 2/3] virtio: Introduce Vdmabuf driver
+Thread-Topic: [RFC v3 2/3] virtio: Introduce Vdmabuf driver
+Thread-Index: AQHW+gCTpvRVWdGfdEuO7KEMCe95EKpKQvKAgAQvVwCAABxAAIAAXFfggAEm5oCAAH4bcA==
+Date: Wed, 10 Feb 2021 04:47:36 +0000
+Message-ID: <2ef01dc941684a15a4f30e6239ae42df@intel.com>
+References: <20210203073517.1908882-1-vivek.kasireddy@intel.com>
+ <20210203073517.1908882-3-vivek.kasireddy@intel.com>
+ <YB1sRx1GrT8rATEg@phenom.ffwll.local>
+ <20210208075748.xejgcb4il2egow2u@sirius.home.kraxel.org>
+ <YCEGrrT0/eqqz/ok@phenom.ffwll.local>
+ <8ba4ad64be3546bda9a2ed2129bf98e4@intel.com>
+ <20210209084453.5oqepy7zdwtxgrpu@sirius.home.kraxel.org>
+In-Reply-To: <20210209084453.5oqepy7zdwtxgrpu@sirius.home.kraxel.org>
+Accept-Language: en-US
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-Cc: shahafs@mellanox.com, lulu@redhat.com, rdunlap@infradead.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-version: 11.5.1.3
+dlp-reaction: no-action
+x-originating-ip: [10.1.200.100]
+MIME-Version: 1.0
+Cc: "Kim, Dongwon" <dongwon.kim@intel.com>,
+ "christian.koenig@amd.com" <christian.koenig@amd.com>,
+ "daniel.vetter@ffwll.ch" <daniel.vetter@ffwll.ch>,
+ "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>,
+ "Vetter, Daniel" <daniel.vetter@intel.com>,
+ "sumit.semwal@linaro.org" <sumit.semwal@linaro.org>,
+ "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,47 +119,74 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Ck9uIDIwMjEvMi85IOS4i+WNiDEwOjIwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
-TW9uLCBKYW4gMDQsIDIwMjEgYXQgMDI6NTU6MDBQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
-Pj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPj4gLS0t
-Cj4+ICAgZHJpdmVycy92aXJ0aW8vS2NvbmZpZyAgICAgICAgICAgICAgICAgfCAgMTAgKy0KPj4g
-ICBkcml2ZXJzL3ZpcnRpby9NYWtlZmlsZSAgICAgICAgICAgICAgICB8ICAgMSArCj4+ICAgZHJp
-dmVycy92aXJ0aW8vdmlydGlvX3BjaV9jb21tb24uaCAgICAgfCAgMjcgKy0KPj4gICBkcml2ZXJz
-L3ZpcnRpby92aXJ0aW9fcGNpX21vZGVybi5jICAgICB8IDYxNyAtLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tCj4+ICAgZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9tb2Rlcm5fZGV2LmMgfCA1OTkg
-KysrKysrKysrKysrKysrKysrKysrKysrCj4+ICAgaW5jbHVkZS9saW51eC92aXJ0aW9fcGNpX21v
-ZGVybi5oICAgICAgfCAxMTEgKysrKysKPj4gICA2IGZpbGVzIGNoYW5nZWQsIDcyMSBpbnNlcnRp
-b25zKCspLCA2NDQgZGVsZXRpb25zKC0pCj4+ICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGRyaXZlcnMv
-dmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuX2Rldi5jCj4+ICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGlu
-Y2x1ZGUvbGludXgvdmlydGlvX3BjaV9tb2Rlcm4uaAo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVy
-cy92aXJ0aW8vS2NvbmZpZyBiL2RyaXZlcnMvdmlydGlvL0tjb25maWcKPj4gaW5kZXggN2I0MTEz
-MGQzZjM1Li42YjliODFmNGI4YzIgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZlcnMvdmlydGlvL0tjb25m
-aWcKPj4gKysrIGIvZHJpdmVycy92aXJ0aW8vS2NvbmZpZwo+PiBAQCAtMTIsNiArMTIsMTQgQEAg
-Y29uZmlnIEFSQ0hfSEFTX1JFU1RSSUNURURfVklSVElPX01FTU9SWV9BQ0NFU1MKPj4gICAJICBU
-aGlzIG9wdGlvbiBpcyBzZWxlY3RlZCBpZiB0aGUgYXJjaGl0ZWN0dXJlIG1heSBuZWVkIHRvIGVu
-Zm9yY2UKPj4gICAJICBWSVJUSU9fRl9BQ0NFU1NfUExBVEZPUk0KPj4gICAKPj4gK2NvbmZpZyBW
-SVJUSU9fUENJX01PREVSTgo+PiArCXRyaXN0YXRlICJNb2Rlcm4gVmlydGlvIFBDSSBEZXZpY2Ui
-Cj4+ICsJZGVwZW5kcyBvbiBQQ0kKPj4gKwloZWxwCj4+ICsJICBNb2Rlcm4gUENJIGRldmljZSBp
-bXBsZW1lbnRhdGlvbi4gVGhpcyBtb2R1bGUgaW1wbGVtZW50cyB0aGUKPj4gKwkgIGJhc2ljIHBy
-b2JlIGFuZCBjb250cm9sIGZvciBkZXZpY2VzIHdoaWNoIGFyZSBiYXNlZCBvbiBtb2Rlcm4KPj4g
-KwkgIFBDSSBkZXZpY2Ugd2l0aCBwb3NzaWJsZSB2ZW5kb3Igc3BlY2lmaWMgZXh0ZW5zaW9ucy4K
-Pj4gKwo+PiAgIG1lbnVjb25maWcgVklSVElPX01FTlUKPj4gICAJYm9vbCAiVmlydGlvIGRyaXZl
-cnMiCj4+ICAgCWRlZmF1bHQgeQo+PiBAQCAtMjAsNyArMjgsNyBAQCBpZiBWSVJUSU9fTUVOVQo+
-PiAgIAo+PiAgIGNvbmZpZyBWSVJUSU9fUENJCj4+ICAgCXRyaXN0YXRlICJQQ0kgZHJpdmVyIGZv
-ciB2aXJ0aW8gZGV2aWNlcyIKPj4gLQlkZXBlbmRzIG9uIFBDSQo+PiArCWRlcGVuZHMgb24gVklS
-VElPX1BDSV9NT0RFUk4KPj4gICAJc2VsZWN0IFZJUlRJTwo+PiAgIAloZWxwCj4+ICAgCSAgVGhp
-cyBkcml2ZXIgcHJvdmlkZXMgc3VwcG9ydCBmb3IgdmlydGlvIGJhc2VkIHBhcmF2aXJ0dWFsIGRl
-dmljZQo+IExvb2tzIGxpa2UgVklSVElPX1BDSV9NT0RFUk4gaXMgYWN0dWFsbHkganVzdCBhIGxp
-YnJhcnkgdGhhdAo+IHZpcnRpbyBwY2kgdXNlcy4gSXMgdGhhdCByaWdodD8KCgpSaWdodC4KCgo+
-IEluIHRoYXQgY2FzZSBqdXN0IHNlbGVjdCBpdAo+IGF1dG9tYXRpY2FsbHksIGxldCdzIG5vdCBt
-YWtlIHVzZXJzIGVuYWJsZSBpdCBtYW51YWxseS4KCgpJJ3ZlIGNvbnNpZGVyZWQgdG8gZG8gdGhp
-cyBidXQgdGhlIHByb2JsZW0gaXMgdGhhdCB0aGUgbW9kdWxlIGRlcGVuZHMgb24gClBDSSBzbyBp
-dCBjYW4ndCBiZSBzZWxlY3RlZCBJIHRoaW5rLgoKVGhhbmtzCgoKPgoKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi Gerd,
+
+> -----Original Message-----
+> From: Gerd Hoffmann <kraxel@redhat.com>
+> Sent: Tuesday, February 09, 2021 12:45 AM
+> To: Kasireddy, Vivek <vivek.kasireddy@intel.com>
+> Cc: Daniel Vetter <daniel@ffwll.ch>; virtualization@lists.linux-foundation.org; dri-
+> devel@lists.freedesktop.org; Vetter, Daniel <daniel.vetter@intel.com>;
+> daniel.vetter@ffwll.ch; Kim, Dongwon <dongwon.kim@intel.com>;
+> sumit.semwal@linaro.org; christian.koenig@amd.com; linux-media@vger.kernel.org
+> Subject: Re: [RFC v3 2/3] virtio: Introduce Vdmabuf driver
+> 
+>   Hi,
+> 
+> > > > > Nack, this doesn't work on dma-buf. And it'll blow up at runtime
+> > > > > when you enable the very recently merged CONFIG_DMABUF_DEBUG (would
+> > > > > be good to test with that, just to make sure).
+> > [Kasireddy, Vivek] Although, I have not tested it yet but it looks like this will
+> > throw a wrench in our solution as we use sg_next to iterate over all the struct page *
+> > and get their PFNs. I wonder if there is any other clean way to get the PFNs of all
+> > the pages associated with a dmabuf.
+> 
+> Well, there is no guarantee that dma-buf backing storage actually has
+> struct page ...
+[Kasireddy, Vivek] What if I do mmap() on the fd followed by mlock() or mmap()
+followed by get_user_pages()? If it still fails, would ioremapping the device memory
+and poking at the backing storage be an option? Or, if I bind the passthrough'd GPU device
+to vfio-pci and tap into the memory region associated with the device memory, can it be
+made to work? 
+
+And, I noticed that for PFNs that do not have valid struct page associated with it, KVM
+does a memremap() to access/map them. Is this an option?
+
+> 
+> > [Kasireddy, Vivek] To exclude such cases, would it not be OK to limit the scope
+> > of this solution (Vdmabuf) to make it clear that the dma-buf has to live in Guest RAM?
+> > Or, are there any ways to pin the dma-buf pages in Guest RAM to make this
+> > solution work?
+> 
+> At that point it becomes (i915) driver-specific.  If you go that route
+> it doesn't look that useful to use dma-bufs in the first place ...
+[Kasireddy, Vivek] I prefer not to make this driver specific if possible.
+
+> 
+> > IIUC, Virtio GPU is used to present a virtual GPU to the Guest and all the rendering
+> > commands are captured and forwarded to the Host GPU via Virtio.
+> 
+> You don't have to use the rendering pipeline.  You can let the i915 gpu
+> render into a dma-buf shared with virtio-gpu, then use virtio-gpu only for
+> buffer sharing with the host.
+[Kasireddy, Vivek] Is this the most viable path forward? I am not sure how complex or 
+feasible it would be but I'll look into it.
+Also, not using the rendering capabilities of virtio-gpu and turning it into a sharing only
+device means there would be a giant mode switch with a lot of if() conditions sprinkled
+across. Are you OK with that?
+
+Thanks,
+Vivek
+> 
+> take care,
+>   Gerd
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
