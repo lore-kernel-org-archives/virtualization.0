@@ -7,59 +7,62 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 585D9C4332B
-	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 10:22:08 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C95CC433E6
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 10:22:10 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D1B2B61490
-	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 10:22:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D1B2B61490
+	by mail.kernel.org (Postfix) with ESMTPS id 1D9AD61490
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 10:22:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1D9AD61490
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 05BF385F98;
-	Wed, 10 Feb 2021 10:22:07 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QB2Ezw7NQW2R; Wed, 10 Feb 2021 10:22:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 0D7B28554A;
-	Wed, 10 Feb 2021 10:22:05 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DC133C08A1;
-	Wed, 10 Feb 2021 10:22:04 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B0949C0174
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 10:22:02 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id A34F0864E6
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 10:22:02 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id CAA398665D;
+	Wed, 10 Feb 2021 10:22:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Z9BrhpMvgWB5
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3vvbih-zCKOc; Wed, 10 Feb 2021 10:22:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by whitealder.osuosl.org (Postfix) with ESMTP id AEAA5865D3;
+	Wed, 10 Feb 2021 10:22:08 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8F2F2C1E6F;
+	Wed, 10 Feb 2021 10:22:08 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4A8B1C013A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 10:22:00 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
+ Wed, 10 Feb 2021 10:22:05 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 381D36F4F7
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Feb 2021 10:22:05 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id OQ9ZrrFSv0W1
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Feb 2021 10:22:03 +0000 (UTC)
+Received: by smtp3.osuosl.org (Postfix, from userid 1001)
+ id D6CC86F51A; Wed, 10 Feb 2021 10:22:03 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 91E8B864E5
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7E8156F4DC
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 10:22:00 +0000 (UTC)
+ Wed, 10 Feb 2021 10:22:02 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549adcf6.dip0.t-ipconnect.de
  [84.154.220.246])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 8E7F8412;
- Wed, 10 Feb 2021 11:21:56 +0100 (CET)
+ by theia.8bytes.org (Postfix) with ESMTPSA id B66804B5;
+ Wed, 10 Feb 2021 11:21:58 +0100 (CET)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH 3/7] x86/boot/compressed/64: Setup IDT in startup_32 boot path
-Date: Wed, 10 Feb 2021 11:21:31 +0100
-Message-Id: <20210210102135.30667-4-joro@8bytes.org>
+Subject: [PATCH 7/7] x86/sev-es: Replace open-coded hlt-loops with
+ sev_es_terminate()
+Date: Wed, 10 Feb 2021 11:21:35 +0100
+Message-Id: <20210210102135.30667-8-joro@8bytes.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210210102135.30667-1-joro@8bytes.org>
 References: <20210210102135.30667-1-joro@8bytes.org>
@@ -95,120 +98,66 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-This boot path needs exception handling when it is used with SEV-ES.
-Setup an IDT and provide a helper function to write IDT entries for
-use in 32-bit protected mode.
+There are a few places left in the SEV-ES C code where hlt loops and/or
+terminate requests are implemented. Replace them all with calls to
+sev_es_terminate().
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/head_64.S | 73 +++++++++++++++++++++++++++++-
- 1 file changed, 72 insertions(+), 1 deletion(-)
+ arch/x86/boot/compressed/sev-es.c | 12 +++---------
+ arch/x86/kernel/sev-es-shared.c   | 10 +++-------
+ 2 files changed, 6 insertions(+), 16 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
-index c59c80ca546d..8deeec78cdb4 100644
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -116,6 +116,11 @@ SYM_FUNC_START(startup_32)
- 	lretl
- 1:
+diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
+index 27826c265aab..d904bd56b3e3 100644
+--- a/arch/x86/boot/compressed/sev-es.c
++++ b/arch/x86/boot/compressed/sev-es.c
+@@ -200,14 +200,8 @@ void do_boot_stage2_vc(struct pt_regs *regs, unsigned long exit_code)
+ 	}
  
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+	/* Setup Exception handling for SEV-ES */
-+	call	startup32_load_idt
-+#endif
-+
- 	/* Make sure cpu supports long mode. */
- 	call	verify_cpu
- 	testl	%eax, %eax
-@@ -528,7 +533,6 @@ SYM_FUNC_END_ALIAS(efi_stub_entry)
+ finish:
+-	if (result == ES_OK) {
++	if (result == ES_OK)
+ 		vc_finish_insn(&ctxt);
+-	} else if (result != ES_RETRY) {
+-		/*
+-		 * For now, just halt the machine. That makes debugging easier,
+-		 * later we just call sev_es_terminate() here.
+-		 */
+-		while (true)
+-			asm volatile("hlt\n");
+-	}
++	else if (result != ES_RETRY)
++		sev_es_terminate(GHCB_SEV_ES_REASON_GENERAL_REQUEST);
+ }
+diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
+index cdc04d091242..7c34be61258e 100644
+--- a/arch/x86/kernel/sev-es-shared.c
++++ b/arch/x86/kernel/sev-es-shared.c
+@@ -24,7 +24,7 @@ static bool __init sev_es_check_cpu_features(void)
+ 	return true;
+ }
  
- 	.text
- SYM_FUNC_START_LOCAL_NOALIGN(.Lrelocated)
+-static void sev_es_terminate(unsigned int reason)
++static void __noreturn sev_es_terminate(unsigned int reason)
+ {
+ 	u64 val = GHCB_SEV_TERMINATE;
+ 
+@@ -210,12 +210,8 @@ void __init do_vc_no_ghcb(struct pt_regs *regs, unsigned long exit_code)
+ 	return;
+ 
+ fail:
+-	sev_es_wr_ghcb_msr(GHCB_SEV_TERMINATE);
+-	VMGEXIT();
 -
- /*
-  * Clear BSS (stack is currently empty)
-  */
-@@ -701,6 +705,19 @@ SYM_DATA_START(boot_idt)
- 	.endr
- SYM_DATA_END_LABEL(boot_idt, SYM_L_GLOBAL, boot_idt_end)
+-	/* Shouldn't get here - if we do halt the machine */
+-	while (true)
+-		asm volatile("hlt\n");
++	/* Terminate the guest */
++	sev_es_terminate(GHCB_SEV_ES_REASON_GENERAL_REQUEST);
+ }
  
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+SYM_DATA_START(boot32_idt_desc)
-+	.word   boot32_idt_end - boot32_idt - 1
-+	.long   0
-+SYM_DATA_END(boot32_idt_desc)
-+	.balign 8
-+SYM_DATA_START(boot32_idt)
-+	.rept 32
-+	.quad 0
-+	.endr
-+SYM_DATA_END_LABEL(boot32_idt, SYM_L_GLOBAL, boot32_idt_end)
-+#endif
-+
- #ifdef CONFIG_EFI_STUB
- SYM_DATA(image_offset, .long 0)
- #endif
-@@ -793,6 +810,60 @@ SYM_DATA_START_LOCAL(loaded_image_proto)
- SYM_DATA_END(loaded_image_proto)
- #endif
- 
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+	__HEAD
-+	.code32
-+/*
-+ * Write an IDT entry into boot32_idt
-+ *
-+ * Parameters:
-+ *
-+ * %eax:	Handler address
-+ * %edx:	Vector number
-+ *
-+ * Physical offset is expected in %ebp
-+ */
-+SYM_FUNC_START(startup32_set_idt_entry)
-+	push    %ebx
-+	push    %ecx
-+
-+	/* IDT entry address to %ebx */
-+	leal    rva(boot32_idt)(%ebp), %ebx
-+	shl	$3, %edx
-+	addl    %edx, %ebx
-+
-+	/* Build IDT entry, lower 4 bytes */
-+	movl    %eax, %edx
-+	andl    $0x0000ffff, %edx
-+	movl    $__KERNEL32_CS, %ecx
-+	shl     $16, %ecx
-+	orl     %ecx, %edx
-+
-+	/* Store lower 4 bytes to IDT */
-+	movl    %edx, (%ebx)
-+
-+	/* Build IDT entry, upper 4 bytes */
-+	movl    %eax, %edx
-+	andl    $0xffff0000, %edx
-+	orl     $0x00008e00, %edx
-+
-+	/* Store upper 4 bytes to IDT */
-+	movl    %edx, 4(%ebx)
-+
-+	pop     %ecx
-+	pop     %ebx
-+	ret
-+SYM_FUNC_END(startup32_set_idt_entry)
-+
-+SYM_FUNC_START(startup32_load_idt)
-+	/* Load IDT */
-+	leal	rva(boot32_idt)(%ebp), %eax
-+	movl	%eax, rva(boot32_idt_desc+2)(%ebp)
-+	lidt    rva(boot32_idt_desc)(%ebp)
-+
-+	ret
-+SYM_FUNC_END(startup32_load_idt)
-+#endif
- /*
-  * Stack and heap for uncompression
-  */
+ static enum es_result vc_insn_string_read(struct es_em_ctxt *ctxt,
 -- 
 2.30.0
 
