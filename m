@@ -2,170 +2,115 @@ Return-Path: <SRS0=QvMg=HM=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8549C433DB
-	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 20:44:27 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 49F3EC433E0
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 21:40:57 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 34D7660235
-	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 20:44:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 34D7660235
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=amd.com
+	by mail.kernel.org (Postfix) with ESMTPS id DA1C464EE1
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 21:40:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DA1C464EE1
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id C8988874B1;
-	Wed, 10 Feb 2021 20:44:26 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Wyw381scZiG9; Wed, 10 Feb 2021 20:44:25 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id DD83D87498;
-	Wed, 10 Feb 2021 20:44:25 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BF971C0174;
-	Wed, 10 Feb 2021 20:44:25 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1F363C013A
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 20:44:25 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id F1F6E600CB
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 20:44:24 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 720796F576
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 21:40:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Sf6EWXEXNeEU
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 20:44:24 +0000 (UTC)
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id r6piEUMP7V-Z for <virtualization@archiver.kernel.org>;
+	Wed, 10 Feb 2021 21:40:54 +0000 (UTC)
 Received: by smtp3.osuosl.org (Postfix, from userid 1001)
- id 279CE600D1; Wed, 10 Feb 2021 20:44:24 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam10on2070.outbound.protection.outlook.com [40.107.94.70])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 486E5600CB
+	id 96F9F6F57C; Wed, 10 Feb 2021 21:40:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 15DDB6F516;
+	Wed, 10 Feb 2021 21:40:51 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E5880C0891;
+	Wed, 10 Feb 2021 21:40:50 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 28C3EC013A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 20:44:22 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=QEkPfNmlpZvUlS34JN+KU5OpSol6H+/yAIPfRSXViyC5UuExYQ4V+mZT1mUgUdyz5U3vHd5dpspGk+gZ7Routwzg2HfxkCtarpXDBwZ6QJYytTDopwDlSlofX1yWfBo0VzgJriCK+jkdIYb0cHFmb628OgJD9tiddo5TsYgeaDoPvkryY+mtB9lvkltFfCgH7W1Qil0krYaKBcc2lTH1iGas5sfHAE8rYrMAtwtW4lm1LVLpCQEcQWkmFqDYcSjTCYHT3TneBOpOMHj+/LMG5yZ6d2Ce+H2gcqeqpGOc6VpEWZk2IlLp1VI/6Yw14G/pvRKxxpcv7RJWgvcYKu2acw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=BKO5C91y/F5hj36vabBJxQxLGL8y1JzDarwctSrIAMc=;
- b=k4bVE/6veysLIF2GKd8gcnZiqsMud34WthyoE2cXmzBwXzUpeUGyjG16qs2oQCTwjLWKymnfp+6IHS/ayVveXFJkQ39n35ojPQU/2YD5a9Cxd9bFRwDlcit8MmnjgesaO4g8UJqnLf3ov+4fs9KCN0goEZt9Xy6+lbpI121LAjmcr6S127QYAWf/Tz+P8dPIAdGKoNCDkpPU/D4aoPIhNdiw/h7YLWk0YHk/0oogPA8cvlswVguWtP4KPtkhrBPbHSPu4U6Kl0V033COpN/p9YbQ+YRvp0czBshTm7avKAXgsF2QywBziK7Gc9RoWODPHTOWYFAN88P5oqvNZr6iCA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=BKO5C91y/F5hj36vabBJxQxLGL8y1JzDarwctSrIAMc=;
- b=fpcC1Yi3zNp2FPgGYQzhSz17Ye7OqGcdpk65bODK/JeqvWSfR6CFNZuen0c2DpdAQpPqpN/6z7G4Y3M9/NHq+iYCZ/OwK0weW/C6nTi2LfmbWA1AFA/WruPyiJua9vg1MjLat79xfxg+MRhVitKJicTQPG163k/XyUtSTQ+MxcE=
-Authentication-Results: lists.linux-foundation.org; dkim=none (message not
- signed) header.d=none;lists.linux-foundation.org; dmarc=none action=none
- header.from=amd.com;
-Received: from DM5PR12MB1355.namprd12.prod.outlook.com (2603:10b6:3:6e::7) by
- DM5PR12MB1707.namprd12.prod.outlook.com (2603:10b6:3:108::21) with
- Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3846.27; Wed, 10 Feb 2021 20:44:18 +0000
-Received: from DM5PR12MB1355.namprd12.prod.outlook.com
- ([fe80::c9b6:a9ce:b253:db70]) by DM5PR12MB1355.namprd12.prod.outlook.com
- ([fe80::c9b6:a9ce:b253:db70%6]) with mapi id 15.20.3825.030; Wed, 10 Feb 2021
- 20:44:18 +0000
-Subject: Re: [PATCH 6/7] x86/boot/compressed/64: Check SEV encryption in
- 32-bit boot-path
-To: Dave Hansen <dave.hansen@intel.com>, Joerg Roedel <joro@8bytes.org>,
- x86@kernel.org
-References: <20210210102135.30667-1-joro@8bytes.org>
- <20210210102135.30667-7-joro@8bytes.org>
- <f0c80c25-13f6-34c9-1932-c57e0c900c75@intel.com>
-From: Tom Lendacky <thomas.lendacky@amd.com>
-Message-ID: <cdf7d5b9-a574-9f94-277b-083fc0f21e12@amd.com>
-Date: Wed, 10 Feb 2021 14:44:15 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-In-Reply-To: <f0c80c25-13f6-34c9-1932-c57e0c900c75@intel.com>
-Content-Language: en-US
-X-Originating-IP: [67.79.209.213]
-X-ClientProxiedBy: SN6PR08CA0019.namprd08.prod.outlook.com
- (2603:10b6:805:66::32) To DM5PR12MB1355.namprd12.prod.outlook.com
- (2603:10b6:3:6e::7)
+ Wed, 10 Feb 2021 21:40:50 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id 16EA487274
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Feb 2021 21:40:50 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id GMIn+psejMQe
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Feb 2021 21:40:49 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 0047587275
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Feb 2021 21:40:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1612993247;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=hi2X5jnGRi7KT3vlKkAdXUsSwPyG3HDv963BA62z9vA=;
+ b=eJL7ugOUp7s+KcTQpPwggPLWMJSnIA9yHBlEjQTw+UalyYlDocjgMzYnnEUsak4m9LZcnQ
+ haYBadVrPfo0skkUNK6Uwq8gSqiwuoQl7MAZzd8tpGyMxaLA9MdUJFRc++VOfgxadNMIzr
+ bp+BwA3AbQfrsoQ3MIttuKBr/PGVl4E=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-409-gKIENTXiMwCD7oGMII5Ivg-1; Wed, 10 Feb 2021 16:40:46 -0500
+X-MC-Unique: gKIENTXiMwCD7oGMII5Ivg-1
+Received: by mail-wm1-f71.google.com with SMTP id n17so1543085wmk.3
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Feb 2021 13:40:46 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=hi2X5jnGRi7KT3vlKkAdXUsSwPyG3HDv963BA62z9vA=;
+ b=lf3lj/xsKQY1pJvSXf9YdCMK7/QjyVnvU4cezBvDrxI7Fe/AS8qyWIrFu1sUWARf6K
+ c93939iinnDOaHHW7cTMjSctOVUrOUBk/1KPKjzUUdy007H+vbgTN6PxcYQh92bKqdYH
+ mD7kswXiPybHccKQq0ZAq57pvqEc1g5M89Yz6tfE+X+JXz+e2g2S5NUkJ9E/QV5bXfgR
+ vmnPSil/WbjC0F9zYgMq6BXw0at/oybdGDMJqvyP4kGPnKHBRU2FIzc2PXGfdKFsLC0W
+ 3mB/GoAyuUMJO3JFuGwLRYUJKG9/lev7GEzZD/lmhTZZZepg9vs8bNDHCfhN3O+p+KS+
+ FMkA==
+X-Gm-Message-State: AOAM5319QhSLoB5ttTuZF/cyzmfOY/+WYLXzWSObZH5pONjfQxNfZgfT
+ kmNxrYF8AE4pc2i+D5y7xmRFSFRBueWUFWydOP4D/TOiB5K9g3H87mpYf8dffVfwyO4hp+9zlww
+ kMLYzOBIk80WWjAO8g4nC+xWeO+9ikGDYlAluyTd6wg==
+X-Received: by 2002:a1c:c903:: with SMTP id f3mr1050590wmb.69.1612993245120;
+ Wed, 10 Feb 2021 13:40:45 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwEZ8liZuKYUAcB0H7NMYB9jERfv/Iy/eLiiOFihgo+hWnxXSocQL+S/PQhfhUBwNqqpOQigQ==
+X-Received: by 2002:a1c:c903:: with SMTP id f3mr1050574wmb.69.1612993244940;
+ Wed, 10 Feb 2021 13:40:44 -0800 (PST)
+Received: from redhat.com (bzq-79-180-2-31.red.bezeqint.net. [79.180.2.31])
+ by smtp.gmail.com with ESMTPSA id j185sm5103692wma.1.2021.02.10.13.40.43
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 10 Feb 2021 13:40:44 -0800 (PST)
+Date: Wed, 10 Feb 2021 16:40:41 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH netdev] virtio-net: support XDP_TX when not more queues
+Message-ID: <20210210163945-mutt-send-email-mst@kernel.org>
+References: <81abae33fc8dbec37ef0061ff6f6fd696b484a3e.1610523188.git.xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from office-linux.texastahm.com (67.79.209.213) by
- SN6PR08CA0019.namprd08.prod.outlook.com (2603:10b6:805:66::32) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3846.27 via Frontend Transport; Wed, 10 Feb 2021 20:44:16 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-HT: Tenant
-X-MS-Office365-Filtering-Correlation-Id: 3b4f07b6-9d2a-4f19-2488-08d8ce04a2d2
-X-MS-TrafficTypeDiagnostic: DM5PR12MB1707:
-X-Microsoft-Antispam-PRVS: <DM5PR12MB17078BB88F7D038A559A6692EC8D9@DM5PR12MB1707.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:4502;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: RTS1JsIwV7Tw5IlG52nnaJNrZNLRo20h/TFaarkqod9Z+sI1KuiVZy1HcB7mxZqaydfF6/YyPyu+JxWSWnNtCQa7/YpBHpaRfSP+C/pBbOqRjyptaHO/2+iLCeTtnZapfTHOF3Bf0oJI0mOfs9GzVIzbP1nosamorMI5TYOw1wrQHGEbfcnpSHFvICaPx/myQqqJ6CSrxg5rbEQ/QlEjTPCKUt9VOe6Low2fGR0za+K1GLLCpxLKh+GcHterFuuYMGdvXZ7J/22EbobnYqlnI0MOHv8YPBhNBTqlrGY5dzvdZwCgSJ08TcskhO+aVigQssYMz/SXh2iROTfVBETL5fnL6Gsoyrlvn6MAzRNzKKXR/Cxn1T7AsICAXEieVbPWSYJg0n0JcKNX7P8sVPhIPVnOsJXhDJvC7P+s1IPSuQ083Bm4NpCsJ6gWQarV1BKGNhQeabcHbEqOxF2Q1i1dJTtKhbkU18p5dxQPNhTmF/q4sE+a1KorR/cRcV981Ar5NrvMl9LpdIisw8FsNZq6+4QC0PY4ByRTmp+bO0FJO2HWgLJq7yejoRCrL85mms9vf6Ihu4dZ0QVBMWe5PdCjypehKeucVKPEbSA39Ijh+xU=
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:DM5PR12MB1355.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(39860400002)(376002)(136003)(346002)(396003)(366004)(6486002)(36756003)(31686004)(53546011)(52116002)(478600001)(4326008)(54906003)(316002)(110136005)(6512007)(8676002)(5660300002)(2616005)(956004)(26005)(7416002)(86362001)(186003)(16526019)(31696002)(8936002)(83380400001)(66946007)(66556008)(66476007)(2906002)(6506007)(45980500001)(43740500002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?UVUvOHJweFRweVVnU2tVc0RUQ2NPa3lJS0toRHpyZ1BvT0k5eG5EWGpLeGN5?=
- =?utf-8?B?dHdqYzdmWFJuTGo3bkNzaWVyNTQ0bTNRRlJMaXBtUzVXdmRSbUk2Y3ZLejRH?=
- =?utf-8?B?YmlNS2VZa3BVbGMyTTRzL3VDVlgvWVdXVzhYYzdMbDZQK3pyeU5wZ2U5SURz?=
- =?utf-8?B?TkFZVThTT29rYnBYQ2t4L2JheGhRbUZLZUQwZDlYbWsxZzNMVmRmL01KNWZV?=
- =?utf-8?B?YkJqMUxJaWxiSGdXNTZ6MFA2VnY4ZGNFbURKUDVKK3BNVTVmSmZMcGo0K2VM?=
- =?utf-8?B?Vkw4dFNaOXBvYTI3Wmd5Q2QzQ0FpMHM5bmN5NmtPbExveUx0Nkl4SnVORmJF?=
- =?utf-8?B?d21uQk1XOThSU3JINXVZNjF3a1g3cHljRGhzT1FMMTlBeTAycEs4Z3dZSW40?=
- =?utf-8?B?aGx4ejhza29Na2xxblREMmM5a0c3WFQ5RUo4KzNpMWoxQnpsem5lRVFZbmNm?=
- =?utf-8?B?RUI1NFlzaHZJRVg4WG83akdxOVJIekI2NEhrRy9rcW4wQjVBU0xoL2VLRlZY?=
- =?utf-8?B?eXJxa3cybFhCUEw4Q1p6eEhoamZGTG9qM2l5bGtDTDJ6UG9aY1dFUlJRRnRB?=
- =?utf-8?B?T2Z6YWhsNmhJZ1ViNDR2bjN3dWJwL2NqZE9wSSs5bXNoSHNjQlk1SWRhQTJ2?=
- =?utf-8?B?RThaV2s0N3ZyY0xvb0RNZUpRTko4VFFjcWZDSXFCalY2RVdNcHptWlZ0bGl4?=
- =?utf-8?B?dXQ0RFJVSnc2R3Fka0JpTVlkalJ3cVk1U2dDa3pFcUo0SGQ4Z0tNNUh5RC93?=
- =?utf-8?B?WWFuNnFpam4veWNCYmJqU1JESzVQWmxvNWJFdkRJTkhHRWw5VFY1M2QzTjRh?=
- =?utf-8?B?ekRLTWVYQ0FxQlB1MXlQS1RMcVE5c3dXUUpVcHhvUDlMS1lmOXlHeE1qc25v?=
- =?utf-8?B?bEVTMlNYNDgwMXFwc3hiOGJHOTlDUVB5bGRKREY0ZlRRQkR1bnFyQytQWTc5?=
- =?utf-8?B?WnRyMjhxcGJ3K244dDZadzNjRkFrc0s1OVhJb0VpREo2RnhibHJ2VTZrYnFL?=
- =?utf-8?B?TEhHRERDd05BWlNYNEtsN2c5SStTdGdFdGZ3WFdiUjZyTTJCd3BDWFVYQytr?=
- =?utf-8?B?K2tUTDhLc2FPQTlaQTg0OFNCSDY3Ym1ta3V3WnMydUJkRXdyMm10Ti9FU2x4?=
- =?utf-8?B?MCtaMVlYdU44UUprT25NZEpqbjZYeGRMVml6YkMyVS9TYkxWRzRaOXUybWN0?=
- =?utf-8?B?S1ZuOXVLMjF5Q0JIWmpMa0VYdTUxR2JEeGxiY2F4QmFmTDBVck9xaTJORVh4?=
- =?utf-8?B?clcxcHFwT3JVNkI2NktBZlVadFBlQkJTVkdhM3ZZNGZlK1FzNHduT2xNb2x2?=
- =?utf-8?B?TTVQazIyd25XMENUVlM1aUZkeUttNzkyc0tFUkN3a3ZMZHZUVkRudFQ0Zmsv?=
- =?utf-8?B?VUtpaUVTWFk5UmFzQnhacmVrVXJ2ZkQ5SFNXamZib2hlNWxvd2ttV3ZpWHRB?=
- =?utf-8?B?WGRSTHJuQkorUklIV0JUbmVkemxmb2RkL2JGSlBBL1gzRXk1MEV3SDNERTFT?=
- =?utf-8?B?N05TT3k2NitaRi9xRm1zOUMvL3QrbDN2eXRLSFdhOU93T0VOSmdwSmZUdlE1?=
- =?utf-8?B?VVNIOFU3SWpBYWNmZk1hSEdLZFBrZHozRFdZdWJmcGVjM1p0TGlsNTdWYTZo?=
- =?utf-8?B?K2JPd205bzlIMW1GNk5OOXR5VlhNbG51QVpzcm16Tzd6YlQyOThSNDZ2b2Nt?=
- =?utf-8?B?VWErS2doZmhJWHNQa0lvbVAxWTl5Zmd5aDJvdExqVlN1ZVdGVmw5ZUxIMGJV?=
- =?utf-8?Q?QsaZtR3N6UFqsIKldmIAbQAwOyLZivC2yaA/RZF?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3b4f07b6-9d2a-4f19-2488-08d8ce04a2d2
-X-MS-Exchange-CrossTenant-AuthSource: DM5PR12MB1355.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Feb 2021 20:44:18.2605 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: G9oniiVWUZxDfdsASvJF63Io9fmWD+xZcnr6cWlXqwfV2dtZfRx+sSXkHUBxTp9C5F4MEASRhuQ06nzxcIFdrQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB1707
-Cc: Juergen Gross <jgross@suse.com>, Martin Radev <martin.b.radev@gmail.com>,
- Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>,
- Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org,
- Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org,
- Sean Christopherson <sean.j.christopherson@intel.com>,
- virtualization@lists.linux-foundation.org,
- Arvind Sankar <nivedita@alum.mit.edu>, Masami Hiramatsu <mhiramat@kernel.org>,
- Andy Lutomirski <luto@kernel.org>, hpa@zytor.com,
- Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>,
- Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+In-Reply-To: <81abae33fc8dbec37ef0061ff6f6fd696b484a3e.1610523188.git.xuanzhuo@linux.alibaba.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
+ John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
+ virtualization@lists.linux-foundation.org, dust.li@linux.alibaba.com,
+ Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -177,44 +122,163 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 2/10/21 10:47 AM, Dave Hansen wrote:
-> On 2/10/21 2:21 AM, Joerg Roedel wrote:
->> +	/* Store to memory and keep it in the registers */
->> +	movl	%eax, rva(sev_check_data)(%ebp)
->> +	movl	%ebx, rva(sev_check_data+4)(%ebp)
->> +
->> +	/* Enable paging to see if encryption is active */
->> +	movl	%cr0, %edx	/* Backup %cr0 in %edx */
->> +	movl	$(X86_CR0_PG | X86_CR0_PE), %ecx /* Enable Paging and Protected mode */
->> +	movl	%ecx, %cr0
->> +
->> +	cmpl	%eax, rva(sev_check_data)(%ebp)
->> +	jne	3f
->> +	cmpl	%ebx, rva(sev_check_data+4)(%ebp)
->> +	jne	3f
+On Wed, Jan 13, 2021 at 04:08:57PM +0800, Xuan Zhuo wrote:
+> The number of queues implemented by many virtio backends is limited,
+> especially some machines have a large number of CPUs. In this case, it
+> is often impossible to allocate a separate queue for XDP_TX.
 > 
-> Also, I know that turning paging on is a *BIG* barrier.  But, I didn't
-> think it has any effect on the caches.
+> This patch allows XDP_TX to run by reuse the existing SQ with
+> __netif_tx_lock() hold when there are not enough queues.
 > 
-> I would expect that the underlying physical address of 'sev_check_data'
-> would change when paging gets enabled because paging sets the C bit.
-> So, how does the write of 'sev_check_data' get out of the caches and
-> into memory where it can be read back with the new physical address?
-> 
-> I think there's some bit of the SEV architecture that I'm missing.
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
 
-Non-paging memory accesses are always considered private (APM Volume 2, 
-15.34.4) and thus are cached with the C bit set.
+I'd like to get some advice on whether this is ok from some
+XDP experts - previously my understanding was that it is
+preferable to disable XDP for such devices than
+use locks on XDP fast path.
 
-Thanks,
-Tom
-
+> ---
+>  drivers/net/virtio_net.c | 47 +++++++++++++++++++++++++++++++++++------------
+>  1 file changed, 35 insertions(+), 12 deletions(-)
 > 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index ba8e637..7a3b2a7 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -195,6 +195,9 @@ struct virtnet_info {
+>  	/* # of XDP queue pairs currently used by the driver */
+>  	u16 xdp_queue_pairs;
+>  
+> +	/* xdp_queue_pairs may be 0, when xdp is already loaded. So add this. */
+> +	bool xdp_enabled;
+> +
+>  	/* I like... big packets and I cannot lie! */
+>  	bool big_packets;
+>  
+> @@ -481,14 +484,34 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
+>  	return 0;
+>  }
+>  
+> -static struct send_queue *virtnet_xdp_sq(struct virtnet_info *vi)
+> +static struct send_queue *virtnet_get_xdp_sq(struct virtnet_info *vi)
+>  {
+>  	unsigned int qp;
+> +	struct netdev_queue *txq;
+> +
+> +	if (vi->curr_queue_pairs > nr_cpu_ids) {
+> +		qp = vi->curr_queue_pairs - vi->xdp_queue_pairs + smp_processor_id();
+> +	} else {
+> +		qp = smp_processor_id() % vi->curr_queue_pairs;
+> +		txq = netdev_get_tx_queue(vi->dev, qp);
+> +		__netif_tx_lock(txq, raw_smp_processor_id());
+> +	}
+>  
+> -	qp = vi->curr_queue_pairs - vi->xdp_queue_pairs + smp_processor_id();
+>  	return &vi->sq[qp];
+>  }
+>  
+> +static void virtnet_put_xdp_sq(struct virtnet_info *vi)
+> +{
+> +	unsigned int qp;
+> +	struct netdev_queue *txq;
+> +
+> +	if (vi->curr_queue_pairs <= nr_cpu_ids) {
+> +		qp = smp_processor_id() % vi->curr_queue_pairs;
+> +		txq = netdev_get_tx_queue(vi->dev, qp);
+> +		__netif_tx_unlock(txq);
+> +	}
+> +}
+> +
+>  static int virtnet_xdp_xmit(struct net_device *dev,
+>  			    int n, struct xdp_frame **frames, u32 flags)
+>  {
+> @@ -512,7 +535,7 @@ static int virtnet_xdp_xmit(struct net_device *dev,
+>  	if (!xdp_prog)
+>  		return -ENXIO;
+>  
+> -	sq = virtnet_xdp_sq(vi);
+> +	sq = virtnet_get_xdp_sq(vi);
+>  
+>  	if (unlikely(flags & ~XDP_XMIT_FLAGS_MASK)) {
+>  		ret = -EINVAL;
+> @@ -560,12 +583,13 @@ static int virtnet_xdp_xmit(struct net_device *dev,
+>  	sq->stats.kicks += kicks;
+>  	u64_stats_update_end(&sq->stats.syncp);
+>  
+> +	virtnet_put_xdp_sq(vi);
+>  	return ret;
+>  }
+>  
+>  static unsigned int virtnet_get_headroom(struct virtnet_info *vi)
+>  {
+> -	return vi->xdp_queue_pairs ? VIRTIO_XDP_HEADROOM : 0;
+> +	return vi->xdp_enabled ? VIRTIO_XDP_HEADROOM : 0;
+>  }
+>  
+>  /* We copy the packet for XDP in the following cases:
+> @@ -1457,12 +1481,13 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
+>  		xdp_do_flush();
+>  
+>  	if (xdp_xmit & VIRTIO_XDP_TX) {
+> -		sq = virtnet_xdp_sq(vi);
+> +		sq = virtnet_get_xdp_sq(vi);
+>  		if (virtqueue_kick_prepare(sq->vq) && virtqueue_notify(sq->vq)) {
+>  			u64_stats_update_begin(&sq->stats.syncp);
+>  			sq->stats.kicks++;
+>  			u64_stats_update_end(&sq->stats.syncp);
+>  		}
+> +		virtnet_put_xdp_sq(vi);
+>  	}
+>  
+>  	return received;
+> @@ -2416,12 +2441,8 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+>  		xdp_qp = nr_cpu_ids;
+>  
+>  	/* XDP requires extra queues for XDP_TX */
+> -	if (curr_qp + xdp_qp > vi->max_queue_pairs) {
+> -		NL_SET_ERR_MSG_MOD(extack, "Too few free TX rings available");
+> -		netdev_warn(dev, "request %i queues but max is %i\n",
+> -			    curr_qp + xdp_qp, vi->max_queue_pairs);
+> -		return -ENOMEM;
+> -	}
+> +	if (curr_qp + xdp_qp > vi->max_queue_pairs)
+> +		xdp_qp = 0;
+>  
+>  	old_prog = rtnl_dereference(vi->rq[0].xdp_prog);
+>  	if (!prog && !old_prog)
+> @@ -2453,12 +2474,14 @@ static int virtnet_xdp_set(struct net_device *dev, struct bpf_prog *prog,
+>  	netif_set_real_num_rx_queues(dev, curr_qp + xdp_qp);
+>  	vi->xdp_queue_pairs = xdp_qp;
+>  
+> +	vi->xdp_enabled = false;
+>  	if (prog) {
+>  		for (i = 0; i < vi->max_queue_pairs; i++) {
+>  			rcu_assign_pointer(vi->rq[i].xdp_prog, prog);
+>  			if (i == 0 && !old_prog)
+>  				virtnet_clear_guest_offloads(vi);
+>  		}
+> +		vi->xdp_enabled = true;
+>  	}
+>  
+>  	for (i = 0; i < vi->max_queue_pairs; i++) {
+> @@ -2526,7 +2549,7 @@ static int virtnet_set_features(struct net_device *dev,
+>  	int err;
+>  
+>  	if ((dev->features ^ features) & NETIF_F_LRO) {
+> -		if (vi->xdp_queue_pairs)
+> +		if (vi->xdp_enabled)
+>  			return -EBUSY;
+>  
+>  		if (features & NETIF_F_LRO)
+> -- 
+> 1.8.3.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
