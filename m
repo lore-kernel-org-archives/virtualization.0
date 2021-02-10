@@ -7,60 +7,62 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F91BC433DB
-	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 10:22:06 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC526C433E6
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 10:22:07 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8E19E64E32
-	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 10:22:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8E19E64E32
+	by mail.kernel.org (Postfix) with ESMTPS id 386E561490
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 10:22:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 386E561490
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id A0A2885FA3;
-	Wed, 10 Feb 2021 10:22:04 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id C3DDC6F5B2
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 10:22:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dE1H8bL5ga8B; Wed, 10 Feb 2021 10:22:04 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pwFLLxwempHY for <virtualization@archiver.kernel.org>;
+	Wed, 10 Feb 2021 10:22:05 +0000 (UTC)
+Received: by smtp3.osuosl.org (Postfix, from userid 1001)
+	id A5C856F51A; Wed, 10 Feb 2021 10:22:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 8C0A585BD1;
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3D4156F4E9;
 	Wed, 10 Feb 2021 10:22:03 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4DE4EC1E6F;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 11B94C0174;
 	Wed, 10 Feb 2021 10:22:03 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C3258C013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6E322C013A
  for <virtualization@lists.linux-foundation.org>;
  Wed, 10 Feb 2021 10:22:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id B1F9D8554A
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 5CE4485A80
  for <virtualization@lists.linux-foundation.org>;
  Wed, 10 Feb 2021 10:22:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tp4MsH_AkIMC
+ with ESMTP id JVctYf3GgwbC
  for <virtualization@lists.linux-foundation.org>;
  Wed, 10 Feb 2021 10:22:00 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 1253A85550
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 111348554A
  for <virtualization@lists.linux-foundation.org>;
  Wed, 10 Feb 2021 10:22:00 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549adcf6.dip0.t-ipconnect.de
  [84.154.220.246])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 720283A7;
+ by theia.8bytes.org (Postfix) with ESMTPSA id 021BC3C2;
  Wed, 10 Feb 2021 11:21:55 +0100 (CET)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH 1/7] x86/boot/compressed/64: Cleanup exception handling before
- booting kernel
-Date: Wed, 10 Feb 2021 11:21:29 +0100
-Message-Id: <20210210102135.30667-2-joro@8bytes.org>
+Subject: [PATCH 2/7] x86/boot/compressed/64: Reload CS in startup_32
+Date: Wed, 10 Feb 2021 11:21:30 +0100
+Message-Id: <20210210102135.30667-3-joro@8bytes.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210210102135.30667-1-joro@8bytes.org>
 References: <20210210102135.30667-1-joro@8bytes.org>
@@ -96,74 +98,36 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Disable the exception handling before booting the kernel to make sure
-any exceptions that happen during early kernel boot are not directed to
-the pre-decompression code.
+Exception handling in the startup_32 boot path requires the CS
+selector to be correctly set up. Reload it from the current GDT.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/idt_64.c | 14 ++++++++++++++
- arch/x86/boot/compressed/misc.c   |  7 ++-----
- arch/x86/boot/compressed/misc.h   |  6 ++++++
- 3 files changed, 22 insertions(+), 5 deletions(-)
+ arch/x86/boot/compressed/head_64.S | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/boot/compressed/idt_64.c b/arch/x86/boot/compressed/idt_64.c
-index 804a502ee0d2..9b93567d663a 100644
---- a/arch/x86/boot/compressed/idt_64.c
-+++ b/arch/x86/boot/compressed/idt_64.c
-@@ -52,3 +52,17 @@ void load_stage2_idt(void)
+diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
+index e94874f4bbc1..c59c80ca546d 100644
+--- a/arch/x86/boot/compressed/head_64.S
++++ b/arch/x86/boot/compressed/head_64.S
+@@ -107,9 +107,16 @@ SYM_FUNC_START(startup_32)
+ 	movl	%eax, %gs
+ 	movl	%eax, %ss
  
- 	load_boot_idt(&boot_idt_desc);
- }
+-/* setup a stack and make sure cpu supports long mode. */
++	/* Setup a stack and load CS from current GDT */
+ 	leal	rva(boot_stack_end)(%ebp), %esp
+ 
++	pushl	$__KERNEL32_CS
++	leal	rva(1f)(%ebp), %eax
++	pushl	%eax
++	lretl
++1:
 +
-+void cleanup_exception_handling(void)
-+{
-+	/*
-+	 * Flush GHCB from cache and map it encrypted again when running as
-+	 * SEV-ES guest.
-+	 */
-+	sev_es_shutdown_ghcb();
-+
-+	/* Set a null-idt, disabling #PF and #VC handling */
-+	boot_idt_desc.size    = 0;
-+	boot_idt_desc.address = 0;
-+	load_boot_idt(&boot_idt_desc);
-+}
-diff --git a/arch/x86/boot/compressed/misc.c b/arch/x86/boot/compressed/misc.c
-index 267e7f93050e..cc9fd0e8766a 100644
---- a/arch/x86/boot/compressed/misc.c
-+++ b/arch/x86/boot/compressed/misc.c
-@@ -443,11 +443,8 @@ asmlinkage __visible void *extract_kernel(void *rmode, memptr heap,
- 	handle_relocations(output, output_len, virt_addr);
- 	debug_putstr("done.\nBooting the kernel.\n");
- 
--	/*
--	 * Flush GHCB from cache and map it encrypted again when running as
--	 * SEV-ES guest.
--	 */
--	sev_es_shutdown_ghcb();
-+	/* Disable exception handling before booting the kernel */
-+	cleanup_exception_handling();
- 
- 	return output;
- }
-diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 901ea5ebec22..e5612f035498 100644
---- a/arch/x86/boot/compressed/misc.h
-+++ b/arch/x86/boot/compressed/misc.h
-@@ -155,6 +155,12 @@ extern pteval_t __default_kernel_pte_mask;
- extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
- extern struct desc_ptr boot_idt_desc;
- 
-+#ifdef CONFIG_X86_64
-+void cleanup_exception_handling(void);
-+#else
-+static inline void cleanup_exception_handling(void) { }
-+#endif
-+
- /* IDT Entry Points */
- void boot_page_fault(void);
- void boot_stage1_vc(void);
++	/* Make sure cpu supports long mode. */
+ 	call	verify_cpu
+ 	testl	%eax, %eax
+ 	jnz	.Lno_longmode
 -- 
 2.30.0
 
