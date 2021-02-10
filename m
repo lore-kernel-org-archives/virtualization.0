@@ -7,70 +7,73 @@ X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 502C5C433DB
-	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 08:37:55 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E901C433DB
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 08:38:27 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7D5D064E08
-	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 08:37:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7D5D064E08
+	by mail.kernel.org (Postfix) with ESMTPS id 5A7AA64E08
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 08:38:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5A7AA64E08
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 3281887181;
-	Wed, 10 Feb 2021 08:37:54 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id E06486F583
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 08:38:25 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fVAWPQj3phxB for <virtualization@archiver.kernel.org>;
+	Wed, 10 Feb 2021 08:38:24 +0000 (UTC)
+Received: by smtp3.osuosl.org (Postfix, from userid 1001)
+	id B3BFB6F4B9; Wed, 10 Feb 2021 08:38:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 24471600BB;
+	Wed, 10 Feb 2021 08:38:22 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0A0C0C0174;
+	Wed, 10 Feb 2021 08:38:22 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D41BEC013A
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Feb 2021 08:38:20 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id C202187166
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Feb 2021 08:38:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IAkxdg0kA2tD; Wed, 10 Feb 2021 08:37:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id AC2BA8715D;
-	Wed, 10 Feb 2021 08:37:53 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9524CC0174;
-	Wed, 10 Feb 2021 08:37:53 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6D342C013A
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 08:37:51 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 5BA2285633
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 08:37:51 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id W3ufeyHhGeMi
+ with ESMTP id 1tz5fuUk2h3U
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 08:37:51 +0000 (UTC)
+ Wed, 10 Feb 2021 08:38:20 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id D94F585010
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 055CD8715D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 08:37:50 +0000 (UTC)
+ Wed, 10 Feb 2021 08:38:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
  References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=1r0irMz2N0yyYbwfbWnEViPW0NRdXGASq84W3NqA1ik=; b=dUsRsSif+hnZBSGbN83obM3tgZ
- lVJf3UfphZrzmkM9NIeDnz/SGWiRL/ljUp7J+g26OUepT8HFRSEGzduFv2CakNSqNVwAQkOD4R1zT
- dPVq094moraofb+zWnciYZ3MlejLVB93UJOWw/KUXFGxLYFYZr+TkyRf0lqq8HjedKzgXDEf2oJ6P
- YaLlIsw/PtWml9+0q9mUvH15xyzIG0ReK4fd+McYEbZHbyDUqHSZDmk/KJYgz+LY3j+EjsMiynSdr
- +uQjh8PD1M3wm1KXeH9IOUIawIc5pVsdmIMBlz5bAhZwIe2/NX5X8mHLpNrwrpfCbHzdffMsekX21
- QnRiOWZA==;
+ bh=+qITOZrYF9no2ix1twH+0IKQ9x3nOOUKSCIAW2uGldE=; b=MY0asvwIRHDHQ0ram3Yrv8oNk1
+ dSLt8cO/rUXS0U52qUuy2gDw3WrzB6aSVobMHASsXXrYdqKy9CHS5hMjk+Xrp+hfJOCnh30zKYEEC
+ /z9Lr8awLTuJ53vgAKKFkmC6IYCrV37DIF5LLBpItqLdwaLjX3ujYOwFVUvlXEEJXpkFMiDBRzNuQ
+ j7SRaaFsargX/QngCdI30a8UA9JJduYM7K771DaUhGFmpuBF1yg13P+fGpmgrgpasnMMxKlI0vhvz
+ 54NJ2ceLmNgW8kpDmeTcxstUK/i8sWfZsmzLdWscptZHO9pWyzzog+64jeoadEpDD2P8EvMHgMsR7
+ vOxJb4Zg==;
 Received: from hch by casper.infradead.org with local (Exim 4.94 #2 (Red Hat
- Linux)) id 1l9l0G-008akL-Mb; Wed, 10 Feb 2021 08:37:41 +0000
-Date: Wed, 10 Feb 2021 08:37:40 +0000
+ Linux)) id 1l9l0i-008anH-7V; Wed, 10 Feb 2021 08:38:08 +0000
+Date: Wed, 10 Feb 2021 08:38:08 +0000
 From: Christoph Hellwig <hch@infradead.org>
 To: Mike Christie <michael.christie@oracle.com>
-Subject: Re: [PATCH 05/13] tcm loop: use blk cmd allocator for se_cmds
-Message-ID: <20210210083740.GC2045726@infradead.org>
+Subject: Re: [PATCH 07/13] target: cleanup cmd flag bits
+Message-ID: <20210210083808.GD2045726@infradead.org>
 References: <20210209123845.4856-1-michael.christie@oracle.com>
- <20210209123845.4856-6-michael.christie@oracle.com>
+ <20210209123845.4856-8-michael.christie@oracle.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20210209123845.4856-6-michael.christie@oracle.com>
+In-Reply-To: <20210209123845.4856-8-michael.christie@oracle.com>
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
  casper.infradead.org. See http://www.infradead.org/rpr.html
 Cc: loberman@redhat.com, Chaitanya.Kulkarni@wdc.com, martin.petersen@oracle.com,
@@ -92,13 +95,12 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Feb 09, 2021 at 06:38:37AM -0600, Mike Christie wrote:
-> This just has tcm loop use the block layer cmd allocator for se_cmds
-> instead of using the tcm_loop_cmd_cache. In future patches when we
-> can use the host tags for internal requests like TMFs we can completely
-> kill the tcm_loop_cmd_cache.
+On Tue, Feb 09, 2021 at 06:38:39AM -0600, Mike Christie wrote:
+> We have a couple holes in the cmd flags definitions. This cleans
+> up the definitions to fix that and make it easier to read.
 > 
 > Signed-off-by: Mike Christie <michael.christie@oracle.com>
+> Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 
 Looks good,
 
