@@ -7,62 +7,60 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC526C433E6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6981EC433E9
 	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 10:22:07 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 386E561490
-	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 10:22:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 386E561490
+	by mail.kernel.org (Postfix) with ESMTPS id 0295164E32
+	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 10:22:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0295164E32
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C3DDC6F5B2
-	for <virtualization@archiver.kernel.org>; Wed, 10 Feb 2021 10:22:06 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pwFLLxwempHY for <virtualization@archiver.kernel.org>;
+	by fraxinus.osuosl.org (Postfix) with ESMTP id D650985F32;
 	Wed, 10 Feb 2021 10:22:05 +0000 (UTC)
-Received: by smtp3.osuosl.org (Postfix, from userid 1001)
-	id A5C856F51A; Wed, 10 Feb 2021 10:22:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3D4156F4E9;
-	Wed, 10 Feb 2021 10:22:03 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 11B94C0174;
-	Wed, 10 Feb 2021 10:22:03 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6E322C013A
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 10:22:01 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 5CE4485A80
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 10:22:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JVctYf3GgwbC
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id EcNLrREs9fI4; Wed, 10 Feb 2021 10:22:04 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id E825E85F41;
+	Wed, 10 Feb 2021 10:22:03 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C2C3EC1DA9;
+	Wed, 10 Feb 2021 10:22:03 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 19BC5C013A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 10:22:00 +0000 (UTC)
+ Wed, 10 Feb 2021 10:22:02 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id 115D28650D
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Feb 2021 10:22:02 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id mHeUhujr1iVB
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 10 Feb 2021 10:22:01 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 111348554A
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 58B83864E6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Feb 2021 10:22:00 +0000 (UTC)
+ Wed, 10 Feb 2021 10:22:01 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549adcf6.dip0.t-ipconnect.de
  [84.154.220.246])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 021BC3C2;
- Wed, 10 Feb 2021 11:21:55 +0100 (CET)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 9F5B747C;
+ Wed, 10 Feb 2021 11:21:57 +0100 (CET)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH 2/7] x86/boot/compressed/64: Reload CS in startup_32
-Date: Wed, 10 Feb 2021 11:21:30 +0100
-Message-Id: <20210210102135.30667-3-joro@8bytes.org>
+Subject: [PATCH 5/7] x86/boot/compressed/64: Add CPUID sanity check to 32-bit
+ boot-path
+Date: Wed, 10 Feb 2021 11:21:33 +0100
+Message-Id: <20210210102135.30667-6-joro@8bytes.org>
 X-Mailer: git-send-email 2.30.0
 In-Reply-To: <20210210102135.30667-1-joro@8bytes.org>
 References: <20210210102135.30667-1-joro@8bytes.org>
@@ -98,36 +96,77 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Exception handling in the startup_32 boot path requires the CS
-selector to be correctly set up. Reload it from the current GDT.
+The 32-bit #VC handler has no GHCB and can only handle CPUID exit codes.
+It is needed by the early boot code to handle #VC exceptions raised in
+verify_cpu() and to get the position of the C bit.
+
+But the CPUID information comes from the hypervisor, which is untrusted
+and might return results which trick the guest into the no-SEV boot path
+with no C bit set in the page-tables. All data written to memory would
+then be unencrypted and could leak sensitive data to the hypervisor.
+
+Add sanity checks to the 32-bit boot #VC handler to make sure the
+hypervisor does not pretend that SEV is not enabled.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/head_64.S | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/x86/boot/compressed/mem_encrypt.S | 36 ++++++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
 
-diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
-index e94874f4bbc1..c59c80ca546d 100644
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -107,9 +107,16 @@ SYM_FUNC_START(startup_32)
- 	movl	%eax, %gs
- 	movl	%eax, %ss
+diff --git a/arch/x86/boot/compressed/mem_encrypt.S b/arch/x86/boot/compressed/mem_encrypt.S
+index 350ecb56c7e4..091502cde070 100644
+--- a/arch/x86/boot/compressed/mem_encrypt.S
++++ b/arch/x86/boot/compressed/mem_encrypt.S
+@@ -126,6 +126,34 @@ SYM_CODE_START(startup32_vc_handler)
+ 	SEV_ES_REQ_CPUID fn=%ebx reg=3
+ 	movl	%edx, (%esp)
  
--/* setup a stack and make sure cpu supports long mode. */
-+	/* Setup a stack and load CS from current GDT */
- 	leal	rva(boot_stack_end)(%ebp), %esp
- 
-+	pushl	$__KERNEL32_CS
-+	leal	rva(1f)(%ebp), %eax
-+	pushl	%eax
-+	lretl
-+1:
++	/*
++	 * Sanity check CPUID results from the Hypervisor. See comment in
++	 * do_vc_no_ghcb() for more details on why this is necessary.
++	 */
 +
-+	/* Make sure cpu supports long mode. */
- 	call	verify_cpu
- 	testl	%eax, %eax
- 	jnz	.Lno_longmode
++	/* Fail if Hypervisor bit not set in CPUID[1].ECX[31] */
++	cmpl    $1, %ebx
++	jne     .Lcheck_leaf
++	btl     $31, 4(%esp)
++	jnc     .Lfail
++	jmp     .Ldone
++
++.Lcheck_leaf:
++	/* Fail if SEV leaf not available in CPUID[0x80000000].EAX */
++	cmpl    $0x80000000, %ebx
++	jne     .Lcheck_sev
++	cmpl    $0x8000001f, 12(%esp)
++	jb      .Lfail
++	jmp     .Ldone
++
++.Lcheck_sev:
++	/* Fail if SEV bit not set in CPUID[0x8000001f].EAX[1] */
++	cmpl    $0x8000001f, %ebx
++	jne     .Ldone
++	btl     $1, 12(%esp)
++	jnc     .Lfail
++
++.Ldone:
+ 	popl	%edx
+ 	popl	%ecx
+ 	popl	%ebx
+@@ -139,6 +167,14 @@ SYM_CODE_START(startup32_vc_handler)
+ 
+ 	iret
+ .Lfail:
++	/* Send terminate request to Hypervisor */
++	movl    $0x100, %eax
++	xorl    %edx, %edx
++	movl    $MSR_AMD64_SEV_ES_GHCB, %ecx
++	wrmsr
++	rep; vmmcall
++
++	/* If request fails, go to hlt loop */
+ 	hlt
+ 	jmp .Lfail
+ SYM_CODE_END(startup32_vc_handler)
 -- 
 2.30.0
 
