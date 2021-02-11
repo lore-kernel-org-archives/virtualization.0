@@ -7,111 +7,89 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFE4CC433E6
-	for <virtualization@archiver.kernel.org>; Thu, 11 Feb 2021 10:52:44 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B268C433E0
+	for <virtualization@archiver.kernel.org>; Thu, 11 Feb 2021 11:00:30 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 244DB64ECA
-	for <virtualization@archiver.kernel.org>; Thu, 11 Feb 2021 10:52:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 244DB64ECA
+	by mail.kernel.org (Postfix) with ESMTPS id E4F3764EB9
+	for <virtualization@archiver.kernel.org>; Thu, 11 Feb 2021 11:00:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E4F3764EB9
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id B5C4A86DF4;
-	Thu, 11 Feb 2021 10:52:43 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 9131687565;
+	Thu, 11 Feb 2021 11:00:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SGa4PNlV8uQZ; Thu, 11 Feb 2021 10:52:42 +0000 (UTC)
+	with ESMTP id Sz8k+YaE2Xjw; Thu, 11 Feb 2021 11:00:29 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id E389486DEA;
-	Thu, 11 Feb 2021 10:52:42 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id F0D7E87509;
+	Thu, 11 Feb 2021 11:00:28 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9D702C0891;
-	Thu, 11 Feb 2021 10:52:42 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7A032C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E3CCEC0891;
+	Thu, 11 Feb 2021 11:00:28 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BBD4FC013A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Feb 2021 10:52:40 +0000 (UTC)
+ Thu, 11 Feb 2021 11:00:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 5FF328734F
+ by hemlock.osuosl.org (Postfix) with ESMTP id A9DA187565
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Feb 2021 10:52:40 +0000 (UTC)
+ Thu, 11 Feb 2021 11:00:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id abbWWf992hL4
+ with ESMTP id bovv1i6DMOPh
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Feb 2021 10:52:39 +0000 (UTC)
+ Thu, 11 Feb 2021 11:00:27 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 60B2D8722B
+ by hemlock.osuosl.org (Postfix) with ESMTPS id E58D087509
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Feb 2021 10:52:39 +0000 (UTC)
+ Thu, 11 Feb 2021 11:00:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1613040757;
+ s=mimecast20190719; t=1613041225;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=c6JIyxLiRHESwY6rJeK+rsmJNAoxnfQJq+AkTGikyDY=;
- b=BduuDeRBVNYOU859XFqQ8QN3O28Mctk9Egpgj4GBRohdB+FMlnt5VcqmXc15xmcN6+Ami6
- CRNa7VT8G/AIl/ZVH2o5sd/HLcpja9489ywc7a5WYCiQIl4mz0KX6+aMpHIl9H4lj7UUlF
- 3wEK6HXLvD8J23e7jNUYbbfQRF6p9t0=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-460-CQIfFkxmOyWNNoVp-oM3KQ-1; Thu, 11 Feb 2021 05:52:34 -0500
-X-MC-Unique: CQIfFkxmOyWNNoVp-oM3KQ-1
-Received: by mail-ej1-f69.google.com with SMTP id hx26so4569678ejc.3
- for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Feb 2021 02:52:34 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=c6JIyxLiRHESwY6rJeK+rsmJNAoxnfQJq+AkTGikyDY=;
- b=X7QrX588F/rGP4zaGYMnk454e9xn5XZmZ6Lj8Dy0ng/q0ocrzsQcq80S1lsAZVVNaJ
- 5d933T1RmBnwEHYE2GhbN7BoPTfw0Jn/s8gI/zn2txa3vj3YXPHoWmUUTPSiLGF9OzGI
- ryiTV5X17vR9PcSu9fOlcTlW5NrrvCVh1rW3UWYsSY4HbLWTye2IEvoDM8l1hEQgqJkN
- n10XU51H4x2ZGUKzSW8svud7jrxzL7rqdwjDaadG/uIdQs+kBowZQHj/XKST9pwXqVgx
- +vbLdqw39j46wgEteiQn32F5fu2pe1TgIHRZ4ntdBx0j75p9kSxeRupbpxXw/iez7U2o
- CVfA==
-X-Gm-Message-State: AOAM532oD2paCamu5HStjd2IXOmQvfVN4PiBIj3uJBoSiBUnzWTf2CUv
- KkHU4M63w6IhqNRfG0X8eGdtMA6JIp6Ch2iO/+bYXoSrGgubrQajv+1w951Q9nqBk2cxUFmIYA2
- yIA0DCmbgwr1UM91vCeNctOCqYjZuFL18Pz0MtEbCgA==
-X-Received: by 2002:a50:b765:: with SMTP id g92mr7847351ede.317.1613040752990; 
- Thu, 11 Feb 2021 02:52:32 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJw4L+tgVkXdxNZfo4WOdRQsyzuiJJ+oUQSD+Mof1i2r3UcuhRlRZ20qv++UXJ9lCcDs9kLlIA==
-X-Received: by 2002:a50:b765:: with SMTP id g92mr7847336ede.317.1613040752718; 
- Thu, 11 Feb 2021 02:52:32 -0800 (PST)
-Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
- [79.34.249.199])
- by smtp.gmail.com with ESMTPSA id l12sm3613142edn.83.2021.02.11.02.52.31
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 11 Feb 2021 02:52:32 -0800 (PST)
-Date: Thu, 11 Feb 2021 11:52:29 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [RFC PATCH v4 01/17] af_vsock: update functions for connectible
- socket
-Message-ID: <20210211105229.fmdonwqe3swhq6lb@steredhat>
-References: <20210207151259.803917-1-arseny.krasnov@kaspersky.com>
- <20210207151426.804348-1-arseny.krasnov@kaspersky.com>
+ bh=iQ1CyJDpkuauU8h1mtytMENhHHlIG0UXjEznsE8xviI=;
+ b=Uqi4mSGCswJEOD1o+95r567sb7h9reyLgTZBWFPviySaTbBsMdhisAUj8a/FgNvhoavSPG
+ d7Ljn3N3lVUWiWKMI4KRrL23OOENGUmoCRotfKcebJbaNd6jAEJpRlw6JoYs5RNrsF/8NN
+ krETvsdzGYEORyvRvswOW4DPqz920rA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-406-gHnI95s5M4iCne7udxMfnA-1; Thu, 11 Feb 2021 06:00:20 -0500
+X-MC-Unique: gHnI95s5M4iCne7udxMfnA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
+ [10.5.11.15])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B6CD286A060;
+ Thu, 11 Feb 2021 11:00:18 +0000 (UTC)
+Received: from carbon (unknown [10.36.110.45])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 75E5B62953;
+ Thu, 11 Feb 2021 11:00:06 +0000 (UTC)
+Date: Thu, 11 Feb 2021 12:00:05 +0100
+From: Jesper Dangaard Brouer <brouer@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH netdev] virtio-net: support XDP_TX when not more queues
+Message-ID: <20210211120005.04af2c0f@carbon>
+In-Reply-To: <20210210163945-mutt-send-email-mst@kernel.org>
+References: <81abae33fc8dbec37ef0061ff6f6fd696b484a3e.1610523188.git.xuanzhuo@linux.alibaba.com>
+ <20210210163945-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20210207151426.804348-1-arseny.krasnov@kaspersky.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Andra Paraschiv <andraprs@amazon.com>, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, Jeff Vander Stoep <jeffv@google.com>,
- stsp2@yandex.ru, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, oxffffaa@gmail.com,
- netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
- Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Jesper Dangaard Brouer <hawk@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
+ John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
+ virtualization@lists.linux-foundation.org, Marek Majtyka <alardam@gmail.com>,
+ dust.li@linux.alibaba.com, brouer@redhat.com, Jakub Kicinski <kuba@kernel.org>,
+ bpf@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,214 +101,113 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Feb 07, 2021 at 06:14:23PM +0300, Arseny Krasnov wrote:
->This prepares af_vsock.c for SEQPACKET support: some functions such
->as setsockopt(), getsockopt(), connect(), recvmsg(), sendmsg() are
->shared between both types of sockets, so rename them in general
->manner.
->
->Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
->---
-> net/vmw_vsock/af_vsock.c | 64 +++++++++++++++++++++-------------------
-> 1 file changed, 34 insertions(+), 30 deletions(-)
+On Wed, 10 Feb 2021 16:40:41 -0500
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-This patch LGTM:
+> On Wed, Jan 13, 2021 at 04:08:57PM +0800, Xuan Zhuo wrote:
+> > The number of queues implemented by many virtio backends is limited,
+> > especially some machines have a large number of CPUs. In this case, it
+> > is often impossible to allocate a separate queue for XDP_TX.
+> > 
+> > This patch allows XDP_TX to run by reuse the existing SQ with
+> > __netif_tx_lock() hold when there are not enough queues.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+I'm a little puzzled about the choice of using the netdevice TXQ
+lock __netif_tx_lock() / __netif_tx_unlock().
+Can you explain more about this choice?
 
-Thanks,
-Stefano
+> > 
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > Reviewed-by: Dust Li <dust.li@linux.alibaba.com>  
+> 
+> I'd like to get some advice on whether this is ok from some
+> XDP experts - previously my understanding was that it is
+> preferable to disable XDP for such devices than
+> use locks on XDP fast path.
 
->
->diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index 6894f21dc147..f4fabec50650 100644
->--- a/net/vmw_vsock/af_vsock.c
->+++ b/net/vmw_vsock/af_vsock.c
->@@ -604,8 +604,8 @@ static void vsock_pending_work(struct work_struct *work)
->
-> /**** SOCKET OPERATIONS ****/
->
->-static int __vsock_bind_stream(struct vsock_sock *vsk,
->-			       struct sockaddr_vm *addr)
->+static int __vsock_bind_connectible(struct vsock_sock *vsk,
->+				    struct sockaddr_vm *addr)
-> {
-> 	static u32 port;
-> 	struct sockaddr_vm new_addr;
->@@ -685,7 +685,7 @@ static int __vsock_bind(struct sock *sk, struct sockaddr_vm *addr)
-> 	switch (sk->sk_socket->type) {
-> 	case SOCK_STREAM:
-> 		spin_lock_bh(&vsock_table_lock);
->-		retval = __vsock_bind_stream(vsk, addr);
->+		retval = __vsock_bind_connectible(vsk, addr);
-> 		spin_unlock_bh(&vsock_table_lock);
-> 		break;
->
->@@ -767,6 +767,11 @@ static struct sock *__vsock_create(struct net *net,
-> 	return sk;
-> }
->
->+static bool sock_type_connectible(u16 type)
->+{
->+	return type == SOCK_STREAM;
->+}
->+
-> static void __vsock_release(struct sock *sk, int level)
-> {
-> 	if (sk) {
->@@ -785,7 +790,7 @@ static void __vsock_release(struct sock *sk, int level)
->
-> 		if (vsk->transport)
-> 			vsk->transport->release(vsk);
->-		else if (sk->sk_type == SOCK_STREAM)
->+		else if (sock_type_connectible(sk->sk_type))
-> 			vsock_remove_sock(vsk);
->
-> 		sock_orphan(sk);
->@@ -945,7 +950,7 @@ static int vsock_shutdown(struct socket *sock, int mode)
-> 	sk = sock->sk;
-> 	if (sock->state == SS_UNCONNECTED) {
-> 		err = -ENOTCONN;
->-		if (sk->sk_type == SOCK_STREAM)
->+		if (sock_type_connectible(sk->sk_type))
-> 			return err;
-> 	} else {
-> 		sock->state = SS_DISCONNECTING;
->@@ -960,7 +965,7 @@ static int vsock_shutdown(struct socket *sock, int mode)
-> 		sk->sk_state_change(sk);
-> 		release_sock(sk);
->
->-		if (sk->sk_type == SOCK_STREAM) {
->+		if (sock_type_connectible(sk->sk_type)) {
-> 			sock_reset_flag(sk, SOCK_DONE);
-> 			vsock_send_shutdown(sk, mode);
-> 		}
->@@ -1013,7 +1018,7 @@ static __poll_t vsock_poll(struct file *file, struct socket *sock,
-> 		if (!(sk->sk_shutdown & SEND_SHUTDOWN))
-> 			mask |= EPOLLOUT | EPOLLWRNORM | EPOLLWRBAND;
->
->-	} else if (sock->type == SOCK_STREAM) {
->+	} else if (sock_type_connectible(sk->sk_type)) {
-> 		const struct vsock_transport *transport;
->
-> 		lock_sock(sk);
->@@ -1263,8 +1268,8 @@ static void vsock_connect_timeout(struct work_struct *work)
-> 	sock_put(sk);
-> }
->
->-static int vsock_stream_connect(struct socket *sock, struct sockaddr *addr,
->-				int addr_len, int flags)
->+static int vsock_connect(struct socket *sock, struct sockaddr *addr,
->+			 int addr_len, int flags)
-> {
-> 	int err;
-> 	struct sock *sk;
->@@ -1414,7 +1419,7 @@ static int vsock_accept(struct socket *sock, struct socket *newsock, int flags,
->
-> 	lock_sock(listener);
->
->-	if (sock->type != SOCK_STREAM) {
->+	if (!sock_type_connectible(sock->type)) {
-> 		err = -EOPNOTSUPP;
-> 		goto out;
-> 	}
->@@ -1491,7 +1496,7 @@ static int vsock_listen(struct socket *sock, int backlog)
->
-> 	lock_sock(sk);
->
->-	if (sock->type != SOCK_STREAM) {
->+	if (!sock_type_connectible(sk->sk_type)) {
-> 		err = -EOPNOTSUPP;
-> 		goto out;
-> 	}
->@@ -1535,11 +1540,11 @@ static void vsock_update_buffer_size(struct vsock_sock *vsk,
-> 	vsk->buffer_size = val;
-> }
->
->-static int vsock_stream_setsockopt(struct socket *sock,
->-				   int level,
->-				   int optname,
->-				   sockptr_t optval,
->-				   unsigned int optlen)
->+static int vsock_connectible_setsockopt(struct socket *sock,
->+					int level,
->+					int optname,
->+					sockptr_t optval,
->+					unsigned int optlen)
-> {
-> 	int err;
-> 	struct sock *sk;
->@@ -1617,10 +1622,10 @@ static int vsock_stream_setsockopt(struct socket *sock,
-> 	return err;
-> }
->
->-static int vsock_stream_getsockopt(struct socket *sock,
->-				   int level, int optname,
->-				   char __user *optval,
->-				   int __user *optlen)
->+static int vsock_connectible_getsockopt(struct socket *sock,
->+					int level, int optname,
->+					char __user *optval,
->+					int __user *optlen)
-> {
-> 	int err;
-> 	int len;
->@@ -1688,8 +1693,8 @@ static int vsock_stream_getsockopt(struct socket *sock,
-> 	return 0;
-> }
->
->-static int vsock_stream_sendmsg(struct socket *sock, struct msghdr *msg,
->-				size_t len)
->+static int vsock_connectible_sendmsg(struct socket *sock, struct msghdr *msg,
->+				     size_t len)
-> {
-> 	struct sock *sk;
-> 	struct vsock_sock *vsk;
->@@ -1828,10 +1833,9 @@ static int vsock_stream_sendmsg(struct socket *sock, struct msghdr *msg,
-> 	return err;
-> }
->
->-
-> static int
->-vsock_stream_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
->-		     int flags)
->+vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
->+			  int flags)
-> {
-> 	struct sock *sk;
-> 	struct vsock_sock *vsk;
->@@ -2007,7 +2011,7 @@ static const struct proto_ops vsock_stream_ops = {
-> 	.owner = THIS_MODULE,
-> 	.release = vsock_release,
-> 	.bind = vsock_bind,
->-	.connect = vsock_stream_connect,
->+	.connect = vsock_connect,
-> 	.socketpair = sock_no_socketpair,
-> 	.accept = vsock_accept,
-> 	.getname = vsock_getname,
->@@ -2015,10 +2019,10 @@ static const struct proto_ops vsock_stream_ops = {
-> 	.ioctl = sock_no_ioctl,
-> 	.listen = vsock_listen,
-> 	.shutdown = vsock_shutdown,
->-	.setsockopt = vsock_stream_setsockopt,
->-	.getsockopt = vsock_stream_getsockopt,
->-	.sendmsg = vsock_stream_sendmsg,
->-	.recvmsg = vsock_stream_recvmsg,
->+	.setsockopt = vsock_connectible_setsockopt,
->+	.getsockopt = vsock_connectible_getsockopt,
->+	.sendmsg = vsock_connectible_sendmsg,
->+	.recvmsg = vsock_connectible_recvmsg,
-> 	.mmap = sock_no_mmap,
-> 	.sendpage = sock_no_sendpage,
-> };
->-- 
->2.25.1
->
+I think it is acceptable, because the ndo_xdp_xmit / virtnet_xdp_xmit
+takes a bulk of packets (currently 16).
+
+Some drivers already does this.
+
+It would have been nice if we could set a feature flag, that allow
+users to see that this driver uses locking in the XDP transmit
+(ndo_xdp_xmit) function call... but it seems like a pipe dream :-P
+
+Code related to the locking
+
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index ba8e637..7a3b2a7 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+[...]
+> > @@ -481,14 +484,34 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
+> >  	return 0;
+> >  }
+> >  
+> > -static struct send_queue *virtnet_xdp_sq(struct virtnet_info *vi)
+> > +static struct send_queue *virtnet_get_xdp_sq(struct virtnet_info *vi)
+> >  {
+> >  	unsigned int qp;
+> > +	struct netdev_queue *txq;
+> > +
+> > +	if (vi->curr_queue_pairs > nr_cpu_ids) {
+> > +		qp = vi->curr_queue_pairs - vi->xdp_queue_pairs + smp_processor_id();
+> > +	} else {
+> > +		qp = smp_processor_id() % vi->curr_queue_pairs;
+> > +		txq = netdev_get_tx_queue(vi->dev, qp);
+> > +		__netif_tx_lock(txq, raw_smp_processor_id());
+> > +	}
+> >  
+> > -	qp = vi->curr_queue_pairs - vi->xdp_queue_pairs + smp_processor_id();
+> >  	return &vi->sq[qp];
+> >  }
+> >  
+> > +static void virtnet_put_xdp_sq(struct virtnet_info *vi)
+> > +{
+> > +	unsigned int qp;
+> > +	struct netdev_queue *txq;
+> > +
+> > +	if (vi->curr_queue_pairs <= nr_cpu_ids) {
+> > +		qp = smp_processor_id() % vi->curr_queue_pairs;
+> > +		txq = netdev_get_tx_queue(vi->dev, qp);
+> > +		__netif_tx_unlock(txq);
+> > +	}
+> > +}
+> > +
+> >  static int virtnet_xdp_xmit(struct net_device *dev,
+> >  			    int n, struct xdp_frame **frames, u32 flags)
+> >  {
+> > @@ -512,7 +535,7 @@ static int virtnet_xdp_xmit(struct net_device *dev,
+> >  	if (!xdp_prog)
+> >  		return -ENXIO;
+> >  
+> > -	sq = virtnet_xdp_sq(vi);
+> > +	sq = virtnet_get_xdp_sq(vi);
+> >  
+> >  	if (unlikely(flags & ~XDP_XMIT_FLAGS_MASK)) {
+> >  		ret = -EINVAL;
+> > @@ -560,12 +583,13 @@ static int virtnet_xdp_xmit(struct net_device *dev,
+> >  	sq->stats.kicks += kicks;
+> >  	u64_stats_update_end(&sq->stats.syncp);
+> >  
+> > +	virtnet_put_xdp_sq(vi);
+> >  	return ret;
+> >  }
+> >  
+
+
+
+-- 
+Best regards,
+  Jesper Dangaard Brouer
+  MSc.CS, Principal Kernel Engineer at Red Hat
+  LinkedIn: http://www.linkedin.com/in/brouer
 
 _______________________________________________
 Virtualization mailing list
