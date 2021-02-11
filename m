@@ -7,115 +7,115 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5787C433E0
-	for <virtualization@archiver.kernel.org>; Thu, 11 Feb 2021 11:24:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E115EC433DB
+	for <virtualization@archiver.kernel.org>; Thu, 11 Feb 2021 11:38:09 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 23B7C64E2F
-	for <virtualization@archiver.kernel.org>; Thu, 11 Feb 2021 11:24:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 23B7C64E2F
+	by mail.kernel.org (Postfix) with ESMTPS id 6E47164DB1
+	for <virtualization@archiver.kernel.org>; Thu, 11 Feb 2021 11:38:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6E47164DB1
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id AB5826F5E3
-	for <virtualization@archiver.kernel.org>; Thu, 11 Feb 2021 11:24:21 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 28E066F5BA
+	for <virtualization@archiver.kernel.org>; Thu, 11 Feb 2021 11:38:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nEWEf8FPezAQ for <virtualization@archiver.kernel.org>;
-	Thu, 11 Feb 2021 11:24:19 +0000 (UTC)
+	with ESMTP id UEOi9tj2FcDX for <virtualization@archiver.kernel.org>;
+	Thu, 11 Feb 2021 11:38:07 +0000 (UTC)
 Received: by smtp3.osuosl.org (Postfix, from userid 1001)
-	id 6E6746F53B; Thu, 11 Feb 2021 11:24:19 +0000 (UTC)
+	id 260E16F5E5; Thu, 11 Feb 2021 11:38:07 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3E23B6F49E;
-	Thu, 11 Feb 2021 11:24:16 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2DB1C6F477;
+	Thu, 11 Feb 2021 11:38:04 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1160FC0174;
-	Thu, 11 Feb 2021 11:24:16 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 25754C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E9D7AC0174;
+	Thu, 11 Feb 2021 11:38:03 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5E881C013A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Feb 2021 11:24:15 +0000 (UTC)
+ Thu, 11 Feb 2021 11:38:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 0D117869E4
+ by whitealder.osuosl.org (Postfix) with ESMTP id 402B48732C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Feb 2021 11:24:15 +0000 (UTC)
+ Thu, 11 Feb 2021 11:38:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id K-qysB3vLFhn
+ with ESMTP id 0HZB7UkN8ydA
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Feb 2021 11:24:13 +0000 (UTC)
+ Thu, 11 Feb 2021 11:38:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 721E3869E3
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 5842B87313
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Feb 2021 11:24:13 +0000 (UTC)
+ Thu, 11 Feb 2021 11:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1613042652;
+ s=mimecast20190719; t=1613043481;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=jsFQLvTrgFrLgJfF0P6gQ1rEY89A4uU+A6tP6gqPGzI=;
- b=JrCKABglCy75CFULDOnW2L18PrevDzpuMS+ucqVX+kIwM4fo1XfCmJY+IZxTgHy39ppQib
- YAIwS0cz0L8UGSiqA2kEFgLZRyOTIIo1b7uSoBv+J2dw3pMzd6UDr+PwdW47l/LIrcHnzV
- xBS9ki5lW4ZoJn+1MjWCXvgZiE2Ikws=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-458-2Yg5h6oHMJGRidNTLUNoeQ-1; Thu, 11 Feb 2021 06:24:10 -0500
-X-MC-Unique: 2Yg5h6oHMJGRidNTLUNoeQ-1
-Received: by mail-ej1-f70.google.com with SMTP id n25so4742308ejd.5
+ bh=jBJpn4LbluSU72a0eU+ANLaBQa/dsUCCbpTQvGN+K1w=;
+ b=KEAjFLeqkPki6Ru7m7UHjEQDlm1f3Ay3nJ2nKgOhNSb/tMkBg0BIvCzYWFU1BzFSBHiSou
+ cw0vnq4b03HVmURfOxs+vikNcYm4jMkBZ/sheZtQQrywmZCELjpCYfqZtVJsK44qwu2h/w
+ rNePU4+370piFgDLgcqAX9N0om3xlAE=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-169-HqpgJ1qsPC6O2-iD16ORLA-1; Thu, 11 Feb 2021 06:37:57 -0500
+X-MC-Unique: HqpgJ1qsPC6O2-iD16ORLA-1
+Received: by mail-ed1-f70.google.com with SMTP id bd22so4505508edb.4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Feb 2021 03:24:10 -0800 (PST)
+ Thu, 11 Feb 2021 03:37:57 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=jsFQLvTrgFrLgJfF0P6gQ1rEY89A4uU+A6tP6gqPGzI=;
- b=Zr2DNVRGIAPRYMcy1pvjalgNyKgG4w/jLLa7jYn5nCGqzrzfS+pDip8OAQW/IJVLbk
- b2Tjf0Dn71Sd+DXQbXNmZd/nGa1cowyJv/0Im/Dz2qD6/TqsQEFHoH+Ym/W5HidI2kF0
- 52M9sNLolCmEGD+crkSZlkPkIzJA0LZ0X3aZPVTZ1cX7gGZ4iUo2o7HbyYHbYfRZ5qMt
- IRtCRHQPEM2BAXI7PNnpHeCm4Yk18VzQzFm8v5mqMbkSQz5eXZiOVr9c18dU8U+jGndg
- IOZB8BCB5d+ga5dUs9wwhCk+2AcfLHNgaoTcdG0sbgQpMZMgAoWEAXYuTQYOgxWKU867
- TSBg==
-X-Gm-Message-State: AOAM531RWHsPElmHeZVDT6J0U7y7vibmYXbCExWLFvIZAMDzp4h2IQjM
- y/MomrnTVGSFs7HjLdtY8+aQxXHylq2F2j58Y3kC3XPjeAz+NgUSaTBqgtGkwMHd5f1tiFbLJWT
- xuacLdQeJMaqqJPiE3PhcaioyYAaoJLOy5JJ4f654jg==
-X-Received: by 2002:a17:906:2898:: with SMTP id
- o24mr7925097ejd.215.1613042649433; 
- Thu, 11 Feb 2021 03:24:09 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJz1BcH+8XhReWwB41yfcl5jxF05aOvARXZuhUzHPDVsQ+y/97BjHWEuNLhAxUoPtrlmcVmcWQ==
-X-Received: by 2002:a17:906:2898:: with SMTP id
- o24mr7925012ejd.215.1613042648077; 
- Thu, 11 Feb 2021 03:24:08 -0800 (PST)
+ bh=jBJpn4LbluSU72a0eU+ANLaBQa/dsUCCbpTQvGN+K1w=;
+ b=QutMS/6gLLQ7xy1xxf6a3di9IdjPJoEDyGT/E362Phm5aZbR0GbXNT2T7S434p09xN
+ GwJsAqoLW+eEtTuXTO0d7Y8c+qLKNelITf3B/gMwoe/SqLXJaHFNfKjYuyW89wGU+Uy6
+ 1zAdA44LvAOQ7LEsdVrc3oV9+I+82LzcRwmS1PyQxxOAIIvhCqeOZpgoJgGDLBfZNXtj
+ o18rJI40JZ0encWQAbMPcso4SYSzqMIdxCgmWxrQYdSmaCyaCAnYwgtC2Jn0JSOPmunR
+ GAposlmh9/r/Bf4DO4UatLgCA0RjioIPsmDNTucK3cVxUEXMjqaJMeOxf81+Z/El53wX
+ l1MQ==
+X-Gm-Message-State: AOAM530T1fK4JpDPmNwyUARjMtyUfkN1bhNZDRwxTJuDtSKNhlscv4JF
+ KFUi/KqZRKg/4BqqQ2+f7f7cuZsLPgeKjJGy16NsxFu6/HeHrSL2e3CqkAs0jguCBYGJsohMgbp
+ FRwvgTeYkuylwOXlj8mFguFrDefd44l0Jd2IRPKigmA==
+X-Received: by 2002:a17:906:37c1:: with SMTP id
+ o1mr7920794ejc.488.1613043476412; 
+ Thu, 11 Feb 2021 03:37:56 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyJnUUecMhZKbbTG7xRbeEA9y+GaY0YJsrOqETOe26tn0T3XY70P75PsWnGdEkMaW63FaTK2w==
+X-Received: by 2002:a17:906:37c1:: with SMTP id
+ o1mr7920773ejc.488.1613043476196; 
+ Thu, 11 Feb 2021 03:37:56 -0800 (PST)
 Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
  [79.34.249.199])
- by smtp.gmail.com with ESMTPSA id u3sm3944113eje.63.2021.02.11.03.24.06
+ by smtp.gmail.com with ESMTPSA id m7sm3982087ejk.52.2021.02.11.03.37.55
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 11 Feb 2021 03:24:07 -0800 (PST)
-Date: Thu, 11 Feb 2021 12:24:04 +0100
+ Thu, 11 Feb 2021 03:37:55 -0800 (PST)
+Date: Thu, 11 Feb 2021 12:37:53 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [RFC PATCH v4 02/17] af_vsock: separate wait data loop
-Message-ID: <20210211112404.rwa55a6egstpskj2@steredhat>
+Subject: Re: [RFC PATCH v4 03/17] af_vsock: separate receive data loop
+Message-ID: <20210211113753.o4zco3yromuxpvo2@steredhat>
 References: <20210207151259.803917-1-arseny.krasnov@kaspersky.com>
- <20210207151451.804498-1-arseny.krasnov@kaspersky.com>
+ <20210207151508.804615-1-arseny.krasnov@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <20210207151451.804498-1-arseny.krasnov@kaspersky.com>
+In-Reply-To: <20210207151508.804615-1-arseny.krasnov@kaspersky.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
 Cc: Andra Paraschiv <andraprs@amazon.com>, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, stsp2@yandex.ru,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- oxffffaa@gmail.com, Stefan Hajnoczi <stefanha@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jeff Vander Stoep <jeffv@google.com>,
+ stsp2@yandex.ru, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, oxffffaa@gmail.com,
+ netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
  Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>,
- Alexander Popov <alex.popov@linux.com>
+ "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -132,218 +132,168 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Feb 07, 2021 at 06:14:48PM +0300, Arseny Krasnov wrote:
->This moves wait loop for data to dedicated function, because later
->it will be used by SEQPACKET data receive loop.
+On Sun, Feb 07, 2021 at 06:15:05PM +0300, Arseny Krasnov wrote:
+>This moves STREAM specific data receive logic to dedicated function:
+>'__vsock_stream_recvmsg()', while checks that will be same for both
+>types of socket are in shared function: 'vsock_connectible_recvmsg()'.
 >
 >Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
 >---
-> net/vmw_vsock/af_vsock.c | 158 +++++++++++++++++++++------------------
-> 1 file changed, 86 insertions(+), 72 deletions(-)
+> net/vmw_vsock/af_vsock.c | 117 +++++++++++++++++++++++----------------
+> 1 file changed, 68 insertions(+), 49 deletions(-)
 >
 >diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index f4fabec50650..38927695786f 100644
+>index 38927695786f..66c8a932f49b 100644
 >--- a/net/vmw_vsock/af_vsock.c
 >+++ b/net/vmw_vsock/af_vsock.c
->@@ -1833,6 +1833,71 @@ static int vsock_connectible_sendmsg(struct socket *sock, struct msghdr *msg,
+>@@ -1898,65 +1898,22 @@ static int vsock_wait_data(struct sock *sk, struct wait_queue_entry *wait,
 > 	return err;
 > }
 >
->+static int vsock_wait_data(struct sock *sk, struct wait_queue_entry *wait,
->+			   long timeout,
->+			   struct vsock_transport_recv_notify_data *recv_data,
->+			   size_t target)
->+{
->+	const struct vsock_transport *transport;
+>-static int
+>-vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+>-			  int flags)
+>+static int __vsock_stream_recvmsg(struct sock *sk, struct msghdr *msg,
+>+				  size_t len, int flags)
+> {
+>-	struct sock *sk;
+>-	struct vsock_sock *vsk;
+>+	struct vsock_transport_recv_notify_data recv_data;
+> 	const struct vsock_transport *transport;
+>-	int err;
+>-	size_t target;
 >+	struct vsock_sock *vsk;
->+	s64 data;
+> 	ssize_t copied;
+>+	size_t target;
+> 	long timeout;
+>-	struct vsock_transport_recv_notify_data recv_data;
+>+	int err;
+>
+> 	DEFINE_WAIT(wait);
+>
+>-	sk = sock->sk;
+> 	vsk = vsock_sk(sk);
+>-	err = 0;
+>-
+>-	lock_sock(sk);
+>-
+> 	transport = vsk->transport;
+>
+>-	if (!transport || sk->sk_state != TCP_ESTABLISHED) {
+>-		/* Recvmsg is supposed to return 0 if a peer performs an
+>-		 * orderly shutdown. Differentiate between that case and when a
+>-		 * peer has not connected or a local shutdown occured with the
+>-		 * SOCK_DONE flag.
+>-		 */
+>-		if (sock_flag(sk, SOCK_DONE))
+>-			err = 0;
+>-		else
+>-			err = -ENOTCONN;
+>-
+>-		goto out;
+>-	}
+>-
+>-	if (flags & MSG_OOB) {
+>-		err = -EOPNOTSUPP;
+>-		goto out;
+>-	}
+>-
+>-	/* We don't check peer_shutdown flag here since peer may actually shut
+>-	 * down, but there can be data in the queue that a local socket can
+>-	 * receive.
+>-	 */
+>-	if (sk->sk_shutdown & RCV_SHUTDOWN) {
+>-		err = 0;
+>-		goto out;
+>-	}
+>-
+>-	/* It is valid on Linux to pass in a zero-length receive buffer.  This
+>-	 * is not an error.  We may as well bail out now.
+>-	 */
+>-	if (!len) {
+>-		err = 0;
+>-		goto out;
+>-	}
+>-
+> 	/* We must not copy less than target bytes into the user's buffer
+> 	 * before returning successfully, so we wait for the consume queue to
+> 	 * have that much data to consume before dequeueing.  Note that this
+
+At the end of __vsock_stream_recvmsg() you are calling release_sock(sk) 
+and it's wrong since we are releasing it in vsock_connectible_recvmsg().
+
+Please fix it.
+
+>@@ -2020,6 +1977,68 @@ vsock_connectible_recvmsg(struct socket *sock, 
+>struct msghdr *msg, size_t len,
+> 	return err;
+> }
+>
+>+static int
+>+vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+>+			  int flags)
+>+{
+>+	struct sock *sk;
+>+	struct vsock_sock *vsk;
+>+	const struct vsock_transport *transport;
 >+	int err;
 >+
+>+	DEFINE_WAIT(wait);
+>+
+>+	sk = sock->sk;
 >+	vsk = vsock_sk(sk);
 >+	err = 0;
+>+
+>+	lock_sock(sk);
+>+
 >+	transport = vsk->transport;
->+	prepare_to_wait(sk_sleep(sk), wait, TASK_INTERRUPTIBLE);
 >+
->+	while ((data = vsock_stream_has_data(vsk)) == 0) {
->+		if (sk->sk_err != 0 ||
->+		    (sk->sk_shutdown & RCV_SHUTDOWN) ||
->+		    (vsk->peer_shutdown & SEND_SHUTDOWN)) {
->+			goto out;
->+		}
+>+	if (!transport || sk->sk_state != TCP_ESTABLISHED) {
+>+		/* Recvmsg is supposed to return 0 if a peer performs an
+>+		 * orderly shutdown. Differentiate between that case and when a
+>+		 * peer has not connected or a local shutdown occurred with the
+>+		 * SOCK_DONE flag.
+>+		 */
+>+		if (sock_flag(sk, SOCK_DONE))
+>+			err = 0;
+>+		else
+>+			err = -ENOTCONN;
 >+
->+		/* Don't wait for non-blocking sockets. */
->+		if (timeout == 0) {
->+			err = -EAGAIN;
->+			goto out;
->+		}
->+
->+		if (recv_data) {
->+			err = transport->notify_recv_pre_block(vsk, target, recv_data);
->+			if (err < 0)
->+				goto out;
->+		}
->+
->+		release_sock(sk);
->+		timeout = schedule_timeout(timeout);
->+		lock_sock(sk);
->+
->+		if (signal_pending(current)) {
->+			err = sock_intr_errno(timeout);
->+			goto out;
->+		} else if (timeout == 0) {
->+			err = -EAGAIN;
->+			goto out;
->+		}
+>+		goto out;
 >+	}
 >+
->+	finish_wait(sk_sleep(sk), wait);
+>+	if (flags & MSG_OOB) {
+>+		err = -EOPNOTSUPP;
+>+		goto out;
+>+	}
 >+
->+	/* Invalid queue pair content. XXX This should
->+	 * be changed to a connection reset in a later
->+	 * change.
+>+	/* We don't check peer_shutdown flag here since peer may actually shut
+>+	 * down, but there can be data in the queue that a local socket can
+>+	 * receive.
 >+	 */
->+	if (data < 0)
->+		return -ENOMEM;
+>+	if (sk->sk_shutdown & RCV_SHUTDOWN) {
+>+		err = 0;
+>+		goto out;
+>+	}
 >+
->+	/* Have some data, return. */
->+	if (data)
->+		return data;
-
-IIUC here data must be != 0 so you can simply return data in any case.
-
-Or cleaner, you can do 'break' instead of 'goto out' in the error paths 
-and after the while loop you can do something like this:
-
-	finish_wait(sk_sleep(sk), wait);
-
-	if (err)
-		return err;
-
-	if (data < 0)
-		return -ENOMEM;
-
-	return data;
-}
-
+>+	/* It is valid on Linux to pass in a zero-length receive buffer.  This
+>+	 * is not an error.  We may as well bail out now.
+>+	 */
+>+	if (!len) {
+>+		err = 0;
+>+		goto out;
+>+	}
+>+
+>+	err = __vsock_stream_recvmsg(sk, msg, len, flags);
 >+
 >+out:
->+	finish_wait(sk_sleep(sk), wait);
+>+	release_sock(sk);
 >+	return err;
 >+}
 >+
-> static int
-> vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
-> 			  int flags)
->@@ -1912,85 +1977,34 @@ vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
->
->
-> 	while (1) {
->-		s64 ready;
->+		ssize_t read;
->
->-		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
->-		ready = vsock_stream_has_data(vsk);
->-
->-		if (ready == 0) {
->-			if (sk->sk_err != 0 ||
->-			    (sk->sk_shutdown & RCV_SHUTDOWN) ||
->-			    (vsk->peer_shutdown & SEND_SHUTDOWN)) {
->-				finish_wait(sk_sleep(sk), &wait);
->-				break;
->-			}
->-			/* Don't wait for non-blocking sockets. */
->-			if (timeout == 0) {
->-				err = -EAGAIN;
->-				finish_wait(sk_sleep(sk), &wait);
->-				break;
->-			}
->-
->-			err = transport->notify_recv_pre_block(
->-					vsk, target, &recv_data);
->-			if (err < 0) {
->-				finish_wait(sk_sleep(sk), &wait);
->-				break;
->-			}
->-			release_sock(sk);
->-			timeout = schedule_timeout(timeout);
->-			lock_sock(sk);
->-
->-			if (signal_pending(current)) {
->-				err = sock_intr_errno(timeout);
->-				finish_wait(sk_sleep(sk), &wait);
->-				break;
->-			} else if (timeout == 0) {
->-				err = -EAGAIN;
->-				finish_wait(sk_sleep(sk), &wait);
->-				break;
->-			}
->-		} else {
->-			ssize_t read;
->+		err = vsock_wait_data(sk, &wait, timeout, &recv_data, target);
->+		if (err <= 0)
->+			break;
->
->-			finish_wait(sk_sleep(sk), &wait);
->-
->-			if (ready < 0) {
->-				/* Invalid queue pair content. XXX This should
->-				* be changed to a connection reset in a later
->-				* change.
->-				*/
->-
->-				err = -ENOMEM;
->-				goto out;
->-			}
->-
->-			err = transport->notify_recv_pre_dequeue(
->-					vsk, target, &recv_data);
->-			if (err < 0)
->-				break;
->+		err = transport->notify_recv_pre_dequeue(vsk, target,
->+							 &recv_data);
->+		if (err < 0)
->+			break;
->
->-			read = transport->stream_dequeue(
->-					vsk, msg,
->-					len - copied, flags);
->-			if (read < 0) {
->-				err = -ENOMEM;
->-				break;
->-			}
->+		read = transport->stream_dequeue(vsk, msg, len - copied, flags);
->+		if (read < 0) {
->+			err = -ENOMEM;
->+			break;
->+		}
->
->-			copied += read;
->+		copied += read;
->
->-			err = transport->notify_recv_post_dequeue(
->-					vsk, target, read,
->-					!(flags & MSG_PEEK), &recv_data);
->-			if (err < 0)
->-				goto out;
->+		err = transport->notify_recv_post_dequeue(vsk, target, read,
->+						!(flags & MSG_PEEK), &recv_data);
->+		if (err < 0)
->+			goto out;
->
->-			if (read >= target || flags & MSG_PEEK)
->-				break;
->+		if (read >= target || flags & MSG_PEEK)
->+			break;
->
->-			target -= read;
->-		}
->+		target -= read;
-> 	}
 
-This part looks okay, maybe we could improve the loop a bit and make it 
-more readable, but it's out of the scope of this patch.
+The rest of the patch LGTM.
 
-Thanks,
 Stefano
 
 _______________________________________________
