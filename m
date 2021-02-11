@@ -7,89 +7,115 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B268C433E0
-	for <virtualization@archiver.kernel.org>; Thu, 11 Feb 2021 11:00:30 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5787C433E0
+	for <virtualization@archiver.kernel.org>; Thu, 11 Feb 2021 11:24:22 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E4F3764EB9
-	for <virtualization@archiver.kernel.org>; Thu, 11 Feb 2021 11:00:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E4F3764EB9
+	by mail.kernel.org (Postfix) with ESMTPS id 23B7C64E2F
+	for <virtualization@archiver.kernel.org>; Thu, 11 Feb 2021 11:24:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 23B7C64E2F
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 9131687565;
-	Thu, 11 Feb 2021 11:00:29 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id AB5826F5E3
+	for <virtualization@archiver.kernel.org>; Thu, 11 Feb 2021 11:24:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Sz8k+YaE2Xjw; Thu, 11 Feb 2021 11:00:29 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id nEWEf8FPezAQ for <virtualization@archiver.kernel.org>;
+	Thu, 11 Feb 2021 11:24:19 +0000 (UTC)
+Received: by smtp3.osuosl.org (Postfix, from userid 1001)
+	id 6E6746F53B; Thu, 11 Feb 2021 11:24:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id F0D7E87509;
-	Thu, 11 Feb 2021 11:00:28 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3E23B6F49E;
+	Thu, 11 Feb 2021 11:24:16 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E3CCEC0891;
-	Thu, 11 Feb 2021 11:00:28 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BBD4FC013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1160FC0174;
+	Thu, 11 Feb 2021 11:24:16 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 25754C013A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Feb 2021 11:00:27 +0000 (UTC)
+ Thu, 11 Feb 2021 11:24:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id A9DA187565
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 0D117869E4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Feb 2021 11:00:27 +0000 (UTC)
+ Thu, 11 Feb 2021 11:24:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bovv1i6DMOPh
+ with ESMTP id K-qysB3vLFhn
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Feb 2021 11:00:27 +0000 (UTC)
+ Thu, 11 Feb 2021 11:24:13 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id E58D087509
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 721E3869E3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Feb 2021 11:00:26 +0000 (UTC)
+ Thu, 11 Feb 2021 11:24:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1613041225;
+ s=mimecast20190719; t=1613042652;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=iQ1CyJDpkuauU8h1mtytMENhHHlIG0UXjEznsE8xviI=;
- b=Uqi4mSGCswJEOD1o+95r567sb7h9reyLgTZBWFPviySaTbBsMdhisAUj8a/FgNvhoavSPG
- d7Ljn3N3lVUWiWKMI4KRrL23OOENGUmoCRotfKcebJbaNd6jAEJpRlw6JoYs5RNrsF/8NN
- krETvsdzGYEORyvRvswOW4DPqz920rA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-406-gHnI95s5M4iCne7udxMfnA-1; Thu, 11 Feb 2021 06:00:20 -0500
-X-MC-Unique: gHnI95s5M4iCne7udxMfnA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B6CD286A060;
- Thu, 11 Feb 2021 11:00:18 +0000 (UTC)
-Received: from carbon (unknown [10.36.110.45])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 75E5B62953;
- Thu, 11 Feb 2021 11:00:06 +0000 (UTC)
-Date: Thu, 11 Feb 2021 12:00:05 +0100
-From: Jesper Dangaard Brouer <brouer@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH netdev] virtio-net: support XDP_TX when not more queues
-Message-ID: <20210211120005.04af2c0f@carbon>
-In-Reply-To: <20210210163945-mutt-send-email-mst@kernel.org>
-References: <81abae33fc8dbec37ef0061ff6f6fd696b484a3e.1610523188.git.xuanzhuo@linux.alibaba.com>
- <20210210163945-mutt-send-email-mst@kernel.org>
+ bh=jsFQLvTrgFrLgJfF0P6gQ1rEY89A4uU+A6tP6gqPGzI=;
+ b=JrCKABglCy75CFULDOnW2L18PrevDzpuMS+ucqVX+kIwM4fo1XfCmJY+IZxTgHy39ppQib
+ YAIwS0cz0L8UGSiqA2kEFgLZRyOTIIo1b7uSoBv+J2dw3pMzd6UDr+PwdW47l/LIrcHnzV
+ xBS9ki5lW4ZoJn+1MjWCXvgZiE2Ikws=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-458-2Yg5h6oHMJGRidNTLUNoeQ-1; Thu, 11 Feb 2021 06:24:10 -0500
+X-MC-Unique: 2Yg5h6oHMJGRidNTLUNoeQ-1
+Received: by mail-ej1-f70.google.com with SMTP id n25so4742308ejd.5
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 11 Feb 2021 03:24:10 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=jsFQLvTrgFrLgJfF0P6gQ1rEY89A4uU+A6tP6gqPGzI=;
+ b=Zr2DNVRGIAPRYMcy1pvjalgNyKgG4w/jLLa7jYn5nCGqzrzfS+pDip8OAQW/IJVLbk
+ b2Tjf0Dn71Sd+DXQbXNmZd/nGa1cowyJv/0Im/Dz2qD6/TqsQEFHoH+Ym/W5HidI2kF0
+ 52M9sNLolCmEGD+crkSZlkPkIzJA0LZ0X3aZPVTZ1cX7gGZ4iUo2o7HbyYHbYfRZ5qMt
+ IRtCRHQPEM2BAXI7PNnpHeCm4Yk18VzQzFm8v5mqMbkSQz5eXZiOVr9c18dU8U+jGndg
+ IOZB8BCB5d+ga5dUs9wwhCk+2AcfLHNgaoTcdG0sbgQpMZMgAoWEAXYuTQYOgxWKU867
+ TSBg==
+X-Gm-Message-State: AOAM531RWHsPElmHeZVDT6J0U7y7vibmYXbCExWLFvIZAMDzp4h2IQjM
+ y/MomrnTVGSFs7HjLdtY8+aQxXHylq2F2j58Y3kC3XPjeAz+NgUSaTBqgtGkwMHd5f1tiFbLJWT
+ xuacLdQeJMaqqJPiE3PhcaioyYAaoJLOy5JJ4f654jg==
+X-Received: by 2002:a17:906:2898:: with SMTP id
+ o24mr7925097ejd.215.1613042649433; 
+ Thu, 11 Feb 2021 03:24:09 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJz1BcH+8XhReWwB41yfcl5jxF05aOvARXZuhUzHPDVsQ+y/97BjHWEuNLhAxUoPtrlmcVmcWQ==
+X-Received: by 2002:a17:906:2898:: with SMTP id
+ o24mr7925012ejd.215.1613042648077; 
+ Thu, 11 Feb 2021 03:24:08 -0800 (PST)
+Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
+ [79.34.249.199])
+ by smtp.gmail.com with ESMTPSA id u3sm3944113eje.63.2021.02.11.03.24.06
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 11 Feb 2021 03:24:07 -0800 (PST)
+Date: Thu, 11 Feb 2021 12:24:04 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+Subject: Re: [RFC PATCH v4 02/17] af_vsock: separate wait data loop
+Message-ID: <20210211112404.rwa55a6egstpskj2@steredhat>
+References: <20210207151259.803917-1-arseny.krasnov@kaspersky.com>
+ <20210207151451.804498-1-arseny.krasnov@kaspersky.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org, Marek Majtyka <alardam@gmail.com>,
- dust.li@linux.alibaba.com, brouer@redhat.com, Jakub Kicinski <kuba@kernel.org>,
- bpf@vger.kernel.org, "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20210207151451.804498-1-arseny.krasnov@kaspersky.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Andra Paraschiv <andraprs@amazon.com>, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, stsp2@yandex.ru,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ oxffffaa@gmail.com, Stefan Hajnoczi <stefanha@redhat.com>,
+ Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>,
+ Alexander Popov <alex.popov@linux.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,113 +127,224 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, 10 Feb 2021 16:40:41 -0500
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Sun, Feb 07, 2021 at 06:14:48PM +0300, Arseny Krasnov wrote:
+>This moves wait loop for data to dedicated function, because later
+>it will be used by SEQPACKET data receive loop.
+>
+>Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+>---
+> net/vmw_vsock/af_vsock.c | 158 +++++++++++++++++++++------------------
+> 1 file changed, 86 insertions(+), 72 deletions(-)
+>
+>diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>index f4fabec50650..38927695786f 100644
+>--- a/net/vmw_vsock/af_vsock.c
+>+++ b/net/vmw_vsock/af_vsock.c
+>@@ -1833,6 +1833,71 @@ static int vsock_connectible_sendmsg(struct socket *sock, struct msghdr *msg,
+> 	return err;
+> }
+>
+>+static int vsock_wait_data(struct sock *sk, struct wait_queue_entry *wait,
+>+			   long timeout,
+>+			   struct vsock_transport_recv_notify_data *recv_data,
+>+			   size_t target)
+>+{
+>+	const struct vsock_transport *transport;
+>+	struct vsock_sock *vsk;
+>+	s64 data;
+>+	int err;
+>+
+>+	vsk = vsock_sk(sk);
+>+	err = 0;
+>+	transport = vsk->transport;
+>+	prepare_to_wait(sk_sleep(sk), wait, TASK_INTERRUPTIBLE);
+>+
+>+	while ((data = vsock_stream_has_data(vsk)) == 0) {
+>+		if (sk->sk_err != 0 ||
+>+		    (sk->sk_shutdown & RCV_SHUTDOWN) ||
+>+		    (vsk->peer_shutdown & SEND_SHUTDOWN)) {
+>+			goto out;
+>+		}
+>+
+>+		/* Don't wait for non-blocking sockets. */
+>+		if (timeout == 0) {
+>+			err = -EAGAIN;
+>+			goto out;
+>+		}
+>+
+>+		if (recv_data) {
+>+			err = transport->notify_recv_pre_block(vsk, target, recv_data);
+>+			if (err < 0)
+>+				goto out;
+>+		}
+>+
+>+		release_sock(sk);
+>+		timeout = schedule_timeout(timeout);
+>+		lock_sock(sk);
+>+
+>+		if (signal_pending(current)) {
+>+			err = sock_intr_errno(timeout);
+>+			goto out;
+>+		} else if (timeout == 0) {
+>+			err = -EAGAIN;
+>+			goto out;
+>+		}
+>+	}
+>+
+>+	finish_wait(sk_sleep(sk), wait);
+>+
+>+	/* Invalid queue pair content. XXX This should
+>+	 * be changed to a connection reset in a later
+>+	 * change.
+>+	 */
+>+	if (data < 0)
+>+		return -ENOMEM;
+>+
+>+	/* Have some data, return. */
+>+	if (data)
+>+		return data;
 
-> On Wed, Jan 13, 2021 at 04:08:57PM +0800, Xuan Zhuo wrote:
-> > The number of queues implemented by many virtio backends is limited,
-> > especially some machines have a large number of CPUs. In this case, it
-> > is often impossible to allocate a separate queue for XDP_TX.
-> > 
-> > This patch allows XDP_TX to run by reuse the existing SQ with
-> > __netif_tx_lock() hold when there are not enough queues.
+IIUC here data must be != 0 so you can simply return data in any case.
 
-I'm a little puzzled about the choice of using the netdevice TXQ
-lock __netif_tx_lock() / __netif_tx_unlock().
-Can you explain more about this choice?
+Or cleaner, you can do 'break' instead of 'goto out' in the error paths 
+and after the while loop you can do something like this:
 
-> > 
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > Reviewed-by: Dust Li <dust.li@linux.alibaba.com>  
-> 
-> I'd like to get some advice on whether this is ok from some
-> XDP experts - previously my understanding was that it is
-> preferable to disable XDP for such devices than
-> use locks on XDP fast path.
+	finish_wait(sk_sleep(sk), wait);
 
-I think it is acceptable, because the ndo_xdp_xmit / virtnet_xdp_xmit
-takes a bulk of packets (currently 16).
+	if (err)
+		return err;
 
-Some drivers already does this.
+	if (data < 0)
+		return -ENOMEM;
 
-It would have been nice if we could set a feature flag, that allow
-users to see that this driver uses locking in the XDP transmit
-(ndo_xdp_xmit) function call... but it seems like a pipe dream :-P
+	return data;
+}
 
-Code related to the locking
+>+
+>+out:
+>+	finish_wait(sk_sleep(sk), wait);
+>+	return err;
+>+}
+>+
+> static int
+> vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+> 			  int flags)
+>@@ -1912,85 +1977,34 @@ vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+>
+>
+> 	while (1) {
+>-		s64 ready;
+>+		ssize_t read;
+>
+>-		prepare_to_wait(sk_sleep(sk), &wait, TASK_INTERRUPTIBLE);
+>-		ready = vsock_stream_has_data(vsk);
+>-
+>-		if (ready == 0) {
+>-			if (sk->sk_err != 0 ||
+>-			    (sk->sk_shutdown & RCV_SHUTDOWN) ||
+>-			    (vsk->peer_shutdown & SEND_SHUTDOWN)) {
+>-				finish_wait(sk_sleep(sk), &wait);
+>-				break;
+>-			}
+>-			/* Don't wait for non-blocking sockets. */
+>-			if (timeout == 0) {
+>-				err = -EAGAIN;
+>-				finish_wait(sk_sleep(sk), &wait);
+>-				break;
+>-			}
+>-
+>-			err = transport->notify_recv_pre_block(
+>-					vsk, target, &recv_data);
+>-			if (err < 0) {
+>-				finish_wait(sk_sleep(sk), &wait);
+>-				break;
+>-			}
+>-			release_sock(sk);
+>-			timeout = schedule_timeout(timeout);
+>-			lock_sock(sk);
+>-
+>-			if (signal_pending(current)) {
+>-				err = sock_intr_errno(timeout);
+>-				finish_wait(sk_sleep(sk), &wait);
+>-				break;
+>-			} else if (timeout == 0) {
+>-				err = -EAGAIN;
+>-				finish_wait(sk_sleep(sk), &wait);
+>-				break;
+>-			}
+>-		} else {
+>-			ssize_t read;
+>+		err = vsock_wait_data(sk, &wait, timeout, &recv_data, target);
+>+		if (err <= 0)
+>+			break;
+>
+>-			finish_wait(sk_sleep(sk), &wait);
+>-
+>-			if (ready < 0) {
+>-				/* Invalid queue pair content. XXX This should
+>-				* be changed to a connection reset in a later
+>-				* change.
+>-				*/
+>-
+>-				err = -ENOMEM;
+>-				goto out;
+>-			}
+>-
+>-			err = transport->notify_recv_pre_dequeue(
+>-					vsk, target, &recv_data);
+>-			if (err < 0)
+>-				break;
+>+		err = transport->notify_recv_pre_dequeue(vsk, target,
+>+							 &recv_data);
+>+		if (err < 0)
+>+			break;
+>
+>-			read = transport->stream_dequeue(
+>-					vsk, msg,
+>-					len - copied, flags);
+>-			if (read < 0) {
+>-				err = -ENOMEM;
+>-				break;
+>-			}
+>+		read = transport->stream_dequeue(vsk, msg, len - copied, flags);
+>+		if (read < 0) {
+>+			err = -ENOMEM;
+>+			break;
+>+		}
+>
+>-			copied += read;
+>+		copied += read;
+>
+>-			err = transport->notify_recv_post_dequeue(
+>-					vsk, target, read,
+>-					!(flags & MSG_PEEK), &recv_data);
+>-			if (err < 0)
+>-				goto out;
+>+		err = transport->notify_recv_post_dequeue(vsk, target, read,
+>+						!(flags & MSG_PEEK), &recv_data);
+>+		if (err < 0)
+>+			goto out;
+>
+>-			if (read >= target || flags & MSG_PEEK)
+>-				break;
+>+		if (read >= target || flags & MSG_PEEK)
+>+			break;
+>
+>-			target -= read;
+>-		}
+>+		target -= read;
+> 	}
 
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index ba8e637..7a3b2a7 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-[...]
-> > @@ -481,14 +484,34 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
-> >  	return 0;
-> >  }
-> >  
-> > -static struct send_queue *virtnet_xdp_sq(struct virtnet_info *vi)
-> > +static struct send_queue *virtnet_get_xdp_sq(struct virtnet_info *vi)
-> >  {
-> >  	unsigned int qp;
-> > +	struct netdev_queue *txq;
-> > +
-> > +	if (vi->curr_queue_pairs > nr_cpu_ids) {
-> > +		qp = vi->curr_queue_pairs - vi->xdp_queue_pairs + smp_processor_id();
-> > +	} else {
-> > +		qp = smp_processor_id() % vi->curr_queue_pairs;
-> > +		txq = netdev_get_tx_queue(vi->dev, qp);
-> > +		__netif_tx_lock(txq, raw_smp_processor_id());
-> > +	}
-> >  
-> > -	qp = vi->curr_queue_pairs - vi->xdp_queue_pairs + smp_processor_id();
-> >  	return &vi->sq[qp];
-> >  }
-> >  
-> > +static void virtnet_put_xdp_sq(struct virtnet_info *vi)
-> > +{
-> > +	unsigned int qp;
-> > +	struct netdev_queue *txq;
-> > +
-> > +	if (vi->curr_queue_pairs <= nr_cpu_ids) {
-> > +		qp = smp_processor_id() % vi->curr_queue_pairs;
-> > +		txq = netdev_get_tx_queue(vi->dev, qp);
-> > +		__netif_tx_unlock(txq);
-> > +	}
-> > +}
-> > +
-> >  static int virtnet_xdp_xmit(struct net_device *dev,
-> >  			    int n, struct xdp_frame **frames, u32 flags)
-> >  {
-> > @@ -512,7 +535,7 @@ static int virtnet_xdp_xmit(struct net_device *dev,
-> >  	if (!xdp_prog)
-> >  		return -ENXIO;
-> >  
-> > -	sq = virtnet_xdp_sq(vi);
-> > +	sq = virtnet_get_xdp_sq(vi);
-> >  
-> >  	if (unlikely(flags & ~XDP_XMIT_FLAGS_MASK)) {
-> >  		ret = -EINVAL;
-> > @@ -560,12 +583,13 @@ static int virtnet_xdp_xmit(struct net_device *dev,
-> >  	sq->stats.kicks += kicks;
-> >  	u64_stats_update_end(&sq->stats.syncp);
-> >  
-> > +	virtnet_put_xdp_sq(vi);
-> >  	return ret;
-> >  }
-> >  
+This part looks okay, maybe we could improve the loop a bit and make it 
+more readable, but it's out of the scope of this patch.
 
-
-
--- 
-Best regards,
-  Jesper Dangaard Brouer
-  MSc.CS, Principal Kernel Engineer at Red Hat
-  LinkedIn: http://www.linkedin.com/in/brouer
+Thanks,
+Stefano
 
 _______________________________________________
 Virtualization mailing list
