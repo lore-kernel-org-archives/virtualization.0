@@ -2,116 +2,112 @@ Return-Path: <SRS0=ygFP=HO=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7FA8C433E0
-	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 08:36:57 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFF97C433DB
+	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 09:02:46 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4553564DEA
-	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 08:36:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4553564DEA
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 7C35664DF2
+	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 09:02:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7C35664DF2
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D3C816F486
-	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 08:36:56 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 3367787168;
+	Fri, 12 Feb 2021 09:02:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xzejGcygxrbg for <virtualization@archiver.kernel.org>;
-	Fri, 12 Feb 2021 08:36:55 +0000 (UTC)
-Received: by smtp3.osuosl.org (Postfix, from userid 1001)
-	id 531E96F524; Fri, 12 Feb 2021 08:36:55 +0000 (UTC)
+Received: from whitealder.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ElAaTVvBC385; Fri, 12 Feb 2021 09:02:45 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 72DF06E56C;
-	Fri, 12 Feb 2021 08:36:52 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 1FC2D8706D;
+	Fri, 12 Feb 2021 09:02:45 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 49537C0174;
-	Fri, 12 Feb 2021 08:36:52 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5EB5EC013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D99B1C0174;
+	Fri, 12 Feb 2021 09:02:44 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6DBC7C013A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 08:36:51 +0000 (UTC)
+ Fri, 12 Feb 2021 09:02:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 3EC106E56C
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 5C0E486D6E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 08:36:51 +0000 (UTC)
+ Fri, 12 Feb 2021 09:02:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id PmT6LQiYnUON
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id r9qk6mUX7Wfe
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 08:36:50 +0000 (UTC)
-Received: by smtp3.osuosl.org (Postfix, from userid 1001)
- id AD8EF6F486; Fri, 12 Feb 2021 08:36:50 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga06.intel.com (mga06.intel.com [134.134.136.31])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 369E46E56C
+ Fri, 12 Feb 2021 09:02:41 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id D112986E51
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 08:36:49 +0000 (UTC)
-IronPort-SDR: izDVf4CfdDe27Nn+Wot046Prjkq390vubjrup9A/qdjUBhkt/UOWcUEyKDB6aG+yjk6zNde61a
- +lIfsNxIGXMA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9892"; a="243872967"
-X-IronPort-AV: E=Sophos;i="5.81,173,1610438400"; d="scan'208";a="243872967"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
- by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 12 Feb 2021 00:36:46 -0800
-IronPort-SDR: QUomUn6GF7IRl2CrcExR/qIj5JqxA0On8b8Z5x0sj+79oToDKfk7epDr3YDf0XgUktQ4MaLR1K
- mjToj06XNF1g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,173,1610438400"; d="scan'208";a="490835235"
-Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
- by fmsmga001.fm.intel.com with ESMTP; 12 Feb 2021 00:36:45 -0800
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2106.2; Fri, 12 Feb 2021 00:36:45 -0800
-Received: from orsmsx611.amr.corp.intel.com (10.22.229.24) by
- ORSMSX610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2106.2; Fri, 12 Feb 2021 00:36:44 -0800
-Received: from orsmsx611.amr.corp.intel.com ([10.22.229.24]) by
- ORSMSX611.amr.corp.intel.com ([10.22.229.24]) with mapi id 15.01.2106.002;
- Fri, 12 Feb 2021 00:36:44 -0800
-From: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>
-To: =?utf-8?B?Q2hyaXN0aWFuIEvDtm5pZw==?= <christian.koenig@amd.com>, "Gerd
- Hoffmann" <kraxel@redhat.com>
-Subject: RE: [RFC v3 2/3] virtio: Introduce Vdmabuf driver
-Thread-Topic: [RFC v3 2/3] virtio: Introduce Vdmabuf driver
-Thread-Index: AQHW+gCTpvRVWdGfdEuO7KEMCe95EKpKQvKAgAQvVwCAABxAAIAAXFfggAEm5oCAAH4bcIABCTWAgAKhj6A=
-Date: Fri, 12 Feb 2021 08:36:44 +0000
-Message-ID: <fd23d4d08ea84ca3b8a7610a8fb866d5@intel.com>
-References: <20210203073517.1908882-1-vivek.kasireddy@intel.com>
- <20210203073517.1908882-3-vivek.kasireddy@intel.com>
- <YB1sRx1GrT8rATEg@phenom.ffwll.local>
- <20210208075748.xejgcb4il2egow2u@sirius.home.kraxel.org>
- <YCEGrrT0/eqqz/ok@phenom.ffwll.local>
- <8ba4ad64be3546bda9a2ed2129bf98e4@intel.com>
- <20210209084453.5oqepy7zdwtxgrpu@sirius.home.kraxel.org>
- <2ef01dc941684a15a4f30e6239ae42df@intel.com>
- <8ac10b1d-3d64-4e39-42e6-6c65b61f0794@amd.com>
-In-Reply-To: <8ac10b1d-3d64-4e39-42e6-6c65b61f0794@amd.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-version: 11.5.1.3
-dlp-reaction: no-action
-x-originating-ip: [10.22.254.132]
+ Fri, 12 Feb 2021 09:02:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1613120559;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=Tuhyr8wvoo6m97EFmFwgT6bEyVInhUeL0KJPqyNf2+M=;
+ b=eIwRblS49bk1MAFPEB37AoOXM07L+Q93MHFANJfu80gNzfu3op6dNIdqRcd9ki+dvx+SD/
+ 0Dc0gP80PxVM6qW+4a8CUlH/RX1keb/BURbyfRqv9VIjMSTDWvzfKqiu2gidyoVwayxaxB
+ e6UEGvhZsNYxx0Fpoxd8VxyLRRc++UE=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-469-A_cKOfU5PSOoQ4jY0lgLyw-1; Fri, 12 Feb 2021 04:02:35 -0500
+X-MC-Unique: A_cKOfU5PSOoQ4jY0lgLyw-1
+Received: by mail-ed1-f70.google.com with SMTP id i13so6162788edq.19
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 12 Feb 2021 01:02:34 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=Tuhyr8wvoo6m97EFmFwgT6bEyVInhUeL0KJPqyNf2+M=;
+ b=UlYk4O0ZbR8L8HII/kIqiD1Tx+9SAmr2+IIYbWA/YBumMeeVh7SzijxmPw4XsJNmq7
+ dIVhySlPuX6ps0hPSRFeEe6e2wvvsGgkYeTFVspCa5fJMd08Y3VLBjI/dEA5HcWIpfSr
+ 9NloSI1J+QhzSbTGYVwgAbSu+GHJ72TP0dTmWl6uR2Qp7+B8oDPRsEwtmXvJoZAHehfg
+ TfGr+RxOdQwud05ZD6JdXycp0YHI8eYLPsgt7msXDJG92zbFWxpPNPIaJ81b0iKYUV+U
+ 4s5aKeTmsiqvCBhpYofMjI+YCE4iBKGB3s3o4sPLZvBpzEcQxUdHG4Ox8fdHN6aZDfk8
+ /QRA==
+X-Gm-Message-State: AOAM532NsXErxteESXX6H5ikNnCwKmPH5zYPJGBRNiR5vzQx3bSjypIq
+ kNBhvJwuM+UP5bUNLAdtYhmvjU93W1FYKdQti5twoJEtjQM0EW1oKoOd1UC0Myb2unDfz+hTLvu
+ U7bXI2mTFuojrgAMoW6HVtz9GoBydRZV3WOo9QhAIUg==
+X-Received: by 2002:a50:9dc9:: with SMTP id l9mr2251224edk.377.1613120553885; 
+ Fri, 12 Feb 2021 01:02:33 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx5vd1Xcczzc4EKsburjCeUTPpXfSKRDx5+tPW0yK+MYsWNs8QZbknCL6xm+OlzhqJT1/y1hw==
+X-Received: by 2002:a50:9dc9:: with SMTP id l9mr2251207edk.377.1613120553698; 
+ Fri, 12 Feb 2021 01:02:33 -0800 (PST)
+Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
+ [79.34.249.199])
+ by smtp.gmail.com with ESMTPSA id y11sm6185049ejd.72.2021.02.12.01.02.32
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 12 Feb 2021 01:02:33 -0800 (PST)
+Date: Fri, 12 Feb 2021 10:02:30 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Jiang Wang ." <jiang.wang@bytedance.com>
+Subject: Re: vsock virtio: questions about supporting DGRAM type
+Message-ID: <20210212090230.bai6xkx6gne53p3i@steredhat>
+References: <CAP_N_Z97rUvCSNoKAkxhyw9FJWQ2tJ0Wv5srHzR387j_S_6pjA@mail.gmail.com>
 MIME-Version: 1.0
-Cc: "Kim, Dongwon" <dongwon.kim@intel.com>,
- "daniel.vetter@ffwll.ch" <daniel.vetter@ffwll.ch>,
- "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>,
- "Vetter, Daniel" <daniel.vetter@intel.com>,
- "sumit.semwal@linaro.org" <sumit.semwal@linaro.org>,
- "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>
+In-Reply-To: <CAP_N_Z97rUvCSNoKAkxhyw9FJWQ2tJ0Wv5srHzR387j_S_6pjA@mail.gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: cong.wang@bytedance.com, Xiongchun Duan <duanxiongchun@bytedance.com>,
+ mst@redhat.com, imbrenda@linux.vnet.ibm.com, xieyongji@bytedance.com,
+ stefanha@redhat.com, asias@redhat.com,
+ virtualization@lists.linux-foundation.org,
+ Arseny Krasnov <arseny.krasnov@kaspersky.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,51 +119,82 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Christian,
+Hi Jiang,
 
-> 
-> Hi Vivek,
-> 
-> > [Kasireddy, Vivek] What if I do mmap() on the fd followed by mlock()
-> > or mmap() followed by get_user_pages()? If it still fails, would
-> > ioremapping the device memory and poking at the backing storage be an
-> > option? Or, if I bind the passthrough'd GPU device to vfio-pci and tap
-> > into the memory region associated with the device memory, can it be made to work?
-> 
-> get_user_pages() is not allowed on mmaped DMA-bufs in the first place.
-> 
-> Daniel is currently adding code to make sure that this is never ever used.
-> 
-> > And, I noticed that for PFNs that do not have valid struct page
-> > associated with it, KVM does a memremap() to access/map them. Is this an option?
-> 
-> No, even for system memory which has a valid struct page touching it when it is part of a
-> DMA-buf is illegal since the reference count and mapping fields in struct page might be
-> used for something different.
-> 
-> Keep in mind that struct page is a heavily overloaded structure for different use cases. You
-> can't just use it for a different use case than what the owner of the page has intended it.
-[Kasireddy, Vivek] What is your recommended/acceptable way for doing what I am trying to 
-do?
+CCing Arseny who is working on SOCK_SEQPACKET support for virtio-vsock 
+[1].
+
+On Thu, Feb 11, 2021 at 10:04:34PM -0800, Jiang Wang . wrote:
+>Hi guys,
+>
+>I am working on supporting DGRAM type for virtio/vhost vsock. I
+>already did some work and a draft code is here (which passed my tests,
+>but still need some cleanup and only works from host to guest as of
+>now, will add host to guest soon):
+>https://github.com/Jiang1155/linux/commit/4e89736e0bce15496460ff411cb4694b143d1c3d
+>qemu changes are here:
+>https://github.com/Jiang1155/qemu/commit/7ab778801e3e8969ab98e44539943810a2fb03eb
+>
+>Today, I just noticed that the Asias had an old version of virtio
+>which had both dgram and stream support, see this link:
+>https://kvm.vger.kernel.narkive.com/BMvH9eEr/rfc-v2-0-7-introduce-vm-sockets-virtio-transport#post1
+>
+>But somehow, the dgram part seems never merged to upstream linux (the
+>stream part is merged). If so, does anyone know what is the reason for
+>this? Did we drop dgram support for some specific reason or the code
+>needs some improvement?
+
+I wasn't involved yet in virtio-vsock development when Asias posted that 
+patches, so I don't know the exact reason.
+
+Maybe could be related on how to handle the credit mechanism for a 
+connection-less sockets and how to manage the packet queue, if for 
+example no one is listening.
+
+>
+>My current code differs from Asias' code in some ways. It does not use
+>credit and does not support fragmentation.  It basically adds two virt
+
+If you don't use credit, do you have some threshold when you start to 
+drop packets on the RX side?
+
+>queues and re-uses the existing functions for tx and rx ( there is
+
+This make sense, some time ago I was thinking about this and also came 
+to the conclusion that 2 new virtqueues were needed to handle DGRAM 
+traffic.
+
+>somewhat duplicate code for now, but I will try to make common
+>functions to reduce it). If we still want to support dgram in upstream
+>linux, which way do you guys recommend? If necessary, I can try to
+>base on Asias' old code and continue working on it. If there is
+>anything unclear, just let me know. Thanks.
+
+A problem I see is how to handle multiple transports to support nested 
+VMs. Since the sockets are not connected, we can't assign them to a 
+single transport.
+
+Arseny is working on SOCK_SEQPACKET [1], it's similar to DGRAM, but it 
+is connection oriented, so we can reuse most of the STREAM stuff and 
+also the credit mechanism.
+
+Maybe you can reuse some of the Arseny's stuff to handle the 
+fragmentation.
+
+For the channel type (lossless) I think SEQPACKET makes more sense, but 
+if you have any use-cases for DGRAM and want to support it, you are 
+welcome to send patches and I will be happy to review them.
 
 Thanks,
-Vivek
+Stefano
 
-> 
-> Regards,
-> Christian.
-> 
-> >
-> >
-> > Thanks,
-> > Vivek
-> >> take care,
-> >>    Gerd
+[1] 
+https://lore.kernel.org/lkml/20210207151451.804498-1-arseny.krasnov@kaspersky.com/T/#m81d3ee4ccd54cd301b92c00b3b1bca6e7bc91fc9
 
 _______________________________________________
 Virtualization mailing list
