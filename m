@@ -3,91 +3,126 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63741C433E0
-	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 06:12:04 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73549C433DB
+	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 08:08:07 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B52DA64E39
-	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 06:12:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B52DA64E39
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=bytedance.com
+	by mail.kernel.org (Postfix) with ESMTPS id D316B64E57
+	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 08:08:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D316B64E57
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 5ADE9871EA;
-	Fri, 12 Feb 2021 06:12:03 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 9280086E1C;
+	Fri, 12 Feb 2021 08:08:06 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Lf4SDW_9xE8k; Fri, 12 Feb 2021 08:08:05 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id BABC986DE1;
+	Fri, 12 Feb 2021 08:08:05 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8F4ADC0174;
+	Fri, 12 Feb 2021 08:08:05 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 65925C013A
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 12 Feb 2021 08:08:04 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id 5A4138755C
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 12 Feb 2021 08:08:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EK7tya1XvW0B; Fri, 12 Feb 2021 06:12:02 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 3B723870E4;
-	Fri, 12 Feb 2021 06:12:02 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 282BCC0174;
-	Fri, 12 Feb 2021 06:12:02 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0DE75C013A
- for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 06:12:01 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 0A70F8739A
- for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 06:12:01 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id o5Fi66SynkXO
+ with ESMTP id Coh6Atff1fg8
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 06:11:59 +0000 (UTC)
-X-Greylist: delayed 00:07:13 by SQLgrey-1.7.6
-Received: from mail-oi1-f170.google.com (mail-oi1-f170.google.com
- [209.85.167.170])
- by whitealder.osuosl.org (Postfix) with ESMTPS id DD86786E88
+ Fri, 12 Feb 2021 08:08:03 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 2B52887557
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 06:11:58 +0000 (UTC)
-Received: by mail-oi1-f170.google.com with SMTP id d20so8901368oiw.10
+ Fri, 12 Feb 2021 08:08:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1613117281;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=e91sBuS2eUt5U/U4RuQCZfbUWRB/D2S94vtMrUqV2is=;
+ b=HBd518FOjfQ3gz8LetFZeOefAbaI7fHDzCMHXTBzciiJM6nOWdqgORNauS/Ym35EV1ElZ2
+ mlb+gkZnnJUAeNhUxg7LvH6agfPcQpjUPTqzNBQcKz4tukKWSDnTBz71DTjLyfo9/aWZn3
+ CpFuRg+kJrDt42sgMO4OapOeV9vvSM0=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-478-XJp6aCbUONGyNdPiOFHNgg-1; Fri, 12 Feb 2021 03:08:00 -0500
+X-MC-Unique: XJp6aCbUONGyNdPiOFHNgg-1
+Received: by mail-ed1-f70.google.com with SMTP id x13so6277503edi.7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Feb 2021 22:11:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=bytedance-com.20150623.gappssmtp.com; s=20150623;
- h=mime-version:from:date:message-id:subject:to:cc;
- bh=ZAsXGnD/IPYGUh3fkPvAiqOcg7TxjgzYyV7b3xOnCI8=;
- b=Eny9ah6mu43hCbH5zOESRdhNDzyxEGZpTRgNdJZ8hdfzAQcVm3OeUj65Ae6YE5Cpw+
- zU2/5QYZ8iTK6Qx5TOlxY0H3ChETOR0NMQWgLIiy8qs2CCG8PGPFy/uewantnjO2u6s+
- We9/OMwmISNrbLeUkv0VFXpMQoSkAxPIcJ0mD7dqRDBB6s7kpy3M/WI6g89RHWmftPGL
- LJBFSJ2q2HS4XS2tXt5Btibr1FbgBFqrOBYzs5Dcpcc2Cp5p4qWgeQ0Ni9xZZwT8aWzc
- PVhLonMtw9v4QfWGBwuZ3f71MYgDuFFcN8T4Rv3INjzmbEE9F+BM5zJV0XwWZ9N21ZTh
- cs1Q==
+ Fri, 12 Feb 2021 00:07:59 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
- bh=ZAsXGnD/IPYGUh3fkPvAiqOcg7TxjgzYyV7b3xOnCI8=;
- b=NYN4bDo01RgElzU9Kv561+oijAQlcia8MbBs2YPD10/W2iV+JMpW61JQ861B1WXpMK
- 4KaettGFObJdLgW4udR+BvgyZcF7eAnI1dvoYzpNHGuo/WyMNdMAbOPXw8QEqZs45rkx
- KwrQpXm9Vncy6RCp64a2cbpTH1EkvFIw14JBAGor0JC31NPhEznyzHU+/s1AD2L2ATz8
- jTJ5kAztu6puRDThvlWC/Xl0JVja1dx2bqcYHcbaQO+7eo3JbO2mwqBVLZDbjNwKy1vP
- Bvri2o4cIiH9mAoYP5kf99nG0OGI5ECwOVg8EQIdIWYcu/ROMezLCuZFbx0ffnfa5Ch9
- gwgw==
-X-Gm-Message-State: AOAM531znwGWdPJwY+PjfdfCnq68d2B0UmyGBSbBUX+kvKP8C5bVGqmc
- UK1WkY/9cSsfLRMBfYrCBWB0IbPZWeQqas79cJGcvHJAjlenoJOn
-X-Google-Smtp-Source: ABdhPJyh5AMuVPTNKskLRUSza1BgdRtvZH7kGC6QIC7VBrsDlG5LlddfcXl5tHSBNSDPyYo6+VX3BSbb/5F3B4Pb45M=
-X-Received: by 2002:aca:4a4c:: with SMTP id x73mr865989oia.97.1613109884483;
- Thu, 11 Feb 2021 22:04:44 -0800 (PST)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=e91sBuS2eUt5U/U4RuQCZfbUWRB/D2S94vtMrUqV2is=;
+ b=itkJE3N9oO5NA81DovabcUeXpgRZvrUUOF3x5+IRVr9ZdD/LO7NneBR0YCv57b+GO9
+ g6TeC2+4o6eJnJPZtTn+I8Klz4moBJZundTya7aQOrv2JVUnrtH7Hl9WUWyMTvfIHPZA
+ eiinz4kceARKCD4NOuOGsBQ9THJSV0bLJUkeNguUrGToQUmo0vp7/tszRxRBhkJKTKX5
+ lkOaflCeyuLmrpfaCY3dPk8khE7Z6p0Ucee9RzPeMlCjyIMoDbd87FsH0mofLPhaetkw
+ YA1KNVesyw5/QADX0Aw716geosg5CJ6YlEZyfouzK3KKrCMLuXWzXGlVsXgIUwvPPfY+
+ +UxQ==
+X-Gm-Message-State: AOAM532E9FKebw0YOoflNjcRW/SQTtvIFgqbo8qDYamyGLGku0qLzZQ+
+ gyzfYwpiqsSrG4zrUj+19u6qnduMMPZrEN+8CeZCG6/eq8QsqigaNJHzsO+2bqiIp/kxnWvr5Yq
+ DDhA0TfdR4iZIIACro6kMdtvfUv3oAZL5QzaeGHFNOw==
+X-Received: by 2002:a17:906:b19a:: with SMTP id
+ w26mr1837742ejy.296.1613117278891; 
+ Fri, 12 Feb 2021 00:07:58 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx4UZHOM3MECOyqyoo31l+Ya9+PmIMzipGRc9pjPxWBn6h9u4zDZXf7FXG0XDCU+qiqPKdNxg==
+X-Received: by 2002:a17:906:b19a:: with SMTP id
+ w26mr1837718ejy.296.1613117278668; 
+ Fri, 12 Feb 2021 00:07:58 -0800 (PST)
+Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
+ [79.34.249.199])
+ by smtp.gmail.com with ESMTPSA id cn18sm5361167edb.66.2021.02.12.00.07.57
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 12 Feb 2021 00:07:58 -0800 (PST)
+Date: Fri, 12 Feb 2021 09:07:55 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+Subject: Re: [RFC PATCH v4 00/17] virtio/vsock: introduce SOCK_SEQPACKET
+ support
+Message-ID: <20210212080755.ajip7s7dhmxqhxqd@steredhat>
+References: <20210207151259.803917-1-arseny.krasnov@kaspersky.com>
+ <20210207111954-mutt-send-email-mst@kernel.org>
+ <8bd3789c-8df1-4383-f233-b4b854b30970@kaspersky.com>
+ <20210211145701.qikgx5czosdwx3mm@steredhat>
+ <10aa4548-2455-295d-c993-30f25fba15f2@kaspersky.com>
 MIME-Version: 1.0
-From: "Jiang Wang ." <jiang.wang@bytedance.com>
-Date: Thu, 11 Feb 2021 22:04:34 -0800
-Message-ID: <CAP_N_Z97rUvCSNoKAkxhyw9FJWQ2tJ0Wv5srHzR387j_S_6pjA@mail.gmail.com>
-Subject: vsock virtio: questions about supporting DGRAM type
-To: virtualization@lists.linux-foundation.org, asias@redhat.com, 
- imbrenda@linux.vnet.ibm.com, stefanha@redhat.com, mst@redhat.com, 
- sgarzare@redhat.com
-Cc: xieyongji@bytedance.com, cong.wang@bytedance.com,
- Xiongchun Duan <duanxiongchun@bytedance.com>
+In-Reply-To: <10aa4548-2455-295d-c993-30f25fba15f2@kaspersky.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Andra Paraschiv <andraprs@amazon.com>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "stsp2@yandex.ru" <stsp2@yandex.ru>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "oxffffaa@gmail.com" <oxffffaa@gmail.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>,
+ Alexander Popov <alex.popov@linux.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,42 +134,126 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi guys,
+On Fri, Feb 12, 2021 at 09:11:50AM +0300, Arseny Krasnov wrote:
+>
+>On 11.02.2021 17:57, Stefano Garzarella wrote:
+>> Hi Arseny,
+>>
+>> On Mon, Feb 08, 2021 at 09:32:59AM +0300, Arseny Krasnov wrote:
+>>> On 07.02.2021 19:20, Michael S. Tsirkin wrote:
+>>>> On Sun, Feb 07, 2021 at 06:12:56PM +0300, Arseny Krasnov wrote:
+>>>>> 	This patchset impelements support of SOCK_SEQPACKET for virtio
+>>>>> transport.
+>>>>> 	As SOCK_SEQPACKET guarantees to save record boundaries, so to
+>>>>> do it, two new packet operations were added: first for start of record
+>>>>>  and second to mark end of record(SEQ_BEGIN and SEQ_END later). Also,
+>>>>> both operations carries metadata - to maintain boundaries and payload
+>>>>> integrity. Metadata is introduced by adding special header with two
+>>>>> fields - message count and message length:
+>>>>>
+>>>>> 	struct virtio_vsock_seq_hdr {
+>>>>> 		__le32  msg_cnt;
+>>>>> 		__le32  msg_len;
+>>>>> 	} __attribute__((packed));
+>>>>>
+>>>>> 	This header is transmitted as payload of SEQ_BEGIN and SEQ_END
+>>>>> packets(buffer of second virtio descriptor in chain) in the same way as
+>>>>> data transmitted in RW packets. Payload was chosen as buffer for this
+>>>>> header to avoid touching first virtio buffer which carries header of
+>>>>> packet, because someone could check that size of this buffer is equal
+>>>>> to size of packet header. To send record, packet with start marker is
+>>>>> sent first(it's header contains length of record and counter), then
+>>>>> counter is incremented and all data is sent as usual 'RW' packets and
+>>>>> finally SEQ_END is sent(it also carries counter of message, which is
+>>>>> counter of SEQ_BEGIN + 1), also after sedning SEQ_END counter is
+>>>>> incremented again. On receiver's side, length of record is known from
+>>>>> packet with start record marker. To check that no packets were dropped
+>>>>> by transport, counters of two sequential SEQ_BEGIN and SEQ_END are
+>>>>> checked(counter of SEQ_END must be bigger that counter of SEQ_BEGIN by
+>>>>> 1) and length of data between two markers is compared to length in
+>>>>> SEQ_BEGIN header.
+>>>>> 	Now as  packets of one socket are not reordered neither on
+>>>>> vsock nor on vhost transport layers, such markers allows to restore
+>>>>> original record on receiver's side. If user's buffer is smaller that
+>>>>> record length, when all out of size data is dropped.
+>>>>> 	Maximum length of datagram is not limited as in stream socket,
+>>>>> because same credit logic is used. Difference with stream socket is
+>>>>> that user is not woken up until whole record is received or error
+>>>>> occurred. Implementation also supports 'MSG_EOR' and 'MSG_TRUNC' flags.
+>>>>> 	Tests also implemented.
+>>>>>
+>>>>>  Arseny Krasnov (17):
+>>>>>   af_vsock: update functions for connectible socket
+>>>>>   af_vsock: separate wait data loop
+>>>>>   af_vsock: separate receive data loop
+>>>>>   af_vsock: implement SEQPACKET receive loop
+>>>>>   af_vsock: separate wait space loop
+>>>>>   af_vsock: implement send logic for SEQPACKET
+>>>>>   af_vsock: rest of SEQPACKET support
+>>>>>   af_vsock: update comments for stream sockets
+>>>>>   virtio/vsock: dequeue callback for SOCK_SEQPACKET
+>>>>>   virtio/vsock: fetch length for SEQPACKET record
+>>>>>   virtio/vsock: add SEQPACKET receive logic
+>>>>>   virtio/vsock: rest of SOCK_SEQPACKET support
+>>>>>   virtio/vsock: setup SEQPACKET ops for transport
+>>>>>   vhost/vsock: setup SEQPACKET ops for transport
+>>>>>   vsock_test: add SOCK_SEQPACKET tests
+>>>>>   loopback/vsock: setup SEQPACKET ops for transport
+>>>>>   virtio/vsock: simplify credit update function API
+>>>>>
+>>>>>  drivers/vhost/vsock.c                   |   8 +-
+>>>>>  include/linux/virtio_vsock.h            |  15 +
+>>>>>  include/net/af_vsock.h                  |   9 +
+>>>>>  include/uapi/linux/virtio_vsock.h       |  16 +
+>>>>>  net/vmw_vsock/af_vsock.c                | 588 +++++++++++++++-------
+>>>>>  net/vmw_vsock/virtio_transport.c        |   5 +
+>>>>>  net/vmw_vsock/virtio_transport_common.c | 316 ++++++++++--
+>>>>>  net/vmw_vsock/vsock_loopback.c          |   5 +
+>>>>>  tools/testing/vsock/util.c              |  32 +-
+>>>>>  tools/testing/vsock/util.h              |   3 +
+>>>>>  tools/testing/vsock/vsock_test.c        | 126 +++++
+>>>>>  11 files changed, 895 insertions(+), 228 deletions(-)
+>>>>>
+>>>>>  TODO:
+>>>>>  - What to do, when server doesn't support SOCK_SEQPACKET. In current
+>>>>>    implementation RST is replied in the same way when listening port
+>>>>>    is not found. I think that current RST is enough,because case when
+>>>>>    server doesn't support SEQ_PACKET is same when listener missed(e.g.
+>>>>>    no listener in both cases).
+>> I think is fine.
+>>
+>>>>    - virtio spec patch
+>>> Ok
+>> Yes, please prepare a patch to discuss the VIRTIO spec changes.
+>>
+>> For example for 'virtio_vsock_seq_hdr', I left a comment about 'msg_cnt'
+>> naming that should be better to discuss with virtio guys.
+>
+>Ok, i'll prepare it in v5. So I have to send it both LKML(as one of patches) and
+>
+>virtio mailing lists? (e.g. virtio-comment@lists.oasis-open.org)
 
-I am working on supporting DGRAM type for virtio/vhost vsock. I
-already did some work and a draft code is here (which passed my tests,
-but still need some cleanup and only works from host to guest as of
-now, will add host to guest soon):
-https://github.com/Jiang1155/linux/commit/4e89736e0bce15496460ff411cb4694b143d1c3d
-qemu changes are here:
-https://github.com/Jiang1155/qemu/commit/7ab778801e3e8969ab98e44539943810a2fb03eb
+I think you can send the VIRTIO spec patch separately from this series 
+to virtio-comment, maybe CCing virtualization@lists.linux-foundation.org
 
-Today, I just noticed that the Asias had an old version of virtio
-which had both dgram and stream support, see this link:
-https://kvm.vger.kernel.narkive.com/BMvH9eEr/rfc-v2-0-7-introduce-vm-sockets-virtio-transport#post1
+But Michael could correct me :-)
 
-But somehow, the dgram part seems never merged to upstream linux (the
-stream part is merged). If so, does anyone know what is the reason for
-this? Did we drop dgram support for some specific reason or the code
-needs some improvement?
+>
+>>
+>> Anyway, I reviewed this series and I left some comments.
+>> I think we are in a good shape :-)
+>Great, thanks for review. I'll consider all review comments in next 
+>version.
 
-My current code differs from Asias' code in some ways. It does not use
-credit and does not support fragmentation.  It basically adds two virt
-queues and re-uses the existing functions for tx and rx ( there is
-somewhat duplicate code for now, but I will try to make common
-functions to reduce it). If we still want to support dgram in upstream
-linux, which way do you guys recommend? If necessary, I can try to
-base on Asias' old code and continue working on it. If there is
-anything unclear, just let me know. Thanks.
+Great!
 
-Regards,
+Stefano
 
-Jiang
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
