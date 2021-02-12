@@ -6,94 +6,98 @@ X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84276C433E0
-	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 10:14:46 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AF54C433DB
+	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 11:01:58 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0641A64E6B
-	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 10:14:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0641A64E6B
+	by mail.kernel.org (Postfix) with ESMTPS id 401D464E70
+	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 11:01:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 401D464E70
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id C5AA58731D;
-	Fri, 12 Feb 2021 10:14:45 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 05CD06F614
+	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 11:01:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fNDxdx4ihDr4; Fri, 12 Feb 2021 10:14:45 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id LF1eAKtGRW6G for <virtualization@archiver.kernel.org>;
+	Fri, 12 Feb 2021 11:01:56 +0000 (UTC)
+Received: by smtp3.osuosl.org (Postfix, from userid 1001)
+	id 3576C6F66A; Fri, 12 Feb 2021 11:01:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 2EA5A87305;
-	Fri, 12 Feb 2021 10:14:45 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id DE8566F5D3;
+	Fri, 12 Feb 2021 11:01:51 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1B4ADC0174;
-	Fri, 12 Feb 2021 10:14:45 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 63AE7C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C2937C0174;
+	Fri, 12 Feb 2021 11:01:51 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A7E46C013A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 10:14:44 +0000 (UTC)
+ Fri, 12 Feb 2021 11:01:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 58ECB86B93
+ by whitealder.osuosl.org (Postfix) with ESMTP id 8D3B587266
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 10:14:44 +0000 (UTC)
+ Fri, 12 Feb 2021 11:01:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Xr6L_z-EQaTP
+ with ESMTP id 1s8RQxjFhNAZ
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 10:14:43 +0000 (UTC)
+ Fri, 12 Feb 2021 11:01:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id C64C486A44
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 7CC068706B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 10:14:43 +0000 (UTC)
+ Fri, 12 Feb 2021 11:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1613124882;
+ s=mimecast20190719; t=1613127707;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=hQ4s2GKq0YTzgoAQssPGg5wIJASO0/s1pAuGBl1EvYw=;
- b=Od3tmThh7HeReUAGemwDtIKFnElSn1pUXWrxFGDlhmAu2LDHrnMFPRdHjeI8nijt2gWrz7
- NZ2kGKG6+35qYUwpm6cMWGzSr/CZOS0qzt9u00WVqyawnQJuyoQkXK4gCiR8yN29xtchg5
- trE9/DH7getVwj5iVd/ynUsjlvOEtms=
+ bh=+Gx/mG4h1X8FM7fWz9h2H0rRVjTdjgBag2KkGy2ksa4=;
+ b=a936kLDHkqiLjLcwxBJvrNHUMlmLzZdP8Fnjge8SbivYNITkB94rR6cC+URVa8bf4XmrVD
+ pDvqQj3Xi3v7lfH6Rj5MLv8ow0ZkqiGQyJkMWdRz/4iqEvfhN3qsYTX1Ucttqv4TC7B77+
+ r8qa/ZDOzRM4yYpZZ4QghBbiVjrgTPE=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-326-lK_x5n1dMNiEVwnPBr3ZVg-1; Fri, 12 Feb 2021 05:14:38 -0500
-X-MC-Unique: lK_x5n1dMNiEVwnPBr3ZVg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
- [10.5.11.22])
+ us-mta-37-lNMjW9KBPxa8Yl5DPST9Qw-1; Fri, 12 Feb 2021 06:01:45 -0500
+X-MC-Unique: lNMjW9KBPxa8Yl5DPST9Qw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1D072801962;
- Fri, 12 Feb 2021 10:14:37 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DF2A2801965;
+ Fri, 12 Feb 2021 11:01:43 +0000 (UTC)
 Received: from sirius.home.kraxel.org (ovpn-112-161.ams2.redhat.com
  [10.36.112.161])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id E423A10016F9;
- Fri, 12 Feb 2021 10:14:35 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 5255A5C3FD;
+ Fri, 12 Feb 2021 11:01:43 +0000 (UTC)
 Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
- id B8A5418003AF; Fri, 12 Feb 2021 11:14:33 +0100 (CET)
-Date: Fri, 12 Feb 2021 11:14:33 +0100
+ id C438918003AF; Fri, 12 Feb 2021 12:01:40 +0100 (CET)
+Date: Fri, 12 Feb 2021 12:01:40 +0100
 From: Gerd Hoffmann <kraxel@redhat.com>
-To: Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>
+To: "Kasireddy, Vivek" <vivek.kasireddy@intel.com>
 Subject: Re: [RFC v3 2/3] virtio: Introduce Vdmabuf driver
-Message-ID: <20210212101433.prcjjktmhqyjasnj@sirius.home.kraxel.org>
-References: <20210203073517.1908882-3-vivek.kasireddy@intel.com>
+Message-ID: <20210212110140.gdpu7kapnr7ovdcn@sirius.home.kraxel.org>
+References: <20210203073517.1908882-1-vivek.kasireddy@intel.com>
+ <20210203073517.1908882-3-vivek.kasireddy@intel.com>
  <YB1sRx1GrT8rATEg@phenom.ffwll.local>
  <20210208075748.xejgcb4il2egow2u@sirius.home.kraxel.org>
  <YCEGrrT0/eqqz/ok@phenom.ffwll.local>
  <8ba4ad64be3546bda9a2ed2129bf98e4@intel.com>
  <20210209084453.5oqepy7zdwtxgrpu@sirius.home.kraxel.org>
  <2ef01dc941684a15a4f30e6239ae42df@intel.com>
- <8ac10b1d-3d64-4e39-42e6-6c65b61f0794@amd.com>
- <fd23d4d08ea84ca3b8a7610a8fb866d5@intel.com>
- <e3222c34-31ee-b43e-65b0-6ab01423d52b@amd.com>
+ <20210210091641.ahjtgcdalw7viuei@sirius.home.kraxel.org>
+ <bad576177eb24085a73570e8ad03d2cc@intel.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <e3222c34-31ee-b43e-65b0-6ab01423d52b@amd.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+In-Reply-To: <bad576177eb24085a73570e8ad03d2cc@intel.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Cc: "Kim, Dongwon" <dongwon.kim@intel.com>,
+ "christian.koenig@amd.com" <christian.koenig@amd.com>,
  "daniel.vetter@ffwll.ch" <daniel.vetter@ffwll.ch>,
  "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
  "virtualization@lists.linux-foundation.org"
@@ -117,38 +121,43 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-  Hi,
+On Fri, Feb 12, 2021 at 08:15:12AM +0000, Kasireddy, Vivek wrote:
+> Hi Gerd,
+> 
+> > > > You don't have to use the rendering pipeline.  You can let the i915
+> > > > gpu render into a dma-buf shared with virtio-gpu, then use
+> > > > virtio-gpu only for buffer sharing with the host.
+> [Kasireddy, Vivek] Just to confirm my understanding of what you are suggesting, are
+> you saying that we need to either have Weston allocate scanout buffers (GBM surface/BO)
+> using virtio-gpu and render into them using i915; or have virtio-gpu allocate pages and 
+> export a dma-buf and have Weston create a GBM BO by calling gbm_bo_import(fd) and
+> render into the BO using i915?
 
-> This is because of the fundamental concept of DMA-buf that the exporter
-> needs to setup mappings (both CPU page tables as well as stuff like IOMMU).
-> When the guest exports something it would mean that you give the guest
-> control over the IOMMU and/or host page tables. And that is not something
-> you can do as far as I can see.
+Not sure what the difference between the former and the latter is.
 
-Correct.
+> > Hmm, why a big mode switch?  You should be able to do that without modifying the
+> > virtio-gpu guest driver.  On the host side qemu needs some work to support the most
+> > recent virtio-gpu features like the buffer uuids (assuming you use qemu userspace), right
+> > now those are only supported by crosvm.
+> [Kasireddy, Vivek] We are only interested in Qemu UI at the moment but if we were to use
+> virtio-gpu, we are going to need to add one more vq and support for managing buffers, 
+> events, etc.
 
-> You can only export stuff the other way around so that the host is providing
-> the memory and the guest is consuming it. If I understand it correctly
-> that's exactly what Gerd is suggesting here.
+Should be easy and it should not need any virtio-gpu driver changes.
 
-It can also work the other way around (guest allocating and host
-consuming).  That is just an implementation detail.  The /important/
-thing is that the driver which exports the dma-buf (and thus handles the
-mappings) must be aware of the virtualization so it can properly
-coordinate things with the host side.
+You can use virtio-gpu like a dumb scanout device.  Create a dumb
+bo, create a framebuffer for the bo, map the framebuffer to the crtc.
 
-So vdmabuf allocating and exporting dma-bufs works.
+Then export the bo, import into i915, use it as render target.  When
+rendering is done flush (DRM_IOCTL_MODE_DIRTYFB).  Alternatively
+allocate multiple bo's + framebuffers and pageflip.
 
-But vdmabuf importing dma-bufs doesn't because you can't ask the
-exporter to create *host* mappings as Christian outlined above.  Sure,
-you can try to sidestep the exporter, fish the list of pages out of the
-scatter list and run with that.  That will explode as soon as you meet a
-dma-buf which is not backed by pages in the first place.  And even for
-page-backed dma-bufs you can run into trouble, for example due to
-mapping pages with the wrong caching attributes.  Alternatively you can
-double-buffer and copy data from the imported dma-buf to some
-host-shared memory, but I guess you don't want that for performance
-reasons ...
+Pretty standard workflow for cases where rendering and scanout are
+handled by different devices.  As far I know not uncommon in the arm
+world.
+
+Right now this will involve a memcpy() for any display update because
+qemu is a bit behind on supporting recent virtio-gpu features.
 
 take care,
   Gerd
