@@ -7,75 +7,72 @@ X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97803C433E0
-	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 18:14:09 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 474A7C433DB
+	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 18:18:05 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 47A8164D9F
-	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 18:14:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 47A8164D9F
+	by mail.kernel.org (Postfix) with ESMTPS id D30E764E8E
+	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 18:18:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D30E764E8E
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 126886F7BD
-	for <virtualization@archiver.kernel.org>; Fri, 12 Feb 2021 18:14:09 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 8D1EF875CB;
+	Fri, 12 Feb 2021 18:18:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4WIqiNPXUohb for <virtualization@archiver.kernel.org>;
-	Fri, 12 Feb 2021 18:14:07 +0000 (UTC)
-Received: by smtp3.osuosl.org (Postfix, from userid 1001)
-	id 761416F7A6; Fri, 12 Feb 2021 18:14:07 +0000 (UTC)
+Received: from whitealder.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Bh-lGKAYtust; Fri, 12 Feb 2021 18:18:03 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id BFF066F527;
-	Fri, 12 Feb 2021 18:14:04 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id AA6C387564;
+	Fri, 12 Feb 2021 18:18:03 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 98F7CC0174;
-	Fri, 12 Feb 2021 18:14:04 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 92530C0174;
+	Fri, 12 Feb 2021 18:18:03 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 61BF0C013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8561FC013A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 18:14:03 +0000 (UTC)
+ Fri, 12 Feb 2021 18:18:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 4D93187657
+ by hemlock.osuosl.org (Postfix) with ESMTP id 737A687660
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 18:14:03 +0000 (UTC)
+ Fri, 12 Feb 2021 18:18:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id B0N7jSP933Op
+ with ESMTP id pTawxqiQw7jr
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 18:14:02 +0000 (UTC)
+ Fri, 12 Feb 2021 18:18:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 43F4987645
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id B171F8765F
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Feb 2021 18:14:02 +0000 (UTC)
+ Fri, 12 Feb 2021 18:18:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1613153640;
+ s=mimecast20190719; t=1613153880;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=32Qew6ZRkFn3RJSdCrHnp0CkF1vkLaufQL3nfF97ujg=;
- b=cPoOO6UqyiMn4PP4pS2CzuhFsCReX06I1gIhM8AhpADeoNqA0I4X0vP9X4ssDjjSgbnZhR
- ry6pPbUcRoyShdQGagLWWNAR/D4Fl6VguVFJlcPC35Sef1EqgwRZCiLllqdbNX409+jw9x
- pD//dpdiAlkxdHIZ5z6aK/2s42fOYss=
+ bh=NZl7b/r+ppu+9/FrF3IJzLz0mVLNre9CvDKAjn1o6yA=;
+ b=dTkW5DlnkpXayzR4WJcRmoLv6wUGw85woB76+Sn+ghT3tcVg9fAjNpZxwJBjBKtX4qmx3L
+ t9y528Fnh3FjVUCkdsJ8NLKPJbxdwy86Ory2Nw294UApB32kHk5PdmsI14la98Pl6AE6/A
+ bRDBZdObQLne5kHxTcy0mpovUSk0LWQ=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-515-yMGge4DRPlaPVRnHfXJOJw-1; Fri, 12 Feb 2021 13:13:58 -0500
-X-MC-Unique: yMGge4DRPlaPVRnHfXJOJw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
+ us-mta-10-h8Vd8kzrMlCZ5LdBkFC8Dg-1; Fri, 12 Feb 2021 13:16:25 -0500
+X-MC-Unique: h8Vd8kzrMlCZ5LdBkFC8Dg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 29E18835E20;
- Fri, 12 Feb 2021 18:13:56 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6B61AAFA81;
+ Fri, 12 Feb 2021 18:16:23 +0000 (UTC)
 Received: from [10.36.114.34] (ovpn-114-34.ams2.redhat.com [10.36.114.34])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id F259E6E419;
- Fri, 12 Feb 2021 18:13:44 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 4D7915C23D;
+ Fri, 12 Feb 2021 18:16:14 +0000 (UTC)
 Subject: Re: [PATCH 2/2] iommu: arm-smmu-v3: Report domain nesting info
  reuqired for stage1
 To: Vivek Gautam <vivek.gautam@arm.com>, linux-kernel@vger.kernel.org,
@@ -84,14 +81,14 @@ To: Vivek Gautam <vivek.gautam@arm.com>, linux-kernel@vger.kernel.org,
 References: <20210212105859.8445-1-vivek.gautam@arm.com>
  <20210212105859.8445-3-vivek.gautam@arm.com>
 From: Auger Eric <eric.auger@redhat.com>
-Message-ID: <0708b0b2-78f7-e55c-21a7-3c49eb5141df@redhat.com>
-Date: Fri, 12 Feb 2021 19:13:43 +0100
+Message-ID: <07d43c06-9876-2595-1139-b0bc67d94a2c@redhat.com>
+Date: Fri, 12 Feb 2021 19:16:12 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.6.0
 MIME-Version: 1.0
 In-Reply-To: <20210212105859.8445-3-vivek.gautam@arm.com>
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Cc: jean-philippe@linaro.org, jacob.jun.pan@linux.intel.com, mst@redhat.com,
  joro@8bytes.org, will.deacon@arm.com, shameerali.kolothum.thodi@huawei.com,
  yi.l.liu@intel.com, Lorenzo.Pieralisi@arm.com, robin.murphy@arm.com
@@ -115,8 +112,6 @@ Hi Vivek,
 
 On 2/12/21 11:58 AM, Vivek Gautam wrote:
 > Update nested domain information required for stage1 page table.
-
-s/reuqired/required in the commit title
 > 
 > Signed-off-by: Vivek Gautam <vivek.gautam@arm.com>
 > ---
@@ -145,12 +140,10 @@ s/reuqired/required in the commit title
 > +	info->addr_width = smmu->ias;
 > +	info->format = IOMMU_PASID_FORMAT_ARM_SMMU_V3;
 > +	info->features = IOMMU_NESTING_FEAT_BIND_PGTBL |
-I understood IOMMU_NESTING_FEAT_BIND_PGTBL advertises the requirement to
-bind tables per PASID, ie. passing iommu_gpasid_bind_data.
-In ARM case I guess you plan to use attach/detach_pasid_table API with
-iommu_pasid_table_config struct. So I understood we should add a new
-feature here.
 > +			 IOMMU_NESTING_FEAT_PAGE_RESP |
+IOMMU_NESTING_FEAT_PAGE_RESP definition is missing too
+
+Eric
 > +			 IOMMU_NESTING_FEAT_CACHE_INVLD;
 > +	info->pasid_bits = smmu->ssid_bits;
 > +	info->vendor.smmuv3.asid_bits = smmu->asid_bits;
@@ -160,7 +153,6 @@ feature here.
 > +
 >  	info->argsz = size;
 > +
-spurious new line
 >  	return 0;
 >  }
 >  
