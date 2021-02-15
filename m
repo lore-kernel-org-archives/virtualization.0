@@ -2,77 +2,73 @@ Return-Path: <SRS0=6TmO=HR=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 273F1C433DB
-	for <virtualization@archiver.kernel.org>; Mon, 15 Feb 2021 15:24:02 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B38FC433DB
+	for <virtualization@archiver.kernel.org>; Mon, 15 Feb 2021 18:40:06 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B13C064DA8
-	for <virtualization@archiver.kernel.org>; Mon, 15 Feb 2021 15:24:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B13C064DA8
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id AD70964E05
+	for <virtualization@archiver.kernel.org>; Mon, 15 Feb 2021 18:40:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AD70964E05
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 68A0E86746;
-	Mon, 15 Feb 2021 15:24:01 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 73C69870D3;
+	Mon, 15 Feb 2021 18:40:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lW84QQlxe+xv; Mon, 15 Feb 2021 15:24:00 +0000 (UTC)
+	with ESMTP id 702hWSMjH+Cf; Mon, 15 Feb 2021 18:40:04 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 66863810EE;
-	Mon, 15 Feb 2021 15:24:00 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id C253187095;
+	Mon, 15 Feb 2021 18:40:04 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 582D1C0174;
-	Mon, 15 Feb 2021 15:24:00 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9FE80C0893;
+	Mon, 15 Feb 2021 18:40:04 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5DF14C013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C6231C013A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Feb 2021 15:23:58 +0000 (UTC)
+ Mon, 15 Feb 2021 18:40:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 4B0BD83F2A
+ by fraxinus.osuosl.org (Postfix) with ESMTP id B54A184E5D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Feb 2021 15:23:58 +0000 (UTC)
+ Mon, 15 Feb 2021 18:40:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id x0UsLdWDBksi
+ with ESMTP id 63D_kAYdP17s
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Feb 2021 15:23:57 +0000 (UTC)
+ Mon, 15 Feb 2021 18:40:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id AF83383F20
+Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 8CC2A84E55
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Feb 2021 15:23:57 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF1AA64DA3;
- Mon, 15 Feb 2021 15:23:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1613402637;
- bh=D5A20jsw271QhgK0FxaYxiq0qi2ogTSlmiy9YeXbzJc=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=A8kdKYnh9/BOzdQTjXtAoWAqZ4yiDv5yLJWvyK0N/AtjOs2t08Ft/ju6dfmTD2WAp
- 2xxCSr7rejhF6MlFr4/iqkfvgBEXd2ikD2uxB8WQxEPlVurR/V97hob4adjQr0svNQ
- jfF0+EwMvwXkeLIsXGbn+z9UPUUhMv9VTGFUdjZw=
-Date: Mon, 15 Feb 2021 16:23:54 +0100
-From: Greg KH <gregkh@linuxfoundation.org>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH for 5.10] vdpa_sim: fix param validation in
- vdpasim_get_config()
-Message-ID: <YCqSCg4gugL/bX8f@kroah.com>
-References: <20210211162519.215418-1-sgarzare@redhat.com>
- <YCqF891BLn5zsUwd@kroah.com>
- <20210215150321.anwcogkifg6sefp6@steredhat>
+ Mon, 15 Feb 2021 18:40:00 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+ by mx2.suse.de (Postfix) with ESMTP id 38F23ACD4;
+ Mon, 15 Feb 2021 18:39:58 +0000 (UTC)
+Subject: Re: [PATCH 0/6] drm: Move vmap out of commit tail for SHMEM-based
+ drivers
+To: Gerd Hoffmann <kraxel@redhat.com>
+References: <20210204200308.24216-1-tzimmermann@suse.de>
+ <20210205090514.ln6eeoqfcijrd5q2@sirius.home.kraxel.org>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Message-ID: <b50fe1ac-57a5-26da-b358-d8c90578948d@suse.de>
+Date: Mon, 15 Feb 2021 19:39:56 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20210215150321.anwcogkifg6sefp6@steredhat>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Eli Cohen <elic@nvidia.com>
+In-Reply-To: <20210205090514.ln6eeoqfcijrd5q2@sirius.home.kraxel.org>
+Cc: airlied@linux.ie, sam@ravnborg.org, maarten.lankhorst@linux.intel.com,
+ mripard@kernel.org, virtualization@lists.linux-foundation.org,
+ hdegoede@redhat.com, noralf@tronnes.org, dri-devel@lists.freedesktop.org,
+ daniel@ffwll.ch, sean@poorly.run
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -84,83 +80,114 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5599542580918245846=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Feb 15, 2021 at 04:03:21PM +0100, Stefano Garzarella wrote:
-> On Mon, Feb 15, 2021 at 03:32:19PM +0100, Greg KH wrote:
-> > On Thu, Feb 11, 2021 at 05:25:19PM +0100, Stefano Garzarella wrote:
-> > > Commit 65b709586e222fa6ffd4166ac7fdb5d5dad113ee upstream.
-> > 
-> > No, this really is not that commit, so please do not say it is.
-> 
-> Oops, sorry.
-> 
-> > 
-> > > Before this patch, if 'offset + len' was equal to
-> > > sizeof(struct virtio_net_config), the entire buffer wasn't filled,
-> > > returning incorrect values to the caller.
-> > > 
-> > > Since 'vdpasim->config' type is 'struct virtio_net_config', we can
-> > > safely copy its content under this condition.
-> > > 
-> > > Commit 65b709586e22 ("vdpa_sim: add get_config callback in
-> > > vdpasim_dev_attr") unintentionally solved it upstream while
-> > > refactoring vdpa_sim.c to support multiple devices. But we don't want
-> > > to backport it to stable branches as it contains many changes.
-> > > 
-> > > Fixes: 2c53d0f64c06 ("vdpasim: vDPA device simulator")
-> > > Cc: <stable@vger.kernel.org> # 5.10.x
-> > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> > > ---
-> > >  drivers/vdpa/vdpa_sim/vdpa_sim.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> > > index 6a90fdb9cbfc..8ca178d7b02f 100644
-> > > --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> > > +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> > > @@ -572,7 +572,7 @@ static void vdpasim_get_config(struct vdpa_device *vdpa, unsigned int offset,
-> > >  {
-> > >  	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
-> > > 
-> > > -	if (offset + len < sizeof(struct virtio_net_config))
-> > > +	if (offset + len <= sizeof(struct virtio_net_config))
-> > >  		memcpy(buf, (u8 *)&vdpasim->config + offset, len);
-> > >  }
-> > 
-> > I'll be glad to take a one-off patch, but why can't we take the real
-> > upstream patch?  That is always the better long-term solution, right?
-> 
-> Because that patch depends on the following patches merged in v5.11-rc1
-> while refactoring vdpa_sim:
->   f37cbbc65178 vdpa_sim: make 'config' generic and usable for any device type
->   cf1a3b35382c vdpa_sim: store parsed MAC address in a buffer
->   a13b5918fdd0 vdpa_sim: add work_fn in vdpasim_dev_attr
->   011c35bac5ef vdpa_sim: add supported_features field in vdpasim_dev_attr
->   2f8f46188805 vdpa_sim: add device id field in vdpasim_dev_attr
->   6c6e28fe4579 vdpa_sim: add struct vdpasim_dev_attr for device attributes
->   36a9c3063025 vdpa_sim: rename vdpasim_config_ops variables
->   423248d60d2b vdpa_sim: remove hard-coded virtq count
-> 
-> Maybe we can skip some of them, but IMHO should be less risky to apply only
-> this change.
-> 
-> If you want I can try to figure out the minimum sub-set of patches needed
-> for 65b709586e22 ("vdpa_sim: add get_config callback in vdpasim_dev_attr").
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============5599542580918245846==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="65kZwvqIiuzbJZeYhiRShIjtH1xfj7yM2"
 
-The minimum is always nice :)
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--65kZwvqIiuzbJZeYhiRShIjtH1xfj7yM2
+Content-Type: multipart/mixed; boundary="7tqD3VmYMHLzuULlIYlVHY9UeroFKCm2X";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: daniel@ffwll.ch, airlied@linux.ie, maarten.lankhorst@linux.intel.com,
+ mripard@kernel.org, hdegoede@redhat.com, sean@poorly.run, sam@ravnborg.org,
+ noralf@tronnes.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org
+Message-ID: <b50fe1ac-57a5-26da-b358-d8c90578948d@suse.de>
+Subject: Re: [PATCH 0/6] drm: Move vmap out of commit tail for SHMEM-based
+ drivers
+References: <20210204200308.24216-1-tzimmermann@suse.de>
+ <20210205090514.ln6eeoqfcijrd5q2@sirius.home.kraxel.org>
+In-Reply-To: <20210205090514.ln6eeoqfcijrd5q2@sirius.home.kraxel.org>
 
-If it's just too much churn for no good reason, then yes, the one-line
-change above will be ok, but you need to document the heck out of why
-this is not upstream and that it is a one-off thing.
+--7tqD3VmYMHLzuULlIYlVHY9UeroFKCm2X
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+Hi
 
-greg k-h
+Am 05.02.21 um 10:05 schrieb Gerd Hoffmann:
+>    Hi,
+>=20
+>> I smoke-tested the code by running fbdev, Xorg and weston with the
+>> converted mgag200 driver.
+>=20
+> Looks sane to me.
+> Survived cirrus smoke test too.
+
+Reviewers are hard to find. Since you reviewed the shadow-plane=20
+conversion for cirrus; may I ask you for a review of a similar patchset=20
+in the ast driver. It's mostly about moving code around. In the end, ast =
+
+cursors will use generic shadow planes as well.
+
+=20
+https://lore.kernel.org/dri-devel/20210209134632.12157-1-tzimmermann@suse=
+=2Ede/
+
+If you have something where I can help out with a review, let me know.
+
+Best regards
+Thomas
+
+>=20
+> Tested-by: Gerd Hoffmann <kraxel@redhat.com>
+> Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+>=20
+> take care,
+>    Gerd
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+
+
+--7tqD3VmYMHLzuULlIYlVHY9UeroFKCm2X--
+
+--65kZwvqIiuzbJZeYhiRShIjtH1xfj7yM2
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmAqv/wFAwAAAAAACgkQlh/E3EQov+BF
+HBAAtAkQJzvpwuAeTX/XI6z4jaCJk1TiKuYZP+/D6wL8wWZPbiR1mqLIjUCeddM86UQBNYbugIND
+OGVH9vBBA6U/bc3hf8xKZWGJBPMye0J1sVHDxbuhUxS8xLSdI8bYv8v7/mlu3E1TAUF1g1u9VFj9
+zn2biCquo9S/Z80vePIhhGuLf/VClnnU8BjoD3VVp4WeUP1gj/1/9NubcapTfMJERrYdVV6P1iJP
+uLqFEhlzdCRJCkRw9CDHn6CTRQhyYqZBNbSKrL3sGtO+AXxReT7BA2qr1jeMgkp743azZFS6lSa2
+D+Pr4cENKgeOX3B6xHWSUp2KiTRpOKYBwQWk5TTmflLYcZdVF/ORnH/Rcrdntva1zlwYmqRJY00A
+gAnuI5c++zugmy5joH/xgRCOpm+VarvxqdOUYN4K4LK1LkSqkZwrjK48XqjDpVohnT+EdmW6qJNH
+wpJmzR6a74wjZwRc7q8tiI1tZ7I7j1HRLOdz2XlP1pR1E+msYiOq3VzwM6f9UwJlJdK8ZCdZ5AR2
+0X0bAJIEV/MAWJoFw5xKPWvT/1X4Hkuh9JnwFrPOojI2fr40XgqOpsbo1DdRTgsYs1pvERT0JvzD
+lHysQqgoZrMPa6DtHdOcWIiL9B3Y8upI5uWIMVqywRJ+YwOWOWo433V0mVgFTpTMbYpColaoTjxK
+xzc=
+=aCVH
+-----END PGP SIGNATURE-----
+
+--65kZwvqIiuzbJZeYhiRShIjtH1xfj7yM2--
+
+--===============5599542580918245846==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5599542580918245846==--
