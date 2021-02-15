@@ -7,89 +7,89 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E60CC433E0
-	for <virtualization@archiver.kernel.org>; Mon, 15 Feb 2021 11:47:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C52FC433DB
+	for <virtualization@archiver.kernel.org>; Mon, 15 Feb 2021 12:22:11 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 141EB64DE0
-	for <virtualization@archiver.kernel.org>; Mon, 15 Feb 2021 11:47:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 141EB64DE0
+	by mail.kernel.org (Postfix) with ESMTPS id 1867A64D9D
+	for <virtualization@archiver.kernel.org>; Mon, 15 Feb 2021 12:22:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1867A64D9D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id AC5926F571
-	for <virtualization@archiver.kernel.org>; Mon, 15 Feb 2021 11:47:19 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id AFD4C6F4AA
+	for <virtualization@archiver.kernel.org>; Mon, 15 Feb 2021 12:22:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vCFxeIPjwgHF for <virtualization@archiver.kernel.org>;
-	Mon, 15 Feb 2021 11:47:18 +0000 (UTC)
+	with ESMTP id gALCL_7g_TEx for <virtualization@archiver.kernel.org>;
+	Mon, 15 Feb 2021 12:22:08 +0000 (UTC)
 Received: by smtp3.osuosl.org (Postfix, from userid 1001)
-	id 5275A6F527; Mon, 15 Feb 2021 11:47:17 +0000 (UTC)
+	id 5CD8C6F56C; Mon, 15 Feb 2021 12:22:08 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 272E96F499;
-	Mon, 15 Feb 2021 11:47:14 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8F73E6F4A4;
+	Mon, 15 Feb 2021 12:22:03 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 012D4C0174;
-	Mon, 15 Feb 2021 11:47:14 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 51C48C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 64B7FC0893;
+	Mon, 15 Feb 2021 12:22:03 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A61AAC013A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Feb 2021 11:47:13 +0000 (UTC)
+ Mon, 15 Feb 2021 12:22:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 318286F499
+ by whitealder.osuosl.org (Postfix) with ESMTP id A2A9286970
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Feb 2021 11:47:13 +0000 (UTC)
+ Mon, 15 Feb 2021 12:22:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bIkePvOm27_c
+Received: from whitealder.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id FqE5-b66ZT7i
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Feb 2021 11:47:12 +0000 (UTC)
-Received: by smtp3.osuosl.org (Postfix, from userid 1001)
- id 40DBA6F509; Mon, 15 Feb 2021 11:47:12 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+ Mon, 15 Feb 2021 12:22:01 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id C877B6F499
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 9A6D086932
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Feb 2021 11:47:10 +0000 (UTC)
+ Mon, 15 Feb 2021 12:22:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1613389629;
+ s=mimecast20190719; t=1613391720;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=D22s3OuQqHDBBIq03XJttdJ4KRGjRR6pC+JhDOVlOkU=;
- b=TDGsJ949jBseFKP6fQWYQ4ItTPjlLEjEIGJDLqcu0Cz2Slrwe3v6VgGGLttz1c9tgzXtPd
- z3tvnrSpcne4eKhEVvGOWuNQUz4VZ4/bgzHrbYTQUt0CNgkTXHyYa2I6PLlX8a6fRhUP6n
- NttjlsewznBQrxxnc7C/M8PNlcbpvMk=
+ bh=iREUH3qcwe+8CMwRTYNN3sl03Q+aaxvnMDnwGmHEACo=;
+ b=FGknrUR4BXdhIYmse/JCe9e5p1UoAql+gFPfDQ/CISzZaBn5iRgUpX63QGEzScx7lS2oVo
+ CCaTSsRzTjVjSH4oO3nRyOLAfHW0ONb16EHj6cZKwMLRwPHMeenl7NOQlmTgjjhKBgldbN
+ VO8+EXpd/ZqC4u31Te3BRT37t+qD44k=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-167-sJoUwJx-PS2WINi8H1HfSw-1; Mon, 15 Feb 2021 06:47:07 -0500
-X-MC-Unique: sJoUwJx-PS2WINi8H1HfSw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
- [10.5.11.16])
+ us-mta-398-0zyx5x9gNme3xLrVJohpQA-1; Mon, 15 Feb 2021 07:21:56 -0500
+X-MC-Unique: 0zyx5x9gNme3xLrVJohpQA-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
+ [10.5.11.11])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 44288100CCC1;
- Mon, 15 Feb 2021 11:47:06 +0000 (UTC)
-Received: from gondolin (ovpn-113-55.ams2.redhat.com [10.36.113.55])
- by smtp.corp.redhat.com (Postfix) with ESMTP id DDBD75C3F8;
- Mon, 15 Feb 2021 11:47:04 +0000 (UTC)
-Date: Mon, 15 Feb 2021 12:47:02 +0100
-From: Cornelia Huck <cohuck@redhat.com>
-To: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH] virtio/s390: implement virtio-ccw revision 2 correctly
-Message-ID: <20210215124702.23a093b8.cohuck@redhat.com>
-In-Reply-To: <20210212170411.992217-1-cohuck@redhat.com>
-References: <20210212170411.992217-1-cohuck@redhat.com>
-Organization: Red Hat GmbH
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id EBDE4192CC43;
+ Mon, 15 Feb 2021 12:21:54 +0000 (UTC)
+Received: from t480s.redhat.com (ovpn-114-89.ams2.redhat.com [10.36.114.89])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id D81C72BFEC;
+ Mon, 15 Feb 2021 12:21:52 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH v1 1/2] virtio-mem: don't read big block size in SBM
+Date: Mon, 15 Feb 2021 13:21:42 +0100
+Message-Id: <20210215122143.27608-2-david@redhat.com>
+In-Reply-To: <20210215122143.27608-1-david@redhat.com>
+References: <20210215122143.27608-1-david@redhat.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org,
- Pierre Morel <pmorel@linux.ibm.com>, virtualization@lists.linux-foundation.org
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+ Wei Yang <richard.weiyang@linux.alibaba.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
+ Marek Kedzierski <mkedzier@redhat.com>, Hui Zhu <teawater@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,70 +106,60 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, 12 Feb 2021 18:04:11 +0100
-Cornelia Huck <cohuck@redhat.com> wrote:
+We are reading the a BBM (Big Block Mode) value while in SBM (Sub Block
+Mode) while initializing. Fortunately, vm->bbm.bb_size maps to some counter
+in the vm->sbm.mb_count array, which is 0 at that point in time.
 
-> CCW_CMD_READ_STATUS was introduced with revision 2 of virtio-ccw,
-> and drivers should only rely on it being implemented when they
-> negotiated at least that revision with the device.
-> 
-> However, virtio_ccw_get_status() issued READ_STATUS for any
-> device operating at least at revision 1. If the device accepts
-> READ_STATUS regardless of the negotiated revision (which it is
-> free to do),
+No harm done; still, this was unintended and is not future-proof.
 
-So, looking at the standard again, the device is actually required to
-reject the READ_STATUS if only rev 1 had been negotiated... regardless
-of that, I don't think we should change QEMU's behaviour, as it would
-affect existing guests (they would lose access to the status bits as
-observed by the device, including DEVICE_NEEDS_RESET.)
+Fixes: 4ba50cd3355d ("virtio-mem: Big Block Mode (BBM) memory hotplug")
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Marek Kedzierski <mkedzier@redhat.com>
+Cc: Hui Zhu <teawater@gmail.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ drivers/virtio/virtio_mem.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-> everything works as intended; a device rejecting the
-> command should also be handled gracefully. For correctness, we
-> should really limit the command to revision 2 or higher, though.
-> 
-> We also negotiated the revision to at most 1, as we never bumped
-> the maximum revision; let's do that now.
-> 
-> Fixes: 7d3ce5ab9430 ("virtio/s390: support READ_STATUS command for virtio-ccw")
-> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
-> ---
-> 
-> QEMU does not fence off READ_STATUS for revisions < 2, which is probably
-> why we never noticed this. I'm not aware of other hypervisors that do
-> fence it off, nor any that cannot deal properly with an unknown command.
-> 
-> Not sure whether this is stable worthy?
-
-Maybe it is, given the MUST reject clause in the standard?
-
-> 
-> ---
->  drivers/s390/virtio/virtio_ccw.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index 5730572b52cd..54e686dca6de 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -117,7 +117,7 @@ struct virtio_rev_info {
->  };
->  
->  /* the highest virtio-ccw revision we support */
-> -#define VIRTIO_CCW_REV_MAX 1
-> +#define VIRTIO_CCW_REV_MAX 2
->  
->  struct virtio_ccw_vq_info {
->  	struct virtqueue *vq;
-> @@ -952,7 +952,7 @@ static u8 virtio_ccw_get_status(struct virtio_device *vdev)
->  	u8 old_status = vcdev->dma_area->status;
->  	struct ccw1 *ccw;
->  
-> -	if (vcdev->revision < 1)
-> +	if (vcdev->revision < 2)
->  		return vcdev->dma_area->status;
->  
->  	ccw = ccw_device_dma_zalloc(vcdev->cdev, sizeof(*ccw));
+diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+index 9fc9ec4a25f5..6d4e01c4e2fa 100644
+--- a/drivers/virtio/virtio_mem.c
++++ b/drivers/virtio/virtio_mem.c
+@@ -2409,6 +2409,10 @@ static int virtio_mem_init(struct virtio_mem *vm)
+ 		dev_warn(&vm->vdev->dev,
+ 			 "Some memory is not addressable. This can make some memory unusable.\n");
+ 
++	/* Prepare the offline threshold - make sure we can add two blocks. */
++	vm->offline_threshold = max_t(uint64_t, 2 * memory_block_size_bytes(),
++				      VIRTIO_MEM_DEFAULT_OFFLINE_THRESHOLD);
++
+ 	/*
+ 	 * We want subblocks to span at least MAX_ORDER_NR_PAGES and
+ 	 * pageblock_nr_pages pages. This:
+@@ -2453,14 +2457,11 @@ static int virtio_mem_init(struct virtio_mem *vm)
+ 		addr = vm->addr + vm->bbm.bb_size - 1;
+ 		vm->bbm.first_bb_id = virtio_mem_phys_to_bb_id(vm, addr);
+ 		vm->bbm.next_bb_id = vm->bbm.first_bb_id;
+-	}
+ 
+-	/* Prepare the offline threshold - make sure we can add two blocks. */
+-	vm->offline_threshold = max_t(uint64_t, 2 * memory_block_size_bytes(),
+-				      VIRTIO_MEM_DEFAULT_OFFLINE_THRESHOLD);
+-	/* In BBM, we also want at least two big blocks. */
+-	vm->offline_threshold = max_t(uint64_t, 2 * vm->bbm.bb_size,
+-				      vm->offline_threshold);
++		/* Make sure we can add two big blocks. */
++		vm->offline_threshold = max_t(uint64_t, 2 * vm->bbm.bb_size,
++					      vm->offline_threshold);
++	}
+ 
+ 	dev_info(&vm->vdev->dev, "start address: 0x%llx", vm->addr);
+ 	dev_info(&vm->vdev->dev, "region size: 0x%llx", vm->region_size);
+-- 
+2.29.2
 
 _______________________________________________
 Virtualization mailing list
