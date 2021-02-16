@@ -7,87 +7,84 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A124C433E6
-	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 11:37:41 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 602C0C433E0
+	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 11:37:42 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1D41264DDA
+	by mail.kernel.org (Postfix) with ESMTPS id DF79164DDA
 	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 11:37:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1D41264DDA
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DF79164DDA
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B659D6F59A
-	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 11:37:40 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 8C78086C34;
+	Tue, 16 Feb 2021 11:37:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4og19f0uy1xw for <virtualization@archiver.kernel.org>;
-	Tue, 16 Feb 2021 11:37:39 +0000 (UTC)
-Received: by smtp3.osuosl.org (Postfix, from userid 1001)
-	id 4E7ED6F5A8; Tue, 16 Feb 2021 11:37:39 +0000 (UTC)
+Received: from whitealder.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1x+NPN3s0avh; Tue, 16 Feb 2021 11:37:37 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 248F46F586;
-	Tue, 16 Feb 2021 11:37:36 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 8E10386C32;
+	Tue, 16 Feb 2021 11:37:35 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 003B0C1DA9;
-	Tue, 16 Feb 2021 11:37:36 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0961AC013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 71DD0C1DA9;
+	Tue, 16 Feb 2021 11:37:35 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1C15CC013A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 11:37:34 +0000 (UTC)
+ Tue, 16 Feb 2021 11:37:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id EC8E685742
+ by whitealder.osuosl.org (Postfix) with ESMTP id 0B1DB86BE6
  for <virtualization@lists.linux-foundation.org>;
  Tue, 16 Feb 2021 11:37:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NBq2rEL7_nG1
+ with ESMTP id U4PVkr2EnMr2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 11:37:33 +0000 (UTC)
+ Tue, 16 Feb 2021 11:37:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 439F88531D
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 7200286678
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 11:37:33 +0000 (UTC)
+ Tue, 16 Feb 2021 11:37:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1613475452;
+ s=mimecast20190719; t=1613475447;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=IeMuz+PjENRbBtRPL4YeHFDqiXu98t0Ozh6QE5njAVg=;
- b=UHPANtLq6SqnPzC9nNB2SwfMLz8+zdYaHhelPFdEKadXf4sw3hr1BCPBFUq4ZQ/YX3oXwk
- tY1iuLyu3pI7IOx1IuPTGUAW1oVxBcOsazj4e6YTjPy1lnnkIidpfOkouMbK/enYJ7ZdUA
- EHmpOaorOVGBo+jUUlOinbaIkPy6BhA=
+ bh=2KPW0s8srkPK+oIjW73R/hOS007fqavsKuim9JgrbsM=;
+ b=Mcwmt9ARc01cdvd92zXVe07iv5CVWZscvmyzJqdqhpuvm46hKhT/f0X0atpItTp2WMv93d
+ rFendsGeOzxiYsNBrjoF3iFwuhWv44JqvRZdYxd7ZjlXEeLw8ttMVM2xYbTzqI+0FM3Z19
+ KMV1jrqX/pXVV7kjUxEcI6CoEdPGuhU=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-477-5PZJWJp-PRe2Ssa8s8TOIw-1; Tue, 16 Feb 2021 06:37:30 -0500
-X-MC-Unique: 5PZJWJp-PRe2Ssa8s8TOIw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
- [10.5.11.23])
+ us-mta-440-ThBwyDJ3Oh2glP8w9lMyTg-1; Tue, 16 Feb 2021 06:37:26 -0500
+X-MC-Unique: ThBwyDJ3Oh2glP8w9lMyTg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
+ [10.5.11.11])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 31497100A8EA;
- Tue, 16 Feb 2021 11:37:29 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B7A0F80196C;
+ Tue, 16 Feb 2021 11:37:24 +0000 (UTC)
 Received: from sirius.home.kraxel.org (ovpn-114-184.ams2.redhat.com
  [10.36.114.184])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 296211975F;
- Tue, 16 Feb 2021 11:37:25 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 6A6F619C99;
+ Tue, 16 Feb 2021 11:37:24 +0000 (UTC)
 Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
- id 6AB6F180086E; Tue, 16 Feb 2021 12:37:18 +0100 (CET)
+ id 2BBF218003BE; Tue, 16 Feb 2021 12:37:18 +0100 (CET)
 From: Gerd Hoffmann <kraxel@redhat.com>
 To: dri-devel@lists.freedesktop.org
-Subject: [PATCH 08/10] drm/qxl: fix monitors object kmap
-Date: Tue, 16 Feb 2021 12:37:14 +0100
-Message-Id: <20210216113716.716996-9-kraxel@redhat.com>
+Subject: [PATCH 06/10] drm/qxl: add qxl_bo_kmap/qxl_bo_kunmap
+Date: Tue, 16 Feb 2021 12:37:12 +0100
+Message-Id: <20210216113716.716996-7-kraxel@redhat.com>
 In-Reply-To: <20210216113716.716996-1-kraxel@redhat.com>
 References: <20210216113716.716996-1-kraxel@redhat.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>,
  "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
  <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>,
@@ -109,43 +106,91 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Use the correct kmap variant.  We don't hold a reservation here,
-so we can't use the _locked variant.  We can drop the pin because
-qxl_bo_kmap will do that for us.
+Add kmap/kunmap variants which reserve (and pin) the bo.
+They can be used in case the caller doesn't hold a reservation
+for the bo.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/qxl/qxl_object.h |  2 ++
+ drivers/gpu/drm/qxl/qxl_object.c | 36 ++++++++++++++++++++++++++++++++
+ 2 files changed, 38 insertions(+)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 8672385a1caf..7500560db8e4 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -1159,12 +1159,10 @@ int qxl_create_monitors_object(struct qxl_device *qdev)
- 	}
- 	qdev->monitors_config_bo = gem_to_qxl_bo(gobj);
+diff --git a/drivers/gpu/drm/qxl/qxl_object.h b/drivers/gpu/drm/qxl/qxl_object.h
+index 5bd33650183f..360972ae4869 100644
+--- a/drivers/gpu/drm/qxl/qxl_object.h
++++ b/drivers/gpu/drm/qxl/qxl_object.h
+@@ -64,7 +64,9 @@ extern int qxl_bo_create(struct qxl_device *qdev,
+ 			 u32 priority,
+ 			 struct qxl_surface *surf,
+ 			 struct qxl_bo **bo_ptr);
++extern int qxl_bo_kmap(struct qxl_bo *bo, struct dma_buf_map *map);
+ extern int qxl_bo_kmap_locked(struct qxl_bo *bo, struct dma_buf_map *map);
++extern int qxl_bo_kunmap(struct qxl_bo *bo);
+ extern void qxl_bo_kunmap_locked(struct qxl_bo *bo);
+ void *qxl_bo_kmap_atomic_page(struct qxl_device *qdev, struct qxl_bo *bo, int page_offset);
+ void qxl_bo_kunmap_atomic_page(struct qxl_device *qdev, struct qxl_bo *bo, void *map);
+diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl_object.c
+index b56d4dfc28cb..22748b9566af 100644
+--- a/drivers/gpu/drm/qxl/qxl_object.c
++++ b/drivers/gpu/drm/qxl/qxl_object.c
+@@ -29,6 +29,9 @@
+ #include "qxl_drv.h"
+ #include "qxl_object.h"
  
--	ret = qxl_bo_pin(qdev->monitors_config_bo);
-+	ret = qxl_bo_kmap(qdev->monitors_config_bo, &map);
- 	if (ret)
- 		return ret;
++static int __qxl_bo_pin(struct qxl_bo *bo);
++static void __qxl_bo_unpin(struct qxl_bo *bo);
++
+ static void qxl_ttm_bo_destroy(struct ttm_buffer_object *tbo)
+ {
+ 	struct qxl_bo *bo;
+@@ -179,6 +182,25 @@ int qxl_bo_kmap_locked(struct qxl_bo *bo, struct dma_buf_map *map)
+ 	return 0;
+ }
  
--	qxl_bo_kmap_locked(qdev->monitors_config_bo, &map);
--
- 	qdev->monitors_config = qdev->monitors_config_bo->kptr;
- 	qdev->ram_header->monitors_config =
- 		qxl_bo_physical_address(qdev, qdev->monitors_config_bo, 0);
-@@ -1189,8 +1187,7 @@ int qxl_destroy_monitors_object(struct qxl_device *qdev)
- 	qdev->monitors_config = NULL;
- 	qdev->ram_header->monitors_config = 0;
++int qxl_bo_kmap(struct qxl_bo *bo, struct dma_buf_map *map)
++{
++	int r;
++
++	r = qxl_bo_reserve(bo);
++	if (r)
++		return r;
++
++	r = __qxl_bo_pin(bo);
++	if (r) {
++		qxl_bo_unreserve(bo);
++		return r;
++	}
++
++	r = qxl_bo_kmap_locked(bo, map);
++	qxl_bo_unreserve(bo);
++	return r;
++}
++
+ void *qxl_bo_kmap_atomic_page(struct qxl_device *qdev,
+ 			      struct qxl_bo *bo, int page_offset)
+ {
+@@ -223,6 +245,20 @@ void qxl_bo_kunmap_locked(struct qxl_bo *bo)
+ 	ttm_bo_vunmap(&bo->tbo, &bo->map);
+ }
  
--	qxl_bo_kunmap_locked(qdev->monitors_config_bo);
--	ret = qxl_bo_unpin(qdev->monitors_config_bo);
-+	ret = qxl_bo_kunmap(qdev->monitors_config_bo);
- 	if (ret)
- 		return ret;
- 
++int qxl_bo_kunmap(struct qxl_bo *bo)
++{
++	int r;
++
++	r = qxl_bo_reserve(bo);
++	if (r)
++		return r;
++
++	qxl_bo_kunmap_locked(bo);
++	__qxl_bo_unpin(bo);
++	qxl_bo_unreserve(bo);
++	return 0;
++}
++
+ void qxl_bo_kunmap_atomic_page(struct qxl_device *qdev,
+ 			       struct qxl_bo *bo, void *pmap)
+ {
 -- 
 2.29.2
 
