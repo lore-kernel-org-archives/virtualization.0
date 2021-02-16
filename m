@@ -7,63 +7,63 @@ X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 125D1C433DB
-	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 13:14:51 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AD59C433DB
+	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 13:16:33 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B4B4A64D73
-	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 13:14:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B4B4A64D73
+	by mail.kernel.org (Postfix) with ESMTPS id B43C464DA5
+	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 13:16:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B43C464DA5
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 872338674E;
-	Tue, 16 Feb 2021 13:14:50 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 7DA3A858D3;
+	Tue, 16 Feb 2021 13:16:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id k7DYtV8Pgs0m; Tue, 16 Feb 2021 13:14:49 +0000 (UTC)
+	with ESMTP id k09wIDGCqZbv; Tue, 16 Feb 2021 13:16:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 7834686733;
-	Tue, 16 Feb 2021 13:14:49 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 02AC185585;
+	Tue, 16 Feb 2021 13:16:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 55A60C0893;
-	Tue, 16 Feb 2021 13:14:49 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 949A8C013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C9A28C0893;
+	Tue, 16 Feb 2021 13:16:31 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7A743C013A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 13:14:47 +0000 (UTC)
+ Tue, 16 Feb 2021 13:16:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 7B37D86733
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 6487985643
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 13:14:47 +0000 (UTC)
+ Tue, 16 Feb 2021 13:16:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9vWrmW7ISr1s
+ with ESMTP id s1ewB5VSnVxi
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 13:14:46 +0000 (UTC)
+ Tue, 16 Feb 2021 13:16:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by whitealder.osuosl.org (Postfix) with ESMTPS id E677486745
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 6BFC485585
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 13:14:45 +0000 (UTC)
+ Tue, 16 Feb 2021 13:16:29 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 6918BACBF;
- Tue, 16 Feb 2021 13:14:44 +0000 (UTC)
-Subject: Re: [PATCH 05/10] drm/qxl: rename qxl_bo_kmap -> qxl_bo_kmap_locked
+ by mx2.suse.de (Postfix) with ESMTP id F1523AF2C;
+ Tue, 16 Feb 2021 13:16:27 +0000 (UTC)
+Subject: Re: [PATCH 07/10] drm/qxl: fix prime kmap
 To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
 References: <20210216113716.716996-1-kraxel@redhat.com>
- <20210216113716.716996-6-kraxel@redhat.com>
+ <20210216113716.716996-8-kraxel@redhat.com>
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <5d06c09b-4105-042a-6e99-5f4c336734ff@suse.de>
-Date: Tue, 16 Feb 2021 14:14:42 +0100
+Message-ID: <a5c31dc0-3b89-fbb2-b933-b28a89cf14e7@suse.de>
+Date: Tue, 16 Feb 2021 14:16:26 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.7.0
 MIME-Version: 1.0
-In-Reply-To: <20210216113716.716996-6-kraxel@redhat.com>
+In-Reply-To: <20210216113716.716996-8-kraxel@redhat.com>
 Cc: David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
  <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>,
  open list <linux-kernel@vger.kernel.org>,
@@ -80,19 +80,19 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============2896056280063552306=="
+Content-Type: multipart/mixed; boundary="===============5315458811397572933=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============2896056280063552306==
+--===============5315458811397572933==
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="pH0yIM6TjFZLy5QdVUEFrSjitz0Yb5fOh"
+ boundary="uKKinKeYKRMHvQbXcRlKSL8e4OX4eXTBp"
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---pH0yIM6TjFZLy5QdVUEFrSjitz0Yb5fOh
-Content-Type: multipart/mixed; boundary="Wi6PCQKuYc5wDIn0KDcx92LtiTjq4ZOWh";
+--uKKinKeYKRMHvQbXcRlKSL8e4OX4eXTBp
+Content-Type: multipart/mixed; boundary="vAkSA4xPbEBg28YfmM4zHXhoJSRUwKles";
  protected-headers="v1"
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
@@ -102,13 +102,13 @@ Cc: David Airlie <airlied@linux.ie>, open list
  <virtualization@lists.linux-foundation.org>,
  "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
  <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
-Message-ID: <5d06c09b-4105-042a-6e99-5f4c336734ff@suse.de>
-Subject: Re: [PATCH 05/10] drm/qxl: rename qxl_bo_kmap -> qxl_bo_kmap_locked
+Message-ID: <a5c31dc0-3b89-fbb2-b933-b28a89cf14e7@suse.de>
+Subject: Re: [PATCH 07/10] drm/qxl: fix prime kmap
 References: <20210216113716.716996-1-kraxel@redhat.com>
- <20210216113716.716996-6-kraxel@redhat.com>
-In-Reply-To: <20210216113716.716996-6-kraxel@redhat.com>
+ <20210216113716.716996-8-kraxel@redhat.com>
+In-Reply-To: <20210216113716.716996-8-kraxel@redhat.com>
 
---Wi6PCQKuYc5wDIn0KDcx92LtiTjq4ZOWh
+--vAkSA4xPbEBg28YfmM4zHXhoJSRUwKles
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
@@ -116,220 +116,24 @@ Content-Transfer-Encoding: quoted-printable
 Hi
 
 Am 16.02.21 um 12:37 schrieb Gerd Hoffmann:
-> Make clear that these functions should be called with reserved
-> bo's only.  No functional change.
->=20
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->   drivers/gpu/drm/qxl/qxl_object.h  |  4 ++--
->   drivers/gpu/drm/qxl/qxl_display.c | 14 +++++++-------
->   drivers/gpu/drm/qxl/qxl_draw.c    |  8 ++++----
->   drivers/gpu/drm/qxl/qxl_image.c   |  2 +-
->   drivers/gpu/drm/qxl/qxl_object.c  |  8 ++++----
->   drivers/gpu/drm/qxl/qxl_prime.c   |  4 ++--
->   6 files changed, 20 insertions(+), 20 deletions(-)
->=20
-> diff --git a/drivers/gpu/drm/qxl/qxl_object.h b/drivers/gpu/drm/qxl/qxl=
-_object.h
-> index dc1659e717f1..5bd33650183f 100644
-> --- a/drivers/gpu/drm/qxl/qxl_object.h
-> +++ b/drivers/gpu/drm/qxl/qxl_object.h
-> @@ -64,8 +64,8 @@ extern int qxl_bo_create(struct qxl_device *qdev,
->   			 u32 priority,
->   			 struct qxl_surface *surf,
->   			 struct qxl_bo **bo_ptr);
-> -extern int qxl_bo_kmap(struct qxl_bo *bo, struct dma_buf_map *map);
-> -extern void qxl_bo_kunmap(struct qxl_bo *bo);
-> +extern int qxl_bo_kmap_locked(struct qxl_bo *bo, struct dma_buf_map *m=
-ap);
-> +extern void qxl_bo_kunmap_locked(struct qxl_bo *bo);
+> Use the correct kmap variant.  We don't have a reservation here,
+> so we can't use the _locked version.
 
-Nowadaways kmap/kunmap is a misnomer. Since you're renaming; maybe=20
-rename them to vmap/vunmap.
+I'd merge this change into patch 6. So the new functions come with a call=
+er.
 
 Best regards
 Thomas
 
->   void *qxl_bo_kmap_atomic_page(struct qxl_device *qdev, struct qxl_bo =
-*bo, int page_offset);
->   void qxl_bo_kunmap_atomic_page(struct qxl_device *qdev, struct qxl_bo=
- *bo, void *map);
->   extern struct qxl_bo *qxl_bo_ref(struct qxl_bo *bo);
-> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qx=
-l_display.c
-> index a1b5cc5918bc..8672385a1caf 100644
-> --- a/drivers/gpu/drm/qxl/qxl_display.c
-> +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> @@ -600,7 +600,7 @@ static void qxl_cursor_atomic_update(struct drm_pla=
-ne *plane,
->   		user_bo =3D gem_to_qxl_bo(obj);
->  =20
->   		/* pinning is done in the prepare/cleanup framevbuffer */
-> -		ret =3D qxl_bo_kmap(user_bo, &user_map);
-> +		ret =3D qxl_bo_kmap_locked(user_bo, &user_map);
->   		if (ret)
->   			goto out_free_release;
->   		user_ptr =3D user_map.vaddr; /* TODO: Use mapping abstraction prope=
-rly */
-> @@ -619,7 +619,7 @@ static void qxl_cursor_atomic_update(struct drm_pla=
-ne *plane,
->   		if (ret)
->   			goto out_unpin;
->  =20
-> -		ret =3D qxl_bo_kmap(cursor_bo, &cursor_map);
-> +		ret =3D qxl_bo_kmap_locked(cursor_bo, &cursor_map);
->   		if (ret)
->   			goto out_backoff;
->   		if (cursor_map.is_iomem) /* TODO: Use mapping abstraction properly =
-*/
-> @@ -638,8 +638,8 @@ static void qxl_cursor_atomic_update(struct drm_pla=
-ne *plane,
->   		cursor->chunk.prev_chunk =3D 0;
->   		cursor->chunk.data_size =3D size;
->   		memcpy(cursor->chunk.data, user_ptr, size);
-> -		qxl_bo_kunmap(cursor_bo);
-> -		qxl_bo_kunmap(user_bo);
-> +		qxl_bo_kunmap_locked(cursor_bo);
-> +		qxl_bo_kunmap_locked(user_bo);
->  =20
->   		cmd =3D (struct qxl_cursor_cmd *) qxl_release_map(qdev, release);
->   		cmd->u.set.visible =3D 1;
-> @@ -681,7 +681,7 @@ static void qxl_cursor_atomic_update(struct drm_pla=
-ne *plane,
->   out_free_bo:
->   	qxl_bo_unref(&cursor_bo);
->   out_kunmap:
-> -	qxl_bo_kunmap(user_bo);
-> +	qxl_bo_kunmap_locked(user_bo);
->   out_free_release:
->   	qxl_release_free(qdev, release);
->   	return;
-> @@ -1163,7 +1163,7 @@ int qxl_create_monitors_object(struct qxl_device =
-*qdev)
->   	if (ret)
->   		return ret;
->  =20
-> -	qxl_bo_kmap(qdev->monitors_config_bo, &map);
-> +	qxl_bo_kmap_locked(qdev->monitors_config_bo, &map);
->  =20
->   	qdev->monitors_config =3D qdev->monitors_config_bo->kptr;
->   	qdev->ram_header->monitors_config =3D
-> @@ -1189,7 +1189,7 @@ int qxl_destroy_monitors_object(struct qxl_device=
- *qdev)
->   	qdev->monitors_config =3D NULL;
->   	qdev->ram_header->monitors_config =3D 0;
->  =20
-> -	qxl_bo_kunmap(qdev->monitors_config_bo);
-> +	qxl_bo_kunmap_locked(qdev->monitors_config_bo);
->   	ret =3D qxl_bo_unpin(qdev->monitors_config_bo);
->   	if (ret)
->   		return ret;
-> diff --git a/drivers/gpu/drm/qxl/qxl_draw.c b/drivers/gpu/drm/qxl/qxl_d=
-raw.c
-> index 7b7acb910780..294542d49015 100644
-> --- a/drivers/gpu/drm/qxl/qxl_draw.c
-> +++ b/drivers/gpu/drm/qxl/qxl_draw.c
-> @@ -48,7 +48,7 @@ static struct qxl_rect *drawable_set_clipping(struct =
-qxl_device *qdev,
->   	struct qxl_clip_rects *dev_clips;
->   	int ret;
->  =20
-> -	ret =3D qxl_bo_kmap(clips_bo, &map);
-> +	ret =3D qxl_bo_kmap_locked(clips_bo, &map);
->   	if (ret)
->   		return NULL;
->   	dev_clips =3D map.vaddr; /* TODO: Use mapping abstraction properly *=
-/
-> @@ -202,7 +202,7 @@ void qxl_draw_dirty_fb(struct qxl_device *qdev,
->   	if (ret)
->   		goto out_release_backoff;
->  =20
-> -	ret =3D qxl_bo_kmap(bo, &surface_map);
-> +	ret =3D qxl_bo_kmap_locked(bo, &surface_map);
->   	if (ret)
->   		goto out_release_backoff;
->   	surface_base =3D surface_map.vaddr; /* TODO: Use mapping abstraction=
- properly */
-> @@ -210,7 +210,7 @@ void qxl_draw_dirty_fb(struct qxl_device *qdev,
->   	ret =3D qxl_image_init(qdev, release, dimage, surface_base,
->   			     left - dumb_shadow_offset,
->   			     top, width, height, depth, stride);
-> -	qxl_bo_kunmap(bo);
-> +	qxl_bo_kunmap_locked(bo);
->   	if (ret)
->   		goto out_release_backoff;
->  =20
-> @@ -247,7 +247,7 @@ void qxl_draw_dirty_fb(struct qxl_device *qdev,
->   		rects[i].top    =3D clips_ptr->y1;
->   		rects[i].bottom =3D clips_ptr->y2;
->   	}
-> -	qxl_bo_kunmap(clips_bo);
-> +	qxl_bo_kunmap_locked(clips_bo);
->  =20
->   	qxl_release_fence_buffer_objects(release);
->   	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
-> diff --git a/drivers/gpu/drm/qxl/qxl_image.c b/drivers/gpu/drm/qxl/qxl_=
-image.c
-> index 60ab7151b84d..d4db21ca1d5d 100644
-> --- a/drivers/gpu/drm/qxl/qxl_image.c
-> +++ b/drivers/gpu/drm/qxl/qxl_image.c
-> @@ -186,7 +186,7 @@ qxl_image_init_helper(struct qxl_device *qdev,
->   			}
->   		}
->   	}
-> -	qxl_bo_kunmap(chunk_bo);
-> +	qxl_bo_kunmap_locked(chunk_bo);
->  =20
->   	image_bo =3D dimage->bo;
->   	ptr =3D qxl_bo_kmap_atomic_page(qdev, image_bo, 0);
-> diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl=
-_object.c
-> index 7eada4ad217b..b56d4dfc28cb 100644
-> --- a/drivers/gpu/drm/qxl/qxl_object.c
-> +++ b/drivers/gpu/drm/qxl/qxl_object.c
-> @@ -155,7 +155,7 @@ int qxl_bo_create(struct qxl_device *qdev, unsigned=
- long size,
->   	return 0;
->   }
->  =20
-> -int qxl_bo_kmap(struct qxl_bo *bo, struct dma_buf_map *map)
-> +int qxl_bo_kmap_locked(struct qxl_bo *bo, struct dma_buf_map *map)
->   {
->   	int r;
->  =20
-> @@ -203,7 +203,7 @@ void *qxl_bo_kmap_atomic_page(struct qxl_device *qd=
-ev,
->   		return rptr;
->   	}
->  =20
-> -	ret =3D qxl_bo_kmap(bo, &bo_map);
-> +	ret =3D qxl_bo_kmap_locked(bo, &bo_map);
->   	if (ret)
->   		return NULL;
->   	rptr =3D bo_map.vaddr; /* TODO: Use mapping abstraction properly */
-> @@ -212,7 +212,7 @@ void *qxl_bo_kmap_atomic_page(struct qxl_device *qd=
-ev,
->   	return rptr;
->   }
->  =20
-> -void qxl_bo_kunmap(struct qxl_bo *bo)
-> +void qxl_bo_kunmap_locked(struct qxl_bo *bo)
->   {
->   	if (bo->kptr =3D=3D NULL)
->   		return;
-> @@ -233,7 +233,7 @@ void qxl_bo_kunmap_atomic_page(struct qxl_device *q=
-dev,
->   	io_mapping_unmap_atomic(pmap);
->   	return;
->    fallback:
-> -	qxl_bo_kunmap(bo);
-> +	qxl_bo_kunmap_locked(bo);
->   }
->  =20
->   void qxl_bo_unref(struct qxl_bo **bo)
+>=20
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>   drivers/gpu/drm/qxl/qxl_prime.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+>=20
 > diff --git a/drivers/gpu/drm/qxl/qxl_prime.c b/drivers/gpu/drm/qxl/qxl_=
 prime.c
-> index 4aa949799446..dc295b2e2b52 100644
+> index dc295b2e2b52..4aa949799446 100644
 > --- a/drivers/gpu/drm/qxl/qxl_prime.c
 > +++ b/drivers/gpu/drm/qxl/qxl_prime.c
 > @@ -59,7 +59,7 @@ int qxl_gem_prime_vmap(struct drm_gem_object *obj, st=
@@ -337,8 +141,8 @@ ruct dma_buf_map *map)
 >   	struct qxl_bo *bo =3D gem_to_qxl_bo(obj);
 >   	int ret;
 >  =20
-> -	ret =3D qxl_bo_kmap(bo, map);
-> +	ret =3D qxl_bo_kmap_locked(bo, map);
+> -	ret =3D qxl_bo_kmap_locked(bo, map);
+> +	ret =3D qxl_bo_kmap(bo, map);
 >   	if (ret < 0)
 >   		return ret;
 >  =20
@@ -347,8 +151,8 @@ ruct dma_buf_map *map)
 >   {
 >   	struct qxl_bo *bo =3D gem_to_qxl_bo(obj);
 >  =20
-> -	qxl_bo_kunmap(bo);
-> +	qxl_bo_kunmap_locked(bo);
+> -	qxl_bo_kunmap_locked(bo);
+> +	qxl_bo_kunmap(bo);
 >   }
 >  =20
 >   int qxl_gem_prime_mmap(struct drm_gem_object *obj,
@@ -363,32 +167,32 @@ Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
 Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
 
 
---Wi6PCQKuYc5wDIn0KDcx92LtiTjq4ZOWh--
+--vAkSA4xPbEBg28YfmM4zHXhoJSRUwKles--
 
---pH0yIM6TjFZLy5QdVUEFrSjitz0Yb5fOh
+--uKKinKeYKRMHvQbXcRlKSL8e4OX4eXTBp
 Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="OpenPGP_signature"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmArxUIFAwAAAAAACgkQlh/E3EQov+Ce
-XxAAogyWe3PiFZVF9fkjXHRv5HpgFM59T6Tu5xbbFVWbpMMeLw9cWfJFJ7lco239pet3GPJ5vol3
-z3x9Myq3/rJ6mwE9PhVfb7jIUj70MkB1cGZZUeLrZugT5Cw/Yjavykij9yPHXdCq4rbHdDPC24/K
-5orKU481SVPtYMb3kjhUFIydDTnju/Pft8PO/+cEcU2/l2TCZX6flV8ZGsgYTrUKVjWvOAUcA5DG
-QC9jdgPOy0GiYsUTV6HTYu8j/RZkMFnILcochYE3beDF3D06X8ulwdqRfLIoRwSjotNMHxGFHqsN
-Rnk/Sab4IOFLV9OWPR8WsIXWUNFO2zuCO+BVS1DUbe3jqVZ+aKsIgCryJb0ybt0M76F1RAhcLy7l
-V5OAkpj3FS+cwY5mHXiKBjQ5+uVPMAdTpE4DAsC+eO50t4NWdrGnH1McXC0GiDZiIsmcpBBUJQaU
-oCphSKClzv+9MmwEr2CkfQ2gIRG24hC4ey8Jr7uxTV9ksYD1ElpskoaU8M0kAiWZdlClUU9RtVaj
-PfrnTM2xIThISAKJSAsOwCGzCTTSO9E0Vc29iDTjDKM9NXKimEXnsLJSaRUqI6OuExk6JXPw/tea
-cYj8dmUdHZg4AsfZ8iBHLhfFpe5ktrzhHxjeliXRLvp+2KaPjdC/GHDcAE7s4oR7xb4Ynod76ODu
-LLg=
-=gpHg
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmArxaoFAwAAAAAACgkQlh/E3EQov+DX
+qQ/7BvZtEpUlBoumZ69okz6fXrMEsbuaMjN1bickEAHHohlVO0SfwwEszsaj8b7myX+eqyyKppkZ
+oP8ya7DtMITYmrOGmQQMwiGWKC44PD6RxXY7DdPMc30m0PZbNI4imf2+r6x9nr6SUztWLN6NrViu
+v22jdzrG8uaulYNiUVLIBHb+Sr96apoATLzNS0iAMiEWu4otLs6v5+o8X2t0k+RXk2ACq3ikBJFG
+zbSbqAWpM0hXtE+k6OFWa7ke/r/f250qVHXlMomkjKs2B/dcMixIRTOIqzwBPmzbsKe22JUoG1wN
+swZLPwUg82WVjw15qamh6n3d1+r01dTIEQp5+lmqbfvsAgZzCrbb7UPFevmDxQVoEsCLza8VfzNU
+TTH/mDGvgTUYRylxDCsa9NAEF9k3MEAuuSzA/WmeB+3yNO+Fc7ocFa2vUglNBLsFKgJ+2Kx+WUli
+gtVjjoB9CfLeh82NRKVCyFVnXWd/KcsqwEHl8LvLwj0ncFLPv09Uv7CmBBnxurVE529/+M52cc2w
+bes0j6XY1k1GhmTfM4m8kElYBYx9t+oXfBgu7vApf8Bp8UJT7rJqlE2k0wdG+Ji2neEva6gVQgUb
+0TEFmYCL+/ctcxZsDWvhaKTcyNTn3I2t/yHcD7l4ovETIGlbPNQec+ptT3fCBGb2my/U+tDqkTqR
+kng=
+=fDtR
 -----END PGP SIGNATURE-----
 
---pH0yIM6TjFZLy5QdVUEFrSjitz0Yb5fOh--
+--uKKinKeYKRMHvQbXcRlKSL8e4OX4eXTBp--
 
---===============2896056280063552306==
+--===============5315458811397572933==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -398,4 +202,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2896056280063552306==--
+--===============5315458811397572933==--
