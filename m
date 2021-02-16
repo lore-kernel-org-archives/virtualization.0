@@ -3,105 +3,159 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B1E9C433DB
-	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 16:54:40 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54737C433DB
+	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 19:50:02 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8000664DCF
-	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 16:54:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8000664DCF
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=bytedance.com
+	by mail.kernel.org (Postfix) with ESMTPS id D6B4864E7D
+	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 19:50:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D6B4864E7D
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=vmware.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 24A4E6F56F
-	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 16:54:39 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id A3D2986D54;
+	Tue, 16 Feb 2021 19:50:01 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Il2tkYg5bmGm; Tue, 16 Feb 2021 19:49:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by whitealder.osuosl.org (Postfix) with ESMTP id B4DC486CAC;
+	Tue, 16 Feb 2021 19:49:58 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AD5E3C0893;
+	Tue, 16 Feb 2021 19:49:58 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 56128C013A
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Feb 2021 19:49:57 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 36B456F479
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Feb 2021 19:49:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3GMoMOMjdfoR for <virtualization@archiver.kernel.org>;
-	Tue, 16 Feb 2021 16:54:37 +0000 (UTC)
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id evhwBYVTZnVH
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Feb 2021 19:49:56 +0000 (UTC)
 Received: by smtp3.osuosl.org (Postfix, from userid 1001)
-	id 337D06F546; Tue, 16 Feb 2021 16:54:35 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E4E956F4A6;
-	Tue, 16 Feb 2021 16:54:31 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BB91BC0174;
-	Tue, 16 Feb 2021 16:54:31 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 267BAC013A
+ id F3BE66F5C6; Tue, 16 Feb 2021 19:49:55 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam10on2084.outbound.protection.outlook.com [40.107.93.84])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id EBEEB6F479
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 16:54:31 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 0D57784B26
- for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 16:54:31 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id obmKsnNRvSXA
- for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 16:54:28 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-oi1-f181.google.com (mail-oi1-f181.google.com
- [209.85.167.181])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 0059C84B1F
- for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 16:54:27 +0000 (UTC)
-Received: by mail-oi1-f181.google.com with SMTP id g84so11911466oib.0
- for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 08:54:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=bytedance-com.20150623.gappssmtp.com; s=20150623;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=Xmnch0Kqw716fEqIudbZn35qTQbQub02G1oUg4wh6tY=;
- b=MAvNe7HTgABXsFWT1AbqPh+gbfZN0U/g/7/MaRyTHR6TmsPFWuqGVtup3171LRzFSd
- EWUbGlpT3GxgmcAFLm25FM97CBJLZiwCa1bYYgXMdyn56LebehfQ1iNqbCn+1o1Julac
- zaoSswv0C4ovj3CWWRwEw//zWMA9rvk7pKmEzaW1I21y5c5yGb2wwC/NPFMWlVprog/g
- KXKXgkrjycKc48tZQ6QmnFQ85xTKx191cNzo7gSlYZfiSuOLAvsb8UMpHVWkMysvLkgr
- eUYH5um2EHzUBqLgEkN9iz1F8Fmczb+CBYf10f+/MjV2GoCHuqDDZtcMwftziV+7Nvat
- 2xMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=Xmnch0Kqw716fEqIudbZn35qTQbQub02G1oUg4wh6tY=;
- b=AZEtVo7dmwPx8uH+f4GONyhmlX4O0Hhi73e6CIpTV8YGIW3BW2XBBBObgmhQgeg1Ol
- mkb0w6zlbF8YdzgC4bq7cK3yc/g8GQwfnIVH0TYq3VdhKfKxTE9EfVWSG7Y4gRfmUd9S
- SuakGSXO+jy/qZTPtFwO6Yag29mv4cQa2cOmIfdGrVbhPOoGd1zh5yr/PaGq5ULoxaDH
- jJUZqNa8vGtSiqvs94duKZexago107n4hIQyGEVWG11xyI/9fK14U/cHQmLbpSM1A+we
- QsDL67NYKOQYEzFKquTSXPIx0EgUmn/W1TOJ4mjRS3nvxAY4EKa98Nf5/nsNQUp3VfhC
- cUVQ==
-X-Gm-Message-State: AOAM530v/gfZSgAo0eCBwzXlKn9vV7HACZw7HzRST4ZjQRVDeVAb0mVb
- jzlPchKYC6wYyJeXaO11XMgq3Slz+6htP/OiX+rwJQ==
-X-Google-Smtp-Source: ABdhPJxEQzY1NFFZubrwBCTTResc48odULeh0XxMYYnITxKq2DoXHeLucT1vnQpwGlM/AUj4ATP0kudLen67T/vaetw=
-X-Received: by 2002:aca:ef84:: with SMTP id n126mr3115165oih.109.1613494467037; 
- Tue, 16 Feb 2021 08:54:27 -0800 (PST)
+ Tue, 16 Feb 2021 19:49:53 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=cUcCvkj/p/pc+k+FB1NOm4UrrGQ1dIsxVClkCADAqOvjAj4bziB1OvNsH4dVCN63wiRQ/DLV4bbRxvD2/VMkrDqFI51tLRh9Myomol7efl02/1CjTlN5NvZSWqapWcZRimuKtJ99n6Leikee4KyRTdJTbg6KtRiAVpLvmZAkEMcOsfWh8B6+sR1cPCSuQ7m8T3ANQAmJqOxNxmxsPaOXtGqwIddMdjt4aZ9vX4yO1CZu0cUg0zMsl+Id0hyxmwKfPeV3HlAIddhUMUmamX0Fn8b91H5/kPD3K33d8w7th7Bj3nOtRteTH8D+/izogjY4o9x4r7QKw1e5iCyWz2maCw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=jWIVzoNz7KPULPlDSYoUIXf7hWoOx4E1oEeVSH8mL5s=;
+ b=Lmva3OZfnpTwL6GBRoQyFWiU72yyx9kOXvd1FZH9hGOMgIj9g3Uwp328PLyA6FGKJbI41pmTNtukK/9s7r8mTlXx5/7hXqqjAPmVPyKf/u6Vy9AR4oXSyRq7/7OyTlg/Z9iyOSSbHGIuWXS9CNdirMJtdLi3dYT5NPlYwd++tYqQysz1bTbuo3oxoIcmOKSAbmyHcj1+uX4NryKRCRy6raXK3qp0gCJ2h9K53oQJ4jA76pG6Jo5iVW1+bKnUCL2AnRRJvYHlDxcRk2KULyRrBasJdYI7aqntz2Sgd9aHOF0sdxhuUu1JeaAacST9BWbjvr06LtvHutTF1RzuSlfZbg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
+ dkim=pass header.d=vmware.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=jWIVzoNz7KPULPlDSYoUIXf7hWoOx4E1oEeVSH8mL5s=;
+ b=R9BZir0A3CZetCVcQw+Ja7Y8mbvE/qrLupBhwaWV7JJjYvqeQxwAAs3fnowgXBPmBUWM/2W3NYhrMSphlLGG75Q68UtBa2Mv69x1zJfRKKD4L3C68AzRJcgxS9G4UEhc0erynJtON7Sqn/MSsBYrbc1Uchg/6ItqCvwtbcKLRks=
+Received: from BYAPR05MB4776.namprd05.prod.outlook.com (2603:10b6:a03:4a::18)
+ by BY3PR05MB8083.namprd05.prod.outlook.com (2603:10b6:a03:36e::19)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3868.11; Tue, 16 Feb
+ 2021 19:17:55 +0000
+Received: from BYAPR05MB4776.namprd05.prod.outlook.com
+ ([fe80::ddba:e1e9:fde7:3b31]) by BYAPR05MB4776.namprd05.prod.outlook.com
+ ([fe80::ddba:e1e9:fde7:3b31%3]) with mapi id 15.20.3846.039; Tue, 16 Feb 2021
+ 19:17:55 +0000
+From: Nadav Amit <namit@vmware.com>
+To: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v5 4/8] x86/mm/tlb: Flush remote and local TLBs
+ concurrently
+Thread-Topic: [PATCH v5 4/8] x86/mm/tlb: Flush remote and local TLBs
+ concurrently
+Thread-Index: AQHXBFzuDk/+97dVSEa5i3JTefGxeKpbKCAA
+Date: Tue, 16 Feb 2021 19:17:54 +0000
+Message-ID: <AFA552C0-88B1-4D58-B3C5-1A571DBF0EA6@vmware.com>
+References: <20210209221653.614098-1-namit@vmware.com>
+ <20210209221653.614098-5-namit@vmware.com>
+ <YCu2MQFdV4JTrUQb@hirez.programming.kicks-ass.net>
+In-Reply-To: <YCu2MQFdV4JTrUQb@hirez.programming.kicks-ass.net>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: infradead.org; dkim=none (message not signed)
+ header.d=none;infradead.org; dmarc=none action=none header.from=vmware.com;
+x-originating-ip: [24.6.216.183]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 8d0a60f0-c67d-4e85-3a49-08d8d2af9010
+x-ms-traffictypediagnostic: BY3PR05MB8083:
+x-microsoft-antispam-prvs: <BY3PR05MB8083829349529D99571540C2D0879@BY3PR05MB8083.namprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:5516;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: LPbUNtFBn0N04M5Lm1C3N0zrODoag8LRvwSmI5RqGwf1xyR8CgukS91tO8L/m0b3nYZ6QhlPgMXJvHuMNZn3RQdQG8yg4vumbtgl5LsTzw+qlnczlC4GTBRkIbWV4JrUjK/h2vD2VnP1rMtqOqqYSACd32YkR0b9sKUVsJm1YofFd6VDsPPCWB9INz6erPh/Ht00pn3yU0l7DrwaIzN0Lu/Iu2WAcSbL+fnfMyY7ikovSjj03trUGYRiJcxWMTdiX7fIJn30ryMX6VLLdAKcKEz/IPpfnEh61B+SwaUEEBUGLsfu4nyAWb4YgcjZRAP1si7KKjaqv6q/gtzz5r9IHvLaJjd4QIr82803pOylR9vyF3ehkSipoyu/H9iKe/Cdbf7tVI4HYm4Sp5i3pT+8jOnlLyHXyax9ytawwIhBmuQh6AJssDyJNsimjb22KHM6ckNEjvD/j050Hd261/ppZw8DRCtNWPjKfnucdF+/3z3pt2lllHIAjR2vXrD6WENCpPvMR3EaiTixuN48ZoYhb49YNZGkugoNSwheN2V1F64DDjg83NV/52pHQM7ss2aEou6iSote3Z+pky8VysyH+A==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR05MB4776.namprd05.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(4636009)(366004)(346002)(39860400002)(376002)(136003)(396003)(5660300002)(33656002)(4326008)(6512007)(6486002)(53546011)(478600001)(66946007)(8936002)(2906002)(54906003)(86362001)(83380400001)(316002)(66446008)(186003)(66476007)(66556008)(76116006)(26005)(71200400001)(36756003)(7416002)(2616005)(6916009)(8676002)(64756008)(6506007)(45980500001);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata: =?us-ascii?Q?fyNbfqSd9ANotjCBaT4ktWFbtGRkNLuUxd1+oQ/DB+m87EmQFbfMxnm2cp+i?=
+ =?us-ascii?Q?iM5ozZR5UUJ/OZafBBMcBXa6sqcUtT7+GRC5YnxBQnx2zLH6a+cbLjfeVSTT?=
+ =?us-ascii?Q?SQEAfxa/hxr+mvee9M2qM1y/ca56f+I1wgWVF1aZvrCFIQ3GNZNcjWw70/gr?=
+ =?us-ascii?Q?Y5f24d5dvrt22Qhz/XC9Pt8BqkR9mLOGDFxvN/ROfnk7lqkscAmMeqtJ8iCd?=
+ =?us-ascii?Q?Hlv/cE7tqGlELWkCkjpEZ/hzKpMVPtE63ID7IHlMiIdRAAyU1baBowig2qpi?=
+ =?us-ascii?Q?benTkh4oFrj4I61f2zpDqZj/2WbBhs+jfT6xwDHfb3SFLqi8BmDZrZeuxvkd?=
+ =?us-ascii?Q?g/NYuJ6KWoTP3kMH6jZYKnoiKpRq6ZPuS7saqUvj+p5zLSt3fSdNzaaYSP7+?=
+ =?us-ascii?Q?IgIj31Wi05yZEpfNNDaoqRGJEEBeE0tUVbjvMCORdzx39kzDbwhdq8KLN1aa?=
+ =?us-ascii?Q?r/VuRW2HtLN9sneLkCRWh7vFL7Yx/923YXuWNkxRAZ+cvY3Dhq45HHDzdUg5?=
+ =?us-ascii?Q?QH6gB6gddZQjJ9AVuGjLQsJzCJfnUj3jRJseN+pcbWdb8FYlJARvO0d/OpUL?=
+ =?us-ascii?Q?0cMgZ7mToS8GrRLZKaodp6DvCIpvLZQ4saXcHkbd49RRk8wDKNw3SqL7+ZCz?=
+ =?us-ascii?Q?IEAHl8kPzFQY75I7kkxYISxXFccwBhuNTCJhkaVCsbdUXkvbfrQdGkYS67Qf?=
+ =?us-ascii?Q?3RLnJ1Z3Yd0ES8q80OlRKiVHHkLiX7mjvRmkI+gt3U8xk3RzUoQIWBi9vzhp?=
+ =?us-ascii?Q?26ugbP9cWt5k+JZ5bpvbfDW3CwDsMJRN/5wdpLPsBfG/le3U9kXRWG3jpfTn?=
+ =?us-ascii?Q?n5EVMctzKXjEK73qf9VtfAd0W3pecmu8x0w9bZ/1FZsi1g/czrJ4xX6q8yME?=
+ =?us-ascii?Q?riZF0aFcqY+hOonx37uKBYI/0tCf3GUd66Ib4DvDpSlqO+EVc2EhkKRYhVqX?=
+ =?us-ascii?Q?5Eu88EoeK5OmWfxgCv8zT/YUhQEu8UPVzrI9UEoPC8eKwx6MCXRfvgJNNi3P?=
+ =?us-ascii?Q?UTWJCc4KqFJWkaVvjOJY8OfqGjB1Z921aDk26pGyS2Ai0/EQFwcOx2GoSdnT?=
+ =?us-ascii?Q?zt32ET24WlMzSz9vYz39fmOQUM+Vn3ftnJUW9i3uuIV808DiBhD0JnyAsJoU?=
+ =?us-ascii?Q?TEcDqdJ1QFvWT6yG0uD1ogBw7nfn5eMbBxBp6gtHaOy8sIboedzkV1nZel+a?=
+ =?us-ascii?Q?wPGRu8YP61h7t32vVTsHIM7EW1PHD4QYh89z0jUc5NfyU106Z6MGxKhK3IGO?=
+ =?us-ascii?Q?jRRUlGtxkFpULb+0Ltk9EO86BIdYRpV6FijKxAUpTPx2ur73S+Nk9tpUWJsJ?=
+ =?us-ascii?Q?n7gtPRmstlastTmA2XYCAGyL?=
+x-ms-exchange-transport-forked: True
+Content-ID: <9390762EDE2D8D4786E55865DEDAE795@namprd05.prod.outlook.com>
 MIME-Version: 1.0
-References: <CAP_N_Z97rUvCSNoKAkxhyw9FJWQ2tJ0Wv5srHzR387j_S_6pjA@mail.gmail.com>
- <20210212090230.bai6xkx6gne53p3i@steredhat>
- <CAP_N_Z-4Af_5jE7x5kSi8u=KUVUsbfDTtuD_7numL+vnkisMgQ@mail.gmail.com>
- <20210215083110.xb4cyekutlmlvetg@steredhat>
- <CAP_N_Z9T5nJ37k9Rgoba_SzN9RQrBn7jCKwxO9TLyddzb+jsJQ@mail.gmail.com>
- <20210216080911.lgw7cgo4rvxzaehx@steredhat>
- <CAP_N_Z9yYXqd_j9_Dj94mc-P0Azwos4jhJ3uDSUhuzVuAAnQDA@mail.gmail.com>
- <20210216085017.gqpvencdz4ewq7zw@steredhat>
-In-Reply-To: <20210216085017.gqpvencdz4ewq7zw@steredhat>
-From: "Jiang Wang ." <jiang.wang@bytedance.com>
-Date: Tue, 16 Feb 2021 08:54:16 -0800
-Message-ID: <CAP_N_Z_yktrnJ1c6e0bqXUb_uVNX52JAwe0V4Nv9Jiu+tg59Ag@mail.gmail.com>
-Subject: Re: [External] Re: vsock virtio: questions about supporting DGRAM type
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: cong.wang@bytedance.com, Xiongchun Duan <duanxiongchun@bytedance.com>,
- mst@redhat.com, imbrenda@linux.vnet.ibm.com, xieyongji@bytedance.com,
- stefanha@redhat.com, asias@redhat.com,
- virtualization@lists.linux-foundation.org,
- Arseny Krasnov <arseny.krasnov@kaspersky.com>
+X-OriginatorOrg: vmware.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR05MB4776.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8d0a60f0-c67d-4e85-3a49-08d8d2af9010
+X-MS-Exchange-CrossTenant-originalarrivaltime: 16 Feb 2021 19:17:54.9690 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: SKPOxAghkr3M152dfPKEi0yLDWpx04TQBHLmVJW8qpd/dObjW4As10/cLm99NXak6CNWCIRfDRVTBzg4MqdH1A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY3PR05MB8083
+Cc: Sasha Levin <sashal@kernel.org>, Juergen Gross <jgross@suse.com>,
+ "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+ X86 ML <x86@kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>,
+ KVM <kvm@vger.kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, LKML <linux-kernel@vger.kernel.org>,
+ Linux Virtualization <virtualization@lists.linux-foundation.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Andy Lutomirski <luto@kernel.org>,
+ "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>,
+ Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Michael Kelley <mikelley@microsoft.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,129 +172,58 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Feb 16, 2021 at 12:50 AM Stefano Garzarella <sgarzare@redhat.com> wrote:
->
-> On Tue, Feb 16, 2021 at 12:23:19AM -0800, Jiang Wang . wrote:
-> >On Tue, Feb 16, 2021 at 12:09 AM Stefano Garzarella <sgarzare@redhat.com> wrote:
-> >>
-> >> On Mon, Feb 15, 2021 at 08:50:36PM -0800, Jiang Wang . wrote:
-> >> >On Mon, Feb 15, 2021 at 12:31 AM Stefano Garzarella <sgarzare@redhat.com> wrote:
-> >> >>
-> >> >> On Sat, Feb 13, 2021 at 03:26:18PM -0800, Jiang Wang . wrote:
-> >> >> >On Fri, Feb 12, 2021 at 1:02 AM Stefano Garzarella <sgarzare@redhat.com> wrote:
-> >> >> >>
-> >> >> >> Hi Jiang,
-> >> >> >>
-> >> >> >> CCing Arseny who is working on SOCK_SEQPACKET support for virtio-vsock
-> >> >> >> [1].
-> >> >> >>
-> >> >> >> On Thu, Feb 11, 2021 at 10:04:34PM -0800, Jiang Wang . wrote:
-> >> >> >> >Hi guys,
-> >> >> >> >
-> >> >> >> >I am working on supporting DGRAM type for virtio/vhost vsock. I
-> >> >> >> >already did some work and a draft code is here (which passed my tests,
-> >> >> >> >but still need some cleanup and only works from host to guest as of
-> >> >> >> >now, will add host to guest soon):
-> >> >> >> >https://github.com/Jiang1155/linux/commit/4e89736e0bce15496460ff411cb4694b143d1c3d
-> >> >> >> >qemu changes are here:
-> >> >> >> >https://github.com/Jiang1155/qemu/commit/7ab778801e3e8969ab98e44539943810a2fb03eb
-> >> >> >> >
-> >> >> >> >Today, I just noticed that the Asias had an old version of virtio
-> >> >> >> >which had both dgram and stream support, see this link:
-> >> >> >> >https://kvm.vger.kernel.narkive.com/BMvH9eEr/rfc-v2-0-7-introduce-vm-sockets-virtio-transport#post1
-> >> >> >> >
-> >> >> >> >But somehow, the dgram part seems never merged to upstream linux (the
-> >> >> >> >stream part is merged). If so, does anyone know what is the reason for
-> >> >> >> >this? Did we drop dgram support for some specific reason or the code
-> >> >> >> >needs some improvement?
-> >> >> >>
-> >> >> >> I wasn't involved yet in virtio-vsock development when Asias posted that
-> >> >> >> patches, so I don't know the exact reason.
-> >> >> >>
-> >> >> >> Maybe could be related on how to handle the credit mechanism for a
-> >> >> >> connection-less sockets and how to manage the packet queue, if for
-> >> >> >> example no one is listening.
-> >> >> >>
-> >> >> >
-> >> >> >I see. thanks.
-> >> >> >
-> >> >> >> >
-> >> >> >> >My current code differs from Asias' code in some ways. It does not use
-> >> >> >> >credit and does not support fragmentation.  It basically adds two virt
-> >> >> >>
-> >> >> >> If you don't use credit, do you have some threshold when you start to
-> >> >> >> drop packets on the RX side?
-> >> >> >>
-> >> >> >
-> >> >> >As of now, I don't have any threshold to drop packets on RX side. In my
-> >> >> >view, DGRAM is like UDP and is a best effort service. If the virtual
-> >> >> >queue
-> >> >> >is full on TX (or the available buffer size is less than the
-> >> >> >packet size),
-> >> >> >I drop the packets on the TX side.
-> >> >>
-> >> >> I have to check the code, my concern is we should have a limit for the
-> >> >> allocation, for example if the user space doesn't consume RX packets.
-> >> >>
-> >> >
-> >> >I think we already have a limit for the allocation. If a DGRAM client
-> >> >sends packets while no socket is bound on the server side ,
-> >> >the packet will be dropped when looking for the socket. If the socket is
-> >> >bound on the server side, but the server program somehow does not
-> >> >call recv or similar functions, the packets will be dropped when the
-> >> >buffer is full as in your previous patch at here:
-> >> >https://lore.kernel.org/patchwork/patch/1141083/
-> >> >If there are still other cases that we don't have protection, let me know and
-> >> >I can add some threshold.
-> >>
-> >> Maybe I misunderstood, but I thought you didn't use credit for DGRAM
-> >> messages.
-> >>
-> >I don't use credit for DGRAM. But the dropping code I mentioned does not
-> >rely on credit too. Just to make it clear, following is one part of code that
-> >I referred to:
-> >
-> >static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
-> >struct virtio_vsock_pkt *pkt)
-> >{
-> >if (vvs->rx_bytes + pkt->len > vvs->buf_alloc)
-> >return false;
-> >
-> >vvs->rx_bytes += pkt->len;
-> >return true;
-> >}
->
-> Okay, now it's clear. The transmitter doesn't care about the receiver's
-> credit, but the receiver uses that part of the credit mechanism to
-> discard packets.
->
-> I think that's fine, but when you send the patches, explain it well in
-> the cover letter/commit message.
->
-Sure, thanks.
+> On Feb 16, 2021, at 4:10 AM, Peter Zijlstra <peterz@infradead.org> wrote:
+> 
+> On Tue, Feb 09, 2021 at 02:16:49PM -0800, Nadav Amit wrote:
+>> @@ -816,8 +821,8 @@ STATIC_NOPV void native_flush_tlb_others(const struct cpumask *cpumask,
+>> 	 * doing a speculative memory access.
+>> 	 */
+>> 	if (info->freed_tables) {
+>> -		smp_call_function_many(cpumask, flush_tlb_func,
+>> -			       (void *)info, 1);
+>> +		on_each_cpu_cond_mask(NULL, flush_tlb_func, (void *)info, true,
+>> +				      cpumask);
+>> 	} else {
+>> 		/*
+>> 		 * Although we could have used on_each_cpu_cond_mask(),
+>> @@ -844,14 +849,15 @@ STATIC_NOPV void native_flush_tlb_others(const struct cpumask *cpumask,
+>> 			if (tlb_is_not_lazy(cpu))
+>> 				__cpumask_set_cpu(cpu, cond_cpumask);
+>> 		}
+>> -		smp_call_function_many(cond_cpumask, flush_tlb_func, (void *)info, 1);
+>> +		on_each_cpu_cond_mask(NULL, flush_tlb_func, (void *)info, true,
+>> +				      cpumask);
+>> 	}
+>> }
+> 
+> Surely on_each_cpu_mask() is more appropriate? There the compiler can do
+> the NULL propagation because it's on the same TU.
+> 
+> --- a/arch/x86/mm/tlb.c
+> +++ b/arch/x86/mm/tlb.c
+> @@ -821,8 +821,7 @@ STATIC_NOPV void native_flush_tlb_multi(
+> 	 * doing a speculative memory access.
+> 	 */
+> 	if (info->freed_tables) {
+> -		on_each_cpu_cond_mask(NULL, flush_tlb_func, (void *)info, true,
+> -				      cpumask);
+> +		on_each_cpu_mask(cpumask, flush_tlb_func, (void *)info, true);
+> 	} else {
+> 		/*
+> 		 * Although we could have used on_each_cpu_cond_mask(),
+> @@ -849,8 +848,7 @@ STATIC_NOPV void native_flush_tlb_multi(
+> 			if (tlb_is_not_lazy(cpu))
+> 				__cpumask_set_cpu(cpu, cond_cpumask);
+> 		}
+> -		on_each_cpu_cond_mask(NULL, flush_tlb_func, (void *)info, true,
+> -				      cpumask);
+> +		on_each_cpu_mask(cpumask, flush_tlb_func, (void *)info, true);
+> 	}
+> }
 
-> >
-> >
-> >> If you use it to limit buffer occupancy, then it should be okay, but
-> >> again, I still have to look at the code :-)
-> >
-> >Sure. I think you mean you need to look at my final patches. I will
-> >send it later.  Just a friendly reminder, if you just want to get some
-> >idea of my patches, you could check this link :
-> >https://github.com/Jiang1155/linux/commit/4e89736e0bce15496460ff411cb4694b143d1c3d
->
-> It's my fault because I didn't have time, I saw the link. :-)
->
-Got it. No problem. thanks. :)
+Indeed, and there is actually an additional bug - I used cpumask in the
+second on_each_cpu_cond_mask() instead of cond_cpumask.
 
-> Remember that we should also plan changes to the VIRTIO spec for the
-> DGRAM support.
->
-Sure.
-
-> Thanks,
-> Stefano
->
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
