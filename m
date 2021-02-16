@@ -3,83 +3,87 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4105EC433DB
-	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 09:45:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB54CC433E0
+	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 09:45:17 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CF69A64DDA
-	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 09:45:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CF69A64DDA
+	by mail.kernel.org (Postfix) with ESMTPS id 4BEF164DA1
+	for <virtualization@archiver.kernel.org>; Tue, 16 Feb 2021 09:45:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4BEF164DA1
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 555108679D;
-	Tue, 16 Feb 2021 09:45:14 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 152DA867E0;
+	Tue, 16 Feb 2021 09:45:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Fv1s5jiGSA8A; Tue, 16 Feb 2021 09:45:13 +0000 (UTC)
+	with ESMTP id KbQc6jYnTcrC; Tue, 16 Feb 2021 09:45:15 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 3ED9B8670A;
-	Tue, 16 Feb 2021 09:45:13 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 9F6548670A;
+	Tue, 16 Feb 2021 09:45:15 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 031C4C0893;
-	Tue, 16 Feb 2021 09:45:13 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 955A4C0893;
+	Tue, 16 Feb 2021 09:45:15 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 81392C013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BE174C013A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 09:45:11 +0000 (UTC)
+ Tue, 16 Feb 2021 09:45:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 6C25E6F4E4
+ by smtp3.osuosl.org (Postfix) with ESMTP id ACD186F4E4
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 09:45:11 +0000 (UTC)
+ Tue, 16 Feb 2021 09:45:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id M6utgiaFT7jM
+ with ESMTP id YRHhJk6VI4Yo
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 09:45:10 +0000 (UTC)
+ Tue, 16 Feb 2021 09:45:13 +0000 (UTC)
 Received: by smtp3.osuosl.org (Postfix, from userid 1001)
- id 513436F4C8; Tue, 16 Feb 2021 09:45:10 +0000 (UTC)
+ id C4BF66F4FD; Tue, 16 Feb 2021 09:45:13 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id B3AAC6F4E4
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 590A46F4C8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Feb 2021 09:45:08 +0000 (UTC)
+ Tue, 16 Feb 2021 09:45:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1613468707;
+ s=mimecast20190719; t=1613468711;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=wcnd7ClbZgShooWszPEgOAqPp+c33seC7pun/tamuzE=;
- b=hti9g678GWwU23gGIDts/48Kubo5NXXl/1cT/UQlemoHVxp53DCzgmQGQCCE87GwvSFwPS
- Cs8EulP2Q30rGhWDNW6kOAAt895hwf2nOUH7HC7eJE4iYn5gTIMkfrLDVqHO0/Yo+RSGXv
- Cg7a34t/6+mDLNMvOdrsvlV5u2K3RHc=
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=sL2HoPks3VzKpFvhRVHLVH8gFjTz1o9yXUZfovhuAAk=;
+ b=Y5zJA/6rDQWhr4BXisMLPd2jpjD2IYFITtKPh3d51nVZzSWeJycfafMpeizyCovM9pDI/B
+ /s93Zei59MjO23IEwLGMT6v/bLxtKMcQl0oDHupi+PQ/ljsFZo0amgf0eNJV9K4W3C0xZ6
+ LCUTFmVHEkwKNLYKk/+/nLrFQ4pJpNA=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-474-MA4WhP80O1ixGB_T6ZurCA-1; Tue, 16 Feb 2021 04:45:04 -0500
-X-MC-Unique: MA4WhP80O1ixGB_T6ZurCA-1
+ us-mta-394-lntx5zuyNCyODqqUmRpAag-1; Tue, 16 Feb 2021 04:45:09 -0500
+X-MC-Unique: lntx5zuyNCyODqqUmRpAag-1
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
  [10.5.11.14])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0CD6A801998;
- Tue, 16 Feb 2021 09:45:03 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4367E801989;
+ Tue, 16 Feb 2021 09:45:08 +0000 (UTC)
 Received: from steredhat.redhat.com (ovpn-113-212.ams2.redhat.com
  [10.36.113.212])
- by smtp.corp.redhat.com (Postfix) with ESMTP id E7BD15D9C0;
- Tue, 16 Feb 2021 09:44:55 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id EBCD45D9C0;
+ Tue, 16 Feb 2021 09:45:06 +0000 (UTC)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [RFC PATCH 00/10] vdpa: get/set_config() rework
-Date: Tue, 16 Feb 2021 10:44:44 +0100
-Message-Id: <20210216094454.82106-1-sgarzare@redhat.com>
+Subject: [RFC PATCH 02/10] vdpa: check vdpa_get_config() parameters and return
+ bytes read
+Date: Tue, 16 Feb 2021 10:44:46 +0100
+Message-Id: <20210216094454.82106-3-sgarzare@redhat.com>
+In-Reply-To: <20210216094454.82106-1-sgarzare@redhat.com>
+References: <20210216094454.82106-1-sgarzare@redhat.com>
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
@@ -100,48 +104,95 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Following the discussion with Michael and Jason [1], I reworked a bit
-get/set_config() in vdpa.
+Now we have the 'get_config_size()' callback available, so we can
+check that 'offset' and 'len' parameters are valid.
 
-I changed vdpa_get_config() to check the boundaries and added vdpa_set_config().
-When 'offset' or 'len' parameters exceed boundaries, we limit the reading to
-the available configuration space in the device, and we return the amount of
-bytes read/written.
+When these exceed boundaries, we limit the reading to the available
+configuration space in the device, and we return the amount of bytes
+read.
 
-In this way the user space can pass buffers bigger than config space.
-I also returned the amount of bytes read and written to user space.
+We also move vdpa_get_config() implementation in drivers/vdpa/vdpa.c,
+since the function are growing.
 
-Patches also available here:
-https://github.com/stefano-garzarella/linux/tree/vdpa-get-set-config-refactoring
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ include/linux/vdpa.h | 16 ++--------------
+ drivers/vdpa/vdpa.c  | 35 +++++++++++++++++++++++++++++++++++
+ 2 files changed, 37 insertions(+), 14 deletions(-)
 
-Thanks for your comments,
-Stefano
-
-[1] https://lkml.org/lkml/2021/2/10/350
-
-Stefano Garzarella (10):
-  vdpa: add get_config_size callback in vdpa_config_ops
-  vdpa: check vdpa_get_config() parameters and return bytes read
-  vdpa: add vdpa_set_config() helper
-  vdpa: remove param checks in the get/set_config callbacks
-  vdpa: remove WARN_ON() in the get/set_config callbacks
-  virtio_vdpa: use vdpa_set_config()
-  vhost/vdpa: use vdpa_set_config()
-  vhost/vdpa: allow user space to pass buffers bigger than config space
-  vhost/vdpa: use get_config_size callback in
-    vhost_vdpa_config_validate()
-  vhost/vdpa: return configuration bytes read and written to user space
-
- include/linux/vdpa.h              | 22 ++++-------
- drivers/vdpa/ifcvf/ifcvf_base.c   |  3 +-
- drivers/vdpa/ifcvf/ifcvf_main.c   |  8 +++-
- drivers/vdpa/mlx5/net/mlx5_vnet.c |  9 ++++-
- drivers/vdpa/vdpa.c               | 51 ++++++++++++++++++++++++
- drivers/vdpa/vdpa_sim/vdpa_sim.c  | 15 +++++---
- drivers/vhost/vdpa.c              | 64 ++++++++++++++++---------------
- drivers/virtio/virtio_vdpa.c      |  3 +-
- 8 files changed, 116 insertions(+), 59 deletions(-)
-
+diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+index fddf42b17573..8a679c98f8b1 100644
+--- a/include/linux/vdpa.h
++++ b/include/linux/vdpa.h
+@@ -332,20 +332,8 @@ static inline int vdpa_set_features(struct vdpa_device *vdev, u64 features)
+         return ops->set_features(vdev, features);
+ }
+ 
+-
+-static inline void vdpa_get_config(struct vdpa_device *vdev, unsigned offset,
+-				   void *buf, unsigned int len)
+-{
+-        const struct vdpa_config_ops *ops = vdev->config;
+-
+-	/*
+-	 * Config accesses aren't supposed to trigger before features are set.
+-	 * If it does happen we assume a legacy guest.
+-	 */
+-	if (!vdev->features_valid)
+-		vdpa_set_features(vdev, 0);
+-	ops->get_config(vdev, offset, buf, len);
+-}
++int vdpa_get_config(struct vdpa_device *vdev, unsigned int offset,
++		    void *buf, unsigned int len);
+ 
+ /**
+  * vdpa_mgmtdev_ops - vdpa device ops
+diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+index 3d997b389345..9ed6c779c63c 100644
+--- a/drivers/vdpa/vdpa.c
++++ b/drivers/vdpa/vdpa.c
+@@ -51,6 +51,41 @@ static struct bus_type vdpa_bus = {
+ 	.remove = vdpa_dev_remove,
+ };
+ 
++static int vdpa_config_size_wrap(struct vdpa_device *vdev, unsigned int offset,
++				 unsigned int len)
++{
++	const struct vdpa_config_ops *ops = vdev->config;
++	unsigned int config_size = ops->get_config_size(vdev);
++
++	if (offset > config_size || len > config_size)
++		return -1;
++
++	return min(len, config_size - offset);
++}
++
++int vdpa_get_config(struct vdpa_device *vdev, unsigned int offset,
++		    void *buf, unsigned int len)
++{
++	const struct vdpa_config_ops *ops = vdev->config;
++	int bytes_get;
++
++	bytes_get = vdpa_config_size_wrap(vdev, offset, len);
++	if (bytes_get <= 0)
++		return bytes_get;
++
++	/*
++	 * Config accesses aren't supposed to trigger before features are set.
++	 * If it does happen we assume a legacy guest.
++	 */
++	if (!vdev->features_valid)
++		vdpa_set_features(vdev, 0);
++
++	ops->get_config(vdev, offset, buf, bytes_get);
++
++	return bytes_get;
++}
++EXPORT_SYMBOL_GPL(vdpa_get_config);
++
+ static void vdpa_release_dev(struct device *d)
+ {
+ 	struct vdpa_device *vdev = dev_to_vdpa(d);
 -- 
 2.29.2
 
