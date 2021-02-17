@@ -2,73 +2,195 @@ Return-Path: <SRS0=bBcF=HT=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9337DC433DB
-	for <virtualization@archiver.kernel.org>; Wed, 17 Feb 2021 19:24:47 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 16DD1C433DB
+	for <virtualization@archiver.kernel.org>; Wed, 17 Feb 2021 19:43:03 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 25FC964E45
-	for <virtualization@archiver.kernel.org>; Wed, 17 Feb 2021 19:24:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 25FC964E45
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id 89CBA64E4A
+	for <virtualization@archiver.kernel.org>; Wed, 17 Feb 2021 19:43:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 89CBA64E4A
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id ED01C8713A;
-	Wed, 17 Feb 2021 19:24:46 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 4B9D384789;
+	Wed, 17 Feb 2021 19:43:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Vd-sxDKorxMI; Wed, 17 Feb 2021 19:24:46 +0000 (UTC)
+	with ESMTP id or5D8zIXbZC0; Wed, 17 Feb 2021 19:42:59 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 4310A81D3F;
-	Wed, 17 Feb 2021 19:24:46 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id A1A3E8464B;
+	Wed, 17 Feb 2021 19:42:59 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 37D3BC0174;
-	Wed, 17 Feb 2021 19:24:46 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7D52CC013A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9003EC0174;
+	Wed, 17 Feb 2021 19:42:59 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 25496C013A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Feb 2021 19:24:44 +0000 (UTC)
+ Wed, 17 Feb 2021 19:42:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 68E0286FBA
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 1224284707
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Feb 2021 19:24:44 +0000 (UTC)
+ Wed, 17 Feb 2021 19:42:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dzYDq22TEjuZ
+ with ESMTP id P-IO9i2hBhZZ
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Feb 2021 19:24:41 +0000 (UTC)
+ Wed, 17 Feb 2021 19:42:55 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 0FD1681D3F
+Received: from aserp2130.oracle.com (aserp2130.oracle.com [141.146.126.79])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 169AD8464B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Feb 2021 19:24:40 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id A4A83ABA2;
- Wed, 17 Feb 2021 19:24:38 +0000 (UTC)
-Subject: Re: [PATCH v2 06/11] drm/qxl: add qxl_bo_vmap/qxl_bo_vunmap
-To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
-References: <20210217123213.2199186-1-kraxel@redhat.com>
- <20210217123213.2199186-7-kraxel@redhat.com>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <7d179073-ca21-6ad0-699a-43e2c35b04fc@suse.de>
-Date: Wed, 17 Feb 2021 20:24:37 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+ Wed, 17 Feb 2021 19:42:55 +0000 (UTC)
+Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
+ by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 11HJcLvX144341;
+ Wed, 17 Feb 2021 19:42:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=subject : to :
+ references : from : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2020-01-29;
+ bh=n3t+r44VWzFgulsY8MTpUR7Yv7TMyjpzg0x8c3r2cow=;
+ b=mP92p7J/zSUZDt8ESonIOruYc3FqRzjmirRj/+ivdnnhX0zxfGjOK8Faitt3vUiGYhCS
+ HGXrMksHDKI6XGMTUQjGZ2cgDngP8BQ9EsDdMUaxLuR6DyVCZ7y7WST/uRE5o3+5cNev
+ f8yIbDg8GvNMMrAQIhoa1Y18IsPJd17tiOD796A5HDj0AX+ej7PYSa7/nmL8pSnunUhz
+ cTfBk+IA1XOGJFTLbFamUBOtv464k1rKcpsiDyWKZ+1NqzGykoxDJvBh6YgrfC2m6LYW
+ l2ltG3rECUXggIZPBzeajU7ZziTqBH6FMngdwmS23/gtvq6cgMJvs9agafY3H0IpxRMc mQ== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+ by aserp2130.oracle.com with ESMTP id 36p49bbtb1-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Wed, 17 Feb 2021 19:42:53 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+ by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 11HJfdC9115215;
+ Wed, 17 Feb 2021 19:42:53 GMT
+Received: from nam10-bn7-obe.outbound.protection.outlook.com
+ (mail-bn7nam10lp2107.outbound.protection.outlook.com [104.47.70.107])
+ by userp3020.oracle.com with ESMTP id 36prht9rxj-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Wed, 17 Feb 2021 19:42:52 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=AIKi7ugSe9aiw79C+JthQu5tfrkmv9TXzWh6hV/Qy1BEIVfAqOmAk+Y5eUYHG9bB6u71CV8lQ0diuBFcGKrqSFOuCcI4rViv8SUbsZ5YXIU+t8wuZCPJdjHUEiCfKWDL7aYXoTutzh5uxzndnJn2rXX370Hk5qT/WMy+J7/iXrslm81/oGtUcQVQRineVsGmNvjN9u3/J3C32ZQmyMgbJEldM14tmhiKinIA0cykd8jE5mtb1Jun4LQedDQc5Wdyz4Btau2ffde4ppvkKpEykAIWHtcjkLvCgtVbLJJTkk//axzuwRad0n8D6O/3u81oep0WKu25PN/bTwTuWsqvQw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=n3t+r44VWzFgulsY8MTpUR7Yv7TMyjpzg0x8c3r2cow=;
+ b=dDGPATCIr2SrMX6j1RyIhJ5p/9eAuvgyYecpbtfPzE4j4NVmbmQhAA7bbiVRpca+fvLj7FljCIju0PnE6Qqy/PhBbibmwDLwNBCcTyo5U4ByjT6DVPPYaNxHwE2ctuSK/8TlV0CGKD3oqDojXnZafkbzmydCxWlifGlA9B8yfa1w46iv67WcbwxetdN0IBrgnimLv7Sovxh/Prvx+Ff4sn6WA0YMEy09h/SA2DsjPZR6NNjw2m/m8so2repO4/xBt6BpRts7+gyxLOj8rYepnbTMeIRbapAg8GfsazgrJ+J5aGk1DHgyqPz3ZeK31V1X+RagTVjUzILa3ROeCnQr9g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=n3t+r44VWzFgulsY8MTpUR7Yv7TMyjpzg0x8c3r2cow=;
+ b=SxXADpk6mV+4PO3+ljNfBixlJUy9QHQaJGWQNcP/ah7wEISAmEv/cK/3nMg45vgRtxe+PeHner7mhheav3uWxSdDcFzVA31W2D/Z01qELhK6pEuG1/n5LR447FJPjTRGcQsTNE2SH+V9BNwmAJZxXlBegq+V2fRuSdxDumeNxgU=
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none; vger.kernel.org; dmarc=none action=none header.from=oracle.com; 
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com (2603:10b6:a03:15c::11)
+ by SJ0PR10MB4431.namprd10.prod.outlook.com (2603:10b6:a03:2dc::19)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3846.27; Wed, 17 Feb
+ 2021 19:42:51 +0000
+Received: from BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::45b5:49d:d171:5359]) by BYAPR10MB3287.namprd10.prod.outlook.com
+ ([fe80::45b5:49d:d171:5359%5]) with mapi id 15.20.3846.042; Wed, 17 Feb 2021
+ 19:42:51 +0000
+Subject: Re: [PATCH 1/2] vdpa/mlx5: Fix suspend/resume index restoration
+To: Eli Cohen <elic@nvidia.com>, mst@redhat.com, jasowang@redhat.com,
+ linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+References: <20210216162001.83541-1-elic@nvidia.com>
+From: Si-Wei Liu <si-wei.liu@oracle.com>
+Organization: Oracle Corporation
+Message-ID: <4ecc1c7f-4f5a-68be-6734-e18dfeb91437@oracle.com>
+Date: Wed, 17 Feb 2021 11:42:48 -0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.1
+In-Reply-To: <20210216162001.83541-1-elic@nvidia.com>
+Content-Language: en-US
+X-Originating-IP: [73.189.186.83]
+X-ClientProxiedBy: SJ0PR03CA0267.namprd03.prod.outlook.com
+ (2603:10b6:a03:3a0::32) To BYAPR10MB3287.namprd10.prod.outlook.com
+ (2603:10b6:a03:15c::11)
 MIME-Version: 1.0
-In-Reply-To: <20210217123213.2199186-7-kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
- <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>,
- open list <linux-kernel@vger.kernel.org>,
- "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
- <virtualization@lists.linux-foundation.org>
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from [192.168.0.19] (73.189.186.83) by
+ SJ0PR03CA0267.namprd03.prod.outlook.com (2603:10b6:a03:3a0::32) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3868.27 via Frontend
+ Transport; Wed, 17 Feb 2021 19:42:50 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: aa81896f-1c7f-457b-c365-08d8d37c35d5
+X-MS-TrafficTypeDiagnostic: SJ0PR10MB4431:
+X-Microsoft-Antispam-PRVS: <SJ0PR10MB44315B94176899D41FD51837B1869@SJ0PR10MB4431.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:1332;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 4iqYBcBOpTWun5U5AFNECQVFn4UeeWmkb4017bMLZ9TA9JJENy7VoSonDH8babFsl963N7s3w/89dbuYV9RPLCEanznG3g4W0tYABz85nz1PZu9PCiIUhU92PsmPWV87unyM9d/IMjHd0JJ0E5ajlMtnQDjt/9bVEevhrjMUlqVClL1PyH8B5fN7J+tmHx8bv0PWhGk17NcmXezkTJ0gDBHgwYv1PjuOBMIoYMlIPebHoXCR4vYZOO9UmU3gLUrjGKxd4RCu9a1DUCW911mfUHX1XHdavUrUdfJgJsjhSKGeyRRMsAKUNKe1lwhSkNkk6f4jHdkjzxyqRxoEuB7sh4e4d0ZMdUCjdIhBgu/+GmmIrBgf9pA6Yio6Iwfp/gvEsWGGjsly+BtiM1XLw1qyf6jGpcLmh0KFK1C2kf1Su4wlMHdpGrFY99Ydb7vOpPRr6Vmw/D/RoKW5+X4sHUag+iM0RZnOMWQxMPey5oP77VoiJkJQAKuQe4t8RNFTxHsWH9ivdlgX2NOUxkaiAYR4uFbjsfoNcVLIYPH8GXJUfiFq3snAHSct5gYzeljzPfORkzfbp1j08SqysamUJi9A9f5HcntLGb0cMNhLa1+F83Y=
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR10MB3287.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(366004)(376002)(346002)(39860400002)(396003)(136003)(66946007)(31686004)(66556008)(15650500001)(66476007)(478600001)(83380400001)(5660300002)(16576012)(31696002)(86362001)(36756003)(8676002)(8936002)(956004)(2616005)(316002)(6486002)(2906002)(16526019)(186003)(36916002)(26005)(53546011)(43740500002)(45980500001);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?eGtSN2k4N2F6VFM3K1B6eGFpdnlEUm80NldBeU5OTU0zQUN4VTZ6U0VraW1X?=
+ =?utf-8?B?azlGbnhBd0ltajRnc3ZCU2F2bHhtc3c3K25TNVluSzM0NU1RSUVIVjNyWk5K?=
+ =?utf-8?B?MnVZVzBDTk1sVHBoU0REOEhTYUpCckNuVkxaelQzZUlIUmJTclpRbzZCU09m?=
+ =?utf-8?B?djI0REcwcGFTSDNzYm5Obi81VDBVY29EeTkzdXFXckp0VkNacmVldkhIalUw?=
+ =?utf-8?B?dU5YWU9HVmp3b3o1MlhXN1QzNGxQRU1VOWtDUUFZVkFzZU9UN3owb1NKMGUx?=
+ =?utf-8?B?R1AzKzNUdWo4WDQ1TnFYZ0N5SldKYVdBd1lqbEpuU280Z3JucFNUbG9lNHVj?=
+ =?utf-8?B?WXh2OUROZGlRUklhM3ZSOU5mOW5aMXVoamhuYzBFbUNFQU56OWR3ZnkrdzFz?=
+ =?utf-8?B?cVhNMC9pSW5Sc3c3cWl1ak1UaU1QOS9KYm5janVJalhpTVd6eXlwM2htTFpm?=
+ =?utf-8?B?cnRDbWJpYWc4ZjZpWDhNVnh2UW5VY2p6VTEvWms5eTNJVkJFd2VBazQrckoy?=
+ =?utf-8?B?ay8rVHd3bHRsNU9sRGlQVUFMMVZUNUFDWUNGaE1SUE1DcE94Q2lrbmNhTEFE?=
+ =?utf-8?B?b2Iyb3VIelVzN2traEhQREM3QjRST3VSL2NjSk9aOEJoRm04N3h1OWkrUU0y?=
+ =?utf-8?B?SmVqMHVic3I0S0NwS3Yza1IrYzRJbGZVOEZQdjJlQStjNVA3ZVhUY2VDclFZ?=
+ =?utf-8?B?V0gvY2xQbFJadUwrZ2lzNytaWi9ZT2VxZjJhTnhmcUt0VnRWbWZUT0kwaElo?=
+ =?utf-8?B?SlBCQ3d2R1RXVHVhQyttMXF1akl2TWVvblVUTXdMVEYyeXdHdlg1VGhVc3I4?=
+ =?utf-8?B?OE1yaTgzNXpBWWRNV0xmS3dYdmpqTVVCU3lTb1gzcVUrUjBPMldKQzB6R2d3?=
+ =?utf-8?B?K09OUDdCWDFLa0E0aENxOVlJeHNyKzFZNVJjU09OQ0JoTWtlNllwRVdGeTl3?=
+ =?utf-8?B?dDVvbjBlUE54Y3Z3YldaUUZmRG5yMWpnNStpVzZQMlpjdzRBWjlXTlBZd05z?=
+ =?utf-8?B?ZkI1VlNDQzIzc0tkKzdzdGtyZUVib0tSdExta0I1L3JMeGM1WUduY3lSK0lz?=
+ =?utf-8?B?aDdBSC8yRGNwYW5mZ0gyZ2llZVZVcWpvWHZ2aGFaZlpDMkROQ2IyQXNaUDUw?=
+ =?utf-8?B?dTZUSjdsSzd0bmRiMUU5OFMzcUxXZjlmS3QxaUo4bU9rM25xNE9FYWxIbHpC?=
+ =?utf-8?B?NDRZNk5SbEpmM2xGUHpBRFJ6S0VUSkh6OFVrbmZ4SUNSRFQ3TUZZanAveGV3?=
+ =?utf-8?B?cXE3THhBNitUYjBOdXA3UkxHbjRYd0VlaXBOa2lwdDBVUC8rSXRSTncxTkw3?=
+ =?utf-8?B?d1VNekVaRmpySFgrYm9qYlUwT3NJR3RrZWlqMjRoTktxN245dGJ0RmJlUzlI?=
+ =?utf-8?B?ZlRERVozT04vZkh5YWpxcXFsMHNHalF4aEQxdk5EcW1yd210MzZTeiszeGFQ?=
+ =?utf-8?B?Y3FTOTIwVFdlRStneitHeWJlZDRYR09YY1VQaUYyT3dNT3dueXBIL0RQT2xv?=
+ =?utf-8?B?alZYdm1LUzduaGh6aUFLYzNuOG9QcmR6NzN1TytWSUhxZUVuQmpYbnJ5ZzRV?=
+ =?utf-8?B?RHZoUDNkRjdCL0VSanhuRTZIL3VLVy8vUFpvcHphL3A1bXd2cG1zWFRjQndV?=
+ =?utf-8?B?UE9jMkFsYlU2OVNDcVR1VzJVeE92UGVBSFc1aTJqY0Y3eTAyVythbVBma1d3?=
+ =?utf-8?B?SVdOQ281T2FiNWs2S1R6Q05wSmlwQ2NvcTFGSmdMcFhzY1I0YWlzMGt0emF3?=
+ =?utf-8?Q?gN0y3aVikn8p9qDAEjcU5e0K7H46zvjMB+Rgbsv?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: aa81896f-1c7f-457b-c365-08d8d37c35d5
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3287.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Feb 2021 19:42:50.8610 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 5VJMAdub13jwuwEEaI52fiaCcIFinzFmJDTd6P3J54CDIeTjOdi5ohzgzlj/8EMb+k6pe98PQ/VpNKCe5wYciA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR10MB4431
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9898
+ signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
+ adultscore=0 mlxscore=0
+ bulkscore=0 suspectscore=0 malwarescore=0 spamscore=0 phishscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2102170144
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9898
+ signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0
+ priorityscore=1501
+ lowpriorityscore=0 bulkscore=0 impostorscore=0 mlxlogscore=999
+ adultscore=0 malwarescore=0 phishscore=0 clxscore=1015 mlxscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2102170144
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -80,180 +202,99 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============6338957394130538908=="
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============6338957394130538908==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="SAFvhfcL0oFalVHym6d93TRvJBXQaoEMq"
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---SAFvhfcL0oFalVHym6d93TRvJBXQaoEMq
-Content-Type: multipart/mixed; boundary="i8f6yrMVv0kSjMjycxzd9pYGPUo8KnJYE";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list
- <linux-kernel@vger.kernel.org>,
- "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
- <virtualization@lists.linux-foundation.org>,
- "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
- <spice-devel@lists.freedesktop.org>, Dave Airlie <airlied@redhat.com>
-Message-ID: <7d179073-ca21-6ad0-699a-43e2c35b04fc@suse.de>
-Subject: Re: [PATCH v2 06/11] drm/qxl: add qxl_bo_vmap/qxl_bo_vunmap
-References: <20210217123213.2199186-1-kraxel@redhat.com>
- <20210217123213.2199186-7-kraxel@redhat.com>
-In-Reply-To: <20210217123213.2199186-7-kraxel@redhat.com>
-
---i8f6yrMVv0kSjMjycxzd9pYGPUo8KnJYE
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
 
 
-
-Am 17.02.21 um 13:32 schrieb Gerd Hoffmann:
-> Add vmap/vunmap variants which reserve (and pin) the bo.
-> They can be used in case the caller doesn't hold a reservation
-> for the bo.
->=20
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+On 2/16/2021 8:20 AM, Eli Cohen wrote:
+> When we suspend the VM, the VDPA interface will be reset. When the VM is
+> resumed again, clear_virtqueues() will clear the available and used
+> indices resulting in hardware virqtqueue objects becoming out of sync.
+> We can avoid this function alltogether since qemu will clear them if
+> required, e.g. when the VM went through a reboot.
+>
+> Moreover, since the hw available and used indices should always be
+> identical on query and should be restored to the same value same value
+> for virtqueues that complete in order, we set the single value provided
+> by set_vq_state(). In get_vq_state() we return the value of hardware
+> used index.
+>
+> Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
+> Signed-off-by: Eli Cohen <elic@nvidia.com>
+Acked-by: Si-Wei Liu <si-wei.liu@oracle.com>
 
 > ---
->   drivers/gpu/drm/qxl/qxl_object.h |  2 ++
->   drivers/gpu/drm/qxl/qxl_object.c | 36 +++++++++++++++++++++++++++++++=
-+
->   2 files changed, 38 insertions(+)
->=20
-> diff --git a/drivers/gpu/drm/qxl/qxl_object.h b/drivers/gpu/drm/qxl/qxl=
-_object.h
-> index 2495e5cdf353..ee9c29de4d3d 100644
-> --- a/drivers/gpu/drm/qxl/qxl_object.h
-> +++ b/drivers/gpu/drm/qxl/qxl_object.h
-> @@ -64,7 +64,9 @@ extern int qxl_bo_create(struct qxl_device *qdev,
->   			 u32 priority,
->   			 struct qxl_surface *surf,
->   			 struct qxl_bo **bo_ptr);
-> +int qxl_bo_vmap(struct qxl_bo *bo, struct dma_buf_map *map);
->   int qxl_bo_vmap_locked(struct qxl_bo *bo, struct dma_buf_map *map);
-> +int qxl_bo_vunmap(struct qxl_bo *bo);
->   void qxl_bo_vunmap_locked(struct qxl_bo *bo);
->   void *qxl_bo_kmap_atomic_page(struct qxl_device *qdev, struct qxl_bo =
-*bo, int page_offset);
->   void qxl_bo_kunmap_atomic_page(struct qxl_device *qdev, struct qxl_bo=
- *bo, void *map);
-> diff --git a/drivers/gpu/drm/qxl/qxl_object.c b/drivers/gpu/drm/qxl/qxl=
-_object.c
-> index f4a015381a7f..82c3bf195ad6 100644
-> --- a/drivers/gpu/drm/qxl/qxl_object.c
-> +++ b/drivers/gpu/drm/qxl/qxl_object.c
-> @@ -29,6 +29,9 @@
->   #include "qxl_drv.h"
->   #include "qxl_object.h"
->  =20
-> +static int __qxl_bo_pin(struct qxl_bo *bo);
-> +static void __qxl_bo_unpin(struct qxl_bo *bo);
-> +
->   static void qxl_ttm_bo_destroy(struct ttm_buffer_object *tbo)
->   {
->   	struct qxl_bo *bo;
-> @@ -179,6 +182,25 @@ int qxl_bo_vmap_locked(struct qxl_bo *bo, struct d=
-ma_buf_map *map)
+>   drivers/vdpa/mlx5/net/mlx5_vnet.c | 17 ++++-------------
+>   1 file changed, 4 insertions(+), 13 deletions(-)
+>
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index b8e9d525d66c..a51b0f86afe2 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -1169,6 +1169,7 @@ static void suspend_vq(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *m
+>   		return;
+>   	}
+>   	mvq->avail_idx = attr.available_index;
+> +	mvq->used_idx = attr.used_index;
+>   }
+>   
+>   static void suspend_vqs(struct mlx5_vdpa_net *ndev)
+> @@ -1426,6 +1427,7 @@ static int mlx5_vdpa_set_vq_state(struct vdpa_device *vdev, u16 idx,
+>   		return -EINVAL;
+>   	}
+>   
+> +	mvq->used_idx = state->avail_index;
+>   	mvq->avail_idx = state->avail_index;
 >   	return 0;
 >   }
->  =20
-> +int qxl_bo_vmap(struct qxl_bo *bo, struct dma_buf_map *map)
-> +{
-> +	int r;
-> +
-> +	r =3D qxl_bo_reserve(bo);
-> +	if (r)
-> +		return r;
-> +
-> +	r =3D __qxl_bo_pin(bo);
-> +	if (r) {
-> +		qxl_bo_unreserve(bo);
-> +		return r;
-> +	}
-> +
-> +	r =3D qxl_bo_vmap_locked(bo, map);
-> +	qxl_bo_unreserve(bo);
-> +	return r;
-> +}
-> +
->   void *qxl_bo_kmap_atomic_page(struct qxl_device *qdev,
->   			      struct qxl_bo *bo, int page_offset)
->   {
-> @@ -223,6 +245,20 @@ void qxl_bo_vunmap_locked(struct qxl_bo *bo)
->   	ttm_bo_vunmap(&bo->tbo, &bo->map);
+> @@ -1443,7 +1445,7 @@ static int mlx5_vdpa_get_vq_state(struct vdpa_device *vdev, u16 idx, struct vdpa
+>   	 * that cares about emulating the index after vq is stopped.
+>   	 */
+>   	if (!mvq->initialized) {
+> -		state->avail_index = mvq->avail_idx;
+> +		state->avail_index = mvq->used_idx;
+>   		return 0;
+>   	}
+>   
+> @@ -1452,7 +1454,7 @@ static int mlx5_vdpa_get_vq_state(struct vdpa_device *vdev, u16 idx, struct vdpa
+>   		mlx5_vdpa_warn(mvdev, "failed to query virtqueue\n");
+>   		return err;
+>   	}
+> -	state->avail_index = attr.available_index;
+> +	state->avail_index = attr.used_index;
+>   	return 0;
 >   }
->  =20
-> +int qxl_bo_vunmap(struct qxl_bo *bo)
-> +{
-> +	int r;
-> +
-> +	r =3D qxl_bo_reserve(bo);
-> +	if (r)
-> +		return r;
-> +
-> +	qxl_bo_vunmap_locked(bo);
-> +	__qxl_bo_unpin(bo);
-> +	qxl_bo_unreserve(bo);
-> +	return 0;
-> +}
-> +
->   void qxl_bo_kunmap_atomic_page(struct qxl_device *qdev,
->   			       struct qxl_bo *bo, void *pmap)
+>   
+> @@ -1532,16 +1534,6 @@ static void teardown_virtqueues(struct mlx5_vdpa_net *ndev)
+>   	}
+>   }
+>   
+> -static void clear_virtqueues(struct mlx5_vdpa_net *ndev)
+> -{
+> -	int i;
+> -
+> -	for (i = ndev->mvdev.max_vqs - 1; i >= 0; i--) {
+> -		ndev->vqs[i].avail_idx = 0;
+> -		ndev->vqs[i].used_idx = 0;
+> -	}
+> -}
+> -
+>   /* TODO: cross-endian support */
+>   static inline bool mlx5_vdpa_is_little_endian(struct mlx5_vdpa_dev *mvdev)
 >   {
->=20
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
-
---i8f6yrMVv0kSjMjycxzd9pYGPUo8KnJYE--
-
---SAFvhfcL0oFalVHym6d93TRvJBXQaoEMq
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmAtbXUFAwAAAAAACgkQlh/E3EQov+DV
-cQ//eal4ZvQAYRdmRcwuX0jmd9Udx7/DSF+a7YZYDgEp8xN6d/TfZWTJ0GMJmIEKtCsB54X0tG48
-vUTjAXS3waxCZ/YUPjPA5Rrb9uk+0FZ9im6DyAhN5RtMr4z8X61EheCMJAESrPC6zF9eqfFUFDw1
-SgAxSw95+/Bu+ECmazwjZgahOKrpx9Tm/rSpNY/hrPll/dcdhh6PVzueM8zr3F6lXAuc4NDAP2Qy
-pNCDGzFDlY+tiz53UTbiKrx4Pn7CayrL8o1NwnYi0imljvkO+1s6mCdq11Jl3t+MrxfsSmBHmsRq
-1ywVyUYNUFCHM/lYBATeaDiXs2UJgm98OHrhd8puDePWGMzTlxWUNL8CbQzOt5GAGWv0CspiV2gP
-vON6tKBDQ6BXGkXcabMaW07HIyiPQG8Ig3BwUHdFO2egPL19SEFA4bRavtDlTjZR0Ozh/B8dO4Uk
-fS18rRBRsfvj3kpStFL3189qGmREie6KXduUVzC1IJdltJlno6iFoc1IQTE+QfOoX4++bCI3HlVw
-6pSEyrQYZcZIj+1+JV2tN2DSlV4LDglYkb6x8/Fbc4BAYMN6X9yPQ9E/PdaHjk4FRlslOCbKlIaV
-Jfn6G5X5525OCdVcg0fU2o4mw/NmsuIpMnRRImNVuXsJ8/1OI5DYHFO98teGT5HNQeIciWZxaF4F
-B0k=
-=r12Y
------END PGP SIGNATURE-----
-
---SAFvhfcL0oFalVHym6d93TRvJBXQaoEMq--
-
---===============6338957394130538908==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> @@ -1777,7 +1769,6 @@ static void mlx5_vdpa_set_status(struct vdpa_device *vdev, u8 status)
+>   	if (!status) {
+>   		mlx5_vdpa_info(mvdev, "performing device reset\n");
+>   		teardown_driver(ndev);
+> -		clear_virtqueues(ndev);
+>   		mlx5_vdpa_destroy_mr(&ndev->mvdev);
+>   		ndev->mvdev.status = 0;
+>   		++mvdev->generation;
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6338957394130538908==--
