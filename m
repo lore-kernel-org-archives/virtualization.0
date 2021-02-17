@@ -2,88 +2,87 @@ Return-Path: <SRS0=bBcF=HT=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92CA0C433DB
-	for <virtualization@archiver.kernel.org>; Wed, 17 Feb 2021 15:26:53 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77424C433E0
+	for <virtualization@archiver.kernel.org>; Wed, 17 Feb 2021 16:57:02 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D2E9264DA1
-	for <virtualization@archiver.kernel.org>; Wed, 17 Feb 2021 15:26:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D2E9264DA1
+	by mail.kernel.org (Postfix) with ESMTPS id 01AC964DF0
+	for <virtualization@archiver.kernel.org>; Wed, 17 Feb 2021 16:57:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 01AC964DF0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5BB696F5C6
-	for <virtualization@archiver.kernel.org>; Wed, 17 Feb 2021 15:26:52 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 548EA86F64;
+	Wed, 17 Feb 2021 16:57:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DXVk-2K8NDGq for <virtualization@archiver.kernel.org>;
-	Wed, 17 Feb 2021 15:26:50 +0000 (UTC)
-Received: by smtp3.osuosl.org (Postfix, from userid 1001)
-	id 34E8E6F4DE; Wed, 17 Feb 2021 15:26:50 +0000 (UTC)
+Received: from hemlock.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id EiZsMflBBCWq; Wed, 17 Feb 2021 16:57:00 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9242D6F4BC;
-	Wed, 17 Feb 2021 15:26:47 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 73A8A86DDC;
+	Wed, 17 Feb 2021 16:57:00 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 61622C0174;
-	Wed, 17 Feb 2021 15:26:47 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5B722C0893;
+	Wed, 17 Feb 2021 16:57:00 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 10943C013A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E4C6BC013A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Feb 2021 15:26:46 +0000 (UTC)
+ Wed, 17 Feb 2021 16:56:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 09F62867A3
+ by whitealder.osuosl.org (Postfix) with ESMTP id D895F86D6D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Feb 2021 15:26:46 +0000 (UTC)
+ Wed, 17 Feb 2021 16:56:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GWJEBQaKgfpM
+ with ESMTP id LqXlsqmmfsCG
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Feb 2021 15:26:45 +0000 (UTC)
+ Wed, 17 Feb 2021 16:56:58 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 4E0958673B
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 69765866A9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Feb 2021 15:26:45 +0000 (UTC)
+ Wed, 17 Feb 2021 16:56:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1613575604;
+ s=mimecast20190719; t=1613581017;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=ecY4yNIrgjKzSNwRMISeJ/qxpef/5XZk23de/J/fLls=;
- b=b5SDN0jCMQP45+M/UqBblTJR3lG/QUtHLJkzJE+9FzwpmpV/WCEsJMtJzSXLw3qj8GYRzQ
- EPnjRZJ5j8cB4fm44+Xps0awaRbZRhL7Ay/PAvbWR7s2HZIMtwvEkjuAnOemwQCzm0dpIg
- 5ve+SnZvw/Tk5UG0j3rBdp9568TDJv8=
+ bh=UmI/vuDLIIHV6tumVN5Dm72SbZPYzsZJyTAA4XkAKhk=;
+ b=HJkgmp8GHdQrMlKO/t/G0Q3KpgQ3R0VS4lJ1yZ61RjZVIq7Ym2VGzeVGol1FHeXWmm+WJ7
+ l38nauE+XZlGaryc9EC7jVsambGm70cXnyyPWSs27arUeR0Lk2do0HgIakWpS1772YU0Eq
+ m7SPxDhuk6mTWoNl+4JPpkiFN5XhZsY=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-392-vJnBQjXrPrqlOWkaYb0jYw-1; Wed, 17 Feb 2021 10:26:40 -0500
-X-MC-Unique: vJnBQjXrPrqlOWkaYb0jYw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
+ us-mta-601-mKOe-9AsOrynC7Y1jU2R3g-1; Wed, 17 Feb 2021 11:56:55 -0500
+X-MC-Unique: mKOe-9AsOrynC7Y1jU2R3g-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
+ [10.5.11.23])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id AB4CD192CC43;
- Wed, 17 Feb 2021 15:26:38 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 54BB5874982;
+ Wed, 17 Feb 2021 16:56:53 +0000 (UTC)
 Received: from localhost (ovpn-115-102.ams2.redhat.com [10.36.115.102])
- by smtp.corp.redhat.com (Postfix) with ESMTP id A7C115D719;
- Wed, 17 Feb 2021 15:26:34 +0000 (UTC)
-Date: Wed, 17 Feb 2021 15:26:33 +0000
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 44FDC19C46;
+ Wed, 17 Feb 2021 16:56:49 +0000 (UTC)
+Date: Wed, 17 Feb 2021 16:56:48 +0000
 From: Stefan Hajnoczi <stefanha@redhat.com>
 To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Subject: Re: [RFC v2 5/7] vhost: Add x-vhost-enable-shadow-vq qmp
-Message-ID: <20210217152633.GG269203@stefanha-x1.localdomain>
+Subject: Re: [RFC v2 6/7] vhost: Route guest->host notification through
+ shadow virtqueue
+Message-ID: <20210217165648.GH269203@stefanha-x1.localdomain>
 References: <20210209153757.1653598-1-eperezma@redhat.com>
- <20210209153757.1653598-6-eperezma@redhat.com>
+ <20210209153757.1653598-7-eperezma@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20210209153757.1653598-6-eperezma@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+In-Reply-To: <20210209153757.1653598-7-eperezma@redhat.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=stefanha@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -105,80 +104,254 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============9164122708025688211=="
+Content-Type: multipart/mixed; boundary="===============8061505597456071373=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
---===============9164122708025688211==
+--===============8061505597456071373==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="/i8j2F0k9BYX4qLc"
+	protocol="application/pgp-signature"; boundary="hAW+M2+FUO+onfmf"
 Content-Disposition: inline
 
---/i8j2F0k9BYX4qLc
+--hAW+M2+FUO+onfmf
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Feb 09, 2021 at 04:37:55PM +0100, Eugenio P=E9rez wrote:
-> diff --git a/qapi/net.json b/qapi/net.json
-> index c31748c87f..a1cdffb0f9 100644
-> --- a/qapi/net.json
-> +++ b/qapi/net.json
-> @@ -77,6 +77,28 @@
->  ##
->  { 'command': 'netdev_del', 'data': {'id': 'str'} }
+On Tue, Feb 09, 2021 at 04:37:56PM +0100, Eugenio P=E9rez wrote:
+> diff --git a/include/hw/virtio/vhost.h b/include/hw/virtio/vhost.h
+> index ac963bf23d..884818b109 100644
+> --- a/include/hw/virtio/vhost.h
+> +++ b/include/hw/virtio/vhost.h
+> @@ -55,6 +55,8 @@ struct vhost_iommu {
+>      QLIST_ENTRY(vhost_iommu) iommu_next;
+>  };
 > =20
-> +##
-> +# @x-vhost-enable-shadow-vq:
-> +#
-> +# Use vhost shadow virtqueue.
+> +typedef struct VhostShadowVirtqueue VhostShadowVirtqueue;
 
-Is this command for testing only or do you expect it to be invoked by
-libvirt in production? I think the shadow virtqueue can be an internal
-QEMU feature that is hidden from management tools.
+There is already another declaration in
+hw/virtio/vhost-shadow-virtqueue.h. Should vhost.h include
+vhost-shadow-virtqueue.h?
 
-> +#
-> +# @name: the device name of the virtual network adapter
-> +#
-> +# @enable: true to use he alternate shadow VQ notification path
-> +#
-> +# Returns: Error if failure, or 'no error' for success
-> +#
-> +# Since: 6.0
+This is becoming confusing:
+1. typedef in vhost-shadow-virtqueue.h
+2. typedef in vhost.h
+3. typedef in vhost-shadow-virtqueue.c
 
-Is this a generic feature for any vhost or vDPA device? If yes, please
-replace "virtual network adapter" in the doc comment.
+3 typedefs is a bit much :). I suggest:
+1. typedef in vhost-shadow-virtqueue.h
+2. #include "vhost-shadow-virtqueue.h" in vhost.h
+3. struct VhostShadowVirtqueue (no typedef redefinition) in vhost-shadow-vi=
+rtqueue.c
 
-Does this only apply to vhost-net devices? If so, please put "vhost-net"
-in the name since there are other non-net vhost devices.
+That should make the code easier to understand, navigate with tools, and
+if a change is made (e.g. renaming the struct) then it won't be
+necessary to change things in 3 places.
 
-> +#
-> +# Example:
-> +#
-> +# -> { "execute": "x-vhost-enable-shadow-vq", "arguments": {"enable": tr=
-ue} }
+> +
+>  typedef struct VhostDevConfigOps {
+>      /* Vhost device config space changed callback
+>       */
+> @@ -83,7 +85,9 @@ struct vhost_dev {
+>      uint64_t backend_cap;
+>      bool started;
+>      bool log_enabled;
+> +    bool sw_lm_enabled;
 
-Missing "name" field?
+Rename to shadow_vqs_enabled?
 
---/i8j2F0k9BYX4qLc
+>      uint64_t log_size;
+> +    VhostShadowVirtqueue **shadow_vqs;
+>      Error *migration_blocker;
+>      const VhostOps *vhost_ops;
+>      void *opaque;
+> diff --git a/hw/virtio/vhost-shadow-virtqueue.c b/hw/virtio/vhost-shadow-=
+virtqueue.c
+> index b5d2645ae0..01f282d434 100644
+> --- a/hw/virtio/vhost-shadow-virtqueue.c
+> +++ b/hw/virtio/vhost-shadow-virtqueue.c
+> @@ -8,9 +8,12 @@
+>   */
+> =20
+>  #include "hw/virtio/vhost-shadow-virtqueue.h"
+> +#include "hw/virtio/vhost.h"
+> +
+> +#include "standard-headers/linux/vhost_types.h"
+> =20
+>  #include "qemu/error-report.h"
+> -#include "qemu/event_notifier.h"
+> +#include "qemu/main-loop.h"
+> =20
+>  /* Shadow virtqueue to relay notifications */
+>  typedef struct VhostShadowVirtqueue {
+> @@ -18,8 +21,95 @@ typedef struct VhostShadowVirtqueue {
+>      EventNotifier kick_notifier;
+>      /* Shadow call notifier, sent to vhost */
+>      EventNotifier call_notifier;
+> +
+> +    /* Borrowed virtqueue's guest to host notifier. */
+> +    EventNotifier host_notifier;
+
+The purpose of these EventNotifier fields is not completely clear to me.
+Here is how I interpret the comments:
+
+1. The vhost device is set up to use kick_notifier/call_notifier when
+   the shadow vq is enabled.
+
+2. host_notifier is the guest-visible vq's host notifier. This is set up
+   when the shadow vq is enabled.
+
+But I'm not confident this is correct. Maybe you could expand the
+comment to make it clear what is happening?
+
+> +
+> +    /* Virtio queue shadowing */
+> +    VirtQueue *vq;
+>  } VhostShadowVirtqueue;
+> =20
+> +/* Forward guest notifications */
+> +static void vhost_handle_guest_kick(EventNotifier *n)
+> +{
+> +    VhostShadowVirtqueue *svq =3D container_of(n, VhostShadowVirtqueue,
+> +                                             host_notifier);
+> +
+> +    if (event_notifier_test_and_clear(n)) {
+> +        event_notifier_set(&svq->kick_notifier);
+> +    }
+> +}
+
+This function looks incomplete. You can make review easier by indicating
+the state of the code:
+
+  /* TODO pop requests from vq and put them onto vhost vq */
+
+I'm not sure why it's useful to include this incomplete function in the
+patch. Maybe the host notifier is already intercepted by the
+guest-visible vq is still mapped directly to the vhost vq so this works?
+An explanation in comments or the commit description would be helpful.
+
+> +
+> +/*
+> + * Start shadow virtqueue operation.
+> + * @dev vhost device
+> + * @hidx vhost virtqueue index
+> + * @svq Shadow Virtqueue
+> + *
+> + * Run in RCU context
+> + */
+> +bool vhost_shadow_vq_start_rcu(struct vhost_dev *dev,
+> +                               unsigned idx,
+> +                               VhostShadowVirtqueue *svq)
+> +{
+> +    EventNotifier *vq_host_notifier =3D virtio_queue_get_host_notifier(s=
+vq->vq);
+> +    struct vhost_vring_file kick_file =3D {
+> +        .index =3D idx,
+> +        .fd =3D event_notifier_get_fd(&svq->kick_notifier),
+> +    };
+> +    int r;
+> +
+> +    /* Check that notifications are still going directly to vhost dev */
+> +    assert(virtio_queue_host_notifier_status(svq->vq));
+> +
+> +    event_notifier_init_fd(&svq->host_notifier,
+> +                           event_notifier_get_fd(vq_host_notifier));
+> +    event_notifier_set_handler(&svq->host_notifier, vhost_handle_guest_k=
+ick);
+
+If I understand correctly svq->host_notifier only exists as an easy way
+to use container_of() in vhost_handle_guest_kick?
+
+svq->host_notifier does not actually own the fd and therefore
+event_notifier_cleanup() must never be called on it?
+
+Please document this.
+
+> +
+> +    r =3D dev->vhost_ops->vhost_set_vring_kick(dev, &kick_file);
+> +    if (unlikely(r !=3D 0)) {
+> +        error_report("Couldn't set kick fd: %s", strerror(errno));
+> +        goto err_set_vring_kick;
+> +    }
+> +
+> +    /* Check for pending notifications from the guest */
+> +    vhost_handle_guest_kick(&svq->host_notifier);
+> +
+> +    return true;
+
+host_notifier is still registered with the vhost device so now the
+kernel vhost thread and QEMU are both monitoring the ioeventfd at the
+same time? Did I miss a vhost_set_vring_call() somewhere?
+
+> +
+> +err_set_vring_kick:
+> +    event_notifier_set_handler(&svq->host_notifier, NULL);
+> +
+> +    return false;
+> +}
+> +
+> +/*
+> + * Stop shadow virtqueue operation.
+> + * @dev vhost device
+> + * @idx vhost queue index
+> + * @svq Shadow Virtqueue
+> + *
+> + * Run in RCU context
+> + */
+> +void vhost_shadow_vq_stop_rcu(struct vhost_dev *dev,
+> +                              unsigned idx,
+> +                              VhostShadowVirtqueue *svq)
+> +{
+> +    EventNotifier *vq_host_notifier =3D virtio_queue_get_host_notifier(s=
+vq->vq);
+> +    struct vhost_vring_file kick_file =3D {
+> +        .index =3D idx,
+> +        .fd =3D event_notifier_get_fd(vq_host_notifier),
+> +    };
+> +    int r;
+> +
+> +    /* Restore vhost kick */
+> +    r =3D dev->vhost_ops->vhost_set_vring_kick(dev, &kick_file);
+> +    /* Cannot do a lot of things */
+> +    assert(r =3D=3D 0);
+> +
+> +    event_notifier_set_handler(&svq->host_notifier, NULL);
+
+It may be necessary to call event_notifier_set(vq_host_notifier) before
+vhost_set_vring_kick() so that the vhost kernel thread looks at the
+vring immediately. That covers the case where svq->kick_notifier was
+just set but not yet handled by the vhost kernel thread.
+
+I'm not 100% sure this race condition can occur, but couldn't find
+anything that prevents it.
+
+> +err:
+> +    for (; idx >=3D 0; --idx) {
+> +        vhost_shadow_vq_free(dev->shadow_vqs[idx]);
+> +    }
+> +    g_free(dev->shadow_vqs[idx]);
+
+Should this be g_free(dev->shadow_vqs)?
+
+--hAW+M2+FUO+onfmf
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmAtNakACgkQnKSrs4Gr
-c8iLXQf+PKxYtC65+omdA8zsrOELcr89AvloccdW5a6OvoHu5oowlCSAFPKmEDon
-N1HwfyKuwH6mWP9HvntWr4a35LRPDghDTf/cvuJeG3w2hqUJr9kadWoBL9HICr1T
-2/U8FB66ialGkE+yG0BIrHcZpIKOZy4vv+JlzwHUoj2ctRJ7biys2Zj1dyYjPr8Q
-aD6dWsw7L6ttLG8kL9GaA6Vid9L9Y8k4qoa7KIRYd0skVNvdXqLvqXqoja0Ue9Mv
-5vv29Ty6k2C2i94DFOeR5uboWoahvugS63nTX5M/ExvLAdAY3vENCB62/ljQa2br
-hRtNUfU/U1/bEWsONrP4LtdpCez6Jw==
-=L2vh
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmAtStAACgkQnKSrs4Gr
+c8jvBwf/U1/0WLtOf5uxvrh5ccOTzVBf1csrWT+FZU77xu8307DgJuqBlCM/m0yT
+B+lXxvlVCrr2gJaBPdaSmXe5YH+bJzFax4aGBTbT7S1zt5w9RPLVt9GSDc9w9HjB
+2DeYNy37oE/XIgO9OlWWHzCCFEAiBC0RiiydeN4LwrmTjGmn9NnpDVL1+Q+TFRqp
+C0BcN2VO9LT5uyHFWKY4dh857xFIzFsZG9evuDpHkngTjx6GfFiAdZenSHIq+FBD
+3ch/PIeDgNbMqk9q3NzczkaChVj73WoZaBNApYuFz4m/XrJj3nu2FGWAUXYXJizD
+JSsTUoQ7Ul4IuKIH/DiorZUq4zZwPA==
+=kDMB
 -----END PGP SIGNATURE-----
 
---/i8j2F0k9BYX4qLc--
+--hAW+M2+FUO+onfmf--
 
 
---===============9164122708025688211==
+--===============8061505597456071373==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -188,5 +361,5 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============9164122708025688211==--
+--===============8061505597456071373==--
 
