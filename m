@@ -4,95 +4,97 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E641C433E0
-	for <virtualization@archiver.kernel.org>; Wed, 17 Feb 2021 12:32:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B934FC433E0
+	for <virtualization@archiver.kernel.org>; Wed, 17 Feb 2021 12:41:56 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D73D960232
-	for <virtualization@archiver.kernel.org>; Wed, 17 Feb 2021 12:32:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D73D960232
+	by mail.kernel.org (Postfix) with ESMTPS id 502C764D92
+	for <virtualization@archiver.kernel.org>; Wed, 17 Feb 2021 12:41:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 502C764D92
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 7CF546F5CE
-	for <virtualization@archiver.kernel.org>; Wed, 17 Feb 2021 12:32:39 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0C8E46F608
+	for <virtualization@archiver.kernel.org>; Wed, 17 Feb 2021 12:41:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jXVHTfGtN_ma for <virtualization@archiver.kernel.org>;
-	Wed, 17 Feb 2021 12:32:35 +0000 (UTC)
+	with ESMTP id NiGmEOOWmxHW for <virtualization@archiver.kernel.org>;
+	Wed, 17 Feb 2021 12:41:55 +0000 (UTC)
 Received: by smtp3.osuosl.org (Postfix, from userid 1001)
-	id CAB9E6F594; Wed, 17 Feb 2021 12:32:35 +0000 (UTC)
+	id A17636F594; Wed, 17 Feb 2021 12:41:53 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 12A116F5F1;
-	Wed, 17 Feb 2021 12:32:31 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 64D7E6F4BC;
+	Wed, 17 Feb 2021 12:41:50 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DCD0CC1E6F;
-	Wed, 17 Feb 2021 12:32:30 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CFC8FC0174
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 42149C0174;
+	Wed, 17 Feb 2021 12:41:50 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0641AC013A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Feb 2021 12:32:27 +0000 (UTC)
+ Wed, 17 Feb 2021 12:41:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id B890287255
+ by fraxinus.osuosl.org (Postfix) with ESMTP id E7F9A86088
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Feb 2021 12:32:27 +0000 (UTC)
+ Wed, 17 Feb 2021 12:41:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dLjIAlQxGpQL
+ with ESMTP id MhkAtg_CRO6D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Feb 2021 12:32:26 +0000 (UTC)
+ Wed, 17 Feb 2021 12:41:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id B234E87250
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 6267C85FB9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Feb 2021 12:32:26 +0000 (UTC)
+ Wed, 17 Feb 2021 12:41:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1613565145;
+ s=mimecast20190719; t=1613565706;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=HSk/xL7EZthSpvhvNvoe+gAjFs1Au8uiuMqH4NPOkSU=;
- b=HSQVIl8DxmbTfY78lyRmSHGXdeXJRwo2M0yLDM7oeh0KpN3Ts7W9YkhIMx7omkSxuN1Ni6
- S1UjPJgdxO27wl/fsdNy4JFKo9R5iNoZb0yMGmaUDp1kD5I2Z9g3g12Hrp+WoISnEdI9YT
- 1HkINMW5CAKLGEBdFMMj14dAU+hzohs=
+ bh=o7pHnryK4vudTBjeC8f619X85eskd6tV+DbXH60fnEw=;
+ b=V7rapIAy80DO0wenAmOFZWIWBky5BVEwddcSQT3oGIsqN1hIfgOL+gaw64NxcIt7UJiQDX
+ cSYglp0Uk0izaTPKC3t7mClXctctAHrBpNUYCtQ27mL6yw56FqSWAPh1JSbDCvQI8I1HLV
+ Pc9YJofsa7PhttsrmquJOTkaiVQN1l8=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-542-RmAzezYNNQ6abkCcOMO3jw-1; Wed, 17 Feb 2021 07:32:21 -0500
-X-MC-Unique: RmAzezYNNQ6abkCcOMO3jw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
+ us-mta-446-0GUgyPcyPuuw-vrWj6oRWg-1; Wed, 17 Feb 2021 07:41:42 -0500
+X-MC-Unique: 0GUgyPcyPuuw-vrWj6oRWg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
+ [10.5.11.11])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 71EB6874982;
- Wed, 17 Feb 2021 12:32:20 +0000 (UTC)
-Received: from sirius.home.kraxel.org (ovpn-114-184.ams2.redhat.com
- [10.36.114.184])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 026135D746;
- Wed, 17 Feb 2021 12:32:20 +0000 (UTC)
-Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
- id 1EAD818003BE; Wed, 17 Feb 2021 13:32:15 +0100 (CET)
-From: Gerd Hoffmann <kraxel@redhat.com>
-To: dri-devel@lists.freedesktop.org
-Subject: [PATCH v2 10/11] drm/qxl: rework cursor plane
-Date: Wed, 17 Feb 2021 13:32:12 +0100
-Message-Id: <20210217123213.2199186-11-kraxel@redhat.com>
-In-Reply-To: <20210217123213.2199186-1-kraxel@redhat.com>
-References: <20210217123213.2199186-1-kraxel@redhat.com>
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ED15191276;
+ Wed, 17 Feb 2021 12:41:40 +0000 (UTC)
+Received: from localhost (ovpn-115-102.ams2.redhat.com [10.36.115.102])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 128B018B5E;
+ Wed, 17 Feb 2021 12:41:35 +0000 (UTC)
+Date: Wed, 17 Feb 2021 12:41:34 +0000
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
+Subject: Re: [RFC v2 2/7] virtio: Add virtio_queue_host_notifier_status
+Message-ID: <20210217124134.GD269203@stefanha-x1.localdomain>
+References: <20210209153757.1653598-1-eperezma@redhat.com>
+ <20210209153757.1653598-3-eperezma@redhat.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>,
- "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
- <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>,
- "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>,
- Dave Airlie <airlied@redhat.com>
+In-Reply-To: <20210209153757.1653598-3-eperezma@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=stefanha@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Rob Miller <rob.miller@broadcom.com>, Parav Pandit <parav@mellanox.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org,
+ Harpreet Singh Anand <hanand@xilinx.com>, Xiao W Wang <xiao.w.wang@intel.com>,
+ Eli Cohen <eli@mellanox.com>, virtualization@lists.linux-foundation.org,
+ Eric Blake <eblake@redhat.com>, Michael Lilja <ml@napatech.com>,
+ Jim Harford <jim.harford@broadcom.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -104,338 +106,96 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============7845063742910751000=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Add helper functions to create and move the cursor.
-Create the cursor_bo in prepare_fb callback, in the
-atomic_commit callback we only send the update command
-to the host.
+--===============7845063742910751000==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="sXc4Kmr5FA7axrvy"
+Content-Disposition: inline
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/qxl/qxl_display.c | 248 ++++++++++++++++--------------
- 1 file changed, 133 insertions(+), 115 deletions(-)
+--sXc4Kmr5FA7axrvy
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index b315d7484e21..4a3d272e8d6c 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -476,12 +476,11 @@ static int qxl_primary_atomic_check(struct drm_plane *plane,
- 	return qxl_check_framebuffer(qdev, bo);
- }
- 
--static int qxl_primary_apply_cursor(struct drm_plane *plane)
-+static int qxl_primary_apply_cursor(struct qxl_device *qdev,
-+				    struct drm_plane_state *plane_state)
- {
--	struct drm_device *dev = plane->dev;
--	struct qxl_device *qdev = to_qxl(dev);
--	struct drm_framebuffer *fb = plane->state->fb;
--	struct qxl_crtc *qcrtc = to_qxl_crtc(plane->state->crtc);
-+	struct drm_framebuffer *fb = plane_state->fb;
-+	struct qxl_crtc *qcrtc = to_qxl_crtc(plane_state->crtc);
- 	struct qxl_cursor_cmd *cmd;
- 	struct qxl_release *release;
- 	int ret = 0;
-@@ -505,8 +504,8 @@ static int qxl_primary_apply_cursor(struct drm_plane *plane)
- 
- 	cmd = (struct qxl_cursor_cmd *)qxl_release_map(qdev, release);
- 	cmd->type = QXL_CURSOR_SET;
--	cmd->u.set.position.x = plane->state->crtc_x + fb->hot_x;
--	cmd->u.set.position.y = plane->state->crtc_y + fb->hot_y;
-+	cmd->u.set.position.x = plane_state->crtc_x + fb->hot_x;
-+	cmd->u.set.position.y = plane_state->crtc_y + fb->hot_y;
- 
- 	cmd->u.set.shape = qxl_bo_physical_address(qdev, qcrtc->cursor_bo, 0);
- 
-@@ -523,6 +522,113 @@ static int qxl_primary_apply_cursor(struct drm_plane *plane)
- 	return ret;
- }
- 
-+static int qxl_primary_move_cursor(struct qxl_device *qdev,
-+				   struct drm_plane_state *plane_state)
-+{
-+	struct drm_framebuffer *fb = plane_state->fb;
-+	struct qxl_crtc *qcrtc = to_qxl_crtc(plane_state->crtc);
-+	struct qxl_cursor_cmd *cmd;
-+	struct qxl_release *release;
-+	int ret = 0;
-+
-+	if (!qcrtc->cursor_bo)
-+		return 0;
-+
-+	ret = qxl_alloc_release_reserved(qdev, sizeof(*cmd),
-+					 QXL_RELEASE_CURSOR_CMD,
-+					 &release, NULL);
-+	if (ret)
-+		return ret;
-+
-+	ret = qxl_release_reserve_list(release, true);
-+	if (ret) {
-+		qxl_release_free(qdev, release);
-+		return ret;
-+	}
-+
-+	cmd = (struct qxl_cursor_cmd *)qxl_release_map(qdev, release);
-+	cmd->type = QXL_CURSOR_MOVE;
-+	cmd->u.position.x = plane_state->crtc_x + fb->hot_x;
-+	cmd->u.position.y = plane_state->crtc_y + fb->hot_y;
-+	qxl_release_unmap(qdev, release, &cmd->release_info);
-+
-+	qxl_release_fence_buffer_objects(release);
-+	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
-+	return ret;
-+}
-+
-+static struct qxl_bo *qxl_create_cursor(struct qxl_device *qdev,
-+					struct qxl_bo *user_bo,
-+					int hot_x, int hot_y)
-+{
-+	static const u32 size = 64 * 64 * 4;
-+	struct qxl_bo *cursor_bo;
-+	struct dma_buf_map cursor_map;
-+	struct dma_buf_map user_map;
-+	struct qxl_cursor cursor;
-+	int ret;
-+
-+	if (!user_bo)
-+		return NULL;
-+
-+	ret = qxl_bo_create(qdev, sizeof(struct qxl_cursor) + size,
-+			    false, true, QXL_GEM_DOMAIN_VRAM, 1,
-+			    NULL, &cursor_bo);
-+	if (ret)
-+		goto err;
-+
-+	ret = qxl_bo_vmap(cursor_bo, &cursor_map);
-+	if (ret)
-+		goto err_unref;
-+
-+	ret = qxl_bo_vmap(user_bo, &user_map);
-+	if (ret)
-+		goto err_unmap;
-+
-+	cursor.header.unique = 0;
-+	cursor.header.type = SPICE_CURSOR_TYPE_ALPHA;
-+	cursor.header.width = 64;
-+	cursor.header.height = 64;
-+	cursor.header.hot_spot_x = hot_x;
-+	cursor.header.hot_spot_y = hot_y;
-+	cursor.data_size = size;
-+	cursor.chunk.next_chunk = 0;
-+	cursor.chunk.prev_chunk = 0;
-+	cursor.chunk.data_size = size;
-+	if (cursor_map.is_iomem) {
-+		memcpy_toio(cursor_map.vaddr_iomem,
-+			    &cursor, sizeof(cursor));
-+		memcpy_toio(cursor_map.vaddr_iomem + sizeof(cursor),
-+			    user_map.vaddr, size);
-+	} else {
-+		memcpy(cursor_map.vaddr,
-+		       &cursor, sizeof(cursor));
-+		memcpy(cursor_map.vaddr + sizeof(cursor),
-+		       user_map.vaddr, size);
-+	}
-+
-+	qxl_bo_vunmap(user_bo);
-+	qxl_bo_vunmap(cursor_bo);
-+	return cursor_bo;
-+
-+err_unmap:
-+	qxl_bo_vunmap(cursor_bo);
-+err_unref:
-+	qxl_bo_unpin(cursor_bo);
-+	qxl_bo_unref(&cursor_bo);
-+err:
-+	return NULL;
-+}
-+
-+static void qxl_free_cursor(struct qxl_bo *cursor_bo)
-+{
-+	if (!cursor_bo)
-+		return;
-+
-+	qxl_bo_unpin(cursor_bo);
-+	qxl_bo_unref(&cursor_bo);
-+}
-+
- static void qxl_primary_atomic_update(struct drm_plane *plane,
- 				      struct drm_plane_state *old_state)
- {
-@@ -543,7 +649,7 @@ static void qxl_primary_atomic_update(struct drm_plane *plane,
- 		if (qdev->primary_bo)
- 			qxl_io_destroy_primary(qdev);
- 		qxl_io_create_primary(qdev, primary);
--		qxl_primary_apply_cursor(plane);
-+		qxl_primary_apply_cursor(qdev, plane->state);
- 	}
- 
- 	if (bo->is_dumb)
-@@ -574,124 +680,21 @@ static void qxl_primary_atomic_disable(struct drm_plane *plane,
- static void qxl_cursor_atomic_update(struct drm_plane *plane,
- 				     struct drm_plane_state *old_state)
- {
--	struct drm_device *dev = plane->dev;
--	struct qxl_device *qdev = to_qxl(dev);
-+	struct qxl_device *qdev = to_qxl(plane->dev);
- 	struct drm_framebuffer *fb = plane->state->fb;
--	struct qxl_crtc *qcrtc = to_qxl_crtc(plane->state->crtc);
--	struct qxl_release *release;
--	struct qxl_cursor_cmd *cmd;
--	struct qxl_cursor *cursor;
--	struct drm_gem_object *obj;
--	struct qxl_bo *cursor_bo = NULL, *user_bo = NULL, *old_cursor_bo = NULL;
--	int ret;
--	struct dma_buf_map user_map;
--	struct dma_buf_map cursor_map;
--	void *user_ptr;
--	int size = 64*64*4;
--
--	ret = qxl_alloc_release_reserved(qdev, sizeof(*cmd),
--					 QXL_RELEASE_CURSOR_CMD,
--					 &release, NULL);
--	if (ret)
--		return;
- 
- 	if (fb != old_state->fb) {
--		obj = fb->obj[0];
--		user_bo = gem_to_qxl_bo(obj);
--
--		/* pinning is done in the prepare/cleanup framevbuffer */
--		ret = qxl_bo_vmap_locked(user_bo, &user_map);
--		if (ret)
--			goto out_free_release;
--		user_ptr = user_map.vaddr; /* TODO: Use mapping abstraction properly */
--
--		ret = qxl_alloc_bo_reserved(qdev, release,
--					    sizeof(struct qxl_cursor) + size,
--					    &cursor_bo);
--		if (ret)
--			goto out_kunmap;
--
--		ret = qxl_bo_pin(cursor_bo);
--		if (ret)
--			goto out_free_bo;
--
--		ret = qxl_release_reserve_list(release, true);
--		if (ret)
--			goto out_unpin;
--
--		ret = qxl_bo_vmap_locked(cursor_bo, &cursor_map);
--		if (ret)
--			goto out_backoff;
--		if (cursor_map.is_iomem) /* TODO: Use mapping abstraction properly */
--			cursor = (struct qxl_cursor __force *)cursor_map.vaddr_iomem;
--		else
--			cursor = (struct qxl_cursor *)cursor_map.vaddr;
--
--		cursor->header.unique = 0;
--		cursor->header.type = SPICE_CURSOR_TYPE_ALPHA;
--		cursor->header.width = 64;
--		cursor->header.height = 64;
--		cursor->header.hot_spot_x = fb->hot_x;
--		cursor->header.hot_spot_y = fb->hot_y;
--		cursor->data_size = size;
--		cursor->chunk.next_chunk = 0;
--		cursor->chunk.prev_chunk = 0;
--		cursor->chunk.data_size = size;
--		memcpy(cursor->chunk.data, user_ptr, size);
--		qxl_bo_vunmap_locked(cursor_bo);
--		qxl_bo_vunmap_locked(user_bo);
--
--		cmd = (struct qxl_cursor_cmd *) qxl_release_map(qdev, release);
--		cmd->u.set.visible = 1;
--		cmd->u.set.shape = qxl_bo_physical_address(qdev,
--							   cursor_bo, 0);
--		cmd->type = QXL_CURSOR_SET;
--
--		old_cursor_bo = qcrtc->cursor_bo;
--		qcrtc->cursor_bo = cursor_bo;
--		cursor_bo = NULL;
-+		qxl_primary_apply_cursor(qdev, plane->state);
- 	} else {
--
--		ret = qxl_release_reserve_list(release, true);
--		if (ret)
--			goto out_free_release;
--
--		cmd = (struct qxl_cursor_cmd *) qxl_release_map(qdev, release);
--		cmd->type = QXL_CURSOR_MOVE;
-+		qxl_primary_move_cursor(qdev, plane->state);
- 	}
--
--	cmd->u.position.x = plane->state->crtc_x + fb->hot_x;
--	cmd->u.position.y = plane->state->crtc_y + fb->hot_y;
--
--	qxl_release_unmap(qdev, release, &cmd->release_info);
--	qxl_release_fence_buffer_objects(release);
--	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
--
--	if (old_cursor_bo != NULL)
--		qxl_bo_unpin(old_cursor_bo);
--	qxl_bo_unref(&old_cursor_bo);
--	qxl_bo_unref(&cursor_bo);
--
--	return;
--
--out_backoff:
--	qxl_release_backoff_reserve_list(release);
--out_unpin:
--	qxl_bo_unpin(cursor_bo);
--out_free_bo:
--	qxl_bo_unref(&cursor_bo);
--out_kunmap:
--	qxl_bo_vunmap_locked(user_bo);
--out_free_release:
--	qxl_release_free(qdev, release);
--	return;
--
- }
- 
- static void qxl_cursor_atomic_disable(struct drm_plane *plane,
- 				      struct drm_plane_state *old_state)
- {
- 	struct qxl_device *qdev = to_qxl(plane->dev);
-+	struct qxl_crtc *qcrtc;
- 	struct qxl_release *release;
- 	struct qxl_cursor_cmd *cmd;
- 	int ret;
-@@ -714,6 +717,10 @@ static void qxl_cursor_atomic_disable(struct drm_plane *plane,
- 
- 	qxl_release_fence_buffer_objects(release);
- 	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
-+
-+	qcrtc = to_qxl_crtc(old_state->crtc);
-+	qxl_free_cursor(qcrtc->cursor_bo);
-+	qcrtc->cursor_bo = NULL;
- }
- 
- static void qxl_update_dumb_head(struct qxl_device *qdev,
-@@ -822,6 +829,17 @@ static int qxl_plane_prepare_fb(struct drm_plane *plane,
- 		qxl_prepare_shadow(qdev, user_bo, new_state->crtc->index);
- 	}
- 
-+	if (plane->type == DRM_PLANE_TYPE_CURSOR &&
-+	    plane->state->fb != new_state->fb) {
-+		struct qxl_crtc *qcrtc = to_qxl_crtc(new_state->crtc);
-+		struct qxl_bo *old_cursor_bo = qcrtc->cursor_bo;
-+
-+		qcrtc->cursor_bo = qxl_create_cursor(qdev, user_bo,
-+						     new_state->fb->hot_x,
-+						     new_state->fb->hot_y);
-+		qxl_free_cursor(old_cursor_bo);
-+	}
-+
- 	return qxl_bo_pin(user_bo);
- }
- 
--- 
-2.29.2
+On Tue, Feb 09, 2021 at 04:37:52PM +0100, Eugenio P=E9rez wrote:
+> This allows shadow virtqueue code to assert the queue status before
+> making changes.
+>=20
+> Signed-off-by: Eugenio P=E9rez <eperezma@redhat.com>
+> ---
+>  include/hw/virtio/virtio.h | 1 +
+>  hw/virtio/virtio.c         | 5 +++++
+>  2 files changed, 6 insertions(+)
+>=20
+> diff --git a/include/hw/virtio/virtio.h b/include/hw/virtio/virtio.h
+> index b7ece7a6a8..227cec13a8 100644
+> --- a/include/hw/virtio/virtio.h
+> +++ b/include/hw/virtio/virtio.h
+> @@ -316,6 +316,7 @@ void virtio_device_release_ioeventfd(VirtIODevice *vd=
+ev);
+>  bool virtio_device_ioeventfd_enabled(VirtIODevice *vdev);
+>  EventNotifier *virtio_queue_get_host_notifier(VirtQueue *vq);
+>  void virtio_queue_set_host_notifier_enabled(VirtQueue *vq, bool enabled)=
+;
+> +bool virtio_queue_host_notifier_status(const VirtQueue *vq);
+>  void virtio_queue_host_notifier_read(EventNotifier *n);
+>  void virtio_queue_aio_set_host_notifier_handler(VirtQueue *vq, AioContex=
+t *ctx,
+>                                                  VirtIOHandleAIOOutput ha=
+ndle_output);
+> diff --git a/hw/virtio/virtio.c b/hw/virtio/virtio.c
+> index 1fd1917ca0..53473ae4df 100644
+> --- a/hw/virtio/virtio.c
+> +++ b/hw/virtio/virtio.c
+> @@ -3594,6 +3594,11 @@ EventNotifier *virtio_queue_get_host_notifier(Virt=
+Queue *vq)
+>      return &vq->host_notifier;
+>  }
+> =20
+> +bool virtio_queue_host_notifier_status(const VirtQueue *vq)
+> +{
+> +    return vq->host_notifier_enabled;
+> +}
+> +
+>  void virtio_queue_set_host_notifier_enabled(VirtQueue *vq, bool enabled)
+
+Since there is a virtio_queue_set_host_notifier_enabled() I suggest
+calling this function virtio_queue_is_host_notifier_enabled() or
+virtio_queue_get_host_notifier_enabled(). That way it's clear they
+set/get the same thing.
+
+Stefan
+
+--sXc4Kmr5FA7axrvy
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmAtDv4ACgkQnKSrs4Gr
+c8jhrAgAlJQwWJbQYjx47mMJ+bFY4vIRCvNQ3f/HF9peIeT8o5se2dn0Gz+VOEr9
+1tu8Jf+TzFZgbQ2W8aEoErRF2i02lVU/eMKdnyunQzg6tZR5JFx2Cbepb6P4Dg+t
+yTL9xjzsJCJpBEeZfURzv7FE/CXDz3U/noLZMr1dlQOPqzYGmQbBnHoCt39dLNHK
+u73peJWPVrU1pK/u/dNWvGXswN9zjYS/aLTPlqEZ1Dwm1A7gZy6sYm5JuJnocEtr
+3fKfBNpa25P9RjK5U1Zr6rK/dI9vYNjgA6KeN1Ue7oioBmNG6E1dA+TUhrhChIw+
+SCmXF2F/cfDF4O45jaymVRW4pGqSoA==
+=iuaX
+-----END PGP SIGNATURE-----
+
+--sXc4Kmr5FA7axrvy--
+
+
+--===============7845063742910751000==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7845063742910751000==--
+
