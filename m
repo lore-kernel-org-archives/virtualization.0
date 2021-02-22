@@ -2,112 +2,96 @@ Return-Path: <SRS0=djY9=HY=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91AF7C433E6
-	for <virtualization@archiver.kernel.org>; Mon, 22 Feb 2021 09:05:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EA79C433E0
+	for <virtualization@archiver.kernel.org>; Mon, 22 Feb 2021 09:06:52 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 130A264E77
-	for <virtualization@archiver.kernel.org>; Mon, 22 Feb 2021 09:05:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 130A264E77
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id 17F6664E77
+	for <virtualization@archiver.kernel.org>; Mon, 22 Feb 2021 09:06:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 17F6664E77
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id B239687111;
-	Mon, 22 Feb 2021 09:05:44 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id B801C86FC9;
+	Mon, 22 Feb 2021 09:06:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OWBCV6aW1Zp6; Mon, 22 Feb 2021 09:05:42 +0000 (UTC)
+	with ESMTP id C8VsTer05QA5; Mon, 22 Feb 2021 09:06:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id B166B870F0;
-	Mon, 22 Feb 2021 09:05:42 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 267B1865D5;
+	Mon, 22 Feb 2021 09:06:51 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A0A2EC000B;
-	Mon, 22 Feb 2021 09:05:42 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A5355C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 14C34C000B;
+	Mon, 22 Feb 2021 09:06:51 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 38647C0001
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Feb 2021 09:05:40 +0000 (UTC)
+ Mon, 22 Feb 2021 09:06:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id A08B285C92
+ by smtp3.osuosl.org (Postfix) with ESMTP id 18534605DD
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Feb 2021 09:05:40 +0000 (UTC)
+ Mon, 22 Feb 2021 09:06:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id iNop-zPH1bzm
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id arq79e5S8GLR
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Feb 2021 09:05:38 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id C7E1485BD0
+ Mon, 22 Feb 2021 09:06:49 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id EDA7060590
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Feb 2021 09:05:37 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 34451AF9E;
- Mon, 22 Feb 2021 09:05:36 +0000 (UTC)
-Subject: Re: [PATCH v3 05/11] drm: Use the state pointer directly in planes
- atomic_check
-To: Maxime Ripard <maxime@cerno.tech>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Daniel Vetter <daniel.vetter@intel.com>, David Airlie <airlied@linux.ie>
-References: <20210219120032.260676-1-maxime@cerno.tech>
- <20210219120032.260676-5-maxime@cerno.tech>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <6effa086-f8e2-3a9b-0670-505eaba3b4e6@suse.de>
-Date: Mon, 22 Feb 2021 10:05:30 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+ Mon, 22 Feb 2021 09:06:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1613984807;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=KO2eAxv01FOB+ShIuZKE9lvyTzxRP1g6QCSFRiLbDqI=;
+ b=Y1j5jNE7s7lIT+zfj7vpDfVNBntzkk8q4NqaNqPcyVtdrhYX72vtj9CYjgd0NUkSE3WqQG
+ TyZalEGVnxfkE9fUiEiNW2TmaWGHq4rWVzKBpLG9iA6kX+JBJPm1FZd+F0BkwPhypf5jVv
+ O0MfHYQTGJQ3++GFICv3mD8X4fbsatw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-309-JJuZURN-PpCo1tLSn0cESA-1; Mon, 22 Feb 2021 04:06:43 -0500
+X-MC-Unique: JJuZURN-PpCo1tLSn0cESA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id AF59A80402C;
+ Mon, 22 Feb 2021 09:06:41 +0000 (UTC)
+Received: from wangxiaodeMacBook-Air.local (ovpn-12-244.pek2.redhat.com
+ [10.72.12.244])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id BC0AF57;
+ Mon, 22 Feb 2021 09:06:35 +0000 (UTC)
+Subject: Re: [PATCH] virtio: don't prompt CONFIG_VIRTIO_PCI_MODERN
+To: "Michael S. Tsirkin" <mst@redhat.com>
+References: <20210219084509.48269-1-jasowang@redhat.com>
+ <4b2378d8-0061-c6ed-f377-492649869581@roeck-us.net>
+ <2cf598ee-38cf-3c1c-33a9-1890e892a8e6@redhat.com>
+ <20210222022550-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <48cc339b-a23e-7e56-5234-5b439173209e@redhat.com>
+Date: Mon, 22 Feb 2021 17:06:34 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.16; rv:78.0)
+ Gecko/20100101 Thunderbird/78.7.1
 MIME-Version: 1.0
-In-Reply-To: <20210219120032.260676-5-maxime@cerno.tech>
-Cc: Haneen Mohammed <hamohammed.sa@gmail.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Neil Armstrong <narmstrong@baylibre.com>,
- Xinliang Liu <xinliang.liu@linaro.org>, Liviu Dudau <liviu.dudau@arm.com>,
- dri-devel@lists.freedesktop.org, Sandy Huang <hjc@rock-chips.com>,
- Paul Cercueil <paul@crapouillou.net>, Tomi Valkeinen <tomba@kernel.org>,
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
- Benjamin Gaignard <benjamin.gaignard@linaro.org>,
- Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
- Russell King <linux@armlinux.org.uk>,
- Mihail Atanassov <mihail.atanassov@arm.com>, Sam Ravnborg <sam@ravnborg.org>,
- Jerome Brunet <jbrunet@baylibre.com>, Marek Vasut <marex@denx.de>,
- Vincent Abriou <vincent.abriou@st.com>, Michal Simek <michal.simek@xilinx.com>,
- amd-gfx@lists.freedesktop.org, linux-rockchip@lists.infradead.org,
- Ludovic Desroches <ludovic.desroches@microchip.com>,
- "James \(Qian\) Wang" <james.qian.wang@arm.com>,
- NXP Linux Team <linux-imx@nxp.com>, Chen Feng <puck.chen@hisilicon.com>,
- Leo Li <sunpeng.li@amd.com>, Dave Airlie <airlied@redhat.com>,
- Xinwei Kong <kong.kongxinwei@hisilicon.com>,
- virtualization@lists.linux-foundation.org,
- Chun-Kuang Hu <chunkuang.hu@kernel.org>,
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
- linux-arm-msm@vger.kernel.org, Sascha Hauer <s.hauer@pengutronix.de>,
- Nicolas Ferre <nicolas.ferre@microchip.com>,
- Roland Scheidegger <sroland@vmware.com>, Shawn Guo <shawnguo@kernel.org>,
- linux-mips@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
- linux-mediatek@lists.infradead.org,
- Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
- Matthias Brugger <matthias.bgg@gmail.com>, linux-amlogic@lists.infradead.org,
- Chen-Yu Tsai <wens@csie.org>, Sean Paul <sean@poorly.run>,
- linux-arm-kernel@lists.infradead.org, Melissa Wen <melissa.srw@gmail.com>,
- Jernej Skrabec <jernej.skrabec@siol.net>,
- VMware Graphics <linux-graphics-maintainer@vmware.com>,
- Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
- Hyun Kwon <hyun.kwon@xilinx.com>, Boris Brezillon <bbrezillon@kernel.org>,
- freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- Edmund Dea <edmund.j.dea@intel.com>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Kevin Hilman <khilman@baylibre.com>, Alex Deucher <alexander.deucher@amd.com>,
- Tian Tao <tiantao6@hisilicon.com>, Jyri Sarha <jyri.sarha@iki.fi>,
- =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
+In-Reply-To: <20210222022550-mutt-send-email-mst@kernel.org>
+Content-Language: en-GB
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Cc: Anders Roxell <anders.roxell@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
+ linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,809 +103,56 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============6769443603075989173=="
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============6769443603075989173==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="vLS3S6dxzp1ykBtz3peBtLmBVFQB4DBhz"
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---vLS3S6dxzp1ykBtz3peBtLmBVFQB4DBhz
-Content-Type: multipart/mixed; boundary="OmUA4DUqmXi27I53FLnF8qjTujfobBVLr";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Maxime Ripard <maxime@cerno.tech>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Daniel Vetter <daniel.vetter@intel.com>, David Airlie <airlied@linux.ie>
-Cc: Haneen Mohammed <hamohammed.sa@gmail.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Neil Armstrong <narmstrong@baylibre.com>,
- Xinliang Liu <xinliang.liu@linaro.org>, Liviu Dudau <liviu.dudau@arm.com>,
- dri-devel@lists.freedesktop.org, Sandy Huang <hjc@rock-chips.com>,
- Paul Cercueil <paul@crapouillou.net>,
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
- Benjamin Gaignard <benjamin.gaignard@linaro.org>,
- Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
- Mihail Atanassov <mihail.atanassov@arm.com>, Sam Ravnborg
- <sam@ravnborg.org>, Michal Simek <michal.simek@xilinx.com>,
- linux-kernel@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
- Marek Vasut <marex@denx.de>, linux-rockchip@lists.infradead.org,
- linux-mediatek@lists.infradead.org, Russell King <linux@armlinux.org.uk>,
- amd-gfx@lists.freedesktop.org,
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
- Ludovic Desroches <ludovic.desroches@microchip.com>,
- "James (Qian) Wang" <james.qian.wang@arm.com>,
- NXP Linux Team <linux-imx@nxp.com>, linux-arm-msm@vger.kernel.org,
- Dave Airlie <airlied@redhat.com>, Xinwei Kong
- <kong.kongxinwei@hisilicon.com>, Hyun Kwon <hyun.kwon@xilinx.com>,
- Chun-Kuang Hu <chunkuang.hu@kernel.org>, Leo Li <sunpeng.li@amd.com>,
- Chen Feng <puck.chen@hisilicon.com>, Sascha Hauer <s.hauer@pengutronix.de>,
- Roland Scheidegger <sroland@vmware.com>, linux-mips@vger.kernel.org,
- Hans de Goede <hdegoede@redhat.com>,
- Laurentiu Palcu <laurentiu.palcu@oss.nxp.com>,
- Matthias Brugger <matthias.bgg@gmail.com>,
- linux-amlogic@lists.infradead.org, Chen-Yu Tsai <wens@csie.org>,
- Sean Paul <sean@poorly.run>, Pengutronix Kernel Team
- <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org,
- Melissa Wen <melissa.srw@gmail.com>, Jernej Skrabec
- <jernej.skrabec@siol.net>,
- VMware Graphics <linux-graphics-maintainer@vmware.com>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Rodrigo Siqueira <rodrigosiqueiramelo@gmail.com>,
- Tomi Valkeinen <tomba@kernel.org>, Boris Brezillon <bbrezillon@kernel.org>,
- Jyri Sarha <jyri.sarha@iki.fi>, virtualization@lists.linux-foundation.org,
- Nicolas Ferre <nicolas.ferre@microchip.com>,
- =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
- Vincent Abriou <vincent.abriou@st.com>, Edmund Dea <edmund.j.dea@intel.com>,
- freedreno@lists.freedesktop.org, Kevin Hilman <khilman@baylibre.com>,
- Alex Deucher <alexander.deucher@amd.com>, Tian Tao <tiantao6@hisilicon.com>,
- Shawn Guo <shawnguo@kernel.org>
-Message-ID: <6effa086-f8e2-3a9b-0670-505eaba3b4e6@suse.de>
-Subject: Re: [PATCH v3 05/11] drm: Use the state pointer directly in planes
- atomic_check
-References: <20210219120032.260676-1-maxime@cerno.tech>
- <20210219120032.260676-5-maxime@cerno.tech>
-In-Reply-To: <20210219120032.260676-5-maxime@cerno.tech>
-
---OmUA4DUqmXi27I53FLnF8qjTujfobBVLr
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-
-
-
-Am 19.02.21 um 13:00 schrieb Maxime Ripard:
-> Now that atomic_check takes the global atomic state as a parameter, we
-> don't need to go through the pointer in the plane state.
->=20
-> This was done using the following coccinelle script:
->=20
-> @ plane_atomic_func @
-> identifier helpers;
-> identifier func;
-> @@
->=20
-> static struct drm_plane_helper_funcs helpers =3D {
-> 	...,
-> 	.atomic_check =3D func,
-> 	...,
-> };
->=20
-> @@
-> identifier plane_atomic_func.func;
-> identifier plane, state;
-> identifier plane_state;
-> @@
->=20
->    func(struct drm_plane *plane, struct drm_atomic_state *state) {
->    ...
-> - struct drm_plane_state *plane_state =3D drm_atomic_get_new_plane_stat=
-e(state, plane);
->    <... when !=3D plane_state
-> - plane_state->state
-> + state
->    ...>
->   }
->=20
-> @@
-> identifier plane_atomic_func.func;
-> identifier plane, state;
-> identifier plane_state;
-> @@
->=20
->    func(struct drm_plane *plane, struct drm_atomic_state *state) {
->    ...
->    struct drm_plane_state *plane_state =3D drm_atomic_get_new_plane_sta=
-te(state, plane);
->    <...
-> - plane_state->state
-> + state
->    ...>
->   }
->=20
-> Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-
->=20
-> ---
->=20
-> Changes from v1:
->    - Fixed the formatting in zynqmp_disp
-> ---
->   drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 2 +-
->   drivers/gpu/drm/arm/display/komeda/komeda_plane.c | 2 +-
->   drivers/gpu/drm/arm/hdlcd_crtc.c                  | 2 +-
->   drivers/gpu/drm/armada/armada_plane.c             | 4 ++--
->   drivers/gpu/drm/ast/ast_mode.c                    | 4 ++--
->   drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_plane.c   | 2 +-
->   drivers/gpu/drm/drm_simple_kms_helper.c           | 2 +-
->   drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_de.c    | 2 +-
->   drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c   | 2 +-
->   drivers/gpu/drm/imx/dcss/dcss-plane.c             | 2 +-
->   drivers/gpu/drm/imx/ipuv3-plane.c                 | 2 +-
->   drivers/gpu/drm/ingenic/ingenic-drm-drv.c         | 2 +-
->   drivers/gpu/drm/ingenic/ingenic-ipu.c             | 2 +-
->   drivers/gpu/drm/kmb/kmb_plane.c                   | 2 +-
->   drivers/gpu/drm/mediatek/mtk_drm_plane.c          | 2 +-
->   drivers/gpu/drm/meson/meson_overlay.c             | 2 +-
->   drivers/gpu/drm/meson/meson_plane.c               | 2 +-
->   drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c         | 2 +-
->   drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c        | 2 +-
->   drivers/gpu/drm/mxsfb/mxsfb_kms.c                 | 2 +-
->   drivers/gpu/drm/omapdrm/omap_plane.c              | 2 +-
->   drivers/gpu/drm/rockchip/rockchip_drm_vop.c       | 2 +-
->   drivers/gpu/drm/sti/sti_cursor.c                  | 2 +-
->   drivers/gpu/drm/sti/sti_gdp.c                     | 2 +-
->   drivers/gpu/drm/sti/sti_hqvdp.c                   | 2 +-
->   drivers/gpu/drm/sun4i/sun8i_ui_layer.c            | 2 +-
->   drivers/gpu/drm/sun4i/sun8i_vi_layer.c            | 2 +-
->   drivers/gpu/drm/tidss/tidss_plane.c               | 2 +-
->   drivers/gpu/drm/tilcdc/tilcdc_plane.c             | 2 +-
->   drivers/gpu/drm/vboxvideo/vbox_mode.c             | 8 ++++----
->   drivers/gpu/drm/virtio/virtgpu_plane.c            | 2 +-
->   drivers/gpu/drm/vkms/vkms_plane.c                 | 2 +-
->   drivers/gpu/drm/vmwgfx/vmwgfx_kms.c               | 2 +-
->   drivers/gpu/drm/xlnx/zynqmp_disp.c                | 3 +--
->   drivers/gpu/drm/zte/zx_plane.c                    | 4 ++--
->   35 files changed, 41 insertions(+), 42 deletions(-)
->=20
-> diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/driver=
-s/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> index 1cdff048b0c0..22124f76d0b5 100644
-> --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> @@ -6451,7 +6451,7 @@ static int dm_plane_atomic_check(struct drm_plane=
- *plane,
->   		return 0;
->  =20
->   	new_crtc_state =3D
-> -		drm_atomic_get_new_crtc_state(new_plane_state->state,
-> +		drm_atomic_get_new_crtc_state(state,
->   					      new_plane_state->crtc);
->   	if (!new_crtc_state)
->   		return -EINVAL;
-> diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_plane.c b/driver=
-s/gpu/drm/arm/display/komeda/komeda_plane.c
-> index 96a6fe95a4e7..13582c174bbb 100644
-> --- a/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
-> +++ b/drivers/gpu/drm/arm/display/komeda/komeda_plane.c
-> @@ -84,7 +84,7 @@ komeda_plane_atomic_check(struct drm_plane *plane,
->   	if (!new_plane_state->crtc || !new_plane_state->fb)
->   		return 0;
->  =20
-> -	crtc_st =3D drm_atomic_get_crtc_state(new_plane_state->state,
-> +	crtc_st =3D drm_atomic_get_crtc_state(state,
->   					    new_plane_state->crtc);
->   	if (IS_ERR(crtc_st) || !crtc_st->enable) {
->   		DRM_DEBUG_ATOMIC("Cannot update plane on a disabled CRTC.\n");
-> diff --git a/drivers/gpu/drm/arm/hdlcd_crtc.c b/drivers/gpu/drm/arm/hdl=
-cd_crtc.c
-> index 9da9d0581ce9..028ec39c8484 100644
-> --- a/drivers/gpu/drm/arm/hdlcd_crtc.c
-> +++ b/drivers/gpu/drm/arm/hdlcd_crtc.c
-> @@ -244,7 +244,7 @@ static int hdlcd_plane_atomic_check(struct drm_plan=
-e *plane,
->   		return -EINVAL;
->   	}
->  =20
-> -	for_each_new_crtc_in_state(new_plane_state->state, crtc, crtc_state,
-> +	for_each_new_crtc_in_state(state, crtc, crtc_state,
->   				   i) {
->   		/* we cannot disable the plane while the CRTC is active */
->   		if (!new_plane_state->fb && crtc_state->active)
-> diff --git a/drivers/gpu/drm/armada/armada_plane.c b/drivers/gpu/drm/ar=
-mada/armada_plane.c
-> index b1266c588102..51f33c689df3 100644
-> --- a/drivers/gpu/drm/armada/armada_plane.c
-> +++ b/drivers/gpu/drm/armada/armada_plane.c
-> @@ -121,8 +121,8 @@ int armada_drm_plane_atomic_check(struct drm_plane =
-*plane,
->   		return 0;
->   	}
->  =20
-> -	if (new_plane_state->state)
-> -		crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->s=
-tate,
-> +	if (state)
-> +		crtc_state =3D drm_atomic_get_existing_crtc_state(state,
->   								crtc);
->   	else
->   		crtc_state =3D crtc->state;
-> diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_m=
-ode.c
-> index cb8650142f13..d3c4a1f6aede 100644
-> --- a/drivers/gpu/drm/ast/ast_mode.c
-> +++ b/drivers/gpu/drm/ast/ast_mode.c
-> @@ -547,7 +547,7 @@ static int ast_primary_plane_helper_atomic_check(st=
-ruct drm_plane *plane,
->   	if (!new_plane_state->crtc)
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_new_crtc_state(new_plane_state->state,
-> +	crtc_state =3D drm_atomic_get_new_crtc_state(state,
->   						   new_plane_state->crtc);
->  =20
->   	ret =3D drm_atomic_helper_check_plane_state(new_plane_state, crtc_st=
-ate,
-> @@ -769,7 +769,7 @@ static int ast_cursor_plane_helper_atomic_check(str=
-uct drm_plane *plane,
->   	if (!new_plane_state->crtc)
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_new_crtc_state(new_plane_state->state,
-> +	crtc_state =3D drm_atomic_get_new_crtc_state(state,
->   						   new_plane_state->crtc);
->  =20
->   	ret =3D drm_atomic_helper_check_plane_state(new_plane_state, crtc_st=
-ate,
-> diff --git a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_plane.c b/drivers/=
-gpu/drm/atmel-hlcdc/atmel_hlcdc_plane.c
-> index 445105e75a97..a32d45bcc386 100644
-> --- a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_plane.c
-> +++ b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_plane.c
-> @@ -609,7 +609,7 @@ static int atmel_hlcdc_plane_atomic_check(struct dr=
-m_plane *p,
->   	if (!hstate->base.crtc || WARN_ON(!fb))
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_existing_crtc_state(s->state, s->crtc);=
-
-> +	crtc_state =3D drm_atomic_get_existing_crtc_state(state, s->crtc);
->   	mode =3D &crtc_state->adjusted_mode;
->  =20
->   	ret =3D drm_atomic_helper_check_plane_state(s, crtc_state,
-> diff --git a/drivers/gpu/drm/drm_simple_kms_helper.c b/drivers/gpu/drm/=
-drm_simple_kms_helper.c
-> index a43e34e04d6b..7f3d90e776a3 100644
-> --- a/drivers/gpu/drm/drm_simple_kms_helper.c
-> +++ b/drivers/gpu/drm/drm_simple_kms_helper.c
-> @@ -186,7 +186,7 @@ static int drm_simple_kms_plane_atomic_check(struct=
- drm_plane *plane,
->   	int ret;
->  =20
->   	pipe =3D container_of(plane, struct drm_simple_display_pipe, plane);=
-
-> -	crtc_state =3D drm_atomic_get_new_crtc_state(plane_state->state,
-> +	crtc_state =3D drm_atomic_get_new_crtc_state(state,
->   						   &pipe->crtc);
->  =20
->   	ret =3D drm_atomic_helper_check_plane_state(plane_state, crtc_state,=
-
-> diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_de.c b/drivers/g=
-pu/drm/hisilicon/hibmc/hibmc_drm_de.c
-> index ddcf121af542..3f7027e40c79 100644
-> --- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_de.c
-> +++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_de.c
-> @@ -66,7 +66,7 @@ static int hibmc_plane_atomic_check(struct drm_plane =
-*plane,
->   	if (!crtc || !fb)
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state, crtc=
-);
-> +	crtc_state =3D drm_atomic_get_crtc_state(state, crtc);
->   	if (IS_ERR(crtc_state))
->   		return PTR_ERR(crtc_state);
->  =20
-> diff --git a/drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c b/drivers/=
-gpu/drm/hisilicon/kirin/kirin_drm_ade.c
-> index fab083380ef7..320631cb7034 100644
-> --- a/drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c
-> +++ b/drivers/gpu/drm/hisilicon/kirin/kirin_drm_ade.c
-> @@ -781,7 +781,7 @@ static int ade_plane_atomic_check(struct drm_plane =
-*plane,
->   	if (fmt =3D=3D ADE_FORMAT_UNSUPPORT)
->   		return -EINVAL;
->  =20
-> -	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state, crtc=
-);
-> +	crtc_state =3D drm_atomic_get_crtc_state(state, crtc);
->   	if (IS_ERR(crtc_state))
->   		return PTR_ERR(crtc_state);
->  =20
-> diff --git a/drivers/gpu/drm/imx/dcss/dcss-plane.c b/drivers/gpu/drm/im=
-x/dcss/dcss-plane.c
-> index 0e68d295bd60..35a7b23060b3 100644
-> --- a/drivers/gpu/drm/imx/dcss/dcss-plane.c
-> +++ b/drivers/gpu/drm/imx/dcss/dcss-plane.c
-> @@ -157,7 +157,7 @@ static int dcss_plane_atomic_check(struct drm_plane=
- *plane,
->   	cma_obj =3D drm_fb_cma_get_gem_obj(fb, 0);
->   	WARN_ON(!cma_obj);
->  =20
-> -	crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->st=
-ate,
-> +	crtc_state =3D drm_atomic_get_existing_crtc_state(state,
->   							new_plane_state->crtc);
->  =20
->   	hdisplay =3D crtc_state->adjusted_mode.hdisplay;
-> diff --git a/drivers/gpu/drm/imx/ipuv3-plane.c b/drivers/gpu/drm/imx/ip=
-uv3-plane.c
-> index 28571091ff1c..b5f6123850bb 100644
-> --- a/drivers/gpu/drm/imx/ipuv3-plane.c
-> +++ b/drivers/gpu/drm/imx/ipuv3-plane.c
-> @@ -358,7 +358,7 @@ static int ipu_plane_atomic_check(struct drm_plane =
-*plane,
->   		return -EINVAL;
->  =20
->   	crtc_state =3D
-> -		drm_atomic_get_existing_crtc_state(new_state->state,
-> +		drm_atomic_get_existing_crtc_state(state,
->   						   new_state->crtc);
->   	if (WARN_ON(!crtc_state))
->   		return -EINVAL;
-> diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/dr=
-m/ingenic/ingenic-drm-drv.c
-> index 8232104e598f..e6d7d0a04ddb 100644
-> --- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-> +++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-> @@ -371,7 +371,7 @@ static int ingenic_drm_plane_atomic_check(struct dr=
-m_plane *plane,
->   	if (!crtc)
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->st=
-ate,
-> +	crtc_state =3D drm_atomic_get_existing_crtc_state(state,
->   							crtc);
->   	if (WARN_ON(!crtc_state))
->   		return -EINVAL;
-> diff --git a/drivers/gpu/drm/ingenic/ingenic-ipu.c b/drivers/gpu/drm/in=
-genic/ingenic-ipu.c
-> index 7394b0af1259..1e1b0fe095bd 100644
-> --- a/drivers/gpu/drm/ingenic/ingenic-ipu.c
-> +++ b/drivers/gpu/drm/ingenic/ingenic-ipu.c
-> @@ -526,7 +526,7 @@ static int ingenic_ipu_plane_atomic_check(struct dr=
-m_plane *plane,
->   	if (!crtc)
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->st=
-ate, crtc);
-> +	crtc_state =3D drm_atomic_get_existing_crtc_state(state, crtc);
->   	if (WARN_ON(!crtc_state))
->   		return -EINVAL;
->  =20
-> diff --git a/drivers/gpu/drm/kmb/kmb_plane.c b/drivers/gpu/drm/kmb/kmb_=
-plane.c
-> index 909045b67b28..9a8cf2991fb4 100644
-> --- a/drivers/gpu/drm/kmb/kmb_plane.c
-> +++ b/drivers/gpu/drm/kmb/kmb_plane.c
-> @@ -100,7 +100,7 @@ static int kmb_plane_atomic_check(struct drm_plane =
-*plane,
->   		return -EINVAL;
->   	can_position =3D (plane->type =3D=3D DRM_PLANE_TYPE_OVERLAY);
->   	crtc_state =3D
-> -		drm_atomic_get_existing_crtc_state(new_plane_state->state,
-> +		drm_atomic_get_existing_crtc_state(state,
->   						   new_plane_state->crtc);
->   	return drm_atomic_helper_check_plane_state(new_plane_state,
->   						   crtc_state,
-> diff --git a/drivers/gpu/drm/mediatek/mtk_drm_plane.c b/drivers/gpu/drm=
-/mediatek/mtk_drm_plane.c
-> index 31f1cc2085c7..37489a086ca8 100644
-> --- a/drivers/gpu/drm/mediatek/mtk_drm_plane.c
-> +++ b/drivers/gpu/drm/mediatek/mtk_drm_plane.c
-> @@ -160,7 +160,7 @@ static int mtk_plane_atomic_check(struct drm_plane =
-*plane,
->   	if (ret)
->   		return ret;
->  =20
-> -	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state,
-> +	crtc_state =3D drm_atomic_get_crtc_state(state,
->   					       new_plane_state->crtc);
->   	if (IS_ERR(crtc_state))
->   		return PTR_ERR(crtc_state);
-> diff --git a/drivers/gpu/drm/meson/meson_overlay.c b/drivers/gpu/drm/me=
-son/meson_overlay.c
-> index 629ca303af25..93ba785de396 100644
-> --- a/drivers/gpu/drm/meson/meson_overlay.c
-> +++ b/drivers/gpu/drm/meson/meson_overlay.c
-> @@ -174,7 +174,7 @@ static int meson_overlay_atomic_check(struct drm_pl=
-ane *plane,
->   	if (!new_plane_state->crtc)
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state,
-> +	crtc_state =3D drm_atomic_get_crtc_state(state,
->   					       new_plane_state->crtc);
->   	if (IS_ERR(crtc_state))
->   		return PTR_ERR(crtc_state);
-> diff --git a/drivers/gpu/drm/meson/meson_plane.c b/drivers/gpu/drm/meso=
-n/meson_plane.c
-> index f8355cb2a2e1..e5d05b725ed6 100644
-> --- a/drivers/gpu/drm/meson/meson_plane.c
-> +++ b/drivers/gpu/drm/meson/meson_plane.c
-> @@ -80,7 +80,7 @@ static int meson_plane_atomic_check(struct drm_plane =
-*plane,
->   	if (!new_plane_state->crtc)
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state,
-> +	crtc_state =3D drm_atomic_get_crtc_state(state,
->   					       new_plane_state->crtc);
->   	if (IS_ERR(crtc_state))
->   		return PTR_ERR(crtc_state);
-> diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c b/drivers/gpu/dr=
-m/msm/disp/dpu1/dpu_plane.c
-> index 9945d11bb6ed..d644044a2bbb 100644
-> --- a/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
-> +++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_plane.c
-> @@ -964,7 +964,7 @@ static int dpu_plane_atomic_check(struct drm_plane =
-*plane,
->   	uint32_t min_src_size, max_linewidth;
->  =20
->   	if (new_plane_state->crtc)
-> -		crtc_state =3D drm_atomic_get_new_crtc_state(new_plane_state->state,=
-
-> +		crtc_state =3D drm_atomic_get_new_crtc_state(state,
->   							   new_plane_state->crtc);
->  =20
->   	min_scale =3D FRAC_16_16(1, pdpu->pipe_sblk->maxupscale);
-> diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c b/drivers/gpu/d=
-rm/msm/disp/mdp5/mdp5_plane.c
-> index 45f7780da901..4aac6217a5ad 100644
-> --- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
-> +++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c
-> @@ -415,7 +415,7 @@ static int mdp5_plane_atomic_check(struct drm_plane=
- *plane,
->   	if (!crtc)
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->st=
-ate,
-> +	crtc_state =3D drm_atomic_get_existing_crtc_state(state,
->   							crtc);
->   	if (WARN_ON(!crtc_state))
->   		return -EINVAL;
-> diff --git a/drivers/gpu/drm/mxsfb/mxsfb_kms.c b/drivers/gpu/drm/mxsfb/=
-mxsfb_kms.c
-> index 85b547dcf86d..18c0c0d7b4b6 100644
-> --- a/drivers/gpu/drm/mxsfb/mxsfb_kms.c
-> +++ b/drivers/gpu/drm/mxsfb/mxsfb_kms.c
-> @@ -409,7 +409,7 @@ static int mxsfb_plane_atomic_check(struct drm_plan=
-e *plane,
->   	struct mxsfb_drm_private *mxsfb =3D to_mxsfb_drm_private(plane->dev)=
-;
->   	struct drm_crtc_state *crtc_state;
->  =20
-> -	crtc_state =3D drm_atomic_get_new_crtc_state(plane_state->state,
-> +	crtc_state =3D drm_atomic_get_new_crtc_state(state,
->   						   &mxsfb->crtc);
->  =20
->   	return drm_atomic_helper_check_plane_state(plane_state, crtc_state,
-> diff --git a/drivers/gpu/drm/omapdrm/omap_plane.c b/drivers/gpu/drm/oma=
-pdrm/omap_plane.c
-> index 6bd384c79324..0df1d35504ad 100644
-> --- a/drivers/gpu/drm/omapdrm/omap_plane.c
-> +++ b/drivers/gpu/drm/omapdrm/omap_plane.c
-> @@ -112,7 +112,7 @@ static int omap_plane_atomic_check(struct drm_plane=
- *plane,
->   	if (WARN_ON(!new_plane_state->crtc))
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->st=
-ate,
-> +	crtc_state =3D drm_atomic_get_existing_crtc_state(state,
->   							new_plane_state->crtc);
->   	/* we should have a crtc state if the plane is attached to a crtc */=
-
->   	if (WARN_ON(!crtc_state))
-> diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c b/drivers/gpu/=
-drm/rockchip/rockchip_drm_vop.c
-> index d96d42dfc6c7..01f6cb99e8ea 100644
-> --- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-> +++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-> @@ -796,7 +796,7 @@ static int vop_plane_atomic_check(struct drm_plane =
-*plane,
->   	if (!crtc || WARN_ON(!fb))
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->st=
-ate,
-> +	crtc_state =3D drm_atomic_get_existing_crtc_state(state,
->   							crtc);
->   	if (WARN_ON(!crtc_state))
->   		return -EINVAL;
-> diff --git a/drivers/gpu/drm/sti/sti_cursor.c b/drivers/gpu/drm/sti/sti=
-_cursor.c
-> index ceb30d545ab9..e34ab8317f6d 100644
-> --- a/drivers/gpu/drm/sti/sti_cursor.c
-> +++ b/drivers/gpu/drm/sti/sti_cursor.c
-> @@ -198,7 +198,7 @@ static int sti_cursor_atomic_check(struct drm_plane=
- *drm_plane,
->   	if (!crtc || !fb)
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state, crtc=
-);
-> +	crtc_state =3D drm_atomic_get_crtc_state(state, crtc);
->   	mode =3D &crtc_state->mode;
->   	dst_x =3D new_plane_state->crtc_x;
->   	dst_y =3D new_plane_state->crtc_y;
-> diff --git a/drivers/gpu/drm/sti/sti_gdp.c b/drivers/gpu/drm/sti/sti_gd=
-p.c
-> index 63823827417c..f64eef90dc58 100644
-> --- a/drivers/gpu/drm/sti/sti_gdp.c
-> +++ b/drivers/gpu/drm/sti/sti_gdp.c
-> @@ -635,7 +635,7 @@ static int sti_gdp_atomic_check(struct drm_plane *d=
-rm_plane,
->   		return 0;
->  =20
->   	mixer =3D to_sti_mixer(crtc);
-> -	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state, crtc=
-);
-> +	crtc_state =3D drm_atomic_get_crtc_state(state, crtc);
->   	mode =3D &crtc_state->mode;
->   	dst_x =3D new_plane_state->crtc_x;
->   	dst_y =3D new_plane_state->crtc_y;
-> diff --git a/drivers/gpu/drm/sti/sti_hqvdp.c b/drivers/gpu/drm/sti/sti_=
-hqvdp.c
-> index b3b10ee96bb2..c1a2450beed4 100644
-> --- a/drivers/gpu/drm/sti/sti_hqvdp.c
-> +++ b/drivers/gpu/drm/sti/sti_hqvdp.c
-> @@ -1034,7 +1034,7 @@ static int sti_hqvdp_atomic_check(struct drm_plan=
-e *drm_plane,
->   	if (!crtc || !fb)
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state, crtc=
-);
-> +	crtc_state =3D drm_atomic_get_crtc_state(state, crtc);
->   	mode =3D &crtc_state->mode;
->   	dst_x =3D new_plane_state->crtc_x;
->   	dst_y =3D new_plane_state->crtc_y;
-> diff --git a/drivers/gpu/drm/sun4i/sun8i_ui_layer.c b/drivers/gpu/drm/s=
-un4i/sun8i_ui_layer.c
-> index b5fb50e72868..bb60419868f9 100644
-> --- a/drivers/gpu/drm/sun4i/sun8i_ui_layer.c
-> +++ b/drivers/gpu/drm/sun4i/sun8i_ui_layer.c
-> @@ -269,7 +269,7 @@ static int sun8i_ui_layer_atomic_check(struct drm_p=
-lane *plane,
->   	if (!crtc)
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->st=
-ate,
-> +	crtc_state =3D drm_atomic_get_existing_crtc_state(state,
->   							crtc);
->   	if (WARN_ON(!crtc_state))
->   		return -EINVAL;
-> diff --git a/drivers/gpu/drm/sun4i/sun8i_vi_layer.c b/drivers/gpu/drm/s=
-un4i/sun8i_vi_layer.c
-> index 85c2927755a4..0c7bb36f1bce 100644
-> --- a/drivers/gpu/drm/sun4i/sun8i_vi_layer.c
-> +++ b/drivers/gpu/drm/sun4i/sun8i_vi_layer.c
-> @@ -373,7 +373,7 @@ static int sun8i_vi_layer_atomic_check(struct drm_p=
-lane *plane,
->   	if (!crtc)
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_existing_crtc_state(new_plane_state->st=
-ate,
-> +	crtc_state =3D drm_atomic_get_existing_crtc_state(state,
->   							crtc);
->   	if (WARN_ON(!crtc_state))
->   		return -EINVAL;
-> diff --git a/drivers/gpu/drm/tidss/tidss_plane.c b/drivers/gpu/drm/tids=
-s/tidss_plane.c
-> index 980b65725d66..9b531e625ec9 100644
-> --- a/drivers/gpu/drm/tidss/tidss_plane.c
-> +++ b/drivers/gpu/drm/tidss/tidss_plane.c
-> @@ -44,7 +44,7 @@ static int tidss_plane_atomic_check(struct drm_plane =
-*plane,
->   		return 0;
->   	}
->  =20
-> -	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state,
-> +	crtc_state =3D drm_atomic_get_crtc_state(state,
->   					       new_plane_state->crtc);
->   	if (IS_ERR(crtc_state))
->   		return PTR_ERR(crtc_state);
-> diff --git a/drivers/gpu/drm/tilcdc/tilcdc_plane.c b/drivers/gpu/drm/ti=
-lcdc/tilcdc_plane.c
-> index f43670aff5ad..ebdd42dcaf82 100644
-> --- a/drivers/gpu/drm/tilcdc/tilcdc_plane.c
-> +++ b/drivers/gpu/drm/tilcdc/tilcdc_plane.c
-> @@ -41,7 +41,7 @@ static int tilcdc_plane_atomic_check(struct drm_plane=
- *plane,
->   		return -EINVAL;
->   	}
->  =20
-> -	crtc_state =3D drm_atomic_get_existing_crtc_state(new_state->state,
-> +	crtc_state =3D drm_atomic_get_existing_crtc_state(state,
->   							new_state->crtc);
->   	/* we should have a crtc state if the plane is attached to a crtc */=
-
->   	if (WARN_ON(!crtc_state))
-> diff --git a/drivers/gpu/drm/vboxvideo/vbox_mode.c b/drivers/gpu/drm/vb=
-oxvideo/vbox_mode.c
-> index 7140086d8308..c8e1a37e839c 100644
-> --- a/drivers/gpu/drm/vboxvideo/vbox_mode.c
-> +++ b/drivers/gpu/drm/vboxvideo/vbox_mode.c
-> @@ -260,8 +260,8 @@ static int vbox_primary_atomic_check(struct drm_pla=
-ne *plane,
->   	struct drm_crtc_state *crtc_state =3D NULL;
->  =20
->   	if (new_state->crtc) {
-> -		crtc_state =3D drm_atomic_get_existing_crtc_state(
-> -					    new_state->state, new_state->crtc);
-> +		crtc_state =3D drm_atomic_get_existing_crtc_state(state,
-> +								new_state->crtc);
->   		if (WARN_ON(!crtc_state))
->   			return -EINVAL;
->   	}
-> @@ -338,8 +338,8 @@ static int vbox_cursor_atomic_check(struct drm_plan=
-e *plane,
->   	int ret;
->  =20
->   	if (new_state->crtc) {
-> -		crtc_state =3D drm_atomic_get_existing_crtc_state(
-> -					    new_state->state, new_state->crtc);
-> +		crtc_state =3D drm_atomic_get_existing_crtc_state(state,
-> +								new_state->crtc);
->   		if (WARN_ON(!crtc_state))
->   			return -EINVAL;
->   	}
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/v=
-irtio/virtgpu_plane.c
-> index 0f4fdd8c28f9..9419aa611af9 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> @@ -94,7 +94,7 @@ static int virtio_gpu_plane_atomic_check(struct drm_p=
-lane *plane,
->   	if (!new_plane_state->fb || WARN_ON(!new_plane_state->crtc))
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state,
-> +	crtc_state =3D drm_atomic_get_crtc_state(state,
->   					       new_plane_state->crtc);
->   	if (IS_ERR(crtc_state))
->                   return PTR_ERR(crtc_state);
-> diff --git a/drivers/gpu/drm/vkms/vkms_plane.c b/drivers/gpu/drm/vkms/v=
-kms_plane.c
-> index 751695a76e26..2f2ab3c01bf9 100644
-> --- a/drivers/gpu/drm/vkms/vkms_plane.c
-> +++ b/drivers/gpu/drm/vkms/vkms_plane.c
-> @@ -125,7 +125,7 @@ static int vkms_plane_atomic_check(struct drm_plane=
- *plane,
->   	if (!new_plane_state->fb || WARN_ON(!new_plane_state->crtc))
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state,
-> +	crtc_state =3D drm_atomic_get_crtc_state(state,
->   					       new_plane_state->crtc);
->   	if (IS_ERR(crtc_state))
->   		return PTR_ERR(crtc_state);
-> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c b/drivers/gpu/drm/vmwg=
-fx/vmwgfx_kms.c
-> index 5be1e4bd8a5f..d6487376838f 100644
-> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-> @@ -446,7 +446,7 @@ int vmw_du_primary_plane_atomic_check(struct drm_pl=
-ane *plane,
->   	int ret;
->  =20
->   	if (new_state->crtc)
-> -		crtc_state =3D drm_atomic_get_new_crtc_state(new_state->state,
-> +		crtc_state =3D drm_atomic_get_new_crtc_state(state,
->   							   new_state->crtc);
->  =20
->   	ret =3D drm_atomic_helper_check_plane_state(new_state, crtc_state,
-> diff --git a/drivers/gpu/drm/xlnx/zynqmp_disp.c b/drivers/gpu/drm/xlnx/=
-zynqmp_disp.c
-> index b0a3ba528718..27c0b849598b 100644
-> --- a/drivers/gpu/drm/xlnx/zynqmp_disp.c
-> +++ b/drivers/gpu/drm/xlnx/zynqmp_disp.c
-> @@ -1152,8 +1152,7 @@ zynqmp_disp_plane_atomic_check(struct drm_plane *=
-plane,
->   	if (!new_plane_state->crtc)
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_crtc_state(new_plane_state->state,
-> -					       new_plane_state->crtc);
-> +	crtc_state =3D drm_atomic_get_crtc_state(state, new_plane_state->crtc=
-);
->   	if (IS_ERR(crtc_state))
->   		return PTR_ERR(crtc_state);
->  =20
-> diff --git a/drivers/gpu/drm/zte/zx_plane.c b/drivers/gpu/drm/zte/zx_pl=
-ane.c
-> index 20ac29212991..1d5d35bda249 100644
-> --- a/drivers/gpu/drm/zte/zx_plane.c
-> +++ b/drivers/gpu/drm/zte/zx_plane.c
-> @@ -59,7 +59,7 @@ static int zx_vl_plane_atomic_check(struct drm_plane =
-*plane,
->   	if (!crtc || WARN_ON(!fb))
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_existing_crtc_state(plane_state->state,=
-
-> +	crtc_state =3D drm_atomic_get_existing_crtc_state(state,
->   							crtc);
->   	if (WARN_ON(!crtc_state))
->   		return -EINVAL;
-> @@ -288,7 +288,7 @@ static int zx_gl_plane_atomic_check(struct drm_plan=
-e *plane,
->   	if (!crtc || WARN_ON(!fb))
->   		return 0;
->  =20
-> -	crtc_state =3D drm_atomic_get_existing_crtc_state(plane_state->state,=
-
-> +	crtc_state =3D drm_atomic_get_existing_crtc_state(state,
->   							crtc);
->   	if (WARN_ON(!crtc_state))
->   		return -EINVAL;
->=20
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
-
---OmUA4DUqmXi27I53FLnF8qjTujfobBVLr--
-
---vLS3S6dxzp1ykBtz3peBtLmBVFQB4DBhz
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmAzc9sFAwAAAAAACgkQlh/E3EQov+BW
-7g/+MwBEkPZzi2qrtosuCywoqtRWDewY6WVpX3DW7s6tJmPc/BmwzMuWcmI6whMwQSGA7w66qlob
-8AJpRuQE2zyW3JxPSZDgwB3/todW8S0JfAvgybsE3e4gBgL+vLw2Zxaa4WuM+7d1JyjWClZ3Vmmb
-9lPQTHJek0mbUYXhtBTjajFeHu4nYYZfIzkKxC6Ly0//0KTasoQ3x7Kc7+/arJLzrS5Z1jl76lAv
-WulIjzpVLqHVLrm1jTQd1fH8QJ8ozTEbs+SKlMEci1ryJVGuHB2P8nV+oGdvQhuLUyMBeukVYBbr
-kjgr/IIgNcduz4FqOaHFttObt7agBEtItLzQQcwPwJnEz4i9zxzrjt8NnuBzOqi69hV+HEYUfv9Q
-HPPIdpMiebh8hyy0i44f0pSyq9UIdmQOO9NAil32sEchP3h72MlEzhBmL8/0ZFEHJsBa33nIwzxS
-+vQ4cmkgU1SV7jtBJO8Qoo0HWEWpX/rwJTGlqZWVLh9nNbIlXrrT+dQJSHrZW2psBm4izdhA2cAB
-9NWapg5/PQIdkhNdfKXkSooFzLL9+aE+GuCm2cHOEEpotr8AjPj8HNAuA61T/4a9+SoniGH4EgaY
-1MY8P8rwv2ewD1sBGyJUqDwIrwb1vMV0y/lpzk67MtsRbTpyEj+JjubqsUBHiWn36P/U1zrdCKYY
-jBU=
-=x5Jd
------END PGP SIGNATURE-----
-
---vLS3S6dxzp1ykBtz3peBtLmBVFQB4DBhz--
-
---===============6769443603075989173==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6769443603075989173==--
+Ck9uIDIwMjEvMi8yMiAzOjI5IOS4i+WNiCwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+IE9u
+IE1vbiwgRmViIDIyLCAyMDIxIGF0IDExOjQyOjQ0QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
+Cj4+IE9uIDIwMjEvMi8xOSAxMTozOCDkuIvljYgsIEd1ZW50ZXIgUm9lY2sgd3JvdGU6Cj4+PiBP
+biAyLzE5LzIxIDEyOjQ1IEFNLCBKYXNvbiBXYW5nIHdyb3RlOgo+Pj4+IFdlIHVzZWQgdG8gcHJv
+bXB0IENPTkZJR19WSVJUSU9fUENJX01PREVSTiB0byB1c2VyIHdoaWNoIG1heSBicmluZyBhCj4+
+Pj4gbG90IG9mIGNvbmZ1c2lvbi4gRS5nIGl0IG1heSBicmVhayB2YXJpb3VzIGRlZmF1bHQgY29u
+ZmlncyB3aGljaCB3YW50Cj4+Pj4gdmlydGlvIGRldmljZXMuCj4+Pj4KPj4+PiBTbyB0aGlzIHBh
+dGNoIGZpeGVzIHRoaXMgYnkgaGlkZSB0aGUgcHJvbXBvdCBhbmQgZG9jdW1lbnQgdGhlCj4+PiAu
+Li4gYnkgaGlkaW5nIHRoZSBwcm9tcHQgYW5kIGRvY3VtZW50aW5nIC4uLgo+Pgo+PiBIaSBNaWNo
+YWVsOgo+Pgo+PiBXb3VsZCB5b3UgbGlrZSBtZSB0byBwb3N0IGEgbmV3IHZlcnNpb24gb3IgeW91
+IGNhbiBmaXggdGhvc2UgdHlwb3Mgd2hlbgo+PiBhcHBseWluZyB0aGUgcGF0Y2g/Cj4+Cj4+IFRo
+YW5rcwo+Cj4gQSBuZXcgdmVyc2lvbi4gSG93ZXZlciBJIGhhdmUgYSBzdWdnZXN0aW9uLgo+Cj4g
+SG93IGFib3V0IHdlIGNhbGwgdGhlIG5ldyBsaWJyYXJ5IFZJUlRJT19QQ0lfTElCPyBUaGF0IHdv
+dWxkIGJlCj4gYSBuZXcgYXV0by1zZWxlY3RlZCBzeW1ib2wuCj4KPiBXZSBjYW4gdGhlbiBrZWVw
+IFZJUlRJT19QQ0kgYXMgYSBzeW1ib2wgZW5hYmxpbmcgdGhlIGFjdHVhbCBkcml2ZXIuCgoKT2ss
+IHdpbGwgZG8uCgpUaGFua3MKCgo+Cj4KPgo+Pj4+IGRlcGVuZGVuY3kuCj4+Pj4KPj4+PiBDYzog
+QXJuZCBCZXJnbWFubiA8YXJuZEBhcm5kYi5kZT4KPj4+PiBDYzogQW5kZXJzIFJveGVsbCA8YW5k
+ZXJzLnJveGVsbEBsaW5hcm8ub3JnPgo+Pj4+IENjOiBHdWVudGVyIFJvZWNrIDxsaW51eEByb2Vj
+ay11cy5uZXQ+Cj4+Pj4gUmVwb3J0ZWQtYnk6IE5hcmVzaCBLYW1ib2p1IDxuYXJlc2gua2FtYm9q
+dUBsaW5hcm8ub3JnPgo+Pj4+IEZpeGVzOiA4NmI4N2M5ZDg1OGI2ICgidmlydGlvLXBjaTogaW50
+cm9kdWNlIG1vZGVybiBkZXZpY2UgbW9kdWxlIikKPj4+PiBTaWduZWQtb2ZmLWJ5OiBKYXNvbiBX
+YW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+Pj4gUmV2aWV3ZWQtYnk6IEd1ZW50ZXIgUm9lY2sg
+PGxpbnV4QHJvZWNrLXVzLm5ldD4KPj4+Cj4+Pj4gLS0tCj4+Pj4gICAgZHJpdmVycy92aXJ0aW8v
+S2NvbmZpZyB8IDkgKysrKystLS0tCj4+Pj4gICAgMSBmaWxlIGNoYW5nZWQsIDUgaW5zZXJ0aW9u
+cygrKSwgNCBkZWxldGlvbnMoLSkKPj4+Pgo+Pj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRp
+by9LY29uZmlnIGIvZHJpdmVycy92aXJ0aW8vS2NvbmZpZwo+Pj4+IGluZGV4IDZiOWI4MWY0Yjhj
+Mi4uYmU3ZGYzNjliYzJiIDEwMDY0NAo+Pj4+IC0tLSBhL2RyaXZlcnMvdmlydGlvL0tjb25maWcK
+Pj4+PiArKysgYi9kcml2ZXJzL3ZpcnRpby9LY29uZmlnCj4+Pj4gQEAgLTEzLDEyICsxMywxMiBA
+QCBjb25maWcgQVJDSF9IQVNfUkVTVFJJQ1RFRF9WSVJUSU9fTUVNT1JZX0FDQ0VTUwo+Pj4+ICAg
+IAkgIFZJUlRJT19GX0FDQ0VTU19QTEFURk9STQo+Pj4+ICAgIGNvbmZpZyBWSVJUSU9fUENJX01P
+REVSTgo+Pj4+IC0JdHJpc3RhdGUgIk1vZGVybiBWaXJ0aW8gUENJIERldmljZSIKPj4+PiAtCWRl
+cGVuZHMgb24gUENJCj4+Pj4gKwl0cmlzdGF0ZQo+Pj4+ICAgIAloZWxwCj4+Pj4gICAgCSAgTW9k
+ZXJuIFBDSSBkZXZpY2UgaW1wbGVtZW50YXRpb24uIFRoaXMgbW9kdWxlIGltcGxlbWVudHMgdGhl
+Cj4+Pj4gICAgCSAgYmFzaWMgcHJvYmUgYW5kIGNvbnRyb2wgZm9yIGRldmljZXMgd2hpY2ggYXJl
+IGJhc2VkIG9uIG1vZGVybgo+Pj4+IC0JICBQQ0kgZGV2aWNlIHdpdGggcG9zc2libGUgdmVuZG9y
+IHNwZWNpZmljIGV4dGVuc2lvbnMuCj4+Pj4gKwkgIFBDSSBkZXZpY2Ugd2l0aCBwb3NzaWJsZSB2
+ZW5kb3Igc3BlY2lmaWMgZXh0ZW5zaW9ucy4gQW55Cj4+Pj4gKwkgIG1vZHVsZSB0aGF0IHNlbGVj
+dHMgdGhpcyBtb2R1bGUgbXVzdCBkZXBlbmQgb24gUENJLgo+Pj4+ICAgIG1lbnVjb25maWcgVklS
+VElPX01FTlUKPj4+PiAgICAJYm9vbCAiVmlydGlvIGRyaXZlcnMiCj4+Pj4gQEAgLTI4LDcgKzI4
+LDggQEAgaWYgVklSVElPX01FTlUKPj4+PiAgICBjb25maWcgVklSVElPX1BDSQo+Pj4+ICAgIAl0
+cmlzdGF0ZSAiUENJIGRyaXZlciBmb3IgdmlydGlvIGRldmljZXMiCj4+Pj4gLQlkZXBlbmRzIG9u
+IFZJUlRJT19QQ0lfTU9ERVJOCj4+Pj4gKwlkZXBlbmRzIG9uIFBDSQo+Pj4+ICsJc2VsZWN0IFZJ
+UlRJT19QQ0lfTU9ERVJOCj4+Pj4gICAgCXNlbGVjdCBWSVJUSU8KPj4+PiAgICAJaGVscAo+Pj4+
+ICAgIAkgIFRoaXMgZHJpdmVyIHByb3ZpZGVzIHN1cHBvcnQgZm9yIHZpcnRpbyBiYXNlZCBwYXJh
+dmlydHVhbCBkZXZpY2UKPj4+PgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxp
+c3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9y
+Zy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
