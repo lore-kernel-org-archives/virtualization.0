@@ -7,98 +7,98 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18550C433DB
-	for <virtualization@archiver.kernel.org>; Mon, 22 Feb 2021 11:53:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9716AC433DB
+	for <virtualization@archiver.kernel.org>; Mon, 22 Feb 2021 12:06:51 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7F31F64DA5
-	for <virtualization@archiver.kernel.org>; Mon, 22 Feb 2021 11:53:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7F31F64DA5
+	by mail.kernel.org (Postfix) with ESMTPS id 1877A64E24
+	for <virtualization@archiver.kernel.org>; Mon, 22 Feb 2021 12:06:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1877A64E24
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 09E36839CD;
-	Mon, 22 Feb 2021 11:53:50 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id B41A2839E0;
+	Mon, 22 Feb 2021 12:06:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id GXYByhGu_QnU; Mon, 22 Feb 2021 11:53:46 +0000 (UTC)
+	with ESMTP id 88fxkUQJ0YwY; Mon, 22 Feb 2021 12:06:49 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 545A8839A4;
-	Mon, 22 Feb 2021 11:53:45 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id DA6B9839A4;
+	Mon, 22 Feb 2021 12:06:48 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C94A2C000A;
-	Mon, 22 Feb 2021 11:53:45 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9CA51C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BB90EC000A;
+	Mon, 22 Feb 2021 12:06:48 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5D9C8C0001
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Feb 2021 11:53:43 +0000 (UTC)
+ Mon, 22 Feb 2021 12:06:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 8B24685B3B
+ by hemlock.osuosl.org (Postfix) with ESMTP id 5A09387070
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Feb 2021 11:53:43 +0000 (UTC)
+ Mon, 22 Feb 2021 12:06:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ETJdLyYHWVC2
+ with ESMTP id B7s0kyk15tiz
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Feb 2021 11:53:40 +0000 (UTC)
+ Mon, 22 Feb 2021 12:06:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 8BAAE857FB
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 95D7D87046
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Feb 2021 11:53:40 +0000 (UTC)
+ Mon, 22 Feb 2021 12:06:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1613994819;
+ s=mimecast20190719; t=1613995605;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=uwBWTvI52wqLrpQP0Tt3FcCpkL+x02v8vMn3ChAyK8U=;
- b=LNzyHk06RiKCAYINq4QZC6lrPg5PEY6YZpEImEmS0/D8XG3uY5fW7Q/rwksbVthnqfN9Py
- Kqd08wUlhnBn0MDjHfY+HJnmEUZkNXGn0zbzgQYwlV/2Z/M7fBpN/qhtKFjBH2DbCMQ+QM
- cgSxxIyQ5o1XFWiGEeD8gKJS1F/VXoI=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-210-xRWRwc6eMpayXnhXMkN3Lw-1; Mon, 22 Feb 2021 06:53:37 -0500
-X-MC-Unique: xRWRwc6eMpayXnhXMkN3Lw-1
-Received: by mail-wr1-f70.google.com with SMTP id t14so2680867wrr.11
+ bh=zfN32sQUDLnzJ032yBR935SiIXgmWnEZ4V626Ip1AbU=;
+ b=gMQHEClXxIUN1RUSUWh+aI7Ts/3zVSdKcH0VVykGmeQi8rVyiElS8nKizTZvo0OLJCr7Oc
+ EMJPaqoOgMtwSyWaDCa03IdmHQd2aQuCnWrJlfB7Euk4XtPsFc+jaSIsngkLgQVl4JmOj6
+ 8cbU6pdMEBvPaZD8bTv0i1n3Bu+mZsc=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-523-Wp4hzvFLMGC9yqQjae7kow-1; Mon, 22 Feb 2021 07:06:44 -0500
+X-MC-Unique: Wp4hzvFLMGC9yqQjae7kow-1
+Received: by mail-wr1-f69.google.com with SMTP id g5so1754309wrd.22
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Feb 2021 03:53:37 -0800 (PST)
+ Mon, 22 Feb 2021 04:06:43 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=uwBWTvI52wqLrpQP0Tt3FcCpkL+x02v8vMn3ChAyK8U=;
- b=mOxXhq7gCsJYLOpY9LkS+bOjHkQfE0YwOMEj+0sZrb3jRWvdCth4FgchI7H6dH5h/x
- iZE07Gx0f8/Zaw1MWQm57rsujYXpUxz1GGZN60aVfHLahg2N2N5nbyBTiQzL1t45kbLD
- NEUJdl2TS5Kxrw/kvO+pz0XX2Plir9u+lMhr8SxOHzvGADKUKr6IFfDjSCyIviCV7vAh
- h6h0saf4V7vY8zLf2vBRmoh/8/bTQ7XfqEe+zqsYAnqUZl1Ucld0UEWF1sa3i/sn+MdG
- 349IcCl/Bf1HgpWQ2mqbMBvLxbqGdPtKr5GNj5mELl4PknnixL/jMVFKD4TIGuMUh0xx
- FwYA==
-X-Gm-Message-State: AOAM531sLouTXWBHMAO5u5CZNMFFEnTFdXh09WA+VoVND7uDQ3U+BSTL
- f1QZEywJHPRjHC5mkc1HFA6b0VMoWHv86zlgVhm1R3arbHogBj2QqPv+bkvzLdHN6T5RDbFjS5u
- FiTlUDcVsMbgkyBxUhTooZ7F3dYstONcuIZLt4jGvgQ==
-X-Received: by 2002:adf:a2c7:: with SMTP id t7mr21259243wra.42.1613994816250; 
- Mon, 22 Feb 2021 03:53:36 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwF3z2re71U2qX2sBvyIA4CC2xz2iu5FyqhwdzeqbDwD5LQo1ZoMCLS2hsoaBHr951kbzi9wg==
-X-Received: by 2002:adf:a2c7:: with SMTP id t7mr21259216wra.42.1613994816075; 
- Mon, 22 Feb 2021 03:53:36 -0800 (PST)
+ bh=zfN32sQUDLnzJ032yBR935SiIXgmWnEZ4V626Ip1AbU=;
+ b=m8p93sIRq5sV8se/ews3zlKzmZjGl9k9FTgD5WC24vmhysjWG9wES4CIyisCgShxXk
+ p3mOQBheTr8kF20/1rXEUzjBTa43aF/zBJtBKCjDSqYgW5sFVIwwA3whQ76Aq5Qy5QRd
+ 8cwQkdyAJ5fSvcSU/VTjIYY7ogd/aBTaefd4WXzwlZ/KDf38Hf5XgpUbNfHtEs6EGxDO
+ YrdqeCfNXyQrY9kHL+1erzpByAETIc8YK6qbhiT8s+JZQjUXqfLppuCy78I/AxSynbIP
+ PRngbPK/6c9P1yiNvYewtzmJooddxIWR6MjLjsIibRcrqzmo6Mcl+EkInh2Qww2JEcTM
+ +90Q==
+X-Gm-Message-State: AOAM530I5ek6hH1uNlpzfHGdOWgXzj3IOjdY6CFFRa5U92Rvjwq6+jRx
+ vPC/mBNIG7JBcjRX6F3N67sIO/Gk8nHuFarVR8nJ4udef+Zoi6d2i6NX/gHXmj5jbMI11LkG818
+ NozFuDCg/Q5S6FbdsGTtaAvREZN7OLq05E2nvu5T/FA==
+X-Received: by 2002:a05:6000:89:: with SMTP id m9mr12916252wrx.3.1613995601962; 
+ Mon, 22 Feb 2021 04:06:41 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzBgxVG1+KQe5ktBwrmeS45BwEguQMp9b4SH8ACBZnLC8/aSNiV9xm9pOzkDA3ilfNa94ePDA==
+X-Received: by 2002:a05:6000:89:: with SMTP id m9mr12916229wrx.3.1613995601788; 
+ Mon, 22 Feb 2021 04:06:41 -0800 (PST)
 Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
  [79.34.249.199])
- by smtp.gmail.com with ESMTPSA id v15sm28906877wra.61.2021.02.22.03.53.34
+ by smtp.gmail.com with ESMTPSA id h20sm9909617wmb.1.2021.02.22.04.06.40
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 22 Feb 2021 03:53:35 -0800 (PST)
-Date: Mon, 22 Feb 2021 12:53:32 +0100
+ Mon, 22 Feb 2021 04:06:41 -0800 (PST)
+Date: Mon, 22 Feb 2021 13:06:38 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [RFC PATCH v5 04/19] af_vsock: implement SEQPACKET receive loop
-Message-ID: <20210222115332.bmfwqzbytimk65ta@steredhat>
+Subject: Re: [RFC PATCH v5 05/19] af_vsock: separate wait space loop
+Message-ID: <20210222120638.ybltjuubfabgk3uz@steredhat>
 References: <20210218053347.1066159-1-arseny.krasnov@kaspersky.com>
- <20210218053719.1067237-1-arseny.krasnov@kaspersky.com>
+ <20210218053758.1067436-1-arseny.krasnov@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <20210218053719.1067237-1-arseny.krasnov@kaspersky.com>
+In-Reply-To: <20210218053758.1067436-1-arseny.krasnov@kaspersky.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -127,181 +127,173 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Feb 18, 2021 at 08:37:15AM +0300, Arseny Krasnov wrote:
->This adds receive loop for SEQPACKET. It looks like receive loop for
->STREAM, but there is a little bit difference:
->1) It doesn't call notify callbacks.
->2) It doesn't care about 'SO_SNDLOWAT' and 'SO_RCVLOWAT' values, because
->   there is no sense for these values in SEQPACKET case.
->3) It waits until whole record is received or error is found during
->   receiving.
->4) It processes and sets 'MSG_TRUNC' flag.
->
->So to avoid extra conditions for two types of socket inside one loop, two
->independent functions were created.
+On Thu, Feb 18, 2021 at 08:37:54AM +0300, Arseny Krasnov wrote:
+>This moves loop that waits for space on send to separate function,
+>because it will be used for SEQ_BEGIN/SEQ_END sending before and
+>after data transmission. Waiting for SEQ_BEGIN/SEQ_END is needed
+>because such packets carries SEQPACKET header that couldn't be
+>fragmented by credit mechanism, so to avoid it, sender waits until
+>enough space will be ready.
 >
 >Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
 >---
-> include/net/af_vsock.h   |  5 +++
-> net/vmw_vsock/af_vsock.c | 97 +++++++++++++++++++++++++++++++++++++++-
-> 2 files changed, 101 insertions(+), 1 deletion(-)
+> include/net/af_vsock.h   |  2 +
+> net/vmw_vsock/af_vsock.c | 99 +++++++++++++++++++++++++---------------
+> 2 files changed, 63 insertions(+), 38 deletions(-)
 >
 >diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
->index b1c717286993..01563338cc03 100644
+>index 01563338cc03..6fbe88306403 100644
 >--- a/include/net/af_vsock.h
 >+++ b/include/net/af_vsock.h
->@@ -135,6 +135,11 @@ struct vsock_transport {
-> 	bool (*stream_is_active)(struct vsock_sock *);
-> 	bool (*stream_allow)(u32 cid, u32 port);
+>@@ -205,6 +205,8 @@ void vsock_remove_sock(struct vsock_sock *vsk);
+> void vsock_for_each_connected_socket(void (*fn)(struct sock *sk));
+> int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk);
+> bool vsock_find_cid(unsigned int cid);
+>+int vsock_wait_space(struct sock *sk, size_t space, int flags,
+>+		     struct vsock_transport_send_notify_data *send_data);
 >
->+	/* SEQ_PACKET. */
->+	size_t (*seqpacket_seq_get_len)(struct vsock_sock *vsk);
->+	int (*seqpacket_dequeue)(struct vsock_sock *vsk, struct msghdr *msg,
->+				     int flags, bool *msg_ready);
-
-I think this should be:
-	int (*seqpacket_dequeue)(struct vsock_sock *vsk, struct msghdr *msg,
-				 int flags, bool *msg_ready);
-
-To avoid:
-$ ./scripts/checkpatch.pl --strict -g HEAD
-CHECK: Alignment should match open parenthesis
-#35: FILE: include/net/af_vsock.h:141:
-+	int (*seqpacket_dequeue)(struct vsock_sock *vsk, struct msghdr *msg,
-+				     int flags, bool *msg_ready);
-
->+
-> 	/* Notification. */
-> 	int (*notify_poll_in)(struct vsock_sock *, size_t, bool *);
-> 	int (*notify_poll_out)(struct vsock_sock *, size_t, bool *);
+> /**** TAP ****/
+>
 >diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->index d277dc1cdbdf..b754927a556a 100644
+>index b754927a556a..09b377422b1e 100644
 >--- a/net/vmw_vsock/af_vsock.c
 >+++ b/net/vmw_vsock/af_vsock.c
->@@ -1972,6 +1972,98 @@ static int __vsock_stream_recvmsg(struct sock *sk, struct msghdr *msg,
-> 	return err;
+>@@ -1692,6 +1692,65 @@ static int vsock_connectible_getsockopt(struct socket *sock,
+> 	return 0;
 > }
 >
->+static int __vsock_seqpacket_recvmsg(struct sock *sk, struct msghdr *msg,
->+				     size_t len, int flags)
+>+int vsock_wait_space(struct sock *sk, size_t space, int flags,
+>+		     struct vsock_transport_send_notify_data *send_data)
 >+{
 >+	const struct vsock_transport *transport;
->+	const struct iovec *orig_iov;
->+	unsigned long orig_nr_segs;
->+	bool msg_ready;
 >+	struct vsock_sock *vsk;
->+	size_t record_len;
 >+	long timeout;
->+	int err = 0;
->+	DEFINE_WAIT(wait);
+>+	int err;
+>+
+>+	DEFINE_WAIT_FUNC(wait, woken_wake_function);
 >+
 >+	vsk = vsock_sk(sk);
 >+	transport = vsk->transport;
+>+	timeout = sock_sndtimeo(sk, flags & MSG_DONTWAIT);
+>+	err = 0;
 >+
->+	timeout = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
->+	orig_nr_segs = msg->msg_iter.nr_segs;
->+	orig_iov = msg->msg_iter.iov;
->+	msg_ready = false;
->+	record_len = 0;
+>+	add_wait_queue(sk_sleep(sk), &wait);
 >+
->+	while (1) {
->+		err = vsock_wait_data(sk, &wait, timeout, NULL, 0);
+>+	while (vsock_stream_has_space(vsk) < space &&
+>+	       sk->sk_err == 0 &&
+>+	       !(sk->sk_shutdown & SEND_SHUTDOWN) &&
+>+	       !(vsk->peer_shutdown & RCV_SHUTDOWN)) {
 >+
->+		if (err <= 0) {
->+			/* In case of any loop break(timeout, signal
->+			 * interrupt or shutdown), we report user that
->+			 * nothing was copied.
->+			 */
->+			err = 0;
->+			break;
+>+		/* Don't wait for non-blocking sockets. */
+>+		if (timeout == 0) {
+>+			err = -EAGAIN;
+>+			goto out_err;
 >+		}
 >+
->+		if (record_len == 0) {
->+			record_len =
->+				transport->seqpacket_seq_get_len(vsk);
->+
->+			if (record_len == 0)
->+				continue;
+>+		if (send_data) {
+>+			err = transport->notify_send_pre_block(vsk, send_data);
+>+			if (err < 0)
+>+				goto out_err;
 >+		}
 >+
->+		err = transport->seqpacket_dequeue(vsk, msg,
->+					flags, &msg_ready);
->+
-
-Sorry, I expressed myself wrong.
-
-Here it's fine to avoid the blank line as in the previous version, by 
-single line I meant the seqpacket_dequeue() call, something like this:
-
-		err = transport->seqpacket_dequeue(vsk, msg, flags, &msg_ready);
-		if (err < 0) {
-
-
->+		if (err < 0) {
->+			if (err == -EAGAIN) {
->+				iov_iter_init(&msg->msg_iter, READ,
->+					      orig_iov, orig_nr_segs,
->+					      len);
->+				/* Clear 'MSG_EOR' here, because dequeue
->+				 * callback above set it again if it was
->+				 * set by sender. This 'MSG_EOR' is from
->+				 * dropped record.
->+				 */
->+				msg->msg_flags &= ~MSG_EOR;
->+				record_len = 0;
->+				continue;
->+			}
->+
->+			err = -ENOMEM;
->+			break;
+>+		release_sock(sk);
+>+		timeout = wait_woken(&wait, TASK_INTERRUPTIBLE, timeout);
+>+		lock_sock(sk);
+>+		if (signal_pending(current)) {
+>+			err = sock_intr_errno(timeout);
+>+			goto out_err;
+>+		} else if (timeout == 0) {
+>+			err = -EAGAIN;
+>+			goto out_err;
 >+		}
->+
->+		if (msg_ready)
->+			break;
 >+	}
 >+
->+	if (sk->sk_err)
+>+	if (sk->sk_err) {
 >+		err = -sk->sk_err;
->+	else if (sk->sk_shutdown & RCV_SHUTDOWN)
->+		err = 0;
->+
->+	if (msg_ready) {
->+		/* User sets MSG_TRUNC, so return real length of
->+		 * packet.
->+		 */
->+		if (flags & MSG_TRUNC)
->+			err = record_len;
->+		else
->+			err = len - msg->msg_iter.count;
->+
->+		/* Always set MSG_TRUNC if real length of packet is
->+		 * bigger than user's buffer.
->+		 */
->+		if (record_len > len)
->+			msg->msg_flags |= MSG_TRUNC;
+>+	} else if ((sk->sk_shutdown & SEND_SHUTDOWN) ||
+>+		   (vsk->peer_shutdown & RCV_SHUTDOWN)) {
+>+		err = -EPIPE;
 >+	}
 >+
+>+out_err:
+>+	remove_wait_queue(sk_sleep(sk), &wait);
 >+	return err;
 >+}
+>+EXPORT_SYMBOL_GPL(vsock_wait_space);
 >+
-> static int
-> vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
-> 			  int flags)
->@@ -2027,7 +2119,10 @@ vsock_connectible_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+> static int vsock_connectible_sendmsg(struct socket *sock, struct msghdr *msg,
+> 				     size_t len)
+> {
+>@@ -1699,10 +1758,8 @@ static int vsock_connectible_sendmsg(struct socket *sock, struct msghdr *msg,
+> 	struct vsock_sock *vsk;
+> 	const struct vsock_transport *transport;
+> 	ssize_t total_written;
+>-	long timeout;
+> 	int err;
+> 	struct vsock_transport_send_notify_data send_data;
+>-	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+>
+> 	sk = sock->sk;
+> 	vsk = vsock_sk(sk);
+>@@ -1740,9 +1797,6 @@ static int vsock_connectible_sendmsg(struct socket *sock, struct msghdr *msg,
 > 		goto out;
 > 	}
 >
->-	err = __vsock_stream_recvmsg(sk, msg, len, flags);
->+	if (sk->sk_type == SOCK_STREAM)
->+		err = __vsock_stream_recvmsg(sk, msg, len, flags);
->+	else
->+		err = __vsock_seqpacket_recvmsg(sk, msg, len, flags);
+>-	/* Wait for room in the produce queue to enqueue our user's data. */
+>-	timeout = sock_sndtimeo(sk, msg->msg_flags & MSG_DONTWAIT);
+>-
+> 	err = transport->notify_send_init(vsk, &send_data);
+> 	if (err < 0)
+> 		goto out;
+>@@ -1750,39 +1804,8 @@ static int vsock_connectible_sendmsg(struct socket *sock, struct msghdr *msg,
+> 	while (total_written < len) {
+> 		ssize_t written;
 >
-> out:
-> 	release_sock(sk);
+>-		add_wait_queue(sk_sleep(sk), &wait);
+>-		while (vsock_stream_has_space(vsk) == 0 &&
+>-		       sk->sk_err == 0 &&
+>-		       !(sk->sk_shutdown & SEND_SHUTDOWN) &&
+>-		       !(vsk->peer_shutdown & RCV_SHUTDOWN)) {
+>-
+>-			/* Don't wait for non-blocking sockets. */
+>-			if (timeout == 0) {
+>-				err = -EAGAIN;
+>-				remove_wait_queue(sk_sleep(sk), &wait);
+>-				goto out_err;
+>-			}
+>-
+>-			err = transport->notify_send_pre_block(vsk, &send_data);
+>-			if (err < 0) {
+>-				remove_wait_queue(sk_sleep(sk), &wait);
+>-				goto out_err;
+>-			}
+>-
+>-			release_sock(sk);
+>-			timeout = wait_woken(&wait, TASK_INTERRUPTIBLE, timeout);
+>-			lock_sock(sk);
+>-			if (signal_pending(current)) {
+>-				err = sock_intr_errno(timeout);
+>-				remove_wait_queue(sk_sleep(sk), &wait);
+>-				goto out_err;
+>-			} else if (timeout == 0) {
+>-				err = -EAGAIN;
+>-				remove_wait_queue(sk_sleep(sk), &wait);
+>-				goto out_err;
+>-			}
+>-		}
+>-		remove_wait_queue(sk_sleep(sk), &wait);
+>+		if (vsock_wait_space(sk, 1, msg->msg_flags, &send_data))
+>+			goto out_err;
+>
+> 		/* These checks occur both as part of and after the loop
+> 		 * conditional since we need to check before and after
 >-- 
 >2.25.1
 >
+
+The patch LGTM:
+
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
 _______________________________________________
 Virtualization mailing list
