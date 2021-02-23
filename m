@@ -7,109 +7,110 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5241AC433DB
-	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 13:26:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 477B2C433DB
+	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 13:42:16 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C1B59614A7
-	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 13:26:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C1B59614A7
+	by mail.kernel.org (Postfix) with ESMTPS id CEC5564E21
+	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 13:42:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CEC5564E21
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 452B883A55;
-	Tue, 23 Feb 2021 13:26:49 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7DD0283AA7;
+	Tue, 23 Feb 2021 13:42:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JbUgLZqXNvTx; Tue, 23 Feb 2021 13:26:47 +0000 (UTC)
+	with ESMTP id OCFCRhp7b_nF; Tue, 23 Feb 2021 13:42:14 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 756D283A4A;
-	Tue, 23 Feb 2021 13:26:46 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 43D938305C;
+	Tue, 23 Feb 2021 13:42:13 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0FE70C000A;
-	Tue, 23 Feb 2021 13:26:46 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E9CCBC000A;
+	Tue, 23 Feb 2021 13:42:12 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B7825C0001
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0F352C000A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 13:26:44 +0000 (UTC)
+ Tue, 23 Feb 2021 13:42:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id A684660608
+ by smtp3.osuosl.org (Postfix) with ESMTP id F153C605FB
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 13:26:44 +0000 (UTC)
+ Tue, 23 Feb 2021 13:42:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id x14C22rwG2Um
+ with ESMTP id DEqg6QHCODKg
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 13:26:43 +0000 (UTC)
+ Tue, 23 Feb 2021 13:42:11 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id D12F060604
+ by smtp3.osuosl.org (Postfix) with ESMTPS id C75CA605AD
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 13:26:42 +0000 (UTC)
+ Tue, 23 Feb 2021 13:42:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1614086801;
+ s=mimecast20190719; t=1614087729;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=kAPqwhWPv/wIAMtOEQhvM/iB0b3ykohvYAlF1w+adM8=;
- b=GYFmjCVRMCWN8BVvBBSehMhL2jHUQ0AO2iZFoj1GXrei7Sfr9fFhXleDEofWp0MhJ+HxQS
- 5sIcnZ+g1tDmE7+y/y/8yRidDS3lq8OndYX2djlJ3U38vLMh/uByNa9d4l0icVroWxudcX
- rBHZmOoO5uhsduNBgiJ6NS7CovW8+b4=
+ bh=T755Caf6XtrQLBTeIFHgN6zyFn1ttppOwK8TU+o0JY4=;
+ b=egiM21JAgBMEvb94EDBCSfTXqm6la5oIvCFi13h3ZGdZEHpYWON26ok5WIy2Vj0MIiwVYX
+ au9Yjtt9kRI74ALpVrgbXEZc64BJ9KfxB15IwxsYPtY3O+qNUmouypFjxBPC5N+MPBI8X+
+ 8wsjmh9jLulsmX45GDc8xo3jxGi2dPY=
 Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
  [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-271-uMqlWLtvPKK6eXwhxiNS1g-1; Tue, 23 Feb 2021 08:26:39 -0500
-X-MC-Unique: uMqlWLtvPKK6eXwhxiNS1g-1
-Received: by mail-wm1-f71.google.com with SMTP id j204so1200292wmj.4
+ us-mta-551-KJ5pWL65OnSUOlkBqqLaqw-1; Tue, 23 Feb 2021 08:42:07 -0500
+X-MC-Unique: KJ5pWL65OnSUOlkBqqLaqw-1
+Received: by mail-wm1-f71.google.com with SMTP id h16so1200774wmq.8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 05:26:39 -0800 (PST)
+ Tue, 23 Feb 2021 05:42:07 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=kAPqwhWPv/wIAMtOEQhvM/iB0b3ykohvYAlF1w+adM8=;
- b=VIGUscmTdRgR18VAWCcZb/I+Q9fbRIvNiEbXvSbCXmQ3nT6jW8X9ijOylMyTSxkdu+
- saoYi5g+OiyciMroGdskFeNFPWt9RoknmbcHA2878mTVS96fnWnbw5lbQktTs1NrU+Qo
- GcAa/lmeKYtOnVKWkpJYva3p51qsMuzGrBlC3pLtVjqPdBwuDrcnHdf8tvG/DonGhee1
- YPXmGgElBY3RwNDtF0VrqTvCFDJY+dBPQbcp7R9cyUvP/DBTG6eYBbEAjht0iZd4b2BX
- B5T7uMcIJqRFSxUAN8hbWuWQ7iB5dvV0R7WO2K36E/K9Fqm2lWxLP1E1v6SXly6PZqpH
- QwAg==
-X-Gm-Message-State: AOAM531OH8j50Ht/SmRQtt2rzYESpWtRlbmcjhLocWT8RasYSZ6r9//N
- kOfllS18Q8zCi4EfDLnFDOv2XjGM3TtoxDslWsQFu2hSuHHOfloqdr24j3UalGQL9UdCNk7v3bq
- SJd3VBwlEQb7eMcPCEBKyi2donk+C3NPVi16nwhlHGg==
-X-Received: by 2002:a5d:4c49:: with SMTP id n9mr13476655wrt.168.1614086798484; 
- Tue, 23 Feb 2021 05:26:38 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyEoRMPyhl21+u/rP1TpH6f40/IsRAK8QU2SB/vc4CL7FMPeR3jC4GZnQVZTfu4Ru6OwogGFA==
-X-Received: by 2002:a5d:4c49:: with SMTP id n9mr13476642wrt.168.1614086798340; 
- Tue, 23 Feb 2021 05:26:38 -0800 (PST)
-Received: from redhat.com (bzq-79-180-2-31.red.bezeqint.net. [79.180.2.31])
- by smtp.gmail.com with ESMTPSA id a6sm2831755wmj.23.2021.02.23.05.26.36
+ :mime-version:content-disposition:in-reply-to;
+ bh=T755Caf6XtrQLBTeIFHgN6zyFn1ttppOwK8TU+o0JY4=;
+ b=ILE62GwUK7O5Ss09uV4/6gWPdZH6a53Gbw/tbMhsAJQ//+px8d+meEizKEyJ0KhIDN
+ +IUsxzjrZkckGBhtYHY8q+Wq9sgefLkrwpf0vRgjr+PaXg4T6L/SQ1jultWW2c3sMmZn
+ R7YgtjzAEPVVqzuJz/8/gZIdbA8AzrRwlXdAiz8+UwC3Nz42DMtkBudrJd15RiEmRQmO
+ FQEiRZKt1QeuR+z5paWfJO8r2gBkCmuyHx9v/f6g+BwgNxADZZtQjRV1P4PXMN7M7KlV
+ LGkSMaysO1XZHnl7Ptdh3IGoswNUhwxpe2xKf4O3sOoe3Xu2nwRHWWGdgQwcOgQ0rhKk
+ Ac/g==
+X-Gm-Message-State: AOAM533rtHGI/anM2/fyEXvvYy4k9zsz75VwpfzCADCbWush5CF2o7QL
+ uzQvF0Y4jt/ltjm67KQM4P8lc3RJKvCu5kBt1j0xjUov3Z1WlXkRmALm5/2p1DjrIBYdnTRuPXR
+ CGmehdxG7KXNY/XG9B8oU/Ku/8XHMC4Yk0agX3/CkKA==
+X-Received: by 2002:adf:ee84:: with SMTP id b4mr26135689wro.339.1614087726316; 
+ Tue, 23 Feb 2021 05:42:06 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxZVU1NvopjmxfatT6LCxEP+oMjLr10zL2agkulUPEA937Vn2kT6c6DL5dAaA4iEyqUcHv2ig==
+X-Received: by 2002:adf:ee84:: with SMTP id b4mr26135672wro.339.1614087726037; 
+ Tue, 23 Feb 2021 05:42:06 -0800 (PST)
+Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
+ [79.34.249.199])
+ by smtp.gmail.com with ESMTPSA id 6sm40195921wra.63.2021.02.23.05.42.04
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 23 Feb 2021 05:26:37 -0800 (PST)
-Date: Tue, 23 Feb 2021 08:26:34 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vdpa/mlx5: set_features should allow reset to zero
-Message-ID: <20210223082536-mutt-send-email-mst@kernel.org>
-References: <1613735698-3328-1-git-send-email-si-wei.liu@oracle.com>
- <605e7d2d-4f27-9688-17a8-d57191752ee7@redhat.com>
- <20210222023040-mutt-send-email-mst@kernel.org>
- <22fe5923-635b-59f0-7643-2fd5876937c2@oracle.com>
- <fae0bae7-e4cd-a3aa-57fe-d707df99b634@redhat.com>
+ Tue, 23 Feb 2021 05:42:05 -0800 (PST)
+Date: Tue, 23 Feb 2021 14:42:02 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+Subject: Re: [RFC PATCH v5 09/19] virtio/vsock: set packet's type in send
+Message-ID: <20210223134202.qepkmphp34onaesw@steredhat>
+References: <20210218053347.1066159-1-arseny.krasnov@kaspersky.com>
+ <20210218053906.1067920-1-arseny.krasnov@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <fae0bae7-e4cd-a3aa-57fe-d707df99b634@redhat.com>
+In-Reply-To: <20210218053906.1067920-1-arseny.krasnov@kaspersky.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Si-Wei Liu <si-wei.liu@oracle.com>, netdev@vger.kernel.org, elic@nvidia.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Andra Paraschiv <andraprs@amazon.com>, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, stsp2@yandex.ru,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ oxffffaa@gmail.com, Norbert Slusarek <nslusarek@gmx.net>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,111 +122,99 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVHVlLCBGZWIgMjMsIDIwMjEgYXQgMTA6MDM6NTdBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDIxLzIvMjMgOToxMiDkuIrljYgsIFNpLVdlaSBMaXUgd3JvdGU6Cj4gPiAK
-PiA+IAo+ID4gT24gMi8yMS8yMDIxIDExOjM0IFBNLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6
-Cj4gPiA+IE9uIE1vbiwgRmViIDIyLCAyMDIxIGF0IDEyOjE0OjE3UE0gKzA4MDAsIEphc29uIFdh
-bmcgd3JvdGU6Cj4gPiA+ID4gT24gMjAyMS8yLzE5IDc6NTQg5LiL5Y2ILCBTaS1XZWkgTGl1IHdy
-b3RlOgo+ID4gPiA+ID4gQ29tbWl0IDQ1MjYzOWE2NGFkOCAoInZkcGE6IG1ha2Ugc3VyZSBzZXRf
-ZmVhdHVyZXMgaXMgaW52b2tlZAo+ID4gPiA+ID4gZm9yIGxlZ2FjeSIpIG1hZGUgYW4gZXhjZXB0
-aW9uIGZvciBsZWdhY3kgZ3Vlc3RzIHRvIHJlc2V0Cj4gPiA+ID4gPiBmZWF0dXJlcyB0byAwLCB3
-aGVuIGNvbmZpZyBzcGFjZSBpcyBhY2Nlc3NlZCBiZWZvcmUgZmVhdHVyZXMKPiA+ID4gPiA+IGFy
-ZSBzZXQuIFdlIHNob3VsZCByZWxpZXZlIHRoZSB2ZXJpZnlfbWluX2ZlYXR1cmVzKCkgY2hlY2sK
-PiA+ID4gPiA+IGFuZCBhbGxvdyBmZWF0dXJlcyByZXNldCB0byAwIGZvciB0aGlzIGNhc2UuCj4g
-PiA+ID4gPiAKPiA+ID4gPiA+IEl0J3Mgd29ydGggbm90aW5nIHRoYXQgbm90IGp1c3QgbGVnYWN5
-IGd1ZXN0cyBjb3VsZCBhY2Nlc3MKPiA+ID4gPiA+IGNvbmZpZyBzcGFjZSBiZWZvcmUgZmVhdHVy
-ZXMgYXJlIHNldC4gRm9yIGluc3RhbmNlLCB3aGVuCj4gPiA+ID4gPiBmZWF0dXJlIFZJUlRJT19O
-RVRfRl9NVFUgaXMgYWR2ZXJ0aXNlZCBzb21lIG1vZGVybiBkcml2ZXIKPiA+ID4gPiA+IHdpbGwg
-dHJ5IHRvIGFjY2VzcyBhbmQgdmFsaWRhdGUgdGhlIE1UVSBwcmVzZW50IGluIHRoZSBjb25maWcK
-PiA+ID4gPiA+IHNwYWNlIGJlZm9yZSB2aXJ0aW8gZmVhdHVyZXMgYXJlIHNldC4KPiA+ID4gPiAK
-PiA+ID4gPiBUaGlzIGxvb2tzIGxpa2UgYSBzcGVjIHZpb2xhdGlvbjoKPiA+ID4gPiAKPiA+ID4g
-PiAiCj4gPiA+ID4gCj4gPiA+ID4gVGhlIGZvbGxvd2luZyBkcml2ZXItcmVhZC1vbmx5IGZpZWxk
-LCBtdHUgb25seSBleGlzdHMgaWYKPiA+ID4gPiBWSVJUSU9fTkVUX0ZfTVRVIGlzCj4gPiA+ID4g
-c2V0Lgo+ID4gPiA+IFRoaXMgZmllbGQgc3BlY2lmaWVzIHRoZSBtYXhpbXVtIE1UVSBmb3IgdGhl
-IGRyaXZlciB0byB1c2UuCj4gPiA+ID4gIgo+ID4gPiA+IAo+ID4gPiA+IERvIHdlIHJlYWxseSB3
-YW50IHRvIHdvcmthcm91bmQgdGhpcz8KPiA+ID4gPiAKPiA+ID4gPiBUaGFua3MKPiA+ID4gQW5k
-IGFsc286Cj4gPiA+IAo+ID4gPiBUaGUgZHJpdmVyIE1VU1QgZm9sbG93IHRoaXMgc2VxdWVuY2Ug
-dG8gaW5pdGlhbGl6ZSBhIGRldmljZToKPiA+ID4gMS4gUmVzZXQgdGhlIGRldmljZS4KPiA+ID4g
-Mi4gU2V0IHRoZSBBQ0tOT1dMRURHRSBzdGF0dXMgYml0OiB0aGUgZ3Vlc3QgT1MgaGFzIG5vdGlj
-ZWQgdGhlIGRldmljZS4KPiA+ID4gMy4gU2V0IHRoZSBEUklWRVIgc3RhdHVzIGJpdDogdGhlIGd1
-ZXN0IE9TIGtub3dzIGhvdyB0byBkcml2ZSB0aGUKPiA+ID4gZGV2aWNlLgo+ID4gPiA0LiBSZWFk
-IGRldmljZSBmZWF0dXJlIGJpdHMsIGFuZCB3cml0ZSB0aGUgc3Vic2V0IG9mIGZlYXR1cmUgYml0
-cwo+ID4gPiB1bmRlcnN0b29kIGJ5IHRoZSBPUyBhbmQgZHJpdmVyIHRvIHRoZQo+ID4gPiBkZXZp
-Y2UuIER1cmluZyB0aGlzIHN0ZXAgdGhlIGRyaXZlciBNQVkgcmVhZCAoYnV0IE1VU1QgTk9UIHdy
-aXRlKQo+ID4gPiB0aGUgZGV2aWNlLXNwZWNpZmljIGNvbmZpZ3VyYXRpb24KPiA+ID4gZmllbGRz
-IHRvIGNoZWNrIHRoYXQgaXQgY2FuIHN1cHBvcnQgdGhlIGRldmljZSBiZWZvcmUgYWNjZXB0aW5n
-IGl0Lgo+ID4gPiA1LiBTZXQgdGhlIEZFQVRVUkVTX09LIHN0YXR1cyBiaXQuIFRoZSBkcml2ZXIg
-TVVTVCBOT1QgYWNjZXB0IG5ldwo+ID4gPiBmZWF0dXJlIGJpdHMgYWZ0ZXIgdGhpcyBzdGVwLgo+
-ID4gPiA2LiBSZS1yZWFkIGRldmljZSBzdGF0dXMgdG8gZW5zdXJlIHRoZSBGRUFUVVJFU19PSyBi
-aXQgaXMgc3RpbGwgc2V0Ogo+ID4gPiBvdGhlcndpc2UsIHRoZSBkZXZpY2UgZG9lcyBub3QKPiA+
-ID4gc3VwcG9ydCBvdXIgc3Vic2V0IG9mIGZlYXR1cmVzIGFuZCB0aGUgZGV2aWNlIGlzIHVudXNh
-YmxlLgo+ID4gPiA3LiBQZXJmb3JtIGRldmljZS1zcGVjaWZpYyBzZXR1cCwgaW5jbHVkaW5nIGRp
-c2NvdmVyeSBvZiB2aXJ0cXVldWVzCj4gPiA+IGZvciB0aGUgZGV2aWNlLCBvcHRpb25hbCBwZXIt
-YnVzIHNldHVwLAo+ID4gPiByZWFkaW5nIGFuZCBwb3NzaWJseSB3cml0aW5nIHRoZSBkZXZpY2Xi
-gJlzIHZpcnRpbyBjb25maWd1cmF0aW9uCj4gPiA+IHNwYWNlLCBhbmQgcG9wdWxhdGlvbiBvZiB2
-aXJ0cXVldWVzLgo+ID4gPiA4LiBTZXQgdGhlIERSSVZFUl9PSyBzdGF0dXMgYml0LiBBdCB0aGlz
-IHBvaW50IHRoZSBkZXZpY2UgaXMg4oCcbGl2ZeKAnS4KPiA+ID4gCj4gPiA+IAo+ID4gPiBzbyBh
-Y2Nlc3NpbmcgY29uZmlnIHNwYWNlIGJlZm9yZSBGRUFUVVJFU19PSyBpcyBhIHNwZWMgdmlvbGF0
-aW9uLCByaWdodD8KPiA+IEl0IGlzLCBidXQgaXQncyBub3QgcmVsZXZhbnQgdG8gd2hhdCB0aGlz
-IGNvbW1pdCB0cmllcyB0byBhZGRyZXNzLiBJCj4gPiB0aG91Z2h0IHRoZSBsZWdhY3kgZ3Vlc3Qg
-c3RpbGwgbmVlZHMgdG8gYmUgc3VwcG9ydGVkLgo+ID4gCj4gPiBIYXZpbmcgc2FpZCwgYSBzZXBh
-cmF0ZSBwYXRjaCBoYXMgdG8gYmUgcG9zdGVkIHRvIGZpeCB0aGUgZ3Vlc3QgZHJpdmVyCj4gPiBp
-c3N1ZSB3aGVyZSB0aGlzIGRpc2NyZXBhbmN5IGlzIGludHJvZHVjZWQgdG8gdmlydG5ldF92YWxp
-ZGF0ZSgpIChzaW5jZQo+ID4gY29tbWl0IGZlMzZjYmUwNjcpLiBCdXQgaXQncyBub3QgdGVjaG5p
-Y2FsbHkgcmVsYXRlZCB0byB0aGlzIHBhdGNoLgo+ID4gCj4gPiAtU2l3ZWkKPiAKPiAKPiBJIHRo
-aW5rIGl0J3MgYSBidWcgdG8gcmVhZCBjb25maWcgc3BhY2UgaW4gdmFsaWRhdGUsIHdlIHNob3Vs
-ZCBtb3ZlIGl0IHRvCj4gdmlydG5ldF9wcm9iZSgpLgo+IAo+IFRoYW5rcwoKSSB0YWtlIGl0IGJh
-Y2ssIHJlYWRpbmcgYnV0IG5vdCB3cml0aW5nIHNlZW1zIHRvIGJlIGV4cGxpY2l0bHkgYWxsb3dl
-ZCBieSBzcGVjLgpTbyBvdXIgd2F5IHRvIGRldGVjdCBhIGxlZ2FjeSBndWVzdCBpcyBib2d1cywg
-bmVlZCB0byB0aGluayB3aGF0IGlzCnRoZSBiZXN0IHdheSB0byBoYW5kbGUgdGhpcy4KCj4gCj4g
-PiAKPiA+ID4gCj4gPiA+IAo+ID4gPiA+ID4gUmVqZWN0aW5nIHJlc2V0IHRvIDAKPiA+ID4gPiA+
-IHByZW1hdHVyZWx5IGNhdXNlcyBjb3JyZWN0IE1UVSBhbmQgbGluayBzdGF0dXMgdW5hYmxlIHRv
-IGxvYWQKPiA+ID4gPiA+IGZvciB0aGUgdmVyeSBmaXJzdCBjb25maWcgc3BhY2UgYWNjZXNzLCBy
-ZW5kZXJpbmcgaXNzdWVzIGxpa2UKPiA+ID4gPiA+IGd1ZXN0IHNob3dpbmcgaW5hY2N1cmF0ZSBN
-VFUgdmFsdWUsIG9yIGZhaWx1cmUgdG8gcmVqZWN0Cj4gPiA+ID4gPiBvdXQtb2YtcmFuZ2UgTVRV
-Lgo+ID4gPiA+ID4gCj4gPiA+ID4gPiBGaXhlczogMWE4NmIzNzdhYTIxICgidmRwYS9tbHg1OiBB
-ZGQgVkRQQSBkcml2ZXIgZm9yCj4gPiA+ID4gPiBzdXBwb3J0ZWQgbWx4NSBkZXZpY2VzIikKPiA+
-ID4gPiA+IFNpZ25lZC1vZmYtYnk6IFNpLVdlaSBMaXUgPHNpLXdlaS5saXVAb3JhY2xlLmNvbT4K
-PiA+ID4gPiA+IC0tLQo+ID4gPiA+ID4gwqDCoCBkcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92
-bmV0LmMgfCAxNSArLS0tLS0tLS0tLS0tLS0KPiA+ID4gPiA+IMKgwqAgMSBmaWxlIGNoYW5nZWQs
-IDEgaW5zZXJ0aW9uKCspLCAxNCBkZWxldGlvbnMoLSkKPiA+ID4gPiA+IAo+ID4gPiA+ID4gZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYwo+ID4gPiA+ID4gYi9k
-cml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMKPiA+ID4gPiA+IGluZGV4IDdjMWY3ODku
-LjU0MGRkNjcgMTAwNjQ0Cj4gPiA+ID4gPiAtLS0gYS9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4
-NV92bmV0LmMKPiA+ID4gPiA+ICsrKyBiL2RyaXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQu
-Ywo+ID4gPiA+ID4gQEAgLTE0OTAsMTQgKzE0OTAsNiBAQCBzdGF0aWMgdTY0Cj4gPiA+ID4gPiBt
-bHg1X3ZkcGFfZ2V0X2ZlYXR1cmVzKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldikKPiA+ID4gPiA+
-IMKgwqDCoMKgwqDCoCByZXR1cm4gbXZkZXYtPm1seF9mZWF0dXJlczsKPiA+ID4gPiA+IMKgwqAg
-fQo+ID4gPiA+ID4gLXN0YXRpYyBpbnQgdmVyaWZ5X21pbl9mZWF0dXJlcyhzdHJ1Y3QgbWx4NV92
-ZHBhX2RldiAqbXZkZXYsCj4gPiA+ID4gPiB1NjQgZmVhdHVyZXMpCj4gPiA+ID4gPiAtewo+ID4g
-PiA+ID4gLcKgwqDCoCBpZiAoIShmZWF0dXJlcyAmIEJJVF9VTEwoVklSVElPX0ZfQUNDRVNTX1BM
-QVRGT1JNKSkpCj4gPiA+ID4gPiAtwqDCoMKgwqDCoMKgwqAgcmV0dXJuIC1FT1BOT1RTVVBQOwo+
-ID4gPiA+ID4gLQo+ID4gPiA+ID4gLcKgwqDCoCByZXR1cm4gMDsKPiA+ID4gPiA+IC19Cj4gPiA+
-ID4gPiAtCj4gPiA+ID4gPiDCoMKgIHN0YXRpYyBpbnQgc2V0dXBfdmlydHF1ZXVlcyhzdHJ1Y3Qg
-bWx4NV92ZHBhX25ldCAqbmRldikKPiA+ID4gPiA+IMKgwqAgewo+ID4gPiA+ID4gwqDCoMKgwqDC
-oMKgIGludCBlcnI7Cj4gPiA+ID4gPiBAQCAtMTU1OCwxOCArMTU1MCwxMyBAQCBzdGF0aWMgaW50
-Cj4gPiA+ID4gPiBtbHg1X3ZkcGFfc2V0X2ZlYXR1cmVzKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRl
-diwgdTY0Cj4gPiA+ID4gPiBmZWF0dXJlcykKPiA+ID4gPiA+IMKgwqAgewo+ID4gPiA+ID4gwqDC
-oMKgwqDCoMKgIHN0cnVjdCBtbHg1X3ZkcGFfZGV2ICptdmRldiA9IHRvX212ZGV2KHZkZXYpOwo+
-ID4gPiA+ID4gwqDCoMKgwqDCoMKgIHN0cnVjdCBtbHg1X3ZkcGFfbmV0ICpuZGV2ID0gdG9fbWx4
-NV92ZHBhX25kZXYobXZkZXYpOwo+ID4gPiA+ID4gLcKgwqDCoCBpbnQgZXJyOwo+ID4gPiA+ID4g
-wqDCoMKgwqDCoMKgIHByaW50X2ZlYXR1cmVzKG12ZGV2LCBmZWF0dXJlcywgdHJ1ZSk7Cj4gPiA+
-ID4gPiAtwqDCoMKgIGVyciA9IHZlcmlmeV9taW5fZmVhdHVyZXMobXZkZXYsIGZlYXR1cmVzKTsK
-PiA+ID4gPiA+IC3CoMKgwqAgaWYgKGVycikKPiA+ID4gPiA+IC3CoMKgwqDCoMKgwqDCoCByZXR1
-cm4gZXJyOwo+ID4gPiA+ID4gLQo+ID4gPiA+ID4gwqDCoMKgwqDCoMKgIG5kZXYtPm12ZGV2LmFj
-dHVhbF9mZWF0dXJlcyA9IGZlYXR1cmVzICYKPiA+ID4gPiA+IG5kZXYtPm12ZGV2Lm1seF9mZWF0
-dXJlczsKPiA+ID4gPiA+IMKgwqDCoMKgwqDCoCBuZGV2LT5jb25maWcubXR1ID0gY3B1X3RvX21s
-eDV2ZHBhMTYobXZkZXYsIG5kZXYtPm10dSk7Cj4gPiA+ID4gPiDCoMKgwqDCoMKgwqAgbmRldi0+
-Y29uZmlnLnN0YXR1cyB8PSBjcHVfdG9fbWx4NXZkcGExNihtdmRldiwKPiA+ID4gPiA+IFZJUlRJ
-T19ORVRfU19MSU5LX1VQKTsKPiA+ID4gPiA+IC3CoMKgwqAgcmV0dXJuIGVycjsKPiA+ID4gPiA+
-ICvCoMKgwqAgcmV0dXJuIDA7Cj4gPiA+ID4gPiDCoMKgIH0KPiA+ID4gPiA+IMKgwqAgc3RhdGlj
-IHZvaWQgbWx4NV92ZHBhX3NldF9jb25maWdfY2Ioc3RydWN0IHZkcGFfZGV2aWNlCj4gPiA+ID4g
-PiAqdmRldiwgc3RydWN0IHZkcGFfY2FsbGJhY2sgKmNiKQo+ID4gCgpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+The title is a little cryptic, maybe a something like:
+
+virtio/vsock: set packet's type in virtio_transport_send_pkt_info()
+
+On Thu, Feb 18, 2021 at 08:39:02AM +0300, Arseny Krasnov wrote:
+>This moves passing type of packet from 'info' srtucture to send
+
+Also here replace send with the function name.
+
+>function. There is no sense to set type of packet which differs
+>from type of socket, and since at current time only stream type
+>is supported, so force to use this type.
+
+I'm not a native speaker, but I would rephrase a bit the commit message:
+
+     There is no need to set type of packet which differs from type of 
+     socket. Since at current time only stream type is supported, set
+     it directly in virtio_transport_send_pkt_info(), so callers don't 
+     need to set it.
+
+>
+>Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+>---
+> net/vmw_vsock/virtio_transport_common.c | 7 ++-----
+> 1 file changed, 2 insertions(+), 5 deletions(-)
+
+If I haven't missed something, we can remove 'type' parameter also from 
+virtio_transport_send_credit_update(), right?
+
+
+>diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>index e4370b1b7494..1c9d71ca5e8e 100644
+>--- a/net/vmw_vsock/virtio_transport_common.c
+>+++ b/net/vmw_vsock/virtio_transport_common.c
+>@@ -179,6 +179,8 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+> 	struct virtio_vsock_pkt *pkt;
+> 	u32 pkt_len = info->pkt_len;
+>
+>+	info->type = VIRTIO_VSOCK_TYPE_STREAM;
+>+
+> 	t_ops = virtio_transport_get_ops(vsk);
+> 	if (unlikely(!t_ops))
+> 		return -EFAULT;
+>@@ -624,7 +626,6 @@ int virtio_transport_connect(struct vsock_sock *vsk)
+> {
+> 	struct virtio_vsock_pkt_info info = {
+> 		.op = VIRTIO_VSOCK_OP_REQUEST,
+>-		.type = VIRTIO_VSOCK_TYPE_STREAM,
+> 		.vsk = vsk,
+> 	};
+>
+>@@ -636,7 +637,6 @@ int virtio_transport_shutdown(struct vsock_sock *vsk, int mode)
+> {
+> 	struct virtio_vsock_pkt_info info = {
+> 		.op = VIRTIO_VSOCK_OP_SHUTDOWN,
+>-		.type = VIRTIO_VSOCK_TYPE_STREAM,
+> 		.flags = (mode & RCV_SHUTDOWN ?
+> 			  VIRTIO_VSOCK_SHUTDOWN_RCV : 0) |
+> 			 (mode & SEND_SHUTDOWN ?
+>@@ -665,7 +665,6 @@ virtio_transport_stream_enqueue(struct vsock_sock *vsk,
+> {
+> 	struct virtio_vsock_pkt_info info = {
+> 		.op = VIRTIO_VSOCK_OP_RW,
+>-		.type = VIRTIO_VSOCK_TYPE_STREAM,
+> 		.msg = msg,
+> 		.pkt_len = len,
+> 		.vsk = vsk,
+>@@ -688,7 +687,6 @@ static int virtio_transport_reset(struct vsock_sock *vsk,
+> {
+> 	struct virtio_vsock_pkt_info info = {
+> 		.op = VIRTIO_VSOCK_OP_RST,
+>-		.type = VIRTIO_VSOCK_TYPE_STREAM,
+> 		.reply = !!pkt,
+> 		.vsk = vsk,
+> 	};
+>@@ -990,7 +988,6 @@ virtio_transport_send_response(struct vsock_sock *vsk,
+> {
+> 	struct virtio_vsock_pkt_info info = {
+> 		.op = VIRTIO_VSOCK_OP_RESPONSE,
+>-		.type = VIRTIO_VSOCK_TYPE_STREAM,
+> 		.remote_cid = le64_to_cpu(pkt->hdr.src_cid),
+> 		.remote_port = le32_to_cpu(pkt->hdr.src_port),
+> 		.reply = true,
+>-- 
+>2.25.1
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
