@@ -2,111 +2,115 @@ Return-Path: <SRS0=5J/L=HZ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD25EC433E0
-	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 12:59:55 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4382DC433DB
+	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 13:01:19 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 71A4A64DDC
-	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 12:59:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 71A4A64DDC
+	by mail.kernel.org (Postfix) with ESMTPS id C6B5564E60
+	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 13:01:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C6B5564E60
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 19C45605E3;
-	Tue, 23 Feb 2021 12:59:55 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DFO1G64AF-SV; Tue, 23 Feb 2021 12:59:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D529B600C7;
-	Tue, 23 Feb 2021 12:59:52 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BA63BC000A;
-	Tue, 23 Feb 2021 12:59:52 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 18CD8C0001
- for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 12:59:51 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 06AE582F32
- for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 12:59:51 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6D02A83A49;
+	Tue, 23 Feb 2021 13:01:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 362Y6hN68OP0
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id W7v-XfoKg0HC; Tue, 23 Feb 2021 13:01:17 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTP id CC26883A3E;
+	Tue, 23 Feb 2021 13:01:16 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AA5F5C000A;
+	Tue, 23 Feb 2021 13:01:16 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 83777C0001
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 12:59:49 +0000 (UTC)
+ Tue, 23 Feb 2021 13:01:15 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 70BA9605ED
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Feb 2021 13:01:15 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id LAz3972bErn6
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Feb 2021 13:01:14 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 785D882BFD
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 8ACD3600C7
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 12:59:49 +0000 (UTC)
+ Tue, 23 Feb 2021 13:01:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1614085188;
+ s=mimecast20190719; t=1614085273;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Nsb6410KD77Etu5NLRJ2iY9H5YUf7juaiTO6VgDZxRs=;
- b=ZNULvPHiMTv7z2sSOrzySutdySvALKSHUTRnIs/0yT1gXhdI3e9NCs9V6QHURNqwVJsEqX
- Mz0M4d8/m5OiisQ0oVjgPoD43nqdXEsaB67a8qSUJxOyesYO5mh75V4YyMuFIfeU1ij4WM
- i8b2ste962kxlY0gwCmS+JuPmy1r9TE=
+ bh=7olXrBgcNfrl7Xfap2MQ05IvCMZZ7nmfJl2qzSQ1mTM=;
+ b=Uycqcv2BgeDhPYb8LN/Ff92nRgEq8CgOjDvcQf7ar2hu8Hzpy9+aBbDINjhr+WhMwDTD9s
+ jKnUWb/LE+dmnA6MHqYiyZlVJm46lsgJrskT9N0QKwrU58VutT6MDmrJM/x8qMr8ojis48
+ 9h83VAjThx6lqMZTR+wBacVQyqq/uZc=
 Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
  [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-79-qQy9SGO3NzOJDNzmj0d3kw-1; Tue, 23 Feb 2021 07:59:44 -0500
-X-MC-Unique: qQy9SGO3NzOJDNzmj0d3kw-1
-Received: by mail-wr1-f69.google.com with SMTP id k5so2264397wrw.14
+ us-mta-170-P6LrD9bwNPyNnOSGt9DDxA-1; Tue, 23 Feb 2021 08:01:11 -0500
+X-MC-Unique: P6LrD9bwNPyNnOSGt9DDxA-1
+Received: by mail-wr1-f69.google.com with SMTP id d7so7270908wri.23
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 04:59:44 -0800 (PST)
+ Tue, 23 Feb 2021 05:01:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=Nsb6410KD77Etu5NLRJ2iY9H5YUf7juaiTO6VgDZxRs=;
- b=iM5R2paxavNGkuD3yfsrxbP3YmwE2pMVKgdgXpK6obtTgrU9uZ1hwntDwa+iEAx5nj
- KsAiJaFc1H2e7CXlJlpmQS+dU9Omg4i4eEZzUW1LqO1S0m5OdsWvykIjYM64d6Iia2Wk
- S+CvFq1R73Scwg0/SGCD7lsoQfRGln4zw9M5OpTrXKs+E06X6cBgOMHZ2aQFZPeFMB17
- QO7gyIjdRFYFl4EJgZBSZP4AHyQD1EqfcsuE+nzwIENQWbMZX3dKsSko7pM6PQZs7XJ6
- o7iCem+fsNA1WyxsUpkVOD2E/Y7PZPKKDdXc3BOtVFjEVgFf328fP9KHc8ttOZSYu7Gv
- TP1A==
-X-Gm-Message-State: AOAM532aJeHdDzFNnr3Wmnc79zcxwync05QwfLCV2VXc883+soKc5Mit
- 5LXHnQCzu0gkSEFNqmwhQuqscS9/YpvnQF7poZf95o90epDg1TMAdQqk/m5unz52mtfht83Igso
- y43Ch/q2+cvL9up+X70Aq6UXWdM0P6GQCLL9rGoxfmw==
-X-Received: by 2002:a7b:c5d0:: with SMTP id n16mr23167724wmk.27.1614085183403; 
- Tue, 23 Feb 2021 04:59:43 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJziaQQBGEm0zpZoJ3pmPnb/Dw/YUrycTxx3mxxJDNxlW3WbQMuk3Z4T9hEc58x5SpZ/z8vOYQ==
-X-Received: by 2002:a7b:c5d0:: with SMTP id n16mr23167709wmk.27.1614085183240; 
- Tue, 23 Feb 2021 04:59:43 -0800 (PST)
+ bh=7olXrBgcNfrl7Xfap2MQ05IvCMZZ7nmfJl2qzSQ1mTM=;
+ b=qAoeZWaRz5gnUTsXxA80xm0acdN8BTT9rDE8/vDPZD8fWW99EIoG6XxzUzrxG97HNf
+ MW0dwJx/mIyNP2NaUwxV+0VS/idCTMVDMQUh2uOJ/sKZTsFtb0Tzfxb4eoT5NeHPsxeM
+ k4QLde8X+ug26vrEAsXtShszDpMG9yCYRrvcU46jcdwVswRSbTeKfOx74sYZo/1M6GUw
+ evO4FNAYIgl/vtYo8i+Pi1c589tsy+lEZRajXSFNxUO3Go3A72JyxVuqCTAZi5WCQG4T
+ 8mDr8C5Vhab3XO+ANQI0rE+FM9t1lIiwDU5vs48xHvyHSe7jV7c800eoIyXneRV5N/LX
+ sO8A==
+X-Gm-Message-State: AOAM530MSZc1kHl1HKNOCVgHIEmG8c3RwL80dijRp8NulhVlpTRugOl+
+ m+xSVXEAu9Per6BFsNglKODzLkzhYHIhEStyFe4rf/bAli/7uTYFw7v9Ig6tnkLOJY3fUEzMB3e
+ x+GqbWZseONmRoOO8iF+FXf0o8gWL/bjWR8XOeAdr/A==
+X-Received: by 2002:a05:600c:1990:: with SMTP id
+ t16mr21113992wmq.27.1614085270449; 
+ Tue, 23 Feb 2021 05:01:10 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxgb/3q4OEcpSFHwNO4qrmyR4vFsVyf8uD9qB4e3ysKpUTQL04Mc86X1QmiWVqCMVLRx0QpsQ==
+X-Received: by 2002:a05:600c:1990:: with SMTP id
+ t16mr21113972wmq.27.1614085270326; 
+ Tue, 23 Feb 2021 05:01:10 -0800 (PST)
 Received: from redhat.com (bzq-79-180-2-31.red.bezeqint.net. [79.180.2.31])
- by smtp.gmail.com with ESMTPSA id n66sm2527905wmn.25.2021.02.23.04.59.41
+ by smtp.gmail.com with ESMTPSA id n66sm2532052wmn.25.2021.02.23.05.01.09
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 23 Feb 2021 04:59:42 -0800 (PST)
-Date: Tue, 23 Feb 2021 07:59:40 -0500
+ Tue, 23 Feb 2021 05:01:09 -0800 (PST)
+Date: Tue, 23 Feb 2021 08:01:07 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Anton Yakovlev <anton.yakovlev@opensynergy.com>
-Subject: Re: [virtio-dev] Re: [PATCH v5 0/9] ALSA: add virtio sound driver
-Message-ID: <20210223075813-mutt-send-email-mst@kernel.org>
-References: <20210222153444.348390-1-anton.yakovlev@opensynergy.com>
- <20210223070839-mutt-send-email-mst@kernel.org>
- <bce13fa2-3ee5-0c6c-5761-17f0389c2d7b@opensynergy.com>
+To: Eli Cohen <elic@nvidia.com>
+Subject: Re: [PATCH v2] vdpa/mlx5: Enable user to add/delete vdpa device
+Message-ID: <20210223080038-mutt-send-email-mst@kernel.org>
+References: <20210218074157.43220-1-elic@nvidia.com>
+ <20210223072847-mutt-send-email-mst@kernel.org>
+ <20210223123304.GA170700@mtl-vdi-166.wap.labs.mlnx>
+ <20210223075211-mutt-send-email-mst@kernel.org>
+ <20210223125442.GA171540@mtl-vdi-166.wap.labs.mlnx>
+ <20210223075508-mutt-send-email-mst@kernel.org>
+ <20210223125949.GA171769@mtl-vdi-166.wap.labs.mlnx>
 MIME-Version: 1.0
-In-Reply-To: <bce13fa2-3ee5-0c6c-5761-17f0389c2d7b@opensynergy.com>
+In-Reply-To: <20210223125949.GA171769@mtl-vdi-166.wap.labs.mlnx>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: virtio-dev@lists.oasis-open.org, alsa-devel@alsa-project.org,
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
- virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, si-wei.liu@oracle.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,95 +127,28 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Feb 23, 2021 at 01:33:57PM +0100, Anton Yakovlev wrote:
-> On 23.02.2021 13:09, Michael S. Tsirkin wrote:
-> > On Mon, Feb 22, 2021 at 04:34:35PM +0100, Anton Yakovlev wrote:
-> > > This series implements a driver part of the virtio sound device
-> > > specification v8 [1].
+On Tue, Feb 23, 2021 at 02:59:49PM +0200, Eli Cohen wrote:
+> On Tue, Feb 23, 2021 at 07:56:16AM -0500, Michael S. Tsirkin wrote:
+> > On Tue, Feb 23, 2021 at 02:54:42PM +0200, Eli Cohen wrote:
+> > > On Tue, Feb 23, 2021 at 07:52:34AM -0500, Michael S. Tsirkin wrote:
+> > > > 
+> > > > I think I have them in the linux next branch, no?
+> > > > 
 > > > 
-> > > The driver supports PCM playback and capture substreams, jack and
-> > > channel map controls. A message-based transport is used to write/read
-> > > PCM frames to/from a device.
-> > > 
-> > > As a device part was used OpenSynergy proprietary implementation.
-> > > 
-> > > v5 changes:
-> > >   - Fixed another bunch of sparse warnings
-> > >     (replaced virtio_cread() -> virtio_cread_le()), no functional changes.
-> > > (Sorry, I didn't know how to run sparse locally, now everything should be fixed)
-> > > 
-> > > [1] https://lists.oasis-open.org/archives/virtio-dev/202003/msg00185.html
+> > > You do.
 > > 
+> > I guest there's a conflict with some other patch in that tree then.
+> > Can you rebase please?
 > > 
-> > In the future please number patches from 1, not from 2.
-> > thanks!
 > 
-> But they are numbered automatically by git. Patch #1 is for virtio_ids.h
+> Parav, will send later today.
 
-Weird somehow I was missing patch #1. Applied now, thanks!
+Sorry, no need to resend Parav's patches in linux-next.
+Just this one ...
 
-> 
-> > > 
-> > > Anton Yakovlev (9):
-> > >    uapi: virtio_ids: add a sound device type ID from OASIS spec
-> > >    ALSA: virtio: add virtio sound driver
-> > >    ALSA: virtio: handling control messages
-> > >    ALSA: virtio: build PCM devices and substream hardware descriptors
-> > >    ALSA: virtio: handling control and I/O messages for the PCM device
-> > >    ALSA: virtio: PCM substream operators
-> > >    ALSA: virtio: introduce jack support
-> > >    ALSA: virtio: introduce PCM channel map support
-> > >    ALSA: virtio: introduce device suspend/resume support
-> > > 
-> > >   MAINTAINERS                     |   9 +
-> > >   include/uapi/linux/virtio_ids.h |   1 +
-> > >   include/uapi/linux/virtio_snd.h | 334 +++++++++++++++++++++
-> > >   sound/Kconfig                   |   2 +
-> > >   sound/Makefile                  |   3 +-
-> > >   sound/virtio/Kconfig            |  10 +
-> > >   sound/virtio/Makefile           |  13 +
-> > >   sound/virtio/virtio_card.c      | 462 +++++++++++++++++++++++++++++
-> > >   sound/virtio/virtio_card.h      | 113 ++++++++
-> > >   sound/virtio/virtio_chmap.c     | 219 ++++++++++++++
-> > >   sound/virtio/virtio_ctl_msg.c   | 310 ++++++++++++++++++++
-> > >   sound/virtio/virtio_ctl_msg.h   |  78 +++++
-> > >   sound/virtio/virtio_jack.c      | 233 +++++++++++++++
-> > >   sound/virtio/virtio_pcm.c       | 498 ++++++++++++++++++++++++++++++++
-> > >   sound/virtio/virtio_pcm.h       | 120 ++++++++
-> > >   sound/virtio/virtio_pcm_msg.c   | 392 +++++++++++++++++++++++++
-> > >   sound/virtio/virtio_pcm_ops.c   | 491 +++++++++++++++++++++++++++++++
-> > >   17 files changed, 3287 insertions(+), 1 deletion(-)
-> > >   create mode 100644 include/uapi/linux/virtio_snd.h
-> > >   create mode 100644 sound/virtio/Kconfig
-> > >   create mode 100644 sound/virtio/Makefile
-> > >   create mode 100644 sound/virtio/virtio_card.c
-> > >   create mode 100644 sound/virtio/virtio_card.h
-> > >   create mode 100644 sound/virtio/virtio_chmap.c
-> > >   create mode 100644 sound/virtio/virtio_ctl_msg.c
-> > >   create mode 100644 sound/virtio/virtio_ctl_msg.h
-> > >   create mode 100644 sound/virtio/virtio_jack.c
-> > >   create mode 100644 sound/virtio/virtio_pcm.c
-> > >   create mode 100644 sound/virtio/virtio_pcm.h
-> > >   create mode 100644 sound/virtio/virtio_pcm_msg.c
-> > >   create mode 100644 sound/virtio/virtio_pcm_ops.c
-> > > 
-> > > --
-> > > 2.30.0
-> > > 
+> > -- 
+> > MST
 > > 
-> > 
-> > ---------------------------------------------------------------------
-> > To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> > For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
-> > 
-> > 
-> 
-> -- 
-> Anton Yakovlev
-> Senior Software Engineer
-> 
-> OpenSynergy GmbH
-> Rotherstr. 20, 10245 Berlin
 
 _______________________________________________
 Virtualization mailing list
