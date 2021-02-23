@@ -2,115 +2,110 @@ Return-Path: <SRS0=5J/L=HZ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 681BFC433E6
-	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 15:53:21 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8682C433E0
+	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 19:14:10 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C5A6C64E20
-	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 15:53:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C5A6C64E20
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 7937764E20
+	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 19:14:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7937764E20
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 77B436060C;
-	Tue, 23 Feb 2021 15:53:20 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id EA1B443011;
+	Tue, 23 Feb 2021 19:14:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iJUGVcaDDj2t; Tue, 23 Feb 2021 15:53:19 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zUzdL4f8-MjJ; Tue, 23 Feb 2021 19:14:08 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E4B7860619;
-	Tue, 23 Feb 2021 15:53:18 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2788E42FFF;
+	Tue, 23 Feb 2021 19:14:08 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 76788C000A;
-	Tue, 23 Feb 2021 15:53:18 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 27DF1C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EE4CAC000A;
+	Tue, 23 Feb 2021 19:14:07 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C7A96C0001
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 15:53:17 +0000 (UTC)
+ Tue, 23 Feb 2021 19:14:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 2305C86FCB
+ by smtp2.osuosl.org (Postfix) with ESMTP id C354942FFF
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 15:53:17 +0000 (UTC)
+ Tue, 23 Feb 2021 19:14:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lLmT6mcVIbYA
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 8tdScxMdeY1p
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 15:53:16 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 4DF1386F80
+ Tue, 23 Feb 2021 19:14:06 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com
+ [209.85.218.53])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 0656142FF6
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 15:53:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1614095595;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=TgJGcqcFSPJ5vSkmpHDztihIciEdSayUVtjWq3dkQvU=;
- b=PSDnJYW8Qox1wOpXWVxHGhFaLt8mc9SMuBGz+enn4OSUMyZtRlzeLxGziP6ji533eWjDAz
- hy8NGHndf8T2Xba63TNF2FKEpbBycm4K4pIFaRaD7wopvcZBZjtkzc3M6VcSspQOZRrcvv
- 4ZQZdUQUJbh7yEBBwvSN/JB5Je9vdVo=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-329-S3Byz15RMpChJkhPFYYS1w-1; Tue, 23 Feb 2021 10:53:07 -0500
-X-MC-Unique: S3Byz15RMpChJkhPFYYS1w-1
-Received: by mail-wr1-f71.google.com with SMTP id q5so7500984wrs.20
+ Tue, 23 Feb 2021 19:14:05 +0000 (UTC)
+Received: by mail-ej1-f53.google.com with SMTP id e13so32981746ejl.8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 07:53:07 -0800 (PST)
+ Tue, 23 Feb 2021 11:14:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=LRyWoeuvYI6b9kccGVyJGial42rq2A+y7eUcdElFOUc=;
+ b=QSMsMQr7lTL6E+gmYRiiNLixKP9rJV1636JbjSak1OZC5ogxu4FBe+QaGgn1LhHRAi
+ +UeqwH2pPUz2M2BBft4nuhnzaAnujfxvWU+YhbFqw0GsmtSzj4gMb9GEpD+0fHhI2Q2s
+ MnE39qX7ju2e/so3TgVe9KiqRxUsnhfykx+sNoJrkEk4fIQFwq0lhQxvY3VoN1fzbyZL
+ LZvt7TXoCz3VLivwxjHXy1AmQ38Q/LXC2AhXKZxuqGevdlr3YjAT07e+mFo1PqDAGRxd
+ YF8/fixLn1Z27/hfxde1bHDtP+XUQ9d+Xs7RCrA0nG9iL3XmrKjcYX4srQotg6VAPYyk
+ bqzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=TgJGcqcFSPJ5vSkmpHDztihIciEdSayUVtjWq3dkQvU=;
- b=hT7ca9cnkP3ihyNVGj7iLlvtD54h4aGunaxGvihGFNZO1NRtJviavvFw45o9FV5ISd
- qDDEfTs5DX0lCKF77DJOn4EM45O3ikxQqdXVJjOVFn+cvHLk/anbNsB8B6HMiuJS15YB
- zaLennydrz7bnTbn9/PCDYODbu+060T6lQ2QktALU2qApYj+TRQ+uRL4YJw0gKiXLU1H
- 2UvwdYNQ9tu/9drZUSM9lIFGl96Ibc0OhUAFBmXvrFxpV/+6FQ0VvZTFjMSlGB93Sa1b
- hURZxkoKEs2x5XyVRe6SfOTaUgubjX9duUHl1VtzoH70hGZg8qe6TSozkNlezNiqRB65
- ZmXQ==
-X-Gm-Message-State: AOAM531dfVWy6SSHhRvpiZzDANuIGZWw9Wx33qAFLgom7axZgfCEqpP4
- t0royFjWAXx+8UewBdLU0CLL7MWjnqx8KDS1KE1Jp1sKAYR5GVbfxyjhUFbzmb/lzdCuW+W7TUw
- /UM2KkTOCxVsGZCEaToXGK9CwlHq00YJQf98/ObV1CA==
-X-Received: by 2002:a1c:4603:: with SMTP id t3mr26096863wma.135.1614095586690; 
- Tue, 23 Feb 2021 07:53:06 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJydM5phjkLB5zeQ0CabZfvHx0EcHMjVL6rvsg+VYExkMFngHWiwDIFnl51krSfVPzO/nS3Cgw==
-X-Received: by 2002:a1c:4603:: with SMTP id t3mr26096842wma.135.1614095586566; 
- Tue, 23 Feb 2021 07:53:06 -0800 (PST)
-Received: from redhat.com (bzq-79-180-2-31.red.bezeqint.net. [79.180.2.31])
- by smtp.gmail.com with ESMTPSA id g18sm3217030wmh.17.2021.02.23.07.53.03
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 23 Feb 2021 07:53:05 -0800 (PST)
-Date: Tue, 23 Feb 2021 10:53:01 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>
-Subject: Re: [PATCH V4 1/3] virtio: don't prompt CONFIG_VIRTIO_PCI_MODERN
-Message-ID: <20210223105232-mutt-send-email-mst@kernel.org>
-References: <20210223061905.422659-1-jasowang@redhat.com>
- <20210223061905.422659-2-jasowang@redhat.com>
- <533886b3-9979-7a51-5b44-eeefad242cdf@roeck-us.net>
- <CAEUSe7-g=O_=G1fzjLwjQH1taj0YZYKt=874mUxcM-qGv51+9g@mail.gmail.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=LRyWoeuvYI6b9kccGVyJGial42rq2A+y7eUcdElFOUc=;
+ b=k0LFcRdcHu+fkIv3+jTi27qG9iU+mPYAuw+Hx8nOwOvLWnCL9yt15wUQsHRR2584af
+ wNd9+IehTJpscD9tHaL8X00Wqr7Rg9NOAmXcI0tNvIwW5t/jqHZSGR1jEaFFEM/zAJ9k
+ H7mYZZQ08KGDe/lmYzO0OINeSfcdhvSrj9HIg0DnYiJaaj+lYhnNS+bYudGKsNB9FASu
+ uyf/cxzqWndzlozQXtJTdHNlAkpsOuH1No4D8ujWbW6k0bDOK+T19F0E87hnNlzcYvHS
+ fM+1kaIiP3AQBaRUEwsI/5UZuQ1ZZ3H9qNTxDIy+nA6V9Dh8Jubq8h2XGKc/ygXJIFuS
+ 4vLw==
+X-Gm-Message-State: AOAM5321I5Wh9nG4kuoc5JR3tNf2D2fDOxgeE7r18vsAt32mUsq2uG7Y
+ 3ru2goUvR4iy1zGZMtKJcoYZwHBljqk=
+X-Google-Smtp-Source: ABdhPJzn3CZ794YhNdYZwQUbPRzgN6rKYxvB/lHvAzFqqzdO+GWuzIG7mbGwdY19feQce5SRTeL8YA==
+X-Received: by 2002:a17:906:d19b:: with SMTP id
+ c27mr1888411ejz.304.1614107643735; 
+ Tue, 23 Feb 2021 11:14:03 -0800 (PST)
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com.
+ [209.85.221.50])
+ by smtp.gmail.com with ESMTPSA id l61sm13988115edl.37.2021.02.23.11.14.02
+ for <virtualization@lists.linux-foundation.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Tue, 23 Feb 2021 11:14:03 -0800 (PST)
+Received: by mail-wr1-f50.google.com with SMTP id b3so23690257wrj.5
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Feb 2021 11:14:02 -0800 (PST)
+X-Received: by 2002:a5d:6cab:: with SMTP id a11mr318545wra.419.1614107642214; 
+ Tue, 23 Feb 2021 11:14:02 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CAEUSe7-g=O_=G1fzjLwjQH1taj0YZYKt=874mUxcM-qGv51+9g@mail.gmail.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: shahafs@mellanox.com, Anders Roxell <anders.roxell@linaro.org>,
- Arnd Bergmann <arnd@arndb.de>, Randy Dunlap <rdunlap@infradead.org>,
- open list <linux-kernel@vger.kernel.org>,
- virtualization@lists.linux-foundation.org,
- Naresh Kamboju <naresh.kamboju@linaro.org>, Guenter Roeck <linux@roeck-us.net>
+References: <20210220014436.3556492-1-weiwan@google.com>
+ <20210223092434-mutt-send-email-mst@kernel.org>
+ <CAEA6p_DDTnbhP2TXsScthnHuaHDW4gSOETwVPRz4uqcmbuDeUg@mail.gmail.com>
+In-Reply-To: <CAEA6p_DDTnbhP2TXsScthnHuaHDW4gSOETwVPRz4uqcmbuDeUg@mail.gmail.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date: Tue, 23 Feb 2021 14:13:24 -0500
+X-Gmail-Original-Message-ID: <CA+FuTSfTEoba-M43MkoQbqC09aa+TFGVWKvVRJqUifEkpDrFSw@mail.gmail.com>
+Message-ID: <CA+FuTSfTEoba-M43MkoQbqC09aa+TFGVWKvVRJqUifEkpDrFSw@mail.gmail.com>
+Subject: Re: [PATCH net v2 0/2] virtio-net: suppress bad irq warning for tx
+ napi
+To: Wei Wang <weiwan@google.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ Linux Kernel Network Developers <netdev@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org, Jakub Kicinski <kuba@kernel.org>,
+ "David S . Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,43 +117,70 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Feb 23, 2021 at 09:50:35AM -0600, Daniel D=EDaz wrote:
-> Hello!
-> =
-
-> If I may add to the nit-picking...
-> =
-
-> On Tue, 23 Feb 2021 at 09:23, Guenter Roeck <linux@roeck-us.net> wrote:
-> > On 2/22/21 10:19 PM, Jason Wang wrote:
-> > > We used to prompt CONFIG_VIRTIO_PCI_MODERN to user which may bring a
-> > > lot of confusion. E.g it may break various default configs which want
-> > > virtio devices.
+On Tue, Feb 23, 2021 at 12:37 PM Wei Wang <weiwan@google.com> wrote:
+>
+> On Tue, Feb 23, 2021 at 6:26 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Fri, Feb 19, 2021 at 05:44:34PM -0800, Wei Wang wrote:
+> > > With the implementation of napi-tx in virtio driver, we clean tx
+> > > descriptors from rx napi handler, for the purpose of reducing tx
+> > > complete interrupts. But this could introduce a race where tx complete
+> > > interrupt has been raised, but the handler found there is no work to do
+> > > because we have done the work in the previous rx interrupt handler.
+> > > This could lead to the following warning msg:
+> > > [ 3588.010778] irq 38: nobody cared (try booting with the
+> > > "irqpoll" option)
+> > > [ 3588.017938] CPU: 4 PID: 0 Comm: swapper/4 Not tainted
+> > > 5.3.0-19-generic #20~18.04.2-Ubuntu
+> > > [ 3588.017940] Call Trace:
+> > > [ 3588.017942]  <IRQ>
+> > > [ 3588.017951]  dump_stack+0x63/0x85
+> > > [ 3588.017953]  __report_bad_irq+0x35/0xc0
+> > > [ 3588.017955]  note_interrupt+0x24b/0x2a0
+> > > [ 3588.017956]  handle_irq_event_percpu+0x54/0x80
+> > > [ 3588.017957]  handle_irq_event+0x3b/0x60
+> > > [ 3588.017958]  handle_edge_irq+0x83/0x1a0
+> > > [ 3588.017961]  handle_irq+0x20/0x30
+> > > [ 3588.017964]  do_IRQ+0x50/0xe0
+> > > [ 3588.017966]  common_interrupt+0xf/0xf
+> > > [ 3588.017966]  </IRQ>
+> > > [ 3588.017989] handlers:
+> > > [ 3588.020374] [<000000001b9f1da8>] vring_interrupt
+> > > [ 3588.025099] Disabling IRQ #38
 > > >
-> > > So this patch fixes this by hiding the prompot and documenting the
-> =
+> > > This patch series contains 2 patches. The first one adds a new param to
+> > > struct vring_virtqueue to control if we want to suppress the bad irq
+> > > warning. And the second patch in virtio-net sets it for tx virtqueues if
+> > > napi-tx is enabled.
+> >
+> > I'm going to be busy until March, I think there should be a better
+> > way to fix this though. Will think about it and respond in about a week.
+> >
+> OK. Thanks.
 
-> *prompt
-> =
+Yes, thanks for helping to think about a solution.
 
-> Greetings!
-> =
+The warning went unreported for years. I'm a bit hesitant to make
+actual datapath changes to suppress it, if those may actually have a
+higher risk of regressions for some workloads.
 
-> Daniel D=EDaz
-> daniel.diaz@linaro.org
+Unless they actually might show a clear progression. Which may very
+well be possible given the high spurious interrupt rate.
 
-I have just folded this patch into the one it's fixing,
-so the commit log doesn't matter. Thanks everyone!
+But the odd thing is that by virtue of the interrupt getting masked
+once the warning hits, it may actually be difficult to improve on the
+efficiency today.
 
--- =
+As you pointed out, just probabilistically throttling how often to
+steal work from the rx interrupt handler would be another low risk
+approach to reduce the incidence rate.
 
-MST
-
+Anyway, definitely no rush. This went unreported for a long time.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
