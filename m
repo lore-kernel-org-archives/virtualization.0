@@ -2,82 +2,92 @@ Return-Path: <SRS0=5J/L=HZ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52A12C433DB
-	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 12:34:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 75BEAC433E0
+	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 12:45:22 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DE05A64E57
-	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 12:34:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DE05A64E57
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=opensynergy.com
+	by mail.kernel.org (Postfix) with ESMTPS id 1227564DDA
+	for <virtualization@archiver.kernel.org>; Tue, 23 Feb 2021 12:45:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1227564DDA
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id A8F5B855DF;
-	Tue, 23 Feb 2021 12:34:07 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id D1AA084C2C;
+	Tue, 23 Feb 2021 12:45:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8XfUd4FBDKkd; Tue, 23 Feb 2021 12:34:06 +0000 (UTC)
+	with ESMTP id QeWhzyK-Jkao; Tue, 23 Feb 2021 12:45:21 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 840E08544C;
-	Tue, 23 Feb 2021 12:34:06 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 6263B8511B;
+	Tue, 23 Feb 2021 12:45:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4E56DC000A;
-	Tue, 23 Feb 2021 12:34:06 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 84D47C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3BD80C000A;
+	Tue, 23 Feb 2021 12:45:21 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DD235C0001
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 12:34:05 +0000 (UTC)
+ Tue, 23 Feb 2021 12:45:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 667E883103
+ by hemlock.osuosl.org (Postfix) with ESMTP id C499E87057
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 12:34:05 +0000 (UTC)
+ Tue, 23 Feb 2021 12:45:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nSI4Dd8fZnTv
+Received: from hemlock.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id x-TkjzM3sEhK
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 12:34:03 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx1.opensynergy.com (mx1.opensynergy.com [217.66.60.4])
- by smtp1.osuosl.org (Postfix) with ESMTPS id ED42F82F2D
+ Tue, 23 Feb 2021 12:45:19 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mail-oi1-f176.google.com (mail-oi1-f176.google.com
+ [209.85.167.176])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 30E3C8700C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Feb 2021 12:34:02 +0000 (UTC)
-Received: from SR-MAILGATE-02.opensynergy.com (localhost.localdomain
- [127.0.0.1])
- by mx1.opensynergy.com (Proxmox) with ESMTP id 901FCA12AF;
- Tue, 23 Feb 2021 13:33:59 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=opensynergy.com;
- h=cc:cc:content-transfer-encoding:content-type:content-type
- :date:from:from:in-reply-to:message-id:mime-version:references
- :reply-to:subject:subject:to:to; s=srmailgate02; bh=N7kU7TdyBUb1
- Lf1mi8iPXCBOHmyPhVHN4c/XFIymx08=; b=IpBWL1vQ38MdMKyAxRrulOobVdt1
- nmPiXJk3UYt8mSolimHTpWKMKL0npjTeyj8zk9vzxEnCXUYnzZSJZ7R6AIPigWOR
- DtygCVLtMaYpnZfvV5CWuRgxeImsealE4uZk01MqkD7h0y/ap+DG7TfEPX1KCxS7
- KKE6bw89Mg0pofVToLWP1FRnB5Ppp3az4S66Pj2wwG4OuSR6ZzHAEEQWsAi87UZ9
- YWGqG1lxnW4wsO3BqkhXG9zFDf2m8qhuz5vakehoQZjziBusmMpe0qNF/cI7MNBt
- eBmizFAJmQZW9VcXnw/Hp9oYnr315Kd7rwPcuQaeNGLyOdkqMo3vFPRsBg==
-Subject: Re: [virtio-dev] Re: [PATCH v5 0/9] ALSA: add virtio sound driver
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20210222153444.348390-1-anton.yakovlev@opensynergy.com>
- <20210223070839-mutt-send-email-mst@kernel.org>
-From: Anton Yakovlev <anton.yakovlev@opensynergy.com>
-Message-ID: <bce13fa2-3ee5-0c6c-5761-17f0389c2d7b@opensynergy.com>
-Date: Tue, 23 Feb 2021 13:33:57 +0100
+ Tue, 23 Feb 2021 12:45:19 +0000 (UTC)
+Received: by mail-oi1-f176.google.com with SMTP id l3so17482999oii.2
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Feb 2021 04:45:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:from:date:message-id:subject:to;
+ bh=Yz95go8zYVULI1NaGtJorgI/wbpTXKE/v3dLCZlljFc=;
+ b=nzXOKcIpOgtqWAxRO7WseLacyJtFwTq5RGE8+T+aoHXaVrK4aozLi2qrZr6blBN9I2
+ XWUdZDSPxY5g0VllC1FN9z16luFse8wavPbylA8u3NfYEoXBtMm6mdnDcGJfhbdOH8R+
+ xSnKNAO7IKMsZ2NTKvaO+lJEeY9LoUYBDVPWfkfwer4e/TTFrDLgwL7tS3PgR/Nd0WVb
+ /mD+NKFOAZ9wD+sfFPgG/p2BuquuVN2ps9VoNPP9K2GFfRj4dCUrBz47ylJf7vn8b+f8
+ N9tU9OOLWKs9gjkrKJ1y2uHsRBDaeLoQXq7+rttFwEaS+7Ci+a0ctE0CbjYJbKQzuHyI
+ em2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+ bh=Yz95go8zYVULI1NaGtJorgI/wbpTXKE/v3dLCZlljFc=;
+ b=DL1pnXR+JrwuUtbw79dD/PQ+dZ1MUQ0oK3y/e14zhZzKoIDIvIvWoH7wtgBBxpsCq+
+ dzScJTqymrb2slHtPGIli5F/pc3MH7Lrj8mFal6+WEMaeowxabUdjpfAWEPb5SOsK8f3
+ +IbTn36IWFHJbKBxRQyJ3o6JNMAreF6ririiOk3zDTm/TnRfm7+QB6W1jdmaqDqF7cd9
+ iXbZ88hM5jTmyWrzkAcBGHR8+aRcmvxxwdcFBT/Ljiz8n5EQaaJd/Mf9ooxMCbExCs5B
+ IcmY0vwj/YQ3ElI3pk2p9xpu3Q3IkyeX9omBQjBESrIrHUnYgqaSUigfKiue68Zf6dgh
+ cLUw==
+X-Gm-Message-State: AOAM532PxUqdwb7PzDP26ROQn13iD1TkBtqleVWW92VHoPmYizgNuKVl
+ dylxAXdM89nP/uGJpAghSS0kCATcU1hrRvzaA4JSx9UK5pcCGA==
+X-Google-Smtp-Source: ABdhPJxRgSqc5R/GXu/2N0e9/avKVMSKIQpMZL9H2IOV5Bk3ix5iSHE+f4aSqNHlIAdSx94EX0tscdRnFZZhY1ajhZc=
+X-Received: by 2002:a05:6808:14ce:: with SMTP id
+ f14mr17966772oiw.59.1614084318362; 
+ Tue, 23 Feb 2021 04:45:18 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20210223070839-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-X-ClientProxiedBy: SR-MAIL-02.open-synergy.com (10.26.10.22) To
- SR-MAIL-02.open-synergy.com (10.26.10.22)
-Cc: virtio-dev@lists.oasis-open.org, alsa-devel@alsa-project.org,
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
- virtualization@lists.linux-foundation.org
+From: Gautam Dawar <gdawar.xilinx@gmail.com>
+Date: Tue, 23 Feb 2021 18:15:07 +0530
+Message-ID: <CAJ-rMYrst2Xrg5a6dDTufMacqjy_Ccg2FM8XpAt4p2J9Yk_u7g@mail.gmail.com>
+Subject: [PATCH v3] vhost_vdpa: fix the missing
+ irq_bypass_unregister_producer() invocation
+To: virtualization@lists.linux-foundation.org, 
+ Jason Wang <jasowang@redhat.com>, mst@redhat.com, martinh@xilinx.com,
+ gdawar@xilinx.com, hanand@xilinx.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -89,98 +99,63 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 23.02.2021 13:09, Michael S. Tsirkin wrote:
-> On Mon, Feb 22, 2021 at 04:34:35PM +0100, Anton Yakovlev wrote:
->> This series implements a driver part of the virtio sound device
->> specification v8 [1].
->>
->> The driver supports PCM playback and capture substreams, jack and
->> channel map controls. A message-based transport is used to write/read
->> PCM frames to/from a device.
->>
->> As a device part was used OpenSynergy proprietary implementation.
->>
->> v5 changes:
->>   - Fixed another bunch of sparse warnings
->>     (replaced virtio_cread() -> virtio_cread_le()), no functional changes.
->> (Sorry, I didn't know how to run sparse locally, now everything should be fixed)
->>
->> [1] https://lists.oasis-open.org/archives/virtio-dev/202003/msg00185.html
-> 
-> 
-> In the future please number patches from 1, not from 2.
-> thanks!
+When qemu with vhost-vdpa netdevice is run for the first time, it works well.
+But after the VM is powered off, the next qemu run causes kernel panic due to a
+NULL pointer dereference in irq_bypass_register_producer().
 
-But they are numbered automatically by git. Patch #1 is for virtio_ids.h
+When the VM is powered off, vhost_vdpa_clean_irq() misses on calling
+irq_bypass_unregister_producer() for irq 0 because of the existing check.
+
+This leaves stale producer nodes, which are reset in vhost_vring_call_reset()
+when vhost_dev_init() is invoked during the second qemu run.
+
+As the node member of struct irq_bypass_producer is also initialized
+to zero, traversal on the producers list causes crash due to NULL pointer
+dereference.
+
+Fixes: 2cf1ba9a4d15c ("vhost_vdpa: implement IRQ offloading in vhost_vdpa")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=211711
+Signed-off-by: Gautam Dawar <gdawar@xilinx.com>
+
+-----
+changelog:
+v2->v3:
+ - Re-submitting the patch in plain text format as suggested by Michael
+ - Added the fixes tag
+
+v1->v2:
+ - Addressed Jason's comment to remove the irq check and use
+   vhost_vdpa_unsetup_vq_irq() to avoid local variable vq
+-----
 
 
->>
->> Anton Yakovlev (9):
->>    uapi: virtio_ids: add a sound device type ID from OASIS spec
->>    ALSA: virtio: add virtio sound driver
->>    ALSA: virtio: handling control messages
->>    ALSA: virtio: build PCM devices and substream hardware descriptors
->>    ALSA: virtio: handling control and I/O messages for the PCM device
->>    ALSA: virtio: PCM substream operators
->>    ALSA: virtio: introduce jack support
->>    ALSA: virtio: introduce PCM channel map support
->>    ALSA: virtio: introduce device suspend/resume support
->>
->>   MAINTAINERS                     |   9 +
->>   include/uapi/linux/virtio_ids.h |   1 +
->>   include/uapi/linux/virtio_snd.h | 334 +++++++++++++++++++++
->>   sound/Kconfig                   |   2 +
->>   sound/Makefile                  |   3 +-
->>   sound/virtio/Kconfig            |  10 +
->>   sound/virtio/Makefile           |  13 +
->>   sound/virtio/virtio_card.c      | 462 +++++++++++++++++++++++++++++
->>   sound/virtio/virtio_card.h      | 113 ++++++++
->>   sound/virtio/virtio_chmap.c     | 219 ++++++++++++++
->>   sound/virtio/virtio_ctl_msg.c   | 310 ++++++++++++++++++++
->>   sound/virtio/virtio_ctl_msg.h   |  78 +++++
->>   sound/virtio/virtio_jack.c      | 233 +++++++++++++++
->>   sound/virtio/virtio_pcm.c       | 498 ++++++++++++++++++++++++++++++++
->>   sound/virtio/virtio_pcm.h       | 120 ++++++++
->>   sound/virtio/virtio_pcm_msg.c   | 392 +++++++++++++++++++++++++
->>   sound/virtio/virtio_pcm_ops.c   | 491 +++++++++++++++++++++++++++++++
->>   17 files changed, 3287 insertions(+), 1 deletion(-)
->>   create mode 100644 include/uapi/linux/virtio_snd.h
->>   create mode 100644 sound/virtio/Kconfig
->>   create mode 100644 sound/virtio/Makefile
->>   create mode 100644 sound/virtio/virtio_card.c
->>   create mode 100644 sound/virtio/virtio_card.h
->>   create mode 100644 sound/virtio/virtio_chmap.c
->>   create mode 100644 sound/virtio/virtio_ctl_msg.c
->>   create mode 100644 sound/virtio/virtio_ctl_msg.h
->>   create mode 100644 sound/virtio/virtio_jack.c
->>   create mode 100644 sound/virtio/virtio_pcm.c
->>   create mode 100644 sound/virtio/virtio_pcm.h
->>   create mode 100644 sound/virtio/virtio_pcm_msg.c
->>   create mode 100644 sound/virtio/virtio_pcm_ops.c
->>
->> --
->> 2.30.0
->>
-> 
-> 
-> ---------------------------------------------------------------------
-> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
-> 
-> 
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index 62a9bb0efc55..e00573b87aba 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -844,14 +844,10 @@ static int vhost_vdpa_open(struct inode *inode,
+struct file *filep)
 
--- 
-Anton Yakovlev
-Senior Software Engineer
+ static void vhost_vdpa_clean_irq(struct vhost_vdpa *v)
+ {
+-       struct vhost_virtqueue *vq;
+        int i;
 
-OpenSynergy GmbH
-Rotherstr. 20, 10245 Berlin
+-       for (i = 0; i < v->nvqs; i++) {
+-               vq = &v->vqs[i];
+-               if (vq->call_ctx.producer.irq)
+-                       irq_bypass_unregister_producer(&vq->call_ctx.producer);
+-       }
++       for (i = 0; i < v->nvqs; i++)
++               vhost_vdpa_unsetup_vq_irq(v, i);
+ }
 
+ static int vhost_vdpa_release(struct inode *inode, struct file *filep)
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
