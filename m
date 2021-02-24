@@ -2,124 +2,103 @@ Return-Path: <SRS0=cI1G=H2=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,HTML_MESSAGE,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0545C433DB
-	for <virtualization@archiver.kernel.org>; Wed, 24 Feb 2021 08:23:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74F10C433DB
+	for <virtualization@archiver.kernel.org>; Wed, 24 Feb 2021 08:27:04 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5222764ED3
-	for <virtualization@archiver.kernel.org>; Wed, 24 Feb 2021 08:23:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5222764ED3
+	by mail.kernel.org (Postfix) with ESMTPS id ECCE764EC9
+	for <virtualization@archiver.kernel.org>; Wed, 24 Feb 2021 08:27:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org ECCE764EC9
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 83B4983CC3;
-	Wed, 24 Feb 2021 08:23:31 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7F91083CC6;
+	Wed, 24 Feb 2021 08:27:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8L7ZQ5a29BKB; Wed, 24 Feb 2021 08:23:30 +0000 (UTC)
+	with ESMTP id tFlAcK_-blGb; Wed, 24 Feb 2021 08:27:02 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id F04D483CB8;
-	Wed, 24 Feb 2021 08:23:29 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id A4EB083CC4;
+	Wed, 24 Feb 2021 08:27:01 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BFD3AC0012;
-	Wed, 24 Feb 2021 08:23:29 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 883DBC000A;
+	Wed, 24 Feb 2021 08:27:01 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8E769C0001
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 40249C0001
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Feb 2021 08:23:28 +0000 (UTC)
+ Wed, 24 Feb 2021 08:27:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 6FB1C6F5D3
+ by smtp3.osuosl.org (Postfix) with ESMTP id 21957606DC
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Feb 2021 08:23:28 +0000 (UTC)
+ Wed, 24 Feb 2021 08:27:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BIjkKIljzW47
+ with ESMTP id NjjcBxrfusts
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Feb 2021 08:23:27 +0000 (UTC)
+ Wed, 24 Feb 2021 08:26:59 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7827D606CF
+ by smtp3.osuosl.org (Postfix) with ESMTPS id D2BC9606CF
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Feb 2021 08:23:27 +0000 (UTC)
+ Wed, 24 Feb 2021 08:26:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1614155006;
+ s=mimecast20190719; t=1614155217;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=1JbGPMGc3zR5mJ9ryS3aC3fSGYocZkjlOuNb6WBZZ3I=;
- b=KSGq+666prtCURPW2NWMu9TT5irzC6T/ytkR3X0+dQZAp65bfqyRkCkL0+ZZklzaFoRmdC
- a4kx0Wy28vYagEajpFldjPPd9MCwmrRxbbpRVk6Jt/rA1CFq+8aiW9jaD31ozJgEG8Xtf2
- hUvTV3bR9mLtlMEP+vzC1iqSwXl1u9A=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-467-DFknZ6OVNLGeAn21bnlVdw-1; Wed, 24 Feb 2021 03:23:24 -0500
-X-MC-Unique: DFknZ6OVNLGeAn21bnlVdw-1
-Received: by mail-wr1-f72.google.com with SMTP id s18so713834wrf.0
- for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Feb 2021 00:23:24 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=1JbGPMGc3zR5mJ9ryS3aC3fSGYocZkjlOuNb6WBZZ3I=;
- b=b6HinstVefZtr4WkogMPXpGQQ/yBZoClmupcfarmHGz+mzNKxQhhK5lQ+x8l0G73Z2
- lLWM9r4HYCywpcqASIUAmxmMg6oAVkfZ+z0RhpPa/Fm9/uvAzBFPwToQUZHrMG7YUdml
- jRBraFAuKYwzg95Fmx4tQf8BBqey3TCqc+k+x3tKrAHILRpsq6/xt+E1X9evgwuH+W/+
- Bl+kxKtLFsY5wO02PY8Kbu2jLyaCStSbtUQMJp2GQ5njDDajZ0KR6DHHIAK/nJC1zuJT
- COlnRv6YAUIazEgfDu0M/1xhnq6jmHbJVcpa8LOMISONelgXk7U80IbNxiuCV9VkeJrJ
- frOw==
-X-Gm-Message-State: AOAM533m+CWK1zLQ393TQLJkp3CxkMoDRRQz2ZKbNDUGzcUra/egpIhA
- FFu1mKDzcrultjdLC6RRpG9F9H9nu6ghBWLRxjzNKxpsC9FO6Y7OJxWrl70+iQI7Vnj3AZCTOI8
- Vm0TRq35xYOujvjltqzbyvqAfHK2j41MrYDVStTLwUg==
-X-Received: by 2002:a7b:cb81:: with SMTP id m1mr2574147wmi.117.1614155003182; 
- Wed, 24 Feb 2021 00:23:23 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwr2zof1ZDDqJMUOF+ohaSrHn1X03ArrZY1vRa0Mt+0/xGnqxU7+pV+gRMZdhng3Liw6tsb4Q==
-X-Received: by 2002:a7b:cb81:: with SMTP id m1mr2574122wmi.117.1614155002974; 
- Wed, 24 Feb 2021 00:23:22 -0800 (PST)
-Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
- [79.34.249.199])
- by smtp.gmail.com with ESMTPSA id a1sm2056803wrx.95.2021.02.24.00.23.21
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 24 Feb 2021 00:23:22 -0800 (PST)
-Date: Wed, 24 Feb 2021 09:23:19 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [RFC PATCH v5 00/19] virtio/vsock: introduce SOCK_SEQPACKET
- support
-Message-ID: <20210224082319.yrmqr6zs7emvghw3@steredhat>
-References: <20210218053347.1066159-1-arseny.krasnov@kaspersky.com>
- <20210222142311.gekdd7gsm33wglos@steredhat>
- <20210223145016.ddavx6fihq4akdim@steredhat>
- <7a280168-cb54-ae26-4697-c797f6b04708@kaspersky.com>
+ bh=W5Qg1zyBKM1EtUgRYlwFB4RcmHgzThI/MDNAyPI+orA=;
+ b=guWGomX4rn7c0jJTIHMjzNBsemY/8PAwh/2HH/ZWSWBmwCSRWPHcDbPOZuTKuFX54actdf
+ Qtlc+uJjirUyr8ujLE9+eX+qqfLsgLf73dHUf/odzfDtU62Eb9gSsnxd2DcO90HQoO3uP7
+ SurD7ZcYuv1sW9x9YQMJv7fuYlP194I=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-379-S2OfcC8rNM6-wXQQ_DOodw-1; Wed, 24 Feb 2021 03:26:52 -0500
+X-MC-Unique: S2OfcC8rNM6-wXQQ_DOodw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 372461936B66;
+ Wed, 24 Feb 2021 08:26:51 +0000 (UTC)
+Received: from wangxiaodeMacBook-Air.local (ovpn-13-96.pek2.redhat.com
+ [10.72.13.96])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 157C75D9D0;
+ Wed, 24 Feb 2021 08:26:44 +0000 (UTC)
+Subject: Re: [PATCH] vdpa/mlx5: set_features should allow reset to zero
+To: "Michael S. Tsirkin" <mst@redhat.com>
+References: <605e7d2d-4f27-9688-17a8-d57191752ee7@redhat.com>
+ <20210222023040-mutt-send-email-mst@kernel.org>
+ <22fe5923-635b-59f0-7643-2fd5876937c2@oracle.com>
+ <fae0bae7-e4cd-a3aa-57fe-d707df99b634@redhat.com>
+ <20210223082536-mutt-send-email-mst@kernel.org>
+ <3ff5fd23-1db0-2f95-4cf9-711ef403fb62@oracle.com>
+ <20210224000057-mutt-send-email-mst@kernel.org>
+ <0559fd8c-ff44-cb7a-8a74-71976dd2ee33@redhat.com>
+ <20210224014232-mutt-send-email-mst@kernel.org>
+ <ce6b0380-bc4c-bcb8-db82-2605e819702c@redhat.com>
+ <20210224021222-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <babc654d-8dcd-d8a2-c3b6-d20cc4fc554c@redhat.com>
+Date: Wed, 24 Feb 2021 16:26:43 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.16; rv:78.0)
+ Gecko/20100101 Thunderbird/78.7.1
 MIME-Version: 1.0
-In-Reply-To: <7a280168-cb54-ae26-4697-c797f6b04708@kaspersky.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Andra Paraschiv <andraprs@amazon.com>,
- "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "stsp2@yandex.ru" <stsp2@yandex.ru>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "oxffffaa@gmail.com" <oxffffaa@gmail.com>,
- Norbert Slusarek <nslusarek@gmx.net>, Stefan Hajnoczi <stefanha@redhat.com>,
- Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
+In-Reply-To: <20210224021222-mutt-send-email-mst@kernel.org>
+Content-Language: en-GB
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Cc: Si-Wei Liu <si-wei.liu@oracle.com>, netdev@vger.kernel.org, elic@nvidia.com,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,93 +110,320 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: multipart/mixed; boundary="===============1567021158354033211=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Feb 24, 2021 at 07:29:25AM +0300, Arseny Krasnov wrote:
->
->On 23.02.2021 17:50, Stefano Garzarella wrote:
->> On Mon, Feb 22, 2021 at 03:23:11PM +0100, Stefano Garzarella wrote:
->>> Hi Arseny,
->>>
->>> On Thu, Feb 18, 2021 at 08:33:44AM +0300, Arseny Krasnov wrote:
->>>> 	This patchset impelements support of SOCK_SEQPACKET for virtio
->>>> transport.
->>>> 	As SOCK_SEQPACKET guarantees to save record boundaries, so to
->>>> do it, two new packet operations were added: first for start of record
->>>> and second to mark end of record(SEQ_BEGIN and SEQ_END later). Also,
->>>> both operations carries metadata - to maintain boundaries and payload
->>>> integrity. Metadata is introduced by adding special header with two
->>>> fields - message count and message length:
->>>>
->>>> 	struct virtio_vsock_seq_hdr {
->>>> 		__le32  msg_cnt;
->>>> 		__le32  msg_len;
->>>> 	} __attribute__((packed));
->>>>
->>>> 	This header is transmitted as payload of SEQ_BEGIN and SEQ_END
->>>> packets(buffer of second virtio descriptor in chain) in the same way as
->>>> data transmitted in RW packets. Payload was chosen as buffer for this
->>>> header to avoid touching first virtio buffer which carries header of
->>>> packet, because someone could check that size of this buffer is equal
->>>> to size of packet header. To send record, packet with start marker is
->>>> sent first(it's header contains length of record and counter), then
->>>> counter is incremented and all data is sent as usual 'RW' packets and
->>>> finally SEQ_END is sent(it also carries counter of message, which is
->>>> counter of SEQ_BEGIN + 1), also after sedning SEQ_END counter is
->>>> incremented again. On receiver's side, length of record is known from
->>>> packet with start record marker. To check that no packets were dropped
->>>> by transport, counters of two sequential SEQ_BEGIN and SEQ_END are
->>>> checked(counter of SEQ_END must be bigger that counter of SEQ_BEGIN by
->>>> 1) and length of data between two markers is compared to length in
->>>> SEQ_BEGIN header.
->>>> 	Now as  packets of one socket are not reordered neither on
->>>> vsock nor on vhost transport layers, such markers allows to restore
->>>> original record on receiver's side. If user's buffer is smaller that
->>>> record length, when all out of size data is dropped.
->>>> 	Maximum length of datagram is not limited as in stream socket,
->>>> because same credit logic is used. Difference with stream socket is
->>>> that user is not woken up until whole record is received or error
->>>> occurred. Implementation also supports 'MSG_EOR' and 'MSG_TRUNC' flags.
->>>> 	Tests also implemented.
->>> I reviewed the first part (af_vsock.c changes), tomorrow I'll review
->>> the rest. That part looks great to me, only found a few minor issues.
->> I revieiwed the rest of it as well, left a few minor comments, but I
->> think we're well on track.
->>
->> I'll take a better look at the specification patch tomorrow.
->Great, Thank You
->>
->> Thanks,
->> Stefano
->>
->>> In the meantime, however, I'm getting a doubt, especially with regard
->>> to other transports besides virtio.
->>>
->>> Should we hide the begin/end marker sending in the transport?
->>>
->>> I mean, should the transport just provide a seqpacket_enqueue()
->>> callbacl?
->>> Inside it then the transport will send the markers. This is because
->>> some transports might not need to send markers.
->>>
->>> But thinking about it more, they could actually implement stubs for
->>> that calls, if they don't need to send markers.
->>>
->>> So I think for now it's fine since it allows us to reuse a lot of
->>> code, unless someone has some objection.
->
->I thought about that, I'll try to implement it in next version. Let's see...
+This is a multi-part message in MIME format.
+--===============1567021158354033211==
+Content-Type: multipart/alternative;
+ boundary="------------7C104AD64C707C26BB84C149"
+Content-Language: en-GB
 
-If you want to discuss it first, write down the idea you want to 
-implement, I wouldn't want to make you do unnecessary work. :-)
+This is a multi-part message in MIME format.
+--------------7C104AD64C707C26BB84C149
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Cheers,
-Stefano
+
+On 2021/2/24 3:17 下午, Michael S. Tsirkin wrote:
+> On Wed, Feb 24, 2021 at 02:53:08PM +0800, Jason Wang wrote:
+>> On 2021/2/24 2:46 下午, Michael S. Tsirkin wrote:
+>>> On Wed, Feb 24, 2021 at 02:04:36PM +0800, Jason Wang wrote:
+>>>> On 2021/2/24 1:04 下午, Michael S. Tsirkin wrote:
+>>>>> On Tue, Feb 23, 2021 at 11:35:57AM -0800, Si-Wei Liu wrote:
+>>>>>> On 2/23/2021 5:26 AM, Michael S. Tsirkin wrote:
+>>>>>>> On Tue, Feb 23, 2021 at 10:03:57AM +0800, Jason Wang wrote:
+>>>>>>>> On 2021/2/23 9:12 上午, Si-Wei Liu wrote:
+>>>>>>>>> On 2/21/2021 11:34 PM, Michael S. Tsirkin wrote:
+>>>>>>>>>> On Mon, Feb 22, 2021 at 12:14:17PM +0800, Jason Wang wrote:
+>>>>>>>>>>> On 2021/2/19 7:54 下午, Si-Wei Liu wrote:
+>>>>>>>>>>>> Commit 452639a64ad8 ("vdpa: make sure set_features is invoked
+>>>>>>>>>>>> for legacy") made an exception for legacy guests to reset
+>>>>>>>>>>>> features to 0, when config space is accessed before features
+>>>>>>>>>>>> are set. We should relieve the verify_min_features() check
+>>>>>>>>>>>> and allow features reset to 0 for this case.
+>>>>>>>>>>>>
+>>>>>>>>>>>> It's worth noting that not just legacy guests could access
+>>>>>>>>>>>> config space before features are set. For instance, when
+>>>>>>>>>>>> feature VIRTIO_NET_F_MTU is advertised some modern driver
+>>>>>>>>>>>> will try to access and validate the MTU present in the config
+>>>>>>>>>>>> space before virtio features are set.
+>>>>>>>>>>> This looks like a spec violation:
+>>>>>>>>>>>
+>>>>>>>>>>> "
+>>>>>>>>>>>
+>>>>>>>>>>> The following driver-read-only field, mtu only exists if
+>>>>>>>>>>> VIRTIO_NET_F_MTU is
+>>>>>>>>>>> set.
+>>>>>>>>>>> This field specifies the maximum MTU for the driver to use.
+>>>>>>>>>>> "
+>>>>>>>>>>>
+>>>>>>>>>>> Do we really want to workaround this?
+>>>>>>>>>>>
+>>>>>>>>>>> Thanks
+>>>>>>>>>> And also:
+>>>>>>>>>>
+>>>>>>>>>> The driver MUST follow this sequence to initialize a device:
+>>>>>>>>>> 1. Reset the device.
+>>>>>>>>>> 2. Set the ACKNOWLEDGE status bit: the guest OS has noticed the device.
+>>>>>>>>>> 3. Set the DRIVER status bit: the guest OS knows how to drive the
+>>>>>>>>>> device.
+>>>>>>>>>> 4. Read device feature bits, and write the subset of feature bits
+>>>>>>>>>> understood by the OS and driver to the
+>>>>>>>>>> device. During this step the driver MAY read (but MUST NOT write)
+>>>>>>>>>> the device-specific configuration
+>>>>>>>>>> fields to check that it can support the device before accepting it.
+>>>>>>>>>> 5. Set the FEATURES_OK status bit. The driver MUST NOT accept new
+>>>>>>>>>> feature bits after this step.
+>>>>>>>>>> 6. Re-read device status to ensure the FEATURES_OK bit is still set:
+>>>>>>>>>> otherwise, the device does not
+>>>>>>>>>> support our subset of features and the device is unusable.
+>>>>>>>>>> 7. Perform device-specific setup, including discovery of virtqueues
+>>>>>>>>>> for the device, optional per-bus setup,
+>>>>>>>>>> reading and possibly writing the device’s virtio configuration
+>>>>>>>>>> space, and population of virtqueues.
+>>>>>>>>>> 8. Set the DRIVER_OK status bit. At this point the device is “live”.
+>>>>>>>>>>
+>>>>>>>>>>
+>>>>>>>>>> so accessing config space before FEATURES_OK is a spec violation, right?
+>>>>>>>>> It is, but it's not relevant to what this commit tries to address. I
+>>>>>>>>> thought the legacy guest still needs to be supported.
+>>>>>>>>>
+>>>>>>>>> Having said, a separate patch has to be posted to fix the guest driver
+>>>>>>>>> issue where this discrepancy is introduced to virtnet_validate() (since
+>>>>>>>>> commit fe36cbe067). But it's not technically related to this patch.
+>>>>>>>>>
+>>>>>>>>> -Siwei
+>>>>>>>> I think it's a bug to read config space in validate, we should move it to
+>>>>>>>> virtnet_probe().
+>>>>>>>>
+>>>>>>>> Thanks
+>>>>>>> I take it back, reading but not writing seems to be explicitly allowed by spec.
+>>>>>>> So our way to detect a legacy guest is bogus, need to think what is
+>>>>>>> the best way to handle this.
+>>>>>> Then maybe revert commit fe36cbe067 and friends, and have QEMU detect legacy
+>>>>>> guest? Supposedly only config space write access needs to be guarded before
+>>>>>> setting FEATURES_OK.
+>>>>>>
+>>>>>> -Siwie
+>>>>> Detecting it isn't enough though, we will need a new ioctl to notify
+>>>>> the kernel that it's a legacy guest. Ugh:(
+>>>> I'm not sure I get this, how can we know if there's a legacy driver before
+>>>> set_features()?
+>>> qemu knows for sure. It does not communicate this information to the
+>>> kernel right now unfortunately.
+>> I may miss something, but I still don't get how the new ioctl is supposed to
+>> work.
+>>
+>> Thanks
+>
+> Basically on first guest access QEMU would tell kernel whether
+> guest is using the legacy or the modern interface.
+> E.g. virtio_pci_config_read/virtio_pci_config_write will call ioctl(ENABLE_LEGACY, 1)
+> while virtio_pci_common_read will call ioctl(ENABLE_LEGACY, 0)
+
+
+But this trick work only for PCI I think?
+
+Thanks
+
+
+>
+> Or maybe we just add GET_CONFIG_MODERN and GET_CONFIG_LEGACY and
+> call the correct ioctl ... there are many ways to build this API.
+>
+
+--------------7C104AD64C707C26BB84C149
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+  <body>
+    <p><br>
+    </p>
+    <div class="moz-cite-prefix">On 2021/2/24 3:17 下午, Michael S.
+      Tsirkin wrote:<br>
+    </div>
+    <blockquote type="cite"
+      cite="mid:20210224021222-mutt-send-email-mst@kernel.org">
+      <pre class="moz-quote-pre" wrap="">On Wed, Feb 24, 2021 at 02:53:08PM +0800, Jason Wang wrote:
+</pre>
+      <blockquote type="cite" style="color: #007cff;">
+        <pre class="moz-quote-pre" wrap="">On 2021/2/24 2:46 下午, Michael S. Tsirkin wrote:
+</pre>
+        <blockquote type="cite" style="color: #007cff;">
+          <pre class="moz-quote-pre" wrap="">On Wed, Feb 24, 2021 at 02:04:36PM +0800, Jason Wang wrote:
+</pre>
+          <blockquote type="cite" style="color: #007cff;">
+            <pre class="moz-quote-pre" wrap="">On 2021/2/24 1:04 下午, Michael S. Tsirkin wrote:
+</pre>
+            <blockquote type="cite" style="color: #007cff;">
+              <pre class="moz-quote-pre" wrap="">On Tue, Feb 23, 2021 at 11:35:57AM -0800, Si-Wei Liu wrote:
+</pre>
+              <blockquote type="cite" style="color: #007cff;">
+                <pre class="moz-quote-pre" wrap="">On 2/23/2021 5:26 AM, Michael S. Tsirkin wrote:
+</pre>
+                <blockquote type="cite" style="color: #007cff;">
+                  <pre class="moz-quote-pre" wrap="">On Tue, Feb 23, 2021 at 10:03:57AM +0800, Jason Wang wrote:
+</pre>
+                  <blockquote type="cite" style="color: #007cff;">
+                    <pre class="moz-quote-pre" wrap="">On 2021/2/23 9:12 上午, Si-Wei Liu wrote:
+</pre>
+                    <blockquote type="cite" style="color: #007cff;">
+                      <pre class="moz-quote-pre" wrap="">On 2/21/2021 11:34 PM, Michael S. Tsirkin wrote:
+</pre>
+                      <blockquote type="cite" style="color: #007cff;">
+                        <pre class="moz-quote-pre" wrap="">On Mon, Feb 22, 2021 at 12:14:17PM +0800, Jason Wang wrote:
+</pre>
+                        <blockquote type="cite" style="color: #007cff;">
+                          <pre class="moz-quote-pre" wrap="">On 2021/2/19 7:54 下午, Si-Wei Liu wrote:
+</pre>
+                          <blockquote type="cite" style="color:
+                            #007cff;">
+                            <pre class="moz-quote-pre" wrap="">Commit 452639a64ad8 ("vdpa: make sure set_features is invoked
+for legacy") made an exception for legacy guests to reset
+features to 0, when config space is accessed before features
+are set. We should relieve the verify_min_features() check
+and allow features reset to 0 for this case.
+
+It's worth noting that not just legacy guests could access
+config space before features are set. For instance, when
+feature VIRTIO_NET_F_MTU is advertised some modern driver
+will try to access and validate the MTU present in the config
+space before virtio features are set.
+</pre>
+                          </blockquote>
+                          <pre class="moz-quote-pre" wrap="">This looks like a spec violation:
+
+"
+
+The following driver-read-only field, mtu only exists if
+VIRTIO_NET_F_MTU is
+set.
+This field specifies the maximum MTU for the driver to use.
+"
+
+Do we really want to workaround this?
+
+Thanks
+</pre>
+                        </blockquote>
+                        <pre class="moz-quote-pre" wrap="">And also:
+
+The driver MUST follow this sequence to initialize a device:
+1. Reset the device.
+2. Set the ACKNOWLEDGE status bit: the guest OS has noticed the device.
+3. Set the DRIVER status bit: the guest OS knows how to drive the
+device.
+4. Read device feature bits, and write the subset of feature bits
+understood by the OS and driver to the
+device. During this step the driver MAY read (but MUST NOT write)
+the device-specific configuration
+fields to check that it can support the device before accepting it.
+5. Set the FEATURES_OK status bit. The driver MUST NOT accept new
+feature bits after this step.
+6. Re-read device status to ensure the FEATURES_OK bit is still set:
+otherwise, the device does not
+support our subset of features and the device is unusable.
+7. Perform device-specific setup, including discovery of virtqueues
+for the device, optional per-bus setup,
+reading and possibly writing the device’s virtio configuration
+space, and population of virtqueues.
+8. Set the DRIVER_OK status bit. At this point the device is “live”.
+
+
+so accessing config space before FEATURES_OK is a spec violation, right?
+</pre>
+                      </blockquote>
+                      <pre class="moz-quote-pre" wrap="">It is, but it's not relevant to what this commit tries to address. I
+thought the legacy guest still needs to be supported.
+
+Having said, a separate patch has to be posted to fix the guest driver
+issue where this discrepancy is introduced to virtnet_validate() (since
+commit fe36cbe067). But it's not technically related to this patch.
+
+-Siwei
+</pre>
+                    </blockquote>
+                    <pre class="moz-quote-pre" wrap="">I think it's a bug to read config space in validate, we should move it to
+virtnet_probe().
+
+Thanks
+</pre>
+                  </blockquote>
+                  <pre class="moz-quote-pre" wrap="">I take it back, reading but not writing seems to be explicitly allowed by spec.
+So our way to detect a legacy guest is bogus, need to think what is
+the best way to handle this.
+</pre>
+                </blockquote>
+                <pre class="moz-quote-pre" wrap="">Then maybe revert commit fe36cbe067 and friends, and have QEMU detect legacy
+guest? Supposedly only config space write access needs to be guarded before
+setting FEATURES_OK.
+
+-Siwie
+</pre>
+              </blockquote>
+              <pre class="moz-quote-pre" wrap="">Detecting it isn't enough though, we will need a new ioctl to notify
+the kernel that it's a legacy guest. Ugh <span class="moz-smiley-s2" title=":("><span>:(</span></span>
+</pre>
+            </blockquote>
+            <pre class="moz-quote-pre" wrap="">I'm not sure I get this, how can we know if there's a legacy driver before
+set_features()?
+</pre>
+          </blockquote>
+          <pre class="moz-quote-pre" wrap="">qemu knows for sure. It does not communicate this information to the
+kernel right now unfortunately.
+</pre>
+        </blockquote>
+        <pre class="moz-quote-pre" wrap="">
+I may miss something, but I still don't get how the new ioctl is supposed to
+work.
+
+Thanks
+</pre>
+      </blockquote>
+      <pre class="moz-quote-pre" wrap="">
+
+Basically on first guest access QEMU would tell kernel whether
+guest is using the legacy or the modern interface.
+E.g. virtio_pci_config_read/virtio_pci_config_write will call ioctl(ENABLE_LEGACY, 1)
+while virtio_pci_common_read will call ioctl(ENABLE_LEGACY, 0)</pre>
+    </blockquote>
+    <p><br>
+    </p>
+    <p>But this trick work only for PCI I think?</p>
+    <p>Thanks<br>
+    </p>
+    <p><br>
+    </p>
+    <blockquote type="cite"
+      cite="mid:20210224021222-mutt-send-email-mst@kernel.org">
+      <pre class="moz-quote-pre" wrap="">
+
+Or maybe we just add GET_CONFIG_MODERN and GET_CONFIG_LEGACY and
+call the correct ioctl ... there are many ways to build this API.
+
+</pre>
+    </blockquote>
+  </body>
+</html>
+
+--------------7C104AD64C707C26BB84C149--
+
+
+--===============1567021158354033211==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1567021158354033211==--
+
