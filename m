@@ -2,85 +2,123 @@ Return-Path: <SRS0=cI1G=H2=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09C71C433E0
-	for <virtualization@archiver.kernel.org>; Wed, 24 Feb 2021 06:19:16 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E8AAC433DB
+	for <virtualization@archiver.kernel.org>; Wed, 24 Feb 2021 06:42:11 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 94EB964E24
-	for <virtualization@archiver.kernel.org>; Wed, 24 Feb 2021 06:19:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 94EB964E24
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=nvidia.com
+	by mail.kernel.org (Postfix) with ESMTPS id 85D4B64DCF
+	for <virtualization@archiver.kernel.org>; Wed, 24 Feb 2021 06:42:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 85D4B64DCF
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3F78C4EBD1;
-	Wed, 24 Feb 2021 06:19:15 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0E2994307B;
+	Wed, 24 Feb 2021 06:42:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id AjtjJZAlapuJ; Wed, 24 Feb 2021 06:19:14 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id EvyoWxqNy7BM; Wed, 24 Feb 2021 06:42:09 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A2E6C4EBCE;
-	Wed, 24 Feb 2021 06:19:13 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 9CD7943077;
+	Wed, 24 Feb 2021 06:42:08 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8D05AC000A;
-	Wed, 24 Feb 2021 06:19:13 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 882AFC0016
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 721B2C000A;
+	Wed, 24 Feb 2021 06:42:08 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3EBA6C0001
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Feb 2021 06:19:08 +0000 (UTC)
+ Wed, 24 Feb 2021 06:42:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 4C20A4EBD0
+ by smtp2.osuosl.org (Postfix) with ESMTP id 185234307B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Feb 2021 06:19:08 +0000 (UTC)
+ Wed, 24 Feb 2021 06:42:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7KQeAJXzQBC5
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 45MiaII9julJ
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Feb 2021 06:19:07 +0000 (UTC)
+ Wed, 24 Feb 2021 06:42:06 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from hqnvemgate26.nvidia.com (hqnvemgate26.nvidia.com
- [216.228.121.65])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 1BF584EB9D
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id CDCC5414ED
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Feb 2021 06:19:06 +0000 (UTC)
-Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by
- hqnvemgate26.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
- id <B6035efda0000>; Tue, 23 Feb 2021 22:19:06 -0800
-Received: from sw-mtx-036.mtx.labs.mlnx (172.20.145.6) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
- Wed, 24 Feb 2021 06:19:05 +0000
-From: Parav Pandit <parav@nvidia.com>
-To: <virtualization@lists.linux-foundation.org>
-Subject: [PATCH linux-next 9/9] vdpa/mlx5: Forward only packets with allowed
- MAC address
-Date: Wed, 24 Feb 2021 08:18:44 +0200
-Message-ID: <20210224061844.137776-10-parav@nvidia.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210224061844.137776-1-parav@nvidia.com>
-References: <20210224061844.137776-1-parav@nvidia.com>
+ Wed, 24 Feb 2021 06:42:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1614148924;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=s55ilkit8AyvB8H+EC0E/iht8b+fHdOebNn3zsK85Zo=;
+ b=OrSR0MvT01Po2p14zuxWNYX6xxZAUYUamAgS7q02BQhOakV0ONjXAN2Ia6AU8Rh59tdybA
+ yP2eltlaNrteeq8mOdajiBrgN+LMujGySOtaje3sIig69g+NhNp1awx1hnj63oGTWrZmdS
+ pKCc2jEogE/bzz+/MHmmBHnooHw84wk=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-522-1O0gF87JMhmX_9dzFt0sxg-1; Wed, 24 Feb 2021 01:42:02 -0500
+X-MC-Unique: 1O0gF87JMhmX_9dzFt0sxg-1
+Received: by mail-wm1-f71.google.com with SMTP id v130so157283wma.0
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Feb 2021 22:42:02 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=s55ilkit8AyvB8H+EC0E/iht8b+fHdOebNn3zsK85Zo=;
+ b=kIY7XW1T4A28elU1bY2H09UuuXyfkAoizGPIeq+8Vh4n+PjZDkYSv1+JKRGplfb56D
+ Zt8LbE9EoM5Tn7fqrYpBf0B9SsDo6jLFZn5jSk5pNQWMw0re/WrLFkKDbE0m6fitzsnY
+ bWxiM3c7JyfNuEr7igL8XdR4PllMKr7AVDg5poNkPrLqE28po4Sj7dxCnO/vVKJlcYLB
+ cKgWsNYNQP6QUXwjwceCxohQge3l8RYYeJKGiIDyiv54XGUPtvAtbFDK2UTfcMkyQ14J
+ hUR5BU5nO4GaiuzIXvKUznDPHUI91W2EILRbIU8UOM2KYxbIWoes+7WSV2dwW95FmtBf
+ oO8w==
+X-Gm-Message-State: AOAM533GBo7qSdPb40fA0p7fzUJbF0pvPC8XXttLo4/6x55IQu6UhJEK
+ Z0JtdYT6RJXDD9uztyfEWdM/9y+aPKv/cmurMCu9Gg4vQuWo5rW/hSG5NJVJsnUJssowvHq3Gkd
+ HApxQiWiDr/1TXqZ5/njcc77PeOIydw8j1hJJdLH4cg==
+X-Received: by 2002:a05:6000:1542:: with SMTP id
+ 2mr30358424wry.356.1614148921288; 
+ Tue, 23 Feb 2021 22:42:01 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwEyzdsr3Ow3I/chOE2lEJ38C0hLHhjGkBn0ZJ3D6ow25zrmvo6OLG2W707+P84HiKWMouE/g==
+X-Received: by 2002:a05:6000:1542:: with SMTP id
+ 2mr30358406wry.356.1614148921120; 
+ Tue, 23 Feb 2021 22:42:01 -0800 (PST)
+Received: from redhat.com (bzq-79-180-2-31.red.bezeqint.net. [79.180.2.31])
+ by smtp.gmail.com with ESMTPSA id n5sm1172955wmq.7.2021.02.23.22.41.58
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 23 Feb 2021 22:42:00 -0800 (PST)
+Date: Wed, 24 Feb 2021 01:41:56 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+Subject: Re: [RFC PATCH v5 11/19] virtio/vsock: dequeue callback for
+ SOCK_SEQPACKET
+Message-ID: <20210224002315-mutt-send-email-mst@kernel.org>
+References: <20210218053347.1066159-1-arseny.krasnov@kaspersky.com>
+ <20210218053940.1068164-1-arseny.krasnov@kaspersky.com>
+ <20210223091536-mutt-send-email-mst@kernel.org>
+ <661fd81f-daf5-a3eb-6946-8f4e83d1ee54@kaspersky.com>
 MIME-Version: 1.0
-X-Originating-IP: [172.20.145.6]
-X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
- HQMAIL107.nvidia.com (172.20.187.13)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
- t=1614147546; bh=TATqlTP/+MFtUTxN8nSoUqG54NGnm+KL8/DzNxWOM2I=;
- h=From:To:CC:Subject:Date:Message-ID:X-Mailer:In-Reply-To:
- References:MIME-Version:Content-Transfer-Encoding:Content-Type:
- X-Originating-IP:X-ClientProxiedBy;
- b=oLPs2PehOKy26uczXClHymRpfR0DQLpVYCGXE1p06lOKh6Ymd6wB2TIeRglxPMzfq
- Yv6mHiaqNqTLaRwAUEAMCtTmAnVspWE9baxfpeZJwCoIvsIrf75iztfLuxcmDqxe+3
- qgxkFF9h0oDZAzdEuglFKhqgvwh8rX/n65yL1P6tiKG0Lb9QqrQVsI+zGpHwYP9FMa
- gkrEX/6EOqrajDizZFs56Cxt55L5kYjGT9jMaMsjcTg+jBOy1XbNKKdCIRuE8Qn/iZ
- Nckaog7DNgs8C7tuxsUSuDmnxXeERIIno5AKLlRqEJlYFVCYq9ZjCJV83SP6hHhtF9
- GP0A3GJzyF64Q==
-Cc: Eli Cohen <elic@nvidia.com>, mst@redhat.com
+In-Reply-To: <661fd81f-daf5-a3eb-6946-8f4e83d1ee54@kaspersky.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Andra Paraschiv <andraprs@amazon.com>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "stsp2@yandex.ru" <stsp2@yandex.ru>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "oxffffaa@gmail.com" <oxffffaa@gmail.com>,
+ Norbert Slusarek <nslusarek@gmx.net>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -97,157 +135,136 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Eli Cohen <elic@nvidia.com>
+On Wed, Feb 24, 2021 at 08:07:48AM +0300, Arseny Krasnov wrote:
+> 
+> On 23.02.2021 17:17, Michael S. Tsirkin wrote:
+> > On Thu, Feb 18, 2021 at 08:39:37AM +0300, Arseny Krasnov wrote:
+> >> This adds transport callback and it's logic for SEQPACKET dequeue.
+> >> Callback fetches RW packets from rx queue of socket until whole record
+> >> is copied(if user's buffer is full, user is not woken up). This is done
+> >> to not stall sender, because if we wake up user and it leaves syscall,
+> >> nobody will send credit update for rest of record, and sender will wait
+> >> for next enter of read syscall at receiver's side. So if user buffer is
+> >> full, we just send credit update and drop data. If during copy SEQ_BEGIN
+> >> was found(and not all data was copied), copying is restarted by reset
+> >> user's iov iterator(previous unfinished data is dropped).
+> >>
+> >> Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+> >> ---
+> >>  include/linux/virtio_vsock.h            |  10 +++
+> >>  include/uapi/linux/virtio_vsock.h       |  16 ++++
+> >>  net/vmw_vsock/virtio_transport_common.c | 114 ++++++++++++++++++++++++
+> >>  3 files changed, 140 insertions(+)
+> >>
+> >> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+> >> index dc636b727179..003d06ae4a85 100644
+> >> --- a/include/linux/virtio_vsock.h
+> >> +++ b/include/linux/virtio_vsock.h
+> >> @@ -36,6 +36,11 @@ struct virtio_vsock_sock {
+> >>  	u32 rx_bytes;
+> >>  	u32 buf_alloc;
+> >>  	struct list_head rx_queue;
+> >> +
+> >> +	/* For SOCK_SEQPACKET */
+> >> +	u32 user_read_seq_len;
+> >> +	u32 user_read_copied;
+> >> +	u32 curr_rx_msg_cnt;
+> >
+> > wrap these in a struct to make it's clearer they
+> > are related?
+> Ack
+> >
+> >>  };
+> >>  
+> >>  struct virtio_vsock_pkt {
+> >> @@ -80,6 +85,11 @@ virtio_transport_dgram_dequeue(struct vsock_sock *vsk,
+> >>  			       struct msghdr *msg,
+> >>  			       size_t len, int flags);
+> >>  
+> >> +int
+> >> +virtio_transport_seqpacket_dequeue(struct vsock_sock *vsk,
+> >> +				   struct msghdr *msg,
+> >> +				   int flags,
+> >> +				   bool *msg_ready);
+> >>  s64 virtio_transport_stream_has_data(struct vsock_sock *vsk);
+> >>  s64 virtio_transport_stream_has_space(struct vsock_sock *vsk);
+> >>  
+> >> diff --git a/include/uapi/linux/virtio_vsock.h b/include/uapi/linux/virtio_vsock.h
+> >> index 1d57ed3d84d2..cf9c165e5cca 100644
+> >> --- a/include/uapi/linux/virtio_vsock.h
+> >> +++ b/include/uapi/linux/virtio_vsock.h
+> >> @@ -63,8 +63,14 @@ struct virtio_vsock_hdr {
+> >>  	__le32	fwd_cnt;
+> >>  } __attribute__((packed));
+> >>  
+> >> +struct virtio_vsock_seq_hdr {
+> >> +	__le32  msg_cnt;
+> >> +	__le32  msg_len;
+> >> +} __attribute__((packed));
+> >> +
+> >>  enum virtio_vsock_type {
+> >>  	VIRTIO_VSOCK_TYPE_STREAM = 1,
+> >> +	VIRTIO_VSOCK_TYPE_SEQPACKET = 2,
+> >>  };
+> >>  
+> >>  enum virtio_vsock_op {
+> >> @@ -83,6 +89,11 @@ enum virtio_vsock_op {
+> >>  	VIRTIO_VSOCK_OP_CREDIT_UPDATE = 6,
+> >>  	/* Request the peer to send the credit info to us */
+> >>  	VIRTIO_VSOCK_OP_CREDIT_REQUEST = 7,
+> >> +
+> >> +	/* Record begin for SOCK_SEQPACKET */
+> >> +	VIRTIO_VSOCK_OP_SEQ_BEGIN = 8,
+> >> +	/* Record end for SOCK_SEQPACKET */
+> >> +	VIRTIO_VSOCK_OP_SEQ_END = 9,
+> >>  };
+> >>  
+> >>  /* VIRTIO_VSOCK_OP_SHUTDOWN flags values */
+> >> @@ -91,4 +102,9 @@ enum virtio_vsock_shutdown {
+> >>  	VIRTIO_VSOCK_SHUTDOWN_SEND = 2,
+> >>  };
+> >>  
+> >> +/* VIRTIO_VSOCK_OP_RW flags values */
+> >> +enum virtio_vsock_rw {
+> >> +	VIRTIO_VSOCK_RW_EOR = 1,
+> >> +};
+> >> +
+> >>  #endif /* _UAPI_LINUX_VIRTIO_VSOCK_H */
+> > Probably a good idea to also have a feature bit gating
+> > this functionality.
+> 
+> IIUC this also requires some qemu patch, because in current
+> 
+> implementation of vsock device in qemu, there is no 'set_features'
+> 
+> callback for such device. This callback will handle guest's write
+> 
+> to feature register, by calling vhost kernel backend, where this
+> 
+> bit will be processed by host.
 
-Add rules to forward packets to the net device's TIR only if the
-destination MAC is equal to the configured MAC. This is required to
-prevent the netdevice from receiving traffic not destined to its
-configured MAC.
+Well patching userspace to make use of a kernel feature
+is par for the course, isn't it?
 
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Reviewed-by: Parav Pandit <parav@nvidia.com>
----
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 84 +++++++++++++++++++++++--------
- 1 file changed, 64 insertions(+), 20 deletions(-)
+> 
+> IMHO I'm not sure that SEQPACKET support needs feature
+> 
+> bit - it is just two new ops for virtio vsock protocol, and from point
+> 
+> of view of virtio device it is same as STREAM. May be it is needed
+> 
+> for cases when client tries to connect to server which doesn't support
+> 
+> SEQPACKET, so without bit result will be "Connection reset by peer",
+> 
+> and with such bit client will know that server doesn't support it and
+> 
+> 'socket(SOCK_SEQPACKET)' will return error?
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 51a3fc4cde4d..9b580c67acda 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -147,7 +147,8 @@ struct mlx5_vdpa_net {
- 	struct mutex reslock;
- 	struct mlx5_flow_table *rxft;
- 	struct mlx5_fc *rx_counter;
--	struct mlx5_flow_handle *rx_rule;
-+	struct mlx5_flow_handle *rx_rule_ucast;
-+	struct mlx5_flow_handle *rx_rule_mcast;
- 	bool setup;
- 	u16 mtu;
- };
-@@ -1294,21 +1295,34 @@ static int add_fwd_to_tir(struct mlx5_vdpa_net *ndev)
- 	struct mlx5_flow_table_attr ft_attr = {};
- 	struct mlx5_flow_act flow_act = {};
- 	struct mlx5_flow_namespace *ns;
-+	struct mlx5_flow_spec *spec;
-+	void *headers_c;
-+	void *headers_v;
-+	u8 *dmac_c;
-+	u8 *dmac_v;
- 	int err;
- 
--	/* for now, one entry, match all, forward to tir */
--	ft_attr.max_fte = 1;
--	ft_attr.autogroup.max_num_groups = 1;
-+	spec = kvzalloc(sizeof(*spec), GFP_KERNEL);
-+	if (!spec)
-+		return -ENOMEM;
-+
-+	spec->match_criteria_enable = MLX5_MATCH_OUTER_HEADERS;
-+	ft_attr.max_fte = 2;
-+	ft_attr.autogroup.max_num_groups = 2;
- 
--	ns = mlx5_get_flow_namespace(ndev->mvdev.mdev, MLX5_FLOW_NAMESPACE_BYPASS);
-+	ns = mlx5_get_flow_namespace(ndev->mvdev.mdev,
-+				     MLX5_FLOW_NAMESPACE_BYPASS);
- 	if (!ns) {
--		mlx5_vdpa_warn(&ndev->mvdev, "get flow namespace\n");
--		return -EOPNOTSUPP;
-+		mlx5_vdpa_warn(&ndev->mvdev, "failed to get flow namespace\n");
-+		err = -EOPNOTSUPP;
-+		goto err_ns;
- 	}
- 
- 	ndev->rxft = mlx5_create_auto_grouped_flow_table(ns, &ft_attr);
--	if (IS_ERR(ndev->rxft))
--		return PTR_ERR(ndev->rxft);
-+	if (IS_ERR(ndev->rxft)) {
-+		err = PTR_ERR(ndev->rxft);
-+		goto err_ns;
-+	}
- 
- 	ndev->rx_counter = mlx5_fc_create(ndev->mvdev.mdev, false);
- 	if (IS_ERR(ndev->rx_counter)) {
-@@ -1316,37 +1330,67 @@ static int add_fwd_to_tir(struct mlx5_vdpa_net *ndev)
- 		goto err_fc;
- 	}
- 
--	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST | MLX5_FLOW_CONTEXT_ACTION_COUNT;
-+	headers_c = MLX5_ADDR_OF(fte_match_param, spec->match_criteria, outer_headers);
-+	dmac_c = MLX5_ADDR_OF(fte_match_param, headers_c, outer_headers.dmac_47_16);
-+	memset(dmac_c, 0xff, ETH_ALEN);
-+	headers_v = MLX5_ADDR_OF(fte_match_param, spec->match_value, outer_headers);
-+	dmac_v = MLX5_ADDR_OF(fte_match_param, headers_v, outer_headers.dmac_47_16);
-+	ether_addr_copy(dmac_v, ndev->config.mac);
-+
-+	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST |
-+			  MLX5_FLOW_CONTEXT_ACTION_COUNT;
- 	dest[0].type = MLX5_FLOW_DESTINATION_TYPE_TIR;
- 	dest[0].tir_num = ndev->res.tirn;
- 	dest[1].type = MLX5_FLOW_DESTINATION_TYPE_COUNTER;
- 	dest[1].counter_id = mlx5_fc_id(ndev->rx_counter);
--	ndev->rx_rule = mlx5_add_flow_rules(ndev->rxft, NULL, &flow_act, dest, 2);
--	if (IS_ERR(ndev->rx_rule)) {
--		err = PTR_ERR(ndev->rx_rule);
--		ndev->rx_rule = NULL;
--		goto err_rule;
-+	ndev->rx_rule_ucast = mlx5_add_flow_rules(ndev->rxft, spec, &flow_act,
-+						  dest, 2);
-+
-+	if (IS_ERR(ndev->rx_rule_ucast)) {
-+		err = PTR_ERR(ndev->rx_rule_ucast);
-+		ndev->rx_rule_ucast = NULL;
-+		goto err_rule_ucast;
-+	}
-+
-+	memset(dmac_c, 0, ETH_ALEN);
-+	memset(dmac_v, 0, ETH_ALEN);
-+	dmac_c[0] = 1;
-+	dmac_v[0] = 1;
-+	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
-+	ndev->rx_rule_mcast = mlx5_add_flow_rules(ndev->rxft, spec, &flow_act,
-+						  dest, 1);
-+	if (IS_ERR(ndev->rx_rule_mcast)) {
-+		err = PTR_ERR(ndev->rx_rule_mcast);
-+		ndev->rx_rule_mcast = NULL;
-+		goto err_rule_mcast;
- 	}
- 
-+	kvfree(spec);
- 	return 0;
- 
--err_rule:
-+err_rule_mcast:
-+	mlx5_del_flow_rules(ndev->rx_rule_ucast);
-+	ndev->rx_rule_ucast = NULL;
-+err_rule_ucast:
- 	mlx5_fc_destroy(ndev->mvdev.mdev, ndev->rx_counter);
- err_fc:
- 	mlx5_destroy_flow_table(ndev->rxft);
-+err_ns:
-+	kvfree(spec);
- 	return err;
- }
- 
- static void remove_fwd_to_tir(struct mlx5_vdpa_net *ndev)
- {
--	if (!ndev->rx_rule)
-+	if (!ndev->rx_rule_ucast)
- 		return;
- 
--	mlx5_del_flow_rules(ndev->rx_rule);
-+	mlx5_del_flow_rules(ndev->rx_rule_mcast);
-+	ndev->rx_rule_mcast = NULL;
-+	mlx5_del_flow_rules(ndev->rx_rule_ucast);
-+	ndev->rx_rule_ucast = NULL;
- 	mlx5_fc_destroy(ndev->mvdev.mdev, ndev->rx_counter);
- 	mlx5_destroy_flow_table(ndev->rxft);
--
--	ndev->rx_rule = NULL;
- }
- 
- static void mlx5_vdpa_kick_vq(struct vdpa_device *vdev, u16 idx)
+Yes, a better error handling would be one reason to do it like this.
+
 -- 
-2.26.2
+MST
 
 _______________________________________________
 Virtualization mailing list
