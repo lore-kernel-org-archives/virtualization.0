@@ -2,115 +2,116 @@ Return-Path: <SRS0=rmzs=H3=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-23.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9777C433DB
-	for <virtualization@archiver.kernel.org>; Thu, 25 Feb 2021 19:03:04 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F1ABC4332E
+	for <virtualization@archiver.kernel.org>; Thu, 25 Feb 2021 19:33:51 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 412B264EFA
-	for <virtualization@archiver.kernel.org>; Thu, 25 Feb 2021 19:03:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 412B264EFA
+	by mail.kernel.org (Postfix) with ESMTPS id AEA3164F18
+	for <virtualization@archiver.kernel.org>; Thu, 25 Feb 2021 19:33:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AEA3164F18
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 393C24EF52;
-	Thu, 25 Feb 2021 19:03:03 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 48C4084215;
+	Thu, 25 Feb 2021 19:33:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 05D92G5D8Gv7; Thu, 25 Feb 2021 19:03:02 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id cEDrjUD89H2m; Thu, 25 Feb 2021 19:33:49 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 6492D4EF53;
-	Thu, 25 Feb 2021 19:03:01 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id AD05884201;
+	Thu, 25 Feb 2021 19:33:48 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 31F45C000E;
-	Thu, 25 Feb 2021 19:03:01 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DC7B7C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 82166C000B;
+	Thu, 25 Feb 2021 19:33:48 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A1DE9C0001
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Feb 2021 19:02:59 +0000 (UTC)
+ Thu, 25 Feb 2021 19:33:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id C23356F88C
+ by smtp1.osuosl.org (Postfix) with ESMTP id 8E65684217
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Feb 2021 19:02:59 +0000 (UTC)
+ Thu, 25 Feb 2021 19:33:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id oVI4aDoZJz4x
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id kuB2Jb5AnKpf
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Feb 2021 19:02:59 +0000 (UTC)
+ Thu, 25 Feb 2021 19:33:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id DEFD46F88D
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 5DA5284216
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Feb 2021 19:02:58 +0000 (UTC)
+ Thu, 25 Feb 2021 19:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1614279777;
+ s=mimecast20190719; t=1614281625;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=XFKozbHhnqP0a9+4FvYtN86/9o6SBDgQyBJdWAPtLYc=;
- b=goqO1vdXPPln9jyuLgdMKTqHCgBp1YKjaEGRXCNnG/iDMZj78RPz1esp4nuHTEd4cnuZj9
- dNvpdY/YSuwpQhRbJNdmQj7K/MqdglRJsYjeNoy4OqIQzOidY7mTrl/HsX8GqmLjWLbmO0
- vHPL65Os0TtpuS3Qmn+BJ1RwQ5mEIZw=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-182-XWCnePcsOCCC3gzmAVDx2Q-1; Thu, 25 Feb 2021 14:02:55 -0500
-X-MC-Unique: XWCnePcsOCCC3gzmAVDx2Q-1
-Received: by mail-wm1-f70.google.com with SMTP id w20so2359280wmc.0
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+ bh=J8XckA0wuy/u0dP7Chp3yO58HxOiKtqQRaFNCMmqR6E=;
+ b=OcHT2Bk4AT05myZmeUIywWwmJdsXEKJorUVt3Vr995IeGbrVkKPnUGKTNqLUtbQQ31KSNZ
+ cu5QJnF7lPSLc+h1tyby/m4IiOTA0DTz9B98bDfNM4hqFNmoD7o3M0DKwkYDfCDpLjQyBl
+ rW8XGRnKnjBeHthYcUwbDfIb7WW7Rlg=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-577-xqboewV9MZSGhDAhyDauZw-1; Thu, 25 Feb 2021 14:33:40 -0500
+X-MC-Unique: xqboewV9MZSGhDAhyDauZw-1
+Received: by mail-ed1-f72.google.com with SMTP id g20so3386239edy.7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Feb 2021 11:02:55 -0800 (PST)
+ Thu, 25 Feb 2021 11:33:40 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=XFKozbHhnqP0a9+4FvYtN86/9o6SBDgQyBJdWAPtLYc=;
- b=ZgyV89fAvPQ4aSdU+YoqXC1xwCUOLgBAUqueRATjiEC0HbEFy1BxhIyFHNsZnRytwz
- pq2PVUvzQfhWCtdtCNkFozG50Y16h+d3biEsg1M13jxJ1lZ5h6VQvkjNw1tZEygyzIYO
- L1e886cLw4yb1QPRLp29JR0WxN9UTt34W1wVclzbtz5t1jmUtPv3LKmty6Ipr8SmwEsb
- YfbQCHFwfdpu06awTXz+79/NB7rBg6dq8ADF+n3hrmQLFzJLItuOqZgjKvsGkBoMAB/t
- qMxd65WT2k+RFfXjoBiZwrhlovgyY47m6qVfp7sXWMc3q7+5nUfs64myhvfWFcnN8Pwi
- D43Q==
-X-Gm-Message-State: AOAM530IMkYX0hSgnxAYhiXeuZCRX1FW2gtkWi8LGxlJ7LhSMzHTiwHt
- vZWRyfmIoRgf3CNixfjMfLQFSpFFJDEsWQyxjgMJKDwRhHCYQZZXPWXJNIXeS2vP0s26W/5tRxq
- aA4avKHzIJ2hl0mKWEeYByQGGOgeo44AiUbOsFtemaw==
-X-Received: by 2002:adf:f750:: with SMTP id z16mr5053154wrp.108.1614279774388; 
- Thu, 25 Feb 2021 11:02:54 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyofpaHNGnRewH6YHzPuJRqwWTHK/BQLCP4h/Yb+AZpMyiGXAnajZWb3bS8LQE8CSJUwyqDIA==
-X-Received: by 2002:adf:f750:: with SMTP id z16mr5053138wrp.108.1614279774228; 
- Thu, 25 Feb 2021 11:02:54 -0800 (PST)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+ :content-disposition;
+ bh=J8XckA0wuy/u0dP7Chp3yO58HxOiKtqQRaFNCMmqR6E=;
+ b=T+te+AD4Lxv9Um5LjLFkxE80GahZjBNCrgV16Iej7taYi62a4CGyJ8P1+5tC6NZC0M
+ 2h+T+44cQ6adUi69Y2y9NfpySmU2Ff60rfQH90MZNYwMEo77TF/A98SEZf7qPjxl1VJI
+ Spus38QTaWCaIq2PwuzGq49PjCzpIGzLdRfyR0x92o5kF3iLPetHchNo1AQm9LhQ40+W
+ TCF06haObguEYlyJSrUYrg8fxubhBj+AaCsuOfqJ8m7dPhsLH9jEpkdalCta++Q2ro7s
+ nATPfndZR+BfvtfcAV6K00eJCmCQ6bfG24Y6By8CXi8bq2BXL6BOzXpAi0aPuLTpyo8y
+ qYGQ==
+X-Gm-Message-State: AOAM532t7mSeseOc02j4cbsK40tJxdeRfldizsFlpr94Fhkqp8gu71l+
+ mjvn5xJS9OBacX2TUYQHarjl9PXfChqWR1rq4FPIbsiAxkr76sBaCa9QdWZm+sLMz/OkLS+GxAs
+ Xb7Nrbi//X47Rho2oRbiXdXgVvHspYjd2jT3y9UJldg==
+X-Received: by 2002:a17:907:2113:: with SMTP id
+ qn19mr4214706ejb.98.1614281619064; 
+ Thu, 25 Feb 2021 11:33:39 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJz2dN9ZzfgwQ9M65gsI//PlQJrl1Zvqctla4lD8bDjF0K4fbGkjn6jK5ahnGYupXSe2W6FPQw==
+X-Received: by 2002:a17:907:2113:: with SMTP id
+ qn19mr4214672ejb.98.1614281618920; 
+ Thu, 25 Feb 2021 11:33:38 -0800 (PST)
 Received: from redhat.com (212.116.168.114.static.012.net.il.
  [212.116.168.114])
- by smtp.gmail.com with ESMTPSA id s11sm8971320wme.22.2021.02.25.11.02.52
+ by smtp.gmail.com with ESMTPSA id ca26sm4215205edb.4.2021.02.25.11.33.35
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 25 Feb 2021 11:02:53 -0800 (PST)
-Date: Thu, 25 Feb 2021 14:02:50 -0500
+ Thu, 25 Feb 2021 11:33:38 -0800 (PST)
+Date: Thu, 25 Feb 2021 14:33:33 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Takashi Iwai <tiwai@suse.de>
-Subject: Re: [PATCH v5 6/9] ALSA: virtio: PCM substream operators
-Message-ID: <20210225135951-mutt-send-email-mst@kernel.org>
-References: <20210222153444.348390-1-anton.yakovlev@opensynergy.com>
- <20210222153444.348390-7-anton.yakovlev@opensynergy.com>
- <s5h35xkquvj.wl-tiwai@suse.de>
- <d9b6e8fa-7356-1cbf-029b-6f7c8bad4994@opensynergy.com>
- <s5hlfbcpayj.wl-tiwai@suse.de>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [GIT PULL] virtio: features, fixes
+Message-ID: <20210225143333-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <s5hlfbcpayj.wl-tiwai@suse.de>
+X-Mutt-Fcc: =sent
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: virtio-dev@lists.oasis-open.org, alsa-devel@alsa-project.org,
- linux-kernel@vger.kernel.org, Takashi Iwai <tiwai@suse.com>,
- Jaroslav Kysela <perex@perex.cz>, virtualization@lists.linux-foundation.org
+Cc: xianting_tian@126.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+ joseph.qi@linux.alibaba.com, edumazet@google.com, elic@nvidia.com,
+ anders.roxell@linaro.org, naresh.kamboju@linaro.org, mst@redhat.com,
+ joe.jin@oracle.com, virtualization@lists.linux-foundation.org,
+ linux@roeck-us.net, aruna.ramakrishna@oracle.com,
+ vasyl.vavrychuk@opensynergy.com, arnd@arndb.de, abaci@linux.alibaba.com,
+ syzkaller@googlegroups.com, abaci-bugfix@linux.alibaba.com,
+ netdev@vger.kernel.org, gustavoars@kernel.org, stable@vger.kernel.org,
+ mathias.crombez@faurecia.com, tiantao6@hisilicon.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,78 +128,110 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Feb 25, 2021 at 01:51:16PM +0100, Takashi Iwai wrote:
-> On Thu, 25 Feb 2021 13:14:37 +0100,
-> Anton Yakovlev wrote:
-> > 
-> > On 25.02.2021 11:55, Takashi Iwai wrote:
-> > > On Mon, 22 Feb 2021 16:34:41 +0100,
-> > > Anton Yakovlev wrote:
-> > >> +static int virtsnd_pcm_open(struct snd_pcm_substream *substream)
-> > >> +{
-> > >> +     struct virtio_pcm *vpcm = snd_pcm_substream_chip(substream);
-> > >> +     struct virtio_pcm_substream *vss = NULL;
-> > >> +
-> > >> +     if (vpcm) {
-> > >> +             switch (substream->stream) {
-> > >> +             case SNDRV_PCM_STREAM_PLAYBACK:
-> > >> +             case SNDRV_PCM_STREAM_CAPTURE: {
-> > >
-> > > The switch() here looks superfluous.  The substream->stream must be a
-> > > good value in the callback.  If any, you can put WARN_ON() there, but
-> > > I don't think it worth.
-> > 
-> > At least it doesn't do any harm.
-> 
-> It does -- it makes the readability worse, and that's a very important
-> point.
-> 
-> > >> +static int virtsnd_pcm_hw_params(struct snd_pcm_substream *substream,
-> > >> +                              struct snd_pcm_hw_params *hw_params)
-> > >> +{
-> > > ....
-> > >> +     return virtsnd_pcm_msg_alloc(vss, periods, period_bytes);
-> > >
-> > > We have the allocation, but...
-> > >
-> > >> +static int virtsnd_pcm_hw_free(struct snd_pcm_substream *substream)
-> > >> +{
-> > >> +     return 0;
-> > >
-> > > ... no release at hw_free()?
-> > > I know that the free is present in the allocator, but it's only for
-> > > re-allocation case, I suppose.
-> > 
-> > When the substream stops, sync_ptr waits until the device has completed
-> > all pending messages. This wait can be interrupted either by a signal or
-> > due to a timeout. In this case, the device can still access messages
-> > even after calling hw_free(). It can also issue an interrupt, and the
-> > interrupt handler will also try to access message structures. Therefore,
-> > freeing of already allocated messages occurs either in hw_params() or in
-> > dev->release(), since there it is 100% safe.
-> 
-> OK, then it's worth to document it about this object lifecycle.
-> The buffer management of this driver is fairly unique, so otherwise it
-> confuses readers.
-> 
-> 
-> thanks,
-> 
-> Takashi
+There are a couple new drivers and support for the new management
+interface for mlx under review now. I figured I'll send them separately
+if review is done in time, lots of people are waiting for the vdpa tool
+patches to I want to make sure they make this release.
 
-Takashi given I was in my tree for a while and I planned to merge
-it this merge window. I can still drop it but there are
-unrelated patches behind these in the tree so that's a rebase
-which will invalidate my testing, I'm just concerned about
-meeting the merge window.
+The following changes since commit f40ddce88593482919761f74910f42f4b84c004b:
 
-Would it be ok to merge this as is and then address
-readability stuff by patches on top?
-If yes please send acks!
-If you want to merge it yourself instead, also please say so.
+  Linux 5.11 (2021-02-14 14:32:24 -0800)
 
--- 
-MST
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to 16c10bede8b3d8594279752bf53153491f3f944f:
+
+  virtio-input: add multi-touch support (2021-02-23 07:52:59 -0500)
+
+----------------------------------------------------------------
+virtio: features, fixes
+
+new vdpa features to allow creation and deletion of new devices
+virtio-blk support per-device queue depth
+fixes, cleanups all over the place
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Colin Xu (1):
+      virtio_input: Prevent EV_MSC/MSC_TIMESTAMP loop storm for MT.
+
+Dongli Zhang (1):
+      vhost scsi: alloc vhost_scsi with kvzalloc() to avoid delay
+
+Gustavo A. R. Silva (1):
+      virtio_net: Fix fall-through warnings for Clang
+
+Jason Wang (17):
+      virtio-pci: do not access iomem via struct virtio_pci_device directly
+      virtio-pci: split out modern device
+      virtio-pci-modern: factor out modern device initialization logic
+      virtio-pci-modern: introduce vp_modern_remove()
+      virtio-pci-modern: introduce helper to set config vector
+      virtio-pci-modern: introduce helpers for setting and getting status
+      virtio-pci-modern: introduce helpers for setting and getting features
+      virtio-pci-modern: introduce vp_modern_generation()
+      virtio-pci-modern: introduce vp_modern_set_queue_vector()
+      virtio-pci-modern: introduce vp_modern_queue_address()
+      virtio-pci-modern: introduce helper to set/get queue_enable
+      virtio-pci-modern: introduce helper for setting/geting queue size
+      virtio-pci-modern: introduce helper for getting queue nums
+      virtio-pci-modern: introduce helper to get notification offset
+      virito-pci-modern: rename map_capability() to vp_modern_map_capability()
+      virtio-pci: introduce modern device module
+      virtio_vdpa: don't warn when fail to disable vq
+
+Jiapeng Zhong (1):
+      virtio-mem: Assign boolean values to a bool variable
+
+Joseph Qi (1):
+      virtio-blk: support per-device queue depth
+
+Mathias Crombez (1):
+      virtio-input: add multi-touch support
+
+Parav Pandit (6):
+      vdpa_sim_net: Make mac address array static
+      vdpa: Extend routine to accept vdpa device name
+      vdpa: Define vdpa mgmt device, ops and a netlink interface
+      vdpa: Enable a user to add and delete a vdpa device
+      vdpa: Enable user to query vdpa device info
+      vdpa_sim_net: Add support for user supported devices
+
+Stefano Garzarella (1):
+      vdpa/mlx5: fix param validation in mlx5_vdpa_get_config()
+
+Xianting Tian (1):
+      virtio_mmio: fix one typo
+
+ drivers/block/virtio_blk.c             |  11 +-
+ drivers/net/virtio_net.c               |   1 +
+ drivers/vdpa/Kconfig                   |   1 +
+ drivers/vdpa/ifcvf/ifcvf_main.c        |   2 +-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c      |   4 +-
+ drivers/vdpa/vdpa.c                    | 503 ++++++++++++++++++++++++++-
+ drivers/vdpa/vdpa_sim/vdpa_sim.c       |   3 +-
+ drivers/vdpa/vdpa_sim/vdpa_sim.h       |   2 +
+ drivers/vdpa/vdpa_sim/vdpa_sim_net.c   | 100 ++++--
+ drivers/vhost/scsi.c                   |   9 +-
+ drivers/virtio/Kconfig                 |   9 +
+ drivers/virtio/Makefile                |   1 +
+ drivers/virtio/virtio_input.c          |  26 +-
+ drivers/virtio/virtio_mem.c            |   2 +-
+ drivers/virtio/virtio_mmio.c           |   2 +-
+ drivers/virtio/virtio_pci_common.h     |  22 +-
+ drivers/virtio/virtio_pci_modern.c     | 504 ++++-----------------------
+ drivers/virtio/virtio_pci_modern_dev.c | 599 +++++++++++++++++++++++++++++++++
+ drivers/virtio/virtio_vdpa.c           |   3 +-
+ include/linux/vdpa.h                   |  44 ++-
+ include/linux/virtio_pci_modern.h      | 111 ++++++
+ include/uapi/linux/vdpa.h              |  40 +++
+ 22 files changed, 1492 insertions(+), 507 deletions(-)
+ create mode 100644 drivers/virtio/virtio_pci_modern_dev.c
+ create mode 100644 include/linux/virtio_pci_modern.h
+ create mode 100644 include/uapi/linux/vdpa.h
 
 _______________________________________________
 Virtualization mailing list
