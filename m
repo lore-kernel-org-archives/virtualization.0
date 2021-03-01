@@ -7,84 +7,110 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C633C433E0
-	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 15:31:04 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 680A8C433DB
+	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 15:33:28 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B3A20600CF
-	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 15:31:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B3A20600CF
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=opensynergy.com
+	by mail.kernel.org (Postfix) with ESMTPS id 0689064DD2
+	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 15:33:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0689064DD2
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7EA7A82D47;
-	Mon,  1 Mar 2021 15:31:03 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id BD2C943040;
+	Mon,  1 Mar 2021 15:33:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id MskNIyT3l0FQ; Mon,  1 Mar 2021 15:31:02 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id EB7E082D3C;
-	Mon,  1 Mar 2021 15:31:01 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D05D9C000B;
-	Mon,  1 Mar 2021 15:31:01 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6FEA2C0001
- for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Mar 2021 15:31:00 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 5FD4A4304D
- for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Mar 2021 15:31:00 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=opensynergy.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xrtzocGqwbSc
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3Ouxn0S19RPQ; Mon,  1 Mar 2021 15:33:27 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6A5CA4304D;
+	Mon,  1 Mar 2021 15:33:26 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 456C2C000D;
+	Mon,  1 Mar 2021 15:33:26 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 80E2DC000B
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Mar 2021 15:30:59 +0000 (UTC)
+ Mon,  1 Mar 2021 15:33:24 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 764554F28A
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  1 Mar 2021 15:33:24 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id b77yCaxSMNOA
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  1 Mar 2021 15:33:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx1.opensynergy.com (mx1.opensynergy.com [217.66.60.4])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 5F94A4303E
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 215E24F22B
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Mar 2021 15:30:59 +0000 (UTC)
-Received: from SR-MAILGATE-02.opensynergy.com (localhost.localdomain
- [127.0.0.1])
- by mx1.opensynergy.com (Proxmox) with ESMTP id D0845A135A;
- Mon,  1 Mar 2021 16:30:56 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=opensynergy.com;
- h=cc:cc:content-transfer-encoding:content-type:content-type
- :date:from:from:in-reply-to:message-id:mime-version:references
- :reply-to:subject:subject:to:to; s=srmailgate02; bh=v4QKZoyEhUUl
- 8eHO+sgtVV5pWRE+dBrdSzOgE4nihEc=; b=1xa44NdfhI89Ixk8UlhPryNc5vVr
- 4AUZxU2udGJCZaGsHMNXmaddj45tBMOdTsmcvJeksOl8/01R78QdAn6nlGWgSb9f
- MLBxVr0kjriaw5bp56t4krjwhqW1JiNvlqhUSvLQ9oiUJshRjVOMUegd66Ai0pbE
- XjdKowsTuAUMxWYtb05K5AB9enxtcNfaBm/8kHPSqsnf/Zb1EXz5deTlDOFqS94M
- SSkySeIvlKsQqZ88iMFWB0zAE3b2Jn6zmVU7641+Wvz6ccXo0+XoLlxlgV2f66ah
- +ZUQFPSjMCYH5OzgYs5jPK+VyfYQ5U848MolYZbvrNS3FoDN15gqBPStwQ==
-Subject: Re: [PATCH v6 9/9] ALSA: virtio: introduce device suspend/resume
- support
-To: Takashi Iwai <tiwai@suse.de>
-References: <20210227085956.1700687-1-anton.yakovlev@opensynergy.com>
- <20210227085956.1700687-10-anton.yakovlev@opensynergy.com>
- <s5hpn0kjt31.wl-tiwai@suse.de>
- <54854cb9-99c3-4c05-3b43-f41d89a29aec@opensynergy.com>
- <s5hzgznhu3n.wl-tiwai@suse.de>
-From: Anton Yakovlev <anton.yakovlev@opensynergy.com>
-Message-ID: <438961dc-b546-562a-26dc-53cf46ee74b6@opensynergy.com>
-Date: Mon, 1 Mar 2021 16:30:55 +0100
+ Mon,  1 Mar 2021 15:33:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1614612801;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=VycDxHHozAmz/oN9S6Q+COAL5WKvN1P0hQASaQTZUyM=;
+ b=hcvk9BxeDthBsHekRwSbT98PsGoZU7GBjAktvtvMxzs3jtKVFL1T6auX83BpFMSrB3k3BX
+ asxh9xpDyMv+Pt6YH+j8+2oPA5MHRgR9CygPYPTcR9cNZLpsoE8vu4bFeTjIpaVCMQ0jR7
+ 2bLxMOdapeswR2FnDAdMk+wfpnV9BxI=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-59-HBLQOiROMnihu95dpxqlqQ-1; Mon, 01 Mar 2021 10:33:20 -0500
+X-MC-Unique: HBLQOiROMnihu95dpxqlqQ-1
+Received: by mail-ed1-f69.google.com with SMTP id k8so574190edn.19
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 01 Mar 2021 07:33:19 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=VycDxHHozAmz/oN9S6Q+COAL5WKvN1P0hQASaQTZUyM=;
+ b=TfwbIp482kgo80MRBzOaafXRRQOZuTdFOgL7BR+eBcilJHMtHJsI/XzNYogpXmJWSj
+ gRh91VBVNjtOn4TXPB2swFDm/ewBdl8BF/3MsU46b6DdqWZT4lcRJEviY0dvRHaCKhVs
+ WO1wjoUf6VuS4oP+VwObHpcRmQvmSrubfZ0l/LDxd9MGgLZKAKmfL5Nv7Q7tVq6g6ET3
+ LsEcUPLyCKUsEWNMbgBNXuUCytk/OsoLepcKp7QTCJvYDKejN4k3A7SNrLOidkrX/xqW
+ 6TbYvpO93xLs6bC8gbRfh8UsJEhJTSj1Petf5znIl3HypV6IqhlCb69jhuINJdoUdeXa
+ D9hg==
+X-Gm-Message-State: AOAM533vG6d5ewodAm994jR12L5IR+eKDFXdzBnM78NoqWQOUP9Ppocs
+ ddxugKw/POVkgXON5TuPbEWK2JNSlImN3sm6HuAJGEstRDov5QDlX/wfH4PQRgSFWFs3/GDW2eS
+ to0t2c+hpz38hL77EsGxcNzOQLzcJbEH+LdnkKTkiVQ==
+X-Received: by 2002:a17:907:3da5:: with SMTP id
+ he37mr16735471ejc.300.1614612798837; 
+ Mon, 01 Mar 2021 07:33:18 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxvuA2uuZPGE6wZF6LgEHxqlvnFOzgtkmNcH1tdkTEnC0QemOod2QRaCHxR1Jk8clxbToGX/w==
+X-Received: by 2002:a17:907:3da5:: with SMTP id
+ he37mr16735461ejc.300.1614612798727; 
+ Mon, 01 Mar 2021 07:33:18 -0800 (PST)
+Received: from redhat.com (bzq-79-180-2-31.red.bezeqint.net. [79.180.2.31])
+ by smtp.gmail.com with ESMTPSA id bx24sm731233ejc.88.2021.03.01.07.33.17
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 01 Mar 2021 07:33:18 -0800 (PST)
+Date: Mon, 1 Mar 2021 10:33:14 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vdpa/mlx5: Fix wrong use of bit numbers
+Message-ID: <20210301103214-mutt-send-email-mst@kernel.org>
+References: <20210301062817.39331-1-elic@nvidia.com>
+ <959916f2-5fc9-bdb4-31ca-632fe0d98979@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <s5hzgznhu3n.wl-tiwai@suse.de>
-Content-Language: en-US
-X-ClientProxiedBy: SR-MAIL-02.open-synergy.com (10.26.10.22) To
- SR-MAIL-01.open-synergy.com (10.26.10.21)
-Cc: virtio-dev@lists.oasis-open.org, alsa-devel@alsa-project.org, "Michael S.
- Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
- Takashi Iwai <tiwai@suse.com>, Jaroslav Kysela <perex@perex.cz>,
- virtualization@lists.linux-foundation.org
+In-Reply-To: <959916f2-5fc9-bdb4-31ca-632fe0d98979@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: netdev@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -96,161 +122,45 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 01.03.2021 14:38, Takashi Iwai wrote:
-> On Mon, 01 Mar 2021 11:03:04 +0100,
-> Anton Yakovlev wrote:
->>
->> On 28.02.2021 13:05, Takashi Iwai wrote:
->>> On Sat, 27 Feb 2021 09:59:56 +0100,
->>> Anton Yakovlev wrote:
->>>>
->>>> All running PCM substreams are stopped on device suspend and restarted
->>>> on device resume.
->>>>
->>>> Signed-off-by: Anton Yakovlev <anton.yakovlev@opensynergy.com>
->>>> ---
->>>>    sound/virtio/virtio_card.c    | 56 +++++++++++++++++++++++++++++++++++
->>>>    sound/virtio/virtio_pcm.c     |  1 +
->>>>    sound/virtio/virtio_pcm_ops.c | 41 ++++++++++++++++++++-----
->>>>    3 files changed, 90 insertions(+), 8 deletions(-)
->>>>
->>>> diff --git a/sound/virtio/virtio_card.c b/sound/virtio/virtio_card.c
->>>> index 59455a562018..c7ae8801991d 100644
->>>> --- a/sound/virtio/virtio_card.c
->>>> +++ b/sound/virtio/virtio_card.c
->>>> @@ -323,6 +323,58 @@ static void virtsnd_remove(struct virtio_device *vdev)
->>>>         kfree(snd->event_msgs);
->>>>    }
->>>>
->>>> +#ifdef CONFIG_PM_SLEEP
->>>> +/**
->>>> + * virtsnd_freeze() - Suspend device.
->>>> + * @vdev: VirtIO parent device.
->>>> + *
->>>> + * Context: Any context.
->>>> + * Return: 0 on success, -errno on failure.
->>>> + */
->>>> +static int virtsnd_freeze(struct virtio_device *vdev)
->>>> +{
->>>> +     struct virtio_snd *snd = vdev->priv;
->>>> +
->>>> +     virtsnd_ctl_msg_cancel_all(snd);
->>>> +
->>>> +     vdev->config->del_vqs(vdev);
->>>> +     vdev->config->reset(vdev);
->>>> +
->>>> +     kfree(snd->event_msgs);
->>>> +
->>>> +     /*
->>>> +      * If the virtsnd_restore() fails before re-allocating events, then we
->>>> +      * get a dangling pointer here.
->>>> +      */
->>>> +     snd->event_msgs = NULL;
->>>> +
->>>> +     return 0;
->>>
->>> I suppose some cancel of inflight works is needed?
->>> Ditto for the device removal, too.
->>
->> It's not necessary here, since the device is reset and all of this are
->> happened automatically.
-> 
-> Hrm, but the reset call itself might conflict with the inflight reset
-> work?  I haven't see any work canceling or flushing, so...
-
-There maybe the following:
-
-1. Some pending control requests -> these are cancelled in the
-virtsnd_ctl_msg_cancel_all() call.
-
-2. PCM messages -> these must not be cancelled, since they will be
-requeued by driver on resume (starting with suspended position).
-
-3. Some pending events from the device. These will be lost. Yeah, I
-think we can process all pending events before destroying virtqueue.
-
-Other that these, there are no other inflight works or so.
-
-
->> But in the device remove it makes sense also to
->> disable events before calling snd_card_free(), since the device is still
->> able to send notifications at that moment. Thanks!
->>
->>
->>>> --- a/sound/virtio/virtio_pcm.c
->>>> +++ b/sound/virtio/virtio_pcm.c
->>>> @@ -109,6 +109,7 @@ static int virtsnd_pcm_build_hw(struct virtio_pcm_substream *vss,
->>>>                 SNDRV_PCM_INFO_BATCH |
->>>>                 SNDRV_PCM_INFO_BLOCK_TRANSFER |
->>>>                 SNDRV_PCM_INFO_INTERLEAVED |
->>>> +             SNDRV_PCM_INFO_RESUME |
->>>>                 SNDRV_PCM_INFO_PAUSE;
->>>
->>> Actually you don't need to set SNDRV_PCM_INFO_RESUME.
->>> This flag means that the driver supports the full resume procedure,
->>> which isn't often the case; with this, the driver is supposed to
->>> resume the stream exactly from the suspended position.
->>
->> If I understood you right, that's exactly how resume is implemented now
->> in the driver. Although we fully restart substream on the device side,
->> from an application point of view it is resumed exactly at the same
->> position.
->>
->>
->>> Most drivers don't set this but implement only the suspend-stop
->>> action.  Then the application (or the sound backend) will re-setup the
->>> stream and restart accordingly.
->>
->> And an application must be aware of such possible situation? Since I
->> have no doubt in alsa-lib, but I don't think that for example tinyalsa
->> can handle this right.
-> 
-> Tiny ALSA should work, too.  Actually there are only few drivers that
-> have the full PCM resume.  The majority of drivers are without the
-> resume support (including a large one like HD-audio).
-
-Then it's a great news! Since we can simplify code a lot.
-
-
-> And, with the resume implementation, I'm worried by the style like:
-> 
->>>> @@ -309,6 +318,21 @@ static int virtsnd_pcm_trigger(struct snd_pcm_substream *substream, int command)
->>>>         int rc;
->>>>
->>>>         switch (command) {
->>>> +     case SNDRV_PCM_TRIGGER_RESUME: {
->>>> +             /*
->>>> +              * We restart the substream by executing the standard command
->>>> +              * sequence.
->>>> +              */
->>>> +             rc = virtsnd_pcm_hw_params(substream, NULL);
->>>> +             if (rc)
->>>> +                     return rc;
->>>> +
->>>> +             rc = virtsnd_pcm_prepare(substream);
->>>> +             if (rc)
->>>> +                     return rc;
-> 
-> ... and this is rather what the core code should do, and it's exactly
-> the same procedure that would be done without RESUME flag.
-> 
-> 
-> Takashi
-> 
-
--- 
-Anton Yakovlev
-Senior Software Engineer
-
-OpenSynergy GmbH
-Rotherstr. 20, 10245 Berlin
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gTW9uLCBNYXIgMDEsIDIwMjEgYXQgMDM6NTI6NDVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDIxLzMvMSAyOjI4IOS4i+WNiCwgRWxpIENvaGVuIHdyb3RlOgo+ID4gVklS
+VElPX0ZfVkVSU0lPTl8xIGlzIGEgYml0IG51bWJlci4gVXNlIEJJVF9VTEwoKSB3aXRoIG1hc2sK
+PiA+IGNvbmRpdGlvbmFscy4KPiA+IAo+ID4gQWxzbywgaW4gbWx4NV92ZHBhX2lzX2xpdHRsZV9l
+bmRpYW4oKSB1c2UgQklUX1VMTCBmb3IgY29uc2lzdGVuY3kgd2l0aAo+ID4gdGhlIHJlc3Qgb2Yg
+dGhlIGNvZGUuCj4gPiAKPiA+IEZpeGVzOiAxYTg2YjM3N2FhMjEgKCJ2ZHBhL21seDU6IEFkZCBW
+RFBBIGRyaXZlciBmb3Igc3VwcG9ydGVkIG1seDUgZGV2aWNlcyIpCj4gPiBTaWduZWQtb2ZmLWJ5
+OiBFbGkgQ29oZW4gPGVsaWNAbnZpZGlhLmNvbT4KPiAKPiAKPiBBY2tlZC1ieTogSmFzb24gV2Fu
+ZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KCkFuZCBDQyBzdGFibGUgSSBndWVzcz8KCj4gCj4gPiAt
+LS0KPiA+ICAgZHJpdmVycy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5jIHwgNCArKy0tCj4gPiAg
+IDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCj4gPiAKPiA+
+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMgYi9kcml2ZXJz
+L3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMKPiA+IGluZGV4IGRjNzAzMTEzMmZmZi4uN2QyMWI4
+NTdhOTRhIDEwMDY0NAo+ID4gLS0tIGEvZHJpdmVycy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5j
+Cj4gPiArKysgYi9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMKPiA+IEBAIC04MjEs
+NyArODIxLDcgQEAgc3RhdGljIGludCBjcmVhdGVfdmlydHF1ZXVlKHN0cnVjdCBtbHg1X3ZkcGFf
+bmV0ICpuZGV2LCBzdHJ1Y3QgbWx4NV92ZHBhX3ZpcnRxdWUKPiA+ICAgCU1MWDVfU0VUKHZpcnRp
+b19xLCB2cV9jdHgsIGV2ZW50X3Fwbl9vcl9tc2l4LCBtdnEtPmZ3cXAubXFwLnFwbik7Cj4gPiAg
+IAlNTFg1X1NFVCh2aXJ0aW9fcSwgdnFfY3R4LCBxdWV1ZV9zaXplLCBtdnEtPm51bV9lbnQpOwo+
+ID4gICAJTUxYNV9TRVQodmlydGlvX3EsIHZxX2N0eCwgdmlydGlvX3ZlcnNpb25fMV8wLAo+ID4g
+LQkJICEhKG5kZXYtPm12ZGV2LmFjdHVhbF9mZWF0dXJlcyAmIFZJUlRJT19GX1ZFUlNJT05fMSkp
+Owo+ID4gKwkJICEhKG5kZXYtPm12ZGV2LmFjdHVhbF9mZWF0dXJlcyAmIEJJVF9VTEwoVklSVElP
+X0ZfVkVSU0lPTl8xKSkpOwo+ID4gICAJTUxYNV9TRVQ2NCh2aXJ0aW9fcSwgdnFfY3R4LCBkZXNj
+X2FkZHIsIG12cS0+ZGVzY19hZGRyKTsKPiA+ICAgCU1MWDVfU0VUNjQodmlydGlvX3EsIHZxX2N0
+eCwgdXNlZF9hZGRyLCBtdnEtPmRldmljZV9hZGRyKTsKPiA+ICAgCU1MWDVfU0VUNjQodmlydGlv
+X3EsIHZxX2N0eCwgYXZhaWxhYmxlX2FkZHIsIG12cS0+ZHJpdmVyX2FkZHIpOwo+ID4gQEAgLTE1
+NzgsNyArMTU3OCw3IEBAIHN0YXRpYyB2b2lkIHRlYXJkb3duX3ZpcnRxdWV1ZXMoc3RydWN0IG1s
+eDVfdmRwYV9uZXQgKm5kZXYpCj4gPiAgIHN0YXRpYyBpbmxpbmUgYm9vbCBtbHg1X3ZkcGFfaXNf
+bGl0dGxlX2VuZGlhbihzdHJ1Y3QgbWx4NV92ZHBhX2RldiAqbXZkZXYpCj4gPiAgIHsKPiA+ICAg
+CXJldHVybiB2aXJ0aW9fbGVnYWN5X2lzX2xpdHRsZV9lbmRpYW4oKSB8fAo+ID4gLQkJKG12ZGV2
+LT5hY3R1YWxfZmVhdHVyZXMgJiAoMVVMTCA8PCBWSVJUSU9fRl9WRVJTSU9OXzEpKTsKPiA+ICsJ
+CShtdmRldi0+YWN0dWFsX2ZlYXR1cmVzICYgQklUX1VMTChWSVJUSU9fRl9WRVJTSU9OXzEpKTsK
+PiA+ICAgfQo+ID4gICBzdGF0aWMgX192aXJ0aW8xNiBjcHVfdG9fbWx4NXZkcGExNihzdHJ1Y3Qg
+bWx4NV92ZHBhX2RldiAqbXZkZXYsIHUxNiB2YWwpCgpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
+dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
