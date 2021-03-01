@@ -2,82 +2,86 @@ Return-Path: <SRS0=COaL=H7=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB61AC433DB
-	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 08:49:33 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 563BEC433E0
+	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 09:25:15 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7841464DE0
-	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 08:49:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7841464DE0
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+	by mail.kernel.org (Postfix) with ESMTPS id CD1FF64E01
+	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 09:25:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CD1FF64E01
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=opensynergy.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4783943051;
-	Mon,  1 Mar 2021 08:49:33 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 61D0B83E05;
+	Mon,  1 Mar 2021 09:25:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id igMghgxivjwh; Mon,  1 Mar 2021 08:49:32 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JbjHhUdwA4le; Mon,  1 Mar 2021 09:25:13 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id EC2BE43047;
-	Mon,  1 Mar 2021 08:49:31 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id E694383EB2;
+	Mon,  1 Mar 2021 09:25:12 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A3475C0011;
-	Mon,  1 Mar 2021 08:49:31 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B1E97C000B;
+	Mon,  1 Mar 2021 09:25:12 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3BF9BC0001;
- Mon,  1 Mar 2021 08:49:30 +0000 (UTC)
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 133AFC0001
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  1 Mar 2021 09:25:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 26A17606BF;
- Mon,  1 Mar 2021 08:49:30 +0000 (UTC)
+ by smtp3.osuosl.org (Postfix) with ESMTP id 048CF60674
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  1 Mar 2021 09:25:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
+ dkim=pass (2048-bit key) header.d=opensynergy.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id slmLJuOygPcK; Mon,  1 Mar 2021 08:49:29 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 57CC5606A2;
- Mon,  1 Mar 2021 08:49:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
- References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
- Content-Type:Content-ID:Content-Description;
- bh=xjnrpEXxWqN295Q5FQN/MKyM59zP4it+2k/oCX23gCw=; b=GUTHjhjVLRbJTH2y8N0f5pXfQt
- BpcjyqebHUSqkrTfxo9sNnMxsXXi553XjQV00V9WvEhU+FZoA+NR+7JFRo7V+AcJrTEM2A0/NWoUY
- UQcG1jJvPEvJ62t0+skQ3GOQwTgz9bkJrgJ5bnVxZaxWSLvpKWL69ICJDko8VZPR7xnOkfCwL79i7
- gSKcArm/UWJvBLWZ3LQ2LKR9uhK0zIeUIiMijW/QfWAXEvydnu+GXr4VH9gDQxN7matDN8yNDTwzc
- mzOmEyht23pCYSJg+mpQkr9XEd1UDX2UeQck2jKCZcJqclZ3cNse2Oooee5h2NDsQSuznxuuEfST1
- vhs+o1kA==;
-Received: from [2001:4bb8:19b:e4b7:cdf9:733f:4874:8eb4] (helo=localhost)
- by casper.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
- id 1lGeES-00FUwW-Vk; Mon, 01 Mar 2021 08:48:50 +0000
-From: Christoph Hellwig <hch@lst.de>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Li Yang <leoyang.li@nxp.com>
-Subject: [PATCH 17/17] iommu: remove iommu_domain_set_attr
-Date: Mon,  1 Mar 2021 09:42:57 +0100
-Message-Id: <20210301084257.945454-18-hch@lst.de>
-X-Mailer: git-send-email 2.29.2
-In-Reply-To: <20210301084257.945454-1-hch@lst.de>
-References: <20210301084257.945454-1-hch@lst.de>
+ with ESMTP id fWsr6_7qpWnj
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  1 Mar 2021 09:25:11 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mx1.opensynergy.com (mx1.opensynergy.com [217.66.60.4])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E2BAD605A8
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  1 Mar 2021 09:25:10 +0000 (UTC)
+Received: from SR-MAILGATE-02.opensynergy.com (localhost.localdomain
+ [127.0.0.1])
+ by mx1.opensynergy.com (Proxmox) with ESMTP id 850CBA133F;
+ Mon,  1 Mar 2021 10:25:07 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=opensynergy.com;
+ h=cc:cc:content-transfer-encoding:content-type:content-type
+ :date:from:from:in-reply-to:message-id:mime-version:references
+ :reply-to:subject:subject:to:to; s=srmailgate02; bh=uSJJetc2M6a7
+ lgzm6cOltJ6NC/DZ0gqUW8HqU2UcHXk=; b=JH4+SP78tCJ3pTYlZ48ml+43Yh5P
+ Rs0dcRFPb0F2BNEVQcAzW3IeyRInsp5PuWcHCvQH1/O2NZYGUgUhEUI6WTPSch/m
+ b96yDk1+SB7TRKMU1qteXiL2IPCNfBitX5qqcoI5gxNRC4lpYr+g3Y7Dj96XF0uL
+ VCUILdn51VOVbEsKtwTMzuRyotgnol/QzLT/mCqdizO0UftD+kvin7MVPaH2EvPt
+ oc0m4XMstF6S/NRCzfj3WTI8gWojjdWxIa3Q9P/lS6I9QqzXSbPmNVS32qrrSiad
+ yvCT0miMljfuHH6ImaNxkqSncbKedSWYWZr0zhNuBJ72Pa/un5Nxs4O7Cw==
+Subject: Re: [PATCH v6 5/9] ALSA: virtio: handling control and I/O messages
+ for the PCM device
+To: Takashi Iwai <tiwai@suse.de>
+References: <20210227085956.1700687-1-anton.yakovlev@opensynergy.com>
+ <20210227085956.1700687-6-anton.yakovlev@opensynergy.com>
+ <s5hsg5gjutg.wl-tiwai@suse.de>
+From: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+Message-ID: <b3de8563-1776-4296-2cf5-883c831dfbe8@opensynergy.com>
+Date: Mon, 1 Mar 2021 10:25:05 +0100
 MIME-Version: 1.0
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
- casper.infradead.org. See http://www.infradead.org/rpr.html
-Cc: freedreno@lists.freedesktop.org, kvm@vger.kernel.org,
- Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- iommu@lists.linux-foundation.org, netdev@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
- linux-arm-kernel@lists.infradead.org, Lu Baolu <baolu.lu@linux.intel.com>
+In-Reply-To: <s5hsg5gjutg.wl-tiwai@suse.de>
+Content-Language: en-US
+X-ClientProxiedBy: SR-MAIL-01.open-synergy.com (10.26.10.21) To
+ SR-MAIL-01.open-synergy.com (10.26.10.21)
+Cc: virtio-dev@lists.oasis-open.org, alsa-devel@alsa-project.org, "Michael S.
+ Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
+ Takashi Iwai <tiwai@suse.com>, Jaroslav Kysela <perex@perex.cz>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -89,114 +93,203 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/iommu/iommu.c | 17 -----------------
- include/linux/iommu.h | 27 ---------------------------
- 2 files changed, 44 deletions(-)
+On 28.02.2021 12:27, Takashi Iwai wrote:
+> On Sat, 27 Feb 2021 09:59:52 +0100,
+> Anton Yakovlev wrote:
+>> +/**
+>> + * virtsnd_pcm_event() - Handle the PCM device event notification.
+>> + * @snd: VirtIO sound device.
+>> + * @event: VirtIO sound event.
+>> + *
+>> + * Context: Interrupt context.
+> 
+> OK, then nonatomic PCM flag is invalid...
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 8490aefd4b41f8..b04e6cefe8520d 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -2668,23 +2668,6 @@ bool iommu_dma_use_flush_queue(struct iommu_domain *domain)
- }
- EXPORT_SYMBOL_GPL(iommu_dma_use_flush_queue);
- 
--int iommu_domain_set_attr(struct iommu_domain *domain,
--			  enum iommu_attr attr, void *data)
--{
--	int ret = 0;
--
--	switch (attr) {
--	default:
--		if (domain->ops->domain_set_attr == NULL)
--			return -EINVAL;
--
--		ret = domain->ops->domain_set_attr(domain, attr, data);
--	}
--
--	return ret;
--}
--EXPORT_SYMBOL_GPL(iommu_domain_set_attr);
--
- int iommu_domain_enable_nesting(struct iommu_domain *domain)
- {
- 	if (!domain->ops->domain_enable_nesting)
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 39d3ed4d2700ac..62535f563aa491 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -97,20 +97,6 @@ enum iommu_cap {
- 	IOMMU_CAP_NOEXEC,		/* IOMMU_NOEXEC flag */
- };
- 
--/*
-- * Following constraints are specifc to FSL_PAMUV1:
-- *  -aperture must be power of 2, and naturally aligned
-- *  -number of windows must be power of 2, and address space size
-- *   of each window is determined by aperture size / # of windows
-- *  -the actual size of the mapped region of a window must be power
-- *   of 2 starting with 4KB and physical address must be naturally
-- *   aligned.
-- */
--
--enum iommu_attr {
--	DOMAIN_ATTR_MAX,
--};
--
- /* These are the possible reserved region types */
- enum iommu_resv_type {
- 	/* Memory regions which must be mapped 1:1 at all times */
-@@ -194,7 +180,6 @@ struct iommu_iotlb_gather {
-  * @device_group: find iommu group for a particular device
-  * @dma_use_flush_queue: Returns %true if a DMA flush queue is used
-  * @dma_enable_flush_queue: Try to enable the DMA flush queue
-- * @domain_set_attr: Change domain attributes
-  * @domain_enable_nesting: Enable nesting
-  * @domain_set_pgtable_attr: Set io page table attributes
-  * @get_resv_regions: Request list of reserved regions for a device
-@@ -247,8 +232,6 @@ struct iommu_ops {
- 	struct iommu_group *(*device_group)(struct device *dev);
- 	bool (*dma_use_flush_queue)(struct iommu_domain *domain);
- 	void (*dma_enable_flush_queue)(struct iommu_domain *domain);
--	int (*domain_set_attr)(struct iommu_domain *domain,
--			       enum iommu_attr attr, void *data);
- 	int (*domain_enable_nesting)(struct iommu_domain *domain);
- 	int (*domain_set_pgtable_attr)(struct iommu_domain *domain,
- 			struct io_pgtable_domain_attr *pgtbl_cfg);
-@@ -498,11 +481,7 @@ extern struct iommu_domain *iommu_group_default_domain(struct iommu_group *);
- bool iommu_dma_use_flush_queue(struct iommu_domain *domain);
- int iommu_domain_set_pgtable_attr(struct iommu_domain *domain,
- 		struct io_pgtable_domain_attr *pgtbl_cfg);
--extern int iommu_domain_set_attr(struct iommu_domain *domain, enum iommu_attr,
--				 void *data);
- int iommu_domain_enable_nesting(struct iommu_domain *domain);
--int iommu_domain_set_pgtable_attr(struct iommu_domain *domain,
--		struct io_pgtable_domain_attr *pgtbl_cfg);
- 
- extern int report_iommu_fault(struct iommu_domain *domain, struct device *dev,
- 			      unsigned long iova, int flags);
-@@ -869,12 +848,6 @@ static inline int iommu_group_id(struct iommu_group *group)
- 	return -ENODEV;
- }
- 
--static inline int iommu_domain_set_attr(struct iommu_domain *domain,
--					enum iommu_attr attr, void *data)
--{
--	return -EINVAL;
--}
--
- static inline int  iommu_device_register(struct iommu_device *iommu)
- {
- 	return -ENODEV;
+Well, no. Here, events are kind of independent entities. PCM-related
+events are just a special case of more generic events, which can carry
+any kind of notification/payload. (And at the moment, only XRUN
+notification is supported for PCM substreams.) So it has nothing to do
+with the atomicity of the PCM device itself.
+
+
+>> +/**
+>> + * virtsnd_pcm_sg_num() - Count the number of sg-elements required to represent
+>> + *                        vmalloc'ed buffer.
+>> + * @data: Pointer to vmalloc'ed buffer.
+>> + * @length: Buffer size.
+>> + *
+>> + * Context: Any context.
+>> + * Return: Number of physically contiguous parts in the @data.
+>> + */
+>> +static int virtsnd_pcm_sg_num(u8 *data, unsigned int length)
+>> +{
+>> +     phys_addr_t sg_address;
+>> +     unsigned int sg_length;
+>> +     int num = 0;
+>> +
+>> +     while (length) {
+>> +             struct page *pg = vmalloc_to_page(data);
+>> +             phys_addr_t pg_address = page_to_phys(pg);
+>> +             size_t pg_length;
+>> +
+>> +             pg_length = PAGE_SIZE - offset_in_page(data);
+>> +             if (pg_length > length)
+>> +                     pg_length = length;
+>> +
+>> +             if (!num || sg_address + sg_length != pg_address) {
+>> +                     sg_address = pg_address;
+>> +                     sg_length = pg_length;
+>> +                     num++;
+>> +             } else {
+>> +                     sg_length += pg_length;
+>> +             }
+>> +
+>> +             data += pg_length;
+>> +             length -= pg_length;
+>> +     }
+>> +
+>> +     return num;
+>> +}
+>> +
+>> +/**
+>> + * virtsnd_pcm_sg_from() - Build sg-list from vmalloc'ed buffer.
+>> + * @sgs: Preallocated sg-list to populate.
+>> + * @nsgs: The maximum number of elements in the @sgs.
+>> + * @data: Pointer to vmalloc'ed buffer.
+>> + * @length: Buffer size.
+>> + *
+>> + * Splits the buffer into physically contiguous parts and makes an sg-list of
+>> + * such parts.
+>> + *
+>> + * Context: Any context.
+>> + */
+>> +static void virtsnd_pcm_sg_from(struct scatterlist *sgs, int nsgs, u8 *data,
+>> +                             unsigned int length)
+>> +{
+>> +     int idx = -1;
+>> +
+>> +     while (length) {
+>> +             struct page *pg = vmalloc_to_page(data);
+>> +             size_t pg_length;
+>> +
+>> +             pg_length = PAGE_SIZE - offset_in_page(data);
+>> +             if (pg_length > length)
+>> +                     pg_length = length;
+>> +
+>> +             if (idx == -1 ||
+>> +                 sg_phys(&sgs[idx]) + sgs[idx].length != page_to_phys(pg)) {
+>> +                     if (idx + 1 == nsgs)
+>> +                             break;
+>> +                     sg_set_page(&sgs[++idx], pg, pg_length,
+>> +                                 offset_in_page(data));
+>> +             } else {
+>> +                     sgs[idx].length += pg_length;
+>> +             }
+>> +
+>> +             data += pg_length;
+>> +             length -= pg_length;
+>> +     }
+>> +
+>> +     sg_mark_end(&sgs[idx]);
+>> +}
+> 
+> Hmm, I thought there can be already a handy helper to convert vmalloc
+> to sglist, but apparently not.  It should have been trivial to get the
+> page list from vmalloc, e.g.
+> 
+> int vmalloc_to_page_list(void *p, struct page **page_ret)
+> {
+>          struct vmap_area *va;
+> 
+>          va = find_vmap_area((unsigned long)p);
+>          if (!va)
+>                  return 0;
+>          *page_ret = va->vm->pages;
+>          return va->vm->nr_pages;
+> }
+> 
+> Then you can set up the sg list in a single call from the given page
+> list.
+> 
+> But it's just a cleanup, and let's mark it as a room for
+> improvements.
+
+Yeah, we can take a look into some kind of optimizations here. But I
+suspect, the overall code will look similar. It is not enough just to
+get a list of pages, you also need to build a list of physically
+contiguous regions from it. Because the sg-elements are put into a
+virtqueue that has a limited size. And each sg-element consumes one item
+in the virtqueue. And since the virtqueue itself is shared between all
+substreams, the items of the virtqueue become a scarce resource.
+
+
+> (snip)
+>> +/**
+>> + * virtsnd_pcm_msg_complete() - Complete an I/O message.
+>> + * @msg: I/O message.
+>> + * @written_bytes: Number of bytes written to the message.
+>> + *
+>> + * Completion of the message means the elapsed period. If transmission is
+>> + * allowed, then each completed message is immediately placed back at the end
+>> + * of the queue.
+>> + *
+>> + * For the playback substream, @written_bytes is equal to sizeof(msg->status).
+>> + *
+>> + * For the capture substream, @written_bytes is equal to sizeof(msg->status)
+>> + * plus the number of captured bytes.
+>> + *
+>> + * Context: Interrupt context. Takes and releases the VirtIO substream spinlock.
+>> + */
+>> +static void virtsnd_pcm_msg_complete(struct virtio_pcm_msg *msg,
+>> +                                  size_t written_bytes)
+>> +{
+>> +     struct virtio_pcm_substream *vss = msg->substream;
+>> +
+>> +     /*
+>> +      * hw_ptr always indicates the buffer position of the first I/O message
+>> +      * in the virtqueue. Therefore, on each completion of an I/O message,
+>> +      * the hw_ptr value is unconditionally advanced.
+>> +      */
+>> +     spin_lock(&vss->lock);
+>> +     /*
+>> +      * If the capture substream returned an incorrect status, then just
+>> +      * increase the hw_ptr by the message size.
+>> +      */
+>> +     if (vss->direction == SNDRV_PCM_STREAM_PLAYBACK ||
+>> +         written_bytes <= sizeof(msg->status)) {
+>> +             struct scatterlist *sg;
+>> +
+>> +             for (sg = &msg->sgs[PCM_MSG_SG_DATA]; sg; sg = sg_next(sg))
+>> +                     vss->hw_ptr += sg->length;
+> 
+> So the sg list entries are supposed to be updated?  Or if the length
+> there are constant, we don't need to iterate the sg entries but keep
+> the total length beforehand?
+
+That's one of options. Since the same info can be derived from sg-list,
+I thought it might be not necessary to keep it in some additional field.
+But probably it makes sense to keep total length in the message
+structure itself. Then it will be more flexible (if we will need to
+create non-period sized messages in the future).
+
+
+> 
+> thanks,
+> 
+> Takashi
+> 
+
 -- 
-2.29.2
+Anton Yakovlev
+Senior Software Engineer
+
+OpenSynergy GmbH
+Rotherstr. 20, 10245 Berlin
 
 _______________________________________________
 Virtualization mailing list
