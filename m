@@ -7,65 +7,65 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BD3BC433E9
-	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 08:48:27 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B30A9C433DB
+	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 08:48:38 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3D1F964DF2
-	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 08:48:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3D1F964DF2
+	by mail.kernel.org (Postfix) with ESMTPS id 6BDE364DF1
+	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 08:48:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6BDE364DF1
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 15ADE42D1E;
-	Mon,  1 Mar 2021 08:48:27 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3E5C46074D;
+	Mon,  1 Mar 2021 08:48:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mE5UOkC7fY_l; Mon,  1 Mar 2021 08:48:26 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id AAB6843035;
-	Mon,  1 Mar 2021 08:48:25 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4BDF4C0010;
-	Mon,  1 Mar 2021 08:48:25 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B155BC0001;
- Mon,  1 Mar 2021 08:48:23 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 9D09C60694;
- Mon,  1 Mar 2021 08:48:23 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 59qXSkawvMYD; Mon,  1 Mar 2021 08:48:23 +0000 (UTC)
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6L7vFw9XYr3n; Mon,  1 Mar 2021 08:48:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTP id B95E460685;
+	Mon,  1 Mar 2021 08:48:36 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A411BC000A;
+	Mon,  1 Mar 2021 08:48:36 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CA096C0001;
+ Mon,  1 Mar 2021 08:48:35 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id B763A8421C;
+ Mon,  1 Mar 2021 08:48:35 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7uU3UvZKQ9bS; Mon,  1 Mar 2021 08:48:35 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
- by smtp3.osuosl.org (Postfix) with ESMTPS id EEF1E60685;
- Mon,  1 Mar 2021 08:48:22 +0000 (UTC)
+ by smtp1.osuosl.org (Postfix) with ESMTPS id C20CE841FD;
+ Mon,  1 Mar 2021 08:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=E7hhcteK4GUQFY9xJ3UXZHBinl63OJRSjslBjH5SJ4o=; b=O9MMPi8P/b5H+w4VoMI8YihaaA
- BPVU5aXQqLQQj97pJgAx+OanvHJgHAHYqG4osgFX4FdkSeUoiQALMA1zpxM3LhNUWq3j7RlE2zhlk
- nXQdh9z5M0xgAycaeWyvFMu0U+yIpNcghIBVN+93bMa5oiFMW7ZrNJAMZy5s5wHwSaUHY3AQbHUV4
- EzSgaqp7xRzOBYqhRo+qswdIUSKXlm1J1ykAVaj1SYP5j2D+2STDtXcLCbdZly0NivQpFDcLiRa74
- OEGlXEz38hVpN6W99EJhHgrab4vvXFmNjp/2m1XhY13n93ZuU0UJFPJ+YZjk+7mdiNYaKVziqbUCz
- DqT4a2zA==;
+ bh=E/LKSHDwwzGiWLcH5n+WeTB74m8ESiCywnIfCbtw87s=; b=uq6dlLskuP/tcPB55euUeWUQsH
+ TkTGV9HhYmkI/tO9Ey/FA/o7V7Re3hEwZb28TvXyc9evs9IQhTKvixiX1+oWK2bQvd+YTkR8fr9hR
+ XFrLMsEwC1ES85XiFTfZPgRNst8sn4TJWNzpGWnHmTYuta9ncKNc4718W9DNrml4y5fV0DG77QLSn
+ euQ0SaijCGxeIESo1cjH/Epr9ezTG0aVMq4AIlUzm2XF3vM278ZO9BEESqvTl2WjcnC6nYNLyBbGR
+ M6SXkDwPXNb4l0x7gVGzKizpSFKeUfPkxs+370P6sIczRLHVEqXMSYwKBAv5l68T9YKjK40kKrgA/
+ FMVHdAGA==;
 Received: from [2001:4bb8:19b:e4b7:cdf9:733f:4874:8eb4] (helo=localhost)
  by casper.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
- id 1lGeD0-00FUqj-3N; Mon, 01 Mar 2021 08:47:26 +0000
+ id 1lGeDY-00FUsn-9n; Mon, 01 Mar 2021 08:48:00 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
  Li Yang <leoyang.li@nxp.com>
-Subject: [PATCH 12/17] iommu: remove DOMAIN_ATTR_PAGING
-Date: Mon,  1 Mar 2021 09:42:52 +0100
-Message-Id: <20210301084257.945454-13-hch@lst.de>
+Subject: [PATCH 13/17] iommu: remove DOMAIN_ATTR_GEOMETRY
+Date: Mon,  1 Mar 2021 09:42:53 +0100
+Message-Id: <20210301084257.945454-14-hch@lst.de>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20210301084257.945454-1-hch@lst.de>
 References: <20210301084257.945454-1-hch@lst.de>
@@ -94,46 +94,161 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-DOMAIN_ATTR_PAGING is never used.
+The geometry information can be trivially queried from the iommu_domain
+struture.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/iommu/iommu.c | 5 -----
- include/linux/iommu.h | 1 -
- 2 files changed, 6 deletions(-)
+ drivers/iommu/iommu.c               | 20 +++-----------------
+ drivers/soc/fsl/qbman/qman_portal.c |  1 +
+ drivers/vfio/vfio_iommu_type1.c     | 26 ++++++++++++--------------
+ drivers/vhost/vdpa.c                | 10 +++-------
+ include/linux/iommu.h               |  1 -
+ 5 files changed, 19 insertions(+), 39 deletions(-)
 
 diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index b212bf0261820b..9a4cda390993e6 100644
+index 9a4cda390993e6..23daaea7883b75 100644
 --- a/drivers/iommu/iommu.c
 +++ b/drivers/iommu/iommu.c
-@@ -2668,7 +2668,6 @@ int iommu_domain_get_attr(struct iommu_domain *domain,
+@@ -2667,23 +2667,9 @@ core_initcall(iommu_init);
+ int iommu_domain_get_attr(struct iommu_domain *domain,
  			  enum iommu_attr attr, void *data)
  {
- 	struct iommu_domain_geometry *geometry;
--	bool *paging;
- 	int ret = 0;
- 
- 	switch (attr) {
-@@ -2676,10 +2675,6 @@ int iommu_domain_get_attr(struct iommu_domain *domain,
- 		geometry  = data;
- 		*geometry = domain->geometry;
- 
+-	struct iommu_domain_geometry *geometry;
+-	int ret = 0;
+-
+-	switch (attr) {
+-	case DOMAIN_ATTR_GEOMETRY:
+-		geometry  = data;
+-		*geometry = domain->geometry;
+-
 -		break;
--	case DOMAIN_ATTR_PAGING:
--		paging  = data;
--		*paging = (domain->pgsize_bitmap != 0UL);
- 		break;
- 	default:
- 		if (!domain->ops->domain_get_attr)
+-	default:
+-		if (!domain->ops->domain_get_attr)
+-			return -EINVAL;
+-
+-		ret = domain->ops->domain_get_attr(domain, attr, data);
+-	}
+-
+-	return ret;
++	if (!domain->ops->domain_get_attr)
++		return -EINVAL;
++	return domain->ops->domain_get_attr(domain, attr, data);
+ }
+ EXPORT_SYMBOL_GPL(iommu_domain_get_attr);
+ 
+diff --git a/drivers/soc/fsl/qbman/qman_portal.c b/drivers/soc/fsl/qbman/qman_portal.c
+index bf38eb0042ed52..4a4466cc26c232 100644
+--- a/drivers/soc/fsl/qbman/qman_portal.c
++++ b/drivers/soc/fsl/qbman/qman_portal.c
+@@ -53,6 +53,7 @@ static void portal_set_cpu(struct qm_portal_config *pcfg, int cpu)
+ 		dev_err(dev, "%s(): iommu_domain_alloc() failed", __func__);
+ 		goto no_iommu;
+ 	}
++
+ 	ret = fsl_pamu_configure_l1_stash(pcfg->iommu_domain, cpu);
+ 	if (ret < 0) {
+ 		dev_err(dev, "%s(): fsl_pamu_configure_l1_stash() = %d",
+diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+index 4bb162c1d649b3..c8e57f22f421c5 100644
+--- a/drivers/vfio/vfio_iommu_type1.c
++++ b/drivers/vfio/vfio_iommu_type1.c
+@@ -2252,7 +2252,7 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
+ 	int ret;
+ 	bool resv_msi, msi_remap;
+ 	phys_addr_t resv_msi_base = 0;
+-	struct iommu_domain_geometry geo;
++	struct iommu_domain_geometry *geo;
+ 	LIST_HEAD(iova_copy);
+ 	LIST_HEAD(group_resv_regions);
+ 
+@@ -2333,10 +2333,9 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
+ 		goto out_domain;
+ 
+ 	/* Get aperture info */
+-	iommu_domain_get_attr(domain->domain, DOMAIN_ATTR_GEOMETRY, &geo);
+-
+-	if (vfio_iommu_aper_conflict(iommu, geo.aperture_start,
+-				     geo.aperture_end)) {
++	geo = &domain->domain->geometry;
++	if (vfio_iommu_aper_conflict(iommu, geo->aperture_start,
++				     geo->aperture_end)) {
+ 		ret = -EINVAL;
+ 		goto out_detach;
+ 	}
+@@ -2359,8 +2358,8 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
+ 	if (ret)
+ 		goto out_detach;
+ 
+-	ret = vfio_iommu_aper_resize(&iova_copy, geo.aperture_start,
+-				     geo.aperture_end);
++	ret = vfio_iommu_aper_resize(&iova_copy, geo->aperture_start,
++				     geo->aperture_end);
+ 	if (ret)
+ 		goto out_detach;
+ 
+@@ -2493,7 +2492,6 @@ static void vfio_iommu_aper_expand(struct vfio_iommu *iommu,
+ 				   struct list_head *iova_copy)
+ {
+ 	struct vfio_domain *domain;
+-	struct iommu_domain_geometry geo;
+ 	struct vfio_iova *node;
+ 	dma_addr_t start = 0;
+ 	dma_addr_t end = (dma_addr_t)~0;
+@@ -2502,12 +2500,12 @@ static void vfio_iommu_aper_expand(struct vfio_iommu *iommu,
+ 		return;
+ 
+ 	list_for_each_entry(domain, &iommu->domain_list, next) {
+-		iommu_domain_get_attr(domain->domain, DOMAIN_ATTR_GEOMETRY,
+-				      &geo);
+-		if (geo.aperture_start > start)
+-			start = geo.aperture_start;
+-		if (geo.aperture_end < end)
+-			end = geo.aperture_end;
++		struct iommu_domain_geometry *geo = &domain->domain->geometry;
++
++		if (geo->aperture_start > start)
++			start = geo->aperture_start;
++		if (geo->aperture_end < end)
++			end = geo->aperture_end;
+ 	}
+ 
+ 	/* Modify aperture limits. The new aper is either same or bigger */
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index ef688c8c0e0e6f..25824fab433d0a 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -826,18 +826,14 @@ static void vhost_vdpa_free_domain(struct vhost_vdpa *v)
+ static void vhost_vdpa_set_iova_range(struct vhost_vdpa *v)
+ {
+ 	struct vdpa_iova_range *range = &v->range;
+-	struct iommu_domain_geometry geo;
+ 	struct vdpa_device *vdpa = v->vdpa;
+ 	const struct vdpa_config_ops *ops = vdpa->config;
+ 
+ 	if (ops->get_iova_range) {
+ 		*range = ops->get_iova_range(vdpa);
+-	} else if (v->domain &&
+-		   !iommu_domain_get_attr(v->domain,
+-		   DOMAIN_ATTR_GEOMETRY, &geo) &&
+-		   geo.force_aperture) {
+-		range->first = geo.aperture_start;
+-		range->last = geo.aperture_end;
++	} else if (v->domain && v->domain->geometry.force_aperture) {
++		range->first = v->domain->geometry.aperture_start;
++		range->last = v->domain->geometry.aperture_end;
+ 	} else {
+ 		range->first = 0;
+ 		range->last = ULLONG_MAX;
 diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 840864844027dc..180ff4bd7fa7ef 100644
+index 180ff4bd7fa7ef..c15a8658daad64 100644
 --- a/include/linux/iommu.h
 +++ b/include/linux/iommu.h
-@@ -108,7 +108,6 @@ enum iommu_cap {
+@@ -107,7 +107,6 @@ enum iommu_cap {
+  */
  
  enum iommu_attr {
- 	DOMAIN_ATTR_GEOMETRY,
--	DOMAIN_ATTR_PAGING,
+-	DOMAIN_ATTR_GEOMETRY,
  	DOMAIN_ATTR_NESTING,	/* two stages of translation */
  	DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE,
  	DOMAIN_ATTR_IO_PGTABLE_CFG,
