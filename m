@@ -2,80 +2,193 @@ Return-Path: <SRS0=COaL=H7=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1197C433E0
-	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 06:43:07 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5170CC433E0
+	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 07:29:21 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7AAC364E09
-	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 06:43:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7AAC364E09
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id CDCF164E22
+	for <virtualization@archiver.kernel.org>; Mon,  1 Mar 2021 07:29:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CDCF164E22
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=nvidia.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 1838B4EC9E;
-	Mon,  1 Mar 2021 06:43:07 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7A5FC8424C;
+	Mon,  1 Mar 2021 07:29:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VdOZlRYJsvRx; Mon,  1 Mar 2021 06:43:05 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TRoka_vqtWot; Mon,  1 Mar 2021 07:29:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 280804EC91;
-	Mon,  1 Mar 2021 06:43:05 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id E54A38424B;
+	Mon,  1 Mar 2021 07:29:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E4FFEC000A;
-	Mon,  1 Mar 2021 06:43:04 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8ADF0C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B8575C000B;
+	Mon,  1 Mar 2021 07:29:18 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6CBE5C0001
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Mar 2021 06:43:03 +0000 (UTC)
+ Mon,  1 Mar 2021 07:29:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 63DD542D1B
+ by smtp1.osuosl.org (Postfix) with ESMTP id 4A6408424C
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Mar 2021 06:43:03 +0000 (UTC)
+ Mon,  1 Mar 2021 07:29:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DR8EvbMOj1zr
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id SnIOGx-TWGjs
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Mar 2021 06:43:00 +0000 (UTC)
+ Mon,  1 Mar 2021 07:29:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 6DEB442D19
+Received: from hqnvemgate26.nvidia.com (hqnvemgate26.nvidia.com
+ [216.228.121.65])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 47CE78424B
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Mar 2021 06:42:59 +0000 (UTC)
-IronPort-SDR: lB5QkvIgclB/pkrGceE3oyCCHxGDL9BzRo6j0Jp1r7VsZPu/yNldE8UxBDnLKLf0dyB3UpDdpG
- hjBKSrbuykjQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9909"; a="250427070"
-X-IronPort-AV: E=Sophos;i="5.81,214,1610438400"; d="scan'208";a="250427070"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
- by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 28 Feb 2021 22:42:58 -0800
-IronPort-SDR: 9QRu4+8Ls+I3UeJNKjpi5IO5BHkruWxY4mQNBtVFURkqMFydoP5OJc1vtoF/ejSZmzHTJ7Fzup
- xtBfaBT14xSw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,214,1610438400"; d="scan'208";a="504621831"
-Received: from jiedeng-optiplex-7050.sh.intel.com ([10.239.154.105])
- by fmsmga001.fm.intel.com with ESMTP; 28 Feb 2021 22:42:51 -0800
-From: Jie Deng <jie.deng@intel.com>
-To: linux-i2c@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org
-Subject: [PATCH v5] i2c: virtio: add a virtio i2c frontend driver
-Date: Mon,  1 Mar 2021 14:41:35 +0800
-Message-Id: <00f826ffe1b6b4f5fb41de2b55ad6b8783b7ff45.1614579846.git.jie.deng@intel.com>
-X-Mailer: git-send-email 2.7.4
-Cc: Sergey.Semin@baikalelectronics.ru, bjorn.andersson@linaro.org,
- loic.poulain@linaro.org, arnd@arndb.de, mst@redhat.com,
- viresh.kumar@linaro.org, shuo.a.liu@intel.com, tali.perry1@gmail.com,
- wsa@kernel.org, wsa+renesas@sang-engineering.com,
- jarkko.nikula@linux.intel.com, u.kleine-koenig@pengutronix.de,
- kblaiech@mellanox.com, andriy.shevchenko@linux.intel.com,
- conghui.chen@intel.com, rppt@kernel.org, yu1.wang@intel.com
+ Mon,  1 Mar 2021 07:29:16 +0000 (UTC)
+Received: from hqmail.nvidia.com (Not Verified[216.228.121.13]) by
+ hqnvemgate26.nvidia.com (using TLS: TLSv1.2, AES256-SHA)
+ id <B603c97cb0001>; Sun, 28 Feb 2021 23:29:15 -0800
+Received: from HKMAIL103.nvidia.com (10.18.16.12) by HQMAIL109.nvidia.com
+ (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 1 Mar
+ 2021 07:29:14 +0000
+Received: from HKMAIL101.nvidia.com (10.18.16.10) by HKMAIL103.nvidia.com
+ (10.18.16.12) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Mon, 1 Mar
+ 2021 07:29:12 +0000
+Received: from NAM04-CO1-obe.outbound.protection.outlook.com (104.47.45.57) by
+ HKMAIL101.nvidia.com (10.18.16.10) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.2 via Frontend Transport; Mon, 1 Mar 2021 07:29:12 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=hkGfv/ChgFqYiEC8zXYMcxKCS+iWZBoeVpGzrjY+OIv3UubktP7kNFhJ5hJWNOM/l3gUNQ0w9fZ0Swwx+7gPsAdtdrY1m1rwfIPpD2VWc73UHriL0aT8qS+hBpPIH43XJxyxlG4vgUZjcRafEVS0LNutNggtUnUJ8XdOA/1ZU5dxpTyfIlEUdW659wj8XXUYcgMO/8W+kspN5yf3roObKOBOgg9XtyUJVfMCMnU4q1YYtRE8rOTmasB/0N1SOM6xbjJiJ00vODXaR+OQT/+iKYZRh4hhyE2B+hh0ivi4sxA5U6yrm7b9zPjHROJ5cFxxQvrBpnTNQPK0FIHipkTNgQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zUbdHoYj5cSIcc37tqzdc+eNw+fRBIjj0Zl6/10tQuk=;
+ b=kpcc8sZqOJRCbDYJG6yQjwj8A0AmH4r8/ujVw04NOwcPS8/IN2/akVSJEeDIf+QLxXdAj5tYICDtFoGHq5E26uJ41nnAmmYdC9LsfG+gkW7R4tliSx+WU+y/hWvUrVX3BR5OnT4BSjOvCX/+xiNLxcAkcDfdzi4kRjVYf+c+T0aX4Va/viicH3xn3hfwgpl0TjCCCYvgv3yvoQmIVWJdnt39LASiMy7B5R6lawHPHzTjYoaK7GHqzzFcMqd8q+5O7FG9QnMPG9wLWY/ZPwhG2JBndHYSPme69RR2FNXgwiUu+dHJcw7YVvaB6Iepk4AyUEugH+RotkJcu/LLLmdfMQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+Received: from BY5PR12MB4322.namprd12.prod.outlook.com (2603:10b6:a03:20a::20)
+ by BYAPR12MB3624.namprd12.prod.outlook.com (2603:10b6:a03:aa::17)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3890.19; Mon, 1 Mar
+ 2021 07:29:10 +0000
+Received: from BY5PR12MB4322.namprd12.prod.outlook.com
+ ([fe80::f9f4:8fdd:8e2a:67a4]) by BY5PR12MB4322.namprd12.prod.outlook.com
+ ([fe80::f9f4:8fdd:8e2a:67a4%4]) with mapi id 15.20.3890.028; Mon, 1 Mar 2021
+ 07:29:09 +0000
+From: Parav Pandit <parav@nvidia.com>
+To: Jason Wang <jasowang@redhat.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
+Subject: RE: [PATCH linux-next 2/9] vdpa: Introduce query of device config
+ layout
+Thread-Topic: [PATCH linux-next 2/9] vdpa: Introduce query of device config
+ layout
+Thread-Index: AQHXCnT31njXIAjUUU6IgFe+oKOVAKpm/pCAgALsxWCAADHpAIAABOIwgARneICAADkwAA==
+Date: Mon, 1 Mar 2021 07:29:08 +0000
+Message-ID: <BY5PR12MB4322917EA142EA37DFAA53EADC9A9@BY5PR12MB4322.namprd12.prod.outlook.com>
+References: <20210224061844.137776-1-parav@nvidia.com>
+ <20210224061844.137776-3-parav@nvidia.com>
+ <1a9f4f3c-4581-35cc-5d3a-1495bb00257a@redhat.com>
+ <BY5PR12MB4322AF919B1BF71DA31C53FFDC9D9@BY5PR12MB4322.namprd12.prod.outlook.com>
+ <bfb3a5d2-d335-c4f2-20cb-65d53fc4b216@redhat.com>
+ <BY5PR12MB4322010113CCDCA1BB81F766DC9D9@BY5PR12MB4322.namprd12.prod.outlook.com>
+ <a1836031-9240-b835-13c3-42dab92d06fa@redhat.com>
+In-Reply-To: <a1836031-9240-b835-13c3-42dab92d06fa@redhat.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: redhat.com; dkim=none (message not signed)
+ header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
+x-originating-ip: [122.166.131.251]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 4a0121c9-7733-43bb-9a55-08d8dc83b47a
+x-ms-traffictypediagnostic: BYAPR12MB3624:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <BYAPR12MB36248F3B8C155F2D3929E78DDC9A9@BYAPR12MB3624.namprd12.prod.outlook.com>
+x-header: ProcessedBy-CMR-outbound
+x-ms-oob-tlc-oobclassifiers: OLM:8882;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 0G7w2E6M7y6UrVD0NPOIPICUirgLEkRg9Ki/B6FSMRquCJLR5QSr69R2Km2ZC9D+wG3VKwGbsM16HnluCw+NbWlSEvno57P68VGeat7rXGD5UyeGa7vza0WQyPni6Fbsf+xu/kq2M1o4ixvx2ePEySiwx7t6uM/TzaBuN3ys1gSrkaTQ+L+jLH8dIe/Qq0J4YzA6266aEUakGypjABv4TD0xbdFghVhkLetsIwZt71EOFVtLRgUFadGJVQbxqlLGYa7vIDgE0y3FtDFdZjRlVRTtkQ55uw/gxZtRQhMu5BqtLlNJ693280XR8Vr7zGuY9wmFB6VY3JZYhIZYlIAF2RfvG1oUb+Jth53JcqQHszTD/DgY+DMq2ocI7/LB3r2GX6PfXib2RjspS0N/ZgRd5F1WvbEdvVpT3OttjGcUBrEcczlOofurXP8AVjBNzOgMQeARSJsjQPNvBGchUD69TDsT8IpKHhomiUe+T8V4jwhqrA/68bjpH6uUlgX9if9cgYvcq6RVoIJSPVxH8zsJ3g==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BY5PR12MB4322.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(4636009)(136003)(346002)(39860400002)(376002)(366004)(396003)(52536014)(9686003)(66556008)(5660300002)(107886003)(66446008)(8936002)(6506007)(53546011)(66476007)(55016002)(71200400001)(66946007)(76116006)(2906002)(8676002)(110136005)(186003)(316002)(478600001)(26005)(54906003)(7696005)(64756008)(86362001)(33656002)(4326008)(83380400001);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata: =?utf-8?B?OTdXS0RkbkRaWk05aVFWUGwyS2l0dDRIcnQzN1doRFE3ZGxtZHU0QW9GeC8x?=
+ =?utf-8?B?NlBsNFZwN1hVb0JYODN1MWJkWWo0aUVmb3Q0M1RpbkRtMnlWcHgrZEdYa21B?=
+ =?utf-8?B?UHBHSDY0NHFoc1VzWkZ2cUFwTjlHZkxFa3pKT0o3enJSTHVOeTJVSUhGdnNK?=
+ =?utf-8?B?OWxmWi9Oa1N5NERhSVZjVGZUWVZDck41MVJMQmRxYnBNajZxRkZNK2xXdEVC?=
+ =?utf-8?B?cUc0eTMzMHNPSEpycUp5bjFobXhCQmh3U3J5QmZRVVhrdVM1TEtISmdBM2Nm?=
+ =?utf-8?B?VGErUlhzc3hQdkVKa2E0T2dLd1pETnFnRG1GUzVmN1BWZ0JtemZlQ3V2STJw?=
+ =?utf-8?B?Y3JFSUFDbXB1UVBnekVVdEFCMmZXeDVqdlF6WTJZME1tWVBpNktldkVSRllw?=
+ =?utf-8?B?SjlsMmNNOVRMTUFmalVRN2VjRnBLR2IzUGo2enF4dmlkZGZJU2lXbVpkUGlG?=
+ =?utf-8?B?SUlQZVEzeUNuUnBtK1RpQ0FSWFpNZzQwTVZvZzk3YjdXdmdsNFpiaUtrdmhY?=
+ =?utf-8?B?ZzdHd09aWHVCamhmcmtLcGZhNEpiZlRCa2hkOGtMQkh5ZFJvZVZRMzdEY3Uv?=
+ =?utf-8?B?bVBxa09sKzNRWkVJQ3ZscmNSSGJnd3hZQXg0aXZ2bGl0QVJnYU0vdnZUSHpr?=
+ =?utf-8?B?VXFPR0xDTjRDWGNjTGZaUnM2OHdEVTVXWEhEL240WTNEMWZpOGJscFhuTWND?=
+ =?utf-8?B?KzFFcHpvTVV2OXlrZks3aDBrOTVoTHA4dFQzVzM3OEpzdWNwdGdlc2hsUXlD?=
+ =?utf-8?B?Z1MzdmtMRkhLOTBwMjVLRmhHN3k1Z1U2bjFKZG93Zm5WNk1MclljVkcvaU04?=
+ =?utf-8?B?eVpVUGFObUR6NkcyNzc5ZW9QakFqL3RyMVZwc3pkMFk3QnR0SjN1TVdnLzMy?=
+ =?utf-8?B?SFk3Q1RHVWY3RjZlZUVSdlBicDFBQTZsbjB0YW5tUSt0T3lHSUVDSmFqbExa?=
+ =?utf-8?B?ZzlKSC9pY2xqRjNuSEZDR0ZOSlFSZ0thaGVZb2RDclRrTW1uSmxwZHJheFhB?=
+ =?utf-8?B?cGtLZlRoZUhBOXhqVytObmwrOWVxS0dQeVlxOU51WGw1UjFjMXBMSngrN0py?=
+ =?utf-8?B?cUxJbWRsWFhEOVNXRlFSR01xUmhoUDhTZ2d4cE5TRDgyVFhyMFoyYldYdjR2?=
+ =?utf-8?B?aGhPb1d1NnVRZDNlVlRYQjRzWHdVZEF6THgyTzcvcFpCb0dqaENOaDFXcVNP?=
+ =?utf-8?B?WDlDdzJuVy9tT21qZmxFMXlvaHB2emh6OTlCcTFkY09pZXVYWHoycWNhbmhJ?=
+ =?utf-8?B?TUpFSjVjM29CYjR2OTVrdHo5eUR0Y3ptTlhCL1JmbHhnSi9NY3g1bURBcWNZ?=
+ =?utf-8?B?bFQxN0o2YmpGMFFWdlVNeG9naGEvbTV2SVRpU21pRzZoeFMzaWh6NFRzUVNF?=
+ =?utf-8?B?SGFvSXl0QmdJOS9pcXYxZzR1MWQzZE9nNjRLaDV1dDFEWVl2czdmMXJNVjMy?=
+ =?utf-8?B?bDZ3WVFVUlc1QzZ4Zy9pQTlwZk1URG5LTURFQzFqQk83WFlML0lXVCtabldY?=
+ =?utf-8?B?VzRmZVZZSDM4akgxSGovaGZ3UDIzUDFES0JKdkJsZVl2MDcwWmZqQytvUzg0?=
+ =?utf-8?B?RVF3Z2Ura1ZGZ1dJaHJ6aEtRYTVTMWdtQ283SkoyV3Y3TlhlNXFRNXB1SVp5?=
+ =?utf-8?B?Wnd5TWVTRHRORFNCZWhVcForZUFLMG9IL1NoYzlqMlk3YVlnS28rY1E0U0li?=
+ =?utf-8?B?Vkx2UXZTeXVWeEFibzMzZkM3b0xmeHJnUEtOVVlwNnRaRk1NblpaVCt4VmNG?=
+ =?utf-8?Q?7D0Uh3yuiN7vu9cTgOZNe61VX99fQ3RaIuNbn87?=
+MIME-Version: 1.0
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BY5PR12MB4322.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4a0121c9-7733-43bb-9a55-08d8dc83b47a
+X-MS-Exchange-CrossTenant-originalarrivaltime: 01 Mar 2021 07:29:09.8102 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: CMnDHLwzIe6gF3Ww+T8DsaIDSF0u5IyQ00c2++JumyXvBUHDr79avDwIVPoWw+8Qiyon5ISY2iODTMLX+BPXxQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR12MB3624
+X-OriginatorOrg: Nvidia.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+ t=1614583755; bh=zUbdHoYj5cSIcc37tqzdc+eNw+fRBIjj0Zl6/10tQuk=;
+ h=ARC-Seal:ARC-Message-Signature:ARC-Authentication-Results:From:To:
+ CC:Subject:Thread-Topic:Thread-Index:Date:Message-ID:References:
+ In-Reply-To:Accept-Language:Content-Language:X-MS-Has-Attach:
+ X-MS-TNEF-Correlator:authentication-results:x-originating-ip:
+ x-ms-publictraffictype:x-ms-office365-filtering-correlation-id:
+ x-ms-traffictypediagnostic:x-ms-exchange-transport-forked:
+ x-microsoft-antispam-prvs:x-header:x-ms-oob-tlc-oobclassifiers:
+ x-ms-exchange-senderadcheck:x-microsoft-antispam:
+ x-microsoft-antispam-message-info:x-forefront-antispam-report:
+ x-ms-exchange-antispam-messagedata:Content-Type:
+ Content-Transfer-Encoding:MIME-Version:
+ X-MS-Exchange-CrossTenant-AuthAs:
+ X-MS-Exchange-CrossTenant-AuthSource:
+ X-MS-Exchange-CrossTenant-Network-Message-Id:
+ X-MS-Exchange-CrossTenant-originalarrivaltime:
+ X-MS-Exchange-CrossTenant-fromentityheader:
+ X-MS-Exchange-CrossTenant-id:X-MS-Exchange-CrossTenant-mailboxtype:
+ X-MS-Exchange-CrossTenant-userprincipalname:
+ X-MS-Exchange-Transport-CrossTenantHeadersStamped:X-OriginatorOrg;
+ b=n3BOv56QqhhzPRvipL8M7y9VJ+gAt/ndUw+ZKYyBYLkAyoAw25dKvZ58TQGGrYhIu
+ cWcRqtcUkFMibTW6Ir6aCF3wp3CGTwiwPJiVYARcp7FOmCsc9KYlkD3/ItScWecs2z
+ 5Ur2NFcIYWxKvqAApG6XMrO3sa8G4WQhuHU2XYyruNiMm4dMzTmU8ElXfRuM5Hg1Rv
+ Qpt+eOu6PdORrZy67CBb6Vfy5plxWEY+amVlxmiFfwSr9HweQLvi1lWsBwXK9ceMMk
+ sOX+eB3Y6t779FLx3HMtKeYic/HsMaHp6DSvXHOZ71fcBoVSLUqCZGlqeIG6lP+Uzw
+ Gp/6GRNqNVieQ==
+Cc: Eli Cohen <elic@nvidia.com>, "mst@redhat.com" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -87,437 +200,82 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Add an I2C bus driver for virtio para-virtualization.
-
-The controller can be emulated by the backend driver in
-any device model software by following the virtio protocol.
-
-The device specification can be found on
-https://lists.oasis-open.org/archives/virtio-comment/202101/msg00008.html.
-
-By following the specification, people may implement different
-backend drivers to emulate different controllers according to
-their needs.
-
-Co-developed-by: Conghui Chen <conghui.chen@intel.com>
-Signed-off-by: Conghui Chen <conghui.chen@intel.com>
-Signed-off-by: Jie Deng <jie.deng@intel.com>
----
- drivers/i2c/busses/Kconfig      |  11 ++
- drivers/i2c/busses/Makefile     |   3 +
- drivers/i2c/busses/i2c-virtio.c | 281 ++++++++++++++++++++++++++++++++++++++++
- include/uapi/linux/virtio_i2c.h |  56 ++++++++
- include/uapi/linux/virtio_ids.h |   1 +
- 5 files changed, 352 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-virtio.c
- create mode 100644 include/uapi/linux/virtio_i2c.h
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 05ebf75..0860395 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -21,6 +21,17 @@ config I2C_ALI1535
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-ali1535.
- 
-+config I2C_VIRTIO
-+	tristate "Virtio I2C Adapter"
-+	depends on VIRTIO
-+	help
-+	  If you say yes to this option, support will be included for the virtio
-+	  I2C adapter driver. The hardware can be emulated by any device model
-+	  software according to the virtio protocol.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called i2c-virtio.
-+
- config I2C_ALI1563
- 	tristate "ALI 1563"
- 	depends on PCI
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 615f35e..b88da08 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -6,6 +6,9 @@
- # ACPI drivers
- obj-$(CONFIG_I2C_SCMI)		+= i2c-scmi.o
- 
-+# VIRTIO I2C host controller driver
-+obj-$(CONFIG_I2C_VIRTIO)	+= i2c-virtio.o
-+
- # PC SMBus host controller drivers
- obj-$(CONFIG_I2C_ALI1535)	+= i2c-ali1535.o
- obj-$(CONFIG_I2C_ALI1563)	+= i2c-ali1563.o
-diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-new file mode 100644
-index 0000000..8c8bc95
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-virtio.c
-@@ -0,0 +1,281 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Virtio I2C Bus Driver
-+ *
-+ * Copyright (c) 2021 Intel Corporation. All rights reserved.
-+ */
-+
-+#include <linux/acpi.h>
-+#include <linux/completion.h>
-+#include <linux/err.h>
-+#include <linux/i2c.h>
-+#include <linux/io.h>
-+#include <linux/jiffies.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/wait.h>
-+
-+#include <linux/virtio.h>
-+#include <linux/virtio_i2c.h>
-+
-+/**
-+ * struct virtio_i2c - virtio I2C data
-+ * @vdev: virtio device for this controller
-+ * @completion: completion of virtio I2C message
-+ * @adap: I2C adapter for this controller
-+ * @i2c_lock: lock for virtqueue processing
-+ * @vq: the virtio virtqueue for communication
-+ */
-+struct virtio_i2c {
-+	struct virtio_device *vdev;
-+	struct completion completion;
-+	struct i2c_adapter adap;
-+	struct mutex i2c_lock;
-+	struct virtqueue *vq;
-+};
-+
-+static void virtio_i2c_msg_done(struct virtqueue *vq)
-+{
-+	struct virtio_i2c *vi = vq->vdev->priv;
-+
-+	complete(&vi->completion);
-+}
-+
-+static int virtio_i2c_send_reqs(struct virtqueue *vq,
-+				struct virtio_i2c_req *reqs,
-+				struct i2c_msg *msgs, int nr)
-+{
-+	struct scatterlist *sgs[3], out_hdr, msg_buf, in_hdr;
-+	int i, outcnt, incnt, err = 0;
-+	u8 *buf;
-+
-+	for (i = 0; i < nr; i++) {
-+		if (!msgs[i].len)
-+			break;
-+
-+		reqs[i].out_hdr.addr = cpu_to_le16(msgs[i].addr << 1);
-+
-+		if (i != nr - 1)
-+			reqs[i].out_hdr.flags |= VIRTIO_I2C_FLAGS_FAIL_NEXT;
-+
-+		outcnt = incnt = 0;
-+		sg_init_one(&out_hdr, &reqs[i].out_hdr, sizeof(reqs[i].out_hdr));
-+		sgs[outcnt++] = &out_hdr;
-+
-+		buf = kzalloc(msgs[i].len, GFP_KERNEL);
-+		if (!buf)
-+			break;
-+
-+		if (msgs[i].flags & I2C_M_RD) {
-+			reqs[i].read_buf = buf;
-+			sg_init_one(&msg_buf, reqs[i].read_buf, msgs[i].len);
-+			sgs[outcnt + incnt++] = &msg_buf;
-+		} else {
-+			reqs[i].write_buf = buf;
-+			memcpy(reqs[i].write_buf, msgs[i].buf, msgs[i].len);
-+			sg_init_one(&msg_buf, reqs[i].write_buf, msgs[i].len);
-+			sgs[outcnt++] = &msg_buf;
-+		}
-+
-+		sg_init_one(&in_hdr, &reqs[i].in_hdr, sizeof(reqs[i].in_hdr));
-+		sgs[outcnt + incnt++] = &in_hdr;
-+
-+		err = virtqueue_add_sgs(vq, sgs, outcnt, incnt, &reqs[i], GFP_KERNEL);
-+		if (err < 0) {
-+			pr_err("failed to add msg[%d] to virtqueue.\n", i);
-+			if (msgs[i].flags & I2C_M_RD) {
-+				kfree(reqs[i].read_buf);
-+				reqs[i].read_buf = NULL;
-+			} else {
-+				kfree(reqs[i].write_buf);
-+				reqs[i].write_buf = NULL;
-+			}
-+			break;
-+		}
-+	}
-+
-+	return i;
-+}
-+
-+static int virtio_i2c_complete_reqs(struct virtqueue *vq,
-+					struct virtio_i2c_req *reqs,
-+					struct i2c_msg *msgs, int nr)
-+{
-+	struct virtio_i2c_req *req;
-+	unsigned int len;
-+	int i;
-+
-+	for (i = 0; i < nr; i++) {
-+		req = (struct virtio_i2c_req *)virtqueue_get_buf(vq, &len);
-+		if (!(req && req == &reqs[i])) {
-+			pr_err("msg[%d]: addr=0x%x virtqueue error.\n", i, msgs[i].addr);
-+			break;
-+		}
-+
-+		if (req->in_hdr.status != VIRTIO_I2C_MSG_OK) {
-+			pr_err("msg[%d]: addr=0x%x backend error.\n", i, msgs[i].addr);
-+			break;
-+		}
-+
-+		if (msgs[i].flags & I2C_M_RD) {
-+			memcpy(msgs[i].buf, req->read_buf, msgs[i].len);
-+			kfree(req->read_buf);
-+			req->read_buf = NULL;
-+		} else {
-+			kfree(req->write_buf);
-+			req->write_buf = NULL;
-+		}
-+	}
-+
-+	return i;
-+}
-+
-+
-+static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-+{
-+	struct virtio_i2c *vi = i2c_get_adapdata(adap);
-+	struct virtqueue *vq = vi->vq;
-+	struct virtio_i2c_req *reqs;
-+	unsigned long time_left;
-+	int ret, nr;
-+
-+	reqs = kcalloc(num, sizeof(*reqs), GFP_KERNEL);
-+	if (!reqs)
-+		return -ENOMEM;
-+
-+	mutex_lock(&vi->i2c_lock);
-+
-+	ret = virtio_i2c_send_reqs(vq, reqs, msgs, num);
-+	if (ret == 0)
-+		goto err_unlock_free;
-+	else
-+		nr = ret;
-+
-+	virtqueue_kick(vq);
-+
-+	time_left = wait_for_completion_timeout(&vi->completion, adap->timeout);
-+	if (!time_left) {
-+		dev_err(&adap->dev, "virtio i2c backend timeout.\n");
-+		ret = -ETIMEDOUT;
-+		goto err_unlock_free;
-+	}
-+
-+	ret = virtio_i2c_complete_reqs(vq, reqs, msgs, nr);
-+
-+	reinit_completion(&vi->completion);
-+
-+err_unlock_free:
-+	mutex_unlock(&vi->i2c_lock);
-+	kfree(reqs);
-+	return ret;
-+}
-+
-+static void virtio_i2c_del_vqs(struct virtio_device *vdev)
-+{
-+	vdev->config->reset(vdev);
-+	vdev->config->del_vqs(vdev);
-+}
-+
-+static int virtio_i2c_setup_vqs(struct virtio_i2c *vi)
-+{
-+	struct virtio_device *vdev = vi->vdev;
-+
-+	vi->vq = virtio_find_single_vq(vdev, virtio_i2c_msg_done, "msg");
-+	return PTR_ERR_OR_ZERO(vi->vq);
-+}
-+
-+static u32 virtio_i2c_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+}
-+
-+static struct i2c_algorithm virtio_algorithm = {
-+	.master_xfer = virtio_i2c_xfer,
-+	.functionality = virtio_i2c_func,
-+};
-+
-+static struct i2c_adapter virtio_adapter = {
-+	.owner = THIS_MODULE,
-+	.name = "Virtio I2C Adapter",
-+	.class = I2C_CLASS_DEPRECATED,
-+	.algo = &virtio_algorithm,
-+};
-+
-+static int virtio_i2c_probe(struct virtio_device *vdev)
-+{
-+	struct device *pdev = vdev->dev.parent;
-+	struct virtio_i2c *vi;
-+	int ret;
-+
-+	vi = devm_kzalloc(&vdev->dev, sizeof(*vi), GFP_KERNEL);
-+	if (!vi)
-+		return -ENOMEM;
-+
-+	vdev->priv = vi;
-+	vi->vdev = vdev;
-+
-+	mutex_init(&vi->i2c_lock);
-+	init_completion(&vi->completion);
-+
-+	ret = virtio_i2c_setup_vqs(vi);
-+	if (ret)
-+		return ret;
-+
-+	vi->adap = virtio_adapter;
-+	i2c_set_adapdata(&vi->adap, vi);
-+	vi->adap.dev.parent = &vdev->dev;
-+	/* Setup ACPI node for controlled devices which will be probed through ACPI */
-+	ACPI_COMPANION_SET(&vi->adap.dev, ACPI_COMPANION(pdev));
-+	vi->adap.timeout = HZ / 10;
-+
-+	ret = i2c_add_adapter(&vi->adap);
-+	if (ret) {
-+		virtio_i2c_del_vqs(vdev);
-+		dev_err(&vdev->dev, "failed to add virtio-i2c adapter.\n");
-+	}
-+
-+	return ret;
-+}
-+
-+static void virtio_i2c_remove(struct virtio_device *vdev)
-+{
-+	struct virtio_i2c *vi = vdev->priv;
-+
-+	i2c_del_adapter(&vi->adap);
-+	virtio_i2c_del_vqs(vdev);
-+}
-+
-+static struct virtio_device_id id_table[] = {
-+	{ VIRTIO_ID_I2C_ADPTER, VIRTIO_DEV_ANY_ID },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(virtio, id_table);
-+
-+static int __maybe_unused virtio_i2c_freeze(struct virtio_device *vdev)
-+{
-+	virtio_i2c_del_vqs(vdev);
-+	return 0;
-+}
-+
-+static int __maybe_unused virtio_i2c_restore(struct virtio_device *vdev)
-+{
-+	return virtio_i2c_setup_vqs(vdev->priv);
-+}
-+
-+static struct virtio_driver virtio_i2c_driver = {
-+	.id_table	= id_table,
-+	.probe		= virtio_i2c_probe,
-+	.remove		= virtio_i2c_remove,
-+	.driver	= {
-+		.name	= "i2c_virtio",
-+	},
-+#ifdef CONFIG_PM_SLEEP
-+	.freeze = virtio_i2c_freeze,
-+	.restore = virtio_i2c_restore,
-+#endif
-+};
-+module_virtio_driver(virtio_i2c_driver);
-+
-+MODULE_DESCRIPTION("Virtio i2c bus driver");
-+MODULE_LICENSE("GPL");
-diff --git a/include/uapi/linux/virtio_i2c.h b/include/uapi/linux/virtio_i2c.h
-new file mode 100644
-index 0000000..92febf0
---- /dev/null
-+++ b/include/uapi/linux/virtio_i2c.h
-@@ -0,0 +1,56 @@
-+/* SPDX-License-Identifier: GPL-2.0-or-later WITH Linux-syscall-note */
-+/*
-+ * Definitions for virtio I2C Adpter
-+ *
-+ * Copyright (c) 2021 Intel Corporation. All rights reserved.
-+ */
-+
-+#ifndef _UAPI_LINUX_VIRTIO_I2C_H
-+#define _UAPI_LINUX_VIRTIO_I2C_H
-+
-+#include <linux/types.h>
-+#include <linux/virtio_ids.h>
-+#include <linux/virtio_config.h>
-+
-+/**
-+ * struct virtio_i2c_out_hdr - the virtio I2C message OUT header
-+ * @addr: the controlled device address
-+ * @padding: used to pad to full dword
-+ * @flags: used for feature extensibility
-+ */
-+struct virtio_i2c_out_hdr {
-+	__le16 addr;
-+	__le16 padding;
-+	__le32 flags;
-+};
-+
-+/* The bit 0 of the @virtio_i2c_out_hdr.@flags, used to group the requests */
-+#define VIRTIO_I2C_FLAGS_FAIL_NEXT	0x00000001
-+
-+/**
-+ * struct virtio_i2c_in_hdr - the virtio I2C message IN header
-+ * @status: the processing result from the backend
-+ */
-+struct virtio_i2c_in_hdr {
-+	u8 status;
-+};
-+
-+/* The final status written by the device */
-+#define VIRTIO_I2C_MSG_OK	0
-+#define VIRTIO_I2C_MSG_ERR	1
-+
-+/**
-+ * struct virtio_i2c_req - the virtio I2C request structure
-+ * @out_hdr: the OUT header of the virtio I2C message
-+ * @write_buf: contains one I2C segment being written to the device
-+ * @read_buf: contains one I2C segment being read from the device
-+ * @in_hdr: the IN header of the virtio I2C message
-+ */
-+struct virtio_i2c_req {
-+	struct virtio_i2c_out_hdr out_hdr;
-+	u8 *write_buf;
-+	u8 *read_buf;
-+	struct virtio_i2c_in_hdr in_hdr;
-+};
-+
-+#endif /* _UAPI_LINUX_VIRTIO_I2C_H */
-diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
-index bc1c062..6ae32db 100644
---- a/include/uapi/linux/virtio_ids.h
-+++ b/include/uapi/linux/virtio_ids.h
-@@ -54,5 +54,6 @@
- #define VIRTIO_ID_FS			26 /* virtio filesystem */
- #define VIRTIO_ID_PMEM			27 /* virtio pmem */
- #define VIRTIO_ID_MAC80211_HWSIM	29 /* virtio mac80211-hwsim */
-+#define VIRTIO_ID_I2C_ADPTER		34 /* virtio i2c adpter */
- 
- #endif /* _LINUX_VIRTIO_IDS_H */
--- 
-2.7.4
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+DQoNCj4gRnJvbTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4NCj4gU2VudDogTW9u
+ZGF5LCBNYXJjaCAxLCAyMDIxIDk6MjkgQU0NCj4gDQo+IE9uIDIwMjEvMi8yNiA0OjUwIOS4i+WN
+iCwgUGFyYXYgUGFuZGl0IHdyb3RlOg0KPiA+DQo+ID4+IEZyb206IEphc29uIFdhbmcgPGphc293
+YW5nQHJlZGhhdC5jb20+DQo+ID4+IFNlbnQ6IEZyaWRheSwgRmVicnVhcnkgMjYsIDIwMjEgMTo1
+NiBQTQ0KPiA+Pg0KPiA+Pg0KPiA+PiBPbiAyMDIxLzIvMjYgMTozMiDkuIvljYgsIFBhcmF2IFBh
+bmRpdCB3cm90ZToNCj4gPj4+PiBGcm9tOiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29t
+Pg0KPiA+Pj4+IFNlbnQ6IFdlZG5lc2RheSwgRmVicnVhcnkgMjQsIDIwMjEgMjoxOCBQTQ0KPiA+
+Pj4+DQo+ID4+Pj4gT24gMjAyMS8yLzI0IDI6MTgg5LiL5Y2ILCBQYXJhdiBQYW5kaXQgd3JvdGU6
+DQo+ID4+Pj4+ICsNCj4gPj4+Pj4gKwlpZiAobmxhX3B1dF91MTYobXNnLA0KPiBWRFBBX0FUVFJf
+REVWX05FVF9DRkdfTUFYX1ZRUCwNCj4gPj4+Pj4gKwkJCWNvbmZpZy0+bWF4X3ZpcnRxdWV1ZV9w
+YWlycykpDQo+ID4+Pj4+ICsJCXJldHVybiAtRU1TR1NJWkU7DQo+ID4+Pj4gV2UgcHJvYmFibHkg
+bmVlZCB0byBjaGVjayBWSVJUSU9fTkVUX0ZfUlNTIGhlcmUuDQo+ID4+PiBZZXMuIFdpbGwgdXNl
+IGl0IGluIHYyLg0KPiA+Pj4NCj4gPj4+Pj4gKwlpZiAobmxhX3B1dF91OChtc2csDQo+IFZEUEFf
+QVRUUl9ERVZfTkVUX0NGR19SU1NfTUFYX0tFWV9MRU4sDQo+ID4+Pj4+ICsJCSAgICAgICBjb25m
+aWctPnJzc19tYXhfa2V5X3NpemUpKQ0KPiA+Pj4+PiArCQlyZXR1cm4gLUVNU0dTSVpFOw0KPiA+
+Pj4+PiArDQo+ID4+Pj4+ICsJcnNzX2ZpZWxkID0gbGUxNl90b19jcHUoY29uZmlnLT5yc3NfbWF4
+X2tleV9zaXplKTsNCj4gPj4+Pj4gKwlpZiAobmxhX3B1dF91MTYobXNnLA0KPiBWRFBBX0FUVFJf
+REVWX05FVF9DRkdfUlNTX01BWF9JVF9MRU4sDQo+ID4+Pj4gcnNzX2ZpZWxkKSkNCj4gPj4+Pj4g
+KwkJcmV0dXJuIC1FTVNHU0laRTsNCj4gPj4+Pj4gKw0KPiA+Pj4+PiArCWhhc2hfdHlwZXMgPSBs
+ZTMyX3RvX2NwdShjb25maWctPnN1cHBvcnRlZF9oYXNoX3R5cGVzKTsNCj4gPj4+Pj4gKwlpZiAo
+bmxhX3B1dF91MzIobXNnLA0KPiBWRFBBX0FUVFJfREVWX05FVF9DRkdfUlNTX0hBU0hfVFlQRVMs
+DQo+ID4+Pj4+ICsJCQljb25maWctPnN1cHBvcnRlZF9oYXNoX3R5cGVzKSkNCj4gPj4+Pj4gKwkJ
+cmV0dXJuIC1FTVNHU0laRTsNCj4gPj4+Pj4gKwlyZXR1cm4gMDsNCj4gPj4+Pj4gK30NCj4gPj4+
+Pj4gKw0KPiA+Pj4+PiArc3RhdGljIGludCB2ZHBhX2Rldl9uZXRfY29uZmlnX2ZpbGwoc3RydWN0
+IHZkcGFfZGV2aWNlICp2ZGV2LA0KPiA+Pj4+PiArc3RydWN0IHNrX2J1ZmYgKm1zZykgew0KPiA+
+Pj4+PiArCXN0cnVjdCB2aXJ0aW9fbmV0X2NvbmZpZyBjb25maWcgPSB7fTsNCj4gPj4+Pj4gKw0K
+PiA+Pj4+PiArCXZkZXYtPmNvbmZpZy0+Z2V0X2NvbmZpZyh2ZGV2LCAwLCAmY29uZmlnLCBzaXpl
+b2YoY29uZmlnKSk7DQo+ID4+Pj4gRG8gd2UgbmVlZCB0byBzeW5jIHdpdGggb3RoZXIgcG9zc2li
+bGUgZ2V0X2NvbmZpZyBjYWxscyBoZXJlPw0KPiA+Pj4gVG8gcmVhZGVycyBvZiBnZXRfY29uZmln
+KCkgaXMgb2suIE5vIG5lZWQgdG8gc3luYy4NCj4gPj4+IEhvd2V2ZXIsIEkgdGhpbmsgc2V0X2Nv
+bmZpZygpIGFuZCBnZXRfY29uZmlnKCkgc2hvdWxkIHN5bmMgb3RoZXJ3aXNlDQo+ID4+IGdldF9j
+b25maWcgY2FuIGdldCBwYXJ0aWFsIHZhbHVlLg0KPiA+Pj4gV2lsbCBwcm9iYWJseSBoYXZlIHRv
+IGFkZCB2ZHBhX2RldmljZS0+Y29uZmlnX2FjY2Vzc19sb2NrKCkuDQo+ID4+DQo+ID4+IFByb2Jh
+Ymx5LiBBbmQgdGhlIHNldF9jb25maWcoKSBzaG91bGQgYmUgc3luY2hyb25pemVkIHdpdGggdGhl
+DQo+ID4+IHJlcXVyZXN0IHRoYXQgY29tZXMgZnJvbSB2RFBBIGJ1cy4NCj4gPiBZZXMsIGEgcncg
+c2VtYXBob3JlIGlzIGdvb2QgZW5vdWdoLg0KPiA+IERldmljZSBjb25maWcgZmllbGRzIGNhbiBi
+ZSBjaGFuZ2UgZnJvbSB0aGUgZGV2aWNlIHNpZGUgYW55d2F5LCBzdWNoIGFzDQo+IGxpbmsgc3Rh
+dHVzIGFueXdheS4NCj4gPiBTeW5jIHVzaW5nIGxvY2sgc2hvdWxkbuKAmXQgYmUgcHJvYmxlbS4N
+Cj4gPg0KPiA+PiBUaGlzIG1ha2VzIG1lIHRoaW5rIHdoZXRoZXIgd2Ugc2hvdWxkIGdvIGJhY2sg
+dG8gdHdvIHBoYXNlcyBtZXRob2QsDQo+ID4+IGNyZWF0ZSBhbmQgZW5hYmxlLg0KPiA+Pg0KPiA+
+PiBUaGUgdkRQQSBkZXZpY2UgaXMgb25seSByZWdpc3RyZWQgYWZ0ZXIgZW5hYmxpbmcsIHRoZW4g
+dGhlcmUncyBubw0KPiA+PiBuZWVkIHRvIHN5bmMgd2l0aCB2RFBBIGJ1cywgYW5kIG1nbXQgaXMg
+bm90IGFsbG93ZWQgdG8gY2hhbmdlIGNvbmZpZw0KPiBhZnRlciBlbmFsYmluZz8NCj4gPj4NCj4g
+PiBJbiB0aGF0IGNhc2Ugd2Ugc2hvdWxkIGJlIGFibGUgdG8gZGlzYWJsZSBpdCBhcyB3ZWxsLiBE
+aXNhYmxlIHNob3VsZCB0YWtlIHRoZQ0KPiBkZXZpY2Ugb2YgdGhlIGJ1cy4NCj4gPiBJIGZpbmQg
+aXQgd2VpcmQgdG8gaGF2ZSB0aGlzIG1vZGVsIHRvIGxpbmdlciBhcm91bmQgdGhlIGRldmljZSB3
+aXRob3V0DQo+IGFuY2hvcmluZyBvbiB0aGUgYnVzLg0KPiA+IEZvciBleGFtcGxlIGRldmljZSBp
+cyBub3QgeWV0IGVuYWJsZWQsIHNvIGl0IGlzIG5vdCBhbmNob3JlZCBvbiB0aGUgYnVzLCBidXQN
+Cj4gaXRzIG5hbWUgaXMgc3RpbGwgaGF2ZSB0byByZW1haW4gdW5pcXVlLg0KPiANCj4gDQo+IENh
+biB3ZSBkbyBzb21lIHN5bmNob3JuaXphdGlvbiBiZXR3ZWVuIHZkcGEgZGV2aWNlIGFsbG9jYXRp
+b24gYW5kIHZkcGENCj4gZGV2aWNlIHJlZ2lzdGllciB0byBzb2x2ZSB0aGUgbmFtaW5nIGlzc3Vl
+Pw0KbWdtdCB0b29sIHF1ZXJ5aW5nIHRoZSBkZXZpY2UgY29uZmlnIHNwYWNlIGFmdGVyIHZkcGEg
+ZGV2aWNlIGlzIGluIHVzZSBpcyByZWFsLg0KU28gSSBkb24ndCBzZWUgc29sdmluZyBpdCBhbnkg
+ZGlmZmVyZW50bHkuDQoNCk5vdyB1cHBlciBsYXllcnMgb2YgdmRwYSB0byBub3QgYWNjZXNzIHRo
+ZSBkZXZpY2Ugb24gdGhlIHBsYWNlZCBvbiB0aGUgdmRwYSBidXMsIGNhbiBiZSB0YWtlbiBjYXJl
+IGJ5IGV4aXN0aW5nIGRyaXZlciBjb2RlIHVzaW5nDQplY2hvIDAgPiAvc3lzL2J1cy92ZHBhL2Ry
+aXZlcnNfYXV0b3Byb2JlDQoNCkJ5IGRlZmF1bHQgdmRwYSBkZXZpY2UgcGxhY2VkIG9uIHRoZSBi
+dXMgd29udCBiaW5kIHRvIGFueSBkcml2ZXIgKG5ldC92aG9zdCBldGMpLg0KMS4gRGVjaXNpb24g
+dG8gYmluZCB0byB3aGljaCBkcml2ZXIgaXMgZG9uZSBhZnRlciBjb25maWcgb2YgdGhlIHZkcGEg
+ZGV2aWNlIGlzIGRvbmUuDQoyLiBvcmNoZXN0cmF0aW9uIHN3IGRvZXMgY3JlYXRlIGFuZCBjb25m
+aWcgYmVmb3JlIGl0IGJpbmRzIHRvIHRoZSByaWdodCBkcml2ZXINCjMuIHdoaWNoIGRyaXZlciB0
+byBiaW5kIHRvIGRlY2lkZWQgYmFzZWQgb24gdGhlIHVzZSBjYXNlIG9mIHRoYXQgaW5kaXZpZHVh
+bCB2ZHBhIGRldmljZQ0KRm9yIGV4YW1wbGUsIA0KKGEpIHZkcGEwIGJpbmRzIHRvIG5ldCBkcml2
+ZXIgdG8gaGF2ZSBOZXRkZXYgZm9yIGNvbnRhaW5lcg0KKGIpIHZkcGExIGJpbmRzIHRvIHZob3N0
+IGRyaXZlciB0byBtYXAgdmRwYSBkZXZpY2UgdG8gVk0NCiANCj4gPg0KPiA+IERvIHdlIGhhdmUg
+dG8gYW5jaG9yIHZkcGEgZGV2aWNlIG9uIHRoZSBidXM/IENhbiB2ZHBhIGJlIGEgY2xhc3M/DQo+
+IA0KPiANCj4gSSB0aGluayBub3QsIGl0J3MgYSBidXMgdGhhdCBpcyBleHBlY3RlZCB0byBiZSBi
+b3VuZCB0byBkaWZmZXJlbnQgZHJpdmVyDQo+IGluc3RlYWQgb2YgYSBzdWJzeXN0ZW0uDQpZZWFo
+LCBJIHJlYWxpemVkIGl0IGxhdGVseSBhZnRlciB3cml0aW5nIHRoZSBwcmV2aW91cyBlbWFpbC4N
+CkxldHMgc2VlIGlmIGFib3ZlIHNjaGVtZSB3b3JrcyBvciBub3QgdG8gdXNlIGV4aXN0aW5nIGRy
+aXZlcnNfYXV0b3Byb2JlIGZpbGUuDQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
+bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
+b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
