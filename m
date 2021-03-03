@@ -5,78 +5,79 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.2 required=3.0 tests=BAYES_00,DATE_IN_PAST_24_48,
 	DKIM_INVALID,DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
 	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1633DC433E0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2876C433DB
 	for <virtualization@archiver.kernel.org>; Thu,  4 Mar 2021 15:20:17 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B192264F6C
-	for <virtualization@archiver.kernel.org>; Thu,  4 Mar 2021 15:20:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B192264F6C
+	by mail.kernel.org (Postfix) with ESMTPS id 52DE664F6C
+	for <virtualization@archiver.kernel.org>; Thu,  4 Mar 2021 15:20:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 52DE664F6C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linutronix.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 746CD84322;
-	Thu,  4 Mar 2021 15:20:16 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1671E6E750;
+	Thu,  4 Mar 2021 15:20:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UuENrbQu9L-b; Thu,  4 Mar 2021 15:20:15 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id nxo5Rkl7TRJi; Thu,  4 Mar 2021 15:20:16 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 03BBE84031;
-	Thu,  4 Mar 2021 15:20:14 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id A2A436F5B9;
+	Thu,  4 Mar 2021 15:20:15 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CD131C000B;
-	Thu,  4 Mar 2021 15:20:14 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 84556C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 13207C0010;
+	Thu,  4 Mar 2021 15:20:15 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8B15FC000B
  for <virtualization@lists.linux-foundation.org>;
  Thu,  4 Mar 2021 15:20:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 6EEEE6F54F
+ by smtp2.osuosl.org (Postfix) with ESMTP id 77A984325D
  for <virtualization@lists.linux-foundation.org>;
  Thu,  4 Mar 2021 15:20:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linutronix.de header.b="FSHWAHNs";
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linutronix.de header.b="DdgdpNUs";
  dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
- header.d=linutronix.de header.b="BMC8gIgn"
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id TWroI7Nc9uGP
+ header.d=linutronix.de header.b="eVdvhEFW"
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id eKI5gEtxPfSl
  for <virtualization@lists.linux-foundation.org>;
  Thu,  4 Mar 2021 15:20:12 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
- by smtp3.osuosl.org (Postfix) with ESMTPS id BCF976E750
+X-Greylist: delayed 00:06:04 by SQLgrey-1.8.0
+Received: from galois.linutronix.de (Galois.linutronix.de
+ [IPv6:2a0a:51c0:0:12e:550::1])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id A6B3242FC7
  for <virtualization@lists.linux-foundation.org>;
  Thu,  4 Mar 2021 15:20:12 +0000 (UTC)
-Message-Id: <20210303132711.873509407@linutronix.de>
+Message-Id: <20210303132711.487711828@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1614870850;
+ s=2020; t=1614870847;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=u3h/+voGfuQZ8vvFWg0Eh8wQJhEpYLRgbzaO7lOW+aI=;
- b=FSHWAHNsmSIFfiruOKZ8wU93ak4ffq2CPua5ms62JfEDDwQwbdLKDz487hngpO+W3ALSJl
- gw0M1AXAD9z5g4KvDX/2e4Qdq9jnzWlwlj9X1vy1uJesdrTs1WwFS/vdH8H3v/3R0znXoM
- oq13YugQEN0jIJfBx9Sesx/SXVJDRRwQw6KW4bn7nVVyUWEBxGL+rT2SrPW8AdlGZ9jxwg
- /s5zvLwTTNrlyUi2y2imwKPsz2Ll2XZvsF3URJCgFogvFAyAW/QRjoNF0uJTwgkxZWoXV8
- rPY2lTzr1OpSqGg4wALRcll/sMqZHuaZf87+mMAhe14HCu1/zLU+C/hHOKAr0Q==
+ bh=rJE6TfIVVBhUiw4RP/fALBnIsuzL/pXFN6DWG6//yDc=;
+ b=DdgdpNUstaCQQp7YZTE5STTaQn8aWHYCROUbnlQvqMDHJoXuu/PCF3+vSeMK3n+K9n6BZP
+ rhXkBucdIm3hKv2Ry+vckd2S/3a3xrfq7i1LTyXRoZe5ol/4t7AIsAdmwhk69LLel3VtCF
+ DHytdPNb/tmLe2tB27KyWVP8DuvKQnCJjp9acbNHr5R2Juc8bS8pSI1XJ8F7B6bk4bPXl2
+ GdNVO5PP8a1xH5m7Pe6wTgQxmT2zAGS6LbCI/eD3OY/H6rhk0SWbBxJ3W10Zz223cRsw1e
+ 22Pg+JNZxEOC2T6V0dFlRwYzQ6ZQwBz77QpFsEPr19+HD6TMfOP+4qzr8zZ3Lg==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1614870850;
+ s=2020e; t=1614870847;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=u3h/+voGfuQZ8vvFWg0Eh8wQJhEpYLRgbzaO7lOW+aI=;
- b=BMC8gIgnDEiQOzywif6l/p5mkFIc5cDcrw9v673ZPmN4Z6uYF3ws0c2luovKIVfbNBBvbs
- HbJiCn5oFqa3koBA==
-Date: Wed, 03 Mar 2021 14:20:28 +0100
+ bh=rJE6TfIVVBhUiw4RP/fALBnIsuzL/pXFN6DWG6//yDc=;
+ b=eVdvhEFWtouHdvBn5qUl5XDmNbqC9EasL94g7pQARkVIiPzX9TlLt0cRQEF+e/ZDBDl3ho
+ dKJMbuZp9HjKD8Bw==
+Date: Wed, 03 Mar 2021 14:20:25 +0100
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch 5/7] drm/nouveau/device: Replace io_mapping_map_atomic_wc()
+Subject: [patch 2/7] drm/vmgfx: Replace kmap_atomic()
 References: <20210303132023.077167457@linutronix.de>
 MIME-Version: 1.0
 Cc: Jani Nikula <jani.nikula@linux.intel.com>, David Airlie <airlied@linux.ie>,
@@ -86,11 +87,11 @@ Cc: Jani Nikula <jani.nikula@linux.intel.com>, David Airlie <airlied@linux.ie>,
  virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
  Huang Rui <ray.huang@amd.com>,
  VMware Graphics <linux-graphics-maintainer@vmware.com>,
- Ben Skeggs <bskeggs@redhat.com>, Daniel Vetter <daniel@ffwll.ch>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, spice-devel@lists.freedesktop.org,
- Andrew Morton <akpm@linux-foundation.org>,
+ Daniel Vetter <daniel@ffwll.ch>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ spice-devel@lists.freedesktop.org, Andrew Morton <akpm@linux-foundation.org>,
  Chris Wilson <chris@chris-wilson.co.uk>,
- Christian Koenig <christian.koenig@amd.com>, Zack Rusin <zackr@vmware.com>
+ Christian Koenig <christian.koenig@amd.com>, Zack Rusin <zackr@vmware.com>,
+ Ben Skeggs <bskeggs@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -109,47 +110,99 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Thomas Gleixner <tglx@linutronix.de>
 
-Neither fbmem_peek() nor fbmem_poke() require to disable pagefaults and
-preemption as a side effect of io_mapping_map_atomic_wc().
+There is no reason to disable pagefaults and preemption as a side effect of
+kmap_atomic_prot().
 
-Use io_mapping_map_local_wc() instead.
+Use kmap_local_page_prot() instead and document the reasoning for the
+mapping usage with the given pgprot.
+
+Remove the NULL pointer check for the map. These functions return a valid
+address for valid pages and the return was bogus anyway as it would have
+left preemption and pagefaults disabled.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ben Skeggs <bskeggs@redhat.com>
+Cc: VMware Graphics <linux-graphics-maintainer@vmware.com>
+Cc: Roland Scheidegger <sroland@vmware.com>
+Cc: Zack Rusin <zackr@vmware.com>
 Cc: David Airlie <airlied@linux.ie>
 Cc: Daniel Vetter <daniel@ffwll.ch>
 Cc: dri-devel@lists.freedesktop.org
-Cc: nouveau@lists.freedesktop.org
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/devinit/fbmem.h |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_blit.c |   30 ++++++++++++------------------
+ 1 file changed, 12 insertions(+), 18 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/devinit/fbmem.h
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/devinit/fbmem.h
-@@ -60,19 +60,19 @@ fbmem_fini(struct io_mapping *fb)
- static inline u32
- fbmem_peek(struct io_mapping *fb, u32 off)
- {
--	u8 __iomem *p = io_mapping_map_atomic_wc(fb, off & PAGE_MASK);
-+	u8 __iomem *p = io_mapping_map_local_wc(fb, off & PAGE_MASK);
- 	u32 val = ioread32(p + (off & ~PAGE_MASK));
--	io_mapping_unmap_atomic(p);
-+	io_mapping_unmap_local(p);
- 	return val;
- }
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_blit.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_blit.c
+@@ -375,12 +375,12 @@ static int vmw_bo_cpu_blit_line(struct v
+ 		copy_size = min_t(u32, copy_size, PAGE_SIZE - src_page_offset);
  
- static inline void
- fbmem_poke(struct io_mapping *fb, u32 off, u32 val)
- {
--	u8 __iomem *p = io_mapping_map_atomic_wc(fb, off & PAGE_MASK);
-+	u8 __iomem *p = io_mapping_map_local_wc(fb, off & PAGE_MASK);
- 	iowrite32(val, p + (off & ~PAGE_MASK));
- 	wmb();
--	io_mapping_unmap_atomic(p);
-+	io_mapping_unmap_local(p);
- }
+ 		if (unmap_src) {
+-			kunmap_atomic(d->src_addr);
++			kunmap_local(d->src_addr);
+ 			d->src_addr = NULL;
+ 		}
  
- static inline bool
+ 		if (unmap_dst) {
+-			kunmap_atomic(d->dst_addr);
++			kunmap_local(d->dst_addr);
+ 			d->dst_addr = NULL;
+ 		}
+ 
+@@ -388,12 +388,8 @@ static int vmw_bo_cpu_blit_line(struct v
+ 			if (WARN_ON_ONCE(dst_page >= d->dst_num_pages))
+ 				return -EINVAL;
+ 
+-			d->dst_addr =
+-				kmap_atomic_prot(d->dst_pages[dst_page],
+-						 d->dst_prot);
+-			if (!d->dst_addr)
+-				return -ENOMEM;
+-
++			d->dst_addr = kmap_local_page_prot(d->dst_pages[dst_page],
++							   d->dst_prot);
+ 			d->mapped_dst = dst_page;
+ 		}
+ 
+@@ -401,12 +397,8 @@ static int vmw_bo_cpu_blit_line(struct v
+ 			if (WARN_ON_ONCE(src_page >= d->src_num_pages))
+ 				return -EINVAL;
+ 
+-			d->src_addr =
+-				kmap_atomic_prot(d->src_pages[src_page],
+-						 d->src_prot);
+-			if (!d->src_addr)
+-				return -ENOMEM;
+-
++			d->src_addr = kmap_local_page_prot(d->src_pages[src_page],
++							   d->src_prot);
+ 			d->mapped_src = src_page;
+ 		}
+ 		diff->do_cpy(diff, d->dst_addr + dst_page_offset,
+@@ -436,8 +428,10 @@ static int vmw_bo_cpu_blit_line(struct v
+  *
+  * Performs a CPU blit from one buffer object to another avoiding a full
+  * bo vmap which may exhaust- or fragment vmalloc space.
+- * On supported architectures (x86), we're using kmap_atomic which avoids
+- * cross-processor TLB- and cache flushes and may, on non-HIGHMEM systems
++ *
++ * On supported architectures (x86), we're using kmap_local_prot() which
++ * avoids cross-processor TLB- and cache flushes. kmap_local_prot() will
++ * either map a highmem page with the proper pgprot on HIGHMEM=y systems or
+  * reference already set-up mappings.
+  *
+  * Neither of the buffer objects may be placed in PCI memory
+@@ -500,9 +494,9 @@ int vmw_bo_cpu_blit(struct ttm_buffer_ob
+ 	}
+ out:
+ 	if (d.src_addr)
+-		kunmap_atomic(d.src_addr);
++		kunmap_local(d.src_addr);
+ 	if (d.dst_addr)
+-		kunmap_atomic(d.dst_addr);
++		kunmap_local(d.dst_addr);
+ 
+ 	return ret;
+ }
 
 
 _______________________________________________
