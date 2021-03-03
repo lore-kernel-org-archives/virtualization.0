@@ -2,100 +2,107 @@ Return-Path: <SRS0=2V5C=IB=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72513C433E0
-	for <virtualization@archiver.kernel.org>; Wed,  3 Mar 2021 17:49:02 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65842C433E0
+	for <virtualization@archiver.kernel.org>; Wed,  3 Mar 2021 18:20:05 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E546A601FD
-	for <virtualization@archiver.kernel.org>; Wed,  3 Mar 2021 17:49:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E546A601FD
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id DDB9564EE4
+	for <virtualization@archiver.kernel.org>; Wed,  3 Mar 2021 18:20:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DDB9564EE4
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 945CD471E6;
-	Wed,  3 Mar 2021 17:49:01 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 90E6940181;
+	Wed,  3 Mar 2021 18:20:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0FlR5rFFp0-a; Wed,  3 Mar 2021 17:49:00 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D682F46CA8;
-	Wed,  3 Mar 2021 17:48:59 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id bnu4hR_Ug2Ok; Wed,  3 Mar 2021 18:20:03 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 23F1C4013C;
+	Wed,  3 Mar 2021 18:20:03 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AD075C000A;
-	Wed,  3 Mar 2021 17:48:59 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 453CAC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E0864C000B;
+	Wed,  3 Mar 2021 18:20:02 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3C318C0001
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Mar 2021 17:48:58 +0000 (UTC)
+ Wed,  3 Mar 2021 18:20:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2540046CA8
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1B8BC6F99D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Mar 2021 17:48:58 +0000 (UTC)
+ Wed,  3 Mar 2021 18:20:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dMt8cBncXX25
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linaro.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id r4p3tkvt6uwj
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Mar 2021 17:48:56 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id D684E40174
+ Wed,  3 Mar 2021 18:20:01 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com
+ [IPv6:2a00:1450:4864:20::331])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2EBF16F98C
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Mar 2021 17:48:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1614793734;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=XgGS/s/8WlRgw3FyEQZnL/peYUyqO0Kr8QQUVUAZzb8=;
- b=ftFRIBwovZRHT7TuWcyJYVGeiLx/xpZyrcH3L3+mOwrIOMrHrMNq8IBo/9pY94xO8AMWH5
- H3PRZSksOhcVxgpjq0OVOav7GdMHO+JzukejuVpBZQ5u4hxYzlar+qge3ZfA7K7TsO/bbR
- z2AIUFYOiwcMr0twLXMOPqXEQf5Afo8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-223-l-AnTYKWMH6hyIacArNycg-1; Wed, 03 Mar 2021 12:48:50 -0500
-X-MC-Unique: l-AnTYKWMH6hyIacArNycg-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0D9101846097;
- Wed,  3 Mar 2021 17:48:47 +0000 (UTC)
-Received: from localhost (ovpn-114-24.ams2.redhat.com [10.36.114.24])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 965E37094A;
- Wed,  3 Mar 2021 17:48:40 +0000 (UTC)
-Date: Wed, 3 Mar 2021 17:48:39 +0000
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v5] i2c: virtio: add a virtio i2c frontend driver
-Message-ID: <YD/L9/Dj+3dSZJXa@stefanha-x1.localdomain>
-References: <00f826ffe1b6b4f5fb41de2b55ad6b8783b7ff45.1614579846.git.jie.deng@intel.com>
- <CAK8P3a1ZXbodV07TTErnQunCLWOBnzRiVdLCxBD743fn-6FbXg@mail.gmail.com>
- <56fdef9a-b373-32f2-6dac-e687caa813c8@intel.com>
- <YD4KovxeoNG/c8QC@stefanha-x1.localdomain>
- <CAK8P3a23L-Y0vzJTb5w1MkumaYAJQ6Owiq6RZ2XE=i8gBMTUZw@mail.gmail.com>
+ Wed,  3 Mar 2021 18:20:01 +0000 (UTC)
+Received: by mail-wm1-x331.google.com with SMTP id u187so5941910wmg.4
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 03 Mar 2021 10:20:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=I6oAOf+1ZMeSBc0SuKKOMGczX7volpKJqxQn9uhodGs=;
+ b=VwJ+VHKJcT2Nf/kj3+7hqNO+M8Jub4xI+zPtfFYoQaqgHTl43E/lHcDJW8zwY4eHUq
+ PiLw+a7S0TTjtZt0wIdcfocKW4sdtFAs+BSeXQZ7Un71ucylyW/orAbwxZOd7ajhi3GX
+ BrLrJ0idIv26+gJboNFBabl6If2U02DArAp2HxxleK+xXxnRqmRLke66PLBm06i/jUHb
+ /08oxS3l20Pa7g0INWbcIVqHiKWSiGijLLQ2QZcfFHHpI5KTNRRHdE3+U6JeNHXDdKBq
+ A43uJFcfy0NniInhBbUpqMWuHe8aZYtoy4MIMq65vyW2fo9cxrlohPDpfXYdJndR4OVD
+ 4CPQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=I6oAOf+1ZMeSBc0SuKKOMGczX7volpKJqxQn9uhodGs=;
+ b=Gjd4FjnuhgYMUBuXBOy4yqCj2GfBCfhWlqPjDcGkMGttMdZdVYOQKRybnKITRyn769
+ nKUfY7XJGsvRvE0+uIRLt5LbxvYQ7ZoLxPHyIGMhCQSsgJG/1BF7aeIh7M+H6AD/ksj2
+ pe470R2VIvY2RUgx43w6Pr9mH0goYf6miSr3AOa8hbW2bNCpzNXZFEOLCtOQrSx1+mhi
+ 5zR1O/+6BP4jh2nGamWOGcl6m3neQeOqoEqx3aHrFKOq6I0B4J8YBTv60eLmmc9c3Uqf
+ ZAM4EHO2B4/h7ed2wdz56fb0q0GrcqQ2geRmYdNBMRtq6bsGbIpsqCYVlBEEi98chhIn
+ e3Ng==
+X-Gm-Message-State: AOAM531pDEeDmU+QD+QWymSSKRhrwuaXRnH8UdHdEyeSBUO1Lnvx5jIa
+ 53dnj9dwZ01cThUhZ0hMnIxuxE5/VtLq+A==
+X-Google-Smtp-Source: ABdhPJxEGFLtLtT2CVJqW85OgSqITesZWdYSO96CmRmaHjOUEzXMjLr6QhIIoiQz8us9HKvesrIHzQ==
+X-Received: by 2002:a1c:3c02:: with SMTP id j2mr62026wma.92.1614791779611;
+ Wed, 03 Mar 2021 09:16:19 -0800 (PST)
+Received: from myrica ([2001:1715:4e26:a7e0:116c:c27a:3e7f:5eaf])
+ by smtp.gmail.com with ESMTPSA id o2sm6209999wme.16.2021.03.03.09.16.18
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 03 Mar 2021 09:16:18 -0800 (PST)
+Date: Wed, 3 Mar 2021 18:15:57 +0100
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Vivek Gautam <vivek.gautam@arm.com>
+Subject: Re: [PATCH RFC v1 05/15] iommu/arm-smmu-v3: Set sync op from
+ consumer driver of cd-lib
+Message-ID: <YD/ETcVwWATG4M6e@myrica>
+References: <20210115121342.15093-1-vivek.gautam@arm.com>
+ <20210115121342.15093-6-vivek.gautam@arm.com>
 MIME-Version: 1.0
-In-Reply-To: <CAK8P3a23L-Y0vzJTb5w1MkumaYAJQ6Owiq6RZ2XE=i8gBMTUZw@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-Cc: Sergey Semin <Sergey.Semin@baikalelectronics.ru>,
- Bjorn Andersson <bjorn.andersson@linaro.org>, loic.poulain@linaro.org,
- Tali Perry <tali.perry1@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Viresh Kumar <viresh.kumar@linaro.org>, shuo.a.liu@intel.com,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- virtualization@lists.linux-foundation.org, Wolfram Sang <wsa@kernel.org>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>, jarkko.nikula@linux.intel.com,
- Linux I2C <linux-i2c@vger.kernel.org>,
- Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>,
- kblaiech@mellanox.com, Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- conghui.chen@intel.com, Mike Rapoport <rppt@kernel.org>, yu1.wang@intel.com
+Content-Disposition: inline
+In-Reply-To: <20210115121342.15093-6-vivek.gautam@arm.com>
+Cc: jacob.jun.pan@linux.intel.com, mst@redhat.com, joro@8bytes.org,
+ will.deacon@arm.com, linux-kernel@vger.kernel.org,
+ shameerali.kolothum.thodi@huawei.com,
+ virtualization@lists.linux-foundation.org, eric.auger@redhat.com,
+ iommu@lists.linux-foundation.org, yi.l.liu@intel.com,
+ lorenzo.pieralisi@arm.com, robin.murphy@arm.com,
+ linux-arm-kernel@lists.infradead.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,89 +114,69 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============6811658129050034525=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Fri, Jan 15, 2021 at 05:43:32PM +0530, Vivek Gautam wrote:
+> Te change allows different consumers of arm-smmu-v3-cd-lib to set
+> their respective sync op for pasid entries.
+> 
+> Signed-off-by: Vivek Gautam <vivek.gautam@arm.com>
+> Cc: Joerg Roedel <joro@8bytes.org>
+> Cc: Will Deacon <will.deacon@arm.com>
+> Cc: Robin Murphy <robin.murphy@arm.com>
+> Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>
+> Cc: Eric Auger <eric.auger@redhat.com>
+> Cc: Alex Williamson <alex.williamson@redhat.com>
+> Cc: Kevin Tian <kevin.tian@intel.com>
+> Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
+> Cc: Liu Yi L <yi.l.liu@intel.com>
+> Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+> Cc: Shameerali Kolothum Thodi <shameerali.kolothum.thodi@huawei.com>
+> ---
+>  drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-cd-lib.c | 1 -
+>  drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c        | 7 +++++++
+>  2 files changed, 7 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-cd-lib.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-cd-lib.c
+> index ec37476c8d09..acaa09acecdd 100644
+> --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-cd-lib.c
+> +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-cd-lib.c
+> @@ -265,7 +265,6 @@ struct iommu_vendor_psdtable_ops arm_cd_table_ops = {
+>  	.free	 = arm_smmu_free_cd_tables,
+>  	.prepare = arm_smmu_prepare_cd,
+>  	.write	 = arm_smmu_write_ctx_desc,
+> -	.sync	 = arm_smmu_sync_cd,
+>  };
+>  
+>  struct iommu_pasid_table *arm_smmu_register_cd_table(struct device *dev,
+> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+> index 2f86c6ac42b6..0c644be22b4b 100644
+> --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+> +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+> @@ -1869,6 +1869,13 @@ static int arm_smmu_domain_finalise_s1(struct arm_smmu_domain *smmu_domain,
+>  	if (ret)
+>  		goto out_free_cd_tables;
+>  
+> +	/*
+> +	 * Strange to setup an op here?
+> +	 * cd-lib is the actual user of sync op, and therefore the platform
+> +	 * drivers should assign this sync/maintenance ops as per need.
+> +	 */
+> +	tbl->ops->sync = arm_smmu_sync_cd;
+> +
 
---===============6811658129050034525==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="0Z13hpXB9yg/SJqi"
-Content-Disposition: inline
+Modifying a static struct from here doesn't feel right. I think the
+interface should be roughly similar to io-pgtable since the principle is
+the same. So the sync() op should be separate from arm_cd_table_ops since
+it's a callback into the driver. Maybe pass it to
+iommu_register_pasid_table().
 
-
---0Z13hpXB9yg/SJqi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, Mar 02, 2021 at 11:54:02AM +0100, Arnd Bergmann wrote:
-> On Tue, Mar 2, 2021 at 10:51 AM Stefan Hajnoczi <stefanha@redhat.com> wro=
-te:
-> > On Tue, Mar 02, 2021 at 10:42:06AM +0800, Jie Deng wrote:
-> > > > > +/*
-> > > > > + * Definitions for virtio I2C Adpter
-> > > > > + *
-> > > > > + * Copyright (c) 2021 Intel Corporation. All rights reserved.
-> > > > > + */
-> > > > > +
-> > > > > +#ifndef _UAPI_LINUX_VIRTIO_I2C_H
-> > > > > +#define _UAPI_LINUX_VIRTIO_I2C_H
-> > > > Why is this a uapi header? Can't this all be moved into the driver
-> > > > itself?
-> >
-> > Linux VIRTIO drivers provide a uapi header with structs and constants
-> > that describe the device interface. This allows other software like
-> > QEMU, other operating systems, etc to reuse these headers instead of
-> > redefining everything.
-> >
-> > These files should contain:
-> > 1. Device-specific feature bits (VIRTIO_<device>_F_<feature>)
-> > 2. VIRTIO Configuration Space layout (struct virtio_<device>_config)
-> > 3. Virtqueue request layout (struct virtio_<device>_<req/resp>)
-> >
-> > For examples, see <linux/virtio_net.h> and <linux/virtio_blk.h>.
->=20
-> Ok, makes sense. So it's not strictly uapi but just helpful for
-> virtio applications to reference these. I suppose it is slightly harder
-> when building qemu on other operating systems though, how does
-> it get these headers on BSD or Windows?
-
-qemu.git imports Linux headers from time to time and can use them
-instead of system headers:
-
-  https://gitlab.com/qemu-project/qemu/-/blob/master/scripts/update-linux-h=
-eaders.sh
-
-Stefan
-
---0Z13hpXB9yg/SJqi
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmA/y/cACgkQnKSrs4Gr
-c8gvvwgAl//yH6nIM39C8033YVTMLn56fBWlMw7olnJWN4P4JpytEX5MLIkIoRrw
-vkM13V7TSV0lHJKKDc8erHKfahXFJFc7vJV5cn69icEpv+HCzB8Knfk+wePViUAF
-/vpfFH3K4/nutqb3eWfJ3yUQqFRrqXa4l7O+20e5H5j8REBK/R7NnOs6i3jBJ5su
-eW1XJKy//Jwnyih0Bxifxxf56JIOgNz/82Zg1sF0BY6TGF9uVwyYcSzTm3dny5tI
-E163vh02TFoNtMODr1aEEuQrR1gay5Cd+dE+YC+ba/Q0EBNj116O9yLid2xbipyb
-B5MY41s7CLQj5ESoEgyO2pKStZ0H/w==
-=2uM5
------END PGP SIGNATURE-----
-
---0Z13hpXB9yg/SJqi--
-
-
---===============6811658129050034525==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+Thanks,
+Jean
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6811658129050034525==--
-
