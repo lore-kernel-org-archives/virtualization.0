@@ -7,60 +7,59 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E89FC433E6
-	for <virtualization@archiver.kernel.org>; Wed,  3 Mar 2021 14:17:37 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 336CBC433E0
+	for <virtualization@archiver.kernel.org>; Wed,  3 Mar 2021 14:17:38 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7510064EE1
-	for <virtualization@archiver.kernel.org>; Wed,  3 Mar 2021 14:17:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7510064EE1
+	by mail.kernel.org (Postfix) with ESMTPS id BCAEF64E87
+	for <virtualization@archiver.kernel.org>; Wed,  3 Mar 2021 14:17:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BCAEF64E87
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id EF4A549986;
+	by smtp1.osuosl.org (Postfix) with ESMTP id 31A93843B8;
+	Wed,  3 Mar 2021 14:17:37 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id R9nuX0CkUY6d; Wed,  3 Mar 2021 14:17:36 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTP id B7EDB839DC;
 	Wed,  3 Mar 2021 14:17:35 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Q45RnKqV3zIE; Wed,  3 Mar 2021 14:17:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2AAC34954E;
-	Wed,  3 Mar 2021 14:17:34 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0682FC000E;
-	Wed,  3 Mar 2021 14:17:34 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4477FC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A3DB7C0010;
+	Wed,  3 Mar 2021 14:17:35 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 462A4C000F
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Mar 2021 14:17:31 +0000 (UTC)
+ Wed,  3 Mar 2021 14:17:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 3305F400E9
+ by smtp1.osuosl.org (Postfix) with ESMTP id 41E9783A59
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Mar 2021 14:17:31 +0000 (UTC)
+ Wed,  3 Mar 2021 14:17:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0Krdod1LWD4N
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id rLUtwpcXEt_K
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Mar 2021 14:17:30 +0000 (UTC)
+ Wed,  3 Mar 2021 14:17:32 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 68435400E6
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 52BDF83842
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Mar 2021 14:17:30 +0000 (UTC)
+ Wed,  3 Mar 2021 14:17:32 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549adcf6.dip0.t-ipconnect.de
  [84.154.220.246])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id DD0A1451;
- Wed,  3 Mar 2021 15:17:23 +0100 (CET)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 1E31D48E;
+ Wed,  3 Mar 2021 15:17:25 +0100 (CET)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH 3/5] x86/sev-es: Optimize __sev_es_ist_enter() for better
- readability
-Date: Wed,  3 Mar 2021 15:17:14 +0100
-Message-Id: <20210303141716.29223-4-joro@8bytes.org>
+Subject: [PATCH 5/5] x86/sev-es: Use __copy_from_user_inatomic()
+Date: Wed,  3 Mar 2021 15:17:16 +0100
+Message-Id: <20210303141716.29223-6-joro@8bytes.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210303141716.29223-1-joro@8bytes.org>
 References: <20210303141716.29223-1-joro@8bytes.org>
@@ -76,7 +75,8 @@ Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
  Andy Lutomirski <luto@kernel.org>, Dan Williams <dan.j.williams@intel.com>,
  Juergen Gross <jgross@suse.com>, Mike Stunes <mstunes@vmware.com>,
  Sean Christopherson <seanjc@google.com>, linux-kernel@vger.kernel.org,
- Masami Hiramatsu <mhiramat@kernel.org>, Erdem Aktas <erdemaktas@google.com>
+ stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+ Erdem Aktas <erdemaktas@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,72 +95,137 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Reorganize the code and improve the comments to make the function more
-readable and easier to understand.
+The #VC handler must run atomic and can not be put to sleep. This is a
+problem when it tries to fetch instruction bytes from user-space via
+copy_from_user.
 
+Introduce a insn_fetch_from_user_inatomic() helper which uses
+__copy_from_user_inatomic() to safely copy the instruction bytes to
+kernel memory in the #VC handler.
+
+Fixes: 5e3427a7bc432 ("x86/sev-es: Handle instruction fetches from user-space")
+Cc: stable@vger.kernel.org # v5.10+
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 36 ++++++++++++++++++++++++------------
- 1 file changed, 24 insertions(+), 12 deletions(-)
+ arch/x86/include/asm/insn-eval.h |  2 +
+ arch/x86/kernel/sev-es.c         |  2 +-
+ arch/x86/lib/insn-eval.c         | 66 +++++++++++++++++++++++++-------
+ 3 files changed, 55 insertions(+), 15 deletions(-)
 
+diff --git a/arch/x86/include/asm/insn-eval.h b/arch/x86/include/asm/insn-eval.h
+index a0f839aa144d..98b4dae5e8bc 100644
+--- a/arch/x86/include/asm/insn-eval.h
++++ b/arch/x86/include/asm/insn-eval.h
+@@ -23,6 +23,8 @@ unsigned long insn_get_seg_base(struct pt_regs *regs, int seg_reg_idx);
+ int insn_get_code_seg_params(struct pt_regs *regs);
+ int insn_fetch_from_user(struct pt_regs *regs,
+ 			 unsigned char buf[MAX_INSN_SIZE]);
++int insn_fetch_from_user_inatomic(struct pt_regs *regs,
++				  unsigned char buf[MAX_INSN_SIZE]);
+ bool insn_decode(struct insn *insn, struct pt_regs *regs,
+ 		 unsigned char buf[MAX_INSN_SIZE], int buf_size);
+ 
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 28b0144daddd..e1eeb3ef58c5 100644
+index 3d8ec5bf6f79..26f5479a97a8 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -137,29 +137,41 @@ static __always_inline bool on_vc_stack(struct pt_regs *regs)
+@@ -270,7 +270,7 @@ static enum es_result vc_decode_insn(struct es_em_ctxt *ctxt)
+ 	int res;
+ 
+ 	if (user_mode(ctxt->regs)) {
+-		res = insn_fetch_from_user(ctxt->regs, buffer);
++		res = insn_fetch_from_user_inatomic(ctxt->regs, buffer);
+ 		if (!res) {
+ 			ctxt->fi.vector     = X86_TRAP_PF;
+ 			ctxt->fi.error_code = X86_PF_INSTR | X86_PF_USER;
+diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
+index 4229950a5d78..bb0b3fe1e0a0 100644
+--- a/arch/x86/lib/insn-eval.c
++++ b/arch/x86/lib/insn-eval.c
+@@ -1415,6 +1415,25 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs)
+ 	}
  }
  
- /*
-- * This function handles the case when an NMI is raised in the #VC exception
-- * handler entry code. In this case, the IST entry for #VC must be adjusted, so
-- * that any subsequent #VC exception will not overwrite the stack contents of the
-- * interrupted #VC handler.
-+ * This function handles the case when an NMI is raised in the #VC
-+ * exception handler entry code, before the #VC handler has switched off
-+ * its IST stack. In this case, the IST entry for #VC must be adjusted,
-+ * so that any nested #VC exception will not overwrite the stack
-+ * contents of the interrupted #VC handler.
-  *
-  * The IST entry is adjusted unconditionally so that it can be also be
-- * unconditionally adjusted back in sev_es_ist_exit(). Otherwise a nested
-- * sev_es_ist_exit() call may adjust back the IST entry too early.
-+ * unconditionally adjusted back in __sev_es_ist_exit(). Otherwise a
-+ * nested sev_es_ist_exit() call may adjust back the IST entry too
-+ * early.
-+ *
-+ * The __sev_es_ist_enter() and __sev_es_ist_exit() functions always run
-+ * on the NMI IST stack, as they are only called from NMI handling code
-+ * right now.
++static unsigned long insn_get_effective_ip(struct pt_regs *regs)
++{
++	unsigned long seg_base = 0;
++
++	/*
++	 * If not in user-space long mode, a custom code segment could be in
++	 * use. This is true in protected mode (if the process defined a local
++	 * descriptor table), or virtual-8086 mode. In most of the cases
++	 * seg_base will be zero as in USER_CS.
++	 */
++	if (!user_64bit_mode(regs)) {
++		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
++		if (seg_base == -1L)
++			return 0;
++	}
++
++	return seg_base + regs->ip;
++}
++
+ /**
+  * insn_fetch_from_user() - Copy instruction bytes from user-space memory
+  * @regs:	Structure with register values as seen when entering kernel mode
+@@ -1431,24 +1450,43 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs)
   */
- void noinstr __sev_es_ist_enter(struct pt_regs *regs)
+ int insn_fetch_from_user(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
  {
- 	unsigned long old_ist, new_ist;
+-	unsigned long seg_base = 0;
++	unsigned long ip;
+ 	int not_copied;
  
- 	/* Read old IST entry */
--	old_ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
-+	new_ist = old_ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
+-	/*
+-	 * If not in user-space long mode, a custom code segment could be in
+-	 * use. This is true in protected mode (if the process defined a local
+-	 * descriptor table), or virtual-8086 mode. In most of the cases
+-	 * seg_base will be zero as in USER_CS.
+-	 */
+-	if (!user_64bit_mode(regs)) {
+-		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
+-		if (seg_base == -1L)
+-			return 0;
+-	}
++	ip = insn_get_effective_ip(regs);
++	if (!ip)
++		return 0;
++
++	not_copied = copy_from_user(buf, (void __user *)ip, MAX_INSN_SIZE);
  
--	/* Make room on the IST stack */
-+	/*
-+	 * If NMI happened while on the #VC IST stack, set the new IST
-+	 * value below regs->sp, so that the interrupted stack frame is
-+	 * not overwritten by subsequent #VC exceptions.
-+	 */
- 	if (on_vc_stack(regs))
--		new_ist = ALIGN_DOWN(regs->sp, 8) - sizeof(old_ist);
--	else
--		new_ist = old_ist - sizeof(old_ist);
-+		new_ist = regs->sp;
++	return MAX_INSN_SIZE - not_copied;
++}
++
++/**
++ * insn_fetch_from_user_inatomic() - Copy instruction bytes from user-space memory
++ *                                   while in atomic code
++ * @regs:	Structure with register values as seen when entering kernel mode
++ * @buf:	Array to store the fetched instruction
++ *
++ * Gets the linear address of the instruction and copies the instruction bytes
++ * to the buf. This function must be used in atomic context.
++ *
++ * Returns:
++ *
++ * Number of instruction bytes copied.
++ *
++ * 0 if nothing was copied.
++ */
++int insn_fetch_from_user_inatomic(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
++{
++	unsigned long ip;
++	int not_copied;
++
++	ip = insn_get_effective_ip(regs);
++	if (!ip)
++		return 0;
  
--	/* Store old IST entry */
-+	/*
-+	 * Reserve additional 8 bytes and store old IST value so this
-+	 * adjustment can be unrolled in __sev_es_ist_exit().
-+	 */
-+	new_ist -= sizeof(old_ist);
- 	*(unsigned long *)new_ist = old_ist;
+-	not_copied = copy_from_user(buf, (void __user *)(seg_base + regs->ip),
+-				    MAX_INSN_SIZE);
++	not_copied = __copy_from_user_inatomic(buf, (void __user *)ip, MAX_INSN_SIZE);
  
- 	/* Set new IST entry */
+ 	return MAX_INSN_SIZE - not_copied;
+ }
 -- 
 2.30.1
 
