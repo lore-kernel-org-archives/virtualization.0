@@ -2,172 +2,103 @@ Return-Path: <SRS0=YToA=IC=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AE56C433E0
-	for <virtualization@archiver.kernel.org>; Thu,  4 Mar 2021 17:42:34 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CD52C433E9
+	for <virtualization@archiver.kernel.org>; Thu,  4 Mar 2021 23:08:11 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C6E3D64F4C
-	for <virtualization@archiver.kernel.org>; Thu,  4 Mar 2021 17:42:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C6E3D64F4C
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=amd.com
+	by mail.kernel.org (Postfix) with ESMTPS id C323D64F79
+	for <virtualization@archiver.kernel.org>; Thu,  4 Mar 2021 23:08:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C323D64F79
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 9141543248;
-	Thu,  4 Mar 2021 17:42:33 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 128AD4AEF5;
+	Thu,  4 Mar 2021 23:08:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LMoG51RhPRCe; Thu,  4 Mar 2021 17:42:32 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1327342FC2;
-	Thu,  4 Mar 2021 17:42:32 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id I_oGU6L9ltm6; Thu,  4 Mar 2021 23:08:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 497D84B530;
+	Thu,  4 Mar 2021 23:08:08 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DE072C000B;
-	Thu,  4 Mar 2021 17:42:31 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F0BAFC0001
- for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Mar 2021 17:42:30 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DC326C0013;
+	Thu,  4 Mar 2021 23:08:07 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A6839C0001;
+ Thu,  4 Mar 2021 23:08:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id DE82683963
- for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Mar 2021 17:42:30 +0000 (UTC)
+ by smtp2.osuosl.org (Postfix) with ESMTP id 8066D4328E;
+ Thu,  4 Mar 2021 23:08:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=amd.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DdIlslyOpFNh
- for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Mar 2021 17:42:29 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com
- (mail-dm6nam10on2079.outbound.protection.outlook.com [40.107.93.79])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 6A68083955
- for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Mar 2021 17:42:29 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=TWEH04FZtanj5ankI7cJFnIAQaVvfOyLV4tZKCokR/gol4AY+UYAVmEU/bJaJpOw8H7Atf2Dt1orN4K5RUb+CmhDP6SxUgv8G4a6UMcHQrmi1eKjS1CvrMh99lSQCenl6u5DuuLpln7o+Zr+i6sgwcbckpUYHWq1uQ1orAAi4pDY2FCqk5oyWNJn3LyHmaIxHOA6uV4U1v9Xruk2kYdEO6i4nXK1ZcTf6FdMlIGY2fuWV0vPLTvWAumGnRi/UsJhiDNwIuXgEzDAXksx7WdDHJepqflTxeqQXqUTrtr3iMsMokYEKBBc9AkSQVsMiOoXfZymYl2gUJ5wo4oHmSyxKg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FuCTdFruX/hNTlCbVVQsTE2rH1DSKwjSxvhj/FRSsBg=;
- b=aTL9ads85KK3rh6thCCj7whs6kvXTRoi18hPDDTQWO4aEBUknzxRNjOk641OLDUmqyLr7bduoUCTO3uVAjho9Ytj8rU7BhwfTCk+1Udg78Dt39rDS8RHWzGUJUp9adwLFoy8jhyBEWop5Py/4IdobAZ7G9RdP8IF+q0vi0+l7R7rIsvo/wfcixVal3JNDSxGGeib9sfa+jOmPWGTGS9EEDzvmoljR1UP1mhbYRWjqa/DwzqyjTx/usf9VFNYVlEZ9Gy+SEoUzYgPthJkQsnIbOD52+S25y5p4PQT06wPznbhof0YDuKX6ec6x/YaO4KcH7jqDpm8nYEISHl5h5wK4w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1; 
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=FuCTdFruX/hNTlCbVVQsTE2rH1DSKwjSxvhj/FRSsBg=;
- b=jybahngfkdfRXniDCCsF29WN5y41MUAya422nxSKg87yMZfAALrwWlZKXfRfGdKEnLi4TrgNvy+zABPjwZaabMn+aLP2kSCZRIplTjfHawkCuYYsECwDf8V6zEPI89s4nS2x5LLAICz5Wu5K8BAtLcCz0dU6BOSr1WFtJtOrrcE=
-Authentication-Results: lists.freedesktop.org; dkim=none (message not signed)
- header.d=none; lists.freedesktop.org;
- dmarc=none action=none header.from=amd.com;
-Received: from MN2PR12MB3775.namprd12.prod.outlook.com (2603:10b6:208:159::19)
- by MN2PR12MB4358.namprd12.prod.outlook.com (2603:10b6:208:24f::12)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3912.19; Thu, 4 Mar
- 2021 17:42:27 +0000
-Received: from MN2PR12MB3775.namprd12.prod.outlook.com
- ([fe80::c1ff:dcf1:9536:a1f2]) by MN2PR12MB3775.namprd12.prod.outlook.com
- ([fe80::c1ff:dcf1:9536:a1f2%2]) with mapi id 15.20.3912.017; Thu, 4 Mar 2021
- 17:42:27 +0000
-Subject: Re: [patch 1/7] drm/ttm: Replace kmap_atomic() usage
-To: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>
-References: <20210303132023.077167457@linutronix.de>
- <20210303132711.340553449@linutronix.de>
-From: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
-Message-ID: <404173f2-62ff-7953-2ce1-20ac9fde2aed@amd.com>
-Date: Thu, 4 Mar 2021 18:42:13 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
-In-Reply-To: <20210303132711.340553449@linutronix.de>
-Content-Language: en-US
-X-Originating-IP: [2a02:908:1252:fb60:3d04:4b7c:635f:3a0]
-X-ClientProxiedBy: AM0PR10CA0105.EURPRD10.PROD.OUTLOOK.COM
- (2603:10a6:208:e6::22) To MN2PR12MB3775.namprd12.prod.outlook.com
- (2603:10b6:208:159::19)
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=gmail.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Dp1ljP4NtKj2; Thu,  4 Mar 2021 23:08:05 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com
+ [IPv6:2a00:1450:4864:20::32b])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 56D77400CC;
+ Thu,  4 Mar 2021 23:08:05 +0000 (UTC)
+Received: by mail-wm1-x32b.google.com with SMTP id m7so75668wmq.0;
+ Thu, 04 Mar 2021 15:08:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=lQRVhb2fmLqsoyQKjRe8fitm837n7i4zwyHsvEUN5wY=;
+ b=CjrbQ7ensaU3nJzPwcF60nDPqPyQwKRA5UV3tDsTfIbOIK3rlvXZsNs103APDKPR76
+ JzLJraxoeDzc/nWGwfKg4s12kZrbK3OeYc+SZB+NLUau4dRPfrKzUmkzA5zhd62eO7/A
+ 00B766rIAtduV/tL7dzB6sPYXyL9ZZHpnwGUQ6wlrkbmj8uwcSVEEBWkYhw66uFk8g0T
+ QH8r/nJhs+BatRQIVO3EAkyh9M7OZfJRZ1PSPUuCwWsMy2PNie9AhKp4upVCH2tR7ijY
+ Sb+ALvIV7rKcK3nYHb4t6Kgj2RqR7gEvSx6EGrxzWEk+qsjRyTtgE37byGeEoSY0q4bi
+ pX/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=lQRVhb2fmLqsoyQKjRe8fitm837n7i4zwyHsvEUN5wY=;
+ b=j8I2OnYJS20y8+FcYzcSNT74pvIHmHnIQQg3yf3O6PiPy9aJGtq4SDoS6ZGylo0x50
+ W0jx1991kUF+aZvAOsIWRE4oHbv9WvITU11a8Do1TrmRJwHJO032gmFrNT6Xuf2pXmLi
+ hXEb1FnC1aMv9akTBG2UcslYQ6ujdyQUX5FxbCKqV1HwfYiwzxnszy4wsRCqvdF2nWK1
+ pZsKeZmUpBejPPdpq9bWX9EXJzDbHqcLt5MJhD7gH3aeBfpqOWXDz8/EzEJbYfZ+WnAd
+ OqTYpmmPQQ9bYGTQicxaEakv4MWL6msC5Efme9g5PZXPUuKHwG7PXBwTyYrV99RvRZIR
+ MfZw==
+X-Gm-Message-State: AOAM5309sCKKvk8ExRLGxwjA3yCCkaXE4t3lYNsUgrzktHzz6QUC/hVW
+ 4YU+tfvyovm7NTj4ioDRxOXHREx6b30tKFabeSs=
+X-Google-Smtp-Source: ABdhPJxVVQPsgq02I2Ff4zRkoRoPzpsOHVRQGGML6KsK4Xb0ofpQyl7vPhx80DEtc9/2caqtEQQ6e2eh6wtKc9RJyl8=
+X-Received: by 2002:a1c:4b15:: with SMTP id y21mr6168367wma.94.1614899283195; 
+ Thu, 04 Mar 2021 15:08:03 -0800 (PST)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [IPv6:2a02:908:1252:fb60:3d04:4b7c:635f:3a0]
- (2a02:908:1252:fb60:3d04:4b7c:635f:3a0) by
- AM0PR10CA0105.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:208:e6::22) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3912.17 via Frontend Transport; Thu, 4 Mar 2021 17:42:24 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-HT: Tenant
-X-MS-Office365-Filtering-Correlation-Id: 0a810a88-a751-4f52-0bc2-08d8df34e03a
-X-MS-TrafficTypeDiagnostic: MN2PR12MB4358:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <MN2PR12MB435822A425E234BFB42E95AE83979@MN2PR12MB4358.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:2089;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 4x105muguRyANhtP/sRsG2fwn9kbm/JsWUi3A4GbUZpeDVCJIdB5biplzk9vWGowG9EBE3uV+ZWM47dEHmF4UgebcbRBTVrsL6b/Iho5Fg6wbWNuRRYfU6PvCRMl7CItKjALPNWTQzkXPILIxs8X81EI6gcuXw0iez3RUYdNz5dPdHVWZWKKnD8YqjKoJlnxhx7rf3isIkMdt/q5Yo+oAw6YbrsZtqAD7HzTuYG0+/s24572i0nGX6DW6t+OM2KBWyaF5TflcoKbSa0fyK3LkMoC7C0zSH/gao1U2mregeocqTlptd36vCHDZlbCsJbKMqVdx9BFmj89pMsr/9iGp9LYr8/nR6vVZGvrwuo3Mxaz11r02heHPf0UvWZXQ+GK7C4U0qpNGqyVDCy+ARSGKA0uy9VZoiNKC9Iy3pxKAz20ZX01W9lP/6lyeMWD7Z1mibTbNwETnk/66CMV1ngiUdewSXWzuhDbKzRqHG4s/FntlhM2/Ej5eaLjF4a5CUdp/ZTise55y/UsXXnIIOgw3iehKJDoq1MxGc0Rzx2WTygmc6MUTQ+YX6BMzo4LZ+z/5vUkLSPOnFeLenGFz8X5+OiNWPrYrdjcFNVgd+YeaHI=
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:MN2PR12MB3775.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(396003)(376002)(346002)(136003)(39860400002)(366004)(66946007)(7416002)(66476007)(66556008)(16526019)(8676002)(2616005)(186003)(8936002)(83380400001)(6486002)(5660300002)(478600001)(31686004)(316002)(31696002)(36756003)(52116002)(86362001)(54906003)(110136005)(4326008)(6666004)(2906002)(43740500002)(45980500001);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?RXRqRXVKMGFTaEEwQjFqUjA3T3FTSmVBaUFFTWwweUZDK1lQaTVFcStBcTZm?=
- =?utf-8?B?R3FzcndFNTF3TUhLQTNuZFZiSVpleDVrSHlZR0l0Rko4Mmd3K2hIb0VWVDZU?=
- =?utf-8?B?N0pDd3RmaVNDdHpiZFY3b25nQ01uYXNmUldoTm5TY2tjd1loeXcyZUZTSWto?=
- =?utf-8?B?MnliUDIyL05JOWpMNDJIMjJ0U08yTG8xU3hERlg3elNhVVhqVFRvd1FZaWVh?=
- =?utf-8?B?SFMybjJ4WllPZHhVL3prMStBbnRCaFgxWFk5dFZuUytsRFUxQUpYUEoxemph?=
- =?utf-8?B?T21lYUJBZXVjRWtjMkFIeTZvbDhJUmUvckV4MFQra0srWVgvUkNvSVAyUjRL?=
- =?utf-8?B?S0VBTUJIQXdzR0tuRXh6SlExektyZXhIOTBLUFdyK2pYNTRGaC9mdVl1R250?=
- =?utf-8?B?RXQ4SDNUODV5QUE3MlJiOGRqbGlZYXA4RWtzZGZZY3laRGNDMzBCR0VsaVZm?=
- =?utf-8?B?VHlmWVpmZVZpSnI3QU9qeU9EZ1M2M2V2T1cwS2w4TlpLb2VBalhuOC80S1Z3?=
- =?utf-8?B?RytLdEpScWU1bzYxcTlvNDZua2hYU2MxMmZZSjNnOGx0Qnp3UDFtaVRtWEhm?=
- =?utf-8?B?UU4xZU9XSjBud1lJOUlOSnZlalFQTDdCbmlidVAzN3FnajNDS2crZHVCOS9k?=
- =?utf-8?B?STBGVTdtY3RobFFXZW5MeWdseEw2YWNFT3BFRDFGR1NrSHE4VjhDQWxFeTRt?=
- =?utf-8?B?T0tVcGZXWTJMQ2YvTENEZ3NYeTJEYkpZOWtkVmpVRS8xbEllbzd6THdxbDF5?=
- =?utf-8?B?cDB0SWpyMnFtZWEvSVpUUnBmMXROUDFmNy9ZaW01T3B3WG5rMkVQZi9HSG9l?=
- =?utf-8?B?b1RmM3h3Z0V3cmNCNWllNXJaSUtSZG9hd0ZSc0w2dEN5YnFTR3dlMkJwWUUw?=
- =?utf-8?B?LzQ4SzJvNU10VTVlWWtadzFnZVlqTHhoWXh2akJyWFRNekp5MmNpcWZsUG1r?=
- =?utf-8?B?dVJNU3JIQTNoeDd0by9GQjkwSWlPdEkrSlkyTnhxUWxKYXRDUloxdHlHaThM?=
- =?utf-8?B?K2VxMnlqQWhqWi9JNldEWDAzSFhQaVF4em1tazNOUWNDMVEzTklkTnhiVlJn?=
- =?utf-8?B?RDhOb1dCOHZQOU1ZRG9USHNGSnh4azZRVXkxN2VENHBYSXJMSnBMRUxLMCtK?=
- =?utf-8?B?cjU0ek5TUEQ3WXFGQkM0bEd6cDhxV2dJNkIzazFHcnVtdDArcWV4L2xVc0Ri?=
- =?utf-8?B?Zzl2UGcwSXFlYXN1N3hVZERpUDh6Ujd2bm9wR01ONGVqSFJrRkZLLzJ3TDNH?=
- =?utf-8?B?N0ZIZEVRUUFJN0VMSG5HRkw3a24yK05ocmw4ZHpnZTRxVEdlN0NycEVSTm1S?=
- =?utf-8?B?ZGUvOGtCcEdmVWNJN0JRVnBzTmlGY0hhdUlDSlRyWExpNXM5cDlBd3FnTW4y?=
- =?utf-8?B?SkhZdW5KMkFHbkRLTnlpYTF6SlVOM3pKaXdndytUSjhIZnAwN3JaRVl5ZkNv?=
- =?utf-8?B?WmVRZ0NsS2J0NDkzVlkyaDg4RkFyOWFBUWU2N0pXYm4wWHczc1RpN1ZYRzdw?=
- =?utf-8?B?Q1pyU2tURDlJaHFKdW5ySzBabWtsZVA2VEVQTVczeVowVGlJWGtpUmN0cFMv?=
- =?utf-8?B?eDRCWU81Mk4rWFJESmI4TFBnaml4OEVkaXl5cmZDa29ZOFRiY2w4M2lZdkFJ?=
- =?utf-8?B?UTZOcW1HK1VUOGhKekI1Uk1uVFdaUkNRam5vNDVlRkNFdFJrdnVQZFpzVGEx?=
- =?utf-8?B?b3hNZk51TE5lVy91MVdKekxLRWR5cHlKMjV1R1VkWnE4UEcvbitZMGxVOFl3?=
- =?utf-8?B?Y1hCd2tSS1h6WE53cnM5Vkp6V2pmWFEvWWROeFc4Ums1L0JYUmdIWTdnZ3JU?=
- =?utf-8?B?STZxUW84WExEYkRkcitRTTZ2RHlxMWFrcnhKcG5pMUsrWm81ek5MNFlvUENr?=
- =?utf-8?Q?sr1ev8N8jOCfL?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0a810a88-a751-4f52-0bc2-08d8df34e03a
-X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB3775.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Mar 2021 17:42:27.0896 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: rGR8CC9O4Cu+fJtQ1v/lKcc6hV/F1RvbCHsnkkTORnQFLHiRsiIsRi6RMf8wx7BZ
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4358
-Cc: Jani Nikula <jani.nikula@linux.intel.com>, David Airlie <airlied@linux.ie>,
- nouveau@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- Roland Scheidegger <sroland@vmware.com>, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- Huang Rui <ray.huang@amd.com>,
- VMware Graphics <linux-graphics-maintainer@vmware.com>,
- Daniel Vetter <daniel@ffwll.ch>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
- spice-devel@lists.freedesktop.org, Andrew Morton <akpm@linux-foundation.org>,
- Chris Wilson <chris@chris-wilson.co.uk>, Zack Rusin <zackr@vmware.com>,
- Ben Skeggs <bskeggs@redhat.com>
+References: <20210301084257.945454-1-hch@lst.de>
+ <20210301084257.945454-17-hch@lst.de>
+ <d567ad5c-5f89-effa-7260-88c6d86b4695@arm.com>
+In-Reply-To: <d567ad5c-5f89-effa-7260-88c6d86b4695@arm.com>
+From: Rob Clark <robdclark@gmail.com>
+Date: Thu, 4 Mar 2021 15:11:08 -0800
+Message-ID: <CAF6AEGtTs-=aO-Ntp0Qn6mYDSv4x0-q3y217QxU7kZ6H1b1fiQ@mail.gmail.com>
+Subject: Re: [Freedreno] [PATCH 16/17] iommu: remove DOMAIN_ATTR_IO_PGTABLE_CFG
+To: Robin Murphy <robin.murphy@arm.com>
+Cc: freedreno <freedreno@lists.freedesktop.org>,
+ Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>, kvm@vger.kernel.org,
+ Michael Ellerman <mpe@ellerman.id.au>, Joerg Roedel <joro@8bytes.org>,
+ linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+ dri-devel <dri-devel@lists.freedesktop.org>, Li Yang <leoyang.li@nxp.com>,
+ "list@263.net:IOMMU DRIVERS <iommu@lists.linux-foundation.org>,
+ Joerg Roedel <joro@8bytes.org>, " <iommu@lists.linux-foundation.org>,
+ netdev@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
+ linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org, Will Deacon <will@kernel.org>,
+ Christoph Hellwig <hch@lst.de>,
+ "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE"
+ <linux-arm-kernel@lists.infradead.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -179,52 +110,197 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CgpBbSAwMy4wMy4yMSB1bSAxNDoyMCBzY2hyaWViIFRob21hcyBHbGVpeG5lcjoKPiBGcm9tOiBU
-aG9tYXMgR2xlaXhuZXIgPHRnbHhAbGludXRyb25peC5kZT4KPgo+IFRoZXJlIGlzIG5vIHJlYXNv
-biB0byBkaXNhYmxlIHBhZ2VmYXVsdHMgYW5kIHByZWVtcHRpb24gYXMgYSBzaWRlIGVmZmVjdCBv
-Zgo+IGttYXBfYXRvbWljX3Byb3QoKS4KPgo+IFVzZSBrbWFwX2xvY2FsX3BhZ2VfcHJvdCgpIGlu
-c3RlYWQgYW5kIGRvY3VtZW50IHRoZSByZWFzb25pbmcgZm9yIHRoZQo+IG1hcHBpbmcgdXNhZ2Ug
-d2l0aCB0aGUgZ2l2ZW4gcGdwcm90Lgo+Cj4gUmVtb3ZlIHRoZSBOVUxMIHBvaW50ZXIgY2hlY2sg
-Zm9yIHRoZSBtYXAuIFRoZXNlIGZ1bmN0aW9ucyByZXR1cm4gYSB2YWxpZAo+IGFkZHJlc3MgZm9y
-IHZhbGlkIHBhZ2VzIGFuZCB0aGUgcmV0dXJuIHdhcyBib2d1cyBhbnl3YXkgYXMgaXQgd291bGQg
-aGF2ZQo+IGxlZnQgcHJlZW1wdGlvbiBhbmQgcGFnZWZhdWx0cyBkaXNhYmxlZC4KPgo+IFNpZ25l
-ZC1vZmYtYnk6IFRob21hcyBHbGVpeG5lciA8dGdseEBsaW51dHJvbml4LmRlPgo+IENjOiBDaHJp
-c3RpYW4gS29lbmlnIDxjaHJpc3RpYW4ua29lbmlnQGFtZC5jb20+Cj4gQ2M6IEh1YW5nIFJ1aSA8
-cmF5Lmh1YW5nQGFtZC5jb20+Cj4gQ2M6IERhdmlkIEFpcmxpZSA8YWlybGllZEBsaW51eC5pZT4K
-PiBDYzogRGFuaWVsIFZldHRlciA8ZGFuaWVsQGZmd2xsLmNoPgo+IENjOiBkcmktZGV2ZWxAbGlz
-dHMuZnJlZWRlc2t0b3Aub3JnCj4gLS0tCj4gICBkcml2ZXJzL2dwdS9kcm0vdHRtL3R0bV9ib191
-dGlsLmMgfCAgIDIwICsrKysrKysrKysrKy0tLS0tLS0tCj4gICAxIGZpbGUgY2hhbmdlZCwgMTIg
-aW5zZXJ0aW9ucygrKSwgOCBkZWxldGlvbnMoLSkKPgo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS90
-dG0vdHRtX2JvX3V0aWwuYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS90dG0vdHRtX2JvX3V0aWwu
-Ywo+IEBAIC0xODEsMTMgKzE4MSwxNSBAQCBzdGF0aWMgaW50IHR0bV9jb3B5X2lvX3R0bV9wYWdl
-KHN0cnVjdCB0Cj4gICAJCXJldHVybiAtRU5PTUVNOwo+ICAgCj4gICAJc3JjID0gKHZvaWQgKiko
-KHVuc2lnbmVkIGxvbmcpc3JjICsgKHBhZ2UgPDwgUEFHRV9TSElGVCkpOwo+IC0JZHN0ID0ga21h
-cF9hdG9taWNfcHJvdChkLCBwcm90KTsKPiAtCWlmICghZHN0KQo+IC0JCXJldHVybiAtRU5PTUVN
-Owo+ICsJLyoKPiArCSAqIEVuc3VyZSB0aGF0IGEgaGlnaG1lbSBwYWdlIGlzIG1hcHBlZCB3aXRo
-IHRoZSBjb3JyZWN0Cj4gKwkgKiBwZ3Byb3QuIEZvciBub24gaGlnaG1lbSB0aGUgbWFwcGluZyBp
-cyBhbHJlYWR5IHRoZXJlLgo+ICsJICovCgpJIGZpbmQgdGhlIGNvbW1lbnQgYSBiaXQgbWlzbGVh
-ZGluZy4gTWF5YmUgd3JpdGU6CgovKgogwqAqIExvY2FsbHkgbWFwIGhpZ2htZW0gcGFnZXMgd2l0
-aCB0aGUgY29ycmVjdCBwZ3Byb3QuCiDCoCogTm9ybWFsIG1lbW9yeSBzaG91bGQgYWxyZWFkeSBo
-YXZlIHRoZSBjb3JyZWN0IHBncHJvdCBpbiB0aGUgbGluZWFyIAptYXBwaW5nLgogwqAqLwoKQXBh
-cnQgZnJvbSB0aGF0IGxvb2tzIGdvb2QgdG8gbWUuCgpSZWdhcmRzLApDaHJpc3RpYW4uCgo+ICsJ
-ZHN0ID0ga21hcF9sb2NhbF9wYWdlX3Byb3QoZCwgcHJvdCk7Cj4gICAKPiAgIAltZW1jcHlfZnJv
-bWlvKGRzdCwgc3JjLCBQQUdFX1NJWkUpOwo+ICAgCj4gLQlrdW5tYXBfYXRvbWljKGRzdCk7Cj4g
-KwlrdW5tYXBfbG9jYWwoZHN0KTsKPiAgIAo+ICAgCXJldHVybiAwOwo+ICAgfQo+IEBAIC0yMDMs
-MTMgKzIwNSwxNSBAQCBzdGF0aWMgaW50IHR0bV9jb3B5X3R0bV9pb19wYWdlKHN0cnVjdCB0Cj4g
-ICAJCXJldHVybiAtRU5PTUVNOwo+ICAgCj4gICAJZHN0ID0gKHZvaWQgKikoKHVuc2lnbmVkIGxv
-bmcpZHN0ICsgKHBhZ2UgPDwgUEFHRV9TSElGVCkpOwo+IC0Jc3JjID0ga21hcF9hdG9taWNfcHJv
-dChzLCBwcm90KTsKPiAtCWlmICghc3JjKQo+IC0JCXJldHVybiAtRU5PTUVNOwo+ICsJLyoKPiAr
-CSAqIEVuc3VyZSB0aGF0IGEgaGlnaG1lbSBwYWdlIGlzIG1hcHBlZCB3aXRoIHRoZSBjb3JyZWN0
-Cj4gKwkgKiBwZ3Byb3QuIEZvciBub24gaGlnaG1lbSB0aGUgbWFwcGluZyBpcyBhbHJlYWR5IHRo
-ZXJlLgo+ICsJICovCj4gKwlzcmMgPSBrbWFwX2xvY2FsX3BhZ2VfcHJvdChzLCBwcm90KTsKPiAg
-IAo+ICAgCW1lbWNweV90b2lvKGRzdCwgc3JjLCBQQUdFX1NJWkUpOwo+ICAgCj4gLQlrdW5tYXBf
-YXRvbWljKHNyYyk7Cj4gKwlrdW5tYXBfbG9jYWwoc3JjKTsKPiAgIAo+ICAgCXJldHVybiAwOwo+
-ICAgfQo+Cj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Mar 4, 2021 at 7:48 AM Robin Murphy <robin.murphy@arm.com> wrote:
+>
+> On 2021-03-01 08:42, Christoph Hellwig wrote:
+> > Signed-off-by: Christoph Hellwig <hch@lst.de>
+>
+> Moreso than the previous patch, where the feature is at least relatively
+> generic (note that there's a bunch of in-flight development around
+> DOMAIN_ATTR_NESTING), I'm really not convinced that it's beneficial to
+> bloat the generic iommu_ops structure with private driver-specific
+> interfaces. The attribute interface is a great compromise for these
+> kinds of things, and you can easily add type-checked wrappers around it
+> for external callers (maybe even make the actual attributes internal
+> between the IOMMU core and drivers) if that's your concern.
+
+I suppose if this is *just* for the GPU we could move it into adreno_smmu_priv..
+
+But one thing I'm not sure about is whether
+IO_PGTABLE_QUIRK_ARM_OUTER_WBWA is something that other devices
+*should* be using as well, but just haven't gotten around to yet.
+
+BR,
+-R
+
+> Robin.
+>
+> > ---
+> >   drivers/gpu/drm/msm/adreno/adreno_gpu.c |  2 +-
+> >   drivers/iommu/arm/arm-smmu/arm-smmu.c   | 40 +++++++------------------
+> >   drivers/iommu/iommu.c                   |  9 ++++++
+> >   include/linux/iommu.h                   |  9 +++++-
+> >   4 files changed, 29 insertions(+), 31 deletions(-)
+> >
+> > diff --git a/drivers/gpu/drm/msm/adreno/adreno_gpu.c b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+> > index 0f184c3dd9d9ec..78d98ab2ee3a68 100644
+> > --- a/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+> > +++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+> > @@ -191,7 +191,7 @@ void adreno_set_llc_attributes(struct iommu_domain *iommu)
+> >       struct io_pgtable_domain_attr pgtbl_cfg;
+> >
+> >       pgtbl_cfg.quirks = IO_PGTABLE_QUIRK_ARM_OUTER_WBWA;
+> > -     iommu_domain_set_attr(iommu, DOMAIN_ATTR_IO_PGTABLE_CFG, &pgtbl_cfg);
+> > +     iommu_domain_set_pgtable_attr(iommu, &pgtbl_cfg);
+> >   }
+> >
+> >   struct msm_gem_address_space *
+> > diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+> > index 2e17d990d04481..2858999c86dfd1 100644
+> > --- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
+> > +++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+> > @@ -1515,40 +1515,22 @@ static int arm_smmu_domain_enable_nesting(struct iommu_domain *domain)
+> >       return ret;
+> >   }
+> >
+> > -static int arm_smmu_domain_set_attr(struct iommu_domain *domain,
+> > -                                 enum iommu_attr attr, void *data)
+> > +static int arm_smmu_domain_set_pgtable_attr(struct iommu_domain *domain,
+> > +             struct io_pgtable_domain_attr *pgtbl_cfg)
+> >   {
+> > -     int ret = 0;
+> >       struct arm_smmu_domain *smmu_domain = to_smmu_domain(domain);
+> > +     int ret = -EPERM;
+> >
+> > -     mutex_lock(&smmu_domain->init_mutex);
+> > -
+> > -     switch(domain->type) {
+> > -     case IOMMU_DOMAIN_UNMANAGED:
+> > -             switch (attr) {
+> > -             case DOMAIN_ATTR_IO_PGTABLE_CFG: {
+> > -                     struct io_pgtable_domain_attr *pgtbl_cfg = data;
+> > -
+> > -                     if (smmu_domain->smmu) {
+> > -                             ret = -EPERM;
+> > -                             goto out_unlock;
+> > -                     }
+> > +     if (domain->type != IOMMU_DOMAIN_UNMANAGED)
+> > +             return -EINVAL;
+> >
+> > -                     smmu_domain->pgtbl_cfg = *pgtbl_cfg;
+> > -                     break;
+> > -             }
+> > -             default:
+> > -                     ret = -ENODEV;
+> > -             }
+> > -             break;
+> > -     case IOMMU_DOMAIN_DMA:
+> > -             ret = -ENODEV;
+> > -             break;
+> > -     default:
+> > -             ret = -EINVAL;
+> > +     mutex_lock(&smmu_domain->init_mutex);
+> > +     if (!smmu_domain->smmu) {
+> > +             smmu_domain->pgtbl_cfg = *pgtbl_cfg;
+> > +             ret = 0;
+> >       }
+> > -out_unlock:
+> >       mutex_unlock(&smmu_domain->init_mutex);
+> > +
+> >       return ret;
+> >   }
+> >
+> > @@ -1609,7 +1591,7 @@ static struct iommu_ops arm_smmu_ops = {
+> >       .device_group           = arm_smmu_device_group,
+> >       .dma_use_flush_queue    = arm_smmu_dma_use_flush_queue,
+> >       .dma_enable_flush_queue = arm_smmu_dma_enable_flush_queue,
+> > -     .domain_set_attr        = arm_smmu_domain_set_attr,
+> > +     .domain_set_pgtable_attr = arm_smmu_domain_set_pgtable_attr,
+> >       .domain_enable_nesting  = arm_smmu_domain_enable_nesting,
+> >       .of_xlate               = arm_smmu_of_xlate,
+> >       .get_resv_regions       = arm_smmu_get_resv_regions,
+> > diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+> > index 2e9e058501a953..8490aefd4b41f8 100644
+> > --- a/drivers/iommu/iommu.c
+> > +++ b/drivers/iommu/iommu.c
+> > @@ -2693,6 +2693,15 @@ int iommu_domain_enable_nesting(struct iommu_domain *domain)
+> >   }
+> >   EXPORT_SYMBOL_GPL(iommu_domain_enable_nesting);
+> >
+> > +int iommu_domain_set_pgtable_attr(struct iommu_domain *domain,
+> > +             struct io_pgtable_domain_attr *pgtbl_cfg)
+> > +{
+> > +     if (!domain->ops->domain_set_pgtable_attr)
+> > +             return -EINVAL;
+> > +     return domain->ops->domain_set_pgtable_attr(domain, pgtbl_cfg);
+> > +}
+> > +EXPORT_SYMBOL_GPL(iommu_domain_set_pgtable_attr);
+> > +
+> >   void iommu_get_resv_regions(struct device *dev, struct list_head *list)
+> >   {
+> >       const struct iommu_ops *ops = dev->bus->iommu_ops;
+> > diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+> > index aed88aa3bd3edf..39d3ed4d2700ac 100644
+> > --- a/include/linux/iommu.h
+> > +++ b/include/linux/iommu.h
+> > @@ -40,6 +40,7 @@ struct iommu_domain;
+> >   struct notifier_block;
+> >   struct iommu_sva;
+> >   struct iommu_fault_event;
+> > +struct io_pgtable_domain_attr;
+> >
+> >   /* iommu fault flags */
+> >   #define IOMMU_FAULT_READ    0x0
+> > @@ -107,7 +108,6 @@ enum iommu_cap {
+> >    */
+> >
+> >   enum iommu_attr {
+> > -     DOMAIN_ATTR_IO_PGTABLE_CFG,
+> >       DOMAIN_ATTR_MAX,
+> >   };
+> >
+> > @@ -196,6 +196,7 @@ struct iommu_iotlb_gather {
+> >    * @dma_enable_flush_queue: Try to enable the DMA flush queue
+> >    * @domain_set_attr: Change domain attributes
+> >    * @domain_enable_nesting: Enable nesting
+> > + * @domain_set_pgtable_attr: Set io page table attributes
+> >    * @get_resv_regions: Request list of reserved regions for a device
+> >    * @put_resv_regions: Free list of reserved regions for a device
+> >    * @apply_resv_region: Temporary helper call-back for iova reserved ranges
+> > @@ -249,6 +250,8 @@ struct iommu_ops {
+> >       int (*domain_set_attr)(struct iommu_domain *domain,
+> >                              enum iommu_attr attr, void *data);
+> >       int (*domain_enable_nesting)(struct iommu_domain *domain);
+> > +     int (*domain_set_pgtable_attr)(struct iommu_domain *domain,
+> > +                     struct io_pgtable_domain_attr *pgtbl_cfg);
+> >
+> >       /* Request/Free a list of reserved regions for a device */
+> >       void (*get_resv_regions)(struct device *dev, struct list_head *list);
+> > @@ -493,9 +496,13 @@ extern int iommu_group_id(struct iommu_group *group);
+> >   extern struct iommu_domain *iommu_group_default_domain(struct iommu_group *);
+> >
+> >   bool iommu_dma_use_flush_queue(struct iommu_domain *domain);
+> > +int iommu_domain_set_pgtable_attr(struct iommu_domain *domain,
+> > +             struct io_pgtable_domain_attr *pgtbl_cfg);
+> >   extern int iommu_domain_set_attr(struct iommu_domain *domain, enum iommu_attr,
+> >                                void *data);
+> >   int iommu_domain_enable_nesting(struct iommu_domain *domain);
+> > +int iommu_domain_set_pgtable_attr(struct iommu_domain *domain,
+> > +             struct io_pgtable_domain_attr *pgtbl_cfg);
+> >
+> >   extern int report_iommu_fault(struct iommu_domain *domain, struct device *dev,
+> >                             unsigned long iova, int flags);
+> >
+> _______________________________________________
+> Freedreno mailing list
+> Freedreno@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/freedreno
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
