@@ -2,81 +2,100 @@ Return-Path: <SRS0=YToA=IC=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9258FC433E0
-	for <virtualization@archiver.kernel.org>; Thu,  4 Mar 2021 02:00:43 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 782F7C433E0
+	for <virtualization@archiver.kernel.org>; Thu,  4 Mar 2021 03:07:48 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1A2B8650DE
-	for <virtualization@archiver.kernel.org>; Thu,  4 Mar 2021 02:00:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1A2B8650DE
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id EA09E64E99
+	for <virtualization@archiver.kernel.org>; Thu,  4 Mar 2021 03:07:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EA09E64E99
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C56324CA63;
-	Thu,  4 Mar 2021 02:00:42 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4NjPknU_-A3y; Thu,  4 Mar 2021 02:00:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C96B74C66E;
-	Thu,  4 Mar 2021 02:00:40 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A3FBFC000A;
-	Thu,  4 Mar 2021 02:00:40 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 72DE9C0001
- for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Mar 2021 02:00:39 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 59BD3606F9
- for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Mar 2021 02:00:39 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id AB7036F4EE;
+	Thu,  4 Mar 2021 03:07:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ggi7eQ9OxetN
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id bn-nZOoQSg2m; Thu,  4 Mar 2021 03:07:46 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTP id DB468606C2;
+	Thu,  4 Mar 2021 03:07:45 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BF606C000B;
+	Thu,  4 Mar 2021 03:07:45 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2432DC0001
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Mar 2021 02:00:38 +0000 (UTC)
+ Thu,  4 Mar 2021 03:07:44 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id F035C4D0A8
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  4 Mar 2021 03:07:43 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id G_vjFRNs4moA
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  4 Mar 2021 03:07:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 0D025606CB
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 7A4F64CACF
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Mar 2021 02:00:37 +0000 (UTC)
-IronPort-SDR: /mJ/g2gdf12DkJhNDKDAHi2YdMCgf5XX/hdi8baFxGE/J/FnJyjbUmWlMJe6aay4ATPc+ssVuH
- PYb0ml9yGizw==
-X-IronPort-AV: E=McAfee;i="6000,8403,9912"; a="272321953"
-X-IronPort-AV: E=Sophos;i="5.81,221,1610438400"; d="scan'208";a="272321953"
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
- by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 03 Mar 2021 18:00:36 -0800
-IronPort-SDR: WHWKMOIfNgdIlYabsz+h7jNfs4plbMkfwvqRhmYWbRe+ir1sXZ6swC9whU4LvEQzgsKhXbjL9P
- VCVLG1csEhgw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,221,1610438400"; d="scan'208";a="435620030"
-Received: from jiedeng-optiplex-7050.sh.intel.com ([10.239.154.105])
- by FMSMGA003.fm.intel.com with ESMTP; 03 Mar 2021 18:00:30 -0800
-From: Jie Deng <jie.deng@intel.com>
-To: linux-i2c@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org
-Subject: [PATCH v6] i2c: virtio: add a virtio i2c frontend driver
-Date: Thu,  4 Mar 2021 09:59:33 +0800
-Message-Id: <9a2086f37c0a62069b67c39a3f75941b78a0039c.1614749417.git.jie.deng@intel.com>
-X-Mailer: git-send-email 2.7.4
-Cc: Sergey.Semin@baikalelectronics.ru, bjorn.andersson@linaro.org,
- loic.poulain@linaro.org, arnd@arndb.de, mst@redhat.com,
- viresh.kumar@linaro.org, shuo.a.liu@intel.com, tali.perry1@gmail.com,
- wsa@kernel.org, wsa+renesas@sang-engineering.com, pbonzini@redhat.com,
- jarkko.nikula@linux.intel.com, stefanha@redhat.com,
- u.kleine-koenig@pengutronix.de, kblaiech@mellanox.com,
- andriy.shevchenko@linux.intel.com, conghui.chen@intel.com, rppt@kernel.org,
- yu1.wang@intel.com
+ Thu,  4 Mar 2021 03:07:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1614827260;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=UagpJKQ2wSQiWfJNEFP+FXSxL7/mE4JPZYXrdA8k32M=;
+ b=eOEfURTs8h6PMbQiVyTTPSLMoyyj2a3rF/pRPUFRsWXa0r1vYnEUcRADUiDu/6BRyS41qf
+ ZYzggLwQWD6PTgvnHqvg4NWmS5jGEVcN0rSnLGwp724ALLAi9GluKBuRO5JhJjMLxQu2+H
+ SjWTTV1J94+keX9qT36kik02cKN/z88=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-301-eJpn1_A2OlyoZlqmDd6XFA-1; Wed, 03 Mar 2021 22:07:35 -0500
+X-MC-Unique: eJpn1_A2OlyoZlqmDd6XFA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CF2C8107ACE4;
+ Thu,  4 Mar 2021 03:07:32 +0000 (UTC)
+Received: from wangxiaodeMacBook-Air.local (ovpn-13-244.pek2.redhat.com
+ [10.72.13.244])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 1D74361D2E;
+ Thu,  4 Mar 2021 03:07:16 +0000 (UTC)
+Subject: Re: [RFC v4 05/11] vdpa: Support transferring virtual addressing
+ during DMA mapping
+To: Xie Yongji <xieyongji@bytedance.com>, mst@redhat.com,
+ stefanha@redhat.com, sgarzare@redhat.com, parav@nvidia.com,
+ bob.liu@oracle.com, hch@infradead.org, rdunlap@infradead.org,
+ willy@infradead.org, viro@zeniv.linux.org.uk, axboe@kernel.dk,
+ bcrl@kvack.org, corbet@lwn.net
+References: <20210223115048.435-1-xieyongji@bytedance.com>
+ <20210223115048.435-6-xieyongji@bytedance.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <9a00b494-bcea-c874-4d3d-5378b62a8913@redhat.com>
+Date: Thu, 4 Mar 2021 11:07:15 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.16; rv:78.0)
+ Gecko/20100101 Thunderbird/78.8.0
+MIME-Version: 1.0
+In-Reply-To: <20210223115048.435-6-xieyongji@bytedance.com>
+Content-Language: en-GB
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Cc: linux-aio@kvack.org, netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -88,431 +107,235 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Add an I2C bus driver for virtio para-virtualization.
-
-The controller can be emulated by the backend driver in
-any device model software by following the virtio protocol.
-
-The device specification can be found on
-https://lists.oasis-open.org/archives/virtio-comment/202101/msg00008.html.
-
-By following the specification, people may implement different
-backend drivers to emulate different controllers according to
-their needs.
-
-Co-developed-by: Conghui Chen <conghui.chen@intel.com>
-Signed-off-by: Conghui Chen <conghui.chen@intel.com>
-Signed-off-by: Jie Deng <jie.deng@intel.com>
----
- drivers/i2c/busses/Kconfig      |  11 ++
- drivers/i2c/busses/Makefile     |   3 +
- drivers/i2c/busses/i2c-virtio.c | 289 ++++++++++++++++++++++++++++++++++++++++
- include/uapi/linux/virtio_i2c.h |  42 ++++++
- include/uapi/linux/virtio_ids.h |   1 +
- 5 files changed, 346 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-virtio.c
- create mode 100644 include/uapi/linux/virtio_i2c.h
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 05ebf75..0860395 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -21,6 +21,17 @@ config I2C_ALI1535
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-ali1535.
- 
-+config I2C_VIRTIO
-+	tristate "Virtio I2C Adapter"
-+	depends on VIRTIO
-+	help
-+	  If you say yes to this option, support will be included for the virtio
-+	  I2C adapter driver. The hardware can be emulated by any device model
-+	  software according to the virtio protocol.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called i2c-virtio.
-+
- config I2C_ALI1563
- 	tristate "ALI 1563"
- 	depends on PCI
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 615f35e..b88da08 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -6,6 +6,9 @@
- # ACPI drivers
- obj-$(CONFIG_I2C_SCMI)		+= i2c-scmi.o
- 
-+# VIRTIO I2C host controller driver
-+obj-$(CONFIG_I2C_VIRTIO)	+= i2c-virtio.o
-+
- # PC SMBus host controller drivers
- obj-$(CONFIG_I2C_ALI1535)	+= i2c-ali1535.o
- obj-$(CONFIG_I2C_ALI1563)	+= i2c-ali1563.o
-diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-new file mode 100644
-index 0000000..98c0fcc
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-virtio.c
-@@ -0,0 +1,289 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Virtio I2C Bus Driver
-+ *
-+ * The Virtio I2C Specification:
-+ * https://raw.githubusercontent.com/oasis-tcs/virtio-spec/master/virtio-i2c.tex
-+ *
-+ * Copyright (c) 2021 Intel Corporation. All rights reserved.
-+ */
-+
-+#include <linux/acpi.h>
-+#include <linux/completion.h>
-+#include <linux/err.h>
-+#include <linux/i2c.h>
-+#include <linux/io.h>
-+#include <linux/jiffies.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/wait.h>
-+
-+#include <linux/virtio.h>
-+#include <linux/virtio_i2c.h>
-+
-+/**
-+ * struct virtio_i2c - virtio I2C data
-+ * @vdev: virtio device for this controller
-+ * @completion: completion of virtio I2C message
-+ * @adap: I2C adapter for this controller
-+ * @i2c_lock: lock for virtqueue processing
-+ * @vq: the virtio virtqueue for communication
-+ */
-+struct virtio_i2c {
-+	struct virtio_device *vdev;
-+	struct completion completion;
-+	struct i2c_adapter adap;
-+	struct mutex i2c_lock;
-+	struct virtqueue *vq;
-+};
-+
-+/**
-+ * struct virtio_i2c_req - the virtio I2C request structure
-+ * @out_hdr: the OUT header of the virtio I2C message
-+ * @buf: the buffer into which data is read, or from which it's written
-+ * @in_hdr: the IN header of the virtio I2C message
-+ */
-+struct virtio_i2c_req {
-+	struct virtio_i2c_out_hdr out_hdr;
-+	u8 *buf;
-+	struct virtio_i2c_in_hdr in_hdr;
-+};
-+
-+static void virtio_i2c_msg_done(struct virtqueue *vq)
-+{
-+	struct virtio_i2c *vi = vq->vdev->priv;
-+
-+	complete(&vi->completion);
-+}
-+
-+static int virtio_i2c_send_reqs(struct virtqueue *vq,
-+				struct virtio_i2c_req *reqs,
-+				struct i2c_msg *msgs, int nr)
-+{
-+	struct scatterlist *sgs[3], out_hdr, msg_buf, in_hdr;
-+	int i, outcnt, incnt, err = 0;
-+	u8 *buf;
-+
-+	for (i = 0; i < nr; i++) {
-+		if (!msgs[i].len)
-+			break;
-+
-+		/* Only 7-bit mode supported for this moment. For the address format,
-+		 * Please check the Virtio I2C Specification.
-+		 */
-+		reqs[i].out_hdr.addr = cpu_to_le16(msgs[i].addr << 1);
-+
-+		if (i != nr - 1)
-+			reqs[i].out_hdr.flags |= VIRTIO_I2C_FLAGS_FAIL_NEXT;
-+
-+		outcnt = incnt = 0;
-+		sg_init_one(&out_hdr, &reqs[i].out_hdr, sizeof(reqs[i].out_hdr));
-+		sgs[outcnt++] = &out_hdr;
-+
-+		buf = kzalloc(msgs[i].len, GFP_KERNEL);
-+		if (!buf)
-+			break;
-+
-+		reqs[i].buf = buf;
-+		sg_init_one(&msg_buf, reqs[i].buf, msgs[i].len);
-+
-+		if (msgs[i].flags & I2C_M_RD) {
-+			sgs[outcnt + incnt++] = &msg_buf;
-+		} else {
-+			memcpy(reqs[i].buf, msgs[i].buf, msgs[i].len);
-+			sgs[outcnt++] = &msg_buf;
-+		}
-+
-+		sg_init_one(&in_hdr, &reqs[i].in_hdr, sizeof(reqs[i].in_hdr));
-+		sgs[outcnt + incnt++] = &in_hdr;
-+
-+		err = virtqueue_add_sgs(vq, sgs, outcnt, incnt, &reqs[i], GFP_KERNEL);
-+		if (err < 0) {
-+			pr_err("failed to add msg[%d] to virtqueue.\n", i);
-+			kfree(reqs[i].buf);
-+			reqs[i].buf = NULL;
-+			break;
-+		}
-+	}
-+
-+	return i;
-+}
-+
-+static int virtio_i2c_complete_reqs(struct virtqueue *vq,
-+					struct virtio_i2c_req *reqs,
-+					struct i2c_msg *msgs, int nr)
-+{
-+	struct virtio_i2c_req *req;
-+	unsigned int len;
-+	int i;
-+
-+	for (i = 0; i < nr; i++) {
-+		req = (struct virtio_i2c_req *)virtqueue_get_buf(vq, &len);
-+		if (!(req && req == &reqs[i])) {
-+			pr_err("msg[%d]: addr=0x%x virtqueue error.\n", i, msgs[i].addr);
-+			break;
-+		}
-+
-+		if (req->in_hdr.status != VIRTIO_I2C_MSG_OK) {
-+			pr_err("msg[%d]: addr=0x%x backend error.\n", i, msgs[i].addr);
-+			break;
-+		}
-+
-+		if (msgs[i].flags & I2C_M_RD)
-+			memcpy(msgs[i].buf, req->buf, msgs[i].len);
-+
-+		kfree(req->buf);
-+		req->buf = NULL;
-+	}
-+
-+	return i;
-+}
-+
-+static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-+{
-+	struct virtio_i2c *vi = i2c_get_adapdata(adap);
-+	struct virtqueue *vq = vi->vq;
-+	struct virtio_i2c_req *reqs;
-+	unsigned long time_left;
-+	int ret, nr;
-+
-+	reqs = kcalloc(num, sizeof(*reqs), GFP_KERNEL);
-+	if (!reqs)
-+		return -ENOMEM;
-+
-+	mutex_lock(&vi->i2c_lock);
-+
-+	ret = virtio_i2c_send_reqs(vq, reqs, msgs, num);
-+	if (ret == 0)
-+		goto err_unlock_free;
-+
-+	nr = ret;
-+
-+	virtqueue_kick(vq);
-+
-+	time_left = wait_for_completion_timeout(&vi->completion, adap->timeout);
-+	if (!time_left) {
-+		dev_err(&adap->dev, "virtio i2c backend timeout.\n");
-+		ret = -ETIMEDOUT;
-+		goto err_unlock_free;
-+	}
-+
-+	ret = virtio_i2c_complete_reqs(vq, reqs, msgs, nr);
-+
-+	reinit_completion(&vi->completion);
-+
-+err_unlock_free:
-+	mutex_unlock(&vi->i2c_lock);
-+	kfree(reqs);
-+	return ret;
-+}
-+
-+static void virtio_i2c_del_vqs(struct virtio_device *vdev)
-+{
-+	vdev->config->reset(vdev);
-+	vdev->config->del_vqs(vdev);
-+}
-+
-+static int virtio_i2c_setup_vqs(struct virtio_i2c *vi)
-+{
-+	struct virtio_device *vdev = vi->vdev;
-+
-+	vi->vq = virtio_find_single_vq(vdev, virtio_i2c_msg_done, "msg");
-+	return PTR_ERR_OR_ZERO(vi->vq);
-+}
-+
-+static u32 virtio_i2c_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+}
-+
-+static struct i2c_algorithm virtio_algorithm = {
-+	.master_xfer = virtio_i2c_xfer,
-+	.functionality = virtio_i2c_func,
-+};
-+
-+static struct i2c_adapter virtio_adapter = {
-+	.owner = THIS_MODULE,
-+	.name = "Virtio I2C Adapter",
-+	.class = I2C_CLASS_DEPRECATED,
-+	.algo = &virtio_algorithm,
-+};
-+
-+static int virtio_i2c_probe(struct virtio_device *vdev)
-+{
-+	struct device *pdev = vdev->dev.parent;
-+	struct virtio_i2c *vi;
-+	int ret;
-+
-+	vi = devm_kzalloc(&vdev->dev, sizeof(*vi), GFP_KERNEL);
-+	if (!vi)
-+		return -ENOMEM;
-+
-+	vdev->priv = vi;
-+	vi->vdev = vdev;
-+
-+	mutex_init(&vi->i2c_lock);
-+	init_completion(&vi->completion);
-+
-+	ret = virtio_i2c_setup_vqs(vi);
-+	if (ret)
-+		return ret;
-+
-+	vi->adap = virtio_adapter;
-+	i2c_set_adapdata(&vi->adap, vi);
-+	vi->adap.dev.parent = &vdev->dev;
-+	/* Setup ACPI node for controlled devices which will be probed through ACPI */
-+	ACPI_COMPANION_SET(&vi->adap.dev, ACPI_COMPANION(pdev));
-+	vi->adap.timeout = HZ / 10;
-+
-+	ret = i2c_add_adapter(&vi->adap);
-+	if (ret) {
-+		virtio_i2c_del_vqs(vdev);
-+		dev_err(&vdev->dev, "failed to add virtio-i2c adapter.\n");
-+	}
-+
-+	return ret;
-+}
-+
-+static void virtio_i2c_remove(struct virtio_device *vdev)
-+{
-+	struct virtio_i2c *vi = vdev->priv;
-+
-+	i2c_del_adapter(&vi->adap);
-+	virtio_i2c_del_vqs(vdev);
-+}
-+
-+static struct virtio_device_id id_table[] = {
-+	{ VIRTIO_ID_I2C_ADPTER, VIRTIO_DEV_ANY_ID },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(virtio, id_table);
-+
-+static int __maybe_unused virtio_i2c_freeze(struct virtio_device *vdev)
-+{
-+	virtio_i2c_del_vqs(vdev);
-+	return 0;
-+}
-+
-+static int __maybe_unused virtio_i2c_restore(struct virtio_device *vdev)
-+{
-+	return virtio_i2c_setup_vqs(vdev->priv);
-+}
-+
-+static struct virtio_driver virtio_i2c_driver = {
-+	.id_table	= id_table,
-+	.probe		= virtio_i2c_probe,
-+	.remove		= virtio_i2c_remove,
-+	.driver	= {
-+		.name	= "i2c_virtio",
-+	},
-+#ifdef CONFIG_PM_SLEEP
-+	.freeze = virtio_i2c_freeze,
-+	.restore = virtio_i2c_restore,
-+#endif
-+};
-+module_virtio_driver(virtio_i2c_driver);
-+
-+MODULE_DESCRIPTION("Virtio i2c bus driver");
-+MODULE_LICENSE("GPL");
-diff --git a/include/uapi/linux/virtio_i2c.h b/include/uapi/linux/virtio_i2c.h
-new file mode 100644
-index 0000000..00f4508
---- /dev/null
-+++ b/include/uapi/linux/virtio_i2c.h
-@@ -0,0 +1,42 @@
-+/* SPDX-License-Identifier: GPL-2.0-or-later WITH Linux-syscall-note */
-+/*
-+ * Definitions for virtio I2C Adpter
-+ *
-+ * Copyright (c) 2021 Intel Corporation. All rights reserved.
-+ */
-+
-+#ifndef _UAPI_LINUX_VIRTIO_I2C_H
-+#define _UAPI_LINUX_VIRTIO_I2C_H
-+
-+#include <linux/types.h>
-+#include <linux/virtio_ids.h>
-+#include <linux/virtio_config.h>
-+
-+/**
-+ * struct virtio_i2c_out_hdr - the virtio I2C message OUT header
-+ * @addr: the controlled device address
-+ * @padding: used to pad to full dword
-+ * @flags: used for feature extensibility
-+ */
-+struct virtio_i2c_out_hdr {
-+	__le16 addr;
-+	__le16 padding;
-+	__le32 flags;
-+};
-+
-+/* The bit 0 of the @virtio_i2c_out_hdr.@flags, used to group the requests */
-+#define VIRTIO_I2C_FLAGS_FAIL_NEXT	0x00000001
-+
-+/**
-+ * struct virtio_i2c_in_hdr - the virtio I2C message IN header
-+ * @status: the processing result from the backend
-+ */
-+struct virtio_i2c_in_hdr {
-+	u8 status;
-+};
-+
-+/* The final status written by the device */
-+#define VIRTIO_I2C_MSG_OK	0
-+#define VIRTIO_I2C_MSG_ERR	1
-+
-+#endif /* _UAPI_LINUX_VIRTIO_I2C_H */
-diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
-index bc1c062..6ae32db 100644
---- a/include/uapi/linux/virtio_ids.h
-+++ b/include/uapi/linux/virtio_ids.h
-@@ -54,5 +54,6 @@
- #define VIRTIO_ID_FS			26 /* virtio filesystem */
- #define VIRTIO_ID_PMEM			27 /* virtio pmem */
- #define VIRTIO_ID_MAC80211_HWSIM	29 /* virtio mac80211-hwsim */
-+#define VIRTIO_ID_I2C_ADPTER		34 /* virtio i2c adpter */
- 
- #endif /* _LINUX_VIRTIO_IDS_H */
--- 
-2.7.4
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+Ck9uIDIwMjEvMi8yMyA3OjUwIOS4i+WNiCwgWGllIFlvbmdqaSB3cm90ZToKPiBUaGlzIHBhdGNo
+IGludHJvZHVjZXMgYW4gYXR0cmlidXRlIGZvciB2RFBBIGRldmljZSB0byBpbmRpY2F0ZQo+IHdo
+ZXRoZXIgdmlydHVhbCBhZGRyZXNzIGNhbiBiZSB1c2VkLiBJZiB2RFBBIGRldmljZSBkcml2ZXIg
+c2V0Cj4gaXQsIHZob3N0LXZkcGEgYnVzIGRyaXZlciB3aWxsIG5vdCBwaW4gdXNlciBwYWdlIGFu
+ZCB0cmFuc2Zlcgo+IHVzZXJzcGFjZSB2aXJ0dWFsIGFkZHJlc3MgaW5zdGVhZCBvZiBwaHlzaWNh
+bCBhZGRyZXNzIGR1cmluZwo+IERNQSBtYXBwaW5nLiBBbmQgY29ycmVzcG9uZGluZyB2bWEtPnZt
+X2ZpbGUgYW5kIG9mZnNldCB3aWxsIGJlCj4gYWxzbyBwYXNzZWQgYXMgYW4gb3BhcXVlIHBvaW50
+ZXIuCj4KPiBTdWdnZXN0ZWQtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cj4g
+U2lnbmVkLW9mZi1ieTogWGllIFlvbmdqaSA8eGlleW9uZ2ppQGJ5dGVkYW5jZS5jb20+Cj4gLS0t
+Cj4gICBkcml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfbWFpbi5jICAgfCAgIDIgKy0KPiAgIGRyaXZl
+cnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYyB8ICAgMiArLQo+ICAgZHJpdmVycy92ZHBhL3Zk
+cGEuYyAgICAgICAgICAgICAgIHwgICA5ICsrKy0KPiAgIGRyaXZlcnMvdmRwYS92ZHBhX3NpbS92
+ZHBhX3NpbS5jICB8ICAgMiArLQo+ICAgZHJpdmVycy92aG9zdC92ZHBhLmMgICAgICAgICAgICAg
+IHwgMTA0ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKystLS0tLS0tCj4gICBpbmNsdWRl
+L2xpbnV4L3ZkcGEuaCAgICAgICAgICAgICAgfCAgMjAgKysrKysrLS0KPiAgIDYgZmlsZXMgY2hh
+bmdlZCwgMTEzIGluc2VydGlvbnMoKyksIDI2IGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvdmRwYS9pZmN2Zi9pZmN2Zl9tYWluLmMgYi9kcml2ZXJzL3ZkcGEvaWZjdmYvaWZj
+dmZfbWFpbi5jCj4gaW5kZXggN2M4YmJmY2Y2YzNlLi4yMjhiOWY5MjBmZWEgMTAwNjQ0Cj4gLS0t
+IGEvZHJpdmVycy92ZHBhL2lmY3ZmL2lmY3ZmX21haW4uYwo+ICsrKyBiL2RyaXZlcnMvdmRwYS9p
+ZmN2Zi9pZmN2Zl9tYWluLmMKPiBAQCAtNDMyLDcgKzQzMiw3IEBAIHN0YXRpYyBpbnQgaWZjdmZf
+cHJvYmUoc3RydWN0IHBjaV9kZXYgKnBkZXYsIGNvbnN0IHN0cnVjdCBwY2lfZGV2aWNlX2lkICpp
+ZCkKPiAgIAo+ICAgCWFkYXB0ZXIgPSB2ZHBhX2FsbG9jX2RldmljZShzdHJ1Y3QgaWZjdmZfYWRh
+cHRlciwgdmRwYSwKPiAgIAkJCQkgICAgZGV2LCAmaWZjX3ZkcGFfb3BzLAo+IC0JCQkJICAgIElG
+Q1ZGX01BWF9RVUVVRV9QQUlSUyAqIDIsIE5VTEwpOwo+ICsJCQkJICAgIElGQ1ZGX01BWF9RVUVV
+RV9QQUlSUyAqIDIsIE5VTEwsIGZhbHNlKTsKPiAgIAlpZiAoYWRhcHRlciA9PSBOVUxMKSB7Cj4g
+ICAJCUlGQ1ZGX0VSUihwZGV2LCAiRmFpbGVkIHRvIGFsbG9jYXRlIHZEUEEgc3RydWN0dXJlIik7
+Cj4gICAJCXJldHVybiAtRU5PTUVNOwo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEvbWx4NS9u
+ZXQvbWx4NV92bmV0LmMgYi9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMKPiBpbmRl
+eCAwMjk4MjIwNjAwMTcuLjU0MjkwNDM4ZGEyOCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3ZkcGEv
+bWx4NS9uZXQvbWx4NV92bmV0LmMKPiArKysgYi9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92
+bmV0LmMKPiBAQCAtMTk2NCw3ICsxOTY0LDcgQEAgc3RhdGljIGludCBtbHg1dl9wcm9iZShzdHJ1
+Y3QgYXV4aWxpYXJ5X2RldmljZSAqYWRldiwKPiAgIAltYXhfdnFzID0gbWluX3QodTMyLCBtYXhf
+dnFzLCBNTFg1X01BWF9TVVBQT1JURURfVlFTKTsKPiAgIAo+ICAgCW5kZXYgPSB2ZHBhX2FsbG9j
+X2RldmljZShzdHJ1Y3QgbWx4NV92ZHBhX25ldCwgbXZkZXYudmRldiwgbWRldi0+ZGV2aWNlLCAm
+bWx4NV92ZHBhX29wcywKPiAtCQkJCSAyICogbWx4NV92ZHBhX21heF9xcHMobWF4X3ZxcyksIE5V
+TEwpOwo+ICsJCQkJIDIgKiBtbHg1X3ZkcGFfbWF4X3FwcyhtYXhfdnFzKSwgTlVMTCwgZmFsc2Up
+Owo+ICAgCWlmIChJU19FUlIobmRldikpCj4gICAJCXJldHVybiBQVFJfRVJSKG5kZXYpOwo+ICAg
+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmRwYS92ZHBhLmMgYi9kcml2ZXJzL3ZkcGEvdmRwYS5j
+Cj4gaW5kZXggOTcwMGEwYWRjY2EwLi5mYWZjMGVlNWViMDUgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVy
+cy92ZHBhL3ZkcGEuYwo+ICsrKyBiL2RyaXZlcnMvdmRwYS92ZHBhLmMKPiBAQCAtNzIsNiArNzIs
+NyBAQCBzdGF0aWMgdm9pZCB2ZHBhX3JlbGVhc2VfZGV2KHN0cnVjdCBkZXZpY2UgKmQpCj4gICAg
+KiBAbnZxczogbnVtYmVyIG9mIHZpcnRxdWV1ZXMgc3VwcG9ydGVkIGJ5IHRoaXMgZGV2aWNlCj4g
+ICAgKiBAc2l6ZTogc2l6ZSBvZiB0aGUgcGFyZW50IHN0cnVjdHVyZSB0aGF0IGNvbnRhaW5zIHBy
+aXZhdGUgZGF0YQo+ICAgICogQG5hbWU6IG5hbWUgb2YgdGhlIHZkcGEgZGV2aWNlOyBvcHRpb25h
+bC4KPiArICogQHVzZV92YTogaW5kaWNhdGUgd2hldGhlciB2aXJ0dWFsIGFkZHJlc3MgY2FuIGJl
+IHVzZWQgYnkgdGhpcyBkZXZpY2UKCgpJIHRoaW5rICJ1c2VfdmEiIG1lYW5zIHZhIG11c3QgYmUg
+dXNlZCBpbnN0ZWFkIG9mICJjYW4gYmUiIGhlcmUuCgoKPiAgICAqCj4gICAgKiBEcml2ZXIgc2hv
+dWxkIHVzZSB2ZHBhX2FsbG9jX2RldmljZSgpIHdyYXBwZXIgbWFjcm8gaW5zdGVhZCBvZgo+ICAg
+ICogdXNpbmcgdGhpcyBkaXJlY3RseS4KPiBAQCAtODEsNyArODIsOCBAQCBzdGF0aWMgdm9pZCB2
+ZHBhX3JlbGVhc2VfZGV2KHN0cnVjdCBkZXZpY2UgKmQpCj4gICAgKi8KPiAgIHN0cnVjdCB2ZHBh
+X2RldmljZSAqX192ZHBhX2FsbG9jX2RldmljZShzdHJ1Y3QgZGV2aWNlICpwYXJlbnQsCj4gICAJ
+CQkJCWNvbnN0IHN0cnVjdCB2ZHBhX2NvbmZpZ19vcHMgKmNvbmZpZywKPiAtCQkJCQlpbnQgbnZx
+cywgc2l6ZV90IHNpemUsIGNvbnN0IGNoYXIgKm5hbWUpCj4gKwkJCQkJaW50IG52cXMsIHNpemVf
+dCBzaXplLCBjb25zdCBjaGFyICpuYW1lLAo+ICsJCQkJCWJvb2wgdXNlX3ZhKQo+ICAgewo+ICAg
+CXN0cnVjdCB2ZHBhX2RldmljZSAqdmRldjsKPiAgIAlpbnQgZXJyID0gLUVJTlZBTDsKPiBAQCAt
+OTIsNiArOTQsMTAgQEAgc3RydWN0IHZkcGFfZGV2aWNlICpfX3ZkcGFfYWxsb2NfZGV2aWNlKHN0
+cnVjdCBkZXZpY2UgKnBhcmVudCwKPiAgIAlpZiAoISFjb25maWctPmRtYV9tYXAgIT0gISFjb25m
+aWctPmRtYV91bm1hcCkKPiAgIAkJZ290byBlcnI7Cj4gICAKPiArCS8qIEl0IHNob3VsZCBvbmx5
+IHdvcmsgZm9yIHRoZSBkZXZpY2UgdGhhdCB1c2Ugb24tY2hpcCBJT01NVSAqLwo+ICsJaWYgKHVz
+ZV92YSAmJiAhKGNvbmZpZy0+ZG1hX21hcCB8fCBjb25maWctPnNldF9tYXApKQo+ICsJCWdvdG8g
+ZXJyOwo+ICsKPiAgIAllcnIgPSAtRU5PTUVNOwo+ICAgCXZkZXYgPSBremFsbG9jKHNpemUsIEdG
+UF9LRVJORUwpOwo+ICAgCWlmICghdmRldikKPiBAQCAtMTA4LDYgKzExNCw3IEBAIHN0cnVjdCB2
+ZHBhX2RldmljZSAqX192ZHBhX2FsbG9jX2RldmljZShzdHJ1Y3QgZGV2aWNlICpwYXJlbnQsCj4g
+ICAJdmRldi0+Y29uZmlnID0gY29uZmlnOwo+ICAgCXZkZXYtPmZlYXR1cmVzX3ZhbGlkID0gZmFs
+c2U7Cj4gICAJdmRldi0+bnZxcyA9IG52cXM7Cj4gKwl2ZGV2LT51c2VfdmEgPSB1c2VfdmE7Cj4g
+ICAKPiAgIAlpZiAobmFtZSkKPiAgIAkJZXJyID0gZGV2X3NldF9uYW1lKCZ2ZGV2LT5kZXYsICIl
+cyIsIG5hbWUpOwo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW0u
+YyBiL2RyaXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBhX3NpbS5jCj4gaW5kZXggNWNmYzI2MmNlMDU1
+Li4zYTlhMmRkNGU5ODcgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFf
+c2ltLmMKPiArKysgYi9kcml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW0uYwo+IEBAIC0yMzUs
+NyArMjM1LDcgQEAgc3RydWN0IHZkcGFzaW0gKnZkcGFzaW1fY3JlYXRlKHN0cnVjdCB2ZHBhc2lt
+X2Rldl9hdHRyICpkZXZfYXR0cikKPiAgIAkJb3BzID0gJnZkcGFzaW1fY29uZmlnX29wczsKPiAg
+IAo+ICAgCXZkcGFzaW0gPSB2ZHBhX2FsbG9jX2RldmljZShzdHJ1Y3QgdmRwYXNpbSwgdmRwYSwg
+TlVMTCwgb3BzLAo+IC0JCQkJICAgIGRldl9hdHRyLT5udnFzLCBkZXZfYXR0ci0+bmFtZSk7Cj4g
+KwkJCQkgICAgZGV2X2F0dHItPm52cXMsIGRldl9hdHRyLT5uYW1lLCBmYWxzZSk7Cj4gICAJaWYg
+KCF2ZHBhc2ltKQo+ICAgCQlnb3RvIGVycl9hbGxvYzsKPiAgIAo+IGRpZmYgLS1naXQgYS9kcml2
+ZXJzL3Zob3N0L3ZkcGEuYyBiL2RyaXZlcnMvdmhvc3QvdmRwYS5jCj4gaW5kZXggNzA4NTdmZTMy
+NjNjLi45Mzc2OWFjZTM0ZGYgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aG9zdC92ZHBhLmMKPiAr
+KysgYi9kcml2ZXJzL3Zob3N0L3ZkcGEuYwo+IEBAIC00ODAsMjEgKzQ4MCwzMSBAQCBzdGF0aWMg
+bG9uZyB2aG9zdF92ZHBhX3VubG9ja2VkX2lvY3RsKHN0cnVjdCBmaWxlICpmaWxlcCwKPiAgIHN0
+YXRpYyB2b2lkIHZob3N0X3ZkcGFfaW90bGJfdW5tYXAoc3RydWN0IHZob3N0X3ZkcGEgKnYsIHU2
+NCBzdGFydCwgdTY0IGxhc3QpCj4gICB7Cj4gICAJc3RydWN0IHZob3N0X2RldiAqZGV2ID0gJnYt
+PnZkZXY7Cj4gKwlzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkcGEgPSB2LT52ZHBhOwo+ICAgCXN0cnVj
+dCB2aG9zdF9pb3RsYiAqaW90bGIgPSBkZXYtPmlvdGxiOwo+ICAgCXN0cnVjdCB2aG9zdF9pb3Rs
+Yl9tYXAgKm1hcDsKPiArCXN0cnVjdCB2ZHBhX21hcF9maWxlICptYXBfZmlsZTsKPiAgIAlzdHJ1
+Y3QgcGFnZSAqcGFnZTsKPiAgIAl1bnNpZ25lZCBsb25nIHBmbiwgcGlubmVkOwo+ICAgCj4gICAJ
+d2hpbGUgKChtYXAgPSB2aG9zdF9pb3RsYl9pdHJlZV9maXJzdChpb3RsYiwgc3RhcnQsIGxhc3Qp
+KSAhPSBOVUxMKSB7Cj4gLQkJcGlubmVkID0gbWFwLT5zaXplID4+IFBBR0VfU0hJRlQ7Cj4gLQkJ
+Zm9yIChwZm4gPSBtYXAtPmFkZHIgPj4gUEFHRV9TSElGVDsKPiAtCQkgICAgIHBpbm5lZCA+IDA7
+IHBmbisrLCBwaW5uZWQtLSkgewo+IC0JCQlwYWdlID0gcGZuX3RvX3BhZ2UocGZuKTsKPiAtCQkJ
+aWYgKG1hcC0+cGVybSAmIFZIT1NUX0FDQ0VTU19XTykKPiAtCQkJCXNldF9wYWdlX2RpcnR5X2xv
+Y2socGFnZSk7Cj4gLQkJCXVucGluX3VzZXJfcGFnZShwYWdlKTsKPiArCQlpZiAoIXZkcGEtPnVz
+ZV92YSkgewo+ICsJCQlwaW5uZWQgPSBtYXAtPnNpemUgPj4gUEFHRV9TSElGVDsKPiArCQkJZm9y
+IChwZm4gPSBtYXAtPmFkZHIgPj4gUEFHRV9TSElGVDsKPiArCQkJICAgICBwaW5uZWQgPiAwOyBw
+Zm4rKywgcGlubmVkLS0pIHsKPiArCQkJCXBhZ2UgPSBwZm5fdG9fcGFnZShwZm4pOwo+ICsJCQkJ
+aWYgKG1hcC0+cGVybSAmIFZIT1NUX0FDQ0VTU19XTykKPiArCQkJCQlzZXRfcGFnZV9kaXJ0eV9s
+b2NrKHBhZ2UpOwo+ICsJCQkJdW5waW5fdXNlcl9wYWdlKHBhZ2UpOwo+ICsJCQl9Cj4gKwkJCWF0
+b21pYzY0X3N1YihtYXAtPnNpemUgPj4gUEFHRV9TSElGVCwKPiArCQkJCQkmZGV2LT5tbS0+cGlu
+bmVkX3ZtKTsKPiArCQl9IGVsc2Ugewo+ICsJCQltYXBfZmlsZSA9IChzdHJ1Y3QgdmRwYV9tYXBf
+ZmlsZSAqKW1hcC0+b3BhcXVlOwo+ICsJCQlpZiAobWFwX2ZpbGUtPmZpbGUpCj4gKwkJCQlmcHV0
+KG1hcF9maWxlLT5maWxlKTsKPiArCQkJa2ZyZWUobWFwX2ZpbGUpOwo+ICAgCQl9Cj4gLQkJYXRv
+bWljNjRfc3ViKG1hcC0+c2l6ZSA+PiBQQUdFX1NISUZULCAmZGV2LT5tbS0+cGlubmVkX3ZtKTsK
+PiAgIAkJdmhvc3RfaW90bGJfbWFwX2ZyZWUoaW90bGIsIG1hcCk7Cj4gICAJfQo+ICAgfQo+IEBA
+IC01MzAsMjEgKzU0MCwyMSBAQCBzdGF0aWMgaW50IHBlcm1fdG9faW9tbXVfZmxhZ3ModTMyIHBl
+cm0pCj4gICAJcmV0dXJuIGZsYWdzIHwgSU9NTVVfQ0FDSEU7Cj4gICB9Cj4gICAKPiAtc3RhdGlj
+IGludCB2aG9zdF92ZHBhX21hcChzdHJ1Y3Qgdmhvc3RfdmRwYSAqdiwKPiAtCQkJICB1NjQgaW92
+YSwgdTY0IHNpemUsIHU2NCBwYSwgdTMyIHBlcm0pCj4gK3N0YXRpYyBpbnQgdmhvc3RfdmRwYV9t
+YXAoc3RydWN0IHZob3N0X3ZkcGEgKnYsIHU2NCBpb3ZhLAo+ICsJCQkgIHU2NCBzaXplLCB1NjQg
+cGEsIHUzMiBwZXJtLCB2b2lkICpvcGFxdWUpCj4gICB7Cj4gICAJc3RydWN0IHZob3N0X2RldiAq
+ZGV2ID0gJnYtPnZkZXY7Cj4gICAJc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhID0gdi0+dmRwYTsK
+PiAgIAljb25zdCBzdHJ1Y3QgdmRwYV9jb25maWdfb3BzICpvcHMgPSB2ZHBhLT5jb25maWc7Cj4g
+ICAJaW50IHIgPSAwOwo+ICAgCj4gLQlyID0gdmhvc3RfaW90bGJfYWRkX3JhbmdlKGRldi0+aW90
+bGIsIGlvdmEsIGlvdmEgKyBzaXplIC0gMSwKPiAtCQkJCSAgcGEsIHBlcm0pOwo+ICsJciA9IHZo
+b3N0X2lvdGxiX2FkZF9yYW5nZV9jdHgoZGV2LT5pb3RsYiwgaW92YSwgaW92YSArIHNpemUgLSAx
+LAo+ICsJCQkJICAgICAgcGEsIHBlcm0sIG9wYXF1ZSk7Cj4gICAJaWYgKHIpCj4gICAJCXJldHVy
+biByOwo+ICAgCj4gICAJaWYgKG9wcy0+ZG1hX21hcCkgewo+IC0JCXIgPSBvcHMtPmRtYV9tYXAo
+dmRwYSwgaW92YSwgc2l6ZSwgcGEsIHBlcm0sIE5VTEwpOwo+ICsJCXIgPSBvcHMtPmRtYV9tYXAo
+dmRwYSwgaW92YSwgc2l6ZSwgcGEsIHBlcm0sIG9wYXF1ZSk7Cj4gICAJfSBlbHNlIGlmIChvcHMt
+PnNldF9tYXApIHsKPiAgIAkJaWYgKCF2LT5pbl9iYXRjaCkKPiAgIAkJCXIgPSBvcHMtPnNldF9t
+YXAodmRwYSwgZGV2LT5pb3RsYik7Cj4gQEAgLTU1MiwxMyArNTYyLDE1IEBAIHN0YXRpYyBpbnQg
+dmhvc3RfdmRwYV9tYXAoc3RydWN0IHZob3N0X3ZkcGEgKnYsCj4gICAJCXIgPSBpb21tdV9tYXAo
+di0+ZG9tYWluLCBpb3ZhLCBwYSwgc2l6ZSwKPiAgIAkJCSAgICAgIHBlcm1fdG9faW9tbXVfZmxh
+Z3MocGVybSkpOwo+ICAgCX0KPiAtCj4gLQlpZiAocikKPiArCWlmIChyKSB7Cj4gICAJCXZob3N0
+X2lvdGxiX2RlbF9yYW5nZShkZXYtPmlvdGxiLCBpb3ZhLCBpb3ZhICsgc2l6ZSAtIDEpOwo+IC0J
+ZWxzZQo+ICsJCXJldHVybiByOwo+ICsJfQo+ICsKPiArCWlmICghdmRwYS0+dXNlX3ZhKQo+ICAg
+CQlhdG9taWM2NF9hZGQoc2l6ZSA+PiBQQUdFX1NISUZULCAmZGV2LT5tbS0+cGlubmVkX3ZtKTsK
+PiAgIAo+IC0JcmV0dXJuIHI7Cj4gKwlyZXR1cm4gMDsKPiAgIH0KPiAgIAo+ICAgc3RhdGljIHZv
+aWQgdmhvc3RfdmRwYV91bm1hcChzdHJ1Y3Qgdmhvc3RfdmRwYSAqdiwgdTY0IGlvdmEsIHU2NCBz
+aXplKQo+IEBAIC01NzksMTAgKzU5MSw2MCBAQCBzdGF0aWMgdm9pZCB2aG9zdF92ZHBhX3VubWFw
+KHN0cnVjdCB2aG9zdF92ZHBhICp2LCB1NjQgaW92YSwgdTY0IHNpemUpCj4gICAJfQo+ICAgfQo+
+ICAgCj4gK3N0YXRpYyBpbnQgdmhvc3RfdmRwYV92YV9tYXAoc3RydWN0IHZob3N0X3ZkcGEgKnYs
+Cj4gKwkJCSAgICAgdTY0IGlvdmEsIHU2NCBzaXplLCB1NjQgdWFkZHIsIHUzMiBwZXJtKQo+ICt7
+Cj4gKwlzdHJ1Y3Qgdmhvc3RfZGV2ICpkZXYgPSAmdi0+dmRldjsKPiArCXU2NCBvZmZzZXQsIG1h
+cF9zaXplLCBtYXBfaW92YSA9IGlvdmE7Cj4gKwlzdHJ1Y3QgdmRwYV9tYXBfZmlsZSAqbWFwX2Zp
+bGU7Cj4gKwlzdHJ1Y3Qgdm1fYXJlYV9zdHJ1Y3QgKnZtYTsKPiArCWludCByZXQ7Cj4gKwo+ICsJ
+bW1hcF9yZWFkX2xvY2soZGV2LT5tbSk7Cj4gKwo+ICsJd2hpbGUgKHNpemUpIHsKPiArCQl2bWEg
+PSBmaW5kX3ZtYShkZXYtPm1tLCB1YWRkcik7Cj4gKwkJaWYgKCF2bWEpIHsKPiArCQkJcmV0ID0g
+LUVJTlZBTDsKPiArCQkJZ290byBlcnI7Cj4gKwkJfQo+ICsJCW1hcF9zaXplID0gbWluKHNpemUs
+IHZtYS0+dm1fZW5kIC0gdWFkZHIpOwo+ICsJCW9mZnNldCA9ICh2bWEtPnZtX3Bnb2ZmIDw8IFBB
+R0VfU0hJRlQpICsgdWFkZHIgLSB2bWEtPnZtX3N0YXJ0Owo+ICsJCW1hcF9maWxlID0ga3phbGxv
+YyhzaXplb2YoKm1hcF9maWxlKSwgR0ZQX0tFUk5FTCk7Cj4gKwkJaWYgKCFtYXBfZmlsZSkgewo+
+ICsJCQlyZXQgPSAtRU5PTUVNOwo+ICsJCQlnb3RvIGVycjsKPiArCQl9Cj4gKwkJaWYgKHZtYS0+
+dm1fZmlsZSAmJiAodm1hLT52bV9mbGFncyAmIFZNX1NIQVJFRCkgJiYKPiArCQkJISh2bWEtPnZt
+X2ZsYWdzICYgKFZNX0lPIHwgVk1fUEZOTUFQKSkpIHsKPiArCQkJbWFwX2ZpbGUtPmZpbGUgPSBn
+ZXRfZmlsZSh2bWEtPnZtX2ZpbGUpOwo+ICsJCQltYXBfZmlsZS0+b2Zmc2V0ID0gb2Zmc2V0Owo+
+ICsJCX0KCgpJIHRoaW5rIGl0J3MgYmV0dGVyIHRvIGRvIHRoZSBmbGFnIGNoZWNrIHJpZ2h0IGFm
+dGVyIGZpbmRfdm1hKCksIHRoaXMgCmNhbiBhdm9pZCB0aGluZ3MgbGlrZSBrZnJlZSBldGMgKGUu
+ZyB0aGUgY29kZSB3aWxsIHN0aWxsIGNhbGwgCnZob3N0X3ZkcGFfbWFwKCkgZXZlbiBpZiB0aGUg
+ZmxhZyBpcyBub3QgZXhwZWN0ZWQgbm93KS4KCgo+ICsJCXJldCA9IHZob3N0X3ZkcGFfbWFwKHYs
+IG1hcF9pb3ZhLCBtYXBfc2l6ZSwgdWFkZHIsCj4gKwkJCQkgICAgIHBlcm0sIG1hcF9maWxlKTsK
+PiArCQlpZiAocmV0KSB7Cj4gKwkJCWlmIChtYXBfZmlsZS0+ZmlsZSkKPiArCQkJCWZwdXQobWFw
+X2ZpbGUtPmZpbGUpOwo+ICsJCQlrZnJlZShtYXBfZmlsZSk7Cj4gKwkJCWdvdG8gZXJyOwo+ICsJ
+CX0KPiArCQlzaXplIC09IG1hcF9zaXplOwo+ICsJCXVhZGRyICs9IG1hcF9zaXplOwo+ICsJCW1h
+cF9pb3ZhICs9IG1hcF9zaXplOwo+ICsJfQo+ICsJbW1hcF9yZWFkX3VubG9jayhkZXYtPm1tKTsK
+PiArCj4gKwlyZXR1cm4gMDsKPiArZXJyOgo+ICsJdmhvc3RfdmRwYV91bm1hcCh2LCBpb3ZhLCBt
+YXBfaW92YSAtIGlvdmEpOwo+ICsJcmV0dXJuIHJldDsKPiArfQo+ICsKPiAgIHN0YXRpYyBpbnQg
+dmhvc3RfdmRwYV9wcm9jZXNzX2lvdGxiX3VwZGF0ZShzdHJ1Y3Qgdmhvc3RfdmRwYSAqdiwKPiAg
+IAkJCQkJICAgc3RydWN0IHZob3N0X2lvdGxiX21zZyAqbXNnKQo+ICAgewo+ICAgCXN0cnVjdCB2
+aG9zdF9kZXYgKmRldiA9ICZ2LT52ZGV2Owo+ICsJc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhID0g
+di0+dmRwYTsKPiAgIAlzdHJ1Y3Qgdmhvc3RfaW90bGIgKmlvdGxiID0gZGV2LT5pb3RsYjsKPiAg
+IAlzdHJ1Y3QgcGFnZSAqKnBhZ2VfbGlzdDsKPiAgIAl1bnNpZ25lZCBsb25nIGxpc3Rfc2l6ZSA9
+IFBBR0VfU0laRSAvIHNpemVvZihzdHJ1Y3QgcGFnZSAqKTsKPiBAQCAtNjAxLDYgKzY2MywxMCBA
+QCBzdGF0aWMgaW50IHZob3N0X3ZkcGFfcHJvY2Vzc19pb3RsYl91cGRhdGUoc3RydWN0IHZob3N0
+X3ZkcGEgKnYsCj4gICAJCQkJICAgIG1zZy0+aW92YSArIG1zZy0+c2l6ZSAtIDEpKQo+ICAgCQly
+ZXR1cm4gLUVFWElTVDsKPiAgIAo+ICsJaWYgKHZkcGEtPnVzZV92YSkKPiArCQlyZXR1cm4gdmhv
+c3RfdmRwYV92YV9tYXAodiwgbXNnLT5pb3ZhLCBtc2ctPnNpemUsCj4gKwkJCQkJIG1zZy0+dWFk
+ZHIsIG1zZy0+cGVybSk7CgoKSWYgcG9zc2libGUsIEkgd291bGQgbGlrZSB0byBmYWN0b3Igb3V0
+IHRoZSBwYSBtYXAgYmVsb3cgaW50byBhIApzb21ldGhpbmcgbGlrZSB2aG9zdF92ZHBhX3BhX21h
+cCgpIGZpcnN0IHdpdGggYSBzZXBhcmF0ZWQgcGF0Y2guIFRoZW4gCmludHJvZHVjZSB2aG9zdF92
+ZHBhX3ZhX21hcCgpLgoKVGhhbmtzCgoKPiArCj4gICAJLyogTGltaXQgdGhlIHVzZSBvZiBtZW1v
+cnkgZm9yIGJvb2trZWVwaW5nICovCj4gICAJcGFnZV9saXN0ID0gKHN0cnVjdCBwYWdlICoqKSBf
+X2dldF9mcmVlX3BhZ2UoR0ZQX0tFUk5FTCk7Cj4gICAJaWYgKCFwYWdlX2xpc3QpCj4gQEAgLTY1
+NCw3ICs3MjAsNyBAQCBzdGF0aWMgaW50IHZob3N0X3ZkcGFfcHJvY2Vzc19pb3RsYl91cGRhdGUo
+c3RydWN0IHZob3N0X3ZkcGEgKnYsCj4gICAJCQkJY3NpemUgPSAobGFzdF9wZm4gLSBtYXBfcGZu
+ICsgMSkgPDwgUEFHRV9TSElGVDsKPiAgIAkJCQlyZXQgPSB2aG9zdF92ZHBhX21hcCh2LCBpb3Zh
+LCBjc2l6ZSwKPiAgIAkJCQkJCSAgICAgbWFwX3BmbiA8PCBQQUdFX1NISUZULAo+IC0JCQkJCQkg
+ICAgIG1zZy0+cGVybSk7Cj4gKwkJCQkJCSAgICAgbXNnLT5wZXJtLCBOVUxMKTsKPiAgIAkJCQlp
+ZiAocmV0KSB7Cj4gICAJCQkJCS8qCj4gICAJCQkJCSAqIFVucGluIHRoZSBwYWdlcyB0aGF0IGFy
+ZSBsZWZ0IHVubWFwcGVkCj4gQEAgLTY4Myw3ICs3NDksNyBAQCBzdGF0aWMgaW50IHZob3N0X3Zk
+cGFfcHJvY2Vzc19pb3RsYl91cGRhdGUoc3RydWN0IHZob3N0X3ZkcGEgKnYsCj4gICAKPiAgIAkv
+KiBQaW4gdGhlIHJlc3QgY2h1bmsgKi8KPiAgIAlyZXQgPSB2aG9zdF92ZHBhX21hcCh2LCBpb3Zh
+LCAobGFzdF9wZm4gLSBtYXBfcGZuICsgMSkgPDwgUEFHRV9TSElGVCwKPiAtCQkJICAgICBtYXBf
+cGZuIDw8IFBBR0VfU0hJRlQsIG1zZy0+cGVybSk7Cj4gKwkJCSAgICAgbWFwX3BmbiA8PCBQQUdF
+X1NISUZULCBtc2ctPnBlcm0sIE5VTEwpOwo+ICAgb3V0Ogo+ICAgCWlmIChyZXQpIHsKPiAgIAkJ
+aWYgKG5jaHVua3MpIHsKPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC92ZHBhLmggYi9pbmNs
+dWRlL2xpbnV4L3ZkcGEuaAo+IGluZGV4IDkzZGNhMmMzMjhhZS4uYmZhZTZkNzgwYzM4IDEwMDY0
+NAo+IC0tLSBhL2luY2x1ZGUvbGludXgvdmRwYS5oCj4gKysrIGIvaW5jbHVkZS9saW51eC92ZHBh
+LmgKPiBAQCAtNDQsNiArNDQsNyBAQCBzdHJ1Y3QgdmRwYV9tZ210X2RldjsKPiAgICAqIEBjb25m
+aWc6IHRoZSBjb25maWd1cmF0aW9uIG9wcyBmb3IgdGhpcyBkZXZpY2UuCj4gICAgKiBAaW5kZXg6
+IGRldmljZSBpbmRleAo+ICAgICogQGZlYXR1cmVzX3ZhbGlkOiB3ZXJlIGZlYXR1cmVzIGluaXRp
+YWxpemVkPyBmb3IgbGVnYWN5IGd1ZXN0cwo+ICsgKiBAdXNlX3ZhOiBpbmRpY2F0ZSB3aGV0aGVy
+IHZpcnR1YWwgYWRkcmVzcyBjYW4gYmUgdXNlZCBieSB0aGlzIGRldmljZQo+ICAgICogQG52cXM6
+IG1heGltdW0gbnVtYmVyIG9mIHN1cHBvcnRlZCB2aXJ0cXVldWVzCj4gICAgKiBAbWRldjogbWFu
+YWdlbWVudCBkZXZpY2UgcG9pbnRlcjsgY2FsbGVyIG11c3Qgc2V0dXAgd2hlbiByZWdpc3Rlcmlu
+ZyBkZXZpY2UgYXMgcGFydAo+ICAgICoJICBvZiBkZXZfYWRkKCkgbWdtdGRldiBvcHMgY2FsbGJh
+Y2sgYmVmb3JlIGludm9raW5nIF92ZHBhX3JlZ2lzdGVyX2RldmljZSgpLgo+IEBAIC01NCw2ICs1
+NSw3IEBAIHN0cnVjdCB2ZHBhX2RldmljZSB7Cj4gICAJY29uc3Qgc3RydWN0IHZkcGFfY29uZmln
+X29wcyAqY29uZmlnOwo+ICAgCXVuc2lnbmVkIGludCBpbmRleDsKPiAgIAlib29sIGZlYXR1cmVz
+X3ZhbGlkOwo+ICsJYm9vbCB1c2VfdmE7Cj4gICAJaW50IG52cXM7Cj4gICAJc3RydWN0IHZkcGFf
+bWdtdF9kZXYgKm1kZXY7Cj4gICB9Owo+IEBAIC02OSw2ICs3MSwxNiBAQCBzdHJ1Y3QgdmRwYV9p
+b3ZhX3JhbmdlIHsKPiAgIH07Cj4gICAKPiAgIC8qKgo+ICsgKiBDb3JyZXNwb25kaW5nIGZpbGUg
+YXJlYSBmb3IgZGV2aWNlIG1lbW9yeSBtYXBwaW5nCj4gKyAqIEBmaWxlOiB2bWEtPnZtX2ZpbGUg
+Zm9yIHRoZSBtYXBwaW5nCj4gKyAqIEBvZmZzZXQ6IG1hcHBpbmcgb2Zmc2V0IGluIHRoZSB2bV9m
+aWxlCj4gKyAqLwo+ICtzdHJ1Y3QgdmRwYV9tYXBfZmlsZSB7Cj4gKwlzdHJ1Y3QgZmlsZSAqZmls
+ZTsKPiArCXU2NCBvZmZzZXQ7Cj4gK307Cj4gKwo+ICsvKioKPiAgICAqIHZEUEFfY29uZmlnX29w
+cyAtIG9wZXJhdGlvbnMgZm9yIGNvbmZpZ3VyaW5nIGEgdkRQQSBkZXZpY2UuCj4gICAgKiBOb3Rl
+OiB2RFBBIGRldmljZSBkcml2ZXJzIGFyZSByZXF1aXJlZCB0byBpbXBsZW1lbnQgYWxsIG9mIHRo
+ZQo+ICAgICogb3BlcmF0aW9ucyB1bmxlc3MgaXQgaXMgbWVudGlvbmVkIHRvIGJlIG9wdGlvbmFs
+IGluIHRoZSBmb2xsb3dpbmcKPiBAQCAtMjUwLDE0ICsyNjIsMTYgQEAgc3RydWN0IHZkcGFfY29u
+ZmlnX29wcyB7Cj4gICAKPiAgIHN0cnVjdCB2ZHBhX2RldmljZSAqX192ZHBhX2FsbG9jX2Rldmlj
+ZShzdHJ1Y3QgZGV2aWNlICpwYXJlbnQsCj4gICAJCQkJCWNvbnN0IHN0cnVjdCB2ZHBhX2NvbmZp
+Z19vcHMgKmNvbmZpZywKPiAtCQkJCQlpbnQgbnZxcywgc2l6ZV90IHNpemUsIGNvbnN0IGNoYXIg
+Km5hbWUpOwo+ICsJCQkJCWludCBudnFzLCBzaXplX3Qgc2l6ZSwKPiArCQkJCQljb25zdCBjaGFy
+ICpuYW1lLCBib29sIHVzZV92YSk7Cj4gICAKPiAtI2RlZmluZSB2ZHBhX2FsbG9jX2RldmljZShk
+ZXZfc3RydWN0LCBtZW1iZXIsIHBhcmVudCwgY29uZmlnLCBudnFzLCBuYW1lKSAgIFwKPiArI2Rl
+ZmluZSB2ZHBhX2FsbG9jX2RldmljZShkZXZfc3RydWN0LCBtZW1iZXIsIHBhcmVudCwgY29uZmln
+LCBcCj4gKwkJCSAgbnZxcywgbmFtZSwgdXNlX3ZhKSBcCj4gICAJCQkgIGNvbnRhaW5lcl9vZihf
+X3ZkcGFfYWxsb2NfZGV2aWNlKCBcCj4gICAJCQkJICAgICAgIHBhcmVudCwgY29uZmlnLCBudnFz
+LCBcCj4gICAJCQkJICAgICAgIHNpemVvZihkZXZfc3RydWN0KSArIFwKPiAgIAkJCQkgICAgICAg
+QlVJTERfQlVHX09OX1pFUk8ob2Zmc2V0b2YoIFwKPiAtCQkJCSAgICAgICBkZXZfc3RydWN0LCBt
+ZW1iZXIpKSwgbmFtZSksIFwKPiArCQkJCSAgICAgICBkZXZfc3RydWN0LCBtZW1iZXIpKSwgbmFt
+ZSwgdXNlX3ZhKSwgXAo+ICAgCQkJCSAgICAgICBkZXZfc3RydWN0LCBtZW1iZXIpCj4gICAKPiAg
+IGludCB2ZHBhX3JlZ2lzdGVyX2RldmljZShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYpOwoKX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
+b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
+Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
+YWxpemF0aW9u
