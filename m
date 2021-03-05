@@ -1,171 +1,89 @@
-Return-Path: <SRS0=YToA=IC=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=gmSK=ID=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EBFCC433DB
-	for <virtualization@archiver.kernel.org>; Thu,  4 Mar 2021 23:59:05 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B10E6C433DB
+	for <virtualization@archiver.kernel.org>; Fri,  5 Mar 2021 01:46:38 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AC06664FFD
-	for <virtualization@archiver.kernel.org>; Thu,  4 Mar 2021 23:59:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AC06664FFD
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id 21AB465005
+	for <virtualization@archiver.kernel.org>; Fri,  5 Mar 2021 01:46:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 21AB465005
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 606FD83760;
-	Thu,  4 Mar 2021 23:59:04 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id A53B36F52B;
+	Fri,  5 Mar 2021 01:46:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id i2ol8UQSOltv; Thu,  4 Mar 2021 23:59:03 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 97d5iPuQVYV9; Fri,  5 Mar 2021 01:46:36 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0979E8352B;
-	Thu,  4 Mar 2021 23:59:02 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id CFE466FB3D;
+	Fri,  5 Mar 2021 01:46:35 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D3547C000B;
-	Thu,  4 Mar 2021 23:59:02 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 02905C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AAEEEC000B;
+	Fri,  5 Mar 2021 01:46:35 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3F750C0001
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Mar 2021 23:59:01 +0000 (UTC)
+ Fri,  5 Mar 2021 01:46:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id DDC1F6F584
+ by smtp3.osuosl.org (Postfix) with ESMTP id 2D9856FB3D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Mar 2021 23:59:01 +0000 (UTC)
+ Fri,  5 Mar 2021 01:46:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=microsoft.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id S-Zjsd1W7XkV
+ with ESMTP id P_SyS0GX2ofR
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Mar 2021 23:59:00 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com
- (mail-co1nam11on2137.outbound.protection.outlook.com [40.107.220.137])
- by smtp3.osuosl.org (Postfix) with ESMTPS id CC8ED6F52F
+ Fri,  5 Mar 2021 01:46:32 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 9E1AA6F52B
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Mar 2021 23:59:00 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=neaT7Eb1Mr1F7MOPBZ3CoGxLcRfezG3Ugmf4CjV5osSYUOPtO5L2CD+kMsywJpzOliGobzc3F4JHL/xzPgS7CkNVBBbdnlRdLzK2IfQ4zSOY3IDO2MiDiFflXVNki3FUw5QOS4aZNjBKT/EvnkMm9hRmsgPi3NZGuHcZ33VsIYsBj15jlobCrW+ZqyC29oWFrQVu86BDK2H+zhePpTG53ZJtyt33rJVLXWocfLMsTy2AkKATGCS3r7qjw6AxlNSKiuLsrIwYRvIF36f8OSZug9NuJTiYfxfKnc8h8ObvCVLRoDFBdOSGEF+aCDLjYV5RAMw1RO6ef0Ggogc6ydDrPA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HxQvfzouemzlKH6fPAw4oJSaukSZ17aPqAwlO0Pz7VE=;
- b=Mrc/E1Ahbb7yj8VMDwpGwOdaUAUyWqa9r7Hq8H9RoONIsbW2fZsbQ0xwjwpLtQDCZU91qtv25y0bJ+w55PpJs62LF3wBNlRvmKdwgQY/MHgeZ+FV6V4EgJ0f04/oe/4gsxkHaXyePQpA9ADPmUiVQwkoynfzUjNe/Px2s3cxH/revZNRo90xRcgX8pNlF1JLQNOPSbkVlltP35xS4hGls0+CUnv9RVE61fKXMZgnzKBa+TC+s9gMTLLfX10LFSg/JA47/a0rFF9Q5VLTTwWKDGJFIGgjMqe9HZXMNjegz3Em6sWJd71RwhMvUFYK1N4DG0c5rJHkdQ7GjtkD0cmpfQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HxQvfzouemzlKH6fPAw4oJSaukSZ17aPqAwlO0Pz7VE=;
- b=fHI0VQ6tDYtxRbo57LlNm6zwpwYHVeXQDNKCBn988WhL8AE6STcgQxJiFLBoR4oVV8sD+W4biQHxWzjLhPJlllQg/uXhG3CIM7O6tcc9wN/CPmYG8O3LAdecCAm3p2PZPwew6whmaof9J5MQKMkMZnvfpKEkI136KQZ59GsNfDI=
-Received: from MWHPR21MB1593.namprd21.prod.outlook.com (2603:10b6:301:7c::11)
- by MW2PR2101MB0908.namprd21.prod.outlook.com (2603:10b6:302:10::28)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3933.17; Thu, 4 Mar
- 2021 23:58:58 +0000
-Received: from MWHPR21MB1593.namprd21.prod.outlook.com
- ([fe80::9c8:94c9:faf1:17c2]) by MWHPR21MB1593.namprd21.prod.outlook.com
- ([fe80::9c8:94c9:faf1:17c2%9]) with mapi id 15.20.3912.024; Thu, 4 Mar 2021
- 23:58:58 +0000
-To: Nuno Das Neves <nunodasneves@linux.microsoft.com>,
- "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>
-Subject: RE: [RFC PATCH 06/18] virt/mshv: create, initialize, finalize, delete
- partition hypercalls
-Thread-Topic: [RFC PATCH 06/18] virt/mshv: create, initialize, finalize,
- delete partition hypercalls
-Thread-Index: AQHWv52RO39n9Z5WhEuKJPNiXbM1XKpL8TdwgCkxh4CAAAEL4A==
-Date: Thu, 4 Mar 2021 23:58:58 +0000
-Message-ID: <MWHPR21MB1593060CD27B9AAA10862833D7979@MWHPR21MB1593.namprd21.prod.outlook.com>
-References: <1605918637-12192-1-git-send-email-nunodasneves@linux.microsoft.com>
- <1605918637-12192-7-git-send-email-nunodasneves@linux.microsoft.com>
- <MWHPR21MB1593518130E3E0532894C516D78F9@MWHPR21MB1593.namprd21.prod.outlook.com>
- <e6cc796d-f9ee-5203-95a9-05906f95d3f8@linux.microsoft.com>
-In-Reply-To: <e6cc796d-f9ee-5203-95a9-05906f95d3f8@linux.microsoft.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2021-03-04T23:58:57Z; 
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=7f5c14bb-864e-4434-a8eb-256a611d347a;
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0
-authentication-results: linux.microsoft.com; dkim=none (message not signed)
- header.d=none;linux.microsoft.com; dmarc=none action=none
- header.from=microsoft.com;
-x-originating-ip: [24.22.167.197]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 249ef088-a906-47bd-bbc4-08d8df697a23
-x-ms-traffictypediagnostic: MW2PR2101MB0908:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <MW2PR2101MB09085D227A7740754A65E550D7979@MW2PR2101MB0908.namprd21.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:2043;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: fIC4EUMhROCGbHmjF8PPh5bG/vVZfszWprF6w4sTRj7l2Ainxs63FYH5JnKVhDFlxm7ZsF0CQ3QNJT+FUcj6xbWujShrQv25Zzc7e7IY/fNXxGDAde4ixB4bOupMqwBAoeYjMMjdFa7MKz/a7WKO7/oK9GsXmD4vnTs1d8X+sCL9ahYiGgYtv7tPE8NLkdzcl3Mlrf1t7wcIc9asVD6Hud6kUfo9sd7kF9Dt7Gz6DpSxLqIo9Mpe5uHj8UJUSla+cnN5MDnMQpD+66lRZmw/JPwEQ7k+9KjUyNLrmpJ0dbWMrIw+Z+0mGPKeMp4s3eNhzoF1KaAz2rboCXWRIx1GjSZ3FQaxLmfe2iPyObYgPxGC4WDdfn4PyvqGy5xCrmXeEUuSV3TQjvkQHLR3WUOjQmRx+43TXHjhQED97QJS73gIxTZXfDdhKIpwsqQwGRpj6Unoxua9YG2bYwzAaYK7cposBCEFHh0D6uUN40ZblUZoUxEbC2VU/n6Kr+yD6AbZeBhm6Nogcru1rZptLX7dfBzgqB9VvhVDxlwEikpIy/j3eWyqL55dq1MMX8lmOOms
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:MWHPR21MB1593.namprd21.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(376002)(366004)(136003)(39860400002)(396003)(346002)(66556008)(76116006)(66446008)(66946007)(71200400001)(8990500004)(10290500003)(54906003)(478600001)(33656002)(2906002)(64756008)(7696005)(66476007)(4326008)(110136005)(83380400001)(55016002)(186003)(9686003)(82950400001)(82960400001)(53546011)(8936002)(5660300002)(86362001)(107886003)(6506007)(8676002)(52536014)(26005)(316002);
- DIR:OUT; SFP:1102; 
-x-ms-exchange-antispam-messagedata: =?utf-8?B?ZkpwSTFwbGVoYURvWGJHT1Rka20yQXBXSjE5dVVsR3ZQb0FBeFZ6N2Q3bnFz?=
- =?utf-8?B?ZHZVRjFldEJjV0QvL1JzK2Ntb25SalBLd2RPc3NVSDllbFNHM05wdEpvVWhK?=
- =?utf-8?B?ZDhuUkE3Yi9GSUlvcTMyUzZnSVdub2ljZzZ3WWhIbzRsWDRYWm4rZ0k0UG9h?=
- =?utf-8?B?NnM5cCtUOFpuV0hGZUcvY0swKzhrVFRpYll5aFM4endNaG0vTzFONFFFR0xE?=
- =?utf-8?B?aDlqMzM4Qko0NklNbXFpdnYwd0JoelFJbUt1VFpGeUY2T0dqRXV4WlI3c1BL?=
- =?utf-8?B?NG05djVPZHhvS3hwNDdMVVQycWttUzRySlpCaTdBWCtvSWpPZFIrMlR5T29B?=
- =?utf-8?B?SHl5OVM0NjRxdjVGeVphVGlJVVNsTHpHOFdYUE91MStlVVNyVmE5T3ZnYmF2?=
- =?utf-8?B?VXdsblArcC9vTmJ4eDl3M0hBZ3dNV0JlQjQ5WEJ6ZjBUUkNvWGdqWms5SmNx?=
- =?utf-8?B?THE4K0VVOUUvQ1dKQ2RQY1pCM3d6SndWcjMvSnhmYnNzaHdLalBJMGNaWkYv?=
- =?utf-8?B?a2V5SVpLYlBhK0xCV1hhdERUK0w5Y0VKQmZCNWczbW5BSmFMSGxkc3dUTVJy?=
- =?utf-8?B?U2M4aXNYVFhFZ21IRk8zZWdTMU91K1llZENxTFN0UFdsSzZuTFFEZlJ6dTVv?=
- =?utf-8?B?WUxYWWIvSFByT2pxTkt6SCt2MGx5bDFwdmUvSG9nSmhWUHVsYVR0RUI0L3lZ?=
- =?utf-8?B?MDdvUVBYeC9GdDNhMU1POFcwcHFrKzBNbVJ5dEthMlBXQnZpYTVNYlMrLzdT?=
- =?utf-8?B?Y1NTenJ2MFJ0b0o5YzJlbEdIVmd2SWM2aGoyeUZIUUtyTDNiOFhzWWlxZUp5?=
- =?utf-8?B?R0FJVXBNYTdIY3VYdlBxczhHUkxaNk5DODA3MXpPcSt3eXNacEtoK0hsSlhi?=
- =?utf-8?B?V1pyY3JEYmJSc1dmODhVMDd2OGNUc2RxR1pwMHN5dnJWcGRjVHMyZXI2a1B2?=
- =?utf-8?B?QVJiODk0MC9vNnc2OGpXeE1OdEVITG80OU9BWThtRGhzZGt1Z1BxZEc0K1ZM?=
- =?utf-8?B?SHNwWjhBVjNmUUxxTDNzaHQyU3JOeVkrL2k3cHpaMzZUN1M0dFBIUWxRY29u?=
- =?utf-8?B?RVlEWDE0SXQ3L3lYR09GN2Vwczl2U09lc2Y4c0ZodXJwbnArYWlNU2l6QVZS?=
- =?utf-8?B?NCtlUExZNkZrUjJueXdBRXhBc1VVMnozQnBLb0tqajdsbEpNdWQvNlV1OUc4?=
- =?utf-8?B?NFRHcGkwdTFzTFNyNFZtRGhHT2pEc2o2ZGNpakkyTm5ZYTl1R0dmOFUxSTR0?=
- =?utf-8?B?UzJjRUU3NWczYmxYUExWZHRSNmU5QlVEUU5xazBUalpPYi9JbWU1MU8zeXAv?=
- =?utf-8?B?bEtHRitCcHdZWFY0aHQydUNrSjhuemc3ZUhkVXZERm1pTGEzSXpxS2pGS3Nw?=
- =?utf-8?B?MldjTzNwQ0FMR0Y0R2JNbTludW5pQnlnbGxrd2pzamx3U3F0VVVjMnJPSVZ2?=
- =?utf-8?B?b3pCUmpzSFA1S09nZDk4K1Vra0N2TjVzRDhXV29uVm5FellLMXprSGtpOTk5?=
- =?utf-8?B?RWVnNVV3WjZVNThJcFhmSDNib2V2U3JwSUNzd1lBOFpJQ3FHcE9RWmVhOEtU?=
- =?utf-8?B?K0ZkWjMzdUdkWlRPQVl2azV6V0NSeU1Rb2FXcjFhTHdOTExsQ1F2b3BBKzhX?=
- =?utf-8?B?MmIzMzBrTFJ5anlYcnJFYWJLTDBPYjZrTE1FU0tjV2p3MWpBT3VFNHBCUzFH?=
- =?utf-8?B?YytoR01YSGI5UGFITTc5cFJjS2lpcENjdW41anErY3phQjFGQytIbnRrVm1K?=
- =?utf-8?Q?Iu+hRNSqIAC3Cie043hO8vizstErBII6TRvX8Hp?=
+ Fri,  5 Mar 2021 01:46:32 +0000 (UTC)
+IronPort-SDR: +Jv4hZk+ecfEBPxNkUpqXbhI9YMjg1rQQl7jRblYWDfCP6pLLJ8BYymhYNPNoZLGcWzVclnOQ4
+ ws/qFj5MHFDA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9913"; a="167442468"
+X-IronPort-AV: E=Sophos;i="5.81,224,1610438400"; d="scan'208";a="167442468"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+ by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 04 Mar 2021 17:46:31 -0800
+IronPort-SDR: hTV/ErBcs8L/B4TAeMfl2pMMEaabemYgrU/M8iFYi/n8rFLHGpqBcQdi5zY2hwkdSrVzEIYoCe
+ pDCJIk4ix1VA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.81,224,1610438400"; d="scan'208";a="384711461"
+Received: from unknown (HELO [10.239.154.55]) ([10.239.154.55])
+ by orsmga002.jf.intel.com with ESMTP; 04 Mar 2021 17:46:25 -0800
+Subject: Re: [PATCH v6] i2c: virtio: add a virtio i2c frontend driver
+To: Viresh Kumar <viresh.kumar@linaro.org>
+References: <9a2086f37c0a62069b67c39a3f75941b78a0039c.1614749417.git.jie.deng@intel.com>
+ <20210304060638.7qes424vvdmptz5c@vireshk-i7>
+From: Jie Deng <jie.deng@intel.com>
+Message-ID: <f3f4aaf8-521c-3e9e-4757-97f2e33e44f6@intel.com>
+Date: Fri, 5 Mar 2021 09:46:24 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.7.0
 MIME-Version: 1.0
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR21MB1593.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 249ef088-a906-47bd-bbc4-08d8df697a23
-X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Mar 2021 23:58:58.5897 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: KNZobscYgBW+ukzDiFK9S3dAcDan+0UKH2oELaGAJmxD7/ocffATnpObQJPqbN3zYQjKEArn1xdZl2IodBjVTeWK4qkHvWBeTfQ4AyENQDU=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW2PR2101MB0908
-Cc: "wei.liu@kernel.org" <wei.liu@kernel.org>,
- Lillian Grassin-Drake <Lillian.GrassinDrake@microsoft.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- Sunil Muthuswamy <sunilmut@microsoft.com>,
- "viremana@linux.microsoft.com" <viremana@linux.microsoft.com>
+In-Reply-To: <20210304060638.7qes424vvdmptz5c@vireshk-i7>
+Content-Language: en-US
+Cc: mst@redhat.com, bjorn.andersson@linaro.org,
+ wsa+renesas@sang-engineering.com, linux-i2c@vger.kernel.org, wsa@kernel.org,
+ andriy.shevchenko@linux.intel.com,
+ Vincent Guittot <vincent.guittot@linaro.org>, yu1.wang@intel.com,
+ u.kleine-koenig@pengutronix.de, kblaiech@mellanox.com,
+ virtualization@lists.linux-foundation.org, arnd@arndb.de, stefanha@redhat.com,
+ tali.perry1@gmail.com, conghui.chen@intel.com, loic.poulain@linaro.org,
+ linux-kernel@vger.kernel.org, Sergey.Semin@baikalelectronics.ru,
+ jarkko.nikula@linux.intel.com, shuo.a.liu@intel.com, pbonzini@redhat.com,
+ rppt@kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -177,93 +95,485 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Michael Kelley via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Michael Kelley <mikelley@microsoft.com>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Nuno Das Neves <nunodasneves@linux.microsoft.com> Sent: Thursday, March 4, 2021 3:49 PM
-> 
-> On 2/8/2021 11:42 AM, Michael Kelley wrote:
-> > From: Nuno Das Neves <nunodasneves@linux.microsoft.com> Sent: Friday, November
-> 20, 2020 4:30 PM
-> >>
 
-[snip]
+On 2021/3/4 14:06, Viresh Kumar wrote:
+> Please always supply version history, it makes it difficult to review otherwise.
+I will add the history.
+>>   drivers/i2c/busses/Kconfig      |  11 ++
+>>   drivers/i2c/busses/Makefile     |   3 +
+>>   drivers/i2c/busses/i2c-virtio.c | 289 ++++++++++++++++++++++++++++++++++++++++
+>>   include/uapi/linux/virtio_i2c.h |  42 ++++++
+>>   include/uapi/linux/virtio_ids.h |   1 +
+>>   5 files changed, 346 insertions(+)
+>>   create mode 100644 drivers/i2c/busses/i2c-virtio.c
+>>   create mode 100644 include/uapi/linux/virtio_i2c.h
+>>
+>> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+>> index 05ebf75..0860395 100644
+>> --- a/drivers/i2c/busses/Kconfig
+>> +++ b/drivers/i2c/busses/Kconfig
+>> @@ -21,6 +21,17 @@ config I2C_ALI1535
+>>   	  This driver can also be built as a module.  If so, the module
+>>   	  will be called i2c-ali1535.
+>>   
+>> +config I2C_VIRTIO
+>> +	tristate "Virtio I2C Adapter"
+>> +	depends on VIRTIO
+> depends on I2C as well ?
+No need that. The dependency of I2C is included in the Kconfig in its 
+parent directory.
+>
+>> +	help
+>> +	  If you say yes to this option, support will be included for the virtio
+>> +	  I2C adapter driver. The hardware can be emulated by any device model
+>> +	  software according to the virtio protocol.
+>> +
+>> +	  This driver can also be built as a module. If so, the module
+>> +	  will be called i2c-virtio.
+>> +
+>>   config I2C_ALI1563
+>>   	tristate "ALI 1563"
+>>   	depends on PCI
+>> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+>> index 615f35e..b88da08 100644
+>> --- a/drivers/i2c/busses/Makefile
+>> +++ b/drivers/i2c/busses/Makefile
+>> @@ -6,6 +6,9 @@
+>>   # ACPI drivers
+>>   obj-$(CONFIG_I2C_SCMI)		+= i2c-scmi.o
+>>   
+>> +# VIRTIO I2C host controller driver
+>> +obj-$(CONFIG_I2C_VIRTIO)	+= i2c-virtio.o
+>> +
+> Not that it is important but I would have added it towards the end instead of at
+> the top of the file..
+I'm OK to add it to the end.
+>
+>>   # PC SMBus host controller drivers
+>>   obj-$(CONFIG_I2C_ALI1535)	+= i2c-ali1535.o
+>>   obj-$(CONFIG_I2C_ALI1563)	+= i2c-ali1563.o
+>> diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
+>> new file mode 100644
+>> index 0000000..98c0fcc
+>> --- /dev/null
+>> +++ b/drivers/i2c/busses/i2c-virtio.c
+>> @@ -0,0 +1,289 @@
+>> +// SPDX-License-Identifier: GPL-2.0-or-later
+>> +/*
+>> + * Virtio I2C Bus Driver
+>> + *
+>> + * The Virtio I2C Specification:
+>> + * https://raw.githubusercontent.com/oasis-tcs/virtio-spec/master/virtio-i2c.tex
+>> + *
+>> + * Copyright (c) 2021 Intel Corporation. All rights reserved.
+>> + */
+>> +
+>> +#include <linux/acpi.h>
+>> +#include <linux/completion.h>
+>> +#include <linux/err.h>
+>> +#include <linux/i2c.h>
+>> +#include <linux/io.h>
+>> +#include <linux/jiffies.h>
+> I don't think above two are required here..
+>
+>> +#include <linux/kernel.h>
+>> +#include <linux/module.h>
+>> +#include <linux/platform_device.h>
+> same here.
+>
+>> +#include <linux/wait.h>
+> same here.
+Will confirm and remove them if they are not required. Thank you.
+>> +
+> And this blank line as well, since all are standard linux headers.
+>> +#include <linux/virtio.h>
+>> +#include <linux/virtio_i2c.h>
+>> +
+>> +/**
+>> + * struct virtio_i2c - virtio I2C data
+>> + * @vdev: virtio device for this controller
+>> + * @completion: completion of virtio I2C message
+>> + * @adap: I2C adapter for this controller
+>> + * @i2c_lock: lock for virtqueue processing
+>> + * @vq: the virtio virtqueue for communication
+>> + */
+>> +struct virtio_i2c {
+>> +	struct virtio_device *vdev;
+>> +	struct completion completion;
+>> +	struct i2c_adapter adap;
+>> +	struct mutex i2c_lock;
+> i2c_ is redundant here. "lock" sounds good enough.
+OK.
+>> +	struct virtqueue *vq;
+>> +};
+>> +
+>> +/**
+>> + * struct virtio_i2c_req - the virtio I2C request structure
+>> + * @out_hdr: the OUT header of the virtio I2C message
+>> + * @buf: the buffer into which data is read, or from which it's written
+>> + * @in_hdr: the IN header of the virtio I2C message
+>> + */
+>> +struct virtio_i2c_req {
+>> +	struct virtio_i2c_out_hdr out_hdr;
+>> +	u8 *buf;
+>> +	struct virtio_i2c_in_hdr in_hdr;
+>> +};
+>> +
+>> +static void virtio_i2c_msg_done(struct virtqueue *vq)
+>> +{
+>> +	struct virtio_i2c *vi = vq->vdev->priv;
+>> +
+>> +	complete(&vi->completion);
+>> +}
+>> +
+>> +static int virtio_i2c_send_reqs(struct virtqueue *vq,
+>> +				struct virtio_i2c_req *reqs,
+>> +				struct i2c_msg *msgs, int nr)
+>> +{
+>> +	struct scatterlist *sgs[3], out_hdr, msg_buf, in_hdr;
+>> +	int i, outcnt, incnt, err = 0;
+>> +	u8 *buf;
+>> +
+>> +	for (i = 0; i < nr; i++) {
+>> +		if (!msgs[i].len)
+>> +			break;
+>> +
+>> +		/* Only 7-bit mode supported for this moment. For the address format,
+>> +		 * Please check the Virtio I2C Specification.
+>> +		 */
+> Please use proper comment style.
+will fix it.
+>
+>                  /*
+>                   * Only 7-bit mode supported for now, check Virtio I2C
+>                   * specification for format of "addr" field.
+>                   */
+>
+>> +		reqs[i].out_hdr.addr = cpu_to_le16(msgs[i].addr << 1);
+>> +
+>> +		if (i != nr - 1)
+>> +			reqs[i].out_hdr.flags |= VIRTIO_I2C_FLAGS_FAIL_NEXT;
+> Since flags field hasn't been touched anywhere, directly assigning it may be
+> better instead of |=, it makes it more readable.
+OK.
+>> +
+>> +		outcnt = incnt = 0;
+>> +		sg_init_one(&out_hdr, &reqs[i].out_hdr, sizeof(reqs[i].out_hdr));
+>> +		sgs[outcnt++] = &out_hdr;
+>> +
+>> +		buf = kzalloc(msgs[i].len, GFP_KERNEL);
+>> +		if (!buf)
+>> +			break;
+>> +
+>> +		reqs[i].buf = buf;
+>> +		sg_init_one(&msg_buf, reqs[i].buf, msgs[i].len);
+>> +
+>> +		if (msgs[i].flags & I2C_M_RD) {
+>> +			sgs[outcnt + incnt++] = &msg_buf;
+>> +		} else {
+>> +			memcpy(reqs[i].buf, msgs[i].buf, msgs[i].len);
+>> +			sgs[outcnt++] = &msg_buf;
+>> +		}
+>> +
+>> +		sg_init_one(&in_hdr, &reqs[i].in_hdr, sizeof(reqs[i].in_hdr));
+>> +		sgs[outcnt + incnt++] = &in_hdr;
+>> +
+>> +		err = virtqueue_add_sgs(vq, sgs, outcnt, incnt, &reqs[i], GFP_KERNEL);
+>> +		if (err < 0) {
+>> +			pr_err("failed to add msg[%d] to virtqueue.\n", i);
+>> +			kfree(reqs[i].buf);
+>> +			reqs[i].buf = NULL;
+>> +			break;
+>> +		}
+>> +	}
+>> +
+>> +	return i;
+>> +}
+>> +
+>> +static int virtio_i2c_complete_reqs(struct virtqueue *vq,
+>> +					struct virtio_i2c_req *reqs,
+>> +					struct i2c_msg *msgs, int nr)
+>> +{
+>> +	struct virtio_i2c_req *req;
+>> +	unsigned int len;
+>> +	int i;
+>> +
+>> +	for (i = 0; i < nr; i++) {
+>> +		req = (struct virtio_i2c_req *)virtqueue_get_buf(vq, &len);
+> No need of cast here since return type is void *.
+Right. Thank you.
+>
+>> +		if (!(req && req == &reqs[i])) {
+> I find this less readable compared to:
+> 		if (!req || req != &reqs[i]) {
 
-> >> +
-> >> +static int
-> >> +hv_call_create_partition(
-> >> +		u64 flags,
-> >> +		struct hv_partition_creation_properties creation_properties,
-> >> +		u64 *partition_id)
-> >> +{
-> >> +	struct hv_create_partition_in *input;
-> >> +	struct hv_create_partition_out *output;
-> >> +	int status;
-> >> +	int ret;
-> >> +	unsigned long irq_flags;
-> >> +	int i;
-> >> +
-> >> +	do {
-> >> +		local_irq_save(irq_flags);
-> >> +		input = (struct hv_create_partition_in *)(*this_cpu_ptr(
-> >> +			hyperv_pcpu_input_arg));
-> >> +		output = (struct hv_create_partition_out *)(*this_cpu_ptr(
-> >> +			hyperv_pcpu_output_arg));
-> >> +
-> >> +		input->flags = flags;
-> >> +		input->proximity_domain_info.as_uint64 = 0;
-> >> +		input->compatibility_version = HV_COMPATIBILITY_MANGANESE;
-> >> +		for (i = 0; i < HV_PARTITION_PROCESSOR_FEATURE_BANKS; ++i)
-> >> +			input->partition_creation_properties
-> >> +				.disabled_processor_features.as_uint64[i] = 0;
-> >> +		input->partition_creation_properties
-> >> +			.disabled_processor_xsave_features.as_uint64 = 0;
-> >> +		input->isolation_properties.as_uint64 = 0;
-> >> +
-> >> +		status = hv_do_hypercall(HVCALL_CREATE_PARTITION,
-> >> +					 input, output);
-> >
-> > hv_do_hypercall returns a u64, which should then be masked with
-> > HV_HYPERCALL_RESULT_MASK before checking the result.
-> >
-> 
-> Yes, I'll fix this everywhere.
-> 
-> >> +		if (status != HV_STATUS_INSUFFICIENT_MEMORY) {
-> >> +			if (status == HV_STATUS_SUCCESS)
-> >> +				*partition_id = output->partition_id;
-> >> +			else
-> >> +				pr_err("%s: %s\n",
-> >> +				       __func__, hv_status_to_string(status));
-> >> +			local_irq_restore(irq_flags);
-> >> +			ret = -hv_status_to_errno(status);
-> >> +			break;
-> >> +		}
-> >> +		local_irq_restore(irq_flags);
-> >> +		ret = hv_call_deposit_pages(NUMA_NO_NODE,
-> >> +					    hv_current_partition_id, 1);
-> >> +	} while (!ret);
-> >> +
-> >> +	return ret;
-> >> +}
-> >> +
+Different people may have different tastes.
 
-I had a separate thread on the linux-hyperv mailing list about the
-inconsistency in how we check hypercall status in current upstream
-code, and proposed some helper functions to make it easier and
-more consistent.  Joe Salisbury has started work on a patch to
-provide those helper functions and to start using them in current
-upstream code.  You could coordinate with Joe to get the helper
-functions as well and use them as discussed in that thread.  Then
-later on we won't have to come back and fix up the uses in this
-patch series.
+Please check Andy's comment in this link.
 
-Michael
+https://lists.linuxfoundation.org/pipermail/virtualization/2020-September/049933.html
+
+>
+>> +			pr_err("msg[%d]: addr=0x%x virtqueue error.\n", i, msgs[i].addr);
+>> +			break;
+>> +		}
+>> +
+>> +		if (req->in_hdr.status != VIRTIO_I2C_MSG_OK) {
+>> +			pr_err("msg[%d]: addr=0x%x backend error.\n", i, msgs[i].addr);
+>> +			break;
+>> +		}
+> For all the above errors where you simply break out, you still need to free the
+> memory for buf, right ?
+Will try to use reqs[i].buf = msgs[i].buf to avoid allocation.
+>> +
+>> +		if (msgs[i].flags & I2C_M_RD)
+>> +			memcpy(msgs[i].buf, req->buf, msgs[i].len);
+>> +
+>> +		kfree(req->buf);
+>> +		req->buf = NULL;
+>> +	}
+>> +
+>> +	return i;
+>> +}
+>> +
+>> +static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+>> +{
+>> +	struct virtio_i2c *vi = i2c_get_adapdata(adap);
+>> +	struct virtqueue *vq = vi->vq;
+>> +	struct virtio_i2c_req *reqs;
+>> +	unsigned long time_left;
+>> +	int ret, nr;
+>> +
+>> +	reqs = kcalloc(num, sizeof(*reqs), GFP_KERNEL);
+>> +	if (!reqs)
+>> +		return -ENOMEM;
+>> +
+>> +	mutex_lock(&vi->i2c_lock);
+> I have never worked with i2c stuff earlier, but I don't think you need a lock
+> here. The transactions seem to be serialized by the i2c-core by itself (look at
+> i2c_transfer() in i2c-core-base.c), though there is another exported version
+> __i2c_transfer() but the comment over it says the callers must take adapter lock
+> before calling it.
+Lock is needed since no "lock_ops" is registered in this i2c_adapter.
+>
+>> +
+>> +	ret = virtio_i2c_send_reqs(vq, reqs, msgs, num);
+>> +	if (ret == 0)
+>> +		goto err_unlock_free;
+>> +
+>> +	nr = ret;
+>> +
+>> +	virtqueue_kick(vq);
+>> +
+>> +	time_left = wait_for_completion_timeout(&vi->completion, adap->timeout);
+>> +	if (!time_left) {
+>> +		dev_err(&adap->dev, "virtio i2c backend timeout.\n");
+>> +		ret = -ETIMEDOUT;
+> You need to free bufs of the requests here as well..
+>
+>> +		goto err_unlock_free;
+>> +	}
+>> +
+>> +	ret = virtio_i2c_complete_reqs(vq, reqs, msgs, nr);
+>> +
+>> +	reinit_completion(&vi->completion);
+>> +
+>> +err_unlock_free:
+>> +	mutex_unlock(&vi->i2c_lock);
+>> +	kfree(reqs);
+>> +	return ret;
+>> +}
+>> +
+>> +static void virtio_i2c_del_vqs(struct virtio_device *vdev)
+>> +{
+>> +	vdev->config->reset(vdev);
+>> +	vdev->config->del_vqs(vdev);
+>> +}
+>> +
+>> +static int virtio_i2c_setup_vqs(struct virtio_i2c *vi)
+>> +{
+>> +	struct virtio_device *vdev = vi->vdev;
+>> +
+>> +	vi->vq = virtio_find_single_vq(vdev, virtio_i2c_msg_done, "msg");
+>> +	return PTR_ERR_OR_ZERO(vi->vq);
+>> +}
+>> +
+>> +static u32 virtio_i2c_func(struct i2c_adapter *adap)
+>> +{
+>> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+>> +}
+>> +
+>> +static struct i2c_algorithm virtio_algorithm = {
+>> +	.master_xfer = virtio_i2c_xfer,
+>> +	.functionality = virtio_i2c_func,
+>> +};
+>> +
+>> +static struct i2c_adapter virtio_adapter = {
+>> +	.owner = THIS_MODULE,
+>> +	.name = "Virtio I2C Adapter",
+>> +	.class = I2C_CLASS_DEPRECATED,
+> Why are we using something that is deprecated here ?
+Warn users that the adapter doesn't support classes anymore.
+>
+>> +	.algo = &virtio_algorithm,
+>> +};
+>> +
+>> +static int virtio_i2c_probe(struct virtio_device *vdev)
+>> +{
+>> +	struct device *pdev = vdev->dev.parent;
+>> +	struct virtio_i2c *vi;
+>> +	int ret;
+>> +
+>> +	vi = devm_kzalloc(&vdev->dev, sizeof(*vi), GFP_KERNEL);
+>> +	if (!vi)
+>> +		return -ENOMEM;
+>> +
+>> +	vdev->priv = vi;
+>> +	vi->vdev = vdev;
+>> +
+>> +	mutex_init(&vi->i2c_lock);
+>> +	init_completion(&vi->completion);
+>> +
+>> +	ret = virtio_i2c_setup_vqs(vi);
+>> +	if (ret)
+>> +		return ret;
+>> +
+>> +	vi->adap = virtio_adapter;
+>> +	i2c_set_adapdata(&vi->adap, vi);
+>> +	vi->adap.dev.parent = &vdev->dev;
+> better add a blank line here.
+OK.
+>> +	/* Setup ACPI node for controlled devices which will be probed through ACPI */
+>> +	ACPI_COMPANION_SET(&vi->adap.dev, ACPI_COMPANION(pdev));
+>> +	vi->adap.timeout = HZ / 10;
+>> +
+>> +	ret = i2c_add_adapter(&vi->adap);
+>> +	if (ret) {
+>> +		virtio_i2c_del_vqs(vdev);
+>> +		dev_err(&vdev->dev, "failed to add virtio-i2c adapter.\n");
+>> +	}
+>> +
+>> +	return ret;
+>> +}
+>> +
+>> +static void virtio_i2c_remove(struct virtio_device *vdev)
+>> +{
+>> +	struct virtio_i2c *vi = vdev->priv;
+>> +
+>> +	i2c_del_adapter(&vi->adap);
+>> +	virtio_i2c_del_vqs(vdev);
+>> +}
+>> +
+>> +static struct virtio_device_id id_table[] = {
+>> +	{ VIRTIO_ID_I2C_ADPTER, VIRTIO_DEV_ANY_ID },
+>> +	{}
+>> +};
+>> +MODULE_DEVICE_TABLE(virtio, id_table);
+>> +
+>> +static int __maybe_unused virtio_i2c_freeze(struct virtio_device *vdev)
+>> +{
+>> +	virtio_i2c_del_vqs(vdev);
+>> +	return 0;
+>> +}
+>> +
+>> +static int __maybe_unused virtio_i2c_restore(struct virtio_device *vdev)
+>> +{
+>> +	return virtio_i2c_setup_vqs(vdev->priv);
+>> +}
+>> +
+>> +static struct virtio_driver virtio_i2c_driver = {
+>> +	.id_table	= id_table,
+>> +	.probe		= virtio_i2c_probe,
+>> +	.remove		= virtio_i2c_remove,
+>> +	.driver	= {
+>> +		.name	= "i2c_virtio",
+>> +	},
+>> +#ifdef CONFIG_PM_SLEEP
+>> +	.freeze = virtio_i2c_freeze,
+>> +	.restore = virtio_i2c_restore,
+>> +#endif
+>> +};
+>> +module_virtio_driver(virtio_i2c_driver);
+>> +
+>> +MODULE_DESCRIPTION("Virtio i2c bus driver");
+> You can add module-author as well here.
+Sure. I'm glad to do that.
+>> +MODULE_LICENSE("GPL");
+>> diff --git a/include/uapi/linux/virtio_i2c.h b/include/uapi/linux/virtio_i2c.h
+>> new file mode 100644
+>> index 0000000..00f4508
+>> --- /dev/null
+>> +++ b/include/uapi/linux/virtio_i2c.h
+>> @@ -0,0 +1,42 @@
+>> +/* SPDX-License-Identifier: GPL-2.0-or-later WITH Linux-syscall-note */
+>> +/*
+>> + * Definitions for virtio I2C Adpter
+>> + *
+>> + * Copyright (c) 2021 Intel Corporation. All rights reserved.
+>> + */
+>> +
+>> +#ifndef _UAPI_LINUX_VIRTIO_I2C_H
+>> +#define _UAPI_LINUX_VIRTIO_I2C_H
+>> +
+>> +#include <linux/types.h>
+>> +#include <linux/virtio_ids.h>
+>> +#include <linux/virtio_config.h>
+> Any file (header or c) should only include what it directly needs and nothing
+> else. And so you should need only types.h here and nothing else.
+OK.
+>> +
+>> +/**
+>> + * struct virtio_i2c_out_hdr - the virtio I2C message OUT header
+>> + * @addr: the controlled device address
+>> + * @padding: used to pad to full dword
+>> + * @flags: used for feature extensibility
+>> + */
+>> +struct virtio_i2c_out_hdr {
+>> +	__le16 addr;
+>> +	__le16 padding;
+>> +	__le32 flags;
+>> +};
+> It might be worth setting __packed for the structures here, even when we have
+> taken care of padding ourselves, for both the structures..
+Please check Michael's comment https://lkml.org/lkml/2020/9/3/339.
+I agreed to remove "__packed" .
+>> +
+>> +/* The bit 0 of the @virtio_i2c_out_hdr.@flags, used to group the requests */
+>> +#define VIRTIO_I2C_FLAGS_FAIL_NEXT	0x00000001
+>> +
+> I would define this before the above structure.
+OK.
+>> +/**
+>> + * struct virtio_i2c_in_hdr - the virtio I2C message IN header
+>> + * @status: the processing result from the backend
+>> + */
+>> +struct virtio_i2c_in_hdr {
+>> +	u8 status;
+>> +};
+>> +
+>> +/* The final status written by the device */
+>> +#define VIRTIO_I2C_MSG_OK	0
+>> +#define VIRTIO_I2C_MSG_ERR	1
+>> +
+>> +#endif /* _UAPI_LINUX_VIRTIO_I2C_H */
+>> diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
+>> index bc1c062..6ae32db 100644
+>> --- a/include/uapi/linux/virtio_ids.h
+>> +++ b/include/uapi/linux/virtio_ids.h
+>> @@ -54,5 +54,6 @@
+>>   #define VIRTIO_ID_FS			26 /* virtio filesystem */
+>>   #define VIRTIO_ID_PMEM			27 /* virtio pmem */
+>>   #define VIRTIO_ID_MAC80211_HWSIM	29 /* virtio mac80211-hwsim */
+>> +#define VIRTIO_ID_I2C_ADPTER		34 /* virtio i2c adpter */
+>>   
+>>   #endif /* _LINUX_VIRTIO_IDS_H */
+> Thanks for yet another version Jie.
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
