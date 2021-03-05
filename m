@@ -2,104 +2,90 @@ Return-Path: <SRS0=gmSK=ID=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-2.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,HTML_MESSAGE,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36E6BC433DB
-	for <virtualization@archiver.kernel.org>; Fri,  5 Mar 2021 06:52:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55C5BC433E9
+	for <virtualization@archiver.kernel.org>; Fri,  5 Mar 2021 07:01:07 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C987765016
-	for <virtualization@archiver.kernel.org>; Fri,  5 Mar 2021 06:52:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C987765016
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id C9C7465009
+	for <virtualization@archiver.kernel.org>; Fri,  5 Mar 2021 07:01:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C9C7465009
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 7F45B6F4C8;
-	Fri,  5 Mar 2021 06:52:07 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7F12C6F488;
+	Fri,  5 Mar 2021 07:01:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Jyt8H1ZfvVMH; Fri,  5 Mar 2021 06:52:06 +0000 (UTC)
+	with ESMTP id PbT8-Q6iQLib; Fri,  5 Mar 2021 07:01:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id EFB516F47C;
-	Fri,  5 Mar 2021 06:52:05 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1936A6F56B;
+	Fri,  5 Mar 2021 07:01:05 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D31AEC000B;
-	Fri,  5 Mar 2021 06:52:05 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DF869C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F05A0C000B;
+	Fri,  5 Mar 2021 07:01:04 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 952E1C0001
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Mar 2021 06:52:04 +0000 (UTC)
+ Fri,  5 Mar 2021 07:01:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C5DFC4314A
+ by smtp3.osuosl.org (Postfix) with ESMTP id 910936F555
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Mar 2021 06:52:04 +0000 (UTC)
+ Fri,  5 Mar 2021 07:01:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id AJCR-1lPpUlz
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id aCdBk-CQWPHD
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Mar 2021 06:52:03 +0000 (UTC)
+ Fri,  5 Mar 2021 07:01:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 5BE0F43095
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7AA496F488
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Mar 2021 06:52:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1614927122;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=hMoNnn3UtTE0eoUCDwOe0zJmsgQzeuz9TyT/WXTFzF4=;
- b=VrkdiqQj4E41J7vCsi1A2+HDLp+tt3LVAA/uMGjQuYTgTQHn4xB2Wp8r4jT+ro8Qfv0lOO
- f3coX2Yl9x00Wj/PC4Sv2DQCuoBL9YVeDfdGgSrvZhM/0jyzx85krsmSUeJVxZteawTKsw
- ZEnSlZ4Beeofp5QC8XeTDzLwfAPNasI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-347-39KVD8d9PSKq0oPJeYKS2A-1; Fri, 05 Mar 2021 01:51:59 -0500
-X-MC-Unique: 39KVD8d9PSKq0oPJeYKS2A-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4AB2D84BA40;
- Fri,  5 Mar 2021 06:51:57 +0000 (UTC)
-Received: from wangxiaodeMacBook-Air.local (ovpn-12-165.pek2.redhat.com
- [10.72.12.165])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 643966E51D;
- Fri,  5 Mar 2021 06:51:44 +0000 (UTC)
-Subject: Re: [RFC v4 06/11] vduse: Implement an MMU-based IOMMU driver
-To: Yongji Xie <xieyongji@bytedance.com>
-References: <20210223115048.435-1-xieyongji@bytedance.com>
- <20210223115048.435-7-xieyongji@bytedance.com>
- <573ab913-55ce-045a-478f-1200bd78cf7b@redhat.com>
- <CACycT3sVhDKKu4zGbt1Lw-uWfKDAWs=O=C7kXXcuSnePohmBdQ@mail.gmail.com>
- <c173b7ec-8c90-d0e3-7272-a56aa8935e64@redhat.com>
- <CACycT3vb=WyrMpiOOdVDGEh8cEDb-xaj1esQx2UEQpJnOOWhmw@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <4db35f8c-ee3a-90fb-8d14-5d6014b4f6fa@redhat.com>
-Date: Fri, 5 Mar 2021 14:51:42 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.16; rv:78.0)
- Gecko/20100101 Thunderbird/78.8.0
+ Fri,  5 Mar 2021 07:01:02 +0000 (UTC)
+IronPort-SDR: BHg102khQykSKKLsdAtAEO1EOQdmMu9kIfLgQpRW6c4m6kGLEQgPzDgVZmnCF+kAwjsIObqRHf
+ f1YDDWA9YHUA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9913"; a="186943473"
+X-IronPort-AV: E=Sophos;i="5.81,224,1610438400"; d="scan'208";a="186943473"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+ by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 04 Mar 2021 23:01:01 -0800
+IronPort-SDR: /7nGj5Vjksw9JwiZXJVzVDqvU2I8GUq6xo6QwAbMNT25Wo/7ApPJscvq12vRqtu1a3k7zvAsu9
+ nUrpCrTQVS5g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.81,224,1610438400"; d="scan'208";a="597681840"
+Received: from unknown (HELO [10.239.154.55]) ([10.239.154.55])
+ by fmsmga006.fm.intel.com with ESMTP; 04 Mar 2021 23:00:52 -0800
+Subject: Re: [PATCH v6] i2c: virtio: add a virtio i2c frontend driver
+To: Viresh Kumar <viresh.kumar@linaro.org>
+References: <9a2086f37c0a62069b67c39a3f75941b78a0039c.1614749417.git.jie.deng@intel.com>
+ <20210304060638.7qes424vvdmptz5c@vireshk-i7>
+ <f3f4aaf8-521c-3e9e-4757-97f2e33e44f6@intel.com>
+ <20210305030916.trb35i53rzwf6kyn@vireshk-i7>
+From: Jie Deng <jie.deng@intel.com>
+Message-ID: <669d3c4e-d69b-1e0d-6625-ce7d0832c108@intel.com>
+Date: Fri, 5 Mar 2021 15:00:51 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.7.0
 MIME-Version: 1.0
-In-Reply-To: <CACycT3vb=WyrMpiOOdVDGEh8cEDb-xaj1esQx2UEQpJnOOWhmw@mail.gmail.com>
-Content-Language: en-GB
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-Cc: Jens Axboe <axboe@kernel.dk>, Jonathan Corbet <corbet@lwn.net>,
- kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-aio@kvack.org, netdev@vger.kernel.org,
- Randy Dunlap <rdunlap@infradead.org>, Matthew Wilcox <willy@infradead.org>,
- virtualization@lists.linux-foundation.org,
- Christoph Hellwig <hch@infradead.org>, Bob Liu <bob.liu@oracle.com>,
- bcrl@kvack.org, viro@zeniv.linux.org.uk, Stefan Hajnoczi <stefanha@redhat.com>,
- linux-fsdevel@vger.kernel.org
+In-Reply-To: <20210305030916.trb35i53rzwf6kyn@vireshk-i7>
+Content-Language: en-US
+Cc: mst@redhat.com, bjorn.andersson@linaro.org,
+ wsa+renesas@sang-engineering.com, linux-i2c@vger.kernel.org, wsa@kernel.org,
+ andriy.shevchenko@linux.intel.com,
+ Vincent Guittot <vincent.guittot@linaro.org>, yu1.wang@intel.com,
+ u.kleine-koenig@pengutronix.de, kblaiech@mellanox.com,
+ virtualization@lists.linux-foundation.org, arnd@arndb.de, stefanha@redhat.com,
+ tali.perry1@gmail.com, conghui.chen@intel.com, loic.poulain@linaro.org,
+ linux-kernel@vger.kernel.org, Sergey.Semin@baikalelectronics.ru,
+ jarkko.nikula@linux.intel.com, shuo.a.liu@intel.com, pbonzini@redhat.com,
+ rppt@kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,210 +97,140 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============7763103661306424560=="
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is a multi-part message in MIME format.
---===============7763103661306424560==
-Content-Type: multipart/alternative;
- boundary="------------221DE0FC8498420CEF606DFD"
-Content-Language: en-GB
 
-This is a multi-part message in MIME format.
---------------221DE0FC8498420CEF606DFD
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-
-
-On 2021/3/5 2:15 下午, Yongji Xie wrote:
->>>> Sorry if I've asked this before.
->>>>
->>>> But what's the reason for maintaing a dedicated IOTLB here? I think we
->>>> could reuse vduse_dev->iommu since the device can not be used by both
->>>> virtio and vhost in the same time or use vduse_iova_domain->iotlb for
->>>> set_map().
->>>>
->>> The main difference between domain->iotlb and dev->iotlb is the way to
->>> deal with bounce buffer. In the domain->iotlb case, bounce buffer
->>> needs to be mapped each DMA transfer because we need to get the bounce
->>> pages by an IOVA during DMA unmapping. In the dev->iotlb case, bounce
->>> buffer only needs to be mapped once during initialization, which will
->>> be used to tell userspace how to do mmap().
->>>
->>>> Also, since vhost IOTLB support per mapping token (opauqe), can we use
->>>> that instead of the bounce_pages *?
->>>>
->>> Sorry, I didn't get you here. Which value do you mean to store in the
->>> opaque pointer？
->> So I would like to have a way to use a single IOTLB for manage all kinds
->> of mappings. Two possible ideas:
+On 2021/3/5 11:09, Viresh Kumar wrote:
+> On 05-03-21, 09:46, Jie Deng wrote:
+>> On 2021/3/4 14:06, Viresh Kumar wrote:
+>>> depends on I2C as well ?
+>> No need that. The dependency of I2C is included in the Kconfig in its parent
+>> directory.
+> Sorry about that, I must have figured that out myself.
+>
+> (Though a note on the way we reply to messages, please leave an empty line
+> before and after your messages, it gets difficult to find the inline replies
+> otherwise. )
+>
+>>>> +		if (!(req && req == &reqs[i])) {
+>>> I find this less readable compared to:
+>>> 		if (!req || req != &reqs[i]) {
+>> Different people may have different tastes.
 >>
->> 1) map bounce page one by one in vduse_dev_map_page(), in
->> VDUSE_IOTLB_GET_FD, try to merge the result if we had the same fd. Then
->> for bounce pages, userspace still only need to map it once and we can
->> maintain the actual mapping by storing the page or pa in the opaque
->> field of IOTLB entry.
-> Looks like userspace still needs to unmap the old region and map a new
-> region (size is changed) with the fd in each VDUSE_IOTLB_GET_FD ioctl.
-
-
-I don't get here. Can you give an example?
-
-
->
->> 2) map bounce page once in vduse_dev_map_page() and store struct page
->> **bounce_pages in the opaque field of this single IOTLB entry.
+>> Please check Andy's comment in this link.
 >>
-> We can get the struct page **bounce_pages from vduse_iova_domain. Why
-> do we need to store it in the opaque field?  Should the opaque field
-> be used to store vdpa_map_file?
-
-
-Oh yes, you're right.
-
-
+>> https://lists.linuxfoundation.org/pipermail/virtualization/2020-September/049933.html
+> Heh, everyone wants you to do it differently :)
 >
-> And I think it works. One problem is we need to find a place to store
-> the original DMA buffer's address and size. I think we can modify the
-> array of bounce_pages for this purpose.
+> If we leave compilers optimizations aside (because it will generate the exact
+> same code for both the cases, I tested it as well to be doubly sure), The
+> original statement used in this patch has 3 conditional statements in it and the
+> way I suggested has only two.
 >
-> Thanks,
-> Yongji
-
-
-Yes.
-
-Thanks
-
-
+> Andy, thoughts ?
 >
-
---------------221DE0FC8498420CEF606DFD
-Content-Type: text/html; charset=utf-8
-Content-Transfer-Encoding: 8bit
-
-<html>
-  <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  </head>
-  <body>
-    <p><br>
-    </p>
-    <div class="moz-cite-prefix">On 2021/3/5 2:15 下午, Yongji Xie wrote:<br>
-    </div>
-    <blockquote type="cite"
-cite="mid:CACycT3vb=WyrMpiOOdVDGEh8cEDb-xaj1esQx2UEQpJnOOWhmw@mail.gmail.com">
-      <blockquote type="cite" style="color: #007cff;">
-        <blockquote type="cite" style="color: #007cff;">
-          <blockquote type="cite" style="color: #007cff;">
-            <pre class="moz-quote-pre" wrap="">Sorry if I've asked this before.
-
-But what's the reason for maintaing a dedicated IOTLB here? I think we
-could reuse vduse_dev-&gt;iommu since the device can not be used by both
-virtio and vhost in the same time or use vduse_iova_domain-&gt;iotlb for
-set_map().
-
-</pre>
-          </blockquote>
-          <pre class="moz-quote-pre" wrap="">The main difference between domain-&gt;iotlb and dev-&gt;iotlb is the way to
-deal with bounce buffer. In the domain-&gt;iotlb case, bounce buffer
-needs to be mapped each DMA transfer because we need to get the bounce
-pages by an IOVA during DMA unmapping. In the dev-&gt;iotlb case, bounce
-buffer only needs to be mapped once during initialization, which will
-be used to tell userspace how to do mmap().
-
-</pre>
-          <blockquote type="cite" style="color: #007cff;">
-            <pre class="moz-quote-pre" wrap="">Also, since vhost IOTLB support per mapping token (opauqe), can we use
-that instead of the bounce_pages *?
-
-</pre>
-          </blockquote>
-          <pre class="moz-quote-pre" wrap="">Sorry, I didn't get you here. Which value do you mean to store in the
-opaque pointer？
-</pre>
-        </blockquote>
-        <pre class="moz-quote-pre" wrap="">
-So I would like to have a way to use a single IOTLB for manage all kinds
-of mappings. Two possible ideas:
-
-1) map bounce page one by one in vduse_dev_map_page(), in
-VDUSE_IOTLB_GET_FD, try to merge the result if we had the same fd. Then
-for bounce pages, userspace still only need to map it once and we can
-maintain the actual mapping by storing the page or pa in the opaque
-field of IOTLB entry.
-</pre>
-      </blockquote>
-      <pre class="moz-quote-pre" wrap="">Looks like userspace still needs to unmap the old region and map a new
-region (size is changed) with the fd in each VDUSE_IOTLB_GET_FD ioctl.</pre>
-    </blockquote>
-    <p><br>
-    </p>
-    <p>I don't get here. Can you give an example?<br>
-    </p>
-    <p><br>
-    </p>
-    <blockquote type="cite"
-cite="mid:CACycT3vb=WyrMpiOOdVDGEh8cEDb-xaj1esQx2UEQpJnOOWhmw@mail.gmail.com">
-      <pre class="moz-quote-pre" wrap="">
-
-</pre>
-      <blockquote type="cite" style="color: #007cff;">
-        <pre class="moz-quote-pre" wrap="">2) map bounce page once in vduse_dev_map_page() and store struct page
-**bounce_pages in the opaque field of this single IOTLB entry.
-
-</pre>
-      </blockquote>
-      <pre class="moz-quote-pre" wrap="">We can get the struct page **bounce_pages from vduse_iova_domain. Why
-do we need to store it in the opaque field?  Should the opaque field
-be used to store vdpa_map_file?</pre>
-    </blockquote>
-    <p><br>
-    </p>
-    <p>Oh yes, you're right.<br>
-    </p>
-    <p><br>
-    </p>
-    <blockquote type="cite"
-cite="mid:CACycT3vb=WyrMpiOOdVDGEh8cEDb-xaj1esQx2UEQpJnOOWhmw@mail.gmail.com">
-      <pre class="moz-quote-pre" wrap="">
-
-And I think it works. One problem is we need to find a place to store
-the original DMA buffer's address and size. I think we can modify the
-array of bounce_pages for this purpose.
-
-Thanks,
-Yongji</pre>
-    </blockquote>
-    <p><br>
-    </p>
-    <p>Yes.</p>
-    <p>Thanks<br>
-    </p>
-    <p><br>
-    </p>
-    <blockquote type="cite"
-cite="mid:CACycT3vb=WyrMpiOOdVDGEh8cEDb-xaj1esQx2UEQpJnOOWhmw@mail.gmail.com">
-      <pre class="moz-quote-pre" wrap="">
-
-</pre>
-    </blockquote>
-  </body>
-</html>
-
---------------221DE0FC8498420CEF606DFD--
+> And anyway, this isn't biggest of my worries, just that I had to notice it
+> somehow :)
+>
+>>> For all the above errors where you simply break out, you still need to free the
+>>> memory for buf, right ?
+>> Will try to use reqs[i].buf = msgs[i].buf to avoid allocation.
+> I think it would be better to have all such deallocations done at a single
+> place, i.e. after the completion callback is finished.. Trying to solve this
+> everywhere is going to make this more messy.
 
 
---===============7763103661306424560==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+I think there is no need to have allocations/deallocations/memcpy for 
+reqs[i].buf any more
+if using msgs[i].buf directly.
 
+
+>>>> +	mutex_lock(&vi->i2c_lock);
+>>> I have never worked with i2c stuff earlier, but I don't think you need a lock
+>>> here. The transactions seem to be serialized by the i2c-core by itself (look at
+>>> i2c_transfer() in i2c-core-base.c), though there is another exported version
+>>> __i2c_transfer() but the comment over it says the callers must take adapter lock
+>>> before calling it.
+>> Lock is needed since no "lock_ops" is registered in this i2c_adapter.
+> drivers/i2c/i2c-core-base.c:
+>
+> static int i2c_register_adapter(struct i2c_adapter *adap)
+> {
+>          ...
+>
+>          if (!adap->lock_ops)
+>                  adap->lock_ops = &i2c_adapter_lock_ops;
+>
+>          ...
+> }
+>
+> This should take care of it ?
+
+
+The problem is that you can't guarantee that adap->algo->master_xfer is 
+only called
+from i2c_transfer. Any function who holds the adapter can call 
+adap->algo->master_xfer
+directly. So I think it is safer to have a lock in virtio_i2c_xfer.
+
+
+>>>> +
+>>>> +	ret = virtio_i2c_send_reqs(vq, reqs, msgs, num);
+>>>> +	if (ret == 0)
+>>>> +		goto err_unlock_free;
+>>>> +
+>>>> +	nr = ret;
+>>>> +
+>>>> +	virtqueue_kick(vq);
+>>>> +
+>>>> +	time_left = wait_for_completion_timeout(&vi->completion, adap->timeout);
+>>>> +	if (!time_left) {
+>>>> +		dev_err(&adap->dev, "virtio i2c backend timeout.\n");
+>>>> +		ret = -ETIMEDOUT;
+>>> You need to free bufs of the requests here as well..
+> Just want to make sure you didn't miss this comment.
+
+
+Will try to use msgs[i].buf directly. So it should be no free bufs any more.
+
+
+>>>> +static struct i2c_adapter virtio_adapter = {
+>>>> +	.owner = THIS_MODULE,
+>>>> +	.name = "Virtio I2C Adapter",
+>>>> +	.class = I2C_CLASS_DEPRECATED,
+>>> Why are we using something that is deprecated here ?
+>> Warn users that the adapter doesn't support classes anymore.
+> So this is the right thing to do? Or this is what we expect from new drivers?
+> Sorry, I am just new to this stuff and so...
+
+
+https://patchwork.ozlabs.org/project/linux-i2c/patch/20170729121143.3980-1-wsa@the-dreams.de/
+
+
+>>>> +struct virtio_i2c_out_hdr {
+>>>> +	__le16 addr;
+>>>> +	__le16 padding;
+>>>> +	__le32 flags;
+>>>> +};
+>>> It might be worth setting __packed for the structures here, even when we have
+>>> taken care of padding ourselves, for both the structures..
+>> Please check Michael's comment https://lkml.org/lkml/2020/9/3/339.
+>> I agreed to remove "__packed" .
+> When Michael commented the structure looked like this:
+>
+> Actually it can be ignored as the compiler isn't going to add any padding by
+> itself in this case (since you already took care of it) as the structure will be
+> aligned to the size of the biggest element here. I generally consider it to be a
+> good coding-style to make sure we don't add any unwanted stuff in there by
+> mistake.
+>
+> Anyway, we can see it in future if this is going to be required or not, if and
+> when we add new fields here.
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7763103661306424560==--
-
