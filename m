@@ -2,115 +2,95 @@ Return-Path: <SRS0=gmSK=ID=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A55B8C433E0
-	for <virtualization@archiver.kernel.org>; Fri,  5 Mar 2021 09:18:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3297FC433E0
+	for <virtualization@archiver.kernel.org>; Fri,  5 Mar 2021 09:40:04 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2CFA664F45
-	for <virtualization@archiver.kernel.org>; Fri,  5 Mar 2021 09:18:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2CFA664F45
+	by mail.kernel.org (Postfix) with ESMTPS id 8EA5064FCF
+	for <virtualization@archiver.kernel.org>; Fri,  5 Mar 2021 09:40:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8EA5064FCF
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id CDA346FB57;
-	Fri,  5 Mar 2021 09:18:54 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2ACC66FB6B;
+	Fri,  5 Mar 2021 09:40:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Hl_e8M9T0k2r; Fri,  5 Mar 2021 09:18:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 84F566F5A8;
-	Fri,  5 Mar 2021 09:18:53 +0000 (UTC)
+	with ESMTP id JZKFEMFYLwun; Fri,  5 Mar 2021 09:40:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTP id CCF006E548;
+	Fri,  5 Mar 2021 09:40:01 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 691F6C000A;
-	Fri,  5 Mar 2021 09:18:53 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E8BF0C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A47A6C000A;
+	Fri,  5 Mar 2021 09:40:01 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7A165C0001
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Mar 2021 09:18:51 +0000 (UTC)
+ Fri,  5 Mar 2021 09:40:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D753443095
+ by smtp4.osuosl.org (Postfix) with ESMTP id 67E6A4EC3D
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Mar 2021 09:18:51 +0000 (UTC)
+ Fri,  5 Mar 2021 09:40:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nJ_XfBLkYQXp
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gkmbtkCYvKJy
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Mar 2021 09:18:46 +0000 (UTC)
+ Fri,  5 Mar 2021 09:39:59 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 567EA432E9
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 7417D4EC30
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Mar 2021 09:18:46 +0000 (UTC)
+ Fri,  5 Mar 2021 09:39:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1614935925;
+ s=mimecast20190719; t=1614937198;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=cAq6+R4omWqyip9PJ9aVfNyoU1PYQDYL/jyjusPSWNI=;
- b=FMDit5NAERBPb/b+4RxbczaS8A12LHEI7xx0k0DZZMeiEX0Mzp12kR1kIXo3N7Tc05n1TH
- frpWmYE1kwDO3nrF47yK3yLyvLOT3LIqseM0L62jzS94QggS7siUpP+DvW2avVpoSCUGKP
- K2Z+enLxgOGkeWhgq/c7TtY18sgaszI=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-408-vAI-CrYlPFKRRaATMiX-jA-1; Fri, 05 Mar 2021 04:18:41 -0500
-X-MC-Unique: vAI-CrYlPFKRRaATMiX-jA-1
-Received: by mail-ed1-f72.google.com with SMTP id t27so644044edi.2
- for <virtualization@lists.linux-foundation.org>;
- Fri, 05 Mar 2021 01:18:41 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
- :message-id:mime-version;
- bh=cAq6+R4omWqyip9PJ9aVfNyoU1PYQDYL/jyjusPSWNI=;
- b=jQtfQvRHrWsR7/u4UwMeLCDN6Ru1N+McurTwWhUwdgDhsUKh+Cs5S7cQM9SEy/LlVq
- DbPTdSB/WlyVzfgqbi537KdgvHoS0mOnedan6BJrQjTEGps1YxTaRLyCxCKq4oiZwx2i
- kZL7P97whr8K40k+hLXjFUNmEsRSAQKjZ2YsR3PL6M1r9Gqgl3sWceIwpngHfv8bavTj
- M4ifPa9z62zvzbL+FL6uqzqdx6AT/+T6IahHm8Yc+dbE7smLIGBIa9EZ9sD7KTcWX4IU
- Ti9wuJ9akloEyQXsGVuawoUxwglVhotEY3xUpOCZhpnYuFVBlUeyHx1czzatjxAQgat1
- dtpQ==
-X-Gm-Message-State: AOAM5317iDOkq7B2Q9wAZmemV41jIoGC4NAAh3G+fdgMafLrNmJtcJCA
- VLGF8wJJL8DK7pAzF3uVQMJ+ChAuBJV7ZivnJDcD9C2RrxzsZwTvpo6A5qKCN4gKyZ8Y81/92xE
- w7eBMzRlTy+r5bxmsrCGmtep289Nne/C9gCE0VI/QKQ==
-X-Received: by 2002:a05:6402:b48:: with SMTP id
- bx8mr8583608edb.162.1614935920336; 
- Fri, 05 Mar 2021 01:18:40 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyXVfX0PnPVQKsPe9R9YUW7n4rJt0Uylzj8NB5VS7T55LlPe5QcWAL5+fw4IFfKrx7bsdqrHg==
-X-Received: by 2002:a05:6402:b48:: with SMTP id
- bx8mr8583591edb.162.1614935920177; 
- Fri, 05 Mar 2021 01:18:40 -0800 (PST)
-Received: from vitty.brq.redhat.com (g-server-2.ign.cz. [91.219.240.2])
- by smtp.gmail.com with ESMTPSA id t17sm1220844edr.36.2021.03.05.01.18.39
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 05 Mar 2021 01:18:39 -0800 (PST)
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
-To: Nuno Das Neves <nunodasneves@linux.microsoft.com>,
- linux-hyperv@vger.kernel.org
-Subject: Re: [RFC PATCH 04/18] virt/mshv: request version ioctl
-In-Reply-To: <194e0dad-495e-ae94-3f51-d2c95da52139@linux.microsoft.com>
-References: <1605918637-12192-1-git-send-email-nunodasneves@linux.microsoft.com>
- <1605918637-12192-5-git-send-email-nunodasneves@linux.microsoft.com>
- <87y2fxmlmb.fsf@vitty.brq.redhat.com>
- <194e0dad-495e-ae94-3f51-d2c95da52139@linux.microsoft.com>
-Date: Fri, 05 Mar 2021 10:18:38 +0100
-Message-ID: <87eeguc61d.fsf@vitty.brq.redhat.com>
+ bh=Q6N/JHvwR3DDe0EEB+dV0FhguwPKEzi443GmKZ0bZ4c=;
+ b=EgdvEfI/mfR1604gcY1vH3cIHaLnsp/gXNufyjUIEuL+Qzqv7Qx32uE7RjZe+i6acCCQmO
+ rJqib7VWlzVQnD5E+3s9i390c5iNm4jSstWXmG1six4si3rz62dWGcNRLnYjRr/SZmuVm+
+ yHcpAYzY6MzGcyt3YOwKd8i/ltpfzAE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-256-dgJAmS8ZNp2A4lgOGFa89w-1; Fri, 05 Mar 2021 04:39:56 -0500
+X-MC-Unique: dgJAmS8ZNp2A4lgOGFa89w-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
+ [10.5.11.22])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 26F4B108BD06;
+ Fri,  5 Mar 2021 09:39:55 +0000 (UTC)
+Received: from sirius.home.kraxel.org (ovpn-114-10.ams2.redhat.com
+ [10.36.114.10])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 54E051002382;
+ Fri,  5 Mar 2021 09:39:54 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+ id 5BEA018000AE; Fri,  5 Mar 2021 09:22:41 +0100 (CET)
+Date: Fri, 5 Mar 2021 09:22:41 +0100
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Colin King <colin.king@canonical.com>
+Subject: Re: [PATCH] qxl: Fix uninitialised struct field head.surface_id
+Message-ID: <20210305082241.dt53hczrvds3qoz2@sirius.home.kraxel.org>
+References: <20210304094928.2280722-1-colin.king@canonical.com>
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=vkuznets@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: wei.liu@kernel.org, linux-kernel@vger.kernel.org, mikelley@microsoft.com,
- sunilmut@microsoft.com, virtualization@lists.linux-foundation.org,
- viremana@linux.microsoft.com, ligrassi@microsoft.com
+Content-Disposition: inline
+In-Reply-To: <20210304094928.2280722-1-colin.king@canonical.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+Cc: David Airlie <airlied@linux.ie>, kernel-janitors@vger.kernel.org,
+ linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, Daniel Vetter <daniel@ffwll.ch>,
+ spice-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,77 +107,22 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Nuno Das Neves <nunodasneves@linux.microsoft.com> writes:
+On Thu, Mar 04, 2021 at 09:49:28AM +0000, Colin King wrote:
+> From: Colin Ian King <colin.king@canonical.com>
+> 
+> The surface_id struct field in head is not being initialized and
+> static analysis warns that this is being passed through to
+> dev->monitors_config->heads[i] on an assignment. Clear up this
+> warning by initializing it to zero.
+> 
+> Addresses-Coverity: ("Uninitialized scalar variable")
+> Fixes: a6d3c4d79822 ("qxl: hook monitors_config updates into crtc, not encoder.")
+> Signed-off-by: Colin Ian King <colin.king@canonical.com>
 
-> On 2/9/2021 5:11 AM, Vitaly Kuznetsov wrote:
->> Nuno Das Neves <nunodasneves@linux.microsoft.com> writes:
->> 
-...
->>> +
->>> +3.1 MSHV_REQUEST_VERSION
->>> +------------------------
->>> +:Type: /dev/mshv ioctl
->>> +:Parameters: pointer to a u32
->>> +:Returns: 0 on success
->>> +
->>> +Before issuing any other ioctls, a MSHV_REQUEST_VERSION ioctl must be called to
->>> +establish the interface version with the kernel module.
->>> +
->>> +The caller should pass the MSHV_VERSION as an argument.
->>> +
->>> +The kernel module will check which interface versions it supports and return 0
->>> +if one of them matches.
->>> +
->>> +This /dev/mshv file descriptor will remain 'locked' to that version as long as
->>> +it is open - this ioctl can only be called once per open.
->>> +
->> 
->> KVM used to have KVM_GET_API_VERSION too but this turned out to be not
->> very convenient so we use capabilities (KVM_CHECK_EXTENSION/KVM_ENABLE_CAP)
->> instead.
->> 
->
-> The goal of MSHV_REQUEST_VERSION is to support changes to APIs in the core set.
-> When we add new features/ioctls beyond the core we can use an extension/capability
-> approach like KVM.
->
+Pushed to drm-misc-fixes.
 
-Driver versions is a very bad idea from distribution/stable kernel point
-of view as it presumes that the history is linear. It is not.
-
-Imagine you have the following history upstream:
-
-MSHV_REQUEST_VERSION = 1
-<100 commits with features/fixes>
-MSHV_REQUEST_VERSION = 2
-<another 100 commits with features/fixes>
-MSHV_REQUEST_VERSION = 2
-
-Now I'm a linux distribution / stable kernel maintainer. My kernel is at
-MSHV_REQUEST_VERSION = 1. Now I want to backport 1 feature from between
-VER=1 and VER=2 and another feature from between VER=2 and VER=3. My
-history now looks like
-
-MSHV_REQUEST_VERSION = 1
-<5 commits from between VER=1 and VER=2>
-   Which version should I declare here???? 
-<5 commits from between VER=2 and VER=3>
-   Which version should I declare here???? 
-
-If I keep VER=1 then userspace will think that I don't have any extra
-features added and just won't use them. If I change VER to 2/3, it'll
-think I have *all* features from between these versions.
-
-The only reasonable way to manage this is to attach a "capability" to
-every ABI change and expose this capability *in the same commit which
-introduces the change to the ABI*. This way userspace will now exactly
-which ioctls are available and what are their interfaces.
-
-Also, trying to define "core set" is hard but you don't really need
-to.
-
--- 
-Vitaly
+thanks,
+  Gerd
 
 _______________________________________________
 Virtualization mailing list
