@@ -2,206 +2,115 @@ Return-Path: <SRS0=agY8=IG=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB948C433DB
-	for <virtualization@archiver.kernel.org>; Mon,  8 Mar 2021 17:01:33 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B253C433E0
+	for <virtualization@archiver.kernel.org>; Mon,  8 Mar 2021 18:12:19 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7A80164FB8
-	for <virtualization@archiver.kernel.org>; Mon,  8 Mar 2021 17:01:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7A80164FB8
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
+	by mail.kernel.org (Postfix) with ESMTPS id E81A56518A
+	for <virtualization@archiver.kernel.org>; Mon,  8 Mar 2021 18:12:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E81A56518A
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 332DE48075;
-	Mon,  8 Mar 2021 17:01:33 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 985E2400F8;
+	Mon,  8 Mar 2021 18:12:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id btVBcNEp1Nst; Mon,  8 Mar 2021 17:01:32 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 79B39485E1;
-	Mon,  8 Mar 2021 17:01:31 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qUqW1xp30klB; Mon,  8 Mar 2021 18:12:17 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 4C8D0400D5;
+	Mon,  8 Mar 2021 18:12:17 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 49D6DC000B;
-	Mon,  8 Mar 2021 17:01:31 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 42CDEC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 21A18C000A;
+	Mon,  8 Mar 2021 18:12:17 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2D7E2C0001
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Mar 2021 17:01:29 +0000 (UTC)
+ Mon,  8 Mar 2021 18:12:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 1AC7F485E1
+ by smtp2.osuosl.org (Postfix) with ESMTP id 0E736400F8
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Mar 2021 17:01:29 +0000 (UTC)
+ Mon,  8 Mar 2021 18:12:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id z9ZoKmhJW4KG
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id PeuOu3L3pQe1
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Mar 2021 17:01:28 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from aserp2130.oracle.com (aserp2130.oracle.com [141.146.126.79])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E99A548075
+ Mon,  8 Mar 2021 18:12:14 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com
+ [IPv6:2a00:1450:4864:20::62b])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 3CA35400D5
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Mar 2021 17:01:27 +0000 (UTC)
-Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
- by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 128GxNRl057490;
- Mon, 8 Mar 2021 17:00:36 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2020-01-29;
- bh=daP0eS7DKjw/+pNTAUvjnxRcOnE0s9+Kg1bQ2QfZFvQ=;
- b=Tf72KW67Hruyro+3yrwVR7JGVVfILROicbkT09l1ue79/MkfaVU23Px9s4ZCMxdcXBKU
- z/u78PHcNVmTmXEv2hbu8YWlzB8Pkndg6uZ9VS/7Yr07RCkxQ/cOjvytKv0zKTLrWtbY
- 3gd3rGM7Ktx+Y/WegHX9CDCZRso00fqDHUz+zrkpyLFCoLUu3zs0JjoOpgrPC/EOTAh2
- nKD0QvIrgyTJCUdS5WeKwX2RWht5EBqHMu0i30HuuIQf3wCGrTlkeVZSSTHf1rV150sI
- 6ZYtma0YhnX4SLYJyu1baCnrAAJsASpi0tBmHeYeWNIY691I+C46rFj70jInHmujGV+3 cA== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
- by aserp2130.oracle.com with ESMTP id 373y8bmeav-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 08 Mar 2021 17:00:36 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
- by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 128GfNEk100728;
- Mon, 8 Mar 2021 17:00:36 GMT
-Received: from nam11-co1-obe.outbound.protection.outlook.com
- (mail-co1nam11lp2168.outbound.protection.outlook.com [104.47.56.168])
- by aserp3030.oracle.com with ESMTP id 374kamfwjf-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 08 Mar 2021 17:00:35 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=KGbEHjBQcyzj4p+XG5VXrDnnfUFQX7Pp3MW0HZeE+el3k7Km8MhD9iHPXEpUh0uNM+pITh+c1nb//W3gioi6f841eRzqXykBlgmlrvkCoWifwwSmgoQvNGujVOODFfRujxsMnl6i3Nrfk1ioGlddgURHxsCM/nWrLVL2K7bVwll+6Evf7QsKAkjgqdoHwhev/+T6T9HAMand+4Wk5oPUIE2kKYYyjyahM+O9tC05Lg8Pln7ERt/+RKbCzues8WHA22Mqm7EN3bqmq721lUdEzBaSs9Rm2MEazs59Nyj102pZdLCT2MHDRo36gaH9QYy8iZasQI1DT//DAKjywpRQ6g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=daP0eS7DKjw/+pNTAUvjnxRcOnE0s9+Kg1bQ2QfZFvQ=;
- b=m1P2AaIvtGUwgLt6GQ86H86jFrM2VZEZvUuRK17LMZj9Hm8Ez2yW0HB8BDZbdCTp+HJsNgZ7W63xHlEq/DsVpDltQXmkkV9PSnh1Td9jV4btMK08B5dMcX1JRbBTKeR3J64dpLnh6XNO4NrSguUBWkNxE4b+FcGhpYwVXEr4Qf9JZy+UZG1uZbKxCJ//yY5n/AILKAvoVARv8WEPaLFNsV8sq4qsT7KoBjmkMP/qJjfAbp2kxKG2RnIFitaE+cONBpgFrzG7I97U4ec8SvbuJriTtdCE3kqD/EokLc2cR7A6Bjjc4RXDuKq6E6qFsRFhD/kyxJaFW4jOd4AD8AuHyQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=daP0eS7DKjw/+pNTAUvjnxRcOnE0s9+Kg1bQ2QfZFvQ=;
- b=htozUCEAjFfE0/gb/XutOnzachwvCOX5xpgDfMHJi5T3iEtporhvPp/bDnLnfIlzFDSp9VisGEKr0y9fQgp5t9Ak/x6T04voJHKElgxIOsoDAS4VgQSL+toG6ZasNFYfBeu19HLwPaftbt8HQE6ghj+bcOy+SWus7+rppvKrsaQ=
-Authentication-Results: kernel.org; dkim=none (message not signed)
- header.d=none;kernel.org; dmarc=none action=none header.from=oracle.com;
-Received: from BYAPR10MB3288.namprd10.prod.outlook.com (2603:10b6:a03:156::21)
- by BYAPR10MB3623.namprd10.prod.outlook.com (2603:10b6:a03:11b::28)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3890.19; Mon, 8 Mar
- 2021 17:00:32 +0000
-Received: from BYAPR10MB3288.namprd10.prod.outlook.com
- ([fe80::f489:4e25:63e0:c721]) by BYAPR10MB3288.namprd10.prod.outlook.com
- ([fe80::f489:4e25:63e0:c721%7]) with mapi id 15.20.3912.027; Mon, 8 Mar 2021
- 17:00:32 +0000
-Subject: Re: [PATCH v5 02/12] x86/paravirt: switch time pvops functions to use
- static_call()
-To: Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
- x86@kernel.org, virtualization@lists.linux-foundation.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-hyperv@vger.kernel.org, kvm@vger.kernel.org
-References: <20210308122844.30488-1-jgross@suse.com>
- <20210308122844.30488-3-jgross@suse.com>
-From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Message-ID: <1346dbb1-c43e-9ac2-10e4-3c10cb2ead78@oracle.com>
-Date: Mon, 8 Mar 2021 12:00:23 -0500
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.7.1
-In-Reply-To: <20210308122844.30488-3-jgross@suse.com>
-Content-Language: en-US
-X-Originating-IP: [138.3.200.0]
-X-ClientProxiedBy: CY4PR13CA0001.namprd13.prod.outlook.com
- (2603:10b6:903:32::11) To BYAPR10MB3288.namprd10.prod.outlook.com
- (2603:10b6:a03:156::21)
+ Mon,  8 Mar 2021 18:12:14 +0000 (UTC)
+Received: by mail-ej1-x62b.google.com with SMTP id hs11so22242717ejc.1
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 08 Mar 2021 10:12:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=OqopxqISgbDC0SR+TF4LgpGs83P68cEOgU0oL+9mBy0=;
+ b=rK4orARib+uFue26kj7MItzjbMeCQujuEDB+aGDeIbin57sP23YVBgNZsvAxZ2H28v
+ YnNz46zJWdkav61XGtp4BuQc2/KlwBhX3wlN0n6jMM9STBkezask2A7Fl3DxRM5R0mbb
+ 8SeMgsh5Y7LeqSf/6iRHsTYBPkntQaOqEogzT5gszPvnQAWC9LpHNHLYhh0r3hcZI5Yr
+ 9i5A84YYMdUZUcQnGNPFpp2FmYojMQuyy2aOPKeQg6OxP5w3ey768Pwtajg1mBjHRNpH
+ PDLfuJ0VviolFVEl/DEyob/fNM0ZzFnJfYRt1685C/d7RqbZKTIriWmB+y0DuwtUsLK7
+ GjoQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=OqopxqISgbDC0SR+TF4LgpGs83P68cEOgU0oL+9mBy0=;
+ b=FsteRpE/OiDskzuBTk5zxFQW/d4+OBHpGLT/bcaYJEaZd1uyBp2m7bXIselcmE2fFf
+ zxztLSR0+mDTo9JAn7oyYzqrcgABJFkODdbW29FE+1kLkeQbDP0KVnlXU3lHlLfVQvUG
+ ctYDR/gqjT/pp4Wb1Ock24S+S5qi//S6r4itTeN5+gtrN/VSyNHkepjUNxqqr0ISM71M
+ ZCAaR5Hly1bnS6YPYFImBOzxd0jJL9t5nYS6fiTzBUimf0qbe9uPhKZ7zgcolhGtuCkn
+ M9kwKNsWj527TRMxXzH5qHdGGio5YtqLJGz4BHRWxUL9oKaMjBn9JXiMxGdjINYU3uef
+ AUuw==
+X-Gm-Message-State: AOAM530BpH+Qk+Pe8sGR2Rlzr8/xloIExnLzDssQ0jEmwa+928Iv5o4A
+ 5DYfkC3zr5fIY1M7+cemSosdjJweGbM=
+X-Google-Smtp-Source: ABdhPJzZhtA9eE7HxqjeY87BEgl0HiXMVuWuVI1n9EYFeRnFoCm+2F5E9aOAuv5w5IBWGHuTiSaEQw==
+X-Received: by 2002:a17:906:b297:: with SMTP id
+ q23mr16500797ejz.315.1615227131911; 
+ Mon, 08 Mar 2021 10:12:11 -0800 (PST)
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com.
+ [209.85.221.54])
+ by smtp.gmail.com with ESMTPSA id f3sm7150766ejd.42.2021.03.08.10.12.10
+ for <virtualization@lists.linux-foundation.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 08 Mar 2021 10:12:10 -0800 (PST)
+Received: by mail-wr1-f54.google.com with SMTP id j2so12446977wrx.9
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 08 Mar 2021 10:12:10 -0800 (PST)
+X-Received: by 2002:adf:ee92:: with SMTP id b18mr22954054wro.275.1615227129949; 
+ Mon, 08 Mar 2021 10:12:09 -0800 (PST)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [10.74.106.64] (138.3.200.0) by
- CY4PR13CA0001.namprd13.prod.outlook.com (2603:10b6:903:32::11) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.3933.13 via Frontend Transport; Mon, 8 Mar 2021 17:00:26 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: b5981fe8-a9cd-4ab8-e923-08d8e253af24
-X-MS-TrafficTypeDiagnostic: BYAPR10MB3623:
-X-Microsoft-Antispam-PRVS: <BYAPR10MB36238C52330B3CD1AECE6BE68A939@BYAPR10MB3623.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:421;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: cS3pYGo0LzcDgP8l9RlxY7mtDqW/DVw9sllgD/KZalTVFgFUzYEVrVfqZzUMxzzqGv/xpTMhAi06k2QYibB8vngdmqP1u2gcK9rK2JfuzmlpEYdPyoAKBnFzB8X3RRvhKen+cRwD8KetmemkNb5cx90VdoyiCz1jbkMmrgC3Ig85lIu65vYoaRE51V5zI/8gTxhVZjKhmu5v8RBAuxh2dyWQPtW7i2aKxPGlXYTkYY1Hye1WkUbEPfHVZpc1VWJ6yHGs1Pueht4nyXXkGjeyrdTjd2Ot5hRQHUVR50tAQoO2nVABFFmTVVcIBSlNG7siTplTfOzi0s+QUCKcED1D3fv99C2eCD9SlWn4j/qEJandVW6pzpbsthsHKw5JTlYWxw78M4No2qkQ46SQ2pC+5d8y3nYIh1ef6uxgeJ6JKy01b3tsTR7p7wKEKwZMoGX9yZibqPwrruB5hdnIdp0RGGmop3XJmHHgnZdNuU8uXW1sAQywHWfoK1+TA6CKepoKj9EitxhgLchBKKALJl/2R5MHEEme5lUZ3ISoOJXaiKVOb8Zf2ODPfaR9H0C0ltKf8/hGunAgsT64tde9HlXMWjmBxC8Lk6amSybzxR48lnc=
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BYAPR10MB3288.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(376002)(366004)(39860400002)(396003)(136003)(346002)(36756003)(83380400001)(2906002)(956004)(86362001)(2616005)(53546011)(6486002)(4326008)(316002)(16576012)(7416002)(31696002)(44832011)(66476007)(8936002)(8676002)(66946007)(478600001)(54906003)(6666004)(5660300002)(31686004)(186003)(26005)(16526019)(66556008)(43740500002)(45980500001);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?UWZpUE44TVZCUEp0Vng5TFdnRUtwbTZxVUN4VzdKK3oreUpXS053RmN5Y3F6?=
- =?utf-8?B?NSt4VTF1SUxlS2NBYlJYaVU4eVIwZFBCWEU4aGlyaWVoZG1VNWRIUXNuSjR5?=
- =?utf-8?B?aE9CdW5zVE5kU0ZRVW1rTFVWQWhtL1ZQVzUrMHhkaTc5ZlNJUndUT0t5VDhG?=
- =?utf-8?B?ZWNrYVJnM3dPdVV6SEs2NmszQkZXYU0vc1RPdWU1aytBL0pBYk1VZWVwdmNP?=
- =?utf-8?B?aCtNck5ubFljRjJPa1hXWTFBaGIwamlDdmxUaVpJdnZwWUMrQ1B3dDJVTFFy?=
- =?utf-8?B?NlpnRUxWdkdvcEJ2UTVxMnd5QUppVm9IQ1YxQVVTZUhaMFY1QkhNUFlWYmFx?=
- =?utf-8?B?eXlmUDcvQTMzUXFpZVZVaGVXN1VXTFMyWG80M3puSno0aUF2dFo3ekJhOXJM?=
- =?utf-8?B?bHU3QStIVnM0RGU2V2k5Y2NDem4zNlk0UWJEeEVUUkZhTVFKZnEzUmRPNG9r?=
- =?utf-8?B?amRab2xkS1hFeTdnRVVqd1BsclE2cEZXQnlHY2xHMi93ZU1XQTBkczYzMGhP?=
- =?utf-8?B?eUdBOEl0akJJbEJBQXhIRnN1WVZBQTMzbW9LV2FOM3ZTTGF4L1lqS2dScUN0?=
- =?utf-8?B?TE5pRFRXcUJ5TzJteWpMZnBheEhuWkJ1RmN3SnBzYzJGeGIybm5TWUVtSkFv?=
- =?utf-8?B?bDdwSzVSYkhzd04vR1JJaXU2YUtqOUFQZk5QUVVqNFluellJN2xOYjZIdVZo?=
- =?utf-8?B?dzdXaDJZNzBINDNQZll1MElHU0xzZmgzaXc2NlBiR3hPOWdOcVE4YW9zYy9P?=
- =?utf-8?B?Vk1GenRvNUd4aGl3VmdiRHMvMEVKRnp1N2g5Sk1RUU81Vi90Qk15QUhZeTlE?=
- =?utf-8?B?STh3Y0o4b3FoZGJzUG5XNTVDVkFXaG16ZjZKL3Vjbno5ZFloajNyVWVDVFhN?=
- =?utf-8?B?aTRSbHJzM3hYbnBZYWpFU00wcTVxYmpoSEVmcFczUkdFSXhyejI5MkhmdWtD?=
- =?utf-8?B?alBwRWRiK05JbWJQWU9wRFVvRWMxSnRPdm80MzgxVzlRQlRWSG9vc3FtbTM3?=
- =?utf-8?B?K3cwV3ZESUdYNUQxQ0VVWStqYUJRMlE4U3NiQXNINFh4WXppcjA2RDRSbi90?=
- =?utf-8?B?Yno2b3NPd1VXUmpiYmRyZTVXaWN5V2JDOXdGT3NhQUFMMjVCRGVSdXNsU0tw?=
- =?utf-8?B?UFExUVhENGlISHlJaklVZ0lFMm1Wdkt0SUIveEhOdTgreFV4c2RtVHdmNW04?=
- =?utf-8?B?TUs1cWlFNkVEalNud3dLTXRGVHgzMHYrT0htUTNTN09zOGRwdFVwUTNJbUtP?=
- =?utf-8?B?eGx3dkJoVFFaV0QycDBwZWJNTExBU256dlh1RlFkWlhaSzZUWUZrMnFUcERj?=
- =?utf-8?B?eVplVmhGVW51STlWb0ZsZkRmblRIczRSbi9HWmIzYXh4UVp2dkFHcks0WThQ?=
- =?utf-8?B?ZXNXUk04ZzMyWUxISjVpV2k0Qy8yZTJLVzhJSDNDSENkMGRka1hUc3BjRmt4?=
- =?utf-8?B?N3BHNTVCQ2tZWE14YlZiMkEyZml1dW5YYTcvcHA5QThWb3dKd0U5ZWFjN2J5?=
- =?utf-8?B?SXRERnBoVGNiQ2dYMllzakdCditTTFNnTjVxMXdCRVgyWlVCWUtIelBtcWt3?=
- =?utf-8?B?MCtWZE5tSGN2Q3RBZlhFemNZL1dSM3VuVzR0SUdacFpFZlhCYnlxTnp5OGNn?=
- =?utf-8?B?U3lFaW5PeFErbnRXK3crV1ZwdFZhN3NpM2pFL0hIQkhsN3ZTRE1WNjFKdHk4?=
- =?utf-8?B?ZSt0U3g0YzJVc1RYZzhBc0c4RG9pTlI0dFlNYkxidUNxcE04TC9yNjBTTVpT?=
- =?utf-8?Q?LxKckNeFRJLZ38qfQawI37569PSfnti8G2l/l9R?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b5981fe8-a9cd-4ab8-e923-08d8e253af24
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3288.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Mar 2021 17:00:32.4478 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: HqPVK0PEqOWnpekBDlvbA8ahaoYNkpUO2xCgO4pw+xKii5mgPptubRFRvsamml33WsHg1hmVk60FiPEiR/ydG+6SElOaVmgmUOk3ok949y8=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR10MB3623
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9917
- signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
- suspectscore=0
- spamscore=0 phishscore=0 bulkscore=0 malwarescore=0 adultscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2009150000 definitions=main-2103080090
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9917
- signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 clxscore=1011
- mlxscore=0 phishscore=0
- lowpriorityscore=0 malwarescore=0 suspectscore=0 adultscore=0
- mlxlogscore=999 spamscore=0 bulkscore=0 priorityscore=1501 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
- definitions=main-2103080091
-Cc: Wei Liu <wei.liu@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>,
- Stephen Hemminger <sthemmin@microsoft.com>, "VMware,
- Inc." <pv-drivers@vmware.com>, Catalin Marinas <catalin.marinas@arm.com>,
- Haiyang Zhang <haiyangz@microsoft.com>,
- Sean Christopherson <seanjc@google.com>, Joerg Roedel <joro@8bytes.org>,
- Russell King <linux@armlinux.org.uk>, Wanpeng Li <wanpengli@tencent.com>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
- Jim Mattson <jmattson@google.com>
+References: <cover.1615199056.git.bnemeth@redhat.com>
+ <85e04e1e6367f19c8f538d145b32f5bb93788d8a.1615199056.git.bnemeth@redhat.com>
+ <CA+FuTSdWSCzkB7sDn+_0Oxy8JqmqL=nsQXP_3bnb4Xdd=0A=KQ@mail.gmail.com>
+ <718e4f13-31a8-037c-9725-08ae3cd93ccd@gmail.com>
+ <543ebc518aa31f04bb6a85b66f37d984ede4b031.camel@redhat.com>
+ <f1fc417e-946b-6e92-3650-865834c289f3@gmail.com>
+In-Reply-To: <f1fc417e-946b-6e92-3650-865834c289f3@gmail.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date: Mon, 8 Mar 2021 13:11:30 -0500
+X-Gmail-Original-Message-ID: <CA+FuTSdZyePKSOz=r48VaoiF_yFGYxHFnh+FYYCh4KrOpPJ-xw@mail.gmail.com>
+Message-ID: <CA+FuTSdZyePKSOz=r48VaoiF_yFGYxHFnh+FYYCh4KrOpPJ-xw@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] net: avoid infinite loop in mpls_gso_segment when
+ mpls_hlen == 0
+To: David Ahern <dsahern@gmail.com>
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Network Development <netdev@vger.kernel.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org, Balazs Nemeth <bnemeth@redhat.com>,
+ David Miller <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -218,76 +127,35 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Mon, Mar 8, 2021 at 11:43 AM David Ahern <dsahern@gmail.com> wrote:
+>
+> On 3/8/21 9:26 AM, Balazs Nemeth wrote:
+> > On Mon, 2021-03-08 at 09:17 -0700, David Ahern wrote:
+> >> On 3/8/21 9:07 AM, Willem de Bruijn wrote:
+> >>>> diff --git a/net/mpls/mpls_gso.c b/net/mpls/mpls_gso.c
+> >>>> index b1690149b6fa..cc1b6457fc93 100644
+> >>>> --- a/net/mpls/mpls_gso.c
+> >>>> +++ b/net/mpls/mpls_gso.c
+> >>>> @@ -27,7 +27,7 @@ static struct sk_buff *mpls_gso_segment(struct
+> >>>> sk_buff *skb,
+> >>>>
+> >>>>         skb_reset_network_header(skb);
+> >>>>         mpls_hlen = skb_inner_network_header(skb) -
+> >>>> skb_network_header(skb);
+> >>>> -       if (unlikely(!pskb_may_pull(skb, mpls_hlen)))
+> >>>> +       if (unlikely(!mpls_hlen || !pskb_may_pull(skb,
+> >>>> mpls_hlen)))
+> >>>>                 goto out;
+> >>>
+> >>> Good cathc. Besides length zero, this can be more strict: a label
+> >>> is
+> >>> 4B, so mpls_hlen needs to be >= 4B.
+> >>>
+> >>> Perhaps even aligned to 4B, too, but not if there may be other
+> >>> encap on top.
 
-On 3/8/21 7:28 AM, Juergen Gross wrote:
-> --- a/arch/x86/xen/time.c
-> +++ b/arch/x86/xen/time.c
-> @@ -379,11 +379,6 @@ void xen_timer_resume(void)
->  	}
->  }
->  
-> -static const struct pv_time_ops xen_time_ops __initconst = {
-> -	.sched_clock = xen_sched_clock,
-> -	.steal_clock = xen_steal_clock,
-> -};
-> -
->  static struct pvclock_vsyscall_time_info *xen_clock __read_mostly;
->  static u64 xen_clock_value_saved;
->  
-> @@ -528,7 +523,8 @@ static void __init xen_time_init(void)
->  void __init xen_init_time_ops(void)
->  {
->  	xen_sched_clock_offset = xen_clocksource_read();
-> -	pv_ops.time = xen_time_ops;
-> +	static_call_update(pv_steal_clock, xen_steal_clock);
-> +	paravirt_set_sched_clock(xen_sched_clock);
->  
->  	x86_init.timers.timer_init = xen_time_init;
->  	x86_init.timers.setup_percpu_clockev = x86_init_noop;
-> @@ -570,7 +566,8 @@ void __init xen_hvm_init_time_ops(void)
->  	}
->  
->  	xen_sched_clock_offset = xen_clocksource_read();
-> -	pv_ops.time = xen_time_ops;
-> +	static_call_update(pv_steal_clock, xen_steal_clock);
-> +	paravirt_set_sched_clock(xen_sched_clock);
->  	x86_init.timers.setup_percpu_clockev = xen_time_init;
->  	x86_cpuinit.setup_percpu_clockev = xen_hvm_setup_cpu_clockevents;
-
-
-There is a bunch of stuff that's common between the two cases so it can be factored out.
-
-
->  
-> diff --git a/drivers/xen/time.c b/drivers/xen/time.c
-> index 108edbcbc040..152dd33bb223 100644
-> --- a/drivers/xen/time.c
-> +++ b/drivers/xen/time.c
-> @@ -7,6 +7,7 @@
->  #include <linux/math64.h>
->  #include <linux/gfp.h>
->  #include <linux/slab.h>
-> +#include <linux/static_call.h>
->  
->  #include <asm/paravirt.h>
->  #include <asm/xen/hypervisor.h>
-> @@ -175,7 +176,7 @@ void __init xen_time_setup_guest(void)
->  	xen_runstate_remote = !HYPERVISOR_vm_assist(VMASST_CMD_enable,
->  					VMASST_TYPE_runstate_update_flag);
->  
-> -	pv_ops.time.steal_clock = xen_steal_clock;
-> +	static_call_update(pv_steal_clock, xen_steal_clock);
->  
-
-
-Do we actually need this? We've already set this up in xen_init_time_ops(). (But maybe for ARM).
-
-
--boris
-
-
->  	static_key_slow_inc(&paravirt_steal_enabled);
->  	if (xen_runstate_remote)
+On second thought, since mpls_gso_segment pulls all these headers, it
+is correct to require it to be a multiple of MPLS_HLEN.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
