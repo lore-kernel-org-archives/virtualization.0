@@ -2,105 +2,83 @@ Return-Path: <SRS0=agY8=IG=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 484B5C433DB
-	for <virtualization@archiver.kernel.org>; Mon,  8 Mar 2021 10:46:47 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA559C433E0
+	for <virtualization@archiver.kernel.org>; Mon,  8 Mar 2021 12:28:58 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 97028651A5
-	for <virtualization@archiver.kernel.org>; Mon,  8 Mar 2021 10:46:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 97028651A5
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 3B52F651D1
+	for <virtualization@archiver.kernel.org>; Mon,  8 Mar 2021 12:28:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3B52F651D1
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 27864400AF;
-	Mon,  8 Mar 2021 10:46:46 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9E8E783A59;
+	Mon,  8 Mar 2021 12:28:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TP4zYeysbf3X; Mon,  8 Mar 2021 10:46:45 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A1385400A9;
-	Mon,  8 Mar 2021 10:46:44 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 74457C000B;
-	Mon,  8 Mar 2021 10:46:44 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0C770C0001
- for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Mar 2021 10:46:43 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 07BD183A66
- for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Mar 2021 10:46:43 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FaXl9zjedj4W
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id j39TqQADCebO; Mon,  8 Mar 2021 12:28:56 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 428E983918;
+	Mon,  8 Mar 2021 12:28:56 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 089C3C0001;
+	Mon,  8 Mar 2021 12:28:56 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6D21FC0001
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Mar 2021 10:46:42 +0000 (UTC)
+ Mon,  8 Mar 2021 12:28:54 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 535B3606F4
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  8 Mar 2021 12:28:54 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=suse.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id dvfdW4CzFYdV
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  8 Mar 2021 12:28:53 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0F33283A61
+Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 59806605D9
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Mar 2021 10:46:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1615200400;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ Mon,  8 Mar 2021 12:28:53 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1615206531; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=g1tKnkjJWrSFbX4H2YOn29SnfSqXEzlO7Rs0c3HSYCg=;
- b=MPsgFc98j/+zmoVS0yxgZ2/kpbQoWoQxqfM4cGQAF12JS6aJsuTQh/ziGGd63ndi9nLOSf
- 1NxYyi9MhNsXyX38uOgIy+4oveEz6xWxwbpuaMEOkJTKrVzhFzwCphRbCS7We5+KWtxffC
- CS2wdNzDzN5oEKXhTSOfLkUYq2dL8gA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-275-_B9xZ328Mo-9eLTY_ectPQ-1; Mon, 08 Mar 2021 05:46:24 -0500
-X-MC-Unique: _B9xZ328Mo-9eLTY_ectPQ-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
- [10.5.11.23])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7ED641005D4A;
- Mon,  8 Mar 2021 10:46:21 +0000 (UTC)
-Received: from localhost (ovpn-114-104.ams2.redhat.com [10.36.114.104])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 1D14719715;
- Mon,  8 Mar 2021 10:46:16 +0000 (UTC)
-Date: Mon, 8 Mar 2021 10:46:16 +0000
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Subject: Re: [RFC PATCH 06/27] virtio: Add virtio_queue_get_used_notify_split
-Message-ID: <YEYAeGasxYD6ZheE@stefanha-x1.localdomain>
-References: <20201120185105.279030-1-eperezma@redhat.com>
- <20201120185105.279030-7-eperezma@redhat.com>
- <20201207165848.GM203660@stefanha-x1.localdomain>
- <CAJaqyWc4oLzL02GKpPSwEGRxK+UxjOGBAPLzrgrgKRZd9C81GA@mail.gmail.com>
- <YD4f4KEIYRlTUP4/@stefanha-x1.localdomain>
- <CAJaqyWd0iRUUW5Hu=U3mwQ4f43kA=bse3EkN4+QauFR4BJwObQ@mail.gmail.com>
+ bh=u3YnMSkFlUp/21QNZ1kMggcxHe1yXHAkDy5ICMJL1QU=;
+ b=YNXv3uCm5+P4OF8r75Pj3qvw5a/bZfGdICaugMYT2001NNP0vgy+3Yvt/g6oITt+sQcCfJ
+ bRWOBUQq9sw0blJ3Qd7GZKfWo8CXn9ZBVyCjfOf1W58pXx3+q/llcvf1E3Q81iLbwVmnW4
+ 5yJkt0s0avbsqJu9zRlFR0ThlVQ9xoo=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+ by mx2.suse.de (Postfix) with ESMTP id C3CDDADE3;
+ Mon,  8 Mar 2021 12:28:51 +0000 (UTC)
+To: xen-devel@lists.xenproject.org, x86@kernel.org,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ clang-built-linux@googlegroups.com
+Subject: [PATCH v5 08/12] x86/paravirt: simplify paravirt macros
+Date: Mon,  8 Mar 2021 13:28:40 +0100
+Message-Id: <20210308122844.30488-9-jgross@suse.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210308122844.30488-1-jgross@suse.com>
+References: <20210308122844.30488-1-jgross@suse.com>
 MIME-Version: 1.0
-In-Reply-To: <CAJaqyWd0iRUUW5Hu=U3mwQ4f43kA=bse3EkN4+QauFR4BJwObQ@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-Cc: kvm list <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- qemu-level <qemu-devel@nongnu.org>, Daniel Daly <dandaly0@gmail.com>,
- virtualization@lists.linux-foundation.org, Liran Alon <liralon@gmail.com>,
- Eli Cohen <eli@mellanox.com>, Nitin Shrivastav <nitin.shrivastav@broadcom.com>,
- Alex Barba <alex.barba@broadcom.com>,
- Christophe Fontaine <cfontain@redhat.com>, Lee Ballard <ballle98@gmail.com>,
- Lars Ganrot <lars.ganrot@gmail.com>, Rob Miller <rob.miller@broadcom.com>,
- Howard Cai <howard.cai@gmail.com>, Parav Pandit <parav@mellanox.com>,
- vm <vmireyno@marvell.com>, Salil Mehta <mehta.salil.lnk@gmail.com>,
- Stephen Finucane <stephenfin@redhat.com>, Xiao W Wang <xiao.w.wang@intel.com>,
- Sean Mooney <smooney@redhat.com>, Jim Harford <jim.harford@broadcom.com>,
- Dmytro Kazantsev <dmytro.kazantsev@gmail.com>, Siwei Liu <loseweigh@gmail.com>,
- Harpreet Singh Anand <hanand@xilinx.com>, Michael Lilja <ml@napatech.com>,
- Max Gurtovoy <maxgu14@gmail.com>
+Cc: Juergen Gross <jgross@suse.com>, "VMware, Inc." <pv-drivers@vmware.com>,
+ Nick Desaulniers <ndesaulniers@google.com>,
+ Nathan Chancellor <nathan@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
+ Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,150 +90,142 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============0729918800785316124=="
+From: Juergen Gross via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Juergen Gross <jgross@suse.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+The central pvops call macros ____PVOP_CALL() and ____PVOP_VCALL() are
+looking very similar now.
 
---===============0729918800785316124==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="wt/k06bIHv2D9AK7"
-Content-Disposition: inline
+The main differences are using PVOP_VCALL_ARGS or PVOP_CALL_ARGS, which
+are identical, and the return value handling.
 
+So drop PVOP_VCALL_ARGS and instead of ____PVOP_VCALL() just use
+(void)____PVOP_CALL(long, ...).
 
---wt/k06bIHv2D9AK7
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Note that it isn't easily possible to just redefine ____PVOP_VCALL()
+to use ____PVOP_CALL() instead, as this would require further hiding of
+commas in macro parameters.
 
-On Tue, Mar 02, 2021 at 07:34:20PM +0100, Eugenio Perez Martin wrote:
-> On Tue, Mar 2, 2021 at 12:22 PM Stefan Hajnoczi <stefanha@gmail.com> wrot=
-e:
-> >
-> > On Tue, Jan 12, 2021 at 07:21:27PM +0100, Eugenio Perez Martin wrote:
-> > > On Mon, Dec 7, 2020 at 5:58 PM Stefan Hajnoczi <stefanha@gmail.com> w=
-rote:
-> > > >
-> > > > On Fri, Nov 20, 2020 at 07:50:44PM +0100, Eugenio P=E9rez wrote:
-> > > > > This function is just used for a few commits, so SW LM is develop=
-ed
-> > > > > incrementally, and it is deleted after it is useful.
-> > > > >
-> > > > > For a few commits, only the events (irqfd, eventfd) are forwarded.
-> > > >
-> > > > s/eventfd/ioeventfd/ (irqfd is also an eventfd)
-> > > >
-> > >
-> > > Oops, will fix, thanks!
-> > >
-> > > > > +bool virtio_queue_get_used_notify_split(VirtQueue *vq)
-> > > > > +{
-> > > > > +    VRingMemoryRegionCaches *caches;
-> > > > > +    hwaddr pa =3D offsetof(VRingUsed, flags);
-> > > > > +    uint16_t flags;
-> > > > > +
-> > > > > +    RCU_READ_LOCK_GUARD();
-> > > > > +
-> > > > > +    caches =3D vring_get_region_caches(vq);
-> > > > > +    assert(caches);
-> > > > > +    flags =3D virtio_lduw_phys_cached(vq->vdev, &caches->used, p=
-a);
-> > > > > +    return !(VRING_USED_F_NO_NOTIFY & flags);
-> > > > > +}
-> > > >
-> > > > QEMU stores the notification status:
-> > > >
-> > > > void virtio_queue_set_notification(VirtQueue *vq, int enable)
-> > > > {
-> > > >     vq->notification =3D enable; <---- here
-> > > >
-> > > >     if (!vq->vring.desc) {
-> > > >         return;
-> > > >     }
-> > > >
-> > > >     if (virtio_vdev_has_feature(vq->vdev, VIRTIO_F_RING_PACKED)) {
-> > > >         virtio_queue_packed_set_notification(vq, enable);
-> > > >     } else {
-> > > >         virtio_queue_split_set_notification(vq, enable);
-> > > >
-> > > > I'm wondering why it's necessary to fetch from guest RAM instead of
-> > > > using vq->notification? It also works for both split and packed
-> > > > queues so the code would be simpler.
-> > >
-> > > To use vq->notification makes sense at the end of the series.
-> > >
-> > > However, at this stage (just routing notifications, not descriptors),
-> > > vhost device is the one updating that flag, not qemu. Since we cannot
-> > > just migrate used ring memory to qemu without migrating descriptors
-> > > ring too, qemu needs to check guest's memory looking for vhost device
-> > > updates on that flag.
-> > >
-> > > I can see how that deserves better documentation or even a better
-> > > name. Also, this function should be in the shadow vq file, not
-> > > virtio.c.
-> >
-> > I can't think of a reason why QEMU needs to know the flag value that the
-> > vhost device has set. This flag is a hint to the guest driver indicating
-> > whether the device wants to receive notifications.
-> >
-> > Can you explain why QEMU needs to look at the value of the flag?
-> >
-> > Stefan
->=20
-> My bad, "need" is not the right word: SVQ could just forward the
-> notification at this point without checking the flag. Taking into
-> account that it's not used in later series, and it's even removed in
-> patch 14/27 of this series, I can see that it just adds noise to the
-> entire patchset
->=20
-> This function just allows svq to re-check the flag after the guest
-> sends the notification. This way svq is able to drop the kick as a
-> (premature?) optimization in case the device sets it just after the
-> guest sends the kick.
->=20
-> Until patch 13/27, only notifications are forwarded, not buffers. VM
-> guest's drivers and vhost device still read and write at usual
-> addresses, but ioeventfd and kvmfd are intercepted by qemu. This
-> allows us to test if the notification forwarding part is doing ok.
-> From patch 14 of this series, svq offers a new vring to the device in
-> qemu's VAS, so the former does not need to check the guest's memory
-> anymore, and this function can be dropped.
->=20
-> Is it clearer now? Please let me know if I should add something else.
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+V3:
+- new patch
+V4:
+- fix build warnings with clang (kernel test robot)
+---
+ arch/x86/include/asm/paravirt_types.h | 41 ++++++++-------------------
+ 1 file changed, 12 insertions(+), 29 deletions(-)
 
-Thanks for explaining. You could drop it to simplify the code. If you
-leave it in, please include a comment explaining the purpose.
-
-Thanks,
-Stefan
-
---wt/k06bIHv2D9AK7
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmBGAHcACgkQnKSrs4Gr
-c8hQIwgAtbmbXALP3b9YRiQjKcricWBmsnBRSrhFbwUMD9mB9CRdPsN8E0ylmqeD
-vms6J1x3x93RXeeasCEJqrB6dhiy5d2b6PG0Lyab+vFnmygg6sBdLkGx5BErKIup
-UpCWmxSJ9LtdFQYrjPQNH/wrBmQkOLp3uRpuYX3JIyNK+F/ReWcxPtAyjbGdFyaq
-VN0yyFYI1EB/t+8E2W9YhhJxI8e5Vp1KL+tB6PpYMWGYBJ+OjbEGktQGEBCZhnrA
-jBE2MmBNlE1tH3hvBplQotx1GMryQ49BoQ70IqVSw+gvdo6RJWZ20r37tgl0trk7
-rCsji9cO4l8Fr1K5gJBDzJtYVuSBvw==
-=Tm0W
------END PGP SIGNATURE-----
-
---wt/k06bIHv2D9AK7--
-
-
---===============0729918800785316124==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index 42f9eef84131..45bd21647dd8 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -408,11 +408,9 @@ int paravirt_disable_iospace(void);
+  * makes sure the incoming and outgoing types are always correct.
+  */
+ #ifdef CONFIG_X86_32
+-#define PVOP_VCALL_ARGS							\
++#define PVOP_CALL_ARGS							\
+ 	unsigned long __eax = __eax, __edx = __edx, __ecx = __ecx;
+ 
+-#define PVOP_CALL_ARGS			PVOP_VCALL_ARGS
+-
+ #define PVOP_CALL_ARG1(x)		"a" ((unsigned long)(x))
+ #define PVOP_CALL_ARG2(x)		"d" ((unsigned long)(x))
+ #define PVOP_CALL_ARG3(x)		"c" ((unsigned long)(x))
+@@ -428,12 +426,10 @@ int paravirt_disable_iospace(void);
+ #define VEXTRA_CLOBBERS
+ #else  /* CONFIG_X86_64 */
+ /* [re]ax isn't an arg, but the return val */
+-#define PVOP_VCALL_ARGS						\
++#define PVOP_CALL_ARGS						\
+ 	unsigned long __edi = __edi, __esi = __esi,		\
+ 		__edx = __edx, __ecx = __ecx, __eax = __eax;
+ 
+-#define PVOP_CALL_ARGS		PVOP_VCALL_ARGS
+-
+ #define PVOP_CALL_ARG1(x)		"D" ((unsigned long)(x))
+ #define PVOP_CALL_ARG2(x)		"S" ((unsigned long)(x))
+ #define PVOP_CALL_ARG3(x)		"d" ((unsigned long)(x))
+@@ -458,59 +454,46 @@ int paravirt_disable_iospace(void);
+ #define PVOP_TEST_NULL(op)	((void)pv_ops.op)
+ #endif
+ 
+-#define PVOP_RETMASK(rettype)						\
++#define PVOP_RETVAL(rettype)						\
+ 	({	unsigned long __mask = ~0UL;				\
++		BUILD_BUG_ON(sizeof(rettype) > sizeof(unsigned long));	\
+ 		switch (sizeof(rettype)) {				\
+ 		case 1: __mask =       0xffUL; break;			\
+ 		case 2: __mask =     0xffffUL; break;			\
+ 		case 4: __mask = 0xffffffffUL; break;			\
+ 		default: break;						\
+ 		}							\
+-		__mask;							\
++		__mask & __eax;						\
+ 	})
+ 
+ 
+-#define ____PVOP_CALL(rettype, op, clbr, call_clbr, extra_clbr, ...)	\
++#define ____PVOP_CALL(ret, op, clbr, call_clbr, extra_clbr, ...)	\
+ 	({								\
+ 		PVOP_CALL_ARGS;						\
+ 		PVOP_TEST_NULL(op);					\
+-		BUILD_BUG_ON(sizeof(rettype) > sizeof(unsigned long));	\
+ 		asm volatile(paravirt_alt(PARAVIRT_CALL)		\
+ 			     : call_clbr, ASM_CALL_CONSTRAINT		\
+ 			     : paravirt_type(op),			\
+ 			       paravirt_clobber(clbr),			\
+ 			       ##__VA_ARGS__				\
+ 			     : "memory", "cc" extra_clbr);		\
+-		(rettype)(__eax & PVOP_RETMASK(rettype));		\
++		ret;							\
+ 	})
+ 
+ #define __PVOP_CALL(rettype, op, ...)					\
+-	____PVOP_CALL(rettype, op, CLBR_ANY, PVOP_CALL_CLOBBERS,	\
+-		      EXTRA_CLOBBERS, ##__VA_ARGS__)
++	____PVOP_CALL(PVOP_RETVAL(rettype), op, CLBR_ANY,		\
++		      PVOP_CALL_CLOBBERS, EXTRA_CLOBBERS, ##__VA_ARGS__)
+ 
+ #define __PVOP_CALLEESAVE(rettype, op, ...)				\
+-	____PVOP_CALL(rettype, op.func, CLBR_RET_REG,			\
++	____PVOP_CALL(PVOP_RETVAL(rettype), op.func, CLBR_RET_REG,	\
+ 		      PVOP_CALLEE_CLOBBERS, , ##__VA_ARGS__)
+ 
+-
+-#define ____PVOP_VCALL(op, clbr, call_clbr, extra_clbr, ...)		\
+-	({								\
+-		PVOP_VCALL_ARGS;					\
+-		PVOP_TEST_NULL(op);					\
+-		asm volatile(paravirt_alt(PARAVIRT_CALL)		\
+-			     : call_clbr, ASM_CALL_CONSTRAINT		\
+-			     : paravirt_type(op),			\
+-			       paravirt_clobber(clbr),			\
+-			       ##__VA_ARGS__				\
+-			     : "memory", "cc" extra_clbr);		\
+-	})
+-
+ #define __PVOP_VCALL(op, ...)						\
+-	____PVOP_VCALL(op, CLBR_ANY, PVOP_VCALL_CLOBBERS,		\
++	(void)____PVOP_CALL(, op, CLBR_ANY, PVOP_VCALL_CLOBBERS,	\
+ 		       VEXTRA_CLOBBERS, ##__VA_ARGS__)
+ 
+ #define __PVOP_VCALLEESAVE(op, ...)					\
+-	____PVOP_VCALL(op.func, CLBR_RET_REG,				\
++	(void)____PVOP_CALL(, op.func, CLBR_RET_REG,			\
+ 		      PVOP_VCALLEE_CLOBBERS, , ##__VA_ARGS__)
+ 
+ 
+-- 
+2.26.2
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0729918800785316124==--
-
