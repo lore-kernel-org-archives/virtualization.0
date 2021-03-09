@@ -2,112 +2,79 @@ Return-Path: <SRS0=S6pE=IH=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D8A70C433E0
-	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 11:26:20 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 210EBC433DB
+	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 13:48:31 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4B7676525D
-	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 11:26:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4B7676525D
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 62D1765101
+	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 13:48:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 62D1765101
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B79CD83A61;
-	Tue,  9 Mar 2021 11:26:19 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id D649142FB2;
+	Tue,  9 Mar 2021 13:48:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ajTtFVWQdPu2; Tue,  9 Mar 2021 11:26:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4CFC683A1C;
-	Tue,  9 Mar 2021 11:26:18 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id w2JqY5aJ-yxE; Tue,  9 Mar 2021 13:48:28 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 59F7C4018C;
+	Tue,  9 Mar 2021 13:48:28 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2690DC000B;
-	Tue,  9 Mar 2021 11:26:18 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3F835C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 29A04C000B;
+	Tue,  9 Mar 2021 13:48:28 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AF191C000B
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 11:26:17 +0000 (UTC)
+ Tue,  9 Mar 2021 13:48:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 17E906F562
+ by smtp2.osuosl.org (Postfix) with ESMTP id A54A640192
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 11:26:17 +0000 (UTC)
+ Tue,  9 Mar 2021 13:48:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zadAQytiLWgU
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 22RjDjU5ZLer
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 11:26:16 +0000 (UTC)
+ Tue,  9 Mar 2021 13:48:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 338006F4F9
+Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B42364018C
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 11:26:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1615289174;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ Tue,  9 Mar 2021 13:48:22 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1615297701; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=QJTu97af+WLCQFYiPKebiLOkL3siT4cw4KW3jFKHkGM=;
- b=KZpoidckAmNZIv+Wir7fZbLO8QUUn9Kqewy4kOisadHDy8ghR3l5e22wVOyYuUMV0v/g8t
- KpwbIDz+CbLTFxx/zPW2bq3F5Rsm0gdHP0grAQUqrxYuuM2FPFThR3QyXQPHvNtxdfhHi6
- jqXuQ3g4ei1wi0426o4YcGIyh9Er1Yk=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-429-9BEWdgZONxGSgtdoRKE_Ww-1; Tue, 09 Mar 2021 06:26:12 -0500
-X-MC-Unique: 9BEWdgZONxGSgtdoRKE_Ww-1
-Received: by mail-wr1-f69.google.com with SMTP id g5so6244441wrd.22
- for <virtualization@lists.linux-foundation.org>;
- Tue, 09 Mar 2021 03:26:12 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=QJTu97af+WLCQFYiPKebiLOkL3siT4cw4KW3jFKHkGM=;
- b=OHJ5KHFUB1OPh/gACehcsfUSMHDoCFRi0XejRz4fJjLYS48GUAZpoh77MYvJrTczJe
- De3hWQ4TwVxSP8cC4EfAiUe9c3hrGlCKfs/PWaeIiE7gesXdZTI4X844GpUrfEU+ph3M
- MVjS+8GMFXwbt8oB+6Nps8qdEAXsxnC3c1jZnPz/HQ1eQrGSueAiA3us/VtHjWIfnRFf
- 1hyQiOh7u4tDKWnu4XXZ5pQUNHkDxl0Rp/98C2dSKfp2JR5yLIzdmk1v/0XDX0OgN0py
- 7T+A6apb8GGhYjIAyu3siYPeCWa9/WLn/5fC8jaa5H0NIBd6YllVN9CSZP5S8nb1TWMt
- nWfw==
-X-Gm-Message-State: AOAM530RUOf/KLcQAIv46UxGwXXzKg5hbwlRziYdbygZUzasn7oJkcLp
- DDGgpWXvwMCKwKhNmXqIg9olBZQxusR5nP2mseVEZy9WJ0PsiNbmXgZSXSh1aTy3hlbd35Vf+e3
- bnm3f/kVclIDNSdmgur2jVik16UkmApFyHjoAfya67g==
-X-Received: by 2002:a1c:67d6:: with SMTP id b205mr3538397wmc.118.1615289170615; 
- Tue, 09 Mar 2021 03:26:10 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxGyKCvOiCoJXkY1zxim1zjyVYdNBYQs3pqMhTrVxV5v8BM0tI/MjusSGpEIQUXq09e+JkHjw==
-X-Received: by 2002:a1c:67d6:: with SMTP id b205mr3538382wmc.118.1615289170481; 
- Tue, 09 Mar 2021 03:26:10 -0800 (PST)
-Received: from redhat.com (bzq-79-180-2-31.red.bezeqint.net. [79.180.2.31])
- by smtp.gmail.com with ESMTPSA id f17sm22314511wru.31.2021.03.09.03.26.08
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 09 Mar 2021 03:26:09 -0800 (PST)
-Date: Tue, 9 Mar 2021 06:26:06 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Balazs Nemeth <bnemeth@redhat.com>
-Subject: Re: [PATCH v2 1/2] net: check if protocol extracted by
- virtio_net_hdr_set_proto is correct
-Message-ID: <20210309062116-mutt-send-email-mst@kernel.org>
-References: <cover.1615199056.git.bnemeth@redhat.com>
- <8f2cb8f8614d86bba02df73c1a0665179583f1c3.1615199056.git.bnemeth@redhat.com>
+ bh=aUHzGwqz0II+9OmUPwKiXvy4xFpuO+aWkbUyFgMhpn4=;
+ b=Kvnh9ke6uXQ6WUSVvBkHDko+S9V0vfOLvEEH3PcquoQVgwZSlML511UhxOiEmDYe3Ejvka
+ aza3jr55fT9zDC4FNvGaUAIOTdS/byeEzVc74enPxssM7otKd2X3j9vj7OIB647EdjPOT5
+ Qiguuse/txToiZBaQGrwFbE0VhDf/xg=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+ by mx2.suse.de (Postfix) with ESMTP id D4740AD74;
+ Tue,  9 Mar 2021 13:48:20 +0000 (UTC)
+To: xen-devel@lists.xenproject.org, x86@kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Subject: [PATCH v6 06/12] x86: add new features for paravirt patching
+Date: Tue,  9 Mar 2021 14:48:07 +0100
+Message-Id: <20210309134813.23912-7-jgross@suse.com>
+X-Mailer: git-send-email 2.26.2
+In-Reply-To: <20210309134813.23912-1-jgross@suse.com>
+References: <20210309134813.23912-1-jgross@suse.com>
 MIME-Version: 1.0
-In-Reply-To: <8f2cb8f8614d86bba02df73c1a0665179583f1c3.1615199056.git.bnemeth@redhat.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: willemb@google.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, davem@davemloft.net
+Cc: Juergen Gross <jgross@suse.com>, "VMware, Inc." <pv-drivers@vmware.com>,
+ Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
+ Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,65 +86,151 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Juergen Gross via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Juergen Gross <jgross@suse.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Mar 08, 2021 at 11:31:25AM +0100, Balazs Nemeth wrote:
-> For gso packets, virtio_net_hdr_set_proto sets the protocol (if it isn't
-> set) based on the type in the virtio net hdr, but the skb could contain
-> anything since it could come from packet_snd through a raw socket. If
-> there is a mismatch between what virtio_net_hdr_set_proto sets and
-> the actual protocol, then the skb could be handled incorrectly later
-> on.
-> 
-> An example where this poses an issue is with the subsequent call to
-> skb_flow_dissect_flow_keys_basic which relies on skb->protocol being set
-> correctly. A specially crafted packet could fool
-> skb_flow_dissect_flow_keys_basic preventing EINVAL to be returned.
-> 
-> Avoid blindly trusting the information provided by the virtio net header
-> by checking that the protocol in the packet actually matches the
-> protocol set by virtio_net_hdr_set_proto. Note that since the protocol
-> is only checked if skb->dev implements header_ops->parse_protocol,
-> packets from devices without the implementation are not checked at this
-> stage.
-> 
-> Fixes: 9274124f023b ("net: stricter validation of untrusted gso packets")
-> Signed-off-by: Balazs Nemeth <bnemeth@redhat.com>
-> ---
->  include/linux/virtio_net.h | 8 +++++++-
->  1 file changed, 7 insertions(+), 1 deletion(-)
-> 
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index e8a924eeea3d..6c478eee0452 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -79,8 +79,14 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
->  		if (gso_type && skb->network_header) {
->  			struct flow_keys_basic keys;
->  
-> -			if (!skb->protocol)
-> +			if (!skb->protocol) {
-> +				const struct ethhdr *eth = skb_eth_hdr(skb);
-> +				__be16 etype = dev_parse_header_protocol(skb);
-> +
->  				virtio_net_hdr_set_proto(skb, hdr);
-> +				if (etype && etype != skb->protocol)
-> +					return -EINVAL;
-> +			}
+For being able to switch paravirt patching from special cased custom
+code sequences to ALTERNATIVE handling some X86_FEATURE_* are needed
+as new features. This enables to have the standard indirect pv call
+as the default code and to patch that with the non-Xen custom code
+sequence via ALTERNATIVE patching later.
 
+Make sure paravirt patching is performed before alternative patching.
 
-Well the protocol in the header is an attempt at an optimization to
-remove need to parse the packet ... any data on whether this
-affecs performance?
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+---
+V3:
+- add comment (Boris Petkov)
+- no negative features (Boris Petkov)
+V4:
+- move paravirt_set_cap() to paravirt-spinlocks.c
+---
+ arch/x86/include/asm/cpufeatures.h   |  2 ++
+ arch/x86/include/asm/paravirt.h      | 10 ++++++++++
+ arch/x86/kernel/alternative.c        | 30 ++++++++++++++++++++++++++--
+ arch/x86/kernel/paravirt-spinlocks.c |  9 +++++++++
+ 4 files changed, 49 insertions(+), 2 deletions(-)
 
->  retry:
->  			if (!skb_flow_dissect_flow_keys_basic(NULL, skb, &keys,
->  							      NULL, 0, 0, 0,
-> -- 
-> 2.29.2
+diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+index cc96e26d69f7..b440c950246d 100644
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -236,6 +236,8 @@
+ #define X86_FEATURE_EPT_AD		( 8*32+17) /* Intel Extended Page Table access-dirty bit */
+ #define X86_FEATURE_VMCALL		( 8*32+18) /* "" Hypervisor supports the VMCALL instruction */
+ #define X86_FEATURE_VMW_VMMCALL		( 8*32+19) /* "" VMware prefers VMMCALL hypercall instruction */
++#define X86_FEATURE_PVUNLOCK		( 8*32+20) /* "" PV unlock function */
++#define X86_FEATURE_VCPUPREEMPT		( 8*32+21) /* "" PV vcpu_is_preempted function */
+ 
+ /* Intel-defined CPU features, CPUID level 0x00000007:0 (EBX), word 9 */
+ #define X86_FEATURE_FSGSBASE		( 9*32+ 0) /* RDFSBASE, WRFSBASE, RDGSBASE, WRGSBASE instructions*/
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index 1e45b46fae84..8c354099d9c3 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -47,6 +47,10 @@ static inline u64 paravirt_steal_clock(int cpu)
+ 	return static_call(pv_steal_clock)(cpu);
+ }
+ 
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
++void __init paravirt_set_cap(void);
++#endif
++
+ /* The paravirtualized I/O functions */
+ static inline void slow_down_io(void)
+ {
+@@ -811,5 +815,11 @@ static inline void paravirt_arch_exit_mmap(struct mm_struct *mm)
+ {
+ }
+ #endif
++
++#ifndef CONFIG_PARAVIRT_SPINLOCKS
++static inline void paravirt_set_cap(void)
++{
++}
++#endif
+ #endif /* __ASSEMBLY__ */
+ #endif /* _ASM_X86_PARAVIRT_H */
+diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
+index d8e669a1546f..1f12901e75f2 100644
+--- a/arch/x86/kernel/alternative.c
++++ b/arch/x86/kernel/alternative.c
+@@ -28,6 +28,7 @@
+ #include <asm/insn.h>
+ #include <asm/io.h>
+ #include <asm/fixmap.h>
++#include <asm/paravirt.h>
+ 
+ int __read_mostly alternatives_patched;
+ 
+@@ -732,6 +733,33 @@ void __init alternative_instructions(void)
+ 	 * patching.
+ 	 */
+ 
++	/*
++	 * Paravirt patching and alternative patching can be combined to
++	 * replace a function call with a short direct code sequence (e.g.
++	 * by setting a constant return value instead of doing that in an
++	 * external function).
++	 * In order to make this work the following sequence is required:
++	 * 1. set (artificial) features depending on used paravirt
++	 *    functions which can later influence alternative patching
++	 * 2. apply paravirt patching (generally replacing an indirect
++	 *    function call with a direct one)
++	 * 3. apply alternative patching (e.g. replacing a direct function
++	 *    call with a custom code sequence)
++	 * Doing paravirt patching after alternative patching would clobber
++	 * the optimization of the custom code with a function call again.
++	 */
++	paravirt_set_cap();
++
++	/*
++	 * First patch paravirt functions, such that we overwrite the indirect
++	 * call with the direct call.
++	 */
++	apply_paravirt(__parainstructions, __parainstructions_end);
++
++	/*
++	 * Then patch alternatives, such that those paravirt calls that are in
++	 * alternatives can be overwritten by their immediate fragments.
++	 */
+ 	apply_alternatives(__alt_instructions, __alt_instructions_end);
+ 
+ #ifdef CONFIG_SMP
+@@ -750,8 +778,6 @@ void __init alternative_instructions(void)
+ 	}
+ #endif
+ 
+-	apply_paravirt(__parainstructions, __parainstructions_end);
+-
+ 	restart_nmi();
+ 	alternatives_patched = 1;
+ }
+diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
+index 4f75d0cf6305..9e1ea99ad9df 100644
+--- a/arch/x86/kernel/paravirt-spinlocks.c
++++ b/arch/x86/kernel/paravirt-spinlocks.c
+@@ -32,3 +32,12 @@ bool pv_is_native_vcpu_is_preempted(void)
+ 	return pv_ops.lock.vcpu_is_preempted.func ==
+ 		__raw_callee_save___native_vcpu_is_preempted;
+ }
++
++void __init paravirt_set_cap(void)
++{
++	if (!pv_is_native_spin_unlock())
++		setup_force_cpu_cap(X86_FEATURE_PVUNLOCK);
++
++	if (!pv_is_native_vcpu_is_preempted())
++		setup_force_cpu_cap(X86_FEATURE_VCPUPREEMPT);
++}
+-- 
+2.26.2
 
 _______________________________________________
 Virtualization mailing list
