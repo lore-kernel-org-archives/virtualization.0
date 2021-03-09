@@ -7,88 +7,78 @@ X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF930C433E0
-	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 06:14:47 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F87FC433E0
+	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 06:21:42 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2A16B650EC
-	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 06:14:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2A16B650EC
+	by mail.kernel.org (Postfix) with ESMTPS id B8B776528C
+	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 06:21:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B8B776528C
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id DA4EB499F3;
-	Tue,  9 Mar 2021 06:14:46 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 6074040163;
+	Tue,  9 Mar 2021 06:21:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fbSdCBNeKxPb; Tue,  9 Mar 2021 06:14:45 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E0C7148765;
-	Tue,  9 Mar 2021 06:14:44 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BBE7AC000A;
-	Tue,  9 Mar 2021 06:14:44 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D4A47C0001
- for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 06:14:42 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C0AA440158
- for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 06:14:42 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CPlJjDgKObp8
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id nNYwPBiseAbR; Tue,  9 Mar 2021 06:21:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTP id E7716400E1;
+	Tue,  9 Mar 2021 06:21:39 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BC34CC000A;
+	Tue,  9 Mar 2021 06:21:39 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 05023C0001
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 06:14:42 +0000 (UTC)
+ Tue,  9 Mar 2021 06:21:39 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id E6B8749999
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Mar 2021 06:21:38 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=suse.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id qPMtKpZQUCGJ
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  9 Mar 2021 06:21:38 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by smtp2.osuosl.org (Postfix) with ESMTPS id A828E400E1
+ by smtp4.osuosl.org (Postfix) with ESMTPS id DDE82489E0
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 06:14:41 +0000 (UTC)
+ Tue,  9 Mar 2021 06:21:37 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1615270479; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ t=1615270896; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Szn8CoKcdFhLmILaUcNU5Mw5xCclHsTUFexJC8stRy4=;
- b=jPjIK0O/HZtDDoN9i5q9qE9tCBF+qqDn/LLQf1IVkph/JDoObaw8ldwo6HNokrvlhNodgL
- Vs85iV11L2fM3q2k47ZOpXDOg6M687QX/KgVkfAXyk4PzKrZF8y74kYMkCJgwRL2t8uQV6
- Lgy5TUIAMbtKoMqVu92zSt/DdCmoRak=
+ bh=auED0x3wS8Wn3FtixUxpL260TFwTyGn7ZjAoR0lab8s=;
+ b=sugliOqHN66fLztniMNHrM6t8IfqY+DtVomXxMlmWAFgzISRB/qAPt21bICd6LaM+SYDMC
+ uBJe4j/rZFNmVWAVk7rUJatk9Q2WH4/0xcdziKE/DPYEFx7uK1b7qiM+BnQ6Sa/iGhifNp
+ pRhpwN8G26dmaykK/TcT+1FJ6NW+vBk=
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 378E8AC24;
- Tue,  9 Mar 2021 06:14:39 +0000 (UTC)
-Subject: Re: [PATCH v5 02/12] x86/paravirt: switch time pvops functions to use
- static_call()
-To: Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- xen-devel@lists.xenproject.org, x86@kernel.org,
- virtualization@lists.linux-foundation.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-hyperv@vger.kernel.org, kvm@vger.kernel.org
+ by mx2.suse.de (Postfix) with ESMTP id 02BCDAB8C;
+ Tue,  9 Mar 2021 06:21:36 +0000 (UTC)
+To: Borislav Petkov <bp@alien8.de>
 References: <20210308122844.30488-1-jgross@suse.com>
- <20210308122844.30488-3-jgross@suse.com>
- <1346dbb1-c43e-9ac2-10e4-3c10cb2ead78@oracle.com>
-Message-ID: <5cea7551-ce84-c084-ddaf-e84075823bd8@suse.com>
-Date: Tue, 9 Mar 2021 07:14:37 +0100
+ <20210308122844.30488-12-jgross@suse.com> <20210308183058.GC12548@zn.tnic>
+Subject: Re: [PATCH v5 11/12] x86/paravirt: switch functions with custom code
+ to ALTERNATIVE
+Message-ID: <09410a65-a5dc-db76-d867-f6b0b968323f@suse.com>
+Date: Tue, 9 Mar 2021 07:21:35 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.7.1
 MIME-Version: 1.0
-In-Reply-To: <1346dbb1-c43e-9ac2-10e4-3c10cb2ead78@oracle.com>
-Cc: Wei Liu <wei.liu@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>,
- Stephen Hemminger <sthemmin@microsoft.com>, "VMware,
- Inc." <pv-drivers@vmware.com>, Catalin Marinas <catalin.marinas@arm.com>,
- Haiyang Zhang <haiyangz@microsoft.com>,
- Sean Christopherson <seanjc@google.com>, Joerg Roedel <joro@8bytes.org>,
- Russell King <linux@armlinux.org.uk>, Wanpeng Li <wanpengli@tencent.com>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- "H. Peter Anvin" <hpa@zytor.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Thomas Gleixner <tglx@linutronix.de>, Will Deacon <will@kernel.org>,
- Jim Mattson <jmattson@google.com>
+In-Reply-To: <20210308183058.GC12548@zn.tnic>
+Cc: "VMware, Inc." <pv-drivers@vmware.com>, x86@kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Ingo Molnar <mingo@redhat.com>, Andy Lutomirski <luto@kernel.org>,
+ "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org,
+ Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -103,133 +93,97 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= via Virtualization
  <virtualization@lists.linux-foundation.org>
 Reply-To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============4492338107900491662=="
+Content-Type: multipart/mixed; boundary="===============0224467686621224978=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============4492338107900491662==
+--===============0224467686621224978==
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="71uw2iHz3Ya5XGSDna2ezasDmqthVMGA6"
+ boundary="qEpMh3Ecfq1JyILFFGFyPlagg1mFokzxT"
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---71uw2iHz3Ya5XGSDna2ezasDmqthVMGA6
-Content-Type: multipart/mixed; boundary="WlyrUNrhACnKGE7g1Gx1k7ZM6h5PqkFRP";
+--qEpMh3Ecfq1JyILFFGFyPlagg1mFokzxT
+Content-Type: multipart/mixed; boundary="4WZ1ErrJpnSn17WaCS7ULv4vKLVypghm7";
  protected-headers="v1"
 From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-To: Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- xen-devel@lists.xenproject.org, x86@kernel.org,
- virtualization@lists.linux-foundation.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- linux-hyperv@vger.kernel.org, kvm@vger.kernel.org
-Cc: Deep Shah <sdeep@vmware.com>, "VMware, Inc." <pv-drivers@vmware.com>,
- Russell King <linux@armlinux.org.uk>,
- Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
- "K. Y. Srinivasan" <kys@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>,
- Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
- Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson
- <seanjc@google.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
- Wanpeng Li <wanpengli@tencent.com>, Jim Mattson <jmattson@google.com>,
- Joerg Roedel <joro@8bytes.org>, Stefano Stabellini <sstabellini@kernel.org>
-Message-ID: <5cea7551-ce84-c084-ddaf-e84075823bd8@suse.com>
-Subject: Re: [PATCH v5 02/12] x86/paravirt: switch time pvops functions to use
- static_call()
+To: Borislav Petkov <bp@alien8.de>
+Cc: xen-devel@lists.xenproject.org, x86@kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+ Ingo Molnar <mingo@redhat.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ Deep Shah <sdeep@vmware.com>, "VMware, Inc." <pv-drivers@vmware.com>
+Message-ID: <09410a65-a5dc-db76-d867-f6b0b968323f@suse.com>
+Subject: Re: [PATCH v5 11/12] x86/paravirt: switch functions with custom code
+ to ALTERNATIVE
 References: <20210308122844.30488-1-jgross@suse.com>
- <20210308122844.30488-3-jgross@suse.com>
- <1346dbb1-c43e-9ac2-10e4-3c10cb2ead78@oracle.com>
-In-Reply-To: <1346dbb1-c43e-9ac2-10e4-3c10cb2ead78@oracle.com>
+ <20210308122844.30488-12-jgross@suse.com> <20210308183058.GC12548@zn.tnic>
+In-Reply-To: <20210308183058.GC12548@zn.tnic>
 
---WlyrUNrhACnKGE7g1Gx1k7ZM6h5PqkFRP
+--4WZ1ErrJpnSn17WaCS7ULv4vKLVypghm7
 Content-Type: multipart/mixed;
- boundary="------------F998C827E1466225E03A1952"
+ boundary="------------518D9DF2B6D10E464777E18C"
 Content-Language: en-US
 
 This is a multi-part message in MIME format.
---------------F998C827E1466225E03A1952
+--------------518D9DF2B6D10E464777E18C
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
 
-On 08.03.21 18:00, Boris Ostrovsky wrote:
->=20
-> On 3/8/21 7:28 AM, Juergen Gross wrote:
->> --- a/arch/x86/xen/time.c
->> +++ b/arch/x86/xen/time.c
->> @@ -379,11 +379,6 @@ void xen_timer_resume(void)
->>   	}
->>   }
+On 08.03.21 19:30, Borislav Petkov wrote:
+> On Mon, Mar 08, 2021 at 01:28:43PM +0100, Juergen Gross wrote:
+>> diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/pa=
+ravirt.h
+>> index 36cd71fa097f..04b3067f31b5 100644
+>> --- a/arch/x86/include/asm/paravirt.h
+>> +++ b/arch/x86/include/asm/paravirt.h
+>> @@ -137,7 +137,8 @@ static inline void write_cr0(unsigned long x)
 >>  =20
->> -static const struct pv_time_ops xen_time_ops __initconst =3D {
->> -	.sched_clock =3D xen_sched_clock,
->> -	.steal_clock =3D xen_steal_clock,
->> -};
->> -
->>   static struct pvclock_vsyscall_time_info *xen_clock __read_mostly;
->>   static u64 xen_clock_value_saved;
->>  =20
->> @@ -528,7 +523,8 @@ static void __init xen_time_init(void)
->>   void __init xen_init_time_ops(void)
+>>   static inline unsigned long read_cr2(void)
 >>   {
->>   	xen_sched_clock_offset =3D xen_clocksource_read();
->> -	pv_ops.time =3D xen_time_ops;
->> +	static_call_update(pv_steal_clock, xen_steal_clock);
->> +	paravirt_set_sched_clock(xen_sched_clock);
->>  =20
->>   	x86_init.timers.timer_init =3D xen_time_init;
->>   	x86_init.timers.setup_percpu_clockev =3D x86_init_noop;
->> @@ -570,7 +566,8 @@ void __init xen_hvm_init_time_ops(void)
->>   	}
->>  =20
->>   	xen_sched_clock_offset =3D xen_clocksource_read();
->> -	pv_ops.time =3D xen_time_ops;
->> +	static_call_update(pv_steal_clock, xen_steal_clock);
->> +	paravirt_set_sched_clock(xen_sched_clock);
->>   	x86_init.timers.setup_percpu_clockev =3D xen_time_init;
->>   	x86_cpuinit.setup_percpu_clockev =3D xen_hvm_setup_cpu_clockevents;=
+>> -	return PVOP_CALLEE0(unsigned long, mmu.read_cr2);
+>> +	return PVOP_ALT_CALLEE0(unsigned long, mmu.read_cr2,
+>> +				"mov %%cr2, %%rax;", ~X86_FEATURE_XENPV);
+>=20
+> Just some cursory poking first - indepth review later.
+>=20
+> Do I see this correctly that the negated feature can be expressed with,=
+ to use
+> this example here:
+>=20
+> 	ALTERNATIVE_TERNARY(mmu.read_cr2, X86_FEATURE_XENPV, "", "mov %%cr2, %=
+%rax;");
+>=20
+> ?
 
->=20
->=20
-> There is a bunch of stuff that's common between the two cases so it can=
- be factored out.
+No.
 
-Yes.
+This would leave the Xen-pv case with a nop, while we need it to call
+mmu.read_cr2().
 
->=20
->=20
->>  =20
->> diff --git a/drivers/xen/time.c b/drivers/xen/time.c
->> index 108edbcbc040..152dd33bb223 100644
->> --- a/drivers/xen/time.c
->> +++ b/drivers/xen/time.c
->> @@ -7,6 +7,7 @@
->>   #include <linux/math64.h>
->>   #include <linux/gfp.h>
->>   #include <linux/slab.h>
->> +#include <linux/static_call.h>
->>  =20
->>   #include <asm/paravirt.h>
->>   #include <asm/xen/hypervisor.h>
->> @@ -175,7 +176,7 @@ void __init xen_time_setup_guest(void)
->>   	xen_runstate_remote =3D !HYPERVISOR_vm_assist(VMASST_CMD_enable,
->>   					VMASST_TYPE_runstate_update_flag);
->>  =20
->> -	pv_ops.time.steal_clock =3D xen_steal_clock;
->> +	static_call_update(pv_steal_clock, xen_steal_clock);
->>  =20
->=20
->=20
-> Do we actually need this? We've already set this up in xen_init_time_op=
-s(). (But maybe for ARM).
+In the Xen-pv case there must be _no_ alternative patching in order to
+have the paravirt patching do its patching (indirect->direct call).
 
-Correct. Arm needs this.
+This is exactly the reason why I need to "not feature".
+
+The only other solution I can think of would be a "split static_call"
+handling using ALTERNATIVE_TERNARY():
+
+ALTERNATIVE_TERNARY(initial_static_call(mmu.read_cr2),
+                     X86_FEATURE_XENPV,
+                     final_static_call(mmu.read_cr2),
+                     "mov %%cr2, %%rax;");
+
+with initial_static_call() doing an indirect call, while
+final_static_call() would do a direct call.
+
+Not sure we really want that.
 
 
 Juergen
 
---------------F998C827E1466225E03A1952
+--------------518D9DF2B6D10E464777E18C
 Content-Type: application/pgp-keys;
  name="OpenPGP_0xB0DE9DD628BF132F.asc"
 Content-Transfer-Encoding: quoted-printable
@@ -320,29 +274,29 @@ ZDn8R38=3D
 =3D2wuH
 -----END PGP PUBLIC KEY BLOCK-----
 
---------------F998C827E1466225E03A1952--
+--------------518D9DF2B6D10E464777E18C--
 
---WlyrUNrhACnKGE7g1Gx1k7ZM6h5PqkFRP--
+--4WZ1ErrJpnSn17WaCS7ULv4vKLVypghm7--
 
---71uw2iHz3Ya5XGSDna2ezasDmqthVMGA6
+--qEpMh3Ecfq1JyILFFGFyPlagg1mFokzxT
 Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="OpenPGP_signature"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmBHEk0FAwAAAAAACgkQsN6d1ii/Ey8E
-swf+OyODJL+GMlmaqXVphW8kb4oF9BSQVqkcEtzcS+L7SRmJ9ZuimdIeCk6WrrqzUiDE1aeFsNeK
-hVT12DE64j551Af0uJdt3Q/PBEDiSsvW7V87fiAg8DL8I0XqJj29wP8vBjfJPVFgDVJHIsNK2Tnm
-K4O/6BbctZcBqC6WwuSpss7JXmRAS0ApTaaAypMTffbSKAwJ9whX+tlcFKpqvBqKVjV2x65b7Cj2
-hE/CQ/MjxQhK9Qjz7y4M62kBOGiWt3PhJInwZSpRmbf1j0Qieht6KAbJhWvwm0WGTeoOI/JCLQWd
-I8/SFQj2W6p8N5ijnvLD5KskevErq8ti98OafCVDpA==
-=2Vak
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmBHE+8FAwAAAAAACgkQsN6d1ii/Ey/i
+owf+NuM+ZrdiHB4RC1K2m8LT7LKECO0k44bwvIFALNAieBdxJhsPJ4oUIVwCp5FNj9dY8H8tk5GG
+3CXFwQV8iLiKeIQduvcf29ZXOJeD0xx29A/9DIHY2MSTdSWTDvIDN4+WtQmOvkSClYirkMZV4A5i
+oWppxkVOC+B8ylDaqlXw8tOyAcWoNnPfDJLaEuF9ZqPm4j9EgNkJjnQ7FsBMAu60CynYtrVNGszk
+aSpvbPgjLXQse38X+UvDI5oqUnsAWfrYQITmtW2RHM+v4CPGJZcRM/+xvH2/NXvHvbDOMVBF675H
+T8YelM8a0PPKgS08dEKpDRXDqkXTIgDRCsraPlQTgQ==
+=klAc
 -----END PGP SIGNATURE-----
 
---71uw2iHz3Ya5XGSDna2ezasDmqthVMGA6--
+--qEpMh3Ecfq1JyILFFGFyPlagg1mFokzxT--
 
---===============4492338107900491662==
+--===============0224467686621224978==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -352,4 +306,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4492338107900491662==--
+--===============0224467686621224978==--
