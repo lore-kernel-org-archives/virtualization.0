@@ -2,82 +2,115 @@ Return-Path: <SRS0=S6pE=IH=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B027AC4332D
-	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 13:48:36 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05682C433DB
+	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 14:03:41 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4A47D65101
-	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 13:48:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4A47D65101
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id 718E2650EC
+	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 14:03:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 718E2650EC
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 65F4583D6C;
-	Tue,  9 Mar 2021 13:48:35 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0AA2940196;
+	Tue,  9 Mar 2021 14:03:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bzG7uqy5txHn; Tue,  9 Mar 2021 13:48:33 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id SwhwMzqdtn4B; Tue,  9 Mar 2021 14:03:39 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4539483D8A;
-	Tue,  9 Mar 2021 13:48:32 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 79A5042FBE;
+	Tue,  9 Mar 2021 14:03:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7E559C001D;
-	Tue,  9 Mar 2021 13:48:31 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 188C2C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5FFB4C000B;
+	Tue,  9 Mar 2021 14:03:38 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D81A1C000B
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 13:48:30 +0000 (UTC)
+ Tue,  9 Mar 2021 14:03:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7C167605C9
+ by smtp3.osuosl.org (Postfix) with ESMTP id B37CC6F521
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 13:48:28 +0000 (UTC)
+ Tue,  9 Mar 2021 14:03:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.com
+ dkim=pass (2048-bit key) header.d=gmail.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8EXTtSTmYcAm
+ with ESMTP id J0tE_rGsupWt
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 13:48:24 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 6A1D36F580
+ Tue,  9 Mar 2021 14:03:36 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com
+ [IPv6:2a00:1450:4864:20::636])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id D392B6F5B6
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 13:48:24 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1615297702; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=d4ExMZPJQhPpnv6x0LBUpMruJTxKVMDPDTTcOV0zzwM=;
- b=ijkz3iPh8dCqibcoZxTCFz3vwKvA0Yfny/egFKgPDoyJ0llIhby8i3vydZcsIK2asD+CdX
- aFgh87ABYNgE34nI2wUnypL2xCdjovhQkwXSYqdXL3v8BPyN6273kD5z+HYmP+AyWillpx
- lum4r6AOmEQZ8hTSxXbcqyFgRJ1cokM=
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 8F848AE15;
- Tue,  9 Mar 2021 13:48:22 +0000 (UTC)
-To: xen-devel@lists.xenproject.org, x86@kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Subject: [PATCH v6 11/12] x86/paravirt: switch functions with custom code to
- ALTERNATIVE
-Date: Tue,  9 Mar 2021 14:48:12 +0100
-Message-Id: <20210309134813.23912-12-jgross@suse.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210309134813.23912-1-jgross@suse.com>
-References: <20210309134813.23912-1-jgross@suse.com>
+ Tue,  9 Mar 2021 14:03:35 +0000 (UTC)
+Received: by mail-ej1-x636.google.com with SMTP id c10so27896398ejx.9
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 09 Mar 2021 06:03:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=4ft5rd560a0W9wxTzYwRNovTAUDlXaQrOqyKdLfMHLs=;
+ b=gUJlyg/5pLeWaXd2N9NNQZ8NbrIXx8As9ZuRUg03D0jpMX1dggNIiX81+CrM0dvfqV
+ bETGkoHFu0y2s4uJr/WA/HDXUhVapWWNEIUrv71y8RnvHYt/ICGyDwlTeZ1CIIo6oOgf
+ fbGwCWvn2RGvBtFKMRJIOga4IzaEWmx3GYa/VrBQCV2+EJdRrFPVU3FBHgAjZOOXMxNp
+ P28+xHRk2mbnUGGro5CC4U5AvAjRz9sjseiZxvMA9cTsjnULKebfvYlAS6ChIaFPqTNC
+ FVqUFtOIUUJoMrVQreOP7k5rAgliJ737LyGM/ozq6GVnx1qF9hBMlNDuw7ikpxEGbayK
+ vT9w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=4ft5rd560a0W9wxTzYwRNovTAUDlXaQrOqyKdLfMHLs=;
+ b=alCbtG905iZ3b7/GUDm41wMFIJK6gEnghNhtAz/HCSIH64XX5b0VzXz0SGzJ8HLfmn
+ sT2sUJSk/SN7l0cHLTU+otgXeVPTfsRxNFpiv6g2uTiH53MErAux3Hxwi8RZdHCjrxGV
+ ldz7VxYXfTBbcbpaQitOWbqzxsNMXf6T2HqypcAPbPvZHeZ6gL1iTfkhL59nGC2jAl3a
+ ykjJzfYjtk/f6epyXFSoCR406aA3V0zgoIyQeyyRqsetF8AB0aTjojkWeZoVXWWPU8MH
+ bi6cCcNhBgH2yUMMSXipmfTjH7hOP1L/Dt+8763XnnCFzG3enoa/3CGo6AXHij5Ef2xt
+ egBw==
+X-Gm-Message-State: AOAM533oDSysLQN9dQV0e08hmGNJZs82DGAiYgIiFtA02Ql/rcW3Ohh2
+ 1dY3FTx6Ybw6HP2Wx3Gs1gBvdHA1IMk=
+X-Google-Smtp-Source: ABdhPJy45PGxKLwZP2BmK+2um03rSPplOTHd6nVEP8IhtpHYejHP6zi0l8TsdyFYwrK0XG5qpvNA/g==
+X-Received: by 2002:a17:906:81d5:: with SMTP id
+ e21mr19967434ejx.102.1615298613847; 
+ Tue, 09 Mar 2021 06:03:33 -0800 (PST)
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com.
+ [209.85.128.45])
+ by smtp.gmail.com with ESMTPSA id kj3sm8481555ejc.117.2021.03.09.06.03.33
+ for <virtualization@lists.linux-foundation.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Tue, 09 Mar 2021 06:03:33 -0800 (PST)
+Received: by mail-wm1-f45.google.com with SMTP id
+ b2-20020a7bc2420000b029010be1081172so6421121wmj.1
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 09 Mar 2021 06:03:33 -0800 (PST)
+X-Received: by 2002:a05:600c:2053:: with SMTP id
+ p19mr4202330wmg.87.1615298612543; 
+ Tue, 09 Mar 2021 06:03:32 -0800 (PST)
 MIME-Version: 1.0
-Cc: Juergen Gross <jgross@suse.com>, "VMware, Inc." <pv-drivers@vmware.com>,
- Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
- "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
+References: <cover.1615199056.git.bnemeth@redhat.com>
+ <8f2cb8f8614d86bba02df73c1a0665179583f1c3.1615199056.git.bnemeth@redhat.com>
+ <20210309062116-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20210309062116-mutt-send-email-mst@kernel.org>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date: Tue, 9 Mar 2021 09:02:52 -0500
+X-Gmail-Original-Message-ID: <CA+FuTSdXP-nOMWjw0hML3eOhFpApZLZhgENub7fLAUn3DMHmBg@mail.gmail.com>
+Message-ID: <CA+FuTSdXP-nOMWjw0hML3eOhFpApZLZhgENub7fLAUn3DMHmBg@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] net: check if protocol extracted by
+ virtio_net_hdr_set_proto is correct
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Network Development <netdev@vger.kernel.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org, Balazs Nemeth <bnemeth@redhat.com>,
+ David Miller <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -89,478 +122,72 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Juergen Gross via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Juergen Gross <jgross@suse.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Instead of using paravirt patching for custom code sequences use
-ALTERNATIVE for the functions with custom code replacements.
+On Tue, Mar 9, 2021 at 6:26 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Mon, Mar 08, 2021 at 11:31:25AM +0100, Balazs Nemeth wrote:
+> > For gso packets, virtio_net_hdr_set_proto sets the protocol (if it isn't
+> > set) based on the type in the virtio net hdr, but the skb could contain
+> > anything since it could come from packet_snd through a raw socket. If
+> > there is a mismatch between what virtio_net_hdr_set_proto sets and
+> > the actual protocol, then the skb could be handled incorrectly later
+> > on.
+> >
+> > An example where this poses an issue is with the subsequent call to
+> > skb_flow_dissect_flow_keys_basic which relies on skb->protocol being set
+> > correctly. A specially crafted packet could fool
+> > skb_flow_dissect_flow_keys_basic preventing EINVAL to be returned.
+> >
+> > Avoid blindly trusting the information provided by the virtio net header
+> > by checking that the protocol in the packet actually matches the
+> > protocol set by virtio_net_hdr_set_proto. Note that since the protocol
+> > is only checked if skb->dev implements header_ops->parse_protocol,
+> > packets from devices without the implementation are not checked at this
+> > stage.
+> >
+> > Fixes: 9274124f023b ("net: stricter validation of untrusted gso packets")
+> > Signed-off-by: Balazs Nemeth <bnemeth@redhat.com>
+> > ---
+> >  include/linux/virtio_net.h | 8 +++++++-
+> >  1 file changed, 7 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> > index e8a924eeea3d..6c478eee0452 100644
+> > --- a/include/linux/virtio_net.h
+> > +++ b/include/linux/virtio_net.h
+> > @@ -79,8 +79,14 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+> >               if (gso_type && skb->network_header) {
+> >                       struct flow_keys_basic keys;
+> >
+> > -                     if (!skb->protocol)
+> > +                     if (!skb->protocol) {
+> > +                             const struct ethhdr *eth = skb_eth_hdr(skb);
+> > +                             __be16 etype = dev_parse_header_protocol(skb);
+> > +
+> >                               virtio_net_hdr_set_proto(skb, hdr);
+> > +                             if (etype && etype != skb->protocol)
+> > +                                     return -EINVAL;
+> > +                     }
+>
+>
+> Well the protocol in the header is an attempt at an optimization to
+> remove need to parse the packet ... any data on whether this
+> affecs performance?
 
-Instead of patching an ud2 instruction for unpopulated vector entries
-into the caller site, use a simple function just calling BUG() as a
-replacement.
+This adds a branch and reading a cacheline that is inevitably read not
+much later. It shouldn't be significant.
 
-Simplify the register defines for assembler paravirt calling, as there
-isn't much usage left.
+And this branch is only taken if skb->protocol is not set. So the cost
+can easily be avoided by passing the information.
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
-V4:
-- fixed SAVE_FLAGS() (kernel test robot)
-- added assembler paravirt cleanup
----
- arch/x86/entry/entry_64.S             |   2 +-
- arch/x86/include/asm/irqflags.h       |   2 +-
- arch/x86/include/asm/paravirt.h       | 101 +++++++++++++-------------
- arch/x86/include/asm/paravirt_types.h |   6 --
- arch/x86/kernel/paravirt.c            |  16 ++--
- arch/x86/kernel/paravirt_patch.c      |  88 ----------------------
- 6 files changed, 58 insertions(+), 157 deletions(-)
+But you raise a good point, because TUNTAP does set it, but only after
+the call to virtio_net_hdr_to_skb.
 
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index 400908dff42e..12e2e3cd58be 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -305,7 +305,7 @@ SYM_CODE_END(ret_from_fork)
- .macro DEBUG_ENTRY_ASSERT_IRQS_OFF
- #ifdef CONFIG_DEBUG_ENTRY
- 	pushq %rax
--	SAVE_FLAGS(CLBR_RAX)
-+	SAVE_FLAGS
- 	testl $X86_EFLAGS_IF, %eax
- 	jz .Lokay_\@
- 	ud2
-diff --git a/arch/x86/include/asm/irqflags.h b/arch/x86/include/asm/irqflags.h
-index a0efbcd24b86..c5ce9845c999 100644
---- a/arch/x86/include/asm/irqflags.h
-+++ b/arch/x86/include/asm/irqflags.h
-@@ -111,7 +111,7 @@ static __always_inline unsigned long arch_local_irq_save(void)
- 
- #ifdef CONFIG_X86_64
- #ifdef CONFIG_DEBUG_ENTRY
--#define SAVE_FLAGS(x)		pushfq; popq %rax
-+#define SAVE_FLAGS		pushfq; popq %rax
- #endif
- 
- #define INTERRUPT_RETURN	jmp native_iret
-diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
-index 36cd71fa097f..b32b408958e8 100644
---- a/arch/x86/include/asm/paravirt.h
-+++ b/arch/x86/include/asm/paravirt.h
-@@ -137,7 +137,9 @@ static inline void write_cr0(unsigned long x)
- 
- static inline unsigned long read_cr2(void)
- {
--	return PVOP_CALLEE0(unsigned long, mmu.read_cr2);
-+	return PVOP_ALT_CALLEE0(unsigned long, mmu.read_cr2,
-+				"mov %%cr2, %%rax;",
-+				ALT_NOT(X86_FEATURE_XENPV));
- }
- 
- static inline void write_cr2(unsigned long x)
-@@ -147,12 +149,14 @@ static inline void write_cr2(unsigned long x)
- 
- static inline unsigned long __read_cr3(void)
- {
--	return PVOP_CALL0(unsigned long, mmu.read_cr3);
-+	return PVOP_ALT_CALL0(unsigned long, mmu.read_cr3,
-+			      "mov %%cr3, %%rax;", ALT_NOT(X86_FEATURE_XENPV));
- }
- 
- static inline void write_cr3(unsigned long x)
- {
--	PVOP_VCALL1(mmu.write_cr3, x);
-+	PVOP_ALT_VCALL1(mmu.write_cr3, x,
-+			"mov %%rdi, %%cr3", ALT_NOT(X86_FEATURE_XENPV));
- }
- 
- static inline void __write_cr4(unsigned long x)
-@@ -172,7 +176,7 @@ static inline void halt(void)
- 
- static inline void wbinvd(void)
- {
--	PVOP_VCALL0(cpu.wbinvd);
-+	PVOP_ALT_VCALL0(cpu.wbinvd, "wbinvd", ALT_NOT(X86_FEATURE_XENPV));
- }
- 
- static inline u64 paravirt_read_msr(unsigned msr)
-@@ -386,22 +390,28 @@ static inline void paravirt_release_p4d(unsigned long pfn)
- 
- static inline pte_t __pte(pteval_t val)
- {
--	return (pte_t) { PVOP_CALLEE1(pteval_t, mmu.make_pte, val) };
-+	return (pte_t) { PVOP_ALT_CALLEE1(pteval_t, mmu.make_pte, val,
-+					  "mov %%rdi, %%rax",
-+					  ALT_NOT(X86_FEATURE_XENPV)) };
- }
- 
- static inline pteval_t pte_val(pte_t pte)
- {
--	return PVOP_CALLEE1(pteval_t, mmu.pte_val, pte.pte);
-+	return PVOP_ALT_CALLEE1(pteval_t, mmu.pte_val, pte.pte,
-+				"mov %%rdi, %%rax", ALT_NOT(X86_FEATURE_XENPV));
- }
- 
- static inline pgd_t __pgd(pgdval_t val)
- {
--	return (pgd_t) { PVOP_CALLEE1(pgdval_t, mmu.make_pgd, val) };
-+	return (pgd_t) { PVOP_ALT_CALLEE1(pgdval_t, mmu.make_pgd, val,
-+					  "mov %%rdi, %%rax",
-+					  ALT_NOT(X86_FEATURE_XENPV)) };
- }
- 
- static inline pgdval_t pgd_val(pgd_t pgd)
- {
--	return PVOP_CALLEE1(pgdval_t, mmu.pgd_val, pgd.pgd);
-+	return PVOP_ALT_CALLEE1(pgdval_t, mmu.pgd_val, pgd.pgd,
-+				"mov %%rdi, %%rax", ALT_NOT(X86_FEATURE_XENPV));
- }
- 
- #define  __HAVE_ARCH_PTEP_MODIFY_PROT_TRANSACTION
-@@ -434,12 +444,15 @@ static inline void set_pmd(pmd_t *pmdp, pmd_t pmd)
- 
- static inline pmd_t __pmd(pmdval_t val)
- {
--	return (pmd_t) { PVOP_CALLEE1(pmdval_t, mmu.make_pmd, val) };
-+	return (pmd_t) { PVOP_ALT_CALLEE1(pmdval_t, mmu.make_pmd, val,
-+					  "mov %%rdi, %%rax",
-+					  ALT_NOT(X86_FEATURE_XENPV)) };
- }
- 
- static inline pmdval_t pmd_val(pmd_t pmd)
- {
--	return PVOP_CALLEE1(pmdval_t, mmu.pmd_val, pmd.pmd);
-+	return PVOP_ALT_CALLEE1(pmdval_t, mmu.pmd_val, pmd.pmd,
-+				"mov %%rdi, %%rax", ALT_NOT(X86_FEATURE_XENPV));
- }
- 
- static inline void set_pud(pud_t *pudp, pud_t pud)
-@@ -451,14 +464,16 @@ static inline pud_t __pud(pudval_t val)
- {
- 	pudval_t ret;
- 
--	ret = PVOP_CALLEE1(pudval_t, mmu.make_pud, val);
-+	ret = PVOP_ALT_CALLEE1(pudval_t, mmu.make_pud, val,
-+			       "mov %%rdi, %%rax", ALT_NOT(X86_FEATURE_XENPV));
- 
- 	return (pud_t) { ret };
- }
- 
- static inline pudval_t pud_val(pud_t pud)
- {
--	return PVOP_CALLEE1(pudval_t, mmu.pud_val, pud.pud);
-+	return PVOP_ALT_CALLEE1(pudval_t, mmu.pud_val, pud.pud,
-+				"mov %%rdi, %%rax", ALT_NOT(X86_FEATURE_XENPV));
- }
- 
- static inline void pud_clear(pud_t *pudp)
-@@ -477,14 +492,17 @@ static inline void set_p4d(p4d_t *p4dp, p4d_t p4d)
- 
- static inline p4d_t __p4d(p4dval_t val)
- {
--	p4dval_t ret = PVOP_CALLEE1(p4dval_t, mmu.make_p4d, val);
-+	p4dval_t ret = PVOP_ALT_CALLEE1(p4dval_t, mmu.make_p4d, val,
-+					"mov %%rdi, %%rax",
-+					ALT_NOT(X86_FEATURE_XENPV));
- 
- 	return (p4d_t) { ret };
- }
- 
- static inline p4dval_t p4d_val(p4d_t p4d)
- {
--	return PVOP_CALLEE1(p4dval_t, mmu.p4d_val, p4d.p4d);
-+	return PVOP_ALT_CALLEE1(p4dval_t, mmu.p4d_val, p4d.p4d,
-+				"mov %%rdi, %%rax", ALT_NOT(X86_FEATURE_XENPV));
- }
- 
- static inline void __set_pgd(pgd_t *pgdp, pgd_t pgd)
-@@ -571,7 +589,9 @@ static __always_inline void pv_queued_spin_lock_slowpath(struct qspinlock *lock,
- 
- static __always_inline void pv_queued_spin_unlock(struct qspinlock *lock)
- {
--	PVOP_VCALLEE1(lock.queued_spin_unlock, lock);
-+	PVOP_ALT_VCALLEE1(lock.queued_spin_unlock, lock,
-+			  "movb $0, (%%" _ASM_ARG1 ");",
-+			  ALT_NOT(X86_FEATURE_PVUNLOCK));
- }
- 
- static __always_inline void pv_wait(u8 *ptr, u8 val)
-@@ -586,7 +606,9 @@ static __always_inline void pv_kick(int cpu)
- 
- static __always_inline bool pv_vcpu_is_preempted(long cpu)
- {
--	return PVOP_CALLEE1(bool, lock.vcpu_is_preempted, cpu);
-+	return PVOP_ALT_CALLEE1(bool, lock.vcpu_is_preempted, cpu,
-+				"xor %%" _ASM_AX ", %%" _ASM_AX ";",
-+				ALT_NOT(X86_FEATURE_VCPUPREEMPT));
- }
- 
- void __raw_callee_save___native_queued_spin_unlock(struct qspinlock *lock);
-@@ -660,17 +682,18 @@ bool __raw_callee_save___native_vcpu_is_preempted(long cpu);
- #ifdef CONFIG_PARAVIRT_XXL
- static inline notrace unsigned long arch_local_save_flags(void)
- {
--	return PVOP_CALLEE0(unsigned long, irq.save_fl);
-+	return PVOP_ALT_CALLEE0(unsigned long, irq.save_fl, "pushf; pop %%rax;",
-+				ALT_NOT(X86_FEATURE_XENPV));
- }
- 
- static inline notrace void arch_local_irq_disable(void)
- {
--	PVOP_VCALLEE0(irq.irq_disable);
-+	PVOP_ALT_VCALLEE0(irq.irq_disable, "cli;", ALT_NOT(X86_FEATURE_XENPV));
- }
- 
- static inline notrace void arch_local_irq_enable(void)
- {
--	PVOP_VCALLEE0(irq.irq_enable);
-+	PVOP_ALT_VCALLEE0(irq.irq_enable, "sti;", ALT_NOT(X86_FEATURE_XENPV));
- }
- 
- static inline notrace unsigned long arch_local_irq_save(void)
-@@ -715,35 +738,9 @@ extern void default_banner(void);
- 	.popsection
- 
- 
--#define COND_PUSH(set, mask, reg)			\
--	.if ((~(set)) & mask); push %reg; .endif
--#define COND_POP(set, mask, reg)			\
--	.if ((~(set)) & mask); pop %reg; .endif
--
- #ifdef CONFIG_X86_64
- #ifdef CONFIG_PARAVIRT_XXL
- 
--#define PV_SAVE_REGS(set)			\
--	COND_PUSH(set, CLBR_RAX, rax);		\
--	COND_PUSH(set, CLBR_RCX, rcx);		\
--	COND_PUSH(set, CLBR_RDX, rdx);		\
--	COND_PUSH(set, CLBR_RSI, rsi);		\
--	COND_PUSH(set, CLBR_RDI, rdi);		\
--	COND_PUSH(set, CLBR_R8, r8);		\
--	COND_PUSH(set, CLBR_R9, r9);		\
--	COND_PUSH(set, CLBR_R10, r10);		\
--	COND_PUSH(set, CLBR_R11, r11)
--#define PV_RESTORE_REGS(set)			\
--	COND_POP(set, CLBR_R11, r11);		\
--	COND_POP(set, CLBR_R10, r10);		\
--	COND_POP(set, CLBR_R9, r9);		\
--	COND_POP(set, CLBR_R8, r8);		\
--	COND_POP(set, CLBR_RDI, rdi);		\
--	COND_POP(set, CLBR_RSI, rsi);		\
--	COND_POP(set, CLBR_RDX, rdx);		\
--	COND_POP(set, CLBR_RCX, rcx);		\
--	COND_POP(set, CLBR_RAX, rax)
--
- #define PARA_PATCH(off)		((off) / 8)
- #define PARA_SITE(ptype, ops)	_PVSITE(ptype, ops, .quad, 8)
- #define PARA_INDIRECT(addr)	*addr(%rip)
-@@ -754,12 +751,14 @@ extern void default_banner(void);
- 		X86_FEATURE_XENPV, "jmp xen_iret;", "jmp native_iret;")
- 
- #ifdef CONFIG_DEBUG_ENTRY
--#define SAVE_FLAGS(clobbers)                                        \
--	PARA_SITE(PARA_PATCH(PV_IRQ_save_fl),			    \
--		  PV_SAVE_REGS(clobbers | CLBR_CALLEE_SAVE);        \
--		  ANNOTATE_RETPOLINE_SAFE;			    \
--		  call PARA_INDIRECT(pv_ops+PV_IRQ_save_fl);	    \
--		  PV_RESTORE_REGS(clobbers | CLBR_CALLEE_SAVE);)
-+.macro PARA_IRQ_save_fl
-+	PARA_SITE(PARA_PATCH(PV_IRQ_save_fl),
-+		  ANNOTATE_RETPOLINE_SAFE;
-+		  call PARA_INDIRECT(pv_ops+PV_IRQ_save_fl);)
-+.endm
-+
-+#define SAVE_FLAGS	ALTERNATIVE "PARA_IRQ_save_fl;", "pushf; pop %rax;", \
-+				    ALT_NOT(X86_FEATURE_XENPV)
- #endif
- #endif /* CONFIG_PARAVIRT_XXL */
- #endif	/* CONFIG_X86_64 */
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 0ed976286d49..588ff14ce969 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -3,7 +3,6 @@
- #define _ASM_X86_PARAVIRT_TYPES_H
- 
- /* Bitmask of what can be clobbered: usually at least eax. */
--#define CLBR_NONE 0
- #define CLBR_EAX  (1 << 0)
- #define CLBR_ECX  (1 << 1)
- #define CLBR_EDX  (1 << 2)
-@@ -15,7 +14,6 @@
- 
- #define CLBR_ARG_REGS	(CLBR_EAX | CLBR_EDX | CLBR_ECX)
- #define CLBR_RET_REG	(CLBR_EAX | CLBR_EDX)
--#define CLBR_SCRATCH	(0)
- #else
- #define CLBR_RAX  CLBR_EAX
- #define CLBR_RCX  CLBR_ECX
-@@ -32,12 +30,9 @@
- #define CLBR_ARG_REGS	(CLBR_RDI | CLBR_RSI | CLBR_RDX | \
- 			 CLBR_RCX | CLBR_R8 | CLBR_R9)
- #define CLBR_RET_REG	(CLBR_RAX)
--#define CLBR_SCRATCH	(CLBR_R10 | CLBR_R11)
- 
- #endif /* X86_64 */
- 
--#define CLBR_CALLEE_SAVE ((CLBR_ARG_REGS | CLBR_SCRATCH) & ~CLBR_RET_REG)
--
- #ifndef __ASSEMBLY__
- 
- #include <asm/desc_defs.h>
-@@ -322,7 +317,6 @@ extern void (*paravirt_iret)(void);
- /* Simple instruction patching code. */
- #define NATIVE_LABEL(a,x,b) "\n\t.globl " a #x "_" #b "\n" a #x "_" #b ":\n\t"
- 
--unsigned paravirt_patch_ident_64(void *insn_buff, unsigned len);
- unsigned paravirt_patch_default(u8 type, void *insn_buff, unsigned long addr, unsigned len);
- unsigned paravirt_patch_insns(void *insn_buff, unsigned len, const char *start, const char *end);
- 
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index 0553a339d850..082954930809 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -53,7 +53,10 @@ void __init default_banner(void)
- }
- 
- /* Undefined instruction for dealing with missing ops pointers. */
--static const unsigned char ud2a[] = { 0x0f, 0x0b };
-+static void paravirt_BUG(void)
-+{
-+	BUG();
-+}
- 
- struct branch {
- 	unsigned char opcode;
-@@ -107,17 +110,10 @@ unsigned paravirt_patch_default(u8 type, void *insn_buff,
- 	unsigned ret;
- 
- 	if (opfunc == NULL)
--		/* If there's no function, patch it with a ud2a (BUG) */
--		ret = paravirt_patch_insns(insn_buff, len, ud2a, ud2a+sizeof(ud2a));
-+		/* If there's no function, patch it with paravirt_BUG() */
-+		ret = paravirt_patch_call(insn_buff, paravirt_BUG, addr, len);
- 	else if (opfunc == _paravirt_nop)
- 		ret = 0;
--
--#ifdef CONFIG_PARAVIRT_XXL
--	/* identity functions just return their single argument */
--	else if (opfunc == _paravirt_ident_64)
--		ret = paravirt_patch_ident_64(insn_buff, len);
--
--#endif
- 	else
- 		/* Otherwise call the function. */
- 		ret = paravirt_patch_call(insn_buff, opfunc, addr, len);
-diff --git a/arch/x86/kernel/paravirt_patch.c b/arch/x86/kernel/paravirt_patch.c
-index abd27ec67397..10543dcc8211 100644
---- a/arch/x86/kernel/paravirt_patch.c
-+++ b/arch/x86/kernel/paravirt_patch.c
-@@ -4,96 +4,8 @@
- #include <asm/paravirt.h>
- #include <asm/asm-offsets.h>
- 
--#define PSTART(d, m)							\
--	patch_data_##d.m
--
--#define PEND(d, m)							\
--	(PSTART(d, m) + sizeof(patch_data_##d.m))
--
--#define PATCH(d, m, insn_buff, len)						\
--	paravirt_patch_insns(insn_buff, len, PSTART(d, m), PEND(d, m))
--
--#define PATCH_CASE(ops, m, data, insn_buff, len)				\
--	case PARAVIRT_PATCH(ops.m):					\
--		return PATCH(data, ops##_##m, insn_buff, len)
--
--#ifdef CONFIG_PARAVIRT_XXL
--struct patch_xxl {
--	const unsigned char	irq_irq_disable[1];
--	const unsigned char	irq_irq_enable[1];
--	const unsigned char	irq_save_fl[2];
--	const unsigned char	mmu_read_cr2[3];
--	const unsigned char	mmu_read_cr3[3];
--	const unsigned char	mmu_write_cr3[3];
--	const unsigned char	cpu_wbinvd[2];
--	const unsigned char	mov64[3];
--};
--
--static const struct patch_xxl patch_data_xxl = {
--	.irq_irq_disable	= { 0xfa },		// cli
--	.irq_irq_enable		= { 0xfb },		// sti
--	.irq_save_fl		= { 0x9c, 0x58 },	// pushf; pop %[re]ax
--	.mmu_read_cr2		= { 0x0f, 0x20, 0xd0 },	// mov %cr2, %[re]ax
--	.mmu_read_cr3		= { 0x0f, 0x20, 0xd8 },	// mov %cr3, %[re]ax
--	.mmu_write_cr3		= { 0x0f, 0x22, 0xdf },	// mov %rdi, %cr3
--	.cpu_wbinvd		= { 0x0f, 0x09 },	// wbinvd
--	.mov64			= { 0x48, 0x89, 0xf8 },	// mov %rdi, %rax
--};
--
--unsigned int paravirt_patch_ident_64(void *insn_buff, unsigned int len)
--{
--	return PATCH(xxl, mov64, insn_buff, len);
--}
--# endif /* CONFIG_PARAVIRT_XXL */
--
--#ifdef CONFIG_PARAVIRT_SPINLOCKS
--struct patch_lock {
--	unsigned char queued_spin_unlock[3];
--	unsigned char vcpu_is_preempted[2];
--};
--
--static const struct patch_lock patch_data_lock = {
--	.vcpu_is_preempted	= { 0x31, 0xc0 },	// xor %eax, %eax
--
--# ifdef CONFIG_X86_64
--	.queued_spin_unlock	= { 0xc6, 0x07, 0x00 },	// movb $0, (%rdi)
--# else
--	.queued_spin_unlock	= { 0xc6, 0x00, 0x00 },	// movb $0, (%eax)
--# endif
--};
--#endif /* CONFIG_PARAVIRT_SPINLOCKS */
--
- unsigned int native_patch(u8 type, void *insn_buff, unsigned long addr,
- 			  unsigned int len)
- {
--	switch (type) {
--
--#ifdef CONFIG_PARAVIRT_XXL
--	PATCH_CASE(irq, save_fl, xxl, insn_buff, len);
--	PATCH_CASE(irq, irq_enable, xxl, insn_buff, len);
--	PATCH_CASE(irq, irq_disable, xxl, insn_buff, len);
--
--	PATCH_CASE(mmu, read_cr2, xxl, insn_buff, len);
--	PATCH_CASE(mmu, read_cr3, xxl, insn_buff, len);
--	PATCH_CASE(mmu, write_cr3, xxl, insn_buff, len);
--
--	PATCH_CASE(cpu, wbinvd, xxl, insn_buff, len);
--#endif
--
--#ifdef CONFIG_PARAVIRT_SPINLOCKS
--	case PARAVIRT_PATCH(lock.queued_spin_unlock):
--		if (pv_is_native_spin_unlock())
--			return PATCH(lock, queued_spin_unlock, insn_buff, len);
--		break;
--
--	case PARAVIRT_PATCH(lock.vcpu_is_preempted):
--		if (pv_is_native_vcpu_is_preempted())
--			return PATCH(lock, vcpu_is_preempted, insn_buff, len);
--		break;
--#endif
--	default:
--		break;
--	}
--
- 	return paravirt_patch_default(type, insn_buff, addr, len);
- }
--- 
-2.26.2
-
+That should perhaps be inverted (in a separate net-next patch).
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
