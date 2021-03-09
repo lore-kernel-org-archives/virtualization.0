@@ -2,111 +2,84 @@ Return-Path: <SRS0=S6pE=IH=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D01CAC433E0
-	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 14:36:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9772CC433E0
+	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 15:55:05 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3FC4165239
-	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 14:36:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3FC4165239
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 1F42D65253
+	for <virtualization@archiver.kernel.org>; Tue,  9 Mar 2021 15:55:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1F42D65253
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C140842C2D;
-	Tue,  9 Mar 2021 14:36:33 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id BE54C42FC4;
+	Tue,  9 Mar 2021 15:55:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yy5kpVIwQxv1; Tue,  9 Mar 2021 14:36:33 +0000 (UTC)
+	with ESMTP id JOQt3KOhizFs; Tue,  9 Mar 2021 15:55:04 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7446842FBE;
-	Tue,  9 Mar 2021 14:36:32 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 65EC640192;
+	Tue,  9 Mar 2021 15:55:03 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 493F1C000C;
-	Tue,  9 Mar 2021 14:36:32 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4B96CC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3D9E1C000B;
+	Tue,  9 Mar 2021 15:55:03 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6B2A2C0001
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 14:36:31 +0000 (UTC)
+ Tue,  9 Mar 2021 15:55:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 4EDD26F49F
+ by smtp4.osuosl.org (Postfix) with ESMTP id 5D2D947FDA
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 14:36:28 +0000 (UTC)
+ Tue,  9 Mar 2021 15:55:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=gmail.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Yj_5fxinXT8z
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lRx-UYmWQgAT
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 14:36:27 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com
- [IPv6:2a00:1450:4864:20::52e])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 818E560030
+ Tue,  9 Mar 2021 15:55:00 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 9EFF047A21
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Mar 2021 14:36:27 +0000 (UTC)
-Received: by mail-ed1-x52e.google.com with SMTP id v13so20534215edw.9
- for <virtualization@lists.linux-foundation.org>;
- Tue, 09 Mar 2021 06:36:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=NkrImNhNpTZbyH50e8J9HL5+BNOIlHrCZBcyIPHvdns=;
- b=it1he6lFFcNQQOZEWQXRhe/IQSNeucdGGvbtokOSAmr4bBlJkfu+kpji98BR0/GsGV
- +AaWi1JPDbGLv8yzjYXF0BEZFEPWXHO+tRoydoYdlfq4OiRfjRazY6/0cX5LwDqnxyb1
- 52430PMmUh1QDQ5kEmtyaFUChfVSFLzAghdgi15N7bXgXmnU0Df0iJPe2B27zg8+KaSl
- au9sjdS60+iMcJEQVcx4fqIuaGdn9LGT4Ff49QkovaprjQoZcH6ViqVbSbhMVjA64ARh
- S/Y4vriSZjZNir9OFVoGpHvP3Tsvg+9pOdxPZEwfoXV6wbNG7iHDbb47feA7dZq0Bfev
- sSEA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=NkrImNhNpTZbyH50e8J9HL5+BNOIlHrCZBcyIPHvdns=;
- b=rroZnzV33yod5CgnfwZqGYDdHNZp2uKkcM2GeknR4MMAHtSkMhkFA/IFMGx5Zai2/1
- k+zylBQMncm8ZJzWSjUFFGSGjm6PALg0Eegco8sEdFk2zC0TmC/TYZAX6XxU0ZXRA6oO
- ViPNnLOgFWtwq798tzMUdU1TGewCWKDTYAgu2x6uBsmdrj0ccGDHMGFezep6HzauQtvY
- G4ykP7pLFP+NnZiG6IrHuVFseOHWuXCUtMWVvvCf9OfPYBdxOB1b1yYubnxorUDIAIYb
- hz+eNn32GzyJLUT90kuc8dlgVBSmXfrTqnO6fi0vnLuyxl7Sn6ADa6A6FoUFzbsYqnMT
- bfWw==
-X-Gm-Message-State: AOAM530v/oqho9EWXWKnMi9gsRH95WfGPeM2PnaOgE6JekYqFUNFB/Bq
- go4/9UNdbAxRq4JeMnUbWKabdHPLdbs=
-X-Google-Smtp-Source: ABdhPJyP9o13ky2XCPUi7FTTfj02g0nhCsmm4zoGkzgolL5PhBH4+mAbpz8V6EiDPhBzWeoAl/+QZA==
-X-Received: by 2002:aa7:da04:: with SMTP id r4mr4426962eds.343.1615300585431; 
- Tue, 09 Mar 2021 06:36:25 -0800 (PST)
-Received: from mail-wr1-f51.google.com (mail-wr1-f51.google.com.
- [209.85.221.51])
- by smtp.gmail.com with ESMTPSA id i2sm9377599edy.72.2021.03.09.06.36.24
- for <virtualization@lists.linux-foundation.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Tue, 09 Mar 2021 06:36:24 -0800 (PST)
-Received: by mail-wr1-f51.google.com with SMTP id f12so16047633wrx.8
- for <virtualization@lists.linux-foundation.org>;
- Tue, 09 Mar 2021 06:36:24 -0800 (PST)
-X-Received: by 2002:a5d:640b:: with SMTP id z11mr27886602wru.327.1615300583787; 
- Tue, 09 Mar 2021 06:36:23 -0800 (PST)
+ Tue,  9 Mar 2021 15:55:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+ Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+ Content-Description:In-Reply-To:References;
+ bh=KGWSD1qzjw8jWYcVTd5k5Vux/eD/dPBH9TiN6yLVseE=; b=UqioM+JOtMrCZY+99WNlohS+n6
+ D8sXLpSvt07nrEhE9GYHmdMTmjw4DL1jAclk+Ci+jnYGdn+IEIwZ0S8fpKJ2whNwkyjmljxBPh47g
+ cMsKfNPA0fujb0XrwseHmDs/2m816gk63sTddN9x9X9wgRohgavTvx8tm6KQtpAyIG7cxz0OK5MKP
+ PgIH6/WtutbbPjhpmXZVF7C1m9jWVkHGrdDIIbgcgrxaJ3JqKKlPb7/Swf8vZxBO2cCE67ILF7rVn
+ MmRlVgFU4oQqmQ/DBvwu33p+M9TPPMt61GrQMTQJl2w3aFf67m+MltPsTuxfefjtilLeB/ZfnOnxB
+ lkLQIpmA==;
+Received: from [2001:4bb8:180:9884:c70:4a89:bc61:3] (helo=localhost)
+ by casper.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
+ id 1lJegA-000lLy-1I; Tue, 09 Mar 2021 15:53:56 +0000
+From: Christoph Hellwig <hch@lst.de>
+To: Al Viro <viro@zeniv.linux.org.uk>
+Subject: make alloc_anon_inode more useful
+Date: Tue,  9 Mar 2021 16:53:39 +0100
+Message-Id: <20210309155348.974875-1-hch@lst.de>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
-References: <cover.1615288658.git.bnemeth@redhat.com>
- <b07e88b0d023fd7c6f5bbee27ae1cb33e52b9546.1615288658.git.bnemeth@redhat.com>
-In-Reply-To: <b07e88b0d023fd7c6f5bbee27ae1cb33e52b9546.1615288658.git.bnemeth@redhat.com>
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Tue, 9 Mar 2021 09:35:44 -0500
-X-Gmail-Original-Message-ID: <CA+FuTSf1RVx4HSyT7PvWfNpz2nYY5qWSf_RtYiejLbSccemQCA@mail.gmail.com>
-Message-ID: <CA+FuTSf1RVx4HSyT7PvWfNpz2nYY5qWSf_RtYiejLbSccemQCA@mail.gmail.com>
-Subject: Re: [PATCH net v3 1/2] net: check if protocol extracted by
- virtio_net_hdr_set_proto is correct
-To: Balazs Nemeth <bnemeth@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Network Development <netdev@vger.kernel.org>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization@lists.linux-foundation.org, David Ahern <dsahern@gmail.com>,
- David Miller <davem@davemloft.net>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
+ casper.infradead.org. See http://www.infradead.org/rpr.html
+Cc: Jason Gunthorpe <jgg@nvidia.com>, "VMware, Inc." <pv-drivers@vmware.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ linux-mm@kvack.org, Minchan Kim <minchan@kernel.org>,
+ Nadav Amit <namit@vmware.com>, Daniel Vetter <daniel@ffwll.ch>,
+ linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ linuxppc-dev@lists.ozlabs.org, Nitin Gupta <ngupta@vflare.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,40 +96,34 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Mar 9, 2021 at 6:32 AM Balazs Nemeth <bnemeth@redhat.com> wrote:
->
-> For gso packets, virtio_net_hdr_set_proto sets the protocol (if it isn't
-> set) based on the type in the virtio net hdr, but the skb could contain
-> anything since it could come from packet_snd through a raw socket. If
-> there is a mismatch between what virtio_net_hdr_set_proto sets and
-> the actual protocol, then the skb could be handled incorrectly later
-> on.
->
-> An example where this poses an issue is with the subsequent call to
-> skb_flow_dissect_flow_keys_basic which relies on skb->protocol being set
-> correctly. A specially crafted packet could fool
-> skb_flow_dissect_flow_keys_basic preventing EINVAL to be returned.
->
-> Avoid blindly trusting the information provided by the virtio net header
-> by checking that the protocol in the packet actually matches the
-> protocol set by virtio_net_hdr_set_proto. Note that since the protocol
-> is only checked if skb->dev implements header_ops->parse_protocol,
-> packets from devices without the implementation are not checked at this
-> stage.
->
-> Fixes: 9274124f023b ("net: stricter validation of untrusted gso packets")
-> Signed-off-by: Balazs Nemeth <bnemeth@redhat.com>
+Hi all,
 
-Acked-by: Willem de Bruijn <willemb@google.com>
+this series first renames the existing alloc_anon_inode to
+alloc_anon_inode_sb to clearly mark it as requiring a superblock.
 
-This still relies entirely on data from the untrusted process. But it
-adds the constraint that the otherwise untrusted data at least has to
-be consistent, closing one loophole.
+It then adds a new alloc_anon_inode that works on the anon_inode
+file system super block, thus removing tons of boilerplate code.
 
-As responded in v2, we may want to look at the (few) callers and make
-sure that they initialize skb->protocol before the call to
-virtio_net_hdr_to_skb where possible. That will avoid this entire
-branch.
+The few remainig callers of alloc_anon_inode_sb all use alloc_file_pseudo
+later, but might also be ripe for some cleanup.
+
+Diffstat:
+ arch/powerpc/platforms/pseries/cmm.c |   27 +-------------
+ drivers/dma-buf/dma-buf.c            |    2 -
+ drivers/gpu/drm/drm_drv.c            |   64 +----------------------------------
+ drivers/misc/cxl/api.c               |    2 -
+ drivers/misc/vmw_balloon.c           |   24 +------------
+ drivers/scsi/cxlflash/ocxl_hw.c      |    2 -
+ drivers/virtio/virtio_balloon.c      |   30 +---------------
+ fs/aio.c                             |    2 -
+ fs/anon_inodes.c                     |   15 +++++++-
+ fs/libfs.c                           |    2 -
+ include/linux/anon_inodes.h          |    1 
+ include/linux/fs.h                   |    2 -
+ kernel/resource.c                    |   30 ++--------------
+ mm/z3fold.c                          |   38 +-------------------
+ mm/zsmalloc.c                        |   48 +-------------------------
+ 15 files changed, 39 insertions(+), 250 deletions(-)
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
