@@ -6,60 +6,60 @@ X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 911C7C433E0
-	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 17:11:49 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23AB5C433E0
+	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 17:13:57 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id BA89764FC6
-	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 17:11:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BA89764FC6
+	by mail.kernel.org (Postfix) with ESMTPS id 3AB9664FB0
+	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 17:13:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3AB9664FB0
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=zeniv.linux.org.uk
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 7653760625;
-	Wed, 10 Mar 2021 17:11:46 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id EA1AC430CB;
+	Wed, 10 Mar 2021 17:13:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jhcfsOu0uyfk; Wed, 10 Mar 2021 17:11:45 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id UNORouVPy2l2; Wed, 10 Mar 2021 17:13:55 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 34A3F60608;
-	Wed, 10 Mar 2021 17:11:45 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id A4F9542FB3;
+	Wed, 10 Mar 2021 17:13:54 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 010ECC000B;
-	Wed, 10 Mar 2021 17:11:45 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E9852C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6E478C000B;
+	Wed, 10 Mar 2021 17:13:54 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F0015C0001
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Mar 2021 17:11:43 +0000 (UTC)
+ Wed, 10 Mar 2021 17:13:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id C2DB14EC8A
+ by smtp4.osuosl.org (Postfix) with ESMTP id D68B14EC5B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Mar 2021 17:11:43 +0000 (UTC)
+ Wed, 10 Mar 2021 17:13:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id AZIjVgW-S9dL
+ with ESMTP id 0NAmQNNOpg77
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Mar 2021 17:11:41 +0000 (UTC)
-X-Greylist: delayed 00:30:05 by SQLgrey-1.8.0
+ Wed, 10 Mar 2021 17:13:52 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from zeniv-ca.linux.org.uk (zeniv-ca.linux.org.uk [142.44.231.140])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 39FFF4EC4D
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 4D26F4CF79
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Mar 2021 17:11:41 +0000 (UTC)
+ Wed, 10 Mar 2021 17:13:52 +0000 (UTC)
 Received: from viro by zeniv-ca.linux.org.uk with local (Exim 4.94 #2 (Red Hat
- Linux)) id 1lK1ia-004clg-19; Wed, 10 Mar 2021 16:29:52 +0000
-Date: Wed, 10 Mar 2021 16:29:51 +0000
+ Linux)) id 1lK1lC-004co5-Or; Wed, 10 Mar 2021 16:32:34 +0000
+Date: Wed, 10 Mar 2021 16:32:34 +0000
 From: Al Viro <viro@zeniv.linux.org.uk>
 To: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 3/9] powerpc/pseries: remove the ppc-cmm file system
-Message-ID: <YEjz/+HfILCUwKwb@zeniv-ca.linux.org.uk>
+Subject: Re: [PATCH 4/9] drm: remove the drm file system
+Message-ID: <YEj0omfcBhbXVHy4@zeniv-ca.linux.org.uk>
 References: <20210309155348.974875-1-hch@lst.de>
- <20210309155348.974875-4-hch@lst.de>
+ <20210309155348.974875-5-hch@lst.de>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20210309155348.974875-4-hch@lst.de>
+In-Reply-To: <20210309155348.974875-5-hch@lst.de>
 Cc: Jason Gunthorpe <jgg@nvidia.com>, "VMware, Inc." <pv-drivers@vmware.com>,
  "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
  dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
@@ -83,14 +83,10 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Mar 09, 2021 at 04:53:42PM +0100, Christoph Hellwig wrote:
+On Tue, Mar 09, 2021 at 04:53:43PM +0100, Christoph Hellwig wrote:
 > Just use the generic anon_inode file system.
 
-Umm...  The only problem I see here is the lifetime rules for
-that module, and that's not something introduced in this patchset.
-Said that, looks like the logics around that place is duplicated in
-cmm.c, vmw_balloon.c and virtion_balloon.c and I wonder if it would
-be better off with a helper in mm/balloon.c to be used for that setup...
+Are you changing the lifetime rules for that module?
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
