@@ -2,79 +2,70 @@ Return-Path: <SRS0=SHSW=II=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B10EAC433E0
-	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 09:19:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7235FC433DB
+	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 09:25:45 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EFA4664FC4
-	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 09:19:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EFA4664FC4
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id DB0F964FC4
+	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 09:25:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DB0F964FC4
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 854954EBBF;
-	Wed, 10 Mar 2021 09:19:06 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 480AC4EC4A;
+	Wed, 10 Mar 2021 09:25:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id A9W-OTfOWMJC; Wed, 10 Mar 2021 09:19:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E5C394C714;
-	Wed, 10 Mar 2021 09:19:04 +0000 (UTC)
+	with ESMTP id vPgMwwEzSv3B; Wed, 10 Mar 2021 09:25:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 949E24EC4F;
+	Wed, 10 Mar 2021 09:25:42 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A4829C000B;
-	Wed, 10 Mar 2021 09:19:04 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1C0AFC0001
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Mar 2021 09:19:03 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E63B1C0015;
+	Wed, 10 Mar 2021 09:25:41 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E31BEC0001;
+ Wed, 10 Mar 2021 09:25:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0A904431A8
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Mar 2021 09:19:03 +0000 (UTC)
+ by smtp2.osuosl.org (Postfix) with ESMTP id D0D45431A5;
+ Wed, 10 Mar 2021 09:25:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yj2q6uMt2JzI
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Mar 2021 09:19:02 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7760B4314A
- for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Mar 2021 09:19:01 +0000 (UTC)
-IronPort-SDR: niEyaqLFVO+16l7POvEpqO7oHNjfB2yqaiEJoNiO6l3DhbjZvOSBbs7MoTRvBGwqkfv2Gzx81v
- YxVdM2G9GtDg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9917"; a="188463792"
-X-IronPort-AV: E=Sophos;i="5.81,237,1610438400"; d="scan'208";a="188463792"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
- by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 10 Mar 2021 01:18:59 -0800
-IronPort-SDR: 3SQeGb6qVk/JXIFBpTBhsixVs6Ms5FHTq2xKv43bmaBsEk8ce2r73YPpVhpUYTp/0cb51jdicP
- lStqBXDOO4MA==
-X-IronPort-AV: E=Sophos;i="5.81,237,1610438400"; d="scan'208";a="410115347"
-Received: from lingshan-mobl5.ccr.corp.intel.com (HELO [10.249.172.47])
- ([10.249.172.47])
- by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 10 Mar 2021 01:18:58 -0800
-Subject: Re: [PATCH V3 4/6] vDPA/ifcvf: remove the version number string
-To: virtualization@lists.linux-foundation.org
-References: <20210310090052.4762-1-lingshan.zhu@intel.com>
- <20210310090052.4762-5-lingshan.zhu@intel.com> <YEiOWd9jXHnw4b11@unreal>
-From: Zhu Lingshan <lingshan.zhu@linux.intel.com>
-Message-ID: <ae40b64b-bbac-553c-2cd4-98a96904ccf5@linux.intel.com>
-Date: Wed, 10 Mar 2021 17:18:55 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+ with ESMTP id V1bcMZgOaSoK; Wed, 10 Mar 2021 09:25:40 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from verein.lst.de (verein.lst.de [213.95.11.211])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 34A924314A;
+ Wed, 10 Mar 2021 09:25:40 +0000 (UTC)
+Received: by verein.lst.de (Postfix, from userid 2407)
+ id 2657568B05; Wed, 10 Mar 2021 10:25:34 +0100 (CET)
+Date: Wed, 10 Mar 2021 10:25:33 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: Robin Murphy <robin.murphy@arm.com>
+Subject: Re: [PATCH 14/17] iommu: remove DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE
+Message-ID: <20210310092533.GA6819@lst.de>
+References: <20210301084257.945454-1-hch@lst.de>
+ <20210301084257.945454-15-hch@lst.de>
+ <1658805c-ed28-b650-7385-a56fab3383e3@arm.com> <20210310091501.GC5928@lst.de>
 MIME-Version: 1.0
-In-Reply-To: <YEiOWd9jXHnw4b11@unreal>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20210310091501.GC5928@lst.de>
+User-Agent: Mutt/1.5.17 (2007-11-01)
+Cc: kvm@vger.kernel.org, Will Deacon <will@kernel.org>,
+ Joerg Roedel <joro@8bytes.org>, linuxppc-dev@lists.ozlabs.org,
+ dri-devel@lists.freedesktop.org, Li Yang <leoyang.li@nxp.com>,
+ iommu@lists.linux-foundation.org, netdev@vger.kernel.org,
+ David Woodhouse <dwmw2@infradead.org>, linux-arm-kernel@lists.infradead.org,
+ Michael Ellerman <mpe@ellerman.id.au>,
+ virtualization@lists.linux-foundation.org, freedreno@lists.freedesktop.org,
+ Christoph Hellwig <hch@lst.de>, linux-arm-msm@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -86,32 +77,37 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Thanks Leon, I will include your ROB if there is a V4.
+On Wed, Mar 10, 2021 at 10:15:01AM +0100, Christoph Hellwig wrote:
+> On Thu, Mar 04, 2021 at 03:25:27PM +0000, Robin Murphy wrote:
+> > On 2021-03-01 08:42, Christoph Hellwig wrote:
+> >> Use explicit methods for setting and querying the information instead.
+> >
+> > Now that everyone's using iommu-dma, is there any point in bouncing this 
+> > through the drivers at all? Seems like it would make more sense for the x86 
+> > drivers to reflect their private options back to iommu_dma_strict (and 
+> > allow Intel's caching mode to override it as well), then have 
+> > iommu_dma_init_domain just test !iommu_dma_strict && 
+> > domain->ops->flush_iotlb_all.
+> 
+> Hmm.  I looked at this, and kill off ->dma_enable_flush_queue for
+> the ARM drivers and just looking at iommu_dma_strict seems like a
+> very clear win.
+> 
+> OTOH x86 is a little more complicated.  AMD and intel defaul to lazy
+> mode, so we'd have to change the global iommu_dma_strict if they are
+> initialized.  Also Intel has not only a "static" option to disable
+> lazy mode, but also a "dynamic" one where it iterates structure.  So
+> I think on the get side we're stuck with the method, but it still
+> simplifies the whole thing.
 
-On 3/10/2021 5:16 PM, Leon Romanovsky wrote:
-> On Wed, Mar 10, 2021 at 05:00:50PM +0800, Zhu Lingshan wrote:
->> This commit removes the version number string, using kernel
->> version is enough.
->>
->> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
->> ---
->>   drivers/vdpa/ifcvf/ifcvf_main.c | 2 --
->>   1 file changed, 2 deletions(-)
->>
-> I already added my ROB, but will add again.
->
-> Thanks,
-> Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-
+Actually... Just mirroring the iommu_dma_strict value into
+struct iommu_domain should solve all of that with very little
+boilerplate code. 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
