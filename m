@@ -2,73 +2,78 @@ Return-Path: <SRS0=SHSW=II=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 932DAC433DB
-	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 08:37:30 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84EB7C43381
+	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 08:43:58 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2EEAA64FC0
-	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 08:37:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2EEAA64FC0
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+	by mail.kernel.org (Postfix) with ESMTPS id 2ADB064FF6
+	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 08:43:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2ADB064FF6
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E734543199;
-	Wed, 10 Mar 2021 08:37:29 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id D190D84365;
+	Wed, 10 Mar 2021 08:43:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id A08aiNa_o5PT; Wed, 10 Mar 2021 08:37:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 86FA143194;
-	Wed, 10 Mar 2021 08:37:28 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id byAYbfmVpoAk; Wed, 10 Mar 2021 08:43:57 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6B4FD84357;
+	Wed, 10 Mar 2021 08:43:56 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 52F54C000A;
-	Wed, 10 Mar 2021 08:37:28 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A27E5C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 41C41C000A;
+	Wed, 10 Mar 2021 08:43:56 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 43144C0001
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Mar 2021 08:37:27 +0000 (UTC)
+ Wed, 10 Mar 2021 08:43:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 8401C43195
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1C1836F488
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Mar 2021 08:37:27 +0000 (UTC)
+ Wed, 10 Mar 2021 08:43:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KIImKPl4ZXua
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VgLqUfU-RLto
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Mar 2021 08:37:27 +0000 (UTC)
+ Wed, 10 Mar 2021 08:43:54 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
- by smtp2.osuosl.org (Postfix) with ESMTPS id DDC8343194
+Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 411FC60707
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Mar 2021 08:37:26 +0000 (UTC)
-Received: by verein.lst.de (Postfix, from userid 2407)
- id 5F87968B05; Wed, 10 Mar 2021 09:37:23 +0100 (CET)
-Date: Wed, 10 Mar 2021 09:37:23 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Matthew Wilcox <willy@infradead.org>
-Subject: Re: make alloc_anon_inode more useful
-Message-ID: <20210310083723.GC5217@lst.de>
-References: <20210309155348.974875-1-hch@lst.de>
- <20210310040545.GM3479805@casper.infradead.org>
+ Wed, 10 Mar 2021 08:43:54 +0000 (UTC)
+Received: from cap.home.8bytes.org (p549adcf6.dip0.t-ipconnect.de
+ [84.154.220.246])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+ (No client certificate requested)
+ by theia.8bytes.org (Postfix) with ESMTPSA id F0A60261;
+ Wed, 10 Mar 2021 09:43:50 +0100 (CET)
+From: Joerg Roedel <joro@8bytes.org>
+To: x86@kernel.org
+Subject: [PATCH v2 0/7] x86/seves: Support 32-bit boot path and other updates
+Date: Wed, 10 Mar 2021 09:43:18 +0100
+Message-Id: <20210310084325.12966-1-joro@8bytes.org>
+X-Mailer: git-send-email 2.30.1
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20210310040545.GM3479805@casper.infradead.org>
-User-Agent: Mutt/1.5.17 (2007-11-01)
-Cc: Jason Gunthorpe <jgg@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- "VMware, Inc." <pv-drivers@vmware.com>, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linux-mm@kvack.org, Minchan Kim <minchan@kernel.org>,
- Nadav Amit <namit@vmware.com>, Al Viro <viro@zeniv.linux.org.uk>,
- Daniel Vetter <daniel@ffwll.ch>, linux-fsdevel@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org,
- Christoph Hellwig <hch@lst.de>, Nitin Gupta <ngupta@vflare.org>
+Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org,
+ Arvind Sankar <nivedita@alum.mit.edu>, hpa@zytor.com,
+ Jiri Slaby <jslaby@suse.cz>, Joerg Roedel <joro@8bytes.org>,
+ David Rientjes <rientjes@google.com>, Martin Radev <martin.b.radev@gmail.com>,
+ Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>,
+ Kees Cook <keescook@chromium.org>, Cfir Cohen <cfir@google.com>,
+ Andy Lutomirski <luto@kernel.org>, Dan Williams <dan.j.williams@intel.com>,
+ Juergen Gross <jgross@suse.com>, Mike Stunes <mstunes@vmware.com>,
+ Sean Christopherson <seanjc@google.com>, linux-kernel@vger.kernel.org,
+ Masami Hiramatsu <mhiramat@kernel.org>, Erdem Aktas <erdemaktas@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -85,45 +90,59 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Mar 10, 2021 at 04:05:45AM +0000, Matthew Wilcox wrote:
-> On Tue, Mar 09, 2021 at 04:53:39PM +0100, Christoph Hellwig wrote:
-> > this series first renames the existing alloc_anon_inode to
-> > alloc_anon_inode_sb to clearly mark it as requiring a superblock.
-> > 
-> > It then adds a new alloc_anon_inode that works on the anon_inode
-> > file system super block, thus removing tons of boilerplate code.
-> > 
-> > The few remainig callers of alloc_anon_inode_sb all use alloc_file_pseudo
-> > later, but might also be ripe for some cleanup.
-> 
-> On a somewhat related note, could I get you to look at
-> drivers/video/fbdev/core/fb_defio.c?
-> 
-> As far as I can tell, there's no need for fb_deferred_io_aops to exist.
-> We could just set file->f_mapping->a_ops to NULL, and set_page_dirty()
-> would do the exact same thing this code does (except it would get the
-> return value correct).
+From: Joerg Roedel <jroedel@suse.de>
 
-> But maybe that would make something else go wrong that distinguishes
-> between page->mapping being NULL and page->mapping->a_ops->foo being NULL?
+Hi,
 
-I can't find any place in the kernel that treats a NULL aops different
-from not having the method it is looking for. 
+these patches add support for the 32-bit boot in the decompressor
+code. This is needed to boot an SEV-ES guest on some firmware and grub
+versions. The patches also add the necessary CPUID sanity checks and a
+32-bit version of the C-bit check.
 
-> Completely untested patch ...
+Other updates included here:
 
-the patch looks mostly good to me.
+        1. Add code to shut down exception handling in the
+           decompressor code before jumping to the real kernel.
+           Once in the real kernel it is not safe anymore to jump
+           back to the decompressor code via exceptions.
 
->  	}
-> -#ifdef CONFIG_FB_DEFERRED_IO
-> -	if (info->fbdefio)
-> -		fb_deferred_io_open(info, inode, file);
-> -#endif
-> +	file->f_mapping->a_ops = NULL;
+        2. Replace open-coded hlt loops with proper calls to
+           sev_es_terminate().
 
-But I'd also skip this.  Drivers generally do not set aops, but if they
-do a funtion like this really should not override it.  This will require
-an audit of the callers, though.
+Please review.
+
+Thanks,
+
+	Joerg
+
+Changes to v1:
+
+	- Addressed Boris' review comments.
+	- Fixed a bug which caused the cbit-check to never be
+	  executed even in an SEV guest.
+
+Joerg Roedel (7):
+  x86/boot/compressed/64: Cleanup exception handling before booting
+    kernel
+  x86/boot/compressed/64: Reload CS in startup_32
+  x86/boot/compressed/64: Setup IDT in startup_32 boot path
+  x86/boot/compressed/64: Add 32-bit boot #VC handler
+  x86/boot/compressed/64: Add CPUID sanity check to 32-bit boot-path
+  x86/boot/compressed/64: Check SEV encryption in 32-bit boot-path
+  x86/sev-es: Replace open-coded hlt-loops with sev_es_terminate()
+
+ arch/x86/boot/compressed/head_64.S     | 170 ++++++++++++++++++++++++-
+ arch/x86/boot/compressed/idt_64.c      |  14 ++
+ arch/x86/boot/compressed/mem_encrypt.S | 132 ++++++++++++++++++-
+ arch/x86/boot/compressed/misc.c        |   7 +-
+ arch/x86/boot/compressed/misc.h        |   6 +
+ arch/x86/boot/compressed/sev-es.c      |  12 +-
+ arch/x86/kernel/sev-es-shared.c        |  10 +-
+ 7 files changed, 328 insertions(+), 23 deletions(-)
+
+-- 
+2.30.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
