@@ -2,65 +2,67 @@ Return-Path: <SRS0=SHSW=II=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84EB7C43381
-	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 08:43:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0D70C433E0
+	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 08:43:59 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2ADB064FF6
-	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 08:43:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2ADB064FF6
+	by mail.kernel.org (Postfix) with ESMTPS id 83C8C64FE7
+	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 08:43:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 83C8C64FE7
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D190D84365;
-	Wed, 10 Mar 2021 08:43:57 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 327A98436A;
+	Wed, 10 Mar 2021 08:43:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id byAYbfmVpoAk; Wed, 10 Mar 2021 08:43:57 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6B4FD84357;
-	Wed, 10 Mar 2021 08:43:56 +0000 (UTC)
+	with ESMTP id WaLgwQRTkwuK; Wed, 10 Mar 2021 08:43:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTP id AC30384364;
+	Wed, 10 Mar 2021 08:43:57 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 41C41C000A;
-	Wed, 10 Mar 2021 08:43:56 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 43144C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8A747C000A;
+	Wed, 10 Mar 2021 08:43:57 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A76ACC0001
  for <virtualization@lists.linux-foundation.org>;
  Wed, 10 Mar 2021 08:43:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 1C1836F488
+ by smtp1.osuosl.org (Postfix) with ESMTP id 96BEE8435E
  for <virtualization@lists.linux-foundation.org>;
  Wed, 10 Mar 2021 08:43:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VgLqUfU-RLto
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id kMYwdS0teomq
  for <virtualization@lists.linux-foundation.org>;
- Wed, 10 Mar 2021 08:43:54 +0000 (UTC)
+ Wed, 10 Mar 2021 08:43:55 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 411FC60707
+ by smtp1.osuosl.org (Postfix) with ESMTPS id EED5384357
  for <virtualization@lists.linux-foundation.org>;
  Wed, 10 Mar 2021 08:43:54 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549adcf6.dip0.t-ipconnect.de
  [84.154.220.246])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id F0A60261;
- Wed, 10 Mar 2021 09:43:50 +0100 (CET)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 4FADD3A9;
+ Wed, 10 Mar 2021 09:43:52 +0100 (CET)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v2 0/7] x86/seves: Support 32-bit boot path and other updates
-Date: Wed, 10 Mar 2021 09:43:18 +0100
-Message-Id: <20210310084325.12966-1-joro@8bytes.org>
+Subject: [PATCH v2 2/7] x86/boot/compressed/64: Reload CS in startup_32
+Date: Wed, 10 Mar 2021 09:43:20 +0100
+Message-Id: <20210310084325.12966-3-joro@8bytes.org>
 X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210310084325.12966-1-joro@8bytes.org>
+References: <20210310084325.12966-1-joro@8bytes.org>
 MIME-Version: 1.0
 Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
  Dave Hansen <dave.hansen@linux.intel.com>,
@@ -92,54 +94,36 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Hi,
+Exception handling in the startup_32 boot path requires the CS
+selector to be correctly set up. Reload it from the current GDT.
 
-these patches add support for the 32-bit boot in the decompressor
-code. This is needed to boot an SEV-ES guest on some firmware and grub
-versions. The patches also add the necessary CPUID sanity checks and a
-32-bit version of the C-bit check.
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ arch/x86/boot/compressed/head_64.S | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-Other updates included here:
-
-        1. Add code to shut down exception handling in the
-           decompressor code before jumping to the real kernel.
-           Once in the real kernel it is not safe anymore to jump
-           back to the decompressor code via exceptions.
-
-        2. Replace open-coded hlt loops with proper calls to
-           sev_es_terminate().
-
-Please review.
-
-Thanks,
-
-	Joerg
-
-Changes to v1:
-
-	- Addressed Boris' review comments.
-	- Fixed a bug which caused the cbit-check to never be
-	  executed even in an SEV guest.
-
-Joerg Roedel (7):
-  x86/boot/compressed/64: Cleanup exception handling before booting
-    kernel
-  x86/boot/compressed/64: Reload CS in startup_32
-  x86/boot/compressed/64: Setup IDT in startup_32 boot path
-  x86/boot/compressed/64: Add 32-bit boot #VC handler
-  x86/boot/compressed/64: Add CPUID sanity check to 32-bit boot-path
-  x86/boot/compressed/64: Check SEV encryption in 32-bit boot-path
-  x86/sev-es: Replace open-coded hlt-loops with sev_es_terminate()
-
- arch/x86/boot/compressed/head_64.S     | 170 ++++++++++++++++++++++++-
- arch/x86/boot/compressed/idt_64.c      |  14 ++
- arch/x86/boot/compressed/mem_encrypt.S | 132 ++++++++++++++++++-
- arch/x86/boot/compressed/misc.c        |   7 +-
- arch/x86/boot/compressed/misc.h        |   6 +
- arch/x86/boot/compressed/sev-es.c      |  12 +-
- arch/x86/kernel/sev-es-shared.c        |  10 +-
- 7 files changed, 328 insertions(+), 23 deletions(-)
-
+diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
+index e94874f4bbc1..c59c80ca546d 100644
+--- a/arch/x86/boot/compressed/head_64.S
++++ b/arch/x86/boot/compressed/head_64.S
+@@ -107,9 +107,16 @@ SYM_FUNC_START(startup_32)
+ 	movl	%eax, %gs
+ 	movl	%eax, %ss
+ 
+-/* setup a stack and make sure cpu supports long mode. */
++	/* Setup a stack and load CS from current GDT */
+ 	leal	rva(boot_stack_end)(%ebp), %esp
+ 
++	pushl	$__KERNEL32_CS
++	leal	rva(1f)(%ebp), %eax
++	pushl	%eax
++	lretl
++1:
++
++	/* Make sure cpu supports long mode. */
+ 	call	verify_cpu
+ 	testl	%eax, %eax
+ 	jnz	.Lno_longmode
 -- 
 2.30.1
 
