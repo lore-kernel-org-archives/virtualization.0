@@ -2,77 +2,79 @@ Return-Path: <SRS0=WRLV=IJ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BEF21C433E0
-	for <virtualization@archiver.kernel.org>; Thu, 11 Mar 2021 12:50:41 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 866A6C433DB
+	for <virtualization@archiver.kernel.org>; Thu, 11 Mar 2021 12:51:49 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D141E64FC3
-	for <virtualization@archiver.kernel.org>; Thu, 11 Mar 2021 12:50:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D141E64FC3
+	by mail.kernel.org (Postfix) with ESMTPS id E3F2464FE2
+	for <virtualization@archiver.kernel.org>; Thu, 11 Mar 2021 12:51:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E3F2464FE2
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=alien8.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 5A53947A19;
-	Thu, 11 Mar 2021 12:50:38 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 610CB6EAA1;
+	Thu, 11 Mar 2021 12:51:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7YTwoK1-fvgF; Thu, 11 Mar 2021 12:50:37 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 0rhR8_8_I-QF; Thu, 11 Mar 2021 12:51:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B252E44A94;
-	Thu, 11 Mar 2021 12:50:36 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1F89560659;
+	Thu, 11 Mar 2021 12:51:47 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 89219C000C;
-	Thu, 11 Mar 2021 12:50:36 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 98658C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id ECD02C000C;
+	Thu, 11 Mar 2021 12:51:46 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4663AC000A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Mar 2021 12:50:35 +0000 (UTC)
+ Thu, 11 Mar 2021 12:51:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 77C5247A19
+ by smtp2.osuosl.org (Postfix) with ESMTP id 278F343143
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Mar 2021 12:50:35 +0000 (UTC)
+ Thu, 11 Mar 2021 12:51:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uT1vUrmPsaRR
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=alien8.de
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id b6_EZJj1D4a2
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Mar 2021 12:50:34 +0000 (UTC)
+ Thu, 11 Mar 2021 12:51:43 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
- by smtp4.osuosl.org (Postfix) with ESMTPS id D523944A94
+ by smtp2.osuosl.org (Postfix) with ESMTPS id A08C543081
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Mar 2021 12:50:33 +0000 (UTC)
+ Thu, 11 Mar 2021 12:51:43 +0000 (UTC)
 Received: from zn.tnic (p200300ec2f0e1f0084acfb80b2ea2480.dip0.t-ipconnect.de
  [IPv6:2003:ec:2f0e:1f00:84ac:fb80:b2ea:2480])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 570341EC04C0;
- Thu, 11 Mar 2021 13:50:30 +0100 (CET)
+ by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id F0EBC1EC04CB;
+ Thu, 11 Mar 2021 13:51:41 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
- t=1615467030;
+ t=1615467102;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
- bh=YQoMnM+JalduchtvnnRdDi537/sQjYe69dpZBUUIePI=;
- b=oOGUaSre4XzUs+lxkz7FD2kSZBN8NksBkfckW/+qTHl8JbaxYlJ6NN8Mbc1R2n11m55CFf
- P73fj+xpCfOCQDtCPXJIYK1D6MwZPiXIwvgaAfFGUGzDJZaZCXkLGAHUC5DtKeJD/Osqtp
- IAS+CcgMs7OmmLqg6Q3uUtquB4Svgws=
-Date: Thu, 11 Mar 2021 13:50:26 +0100
+ bh=04Q81L86Yi8VhtfgMy5DPhkMLlrDvgeVfznIwom2C0o=;
+ b=F7I4zNkFealftdt3MSO2iENkOoJ7233iIBl0MIA2fExAwgTg9QWD88MEO8x3MFz8dHZN3+
+ qEbWBRHl1mcXsYMgEMA1pRva0r+EgUrrobNzE1xqTPoZc3Vv+WQhSag3viC4Y2uSFgaf4T
+ ID5ejVj1usJOEZ1VFcDtbCWF5MkzXrk=
+Date: Thu, 11 Mar 2021 13:51:43 +0100
 From: Borislav Petkov <bp@alien8.de>
 To: Juergen Gross <jgross@suse.com>
 Subject: Re: [PATCH v6 00/12] x86: major paravirt cleanup
-Message-ID: <20210311125026.GB5829@zn.tnic>
+Message-ID: <20210311125143.GC5829@zn.tnic>
 References: <20210309134813.23912-1-jgross@suse.com>
+ <20210311125026.GB5829@zn.tnic>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20210309134813.23912-1-jgross@suse.com>
+In-Reply-To: <20210311125026.GB5829@zn.tnic>
 Cc: linux-hyperv@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
  kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
  Catalin Marinas <catalin.marinas@arm.com>,
@@ -108,32 +110,10 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Mar 09, 2021 at 02:48:01PM +0100, Juergen Gross wrote:
-> This is a major cleanup of the paravirt infrastructure aiming at
-> eliminating all custom code patching via paravirt patching.
-> 
-> This is achieved by using ALTERNATIVE instead, leading to the ability
-> to give objtool access to the patched in instructions.
-> 
-> In order to remove most of the 32-bit special handling from pvops the
-> time related operations are switched to use static_call() instead.
-> 
-> At the end of this series all paravirt patching has to do is to
-> replace indirect calls with direct ones. In a further step this could
-> be switched to static_call(), too.
-> 
-> Changes in V6:
-> - switched back to "not" bit in feature value for "not feature"
-> - other minor comments addressed
+On Thu, Mar 11, 2021 at 01:50:26PM +0100, Borislav Petkov wrote:
+> and move the cleanups patches 13 and 14 to the beginning of the set?
 
-Ok, looks real good, the simplification is amazing! :)
-
-Can you please redo with the minor nits addressed ontop of the
-tip:x86/alternatives branch:
-
-https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git/log/?h=x86/alternatives
-
-and move the cleanups patches 13 and 14 to the beginning of the set?
+Yeah, 14 needs ALTERNATIVE_TERNARY so I guess after patch 5, that is.
 
 Thx.
 
