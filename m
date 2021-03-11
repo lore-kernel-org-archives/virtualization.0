@@ -1,77 +1,97 @@
-Return-Path: <SRS0=SHSW=II=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=WRLV=IJ=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3C0BC433E0
-	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 18:40:12 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7240CC433E0
+	for <virtualization@archiver.kernel.org>; Thu, 11 Mar 2021 03:20:38 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 450F364FCB
-	for <virtualization@archiver.kernel.org>; Wed, 10 Mar 2021 18:40:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 450F364FCB
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=arm.com
+	by mail.kernel.org (Postfix) with ESMTPS id F121064FA8
+	for <virtualization@archiver.kernel.org>; Thu, 11 Mar 2021 03:20:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F121064FA8
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E5E20840FE;
-	Wed, 10 Mar 2021 18:40:11 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9A7F449BD7;
+	Thu, 11 Mar 2021 03:20:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 07oKoqPUeshM; Wed, 10 Mar 2021 18:40:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4FA6E83E57;
-	Wed, 10 Mar 2021 18:40:10 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2Nzykvm-XEhA; Thu, 11 Mar 2021 03:20:36 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 04CBB49CE1;
+	Thu, 11 Mar 2021 03:20:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 04DF3C0015;
-	Wed, 10 Mar 2021 18:40:10 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BFBC4C0001;
- Wed, 10 Mar 2021 18:40:08 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BF437C000B;
+	Thu, 11 Mar 2021 03:20:35 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 08D69C0001
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 11 Mar 2021 03:20:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id AE1116E56C;
- Wed, 10 Mar 2021 18:40:08 +0000 (UTC)
+ by smtp2.osuosl.org (Postfix) with ESMTP id DDF4D414E2
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 11 Mar 2021 03:20:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MNbmdUZNL4L1; Wed, 10 Mar 2021 18:40:07 +0000 (UTC)
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id EfeyIqzAPRcP
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 11 Mar 2021 03:20:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by smtp3.osuosl.org (Postfix) with ESMTP id 71629605B2;
- Wed, 10 Mar 2021 18:40:07 +0000 (UTC)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 837CE1FB;
- Wed, 10 Mar 2021 10:40:06 -0800 (PST)
-Received: from [10.57.52.136] (unknown [10.57.52.136])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0A6053F800;
- Wed, 10 Mar 2021 10:40:03 -0800 (PST)
-Subject: Re: [PATCH 14/17] iommu: remove DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE
-To: Christoph Hellwig <hch@lst.de>
-References: <20210301084257.945454-1-hch@lst.de>
- <20210301084257.945454-15-hch@lst.de>
- <1658805c-ed28-b650-7385-a56fab3383e3@arm.com> <20210310091501.GC5928@lst.de>
- <20210310092533.GA6819@lst.de>
-From: Robin Murphy <robin.murphy@arm.com>
-Message-ID: <fdacf87a-be14-c92c-4084-1d1dd4fc7766@arm.com>
-Date: Wed, 10 Mar 2021 18:39:57 +0000
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101
- Thunderbird/78.7.1
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id DF6FC414DE
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 11 Mar 2021 03:20:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1615432831;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=P09mB4c+K2vA0WOzF718rEjH0GsJKBr1s72NBk2MRHg=;
+ b=hLJB0AwYs+O+1got2rqL4qGrbKnoAmFadmBhiU1RnKDRabzwFQRtEYnpAI1XlQKjVcs4rb
+ l01m9Vbwbr9sHTPK32aC/8q/AMWvS3NLP0QkecJ8PUuqMVXygP1yCz/VbEc8Q6p2tXDTsp
+ p9k+U5hNDTM3gluVvXILUnXRwvFSvSk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-191-VPLtTuS8NzqooVXMHlP4zw-1; Wed, 10 Mar 2021 22:20:27 -0500
+X-MC-Unique: VPLtTuS8NzqooVXMHlP4zw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
+ [10.5.11.15])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 097C619200C1;
+ Thu, 11 Mar 2021 03:20:26 +0000 (UTC)
+Received: from wangxiaodeMacBook-Air.local (ovpn-13-9.pek2.redhat.com
+ [10.72.13.9])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 490795D746;
+ Thu, 11 Mar 2021 03:20:20 +0000 (UTC)
+Subject: Re: [PATCH V3 6/6] vDPA/ifcvf: verify mandatory feature bits for vDPA
+To: Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com, lulu@redhat.com,
+ leonro@nvidia.com
+References: <20210310090052.4762-1-lingshan.zhu@intel.com>
+ <20210310090052.4762-7-lingshan.zhu@intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <3e53a5c9-c531-48ee-c9a7-907dfdacc9d1@redhat.com>
+Date: Thu, 11 Mar 2021 11:20:18 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.16; rv:78.0)
+ Gecko/20100101 Thunderbird/78.8.0
 MIME-Version: 1.0
-In-Reply-To: <20210310092533.GA6819@lst.de>
+In-Reply-To: <20210310090052.4762-7-lingshan.zhu@intel.com>
 Content-Language: en-GB
-Cc: kvm@vger.kernel.org, Will Deacon <will@kernel.org>,
- Joerg Roedel <joro@8bytes.org>, linuxppc-dev@lists.ozlabs.org,
- dri-devel@lists.freedesktop.org, Li Yang <leoyang.li@nxp.com>,
- iommu@lists.linux-foundation.org, netdev@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, Michael Ellerman <mpe@ellerman.id.au>,
- virtualization@lists.linux-foundation.org, freedreno@lists.freedesktop.org,
- David Woodhouse <dwmw2@infradead.org>, linux-arm-msm@vger.kernel.org
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -83,229 +103,52 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 2021-03-10 09:25, Christoph Hellwig wrote:
-> On Wed, Mar 10, 2021 at 10:15:01AM +0100, Christoph Hellwig wrote:
->> On Thu, Mar 04, 2021 at 03:25:27PM +0000, Robin Murphy wrote:
->>> On 2021-03-01 08:42, Christoph Hellwig wrote:
->>>> Use explicit methods for setting and querying the information instead.
->>>
->>> Now that everyone's using iommu-dma, is there any point in bouncing this
->>> through the drivers at all? Seems like it would make more sense for the x86
->>> drivers to reflect their private options back to iommu_dma_strict (and
->>> allow Intel's caching mode to override it as well), then have
->>> iommu_dma_init_domain just test !iommu_dma_strict &&
->>> domain->ops->flush_iotlb_all.
->>
->> Hmm.  I looked at this, and kill off ->dma_enable_flush_queue for
->> the ARM drivers and just looking at iommu_dma_strict seems like a
->> very clear win.
->>
->> OTOH x86 is a little more complicated.  AMD and intel defaul to lazy
->> mode, so we'd have to change the global iommu_dma_strict if they are
->> initialized.  Also Intel has not only a "static" option to disable
->> lazy mode, but also a "dynamic" one where it iterates structure.  So
->> I think on the get side we're stuck with the method, but it still
->> simplifies the whole thing.
-> 
-> Actually... Just mirroring the iommu_dma_strict value into
-> struct iommu_domain should solve all of that with very little
-> boilerplate code.
-
-Yes, my initial thought was to directly replace the attribute with a
-common flag at iommu_domain level, but since in all cases the behaviour
-is effectively global rather than actually per-domain, it seemed
-reasonable to take it a step further. This passes compile-testing for
-arm64 and x86, what do you think?
-
-Robin.
-
------>8-----
-Subject: [PATCH] iommu: Consolidate strict invalidation handling
-
-Now that everyone is using iommu-dma, the global invalidation policy
-really doesn't need to be woven through several parts of the core API
-and individual drivers, we can just look it up directly at the one point
-that we now make the flush queue decision. If the x86 drivers reflect
-their internal options and overrides back to iommu_dma_strict, that can
-become the canonical source.
-
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
----
-  drivers/iommu/amd/iommu.c   |  2 ++
-  drivers/iommu/dma-iommu.c   |  8 +-------
-  drivers/iommu/intel/iommu.c | 12 ++++++++++++
-  drivers/iommu/iommu.c       | 35 +++++++++++++++++++++++++++--------
-  include/linux/iommu.h       |  2 ++
-  5 files changed, 44 insertions(+), 15 deletions(-)
-
-diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
-index a69a8b573e40..1db29e59d468 100644
---- a/drivers/iommu/amd/iommu.c
-+++ b/drivers/iommu/amd/iommu.c
-@@ -1856,6 +1856,8 @@ int __init amd_iommu_init_dma_ops(void)
-  	else
-  		pr_info("Lazy IO/TLB flushing enabled\n");
-  
-+	iommu_set_dma_strict(amd_iommu_unmap_flush);
-+
-  	return 0;
-  
-  }
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index af765c813cc8..789a950cc125 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -304,10 +304,6 @@ static void iommu_dma_flush_iotlb_all(struct iova_domain *iovad)
-  
-  	cookie = container_of(iovad, struct iommu_dma_cookie, iovad);
-  	domain = cookie->fq_domain;
--	/*
--	 * The IOMMU driver supporting DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE
--	 * implies that ops->flush_iotlb_all must be non-NULL.
--	 */
-  	domain->ops->flush_iotlb_all(domain);
-  }
-  
-@@ -334,7 +330,6 @@ static int iommu_dma_init_domain(struct iommu_domain *domain, dma_addr_t base,
-  	struct iommu_dma_cookie *cookie = domain->iova_cookie;
-  	unsigned long order, base_pfn;
-  	struct iova_domain *iovad;
--	int attr;
-  
-  	if (!cookie || cookie->type != IOMMU_DMA_IOVA_COOKIE)
-  		return -EINVAL;
-@@ -371,8 +366,7 @@ static int iommu_dma_init_domain(struct iommu_domain *domain, dma_addr_t base,
-  	init_iova_domain(iovad, 1UL << order, base_pfn);
-  
-  	if (!cookie->fq_domain && (!dev || !dev_is_untrusted(dev)) &&
--	    !iommu_domain_get_attr(domain, DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE, &attr) &&
--	    attr) {
-+	    domain->ops->flush_iotlb_all && !iommu_get_dma_strict()) {
-  		if (init_iova_flush_queue(iovad, iommu_dma_flush_iotlb_all,
-  					  iommu_dma_entry_dtor))
-  			pr_warn("iova flush queue initialization failed\n");
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index b5c746f0f63b..f5b452cd1266 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -4377,6 +4377,17 @@ int __init intel_iommu_init(void)
-  
-  	down_read(&dmar_global_lock);
-  	for_each_active_iommu(iommu, drhd) {
-+		if (!intel_iommu_strict && cap_caching_mode(iommu->cap)) {
-+			/*
-+			 * The flush queue implementation does not perform page-selective
-+			 * invalidations that are required for efficient TLB flushes in
-+			 * virtual environments. The benefit of batching is likely to be
-+			 * much lower than the overhead of synchronizing the virtual and
-+			 * physical IOMMU page-tables.
-+			 */
-+			pr_warn("IOMMU batching is disabled due to virtualization");
-+			intel_iommu_strict = 1;
-+		}
-  		iommu_device_sysfs_add(&iommu->iommu, NULL,
-  				       intel_iommu_groups,
-  				       "%s", iommu->name);
-@@ -4384,6 +4395,7 @@ int __init intel_iommu_init(void)
-  	}
-  	up_read(&dmar_global_lock);
-  
-+	iommu_set_dma_strict(intel_iommu_strict);
-  	bus_set_iommu(&pci_bus_type, &intel_iommu_ops);
-  	if (si_domain && !hw_pass_through)
-  		register_memory_notifier(&intel_iommu_memory_nb);
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 2f3399203813..80afcf50cd3c 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -69,6 +69,7 @@ static const char * const iommu_group_resv_type_string[] = {
-  };
-  
-  #define IOMMU_CMD_LINE_DMA_API		BIT(0)
-+#define IOMMU_CMD_LINE_STRICT		BIT(1)
-  
-  static void iommu_set_cmd_line_dma_api(void)
-  {
-@@ -80,6 +81,16 @@ static bool iommu_cmd_line_dma_api(void)
-  	return !!(iommu_cmd_line & IOMMU_CMD_LINE_DMA_API);
-  }
-  
-+static void iommu_set_cmd_line_strict(void)
-+{
-+	iommu_cmd_line |= IOMMU_CMD_LINE_STRICT;
-+}
-+
-+static bool iommu_cmd_line_strict(void)
-+{
-+	return !!(iommu_cmd_line & IOMMU_CMD_LINE_STRICT);
-+}
-+
-  static int iommu_alloc_default_domain(struct iommu_group *group,
-  				      struct device *dev);
-  static struct iommu_domain *__iommu_domain_alloc(struct bus_type *bus,
-@@ -337,10 +348,25 @@ early_param("iommu.passthrough", iommu_set_def_domain_type);
-  
-  static int __init iommu_dma_setup(char *str)
-  {
--	return kstrtobool(str, &iommu_dma_strict);
-+	int ret = kstrtobool(str, &iommu_dma_strict);
-+
-+	if (!ret)
-+		iommu_set_cmd_line_strict();
-+	return ret;
-  }
-  early_param("iommu.strict", iommu_dma_setup);
-  
-+void iommu_set_dma_strict(bool val)
-+{
-+	if (val || !iommu_cmd_line_strict())
-+		iommu_dma_strict = val;
-+}
-+
-+bool iommu_get_dma_strict(void)
-+{
-+	return iommu_dma_strict;
-+}
-+
-  static ssize_t iommu_group_attr_show(struct kobject *kobj,
-  				     struct attribute *__attr, char *buf)
-  {
-@@ -1520,13 +1546,6 @@ static int iommu_group_alloc_default_domain(struct bus_type *bus,
-  	if (!group->domain)
-  		group->domain = dom;
-  
--	if (!iommu_dma_strict) {
--		int attr = 1;
--		iommu_domain_set_attr(dom,
--				      DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE,
--				      &attr);
--	}
--
-  	return 0;
-  }
-  
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index eb5e3f14c5ad..11bbfa273d98 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -495,6 +495,8 @@ extern int iommu_domain_get_attr(struct iommu_domain *domain, enum iommu_attr,
-  				 void *data);
-  extern int iommu_domain_set_attr(struct iommu_domain *domain, enum iommu_attr,
-  				 void *data);
-+extern void iommu_set_dma_strict(bool val);
-+extern bool iommu_get_dma_strict(void);
-  
-  /* Window handling function prototypes */
-  extern int iommu_domain_window_enable(struct iommu_domain *domain, u32 wnd_nr,
--- 
-2.21.0.dirty
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+Ck9uIDIwMjEvMy8xMCA1OjAwIOS4i+WNiCwgWmh1IExpbmdzaGFuIHdyb3RlOgo+IHZEUEEgcmVx
+dXJlcyBWSVJUSU9fRl9BQ0NFU1NfUExBVEZPUk0gYXMgYSBtdXN0LCB0aGlzIGNvbW1pdAo+IGV4
+YW1pbmVzIHRoaXMgd2hlbiBzZXQgZmVhdHVyZXMuCj4KPiBTaWduZWQtb2ZmLWJ5OiBaaHUgTGlu
+Z3NoYW4gPGxpbmdzaGFuLnpodUBpbnRlbC5jb20+Cj4gLS0tCj4gICBkcml2ZXJzL3ZkcGEvaWZj
+dmYvaWZjdmZfYmFzZS5jIHwgOCArKysrKysrKwo+ICAgZHJpdmVycy92ZHBhL2lmY3ZmL2lmY3Zm
+X2Jhc2UuaCB8IDEgKwo+ICAgZHJpdmVycy92ZHBhL2lmY3ZmL2lmY3ZmX21haW4uYyB8IDUgKysr
+KysKPiAgIDMgZmlsZXMgY2hhbmdlZCwgMTQgaW5zZXJ0aW9ucygrKQo+Cj4gZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvdmRwYS9pZmN2Zi9pZmN2Zl9iYXNlLmMgYi9kcml2ZXJzL3ZkcGEvaWZjdmYvaWZj
+dmZfYmFzZS5jCj4gaW5kZXggZWE2YTc4NzkxYzliLi41OGY0N2ZkY2UzODUgMTAwNjQ0Cj4gLS0t
+IGEvZHJpdmVycy92ZHBhL2lmY3ZmL2lmY3ZmX2Jhc2UuYwo+ICsrKyBiL2RyaXZlcnMvdmRwYS9p
+ZmN2Zi9pZmN2Zl9iYXNlLmMKPiBAQCAtMjI0LDYgKzIyNCwxNCBAQCB1NjQgaWZjdmZfZ2V0X2Zl
+YXR1cmVzKHN0cnVjdCBpZmN2Zl9odyAqaHcpCj4gICAJcmV0dXJuIGh3LT5od19mZWF0dXJlczsK
+PiAgIH0KPiAgIAo+ICtpbnQgaWZjdmZfdmVyaWZ5X21pbl9mZWF0dXJlcyhzdHJ1Y3QgaWZjdmZf
+aHcgKmh3KQo+ICt7Cj4gKwlpZiAoIShody0+aHdfZmVhdHVyZXMgJiBCSVRfVUxMKFZJUlRJT19G
+X0FDQ0VTU19QTEFURk9STSkpKQo+ICsJCXJldHVybiAtRUlOVkFMOwo+ICsKPiArCXJldHVybiAw
+Owo+ICt9Cj4gKwo+ICAgdm9pZCBpZmN2Zl9yZWFkX25ldF9jb25maWcoc3RydWN0IGlmY3ZmX2h3
+ICpodywgdTY0IG9mZnNldCwKPiAgIAkJCSAgIHZvaWQgKmRzdCwgaW50IGxlbmd0aCkKPiAgIHsK
+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBhL2lmY3ZmL2lmY3ZmX2Jhc2UuaCBiL2RyaXZlcnMv
+dmRwYS9pZmN2Zi9pZmN2Zl9iYXNlLmgKPiBpbmRleCBkYmI4YzEwYWEzYjEuLjkxYzU3MzVkNGRj
+OSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfYmFzZS5oCj4gKysrIGIv
+ZHJpdmVycy92ZHBhL2lmY3ZmL2lmY3ZmX2Jhc2UuaAo+IEBAIC0xMjMsNiArMTIzLDcgQEAgdm9p
+ZCBpb193cml0ZTY0X3R3b3BhcnQodTY0IHZhbCwgdTMyICpsbywgdTMyICpoaSk7Cj4gICB2b2lk
+IGlmY3ZmX3Jlc2V0KHN0cnVjdCBpZmN2Zl9odyAqaHcpOwo+ICAgdTY0IGlmY3ZmX2dldF9mZWF0
+dXJlcyhzdHJ1Y3QgaWZjdmZfaHcgKmh3KTsKPiAgIHU2NCBpZmN2Zl9nZXRfaHdfZmVhdHVyZXMo
+c3RydWN0IGlmY3ZmX2h3ICpodyk7Cj4gK2ludCBpZmN2Zl92ZXJpZnlfbWluX2ZlYXR1cmVzKHN0
+cnVjdCBpZmN2Zl9odyAqaHcpOwo+ICAgdTE2IGlmY3ZmX2dldF92cV9zdGF0ZShzdHJ1Y3QgaWZj
+dmZfaHcgKmh3LCB1MTYgcWlkKTsKPiAgIGludCBpZmN2Zl9zZXRfdnFfc3RhdGUoc3RydWN0IGlm
+Y3ZmX2h3ICpodywgdTE2IHFpZCwgdTE2IG51bSk7Cj4gICBzdHJ1Y3QgaWZjdmZfYWRhcHRlciAq
+dmZfdG9fYWRhcHRlcihzdHJ1Y3QgaWZjdmZfaHcgKmh3KTsKPiBkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy92ZHBhL2lmY3ZmL2lmY3ZmX21haW4uYyBiL2RyaXZlcnMvdmRwYS9pZmN2Zi9pZmN2Zl9tYWlu
+LmMKPiBpbmRleCAyNWZiOWRmZTIzZjAuLmY2MjRmMjAyNDQ3ZCAxMDA2NDQKPiAtLS0gYS9kcml2
+ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfbWFpbi5jCj4gKysrIGIvZHJpdmVycy92ZHBhL2lmY3ZmL2lm
+Y3ZmX21haW4uYwo+IEBAIC0xNzksNiArMTc5LDExIEBAIHN0YXRpYyB1NjQgaWZjdmZfdmRwYV9n
+ZXRfZmVhdHVyZXMoc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhX2RldikKPiAgIHN0YXRpYyBpbnQg
+aWZjdmZfdmRwYV9zZXRfZmVhdHVyZXMoc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhX2RldiwgdTY0
+IGZlYXR1cmVzKQo+ICAgewo+ICAgCXN0cnVjdCBpZmN2Zl9odyAqdmYgPSB2ZHBhX3RvX3ZmKHZk
+cGFfZGV2KTsKPiArCWludCByZXQ7Cj4gKwo+ICsJcmV0ID0gaWZjdmZfdmVyaWZ5X21pbl9mZWF0
+dXJlcyh2Zik7CgoKU28gdGhpcyB2YWxpZGF0ZSBkZXZpY2UgZmVhdHVyZXMgaW5zdGVhZCBvZiBk
+cml2ZXIgd2hpY2ggaXMgdGhlIG9uZSB3ZSAKcmVhbGx5IHdhbnQgdG8gY2hlY2s/CgpUaGFua3MK
+Cgo+ICsJaWYgKHJldCkKPiArCQlyZXR1cm4gcmV0Owo+ICAgCj4gICAJdmYtPnJlcV9mZWF0dXJl
+cyA9IGZlYXR1cmVzOwo+ICAgCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
