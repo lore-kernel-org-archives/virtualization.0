@@ -2,73 +2,96 @@ Return-Path: <SRS0=WRLV=IJ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC28AC433E0
-	for <virtualization@archiver.kernel.org>; Thu, 11 Mar 2021 08:42:24 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEF21C433E0
+	for <virtualization@archiver.kernel.org>; Thu, 11 Mar 2021 12:50:41 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 55BA264FA3
-	for <virtualization@archiver.kernel.org>; Thu, 11 Mar 2021 08:42:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 55BA264FA3
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+	by mail.kernel.org (Postfix) with ESMTPS id D141E64FC3
+	for <virtualization@archiver.kernel.org>; Thu, 11 Mar 2021 12:50:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D141E64FC3
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=alien8.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D884240192;
-	Thu, 11 Mar 2021 08:42:23 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 5A53947A19;
+	Thu, 11 Mar 2021 12:50:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CMosuyE9GXyq; Thu, 11 Mar 2021 08:42:23 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A4C7C400D6;
-	Thu, 11 Mar 2021 08:42:22 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7YTwoK1-fvgF; Thu, 11 Mar 2021 12:50:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTP id B252E44A94;
+	Thu, 11 Mar 2021 12:50:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 88808C000C;
-	Thu, 11 Mar 2021 08:42:22 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BBF45C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 89219C000C;
+	Thu, 11 Mar 2021 12:50:36 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 98658C000A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Mar 2021 08:42:21 +0000 (UTC)
+ Thu, 11 Mar 2021 12:50:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A07B883E69
+ by smtp4.osuosl.org (Postfix) with ESMTP id 77C5247A19
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Mar 2021 08:42:21 +0000 (UTC)
+ Thu, 11 Mar 2021 12:50:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id puMU-8V3AL1q
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id uT1vUrmPsaRR
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Mar 2021 08:42:21 +0000 (UTC)
+ Thu, 11 Mar 2021 12:50:34 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 08F0F83E68
+Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id D523944A94
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Mar 2021 08:42:21 +0000 (UTC)
-Received: by verein.lst.de (Postfix, from userid 2407)
- id E7A7968B05; Thu, 11 Mar 2021 09:42:17 +0100 (CET)
-Date: Thu, 11 Mar 2021 09:42:17 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [PATCH 3/9] powerpc/pseries: remove the ppc-cmm file system
-Message-ID: <20210311084217.GB7263@lst.de>
-References: <20210309155348.974875-1-hch@lst.de>
- <20210309155348.974875-4-hch@lst.de> <YEjz/+HfILCUwKwb@zeniv-ca.linux.org.uk>
+ Thu, 11 Mar 2021 12:50:33 +0000 (UTC)
+Received: from zn.tnic (p200300ec2f0e1f0084acfb80b2ea2480.dip0.t-ipconnect.de
+ [IPv6:2003:ec:2f0e:1f00:84ac:fb80:b2ea:2480])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 570341EC04C0;
+ Thu, 11 Mar 2021 13:50:30 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+ t=1615467030;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+ bh=YQoMnM+JalduchtvnnRdDi537/sQjYe69dpZBUUIePI=;
+ b=oOGUaSre4XzUs+lxkz7FD2kSZBN8NksBkfckW/+qTHl8JbaxYlJ6NN8Mbc1R2n11m55CFf
+ P73fj+xpCfOCQDtCPXJIYK1D6MwZPiXIwvgaAfFGUGzDJZaZCXkLGAHUC5DtKeJD/Osqtp
+ IAS+CcgMs7OmmLqg6Q3uUtquB4Svgws=
+Date: Thu, 11 Mar 2021 13:50:26 +0100
+From: Borislav Petkov <bp@alien8.de>
+To: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH v6 00/12] x86: major paravirt cleanup
+Message-ID: <20210311125026.GB5829@zn.tnic>
+References: <20210309134813.23912-1-jgross@suse.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <YEjz/+HfILCUwKwb@zeniv-ca.linux.org.uk>
-User-Agent: Mutt/1.5.17 (2007-11-01)
-Cc: Jason Gunthorpe <jgg@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- "VMware, Inc." <pv-drivers@vmware.com>, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linux-mm@kvack.org, Minchan Kim <minchan@kernel.org>,
- Nadav Amit <namit@vmware.com>, Daniel Vetter <daniel@ffwll.ch>,
- linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
- linuxppc-dev@lists.ozlabs.org, Christoph Hellwig <hch@lst.de>,
- Nitin Gupta <ngupta@vflare.org>
+In-Reply-To: <20210309134813.23912-1-jgross@suse.com>
+Cc: linux-hyperv@vger.kernel.org, Wanpeng Li <wanpengli@tencent.com>,
+ kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>,
+ Will Deacon <will@kernel.org>, Ard Biesheuvel <ardb@kernel.org>,
+ Wei Liu <wei.liu@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>,
+ Stephen Hemminger <sthemmin@microsoft.com>, clang-built-linux@googlegroups.com,
+ Joerg Roedel <joro@8bytes.org>, x86@kernel.org,
+ Russell King <linux@armlinux.org.uk>, "VMware, Inc." <pv-drivers@vmware.com>,
+ Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org,
+ Haiyang Zhang <haiyangz@microsoft.com>, Steven Rostedt <rostedt@goodmis.org>,
+ Nathan Chancellor <nathan@kernel.org>, Jason Baron <jbaron@akamai.com>,
+ Andy Lutomirski <luto@kernel.org>, Josh Poimboeuf <jpoimboe@redhat.com>,
+ Thomas Gleixner <tglx@linutronix.de>, linux-arm-kernel@lists.infradead.org,
+ Jim Mattson <jmattson@google.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Sean Christopherson <seanjc@google.com>,
+ Nick Desaulniers <ndesaulniers@google.com>, linux-kernel@vger.kernel.org,
+ Paolo Bonzini <pbonzini@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -85,18 +108,40 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Mar 10, 2021 at 04:29:51PM +0000, Al Viro wrote:
-> On Tue, Mar 09, 2021 at 04:53:42PM +0100, Christoph Hellwig wrote:
-> > Just use the generic anon_inode file system.
+On Tue, Mar 09, 2021 at 02:48:01PM +0100, Juergen Gross wrote:
+> This is a major cleanup of the paravirt infrastructure aiming at
+> eliminating all custom code patching via paravirt patching.
 > 
-> Umm...  The only problem I see here is the lifetime rules for
-> that module, and that's not something introduced in this patchset.
-> Said that, looks like the logics around that place is duplicated in
-> cmm.c, vmw_balloon.c and virtion_balloon.c and I wonder if it would
-> be better off with a helper in mm/balloon.c to be used for that setup...
+> This is achieved by using ALTERNATIVE instead, leading to the ability
+> to give objtool access to the patched in instructions.
+> 
+> In order to remove most of the 32-bit special handling from pvops the
+> time related operations are switched to use static_call() instead.
+> 
+> At the end of this series all paravirt patching has to do is to
+> replace indirect calls with direct ones. In a further step this could
+> be switched to static_call(), too.
+> 
+> Changes in V6:
+> - switched back to "not" bit in feature value for "not feature"
+> - other minor comments addressed
 
-Independ of all other discussions untangling that mess does seem
-very useful.
+Ok, looks real good, the simplification is amazing! :)
+
+Can you please redo with the minor nits addressed ontop of the
+tip:x86/alternatives branch:
+
+https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git/log/?h=x86/alternatives
+
+and move the cleanups patches 13 and 14 to the beginning of the set?
+
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
