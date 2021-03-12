@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69DF0C4332B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 547A9C4332E
 	for <virtualization@archiver.kernel.org>; Fri, 12 Mar 2021 12:38:44 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2561164FE0
+	by mail.kernel.org (Postfix) with ESMTPS id 0BEC664D73
 	for <virtualization@archiver.kernel.org>; Fri, 12 Mar 2021 12:38:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2561164FE0
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0BEC664D73
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8CE1F6FAD4;
-	Fri, 12 Mar 2021 12:38:42 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id CA3CA84585;
+	Fri, 12 Mar 2021 12:38:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bJat6J1_3b3Y; Fri, 12 Mar 2021 12:38:41 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id NLcNb0tJ4syL; Fri, 12 Mar 2021 12:38:42 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 2A4826FADA;
+	by smtp1.osuosl.org (Postfix) with ESMTP id BADF884586;
 	Fri, 12 Mar 2021 12:38:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 140C5C0001;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 553CBC0013;
 	Fri, 12 Mar 2021 12:38:41 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C224DC0001
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 43B3AC0001
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Mar 2021 12:38:38 +0000 (UTC)
+ Fri, 12 Mar 2021 12:38:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9AF064ED3C
+ by smtp1.osuosl.org (Postfix) with ESMTP id 8003C8454E
  for <virtualization@lists.linux-foundation.org>;
  Fri, 12 Mar 2021 12:38:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VGj26jGG2dmP
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Yo3sdpoRZF1S
  for <virtualization@lists.linux-foundation.org>;
  Fri, 12 Mar 2021 12:38:37 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from theia.8bytes.org (8bytes.org
- [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 604204ED26
+Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id A559B84552
  for <virtualization@lists.linux-foundation.org>;
  Fri, 12 Mar 2021 12:38:37 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549adcf6.dip0.t-ipconnect.de
  [84.154.220.246])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 30DA3692;
- Fri, 12 Mar 2021 13:38:33 +0100 (CET)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 44065788;
+ Fri, 12 Mar 2021 13:38:34 +0100 (CET)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v3 5/8] x86/boot/compressed/64: Add 32-bit boot #VC handler
-Date: Fri, 12 Mar 2021 13:38:21 +0100
-Message-Id: <20210312123824.306-6-joro@8bytes.org>
+Subject: [PATCH v3 7/8] x86/boot/compressed/64: Check SEV encryption in 32-bit
+ boot-path
+Date: Fri, 12 Mar 2021 13:38:23 +0100
+Message-Id: <20210312123824.306-8-joro@8bytes.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210312123824.306-1-joro@8bytes.org>
 References: <20210312123824.306-1-joro@8bytes.org>
@@ -95,150 +95,128 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Add a #VC exception handler which is used when the kernel still executes
-in protected mode. This boot-path already uses CPUID, which will cause #VC
-exceptions in an SEV-ES guest.
+Check whether the hypervisor reported the correct C-bit when running as
+an SEV guest. Using a wrong C-bit position could be used to leak
+sensitive data from the guest to the hypervisor.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/head_64.S     |  6 ++
- arch/x86/boot/compressed/mem_encrypt.S | 96 +++++++++++++++++++++++++-
- 2 files changed, 101 insertions(+), 1 deletion(-)
+ arch/x86/boot/compressed/head_64.S | 83 ++++++++++++++++++++++++++++++
+ 1 file changed, 83 insertions(+)
 
 diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
-index 2001c3bf0748..ee448aedb8b0 100644
+index ee448aedb8b0..7c5c2698a96e 100644
 --- a/arch/x86/boot/compressed/head_64.S
 +++ b/arch/x86/boot/compressed/head_64.S
-@@ -34,6 +34,7 @@
- #include <asm/asm-offsets.h>
- #include <asm/bootparam.h>
- #include <asm/desc_defs.h>
-+#include <asm/trapnr.h>
- #include "pgtable.h"
+@@ -183,11 +183,21 @@ SYM_FUNC_START(startup_32)
+ 	 */
+ 	call	get_sev_encryption_bit
+ 	xorl	%edx, %edx
++#ifdef	CONFIG_AMD_MEM_ENCRYPT
+ 	testl	%eax, %eax
+ 	jz	1f
+ 	subl	$32, %eax	/* Encryption bit is always above bit 31 */
+ 	bts	%eax, %edx	/* Set encryption mask for page tables */
++	/*
++	 * Mark SEV as active in sev_status so that startup32_check_sev_cbit()
++	 * will do a check. The sev_status memory will be fully initialized
++	 * with the contents of MSR_AMD_SEV_STATUS later in
++	 * set_sev_encryption_mask(). For now it is sufficient to know that SEV
++	 * is active.
++	 */
++	movl	$1, rva(sev_status)(%ebp)
+ 1:
++#endif
  
- /*
-@@ -857,6 +858,11 @@ SYM_FUNC_END(startup32_set_idt_entry)
- 
- SYM_FUNC_START(startup32_load_idt)
- #ifdef CONFIG_AMD_MEM_ENCRYPT
-+	/* #VC handler */
-+	leal    rva(startup32_vc_handler)(%ebp), %eax
-+	movl    $X86_TRAP_VC, %edx
-+	call    startup32_set_idt_entry
+ 	/* Initialize Page tables to 0 */
+ 	leal	rva(pgtable)(%ebx), %edi
+@@ -272,6 +282,9 @@ SYM_FUNC_START(startup_32)
+ 	movl	%esi, %edx
+ 1:
+ #endif
++	/* Check if the C-bit position is correct when SEV is active */
++	call	startup32_check_sev_cbit
 +
- 	/* Load IDT */
- 	leal	rva(boot32_idt)(%ebp), %eax
- 	movl	%eax, rva(boot32_idt_desc+2)(%ebp)
-diff --git a/arch/x86/boot/compressed/mem_encrypt.S b/arch/x86/boot/compressed/mem_encrypt.S
-index a6dea4e8a082..e915f4906477 100644
---- a/arch/x86/boot/compressed/mem_encrypt.S
-+++ b/arch/x86/boot/compressed/mem_encrypt.S
-@@ -61,10 +61,104 @@ SYM_FUNC_START(get_sev_encryption_bit)
+ 	pushl	$__KERNEL_CS
+ 	pushl	%eax
+ 
+@@ -871,6 +884,76 @@ SYM_FUNC_START(startup32_load_idt)
  	ret
- SYM_FUNC_END(get_sev_encryption_bit)
+ SYM_FUNC_END(startup32_load_idt)
  
-+/**
-+ * sev_es_req_cpuid - Request a CPUID value from the Hypervisor using
-+ *		      the GHCB MSR protocol
++/*
++ * Check for the correct C-bit position when the startup_32 boot-path is used.
 + *
-+ * @%eax:	Register to request (0=EAX, 1=EBX, 2=ECX, 3=EDX)
-+ * @%edx:	CPUID Function
++ * The check makes use of the fact that all memory is encrypted when paging is
++ * disabled. The function creates 64 bits of random data using the RDRAND
++ * instruction. RDRAND is mandatory for SEV guests, so always available. If the
++ * hypervisor violates that the kernel will crash right here.
 + *
-+ * Returns 0 in %eax on sucess, non-zero on failure
-+ * %edx returns CPUID value on success
++ * The 64 bits of random data are stored to a memory location and at the same
++ * time kept in the %eax and %ebx registers. Since encryption is always active
++ * when paging is off the random data will be stored encrypted in main memory.
++ *
++ * Then paging is enabled. When the C-bit position is correct all memory is
++ * still mapped encrypted and comparing the register values with memory will
++ * succeed. An incorrect C-bit position will map all memory unencrypted, so that
++ * the compare will use the encrypted random data and fail.
 + */
-+SYM_CODE_START_LOCAL(sev_es_req_cpuid)
-+	shll	$30, %eax
-+	orl     $0x00000004, %eax
-+	movl    $MSR_AMD64_SEV_ES_GHCB, %ecx
-+	wrmsr
-+	rep; vmmcall		# VMGEXIT
-+	rdmsr
-+
-+	/* Check response */
-+	movl	%eax, %ecx
-+	andl	$0x3ffff000, %ecx	# Bits [12-29] MBZ
-+	jnz	2f
-+
-+	/* Check return code */
-+	andl    $0xfff, %eax
-+	cmpl    $5, %eax
-+	jne	2f
-+
-+	/* All good - return success */
-+	xorl	%eax, %eax
-+1:
-+	ret
-+2:
-+	movl	$-1, %eax
-+	jmp	1b
-+SYM_CODE_END(sev_es_req_cpuid)
-+
-+SYM_CODE_START(startup32_vc_handler)
++SYM_FUNC_START(startup32_check_sev_cbit)
++#ifdef CONFIG_AMD_MEM_ENCRYPT
 +	pushl	%eax
 +	pushl	%ebx
 +	pushl	%ecx
 +	pushl	%edx
 +
-+	/* Keep CPUID function in %ebx */
-+	movl	%eax, %ebx
++	/* Check for non-zero sev_status */
++	movl	rva(sev_status)(%ebp), %eax
++	testl	%eax, %eax
++	jz	4f
 +
-+	/* Check if error-code == SVM_EXIT_CPUID */
-+	cmpl	$0x72, 16(%esp)
-+	jne	.Lfail
++	/*
++	 * Get two 32-bit random values - Don't bail out if RDRAND fails
++	 * because it is better to prevent forward progress if no random value
++	 * can be gathered.
++	 */
++1:	rdrand	%eax
++	jnc	1b
++2:	rdrand	%ebx
++	jnc	2b
 +
-+	movl	$0, %eax		# Request CPUID[fn].EAX
-+	movl	%ebx, %edx		# CPUID fn
-+	call	sev_es_req_cpuid	# Call helper
-+	testl	%eax, %eax		# Check return code
-+	jnz	.Lfail
-+	movl	%edx, 12(%esp)		# Store result
++	/* Store to memory and keep it in the registers */
++	movl	%eax, rva(sev_check_data)(%ebp)
++	movl	%ebx, rva(sev_check_data+4)(%ebp)
 +
-+	movl	$1, %eax		# Request CPUID[fn].EBX
-+	movl	%ebx, %edx		# CPUID fn
-+	call	sev_es_req_cpuid	# Call helper
-+	testl	%eax, %eax		# Check return code
-+	jnz	.Lfail
-+	movl	%edx, 8(%esp)		# Store result
++	/* Enable paging to see if encryption is active */
++	movl	%cr0, %edx	/* Backup %cr0 in %edx */
++	movl	$(X86_CR0_PG | X86_CR0_PE), %ecx /* Enable Paging and Protected mode */
++	movl	%ecx, %cr0
 +
-+	movl	$2, %eax		# Request CPUID[fn].ECX
-+	movl	%ebx, %edx		# CPUID fn
-+	call	sev_es_req_cpuid	# Call helper
-+	testl	%eax, %eax		# Check return code
-+	jnz	.Lfail
-+	movl	%edx, 4(%esp)		# Store result
++	cmpl	%eax, rva(sev_check_data)(%ebp)
++	jne	3f
++	cmpl	%ebx, rva(sev_check_data+4)(%ebp)
++	jne	3f
 +
-+	movl	$3, %eax		# Request CPUID[fn].EDX
-+	movl	%ebx, %edx		# CPUID fn
-+	call	sev_es_req_cpuid	# Call helper
-+	testl	%eax, %eax		# Check return code
-+	jnz	.Lfail
-+	movl	%edx, 0(%esp)		# Store result
++	movl	%edx, %cr0	/* Restore previous %cr0 */
 +
++	jmp	4f
++
++3:	/* Check failed - hlt the machine */
++	hlt
++	jmp	3b
++
++4:
 +	popl	%edx
 +	popl	%ecx
 +	popl	%ebx
 +	popl	%eax
++#endif
++	ret
++SYM_FUNC_END(startup32_check_sev_cbit)
 +
-+	/* Remove error code */
-+	addl	$4, %esp
-+
-+	/* Jump over CPUID instruction */
-+	addl	$2, (%esp)
-+
-+	iret
-+.Lfail:
-+	hlt
-+	jmp .Lfail
-+SYM_CODE_END(startup32_vc_handler)
-+
- 	.code64
- 
- #include "../../kernel/sev_verify_cbit.S"
--
- SYM_FUNC_START(set_sev_encryption_mask)
- #ifdef CONFIG_AMD_MEM_ENCRYPT
- 	push	%rbp
+ /*
+  * Stack and heap for uncompression
+  */
 -- 
 2.30.1
 
