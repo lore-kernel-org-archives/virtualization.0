@@ -7,103 +7,99 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA4D2C433E0
-	for <virtualization@archiver.kernel.org>; Fri, 12 Mar 2021 15:31:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51383C433DB
+	for <virtualization@archiver.kernel.org>; Fri, 12 Mar 2021 15:33:22 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 63F4865004
-	for <virtualization@archiver.kernel.org>; Fri, 12 Mar 2021 15:31:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 63F4865004
+	by mail.kernel.org (Postfix) with ESMTPS id E7C9665005
+	for <virtualization@archiver.kernel.org>; Fri, 12 Mar 2021 15:33:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E7C9665005
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2A41143035;
-	Fri, 12 Mar 2021 15:31:29 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id A4BC743063;
+	Fri, 12 Mar 2021 15:33:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Mc-QpomsN4rz; Fri, 12 Mar 2021 15:31:28 +0000 (UTC)
+	with ESMTP id nsLxI05Lf6YX; Fri, 12 Mar 2021 15:33:21 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id CAAA44017B;
-	Fri, 12 Mar 2021 15:31:27 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 66CC94303A;
+	Fri, 12 Mar 2021 15:33:20 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 922F3C000B;
-	Fri, 12 Mar 2021 15:31:27 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4D46CC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3CD88C000C;
+	Fri, 12 Mar 2021 15:33:20 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 53CA2C000B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Mar 2021 15:31:26 +0000 (UTC)
+ Fri, 12 Mar 2021 15:33:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 3C1696FADC
+ by smtp2.osuosl.org (Postfix) with ESMTP id 347C643049
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Mar 2021 15:31:26 +0000 (UTC)
+ Fri, 12 Mar 2021 15:33:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id P8M-bKrB0InC
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5w2YD2_arRrF
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Mar 2021 15:31:25 +0000 (UTC)
+ Fri, 12 Mar 2021 15:33:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7FAC26FA35
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 7ECEA4303A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Mar 2021 15:31:25 +0000 (UTC)
+ Fri, 12 Mar 2021 15:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1615563084;
+ s=mimecast20190719; t=1615563197;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=dqP8/iSv8z7OYLNatC6uWrHlEt8bV6+WSEJM+AzQzGQ=;
- b=Uf071jnTwDK9Nl0Nor6TmOiMDdDceuXVAsZ4cvj0QPM0qqGlvN/cM7AnhoPtIHiwpxuYRR
- 63KXwUfIBxCyaqSGnUOXhFTtoCoH7jI3ZEjjdqL0ZMs7TSwiq8Vz/ksXxWpckVmzBfO0vI
- Dd40Xftp2HUkaCMt6J4T15d6ForTNVg=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-488-iU70ikRFMiW6nzWv0XV0bw-1; Fri, 12 Mar 2021 10:31:20 -0500
-X-MC-Unique: iU70ikRFMiW6nzWv0XV0bw-1
-Received: by mail-wm1-f69.google.com with SMTP id a3so2176270wmm.0
+ bh=EGb6AXgwl1nr5zRdbpARNJm/jkKcLJumJXwWNk6t/ZM=;
+ b=WD5Yyby3iB+3ldmbJyAiniGsu3Is0/O0a8kkfQYpb2GQ2WmbSo1wYrODQb4MILWnB2dP/A
+ 793OSQDQB0oSR1gOWUr8CIsnnyeOWs4hIUT3z3hF4NtPgVIpijVsKWdOnUBjMOgeyp7Tdx
+ DJLVr/uxqYSO/yHpmvRquVU/7Uy/j30=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-438-4Rs4Cl5kPpiuad6AI6EmEQ-1; Fri, 12 Mar 2021 10:33:15 -0500
+X-MC-Unique: 4Rs4Cl5kPpiuad6AI6EmEQ-1
+Received: by mail-wm1-f71.google.com with SMTP id r18so5474956wmq.5
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Mar 2021 07:31:20 -0800 (PST)
+ Fri, 12 Mar 2021 07:33:15 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=dqP8/iSv8z7OYLNatC6uWrHlEt8bV6+WSEJM+AzQzGQ=;
- b=SUvayRhI7NWKaGtxf74LSqcFrPC77TNTxovlBwPCQQb7gCIu+c5D3NbbB1zVyUoEtF
- zuDiqJ00H9m+zJCnQOqHXdeNoearpMk5gIWpB3jXr0/mmJJdlVYeH6ESYO7hvyNdl5Q0
- rgUphtISKhqZS+lOksPDNNvcGRNjFMK6gHtzZXMqNJf2a5NPUGBujRzPemHQaRs7e+Gj
- oW8JqCDY9CLCO1SapDagX156Rb4+goSWw4lv5HUybfEqbhgijZbyoG8Q1e1rBovyYK+e
- VxBmDmfy2UEAlbKKbutHxFbxFB5WKYlgN3T41AjQpZHA+sMhYe8jyJiiMeqNnjeojHEw
- 3xMA==
-X-Gm-Message-State: AOAM532heLU1N9TAEXrwQIsWcj2ytyEiJ6bZLswoUBgV2t29Rlm1s6UM
- UiQV1aoGtnUdn62OPODs5SvPm0tQCOcjphV2BXcmWRRHTk0EzrSgbuyUu2jeCFlve0jSQEtzA5J
- bB5cVhh3RtJGDLnGgnXayHH/OxXJFewIvwZdaqShFkA==
-X-Received: by 2002:a05:600c:198d:: with SMTP id
- t13mr13968827wmq.73.1615563079596; 
- Fri, 12 Mar 2021 07:31:19 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwsigtJAKBTjGiEoVSbW5etqcx7WQtQts6oCyXsi10ljlCxqfwYO6rEoSzUUEkOfAk+AuCklA==
-X-Received: by 2002:a05:600c:198d:: with SMTP id
- t13mr13968802wmq.73.1615563079413; 
- Fri, 12 Mar 2021 07:31:19 -0800 (PST)
+ bh=EGb6AXgwl1nr5zRdbpARNJm/jkKcLJumJXwWNk6t/ZM=;
+ b=QiZ5pNizVF8SNgG0j80AzUhaLsi2+5sqDSbXABuwnng0uimbGhHq4PuPrV7B07W+gw
+ hCHKG+jSJBHAIwS+1/WKDnPUOfrQt8nwx03bHXuxCaer6hsc6WuvSQ80BN0wYKeB5Pbs
+ npg5VK3u7RVWtGhzw7cMv0e+9Fwv4SsEph6f9whzSL4fRSPOmpK5tnAHarHFkfDzdOFo
+ Iw0MxuhN9C535CUnPR3OeG6YY2tp7OItGrh/EMi2a7qf7N5/IoacG1w94CSH1wiO/fuc
+ 50IcaJGM+lQcbvfGh8TsYV6KDXS5BrkManbUDorFCYiaZDsYIfOmgW1xLvO+tDaibbBZ
+ dVxA==
+X-Gm-Message-State: AOAM531bio0WSm+XGmDVqTzgVj4SKQd0NO61eCYKvq/cPto21D+3sNcJ
+ C4sAYrf0ZLBqbhi82QmRVi2sdxXT40KRK+IrSvajm86Q3GbCSva7rmNehKR7TLlxi609sGHPFmG
+ LT41BdOu3UP0pn6ehwmdK1BE+krSO8xk/FATxKdC6Zg==
+X-Received: by 2002:a5d:6602:: with SMTP id n2mr14787234wru.262.1615563194406; 
+ Fri, 12 Mar 2021 07:33:14 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx1RDUTjqMib142hX4+22hYQB63u70C7eZFaAyLkKWSCQkvVf0EtQUYs3f0XWrxZzKygWvWQQ==
+X-Received: by 2002:a5d:6602:: with SMTP id n2mr14787212wru.262.1615563194209; 
+ Fri, 12 Mar 2021 07:33:14 -0800 (PST)
 Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
  [79.34.249.199])
- by smtp.gmail.com with ESMTPSA id p6sm8096595wru.2.2021.03.12.07.31.18
+ by smtp.gmail.com with ESMTPSA id e8sm2440515wme.14.2021.03.12.07.33.13
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 12 Mar 2021 07:31:19 -0800 (PST)
-Date: Fri, 12 Mar 2021 16:31:16 +0100
+ Fri, 12 Mar 2021 07:33:13 -0800 (PST)
+Date: Fri, 12 Mar 2021 16:33:11 +0100
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [RFC PATCH v6 09/22] virtio/vsock: set packet's type in
- virtio_transport_send_pkt_info()
-Message-ID: <20210312153116.ot7g4dcb2aidwne4@steredhat>
+Subject: Re: [RFC PATCH v6 10/22] virtio/vsock: simplify credit update
+ function API
+Message-ID: <20210312153311.4vfhrb7aqhfqmokc@steredhat>
 References: <20210307175722.3464068-1-arseny.krasnov@kaspersky.com>
- <20210307180125.3465547-1-arseny.krasnov@kaspersky.com>
+ <20210307180147.3465680-1-arseny.krasnov@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <20210307180125.3465547-1-arseny.krasnov@kaspersky.com>
+In-Reply-To: <20210307180147.3465680-1-arseny.krasnov@kaspersky.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -132,17 +128,13 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Mar 07, 2021 at 09:01:22PM +0300, Arseny Krasnov wrote:
->This moves passing type of packet from 'info' structure to  'virtio_
->transport_send_pkt_info()' function. There is no need to set type of
->packet which differs from type of socket. Since at current time only
->stream type is supported, set it directly in 'virtio_transport_send_
->pkt_info()', so callers don't need to set it.
+On Sun, Mar 07, 2021 at 09:01:44PM +0300, Arseny Krasnov wrote:
+>This function is static and 'hdr' arg was always NULL.
 >
 >Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
 >---
-> net/vmw_vsock/virtio_transport_common.c | 19 +++++--------------
-> 1 file changed, 5 insertions(+), 14 deletions(-)
+> net/vmw_vsock/virtio_transport_common.c | 7 +++----
+> 1 file changed, 3 insertions(+), 4 deletions(-)
 
 Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
