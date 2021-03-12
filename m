@@ -7,61 +7,60 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D16DBC4332D
-	for <virtualization@archiver.kernel.org>; Fri, 12 Mar 2021 12:38:42 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A84F1C433E6
+	for <virtualization@archiver.kernel.org>; Fri, 12 Mar 2021 12:38:43 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8AA4164FE0
-	for <virtualization@archiver.kernel.org>; Fri, 12 Mar 2021 12:38:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8AA4164FE0
+	by mail.kernel.org (Postfix) with ESMTPS id 3D4C164D73
+	for <virtualization@archiver.kernel.org>; Fri, 12 Mar 2021 12:38:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3D4C164D73
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4BAF143276;
-	Fri, 12 Mar 2021 12:38:42 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id F17736FAE5;
+	Fri, 12 Mar 2021 12:38:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Q6b_WAG3IOPG; Fri, 12 Mar 2021 12:38:41 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id EriwPhgsrm6Q; Fri, 12 Mar 2021 12:38:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E72934327A;
+	by smtp3.osuosl.org (Postfix) with ESMTP id 95FE66FADD;
 	Fri, 12 Mar 2021 12:38:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C458CC0017;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 80558C0013;
 	Fri, 12 Mar 2021 12:38:40 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 919D9C0017
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7A19CC0001
  for <virtualization@lists.linux-foundation.org>;
  Fri, 12 Mar 2021 12:38:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 756976FACA
+ by smtp1.osuosl.org (Postfix) with ESMTP id 5784884557
  for <virtualization@lists.linux-foundation.org>;
  Fri, 12 Mar 2021 12:38:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DPLqvWcbcV_Y
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ptGRgyfYLzCE
  for <virtualization@lists.linux-foundation.org>;
  Fri, 12 Mar 2021 12:38:37 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from theia.8bytes.org (8bytes.org
- [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
- by smtp3.osuosl.org (Postfix) with ESMTPS id C11026F9BA
+Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9FEC88454E
  for <virtualization@lists.linux-foundation.org>;
  Fri, 12 Mar 2021 12:38:37 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549adcf6.dip0.t-ipconnect.de
  [84.154.220.246])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id D75FE848;
- Fri, 12 Mar 2021 13:38:34 +0100 (CET)
+ by theia.8bytes.org (Postfix) with ESMTPSA id B698176D;
+ Fri, 12 Mar 2021 13:38:33 +0100 (CET)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v3 8/8] x86/sev-es: Replace open-coded hlt-loops with
- sev_es_terminate()
-Date: Fri, 12 Mar 2021 13:38:24 +0100
-Message-Id: <20210312123824.306-9-joro@8bytes.org>
+Subject: [PATCH v3 6/8] x86/boot/compressed/64: Add CPUID sanity check to
+ 32-bit boot-path
+Date: Fri, 12 Mar 2021 13:38:22 +0100
+Message-Id: <20210312123824.306-7-joro@8bytes.org>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210312123824.306-1-joro@8bytes.org>
 References: <20210312123824.306-1-joro@8bytes.org>
@@ -96,66 +95,69 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-There are a few places left in the SEV-ES C code where hlt loops and/or
-terminate requests are implemented. Replace them all with calls to
-sev_es_terminate().
+The 32-bit #VC handler has no GHCB and can only handle CPUID exit codes.
+It is needed by the early boot code to handle #VC exceptions raised in
+verify_cpu() and to get the position of the C bit.
+
+But the CPUID information comes from the hypervisor, which is untrusted
+and might return results which trick the guest into the no-SEV boot path
+with no C bit set in the page-tables. All data written to memory would
+then be unencrypted and could leak sensitive data to the hypervisor.
+
+Add sanity checks to the 32-bit boot #VC handler to make sure the
+hypervisor does not pretend that SEV is not enabled.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/sev-es.c | 12 +++---------
- arch/x86/kernel/sev-es-shared.c   | 10 +++-------
- 2 files changed, 6 insertions(+), 16 deletions(-)
+ arch/x86/boot/compressed/mem_encrypt.S | 28 ++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
-index 27826c265aab..d904bd56b3e3 100644
---- a/arch/x86/boot/compressed/sev-es.c
-+++ b/arch/x86/boot/compressed/sev-es.c
-@@ -200,14 +200,8 @@ void do_boot_stage2_vc(struct pt_regs *regs, unsigned long exit_code)
- 	}
+diff --git a/arch/x86/boot/compressed/mem_encrypt.S b/arch/x86/boot/compressed/mem_encrypt.S
+index e915f4906477..0211eddefeb0 100644
+--- a/arch/x86/boot/compressed/mem_encrypt.S
++++ b/arch/x86/boot/compressed/mem_encrypt.S
+@@ -139,6 +139,26 @@ SYM_CODE_START(startup32_vc_handler)
+ 	jnz	.Lfail
+ 	movl	%edx, 0(%esp)		# Store result
  
- finish:
--	if (result == ES_OK) {
-+	if (result == ES_OK)
- 		vc_finish_insn(&ctxt);
--	} else if (result != ES_RETRY) {
--		/*
--		 * For now, just halt the machine. That makes debugging easier,
--		 * later we just call sev_es_terminate() here.
--		 */
--		while (true)
--			asm volatile("hlt\n");
--	}
-+	else if (result != ES_RETRY)
-+		sev_es_terminate(GHCB_SEV_ES_REASON_GENERAL_REQUEST);
- }
-diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
-index 387b71669818..0aa9f13efd57 100644
---- a/arch/x86/kernel/sev-es-shared.c
-+++ b/arch/x86/kernel/sev-es-shared.c
-@@ -24,7 +24,7 @@ static bool __init sev_es_check_cpu_features(void)
- 	return true;
- }
++	/*
++	 * Sanity check CPUID results from the Hypervisor. See comment in
++	 * do_vc_no_ghcb() for more details on why this is necessary.
++	 */
++
++	/* Fail if SEV leaf not available in CPUID[0x80000000].EAX */
++	cmpl    $0x80000000, %ebx
++	jne     .Lcheck_sev
++	cmpl    $0x8000001f, 12(%esp)
++	jb      .Lfail
++	jmp     .Ldone
++
++.Lcheck_sev:
++	/* Fail if SEV bit not set in CPUID[0x8000001f].EAX[1] */
++	cmpl    $0x8000001f, %ebx
++	jne     .Ldone
++	btl     $1, 12(%esp)
++	jnc     .Lfail
++
++.Ldone:
+ 	popl	%edx
+ 	popl	%ecx
+ 	popl	%ebx
+@@ -152,6 +172,14 @@ SYM_CODE_START(startup32_vc_handler)
  
--static void sev_es_terminate(unsigned int reason)
-+static void __noreturn sev_es_terminate(unsigned int reason)
- {
- 	u64 val = GHCB_SEV_TERMINATE;
- 
-@@ -206,12 +206,8 @@ void __init do_vc_no_ghcb(struct pt_regs *regs, unsigned long exit_code)
- 	return;
- 
- fail:
--	sev_es_wr_ghcb_msr(GHCB_SEV_TERMINATE);
--	VMGEXIT();
--
--	/* Shouldn't get here - if we do halt the machine */
--	while (true)
--		asm volatile("hlt\n");
-+	/* Terminate the guest */
-+	sev_es_terminate(GHCB_SEV_ES_REASON_GENERAL_REQUEST);
- }
- 
- static enum es_result vc_insn_string_read(struct es_em_ctxt *ctxt,
+ 	iret
+ .Lfail:
++	/* Send terminate request to Hypervisor */
++	movl    $0x100, %eax
++	xorl    %edx, %edx
++	movl    $MSR_AMD64_SEV_ES_GHCB, %ecx
++	wrmsr
++	rep; vmmcall
++
++	/* If request fails, go to hlt loop */
+ 	hlt
+ 	jmp .Lfail
+ SYM_CODE_END(startup32_vc_handler)
 -- 
 2.30.1
 
