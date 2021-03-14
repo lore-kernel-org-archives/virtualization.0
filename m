@@ -2,114 +2,99 @@ Return-Path: <SRS0=/wY+=IM=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 225C2C433E0
-	for <virtualization@archiver.kernel.org>; Sun, 14 Mar 2021 08:27:12 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF705C433DB
+	for <virtualization@archiver.kernel.org>; Sun, 14 Mar 2021 10:45:12 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9187264EBE
-	for <virtualization@archiver.kernel.org>; Sun, 14 Mar 2021 08:27:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9187264EBE
+	by mail.kernel.org (Postfix) with ESMTPS id 5B6EB64E27
+	for <virtualization@archiver.kernel.org>; Sun, 14 Mar 2021 10:45:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5B6EB64E27
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D35DC6EB4D;
-	Sun, 14 Mar 2021 08:27:10 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2ECEC83A8E;
+	Sun, 14 Mar 2021 10:45:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Z78bxRpB8Xcz; Sun, 14 Mar 2021 08:27:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3CE4560585;
-	Sun, 14 Mar 2021 08:27:08 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0E5A1C000B;
-	Sun, 14 Mar 2021 08:27:08 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E41D8C0001
- for <virtualization@lists.linux-foundation.org>;
- Sun, 14 Mar 2021 08:27:06 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id BDBD383E55
- for <virtualization@lists.linux-foundation.org>;
- Sun, 14 Mar 2021 08:27:06 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Tr9vm6OuxtSd
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id j9t0X8pH0CPe; Sun, 14 Mar 2021 10:45:11 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 72EF883A9A;
+	Sun, 14 Mar 2021 10:45:10 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6A193C000B;
+	Sun, 14 Mar 2021 10:45:10 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 07613C0001
  for <virtualization@lists.linux-foundation.org>;
- Sun, 14 Mar 2021 08:27:05 +0000 (UTC)
+ Sun, 14 Mar 2021 10:45:09 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id DCD056E753
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 14 Mar 2021 10:45:08 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fzWQ1q1Tbz5d
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 14 Mar 2021 10:45:08 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 8A79A83E3B
+ by smtp3.osuosl.org (Postfix) with ESMTPS id D1695605E1
  for <virtualization@lists.linux-foundation.org>;
- Sun, 14 Mar 2021 08:27:05 +0000 (UTC)
+ Sun, 14 Mar 2021 10:45:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1615710424;
+ s=mimecast20190719; t=1615718706;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=GFza66MGjkmqcb+P+WR/8xxm8S5ZeuJzJsDH9rg8ne8=;
- b=ifEwcLL2q/el+NHJEC6eI7TX3Qzt0iBKVzNC0lEXvs1F9LXe1PJ+UfRYujqEgrAv8uGb7o
- 8gMsmWMWSrbyLUGCm6uwlpWpP09Y1EcrUGxpBzuzpyBOFYN5+ZWX5UiUyq9sPebriEoWa+
- y5BfEYFEdGoHZtrwCCDude0MCg/JVcw=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-203-of3NRYPRN66mbaxmacuFtg-1; Sun, 14 Mar 2021 04:27:02 -0400
-X-MC-Unique: of3NRYPRN66mbaxmacuFtg-1
-Received: by mail-wr1-f69.google.com with SMTP id 75so13399579wrl.3
- for <virtualization@lists.linux-foundation.org>;
- Sun, 14 Mar 2021 00:27:02 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=GFza66MGjkmqcb+P+WR/8xxm8S5ZeuJzJsDH9rg8ne8=;
- b=k7K91awpeCqYb9Grph6vchheI6Ga8o5Ed3sfhxB2B45jMrBMHp5IwAD9ddfiydogjU
- kuGZf1f9pjEjc5Lb13Df4xg3198E7MryNDI7avaO/y9PB+3qQD2ncAoj/w5facoDYMj3
- j8rmrqwaCddRtiCDshKxtGotsmo2jfK2phk5dEgz4cJ2K/E6HIrUtKCp+AbcEkpuf9Ty
- rHNqKuXnHBLKBAszFUMd03zKK2VBmVzrc7OvZIpX2j+Ak6m8Vh9Y44G6Vrz7A7uZCL4T
- arBkN0tm0QHDno8LWxD6FqhYsEnpF8gw4iX9odKyjYWnAK8yEatosKhn1sWpx1ffJuLZ
- RMGA==
-X-Gm-Message-State: AOAM531itlMr9dgxO4xl/IZFoNS5xuOZ9F2HzowmVOhSjuCpkBNAaXKc
- eGRZ2U+FRoMvaCD/t51SraxYpx8MgRH9UbiEFVD2WFgVJ0GQ8rAiisNzLAjA7ynLYyZU+OZwCCj
- V97R7zpfXAqbR5Y1+o1ta+2Csi4uDOwZDm8h5Zl/6PA==
-X-Received: by 2002:a5d:67c8:: with SMTP id n8mr22029673wrw.351.1615710421273; 
- Sun, 14 Mar 2021 00:27:01 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwKnWuLs8sfVuJDUXO5TPsB2edZfCWoKeglFZEVvuQNi26qHIwmjHiiKDOZdYcyfL+oBUHyaw==
-X-Received: by 2002:a5d:67c8:: with SMTP id n8mr22029667wrw.351.1615710421144; 
- Sun, 14 Mar 2021 00:27:01 -0800 (PST)
-Received: from redhat.com (bzq-79-180-2-31.red.bezeqint.net. [79.180.2.31])
- by smtp.gmail.com with ESMTPSA id c9sm14807528wrr.78.2021.03.14.00.26.59
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 14 Mar 2021 00:27:00 -0800 (PST)
-Date: Sun, 14 Mar 2021 04:26:57 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Laurent Vivier <laurent@vivier.eu>
-Subject: Re: [PATCH] virtio-mmio: read[wl]()/write[wl] are already
- little-endian
-Message-ID: <20210314041749-mutt-send-email-mst@kernel.org>
-References: <20210309224313.956065-1-laurent@vivier.eu>
- <20210311104414-mutt-send-email-mst@kernel.org>
- <a8a0b68c-d36d-c675-3c6d-d4fca996fdfd@vivier.eu>
+ bh=eHpIhrioLYh4eORQxM4GKdpIFT9gzCBjG8gZQYhgxOo=;
+ b=aNugvw1uOuzc5SzreT9Z3HbOMkQ5w/7vHBG3DHC2FgZkI6COOR/jcLA4uZGwqJ9tTcnfmx
+ 4dHcdsKkuxgb15ylQmDFCUNvAFxYxjVmNeyf9KIYKbdKZMwVJ+6ShiXHEH3nGeThWPMMe+
+ QkvGTqtmyG/n1MR/0kIbBFz2KbKKbeY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-503-E9yVcn_5PrqLH04e4dxJbg-1; Sun, 14 Mar 2021 06:45:02 -0400
+X-MC-Unique: E9yVcn_5PrqLH04e4dxJbg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
+ [10.5.11.11])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 82E7E800C78;
+ Sun, 14 Mar 2021 10:44:59 +0000 (UTC)
+Received: from [10.36.112.254] (ovpn-112-254.ams2.redhat.com [10.36.112.254])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id ED7A9620DE;
+ Sun, 14 Mar 2021 10:44:54 +0000 (UTC)
+Subject: Re: [PATCH 15/17] iommu: remove DOMAIN_ATTR_NESTING
+To: Christoph Hellwig <hch@lst.de>, Joerg Roedel <joro@8bytes.org>,
+ Will Deacon <will@kernel.org>, Li Yang <leoyang.li@nxp.com>
+References: <20210301084257.945454-1-hch@lst.de>
+ <20210301084257.945454-16-hch@lst.de>
+From: Auger Eric <eric.auger@redhat.com>
+Message-ID: <3e8f1078-9222-0017-3fa8-4d884dbc848e@redhat.com>
+Date: Sun, 14 Mar 2021 11:44:52 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-In-Reply-To: <a8a0b68c-d36d-c675-3c6d-d4fca996fdfd@vivier.eu>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <20210301084257.945454-16-hch@lst.de>
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Cc: kvm@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+ linux-arm-msm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ iommu@lists.linux-foundation.org, netdev@vger.kernel.org,
+ freedreno@lists.freedesktop.org, David Woodhouse <dwmw2@infradead.org>,
+ linux-arm-kernel@lists.infradead.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,207 +106,284 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Mar 13, 2021 at 06:10:29PM +0100, Laurent Vivier wrote:
-> Le 11/03/2021 =E0 16:44, Michael S. Tsirkin a =E9crit=A0:
-> > On Tue, Mar 09, 2021 at 11:43:13PM +0100, Laurent Vivier wrote:
-> >> read[wl]()/write[wl] already access memory in little-endian mode.
-> > =
+Hi Christoph,
 
-> > But then they convert it to CPU right? We just convert it back ...
-> =
+On 3/1/21 9:42 AM, Christoph Hellwig wrote:
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c | 40 ++++++---------------
+>  drivers/iommu/arm/arm-smmu/arm-smmu.c       | 30 ++++++++++------
+>  drivers/iommu/intel/iommu.c                 | 28 +++++----------
+>  drivers/iommu/iommu.c                       |  8 +++++
+>  drivers/vfio/vfio_iommu_type1.c             |  5 +--
+>  include/linux/iommu.h                       |  4 ++-
+>  6 files changed, 50 insertions(+), 65 deletions(-)
 
-> In fact the problem is in QEMU.
-> =
+As mentionned by Robin, there are series planning to use
+DOMAIN_ATTR_NESTING to get info about the nested caps of the iommu (ARM
+and Intel):
 
-> On a big-endian guest, the readw() returns a byte-swapped value, This mea=
-ns QEMU doesn't provide a
-> little-endian value.
-> =
+[Patch v8 00/10] vfio: expose virtual Shared Virtual Addressing to VMs
+patches 1, 2, 3
 
-> I found in QEMU virtio_mmio_read() provides a value with byte-swapped byt=
-es.
-> =
+Is the plan to introduce a new domain_get_nesting_info ops then?
 
-> The problem comes from virtio_config_readX() functions that read the valu=
-e using ldX_p accessors.
-> =
+Thanks
 
-> Is it normal not to use the modern variant here if we are not in legacy m=
-ode?
-> =
-
-> I think we should have something like this in virtio_mmio_read (and write=
-):
-> =
-
-> --- a/hw/virtio/virtio-mmio.c
-> +++ b/hw/virtio/virtio-mmio.c
-> @@ -112,15 +112,28 @@ static uint64_t virtio_mmio_read(void *opaque, hwad=
-dr offset, unsigned size)
-> =
-
->      if (offset >=3D VIRTIO_MMIO_CONFIG) {
->          offset -=3D VIRTIO_MMIO_CONFIG;
-> -        switch (size) {
-> -        case 1:
-> -            return virtio_config_readb(vdev, offset);
-> -        case 2:
-> -            return virtio_config_readw(vdev, offset);
-> -        case 4:
-> -            return virtio_config_readl(vdev, offset);
-> -        default:
-> -            abort();
-> +        if (proxy->legacy) {
-> +            switch (size) {
-> +            case 1:
-> +                return virtio_config_readb(vdev, offset);
-> +            case 2:
-> +                return virtio_config_readw(vdev, offset);
-> +            case 4:
-> +                return virtio_config_readl(vdev, offset);
-> +            default:
-> +                abort();
-> +            }
-> +        } else {
-> +            switch (size) {
-> +            case 1:
-> +                return virtio_config_modern_readb(vdev, offset);
-> +            case 2:
-> +                return virtio_config_modern_readw(vdev, offset);
-> +            case 4:
-> +                return virtio_config_modern_readl(vdev, offset);
-> +            default:
-> +                abort();
-> +            }
->          }
->      }
->      if (size !=3D 4) {
-
-Sounds reasonable ...
+Eric	
 
 
-> And we need the same thing in virtio_pci_config_read() (and write).
-
-We already have it, see below.
-
-> And this could explain why it works with virtio-pci and not with virtio-m=
-mio with the big-endian guest:
-> =
-
-> with virtio-pci the bytes are swapped twice (once in virtio-mmio and then=
- in virtio-pci), so they
-> are restored to the initial value, whereas with direct virtio-mmio they a=
-re swapped only once.
-> =
-
-> Thanks,
-> Laurent
-
-virtio pci does this: modern accesses use:
-
-	virtio_pci_device_read
-
-static uint64_t virtio_pci_device_read(void *opaque, hwaddr addr,
-                                       unsigned size)
-{
-    VirtIOPCIProxy *proxy =3D opaque;
-    VirtIODevice *vdev =3D virtio_bus_get_device(&proxy->bus);
-    uint64_t val =3D 0;
-
-    if (vdev =3D=3D NULL) {
-        return val;
-    }
-
-    switch (size) {
-    case 1:
-        val =3D virtio_config_modern_readb(vdev, addr);
-        break;
-    case 2:
-        val =3D virtio_config_modern_readw(vdev, addr);
-        break;
-    case 4:
-        val =3D virtio_config_modern_readl(vdev, addr);
-        break;
-    }
-    return val;
-}
-
-
-while legacy accesses use:
-
-	virtio_pci_config_read
-
-static uint64_t virtio_pci_config_read(void *opaque, hwaddr addr,
-                                       unsigned size)
-{
-    VirtIOPCIProxy *proxy =3D opaque;
-    VirtIODevice *vdev =3D virtio_bus_get_device(&proxy->bus);
-    uint32_t config =3D VIRTIO_PCI_CONFIG_SIZE(&proxy->pci_dev);
-    uint64_t val =3D 0;
-    if (addr < config) {
-        return virtio_ioport_read(proxy, addr);
-    }
-    addr -=3D config;
-
-    switch (size) {
-    case 1:
-        val =3D virtio_config_readb(vdev, addr);
-        break;
-    case 2:
-        val =3D virtio_config_readw(vdev, addr);
-        if (virtio_is_big_endian(vdev)) {
-            val =3D bswap16(val);
-        }
-        break;
-    case 4:
-        val =3D virtio_config_readl(vdev, addr);
-        if (virtio_is_big_endian(vdev)) {
-            val =3D bswap32(val);
-        }
-        break;
-    }
-    return val;
-}
-
-
-the naming is configing but there you are.
-
-virtio_pci_config_read is also calling virtio_is_big_endian.
-
-        =
-
-static inline bool virtio_is_big_endian(VirtIODevice *vdev)
-{       =
-
-    if (!virtio_vdev_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-        assert(vdev->device_endian !=3D VIRTIO_DEVICE_ENDIAN_UNKNOWN);
-        return vdev->device_endian =3D=3D VIRTIO_DEVICE_ENDIAN_BIG;
-    }   =
-
-    /* Devices conforming to VIRTIO 1.0 or later are always LE. */
-    return false;
-}       =
-
-            =
-
-
-I note that
-virtio_is_big_endian is kind of wrong for modern config accesses since it
-checks guest feature bits - config accesses are done before features are
-acknowledged.
-Luckily this function is never called for a modern guest ...
-It would be nice to add virtio_legacy_is_big_endian and call that
-when we know it's a legacy interface.
-
-
--- =
-
-MST
+> 
+> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+> index bf96172e8c1f71..8e6fee3ea454d3 100644
+> --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+> +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+> @@ -2466,41 +2466,21 @@ static void arm_smmu_dma_enable_flush_queue(struct iommu_domain *domain)
+>  	to_smmu_domain(domain)->non_strict = true;
+>  }
+>  
+> -static int arm_smmu_domain_set_attr(struct iommu_domain *domain,
+> -				    enum iommu_attr attr, void *data)
+> +static int arm_smmu_domain_enable_nesting(struct iommu_domain *domain)
+>  {
+> -	int ret = 0;
+>  	struct arm_smmu_domain *smmu_domain = to_smmu_domain(domain);
+> +	int ret = -EPERM;
+>  
+> -	mutex_lock(&smmu_domain->init_mutex);
+> +	if (domain->type != IOMMU_DOMAIN_UNMANAGED)
+> +		return -EINVAL;
+>  
+> -	switch (domain->type) {
+> -	case IOMMU_DOMAIN_UNMANAGED:
+> -		switch (attr) {
+> -		case DOMAIN_ATTR_NESTING:
+> -			if (smmu_domain->smmu) {
+> -				ret = -EPERM;
+> -				goto out_unlock;
+> -			}
+> -
+> -			if (*(int *)data)
+> -				smmu_domain->stage = ARM_SMMU_DOMAIN_NESTED;
+> -			else
+> -				smmu_domain->stage = ARM_SMMU_DOMAIN_S1;
+> -			break;
+> -		default:
+> -			ret = -ENODEV;
+> -		}
+> -		break;
+> -	case IOMMU_DOMAIN_DMA:
+> -		ret = -ENODEV;
+> -		break;
+> -	default:
+> -		ret = -EINVAL;
+> +	mutex_lock(&smmu_domain->init_mutex);
+> +	if (!smmu_domain->smmu) {
+> +		smmu_domain->stage = ARM_SMMU_DOMAIN_NESTED;
+> +		ret = 0;
+>  	}
+> -
+> -out_unlock:
+>  	mutex_unlock(&smmu_domain->init_mutex);
+> +
+>  	return ret;
+>  }
+>  
+> @@ -2603,7 +2583,7 @@ static struct iommu_ops arm_smmu_ops = {
+>  	.device_group		= arm_smmu_device_group,
+>  	.dma_use_flush_queue	= arm_smmu_dma_use_flush_queue,
+>  	.dma_enable_flush_queue	= arm_smmu_dma_enable_flush_queue,
+> -	.domain_set_attr	= arm_smmu_domain_set_attr,
+> +	.domain_enable_nesting	= arm_smmu_domain_enable_nesting,
+>  	.of_xlate		= arm_smmu_of_xlate,
+>  	.get_resv_regions	= arm_smmu_get_resv_regions,
+>  	.put_resv_regions	= generic_iommu_put_resv_regions,
+> diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+> index e7893e96f5177a..2e17d990d04481 100644
+> --- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
+> +++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+> @@ -1497,6 +1497,24 @@ static void arm_smmu_dma_enable_flush_queue(struct iommu_domain *domain)
+>  	to_smmu_domain(domain)->pgtbl_cfg.quirks |= IO_PGTABLE_QUIRK_NON_STRICT;
+>  }
+>  
+> +static int arm_smmu_domain_enable_nesting(struct iommu_domain *domain)
+> +{
+> +	struct arm_smmu_domain *smmu_domain = to_smmu_domain(domain);
+> +	int ret = -EPERM;
+> +	
+> +	if (domain->type != IOMMU_DOMAIN_UNMANAGED)
+> +		return -EINVAL;
+> +
+> +	mutex_lock(&smmu_domain->init_mutex);
+> +	if (!smmu_domain->smmu) {
+> +		smmu_domain->stage = ARM_SMMU_DOMAIN_NESTED;
+> +		ret = 0;
+> +	}
+> +	mutex_unlock(&smmu_domain->init_mutex);
+> +
+> +	return ret;
+> +}
+> +
+>  static int arm_smmu_domain_set_attr(struct iommu_domain *domain,
+>  				    enum iommu_attr attr, void *data)
+>  {
+> @@ -1508,17 +1526,6 @@ static int arm_smmu_domain_set_attr(struct iommu_domain *domain,
+>  	switch(domain->type) {
+>  	case IOMMU_DOMAIN_UNMANAGED:
+>  		switch (attr) {
+> -		case DOMAIN_ATTR_NESTING:
+> -			if (smmu_domain->smmu) {
+> -				ret = -EPERM;
+> -				goto out_unlock;
+> -			}
+> -
+> -			if (*(int *)data)
+> -				smmu_domain->stage = ARM_SMMU_DOMAIN_NESTED;
+> -			else
+> -				smmu_domain->stage = ARM_SMMU_DOMAIN_S1;
+> -			break;
+>  		case DOMAIN_ATTR_IO_PGTABLE_CFG: {
+>  			struct io_pgtable_domain_attr *pgtbl_cfg = data;
+>  
+> @@ -1603,6 +1610,7 @@ static struct iommu_ops arm_smmu_ops = {
+>  	.dma_use_flush_queue	= arm_smmu_dma_use_flush_queue,
+>  	.dma_enable_flush_queue	= arm_smmu_dma_enable_flush_queue,
+>  	.domain_set_attr	= arm_smmu_domain_set_attr,
+> +	.domain_enable_nesting	= arm_smmu_domain_enable_nesting,
+>  	.of_xlate		= arm_smmu_of_xlate,
+>  	.get_resv_regions	= arm_smmu_get_resv_regions,
+>  	.put_resv_regions	= generic_iommu_put_resv_regions,
+> diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+> index eaa80c33f4bc91..0f1374d6612a60 100644
+> --- a/drivers/iommu/intel/iommu.c
+> +++ b/drivers/iommu/intel/iommu.c
+> @@ -5423,32 +5423,22 @@ static bool intel_iommu_is_attach_deferred(struct iommu_domain *domain,
+>  }
+>  
+>  static int
+> -intel_iommu_domain_set_attr(struct iommu_domain *domain,
+> -			    enum iommu_attr attr, void *data)
+> +intel_iommu_domain_enable_nesting(struct iommu_domain *domain)
+>  {
+>  	struct dmar_domain *dmar_domain = to_dmar_domain(domain);
+>  	unsigned long flags;
+> -	int ret = 0;
+> +	int ret = -ENODEV;
+>  
+>  	if (domain->type != IOMMU_DOMAIN_UNMANAGED)
+>  		return -EINVAL;
+>  
+> -	switch (attr) {
+> -	case DOMAIN_ATTR_NESTING:
+> -		spin_lock_irqsave(&device_domain_lock, flags);
+> -		if (nested_mode_support() &&
+> -		    list_empty(&dmar_domain->devices)) {
+> -			dmar_domain->flags |= DOMAIN_FLAG_NESTING_MODE;
+> -			dmar_domain->flags &= ~DOMAIN_FLAG_USE_FIRST_LEVEL;
+> -		} else {
+> -			ret = -ENODEV;
+> -		}
+> -		spin_unlock_irqrestore(&device_domain_lock, flags);
+> -		break;
+> -	default:
+> -		ret = -EINVAL;
+> -		break;
+> +	spin_lock_irqsave(&device_domain_lock, flags);
+> +	if (nested_mode_support() && list_empty(&dmar_domain->devices)) {
+> +		dmar_domain->flags |= DOMAIN_FLAG_NESTING_MODE;
+> +		dmar_domain->flags &= ~DOMAIN_FLAG_USE_FIRST_LEVEL;
+> +		ret = 0;
+>  	}
+> +	spin_unlock_irqrestore(&device_domain_lock, flags);
+>  
+>  	return ret;
+>  }
+> @@ -5556,7 +5546,7 @@ const struct iommu_ops intel_iommu_ops = {
+>  	.domain_alloc		= intel_iommu_domain_alloc,
+>  	.domain_free		= intel_iommu_domain_free,
+>  	.dma_use_flush_queue	= intel_iommu_dma_use_flush_queue,
+> -	.domain_set_attr	= intel_iommu_domain_set_attr,
+> +	.domain_enable_nesting	= intel_iommu_domain_enable_nesting,
+>  	.attach_dev		= intel_iommu_attach_device,
+>  	.detach_dev		= intel_iommu_detach_device,
+>  	.aux_attach_dev		= intel_iommu_aux_attach_device,
+> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+> index 0f12c4d58cdc42..2e9e058501a953 100644
+> --- a/drivers/iommu/iommu.c
+> +++ b/drivers/iommu/iommu.c
+> @@ -2685,6 +2685,14 @@ int iommu_domain_set_attr(struct iommu_domain *domain,
+>  }
+>  EXPORT_SYMBOL_GPL(iommu_domain_set_attr);
+>  
+> +int iommu_domain_enable_nesting(struct iommu_domain *domain)
+> +{
+> +	if (!domain->ops->domain_enable_nesting)
+> +		return -EINVAL;
+> +	return domain->ops->domain_enable_nesting(domain);
+> +}
+> +EXPORT_SYMBOL_GPL(iommu_domain_enable_nesting);
+> +
+>  void iommu_get_resv_regions(struct device *dev, struct list_head *list)
+>  {
+>  	const struct iommu_ops *ops = dev->bus->iommu_ops;
+> diff --git a/drivers/vfio/vfio_iommu_type1.c b/drivers/vfio/vfio_iommu_type1.c
+> index c8e57f22f421c5..9cea4d80dd66ed 100644
+> --- a/drivers/vfio/vfio_iommu_type1.c
+> +++ b/drivers/vfio/vfio_iommu_type1.c
+> @@ -2320,10 +2320,7 @@ static int vfio_iommu_type1_attach_group(void *iommu_data,
+>  	}
+>  
+>  	if (iommu->nesting) {
+> -		int attr = 1;
+> -
+> -		ret = iommu_domain_set_attr(domain->domain, DOMAIN_ATTR_NESTING,
+> -					    &attr);
+> +		ret = iommu_domain_enable_nesting(domain->domain);
+>  		if (ret)
+>  			goto out_domain;
+>  	}
+> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+> index f30de33c6ff56e..aed88aa3bd3edf 100644
+> --- a/include/linux/iommu.h
+> +++ b/include/linux/iommu.h
+> @@ -107,7 +107,6 @@ enum iommu_cap {
+>   */
+>  
+>  enum iommu_attr {
+> -	DOMAIN_ATTR_NESTING,	/* two stages of translation */
+>  	DOMAIN_ATTR_IO_PGTABLE_CFG,
+>  	DOMAIN_ATTR_MAX,
+>  };
+> @@ -196,6 +195,7 @@ struct iommu_iotlb_gather {
+>   * @dma_use_flush_queue: Returns %true if a DMA flush queue is used
+>   * @dma_enable_flush_queue: Try to enable the DMA flush queue
+>   * @domain_set_attr: Change domain attributes
+> + * @domain_enable_nesting: Enable nesting
+>   * @get_resv_regions: Request list of reserved regions for a device
+>   * @put_resv_regions: Free list of reserved regions for a device
+>   * @apply_resv_region: Temporary helper call-back for iova reserved ranges
+> @@ -248,6 +248,7 @@ struct iommu_ops {
+>  	void (*dma_enable_flush_queue)(struct iommu_domain *domain);
+>  	int (*domain_set_attr)(struct iommu_domain *domain,
+>  			       enum iommu_attr attr, void *data);
+> +	int (*domain_enable_nesting)(struct iommu_domain *domain);
+>  
+>  	/* Request/Free a list of reserved regions for a device */
+>  	void (*get_resv_regions)(struct device *dev, struct list_head *list);
+> @@ -494,6 +495,7 @@ extern struct iommu_domain *iommu_group_default_domain(struct iommu_group *);
+>  bool iommu_dma_use_flush_queue(struct iommu_domain *domain);
+>  extern int iommu_domain_set_attr(struct iommu_domain *domain, enum iommu_attr,
+>  				 void *data);
+> +int iommu_domain_enable_nesting(struct iommu_domain *domain);
+>  
+>  extern int report_iommu_fault(struct iommu_domain *domain, struct device *dev,
+>  			      unsigned long iova, int flags);
+> 
 
 _______________________________________________
 Virtualization mailing list
