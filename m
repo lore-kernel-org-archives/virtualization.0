@@ -2,92 +2,189 @@ Return-Path: <SRS0=NA0D=IN=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,URIBL_RED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_RED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76F29C433DB
-	for <virtualization@archiver.kernel.org>; Mon, 15 Mar 2021 01:14:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D01B4C433E6
+	for <virtualization@archiver.kernel.org>; Mon, 15 Mar 2021 02:27:48 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D154064DFD
-	for <virtualization@archiver.kernel.org>; Mon, 15 Mar 2021 01:14:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D154064DFD
+	by mail.kernel.org (Postfix) with ESMTPS id 5829264E45
+	for <virtualization@archiver.kernel.org>; Mon, 15 Mar 2021 02:27:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5829264E45
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 8044E4016A;
-	Mon, 15 Mar 2021 01:14:48 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id EFE9E40187;
+	Mon, 15 Mar 2021 02:27:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8_NfmUv6EScT; Mon, 15 Mar 2021 01:14:47 +0000 (UTC)
+	with ESMTP id xFYEMrRElOlo; Mon, 15 Mar 2021 02:27:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 37A08400CC;
-	Mon, 15 Mar 2021 01:14:47 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 73347400CC;
+	Mon, 15 Mar 2021 02:27:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0AA04C000A;
-	Mon, 15 Mar 2021 01:14:47 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AF679C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 53B69C000B;
+	Mon, 15 Mar 2021 02:27:46 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 48E38C0001
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Mar 2021 01:14:45 +0000 (UTC)
+ Mon, 15 Mar 2021 02:27:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 9683C4016A
+ by smtp3.osuosl.org (Postfix) with ESMTP id 2F3D96F48F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Mar 2021 01:14:45 +0000 (UTC)
+ Mon, 15 Mar 2021 02:27:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FU7r6yKYXP7L
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=intel.onmicrosoft.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id u7zuYdGgGm4K
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Mar 2021 01:14:44 +0000 (UTC)
+ Mon, 15 Mar 2021 02:27:43 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7DA5B400CC
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 66BF5605A7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Mar 2021 01:14:44 +0000 (UTC)
-IronPort-SDR: b084t5rn2rIlddNAnt9VzSFKZARE32y+pAbWYZrMZtAH4HNVjTOQd8faZtJFVFaER38P/2F5nS
- IdmZmrBN849w==
-X-IronPort-AV: E=McAfee;i="6000,8403,9923"; a="189112846"
-X-IronPort-AV: E=Sophos;i="5.81,249,1610438400"; d="scan'208";a="189112846"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
- by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 14 Mar 2021 18:14:43 -0700
-IronPort-SDR: 6WehyGfaZkgN3csKE1b1b22pkbFj42af9jfpdGakLe0uNVVQ5rKAYCG99RlHI6oErO2bfhEPnz
- aGsgOE7aPyyQ==
+ Mon, 15 Mar 2021 02:27:43 +0000 (UTC)
+IronPort-SDR: Y+SbrAXeU5rCYjHIYjkaLDtWhwNtdSSfXsu2cBhu1tU+8P8yKbDZdD+SiVuftfXKJ4gE1gdP04
+ OQ5ICUapR0mQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9923"; a="189074271"
+X-IronPort-AV: E=Sophos;i="5.81,249,1610438400"; d="scan'208";a="189074271"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+ by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 14 Mar 2021 19:27:41 -0700
+IronPort-SDR: BQ5c6NrrOEyUuGl+9xKlnbeMs5AzLS1Ni29XH0v5dvrn8gQC7+FoBzZZw5qF5GBAiurGfVaE0T
+ W+uKQR3Pgv2w==
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,249,1610438400"; d="scan'208";a="601256882"
-Received: from unknown (HELO [10.239.154.55]) ([10.239.154.55])
- by fmsmga006.fm.intel.com with ESMTP; 14 Mar 2021 18:14:38 -0700
-Subject: Re: [PATCH v7] i2c: virtio: add a virtio i2c frontend driver
-To: Arnd Bergmann <arnd@arndb.de>
-References: <cd3b0c9138824b0a5fad9d3bc872d8836e829946.1615554673.git.jie.deng@intel.com>
- <CAK8P3a0zQG3pH91emqAUsaRx4AZeuOEvSrPzXP9w_XhjU6w3ng@mail.gmail.com>
-From: Jie Deng <jie.deng@intel.com>
-Message-ID: <8070f03d-8233-636b-5ea9-395e723f7a2c@intel.com>
-Date: Mon, 15 Mar 2021 09:14:37 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.7.0
-MIME-Version: 1.0
-In-Reply-To: <CAK8P3a0zQG3pH91emqAUsaRx4AZeuOEvSrPzXP9w_XhjU6w3ng@mail.gmail.com>
+X-IronPort-AV: E=Sophos;i="5.81,249,1610438400"; d="scan'208";a="378359145"
+Received: from fmsmsx604.amr.corp.intel.com ([10.18.126.84])
+ by fmsmga007.fm.intel.com with ESMTP; 14 Mar 2021 19:27:41 -0700
+Received: from fmsmsx609.amr.corp.intel.com (10.18.126.89) by
+ fmsmsx604.amr.corp.intel.com (10.18.126.84) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2106.2; Sun, 14 Mar 2021 19:27:41 -0700
+Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
+ fmsmsx609.amr.corp.intel.com (10.18.126.89) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2106.2
+ via Frontend Transport; Sun, 14 Mar 2021 19:27:41 -0700
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com (104.47.58.108)
+ by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2106.2; Sun, 14 Mar 2021 19:27:39 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=TyNEw7CqphSGOIBaQBor23OsSeKCvjwOGea+eI96inDibONp6vIT2fEwsAPNSQsW3p8qCi1/xijz2TPtFEvKeaGpAVxocQkjWdXBrDi72O/QDZRJ/pcHa1fGy9nHKk91wU9f7huGNpZOr63nQJTlpHZ5vntPsSlqr8WtxNfml6quZ/jJaKbM7NfyJn4bS30AX1xs6XUiOBK6jTeD0AoqaDFUuduBdpBR8AFF2e2pyJt5oH3m43rNaO0NAbDFBer/dE/8gmnzNzNkc6oSnDKUzfQqvqQWN3EuluDtaUc38Pfhj7FLXqv05wvdmHQM/a2z3Sbo9Y0U1PqBHzIEClChPA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rGv9Fh7mBXP8wQmfeOa9hfRksekrutfj0DElFl6Z174=;
+ b=Y8gLpkuq9OvcrFwvQIiDqB4bfamFM0tX37jPdQVsLxnx7Sdz/wy31Ojp4JqWsrT8RHcXjgMN/YKQdPaoLEDlOnzX09RMD/xwzSza7QZ9xqw1I8Y6zZMS6dYBE89r3QoDq7vuzA8GlLLdgEH6c/eeqkY3qo5YCrM+rOSBxFpD2XKD4Uopb7T9kxh73Nq+rJp3qjeZrjXQfTSiorsTpKuMQb6MB7Ch89CVYEt7NLXX+MVAMQbx19XdQgxQv5Y753CzjnbFPgd8qxOMf1JbpxXI6WSTRf/N422fRf3r0tGT98UtjmYVmMBnbHIW23KbfwDN75BktQZWJuGrG5hzwCdRpg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=intel.onmicrosoft.com; 
+ s=selector2-intel-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=rGv9Fh7mBXP8wQmfeOa9hfRksekrutfj0DElFl6Z174=;
+ b=i0WNYBiPqUmE9mCbVgOJWFx0ybkfZa4ZBVjYyckRP19Nj/P7YV/9nBsNoM9ktZnQ/t3M9xCLiSWc7hrF3vXufNQWPFMedTrF3uPVskLz+tFcVq4WlvpRAZL75U3kDBCvVJe7rUm3swLWcejLoCKvVNL4Bodac1RH7m6kYOSOEHY=
+Received: from BN7PR11MB2786.namprd11.prod.outlook.com (2603:10b6:406:b3::27)
+ by BN6PR11MB2052.namprd11.prod.outlook.com (2603:10b6:404:4a::15)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3933.32; Mon, 15 Mar
+ 2021 02:27:37 +0000
+Received: from BN7PR11MB2786.namprd11.prod.outlook.com
+ ([fe80::167:12a:8fe3:6c10]) by BN7PR11MB2786.namprd11.prod.outlook.com
+ ([fe80::167:12a:8fe3:6c10%2]) with mapi id 15.20.3933.032; Mon, 15 Mar 2021
+ 02:27:37 +0000
+From: "Zhang, Tina" <tina.zhang@intel.com>
+To: Gerd Hoffmann <kraxel@redhat.com>, "Kasireddy, Vivek"
+ <vivek.kasireddy@intel.com>
+Subject: RE: [RFC v3 2/3] virtio: Introduce Vdmabuf driver
+Thread-Topic: [RFC v3 2/3] virtio: Introduce Vdmabuf driver
+Thread-Index: AQHW+gCk3TCT77lQ30iwmT355cnajapJvNWAgAQvWACAABw/AIAA95oAgACLo4CAAVAJAIAASy+AgAMTfACAAC6CAIAwJvKA
+Date: Mon, 15 Mar 2021 02:27:37 +0000
+Message-ID: <BN7PR11MB2786D648DB8252151CE5E5F6896C9@BN7PR11MB2786.namprd11.prod.outlook.com>
+References: <20210203073517.1908882-1-vivek.kasireddy@intel.com>
+ <20210203073517.1908882-3-vivek.kasireddy@intel.com>
+ <YB1sRx1GrT8rATEg@phenom.ffwll.local>
+ <20210208075748.xejgcb4il2egow2u@sirius.home.kraxel.org>
+ <YCEGrrT0/eqqz/ok@phenom.ffwll.local>
+ <8ba4ad64be3546bda9a2ed2129bf98e4@intel.com>
+ <20210209084453.5oqepy7zdwtxgrpu@sirius.home.kraxel.org>
+ <2ef01dc941684a15a4f30e6239ae42df@intel.com>
+ <20210210091641.ahjtgcdalw7viuei@sirius.home.kraxel.org>
+ <bad576177eb24085a73570e8ad03d2cc@intel.com>
+ <20210212110140.gdpu7kapnr7ovdcn@sirius.home.kraxel.org>
+In-Reply-To: <20210212110140.gdpu7kapnr7ovdcn@sirius.home.kraxel.org>
+Accept-Language: en-US
 Content-Language: en-US
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Viresh Kumar <viresh.kumar@linaro.org>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@kernel.org>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>, yu1.wang@intel.com,
- =?UTF-8?Q?Uwe_Kleine-K=c3=b6nig?= <u.kleine-koenig@pengutronix.de>,
- kblaiech@mellanox.com, virtualization@lists.linux-foundation.org,
- Stefan Hajnoczi <stefanha@redhat.com>, Tali Perry <tali.perry1@gmail.com>,
- conghui.chen@intel.com, loic.poulain@linaro.org,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Sergey Semin <Sergey.Semin@baikalelectronics.ru>,
- jarkko.nikula@linux.intel.com, shuo.a.liu@intel.com,
- Paolo Bonzini <pbonzini@redhat.com>, Mike Rapoport <rppt@kernel.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-reaction: no-action
+dlp-version: 11.5.1.3
+dlp-product: dlpe-windows
+authentication-results: redhat.com; dkim=none (message not signed)
+ header.d=none;redhat.com; dmarc=none action=none header.from=intel.com;
+x-originating-ip: [192.198.147.193]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: c364b4b4-fee9-4adc-597a-08d8e759e671
+x-ms-traffictypediagnostic: BN6PR11MB2052:
+x-ld-processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <BN6PR11MB20521D94F166EEBC0DF753E4896C9@BN6PR11MB2052.namprd11.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:174;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: v96Lp8pR+L3Kw6pQ1NV657zwYOqnKmKx3CDdfGUkDEZh/XD89n+ASzzPCLxL+0IqIlpdVyMk3R7OKHkfKeOljSMLuOwTgRXgpUYQGi53d4tRh40OjEzRBihUpWjacLh3cq6HwbiAzI5HNdGMiFPxXIrmcgFpsl17oKwhlSNA7xEL8gtzcsYyzRLBP/+Gmxb78rCVWuXstyJsETnbqDBHgypbDZ7dWoU+eZNo4GrqN1PIKAOhenJGDkfK68lNwYFsw2sOAlI17extONcX9D3pV2VTB8eoGje02ZQYFoJTu77LGkykX4Yke+vV+bWY0fMRl5UUSfg5jNazmKOBcD5/qFK8Dr6VtIO4+dA2AB9lxggTlmch+PyjnK1f8g3hfSAvWfSJ46Popb81nuPWXwMtACLU5KRMkNKPDJcHRQweHnSI9kZBGiMtmNENw+VdTKumFs8/Dz3n204Uwm6vHCbo/X5ew7spaJ8jum3Ll+YyywLIWZq4h2NyuEjwlM7toFVVy9BH0YYA9yVQhENiqI/71N2A4A7XmIqLyvFGvjzL9tUcyJZecDjdC/t04yMukZI30iiZd02uKTjrsPwTag5r3wA23rRKYfpU3aevVl6SiOQ=
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BN7PR11MB2786.namprd11.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(346002)(376002)(396003)(39860400002)(136003)(366004)(71200400001)(54906003)(478600001)(55016002)(52536014)(7696005)(86362001)(6506007)(53546011)(66476007)(64756008)(9686003)(110136005)(66446008)(66556008)(66946007)(5660300002)(8676002)(4326008)(966005)(186003)(76116006)(8936002)(26005)(83380400001)(6636002)(33656002)(2906002)(316002);
+ DIR:OUT; SFP:1102; 
+x-ms-exchange-antispam-messagedata: =?us-ascii?Q?PQ2Hp1e870IBr5xpFYDNF9DoNMiBoqQXA1EEWz2p7BrNbVmB92zG+xagkRxB?=
+ =?us-ascii?Q?MQ1LFEdjuo5UGmy5RYxa3PTMBGe77B2+uv0h6o0YOBAO2S7qvBQBQub1X5Qz?=
+ =?us-ascii?Q?lvMC3TWaldrJgks/y7ZIDPcJxajGD45O1q4PAncq7qYd+6NpGZ8RO6CiweUK?=
+ =?us-ascii?Q?X8f0fhSAddK8HUeU00fghuJQvEPdlK8IlUKugzv9lrQx79ojcl782m8EecJu?=
+ =?us-ascii?Q?gYZr1/evNJ+sM3YhsiSye2Hf+Uuo6FquGAIqAxPFmS/oxRWaIBqLqLfBrZVd?=
+ =?us-ascii?Q?5NknDh741GmNMgpr6UNwl5wTTM+GuqozzI/J22HjDo/Mfrp1wK0YVlCmoO/V?=
+ =?us-ascii?Q?gSwGSecTeqqKVPhVWasaS9oXtrGn4oXSptfI1KYlH+uJxsnpGCCA04EN1RdW?=
+ =?us-ascii?Q?CloltxKgrYJfaJK52WrhuJe6jKx/AZO9nR07W5JdSKbcEiqo1syPdGqbOs7n?=
+ =?us-ascii?Q?64K/dAmvbtf7MxQgYJfWyeZYBVvw0YEoiqHFt/w68Jb8midrynePm5xIzfCC?=
+ =?us-ascii?Q?1Xny1RacwvFTaD3yjnnHuA540a4+Xuxmk+lCxHBaic0M7gHjOowPCm/xhm47?=
+ =?us-ascii?Q?yvq84+vd3gndFm9rxtX5Ci8crDkGKTMtbljtlgJeTsCOKEr2fGaTRjuMt+yZ?=
+ =?us-ascii?Q?S+G3/eli9zs+xOuoVNmAZ45eXrM6kDqYKhqQ0vpkqFJXQ8DmwqB6acDTbpru?=
+ =?us-ascii?Q?brMGQSyIqfjQB3EnySPJ2ebpxDRRcEQwK6QgrwV/7+bNZMCRWib7lKE1Ot+R?=
+ =?us-ascii?Q?RlOZfS9uP37J+xF6+aKfjFgqnIgK3mWmNQdbdIbELNtjkXpb13lv09RhZ2Yu?=
+ =?us-ascii?Q?QVs8aub8C8OtiqY5lTSTN3Wvbn2sd08gdX7hQmZhMDea0UEZOEB5KBhHF29Y?=
+ =?us-ascii?Q?Arh+/19ycTm8a+6n8PBeinT9FBS+LaDtkV1AdsetluxzqXepmEa+/zLsXsAW?=
+ =?us-ascii?Q?kPc9LP70n3enGINZL3EpeQALTuLTjcg25NTpKKUqwESrDEPcedgpWci8Wg3V?=
+ =?us-ascii?Q?qoAPEfZjSSW+0EOSFms7unujTD++3pVG1m7szR4XnqBPRMMamT668HIq3Tac?=
+ =?us-ascii?Q?mgMyM3tpMn4KOZ5gW4dbJShGZHEkzxt8lpFFD4FMsnAmge3amNUZ5YDW8oSF?=
+ =?us-ascii?Q?oJtzBjjqySjVBaRXZHejFL8j8OL2rsoc60nwpsFd5pbg9nrWnYCadY751b8K?=
+ =?us-ascii?Q?Jbffke0i12ePrKIWYzD1hCq6Lk0gVuKE8p9duRm6BAEQpjJGfirVeNwRqnN/?=
+ =?us-ascii?Q?7TAu5jvg9SgM0f06+wCDd3jCBoA+vJ0u3BZl4oLAYaW5cFztVrd3a6VZ48cr?=
+ =?us-ascii?Q?ljLE9Br+8cPW+sOx5+xdwF7V?=
+MIME-Version: 1.0
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN7PR11MB2786.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c364b4b4-fee9-4adc-597a-08d8e759e671
+X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Mar 2021 02:27:37.6249 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 9Z16eGi54EQR8+EogU7R/WiHfRspI4ziBwbS7enUDpYkvKT2n/FT6PRK6lIe8Ka11FlKU0vSO5zqgheBmvOWMA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR11MB2052
+X-OriginatorOrg: intel.com
+Cc: "Kim, Dongwon" <dongwon.kim@intel.com>,
+ "daniel.vetter@ffwll.ch" <daniel.vetter@ffwll.ch>,
+ "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>, "Vetter,
+ Daniel" <daniel.vetter@intel.com>,
+ "christian.koenig@amd.com" <christian.koenig@amd.com>,
+ "linux-media@vger.kernel.org" <linux-media@vger.kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,57 +196,78 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
-On 2021/3/12 16:58, Arnd Bergmann wrote:
-> On Fri, Mar 12, 2021 at 2:33 PM Jie Deng <jie.deng@intel.com> wrote:
->
->> +
->> +/**
->> + * struct virtio_i2c_req - the virtio I2C request structure
->> + * @out_hdr: the OUT header of the virtio I2C message
->> + * @buf: the buffer into which data is read, or from which it's written
->> + * @in_hdr: the IN header of the virtio I2C message
->> + */
->> +struct virtio_i2c_req {
->> +       struct virtio_i2c_out_hdr out_hdr;
->> +       uint8_t *buf;
->> +       struct virtio_i2c_in_hdr in_hdr;
->> +};
-> The simpler request structure clearly looks better than the previous version,
-> but I think I found another problem here, at least a theoretical one:
->
-> When you map the headers into the DMA address space, they should
-> be in separate cache lines, to allow the DMA mapping interfaces to
-> perform cache management on each one without accidentally clobbering
-> another member.
->
-> So far I think there is an assumption that virtio buffers are always
-> on cache-coherent devices, but if you ever have a virtio-i2c device
-> backend on a physical interconnect that is not cache coherent (e.g. a
-> microcontroller that shares the memory bus), this breaks down.
->
-> You could avoid this by either allocating arrays of each type separately,
-> or by marking each member that you pass to the device as
-> ____cacheline_aligned.
->
->        Arnd
-The virtio devices are software emulated. The backend software may need to
-consider this since it may exchange data with physical devices. But I 
-don't think
-we need it for this interface, because no DMA operation is involved 
-between the
-frontend driver and backend driver.
 
-Regards,
+> -----Original Message-----
+> From: dri-devel <dri-devel-bounces@lists.freedesktop.org> On Behalf Of Gerd
+> Hoffmann
+> Sent: Friday, February 12, 2021 7:02 PM
+> To: Kasireddy, Vivek <vivek.kasireddy@intel.com>
+> Cc: Kim, Dongwon <dongwon.kim@intel.com>; christian.koenig@amd.com;
+> daniel.vetter@ffwll.ch; dri-devel@lists.freedesktop.org;
+> virtualization@lists.linux-foundation.org; Vetter, Daniel
+> <daniel.vetter@intel.com>; linux-media@vger.kernel.org
+> Subject: Re: [RFC v3 2/3] virtio: Introduce Vdmabuf driver
+> 
+> On Fri, Feb 12, 2021 at 08:15:12AM +0000, Kasireddy, Vivek wrote:
+> > Hi Gerd,
+> >
+> > > > > You don't have to use the rendering pipeline.  You can let the
+> > > > > i915 gpu render into a dma-buf shared with virtio-gpu, then use
+> > > > > virtio-gpu only for buffer sharing with the host.
+> > [Kasireddy, Vivek] Just to confirm my understanding of what you are
+> > suggesting, are you saying that we need to either have Weston allocate
+> > scanout buffers (GBM surface/BO) using virtio-gpu and render into them
+> > using i915; or have virtio-gpu allocate pages and export a dma-buf and
+> > have Weston create a GBM BO by calling gbm_bo_import(fd) and render into
+> the BO using i915?
+> 
+> Not sure what the difference between the former and the latter is.
+> 
+> > > Hmm, why a big mode switch?  You should be able to do that without
+> > > modifying the virtio-gpu guest driver.  On the host side qemu needs
+> > > some work to support the most recent virtio-gpu features like the
+> > > buffer uuids (assuming you use qemu userspace), right now those are only
+> supported by crosvm.
+> > [Kasireddy, Vivek] We are only interested in Qemu UI at the moment but
+> > if we were to use virtio-gpu, we are going to need to add one more vq
+> > and support for managing buffers, events, etc.
+> 
+> Should be easy and it should not need any virtio-gpu driver changes.
+> 
+> You can use virtio-gpu like a dumb scanout device.  Create a dumb bo, create a
+> framebuffer for the bo, map the framebuffer to the crtc.
+> 
+> Then export the bo, import into i915, use it as render target.  When rendering is
+> done flush (DRM_IOCTL_MODE_DIRTYFB).  Alternatively allocate multiple bo's +
+> framebuffers and pageflip.
 
-Jie
+Hi,
 
+We've got a MR(https://gitlab.freedesktop.org/mesa/mesa/-/merge_requests/9592) for this suggested implementation. Comments are welcome. Thanks.
 
+BR,
+Tina
+
+> 
+> Pretty standard workflow for cases where rendering and scanout are handled by
+> different devices.  As far I know not uncommon in the arm world.
+> 
+> Right now this will involve a memcpy() for any display update because qemu is a
+> bit behind on supporting recent virtio-gpu features.
+> 
+> take care,
+>   Gerd
+> 
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
