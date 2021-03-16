@@ -2,83 +2,94 @@ Return-Path: <SRS0=cXtE=IO=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E073C433E6
-	for <virtualization@archiver.kernel.org>; Tue, 16 Mar 2021 16:24:40 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8EC9C433DB
+	for <virtualization@archiver.kernel.org>; Tue, 16 Mar 2021 18:17:35 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 215F864EFC
-	for <virtualization@archiver.kernel.org>; Tue, 16 Mar 2021 16:24:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 215F864EFC
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+	by mail.kernel.org (Postfix) with ESMTPS id 73E0365131
+	for <virtualization@archiver.kernel.org>; Tue, 16 Mar 2021 18:17:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 73E0365131
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C5A454ECB3;
-	Tue, 16 Mar 2021 16:24:39 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2E08783C11;
+	Tue, 16 Mar 2021 18:17:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7tYo-ka9gYaQ; Tue, 16 Mar 2021 16:24:38 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id m-d_WZor2OCi; Tue, 16 Mar 2021 18:17:34 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 00E134ECBD;
-	Tue, 16 Mar 2021 16:24:38 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id B164083A96;
+	Tue, 16 Mar 2021 18:17:33 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A9E41C0012;
-	Tue, 16 Mar 2021 16:24:37 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E6929C000A;
- Tue, 16 Mar 2021 16:24:35 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 888B3C000C;
+	Tue, 16 Mar 2021 18:17:33 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 79353C000A
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Mar 2021 18:17:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C01E8431A0;
- Tue, 16 Mar 2021 16:24:35 +0000 (UTC)
+ by smtp2.osuosl.org (Postfix) with ESMTP id 5B1CC4303E
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Mar 2021 18:17:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zcWIjl2AlqJO; Tue, 16 Mar 2021 16:24:35 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 1893E43003;
- Tue, 16 Mar 2021 16:24:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
- References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
- Content-Type:Content-ID:Content-Description;
- bh=nmzQgJQP6/DetTH6ZnA1qw8ORAxBI+pbM/MkV+zmkmM=; b=a9NlqK95hTbckfpKvpR6egtslo
- D5Cs2CPLERcnJMpuvBKT6+Fk9+YpL/guhrXme3vHDBoSsqUDEAH65xtcz9BCAiG/0FFzklTz1vkn8
- /I38qdA9QrRTBss/rIBIYuO832voCNt/UzkX8SwtEFkwKxCzseejM9GPWwHpmshqTNl/O4VzUBTMa
- Se2ssSHLo7rOnuausx/YzYs+UJmnpCYrJoXg3c+kIA7uVwe3V1sCuq6KuPYaIZi4vmGmqdM686sAc
- MuRWyTE65hBd/dO7BGLtvXs+fAbNq6+YI1TNHLmyJHNoqVY0tv1YWgPasuYqJ7ATRO4H0JQwViRw2
- 28OvVVwA==;
-Received: from 089144199244.atnat0008.highway.a1.net ([89.144.199.244]
- helo=localhost)
- by casper.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
- id 1lMCTa-000J9w-2k; Tue, 16 Mar 2021 16:23:24 +0000
-From: Christoph Hellwig <hch@lst.de>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
- Li Yang <leoyang.li@nxp.com>
-Subject: [PATCH 18/18] iommu: remove iommu_domain_{get,set}_attr
-Date: Tue, 16 Mar 2021 16:38:24 +0100
-Message-Id: <20210316153825.135976-19-hch@lst.de>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210316153825.135976-1-hch@lst.de>
-References: <20210316153825.135976-1-hch@lst.de>
+ with ESMTP id 6J8xd9BJ_bTx
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Mar 2021 18:17:31 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 7AE4D43003
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Mar 2021 18:17:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1615918650;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=HAM1TwwmGz08tYIJFcJigdtdBF6Phn1evgG1Tccbtsg=;
+ b=RAms1DDWQd6wB8DWzdt8kSwoMzF1s2WpkBVqxbVWUtXLt4B4xx1Rz2FG82tMIxX7qQk8xC
+ fhg3hmSh+Knh+xw7RPiM4bMINe2VZgv8tl9Rfi2xhZLfE+4xzVEaTa7ka0q++aO3Obz318
+ A9vjU1jXcV4hZA7kynybjzMksiCFumU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-527-QoVFzhEFMwyyetXQP_FxeQ-1; Tue, 16 Mar 2021 14:17:26 -0400
+X-MC-Unique: QoVFzhEFMwyyetXQP_FxeQ-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 03632107ACCA;
+ Tue, 16 Mar 2021 18:17:25 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-114-57.rdu2.redhat.com [10.10.114.57])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 892EC5D9C0;
+ Tue, 16 Mar 2021 18:17:18 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+ id 1B80E220BCF; Tue, 16 Mar 2021 14:17:18 -0400 (EDT)
+Date: Tue, 16 Mar 2021 14:17:18 -0400
+From: Vivek Goyal <vgoyal@redhat.com>
+To: Luis Henriques <lhenriques@suse.de>
+Subject: Re: [PATCH] virtiofs: fix memory leak in virtio_fs_probe()
+Message-ID: <20210316181718.GG270529@redhat.com>
+References: <20210316170234.21736-1-lhenriques@suse.de>
 MIME-Version: 1.0
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
- casper.infradead.org. See http://www.infradead.org/rpr.html
-Cc: freedreno@lists.freedesktop.org, kvm@vger.kernel.org,
- Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- iommu@lists.linux-foundation.org, netdev@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>,
- linux-arm-kernel@lists.infradead.org, Lu Baolu <baolu.lu@linux.intel.com>
+Content-Disposition: inline
+In-Reply-To: <20210316170234.21736-1-lhenriques@suse.de>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ virtio-fs-list <virtio-fs@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ linux-fsdevel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,128 +106,81 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Remove the now unused iommu attr infrastructure.
+On Tue, Mar 16, 2021 at 05:02:34PM +0000, Luis Henriques wrote:
+> When accidentally passing twice the same tag to qemu, kmemleak ended up
+> reporting a memory leak in virtiofs.  Also, looking at the log I saw the
+> following error (that's when I realised the duplicated tag):
+> 
+>   virtiofs: probe of virtio5 failed with error -17
+> 
+> Here's the kmemleak log for reference:
+> 
+> unreferenced object 0xffff888103d47800 (size 1024):
+>   comm "systemd-udevd", pid 118, jiffies 4294893780 (age 18.340s)
+>   hex dump (first 32 bytes):
+>     00 00 00 00 ad 4e ad de ff ff ff ff 00 00 00 00  .....N..........
+>     ff ff ff ff ff ff ff ff 80 90 02 a0 ff ff ff ff  ................
+>   backtrace:
+>     [<000000000ebb87c1>] virtio_fs_probe+0x171/0x7ae [virtiofs]
+>     [<00000000f8aca419>] virtio_dev_probe+0x15f/0x210
+>     [<000000004d6baf3c>] really_probe+0xea/0x430
+>     [<00000000a6ceeac8>] device_driver_attach+0xa8/0xb0
+>     [<00000000196f47a7>] __driver_attach+0x98/0x140
+>     [<000000000b20601d>] bus_for_each_dev+0x7b/0xc0
+>     [<00000000399c7b7f>] bus_add_driver+0x11b/0x1f0
+>     [<0000000032b09ba7>] driver_register+0x8f/0xe0
+>     [<00000000cdd55998>] 0xffffffffa002c013
+>     [<000000000ea196a2>] do_one_initcall+0x64/0x2e0
+>     [<0000000008f727ce>] do_init_module+0x5c/0x260
+>     [<000000003cdedab6>] __do_sys_finit_module+0xb5/0x120
+>     [<00000000ad2f48c6>] do_syscall_64+0x33/0x40
+>     [<00000000809526b5>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+> 
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Luis Henriques <lhenriques@suse.de>
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
----
- drivers/iommu/iommu.c | 26 --------------------------
- include/linux/iommu.h | 36 ------------------------------------
- 2 files changed, 62 deletions(-)
+Hi Luis,
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index afd21b37e319ee..d8df26d13c7371 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -2662,32 +2662,6 @@ static int __init iommu_init(void)
- }
- core_initcall(iommu_init);
- 
--int iommu_domain_get_attr(struct iommu_domain *domain,
--			  enum iommu_attr attr, void *data)
--{
--	if (!domain->ops->domain_get_attr)
--		return -EINVAL;
--	return domain->ops->domain_get_attr(domain, attr, data);
--}
--EXPORT_SYMBOL_GPL(iommu_domain_get_attr);
+Thanks for the report and the fix. So looks like leak is happening
+because we are not doing kfree(fs->vqs) in error path.
+
+> ---
+>  fs/fuse/virtio_fs.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index 8868ac31a3c0..4e6ef9f24e84 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -899,7 +899,7 @@ static int virtio_fs_probe(struct virtio_device *vdev)
+>  
+>  out:
+>  	vdev->priv = NULL;
+> -	kfree(fs);
+> +	virtio_fs_put(fs);
+
+[ CC virtio-fs list ]
+
+fs object is not fully formed. So calling virtio_fs_put() is little odd.
+I will expect it to be called if somebody takes a reference using _get()
+or in the final virtio_fs_remove() when creation reference should go
+away.
+
+How about open coding it and free fs->vqs explicitly. Something like
+as follows.
+
+@@ -896,7 +896,7 @@ static int virtio_fs_probe(struct virtio
+ out_vqs:
+        vdev->config->reset(vdev);
+        virtio_fs_cleanup_vqs(vdev, fs);
 -
--int iommu_domain_set_attr(struct iommu_domain *domain,
--			  enum iommu_attr attr, void *data)
--{
--	int ret = 0;
--
--	switch (attr) {
--	default:
--		if (domain->ops->domain_set_attr == NULL)
--			return -EINVAL;
--
--		ret = domain->ops->domain_set_attr(domain, attr, data);
--	}
--
--	return ret;
--}
--EXPORT_SYMBOL_GPL(iommu_domain_set_attr);
--
- int iommu_enable_nesting(struct iommu_domain *domain)
- {
- 	if (domain->type != IOMMU_DOMAIN_UNMANAGED)
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index a53d74f2007b14..9319333ca0b827 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -96,20 +96,6 @@ enum iommu_cap {
- 	IOMMU_CAP_NOEXEC,		/* IOMMU_NOEXEC flag */
- };
- 
--/*
-- * Following constraints are specifc to FSL_PAMUV1:
-- *  -aperture must be power of 2, and naturally aligned
-- *  -number of windows must be power of 2, and address space size
-- *   of each window is determined by aperture size / # of windows
-- *  -the actual size of the mapped region of a window must be power
-- *   of 2 starting with 4KB and physical address must be naturally
-- *   aligned.
-- */
--
--enum iommu_attr {
--	DOMAIN_ATTR_MAX,
--};
--
- /* These are the possible reserved region types */
- enum iommu_resv_type {
- 	/* Memory regions which must be mapped 1:1 at all times */
-@@ -191,8 +177,6 @@ struct iommu_iotlb_gather {
-  * @probe_finalize: Do final setup work after the device is added to an IOMMU
-  *                  group and attached to the groups domain
-  * @device_group: find iommu group for a particular device
-- * @domain_get_attr: Query domain attributes
-- * @domain_set_attr: Change domain attributes
-  * @enable_nesting: Enable nesting
-  * @set_pgtable_quirks: Set io page table quirks (IO_PGTABLE_QUIRK_*)
-  * @get_resv_regions: Request list of reserved regions for a device
-@@ -243,10 +227,6 @@ struct iommu_ops {
- 	void (*release_device)(struct device *dev);
- 	void (*probe_finalize)(struct device *dev);
- 	struct iommu_group *(*device_group)(struct device *dev);
--	int (*domain_get_attr)(struct iommu_domain *domain,
--			       enum iommu_attr attr, void *data);
--	int (*domain_set_attr)(struct iommu_domain *domain,
--			       enum iommu_attr attr, void *data);
- 	int (*enable_nesting)(struct iommu_domain *domain);
- 	int (*set_pgtable_quirks)(struct iommu_domain *domain,
- 				  unsigned long quirks);
-@@ -493,10 +473,6 @@ extern int iommu_page_response(struct device *dev,
- extern int iommu_group_id(struct iommu_group *group);
- extern struct iommu_domain *iommu_group_default_domain(struct iommu_group *);
- 
--extern int iommu_domain_get_attr(struct iommu_domain *domain, enum iommu_attr,
--				 void *data);
--extern int iommu_domain_set_attr(struct iommu_domain *domain, enum iommu_attr,
--				 void *data);
- int iommu_enable_nesting(struct iommu_domain *domain);
- int iommu_set_pgtable_quirks(struct iommu_domain *domain,
- 		unsigned long quirks);
-@@ -869,18 +845,6 @@ static inline int iommu_group_id(struct iommu_group *group)
- 	return -ENODEV;
- }
- 
--static inline int iommu_domain_get_attr(struct iommu_domain *domain,
--					enum iommu_attr attr, void *data)
--{
--	return -EINVAL;
--}
--
--static inline int iommu_domain_set_attr(struct iommu_domain *domain,
--					enum iommu_attr attr, void *data)
--{
--	return -EINVAL;
--}
--
- static inline int iommu_set_pgtable_quirks(struct iommu_domain *domain,
- 		unsigned long quirks)
- {
--- 
-2.30.1
++       kfree(fs->vqs);
+ out:
+        vdev->priv = NULL;
+        kfree(fs);
+
+Thanks
+Vivek
 
 _______________________________________________
 Virtualization mailing list
