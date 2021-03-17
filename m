@@ -1,101 +1,106 @@
-Return-Path: <SRS0=cXtE=IO=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=tvPF=IP=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75F86C433E0
-	for <virtualization@archiver.kernel.org>; Tue, 16 Mar 2021 21:57:33 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 092F5C433DB
+	for <virtualization@archiver.kernel.org>; Wed, 17 Mar 2021 02:05:42 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D54F564F7F
-	for <virtualization@archiver.kernel.org>; Tue, 16 Mar 2021 21:57:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D54F564F7F
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=bytedance.com
+	by mail.kernel.org (Postfix) with ESMTPS id 642DA64EFD
+	for <virtualization@archiver.kernel.org>; Wed, 17 Mar 2021 02:05:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 642DA64EFD
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 88AC6430B2;
-	Tue, 16 Mar 2021 21:57:32 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0EB10837B6;
+	Wed, 17 Mar 2021 02:05:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id J8724kkURIW4; Tue, 16 Mar 2021 21:57:31 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTP id DA11B43198;
-	Tue, 16 Mar 2021 21:57:30 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AC6A4C000B;
-	Tue, 16 Mar 2021 21:57:30 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6B4FBC000A
- for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Mar 2021 21:57:29 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 51DFB83E65
- for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Mar 2021 21:57:29 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=bytedance-com.20150623.gappssmtp.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7cuUCJuUv6ce
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5hYBGdoQSWmW; Wed, 17 Mar 2021 02:05:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 630D4829F2;
+	Wed, 17 Mar 2021 02:05:39 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 462B0C000B;
+	Wed, 17 Mar 2021 02:05:39 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3318CC000A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Mar 2021 21:57:27 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com
- [IPv6:2607:f8b0:4864:20::535])
- by smtp1.osuosl.org (Postfix) with ESMTPS id AEB6E83D41
+ Wed, 17 Mar 2021 02:05:38 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1FC924BA32
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Mar 2021 21:57:27 +0000 (UTC)
-Received: by mail-pg1-x535.google.com with SMTP id o10so23534797pgg.4
+ Wed, 17 Mar 2021 02:05:38 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id P6squYhdymTG
  for <virtualization@lists.linux-foundation.org>;
- Tue, 16 Mar 2021 14:57:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=bytedance-com.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id;
- bh=UCfq6O2HGFUO1Fjnc00yoeKzTUEK+YWqnAT2aV6UqPo=;
- b=EKI9EnDBE0ymD3E1uSU2pzaC1pXHX3TLoF8eyfEzmV1f4bsMUqfS5u8Ge3tDbBBTaT
- 4RTqEbYv37R8FdJboNDAGXhMjJRrSqMu1CVeQrjmqDFRC40QRIZqLQxJ4JxY07+SM/kA
- BI+WO4ngDW7oYrOGoy9wC6FcZC+blG9gS7SSamdEIQIz2ScDj+cYP5oru8QDhF86NhSg
- bRqHsGwvhHbxCNmF+u0bjKNS9kO0VwR/kNMq+WAUG/Y/VooHbMn2mYIq9KwcBfLfF3gM
- yHSHCMRciVg6KArh8yh/mTkWuiealP6gXV8E4FEQGSczYv0bHVkC064xQHsrcjk64Sy4
- zt6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id;
- bh=UCfq6O2HGFUO1Fjnc00yoeKzTUEK+YWqnAT2aV6UqPo=;
- b=Ui/6UtGGoMYVO8pBOe+z358UKIkjFOwfymjGBSHTUGhrys3ieDWhkfqvnUZMoaZSPV
- boRd/298PhkQCAmo/6O+GNhmluY+97o3jP5UdUVBIvfd11k3Ss6cZY9+lgA6iLMBmZoU
- ASTA/oo6oJFJIatBKqKe/GJRVAATqxPVoYGpd7YBuPuvqyxZpUm9yu5Wj/Hl6HQZa4Rx
- k0HMtBNvvQ5NU0tpGrpqWF3RtgTSBlE/9ovDkVp4SzIou7Gqw/0v5Mf6kYUM/O6O0Yiq
- 8wgXbqFsVa5+98AhJcHk4xpZCmD+QMX/c1QO6OVnq+9Qj2qeYB6FFVuArkwCiGOCumv6
- LZNQ==
-X-Gm-Message-State: AOAM533rMFESgYrSRBCZ2XcPpFL6RHAJYWLjBLw5rT2/HwtBpW12Ey5k
- ISIdBcbWGH+9rnoEZUa782u+RQ==
-X-Google-Smtp-Source: ABdhPJy/iTnmkq24Z5YAWSqKThAoKpWTXp3NrVSjfFHOprSRLQk58RoqavzAaaX75zEe+fyEksm3Yg==
-X-Received: by 2002:a63:2316:: with SMTP id j22mr1579307pgj.392.1615931846599; 
- Tue, 16 Mar 2021 14:57:26 -0700 (PDT)
-Received: from n124-121-013.byted.org
- (ec2-54-241-92-238.us-west-1.compute.amazonaws.com. [54.241.92.238])
- by smtp.gmail.com with ESMTPSA id c6sm161167pfj.99.2021.03.16.14.57.25
- (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
- Tue, 16 Mar 2021 14:57:26 -0700 (PDT)
-From: "jiang.wang" <jiang.wang@bytedance.com>
-To: mst@redhat.com,
-	cohuck@redhat.com
-Subject: [RFC PATCH] virtio-vsock: add description for datagram type
-Date: Tue, 16 Mar 2021 21:56:44 +0000
-Message-Id: <20210316215644.2254177-1-jiang.wang@bytedance.com>
-X-Mailer: git-send-email 2.11.0
-Cc: cong.wang@bytedance.com, duanxiongchun@bytedance.com,
- "jiang.wang" <jiang.wang@bytedance.com>,
- virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
- stefanha@redhat.com, asias@redhat.com, arseny.krasnov@kaspersky.com
+ Wed, 17 Mar 2021 02:05:36 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 4C62A4BC25
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 17 Mar 2021 02:05:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1615946734;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=HRbWDgc96q1NIOTlgFEb3AxL2oqObSZ3WEZhdefKPGc=;
+ b=Ih0noft7XZhHI/2rLRX0iULY40Yu6pTIaG3fqvff0QFkPjvHD2WB6yWodT6selvOmSPsOT
+ uhvEymkPAzEI4tKsYb3D/3gFz+xN57qzImZFN6IMwI936kmo1FdHkhxT5QouiY0hPndIh3
+ NuN7wRT9AoYcjjPlBkRxQsRYPZCVTEc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-368-G1-DOKZPMxG8q8yLcG4ttg-1; Tue, 16 Mar 2021 22:05:32 -0400
+X-MC-Unique: G1-DOKZPMxG8q8yLcG4ttg-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
+ [10.5.11.15])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 95CEB1074644;
+ Wed, 17 Mar 2021 02:05:30 +0000 (UTC)
+Received: from wangxiaodeMacBook-Air.local (ovpn-13-147.pek2.redhat.com
+ [10.72.13.147])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 373EC6A8E4;
+ Wed, 17 Mar 2021 02:05:21 +0000 (UTC)
+Subject: Re: [RFC v2 05/13] vhost: Route guest->host notification through
+ shadow virtqueue
+To: Eugenio Perez Martin <eperezma@redhat.com>
+References: <20210315194842.277740-1-eperezma@redhat.com>
+ <20210315194842.277740-6-eperezma@redhat.com>
+ <23e492d1-9e86-20d3-e2b3-b3d7c8c6da9c@redhat.com>
+ <CAJaqyWf6Vec1B+ybHdHoUVOG8Ga8hO0=ub8eVou+S0PfgyW+2A@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <2a64dae7-a1db-53b2-413d-45225d8653ca@redhat.com>
+Date: Wed, 17 Mar 2021 10:05:20 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.16; rv:78.0)
+ Gecko/20100101 Thunderbird/78.8.1
+MIME-Version: 1.0
+In-Reply-To: <CAJaqyWf6Vec1B+ybHdHoUVOG8Ga8hO0=ub8eVou+S0PfgyW+2A@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Parav Pandit <parav@mellanox.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Guru Prasad <guru.prasad@broadcom.com>, qemu-level <qemu-devel@nongnu.org>,
+ Harpreet Singh Anand <hanand@xilinx.com>, Xiao W Wang <xiao.w.wang@intel.com>,
+ Eli Cohen <eli@mellanox.com>, virtualization@lists.linux-foundation.org,
+ Eric Blake <eblake@redhat.com>, Michael Lilja <ml@napatech.com>,
+ Jim Harford <jim.harford@broadcom.com>, Rob Miller <rob.miller@broadcom.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,186 +112,193 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Add supports for datagram type for virtio-vsock. Datagram
-sockets are connectionless and unreliable. To avoid contention
-with stream and other sockets, add two more virtqueues and
-a new feature bit to identify if those two new queues exist or not.
-
-Also add descriptions for resouce management of datagram, which
-does not use the existing credit update mechanism associated with
-stream sockets.
-
-Signed-off-by: Jiang Wang <jiang.wang@bytedance.com>
----
- virtio-vsock.tex | 72 ++++++++++++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 62 insertions(+), 10 deletions(-)
-
-diff --git a/virtio-vsock.tex b/virtio-vsock.tex
-index da7e641..a2ff0a4 100644
---- a/virtio-vsock.tex
-+++ b/virtio-vsock.tex
-@@ -9,14 +9,27 @@ \subsection{Device ID}\label{sec:Device Types / Socket Device / Device ID}
- 
- \subsection{Virtqueues}\label{sec:Device Types / Socket Device / Virtqueues}
- \begin{description}
-+\item[0] stream rx
-+\item[1] stream tx
-+\item[2] dgram rx
-+\item[3] dgram tx
-+\item[4] event
-+\end{description}
-+The virtio socket device uses 5 queues if feature bit VIRTIO_VSOCK_DRGAM is set. Otherwise, it
-+only uses 3 queues, as the following.
-+
-+\begin{description}
- \item[0] rx
- \item[1] tx
- \item[2] event
- \end{description}
- 
-+
- \subsection{Feature bits}\label{sec:Device Types / Socket Device / Feature bits}
- 
--There are currently no feature bits defined for this device.
-+\begin{description}
-+\item[VIRTIO_VSOCK_DGRAM (0)] Device has support for datagram sockets type.
-+\end{description}
- 
- \subsection{Device configuration layout}\label{sec:Device Types / Socket Device / Device configuration layout}
- 
-@@ -76,6 +89,7 @@ \subsection{Device Operation}\label{sec:Device Types / Socket Device / Device Op
- 	le32 flags;
- 	le32 buf_alloc;
- 	le32 fwd_cnt;
-+	le64 timestamp;
- };
- \end{lstlisting}
- 
-@@ -121,11 +135,14 @@ \subsubsection{Virtqueue Flow Control}\label{sec:Device Types / Socket Device /
- packets.  With additional resources, it becomes possible to process incoming
- packets even when outgoing packets cannot be sent.
- 
--Eventually even the additional resources will be exhausted and further
-+For stream type, eventually even the additional resources will be exhausted and further
- processing is not possible until the other side processes the virtqueue that
- it has neglected.  This stop to processing prevents one side from causing
- unbounded resource consumption in the other side.
- 
-+For datagram type, the additional resources have a fixed size limit to prevent
-+unbounded resource consumption.
-+
- \drivernormative{\paragraph}{Device Operation: Virtqueue Flow Control}{Device Types / Socket Device / Device Operation / Virtqueue Flow Control}
- 
- The rx virtqueue MUST be processed even when the tx virtqueue is full so long as there are additional resources available to hold packets outside the tx virtqueue.
-@@ -140,12 +157,15 @@ \subsubsection{Addressing}\label{sec:Device Types / Socket Device / Device Opera
- consists of a (cid, port number) tuple. The header fields used for this are
- \field{src_cid}, \field{src_port}, \field{dst_cid}, and \field{dst_port}.
- 
--Currently only stream sockets are supported. \field{type} is 1 for stream
--socket types.
-+Currently stream and datagram (dgram) sockets are supported. \field{type} is 1 for stream
-+socket types. \field{type} is 3 for dgram socket types.
- 
- Stream sockets provide in-order, guaranteed, connection-oriented delivery
- without message boundaries.
- 
-+Datagram socekts provide connectionless unreliable messages of
-+a fixed maximum length.
-+
- \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device / Device Operation / Buffer Space Management}
- \field{buf_alloc} and \field{fwd_cnt} are used for buffer space management of
- stream sockets. The guest and the device publish how much buffer space is
-@@ -170,20 +190,41 @@ \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device /
- previously receiving a VIRTIO_VSOCK_OP_CREDIT_REQUEST packet. This allows
- communicating updates any time a change in buffer space occurs.
- 
-+For datagram sockets, \field{buf_alloc} is also used on the rx side. Unlike stream 
-+sockets, dgram sockets do not use VIRTIO_VSOCK_OP_CREDIT_UPDATE or 
-+VIRTIO_VSOCK_OP_CREDIT_REQUEST packets. The dgram sender does not check if
-+the \field{buf_alloc} of the peer is full or not. If it is full, the packet
-+will be dropped. To limit resouce usage of the sender, \field{dgram_tx_bytes}
-+is used for each VM and host. Only payload bytes are counted and header bytes are not
-+included. If \field{dgram_tx_bytes} is equal to VIRTIO_VSOCK_MAX_DGRAM_BUF_SIZE,
-+the send will fail.
-+
-+For dgram, since \field{dgram_tx_byte} is shared within a VM or host, a tx_timeout and
-+a timer are used for each outgoing packet. If a packet is not delivered within
-+tx_timeout, it will be dropped to make free space for other dgram sockets.
-+
- \drivernormative{\paragraph}{Device Operation: Buffer Space Management}{Device Types / Socket Device / Device Operation / Buffer Space Management}
--VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
--sufficient free buffer space for the payload.
-+For stream sockets, VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
-+sufficient free buffer space for the payload. For dgram sockets, VIRTIO_VSOCK_OP_RW data packets
-+can be transmitted when the peer buffer is full. Then the pacekt will be dropped.
- 
- All packets associated with a stream flow MUST contain valid information in
- \field{buf_alloc} and \field{fwd_cnt} fields.
- 
-+All packets associated with a dgram flow MUST contain valid information in
-+\field{timestamp} field, which will be used to check for tx timeout.
-+
- \devicenormative{\paragraph}{Device Operation: Buffer Space Management}{Device Types / Socket Device / Device Operation / Buffer Space Management}
--VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
--sufficient free buffer space for the payload.
-+For stream sockets, VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
-+sufficient free buffer space for the payload. For dgram sockets, VIRTIO_VSOCK_OP_RW data packets
-+can be transmitted when the peer buffer is full. Then the pacekt will be dropped.
- 
- All packets associated with a stream flow MUST contain valid information in
- \field{buf_alloc} and \field{fwd_cnt} fields.
- 
-+All packets associated with a dgram flow MUST contain valid information in
-+\field{timestamp} field.
-+
- \subsubsection{Receive and Transmit}\label{sec:Device Types / Socket Device / Device Operation / Receive and Transmit}
- The driver queues outgoing packets on the tx virtqueue and incoming packet
- receive buffers on the rx virtqueue. Packets are of the following form:
-@@ -203,14 +244,14 @@ \subsubsection{Receive and Transmit}\label{sec:Device Types / Socket Device / De
- The \field{guest_cid} configuration field MUST be used as the source CID when
- sending outgoing packets.
- 
--A VIRTIO_VSOCK_OP_RST reply MUST be sent if a packet is received with an
-+For stream socekts, A VIRTIO_VSOCK_OP_RST reply MUST be sent if a packet is received with an
- unknown \field{type} value.
- 
- \devicenormative{\paragraph}{Device Operation: Receive and Transmit}{Device Types / Socket Device / Device Operation / Receive and Transmit}
- 
- The \field{guest_cid} configuration field MUST NOT contain a reserved CID as listed in \ref{sec:Device Types / Socket Device / Device configuration layout}.
- 
--A VIRTIO_VSOCK_OP_RST reply MUST be sent if a packet is received with an
-+For stream sockets, A VIRTIO_VSOCK_OP_RST reply MUST be sent if a packet is received with an
- unknown \field{type} value.
- 
- \subsubsection{Stream Sockets}\label{sec:Device Types / Socket Device / Device Operation / Stream Sockets}
-@@ -240,6 +281,17 @@ \subsubsection{Stream Sockets}\label{sec:Device Types / Socket Device / Device O
- destination) address tuple for a new connection while the other peer is still
- processing the old connection.
- 
-+\subsubsection{Datagram Sockets}\label{sec:Device Types / Socket Device / Device Operation / Stream Sockets}
-+
-+Datagram (dgram) sockets are connectionless and unreliable. The sender just send 
-+a message to the peer and hope it will be delivered. If there is no socket binds the 
-+address on the other end, or the transmision or receving buffers are full, the packets 
-+will be droped. Each packet may have a source cid and 
-+source port, the receiver can use them to send back a reply message.
-+
-+Dgram sockets preserve the message boundaries. A message is either sent or dropped.
-+Multiple messages will not be combined.
-+
- \subsubsection{Device Events}\label{sec:Device Types / Socket Device / Device Operation / Device Events}
- 
- Certain events are communicated by the device to the driver using the event
--- 
-2.11.0
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CuWcqCAyMDIxLzMvMTYg5LiL5Y2INjozMSwgRXVnZW5pbyBQZXJleiBNYXJ0aW4g5YaZ6YGTOgo+
+IE9uIFR1ZSwgTWFyIDE2LCAyMDIxIGF0IDg6MTggQU0gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
+aGF0LmNvbT4gd3JvdGU6Cj4+Cj4+IOWcqCAyMDIxLzMvMTYg5LiK5Y2IMzo0OCwgRXVnZW5pbyBQ
+w6lyZXog5YaZ6YGTOgo+Pj4gU2hhZG93IHZpcnRxdWV1ZSBub3RpZmljYXRpb25zIGZvcndhcmRp
+bmcgaXMgZGlzYWJsZWQgd2hlbiB2aG9zdF9kZXYKPj4+IHN0b3BzLCBzbyBjb2RlIGZsb3cgZm9s
+bG93cyB1c3VhbCBjbGVhbnVwLgo+Pj4KPj4+IFNpZ25lZC1vZmYtYnk6IEV1Z2VuaW8gUMOpcmV6
+IDxlcGVyZXptYUByZWRoYXQuY29tPgo+Pj4gLS0tCj4+PiAgICBody92aXJ0aW8vdmhvc3Qtc2hh
+ZG93LXZpcnRxdWV1ZS5oIHwgICA3ICsrCj4+PiAgICBpbmNsdWRlL2h3L3ZpcnRpby92aG9zdC5o
+ICAgICAgICAgIHwgICA0ICsKPj4+ICAgIGh3L3ZpcnRpby92aG9zdC1zaGFkb3ctdmlydHF1ZXVl
+LmMgfCAxMTMgKysrKysrKysrKysrKysrKysrKysrKy0KPj4+ICAgIGh3L3ZpcnRpby92aG9zdC5j
+ICAgICAgICAgICAgICAgICAgfCAxNDMgKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0KPj4+
+ICAgIDQgZmlsZXMgY2hhbmdlZCwgMjY1IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCj4+
+Pgo+Pj4gZGlmZiAtLWdpdCBhL2h3L3ZpcnRpby92aG9zdC1zaGFkb3ctdmlydHF1ZXVlLmggYi9o
+dy92aXJ0aW8vdmhvc3Qtc2hhZG93LXZpcnRxdWV1ZS5oCj4+PiBpbmRleCA2Y2MxOGQ2YWNiLi5j
+ODkxYzY1MTBkIDEwMDY0NAo+Pj4gLS0tIGEvaHcvdmlydGlvL3Zob3N0LXNoYWRvdy12aXJ0cXVl
+dWUuaAo+Pj4gKysrIGIvaHcvdmlydGlvL3Zob3N0LXNoYWRvdy12aXJ0cXVldWUuaAo+Pj4gQEAg
+LTE3LDYgKzE3LDEzIEBACj4+Pgo+Pj4gICAgdHlwZWRlZiBzdHJ1Y3QgVmhvc3RTaGFkb3dWaXJ0
+cXVldWUgVmhvc3RTaGFkb3dWaXJ0cXVldWU7Cj4+Pgo+Pj4gK2Jvb2wgdmhvc3Rfc2hhZG93X3Zx
+X3N0YXJ0KHN0cnVjdCB2aG9zdF9kZXYgKmRldiwKPj4+ICsgICAgICAgICAgICAgICAgICAgICAg
+ICAgICB1bnNpZ25lZCBpZHgsCj4+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgVmhvc3RT
+aGFkb3dWaXJ0cXVldWUgKnN2cSk7Cj4+PiArdm9pZCB2aG9zdF9zaGFkb3dfdnFfc3RvcChzdHJ1
+Y3Qgdmhvc3RfZGV2ICpkZXYsCj4+PiArICAgICAgICAgICAgICAgICAgICAgICAgICB1bnNpZ25l
+ZCBpZHgsCj4+PiArICAgICAgICAgICAgICAgICAgICAgICAgICBWaG9zdFNoYWRvd1ZpcnRxdWV1
+ZSAqc3ZxKTsKPj4+ICsKPj4+ICAgIFZob3N0U2hhZG93VmlydHF1ZXVlICp2aG9zdF9zaGFkb3df
+dnFfbmV3KHN0cnVjdCB2aG9zdF9kZXYgKmRldiwgaW50IGlkeCk7Cj4+Pgo+Pj4gICAgdm9pZCB2
+aG9zdF9zaGFkb3dfdnFfZnJlZShWaG9zdFNoYWRvd1ZpcnRxdWV1ZSAqdnEpOwo+Pj4gZGlmZiAt
+LWdpdCBhL2luY2x1ZGUvaHcvdmlydGlvL3Zob3N0LmggYi9pbmNsdWRlL2h3L3ZpcnRpby92aG9z
+dC5oCj4+PiBpbmRleCBhYzk2M2JmMjNkLi43ZmZkZjlhZWEwIDEwMDY0NAo+Pj4gLS0tIGEvaW5j
+bHVkZS9ody92aXJ0aW8vdmhvc3QuaAo+Pj4gKysrIGIvaW5jbHVkZS9ody92aXJ0aW8vdmhvc3Qu
+aAo+Pj4gQEAgLTU1LDYgKzU1LDggQEAgc3RydWN0IHZob3N0X2lvbW11IHsKPj4+ICAgICAgICBR
+TElTVF9FTlRSWSh2aG9zdF9pb21tdSkgaW9tbXVfbmV4dDsKPj4+ICAgIH07Cj4+Pgo+Pj4gK3R5
+cGVkZWYgc3RydWN0IFZob3N0U2hhZG93VmlydHF1ZXVlIFZob3N0U2hhZG93VmlydHF1ZXVlOwo+
+Pj4gKwo+Pj4gICAgdHlwZWRlZiBzdHJ1Y3QgVmhvc3REZXZDb25maWdPcHMgewo+Pj4gICAgICAg
+IC8qIFZob3N0IGRldmljZSBjb25maWcgc3BhY2UgY2hhbmdlZCBjYWxsYmFjawo+Pj4gICAgICAg
+ICAqLwo+Pj4gQEAgLTgzLDcgKzg1LDkgQEAgc3RydWN0IHZob3N0X2RldiB7Cj4+PiAgICAgICAg
+dWludDY0X3QgYmFja2VuZF9jYXA7Cj4+PiAgICAgICAgYm9vbCBzdGFydGVkOwo+Pj4gICAgICAg
+IGJvb2wgbG9nX2VuYWJsZWQ7Cj4+PiArICAgIGJvb2wgc2hhZG93X3Zxc19lbmFibGVkOwo+Pj4g
+ICAgICAgIHVpbnQ2NF90IGxvZ19zaXplOwo+Pj4gKyAgICBWaG9zdFNoYWRvd1ZpcnRxdWV1ZSAq
+KnNoYWRvd192cXM7Cj4+Cj4+IEFueSByZWFzb24gdGhhdCB5b3UgZG9uJ3QgZW1iZWQgdGhlIHNo
+YWRvdyB2aXJ0cXVldWUgaW50bwo+PiB2aG9zdF92aXJ0cXVldWUgc3RydWN0dXJlPwo+Pgo+IE5v
+dCByZWFsbHksIGl0IGNvdWxkIGJlIHJlbGF0aXZlbHkgYmlnIGFuZCBJIHdvdWxkIHByZWZlciBT
+VlEKPiBtZW1iZXJzL21ldGhvZHMgdG8gcmVtYWluIGhpZGRlbiBmcm9tIGFueSBvdGhlciBwYXJ0
+IHRoYXQgaW5jbHVkZXMKPiB2aG9zdC5oLiBCdXQgaXQgY291bGQgYmUgY2hhbmdlZCwgZm9yIHN1
+cmUuCj4KPj4gKE5vdGUgdGhhdCB0aGVyZSdzIGEgbWFza2VkX25vdGlmaWVyIGluIHN0cnVjdCB2
+aG9zdF92aXJ0cXVldWUpLgo+Pgo+IFRoZXkgYXJlIHVzZWQgZGlmZmVyZW50bHk6IGluIFNWUSB0
+aGUgbWFza2VkIG5vdGlmaWVyIGlzIGEgcG9pbnRlciwKPiBhbmQgaWYgaXQncyBOVUxMIHRoZSBT
+VlEgY29kZSBrbm93cyB0aGF0IGRldmljZSBpcyBub3QgbWFza2VkLiBUaGUKPiB2aG9zdF92aXJ0
+cXVldWUgaXMgdGhlIHJlYWwgb3duZXIuCgoKWWVzLCBidXQgaXQncyBhbiBleGFtcGxlIGZvciBl
+bWJlZGRpbmcgYXV4Y2lsaWFyeSBkYXRhIHN0cnVjdHVyZXMgaW4gdGhlIAp2aG9zdF92aXJ0cXVl
+dWUuCgoKPgo+IEl0IGNvdWxkIGJlIHJlcGxhY2VkIGJ5IGEgYm9vbGVhbiBpbiBTVlEgb3Igc29t
+ZXRoaW5nIGxpa2UgdGhhdCwgSQo+IGV4cGVyaW1lbnRlZCB3aXRoIGEgdHJpLXN0YXRlIHRvbyAo
+VU5NQVNLRUQsIE1BU0tFRCwgTUFTS0VEX05PVElGSUVEKQo+IGFuZCBsZXQgdmhvc3QuYyBjb2Rl
+IHRvIG1hbmFnZSBhbGwgdGhlIHRyYW5zaXRpb25zLiBCdXQgSSBmaW5kIGNsZWFyZXIKPiB0aGUg
+cG9pbnRlciB1c2UsIHNpbmNlIGl0J3MgdGhlIG1vcmUgbmF0dXJhbCBmb3IgdGhlCj4gdmhvc3Rf
+dmlydHF1ZXVlX21hc2ssIHZob3N0X3ZpcnRxdWV1ZV9wZW5kaW5nIGV4aXN0aW5nIGZ1bmN0aW9u
+cy4KPgo+IFRoaXMgbWFza2luZy91bm1hc2tpbmcgaXMgdGhlIHBhcnQgSSBkaXNsaWtlIHRoZSBt
+b3N0IGZyb20gdGhpcwo+IHNlcmllcywgc28gSSdtIHZlcnkgb3BlbiB0byBhbHRlcm5hdGl2ZXMu
+CgoKU2VlIGJlbG93LiBJIHRoaW5rIHdlIGRvbid0IGV2ZW4gbmVlZCB0byBjYXJlIGFib3V0IHRo
+YXQuCgoKPgo+Pj4gICAgICAgIEVycm9yICptaWdyYXRpb25fYmxvY2tlcjsKPj4+ICAgICAgICBj
+b25zdCBWaG9zdE9wcyAqdmhvc3Rfb3BzOwo+Pj4gICAgICAgIHZvaWQgKm9wYXF1ZTsKPj4+IGRp
+ZmYgLS1naXQgYS9ody92aXJ0aW8vdmhvc3Qtc2hhZG93LXZpcnRxdWV1ZS5jIGIvaHcvdmlydGlv
+L3Zob3N0LXNoYWRvdy12aXJ0cXVldWUuYwo+Pj4gaW5kZXggNDUxMmU1YjA1OC4uM2U0MzM5OWU5
+YyAxMDA2NDQKPj4+IC0tLSBhL2h3L3ZpcnRpby92aG9zdC1zaGFkb3ctdmlydHF1ZXVlLmMKPj4+
+ICsrKyBiL2h3L3ZpcnRpby92aG9zdC1zaGFkb3ctdmlydHF1ZXVlLmMKPj4+IEBAIC04LDkgKzgs
+MTIgQEAKPj4+ICAgICAqLwo+Pj4KPj4+ICAgICNpbmNsdWRlICJody92aXJ0aW8vdmhvc3Qtc2hh
+ZG93LXZpcnRxdWV1ZS5oIgo+Pj4gKyNpbmNsdWRlICJody92aXJ0aW8vdmhvc3QuaCIKPj4+ICsK
+Pj4+ICsjaW5jbHVkZSAic3RhbmRhcmQtaGVhZGVycy9saW51eC92aG9zdF90eXBlcy5oIgo+Pj4K
+Pj4+ICAgICNpbmNsdWRlICJxZW11L2Vycm9yLXJlcG9ydC5oIgo+Pj4gLSNpbmNsdWRlICJxZW11
+L2V2ZW50X25vdGlmaWVyLmgiCj4+PiArI2luY2x1ZGUgInFlbXUvbWFpbi1sb29wLmgiCj4+Pgo+
+Pj4gICAgLyogU2hhZG93IHZpcnRxdWV1ZSB0byByZWxheSBub3RpZmljYXRpb25zICovCj4+PiAg
+ICB0eXBlZGVmIHN0cnVjdCBWaG9zdFNoYWRvd1ZpcnRxdWV1ZSB7Cj4+PiBAQCAtMTgsMTQgKzIx
+LDEyMSBAQCB0eXBlZGVmIHN0cnVjdCBWaG9zdFNoYWRvd1ZpcnRxdWV1ZSB7Cj4+PiAgICAgICAg
+RXZlbnROb3RpZmllciBraWNrX25vdGlmaWVyOwo+Pj4gICAgICAgIC8qIFNoYWRvdyBjYWxsIG5v
+dGlmaWVyLCBzZW50IHRvIHZob3N0ICovCj4+PiAgICAgICAgRXZlbnROb3RpZmllciBjYWxsX25v
+dGlmaWVyOwo+Pj4gKwo+Pj4gKyAgICAvKgo+Pj4gKyAgICAgKiBCb3Jyb3dlZCB2aXJ0cXVldWUn
+cyBndWVzdCB0byBob3N0IG5vdGlmaWVyLgo+Pj4gKyAgICAgKiBUbyBib3Jyb3cgaXQgaW4gdGhp
+cyBldmVudCBub3RpZmllciBhbGxvd3MgdG8gcmVnaXN0ZXIgb24gdGhlIGV2ZW50Cj4+PiArICAg
+ICAqIGxvb3AgYW5kIGFjY2VzcyB0aGUgYXNzb2NpYXRlZCBzaGFkb3cgdmlydHF1ZXVlIGVhc2ls
+eS4gSWYgd2UgdXNlIHRoZQo+Pj4gKyAgICAgKiBWaXJ0UXVldWUsIHdlIGRvbid0IGhhdmUgYW4g
+ZWFzeSB3YXkgdG8gcmV0cmlldmUgaXQuCj4+Cj4+IFNvIHRoaXMgaXMgc29tZXRoaW5nIHRoYXQg
+d29ycmllcyBtZS4gSXQgbG9va3MgbGlrZSBhIGxheWVyIHZpb2xhdGlvbgo+PiB0aGF0IG1ha2Vz
+IHRoZSBjb2RlcyBoYXJkZXIgdG8gd29yayBjb3JyZWN0bHkuCj4+Cj4gSSBkb24ndCBmb2xsb3cg
+eW91IGhlcmUuCj4KPiBUaGUgdmhvc3QgY29kZSBhbHJlYWR5IGRlcGVuZHMgb24gdmlydHF1ZXVl
+IGluIHRoZSBzYW1lIHNlbnNlOgo+IHZpcnRpb19xdWV1ZV9nZXRfaG9zdF9ub3RpZmllciBpcyBj
+YWxsZWQgb24gdmhvc3RfdmlydHF1ZXVlX3N0YXJ0LiBTbwo+IGlmIHRoaXMgYmVoYXZpb3IgZXZl
+ciBjaGFuZ2VzIGl0IGlzIHVubGlrZWx5IGZvciB2aG9zdCB0byBrZWVwIHdvcmtpbmcKPiB3aXRo
+b3V0IGNoYW5nZXMuIHZob3N0X3ZpcnRxdWV1ZSBoYXMgYSBraWNrL2NhbGwgaW50IHdoZXJlIEkg
+dGhpbmsgaXQKPiBzaG91bGQgYmUgc3RvcmVkIGFjdHVhbGx5LCBidXQgdGhleSBhcmUgbmV2ZXIg
+dXNlZCBhcyBmYXIgYXMgSSBzZWUuCj4KPiBQcmV2aW91cyBSRkMgZGlkIHJlbHkgb24gdmhvc3Rf
+ZGV2X2Rpc2FibGVfbm90aWZpZXJzLiBGcm9tIGl0cyBkb2N1bWVudGF0aW9uOgo+IC8qIFN0b3Ag
+cHJvY2Vzc2luZyBndWVzdCBJTyBub3RpZmljYXRpb25zIGluIHZob3N0Lgo+ICAgKiBTdGFydCBw
+cm9jZXNzaW5nIHRoZW0gaW4gcWVtdS4KPiAgIC4uLgo+IEJ1dCBpdCB3YXMgZWFzaWVyIGZvciB0
+aGlzIG1vZGUgdG8gbWlzcyBhIG5vdGlmaWNhdGlvbiwgc2luY2UgdGhleQo+IGNyZWF0ZSBhIG5l
+dyBob3N0X25vdGlmaWVyIGluIHZpcnRpb19idXNfc2V0X2hvc3Rfbm90aWZpZXIgcmlnaHQgYXdh
+eS4KPiBTbyBJIGRlY2lkZWQgdG8gdXNlIHRoZSBmaWxlIGRlc2NyaXB0b3IgYWxyZWFkeSBzZW50
+IHRvIHZob3N0IGluCj4gcmVndWxhciBvcGVyYXRpb24gbW9kZSwgc28gZ3Vlc3QtcmVsYXRlZCBy
+ZXNvdXJjZXMgY2hhbmdlIGxlc3MuCj4KPiBIYXZpbmcgc2FpZCB0aGF0LCBtYXliZSBpdCdzIHVz
+ZWZ1bCB0byBhc3NlcnQgdGhhdAo+IHZob3N0X2Rldl97ZW5hYmxlLGRpc2FibGV9X25vdGlmaWVy
+cyBhcmUgbmV2ZXIgY2FsbGVkIG9uIHNoYWRvdwo+IHZpcnRxdWV1ZSBtb2RlLiBBbHNvLCBpdCBj
+b3VsZCBiZSB1c2VmdWwgdG8gcmV0cmlldmUgaXQgZnJvbQo+IHZpcnRpb19idXMsIG5vdCByYXcg
+c2hhZG93IHZpcnRxdWV1ZSwgc28gYWxsIGdldC9zZXQgYXJlIHBlcmZvcm1lZAo+IGZyb20gaXQu
+IFdvdWxkIHRoYXQgbWFrZSBtb3JlIHNlbnNlPwo+Cj4+IEkgd29uZGVyIGlmIGl0IHdvdWxkIGJl
+IHNpbXBsZXIgdG8gc3RhcnQgZnJvbSBhIHZEUEEgZGVkaWNhdGVkIHNoYWRvdwo+PiB2aXJ0cXVl
+dWUgaW1wbGVtZW50YXRpb246Cj4+Cj4+IDEpIGhhdmUgdGhlIGFib3ZlIGZpZWxkcyBlbWJlZGVk
+IGluIHZob3N0X3ZkcGEgc3RydWN0dXJlCj4+IDIpIFdvcmsgYXQgdGhlIGxldmVsIG9mCj4+IHZo
+b3N0X3ZkcGFfc2V0X3ZyaW5nX2tpY2soKS92aG9zdF92ZHBhX3NldF92cmluZ19jYWxsKCkKPj4K
+PiBUaGlzIG5vdGlmaWVyIGlzIG5ldmVyIHNlbnQgdG8gdGhlIGRldmljZSBpbiBzaGFkb3cgdmly
+dHF1ZXVlIG1vZGUuCj4gSXQncyBmb3IgU1ZRIHRvIHJlYWN0IHRvIGd1ZXN0J3Mgbm90aWZpY2F0
+aW9ucywgcmVnaXN0ZXJpbmcgaXQgb24gaXRzCj4gbWFpbiBldmVudCBsb29wIFsxXS4gU28gaWYg
+SSBwZXJmb3JtIHRoZXNlIGNoYW5nZXMgdGhlIHdheSBJCj4gdW5kZXJzdGFuZCB0aGVtLCBTVlEg
+d291bGQgc3RpbGwgcmVseSBvbiB0aGlzIGJvcnJvd2VkIEV2ZW50Tm90aWZpZXIsCj4gYW5kIGl0
+IHdvdWxkIHNlbmQgdG8gdGhlIHZEUEEgZGV2aWNlIHRoZSBuZXdseSBjcmVhdGVkIGtpY2tfbm90
+aWZpZXIKPiBvZiBWaG9zdFNoYWRvd1ZpcnRxdWV1ZS4KCgpUaGUgcG9pbnQgaXMgdGhhdCB2aG9z
+dCBjb2RlIHNob3VsZCBiZSBjb3VwbGVkIGxvb3NlbHkgd2l0aCB2aXJ0aW8uIElmIAp5b3UgdHJ5
+IHRvICJib3Jyb3ciIEV2ZW50Tm90aWZpZXIgZnJvbSB2aXJ0aW8sIHlvdSBuZWVkIHRvIGRlYWwg
+d2l0aCBhIApsb3Qgb2Ygc3luY2hyaXphdGlvbi4gQW4gZXhhbXBsZWlzIHRoZSBtYXNraW5nIHN0
+dWZmcy4KCgo+Cj4+IFRoZW4gdGhlIGxheWVyIGlzIHN0aWxsIGlzb2xhdGVkIGFuZCB5b3UgaGF2
+ZSBhIG11Y2ggc2ltcGxlciBjb250ZXh0IHRvCj4+IHdvcmsgdGhhdCB5b3UgZG9uJ3QgbmVlZCB0
+byBjYXJlIGEgbG90IG9mIHN5bmNob3JuaXphdGlvbjoKPj4KPj4gMSkgdnEgbWFza2luZwo+IFRo
+aXMgRXZlbnROb3RpZmllciBpcyBub3QgdXNlZCBmb3IgbWFza2luZywgaXQgZG9lcyBub3QgY2hh
+bmdlIGZyb20KPiB0aGUgc3RhcnQgb2YgdGhlIHNoYWRvdyB2aXJ0cXVldWUgb3BlcmF0aW9uIHRo
+cm91Z2ggaXRzIGVuZC4gQ2FsbCBmZAo+IHNlbnQgdG8gdmhvc3QvdmRwYSBkZXZpY2UgZG9lcyBu
+b3QgY2hhbmdlIGVpdGhlciBpbiBzaGFkb3cgdmlydHF1ZXVlCj4gbW9kZSBvcGVyYXRpb24gd2l0
+aCBtYXNraW5nL3VubWFza2luZy4gSSB3aWxsIHRyeSB0byBkb2N1bWVudCBpdAo+IGJldHRlci4K
+Pgo+IEkgdGhpbmsgdGhhdCB3ZSB3aWxsIG5lZWQgdG8gaGFuZGxlIHN5bmNocm9uaXphdGlvbiB3
+aXRoCj4gbWFza2luZy91bm1hc2tpbmcgZnJvbSB0aGUgZ3Vlc3QgYW5kIGR5bmFtaWNhbGx5IGVu
+YWJsaW5nIFNWUQo+IG9wZXJhdGlvbiBtb2RlLCBzaW5jZSB0aGV5IGNhbiBoYXBwZW4gYXQgdGhl
+IHNhbWUgdGltZSBhcyBsb25nIGFzIHdlCj4gbGV0IHRoZSBndWVzdCBydW4uIFRoZXJlIG1heSBi
+ZSBiZXR0ZXIgd2F5cyBvZiBzeW5jaHJvbml6aW5nIHRoZW0gb2YKPiBjb3Vyc2UsIGJ1dCBJIGRv
+bid0IHNlZSBob3cgbW92aW5nIHRvIHRoZSB2aG9zdC12ZHBhIGJhY2tlbmQgaGVscHMKPiB3aXRo
+IHRoaXMuIFBsZWFzZSBleHBhbmQgaWYgSSd2ZSBtaXNzZWQgaXQuCj4KPiBPciBkbyB5b3UgbWVh
+biB0byBmb3JiaWQgcmVndWxhciA8LT4gU1ZRIG9wZXJhdGlvbiBtb2RlIHRyYW5zaXRpb25zIGFu
+ZCBkZWxheSBpdAo+IHRvIGZ1dHVyZSBwYXRjaHNldHM/CgoKU28gbXkgaWRlYSBpcyB0byBkbyBh
+bGwgdGhlIHNoYWRvdyB2aXJ0cXVldWUgaW4gdGhlIHZob3N0LXZEUEEgY29kZXMgYW5kIApoaWRl
+IHRoZW0gZnJvbSB0aGUgdXBwZXIgbGF5ZXJzIGxpa2UgdmlydGlvLiBUaGlzIG1lYW5zIGl0IHdv
+cmtzIGF0IAp2aG9zdCBsZXZlbCB3aGljaCBjYW4gc2VlIHZob3N0X3ZyaW5nX2ZpbGUgb25seS4g
+V2hlbiBlbmFsYmVkLCB3aGF0IGl0IApuZWVkcyBpcyBqdXN0OgoKMSkgc3dpdGNoIHRvIHVzZSBz
+dnEga2lja2ZkIGFuZCByZWxheSBpb2V2ZW50ZmQgdG8gc3ZxIGtpY2tmZAoyKSBzd2l0Y2ggdG8g
+dXNlIHN2cSBjYWxsZmQgYW5kIHJlbGF5IHN2cSBjYWxsZmQgdG8gaXJxZmQKCkl0IHdpbGwgc3Rp
+bGwgYmVoYXZlIGxpa2UgYSB2aG9zdC1iYWNrZW5kIHRoYXQgdGhlIHN3aXRjaGluZyBpcyBkb25l
+IAppbnRlcm5hbGx5IGluIHZob3N0LXZEUEEgd2hpY2ggaXMgdG90YWxseSB0cmFuc3BhcmVudCB0
+byB0aGUgdmlydGlvIApjb2RlcyBvZiBRZW11LgoKRS5nOgoKMSkgaW4gdGhlIGNhc2Ugb2YgZ3Vl
+c3Qgbm90aWZpZXIgbWFza2luZywgd2UgZG9uJ3QgbmVlZCB0byBkbyBhbnl0aGluZyAKc2luY2Ug
+dmlydGlvIGNvZGVzIHdpbGwgcmVwbGFjZSBhbm90aGVyIGlycWZkIGZvciB1cy4KMikgZWFzaWx5
+IHRvIGRlYWwgd2l0aCB2aG9zdCBkZXYgc3RhcnQgYW5kIHN0b3AKClRoZSBhZHZhbnRhZ2VzIGFy
+ZSBvYnZpb3VzLCBzaW1wbGUgYW5kIGVhc3kgdG8gaW1wbGVtZW50LgoKCj4KPj4gMikgdmhvc3Qg
+ZGV2IHN0YXJ0IGFuZCBzdG9wCj4+Cj4+ID8KPj4KPj4KPj4+ICsgICAgICoKPj4+ICsgICAgICog
+U28gc2hhZG93IHZpcnRxdWV1ZSBtdXN0IG5vdCBjbGVhbiBpdCwgb3Igd2Ugd291bGQgbG9zZSBW
+aXJ0UXVldWUgb25lLgo+Pj4gKyAgICAgKi8KPj4+ICsgICAgRXZlbnROb3RpZmllciBob3N0X25v
+dGlmaWVyOwo+Pj4gKwo+Pj4gKyAgICAvKiBWaXJ0aW8gcXVldWUgc2hhZG93aW5nICovCj4+PiAr
+ICAgIFZpcnRRdWV1ZSAqdnE7Cj4+PiAgICB9IFZob3N0U2hhZG93VmlydHF1ZXVlOwo+Pj4KPj4+
+ICsvKiBGb3J3YXJkIGd1ZXN0IG5vdGlmaWNhdGlvbnMgKi8KPj4+ICtzdGF0aWMgdm9pZCB2aG9z
+dF9oYW5kbGVfZ3Vlc3Rfa2ljayhFdmVudE5vdGlmaWVyICpuKQo+Pj4gK3sKPj4+ICsgICAgVmhv
+c3RTaGFkb3dWaXJ0cXVldWUgKnN2cSA9IGNvbnRhaW5lcl9vZihuLCBWaG9zdFNoYWRvd1ZpcnRx
+dWV1ZSwKPj4+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBo
+b3N0X25vdGlmaWVyKTsKPj4+ICsKPj4+ICsgICAgaWYgKHVubGlrZWx5KCFldmVudF9ub3RpZmll
+cl90ZXN0X2FuZF9jbGVhcihuKSkpIHsKPj4+ICsgICAgICAgIHJldHVybjsKPj4+ICsgICAgfQo+
+Pj4gKwo+Pj4gKyAgICBldmVudF9ub3RpZmllcl9zZXQoJnN2cS0+a2lja19ub3RpZmllcik7Cj4+
+PiArfQo+Pj4gKwo+Pj4gKy8qCj4+PiArICogUmVzdG9yZSB0aGUgdmhvc3QgZ3Vlc3QgdG8gaG9z
+dCBub3RpZmllciwgaS5lLiwgZGlzYWJsZXMgc3ZxIGVmZmVjdC4KPj4+ICsgKi8KPj4+ICtzdGF0
+aWMgaW50IHZob3N0X3NoYWRvd192cV9yZXN0b3JlX3ZkZXZfaG9zdF9ub3RpZmllcihzdHJ1Y3Qg
+dmhvc3RfZGV2ICpkZXYsCj4+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICB1bnNpZ25lZCB2aG9zdF9pbmRleCwKPj4+ICsgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFZob3N0U2hhZG93VmlydHF1
+ZXVlICpzdnEpCj4+PiArewo+Pj4gKyAgICBFdmVudE5vdGlmaWVyICp2cV9ob3N0X25vdGlmaWVy
+ID0gdmlydGlvX3F1ZXVlX2dldF9ob3N0X25vdGlmaWVyKHN2cS0+dnEpOwo+Pj4gKyAgICBzdHJ1
+Y3Qgdmhvc3RfdnJpbmdfZmlsZSBmaWxlID0gewo+Pj4gKyAgICAgICAgLmluZGV4ID0gdmhvc3Rf
+aW5kZXgsCj4+PiArICAgICAgICAuZmQgPSBldmVudF9ub3RpZmllcl9nZXRfZmQodnFfaG9zdF9u
+b3RpZmllciksCj4+PiArICAgIH07Cj4+PiArICAgIGludCByOwo+Pj4gKwo+Pj4gKyAgICAvKiBS
+ZXN0b3JlIHZob3N0IGtpY2sgKi8KPj4+ICsgICAgciA9IGRldi0+dmhvc3Rfb3BzLT52aG9zdF9z
+ZXRfdnJpbmdfa2ljayhkZXYsICZmaWxlKTsKPj4+ICsgICAgcmV0dXJuIHIgPyAtZXJybm8gOiAw
+Owo+Pj4gK30KPj4+ICsKPj4+ICsvKgo+Pj4gKyAqIFN0YXJ0IHNoYWRvdyB2aXJ0cXVldWUgb3Bl
+cmF0aW9uLgo+Pj4gKyAqIEBkZXYgdmhvc3QgZGV2aWNlCj4+PiArICogQGhpZHggdmhvc3Qgdmly
+dHF1ZXVlIGluZGV4Cj4+PiArICogQHN2cSBTaGFkb3cgVmlydHF1ZXVlCj4+PiArICovCj4+PiAr
+Ym9vbCB2aG9zdF9zaGFkb3dfdnFfc3RhcnQoc3RydWN0IHZob3N0X2RldiAqZGV2LAo+Pj4gKyAg
+ICAgICAgICAgICAgICAgICAgICAgICAgIHVuc2lnbmVkIGlkeCwKPj4+ICsgICAgICAgICAgICAg
+ICAgICAgICAgICAgICBWaG9zdFNoYWRvd1ZpcnRxdWV1ZSAqc3ZxKQo+Pgo+PiBJdCBsb29rcyB0
+byBtZSB0aGlzIGFzc3VtZXMgdGhlIHZob3N0X2RldiBpcyBzdGFydGVkIGJlZm9yZQo+PiB2aG9z
+dF9zaGFkb3dfdnFfc3RhcnQoKT8KPj4KPiBSaWdodC4KCgpUaGlzIG1pZ2h0IG5vdCB0cnVlLiBH
+dWVzdCBtYXkgZW5hYmxlIGFuZCBkaXNhYmxlIHZpcnRpbyBkcml2ZXJzIGFmdGVyIAp0aGUgc2hh
+ZG93IHZpcnRxdWV1ZSBpcyBzdGFydGVkLiBZb3UgbmVlZCB0byBkZWFsIHdpdGggdGhhdC4KClRo
+YW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
+dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3ZpcnR1YWxpemF0aW9u
