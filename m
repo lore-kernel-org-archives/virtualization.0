@@ -2,86 +2,108 @@ Return-Path: <SRS0=JY8S=IR=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D66D4C433DB
-	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 07:52:21 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28385C433E0
+	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 08:27:37 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2B44864E77
-	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 07:52:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2B44864E77
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 4E67D64F6A
+	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 08:27:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4E67D64F6A
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=arndb.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B569F4010F;
-	Fri, 19 Mar 2021 07:52:20 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id E14934EC72;
+	Fri, 19 Mar 2021 08:27:35 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YEWSVi8pC55A; Fri, 19 Mar 2021 08:27:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 482254C62F;
+	Fri, 19 Mar 2021 08:27:34 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 28660C000B;
+	Fri, 19 Mar 2021 08:27:34 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8D2F1C0001
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 19 Mar 2021 08:27:33 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 66F53400FC
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 19 Mar 2021 08:27:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8lleWvW9FV5A; Fri, 19 Mar 2021 07:52:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0A9EC40109;
-	Fri, 19 Mar 2021 07:52:18 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CFB79C000B;
-	Fri, 19 Mar 2021 07:52:17 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6F218C0001
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id CiZGF80Czxa1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 07:52:16 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 55B3B83AB8
+ Fri, 19 Mar 2021 08:27:32 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.134])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 37E5D400A8
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 07:52:16 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Sn-bF0DMtPG0
+ Fri, 19 Mar 2021 08:27:31 +0000 (UTC)
+Received: from mail-oi1-f170.google.com ([209.85.167.170]) by
+ mrelayeu.kundenserver.de (mreue009 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1MrhLw-1lzn4X1bLI-00nfEy for <virtualization@lists.linux-foundation.org>;
+ Fri, 19 Mar 2021 09:27:29 +0100
+Received: by mail-oi1-f170.google.com with SMTP id m13so3940786oiw.13
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 07:52:14 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 5A4CC83B65
- for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 07:52:14 +0000 (UTC)
-IronPort-SDR: +255H1b9IMq+RGviSI31V303dKzRG2GDS0no3e4S3NillPNE1zOO9eOBve+4uj/iOPf7tIcoxb
- HgNOms1sT+7A==
-X-IronPort-AV: E=McAfee;i="6000,8403,9927"; a="177435366"
-X-IronPort-AV: E=Sophos;i="5.81,261,1610438400"; d="scan'208";a="177435366"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
- by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 19 Mar 2021 00:52:12 -0700
-IronPort-SDR: zjPrexRqxtCYtRmHSXN7LMBzQIpIurWqPudlUyZdovv25pEGo65DEw15rZi79Jkq9SEiI2HO/Z
- mJQSmrk8TaHQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,261,1610438400"; d="scan'208";a="591782733"
-Received: from unknown (HELO [10.239.154.55]) ([10.239.154.55])
- by orsmga005.jf.intel.com with ESMTP; 19 Mar 2021 00:52:06 -0700
+ Fri, 19 Mar 2021 01:27:29 -0700 (PDT)
+X-Gm-Message-State: AOAM533GK6C3RF+U1e7YbUi8Ia7zjqGE81rtPczkJSlY46Kd5EBG15Au
+ WzNE+ua9+ODyKsxKkkgvEjvdKvzTI7YTp6rq13o=
+X-Google-Smtp-Source: ABdhPJy2jQ9JuAxE+K1J1eCBybf0lxeN3IOFfRQ13WdcK8b0FXfVMfx6yj7r4z+BrbUCgKPvSM0RF3ODSeFZepyRCyI=
+X-Received: by 2002:a05:6808:3d9:: with SMTP id o25mr177972oie.4.1616142448131; 
+ Fri, 19 Mar 2021 01:27:28 -0700 (PDT)
+MIME-Version: 1.0
+References: <c193b92d8d22ba439bb1b260d26d4b76f57d4840.1615889867.git.jie.deng@intel.com>
+ <20210316074409.2afwsaeqxuwvj7bd@vireshk-i7>
+ <0dfff1ac-50bb-b5bc-72ea-880fd52ed60d@metux.net>
+ <CAK8P3a3f9bKdOOMgrA9TfeObyEd+eeg8JcTVT8AyS1+s=X2AjQ@mail.gmail.com>
+ <20210319035435.a4reve77hnvjdzwk@vireshk-i7>
+ <b135b474-b167-67ad-588c-b0cfe8dc2998@intel.com>
+ <20210319054035.47tn747lkagpip6v@vireshk-i7>
+ <834186be-71b1-a67c-8dee-b90527b459c8@intel.com>
+ <20210319063553.eq5aorcyiame6u2e@vireshk-i7>
+In-Reply-To: <20210319063553.eq5aorcyiame6u2e@vireshk-i7>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Fri, 19 Mar 2021 09:27:11 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a0cBdBF6aHj-QMu1jwerYxFVyABm=r4SsyQkOBkbW=ZZg@mail.gmail.com>
+Message-ID: <CAK8P3a0cBdBF6aHj-QMu1jwerYxFVyABm=r4SsyQkOBkbW=ZZg@mail.gmail.com>
 Subject: Re: [PATCH v8] i2c: virtio: add a virtio i2c frontend driver
 To: Viresh Kumar <viresh.kumar@linaro.org>
-References: <c193b92d8d22ba439bb1b260d26d4b76f57d4840.1615889867.git.jie.deng@intel.com>
- <20210319055322.lw4dhb2kwtrtd3qu@vireshk-i7>
-From: Jie Deng <jie.deng@intel.com>
-Message-ID: <3eedeab5-04e6-885a-20f2-3ff2f05cf7d0@intel.com>
-Date: Fri, 19 Mar 2021 15:52:05 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.7.0
-MIME-Version: 1.0
-In-Reply-To: <20210319055322.lw4dhb2kwtrtd3qu@vireshk-i7>
-Content-Language: en-US
-Cc: mst@redhat.com, bjorn.andersson@linaro.org,
- wsa+renesas@sang-engineering.com, linux-i2c@vger.kernel.org, wsa@kernel.org,
- andriy.shevchenko@linux.intel.com, yu1.wang@intel.com,
- u.kleine-koenig@pengutronix.de, kblaiech@mellanox.com,
- virtualization@lists.linux-foundation.org, arnd@arndb.de, stefanha@redhat.com,
- tali.perry1@gmail.com, conghui.chen@intel.com, loic.poulain@linaro.org,
- linux-kernel@vger.kernel.org, Sergey.Semin@baikalelectronics.ru,
- jarkko.nikula@linux.intel.com, shuo.a.liu@intel.com, pbonzini@redhat.com,
- rppt@kernel.org
+X-Provags-ID: V03:K1:VC6jHH7GCo6k3axBBN0YsextDu9UU9Bwhmr4GWKfHpasJEIaeio
+ FpB646JOXFE5umePr9OTaUAcVEY4l5iMwYMg6ZBM5BcSSVidZMdYSQbtVKocjprrMlIRZhw
+ zkLF2LiLdX6fl56Tsiw5oUqeRuKUBqFfiZ+8991RUDZ6eF4dKMH5gWp3vN9/wTX96KPhGCJ
+ hxAI1aA4p6Ys0KBtYt1IQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:C9ZrG4VwyKo=:MgX9PyjxXOalXCJoUMC4RR
+ PLXXd+cpcO3C6jykNjeLsoGzR1ShHic87s5FYY3QhKGo5bI2VcommTux9u+6Rmrh1k/7dvvLe
+ qGLm714aEokvuP7YHWhpZP8VAp0KPenMKD1WzqiDht+yw8OL80Sd1kh0ozHNQ9+OHzpVvneYy
+ EpXALQe1Miz/KOqLPlGkbRhuu2FOrw8kblMcBto50UzHemZvMdJPZZzxEb0eZvBoB3VRPNX/H
+ AR+PMKPPx0v+el9LHcQeAqdX6OYMWZ89fj3GSQ2urUUGAFrtGhxC7bnUqq8egkNt2k9pechqc
+ rix15EF2Bn36gMoDbgIMA6h+umCblq49Y58NjftKAA73VIkhgelK+QZdiC1PFmunL7tbuF3Ev
+ PJnNj5+uUiI8ca1siER/5diXimDuT4nBujIly75YpA0iUQM8S2+WVnZU1y86LnO0fCuCsd0b9
+ I5EvAf/tur6ZoqqbXPe1Jp/kkPcaOOGgkOtU5MOC4c3lcEVz2wxEe/oXSHa20onrfj8acUe3J
+ zx+WQUFBDw9+euSuYkLkA116JUlUCVmvP5laGoPnJke
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>,
+ Wolfram Sang <wsa+renesas@sang-engineering.com>,
+ Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@kernel.org>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>, yu1.wang@intel.com,
+ =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
+ kblaiech@mellanox.com, virtualization@lists.linux-foundation.org,
+ "Enrico Weigelt, metux IT consult" <lkml@metux.net>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Tali Perry <tali.perry1@gmail.com>,
+ conghui.chen@intel.com, loic.poulain@linaro.org,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Sergey Semin <Sergey.Semin@baikalelectronics.ru>,
+ jarkko.nikula@linux.intel.com, shuo.a.liu@intel.com,
+ Paolo Bonzini <pbonzini@redhat.com>, Mike Rapoport <rppt@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,174 +115,46 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-On 2021/3/19 13:53, Viresh Kumar wrote:
-> On 16-03-21, 18:35, Jie Deng wrote:
->> +++ b/drivers/i2c/busses/i2c-virtio.c
->> +static int virtio_i2c_send_reqs(struct virtqueue *vq,
->> +				struct virtio_i2c_req *reqs,
->> +				struct i2c_msg *msgs, int nr)
->> +{
->> +	struct scatterlist *sgs[3], out_hdr, msg_buf, in_hdr;
->> +	int i, outcnt, incnt, err = 0;
->> +
->> +	for (i = 0; i < nr; i++) {
->> +		if (!msgs[i].len)
->> +			break;
->> +
->> +		/*
->> +		 * Only 7-bit mode supported for this moment. For the address format,
->> +		 * Please check the Virtio I2C Specification.
->> +		 */
->> +		reqs[i].out_hdr.addr = cpu_to_le16(msgs[i].addr << 1);
->> +
->> +		if (i != nr - 1)
->> +			reqs[i].out_hdr.flags = cpu_to_le32(VIRTIO_I2C_FLAGS_FAIL_NEXT);
->> +
->> +		outcnt = incnt = 0;
->> +		sg_init_one(&out_hdr, &reqs[i].out_hdr, sizeof(reqs[i].out_hdr));
->> +		sgs[outcnt++] = &out_hdr;
->> +
->> +		reqs[i].buf = i2c_get_dma_safe_msg_buf(&msgs[i], 1);
-> You allocate a buffer here, lets see if they are freeing properly or not (I
-> remember that I gave same feedback earlier as well, but anyway).
-
-
-"MAY" allocate a buffer here.
-
-
+On Fri, Mar 19, 2021 at 7:35 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
 >
->> +		if (!reqs[i].buf)
->> +			break;
->> +
->> +		sg_init_one(&msg_buf, reqs[i].buf, msgs[i].len);
->> +
->> +		if (msgs[i].flags & I2C_M_RD)
->> +			sgs[outcnt + incnt++] = &msg_buf;
->> +		else
->> +			sgs[outcnt++] = &msg_buf;
->> +
->> +		sg_init_one(&in_hdr, &reqs[i].in_hdr, sizeof(reqs[i].in_hdr));
->> +		sgs[outcnt + incnt++] = &in_hdr;
->> +
->> +		err = virtqueue_add_sgs(vq, sgs, outcnt, incnt, &reqs[i], GFP_KERNEL);
->> +		if (err < 0) {
->> +			pr_err("failed to add msg[%d] to virtqueue.\n", i);
->> +			i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], false);
-> On failure here, you freed the buffers for request "i" but not others..
-
-
-Others still need to be sent and then be freed.
-
-
+> On 19-03-21, 14:29, Jie Deng wrote:
+> > I also see example drivers/i2c/busses/i2c-xiic.c. Some people might think
+> > this way is more clearer than
+> >
+> > updating each member in probe. Basically, I think it's just a matter of
+> > personal preference which doesn't
 >
->> +			break;
->> +		}
->> +	}
->> +
->> +	return i;
->> +}
->> +
->> +static int virtio_i2c_complete_reqs(struct virtqueue *vq,
->> +					struct virtio_i2c_req *reqs,
->> +					struct i2c_msg *msgs, int nr)
->> +{
->> +	struct virtio_i2c_req *req;
->> +	unsigned int len;
->> +	int i, j;
->> +
->> +	for (i = 0; i < nr; i++) {
->> +		req = virtqueue_get_buf(vq, &len);
->> +		if (!(req && req == &reqs[i])) {
->> +			pr_err("msg[%d]: addr=0x%x is out of order.\n", i, msgs[i].addr);
->> +			break;
-> Since you break here, what will happen to the buffer ? I thought
-> virtqueue_get_buf() will return a req only once and then you can't access it ?
-
-
-Will refine it along with the latter loop.
-
-
+> Memory used by one instance of struct i2c_adapter (on arm64):
 >
->> +		}
->> +
->> +		if (req->in_hdr.status != VIRTIO_I2C_MSG_OK) {
->> +			pr_err("msg[%d]: addr=0x%x backend error.\n", i, msgs[i].addr);
->> +			break;
->> +		}
->> +
->> +		i2c_put_dma_safe_msg_buf(req->buf, &msgs[i], true);
->> +	}
->> +
->> +	/*
->> +	 * Detach all the used buffers from the vq and
->> +	 * Release unused DMA safe buffer if any.
->> +	 */
->> +	for (j = i; j < nr; j++) {
->> +		req = virtqueue_get_buf(vq, &len);
->> +		if (req)
->> +			i2c_put_dma_safe_msg_buf(req->buf, &msgs[j], false);
-> This will come in play only if something failed in the earlier loop ? Or my
-> understanding incorrect ? Also this should be merged with the above for loop
-> itself, it is just doing part of it.
-
-
-Will refine it along with the earlier loop.
-
-
+> struct i2c_adapter {
+...
+> };
 >
->> +	}
->> +
->> +	return i;
->> +}
->> +
->> +static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
->> +{
->> +	struct virtio_i2c *vi = i2c_get_adapdata(adap);
->> +	struct virtqueue *vq = vi->vq;
->> +	struct virtio_i2c_req *reqs;
->> +	unsigned long time_left;
->> +	int ret, nr;
->> +
->> +	reqs = kcalloc(num, sizeof(*reqs), GFP_KERNEL);
->> +	if (!reqs)
->> +		return -ENOMEM;
->> +
->> +	mutex_lock(&vi->lock);
->> +
->> +	ret = virtio_i2c_send_reqs(vq, reqs, msgs, num);
->> +	if (ret == 0)
->> +		goto err_unlock_free;
->> +
->> +	nr = ret;
->> +	reinit_completion(&vi->completion);
->> +	virtqueue_kick(vq);
->> +
->> +	time_left = wait_for_completion_timeout(&vi->completion, adap->timeout);
->> +	if (!time_left) {
-> On error here, we will surely not free the buffers, isn't it ?
+> So, this extra instance that i2c-xiic.c is creating (and that you want to
+> create) is going to waste 1KB of memory and it will never be used.
+>
+> This is bad coding practice IMHO and it is not really about personal preference.
 
+Agreed. At the minimum, it should have been written as an explicit
+memcpy() in the few drivers that have that pattern instead of a benign
+looking struct assignment, but even then there is nothing good about it
+really. Notably, the largest member by far is the 'struct device', and
+that by itself should be a red flag as a device is never meant to be
+allocated statically (this used to be common in pre-DT days, but
+even then was considered bad style).
 
-Right. Will fix it. Thank you.
+I suppose the i2c_add_adapter()/i2c_add_numbered_adapter()
+interface could be redesigned to handle this better, since every
+driver needs to set the same few fields. That however requires finding
+someone to spend the effort on coming up with a nice design and
+converting lots of drivers over.
 
-
->> +		dev_err(&adap->dev, "virtio i2c backend timeout.\n");
->> +		ret = -ETIMEDOUT;
->> +		goto err_unlock_free;
->> +	}
->> +
->> +	ret = virtio_i2c_complete_reqs(vq, reqs, msgs, nr);
->> +
->> +err_unlock_free:
->> +	mutex_unlock(&vi->lock);
->> +	kfree(reqs);
->> +	return ret;
->> +}
+       Arnd
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
