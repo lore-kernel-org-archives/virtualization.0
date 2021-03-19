@@ -2,95 +2,104 @@ Return-Path: <SRS0=JY8S=IR=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A60BBC433E0
-	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 10:59:10 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3E62C433E9
+	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 11:17:23 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8769364F53
-	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 10:59:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8769364F53
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 21D2A64F53
+	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 11:17:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 21D2A64F53
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 46E7D605F7;
-	Fri, 19 Mar 2021 10:59:09 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id C743F4EBD4;
+	Fri, 19 Mar 2021 11:17:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YbI2JdlWteZS; Fri, 19 Mar 2021 10:59:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id DD6616058D;
-	Fri, 19 Mar 2021 10:59:07 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BDA6AC000B;
-	Fri, 19 Mar 2021 10:59:07 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8DAD5C0001
- for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 10:59:06 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 750AA4AD66
- for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 10:59:06 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1K7-o0ZDApuB
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QDezOWP9Z4JB; Fri, 19 Mar 2021 11:17:21 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2C1124ED4E;
+	Fri, 19 Mar 2021 11:17:21 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CACF1C0012;
+	Fri, 19 Mar 2021 11:17:20 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7FB9AC0001
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 10:59:05 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 29F654A5F6
+ Fri, 19 Mar 2021 11:17:19 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 60C7583B84
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 10:59:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1616151544;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=FTtCoj7GiAxnLlyHTKHV8c52HQXk/FzWNNseSEaUuVo=;
- b=Gt5ZsDRv6mrNdRzC5St4U/lyrEto/rqhZQq/sn7QOuusOqZHppooU7jafuC5LfaS0MpJd7
- FkZRzplIzT7G5q2vz667RoUE8Tb+9OWrCQL2EbQ7oG/WFRVQUwDprbGsOvk1PCer3LXyQs
- cVCkKG9RGT5XJ1RymEAM7l5qRD01YPA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-524-m6o5VM7IOxGPZsaMPWwlbg-1; Fri, 19 Mar 2021 06:59:00 -0400
-X-MC-Unique: m6o5VM7IOxGPZsaMPWwlbg-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2FE245B362;
- Fri, 19 Mar 2021 10:58:58 +0000 (UTC)
-Received: from [10.36.113.141] (ovpn-113-141.ams2.redhat.com [10.36.113.141])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 524DB5D72E;
- Fri, 19 Mar 2021 10:58:51 +0000 (UTC)
+ Fri, 19 Mar 2021 11:17:19 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linaro.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id K6cPab8YFMHk
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 19 Mar 2021 11:17:18 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com
+ [IPv6:2a00:1450:4864:20::334])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 24DDA83ACC
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 19 Mar 2021 11:17:18 +0000 (UTC)
+Received: by mail-wm1-x334.google.com with SMTP id
+ r15-20020a05600c35cfb029010e639ca09eso7103232wmq.1
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 19 Mar 2021 04:17:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=Mx7hOvK9DmxtVp0XCqxXwSfExji8hoKAX6DT7SegFEg=;
+ b=jJ0K/jZBT/cLnix4dUAFoQ5NqKJm19Z3dDPbvVYPgIjVDKIp6tq9wV0xqKWc5DnPk9
+ oGXVwuJT9K+8SBF4LEYevlQc0R8eKQEj/qVhG62ksgkvAW1Hn7ohliLrRDizbBoHFdk3
+ sFwRSO74J/RJS6FpRAY0fPTWtjZAPUECav7QNi7zopW3KB0EgkBNmyishFxBh/6d4DNA
+ B1l/lwTrn3ixcO9QS9I3YY06h1kPvnwxSE6bmpSX+ygVSOv8hhQASOcUCp1IgneuvMwL
+ 05+BlYbt0r7xp0QOjDhXV7vQIvGHj+xf9lvx9T0RPS+yOqxPFwkmECFFHd38JgUj/wMT
+ HX2g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=Mx7hOvK9DmxtVp0XCqxXwSfExji8hoKAX6DT7SegFEg=;
+ b=suuiOQBjpHpNulDCpO/yVBUtRUlEfi0XhGqIvHu0kJU61j3d2PrhY+IfNK5jr5tBmD
+ spm+C4PRUq2KltZHWByXAAWM2/5zEVJRJBGTkbu0BfZhGtP++jDmsYq7nZnzIEnaUdWc
+ 9rpqb57BDRXiScEi+d7vhB5IZYFoD1fBpfwrSAw3S72wvD3KulDHtAqgo5pVQT7HXcKR
+ ZKaSFQg/bgaTD0bJh9M8ep8uzNgm+vQ/NuxH7qSEUgLGCIFG4tadkIFnotOiAv8pxsjH
+ QpTLr0L1sRvsy5hmJk6Ay2YKoYWSTzkV1/mVaouXE/lG3UuwBgI+5woWw9crFcCD+hrU
+ lQdw==
+X-Gm-Message-State: AOAM533iNlE6kBp/I+rbDPha+UbG02T2UcJj67p6scJjFw1NdX+NUgSl
+ 0vqxZMEOYUsKGElU8VhgobnnfA==
+X-Google-Smtp-Source: ABdhPJwZHSZ+MF8YNIRa9f/aPijW7SL31SlXsxAA7OsMVyF95Vb6dnP9JfuD+MP7PdUh869HTeSAbw==
+X-Received: by 2002:a1c:b783:: with SMTP id h125mr3276508wmf.106.1616152636322; 
+ Fri, 19 Mar 2021 04:17:16 -0700 (PDT)
+Received: from myrica ([2001:1715:4e26:a7e0:116c:c27a:3e7f:5eaf])
+ by smtp.gmail.com with ESMTPSA id z2sm7256330wrv.47.2021.03.19.04.17.15
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 19 Mar 2021 04:17:15 -0700 (PDT)
+Date: Fri, 19 Mar 2021 12:16:57 +0100
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Auger Eric <eric.auger@redhat.com>
 Subject: Re: [PATCH 0/3] Add support for ACPI VIOT
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>, rjw@rjwysocki.net,
- lenb@kernel.org, joro@8bytes.org, mst@redhat.com
+Message-ID: <YFSIKeihQAc8KPmG@myrica>
 References: <20210316191652.3401335-1-jean-philippe@linaro.org>
-From: Auger Eric <eric.auger@redhat.com>
-Message-ID: <e7291605-88ca-6e55-11ec-574b2f94cefa@redhat.com>
-Date: Fri, 19 Mar 2021 11:58:49 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.7.0
+ <e7291605-88ca-6e55-11ec-574b2f94cefa@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20210316191652.3401335-1-jean-philippe@linaro.org>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-Cc: lorenzo.pieralisi@arm.com, robin.murphy@arm.com,
- virtualization@lists.linux-foundation.org, linux-acpi@vger.kernel.org,
- iommu@lists.linux-foundation.org, sebastien.boeuf@intel.com, will@kernel.org
+Content-Disposition: inline
+In-Reply-To: <e7291605-88ca-6e55-11ec-574b2f94cefa@redhat.com>
+Cc: lorenzo.pieralisi@arm.com, mst@redhat.com, robin.murphy@arm.com,
+ joro@8bytes.org, rjw@rjwysocki.net, virtualization@lists.linux-foundation.org,
+ linux-acpi@vger.kernel.org, iommu@lists.linux-foundation.org,
+ sebastien.boeuf@intel.com, will@kernel.org, lenb@kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,57 +116,41 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Jean,
+Hi Eric,
 
-On 3/16/21 8:16 PM, Jean-Philippe Brucker wrote:
-> Add a driver for the ACPI VIOT table, which enables virtio-iommu on
-> non-devicetree platforms, including x86. This series depends on the
-> ACPICA changes of patch 1, which will be included in next release [1]
-> and pulled into Linux.
+On Fri, Mar 19, 2021 at 11:58:49AM +0100, Auger Eric wrote:
+> Hi Jean,
 > 
-> The Virtual I/O Translation table (VIOT) describes the topology of
-> para-virtual I/O translation devices and the endpoints they manage.
-> It was recently approved for inclusion into the ACPI standard [2].
-> A provisional version of the specification can be found at [3].
+> On 3/16/21 8:16 PM, Jean-Philippe Brucker wrote:
+> > Add a driver for the ACPI VIOT table, which enables virtio-iommu on
+> > non-devicetree platforms, including x86. This series depends on the
+> > ACPICA changes of patch 1, which will be included in next release [1]
+> > and pulled into Linux.
+> > 
+> > The Virtual I/O Translation table (VIOT) describes the topology of
+> > para-virtual I/O translation devices and the endpoints they manage.
+> > It was recently approved for inclusion into the ACPI standard [2].
+> > A provisional version of the specification can be found at [3].
+> > 
+> > After discussing non-devicetree support for virtio-iommu at length
+> > [4][5][6] we concluded that it should use this new ACPI table. And for
+> > platforms that don't implement either devicetree or ACPI, a structure
+> > that uses roughly the same format [6] can be built into the device.
+> > 
+> > [1] https://github.com/acpica/acpica/pull/666
+> > [2] https://lore.kernel.org/linux-iommu/20210218233943.GH702808@redhat.com/
+> > [3] https://jpbrucker.net/virtio-iommu/viot/viot-v9.pdf
+> > [4] https://lore.kernel.org/linux-iommu/20191122105000.800410-1-jean-philippe@linaro.org/
+> > [5] https://lore.kernel.org/linux-iommu/20200228172537.377327-1-jean-philippe@linaro.org/
+> > [6] https://lore.kernel.org/linux-iommu/20200821131540.2801801-1-jean-philippe@linaro.org/
 > 
-> After discussing non-devicetree support for virtio-iommu at length
-> [4][5][6] we concluded that it should use this new ACPI table. And for
-> platforms that don't implement either devicetree or ACPI, a structure
-> that uses roughly the same format [6] can be built into the device.
-> 
-> [1] https://github.com/acpica/acpica/pull/666
-> [2] https://lore.kernel.org/linux-iommu/20210218233943.GH702808@redhat.com/
-> [3] https://jpbrucker.net/virtio-iommu/viot/viot-v9.pdf
-> [4] https://lore.kernel.org/linux-iommu/20191122105000.800410-1-jean-philippe@linaro.org/
-> [5] https://lore.kernel.org/linux-iommu/20200228172537.377327-1-jean-philippe@linaro.org/
-> [6] https://lore.kernel.org/linux-iommu/20200821131540.2801801-1-jean-philippe@linaro.org/
+> Do you have a qemu branch to share for us to start exercising different
+> kinds of topology?
 
-Do you have a qemu branch to share for us to start exercising different
-kinds of topology?
+Yes: https://jpbrucker.net/git/qemu/log/?h=virtio-iommu/acpi
+Thanks for the reviews, I'll rework this in a week or so
 
-Thanks
-
-Eric
-> 
-> Jean-Philippe Brucker (3):
->   ACPICA: iASL: Add definitions for the VIOT table
->   ACPI: Add driver for the VIOT table
->   iommu/virtio: Enable x86 support
-> 
->  drivers/acpi/Kconfig         |   3 +
->  drivers/iommu/Kconfig        |   4 +-
->  drivers/acpi/Makefile        |   2 +
->  include/acpi/actbl3.h        |  67 ++++++
->  include/linux/acpi_viot.h    |  26 +++
->  drivers/acpi/bus.c           |   2 +
->  drivers/acpi/scan.c          |   6 +
->  drivers/acpi/viot.c          | 406 +++++++++++++++++++++++++++++++++++
->  drivers/iommu/virtio-iommu.c |   3 +
->  MAINTAINERS                  |   8 +
->  10 files changed, 526 insertions(+), 1 deletion(-)
->  create mode 100644 include/linux/acpi_viot.h
->  create mode 100644 drivers/acpi/viot.c
-> 
+Jean
 
 _______________________________________________
 Virtualization mailing list
