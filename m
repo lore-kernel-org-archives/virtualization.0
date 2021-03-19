@@ -2,108 +2,94 @@ Return-Path: <SRS0=JY8S=IR=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28385C433E0
-	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 08:27:37 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 317CBC433E0
+	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 10:44:50 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4E67D64F6A
-	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 08:27:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4E67D64F6A
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=arndb.de
+	by mail.kernel.org (Postfix) with ESMTPS id 366F264F38
+	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 10:44:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 366F264F38
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E14934EC72;
-	Fri, 19 Mar 2021 08:27:35 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id B53F482E04;
+	Fri, 19 Mar 2021 10:44:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YEWSVi8pC55A; Fri, 19 Mar 2021 08:27:34 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id E4jgymkR5cJv; Fri, 19 Mar 2021 10:44:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 482254C62F;
-	Fri, 19 Mar 2021 08:27:34 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9E52E82BA1;
+	Fri, 19 Mar 2021 10:44:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 28660C000B;
-	Fri, 19 Mar 2021 08:27:34 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8D2F1C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 68630C000B;
+	Fri, 19 Mar 2021 10:44:46 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 12366C0001
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 08:27:33 +0000 (UTC)
+ Fri, 19 Mar 2021 10:44:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 66F53400FC
+ by smtp1.osuosl.org (Postfix) with ESMTP id ED41082BBA
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 08:27:33 +0000 (UTC)
+ Fri, 19 Mar 2021 10:44:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CiZGF80Czxa1
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id PMYLBDY0xl6H
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 08:27:32 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.134])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 37E5D400A8
+ Fri, 19 Mar 2021 10:44:43 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4026C82BA1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 08:27:31 +0000 (UTC)
-Received: from mail-oi1-f170.google.com ([209.85.167.170]) by
- mrelayeu.kundenserver.de (mreue009 [213.165.67.97]) with ESMTPSA (Nemesis) id
- 1MrhLw-1lzn4X1bLI-00nfEy for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 09:27:29 +0100
-Received: by mail-oi1-f170.google.com with SMTP id m13so3940786oiw.13
- for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 01:27:29 -0700 (PDT)
-X-Gm-Message-State: AOAM533GK6C3RF+U1e7YbUi8Ia7zjqGE81rtPczkJSlY46Kd5EBG15Au
- WzNE+ua9+ODyKsxKkkgvEjvdKvzTI7YTp6rq13o=
-X-Google-Smtp-Source: ABdhPJy2jQ9JuAxE+K1J1eCBybf0lxeN3IOFfRQ13WdcK8b0FXfVMfx6yj7r4z+BrbUCgKPvSM0RF3ODSeFZepyRCyI=
-X-Received: by 2002:a05:6808:3d9:: with SMTP id o25mr177972oie.4.1616142448131; 
- Fri, 19 Mar 2021 01:27:28 -0700 (PDT)
+ Fri, 19 Mar 2021 10:44:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1616150681;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=Qs9EeR/YBbvQEPV7MXxyCJxJlPGrpYgS2009fU7smZw=;
+ b=I16JQ1zJ6ASct/ZReOW7s3UiQre9LoQttHCx6FOXL9pHKihVLLEje2ZiT535E+mS7GILPA
+ hdNZ4tbBIjljsquBaK/LQJ3m4+LKo7DSsPKkSkkUEyrNUTZAY8lrxBdYIBmV3Y+noxZAh3
+ 3uDhw5tR7qcqzhQvFQ8H+xE4rQ14t3M=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-33-THRhhNBqNNa59QyCHTodaQ-1; Fri, 19 Mar 2021 06:44:38 -0400
+X-MC-Unique: THRhhNBqNNa59QyCHTodaQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
+ [10.5.11.12])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E26D2190A7A2;
+ Fri, 19 Mar 2021 10:44:35 +0000 (UTC)
+Received: from [10.36.113.141] (ovpn-113-141.ams2.redhat.com [10.36.113.141])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 67FD460C13;
+ Fri, 19 Mar 2021 10:44:29 +0000 (UTC)
+Subject: Re: [PATCH 2/3] ACPI: Add driver for the VIOT table
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>, rjw@rjwysocki.net,
+ lenb@kernel.org, joro@8bytes.org, mst@redhat.com
+References: <20210316191652.3401335-1-jean-philippe@linaro.org>
+ <20210316191652.3401335-3-jean-philippe@linaro.org>
+From: Auger Eric <eric.auger@redhat.com>
+Message-ID: <cea43eef-35d2-b6c5-2bf0-ab7ba8473fb6@redhat.com>
+Date: Fri, 19 Mar 2021 11:44:26 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-References: <c193b92d8d22ba439bb1b260d26d4b76f57d4840.1615889867.git.jie.deng@intel.com>
- <20210316074409.2afwsaeqxuwvj7bd@vireshk-i7>
- <0dfff1ac-50bb-b5bc-72ea-880fd52ed60d@metux.net>
- <CAK8P3a3f9bKdOOMgrA9TfeObyEd+eeg8JcTVT8AyS1+s=X2AjQ@mail.gmail.com>
- <20210319035435.a4reve77hnvjdzwk@vireshk-i7>
- <b135b474-b167-67ad-588c-b0cfe8dc2998@intel.com>
- <20210319054035.47tn747lkagpip6v@vireshk-i7>
- <834186be-71b1-a67c-8dee-b90527b459c8@intel.com>
- <20210319063553.eq5aorcyiame6u2e@vireshk-i7>
-In-Reply-To: <20210319063553.eq5aorcyiame6u2e@vireshk-i7>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Fri, 19 Mar 2021 09:27:11 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a0cBdBF6aHj-QMu1jwerYxFVyABm=r4SsyQkOBkbW=ZZg@mail.gmail.com>
-Message-ID: <CAK8P3a0cBdBF6aHj-QMu1jwerYxFVyABm=r4SsyQkOBkbW=ZZg@mail.gmail.com>
-Subject: Re: [PATCH v8] i2c: virtio: add a virtio i2c frontend driver
-To: Viresh Kumar <viresh.kumar@linaro.org>
-X-Provags-ID: V03:K1:VC6jHH7GCo6k3axBBN0YsextDu9UU9Bwhmr4GWKfHpasJEIaeio
- FpB646JOXFE5umePr9OTaUAcVEY4l5iMwYMg6ZBM5BcSSVidZMdYSQbtVKocjprrMlIRZhw
- zkLF2LiLdX6fl56Tsiw5oUqeRuKUBqFfiZ+8991RUDZ6eF4dKMH5gWp3vN9/wTX96KPhGCJ
- hxAI1aA4p6Ys0KBtYt1IQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:C9ZrG4VwyKo=:MgX9PyjxXOalXCJoUMC4RR
- PLXXd+cpcO3C6jykNjeLsoGzR1ShHic87s5FYY3QhKGo5bI2VcommTux9u+6Rmrh1k/7dvvLe
- qGLm714aEokvuP7YHWhpZP8VAp0KPenMKD1WzqiDht+yw8OL80Sd1kh0ozHNQ9+OHzpVvneYy
- EpXALQe1Miz/KOqLPlGkbRhuu2FOrw8kblMcBto50UzHemZvMdJPZZzxEb0eZvBoB3VRPNX/H
- AR+PMKPPx0v+el9LHcQeAqdX6OYMWZ89fj3GSQ2urUUGAFrtGhxC7bnUqq8egkNt2k9pechqc
- rix15EF2Bn36gMoDbgIMA6h+umCblq49Y58NjftKAA73VIkhgelK+QZdiC1PFmunL7tbuF3Ev
- PJnNj5+uUiI8ca1siER/5diXimDuT4nBujIly75YpA0iUQM8S2+WVnZU1y86LnO0fCuCsd0b9
- I5EvAf/tur6ZoqqbXPe1Jp/kkPcaOOGgkOtU5MOC4c3lcEVz2wxEe/oXSHa20onrfj8acUe3J
- zx+WQUFBDw9+euSuYkLkA116JUlUCVmvP5laGoPnJke
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- Linux I2C <linux-i2c@vger.kernel.org>, Wolfram Sang <wsa@kernel.org>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>, yu1.wang@intel.com,
- =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
- kblaiech@mellanox.com, virtualization@lists.linux-foundation.org,
- "Enrico Weigelt, metux IT consult" <lkml@metux.net>,
- Stefan Hajnoczi <stefanha@redhat.com>, Tali Perry <tali.perry1@gmail.com>,
- conghui.chen@intel.com, loic.poulain@linaro.org,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- Sergey Semin <Sergey.Semin@baikalelectronics.ru>,
- jarkko.nikula@linux.intel.com, shuo.a.liu@intel.com,
- Paolo Bonzini <pbonzini@redhat.com>, Mike Rapoport <rppt@kernel.org>
+In-Reply-To: <20210316191652.3401335-3-jean-philippe@linaro.org>
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Cc: lorenzo.pieralisi@arm.com, robin.murphy@arm.com,
+ virtualization@lists.linux-foundation.org, linux-acpi@vger.kernel.org,
+ iommu@lists.linux-foundation.org, sebastien.boeuf@intel.com, will@kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,41 +106,635 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Mar 19, 2021 at 7:35 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
->
-> On 19-03-21, 14:29, Jie Deng wrote:
-> > I also see example drivers/i2c/busses/i2c-xiic.c. Some people might think
-> > this way is more clearer than
-> >
-> > updating each member in probe. Basically, I think it's just a matter of
-> > personal preference which doesn't
->
-> Memory used by one instance of struct i2c_adapter (on arm64):
->
-> struct i2c_adapter {
-...
-> };
->
-> So, this extra instance that i2c-xiic.c is creating (and that you want to
-> create) is going to waste 1KB of memory and it will never be used.
->
-> This is bad coding practice IMHO and it is not really about personal preference.
+Hi Jean,
 
-Agreed. At the minimum, it should have been written as an explicit
-memcpy() in the few drivers that have that pattern instead of a benign
-looking struct assignment, but even then there is nothing good about it
-really. Notably, the largest member by far is the 'struct device', and
-that by itself should be a red flag as a device is never meant to be
-allocated statically (this used to be common in pre-DT days, but
-even then was considered bad style).
+On 3/16/21 8:16 PM, Jean-Philippe Brucker wrote:
+> The ACPI Virtual I/O Translation Table describes topology of
+> para-virtual platforms. For now it describes the relation between
+> virtio-iommu and the endpoints it manages. Supporting that requires
+> three steps:
+> 
+> (1) acpi_viot_init(): parse the VIOT table, build a list of endpoints
+>     and vIOMMUs.
+> 
+> (2) acpi_viot_set_iommu_ops(): when the vIOMMU driver is loaded and the
+>     device probed, register it to the VIOT driver. This step is required
+>     because unlike similar drivers, VIOT doesn't create the vIOMMU
+>     device.
+> 
+> (3) acpi_viot_dma_setup(): when the endpoint is initialized, find the
+>     vIOMMU and register the endpoint's DMA ops.
+> 
+> If step (3) happens before step (2), it is deferred until the IOMMU is
+> initialized, then retried.
+> 
+> Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+> ---
+>  drivers/acpi/Kconfig         |   3 +
+>  drivers/iommu/Kconfig        |   1 +
+>  drivers/acpi/Makefile        |   2 +
+>  include/linux/acpi_viot.h    |  26 +++
+>  drivers/acpi/bus.c           |   2 +
+>  drivers/acpi/scan.c          |   6 +
+>  drivers/acpi/viot.c          | 406 +++++++++++++++++++++++++++++++++++
+>  drivers/iommu/virtio-iommu.c |   3 +
+>  MAINTAINERS                  |   8 +
+>  9 files changed, 457 insertions(+)
+>  create mode 100644 include/linux/acpi_viot.h
+>  create mode 100644 drivers/acpi/viot.c
+> 
+> diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+> index eedec61e3476..3758c6940ed7 100644
+> --- a/drivers/acpi/Kconfig
+> +++ b/drivers/acpi/Kconfig
+> @@ -526,6 +526,9 @@ endif
+>  
+>  source "drivers/acpi/pmic/Kconfig"
+>  
+> +config ACPI_VIOT
+> +	bool
+> +
+>  endif	# ACPI
+>  
+>  config X86_PM_TIMER
+> diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
+> index 192ef8f61310..2819b5c8ec30 100644
+> --- a/drivers/iommu/Kconfig
+> +++ b/drivers/iommu/Kconfig
+> @@ -403,6 +403,7 @@ config VIRTIO_IOMMU
+>  	depends on ARM64
+>  	select IOMMU_API
+>  	select INTERVAL_TREE
+> +	select ACPI_VIOT if ACPI
+>  	help
+>  	  Para-virtualised IOMMU driver with virtio.
+>  
+> diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
+> index 700b41adf2db..a6e644c48987 100644
+> --- a/drivers/acpi/Makefile
+> +++ b/drivers/acpi/Makefile
+> @@ -118,3 +118,5 @@ video-objs			+= acpi_video.o video_detect.o
+>  obj-y				+= dptf/
+>  
+>  obj-$(CONFIG_ARM64)		+= arm64/
+> +
+> +obj-$(CONFIG_ACPI_VIOT)		+= viot.o
+> diff --git a/include/linux/acpi_viot.h b/include/linux/acpi_viot.h
+> new file mode 100644
+> index 000000000000..1f5837595488
+> --- /dev/null
+> +++ b/include/linux/acpi_viot.h
+> @@ -0,0 +1,26 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +
+> +#ifndef __ACPI_VIOT_H__
+> +#define __ACPI_VIOT_H__
+> +
+> +#include <linux/acpi.h>
+> +
+> +#ifdef CONFIG_ACPI_VIOT
+> +void __init acpi_viot_init(void);
+> +int acpi_viot_dma_setup(struct device *dev, enum dev_dma_attr attr);
+> +int acpi_viot_set_iommu_ops(struct device *dev, struct iommu_ops *ops);
+> +#else
+> +static inline void acpi_viot_init(void) {}
+> +static inline int acpi_viot_dma_setup(struct device *dev,
+> +				      enum dev_dma_attr attr)
+> +{
+> +	return 0;
+> +}
+> +static inline int acpi_viot_set_iommu_ops(struct device *dev,
+> +					  struct iommu_ops *ops)
+> +{
+> +	return -ENODEV;
+> +}
+> +#endif
+> +
+> +#endif /* __ACPI_VIOT_H__ */
+> diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+> index be7da23fad76..f9a965c6617e 100644
+> --- a/drivers/acpi/bus.c
+> +++ b/drivers/acpi/bus.c
+> @@ -27,6 +27,7 @@
+>  #include <linux/dmi.h>
+>  #endif
+>  #include <linux/acpi_iort.h>
+> +#include <linux/acpi_viot.h>
+>  #include <linux/pci.h>
+>  #include <acpi/apei.h>
+>  #include <linux/suspend.h>
+> @@ -1338,6 +1339,7 @@ static int __init acpi_init(void)
+>  
+>  	pci_mmcfg_late_init();
+>  	acpi_iort_init();
+> +	acpi_viot_init();
+>  	acpi_scan_init();
+>  	acpi_ec_init();
+>  	acpi_debugfs_init();
+> diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+> index a184529d8fa4..4af01fddd94c 100644
+> --- a/drivers/acpi/scan.c
+> +++ b/drivers/acpi/scan.c
+> @@ -9,6 +9,7 @@
+>  #include <linux/kernel.h>
+>  #include <linux/acpi.h>
+>  #include <linux/acpi_iort.h>
+> +#include <linux/acpi_viot.h>
+>  #include <linux/signal.h>
+>  #include <linux/kthread.h>
+>  #include <linux/dmi.h>
+> @@ -1506,12 +1507,17 @@ int acpi_dma_configure_id(struct device *dev, enum dev_dma_attr attr,
+>  {
+>  	const struct iommu_ops *iommu;
+>  	u64 dma_addr = 0, size = 0;
+> +	int ret;
+>  
+>  	if (attr == DEV_DMA_NOT_SUPPORTED) {
+>  		set_dma_ops(dev, &dma_dummy_ops);
+>  		return 0;
+>  	}
+>  
+> +	ret = acpi_viot_dma_setup(dev, attr);
+> +	if (ret)
+> +		return ret > 0 ? 0 : ret;
+> +
+>  	iort_dma_setup(dev, &dma_addr, &size);
+>  
+>  	iommu = iort_iommu_configure_id(dev, input_id);
+> diff --git a/drivers/acpi/viot.c b/drivers/acpi/viot.c
+> new file mode 100644
+> index 000000000000..57a092e8551b
+> --- /dev/null
+> +++ b/drivers/acpi/viot.c
+> @@ -0,0 +1,406 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Virtual I/O topology
+> + */
+> +#define pr_fmt(fmt) "ACPI: VIOT: " fmt
+> +
+> +#include <linux/acpi_viot.h>
+> +#include <linux/dma-iommu.h>
+> +#include <linux/dma-map-ops.h>
+> +#include <linux/fwnode.h>
+> +#include <linux/iommu.h>
+> +#include <linux/list.h>
+> +#include <linux/pci.h>
+> +#include <linux/platform_device.h>
+> +
+> +struct viot_dev_id {
+> +	unsigned int			type;
+> +#define VIOT_DEV_TYPE_PCI		1
+> +#define VIOT_DEV_TYPE_MMIO		2
+> +	union {
+> +		/* PCI endpoint or range */
+> +		struct {
+> +			u16		segment_start;
+> +			u16		segment_end;
+> +			u16		bdf_start;
+> +			u16		bdf_end;
+> +		};
+> +		/* MMIO region */
+> +		u64			base;
+> +	};
+> +};
+> +
+> +struct viot_iommu {
+> +	unsigned int			offset;
+maybe add a comment to explain offset to what
+> +	struct viot_dev_id		dev_id;
+> +	struct list_head		list;
+> +
+> +	struct device			*dev; /* transport device */
+> +	struct iommu_ops		*ops;
+> +	bool				static_fwnode;
+> +};
+> +
+> +struct viot_endpoint {
+> +	struct viot_dev_id		dev_id;
+> +	u32				endpoint_id;
+> +	struct list_head		list;
+> +	struct viot_iommu		*viommu;
+> +};
+> +
+> +static struct acpi_table_viot *viot;
+> +static LIST_HEAD(viot_iommus);
+> +static LIST_HEAD(viot_endpoints);
+> +static DEFINE_MUTEX(viommus_lock);
+> +
+> +/*
+> + * VIOT parsing functions
+> + */
+> +
+> +static int __init viot_check_bounds(const struct acpi_viot_header *hdr)
+> +{
+> +	struct acpi_viot_header *start, *end, *hdr_end;
+> +
+> +	start = ACPI_ADD_PTR(struct acpi_viot_header, viot,
+> +			     max_t(size_t, sizeof(*viot), viot->node_offset));
+> +	end = ACPI_ADD_PTR(struct acpi_viot_header, viot, viot->header.length);
+> +	hdr_end = ACPI_ADD_PTR(struct acpi_viot_header, hdr, sizeof(*hdr));
+> +
+> +	if (hdr < start || hdr_end > end) {
+> +		pr_err("Node pointer overflows, bad table\n");
+> +		return -EOVERFLOW;
+> +	}
+> +	if (hdr->length < sizeof(*hdr)) {
+> +		pr_err("Empty node, bad table\n");
+> +		return -EINVAL;
+> +	}
+> +	return 0;
+> +}
+> +
+> +static struct viot_iommu * __init viot_get_iommu(unsigned int offset)
+> +{
+> +	struct viot_iommu *viommu;
+> +	struct acpi_viot_header *hdr = ACPI_ADD_PTR(struct acpi_viot_header,
+> +						    viot, offset);
+> +	union {
+> +		struct acpi_viot_virtio_iommu_pci pci;
+> +		struct acpi_viot_virtio_iommu_mmio mmio;
+> +	} *node = (void *)hdr;
+> +
+> +	list_for_each_entry(viommu, &viot_iommus, list)
+> +		if (viommu->offset == offset)
+> +			return viommu;
+> +
+> +	if (viot_check_bounds(hdr))
+> +		return NULL;
+> +
+> +	viommu = kzalloc(sizeof(*viommu), GFP_KERNEL);
+> +	if (!viommu)
+> +		return NULL;
+> +
+> +	viommu->offset = offset;
+> +	switch (hdr->type) {
+> +	case ACPI_VIOT_NODE_VIRTIO_IOMMU_PCI:
+> +		if (hdr->length < sizeof(node->pci))
+> +			goto err_free;
+> +
+> +		viommu->dev_id.type = VIOT_DEV_TYPE_PCI;
+> +		viommu->dev_id.segment_start = node->pci.segment;
+> +		viommu->dev_id.segment_end = node->pci.segment;
+> +		viommu->dev_id.bdf_start = node->pci.bdf;
+> +		viommu->dev_id.bdf_end = node->pci.bdf;
+> +		break;
+> +	case ACPI_VIOT_NODE_VIRTIO_IOMMU_MMIO:
+> +		if (hdr->length < sizeof(node->mmio))
+> +			goto err_free;
+> +
+> +		viommu->dev_id.type = VIOT_DEV_TYPE_MMIO;
+> +		viommu->dev_id.base = node->mmio.base_address;
+> +		break;
+> +	default:
+> +		kfree(viommu);
+> +		return NULL;
+> +	}
+> +
+> +	list_add(&viommu->list, &viot_iommus);
+> +	return viommu;
+> +
+> +err_free:
+> +	kfree(viommu);
+> +	return NULL;
+> +}
+> +
+> +static int __init viot_parse_node(const struct acpi_viot_header *hdr)
+> +{
+> +	int ret = -EINVAL;
+> +	struct viot_endpoint *ep;
+> +	union {
+> +		struct acpi_viot_mmio mmio;
+> +		struct acpi_viot_pci_range pci;
+> +	} *node = (void *)hdr;
+> +
+> +	if (viot_check_bounds(hdr))
+> +		return -EINVAL;
+> +
+> +	if (hdr->type == ACPI_VIOT_NODE_VIRTIO_IOMMU_PCI ||
+> +	    hdr->type == ACPI_VIOT_NODE_VIRTIO_IOMMU_MMIO)
+> +		return 0;
+> +
+> +	ep = kzalloc(sizeof(*ep), GFP_KERNEL);
+> +	if (!ep)
+> +		return -ENOMEM;
+> +
+> +	switch (hdr->type) {
+> +	case ACPI_VIOT_NODE_PCI_RANGE:
+> +		if (hdr->length < sizeof(node->pci))
+> +			goto err_free;
+> +
+> +		ep->dev_id.type = VIOT_DEV_TYPE_PCI;
+> +		ep->dev_id.segment_start = node->pci.segment_start;
+> +		ep->dev_id.segment_end = node->pci.segment_end;
+> +		ep->dev_id.bdf_start = node->pci.bdf_start;
+> +		ep->dev_id.bdf_end = node->pci.bdf_end;
+> +		ep->endpoint_id = node->pci.endpoint_start;
+> +		ep->viommu = viot_get_iommu(node->pci.output_node);
+> +		break;
+> +	case ACPI_VIOT_NODE_MMIO:
+> +		if (hdr->length < sizeof(node->mmio))
+> +			goto err_free;
+> +
+> +		ep->dev_id.type = VIOT_DEV_TYPE_MMIO;
+> +		ep->dev_id.base = node->mmio.base_address;
+> +		ep->endpoint_id = node->mmio.endpoint;
+> +		ep->viommu = viot_get_iommu(node->mmio.output_node);
+> +		break;
+> +	default:
+> +		goto err_free;
+> +	}
+> +
+> +	if (!ep->viommu) {
+> +		ret = -ENODEV;
+> +		goto err_free;
+> +	}
+> +
+> +	list_add(&ep->list, &viot_endpoints);
+> +	return 0;
+> +
+> +err_free:
+> +	kfree(ep);
+> +	return ret;
+> +}
+> +
+add some kernel-doc comments matching the explanation in the commit message?
+> +void __init acpi_viot_init(void)
+> +{
+> +	int i;
+> +	acpi_status status;
+> +	struct acpi_table_header *hdr;
+> +	struct acpi_viot_header *node;
+> +
+> +	status = acpi_get_table(ACPI_SIG_VIOT, 0, &hdr);
+> +	if (ACPI_FAILURE(status)) {
+> +		if (status != AE_NOT_FOUND) {
+> +			const char *msg = acpi_format_exception(status);
+> +
+> +			pr_err("Failed to get table, %s\n", msg);
+> +		}
+> +		return;
+> +	}
+> +
+> +	viot = (void *)hdr;
+> +
+> +	node = ACPI_ADD_PTR(struct acpi_viot_header, viot, viot->node_offset);
+> +	for (i = 0; i < viot->node_count; i++) {
+in iort_scan_node() the node is checked against the table end. Wouldn't
+that make sense here too?
+> +		if (viot_parse_node(node))
+> +			return;
+> +
+> +		node = ACPI_ADD_PTR(struct acpi_viot_header, node,
+> +				    node->length);
+> +	}
+> +}
+> +
+> +/*
+> + * VIOT access functions
+> + */
+> +
+the epid_base semantics may deserve a comment too, ie. the fact it is an
+offset. Maybe also document that dev can be an EP or an IOMMU
+> +static bool viot_device_match(struct device *dev, struct viot_dev_id *id,
+> +			      u32 *epid_base)
+> +{
+> +	if (id->type == VIOT_DEV_TYPE_PCI && dev_is_pci(dev)) {
+> +		struct pci_dev *pdev = to_pci_dev(dev);
+> +		u16 dev_id = pci_dev_id(pdev);
+> +		u16 domain_nr = pci_domain_nr(pdev->bus);
+> +
+> +		if (domain_nr >= id->segment_start &&
+> +		    domain_nr <= id->segment_end &&
+> +		    dev_id >= id->bdf_start &&
+> +		    dev_id <= id->bdf_end) {
+> +			*epid_base = ((u32)(domain_nr - id->segment_start) << 16) +
+> +				dev_id - id->bdf_start;
+> +			return true;
+> +		}
+> +	} else if (id->type == VIOT_DEV_TYPE_MMIO && dev_is_platform(dev)) {
+> +		struct platform_device *plat_dev = to_platform_device(dev);
+> +		struct resource *mem;
+> +
+> +		mem = platform_get_resource(plat_dev, IORESOURCE_MEM, 0);
+> +		if (mem && mem->start == id->base) {
+> +			*epid_base = 0;
+> +			return true;
+> +		}
+> +	}
+> +	return false;
+> +}
+> +
+> +static const struct iommu_ops *viot_iommu_setup(struct device *dev)
+> +{
+> +	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+> +	struct viot_iommu *viommu = NULL;
+> +	struct viot_endpoint *ep;
+> +	u32 epid;
+> +	int ret;
+> +
+> +	/* Already translated? */
+> +	if (fwspec && fwspec->ops)
+> +		return NULL;
+> +
+> +	mutex_lock(&viommus_lock);
+> +	list_for_each_entry(ep, &viot_endpoints, list) {
+> +		if (viot_device_match(dev, &ep->dev_id, &epid)) {
+> +			epid += ep->endpoint_id;
+> +			viommu = ep->viommu;
+> +			break;
+> +		}
+> +	}
+> +	mutex_unlock(&viommus_lock);
+> +	if (!viommu)
+> +		return NULL;
+> +
+> +	/* We're not translating ourself */
+> +	if (viot_device_match(dev, &viommu->dev_id, &epid))
+> +		return NULL;
+maybe check that first?
+> +
+> +	/*
+> +	 * If we found a PCI range managed by the viommu, we're the one that has
+> +	 * to request ACS.
+> +	 */
+> +	if (dev_is_pci(dev))
+> +		pci_request_acs();
+> +
+> +	if (!viommu->ops || WARN_ON(!viommu->dev))
+> +		return ERR_PTR(-EPROBE_DEFER);
+> +
+> +	ret = iommu_fwspec_init(dev, viommu->dev->fwnode, viommu->ops);
+> +	if (ret)
+> +		return ERR_PTR(ret);
+> +
+> +	iommu_fwspec_add_ids(dev, &epid, 1);
+> +
+> +	/*
+> +	 * If we have reason to believe the IOMMU driver missed the initial
+> +	 * add_device callback for dev, replay it to get things in order.
+> +	 */
+> +	if (dev->bus && !device_iommu_mapped(dev))
+> +		iommu_probe_device(dev);
+> +
+> +	return viommu->ops;
+> +}
+> +
+> +/**
+> + * acpi_viot_dma_setup - Configure DMA for an endpoint described in VIOT
+> + * @dev: the endpoint
+> + * @attr: coherency property of the endpoint
+> + *
+> + * Setup the DMA and IOMMU ops for an endpoint described by the VIOT table.
+> + *
+> + * Return:
+> + * * 0 - @dev doesn't match any VIOT node
+> + * * 1 - ops for @dev were successfully installed
+> + * * -EPROBE_DEFER - ops for @dev aren't yet available
+the returned value is not very conventional. Isn't it possible to make
+it easier?
+> + */
+> +int acpi_viot_dma_setup(struct device *dev, enum dev_dma_attr attr)
+> +{
+> +	const struct iommu_ops *iommu_ops = viot_iommu_setup(dev);
+> +
+> +	if (IS_ERR_OR_NULL(iommu_ops)) {
+> +		int ret = PTR_ERR(iommu_ops);
+> +
+> +		if (ret == -EPROBE_DEFER || ret == 0)
+> +			return ret;
+> +		dev_err(dev, "error %d while setting up virt IOMMU\n", ret);
+> +		return 0;
+why 0 in case of error != -EPROBE_DEFER
+> +	}
+> +
+> +#ifdef CONFIG_ARCH_HAS_SETUP_DMA_OPS
+> +	arch_setup_dma_ops(dev, 0, ~0ULL, iommu_ops, attr == DEV_DMA_COHERENT);
+> +#else
+> +	iommu_setup_dma_ops(dev, 0, ~0ULL);
+> +#endif
+> +	return 1;
+> +}
+> +
+> +static int viot_set_iommu_ops(struct viot_iommu *viommu, struct device *dev,
+> +			      struct iommu_ops *ops)
+> +{
+> +	/*
+> +	 * The IOMMU subsystem relies on fwnode for identifying the IOMMU that
+> +	 * manages an endpoint. Create one if necessary, because PCI devices
+> +	 * don't always get a fwnode.
+> +	 */
+> +	if (!dev->fwnode) {
+> +		dev->fwnode = acpi_alloc_fwnode_static();
+> +		if (!dev->fwnode)
+> +			return -ENOMEM;
+> +		viommu->static_fwnode = true;
+> +	}
+> +	viommu->dev = dev;
+> +	viommu->ops = ops;
+> +
+> +	return 0;
+> +}
+> +
+> +static int viot_clear_iommu_ops(struct viot_iommu *viommu)
+> +{
+> +	struct device *dev = viommu->dev;
+> +
+> +	viommu->dev = NULL;
+> +	viommu->ops = NULL;
+> +	if (dev && viommu->static_fwnode) {
+> +		acpi_free_fwnode_static(dev->fwnode);
+> +		dev->fwnode = NULL;
+> +		viommu->static_fwnode = false;
+> +	}
+> +	return 0;
+> +}
+> +
+> +/**
+> + * acpi_viot_set_iommu_ops - Set the IOMMU ops of a virtual IOMMU device
+> + * @dev: the IOMMU device (transport)
+> + * @ops: the new IOMMU ops or NULL
+> + *
+> + * Once the IOMMU driver is loaded and the device probed, associate the IOMMU
+> + * ops to its VIOT node. Before disabling the IOMMU device, dissociate the ops
+> + * from the VIOT node.
+> + *
+> + * Return 0 on success, an error otherwise
+> + */
+> +int acpi_viot_set_iommu_ops(struct device *dev, struct iommu_ops *ops)
+> +{
+> +	int ret = -EINVAL;
+> +	struct viot_iommu *viommu;
+> +
+> +	mutex_lock(&viommus_lock);
+> +	list_for_each_entry(viommu, &viot_iommus, list) {
+> +		u32 epid;
+> +
+> +		if (!viot_device_match(dev, &viommu->dev_id, &epid))
+> +			continue;
+> +
+> +		if (ops)
+> +			ret = viot_set_iommu_ops(viommu, dev, ops);
+> +		else
+> +			ret = viot_clear_iommu_ops(viommu);
+> +		break;
+> +	}
+> +	mutex_unlock(&viommus_lock);
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL_GPL(acpi_viot_set_iommu_ops);
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> index 2bfdd5734844..054d8405a2db 100644
+> --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -7,6 +7,7 @@
+>  
+>  #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+>  
+> +#include <linux/acpi_viot.h>
+>  #include <linux/amba/bus.h>
+>  #include <linux/delay.h>
+>  #include <linux/dma-iommu.h>
+> @@ -1065,6 +1066,7 @@ static int viommu_probe(struct virtio_device *vdev)
+>  	if (ret)
+>  		goto err_free_vqs;
+>  
+> +	acpi_viot_set_iommu_ops(parent_dev, &viommu_ops);
+>  	iommu_device_set_ops(&viommu->iommu, &viommu_ops);
+>  	iommu_device_set_fwnode(&viommu->iommu, parent_dev->fwnode);
+>  
+> @@ -1111,6 +1113,7 @@ static void viommu_remove(struct virtio_device *vdev)
+>  {
+>  	struct viommu_dev *viommu = vdev->priv;
+>  
+> +	acpi_viot_set_iommu_ops(vdev->dev.parent, NULL);
+>  	iommu_device_sysfs_remove(&viommu->iommu);
+>  	iommu_device_unregister(&viommu->iommu);
+>  
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index aa84121c5611..799c020fca87 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -432,6 +432,14 @@ W:	https://01.org/linux-acpi
+>  B:	https://bugzilla.kernel.org
+>  F:	drivers/acpi/acpi_video.c
+>  
+> +ACPI VIOT DRIVER
+> +M:	Jean-Philippe Brucker <jean-philippe@linaro.org>
+> +L:	linux-acpi@vger.kernel.org
+> +L:	iommu@lists.linux-foundation.org
+> +S:	Maintained
+> +F:	drivers/acpi/viot.c
+> +F:	include/linux/acpi_viot.h
+> +
+>  ACPI WMI DRIVER
+>  L:	platform-driver-x86@vger.kernel.org
+>  S:	Orphan
+> 
+Thanks
 
-I suppose the i2c_add_adapter()/i2c_add_numbered_adapter()
-interface could be redesigned to handle this better, since every
-driver needs to set the same few fields. That however requires finding
-someone to spend the effort on coming up with a nice design and
-converting lots of drivers over.
+Eric
 
-       Arnd
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
