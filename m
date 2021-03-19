@@ -3,103 +3,92 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3E62C433E9
-	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 11:17:23 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4640AC433E0
+	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 13:50:14 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 21D2A64F53
-	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 11:17:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 21D2A64F53
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id E401664EE1
+	for <virtualization@archiver.kernel.org>; Fri, 19 Mar 2021 13:50:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E401664EE1
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C743F4EBD4;
-	Fri, 19 Mar 2021 11:17:22 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 456A36072A;
+	Fri, 19 Mar 2021 13:50:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QDezOWP9Z4JB; Fri, 19 Mar 2021 11:17:21 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2C1124ED4E;
-	Fri, 19 Mar 2021 11:17:21 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1d8ZEc9fqRvr; Fri, 19 Mar 2021 13:50:12 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 9ACBE60615;
+	Fri, 19 Mar 2021 13:50:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CACF1C0012;
-	Fri, 19 Mar 2021 11:17:20 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7FB9AC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 62139C000A;
+	Fri, 19 Mar 2021 13:50:10 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1AA21C0001
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 11:17:19 +0000 (UTC)
+ Fri, 19 Mar 2021 13:50:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 60C7583B84
+ by smtp4.osuosl.org (Postfix) with ESMTP id 004324ED9D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 11:17:19 +0000 (UTC)
+ Fri, 19 Mar 2021 13:50:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id K6cPab8YFMHk
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gtXGqYEpyGct
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 11:17:18 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com
- [IPv6:2a00:1450:4864:20::334])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 24DDA83ACC
+ Fri, 19 Mar 2021 13:50:08 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CEA634ED49
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 11:17:18 +0000 (UTC)
-Received: by mail-wm1-x334.google.com with SMTP id
- r15-20020a05600c35cfb029010e639ca09eso7103232wmq.1
- for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Mar 2021 04:17:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=Mx7hOvK9DmxtVp0XCqxXwSfExji8hoKAX6DT7SegFEg=;
- b=jJ0K/jZBT/cLnix4dUAFoQ5NqKJm19Z3dDPbvVYPgIjVDKIp6tq9wV0xqKWc5DnPk9
- oGXVwuJT9K+8SBF4LEYevlQc0R8eKQEj/qVhG62ksgkvAW1Hn7ohliLrRDizbBoHFdk3
- sFwRSO74J/RJS6FpRAY0fPTWtjZAPUECav7QNi7zopW3KB0EgkBNmyishFxBh/6d4DNA
- B1l/lwTrn3ixcO9QS9I3YY06h1kPvnwxSE6bmpSX+ygVSOv8hhQASOcUCp1IgneuvMwL
- 05+BlYbt0r7xp0QOjDhXV7vQIvGHj+xf9lvx9T0RPS+yOqxPFwkmECFFHd38JgUj/wMT
- HX2g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=Mx7hOvK9DmxtVp0XCqxXwSfExji8hoKAX6DT7SegFEg=;
- b=suuiOQBjpHpNulDCpO/yVBUtRUlEfi0XhGqIvHu0kJU61j3d2PrhY+IfNK5jr5tBmD
- spm+C4PRUq2KltZHWByXAAWM2/5zEVJRJBGTkbu0BfZhGtP++jDmsYq7nZnzIEnaUdWc
- 9rpqb57BDRXiScEi+d7vhB5IZYFoD1fBpfwrSAw3S72wvD3KulDHtAqgo5pVQT7HXcKR
- ZKaSFQg/bgaTD0bJh9M8ep8uzNgm+vQ/NuxH7qSEUgLGCIFG4tadkIFnotOiAv8pxsjH
- QpTLr0L1sRvsy5hmJk6Ay2YKoYWSTzkV1/mVaouXE/lG3UuwBgI+5woWw9crFcCD+hrU
- lQdw==
-X-Gm-Message-State: AOAM533iNlE6kBp/I+rbDPha+UbG02T2UcJj67p6scJjFw1NdX+NUgSl
- 0vqxZMEOYUsKGElU8VhgobnnfA==
-X-Google-Smtp-Source: ABdhPJwZHSZ+MF8YNIRa9f/aPijW7SL31SlXsxAA7OsMVyF95Vb6dnP9JfuD+MP7PdUh869HTeSAbw==
-X-Received: by 2002:a1c:b783:: with SMTP id h125mr3276508wmf.106.1616152636322; 
- Fri, 19 Mar 2021 04:17:16 -0700 (PDT)
-Received: from myrica ([2001:1715:4e26:a7e0:116c:c27a:3e7f:5eaf])
- by smtp.gmail.com with ESMTPSA id z2sm7256330wrv.47.2021.03.19.04.17.15
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 19 Mar 2021 04:17:15 -0700 (PDT)
-Date: Fri, 19 Mar 2021 12:16:57 +0100
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-To: Auger Eric <eric.auger@redhat.com>
-Subject: Re: [PATCH 0/3] Add support for ACPI VIOT
-Message-ID: <YFSIKeihQAc8KPmG@myrica>
-References: <20210316191652.3401335-1-jean-philippe@linaro.org>
- <e7291605-88ca-6e55-11ec-574b2f94cefa@redhat.com>
+ Fri, 19 Mar 2021 13:50:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1616161806;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=CQRUYlPssr7tEQfrFmciIthl3TwcqXqF65U6ThZOyFw=;
+ b=PqQfAi4cTEzsyNPPJ3MS0o9jmRDTJwLdF1Mdcl53v12nliSMn26zQINXJOUCz8zxwcvlVy
+ RC34dhv/cp7p6pSFRmna4KZH1+EqZ9PwZz+b5S7DorJPBlTtnLreJgzWPwN6x2d0vof0da
+ Ze3ryxm826ggtgasqF0RtzEdkXvxPnw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-163-ET1b4oiTMxSPbZv3iVMPwA-1; Fri, 19 Mar 2021 09:50:02 -0400
+X-MC-Unique: ET1b4oiTMxSPbZv3iVMPwA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 456C318C89E4;
+ Fri, 19 Mar 2021 13:50:01 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-114-114.rdu2.redhat.com [10.10.114.114])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 7BAAF5C1D1;
+ Fri, 19 Mar 2021 13:49:48 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+ id 16CDD220BCF; Fri, 19 Mar 2021 09:49:48 -0400 (EDT)
+Date: Fri, 19 Mar 2021 09:49:48 -0400
+From: Vivek Goyal <vgoyal@redhat.com>
+To: Connor Kuehl <ckuehl@redhat.com>
+Subject: Re: [PATCH 2/3] virtiofs: split requests that exceed virtqueue size
+Message-ID: <20210319134948.GA402287@redhat.com>
+References: <20210318135223.1342795-1-ckuehl@redhat.com>
+ <20210318135223.1342795-3-ckuehl@redhat.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <e7291605-88ca-6e55-11ec-574b2f94cefa@redhat.com>
-Cc: lorenzo.pieralisi@arm.com, mst@redhat.com, robin.murphy@arm.com,
- joro@8bytes.org, rjw@rjwysocki.net, virtualization@lists.linux-foundation.org,
- linux-acpi@vger.kernel.org, iommu@lists.linux-foundation.org,
- sebastien.boeuf@intel.com, will@kernel.org, lenb@kernel.org
+In-Reply-To: <20210318135223.1342795-3-ckuehl@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Cc: miklos@szeredi.hu, mst@redhat.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, virtio-fs@redhat.com,
+ stefanha@redhat.com, linux-fsdevel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,41 +105,59 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Eric,
-
-On Fri, Mar 19, 2021 at 11:58:49AM +0100, Auger Eric wrote:
-> Hi Jean,
+On Thu, Mar 18, 2021 at 08:52:22AM -0500, Connor Kuehl wrote:
+> If an incoming FUSE request can't fit on the virtqueue, the request is
+> placed onto a workqueue so a worker can try to resubmit it later where
+> there will (hopefully) be space for it next time.
 > 
-> On 3/16/21 8:16 PM, Jean-Philippe Brucker wrote:
-> > Add a driver for the ACPI VIOT table, which enables virtio-iommu on
-> > non-devicetree platforms, including x86. This series depends on the
-> > ACPICA changes of patch 1, which will be included in next release [1]
-> > and pulled into Linux.
-> > 
-> > The Virtual I/O Translation table (VIOT) describes the topology of
-> > para-virtual I/O translation devices and the endpoints they manage.
-> > It was recently approved for inclusion into the ACPI standard [2].
-> > A provisional version of the specification can be found at [3].
-> > 
-> > After discussing non-devicetree support for virtio-iommu at length
-> > [4][5][6] we concluded that it should use this new ACPI table. And for
-> > platforms that don't implement either devicetree or ACPI, a structure
-> > that uses roughly the same format [6] can be built into the device.
-> > 
-> > [1] https://github.com/acpica/acpica/pull/666
-> > [2] https://lore.kernel.org/linux-iommu/20210218233943.GH702808@redhat.com/
-> > [3] https://jpbrucker.net/virtio-iommu/viot/viot-v9.pdf
-> > [4] https://lore.kernel.org/linux-iommu/20191122105000.800410-1-jean-philippe@linaro.org/
-> > [5] https://lore.kernel.org/linux-iommu/20200228172537.377327-1-jean-philippe@linaro.org/
-> > [6] https://lore.kernel.org/linux-iommu/20200821131540.2801801-1-jean-philippe@linaro.org/
+> This is fine for requests that aren't larger than a virtqueue's maximum
+> capacity. However, if a request's size exceeds the maximum capacity of
+> the virtqueue (even if the virtqueue is empty), it will be doomed to a
+> life of being placed on the workqueue, removed, discovered it won't fit,
+> and placed on the workqueue yet again.
 > 
-> Do you have a qemu branch to share for us to start exercising different
-> kinds of topology?
+> Furthermore, from section 2.6.5.3.1 (Driver Requirements: Indirect
+> Descriptors) of the virtio spec:
+> 
+>   "A driver MUST NOT create a descriptor chain longer than the Queue
+>   Size of the device."
+> 
+> To fix this, limit the number of pages FUSE will use for an overall
+> request. This way, each request can realistically fit on the virtqueue
+> when it is decomposed into a scattergather list and avoid violating
+> section 2.6.5.3.1 of the virtio spec.
 
-Yes: https://jpbrucker.net/git/qemu/log/?h=virtio-iommu/acpi
-Thanks for the reviews, I'll rework this in a week or so
+Hi Connor,
 
-Jean
+So as of now if a request is bigger than what virtqueue can support,
+it never gets dispatched and caller waits infinitely? So this patch
+will fix it by forcing fuse to split the request. That sounds good.
+
+
+[..]
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index 8868ac31a3c0..a6ffba85d59a 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -18,6 +18,12 @@
+>  #include <linux/uio.h>
+>  #include "fuse_i.h"
+>  
+> +/* Used to help calculate the FUSE connection's max_pages limit for a request's
+> + * size. Parts of the struct fuse_req are sliced into scattergather lists in
+> + * addition to the pages used, so this can help account for that overhead.
+> + */
+> +#define FUSE_HEADER_OVERHEAD    4
+
+How did yo arrive at this overhead. Is it following.
+
+- One sg element for fuse_in_header.
+- One sg element for input arguments.
+- One sg element for fuse_out_header.
+- One sg element for output args.
+
+Thanks
+Vivek
 
 _______________________________________________
 Virtualization mailing list
