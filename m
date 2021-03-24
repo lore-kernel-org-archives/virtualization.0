@@ -2,89 +2,99 @@ Return-Path: <SRS0=wNjl=IW=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CC4DC433DB
-	for <virtualization@archiver.kernel.org>; Wed, 24 Mar 2021 06:42:06 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79EFAC433DB
+	for <virtualization@archiver.kernel.org>; Wed, 24 Mar 2021 13:35:10 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 933546191A
-	for <virtualization@archiver.kernel.org>; Wed, 24 Mar 2021 06:42:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 933546191A
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id C93CD61A07
+	for <virtualization@archiver.kernel.org>; Wed, 24 Mar 2021 13:35:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C93CD61A07
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 10FF54065D;
-	Wed, 24 Mar 2021 06:42:05 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 52AC3404FA;
+	Wed, 24 Mar 2021 13:35:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VlY-MXhjxzDs; Wed, 24 Mar 2021 06:42:04 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id h1yGHm-eBUAx; Wed, 24 Mar 2021 13:35:08 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7B6B94064F;
-	Wed, 24 Mar 2021 06:42:03 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 036154011D;
+	Wed, 24 Mar 2021 13:35:07 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4FD45C000D;
-	Wed, 24 Mar 2021 06:42:03 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 58FBEC000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D7272C000E;
+	Wed, 24 Mar 2021 13:35:07 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3FF02C000A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Mar 2021 06:42:02 +0000 (UTC)
+ Wed, 24 Mar 2021 13:35:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 3270A60AA4
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2D0A984912
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Mar 2021 06:42:02 +0000 (UTC)
+ Wed, 24 Mar 2021 13:35:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YKRg3aCyGgB7
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wpBHYv7EbGud
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Mar 2021 06:42:01 +0000 (UTC)
+ Wed, 24 Mar 2021 13:35:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 8EDE860A5F
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 7E77584904
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Mar 2021 06:42:01 +0000 (UTC)
-IronPort-SDR: vH7RbvsxSKoOu1UNDQr/tdpCei50TPeT9j4OcRP1C5uJT6jhTkud7H/5AIEvds2PGkZJfeyHRw
- P2cd7wJprHeQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9932"; a="190738530"
-X-IronPort-AV: E=Sophos;i="5.81,274,1610438400"; d="scan'208";a="190738530"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
- by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 23 Mar 2021 23:42:00 -0700
-IronPort-SDR: NT4+/DdOkxENlHgafw08wJsSqZLkPMNVtiS/Ygvbz2H1aAze1hTodXHcbVXPrXYZhmCDBgl4d3
- WIBkKVMSHv7g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.81,274,1610438400"; d="scan'208";a="442079888"
-Received: from unknown (HELO [10.239.154.55]) ([10.239.154.55])
- by fmsmga002.fm.intel.com with ESMTP; 23 Mar 2021 23:41:55 -0700
-Subject: Re: [PATCH v10] i2c: virtio: add a virtio i2c frontend driver
-To: Viresh Kumar <viresh.kumar@linaro.org>
-References: <226a8d5663b7bb6f5d06ede7701eedb18d1bafa1.1616493817.git.jie.deng@intel.com>
- <20210324042046.idkctj2t7cxi53jf@vireshk-i7>
- <70908366-c270-848e-0be3-c85fec7958ec@intel.com>
- <20210324060907.nwilmghg2xcdz7nv@vireshk-i7>
-From: Jie Deng <jie.deng@intel.com>
-Message-ID: <84f0bf1b-9b69-6fc0-011c-2aafde208435@intel.com>
-Date: Wed, 24 Mar 2021 14:41:52 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.7.0
+ Wed, 24 Mar 2021 13:35:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1616592904;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=fJaHNaoPlTW3XDMRdqL5rHIbb29WVJ++1idPZKK0ncU=;
+ b=cFvBdfFSt47tEt7zc3Nu/wLoAGWnRdUd0Nv4S0le7O2YxLi20ixexBgcEYNe2iX7nlhwT1
+ +7DnNyBAKeQcCzmy6mAi9qIBSocmRATqXWuQs7LMaKNZtr8ohHHF/ROuL27m4EB2ISxONp
+ HSmpg3jlL+1isCot1zZvdkVNXXqKYcM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-173-3UI4w1R8MjqWgoC3EEiR7A-1; Wed, 24 Mar 2021 09:35:00 -0400
+X-MC-Unique: 3UI4w1R8MjqWgoC3EEiR7A-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
+ [10.5.11.13])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D7A7610A1779;
+ Wed, 24 Mar 2021 13:34:31 +0000 (UTC)
+Received: from localhost (ovpn-115-111.ams2.redhat.com [10.36.115.111])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 5E3A36A967;
+ Wed, 24 Mar 2021 13:34:27 +0000 (UTC)
+Date: Wed, 24 Mar 2021 13:34:26 +0000
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+Subject: Re: [RFC PATCH v4] virtio-vsock: use C style defines for constants
+Message-ID: <YFs/4hcX8nd7h2Jv@stefanha-x1.localdomain>
+References: <20210323154840.2504509-1-arseny.krasnov@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <20210324060907.nwilmghg2xcdz7nv@vireshk-i7>
-Content-Language: en-US
-Cc: mst@redhat.com, bjorn.andersson@linaro.org,
- wsa+renesas@sang-engineering.com, linux-i2c@vger.kernel.org, wsa@kernel.org,
- andriy.shevchenko@linux.intel.com, yu1.wang@intel.com,
- u.kleine-koenig@pengutronix.de, kblaiech@mellanox.com,
- virtualization@lists.linux-foundation.org, arnd@arndb.de, stefanha@redhat.com,
- tali.perry1@gmail.com, conghui.chen@intel.com, loic.poulain@linaro.org,
- linux-kernel@vger.kernel.org, Sergey.Semin@baikalelectronics.ru,
- jarkko.nikula@linux.intel.com, shuo.a.liu@intel.com, pbonzini@redhat.com,
- rppt@kernel.org
+In-Reply-To: <20210323154840.2504509-1-arseny.krasnov@kaspersky.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=stefanha@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Andra Paraschiv <andraprs@amazon.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jeff Vander Stoep <jeffv@google.com>,
+ cohuck@redhat.com, Colin Ian King <colin.king@canonical.com>,
+ Norbert Slusarek <nslusarek@gmx.net>, oxffffaa@gmail.com,
+ virtio-comment@lists.oasis-open.org, Jakub Kicinski <kuba@kernel.org>,
+ Alexander Popov <alex.popov@linux.com>,
+ virtualization@lists.linux-foundation.org,
+ "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -96,28 +106,63 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: multipart/mixed; boundary="===============9069791453542225137=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+--===============9069791453542225137==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="w+I47P0NEHZk1Xab"
+Content-Disposition: inline
 
-On 2021/3/24 14:09, Viresh Kumar wrote:
-> On 24-03-21, 14:05, Jie Deng wrote:
-> Or, now that I think about it a bit more, another thing we can do here is see if
-> virtqueue_get_buf() returns NULL, if it does then we should keep expecting more
-> messages as it may be early interrupt. What do you say ?
+--w+I47P0NEHZk1Xab
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I don't think we really need this because for this device, early 
-interrupt is a bad operation
-which should be avoided. I can't think of why this device need to send 
-early interrupt, what
-we can do is to clarify that this means loss of the remaining requests. 
-A device should never
-do this, if it does then loss is the expected result.
+On Tue, Mar 23, 2021 at 06:48:36PM +0300, Arseny Krasnov wrote:
+> This:
+> 1) Replaces enums with C style "defines", because
+>    use of enums is not documented, while "defines"
+>    are widely used in spec.
+> 2) Adds defines for some constants.
+>=20
+> Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+> ---
+>  virtio-vsock.tex | 54 +++++++++++++++++++++++++-----------------------
+>  1 file changed, 28 insertions(+), 26 deletions(-)
 
+Awesome, thanks!
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--w+I47P0NEHZk1Xab
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmBbP+IACgkQnKSrs4Gr
+c8gvYQf8DUv+wnAOw47q93n+H4VFp4xIiDdexFEonxmbOlyGKoakCjknDP9MpZOU
+4d27vUEBg5UkvWFRkQIlXRsfi1QICqGqtB8HoSNA12OGryJlRDpmM0zB0BALViHt
+CJqBt5E4oELPRHpOJ8xaxa87DQFZCfHxaYpREUq0vzCQ5JMSb+uN1sOc9Uvl2o4w
+1KvR1q9pNwi9MUiT0A2JI5YpAWZ773RSCHIfDDdA3T7yYTkppieklLH46uTcG5A6
+MruxIRXXPjKmSp2+6nA1h2/1b/BSiwFpmlYOLc9jDyWLXHcExQ4Td8Th/ey+oSA8
+IdJT3FrNjZykF7hAfsGyDU5YlLWr3Q==
+=6lg0
+-----END PGP SIGNATURE-----
+
+--w+I47P0NEHZk1Xab--
+
+
+--===============9069791453542225137==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============9069791453542225137==--
+
