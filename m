@@ -2,82 +2,124 @@ Return-Path: <SRS0=IaGE=IX=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CC95C433DB
-	for <virtualization@archiver.kernel.org>; Thu, 25 Mar 2021 11:28:28 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 937F4C433DB
+	for <virtualization@archiver.kernel.org>; Thu, 25 Mar 2021 11:30:09 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9E38861A43
-	for <virtualization@archiver.kernel.org>; Thu, 25 Mar 2021 11:28:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9E38861A43
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	by mail.kernel.org (Postfix) with ESMTPS id 274BD61A38
+	for <virtualization@archiver.kernel.org>; Thu, 25 Mar 2021 11:30:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 274BD61A38
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 47D4860756;
-	Thu, 25 Mar 2021 11:28:27 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id BF12040F3C;
+	Thu, 25 Mar 2021 11:30:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Sv4q2wHPoYJE; Thu, 25 Mar 2021 11:28:26 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 04AA660B20;
-	Thu, 25 Mar 2021 11:28:25 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id sM-HOdXLOtW9; Thu, 25 Mar 2021 11:30:07 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 73DD640EC0;
+	Thu, 25 Mar 2021 11:30:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CDA02C000D;
-	Thu, 25 Mar 2021 11:28:25 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EA5B1C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4B48EC000D;
+	Thu, 25 Mar 2021 11:30:06 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 94761C000A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Mar 2021 11:28:24 +0000 (UTC)
+ Thu, 25 Mar 2021 11:30:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D8C38401B8
+ by smtp1.osuosl.org (Postfix) with ESMTP id 82C30841D2
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Mar 2021 11:28:24 +0000 (UTC)
+ Thu, 25 Mar 2021 11:30:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uL0tfoiGnmOc
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3H5xwX132-pO
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Mar 2021 11:28:24 +0000 (UTC)
+ Thu, 25 Mar 2021 11:30:04 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 3A29D40198
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 26B5E840F9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Mar 2021 11:28:24 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD27D61A79;
- Thu, 25 Mar 2021 11:28:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1616671703;
- bh=ybqxxnJah7aSnGrEgGUrTjVsyygme31WX502oHksjC4=;
- h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=DPB+wpYILkkxMps9/ji/3aHWdh4QJzsJ9T4PZzIfxeS31gHPTg/WxV0ObMGVCC8Ev
- xF1L77CQYGKcdZD2/QYxiJ51bwp+7xtbHcdESQtsAbfomSgi3gIVGLkOjS0g3NuZ2l
- i9XnQH+q9fc6UVVYutFLx+PFgYXdizKhLldFNeM8o9OUIrjN5t8/FEaN8xfUqn2C1m
- 52A7470bkApm7uSWYu5LpMFlUAOBaz6smvf370mlGDa1LsF1kmcjmsiovZUT+2sn+s
- iuCjgbCvA8dwCWU3RX4ysVWvCVR45z9u1FlBHoJroLafWRxjNRjntOG05OSCctJliE
- V8sxXF0s12axw==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 07/13] vhost: Fix vhost_vq_reset()
-Date: Thu, 25 Mar 2021 07:28:07 -0400
-Message-Id: <20210325112814.1928637-7-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.1
-In-Reply-To: <20210325112814.1928637-1-sashal@kernel.org>
-References: <20210325112814.1928637-1-sashal@kernel.org>
+ Thu, 25 Mar 2021 11:30:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1616671803;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=gO1r3rrFTn29bzsxBK0+eixYQwgoJhoT8Mpg2iUxRAs=;
+ b=IiZyli7MwlbpcNo8Ae6ksabXzYIqwy/RS0Togwp+J3pRP0uFRRcBXaIAcxlNnCKQgWLGxy
+ SgLdS+IK0PPEE5JMeOBt3mhx7JxAOdmtl6fKlCVkKPTpHQqvbXoVsP8e2TlnbLncUtIudV
+ 5h+6o3g2SefE8+RjpmFvhv2yHSAHcoU=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-540-mvsPcbXlNwSNxYD1pS1H0w-1; Thu, 25 Mar 2021 07:30:00 -0400
+X-MC-Unique: mvsPcbXlNwSNxYD1pS1H0w-1
+Received: by mail-ej1-f72.google.com with SMTP id v27so2388696ejq.0
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 25 Mar 2021 04:30:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+ :user-agent:mime-version:in-reply-to:content-language
+ :content-transfer-encoding;
+ bh=gO1r3rrFTn29bzsxBK0+eixYQwgoJhoT8Mpg2iUxRAs=;
+ b=Yr1LECoMnZsapGKwpTbSZdYHCTexAdVNLPODXRH3j6VGVJfMWdrF+9sQdf95J/wayV
+ 5/GZoNsfdybpx+8iVinNHwnVGZv+qYi7XUF1pHfV31zqPoHvw0z1XoSm2ciyXM5E2qHN
+ w3W9ZEkKREtl37goD04NegzYzVyQvgwamuUcjdFBdKLOZPUDIyTJPfAPb/q4Pzhw+68F
+ NhmvgOZ6sjqR+ayAN8gAwLUvQWZW7ARm2vq/UQIg/EmJ+nshNwszgXI06WiCa/7KqAyj
+ wUmhjGmXgynnywk01t6wUx8xmKZHlTSgPAfRMjzmJlKl0xCSoqCr5yE1nv3NQ1hGTtDt
+ 1cSg==
+X-Gm-Message-State: AOAM533bbyHLFFn39b4bdL0zlKLMuoLBQm9qV+lyN1mo+Ub4k8kTN3Zc
+ UJPOanGaInzTN/MJusU+3GKRPPQxEE6jgJIkQyUNSVwBAi2fYFhLsmXhBpfUIvfWzDUG16ZSxWt
+ QEPgjRhu1MjWclXsedAyPDEwIqjZCj+ztWev82DYpYF15xYYNE+XGMBbxQGKmcbLFOS4bXm22Vs
+ 2RzXdKBOR28yVJ8+IAnw==
+X-Received: by 2002:a17:906:4747:: with SMTP id
+ j7mr8766398ejs.221.1616671798816; 
+ Thu, 25 Mar 2021 04:29:58 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJysSfbHX7uOL2QdCMQb+OIxlqF3ZE9OCWQTr7T6sHiS6y9U+UL50RaP7nexqikiFUinYxI7ig==
+X-Received: by 2002:a17:906:4747:: with SMTP id
+ j7mr8766358ejs.221.1616671798559; 
+ Thu, 25 Mar 2021 04:29:58 -0700 (PDT)
+Received: from x1.localdomain
+ (2001-1c00-0c1e-bf00-1054-9d19-e0f0-8214.cable.dynamic.v6.ziggo.nl.
+ [2001:1c00:c1e:bf00:1054:9d19:e0f0:8214])
+ by smtp.gmail.com with ESMTPSA id bx24sm2303177ejc.88.2021.03.25.04.29.57
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Thu, 25 Mar 2021 04:29:58 -0700 (PDT)
+Subject: Re: [PATCH v2 00/10] drm: Support simple-framebuffer devices and
+ firmware fbs
+To: Thomas Zimmermann <tzimmermann@suse.de>, daniel@ffwll.ch,
+ airlied@linux.ie, maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+ kraxel@redhat.com, corbet@lwn.net, lgirdwood@gmail.com, broonie@kernel.org,
+ sam@ravnborg.org, robh@kernel.org, emil.l.velikov@gmail.com,
+ geert+renesas@glider.be, bluescreen_avenger@verizon.net
+References: <20210318102921.21536-1-tzimmermann@suse.de>
+From: Hans de Goede <hdegoede@redhat.com>
+Message-ID: <d0ac63b3-dec5-58dc-2ce6-13cdef0399aa@redhat.com>
+Date: Thu, 25 Mar 2021 12:29:57 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.7.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Cc: Laurent Vivier <lvivier@redhat.com>, Sasha Levin <sashal@kernel.org>,
- kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <20210318102921.21536-1-tzimmermann@suse.de>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=hdegoede@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: virtualization@lists.linux-foundation.org, dri-devel@lists.freedesktop.org,
+ linux-doc@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,49 +136,187 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Laurent Vivier <lvivier@redhat.com>
+Hi,
 
-[ Upstream commit beb691e69f4dec7bfe8b81b509848acfd1f0dbf9 ]
+On 3/18/21 11:29 AM, Thomas Zimmermann wrote:
+> This patchset adds support for simple-framebuffer platform devices and
+> a handover mechanism for native drivers to take-over control of the
+> hardware.
+> 
+> The new driver, called simpledrm, binds to a simple-frambuffer platform
+> device. The kernel's boot code creates such devices for firmware-provided
+> framebuffers, such as EFI-GOP or VESA. Typically the BIOS, UEFI or boot
+> loader sets up the framebuffers. Description via device tree is also an
+> option.
+> 
+> Simpledrm is small enough to be linked into the kernel. The driver's main
+> purpose is to provide graphical output during the early phases of the boot
+> process, before the native DRM drivers are available. Native drivers are
+> typically loaded from an initrd ram disk. Occationally simpledrm can also
+> serve as interim solution on graphics hardware without native DRM driver.
+> 
+> So far distributions rely on fbdev drivers, such as efifb, vesafb or
+> simplefb, for early-boot graphical output. However fbdev is deprecated and
+> the drivers do not provide DRM interfaces for modern userspace.
+> 
+> Patches 1 and 2 prepare the DRM format helpers for simpledrm.
+> 
+> Patches 3 and 4 add a hand-over mechanism. Simpledrm acquires it's
+> framebuffer's I/O-memory range and provides a callback function to be
+> removed by a native driver. The native driver will remove simpledrm before
+> taking over the hardware. The removal is integrated into existing helpers,
+> so drivers use it automatically.
+> 
+> Patches 5 to 10 add the simpledrm driver. It's build on simple DRM helpers
+> and SHMEM. It supports 16-bit, 24-bit and 32-bit RGB framebuffers. During
+> pageflips, SHMEM buffers are copied into the framebuffer memory, similar
+> to cirrus or mgag200. The code in patches 8 and 9 handles clocks and
+> regulators. It's based on the simplefb drivers, but has been modified for
+> DRM.
 
-vhost_reset_is_le() is vhost_init_is_le(), and in the case of
-cross-endian legacy, vhost_init_is_le() depends on vq->user_be.
+Thank you for your work on this, this is very interesting.
 
-vq->user_be is set by vhost_disable_cross_endian().
+> I've also been working on fastboot support (i.e., flicker-free booting).
+> This requires state-readout from simpledrm via generic interfaces, as
+> outlined in [1]. I do have some prototype code, but it will take a while
+> to get this ready. Simpledrm will then support it.
+> 
+> I've tested simpledrm with x86 EFI and VESA framebuffers, which both work
+> reliably. The fbdev console and Weston work automatically. Xorg requires
+> manual configuration of the device. Xorgs current modesetting driver does
+> not work with both, platform and PCI device, for the same physical
+> hardware. Once configured, X11 works. I looked into X11, but couldn't see
+> an easy way of fixing the problem. With the push towards Wayland+Xwayland
+> I expect the problem to become a non-issue soon. Additional testing has
+> been reported at [2].
+> 
+> One cosmetical issue is that simpledrm's device file is card0 and the
+> native driver's device file is card1. After simpledrm has been kicked out,
+> only card1 is left. This does not seem to be a practical problem however.
+> 
+> TODO/IDEAS:
+> 
+> 	* provide deferred takeover
 
-But in vhost_vq_reset(), we have:
+I'm not sure what you mean with this ?  Currently deferred-takeover is
+handled in the fbcon code. Current flickerfree boot works like this
+(assuming a single LCD panel in a laptop):
 
-    vhost_reset_is_le(vq);
-    vhost_disable_cross_endian(vq);
+1. EFI/GOP sets up the framebuffer, draws a vendor logo
+2. The bootloader runs in silent mode and does not touch anything gfx related
+3. kernel boots, with a loglevel of 3 so only CRIT/EMERG messages are shown
+2. efifb loads; and tells fbcon that a framebuffer is now available for it to "bind"
+   to. Since CONFIG_FRAMEBUFFER_CONSOLE_DEFERRED_TAKEOVER=y fbcon defers taking over
+   the console and leaves the dummy-console driver in place (unless there have already
+   been kernel messages logged, which there shouldn't because loglevel=3)
+3. i915 loads, reads out the hw state compares this to the preferred-mode for the
+   panel which it would set, they match, nothing happens. i915 takes ownership
+   of the scanout-buffer set up by the GOP, but leaves it in place.
+   i915 also removes the efifb /dev/fb0 and installs its own /dev/fb0 fbdev compat
+   device, fbcon is notified of this, but is still deferred and leaves the dummy
+   console driver in place as console driver.
+4. Plymouth loads, allocates a new scan-out buffer at the panel's preferred resolution,
+   plymouth reads the vendor-logo through the BGRT ACPI interface and fills the
+   scanout-buffer with the vendor-logo + a spinner. Then plymouth installs the new
+   scanout-buffer on the crtc, this is done atomically during vsync, so the user
+   sees no changes, other then the spinner appearing
+   (note the active VT is now in graphical mode)
+5. From here on not flickering is a userspace problem
 
-And so user_be is used before being set.
+AFAICT this should work fine with simplekms too, unless it clears the screen
+to black when it binds.
 
-To fix that, reverse the lines order as there is no other dependency
-between them.
+An addition to the above sequence, if at any time either the kernel or userspace
+prints a message to the console; and at that time a fbdev is registered then fbcon
+will takeover as the console driver from the dummy driver and it will start drawing
+to the registered fbdev (1), destroying the framebuffer contents. Also if any messages
+where printend while no fbdev was registered, then fbcon will takeover the console
+as soon as a fbdev gets registered.
 
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
-Link: https://lore.kernel.org/r/20210312140913.788592-1-lvivier@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/vhost/vhost.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+So since we already have deferred-takeover in the fbcon code, I wonder what you
+mean when you are talking about "provide deferred takeover" for simplekms?
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index b14e62f11075..d2431afeda84 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -306,8 +306,8 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	vq->call_ctx = NULL;
- 	vq->call = NULL;
- 	vq->log_ctx = NULL;
--	vhost_reset_is_le(vq);
- 	vhost_disable_cross_endian(vq);
-+	vhost_reset_is_le(vq);
- 	vq->busyloop_timeout = 0;
- 	vq->umem = NULL;
- 	vq->iotlb = NULL;
--- 
-2.30.1
+Regards,
+
+Hans
+
+
+1) Except when the VT has been switched to GFX mode when this happens, then fbcon
+will delay using the fbdev until the VT is switched back to text mode.
+
+
+p.s.
+
+This has the interesting side effect then when logging into a desktop GUI session:
+kernel -> plymouth -> gdm -> GNOME user session
+
+There never is any output to the text-console and fbcon never takes-over, so on
+many Laptops running say Fedora workstation the fbcon code is actually unused
+until the user manually switches to another virtual-console to log in in
+text-mode:
+
+[hans@x1 ~]$ dmesg | grep -E 'fbcon|Console:|Truecolor'
+[    0.258904] Console: colour dummy device 80x25
+[    1.274726] efifb: Truecolor: size=8:8:8:8, shift=24:16:8:0
+[    1.274768] fbcon: Deferring console take-over
+[    2.540894] fbcon: i915drmfb (fb0) is primary device
+[    2.540896] fbcon: Deferring console take-over
+[hans@x1 ~]$ uptime
+ 12:29:39 up  4:19,  1 user,  load average: 0.58, 0.75, 0.81
+
+Look mom no fbcon
+
+
+
+
+> 	* provide bootsplash DRM client
+> 	* make simplekms usable with ARM-EFI fbs
+> 
+> v2:
+> 	* rename to simpledrm, aperture helpers
+> 	* reorganized patches
+> 	* use hotplug helpers for removal (Daniel)
+> 	* added DT match tables (Rob)
+> 	* use shadow-plane helpers
+> 	* lots of minor cleanups
+> 
+> [1] https://lore.kernel.org/dri-devel/CAKMK7uHtqHy_oz4W7F+hmp9iqp7W5Ra8CxPvJ=9BwmvfU-O0gg@mail.gmail.com/
+> [2] https://lore.kernel.org/dri-devel/1761762.3HQLrFs1K7@nerdopolis/
+> 
+> Thomas Zimmermann (10):
+>   drm/format-helper: Pass destination pitch to drm_fb_memcpy_dstclip()
+>   drm/format-helper: Add blitter functions
+>   drm/aperture: Move fbdev conflict helpers into drm_aperture.h
+>   drm/aperture: Add infrastructure for aperture ownership
+>   drm: Add simpledrm driver
+>   drm/simpledrm: Add fbdev emulation
+>   drm/simpledrm: Initialize framebuffer data from device-tree node
+>   drm/simpledrm: Acquire clocks from DT device node
+>   drm/simpledrm: Acquire regulators from DT device node
+>   drm/simpledrm: Acquire memory aperture for framebuffer
+> 
+>  Documentation/gpu/drm-internals.rst    |  12 +
+>  MAINTAINERS                            |   7 +
+>  drivers/gpu/drm/Kconfig                |   7 +
+>  drivers/gpu/drm/Makefile               |   1 +
+>  drivers/gpu/drm/drm_aperture.c         | 287 ++++++++
+>  drivers/gpu/drm/drm_format_helper.c    |  96 ++-
+>  drivers/gpu/drm/mgag200/mgag200_mode.c |   2 +-
+>  drivers/gpu/drm/tiny/Kconfig           |  17 +
+>  drivers/gpu/drm/tiny/Makefile          |   1 +
+>  drivers/gpu/drm/tiny/cirrus.c          |   2 +-
+>  drivers/gpu/drm/tiny/simpledrm.c       | 932 +++++++++++++++++++++++++
+>  include/drm/drm_aperture.h             |  96 +++
+>  include/drm/drm_fb_helper.h            |  56 +-
+>  include/drm/drm_format_helper.h        |  10 +-
+>  14 files changed, 1466 insertions(+), 60 deletions(-)
+>  create mode 100644 drivers/gpu/drm/drm_aperture.c
+>  create mode 100644 drivers/gpu/drm/tiny/simpledrm.c
+>  create mode 100644 include/drm/drm_aperture.h
+> 
+> --
+> 2.30.1
+> 
 
 _______________________________________________
 Virtualization mailing list
