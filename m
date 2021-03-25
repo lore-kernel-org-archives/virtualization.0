@@ -7,77 +7,77 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F19A6C433DB
-	for <virtualization@archiver.kernel.org>; Thu, 25 Mar 2021 11:26:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE73DC433DB
+	for <virtualization@archiver.kernel.org>; Thu, 25 Mar 2021 11:26:32 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7883C61A2E
-	for <virtualization@archiver.kernel.org>; Thu, 25 Mar 2021 11:26:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7883C61A2E
+	by mail.kernel.org (Postfix) with ESMTPS id 98E4761A48
+	for <virtualization@archiver.kernel.org>; Thu, 25 Mar 2021 11:26:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 98E4761A48
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2B59640E59;
-	Thu, 25 Mar 2021 11:26:05 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 51EF740F1E;
+	Thu, 25 Mar 2021 11:26:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hObWxE5d9Hcv; Thu, 25 Mar 2021 11:26:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 98F2A40E76;
-	Thu, 25 Mar 2021 11:26:03 +0000 (UTC)
+	with ESMTP id Zj_f0BvcU1MD; Thu, 25 Mar 2021 11:26:31 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTP id CB43E40F04;
+	Thu, 25 Mar 2021 11:26:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 74F47C000D;
-	Thu, 25 Mar 2021 11:26:03 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 19E8CC000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AF766C000D;
+	Thu, 25 Mar 2021 11:26:30 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B1CC5C000A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Mar 2021 11:26:02 +0000 (UTC)
+ Thu, 25 Mar 2021 11:26:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 15C1E84A0B
+ by smtp2.osuosl.org (Postfix) with ESMTP id A024440186
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Mar 2021 11:26:02 +0000 (UTC)
+ Thu, 25 Mar 2021 11:26:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=kernel.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1gT0QaCnmlYV
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Df7EvU9cbk9q
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Mar 2021 11:26:01 +0000 (UTC)
+ Thu, 25 Mar 2021 11:26:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 99BC284A07
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 0F86240183
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Mar 2021 11:26:01 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4001161A34;
- Thu, 25 Mar 2021 11:26:00 +0000 (UTC)
+ Thu, 25 Mar 2021 11:26:29 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC35961A3B;
+ Thu, 25 Mar 2021 11:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1616671561;
- bh=sv2npbch/fm+Qb1D2o9pjkfxFI9GqFDf7UDnay+PbO4=;
- h=From:To:Cc:Subject:Date:From;
- b=k/bw2jZj8ic8UN+O0UyW81xfPt0DYz5dJzawqVoWEoM/j0pD4NWZSK70lTPfDn3hM
- YGMiNxadMgtE0GXZ4Ibr+aF2tPYBuZoq2LvNQV6SB6HX8qGv6eKxMUmjsnu2wyyFeD
- UX9QazlDpMEmlB7eVmVUZTNuV5jNNSr+LIY0QsBSKL+VEuY7EKmtlG1whm4fBdFbd/
- yuOIqNTplNrwDchN0J8MgR8HFUFxNgUn+i4VA6R4d21e0ry4M69N82xKxmqyfGuqVP
- f7FC10WU6kMFdLzmjfFS/nDbj2KmlfMT4FzPTUnx5Bh5BLrwVuN5lx4+n1r6ApRrWk
- A/YuP7efZVPpg==
+ s=k20201202; t=1616671588;
+ bh=lQLmD8mWJ5lbA1jcQr4LGTtmStNrM7Wj2L0lbI7A420=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=K7AA6aD1+E8JEo+Xgmj/8l2qZu90cjx1+6xLkV3GLBinVkHeKO59VjWVyej5UOdje
+ ZCJ7heM2ryALK4TbRlODtIuyKfhNIkeDHLgWEB+k6yK5ltMk7mrF2harlMctCKFyS+
+ SOY3eW2kBJFP0iG/qIz3G6TFL/fnf4ON12i2lk2W2FFDnc+43CWfXv+q4ljD+LLPHa
+ vWMDYora9WVg0pxyxUQxedUKBmg98R2xwZzm5/ysdPx35HGD1rNV6DU0TvcViQJRar
+ 5NaV3zqgbT+B9h19uJkO+/OBoDR5bin4P9LVf0Ff4w5dtY3WMNojtQokVnQGfRN+wY
+ J3d7P18IUCazw==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 01/39] virtiofs: Fail dax mount if device does
- not support it
-Date: Thu, 25 Mar 2021 07:25:20 -0400
-Message-Id: <20210325112558.1927423-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 22/39] vhost: Fix vhost_vq_reset()
+Date: Thu, 25 Mar 2021 07:25:41 -0400
+Message-Id: <20210325112558.1927423-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.1
+In-Reply-To: <20210325112558.1927423-1-sashal@kernel.org>
+References: <20210325112558.1927423-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-Cc: Sasha Levin <sashal@kernel.org>, Miklos Szeredi <mszeredi@redhat.com>,
- virtualization@lists.linux-foundation.org,
- Stefan Hajnoczi <stefanha@redhat.com>, linux-fsdevel@vger.kernel.org,
- Vivek Goyal <vgoyal@redhat.com>
+Cc: Laurent Vivier <lvivier@redhat.com>, Sasha Levin <sashal@kernel.org>,
+ kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,49 +94,47 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Vivek Goyal <vgoyal@redhat.com>
+From: Laurent Vivier <lvivier@redhat.com>
 
-[ Upstream commit 3f9b9efd82a84f27e95d0414f852caf1fa839e83 ]
+[ Upstream commit beb691e69f4dec7bfe8b81b509848acfd1f0dbf9 ]
 
-Right now "mount -t virtiofs -o dax myfs /mnt/virtiofs" succeeds even
-if filesystem deivce does not have a cache window and hence DAX can't
-be supported.
+vhost_reset_is_le() is vhost_init_is_le(), and in the case of
+cross-endian legacy, vhost_init_is_le() depends on vq->user_be.
 
-This gives a false sense to user that they are using DAX with virtiofs
-but fact of the matter is that they are not.
+vq->user_be is set by vhost_disable_cross_endian().
 
-Fix this by returning error if dax can't be supported and user has asked
-for it.
+But in vhost_vq_reset(), we have:
 
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+    vhost_reset_is_le(vq);
+    vhost_disable_cross_endian(vq);
+
+And so user_be is used before being set.
+
+To fix that, reverse the lines order as there is no other dependency
+between them.
+
+Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+Link: https://lore.kernel.org/r/20210312140913.788592-1-lvivier@redhat.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/virtio_fs.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/vhost/vhost.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index d2c0e58c6416..3d83c9e12848 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -1324,8 +1324,15 @@ static int virtio_fs_fill_super(struct super_block *sb, struct fs_context *fsc)
- 
- 	/* virtiofs allocates and installs its own fuse devices */
- 	ctx->fudptr = NULL;
--	if (ctx->dax)
-+	if (ctx->dax) {
-+		if (!fs->dax_dev) {
-+			err = -EINVAL;
-+			pr_err("virtio-fs: dax can't be enabled as filesystem"
-+			       " device does not support it.\n");
-+			goto err_free_fuse_devs;
-+		}
- 		ctx->dax_dev = fs->dax_dev;
-+	}
- 	err = fuse_fill_super_common(sb, ctx);
- 	if (err < 0)
- 		goto err_free_fuse_devs;
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index a262e12c6dc2..5ccb0705beae 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -332,8 +332,8 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+ 	vq->error_ctx = NULL;
+ 	vq->kick = NULL;
+ 	vq->log_ctx = NULL;
+-	vhost_reset_is_le(vq);
+ 	vhost_disable_cross_endian(vq);
++	vhost_reset_is_le(vq);
+ 	vq->busyloop_timeout = 0;
+ 	vq->umem = NULL;
+ 	vq->iotlb = NULL;
 -- 
 2.30.1
 
