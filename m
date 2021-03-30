@@ -2,77 +2,128 @@ Return-Path: <SRS0=i4sF=I4=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42D3DC433C1
-	for <virtualization@archiver.kernel.org>; Tue, 30 Mar 2021 07:09:54 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72B99C433DB
+	for <virtualization@archiver.kernel.org>; Tue, 30 Mar 2021 07:32:26 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AE8CE61999
-	for <virtualization@archiver.kernel.org>; Tue, 30 Mar 2021 07:09:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AE8CE61999
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id EB0126191B
+	for <virtualization@archiver.kernel.org>; Tue, 30 Mar 2021 07:32:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EB0126191B
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4452C606E9;
-	Tue, 30 Mar 2021 07:09:53 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 875D340118;
+	Tue, 30 Mar 2021 07:32:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kybz5FtHziXD; Tue, 30 Mar 2021 07:09:52 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6D5F06072E;
-	Tue, 30 Mar 2021 07:09:51 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ADNA3pFnkLZY; Tue, 30 Mar 2021 07:32:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 1C6FE400E0;
+	Tue, 30 Mar 2021 07:32:24 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 38034C000C;
-	Tue, 30 Mar 2021 07:09:51 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AF42EC000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E2544C000C;
+	Tue, 30 Mar 2021 07:32:23 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 236B4C000A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Mar 2021 07:09:49 +0000 (UTC)
+ Tue, 30 Mar 2021 07:32:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9CA1540416
+ by smtp3.osuosl.org (Postfix) with ESMTP id EF3BC60822
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Mar 2021 07:09:49 +0000 (UTC)
+ Tue, 30 Mar 2021 07:32:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id auWxpUVDtyGg
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VF1WcUce0YOO
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Mar 2021 07:09:47 +0000 (UTC)
+ Tue, 30 Mar 2021 07:32:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7E90D40345
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id CA9B76081E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Mar 2021 07:09:47 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 0382EB159;
- Tue, 30 Mar 2021 07:09:45 +0000 (UTC)
-Subject: Re: [PATCH v2 00/10] drm: Support simple-framebuffer devices and
- firmware fbs
-To: Hans de Goede <hdegoede@redhat.com>, daniel@ffwll.ch, airlied@linux.ie,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, kraxel@redhat.com,
- corbet@lwn.net, lgirdwood@gmail.com, broonie@kernel.org, sam@ravnborg.org,
- robh@kernel.org, emil.l.velikov@gmail.com, geert+renesas@glider.be,
- bluescreen_avenger@verizon.net
-References: <20210318102921.21536-1-tzimmermann@suse.de>
- <d0ac63b3-dec5-58dc-2ce6-13cdef0399aa@redhat.com>
- <c88e9322-4bf1-e303-c1f1-b2b433aa439f@suse.de>
- <a85f936f-cd4c-ab0d-ed68-9e95bb93acb8@redhat.com>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <b2d6798f-1f7e-6fd4-eefd-b7bb4f080973@suse.de>
-Date: Tue, 30 Mar 2021 09:09:43 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+ Tue, 30 Mar 2021 07:32:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1617089539;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=HIK2E8IdK4a2a+1KgcQOAlvCAmKgzEgX+ErBDuO75BU=;
+ b=dCOvx0ukyvV9mC+sygs7mUAEphoVv7XuWSYTqyeMIi2TSKuuVc7Cv0gwkaqHcgj8DBs0X5
+ Xuf+ZFXo8gNk+r2IwWItP0GEmutRtki4aUDRQuDph0o39QzhkW6j7GztlwgyPCtjmqwkfA
+ +Pbptof7HCI2aP/xX+a3RHVnA4y1qLc=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-18-Etbc89wHMtmspSE-ubBWkQ-1; Tue, 30 Mar 2021 03:32:15 -0400
+X-MC-Unique: Etbc89wHMtmspSE-ubBWkQ-1
+Received: by mail-wr1-f71.google.com with SMTP id t14so9994712wrx.12
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 30 Mar 2021 00:32:15 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=HIK2E8IdK4a2a+1KgcQOAlvCAmKgzEgX+ErBDuO75BU=;
+ b=YbdEYK84OX6jeU36kjt1VREJCQiVarvTSkr2X3PGu8RGsfEogfNye2HG/LYRZ32qZR
+ YaHnR9NVPXga6VBsXkALDyAoJsGU7TzUNmy1T6CQ3y66m94+EdQRBL+jRz4dlY8yEeIc
+ 9CP4rYM8rMkN0ZnPddMiOT3JQ2a6MT6c9cRa7w1xST3DGfrdTlyWfAGof9LxKxjuAqM0
+ I9MQj7uHf5s7d1M2yecSqX0oaApLg/vFQkvUrcjewiPuXaJjqDi7tvk2XocQp3JIyE6x
+ jgdZW116zt12o1s2Qu5H0iWi5LkAf3+3BAOD4zjX0Bg8j/MgKJVWHqfqmjeeyQDmwqtL
+ SDIQ==
+X-Gm-Message-State: AOAM533aXB5UWw4WFEYk8BZTi6uqAlr5qXJeo4PYLRFB0GpO+Sati+Lq
+ FjPPTtMP69xjws7cd5PTJJap5Pt3XnFXDrq8i2wfCHkgAKmx+P6FVHtc+bLVdUBI0URpwk2W3tA
+ WeZPG/+DrK0AvKApaCC/zg+MFs7jVI8zQD+C4q1VK9g==
+X-Received: by 2002:a05:6000:186a:: with SMTP id
+ d10mr31598834wri.303.1617089533983; 
+ Tue, 30 Mar 2021 00:32:13 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxq6UQLm16l1C/JlM+I3EJCB11McM7E12KcY7rNxzkmSG3XJcLLO7zVesj/zgbLPYhO9I96kg==
+X-Received: by 2002:a05:6000:186a:: with SMTP id
+ d10mr31598804wri.303.1617089533738; 
+ Tue, 30 Mar 2021 00:32:13 -0700 (PDT)
+Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
+ [79.34.249.199])
+ by smtp.gmail.com with ESMTPSA id h14sm40487615wrq.45.2021.03.30.00.32.12
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 30 Mar 2021 00:32:13 -0700 (PDT)
+Date: Tue, 30 Mar 2021 09:32:10 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+Subject: Re: [virtio-comment] Re: [MASSMAIL KLMS] Re: [virtio-comment] [RFC
+ PATCH v4 2/2] virtio-vsock: SOCK_SEQPACKET description
+Message-ID: <20210330073210.cxur42unvhbsux5e@steredhat>
+References: <20210326090154.1144100-1-arseny.krasnov@kaspersky.com>
+ <20210326090254.1144486-1-arseny.krasnov@kaspersky.com>
+ <YGH8IqLRdh5JCZyT@stefanha-x1.localdomain>
+ <230d95fd-29e8-465b-0ab2-b406d614c11b@kaspersky.com>
+ <20210329212818.qdeprjhep745yeur@steredhat>
+ <d6d92105-f7d4-74a3-4acc-fcfb40872b76@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <a85f936f-cd4c-ab0d-ed68-9e95bb93acb8@redhat.com>
-Cc: linux-doc@vger.kernel.org, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org
+In-Reply-To: <d6d92105-f7d4-74a3-4acc-fcfb40872b76@kaspersky.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Andra Paraschiv <andraprs@amazon.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, "cohuck@redhat.com" <cohuck@redhat.com>,
+ Colin Ian King <colin.king@canonical.com>,
+ "oxffffaa@gmail.com" <oxffffaa@gmail.com>,
+ Norbert Slusarek <nslusarek@gmx.net>, Stefan Hajnoczi <stefanha@redhat.com>,
+ "virtio-comment@lists.oasis-open.org" <virtio-comment@lists.oasis-open.org>,
+ Jakub Kicinski <kuba@kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>,
+ Alexander Popov <alex.popov@linux.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -84,421 +135,98 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============6110712571764854792=="
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============6110712571764854792==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="GrNnU5D5uTGekbkZivtLPtTs6QuxygdRY"
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---GrNnU5D5uTGekbkZivtLPtTs6QuxygdRY
-Content-Type: multipart/mixed; boundary="GOseElHxPn8pzbotuD4CGWcFtc0n7BtoE";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Hans de Goede <hdegoede@redhat.com>, daniel@ffwll.ch, airlied@linux.ie,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, kraxel@redhat.com,
- corbet@lwn.net, lgirdwood@gmail.com, broonie@kernel.org, sam@ravnborg.org,
- robh@kernel.org, emil.l.velikov@gmail.com, geert+renesas@glider.be,
- bluescreen_avenger@verizon.net
-Cc: virtualization@lists.linux-foundation.org,
- dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org
-Message-ID: <b2d6798f-1f7e-6fd4-eefd-b7bb4f080973@suse.de>
-Subject: Re: [PATCH v2 00/10] drm: Support simple-framebuffer devices and
- firmware fbs
-References: <20210318102921.21536-1-tzimmermann@suse.de>
- <d0ac63b3-dec5-58dc-2ce6-13cdef0399aa@redhat.com>
- <c88e9322-4bf1-e303-c1f1-b2b433aa439f@suse.de>
- <a85f936f-cd4c-ab0d-ed68-9e95bb93acb8@redhat.com>
-In-Reply-To: <a85f936f-cd4c-ab0d-ed68-9e95bb93acb8@redhat.com>
-
---GOseElHxPn8pzbotuD4CGWcFtc0n7BtoE
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-
-Hi
-
-Am 29.03.21 um 16:50 schrieb Hans de Goede:
-> Hi,
->=20
-> On 3/29/21 2:31 PM, Thomas Zimmermann wrote:
->> Hi
+On Tue, Mar 30, 2021 at 09:15:39AM +0300, Arseny Krasnov wrote:
+>
+>On 30.03.2021 00:28, Stefano Garzarella wrote:
+>> On Mon, Mar 29, 2021 at 08:33:27PM +0300, Arseny Krasnov wrote:
+>>> On 29.03.2021 19:11, Stefan Hajnoczi wrote:
+>>>> On Fri, Mar 26, 2021 at 12:02:50PM +0300, Arseny Krasnov wrote:
+>>>>> This adds description of SOCK_SEQPACKET socket type
+>>>>> support for virtio-vsock.
+>>>>>
+>>>>> Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+>>>>> ---
+>>>>>  virtio-vsock.tex | 65 +++++++++++++++++++++++++++++++++++++++++++-----
+>>>>>  1 file changed, 59 insertions(+), 6 deletions(-)
+>>>>>
+>>>>> diff --git a/virtio-vsock.tex b/virtio-vsock.tex
+>>>>> index ad57f9d..c366de7 100644
+>>>>> --- a/virtio-vsock.tex
+>>>>> +++ b/virtio-vsock.tex
+>>>>> @@ -17,6 +17,10 @@ \subsection{Virtqueues}\label{sec:Device Types / Socket Device / Virtqueues}
+>>>>>  \subsection{Feature bits}\label{sec:Device Types / Socket Device / Feature bits}
+>>>>>
+>>>>>  There are currently no feature bits defined for this device.
+>>>> ^ This line is now out of date :)
+>>> Ack
+>>>>> +\begin{description}
+>>>>> +\item VIRTIO_VSOCK_F_SEQPACKET (0) SOCK_SEQPACKET socket type is
+>>>>> +    supported.
+>>>>> +\end{description}
+>>>>>
+>>>>>  \subsection{Device configuration layout}\label{sec:Device Types / Socket Device / Device configuration layout}
+>>>>>
+>>>>> @@ -98,6 +102,10 @@ \subsection{Device Operation}\label{sec:Device Types / Socket Device / Device Op
+>>>>>  #define VIRTIO_VSOCK_OP_CREDIT_UPDATE  6
+>>>>>  /* Request the peer to send the credit info to us */
+>>>>>  #define VIRTIO_VSOCK_OP_CREDIT_REQUEST 7
+>>>>> +/* Message begin for SOCK_SEQPACKET */
+>>>>> +#define VIRTIO_VSOCK_OP_SEQ_BEGIN      8
+>>>>> +/* Message end for SOCK_SEQPACKET */
+>>>>> +#define VIRTIO_VSOCK_OP_SEQ_END        9
+>>>> The struct virtio_vsock_hdr->flags field is le32 and currently unused.
+>>>> Could 24 bits be used for a unique message id and 8 bits for flags? 1
+>>>> flag bit could be used for end-of-message and the remaining 7 bits could
+>>>> be reserved. That way SEQ_BEGIN and SEQ_END are not necessary.
+>>>> Pressure
+>>>> on the virtqueue would be reduced and performance should be comparable
+>>>> to SOCK_STREAM.
+>>> Well, my first versions of SOCK_SEQPACKET implementation, worked
+>>> something like this: i used flags field of header as length of whole
+>>> message. I discussed it with Stefano Garzarella, and he told that it
+>>> will
+>>> be better to use special "header" in packet's payload, to keep some
+>>> SOCK_SEQPACKET specific data, instead of reusing packet's header
+>>> fields.
+>> IIRC in the first implementation SEQ_BEGIN was an empty message and we
+>> didn't added the msg_id yet. So since we needed to carry both id and
+>> total length, I suggested to use the payload to put these extra
+>> information.
 >>
->> Am 25.03.21 um 12:29 schrieb Hans de Goede:
->>> Hi,
->>>
->>> On 3/18/21 11:29 AM, Thomas Zimmermann wrote:
->>>> This patchset adds support for simple-framebuffer platform devices a=
-nd
->>>> a handover mechanism for native drivers to take-over control of the
->>>> hardware.
->>>>
->>>> The new driver, called simpledrm, binds to a simple-frambuffer platf=
-orm
->>>> device. The kernel's boot code creates such devices for firmware-pro=
-vided
->>>> framebuffers, such as EFI-GOP or VESA. Typically the BIOS, UEFI or b=
-oot
->>>> loader sets up the framebuffers. Description via device tree is also=
- an
->>>> option.
->>>>
->>>> Simpledrm is small enough to be linked into the kernel. The driver's=
- main
->>>> purpose is to provide graphical output during the early phases of th=
-e boot
->>>> process, before the native DRM drivers are available. Native drivers=
- are
->>>> typically loaded from an initrd ram disk. Occationally simpledrm can=
- also
->>>> serve as interim solution on graphics hardware without native DRM dr=
-iver.
->>>>
->>>> So far distributions rely on fbdev drivers, such as efifb, vesafb or=
-
->>>> simplefb, for early-boot graphical output. However fbdev is deprecat=
-ed and
->>>> the drivers do not provide DRM interfaces for modern userspace.
->>>>
->>>> Patches 1 and 2 prepare the DRM format helpers for simpledrm.
->>>>
->>>> Patches 3 and 4 add a hand-over mechanism. Simpledrm acquires it's
->>>> framebuffer's I/O-memory range and provides a callback function to b=
-e
->>>> removed by a native driver. The native driver will remove simpledrm =
-before
->>>> taking over the hardware. The removal is integrated into existing he=
-lpers,
->>>> so drivers use it automatically.
->>>>
->>>> Patches 5 to 10 add the simpledrm driver. It's build on simple DRM h=
-elpers
->>>> and SHMEM. It supports 16-bit, 24-bit and 32-bit RGB framebuffers. D=
-uring
->>>> pageflips, SHMEM buffers are copied into the framebuffer memory, sim=
-ilar
->>>> to cirrus or mgag200. The code in patches 8 and 9 handles clocks and=
-
->>>> regulators. It's based on the simplefb drivers, but has been modifie=
-d for
->>>> DRM.
->>>
->>> Thank you for your work on this, this is very interesting.
->>>
->>>> I've also been working on fastboot support (i.e., flicker-free booti=
-ng).
->>>> This requires state-readout from simpledrm via generic interfaces, a=
-s
->>>> outlined in [1]. I do have some prototype code, but it will take a w=
-hile
->>>> to get this ready. Simpledrm will then support it.
->>>>
->>>> I've tested simpledrm with x86 EFI and VESA framebuffers, which both=
- work
->>>> reliably. The fbdev console and Weston work automatically. Xorg requ=
-ires
->>>> manual configuration of the device. Xorgs current modesetting driver=
- does
->>>> not work with both, platform and PCI device, for the same physical
->>>> hardware. Once configured, X11 works. I looked into X11, but couldn'=
-t see
->>>> an easy way of fixing the problem. With the push towards Wayland+Xwa=
-yland
->>>> I expect the problem to become a non-issue soon. Additional testing =
-has
->>>> been reported at [2].
->>>>
->>>> One cosmetical issue is that simpledrm's device file is card0 and th=
-e
->>>> native driver's device file is card1. After simpledrm has been kicke=
-d out,
->>>> only card1 is left. This does not seem to be a practical problem how=
-ever.
->>>>
->>>> TODO/IDEAS:
->>>>
->>>>  =C2=A0=C2=A0=C2=A0=C2=A0* provide deferred takeover
->>>
->>> I'm not sure what you mean with this ?=C2=A0 Currently deferred-takeo=
-ver is
->>> handled in the fbcon code. Current flickerfree boot works like this
->>> (assuming a single LCD panel in a laptop):
->>>
->>> 1. EFI/GOP sets up the framebuffer, draws a vendor logo
->>> 2. The bootloader runs in silent mode and does not touch anything gfx=
- related
->>> 3. kernel boots, with a loglevel of 3 so only CRIT/EMERG messages are=
- shown
->>> 2. efifb loads; and tells fbcon that a framebuffer is now available f=
-or it to "bind"
->>>  =C2=A0=C2=A0=C2=A0 to. Since CONFIG_FRAMEBUFFER_CONSOLE_DEFERRED_TAK=
-EOVER=3Dy fbcon defers taking over
->>>  =C2=A0=C2=A0=C2=A0 the console and leaves the dummy-console driver i=
-n place (unless there have already
->>>  =C2=A0=C2=A0=C2=A0 been kernel messages logged, which there shouldn'=
-t because loglevel=3D3)
->>> 3. i915 loads, reads out the hw state compares this to the preferred-=
-mode for the
->>>  =C2=A0=C2=A0=C2=A0 panel which it would set, they match, nothing hap=
-pens. i915 takes ownership
->>>  =C2=A0=C2=A0=C2=A0 of the scanout-buffer set up by the GOP, but leav=
-es it in place.
->>>  =C2=A0=C2=A0=C2=A0 i915 also removes the efifb /dev/fb0 and installs=
- its own /dev/fb0 fbdev compat
->>>  =C2=A0=C2=A0=C2=A0 device, fbcon is notified of this, but is still d=
-eferred and leaves the dummy
->>>  =C2=A0=C2=A0=C2=A0 console driver in place as console driver.
->>> 4. Plymouth loads, allocates a new scan-out buffer at the panel's pre=
-ferred resolution,
->>>  =C2=A0=C2=A0=C2=A0 plymouth reads the vendor-logo through the BGRT A=
-CPI interface and fills the
->>>  =C2=A0=C2=A0=C2=A0 scanout-buffer with the vendor-logo + a spinner. =
-Then plymouth installs the new
->>>  =C2=A0=C2=A0=C2=A0 scanout-buffer on the crtc, this is done atomical=
-ly during vsync, so the user
->>>  =C2=A0=C2=A0=C2=A0 sees no changes, other then the spinner appearing=
-
->>>  =C2=A0=C2=A0=C2=A0 (note the active VT is now in graphical mode)
->>> 5. From here on not flickering is a userspace problem
->>>
->>> AFAICT this should work fine with simplekms too, unless it clears the=
- screen
->>> to black when it binds.
+>> IIUC what Stefan is suggesting is a bit different and I think it should
+>> be cool to implement: we can remove the boundary packets, use only 8
+>> bits for the flags, and add a new field to reuse the 24 unused bits,
+>> maybe also 16 bits would be enough.
+>> At that point we will only use the EOR flag to know the last packet.
 >>
->> I forgot to add the code that clears the screen, but that's the case h=
-ere.
+>> The main difference will be that the receiver will know the total size
+>> only when the last packet is received.
 >>
->> Instead of a plane-disable operation, simpledrm can at best clear the =
-screen. This would happen during the initial mode-config reset IIRC.
->=20
-> Hmm, clearing the screen without any (atomic) modesets being initiated =
-by either
-> an in kernel drm-client or userspace seems wrong, this is certainly dif=
-ferent from
-> what the i915 driver does. The way I see it either a drm client provide=
-s a new
-> framebuffer in which case you copy that over the old contents, effectiv=
-ely clearing
-> it. Or a drm-client gets a handle and draws to the current fb directly,=
- in which
-> case it is the clients responsibility to clear it itself first.
->=20
-> IOW I believe that simpledrm should not clear the screen itself at all.=
+>> Do you see any issue on that approach?
+>
+>It will work, except we can't check that any packet of message,
+>
+>except last(with EOR bit) was dropped, since receiver don't know
+>
+>real length of message. If it is ok, then i can implement it.
+>
 
+This is true, but where can a packet be lost?
 
-I do as well. And when I boot with simpledrm + native driver it's=20
-flicker-free from what I can tell. But drm_mode_config_reset() is=20
-supposed to reset HW and software state. There could be some corner case =
+The channel is lossless, so it can be lost either by the transmitter or 
+the receiver, but only in critical cases where for example the whole 
+system has run out of memory, but in this case we can't do much, maybe 
+only reset the connection.
 
-where we'd have to clear the screen. For now, it should be fine.
-
-BTW if you have the time I'd appreciate your review of the patchset.
-
-Best regards
-Thomas
-
->=20
-> Regards,
->=20
-> Hans
->=20
->=20
->=20
->> But we need to keep the display content stored in a framebuffer, so re=
-ad-out helpers are required. There are more users of these read-out helpe=
-rs. Adding them at some point probably makes sense.
->>
->> Other drivers might also want to read the initial config from simpledr=
-m via read-out helpers. I think only i915 currently supports something li=
-ke that ATM.
->>
->> Best regards
->> Thomas
->>
->>>
->>> An addition to the above sequence, if at any time either the kernel o=
-r userspace
->>> prints a message to the console; and at that time a fbdev is register=
-ed then fbcon
->>> will takeover as the console driver from the dummy driver and it will=
- start drawing
->>> to the registered fbdev (1), destroying the framebuffer contents. Als=
-o if any messages
->>> where printend while no fbdev was registered, then fbcon will takeove=
-r the console
->>> as soon as a fbdev gets registered.
->>>
->>> So since we already have deferred-takeover in the fbcon code, I wonde=
-r what you
->>> mean when you are talking about "provide deferred takeover" for simpl=
-ekms?
->>>
->>> Regards,
->>>
->>> Hans
->>>
->>>
->>> 1) Except when the VT has been switched to GFX mode when this happens=
-, then fbcon
->>> will delay using the fbdev until the VT is switched back to text mode=
-=2E
->>>
->>>
->>> p.s.
->>>
->>> This has the interesting side effect then when logging into a desktop=
- GUI session:
->>> kernel -> plymouth -> gdm -> GNOME user session
->>>
->>> There never is any output to the text-console and fbcon never takes-o=
-ver, so on
->>> many Laptops running say Fedora workstation the fbcon code is actuall=
-y unused
->>> until the user manually switches to another virtual-console to log in=
- in
->>> text-mode:
->>>
->>> [hans@x1 ~]$ dmesg | grep -E 'fbcon|Console:|Truecolor'
->>> [=C2=A0=C2=A0=C2=A0 0.258904] Console: colour dummy device 80x25
->>> [=C2=A0=C2=A0=C2=A0 1.274726] efifb: Truecolor: size=3D8:8:8:8, shift=
-=3D24:16:8:0
->>> [=C2=A0=C2=A0=C2=A0 1.274768] fbcon: Deferring console take-over
->>> [=C2=A0=C2=A0=C2=A0 2.540894] fbcon: i915drmfb (fb0) is primary devic=
-e
->>> [=C2=A0=C2=A0=C2=A0 2.540896] fbcon: Deferring console take-over
->>> [hans@x1 ~]$ uptime
->>>  =C2=A0 12:29:39 up=C2=A0 4:19,=C2=A0 1 user,=C2=A0 load average: 0.5=
-8, 0.75, 0.81
->>>
->>> Look mom no fbcon
->>>
->>>
->>>
->>>
->>>>  =C2=A0=C2=A0=C2=A0=C2=A0* provide bootsplash DRM client
->>>>  =C2=A0=C2=A0=C2=A0=C2=A0* make simplekms usable with ARM-EFI fbs
->>>>
->>>> v2:
->>>>  =C2=A0=C2=A0=C2=A0=C2=A0* rename to simpledrm, aperture helpers
->>>>  =C2=A0=C2=A0=C2=A0=C2=A0* reorganized patches
->>>>  =C2=A0=C2=A0=C2=A0=C2=A0* use hotplug helpers for removal (Daniel)
->>>>  =C2=A0=C2=A0=C2=A0=C2=A0* added DT match tables (Rob)
->>>>  =C2=A0=C2=A0=C2=A0=C2=A0* use shadow-plane helpers
->>>>  =C2=A0=C2=A0=C2=A0=C2=A0* lots of minor cleanups
->>>>
->>>> [1] https://lore.kernel.org/dri-devel/CAKMK7uHtqHy_oz4W7F+hmp9iqp7W5=
-Ra8CxPvJ=3D9BwmvfU-O0gg@mail.gmail.com/
->>>> [2] https://lore.kernel.org/dri-devel/1761762.3HQLrFs1K7@nerdopolis/=
-
->>>>
->>>> Thomas Zimmermann (10):
->>>>  =C2=A0=C2=A0 drm/format-helper: Pass destination pitch to drm_fb_me=
-mcpy_dstclip()
->>>>  =C2=A0=C2=A0 drm/format-helper: Add blitter functions
->>>>  =C2=A0=C2=A0 drm/aperture: Move fbdev conflict helpers into drm_ape=
-rture.h
->>>>  =C2=A0=C2=A0 drm/aperture: Add infrastructure for aperture ownershi=
-p
->>>>  =C2=A0=C2=A0 drm: Add simpledrm driver
->>>>  =C2=A0=C2=A0 drm/simpledrm: Add fbdev emulation
->>>>  =C2=A0=C2=A0 drm/simpledrm: Initialize framebuffer data from device=
--tree node
->>>>  =C2=A0=C2=A0 drm/simpledrm: Acquire clocks from DT device node
->>>>  =C2=A0=C2=A0 drm/simpledrm: Acquire regulators from DT device node
->>>>  =C2=A0=C2=A0 drm/simpledrm: Acquire memory aperture for framebuffer=
-
->>>>
->>>>  =C2=A0 Documentation/gpu/drm-internals.rst=C2=A0=C2=A0=C2=A0 |=C2=A0=
- 12 +
->>>>  =C2=A0 MAINTAINERS=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 7 +
->>>>  =C2=A0 drivers/gpu/drm/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 7 +
->>>>  =C2=A0 drivers/gpu/drm/Makefile=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 1 +
->>>>  =C2=A0 drivers/gpu/drm/drm_aperture.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0 | 287 ++++++++
->>>>  =C2=A0 drivers/gpu/drm/drm_format_helper.c=C2=A0=C2=A0=C2=A0 |=C2=A0=
- 96 ++-
->>>>  =C2=A0 drivers/gpu/drm/mgag200/mgag200_mode.c |=C2=A0=C2=A0 2 +-
->>>>  =C2=A0 drivers/gpu/drm/tiny/Kconfig=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 17 +
->>>>  =C2=A0 drivers/gpu/drm/tiny/Makefile=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 1 +
->>>>  =C2=A0 drivers/gpu/drm/tiny/cirrus.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 |=C2=A0=C2=A0 2 +-
->>>>  =C2=A0 drivers/gpu/drm/tiny/simpledrm.c=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0 | 932 +++++++++++++++++++++++++
->>>>  =C2=A0 include/drm/drm_aperture.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 96 +++
->>>>  =C2=A0 include/drm/drm_fb_helper.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 |=C2=A0 56 +-
->>>>  =C2=A0 include/drm/drm_format_helper.h=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
-=C2=A0=C2=A0 |=C2=A0 10 +-
->>>>  =C2=A0 14 files changed, 1466 insertions(+), 60 deletions(-)
->>>>  =C2=A0 create mode 100644 drivers/gpu/drm/drm_aperture.c
->>>>  =C2=A0 create mode 100644 drivers/gpu/drm/tiny/simpledrm.c
->>>>  =C2=A0 create mode 100644 include/drm/drm_aperture.h
->>>>
->>>> --=20
->>>> 2.30.1
->>>>
->>>
->>
->=20
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
->=20
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
-
---GOseElHxPn8pzbotuD4CGWcFtc0n7BtoE--
-
---GrNnU5D5uTGekbkZivtLPtTs6QuxygdRY
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmBizrcFAwAAAAAACgkQlh/E3EQov+A7
-hBAAzLG0voxnjXgThIj058MArVDcEKhl5/KCWLWyZHSQ6PidIynvnE5OioCgTNfuT5KX+6JdIy7j
-QpmD31w3bceSq0UIuVBudEXXCygjHP/ctHcto5tL4ptQec1pHe30r0FuBLOrdzfS2K7jGTVm7pVu
-pSJu1YeT+L4/pNGcRRCQwkLjvziNB2QE4PNb0FWPBJFYeQFUXWyc/PeOW7/U7vvgXpkRKcpb7wre
-oUO61eu5VPToaiavei3DhGzDzR/kExgM52uKJfEE7OgMBAgCyBxkrZljFT9p7M43k/fvW3mkGzk8
-yWjIci5ta3c7uQ9JQ74HITG+ePREvwozAR7j2a2/Hhyu5s5r4tJdoWTKZFcG5LEUQzrSDWtRTDoq
-3lUY4vicZCnJhsRoVBUQt4qxW4TN9FLd1cYjU2tCe6u9E82klw9rLKEGEEhLV9Y5RO+dj2hmfbpG
-75tmaNxmVgmwxPC5KhRh15Q7/k+RI2DmtVuu5HcKkdi+S2oAbbWF0eo3cX1R13ImHTFy6BH02s51
-NunbiPUoSgkdhYZuHiU/MWGU3GLc6jA+c5vt6CahMmgwCniuz6EKWlYmfv63pLdbaZ8djF1L9iOk
-4g6Xefo70K6Y8EWpaD7paZWsucB0tzlsP2zn6p33ybfXy0VwXORayiE/WOh3OPL11NzwGtLnoBoy
-VOw=
-=JRwr
------END PGP SIGNATURE-----
-
---GrNnU5D5uTGekbkZivtLPtTs6QuxygdRY--
-
---===============6110712571764854792==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Thanks,
+Stefano
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6110712571764854792==--
