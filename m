@@ -2,107 +2,102 @@ Return-Path: <SRS0=i4sF=I4=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FCE9C433DB
-	for <virtualization@archiver.kernel.org>; Tue, 30 Mar 2021 08:55:42 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3326AC433DB
+	for <virtualization@archiver.kernel.org>; Tue, 30 Mar 2021 10:42:25 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B5F756195D
-	for <virtualization@archiver.kernel.org>; Tue, 30 Mar 2021 08:55:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B5F756195D
+	by mail.kernel.org (Postfix) with ESMTPS id AC48761985
+	for <virtualization@archiver.kernel.org>; Tue, 30 Mar 2021 10:42:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AC48761985
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6AECD40137;
-	Tue, 30 Mar 2021 08:55:41 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 2CD914044E;
+	Tue, 30 Mar 2021 10:42:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DSchiQYyp-PS; Tue, 30 Mar 2021 08:55:40 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3ZQtqiN-n6nX; Tue, 30 Mar 2021 10:42:23 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 01E3B400AB;
-	Tue, 30 Mar 2021 08:55:39 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 828C1403FE;
+	Tue, 30 Mar 2021 10:42:22 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C30C6C000B;
-	Tue, 30 Mar 2021 08:55:39 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D0125C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3C2CDC000B;
+	Tue, 30 Mar 2021 10:42:22 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7E4B8C000A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Mar 2021 08:55:38 +0000 (UTC)
+ Tue, 30 Mar 2021 10:42:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id BE4BF6073A
+ by smtp4.osuosl.org (Postfix) with ESMTP id 56FB840407
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Mar 2021 08:55:38 +0000 (UTC)
+ Tue, 30 Mar 2021 10:42:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zI-CiHzwyuDP
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id PFe3CqXPk3Hg
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Mar 2021 08:55:38 +0000 (UTC)
+ Tue, 30 Mar 2021 10:42:19 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id D4DC260725
+ by smtp4.osuosl.org (Postfix) with ESMTPS id DB328403FE
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Mar 2021 08:55:37 +0000 (UTC)
+ Tue, 30 Mar 2021 10:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1617094536;
+ s=mimecast20190719; t=1617100937;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=FfDSaWPi6W83+JmpuupUJlWepDk9Pfcmxch5BwHNtQI=;
- b=NqC3CtJVFDL8lf4TWilHU//YhOM4nSBV+sPqdo2k2ZY92K+ifSsIQBkr1R8WTDn9VoONEd
- 12OrXh2XyKuFiOlQsZynKQxbfvriMtKxMs0zKKlfw7nBUWUNrnFOMvz1K29pqcHpWiJg3L
- EFeC7aJCcNpdtsGDSrBdB95OP6MTUfc=
+ bh=7qUHKZxxwcdtx9Ee60NY93WcyUojSFIx95nak+E50h4=;
+ b=aasCR/Fk8klXzt/RnbjKloLIkyr/ydrtD4FJxzOSI4gcdbYDdHaLaZl14nkJmOqe90wmkV
+ fu/poM7Hb3AUvBjbJD/nwA3a36vXB2fZQBPjmDzlboAzQk8wVmun5b609gwKSuBhvqyF+M
+ eRaheMG1jcEHgbRgfZ58qWRCNCyAJ+k=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-145-EaIHxcrXPI67Rsz6CQdBbw-1; Tue, 30 Mar 2021 04:55:32 -0400
-X-MC-Unique: EaIHxcrXPI67Rsz6CQdBbw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
+ us-mta-327-fUVaMqRwPDm3zOgx3aU5-w-1; Tue, 30 Mar 2021 06:42:14 -0400
+X-MC-Unique: fUVaMqRwPDm3zOgx3aU5-w-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
+ [10.5.11.11])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 22EC58189C6;
- Tue, 30 Mar 2021 08:55:30 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 698431018F64;
+ Tue, 30 Mar 2021 10:42:13 +0000 (UTC)
 Received: from localhost (ovpn-115-22.ams2.redhat.com [10.36.115.22])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 901E56A8FD;
- Tue, 30 Mar 2021 08:55:25 +0000 (UTC)
-Date: Tue, 30 Mar 2021 09:55:24 +0100
+ by smtp.corp.redhat.com (Postfix) with ESMTP id C7D726E71A;
+ Tue, 30 Mar 2021 10:42:05 +0000 (UTC)
+Date: Tue, 30 Mar 2021 11:42:04 +0100
 From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [virtio-comment] Re: [MASSMAIL KLMS] Re: [virtio-comment] [RFC
- PATCH v4 2/2] virtio-vsock: SOCK_SEQPACKET description
-Message-ID: <YGLnfAxvy83jLkmG@stefanha-x1.localdomain>
-References: <20210326090154.1144100-1-arseny.krasnov@kaspersky.com>
- <20210326090254.1144486-1-arseny.krasnov@kaspersky.com>
- <YGH8IqLRdh5JCZyT@stefanha-x1.localdomain>
- <230d95fd-29e8-465b-0ab2-b406d614c11b@kaspersky.com>
- <20210329212818.qdeprjhep745yeur@steredhat>
- <d6d92105-f7d4-74a3-4acc-fcfb40872b76@kaspersky.com>
+To: "Jiang Wang ." <jiang.wang@bytedance.com>
+Subject: Re: [External] Re: [RFC PATCH] virtio-vsock: add description for
+ datagram type
+Message-ID: <YGMAfBLzcaCMwLJK@stefanha-x1.localdomain>
+References: <YFIj+FQQzZmVAqWw@stefanha-x1.localdomain>
+ <CAP_N_Z857fnkc4GejHt_t_nxnhXC60=S51i_XQ-AdgXO2NipFA@mail.gmail.com>
+ <YFjK7MkmJOFaUvgz@stefanha-x1.localdomain>
+ <CAP_N_Z-aOds0-DgSYgGLb3AG7kvf=iqmLHojMjh878j8bTBkwg@mail.gmail.com>
+ <20210322190517-mutt-send-email-mst@kernel.org>
+ <CAP_N_Z_g1jgQE71WLPA45w72WJ8+1WFaP3zzXH8FRpFap=jqCA@mail.gmail.com>
+ <YFmsb6o82KOSml9u@stefanha-x1.localdomain>
+ <CAP_N_Z9g3VUeLGtC0D0EGmHk7D1RxFQvUBMzLDMkct5b=t6x3A@mail.gmail.com>
+ <YGGdHfgJF45GRp5n@stefanha-x1.localdomain>
+ <CAP_N_Z-v5ZFKO0SNeZre=F6q_+aQohHVQ1fg9oXbfboZgv_xeQ@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <d6d92105-f7d4-74a3-4acc-fcfb40872b76@kaspersky.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+In-Reply-To: <CAP_N_Z-v5ZFKO0SNeZre=F6q_+aQohHVQ1fg9oXbfboZgv_xeQ@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=stefanha@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Andra Paraschiv <andraprs@amazon.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, "cohuck@redhat.com" <cohuck@redhat.com>,
- Colin Ian King <colin.king@canonical.com>,
- Norbert Slusarek <nslusarek@gmx.net>,
- "oxffffaa@gmail.com" <oxffffaa@gmail.com>,
- "virtio-comment@lists.oasis-open.org" <virtio-comment@lists.oasis-open.org>,
- Jakub Kicinski <kuba@kernel.org>, Alexander Popov <alex.popov@linux.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
+Cc: cong.wang@bytedance.com, Xiongchun Duan <duanxiongchun@bytedance.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, cohuck@redhat.com,
+ virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
+ Arseny Krasnov <arseny.krasnov@kaspersky.com>, asias@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,117 +109,109 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============0249477394160720376=="
+Content-Type: multipart/mixed; boundary="===============7675409214079544138=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
---===============0249477394160720376==
+--===============7675409214079544138==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="6deGiYCe1WgmvBoX"
+	protocol="application/pgp-signature"; boundary="SwMgZT8kFdZR7EWX"
 Content-Disposition: inline
 
---6deGiYCe1WgmvBoX
+--SwMgZT8kFdZR7EWX
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 30, 2021 at 09:15:39AM +0300, Arseny Krasnov wrote:
-> On 30.03.2021 00:28, Stefano Garzarella wrote:
-> > On Mon, Mar 29, 2021 at 08:33:27PM +0300, Arseny Krasnov wrote:
-> >> On 29.03.2021 19:11, Stefan Hajnoczi wrote:
-> >>> On Fri, Mar 26, 2021 at 12:02:50PM +0300, Arseny Krasnov wrote:
-> >>>> @@ -98,6 +102,10 @@ \subsection{Device Operation}\label{sec:Device T=
-ypes / Socket Device / Device Op
-> >>>>  #define VIRTIO_VSOCK_OP_CREDIT_UPDATE  6
-> >>>>  /* Request the peer to send the credit info to us */
-> >>>>  #define VIRTIO_VSOCK_OP_CREDIT_REQUEST 7
-> >>>> +/* Message begin for SOCK_SEQPACKET */
-> >>>> +#define VIRTIO_VSOCK_OP_SEQ_BEGIN      8
-> >>>> +/* Message end for SOCK_SEQPACKET */
-> >>>> +#define VIRTIO_VSOCK_OP_SEQ_END        9
-> >>> The struct virtio_vsock_hdr->flags field is le32 and currently unused=
-.
-> >>> Could 24 bits be used for a unique message id and 8 bits for flags? 1
-> >>> flag bit could be used for end-of-message and the remaining 7 bits co=
-uld
-> >>> be reserved. That way SEQ_BEGIN and SEQ_END are not necessary. =20
-> >>> Pressure
-> >>> on the virtqueue would be reduced and performance should be comparabl=
-e
-> >>> to SOCK_STREAM.
-> >> Well, my first versions of SOCK_SEQPACKET implementation, worked
-> >> something like this: i used flags field of header as length of whole
-> >> message. I discussed it with Stefano Garzarella, and he told that it=
-=20
-> >> will
-> >> be better to use special "header" in packet's payload, to keep some
-> >> SOCK_SEQPACKET specific data, instead of reusing packet's header
-> >> fields.
-> > IIRC in the first implementation SEQ_BEGIN was an empty message and we=
-=20
-> > didn't added the msg_id yet. So since we needed to carry both id and=20
-> > total length, I suggested to use the payload to put these extra=20
-> > information.
+On Mon, Mar 29, 2021 at 04:22:28PM -0700, Jiang Wang . wrote:
+> On Mon, Mar 29, 2021 at 2:26 AM Stefan Hajnoczi <stefanha@redhat.com> wro=
+te:
 > >
-> > IIUC what Stefan is suggesting is a bit different and I think it should=
-=20
-> > be cool to implement: we can remove the boundary packets, use only 8=20
-> > bits for the flags, and add a new field to reuse the 24 unused bits,=20
-> > maybe also 16 bits would be enough.
-> > At that point we will only use the EOR flag to know the last packet.
+> > On Fri, Mar 26, 2021 at 04:40:09PM -0700, Jiang Wang . wrote:
+> > > I thought about this and discussed it with my colleague Cong Wang.
+> > > One idea is to make current asynchronous send_pkt flow to be synchron=
+ous,
+> > > then if the virtqueue is full, the function can return  ENOMEM all th=
+e way back
+> > > to the caller and the caller can check the return value of sendmsg
+> > > and slow down when necessary.
+> > >
+> > > In the spec, we can put something like, if the virtqueue is full, the=
+ caller
+> > > should be notified with an error etc.
+> > >
+> > > In terms of implementation, that means we will remove the current
+> > > send_pkt_work for both stream and dgram sockets. Currently, the
+> > > code path uses RCU and a work queue, then grab a mutex in the
+> > > work queue function. Since we cannot grab mutex when in rcu
+> > > critical section, we have to change RCU to a normal reference
+> > > counting mechanism. I think this is doable. The drawback is
+> > > that the reference counting in general spends a little more
+> > > cycles than the RCU, so there is a small price to pay. Another
+> > > option is to use Sleepable RCU and remove the work queue.
+> > >
+> > > What do you guys think?
 > >
-> > The main difference will be that the receiver will know the total size=
-=20
-> > only when the last packet is received.
-> >
-> > Do you see any issue on that approach?
+> > I think the tx code path is like this because of reliable delivery.
+> > Maybe a separate datagram rx/tx code path would be simpler?
 >=20
-> It will work, except we can't check that any packet of message,
+> I thought about this too.  dgram can have a separate rx/tx
+> path from stream types. In this case, the the_virtio_vsock
+> will still be shared because the virtqueues have to be in one
+> structure. Then the_virtio_vsock will be protected by a rcu
+> and a reference counting ( or a sleepable RCU ).
 >=20
-> except last(with EOR bit) was dropped, since receiver don't know
+> In vhost_vsock_dev_release, it will wait for both rcu and another
+> one to be finished and then free the memory. I think this is
+> doable. Let me know if there is a better way to do it.
+> Btw, I think dgram tx code path will be quite different from
+> stream, but dgram rx path will be similar to stream type.
 >=20
-> real length of message. If it is ok, then i can implement it.
+> > Take the datagram tx virtqueue lock, try to add the packet into the
+> > virtqueue, and return -ENOBUFS if the virtqueue is full. Then use the
+> > datagram socket's sndbuf accounting to prevent queuing up too many
+> > packets. When a datagram tx virtqueue buffer is used by the device,
+> > select queued packets for transmission.
+>=20
+> I am not sure about the last sentence. In the new design, there will
+> be no other queued packets for dgram (except those in the virtqueue).
+> When dgram tx virtqueue is freed by the device, the driver side
+> just needs to free some space. No need
+> to trigger more transmission.
 
-The credit mechanism ensures that packets are not dropped, so it's not
-necessary to check for this condition.
+This approach drops packets when the virtqueue is full. In order to get
+close to UDP semantics I think the following is necessary:
 
-By the way, is a unique message ID needed? My understanding is:
+1. Packets are placed directly into the tx virtqueue when possible.
+2. Packets are queued up to sndbuf bytes if the tx virtqueue is full.
+3. When a full tx virtqueue gets some free space again there is an
+   algorithm that selects from among the queued sockets.
 
-If two messages are being sent on a socket at the same time either their
-order is serialized (whichever message began first) or it is undefined
-(whichever message completes first). I wonder if POSIX specifies this
-and if Linux implements it (e.g. with AF_UNIX SOCK_SEQPACKET messages
-that are multiple pages long and exceed sndbuf)?
-
-Depending on these semantics maybe we don't need a unique message ID.
-Instead the driver transmits messages sequentially. RW packets for
-different messages on the same socket will never be interleaved.
-Therefore the unique message ID is not needed and just the MSG_EOR flag
-is enough to indicate message boundaries.
-
-What do you think?
+This is how unreliably delivery can be somewhat fair between competing
+threads. I thought you were trying to achieve this (it's similar to what
+UDP does)?
 
 Stefan
 
---6deGiYCe1WgmvBoX
+--SwMgZT8kFdZR7EWX
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmBi53wACgkQnKSrs4Gr
-c8ifHQf8CKnbLpRILKG1ZVpNXsVCthEv1thsDIjNenxUvXs97ghmwYpXjbDx+YKD
-mjVbuORgW2HjfjJ5NBdvr+lPVBQS35I9FeVwtAKNeVkkIn2Vpnrc8nzrFKFpriGK
-/wcGo1VGcIqJo4GHfhjYB0s/dc3N7FyFpDy+egS7Mdkjju/79fjGJCvy/U50fVA/
-3TidGRbFp4n7IcIQSRVcdX/6Fdfr+r76rI/kRtoz/72IMwj3VA/PyerKB14O3A6F
-pU4EO+hIp47hJBUXjpdM7a5p+GdgJfLopO26OX7OTRZx0ljB3DcCz4s1h9Jefshy
-LyHLjg7MdDZVKes0R+R74u5VxVJLxQ==
-=+7lq
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmBjAHwACgkQnKSrs4Gr
+c8ivDwf/RknuDiG1LAwxbelupXxuAJeg3ivpvazmqitpv+7wvewSfBZlM2B64Ioc
+HqDWh0kDLNdkQSovxQFetaVpLNv/V6W//rErkNNydHHcdR7mCvN+tqIHqx/Pso0u
+QRtVQRfpaLI1LbsKvU6IYEFVEnva2jUgHC40ME4977D/yoY8Sxyqha4Ne/nW8UJW
+59emnihwJOSgCmS7nRFUSBKPCJbCcjQKCWLwwzIfM2T3ZVE1C0lb2asEmwk5r/rv
+nEBUbPkGZbQfA3RZKg/YLiQLRUYnAB0/wNRZ0FOKuM636GyzTnHuHPmbIbvVX6Ne
+0ijFgNrJT8YiinlVfLSnYHASSKEdYQ==
+=11Ed
 -----END PGP SIGNATURE-----
 
---6deGiYCe1WgmvBoX--
+--SwMgZT8kFdZR7EWX--
 
 
---===============0249477394160720376==
+--===============7675409214079544138==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -234,5 +221,5 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0249477394160720376==--
+--===============7675409214079544138==--
 
