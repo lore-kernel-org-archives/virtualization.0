@@ -7,66 +7,69 @@ X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 947A0C433C1
-	for <virtualization@archiver.kernel.org>; Tue, 30 Mar 2021 12:11:02 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE84BC433E1
+	for <virtualization@archiver.kernel.org>; Tue, 30 Mar 2021 12:16:06 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4ABC361989
-	for <virtualization@archiver.kernel.org>; Tue, 30 Mar 2021 12:11:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4ABC361989
+	by mail.kernel.org (Postfix) with ESMTPS id 92BAB619AA
+	for <virtualization@archiver.kernel.org>; Tue, 30 Mar 2021 12:16:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 92BAB619AA
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1518D83A99;
-	Tue, 30 Mar 2021 12:11:02 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5617F606D9;
+	Tue, 30 Mar 2021 12:16:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TJXE4wGOyG22; Tue, 30 Mar 2021 12:11:01 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTP id BE61E83E5A;
-	Tue, 30 Mar 2021 12:11:00 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JKHqbRcNmDgA; Tue, 30 Mar 2021 12:16:05 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTP id EE66B60799;
+	Tue, 30 Mar 2021 12:16:04 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5DA6FC0013;
-	Tue, 30 Mar 2021 12:11:00 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5BCD7C000A;
- Tue, 30 Mar 2021 12:10:58 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8E38BC0013;
+	Tue, 30 Mar 2021 12:16:04 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EBD45C000A;
+ Tue, 30 Mar 2021 12:16:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 3F52383E3B;
- Tue, 30 Mar 2021 12:10:58 +0000 (UTC)
+ by smtp2.osuosl.org (Postfix) with ESMTP id CBE5140146;
+ Tue, 30 Mar 2021 12:16:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id v6oqayLHlmJr; Tue, 30 Mar 2021 12:10:57 +0000 (UTC)
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ApW3rQOCQuKM; Tue, 30 Mar 2021 12:16:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp1.osuosl.org (Postfix) with ESMTPS id B1E3F83A99;
- Tue, 30 Mar 2021 12:10:57 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB48A61989;
- Tue, 30 Mar 2021 12:10:53 +0000 (UTC)
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 56DB1400B8;
+ Tue, 30 Mar 2021 12:16:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EF476023F;
+ Tue, 30 Mar 2021 12:15:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1617106256;
- bh=x9ekBX8ubp5TbQCSOWJz4iBqTKfUoj1TbGKvNKFHBCs=;
+ s=k20201202; t=1617106561;
+ bh=bw8KBo/NNqB097evsMkXsyFAnnqW6iPTNtBok4bird8=;
  h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=V6AwhAf1QgHJ9X1lDR7o2HkHOdHkt3V8vAvvWfz2AHqpyY2l/Fep/z6lg9kDQbauC
- 4y1XZlSQfHxkf5nJp7n5VKoSDsRpRIvd7Q6K6T95XjE1o61jNca8OXezTBC5axyzuh
- IT3g9JXwM1vLMOLl3yOYj0aMGjfEXTlmIQtAF1IbGF0fPyxLKJtpZY5UsEQWkilqqL
- SGdhmOricP9XMO5hJycrVsxTgSV8ERQtWAgJsZ1LV7210oSFaZQl7d6atPYq+EP12r
- 93GDdaLCudVDSgkEgkxYlhKl24qbesurPj6XXgDMZa+OVe889sGvMT7cy4P/XVi4Mb
- eXvJGcyvHpaGw==
-Date: Tue, 30 Mar 2021 13:10:50 +0100
+ b=QQpwu09zdg1APUNJpuxQhrkAfEgb8Xx8xBXTFO5/bqrnCy7nUn9ZszN5WLb+sq6vo
+ 5UJCLWYDMVJjHKt1uBKBD6MMh1tpUC2/ZJUxkV8BiHWJrvRd361XyyytEj+6Li42BI
+ tfxcD7Rdfa0dzL9ZkwRo0SzzQKJrMa88AgwyNDnuPLKRwADNMLnkiOXhBm9+lE1tBR
+ rdun4d9sUp5EgfOD94h55VT+FoWTTMYz/Myrov9kU9g5f+P8nfcOj+TX3m+W0J04yq
+ y4bdrKMyq4yHZ4rqf7cqV7h7YmIgfRkPLJ7ViI7cikjVljJ7l7h/CdSxY5MyPkvqqz
+ V8lAE4+4RFo3g==
+Date: Tue, 30 Mar 2021 13:15:56 +0100
 From: Will Deacon <will@kernel.org>
 To: Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 02/18] iommu/fsl_pamu: remove fsl_pamu_get_domain_attr
-Message-ID: <20210330121050.GB5908@willie-the-truck>
+Subject: Re: [PATCH 03/18] iommu/fsl_pamu: remove support for setting
+ DOMAIN_ATTR_GEOMETRY
+Message-ID: <20210330121555.GC5908@willie-the-truck>
 References: <20210316153825.135976-1-hch@lst.de>
- <20210316153825.135976-3-hch@lst.de>
+ <20210316153825.135976-4-hch@lst.de>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20210316153825.135976-3-hch@lst.de>
+In-Reply-To: <20210316153825.135976-4-hch@lst.de>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Cc: freedreno@lists.freedesktop.org, kvm@vger.kernel.org,
  Michael Ellerman <mpe@ellerman.id.au>, Joerg Roedel <joro@8bytes.org>,
@@ -92,18 +95,27 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Mar 16, 2021 at 04:38:08PM +0100, Christoph Hellwig wrote:
-> None of the values returned by this function are ever queried.  Also
-> remove the DOMAIN_ATTR_FSL_PAMUV1 enum value that is not otherwise used.
+On Tue, Mar 16, 2021 at 04:38:09PM +0100, Christoph Hellwig wrote:
+> The default geometry is the same as the one set by qman_port given
+> that FSL_PAMU depends on having 64-bit physical and thus DMA addresses.
+> 
+> Remove the support to update the geometry and remove the now pointless
+> geom_size field.
 > 
 > Signed-off-by: Christoph Hellwig <hch@lst.de>
 > Acked-by: Li Yang <leoyang.li@nxp.com>
 > ---
->  drivers/iommu/fsl_pamu_domain.c | 30 ------------------------------
->  include/linux/iommu.h           |  4 ----
->  2 files changed, 34 deletions(-)
+>  drivers/iommu/fsl_pamu_domain.c     | 55 +++--------------------------
+>  drivers/iommu/fsl_pamu_domain.h     |  6 ----
+>  drivers/soc/fsl/qbman/qman_portal.c | 12 -------
+>  3 files changed, 5 insertions(+), 68 deletions(-)
+
+Took me a minute to track down the other magic '36' which ends up in
+aperture_end, but I found it eventually so:
 
 Acked-by: Will Deacon <will@kernel.org>
+
+(It does make me wonder what all this glue was intended to be used for)
 
 Will
 _______________________________________________
