@@ -7,65 +7,66 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 010FBC433ED
-	for <virtualization@archiver.kernel.org>; Thu,  1 Apr 2021 16:56:30 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22974C433B4
+	for <virtualization@archiver.kernel.org>; Thu,  1 Apr 2021 16:56:33 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B190961390
-	for <virtualization@archiver.kernel.org>; Thu,  1 Apr 2021 16:56:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B190961390
+	by mail.kernel.org (Postfix) with ESMTPS id DC1946138D
+	for <virtualization@archiver.kernel.org>; Thu,  1 Apr 2021 16:56:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DC1946138D
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 81AD560BF1;
-	Thu,  1 Apr 2021 16:56:29 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id B4973405AD;
+	Thu,  1 Apr 2021 16:56:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7-C3sS-WOqSc; Thu,  1 Apr 2021 16:56:28 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lYElYTbM7h0E; Thu,  1 Apr 2021 16:56:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E5A42606DB;
-	Thu,  1 Apr 2021 16:56:27 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 49B4A405A9;
+	Thu,  1 Apr 2021 16:56:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B9794C000C;
-	Thu,  1 Apr 2021 16:56:27 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4597AC000A;
- Thu,  1 Apr 2021 16:56:26 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3509BC000C;
+	Thu,  1 Apr 2021 16:56:31 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 15921C000C;
+ Thu,  1 Apr 2021 16:56:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 27D0560BDE;
- Thu,  1 Apr 2021 16:56:26 +0000 (UTC)
+ by smtp4.osuosl.org (Postfix) with ESMTP id E6EF74186C;
+ Thu,  1 Apr 2021 16:56:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id TqU0iHkHXc5c; Thu,  1 Apr 2021 16:56:25 +0000 (UTC)
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1gOn8c8YhhC1; Thu,  1 Apr 2021 16:56:29 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 667F9606DB;
- Thu,  1 Apr 2021 16:56:25 +0000 (UTC)
+ by smtp4.osuosl.org (Postfix) with ESMTPS id E6A7041870;
+ Thu,  1 Apr 2021 16:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=+DZp3VtP9brTa/b/Smf4ljjZ8YHEAnPvvIQNSfwU8BI=; b=tTiJMbdIxyZch6BxBhw8bNdV20
- dCF0/KXb7HDQOP1mo9/yHllK+dh9Z1piWEwWhd+3VlHs62jOWHI+KVroYplZiLRo5HtqO6I1gXehK
- 5OhTQWcBm3eUErL59B4J5V7avgltVsHwPGkl3wSjuNlnPUC6BmhI7ROEcRxo/G4yVQPBAB/9cq3Y6
- 0mX+hBverU5i5cfZrJHG7eB5sRgvNYlCnqmfWV5WlbInioA4/JIDKuGg7NrOJKI7Eq9QvxqWq23hT
- 4Ky6wJmD+G0ZikpCHXjWHvh1FXLpAOWV/S8NiZiG2g1nre4MEEIcUyx1OU4ccm1Ywsk4q4a+/Sn71
- sWYJcsDw==;
+ bh=rBjgOpr0tzNkPVLnZSe6stElDoTGjZis4zpsufGo8Pc=; b=c0Mip3kVULe6QjvABjE3wLhoHi
+ R/D5vtScPvo83qhv3axkBw4kbTEa6bwS3+Do6h8BO9gcmXtwA1+lrFFdjowPelND/sTlkhN+xSdMh
+ goOUyVtk7vqmZNWXPWa3x8pETu/KCjKoUX1tPw/n6/Li3c8JO5bkCUkmaAwiC2W3knx5gxSbuj+/S
+ nszzVSuD7B/DX1VoqvqCpx+4Rj02N9s1rsUjkr7wsZAvupLT3Gy8oT6DmWLcUOL7rqnQR3zX2fnhL
+ ennyvA3k09CWecu1ksSogTTvo9yQdn5q6ylO0U8AIauJ7d0mTW2FDSqFNwb0t85Q1U9FhG9z+Zyqf
+ dwa8bw0Q==;
 Received: from [2001:4bb8:180:7517:83e4:a809:b0aa:ca74] (helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
- id 1lRzdF-00CiaA-6m; Thu, 01 Apr 2021 15:53:17 +0000
+ id 1lRzdY-00Cic9-4K; Thu, 01 Apr 2021 15:53:36 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
  Li Yang <leoyang.li@nxp.com>
-Subject: [PATCH 03/20] iommu/fsl_pamu: remove support for setting
- DOMAIN_ATTR_GEOMETRY
-Date: Thu,  1 Apr 2021 17:52:39 +0200
-Message-Id: <20210401155256.298656-4-hch@lst.de>
+Subject: [PATCH 10/20] iommu/fsl_pamu: enable the liodn when attaching a device
+Date: Thu,  1 Apr 2021 17:52:46 +0200
+Message-Id: <20210401155256.298656-11-hch@lst.de>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210401155256.298656-1-hch@lst.de>
 References: <20210401155256.298656-1-hch@lst.de>
@@ -94,183 +95,169 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The default geometry is the same as the one set by qman_port given
-that FSL_PAMU depends on having 64-bit physical and thus DMA addresses.
+Instead of a separate call to enable all devices from the list, just
+enable the liodn once the device is attached to the iommu domain.
 
-Remove the support to update the geometry and remove the now pointless
-geom_size field.
+This also remove the DOMAIN_ATTR_FSL_PAMU_ENABLE iommu_attr.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Acked-by: Will Deacon <will@kernel.org>
 Acked-by: Li Yang <leoyang.li@nxp.com>
 ---
- drivers/iommu/fsl_pamu_domain.c     | 55 +++--------------------------
- drivers/iommu/fsl_pamu_domain.h     |  6 ----
- drivers/soc/fsl/qbman/qman_portal.c | 12 -------
- 3 files changed, 5 insertions(+), 68 deletions(-)
+ drivers/iommu/fsl_pamu_domain.c     | 47 ++---------------------------
+ drivers/iommu/fsl_pamu_domain.h     | 10 ------
+ drivers/soc/fsl/qbman/qman_portal.c | 11 -------
+ include/linux/iommu.h               |  1 -
+ 4 files changed, 3 insertions(+), 66 deletions(-)
 
 diff --git a/drivers/iommu/fsl_pamu_domain.c b/drivers/iommu/fsl_pamu_domain.c
-index e587ec43f7e750..7bd08ddad07779 100644
+index 41927c3c417751..c2e7e17570e76d 100644
 --- a/drivers/iommu/fsl_pamu_domain.c
 +++ b/drivers/iommu/fsl_pamu_domain.c
-@@ -62,7 +62,7 @@ static phys_addr_t get_phys_addr(struct fsl_dma_domain *dma_domain, dma_addr_t i
+@@ -195,9 +195,6 @@ static void fsl_pamu_domain_free(struct iommu_domain *domain)
  
- 	geom = &dma_domain->iommu_domain.geometry;
- 
--	if (!win_cnt || !dma_domain->geom_size) {
-+	if (!win_cnt) {
- 		pr_debug("Number of windows/geometry not configured for the domain\n");
- 		return 0;
- 	}
-@@ -72,7 +72,7 @@ static phys_addr_t get_phys_addr(struct fsl_dma_domain *dma_domain, dma_addr_t i
- 		dma_addr_t subwin_iova;
- 		u32 wnd;
- 
--		subwin_size = dma_domain->geom_size >> ilog2(win_cnt);
-+		subwin_size = (geom->aperture_end + 1) >> ilog2(win_cnt);
- 		subwin_iova = iova & ~(subwin_size - 1);
- 		wnd = (subwin_iova - geom->aperture_start) >> ilog2(subwin_size);
- 		win_ptr = &dma_domain->win_arr[wnd];
-@@ -234,7 +234,7 @@ static int pamu_set_liodn(int liodn, struct device *dev,
- 	get_ome_index(&omi_index, dev);
- 
- 	window_addr = geom_attr->aperture_start;
--	window_size = dma_domain->geom_size;
-+	window_size = geom_attr->aperture_end + 1;
- 
- 	spin_lock_irqsave(&iommu_lock, flags);
- 	ret = pamu_disable_liodn(liodn);
-@@ -303,7 +303,6 @@ static struct fsl_dma_domain *iommu_alloc_dma_domain(void)
- 	domain->stash_id = ~(u32)0;
- 	domain->snoop_id = ~(u32)0;
- 	domain->win_cnt = pamu_get_max_subwin_cnt();
--	domain->geom_size = 0;
- 
- 	INIT_LIST_HEAD(&domain->devices);
- 
-@@ -502,7 +501,8 @@ static int fsl_pamu_window_enable(struct iommu_domain *domain, u32 wnd_nr,
- 		return -EINVAL;
- 	}
- 
--	win_size = dma_domain->geom_size >> ilog2(dma_domain->win_cnt);
-+	win_size = (domain->geometry.aperture_end + 1) >>
-+			ilog2(dma_domain->win_cnt);
- 	if (size > win_size) {
- 		pr_debug("Invalid window size\n");
- 		spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
-@@ -665,41 +665,6 @@ static void fsl_pamu_detach_device(struct iommu_domain *domain,
- 		pr_debug("missing fsl,liodn property at %pOF\n", dev->of_node);
+ 	/* remove all the devices from the device list */
+ 	detach_device(NULL, dma_domain);
+-
+-	dma_domain->enabled = 0;
+-
+ 	kmem_cache_free(fsl_pamu_domain_cache, dma_domain);
  }
  
--static  int configure_domain_geometry(struct iommu_domain *domain, void *data)
+@@ -285,6 +282,9 @@ static int fsl_pamu_attach_device(struct iommu_domain *domain,
+ 		ret = pamu_set_liodn(dma_domain, dev, liodn[i]);
+ 		if (ret)
+ 			break;
++		ret = pamu_enable_liodn(liodn[i]);
++		if (ret)
++			break;
+ 	}
+ 	spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
+ 	return ret;
+@@ -341,46 +341,6 @@ int fsl_pamu_configure_l1_stash(struct iommu_domain *domain, u32 cpu)
+ 	return ret;
+ }
+ 
+-/* Configure domain dma state i.e. enable/disable DMA */
+-static int configure_domain_dma_state(struct fsl_dma_domain *dma_domain, bool enable)
 -{
--	struct iommu_domain_geometry *geom_attr = data;
--	struct fsl_dma_domain *dma_domain = to_fsl_dma_domain(domain);
--	dma_addr_t geom_size;
+-	struct device_domain_info *info;
 -	unsigned long flags;
--
--	geom_size = geom_attr->aperture_end - geom_attr->aperture_start + 1;
--	/*
--	 * Sanity check the geometry size. Also, we do not support
--	 * DMA outside of the geometry.
--	 */
--	if (check_size(geom_size, geom_attr->aperture_start) ||
--	    !geom_attr->force_aperture) {
--		pr_debug("Invalid PAMU geometry attributes\n");
--		return -EINVAL;
--	}
+-	int ret;
 -
 -	spin_lock_irqsave(&dma_domain->domain_lock, flags);
--	if (dma_domain->enabled) {
--		pr_debug("Can't set geometry attributes as domain is active\n");
--		spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
--		return  -EBUSY;
+-	dma_domain->enabled = enable;
+-	list_for_each_entry(info, &dma_domain->devices, link) {
+-		ret = (enable) ? pamu_enable_liodn(info->liodn) :
+-			pamu_disable_liodn(info->liodn);
+-		if (ret)
+-			pr_debug("Unable to set dma state for liodn %d",
+-				 info->liodn);
 -	}
--
--	/* Copy the domain geometry information */
--	memcpy(&domain->geometry, geom_attr,
--	       sizeof(struct iommu_domain_geometry));
--	dma_domain->geom_size = geom_size;
--
 -	spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
 -
 -	return 0;
 -}
 -
- /* Set the domain stash attribute */
- static int configure_domain_stash(struct fsl_dma_domain *dma_domain, void *data)
- {
-@@ -769,13 +734,6 @@ static int fsl_pamu_set_windows(struct iommu_domain *domain, u32 w_count)
- 		return  -EBUSY;
- 	}
- 
--	/* Ensure that the geometry has been set for the domain */
--	if (!dma_domain->geom_size) {
--		pr_debug("Please configure geometry before setting the number of windows\n");
--		spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
--		return -EINVAL;
+-static int fsl_pamu_set_domain_attr(struct iommu_domain *domain,
+-				    enum iommu_attr attr_type, void *data)
+-{
+-	struct fsl_dma_domain *dma_domain = to_fsl_dma_domain(domain);
+-	int ret = 0;
+-
+-	switch (attr_type) {
+-	case DOMAIN_ATTR_FSL_PAMU_ENABLE:
+-		ret = configure_domain_dma_state(dma_domain, *(int *)data);
+-		break;
+-	default:
+-		pr_debug("Unsupported attribute type\n");
+-		ret = -EINVAL;
+-		break;
 -	}
 -
- 	/*
- 	 * Ensure we have valid window count i.e. it should be less than
- 	 * maximum permissible limit and should be a power of two.
-@@ -811,9 +769,6 @@ static int fsl_pamu_set_domain_attr(struct iommu_domain *domain,
- 	int ret = 0;
- 
- 	switch (attr_type) {
--	case DOMAIN_ATTR_GEOMETRY:
--		ret = configure_domain_geometry(domain, data);
--		break;
- 	case DOMAIN_ATTR_FSL_PAMU_STASH:
- 		ret = configure_domain_stash(dma_domain, data);
- 		break;
+-	return ret;
+-}
+-
+ static struct iommu_group *get_device_iommu_group(struct device *dev)
+ {
+ 	struct iommu_group *group;
+@@ -505,7 +465,6 @@ static const struct iommu_ops fsl_pamu_ops = {
+ 	.attach_dev	= fsl_pamu_attach_device,
+ 	.detach_dev	= fsl_pamu_detach_device,
+ 	.iova_to_phys	= fsl_pamu_iova_to_phys,
+-	.domain_set_attr = fsl_pamu_set_domain_attr,
+ 	.probe_device	= fsl_pamu_probe_device,
+ 	.release_device	= fsl_pamu_release_device,
+ 	.device_group   = fsl_pamu_device_group,
 diff --git a/drivers/iommu/fsl_pamu_domain.h b/drivers/iommu/fsl_pamu_domain.h
-index 2865d42782e802..53d359d66fe577 100644
+index cd488004acd1b3..5f4ed253f61b31 100644
 --- a/drivers/iommu/fsl_pamu_domain.h
 +++ b/drivers/iommu/fsl_pamu_domain.h
-@@ -17,12 +17,6 @@ struct dma_window {
- };
- 
+@@ -12,16 +12,6 @@
  struct fsl_dma_domain {
--	/*
--	 * Indicates the geometry size for the domain.
--	 * This would be set when the geometry is
--	 * configured for the domain.
+ 	/* list of devices associated with the domain */
+ 	struct list_head		devices;
+-	/* dma_domain states:
+-	 * enabled - DMA has been enabled for the given
+-	 * domain. This translates to setting of the
+-	 * valid bit for the primary PAACE in the PAMU
+-	 * PAACT table. Domain geometry should be set and
+-	 * it must have a valid mapping before DMA can be
+-	 * enabled for it.
+-	 *
 -	 */
--	dma_addr_t			geom_size;
- 	/*
- 	 * Number of windows assocaited with this domain.
- 	 * During domain initialization, it is set to the
+-	int				enabled;
+ 	u32				stash_id;
+ 	u32				snoop_id;
+ 	struct iommu_domain		iommu_domain;
 diff --git a/drivers/soc/fsl/qbman/qman_portal.c b/drivers/soc/fsl/qbman/qman_portal.c
-index 5685b67068931a..c958e6310d3094 100644
+index 798b3a1ffd0b9c..bf38eb0042ed52 100644
 --- a/drivers/soc/fsl/qbman/qman_portal.c
 +++ b/drivers/soc/fsl/qbman/qman_portal.c
-@@ -47,7 +47,6 @@ static void portal_set_cpu(struct qm_portal_config *pcfg, int cpu)
+@@ -46,7 +46,6 @@ static void portal_set_cpu(struct qm_portal_config *pcfg, int cpu)
+ {
  #ifdef CONFIG_FSL_PAMU
  	struct device *dev = pcfg->dev;
- 	int window_count = 1;
--	struct iommu_domain_geometry geom_attr;
- 	struct pamu_stash_attribute stash_attr;
+-	int window_count = 1;
  	int ret;
  
-@@ -56,17 +55,6 @@ static void portal_set_cpu(struct qm_portal_config *pcfg, int cpu)
- 		dev_err(dev, "%s(): iommu_domain_alloc() failed", __func__);
- 		goto no_iommu;
+ 	pcfg->iommu_domain = iommu_domain_alloc(&platform_bus_type);
+@@ -66,14 +65,6 @@ static void portal_set_cpu(struct qm_portal_config *pcfg, int cpu)
+ 			ret);
+ 		goto out_domain_free;
  	}
--	geom_attr.aperture_start = 0;
--	geom_attr.aperture_end =
--		((dma_addr_t)1 << min(8 * sizeof(dma_addr_t), (size_t)36)) - 1;
--	geom_attr.force_aperture = true;
--	ret = iommu_domain_set_attr(pcfg->iommu_domain, DOMAIN_ATTR_GEOMETRY,
--				    &geom_attr);
+-	ret = iommu_domain_set_attr(pcfg->iommu_domain,
+-				    DOMAIN_ATTR_FSL_PAMU_ENABLE,
+-				    &window_count);
 -	if (ret < 0) {
 -		dev_err(dev, "%s(): iommu_domain_set_attr() = %d", __func__,
 -			ret);
--		goto out_domain_free;
+-		goto out_detach_device;
 -	}
- 	ret = iommu_domain_set_attr(pcfg->iommu_domain, DOMAIN_ATTR_WINDOWS,
- 				    &window_count);
- 	if (ret < 0) {
+ 
+ no_iommu:
+ #endif
+@@ -82,8 +73,6 @@ static void portal_set_cpu(struct qm_portal_config *pcfg, int cpu)
+ 	return;
+ 
+ #ifdef CONFIG_FSL_PAMU
+-out_detach_device:
+-	iommu_detach_device(pcfg->iommu_domain, NULL);
+ out_domain_free:
+ 	iommu_domain_free(pcfg->iommu_domain);
+ 	pcfg->iommu_domain = NULL;
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 208e570e8d99e7..840864844027dc 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -109,7 +109,6 @@ enum iommu_cap {
+ enum iommu_attr {
+ 	DOMAIN_ATTR_GEOMETRY,
+ 	DOMAIN_ATTR_PAGING,
+-	DOMAIN_ATTR_FSL_PAMU_ENABLE,
+ 	DOMAIN_ATTR_NESTING,	/* two stages of translation */
+ 	DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE,
+ 	DOMAIN_ATTR_IO_PGTABLE_CFG,
 -- 
 2.30.1
 
