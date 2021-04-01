@@ -7,67 +7,65 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6E39AC43460
-	for <virtualization@archiver.kernel.org>; Thu,  1 Apr 2021 16:56:38 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79124C433B4
+	for <virtualization@archiver.kernel.org>; Thu,  1 Apr 2021 16:56:43 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 143356138D
-	for <virtualization@archiver.kernel.org>; Thu,  1 Apr 2021 16:56:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 143356138D
+	by mail.kernel.org (Postfix) with ESMTPS id 3C37B61390
+	for <virtualization@archiver.kernel.org>; Thu,  1 Apr 2021 16:56:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3C37B61390
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D5FA941883;
-	Thu,  1 Apr 2021 16:56:37 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 069FC60BF8;
+	Thu,  1 Apr 2021 16:56:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tfeNo83QGajN; Thu,  1 Apr 2021 16:56:36 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 256CC41879;
-	Thu,  1 Apr 2021 16:56:36 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id HZprkyOiLXAN; Thu,  1 Apr 2021 16:56:42 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 97D5660BE3;
+	Thu,  1 Apr 2021 16:56:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CC84AC0014;
-	Thu,  1 Apr 2021 16:56:35 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 57B31C000A;
- Thu,  1 Apr 2021 16:56:34 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 48873C0014;
+	Thu,  1 Apr 2021 16:56:41 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6FA2FC000A;
+ Thu,  1 Apr 2021 16:56:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 385CA60BE8;
- Thu,  1 Apr 2021 16:56:34 +0000 (UTC)
+ by smtp3.osuosl.org (Postfix) with ESMTP id AD7FD60BEB;
+ Thu,  1 Apr 2021 16:56:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id w-SYc8bUfr0o; Thu,  1 Apr 2021 16:56:33 +0000 (UTC)
+ with ESMTP id iAn4gqNXDMeP; Thu,  1 Apr 2021 16:56:38 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp3.osuosl.org (Postfix) with ESMTPS id A7CE560BE4;
- Thu,  1 Apr 2021 16:56:33 +0000 (UTC)
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 01E4E60BE8;
+ Thu,  1 Apr 2021 16:56:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=g/lYlQLJmKIelbYGsJOMK8K3baqJu4KrHdTwHylUH98=; b=yk7zp4/a/VVy/qjNyBy+25HhKE
- M3MLuAAEGCHkhoP6K+6R5Jrd2o9QTpPa/n+D+jPbw8PfF0Hj+LlRVl4uxYQG9l3BZZ+4dc5I8r9e2
- IjqvjarJiebl1F9i4ul0iOVUIzj1oDsJXbYJ2qkBZ0gl0i5I6XA+OeaYxW2MRRFfMRRV32/ae8F5J
- dDH6vXR/maOTz6DfB53SyQcBbg8iRcUEK8qYomkv4uD4P3cJvtU6CBHm5BwRr30BFkiHIqeNzDoDA
- LbAzmQekckWvz0YH4pL5dkKd9Izu6Dwi1ld24zxZdieLRhcx6J9vWJ1Ig/OL/cF1UeinsSVUXpGco
- +Rs+TVvQ==;
+ bh=Z9JPy9TPg1G6vRAErbmN4dHQgiCuv74xNNZwb3XvOzc=; b=z9dfmxVC+AkYI7A3FhvuGUicXf
+ WsoEPdEBOr+mzC8jJKT9D43IWxD08C6UN9gP6Ng4MFLpHmmOK/CaiM+Kj8DAhByTQGNSZnoKEF9+y
+ 2Rs0dYWfh0Z8jr5K8/Eyyi2JziQCArZaQo30OIrvsewrAgQ0huTTx0kHtqju6eTI1uSgCbrZiUQc9
+ 4HDViC6rLsC62o8HMxHELgdcrVhxuR6TqKCMUlRCPGi4fNvZxAOMIpWTR1OEyU4LN6LNCAeyiOii1
+ 7FkldJGkzOokyuTL3g131A2VtwTYvp4sN7duB59mWrFNH3kHEwrIRmYWub3Vv4NX+o2+kciSwQZWr
+ NJ/psRCg==;
 Received: from [2001:4bb8:180:7517:83e4:a809:b0aa:ca74] (helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
- id 1lRzdr-00Ciee-IE; Thu, 01 Apr 2021 15:53:56 +0000
+ id 1lRzdd-00Cicd-Dp; Thu, 01 Apr 2021 15:53:41 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
  Li Yang <leoyang.li@nxp.com>
-Subject: [PATCH 17/20] iommu: remove iommu_set_cmd_line_dma_api and
- iommu_cmd_line_dma_api
-Date: Thu,  1 Apr 2021 17:52:53 +0200
-Message-Id: <20210401155256.298656-18-hch@lst.de>
+Subject: [PATCH 12/20] iommu/fsl_pamu: remove the rpn and snoop_id arguments
+ to pamu_config_ppaac
+Date: Thu,  1 Apr 2021 17:52:48 +0200
+Message-Id: <20210401155256.298656-13-hch@lst.de>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210401155256.298656-1-hch@lst.de>
 References: <20210401155256.298656-1-hch@lst.de>
@@ -96,75 +94,91 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Don't obsfucate the trivial bit flag check.
+These are always wired to fixed values, so don't bother passing them as
+arguments.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Will Deacon <will@kernel.org>
 ---
- drivers/iommu/iommu.c | 23 +++++------------------
- 1 file changed, 5 insertions(+), 18 deletions(-)
+ drivers/iommu/fsl_pamu.c        | 14 +++-----------
+ drivers/iommu/fsl_pamu.h        |  3 +--
+ drivers/iommu/fsl_pamu_domain.c |  6 +++---
+ 3 files changed, 7 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 58d1d11a8d5c10..052cef11ae30df 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -70,16 +70,6 @@ static const char * const iommu_group_resv_type_string[] = {
- 
- #define IOMMU_CMD_LINE_DMA_API		BIT(0)
- 
--static void iommu_set_cmd_line_dma_api(void)
--{
--	iommu_cmd_line |= IOMMU_CMD_LINE_DMA_API;
--}
--
--static bool iommu_cmd_line_dma_api(void)
--{
--	return !!(iommu_cmd_line & IOMMU_CMD_LINE_DMA_API);
--}
--
- static int iommu_alloc_default_domain(struct iommu_group *group,
- 				      struct device *dev);
- static struct iommu_domain *__iommu_domain_alloc(struct bus_type *bus,
-@@ -130,9 +120,7 @@ static const char *iommu_domain_type_str(unsigned int t)
- 
- static int __init iommu_subsys_init(void)
+diff --git a/drivers/iommu/fsl_pamu.c b/drivers/iommu/fsl_pamu.c
+index 3e1647cd5ad47a..742fa0e8c45b88 100644
+--- a/drivers/iommu/fsl_pamu.c
++++ b/drivers/iommu/fsl_pamu.c
+@@ -181,18 +181,14 @@ int pamu_update_paace_stash(int liodn, u32 value)
+  * @win_addr: starting address of DSA window
+  * @win-size: size of DSA window
+  * @omi: Operation mapping index -- if ~omi == 0 then omi not defined
+- * @rpn: real (true physical) page number
+  * @stashid: cache stash id for associated cpu -- if ~stashid == 0 then
+  *	     stashid not defined
+- * @snoopid: snoop id for hardware coherency -- if ~snoopid == 0 then
+- *	     snoopid not defined
+  * @prot: window permissions
+  *
+  * Returns 0 upon success else error code < 0 returned
+  */
+ int pamu_config_ppaace(int liodn, phys_addr_t win_addr, phys_addr_t win_size,
+-		       u32 omi, unsigned long rpn, u32 snoopid, u32 stashid,
+-		       int prot)
++		       u32 omi, u32 stashid, int prot)
  {
--	bool cmd_line = iommu_cmd_line_dma_api();
+ 	struct paace *ppaace;
+ 
+@@ -234,13 +230,9 @@ int pamu_config_ppaace(int liodn, phys_addr_t win_addr, phys_addr_t win_size,
+ 	if (~stashid != 0)
+ 		set_bf(ppaace->impl_attr, PAACE_IA_CID, stashid);
+ 
+-	/* configure snoop id */
+-	if (~snoopid != 0)
+-		ppaace->domain_attr.to_host.snpid = snoopid;
 -
--	if (!cmd_line) {
-+	if (!(iommu_cmd_line & IOMMU_CMD_LINE_DMA_API)) {
- 		if (IS_ENABLED(CONFIG_IOMMU_DEFAULT_PASSTHROUGH))
- 			iommu_set_default_passthrough(false);
- 		else
-@@ -146,7 +134,8 @@ static int __init iommu_subsys_init(void)
+ 	set_bf(ppaace->impl_attr, PAACE_IA_ATM, PAACE_ATM_WINDOW_XLATE);
+-	ppaace->twbah = rpn >> 20;
+-	set_bf(ppaace->win_bitfields, PAACE_WIN_TWBAL, rpn);
++	ppaace->twbah = 0;
++	set_bf(ppaace->win_bitfields, PAACE_WIN_TWBAL, 0);
+ 	set_bf(ppaace->addr_bitfields, PAACE_AF_AP, prot);
+ 	set_bf(ppaace->impl_attr, PAACE_IA_WCE, 0);
+ 	set_bf(ppaace->addr_bitfields, PPAACE_AF_MW, 0);
+diff --git a/drivers/iommu/fsl_pamu.h b/drivers/iommu/fsl_pamu.h
+index 04fd843d718dd1..c96b29f0c7077f 100644
+--- a/drivers/iommu/fsl_pamu.h
++++ b/drivers/iommu/fsl_pamu.h
+@@ -384,8 +384,7 @@ int pamu_domain_init(void);
+ int pamu_enable_liodn(int liodn);
+ int pamu_disable_liodn(int liodn);
+ int pamu_config_ppaace(int liodn, phys_addr_t win_addr, phys_addr_t win_size,
+-		       u32 omi, unsigned long rpn, u32 snoopid, uint32_t stashid,
+-		       int prot);
++		       u32 omi, uint32_t stashid, int prot);
  
- 	pr_info("Default domain type: %s %s\n",
- 		iommu_domain_type_str(iommu_def_domain_type),
--		cmd_line ? "(set via kernel command line)" : "");
-+		(iommu_cmd_line & IOMMU_CMD_LINE_DMA_API) ?
-+			"(set via kernel command line)" : "");
- 
- 	return 0;
- }
-@@ -2757,16 +2746,14 @@ EXPORT_SYMBOL_GPL(iommu_alloc_resv_region);
- void iommu_set_default_passthrough(bool cmd_line)
- {
- 	if (cmd_line)
--		iommu_set_cmd_line_dma_api();
--
-+		iommu_cmd_line |= IOMMU_CMD_LINE_DMA_API;
- 	iommu_def_domain_type = IOMMU_DOMAIN_IDENTITY;
- }
- 
- void iommu_set_default_translated(bool cmd_line)
- {
- 	if (cmd_line)
--		iommu_set_cmd_line_dma_api();
--
-+		iommu_cmd_line |= IOMMU_CMD_LINE_DMA_API;
- 	iommu_def_domain_type = IOMMU_DOMAIN_DMA;
- }
- 
+ u32 get_stash_id(u32 stash_dest_hint, u32 vcpu);
+ void get_ome_index(u32 *omi_index, struct device *dev);
+diff --git a/drivers/iommu/fsl_pamu_domain.c b/drivers/iommu/fsl_pamu_domain.c
+index e9c1e0dd68f084..c83f1e7c2cb0c9 100644
+--- a/drivers/iommu/fsl_pamu_domain.c
++++ b/drivers/iommu/fsl_pamu_domain.c
+@@ -96,13 +96,13 @@ static int pamu_set_liodn(struct fsl_dma_domain *dma_domain, struct device *dev,
+ 	if (ret)
+ 		goto out_unlock;
+ 	ret = pamu_config_ppaace(liodn, geom->aperture_start,
+-				 geom->aperture_end + 1, omi_index, 0,
+-				 ~(u32)0, dma_domain->stash_id, 0);
++				 geom->aperture_end + 1, omi_index,
++				 dma_domain->stash_id, 0);
+ 	if (ret)
+ 		goto out_unlock;
+ 	ret = pamu_config_ppaace(liodn, geom->aperture_start,
+ 				 geom->aperture_end + 1, ~(u32)0,
+-				 0, ~(u32)0, dma_domain->stash_id,
++				 dma_domain->stash_id,
+ 				 PAACE_AP_PERMS_QUERY | PAACE_AP_PERMS_UPDATE);
+ out_unlock:
+ 	spin_unlock_irqrestore(&iommu_lock, flags);
 -- 
 2.30.1
 
