@@ -7,64 +7,66 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF58BC433B4
-	for <virtualization@archiver.kernel.org>; Thu,  1 Apr 2021 16:56:23 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97E31C43462
+	for <virtualization@archiver.kernel.org>; Thu,  1 Apr 2021 16:56:25 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5DF9261393
-	for <virtualization@archiver.kernel.org>; Thu,  1 Apr 2021 16:56:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5DF9261393
+	by mail.kernel.org (Postfix) with ESMTPS id 4A7FF6138D
+	for <virtualization@archiver.kernel.org>; Thu,  1 Apr 2021 16:56:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4A7FF6138D
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 27D8541869;
-	Thu,  1 Apr 2021 16:56:23 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 15E9440122;
+	Thu,  1 Apr 2021 16:56:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id WwwUBJoucmxg; Thu,  1 Apr 2021 16:56:21 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zbed9S-jNUJN; Thu,  1 Apr 2021 16:56:24 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 09A3540F44;
-	Thu,  1 Apr 2021 16:56:20 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7B86F405A7;
+	Thu,  1 Apr 2021 16:56:23 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CD4C5C000C;
-	Thu,  1 Apr 2021 16:56:20 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AB2E7C000A;
- Thu,  1 Apr 2021 16:56:19 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 52AA8C000C;
+	Thu,  1 Apr 2021 16:56:23 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6BE39C0012;
+ Thu,  1 Apr 2021 16:56:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 8C1984185D;
- Thu,  1 Apr 2021 16:56:19 +0000 (UTC)
+ by smtp1.osuosl.org (Postfix) with ESMTP id 4DEF884AE2;
+ Thu,  1 Apr 2021 16:56:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0daDwzsl9RRa; Thu,  1 Apr 2021 16:56:18 +0000 (UTC)
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id jwEgwka1rE2t; Thu,  1 Apr 2021 16:56:20 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 2AB4F4186A;
- Thu,  1 Apr 2021 16:56:18 +0000 (UTC)
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 7656C84A36;
+ Thu,  1 Apr 2021 16:56:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=Mcd9YKStQwtPRlA/IOVvOPHTAIrb/F5XzcvQ6yKGdKs=; b=MCEBW6j2RAqoHmWQRBSWlcGrXZ
- 12/MxNejbltQ/ANTTDDkuzYtxy9us8FV3WNUT+jQLUwfPdUq6fDbrjdJ8yanyTtWou94ZsXy7B8b3
- ro9eoGZ49oW0aS0J7rGmo0DtDlibRKDsoW066YGiJNeULMuRrXOkOYDAfro1HTfjO9q0omE7+iLjs
- HLNwz/IS9bNh9NM321qcEHoWh1qX9H0EUofNXYi2F6nEv0MODkepsAz06Olu/LynDJGtxw2B6zjpI
- E/gpBLeVjhSvhRTCK9nTYVbkli8TyrCDP6Zrfq2I8FPLjW1CtX33BvMtcz6GN7jAzxR0KvNMwxpx8
- kh7gSwVw==;
+ bh=t3+j7oE4m8hHvZnx2Arcm+rr/82u0pUfHN8zF6/xR9E=; b=fJXqhckHmBh50Vl8BSqpluikrM
+ wiJ/AxH4UsNpWLTsk+FoWfR5/A1qVv9HMXUBbpHrC0pcACkPigO4L7PJuy8CvOjqWv6SmogpUAmz2
+ B2tFOZ6NmYjiTx8uT8/Or2JY3+OStVKRal6Yp2jzGhjvwvEfyg+TDmkwl45zdceRAvKXfJHRzuHvJ
+ 6nbjpVmHbEC8W90MlbJUDAAqqMI2S7x1kNPqPfW66UFsR5UJ0Zztne5MYmKkJBuj3ky3qTr+ESE98
+ jPT47D2Wr84u3SHsw16K683UOjQ2YZ7QaNwaTvyjnNNz+7kZHAAndU3rnHuC7LrOHGQeFtq3tw3I5
+ 3+muvjpQ==;
 Received: from [2001:4bb8:180:7517:83e4:a809:b0aa:ca74] (helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94 #2 (Red Hat Linux))
- id 1lRzdN-00Cib9-IH; Thu, 01 Apr 2021 15:53:26 +0000
+ id 1lRzdx-00Cifc-0g; Thu, 01 Apr 2021 15:54:01 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
  Li Yang <leoyang.li@nxp.com>
-Subject: [PATCH 06/20] iommu/fsl_pamu: remove ->domain_window_enable
-Date: Thu,  1 Apr 2021 17:52:42 +0200
-Message-Id: <20210401155256.298656-7-hch@lst.de>
+Subject: [PATCH 19/20] iommu: remove DOMAIN_ATTR_IO_PGTABLE_CFG
+Date: Thu,  1 Apr 2021 17:52:55 +0200
+Message-Id: <20210401155256.298656-20-hch@lst.de>
 X-Mailer: git-send-email 2.30.1
 In-Reply-To: <20210401155256.298656-1-hch@lst.de>
 References: <20210401155256.298656-1-hch@lst.de>
@@ -93,409 +95,240 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The only thing that fsl_pamu_window_enable does for the current caller
-is to fill in the prot value in the only dma_window structure, and to
-propagate a few values from the iommu_domain_geometry struture into the
-dma_window.  Remove the dma_window entirely, hardcode the prot value and
-otherwise use the iommu_domain_geometry structure instead.
-
-Remove the now unused ->domain_window_enable iommu method.
+Use an explicit set_pgtable_quirks method instead that just passes
+the actual quirk bitmask instead.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
+Acked-by: Will Deacon <will@kernel.org>
 Acked-by: Li Yang <leoyang.li@nxp.com>
 ---
- drivers/iommu/fsl_pamu_domain.c     | 182 +++-------------------------
- drivers/iommu/fsl_pamu_domain.h     |  15 ---
- drivers/iommu/iommu.c               |  11 --
- drivers/soc/fsl/qbman/qman_portal.c |   7 --
- include/linux/iommu.h               |  17 ---
- 5 files changed, 14 insertions(+), 218 deletions(-)
+ drivers/gpu/drm/msm/adreno/adreno_gpu.c |  5 +-
+ drivers/iommu/arm/arm-smmu/arm-smmu.c   | 64 +++++--------------------
+ drivers/iommu/arm/arm-smmu/arm-smmu.h   |  2 +-
+ drivers/iommu/iommu.c                   | 11 +++++
+ include/linux/io-pgtable.h              |  4 --
+ include/linux/iommu.h                   | 12 ++++-
+ 6 files changed, 35 insertions(+), 63 deletions(-)
 
-diff --git a/drivers/iommu/fsl_pamu_domain.c b/drivers/iommu/fsl_pamu_domain.c
-index e6bdd38fc18409..689035e9d40955 100644
---- a/drivers/iommu/fsl_pamu_domain.c
-+++ b/drivers/iommu/fsl_pamu_domain.c
-@@ -54,34 +54,18 @@ static int __init iommu_init_mempool(void)
- 	return 0;
- }
+diff --git a/drivers/gpu/drm/msm/adreno/adreno_gpu.c b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+index 0f184c3dd9d9ec..4a0b14dad93e2e 100644
+--- a/drivers/gpu/drm/msm/adreno/adreno_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/adreno_gpu.c
+@@ -188,10 +188,7 @@ int adreno_zap_shader_load(struct msm_gpu *gpu, u32 pasid)
  
--static phys_addr_t get_phys_addr(struct fsl_dma_domain *dma_domain, dma_addr_t iova)
--{
--	struct dma_window *win_ptr = &dma_domain->win_arr[0];
--	struct iommu_domain_geometry *geom;
--
--	geom = &dma_domain->iommu_domain.geometry;
--
--	if (win_ptr->valid)
--		return win_ptr->paddr + (iova & (win_ptr->size - 1));
--
--	return 0;
--}
--
- /* Map the DMA window corresponding to the LIODN */
- static int map_liodn(int liodn, struct fsl_dma_domain *dma_domain)
+ void adreno_set_llc_attributes(struct iommu_domain *iommu)
  {
- 	int ret;
--	struct dma_window *wnd = &dma_domain->win_arr[0];
--	phys_addr_t wnd_addr = dma_domain->iommu_domain.geometry.aperture_start;
-+	struct iommu_domain_geometry *geom = &dma_domain->iommu_domain.geometry;
- 	unsigned long flags;
- 
- 	spin_lock_irqsave(&iommu_lock, flags);
--	ret = pamu_config_ppaace(liodn, wnd_addr,
--				 wnd->size,
--				 ~(u32)0,
--				 wnd->paddr >> PAMU_PAGE_SHIFT,
--				 dma_domain->snoop_id, dma_domain->stash_id,
--				 wnd->prot);
-+	ret = pamu_config_ppaace(liodn, geom->aperture_start,
-+				 geom->aperture_end + 1, ~(u32)0,
-+				 0, dma_domain->snoop_id, dma_domain->stash_id,
-+				 PAACE_AP_PERMS_QUERY | PAACE_AP_PERMS_UPDATE);
- 	spin_unlock_irqrestore(&iommu_lock, flags);
- 	if (ret)
- 		pr_debug("PAACE configuration failed for liodn %d\n", liodn);
-@@ -89,33 +73,6 @@ static int map_liodn(int liodn, struct fsl_dma_domain *dma_domain)
- 	return ret;
+-	struct io_pgtable_domain_attr pgtbl_cfg;
+-
+-	pgtbl_cfg.quirks = IO_PGTABLE_QUIRK_ARM_OUTER_WBWA;
+-	iommu_domain_set_attr(iommu, DOMAIN_ATTR_IO_PGTABLE_CFG, &pgtbl_cfg);
++	iommu_set_pgtable_quirks(iommu, IO_PGTABLE_QUIRK_ARM_OUTER_WBWA);
  }
  
--/* Update window/subwindow mapping for the LIODN */
--static int update_liodn(int liodn, struct fsl_dma_domain *dma_domain, u32 wnd_nr)
--{
--	int ret;
--	struct dma_window *wnd = &dma_domain->win_arr[wnd_nr];
--	phys_addr_t wnd_addr;
--	unsigned long flags;
--
--	spin_lock_irqsave(&iommu_lock, flags);
--
--	wnd_addr = dma_domain->iommu_domain.geometry.aperture_start;
--
--	ret = pamu_config_ppaace(liodn, wnd_addr,
--				 wnd->size,
--				 ~(u32)0,
--				 wnd->paddr >> PAMU_PAGE_SHIFT,
--				 dma_domain->snoop_id, dma_domain->stash_id,
--				 wnd->prot);
--	if (ret)
--		pr_debug("Window reconfiguration failed for liodn %d\n",
--			 liodn);
--
--	spin_unlock_irqrestore(&iommu_lock, flags);
--
--	return ret;
--}
--
- static int update_liodn_stash(int liodn, struct fsl_dma_domain *dma_domain,
- 			      u32 val)
- {
-@@ -172,26 +129,6 @@ static int pamu_set_liodn(int liodn, struct device *dev,
- 	return ret;
- }
- 
--static int check_size(u64 size, dma_addr_t iova)
--{
--	/*
--	 * Size must be a power of two and at least be equal
--	 * to PAMU page size.
--	 */
--	if ((size & (size - 1)) || size < PAMU_PAGE_SIZE) {
--		pr_debug("Size too small or not a power of two\n");
--		return -EINVAL;
--	}
--
--	/* iova must be page size aligned */
--	if (iova & (size - 1)) {
--		pr_debug("Address is not aligned with window size\n");
--		return -EINVAL;
--	}
--
--	return 0;
--}
--
- static void remove_device_ref(struct device_domain_info *info)
- {
- 	unsigned long flags;
-@@ -257,13 +194,10 @@ static void attach_device(struct fsl_dma_domain *dma_domain, int liodn, struct d
- static phys_addr_t fsl_pamu_iova_to_phys(struct iommu_domain *domain,
- 					 dma_addr_t iova)
- {
--	struct fsl_dma_domain *dma_domain = to_fsl_dma_domain(domain);
--
- 	if (iova < domain->geometry.aperture_start ||
- 	    iova > domain->geometry.aperture_end)
- 		return 0;
--
--	return get_phys_addr(dma_domain, iova);
-+	return iova;
- }
- 
- static bool fsl_pamu_capable(enum iommu_cap cap)
-@@ -279,7 +213,6 @@ static void fsl_pamu_domain_free(struct iommu_domain *domain)
- 	detach_device(NULL, dma_domain);
- 
- 	dma_domain->enabled = 0;
--	dma_domain->mapped = 0;
- 
- 	kmem_cache_free(fsl_pamu_domain_cache, dma_domain);
- }
-@@ -323,84 +256,6 @@ static int update_domain_stash(struct fsl_dma_domain *dma_domain, u32 val)
- 	return ret;
- }
- 
--/* Update domain mappings for all LIODNs associated with the domain */
--static int update_domain_mapping(struct fsl_dma_domain *dma_domain, u32 wnd_nr)
--{
--	struct device_domain_info *info;
--	int ret = 0;
--
--	list_for_each_entry(info, &dma_domain->devices, link) {
--		ret = update_liodn(info->liodn, dma_domain, wnd_nr);
--		if (ret)
--			break;
--	}
--	return ret;
--}
--
--
--static int fsl_pamu_window_enable(struct iommu_domain *domain, u32 wnd_nr,
--				  phys_addr_t paddr, u64 size, int prot)
--{
--	struct fsl_dma_domain *dma_domain = to_fsl_dma_domain(domain);
--	struct dma_window *wnd;
--	int pamu_prot = 0;
--	int ret;
--	unsigned long flags;
--	u64 win_size;
--
--	if (prot & IOMMU_READ)
--		pamu_prot |= PAACE_AP_PERMS_QUERY;
--	if (prot & IOMMU_WRITE)
--		pamu_prot |= PAACE_AP_PERMS_UPDATE;
--
--	spin_lock_irqsave(&dma_domain->domain_lock, flags);
--	if (wnd_nr > 0) {
--		pr_debug("Invalid window index\n");
--		spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
--		return -EINVAL;
--	}
--
--	win_size = (domain->geometry.aperture_end + 1) >> ilog2(1);
--	if (size > win_size) {
--		pr_debug("Invalid window size\n");
--		spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
--		return -EINVAL;
--	}
--
--	if (dma_domain->enabled) {
--		pr_debug("Disable the window before updating the mapping\n");
--		spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
--		return -EBUSY;
--	}
--
--	ret = check_size(size, domain->geometry.aperture_start);
--	if (ret) {
--		pr_debug("Aperture start not aligned to the size\n");
--		spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
--		return -EINVAL;
--	}
--
--	wnd = &dma_domain->win_arr[wnd_nr];
--	if (!wnd->valid) {
--		wnd->paddr = paddr;
--		wnd->size = size;
--		wnd->prot = pamu_prot;
--
--		ret = update_domain_mapping(dma_domain, wnd_nr);
--		if (!ret) {
--			wnd->valid = 1;
--			dma_domain->mapped++;
--		}
--	} else {
--		pr_debug("Disable the window before updating the mapping\n");
--		ret = -EBUSY;
--	}
--
--	spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
--
--	return ret;
--}
--
- /*
-  * Attach the LIODN to the DMA domain and configure the geometry
-  * and window mappings.
-@@ -434,15 +289,14 @@ static int handle_attach_device(struct fsl_dma_domain *dma_domain,
- 				     &domain->geometry);
- 		if (ret)
- 			break;
--		if (dma_domain->mapped) {
--			/*
--			 * Create window/subwindow mapping for
--			 * the LIODN.
--			 */
--			ret = map_liodn(liodn[i], dma_domain);
--			if (ret)
--				break;
--		}
-+
-+		/*
-+		 * Create window/subwindow mapping for
-+		 * the LIODN.
-+		 */
-+		ret = map_liodn(liodn[i], dma_domain);
-+		if (ret)
-+			break;
+ struct msm_gem_address_space *
+diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.c b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+index f17c54a76ef6f1..3c6adcdb201bb8 100644
+--- a/drivers/iommu/arm/arm-smmu/arm-smmu.c
++++ b/drivers/iommu/arm/arm-smmu/arm-smmu.c
+@@ -770,8 +770,8 @@ static int arm_smmu_init_domain_context(struct iommu_domain *domain,
+ 			goto out_clear_smmu;
  	}
- 	spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
  
-@@ -552,13 +406,6 @@ static int configure_domain_dma_state(struct fsl_dma_domain *dma_domain, bool en
- 	int ret;
+-	if (smmu_domain->pgtbl_cfg.quirks)
+-		pgtbl_cfg.quirks |= smmu_domain->pgtbl_cfg.quirks;
++	if (smmu_domain->pgtbl_quirks)
++		pgtbl_cfg.quirks |= smmu_domain->pgtbl_quirks;
  
- 	spin_lock_irqsave(&dma_domain->domain_lock, flags);
+ 	pgtbl_ops = alloc_io_pgtable_ops(fmt, &pgtbl_cfg, smmu_domain);
+ 	if (!pgtbl_ops) {
+@@ -1484,29 +1484,6 @@ static struct iommu_group *arm_smmu_device_group(struct device *dev)
+ 	return group;
+ }
+ 
+-static int arm_smmu_domain_get_attr(struct iommu_domain *domain,
+-				    enum iommu_attr attr, void *data)
+-{
+-	struct arm_smmu_domain *smmu_domain = to_smmu_domain(domain);
 -
--	if (enable && !dma_domain->mapped) {
--		pr_debug("Can't enable DMA domain without valid mapping\n");
--		spin_unlock_irqrestore(&dma_domain->domain_lock, flags);
--		return -ENODEV;
+-	switch(domain->type) {
+-	case IOMMU_DOMAIN_UNMANAGED:
+-		switch (attr) {
+-		case DOMAIN_ATTR_IO_PGTABLE_CFG: {
+-			struct io_pgtable_domain_attr *pgtbl_cfg = data;
+-			*pgtbl_cfg = smmu_domain->pgtbl_cfg;
+-
+-			return 0;
+-		}
+-		default:
+-			return -ENODEV;
+-		}
+-		break;
+-	default:
+-		return -EINVAL;
 -	}
+-}
 -
- 	dma_domain->enabled = enable;
- 	list_for_each_entry(info, &dma_domain->devices, link) {
- 		ret = (enable) ? pamu_enable_liodn(info->liodn) :
-@@ -717,7 +564,6 @@ static const struct iommu_ops fsl_pamu_ops = {
- 	.domain_free    = fsl_pamu_domain_free,
- 	.attach_dev	= fsl_pamu_attach_device,
- 	.detach_dev	= fsl_pamu_detach_device,
--	.domain_window_enable = fsl_pamu_window_enable,
- 	.iova_to_phys	= fsl_pamu_iova_to_phys,
- 	.domain_set_attr = fsl_pamu_set_domain_attr,
- 	.probe_device	= fsl_pamu_probe_device,
-diff --git a/drivers/iommu/fsl_pamu_domain.h b/drivers/iommu/fsl_pamu_domain.h
-index d3523ee9999d83..13ee06e0ef0136 100644
---- a/drivers/iommu/fsl_pamu_domain.h
-+++ b/drivers/iommu/fsl_pamu_domain.h
-@@ -9,24 +9,10 @@
+ static int arm_smmu_enable_nesting(struct iommu_domain *domain)
+ {
+ 	struct arm_smmu_domain *smmu_domain = to_smmu_domain(domain);
+@@ -1522,37 +1499,19 @@ static int arm_smmu_enable_nesting(struct iommu_domain *domain)
+ 	return ret;
+ }
  
- #include "fsl_pamu.h"
+-static int arm_smmu_domain_set_attr(struct iommu_domain *domain,
+-				    enum iommu_attr attr, void *data)
++static int arm_smmu_set_pgtable_quirks(struct iommu_domain *domain,
++		unsigned long quirks)
+ {
+-	int ret = 0;
+ 	struct arm_smmu_domain *smmu_domain = to_smmu_domain(domain);
++	int ret = 0;
  
--struct dma_window {
--	phys_addr_t paddr;
--	u64 size;
--	int valid;
--	int prot;
--};
+ 	mutex_lock(&smmu_domain->init_mutex);
 -
- struct fsl_dma_domain {
--	/*
--	 * win_arr contains information of the configured
--	 * windows for a domain.
--	 */
--	struct dma_window		win_arr[1];
- 	/* list of devices associated with the domain */
- 	struct list_head		devices;
- 	/* dma_domain states:
--	 * mapped - A particular mapping has been created
--	 * within the configured geometry.
- 	 * enabled - DMA has been enabled for the given
- 	 * domain. This translates to setting of the
- 	 * valid bit for the primary PAACE in the PAMU
-@@ -35,7 +21,6 @@ struct fsl_dma_domain {
- 	 * enabled for it.
- 	 *
- 	 */
--	int				mapped;
- 	int				enabled;
- 	/* stash_id obtained from the stash attribute details */
- 	u32				stash_id;
+-	switch(domain->type) {
+-	case IOMMU_DOMAIN_UNMANAGED:
+-		switch (attr) {
+-		case DOMAIN_ATTR_IO_PGTABLE_CFG: {
+-			struct io_pgtable_domain_attr *pgtbl_cfg = data;
+-
+-			if (smmu_domain->smmu) {
+-				ret = -EPERM;
+-				goto out_unlock;
+-			}
+-
+-			smmu_domain->pgtbl_cfg = *pgtbl_cfg;
+-			break;
+-		}
+-		default:
+-			ret = -ENODEV;
+-		}
+-		break;
+-	default:
+-		ret = -EINVAL;
+-	}
+-out_unlock:
++	if (smmu_domain->smmu)
++		ret = -EPERM;
++	else
++		smmu_domain->pgtbl_quirks = quirks;
+ 	mutex_unlock(&smmu_domain->init_mutex);
++
+ 	return ret;
+ }
+ 
+@@ -1611,9 +1570,8 @@ static struct iommu_ops arm_smmu_ops = {
+ 	.probe_device		= arm_smmu_probe_device,
+ 	.release_device		= arm_smmu_release_device,
+ 	.device_group		= arm_smmu_device_group,
+-	.domain_get_attr	= arm_smmu_domain_get_attr,
+-	.domain_set_attr	= arm_smmu_domain_set_attr,
+ 	.enable_nesting		= arm_smmu_enable_nesting,
++	.set_pgtable_quirks	= arm_smmu_set_pgtable_quirks,
+ 	.of_xlate		= arm_smmu_of_xlate,
+ 	.get_resv_regions	= arm_smmu_get_resv_regions,
+ 	.put_resv_regions	= generic_iommu_put_resv_regions,
+diff --git a/drivers/iommu/arm/arm-smmu/arm-smmu.h b/drivers/iommu/arm/arm-smmu/arm-smmu.h
+index d2a2d1bc58bad8..c31a59d35c64da 100644
+--- a/drivers/iommu/arm/arm-smmu/arm-smmu.h
++++ b/drivers/iommu/arm/arm-smmu/arm-smmu.h
+@@ -364,7 +364,7 @@ enum arm_smmu_domain_stage {
+ struct arm_smmu_domain {
+ 	struct arm_smmu_device		*smmu;
+ 	struct io_pgtable_ops		*pgtbl_ops;
+-	struct io_pgtable_domain_attr	pgtbl_cfg;
++	unsigned long			pgtbl_quirks;
+ 	const struct iommu_flush_ops	*flush_ops;
+ 	struct arm_smmu_cfg		cfg;
+ 	enum arm_smmu_domain_stage	stage;
 diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index d0b0a15dba8413..b212bf0261820b 100644
+index d191e4a399785d..bf7dcd2fc08643 100644
 --- a/drivers/iommu/iommu.c
 +++ b/drivers/iommu/iommu.c
-@@ -2610,17 +2610,6 @@ size_t iommu_map_sg_atomic(struct iommu_domain *domain, unsigned long iova,
- 	return __iommu_map_sg(domain, iova, sg, nents, prot, GFP_ATOMIC);
+@@ -2701,6 +2701,17 @@ int iommu_enable_nesting(struct iommu_domain *domain)
  }
+ EXPORT_SYMBOL_GPL(iommu_enable_nesting);
  
--int iommu_domain_window_enable(struct iommu_domain *domain, u32 wnd_nr,
--			       phys_addr_t paddr, u64 size, int prot)
--{
--	if (unlikely(domain->ops->domain_window_enable == NULL))
--		return -ENODEV;
++int iommu_set_pgtable_quirks(struct iommu_domain *domain,
++		unsigned long quirk)
++{
++	if (domain->type != IOMMU_DOMAIN_UNMANAGED)
++		return -EINVAL;
++	if (!domain->ops->set_pgtable_quirks)
++		return -EINVAL;
++	return domain->ops->set_pgtable_quirks(domain, quirk);
++}
++EXPORT_SYMBOL_GPL(iommu_set_pgtable_quirks);
++
+ void iommu_get_resv_regions(struct device *dev, struct list_head *list)
+ {
+ 	const struct iommu_ops *ops = dev->bus->iommu_ops;
+diff --git a/include/linux/io-pgtable.h b/include/linux/io-pgtable.h
+index a4c9ca2c31f10a..4d40dfa75b55fe 100644
+--- a/include/linux/io-pgtable.h
++++ b/include/linux/io-pgtable.h
+@@ -204,10 +204,6 @@ struct io_pgtable {
+ 
+ #define io_pgtable_ops_to_pgtable(x) container_of((x), struct io_pgtable, ops)
+ 
+-struct io_pgtable_domain_attr {
+-	unsigned long quirks;
+-};
 -
--	return domain->ops->domain_window_enable(domain, wnd_nr, paddr, size,
--						 prot);
--}
--EXPORT_SYMBOL_GPL(iommu_domain_window_enable);
--
- /**
-  * report_iommu_fault() - report about an IOMMU fault to the IOMMU framework
-  * @domain: the iommu domain where the fault has happened
-diff --git a/drivers/soc/fsl/qbman/qman_portal.c b/drivers/soc/fsl/qbman/qman_portal.c
-index 3d56ec4b373b4b..9ee1663f422cbf 100644
---- a/drivers/soc/fsl/qbman/qman_portal.c
-+++ b/drivers/soc/fsl/qbman/qman_portal.c
-@@ -65,13 +65,6 @@ static void portal_set_cpu(struct qm_portal_config *pcfg, int cpu)
- 			__func__, ret);
- 		goto out_domain_free;
- 	}
--	ret = iommu_domain_window_enable(pcfg->iommu_domain, 0, 0, 1ULL << 36,
--					 IOMMU_READ | IOMMU_WRITE);
--	if (ret < 0) {
--		dev_err(dev, "%s(): iommu_domain_window_enable() = %d",
--			__func__, ret);
--		goto out_domain_free;
--	}
- 	ret = iommu_attach_device(pcfg->iommu_domain, dev);
- 	if (ret < 0) {
- 		dev_err(dev, "%s(): iommu_device_attach() = %d", __func__,
+ static inline void io_pgtable_tlb_flush_all(struct io_pgtable *iop)
+ {
+ 	if (iop->cfg.tlb && iop->cfg.tlb->tlb_flush_all)
 diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 861c3558c878bf..f7baa81887a8bc 100644
+index 4e1051dd8d9946..4280be90a27956 100644
 --- a/include/linux/iommu.h
 +++ b/include/linux/iommu.h
-@@ -203,7 +203,6 @@ struct iommu_iotlb_gather {
+@@ -107,7 +107,6 @@ enum iommu_cap {
+  */
+ 
+ enum iommu_attr {
+-	DOMAIN_ATTR_IO_PGTABLE_CFG,
+ 	DOMAIN_ATTR_MAX,
+ };
+ 
+@@ -195,6 +194,7 @@ struct iommu_iotlb_gather {
+  * @domain_get_attr: Query domain attributes
+  * @domain_set_attr: Change domain attributes
+  * @enable_nesting: Enable nesting
++ * @set_pgtable_quirks: Set io page table quirks (IO_PGTABLE_QUIRK_*)
   * @get_resv_regions: Request list of reserved regions for a device
   * @put_resv_regions: Free list of reserved regions for a device
   * @apply_resv_region: Temporary helper call-back for iova reserved ranges
-- * @domain_window_enable: Configure and enable a particular window for a domain
-  * @of_xlate: add OF master IDs to iommu grouping
-  * @is_attach_deferred: Check if domain attach should be deferred from iommu
-  *                      driver init to device driver init (default no)
-@@ -261,10 +260,6 @@ struct iommu_ops {
- 				  struct iommu_domain *domain,
- 				  struct iommu_resv_region *region);
+@@ -248,6 +248,8 @@ struct iommu_ops {
+ 	int (*domain_set_attr)(struct iommu_domain *domain,
+ 			       enum iommu_attr attr, void *data);
+ 	int (*enable_nesting)(struct iommu_domain *domain);
++	int (*set_pgtable_quirks)(struct iommu_domain *domain,
++				  unsigned long quirks);
  
--	/* Window handling functions */
--	int (*domain_window_enable)(struct iommu_domain *domain, u32 wnd_nr,
--				    phys_addr_t paddr, u64 size, int prot);
--
- 	int (*of_xlate)(struct device *dev, struct of_phandle_args *args);
- 	bool (*is_attach_deferred)(struct iommu_domain *domain, struct device *dev);
- 
-@@ -505,11 +500,6 @@ extern int iommu_domain_get_attr(struct iommu_domain *domain, enum iommu_attr,
+ 	/* Request/Free a list of reserved regions for a device */
+ 	void (*get_resv_regions)(struct device *dev, struct list_head *list);
+@@ -496,6 +498,8 @@ extern int iommu_domain_get_attr(struct iommu_domain *domain, enum iommu_attr,
  extern int iommu_domain_set_attr(struct iommu_domain *domain, enum iommu_attr,
  				 void *data);
+ int iommu_enable_nesting(struct iommu_domain *domain);
++int iommu_set_pgtable_quirks(struct iommu_domain *domain,
++		unsigned long quirks);
  
--/* Window handling function prototypes */
--extern int iommu_domain_window_enable(struct iommu_domain *domain, u32 wnd_nr,
--				      phys_addr_t offset, u64 size,
--				      int prot);
--
- extern int report_iommu_fault(struct iommu_domain *domain, struct device *dev,
- 			      unsigned long iova, int flags);
- 
-@@ -735,13 +725,6 @@ static inline void iommu_iotlb_sync(struct iommu_domain *domain,
- {
+ void iommu_set_dma_strict(bool val);
+ bool iommu_get_dma_strict(struct iommu_domain *domain);
+@@ -877,6 +881,12 @@ static inline int iommu_domain_set_attr(struct iommu_domain *domain,
+ 	return -EINVAL;
  }
  
--static inline int iommu_domain_window_enable(struct iommu_domain *domain,
--					     u32 wnd_nr, phys_addr_t paddr,
--					     u64 size, int prot)
--{
--	return -ENODEV;
--}
--
- static inline phys_addr_t iommu_iova_to_phys(struct iommu_domain *domain, dma_addr_t iova)
++static inline int iommu_set_pgtable_quirks(struct iommu_domain *domain,
++		unsigned long quirks)
++{
++	return 0;
++}
++
+ static inline int  iommu_device_register(struct iommu_device *iommu)
  {
- 	return 0;
+ 	return -ENODEV;
 -- 
 2.30.1
 
