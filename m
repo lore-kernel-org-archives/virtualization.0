@@ -1,105 +1,98 @@
-Return-Path: <SRS0=hGiF=JD=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=59V0=JE=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BAEC9C433ED
-	for <virtualization@archiver.kernel.org>; Tue,  6 Apr 2021 18:32:25 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FD3EC433ED
+	for <virtualization@archiver.kernel.org>; Wed,  7 Apr 2021 03:08:42 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 457D4613B3
-	for <virtualization@archiver.kernel.org>; Tue,  6 Apr 2021 18:32:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 457D4613B3
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=bytedance.com
+	by mail.kernel.org (Postfix) with ESMTPS id 071FC611BE
+	for <virtualization@archiver.kernel.org>; Wed,  7 Apr 2021 03:08:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 071FC611BE
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 00814607D8;
-	Tue,  6 Apr 2021 18:32:25 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id BAEED405AA;
+	Wed,  7 Apr 2021 03:08:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HbvDJ3QugO-5; Tue,  6 Apr 2021 18:32:24 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6BBCC60681;
-	Tue,  6 Apr 2021 18:32:23 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id bDtM1w76Evo4; Wed,  7 Apr 2021 03:08:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2801340145;
+	Wed,  7 Apr 2021 03:08:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 41699C000C;
-	Tue,  6 Apr 2021 18:32:23 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D2E34C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 01534C000C;
+	Wed,  7 Apr 2021 03:08:40 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CB9A0C000A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Apr 2021 18:32:21 +0000 (UTC)
+ Wed,  7 Apr 2021 03:08:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id B1BE740E67
+ by smtp4.osuosl.org (Postfix) with ESMTP id 9BD4D40F27
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Apr 2021 18:32:21 +0000 (UTC)
+ Wed,  7 Apr 2021 03:08:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=bytedance-com.20150623.gappssmtp.com
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FWG41Eq_bXOM
+ with ESMTP id ovzCL5cxAp5d
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Apr 2021 18:32:20 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com
- [IPv6:2607:f8b0:4864:20::535])
- by smtp4.osuosl.org (Postfix) with ESMTPS id F259840E58
+ Wed,  7 Apr 2021 03:08:35 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 7C6D140F20
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Apr 2021 18:32:19 +0000 (UTC)
-Received: by mail-pg1-x535.google.com with SMTP id z16so3603342pga.1
- for <virtualization@lists.linux-foundation.org>;
- Tue, 06 Apr 2021 11:32:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=bytedance-com.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id;
- bh=wJYY7GheEfi4pAlAAImgP5+fKrfCF1HoyhnRAbs6anc=;
- b=AsPYSFuJ/MxoZ8nLlETL64Sw3kAei32+x1lou6DFVApI4YThP4BinxUGubF9lIOmh9
- hXNBgWR9accVSmIdjgZ/xCqWWiWUBlijowOOfOWO0BkbaW6jGwiJWts2DvWqPuKVjvC0
- ENpX3l/xQkxTPmMMWpRMz/rBBadj+2Or5W1N7CDyISi4PNG8rsMrM13GXA6oEELoF90A
- YHEq3g/sFQSrdx2BK0cGT87UgC1HZlUawoT37sEc9mSTASaU5GrgqqYgWeHvk7kpbogr
- QM08+bTmNSE5TSI4ePWZKLYcUf864ZVuTIyQHRjf4qkFcuRMUi3fLvlSd63Q7ZIr7poB
- Q5Qg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id;
- bh=wJYY7GheEfi4pAlAAImgP5+fKrfCF1HoyhnRAbs6anc=;
- b=fhxjB1itbru752ESZawloyBILed9C5zes5DqkSinHGrtZNWDjXP0akV3Kti4bMFzmz
- kcJ4wPhIHJcSo4m3++T0gDNXHtcXNkdretck9MK471ECKjTB7A9XuPMJv/MhcdH/MQlN
- 8g2hmtC90gq4anFC4tDvnWCATOCRQMgEovFVeZroEg6olXykYi0vG7dvo5UuD1DJWWVo
- 5JRBvAf3SOW0rTsRnRoLUc8dcL2w4QPHwH9qn6jFbJZqPzU669D8MTJUpv4MY1BPc+IY
- hHFaA7xPgqHN5CXS1Edprnd/GFtwxlM9bk8MjhkjzoLMuYKlbFgwWl/yB7W9SXtw9/jm
- oyIg==
-X-Gm-Message-State: AOAM531+ARUM7W8VxFqjDcdk7+o8ICTQiWSHEdA9VhGoECPAWUJh7sX6
- 6EQ8o43Pk/uOeBNxV+wHnFK3thyr93vWHTfn
-X-Google-Smtp-Source: ABdhPJy4OUn/0jt7U5Nws0G79lY7PqciaCZKw7vcPHC++mlJ+DjJEWqE40lZK/2ll7bJy9zyx2xRYA==
-X-Received: by 2002:a62:8f4a:0:b029:20a:448e:7018 with SMTP id
- n71-20020a628f4a0000b029020a448e7018mr28602340pfd.62.1617733938703; 
- Tue, 06 Apr 2021 11:32:18 -0700 (PDT)
-Received: from n124-121-013.byted.org
- (ec2-54-241-92-238.us-west-1.compute.amazonaws.com. [54.241.92.238])
- by smtp.gmail.com with ESMTPSA id h21sm18475139pgi.60.2021.04.06.11.32.17
- (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
- Tue, 06 Apr 2021 11:32:18 -0700 (PDT)
-From: Jiang Wang <jiang.wang@bytedance.com>
-To: 
-Subject: [RFC] vsock: add multiple transports support for dgram
-Date: Tue,  6 Apr 2021 18:31:09 +0000
-Message-Id: <20210406183112.1150657-1-jiang.wang@bytedance.com>
-X-Mailer: git-send-email 2.11.0
-Cc: cong.wang@bytedance.com, duanxiongchun@bytedance.com,
- Andra Paraschiv <andraprs@amazon.com>, "jiang.wang" <jiang.wang@bytedance.com>,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
- Norbert Slusarek <nslusarek@gmx.net>, stefanha@redhat.com,
- Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
- Alexander Popov <alex.popov@linux.com>,
- "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
+ Wed,  7 Apr 2021 03:08:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1617764914;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=dUOp1bKxUERRwwBuWQa8wR+mqxjnD+zaLCkxmwx1QiM=;
+ b=T5a4wmAoeZDMP6XItktTSh19DOLF3LPTtkEgIFY4eqvX2O8Tou7D6KiafglIlCpIdd2g79
+ MzXmpjc2oF+W5QZStjaUaGaAL0hQYXBLmV9EmwoFaMsM/mJkpCP/U7nxLjFnen5LhLsrUP
+ gfr/Axb0o+pZSl0PyuPnzgF4X2eOulc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-485-F3rp7jAJNOmF9w5r_x2YCg-1; Tue, 06 Apr 2021 23:08:32 -0400
+X-MC-Unique: F3rp7jAJNOmF9w5r_x2YCg-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
+ [10.5.11.22])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 49EED8189C7;
+ Wed,  7 Apr 2021 03:08:31 +0000 (UTC)
+Received: from wangxiaodeMacBook-Air.local (ovpn-13-233.pek2.redhat.com
+ [10.72.13.233])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id E7DD710023AF;
+ Wed,  7 Apr 2021 03:08:24 +0000 (UTC)
+Subject: Re: [PATCH linux-next v2 01/14] vdpa: Follow kdoc comment style
+To: Parav Pandit <parav@nvidia.com>, virtualization@lists.linux-foundation.org
+References: <20210406170457.98481-1-parav@nvidia.com>
+ <20210406170457.98481-2-parav@nvidia.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <0af9f61b-02a6-3b28-b101-d9125bd50e35@redhat.com>
+Date: Wed, 7 Apr 2021 11:08:23 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.9.0
+MIME-Version: 1.0
+In-Reply-To: <20210406170457.98481-2-parav@nvidia.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: elic@nvidia.com, mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,269 +104,129 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="gbk"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: "jiang.wang" <jiang.wang@bytedance.com>
-
-Currently, only VMCI supports dgram sockets. To supported
-nested VM use case, this patch removes transport_dgram and
-uses transport_g2h and transport_h2g for dgram too.
-
-The transport is assgined when sending every packet and
-receiving every packet on dgram sockets.
-
-Signed-off-by: Jiang Wang <jiang.wang@bytedance.com>
----
-This patch is not tested. I don't have a VMWare testing
-environment. Could someone help me to test it? 
-
- include/net/af_vsock.h         |  2 --
- net/vmw_vsock/af_vsock.c       | 63 +++++++++++++++++++++---------------------
- net/vmw_vsock/vmci_transport.c | 20 +++++++++-----
- 3 files changed, 45 insertions(+), 40 deletions(-)
-
-diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
-index b1c717286993..aba241e0d202 100644
---- a/include/net/af_vsock.h
-+++ b/include/net/af_vsock.h
-@@ -96,8 +96,6 @@ struct vsock_transport_send_notify_data {
- #define VSOCK_TRANSPORT_F_H2G		0x00000001
- /* Transport provides guest->host communication */
- #define VSOCK_TRANSPORT_F_G2H		0x00000002
--/* Transport provides DGRAM communication */
--#define VSOCK_TRANSPORT_F_DGRAM		0x00000004
- /* Transport provides local (loopback) communication */
- #define VSOCK_TRANSPORT_F_LOCAL		0x00000008
- 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 92a72f0e0d94..7739ab2521a1 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -449,8 +449,6 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
- 
- 	switch (sk->sk_type) {
- 	case SOCK_DGRAM:
--		new_transport = transport_dgram;
--		break;
- 	case SOCK_STREAM:
- 		if (vsock_use_local_transport(remote_cid))
- 			new_transport = transport_local;
-@@ -1096,7 +1094,6 @@ static int vsock_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
- 	struct sock *sk;
- 	struct vsock_sock *vsk;
- 	struct sockaddr_vm *remote_addr;
--	const struct vsock_transport *transport;
- 
- 	if (msg->msg_flags & MSG_OOB)
- 		return -EOPNOTSUPP;
-@@ -1108,25 +1105,30 @@ static int vsock_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
- 
- 	lock_sock(sk);
- 
--	transport = vsk->transport;
--
- 	err = vsock_auto_bind(vsk);
- 	if (err)
- 		goto out;
- 
--
- 	/* If the provided message contains an address, use that.  Otherwise
- 	 * fall back on the socket's remote handle (if it has been connected).
- 	 */
- 	if (msg->msg_name &&
- 	    vsock_addr_cast(msg->msg_name, msg->msg_namelen,
- 			    &remote_addr) == 0) {
-+		vsock_addr_init(&vsk->remote_addr, remote_addr->svm_cid,
-+			remote_addr->svm_port);
-+
-+		err = vsock_assign_transport(vsk, NULL);
-+		if (err) {
-+			err = -EINVAL;
-+			goto out;
-+		}
-+
- 		/* Ensure this address is of the right type and is a valid
- 		 * destination.
- 		 */
--
- 		if (remote_addr->svm_cid == VMADDR_CID_ANY)
--			remote_addr->svm_cid = transport->get_local_cid();
-+			remote_addr->svm_cid = vsk->transport->get_local_cid();
- 
- 		if (!vsock_addr_bound(remote_addr)) {
- 			err = -EINVAL;
-@@ -1136,7 +1138,7 @@ static int vsock_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
- 		remote_addr = &vsk->remote_addr;
- 
- 		if (remote_addr->svm_cid == VMADDR_CID_ANY)
--			remote_addr->svm_cid = transport->get_local_cid();
-+			remote_addr->svm_cid = vsk->transport->get_local_cid();
- 
- 		/* XXX Should connect() or this function ensure remote_addr is
- 		 * bound?
-@@ -1150,13 +1152,13 @@ static int vsock_dgram_sendmsg(struct socket *sock, struct msghdr *msg,
- 		goto out;
- 	}
- 
--	if (!transport->dgram_allow(remote_addr->svm_cid,
-+	if (!vsk->transport->dgram_allow(remote_addr->svm_cid,
- 				    remote_addr->svm_port)) {
- 		err = -EINVAL;
- 		goto out;
- 	}
- 
--	err = transport->dgram_enqueue(vsk, remote_addr, msg, len);
-+	err = vsk->transport->dgram_enqueue(vsk, remote_addr, msg, len);
- 
- out:
- 	release_sock(sk);
-@@ -1191,13 +1193,20 @@ static int vsock_dgram_connect(struct socket *sock,
- 	if (err)
- 		goto out;
- 
-+	memcpy(&vsk->remote_addr, remote_addr, sizeof(vsk->remote_addr));
-+
-+	err = vsock_assign_transport(vsk, NULL);
-+	if (err) {
-+		err = -EINVAL;
-+		goto out;
-+	}
-+
- 	if (!vsk->transport->dgram_allow(remote_addr->svm_cid,
- 					 remote_addr->svm_port)) {
- 		err = -EINVAL;
- 		goto out;
- 	}
- 
--	memcpy(&vsk->remote_addr, remote_addr, sizeof(vsk->remote_addr));
- 	sock->state = SS_CONNECTED;
- 
- out:
-@@ -1209,6 +1218,16 @@ static int vsock_dgram_recvmsg(struct socket *sock, struct msghdr *msg,
- 			       size_t len, int flags)
- {
- 	struct vsock_sock *vsk = vsock_sk(sock->sk);
-+	long timeo;
-+
-+	timeo = sock_rcvtimeo(sock->sk, flags & MSG_DONTWAIT);
-+	do {
-+		if (vsk->transport)
-+			break;
-+	} while (timeo && !vsk->transport);
-+
-+	if (!vsk->transport)
-+		return -EAGAIN;
- 
- 	return vsk->transport->dgram_dequeue(vsk, msg, len, flags);
- }
-@@ -2055,14 +2074,6 @@ static int vsock_create(struct net *net, struct socket *sock,
- 
- 	vsk = vsock_sk(sk);
- 
--	if (sock->type == SOCK_DGRAM) {
--		ret = vsock_assign_transport(vsk, NULL);
--		if (ret < 0) {
--			sock_put(sk);
--			return ret;
--		}
--	}
--
- 	vsock_insert_unbound(vsk);
- 
- 	return 0;
-@@ -2182,7 +2193,7 @@ EXPORT_SYMBOL_GPL(vsock_core_get_transport);
- 
- int vsock_core_register(const struct vsock_transport *t, int features)
- {
--	const struct vsock_transport *t_h2g, *t_g2h, *t_dgram, *t_local;
-+	const struct vsock_transport *t_h2g, *t_g2h, *t_local;
- 	int err = mutex_lock_interruptible(&vsock_register_mutex);
- 
- 	if (err)
-@@ -2190,7 +2201,6 @@ int vsock_core_register(const struct vsock_transport *t, int features)
- 
- 	t_h2g = transport_h2g;
- 	t_g2h = transport_g2h;
--	t_dgram = transport_dgram;
- 	t_local = transport_local;
- 
- 	if (features & VSOCK_TRANSPORT_F_H2G) {
-@@ -2209,14 +2219,6 @@ int vsock_core_register(const struct vsock_transport *t, int features)
- 		t_g2h = t;
- 	}
- 
--	if (features & VSOCK_TRANSPORT_F_DGRAM) {
--		if (t_dgram) {
--			err = -EBUSY;
--			goto err_busy;
--		}
--		t_dgram = t;
--	}
--
- 	if (features & VSOCK_TRANSPORT_F_LOCAL) {
- 		if (t_local) {
- 			err = -EBUSY;
-@@ -2227,7 +2229,6 @@ int vsock_core_register(const struct vsock_transport *t, int features)
- 
- 	transport_h2g = t_h2g;
- 	transport_g2h = t_g2h;
--	transport_dgram = t_dgram;
- 	transport_local = t_local;
- 
- err_busy:
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index 8b65323207db..42ea2a1c92ce 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -613,6 +613,7 @@ static int vmci_transport_recv_dgram_cb(void *data, struct vmci_datagram *dg)
- 	size_t size;
- 	struct sk_buff *skb;
- 	struct vsock_sock *vsk;
-+	int err;
- 
- 	sk = (struct sock *)data;
- 
-@@ -629,6 +630,17 @@ static int vmci_transport_recv_dgram_cb(void *data, struct vmci_datagram *dg)
- 	if (!vmci_transport_allow_dgram(vsk, dg->src.context))
- 		return VMCI_ERROR_NO_ACCESS;
- 
-+	vsock_addr_init(&vsk->remote_addr, dg->src.context,
-+				dg->src.resource);
-+
-+	bh_lock_sock(sk);
-+	if (!sock_owned_by_user(sk)) {
-+		err = vsock_assign_transport(vsk, NULL);
-+		if (err)
-+			return err;
-+	}
-+	bh_unlock_sock(sk);
-+
- 	size = VMCI_DG_SIZE(dg);
- 
- 	/* Attach the packet to the socket's receive queue as an sk_buff. */
-@@ -2093,13 +2105,7 @@ static int __init vmci_transport_init(void)
- 		goto err_destroy_stream_handle;
- 	}
- 
--	/* Register only with dgram feature, other features (H2G, G2H) will be
--	 * registered when the first host or guest becomes active.
--	 */
--	err = vsock_core_register(&vmci_transport, VSOCK_TRANSPORT_F_DGRAM);
--	if (err < 0)
--		goto err_unsubscribe;
--
-+	/* H2G, G2H will be registered when the first host or guest becomes active. */
- 	err = vmci_register_vsock_callback(vmci_vsock_transport_cb);
- 	if (err < 0)
- 		goto err_unregister;
--- 
-2.11.0
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CtTaIDIwMjEvNC83IMnPzucxOjA0LCBQYXJhdiBQYW5kaXQg0LS1wDoKPiBGb2xsb3cgY29tbWVu
+dCBzdHlsZSBtZW50aW9uZWQgaW4gdGhlIFdyaXRpbmcga2VybmVsLWRvYyBkb2N1bWVudCBbMV0u
+Cj4KPiBGb2xsb3dpbmcgd2FybmluZ3MgYXJlIGZpeGVkLgo+ICQgc2NyaXB0cy9rZXJuZWwtZG9j
+IC12IC1ub25lIGluY2x1ZGUvbGludXgvdmRwYS5oCj4gaW5jbHVkZS9saW51eC92ZHBhLmg6MTE6
+IHdhcm5pbmc6IG1pc3NpbmcgaW5pdGlhbCBzaG9ydCBkZXNjcmlwdGlvbiBvbiBsaW5lOgo+ICAg
+KiB2RFBBIGNhbGxiYWNrIGRlZmluaXRpb24uCj4gaW5jbHVkZS9saW51eC92ZHBhLmg6MTE6IGlu
+Zm86IFNjYW5uaW5nIGRvYyBmb3IgdkRQQQo+IGluY2x1ZGUvbGludXgvdmRwYS5oOjE1OiB3YXJu
+aW5nOiBjYW5ub3QgdW5kZXJzdGFuZCBmdW5jdGlvbiBwcm90b3R5cGU6ICdzdHJ1Y3QgdmRwYV9j
+YWxsYmFjayAnCj4gaW5jbHVkZS9saW51eC92ZHBhLmg6MjE6IHdhcm5pbmc6IG1pc3NpbmcgaW5p
+dGlhbCBzaG9ydCBkZXNjcmlwdGlvbiBvbiBsaW5lOgo+ICAgKiB2RFBBIG5vdGlmaWNhdGlvbiBh
+cmVhCj4gaW5jbHVkZS9saW51eC92ZHBhLmg6MjE6IGluZm86IFNjYW5uaW5nIGRvYyBmb3IgdkRQ
+QQo+IGluY2x1ZGUvbGludXgvdmRwYS5oOjI1OiB3YXJuaW5nOiBjYW5ub3QgdW5kZXJzdGFuZCBm
+dW5jdGlvbiBwcm90b3R5cGU6ICdzdHJ1Y3QgdmRwYV9ub3RpZmljYXRpb25fYXJlYSAnCj4gaW5j
+bHVkZS9saW51eC92ZHBhLmg6MzE6IHdhcm5pbmc6IG1pc3NpbmcgaW5pdGlhbCBzaG9ydCBkZXNj
+cmlwdGlvbiBvbiBsaW5lOgo+ICAgKiB2RFBBIHZxX3N0YXRlIGRlZmluaXRpb24KPiBpbmNsdWRl
+L2xpbnV4L3ZkcGEuaDozMTogaW5mbzogU2Nhbm5pbmcgZG9jIGZvciB2RFBBCj4gaW5jbHVkZS9s
+aW51eC92ZHBhLmg6MzQ6IHdhcm5pbmc6IGNhbm5vdCB1bmRlcnN0YW5kIGZ1bmN0aW9uIHByb3Rv
+dHlwZTogJ3N0cnVjdCB2ZHBhX3ZxX3N0YXRlICcKPiBpbmNsdWRlL2xpbnV4L3ZkcGEuaDo0MTog
+aW5mbzogU2Nhbm5pbmcgZG9jIGZvciB2RFBBIGRldmljZQo+IGluY2x1ZGUvbGludXgvdmRwYS5o
+OjUxOiB3YXJuaW5nOiBjYW5ub3QgdW5kZXJzdGFuZCBmdW5jdGlvbiBwcm90b3R5cGU6ICdzdHJ1
+Y3QgdmRwYV9kZXZpY2UgJwo+IGluY2x1ZGUvbGludXgvdmRwYS5oOjYyOiBpbmZvOiBTY2Fubmlu
+ZyBkb2MgZm9yIHZEUEEgSU9WQSByYW5nZQo+IGluY2x1ZGUvbGludXgvdmRwYS5oOjY2OiB3YXJu
+aW5nOiBjYW5ub3QgdW5kZXJzdGFuZCBmdW5jdGlvbiBwcm90b3R5cGU6ICdzdHJ1Y3QgdmRwYV9p
+b3ZhX3JhbmdlICcKPiBpbmNsdWRlL2xpbnV4L3ZkcGEuaDo3MjogaW5mbzogU2Nhbm5pbmcgZG9j
+IGZvciB2RFBBX2NvbmZpZ19vcHMKPiBpbmNsdWRlL2xpbnV4L3ZkcGEuaDoyMDM6IHdhcm5pbmc6
+IGNhbm5vdCB1bmRlcnN0YW5kIGZ1bmN0aW9uIHByb3RvdHlwZTogJ3N0cnVjdCB2ZHBhX2NvbmZp
+Z19vcHMgJwo+IGluY2x1ZGUvbGludXgvdmRwYS5oOjI3MDogaW5mbzogU2Nhbm5pbmcgZG9jIGZv
+ciB2ZHBhX2RyaXZlcgo+IGluY2x1ZGUvbGludXgvdmRwYS5oOjI3NTogd2FybmluZzogY2Fubm90
+IHVuZGVyc3RhbmQgZnVuY3Rpb24gcHJvdG90eXBlOiAnc3RydWN0IHZkcGFfZHJpdmVyICcKPiBp
+bmNsdWRlL2xpbnV4L3ZkcGEuaDozNDc6IGluZm86IFNjYW5uaW5nIGRvYyBmb3IgdmRwYV9tZ210
+ZGV2X29wcwo+IGluY2x1ZGUvbGludXgvdmRwYS5oOjM2MDogd2FybmluZzogY2Fubm90IHVuZGVy
+c3RhbmQgZnVuY3Rpb24gcHJvdG90eXBlOiAnc3RydWN0IHZkcGFfbWdtdGRldl9vcHMgJwo+Cj4g
+QWZ0ZXIgdGhpcyBmaXg6Cj4KPiBzY3JpcHRzL2tlcm5lbC1kb2MgLXYgLW5vbmUgaW5jbHVkZS9s
+aW51eC92ZHBhLmgKPiBpbmNsdWRlL2xpbnV4L3ZkcGEuaDoxMTogaW5mbzogU2Nhbm5pbmcgZG9j
+IGZvciBzdHJ1Y3QgdmRwYV9jYWxsbGJhY2sKPiBpbmNsdWRlL2xpbnV4L3ZkcGEuaDoyMTogaW5m
+bzogU2Nhbm5pbmcgZG9jIGZvciBzdHJ1Y3QgdmRwYV9ub3RpZmljYXRpb25fYXJlYQo+IGluY2x1
+ZGUvbGludXgvdmRwYS5oOjMxOiBpbmZvOiBTY2FubmluZyBkb2MgZm9yIHN0cnVjdCB2ZHBhX3Zx
+X3N0YXRlCj4gaW5jbHVkZS9saW51eC92ZHBhLmg6NDE6IGluZm86IFNjYW5uaW5nIGRvYyBmb3Ig
+c3RydWN0IHZkcGFfZGV2aWNlCj4gaW5jbHVkZS9saW51eC92ZHBhLmg6NjI6IGluZm86IFNjYW5u
+aW5nIGRvYyBmb3Igc3RydWN0IHZkcGFfaW92YV9yYW5nZQo+IGluY2x1ZGUvbGludXgvdmRwYS5o
+OjcyOiBpbmZvOiBTY2FubmluZyBkb2MgZm9yIHN0cnVjdCB2ZHBhX2NvbmZpZ19vcHMKPiBpbmNs
+dWRlL2xpbnV4L3ZkcGEuaDoyNzA6IGluZm86IFNjYW5uaW5nIGRvYyBmb3Igc3RydWN0IHZkcGFf
+ZHJpdmVyCj4gaW5jbHVkZS9saW51eC92ZHBhLmg6MzQ3OiBpbmZvOiBTY2FubmluZyBkb2MgZm9y
+IHN0cnVjdCB2ZHBhX21nbXRkZXZfb3BzCj4KPiBbMV0gaHR0cHM6Ly93d3cua2VybmVsLm9yZy9k
+b2MvaHRtbC9sYXRlc3QvZG9jLWd1aWRlL2tlcm5lbC1kb2MuaHRtbAo+Cj4gU2lnbmVkLW9mZi1i
+eTogUGFyYXYgUGFuZGl0IDxwYXJhdkBudmlkaWEuY29tPgo+IFJldmlld2VkLWJ5OiBFbGkgQ29o
+ZW4gPGVsaWNAbnZpZGlhLmNvbT4KCgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
+aGF0LmNvbT4KCgo+IC0tLQo+ICAgaW5jbHVkZS9saW51eC92ZHBhLmggfCAzOCArKysrKysrKysr
+KysrKysrKysrLS0tLS0tLS0tLS0tLS0tLS0tLQo+ICAgMSBmaWxlIGNoYW5nZWQsIDE5IGluc2Vy
+dGlvbnMoKyksIDE5IGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgv
+dmRwYS5oIGIvaW5jbHVkZS9saW51eC92ZHBhLmgKPiBpbmRleCAxNWZhMDg1ZmFiMDUuLjM3YjY1
+Y2E5NDBjZiAxMDA2NDQKPiAtLS0gYS9pbmNsdWRlL2xpbnV4L3ZkcGEuaAo+ICsrKyBiL2luY2x1
+ZGUvbGludXgvdmRwYS5oCj4gQEAgLTgsNyArOCw3IEBACj4gICAjaW5jbHVkZSA8bGludXgvdmhv
+c3RfaW90bGIuaD4KPiAgIAo+ICAgLyoqCj4gLSAqIHZEUEEgY2FsbGJhY2sgZGVmaW5pdGlvbi4K
+PiArICogc3RydWN0IHZkcGFfY2FsbGxiYWNrIC0gdkRQQSBjYWxsYmFjayBkZWZpbml0aW9uLgo+
+ICAgICogQGNhbGxiYWNrOiBpbnRlcnJ1cHQgY2FsbGJhY2sgZnVuY3Rpb24KPiAgICAqIEBwcml2
+YXRlOiB0aGUgZGF0YSBwYXNzZWQgdG8gdGhlIGNhbGxiYWNrIGZ1bmN0aW9uCj4gICAgKi8KPiBA
+QCAtMTgsNyArMTgsNyBAQCBzdHJ1Y3QgdmRwYV9jYWxsYmFjayB7Cj4gICB9Owo+ICAgCj4gICAv
+KioKPiAtICogdkRQQSBub3RpZmljYXRpb24gYXJlYQo+ICsgKiBzdHJ1Y3QgdmRwYV9ub3RpZmlj
+YXRpb25fYXJlYSAtIHZEUEEgbm90aWZpY2F0aW9uIGFyZWEKPiAgICAqIEBhZGRyOiBiYXNlIGFk
+ZHJlc3Mgb2YgdGhlIG5vdGlmaWNhdGlvbiBhcmVhCj4gICAgKiBAc2l6ZTogc2l6ZSBvZiB0aGUg
+bm90aWZpY2F0aW9uIGFyZWEKPiAgICAqLwo+IEBAIC0yOCw3ICsyOCw3IEBAIHN0cnVjdCB2ZHBh
+X25vdGlmaWNhdGlvbl9hcmVhIHsKPiAgIH07Cj4gICAKPiAgIC8qKgo+IC0gKiB2RFBBIHZxX3N0
+YXRlIGRlZmluaXRpb24KPiArICogc3RydWN0IHZkcGFfdnFfc3RhdGUgLSB2RFBBIHZxX3N0YXRl
+IGRlZmluaXRpb24KPiAgICAqIEBhdmFpbF9pbmRleDogYXZhaWxhYmxlIGluZGV4Cj4gICAgKi8K
+PiAgIHN0cnVjdCB2ZHBhX3ZxX3N0YXRlIHsKPiBAQCAtMzgsNyArMzgsNyBAQCBzdHJ1Y3QgdmRw
+YV92cV9zdGF0ZSB7Cj4gICBzdHJ1Y3QgdmRwYV9tZ210X2RldjsKPiAgIAo+ICAgLyoqCj4gLSAq
+IHZEUEEgZGV2aWNlIC0gcmVwcmVzZW50YXRpb24gb2YgYSB2RFBBIGRldmljZQo+ICsgKiBzdHJ1
+Y3QgdmRwYV9kZXZpY2UgLSByZXByZXNlbnRhdGlvbiBvZiBhIHZEUEEgZGV2aWNlCj4gICAgKiBA
+ZGV2OiB1bmRlcmx5aW5nIGRldmljZQo+ICAgICogQGRtYV9kZXY6IHRoZSBhY3R1YWwgZGV2aWNl
+IHRoYXQgaXMgcGVyZm9ybWluZyBETUEKPiAgICAqIEBjb25maWc6IHRoZSBjb25maWd1cmF0aW9u
+IG9wcyBmb3IgdGhpcyBkZXZpY2UuCj4gQEAgLTU5LDcgKzU5LDcgQEAgc3RydWN0IHZkcGFfZGV2
+aWNlIHsKPiAgIH07Cj4gICAKPiAgIC8qKgo+IC0gKiB2RFBBIElPVkEgcmFuZ2UgLSB0aGUgSU9W
+QSByYW5nZSBzdXBwb3J0IGJ5IHRoZSBkZXZpY2UKPiArICogc3RydWN0IHZkcGFfaW92YV9yYW5n
+ZSAtIHRoZSBJT1ZBIHJhbmdlIHN1cHBvcnQgYnkgdGhlIGRldmljZQo+ICAgICogQGZpcnN0OiBz
+dGFydCBvZiB0aGUgSU9WQSByYW5nZQo+ICAgICogQGxhc3Q6IGVuZCBvZiB0aGUgSU9WQSByYW5n
+ZQo+ICAgICovCj4gQEAgLTY5LDcgKzY5LDcgQEAgc3RydWN0IHZkcGFfaW92YV9yYW5nZSB7Cj4g
+ICB9Owo+ICAgCj4gICAvKioKPiAtICogdkRQQV9jb25maWdfb3BzIC0gb3BlcmF0aW9ucyBmb3Ig
+Y29uZmlndXJpbmcgYSB2RFBBIGRldmljZS4KPiArICogc3RydWN0IHZkcGFfY29uZmlnX29wcyAt
+IG9wZXJhdGlvbnMgZm9yIGNvbmZpZ3VyaW5nIGEgdkRQQSBkZXZpY2UuCj4gICAgKiBOb3RlOiB2
+RFBBIGRldmljZSBkcml2ZXJzIGFyZSByZXF1aXJlZCB0byBpbXBsZW1lbnQgYWxsIG9mIHRoZQo+
+ICAgICogb3BlcmF0aW9ucyB1bmxlc3MgaXQgaXMgbWVudGlvbmVkIHRvIGJlIG9wdGlvbmFsIGlu
+IHRoZSBmb2xsb3dpbmcKPiAgICAqIGxpc3QuCj4gQEAgLTI2Nyw3ICsyNjcsNyBAQCBpbnQgX3Zk
+cGFfcmVnaXN0ZXJfZGV2aWNlKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldiwgaW50IG52cXMpOwo+
+ICAgdm9pZCBfdmRwYV91bnJlZ2lzdGVyX2RldmljZShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYp
+Owo+ICAgCj4gICAvKioKPiAtICogdmRwYV9kcml2ZXIgLSBvcGVyYXRpb25zIGZvciBhIHZEUEEg
+ZHJpdmVyCj4gKyAqIHN0cnVjdCB2ZHBhX2RyaXZlciAtIG9wZXJhdGlvbnMgZm9yIGEgdkRQQSBk
+cml2ZXIKPiAgICAqIEBkcml2ZXI6IHVuZGVybHlpbmcgZGV2aWNlIGRyaXZlcgo+ICAgICogQHBy
+b2JlOiB0aGUgZnVuY3Rpb24gdG8gY2FsbCB3aGVuIGEgZGV2aWNlIGlzIGZvdW5kLiAgUmV0dXJu
+cyAwIG9yIC1lcnJuby4KPiAgICAqIEByZW1vdmU6IHRoZSBmdW5jdGlvbiB0byBjYWxsIHdoZW4g
+YSBkZXZpY2UgaXMgcmVtb3ZlZC4KPiBAQCAtMzQ0LDE4ICszNDQsMTggQEAgc3RhdGljIGlubGlu
+ZSB2b2lkIHZkcGFfZ2V0X2NvbmZpZyhzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYsIHVuc2lnbmVk
+IG9mZnNldCwKPiAgIH0KPiAgIAo+ICAgLyoqCj4gLSAqIHZkcGFfbWdtdGRldl9vcHMgLSB2ZHBh
+IGRldmljZSBvcHMKPiAtICogQGRldl9hZGQ6CUFkZCBhIHZkcGEgZGV2aWNlIHVzaW5nIGFsbG9j
+IGFuZCByZWdpc3Rlcgo+IC0gKgkJQG1kZXY6IHBhcmVudCBkZXZpY2UgdG8gdXNlIGZvciBkZXZp
+Y2UgYWRkaXRpb24KPiAtICoJCUBuYW1lOiBuYW1lIG9mIHRoZSBuZXcgdmRwYSBkZXZpY2UKPiAt
+ICoJCURyaXZlciBuZWVkIHRvIGFkZCBhIG5ldyBkZXZpY2UgdXNpbmcgX3ZkcGFfcmVnaXN0ZXJf
+ZGV2aWNlKCkKPiAtICoJCWFmdGVyIGZ1bGx5IGluaXRpYWxpemluZyB0aGUgdmRwYSBkZXZpY2Uu
+IERyaXZlciBtdXN0IHJldHVybiAwCj4gLSAqCQlvbiBzdWNjZXNzIG9yIGFwcHJvcHJpYXRlIGVy
+cm9yIGNvZGUuCj4gLSAqIEBkZXZfZGVsOglSZW1vdmUgYSB2ZHBhIGRldmljZSB1c2luZyB1bnJl
+Z2lzdGVyCj4gLSAqCQlAbWRldjogcGFyZW50IGRldmljZSB0byB1c2UgZm9yIGRldmljZSByZW1v
+dmFsCj4gLSAqCQlAZGV2OiB2ZHBhIGRldmljZSB0byByZW1vdmUKPiAtICoJCURyaXZlciBuZWVk
+IHRvIHJlbW92ZSB0aGUgc3BlY2lmaWVkIGRldmljZSBieSBjYWxsaW5nCj4gLSAqCQlfdmRwYV91
+bnJlZ2lzdGVyX2RldmljZSgpLgo+ICsgKiBzdHJ1Y3QgdmRwYV9tZ210ZGV2X29wcyAtIHZkcGEg
+ZGV2aWNlIG9wcwo+ICsgKiBAZGV2X2FkZDogQWRkIGEgdmRwYSBkZXZpY2UgdXNpbmcgYWxsb2Mg
+YW5kIHJlZ2lzdGVyCj4gKyAqCSAgICAgQG1kZXY6IHBhcmVudCBkZXZpY2UgdG8gdXNlIGZvciBk
+ZXZpY2UgYWRkaXRpb24KPiArICoJICAgICBAbmFtZTogbmFtZSBvZiB0aGUgbmV3IHZkcGEgZGV2
+aWNlCj4gKyAqCSAgICAgRHJpdmVyIG5lZWQgdG8gYWRkIGEgbmV3IGRldmljZSB1c2luZyBfdmRw
+YV9yZWdpc3Rlcl9kZXZpY2UoKQo+ICsgKgkgICAgIGFmdGVyIGZ1bGx5IGluaXRpYWxpemluZyB0
+aGUgdmRwYSBkZXZpY2UuIERyaXZlciBtdXN0IHJldHVybiAwCj4gKyAqCSAgICAgb24gc3VjY2Vz
+cyBvciBhcHByb3ByaWF0ZSBlcnJvciBjb2RlLgo+ICsgKiBAZGV2X2RlbDogUmVtb3ZlIGEgdmRw
+YSBkZXZpY2UgdXNpbmcgdW5yZWdpc3Rlcgo+ICsgKgkgICAgIEBtZGV2OiBwYXJlbnQgZGV2aWNl
+IHRvIHVzZSBmb3IgZGV2aWNlIHJlbW92YWwKPiArICoJICAgICBAZGV2OiB2ZHBhIGRldmljZSB0
+byByZW1vdmUKPiArICoJICAgICBEcml2ZXIgbmVlZCB0byByZW1vdmUgdGhlIHNwZWNpZmllZCBk
+ZXZpY2UgYnkgY2FsbGluZwo+ICsgKgkgICAgIF92ZHBhX3VucmVnaXN0ZXJfZGV2aWNlKCkuCj4g
+ICAgKi8KPiAgIHN0cnVjdCB2ZHBhX21nbXRkZXZfb3BzIHsKPiAgIAlpbnQgKCpkZXZfYWRkKShz
+dHJ1Y3QgdmRwYV9tZ210X2RldiAqbWRldiwgY29uc3QgY2hhciAqbmFtZSk7CgpfX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWls
+aW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6
+Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRp
+b24=
