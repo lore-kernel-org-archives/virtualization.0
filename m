@@ -2,102 +2,111 @@ Return-Path: <SRS0=B6Di=JF=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55872C433ED
-	for <virtualization@archiver.kernel.org>; Thu,  8 Apr 2021 09:50:47 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 443C8C433B4
+	for <virtualization@archiver.kernel.org>; Thu,  8 Apr 2021 10:14:17 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AFF4961157
-	for <virtualization@archiver.kernel.org>; Thu,  8 Apr 2021 09:50:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AFF4961157
+	by mail.kernel.org (Postfix) with ESMTPS id BDC1761168
+	for <virtualization@archiver.kernel.org>; Thu,  8 Apr 2021 10:14:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BDC1761168
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 537B941904;
-	Thu,  8 Apr 2021 09:50:46 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5BA04606EB;
+	Thu,  8 Apr 2021 10:14:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gmUqNbl0wnrW; Thu,  8 Apr 2021 09:50:44 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ZI0ikSLB4gs5; Thu,  8 Apr 2021 10:14:15 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 4CF2F406A4;
-	Thu,  8 Apr 2021 09:50:44 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7898960C10;
+	Thu,  8 Apr 2021 10:14:14 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 30BF6C000B;
-	Thu,  8 Apr 2021 09:50:44 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 18DC7C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4BE7AC000C;
+	Thu,  8 Apr 2021 10:14:14 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 23338C000A
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Apr 2021 09:50:42 +0000 (UTC)
+ Thu,  8 Apr 2021 10:14:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 01B5E41466
+ by smtp1.osuosl.org (Postfix) with ESMTP id 178C9837B9
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Apr 2021 09:50:42 +0000 (UTC)
+ Thu,  8 Apr 2021 10:14:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yM8HIkbQ5sjQ
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=ffwll.ch
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id YzVTbLfNycvH
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Apr 2021 09:50:38 +0000 (UTC)
+ Thu,  8 Apr 2021 10:14:11 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com
- [IPv6:2a00:1450:4864:20::431])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E0B25406A4
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com
+ [IPv6:2a00:1450:4864:20::332])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 8123B8378C
  for <virtualization@lists.linux-foundation.org>;
- Thu,  8 Apr 2021 09:50:37 +0000 (UTC)
-Received: by mail-wr1-x431.google.com with SMTP id i18so1434153wrm.5
+ Thu,  8 Apr 2021 10:14:11 +0000 (UTC)
+Received: by mail-wm1-x332.google.com with SMTP id k128so912451wmk.4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 08 Apr 2021 02:50:37 -0700 (PDT)
+ Thu, 08 Apr 2021 03:14:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
  h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=XT6Uvr6QxDSjDPt6uf2/aqkiGCAGwLiMoyrjM1HFV1k=;
- b=ewZibRRwK495FacAf3sa9RYv2FlsuUOYMcPv8IK3dalmsr76Zjbf6gBRyqKZ5wmcSH
- Qwsz52Tm/BmfqfDy1VLbAlC2SAEFSX0KStNfA7I+l8iilgVqTBohToRwlFJ86JjJd3HL
- lHnv/NV37spEQ86MWEQbmhLuB6iNBMIDmdLhc=
+ :content-disposition:content-transfer-encoding:in-reply-to;
+ bh=SVabUpYxndN1LScKEDsT27SUWhIabcV7OkTxb4iccuo=;
+ b=DmUbM9hswVfxw+gvjfc51Wv3OMrQ4BT8su2AD6l2o67VoOd94Pl3jt/6IEqcGkHIDk
+ LXfLTltM7I+cY7I0Y35crHZDtXJY8BvFhuMI1JZzPOn1wU0p1pNhgDEEOgGMO0pQwB69
+ 9SBMXapjDm/29QF1s087lhz7Ht8d2VnE1id4E=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=XT6Uvr6QxDSjDPt6uf2/aqkiGCAGwLiMoyrjM1HFV1k=;
- b=bAwG0c9QUkP2C9crzkKFwvwYbL9QzW6SN5wcWjbKusnBF714R0duPi7A19vFIP1xH3
- WjqScV9dfKLL7hVQ8f81HpSEHmxK6Z7phsFf9CC26nf1EgWXplPKMM7gv3fSR1SIsB05
- FsbFSrzfRRmWf+O+eqasQtzDFb7bxuJEVpBTwsArXljaqeybTWj8LybtjkU7vcpYiS/L
- WynDt9lvw/aaP/RDEtxFt9s43WFRtnoPd3imE2rmocY5jt0Mr206sg6FLLJTyLO78Lul
- FXrU+5lqhwIvuowbm1xmGaAWJsTuJS1VBsU3CIV2ltSwJV5BPEpUOgvdg/siI3cwm1EE
- 8aUA==
-X-Gm-Message-State: AOAM532vo4OW7P59UVSgWFG+fYZibEd1yh6MXOa/atQIFLtXxCBeciyh
- PRfPMoftbLL4tGHKu56KgCalOQ==
-X-Google-Smtp-Source: ABdhPJxffYDZUd9071tZ4d+tqTzCVAunQxs0iLn8FQb+kLIa1NQUkLsX04goCXfhBdGiY7Cqviqvlw==
-X-Received: by 2002:adf:84e6:: with SMTP id 93mr9469514wrg.376.1617875435720; 
- Thu, 08 Apr 2021 02:50:35 -0700 (PDT)
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=SVabUpYxndN1LScKEDsT27SUWhIabcV7OkTxb4iccuo=;
+ b=ammuW2zEH20q7bcbX2mMh247qzTMye88cB4xSpPsveSGJV0WxzeWSE+HUAJPGeydgJ
+ jXK5M50F6ogs977bk1VGcWrWJGfYXaQDhrPrNs3BSArd5T/T/NcZEXXbLw/DDiQxaXTD
+ HIr77XxWuXezB8hLywq7o66sRN/ZHD+HFMkVSAdrHpfma5aoSI/vFy2SQx5Y+m6ZP3My
+ BUWCyWY1uGlfuLawnra37tN/McGFGg6QW3QCbQZm4evvNca4h840vLH2BiJTuVm1U3+d
+ 6QlXS3lzDEbxHdRGu8uRApZUR1lCqhTGkCrOAUokMX9u8derRWJxTP36FQ+hAUW9CIU9
+ D4sw==
+X-Gm-Message-State: AOAM532GurfA8PoTsljoiwfzzDOvcNus+66f8bSIS2AXl1J6i+kndOJT
+ rrgK6sPsnDexdxP6Ex4dzibzPQ==
+X-Google-Smtp-Source: ABdhPJykRXPni68fCevCvIO69q0vJhr1Sv4Y/x1XmMP/9EMSzeyaJ2jDp6GtRlgtaZ5xzqyaZVoKZw==
+X-Received: by 2002:a05:600c:3641:: with SMTP id
+ y1mr2415285wmq.65.1617876849566; 
+ Thu, 08 Apr 2021 03:14:09 -0700 (PDT)
 Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
- by smtp.gmail.com with ESMTPSA id k3sm25768727wrc.67.2021.04.08.02.50.34
+ by smtp.gmail.com with ESMTPSA id b66sm12654388wmb.48.2021.04.08.03.14.08
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 08 Apr 2021 02:50:35 -0700 (PDT)
-Date: Thu, 8 Apr 2021 11:50:33 +0200
+ Thu, 08 Apr 2021 03:14:08 -0700 (PDT)
+Date: Thu, 8 Apr 2021 12:14:06 +0200
 From: Daniel Vetter <daniel@ffwll.ch>
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: [PATCH v2 03/10] drm/aperture: Move fbdev conflict helpers into
- drm_aperture.h
-Message-ID: <YG7R6ZkVNwrYaUWX@phenom.ffwll.local>
+To: Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2 00/10] drm: Support simple-framebuffer devices and
+ firmware fbs
+Message-ID: <YG7XbhSDIRyHzvL2@phenom.ffwll.local>
 References: <20210318102921.21536-1-tzimmermann@suse.de>
- <20210318102921.21536-4-tzimmermann@suse.de>
+ <d0ac63b3-dec5-58dc-2ce6-13cdef0399aa@redhat.com>
+ <c88e9322-4bf1-e303-c1f1-b2b433aa439f@suse.de>
+ <a85f936f-cd4c-ab0d-ed68-9e95bb93acb8@redhat.com>
+ <b2d6798f-1f7e-6fd4-eefd-b7bb4f080973@suse.de>
+ <1cd551c4-579c-0ce5-d410-fcf2a2c949f6@redhat.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20210318102921.21536-4-tzimmermann@suse.de>
+In-Reply-To: <1cd551c4-579c-0ce5-d410-fcf2a2c949f6@redhat.com>
 X-Operating-System: Linux phenom 5.7.0-1-amd64 
-Cc: robh@kernel.org, bluescreen_avenger@verizon.net, geert+renesas@glider.be,
+Cc: robh@kernel.org, bluescreen_avenger@verizon.net,
+ Thomas Zimmermann <tzimmermann@suse.de>, geert+renesas@glider.be,
  corbet@lwn.net, airlied@linux.ie, emil.l.velikov@gmail.com,
  dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org,
  maarten.lankhorst@linux.intel.com, lgirdwood@gmail.com, mripard@kernel.org,
- virtualization@lists.linux-foundation.org, hdegoede@redhat.com,
- broonie@kernel.org, daniel@ffwll.ch, sam@ravnborg.org
+ virtualization@lists.linux-foundation.org, broonie@kernel.org, daniel@ffwll.ch,
+ sam@ravnborg.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -109,199 +118,376 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Mar 18, 2021 at 11:29:14AM +0100, Thomas Zimmermann wrote:
-> Fbdev's helpers for handling conflicting framebuffers are related to
-> framebuffer apertures, not console emulation. Therefore move them into a
-> drm_aperture.h, which will contain the interfaces for the new aperture
-> helpers.
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Tested-by: nerdopolis <bluescreen_avenger@verizon.net>
-> ---
->  Documentation/gpu/drm-internals.rst |  6 +++
->  include/drm/drm_aperture.h          | 60 +++++++++++++++++++++++++++++
->  include/drm/drm_fb_helper.h         | 56 ++-------------------------
->  3 files changed, 69 insertions(+), 53 deletions(-)
->  create mode 100644 include/drm/drm_aperture.h
-> 
-> diff --git a/Documentation/gpu/drm-internals.rst b/Documentation/gpu/drm-internals.rst
-> index 12272b168580..4c7642d2ca34 100644
-> --- a/Documentation/gpu/drm-internals.rst
-> +++ b/Documentation/gpu/drm-internals.rst
-> @@ -75,6 +75,12 @@ update it, its value is mostly useless. The DRM core prints it to the
->  kernel log at initialization time and passes it to userspace through the
->  DRM_IOCTL_VERSION ioctl.
->  
-> +Managing Ownership of the Framebuffer Aperture
-> +----------------------------------------------
-> +
-> +.. kernel-doc:: include/drm/drm_aperture.h
-> +   :internal:
-> +
->  Device Instance and Driver Handling
->  -----------------------------------
->  
-> diff --git a/include/drm/drm_aperture.h b/include/drm/drm_aperture.h
-> new file mode 100644
-> index 000000000000..13766efe9517
-> --- /dev/null
-> +++ b/include/drm/drm_aperture.h
-> @@ -0,0 +1,60 @@
-> +/* SPDX-License-Identifier: MIT */
-> +
-> +#ifndef _DRM_APERTURE_H_
-> +#define _DRM_APERTURE_H_
-> +
-> +#include <linux/fb.h>
-> +#include <linux/vgaarb.h>
-> +
-> +/**
-> + * drm_fb_helper_remove_conflicting_framebuffers - remove firmware-configured framebuffers
+On Tue, Mar 30, 2021 at 10:34:12AM +0200, Hans de Goede wrote:
+> Hi,
+> =
 
-Annoying bikeshed, but I'd give them drm_aperture_ prefixes, for ocd
-consistency. Also make them real functions, they're quite big and will
-grow more in the next patch.
+> On 3/30/21 9:09 AM, Thomas Zimmermann wrote:
+> > Hi
+> > =
 
-I'm also not super happy about the naming here but oh well.
+> > Am 29.03.21 um 16:50 schrieb Hans de Goede:
+> >> Hi,
+> >>
+> >> On 3/29/21 2:31 PM, Thomas Zimmermann wrote:
+> >>> Hi
+> >>>
+> >>> Am 25.03.21 um 12:29 schrieb Hans de Goede:
+> >>>> Hi,
+> >>>>
+> >>>> On 3/18/21 11:29 AM, Thomas Zimmermann wrote:
+> >>>>> This patchset adds support for simple-framebuffer platform devices =
+and
+> >>>>> a handover mechanism for native drivers to take-over control of the
+> >>>>> hardware.
+> >>>>>
+> >>>>> The new driver, called simpledrm, binds to a simple-frambuffer plat=
+form
+> >>>>> device. The kernel's boot code creates such devices for firmware-pr=
+ovided
+> >>>>> framebuffers, such as EFI-GOP or VESA. Typically the BIOS, UEFI or =
+boot
+> >>>>> loader sets up the framebuffers. Description via device tree is als=
+o an
+> >>>>> option.
+> >>>>>
+> >>>>> Simpledrm is small enough to be linked into the kernel. The driver'=
+s main
+> >>>>> purpose is to provide graphical output during the early phases of t=
+he boot
+> >>>>> process, before the native DRM drivers are available. Native driver=
+s are
+> >>>>> typically loaded from an initrd ram disk. Occationally simpledrm ca=
+n also
+> >>>>> serve as interim solution on graphics hardware without native DRM d=
+river.
+> >>>>>
+> >>>>> So far distributions rely on fbdev drivers, such as efifb, vesafb or
+> >>>>> simplefb, for early-boot graphical output. However fbdev is depreca=
+ted and
+> >>>>> the drivers do not provide DRM interfaces for modern userspace.
+> >>>>>
+> >>>>> Patches 1 and 2 prepare the DRM format helpers for simpledrm.
+> >>>>>
+> >>>>> Patches 3 and 4 add a hand-over mechanism. Simpledrm acquires it's
+> >>>>> framebuffer's I/O-memory range and provides a callback function to =
+be
+> >>>>> removed by a native driver. The native driver will remove simpledrm=
+ before
+> >>>>> taking over the hardware. The removal is integrated into existing h=
+elpers,
+> >>>>> so drivers use it automatically.
+> >>>>>
+> >>>>> Patches 5 to 10 add the simpledrm driver. It's build on simple DRM =
+helpers
+> >>>>> and SHMEM. It supports 16-bit, 24-bit and 32-bit RGB framebuffers. =
+During
+> >>>>> pageflips, SHMEM buffers are copied into the framebuffer memory, si=
+milar
+> >>>>> to cirrus or mgag200. The code in patches 8 and 9 handles clocks and
+> >>>>> regulators. It's based on the simplefb drivers, but has been modifi=
+ed for
+> >>>>> DRM.
+> >>>>
+> >>>> Thank you for your work on this, this is very interesting.
+> >>>>
+> >>>>> I've also been working on fastboot support (i.e., flicker-free boot=
+ing).
+> >>>>> This requires state-readout from simpledrm via generic interfaces, =
+as
+> >>>>> outlined in [1]. I do have some prototype code, but it will take a =
+while
+> >>>>> to get this ready. Simpledrm will then support it.
+> >>>>>
+> >>>>> I've tested simpledrm with x86 EFI and VESA framebuffers, which bot=
+h work
+> >>>>> reliably. The fbdev console and Weston work automatically. Xorg req=
+uires
+> >>>>> manual configuration of the device. Xorgs current modesetting drive=
+r does
+> >>>>> not work with both, platform and PCI device, for the same physical
+> >>>>> hardware. Once configured, X11 works. I looked into X11, but couldn=
+'t see
+> >>>>> an easy way of fixing the problem. With the push towards Wayland+Xw=
+ayland
+> >>>>> I expect the problem to become a non-issue soon. Additional testing=
+ has
+> >>>>> been reported at [2].
+> >>>>>
+> >>>>> One cosmetical issue is that simpledrm's device file is card0 and t=
+he
+> >>>>> native driver's device file is card1. After simpledrm has been kick=
+ed out,
+> >>>>> only card1 is left. This does not seem to be a practical problem ho=
+wever.
+> >>>>>
+> >>>>> TODO/IDEAS:
+> >>>>>
+> >>>>> =A0=A0=A0=A0=A0* provide deferred takeover
+> >>>>
+> >>>> I'm not sure what you mean with this ?=A0 Currently deferred-takeove=
+r is
+> >>>> handled in the fbcon code. Current flickerfree boot works like this
+> >>>> (assuming a single LCD panel in a laptop):
+> >>>>
+> >>>> 1. EFI/GOP sets up the framebuffer, draws a vendor logo
+> >>>> 2. The bootloader runs in silent mode and does not touch anything gf=
+x related
+> >>>> 3. kernel boots, with a loglevel of 3 so only CRIT/EMERG messages ar=
+e shown
+> >>>> 2. efifb loads; and tells fbcon that a framebuffer is now available =
+for it to "bind"
+> >>>> =A0=A0=A0=A0 to. Since CONFIG_FRAMEBUFFER_CONSOLE_DEFERRED_TAKEOVER=
+=3Dy fbcon defers taking over
+> >>>> =A0=A0=A0=A0 the console and leaves the dummy-console driver in plac=
+e (unless there have already
+> >>>> =A0=A0=A0=A0 been kernel messages logged, which there shouldn't beca=
+use loglevel=3D3)
+> >>>> 3. i915 loads, reads out the hw state compares this to the preferred=
+-mode for the
+> >>>> =A0=A0=A0=A0 panel which it would set, they match, nothing happens. =
+i915 takes ownership
+> >>>> =A0=A0=A0=A0 of the scanout-buffer set up by the GOP, but leaves it =
+in place.
+> >>>> =A0=A0=A0=A0 i915 also removes the efifb /dev/fb0 and installs its o=
+wn /dev/fb0 fbdev compat
+> >>>> =A0=A0=A0=A0 device, fbcon is notified of this, but is still deferre=
+d and leaves the dummy
+> >>>> =A0=A0=A0=A0 console driver in place as console driver.
+> >>>> 4. Plymouth loads, allocates a new scan-out buffer at the panel's pr=
+eferred resolution,
+> >>>> =A0=A0=A0=A0 plymouth reads the vendor-logo through the BGRT ACPI in=
+terface and fills the
+> >>>> =A0=A0=A0=A0 scanout-buffer with the vendor-logo + a spinner. Then p=
+lymouth installs the new
+> >>>> =A0=A0=A0=A0 scanout-buffer on the crtc, this is done atomically dur=
+ing vsync, so the user
+> >>>> =A0=A0=A0=A0 sees no changes, other then the spinner appearing
+> >>>> =A0=A0=A0=A0 (note the active VT is now in graphical mode)
+> >>>> 5. From here on not flickering is a userspace problem
+> >>>>
+> >>>> AFAICT this should work fine with simplekms too, unless it clears th=
+e screen
+> >>>> to black when it binds.
+> >>>
+> >>> I forgot to add the code that clears the screen, but that's the case =
+here.
+> >>>
+> >>> Instead of a plane-disable operation, simpledrm can at best clear the=
+ screen. This would happen during the initial mode-config reset IIRC.
+> >>
+> >> Hmm, clearing the screen without any (atomic) modesets being initiated=
+ by either
+> >> an in kernel drm-client or userspace seems wrong, this is certainly di=
+fferent from
+> >> what the i915 driver does. The way I see it either a drm client provid=
+es a new
+> >> framebuffer in which case you copy that over the old contents, effecti=
+vely clearing
+> >> it. Or a drm-client gets a handle and draws to the current fb directly=
+, in which
+> >> case it is the clients responsibility to clear it itself first.
+> >>
+> >> IOW I believe that simpledrm should not clear the screen itself at all.
+> > =
 
-Either way: Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> > I do as well. And when I boot with simpledrm + native driver it's flick=
+er-free from what I can tell. But drm_mode_config_reset() is supposed to re=
+set HW and software state. There could be some corner case where we'd have =
+to clear the screen. For now, it should be fine.
+> =
 
-> + * @a: memory range, users of which are to be removed
-> + * @name: requesting driver name
-> + * @primary: also kick vga16fb if present
-> + *
-> + * This function removes framebuffer devices (initialized by firmware/bootloader)
-> + * which use memory range described by @a. If @a is NULL all such devices are
-> + * removed.
-> + */
-> +static inline int
-> +drm_fb_helper_remove_conflicting_framebuffers(struct apertures_struct *a,
-> +					      const char *name, bool primary)
-> +{
-> +#if IS_REACHABLE(CONFIG_FB)
-> +	return remove_conflicting_framebuffers(a, name, primary);
-> +#else
-> +	return 0;
-> +#endif
-> +}
-> +
-> +/**
-> + * drm_fb_helper_remove_conflicting_pci_framebuffers - remove firmware-configured
-> + *                                                     framebuffers for PCI devices
-> + * @pdev: PCI device
-> + * @name: requesting driver name
-> + *
-> + * This function removes framebuffer devices (eg. initialized by firmware)
-> + * using memory range configured for any of @pdev's memory bars.
-> + *
-> + * The function assumes that PCI device with shadowed ROM drives a primary
-> + * display and so kicks out vga16fb.
-> + */
-> +static inline int
-> +drm_fb_helper_remove_conflicting_pci_framebuffers(struct pci_dev *pdev,
-> +						  const char *name)
-> +{
-> +	int ret = 0;
-> +
-> +	/*
-> +	 * WARNING: Apparently we must kick fbdev drivers before vgacon,
-> +	 * otherwise the vga fbdev driver falls over.
-> +	 */
-> +#if IS_REACHABLE(CONFIG_FB)
-> +	ret = remove_conflicting_pci_framebuffers(pdev, name);
-> +#endif
-> +	if (ret == 0)
-> +		ret = vga_remove_vgacon(pdev);
-> +	return ret;
-> +}
-> +
-> +#endif
-> diff --git a/include/drm/drm_fb_helper.h b/include/drm/drm_fb_helper.h
-> index 3b273f9ca39a..d06a3942fddb 100644
-> --- a/include/drm/drm_fb_helper.h
-> +++ b/include/drm/drm_fb_helper.h
-> @@ -30,13 +30,13 @@
->  #ifndef DRM_FB_HELPER_H
->  #define DRM_FB_HELPER_H
->  
-> -struct drm_fb_helper;
-> -
-> +#include <drm/drm_aperture.h>
->  #include <drm/drm_client.h>
->  #include <drm/drm_crtc.h>
->  #include <drm/drm_device.h>
->  #include <linux/kgdb.h>
-> -#include <linux/vgaarb.h>
-> +
-> +struct drm_fb_helper;
->  
->  enum mode_set_atomic {
->  	LEAVE_ATOMIC_MODE_SET,
-> @@ -451,54 +451,4 @@ drm_fbdev_generic_setup(struct drm_device *dev, unsigned int preferred_bpp)
->  
->  #endif
->  
-> -/**
-> - * drm_fb_helper_remove_conflicting_framebuffers - remove firmware-configured framebuffers
-> - * @a: memory range, users of which are to be removed
-> - * @name: requesting driver name
-> - * @primary: also kick vga16fb if present
-> - *
-> - * This function removes framebuffer devices (initialized by firmware/bootloader)
-> - * which use memory range described by @a. If @a is NULL all such devices are
-> - * removed.
-> - */
-> -static inline int
-> -drm_fb_helper_remove_conflicting_framebuffers(struct apertures_struct *a,
-> -					      const char *name, bool primary)
-> -{
-> -#if IS_REACHABLE(CONFIG_FB)
-> -	return remove_conflicting_framebuffers(a, name, primary);
-> -#else
-> -	return 0;
-> -#endif
-> -}
-> -
-> -/**
-> - * drm_fb_helper_remove_conflicting_pci_framebuffers - remove firmware-configured framebuffers for PCI devices
-> - * @pdev: PCI device
-> - * @name: requesting driver name
-> - *
-> - * This function removes framebuffer devices (eg. initialized by firmware)
-> - * using memory range configured for any of @pdev's memory bars.
-> - *
-> - * The function assumes that PCI device with shadowed ROM drives a primary
-> - * display and so kicks out vga16fb.
-> - */
-> -static inline int
-> -drm_fb_helper_remove_conflicting_pci_framebuffers(struct pci_dev *pdev,
-> -						  const char *name)
-> -{
-> -	int ret = 0;
-> -
-> -	/*
-> -	 * WARNING: Apparently we must kick fbdev drivers before vgacon,
-> -	 * otherwise the vga fbdev driver falls over.
-> -	 */
-> -#if IS_REACHABLE(CONFIG_FB)
-> -	ret = remove_conflicting_pci_framebuffers(pdev, name);
-> -#endif
-> -	if (ret == 0)
-> -		ret = vga_remove_vgacon(pdev);
-> -	return ret;
-> -}
-> -
->  #endif
-> -- 
-> 2.30.1
-> 
+> Sounds good, thanks.
 
--- 
+To clarify: Atomic assumes that the sw state always matches hw state, even
+at boot-up. Most drivers use drm_mode_config_reset to achieve that, which
+forces everything to off. But that breaks flicker-free boot.
+
+To avoid that i915 (and it's the only driver doing so) has fairly
+elaborate state-readout code, to make sure we do faithfully preserve the
+full boot-up display state. This is anything but trivial to implement.
+
+For simpledrm it's a bit simple, since state recover boils down to reading
+out the fb and putting it into the new one, since there's not even
+provisions (afaiui) for simpledrm to enable/disable the output physically.
+
+So i915 is the exception here allowing flicker-free boot, not the rule.
+-Daniel
+
+> > BTW if you have the time I'd appreciate your review of the patchset.
+> =
+
+> Sorry, but I'm burried under a whole pile of other work. So although I wo=
+uld like to help it is better to say no.
+> =
+
+> Regards,
+> =
+
+> Hans
+> =
+
+> =
+
+> =
+
+> =
+
+> =
+
+> >>> But we need to keep the display content stored in a framebuffer, so r=
+ead-out helpers are required. There are more users of these read-out helper=
+s. Adding them at some point probably makes sense.
+> >>>
+> >>> Other drivers might also want to read the initial config from simpled=
+rm via read-out helpers. I think only i915 currently supports something lik=
+e that ATM.
+> >>>
+> >>> Best regards
+> >>> Thomas
+> >>>
+> >>>>
+> >>>> An addition to the above sequence, if at any time either the kernel =
+or userspace
+> >>>> prints a message to the console; and at that time a fbdev is registe=
+red then fbcon
+> >>>> will takeover as the console driver from the dummy driver and it wil=
+l start drawing
+> >>>> to the registered fbdev (1), destroying the framebuffer contents. Al=
+so if any messages
+> >>>> where printend while no fbdev was registered, then fbcon will takeov=
+er the console
+> >>>> as soon as a fbdev gets registered.
+> >>>>
+> >>>> So since we already have deferred-takeover in the fbcon code, I wond=
+er what you
+> >>>> mean when you are talking about "provide deferred takeover" for simp=
+lekms?
+> >>>>
+> >>>> Regards,
+> >>>>
+> >>>> Hans
+> >>>>
+> >>>>
+> >>>> 1) Except when the VT has been switched to GFX mode when this happen=
+s, then fbcon
+> >>>> will delay using the fbdev until the VT is switched back to text mod=
+e.
+> >>>>
+> >>>>
+> >>>> p.s.
+> >>>>
+> >>>> This has the interesting side effect then when logging into a deskto=
+p GUI session:
+> >>>> kernel -> plymouth -> gdm -> GNOME user session
+> >>>>
+> >>>> There never is any output to the text-console and fbcon never takes-=
+over, so on
+> >>>> many Laptops running say Fedora workstation the fbcon code is actual=
+ly unused
+> >>>> until the user manually switches to another virtual-console to log i=
+n in
+> >>>> text-mode:
+> >>>>
+> >>>> [hans@x1 ~]$ dmesg | grep -E 'fbcon|Console:|Truecolor'
+> >>>> [=A0=A0=A0 0.258904] Console: colour dummy device 80x25
+> >>>> [=A0=A0=A0 1.274726] efifb: Truecolor: size=3D8:8:8:8, shift=3D24:16=
+:8:0
+> >>>> [=A0=A0=A0 1.274768] fbcon: Deferring console take-over
+> >>>> [=A0=A0=A0 2.540894] fbcon: i915drmfb (fb0) is primary device
+> >>>> [=A0=A0=A0 2.540896] fbcon: Deferring console take-over
+> >>>> [hans@x1 ~]$ uptime
+> >>>> =A0=A0 12:29:39 up=A0 4:19,=A0 1 user,=A0 load average: 0.58, 0.75, =
+0.81
+> >>>>
+> >>>> Look mom no fbcon
+> >>>>
+> >>>>
+> >>>>
+> >>>>
+> >>>>> =A0=A0=A0=A0=A0* provide bootsplash DRM client
+> >>>>> =A0=A0=A0=A0=A0* make simplekms usable with ARM-EFI fbs
+> >>>>>
+> >>>>> v2:
+> >>>>> =A0=A0=A0=A0=A0* rename to simpledrm, aperture helpers
+> >>>>> =A0=A0=A0=A0=A0* reorganized patches
+> >>>>> =A0=A0=A0=A0=A0* use hotplug helpers for removal (Daniel)
+> >>>>> =A0=A0=A0=A0=A0* added DT match tables (Rob)
+> >>>>> =A0=A0=A0=A0=A0* use shadow-plane helpers
+> >>>>> =A0=A0=A0=A0=A0* lots of minor cleanups
+> >>>>>
+> >>>>> [1] https://lore.kernel.org/dri-devel/CAKMK7uHtqHy_oz4W7F+hmp9iqp7W=
+5Ra8CxPvJ=3D9BwmvfU-O0gg@mail.gmail.com/
+> >>>>> [2] https://lore.kernel.org/dri-devel/1761762.3HQLrFs1K7@nerdopolis/
+> >>>>>
+> >>>>> Thomas Zimmermann (10):
+> >>>>> =A0=A0=A0 drm/format-helper: Pass destination pitch to drm_fb_memcp=
+y_dstclip()
+> >>>>> =A0=A0=A0 drm/format-helper: Add blitter functions
+> >>>>> =A0=A0=A0 drm/aperture: Move fbdev conflict helpers into drm_apertu=
+re.h
+> >>>>> =A0=A0=A0 drm/aperture: Add infrastructure for aperture ownership
+> >>>>> =A0=A0=A0 drm: Add simpledrm driver
+> >>>>> =A0=A0=A0 drm/simpledrm: Add fbdev emulation
+> >>>>> =A0=A0=A0 drm/simpledrm: Initialize framebuffer data from device-tr=
+ee node
+> >>>>> =A0=A0=A0 drm/simpledrm: Acquire clocks from DT device node
+> >>>>> =A0=A0=A0 drm/simpledrm: Acquire regulators from DT device node
+> >>>>> =A0=A0=A0 drm/simpledrm: Acquire memory aperture for framebuffer
+> >>>>>
+> >>>>> =A0=A0 Documentation/gpu/drm-internals.rst=A0=A0=A0 |=A0 12 +
+> >>>>> =A0=A0 MAINTAINERS=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 |=A0=A0 7 +
+> >>>>> =A0=A0 drivers/gpu/drm/Kconfig=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0=A0 |=A0=A0 7 +
+> >>>>> =A0=A0 drivers/gpu/drm/Makefile=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0=A0 |=A0=A0 1 +
+> >>>>> =A0=A0 drivers/gpu/drm/drm_aperture.c=A0=A0=A0=A0=A0=A0=A0=A0 | 287=
+ ++++++++
+> >>>>> =A0=A0 drivers/gpu/drm/drm_format_helper.c=A0=A0=A0 |=A0 96 ++-
+> >>>>> =A0=A0 drivers/gpu/drm/mgag200/mgag200_mode.c |=A0=A0 2 +-
+> >>>>> =A0=A0 drivers/gpu/drm/tiny/Kconfig=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0 |=
+=A0 17 +
+> >>>>> =A0=A0 drivers/gpu/drm/tiny/Makefile=A0=A0=A0=A0=A0=A0=A0=A0=A0 |=
+=A0=A0 1 +
+> >>>>> =A0=A0 drivers/gpu/drm/tiny/cirrus.c=A0=A0=A0=A0=A0=A0=A0=A0=A0 |=
+=A0=A0 2 +-
+> >>>>> =A0=A0 drivers/gpu/drm/tiny/simpledrm.c=A0=A0=A0=A0=A0=A0 | 932 +++=
+++++++++++++++++++++++
+> >>>>> =A0=A0 include/drm/drm_aperture.h=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+=A0 |=A0 96 +++
+> >>>>> =A0=A0 include/drm/drm_fb_helper.h=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=
+ |=A0 56 +-
+> >>>>> =A0=A0 include/drm/drm_format_helper.h=A0=A0=A0=A0=A0=A0=A0 |=A0 10=
+ +-
+> >>>>> =A0=A0 14 files changed, 1466 insertions(+), 60 deletions(-)
+> >>>>> =A0=A0 create mode 100644 drivers/gpu/drm/drm_aperture.c
+> >>>>> =A0=A0 create mode 100644 drivers/gpu/drm/tiny/simpledrm.c
+> >>>>> =A0=A0 create mode 100644 include/drm/drm_aperture.h
+> >>>>>
+> >>>>> --=A0
+> >>>>> 2.30.1
+> >>>>>
+> >>>>
+> >>>
+> >>
+> >> _______________________________________________
+> >> dri-devel mailing list
+> >> dri-devel@lists.freedesktop.org
+> >> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+> >>
+> > =
+
+> =
+
+
+-- =
+
 Daniel Vetter
 Software Engineer, Intel Corporation
 http://blog.ffwll.ch
