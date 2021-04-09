@@ -2,105 +2,104 @@ Return-Path: <SRS0=E6mM=JG=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90C52C433ED
-	for <virtualization@archiver.kernel.org>; Fri,  9 Apr 2021 09:22:49 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD966C433B4
+	for <virtualization@archiver.kernel.org>; Fri,  9 Apr 2021 09:29:53 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CAE6B611BF
-	for <virtualization@archiver.kernel.org>; Fri,  9 Apr 2021 09:22:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CAE6B611BF
+	by mail.kernel.org (Postfix) with ESMTPS id 759B361178
+	for <virtualization@archiver.kernel.org>; Fri,  9 Apr 2021 09:29:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 759B361178
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5F8F6607D6;
-	Fri,  9 Apr 2021 09:22:48 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7B8A540E92;
+	Fri,  9 Apr 2021 09:29:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id x-SXAoI1bvkT; Fri,  9 Apr 2021 09:22:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 81599607CA;
-	Fri,  9 Apr 2021 09:22:46 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lYlNbtESyzKS; Fri,  9 Apr 2021 09:29:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7A7BF4010E;
+	Fri,  9 Apr 2021 09:29:50 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 50B47C000C;
-	Fri,  9 Apr 2021 09:22:46 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7EC1CC000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 50974C000C;
+	Fri,  9 Apr 2021 09:29:50 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AD4B2C000A
  for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Apr 2021 09:22:45 +0000 (UTC)
+ Fri,  9 Apr 2021 09:29:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 65EC9849DA
+ by smtp3.osuosl.org (Postfix) with ESMTP id A0A9B607ED
  for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Apr 2021 09:22:45 +0000 (UTC)
+ Fri,  9 Apr 2021 09:29:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=ffwll.ch
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id oNhMzTxKfl1i
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id pozTOFnZFA5h
  for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Apr 2021 09:22:44 +0000 (UTC)
+ Fri,  9 Apr 2021 09:29:46 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com
- [IPv6:2a00:1450:4864:20::42e])
- by smtp1.osuosl.org (Postfix) with ESMTPS id B67C3838F0
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com
+ [IPv6:2a00:1450:4864:20::329])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 968FE607CA
  for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Apr 2021 09:22:43 +0000 (UTC)
-Received: by mail-wr1-x42e.google.com with SMTP id d11so1013587wro.13
+ Fri,  9 Apr 2021 09:29:46 +0000 (UTC)
+Received: by mail-wm1-x329.google.com with SMTP id p19so2572763wmq.1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 09 Apr 2021 02:22:43 -0700 (PDT)
+ Fri, 09 Apr 2021 02:29:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:content-transfer-encoding:in-reply-to;
- bh=vLvBXXNW9anasakQAr8qQLcWcSFiTRvgGWu5WLKs3rk=;
- b=OgsIEelzOm3+bjqC2BAMMEbU3mdKUY4rN//VNlYBl++Lq46Ke2tfQCeeIl6D5liv0A
- syEdFvS+Ov4v6hjl2EdRV4K2tkYI+yZzuHbsNfTmF8ysUsS+23QtCEac2xoGJKp6eqSc
- 7KLxMwOc+EoWb6RAPAZhbjPk+OMKcSAIPnAsU=
+ bh=fT9oV4BN+fP8OtAhEYl3wA5q5d+nVpDfBhmHiic/Ebo=;
+ b=Of0eQXVIqqyCFGTthOVZrcSwN/PcdYd0tqWQSxgxB/HX3Q07xPyvMLrDEU1g1rRQka
+ bqFGykObnzRBTAM1rXkhxA4mVZQtYo9OvxCpClHIkdcKL6m7t1pP6K7wAmX6nCYBrcKc
+ cxzNnHp9IUHUAc+mMGlD8cfSDUg4zk9HX+qNY=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:content-transfer-encoding
  :in-reply-to;
- bh=vLvBXXNW9anasakQAr8qQLcWcSFiTRvgGWu5WLKs3rk=;
- b=QJMzgvYaztGbPNRtkvqsEpVDhi62jN+z9XZOuQeLzUip5FrzN7ZBtZXzWXgE9tLhDm
- GlRRs6soTmoS7Mv/41tlfKbcpjcFYvBHfyr8fAz7W6MS1Ytf2/ALFj26r8gRzZxXH1V3
- vTQWJ0+m2Grpwosw+Bu5nvAvWlHYIzEYqmuxutLiDm2kM5iabCNX2s2bWFuliThKRVIV
- NIBS8ADQDhLQsuVtM++Cvcf12nFANFRNZRycemNn1W9b1Yyw0EElYciles5mHmpTVPXy
- Chkcx6gxybXmKrhRxtMxhMtU55BBm36+CNSSvVfO3XA+6fwQl8eBxzqVH6KCoGJwLQ/h
- +9Nw==
-X-Gm-Message-State: AOAM531peM7PDGJEiU6ldrGBtq3SdO7hVPgTF5qM2BZ0wlOxUmclBJWQ
- uYqHO+IawVFmQ4HNR9fAyxIh7Q==
-X-Google-Smtp-Source: ABdhPJzf/ThGjTEWF4IYBosfUTP08Trlj6uVf2xa8DV5u1irOInL3zHkM19FAMZ7rfBdfElplD7GEg==
-X-Received: by 2002:a5d:4884:: with SMTP id g4mr16594801wrq.191.1617960161670; 
- Fri, 09 Apr 2021 02:22:41 -0700 (PDT)
+ bh=fT9oV4BN+fP8OtAhEYl3wA5q5d+nVpDfBhmHiic/Ebo=;
+ b=o/9ALJSzdSzz3lOpGZQ5j9qlWgT5nnEtOduMRwHh2hCbxYfkzzHe0EkKlXDkXaQOqb
+ SzfWSO26EO0RJMmYAPR7PVwQAQ6HfSeXdJEUFHoEtkX/DmwG4Or1eVj2RLk2+ViMHqIe
+ SS6m1rcx9zYHy7LuLAaQ5uLsFwHBKaLFUTqoZlofJobXgJQOaONpq7dcE0BocGoK53AG
+ e/P7fddiRoFWKBBrU9VdMbtEkWYll6pTPwzQZFFOX1SazdcqZcKrI8+HD1aSwbwjAw37
+ IhbQB63Szyk7LoPHgCaxOcSf/EXM6c/4wWOkme4SxM7SFhoRpNq0oVZ+pViefoqSqHSs
+ 5Oww==
+X-Gm-Message-State: AOAM531e0vovNR+3aooa3r6LI+S/7Dn4tRVUCMzsvm8BlpHEgM4DC8aV
+ nm94nWqAc0NKcmHEVir3R5J5dA==
+X-Google-Smtp-Source: ABdhPJxQae+DEM70O7kM/JNRFdzYQvhSYAMN59+W7b1iruQWhDQIYfA7RGhe3W0rKAyPUD3QGqduIA==
+X-Received: by 2002:a7b:c312:: with SMTP id k18mr13169376wmj.89.1617960584649; 
+ Fri, 09 Apr 2021 02:29:44 -0700 (PDT)
 Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
- by smtp.gmail.com with ESMTPSA id f9sm2981589wmj.38.2021.04.09.02.22.40
+ by smtp.gmail.com with ESMTPSA id l14sm3547851wrm.77.2021.04.09.02.29.43
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 09 Apr 2021 02:22:40 -0700 (PDT)
-Date: Fri, 9 Apr 2021 11:22:38 +0200
+ Fri, 09 Apr 2021 02:29:44 -0700 (PDT)
+Date: Fri, 9 Apr 2021 11:29:42 +0200
 From: Daniel Vetter <daniel@ffwll.ch>
 To: Thomas Zimmermann <tzimmermann@suse.de>
 Subject: Re: [PATCH v2 04/10] drm/aperture: Add infrastructure for aperture
  ownership
-Message-ID: <YHAc3vdstgJzIAEL@phenom.ffwll.local>
+Message-ID: <YHAehnkNy9ZZBXhV@phenom.ffwll.local>
 References: <20210318102921.21536-1-tzimmermann@suse.de>
  <20210318102921.21536-5-tzimmermann@suse.de>
  <YG7RgQfj0yZHbL6L@phenom.ffwll.local>
- <a787dde9-70b0-cb38-f2bf-6e7b479525f9@suse.de>
+ <a9d65fa8-6b10-d738-366d-c8254300cb7b@suse.de>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <a787dde9-70b0-cb38-f2bf-6e7b479525f9@suse.de>
+In-Reply-To: <a9d65fa8-6b10-d738-366d-c8254300cb7b@suse.de>
 X-Operating-System: Linux phenom 5.7.0-1-amd64 
-Cc: robh@kernel.org, bluescreen_avenger@verizon.net, geert+renesas@glider.be,
- corbet@lwn.net, airlied@linux.ie, emil.l.velikov@gmail.com,
- dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org,
- maarten.lankhorst@linux.intel.com, lgirdwood@gmail.com, mripard@kernel.org,
+Cc: bluescreen_avenger@verizon.net, geert+renesas@glider.be, corbet@lwn.net,
+ airlied@linux.ie, linux-doc@vger.kernel.org, emil.l.velikov@gmail.com,
+ lgirdwood@gmail.com, dri-devel@lists.freedesktop.org,
  virtualization@lists.linux-foundation.org, hdegoede@redhat.com,
  broonie@kernel.org, Daniel Vetter <daniel@ffwll.ch>, sam@ravnborg.org
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -119,11 +118,262 @@ Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Apr 09, 2021 at 09:06:56AM +0200, Thomas Zimmermann wrote:
+On Fri, Apr 09, 2021 at 09:54:03AM +0200, Thomas Zimmermann wrote:
 > Hi
 > =
 
 > Am 08.04.21 um 11:48 schrieb Daniel Vetter:
+> > On Thu, Mar 18, 2021 at 11:29:15AM +0100, Thomas Zimmermann wrote:
+> > > Platform devices might operate on firmware framebuffers, such as VESA=
+ or
+> > > EFI. Before a native driver for the graphics hardware can take over t=
+he
+> > > device, it has to remove any platform driver that operates on the fir=
+mware
+> > > framebuffer. Aperture helpers provide the infrastructure for platform
+> > > drivers to acquire firmware framebuffers, and for native drivers to r=
+emove
+> > > them later on.
+> > > =
+
+> > > It works similar to the related fbdev mechanism. During initializatio=
+n, the
+> > > platform driver acquires the firmware framebuffer's I/O memory and pr=
+ovides
+> > > a callback to be removed. The native driver later uses this informati=
+on to
+> > > remove any platform driver for it's framebuffer I/O memory.
+> > > =
+
+> > > The aperture removal code is integrated into the existing code for re=
+moving
+> > > conflicting framebuffers, so native drivers use it automatically.
+> > > =
+
+> > > v2:
+> > > 	* rename plaform helpers to aperture helpers
+> > > 	* tie to device lifetime with devm_ functions
+> > > 	* removed unsued remove() callback
+> > > 	* rename kickout to detach
+> > > 	* make struct drm_aperture private
+> > > 	* rebase onto existing drm_aperture.h header file
+> > > 	* use MIT license only for simplicity
+> > > 	* documentation
+> > > =
+
+> > > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> > > Tested-by: nerdopolis <bluescreen_avenger@verizon.net>
+> > =
+
+> > Bunch of bikesheds for your considerations below, but overall lgtm.
+> > =
+
+> > Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> > =
+
+> > Cheers, Daniel
+> > =
+
+> > > ---
+> > >   Documentation/gpu/drm-internals.rst |   6 +
+> > >   drivers/gpu/drm/Kconfig             |   7 +
+> > >   drivers/gpu/drm/Makefile            |   1 +
+> > >   drivers/gpu/drm/drm_aperture.c      | 287 +++++++++++++++++++++++++=
++++
+> > >   include/drm/drm_aperture.h          |  38 +++-
+> > >   5 files changed, 338 insertions(+), 1 deletion(-)
+> > >   create mode 100644 drivers/gpu/drm/drm_aperture.c
+> > > =
+
+> > > diff --git a/Documentation/gpu/drm-internals.rst b/Documentation/gpu/=
+drm-internals.rst
+> > > index 4c7642d2ca34..06af044c882f 100644
+> > > --- a/Documentation/gpu/drm-internals.rst
+> > > +++ b/Documentation/gpu/drm-internals.rst
+> > > @@ -78,9 +78,15 @@ DRM_IOCTL_VERSION ioctl.
+> > >   Managing Ownership of the Framebuffer Aperture
+> > >   ----------------------------------------------
+> > > +.. kernel-doc:: drivers/gpu/drm/drm_aperture.c
+> > > +   :doc: overview
+> > > +
+> > >   .. kernel-doc:: include/drm/drm_aperture.h
+> > >      :internal:
+> > > +.. kernel-doc:: drivers/gpu/drm/drm_aperture.c
+> > > +   :export:
+> > > +
+> > >   Device Instance and Driver Handling
+> > >   -----------------------------------
+> > > diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
+> > > index 1461652921be..b9d3fb91d22d 100644
+> > > --- a/drivers/gpu/drm/Kconfig
+> > > +++ b/drivers/gpu/drm/Kconfig
+> > > @@ -221,6 +221,13 @@ config DRM_SCHED
+> > >   	tristate
+> > >   	depends on DRM
+> > > +config DRM_APERTURE
+> > > +	bool
+> > > +	depends on DRM
+> > > +	help
+> > > +	  Controls ownership of graphics apertures. Required to
+> > > +	  synchronize with firmware-based drivers.
+> > =
+
+> > Uh I'm not a big fan of Kconfig and .ko modules for every little helper
+> > code. Imo just stuff this into the drm kms helpers and done. Or stuff it
+> > into drm core code, I think either is a good case for this. Everything =
+is
+> > its own module means we need to EXPORT_SYMBOL more stuff, and then driv=
+ers
+> > get funny ideas about using these internals ...
+> =
+
+> The code lives in the DRM core module. There's no extra ko file. But I'd
+> like to keep the Kconfig option. The aperture helpers will only be requir=
+ed
+> if there are generic drivers in the kernel and for many systems this is n=
+ot
+> the case.
+
+Imo this kind of optimization is what LTO is for. Having hundreds of
+Kconfig symbols just to shave of 2 functions, or something like that, in
+each case just doesn't feel like it's justified spending of effort and
+complexity. Configuring out entire subsystems, sure, but not individual
+pieces like this.
+
+So minimally a new Kconfig like this needs to show in a a) real world
+config b) actual relevant savings in terms of bytes. Otherwise it's really
+just cargo culting. I also feel like Kconfig symbols for everything is an
+appeasement tactic to sneak code int that has seen some resistance about
+potential overhead and all that. The cost in maintenance and complexity in
+keeping all the combinations working is much, much bigger though. Just
+look at the absolute endless amounts of pain that disabling
+CONFIG_BACKLIGHT is causing drm drivers. We do not want more of that,
+except if it's really solidly justified.
+
+And for the "this saves memory" justification, we've done that for i915 to
+kick out support code for old platforms. LTO is what gives you actual
+real-world benefits here, since anything else means a bazillion of Kconfig
+options, each for minimal gain, resulting in an overall unmaintainable
+mess.
+
+</rant>
+
+Cheers, Daniel
+
+> =
+
+> Best regards
+> Thomas
+> =
+
+> > =
+
+> > > +
+> > >   source "drivers/gpu/drm/i2c/Kconfig"
+> > >   source "drivers/gpu/drm/arm/Kconfig"
+> > > diff --git a/drivers/gpu/drm/Makefile b/drivers/gpu/drm/Makefile
+> > > index 5eb5bf7c16e3..c9ecb02df0f3 100644
+> > > --- a/drivers/gpu/drm/Makefile
+> > > +++ b/drivers/gpu/drm/Makefile
+> > > @@ -32,6 +32,7 @@ drm-$(CONFIG_AGP) +=3D drm_agpsupport.o
+> > >   drm-$(CONFIG_PCI) +=3D drm_pci.o
+> > >   drm-$(CONFIG_DEBUG_FS) +=3D drm_debugfs.o drm_debugfs_crc.o
+> > >   drm-$(CONFIG_DRM_LOAD_EDID_FIRMWARE) +=3D drm_edid_load.o
+> > > +drm-$(CONFIG_DRM_APERTURE) +=3D drm_aperture.o
+> > >   drm_vram_helper-y :=3D drm_gem_vram_helper.o
+> > >   obj-$(CONFIG_DRM_VRAM_HELPER) +=3D drm_vram_helper.o
+> > > diff --git a/drivers/gpu/drm/drm_aperture.c b/drivers/gpu/drm/drm_ape=
+rture.c
+> > > new file mode 100644
+> > > index 000000000000..4b02b5fed0a1
+> > > --- /dev/null
+> > > +++ b/drivers/gpu/drm/drm_aperture.c
+> > > @@ -0,0 +1,287 @@
+> > > +// SPDX-License-Identifier: MIT
+> > > +
+> > > +#include <linux/device.h>
+> > > +#include <linux/list.h>
+> > > +#include <linux/mutex.h>
+> > > +#include <linux/slab.h>
+> > > +#include <linux/types.h>
+> > > +
+> > > +#include <drm/drm_aperture.h>
+> > > +#include <drm/drm_drv.h>
+> > > +#include <drm/drm_print.h>
+> > > +
+> > > +/**
+> > > + * DOC: overview
+> > > + *
+> > > + * A graphics device might be supported by different drivers, but on=
+ly one
+> > > + * driver can be active at any given time. Many systems load a gener=
+ic
+> > > + * graphics drivers, such as EFI-GOP or VESA, early during the boot =
+process.
+> > > + * During later boot stages, they replace the generic driver with a =
+dedicated,
+> > > + * hardware-specific driver. To take over the device the dedicated d=
+river
+> > > + * first has to remove the generic driver. DRM aperture functions ma=
+nage
+> > > + * ownership of DRM framebuffer memory and hand-over between drivers.
+> > > + *
+> > > + * DRM drivers should call drm_fb_helper_remove_conflicting_framebuf=
+fers()
+> > > + * at the top of their probe function. The function removes any gene=
+ric
+> > > + * driver that is currently associated with the given framebuffer me=
+mory.
+> > > + * If the framebuffer is located at PCI BAR 0, the rsp code looks as=
+ in the
+> > > + * example given below.
+> > > + *
+> > > + * .. code-block:: c
+> > > + *
+> > > + *	static int remove_conflicting_framebuffers(struct pci_dev *pdev)
+> > > + *	{
+> > > + *		struct apertures_struct *ap;
+> > > + *		bool primary =3D false;
+> > > + *		int ret;
+> > > + *
+> > > + *		ap =3D alloc_apertures(1);
+> > > + *		if (!ap)
+> > > + *			return -ENOMEM;
+> > > + *
+> > > + *		ap->ranges[0].base =3D pci_resource_start(pdev, 0);
+> > > + *		ap->ranges[0].size =3D pci_resource_len(pdev, 0);
+> > > + *
+> > > + *	#ifdef CONFIG_X86
+> > > + *		primary =3D pdev->resource[PCI_ROM_RESOURCE].flags & IORESOURCE_=
+ROM_SHADOW;
+> > > + *	#endif
+> > > + *		ret =3D drm_fb_helper_remove_conflicting_framebuffers(ap, "examp=
+le driver", primary);
+> > > + *		kfree(ap);
+> > > + *
+> > > + *		return ret;
+> > > + *	}
+> > > + *
+> > > + *	static int probe(struct pci_dev *pdev)
+> > > + *	{
+> > > + *		int ret;
+> > > + *
+> > > + *		// Remove any generic drivers...
+> > > + *		ret =3D remove_conflicting_framebuffers(pdev);
+> > > + *		if (ret)
+> > > + *			return ret;
+> > > + *
+> > > + *		// ... and initialize the hardware.
+> > > + *		...
+> > > + *
+> > > + *		drm_dev_register();
+> > > + *
+> > > + *		return 0;
+> > > + *	}
+> > > + *
+> > > + * For PCI devices it is often sufficient to use drm_fb_helper_remov=
+e_conflicting_pci_framebuffers()
+> > > + * and let it detect the framebuffer apertures automatically.
 > > =
 
 > > Maybe just me, but to avoid overstretching the attention spawn of doc
@@ -131,24 +381,7 @@ On Fri, Apr 09, 2021 at 09:06:56AM +0200, Thomas Zimmermann wrote:
 > > stronger, e.g. "PCI device drivers can avoid open-coding
 > > remove_conflicting_framebuffers() by calling
 > > drm_fb_helper_remove_conflicting_pci_framebuffers()."
-> =
-
-> It's a tutorial. In my expectation, everyone just copies the tutorial code
-> and fills the gaps.
-
-Sure, but we also have default functions for most common cases, so most
-people just end up copypasting the single function call. Feels like
-overkill to have a tutorial for that.
-
-Imo tutorial/pseudo-code are good if there's more involved code flow that
-many places need to copypaste and customize. Or to show how different
-functions work together collectively. This doesn't quite feel like it's
-clearing that bar.
-
-And please don't get me wrong, solid docs is great. It's just that I think
-we need to have reader's attention span in mind too (and mine personally
-might be on the extremely short side here) to make sure our docs are
-effective at conveying information.
+> > =
 
 > > > + *
 > > > + * .. code-block:: c
@@ -193,41 +426,6 @@ s already
 > > detach ops? You already make this specific to struct drm_device, an
 > > implementation that just calls drm_dev_unplug feels like the right thing
 > > to do?
-> =
-
-> Is it that easy? simepldrm's detach function has code to synchronize with
-> concurrent hotplug removals. If we can use drm_dev_unplug() for everythin=
-g,
-> I'm all for it.
-
-Uh, I should have looked at the code instead of just asking silly
-questions :-)
-
-Now I'm even more scared, and also more convinced that we're recreating a
-bad version of some of the core driver model concepts.
-
-I think the ideal option here would be if drm_aperture could unload
-(unbind really) the platform driver for us, through the driver model. Then
-there's only one place that keeps track whether the driver is unbound or
-not. I'm not sure whether this can be done fully generic on a struct
-device, or whether we need special code for each type. Since atm we only
-have simpledrm we can just specialize on platform_device and it's good
-enough.
-
-I think best here would be to Cc: gregkh on this patch and the simpledrm
-->detach implementatation, and ask for his feedback as driver model
-maintainer. Maybe if you could hack together the platform_device unbind
-path as proof of concept would be even better.
-
-Either way, this is really tricky.
--Daniel
-
-> =
-
-> Best regards
-> Thomas
-> =
-
 > > =
 
 > > Or maybe we should tie this more into the struct device mode and force =
