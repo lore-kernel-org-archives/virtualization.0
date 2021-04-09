@@ -2,74 +2,73 @@ Return-Path: <SRS0=E6mM=JG=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A6AFC433ED
-	for <virtualization@archiver.kernel.org>; Fri,  9 Apr 2021 07:07:06 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94B06C433B4
+	for <virtualization@archiver.kernel.org>; Fri,  9 Apr 2021 07:09:49 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 974D4610FC
-	for <virtualization@archiver.kernel.org>; Fri,  9 Apr 2021 07:07:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 974D4610FC
+	by mail.kernel.org (Postfix) with ESMTPS id 3492361107
+	for <virtualization@archiver.kernel.org>; Fri,  9 Apr 2021 07:09:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3492361107
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 25C8784171;
-	Fri,  9 Apr 2021 07:07:05 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id E26D9419D1;
+	Fri,  9 Apr 2021 07:09:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id PGvAbVSvA3Uh; Fri,  9 Apr 2021 07:07:04 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id cQ22YPoVoNuw; Fri,  9 Apr 2021 07:09:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 734A083D9E;
-	Fri,  9 Apr 2021 07:07:03 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id EE929418ED;
+	Fri,  9 Apr 2021 07:09:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 49476C000C;
-	Fri,  9 Apr 2021 07:07:03 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D247CC000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C5737C000C;
+	Fri,  9 Apr 2021 07:09:46 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B2CCBC000A
  for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Apr 2021 07:07:01 +0000 (UTC)
+ Fri,  9 Apr 2021 07:09:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id B850A60E4A
+ by smtp4.osuosl.org (Postfix) with ESMTP id A5AEC419CB
  for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Apr 2021 07:07:01 +0000 (UTC)
+ Fri,  9 Apr 2021 07:09:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gIZfuU5JvxQE
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id FnfabcFfDdHF
  for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Apr 2021 07:07:00 +0000 (UTC)
+ Fri,  9 Apr 2021 07:09:43 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 33CC260627
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 1CE80418ED
  for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Apr 2021 07:06:59 +0000 (UTC)
+ Fri,  9 Apr 2021 07:09:43 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id C8122AE56;
- Fri,  9 Apr 2021 07:06:57 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id 4F7DBB126;
+ Fri,  9 Apr 2021 07:09:41 +0000 (UTC)
+Subject: Re: [PATCH v2 03/10] drm/aperture: Move fbdev conflict helpers into
+ drm_aperture.h
 To: Daniel Vetter <daniel@ffwll.ch>
 References: <20210318102921.21536-1-tzimmermann@suse.de>
- <20210318102921.21536-5-tzimmermann@suse.de>
- <YG7RgQfj0yZHbL6L@phenom.ffwll.local>
+ <20210318102921.21536-4-tzimmermann@suse.de>
+ <YG7R6ZkVNwrYaUWX@phenom.ffwll.local>
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: [PATCH v2 04/10] drm/aperture: Add infrastructure for aperture
- ownership
-Message-ID: <a787dde9-70b0-cb38-f2bf-6e7b479525f9@suse.de>
-Date: Fri, 9 Apr 2021 09:06:56 +0200
+Message-ID: <133ad936-f080-f063-b056-3c11b4d9f8d4@suse.de>
+Date: Fri, 9 Apr 2021 09:09:40 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.8.1
 MIME-Version: 1.0
-In-Reply-To: <YG7RgQfj0yZHbL6L@phenom.ffwll.local>
-Cc: robh@kernel.org, bluescreen_avenger@verizon.net, geert+renesas@glider.be,
- corbet@lwn.net, airlied@linux.ie, emil.l.velikov@gmail.com,
- dri-devel@lists.freedesktop.org, linux-doc@vger.kernel.org,
- maarten.lankhorst@linux.intel.com, lgirdwood@gmail.com, mripard@kernel.org,
+In-Reply-To: <YG7R6ZkVNwrYaUWX@phenom.ffwll.local>
+Cc: bluescreen_avenger@verizon.net, geert+renesas@glider.be, corbet@lwn.net,
+ airlied@linux.ie, linux-doc@vger.kernel.org, emil.l.velikov@gmail.com,
+ lgirdwood@gmail.com, dri-devel@lists.freedesktop.org,
  virtualization@lists.linux-foundation.org, hdegoede@redhat.com,
  broonie@kernel.org, sam@ravnborg.org
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -83,408 +82,262 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============5394303678094657634=="
+Content-Type: multipart/mixed; boundary="===============4297019546258682372=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============5394303678094657634==
+--===============4297019546258682372==
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="xIChLMcBZOV9r9hXXdymtcyvHLRjJgVb2"
+ boundary="SfEooEkTlWBwU4yLXLYwo0Hwu4aYK44xI"
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---xIChLMcBZOV9r9hXXdymtcyvHLRjJgVb2
-Content-Type: multipart/mixed; boundary="uSY4ZNw8KzGrZZVq4oAdXrWlIdEO65R7b";
+--SfEooEkTlWBwU4yLXLYwo0Hwu4aYK44xI
+Content-Type: multipart/mixed; boundary="GFAmzOHVvtb20soidyJaaOtS1Xcm0WKBk";
  protected-headers="v1"
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: Daniel Vetter <daniel@ffwll.ch>
-Cc: airlied@linux.ie, maarten.lankhorst@linux.intel.com, mripard@kernel.org,
- kraxel@redhat.com, corbet@lwn.net, lgirdwood@gmail.com, broonie@kernel.org,
- sam@ravnborg.org, robh@kernel.org, emil.l.velikov@gmail.com,
- geert+renesas@glider.be, hdegoede@redhat.com,
- bluescreen_avenger@verizon.net, dri-devel@lists.freedesktop.org,
- linux-doc@vger.kernel.org, virtualization@lists.linux-foundation.org
-Message-ID: <a787dde9-70b0-cb38-f2bf-6e7b479525f9@suse.de>
-Subject: Re: [PATCH v2 04/10] drm/aperture: Add infrastructure for aperture
- ownership
+Cc: bluescreen_avenger@verizon.net, geert+renesas@glider.be, corbet@lwn.net,
+ airlied@linux.ie, emil.l.velikov@gmail.com, dri-devel@lists.freedesktop.org,
+ linux-doc@vger.kernel.org, lgirdwood@gmail.com,
+ virtualization@lists.linux-foundation.org, hdegoede@redhat.com,
+ broonie@kernel.org, kraxel@redhat.com, sam@ravnborg.org
+Message-ID: <133ad936-f080-f063-b056-3c11b4d9f8d4@suse.de>
+Subject: Re: [PATCH v2 03/10] drm/aperture: Move fbdev conflict helpers into
+ drm_aperture.h
 References: <20210318102921.21536-1-tzimmermann@suse.de>
- <20210318102921.21536-5-tzimmermann@suse.de>
- <YG7RgQfj0yZHbL6L@phenom.ffwll.local>
-In-Reply-To: <YG7RgQfj0yZHbL6L@phenom.ffwll.local>
+ <20210318102921.21536-4-tzimmermann@suse.de>
+ <YG7R6ZkVNwrYaUWX@phenom.ffwll.local>
+In-Reply-To: <YG7R6ZkVNwrYaUWX@phenom.ffwll.local>
 
---uSY4ZNw8KzGrZZVq4oAdXrWlIdEO65R7b
+--GFAmzOHVvtb20soidyJaaOtS1Xcm0WKBk
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: quoted-printable
 
 Hi
 
-Am 08.04.21 um 11:48 schrieb Daniel Vetter:
->=20
-> Maybe just me, but to avoid overstretching the attention spawn of doc
-> readers I'd avoid this example here. And maybe make the recommendation
-> stronger, e.g. "PCI device drivers can avoid open-coding
-> remove_conflicting_framebuffers() by calling
-> drm_fb_helper_remove_conflicting_pci_framebuffers()."
+Am 08.04.21 um 11:50 schrieb Daniel Vetter:
+> On Thu, Mar 18, 2021 at 11:29:14AM +0100, Thomas Zimmermann wrote:
+>> Fbdev's helpers for handling conflicting framebuffers are related to
+>> framebuffer apertures, not console emulation. Therefore move them into=
+ a
+>> drm_aperture.h, which will contain the interfaces for the new aperture=
 
-It's a tutorial. In my expectation, everyone just copies the tutorial=20
-code and fills the gaps.
+>> helpers.
+>>
+>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>> Tested-by: nerdopolis <bluescreen_avenger@verizon.net>
+>> ---
+>>   Documentation/gpu/drm-internals.rst |  6 +++
+>>   include/drm/drm_aperture.h          | 60 +++++++++++++++++++++++++++=
+++
+>>   include/drm/drm_fb_helper.h         | 56 ++-------------------------=
 
+>>   3 files changed, 69 insertions(+), 53 deletions(-)
+>>   create mode 100644 include/drm/drm_aperture.h
+>>
+>> diff --git a/Documentation/gpu/drm-internals.rst b/Documentation/gpu/d=
+rm-internals.rst
+>> index 12272b168580..4c7642d2ca34 100644
+>> --- a/Documentation/gpu/drm-internals.rst
+>> +++ b/Documentation/gpu/drm-internals.rst
+>> @@ -75,6 +75,12 @@ update it, its value is mostly useless. The DRM cor=
+e prints it to the
+>>   kernel log at initialization time and passes it to userspace through=
+ the
+>>   DRM_IOCTL_VERSION ioctl.
+>>  =20
+>> +Managing Ownership of the Framebuffer Aperture
+>> +----------------------------------------------
+>> +
+>> +.. kernel-doc:: include/drm/drm_aperture.h
+>> +   :internal:
+>> +
+>>   Device Instance and Driver Handling
+>>   -----------------------------------
+>>  =20
+>> diff --git a/include/drm/drm_aperture.h b/include/drm/drm_aperture.h
+>> new file mode 100644
+>> index 000000000000..13766efe9517
+>> --- /dev/null
+>> +++ b/include/drm/drm_aperture.h
+>> @@ -0,0 +1,60 @@
+>> +/* SPDX-License-Identifier: MIT */
+>> +
+>> +#ifndef _DRM_APERTURE_H_
+>> +#define _DRM_APERTURE_H_
+>> +
+>> +#include <linux/fb.h>
+>> +#include <linux/vgaarb.h>
+>> +
+>> +/**
+>> + * drm_fb_helper_remove_conflicting_framebuffers - remove firmware-co=
+nfigured framebuffers
 >=20
->> + *
->> + * .. code-block:: c
->> + *
->> + *	static int probe(struct pci_dev *pdev)
->> + *	{
->> + *		int ret;
->> + *
->> + *		// Remove any generic drivers...
->> + *		ret =3D drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, "=
-example driver");
->> + *		if (ret)
->> + *			return ret;
->> + *
->> + *		// ... and initialize the hardware.
->> + *		...
->> + *
->> + *		drm_dev_register();
->> + *
->> + *		return 0;
->> + *	}
->> + *
->> + * Drivers that are susceptible to being removed be other drivers, su=
-ch as
->> + * generic EFI or VESA drivers, have to register themselves as owners=
- of their
->> + * given framebuffer memory. Ownership of the framebuffer memory is a=
-chived
->> + * by calling devm_aperture_acquire(). On success, the driver is the =
-owner
->> + * of the framebuffer range. The function fails if the framebuffer is=
- already
->> + * by another driver. See below for an example.
->> + *
->> + * .. code-block:: c
->> + *
->> + *	static struct drm_aperture_funcs ap_funcs =3D {
->> + *		.detach =3D ...
+> Annoying bikeshed, but I'd give them drm_aperture_ prefixes, for ocd
+> consistency. Also make them real functions, they're quite big and will
+> grow more in the next patch.
 >=20
-> Is there really value in allowing/forcing drivers to set up their own
-> detach ops? You already make this specific to struct drm_device, an
-> implementation that just calls drm_dev_unplug feels like the right thin=
-g
-> to do?
+> I'm also not super happy about the naming here but oh well.
 
-Is it that easy? simepldrm's detach function has code to synchronize=20
-with concurrent hotplug removals. If we can use drm_dev_unplug() for=20
-everything, I'm all for it.
+The original name for this was platform helpers, which was worse. So=20
+it's not like we're not improving. :)
+
+I'll take this patch + some docs from patch 4 + your feedback and turn=20
+it into a separate patchset. It should be useful even without simpledrm.
 
 Best regards
 Thomas
 
 >=20
-> Or maybe we should tie this more into the struct device mode and force =
-an
-> unload that way? That way devm cleanup would work as one expects, and
-> avoid the need for anything specific (hopefully) in this detach callbac=
-k.
+> Either way: Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 >=20
-> Just feels a bit like we're reinventing half of the driver model here,
-> badly.
->=20
->> + *	};
+>> + * @a: memory range, users of which are to be removed
+>> + * @name: requesting driver name
+>> + * @primary: also kick vga16fb if present
 >> + *
->> + *	static int acquire_framebuffers(struct drm_device *dev, struct pci=
-_dev *pdev)
->> + *	{
->> + *		resource_size_t start, len;
->> + *		struct drm_aperture *ap;
->> + *
->> + *		base =3D pci_resource_start(pdev, 0);
->> + *		size =3D pci_resource_len(pdev, 0);
->> + *
->> + *		ap =3D devm_acquire_aperture(dev, base, size, &ap_funcs);
->> + *		if (IS_ERR(ap))
->> + *			return PTR_ERR(ap);
->> + *
->> + *		return 0;
->> + *	}
->> + *
->> + *	static int probe(struct pci_dev *pdev)
->> + *	{
->> + *		struct drm_device *dev;
->> + *		int ret;
->> + *
->> + *		// ... Initialize the device...
->> + *		dev =3D devm_drm_dev_alloc();
->> + *		...
->> + *
->> + *		// ... and acquire ownership of the framebuffer.
->> + *		ret =3D acquire_framebuffers(dev, pdev);
->> + *		if (ret)
->> + *			return ret;
->> + *
->> + *		drm_dev_register();
->> + *
->> + *		return 0;
->> + *	}
->> + *
->> + * The generic driver is now subject to forced removal by other drive=
-rs. This
->> + * is when the detach function in struct &drm_aperture_funcs comes in=
-to play.
->> + * When a driver calls drm_fb_helper_remove_conflicting_framebuffers(=
-) et al
->> + * for the registered framebuffer range, the DRM core calls struct
->> + * &drm_aperture_funcs.detach and the generic driver has to onload it=
-self. It
->> + * may not access the device's registers, framebuffer memory, ROM, et=
-c after
->> + * detach returned. If the driver supports hotplugging, detach can be=
- treated
->> + * like an unplug event.
->> + *
->> + * .. code-block:: c
->> + *
->> + *	static void detach_from_device(struct drm_device *dev,
->> + *				       resource_size_t base,
->> + *				       resource_size_t size)
->> + *	{
->> + *		// Signal unplug
->> + *		drm_dev_unplug(dev);
->> + *
->> + *		// Maybe do other clean-up operations
->> + *		...
->> + *	}
->> + *
->> + *	static struct drm_aperture_funcs ap_funcs =3D {
->> + *		.detach =3D detach_from_device,
->> + *	};
+>> + * This function removes framebuffer devices (initialized by firmware=
+/bootloader)
+>> + * which use memory range described by @a. If @a is NULL all such dev=
+ices are
+>> + * removed.
 >> + */
->> +
->> +/**
->> + * struct drm_aperture - Represents a DRM framebuffer aperture
->> + *
->> + * This structure has no public fields.
->> + */
->> +struct drm_aperture {
->> +	struct drm_device *dev;
->> +	resource_size_t base;
->> +	resource_size_t size;
->> +
->> +	const struct drm_aperture_funcs *funcs;
->> +
->> +	struct list_head lh;
->> +};
->> +
->> +static LIST_HEAD(drm_apertures);
->> +
->> +static DEFINE_MUTEX(drm_apertures_lock);
->> +
->> +static bool overlap(resource_size_t base1, resource_size_t end1,
->> +		    resource_size_t base2, resource_size_t end2)
+>> +static inline int
+>> +drm_fb_helper_remove_conflicting_framebuffers(struct apertures_struct=
+ *a,
+>> +					      const char *name, bool primary)
 >> +{
->> +	return (base1 < end2) && (end1 > base2);
->> +}
->> +
->> +static void devm_aperture_acquire_release(void *data)
->> +{
->> +	struct drm_aperture *ap =3D data;
->> +	bool detached =3D !ap->dev;
->> +
->> +	if (!detached)
->=20
-> Uh this needs a comment that if ap->dev is NULL then we're called from
-> drm_aperture_detach_drivers() and hence the lock is already held.
->=20
->> +		mutex_lock(&drm_apertures_lock);
->=20
-> and an
->=20
-> 	else
-> 		locdep_assert_held(&drm_apertures_lock);
->=20
-> here to check that. I was scratching my head first quite a bit how you'=
-d
-> solve the deadlock, this is a neat solution (much simpler than anything=
- I
-> came up with in my head). But needs comments.
->=20
->> +
->> +	list_del(&ap->lh);
->> +
->> +	if (!detached)
->> +		mutex_unlock(&drm_apertures_lock);
->> +}
->> +
->> +/**
->> + * devm_aperture_acquire - Acquires ownership of a framebuffer on beh=
-alf of a DRM driver.
->> + * @dev:	the DRM device to own the framebuffer memory
->> + * @base:	the framebuffer's byte offset in physical memory
->> + * @size:	the framebuffer size in bytes
->> + * @funcs:	callback functions
->> + *
->> + * Installs the given device as the new owner. The function fails if =
-the
->> + * framebuffer range, or parts of it, is currently owned by another d=
-river.
->> + * To evict current owners, callers should use
->> + * drm_fb_helper_remove_conflicting_framebuffers() et al. before call=
-ing this
->> + * function. Acquired apertures are released automatically if the und=
-erlying
->> + * device goes away.
->> + *
->> + * Returns:
->> + * An instance of struct &drm_aperture on success, or a pointer-encod=
-ed
->> + * errno value otherwise.
->> + */
->> +struct drm_aperture *
->> +devm_aperture_acquire(struct drm_device *dev,
->> +		      resource_size_t base, resource_size_t size,
->> +		      const struct drm_aperture_funcs *funcs)
->> +{
->> +	size_t end =3D base + size;
->> +	struct list_head *pos;
->> +	struct drm_aperture *ap;
->> +	int ret;
->> +
->> +	mutex_lock(&drm_apertures_lock);
->> +
->> +	list_for_each(pos, &drm_apertures) {
->> +		ap =3D container_of(pos, struct drm_aperture, lh);
->> +		if (overlap(base, end, ap->base, ap->base + ap->size))
->> +			return ERR_PTR(-EBUSY);
->> +	}
->> +
->> +	ap =3D devm_kzalloc(dev->dev, sizeof(*ap), GFP_KERNEL);
->> +	if (!ap)
->> +		return ERR_PTR(-ENOMEM);
->> +
->> +	ap->dev =3D dev;
->> +	ap->base =3D base;
->> +	ap->size =3D size;
->> +	ap->funcs =3D funcs;
->> +	INIT_LIST_HEAD(&ap->lh);
->> +
->> +	list_add(&ap->lh, &drm_apertures);
->> +
->> +	mutex_unlock(&drm_apertures_lock);
->> +
->> +	ret =3D devm_add_action_or_reset(dev->dev, devm_aperture_acquire_rel=
-ease, ap);
->> +	if (ret)
->> +		return ERR_PTR(ret);
->> +
->> +	return ap;
->> +}
->> +EXPORT_SYMBOL(devm_aperture_acquire);
->> +
->> +void drm_aperture_detach_drivers(resource_size_t base, resource_size_=
-t size)
->> +{
->> +	resource_size_t end =3D base + size;
->> +	struct list_head *pos, *n;
->> +
->> +	mutex_lock(&drm_apertures_lock);
->> +
->> +	list_for_each_safe(pos, n, &drm_apertures) {
->> +		struct drm_aperture *ap =3D
->> +			container_of(pos, struct drm_aperture, lh);
->> +		struct drm_device *dev =3D ap->dev;
->> +
->> +		if (!overlap(base, end, ap->base, ap->base + ap->size))
->> +			continue;
->> +
->> +		ap->dev =3D NULL; /* detach from device */
->> +		if (drm_WARN_ON(dev, !ap->funcs->detach))
->> +			continue;
->> +		ap->funcs->detach(dev, ap->base, ap->size);
->> +	}
->> +
->> +	mutex_unlock(&drm_apertures_lock);
->> +}
->> +EXPORT_SYMBOL(drm_aperture_detach_drivers);
->=20
-> Is this just exported because of the inline functions in the headers? I=
-mo
-> better to make them proper functions (they're big after your patch&not
-> perf critical, so not good candidates for inlining anyway).
->=20
->> diff --git a/include/drm/drm_aperture.h b/include/drm/drm_aperture.h
->> index 13766efe9517..696cec75ef78 100644
->> --- a/include/drm/drm_aperture.h
->> +++ b/include/drm/drm_aperture.h
->> @@ -4,8 +4,30 @@
->>   #define _DRM_APERTURE_H_
->>  =20
->>   #include <linux/fb.h>
->> +#include <linux/pci.h>
->>   #include <linux/vgaarb.h>
->>  =20
->> +struct drm_aperture;
->> +struct drm_device;
->> +
->> +struct drm_aperture_funcs {
->> +	void (*detach)(struct drm_device *dev, resource_size_t base, resourc=
-e_size_t size);
->> +};
->> +
->> +struct drm_aperture *
->> +devm_aperture_acquire(struct drm_device *dev,
->> +		      resource_size_t base, resource_size_t size,
->> +		      const struct drm_aperture_funcs *funcs);
->> +
->> +#if defined(CONFIG_DRM_APERTURE)
->> +void drm_aperture_detach_drivers(resource_size_t base, resource_size_=
-t size);
+>> +#if IS_REACHABLE(CONFIG_FB)
+>> +	return remove_conflicting_framebuffers(a, name, primary);
 >> +#else
->> +static inline void
->> +drm_aperture_detach_drivers(resource_size_t base, resource_size_t siz=
-e)
->> +{
->> +}
+>> +	return 0;
 >> +#endif
+>> +}
 >> +
->>   /**
->>    * drm_fb_helper_remove_conflicting_framebuffers - remove firmware-c=
-onfigured framebuffers
->>    * @a: memory range, users of which are to be removed
->> @@ -20,6 +42,11 @@ static inline int
->>   drm_fb_helper_remove_conflicting_framebuffers(struct apertures_struc=
-t *a,
->>   					      const char *name, bool primary)
->>   {
->> +	int i;
+>> +/**
+>> + * drm_fb_helper_remove_conflicting_pci_framebuffers - remove firmwar=
+e-configured
+>> + *                                                     framebuffers f=
+or PCI devices
+>> + * @pdev: PCI device
+>> + * @name: requesting driver name
+>> + *
+>> + * This function removes framebuffer devices (eg. initialized by firm=
+ware)
+>> + * using memory range configured for any of @pdev's memory bars.
+>> + *
+>> + * The function assumes that PCI device with shadowed ROM drives a pr=
+imary
+>> + * display and so kicks out vga16fb.
+>> + */
+>> +static inline int
+>> +drm_fb_helper_remove_conflicting_pci_framebuffers(struct pci_dev *pde=
+v,
+>> +						  const char *name)
+>> +{
+>> +	int ret =3D 0;
 >> +
->> +	for (i =3D 0; i < a->count; ++i)
->> +		drm_aperture_detach_drivers(a->ranges[i].base, a->ranges[i].size);
+>> +	/*
+>> +	 * WARNING: Apparently we must kick fbdev drivers before vgacon,
+>> +	 * otherwise the vga fbdev driver falls over.
+>> +	 */
+>> +#if IS_REACHABLE(CONFIG_FB)
+>> +	ret =3D remove_conflicting_pci_framebuffers(pdev, name);
+>> +#endif
+>> +	if (ret =3D=3D 0)
+>> +		ret =3D vga_remove_vgacon(pdev);
+>> +	return ret;
+>> +}
 >> +
->>   #if IS_REACHABLE(CONFIG_FB)
->>   	return remove_conflicting_framebuffers(a, name, primary);
->>   #else
->> @@ -43,7 +70,16 @@ static inline int
->>   drm_fb_helper_remove_conflicting_pci_framebuffers(struct pci_dev *pd=
-ev,
->>   						  const char *name)
->>   {
->> -	int ret =3D 0;
->> +	resource_size_t base, size;
->> +	int bar, ret =3D 0;
->> +
->> +	for (bar =3D 0; bar < PCI_STD_NUM_BARS; bar++) {
->> +		if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM))
->> +			continue;
->> +		base =3D pci_resource_start(pdev, bar);
->> +		size =3D pci_resource_len(pdev, bar);
->> +		drm_aperture_detach_drivers(base, size);
->> +	}
+>> +#endif
+>> diff --git a/include/drm/drm_fb_helper.h b/include/drm/drm_fb_helper.h=
+
+>> index 3b273f9ca39a..d06a3942fddb 100644
+>> --- a/include/drm/drm_fb_helper.h
+>> +++ b/include/drm/drm_fb_helper.h
+>> @@ -30,13 +30,13 @@
+>>   #ifndef DRM_FB_HELPER_H
+>>   #define DRM_FB_HELPER_H
 >>  =20
->>   	/*
->>   	 * WARNING: Apparently we must kick fbdev drivers before vgacon,
+>> -struct drm_fb_helper;
+>> -
+>> +#include <drm/drm_aperture.h>
+>>   #include <drm/drm_client.h>
+>>   #include <drm/drm_crtc.h>
+>>   #include <drm/drm_device.h>
+>>   #include <linux/kgdb.h>
+>> -#include <linux/vgaarb.h>
+>> +
+>> +struct drm_fb_helper;
+>>  =20
+>>   enum mode_set_atomic {
+>>   	LEAVE_ATOMIC_MODE_SET,
+>> @@ -451,54 +451,4 @@ drm_fbdev_generic_setup(struct drm_device *dev, u=
+nsigned int preferred_bpp)
+>>  =20
+>>   #endif
+>>  =20
+>> -/**
+>> - * drm_fb_helper_remove_conflicting_framebuffers - remove firmware-co=
+nfigured framebuffers
+>> - * @a: memory range, users of which are to be removed
+>> - * @name: requesting driver name
+>> - * @primary: also kick vga16fb if present
+>> - *
+>> - * This function removes framebuffer devices (initialized by firmware=
+/bootloader)
+>> - * which use memory range described by @a. If @a is NULL all such dev=
+ices are
+>> - * removed.
+>> - */
+>> -static inline int
+>> -drm_fb_helper_remove_conflicting_framebuffers(struct apertures_struct=
+ *a,
+>> -					      const char *name, bool primary)
+>> -{
+>> -#if IS_REACHABLE(CONFIG_FB)
+>> -	return remove_conflicting_framebuffers(a, name, primary);
+>> -#else
+>> -	return 0;
+>> -#endif
+>> -}
+>> -
+>> -/**
+>> - * drm_fb_helper_remove_conflicting_pci_framebuffers - remove firmwar=
+e-configured framebuffers for PCI devices
+>> - * @pdev: PCI device
+>> - * @name: requesting driver name
+>> - *
+>> - * This function removes framebuffer devices (eg. initialized by firm=
+ware)
+>> - * using memory range configured for any of @pdev's memory bars.
+>> - *
+>> - * The function assumes that PCI device with shadowed ROM drives a pr=
+imary
+>> - * display and so kicks out vga16fb.
+>> - */
+>> -static inline int
+>> -drm_fb_helper_remove_conflicting_pci_framebuffers(struct pci_dev *pde=
+v,
+>> -						  const char *name)
+>> -{
+>> -	int ret =3D 0;
+>> -
+>> -	/*
+>> -	 * WARNING: Apparently we must kick fbdev drivers before vgacon,
+>> -	 * otherwise the vga fbdev driver falls over.
+>> -	 */
+>> -#if IS_REACHABLE(CONFIG_FB)
+>> -	ret =3D remove_conflicting_pci_framebuffers(pdev, name);
+>> -#endif
+>> -	if (ret =3D=3D 0)
+>> -		ret =3D vga_remove_vgacon(pdev);
+>> -	return ret;
+>> -}
+>> -
+>>   #endif
 >> --=20
 >> 2.30.1
 >>
@@ -499,32 +352,32 @@ Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
 Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
 
 
---uSY4ZNw8KzGrZZVq4oAdXrWlIdEO65R7b--
+--GFAmzOHVvtb20soidyJaaOtS1Xcm0WKBk--
 
---xIChLMcBZOV9r9hXXdymtcyvHLRjJgVb2
+--SfEooEkTlWBwU4yLXLYwo0Hwu4aYK44xI
 Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="OpenPGP_signature"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmBv/RAFAwAAAAAACgkQlh/E3EQov+Dd
-Sw/+NZBvdghrzPJYl6qcc9lsrdPODHnVq8EJg/k3QT9SQPOciXUjmpaAWHDOoIpI2sTQrgNcwoTl
-wCP/VGdCdg2vubgs7n6KNeOCReThTVC3SeauoaC1scBGhrnbciThy3t4yu0WNnIkM88Rt10slIZo
-lJ8Ei4+jYDRqBE+bSHvObGqA3UQJd2YGB63g2SeGjec/nbCiYcUBnWqtz/pqvUCKHjDn0hfh94W6
-3Z/OMj4K7XRzkPB0ChSBr3k73MRRXonXG8pfzKYS1cPGnCHXDkC4whRNYX+FB4wB/7kMT85VgJ6s
-t8EosOku17xp8fHLEJhD0o6mGmoQt3yc55l7EEJppNHri/NS4gLPauUopgUfalIXJcuXJaRACiG/
-wjmzX8+uiNEQOYPux6X+EibDugt5lGo4Fjx/X95ROUbg7R5pq6uIHlqOkiWoerK8dJPyNX6AobIk
-gkxeTfEZvsIzkxMucG9B8Nv38gmvSeuPB+qe92c/2K92RzjgmMBt1deMdT510ypiWU5TmkEvbF03
-q2mLaOB3O1TbJXYnQZVJ88O9lUR5OUiVDR0XD1lbYeMm7HQO6I94PW26XkjmbtE9qzZkAfO04+zr
-1RQsxCtbLy26xgGPpay0VqL86UiZaPbiBNetQRvAMAl1qerDcj6qJM6gbLQDRTli+c54H3aDL0UL
-y5I=
-=aEk5
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmBv/bQFAwAAAAAACgkQlh/E3EQov+BU
+8Q/+P2/+ZwUIPL7X7ikiT0UUY87D1b3yXqe+EjBSfApy0fg3MUqhLWE07DjJZmIDXfVJ/VN6envU
+iaVFA7WKuG78bILxbPdw5TCZtLNR3FI5gc+lKr4MjucLV9YebXvjfaiEk+pjFkYaRxABwuYIw1p6
+3LgWi9nqRBrZlUgDxT/UHLOmtwKOEUbAYIqQ39I+EZ2ZclC0pUatOo6cogc9caL+jOS5RX1HhL3g
+MJHQlMTHm6cyhAElhO0CdiY959B+X8b35gZGBMvxuXvib7PptejhY3I2YEJH79BB7/s88bhZBdsy
+swnVi4CasXgXxauztWIv4Ve9FWmNpMJEAPecMcMO/cbbgAIiv6IITShEXzC0zNxa6mb5tQwyPHup
+qaFab5+AFlbxpmk1xovViY8ereIbbzmbQFgVC3bQdr4NS5wtGZUZ/LPVUWiWgEQAyHGrRjhNf4vM
+aNrWaMhtoeDHsC6gdUvxgydCXoB0zwYWUSV+wvj1mwmRgqyVi5s3b9yIRe8EycG+rfrEl5EBghgN
+NTu8qSacVF4VUToXSnOC1UtDeq1g4NqbU7n/rNkW20kkCKX4G3HsfmRqSgkuSD6tpFUKXUNgnFJu
+JmTZKccPkz6a6s82sBuR1iWGt4m8sLejHphMA8DSeGsgyqTO2EoWGW+visBE3IQWRvV4moy/uMpt
+1Oc=
+=ADd+
 -----END PGP SIGNATURE-----
 
---xIChLMcBZOV9r9hXXdymtcyvHLRjJgVb2--
+--SfEooEkTlWBwU4yLXLYwo0Hwu4aYK44xI--
 
---===============5394303678094657634==
+--===============4297019546258682372==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -534,4 +387,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5394303678094657634==--
+--===============4297019546258682372==--
