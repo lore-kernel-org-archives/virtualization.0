@@ -2,114 +2,107 @@ Return-Path: <SRS0=E6mM=JG=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-23.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C819C433B4
-	for <virtualization@archiver.kernel.org>; Fri,  9 Apr 2021 16:16:06 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EBD3C433ED
+	for <virtualization@archiver.kernel.org>; Fri,  9 Apr 2021 16:48:28 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EE35761041
-	for <virtualization@archiver.kernel.org>; Fri,  9 Apr 2021 16:16:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EE35761041
+	by mail.kernel.org (Postfix) with ESMTPS id AE596610CC
+	for <virtualization@archiver.kernel.org>; Fri,  9 Apr 2021 16:48:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AE596610CC
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 69992405E0;
-	Fri,  9 Apr 2021 16:16:05 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 77B78402E3;
+	Fri,  9 Apr 2021 16:48:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Lc-fOto_jBe3; Fri,  9 Apr 2021 16:16:04 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id X1tfRcMJUocd; Fri,  9 Apr 2021 16:48:26 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B0697405D9;
-	Fri,  9 Apr 2021 16:16:03 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 16274402C6;
+	Fri,  9 Apr 2021 16:48:26 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 87E9CC000B;
-	Fri,  9 Apr 2021 16:16:03 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4AC37C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EE18FC000B;
+	Fri,  9 Apr 2021 16:48:25 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BE0CAC000A
  for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Apr 2021 16:16:02 +0000 (UTC)
+ Fri,  9 Apr 2021 16:48:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 36EFF405DA
+ by smtp2.osuosl.org (Postfix) with ESMTP id A3FA6402F3
  for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Apr 2021 16:16:02 +0000 (UTC)
+ Fri,  9 Apr 2021 16:48:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id EpfD0F-6TOED
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5yspWR3qZIvI
  for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Apr 2021 16:16:00 +0000 (UTC)
+ Fri,  9 Apr 2021 16:48:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id B4828405D9
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 693A3402C6
  for <virtualization@lists.linux-foundation.org>;
- Fri,  9 Apr 2021 16:16:00 +0000 (UTC)
+ Fri,  9 Apr 2021 16:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1617984959;
+ s=mimecast20190719; t=1617986902;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=ympzD91JBFEmUB8z07nEg3SFQfNcnSyyZ0Xyv2VW9mY=;
- b=TlzeXOtNuTnUvukhNQ2GH9MewsWRL+TUX+H15gXN9KQ5JfLSP9bcH/MZtSF5UemuwRZiDc
- jDbF5TQH+4dBNMB5fHU3SSEB58ObtgRxyTyK5rTz25rIawL25CZTe8fU7/CtfGiuT4Nn1e
- c1HNpKt3k9MSQrYPBdy/NnC47TPSRd4=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-300-IbFqJwscMN-d81j6tggSvg-1; Fri, 09 Apr 2021 12:15:57 -0400
-X-MC-Unique: IbFqJwscMN-d81j6tggSvg-1
-Received: by mail-wr1-f72.google.com with SMTP id l3so2494302wrp.13
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+ bh=Chg6IKEuKKojYi7mhUKaMLERMRmxIjzmO/LXSZ+TUHU=;
+ b=WE8yyCMnzFRiUCyrXjQmd2y/SFQuk0410KgVwtGc2o4yLRUDXkWPdp/1KlU6ZQaszgf3U1
+ utOzKT35fHqb6IG91aMysACGLbVR3/YTePzUez1gCJGcpW7KzASAQw0K/eLrjiumxNGd39
+ QMEQcqh4U0AEb6WU8b85bbzYlPMxHGw=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-233-tCjbWKbmMLWDvcR-XgFu8A-1; Fri, 09 Apr 2021 12:48:20 -0400
+X-MC-Unique: tCjbWKbmMLWDvcR-XgFu8A-1
+Received: by mail-wr1-f69.google.com with SMTP id 75so2535736wrl.3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 09 Apr 2021 09:15:56 -0700 (PDT)
+ Fri, 09 Apr 2021 09:48:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=ympzD91JBFEmUB8z07nEg3SFQfNcnSyyZ0Xyv2VW9mY=;
- b=euWv9bKOZbJ0LQ0Oa2hD2lP1B015U94Jo2MQujzdeRDOVQGkC81lXVmKu3kfBbJqIk
- HMC3L3mugQ69VwAAiKm/mrYQWH5u5ZCdlQO06Yy43DG+pXWQYXvKZCYnsBjnSAHzj6yl
- SKvswGad9kx7Zo7PbVJFXo3F3EqlRKrnOZ0iVYryeah7TOjv0cpZaGkD0UmKY6PRJJD7
- m/mXsfHCz5gINSxLNoYIo6xsWWq/2TaMWyimwmy9vfxCSClowEu4ykhXm90p6H8MGAn4
- h7nh4ijaEeFM10+nGcfe3JNXj/14VnC6YPV2KI9FfCriYIOmNdgdKlS1sBTRrTQDbP1u
- Heng==
-X-Gm-Message-State: AOAM533MfjX8iNsujUQSVFmwHDT8R+LPvpD3VcdeAPg4iLHdgztLi9IF
- jiCzlu3RDYQiyDz/TgKnIJkjKyKy8UuFYQV2Ge0Tf0ThaPlHc5cNID9EQTUd214LBeF8lS0+8SP
- Dz0Y4gikwDyiNyVz/UFaeePouRm4T9NYerS/At3kw5Q==
-X-Received: by 2002:adf:fa12:: with SMTP id m18mr18461077wrr.61.1617984956087; 
- Fri, 09 Apr 2021 09:15:56 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx7/KOvp7jfAdtHy4C2v6W8Sr5jADGDS1mDCv/rNxxuSfa3gCZY792heyfmCgnU+ZhCR5H7YQ==
-X-Received: by 2002:adf:fa12:: with SMTP id m18mr18461055wrr.61.1617984955917; 
- Fri, 09 Apr 2021 09:15:55 -0700 (PDT)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+ :content-disposition;
+ bh=Chg6IKEuKKojYi7mhUKaMLERMRmxIjzmO/LXSZ+TUHU=;
+ b=BJQS8TTzbeKwlJguP1uewgT0nlvjySdgb68tsNSMItUfHTu8xJJXVXi25xsI0xR+Qt
+ gA6TXEI3bAEd8z/hbS1odMuElcNSuKa2A/Srkt9q3HJwkSCPgdoIo9PRWPL7D+i0qNjw
+ Q4Au4KD4/087YhSpAv+I6NtSOkiWNCjNLI/5IwYBcY2kk3uGGJdqS3KSQOb43yNeh55L
+ Jixo9Vds8SOiQ7yX1/F/8EPMa4ebi9kJOmGQBE4tUGpFVceIO5ms3DiITbuXIVZqli2Y
+ m8YS+FDh/KFtKG8w7xUUs1sqzfPT0x9DC+E2gyZZlzL5wz+/eiwyPL8NH3pLfti/N79l
+ h/BA==
+X-Gm-Message-State: AOAM533ZqHSBAo0rc/0qrF7d1biHzdfnXUgjbqspulWnKLJ1GxeugBNm
+ eBnFYu6EaEkqRW+PBZkwulYwmJ4nsbEnhzLI+tTf2h7y38TlCN6VJ5nIWg/CGU9ZyZz72ud6Igx
+ gOV3IEyJHC6CmKl3zASF3uQQY2s1ZoNqo2CrZZ5M1FA==
+X-Received: by 2002:a1c:9a16:: with SMTP id c22mr7681448wme.7.1617986899514;
+ Fri, 09 Apr 2021 09:48:19 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw2SClI5Njn6xjA2MPYxm2kpYJCEchwrX/9+aQChXy3FOe+I3afHnDGXz6jYj0V+5m4e1Tm6w==
+X-Received: by 2002:a1c:9a16:: with SMTP id c22mr7681431wme.7.1617986899273;
+ Fri, 09 Apr 2021 09:48:19 -0700 (PDT)
 Received: from redhat.com ([2a10:800e:f0d3:0:b69b:9fb8:3947:5636])
- by smtp.gmail.com with ESMTPSA id 3sm5445635wma.45.2021.04.09.09.15.53
+ by smtp.gmail.com with ESMTPSA id o25sm6618101wmh.1.2021.04.09.09.48.17
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 09 Apr 2021 09:15:55 -0700 (PDT)
-Date: Fri, 9 Apr 2021 12:15:51 -0400
+ Fri, 09 Apr 2021 09:48:18 -0700 (PDT)
+Date: Fri, 9 Apr 2021 12:48:16 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xie Yongji <xieyongji@bytedance.com>
-Subject: Re: [PATCH v6 03/10] vhost-vdpa: protect concurrent access to vhost
- device iotlb
-Message-ID: <20210409121512-mutt-send-email-mst@kernel.org>
-References: <20210331080519.172-1-xieyongji@bytedance.com>
- <20210331080519.172-4-xieyongji@bytedance.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [GIT PULL] vdpa/mlx5: last minute fixes
+Message-ID: <20210409124816-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20210331080519.172-4-xieyongji@bytedance.com>
+X-Mutt-Fcc: =sent
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: axboe@kernel.dk, kvm@vger.kernel.org, corbet@lwn.net,
- netdev@vger.kernel.org, rdunlap@infradead.org, willy@infradead.org,
- virtualization@lists.linux-foundation.org, hch@infradead.org,
- christian.brauner@canonical.com, bcrl@kvack.org, viro@zeniv.linux.org.uk,
- stefanha@redhat.com, linux-fsdevel@vger.kernel.org, dan.carpenter@oracle.com,
- mika.penttila@nextfour.com
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ si-wei.liu@oracle.com, elic@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,51 +119,41 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Mar 31, 2021 at 04:05:12PM +0800, Xie Yongji wrote:
-> Use vhost_dev->mutex to protect vhost device iotlb from
-> concurrent access.
-> 
-> Fixes: 4c8cf318("vhost: introduce vDPA-based backend")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+The following changes since commit e49d033bddf5b565044e2abe4241353959bc9120:
 
-I could not figure out whether there's a bug there now.
-If yes when is the concurrent access triggered?
+  Linux 5.12-rc6 (2021-04-04 14:15:36 -0700)
 
-> ---
->  drivers/vhost/vdpa.c | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 3947fbc2d1d5..63b28d3aee7c 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -725,9 +725,11 @@ static int vhost_vdpa_process_iotlb_msg(struct vhost_dev *dev,
->  	const struct vdpa_config_ops *ops = vdpa->config;
->  	int r = 0;
->  
-> +	mutex_lock(&dev->mutex);
-> +
->  	r = vhost_dev_check_owner(dev);
->  	if (r)
-> -		return r;
-> +		goto unlock;
->  
->  	switch (msg->type) {
->  	case VHOST_IOTLB_UPDATE:
-> @@ -748,6 +750,8 @@ static int vhost_vdpa_process_iotlb_msg(struct vhost_dev *dev,
->  		r = -EINVAL;
->  		break;
->  	}
-> +unlock:
-> +	mutex_unlock(&dev->mutex);
->  
->  	return r;
->  }
-> -- 
-> 2.11.0
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to bc04d93ea30a0a8eb2a2648b848cef35d1f6f798:
+
+  vdpa/mlx5: Fix suspend/resume index restoration (2021-04-09 12:08:28 -0400)
+
+----------------------------------------------------------------
+vdpa/mlx5: last minute fixes
+
+These all look like something we are better off having
+than not ...
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Eli Cohen (4):
+      vdpa/mlx5: Use the correct dma device when registering memory
+      vdpa/mlx5: Retrieve BAR address suitable any function
+      vdpa/mlx5: Fix wrong use of bit numbers
+      vdpa/mlx5: Fix suspend/resume index restoration
+
+Si-Wei Liu (1):
+      vdpa/mlx5: should exclude header length and fcs from mtu
+
+ drivers/vdpa/mlx5/core/mlx5_vdpa.h |  4 ++++
+ drivers/vdpa/mlx5/core/mr.c        |  9 +++++++--
+ drivers/vdpa/mlx5/core/resources.c |  3 ++-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c  | 40 +++++++++++++++++++++++---------------
+ 4 files changed, 37 insertions(+), 19 deletions(-)
 
 _______________________________________________
 Virtualization mailing list
