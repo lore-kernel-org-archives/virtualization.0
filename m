@@ -7,86 +7,85 @@ X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19252C433ED
-	for <virtualization@archiver.kernel.org>; Sun, 11 Apr 2021 21:33:01 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AB19C433B4
+	for <virtualization@archiver.kernel.org>; Sun, 11 Apr 2021 22:07:35 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6A4E360C3E
-	for <virtualization@archiver.kernel.org>; Sun, 11 Apr 2021 21:33:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6A4E360C3E
+	by mail.kernel.org (Postfix) with ESMTPS id 6666C611F0
+	for <virtualization@archiver.kernel.org>; Sun, 11 Apr 2021 22:07:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6666C611F0
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 052F340197;
-	Sun, 11 Apr 2021 21:33:00 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id E3FA8606A8;
+	Sun, 11 Apr 2021 22:07:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UzQLqslNao1D; Sun, 11 Apr 2021 21:32:59 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qK5KIGPOGqHy; Sun, 11 Apr 2021 22:07:33 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 77883403A4;
-	Sun, 11 Apr 2021 21:32:58 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 75A2C605C9;
+	Sun, 11 Apr 2021 22:07:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 29C8CC000C;
-	Sun, 11 Apr 2021 21:32:58 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8F7DCC000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4DDC9C000C;
+	Sun, 11 Apr 2021 22:07:32 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 99464C000A
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Apr 2021 21:32:55 +0000 (UTC)
+ Sun, 11 Apr 2021 22:07:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 7C06B403A4
+ by smtp3.osuosl.org (Postfix) with ESMTP id 77BFD60683
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Apr 2021 21:32:55 +0000 (UTC)
+ Sun, 11 Apr 2021 22:07:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fvx8lgGnfDA5
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ZnQz7pJFWfnG
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Apr 2021 21:32:54 +0000 (UTC)
+ Sun, 11 Apr 2021 22:07:28 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-oo1-xc30.google.com (mail-oo1-xc30.google.com
- [IPv6:2607:f8b0:4864:20::c30])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 9C0D040197
+Received: from mail-ot1-x331.google.com (mail-ot1-x331.google.com
+ [IPv6:2607:f8b0:4864:20::331])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id B87A6605C9
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Apr 2021 21:32:54 +0000 (UTC)
-Received: by mail-oo1-xc30.google.com with SMTP id
- i25-20020a4aa1190000b02901bbd9429832so2636314ool.0
+ Sun, 11 Apr 2021 22:07:28 +0000 (UTC)
+Received: by mail-ot1-x331.google.com with SMTP id
+ s16-20020a0568301490b02901b83efc84a0so11011339otq.10
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Apr 2021 14:32:54 -0700 (PDT)
+ Sun, 11 Apr 2021 15:07:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=sender:subject:to:cc:references:from:autocrypt:message-id:date
  :user-agent:mime-version:in-reply-to:content-language
  :content-transfer-encoding;
- bh=FpqqOOu9vYS1RLHK9pwDr2YV0nLK6UfyVXjAHQu5DC0=;
- b=QGweP0ElvPgvnSOHnG3sogrflU8g6FcVdNoqWedhHsdCg7IuH6Cmc9+MFUNB0YWl7X
- M5Vegnxzu9q/2blCgMmdRfF3Rbijvvx739Es2pgUMlrdDf89/J0nt7XsndA5Tl1nETdz
- KcLhYQyoLJHiNNFe/en751I9gipsRz1yZZYgmp58U09vKPq2KRh/rRX57PcbATZpFFaZ
- qU8NApDlWAS0MyEI383jiP3HRooUdACwlp7dgQbsdrdd602bKXH6NCpSHqqMiwLzifL8
- u/Zgs6hL1RGRjlLuIpNDTpSni+IIhDd4+W0CFeRwz1/Ys8emek8mhXsc6JVl0cfkEJ2p
- MAjA==
+ bh=/lRla01KU0ybI4xpUqAJc8X9+MHM0a+SO6iOFLTi9nU=;
+ b=f85+lsIWoE8r8uO/oVTyhLZWzUoLEIjb2vJcoaLyh00jQq7N+H7l30uviMerzgARd9
+ q7sXL6q6VT5LLzTnQLQ0Q/IVDWly4eif1os4s4caUTYBjT26bpxzjywXSaU4c8idLT7N
+ bPbSpAqG3fRzEo/4h5S4krhL3yD9z0Ji7U1XZ+lMGS0oxm2b2Tum263d7zQhkGJNpFJH
+ GSkqsZxJgqRv9EgGaQfVoNoCbkOtNxOmyRbjfKvkcIlh+wKtu0zF5r6jpmlvU2OAyB+L
+ jnjk/BP0ZPOMfsjU93TOVT+m3xUdIVtL4SBmqSFiuWf54D0bcu9jmCSOuiAqMiEPvoec
+ zr+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
  :message-id:date:user-agent:mime-version:in-reply-to
  :content-language:content-transfer-encoding;
- bh=FpqqOOu9vYS1RLHK9pwDr2YV0nLK6UfyVXjAHQu5DC0=;
- b=ZCgWeHIS801FJz9DRCPhUt0q+QbTNAnocb2q9pKMI9MxQT/kQ2O3MUD5z0Hg0KHfc8
- TwDPNXjRK1Qhrpfa1rrusfnsgkcRDqzalLBrzBEQ2M2cWI9+Lck4xpYxo/Wzu0xNpGVY
- ggv1rraxtyDhAbNIuustkNEI4dmH5RMN8pfRyABk1vY83XPCtZqN3t8lIeJvzFh8eqFD
- nfpLpL77l+gSGoRXm5tX+VgHZEfpvm3XcpQN3JGUaZqNPQgbtNzTYYup+Lc72u/5qG4v
- EsVjRwyezowzzFr983+fTprXrX3GDpGD/EfPa2kdqPTzxJm7k0Wm7hFCsfqH24WWcJkQ
- cvvA==
-X-Gm-Message-State: AOAM533ZeNsaseFdeGX987qrL0g6RdPNCYgwyoNveexU+kXEAfxCQP4W
- kpZ2BlIGpUUa1EDtXXCIvinp//OMz/o=
-X-Google-Smtp-Source: ABdhPJzLe/a8fvB3mojeEUhba3H2nF7yr+Mv0IAOx8liVQ+E7UETQ6X2IkwdFiGaGvcnGI/bV9TL5Q==
-X-Received: by 2002:a4a:9823:: with SMTP id y32mr20251478ooi.35.1618176772914; 
- Sun, 11 Apr 2021 14:32:52 -0700 (PDT)
+ bh=/lRla01KU0ybI4xpUqAJc8X9+MHM0a+SO6iOFLTi9nU=;
+ b=rWtu+t4/q33HEuQMtuKjFxAP32yMp6cjXqAUI9qt2gRrUUjV9RRYTClYaIUroD95zT
+ mJJJQsmYdZWmVZpL75waGkZhj+O4f9v6eiSLccEZBVJ1AyvnE/b7u4n6seQb7z06wJz0
+ 35m5n5ERCXYnVTTlmRU4UYp3drMw/mnQVp+MZJXix0F+03y/6+CZLmXh7J9vT76Os9Dd
+ KNmjWI/MfzgVgAfwFy1hHP/twqj9TN4a4/wWCLv1BCBbBf1w6ig31JKX/56ag/yxZK92
+ C94L571jSzA1dRfnxBSz2C1wGiY20yAX9OdU5sODbu6Ddn2ZLcRRf+rvMMcHZBTa0m8/
+ GSPA==
+X-Gm-Message-State: AOAM531lTEuXkpcRMq7yd91v0rn3bxZzt4zUD0Ts8UR3UGeyQz50guFI
+ DVafH4WFxaqTyd73d476IsjxownXA8c=
+X-Google-Smtp-Source: ABdhPJzRm9ThUpvUGHE2v5+iEyTy/q2DYpwd0EvqeKjwazo67FYftgwMmykAZOX2LBgy1MzwYaVcxw==
+X-Received: by 2002:a9d:2622:: with SMTP id a31mr22262354otb.275.1618178847473; 
+ Sun, 11 Apr 2021 15:07:27 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
- by smtp.gmail.com with ESMTPSA id
- h10sm1022026otm.11.2021.04.11.14.32.51
+ by smtp.gmail.com with ESMTPSA id j4sm690533oiw.0.2021.04.11.15.07.25
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Sun, 11 Apr 2021 14:32:52 -0700 (PDT)
+ Sun, 11 Apr 2021 15:07:26 -0700 (PDT)
 Subject: Re: [PATCH net] virtio_net: Do not pull payload in skb->head
 To: Eric Dumazet <edumazet@google.com>
 References: <20210402132602.3659282-1-eric.dumazet@gmail.com>
@@ -94,6 +93,8 @@ References: <20210402132602.3659282-1-eric.dumazet@gmail.com>
  <CANn89iJ+RjYPY11zUtvmMkOp1E2DKLuAk2q0LHUbcJpbcZVSjw@mail.gmail.com>
  <0f63dc52-ea72-16b6-7dcd-efb24de0c852@roeck-us.net>
  <CANn89iJa8KAnfWvUB8Jr8hsG5x_Amg90DbpoAHiuNZigv75MEA@mail.gmail.com>
+ <c1d15bd0-8b62-f7c0-0f2e-1d527827f451@roeck-us.net>
+ <CANn89iK-AO4MpWQzh_VkMjUgdcsP4ibaV4RhsDF9RHcuC+_=-g@mail.gmail.com>
 From: Guenter Roeck <linux@roeck-us.net>
 Autocrypt: addr=linux@roeck-us.net; keydata=
  xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
@@ -138,12 +139,12 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <c1d15bd0-8b62-f7c0-0f2e-1d527827f451@roeck-us.net>
-Date: Sun, 11 Apr 2021 14:32:50 -0700
+Message-ID: <ad232021-d30a-da25-c1d5-0bd79628b5e1@roeck-us.net>
+Date: Sun, 11 Apr 2021 15:07:25 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <CANn89iJa8KAnfWvUB8Jr8hsG5x_Amg90DbpoAHiuNZigv75MEA@mail.gmail.com>
+In-Reply-To: <CANn89iK-AO4MpWQzh_VkMjUgdcsP4ibaV4RhsDF9RHcuC+_=-g@mail.gmail.com>
 Content-Language: en-US
 Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
  Eric Dumazet <eric.dumazet@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>,
@@ -165,97 +166,90 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 4/11/21 2:23 PM, Eric Dumazet wrote:
-> On Sun, Apr 11, 2021 at 10:37 PM Guenter Roeck <linux@roeck-us.net> wrote:
+On 4/11/21 2:43 PM, Eric Dumazet wrote:
+> On Sun, Apr 11, 2021 at 11:32 PM Guenter Roeck <linux@roeck-us.net> wrote:
 >>
->> On 4/11/21 8:06 AM, Eric Dumazet wrote:
->>> On Sun, Apr 11, 2021 at 3:43 PM Guenter Roeck <linux@roeck-us.net> wrote:
->>>
->>>> This patch causes a virtio-net interface failure when booting sh4 images
->>>> in qemu. The test case is nothing special: Just try to get an IP address
->>>> using udhcpc. If it fails, udhcpc reports:
+>> On 4/11/21 2:23 PM, Eric Dumazet wrote:
+>>> On Sun, Apr 11, 2021 at 10:37 PM Guenter Roeck <linux@roeck-us.net> wrote:
 >>>>
->>>> udhcpc: started, v1.33.0
->>>> udhcpc: sending discover
->>>> FAIL
+>>>> On 4/11/21 8:06 AM, Eric Dumazet wrote:
+>>>>> On Sun, Apr 11, 2021 at 3:43 PM Guenter Roeck <linux@roeck-us.net> wrote:
+>>>>>
+>>>>>> This patch causes a virtio-net interface failure when booting sh4 images
+>>>>>> in qemu. The test case is nothing special: Just try to get an IP address
+>>>>>> using udhcpc. If it fails, udhcpc reports:
+>>>>>>
+>>>>>> udhcpc: started, v1.33.0
+>>>>>> udhcpc: sending discover
+>>>>>> FAIL
+>>>>>>
+>>>>>
+>>>>> Can you investigate where the incoming packet is dropped ?
+>>>>>
 >>>>
+>>>> Unless I am missing something, packets are not dropped. It looks more
+>>>> like udhcpc gets bad indigestion in the receive path and exits immediately.
+>>>> Plus, it doesn't happen all the time; sometimes it receives the discover
+>>>> response and is able to obtain an IP address.
+>>>>
+>>>> Overall this is quite puzzling since udhcpc exits immediately when the problem
+>>>> is seen, no matter which option I give it on the command line; it should not
+>>>> really do that.
 >>>
->>> Can you investigate where the incoming packet is dropped ?
+>>>
+>>> Could you strace both cases and report differences you can spot ?
+>>>
+>>> strace -o STRACE -f -s 1000 udhcpc
 >>>
 >>
->> Unless I am missing something, packets are not dropped. It looks more
->> like udhcpc gets bad indigestion in the receive path and exits immediately.
->> Plus, it doesn't happen all the time; sometimes it receives the discover
->> response and is able to obtain an IP address.
+>> I'll give it a try. It will take a while; I'll need to add strace to my root
+>> file systems first.
 >>
->> Overall this is quite puzzling since udhcpc exits immediately when the problem
->> is seen, no matter which option I give it on the command line; it should not
->> really do that.
+>> As a quick hack, I added some debugging into the kernel; it looks like
+>> the data part of the dhcp discover response may get lost with your patch
+>> in place.
 > 
+> Data is not lost, the payload is whole contained in skb frags, which
+> was expected from my patch.
 > 
-> Could you strace both cases and report differences you can spot ?
+> Maybe this sh arch does something wrong in this case.
 > 
-> strace -o STRACE -f -s 1000 udhcpc
+> This could be checksuming...
+> 
+> Please check
+> 
+> nstat -n
+> <run udhcpc>
+> nstat
 > 
 
-I'll give it a try. It will take a while; I'll need to add strace to my root
-file systems first.
+Another tool to install.
 
-As a quick hack, I added some debugging into the kernel; it looks like
-the data part of the dhcp discover response may get lost with your patch
-in place.
+While that builds, output from strace:
 
-dhcp discover response with patch in place (bad):
+# strace -o /tmp/STRACE  -f -s 1000 udhcpc -n -q
+udhcpc: started, v1.33.0
+udhcpc: sending discover
+udhcpc: received SIGTERM
 
-virtio_net virtio0 eth0: __udp4_lib_rcv: data 0x8ca4cc44 head 0x8ca4cc00 tail 0x8ca4cc4c len 556 datalen 548 caller ip_protocol_deliver_rcu+0xac/0x178
-00000000: 70 c1 a9 8c 00 00 00 00 00 00 00 00 20 ee c3 7b 34 00 e0 7b 08 00 00 00 00 00 00 00 00 00 00 00  p........... ..{4..{............
-00000020: 60 c8 ff ff ff ff ff ff 52 55 0a 00 02 02 08 00 45 10 02 40 00 00 00 00 40 11 6c 9c 0a 00 02 02  `.......RU......E..@....@.l.....
-00000040: ff ff ff ff 00 43 00 44 02 2c e1 21 00 00 00 00 f0 6f a4 7b 00 00 80 00 ff ff ff ff 7f 45 4c 46  .....C.D.,.!.....o.{.........ELF
-                      ^^ udp header
-                                  ^^^^^ UDP length (556)
-                                              ^^ start of UDP data (dhcp discover reply)
-00000060: 01 01 01 00 00 00 00 00 00 00 00 00 02 00 2a 00 01 00 00 00 b0 6e 40 00 34 00 00 00 2c f6 0a 00  ..............*......n@.4...,...
-00000080: 17 00 00 00 34 00 20 00 08 00 28 00 16 00 15 00 06 00 00 00 34 00 00 00 34 00 40 00 34 00 40 00  ....4. ...(.........4...4.@.4.@.
-000000a0: 00 01 00 00 00 01 00 00 04 00 00 00 04 00 00 00 03 00 00 00 34 01 00 00 34 01 40 00 34 01 40 00  ....................4...4.@.4.@.
-000000c0: 15 00 00 00 15 00 00 00 04 00 00 00 01 00 00 00 01 00 00 00 00 00 00 00 00 00 40 00 00 00 40 00  ..........................@...@.
-000000e0: 1c e2 0a 00 1c e2 0a 00 05 00 00 00 00 00 01 00 01 00 00 00 38 ef 0a 00 38 ef 4b 00 38 ef 4b 00  ....................8...8.K.8.K.
-00000100: 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00  ................................
-00000120: b8 00 00 00 00 4c f9 8f 24 02 00 00 36 00 00 00 50 e5 74 64 88 e0 0a 00 88 e0 4a 00 88 e0 4a 00  .....L..$...6...P.td......J...J.
-00000140: 2c 00 00 00 2c 00 00 00 04 00 00 00 04 00 00 00 51 e5 74 64 00 00 00 00 00 00 00 00 00 00 00 00  ,...,...........Q.td............
-00000160: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-00000180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-000001a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-000001c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-000001e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-00000200: 1c 63 5a 8c 00 3e a4 8c 88 f9 50 8c 0c ce a4 8c 0c ce a4 8c 24 81 a1 8c 00 00 00 00 1c 5c 5a 8c  .cZ..>....P.........$........\Z.
-00000220: 04 b8 a5 8c 01 00 00 00 03 00 00 00                                                              ............
+and:
 
-dhcp discover response with patch reverted (ok):
+...
+136   socket(AF_PACKET, SOCK_DGRAM, htons(ETH_P_IP)) = 5
+136   bind(5, {sa_family=AF_PACKET, sll_protocol=htons(ETH_P_IP), sll_ifindex=if_nametoindex("eth0"), sll_hatype=ARPHRD_NETROM, sll_pkttype=PACKET_HOST, sll_halen=0}, 20) = 0
+136   setsockopt(5, SOL_PACKET, PACKET_AUXDATA, [1], 4) = 0
+136   fcntl64(5, F_SETFD, FD_CLOEXEC)   = 0
+136   socket(AF_INET, SOCK_RAW, IPPROTO_RAW) = 6
+136   ioctl(6, SIOCGIFINDEX, {ifr_name="eth0", }) = 0
+136   ioctl(6, SIOCGIFHWADDR, {ifr_name="eth0", ifr_hwaddr={sa_family=ARPHRD_ETHER, sa_data=52:54:00:12:34:56}}) = 0
+136   close(6)                          = 0
+136   clock_gettime64(CLOCK_MONOTONIC, {tv_sec=161, tv_nsec=2180242}) = 0
+136   write(2, "udhcpc: sending discover\n", 25) = 25
+136   socket(AF_PACKET, SOCK_DGRAM, htons(ETH_P_IP)) = 6
+136   bind(6, {sa_family=AF_PACKET, sll_protocol=htons(ETH_P_IP), sll_ifindex=if_nametoindex("eth0"), sll_hatype=ARPHRD_NETROM, sll_pkttype=PACKET_HOST, sll_halen=6, sll_addr=[0xff, 0xff, 0xff, 0xff, 0xff, 0xff]}, 20) = 0
+136   sendto(6, "E\0\1H\0\0\0\0@\21y\246\0\0\0\0\377\377\377\377\0D\0C\0014\200\256\1\1\6\0\257\321\212P\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0RT\0\0224V\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0c\202Sc5\1\1=\7\1RT\0\0224V9\2\2@7\7\1\3\6\f\17\34*<\fudhcp 1.33.0\377\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 328, 0, {sa_family=AF_PACKET, sll_protocol=htons(ETH_P_IP), sll_ifindex=if_nametoindex("eth0"), sll_hatype=ARPHRD_NETROM, sll_pkttype=PACKET_HOST, sll_halen=6, sll_addr=[0xff, 0xff, 0xff, 0xff, 0xff, 0xff]}, 20
 
-virtio_net virtio0 eth0: __udp4_lib_rcv: data 0x8ca4ca44 head 0x8ca4ca00 tail 0x8ca4cb00 len 556 datalen 368 caller ip_protocol_deliver_rcu+0xac/0x178
-                                                              ^^^^^^^^^^      ^^^^^^^^^^                 ^^^
-00000000: 4c bd ab 8c 00 00 00 00 00 00 00 00 20 2e 85 7b 34 00 e0 7b 08 00 00 00 00 00 00 00 00 00 00 00  L........... ..{4..{............
-00000020: 40 9a ff ff ff ff ff ff 52 55 0a 00 02 02 08 00 45 10 02 40 00 00 00 00 40 11 6c 9c 0a 00 02 02  @.......RU......E..@....@.l.....
-                                                                ^^^^^ ip length (576)
-00000040: ff ff ff ff 00 43 00 44 02 2c 06 18 02 01 06 00 e6 fd ce 5b 00 00 00 00 00 00 00 00 0a 00 02 0f  .....C.D.,.........[............
-                      ^^ udp header
-                                  ^^^^^ UDP length (556)
-                                              ^^ start of UDP data
-00000060: 0a 00 02 02 00 00 00 00 52 54 00 12 34 56 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ........RT..4V..................
-00000080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-000000a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-000000c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-000000e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-00000100: 00 00 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 02 00 00 00  ................................
-00000120: b8 00 00 00 00 4d f9 8f 70 01 00 00 ea 00 00 00 50 e5 74 64 88 e0 0a 00 88 e0 4a 00 88 e0 4a 00  .....M..p.......P.td......J...J.
-00000140: 2c 00 00 00 2c 00 00 00 04 00 00 00 04 00 00 00 51 e5 74 64 00 00 00 00 00 00 00 00 00 00 00 00  ,...,...........Q.td............
-00000160: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-00000180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-000001a0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-000001c0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-000001e0: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................................
-00000200: 00 00 00 00 00 00 00 00 06 00 01 00 54 cc a4 8c 08 00 00 00 02 00 00 00 00 00 00 00 01 00 00 00  ............T...................
-00000220: 08 00 00 00 00 00 00 00 14 cd a4 8c                                                              ............
+Guenter
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
