@@ -7,85 +7,87 @@ X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AB19C433B4
-	for <virtualization@archiver.kernel.org>; Sun, 11 Apr 2021 22:07:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 447E0C433B4
+	for <virtualization@archiver.kernel.org>; Sun, 11 Apr 2021 22:20:16 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6666C611F0
-	for <virtualization@archiver.kernel.org>; Sun, 11 Apr 2021 22:07:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6666C611F0
+	by mail.kernel.org (Postfix) with ESMTPS id C851261074
+	for <virtualization@archiver.kernel.org>; Sun, 11 Apr 2021 22:20:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C851261074
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E3FA8606A8;
-	Sun, 11 Apr 2021 22:07:33 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8D02060683;
+	Sun, 11 Apr 2021 22:20:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qK5KIGPOGqHy; Sun, 11 Apr 2021 22:07:33 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 75A2C605C9;
-	Sun, 11 Apr 2021 22:07:32 +0000 (UTC)
+	with ESMTP id ybRQwyRhbgI2; Sun, 11 Apr 2021 22:20:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTP id EB0EB600D4;
+	Sun, 11 Apr 2021 22:20:13 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4DDC9C000C;
-	Sun, 11 Apr 2021 22:07:32 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 99464C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CED3DC000B;
+	Sun, 11 Apr 2021 22:20:13 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 17E8AC000A
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Apr 2021 22:07:30 +0000 (UTC)
+ Sun, 11 Apr 2021 22:20:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 77BFD60683
+ by smtp2.osuosl.org (Postfix) with ESMTP id EB43C403A5
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Apr 2021 22:07:30 +0000 (UTC)
+ Sun, 11 Apr 2021 22:20:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZnQz7pJFWfnG
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=gmail.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id T_5SQ5Ir56Kx
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Apr 2021 22:07:28 +0000 (UTC)
+ Sun, 11 Apr 2021 22:20:11 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ot1-x331.google.com (mail-ot1-x331.google.com
- [IPv6:2607:f8b0:4864:20::331])
- by smtp3.osuosl.org (Postfix) with ESMTPS id B87A6605C9
+Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com
+ [IPv6:2607:f8b0:4864:20::22e])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id C21EF40180
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Apr 2021 22:07:28 +0000 (UTC)
-Received: by mail-ot1-x331.google.com with SMTP id
- s16-20020a0568301490b02901b83efc84a0so11011339otq.10
+ Sun, 11 Apr 2021 22:20:11 +0000 (UTC)
+Received: by mail-oi1-x22e.google.com with SMTP id c16so11644911oib.3
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Apr 2021 15:07:28 -0700 (PDT)
+ Sun, 11 Apr 2021 15:20:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=sender:subject:to:cc:references:from:autocrypt:message-id:date
  :user-agent:mime-version:in-reply-to:content-language
  :content-transfer-encoding;
- bh=/lRla01KU0ybI4xpUqAJc8X9+MHM0a+SO6iOFLTi9nU=;
- b=f85+lsIWoE8r8uO/oVTyhLZWzUoLEIjb2vJcoaLyh00jQq7N+H7l30uviMerzgARd9
- q7sXL6q6VT5LLzTnQLQ0Q/IVDWly4eif1os4s4caUTYBjT26bpxzjywXSaU4c8idLT7N
- bPbSpAqG3fRzEo/4h5S4krhL3yD9z0Ji7U1XZ+lMGS0oxm2b2Tum263d7zQhkGJNpFJH
- GSkqsZxJgqRv9EgGaQfVoNoCbkOtNxOmyRbjfKvkcIlh+wKtu0zF5r6jpmlvU2OAyB+L
- jnjk/BP0ZPOMfsjU93TOVT+m3xUdIVtL4SBmqSFiuWf54D0bcu9jmCSOuiAqMiEPvoec
- zr+w==
+ bh=22ns3w2Lp6/GzZClkyqcdBBT7zw6HUfbfqljax9H/Yg=;
+ b=BjxRFW8m2K7Yaa4oLc8oJ+/GvUlMA7JHu8kqUiFiileDxWAjMS49/XOoTa7mv7e3OA
+ GdbASZn00ElgD+YXENBc7GhibV0XHQZm15AFuxiSCTc2pSlvJfLB/DN44Y4bTn6tGGVM
+ afcVN41RsZVwzKcj9hofvGIUVrtXOki89uXYFr+CRiojQS0fVG4a/3wSCvFwVFcXy453
+ 7gjkwT7asPrtgsDjNjZxTMOcqzBV2jZmoh/g0oIOc0KbEdUdynay9ckoM4QvpY1SD/9x
+ 05f375hxwrG0uYc9rYe2uxSWrd1a/+T/RUNsvX89vVG2Vk/UUpt7Of1BxTcYCclRAQR1
+ aSeQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:sender:subject:to:cc:references:from:autocrypt
  :message-id:date:user-agent:mime-version:in-reply-to
  :content-language:content-transfer-encoding;
- bh=/lRla01KU0ybI4xpUqAJc8X9+MHM0a+SO6iOFLTi9nU=;
- b=rWtu+t4/q33HEuQMtuKjFxAP32yMp6cjXqAUI9qt2gRrUUjV9RRYTClYaIUroD95zT
- mJJJQsmYdZWmVZpL75waGkZhj+O4f9v6eiSLccEZBVJ1AyvnE/b7u4n6seQb7z06wJz0
- 35m5n5ERCXYnVTTlmRU4UYp3drMw/mnQVp+MZJXix0F+03y/6+CZLmXh7J9vT76Os9Dd
- KNmjWI/MfzgVgAfwFy1hHP/twqj9TN4a4/wWCLv1BCBbBf1w6ig31JKX/56ag/yxZK92
- C94L571jSzA1dRfnxBSz2C1wGiY20yAX9OdU5sODbu6Ddn2ZLcRRf+rvMMcHZBTa0m8/
- GSPA==
-X-Gm-Message-State: AOAM531lTEuXkpcRMq7yd91v0rn3bxZzt4zUD0Ts8UR3UGeyQz50guFI
- DVafH4WFxaqTyd73d476IsjxownXA8c=
-X-Google-Smtp-Source: ABdhPJzRm9ThUpvUGHE2v5+iEyTy/q2DYpwd0EvqeKjwazo67FYftgwMmykAZOX2LBgy1MzwYaVcxw==
-X-Received: by 2002:a9d:2622:: with SMTP id a31mr22262354otb.275.1618178847473; 
- Sun, 11 Apr 2021 15:07:27 -0700 (PDT)
+ bh=22ns3w2Lp6/GzZClkyqcdBBT7zw6HUfbfqljax9H/Yg=;
+ b=auSwWv3evu3ojxaOAFIh7UWVACOzFEpqtAf+f2Orz/4n3v/Fun2k2D935ZrMHGv7st
+ mIGZBzh1uQgdoWXpX5lET3bMV9fRsCQRUBkmDjeQIfD9PqtTCVos6LW34T5cAyoJSoRb
+ ELCiQumcgV38sPk/Tem5a3VLdDGeqc3syFQsAPt71uvnmLYu75O1J2LMiXVknYHMe+hg
+ RByKM2QtJ9IYrD27fx6Ko6PNMdsBzw3hevj2H7AvvTfVHsp6BPeDy8hqQMo5RWznaU38
+ C+prjReTgUQq7xwMe7Wg0O42n95iu9j9oz/sKsEm7nwVxsz4uOK1sOChV0oepE2XXmMv
+ W/gA==
+X-Gm-Message-State: AOAM532F7dK8vStibw1zyNjSOXbgVQWCd4W5kPRh/Avej8J1Je8nN+1Q
+ ZWilNytXZHWl4m7+tU8RShCNJLCRNkM=
+X-Google-Smtp-Source: ABdhPJz8sfyal/C6reF90xUhf+6LPls6O0TbCQB0Id9MxcT+HYKmLwKmDGMv6W0rLw21dUYow3UCVw==
+X-Received: by 2002:aca:482:: with SMTP id 124mr7761387oie.130.1618179610455; 
+ Sun, 11 Apr 2021 15:20:10 -0700 (PDT)
 Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
- by smtp.gmail.com with ESMTPSA id j4sm690533oiw.0.2021.04.11.15.07.25
+ by smtp.gmail.com with ESMTPSA id
+ w5sm1253992oos.43.2021.04.11.15.20.08
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Sun, 11 Apr 2021 15:07:26 -0700 (PDT)
+ Sun, 11 Apr 2021 15:20:09 -0700 (PDT)
 Subject: Re: [PATCH net] virtio_net: Do not pull payload in skb->head
 To: Eric Dumazet <edumazet@google.com>
 References: <20210402132602.3659282-1-eric.dumazet@gmail.com>
@@ -139,8 +141,8 @@ Autocrypt: addr=linux@roeck-us.net; keydata=
  WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
  HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
  mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-Message-ID: <ad232021-d30a-da25-c1d5-0bd79628b5e1@roeck-us.net>
-Date: Sun, 11 Apr 2021 15:07:25 -0700
+Message-ID: <271df9a8-1fdd-b65e-92c3-e66e2d332644@roeck-us.net>
+Date: Sun, 11 Apr 2021 15:20:07 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
@@ -223,31 +225,67 @@ On 4/11/21 2:43 PM, Eric Dumazet wrote:
 > nstat
 > 
 
-Another tool to install.
+Does that tell you anything ?
 
-While that builds, output from strace:
-
-# strace -o /tmp/STRACE  -f -s 1000 udhcpc -n -q
+/ # nstat -n
+/ # udhcpc -n -q
 udhcpc: started, v1.33.0
 udhcpc: sending discover
-udhcpc: received SIGTERM
+/ # nstat
+#kernel
+IpInReceives                    1                  0.0
+IpInDelivers                    1                  0.0
+UdpIgnoredMulti                 1                  0.0
+IpExtInBcastPkts                1                  0.0
+IpExtInOctets                   576                0.0
+IpExtInBcastOctets              576                0.0
+IpExtInNoECTPkts                1                  0.0
 
-and:
+Also, one interesting detail is that the problem is not seen all the time,
+even with your patch in place. Not sure if I mentioned that before. strace
+output in the success case (same image, with patch in place) looks as follows.
 
-...
-136   socket(AF_PACKET, SOCK_DGRAM, htons(ETH_P_IP)) = 5
-136   bind(5, {sa_family=AF_PACKET, sll_protocol=htons(ETH_P_IP), sll_ifindex=if_nametoindex("eth0"), sll_hatype=ARPHRD_NETROM, sll_pkttype=PACKET_HOST, sll_halen=0}, 20) = 0
-136   setsockopt(5, SOL_PACKET, PACKET_AUXDATA, [1], 4) = 0
-136   fcntl64(5, F_SETFD, FD_CLOEXEC)   = 0
-136   socket(AF_INET, SOCK_RAW, IPPROTO_RAW) = 6
-136   ioctl(6, SIOCGIFINDEX, {ifr_name="eth0", }) = 0
-136   ioctl(6, SIOCGIFHWADDR, {ifr_name="eth0", ifr_hwaddr={sa_family=ARPHRD_ETHER, sa_data=52:54:00:12:34:56}}) = 0
-136   close(6)                          = 0
-136   clock_gettime64(CLOCK_MONOTONIC, {tv_sec=161, tv_nsec=2180242}) = 0
-136   write(2, "udhcpc: sending discover\n", 25) = 25
-136   socket(AF_PACKET, SOCK_DGRAM, htons(ETH_P_IP)) = 6
-136   bind(6, {sa_family=AF_PACKET, sll_protocol=htons(ETH_P_IP), sll_ifindex=if_nametoindex("eth0"), sll_hatype=ARPHRD_NETROM, sll_pkttype=PACKET_HOST, sll_halen=6, sll_addr=[0xff, 0xff, 0xff, 0xff, 0xff, 0xff]}, 20) = 0
-136   sendto(6, "E\0\1H\0\0\0\0@\21y\246\0\0\0\0\377\377\377\377\0D\0C\0014\200\256\1\1\6\0\257\321\212P\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0RT\0\0224V\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0c\202Sc5\1\1=\7\1RT\0\0224V9\2\2@7\7\1\3\6\f\17\34*<\fudhcp 1.33.0\377\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0", 328, 0, {sa_family=AF_PACKET, sll_protocol=htons(ETH_P_IP), sll_ifindex=if_nametoindex("eth0"), sll_hatype=ARPHRD_NETROM, sll_pkttype=PACKET_HOST, sll_halen=6, sll_addr=[0xff, 0xff, 0xff, 0xff, 0xff, 0xff]}, 20
+130   write(2, "udhcpc: sending discover\n", 25) = 25
+130   socket(AF_PACKET, SOCK_DGRAM, htons(ETH_P_IP)) = 6
+130   bind(6, {sa_family=AF_PACKET, sll_protocol=htons(ETH_P_IP), sll_ifindex=if_nametoindex("eth0"), sll_hatype=ARPHRD_NETROM, sll_pkttype=PACKET_HOST, sll_halen=6, sll_addr=[0xff, 0xff, 0xff, 0xf
+130   sendto(6, "E\0\1H\0\0\0\0@\21y\246\0\0\0\0\377\377\377\377\0D\0C\0014\227r\1\1\6\0\5\16\36P\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0RT\0\0224V\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0
+130   close(6)                          = 0
+130   fcntl64(5, F_SETFD, FD_CLOEXEC)   = 0
+130   clock_gettime64(CLOCK_MONOTONIC, {tv_sec=25, tv_nsec=202168729}) = 0
+130   poll([{fd=3, events=POLLIN}, {fd=5, events=POLLIN}], 2, 3000) = 1 ([{fd=5, revents=POLLIN}])
+130   read(3, 0x7bf47a73, 1)            = -1 EAGAIN (Resource temporarily unavailable)
+130   recvmsg(5, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base="E\20\2@\0\10\0\0@\21l\224\n\0\2\2\377\377\377\377\0C\0D\2,\230\23\2\1\6\0\5\16\36P\0\0\0\0\0\0\0\0\n\0\2\17\n\0\2\2\0\0\0\0RT\0\0
+130   clock_gettime64(CLOCK_MONOTONIC, {tv_sec=25, tv_nsec=205504062}) = 0
+130   fcntl64(5, F_SETFD, FD_CLOEXEC)   = 0
+130   socket(AF_INET, SOCK_RAW, IPPROTO_RAW) = 6
+130   ioctl(6, SIOCGIFINDEX, {ifr_name="eth0", }) = 0
+130   ioctl(6, SIOCGIFHWADDR, {ifr_name="eth0", ifr_hwaddr={sa_family=ARPHRD_ETHER, sa_data=52:54:00:12:34:56}}) = 0
+130   close(6)                          = 0
+130   clock_gettime64(CLOCK_MONOTONIC, {tv_sec=25, tv_nsec=208676862}) = 0
+130   write(2, "udhcpc: sending select for 10.0.2.15\n", 37) = 37
+130   socket(AF_PACKET, SOCK_DGRAM, htons(ETH_P_IP)) = 6
+130   bind(6, {sa_family=AF_PACKET, sll_protocol=htons(ETH_P_IP), sll_ifindex=if_nametoindex("eth0"), sll_hatype=ARPHRD_NETROM, sll_pkttype=PACKET_HOST, sll_halen=6, sll_addr=[0xff, 0xff, 0xff, 0xf
+130   sendto(6, "E\0\1H\0\0\0\0@\21y\246\0\0\0\0\377\377\377\377\0D\0C\0014\25Y\1\1\6\0\5\16\36P\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0RT\0\0224V\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
+130   close(6)                          = 0
+130   fcntl64(5, F_SETFD, FD_CLOEXEC)   = 0
+130   clock_gettime64(CLOCK_MONOTONIC, {tv_sec=25, tv_nsec=213060729}) = 0
+130   poll([{fd=3, events=POLLIN}, {fd=5, events=POLLIN}], 2, 3000) = 1 ([{fd=5, revents=POLLIN}])
+130   read(3, 0x7bf47a73, 1)            = -1 EAGAIN (Resource temporarily unavailable)
+130   recvmsg(5, {msg_name=NULL, msg_namelen=0, msg_iov=[{iov_base="E\20\2@\0\t\0\0@\21l\223\n\0\2\2\377\377\377\377\0C\0D\2,\225\23\2\1\6\0\5\16\36P\0\0\0\0\0\0\0\0\n\0\2\17\n\0\2\2\0\0\0\0RT\0\02
+130   clock_gettime64(CLOCK_MONOTONIC, {tv_sec=25, tv_nsec=215453662}) = 0
+130   write(2, "udhcpc: lease of 10.0.2.15 obtained, lease time 86400\n", 54) = 54
+
+In that case, the output of nstat is as follows.
+
+/ # nstat
+#kernel
+IpInReceives                    2                  0.0
+IpInDelivers                    2                  0.0
+UdpIgnoredMulti                 2                  0.0
+IpExtInBcastPkts                2                  0.0
+IpExtInOctets                   1152               0.0
+IpExtInBcastOctets              1152               0.0
+IpExtInNoECTPkts                2                  0.0
 
 Guenter
 _______________________________________________
