@@ -2,113 +2,90 @@ Return-Path: <SRS0=TAdK=JJ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9957C433B4
-	for <virtualization@archiver.kernel.org>; Mon, 12 Apr 2021 09:12:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DFA68C43460
+	for <virtualization@archiver.kernel.org>; Mon, 12 Apr 2021 09:17:51 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7708E61207
-	for <virtualization@archiver.kernel.org>; Mon, 12 Apr 2021 09:12:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7708E61207
+	by mail.kernel.org (Postfix) with ESMTPS id 63B0A61207
+	for <virtualization@archiver.kernel.org>; Mon, 12 Apr 2021 09:17:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 63B0A61207
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 24517403E0;
-	Mon, 12 Apr 2021 09:12:51 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 24C88403E3;
+	Mon, 12 Apr 2021 09:17:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zCk0Qq6aDquz; Mon, 12 Apr 2021 09:12:49 +0000 (UTC)
+	with ESMTP id 9kLJX_bA9CLM; Mon, 12 Apr 2021 09:17:49 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3CE9C403D8;
-	Mon, 12 Apr 2021 09:12:49 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 4DE24403DF;
+	Mon, 12 Apr 2021 09:17:49 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 24FEFC000C;
-	Mon, 12 Apr 2021 09:12:49 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2DDB7C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 17278C000C;
+	Mon, 12 Apr 2021 09:17:49 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4CB6FC000A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Apr 2021 09:12:48 +0000 (UTC)
+ Mon, 12 Apr 2021 09:17:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 1D8B34020A
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2F73A83947
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Apr 2021 09:12:48 +0000 (UTC)
+ Mon, 12 Apr 2021 09:17:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5db2nodxAFmB
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id i3y7ZiwkZadf
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Apr 2021 09:12:47 +0000 (UTC)
+ Mon, 12 Apr 2021 09:17:47 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 1954E40206
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 5013A8364B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Apr 2021 09:12:46 +0000 (UTC)
+ Mon, 12 Apr 2021 09:17:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1618218766;
+ s=mimecast20190719; t=1618219065;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=hf9Vyzd4yhDbdWoEdecJWwL+sFUTnRKnW5AGaSKyYno=;
- b=IR8v66GNErnD4CB/secSuNO0O9KVKAeBdEJAlrrJ+HiStag/hRx6D/vN0XUvMUzcK4GAL3
- Jko5tOfrfpk7APd3YwTe5kdneiPj31ubm8xhOBB+m2jaRDidfdgs0qrloXN6ZYhNU/pxCc
- cCr5WU4J7nB3tbDsn8twLZyw0iC3dgw=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-1-86swCOlTMtSdEXZD50YH-Q-1; Mon, 12 Apr 2021 05:12:44 -0400
-X-MC-Unique: 86swCOlTMtSdEXZD50YH-Q-1
-Received: by mail-wr1-f69.google.com with SMTP id j4so5755591wru.20
- for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Apr 2021 02:12:43 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=hf9Vyzd4yhDbdWoEdecJWwL+sFUTnRKnW5AGaSKyYno=;
- b=qJeSHI9G/10Ks6rionwHh5MlfEOQZzr0G31O07vDZsrnHgA+d9YAGoV8CGMLzM4LeP
- 6gpKvM23+RLtuDx/9ZBR1ZDDfKoQmqnIrMar2wHdVYlS3tDmoOxIhxGbPSPu8VdmtdqA
- ibiaUhfoHI6Yb7MjMAWhgo/uZMAPHQ8q2eDOMMSuN7LJRJGHn9WhGs9IwlXrdNvW+4f8
- LYB2cYIBoPpmcw1Rf7lRycqXh+tfCWhGaxwbqyLLHj62f+uJB8coZqdBD4i/keg0DwrG
- oGmBwzjzU1DTSBZfIt9gy58ygiFrws+PaTKuJe6BRABU+VNfvklMLzGi4+UB/RBtrxuv
- BWNw==
-X-Gm-Message-State: AOAM530AS9Cg6NMMYTjz5Sd+qS8r2aeGnUeXzSODULncM+nDRnHwp1FY
- d8G8pIQaTFR6tc6d4n8xnJbJJz1QbT8ArIAN/uovxB2wE1dvuZt9igGCf1qLJusg4EEC3s3TSJR
- juhYYjZmCNVyJtUzheRusiG7OPthp+5CNxJfyDIoEIA==
-X-Received: by 2002:adf:ffc3:: with SMTP id x3mr15236722wrs.263.1618218762237; 
- Mon, 12 Apr 2021 02:12:42 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxM832CN7tVMrIa0X+HAgateah9+2m2Wr3rYm73siJgkPtK59AqFEZVni4se9AETp0Udkulig==
-X-Received: by 2002:adf:ffc3:: with SMTP id x3mr15236713wrs.263.1618218762100; 
- Mon, 12 Apr 2021 02:12:42 -0700 (PDT)
-Received: from redhat.com ([2a10:8006:2281:0:1994:c627:9eac:1825])
- by smtp.gmail.com with ESMTPSA id u10sm15498510wrt.75.2021.04.12.02.12.40
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 12 Apr 2021 02:12:41 -0700 (PDT)
-Date: Mon, 12 Apr 2021 05:12:38 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 5.4 042/111] virtio_net: Do not pull payload in skb->head
-Message-ID: <20210412051230-mutt-send-email-mst@kernel.org>
-References: <20210412084004.200986670@linuxfoundation.org>
- <20210412084005.653952525@linuxfoundation.org>
+ bh=rrspDyIR9SlZX9ZhWloHNFgAesVzZ+RgGXpC9yh6HuI=;
+ b=iiHgBJ2MQHmWIN4lbX9o8m55otl90i/fn+8v2mf2Cat/FT5Mb/qT3oeHqAqvqakmN6n+di
+ dLtsPULiJwqALv3z6iPSCatsoEMUEdgdCuoje0axt5LqPK4Gfvs7+ir1c/3zPg8hOJPrcZ
+ PQlFDHnZ73bKtcByn5gfLPCop22N0Ug=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-132-8QHHYLvFNsm9QXGrFy_x3Q-1; Mon, 12 Apr 2021 05:17:41 -0400
+X-MC-Unique: 8QHHYLvFNsm9QXGrFy_x3Q-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
+ [10.5.11.11])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7266B801F98;
+ Mon, 12 Apr 2021 09:17:40 +0000 (UTC)
+Received: from localhost (ovpn-115-66.ams2.redhat.com [10.36.115.66])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 40FCA6BC2E;
+ Mon, 12 Apr 2021 09:17:35 +0000 (UTC)
+Date: Mon, 12 Apr 2021 10:17:35 +0100
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Enrico Granata <egranata@google.com>
+Subject: Re: [PATCH] virtio_blk: Add support for lifetime feature
+Message-ID: <YHQQL1OTOdnuOYUW@stefanha-x1.localdomain>
+References: <20210330231602.1223216-1-egranata@google.com>
 MIME-Version: 1.0
-In-Reply-To: <20210412084005.653952525@linuxfoundation.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Sasha Levin <sashal@kernel.org>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
- "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20210330231602.1223216-1-egranata@google.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Cc: axboe@kernel.dk, mst@redhat.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
+ pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,137 +97,181 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3505578709851177969=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Apr 12, 2021 at 10:40:20AM +0200, Greg Kroah-Hartman wrote:
-> From: Eric Dumazet <edumazet@google.com>
-> 
-> [ Upstream commit 0f6925b3e8da0dbbb52447ca8a8b42b371aac7db ]
-> 
-> Xuan Zhuo reported that commit 3226b158e67c ("net: avoid 32 x truesize
-> under-estimation for tiny skbs") brought  a ~10% performance drop.
-> 
-> The reason for the performance drop was that GRO was forced
-> to chain sk_buff (using skb_shinfo(skb)->frag_list), which
-> uses more memory but also cause packet consumers to go over
-> a lot of overhead handling all the tiny skbs.
-> 
-> It turns out that virtio_net page_to_skb() has a wrong strategy :
-> It allocates skbs with GOOD_COPY_LEN (128) bytes in skb->head, then
-> copies 128 bytes from the page, before feeding the packet to GRO stack.
-> 
-> This was suboptimal before commit 3226b158e67c ("net: avoid 32 x truesize
-> under-estimation for tiny skbs") because GRO was using 2 frags per MSS,
-> meaning we were not packing MSS with 100% efficiency.
-> 
-> Fix is to pull only the ethernet header in page_to_skb()
-> 
-> Then, we change virtio_net_hdr_to_skb() to pull the missing
-> headers, instead of assuming they were already pulled by callers.
-> 
-> This fixes the performance regression, but could also allow virtio_net
-> to accept packets with more than 128bytes of headers.
-> 
-> Many thanks to Xuan Zhuo for his report, and his tests/help.
-> 
-> Fixes: 3226b158e67c ("net: avoid 32 x truesize under-estimation for tiny skbs")
-> Reported-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> Link: https://www.spinics.net/lists/netdev/msg731397.html
-> Co-Developed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> Signed-off-by: Eric Dumazet <edumazet@google.com>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: virtualization@lists.linux-foundation.org
-> Acked-by: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+
+--===============3505578709851177969==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="ODDWfFadttf77aj1"
+Content-Disposition: inline
 
 
-Note that an issue related to this patch was recently reported.
-It's quite possible that the root cause is a bug elsewhere
-in the kernel, but it probably makes sense to defer the backport
-until we know more ...
+--ODDWfFadttf77aj1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-
+On Tue, Mar 30, 2021 at 11:16:02PM +0000, Enrico Granata wrote:
+> The VirtIO TC has adopted a new feature in virtio-blk enabling
+> discovery of lifetime information.
+>=20
+> This commit adds support for the VIRTIO_BLK_T_LIFETIME command
+> to the virtio_blk driver, and adds two new attributes to the
+> sysfs entry for virtio_blk:
+> * pre_eol_info
+> * life_time
+>=20
+> which are defined in the same manner as the files of the same name
+> for the eMMC driver, in line with the VirtIO specification.
+>=20
+> Signed-off-by: Enrico Granata <egranata@google.com>
 > ---
->  drivers/net/virtio_net.c   | 10 +++++++---
->  include/linux/virtio_net.h | 14 +++++++++-----
->  2 files changed, 16 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index b67460864b3c..d8ee001d8e8e 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -406,9 +406,13 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
->  	offset += hdr_padded_len;
->  	p += hdr_padded_len;
->  
-> -	copy = len;
-> -	if (copy > skb_tailroom(skb))
-> -		copy = skb_tailroom(skb);
-> +	/* Copy all frame if it fits skb->head, otherwise
-> +	 * we let virtio_net_hdr_to_skb() and GRO pull headers as needed.
-> +	 */
-> +	if (len <= skb_tailroom(skb))
-> +		copy = len;
-> +	else
-> +		copy = ETH_HLEN + metasize;
->  	skb_put_data(skb, p, copy);
->  
->  	if (metasize) {
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index 98775d7fa696..b465f8f3e554 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -65,14 +65,18 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
->  	skb_reset_mac_header(skb);
->  
->  	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
-> -		u16 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
-> -		u16 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
-> +		u32 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
-> +		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
-> +		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
+>  drivers/block/virtio_blk.c      | 76 ++++++++++++++++++++++++++++++++-
+>  include/uapi/linux/virtio_blk.h | 11 +++++
+>  2 files changed, 86 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index b9fa3ef5b57c..1fc0ec000b4f 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -246,7 +246,7 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_=
+ctx *hctx,
+>  		unmap =3D !(req->cmd_flags & REQ_NOUNMAP);
+>  		break;
+>  	case REQ_OP_DRV_IN:
+> -		type =3D VIRTIO_BLK_T_GET_ID;
+> +		type =3D vbr->out_hdr.type;
+
+This patch changes the endianness of vbr->out_hdr.type from
+virtio-endian to cpu endian before virtio_queue_rq. That is error-prone
+because someone skimming through the code will see some accesses with
+cpu_to_virtio32() and others without it. They would have to audit the
+code carefully to understand what is going on.
+
+The following is cleaner:
+
+  case REQ_OP_DRV_IN:
+      break; /* type already set for custom requests */
+  ...
+  if (req_op(req) !=3D REQ_OP_DRV_IN)
+      vbr->out_hdr.type =3D cpu_to_virtio32(vblk->vdev, type);
+
+Now vbr->out_hdr.type is virtio-endian everywhere. If we need to support
+REQ_OP_DRV_OUT in the future it can use the same approach.
+
+virtblk_get_id() and virtblk_get_lifetime() would be updated like this:
+
+  vbreq->out_hdr.type =3D cpu_to_virtio32(VIRTIO_BLK_T_GET_*);
+
+>  		break;
+>  	default:
+>  		WARN_ON_ONCE(1);
+> @@ -310,11 +310,14 @@ static int virtblk_get_id(struct gendisk *disk, cha=
+r *id_str)
+>  	struct virtio_blk *vblk =3D disk->private_data;
+>  	struct request_queue *q =3D vblk->disk->queue;
+>  	struct request *req;
+> +	struct virtblk_req *vbreq;
+
+It's called vbr elsewhere in the driver. It would be nice to keep naming
+consistent.
+
+>  	int err;
+> =20
+>  	req =3D blk_get_request(q, REQ_OP_DRV_IN, 0);
+>  	if (IS_ERR(req))
+>  		return PTR_ERR(req);
+> +	vbreq =3D blk_mq_rq_to_pdu(req);
+> +	vbreq->out_hdr.type =3D VIRTIO_BLK_T_GET_ID;
+> =20
+>  	err =3D blk_rq_map_kern(q, req, id_str, VIRTIO_BLK_ID_BYTES, GFP_KERNEL=
+);
+>  	if (err)
+> @@ -327,6 +330,34 @@ static int virtblk_get_id(struct gendisk *disk, char=
+ *id_str)
+>  	return err;
+>  }
+> =20
+> +static int virtblk_get_lifetime(struct gendisk *disk, struct virtio_blk_=
+lifetime *lifetime)
+> +{
+> +	struct virtio_blk *vblk =3D disk->private_data;
+> +	struct request_queue *q =3D vblk->disk->queue;
+> +	struct request *req;
+> +	struct virtblk_req *vbreq;
+> +	int err;
 > +
-> +		if (!pskb_may_pull(skb, needed))
-> +			return -EINVAL;
->  
->  		if (!skb_partial_csum_set(skb, start, off))
->  			return -EINVAL;
->  
->  		p_off = skb_transport_offset(skb) + thlen;
-> -		if (p_off > skb_headlen(skb))
-> +		if (!pskb_may_pull(skb, p_off))
->  			return -EINVAL;
->  	} else {
->  		/* gso packets without NEEDS_CSUM do not set transport_offset.
-> @@ -102,14 +106,14 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
->  			}
->  
->  			p_off = keys.control.thoff + thlen;
-> -			if (p_off > skb_headlen(skb) ||
-> +			if (!pskb_may_pull(skb, p_off) ||
->  			    keys.basic.ip_proto != ip_proto)
->  				return -EINVAL;
->  
->  			skb_set_transport_header(skb, keys.control.thoff);
->  		} else if (gso_type) {
->  			p_off = thlen;
-> -			if (p_off > skb_headlen(skb))
-> +			if (!pskb_may_pull(skb, p_off))
->  				return -EINVAL;
->  		}
->  	}
-> -- 
-> 2.30.2
-> 
-> 
+> +	if (!virtio_has_feature(vblk->vdev, VIRTIO_BLK_F_LIFETIME))
+> +		return -EOPNOTSUPP;
+> +
+> +	req =3D blk_get_request(q, REQ_OP_DRV_IN, 0);
+> +	if (IS_ERR(req))
+> +		return PTR_ERR(req);
+> +	vbreq =3D blk_mq_rq_to_pdu(req);
+> +	vbreq->out_hdr.type =3D VIRTIO_BLK_T_GET_LIFETIME;
+> +
+> +	err =3D blk_rq_map_kern(q, req, lifetime, sizeof(*lifetime), GFP_KERNEL=
+);
+> +	if (err)
+> +		goto out;
+> +
+> +	blk_execute_rq(vblk->disk, req, false);
+> +	err =3D blk_status_to_errno(virtblk_result(blk_mq_rq_to_pdu(req)));
+> +out:
+> +	blk_put_request(req);
+> +	return err;
+> +}
+> +
+>  static void virtblk_get(struct virtio_blk *vblk)
+>  {
+>  	refcount_inc(&vblk->refs);
+> @@ -435,6 +466,46 @@ static ssize_t serial_show(struct device *dev,
+> =20
+>  static DEVICE_ATTR_RO(serial);
+> =20
+> +static ssize_t pre_eol_info_show(struct device *dev,
+> +			   struct device_attribute *attr, char *buf)
+> +{
+> +	struct gendisk *disk =3D dev_to_disk(dev);
+> +	struct virtio_blk_lifetime lft;
+> +	int err;
+> +
+> +	/* sysfs gives us a PAGE_SIZE buffer */
+> +	BUILD_BUG_ON(sizeof(lft) >=3D PAGE_SIZE);
+
+Why is this necessary? In serial_show() it protects against a buffer
+overflow. That's not the case here since sprintf() is used to write to
+buf and the size of lft doesn't really matter.
+
+--ODDWfFadttf77aj1
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmB0EC0ACgkQnKSrs4Gr
+c8glpwf7B5HPKz4lOmk9WcUcbbG+AtgIXqFv3X115vuKd+RJXNjmKjyB4Y2X4JuG
+ZerW9cbiK5Cs4VcTvmKRw8L74XGynTSHJzumvLPNfFq8/GpJSLJntR1D9MngAwpp
+TWAlN0f/Waz9jQ2cI+sGPcTK/uM22CJDbywJpBkKHnTKZKbBwp/ouxhRb7nmj2Oo
+FfhoWdt665W+ZeKaSTMBigUSizMnscFtMa12nb2mNFXf7fyATETubpwLJAFWAVHH
+bYMSlHDQ2cOl4mfrESqsVQroFY2u6/ReEddt4ez5UIA4gUtrcvOJpSI0rAUpuqZZ
+x7y54k9wHMp13OSg+LYJ1iC6UEjz+Q==
+=IM9I
+-----END PGP SIGNATURE-----
+
+--ODDWfFadttf77aj1--
+
+
+--===============3505578709851177969==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3505578709851177969==--
+
