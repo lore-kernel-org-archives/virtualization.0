@@ -4,111 +4,99 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62B77C433ED
-	for <virtualization@archiver.kernel.org>; Mon, 12 Apr 2021 22:33:57 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 18B62C433ED
+	for <virtualization@archiver.kernel.org>; Mon, 12 Apr 2021 22:39:57 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0FE2161358
-	for <virtualization@archiver.kernel.org>; Mon, 12 Apr 2021 22:33:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0FE2161358
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 910476121E
+	for <virtualization@archiver.kernel.org>; Mon, 12 Apr 2021 22:39:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 910476121E
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=bytedance.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id CAF4983DAE;
-	Mon, 12 Apr 2021 22:33:56 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 563E360B16;
+	Mon, 12 Apr 2021 22:39:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LYnBbb_zAE5x; Mon, 12 Apr 2021 22:33:56 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5DFC383DAB;
-	Mon, 12 Apr 2021 22:33:55 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 27596C000B;
-	Mon, 12 Apr 2021 22:33:55 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1F0D1C000A
- for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Apr 2021 22:33:54 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id E1D87605DC
- for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Apr 2021 22:33:53 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KvyUyHc7EBQG
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id OxQsZFA4haBx; Mon, 12 Apr 2021 22:39:55 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 886C86070C;
+	Mon, 12 Apr 2021 22:39:54 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 50FCBC000B;
+	Mon, 12 Apr 2021 22:39:54 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 29284C000A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Apr 2021 22:33:53 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 18E30605C1
+ Mon, 12 Apr 2021 22:39:52 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 0F08C404F4
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Apr 2021 22:33:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1618266831;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=kDYC/0JEgwH/dQyAoKRIGlbZ//2y9RqMa3XQD3efgMY=;
- b=NGk1iL2Vh8v3fLQOHJiUqvZszsATTCc8BeG5owW9SvspkiHkssvUH45pvtOouB2V2kk1Ci
- p8rcCcw5OEncfhMFQAdd9xz0NiF7W960NZzLWZXIFLdaWYPGUdjl6FMVdqnGHlclq4aMiB
- 9PNwRUUIaDxEzefu8qtTKjd/gQFEv2c=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-227-4siW00cpOEeA6FXC1-LAdw-1; Mon, 12 Apr 2021 18:33:50 -0400
-X-MC-Unique: 4siW00cpOEeA6FXC1-LAdw-1
-Received: by mail-wm1-f70.google.com with SMTP id
- t83-20020a1cc3560000b029011f8f517694so276395wmf.3
+ Mon, 12 Apr 2021 22:39:52 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=bytedance-com.20150623.gappssmtp.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id QCwkLbMg0RFn
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Apr 2021 15:33:50 -0700 (PDT)
+ Mon, 12 Apr 2021 22:39:49 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com
+ [IPv6:2607:f8b0:4864:20::329])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 9A1C6404F2
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 12 Apr 2021 22:39:49 +0000 (UTC)
+Received: by mail-ot1-x329.google.com with SMTP id
+ k14-20020a9d7dce0000b02901b866632f29so14376566otn.1
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 12 Apr 2021 15:39:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=bytedance-com.20150623.gappssmtp.com; s=20150623;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=0TFIdOpLuQUTZpTypXAmeFouLcxK17j+xEJW+v2yGz8=;
+ b=SGs9KHzXP17JLH+6GvAjgoWxKCPrH1tVPLafnFiBxVfcj8TEozZTtZf7Tx1vGiEnQB
+ fpLAjYi+4jGy6VCnDVYwngOY14Zt50r44lTCTQotDS1sC7vbng4NKWbEXfen1kFQkclo
+ oMpKYEE/ky/SMKdBLS1KTtsgKjrBRoqxD8JWYUMSZLsDj05kvO/82kYT8WR4zIFcAj7e
+ g9ABJIt6e8L9GE390LQV/Dxdgvu2I9fUn3G9O8o0D7YZd5xJ+iTb8RR7ScObrcaJe5XH
+ NiyJVr8xRRudg/UHd/uhhFZ91iWoz/nnlTOq2utS/E1ss5CKb/RZ6ihZH/j/A/L96JuR
+ jXug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=kDYC/0JEgwH/dQyAoKRIGlbZ//2y9RqMa3XQD3efgMY=;
- b=Q2nLTSQLQNA6aHjEu9BNsmhrmyab3ETqwCL9esC6gIKQdGEWdPP9CxTzzXJFYr67kI
- 3d4WJprKnSHwTHbFSiuLGxl6ymBI0Jgopof/vDKxVNKfNY64aTA/55IADR37H+UejGEP
- S67VI7wxVbqmGhyxumVFklhPoOh/fiA37yFSqOjpmv8eAi4NRLMrDpduTRV9mF08muJw
- iSneTTul2K3VPvba3S4C95SBIMfLUxqnsMVmAs8c9y9n7Gyk4zbhJn4DyV46dn634yS3
- SlBBQc4ukAI74G3unDCIbYx3tzLYfgpxy1X2gBJPnIN8QDN9q++xJ7Fkj5XoWeH0IE3d
- /MIA==
-X-Gm-Message-State: AOAM5317qGj5M6xdOVv5mzwdT+ufus7qoAztvonbQSqMaql3chN7o2n/
- gvJvu/lCAVmfRyKLKNOLAYXx36MMfs8sFWadtrnCMVMq/8ndiX8o+6Y5+8zeUOyV9QID4R7CVqQ
- pWlq2tHclttCA39dVYzIYZmBat0LN6fvxTHaKB26BZQ==
-X-Received: by 2002:adf:df0a:: with SMTP id y10mr19746095wrl.246.1618266829124; 
- Mon, 12 Apr 2021 15:33:49 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxuanvU3G286FyJLWeBqftN6+/9ZmG2RjPQ17fFEUGiVXPjlB6KaubOAPuXTHof1g4G0gV/JQ==
-X-Received: by 2002:adf:df0a:: with SMTP id y10mr19746080wrl.246.1618266828954; 
- Mon, 12 Apr 2021 15:33:48 -0700 (PDT)
-Received: from redhat.com ([2a10:8006:2281:0:1994:c627:9eac:1825])
- by smtp.gmail.com with ESMTPSA id j6sm609841wmq.16.2021.04.12.15.33.47
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 12 Apr 2021 15:33:48 -0700 (PDT)
-Date: Mon, 12 Apr 2021 18:33:45 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Wei Wang <weiwan@google.com>
-Subject: Re: [PATCH net] virtio-net: suppress bad irq warning for tx napi
-Message-ID: <20210412183141-mutt-send-email-mst@kernel.org>
-References: <20210129002136.70865-1-weiwan@google.com>
- <20210412180353-mutt-send-email-mst@kernel.org>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=0TFIdOpLuQUTZpTypXAmeFouLcxK17j+xEJW+v2yGz8=;
+ b=HsE35QuimFpUMbLJhWfkadue63Lzsu3YeW87CuQ1Zv4SACeWYHgGvZ7gF0t5TYPWQr
+ P6qxn7C+wVPnkmuuqVGPSLmzKZn++C0YcQN3TAxzo3qBHbqOxT5Wi7DPlfELAunarDJV
+ aPe9JOM8eIH7+Sce1XuY8xGwb7OL900yPSAHjDvS/eXXnnD/3ClFH3hk0YibI7IjrjOt
+ ceVaTimGeJoc9Sdj32AAaGFGZ6oc7ZoTufTTK04c2g/twom1Cszw93fBMsEt/RqRcL5c
+ 1aZR+CS5L/pIkWO0mJL8tWOIJUITiOer5904w9miDfR06TbcdG6KKUF687Nht4bDhxGL
+ ql3A==
+X-Gm-Message-State: AOAM533Ocg/xdby0oBrz56V3/ahwZ2RMnvLkT01YJWmhOKP8IBdgmQhN
+ o+IXcsi7q8VodlhX4WBViBqHunSSrdR9x6va2D5TiQ==
+X-Google-Smtp-Source: ABdhPJx6gCHewWMB03fzZd+k7SfmE37OeywApo/4o9uPjHWAZ+ML3LwAsLgQYMgXYtLtJkiAHZ/xzfTXO3J7wheGJZQ=
+X-Received: by 2002:a05:6830:22c3:: with SMTP id
+ q3mr25402486otc.56.1618267187927; 
+ Mon, 12 Apr 2021 15:39:47 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210412180353-mutt-send-email-mst@kernel.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: netdev@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
- virtualization@lists.linux-foundation.org, David Miller <davem@davemloft.net>,
- Jakub Kicinski <kuba@kernel.org>
+References: <20210401043602.3510538-1-jiang.wang@bytedance.com>
+ <YHRQGSSnkN8Zipy0@stefanha-x1.localdomain>
+In-Reply-To: <YHRQGSSnkN8Zipy0@stefanha-x1.localdomain>
+From: "Jiang Wang ." <jiang.wang@bytedance.com>
+Date: Mon, 12 Apr 2021 15:39:36 -0700
+Message-ID: <CAP_N_Z-OMqQtnV04Wpynr7GhZooz1iQQ+0To-P8xPEnA0+sZgQ@mail.gmail.com>
+Subject: Re: [External] Re: [RFC v2] virtio-vsock: add description for
+ datagram type
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: cong.wang@bytedance.com, Xiongchun Duan <duanxiongchun@bytedance.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, cohuck@redhat.com,
+ virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
+ Arseny Krasnov <arseny.krasnov@kaspersky.com>, asias@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,127 +113,262 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Apr 12, 2021 at 06:08:21PM -0400, Michael S. Tsirkin wrote:
-> OK I started looking at this again. My idea is simple.
-> A. disable callbacks before we try to drain skbs
-> B. actually do disable callbacks even with event idx
-> 
-> To make B not regress, we need to
-> C. detect the common case of disable after event triggering and skip the write then.
-> 
-> I added a new event_triggered flag for that.
-> Completely untested - but then I could not see the warnings either.
-> Would be very much interested to know whether this patch helps
-> resolve the sruprious interrupt problem at all ...
-> 
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+On Mon, Apr 12, 2021 at 6:50 AM Stefan Hajnoczi <stefanha@redhat.com> wrote:
+>
+> On Thu, Apr 01, 2021 at 04:36:02AM +0000, jiang.wang wrote:
+> > Add supports for datagram type for virtio-vsock. Datagram
+> > sockets are connectionless and unreliable. To avoid contention
+> > with stream and other sockets, add two more virtqueues and
+> > a new feature bit to identify if those two new queues exist or not.
+> >
+> > Also add descriptions for resource management of datagram, which
+> > does not use the existing credit update mechanism associated with
+> > stream sockets.
+> >
+> > Signed-off-by: Jiang Wang <jiang.wang@bytedance.com>
+> > ---
+> > V2 addressed the comments for the previous version.
+> >
+> >  virtio-vsock.tex | 62 +++++++++++++++++++++++++++++++++++++++++++++++---------
+> >  1 file changed, 52 insertions(+), 10 deletions(-)
+> >
+> > diff --git a/virtio-vsock.tex b/virtio-vsock.tex
+> > index da7e641..62c12e0 100644
+> > --- a/virtio-vsock.tex
+> > +++ b/virtio-vsock.tex
+> > @@ -11,12 +11,25 @@ \subsection{Virtqueues}\label{sec:Device Types / Socket Device / Virtqueues}
+> >  \begin{description}
+> >  \item[0] rx
+> >  \item[1] tx
+> > +\item[2] datagram rx
+> > +\item[3] datagram tx
+> > +\item[4] event
+> > +\end{description}
+> > +The virtio socket device uses 5 queues if feature bit VIRTIO_VSOCK_F_DRGAM is set. Otherwise, it
+> > +only uses 3 queues, as the following. Rx and tx queues are always used for stream sockets.
+> > +
+> > +\begin{description}
+> > +\item[0] rx
+> > +\item[1] tx
+> >  \item[2] event
+> >  \end{description}
+> >
+>
+> I suggest renaming "rx" and "tx" to "stream rx" and "stream tx"
+> virtqueues and also adding this:
 
-Hmm a slightly cleaner alternative is to clear the flag when enabling interrupts ...
-I wonder which cacheline it's best to use for this.
+OK
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>   When behavior differs between stream and datagram rx/tx virtqueues
+>   their full names are used. Common behavior is simply described in
+>   terms of rx/tx virtqueues and applies to both stream and datagram
+>   virtqueues.
 
+OK
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 82e520d2cb12..c23341b18eb5 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1429,6 +1429,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
- 		return;
- 
- 	if (__netif_tx_trylock(txq)) {
-+		virtqueue_disable_cb(vq);
- 		free_old_xmit_skbs(sq, true);
- 		__netif_tx_unlock(txq);
- 	}
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 71e16b53e9c1..88f0b16b11b8 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -113,6 +113,9 @@ struct vring_virtqueue {
- 	/* Last used index we've seen. */
- 	u16 last_used_idx;
- 
-+	/* Hint for event idx: already triggered no need to disable. */
-+	bool event_triggered;
-+
- 	union {
- 		/* Available for split ring */
- 		struct {
-@@ -739,7 +742,10 @@ static void virtqueue_disable_cb_split(struct virtqueue *_vq)
- 
- 	if (!(vq->split.avail_flags_shadow & VRING_AVAIL_F_NO_INTERRUPT)) {
- 		vq->split.avail_flags_shadow |= VRING_AVAIL_F_NO_INTERRUPT;
--		if (!vq->event)
-+		if (vq->event)
-+			/* TODO: this is a hack. Figure out a cleaner value to write. */
-+			vring_used_event(&vq->split.vring) = 0x0;
-+		else
- 			vq->split.vring.avail->flags =
- 				cpu_to_virtio16(_vq->vdev,
- 						vq->split.avail_flags_shadow);
-@@ -1605,6 +1611,7 @@ static struct virtqueue *vring_create_virtqueue_packed(
- 	vq->weak_barriers = weak_barriers;
- 	vq->broken = false;
- 	vq->last_used_idx = 0;
-+	vq->event_triggered = false;
- 	vq->num_added = 0;
- 	vq->packed_ring = true;
- 	vq->use_dma_api = vring_use_dma_api(vdev);
-@@ -1919,6 +1926,12 @@ void virtqueue_disable_cb(struct virtqueue *_vq)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 
-+	/* If device triggered an event already it won't trigger one again:
-+	 * no need to disable.
-+	 */
-+	if (vq->event_triggered)
-+		return;
-+
- 	if (vq->packed_ring)
- 		virtqueue_disable_cb_packed(_vq);
- 	else
-@@ -1942,6 +1955,9 @@ unsigned virtqueue_enable_cb_prepare(struct virtqueue *_vq)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 
-+	if (vq->event_triggered)
-+		vq->event_triggered = false;
-+
- 	return vq->packed_ring ? virtqueue_enable_cb_prepare_packed(_vq) :
- 				 virtqueue_enable_cb_prepare_split(_vq);
- }
-@@ -2005,6 +2021,9 @@ bool virtqueue_enable_cb_delayed(struct virtqueue *_vq)
- {
- 	struct vring_virtqueue *vq = to_vvq(_vq);
- 
-+	if (vq->event_triggered)
-+		vq->event_triggered = false;
-+
- 	return vq->packed_ring ? virtqueue_enable_cb_delayed_packed(_vq) :
- 				 virtqueue_enable_cb_delayed_split(_vq);
- }
-@@ -2044,6 +2063,10 @@ irqreturn_t vring_interrupt(int irq, void *_vq)
- 	if (unlikely(vq->broken))
- 		return IRQ_HANDLED;
- 
-+	/* Just a hint for performance: so it's ok that this can be racy! */
-+	if (vq->event)
-+		vq->event_triggered = true;
-+
- 	pr_debug("virtqueue callback for %p (%p)\n", vq, vq->vq.callback);
- 	if (vq->vq.callback)
- 		vq->vq.callback(&vq->vq);
-@@ -2083,6 +2106,7 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
- 	vq->weak_barriers = weak_barriers;
- 	vq->broken = false;
- 	vq->last_used_idx = 0;
-+	vq->event_triggered = false;
- 	vq->num_added = 0;
- 	vq->use_dma_api = vring_use_dma_api(vdev);
- #ifdef DEBUG
+> This way you won't need to duplicate portions of the spec that deal with
+> populating the virtqueues, for example.
+>
+> It's also clearer to use a full name for stream rx/tx virtqueues instead
+> of calling them rx/tx virtqueues now that we have datagram rx/tx
+> virtqueues.
 
+Sure.
+
+> > +
+> >  \subsection{Feature bits}\label{sec:Device Types / Socket Device / Feature bits}
+> >
+> > -There are currently no feature bits defined for this device.
+> > +\begin{description}
+> > +\item[VIRTIO_VSOCK_F_DGRAM (0)] Device has support for datagram socket type.
+> > +\end{description}
+> >
+> >  \subsection{Device configuration layout}\label{sec:Device Types / Socket Device / Device configuration layout}
+> >
+> > @@ -107,6 +120,9 @@ \subsection{Device Operation}\label{sec:Device Types / Socket Device / Device Op
+> >
+> >  \subsubsection{Virtqueue Flow Control}\label{sec:Device Types / Socket Device / Device Operation / Virtqueue Flow Control}
+> >
+> > +Flow control applies to stream sockets; datagram sockets do not have
+> > +flow control.
+> > +
+> >  The tx virtqueue carries packets initiated by applications and replies to
+> >  received packets.  The rx virtqueue carries packets initiated by the device and
+> >  replies to previously transmitted packets.
+> > @@ -140,12 +156,15 @@ \subsubsection{Addressing}\label{sec:Device Types / Socket Device / Device Opera
+> >  consists of a (cid, port number) tuple. The header fields used for this are
+> >  \field{src_cid}, \field{src_port}, \field{dst_cid}, and \field{dst_port}.
+> >
+> > -Currently only stream sockets are supported. \field{type} is 1 for stream
+> > -socket types.
+> > +Currently stream and datagram (dgram) sockets are supported. \field{type} is 1 for stream
+> > +socket types. \field{type} is 3 for dgram socket types.
+> >
+> >  Stream sockets provide in-order, guaranteed, connection-oriented delivery
+> >  without message boundaries.
+> >
+> > +Datagram sockets provide connectionless unreliable messages of
+> > +a fixed maximum length.
+>
+> Plus unordered (?) and with message boundaries. In other words:
+>
+>   Datagram sockets provide unordered, unreliable, connectionless message
+>   with message boundaries and a fixed maximum length.
+
+OK. Will do. In my implementation, the order is preserved because
+there is only one virtqueue. But I think we can put unordered in the spec.
+
+> I didn't think of the fixed maximum length aspect before. I guess the
+> intention is that the rx buffer size is the message size limit? That's
+> different from UDP messages, which can be fragmented into multiple IP
+> packets and can be larger than 64KiB:
+> https://en.wikipedia.org/wiki/User_Datagram_Protocol#UDP_datagram_structure
+>
+> Is it possible to support large datagram messages in vsock? I'm a little
+> concerned that applications that run successfully over UDP will not be
+> portable if vsock has this limitation because it would impose extra
+> message boundaries that the application protocol might not tolerate.
+>
+OK. I think one way is to support fragmentation as suggested by Stefano.
+
+> > +
+> >  \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device / Device Operation / Buffer Space Management}
+> >  \field{buf_alloc} and \field{fwd_cnt} are used for buffer space management of
+> >  stream sockets. The guest and the device publish how much buffer space is
+> > @@ -162,7 +181,7 @@ \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device /
+> >  u32 peer_free = peer_buf_alloc - (tx_cnt - peer_fwd_cnt);
+> >  \end{lstlisting}
+> >
+> > -If there is insufficient buffer space, the sender waits until virtqueue buffers
+> > +For stream sockets, if there is insufficient buffer space, the sender waits until virtqueue buffers
+> >  are returned and checks \field{buf_alloc} and \field{fwd_cnt} again. Sending
+> >  the VIRTIO_VSOCK_OP_CREDIT_REQUEST packet queries how much buffer space is
+> >  available. The reply to this query is a VIRTIO_VSOCK_OP_CREDIT_UPDATE packet.
+> > @@ -170,16 +189,28 @@ \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device /
+> >  previously receiving a VIRTIO_VSOCK_OP_CREDIT_REQUEST packet. This allows
+> >  communicating updates any time a change in buffer space occurs.
+> >
+> > +Unlike stream sockets, dgram sockets do not use VIRTIO_VSOCK_OP_CREDIT_UPDATE or
+> > +VIRTIO_VSOCK_OP_CREDIT_REQUEST packets. The dgram buffer management
+> > +is split to two parts: tx side and rx side. For the tx side, there is
+> > +additional buffer space for each socket.
+>
+> Plus:
+>
+>   ... according to the the driver and device's available memory
+>   resources. The amount of tx buffer space is an implementation detail
+>   of both the device and the driver. It is not visible to the other side
+>   and may be controlled by the application or administrative resource
+>   limits.
+>
+> What I'm trying to describe here is that the additional tx buffer space
+> isn't part of the device interface.
+>
+OK. Will do.
+
+> > +The dgram sender sends packets when the virtqueue or the additional buffer is not full.
+> > +When both are full, the sender
+> > +MUST return an appropriate error to the upper layer application.
+>
+> MUST, SHOULD, etc clauses need to go into the
+> devicenormative/drivernormative sections. They cannot be in regular
+> text.
+>
+OK.
+
+> > +For the rx side, dgram also uses the \field{buf_alloc}. If it is full, the packet
+> > +is dropped by the receiver.
+>
+> UDP is connectionless so any number of other sources can send messages
+> to the same destination, causing buf_alloc's value to be unpredictable.
+> Can you explain how buf_alloc works with datagram sockets in more
+> detail?
+
+In the linux kernel in my prototype, datagram sockets also use
+virtio_transport_inc_rx_pkt() and virtio_transport_dec_rx_pkt() to update
+vvs->rx_bytes and compare it with vvs->buf_alloc. virtio_transport_inc_rx_pkt
+is called when enqueuing the datagram packets.
+virtio_transport_dec_rx_pkt is called when dequeuing those packets.
+
+If multiple sources send messages to the same destination, they will share
+the same buf_alloc. Do you want something with more control?
+Maybe somehow allocate a buffer for each remote CID and port? But I
+feel that is a little bit overkill. Any other suggestions?
+
+> >  \drivernormative{\paragraph}{Device Operation: Buffer Space Management}{Device Types / Socket Device / Device Operation / Buffer Space Management}
+> > -VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
+> > -sufficient free buffer space for the payload.
+> > +For stream sockets, VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
+> > +sufficient free buffer space for the payload. For dgram sockets, VIRTIO_VSOCK_OP_RW data packets
+> > +MAY be transmitted when the peer buffer is full. Then the packet will be dropped by the receiver.
+> >
+> >  All packets associated with a stream flow MUST contain valid information in
+> >  \field{buf_alloc} and \field{fwd_cnt} fields.
+> >
+> >  \devicenormative{\paragraph}{Device Operation: Buffer Space Management}{Device Types / Socket Device / Device Operation / Buffer Space Management}
+> > -VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
+> > -sufficient free buffer space for the payload.
+> > +For stream sockets, VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
+> > +sufficient free buffer space for the payload. For dgram sockets, VIRTIO_VSOCK_OP_RW data packets
+> > +MAY be transmitted when the peer buffer is full. Then the packet will be dropped by the receiver.
+> >
+> >  All packets associated with a stream flow MUST contain valid information in
+> >  \field{buf_alloc} and \field{fwd_cnt} fields.
+> > @@ -203,14 +234,14 @@ \subsubsection{Receive and Transmit}\label{sec:Device Types / Socket Device / De
+> >  The \field{guest_cid} configuration field MUST be used as the source CID when
+> >  sending outgoing packets.
+> >
+> > -A VIRTIO_VSOCK_OP_RST reply MUST be sent if a packet is received with an
+> > +For stream sockets, A VIRTIO_VSOCK_OP_RST reply MUST be sent if a packet is received with an
+> >  unknown \field{type} value.
+>
+> What about datagram sockets? Please state what must happen and why.
+
+I think datagram sockets should do the same thing as the stream to
+return a VIRTIO_VSOCK_OP_RST?
+Any other ideas?
+
+> >
+> >  \devicenormative{\paragraph}{Device Operation: Receive and Transmit}{Device Types / Socket Device / Device Operation / Receive and Transmit}
+> >
+> >  The \field{guest_cid} configuration field MUST NOT contain a reserved CID as listed in \ref{sec:Device Types / Socket Device / Device configuration layout}.
+> >
+> > -A VIRTIO_VSOCK_OP_RST reply MUST be sent if a packet is received with an
+> > +For stream sockets, A VIRTIO_VSOCK_OP_RST reply MUST be sent if a packet is received with an
+> >  unknown \field{type} value.
+> >
+> >  \subsubsection{Stream Sockets}\label{sec:Device Types / Socket Device / Device Operation / Stream Sockets}
+> > @@ -240,6 +271,17 @@ \subsubsection{Stream Sockets}\label{sec:Device Types / Socket Device / Device O
+> >  destination) address tuple for a new connection while the other peer is still
+> >  processing the old connection.
+> >
+> > +\subsubsection{Datagram Sockets}\label{sec:Device Types / Socket Device / Device Operation / Stream Sockets}
+>
+> s/Stream Sockets/Datagram Sockets/
+
+Will do
+
+> > +
+> > +Datagram (dgram) sockets are connectionless and unreliable. The sender just sends
+> > +a message to the peer and hope it will be delivered. A VIRTIO_VSOCK_OP_RST reply is sent if
+>
+> s/hope/hopes/
+
+got it.
+
+> > +a receiving socket does not exist on the destination.
+> > +If the transmission or receiving buffers are full, the packets
+> > +are dropped. If the transmission buffer is full, an appropriate error message
+> > +is returned to the caller.
+>
+> It's unclear whether the caller is the driver/device or something else.
+> I think you're referring to the application interace, which is outside
+> the scope of the VIRTIO spec. I suggest dropping the last sentence.
+
+Yeah, I was thinking about the application interface. I will drop this
+sentence.
+
+Thanks for all the feedback.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
