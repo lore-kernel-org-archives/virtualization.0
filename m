@@ -2,123 +2,79 @@ Return-Path: <SRS0=TAdK=JJ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D984C433ED
-	for <virtualization@archiver.kernel.org>; Mon, 12 Apr 2021 09:00:49 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B1284C433ED
+	for <virtualization@archiver.kernel.org>; Mon, 12 Apr 2021 09:01:19 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8A8BA61244
-	for <virtualization@archiver.kernel.org>; Mon, 12 Apr 2021 09:00:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8A8BA61244
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 61ED361278
+	for <virtualization@archiver.kernel.org>; Mon, 12 Apr 2021 09:01:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 61ED361278
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 35EDB403C9;
-	Mon, 12 Apr 2021 09:00:48 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3704A403D5;
+	Mon, 12 Apr 2021 09:01:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id t0vXwbkjQDMK; Mon, 12 Apr 2021 09:00:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 61702403D0;
-	Mon, 12 Apr 2021 09:00:46 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Bg9oPcIy6Hi1; Mon, 12 Apr 2021 09:01:18 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8809840389;
+	Mon, 12 Apr 2021 09:01:17 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B5C3AC0015;
-	Mon, 12 Apr 2021 09:00:44 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B527BC000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 669A9C000C;
+	Mon, 12 Apr 2021 09:01:17 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 843D5C000A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Apr 2021 09:00:43 +0000 (UTC)
+ Mon, 12 Apr 2021 09:01:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id A302A6061A
+ by smtp2.osuosl.org (Postfix) with ESMTP id 71E36403C8
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Apr 2021 09:00:43 +0000 (UTC)
+ Mon, 12 Apr 2021 09:01:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dtPLD6zybrU1
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=linuxfoundation.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wOhrjeA0-H02
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Apr 2021 09:00:42 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 6F19C605CB
+ Mon, 12 Apr 2021 09:01:14 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 8D1EF403C3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Apr 2021 09:00:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1618218041;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=RO2S6yuC/fkuz9B4sqL4SZHXLtN0NgAiJyds25neUik=;
- b=F65/dqilpIY3dlFhHJlfBUHtCJO1etStPCYwuddmqfDQGG5O+sQpdBkHB5Xh+u4A8e2a/U
- r2nWNgUeYXc3OxjPm/WekCHtspMVuMidT9jHx0Lc0kCn8DyvXGDiSbSD7JZcGCoK2AovBb
- meM4Trhdu4hmSh4SZpLKdIUABhoOX3o=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-501-PBMrDCnRMHajqJoPMkmctA-1; Mon, 12 Apr 2021 05:00:39 -0400
-X-MC-Unique: PBMrDCnRMHajqJoPMkmctA-1
-Received: by mail-wm1-f69.google.com with SMTP id p11so328515wmq.4
- for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Apr 2021 02:00:39 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=RO2S6yuC/fkuz9B4sqL4SZHXLtN0NgAiJyds25neUik=;
- b=jLiZFXTPHLX2ftrJO5KlicnW9DQ1m7VXEz+iXDblT4DAbzOCFRKhQ7KJWOF5zHoewm
- 2A5paiw4GEEHxSR3emJNff/3WuJaJvsGlIWYomyU8jPFLaPZfq3LTUwqV54Fy2GOx7Kf
- RaH1Iss4Rzxtke0Ie65qwY5nxcGkL21I1zcomcAkLnHe0b7ke2vVDp7QvcRkfUUDNTny
- viK5VuF6NBgOnbXZ9+Y2hQTnJCYotRiuK+8/sDDJ6iFXyAFxVMfSe/3eXn7apBP2D1rU
- n8zIoD+W6t/yqWo4U1yUIJImALSuv94Ekx7ph7/NB2M6lIKz43anXGodKggyTRhLBF71
- IDOQ==
-X-Gm-Message-State: AOAM530ZwnPpIGwDIvAhGM06J8Np1khDUa1vJPPqGCh0xI9OYorkrKXI
- 4UogJm6xTX6Z2vyUVR/UBkmFX+Rsu5xd1ivHhJ7xabGgUhw256WbaCHKwIlWNdSZ2SHrIK8A/ZW
- gakIP0Q0/qMrT1G34fDhAUZTTIwJO7F8Sox7FyHKz0A==
-X-Received: by 2002:a5d:6b82:: with SMTP id n2mr29772907wrx.399.1618218038354; 
- Mon, 12 Apr 2021 02:00:38 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxR/AIXG2BimYzUPAOwQOnyWTMrNFFGz9SnJpjM9QiX4VEr9DYg+h2pMbQsHiZXPHGLQ0yBvg==
-X-Received: by 2002:a5d:6b82:: with SMTP id n2mr29772882wrx.399.1618218038215; 
- Mon, 12 Apr 2021 02:00:38 -0700 (PDT)
-Received: from redhat.com ([2a10:8006:2281:0:1994:c627:9eac:1825])
- by smtp.gmail.com with ESMTPSA id m5sm15675048wrx.83.2021.04.12.02.00.35
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 12 Apr 2021 02:00:37 -0700 (PDT)
-Date: Mon, 12 Apr 2021 05:00:33 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Yongji Xie <xieyongji@bytedance.com>
-Subject: Re: Re: Re: [PATCH v6 03/10] vhost-vdpa: protect concurrent access
- to vhost device iotlb
-Message-ID: <20210412045900-mutt-send-email-mst@kernel.org>
-References: <20210331080519.172-1-xieyongji@bytedance.com>
- <20210331080519.172-4-xieyongji@bytedance.com>
- <20210409121512-mutt-send-email-mst@kernel.org>
- <CACycT3tPWwpGBNEqiL4NPrwGZhmUtAVHUZMOdbSHzjhN-ytg_A@mail.gmail.com>
- <20210411164827-mutt-send-email-mst@kernel.org>
- <CACycT3v5Z8s9_pL79m0FY5jxx3fTRHHbtARfg0On3xTnNCOdkg@mail.gmail.com>
+ Mon, 12 Apr 2021 09:01:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9873B6109E;
+ Mon, 12 Apr 2021 09:01:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+ s=korg; t=1618218074;
+ bh=EOAJMLiLgHXnRcEMOcLL+XyDHNdvw9oCX+7yVNpVNEc=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=yrsoSPJkmzk5zhSQXg5J3f6VlWPYodtOINVZXlfp6ore5WdsEd5ooZwIESLFLABwm
+ CwMp4k++BBZmirqWaCGTJhH+VW0/OhkjEssxeZdKEPIz7dN40AY5GsTbGe06vdyeWr
+ z6dUg3RK4OW3yr8PyzLudtHEvcXHPCOiCON4xS/4=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 5.11 062/210] virtio_net: Do not pull payload in skb->head
+Date: Mon, 12 Apr 2021 10:39:27 +0200
+Message-Id: <20210412084018.062277755@linuxfoundation.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210412084016.009884719@linuxfoundation.org>
+References: <20210412084016.009884719@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-In-Reply-To: <CACycT3v5Z8s9_pL79m0FY5jxx3fTRHHbtARfg0On3xTnNCOdkg@mail.gmail.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Jens Axboe <axboe@kernel.dk>, kvm@vger.kernel.org,
- Jonathan Corbet <corbet@lwn.net>, netdev@vger.kernel.org,
- Randy Dunlap <rdunlap@infradead.org>, Matthew Wilcox <willy@infradead.org>,
- virtualization@lists.linux-foundation.org,
- Christoph Hellwig <hch@infradead.org>,
- Christian Brauner <christian.brauner@canonical.com>, bcrl@kvack.org,
- viro@zeniv.linux.org.uk, Stefan Hajnoczi <stefanha@redhat.com>,
- linux-fsdevel@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
- Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@nextfour.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -135,48 +91,114 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Apr 12, 2021 at 10:29:17AM +0800, Yongji Xie wrote:
-> On Mon, Apr 12, 2021 at 4:49 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Sun, Apr 11, 2021 at 01:36:18PM +0800, Yongji Xie wrote:
-> > > On Sat, Apr 10, 2021 at 12:16 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > >
-> > > > On Wed, Mar 31, 2021 at 04:05:12PM +0800, Xie Yongji wrote:
-> > > > > Use vhost_dev->mutex to protect vhost device iotlb from
-> > > > > concurrent access.
-> > > > >
-> > > > > Fixes: 4c8cf318("vhost: introduce vDPA-based backend")
-> > > > > Cc: stable@vger.kernel.org
-> > > > > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> > > > > Acked-by: Jason Wang <jasowang@redhat.com>
-> > > > > Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-> > > >
-> > > > I could not figure out whether there's a bug there now.
-> > > > If yes when is the concurrent access triggered?
-> > > >
-> > >
-> > > When userspace sends the VHOST_IOTLB_MSG_V2 message concurrently?
-> > >
-> > > vhost_vdpa_chr_write_iter -> vhost_chr_write_iter ->
-> > > vhost_vdpa_process_iotlb_msg()
-> > >
-> > > Thanks,
-> > > Yongji
-> >
-> > And then what happens currently?
-> >
-> 
-> Then we might access vhost_vdpa_map() concurrently and cause
-> corruption of the list and interval tree in struct vhost_iotlb.
-> 
-> Thanks,
-> Yongji
+From: Eric Dumazet <edumazet@google.com>
 
-OK. Sounds like it's actually needed in this release if possible.  Pls
-add this info in the commit log and post it as a separate patch. 
+commit 0f6925b3e8da0dbbb52447ca8a8b42b371aac7db upstream.
 
--- 
-MST
+Xuan Zhuo reported that commit 3226b158e67c ("net: avoid 32 x truesize
+under-estimation for tiny skbs") brought  a ~10% performance drop.
+
+The reason for the performance drop was that GRO was forced
+to chain sk_buff (using skb_shinfo(skb)->frag_list), which
+uses more memory but also cause packet consumers to go over
+a lot of overhead handling all the tiny skbs.
+
+It turns out that virtio_net page_to_skb() has a wrong strategy :
+It allocates skbs with GOOD_COPY_LEN (128) bytes in skb->head, then
+copies 128 bytes from the page, before feeding the packet to GRO stack.
+
+This was suboptimal before commit 3226b158e67c ("net: avoid 32 x truesize
+under-estimation for tiny skbs") because GRO was using 2 frags per MSS,
+meaning we were not packing MSS with 100% efficiency.
+
+Fix is to pull only the ethernet header in page_to_skb()
+
+Then, we change virtio_net_hdr_to_skb() to pull the missing
+headers, instead of assuming they were already pulled by callers.
+
+This fixes the performance regression, but could also allow virtio_net
+to accept packets with more than 128bytes of headers.
+
+Many thanks to Xuan Zhuo for his report, and his tests/help.
+
+Fixes: 3226b158e67c ("net: avoid 32 x truesize under-estimation for tiny skbs")
+Reported-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Link: https://www.spinics.net/lists/netdev/msg731397.html
+Co-Developed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/net/virtio_net.c   |   10 +++++++---
+ include/linux/virtio_net.h |   14 +++++++++-----
+ 2 files changed, 16 insertions(+), 8 deletions(-)
+
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -406,9 +406,13 @@ static struct sk_buff *page_to_skb(struc
+ 	offset += hdr_padded_len;
+ 	p += hdr_padded_len;
+ 
+-	copy = len;
+-	if (copy > skb_tailroom(skb))
+-		copy = skb_tailroom(skb);
++	/* Copy all frame if it fits skb->head, otherwise
++	 * we let virtio_net_hdr_to_skb() and GRO pull headers as needed.
++	 */
++	if (len <= skb_tailroom(skb))
++		copy = len;
++	else
++		copy = ETH_HLEN + metasize;
+ 	skb_put_data(skb, p, copy);
+ 
+ 	if (metasize) {
+--- a/include/linux/virtio_net.h
++++ b/include/linux/virtio_net.h
+@@ -65,14 +65,18 @@ static inline int virtio_net_hdr_to_skb(
+ 	skb_reset_mac_header(skb);
+ 
+ 	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
+-		u16 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
+-		u16 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
++		u32 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
++		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
++		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
++
++		if (!pskb_may_pull(skb, needed))
++			return -EINVAL;
+ 
+ 		if (!skb_partial_csum_set(skb, start, off))
+ 			return -EINVAL;
+ 
+ 		p_off = skb_transport_offset(skb) + thlen;
+-		if (p_off > skb_headlen(skb))
++		if (!pskb_may_pull(skb, p_off))
+ 			return -EINVAL;
+ 	} else {
+ 		/* gso packets without NEEDS_CSUM do not set transport_offset.
+@@ -102,14 +106,14 @@ retry:
+ 			}
+ 
+ 			p_off = keys.control.thoff + thlen;
+-			if (p_off > skb_headlen(skb) ||
++			if (!pskb_may_pull(skb, p_off) ||
+ 			    keys.basic.ip_proto != ip_proto)
+ 				return -EINVAL;
+ 
+ 			skb_set_transport_header(skb, keys.control.thoff);
+ 		} else if (gso_type) {
+ 			p_off = thlen;
+-			if (p_off > skb_headlen(skb))
++			if (!pskb_may_pull(skb, p_off))
+ 				return -EINVAL;
+ 		}
+ 	}
+
 
 _______________________________________________
 Virtualization mailing list
