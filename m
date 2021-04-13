@@ -2,111 +2,115 @@ Return-Path: <SRS0=XT4h=JK=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
-	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C16BC433B4
-	for <virtualization@archiver.kernel.org>; Tue, 13 Apr 2021 14:28:03 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C186BC433B4
+	for <virtualization@archiver.kernel.org>; Tue, 13 Apr 2021 14:33:59 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1BD0D6124B
-	for <virtualization@archiver.kernel.org>; Tue, 13 Apr 2021 14:28:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1BD0D6124B
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 65CF3613AE
+	for <virtualization@archiver.kernel.org>; Tue, 13 Apr 2021 14:33:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 65CF3613AE
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D9035402B1;
-	Tue, 13 Apr 2021 14:28:02 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 27F5082F31;
+	Tue, 13 Apr 2021 14:33:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zk7deulwZVMw; Tue, 13 Apr 2021 14:28:02 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 8373240105;
-	Tue, 13 Apr 2021 14:28:01 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3a62Ye0Yogjn; Tue, 13 Apr 2021 14:33:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTP id C0AA98193E;
+	Tue, 13 Apr 2021 14:33:57 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 591E3C000C;
-	Tue, 13 Apr 2021 14:28:01 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 666C1C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 990E6C000C;
+	Tue, 13 Apr 2021 14:33:57 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5FB75C000A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Apr 2021 14:28:00 +0000 (UTC)
+ Tue, 13 Apr 2021 14:33:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 47876405D7
+ by smtp1.osuosl.org (Postfix) with ESMTP id 4E14F82F31
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Apr 2021 14:28:00 +0000 (UTC)
+ Tue, 13 Apr 2021 14:33:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=gmail.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BDkVKw5jpAPW
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 0Ewe-d4umgIK
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Apr 2021 14:27:59 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com
- [IPv6:2a00:1450:4864:20::52c])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 434884055D
+ Tue, 13 Apr 2021 14:33:55 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 096258193E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Apr 2021 14:27:59 +0000 (UTC)
-Received: by mail-ed1-x52c.google.com with SMTP id h10so19620625edt.13
+ Tue, 13 Apr 2021 14:33:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1618324424;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=03mb4LEKGQSjGCDEyQg3KiQjDam/TziPkhfoQlj9YcM=;
+ b=cwYyv36Qg5F5Cbi9QMzwh7kdGRZjTn35dLqcBhayv9m3Q+65/bDE7TjpdOLvl4EhTvR7E7
+ Fcj+1cyhHr0zIJo9woMrgFYZUOr14lfiSF8Xxo4O6Fhk6BZICx/52gklIoyAjwtGDgDmdG
+ YsdB2wjxuqJeXsYV9MZDHbzX9gmeVyE=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-238-tBFzrOMnPAGdANcSVhlf9w-1; Tue, 13 Apr 2021 10:33:42 -0400
+X-MC-Unique: tBFzrOMnPAGdANcSVhlf9w-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ z2-20020a1cf4020000b029010f4ec9a348so3102621wma.4
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Apr 2021 07:27:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=Xyev31+WcNN02Wrv0KFEbnCXwG8/Z0iBfRYSMrxwfZs=;
- b=NL3dNcPgyuxWknocdzGBe7ZQtcdfnP1EudVrACIWJGBWtdqzTYGK2eTwksx9JbNcdF
- i/VLZZlHdHuiddQ/SLhZHZTCuWK3uq7/1Ip59/EGQN6k5wChlcIeTPwpiNSheE27vrTV
- ovbpfdRUGOwctkXGpwJP+8flGeGko6u8aeNcUIg/CP+XEIXtrQbywo9QyRwOmc6JOxYL
- uypwKi6l7mI2lTW0o+IqVKSLHYyQ/GAS7V4CbZKKZB7QWWcO8YikpW4Huj29NR0zt1OP
- YHTOlcEoFHg1GfhqXYaPMQWyiugzTmtSxcVEHU2Eo6uwN5VsEBHPBMrFu9WlQ8lGSr6G
- F8sQ==
+ Tue, 13 Apr 2021 07:33:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=Xyev31+WcNN02Wrv0KFEbnCXwG8/Z0iBfRYSMrxwfZs=;
- b=m3rBTerXU4tmgOB5ikno4J8ogfgSWKEfNNRk9Jm/xJJrr2M6w19mBzXoxNSUe2uTZ2
- taI2CzFFzfuzaeWlyoqgstF/OOQysRXFM0ZkaMoK81tiUORuA6M8kz6N/LfFUR6WOxwq
- wLDmJYLXjX2Z5Ey3VY6CL+PyGcNx0U0cR9SdPvgwBrSSQ8+YvCL63wBgBTnPR6pyiMux
- U4dpGwAXUAiIlcrOhe1vL5hkVzIxe6WZ2kl+LtofkMI6v38STZJto+LJh9xfuXB0+eC0
- mi2t6C68AZUJqARMZ5KqGwMYFmEs2g9M8AUnKscH22YNRB4xnaNfBHRp1fn10YVJVh6f
- hakQ==
-X-Gm-Message-State: AOAM5313vvGYrjHA1u/+pJnfNjq6XzeZBMvELyzQfF+bDk5bu07OlZnQ
- Eq0MtBmLRTk9iRSTKYeJ6/umeZl+nHSoHw==
-X-Google-Smtp-Source: ABdhPJyvNLGw3PNZUiID9wPXqG0m0GtahU4Z1UaBpptOr5jD8bVITspb17SoVAOV++4D9+DvqVnuow==
-X-Received: by 2002:aa7:dac5:: with SMTP id x5mr26226285eds.286.1618324077034; 
- Tue, 13 Apr 2021 07:27:57 -0700 (PDT)
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com.
- [209.85.221.52])
- by smtp.gmail.com with ESMTPSA id u24sm9259310edt.85.2021.04.13.07.27.55
- for <virtualization@lists.linux-foundation.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Tue, 13 Apr 2021 07:27:56 -0700 (PDT)
-Received: by mail-wr1-f52.google.com with SMTP id h4so7649151wrt.12
- for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Apr 2021 07:27:55 -0700 (PDT)
-X-Received: by 2002:adf:cc8d:: with SMTP id p13mr37881708wrj.50.1618324075500; 
- Tue, 13 Apr 2021 07:27:55 -0700 (PDT)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=03mb4LEKGQSjGCDEyQg3KiQjDam/TziPkhfoQlj9YcM=;
+ b=cDF0YTL6XscfGOCm/I/KDnewAtEYrDNHjrCCWoIWPEE1/yuHQydRqmr3EY40MV7eua
+ ZWBt7suTXGeVmUEKDNEKX6KSRMcxa56bFtbt84EvhO06nS8WPprb/BkHHju086i51ZYw
+ EoZJPMzEnSwZLsKso8oyXPqIjc9wkxhKnkpMa651o8w6jRCkNZH65Zp/5RCX0DbYPZgw
+ NjNR8yK1yMsLwOddsi7GdsTD7zM+BTOL3M7xMk0+kdmHoYFe1uIMItjmiNhjZ8szHf+9
+ vQCbf+VTSs2vr059s/hN4UarhheVp9voiWPKRsgzWOaZeVKf2mwrmeT5dR2xR+bbtJoQ
+ zU+A==
+X-Gm-Message-State: AOAM533K2b4GZa3vcwgPlIfUreCn/mlemldS4cJ4aqIvs8V2rMn+b8KE
+ ZExwJ4Ty5rdf2v9ZTHyr8fRkPqsBYqqPZG2enV+nnx4aztleUja0gWLktjHL/G5n1TWoxQVfRHn
+ pDBiBC9ihqEPEroius2N6JgFHi0uDTcZA/Wfacce+/A==
+X-Received: by 2002:a1c:f715:: with SMTP id v21mr282044wmh.187.1618324421410; 
+ Tue, 13 Apr 2021 07:33:41 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyTe7rBlLKqCoWn++/O8Aw6yKwfkrflupGRE+nGP0iUf29tGd26k1V89INwAeu3NGikNplrxg==
+X-Received: by 2002:a1c:f715:: with SMTP id v21mr282029wmh.187.1618324421247; 
+ Tue, 13 Apr 2021 07:33:41 -0700 (PDT)
+Received: from redhat.com ([2a10:8006:2281:0:1994:c627:9eac:1825])
+ by smtp.gmail.com with ESMTPSA id c6sm19518494wri.32.2021.04.13.07.33.38
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 13 Apr 2021 07:33:40 -0700 (PDT)
+Date: Tue, 13 Apr 2021 10:33:36 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH RFC v2 2/4] virtio_net: disable cb aggressively
+Message-ID: <20210413100314-mutt-send-email-mst@kernel.org>
+References: <20210413054733.36363-1-mst@redhat.com>
+ <20210413054733.36363-3-mst@redhat.com>
+ <43db5c1e-9908-55bb-6d1a-c6c8d71e2315@redhat.com>
 MIME-Version: 1.0
-References: <20170424174930.82623-1-willemdebruijn.kernel@gmail.com>
- <20170424174930.82623-6-willemdebruijn.kernel@gmail.com>
- <20210413010354-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20210413010354-mutt-send-email-mst@kernel.org>
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Tue, 13 Apr 2021 10:27:16 -0400
-X-Gmail-Original-Message-ID: <CA+FuTSe_iy=vDze=MSca1iRJX+WR=PjG-HoFZ2GBpFaCxE33Fg@mail.gmail.com>
-Message-ID: <CA+FuTSe_iy=vDze=MSca1iRJX+WR=PjG-HoFZ2GBpFaCxE33Fg@mail.gmail.com>
-Subject: Re: [PATCH net-next v3 5/5] virtio-net: keep tx interrupts disabled
- unless kick
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Network Development <netdev@vger.kernel.org>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- David Miller <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+In-Reply-To: <43db5c1e-9908-55bb-6d1a-c6c8d71e2315@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Willem de Bruijn <willemb@google.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Jakub Kicinski <kuba@kernel.org>, Wei Wang <weiwan@google.com>,
+ David Miller <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,64 +122,44 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Apr 13, 2021 at 1:06 AM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Mon, Apr 24, 2017 at 01:49:30PM -0400, Willem de Bruijn wrote:
-> > From: Willem de Bruijn <willemb@google.com>
-> >
-> > Tx napi mode increases the rate of transmit interrupts. Suppress some
-> > by masking interrupts while more packets are expected. The interrupts
-> > will be reenabled before the last packet is sent.
-> >
-> > This optimization reduces the througput drop with tx napi for
-> > unidirectional flows such as UDP_STREAM that do not benefit from
-> > cleaning tx completions in the the receive napi handler.
-> >
-> > Signed-off-by: Willem de Bruijn <willemb@google.com>
-> > ---
-> >  drivers/net/virtio_net.c | 3 +++
-> >  1 file changed, 3 insertions(+)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 9dd978f34c1f..003143835766 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -1200,6 +1200,9 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-> >       /* Free up any pending old buffers before queueing new ones. */
-> >       free_old_xmit_skbs(sq);
-> >
-> > +     if (use_napi && kick)
-> > +             virtqueue_enable_cb_delayed(sq->vq);
-> > +
-> >       /* timestamp packet in software */
-> >       skb_tx_timestamp(skb);
->
->
-> I have been poking at this code today and I noticed that is
-> actually does enable cb where the commit log says masking interrupts.
-> I think the reason is that with even index previously disable cb
-> actually did nothing while virtqueue_enable_cb_delayed pushed
-> the event index out some more.
-> And this likely explains why it does not work well for packed,
-> where virtqueue_enable_cb_delayed is same as virtqueue_enable_cb.
->
-> Right? Or did I miss something?
-
-This was definitely based on the split queue with event index handling.
-
-When you say does not work well for packed, you mean that with packed
-mode we see the consequences of the race condition when accessing vq
-without holding __netif_tx_lock, in a way that I did not notice with
-split queue with event index, right?
-
-Thanks for looking into this and proposing fixes for this issue and the
-known other spurious tx interrupt issue.
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVHVlLCBBcHIgMTMsIDIwMjEgYXQgMDQ6NTM6MzJQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiDlnKggMjAyMS80LzEzIOS4i+WNiDE6NDcsIE1pY2hhZWwgUy4gVHNpcmtpbiDlhpnp
+gZM6Cj4gPiBUaGVyZSBhcmUgY3VycmVudGx5IHR3byBjYXNlcyB3aGVyZSB3ZSBwb2xsIFRYIHZx
+IG5vdCBpbiByZXNwb25zZSB0byBhCj4gPiBjYWxsYmFjazogc3RhcnQgeG1pdCBhbmQgcnggbmFw
+aS4gIFdlIGN1cnJlbnRseSBkbyB0aGlzIHdpdGggY2FsbGJhY2tzCj4gPiBlbmFibGVkIHdoaWNo
+IGNhbiBjYXVzZSBleHRyYSBpbnRlcnJ1cHRzIGZyb20gdGhlIGNhcmQuICBVc2VkIG5vdCB0byBi
+ZQo+ID4gYSBiaWcgaXNzdWUgYXMgd2UgcnVuIHdpdGggaW50ZXJydXB0cyBkaXNhYmxlZCBidXQg
+dGhhdCBpcyBubyBsb25nZXIgdGhlCj4gPiBjYXNlLCBhbmQgaW4gc29tZSBjYXNlcyB0aGUgcmF0
+ZSBvZiBzcHVyaW91cyBpbnRlcnJ1cHRzIGlzIHNvIGhpZ2gKPiA+IGxpbnV4IGRldGVjdHMgdGhp
+cyBhbmQgYWN0dWFsbHkga2lsbHMgdGhlIGludGVycnVwdC4KPiA+IAo+ID4gRml4IHVwIGJ5IGRp
+c2FibGluZyB0aGUgY2FsbGJhY2tzIGJlZm9yZSBwb2xsaW5nIHRoZSB0eCB2cS4KPiA+IAo+ID4g
+U2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPiA+IC0t
+LQo+ID4gICBkcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgfCAyICsrCj4gPiAgIDEgZmlsZSBjaGFu
+Z2VkLCAyIGluc2VydGlvbnMoKykKPiA+IAo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3Zp
+cnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gaW5kZXggODJlNTIwZDJj
+YjEyLi4xNmQ1YWJlZDU4MmMgMTAwNjQ0Cj4gPiAtLS0gYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0
+LmMKPiA+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ID4gQEAgLTE0MjksNiArMTQy
+OSw3IEBAIHN0YXRpYyB2b2lkIHZpcnRuZXRfcG9sbF9jbGVhbnR4KHN0cnVjdCByZWNlaXZlX3F1
+ZXVlICpycSkKPiA+ICAgCQlyZXR1cm47Cj4gPiAgIAlpZiAoX19uZXRpZl90eF90cnlsb2NrKHR4
+cSkpIHsKPiA+ICsJCXZpcnRxdWV1ZV9kaXNhYmxlX2NiKHNxLT52cSk7Cj4gPiAgIAkJZnJlZV9v
+bGRfeG1pdF9za2JzKHNxLCB0cnVlKTsKPiA+ICAgCQlfX25ldGlmX3R4X3VubG9jayh0eHEpOwo+
+IAo+IAo+IEFueSByZWFzb24gdGhhdCB3ZSBkb24ndCBuZWVkIHRvIGVuYWJsZSB0aGUgY2IgaGVy
+ZT8KCkdvb2QgcG9pbnQgLi4uIHByb2JhYmx5IG9ubHkgaWYgdGhlIHZxIGlzbid0IGVtcHR5IC4u
+LgoKPiBBbmQgYXMgd2UgZGlzY3Vzc2VkIGluIHRoZSBwYXN0LCBpdCdzIHByb2JhYmx5IHRoZSB0
+aW1lIHRvIGhhdmUgYSBzaW5nbGUKPiBOQVBJIGZvciBib3RoIHR4IGFuZCByeD8KPiAKPiBUaGFu
+a3MKCgpEb25udS4gSSdkIGxpa2UgdG8gZ2V0IGEgbWluaW1hbCBidWdmaXggaW4sIHJlZmFjdG9y
+aW5nIG9uIHRvcCAuLi4KCj4gCj4gPiAgIAl9Cj4gPiBAQCAtMTU4Miw2ICsxNTgzLDcgQEAgc3Rh
+dGljIG5ldGRldl90eF90IHN0YXJ0X3htaXQoc3RydWN0IHNrX2J1ZmYgKnNrYiwgc3RydWN0IG5l
+dF9kZXZpY2UgKmRldikKPiA+ICAgCWJvb2wgdXNlX25hcGkgPSBzcS0+bmFwaS53ZWlnaHQ7Cj4g
+PiAgIAkvKiBGcmVlIHVwIGFueSBwZW5kaW5nIG9sZCBidWZmZXJzIGJlZm9yZSBxdWV1ZWluZyBu
+ZXcgb25lcy4gKi8KPiA+ICsJdmlydHF1ZXVlX2Rpc2FibGVfY2Ioc3EtPnZxKTsKPiA+ICAgCWZy
+ZWVfb2xkX3htaXRfc2ticyhzcSwgZmFsc2UpOwo+ID4gICAJaWYgKHVzZV9uYXBpICYmIGtpY2sp
+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
