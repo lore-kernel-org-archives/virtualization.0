@@ -2,102 +2,124 @@ Return-Path: <SRS0=edzl=JL=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 01D73C433ED
-	for <virtualization@archiver.kernel.org>; Wed, 14 Apr 2021 05:51:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5316C433ED
+	for <virtualization@archiver.kernel.org>; Wed, 14 Apr 2021 06:57:21 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 80CAA608FC
-	for <virtualization@archiver.kernel.org>; Wed, 14 Apr 2021 05:51:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 80CAA608FC
+	by mail.kernel.org (Postfix) with ESMTPS id 69A316113B
+	for <virtualization@archiver.kernel.org>; Wed, 14 Apr 2021 06:57:21 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 69A316113B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 46F2560D68;
-	Wed, 14 Apr 2021 05:51:34 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1F068607C3;
+	Wed, 14 Apr 2021 06:57:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fJAYKSNQm3vJ; Wed, 14 Apr 2021 05:51:33 +0000 (UTC)
+	with ESMTP id sdRHS4u-x1SW; Wed, 14 Apr 2021 06:57:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id BA52B60D65;
-	Wed, 14 Apr 2021 05:51:32 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 53CDA606BB;
+	Wed, 14 Apr 2021 06:57:19 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 90AA3C000B;
-	Wed, 14 Apr 2021 05:51:32 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 61298C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3650CC000C;
+	Wed, 14 Apr 2021 06:57:19 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 87AE1C000A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Apr 2021 05:51:31 +0000 (UTC)
+ Wed, 14 Apr 2021 06:57:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 5392240F17
+ by smtp3.osuosl.org (Postfix) with ESMTP id 66785606F1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Apr 2021 05:51:31 +0000 (UTC)
+ Wed, 14 Apr 2021 06:57:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id trcU9w2Vp010
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id c8yw8pU1RFEs
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Apr 2021 05:51:25 +0000 (UTC)
+ Wed, 14 Apr 2021 06:57:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 622EB40F0F
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id A4488606BB
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Apr 2021 05:51:25 +0000 (UTC)
+ Wed, 14 Apr 2021 06:57:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1618379484;
+ s=mimecast20190719; t=1618383434;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=XTp5CTUDbE/ftQ/v/Y7x3rIKSHCnEgcZXgomSO+tEsM=;
- b=AfBm2zQMdKysvPpQ5W0zdbkNtdq7gSE6thdJmxv8J4P0xf61aQS0VewLNpulJO+dJn2MED
- rLXFyWrPsZ9j6kALe6Ei9xEaWxQ04oaJfVDaf41xF0KoEjEw1ZtyQWrYaiXBelsT1eXNKz
- 1pxBetyGCA1aSkiWaTj+a8DfSiRKMNI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-308-js-Em3rDNA2HCALIpf5aWg-1; Wed, 14 Apr 2021 01:51:20 -0400
-X-MC-Unique: js-Em3rDNA2HCALIpf5aWg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
- [10.5.11.14])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 72E961882FD5;
- Wed, 14 Apr 2021 05:51:18 +0000 (UTC)
-Received: from wangxiaodeMacBook-Air.local (ovpn-13-33.pek2.redhat.com
- [10.72.13.33])
- by smtp.corp.redhat.com (Postfix) with ESMTP id D0AF45D9CA;
- Wed, 14 Apr 2021 05:51:09 +0000 (UTC)
-Subject: Re: [PATCH net-next v4 10/10] virtio-net: xsk zero copy xmit kick by
- threshold
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org
-References: <20210413031523.73507-1-xuanzhuo@linux.alibaba.com>
- <20210413031523.73507-11-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <078fcc88-ebb3-badc-0004-e11af58143c3@redhat.com>
-Date: Wed, 14 Apr 2021 13:51:07 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.9.1
+ bh=Il9gqTaZsIXufI4bWDFiNaRPxBOn2n7FPtYnZMQGsco=;
+ b=Mw4Bwd3zooPFa9j0d6nNoE/r6X2jfxJHxkfwyAwLEhy+C+s701jaMwwHMYrVopYCmGGN24
+ lTpuRqwQRdjPqo4iYeVDEtMEJ1iEOoyPbpjoePTaI4FcS505JzVnOTsO6b3OWZqjaelrNU
+ pAjiI9EOkAt5EoEtSZYoM0g747EmmwM=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-43-YsL4xHgbP8-mJlOU8YgaQw-1; Wed, 14 Apr 2021 02:57:11 -0400
+X-MC-Unique: YsL4xHgbP8-mJlOU8YgaQw-1
+Received: by mail-ed1-f71.google.com with SMTP id
+ m18-20020a0564025112b0290378d2a266ebso2775458edd.15
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 13 Apr 2021 23:57:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=Il9gqTaZsIXufI4bWDFiNaRPxBOn2n7FPtYnZMQGsco=;
+ b=cjbu9jHsbhi9dKrCc3ECs/IuscG6iIjj1GIkU/YuoHIUs3cH8bbhuySIuRzADe9q5a
+ rdgPbCjJ6Ta3eFfZ69O1Hvwe5TtGtoSeMZo8pvtaThD0zH1Bsua89QqayjpUqJa4drFo
+ CFSUFsEYyiIiuJCfcFk3YM4v8YE4QkQMsCQ6NQigz+hEs1UN99yfRM2xPr0CtMyd3SRa
+ AtsC9HCEtPOJYLgaYeXrF/riOkl0DOO0rPMU2EzEoARtBpJ0ge0nK3QhrKccfjvbo0jm
+ U4sLxFyaJiYP4tYNctPcOaienyCBxns3ntml23US0y6Tjqy8mKHPdhkA7ty2CjSIDxz8
+ 60ng==
+X-Gm-Message-State: AOAM530us1xUDQjxrOTZ0tkweHck11WiGhMMNUGzSS+D5etzBOmwOiXS
+ 1i3RvNjZ/BVyqEOqRcisSgS0XZSgXkeN8KOmU2jFhqc2AbOZQuVcJi/VTADTmH10GBnTyfbPQQ1
+ M9g+4gX/gKSyVtBDI2zBvrb0wHJ0Dtm6J9d5uuwIt3Q==
+X-Received: by 2002:a17:906:c143:: with SMTP id
+ dp3mr34576534ejc.499.1618383429778; 
+ Tue, 13 Apr 2021 23:57:09 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJziQaGuVwFrqUBWDBRaBS3jd1Q8xKTvkbYmFF+xrWtE0ivTsNRFqT85ko2NmN10C8DfMfxRTQ==
+X-Received: by 2002:a17:906:c143:: with SMTP id
+ dp3mr34576515ejc.499.1618383429510; 
+ Tue, 13 Apr 2021 23:57:09 -0700 (PDT)
+Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
+ [79.34.249.199])
+ by smtp.gmail.com with ESMTPSA id g26sm9171132ejz.70.2021.04.13.23.57.08
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 13 Apr 2021 23:57:08 -0700 (PDT)
+Date: Wed, 14 Apr 2021 08:57:06 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC v2] virtio-vsock: add description for datagram type
+Message-ID: <20210414065706.inmjuoxsexejbbxj@steredhat>
+References: <20210401043602.3510538-1-jiang.wang@bytedance.com>
+ <YHRQGSSnkN8Zipy0@stefanha-x1.localdomain>
+ <20210412142133.t44pn5pjy6fdcvk4@steredhat>
+ <CAP_N_Z9VPkBKX9QD+cuzSSAn6dL0cpQ=EZs5vk+ByjjDpGgdBA@mail.gmail.com>
+ <20210413125853.2dkldmp23vkkc74c@steredhat>
+ <20210413091251-mutt-send-email-mst@kernel.org>
+ <20210413133852.ebkrlbyetiqu4uje@steredhat>
+ <20210413094722-mutt-send-email-mst@kernel.org>
+ <20210413140351.6vmffxqnj4azpyzx@steredhat>
+ <20210413155635-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20210413031523.73507-11-xuanzhuo@linux.alibaba.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-Cc: Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
- John Fastabend <john.fastabend@gmail.com>, Alexei Starovoitov <ast@kernel.org>,
- virtualization@lists.linux-foundation.org,
- =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
- "dust . li" <dust.li@linux.alibaba.com>,
- Jonathan Lemon <jonathan.lemon@gmail.com>, Jakub Kicinski <kuba@kernel.org>,
- bpf@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
- Magnus Karlsson <magnus.karlsson@intel.com>
+In-Reply-To: <20210413155635-mutt-send-email-mst@kernel.org>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: cong.wang@bytedance.com, Xiongchun Duan <duanxiongchun@bytedance.com>,
+ "Jiang Wang ." <jiang.wang@bytedance.com>, cohuck@redhat.com,
+ virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Arseny Krasnov <arseny.krasnov@kaspersky.com>, asias@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -109,92 +131,206 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="gbk"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CtTaIDIwMjEvNC8xMyDJz87nMTE6MTUsIFh1YW4gWmh1byDQtLXAOgo+IEFmdGVyIHRlc3Rpbmcs
-IHRoZSBwZXJmb3JtYW5jZSBvZiBjYWxsaW5nIGtpY2sgZXZlcnkgdGltZSBpcyBub3Qgc3RhYmxl
-Lgo+IEFuZCBpZiBhbGwgdGhlIHBhY2tldHMgYXJlIHNlbnQgYW5kIGtpY2tlZCBhZ2FpbiwgdGhl
-IHBlcmZvcm1hbmNlIGlzIG5vdAo+IGdvb2QuIFNvIGFkZCBhIG1vZHVsZSBwYXJhbWV0ZXIgdG8g
-c3BlY2lmeSBob3cgbWFueSBwYWNrZXRzIGFyZSBzZW50IHRvCj4gY2FsbCBhIGtpY2suCj4KPiA4
-IGlzIGEgcmVsYXRpdmVseSBzdGFibGUgdmFsdWUgd2l0aCB0aGUgYmVzdCBwZXJmb3JtYW5jZS4K
-Pgo+IEhlcmUgaXMgdGhlIHBwcyBvZiB0aGUgdGVzdCBvZiB4c2tfa2lja190aHIgdW5kZXIgZGlm
-ZmVyZW50IHZhbHVlcyAoZnJvbQo+IDEgdG8gNjQpLgo+Cj4gdGhyICBQUFMgICAgICAgICAgICAg
-dGhyIFBQUyAgICAgICAgICAgICB0aHIgUFBTCj4gMSAgICAyOTI0MTE2Ljc0MjQ3IHwgMjMgIDM2
-ODMyNjMuMDQzNDggfCA0NSAgMjc3NzkwNy4yMjk2Mwo+IDIgICAgMzQ0MTAxMC41NzE5MSB8IDI0
-ICAzMDc4ODgwLjEzMDQzIHwgNDYgIDI3ODEzNzYuMjE3MzkKPiAzICAgIDM2MzY3MjguNzIzNzgg
-fCAyNSAgMjg1OTIxOS41NzY1NiB8IDQ3ICAyNzc3MjcxLjkxMzA0Cj4gNCAgICAzNjM3NTE4LjYx
-NDY4IHwgMjYgIDI4NTE1NTcuOTU5MyAgfCA0OCAgMjgwMDMyMC41NjU3NQo+IDUgICAgMzY1MTcz
-OC4xNjI1MSB8IDI3ICAyODM0NzgzLjU0NDA4IHwgNDkgIDI4MTMwMzkuODc1OTkKPiA2ICAgIDM2
-NTIxNzYuNjkyMzEgfCAyOCAgMjg0NzAxMi40MTQ3MiB8IDUwICAzNDQ1MTQzLjAxODM5Cj4gNyAg
-ICAzNjY1NDE1LjgwNjAyIHwgMjkgIDI4NjA2MzMuOTEzMDQgfCA1MSAgMzY2NjkxOC4wMTI4MQo+
-IDggICAgMzY2NTA0NS4xNjU1NSB8IDMwICAyODU3OTAzLjU3ODYgIHwgNTIgIDMwNTk5MjkuMjcw
-OQo+IDkgICAgMzY3MTAyMy4yNDAxICB8IDMxICAyODM1NTg5Ljk4OTYzIHwgNTMgIDI4MzE1MTUu
-MjE3MzkKPiAxMCAgIDM2Njk1MzIuMjMyNzQgfCAzMiAgMjg2MjgyNy44ODcwNiB8IDU0ICAzNDUx
-ODA0LjA3MjA0Cj4gMTEgICAzNjY2MTYwLjM3NzQ5IHwgMzMgIDI4NzE4NTUuOTY2OTYgfCA1NSAg
-MzY1NDk3NS45MjM4NQo+IDEyICAgMzY3NDk1MS40NDgxMyB8IDM0ICAzNDM0NDU2LjQ0ODE2IHwg
-NTYgIDM2NzYxOTguMzE4OAo+IDEzICAgMzY2NzQ0Ny41NzMzMSB8IDM1ICAzNjU2OTE4LjU0MTc3
-IHwgNTcgIDM2ODQ3NDAuODU2MTkKPiAxNCAgIDMwMTg4NDYuMDUwMyAgfCAzNiAgMzU5NjkyMS4x
-NjcyMiB8IDU4ICAzMDYwOTU4Ljg1OTQKPiAxNSAgIDI3OTI3NzMuODQ1MDUgfCAzNyAgMzYwMzQ2
-MC42MzkwMyB8IDU5ICAyODI4ODc0LjU3MTkxCj4gMTYgICAzNDMwNTk2LjM2MDIgIHwgMzggIDM1
-OTU0MTAuODc2NjYgfCA2MCAgMzQ1OTkyNi4xMTAyNwo+IDE3ICAgMzY2MDUyNS44NTgwNiB8IDM5
-ICAzNjA0MjUwLjE3ODE5IHwgNjEgIDM2ODU0NDQuNDc1OTkKPiAxOCAgIDMwNDU2MjcuNjkwNTQg
-fCA0MCAgMzU5NjU0Mi4yODQyOCB8IDYyICAzMDQ5OTU5LjA4MDkKPiAxOSAgIDI4NDE1NDIuOTQx
-NzcgfCA0MSAgMzYwMDcwNS4xNjA1NCB8IDYzICAyODA2MjgwLjA0MDEzCj4gMjAgICAyODMwNDc1
-Ljk3MzQ4IHwgNDIgIDMwMTk4MzMuNzExOTEgfCA2NCAgMzQ0ODQ5NC4zOTEzCj4gMjEgICAyODQ1
-NjU1LjU1Nzg5IHwgNDMgIDI3NTI5NTEuOTMyNjQgfAo+IDIyICAgMzQ1MDM4OS44NDM2NSB8IDQ0
-ICAyNzUzMTA3LjI3MTY0IHwKPgo+IEl0IGNhbiBiZSBmb3VuZCB0aGF0IHdoZW4gdGhlIHZhbHVl
-IG9mIHhza19raWNrX3RociBpcyByZWxhdGl2ZWx5IHNtYWxsLAo+IHRoZSBwZXJmb3JtYW5jZSBp
-cyBub3QgZ29vZCwgYW5kIHdoZW4gaXRzIHZhbHVlIGlzIGdyZWF0ZXIgdGhhbiAxMywgdGhlCj4g
-cGVyZm9ybWFuY2Ugd2lsbCBiZSBtb3JlIGlycmVndWxhciBhbmQgdW5zdGFibGUuIEl0IGxvb2tz
-IHNpbWlsYXIgZnJvbSAzCj4gdG8gMTMsIEkgY2hvc2UgOCBhcyB0aGUgZGVmYXVsdCB2YWx1ZS4K
-Pgo+IFRoZSB0ZXN0IGVudmlyb25tZW50IGlzIHFlbXUgKyB2aG9zdC1uZXQuIEkgbW9kaWZpZWQg
-dmhvc3QtbmV0IHRvIGRyb3AKPiB0aGUgcGFja2V0cyBzZW50IGJ5IHZtIGRpcmVjdGx5LCBzbyB0
-aGF0IHRoZSBjcHUgb2Ygdm0gY2FuIHJ1biBoaWdoZXIuCj4gQnkgZGVmYXVsdCwgdGhlIHByb2Nl
-c3NlcyBpbiB0aGUgdm0gYW5kIHRoZSBjcHUgb2Ygc29mdGlycWQgYXJlIHRvbyBsb3csCj4gYW5k
-IHRoZXJlIGlzIG5vIG9idmlvdXMgZGlmZmVyZW5jZSBpbiB0aGUgdGVzdCBkYXRhLgo+Cj4gRHVy
-aW5nIHRoZSB0ZXN0LCB0aGUgY3B1IG9mIHNvZnRpcnEgcmVhY2hlZCAxMDAlLiBFYWNoIHhza19r
-aWNrX3RociB3YXMKPiBydW4gZm9yIDMwMHMsIHRoZSBwcHMgb2YgZXZlcnkgc2Vjb25kIHdhcyBy
-ZWNvcmRlZCwgYW5kIHRoZSBhdmVyYWdlIG9mCj4gdGhlIHBwcyB3YXMgZmluYWxseSB0YWtlbi4g
-VGhlIHZob3N0IHByb2Nlc3MgY3B1IG9uIHRoZSBob3N0IGhhcyBhbHNvCj4gcmVhY2hlZCAxMDAl
-Lgo+Cj4gU2lnbmVkLW9mZi1ieTogWHVhbiBaaHVvIDx4dWFuemh1b0BsaW51eC5hbGliYWJhLmNv
-bT4KPiBSZXZpZXdlZC1ieTogRHVzdCBMaSA8ZHVzdC5saUBsaW51eC5hbGliYWJhLmNvbT4KPiAt
-LS0KPiAgIGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyB8IDE5ICsrKysrKysrKysrKysrKysrLS0K
-PiAgIDEgZmlsZSBjaGFuZ2VkLCAxNyBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQo+Cj4g
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMvbmV0L3ZpcnRp
-b19uZXQuYwo+IGluZGV4IGM0NDFkNmJmMTUxMC4uNGUzNjBiZmMyY2YwIDEwMDY0NAo+IC0tLSBh
-L2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQu
-Ywo+IEBAIC0yOCw5ICsyOCwxMSBAQCBzdGF0aWMgaW50IG5hcGlfd2VpZ2h0ID0gTkFQSV9QT0xM
-X1dFSUdIVDsKPiAgIG1vZHVsZV9wYXJhbShuYXBpX3dlaWdodCwgaW50LCAwNDQ0KTsKPiAgIAo+
-ICAgc3RhdGljIGJvb2wgY3N1bSA9IHRydWUsIGdzbyA9IHRydWUsIG5hcGlfdHggPSB0cnVlOwo+
-ICtzdGF0aWMgaW50IHhza19raWNrX3RociA9IDg7Cj4gICBtb2R1bGVfcGFyYW0oY3N1bSwgYm9v
-bCwgMDQ0NCk7Cj4gICBtb2R1bGVfcGFyYW0oZ3NvLCBib29sLCAwNDQ0KTsKPiAgIG1vZHVsZV9w
-YXJhbShuYXBpX3R4LCBib29sLCAwNjQ0KTsKPiArbW9kdWxlX3BhcmFtKHhza19raWNrX3Rociwg
-aW50LCAwNjQ0KTsKPiAgIAo+ICAgLyogRklYTUU6IE1UVSBpbiBjb25maWcuICovCj4gICAjZGVm
-aW5lIEdPT0RfUEFDS0VUX0xFTiAoRVRIX0hMRU4gKyBWTEFOX0hMRU4gKyBFVEhfREFUQV9MRU4p
-Cj4gQEAgLTI2OTAsNiArMjY5Miw3IEBAIHN0YXRpYyBpbnQgdmlydG5ldF94c2tfeG1pdF9iYXRj
-aChzdHJ1Y3Qgc2VuZF9xdWV1ZSAqc3EsCj4gICAJc3RydWN0IHhkcF9kZXNjIGRlc2M7Cj4gICAJ
-aW50IGVyciwgcGFja2V0ID0gMDsKPiAgIAlpbnQgcmV0ID0gLUVBR0FJTjsKPiArCWludCBuZWVk
-X2tpY2sgPSAwOwo+ICAgCj4gICAJaWYgKHNxLT54c2subGFzdF9kZXNjLmFkZHIpIHsKPiAgIAkJ
-aWYgKHNxLT52cS0+bnVtX2ZyZWUgPCAyICsgTUFYX1NLQl9GUkFHUykKPiBAQCAtMjcwMCw2ICsy
-NzAzLDcgQEAgc3RhdGljIGludCB2aXJ0bmV0X3hza194bWl0X2JhdGNoKHN0cnVjdCBzZW5kX3F1
-ZXVlICpzcSwKPiAgIAkJCXJldHVybiAtRUJVU1k7Cj4gICAKPiAgIAkJKytwYWNrZXQ7Cj4gKwkJ
-KytuZWVkX2tpY2s7Cj4gICAJCS0tYnVkZ2V0Owo+ICAgCQlzcS0+eHNrLmxhc3RfZGVzYy5hZGRy
-ID0gMDsKPiAgIAl9Cj4gQEAgLTI3MjMsMTEgKzI3MjcsMjIgQEAgc3RhdGljIGludCB2aXJ0bmV0
-X3hza194bWl0X2JhdGNoKHN0cnVjdCBzZW5kX3F1ZXVlICpzcSwKPiAgIAkJfQo+ICAgCj4gICAJ
-CSsrcGFja2V0Owo+ICsJCSsrbmVlZF9raWNrOwo+ICsJCWlmIChuZWVkX2tpY2sgPiB4c2tfa2lj
-a190aHIpIHsKPiArCQkJaWYgKHZpcnRxdWV1ZV9raWNrX3ByZXBhcmUoc3EtPnZxKSAmJgo+ICsJ
-CQkgICAgdmlydHF1ZXVlX25vdGlmeShzcS0+dnEpKQoKCkkgd29uZXIgd2hldGhlciBpdCdzIHRp
-bWUgdG8gaW50cm9kdWNlIGEgaGVscGVyIGluIHRoZSB2aXJ0aW8gY29yZSB0byBkbyAKdGhpcy4K
-ClRoYW5rcwoKCj4gKwkJCQkrK3N0YXRzLT5raWNrczsKPiArCj4gKwkJCW5lZWRfa2ljayA9IDA7
-Cj4gKwkJfQo+ICAgCX0KPiAgIAo+ICAgCWlmIChwYWNrZXQpIHsKPiAtCQlpZiAodmlydHF1ZXVl
-X2tpY2tfcHJlcGFyZShzcS0+dnEpICYmIHZpcnRxdWV1ZV9ub3RpZnkoc3EtPnZxKSkKPiAtCQkJ
-KytzdGF0cy0+a2lja3M7Cj4gKwkJaWYgKG5lZWRfa2ljaykgewo+ICsJCQlpZiAodmlydHF1ZXVl
-X2tpY2tfcHJlcGFyZShzcS0+dnEpICYmCj4gKwkJCSAgICB2aXJ0cXVldWVfbm90aWZ5KHNxLT52
-cSkpCj4gKwkJCQkrK3N0YXRzLT5raWNrczsKPiArCQl9Cj4gICAKPiAgIAkJKmRvbmUgPSBwYWNr
-ZXQ7Cj4gICAJCXN0YXRzLT54ZHBfdHggKz0gcGFja2V0OwoKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Tue, Apr 13, 2021 at 03:58:34PM -0400, Michael S. Tsirkin wrote:
+>On Tue, Apr 13, 2021 at 04:03:51PM +0200, Stefano Garzarella wrote:
+>> On Tue, Apr 13, 2021 at 09:50:45AM -0400, Michael S. Tsirkin wrote:
+>> > On Tue, Apr 13, 2021 at 03:38:52PM +0200, Stefano Garzarella wrote:
+>> > > On Tue, Apr 13, 2021 at 09:16:50AM -0400, Michael S. Tsirkin wrote:
+>> > > > On Tue, Apr 13, 2021 at 02:58:53PM +0200, Stefano Garzarella wrote:
+>> > > > > On Mon, Apr 12, 2021 at 03:42:23PM -0700, Jiang Wang . wrote:
+>> > > > > > On Mon, Apr 12, 2021 at 7:21 AM Stefano Garzarella <sgarzare@redhat.com> wrote:
+>> > > > > > >
+>> > > > > > > On Mon, Apr 12, 2021 at 02:50:17PM +0100, Stefan Hajnoczi wrote:
+>> > > > > > > >On Thu, Apr 01, 2021 at 04:36:02AM +0000, jiang.wang wrote:
+>> > > > > > > >> Add supports for datagram type for virtio-vsock. Datagram
+>> > > > > > > >> sockets are connectionless and unreliable. To avoid contention
+>> > > > > > > >> with stream and other sockets, add two more virtqueues and
+>> > > > > > > >> a new feature bit to identify if those two new queues exist or not.
+>> > > > > > > >>
+>> > > > > > > >> Also add descriptions for resource management of datagram, which
+>> > > > > > > >> does not use the existing credit update mechanism associated with
+>> > > > > > > >> stream sockets.
+>> > > > > > > >>
+>> > > > > > > >> Signed-off-by: Jiang Wang <jiang.wang@bytedance.com>
+>> > > > > > > >> ---
+>> > > > > > > >> V2 addressed the comments for the previous version.
+>> > > > > > > >>
+>> > > > > > > >>  virtio-vsock.tex | 62 +++++++++++++++++++++++++++++++++++++++++++++++---------
+>> > > > > > > >>  1 file changed, 52 insertions(+), 10 deletions(-)
+>> > > > > > > >>
+>> > > > > > > >> diff --git a/virtio-vsock.tex b/virtio-vsock.tex
+>> > > > > > > >> index da7e641..62c12e0 100644
+>> > > > > > > >> --- a/virtio-vsock.tex
+>> > > > > > > >> +++ b/virtio-vsock.tex
+>> > > > > > > >> @@ -11,12 +11,25 @@ \subsection{Virtqueues}\label{sec:Device Types / Socket Device / Virtqueues}
+>> > > > > > > >>  \begin{description}
+>> > > > > > > >>  \item[0] rx
+>> > > > > > > >>  \item[1] tx
+>> > > > > > > >> +\item[2] datagram rx
+>> > > > > > > >> +\item[3] datagram tx
+>> > > > > > > >> +\item[4] event
+>> > > > > > > >> +\end{description}
+>> > > > > > > >> +The virtio socket device uses 5 queues if feature bit VIRTIO_VSOCK_F_DRGAM is set. Otherwise, it
+>> > > > > > > >> +only uses 3 queues, as the following. Rx and tx queues are always used for stream sockets.
+>> > > > > > > >> +
+>> > > > > > > >> +\begin{description}
+>> > > > > > > >> +\item[0] rx
+>> > > > > > > >> +\item[1] tx
+>> > > > > > > >>  \item[2] event
+>> > > > > > > >>  \end{description}
+>> > > > > > > >>
+>> > > > > > > >
+>> > > > > > > >I suggest renaming "rx" and "tx" to "stream rx" and "stream tx"
+>> > > > > > > >virtqueues and also adding this:
+>> > > > > > > >
+>> > > > > > > >  When behavior differs between stream and datagram rx/tx virtqueues
+>> > > > > > > >  their full names are used. Common behavior is simply described in
+>> > > > > > > >  terms of rx/tx virtqueues and applies to both stream and datagram
+>> > > > > > > >  virtqueues.
+>> > > > > > > >
+>> > > > > > > >This way you won't need to duplicate portions of the spec that deal with
+>> > > > > > > >populating the virtqueues, for example.
+>> > > > > > > >
+>> > > > > > > >It's also clearer to use a full name for stream rx/tx virtqueues instead
+>> > > > > > > >of calling them rx/tx virtqueues now that we have datagram rx/tx
+>> > > > > > > >virtqueues.
+>> > > > > > > >
+>> > > > > > > >> +
+>> > > > > > > >>  \subsection{Feature bits}\label{sec:Device Types / Socket Device / Feature bits}
+>> > > > > > > >>
+>> > > > > > > >> -There are currently no feature bits defined for this device.
+>> > > > > > > >> +\begin{description}
+>> > > > > > > >> +\item[VIRTIO_VSOCK_F_DGRAM (0)] Device has support for datagram socket type.
+>> > > > > > > >> +\end{description}
+>> > > > > > > >>
+>> > > > > > > >>  \subsection{Device configuration layout}\label{sec:Device Types / Socket Device / Device configuration layout}
+>> > > > > > > >>
+>> > > > > > > >> @@ -107,6 +120,9 @@ \subsection{Device Operation}\label{sec:Device Types / Socket Device / Device Op
+>> > > > > > > >>
+>> > > > > > > >>  \subsubsection{Virtqueue Flow Control}\label{sec:Device Types / Socket Device / Device Operation / Virtqueue Flow Control}
+>> > > > > > > >>
+>> > > > > > > >> +Flow control applies to stream sockets; datagram sockets do not have
+>> > > > > > > >> +flow control.
+>> > > > > > > >> +
+>> > > > > > > >>  The tx virtqueue carries packets initiated by applications and replies to
+>> > > > > > > >>  received packets.  The rx virtqueue carries packets initiated by the device and
+>> > > > > > > >>  replies to previously transmitted packets.
+>> > > > > > > >> @@ -140,12 +156,15 @@ \subsubsection{Addressing}\label{sec:Device Types / Socket Device / Device Opera
+>> > > > > > > >>  consists of a (cid, port number) tuple. The header fields used for this are
+>> > > > > > > >>  \field{src_cid}, \field{src_port}, \field{dst_cid}, and \field{dst_port}.
+>> > > > > > > >>
+>> > > > > > > >> -Currently only stream sockets are supported. \field{type} is 1 for stream
+>> > > > > > > >> -socket types.
+>> > > > > > > >> +Currently stream and datagram (dgram) sockets are supported. \field{type} is 1 for stream
+>> > > > > > > >> +socket types. \field{type} is 3 for dgram socket types.
+>> > > > > > > >>
+>> > > > > > > >>  Stream sockets provide in-order, guaranteed, connection-oriented delivery
+>> > > > > > > >>  without message boundaries.
+>> > > > > > > >>
+>> > > > > > > >> +Datagram sockets provide connectionless unreliable messages of
+>> > > > > > > >> +a fixed maximum length.
+>> > > > > > > >
+>> > > > > > > >Plus unordered (?) and with message boundaries. In other words:
+>> > > > > > > >
+>> > > > > > > >  Datagram sockets provide unordered, unreliable, connectionless message
+>> > > > > > > >  with message boundaries and a fixed maximum length.
+>> > > > > > > >
+>> > > > > > > >I didn't think of the fixed maximum length aspect before. I guess the
+>> > > > > > > >intention is that the rx buffer size is the message size limit? That's
+>> > > > > > > >different from UDP messages, which can be fragmented into multiple IP
+>> > > > > > > >packets and can be larger than 64KiB:
+>> > > > > > > >https://en.wikipedia.org/wiki/User_Datagram_Protocol#UDP_datagram_structure
+>> > > > > > > >
+>> > > > > > > >Is it possible to support large datagram messages in vsock? I'm a little
+>> > > > > > > >concerned that applications that run successfully over UDP will not be
+>> > > > > > > >portable if vsock has this limitation because it would impose extra
+>> > > > > > > >message boundaries that the application protocol might not tolerate.
+>> > > > > > >
+>> > > > > > > Maybe we can reuse the same approach Arseny is using for SEQPACKET.
+>> > > > > > > Fragment the packets according to the buffers in the virtqueue and set
+>> > > > > > > the EOR flag to indicate the last packet in the message.
+>> > > > > > >
+>> > > > > > Agree. Another option is to use the ones for skb since we may need to
+>> > > > > > use skbs for multiple transport support anyway.
+>> > > > > >
+>> > > > >
+>> > > > > The important thing I think is to have a single flag in virtio-vsock that
+>> > > > > identifies pretty much the same thing: this is the last fragment of a series
+>> > > > > to rebuild a packet.
+>> > > > >
+>> > > > > We should reuse the same flag for DGRAM and SEQPACKET.
+>> > > > >
+>> > > > > Thanks,
+>> > > > > Stefano
+>> > > >
+>> > > > Well DGRAM can drop data so I wonder whether it can work ...
+>> > > >
+>> > >
+>> > > Yep, this is true, but the channel should not be losing packets, so if the
+>> > > receiver discards packets, it knows that it must then discard all of them
+>> > > until the EOR.
+>> >
+>> > That is not so easy - they can come mixed up from multiple sources.
+>>
+>> I think we can prevent mixing because virtuqueue is point to point and its
+>> use is not thread safe, so the access (in the same peer) is already
+>> serialized.
+>> In the end the packet would be fragmented only before copying it to the
+>> virtuqueue.
+>>
+>> But maybe I missed something...
+>
+>Well I ask what's the point of fragmenting then. I assume it's so we
+>can pass huge messages around so you can't keep locks ...
+>
+
+Maybe I'm wrong, but isn't this similar to what we do in virtio-net with 
+mergeable buffers?
+
+Also in this case I think the fragmentation will happen only in the 
+device, since the driver can enqueue the entire buffer.
+
+Maybe we can reuse mergeable buffers for virtio-vsock if the EOR flag is 
+not suitable.
+
+IIUC in the vsock device the fragmentation for DGRAM will happen just 
+before to queue it in the virtqueue, and the device can check how many 
+buffers are available in the queue and it can decide whether to queue 
+them all up or throw them away.
+
+>
+>> > Sure linux net core does this but with fragmentation added in,
+>> > I start wondering whether you are beginning to reinvent the net stack
+>> > ...
+>>
+>> No, I hope not :-), in the end our advantage is that we have a channel that
+>> doesn't lose packets, so I guess we can make assumptions that the network
+>> stack can't.
+>>
+>> Thanks,
+>> Stefano
+>
+>I still don't know how will credit accounting work for datagram,
+>but proposals I saw seem to actually lose packets ...
+>
+
+I still don't know too, but I think it's not an issue in the RX side,
+since if it doesn't have space, can drop all the fragment.
+
+Another option to avoid fragmentation could be to allocate 64K buffers 
+for the new DGRAM virtqueue.
+In this way we will have at most 64K packets, which is similar to 
+UDP/IP, without extra work for the fragmentation.
+
+Thanks,
+Stefano
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
