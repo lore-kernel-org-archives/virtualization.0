@@ -3,122 +3,114 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A69AC433B4
-	for <virtualization@archiver.kernel.org>; Wed, 14 Apr 2021 07:20:21 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3DB6FC433B4
+	for <virtualization@archiver.kernel.org>; Wed, 14 Apr 2021 07:34:33 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 108E7613A9
-	for <virtualization@archiver.kernel.org>; Wed, 14 Apr 2021 07:20:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 108E7613A9
+	by mail.kernel.org (Postfix) with ESMTPS id C9628613FC
+	for <virtualization@archiver.kernel.org>; Wed, 14 Apr 2021 07:34:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C9628613FC
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id ABD0840F21;
-	Wed, 14 Apr 2021 07:20:20 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7CE2084284;
+	Wed, 14 Apr 2021 07:34:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id L16vH6kzQ09d; Wed, 14 Apr 2021 07:20:19 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 67C1E40673;
-	Wed, 14 Apr 2021 07:20:18 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id wZXQvGY0Hb7k; Wed, 14 Apr 2021 07:34:31 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTP id C004D841FD;
+	Wed, 14 Apr 2021 07:34:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 33AC9C000B;
-	Wed, 14 Apr 2021 07:20:18 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6EC3BC000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 91FE7C000B;
+	Wed, 14 Apr 2021 07:34:30 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2B62CC000A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Apr 2021 07:20:17 +0000 (UTC)
+ Wed, 14 Apr 2021 07:34:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 5524560D65
+ by smtp2.osuosl.org (Postfix) with ESMTP id 1D2804013B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Apr 2021 07:20:17 +0000 (UTC)
+ Wed, 14 Apr 2021 07:34:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id RJPK-xfMWdgp
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5Cq4UzAVW-o7
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Apr 2021 07:20:16 +0000 (UTC)
+ Wed, 14 Apr 2021 07:34:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id D95DF60BA8
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id E82DE400F3
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Apr 2021 07:20:15 +0000 (UTC)
+ Wed, 14 Apr 2021 07:34:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1618384814;
+ s=mimecast20190719; t=1618385666;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=1HiMom1mDGnF/mth6v4ofF/sGC4W5tGPIXnFqVL4q3k=;
- b=Tm2z3ZlGiNbnm25MhJoE6lgRM7iJUIQ0Knsi+3ysc1e0VU0n1hCPakhXwKHuWkhcSvlv29
- VGhGymAxFlThRwZ6DJg4nsrGJWwogrpHVRjD7CtaOc+fvrGn2gwFhUziuPXyOBT5wo9QcF
- oeupJ64QRzTrb+5pJP9Fqck3NRP3Xiw=
+ bh=/EKL5XvCVEpC/xAzaCkVa2iKoqKzecx9m08YdXt8r2U=;
+ b=V/vQPZEs66FtI80yn4/wygAPoi/rwR9235XkQuEOmef2/WVPRw0LVswvymPzDz5m3mzdSj
+ +qA+V2n30M/C6pzc1Q7QZaQm3xl1DwZtd0KUcttUsDsb1cFt2WL2Rn+4JXzh6tJJ58FXCX
+ W4bF9G9a34uL7ZyMlJSLVCHV06qLe24=
 Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
  [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-475-xSRXhQLyOsCSGmPOuPGDBw-1; Wed, 14 Apr 2021 03:20:12 -0400
-X-MC-Unique: xSRXhQLyOsCSGmPOuPGDBw-1
+ us-mta-534-X97jz4f6NFeUKUEFpmgJ9w-1; Wed, 14 Apr 2021 03:34:22 -0400
+X-MC-Unique: X97jz4f6NFeUKUEFpmgJ9w-1
 Received: by mail-wr1-f71.google.com with SMTP id
- n4-20020a5d51c40000b02900f3fe975f03so648864wrv.11
+ o14-20020a5d474e0000b029010298882dadso665607wrs.2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Apr 2021 00:20:12 -0700 (PDT)
+ Wed, 14 Apr 2021 00:34:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=1HiMom1mDGnF/mth6v4ofF/sGC4W5tGPIXnFqVL4q3k=;
- b=MdKMbFUgsxbUfRseI9SIWKYdFBDL5HzmLR0a1m9uDdQXr25ZkS9lw52efFmPr4AsJg
- ia90rLcFNXUyS5cQ8dZcYQDgANbFw4Da/iO+kZna3DFv1+/SJnPR36jKvguvntJghPYX
- 9KqC6eGiMOgD27ySi8+mMiIlI6v56d94MVNjwNZ9UcYAeucNDf+JgfxoRVXn46QtgvKG
- qASAGyT0hCAWQGQQQ9egiyC3MtPCIKv6k5tngBKPDsyS7F7TqklUdHiw9YGnXoQ0paGY
- DPFIU6kXM4cTd4Pnq10tBMWgBRoFsk4kFVcxl1zLQfSbauY87g4QeRueLJpzAtUTWs5E
- VX4g==
-X-Gm-Message-State: AOAM532rF6tfsAUZ9JFKnKgWqu77Au1OF46zfvmjNwIgI1aekB7+K4NC
- rI8vr2N4UZff89mJZ+z55Xhu88sp8gnoha5O0PX3KjLpVQ1E4xXgtoS4JXLsItto7HWeXC81ghq
- hc0ZcL4UVrQMDgTqmnxw9rNmkWdxJZwg6bVe7rGtLOQ==
-X-Received: by 2002:a5d:6d05:: with SMTP id e5mr39262413wrq.324.1618384811545; 
- Wed, 14 Apr 2021 00:20:11 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxG8GYuTPSIOh6LjWOlG094wphY3+ndi58T2CYf9+CzfMOS1NF6rNDCQX3QNucWoCeKF87Axw==
-X-Received: by 2002:a5d:6d05:: with SMTP id e5mr39262388wrq.324.1618384811307; 
- Wed, 14 Apr 2021 00:20:11 -0700 (PDT)
+ bh=/EKL5XvCVEpC/xAzaCkVa2iKoqKzecx9m08YdXt8r2U=;
+ b=gvSbDrbQKa4f+NlST0g2ger0BrjjyLvfJH6P8/1LeBm/yvpT9Wf4ngfcRBGiOlU7B9
+ gwQhq9LkgoXJd85gZlLxBR81V3fwXGYDxGFo4HBFvY99dYZG/i3vlAtuirlyWfTk5ekr
+ 9tJJJYTrXf8rR/vv9Hu6B2+GinY6FxmCUZY3vpaDgMpMqDVtCuV5arhItXXQH0YYqILj
+ RbhdvmuuO0ky+SA4ac4eC7klZHw5sQpxTr1UyscX3Ux1tYya5+6aknWOgAAZwCgthkJ9
+ KLLG/rUyBXT/+IFpfSBuDhq4+razNvsi8MSs5Xni/nAi1sz6w7w0hxSFszU+I+VGQPte
+ 8zvQ==
+X-Gm-Message-State: AOAM533LvRCa7yV7NHH5No5AA6rjilBz123sAg4syNZuOz9g4ukzi1hU
+ WNx359fROFvsKPEUSLcR0PL73r2uMUjEoa43i03FprUA0R61tQuEHAmm/zESxjY7skDEVeQL/+A
+ WpiyYKUs5oj3b6bv+j0xVIMlSOyBJKm6K24RIiXc+pA==
+X-Received: by 2002:adf:f506:: with SMTP id q6mr15884892wro.65.1618385660771; 
+ Wed, 14 Apr 2021 00:34:20 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxfhdUyW/rYKPQEdLrMjzLeK4RYqnv+jhM0pMJO57jzpHnUMxj42Lj91ZhkDYfqygrXVL2Ebw==
+X-Received: by 2002:adf:f506:: with SMTP id q6mr15884871wro.65.1618385660595; 
+ Wed, 14 Apr 2021 00:34:20 -0700 (PDT)
 Received: from redhat.com ([2a10:8006:2281:0:1994:c627:9eac:1825])
- by smtp.gmail.com with ESMTPSA id o5sm4252499wmc.44.2021.04.14.00.20.08
+ by smtp.gmail.com with ESMTPSA id l5sm4529131wmh.0.2021.04.14.00.34.18
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 14 Apr 2021 00:20:10 -0700 (PDT)
-Date: Wed, 14 Apr 2021 03:20:07 -0400
+ Wed, 14 Apr 2021 00:34:19 -0700 (PDT)
+Date: Wed, 14 Apr 2021 03:34:16 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [RFC v2] virtio-vsock: add description for datagram type
-Message-ID: <20210414031220-mutt-send-email-mst@kernel.org>
-References: <YHRQGSSnkN8Zipy0@stefanha-x1.localdomain>
- <20210412142133.t44pn5pjy6fdcvk4@steredhat>
- <CAP_N_Z9VPkBKX9QD+cuzSSAn6dL0cpQ=EZs5vk+ByjjDpGgdBA@mail.gmail.com>
- <20210413125853.2dkldmp23vkkc74c@steredhat>
- <20210413091251-mutt-send-email-mst@kernel.org>
- <20210413133852.ebkrlbyetiqu4uje@steredhat>
- <20210413094722-mutt-send-email-mst@kernel.org>
- <20210413140351.6vmffxqnj4azpyzx@steredhat>
- <20210413155635-mutt-send-email-mst@kernel.org>
- <20210414065706.inmjuoxsexejbbxj@steredhat>
+To: Xie Yongji <xieyongji@bytedance.com>
+Subject: Re: [PATCH v6 00/10] Introduce VDUSE - vDPA Device in Userspace
+Message-ID: <20210414032909-mutt-send-email-mst@kernel.org>
+References: <20210331080519.172-1-xieyongji@bytedance.com>
 MIME-Version: 1.0
-In-Reply-To: <20210414065706.inmjuoxsexejbbxj@steredhat>
+In-Reply-To: <20210331080519.172-1-xieyongji@bytedance.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: cong.wang@bytedance.com, Xiongchun Duan <duanxiongchun@bytedance.com>,
- "Jiang Wang ." <jiang.wang@bytedance.com>, cohuck@redhat.com,
- virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
- Stefan Hajnoczi <stefanha@redhat.com>,
- Arseny Krasnov <arseny.krasnov@kaspersky.com>, asias@redhat.com
+Cc: axboe@kernel.dk, kvm@vger.kernel.org, corbet@lwn.net,
+ netdev@vger.kernel.org, rdunlap@infradead.org, willy@infradead.org,
+ virtualization@lists.linux-foundation.org, hch@infradead.org,
+ christian.brauner@canonical.com, bcrl@kvack.org, viro@zeniv.linux.org.uk,
+ stefanha@redhat.com, linux-fsdevel@vger.kernel.org, dan.carpenter@oracle.com,
+ mika.penttila@nextfour.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -135,210 +127,176 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Apr 14, 2021 at 08:57:06AM +0200, Stefano Garzarella wrote:
-> On Tue, Apr 13, 2021 at 03:58:34PM -0400, Michael S. Tsirkin wrote:
-> > On Tue, Apr 13, 2021 at 04:03:51PM +0200, Stefano Garzarella wrote:
-> > > On Tue, Apr 13, 2021 at 09:50:45AM -0400, Michael S. Tsirkin wrote:
-> > > > On Tue, Apr 13, 2021 at 03:38:52PM +0200, Stefano Garzarella wrote:
-> > > > > On Tue, Apr 13, 2021 at 09:16:50AM -0400, Michael S. Tsirkin wrote:
-> > > > > > On Tue, Apr 13, 2021 at 02:58:53PM +0200, Stefano Garzarella wrote:
-> > > > > > > On Mon, Apr 12, 2021 at 03:42:23PM -0700, Jiang Wang . wrote:
-> > > > > > > > On Mon, Apr 12, 2021 at 7:21 AM Stefano Garzarella <sgarzare@redhat.com> wrote:
-> > > > > > > > >
-> > > > > > > > > On Mon, Apr 12, 2021 at 02:50:17PM +0100, Stefan Hajnoczi wrote:
-> > > > > > > > > >On Thu, Apr 01, 2021 at 04:36:02AM +0000, jiang.wang wrote:
-> > > > > > > > > >> Add supports for datagram type for virtio-vsock. Datagram
-> > > > > > > > > >> sockets are connectionless and unreliable. To avoid contention
-> > > > > > > > > >> with stream and other sockets, add two more virtqueues and
-> > > > > > > > > >> a new feature bit to identify if those two new queues exist or not.
-> > > > > > > > > >>
-> > > > > > > > > >> Also add descriptions for resource management of datagram, which
-> > > > > > > > > >> does not use the existing credit update mechanism associated with
-> > > > > > > > > >> stream sockets.
-> > > > > > > > > >>
-> > > > > > > > > >> Signed-off-by: Jiang Wang <jiang.wang@bytedance.com>
-> > > > > > > > > >> ---
-> > > > > > > > > >> V2 addressed the comments for the previous version.
-> > > > > > > > > >>
-> > > > > > > > > >>  virtio-vsock.tex | 62 +++++++++++++++++++++++++++++++++++++++++++++++---------
-> > > > > > > > > >>  1 file changed, 52 insertions(+), 10 deletions(-)
-> > > > > > > > > >>
-> > > > > > > > > >> diff --git a/virtio-vsock.tex b/virtio-vsock.tex
-> > > > > > > > > >> index da7e641..62c12e0 100644
-> > > > > > > > > >> --- a/virtio-vsock.tex
-> > > > > > > > > >> +++ b/virtio-vsock.tex
-> > > > > > > > > >> @@ -11,12 +11,25 @@ \subsection{Virtqueues}\label{sec:Device Types / Socket Device / Virtqueues}
-> > > > > > > > > >>  \begin{description}
-> > > > > > > > > >>  \item[0] rx
-> > > > > > > > > >>  \item[1] tx
-> > > > > > > > > >> +\item[2] datagram rx
-> > > > > > > > > >> +\item[3] datagram tx
-> > > > > > > > > >> +\item[4] event
-> > > > > > > > > >> +\end{description}
-> > > > > > > > > >> +The virtio socket device uses 5 queues if feature bit VIRTIO_VSOCK_F_DRGAM is set. Otherwise, it
-> > > > > > > > > >> +only uses 3 queues, as the following. Rx and tx queues are always used for stream sockets.
-> > > > > > > > > >> +
-> > > > > > > > > >> +\begin{description}
-> > > > > > > > > >> +\item[0] rx
-> > > > > > > > > >> +\item[1] tx
-> > > > > > > > > >>  \item[2] event
-> > > > > > > > > >>  \end{description}
-> > > > > > > > > >>
-> > > > > > > > > >
-> > > > > > > > > >I suggest renaming "rx" and "tx" to "stream rx" and "stream tx"
-> > > > > > > > > >virtqueues and also adding this:
-> > > > > > > > > >
-> > > > > > > > > >  When behavior differs between stream and datagram rx/tx virtqueues
-> > > > > > > > > >  their full names are used. Common behavior is simply described in
-> > > > > > > > > >  terms of rx/tx virtqueues and applies to both stream and datagram
-> > > > > > > > > >  virtqueues.
-> > > > > > > > > >
-> > > > > > > > > >This way you won't need to duplicate portions of the spec that deal with
-> > > > > > > > > >populating the virtqueues, for example.
-> > > > > > > > > >
-> > > > > > > > > >It's also clearer to use a full name for stream rx/tx virtqueues instead
-> > > > > > > > > >of calling them rx/tx virtqueues now that we have datagram rx/tx
-> > > > > > > > > >virtqueues.
-> > > > > > > > > >
-> > > > > > > > > >> +
-> > > > > > > > > >>  \subsection{Feature bits}\label{sec:Device Types / Socket Device / Feature bits}
-> > > > > > > > > >>
-> > > > > > > > > >> -There are currently no feature bits defined for this device.
-> > > > > > > > > >> +\begin{description}
-> > > > > > > > > >> +\item[VIRTIO_VSOCK_F_DGRAM (0)] Device has support for datagram socket type.
-> > > > > > > > > >> +\end{description}
-> > > > > > > > > >>
-> > > > > > > > > >>  \subsection{Device configuration layout}\label{sec:Device Types / Socket Device / Device configuration layout}
-> > > > > > > > > >>
-> > > > > > > > > >> @@ -107,6 +120,9 @@ \subsection{Device Operation}\label{sec:Device Types / Socket Device / Device Op
-> > > > > > > > > >>
-> > > > > > > > > >>  \subsubsection{Virtqueue Flow Control}\label{sec:Device Types / Socket Device / Device Operation / Virtqueue Flow Control}
-> > > > > > > > > >>
-> > > > > > > > > >> +Flow control applies to stream sockets; datagram sockets do not have
-> > > > > > > > > >> +flow control.
-> > > > > > > > > >> +
-> > > > > > > > > >>  The tx virtqueue carries packets initiated by applications and replies to
-> > > > > > > > > >>  received packets.  The rx virtqueue carries packets initiated by the device and
-> > > > > > > > > >>  replies to previously transmitted packets.
-> > > > > > > > > >> @@ -140,12 +156,15 @@ \subsubsection{Addressing}\label{sec:Device Types / Socket Device / Device Opera
-> > > > > > > > > >>  consists of a (cid, port number) tuple. The header fields used for this are
-> > > > > > > > > >>  \field{src_cid}, \field{src_port}, \field{dst_cid}, and \field{dst_port}.
-> > > > > > > > > >>
-> > > > > > > > > >> -Currently only stream sockets are supported. \field{type} is 1 for stream
-> > > > > > > > > >> -socket types.
-> > > > > > > > > >> +Currently stream and datagram (dgram) sockets are supported. \field{type} is 1 for stream
-> > > > > > > > > >> +socket types. \field{type} is 3 for dgram socket types.
-> > > > > > > > > >>
-> > > > > > > > > >>  Stream sockets provide in-order, guaranteed, connection-oriented delivery
-> > > > > > > > > >>  without message boundaries.
-> > > > > > > > > >>
-> > > > > > > > > >> +Datagram sockets provide connectionless unreliable messages of
-> > > > > > > > > >> +a fixed maximum length.
-> > > > > > > > > >
-> > > > > > > > > >Plus unordered (?) and with message boundaries. In other words:
-> > > > > > > > > >
-> > > > > > > > > >  Datagram sockets provide unordered, unreliable, connectionless message
-> > > > > > > > > >  with message boundaries and a fixed maximum length.
-> > > > > > > > > >
-> > > > > > > > > >I didn't think of the fixed maximum length aspect before. I guess the
-> > > > > > > > > >intention is that the rx buffer size is the message size limit? That's
-> > > > > > > > > >different from UDP messages, which can be fragmented into multiple IP
-> > > > > > > > > >packets and can be larger than 64KiB:
-> > > > > > > > > >https://en.wikipedia.org/wiki/User_Datagram_Protocol#UDP_datagram_structure
-> > > > > > > > > >
-> > > > > > > > > >Is it possible to support large datagram messages in vsock? I'm a little
-> > > > > > > > > >concerned that applications that run successfully over UDP will not be
-> > > > > > > > > >portable if vsock has this limitation because it would impose extra
-> > > > > > > > > >message boundaries that the application protocol might not tolerate.
-> > > > > > > > >
-> > > > > > > > > Maybe we can reuse the same approach Arseny is using for SEQPACKET.
-> > > > > > > > > Fragment the packets according to the buffers in the virtqueue and set
-> > > > > > > > > the EOR flag to indicate the last packet in the message.
-> > > > > > > > >
-> > > > > > > > Agree. Another option is to use the ones for skb since we may need to
-> > > > > > > > use skbs for multiple transport support anyway.
-> > > > > > > >
-> > > > > > >
-> > > > > > > The important thing I think is to have a single flag in virtio-vsock that
-> > > > > > > identifies pretty much the same thing: this is the last fragment of a series
-> > > > > > > to rebuild a packet.
-> > > > > > >
-> > > > > > > We should reuse the same flag for DGRAM and SEQPACKET.
-> > > > > > >
-> > > > > > > Thanks,
-> > > > > > > Stefano
-> > > > > >
-> > > > > > Well DGRAM can drop data so I wonder whether it can work ...
-> > > > > >
-> > > > >
-> > > > > Yep, this is true, but the channel should not be losing packets, so if the
-> > > > > receiver discards packets, it knows that it must then discard all of them
-> > > > > until the EOR.
-> > > >
-> > > > That is not so easy - they can come mixed up from multiple sources.
-> > > 
-> > > I think we can prevent mixing because virtuqueue is point to point and its
-> > > use is not thread safe, so the access (in the same peer) is already
-> > > serialized.
-> > > In the end the packet would be fragmented only before copying it to the
-> > > virtuqueue.
-> > > 
-> > > But maybe I missed something...
-> > 
-> > Well I ask what's the point of fragmenting then. I assume it's so we
-> > can pass huge messages around so you can't keep locks ...
-> > 
+On Wed, Mar 31, 2021 at 04:05:09PM +0800, Xie Yongji wrote:
+> This series introduces a framework, which can be used to implement
+> vDPA Devices in a userspace program. The work consist of two parts:
+> control path forwarding and data path offloading.
 > 
-> Maybe I'm wrong, but isn't this similar to what we do in virtio-net with
-> mergeable buffers?
-
-The point of mergeable buffers is to use less memory: both for each
-packet and for a full receive vq.
-
-> Also in this case I think the fragmentation will happen only in the device,
-> since the driver can enqueue the entire buffer.
+> In the control path, the VDUSE driver will make use of message
+> mechnism to forward the config operation from vdpa bus driver
+> to userspace. Userspace can use read()/write() to receive/reply
+> those control messages.
 > 
-> Maybe we can reuse mergeable buffers for virtio-vsock if the EOR flag is not
-> suitable.
-
-That sounds very reasonable.
-
-> IIUC in the vsock device the fragmentation for DGRAM will happen just before
-> to queue it in the virtqueue, and the device can check how many buffers are
-> available in the queue and it can decide whether to queue them all up or
-> throw them away.
-> > 
-> > > > Sure linux net core does this but with fragmentation added in,
-> > > > I start wondering whether you are beginning to reinvent the net stack
-> > > > ...
-> > > 
-> > > No, I hope not :-), in the end our advantage is that we have a channel that
-> > > doesn't lose packets, so I guess we can make assumptions that the network
-> > > stack can't.
-> > > 
-> > > Thanks,
-> > > Stefano
-> > 
-> > I still don't know how will credit accounting work for datagram,
-> > but proposals I saw seem to actually lose packets ...
-> > 
+> In the data path, the core is mapping dma buffer into VDUSE
+> daemon's address space, which can be implemented in different ways
+> depending on the vdpa bus to which the vDPA device is attached.
 > 
-> I still don't know too, but I think it's not an issue in the RX side,
-> since if it doesn't have space, can drop all the fragment.
+> In virtio-vdpa case, we implements a MMU-based on-chip IOMMU driver with
+> bounce-buffering mechanism to achieve that. And in vhost-vdpa case, the dma
+> buffer is reside in a userspace memory region which can be shared to the
+> VDUSE userspace processs via transferring the shmfd.
 > 
-> Another option to avoid fragmentation could be to allocate 64K buffers for
-> the new DGRAM virtqueue.
-
-That's a lot of buffers ...
-
-> In this way we will have at most 64K packets, which is similar to UDP/IP,
-> without extra work for the fragmentation.
-
-IIRC default MTU is 1280 not 64K ...
-
+> The details and our user case is shown below:
 > 
-> Thanks,
-> Stefano
+> ------------------------    -------------------------   ----------------------------------------------
+> |            Container |    |              QEMU(VM) |   |                               VDUSE daemon |
+> |       ---------      |    |  -------------------  |   | ------------------------- ---------------- |
+> |       |dev/vdx|      |    |  |/dev/vhost-vdpa-x|  |   | | vDPA device emulation | | block driver | |
+> ------------+-----------     -----------+------------   -------------+----------------------+---------
+>             |                           |                            |                      |
+>             |                           |                            |                      |
+> ------------+---------------------------+----------------------------+----------------------+---------
+> |    | block device |           |  vhost device |            | vduse driver |          | TCP/IP |    |
+> |    -------+--------           --------+--------            -------+--------          -----+----    |
+> |           |                           |                           |                       |        |
+> | ----------+----------       ----------+-----------         -------+-------                |        |
+> | | virtio-blk driver |       |  vhost-vdpa driver |         | vdpa device |                |        |
+> | ----------+----------       ----------+-----------         -------+-------                |        |
+> |           |      virtio bus           |                           |                       |        |
+> |   --------+----+-----------           |                           |                       |        |
+> |                |                      |                           |                       |        |
+> |      ----------+----------            |                           |                       |        |
+> |      | virtio-blk device |            |                           |                       |        |
+> |      ----------+----------            |                           |                       |        |
+> |                |                      |                           |                       |        |
+> |     -----------+-----------           |                           |                       |        |
+> |     |  virtio-vdpa driver |           |                           |                       |        |
+> |     -----------+-----------           |                           |                       |        |
+> |                |                      |                           |    vdpa bus           |        |
+> |     -----------+----------------------+---------------------------+------------           |        |
+> |                                                                                        ---+---     |
+> -----------------------------------------------------------------------------------------| NIC |------
+>                                                                                          ---+---
+>                                                                                             |
+>                                                                                    ---------+---------
+>                                                                                    | Remote Storages |
+>                                                                                    -------------------
+
+This all looks quite similar to vhost-user-block except that one
+does not need any kernel support at all.
+
+So I am still scratching my head about its advantages over
+vhost-user-block.
+
+
+> We make use of it to implement a block device connecting to
+> our distributed storage, which can be used both in containers and
+> VMs. Thus, we can have an unified technology stack in this two cases.
+
+Maybe the container part is the answer. How does that stack look?
+
+> To test it with null-blk:
+> 
+>   $ qemu-storage-daemon \
+>       --chardev socket,id=charmonitor,path=/tmp/qmp.sock,server,nowait \
+>       --monitor chardev=charmonitor \
+>       --blockdev driver=host_device,cache.direct=on,aio=native,filename=/dev/nullb0,node-name=disk0 \
+>       --export type=vduse-blk,id=test,node-name=disk0,writable=on,name=vduse-null,num-queues=16,queue-size=128
+> 
+> The qemu-storage-daemon can be found at https://github.com/bytedance/qemu/tree/vduse
+> 
+> Future work:
+>   - Improve performance
+>   - Userspace library (find a way to reuse device emulation code in qemu/rust-vmm)
+> 
+> V5 to V6:
+> - Export receive_fd() instead of __receive_fd()
+> - Factor out the unmapping logic of pa and va separatedly
+> - Remove the logic of bounce page allocation in page fault handler
+> - Use PAGE_SIZE as IOVA allocation granule
+> - Add EPOLLOUT support
+> - Enable setting API version in userspace
+> - Fix some bugs
+> 
+> V4 to V5:
+> - Remove the patch for irq binding
+> - Use a single IOTLB for all types of mapping
+> - Factor out vhost_vdpa_pa_map()
+> - Add some sample codes in document
+> - Use receice_fd_user() to pass file descriptor
+> - Fix some bugs
+> 
+> V3 to V4:
+> - Rebase to vhost.git
+> - Split some patches
+> - Add some documents
+> - Use ioctl to inject interrupt rather than eventfd
+> - Enable config interrupt support
+> - Support binding irq to the specified cpu
+> - Add two module parameter to limit bounce/iova size
+> - Create char device rather than anon inode per vduse
+> - Reuse vhost IOTLB for iova domain
+> - Rework the message mechnism in control path
+> 
+> V2 to V3:
+> - Rework the MMU-based IOMMU driver
+> - Use the iova domain as iova allocator instead of genpool
+> - Support transferring vma->vm_file in vhost-vdpa
+> - Add SVA support in vhost-vdpa
+> - Remove the patches on bounce pages reclaim
+> 
+> V1 to V2:
+> - Add vhost-vdpa support
+> - Add some documents
+> - Based on the vdpa management tool
+> - Introduce a workqueue for irq injection
+> - Replace interval tree with array map to store the iova_map
+> 
+> Xie Yongji (10):
+>   file: Export receive_fd() to modules
+>   eventfd: Increase the recursion depth of eventfd_signal()
+>   vhost-vdpa: protect concurrent access to vhost device iotlb
+>   vhost-iotlb: Add an opaque pointer for vhost IOTLB
+>   vdpa: Add an opaque pointer for vdpa_config_ops.dma_map()
+>   vdpa: factor out vhost_vdpa_pa_map() and vhost_vdpa_pa_unmap()
+>   vdpa: Support transferring virtual addressing during DMA mapping
+>   vduse: Implement an MMU-based IOMMU driver
+>   vduse: Introduce VDUSE - vDPA Device in Userspace
+>   Documentation: Add documentation for VDUSE
+> 
+>  Documentation/userspace-api/index.rst              |    1 +
+>  Documentation/userspace-api/ioctl/ioctl-number.rst |    1 +
+>  Documentation/userspace-api/vduse.rst              |  212 +++
+>  drivers/vdpa/Kconfig                               |   10 +
+>  drivers/vdpa/Makefile                              |    1 +
+>  drivers/vdpa/ifcvf/ifcvf_main.c                    |    2 +-
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c                  |    2 +-
+>  drivers/vdpa/vdpa.c                                |    9 +-
+>  drivers/vdpa/vdpa_sim/vdpa_sim.c                   |    8 +-
+>  drivers/vdpa/vdpa_user/Makefile                    |    5 +
+>  drivers/vdpa/vdpa_user/iova_domain.c               |  521 ++++++++
+>  drivers/vdpa/vdpa_user/iova_domain.h               |   70 +
+>  drivers/vdpa/vdpa_user/vduse_dev.c                 | 1362 ++++++++++++++++++++
+>  drivers/vdpa/virtio_pci/vp_vdpa.c                  |    2 +-
+>  drivers/vhost/iotlb.c                              |   20 +-
+>  drivers/vhost/vdpa.c                               |  154 ++-
+>  fs/eventfd.c                                       |    2 +-
+>  fs/file.c                                          |    6 +
+>  include/linux/eventfd.h                            |    5 +-
+>  include/linux/file.h                               |    7 +-
+>  include/linux/vdpa.h                               |   21 +-
+>  include/linux/vhost_iotlb.h                        |    3 +
+>  include/uapi/linux/vduse.h                         |  175 +++
+>  23 files changed, 2548 insertions(+), 51 deletions(-)
+>  create mode 100644 Documentation/userspace-api/vduse.rst
+>  create mode 100644 drivers/vdpa/vdpa_user/Makefile
+>  create mode 100644 drivers/vdpa/vdpa_user/iova_domain.c
+>  create mode 100644 drivers/vdpa/vdpa_user/iova_domain.h
+>  create mode 100644 drivers/vdpa/vdpa_user/vduse_dev.c
+>  create mode 100644 include/uapi/linux/vduse.h
+> 
+> -- 
+> 2.11.0
 
 _______________________________________________
 Virtualization mailing list
