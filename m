@@ -2,89 +2,91 @@ Return-Path: <SRS0=edzl=JL=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59CCDC433ED
-	for <virtualization@archiver.kernel.org>; Wed, 14 Apr 2021 08:41:02 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68C27C433ED
+	for <virtualization@archiver.kernel.org>; Wed, 14 Apr 2021 08:44:49 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DB0EF613C3
-	for <virtualization@archiver.kernel.org>; Wed, 14 Apr 2021 08:41:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DB0EF613C3
+	by mail.kernel.org (Postfix) with ESMTPS id CD8F9613C3
+	for <virtualization@archiver.kernel.org>; Wed, 14 Apr 2021 08:44:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CD8F9613C3
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1F31084618;
-	Wed, 14 Apr 2021 08:41:01 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7F71A40F12;
+	Wed, 14 Apr 2021 08:44:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JgSZt5QmAJbA; Wed, 14 Apr 2021 08:40:59 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id HYx1dUQ5FLwi; Wed, 14 Apr 2021 08:44:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 083E7845CD;
-	Wed, 14 Apr 2021 08:40:59 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id D306E40519;
+	Wed, 14 Apr 2021 08:44:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C1C9FC000B;
-	Wed, 14 Apr 2021 08:40:58 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 446BBC000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A9F26C000B;
+	Wed, 14 Apr 2021 08:44:46 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 48623C000A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Apr 2021 08:40:57 +0000 (UTC)
+ Wed, 14 Apr 2021 08:44:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 28D1A60D6D
+ by smtp3.osuosl.org (Postfix) with ESMTP id 2FE9260D6F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Apr 2021 08:40:57 +0000 (UTC)
+ Wed, 14 Apr 2021 08:44:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ffXMdJvfmkQR
+ with ESMTP id raVN0r3PHgvr
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Apr 2021 08:40:56 +0000 (UTC)
+ Wed, 14 Apr 2021 08:44:44 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 6D49D60BA8
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 8204760BA8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Apr 2021 08:40:56 +0000 (UTC)
+ Wed, 14 Apr 2021 08:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1618389655;
+ s=mimecast20190719; t=1618389883;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=eDVMJkpRK1Zblh+QKUchn0+EWb/JoRAGYZO+L/mZbdU=;
- b=BlL69nv3bKUEizesfXE4Ss2Oe2KcFO1d5TYvUcmtwBGFZRLTjeGhAseiEECk6APN9KYQDr
- Obmdb0tZl/WradG/suSzg6b/GLlBU8kzijOpHZXzc0KDw5rh9VqgP+NiYX/nxo0olAIRHT
- 55w1uuj2j3BBSWHofRtTtX8vEP3hQhw=
+ bh=PI0biHAjtioVE9nE4bLO2UBKn34udcJDNDQVnJSXI5I=;
+ b=M69Kp90HHKI/NLHMOH5zV9+mkZNHfMJVT2yXsAiflsWDIFn2haMl1MchDMl0MIojORLObR
+ NxWILW5bAksf9EFabiaJyZJmesigjOKubcPldtBZW9z/myqE2Njz9s5MQoGIyJW8+I0LqO
+ a/9OmI2K+xr2sdX+LyOxb2m5+7hQyPM=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-155-pyeGloAtMc223IRxWQU0_A-1; Wed, 14 Apr 2021 04:40:52 -0400
-X-MC-Unique: pyeGloAtMc223IRxWQU0_A-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
+ us-mta-504-pGt2yJp0Puqc60dY4e2B9Q-1; Wed, 14 Apr 2021 04:44:41 -0400
+X-MC-Unique: pGt2yJp0Puqc60dY4e2B9Q-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 683D28030CA;
- Wed, 14 Apr 2021 08:40:51 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 009788030A0;
+ Wed, 14 Apr 2021 08:44:40 +0000 (UTC)
 Received: from localhost (ovpn-114-209.ams2.redhat.com [10.36.114.209])
- by smtp.corp.redhat.com (Postfix) with ESMTP id D46AA6A039;
- Wed, 14 Apr 2021 08:40:50 +0000 (UTC)
-Date: Wed, 14 Apr 2021 09:40:49 +0100
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 3FD5E51298;
+ Wed, 14 Apr 2021 08:44:36 +0000 (UTC)
+Date: Wed, 14 Apr 2021 09:44:35 +0100
 From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Subject: Re: [PATCH] virtiofs: remove useless function
-Message-ID: <YHaqkV0rUc7iu66f@stefanha-x1.localdomain>
-References: <1618305743-42003-1-git-send-email-jiapeng.chong@linux.alibaba.com>
+To: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH] virtio_blk: Add support for lifetime feature
+Message-ID: <YHarc5gGgjyQOaA+@stefanha-x1.localdomain>
+References: <20210330231602.1223216-1-egranata@google.com>
+ <YHQQL1OTOdnuOYUW@stefanha-x1.localdomain>
+ <20210412094217.GA981912@infradead.org>
 MIME-Version: 1.0
-In-Reply-To: <1618305743-42003-1-git-send-email-jiapeng.chong@linux.alibaba.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-Cc: linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, vgoyal@redhat.com, miklos@szeredi.hu
+In-Reply-To: <20210412094217.GA981912@infradead.org>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Cc: axboe@kernel.dk, mst@redhat.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
+ pbonzini@redhat.com, Enrico Granata <egranata@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -96,57 +98,59 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============0481779090130193717=="
+Content-Type: multipart/mixed; boundary="===============2899938005588206824=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
---===============0481779090130193717==
+--===============2899938005588206824==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="iAAPjvzcPxYyW4TN"
+	protocol="application/pgp-signature"; boundary="bauiO0UMhevZr0So"
 Content-Disposition: inline
 
 
---iAAPjvzcPxYyW4TN
+--bauiO0UMhevZr0So
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, Apr 13, 2021 at 05:22:23PM +0800, Jiapeng Chong wrote:
-> Fix the following clang warning:
->=20
-> fs/fuse/virtio_fs.c:130:35: warning: unused function 'vq_to_fpq'
-> [-Wunused-function].
->=20
-> Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-> Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-> ---
->  fs/fuse/virtio_fs.c | 5 -----
->  1 file changed, 5 deletions(-)
+On Mon, Apr 12, 2021 at 10:42:17AM +0100, Christoph Hellwig wrote:
+> A note to the virtio committee:  eMMC is the worst of all the currently
+> active storage standards by a large margin.  It defines very strange
+> ad-hoc interfaces that expose very specific internals and often provides
+> very poor abstractions.  It would be great it you could reach out to the
+> wider storage community before taking bad ideas from the eMMC standard
+> and putting it into virtio.
 
-The function was never used...
+As Michael mentioned, there is still time to change the virtio-blk spec
+since this feature hasn't been released yet.
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Why exactly is exposing eMMC-style lifetime information problematic?
 
---iAAPjvzcPxYyW4TN
+Can you and Enrico discuss the use case to figure out an alternative
+interface?
+
+Thanks,
+Stefan
+
+--bauiO0UMhevZr0So
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmB2qpEACgkQnKSrs4Gr
-c8iE9Af/a/YtHLu0Ely+QkjFL93NVsZwlPbkJERhv9mpU3qzK2gU9aHG0fD4bdPQ
-fpvXmjcncPiB4OX8se/gdVg2YrVaBC9w/t/DPho4JZvnMeZsTLMvpk2oncKyZObb
-s+Tp4GoTg++uWS8e7b4bu7R79mm8q9xGpyc9t9grC7VbHbMN8OMJwmcMJz/hHndg
-fRoojMr9xsZQ9wThmAgmMrQy4W3XwIX8JDv1hAl3wiUWJSIr+izEmNMjLsN2QV61
-vV1PpKhL07W1sTTLxMm5krVi0DNV8HInQTsTCF6gBYGocDoWl/BvAXKm4SpmnlS2
-9g7Fk6BwxZYIiNJawHq3u4F6xLlttg==
-=AMFq
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmB2q3MACgkQnKSrs4Gr
+c8iCWQf/XiM3VgPA1Zs4wDtPYzkWMh607Ajshz1zQnvTv/pJs17WdQ2XSjJAdXxS
+46IZ7lThbydBkeAaO0liAnBadJGipfv0MWQpkoWRVGvYH868k37bdtE/ypMeAL+b
+sUXF0BKNur+PMwV643QM04oGlYnEecvbNSFH1C2tADROJC7S9uEcZYK6pC9wKhap
+gKmDBhR+3qSRihK8d8aK2Bp4sUrZRGpsTnI9OZNCbZhRMGwvzGox0ffumvX0j1dA
+zPpSFesL+ytUmhAT695CAW/lPlcDwCP84GXAt2uaPvA4unZSzkbk4SN9Zx8zaKqu
+kiofNkpquHkH8V4R2QdBvLbK590Ixw==
+=DTBm
 -----END PGP SIGNATURE-----
 
---iAAPjvzcPxYyW4TN--
+--bauiO0UMhevZr0So--
 
 
---===============0481779090130193717==
+--===============2899938005588206824==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -156,5 +160,5 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0481779090130193717==--
+--===============2899938005588206824==--
 
