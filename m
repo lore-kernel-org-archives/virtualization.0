@@ -5,63 +5,63 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82568C43600
-	for <virtualization@archiver.kernel.org>; Thu, 15 Apr 2021 08:53:39 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9BC2C43616
+	for <virtualization@archiver.kernel.org>; Thu, 15 Apr 2021 08:53:40 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2D15A611CD
-	for <virtualization@archiver.kernel.org>; Thu, 15 Apr 2021 08:53:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2D15A611CD
+	by mail.kernel.org (Postfix) with ESMTPS id 790FF61074
+	for <virtualization@archiver.kernel.org>; Thu, 15 Apr 2021 08:53:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 790FF61074
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D0788846F4;
-	Thu, 15 Apr 2021 08:53:38 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0755060D95;
+	Thu, 15 Apr 2021 08:53:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id o1xnhlXAjplg; Thu, 15 Apr 2021 08:53:37 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id edZ5UWzDcVtt; Thu, 15 Apr 2021 08:53:38 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0A484846F7;
+	by smtp3.osuosl.org (Postfix) with ESMTP id D167D60D90;
 	Thu, 15 Apr 2021 08:53:37 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B9B72C0014;
-	Thu, 15 Apr 2021 08:53:36 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 99E79C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 01048C0019;
+	Thu, 15 Apr 2021 08:53:37 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5AEF9C0016
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Apr 2021 08:53:34 +0000 (UTC)
+ Thu, 15 Apr 2021 08:53:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 642EA4020D
+ by smtp4.osuosl.org (Postfix) with ESMTP id 4141D40F9A
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 15 Apr 2021 08:53:35 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id yrY-syFI7CGg
  for <virtualization@lists.linux-foundation.org>;
  Thu, 15 Apr 2021 08:53:34 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JdD4KNWRfokc
- for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Apr 2021 08:53:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 3EF144012B
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 7179740F97
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Apr 2021 08:53:33 +0000 (UTC)
+ Thu, 15 Apr 2021 08:53:34 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id B5FFEB1E6;
- Thu, 15 Apr 2021 08:53:31 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id E6C89B1B7;
+ Thu, 15 Apr 2021 08:53:32 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: daniel@ffwll.ch, airlied@linux.ie, maarten.lankhorst@linux.intel.com,
  mripard@kernel.org, kraxel@redhat.com, corbet@lwn.net, lgirdwood@gmail.com,
  broonie@kernel.org, sam@ravnborg.org, robh@kernel.org,
  emil.l.velikov@gmail.com, geert+renesas@glider.be, hdegoede@redhat.com,
  bluescreen_avenger@verizon.net, gregkh@linuxfoundation.org
-Subject: [PATCH v3 3/9] drm/aperture: Add infrastructure for aperture ownership
-Date: Thu, 15 Apr 2021 10:53:20 +0200
-Message-Id: <20210415085326.8824-4-tzimmermann@suse.de>
+Subject: [PATCH v3 5/9] drm/simpledrm: Add fbdev emulation
+Date: Thu, 15 Apr 2021 10:53:22 +0200
+Message-Id: <20210415085326.8824-6-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210415085326.8824-1-tzimmermann@suse.de>
 References: <20210415085326.8824-1-tzimmermann@suse.de>
@@ -86,350 +86,37 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Platform devices might operate on firmware framebuffers, such as VESA or
-EFI. Before a native driver for the graphics hardware can take over the
-device, it has to remove any platform driver that operates on the firmware
-framebuffer. Aperture helpers provide the infrastructure for platform
-drivers to acquire firmware framebuffers, and for native drivers to remove
-them later on.
-
-It works similar to the related fbdev mechanism. During initialization, the
-platform driver acquires the firmware framebuffer's I/O memory and provides
-a callback to be removed. The native driver later uses this information to
-remove any platform driver for it's framebuffer I/O memory.
-
-The aperture removal code is integrated into the existing code for removing
-conflicting framebuffers, so native drivers use it automatically.
-
-v3:
-	* rebase onto existing aperture infrastructure
-	* release aperture from list during detach; fix dangling apertures
-	* don't export struct drm_aperture
-	* document struct drm_aperture_funcs
-v2:
-	* rename plaform helpers to aperture helpers
-	* tie to device lifetime with devm_ functions
-	* removed unsued remove() callback
-	* rename kickout to detach
-	* make struct drm_aperture private
-	* rebase onto existing drm_aperture.h header file
-	* use MIT license only for simplicity
-	* documentation
+This displays a console on simpledrm's framebuffer. The default
+framebuffer format is being used.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 Tested-by: nerdopolis <bluescreen_avenger@verizon.net>
 ---
- drivers/gpu/drm/drm_aperture.c | 216 ++++++++++++++++++++++++++++++++-
- include/drm/drm_aperture.h     |  36 +++---
- 2 files changed, 232 insertions(+), 20 deletions(-)
+ drivers/gpu/drm/tiny/simpledrm.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_aperture.c b/drivers/gpu/drm/drm_aperture.c
-index e034dd7f9b09..aeddf125d2b4 100644
---- a/drivers/gpu/drm/drm_aperture.c
-+++ b/drivers/gpu/drm/drm_aperture.c
-@@ -1,9 +1,17 @@
- // SPDX-License-Identifier: MIT
+diff --git a/drivers/gpu/drm/tiny/simpledrm.c b/drivers/gpu/drm/tiny/simpledrm.c
+index 0473a90a4024..64e8a8581d9a 100644
+--- a/drivers/gpu/drm/tiny/simpledrm.c
++++ b/drivers/gpu/drm/tiny/simpledrm.c
+@@ -8,6 +8,7 @@
+ #include <drm/drm_damage_helper.h>
+ #include <drm/drm_device.h>
+ #include <drm/drm_drv.h>
++#include <drm/drm_fb_helper.h>
+ #include <drm/drm_format_helper.h>
+ #include <drm/drm_gem_atomic_helper.h>
+ #include <drm/drm_gem_framebuffer_helper.h>
+@@ -518,6 +519,8 @@ static int simpledrm_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
  
-+#include <linux/device.h>
- #include <linux/fb.h>
-+#include <linux/list.h>
-+#include <linux/mutex.h>
-+#include <linux/pci.h>
-+#include <linux/slab.h>
-+#include <linux/types.h>
- #include <linux/vgaarb.h>
- 
- #include <drm/drm_aperture.h>
-+#include <drm/drm_drv.h>
-+#include <drm/drm_print.h>
- 
- /**
-  * DOC: overview
-@@ -62,8 +70,196 @@
-  * framebuffer apertures automatically. Device drivers without knowledge of
-  * the framebuffer's location shall call drm_aperture_remove_framebuffers(),
-  * which removes all drivers for known framebuffer.
-+ *
-+ * Drivers that are susceptible to being removed by other drivers, such as
-+ * generic EFI or VESA drivers, have to register themselves as owners of their
-+ * given framebuffer memory. Ownership of the framebuffer memory is achived
-+ * by calling devm_aperture_acquire(). On success, the driver is the owner
-+ * of the framebuffer range. The function fails if the framebuffer is already
-+ * by another driver. See below for an example.
-+ *
-+ * .. code-block:: c
-+ *
-+ *	static struct drm_aperture_funcs ap_funcs = {
-+ *		.detach = ...
-+ *	};
-+ *
-+ *	static int acquire_framebuffers(struct drm_device *dev, struct pci_dev *pdev)
-+ *	{
-+ *		resource_size_t start, len;
-+ *		struct drm_aperture *ap;
-+ *
-+ *		base = pci_resource_start(pdev, 0);
-+ *		size = pci_resource_len(pdev, 0);
-+ *
-+ *		ap = devm_acquire_aperture(dev, base, size, &ap_funcs);
-+ *		if (IS_ERR(ap))
-+ *			return PTR_ERR(ap);
-+ *
-+ *		return 0;
-+ *	}
-+ *
-+ *	static int probe(struct pci_dev *pdev)
-+ *	{
-+ *		struct drm_device *dev;
-+ *		int ret;
-+ *
-+ *		// ... Initialize the device...
-+ *		dev = devm_drm_dev_alloc();
-+ *		...
-+ *
-+ *		// ... and acquire ownership of the framebuffer.
-+ *		ret = acquire_framebuffers(dev, pdev);
-+ *		if (ret)
-+ *			return ret;
-+ *
-+ *		drm_dev_register();
-+ *
-+ *		return 0;
-+ *	}
-+ *
-+ * The generic driver is now subject to forced removal by other drivers. This
-+ * is when the detach function in struct &drm_aperture_funcs comes into play.
-+ * When a driver calls drm_fb_helper_remove_conflicting_framebuffers() et al
-+ * for the registered framebuffer range, the DRM core calls struct
-+ * &drm_aperture_funcs.detach and the generic driver has to onload itself. It
-+ * may not access the device's registers, framebuffer memory, ROM, etc after
-+ * detach returned. If the driver supports hotplugging, detach can be treated
-+ * like an unplug event.
-+ *
-+ * .. code-block:: c
-+ *
-+ *	static void detach_from_device(struct drm_device *dev,
-+ *				       resource_size_t base,
-+ *				       resource_size_t size)
-+ *	{
-+ *		// Signal unplug
-+ *		drm_dev_unplug(dev);
-+ *
-+ *		// Maybe do other clean-up operations
-+ *		...
-+ *	}
-+ *
-+ *	static struct drm_aperture_funcs ap_funcs = {
-+ *		.detach = detach_from_device,
-+ *	};
-  */
- 
-+/*
-+ * struct drm_aperture - Represents a DRM framebuffer aperture
-+ */
-+struct drm_aperture {
-+	struct drm_device *dev;
-+	resource_size_t base;
-+	resource_size_t size;
++	drm_fbdev_generic_setup(dev, 0);
 +
-+	const struct drm_aperture_funcs *funcs;
-+
-+	struct list_head lh;
-+};
-+
-+static LIST_HEAD(drm_apertures);
-+static DEFINE_MUTEX(drm_apertures_lock);
-+
-+static bool overlap(resource_size_t base1, resource_size_t end1,
-+		    resource_size_t base2, resource_size_t end2)
-+{
-+	return (base1 < end2) && (end1 > base2);
-+}
-+
-+static void devm_aperture_acquire_release(void *data)
-+{
-+	struct drm_aperture *ap = data;
-+	bool detached = !ap->dev;
-+
-+	if (detached)
-+		return;
-+
-+	mutex_lock(&drm_apertures_lock);
-+	list_del(&ap->lh);
-+	mutex_unlock(&drm_apertures_lock);
-+}
-+
-+/**
-+ * devm_aperture_acquire - Acquires ownership of a framebuffer on behalf of a DRM driver.
-+ * @dev:	the DRM device to own the framebuffer memory
-+ * @base:	the framebuffer's byte offset in physical memory
-+ * @size:	the framebuffer size in bytes
-+ * @funcs:	callback functions
-+ *
-+ * Installs the given device as the new owner. The function fails if the
-+ * framebuffer range, or parts of it, is currently owned by another driver.
-+ * To evict current owners, callers should use
-+ * drm_aperture_remove_conflicting_framebuffers() et al. before calling this
-+ * function. Acquired apertures are released automatically if the underlying
-+ * device goes away.
-+ *
-+ * Returns:
-+ * An instance of struct &drm_aperture on success, or a pointer-encoded
-+ * errno value otherwise.
-+ */
-+int devm_aperture_acquire(struct drm_device *dev, resource_size_t base, resource_size_t size,
-+			  const struct drm_aperture_funcs *funcs)
-+{
-+	size_t end = base + size;
-+	struct list_head *pos;
-+	struct drm_aperture *ap;
-+
-+	mutex_lock(&drm_apertures_lock);
-+
-+	list_for_each(pos, &drm_apertures) {
-+		ap = container_of(pos, struct drm_aperture, lh);
-+		if (overlap(base, end, ap->base, ap->base + ap->size))
-+			return -EBUSY;
-+	}
-+
-+	ap = devm_kzalloc(dev->dev, sizeof(*ap), GFP_KERNEL);
-+	if (!ap)
-+		return -ENOMEM;
-+
-+	ap->dev = dev;
-+	ap->base = base;
-+	ap->size = size;
-+	ap->funcs = funcs;
-+	INIT_LIST_HEAD(&ap->lh);
-+
-+	list_add(&ap->lh, &drm_apertures);
-+
-+	mutex_unlock(&drm_apertures_lock);
-+
-+	return devm_add_action_or_reset(dev->dev, devm_aperture_acquire_release, ap);
-+}
-+EXPORT_SYMBOL(devm_aperture_acquire);
-+
-+static void drm_aperture_detach_drivers(resource_size_t base, resource_size_t size)
-+{
-+	resource_size_t end = base + size;
-+	struct list_head *pos, *n;
-+
-+	mutex_lock(&drm_apertures_lock);
-+
-+	list_for_each_safe(pos, n, &drm_apertures) {
-+		struct drm_aperture *ap =
-+			container_of(pos, struct drm_aperture, lh);
-+		struct drm_device *dev = ap->dev;
-+
-+		if (WARN_ON_ONCE(!dev))
-+			continue;
-+
-+		if (!overlap(base, end, ap->base, ap->base + ap->size))
-+			continue;
-+
-+		ap->dev = NULL; /* detach from device */
-+		list_del(&ap->lh);
-+
-+		if (drm_WARN_ON(dev, !ap->funcs->detach))
-+			continue;
-+		ap->funcs->detach(dev, ap->base, ap->size);
-+	}
-+
-+	mutex_unlock(&drm_apertures_lock);
-+}
-+
- /**
-  * drm_aperture_remove_conflicting_framebuffers - remove existing framebuffers in the given range
-  * @base: the aperture's base address in physical memory
-@@ -94,10 +290,13 @@ int drm_aperture_remove_conflicting_framebuffers(resource_size_t base, resource_
- 	ret = remove_conflicting_framebuffers(a, name, primary);
- 	kfree(a);
- 
--	return ret;
--#else
--	return 0;
-+	if (ret)
-+		return ret;
- #endif
-+
-+	drm_aperture_detach_drivers(base, size);
-+
-+	return 0;
+ 	return 0;
  }
- EXPORT_SYMBOL(drm_aperture_remove_conflicting_framebuffers);
  
-@@ -115,7 +314,16 @@ EXPORT_SYMBOL(drm_aperture_remove_conflicting_framebuffers);
-  */
- int drm_aperture_remove_conflicting_pci_framebuffers(struct pci_dev *pdev, const char *name)
- {
--	int ret = 0;
-+	resource_size_t base, size;
-+	int bar, ret = 0;
-+
-+	for (bar = 0; bar < PCI_STD_NUM_BARS; ++bar) {
-+		if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM))
-+			continue;
-+		base = pci_resource_start(pdev, bar);
-+		size = pci_resource_len(pdev, bar);
-+		drm_aperture_detach_drivers(base, size);
-+	}
- 
- 	/*
- 	 * WARNING: Apparently we must kick fbdev drivers before vgacon,
-diff --git a/include/drm/drm_aperture.h b/include/drm/drm_aperture.h
-index 23cc01647ed3..19743240fac3 100644
---- a/include/drm/drm_aperture.h
-+++ b/include/drm/drm_aperture.h
-@@ -5,27 +5,31 @@
- 
- #include <linux/types.h>
- 
-+struct drm_device;
- struct pci_dev;
- 
-+/**
-+ * drm_aperture_funcs - Callback functions for aperture ownership
-+ */
-+struct drm_aperture_funcs {
-+	/**
-+	 * @detach:
-+	 *
-+	 * Informs the aperture owner to detach itself from the memory range. Called
-+	 * when another driver requrests ownership. The driver should release itself
-+	 * from the device and maybe unregister the device itself.
-+	 *
-+	 * See drm_dev_unplug().
-+	 */
-+	void (*detach)(struct drm_device *dev, resource_size_t base, resource_size_t size);
-+};
-+
-+int devm_aperture_acquire(struct drm_device *dev, resource_size_t base, resource_size_t size,
-+			  const struct drm_aperture_funcs *funcs);
-+
- int drm_aperture_remove_conflicting_framebuffers(resource_size_t base, resource_size_t size,
- 						 bool primary, const char *name);
- 
- int drm_aperture_remove_conflicting_pci_framebuffers(struct pci_dev *pdev, const char *name);
- 
--/**
-- * drm_aperture_remove_framebuffers - remove all existing framebuffers
-- * @primary: also kick vga16fb if present
-- * @name: requesting driver name
-- *
-- * This function removes all graphics device drivers. Use this function on systems
-- * that can have their framebuffer located anywhere in memory.
-- *
-- * Returns:
-- * 0 on success, or a negative errno code otherwise
-- */
--static inline int drm_aperture_remove_framebuffers(bool primary, const char *name)
--{
--	return drm_aperture_remove_conflicting_framebuffers(0, (resource_size_t)-1, primary, name);
--}
--
- #endif
 -- 
 2.31.1
 
