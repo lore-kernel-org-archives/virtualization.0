@@ -2,109 +2,110 @@ Return-Path: <SRS0=5KLU=JN=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	URIBL_RED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,URIBL_RED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54E7DC433ED
-	for <virtualization@archiver.kernel.org>; Fri, 16 Apr 2021 05:40:08 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C66FC433ED
+	for <virtualization@archiver.kernel.org>; Fri, 16 Apr 2021 08:42:37 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id F2E7A611AB
-	for <virtualization@archiver.kernel.org>; Fri, 16 Apr 2021 05:40:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F2E7A611AB
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 0C6906115B
+	for <virtualization@archiver.kernel.org>; Fri, 16 Apr 2021 08:42:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0C6906115B
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B6FF7400B8;
-	Fri, 16 Apr 2021 05:40:07 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8CEC560DC3;
+	Fri, 16 Apr 2021 08:42:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jIR5_2K-cWl7; Fri, 16 Apr 2021 05:40:06 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FkAj8bkoebTp; Fri, 16 Apr 2021 08:42:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id DB2364012F;
-	Fri, 16 Apr 2021 05:40:05 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 774A8605E9;
+	Fri, 16 Apr 2021 08:42:34 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9A557C000B;
-	Fri, 16 Apr 2021 05:40:05 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 572E7C000B;
+	Fri, 16 Apr 2021 08:42:34 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3F3DFC000A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 28735C000A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Apr 2021 05:40:04 +0000 (UTC)
+ Fri, 16 Apr 2021 08:42:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 329E440E47
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1BFC341855
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Apr 2021 05:40:04 +0000 (UTC)
+ Fri, 16 Apr 2021 08:42:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
+ dkim=pass (1024-bit key) header.d=ffwll.ch
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GQOu--dtl0Vj
+ with ESMTP id t-O8CnifyiVb
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Apr 2021 05:40:03 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 001EC404F4
+ Fri, 16 Apr 2021 08:42:31 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com
+ [IPv6:2a00:1450:4864:20::42f])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id EE6734182E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Apr 2021 05:40:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1618551601;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=iXR+AvjVGuda7dQOFocgVCv8J9VhytFo6/uOxLJAmq8=;
- b=bHuiAapDUJBk0jCKIETWeFO3bvYefceLHqJHFNYnE1E9wvN90wEAGihHXH065OkfolM3rz
- VC74UB9gY/ETSZ1Ujl5pwSqvEPEgKCDBaf1R+ny0pgKFKNVaY0opCbGsa/TuTKBeXUaNn/
- G67A5mCgggO/94KROTOOIoLR5S5a514=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-257-lHWnn7OmOVy-u-w2jP_QdQ-1; Fri, 16 Apr 2021 01:40:00 -0400
-X-MC-Unique: lHWnn7OmOVy-u-w2jP_QdQ-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
- [10.5.11.14])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6821F107ACC7;
- Fri, 16 Apr 2021 05:39:57 +0000 (UTC)
-Received: from wangxiaodeMacBook-Air.local (ovpn-13-9.pek2.redhat.com
- [10.72.13.9])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 7EAD25D9C0;
- Fri, 16 Apr 2021 05:39:47 +0000 (UTC)
-Subject: Re: [PATCH v6 10/10] Documentation: Add documentation for VDUSE
-To: Yongji Xie <xieyongji@bytedance.com>
-References: <20210331080519.172-1-xieyongji@bytedance.com>
- <20210331080519.172-11-xieyongji@bytedance.com>
- <YHb44R4HyLEUVSTF@stefanha-x1.localdomain>
- <CACycT3uNR+nZY5gY0UhPkeOyi7Za6XkX4b=hasuDcgqdc7fqfg@mail.gmail.com>
- <YHfo8pc7dIO9lNc3@stefanha-x1.localdomain>
- <80b31814-9e41-3153-7efb-c0c2fab44feb@redhat.com>
- <YHhP4i+yXgA2KkVJ@stefanha-x1.localdomain>
- <31aa139a-dd4e-ba8a-c671-a2a1c69c1ffc@redhat.com>
- <CACycT3u_qAE=D_ezLPU9SpXPMACErmpqpH5pMg0TZAb3CZVGdg@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <fab615ce-5e13-a3b3-3715-a4203b4ab010@redhat.com>
-Date: Fri, 16 Apr 2021 13:39:45 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.9.1
+ Fri, 16 Apr 2021 08:42:30 +0000 (UTC)
+Received: by mail-wr1-x42f.google.com with SMTP id c15so16931504wro.13
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 16 Apr 2021 01:42:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:content-transfer-encoding:in-reply-to;
+ bh=VsPCGF+P8eS25r2oCxD4oiICEvtI3m9L74WVtkgEfAM=;
+ b=BGdDM+k+MScDwuf6CZo2tohEjzjJFxZwbVNWo60q8HlpcH1e4zF0+zLFGxdOj3NfA1
+ U+7e1kHT8cmMybi6Tm9boMsGE8BiyjmXFwLX8QrP63fHgXVgiglx9iESqe3Natr3oDc4
+ ixki6hPpACr+d7eIIJdvnHUOMkJtoDoSOzf+s=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=VsPCGF+P8eS25r2oCxD4oiICEvtI3m9L74WVtkgEfAM=;
+ b=VK2uVTRWD/If4S1PR+h5MqhKkA/2whya0A8VyECakZIXSRVVaWUkDMr0OtH3wHUVnb
+ nRsTDI7kdgE3oTiVz/cxRaP5eaVMXTP+zs7NtdepcBmPf9Vw0zcWZBjknzWb/x+6Prrn
+ eHKlUt8j0v315yrCm1RieNFrFU5c4RL6cd5Q8iovhGTmuw1pXb64nT+CgLD6CP9x8LgR
+ w1tItXcmxIMUvEnb1OTHptVKiJiqdpeqiAZQ2zr1FbGkCayfHP7DP+JAbay5wi5YSfwZ
+ +HHo2j+XWdLmcizIKv7Tkin84vKCTimz0UFSD7kWkLYVRnakfCGYmn0X0wBRpm2Zz8Kr
+ wm6Q==
+X-Gm-Message-State: AOAM533HjDfYhffHHhQsJrDHTeGrMaWR5VGCV5/HCYl809PJK9axNwjK
+ 7jdfDxga+M53b2OacBOUIApEJw==
+X-Google-Smtp-Source: ABdhPJwuxIUiUB4gfS8DBqzR6h+lK5YKh5csKzB7j8m7QzGRNDki9fqSnaDepE5bwrN7Dz09FbjC0A==
+X-Received: by 2002:adf:fe86:: with SMTP id l6mr8028304wrr.390.1618562548569; 
+ Fri, 16 Apr 2021 01:42:28 -0700 (PDT)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+ by smtp.gmail.com with ESMTPSA id c1sm8828359wrx.89.2021.04.16.01.42.27
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 16 Apr 2021 01:42:27 -0700 (PDT)
+Date: Fri, 16 Apr 2021 10:42:25 +0200
+From: Daniel Vetter <daniel@ffwll.ch>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: [PATCH v2 04/10] drm/aperture: Add infrastructure for aperture
+ ownership
+Message-ID: <YHlN8TlOtHoqh05v@phenom.ffwll.local>
+References: <20210318102921.21536-1-tzimmermann@suse.de>
+ <20210318102921.21536-5-tzimmermann@suse.de>
+ <YG7RgQfj0yZHbL6L@phenom.ffwll.local>
+ <a787dde9-70b0-cb38-f2bf-6e7b479525f9@suse.de>
+ <YHAc3vdstgJzIAEL@phenom.ffwll.local>
+ <0996ac00-9f7f-27ca-8b14-b551feff8ce4@suse.de>
+ <YHg4Ux7L3FTV45ST@phenom.ffwll.local>
+ <78b42ee2-6846-32f3-3ed8-0173ff031f0a@suse.de>
 MIME-Version: 1.0
-In-Reply-To: <CACycT3u_qAE=D_ezLPU9SpXPMACErmpqpH5pMg0TZAb3CZVGdg@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-Cc: Jens Axboe <axboe@kernel.dk>, Jonathan Corbet <corbet@lwn.net>,
- kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
- Matthew Wilcox <willy@infradead.org>,
- virtualization@lists.linux-foundation.org,
- Christoph Hellwig <hch@infradead.org>,
- Christian Brauner <christian.brauner@canonical.com>, bcrl@kvack.org,
- viro@zeniv.linux.org.uk, Stefan Hajnoczi <stefanha@redhat.com>,
- linux-fsdevel@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
- =?UTF-8?Q?Mika_Penttil=c3=a4?= <mika.penttila@nextfour.com>
+Content-Disposition: inline
+In-Reply-To: <78b42ee2-6846-32f3-3ed8-0173ff031f0a@suse.de>
+X-Operating-System: Linux phenom 5.7.0-1-amd64 
+Cc: bluescreen_avenger@verizon.net, geert+renesas@glider.be, corbet@lwn.net,
+ airlied@linux.ie, linux-doc@vger.kernel.org, emil.l.velikov@gmail.com,
+ lgirdwood@gmail.com, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, hdegoede@redhat.com,
+ broonie@kernel.org, Daniel Vetter <daniel@ffwll.ch>, sam@ravnborg.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,116 +117,562 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CuWcqCAyMDIxLzQvMTYg5LiK5Y2IMTE6MTksIFlvbmdqaSBYaWUg5YaZ6YGTOgo+IE9uIEZyaSwg
-QXByIDE2LCAyMDIxIGF0IDEwOjI0IEFNIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+
-IHdyb3RlOgo+Pgo+PiDlnKggMjAyMS80LzE1IOS4i+WNiDEwOjM4LCBTdGVmYW4gSGFqbm9jemkg
-5YaZ6YGTOgo+Pj4gT24gVGh1LCBBcHIgMTUsIDIwMjEgYXQgMDQ6MzY6MzVQTSArMDgwMCwgSmFz
-b24gV2FuZyB3cm90ZToKPj4+PiDlnKggMjAyMS80LzE1IOS4i+WNiDM6MTksIFN0ZWZhbiBIYWpu
-b2N6aSDlhpnpgZM6Cj4+Pj4+IE9uIFRodSwgQXByIDE1LCAyMDIxIGF0IDAxOjM4OjM3UE0gKzA4
-MDAsIFlvbmdqaSBYaWUgd3JvdGU6Cj4+Pj4+PiBPbiBXZWQsIEFwciAxNCwgMjAyMSBhdCAxMDox
-NSBQTSBTdGVmYW4gSGFqbm9jemkgPHN0ZWZhbmhhQHJlZGhhdC5jb20+IHdyb3RlOgo+Pj4+Pj4+
-IE9uIFdlZCwgTWFyIDMxLCAyMDIxIGF0IDA0OjA1OjE5UE0gKzA4MDAsIFhpZSBZb25namkgd3Jv
-dGU6Cj4+Pj4+Pj4+IFZEVVNFICh2RFBBIERldmljZSBpbiBVc2Vyc3BhY2UpIGlzIGEgZnJhbWV3
-b3JrIHRvIHN1cHBvcnQKPj4+Pj4+Pj4gaW1wbGVtZW50aW5nIHNvZnR3YXJlLWVtdWxhdGVkIHZE
-UEEgZGV2aWNlcyBpbiB1c2Vyc3BhY2UuIFRoaXMKPj4+Pj4+Pj4gZG9jdW1lbnQgaXMgaW50ZW5k
-ZWQgdG8gY2xhcmlmeSB0aGUgVkRVU0UgZGVzaWduIGFuZCB1c2FnZS4KPj4+Pj4+Pj4KPj4+Pj4+
-Pj4gU2lnbmVkLW9mZi1ieTogWGllIFlvbmdqaSA8eGlleW9uZ2ppQGJ5dGVkYW5jZS5jb20+Cj4+
-Pj4+Pj4+IC0tLQo+Pj4+Pj4+PiAgICAgRG9jdW1lbnRhdGlvbi91c2Vyc3BhY2UtYXBpL2luZGV4
-LnJzdCB8ICAgMSArCj4+Pj4+Pj4+ICAgICBEb2N1bWVudGF0aW9uL3VzZXJzcGFjZS1hcGkvdmR1
-c2UucnN0IHwgMjEyICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKPj4+Pj4+Pj4g
-ICAgIDIgZmlsZXMgY2hhbmdlZCwgMjEzIGluc2VydGlvbnMoKykKPj4+Pj4+Pj4gICAgIGNyZWF0
-ZSBtb2RlIDEwMDY0NCBEb2N1bWVudGF0aW9uL3VzZXJzcGFjZS1hcGkvdmR1c2UucnN0Cj4+Pj4+
-Pj4gSnVzdCBsb29raW5nIG92ZXIgdGhlIGRvY3VtZW50YXRpb24gYnJpZWZseSAoSSBoYXZlbid0
-IHN0dWRpZWQgdGhlIGNvZGUKPj4+Pj4+PiB5ZXQpLi4uCj4+Pj4+Pj4KPj4+Pj4+IFRoYW5rIHlv
-dSEKPj4+Pj4+Cj4+Pj4+Pj4+ICtIb3cgVkRVU0Ugd29ya3MKPj4+Pj4+Pj4gKy0tLS0tLS0tLS0t
-LQo+Pj4+Pj4+PiArRWFjaCB1c2Vyc3BhY2UgdkRQQSBkZXZpY2UgaXMgY3JlYXRlZCBieSB0aGUg
-VkRVU0VfQ1JFQVRFX0RFViBpb2N0bCBvbgo+Pj4+Pj4+PiArdGhlIGNoYXJhY3RlciBkZXZpY2Ug
-KC9kZXYvdmR1c2UvY29udHJvbCkuIFRoZW4gYSBkZXZpY2UgZmlsZSB3aXRoIHRoZQo+Pj4+Pj4+
-PiArc3BlY2lmaWVkIG5hbWUgKC9kZXYvdmR1c2UvJE5BTUUpIHdpbGwgYXBwZWFyLCB3aGljaCBj
-YW4gYmUgdXNlZCB0bwo+Pj4+Pj4+PiAraW1wbGVtZW50IHRoZSB1c2Vyc3BhY2UgdkRQQSBkZXZp
-Y2UncyBjb250cm9sIHBhdGggYW5kIGRhdGEgcGF0aC4KPj4+Pj4+PiBUaGVzZSBzdGVwcyBhcmUg
-dGFrZW4gYWZ0ZXIgc2VuZGluZyB0aGUgVkRQQV9DTURfREVWX05FVyBuZXRsaW5rCj4+Pj4+Pj4g
-bWVzc2FnZT8gKFBsZWFzZSBjb25zaWRlciByZW9yZGVyaW5nIHRoZSBkb2N1bWVudGF0aW9uIHRv
-IG1ha2UgaXQgY2xlYXIKPj4+Pj4+PiB3aGF0IHRoZSBzZXF1ZW5jZSBvZiBzdGVwcyBhcmUuKQo+
-Pj4+Pj4+Cj4+Pj4+PiBObywgVkRVU0UgZGV2aWNlcyBzaG91bGQgYmUgY3JlYXRlZCBiZWZvcmUg
-c2VuZGluZyB0aGUKPj4+Pj4+IFZEUEFfQ01EX0RFVl9ORVcgbmV0bGluayBtZXNzYWdlcyB3aGlj
-aCBtaWdodCBwcm9kdWNlIEkvT3MgdG8gVkRVU0UuCj4+Pj4+IEkgc2VlLiBQbGVhc2UgaW5jbHVk
-ZSBhbiBvdmVydmlldyBvZiB0aGUgc3RlcHMgYmVmb3JlIGdvaW5nIGludG8gZGV0YWlsLgo+Pj4+
-PiBTb21ldGhpbmcgbGlrZToKPj4+Pj4KPj4+Pj4gICAgICBWRFVTRSBkZXZpY2VzIGFyZSBzdGFy
-dGVkIGFzIGZvbGxvd3M6Cj4+Pj4+Cj4+Pj4+ICAgICAgMS4gQ3JlYXRlIGEgbmV3IFZEVVNFIGlu
-c3RhbmNlIHdpdGggaW9jdGwoVkRVU0VfQ1JFQVRFX0RFVikgb24KPj4+Pj4gICAgICAgICAvZGV2
-L3ZkdXNlL2NvbnRyb2wuCj4+Pj4+Cj4+Pj4+ICAgICAgMi4gQmVnaW4gcHJvY2Vzc2luZyBWRFVT
-RSBtZXNzYWdlcyBmcm9tIC9kZXYvdmR1c2UvJE5BTUUuIFRoZSBmaXJzdAo+Pj4+PiAgICAgICAg
-IG1lc3NhZ2VzIHdpbGwgYXJyaXZlIHdoaWxlIGF0dGFjaGluZyB0aGUgVkRVU0UgaW5zdGFuY2Ug
-dG8gdkRQQS4KPj4+Pj4KPj4+Pj4gICAgICAzLiBTZW5kIHRoZSBWRFBBX0NNRF9ERVZfTkVXIG5l
-dGxpbmsgbWVzc2FnZSB0byBhdHRhY2ggdGhlIFZEVVNFCj4+Pj4+ICAgICAgICAgaW5zdGFuY2Ug
-dG8gdkRQQS4KPj4+Pj4KPj4+Pj4gICAgICBWRFVTRSBkZXZpY2VzIGFyZSBzdG9wcGVkIGFzIGZv
-bGxvd3M6Cj4+Pj4+Cj4+Pj4+ICAgICAgLi4uCj4+Pj4+Cj4+Pj4+Pj4+ICsgICAgIHN0YXRpYyBp
-bnQgbmV0bGlua19hZGRfdmR1c2UoY29uc3QgY2hhciAqbmFtZSwgaW50IGRldmljZV9pZCkKPj4+
-Pj4+Pj4gKyAgICAgewo+Pj4+Pj4+PiArICAgICAgICAgICAgIHN0cnVjdCBubF9zb2NrICpubHNv
-Y2s7Cj4+Pj4+Pj4+ICsgICAgICAgICAgICAgc3RydWN0IG5sX21zZyAqbXNnOwo+Pj4+Pj4+PiAr
-ICAgICAgICAgICAgIGludCBmYW1pZDsKPj4+Pj4+Pj4gKwo+Pj4+Pj4+PiArICAgICAgICAgICAg
-IG5sc29jayA9IG5sX3NvY2tldF9hbGxvYygpOwo+Pj4+Pj4+PiArICAgICAgICAgICAgIGlmICgh
-bmxzb2NrKQo+Pj4+Pj4+PiArICAgICAgICAgICAgICAgICAgICAgcmV0dXJuIC1FTk9NRU07Cj4+
-Pj4+Pj4+ICsKPj4+Pj4+Pj4gKyAgICAgICAgICAgICBpZiAoZ2VubF9jb25uZWN0KG5sc29jaykp
-Cj4+Pj4+Pj4+ICsgICAgICAgICAgICAgICAgICAgICBnb3RvIGZyZWVfc29jazsKPj4+Pj4+Pj4g
-Kwo+Pj4+Pj4+PiArICAgICAgICAgICAgIGZhbWlkID0gZ2VubF9jdHJsX3Jlc29sdmUobmxzb2Nr
-LCBWRFBBX0dFTkxfTkFNRSk7Cj4+Pj4+Pj4+ICsgICAgICAgICAgICAgaWYgKGZhbWlkIDwgMCkK
-Pj4+Pj4+Pj4gKyAgICAgICAgICAgICAgICAgICAgIGdvdG8gY2xvc2Vfc29jazsKPj4+Pj4+Pj4g
-Kwo+Pj4+Pj4+PiArICAgICAgICAgICAgIG1zZyA9IG5sbXNnX2FsbG9jKCk7Cj4+Pj4+Pj4+ICsg
-ICAgICAgICAgICAgaWYgKCFtc2cpCj4+Pj4+Pj4+ICsgICAgICAgICAgICAgICAgICAgICBnb3Rv
-IGNsb3NlX3NvY2s7Cj4+Pj4+Pj4+ICsKPj4+Pj4+Pj4gKyAgICAgICAgICAgICBpZiAoIWdlbmxt
-c2dfcHV0KG1zZywgTkxfQVVUT19QT1JULCBOTF9BVVRPX1NFUSwgZmFtaWQsIDAsIDAsCj4+Pj4+
-Pj4+ICsgICAgICAgICAgICAgICAgIFZEUEFfQ01EX0RFVl9ORVcsIDApKQo+Pj4+Pj4+PiArICAg
-ICAgICAgICAgICAgICAgICAgZ290byBubGFfcHV0X2ZhaWx1cmU7Cj4+Pj4+Pj4+ICsKPj4+Pj4+
-Pj4gKyAgICAgICAgICAgICBOTEFfUFVUX1NUUklORyhtc2csIFZEUEFfQVRUUl9ERVZfTkFNRSwg
-bmFtZSk7Cj4+Pj4+Pj4+ICsgICAgICAgICAgICAgTkxBX1BVVF9TVFJJTkcobXNnLCBWRFBBX0FU
-VFJfTUdNVERFVl9ERVZfTkFNRSwgInZkdXNlIik7Cj4+Pj4+Pj4+ICsgICAgICAgICAgICAgTkxB
-X1BVVF9VMzIobXNnLCBWRFBBX0FUVFJfREVWX0lELCBkZXZpY2VfaWQpOwo+Pj4+Pj4+IFdoYXQg
-YXJlIHRoZSBwZXJtaXNzaW9uL2NhcGFiaWxpdHkgcmVxdWlyZW1lbnRzIGZvciBWRFVTRT8KPj4+
-Pj4+Pgo+Pj4+Pj4gTm93IEkgdGhpbmsgd2UgbmVlZCBwcml2aWxlZ2VkIHBlcm1pc3Npb24gKHJv
-b3QgdXNlcikuIEJlY2F1c2UKPj4+Pj4+IHVzZXJzcGFjZSBkYWVtb24gaXMgYWJsZSB0byBhY2Nl
-c3MgYXZhaWwgdnJpbmcsIHVzZWQgdnJpbmcsIGRlc2NyaXB0b3IKPj4+Pj4+IHRhYmxlIGluIGtl
-cm5lbCBkcml2ZXIgZGlyZWN0bHkuCj4+Pj4+IFBsZWFzZSBzdGF0ZSB0aGlzIGV4cGxpY2l0bHkg
-YXQgdGhlIHN0YXJ0IG9mIHRoZSBkb2N1bWVudC4gRXhpc3RpbmcKPj4+Pj4gaW50ZXJmYWNlcyBs
-aWtlIEZVU0UgYXJlIGRlc2lnbmVkIHRvIGF2b2lkIHRydXN0aW5nIHVzZXJzcGFjZS4KPj4+PiBU
-aGVyZSdyZSBzb21lIHN1YnRsZSBkaWZmZXJlbmNlIGhlcmUuIFZEVVNFIHByZXNlbnQgYSBkZXZp
-Y2UgdG8ga2VybmVsIHdoaWNoCj4+Pj4gbWVhbnMgSU9NTVUgaXMgcHJvYmFibHkgdGhlIG9ubHkg
-dGhpbmcgdG8gcHJldmVudCBhIG1hbGljb3VzIGRldmljZS4KPj4+Pgo+Pj4+Cj4+Pj4+IFRoZXJl
-Zm9yZQo+Pj4+PiBwZW9wbGUgbWlnaHQgdGhpbmsgdGhlIHNhbWUgaXMgdGhlIGNhc2UgaGVyZS4g
-SXQncyBjcml0aWNhbCB0aGF0IHBlb3BsZQo+Pj4+PiBhcmUgYXdhcmUgb2YgdGhpcyBiZWZvcmUg
-ZGVwbG95aW5nIFZEVVNFIHdpdGggdmlydGlvLXZkcGEuCj4+Pj4+Cj4+Pj4+IFdlIHNob3VsZCBw
-cm9iYWJseSBwYXVzZSBoZXJlIGFuZCB0aGluayBhYm91dCB3aGV0aGVyIGl0J3MgcG9zc2libGUg
-dG8KPj4+Pj4gYXZvaWQgdHJ1c3RpbmcgdXNlcnNwYWNlLiBFdmVuIGlmIGl0IHRha2VzIHNvbWUg
-ZWZmb3J0IGFuZCBjb3N0cyBzb21lCj4+Pj4+IHBlcmZvcm1hbmNlIGl0IHdvdWxkIHByb2JhYmx5
-IGJlIHdvcnRod2hpbGUuCj4+Pj4gU2luY2UgdGhlIGJvdW5jZSBidWZmZXIgaXMgdXNlZCB0aGUg
-b25seSBhdHRhY2sgc3VyZmFjZSBpcyB0aGUgY29oZXJlbnQKPj4+PiBhcmVhLCBpZiB3ZSB3YW50
-IHRvIGVuZm9yY2Ugc3Ryb25nZXIgaXNvbGF0aW9uIHdlIG5lZWQgdG8gdXNlIHNoYWRvdwo+Pj4+
-IHZpcnRxdWV1ZSAod2hpY2ggaXMgcHJvcG9zZWQgaW4gZWFybGllciB2ZXJzaW9uIGJ5IG1lKSBp
-biB0aGlzIGNhc2UuIEJ1dCBJJ20KPj4+PiBub3Qgc3VyZSBpdCdzIHdvcnRoIHRvIGRvIHRoYXQu
-Cj4+PiBUaGUgc2VjdXJpdHkgc2l0dWF0aW9uIG5lZWRzIHRvIGJlIGNsZWFyIGJlZm9yZSBtZXJn
-aW5nIHRoaXMgZmVhdHVyZS4KPj4KPj4gKzEKPj4KPj4KPj4+IEkgdGhpbmsgdGhlIElPTU1VIGFu
-ZCB2cmluZyBjYW4gYmUgbWFkZSBzZWN1cmUuIFdoYXQgaXMgbW9yZSBjb25jZXJuaW5nCj4+PiBp
-cyB0aGUga2VybmVsIGNvZGUgdGhhdCBydW5zIG9uIHRvcDogVklSVElPIGRldmljZSBkcml2ZXJz
-LCBuZXR3b3JrCj4+PiBzdGFjaywgZmlsZSBzeXN0ZW1zLCBldGMuIFRoZXkgdHJ1c3QgZGV2aWNl
-cyB0byBhbiBleHRlbnQuCj4+Pgo+Pj4gU2luY2UgdmlydGlvLXZkcGEgaXMgYSBiaWcgcmVhc29u
-IGZvciBkb2luZyBWRFVTRSBpbiB0aGUgZmlyc3QgcGxhY2UgSQo+Pj4gZG9uJ3QgdGhpbmsgaXQg
-bWFrZXMgc2Vuc2UgdG8gZGlzYWJsZSB2aXJ0aW8tdmRwYSB3aXRoIFZEVVNFLiBBIHNvbHV0aW9u
-Cj4+PiBpcyBuZWVkZWQuCj4+Cj4+IFllcywgc28gdGhlIGNhc2Ugb2YgVkRVU0UgaXMgc29tZXRo
-aW5nIHNpbWlsYXIgdG8gdGhlIGNhc2Ugb2YgZS5nIFNFVi4KPj4KPj4gQm90aCBjYXNlcyB3b24n
-dCB0cnVzdCBkZXZpY2UgYW5kIHVzZSBzb21lIGtpbmQgb2Ygc29mdHdhcmUgSU9UTEIuCj4+Cj4+
-IFRoYXQgbWVhbnMgd2UgbmVlZCB0byBwcm90ZWN0IGF0IGJvdGggSU9UTEIgYW5kIHZpcnRpbyBk
-cml2ZXJzLgo+Pgo+PiBMZXQgbWUgcG9zdCBwYXRjaGVzIGZvciB2aXJ0aW8gZmlyc3QuCj4+Cj4g
-TG9va2luZyBmb3J3YXJkIHlvdXIgcGF0Y2hlcy4KPgo+IFRoYW5rcy4KPiBZb25namkKPgoKRm9y
-dHVhbnRlbHksIHBhY2tlZCByaW5nIGhhcyBhbHJlYWR5IGRpZCB0aGlzIHNpbmNlIHRoZSBkZXNj
-cmlwdG9yIHRhbGJlIAppcyBleHBlY3RlZCB0byBiZSByZS13cm90ZSBieSB0aGUgZGV2aWNlLiBJ
-IGp1c3QgbmVlZCB0byBjb252ZXIgdGhlIApzcGxpdCByaW5nLgoKVGhhbmtzCgoKCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+On Thu, Apr 15, 2021 at 09:12:14PM +0200, Thomas Zimmermann wrote:
+> Hi
+> =
+
+> Am 15.04.21 um 14:57 schrieb Daniel Vetter:
+> > On Thu, Apr 15, 2021 at 08:56:20AM +0200, Thomas Zimmermann wrote:
+> > > Hi
+> > > =
+
+> > > Am 09.04.21 um 11:22 schrieb Daniel Vetter:
+> > > > > Is it that easy? simepldrm's detach function has code to
+> > > > > synchronize
+> with
+> > > > > concurrent hotplug removals. If we can use drm_dev_unplug() for e=
+verything,
+> > > > > I'm all for it.
+> > > > =
+
+> > > > Uh, I should have looked at the code instead of just asking silly
+> > > > questions :-)
+> > > > =
+
+> > > > Now I'm even more scared, and also more convinced that we're recrea=
+ting
+> > > a
+> > > > bad version of some of the core driver model concepts.
+> > > > =
+
+> > > > I think the ideal option here would be if drm_aperture could unload
+> > > > (unbind really) the platform driver for us, through the driver
+> > > > model.
+> Then
+> > > > there's only one place that keeps track whether the driver is
+> > > > unbound
+> or
+> > > > not. I'm not sure whether this can be done fully generic on a struct
+> > > > device, or whether we need special code for each type. Since atm we=
+ only
+> > > > have simpledrm we can just specialize on platform_device and it's g=
+ood
+> > > > enough.
+> > > =
+
+> > > I meanwhile found that calling platform_device_unregister() is the ri=
+ght
+> > > thing to do. It is like a hot-unplug event. It's simple to implement =
+and
+> > > removes the generic device as well. Any memory ranges for the generic=
+ device
+> > > are gone as well. Only the native driver's native device will remain.=
+ That's
+> > > better than the existing simplefb driver.
+> > =
+
+> > That sounds great.
+> > =
+
+> > > Which unregister function to call still driver-specific, so I kept the
+> > > callback.
+> > =
+
+> > Could we have the callback in core code, and you do something like
+> > drm_aperture_acquire_platform (and later on drm_aperture_acquire_pci or
+> > whatever, although tbh I'm not sure we ever get anything else than
+> > platform). That function can do a runtime check that drm_device->dev is
+> > actually a platform dev.
+> =
+
+> Somehow I knew you wouldn't like the current abstraction. :)
+> =
+
+> > =
+
+> > Another idea: Do the runtime casting in the core without anything? Atm =
+we
+> > have platform that needs support, maybe pci device, so we could easily
+> > extend this and just let it do the right thing. Then no callback is
+> > needed. I.e.
+> > =
+
+> > 	if (is_platform_dev(drm_device->dev))
+> > 		platform_device_unregister(drm_device->dev);
+> > 	else
+> > 		WARN(1, "not yet implemented\n");
+> > =
+
+> > or something like that.
+> =
+
+> I don't like that. I spend time to remove the usb and pci device pointers
+> from code and structs. I don't want to introduce a new hard-coded special
+> case here.
+> =
+
+> > =
+
+> > I just find the callback to essentially unregister a device a bit
+> > redundant.
+> =
+
+> I'd like to go with your first idea. The callback would be internal and t=
+he
+> public acquire function is specifically for firmware-based platform devic=
+es.
+> That covers simple-framebuffer, VESA, EFI, and probably any other generic
+> interface that fbdev supported in the last 20+ yrs. I don't think we'll e=
+ver
+> need anything else.
+> =
+
+> Still, I'd like to have some abstraction between the internals of the
+> aperture helpers and our actual use case. I'll update the patchset
+> accordingly.
+
+Makes sense and I'm happy with that pick of color choice. That keeps the
+noise out of drivers, and also keeps the concepts clean internally.
+-Daniel
+
+
+> =
+
+> Best regards
+> Thomas
+> =
+
+> > -Daniel
+> > =
+
+> > > =
+
+> > > Best regards
+> > > Thomas
+> > > =
+
+> > > > =
+
+> > > > I think best here would be to Cc: gregkh on this patch and the simp=
+ledrm
+> > > > ->detach implementatation, and ask for his feedback as driver model
+> > > > maintainer. Maybe if you could hack together the platform_device un=
+bind
+> > > > path as proof of concept would be even better.
+> > > > =
+
+> > > > Either way, this is really tricky.
+> > > > -Daniel
+> > > > =
+
+> > > > > =
+
+> > > > > Best regards
+> > > > > Thomas
+> > > > > =
+
+> > > > > > =
+
+> > > > > > Or maybe we should tie this more into the struct device mode an=
+d force an
+> > > > > > unload that way? That way devm cleanup would work as one expect=
+s, and
+> > > > > > avoid the need for anything specific (hopefully) in this detach=
+ callback.
+> > > > > > =
+
+> > > > > > Just feels a bit like we're reinventing half of the driver mode=
+l here,
+> > > > > > badly.
+> > > > > > =
+
+> > > > > > > + *	};
+> > > > > > > + *
+> > > > > > > + *	static int acquire_framebuffers(struct
+> > > > > > > drm_device *dev, struct
+> pci_dev *pdev)
+> > > > > > > + *	{
+> > > > > > > + *		resource_size_t start, len;
+> > > > > > > + *		struct drm_aperture *ap;
+> > > > > > > + *
+> > > > > > > + *		base =3D pci_resource_start(pdev, 0);
+> > > > > > > + *		size =3D pci_resource_len(pdev, 0);
+> > > > > > > + *
+> > > > > > > + *		ap =3D devm_acquire_aperture(dev, base, size, &ap_funcs);
+> > > > > > > + *		if (IS_ERR(ap))
+> > > > > > > + *			return PTR_ERR(ap);
+> > > > > > > + *
+> > > > > > > + *		return 0;
+> > > > > > > + *	}
+> > > > > > > + *
+> > > > > > > + *	static int probe(struct pci_dev *pdev)
+> > > > > > > + *	{
+> > > > > > > + *		struct drm_device *dev;
+> > > > > > > + *		int ret;
+> > > > > > > + *
+> > > > > > > + *		// ... Initialize the device...
+> > > > > > > + *		dev =3D devm_drm_dev_alloc();
+> > > > > > > + *		...
+> > > > > > > + *
+> > > > > > > + *		// ... and acquire ownership of the framebuffer.
+> > > > > > > + *		ret =3D acquire_framebuffers(dev, pdev);
+> > > > > > > + *		if (ret)
+> > > > > > > + *			return ret;
+> > > > > > > + *
+> > > > > > > + *		drm_dev_register();
+> > > > > > > + *
+> > > > > > > + *		return 0;
+> > > > > > > + *	}
+> > > > > > > + *
+> > > > > > > + * The generic driver is now subject to forced removal by ot=
+her drivers. This
+> > > > > > > + * is when the detach function in struct &drm_aperture_funcs=
+ comes into play.
+> > > > > > > + * When a driver calls drm_fb_helper_remove_conflicting_fram=
+ebuffers() et al
+> > > > > > > + * for the registered framebuffer range, the DRM core calls =
+struct
+> > > > > > > + * &drm_aperture_funcs.detach and the generic driver has to =
+onload itself. It
+> > > > > > > + * may not access the device's registers, framebuffer memory=
+, ROM, etc after
+> > > > > > > + * detach returned. If the driver supports hotplugging, deta=
+ch can be treated
+> > > > > > > + * like an unplug event.
+> > > > > > > + *
+> > > > > > > + * .. code-block:: c
+> > > > > > > + *
+> > > > > > > + *	static void detach_from_device(struct drm_device *dev,
+> > > > > > > + *				       resource_size_t base,
+> > > > > > > + *				       resource_size_t size)
+> > > > > > > + *	{
+> > > > > > > + *		// Signal unplug
+> > > > > > > + *		drm_dev_unplug(dev);
+> > > > > > > + *
+> > > > > > > + *		// Maybe do other clean-up operations
+> > > > > > > + *		...
+> > > > > > > + *	}
+> > > > > > > + *
+> > > > > > > + *	static struct drm_aperture_funcs ap_funcs =3D {
+> > > > > > > + *		.detach =3D detach_from_device,
+> > > > > > > + *	};
+> > > > > > > + */
+> > > > > > > +
+> > > > > > > +/**
+> > > > > > > + * struct drm_aperture - Represents a DRM framebuffer apertu=
+re
+> > > > > > > + *
+> > > > > > > + * This structure has no public fields.
+> > > > > > > + */
+> > > > > > > +struct drm_aperture {
+> > > > > > > +	struct drm_device *dev;
+> > > > > > > +	resource_size_t base;
+> > > > > > > +	resource_size_t size;
+> > > > > > > +
+> > > > > > > +	const struct drm_aperture_funcs *funcs;
+> > > > > > > +
+> > > > > > > +	struct list_head lh;
+> > > > > > > +};
+> > > > > > > +
+> > > > > > > +static LIST_HEAD(drm_apertures);
+> > > > > > > +
+> > > > > > > +static DEFINE_MUTEX(drm_apertures_lock);
+> > > > > > > +
+> > > > > > > +static bool overlap(resource_size_t base1, resource_size_t e=
+nd1,
+> > > > > > > +		    resource_size_t base2, resource_size_t end2)
+> > > > > > > +{
+> > > > > > > +	return (base1 < end2) && (end1 > base2);
+> > > > > > > +}
+> > > > > > > +
+> > > > > > > +static void devm_aperture_acquire_release(void *data)
+> > > > > > > +{
+> > > > > > > +	struct drm_aperture *ap =3D data;
+> > > > > > > +	bool detached =3D !ap->dev;
+> > > > > > > +
+> > > > > > > +	if (!detached)
+> > > > > > =
+
+> > > > > > Uh this needs a comment that if ap->dev is NULL then we're call=
+ed from
+> > > > > > drm_aperture_detach_drivers() and hence the lock is already hel=
+d.
+> > > > > > =
+
+> > > > > > > +		mutex_lock(&drm_apertures_lock);
+> > > > > > =
+
+> > > > > > and an
+> > > > > > =
+
+> > > > > > 	else
+> > > > > > 		locdep_assert_held(&drm_apertures_lock);
+> > > > > > =
+
+> > > > > > here to check that. I was scratching my head first quite a bit =
+how you'd
+> > > > > > solve the deadlock, this is a neat solution (much simpler than =
+anything I
+> > > > > > came up with in my head). But needs comments.
+> > > > > > =
+
+> > > > > > > +
+> > > > > > > +	list_del(&ap->lh);
+> > > > > > > +
+> > > > > > > +	if (!detached)
+> > > > > > > +		mutex_unlock(&drm_apertures_lock);
+> > > > > > > +}
+> > > > > > > +
+> > > > > > > +/**
+> > > > > > > + * devm_aperture_acquire - Acquires ownership of a
+> > > > > > > framebuffer on
+> behalf of a DRM driver.
+> > > > > > > + * @dev:	the DRM device to own the framebuffer memory
+> > > > > > > + * @base:	the framebuffer's byte offset in physical memory
+> > > > > > > + * @size:	the framebuffer size in bytes
+> > > > > > > + * @funcs:	callback functions
+> > > > > > > + *
+> > > > > > > + * Installs the given device as the new owner. The
+> > > > > > > function fails
+> if the
+> > > > > > > + * framebuffer range, or parts of it, is currently owned by
+> > > > > > > another
+> > > driver.
+> > > > > > > + * To evict current owners, callers should use
+> > > > > > > + * drm_fb_helper_remove_conflicting_framebuffers() et al. be=
+fore calling this
+> > > > > > > + * function. Acquired apertures are released
+> > > > > > > automatically if the
+> underlying
+> > > > > > > + * device goes away.
+> > > > > > > + *
+> > > > > > > + * Returns:
+> > > > > > > + * An instance of struct &drm_aperture on success, or a poin=
+ter-encoded
+> > > > > > > + * errno value otherwise.
+> > > > > > > + */
+> > > > > > > +struct drm_aperture *
+> > > > > > > +devm_aperture_acquire(struct drm_device *dev,
+> > > > > > > +		      resource_size_t base, resource_size_t size,
+> > > > > > > +		      const struct drm_aperture_funcs *funcs)
+> > > > > > > +{
+> > > > > > > +	size_t end =3D base + size;
+> > > > > > > +	struct list_head *pos;
+> > > > > > > +	struct drm_aperture *ap;
+> > > > > > > +	int ret;
+> > > > > > > +
+> > > > > > > +	mutex_lock(&drm_apertures_lock);
+> > > > > > > +
+> > > > > > > +	list_for_each(pos, &drm_apertures) {
+> > > > > > > +		ap =3D container_of(pos, struct drm_aperture, lh);
+> > > > > > > +		if (overlap(base, end, ap->base, ap->base + ap->size))
+> > > > > > > +			return ERR_PTR(-EBUSY);
+> > > > > > > +	}
+> > > > > > > +
+> > > > > > > +	ap =3D devm_kzalloc(dev->dev, sizeof(*ap), GFP_KERNEL);
+> > > > > > > +	if (!ap)
+> > > > > > > +		return ERR_PTR(-ENOMEM);
+> > > > > > > +
+> > > > > > > +	ap->dev =3D dev;
+> > > > > > > +	ap->base =3D base;
+> > > > > > > +	ap->size =3D size;
+> > > > > > > +	ap->funcs =3D funcs;
+> > > > > > > +	INIT_LIST_HEAD(&ap->lh);
+> > > > > > > +
+> > > > > > > +	list_add(&ap->lh, &drm_apertures);
+> > > > > > > +
+> > > > > > > +	mutex_unlock(&drm_apertures_lock);
+> > > > > > > +
+> > > > > > > +	ret =3D devm_add_action_or_reset(dev->dev, devm_aperture_ac=
+quire_release, ap);
+> > > > > > > +	if (ret)
+> > > > > > > +		return ERR_PTR(ret);
+> > > > > > > +
+> > > > > > > +	return ap;
+> > > > > > > +}
+> > > > > > > +EXPORT_SYMBOL(devm_aperture_acquire);
+> > > > > > > +
+> > > > > > > +void drm_aperture_detach_drivers(resource_size_t base, resou=
+rce_size_t size)
+> > > > > > > +{
+> > > > > > > +	resource_size_t end =3D base + size;
+> > > > > > > +	struct list_head *pos, *n;
+> > > > > > > +
+> > > > > > > +	mutex_lock(&drm_apertures_lock);
+> > > > > > > +
+> > > > > > > +	list_for_each_safe(pos, n, &drm_apertures) {
+> > > > > > > +		struct drm_aperture *ap =3D
+> > > > > > > +			container_of(pos, struct drm_aperture, lh);
+> > > > > > > +		struct drm_device *dev =3D ap->dev;
+> > > > > > > +
+> > > > > > > +		if (!overlap(base, end, ap->base, ap->base + ap->size))
+> > > > > > > +			continue;
+> > > > > > > +
+> > > > > > > +		ap->dev =3D NULL; /* detach from device */
+> > > > > > > +		if (drm_WARN_ON(dev, !ap->funcs->detach))
+> > > > > > > +			continue;
+> > > > > > > +		ap->funcs->detach(dev, ap->base, ap->size);
+> > > > > > > +	}
+> > > > > > > +
+> > > > > > > +	mutex_unlock(&drm_apertures_lock);
+> > > > > > > +}
+> > > > > > > +EXPORT_SYMBOL(drm_aperture_detach_drivers);
+> > > > > > =
+
+> > > > > > Is this just exported because of the inline functions in the
+> > > > > > headers?
+> > > Imo
+> > > > > > better to make them proper functions (they're big after your pa=
+tch&not
+> > > > > > perf critical, so not good candidates for inlining anyway).
+> > > > > > =
+
+> > > > > > > diff --git a/include/drm/drm_aperture.h b/include/drm/drm_ape=
+rture.h
+> > > > > > > index 13766efe9517..696cec75ef78 100644
+> > > > > > > --- a/include/drm/drm_aperture.h
+> > > > > > > +++ b/include/drm/drm_aperture.h
+> > > > > > > @@ -4,8 +4,30 @@
+> > > > > > >     #define _DRM_APERTURE_H_
+> > > > > > >     #include <linux/fb.h>
+> > > > > > > +#include <linux/pci.h>
+> > > > > > >     #include <linux/vgaarb.h>
+> > > > > > > +struct drm_aperture;
+> > > > > > > +struct drm_device;
+> > > > > > > +
+> > > > > > > +struct drm_aperture_funcs {
+> > > > > > > +	void (*detach)(struct drm_device *dev, resource_size_t base=
+, resource_size_t size);
+> > > > > > > +};
+> > > > > > > +
+> > > > > > > +struct drm_aperture *
+> > > > > > > +devm_aperture_acquire(struct drm_device *dev,
+> > > > > > > +		      resource_size_t base, resource_size_t size,
+> > > > > > > +		      const struct drm_aperture_funcs *funcs);
+> > > > > > > +
+> > > > > > > +#if defined(CONFIG_DRM_APERTURE)
+> > > > > > > +void drm_aperture_detach_drivers(resource_size_t base, resou=
+rce_size_t size);
+> > > > > > > +#else
+> > > > > > > +static inline void
+> > > > > > > +drm_aperture_detach_drivers(resource_size_t base,
+> > > > > > > resource_size_t
+> size)
+> > > > > > > +{
+> > > > > > > +}
+> > > > > > > +#endif
+> > > > > > > +
+> > > > > > >     /**
+> > > > > > >      * drm_fb_helper_remove_conflicting_framebuffers - remove=
+ firmware-configured framebuffers
+> > > > > > >      * @a: memory range, users of which are to be removed
+> > > > > > > @@ -20,6 +42,11 @@ static inline int
+> > > > > > >     drm_fb_helper_remove_conflicting_framebuffers(struct aper=
+tures_struct *a,
+> > > > > > >     					      const char *name, bool primary)
+> > > > > > >     {
+> > > > > > > +	int i;
+> > > > > > > +
+> > > > > > > +	for (i =3D 0; i < a->count; ++i)
+> > > > > > > +		drm_aperture_detach_drivers(a->ranges[i].base, a->ranges[i=
+].size);
+> > > > > > > +
+> > > > > > >     #if IS_REACHABLE(CONFIG_FB)
+> > > > > > >     	return remove_conflicting_framebuffers(a, name, primary);
+> > > > > > >     #else
+> > > > > > > @@ -43,7 +70,16 @@ static inline int
+> > > > > > >     drm_fb_helper_remove_conflicting_pci_framebuffers(struct =
+pci_dev *pdev,
+> > > > > > >     						  const char *name)
+> > > > > > >     {
+> > > > > > > -	int ret =3D 0;
+> > > > > > > +	resource_size_t base, size;
+> > > > > > > +	int bar, ret =3D 0;
+> > > > > > > +
+> > > > > > > +	for (bar =3D 0; bar < PCI_STD_NUM_BARS; bar++) {
+> > > > > > > +		if (!(pci_resource_flags(pdev, bar) & IORESOURCE_MEM))
+> > > > > > > +			continue;
+> > > > > > > +		base =3D pci_resource_start(pdev, bar);
+> > > > > > > +		size =3D pci_resource_len(pdev, bar);
+> > > > > > > +		drm_aperture_detach_drivers(base, size);
+> > > > > > > +	}
+> > > > > > >     	/*
+> > > > > > >     	 * WARNING: Apparently we must kick fbdev drivers before=
+ vgacon,
+> > > > > > > -- =
+
+> > > > > > > 2.30.1
+> > > > > > > =
+
+> > > > > > =
+
+> > > > > =
+
+> > > > > -- =
+
+> > > > > Thomas Zimmermann
+> > > > > Graphics Driver Developer
+> > > > > SUSE Software Solutions Germany GmbH
+> > > > > Maxfeldstr. 5, 90409 N=FCrnberg, Germany
+> > > > > (HRB 36809, AG N=FCrnberg)
+> > > > > Gesch=E4ftsf=FChrer: Felix Imend=F6rffer
+> > > > > =
+
+> > > > =
+
+> > > > =
+
+> > > > =
+
+> > > > =
+
+> > > =
+
+> > > -- =
+
+> > > Thomas Zimmermann
+> > > Graphics Driver Developer
+> > > SUSE Software Solutions Germany GmbH
+> > > Maxfeldstr. 5, 90409 N=FCrnberg, Germany
+> > > (HRB 36809, AG N=FCrnberg)
+> > > Gesch=E4ftsf=FChrer: Felix Imend=F6rffer
+> > > =
+
+> > =
+
+> > =
+
+> > =
+
+> > =
+
+> =
+
+> -- =
+
+> Thomas Zimmermann
+> Graphics Driver Developer
+> SUSE Software Solutions Germany GmbH
+> Maxfeldstr. 5, 90409 N=FCrnberg, Germany
+> (HRB 36809, AG N=FCrnberg)
+> Gesch=E4ftsf=FChrer: Felix Imend=F6rffer
+> =
+
+
+
+
+
+-- =
+
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
