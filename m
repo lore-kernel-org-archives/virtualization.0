@@ -2,82 +2,106 @@ Return-Path: <SRS0=J9So=JQ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-2.0 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B1FF7C43470
-	for <virtualization@archiver.kernel.org>; Mon, 19 Apr 2021 15:16:29 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87DE7C433ED
+	for <virtualization@archiver.kernel.org>; Mon, 19 Apr 2021 16:48:27 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 338FF61279
-	for <virtualization@archiver.kernel.org>; Mon, 19 Apr 2021 15:16:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 338FF61279
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=kaod.org
+	by mail.kernel.org (Postfix) with ESMTPS id 0438761157
+	for <virtualization@archiver.kernel.org>; Mon, 19 Apr 2021 16:48:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0438761157
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A9E6D40176;
-	Mon, 19 Apr 2021 15:16:28 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9F62C40372;
+	Mon, 19 Apr 2021 16:48:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Oq9HwPJCGUUo; Mon, 19 Apr 2021 15:16:27 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4097340100;
-	Mon, 19 Apr 2021 15:16:27 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id eUQPsqnAfCQw; Mon, 19 Apr 2021 16:48:25 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 25E664035E;
+	Mon, 19 Apr 2021 16:48:23 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1834FC000F;
-	Mon, 19 Apr 2021 15:16:27 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C63C3C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 01568C000E;
+	Mon, 19 Apr 2021 16:48:23 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D9B06C000B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Apr 2021 15:16:25 +0000 (UTC)
+ Mon, 19 Apr 2021 16:48:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B3F3B4013E
+ by smtp1.osuosl.org (Postfix) with ESMTP id C0C3283848
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Apr 2021 15:16:25 +0000 (UTC)
+ Mon, 19 Apr 2021 16:48:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0inwMLp0pJ6z
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=gmail.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5IwQcBmlEucB
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Apr 2021 15:16:24 +0000 (UTC)
-X-Greylist: delayed 00:07:13 by SQLgrey-1.8.0
-Received: from us-smtp-delivery-44.mimecast.com
- (us-smtp-delivery-44.mimecast.com [207.211.30.44])
- by smtp2.osuosl.org (Postfix) with ESMTPS id E6F8040100
+ Mon, 19 Apr 2021 16:48:19 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ot1-x332.google.com (mail-ot1-x332.google.com
+ [IPv6:2607:f8b0:4864:20::332])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 5E7318382F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Apr 2021 15:16:23 +0000 (UTC)
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-239-fF-zZ_MtN7CFjoIojY9c2A-1; Mon, 19 Apr 2021 11:09:04 -0400
-X-MC-Unique: fF-zZ_MtN7CFjoIojY9c2A-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D88311006C8D;
- Mon, 19 Apr 2021 15:09:02 +0000 (UTC)
-Received: from bahia.redhat.com (ovpn-112-134.ams2.redhat.com [10.36.112.134])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 50BAF614FD;
- Mon, 19 Apr 2021 15:08:49 +0000 (UTC)
-From: Greg Kurz <groug@kaod.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Subject: [PATCH] virtiofs: propagate sync() to file server
-Date: Mon, 19 Apr 2021 17:08:48 +0200
-Message-Id: <20210419150848.275757-1-groug@kaod.org>
+ Mon, 19 Apr 2021 16:48:19 +0000 (UTC)
+Received: by mail-ot1-x332.google.com with SMTP id
+ g4-20020a9d6b040000b029029debbbb3ecso201267otp.7
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 19 Apr 2021 09:48:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=subject:to:cc:references:from:message-id:date:user-agent
+ :mime-version:in-reply-to:content-language:content-transfer-encoding;
+ bh=sJGKbymQi9DBaB5FfbpLm+QMITeaprzp7V2EHZWOmNo=;
+ b=bERlyjmAr/QcW+a1cHmXNDJX5sjznRzB6WDRTVS6gyCYVkxeSDmq2oxeu6uk0KFlzC
+ FXyFzI2BP0X2OsD6Z+boF6prTfuY8WzNCj7xY2LRWF7DXTKDu5da9xnQ8ICpjkc6xMSk
+ 2sECNtkcpFtwKtijXT6dlI8H/+uEPjaakwtsG5F0SxG0ie3zdpfZK1N4dVB9gyZecfU0
+ gxFVyrd8gFElmlGJ5s4tuEX+LnNSad9IcTZFvfooBqb9yxHTzKl+zuoN06e2O/wGSEft
+ 9AqwFLw9+VM0N6QU4Oy2WMmt9ED/TbUkGcY45c7apdyVw3QVvccMOK75F/qzi21qbEBU
+ KYlg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+ :user-agent:mime-version:in-reply-to:content-language
+ :content-transfer-encoding;
+ bh=sJGKbymQi9DBaB5FfbpLm+QMITeaprzp7V2EHZWOmNo=;
+ b=sgtEQooXDQkjYZEz8Ma08jHgeJY8Vo5G6nVSPPnHOq6rpMnVwjquIX5Ax5BANISQna
+ Ftv8G5po/5VktCWjidZL97dwYIHgb6B8MXS6lHc3HVSDeo4YHLpMpe/hKMslj+Sc/2Ys
+ SMBYKPxGIk5U2DKDAwkmMIjXkq/JHHeGux3EUgbw9cPnKtZE291N+R1HH/6KfH4jlg6b
+ Gd5mYADjmmp2mIUYTZIcbRGg4rDUNyDBgmgDb6CRYuisy0vdcrLFge+SlY6YrDFazRVJ
+ E2Jzd0u3XVhptOuQm2VgOu8+ANE/pjX4Sf4+HCBf4k/Ux4IVFJJbdA3oU65kX8+x3lo0
+ BdCQ==
+X-Gm-Message-State: AOAM531bKzVfdi9qZMsvY+mJFQRZdpkJ3lOugKZG5pvTH4SuS+crB2YQ
+ xPsMSf9cJIB+g/Rf1kCngeJU++CDnnI=
+X-Google-Smtp-Source: ABdhPJwfX5nh9pF75tXwDAGoj59DPOWQU6o9JkNznnYMMqFvEelehYN6etDO6WWN9FwmUnVYy8bbIQ==
+X-Received: by 2002:a9d:73c7:: with SMTP id m7mr15164909otk.11.1618850898293; 
+ Mon, 19 Apr 2021 09:48:18 -0700 (PDT)
+Received: from Davids-MacBook-Pro.local ([8.45.42.15])
+ by smtp.googlemail.com with ESMTPSA id 3sm3569597otw.58.2021.04.19.09.48.17
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 19 Apr 2021 09:48:17 -0700 (PDT)
+Subject: Re: [PATCH net-next v3] virtio-net: page_to_skb() use build_skb when
+ there's sufficient tailroom
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, netdev@vger.kernel.org
+References: <20210416091615.25198-1-xuanzhuo@linux.alibaba.com>
+From: David Ahern <dsahern@gmail.com>
+Message-ID: <ebaeb57a-924a-43e4-bd5f-e41ecce9ffe6@gmail.com>
+Date: Mon, 19 Apr 2021 09:48:16 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.9.1
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=groug@kaod.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: kaod.org
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- virtio-fs@redhat.com, Stefan Hajnoczi <stefanha@redhat.com>,
- linux-fsdevel@vger.kernel.org, Robert Krawitz <rlk@redhat.com>,
- Vivek Goyal <vgoyal@redhat.com>
+In-Reply-To: <20210416091615.25198-1-xuanzhuo@linux.alibaba.com>
+Content-Language: en-US
+Cc: Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org,
+ "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,177 +118,34 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Even if POSIX doesn't mandate it, linux users legitimately expect
-sync() to flush all data and metadata to physical storage when it
-is located on the same system. This isn't happening with virtiofs
-though : sync() inside the guest returns right away even though
-data still needs to be flushed from the host page cache.
+On 4/16/21 2:16 AM, Xuan Zhuo wrote:
+> In page_to_skb(), if we have enough tailroom to save skb_shared_info, we
+> can use build_skb to create skb directly. No need to alloc for
+> additional space. And it can save a 'frags slot', which is very friendly
+> to GRO.
+> 
+> Here, if the payload of the received package is too small (less than
+> GOOD_COPY_LEN), we still choose to copy it directly to the space got by
+> napi_alloc_skb. So we can reuse these pages.
+> 
+> Testing Machine:
+>     The four queues of the network card are bound to the cpu1.
+> 
+> Test command:
+>     for ((i=0;i<5;++i)); do sockperf tp --ip 192.168.122.64 -m 1000 -t 150& done
+> 
+> The size of the udp package is 1000, so in the case of this patch, there
+> will always be enough tailroom to use build_skb. The sent udp packet
+> will be discarded because there is no port to receive it. The irqsoftd
+> of the machine is 100%, we observe the received quantity displayed by
+> sar -n DEV 1:
+> 
+> no build_skb:  956864.00 rxpck/s
+> build_skb:    1158465.00 rxpck/s
+> 
 
-This is easily demonstrated by doing the following in the guest:
-
-$ dd if=/dev/zero of=/mnt/foo bs=1M count=5K ; strace -T -e sync sync
-5120+0 records in
-5120+0 records out
-5368709120 bytes (5.4 GB, 5.0 GiB) copied, 5.22224 s, 1.0 GB/s
-sync()                                  = 0 <0.024068>
-+++ exited with 0 +++
-
-and start the following in the host when the 'dd' command completes
-in the guest:
-
-$ strace -T -e fsync sync virtiofs/foo
-fsync(3)                                = 0 <10.371640>
-+++ exited with 0 +++
-
-There are no good reasons not to honor the expected behavior of
-sync() actually : it gives an unrealistic impression that virtiofs
-is super fast and that data has safely landed on HW, which isn't
-the case obviously.
-
-Implement a ->sync_fs() superblock operation that sends a new
-FUSE_SYNC request type for this purpose. The FUSE_SYNC request
-conveys the 'wait' argument of ->sync_fs() in case the file
-server has a use for it. Like with FUSE_FSYNC and FUSE_FSYNCDIR,
-lack of support for FUSE_SYNC in the file server is treated as
-permanent success.
-
-Note that such an operation allows the file server to DoS sync().
-Since a typical FUSE file server is an untrusted piece of software
-running in userspace, this is disabled by default.  Only enable it
-with virtiofs for now since virtiofsd is supposedly trusted by the
-guest kernel.
-
-Reported-by: Robert Krawitz <rlk@redhat.com>
-Signed-off-by: Greg Kurz <groug@kaod.org>
----
-
-Can be tested using the following custom QEMU with FUSE_SYNCFS support:
-
-https://gitlab.com/gkurz/qemu/-/tree/fuse-sync
-
----
- fs/fuse/fuse_i.h          |  3 +++
- fs/fuse/inode.c           | 29 +++++++++++++++++++++++++++++
- fs/fuse/virtio_fs.c       |  1 +
- include/uapi/linux/fuse.h | 11 ++++++++++-
- 4 files changed, 43 insertions(+), 1 deletion(-)
-
-diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-index 63d97a15ffde..68e9ae96cbd4 100644
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -755,6 +755,9 @@ struct fuse_conn {
- 	/* Auto-mount submounts announced by the server */
- 	unsigned int auto_submounts:1;
- 
-+	/* Propagate syncfs() to server */
-+	unsigned int sync_fs:1;
-+
- 	/** The number of requests waiting for completion */
- 	atomic_t num_waiting;
- 
-diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-index b0e18b470e91..425d567a06c5 100644
---- a/fs/fuse/inode.c
-+++ b/fs/fuse/inode.c
-@@ -506,6 +506,34 @@ static int fuse_statfs(struct dentry *dentry, struct kstatfs *buf)
- 	return err;
- }
- 
-+static int fuse_sync_fs(struct super_block *sb, int wait)
-+{
-+	struct fuse_mount *fm = get_fuse_mount_super(sb);
-+	struct fuse_conn *fc = fm->fc;
-+	struct fuse_syncfs_in inarg;
-+	FUSE_ARGS(args);
-+	int err;
-+
-+	if (!fc->sync_fs)
-+		return 0;
-+
-+	memset(&inarg, 0, sizeof(inarg));
-+	inarg.wait = wait;
-+	args.in_numargs = 1;
-+	args.in_args[0].size = sizeof(inarg);
-+	args.in_args[0].value = &inarg;
-+	args.opcode = FUSE_SYNCFS;
-+	args.out_numargs = 0;
-+
-+	err = fuse_simple_request(fm, &args);
-+	if (err == -ENOSYS) {
-+		fc->sync_fs = 0;
-+		err = 0;
-+	}
-+
-+	return err;
-+}
-+
- enum {
- 	OPT_SOURCE,
- 	OPT_SUBTYPE,
-@@ -909,6 +937,7 @@ static const struct super_operations fuse_super_operations = {
- 	.put_super	= fuse_put_super,
- 	.umount_begin	= fuse_umount_begin,
- 	.statfs		= fuse_statfs,
-+	.sync_fs	= fuse_sync_fs,
- 	.show_options	= fuse_show_options,
- };
- 
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 4ee6f734ba83..a3c025308743 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -1441,6 +1441,7 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
- 	fc->release = fuse_free_conn;
- 	fc->delete_stale = true;
- 	fc->auto_submounts = true;
-+	fc->sync_fs = true;
- 
- 	fsc->s_fs_info = fm;
- 	sb = sget_fc(fsc, virtio_fs_test_super, set_anon_super_fc);
-diff --git a/include/uapi/linux/fuse.h b/include/uapi/linux/fuse.h
-index 54442612c48b..6e8c3cf3207c 100644
---- a/include/uapi/linux/fuse.h
-+++ b/include/uapi/linux/fuse.h
-@@ -179,6 +179,9 @@
-  *  7.33
-  *  - add FUSE_HANDLE_KILLPRIV_V2, FUSE_WRITE_KILL_SUIDGID, FATTR_KILL_SUIDGID
-  *  - add FUSE_OPEN_KILL_SUIDGID
-+ *
-+ *  7.34
-+ *  - add FUSE_SYNCFS
-  */
- 
- #ifndef _LINUX_FUSE_H
-@@ -214,7 +217,7 @@
- #define FUSE_KERNEL_VERSION 7
- 
- /** Minor version number of this interface */
--#define FUSE_KERNEL_MINOR_VERSION 33
-+#define FUSE_KERNEL_MINOR_VERSION 34
- 
- /** The node ID of the root inode */
- #define FUSE_ROOT_ID 1
-@@ -499,6 +502,7 @@ enum fuse_opcode {
- 	FUSE_COPY_FILE_RANGE	= 47,
- 	FUSE_SETUPMAPPING	= 48,
- 	FUSE_REMOVEMAPPING	= 49,
-+	FUSE_SYNCFS		= 50,
- 
- 	/* CUSE specific operations */
- 	CUSE_INIT		= 4096,
-@@ -957,4 +961,9 @@ struct fuse_removemapping_one {
- #define FUSE_REMOVEMAPPING_MAX_ENTRY   \
- 		(PAGE_SIZE / sizeof(struct fuse_removemapping_one))
- 
-+struct fuse_syncfs_in {
-+	/* Whether to wait for outstanding I/Os to complete */
-+	uint32_t wait;
-+};
-+
- #endif /* _LINUX_FUSE_H */
--- 
-2.26.3
+virtio_net is using napi_consume_skb, so napi_build_skb should show a
+small increase from build_skb.
 
 _______________________________________________
 Virtualization mailing list
