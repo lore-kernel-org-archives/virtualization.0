@@ -2,109 +2,106 @@ Return-Path: <SRS0=4Agt=JR=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,
 	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
 	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABE46C433ED
-	for <virtualization@archiver.kernel.org>; Tue, 20 Apr 2021 09:31:12 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04B7EC433B4
+	for <virtualization@archiver.kernel.org>; Tue, 20 Apr 2021 09:43:54 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2F3CB61073
-	for <virtualization@archiver.kernel.org>; Tue, 20 Apr 2021 09:31:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2F3CB61073
+	by mail.kernel.org (Postfix) with ESMTPS id 712FC610A1
+	for <virtualization@archiver.kernel.org>; Tue, 20 Apr 2021 09:43:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 712FC610A1
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C164860602;
-	Tue, 20 Apr 2021 09:31:10 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id A0BD0402CA;
+	Tue, 20 Apr 2021 09:43:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0Xq5BCtrtW5E; Tue, 20 Apr 2021 09:31:09 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4lPw-sjlOcbh; Tue, 20 Apr 2021 09:43:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3A9136080A;
-	Tue, 20 Apr 2021 09:31:09 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id D87A040204;
+	Tue, 20 Apr 2021 09:43:50 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1D02CC000E;
-	Tue, 20 Apr 2021 09:31:09 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BB43AC000E;
+	Tue, 20 Apr 2021 09:43:50 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 243A1C000B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CD545C000B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Apr 2021 09:31:08 +0000 (UTC)
+ Tue, 20 Apr 2021 09:43:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 058988354B
+ by smtp1.osuosl.org (Postfix) with ESMTP id C4B9A83A6A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Apr 2021 09:31:08 +0000 (UTC)
+ Tue, 20 Apr 2021 09:43:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=gmail.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0EFPAmo-OqQo
+ with ESMTP id y96OZ8rT8Pus
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Apr 2021 09:31:03 +0000 (UTC)
+ Tue, 20 Apr 2021 09:43:48 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com
- [IPv6:2a00:1450:4864:20::32b])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9C9F2834F2
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com
+ [IPv6:2607:f8b0:4864:20::1036])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 1A12883A60
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Apr 2021 09:31:03 +0000 (UTC)
-Received: by mail-wm1-x32b.google.com with SMTP id
- o21-20020a1c4d150000b029012e52898006so9927978wmh.0
+ Tue, 20 Apr 2021 09:43:48 +0000 (UTC)
+Received: by mail-pj1-x1036.google.com with SMTP id
+ nm3-20020a17090b19c3b029014e1bbf6c60so15946673pjb.4
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Apr 2021 02:31:03 -0700 (PDT)
+ Tue, 20 Apr 2021 02:43:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=subject:to:cc:references:from:message-id:date:user-agent
- :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=3eMeySocPdmCCpHyXNhX2uxxdNhE7kYSZAhLehXPS/w=;
- b=QKSjtgliU0PzwkoWT+pgYQwzcGOp5lneWROcslOFl2TbbvIZytKmGvatfC35el/JDN
- ZuLIto33aZJ6n07UcOM5dtPIKOa9d+YSUJ8HovIBBrZLXBczpZzbZc97J4k2YxXBxu4B
- r4XF/4ekO95nJEDpuNgxNgd+fypyEBbIk8fQ2oXdSCzOVMYuEWQNu67SXYC/N/ZcZSn3
- TJSD8QN23muXWTgo8RytFBZVfnADiLhwHnn8W94+kLLUzxaLAtI27hJMcDOXIP8hHxsy
- Zjkp/TI5VOnM+cHfRt+07bUz8EruEcqZ4ORuHmYfw1hqv0lwIqTrjrB7nssc2A5Voo/H
- do5w==
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=8zGycjEf+w5ATtSrKPNMDPKepC5i8j4NCy1WccYtrWo=;
+ b=QqOpWHbt6U8N2elVbpSCNvzZXuOjgB9rFEjgBLcbbol//NpfpDX4uBQ7hJFYXHf/sR
+ b9Bndqc5ia4cglVJSHXsuG1Pic44JZCtYzjoseI6ioscGu0bXioBJ+QP6KZC5xJrhscl
+ o/YUdbHMWCrJKdbiQe/JGj3hzUoQ6HLC23goS0WQHE1hRD0ok6lwzbFXIkgBxY1ktLPk
+ SPMsBpMCXtGhn8l0Agl7LhQiCCmdi/dMY+CWXkZ9Fnqs0OJdNgL1CgZ39QY/Qh6nKQ8a
+ W3XmuzCJnIcWteB2f7/NMkO/MUZ1CnVkvRJvaQCVHtWdeoZjEnZybXm+ASgGtbCr8455
+ g8fQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:subject:to:cc:references:from:message-id:date
- :user-agent:mime-version:in-reply-to:content-language
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
  :content-transfer-encoding;
- bh=3eMeySocPdmCCpHyXNhX2uxxdNhE7kYSZAhLehXPS/w=;
- b=obWdysoH/HStwkFgh7PUVxmY9+IPA9+cn2eYFoZO6CEH5tfUIs4J61wVrBg2uS8xty
- EJYIKd1rNIgF245ms822TInikeMctl/xGc5uJi7k4UtgX/gX19OaUVLB2tvub/sOVWTM
- 30AFwEjsPbCvPlihYtcy0P+VPirkBwjA6b/tmhu+FzppRavTvR9RiY8Q5QyGOLRgzPi/
- S9trUxuCevzjydff36SNyxITzONBQBHp3YxgDiqykYAYb4QYAufYDjjEJCps92wqWSTD
- pCu6VDjBcw2N2KvDplEXgsAbuFJ6VhiFBhd1MWliCA8iFyFO8PVfPWolN/gWvq/OAsyR
- IOdg==
-X-Gm-Message-State: AOAM531M2yiUphjyw5AK7IPbaiw7HaQNHf7hoymZpyGHbAHIRUQ0FoZg
- h7sR/QBTj0ljLDuUlFc6+yPikKoqxjI=
-X-Google-Smtp-Source: ABdhPJzral342IkT/x7imIvqKH1TaTtjY+p6qcO5oadQfemYtW5jskGnAUjVUsVGqa8+qFP7KCgq/g==
-X-Received: by 2002:a1c:2785:: with SMTP id n127mr3462010wmn.52.1618911061527; 
- Tue, 20 Apr 2021 02:31:01 -0700 (PDT)
-Received: from [192.168.156.98] (114.199.23.93.rev.sfr.net. [93.23.199.114])
- by smtp.gmail.com with ESMTPSA id l13sm2604369wmj.3.2021.04.20.02.31.00
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Tue, 20 Apr 2021 02:31:00 -0700 (PDT)
-Subject: Re: [net-next, v2] virtio-net: page_to_skb() use build_skb when
- there's sufficient tailroom
-To: Guenter Roeck <linux@roeck-us.net>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-References: <20210414015221.87554-1-xuanzhuo@linux.alibaba.com>
- <20210420044655.GA144160@roeck-us.net>
+ bh=8zGycjEf+w5ATtSrKPNMDPKepC5i8j4NCy1WccYtrWo=;
+ b=CWc0OlpFRvG2txKw5bUb6xqk4+dsu/7qu0rcNMAKgFib1iy3D0qhiY1zV2/cOHtGRJ
+ bCtLlLNskRqFHQaXcswHE/tPqpoFdOluEfWSBWJxoINTTuh1I6VBUBOOLDURhk5fWqpg
+ pI5wKpESuQBoXsn2CYF5RGizqEbUafKc0VHYx1MVjYQFmoMNYYws/kFTmramNGS7lizu
+ k65T+mMjAg1+Lw0t2o4frGYWARKh53FS4ZOyS4saPEoD0mpaBH2uocB6TALKYuv1+vtC
+ awwNA9mDRmZw/WcKj8gvYcW2Wj/9d+4+qA5iYta7FeMCi/krDTk1pxHbJF/FSd1tSYFT
+ /xlA==
+X-Gm-Message-State: AOAM533TtT4s3VZMY8AFQJm64NqSn6LS7ptE5H/38/Su2Lz+mteHTM7x
+ k9uBlR+zmb9xwYGxRuvRkkU=
+X-Google-Smtp-Source: ABdhPJwrpnp9YcLIIGqvPc+Gv1KTSyYxQkHFofF+TIndrIZ21eYxCcGBZ+x8KHLRLCC5ElfG0rLZLw==
+X-Received: by 2002:a17:90a:1b4b:: with SMTP id
+ q69mr3961950pjq.188.1618911827553; 
+ Tue, 20 Apr 2021 02:43:47 -0700 (PDT)
+Received: from edumazet1.svl.corp.google.com
+ ([2620:15c:2c4:201:71c5:2f2b:f562:605b])
+ by smtp.gmail.com with ESMTPSA id u1sm14783495pgg.11.2021.04.20.02.43.46
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 20 Apr 2021 02:43:47 -0700 (PDT)
 From: Eric Dumazet <eric.dumazet@gmail.com>
-Message-ID: <0948122e-5698-ad09-7a00-558d0b5b12ab@gmail.com>
-Date: Tue, 20 Apr 2021 11:30:59 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.0
+To: "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH net-next] virtio-net: fix use-after-free in page_to_skb()
+Date: Tue, 20 Apr 2021 02:43:41 -0700
+Message-Id: <20210420094341.3259328-1-eric.dumazet@gmail.com>
+X-Mailer: git-send-email 2.31.1.368.gbe11c130af-goog
 MIME-Version: 1.0
-In-Reply-To: <20210420044655.GA144160@roeck-us.net>
-Content-Language: en-US
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Eric Dumazet <eric.dumazet@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev <netdev@vger.kernel.org>,
+ Mat Martineau <mathew.j.martineau@linux.intel.com>,
+ virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>,
+ syzbot <syzkaller@googlegroups.com>, Guenter Roeck <linux@roeck-us.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,155 +118,87 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+From: Eric Dumazet <edumazet@google.com>
 
+KASAN/syzbot had 4 reports, one of them being:
 
-On 4/20/21 6:46 AM, Guenter Roeck wrote:
-> On Wed, Apr 14, 2021 at 09:52:21AM +0800, Xuan Zhuo wrote:
->> In page_to_skb(), if we have enough tailroom to save skb_shared_info, we
->> can use build_skb to create skb directly. No need to alloc for
->> additional space. And it can save a 'frags slot', which is very friendly
->> to GRO.
->>
->> Here, if the payload of the received package is too small (less than
->> GOOD_COPY_LEN), we still choose to copy it directly to the space got by
->> napi_alloc_skb. So we can reuse these pages.
->>
->> Testing Machine:
->>     The four queues of the network card are bound to the cpu1.
->>
->> Test command:
->>     for ((i=0;i<5;++i)); do sockperf tp --ip 192.168.122.64 -m 1000 -t 150& done
->>
->> The size of the udp package is 1000, so in the case of this patch, there
->> will always be enough tailroom to use build_skb. The sent udp packet
->> will be discarded because there is no port to receive it. The irqsoftd
->> of the machine is 100%, we observe the received quantity displayed by
->> sar -n DEV 1:
->>
->> no build_skb:  956864.00 rxpck/s
->> build_skb:    1158465.00 rxpck/s
->>
->> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->> Suggested-by: Jason Wang <jasowang@redhat.com>
-> 
-> Booting qemu-system-alpha with virtio-net interface instantiated results in:
-> 
-> udhcpc: sending discover
-> Unable to handle kernel paging request at virtual address 0000000000000004
-> udhcpc(169): Oops -1
-> pc = [<0000000000000004>]  ra = [<fffffc0000b8c588>]  ps = 0000    Not tainted
-> pc is at 0x4
-> ra is at napi_gro_receive+0x68/0x150
-> v0 = 0000000000000000  t0 = 0000000000000008  t1 = 0000000000000000
-> t2 = 0000000000000000  t3 = 000000000000000e  t4 = 0000000000000038
-> t5 = 000000000000ffff  t6 = fffffc00002f220a  t7 = fffffc0002cd0000
-> s0 = fffffc00010b3ca0  s1 = 0000000000000000  s2 = fffffc00011267e0
-> s3 = 0000000000000000  s4 = fffffc00025f2008  s5 = fffffc00002f21c0
-> s6 = fffffc00025f2040
-> a0 = fffffc00025f2008  a1 = fffffc00002f21c0  a2 = fffffc0002cc800c
-> a3 = fffffc00000250d0  a4 = 0000000effff0008  a5 = 0000000000000000
-> t8 = fffffc00010b3c80  t9 = fffffc0002cc84cc  t10= 0000000000000000
-> t11= 00000000000004c0  pv = fffffc0000b8bc10  at = 0000000000000000
-> gp = fffffc00010f9fb8  sp = 00000000aefe3f8a
-> Disabling lock debugging due to kernel taint
-> Trace:
-> [<fffffc0000b8c588>] napi_gro_receive+0x68/0x150
-> [<fffffc00009b406c>] receive_buf+0x50c/0x1b80
-> [<fffffc00009b5888>] virtnet_poll+0x1a8/0x5b0
-> [<fffffc00009b58bc>] virtnet_poll+0x1dc/0x5b0
-> [<fffffc0000b8d14c>] __napi_poll+0x4c/0x270
-> [<fffffc0000b8d640>] net_rx_action+0x130/0x2c0
-> [<fffffc0000bd6f00>] __qdisc_run+0x90/0x6c0
-> [<fffffc0000337b64>] do_softirq+0xa4/0xd0
-> [<fffffc0000337ca4>] __local_bh_enable_ip+0x114/0x120
-> [<fffffc0000b89524>] __dev_queue_xmit+0x484/0xa60
-> [<fffffc0000cd06fc>] packet_sendmsg+0xe7c/0x1ba0
-> [<fffffc0000b53308>] __sys_sendto+0xf8/0x170
-> [<fffffc0000461440>] __d_alloc+0x40/0x270
-> [<fffffc0000ccdc4c>] packet_create+0x17c/0x3c0
-> [<fffffc0000b5218c>] move_addr_to_kernel+0x3c/0x60
-> [<fffffc0000b532b4>] __sys_sendto+0xa4/0x170
-> [<fffffc0000b533a4>] sys_sendto+0x24/0x40
-> [<fffffc0000b52840>] sys_bind+0x20/0x40
-> [<fffffc0000311514>] entSys+0xa4/0xc0
-> 
-> Bisect log attached.
-> 
-> Guenter
-> 
-> ---
-> # bad: [50b8b1d699ac313c0a07a3c185ffb23aecab8abb] Add linux-next specific files for 20210419
-> # good: [bf05bf16c76bb44ab5156223e1e58e26dfe30a88] Linux 5.12-rc8
-> git bisect start 'HEAD' 'v5.12-rc8'
-> # bad: [c4bb91fc07e59241cde97f913d7a2fbedc248f0d] Merge remote-tracking branch 'crypto/master'
-> git bisect bad c4bb91fc07e59241cde97f913d7a2fbedc248f0d
-> # good: [499f739ad70f2a58aac985dceb25ca7666da88be] Merge remote-tracking branch 'jc_docs/docs-next'
-> git bisect good 499f739ad70f2a58aac985dceb25ca7666da88be
-> # good: [17e1be342d46eb0b7c3df4c7e623493483080b63] bnxt_en: Treat health register value 0 as valid in bnxt_try_reover_fw().
-> git bisect good 17e1be342d46eb0b7c3df4c7e623493483080b63
-> # good: [cf6d6925625755029cdf4bb0d0028f0b6e713242] Merge remote-tracking branch 'rdma/for-next'
-> git bisect good cf6d6925625755029cdf4bb0d0028f0b6e713242
-> # good: [fb8517f4fade44fa5e42e29ca4d6e4a7ed50b512] rtw88: 8822c: add CFO tracking
-> git bisect good fb8517f4fade44fa5e42e29ca4d6e4a7ed50b512
-> # bad: [d168b61fb769d10306b6118ec7623d2911d45690] Merge remote-tracking branch 'gfs2/for-next'
-> git bisect bad d168b61fb769d10306b6118ec7623d2911d45690
-> # bad: [ee3e875f10fca68fb7478c23c75b553e56da319c] net: enetc: increase TX ring size
-> git bisect bad ee3e875f10fca68fb7478c23c75b553e56da319c
-> # good: [4a51b0e8a0143b0e83d51d9c58c6416c3818a9f2] r8152: support PHY firmware for RTL8156 series
-> git bisect good 4a51b0e8a0143b0e83d51d9c58c6416c3818a9f2
-> # bad: [03e481e88b194296defdff3600b2fcebb04bd6cf] Merge tag 'mlx5-updates-2021-04-16' of git://git.kernel.org/pub/scm/linux/kernel/git/saeed/linux
-> git bisect bad 03e481e88b194296defdff3600b2fcebb04bd6cf
-> # bad: [70c183759b2cece2f9ba82e63e38fa32bebc9db2] Merge branch 'gianfar-mq-polling'
-> git bisect bad 70c183759b2cece2f9ba82e63e38fa32bebc9db2
-> # bad: [d8604b209e9b3762280b8321162f0f64219d51c9] dt-bindings: net: qcom,ipa: add firmware-name property
-> git bisect bad d8604b209e9b3762280b8321162f0f64219d51c9
-> # good: [4ad29b1a484e0c58acfffdcd87172ed17f35c1dd] net: mvpp2: Add parsing support for different IPv4 IHL values
-> git bisect good 4ad29b1a484e0c58acfffdcd87172ed17f35c1dd
-> # good: [fa588eba632df14d296436995e6bbea0c146ae77] net: Add Qcom WWAN control driver
-> git bisect good fa588eba632df14d296436995e6bbea0c146ae77
-> # bad: [fb32856b16ad9d5bcd75b76a274e2c515ac7b9d7] virtio-net: page_to_skb() use build_skb when there's sufficient tailroom
-> git bisect bad fb32856b16ad9d5bcd75b76a274e2c515ac7b9d7
-> # first bad commit: [fb32856b16ad9d5bcd75b76a274e2c515ac7b9d7] virtio-net: page_to_skb() use build_skb when there's sufficient tailroom
-> 
+BUG: KASAN: slab-out-of-bounds in memcpy include/linux/fortify-string.h:191 [inline]
+BUG: KASAN: slab-out-of-bounds in page_to_skb+0x5cf/0xb70 drivers/net/virtio_net.c:480
+Read of size 12 at addr ffff888014a5f800 by task systemd-udevd/8445
 
+CPU: 0 PID: 8445 Comm: systemd-udevd Not tainted 5.12.0-rc8-next-20210419-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0x141/0x1d7 lib/dump_stack.c:120
+ print_address_description.constprop.0.cold+0x5b/0x2f8 mm/kasan/report.c:233
+ __kasan_report mm/kasan/report.c:419 [inline]
+ kasan_report.cold+0x7c/0xd8 mm/kasan/report.c:436
+ check_region_inline mm/kasan/generic.c:180 [inline]
+ kasan_check_range+0x13d/0x180 mm/kasan/generic.c:186
+ memcpy+0x20/0x60 mm/kasan/shadow.c:65
+ memcpy include/linux/fortify-string.h:191 [inline]
+ page_to_skb+0x5cf/0xb70 drivers/net/virtio_net.c:480
+ receive_mergeable drivers/net/virtio_net.c:1009 [inline]
+ receive_buf+0x2bc0/0x6250 drivers/net/virtio_net.c:1119
+ virtnet_receive drivers/net/virtio_net.c:1411 [inline]
+ virtnet_poll+0x568/0x10b0 drivers/net/virtio_net.c:1516
+ __napi_poll+0xaf/0x440 net/core/dev.c:6962
+ napi_poll net/core/dev.c:7029 [inline]
+ net_rx_action+0x801/0xb40 net/core/dev.c:7116
+ __do_softirq+0x29b/0x9fe kernel/softirq.c:559
+ invoke_softirq kernel/softirq.c:433 [inline]
+ __irq_exit_rcu+0x136/0x200 kernel/softirq.c:637
+ irq_exit_rcu+0x5/0x20 kernel/softirq.c:649
+ common_interrupt+0xa4/0xd0 arch/x86/kernel/irq.c:240
 
-Yes, KASAN reported the same.
-
-Can you try
+Fixes: fb32856b16ad ("virtio-net: page_to_skb() use build_skb when there's sufficient tailroom")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reported-by: Guenter Roeck <linux@roeck-us.net>
+Reported-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+---
+ drivers/net/virtio_net.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
 index 8cd76037c72481200ea3e8429e9fdfec005dad85..2e28c04aa6351d2b4016f7d277ce104c4970069d 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
 @@ -385,6 +385,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
-        struct sk_buff *skb;
-        struct virtio_net_hdr_mrg_rxbuf *hdr;
-        unsigned int copy, hdr_len, hdr_padded_len;
-+       struct page *page_to_free = NULL;
-        int tailroom, shinfo_size;
-        char *p, *hdr_p;
+ 	struct sk_buff *skb;
+ 	struct virtio_net_hdr_mrg_rxbuf *hdr;
+ 	unsigned int copy, hdr_len, hdr_padded_len;
++	struct page *page_to_free = NULL;
+ 	int tailroom, shinfo_size;
+ 	char *p, *hdr_p;
  
 @@ -445,7 +446,7 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
-                if (len)
-                        skb_add_rx_frag(skb, 0, page, offset, len, truesize);
-                else
--                       put_page(page);
-+                       page_to_free = page;
-                goto ok;
-        }
+ 		if (len)
+ 			skb_add_rx_frag(skb, 0, page, offset, len, truesize);
+ 		else
+-			put_page(page);
++			page_to_free = page;
+ 		goto ok;
+ 	}
  
 @@ -479,6 +480,8 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
-                hdr = skb_vnet_hdr(skb);
-                memcpy(hdr, hdr_p, hdr_len);
-        }
-+       if (page_to_free)
-+               put_page(page_to_free);
+ 		hdr = skb_vnet_hdr(skb);
+ 		memcpy(hdr, hdr_p, hdr_len);
+ 	}
++	if (page_to_free)
++		put_page(page_to_free);
  
-        if (metasize) {
-                __skb_pull(skb, metasize);
+ 	if (metasize) {
+ 		__skb_pull(skb, metasize);
+-- 
+2.31.1.368.gbe11c130af-goog
 
-
-Yep
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
