@@ -7,119 +7,113 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DBE3C433ED
-	for <virtualization@archiver.kernel.org>; Wed, 21 Apr 2021 09:39:04 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E580C433B4
+	for <virtualization@archiver.kernel.org>; Wed, 21 Apr 2021 09:52:34 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E28E56143D
-	for <virtualization@archiver.kernel.org>; Wed, 21 Apr 2021 09:39:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E28E56143D
+	by mail.kernel.org (Postfix) with ESMTPS id 821C261440
+	for <virtualization@archiver.kernel.org>; Wed, 21 Apr 2021 09:52:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 821C261440
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 80C6140284;
-	Wed, 21 Apr 2021 09:39:03 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 246224068D;
+	Wed, 21 Apr 2021 09:52:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id a6k8li5GS5J4; Wed, 21 Apr 2021 09:39:02 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id uBWYG5pw-XGc; Wed, 21 Apr 2021 09:52:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1FBCE40279;
-	Wed, 21 Apr 2021 09:39:02 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 367C640691;
+	Wed, 21 Apr 2021 09:52:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E9AF4C000F;
-	Wed, 21 Apr 2021 09:39:01 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0622CC000F;
+	Wed, 21 Apr 2021 09:52:31 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 04B3DC000B
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E7529C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Apr 2021 09:39:00 +0000 (UTC)
+ Wed, 21 Apr 2021 09:52:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id CFC9260861
+ by smtp3.osuosl.org (Postfix) with ESMTP id D10EB60874
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Apr 2021 09:38:59 +0000 (UTC)
+ Wed, 21 Apr 2021 09:52:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dAIhheYkctfe
+ with ESMTP id sXBVKujaMblj
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Apr 2021 09:38:59 +0000 (UTC)
+ Wed, 21 Apr 2021 09:52:26 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id DB8ED6064F
+ by smtp3.osuosl.org (Postfix) with ESMTPS id B58D46089A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Apr 2021 09:38:58 +0000 (UTC)
+ Wed, 21 Apr 2021 09:52:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1618997937;
+ s=mimecast20190719; t=1618998745;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=gSlikRZsUWJsx7Rq6CkgW2e557egJiXRO6RyE7OIcao=;
- b=Qm38YQluwhJMAEdAtWBP/e6A9EGkhfPp0mE628pJJwV8QOCfLaALm23TH4FcxENBjwonY2
- Zvbz7Z95hhSq/qc7y76nDgob+mDyNfMY7igdcCSU+QUYUX4nE7Q/s/l1ivomyus5vv+h+D
- DFaH3x32dDGa7jVSbjH1x4DyIqf8GTI=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-537-UJsyoisQPzCODlKpOGZtVg-1; Wed, 21 Apr 2021 05:38:56 -0400
-X-MC-Unique: UJsyoisQPzCODlKpOGZtVg-1
-Received: by mail-ed1-f69.google.com with SMTP id
- l7-20020aa7c3070000b029038502ffe9f2so8935723edq.16
+ bh=NwxZLRTcXC5OvGvzLAau5wtnxa0kL69bqUW5LXiDYks=;
+ b=fWOwSFFXj8tl0kRnNrjWhqnvL/t88pnD7+TrgKlWBrbYLzPjfb+4ilkDbw2wTaNBO694JL
+ OmL4ucdds0+skNCED1mByGvQm+wq8pyRur5VGcUPkCY7uxzQS4WLgtJp27N94iUwQCpQiP
+ e+pUFipmoTGK1OIivSKKjHD0jMvBiMQ=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-547-SKL1QEP1PL-uziJtF-cY9g-1; Wed, 21 Apr 2021 05:52:17 -0400
+X-MC-Unique: SKL1QEP1PL-uziJtF-cY9g-1
+Received: by mail-ej1-f71.google.com with SMTP id
+ bx15-20020a170906a1cfb029037415131f28so5728017ejb.18
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Apr 2021 02:38:55 -0700 (PDT)
+ Wed, 21 Apr 2021 02:52:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=gSlikRZsUWJsx7Rq6CkgW2e557egJiXRO6RyE7OIcao=;
- b=QIg3FxMYX28IM3pmdvT/ytmFYLaH3JVVztRILxOm4IcMQ0A5jbmDBwgso4QYm2y4QA
- 48yTC10jp3rf5NHjeF9weQpf3M82nQuppxyYbJvyh710/i9QCSgZHlY3WweVIjkFGwOA
- ESUj7kmw1XC61wk9BGFGfDb/oNSNMEhAubDnz9q1o8GuWFM0NwtT/wVmu9h8THMtxAeF
- zkT/BN/esbHTMG/Trc0Gn0MLyI3NMS0q3QPIUzyaYPTtOeY9xv5p1f8El3gkpenu+lS+
- lKPpuomaFDZFs81fuQabsC3TQfSD7Vmp7xqa7aczcyV5CtHkHk73QLdRRp0ySlAgbdAg
- 6pAg==
-X-Gm-Message-State: AOAM532KvtIr3VAAU0bUSA5E8KQd2TzMHfSGEl60hbxKOH5/PASIlbYZ
- xJymLBoNLYGK/HEcElI31BE3dDM/+4SSfCca92Rpxf0zZlPJLyOQrZApowNPQsZB1w4on3m52/2
- 5nhfXNnC2kUWOcGEvHHH2JFhwcR6qAekbt1OI88lp4A==
-X-Received: by 2002:a17:907:76c5:: with SMTP id
- kf5mr31320931ejc.526.1618997934984; 
- Wed, 21 Apr 2021 02:38:54 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxIwbBRm7mr85h28m7cl7ow2IIb274l/KuCduv8M7TerEq2T8gyqF0loaor8I4gqRyLdgQpMw==
-X-Received: by 2002:a17:907:76c5:: with SMTP id
- kf5mr31320915ejc.526.1618997934762; 
- Wed, 21 Apr 2021 02:38:54 -0700 (PDT)
+ bh=NwxZLRTcXC5OvGvzLAau5wtnxa0kL69bqUW5LXiDYks=;
+ b=WJC1gsHwFLTANzvl7K6Wr6pb7MUoXhwQm0lREXS/bmni1zPND2IaCDeoC2JN26hM3o
+ fCj2gFcRvYMh4ge6fFek7jZoSWQPu8s9ds79Lp3jzVuZLYPMCfDa6OaSVte3c0BViIf6
+ zgQ0iSC7gfIG6H15e8ASaRJdUswo1ooxon8Gm3mJDx0zpoGNmn86hEO3BysLonU2n3+i
+ h2W6qicsxWr6aFLcg+C5FLduN+GuIyGY3f0K2+Ws0+87C1sQq9YByZ4XoPCvWfUrM4BW
+ Kd/ePugwtKY4st91IueNyhMgMvTrL4I9Po7DSsyakcjOfuYmlGj2fDIX54jSRrAGp0K0
+ /UXw==
+X-Gm-Message-State: AOAM530kHNECF0oYNQC8cTMDQ2j46FOMz4ODRPMw3oaVX/hB29DO+4Cq
+ E4bv86CPTvaDqhvHvFIAwjLRk4fUVbQ0jafa4ewcjGPLjNhA/p/WzEB15TBw143PHVk+9BnEoHE
+ 78aPzh6b+3e5fvZCJmQccu68oyDf9F9nzcpjVM1Tcuw==
+X-Received: by 2002:a17:906:ff52:: with SMTP id
+ zo18mr30698337ejb.298.1618998736472; 
+ Wed, 21 Apr 2021 02:52:16 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzB2TWs/IaLV9bRBCA0/SpDD3KlzXRPfhylvrcMnGywNW0K6wQOPNcsHmJxw78RjLZB+u5T0A==
+X-Received: by 2002:a17:906:ff52:: with SMTP id
+ zo18mr30698307ejb.298.1618998736227; 
+ Wed, 21 Apr 2021 02:52:16 -0700 (PDT)
 Received: from steredhat (host-79-34-249-199.business.telecomitalia.it.
  [79.34.249.199])
- by smtp.gmail.com with ESMTPSA id g11sm2506664edw.37.2021.04.21.02.38.53
+ by smtp.gmail.com with ESMTPSA id h9sm1836039ejf.10.2021.04.21.02.52.15
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 21 Apr 2021 02:38:54 -0700 (PDT)
-Date: Wed, 21 Apr 2021 11:38:51 +0200
+ Wed, 21 Apr 2021 02:52:15 -0700 (PDT)
+Date: Wed, 21 Apr 2021 11:52:13 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [RFC PATCH v8 19/19] af_vsock: serialize writes to shared socket
-Message-ID: <20210421093851.36yazy5vp4uwimd6@steredhat>
+Subject: Re: [RFC PATCH v8 00/19] virtio/vsock: introduce SOCK_SEQPACKET
+ support
+Message-ID: <20210421095213.25hnfi2th7gzyzt2@steredhat>
 References: <20210413123954.3396314-1-arseny.krasnov@kaspersky.com>
- <20210413124739.3408031-1-arseny.krasnov@kaspersky.com>
- <7d433ed9-8d4c-707a-9149-ff0e65d7f943@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <7d433ed9-8d4c-707a-9149-ff0e65d7f943@kaspersky.com>
+In-Reply-To: <20210413123954.3396314-1-arseny.krasnov@kaspersky.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Andra Paraschiv <andraprs@amazon.com>,
- "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jeff Vander Stoep <jeffv@google.com>,
- "stsp2@yandex.ru" <stsp2@yandex.ru>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "oxffffaa@gmail.com" <oxffffaa@gmail.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- Norbert Slusarek <nslusarek@gmx.net>, Stefan Hajnoczi <stefanha@redhat.com>,
+Cc: Andra Paraschiv <andraprs@amazon.com>, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, stsp2@yandex.ru,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ oxffffaa@gmail.com, Norbert Slusarek <nslusarek@gmx.net>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
  Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
  "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>,
  Alexander Popov <alex.popov@linux.com>
@@ -139,89 +133,233 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Apr 14, 2021 at 01:51:17PM +0300, Arseny Krasnov wrote:
+On Tue, Apr 13, 2021 at 03:39:51PM +0300, Arseny Krasnov wrote:
+>	This patchset implements support of SOCK_SEQPACKET for virtio
+>transport.
+>	As SOCK_SEQPACKET guarantees to save record boundaries, so to
+>do it, new bit for field 'flags' was added: SEQ_EOR. This bit is
+>set to 1 in last RW packet of message.
+>	Now as  packets of one socket are not reordered neither on vsock
+>nor on vhost transport layers, such bit allows to restore original
+>message on receiver's side. If user's buffer is smaller than message
+>length, when all out of size data is dropped.
+>	Maximum length of datagram is not limited as in stream socket,
+>because same credit logic is used. Difference with stream socket is
+>that user is not woken up until whole record is received or error
+>occurred. Implementation also supports 'MSG_TRUNC' flags.
+>	Tests also implemented.
 >
->On 13.04.2021 15:47, Arseny Krasnov wrote:
->> This add logic, that serializes write access to single socket
->> by multiple threads. It is implemented be adding field with TID
->> of current writer. When writer tries to send something, it checks
->> that field is -1(free), else it sleep in the same way as waiting
->> for free space at peers' side.
->>
->> This implementation is PoC and not related to SEQPACKET close, so
->> i've placed it after whole patchset.
->>
->> Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
->> ---
->>  include/net/af_vsock.h   |  1 +
->>  net/vmw_vsock/af_vsock.c | 10 +++++++++-
->>  2 files changed, 10 insertions(+), 1 deletion(-)
->>
->> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
->> index 53d3f33dbdbf..786df80b9fc3 100644
->> --- a/include/net/af_vsock.h
->> +++ b/include/net/af_vsock.h
->> @@ -69,6 +69,7 @@ struct vsock_sock {
->>  	u64 buffer_size;
->>  	u64 buffer_min_size;
->>  	u64 buffer_max_size;
->> +	pid_t tid_owner;
->>
->>  	/* Private to transport. */
->>  	void *trans;
->> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
->> index 54bee7e643f4..d00f8c07a9d3 100644
->> --- a/net/vmw_vsock/af_vsock.c
->> +++ b/net/vmw_vsock/af_vsock.c
->> @@ -1765,7 +1765,9 @@ static int vsock_connectible_sendmsg(struct socket *sock, struct msghdr *msg,
->>  		ssize_t written;
->>
->>  		add_wait_queue(sk_sleep(sk), &wait);
->> -		while (vsock_stream_has_space(vsk) == 0 &&
->> +		while ((vsock_stream_has_space(vsk) == 0 ||
->> +			(vsk->tid_owner != current->pid &&
->> +			 vsk->tid_owner != -1)) &&
->>  		       sk->sk_err == 0 &&
->>  		       !(sk->sk_shutdown & SEND_SHUTDOWN) &&
->>  		       !(vsk->peer_shutdown & RCV_SHUTDOWN)) {
->> @@ -1796,6 +1798,8 @@ static int vsock_connectible_sendmsg(struct socket *sock, struct msghdr *msg,
->>  				goto out_err;
->>  			}
->>  		}
->> +
->> +		vsk->tid_owner = current->pid;
->>  		remove_wait_queue(sk_sleep(sk), &wait);
->>
->>  		/* These checks occur both as part of and after the loop
->> @@ -1852,7 +1856,10 @@ static int vsock_connectible_sendmsg(struct socket *sock, struct msghdr *msg,
->>  			err = total_written;
->>  	}
->>  out:
->> +	vsk->tid_owner = -1;
->>  	release_sock(sk);
->> +	sk->sk_write_space(sk);
->> +
->>  	return err;
->>  }
->>
->> @@ -2199,6 +2206,7 @@ static int vsock_create(struct net *net, struct socket *sock,
->>  		return -ENOMEM;
->>
->>  	vsk = vsock_sk(sk);
->> +	vsk->tid_owner = -1;
->This must be moved to '__vsock_create()'
+>	Thanks to stsp2@yandex.ru for encouragements and initial design
+>recommendations.
+>
+> Arseny Krasnov (19):
+>  af_vsock: update functions for connectible socket
+>  af_vsock: separate wait data loop
+>  af_vsock: separate receive data loop
+>  af_vsock: implement SEQPACKET receive loop
+>  af_vsock: implement send logic for SEQPACKET
+>  af_vsock: rest of SEQPACKET support
+>  af_vsock: update comments for stream sockets
+>  virtio/vsock: set packet's type in virtio_transport_send_pkt_info()
+>  virtio/vsock: simplify credit update function API
+>  virtio/vsock: defines and constants for SEQPACKET
+>  virtio/vsock: dequeue callback for SOCK_SEQPACKET
+>  virtio/vsock: add SEQPACKET receive logic
+>  virtio/vsock: rest of SOCK_SEQPACKET support
+>  virtio/vsock: enable SEQPACKET for transport
+>  vhost/vsock: enable SEQPACKET for transport
+>  vsock/loopback: enable SEQPACKET for transport
+>  vsock_test: add SOCK_SEQPACKET tests
+>  virtio/vsock: update trace event for SEQPACKET
+>  af_vsock: serialize writes to shared socket
+>
+> drivers/vhost/vsock.c                        |  31 +-
+> include/linux/virtio_vsock.h                 |  11 +
+> include/net/af_vsock.h                       |   8 +
+> .../events/vsock_virtio_transport_common.h   |   5 +-
+> include/uapi/linux/virtio_vsock.h            |   9 +
+> net/vmw_vsock/af_vsock.c                     | 470 +++++++++++------
+> net/vmw_vsock/virtio_transport.c             |  17 +
+> net/vmw_vsock/virtio_transport_common.c      | 167 ++++--
+> net/vmw_vsock/vsock_loopback.c               |  12 +
+> tools/testing/vsock/util.c                   |  32 +-
+> tools/testing/vsock/util.h                   |   3 +
+> tools/testing/vsock/vsock_test.c             |  63 +++
+> 12 files changed, 625 insertions(+), 203 deletions(-)
+>
+> v7 -> v8:
+> General changelog:
+> - whole idea is simplified: channel now considered reliable,
+>   so SEQ_BEGIN, SEQ_END, 'msg_len' and 'msg_id' were removed.
+>   Only thing that is used to mark end of message is bit in
+>   'flags' field of packet header: VIRTIO_VSOCK_SEQ_EOR. Packet
+>   with such bit set to 1 means, that this is last packet of
+>   message.
+>
+> - POSIX MSG_EOR support is removed, as there is no exact
+>   description how it works.
 
-Okay, I'll review the next version.
+It would be nice to support it, I'll try to see if I can find anything.
 
-In order to backport this fix to stable branches I think is better to 
-move at the beginning of this series or even out as a separate patch.
+I just reviewed the series. I think the most important things to fix are 
+the `seqpacket_allow` stored in the struct virtio_transport that is 
+wrong IMHO, and use cpu_to_le32()/le32_to_cpu() to access the flags.
+
+I also left some other comments around.
 
 Thanks,
 Stefano
 
->>
->>  	if (sock->type == SOCK_DGRAM) {
->>  		ret = vsock_assign_transport(vsk, NULL);
+>
+> - all changes to 'include/uapi/linux/virtio_vsock.h' moved
+>   to dedicated patch, as these changes linked with patch to
+>   spec.
+>
+> - patch 'virtio/vsock: SEQPACKET feature bit support' now merged
+>   to 'virtio/vsock: setup SEQPACKET ops for transport'.
+>
+> - patch 'vhost/vsock: SEQPACKET feature bit support' now merged
+>   to 'vhost/vsock: setup SEQPACKET ops for transport'.
+>
+> Per patch changelog:
+>  see every patch after '---' line.
+>
+> v6 -> v7:
+> General changelog:
+> - virtio transport callback for message length now removed
+>   from transport. Length of record is returned by dequeue
+>   callback.
+>
+> - function which tries to get message length now returns 0
+>   when rx queue is empty. Also length of current message in
+>   progress is set to 0, when message processed or error
+>   happens.
+>
+> - patches for virtio feature bit moved after patches with
+>   transport ops.
+>
+> Per patch changelog:
+>  see every patch after '---' line.
+>
+> v5 -> v6:
+> General changelog:
+> - virtio transport specific callbacks which send SEQ_BEGIN or
+>   SEQ_END now hidden inside virtio transport. Only enqueue,
+>   dequeue and record length callbacks are provided by transport.
+>
+> - virtio feature bit for SEQPACKET socket support introduced:
+>   VIRTIO_VSOCK_F_SEQPACKET.
+>
+> - 'msg_cnt' field in 'struct virtio_vsock_seq_hdr' renamed to
+>   'msg_id' and used as id.
+>
+> Per patch changelog:
+> - 'af_vsock: separate wait data loop':
+>    1) Commit message updated.
+>    2) 'prepare_to_wait()' moved inside while loop(thanks to
+>      Jorgen Hansen).
+>    Marked 'Reviewed-by' with 1), but as 2) I removed R-b.
+>
+> - 'af_vsock: separate receive data loop': commit message
+>    updated.
+>    Marked 'Reviewed-by' with that fix.
+>
+> - 'af_vsock: implement SEQPACKET receive loop': style fixes.
+>
+> - 'af_vsock: rest of SEQPACKET support':
+>    1) 'module_put()' added when transport callback check failed.
+>    2) Now only 'seqpacket_allow()' callback called to check
+>       support of SEQPACKET by transport.
+>
+> - 'af_vsock: update comments for stream sockets': commit message
+>    updated.
+>    Marked 'Reviewed-by' with that fix.
+>
+> - 'virtio/vsock: set packet's type in send':
+>    1) Commit message updated.
+>    2) Parameter 'type' from 'virtio_transport_send_credit_update()'
+>       also removed in this patch instead of in next.
+>
+> - 'virtio/vsock: dequeue callback for SOCK_SEQPACKET': SEQPACKET
+>    related state wrapped to special struct.
+>
+> - 'virtio/vsock: update trace event for SEQPACKET': format strings
+>    now not broken by new lines.
+>
+> v4 -> v5:
+> - patches reorganized:
+>   1) Setting of packet's type in 'virtio_transport_send_pkt_info()'
+>      is moved to separate patch.
+>   2) Simplifying of 'virtio_transport_send_credit_update()' is
+>      moved to separate patch and before main virtio/vsock patches.
+> - style problem fixed
+> - in 'af_vsock: separate receive data loop' extra 'release_sock()'
+>   removed
+> - added trace event fields for SEQPACKET
+> - in 'af_vsock: separate wait data loop':
+>   1) 'vsock_wait_data()' removed 'goto out;'
+>   2) Comment for invalid data amount is changed.
+> - in 'af_vsock: rest of SEQPACKET support', 'new_transport' pointer
+>   check is moved after 'try_module_get()'
+> - in 'af_vsock: update comments for stream sockets', 'connect-oriented'
+>   replaced with 'connection-oriented'
+> - in 'loopback/vsock: setup SEQPACKET ops for transport',
+>   'loopback/vsock' replaced with 'vsock/loopback'
+>
+> v3 -> v4:
+> - SEQPACKET specific metadata moved from packet header to payload
+>   and called 'virtio_vsock_seq_hdr'
+> - record integrity check:
+>   1) SEQ_END operation was added, which marks end of record.
+>   2) Both SEQ_BEGIN and SEQ_END carries counter which is incremented
+>      on every marker send.
+> - af_vsock.c: socket operations for STREAM and SEQPACKET call same
+>   functions instead of having own "gates" differs only by names:
+>   'vsock_seqpacket/stream_getsockopt()' now replaced with
+>   'vsock_connectible_getsockopt()'.
+> - af_vsock.c: 'seqpacket_dequeue' callback returns error and flag that
+>   record ready. There is no need to return number of copied bytes,
+>   because case when record received successfully is checked at virtio
+>   transport layer, when SEQ_END is processed. Also user doesn't need
+>   number of copied bytes, because 'recv()' from SEQPACKET could return
+>   error, length of users's buffer or length of whole record(both are
+>   known in af_vsock.c).
+> - af_vsock.c: both wait loops in af_vsock.c(for data and space) moved
+>   to separate functions because now both called from several places.
+> - af_vsock.c: 'vsock_assign_transport()' checks that 'new_transport'
+>   pointer is not NULL and returns 'ESOCKTNOSUPPORT' instead of 'ENODEV'
+>   if failed to use transport.
+> - tools/testing/vsock/vsock_test.c: rename tests
+>
+> v2 -> v3:
+> - patches reorganized: split for prepare and implementation patches
+> - local variables are declared in "Reverse Christmas tree" manner
+> - virtio_transport_common.c: valid leXX_to_cpu() for vsock header
+>   fields access
+> - af_vsock.c: 'vsock_connectible_*sockopt()' added as shared code
+>   between stream and seqpacket sockets.
+> - af_vsock.c: loops in '__vsock_*_recvmsg()' refactored.
+> - af_vsock.c: 'vsock_wait_data()' refactored.
+>
+> v1 -> v2:
+> - patches reordered: af_vsock.c related changes now before virtio vsock
+> - patches reorganized: more small patches, where +/- are not mixed
+> - tests for SOCK_SEQPACKET added
+> - all commit messages updated
+> - af_vsock.c: 'vsock_pre_recv_check()' inlined to
+>   'vsock_connectible_recvmsg()'
+> - af_vsock.c: 'vsock_assign_transport()' returns ENODEV if transport
+>   was not found
+> - virtio_transport_common.c: transport callback for seqpacket dequeue
+> - virtio_transport_common.c: simplified
+>   'virtio_transport_recv_connected()'
+> - virtio_transport_common.c: send reset on socket and packet type
+>			      mismatch.
+>
+>Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+>
+>-- 
+>2.25.1
 >
 
 _______________________________________________
