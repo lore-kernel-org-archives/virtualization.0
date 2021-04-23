@@ -2,108 +2,116 @@ Return-Path: <SRS0=bReq=JU=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABC72C433ED
-	for <virtualization@archiver.kernel.org>; Fri, 23 Apr 2021 11:57:11 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA238C433B4
+	for <virtualization@archiver.kernel.org>; Fri, 23 Apr 2021 20:14:48 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 50C976141C
-	for <virtualization@archiver.kernel.org>; Fri, 23 Apr 2021 11:57:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 50C976141C
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 7D9C96145F
+	for <virtualization@archiver.kernel.org>; Fri, 23 Apr 2021 20:14:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7D9C96145F
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 201934051A;
-	Fri, 23 Apr 2021 11:57:09 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 42BAB6064E;
+	Fri, 23 Apr 2021 20:14:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SFd3d5reywQN; Fri, 23 Apr 2021 11:57:07 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ZjbVp9ty_4fo; Fri, 23 Apr 2021 20:14:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9EC3D41836;
-	Fri, 23 Apr 2021 11:57:06 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id EF22E605DE;
+	Fri, 23 Apr 2021 20:14:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 83B56C0025;
-	Fri, 23 Apr 2021 11:57:05 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 20586C001A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C40A4C000E;
+	Fri, 23 Apr 2021 20:14:46 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4DF57C000B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Apr 2021 11:57:03 +0000 (UTC)
+ Fri, 23 Apr 2021 20:14:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id A15A260DD7
+ by smtp3.osuosl.org (Postfix) with ESMTP id 36ED3605E6
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Apr 2021 11:57:02 +0000 (UTC)
+ Fri, 23 Apr 2021 20:14:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id v0sHr2hoV5kx
+ with ESMTP id VpVDj_svK_Il
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Apr 2021 11:57:01 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com
- [IPv6:2a00:1450:4864:20::436])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 6E32360DAE
+ Fri, 23 Apr 2021 20:14:44 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id EE2B0605DE
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Apr 2021 11:57:01 +0000 (UTC)
-Received: by mail-wr1-x436.google.com with SMTP id w4so44399727wrt.5
+ Fri, 23 Apr 2021 20:14:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1619208882;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=kPiSTsL8TiObPGwF4YH7BB+/X0Qk9VUlPRyHxvfkG+U=;
+ b=BCd5P5e5uuIrNOoNkM+7wrepI1tyv5bblCsI+TvMzz86eEckPzqw0zfkCcaPweKF27iUix
+ zh/9S/3A3td8b4Kydx44DORJS/c8eWqNJr/RJNMvSXCSRNy5ybO2kw0P9aFV689B05hpGq
+ /LmSUREOpEk7jOrjPFD9Wfaee9spe+0=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-455-NtCHZ9v8PDqfxJmX4jEEBg-1; Fri, 23 Apr 2021 16:14:37 -0400
+X-MC-Unique: NtCHZ9v8PDqfxJmX4jEEBg-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ t14-20020a5d6a4e0000b029010277dcae0fso15401841wrw.22
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Apr 2021 04:57:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=UQIMwLFTls4/WJjymQFgC41Tqut/moVpCvSGVMf3p14=;
- b=Se4ZGfMvg0biJnx9os+LbCidHgcUoRYMUQXaJ9i8nJ8CAL99l38h8GPg0NHq49WW6Y
- mw1HDf5F6KlG0LIlhxpFz1Dbr6v7NyQtWGEUGnus7O1uj9JPoj+FvchqF9voIr3Lw7+2
- M5dc/EKCPMli8MltA6zuQTi89PJ9sKFptK+3b5ZJjI7nOKf8bLoctqz1zx/o4CnCIsrz
- JVrPibAH9yZspQx1yQAZZh7zv5PsJ/AMqDE0G3P0W0WF+vxlnmr3nPjMz3ikPlpBZRAf
- 93+Y7IU3tAdRYBSUiBhAwU3/KwrrQ/nBjUi+aREYk3hY3aK8OVBk4gpyUtNN/QrgrUzU
- 79hg==
+ Fri, 23 Apr 2021 13:14:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=UQIMwLFTls4/WJjymQFgC41Tqut/moVpCvSGVMf3p14=;
- b=MD+HzvxFCRbalVOhkNFuUdM7mMyoRfK57k6sMYkoCyYhejMlyOp954oFWpY51a+3a4
- pWcc6X7Mi3TMu9jxc9JdCgiKTbTLzWuS8s3Z4sxJ1yjuZmRnT8gMVJuAgN+b9TeIxSVc
- Svy2IgskmnIacw+PI+MJ7wgh3VD9uhXmV06p7iJFw/OFPrV3DniaA1rSt4SVZjd6l0Xl
- v1Dx2dXwzC4PJ4MTRpdwVctFb5slN+CvFeyJecmEx1Oq31SN2K5o6bQbgFxhQfeeRVDm
- P2ktjKf1SqlmBLptdEsEnbtBGn4N9hB2ghoTm9b891i8bEV46AYTEgMIO08C9tkDGlBS
- K7YQ==
-X-Gm-Message-State: AOAM530bsqV5SzGgy0NeH//Zu7y+40Xa5KhtG5AFW4JDNksjhVvJqYr5
- 5D3PLBtHea1KSdxPMTJ/zCO9CA==
-X-Google-Smtp-Source: ABdhPJysuuOvIFTUKOIqqVw+v/bc4x5l41zhX5bZVOgfrTtfrN8ysU7xvrJmyKi3hnVPMITPgWptTQ==
-X-Received: by 2002:adf:a1db:: with SMTP id v27mr4292159wrv.181.1619179019689; 
- Fri, 23 Apr 2021 04:56:59 -0700 (PDT)
-Received: from localhost.localdomain
- ([2001:1715:4e26:a7e0:116c:c27a:3e7f:5eaf])
- by smtp.gmail.com with ESMTPSA id g9sm7485195wmh.21.2021.04.23.04.56.58
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=kPiSTsL8TiObPGwF4YH7BB+/X0Qk9VUlPRyHxvfkG+U=;
+ b=TAszd6/jYEgaUkvHCV572BvbjfbWfYEFcyELau5kVZsnuDfiBEEVZJHe9XQTrV7eS2
+ ZeNt3y3hamiAQ1/hWH/FlvIMc8fiiaN38rBa6BNnLSO5a0CbI6bqUueodY/2WNVGXw5H
+ XZDdgCBbXviz/1180Ne6b5iApGHTasAs4678TUq9f02F+y0eYKqoAIKnHY9RtI2aUX7d
+ T5hEmrRUheLyyniIuuqGCvZTjFcE1CAyAbSVL/qQY8MGmW1o1+Qx1glIOkzW6grgOyxr
+ 62mr5FYg794dJqAnTs+wM3kNVMH77zM4j2p2xka6g2U3GipkJT5AhPm2W794hVpx+H+P
+ mxVg==
+X-Gm-Message-State: AOAM533uNlnOhMkGu4dg8ucP+1wi8jPqVjnkVS5LlRtygiuexMafpgKI
+ xutkt8ZHgBgHwjPxs9h2MR6EqeIJHgAKz20+fH36DVh4v3K0XyU6KKn5VslZz3YwYJiHhS0ZyOB
+ PUL6r8ngmcX4yXnOLLULVIKH0aFJp891cUOS+4ZCHgA==
+X-Received: by 2002:adf:f0cc:: with SMTP id x12mr6889803wro.16.1619208876781; 
+ Fri, 23 Apr 2021 13:14:36 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxS1qAa/j7zcr+DtFN+X2GWOzkZj3CTy5jb00vUo5xDAoIFKiSI5gTfVmMkq6tnjXpLfUWn/g==
+X-Received: by 2002:adf:f0cc:: with SMTP id x12mr6889783wro.16.1619208876551; 
+ Fri, 23 Apr 2021 13:14:36 -0700 (PDT)
+Received: from redhat.com (212.116.168.114.static.012.net.il.
+ [212.116.168.114])
+ by smtp.gmail.com with ESMTPSA id s14sm9819112wrm.51.2021.04.23.13.14.34
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 23 Apr 2021 04:56:59 -0700 (PDT)
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-To: rjw@rjwysocki.net,
-	lenb@kernel.org,
-	joro@8bytes.org,
-	mst@redhat.com
-Subject: [PATCH v2 6/6] iommu/virtio: Enable x86 support
-Date: Fri, 23 Apr 2021 13:38:37 +0200
-Message-Id: <20210423113836.3974972-7-jean-philippe@linaro.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210423113836.3974972-1-jean-philippe@linaro.org>
-References: <20210423113836.3974972-1-jean-philippe@linaro.org>
+ Fri, 23 Apr 2021 13:14:35 -0700 (PDT)
+Date: Fri, 23 Apr 2021 16:14:32 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH 0/7] Untrusted device support for virtio
+Message-ID: <20210423161114-mutt-send-email-mst@kernel.org>
+References: <20210421032117.5177-1-jasowang@redhat.com>
+ <20210422063128.GB4176641@infradead.org>
+ <0c61dcbb-ac5b-9815-a4a1-5f93ae640011@redhat.com>
 MIME-Version: 1.0
-Cc: jean-philippe@linaro.org, lorenzo.pieralisi@arm.com, eric.auger@redhat.com,
- catalin.marinas@arm.com, sudeep.holla@arm.com, robin.murphy@arm.com,
- virtualization@lists.linux-foundation.org, linux-acpi@vger.kernel.org,
- iommu@lists.linux-foundation.org, sebastien.boeuf@intel.com,
- guohanjun@huawei.com, will@kernel.org, dwmw2@infradead.org,
- linux-arm-kernel@lists.infradead.org, baolu.lu@linux.intel.com
+In-Reply-To: <0c61dcbb-ac5b-9815-a4a1-5f93ae640011@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: ashish.kalra@amd.com, file@sect.tu-berlin.de,
+ martin.radev@aisec.fraunhofer.de, kvm@vger.kernel.org, konrad.wilk@oracle.com,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Christoph Hellwig <hch@infradead.org>, xieyongji@bytedance.com,
+ stefanha@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,84 +123,32 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-With the VIOT support in place, x86 platforms can now use the
-virtio-iommu.
-
-Because the other x86 IOMMU drivers aren't yet ready to use the
-acpi_dma_setup() path, x86 doesn't implement arch_setup_dma_ops() at the
-moment. Similarly to Vt-d and AMD IOMMU, call iommu_setup_dma_ops() from
-probe_finalize().
-
-Acked-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
----
- drivers/iommu/Kconfig        | 3 ++-
- drivers/iommu/dma-iommu.c    | 1 +
- drivers/iommu/virtio-iommu.c | 8 ++++++++
- 3 files changed, 11 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
-index aff8a4830dd1..07b7c25cbed8 100644
---- a/drivers/iommu/Kconfig
-+++ b/drivers/iommu/Kconfig
-@@ -400,8 +400,9 @@ config HYPERV_IOMMU
- config VIRTIO_IOMMU
- 	tristate "Virtio IOMMU driver"
- 	depends on VIRTIO
--	depends on ARM64
-+	depends on (ARM64 || X86)
- 	select IOMMU_API
-+	select IOMMU_DMA
- 	select INTERVAL_TREE
- 	select ACPI_VIOT if ACPI
- 	help
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index 175f8eaeb5b3..46ed43c400cf 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -1332,6 +1332,7 @@ void iommu_setup_dma_ops(struct device *dev, u64 dma_base, u64 dma_limit)
- 	 pr_warn("Failed to set up IOMMU for device %s; retaining platform DMA ops\n",
- 		 dev_name(dev));
- }
-+EXPORT_SYMBOL_GPL(iommu_setup_dma_ops);
- 
- static struct iommu_dma_msi_page *iommu_dma_get_msi_page(struct device *dev,
- 		phys_addr_t msi_addr, struct iommu_domain *domain)
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index 29a397c2d12f..8be546a338e7 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -1027,6 +1027,13 @@ static struct iommu_device *viommu_probe_device(struct device *dev)
- 	return ERR_PTR(ret);
- }
- 
-+static void viommu_probe_finalize(struct device *dev)
-+{
-+#ifndef CONFIG_ARCH_HAS_SETUP_DMA_OPS
-+	iommu_setup_dma_ops(dev, 0, U64_MAX);
-+#endif
-+}
-+
- static void viommu_release_device(struct device *dev)
- {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-@@ -1063,6 +1070,7 @@ static struct iommu_ops viommu_ops = {
- 	.iova_to_phys		= viommu_iova_to_phys,
- 	.iotlb_sync		= viommu_iotlb_sync,
- 	.probe_device		= viommu_probe_device,
-+	.probe_finalize		= viommu_probe_finalize,
- 	.release_device		= viommu_release_device,
- 	.device_group		= viommu_device_group,
- 	.get_resv_regions	= viommu_get_resv_regions,
--- 
-2.31.1
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVGh1LCBBcHIgMjIsIDIwMjEgYXQgMDQ6MTk6MTZQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiDlnKggMjAyMS80LzIyIOS4i+WNiDI6MzEsIENocmlzdG9waCBIZWxsd2lnIOWGmemB
+kzoKPiA+IE9uIFdlZCwgQXByIDIxLCAyMDIxIGF0IDExOjIxOjEwQU0gKzA4MDAsIEphc29uIFdh
+bmcgd3JvdGU6Cj4gPiA+IFRoZSBiZWhhaXZvciBmb3Igbm9uIERNQSBBUEkgaXMga2VwdCBmb3Ig
+bWluaW1pemluZyB0aGUgcGVyZm9ybWFuY2UKPiA+ID4gaW1wYWN0Lgo+ID4gTkFLLiAgRXZlcnlv
+bmUgc2hvdWxkIGJlIHVzaW5nIHRoZSBETUEgQVBJIGluIGEgbW9kZXJuIHdvcmxkLiAgU28KPiA+
+IHRyZWF0aW5nIHRoZSBETUEgQVBJIHBhdGggd29yc2UgdGhhbiB0aGUgYnJva2VuIGxlZ2FjeSBw
+YXRoIGRvZXMgbm90Cj4gPiBtYWtlIGFueSBzZW5zZSB3aGF0c29ldmVyLgo+IAo+IAo+IEkgdGhp
+bmsgdGhlIGdvYWwgaXMgbm90IHRyZWF0IERNQSBBUEkgcGF0aCB3b3JzZSB0aGFuIGxlZ2FjeS4g
+VGhlIGlzc3VlIGlzCj4gdGhhdCB0aGUgbWFuYWdlbWVudCBsYXllciBzaG91bGQgZ3VhcmFudGVl
+IHRoYXQgQUNDRVNTX1BMQVRGT1JNIGlzIHNldCBzbwo+IERNQSBBUEkgaXMgZ3VhcmFudGVlZCB0
+byBiZSB1c2VkIGJ5IHRoZSBkcml2ZXIuIFNvIEknbSBub3Qgc3VyZSBob3cgbXVjaAo+IHZhbHVl
+IHdlIGNhbiBnYWluIGZyb20gdHJ5aW5nIHRvICdmaXgnIHRoZSBsZWdhY3kgcGF0aC4gQnV0IEkg
+Y2FuIGNoYW5nZSB0aGUKPiBiZWhhdmlvciBvZiBsZWdhY3kgcGF0aCB0byBtYXRjaCBETUEgQVBJ
+IHBhdGguCj4gCj4gVGhhbmtzCgpJIHRoaW5rIGJlZm9yZSB3ZSBtYWludGFpbiBkaWZmZXJlbnQg
+cGF0aHMgd2l0aC93aXRob3V0IEFDQ0VTU19QTEFURk9STQppdCdzIHdvcnRoIGNoZWNraW5nIHdo
+ZXRoZXIgaXQncyBldmVuIGEgbmV0IGdhaW4uIEF2b2lkaW5nIHNoYXJpbmcKYnkgc3RvcmluZyBk
+YXRhIGluIHByaXZhdGUgbWVtb3J5IGNhbiBhY3R1YWxseSB0dXJuIG91dCB0byBiZQphIG5ldCBn
+YWluIGV2ZW4gd2l0aG91dCBETUEgQVBJLgoKSXQgaXMgd29ydGggY2hlY2tpbmcgd2hhdCBpcyB0
+aGUgcGVyZm9ybWFuY2UgZWZmZWN0IG9mIHRoaXMgcGF0Y2guCgoKLS0gCk1TVAoKX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
+bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
+Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
+aW9u
