@@ -2,99 +2,78 @@ Return-Path: <SRS0=15y9=JX=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_RED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96C7DC433ED
-	for <virtualization@archiver.kernel.org>; Mon, 26 Apr 2021 10:20:18 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 724ADC433B4
+	for <virtualization@archiver.kernel.org>; Mon, 26 Apr 2021 12:18:15 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2A392611CE
-	for <virtualization@archiver.kernel.org>; Mon, 26 Apr 2021 10:20:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2A392611CE
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=codilime.com
+	by mail.kernel.org (Postfix) with ESMTPS id A2D82610A2
+	for <virtualization@archiver.kernel.org>; Mon, 26 Apr 2021 12:18:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A2D82610A2
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id AFEDA8366E;
-	Mon, 26 Apr 2021 10:20:17 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3DD9740466;
+	Mon, 26 Apr 2021 12:18:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3UVvW6o9FCP8; Mon, 26 Apr 2021 10:20:16 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5BCF482E0E;
-	Mon, 26 Apr 2021 10:20:16 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JSDoYtumnnzM; Mon, 26 Apr 2021 12:18:12 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 4B4444029C;
+	Mon, 26 Apr 2021 12:18:12 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 30D23C000E;
-	Mon, 26 Apr 2021 10:20:16 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B08EBC000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1E8C3C000F;
+	Mon, 26 Apr 2021 12:18:12 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BE5A8C000B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Apr 2021 10:20:15 +0000 (UTC)
+ Mon, 26 Apr 2021 12:18:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 9F50C605F0
+ by smtp2.osuosl.org (Postfix) with ESMTP id A877B4028A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Apr 2021 10:20:15 +0000 (UTC)
+ Mon, 26 Apr 2021 12:18:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=codilime.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KND9xRngRmWO
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id TuIu2KQZxxat
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Apr 2021 10:20:14 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com
- [IPv6:2a00:1450:4864:20::130])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 2F58B6058C
+ Mon, 26 Apr 2021 12:18:09 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 4B43040276
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Apr 2021 10:20:14 +0000 (UTC)
-Received: by mail-lf1-x130.google.com with SMTP id n138so87604478lfa.3
- for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Apr 2021 03:20:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codilime.com; s=google;
- h=from:to:cc:subject:date:message-id:mime-version;
- bh=WxYWwA6mEw0KJTNBuUofOdthE/VY20C4OhSk4uI2arc=;
- b=PO1YmaoDYrmmfBHZ87vyRz1Qp8Mb2BDYvze7Sy/UiziGsAlmDd6UjvnwdZWTIbcFhh
- qjS7DwpuT+e8wHByeFC5SUcA1fbp0gV7GfOqoGcMry3YdzmZcT2lKX79GkYjeaKOjoyM
- vSc0H6+xk1JREdGMjlB9A9vwTKjbZmlEbYunnfJt4XjhWb3vBBCPnha+PbNyuD6m6XdS
- 66msNI6pPuaGYJHgHSsXhwT3mwjxV9Ukv5Y0OfLQuZV+jAiknhrEpw3/58Pz1LnCtwsh
- LP1fr2j0RE+fVTozN2wgq3iNMxvCIriOhn5fCz0Ge/bUb1xaBCXPgQu/bzvwkxClrpJP
- lYIA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version;
- bh=WxYWwA6mEw0KJTNBuUofOdthE/VY20C4OhSk4uI2arc=;
- b=PmiFhQFMCK1F9fWewnYZ1QUEa2MQDcUozkTTjymfIU0WNlqoM/W0RKu9UrKOqih01r
- fpu/6unKQgelDUMElBm5MlBSCHFMOjf/MFAD13tYSDynW9TNtPjHBRIj5QApQ+5zrPLh
- oSP1yqubyCNj2iqIH+10+d0ItW8kh5wQnYjekDHqrvyUDLm9r68f0+kL1yyzqnUJcE1h
- hiWlKw/+6PAjwLbBumRIIzhJQnNsLcDjJV+odQbbfEevhSRxXh8J3VobiH2L1ctIHnMX
- 132g52tp8KEGWk16OAiCoZsSJ76Qp27tCHWySSHoKaWBHPaFJw5eR9qWQtw1GwCOBjmw
- avAg==
-X-Gm-Message-State: AOAM531hOV+UN6a2swB/o0pRb1Tfrx8avP1x/PzSYt/4x5MqWluiRvI3
- ESjDaZSOZ0yZRhgdQ4SWPl7/ai3273KxnhEvfitwQf68DgrA0C3tRgD+ArKqh2u+mQrOZiYKJ73
- SEo8FZdj6nZWI7lrbrGRcrZIvhey36BWGkOKXcXEGzF4rMPvC
-X-Google-Smtp-Source: ABdhPJzyzUuUAFTFnZSJzbsaG/OEH73aHx+UC2ukR4nb0NITIXocB7ghkbMRyrXdJgxZruYnUJoVAQ==
-X-Received: by 2002:a05:6512:3b92:: with SMTP id
- g18mr12161689lfv.646.1619432411932; 
- Mon, 26 Apr 2021 03:20:11 -0700 (PDT)
-Received: from ak-snic-codilime.intra.codilime.com
- (195191163011.dynamic-2-waw-k-1-3-0.vectranet.pl. [195.191.163.11])
- by smtp.googlemail.com with ESMTPSA id p15sm1408212lft.60.2021.04.26.03.20.10
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 26 Apr 2021 03:20:11 -0700 (PDT)
-From: Arkadiusz Kudan <arkadiusz.kudan@codilime.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH] virtio-net: enable SRIOV
-Date: Mon, 26 Apr 2021 12:21:35 +0200
-Message-Id: <20210426102135.227802-1-arkadiusz.kudan@codilime.com>
-X-Mailer: git-send-email 2.31.1
+ Mon, 26 Apr 2021 12:18:09 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+ by mx2.suse.de (Postfix) with ESMTP id 06774AAC2;
+ Mon, 26 Apr 2021 12:18:07 +0000 (UTC)
+To: Daniel Vetter <daniel@ffwll.ch>, Geert Uytterhoeven <geert@linux-m68k.org>
+References: <20210416090048.11492-1-tzimmermann@suse.de>
+ <CAMuHMdWcC8O+UzQDQj7Bm4uK_myjFT5D2ccTmneTJYi4SMfCRQ@mail.gmail.com>
+ <YH6U92Q71ntU6Z1R@phenom.ffwll.local>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: [PATCH v4 0/9] drm: Support simple-framebuffer devices and
+ firmware fbs
+Message-ID: <86308b36-57ec-a796-90c1-e4349e914823@suse.de>
+Date: Mon, 26 Apr 2021 14:18:05 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.9.1
 MIME-Version: 1.0
-Cc: netdev@vger.kernel.org,
- Miroslaw Walukiewicz <Miroslaw.Walukiewicz@intel.com>, mst@redhat.com
+In-Reply-To: <YH6U92Q71ntU6Z1R@phenom.ffwll.local>
+Cc: bluescreen_avenger@verizon.net,
+ "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+ David Airlie <airlied@linux.ie>, Greg KH <gregkh@linuxfoundation.org>,
+ Jonathan Corbet <corbet@lwn.net>, Emil Velikov <emil.l.velikov@gmail.com>,
+ Liam Girdwood <lgirdwood@gmail.com>,
+ DRI Development <dri-devel@lists.freedesktop.org>,
+ virtualization@lists.linux-foundation.org, Hans de Goede <hdegoede@redhat.com>,
+ Mark Brown <broonie@kernel.org>, Sam Ravnborg <sam@ravnborg.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,59 +85,151 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3984571404718889488=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-With increasing interest for virtio, NIC have appeared that provide
-SRIOV with PF appearing in the host as a virtio network device
-and probably more similiar NICs will emerge.
-igb_uio of DPDK or pci-pf-stub can be used to provide SRIOV,
-however there are hypervisors/VMMs that require VFs, which are
-to be PCI passthrued to a VM, to have its PF with network
-representation in the kernel. For virtio-net based PFs,
-virtio-net could do that by providing both SRIOV interface and
-netdev representation.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============3984571404718889488==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="lBuP66u9y4XjZkJNHdNatNsdpuWhHd6se"
 
-Enable SRIOV via VIRTIO_F_SR_IOV feature bit if the device
-supports it.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--lBuP66u9y4XjZkJNHdNatNsdpuWhHd6se
+Content-Type: multipart/mixed; boundary="V0T90OAKdCCCeuCZ7w2gMsS6W7UBMI5xV";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Daniel Vetter <daniel@ffwll.ch>, Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: bluescreen_avenger@verizon.net, Jonathan Corbet <corbet@lwn.net>,
+ David Airlie <airlied@linux.ie>, Emil Velikov <emil.l.velikov@gmail.com>,
+ DRI Development <dri-devel@lists.freedesktop.org>,
+ "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+ Liam Girdwood <lgirdwood@gmail.com>,
+ virtualization@lists.linux-foundation.org,
+ Hans de Goede <hdegoede@redhat.com>, Mark Brown <broonie@kernel.org>,
+ Gerd Hoffmann <kraxel@redhat.com>, Greg KH <gregkh@linuxfoundation.org>,
+ Sam Ravnborg <sam@ravnborg.org>
+Message-ID: <86308b36-57ec-a796-90c1-e4349e914823@suse.de>
+Subject: Re: [PATCH v4 0/9] drm: Support simple-framebuffer devices and
+ firmware fbs
+References: <20210416090048.11492-1-tzimmermann@suse.de>
+ <CAMuHMdWcC8O+UzQDQj7Bm4uK_myjFT5D2ccTmneTJYi4SMfCRQ@mail.gmail.com>
+ <YH6U92Q71ntU6Z1R@phenom.ffwll.local>
+In-Reply-To: <YH6U92Q71ntU6Z1R@phenom.ffwll.local>
 
-Signed-off-by: Arkadiusz Kudan <arkadiusz.kudan@codilime.com>
-Signed-off-by: Miroslaw Walukiewicz <Miroslaw.Walukiewicz@intel.com>
----
- drivers/net/virtio_net.c | 1 +
- 1 file changed, 1 insertion(+)
+--V0T90OAKdCCCeuCZ7w2gMsS6W7UBMI5xV
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 0824e6999e49..a03aa7e99689 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3249,6 +3249,7 @@ static struct virtio_device_id id_table[] = {
- 
- static unsigned int features[] = {
- 	VIRTNET_FEATURES,
-+	VIRTIO_F_SR_IOV,
- };
- 
- static unsigned int features_legacy[] = {
--- 
-2.31.1
+Hi
+
+Am 20.04.21 um 10:46 schrieb Daniel Vetter:
+> On Mon, Apr 19, 2021 at 10:00:56AM +0200, Geert Uytterhoeven wrote:
+>> Hi Thomas,
+>>
+>> On Fri, Apr 16, 2021 at 11:00 AM Thomas Zimmermann <tzimmermann@suse.d=
+e> wrote:
+>>> This patchset adds support for simple-framebuffer platform devices an=
+d
+>>> a handover mechanism for native drivers to take-over control of the
+>>> hardware.
+>>>
+>>> The new driver, called simpledrm, binds to a simple-frambuffer platfo=
+rm
+>>> device. The kernel's boot code creates such devices for firmware-prov=
+ided
+>>> framebuffers, such as EFI-GOP or VESA. Typically the BIOS, UEFI or bo=
+ot
+>>> loader sets up the framebuffers. Description via device tree is also =
+an
+>>> option.
+>>
+>> I guess this can be used as a replacement for offb, too...
+>>
+>>> Patches 4 to 8 add the simpledrm driver. It's build on simple DRM hel=
+pers
+>>> and SHMEM. It supports 16-bit, 24-bit and 32-bit RGB framebuffers. Du=
+ring
+>>
+>> .... if support for 8-bit frame buffers would be added?
+
+Offb doesn't seem to be tied to the simple-framebuffer support. So=20
+adding a new driver or extending the simple-framebuffer code would be=20
+required. Not a big deal, though. Patch 3 of this patchset adds the=20
+ability to create generic drivers within DRM.
+
+>=20
+> Is that 8-bit greyscale or 8-bit indexed with 256 entry palette? Former=
+
+> shouldn't be a big thing, but the latter is only really supported by th=
+e
+> overall drm ecosystem in theory. Most userspace assumes that xrgb8888
+> works, and we keep that illusion up by emulating it in kernel for hw wh=
+ich
+> just doesn't support it. But reformatting xrgb8888 to c8 is tricky at
+> best. The uapis are all there for setting the palette, and C8 is a defi=
+ned
+> format even with atomic kms interface, but really there's not much
+> userspace for it. In other words, it would work as well as current offb=
+
+> would, but that's at least that.
+
+I think we can just use a shadow palette in the drm driver: If the drm=20
+framebuffer is in C8, use the userspace's palette. If the drm=20
+framebuffer is in XRGB, use a palette that represents RGB332. The driver =
+
+would do on-the-fly conversion; just like cirrus does.
+
+Best regards
+Thomas
+
+> -Daniel
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
 
 
--- 
+--V0T90OAKdCCCeuCZ7w2gMsS6W7UBMI5xV--
 
+--lBuP66u9y4XjZkJNHdNatNsdpuWhHd6se
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
 
--------------------------------
-This document contains material that is 
-confidential in CodiLime Sp. z o.o. DO NOT PRINT. DO NOT COPY. DO NOT 
-DISTRIBUTE. If you are not the intended recipient of this document, be 
-aware that any use, review, retransmission, distribution, reproduction or 
-any action taken in reliance upon this message is strictly prohibited. If 
-you received this in error, please contact the sender and help@codilime.com 
-<mailto:help@codilime.com>. Return the paper copy, delete the material from 
-all computers and storage media.
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmCGr30FAwAAAAAACgkQlh/E3EQov+Cr
+DA//Sx7ui9rpLZrPjInOfeQNs5CuN7Mfjm+qaTu0vtwwp7G/+91vczboJ/wIVoLEgso2U5Sudpk9
++IliCPmPBFdfk6+zQ0chMyMl4YSrpTvgu4nIZTRljRH0Fcscv0aSU67oXxEhar/o5augSEFabmMw
+SGu+uc4lrTYw0EuP7IO6oK7OY2AwF/eYbYhrhN17Sz7ftEeVKCr8WAGvtFHFFef+6qEKQy4Z2CZx
+hVnAcCHp3nhLqD8tnl50qTkqog0CNhUwNcnVYZWU4jNnppidVVjnHwuElfgyJ2LX9E+mHX7LWZj9
++4X1b/q7y7ltgHQLBVxnLrJk6RN5Ek3Rxbam6CsaC/9drg+2M7ut9K2UZRGsd3Z5uo9uTGmQimTG
+D8RgglwYn9Q3IxY7TdixyI+imA8yoxTPOn1ZjACeJOzMBSzOkn95JPTiaJvmFTq1mqZzFaWIhKEf
+ngJNIf7zmZqkgN63HP6V7GJvqOYgwOFd4qZDAc8LNXjkm4o43HiuUJu7VepMLdPwVzrMpaqXq64W
+DqsZVkVrjuQmqFwNvmBMpnA/XwpfDuIxDUrpcwEP3WoC+4lSStc9Ekd1/SxOY/M2CZdb9adgdyio
+QkLRiHA2kdja4yVhWBbSMJMs5cdR0QHmqUcDiseb5iJ/oWRENeN5e7lwWhtS7UtCmS8f22uFfXk1
+66I=
+=YuuR
+-----END PGP SIGNATURE-----
+
+--lBuP66u9y4XjZkJNHdNatNsdpuWhHd6se--
+
+--===============3984571404718889488==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3984571404718889488==--
