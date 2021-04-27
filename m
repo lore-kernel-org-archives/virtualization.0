@@ -2,69 +2,100 @@ Return-Path: <SRS0=gqJU=JY=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D16CFC43460
-	for <virtualization@archiver.kernel.org>; Tue, 27 Apr 2021 06:58:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D676C43460
+	for <virtualization@archiver.kernel.org>; Tue, 27 Apr 2021 09:56:17 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5B59C61076
-	for <virtualization@archiver.kernel.org>; Tue, 27 Apr 2021 06:58:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5B59C61076
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id F2A04613C7
+	for <virtualization@archiver.kernel.org>; Tue, 27 Apr 2021 09:56:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F2A04613C7
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 19DCC6068B;
-	Tue, 27 Apr 2021 06:58:42 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8ED496069A;
+	Tue, 27 Apr 2021 09:56:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lqdG1j82eCa1; Tue, 27 Apr 2021 06:58:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6234D6065A;
-	Tue, 27 Apr 2021 06:58:40 +0000 (UTC)
+	with ESMTP id FeZktCAHqJge; Tue, 27 Apr 2021 09:56:15 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 46B4760623;
+	Tue, 27 Apr 2021 09:56:15 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 30824C000E;
-	Tue, 27 Apr 2021 06:58:40 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 02D8AC000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 181D4C000F;
+	Tue, 27 Apr 2021 09:56:15 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0F615C000B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Apr 2021 06:58:39 +0000 (UTC)
+ Tue, 27 Apr 2021 09:56:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id E54394043F
+ by smtp2.osuosl.org (Postfix) with ESMTP id E9A6540454
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Apr 2021 06:58:38 +0000 (UTC)
+ Tue, 27 Apr 2021 09:56:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Ltn-YNjOyjyM
+ with ESMTP id kqrV1fk5YuUP
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Apr 2021 06:58:37 +0000 (UTC)
+ Tue, 27 Apr 2021 09:56:13 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7AB1F4043A
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 22BBD40172
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Apr 2021 06:58:37 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id D3E9EAF9C;
- Tue, 27 Apr 2021 06:58:35 +0000 (UTC)
+ Tue, 27 Apr 2021 09:56:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1619517371;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=CqBHus7kNunXCOzNNE8SVUvJLOs32xdLfSR01IvYTjU=;
+ b=cx46+i78TZkiiJrbOMnVvCkJP1b13mcQ23KUCc3C5sMzDKhgenXBB0T7ShYRpXJhWlDPgw
+ yRWmbc5htuNMKOYLWZatglWh8ZwThuw24qzG0k4RV4gS8q9jcw7fx2cIOZh2NLJZyOIXZA
+ Sql551LmJMAE17+6a15vo50a0MH85As=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-527-FkEAHZAiN6iRONCgF87vEA-1; Tue, 27 Apr 2021 05:56:09 -0400
+X-MC-Unique: FkEAHZAiN6iRONCgF87vEA-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C10C96D241;
+ Tue, 27 Apr 2021 09:56:07 +0000 (UTC)
+Received: from sirius.home.kraxel.org (ovpn-112-203.ams2.redhat.com
+ [10.36.112.203])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 63C7D5D9C0;
+ Tue, 27 Apr 2021 09:56:07 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+ id 4A7B61800393; Tue, 27 Apr 2021 11:56:04 +0200 (CEST)
+Date: Tue, 27 Apr 2021 11:56:04 +0200
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>
 Subject: Re: [PATCH v2] drm/bochs: Add screen blanking support
-To: Takashi Iwai <tiwai@suse.de>
+Message-ID: <20210427095604.razo3nrqbfhcjrmd@sirius.home.kraxel.org>
 References: <20210421080859.14869-1-tiwai@suse.de>
- <d1b1fa01-2254-f5cf-0ed0-f8e9c1c3f9ae@suse.de> <s5hk0oo1c9d.wl-tiwai@suse.de>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <a557e727-d866-3dd3-ec96-741e7da7cf62@suse.de>
-Date: Tue, 27 Apr 2021 08:58:35 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.9.1
+ <d1b1fa01-2254-f5cf-0ed0-f8e9c1c3f9ae@suse.de>
+ <s5hk0oo1c9d.wl-tiwai@suse.de>
+ <a557e727-d866-3dd3-ec96-741e7da7cf62@suse.de>
 MIME-Version: 1.0
-In-Reply-To: <s5hk0oo1c9d.wl-tiwai@suse.de>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <a557e727-d866-3dd3-ec96-741e7da7cf62@suse.de>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=kraxel@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Takashi Iwai <tiwai@suse.de>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -76,336 +107,29 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============0594632573358065740=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============0594632573358065740==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="5VfHzjXGKY4Bp7DBCovbXHtLxQw2QFajo"
+> > I'm fine to change in any better way, of course, so feel free to
+> > modify the patch.
+> 
+> If no one objects, I'll merge it as-is. It's somewhat wrong wrt to VGA, but
+> apparently what qemu wants.
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---5VfHzjXGKY4Bp7DBCovbXHtLxQw2QFajo
-Content-Type: multipart/mixed; boundary="NflIGcYDCC7PD56qc8Fs6aE2xzAEXhWUP";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: dri-devel@lists.freedesktop.org, Gerd Hoffmann <kraxel@redhat.com>,
- virtualization@lists.linux-foundation.org
-Message-ID: <a557e727-d866-3dd3-ec96-741e7da7cf62@suse.de>
-Subject: Re: [PATCH v2] drm/bochs: Add screen blanking support
-References: <20210421080859.14869-1-tiwai@suse.de>
- <d1b1fa01-2254-f5cf-0ed0-f8e9c1c3f9ae@suse.de> <s5hk0oo1c9d.wl-tiwai@suse.de>
-In-Reply-To: <s5hk0oo1c9d.wl-tiwai@suse.de>
+No objections.
 
---NflIGcYDCC7PD56qc8Fs6aE2xzAEXhWUP
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 
-Hi
+FYI: cirrus is in the same situation, the modesetting works with qemu
+but is possibly incomplete and might not work on cirrus real hardware
+(it only binds to the qemu subsystem id for that reason).
 
-Am 27.04.21 um 08:18 schrieb Takashi Iwai:
-> On Mon, 26 Apr 2021 20:44:55 +0200,
-> Thomas Zimmermann wrote:
->>
->> Hi
->>
->> Am 21.04.21 um 10:08 schrieb Takashi Iwai:
->>> On bochs DRM driver, the execution of "setterm --blank force" results=
-
->>> in a frozen screen instead of a blank screen.  It's due to the lack o=
-f
->>> the screen blanking support in its code.
->>>
->>> Actually, the QEMU bochs vga side can switch to the blanking mode whe=
-n
->>> the bit 0x20 is cleared on VGA_ATT_IW register (0x3c0), which updates=
-
->>> ar_index in QEMU side.  So, essentially, we'd just need to clear the
->>> bit at pipe disable callback; that's what this patch does essentially=
-=2E
->>>
->>> However, a tricky part is that the access via VGA_ATT_IW is done in
->>> "flip-flop"; the first write is for index and the second write is for=
-
->>> the data like palette.  Meanwhile, in the current bochs DRM driver,
->>> the flip-flop wasn't considered, and it calls only the register updat=
-e
->>> once with the value 0x20.
->>
->> I read up on the details of what the attribute registers do and what
->> you're modifying is the PAS field in the attribute index register. It
->> controls write access to the attribute fields.
->>
->>
->> https://web.stanford.edu/class/cs140/projects/pintos/specs/freevga/vga=
-/attrreg.htm#3C0
->>
->> It's located in the index register and cleared while
->> attributes/palettes are updated. I guess that in this mode the stdvga
->> disables the palette entirely (hence the screen turns dark).
->>
->> While it works, it feels wrong to do this.
->>
->> I to do blanking/unblanking with the SR field in SEQ0
->>
->>
->> https://web.stanford.edu/class/cs140/projects/pintos/specs/freevga/vga=
-/seqreg.htm#00
->>
->> That's what drivers usually do AFAICT. I think the 'unblank' comment
->> next to the existing code might be misleading.
->=20
-> Yeah, when you look at the existing vga16fb.c in kernel, we can find a
-> relatively complex blanking procedure.  OTOH, what I changed is rather
-> based on the the actual behavior of bochs is more or less simplified.
-> QEMU hw/display/vga.c contains a code like:
->=20
-> static void vga_update_display(void *opaque)
-> {
->      VGACommonState *s =3D opaque;
->      DisplaySurface *surface =3D qemu_console_surface(s->con);
->      int full_update, graphic_mode;
->=20
->      qemu_flush_coalesced_mmio_buffer();
->=20
->      if (surface_bits_per_pixel(surface) =3D=3D 0) {
->          /* nothing to do */
->      } else {
->          full_update =3D 0;
->          if (!(s->ar_index & 0x20)) {
->              graphic_mode =3D GMODE_BLANK;
->          } else {
->              graphic_mode =3D s->gr[VGA_GFX_MISC] & VGA_GR06_GRAPHICS_M=
-ODE;
->          }
->          if (graphic_mode !=3D s->graphic_mode) {
->              s->graphic_mode =3D graphic_mode;
->              s->cursor_blink_time =3D qemu_clock_get_ms(QEMU_CLOCK_VIRT=
-UAL);
->              full_update =3D 1;
->          }
->          switch(graphic_mode) {
->          case GMODE_TEXT:
->              vga_draw_text(s, full_update);
->              break;
->          case GMODE_GRAPH:
->              vga_draw_graphic(s, full_update);
->              break;
->          case GMODE_BLANK:
->          default:
->              vga_draw_blank(s, full_update);
->              break;
->          }
->      }
-> }
->=20
-> So, it simply checks the ar_index () at each update and switches
-> from/to the blank mode depending on the bit 0x20.
->=20
-> I'm fine to change in any better way, of course, so feel free to
-> modify the patch.
-
-If no one objects, I'll merge it as-is. It's somewhat wrong wrt to VGA,=20
-but apparently what qemu wants.
-
-Best regards
-Thomas
-
->=20
->=20
-> thanks,
->=20
-> Takashi
->=20
->>
->> Best regards
->> Thomas
->>
->>>
->>> The spec and the actual VGA implementation in QEMU suggests that the
->>> flip flop flag is discarded by reading the CRTC index register
->>> (VGA_IS1_RC, 0x3da).  So, in this patch, we add the helper to read a
->>> byte and the call to clear the flip flop flag before changing the
->>> blank / unblank setup via VGA_ATT_IW register.
->>>
->>> v1->v2:
->>> * discard ar_flip_flop by reading 0x3da, add bochs_vga_readb()
->>> * include video/vga.h for VGA register definitions
->>> * move the blank/unblank code to bochs_hw_blank()
->>>
->>> Signed-off-by: Takashi Iwai <tiwai@suse.de>
->>> ---
->>>    drivers/gpu/drm/bochs/bochs.h     |  1 +
->>>    drivers/gpu/drm/bochs/bochs_hw.c  | 25 ++++++++++++++++++++++++-
->>>    drivers/gpu/drm/bochs/bochs_kms.c |  8 ++++++++
->>>    3 files changed, 33 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bo=
-chs.h
->>> index e5bd1d517a18..e9645c612aff 100644
->>> --- a/drivers/gpu/drm/bochs/bochs.h
->>> +++ b/drivers/gpu/drm/bochs/bochs.h
->>> @@ -78,6 +78,7 @@ struct bochs_device {
->>>    int bochs_hw_init(struct drm_device *dev);
->>>    void bochs_hw_fini(struct drm_device *dev);
->>>    +void bochs_hw_blank(struct bochs_device *bochs, bool blank);
->>>    void bochs_hw_setmode(struct bochs_device *bochs,
->>>    		      struct drm_display_mode *mode);
->>>    void bochs_hw_setformat(struct bochs_device *bochs,
->>> diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs=
-/bochs_hw.c
->>> index 2d7380a9890e..7d3426d8cc69 100644
->>> --- a/drivers/gpu/drm/bochs/bochs_hw.c
->>> +++ b/drivers/gpu/drm/bochs/bochs_hw.c
->>> @@ -7,6 +7,7 @@
->>>    #include <drm/drm_drv.h>
->>>    #include <drm/drm_fourcc.h>
->>>    +#include <video/vga.h>
->>>    #include "bochs.h"
->>>      /*
->>> ---------------------------------------------------------------------=
--
->>> */
->>> @@ -24,6 +25,19 @@ static void bochs_vga_writeb(struct bochs_device *=
-bochs, u16 ioport, u8 val)
->>>    	}
->>>    }
->>>    +static u8 bochs_vga_readb(struct bochs_device *bochs, u16 ioport)=
-
->>> +{
->>> +	if (WARN_ON(ioport < 0x3c0 || ioport > 0x3df))
->>> +		return 0xff;
->>> +
->>> +	if (bochs->mmio) {
->>> +		int offset =3D ioport - 0x3c0 + 0x400;
->>> +		return readb(bochs->mmio + offset);
->>> +	} else {
->>> +		return inb(ioport);
->>> +	}
->>> +}
->>> +
->>>    static u16 bochs_dispi_read(struct bochs_device *bochs, u16 reg)
->>>    {
->>>    	u16 ret =3D 0;
->>> @@ -205,6 +219,15 @@ void bochs_hw_fini(struct drm_device *dev)
->>>    	kfree(bochs->edid);
->>>    }
->>>    +void bochs_hw_blank(struct bochs_device *bochs, bool blank)
->>> +{
->>> +	DRM_DEBUG_DRIVER("hw_blank %d\n", blank);
->>> +	/* discard ar_flip_flop */
->>> +	(void)bochs_vga_readb(bochs, VGA_IS1_RC);
->>> +	/* blank or unblank; we need only update index and set 0x20 */
->>> +	bochs_vga_writeb(bochs, VGA_ATT_W, blank ? 0 : 0x20);
->>> +}
->>> +
->>>    void bochs_hw_setmode(struct bochs_device *bochs,
->>>    		      struct drm_display_mode *mode)
->>>    {
->>> @@ -223,7 +246,7 @@ void bochs_hw_setmode(struct bochs_device *bochs,=
-
->>>    			 bochs->xres, bochs->yres, bochs->bpp,
->>>    			 bochs->yres_virtual);
->>>    -	bochs_vga_writeb(bochs, 0x3c0, 0x20); /* unblank */
->>> +	bochs_hw_blank(bochs, false);
->>>      	bochs_dispi_write(bochs, VBE_DISPI_INDEX_ENABLE,      0);
->>>    	bochs_dispi_write(bochs, VBE_DISPI_INDEX_BPP,         bochs->bpp)=
-;
->>> diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/boch=
-s/bochs_kms.c
->>> index 853081d186d5..99410e77d51a 100644
->>> --- a/drivers/gpu/drm/bochs/bochs_kms.c
->>> +++ b/drivers/gpu/drm/bochs/bochs_kms.c
->>> @@ -57,6 +57,13 @@ static void bochs_pipe_enable(struct drm_simple_di=
-splay_pipe *pipe,
->>>    	bochs_plane_update(bochs, plane_state);
->>>    }
->>>    +static void bochs_pipe_disable(struct drm_simple_display_pipe
->>> *pipe)
->>> +{
->>> +	struct bochs_device *bochs =3D pipe->crtc.dev->dev_private;
->>> +
->>> +	bochs_hw_blank(bochs, true);
->>> +}
->>> +
->>>    static void bochs_pipe_update(struct drm_simple_display_pipe *pipe=
-,
->>>    			      struct drm_plane_state *old_state)
->>>    {
->>> @@ -67,6 +74,7 @@ static void bochs_pipe_update(struct drm_simple_dis=
-play_pipe *pipe,
->>>      static const struct drm_simple_display_pipe_funcs
->>> bochs_pipe_funcs =3D
->> {
->>>    	.enable	    =3D bochs_pipe_enable,
->>> +	.disable    =3D bochs_pipe_disable,
->>>    	.update	    =3D bochs_pipe_update,
->>>    	.prepare_fb =3D drm_gem_vram_simple_display_pipe_prepare_fb,
->>>    	.cleanup_fb =3D drm_gem_vram_simple_display_pipe_cleanup_fb,
->>>
->>
->> --=20
->> Thomas Zimmermann
->> Graphics Driver Developer
->> SUSE Software Solutions Germany GmbH
->> Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
->> (HRB 36809, AG N=C3=BCrnberg)
->> Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
->>
->> [2 OpenPGP digital signature <application/pgp-signature (7bit)>]
->>
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
->=20
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
-
---NflIGcYDCC7PD56qc8Fs6aE2xzAEXhWUP--
-
---5VfHzjXGKY4Bp7DBCovbXHtLxQw2QFajo
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmCHthsFAwAAAAAACgkQlh/E3EQov+Cr
-wg//cz2Pzea8/1jCISQzbTlgjjil3QaWd6KOhe6aOe77Dmckc+HmC70as/lzVG9V0g1DGKGe8KJY
-w950g7zjvbu6xNijqf3VLgQJPGEzHO7drQm1kGX2MXwdYEy2MgHO+WWk4ei2ZZ0um+eMMvkQj5zh
-u2Adf0HdpmM8ZoGUVoTk5yiC07gVYJRQVYK5x1xF0QK2qlvqU1zfzueLBLbwomT3AQYqyPvMbn70
-FNoBok+9vO4lJLQnVZBirRqGFw0UyBDYc/fZpqPB5wZ31TKQvZPMYl+/pe2yYM43LtAnmLc46/Bj
-6rhQadvt3jAyucFdHUwWoWZTRqt2gAeASeoEReXi4rDAeDqJnSg0fAjTg/vzGFU/JbHGNBg2ahAQ
-9cfReo7FgaJb36HvAA6REtOLTf72l1TZTO1tj/CNUEWH6BEJx/eKdYvKaxKznoaDx52lH6GbVGrV
-UfzAeF5DapBHWVf1+JblZNioEnbv3J1OZPSEAxk2gf6ggFn9uUECfSsAmojRhw3YdlRr90lG0S+T
-HrvhipWrzdAoa92VAXiC1f9tHB5Np1AMtW8/q99AQJuYvoJ3GcvvuBUoxluLj3Q07TlbpQp9eydb
-YvRJicxCwLFLBkufMDftE6PI7f6cYTiF5QcxEIq1G1MsRpaC0JXWHiOb8bs06V2EDVwrDDXR/hVp
-Mlc=
-=Uspz
------END PGP SIGNATURE-----
-
---5VfHzjXGKY4Bp7DBCovbXHtLxQw2QFajo--
-
---===============0594632573358065740==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+take care,
+  Gerd
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0594632573358065740==--
