@@ -1,95 +1,95 @@
-Return-Path: <SRS0=15y9=JX=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=gqJU=JY=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_RED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D197BC433B4
-	for <virtualization@archiver.kernel.org>; Mon, 26 Apr 2021 19:05:47 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0BE75C433B4
+	for <virtualization@archiver.kernel.org>; Tue, 27 Apr 2021 02:44:19 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 570C161166
-	for <virtualization@archiver.kernel.org>; Mon, 26 Apr 2021 19:05:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 570C161166
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+	by mail.kernel.org (Postfix) with ESMTPS id 7A792613B0
+	for <virtualization@archiver.kernel.org>; Tue, 27 Apr 2021 02:44:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7A792613B0
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E92B440409;
-	Mon, 26 Apr 2021 19:05:46 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0539D8316A;
+	Tue, 27 Apr 2021 02:44:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ITNKTa-A2MhN; Mon, 26 Apr 2021 19:05:44 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TjtXd-AwQen2; Tue, 27 Apr 2021 02:44:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 56218403C8;
-	Mon, 26 Apr 2021 19:05:44 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id ADB1B82D2F;
+	Tue, 27 Apr 2021 02:44:16 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1FED8C000F;
-	Mon, 26 Apr 2021 19:05:44 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 656D8C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8D793C000F;
+	Tue, 27 Apr 2021 02:44:16 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 19F17C000B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Apr 2021 19:05:42 +0000 (UTC)
+ Tue, 27 Apr 2021 02:44:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4BD7B400CE
+ by smtp3.osuosl.org (Postfix) with ESMTP id E7CCF60ABB
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Apr 2021 19:05:42 +0000 (UTC)
+ Tue, 27 Apr 2021 02:44:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Dk5jXmA5I_Bb
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id nXQ3yuTL8JZh
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Apr 2021 19:05:41 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-vs1-f48.google.com (mail-vs1-f48.google.com
- [209.85.217.48])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 361F240004
+ Tue, 27 Apr 2021 02:44:14 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id A9C51606B6
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Apr 2021 19:05:41 +0000 (UTC)
-Received: by mail-vs1-f48.google.com with SMTP id w24so4857494vsq.5
- for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Apr 2021 12:05:41 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=1Z9q2q+by+XoICx7O5bq4s0qjl0Ui3wq+DFED5QpgnI=;
- b=FSqvL4EseGAhOZbqDTopBttiENL8G/9bPPhSa78nyLJWNLcj2dcCWbxXcNNq/WR9zk
- VnjFL8ZOYpwriSPaHlthRT5VzuzuEWyr/+ECQ+d0lrVjYpCuzPGTUSsxOMIsymyzk2OP
- KT7g85fPnYjEC+MPW9Y3guQ7byEbWfaBEcgBZv/lVvxeTDivSPI8ljc5TwVNONni5JZr
- pE64VTNqeXAvuAkQP7pC9J9YUuQAL5FUo8cDbhof+bUNJo3f3Cl1sIl94+6Y2kx+cOQK
- eujc26WMBF3UvpDHflyqiRCbE/wWQ3yIkxu4LiPjJMcMFsOZ7xG4a5wG3c/3pweYYofw
- 4ekQ==
-X-Gm-Message-State: AOAM53185nRdV2WHgDEV+Pe9gaDjVL+3vXEDPHT2rMvTPlKJayRHyAvK
- tV29JfhvatNvCmIP9LQu9GRYwKC1RYnTJXZ44lU=
-X-Google-Smtp-Source: ABdhPJzFyKjW1O90Y0MBq25L4BoxSoh1eregzeBg4Y17kP7i6270tN+MexYhXLWOJPYKWPcRKKJuueNLlzEA80hUIcA=
-X-Received: by 2002:a67:8745:: with SMTP id j66mr14878201vsd.18.1619463940025; 
- Mon, 26 Apr 2021 12:05:40 -0700 (PDT)
+ Tue, 27 Apr 2021 02:44:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1619491453;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=9t6HPD50NoeAQXyHmZQufw+PUx5Y2vTcwzjnMztmhfk=;
+ b=i4LOmEFC57mgNtrAy80zAibP07ULajM2p26Gg9U4KC6pH9Z8FssmkAiCclYbPnbIDaryrq
+ WOct7ZA1dvi49QA+QCXahVBDFVKGra9l4Ohb5Xxbu3ySypEoIzs3v4Fb55SJI12A3zZUr2
+ 6AIYwfo8qRjCOHtVbZiXlFKTjo06FD8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-490-2UCijym4OnKKmfQixEZelQ-1; Mon, 26 Apr 2021 22:44:11 -0400
+X-MC-Unique: 2UCijym4OnKKmfQixEZelQ-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
+ [10.5.11.23])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 112AE1006C83;
+ Tue, 27 Apr 2021 02:44:10 +0000 (UTC)
+Received: from wangxiaodeMacBook-Air.local (ovpn-13-221.pek2.redhat.com
+ [10.72.13.221])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id E412B19D7D;
+ Tue, 27 Apr 2021 02:44:01 +0000 (UTC)
+Subject: Re: [PATCH] virtio-net: enable SRIOV
+To: Arkadiusz Kudan <arkadiusz.kudan@codilime.com>,
+ virtualization@lists.linux-foundation.org
+References: <20210426102135.227802-1-arkadiusz.kudan@codilime.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <625a6618-bb59-8ccc-bf1c-e29ac556b590@redhat.com>
+Date: Tue, 27 Apr 2021 10:43:59 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.10.0
 MIME-Version: 1.0
-References: <20210416090048.11492-1-tzimmermann@suse.de>
- <CAMuHMdWcC8O+UzQDQj7Bm4uK_myjFT5D2ccTmneTJYi4SMfCRQ@mail.gmail.com>
- <YH6U92Q71ntU6Z1R@phenom.ffwll.local>
- <20210420092204.7azdb7nxgofegjht@sirius.home.kraxel.org>
- <CAMuHMdX=0H3LHP5Yme9tpN4JnmpJcnF=SQN8bc=4XTd-X6AVTg@mail.gmail.com>
- <e2d46fc0-5452-5d13-0354-e2e9bd407139@suse.de>
-In-Reply-To: <e2d46fc0-5452-5d13-0354-e2e9bd407139@suse.de>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 26 Apr 2021 21:05:28 +0200
-Message-ID: <CAMuHMdW6HQCZYXS3N+xh4xPQqdKix9dP3vcMU49NJ95179BR9g@mail.gmail.com>
-Subject: Re: [PATCH v4 0/9] drm: Support simple-framebuffer devices and
- firmware fbs
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: bluescreen_avenger@verizon.net,
- "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
- David Airlie <airlied@linux.ie>, Greg KH <gregkh@linuxfoundation.org>,
- Jonathan Corbet <corbet@lwn.net>, Emil Velikov <emil.l.velikov@gmail.com>,
- Liam Girdwood <lgirdwood@gmail.com>,
- DRI Development <dri-devel@lists.freedesktop.org>,
- virtualization@lists.linux-foundation.org, Hans de Goede <hdegoede@redhat.com>,
- Mark Brown <broonie@kernel.org>, Sam Ravnborg <sam@ravnborg.org>
+In-Reply-To: <20210426102135.227802-1-arkadiusz.kudan@codilime.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Cc: netdev@vger.kernel.org,
+ Miroslaw Walukiewicz <Miroslaw.Walukiewicz@intel.com>, mst@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,56 +101,44 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Thomas,
-
-On Mon, Apr 26, 2021 at 2:22 PM Thomas Zimmermann <tzimmermann@suse.de> wrote:
-> Am 20.04.21 um 11:27 schrieb Geert Uytterhoeven:
-> > On Tue, Apr 20, 2021 at 11:22 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
-> >>>>> Patches 4 to 8 add the simpledrm driver. It's build on simple DRM helpers
-> >>>>> and SHMEM. It supports 16-bit, 24-bit and 32-bit RGB framebuffers. During
-> >>>>
-> >>>> .... if support for 8-bit frame buffers would be added?
-> >>>
-> >>> Is that 8-bit greyscale or 8-bit indexed with 256 entry palette? Former
-> >>> shouldn't be a big thing, but the latter is only really supported by the
-> >>> overall drm ecosystem in theory. Most userspace assumes that xrgb8888
-> >>> works, and we keep that illusion up by emulating it in kernel for hw which
-> >>> just doesn't support it. But reformatting xrgb8888 to c8 is tricky at
-> >>> best.
-> >>
-> >> Well.  cirrus converts xrgb8888 on the fly to rgb888 or rgb565
-> >> (depending on display resolution).  We could pull off the same trick
-> >> here and convert to rgb332 (assuming we can program the palette with the
-> >> color cube needed for that).  Wouldn't look pretty, but would probably
-> >> work better than expecting userspace know what color palettes are in
-> >> 2021 ...
-> >
-> > Yeah, I already had a similar idea for Amiga HAM ;-)
->
-> I vaguely remember that HAM mode uses some crazy format where pixel
-> colors depend in the values of their neighbors. (?) How complicated is
-> it to write a conversion from RGB to HAM?
-
-Not that complicated, unless you want to do it Good & Fast ;-)
-
-https://en.wikipedia.org/wiki/Hold-And-Modify
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CuWcqCAyMDIxLzQvMjYg5LiL5Y2INjoyMSwgQXJrYWRpdXN6IEt1ZGFuIOWGmemBkzoKPiBXaXRo
+IGluY3JlYXNpbmcgaW50ZXJlc3QgZm9yIHZpcnRpbywgTklDIGhhdmUgYXBwZWFyZWQgdGhhdCBw
+cm92aWRlCj4gU1JJT1Ygd2l0aCBQRiBhcHBlYXJpbmcgaW4gdGhlIGhvc3QgYXMgYSB2aXJ0aW8g
+bmV0d29yayBkZXZpY2UKPiBhbmQgcHJvYmFibHkgbW9yZSBzaW1pbGlhciBOSUNzIHdpbGwgZW1l
+cmdlLgo+IGlnYl91aW8gb2YgRFBESyBvciBwY2ktcGYtc3R1YiBjYW4gYmUgdXNlZCB0byBwcm92
+aWRlIFNSSU9WLAo+IGhvd2V2ZXIgdGhlcmUgYXJlIGh5cGVydmlzb3JzL1ZNTXMgdGhhdCByZXF1
+aXJlIFZGcywgd2hpY2ggYXJlCj4gdG8gYmUgUENJIHBhc3N0aHJ1ZWQgdG8gYSBWTSwgdG8gaGF2
+ZSBpdHMgUEYgd2l0aCBuZXR3b3JrCj4gcmVwcmVzZW50YXRpb24gaW4gdGhlIGtlcm5lbC4gRm9y
+IHZpcnRpby1uZXQgYmFzZWQgUEZzLAo+IHZpcnRpby1uZXQgY291bGQgZG8gdGhhdCBieSBwcm92
+aWRpbmcgYm90aCBTUklPViBpbnRlcmZhY2UgYW5kCj4gbmV0ZGV2IHJlcHJlc2VudGF0aW9uLgo+
+Cj4gRW5hYmxlIFNSSU9WIHZpYSBWSVJUSU9fRl9TUl9JT1YgZmVhdHVyZSBiaXQgaWYgdGhlIGRl
+dmljZQo+IHN1cHBvcnRzIGl0Lgo+Cj4gU2lnbmVkLW9mZi1ieTogQXJrYWRpdXN6IEt1ZGFuIDxh
+cmthZGl1c3oua3VkYW5AY29kaWxpbWUuY29tPgo+IFNpZ25lZC1vZmYtYnk6IE1pcm9zbGF3IFdh
+bHVraWV3aWN6IDxNaXJvc2xhdy5XYWx1a2lld2ljekBpbnRlbC5jb20+Cj4gLS0tCj4gICBkcml2
+ZXJzL25ldC92aXJ0aW9fbmV0LmMgfCAxICsKPiAgIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlv
+bigrKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBiL2RyaXZlcnMv
+bmV0L3ZpcnRpb19uZXQuYwo+IGluZGV4IDA4MjRlNjk5OWU0OS4uYTAzYWE3ZTk5Njg5IDEwMDY0
+NAo+IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ICsrKyBiL2RyaXZlcnMvbmV0L3Zp
+cnRpb19uZXQuYwo+IEBAIC0zMjQ5LDYgKzMyNDksNyBAQCBzdGF0aWMgc3RydWN0IHZpcnRpb19k
+ZXZpY2VfaWQgaWRfdGFibGVbXSA9IHsKPiAgIAo+ICAgc3RhdGljIHVuc2lnbmVkIGludCBmZWF0
+dXJlc1tdID0gewo+ICAgCVZJUlRORVRfRkVBVFVSRVMsCj4gKwlWSVJUSU9fRl9TUl9JT1YsCj4g
+ICB9OwoKClNvIEknbSBzdXByaXNlZCB0aGF0IGl0IG5lZWRzIHRvIGJlIGVuYWJsZWQgcGVyIGRl
+dmljZS4gV2UgaGFkOgoKc3RhdGljIHZvaWQgdnBfdHJhbnNwb3J0X2ZlYXR1cmVzKHN0cnVjdCB2
+aXJ0aW9fZGV2aWNlICp2ZGV2LCB1NjQgZmVhdHVyZXMpCnsKIMKgwqDCoMKgwqDCoMKgIHN0cnVj
+dCB2aXJ0aW9fcGNpX2RldmljZSAqdnBfZGV2ID0gdG9fdnBfZGV2aWNlKHZkZXYpOwogwqDCoMKg
+wqDCoMKgwqAgc3RydWN0IHBjaV9kZXYgKnBjaV9kZXYgPSB2cF9kZXYtPnBjaV9kZXY7CgogwqDC
+oMKgwqDCoMKgwqAgaWYgKChmZWF0dXJlcyAmIEJJVF9VTEwoVklSVElPX0ZfU1JfSU9WKSkgJiYK
+IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcGNpX2ZpbmRf
+ZXh0X2NhcGFiaWxpdHkocGNpX2RldiwgClBDSV9FWFRfQ0FQX0lEX1NSSU9WKSkKIMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBfX3ZpcnRpb19zZXRfYml0KHZkZXYsIFZJUlRJT19GX1NS
+X0lPVik7Cn0KCkFuZCBJIGhhZCB1c2VkIHRoaXMgZHJpdmVyIGZvciBTUklPViB2aXJ0aW8tcGNp
+IGhhcmR3YXJlIGZvciBtb3JlIHRoYW4gCm9uZSB5ZWFyLgoKVGhhbmtzCgoKPiAgIAo+ICAgc3Rh
+dGljIHVuc2lnbmVkIGludCBmZWF0dXJlc19sZWdhY3lbXSA9IHsKCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
+dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
+LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
