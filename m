@@ -2,100 +2,193 @@ Return-Path: <SRS0=6MyX=JZ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,HTML_MESSAGE,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	URIBL_RED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,URIBL_RED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77EB8C433B4
-	for <virtualization@archiver.kernel.org>; Wed, 28 Apr 2021 13:55:55 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2393C433B4
+	for <virtualization@archiver.kernel.org>; Wed, 28 Apr 2021 21:06:38 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DCBF061441
-	for <virtualization@archiver.kernel.org>; Wed, 28 Apr 2021 13:55:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DCBF061441
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=codilime.com
+	by mail.kernel.org (Postfix) with ESMTPS id 52C6B613CE
+	for <virtualization@archiver.kernel.org>; Wed, 28 Apr 2021 21:06:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 52C6B613CE
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 83EF3400D4;
-	Wed, 28 Apr 2021 13:55:54 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id D0B5A8474A;
+	Wed, 28 Apr 2021 21:06:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KYnvPMwgo85j; Wed, 28 Apr 2021 13:55:53 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id N7WWodVu-l0Q; Wed, 28 Apr 2021 21:06:36 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C3F824036F;
-	Wed, 28 Apr 2021 13:55:52 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4EF40843C9;
+	Wed, 28 Apr 2021 21:06:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 985B0C001C;
-	Wed, 28 Apr 2021 13:55:52 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D6A3CC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 165ECC000D;
+	Wed, 28 Apr 2021 21:06:36 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C5D03C0001
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Apr 2021 13:55:50 +0000 (UTC)
+ Wed, 28 Apr 2021 21:06:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C59CC400D4
+ by smtp3.osuosl.org (Postfix) with ESMTP id A71FB608E8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Apr 2021 13:55:50 +0000 (UTC)
+ Wed, 28 Apr 2021 21:06:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YuSH290kgGjU
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="zPoyQHDX";
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.b="YKlYUmqC"
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Ly_1XAdrsXjA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Apr 2021 13:55:49 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com
- [IPv6:2607:f8b0:4864:20::432])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 309864036F
+ Wed, 28 Apr 2021 21:06:33 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from userp2120.oracle.com (userp2120.oracle.com [156.151.31.85])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 90425605E9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Apr 2021 13:55:49 +0000 (UTC)
-Received: by mail-pf1-x432.google.com with SMTP id m11so616689pfc.11
- for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Apr 2021 06:55:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codilime.com; s=google;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=Qe7+Nu5Mp5VWNz1k5MmelGwOIs2NLmoKtt+c2+rGQu0=;
- b=Y1fcHOPpIPG9fSvvisRB/GnhWmQpa/s2RIP3UhKLylzAuCoVIS0zI86W/+uFBVlM6w
- EoT7cnMxKEWzN6ZEl1+hXafxTKLgk06ekJvJwLvJF+Fb98k7vVW2nJ++HTSndKlV9UdK
- kdCrauVmcS7k7KfCg0Nd0oLZRCZn7CxgDw32l/1Kg0quuRrvzf5R0NgHYq54381PWw5a
- UsjfzboojjJOKuSrpRDGuT5BvK+1GkU5YXzGyiGVToQSXvQUfLnF9Apb2mdj4gY0ydcv
- 7LJwycHDXF+DPZpaq/ClPiisU9b4V7s7+2aXm2GR9AdOHIYxSCfRc+IDnH//EIXAwMN6
- V7Iw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=Qe7+Nu5Mp5VWNz1k5MmelGwOIs2NLmoKtt+c2+rGQu0=;
- b=BJLsRNZXsSoiOnwrI4EbJIs7IjEtrx3p/RbZlkA8kWUgRBKAPqJYURkcn6flT0Pczh
- RuIcVzPz87S4QHnv42BT/Mh5umy5nDhTxXJVEC5ho7YeAnqrcwEtGQV9vq6JcyPTvujE
- YB9pQKeeJN+TddBfTHYtXFNJw1XRdZWKCT1ApWU7hGIFKoquQ++UrZen6EyG5lTGS2hX
- o1ZEYVjx4ri8NQJesQcsoNnnz74zJiNA1atL53dL/5M483dLdM0hPL+TPDodOvOvMzLu
- ZwcdFHij+QkhyR/RdWVAx0QR9859UrBjUzLfL/b1WesDgpmilgCa9n4EUdiP8bqWU8Yn
- g/Qw==
-X-Gm-Message-State: AOAM532K3ilZNPYTLrP+vbT2QjThTTiMNPjqZDbNYMNjjp3nyISSjT/A
- lJLD2poZ1D25Jj/Cxx17Y9ZTUwHi4Bb5inDkd8XWXw6e/pNRPz0YDKxzms8xjAvgQFBOBx9iImF
- gLgJbApgT9vJ7P50A/r//47AcBcEz7V1umGdXki/nutWDQ4LIOdY=
-X-Google-Smtp-Source: ABdhPJzvZCAxNsCRNMYukgJXToJchRvvg2RD+xqNUaBYTDWNmU25TqmqFHaDrpYmz2076+3LitdImP7NC0nunGdueH8=
-X-Received: by 2002:a05:6a00:be3:b029:254:799:27f with SMTP id
- x35-20020a056a000be3b02902540799027fmr28934429pfu.48.1619618148458; Wed, 28
- Apr 2021 06:55:48 -0700 (PDT)
+ Wed, 28 Apr 2021 21:06:33 +0000 (UTC)
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+ by userp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 13SL3ltR050172;
+ Wed, 28 Apr 2021 21:06:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=date : from : to : cc
+ : subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=corp-2020-01-29;
+ bh=pm/Lld39IFnGvD4V1eiLtBXTE3dC3CCHOoLI+uYoC4M=;
+ b=zPoyQHDXKd1iBtvKeYWR2L2wP9MzP5ggWbH4N67maakELSS8sa6vYmgDlr/whI4JQEVa
+ 0l7c9UQVerWxji+qfPjSv1Jdl7czOdReLWyaW4WXdJs6hNITXlDJ4jw9Wz3UrDN3VRYx
+ nzywCOH2Wh/el0/0NW3ColJ2pls5s6Ec4a3SLijr9RUTXYyrb6iUbBnnHgxAQ7dsGWTQ
+ oi7ePXHfj2M3ENbhP5LMzEcCPriAnTMFUKGtJQUqiJY+JfLSoWvftiFgd8mLVyYEWUQR
+ kce+RLXbggEbJ1I21b189p6LsSjc3a9AEu5ltRTEMCNneuXXTy/KZt5XMc9/ZTUQuvpg mw== 
+Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
+ by userp2120.oracle.com with ESMTP id 385aeq2cjc-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Wed, 28 Apr 2021 21:06:18 +0000
+Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
+ by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 13SL0Z3X052688;
+ Wed, 28 Apr 2021 21:06:18 GMT
+Received: from nam10-mw2-obe.outbound.protection.outlook.com
+ (mail-mw2nam10lp2107.outbound.protection.outlook.com [104.47.55.107])
+ by userp3020.oracle.com with ESMTP id 384w3v8f8m-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Wed, 28 Apr 2021 21:06:17 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Lf2EsX1kwupaIITX4zLkROcgpLK/KS9YfFg2UzetghNCZB2Esl52KEZj3Y+PmV1U2SU2Q1iSsLAo4znv53X0tcnZMpj64Bh69xHZx/MsRjVvc4YLtWGGzaqRGrS16iCDVpBuRRa9ltlD5MP74hEy/hOQFQNZOd0g9JgTN1sP6t9UIr4aN81vkQF7vxrVmy1H3dpOwFa/PpJxoyFDa/1BMTKEaPzLprCzk5SHo0LQHDjwCYA/bHNe29ogHWFoQlWnI4ugJEd/WDv8EvRtUTdYnq57sFVTEMGIEpGxyVLJU4XaqRETHbYbGQw390hKxjwKR/PkZzGXJFqadn+zfygwDA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=pm/Lld39IFnGvD4V1eiLtBXTE3dC3CCHOoLI+uYoC4M=;
+ b=ajFZP/t+jLzyboedRR6UP4aAfmc6IgFifKyd9DDGsEPzmk5Ksq5PbgxBOD22snmYZntE13tfOqP9SJcXdjzwtoOINUKcZUMYjVVWOxSi5ZSTre2Vjyo7jBeisb5oOQ2+Hoj1QpFv4OqoSwNdpGY2Z8kL4vq91F7Y1KcFT0CNGoq598ndkFwS7i38G00E1aex7jmswo89wUFcUZzEiwftYs+Qin4YJJr9OV5RE1OUn1n4tGo+9ouXYosvLl2as2tRmbhl3rO3s6LMcXkQlVqL9yYlO5v5Wv/c+HHVhD18fX0pBKwUcey6SiydgFox9Hjtl7jKHYtH+SLnNET2B7/BjQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=pm/Lld39IFnGvD4V1eiLtBXTE3dC3CCHOoLI+uYoC4M=;
+ b=YKlYUmqC4ljyxj/6XKXRhk767DveqNFiuriBXTmN/9sFXMec2VmO66cZc3spOV43nvjKYm/ZC+A2fzoU7LxhvMSgar4k/DIkLiGdh0ozPY6dWbvAnYpzU18ra0c8bTOZTWZfwpZvkoqzzYj+18i1IM98dmLH0dwtPdvGCXR5YZo=
+Authentication-Results: redhat.com; dkim=none (message not signed)
+ header.d=none;redhat.com; dmarc=none action=none header.from=oracle.com;
+Received: from BYAPR10MB2999.namprd10.prod.outlook.com (2603:10b6:a03:85::27)
+ by BY5PR10MB3905.namprd10.prod.outlook.com (2603:10b6:a03:1fa::21)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4065.24; Wed, 28 Apr
+ 2021 21:06:15 +0000
+Received: from BYAPR10MB2999.namprd10.prod.outlook.com
+ ([fe80::50f2:e203:1cc5:d4f7]) by BYAPR10MB2999.namprd10.prod.outlook.com
+ ([fe80::50f2:e203:1cc5:d4f7%7]) with mapi id 15.20.4087.025; Wed, 28 Apr 2021
+ 21:06:15 +0000
+Date: Wed, 28 Apr 2021 17:06:10 -0400
+From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH 0/7] Untrusted device support for virtio
+Message-ID: <YInOQt1l/59zzPJK@Konrads-MacBook-Pro.local>
+References: <20210421032117.5177-1-jasowang@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20210421032117.5177-1-jasowang@redhat.com>
+X-Originating-IP: [138.3.200.23]
+X-ClientProxiedBy: SJ0PR05CA0116.namprd05.prod.outlook.com
+ (2603:10b6:a03:334::31) To BYAPR10MB2999.namprd10.prod.outlook.com
+ (2603:10b6:a03:85::27)
 MIME-Version: 1.0
-References: <20210426102135.227802-1-arkadiusz.kudan@codilime.com>
- <625a6618-bb59-8ccc-bf1c-e29ac556b590@redhat.com>
- <MWHPR1101MB209476B1939ADB73C57E71AC9E409@MWHPR1101MB2094.namprd11.prod.outlook.com>
-In-Reply-To: <MWHPR1101MB209476B1939ADB73C57E71AC9E409@MWHPR1101MB2094.namprd11.prod.outlook.com>
-From: Arkadiusz Kudan <arkadiusz.kudan@codilime.com>
-Date: Wed, 28 Apr 2021 15:57:37 +0200
-Message-ID: <CAFSqgu1sX+t2hfQpbtDxOanRNd2y58GuR7=omSt0=DviwRGc6g@mail.gmail.com>
-Subject: Re: [PATCH] virtio-net: enable SRIOV
-To: "Walukiewicz, Miroslaw" <Miroslaw.Walukiewicz@intel.com>,
- Jason Wang <jasowang@redhat.com>
-Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "mst@redhat.com" <mst@redhat.com>, "Jayagopi,
- Geetha" <geetha.jayagopi@intel.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from Konrads-MacBook-Pro.local (138.3.200.23) by
+ SJ0PR05CA0116.namprd05.prod.outlook.com (2603:10b6:a03:334::31) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.8 via Frontend
+ Transport; Wed, 28 Apr 2021 21:06:13 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 1fac15eb-65a7-4000-00c8-08d90a897593
+X-MS-TrafficTypeDiagnostic: BY5PR10MB3905:
+X-Microsoft-Antispam-PRVS: <BY5PR10MB3905ECFD5B4C04C996BA2F1C89409@BY5PR10MB3905.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:2276;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 48VCr6sixk1483b+hyzNgzp0dZGhuQElmDHpoAQvRoWeB8uyew5sDsCtcNinCQ39ERCzNBVuCPFcEbtrHuPKQjgmWvbAyRWyWv5lKIE8DzzdMrHH51PJUTdbbQcIYoqUSutAPE8rBLEhUkieRtK+MLBLaBnjVj7wysgUXYglNELvSrWcLMWW3HGHfvjtObrMWrbXCZXsL5dMUoU9tnPqGVs62FZTJvgFSTOmmejFKEMsVfYj37k2JDyAbQuFCuYjAHH+qNwlZSkVFMQo/cGi0vzhzCcdvNw4QZY2ReHhY5Fv4i5XCedElwvf41ojw7BKXPFvBN5iQKDvPfC/CUS6Z2qMFKFdiDeWroitYZdXefKCIoxxDrDy4IJTziE93QDvmDLU4ufGHWFgStJ4U+oBql0b4GMH1OyJQDK73WuL9Vn1T2aFaOVR8Kf0qzU1RXYLVvzcOgfsXiZh0oJE8cXNqwxYBq0vCT9qm8OF7vRo1dTSafDGtQLYok/ag5DAMJZ7dpqrZGzWqGohgrRMvvr22N8bHA7cZU7CeMVR3vpFUvQt92Bgheeo9bGdWnHobmgwewpSHOE6xnOst2AZ1NU/GsQZjoO45v5+OWnafFr++KadXtI8ET2+WGCmMjjSMsC2cIvneMyf7iET+ficZUBo/DntewWYOKEo5XuB8DavEkBDdsmBfK+o1tW9YMj8z6IGBy/oudFRS0QQemQQfYuQjfUY4ouxDkAGiLbLL3fCo/w=
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR10MB2999.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(366004)(346002)(376002)(39860400002)(136003)(396003)(7416002)(86362001)(8676002)(966005)(316002)(6916009)(956004)(4326008)(66556008)(55016002)(66946007)(2906002)(26005)(186003)(38350700002)(66476007)(6506007)(7696005)(16526019)(38100700002)(478600001)(83380400001)(9686003)(8936002)(52116002)(5660300002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?iGbzxDsLaeFitrOmGedDsi7EiC7Wp2tdUQQIBdPYqLnxsBOYkDLWTaxAC3Bp?=
+ =?us-ascii?Q?OnVZ7kP3CEz4xv1RANhM3Uyfjz7i5X0K/z9uyiCNvqn79+Uwaf5KmNAyuZAe?=
+ =?us-ascii?Q?QY4M5E6B5AxsZREuX6HBATqqJk0VC4rBz7UKStCXR1OURqG1/WULEjogTcQD?=
+ =?us-ascii?Q?19AwwOZufoIAVru8GCN/ET2HRDhZYmnFgS8qWPP3pGBKdCiF+pUklb1oZAvM?=
+ =?us-ascii?Q?S0WwlShqiC4mrCuhXyS0W7vNbcEt5kwRKI2OeSiCviZ+Cz7GbgkJ/URWY7mj?=
+ =?us-ascii?Q?985KwzGRXGXmGGngZNLjTbOpVt4kD2QM4kYSxKu7BCflhG9MjZ7Q39ehfcF8?=
+ =?us-ascii?Q?K+eBde4/Oqou7OyUhR9P5qHWUwAzAg1a+xnOcDhmshMyCluQyjiZ6jVA083U?=
+ =?us-ascii?Q?tuqJqxeC9oXhtPK7URRlMibWWIPL0eh7e7k0pGM/hBsW8TodEMg70PcBjrvV?=
+ =?us-ascii?Q?AyyZ3O733Z76e273g9f/HS0skCQ7b9a6994r583eSFQmlIOeBMZVqMy5xzxJ?=
+ =?us-ascii?Q?JoF97s5IrSoH5pOEayT1xRtz71XkkzPYcDw5KfiD16BACiXbR1f4o7AGorcW?=
+ =?us-ascii?Q?IGgiK9pJNXaIH8+aKHQ2J/NDBOlMs/J7h8vwBhrE+8BI9VekL19xViXJd7it?=
+ =?us-ascii?Q?HSaKHdpdovWruVD2CqdCv+CqNum335MqzR6wWMGDl2pV44mNIHchEIS/KhS4?=
+ =?us-ascii?Q?bYvTpE39MOGDUKfnkL0ddWm8g9NeMsayKBhcFgLXJHOX1CGfr8lOmX4InXXW?=
+ =?us-ascii?Q?JIrfetqVxR1sYeq2jNAnTfexgXHqX1mXwS/O/LbP6xy+HSU0croWGMGRXGHq?=
+ =?us-ascii?Q?osa/9y8+WxTjKNUtIg+/rsbGNSnB17JyVb3j0MtcPmSKdPx28YlJyCSTHKhI?=
+ =?us-ascii?Q?stZVkXMSJEQ8/NdYU7+jkFxW7C3gU7r0Z9P+XVApwElhTF3zJAkHtjl3vzCL?=
+ =?us-ascii?Q?NuWfypOR3sumHOsx7DQtWP+QT1A0+Uerz/Ne5ixDuhj3YZzW6DkgWxHhDQm/?=
+ =?us-ascii?Q?XtY97la2Hlbwh5rIgTMUCHCZFrnzVgTT3Q7Hg+2zz9LGinolb0W/w6RLsDAy?=
+ =?us-ascii?Q?LYOLpqhIw0mzkQpylSB27Izz2/niwvdz5j53UNGMa6U5xSJzHjwahjjU0fkn?=
+ =?us-ascii?Q?OxFwBmdQIvWfwEw35DM5EoRd8s+RdsyO73bjwYUBEKmcBVMLkKPFoUzjia9D?=
+ =?us-ascii?Q?WocHULecui2EGI6zqv8IOOSeWXfXUWFoaQyBeBAdySTsCqDAZIhgFywOmxet?=
+ =?us-ascii?Q?jPlgY8Cg0NiUS8xAtGjPEnivVZxGvFL9H9JQ03+USMhzu7+hsPI986a5CDAG?=
+ =?us-ascii?Q?bkU7G0u9BvTi/7bheyPF2Kct?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1fac15eb-65a7-4000-00c8-08d90a897593
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB2999.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Apr 2021 21:06:15.1989 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: nk2wi4Sye0ZHqWs2g11QZVSjdLTtYh61ZJF9k2Rtc7X8+FZTryfUiloC5ObZjnd96PLmVFVDKSRPXLnvESV4LA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR10MB3905
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9968
+ signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0
+ malwarescore=0 mlxscore=0
+ mlxlogscore=999 bulkscore=0 phishscore=0 spamscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104060000
+ definitions=main-2104280136
+X-Proofpoint-ORIG-GUID: S0X2_7DS6bcm45dBFEgLOPxKVZ4-XG2C
+X-Proofpoint-GUID: S0X2_7DS6bcm45dBFEgLOPxKVZ4-XG2C
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9968
+ signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0
+ impostorscore=0
+ phishscore=0 spamscore=0 bulkscore=0 mlxscore=0 lowpriorityscore=0
+ clxscore=1011 suspectscore=0 malwarescore=0 mlxlogscore=999
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104060000 definitions=main-2104280136
+Cc: ashish.kalra@amd.com, file@sect.tu-berlin.de,
+ martin.radev@aisec.fraunhofer.de, kvm@vger.kernel.org, mst@redhat.com,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ xieyongji@bytedance.com, stefanha@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,404 +200,81 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============5625587160242127215=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
---===============5625587160242127215==
-Content-Type: multipart/alternative; boundary="000000000000695e0e05c108bcf5"
+On Wed, Apr 21, 2021 at 11:21:10AM +0800, Jason Wang wrote:
+> Hi All:
+> 
+> Sometimes, the driver doesn't trust the device. This is usually
+> happens for the encrtpyed VM or VDUSE[1]. In both cases, technology
+> like swiotlb is used to prevent the poking/mangling of memory from the
+> device. But this is not sufficient since current virtio driver may
+> trust what is stored in the descriptor table (coherent mapping) for
+> performing the DMA operations like unmap and bounce so the device may
+> choose to utilize the behaviour of swiotlb to perform attacks[2].
 
---000000000000695e0e05c108bcf5
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+We fixed it in the SWIOTLB. That is it saves the expected length
+of the DMA operation. See
 
-Hi Jason,
+commit daf9514fd5eb098d7d6f3a1247cb8cc48fc94155 
+Author: Martin Radev <martin.b.radev@gmail.com>
+Date:   Tue Jan 12 16:07:29 2021 +0100
 
-Also i would like to add another issue, that is location of 'net' sysfs
-inside PCI devices sysfs. Libvirt also expects to find folder
-'/sys/bus/pci/devices/<PF addr>/net' to get corresponding network
-interface.
-However, for virtio-net managed devices, the 'net' folder is located in
-virtioX folder, i.e. '/sys/bus/pci/devices/<PF addr>/virtioX/net'.
+    swiotlb: Validate bounce size in the sync/unmap path
+    
+    The size of the buffer being bounced is not checked if it happens
+    to be larger than the size of the mapped buffer. Because the size
+    can be controlled by a device, as it's the case with virtio devices,
+    this can lead to memory corruption.
+    
 
-AFAIK it is due to how sysfs works and usage of virtual bus in virtio
-driver implementation, or am i wrong?
-Is there any way to create somehow some symlink e.g. for this case, so
-libvirt finds it?
+> 
+> For double insurance, to protect from a malicous device, when DMA API
+> is used for the device, this series store and use the descriptor
+> metadata in an auxiliay structure which can not be accessed via
+> swiotlb instead of the ones in the descriptor table. Actually, we've
 
-Regarding the ndo_* SRIOV callbacks, a proper implementation would actually
-need to tell the PF the VF config somehow. How would virtio-net do that?
-Wouldn't that need extending virtio specification? Or is it worked on for
-virtio 1.2? (AFAIK it isn't released yet)
+Sorry for being dense here, but how wold SWIOTLB be utilized for
+this attack?
 
-Thanks and regards,
-AK
-
-
-On Wed, Apr 28, 2021 at 3:33 PM Walukiewicz, Miroslaw <
-Miroslaw.Walukiewicz@intel.com> wrote:
-
-> HI Jason,
->
-> You are right here. We did not catch your change in driver and the SRIOV
-> flag is set correctly as you stated.
->
-> We want to orchestrate the HW implementation of VFs and PFs for virtio-ne=
-t
-> using libvirt.
->
-> The issue that we want to resolve is that there is no .ndo_get_vf_config
-> Callback implemented in virtio-net driver as other NIC's drivers have,
-> called by libvirt.
-> See
-> https://github.com/torvalds/linux/blob/master/drivers/net/ethernet/intel/=
-igb/igb_main.c#L2996,
-> for example
-> This callback really should create a minimal configuration inside of
-> driver, but we cannot avoid it.
->
-> Another issue is lack of sysfs fro virtual functions
-> /sys/class/net/ens801f0/device/virtfnX (where X is VF number and ens801fo
-> is its PF netdev),
->
-> Could you advise us, how we can solve our issue and drive us to proper
-> solution?
->
-> Regards,
->
-> Mirek
-> -----Original Message-----
-> From: Jason Wang <jasowang@redhat.com>
-> Sent: wtorek, 27 kwietnia 2021 04:44
-> To: Arkadiusz Kudan <arkadiusz.kudan@codilime.com>;
-> virtualization@lists.linux-foundation.org
-> Cc: mst@redhat.com; netdev@vger.kernel.org; Walukiewicz, Miroslaw <
-> Miroslaw.Walukiewicz@intel.com>
-> Subject: Re: [PATCH] virtio-net: enable SRIOV
->
->
-> =E5=9C=A8 2021/4/26 =E4=B8=8B=E5=8D=886:21, Arkadiusz Kudan =E5=86=99=E9=
-=81=93:
-> > With increasing interest for virtio, NIC have appeared that provide
-> > SRIOV with PF appearing in the host as a virtio network device and
-> > probably more similiar NICs will emerge.
-> > igb_uio of DPDK or pci-pf-stub can be used to provide SRIOV, however
-> > there are hypervisors/VMMs that require VFs, which are to be PCI
-> > passthrued to a VM, to have its PF with network representation in the
-> > kernel. For virtio-net based PFs, virtio-net could do that by
-> > providing both SRIOV interface and netdev representation.
-> >
-> > Enable SRIOV via VIRTIO_F_SR_IOV feature bit if the device supports
-> > it.
-> >
-> > Signed-off-by: Arkadiusz Kudan <arkadiusz.kudan@codilime.com>
-> > Signed-off-by: Miroslaw Walukiewicz <Miroslaw.Walukiewicz@intel.com>
-> > ---
-> >   drivers/net/virtio_net.c | 1 +
-> >   1 file changed, 1 insertion(+)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c index
-> > 0824e6999e49..a03aa7e99689 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -3249,6 +3249,7 @@ static struct virtio_device_id id_table[] =3D {
-> >
-> >   static unsigned int features[] =3D {
-> >       VIRTNET_FEATURES,
-> > +     VIRTIO_F_SR_IOV,
-> >   };
->
->
-> So I'm suprised that it needs to be enabled per device. We had:
->
-> static void vp_transport_features(struct virtio_device *vdev, u64
-> features) {
->          struct virtio_pci_device *vp_dev =3D to_vp_device(vdev);
->          struct pci_dev *pci_dev =3D vp_dev->pci_dev;
->
->          if ((features & BIT_ULL(VIRTIO_F_SR_IOV)) &&
->                          pci_find_ext_capability(pci_dev,
-> PCI_EXT_CAP_ID_SRIOV))
->                  __virtio_set_bit(vdev, VIRTIO_F_SR_IOV); }
->
-> And I had used this driver for SRIOV virtio-pci hardware for more than on=
-e
-> year.
->
-> Thanks
->
->
-> >
-> >   static unsigned int features_legacy[] =3D {
->
->
-
---=20
-
-Arkadiusz Kudan
-
-Software Engineer
-
-spiritualrage@gmail.com
-[image: Logo Codilime]
-<http://www.codilime.com/?utm_source=3DStopka&utm_medium=3DEmail&utm_campai=
-gn=3DStopka>
-
-[image: Logo Facebook] <https://www.facebook.com/codilime/> [image: Logo
-Linkedin] <https://www.linkedin.com/company/codilime> [image: Logo Twitter]
-<https://twitter.com/codilime>
-
-CodiLime Sp. z o.o. - Ltd. company with its registered office in Poland,
-02-493 Warsaw, ul. Krancowa 5.
-Registered by The District Court for the Capital City of Warsaw,
-XII Commercial Department of the National Court Register.
-Entered into National Court Register under No. KRS 0000388871.
-Tax identification number (NIP) 5272657478. Statistical number (REGON)
-142974628.
-
---=20
-
-
--------------------------------
-This document contains material that is=20
-confidential in CodiLime Sp. z o.o. DO NOT PRINT. DO NOT COPY. DO NOT=20
-DISTRIBUTE. If you are not the intended recipient of this document, be=20
-aware that any use, review, retransmission, distribution, reproduction or=
-=20
-any action taken in reliance upon this message is strictly prohibited. If=
-=20
-you received this in error, please contact the sender and help@codilime.com=
-=20
-<mailto:help@codilime.com>. Return the paper copy, delete the material from=
-=20
-all computers and storage media.
-
---000000000000695e0e05c108bcf5
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr"><div><div><div><div>Hi Jason,<br><br></div>Also i would li=
-ke to add another issue, that is location of &#39;net&#39; sysfs inside PCI=
- devices sysfs. Libvirt also expects to find folder &#39;/sys/bus/pci/devic=
-es/&lt;PF addr&gt;/net&#39; to get corresponding network interface. <br></d=
-iv>However, for virtio-net managed devices, the &#39;net&#39; folder is loc=
-ated in virtioX folder, i.e. &#39;/sys/bus/pci/devices/&lt;PF addr&gt;/virt=
-ioX/net&#39;. <br><br>AFAIK it is due to how sysfs works and usage of virtu=
-al bus in virtio driver implementation, or am i wrong?<br></div>Is there an=
-y way to create somehow some symlink e.g. for this case, so libvirt finds i=
-t?<br><br></div><div>Regarding the ndo_* SRIOV callbacks, a proper implemen=
-tation would actually need to tell the PF the VF config somehow. How would =
-virtio-net do that? <br>Wouldn&#39;t that need extending virtio specificati=
-on? Or is it worked on for virtio 1.2? (AFAIK it isn&#39;t released yet)<br=
-></div><div><br></div><div>Thanks and regards,<br></div><div>AK<br></div><d=
-iv><br></div> </div><br><div class=3D"gmail_quote"><div dir=3D"ltr" class=
-=3D"gmail_attr">On Wed, Apr 28, 2021 at 3:33 PM Walukiewicz, Miroslaw &lt;<=
-a href=3D"mailto:Miroslaw.Walukiewicz@intel.com">Miroslaw.Walukiewicz@intel=
-.com</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"mar=
-gin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1=
-ex">HI Jason, <br>
-<br>
-You are right here. We did not catch your change in driver and the SRIOV fl=
-ag is set correctly as you stated.<br>
-<br>
-We want to orchestrate the HW implementation of VFs and PFs for virtio-net =
-using libvirt. <br>
-<br>
-The issue that we want to resolve is that there is no .ndo_get_vf_config Ca=
-llback implemented in virtio-net driver as other NIC&#39;s drivers have, ca=
-lled by libvirt. <br>
-See <a href=3D"https://github.com/torvalds/linux/blob/master/drivers/net/et=
-hernet/intel/igb/igb_main.c#L2996" rel=3D"noreferrer" target=3D"_blank">htt=
-ps://github.com/torvalds/linux/blob/master/drivers/net/ethernet/intel/igb/i=
-gb_main.c#L2996</a>, for example <br>
-This callback really should create a minimal configuration inside of driver=
-, but we cannot avoid it. <br>
-<br>
-Another issue is lack of sysfs fro virtual functions /sys/class/net/ens801f=
-0/device/virtfnX (where X is VF number and ens801fo is its PF netdev), <br>
-<br>
-Could you advise us, how we can solve our issue and drive us to proper solu=
-tion?<br>
-<br>
-Regards,<br>
-<br>
-Mirek <br>
------Original Message-----<br>
-From: Jason Wang &lt;<a href=3D"mailto:jasowang@redhat.com" target=3D"_blan=
-k">jasowang@redhat.com</a>&gt; <br>
-Sent: wtorek, 27 kwietnia 2021 04:44<br>
-To: Arkadiusz Kudan &lt;<a href=3D"mailto:arkadiusz.kudan@codilime.com" tar=
-get=3D"_blank">arkadiusz.kudan@codilime.com</a>&gt;; <a href=3D"mailto:virt=
-ualization@lists.linux-foundation.org" target=3D"_blank">virtualization@lis=
-ts.linux-foundation.org</a><br>
-Cc: <a href=3D"mailto:mst@redhat.com" target=3D"_blank">mst@redhat.com</a>;=
- <a href=3D"mailto:netdev@vger.kernel.org" target=3D"_blank">netdev@vger.ke=
-rnel.org</a>; Walukiewicz, Miroslaw &lt;<a href=3D"mailto:Miroslaw.Walukiew=
-icz@intel.com" target=3D"_blank">Miroslaw.Walukiewicz@intel.com</a>&gt;<br>
-Subject: Re: [PATCH] virtio-net: enable SRIOV<br>
-<br>
-<br>
-=E5=9C=A8 2021/4/26 =E4=B8=8B=E5=8D=886:21, Arkadiusz Kudan =E5=86=99=E9=81=
-=93:<br>
-&gt; With increasing interest for virtio, NIC have appeared that provide <b=
-r>
-&gt; SRIOV with PF appearing in the host as a virtio network device and <br=
->
-&gt; probably more similiar NICs will emerge.<br>
-&gt; igb_uio of DPDK or pci-pf-stub can be used to provide SRIOV, however <=
-br>
-&gt; there are hypervisors/VMMs that require VFs, which are to be PCI <br>
-&gt; passthrued to a VM, to have its PF with network representation in the =
-<br>
-&gt; kernel. For virtio-net based PFs, virtio-net could do that by <br>
-&gt; providing both SRIOV interface and netdev representation.<br>
-&gt;<br>
-&gt; Enable SRIOV via VIRTIO_F_SR_IOV feature bit if the device supports <b=
-r>
-&gt; it.<br>
-&gt;<br>
-&gt; Signed-off-by: Arkadiusz Kudan &lt;<a href=3D"mailto:arkadiusz.kudan@c=
-odilime.com" target=3D"_blank">arkadiusz.kudan@codilime.com</a>&gt;<br>
-&gt; Signed-off-by: Miroslaw Walukiewicz &lt;<a href=3D"mailto:Miroslaw.Wal=
-ukiewicz@intel.com" target=3D"_blank">Miroslaw.Walukiewicz@intel.com</a>&gt=
-;<br>
-&gt; ---<br>
-&gt;=C2=A0 =C2=A0drivers/net/virtio_net.c | 1 +<br>
-&gt;=C2=A0 =C2=A01 file changed, 1 insertion(+)<br>
-&gt;<br>
-&gt; diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c index=
- <br>
-&gt; 0824e6999e49..a03aa7e99689 100644<br>
-&gt; --- a/drivers/net/virtio_net.c<br>
-&gt; +++ b/drivers/net/virtio_net.c<br>
-&gt; @@ -3249,6 +3249,7 @@ static struct virtio_device_id id_table[] =3D {<=
-br>
-&gt;=C2=A0 =C2=A0<br>
-&gt;=C2=A0 =C2=A0static unsigned int features[] =3D {<br>
-&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0VIRTNET_FEATURES,<br>
-&gt; +=C2=A0 =C2=A0 =C2=A0VIRTIO_F_SR_IOV,<br>
-&gt;=C2=A0 =C2=A0};<br>
-<br>
-<br>
-So I&#39;m suprised that it needs to be enabled per device. We had:<br>
-<br>
-static void vp_transport_features(struct virtio_device *vdev, u64 features)=
- {<br>
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct virtio_pci_device *=
-vp_dev =3D to_vp_device(vdev);<br>
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct pci_dev *pci_dev =
-=3D vp_dev-&gt;pci_dev;<br>
-<br>
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if ((features &amp; BIT_UL=
-L(VIRTIO_F_SR_IOV)) &amp;&amp;<br>
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 pci_f=
-ind_ext_capability(pci_dev,<br>
-PCI_EXT_CAP_ID_SRIOV))<br>
-=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
-=A0=C2=A0=C2=A0=C2=A0 __virtio_set_bit(vdev, VIRTIO_F_SR_IOV); }<br>
-<br>
-And I had used this driver for SRIOV virtio-pci hardware for more than one =
-year.<br>
-<br>
-Thanks<br>
-<br>
-<br>
-&gt;=C2=A0 =C2=A0<br>
-&gt;=C2=A0 =C2=A0static unsigned int features_legacy[] =3D {<br>
-<br>
-</blockquote></div><br clear=3D"all"><br>-- <br><div dir=3D"ltr" class=3D"g=
-mail_signature"><div dir=3D"ltr">
-				=09
-				=09
-				=09
-				=09
-				=09
-				=09
-				=09
-			       <table><tbody><tr><td><p style=3D"font-family:&quot;Helvetica Neu=
-e&quot;,Helvetica,Arial,sans-serif;font-size:14px;font-weight:bold;margin:0=
-px;line-height:1.2em">Arkadiusz Kudan</p>
-						</td></tr><tr>
-						<td>
-							<p style=3D"font-family:&quot;Helvetica Neue&quot;,Helvetica,Arial,s=
-ans-serif;font-size:12px;margin:0px;line-height:1.2em">Software Engineer</p=
->
-						</td>
-					</tr><tr>
-						<td>
-						=09
-						<br></td>
-					</tr><tr>
-						<td>
-							<p style=3D"font-family:&quot;Helvetica Neue&quot;,Helvetica,Arial,s=
-ans-serif;text-decoration:none;color:rgb(0,0,0);display:block;font-size:12p=
-x;margin:0px;line-height:1.2em"><a href=3D"mailto:spiritualrage@gmail.com" =
-target=3D"_blank">spiritualrage@gmail.com</a></p>
-						</td>
-					</tr><tr style=3D"padding-bottom:10px">
-						<td>
-							<a href=3D"http://www.codilime.com/?utm_source=3DStopka&amp;utm_medi=
-um=3DEmail&amp;utm_campaign=3DStopka" target=3D"_blank"><img src=3D"https:/=
-/img.codilime.com/codilime_460.png" alt=3D"Logo Codilime" style=3D"width: 1=
-38px; padding-top: 20px; margin-bottom: 10px;"></a>
-						</td>
-					</tr><tr>
-						<td>
-							<p>
-		             <a href=3D"https://www.facebook.com/codilime/" target=3D"_bl=
-ank">
-		             <img src=3D"https://img.codilime.com/facebook_104.png" alt=
-=3D"Logo Facebook" style=3D"width: 26px; height: 26px; margin-right: 7px;">=
-</a>
-		             <a href=3D"https://www.linkedin.com/company/codilime" target=
-=3D"_blank">
-		             <img src=3D"https://img.codilime.com/linkedin_104.png" alt=
-=3D"Logo Linkedin" style=3D"width: 26px; height: 26px; margin-right: 7px;">=
-</a>
-		             <a href=3D"https://twitter.com/codilime" target=3D"_blank">
-		             <img src=3D"https://img.codilime.com/twitter_104.png" alt=3D=
-"Logo Twitter" style=3D"width: 26px; height: 26px;"></a>
-		          </p>
-						</td>
-					</tr><tr><td>
-			          <p style=3D"margin:0px;line-height:1.2em;font-size:7.5pt;font-=
-family:Calibri,sans-serif;color:rgb(204,204,204)">CodiLime=C2=A0Sp.=C2=A0z=
-=C2=A0o.o. - Ltd.=C2=A0company with its=C2=A0registered office in=C2=A0Pola=
-nd, 02-493 Warsaw, ul.=C2=A0Krancowa=C2=A05.<br>Registered by=C2=A0The=C2=
-=A0District Court for=C2=A0the=C2=A0Capital City of=C2=A0Warsaw, XII=C2=A0C=
-ommercial Department of=C2=A0the=C2=A0National Court Register.<br>Entered
- into National Court Register under No.=C2=A0KRS=C2=A00000388871.=20
-Tax=C2=A0identification number (NIP) 5272657478. Statistical number (REGON)=
-=20
-142974628.</p></td></tr></tbody></table></div></div>
-
-<br>
-<p style=3D"font-family:Calibri;font-size:1.3em;margin:0cm 0cm 0.0001pt"><i=
-mg></p><span style=3D"font-family:Calibri,sans-serif;font-size:1.3em;color:=
-rgb(118,247,3)"><font size=3D"1"><div><span style=3D"color:rgb(204,204,204)=
-;font-size:9px;background-color:rgb(255,255,255)">-------------------------=
------<wbr>-</span></div></font></span><div style=3D"font-family:Arial,Helve=
-tica,sans-serif"><span style=3D"color:rgb(204,204,204);font-family:Calibri,=
-sans-serif;background-color:rgb(255,255,255)"><font size=3D"1">This documen=
-t contains material that is confidential in CodiLime Sp. z o.o. DO NOT PRIN=
-T. DO NOT COPY. DO NOT DISTRIBUTE. If you are not the intended recipient of=
- this document, be aware that any use, review, retransmission, distribution=
-, reproduction or any action taken in reliance upon this message is strictl=
-y prohibited. If you received this in error, please contact the sender and =
-<a href=3D"mailto:help@codilime.com" target=3D"_blank">help@codilime.com</a=
->. Return the paper copy, delete the material from all computers and storag=
-e media.</font></span></div>
---000000000000695e0e05c108bcf5--
-
---===============5625587160242127215==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+> almost achieved that through packed virtqueue and we just need to fix
+> a corner case of handling mapping errors. For split virtqueue we just
+> follow what's done in the packed.
+> 
+> Note that we don't duplicate descriptor medata for indirect
+> descriptors since it uses stream mapping which is read only so it's
+> safe if the metadata of non-indirect descriptors are correct.
+> 
+> The behaivor for non DMA API is kept for minimizing the performance
+> impact.
+> 
+> Slightly tested with packed on/off, iommu on/of, swiotlb force/off in
+> the guest.
+> 
+> Please review.
+> 
+> [1] https://lore.kernel.org/netdev/fab615ce-5e13-a3b3-3715-a4203b4ab010@redhat.com/T/
+> [2] https://yhbt.net/lore/all/c3629a27-3590-1d9f-211b-c0b7be152b32@redhat.com/T/#mc6b6e2343cbeffca68ca7a97e0f473aaa871c95b
+> 
+> Jason Wang (7):
+>   virtio-ring: maintain next in extra state for packed virtqueue
+>   virtio_ring: rename vring_desc_extra_packed
+>   virtio-ring: factor out desc_extra allocation
+>   virtio_ring: secure handling of mapping errors
+>   virtio_ring: introduce virtqueue_desc_add_split()
+>   virtio: use err label in __vring_new_virtqueue()
+>   virtio-ring: store DMA metadata in desc_extra for split virtqueue
+> 
+>  drivers/virtio/virtio_ring.c | 189 ++++++++++++++++++++++++++---------
+>  1 file changed, 141 insertions(+), 48 deletions(-)
+> 
+> -- 
+> 2.25.1
+> 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5625587160242127215==--
