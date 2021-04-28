@@ -1,88 +1,98 @@
-Return-Path: <SRS0=gqJU=JY=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=6MyX=JZ=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5341C433ED
-	for <virtualization@archiver.kernel.org>; Tue, 27 Apr 2021 19:09:32 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA6CAC433ED
+	for <virtualization@archiver.kernel.org>; Wed, 28 Apr 2021 01:22:17 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 36DA7613EA
-	for <virtualization@archiver.kernel.org>; Tue, 27 Apr 2021 19:09:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 36DA7613EA
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=kaod.org
+	by mail.kernel.org (Postfix) with ESMTPS id 8EB1261402
+	for <virtualization@archiver.kernel.org>; Wed, 28 Apr 2021 01:22:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8EB1261402
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E176240314;
-	Tue, 27 Apr 2021 19:09:31 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lZUxHgl8DV4v; Tue, 27 Apr 2021 19:09:30 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 0466A4058B;
-	Tue, 27 Apr 2021 19:09:29 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CAD3AC0023;
-	Tue, 27 Apr 2021 19:09:29 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5FB58C001A
- for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Apr 2021 19:09:28 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4EA99404C0
- for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Apr 2021 19:09:28 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 58A0640510;
+	Wed, 28 Apr 2021 01:22:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qwQoGKU9g4rv
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3-KfNRv1sYgp; Wed, 28 Apr 2021 01:22:16 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 02611404FE;
+	Wed, 28 Apr 2021 01:22:15 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D6079C0022;
+	Wed, 28 Apr 2021 01:22:15 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 884F4C0001
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Apr 2021 19:09:27 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from 10.mo52.mail-out.ovh.net (10.mo52.mail-out.ovh.net
- [87.98.187.244])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D73E1403DA
+ Wed, 28 Apr 2021 01:22:14 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6960E406B9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Apr 2021 19:09:26 +0000 (UTC)
-Received: from mxplan5.mail.ovh.net (unknown [10.109.146.44])
- by mo52.mail-out.ovh.net (Postfix) with ESMTPS id 7316E25F92F;
- Tue, 27 Apr 2021 21:09:23 +0200 (CEST)
-Received: from kaod.org (37.59.142.96) by DAG8EX1.mxp5.local (172.16.2.71)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4; Tue, 27 Apr
- 2021 21:09:22 +0200
-Authentication-Results: garm.ovh; auth=pass
- (GARM-96R0016748756b-27ba-4d80-b967-2b218d0bbe7e,
- B6AA52F3D5CB607530F59D2ADE64727CB37F7539) smtp.auth=groug@kaod.org
-X-OVh-ClientIp: 78.197.208.248
-Date: Tue, 27 Apr 2021 21:09:21 +0200
-From: Greg Kurz <groug@kaod.org>
-To: Vivek Goyal <vgoyal@redhat.com>
-Subject: Re: [PATCH v2] virtiofs: propagate sync() to file server
-Message-ID: <20210427210921.7b01c661@bahia.lan>
-In-Reply-To: <20210427171206.GA1805363@redhat.com>
-References: <20210426151011.840459-1-groug@kaod.org>
- <20210427171206.GA1805363@redhat.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+ Wed, 28 Apr 2021 01:22:14 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id zPy-oGhOrqtM
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 28 Apr 2021 01:22:13 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CEC33406B3
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 28 Apr 2021 01:22:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1619572931;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=XbLyFvrjSQz5/gF7VPmuPuvoiHTk2IYn/Ev/WHTHBYQ=;
+ b=euZHaneLrzGBQe/QDax5dQFTwPGB+T9a405tS9Gobc02s72QIkuh73koJr3iDEUfU3Epe7
+ Y5J/7k9kocG3cIOvnq1FzCdJz0MVg+QBvXyVJaQ3VAXrsq3aBNemTzESiFzEBDdUAPFlMH
+ U3JeVIHESMIo2B39eawHKpMxFRIj/0w=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-29-jeoyZHpOMtOeTZPv_7ZbPg-1; Tue, 27 Apr 2021 21:22:09 -0400
+X-MC-Unique: jeoyZHpOMtOeTZPv_7ZbPg-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
+ [10.5.11.11])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BAD1C802950;
+ Wed, 28 Apr 2021 01:22:07 +0000 (UTC)
+Received: from wangxiaodeMacBook-Air.local (ovpn-13-64.pek2.redhat.com
+ [10.72.13.64])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 1C49069FD0;
+ Wed, 28 Apr 2021 01:21:59 +0000 (UTC)
+Subject: Re: [PATCH net-next v3] virtio-net: page_to_skb() use build_skb when
+ there's sufficient tailroom
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <1619491565.7682261-1-xuanzhuo@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <2d6b1c0b-7a3f-dbf4-785a-9af3c6000f98@redhat.com>
+Date: Wed, 28 Apr 2021 09:21:58 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.10.0
 MIME-Version: 1.0
-X-Originating-IP: [37.59.142.96]
-X-ClientProxiedBy: DAG7EX1.mxp5.local (172.16.2.61) To DAG8EX1.mxp5.local
- (172.16.2.71)
-X-Ovh-Tracer-GUID: 592c65e6-63ae-471f-93ed-402196ac499b
-X-Ovh-Tracer-Id: 7017452647084824940
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeduledrvddvtddgudefhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpeffhffvuffkjghfofggtgfgihesthejredtredtvdenucfhrhhomhepifhrvghgucfmuhhriicuoehgrhhouhhgsehkrghougdrohhrgheqnecuggftrfgrthhtvghrnhepfedutdeijeejveehkeeileetgfelteekteehtedtieefffevhffflefftdefleejnecukfhppedtrddtrddtrddtpdefjedrheelrddugedvrdelieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehmgihplhgrnhehrdhmrghilhdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomhepghhrohhugheskhgrohgurdhorhhgpdhrtghpthhtoheprhhlkhesrhgvughhrghtrdgtohhm
-Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, virtio-fs@redhat.com,
- Stefan Hajnoczi <stefanha@redhat.com>, linux-fsdevel@vger.kernel.org,
- Robert Krawitz <rlk@redhat.com>
+In-Reply-To: <1619491565.7682261-1-xuanzhuo@linux.alibaba.com>
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ Mat Martineau <mathew.j.martineau@linux.intel.com>,
+ virtualization@lists.linux-foundation.org, Jakub Kicinski <kuba@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,227 +104,65 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="gbk"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, 27 Apr 2021 13:12:06 -0400
-Vivek Goyal <vgoyal@redhat.com> wrote:
-
-> On Mon, Apr 26, 2021 at 05:10:11PM +0200, Greg Kurz wrote:
-> > Even if POSIX doesn't mandate it, linux users legitimately expect
-> > sync() to flush all data and metadata to physical storage when it
-> > is located on the same system. This isn't happening with virtiofs
-> > though : sync() inside the guest returns right away even though
-> > data still needs to be flushed from the host page cache.
-> > 
-> > This is easily demonstrated by doing the following in the guest:
-> > 
-> > $ dd if=/dev/zero of=/mnt/foo bs=1M count=5K ; strace -T -e sync sync
-> > 5120+0 records in
-> > 5120+0 records out
-> > 5368709120 bytes (5.4 GB, 5.0 GiB) copied, 5.22224 s, 1.0 GB/s
-> > sync()                                  = 0 <0.024068>
-> > +++ exited with 0 +++
-> > 
-> > and start the following in the host when the 'dd' command completes
-> > in the guest:
-> > 
-> > $ strace -T -e fsync /usr/bin/sync virtiofs/foo
-> > fsync(3)                                = 0 <10.371640>
-> > +++ exited with 0 +++
-> > 
-> > There are no good reasons not to honor the expected behavior of
-> > sync() actually : it gives an unrealistic impression that virtiofs
-> > is super fast and that data has safely landed on HW, which isn't
-> > the case obviously.
-> > 
-> > Implement a ->sync_fs() superblock operation that sends a new
-> > FUSE_SYNC request type for this purpose. Provision a 64-bit
-> > flags field for possible future extensions. Since the file
-> > server cannot handle the wait == 0 case, we skip it to avoid a
-> > gratuitous roundtrip.
-> > 
-> > Like with FUSE_FSYNC and FUSE_FSYNCDIR, lack of support for
-> > FUSE_SYNC in the file server is treated as permanent success.
-> > This ensures compatibility with older file servers : the client
-> > will get the current behavior of sync() not being propagated to
-> > the file server.
-> > 
-> > Note that such an operation allows the file server to DoS sync().
-> > Since a typical FUSE file server is an untrusted piece of software
-> > running in userspace, this is disabled by default.  Only enable it
-> > with virtiofs for now since virtiofsd is supposedly trusted by the
-> > guest kernel.
-> > 
-> > Reported-by: Robert Krawitz <rlk@redhat.com>
-> > Signed-off-by: Greg Kurz <groug@kaod.org>
-> > ---
-> > 
-> > v2: - clarify compatibility with older servers in changelog (Vivek)
-> >     - ignore the wait == 0 case (Miklos)
-> >     - 64-bit aligned argument structure (Vivek, Miklos)
-> > 
-> >  fs/fuse/fuse_i.h          |  3 +++
-> >  fs/fuse/inode.c           | 35 +++++++++++++++++++++++++++++++++++
-> >  fs/fuse/virtio_fs.c       |  1 +
-> >  include/uapi/linux/fuse.h | 10 +++++++++-
-> >  4 files changed, 48 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-> > index 63d97a15ffde..68e9ae96cbd4 100644
-> > --- a/fs/fuse/fuse_i.h
-> > +++ b/fs/fuse/fuse_i.h
-> > @@ -755,6 +755,9 @@ struct fuse_conn {
-> >  	/* Auto-mount submounts announced by the server */
-> >  	unsigned int auto_submounts:1;
-> >  
-> > +	/* Propagate syncfs() to server */
-> > +	unsigned int sync_fs:1;
-> > +
-> >  	/** The number of requests waiting for completion */
-> >  	atomic_t num_waiting;
-> >  
-> > diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-> > index b0e18b470e91..ac184069b40f 100644
-> > --- a/fs/fuse/inode.c
-> > +++ b/fs/fuse/inode.c
-> > @@ -506,6 +506,40 @@ static int fuse_statfs(struct dentry *dentry, struct kstatfs *buf)
-> >  	return err;
-> >  }
-> >  
-> > +static int fuse_sync_fs(struct super_block *sb, int wait)
-> > +{
-> > +	struct fuse_mount *fm = get_fuse_mount_super(sb);
-> > +	struct fuse_conn *fc = fm->fc;
-> > +	struct fuse_syncfs_in inarg;
-> > +	FUSE_ARGS(args);
-> > +	int err;
-> > +
-> > +	/*
-> > +	 * Userspace cannot handle the wait == 0 case. Avoid a
-> > +	 * gratuitous roundtrip.
-> > +	 */
-> > +	if (!wait)
-> > +		return 0;
-> > +
-> > +	if (!fc->sync_fs)
-> > +		return 0;
-> > +
-> > +	memset(&inarg, 0, sizeof(inarg));
-> > +	args.in_numargs = 1;
-> > +	args.in_args[0].size = sizeof(inarg);
-> > +	args.in_args[0].value = &inarg;
-> > +	args.opcode = FUSE_SYNCFS;
-> > +	args.out_numargs = 0;
-> > +
-> > +	err = fuse_simple_request(fm, &args);
-> > +	if (err == -ENOSYS) {
-> > +		fc->sync_fs = 0;
-> > +		err = 0;
-> > +	}
-> > +
-> > +	return err;
-> > +}
-> > +
-> >  enum {
-> >  	OPT_SOURCE,
-> >  	OPT_SUBTYPE,
-> > @@ -909,6 +943,7 @@ static const struct super_operations fuse_super_operations = {
-> >  	.put_super	= fuse_put_super,
-> >  	.umount_begin	= fuse_umount_begin,
-> >  	.statfs		= fuse_statfs,
-> > +	.sync_fs	= fuse_sync_fs,
-> >  	.show_options	= fuse_show_options,
-> >  };
-> >  
-> > diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-> > index 4ee6f734ba83..a3c025308743 100644
-> > --- a/fs/fuse/virtio_fs.c
-> > +++ b/fs/fuse/virtio_fs.c
-> > @@ -1441,6 +1441,7 @@ static int virtio_fs_get_tree(struct fs_context *fsc)
-> >  	fc->release = fuse_free_conn;
-> >  	fc->delete_stale = true;
-> >  	fc->auto_submounts = true;
-> > +	fc->sync_fs = true;
-> >  
-> >  	fsc->s_fs_info = fm;
-> >  	sb = sget_fc(fsc, virtio_fs_test_super, set_anon_super_fc);
-> > diff --git a/include/uapi/linux/fuse.h b/include/uapi/linux/fuse.h
-> > index 54442612c48b..1265ca17620c 100644
-> > --- a/include/uapi/linux/fuse.h
-> > +++ b/include/uapi/linux/fuse.h
-> > @@ -179,6 +179,9 @@
-> >   *  7.33
-> >   *  - add FUSE_HANDLE_KILLPRIV_V2, FUSE_WRITE_KILL_SUIDGID, FATTR_KILL_SUIDGID
-> >   *  - add FUSE_OPEN_KILL_SUIDGID
-> > + *
-> > + *  7.34
-> > + *  - add FUSE_SYNCFS
-> >   */
-> >  
-> >  #ifndef _LINUX_FUSE_H
-> > @@ -214,7 +217,7 @@
-> >  #define FUSE_KERNEL_VERSION 7
-> >  
-> >  /** Minor version number of this interface */
-> > -#define FUSE_KERNEL_MINOR_VERSION 33
-> > +#define FUSE_KERNEL_MINOR_VERSION 34
-> >  
-> >  /** The node ID of the root inode */
-> >  #define FUSE_ROOT_ID 1
-> > @@ -499,6 +502,7 @@ enum fuse_opcode {
-> >  	FUSE_COPY_FILE_RANGE	= 47,
-> >  	FUSE_SETUPMAPPING	= 48,
-> >  	FUSE_REMOVEMAPPING	= 49,
-> > +	FUSE_SYNCFS		= 50,
-> >  
-> >  	/* CUSE specific operations */
-> >  	CUSE_INIT		= 4096,
-> > @@ -957,4 +961,8 @@ struct fuse_removemapping_one {
-> >  #define FUSE_REMOVEMAPPING_MAX_ENTRY   \
-> >  		(PAGE_SIZE / sizeof(struct fuse_removemapping_one))
-> >  
-> > +struct fuse_syncfs_in {
-> > +	uint64_t flags;
-> > +};
-> > +
-> 
-> Hi Greg,
-> 
-> Will it be better if 32bits are for flags and reset 32 are
-> padding and can be used in whatever manner.
-> 
-> struct fuse_syncfs_in {
-> 	uint32_t flags;
-> 	uint32_t padding;
-> };
-> 
-> This will increase the flexibility if we were to send more information
-> in future.
-> 
-> I already see bunch of structures where flags are 32 bit and reset
-> are padding bits. fuse_read_in, fuse_write_in, fuse_rename2_in etc.
-> 
-> Thanks
-> Vivek
-> 
-
-Yes, it makes sense. I'll wait a few more days and roll out a v3.
-
-Thanks !
-
---
-Greg
-
-> >  #endif /* _LINUX_FUSE_H */
-> > -- 
-> > 2.26.3
-> > 
-> 
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CtTaIDIwMjEvNC8yNyDJz87nMTA6NDYsIFh1YW4gWmh1byDQtLXAOgo+IE9uIFR1ZSwgMjAgQXBy
+IDIwMjEgMTA6NDE6MDMgKzA4MDAsIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+IHdy
+b3RlOgo+Pgo+PiBCdHcsIHNpbmNlIHRoZSBwYXRjaCBtb2RpZmllcyBhIGNyaXRpY2FsIHBhdGgg
+b2YgdmlydGlvLW5ldCBJIHN1Z2dlc3QgdG8KPj4gdGVzdCB0aGUgZm9sbG93aW5nIGNhc2VzOgo+
+Pgo+PiAxKSBuZXRwZXJmIFRDUCBzdHJlYW0KPj4gMikgbmV0cGVyZiBVRFAgd2l0aCBwYWNrZXQg
+c2l6ZSBmcm9tIDY0IHRvIFBBR0VfU0laRQo+PiAzKSBYRFBfUEFTUyB3aXRoIDEpCj4+IDQpIFhE
+UF9QQVNTIHdpdGggMikKPj4gNSkgWERQIG1ldGFkYXRhIHdpdGggMSkKPj4gNikgWERQIG1ldGFk
+YXRhIHdpdGggMikKPiBJIGhhdmUgY29tcGxldGVkIHRoZSBhYm92ZSB0ZXN0IG9uIHRoZSBsYXRl
+c3QgbmV0LW5leHQgYnJhbmNoLiBUaGUgdGVzdGVkIHNjcmlwdAo+IGFuZCB4ZHAgY29kZSBhcmUg
+YXMgZm9sbG93cy4gVGhlIGtlcm5lbCBpcyB3aXRoIEtDT1YgYW5kIGV2ZXJ5dGhpbmcgaXMgbm9y
+bWFsCj4gd2l0aG91dCBleGNlcHRpb24uCj4KPiBUaGFua3MuCgoKTG9va3MgZ29vZC4KClRoYW5r
+cyBmb3IgdGhlIHRlc3RpbmcuCgoKPgo+ICMjIHRlc3Qgc2NyaXB0Ogo+IAkjIS91c3IvYmluL2Vu
+diBzaAo+Cj4KPiAJZm9yIHMgaW4gJChzZXEgNjQgNDA5NikKPiAJZG8KPiAJICAgIG5ldHBlcmYg
+LUggMTkyLjE2OC4xMjIuMjAyICAtdCBVRFBfU1RSRUFNIC0tIC1tICRzCj4gCWRvbmUKPgo+IAlm
+b3IgcyBpbiAkKHNlcSA2NCA0MDk2KQo+IAlkbwo+IAkgICAgbmV0cGVyZiAtSCAxOTIuMTY4LjEy
+Mi4yMDIgIC10IFRDUF9TVFJFQU0gLS0gLW0gJHMKPiAJZG9uZQo+Cj4gIyMgeGRwIHBhc3M6Cj4K
+PiAJI2RlZmluZSBLQlVJTERfTU9ETkFNRSAiZm9vIgo+IAkjaW5jbHVkZSA8bGludXgvYnBmLmg+
+Cj4gCSNpbmNsdWRlIDxsaW51eC9pbi5oPgo+IAkjaW5jbHVkZSA8bGludXgvaWZfZXRoZXIuaD4K
+PiAJI2luY2x1ZGUgPGxpbnV4L2lmX3BhY2tldC5oPgo+IAkjaW5jbHVkZSA8bGludXgvaWZfdmxh
+bi5oPgo+IAkjaW5jbHVkZSA8bGludXgvaXAuaD4KPiAJI2luY2x1ZGUgPGxpbnV4L2ljbXAuaD4K
+Pgo+IAkjZGVmaW5lIERFRkFVTFRfVFRMIDY0Cj4gCSNkZWZpbmUgTUFYX1BDS1RfU0laRSA2MDAK
+PiAJI2RlZmluZSBJQ01QX1RPT0JJR19TSVpFIDk4Cj4gCSNkZWZpbmUgSUNNUF9UT09CSUdfUEFZ
+TE9BRF9TSVpFIDkyCj4KPgo+IAkjZGVmaW5lIFNFQyhOQU1FKSBfX2F0dHJpYnV0ZV9fKChzZWN0
+aW9uKE5BTUUpLCB1c2VkKSkKPgo+Cj4gCVNFQygieGRwIikKPiAJaW50IF94ZHAoc3RydWN0IHhk
+cF9tZCAqeGRwKQo+IAl7Cj4gCSAgICAgICAgcmV0dXJuIFhEUF9QQVNTOwo+IAl9Cj4KPiAJY2hh
+ciBfbGljZW5zZVtdIFNFQygibGljZW5zZSIpID0gIkdQTCI7Cj4KPiAjIyB4ZHAgbWV0YWRhdGE6
+Cj4KPiAJI2RlZmluZSBLQlVJTERfTU9ETkFNRSAiZm9vIgo+IAkjaW5jbHVkZSA8bGludXgvYnBm
+Lmg+Cj4gCSNpbmNsdWRlIDxsaW51eC9pbi5oPgo+IAkjaW5jbHVkZSA8bGludXgvaWZfZXRoZXIu
+aD4KPiAJI2luY2x1ZGUgPGxpbnV4L2lmX3BhY2tldC5oPgo+IAkjaW5jbHVkZSA8bGludXgvaWZf
+dmxhbi5oPgo+IAkjaW5jbHVkZSA8bGludXgvaXAuaD4KPiAJI2luY2x1ZGUgPGxpbnV4L2ljbXAu
+aD4KPgo+IAlzdGF0aWMgbG9uZyAoKmJwZl94ZHBfYWRqdXN0X21ldGEpKHN0cnVjdCB4ZHBfbWQg
+KnhkcF9tZCwgaW50IGRlbHRhKSA9ICh2b2lkICopIDU0Owo+Cj4KPiAJI2RlZmluZSBTRUMoTkFN
+RSkgX19hdHRyaWJ1dGVfXygoc2VjdGlvbihOQU1FKSwgdXNlZCkpCj4KPiAJc3RydWN0IG1ldGFf
+aW5mbyB7Cj4gCSAgICAgICAgX191MzIgbWFyazsKPiAJfSBfX2F0dHJpYnV0ZV9fKChhbGlnbmVk
+KDQpKSk7Cj4KPiAJU0VDKCJ4ZHBfbWFyayIpCj4gCWludCBfeGRwX21hcmsoc3RydWN0IHhkcF9t
+ZCAqY3R4KQo+IAl7Cj4gCSAgICAgICAgc3RydWN0IG1ldGFfaW5mbyAqbWV0YTsKPiAJICAgICAg
+ICB2b2lkICpkYXRhLCAqZGF0YV9lbmQ7Cj4gCSAgICAgICAgaW50IHJldDsKPgo+IAkgICAgICAg
+IC8qIFJlc2VydmUgc3BhY2UgaW4tZnJvbnQgb2YgZGF0YSBwb2ludGVyIGZvciBvdXIgbWV0YSBp
+bmZvLgo+IAkgICAgICAgICAqIChOb3RpY2UgZHJpdmVycyBub3Qgc3VwcG9ydGluZyBkYXRhX21l
+dGEgd2lsbCBmYWlsIGhlcmUhKQo+IAkgICAgICAgICAqLwo+IAkgICAgICAgIHJldCA9IGJwZl94
+ZHBfYWRqdXN0X21ldGEoY3R4LCAtKGludClzaXplb2YoKm1ldGEpKTsKPiAJICAgICAgICBpZiAo
+cmV0IDwgMCkKPiAJICAgICAgICAgICAgICAgIHJldHVybiBYRFBfQUJPUlRFRDsKPgo+IAkgICAg
+ICAgIC8qIE5vdGljZTogS2VybmVsLXNpZGUgdmVyaWZpZXIgcmVxdWlyZXMgdGhhdCBsb2FkaW5n
+IG9mCj4gCSAgICAgICAgICogY3R4LT5kYXRhIE1VU1QgaGFwcGVuIF9hZnRlcl8gaGVscGVyIGJw
+Zl94ZHBfYWRqdXN0X21ldGEoKSwKPiAJICAgICAgICAgKiBhcyBwa3QtZGF0YSBwb2ludGVycyBh
+cmUgaW52YWxpZGF0ZWQuICBIZWxwZXJzIHRoYXQgcmVxdWlyZQo+IAkgICAgICAgICAqIHRoaXMg
+YXJlIGRldGVybWluZWQvbWFya2VkIGJ5IGJwZl9oZWxwZXJfY2hhbmdlc19wa3RfZGF0YSgpCj4g
+CSAgICAgICAgICovCj4gCSAgICAgICAgZGF0YSA9ICh2b2lkICopKHVuc2lnbmVkIGxvbmcpY3R4
+LT5kYXRhOwo+Cj4gCSAgICAgICAgLyogQ2hlY2sgZGF0YV9tZXRhIGhhdmUgcm9vbSBmb3IgbWV0
+YV9pbmZvIHN0cnVjdCAqLwo+IAkgICAgICAgIG1ldGEgPSAodm9pZCAqKSh1bnNpZ25lZCBsb25n
+KWN0eC0+ZGF0YV9tZXRhOwo+IAkgICAgICAgIGlmICgodm9pZCAqKShtZXRhICsgMSkgPiBkYXRh
+KQo+IAkgICAgICAgICAgICAgICAgcmV0dXJuIFhEUF9BQk9SVEVEOwo+Cj4gCSAgICAgICAgbWV0
+YS0+bWFyayA9IDQyOwo+Cj4gCSAgICAgICAgcmV0dXJuIFhEUF9QQVNTOwo+IAl9Cj4KPgo+IAlj
+aGFyIF9saWNlbnNlW10gU0VDKCJsaWNlbnNlIikgPSAiR1BMIjsKPgoKX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
+aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
+dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
