@@ -2,95 +2,98 @@ Return-Path: <SRS0=+DIW=J2=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C0C45C43462
-	for <virtualization@archiver.kernel.org>; Thu, 29 Apr 2021 04:16:56 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80E59C4360C
+	for <virtualization@archiver.kernel.org>; Thu, 29 Apr 2021 12:25:40 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DD19861405
-	for <virtualization@archiver.kernel.org>; Thu, 29 Apr 2021 04:16:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DD19861405
+	by mail.kernel.org (Postfix) with ESMTPS id 009656147D
+	for <virtualization@archiver.kernel.org>; Thu, 29 Apr 2021 12:25:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 009656147D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B3F61606E5;
-	Thu, 29 Apr 2021 04:16:53 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9EBF4418E1;
+	Thu, 29 Apr 2021 12:25:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RPwv0urgITox; Thu, 29 Apr 2021 04:16:52 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id gT2aMcVmN8WC; Thu, 29 Apr 2021 12:25:38 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 278EE60DD0;
-	Thu, 29 Apr 2021 04:16:50 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 89BAC418E0;
+	Thu, 29 Apr 2021 12:25:37 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 16BA0C000E;
-	Thu, 29 Apr 2021 04:16:50 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4065DC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5C262C000D;
+	Thu, 29 Apr 2021 12:25:37 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B45A8C0001
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Apr 2021 04:16:49 +0000 (UTC)
+ Thu, 29 Apr 2021 12:25:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 3262C60DB0
+ by smtp1.osuosl.org (Postfix) with ESMTP id A2711845F5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Apr 2021 04:16:49 +0000 (UTC)
+ Thu, 29 Apr 2021 12:25:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XFT925GDy_Wf
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gZL-sI0L1DBo
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Apr 2021 04:16:47 +0000 (UTC)
+ Thu, 29 Apr 2021 12:25:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 1E97B606E5
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 784B5845F0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Apr 2021 04:16:44 +0000 (UTC)
+ Thu, 29 Apr 2021 12:25:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1619669803;
+ s=mimecast20190719; t=1619699133;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=u/QUY4qCTlUpRklnkagB+tJ3wFuKq8JIyfGnRJ0ldCk=;
- b=b9+KISNKLwYCiGKDw2954hB35/fGFQt9Bpb2TFzs4He3xjCIM3qjTHk58xfH7txjP8gEi6
- rggaEwoIJWpKK6sfY9DuvFuq2rJ+c5Uj5vRdagW4TxDbGYh1qoC1kLuciREsRw78jk7D7Q
- Hns+kazdIlHUHsssJuczbYQw9D4Rpp0=
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=/OdSxwojrLS5sAnanUpiMcEtuJGNRcvvNrKB0SCQWUs=;
+ b=iwxb3NKfe8Lr1aRg//NAO7r1N0CqDGyVjbIvQCGe0eBJYGxYZe6I6D2wBtuN9q4OS1n703
+ OvNT89PNVqvMP+5Luj5q5A3amwpNv013b0ZdUVivCvETOltGLy4saRr7CdL7cITR+VNXCs
+ HFX2QgXCICX+Y2oBhBnH61/b0XIKSzA=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-252-OyWakbAFOPmsSM8Iu953tQ-1; Thu, 29 Apr 2021 00:16:39 -0400
-X-MC-Unique: OyWakbAFOPmsSM8Iu953tQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
+ us-mta-572-1idR3NXgNvivsbYndrR7Yg-1; Thu, 29 Apr 2021 08:25:29 -0400
+X-MC-Unique: 1idR3NXgNvivsbYndrR7Yg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D06BD802938;
- Thu, 29 Apr 2021 04:16:37 +0000 (UTC)
-Received: from wangxiaodeMacBook-Air.local (ovpn-13-162.pek2.redhat.com
- [10.72.13.162])
- by smtp.corp.redhat.com (Postfix) with ESMTP id CEC8D6A967;
- Thu, 29 Apr 2021 04:16:26 +0000 (UTC)
-Subject: Re: [RFC PATCH 0/7] Untrusted device support for virtio
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-References: <20210421032117.5177-1-jasowang@redhat.com>
- <YInOQt1l/59zzPJK@Konrads-MacBook-Pro.local>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <9b089e3b-7d7a-b9d6-a4a1-81a6eff2e425@redhat.com>
-Date: Thu, 29 Apr 2021 12:16:25 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.10.0
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 75AD4107ACF3;
+ Thu, 29 Apr 2021 12:25:26 +0000 (UTC)
+Received: from t480s.redhat.com (ovpn-114-50.ams2.redhat.com [10.36.114.50])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 330B45C1BB;
+ Thu, 29 Apr 2021 12:25:20 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH v1 0/7] fs/proc/kcore: don't read offline sections,
+ logically offline pages and hwpoisoned pages
+Date: Thu, 29 Apr 2021 14:25:12 +0200
+Message-Id: <20210429122519.15183-1-david@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <YInOQt1l/59zzPJK@Konrads-MacBook-Pro.local>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-Cc: ashish.kalra@amd.com, file@sect.tu-berlin.de,
- martin.radev@aisec.fraunhofer.de, kvm@vger.kernel.org, mst@redhat.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- xieyongji@bytedance.com, stefanha@redhat.com
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Cc: Aili Yao <yaoaili@kingsoft.com>, Michal Hocko <mhocko@suse.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, linux-hyperv@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
+ Wei Liu <wei.liu@kernel.org>, Alex Shi <alex.shi@linux.alibaba.com>,
+ Stephen Hemminger <sthemmin@microsoft.com>,
+ "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
+ Steven Price <steven.price@arm.com>, Alexey Dobriyan <adobriyan@gmail.com>,
+ Jiri Bohac <jbohac@suse.cz>, Haiyang Zhang <haiyangz@microsoft.com>,
+ Oscar Salvador <osalvador@suse.de>, Naoya Horiguchi <naoya.horiguchi@nec.com>,
+ linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ Roman Gushchin <guro@fb.com>, Mike Rapoport <rppt@kernel.org>,
+ Mike Kravetz <mike.kravetz@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,84 +105,95 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="gbk"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CtTaIDIwMjEvNC8yOSDJz87nNTowNiwgS29ucmFkIFJ6ZXN6dXRlayBXaWxrINC0tcA6Cj4gT24g
-V2VkLCBBcHIgMjEsIDIwMjEgYXQgMTE6MjE6MTBBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
-Pj4gSGkgQWxsOgo+Pgo+PiBTb21ldGltZXMsIHRoZSBkcml2ZXIgZG9lc24ndCB0cnVzdCB0aGUg
-ZGV2aWNlLiBUaGlzIGlzIHVzdWFsbHkKPj4gaGFwcGVucyBmb3IgdGhlIGVuY3J0cHllZCBWTSBv
-ciBWRFVTRVsxXS4gSW4gYm90aCBjYXNlcywgdGVjaG5vbG9neQo+PiBsaWtlIHN3aW90bGIgaXMg
-dXNlZCB0byBwcmV2ZW50IHRoZSBwb2tpbmcvbWFuZ2xpbmcgb2YgbWVtb3J5IGZyb20gdGhlCj4+
-IGRldmljZS4gQnV0IHRoaXMgaXMgbm90IHN1ZmZpY2llbnQgc2luY2UgY3VycmVudCB2aXJ0aW8g
-ZHJpdmVyIG1heQo+PiB0cnVzdCB3aGF0IGlzIHN0b3JlZCBpbiB0aGUgZGVzY3JpcHRvciB0YWJs
-ZSAoY29oZXJlbnQgbWFwcGluZykgZm9yCj4+IHBlcmZvcm1pbmcgdGhlIERNQSBvcGVyYXRpb25z
-IGxpa2UgdW5tYXAgYW5kIGJvdW5jZSBzbyB0aGUgZGV2aWNlIG1heQo+PiBjaG9vc2UgdG8gdXRp
-bGl6ZSB0aGUgYmVoYXZpb3VyIG9mIHN3aW90bGIgdG8gcGVyZm9ybSBhdHRhY2tzWzJdLgo+IFdl
-IGZpeGVkIGl0IGluIHRoZSBTV0lPVExCLiBUaGF0IGlzIGl0IHNhdmVzIHRoZSBleHBlY3RlZCBs
-ZW5ndGgKPiBvZiB0aGUgRE1BIG9wZXJhdGlvbi4gU2VlCj4KPiBjb21taXQgZGFmOTUxNGZkNWVi
-MDk4ZDdkNmYzYTEyNDdjYjhjYzQ4ZmM5NDE1NQo+IEF1dGhvcjogTWFydGluIFJhZGV2IDxtYXJ0
-aW4uYi5yYWRldkBnbWFpbC5jb20+Cj4gRGF0ZTogICBUdWUgSmFuIDEyIDE2OjA3OjI5IDIwMjEg
-KzAxMDAKPgo+ICAgICAgc3dpb3RsYjogVmFsaWRhdGUgYm91bmNlIHNpemUgaW4gdGhlIHN5bmMv
-dW5tYXAgcGF0aAo+ICAgICAgCj4gICAgICBUaGUgc2l6ZSBvZiB0aGUgYnVmZmVyIGJlaW5nIGJv
-dW5jZWQgaXMgbm90IGNoZWNrZWQgaWYgaXQgaGFwcGVucwo+ICAgICAgdG8gYmUgbGFyZ2VyIHRo
-YW4gdGhlIHNpemUgb2YgdGhlIG1hcHBlZCBidWZmZXIuIEJlY2F1c2UgdGhlIHNpemUKPiAgICAg
-IGNhbiBiZSBjb250cm9sbGVkIGJ5IGEgZGV2aWNlLCBhcyBpdCdzIHRoZSBjYXNlIHdpdGggdmly
-dGlvIGRldmljZXMsCj4gICAgICB0aGlzIGNhbiBsZWFkIHRvIG1lbW9yeSBjb3JydXB0aW9uLgo+
-ICAgICAgCgoKR29vZCB0byBrbm93IHRoaXMsIGJ1dCB0aGlzIHNlcmllcyB0cmllcyB0byBwcm90
-ZWN0IGF0IGRpZmZlcmVudCBsZXZlbC4gCkFuZCBJIGJlbGlldmUgc3VjaCBwcm90ZWN0aW9uIG5l
-ZWRzIHRvIGJlIGRvbmUgYXQgYm90aCBsZXZlbHMuCgoKPj4gRm9yIGRvdWJsZSBpbnN1cmFuY2Us
-IHRvIHByb3RlY3QgZnJvbSBhIG1hbGljb3VzIGRldmljZSwgd2hlbiBETUEgQVBJCj4+IGlzIHVz
-ZWQgZm9yIHRoZSBkZXZpY2UsIHRoaXMgc2VyaWVzIHN0b3JlIGFuZCB1c2UgdGhlIGRlc2NyaXB0
-b3IKPj4gbWV0YWRhdGEgaW4gYW4gYXV4aWxpYXkgc3RydWN0dXJlIHdoaWNoIGNhbiBub3QgYmUg
-YWNjZXNzZWQgdmlhCj4+IHN3aW90bGIgaW5zdGVhZCBvZiB0aGUgb25lcyBpbiB0aGUgZGVzY3Jp
-cHRvciB0YWJsZS4gQWN0dWFsbHksIHdlJ3ZlCj4gU29ycnkgZm9yIGJlaW5nIGRlbnNlIGhlcmUs
-IGJ1dCBob3cgd29sZCBTV0lPVExCIGJlIHV0aWxpemVkIGZvcgo+IHRoaXMgYXR0YWNrPwoKClNv
-IHdlIHN0aWxsIGJlaGF2aW9ycyB0aGF0IGlzIHRyaWdnZXJlZCBieSBkZXZpY2UgdGhhdCBpcyBu
-b3QgdHJ1c3RlZC4gClN1Y2ggYmVoYXZpb3IgaXMgd2hhdCB0aGUgc2VyaWVzIHRyaWVzIHRvIGF2
-b2lkLiBXZSd2ZSBsZWFybnQgYSBsb3Qgb2YgCmxlc3NvbnMgdG8gZWxpbWluYXRlIHRoZSBwb3Rl
-bnRpYWwgYXR0YWNrcyB2aWEgdGhpcy4gQW5kIGl0IHdvdWxkIGJlIHRvbyAKbGF0ZSB0byBmaXgg
-aWYgd2UgZm91bmQgYW5vdGhlciBpc3N1ZSBvZiBTV0lPVExCLgoKUHJvdmluZyAidGhlIHVuZXhw
-ZWN0ZWQgZGV2aWNlIHRyaWdnZXJlZCBiZWhhdmlvciBpcyBzYWZlIiBpcyB2ZXJ5IGhhcmQgCihv
-ciBldmVuIGltcG9zc2libGUpIHRoYW4gImVsaW1pbmF0aW5nIHRoZSB1bmV4cGVjdGVkIGRldmlj
-ZSB0cmlnZ2VyZWQgCmJlaGF2aW9yIHRvdGFsbHkiLgoKRS5nIEkgd29uZGVyIHdoZXRoZXIgc29t
-ZXRoaW5nIGxpa2UgdGhpcyBjYW4gaGFwcGVuOiBDb25zaWRlciB0aGUgRE1BIApkaXJlY3Rpb24g
-b2YgdW5tYXAgaXMgdW5kZXIgdGhlIGNvbnRyb2wgb2YgZGV2aWNlLiBUaGUgZGV2aWNlIGNhbiBj
-aGVhdCAKdGhlIFNXSU9UTEIgYnkgY2hhbmdpbmcgdGhlIGZsYWcgdG8gbW9kaWZ5IHRoZSBkZXZp
-Y2UgcmVhZCBvbmx5IGJ1ZmZlci4gCklmIHllcywgaXQgaXMgcmVhbGx5IHNhZmU/CgpUaGUgYWJv
-dmUgcGF0Y2ggb25seSBsb2cgdGhlIGJvdW5jZSBzaXplIGJ1dCBpdCBkb2Vzbid0IGxvZyB0aGUg
-ZmxhZy4gCkV2ZW4gaWYgaXQgbG9ncyB0aGUgZmxhZywgU1dJT1RMQiBzdGlsbCBkb2Vzbid0IGtu
-b3cgaG93IGVhY2ggYnVmZmVyIGlzIAp1c2VkIGFuZCB3aGVuIGl0J3MgdGhlIGFwcHJvcHJpYXRl
-KHNhZmUpIHRpbWUgdG8gdW5tYXAgdGhlIGJ1ZmZlciwgb25seSAKdGhlIGRyaXZlciB0aGF0IGlz
-IHVzaW5nIHRoZSBTV0lPVExCIGtub3cgdGhlbS4KClNvIEkgdGhpbmsgd2UgbmVlZCB0byBjb25z
-b2xpZGF0ZSBvbiBib3RoIGxheWVycyBpbnN0ZWFkIG9mIHNvbGVseSAKZGVwZW5kaW5nIG9uIHRo
-ZSBTV0lPVExCLgoKVGhhbmtzCgoKPgo+PiBhbG1vc3QgYWNoaWV2ZWQgdGhhdCB0aHJvdWdoIHBh
-Y2tlZCB2aXJ0cXVldWUgYW5kIHdlIGp1c3QgbmVlZCB0byBmaXgKPj4gYSBjb3JuZXIgY2FzZSBv
-ZiBoYW5kbGluZyBtYXBwaW5nIGVycm9ycy4gRm9yIHNwbGl0IHZpcnRxdWV1ZSB3ZSBqdXN0Cj4+
-IGZvbGxvdyB3aGF0J3MgZG9uZSBpbiB0aGUgcGFja2VkLgo+Pgo+PiBOb3RlIHRoYXQgd2UgZG9u
-J3QgZHVwbGljYXRlIGRlc2NyaXB0b3IgbWVkYXRhIGZvciBpbmRpcmVjdAo+PiBkZXNjcmlwdG9y
-cyBzaW5jZSBpdCB1c2VzIHN0cmVhbSBtYXBwaW5nIHdoaWNoIGlzIHJlYWQgb25seSBzbyBpdCdz
-Cj4+IHNhZmUgaWYgdGhlIG1ldGFkYXRhIG9mIG5vbi1pbmRpcmVjdCBkZXNjcmlwdG9ycyBhcmUg
-Y29ycmVjdC4KPj4KPj4gVGhlIGJlaGFpdm9yIGZvciBub24gRE1BIEFQSSBpcyBrZXB0IGZvciBt
-aW5pbWl6aW5nIHRoZSBwZXJmb3JtYW5jZQo+PiBpbXBhY3QuCj4+Cj4+IFNsaWdodGx5IHRlc3Rl
-ZCB3aXRoIHBhY2tlZCBvbi9vZmYsIGlvbW11IG9uL29mLCBzd2lvdGxiIGZvcmNlL29mZiBpbgo+
-PiB0aGUgZ3Vlc3QuCj4+Cj4+IFBsZWFzZSByZXZpZXcuCj4+Cj4+IFsxXSBodHRwczovL2xvcmUu
-a2VybmVsLm9yZy9uZXRkZXYvZmFiNjE1Y2UtNWUxMy1hM2IzLTM3MTUtYTQyMDNiNGFiMDEwQHJl
-ZGhhdC5jb20vVC8KPj4gWzJdIGh0dHBzOi8veWhidC5uZXQvbG9yZS9hbGwvYzM2MjlhMjctMzU5
-MC0xZDlmLTIxMWItYzBiN2JlMTUyYjMyQHJlZGhhdC5jb20vVC8jbWM2YjZlMjM0M2NiZWZmY2E2
-OGNhN2E5N2UwZjQ3M2FhYTg3MWM5NWIKPj4KPj4gSmFzb24gV2FuZyAoNyk6Cj4+ICAgIHZpcnRp
-by1yaW5nOiBtYWludGFpbiBuZXh0IGluIGV4dHJhIHN0YXRlIGZvciBwYWNrZWQgdmlydHF1ZXVl
-Cj4+ICAgIHZpcnRpb19yaW5nOiByZW5hbWUgdnJpbmdfZGVzY19leHRyYV9wYWNrZWQKPj4gICAg
-dmlydGlvLXJpbmc6IGZhY3RvciBvdXQgZGVzY19leHRyYSBhbGxvY2F0aW9uCj4+ICAgIHZpcnRp
-b19yaW5nOiBzZWN1cmUgaGFuZGxpbmcgb2YgbWFwcGluZyBlcnJvcnMKPj4gICAgdmlydGlvX3Jp
-bmc6IGludHJvZHVjZSB2aXJ0cXVldWVfZGVzY19hZGRfc3BsaXQoKQo+PiAgICB2aXJ0aW86IHVz
-ZSBlcnIgbGFiZWwgaW4gX192cmluZ19uZXdfdmlydHF1ZXVlKCkKPj4gICAgdmlydGlvLXJpbmc6
-IHN0b3JlIERNQSBtZXRhZGF0YSBpbiBkZXNjX2V4dHJhIGZvciBzcGxpdCB2aXJ0cXVldWUKPj4K
-Pj4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgMTg5ICsrKysrKysrKysrKysrKysr
-KysrKysrKysrLS0tLS0tLS0tCj4+ICAgMSBmaWxlIGNoYW5nZWQsIDE0MSBpbnNlcnRpb25zKCsp
-LCA0OCBkZWxldGlvbnMoLSkKPj4KPj4gLS0gCj4+IDIuMjUuMQo+PgoKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+This is (obviously) for v5.13++; no need to rush with review, but I decided
+to send it around right away.
+
+Looking for places where the kernel might unconditionally read
+PageOffline() pages, I stumbled over /proc/kcore; turns out /proc/kcore
+needs some more love to not touch some other pages we really don't want to
+read -- i.e., hwpoisoned.
+
+Examples for PageOffline() pages are pages inflated in a balloon,
+memory unplugged via virtio-mem, and partially-present sections in
+memory added by the Hyper-V balloon.
+
+When reading pages inflated in a balloon, we essentially produce
+unnecessary load in the hypervisor; holes in partially present sections in
+case of Hyper-V are not accessible and already were a problem for
+/proc/vmcore, fixed in makedumpfile by detecting PageOffline() pages. In
+the future, virtio-mem might disallow reading unplugged memory -- marked
+as PageOffline() -- in some environments, resulting in undefined behavior
+when accessed; therefore, I'm trying to identify and rework all these
+(corner) cases.
+
+With this series, there is really only access via /dev/mem, /proc/vmcore
+and kdb left after I ripped out /dev/kmem. kdb is an advanced corner-case
+use case -- we won't care for now if someone explicitly tries to do nasty
+things by reading from/writing to physical addresses we better not touch.
+/dev/mem is a use case we won't support for virtio-mem, at least for now,
+so we'll simply disallow mapping any virtio-mem memory via /dev/mem next.
+/proc/vmcore is really only a problem when dumping the old kernel via
+something that's not makedumpfile (read: basically never), however, we'll
+try sanitizing that as well in the second kernel in the future.
+
+Tested via kcore_dump:
+	https://github.com/schlafwandler/kcore_dump
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Steven Price <steven.price@arm.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Aili Yao <yaoaili@kingsoft.com>
+Cc: Jiri Bohac <jbohac@suse.cz>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Wei Liu <wei.liu@kernel.org>
+Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: linux-hyperv@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: linux-fsdevel@vger.kernel.org
+Cc: linux-mm@kvack.org
+
+David Hildenbrand (7):
+  fs/proc/kcore: drop KCORE_REMAP and KCORE_OTHER
+  fs/proc/kcore: pfn_is_ram check only applies to KCORE_RAM
+  mm: rename and move page_is_poisoned()
+  fs/proc/kcore: don't read offline sections, logically offline pages
+    and hwpoisoned pages
+  mm: introduce page_offline_(begin|end|freeze|unfreeze) to synchronize
+    setting PageOffline()
+  virtio-mem: use page_offline_(start|end) when setting PageOffline()
+  fs/proc/kcore: use page_offline_(freeze|unfreeze)
+
+ drivers/virtio/virtio_mem.c |  2 ++
+ fs/proc/kcore.c             | 69 ++++++++++++++++++++++++++++++-------
+ include/linux/kcore.h       |  3 --
+ include/linux/page-flags.h  | 12 +++++++
+ mm/gup.c                    |  6 +++-
+ mm/internal.h               | 20 -----------
+ mm/util.c                   | 40 +++++++++++++++++++++
+ 7 files changed, 115 insertions(+), 37 deletions(-)
+
+
+base-commit: 9f4ad9e425a1d3b6a34617b8ea226d56a119a717
+-- 
+2.30.2
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
