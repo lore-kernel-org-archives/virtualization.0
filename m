@@ -2,74 +2,74 @@ Return-Path: <SRS0=eK/B=J3=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A040C43461
-	for <virtualization@archiver.kernel.org>; Fri, 30 Apr 2021 10:58:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B08DAC4363E
+	for <virtualization@archiver.kernel.org>; Fri, 30 Apr 2021 10:58:58 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CCCA461400
-	for <virtualization@archiver.kernel.org>; Fri, 30 Apr 2021 10:58:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CCCA461400
+	by mail.kernel.org (Postfix) with ESMTPS id 518E761400
+	for <virtualization@archiver.kernel.org>; Fri, 30 Apr 2021 10:58:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 518E761400
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D232940454;
-	Fri, 30 Apr 2021 10:58:51 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id DE82C41BA9;
+	Fri, 30 Apr 2021 10:58:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 45Cki-YVzp01; Fri, 30 Apr 2021 10:58:50 +0000 (UTC)
+	with ESMTP id 6jLkoBMBky2E; Fri, 30 Apr 2021 10:58:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id F05314045D;
-	Fri, 30 Apr 2021 10:58:49 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id F41EB404CC;
+	Fri, 30 Apr 2021 10:58:54 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E9D92C0029;
-	Fri, 30 Apr 2021 10:58:48 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 38840C0023
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9689BC0033;
+	Fri, 30 Apr 2021 10:58:53 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1BB04C0001
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Apr 2021 10:58:47 +0000 (UTC)
+ Fri, 30 Apr 2021 10:58:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 1FB4F41BBC
+ by smtp3.osuosl.org (Postfix) with ESMTP id 956ED6F91F
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Apr 2021 10:58:47 +0000 (UTC)
+ Fri, 30 Apr 2021 10:58:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Y0kvRa4PNz20
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id AweWNI4EIX3C
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Apr 2021 10:58:46 +0000 (UTC)
+ Fri, 30 Apr 2021 10:58:49 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by smtp4.osuosl.org (Postfix) with ESMTPS id C0E4541BBB
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 9B6786F8FD
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Apr 2021 10:58:45 +0000 (UTC)
+ Fri, 30 Apr 2021 10:58:49 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 72394B290;
- Fri, 30 Apr 2021 10:58:43 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id 2C25DB246;
+ Fri, 30 Apr 2021 10:58:48 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: daniel@ffwll.ch, airlied@linux.ie, maarten.lankhorst@linux.intel.com,
  mripard@kernel.org, kraxel@redhat.com, corbet@lwn.net, lgirdwood@gmail.com,
  broonie@kernel.org, sam@ravnborg.org, robh@kernel.org,
  emil.l.velikov@gmail.com, geert+renesas@glider.be, hdegoede@redhat.com,
  bluescreen_avenger@verizon.net, gregkh@linuxfoundation.org
-Subject: [PATCH v5 1/9] drm/format-helper: Pass destination pitch to
- drm_fb_memcpy_dstclip()
-Date: Fri, 30 Apr 2021 12:58:32 +0200
-Message-Id: <20210430105840.30515-2-tzimmermann@suse.de>
+Subject: [PATCH v5 9/9] drm/simpledrm: Acquire memory aperture for framebuffer
+Date: Fri, 30 Apr 2021 12:58:40 +0200
+Message-Id: <20210430105840.30515-10-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210430105840.30515-1-tzimmermann@suse.de>
 References: <20210430105840.30515-1-tzimmermann@suse.de>
 MIME-Version: 1.0
-Cc: linux-doc@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- Maxime Ripard <maxime@cerno.tech>, Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Maxime Ripard <maxime@cerno.tech>,
+ virtualization@lists.linux-foundation.org,
+ Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org,
+ linux-doc@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -86,96 +86,119 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The memcpy's destination buffer might have a different pitch than the
-source. Support different pitches as function argument.
+We register the simplekms device with the DRM platform helpers. A
+native driver for the graphics hardware will kick-out the simpledrm
+driver before taking over the device.
+
+The original generic platform device from the simple-framebuffer boot
+code will be unregistered. The native driver will use whatever native
+hardware device it received.
+
+v4:
+	* convert to drm_aperture_acquire_from_firmware()
+v3:
+	* use platform_device_unregister() and handle detachment
+	  like hot-unplug event (Daniel)
+v2:
+	* adapt to aperture changes
+	* use drm_dev_unplug() and drm_dev_enter/exit()
+	* don't split error string
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 Acked-by: Maxime Ripard <maxime@cerno.tech>
 Tested-by: nerdopolis <bluescreen_avenger@verizon.net>
 ---
- drivers/gpu/drm/drm_format_helper.c    | 9 +++++----
- drivers/gpu/drm/mgag200/mgag200_mode.c | 2 +-
- drivers/gpu/drm/tiny/cirrus.c          | 2 +-
- include/drm/drm_format_helper.h        | 2 +-
- 4 files changed, 8 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/tiny/simpledrm.c | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_format_helper.c b/drivers/gpu/drm/drm_format_helper.c
-index c043ca364c86..8d5a683afea7 100644
---- a/drivers/gpu/drm/drm_format_helper.c
-+++ b/drivers/gpu/drm/drm_format_helper.c
-@@ -52,6 +52,7 @@ EXPORT_SYMBOL(drm_fb_memcpy);
- /**
-  * drm_fb_memcpy_dstclip - Copy clip buffer
-  * @dst: Destination buffer (iomem)
-+ * @dst_pitch: Number of bytes between two consecutive scanlines within dst
-  * @vaddr: Source buffer
-  * @fb: DRM framebuffer
-  * @clip: Clip rectangle area to copy
-@@ -59,12 +60,12 @@ EXPORT_SYMBOL(drm_fb_memcpy);
-  * This function applies clipping on dst, i.e. the destination is a
-  * full (iomem) framebuffer but only the clip rect content is copied over.
-  */
--void drm_fb_memcpy_dstclip(void __iomem *dst, void *vaddr,
--			   struct drm_framebuffer *fb,
-+void drm_fb_memcpy_dstclip(void __iomem *dst, unsigned int dst_pitch,
-+			   void *vaddr, struct drm_framebuffer *fb,
- 			   struct drm_rect *clip)
- {
- 	unsigned int cpp = fb->format->cpp[0];
--	unsigned int offset = clip_offset(clip, fb->pitches[0], cpp);
-+	unsigned int offset = clip_offset(clip, dst_pitch, cpp);
- 	size_t len = (clip->x2 - clip->x1) * cpp;
- 	unsigned int y, lines = clip->y2 - clip->y1;
+diff --git a/drivers/gpu/drm/tiny/simpledrm.c b/drivers/gpu/drm/tiny/simpledrm.c
+index 9d522473cd7c..2bdb477d9326 100644
+--- a/drivers/gpu/drm/tiny/simpledrm.c
++++ b/drivers/gpu/drm/tiny/simpledrm.c
+@@ -6,6 +6,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/regulator/consumer.h>
  
-@@ -73,7 +74,7 @@ void drm_fb_memcpy_dstclip(void __iomem *dst, void *vaddr,
- 	for (y = 0; y < lines; y++) {
- 		memcpy_toio(dst, vaddr, len);
- 		vaddr += fb->pitches[0];
--		dst += fb->pitches[0];
-+		dst += dst_pitch;
- 	}
++#include <drm/drm_aperture.h>
+ #include <drm/drm_atomic_state_helper.h>
+ #include <drm/drm_connector.h>
+ #include <drm/drm_damage_helper.h>
+@@ -517,14 +518,23 @@ static int simpledrm_device_init_fb(struct simpledrm_device *sdev)
+ 
+ static int simpledrm_device_init_mm(struct simpledrm_device *sdev)
+ {
++	struct drm_device *dev = &sdev->dev;
+ 	struct platform_device *pdev = sdev->pdev;
+ 	struct resource *mem;
+ 	void __iomem *screen_base;
++	int ret;
+ 
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (!mem)
+ 		return -EINVAL;
+ 
++	ret = devm_aperture_acquire_from_firmware(dev, mem->start, resource_size(mem));
++	if (ret) {
++		drm_err(dev, "could not acquire memory range [0x%llx:0x%llx]: error %d\n",
++			mem->start, mem->end, ret);
++		return ret;
++	}
++
+ 	screen_base = devm_ioremap_wc(&pdev->dev, mem->start,
+ 				      resource_size(mem));
+ 	if (!screen_base)
+@@ -625,12 +635,18 @@ simpledrm_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
+ 	struct drm_shadow_plane_state *shadow_plane_state = to_drm_shadow_plane_state(plane_state);
+ 	struct drm_framebuffer *fb = plane_state->fb;
+ 	void *vmap = shadow_plane_state->map[0].vaddr; /* TODO: Use mapping abstraction properly */
++	struct drm_device *dev = &sdev->dev;
++	int idx;
+ 
+ 	if (!fb)
+ 		return;
+ 
++	if (!drm_dev_enter(dev, &idx))
++		return;
++
+ 	drm_fb_blit_dstclip(sdev->screen_base, sdev->pitch,
+ 			    sdev->format->format, vmap, fb);
++	drm_dev_exit(idx);
  }
- EXPORT_SYMBOL(drm_fb_memcpy_dstclip);
-diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
-index cece3e57fb27..9d576240faed 100644
---- a/drivers/gpu/drm/mgag200/mgag200_mode.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
-@@ -1554,7 +1554,7 @@ mgag200_handle_damage(struct mga_device *mdev, struct drm_framebuffer *fb,
- {
- 	void *vmap = map->vaddr; /* TODO: Use mapping abstraction properly */
  
--	drm_fb_memcpy_dstclip(mdev->vram, vmap, fb, clip);
-+	drm_fb_memcpy_dstclip(mdev->vram, fb->pitches[0], vmap, fb, clip);
+ static void
+@@ -658,7 +674,9 @@ simpledrm_simple_display_pipe_update(struct drm_simple_display_pipe *pipe,
+ 	struct drm_shadow_plane_state *shadow_plane_state = to_drm_shadow_plane_state(plane_state);
+ 	void *vmap = shadow_plane_state->map[0].vaddr; /* TODO: Use mapping abstraction properly */
+ 	struct drm_framebuffer *fb = plane_state->fb;
++	struct drm_device *dev = &sdev->dev;
+ 	struct drm_rect clip;
++	int idx;
  
- 	/* Always scanout image at VRAM offset 0 */
- 	mgag200_set_startadd(mdev, (u32)0);
-diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
-index e3afb45d9a5c..42611dacde88 100644
---- a/drivers/gpu/drm/tiny/cirrus.c
-+++ b/drivers/gpu/drm/tiny/cirrus.c
-@@ -324,7 +324,7 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb, const struct dma_buf_
- 		return -ENODEV;
+ 	if (!fb)
+ 		return;
+@@ -666,8 +684,13 @@ simpledrm_simple_display_pipe_update(struct drm_simple_display_pipe *pipe,
+ 	if (!drm_atomic_helper_damage_merged(old_plane_state, plane_state, &clip))
+ 		return;
  
- 	if (cirrus->cpp == fb->format->cpp[0])
--		drm_fb_memcpy_dstclip(cirrus->vram,
-+		drm_fb_memcpy_dstclip(cirrus->vram, fb->pitches[0],
- 				      vmap, fb, rect);
++	if (!drm_dev_enter(dev, &idx))
++		return;
++
+ 	drm_fb_blit_rect_dstclip(sdev->screen_base, sdev->pitch,
+ 				 sdev->format->format, vmap, fb, &clip);
++
++	drm_dev_exit(idx);
+ }
  
- 	else if (fb->format->cpp[0] == 4 && cirrus->cpp == 2)
-diff --git a/include/drm/drm_format_helper.h b/include/drm/drm_format_helper.h
-index 5f9e37032468..2b5036a5fbe7 100644
---- a/include/drm/drm_format_helper.h
-+++ b/include/drm/drm_format_helper.h
-@@ -11,7 +11,7 @@ struct drm_rect;
+ static const struct drm_simple_display_pipe_funcs
+@@ -847,7 +870,7 @@ static int simpledrm_remove(struct platform_device *pdev)
+ 	struct simpledrm_device *sdev = platform_get_drvdata(pdev);
+ 	struct drm_device *dev = &sdev->dev;
  
- void drm_fb_memcpy(void *dst, void *vaddr, struct drm_framebuffer *fb,
- 		   struct drm_rect *clip);
--void drm_fb_memcpy_dstclip(void __iomem *dst, void *vaddr,
-+void drm_fb_memcpy_dstclip(void __iomem *dst, unsigned int dst_pitch, void *vaddr,
- 			   struct drm_framebuffer *fb,
- 			   struct drm_rect *clip);
- void drm_fb_swab(void *dst, void *src, struct drm_framebuffer *fb,
+-	drm_dev_unregister(dev);
++	drm_dev_unplug(dev);
+ 
+ 	return 0;
+ }
 -- 
 2.31.1
 
