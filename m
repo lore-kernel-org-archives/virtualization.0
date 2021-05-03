@@ -7,77 +7,75 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4CE8C43461
-	for <virtualization@archiver.kernel.org>; Mon,  3 May 2021 16:35:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35A4DC433B4
+	for <virtualization@archiver.kernel.org>; Mon,  3 May 2021 16:36:00 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 636D5613BB
-	for <virtualization@archiver.kernel.org>; Mon,  3 May 2021 16:35:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 636D5613BB
+	by mail.kernel.org (Postfix) with ESMTPS id C421361369
+	for <virtualization@archiver.kernel.org>; Mon,  3 May 2021 16:35:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C421361369
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D79A060B49;
-	Mon,  3 May 2021 16:35:23 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6282F60B48;
+	Mon,  3 May 2021 16:35:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fIxFYwMnvYVT; Mon,  3 May 2021 16:35:23 +0000 (UTC)
+	with ESMTP id J2Yo-wFX14xU; Mon,  3 May 2021 16:35:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6628B60B4B;
-	Mon,  3 May 2021 16:35:22 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 25BD46063C;
+	Mon,  3 May 2021 16:35:56 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A61E8C0022;
-	Mon,  3 May 2021 16:35:21 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4DBFDC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F3DBDC000D;
+	Mon,  3 May 2021 16:35:55 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C0EBDC0001
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 May 2021 16:35:20 +0000 (UTC)
+ Mon,  3 May 2021 16:35:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 2F781404AC
+ by smtp3.osuosl.org (Postfix) with ESMTP id AE6A560B48
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 May 2021 16:35:20 +0000 (UTC)
+ Mon,  3 May 2021 16:35:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mxzIIqHAlSRy
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id sbodUegs05_u
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 May 2021 16:35:19 +0000 (UTC)
+ Mon,  3 May 2021 16:35:54 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 6DECD400C8
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 06D7B6063C
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 May 2021 16:35:19 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFFF8611AE;
- Mon,  3 May 2021 16:35:17 +0000 (UTC)
+ Mon,  3 May 2021 16:35:53 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A2A461283;
+ Mon,  3 May 2021 16:35:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1620059718;
- bh=qzBd5KFoOot3ymsfol1NFk7ANSu/74D3rjHu6RHVPIg=;
+ s=k20201202; t=1620059753;
+ bh=VkO9kDar+T5480JzDWlIRMDbg+VsBAidXambrt3br0g=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=dAn7YxtKdPBrcs9+YJfal4I9UZrfD2SiScAIYnaPZHv+9KDgi2VL4zb+PPk1WT9iZ
- dtI4BbMLz7yQVI+5NwhIzXSK8xMCS4HPoHdqWFpqoqJw0nlTb/D644Wpolnp6RZ53J
- MDnINpjqCnLGP7QXjlwarMN3cu7O6OGI9Jr+kaDCQfwJ0Lq6k2o5Or00xkW4ucrJzu
- fblzzCFaHFo71GgjPIqpHlZ9an/rm+tpCEEZGkYX53fy7YIfrFeDVcRMLYwYXEfp3x
- xmuloAMPb63LCIlAbxIbYZeSJyy+hkvnG3+TShHxD5xtilBwdOyIMqeTH9xUuDJyFV
- Z4IvoMFOZe9ig==
+ b=CIBqPWRgo8ExnhDJYzyH1WVjahXyQvrK6qojbVXnNl43CeDdAHXVXxxV/9zu0+zLC
+ F1H6iPAyWhSIK6+zW7XTpBEXR8kQUoxMCQxMAtY3rkZJEfmYcr64uiiz+a8uyGuzdA
+ m7gItlmRRIAnGMx9Qvup91JO/4UIyq2g2HIuKqgw4dyACb2mwMFZ3JczkvAIyIJCBK
+ tfXq/LrGr6AEvNurST3zaRdLrZ5EJfNhaMy4qU0trx3odhNz3x0tCklMjtC/HhPXy8
+ Dvc8ImdDG3cQxT8Z/XNQ8InqGvc1E2wft3E7ljCLPFOnuvBPmUB4VdZeBHYfO1urKO
+ cWSS9Wiun9Yyg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 003/134] drm/qxl: release shadow on shutdown
-Date: Mon,  3 May 2021 12:33:02 -0400
-Message-Id: <20210503163513.2851510-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 025/134] drm/virtio: fix possible leak/unlock
+ virtio_gpu_object_array
+Date: Mon,  3 May 2021 12:33:24 -0400
+Message-Id: <20210503163513.2851510-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210503163513.2851510-1-sashal@kernel.org>
 References: <20210503163513.2851510-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-Cc: Sasha Levin <sashal@kernel.org>, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org,
- Thomas Zimmermann <tzimmermann@suse.de>, spice-devel@lists.freedesktop.org
+Cc: xndcn <xndchn@gmail.com>, Sasha Levin <sashal@kernel.org>,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,36 +92,47 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Gerd Hoffmann <kraxel@redhat.com>
+From: xndcn <xndchn@gmail.com>
 
-[ Upstream commit 4ca77c513537700d3fae69030879f781dde1904c ]
+[ Upstream commit 377f8331d0565e6f71ba081c894029a92d0c7e77 ]
 
-In case we have a shadow surface on shutdown release
-it so it doesn't leak.
+virtio_gpu_object array is not freed or unlocked in some
+failed cases.
 
+Signed-off-by: xndcn <xndchn@gmail.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20210305151819.14330-1-xndchn@gmail.com
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-Link: http://patchwork.freedesktop.org/patch/msgid/20210204145712.1531203-6-kraxel@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c  | 2 +-
+ drivers/gpu/drm/virtio/virtgpu_object.c | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 10738e04c09b..56e0c6c625e9 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -1228,6 +1228,10 @@ int qxl_modeset_init(struct qxl_device *qdev)
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 23eb6d772e40..669f2ee39515 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -174,7 +174,7 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
+ 		if (!sync_file) {
+ 			dma_fence_put(&out_fence->f);
+ 			ret = -ENOMEM;
+-			goto out_memdup;
++			goto out_unresv;
+ 		}
  
- void qxl_modeset_fini(struct qxl_device *qdev)
- {
-+	if (qdev->dumb_shadow_bo) {
-+		drm_gem_object_put(&qdev->dumb_shadow_bo->tbo.base);
-+		qdev->dumb_shadow_bo = NULL;
-+	}
- 	qxl_destroy_monitors_object(qdev);
- 	drm_mode_config_cleanup(&qdev->ddev);
- }
+ 		exbuf->fence_fd = out_fence_fd;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index d69a5b6da553..4ff1ec28e630 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -248,6 +248,7 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
+ 
+ 	ret = virtio_gpu_object_shmem_init(vgdev, bo, &ents, &nents);
+ 	if (ret != 0) {
++		virtio_gpu_array_put_free(objs);
+ 		virtio_gpu_free_object(&shmem_obj->base);
+ 		return ret;
+ 	}
 -- 
 2.30.2
 
