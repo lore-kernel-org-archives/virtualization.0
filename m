@@ -2,130 +2,115 @@ Return-Path: <SRS0=lx0b=J6=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80455C43462
-	for <virtualization@archiver.kernel.org>; Mon,  3 May 2021 08:16:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D72AC433ED
+	for <virtualization@archiver.kernel.org>; Mon,  3 May 2021 08:17:34 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D5EA561359
-	for <virtualization@archiver.kernel.org>; Mon,  3 May 2021 08:16:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D5EA561359
+	by mail.kernel.org (Postfix) with ESMTPS id 1FB9F611B0
+	for <virtualization@archiver.kernel.org>; Mon,  3 May 2021 08:17:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1FB9F611B0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 75ABC605B0;
-	Mon,  3 May 2021 08:16:12 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id D3A79605EE;
+	Mon,  3 May 2021 08:17:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id asUdGh0SvksH; Mon,  3 May 2021 08:16:11 +0000 (UTC)
+	with ESMTP id M0F2B_2cv_61; Mon,  3 May 2021 08:17:33 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0A23A6060D;
-	Mon,  3 May 2021 08:16:11 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6FD68605B2;
+	Mon,  3 May 2021 08:17:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D16C2C000D;
-	Mon,  3 May 2021 08:16:10 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 484F0C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 53555C000D;
+	Mon,  3 May 2021 08:17:32 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BA387C0001
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 May 2021 08:16:10 +0000 (UTC)
+ Mon,  3 May 2021 08:17:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 34DFF83EEF
+ by smtp2.osuosl.org (Postfix) with ESMTP id 9AF2C40465
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 May 2021 08:16:10 +0000 (UTC)
+ Mon,  3 May 2021 08:17:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vy9t0EMaTWZl
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id mp7yhm1pUiA8
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 May 2021 08:16:09 +0000 (UTC)
+ Mon,  3 May 2021 08:17:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 6D5B583DD3
+ by smtp2.osuosl.org (Postfix) with ESMTPS id E9BB2400D0
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 May 2021 08:16:09 +0000 (UTC)
+ Mon,  3 May 2021 08:17:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1620029768;
+ s=mimecast20190719; t=1620029848;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=3uB/EYYvRDIWzIKd9NUtpds132sJrn5ZaXZy/6UA0sM=;
- b=VZB1iDFbtPLrzaSGD81gg/kYOIvxINyTptqlvF0OeArO8imipNzYhU6IbWY11T8e3CggGl
- n3qg/023pft56MCXX36gSPreFEVRnTentmo5mP656j63uf3mI5fbUpG6bt6PRI2JTgH0bR
- LUGWCJY/DEflkSBMdnd6zBipOjWxAgM=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-317-NoV__bMAMVqv1Dz8nc80nw-1; Mon, 03 May 2021 04:16:06 -0400
-X-MC-Unique: NoV__bMAMVqv1Dz8nc80nw-1
-Received: by mail-ed1-f70.google.com with SMTP id
- m18-20020a0564025112b0290378d2a266ebso4082002edd.15
+ bh=sfawQKRvown06amibYWUjSz6pHPc1TD9YuoP34dEXPs=;
+ b=eAvL4bWTGN/LxMst5RSjve+VFmqD3V3izl2IHNQuu1OwnijmB6tMHgRUWiwZOLhBcTMsm9
+ DG/XLVby4TvOY//S5dq9uIzQX8l0rFmbQktazJJqN5X0zdOJzPJ3+QwN9D8neW18Yq4L/Q
+ vUGMOBfiuL4omSphkhdtspbe0/ljsoA=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-199-Qnoz_E5ROFi7mI0ba1G2kw-1; Mon, 03 May 2021 04:17:26 -0400
+X-MC-Unique: Qnoz_E5ROFi7mI0ba1G2kw-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ y184-20020a1ce1c10000b0290143299f39d7so2163173wmg.4
  for <virtualization@lists.linux-foundation.org>;
- Mon, 03 May 2021 01:16:05 -0700 (PDT)
+ Mon, 03 May 2021 01:17:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:subject:to:cc:references:from:organization
- :message-id:date:user-agent:mime-version:in-reply-to
- :content-language:content-transfer-encoding;
- bh=3uB/EYYvRDIWzIKd9NUtpds132sJrn5ZaXZy/6UA0sM=;
- b=D1lwCk6FB++IsXM1BGCfxPQl3dNb2F9NdsfNO3KNMZuCSgnnwQ/PriigCADMPYU8CB
- kvavsIFiOtkRpMZucY14LCMJdg4DBPJsSuZQSVWa20nFQE+CJrhHcDtyANycXtl1y+7V
- Xa+8scHJ+0/FgeSIuD94nHJLJLXN1RqqlB9W4nsl73WfLcN/RZ1HTQNnkEtg1WusegYW
- XFqpQozEy0d22OvxdnCaNd3lSGAFvq1LXiwlkFdJLiLBhSMZ7Xopbep1rY2B2/zmehef
- rYzz1W353hD0RyVIGlr/n5045nj1+apEypUXQqZUlusIz23YlDLN88lDBfiwcMFshpRn
- ZkWw==
-X-Gm-Message-State: AOAM532FMnVfcjjQVt8ch2oh6mksVA65oIR/VOXKI+yPAWJkF21zut6G
- qu+exNn6zteDd3eHFoHUpQ1T3iAIoChLnHE5wv8hYwH97/NG5dhJyknILxy6HS86vJg8bLrHQfV
- dFbdrBmpG8DY+bSKBsmTs5kTBbHG/BZE7KVC4lhrQDQ==
-X-Received: by 2002:a17:906:8147:: with SMTP id
- z7mr11677896ejw.496.1620029764874; 
- Mon, 03 May 2021 01:16:04 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz5t6QJnu76x0vRJx5wjyCiN1MvkzdCqG/1DMVBAPOiuRhGpdYa0HWbVhYZGZKhNk34vPvb6A==
-X-Received: by 2002:a17:906:8147:: with SMTP id
- z7mr11677854ejw.496.1620029764611; 
- Mon, 03 May 2021 01:16:04 -0700 (PDT)
-Received: from [192.168.3.132] (p5b0c649f.dip0.t-ipconnect.de. [91.12.100.159])
- by smtp.gmail.com with ESMTPSA id lr15sm4554094ejb.107.2021.05.03.01.16.03
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Mon, 03 May 2021 01:16:04 -0700 (PDT)
-Subject: Re: [PATCH v1 6/7] virtio-mem: use page_offline_(start|end) when
- setting PageOffline()
-To: Mike Rapoport <rppt@kernel.org>
-References: <20210429122519.15183-1-david@redhat.com>
- <20210429122519.15183-7-david@redhat.com> <YI5HzXN7+ZTNXtcI@kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Message-ID: <98f22a46-da8b-2891-fade-09937c0ccf69@redhat.com>
-Date: Mon, 3 May 2021 10:16:03 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=sfawQKRvown06amibYWUjSz6pHPc1TD9YuoP34dEXPs=;
+ b=a0EdrQhRpk4Hpvxf4az3pbNokyLrmdaDi+6QBwSlZ88+47BA3xat+9KQ8AD0VRCBeb
+ CgDMz7FX8X/gUNTnmFfvnr32UhGu/G9I201FPz2kWQ5wqh1tSXOigGucIM4/xQ/JlL39
+ fucOwfgjnZ2C4BldxJa3E0nqcDB525sNUAsclpIcPKuREdUX1907BNaOEoYVX3A//Mai
+ toj2OdcD4A9dQ+gL7XBkGK9ZPqrQW2TP5tgRhbP/SRet1hl4Xsso8H5q4RIO/Uab1sD8
+ TL1/M6Q0PqmUVjgM9s0OCUleBvjxgBBPBLFGFBbVufmnV3WLskp47bmXe5K/wMLF2ks3
+ ovHQ==
+X-Gm-Message-State: AOAM531UckhNlChDQIgPK4DxNmCiQZcexJzews5oD8gCi8RpTvCHStyz
+ UsJ/eaZhnoX5W2oTCKJf9QPv4nzfS2PV1NclyZ2DqsTER+gC8/I8JyGW2ymvs30fvsPPLH5cZaa
+ sIGpgfe6q7BLVkAmVVFuGaxLnB8gTQh2SDJvqzwBuEQ==
+X-Received: by 2002:adf:e8ce:: with SMTP id k14mr5318718wrn.362.1620029845876; 
+ Mon, 03 May 2021 01:17:25 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx2jIadbtWNDtdJWbgmNINTRv6VVe2MQ37HEigOuGnTWAK1m/4RJyWkDCR4ie4nJHk26lNs4A==
+X-Received: by 2002:adf:e8ce:: with SMTP id k14mr5318707wrn.362.1620029845686; 
+ Mon, 03 May 2021 01:17:25 -0700 (PDT)
+Received: from redhat.com (bzq-79-178-133-9.red.bezeqint.net. [79.178.133.9])
+ by smtp.gmail.com with ESMTPSA id
+ p10sm11997977wre.84.2021.05.03.01.17.24
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 03 May 2021 01:17:25 -0700 (PDT)
+Date: Mon, 3 May 2021 04:17:23 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio_ring: boolean values to a bool variable
+Message-ID: <20210503041706-mutt-send-email-mst@kernel.org>
+References: <1610704825-17724-1-git-send-email-abaci-bugfix@linux.alibaba.com>
+ <1d311c25-9051-ddcd-e7e1-5adbb8a913f9@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <YI5HzXN7+ZTNXtcI@kernel.org>
+In-Reply-To: <1d311c25-9051-ddcd-e7e1-5adbb8a913f9@redhat.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: Aili Yao <yaoaili@kingsoft.com>, Michal Hocko <mhocko@suse.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, linux-hyperv@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- Wei Liu <wei.liu@kernel.org>, Alex Shi <alex.shi@linux.alibaba.com>,
- Stephen Hemminger <sthemmin@microsoft.com>,
- "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
- Steven Price <steven.price@arm.com>, Alexey Dobriyan <adobriyan@gmail.com>,
- Jiri Bohac <jbohac@suse.cz>, Haiyang Zhang <haiyangz@microsoft.com>,
- Oscar Salvador <osalvador@suse.de>, Naoya Horiguchi <naoya.horiguchi@nec.com>,
- linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, Roman Gushchin <guro@fb.com>,
- Mike Kravetz <mike.kravetz@oracle.com>
+Content-Disposition: inline
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ Jiapeng Zhong <abaci-bugfix@linux.alibaba.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -137,63 +122,43 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 02.05.21 08:33, Mike Rapoport wrote:
-> On Thu, Apr 29, 2021 at 02:25:18PM +0200, David Hildenbrand wrote:
->> Let's properly use page_offline_(start|end) to synchronize setting
->> PageOffline(), so we won't have valid page access to unplugged memory
->> regions from /proc/kcore.
->>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
->> ---
->>   drivers/virtio/virtio_mem.c | 2 ++
->>   mm/util.c                   | 2 ++
->>   2 files changed, 4 insertions(+)
->>
->> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
->> index 10ec60d81e84..dc2a2e2b2ff8 100644
->> --- a/drivers/virtio/virtio_mem.c
->> +++ b/drivers/virtio/virtio_mem.c
->> @@ -1065,6 +1065,7 @@ static int virtio_mem_memory_notifier_cb(struct notifier_block *nb,
->>   static void virtio_mem_set_fake_offline(unsigned long pfn,
->>   					unsigned long nr_pages, bool onlined)
->>   {
->> +	page_offline_begin();
->>   	for (; nr_pages--; pfn++) {
->>   		struct page *page = pfn_to_page(pfn);
->>   
->> @@ -1075,6 +1076,7 @@ static void virtio_mem_set_fake_offline(unsigned long pfn,
->>   			ClearPageReserved(page);
->>   		}
->>   	}
->> +	page_offline_end();
-> 
-> I'm not really familiar with ballooning and memory hotplug, but is it the
-> only place that needs page_offline_{begin,end} ?
-
-Existing balloon implementations that I am aware of (Hyper-V, XEN, 
-virtio-balloon, vmware-balloon) usually allow reading inflated memory; 
-doing so might result in unnecessary overhead in the hypervisor, so we 
-really want to avoid it -- but it's strictly not forbidden and has been 
-working forever. So we barely care about races: if there would be a rare 
-race, we'd still be able to read that memory.
-
-For virtio-mem, it'll be different in the future when using shmem, huge 
-pages, !anonymous private mappings, ... as backing storage for a VM; 
-there will be a virtio spec extension to document that virtio-mem 
-changes that indicate the new behavior won't allow reading unplugged 
-memory and doing so will result in undefined behavior.
-
--- 
-Thanks,
-
-David / dhildenb
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gTW9uLCBKYW4gMTgsIDIwMjEgYXQgMTA6NTc6MDNBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDIxLzEvMTUg5LiL5Y2INjowMCwgSmlhcGVuZyBaaG9uZyB3cm90ZToKPiA+
+IEZpeCB0aGUgZm9sbG93aW5nIGNvY2NpY2hlY2sgd2FybmluZ3M6Cj4gPiAKPiA+IC4vZHJpdmVy
+cy92aXJ0aW8vdmlydGlvX3JpbmcuYzoxNjM3OjEtMjk6IFdBUk5JTkc6IEFzc2lnbm1lbnQgb2YK
+PiA+IDAvMSB0byBib29sIHZhcmlhYmxlLgo+ID4gCj4gPiAuL2RyaXZlcnMvdmlydGlvL3ZpcnRp
+b19yaW5nLmM6MTYzNjoxLTMwOiBXQVJOSU5HOiBBc3NpZ25tZW50IG9mCj4gPiAwLzEgdG8gYm9v
+bCB2YXJpYWJsZS4KPiA+IAo+ID4gUmVwb3J0ZWQtYnk6IEFiYWNpIFJvYm90IDxhYmFjaUBsaW51
+eC5hbGliYWJhLmNvbT4KPiA+IFNpZ25lZC1vZmYtYnk6IEppYXBlbmcgWmhvbmcgPGFiYWNpLWJ1
+Z2ZpeEBsaW51eC5hbGliYWJhLmNvbT4KPiAKPiAKPiBJdCBsb29rcyB0byBtZSBpdCdzIG5vdCB0
+aGUgb25seSBwbGFjZXM6Cj4gCj4gZ2l0IGdyZXAgYXZhaWxfd3JhcF9jb3VudGVyCj4gZHJpdmVy
+cy92aXJ0aW8vdmlydGlvX3JpbmcuYzrCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqAgYm9vbCBhdmFpbF93cmFwX2NvdW50ZXI7Cj4gZHJpdmVycy92aXJ0aW8vdmlydGlvX3Jpbmcu
+YzogdnEtPnBhY2tlZC5hdmFpbF93cmFwX2NvdW50ZXIgXj0gMTsKPiBkcml2ZXJzL3ZpcnRpby92
+aXJ0aW9fcmluZy5jOiB2cS0+cGFja2VkLmF2YWlsX3dyYXBfY291bnRlciBePSAxOwo+IGRyaXZl
+cnMvdmlydGlvL3ZpcnRpb19yaW5nLmM6wqDCoCBpZiAod3JhcF9jb3VudGVyICE9Cj4gdnEtPnBh
+Y2tlZC5hdmFpbF93cmFwX2NvdW50ZXIpCj4gZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYzrC
+oMKgIHZxLT5wYWNrZWQuYXZhaWxfd3JhcF9jb3VudGVyID0gMTsKPiAKPiBUaGFua3MKCgpBZ3Jl
+ZWQgaWYgd2UgYXJlIGRvaW5nIHRoaXMgbGV0J3MgY2hhbmdlIHRoZW0gYWxsLgoKPiAKPiA+IC0t
+LQo+ID4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgNCArKy0tCj4gPiAgIDEgZmls
+ZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCj4gPiAKPiA+IGRpZmYg
+LS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIGIvZHJpdmVycy92aXJ0aW8vdmly
+dGlvX3JpbmcuYwo+ID4gaW5kZXggNzFlMTZiNS4uNWFkYjM2MSAxMDA2NDQKPiA+IC0tLSBhL2Ry
+aXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRp
+b19yaW5nLmMKPiA+IEBAIC0xNjMzLDggKzE2MzMsOCBAQCBzdGF0aWMgc3RydWN0IHZpcnRxdWV1
+ZSAqdnJpbmdfY3JlYXRlX3ZpcnRxdWV1ZV9wYWNrZWQoCj4gPiAgIAl2cS0+cGFja2VkLnZyaW5n
+LmRldmljZSA9IGRldmljZTsKPiA+ICAgCXZxLT5wYWNrZWQubmV4dF9hdmFpbF9pZHggPSAwOwo+
+ID4gLQl2cS0+cGFja2VkLmF2YWlsX3dyYXBfY291bnRlciA9IDE7Cj4gPiAtCXZxLT5wYWNrZWQu
+dXNlZF93cmFwX2NvdW50ZXIgPSAxOwo+ID4gKwl2cS0+cGFja2VkLmF2YWlsX3dyYXBfY291bnRl
+ciA9IHRydWU7Cj4gPiArCXZxLT5wYWNrZWQudXNlZF93cmFwX2NvdW50ZXIgPSB0cnVlOwo+ID4g
+ICAJdnEtPnBhY2tlZC5ldmVudF9mbGFnc19zaGFkb3cgPSAwOwo+ID4gICAJdnEtPnBhY2tlZC5h
+dmFpbF91c2VkX2ZsYWdzID0gMSA8PCBWUklOR19QQUNLRURfREVTQ19GX0FWQUlMOwoKX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
+bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
+dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
+emF0aW9u
