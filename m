@@ -2,131 +2,83 @@ Return-Path: <SRS0=lx0b=J6=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44036C43461
-	for <virtualization@archiver.kernel.org>; Mon,  3 May 2021 11:36:01 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BB04C433B4
+	for <virtualization@archiver.kernel.org>; Mon,  3 May 2021 16:35:24 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C754761249
-	for <virtualization@archiver.kernel.org>; Mon,  3 May 2021 11:36:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C754761249
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id B036961364
+	for <virtualization@archiver.kernel.org>; Mon,  3 May 2021 16:35:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B036961364
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 55FFA83F57;
-	Mon,  3 May 2021 11:36:00 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 542D360B4A;
+	Mon,  3 May 2021 16:35:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id BsqZPpKAUFgN; Mon,  3 May 2021 11:35:59 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D576583F54;
-	Mon,  3 May 2021 11:35:58 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A934DC000E;
-	Mon,  3 May 2021 11:35:58 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 83BABC0001
- for <virtualization@lists.linux-foundation.org>;
- Mon,  3 May 2021 11:35:57 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7071660B0E
- for <virtualization@lists.linux-foundation.org>;
- Mon,  3 May 2021 11:35:57 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 2SM_xW1kxodh
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id GfQi8evlraN2; Mon,  3 May 2021 16:35:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTP id CB63660B47;
+	Mon,  3 May 2021 16:35:21 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5FD2DC000D;
+	Mon,  3 May 2021 16:35:21 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7E462C0001
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 May 2021 11:35:56 +0000 (UTC)
+ Mon,  3 May 2021 16:35:19 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 57856404AC
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  3 May 2021 16:35:19 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id SJaO5k0jBrlk
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  3 May 2021 16:35:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 52C2360B05
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 0B2BA400C8
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 May 2021 11:35:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1620041755;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=WqkM0iWGl6jrVU5KuvimVV9SZx4Jlvp1gEzxVMJa670=;
- b=T3cwsqLwEGkoUeYp+/qf8hQL7TEtImFY8q+va+bG65zftj65npvml9gsAp+H5enESMnc+O
- sFJy9nOQhChViq3pa2YEGXyhSYRV7TVMUQ/iFNzchWWgdM7XjDfUezIaGO2wDrLj/foSQ4
- xl3G2n4IgGIh2cZ0tqYQsbRPRxHFlIg=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-549-le8ukgI7Obyu_JdZ7AeWqw-1; Mon, 03 May 2021 07:35:52 -0400
-X-MC-Unique: le8ukgI7Obyu_JdZ7AeWqw-1
-Received: by mail-wr1-f72.google.com with SMTP id
- x10-20020adfc18a0000b029010d83c83f2aso3766267wre.8
- for <virtualization@lists.linux-foundation.org>;
- Mon, 03 May 2021 04:35:52 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:subject:to:cc:references:from:organization
- :message-id:date:user-agent:mime-version:in-reply-to
- :content-language:content-transfer-encoding;
- bh=WqkM0iWGl6jrVU5KuvimVV9SZx4Jlvp1gEzxVMJa670=;
- b=Y08eO62EIoCUfm/qABgnuXKyCYkvabAUiecKxS0bhVDkJDgbEsbinYsLTlbPQflERD
- 9znbDyEzMaD1IYHriVfS6+8c80S5A9STPmh9V9Z+S9Ik9lkNMES31Fgs5YEp0gwxYOME
- 3YDRoUvT/2iIKmWvTxC6BPsnhhcMibE6nzSKcPHW/mNtnbYku76ZAMnL6O2FtNaxTpDu
- LqphSyBq8EcC1sVdomr4qoc2LxLbBN1HKYrCn0RRZ9oq5k7+fdiaw70IQqcTpMNvJr2R
- gB2Qx2JC2e9HNhUKKYFtTsuJT935D8a+IQ5mJWkioT8UwOIMs4TPuEFHIAIL7VoDv0N4
- FPdw==
-X-Gm-Message-State: AOAM5325Wj/8+XzYFz2k9+75BVYZLLzFggXni3gMh964WwXs8Bp1agmL
- D7fJxQkmXLLzhwKc7IiVEB6O1VTzuBP57xkDiAI/tcz6+6bt76Py8ApTi4RUpPziCRLI9q4ySg0
- TitoZ02UrLmemmz/FmHHNDDwIJ7HVJ5JkfiDQcBbS8g==
-X-Received: by 2002:a7b:c0c4:: with SMTP id s4mr31118922wmh.174.1620041751215; 
- Mon, 03 May 2021 04:35:51 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJw3tS70mbovvf2isVdRqtaSYaIPZB8VFAoB+G6yadE6t3QI++fiJfnblhR/UYdS8ZB2jp2nag==
-X-Received: by 2002:a7b:c0c4:: with SMTP id s4mr31118895wmh.174.1620041750887; 
- Mon, 03 May 2021 04:35:50 -0700 (PDT)
-Received: from [192.168.3.132] (p5b0c649f.dip0.t-ipconnect.de. [91.12.100.159])
- by smtp.gmail.com with ESMTPSA id l12sm11919551wrm.76.2021.05.03.04.35.49
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Mon, 03 May 2021 04:35:50 -0700 (PDT)
-Subject: Re: [PATCH v1 7/7] fs/proc/kcore: use page_offline_(freeze|unfreeze)
-To: Mike Rapoport <rppt@kernel.org>
-References: <20210429122519.15183-1-david@redhat.com>
- <20210429122519.15183-8-david@redhat.com> <YI5H4yV/c6ReuIDt@kernel.org>
- <5a5a7552-4f0a-75bc-582f-73d24afcf57b@redhat.com>
- <YI/CWg6PrMxcCT2D@kernel.org>
- <2f66cbfc-aa29-b3ef-4c6a-0da8b29b56f6@redhat.com>
- <YI/fl9VHvjYJdwKF@kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Message-ID: <e49556fb-d01b-87f5-f09f-539b7d78abbb@redhat.com>
-Date: Mon, 3 May 2021 13:35:49 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+ Mon,  3 May 2021 16:35:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 62A67611CB;
+ Mon,  3 May 2021 16:35:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1620059717;
+ bh=gdFLCCOAI1gxnFlxay9AiPC4qFLH70l2OOQvbtAUULY=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=s0mlu5iGYlh+SEQIP9SNbyAavsjrk6XShzmeimsOdzXHkPzOrZWi1OKwCs0aB5mH/
+ A4aLokaaw2mnxr6veQTlxbpWwaMJwKqX7oyixUehHOFj53UyibzTBkWp5pTg1KeAcT
+ L9RzkyEBa1AMoXB+qK8n+VHZLffQCw/rTE7xDeMYPeXdG8bH+gUCwJYO2vk+3GZgY3
+ xvhUa5iyY2YgCyWChQcPLCl9FxSciDm5oL19cGBb7yLyySpVGgPkNiwhg6HNdOEZ01
+ VvHa3F2YsD6bPqsL9KZgYz2R8DCXssqkOLnlPigo6m0G1eCrqsO9BL2G03/gOQ/LJS
+ u4pIdfsOfDY5g==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 002/134] drm/qxl: do not run release if qxl
+ failed to init
+Date: Mon,  3 May 2021 12:33:01 -0400
+Message-Id: <20210503163513.2851510-2-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210503163513.2851510-1-sashal@kernel.org>
+References: <20210503163513.2851510-1-sashal@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <YI/fl9VHvjYJdwKF@kernel.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: Aili Yao <yaoaili@kingsoft.com>, Michal Hocko <mhocko@suse.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, linux-hyperv@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- Wei Liu <wei.liu@kernel.org>, Alex Shi <alex.shi@linux.alibaba.com>,
- Stephen Hemminger <sthemmin@microsoft.com>,
- "Matthew Wilcox \(Oracle\)" <willy@infradead.org>,
- Steven Price <steven.price@arm.com>, Alexey Dobriyan <adobriyan@gmail.com>,
- Jiri Bohac <jbohac@suse.cz>, Haiyang Zhang <haiyangz@microsoft.com>,
- Oscar Salvador <osalvador@suse.de>, Naoya Horiguchi <naoya.horiguchi@nec.com>,
- linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, Roman Gushchin <guro@fb.com>,
- Mike Kravetz <mike.kravetz@oracle.com>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Cc: Sasha Levin <sashal@kernel.org>, Tong Zhang <ztong0001@gmail.com>,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ spice-devel@lists.freedesktop.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -138,111 +90,99 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 03.05.21 13:33, Mike Rapoport wrote:
-> On Mon, May 03, 2021 at 12:13:45PM +0200, David Hildenbrand wrote:
->> On 03.05.21 11:28, Mike Rapoport wrote:
->>> On Mon, May 03, 2021 at 10:28:36AM +0200, David Hildenbrand wrote:
->>>> On 02.05.21 08:34, Mike Rapoport wrote:
->>>>> On Thu, Apr 29, 2021 at 02:25:19PM +0200, David Hildenbrand wrote:
->>>>>> Let's properly synchronize with drivers that set PageOffline(). Unfreeze
->>>>>> every now and then, so drivers that want to set PageOffline() can make
->>>>>> progress.
->>>>>>
->>>>>> Signed-off-by: David Hildenbrand <david@redhat.com>
->>>>>> ---
->>>>>>     fs/proc/kcore.c | 15 +++++++++++++++
->>>>>>     1 file changed, 15 insertions(+)
->>>>>>
->>>>>> diff --git a/fs/proc/kcore.c b/fs/proc/kcore.c
->>>>>> index 92ff1e4436cb..3d7531f47389 100644
->>>>>> --- a/fs/proc/kcore.c
->>>>>> +++ b/fs/proc/kcore.c
->>>>>> @@ -311,6 +311,7 @@ static void append_kcore_note(char *notes, size_t *i, const char *name,
->>>>>>     static ssize_t
->>>>>>     read_kcore(struct file *file, char __user *buffer, size_t buflen, loff_t *fpos)
->>>>>>     {
->>>>>> +	size_t page_offline_frozen = 0;
->>>>>>     	char *buf = file->private_data;
->>>>>>     	size_t phdrs_offset, notes_offset, data_offset;
->>>>>>     	size_t phdrs_len, notes_len;
->>>>>> @@ -509,6 +510,18 @@ read_kcore(struct file *file, char __user *buffer, size_t buflen, loff_t *fpos)
->>>>>>     			pfn = __pa(start) >> PAGE_SHIFT;
->>>>>>     			page = pfn_to_online_page(pfn);
->>>>>
->>>>> Can't this race with page offlining for the first time we get here?
->>>>
->>>>
->>>> To clarify, we have three types of offline pages in the kernel ...
->>>>
->>>> a) Pages part of an offline memory section; the memap is stale and not
->>>> trustworthy. pfn_to_online_page() checks that. We *can* protect against
->>>> memory offlining using get_online_mems()/put_online_mems(), but usually
->>>> avoid doing so as the race window is very small (and a problem all over the
->>>> kernel we basically never hit) and locking is rather expensive. In the
->>>> future, we might switch to rcu to handle that more efficiently and avoiding
->>>> these possible races.
->>>>
->>>> b) PageOffline(): logically offline pages contained in an online memory
->>>> section with a sane memmap. virtio-mem calls these pages "fake offline";
->>>> something like a "temporary" memory hole. The new mechanism I propose will
->>>> be used to handle synchronization as races can be more severe, e.g., when
->>>> reading actual page content here.
->>>>
->>>> c) Soft offline pages: hwpoisoned pages that are not actually harmful yet,
->>>> but could become harmful in the future. So we better try to remove the page
->>>> from the page allcoator and try to migrate away existing users.
->>>>
->>>>
->>>> So page_offline_* handle "b) PageOffline()" only. There is a tiny race
->>>> between pfn_to_online_page(pfn) and looking at the memmap as we have in many
->>>> cases already throughout the kernel, to be tackled in the future.
->>>
->>> Right, but here you anyway add locking, so why exclude the first iteration?
->>
->> What we're protecting is PageOffline() below. If I didn't mess up, we should
->> always be calling page_offline_freeze() before calling PageOffline(). Or am
->> I missing something?
->   
-> Somehow I was under impression we are protecting both pfn_to_online_page()
-> and PageOffline().
->   
->>> BTW, did you consider something like
->>
->> Yes, I played with something like that. We'd have to handle the first
->> page_offline_freeze() freeze differently, though, and that's where things
->> got a bit ugly in my attempts.
->>
->>>
->>> 	if (page_offline_frozen++ % MAX_ORDER_NR_PAGES == 0) {
->>> 		page_offline_unfreeze();
->>> 		cond_resched();
->>> 		page_offline_freeze();
->>> 	}
->>>
->>> We don't seem to care about page_offline_frozen overflows here, do we?
->>
->> No, the buffer size is also size_t and gets incremented on a per-byte basis.
->> The variant I have right now looked the cleanest to me. Happy to hear
->> simpler alternatives.
-> 
-> Well, locking for the first time before the while() loop and doing
-> resched-relock outside switch() would be definitely nicer, and it makes the
-> last unlock unconditional.
-> 
-> The cost of prevention of memory offline during reads of !KCORE_RAM parts
-> does not seem that significant to me, but I may be missing something.
+From: Tong Zhang <ztong0001@gmail.com>
 
-Also true, I'll have a look if I can just simplify that.
+[ Upstream commit b91907a6241193465ca92e357adf16822242296d ]
 
+if qxl_device_init() fail, drm device will not be registered,
+in this case, do not run qxl_drm_release()
+
+[    5.258534] ==================================================================
+[    5.258931] BUG: KASAN: user-memory-access in qxl_destroy_monitors_object+0x42/0xa0 [qxl]
+[    5.259388] Write of size 8 at addr 00000000000014dc by task modprobe/95
+[    5.259754]
+[    5.259842] CPU: 0 PID: 95 Comm: modprobe Not tainted 5.11.0-rc6-00007-g88bb507a74ea #62
+[    5.260309] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-48-gd9c812dda54
+[    5.260917] Call Trace:
+[    5.261056]  dump_stack+0x7d/0xa3
+[    5.261245]  kasan_report.cold+0x10c/0x10e
+[    5.261475]  ? qxl_destroy_monitors_object+0x42/0xa0 [qxl]
+[    5.261789]  check_memory_region+0x17c/0x1e0
+[    5.262029]  qxl_destroy_monitors_object+0x42/0xa0 [qxl]
+[    5.262332]  qxl_modeset_fini+0x9/0x20 [qxl]
+[    5.262595]  qxl_drm_release+0x22/0x30 [qxl]
+[    5.262841]  drm_dev_release+0x32/0x50
+[    5.263047]  release_nodes+0x39e/0x410
+[    5.263253]  ? devres_release+0x40/0x40
+[    5.263462]  really_probe+0x2ea/0x420
+[    5.263664]  driver_probe_device+0x6d/0xd0
+[    5.263888]  device_driver_attach+0x82/0x90
+[    5.264116]  ? device_driver_attach+0x90/0x90
+[    5.264353]  __driver_attach+0x60/0x100
+[    5.264563]  ? device_driver_attach+0x90/0x90
+[    5.264801]  bus_for_each_dev+0xe1/0x140
+[    5.265014]  ? subsys_dev_iter_exit+0x10/0x10
+[    5.265251]  ? klist_node_init+0x61/0x80
+[    5.265464]  bus_add_driver+0x254/0x2a0
+[    5.265673]  driver_register+0xd3/0x150
+[    5.265882]  ? 0xffffffffc0048000
+[    5.266064]  do_one_initcall+0x84/0x250
+[    5.266274]  ? trace_event_raw_event_initcall_finish+0x150/0x150
+[    5.266596]  ? unpoison_range+0xf/0x30
+[    5.266801]  ? ____kasan_kmalloc.constprop.0+0x84/0xa0
+[    5.267082]  ? unpoison_range+0xf/0x30
+[    5.267287]  ? unpoison_range+0xf/0x30
+[    5.267491]  do_init_module+0xf8/0x350
+[    5.267697]  load_module+0x3fe6/0x4340
+[    5.267902]  ? vm_unmap_ram+0x1d0/0x1d0
+[    5.268115]  ? module_frob_arch_sections+0x20/0x20
+[    5.268375]  ? __do_sys_finit_module+0x108/0x170
+[    5.268624]  __do_sys_finit_module+0x108/0x170
+[    5.268865]  ? __ia32_sys_init_module+0x40/0x40
+[    5.269111]  ? file_open_root+0x200/0x200
+[    5.269330]  ? do_sys_open+0x85/0xe0
+[    5.269527]  ? filp_open+0x50/0x50
+[    5.269714]  ? exit_to_user_mode_prepare+0xfc/0x130
+[    5.269978]  do_syscall_64+0x33/0x40
+[    5.270176]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[    5.270450] RIP: 0033:0x7fa3f685bcf7
+[    5.270646] Code: 48 89 57 30 48 8b 04 24 48 89 47 38 e9 1d a0 02 00 48 89 f8 48 89 f7 48 89 d1
+[    5.271634] RSP: 002b:00007ffca83048d8 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+[    5.272037] RAX: ffffffffffffffda RBX: 0000000001e94a70 RCX: 00007fa3f685bcf7
+[    5.272416] RDX: 0000000000000000 RSI: 0000000001e939e0 RDI: 0000000000000003
+[    5.272794] RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000001
+[    5.273171] R10: 00007fa3f68bf300 R11: 0000000000000246 R12: 0000000001e939e0
+[    5.273550] R13: 0000000000000000 R14: 0000000001e93bd0 R15: 0000000000000001
+[    5.273928] ==================================================================
+
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20210203040727.868921-1-ztong0001@gmail.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/qxl/qxl_drv.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index 1864467f1063..1b09bbe98055 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -144,6 +144,8 @@ static void qxl_drm_release(struct drm_device *dev)
+ 	 * reordering qxl_modeset_fini() + qxl_device_fini() calls is
+ 	 * non-trivial though.
+ 	 */
++	if (!dev->registered)
++		return;
+ 	qxl_modeset_fini(qdev);
+ 	qxl_device_fini(qdev);
+ }
 -- 
-Thanks,
-
-David / dhildenb
+2.30.2
 
 _______________________________________________
 Virtualization mailing list
