@@ -6,109 +6,119 @@ X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5D22C433ED
-	for <virtualization@archiver.kernel.org>; Tue,  4 May 2021 15:56:17 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04E62C433ED
+	for <virtualization@archiver.kernel.org>; Tue,  4 May 2021 16:17:06 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2DB8661176
-	for <virtualization@archiver.kernel.org>; Tue,  4 May 2021 15:56:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2DB8661176
+	by mail.kernel.org (Postfix) with ESMTPS id 79958613BC
+	for <virtualization@archiver.kernel.org>; Tue,  4 May 2021 16:17:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 79958613BC
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A87A060C1C;
-	Tue,  4 May 2021 15:56:16 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0DFAE4016F;
+	Tue,  4 May 2021 16:17:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NisWl0BmHbdU; Tue,  4 May 2021 15:56:15 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id CWbTDVoFBatU; Tue,  4 May 2021 16:17:04 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 56B4560674;
-	Tue,  4 May 2021 15:56:15 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id B4AED4010D;
+	Tue,  4 May 2021 16:17:03 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1FA46C000D;
-	Tue,  4 May 2021 15:56:15 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 14110C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5D3D2C000E;
+	Tue,  4 May 2021 16:17:03 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4EA5AC0001
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 May 2021 15:56:14 +0000 (UTC)
+ Tue,  4 May 2021 16:17:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E22AE8439E
+ by smtp2.osuosl.org (Postfix) with ESMTP id 3CA7840158
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 May 2021 15:56:13 +0000 (UTC)
+ Tue,  4 May 2021 16:17:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id g3to5bjXgXG7
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id yQxmvrOV-Wlz
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 May 2021 15:56:12 +0000 (UTC)
+ Tue,  4 May 2021 16:17:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 95B218437B
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 8303D4010D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 May 2021 15:56:12 +0000 (UTC)
+ Tue,  4 May 2021 16:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1620143771;
+ s=mimecast20190719; t=1620145019;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=qvy2NxACpq19DOAfcjLvwkpBiC7L46GX+xjidme4oJU=;
- b=P3j31falJ2JfBwoxrZYwDWwFHVc9RUXfi9qCXJMJ7XB1LBz8MKsnSCytQvWLIifFO8tyJN
- 015tt38CX0y0T8EVYceipywlkXOZ+d2v1vdMSJk6kaKj4t6zc50vpIaM3QH3jHTmgwUD6H
- Z9miJKPT0GS+dValC5O8j6B7jGOazTI=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-343-WVnqdQMvOpWsQ96-Dvkdaw-1; Tue, 04 May 2021 11:56:09 -0400
-X-MC-Unique: WVnqdQMvOpWsQ96-Dvkdaw-1
-Received: by mail-ej1-f69.google.com with SMTP id
- r18-20020a1709069592b029039256602ce8so3306409ejx.1
+ bh=wP9ZXRKFRrcYNfXsCl7rVDwQV/fOx/6qqWYEPu1BZWI=;
+ b=AA53XJKOs1DiHysduceoTnANOg94TcWuTWTjz/rJr90ayBB4svULsVGcq3eBVaHsXzzhRD
+ rFJNZOeRYoclkmWubqy90sm6Ihxwm9gDHSWgGVISxL1yoK8KS//qFC61yBNlxgzvJBoN7/
+ 1df+2F0/jFyJc8Btz6lpwlWggu57KLU=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-288-mQLump_LNnCgO3Mz5D-CWw-1; Tue, 04 May 2021 12:16:55 -0400
+X-MC-Unique: mQLump_LNnCgO3Mz5D-CWw-1
+Received: by mail-ej1-f72.google.com with SMTP id
+ v7-20020a1709061807b02903a3d1724659so3342754eje.8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 04 May 2021 08:56:09 -0700 (PDT)
+ Tue, 04 May 2021 09:16:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=qvy2NxACpq19DOAfcjLvwkpBiC7L46GX+xjidme4oJU=;
- b=jwf7UVa7wuI4hBGSJvSUXRxBEI7wetFTvBPZOtcXWH2tG8AfLhoHFLqTHXHPmAqe7M
- 4xI5P+zoNuUXwSSQW0laKlv1KH/WrXD5VZm1tod/HyW+SVG7dcFl/PEcBohNYzcpz1RO
- jiFllkIIVFOMx74+lDe5UBldI3gCfHyGABYERnVE4ibVQ0blyfPzkf6Dook9XUlZOMoI
- j64jMvRHGY2sd/KJyCvAkmOJsEbdSELraIYGJzWbXNyjwH3Ge5tWOa8MbNNJxzGMpYIF
- UkWAAOZObb8tTSoyn7tg2IWZ1ocgHtbOwI1OsLgAg41AoXHwn5yA9yMXS7etZs+MTzSH
- iSLg==
-X-Gm-Message-State: AOAM533WdUdLD2D6FDzda2JbsOSENcb/026PzTDOybCvqZLyE3TTe2HH
- vkwNdpvoRltKZIqeUTFLLPPfA56bDg481iqyxHLcthuImEpVGAEdZrufIjPwjxxPknLi5NL+RPn
- cVw3B1iM3InU4mW4YZEbdq16MNdyRN05evkuskuKDUA==
-X-Received: by 2002:a17:906:48d2:: with SMTP id
- d18mr22918687ejt.9.1620143768469; 
- Tue, 04 May 2021 08:56:08 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxIQAoW+b1Hr27OCbdqM8lBhpEx28lo0Dt6YjGp85ljdSReIgB8+1WGRaxAdhL7quji+5bW8g==
-X-Received: by 2002:a17:906:48d2:: with SMTP id
- d18mr22918677ejt.9.1620143768325; 
- Tue, 04 May 2021 08:56:08 -0700 (PDT)
+ bh=wP9ZXRKFRrcYNfXsCl7rVDwQV/fOx/6qqWYEPu1BZWI=;
+ b=N/F0XVFiT0k7tEdrhMsIt8LsqM95EYjyTf41kdmWUiSaZao1rwzU4bW1H8U3KvbIoN
+ MzRMHOJPDouPcSYwdljV3r+yN3IIWAvOl2qsO3djpNuR43fYjWGSs+IPxNHwV/Rh0yuZ
+ uGS6bWiozrRkogdgJATrJTWr1GBCKtZtO2ywOFJlM+awwUKIqK2E1bJqxurh/TYS1orz
+ ML3RZASasUBn88KUmvQkE8NfPtxQEO2uQpPjul2lJSIJaU32WhPMastRLGrMG9kIublb
+ +73+5W9K9MhDQftiwST/6NmISz+eJZEmRfg4lZR1ReFU7AhV71MU+O08D7RWq8+vKCAA
+ 3x9Q==
+X-Gm-Message-State: AOAM530JjXOfaBDc6NhAOzZnzX7xyMfFSctQCzyl1iRTbShLjSCSyCus
+ aEL2JE7KcJAyB4qP9zTdXB+RW4XRSSn/O78QeXA3Acbtx2c4yEBVXykdx89ZCuUT/5BW0RZHM79
+ gp7Rjhi/mN4tc5K4qMBjOQCXioiJ6ttu58V0jHBBGLw==
+X-Received: by 2002:a05:6402:17d7:: with SMTP id
+ s23mr27097459edy.66.1620145014419; 
+ Tue, 04 May 2021 09:16:54 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw1wSMhxJviC4Qd4ukjh1jx9L6VULBQdBxWu5X57iph3UY20HifBYDo/gfB7VgOuGBt3Je66Q==
+X-Received: by 2002:a05:6402:17d7:: with SMTP id
+ s23mr27097436edy.66.1620145014208; 
+ Tue, 04 May 2021 09:16:54 -0700 (PDT)
 Received: from steredhat (host-79-18-148-79.retail.telecomitalia.it.
  [79.18.148.79])
- by smtp.gmail.com with ESMTPSA id i8sm14426799edu.64.2021.05.04.08.56.07
+ by smtp.gmail.com with ESMTPSA id i8sm14455151edu.64.2021.05.04.09.16.53
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 04 May 2021 08:56:08 -0700 (PDT)
-Date: Tue, 4 May 2021 17:56:06 +0200
+ Tue, 04 May 2021 09:16:53 -0700 (PDT)
+Date: Tue, 4 May 2021 18:16:51 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: Mike Christie <michael.christie@oracle.com>
-Subject: Re: [PATCH RFC 00/14] vhost: multiple worker support
-Message-ID: <20210504155606.mlkg7ydwbli56xqu@steredhat>
-References: <20210428223714.110486-1-michael.christie@oracle.com>
+To: "Jiang Wang ." <jiang.wang@bytedance.com>
+Subject: Re: [RFC v2] virtio-vsock: add description for datagram type
+Message-ID: <20210504161651.3b6fhi64d7g3jui4@steredhat>
+References: <20210413091251-mutt-send-email-mst@kernel.org>
+ <20210413133852.ebkrlbyetiqu4uje@steredhat>
+ <20210413094722-mutt-send-email-mst@kernel.org>
+ <20210413140351.6vmffxqnj4azpyzx@steredhat>
+ <20210413155635-mutt-send-email-mst@kernel.org>
+ <20210414065706.inmjuoxsexejbbxj@steredhat>
+ <20210414031220-mutt-send-email-mst@kernel.org>
+ <20210414093841.koerx2wsmszv4nnj@steredhat>
+ <CAP_N_Z85c+GLTmqBkMrRGQzWFj73i=FSiU-hAP7bEmaKTNnc6g@mail.gmail.com>
+ <CAP_N_Z9xPgyf=au4VD+fXF8iorZHHk7Q4-CbJCOVUeupG4v4sw@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20210428223714.110486-1-michael.christie@oracle.com>
+In-Reply-To: <CAP_N_Z9xPgyf=au4VD+fXF8iorZHHk7Q4-CbJCOVUeupG4v4sw@mail.gmail.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: pbonzini@redhat.com, virtualization@lists.linux-foundation.org,
- stefanha@redhat.com, mst@redhat.com
+Cc: cong.wang@bytedance.com, Xiongchun Duan <duanxiongchun@bytedance.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, cohuck@redhat.com,
+ virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
+ Stefan Hajnoczi <stefanha@redhat.com>, asias@redhat.com,
+ Arseny Krasnov <arseny.krasnov@kaspersky.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,50 +135,77 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Mike,
+Hi Jiang,
 
-On Wed, Apr 28, 2021 at 05:36:59PM -0500, Mike Christie wrote:
->The following patches apply over mst's vhost branch and were tested
->againt that branch and also mkp's 5.13 branch which has some vhost-scsi
->changes.
+On Mon, May 03, 2021 at 08:40:46PM -0700, Jiang Wang . wrote:
+>Hi Stefano,
 >
->These patches allow us to support multiple vhost workers per device. I
->ended up just doing Stefan's original idea where userspace has the
->kernel create a worker and we pass back the pid. This has the benefit
->over the workqueue and userspace thread approach where we only have
->one'ish code path in the kernel.
+>I checked the VIRTIO_NET_F_MRG_RXBUF feature bit and I think vsock
+>dgram can use that feature too.
+
+Cool, thanks for checking!
+
+>Do we want to make this feature a must-have or optional? One idea is
+>to make it optional. When not
+
+I think optional is fine, and we should support it for all kind of 
+traffic (stream, dgram, seqpacket).
+
+>supported, dgram rx buf is 16 KB which should be good in most cases.
+
+Why not 4 KB like for stream? Or we could make it configurable.
+
+>When VIRTIO_NET_F_MRG_RXBUF is supported, the rx buf is 4K and the max
+>packet size is 64 KB.
 >
->The kernel patches here allow us to then do N workers device and also
->share workers across devices.
+>Also, just to make sure we are on the same page, the current vsock
+>stream code can also split a
+>big packet to multiple buffers and the receive side can assemble them
+>together.
 
-I took a first look and left a few comments.
+Yes, sort of. Being a stream, there's no concept of a boundary.
 
-In general it looks good to me, I'm just worried if it's okay to use the 
-kthread pid directly or it's better to use an internal id.
+> But dgram cannot
+>use that code because the dgram may drop a buffer in the driver code
+>(if there is not enough space).
+>That means dgram may drop some buffers at the beginning, in the end or in the
+>middle of a pkt. And a packet may
+>not be received as a complete one. Therefore, we need something like
+>VIRTIO_NET_F_MRG_RXBUF.
 
-For example I think if this can be affected by the pid namespaces or 
-some security issues.
-I admit I don't know much about this topic, so this might be silly.
+Yep.
 
 >
->I included a patch for qemu so you can get an idea of how it works.
->
->TODO:
->-----
->- polling
->- Allow sharing workers across devices. Kernel support is added and I
->hacked up userspace to test, but I'm still working on a sane way to
->manage it in userspace.
->- Bind to specific CPUs. Commands like "virsh emulatorpin" work with
->these patches and allow us to set the group of vhost threads to different
->CPUs. But we can also set a specific vq's worker to run on a CPU.
->- I'm handling old kernel by just checking for EPERM. Does this require
->a feature?
+>If we want to leverage current stream code without using 
+>VIRTIO_NET_F_MRG_RXBUF,
+>we could add a total_len and offset to the virtio_vsock_hdr. Then when sending
+>packet, the device split the big packet to multiple small ones and
+>each has a header. They will have the
+>same total_len, but different offsets. On the driver side, the driver
+>can check the total_len before
+>enqueueing the big packet for the one with offset 0.
+>If there is enough space, all the remaining packets will be received.
+>If not, the remaining packets will be dropped.
+>I feel this implementation might be easier than using
+>VIRTIO_NET_F_MRG_RXBUF. But either one is fine with me.
+>Any preference? Thanks.
 
-Do you mean when the new ioctls are not available? We do not return 
-ENOIOCTLCMD?
+This is very similar to what we discussed with Michael. He pointed out 
+that it could be complicated and we could have several problems.
 
-In this case I think is fine to check the return value.
+For example, we should also provide an ID to prevent different fragments 
+from overlapping. Also we might have problems handling different flows 
+at the same time.
+
+Mergable buffers allow us to avoid these problems and also bring 
+advantages for the other types of traffic (stream, seqpacket).
+
+It also allows us to use a single header for the packet and all its 
+fragments.
+
+So IMHO, if there are no significant issues, the best way would be to 
+implement mergeable buffers in vsock,
+I think there are only advantages to using this feature.
 
 Thanks,
 Stefano
