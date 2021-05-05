@@ -2,112 +2,113 @@ Return-Path: <SRS0=Wmx8=KA=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-23.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	INCLUDES_PULL_REQUEST,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02629C433B4
-	for <virtualization@archiver.kernel.org>; Wed,  5 May 2021 20:11:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51EE4C433ED
+	for <virtualization@archiver.kernel.org>; Wed,  5 May 2021 20:11:49 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8FABE613AA
-	for <virtualization@archiver.kernel.org>; Wed,  5 May 2021 20:11:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8FABE613AA
+	by mail.kernel.org (Postfix) with ESMTPS id F39F261006
+	for <virtualization@archiver.kernel.org>; Wed,  5 May 2021 20:11:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F39F261006
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 4AC37405F3;
-	Wed,  5 May 2021 20:11:07 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id B55C9405EE;
+	Wed,  5 May 2021 20:11:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id V3eQmE5otKaz; Wed,  5 May 2021 20:11:06 +0000 (UTC)
+	with ESMTP id AlNIGl8M72SY; Wed,  5 May 2021 20:11:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B50AF405E4;
-	Wed,  5 May 2021 20:11:05 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1995D405E4;
+	Wed,  5 May 2021 20:11:47 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8EC5EC000D;
-	Wed,  5 May 2021 20:11:05 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BE971C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 03FC6C000D;
+	Wed,  5 May 2021 20:11:47 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7B8B4C0001
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 May 2021 20:11:04 +0000 (UTC)
+ Wed,  5 May 2021 20:11:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 979D7405EE
+ by smtp2.osuosl.org (Postfix) with ESMTP id 5D9CF401F5
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 May 2021 20:11:04 +0000 (UTC)
+ Wed,  5 May 2021 20:11:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wIUfXDoMVkpl
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7Uzq6iA3-qgg
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 May 2021 20:11:03 +0000 (UTC)
+ Wed,  5 May 2021 20:11:44 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 99FFA405EB
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 78775400E2
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 May 2021 20:11:03 +0000 (UTC)
+ Wed,  5 May 2021 20:11:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1620245462;
+ s=mimecast20190719; t=1620245503;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=GBjBuvXE2zdfbkNFPE3Y99JvsZ5ACCeZzTetq8hkZVc=;
- b=K8PqxHXmXv46Qtscyj7xQtgeT+vnsjjJe47SEGcr1K1CXx4womGbW8K46Z/4GxsomFIDtv
- eDFwsNdpFsfQc1Ith7avBh1lm24ajAYGXM+77iWOSEhP8IAgXdywL+cwgK93LyJ1PX50Y9
- al+PjyjC3Xj8q+9wuk9UVh6IltSj/gw=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-553-lcMFB4OWMfeKin_yRsy_Tw-1; Wed, 05 May 2021 16:11:00 -0400
-X-MC-Unique: lcMFB4OWMfeKin_yRsy_Tw-1
-Received: by mail-wr1-f70.google.com with SMTP id
- 93-20020adf80e60000b0290106fab45006so1135306wrl.20
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+ bh=trH/NfkKL9hdKsJ9LaR25jQCqSBLEA1C4zT+z7TQZuM=;
+ b=QVLwlc0TtYccFN/ffftD+qVTCDhW4v3x/wIATXzk07ZCcoj2cA1c4oDM/NQKo9/2h5FhXI
+ Ngr3a2vdeQEw0SWBBGTN5KnHayLZaIBhD59c2LnKtLJrpu66KcNwdbhUM0ouDAsvfVkOeX
+ KtHHlGrmKzgy0Q6xQud96UAdpq7eNXs=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-284-p6rtsKkRNBq-ZCcAbEbOdg-1; Wed, 05 May 2021 16:11:39 -0400
+X-MC-Unique: p6rtsKkRNBq-ZCcAbEbOdg-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ d199-20020a1c1dd00000b02901492c14476eso692653wmd.2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 05 May 2021 13:11:00 -0700 (PDT)
+ Wed, 05 May 2021 13:11:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=GBjBuvXE2zdfbkNFPE3Y99JvsZ5ACCeZzTetq8hkZVc=;
- b=uO5BOItQkWsm7MBnmfTLwZI3L6mcZ0Q0CW8UQfCtX8YaGQC5iDa9Q3yXtl81iTfTq2
- e/tEpkWmfLbc8r7JhBTLQwKLI2TV1Dfy56IMIUtxAXZaWiYyP70Bmx3kerfJLZlTtKfw
- QO8qfkDC8nU2w2TVTUusH4k2jfoQfAu26pNpHc+TSG8uUJxRZWPIcpkUx02a8/jYsijk
- Jn44fBWyViX6+AqAvqHCW3cdvDWEAV6WKkdLJPSDIxUUWT156Ikofc44YWIC3BqKtI98
- 9LHO6g+ii8LiVE73d7MP9KAKYdAP/A3Y/UOtFb3aoG1elj6uX7vi23Eswig8i4imNt2a
- T/Ig==
-X-Gm-Message-State: AOAM531FlVXqd0AtYu9L5e1bsPOhTJsyTqnyEibNtVHeuolbbg4CaWw3
- owEJuHYyLAGhebCzNGnM6V+dGOd3xBY2wvAg4LDEHtOxrqtO6uqKs5n3D123heS60FaHpLm0r+p
- cXdETxidj650jfqRoeI1zbaFWQKvTBqLsqjR0pU89Yw==
-X-Received: by 2002:adf:8b02:: with SMTP id n2mr791493wra.259.1620245459320;
- Wed, 05 May 2021 13:10:59 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyDflhaV7bAW0iap9r6++Bu8H9qbZHW9/oqickGwKuCFU5RhENuf37swcdkBGO2bwY6uiQ9Mw==
-X-Received: by 2002:adf:8b02:: with SMTP id n2mr791483wra.259.1620245459202;
- Wed, 05 May 2021 13:10:59 -0700 (PDT)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+ :content-disposition;
+ bh=trH/NfkKL9hdKsJ9LaR25jQCqSBLEA1C4zT+z7TQZuM=;
+ b=e8GjrjVAIlQ7SWL31KZSfur5QkR2S20M3tuUVpk+R4IsMfU7qA7eHBcla2d8ojO34z
+ D9TEGJXMmUK/hT7e8wCN75mQR3ppLQTgntxTfw7fDZiHp4dFG7u+OqOmW2Gqtvjg4Iep
+ 7LWZpE0STkguOJcIWeZN/g3e+iGxB9Xy6bLAkPV3Prb0+ZY4hDJutt3qTwhtXS3VGAUE
+ Qo/F1Zhm1vm3RqkjNPPSHGjKQe6SDRm1Gl+u5Ea5MxNICRnp/L41aJIeclfMK2M/H33m
+ xNh75iVIxJhSuyrYhqZaVIFT4dhCtzBh8Sce1AUkxEL6bV93tYZbotrgzaM5J5e2bghm
+ BHvQ==
+X-Gm-Message-State: AOAM532zSS/PxOkp2TIUAwN04R/IvOCQtOdrGh4tFpRHRQc//aI7yy6s
+ NxqBLRyCYbNeld6EnDq99MHjxki+iZy/HvKsjlvodF5bU2fvi13Yx4yjfZ6e5uyiEoyQD8jDgmv
+ W16Tl/pUNmvWA4FtQBSVFN+1vwycWKZ++YwXY/ZfK/Q==
+X-Received: by 2002:a05:600c:190c:: with SMTP id
+ j12mr11647202wmq.41.1620245498492; 
+ Wed, 05 May 2021 13:11:38 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJztjSMo+WrOGeWsi0rPU8vWa/2MQe6CfpFZS59vZKcAjfy+3i8GW0D8k1kGMxQrBXfQFIf4Ug==
+X-Received: by 2002:a05:600c:190c:: with SMTP id
+ j12mr11647184wmq.41.1620245498339; 
+ Wed, 05 May 2021 13:11:38 -0700 (PDT)
 Received: from redhat.com ([2a10:800c:8fce:0:8e1b:40f0:6a74:513b])
- by smtp.gmail.com with ESMTPSA id p5sm372953wma.45.2021.05.05.13.10.57
+ by smtp.gmail.com with ESMTPSA id m6sm533139wrp.29.2021.05.05.13.11.36
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 05 May 2021 13:10:58 -0700 (PDT)
-Date: Wed, 5 May 2021 16:10:56 -0400
+ Wed, 05 May 2021 13:11:38 -0700 (PDT)
+Date: Wed, 5 May 2021 16:11:35 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH] Provide detailed specification of virtio-blk lifetime
- metrics
-Message-ID: <20210505161022-mutt-send-email-mst@kernel.org>
-References: <20210420162556.217350-1-egranata@google.com>
- <20210505054314.GA4179527@infradead.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [GIT PULL] virtio,vhost,vdpa: features, fixes
+Message-ID: <20210505161135-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20210505054314.GA4179527@infradead.org>
+X-Mutt-Fcc: =sent
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-block@vger.kernel.org, virtio-dev@lists.oasis-open.org,
- Enrico Granata <egranata@google.com>,
- virtualization@lists.linux-foundation.org
+Cc: mgurtovoy@nvidia.com, lkp@intel.com, kvm@vger.kernel.org, mst@redhat.com,
+ netdev@vger.kernel.org, xieyongji@bytedance.com, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ liu.xiang@zlingsmart.com, elic@nvidia.com, lingshan.zhu@intel.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,33 +125,113 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, May 05, 2021 at 06:43:14AM +0100, Christoph Hellwig wrote:
-> On Tue, Apr 20, 2021 at 04:25:56PM +0000, Enrico Granata wrote:
-> > In the course of review, some concerns were surfaced about the
-> > original virtio-blk lifetime proposal, as it depends on the eMMC
-> > spec which is not open
-> > 
-> > Add a more detailed description of the meaning of the fields
-> > added by that proposal to the virtio-blk specification, as to
-> > make it feasible to understand and implement the new lifetime
-> > metrics feature without needing to refer to JEDEC's specification
-> > 
-> > This patch does not change the meaning of those fields nor add
-> > any new fields, but it is intended to provide an open and more
-> > clear description of the meaning associated with those fields.
-> > 
-> > Signed-off-by: Enrico Granata <egranata@google.com>
-> 
-> Still not a fan of the encoding, but at least it is properly documented
-> now:
-> 
-> Acked-by: Christoph Hellwig <hch@lst.de>
+The following changes since commit 9f4ad9e425a1d3b6a34617b8ea226d56a119a717:
 
-With that, would you like to ack the virtip-blk patch too?
-The format didn't actually change ...
+  Linux 5.12 (2021-04-25 13:49:08 -0700)
 
--- 
-MST
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to d7bce85aa7b92b5de8f69b3bcedfe51d7b1aabe1:
+
+  virtio_pci_modern: correct sparse tags for notify (2021-05-04 04:19:59 -0400)
+
+----------------------------------------------------------------
+virtio,vhost,vdpa: features, fixes
+
+A bunch of new drivers including vdpa support for block
+and virtio-vdpa. Beginning of vq kick (aka doorbell) mapping support.
+Misc fixes.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Eli Cohen (1):
+      vdpa/mlx5: Enable user to add/delete vdpa device
+
+Jason Wang (9):
+      vdpa: introduce virtio pci driver
+      virtio_pci_modern: introduce helper to map vq notify area
+      virtio-pci library: switch to use vp_modern_map_vq_notify()
+      vp_vdpa: switch to use vp_modern_map_vq_notify()
+      virtio_pci_modern: hide vp_modern_get_queue_notify_off()
+      virito_pci libray: hide vp_modern_map_capability()
+      virtio-pci library: report resource address
+      vp_vdpa: report doorbell address
+      vhost-vdpa: fix vm_flags for virtqueue doorbell mapping
+
+Liu Xiang (1):
+      virtio-balloon: fix a typo in comment of virtballoon_migratepage()
+
+Max Gurtovoy (2):
+      virtio-net: don't allocate control_buf if not supported
+      vdpa: add vdpa simulator for block device
+
+Michael S. Tsirkin (2):
+      virtio_pci_modern: __force cast the notify mapping
+      virtio_pci_modern: correct sparse tags for notify
+
+Parav Pandit (2):
+      vdpa: Follow kdoc comment style
+      vdpa: Follow kdoc comment style
+
+Stefano Garzarella (12):
+      vdpa_sim: use iova module to allocate IOVA addresses
+      vringh: add 'iotlb_lock' to synchronize iotlb accesses
+      vringh: reset kiov 'consumed' field in __vringh_iov()
+      vringh: explain more about cleaning riov and wiov
+      vringh: implement vringh_kiov_advance()
+      vringh: add vringh_kiov_length() helper
+      vdpa_sim: cleanup kiovs in vdpasim_free()
+      vdpa: add get_config_size callback in vdpa_config_ops
+      vhost/vdpa: use get_config_size callback in vhost_vdpa_config_validate()
+      vdpa_sim_blk: implement ramdisk behaviour
+      vdpa_sim_blk: handle VIRTIO_BLK_T_GET_ID
+      vdpa_sim_blk: add support for vdpa management tool
+
+Xie Yongji (1):
+      vhost/vdpa: Remove the restriction that only supports virtio-net devices
+
+Zhu Lingshan (10):
+      vDPA/ifcvf: get_vendor_id returns a device specific vendor id
+      vDPA/ifcvf: enable Intel C5000X-PL virtio-net for vDPA
+      vDPA/ifcvf: rename original IFCVF dev ids to N3000 ids
+      vDPA/ifcvf: remove the version number string
+      vDPA/ifcvf: fetch device feature bits when probe
+      vDPA/ifcvf: verify mandatory feature bits for vDPA
+      vDPA/ifcvf: deduce VIRTIO device ID from pdev ids
+      vDPA/ifcvf: deduce VIRTIO device ID when probe
+      vDPA/ifcvf: enable Intel C5000X-PL virtio-block for vDPA
+      vDPA/ifcvf: get_config_size should return dev specific config size
+
+ drivers/Makefile                       |   1 +
+ drivers/net/virtio_net.c               |  10 +-
+ drivers/vdpa/Kconfig                   |  15 +
+ drivers/vdpa/Makefile                  |   1 +
+ drivers/vdpa/ifcvf/ifcvf_base.c        |  24 +-
+ drivers/vdpa/ifcvf/ifcvf_base.h        |  26 +-
+ drivers/vdpa/ifcvf/ifcvf_main.c        |  86 +++++-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c      |  85 +++++-
+ drivers/vdpa/vdpa.c                    |  12 +-
+ drivers/vdpa/vdpa_sim/Makefile         |   1 +
+ drivers/vdpa/vdpa_sim/vdpa_sim.c       | 127 ++++++---
+ drivers/vdpa/vdpa_sim/vdpa_sim.h       |   2 +
+ drivers/vdpa/vdpa_sim/vdpa_sim_blk.c   | 338 +++++++++++++++++++++++
+ drivers/vdpa/virtio_pci/Makefile       |   2 +
+ drivers/vdpa/virtio_pci/vp_vdpa.c      | 484 +++++++++++++++++++++++++++++++++
+ drivers/vhost/vdpa.c                   |  16 +-
+ drivers/vhost/vringh.c                 |  69 +++--
+ drivers/virtio/virtio_balloon.c        |   2 +-
+ drivers/virtio/virtio_pci_modern.c     |  27 +-
+ drivers/virtio/virtio_pci_modern_dev.c |  67 ++++-
+ include/linux/vdpa.h                   |  42 +--
+ include/linux/virtio_pci_modern.h      |  11 +-
+ include/linux/vringh.h                 |  19 +-
+ 23 files changed, 1295 insertions(+), 172 deletions(-)
+ create mode 100644 drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+ create mode 100644 drivers/vdpa/virtio_pci/Makefile
+ create mode 100644 drivers/vdpa/virtio_pci/vp_vdpa.c
 
 _______________________________________________
 Virtualization mailing list
