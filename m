@@ -1,86 +1,76 @@
-Return-Path: <SRS0=Wmx8=KA=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=qSBX=KB=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,URIBL_RED autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_RED,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39BC4C43460
-	for <virtualization@archiver.kernel.org>; Wed,  5 May 2021 20:49:21 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9EFAC433B4
+	for <virtualization@archiver.kernel.org>; Thu,  6 May 2021 01:03:27 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D176B613F1
-	for <virtualization@archiver.kernel.org>; Wed,  5 May 2021 20:49:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D176B613F1
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	by mail.kernel.org (Postfix) with ESMTPS id 2AAD361168
+	for <virtualization@archiver.kernel.org>; Thu,  6 May 2021 01:03:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2AAD361168
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=goodmis.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9826D4058D;
-	Wed,  5 May 2021 20:49:20 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id D36D5405D5;
+	Thu,  6 May 2021 01:03:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id I3_dqR5mZCHZ; Wed,  5 May 2021 20:49:19 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 18B724058A;
-	Wed,  5 May 2021 20:49:19 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9akbcKHul-GG; Thu,  6 May 2021 01:03:25 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 369CC40247;
+	Thu,  6 May 2021 01:03:25 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E2BA2C000D;
-	Wed,  5 May 2021 20:49:18 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1B1CFC000D;
+	Thu,  6 May 2021 01:03:25 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EDBC9C0001
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CC340C0001
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 May 2021 20:49:16 +0000 (UTC)
+ Thu,  6 May 2021 01:03:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E162082BBD
+ by smtp1.osuosl.org (Postfix) with ESMTP id B45D983BD3
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 May 2021 20:49:16 +0000 (UTC)
+ Thu,  6 May 2021 01:03:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CC1OcIdNNEeg
+ with ESMTP id tlLgg8Oi-N4v
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 May 2021 20:49:16 +0000 (UTC)
+ Thu,  6 May 2021 01:03:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 4C7C882AAA
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 1565583BD2
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 May 2021 20:49:16 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPS id B2405613BA;
- Wed,  5 May 2021 20:49:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1620247755;
- bh=fIBnzCoLd7WFpaxwVmmrRv7I6zOzGgD4l9SQolYykqw=;
- h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
- b=SGV+dXVMsmxu7ZS5APC452PYA81R0UlZ9lE8ZEgbaJ4JzcKvWsTEaH3GEWKyOO23v
- 94NvIGUiXFq0Z2rV7lPpFGnwXkOkCIqZK7fsfOOgnixrW81XOR1LC5agd2nM6DEHFp
- MSY7iCrQ+iszzeH7lsCUhbVUfW0QLEGHrN1hI99l+FnTY8Px2ytmrVLQ+lf8OO/xXl
- E3azMDLxbPkbF4onk5bfVoyR2VDdbgfc++jQBH2PCw/Lj2J78iCvM6pwmZ+g6g78XL
- yfoignsYM3122879hHRGG0lsZX8Xt5o+injOhz8nLSM58maLJqfDjl7V1k6FH+3tzI
- 7hRJgze6IrDFA==
-Subject: Re: [GIT PULL] virtio,vhost,vdpa: features, fixes
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20210505161135-mutt-send-email-mst@kernel.org>
-References: <20210505161135-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <kvm.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20210505161135-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: d7bce85aa7b92b5de8f69b3bcedfe51d7b1aabe1
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 16bb86b5569cb7489367101f6ed69b25682b47db
-Message-Id: <162024775557.12235.13272630963086835800.pr-tracker-bot@kernel.org>
-Date: Wed, 05 May 2021 20:49:15 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: mgurtovoy@nvidia.com, lkp@intel.com, kvm@vger.kernel.org, mst@redhat.com,
- netdev@vger.kernel.org, xieyongji@bytedance.com, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
- liu.xiang@zlingsmart.com, elic@nvidia.com,
- Linus Torvalds <torvalds@linux-foundation.org>, lingshan.zhu@intel.com
+ Thu,  6 May 2021 01:03:19 +0000 (UTC)
+Received: from oasis.local.home (cpe-66-24-58-225.stny.res.rr.com
+ [66.24.58.225])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mail.kernel.org (Postfix) with ESMTPSA id 7911A610EA;
+ Thu,  6 May 2021 01:03:18 +0000 (UTC)
+Date: Wed, 5 May 2021 21:03:16 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] vhost/vsock: Add vsock_list file to map cid with
+ vhost tasks
+Message-ID: <20210505210316.11e1bbcd@oasis.local.home>
+In-Reply-To: <20210505163855.32dad8e7@gandalf.local.home>
+References: <20210505163855.32dad8e7@gandalf.local.home>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="MP_/7JbDmOvvGcBoZTDb=tjglhB"
+Cc: Joel Fernandes <joelaf@google.com>, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Linux Trace Devel <linux-trace-devel@vger.kernel.org>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -92,25 +82,325 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The pull request you sent on Wed, 5 May 2021 16:11:35 -0400:
+--MP_/7JbDmOvvGcBoZTDb=tjglhB
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+For kicks, I wrote this program that uses libtracefs to search all CIDS
+(1-255), and find the kvm guests that are attached to them.
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/16bb86b5569cb7489367101f6ed69b25682b47db
+It traces the sched_wakeup and kvm_exit, looking for:
 
-Thank you!
+ this_task -> wakeup -> wakeup -> kvm_exit
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+when doing a connect to a cid.
+
+When it finds the pid that did a kvm_exit, it knows that's the PID that
+is woken by the vhost worker task. It's a little slow, and I would
+really like a better way to do this, but it's at least an option that
+is available now.
+
+-- Steve
+
+--MP_/7JbDmOvvGcBoZTDb=tjglhB
+Content-Type: text/x-c++src
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename=vsock-list.c
+
+#define _GNU_SOURCE
+#include <asm/types.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdarg.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <linux/vm_sockets.h>
+
+#include <tracefs.h>
+
+#define MAX_CID		256
+
+static int this_pid;
+
+static int open_vsock(unsigned int cid, unsigned int port)
+{
+	struct sockaddr_vm addr = {
+		.svm_family = AF_VSOCK,
+		.svm_cid = cid,
+		.svm_port = port,
+	};
+	int sd;
+
+	sd = socket(AF_VSOCK, SOCK_STREAM, 0);
+	if (sd < 0)
+		return -1;
+
+	if (connect(sd, (struct sockaddr *)&addr, sizeof(addr)))
+		return -1;
+
+	return sd;
+}
+
+struct pids {
+	struct pids		*next;
+	int			pid;
+};
+
+struct trace_info {
+	struct tracefs_instance		*instance;
+	struct tep_handle		*tep;
+	struct tep_event		*wake_up;
+	struct tep_event		*kvm_exit;
+	struct tep_format_field		*common_pid;
+	struct tep_format_field		*wake_pid;
+	struct pids			*pids;
+	int				cid;
+	int				pid;
+};
+
+static void tear_down_trace(struct trace_info *info)
+{
+	tracefs_instance_file_write(info->instance, "events/enable", "0");
+	tracefs_instance_destroy(info->instance);
+	tracefs_instance_free(info->instance);
+	tep_free(info->tep);
+}
+
+static int setup_trace(struct trace_info *info)
+{
+	const char *systems[] = { "sched", "kvm", NULL};
+	char *name;
+	int ret;
+
+	info->pids = NULL;
+
+	ret = asprintf(&name, "vsock_find-%d\n", getpid());
+	if (ret < 0)
+		return ret;
+
+	info->instance = tracefs_instance_create(name);
+	free(name);
+	if (!info->instance)
+		return -1;
+
+	tracefs_trace_off(info->instance);
+	info->tep = tracefs_local_events_system(NULL, systems);
+	if (!info->tep)
+		goto fail;
+
+	info->wake_up = tep_find_event_by_name(info->tep, "sched", "sched_waking");
+	if (!info->wake_up) {
+		fprintf(stderr, "Failed to find sched_waking\n");
+		goto fail;
+	}
+
+	info->kvm_exit = tep_find_event_by_name(info->tep, "kvm", "kvm_exit");
+	if (!info->kvm_exit) {
+		fprintf(stderr, "Failed to find kvm_exit\n");
+		goto fail;
+	}
+
+	info->wake_pid = tep_find_any_field(info->wake_up, "pid");
+	if (!info->wake_pid) {
+		fprintf(stderr, "Failed to find wake up pid\n");
+		goto fail;
+	}
+
+	info->common_pid = tep_find_common_field(info->wake_up,
+						 "common_pid");
+	if (!info->common_pid) {
+		fprintf(stderr, "Failed to find common pid\n");
+		goto fail;
+	}
+
+	ret = tracefs_instance_file_write(info->instance, "events/sched/sched_waking/enable", "1");
+	if (ret < 0) {
+		fprintf(stderr, "Failed to enable sched_waking\n");
+		goto fail;
+	}
+
+	ret = tracefs_instance_file_write(info->instance, "events/kvm/kvm_exit/enable", "1");
+	if (ret < 0) {
+		fprintf(stderr, "Failed to enable kvm_exit\n");
+		goto fail;
+	}
+
+	return 0;
+fail:
+	tear_down_trace(info);
+	return -1;
+}
+
+
+static void free_pids(struct pids *pids)
+{
+	struct pids *next;
+
+	while (pids) {
+		next = pids;
+		pids = pids->next;
+		free(next);
+	}
+}
+
+static void add_pid(struct pids **pids, int pid)
+{
+	struct pids *new_pid;
+
+	new_pid = malloc(sizeof(*new_pid));
+	if (!new_pid)
+		return;
+
+	new_pid->pid = pid;
+	new_pid->next = *pids;
+	*pids = new_pid;
+}
+
+static bool match_pid(struct pids *pids, int pid)
+{
+	while (pids) {
+		if (pids->pid == pid)
+			return true;
+		pids = pids->next;
+	}
+	return false;
+}
+
+static int callback(struct tep_event *event, struct tep_record *record,
+		    int cpu, void *data)
+{
+	struct trace_info *info = data;
+	struct tep_handle *tep = info->tep;
+	unsigned long long val;
+	int type;
+	int pid;
+	int ret;
+
+	ret = tep_read_number_field(info->common_pid, record->data, &val);
+	if (ret < 0)
+		return 0;
+
+	pid = val;
+
+	if (!match_pid(info->pids, pid))
+		return 0;
+
+	type = tep_data_type(tep, record);
+	if (type == info->kvm_exit->id) {
+		info->pid = pid;
+		return -1;
+	}
+
+	if (type != info->wake_up->id)
+		return 0;
+
+	ret = tep_read_number_field(info->wake_pid, record->data, &val);
+	if (ret < 0)
+		return 0;
+
+	add_pid(&info->pids, (int)val);
+	return 0;
+}
+
+static void print_cid_pid(int cid, int pid)
+{
+	FILE *fp;
+	char *path;
+	char *buf = NULL;
+	char *save;
+	size_t l = 0;
+	int tgid = -1;
+
+	if (asprintf(&path, "/proc/%d/status", pid) < 0)
+		return;
+
+	fp = fopen(path, "r");
+	free(path);
+	if (!fp)
+		return;
+
+	while (getline(&buf, &l, fp) > 0) {
+		char *tok;
+
+		if (strncmp(buf, "Tgid:", 5) != 0)
+			continue;
+		tok = strtok_r(buf, ":", &save);
+		if (!tok)
+			continue;
+		tok = strtok_r(NULL, ":", &save);
+		if (!tok)
+			continue;
+		while (isspace(*tok))
+			tok++;
+		tgid = strtol(tok, NULL, 0);
+		break;
+	}
+	free(buf);
+
+	if (tgid >= 0)
+		printf("%d\t%d\n", cid, tgid);
+}
+
+static void find_cid(struct trace_info *info, int cid)
+{
+	int fd;
+
+	add_pid(&info->pids, this_pid);
+
+	tracefs_instance_file_clear(info->instance, "trace");
+	tracefs_trace_on(info->instance);
+	fd = open_vsock(cid, -1);
+	tracefs_trace_off(info->instance);
+	if (fd >= 0)
+		close(fd);
+	info->cid = cid;
+	info->pid = -1;
+	tracefs_iterate_raw_events(info->tep, info->instance,
+				   NULL, 0, callback, info);
+	if (info->pid >= 0)
+		print_cid_pid(cid, info->pid);
+	tracefs_trace_off(info->instance);
+	free_pids(info->pids);
+	info->pids = NULL;
+}
+
+static int find_cids(void)
+{
+	struct trace_info info ;
+	int cid;
+
+	if (setup_trace(&info) < 0)
+		return -1;
+
+	for (cid = 0; cid < MAX_CID; cid++)
+		find_cid(&info, cid);
+
+	tear_down_trace(&info);
+	return 0;
+}
+
+int main(int argc, char *argv[])
+{
+	this_pid = getpid();
+	find_cids();
+	exit(0);
+}
+
+--MP_/7JbDmOvvGcBoZTDb=tjglhB
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--MP_/7JbDmOvvGcBoZTDb=tjglhB--
