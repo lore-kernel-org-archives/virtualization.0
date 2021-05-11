@@ -2,118 +2,113 @@ Return-Path: <SRS0=GMN+=KG=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B95A6C433B4
-	for <virtualization@archiver.kernel.org>; Tue, 11 May 2021 14:42:09 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B76CC433B4
+	for <virtualization@archiver.kernel.org>; Tue, 11 May 2021 17:48:11 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 32E18613AE
-	for <virtualization@archiver.kernel.org>; Tue, 11 May 2021 14:42:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 32E18613AE
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id D06E7617C9
+	for <virtualization@archiver.kernel.org>; Tue, 11 May 2021 17:48:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D06E7617C9
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C38C64052B;
-	Tue, 11 May 2021 14:42:08 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 634F883C32;
+	Tue, 11 May 2021 17:48:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qqcB3RnRBTIK; Tue, 11 May 2021 14:42:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7611E40565;
-	Tue, 11 May 2021 14:42:07 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 560A7C000E;
-	Tue, 11 May 2021 14:42:07 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 23A8FC0001
- for <virtualization@lists.linux-foundation.org>;
- Tue, 11 May 2021 14:42:05 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 063E5843A5
- for <virtualization@lists.linux-foundation.org>;
- Tue, 11 May 2021 14:42:05 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KWjdWUSUBDw4
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id KCUGvTnMKP2x; Tue, 11 May 2021 17:48:09 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 12BCF83A81;
+	Tue, 11 May 2021 17:48:09 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D0012C000D;
+	Tue, 11 May 2021 17:48:08 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BE7DAC0001
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 May 2021 14:42:04 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 57F3C84395
+ Tue, 11 May 2021 17:48:07 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id A240260674
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 May 2021 14:42:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1620744123;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=k/z7NrUJTKIBdoAINSyBpZ9NunsNsM6n4BDyTwrTstY=;
- b=CEU9bA4oAX1zOyq2nwJM3WWSt4ghcxxhh3LYBcPRXEERkcvnaAoblJQu2dkfPWaHk3Ob/n
- G3P2+txI/yackUUV5tyrQX0Aw72RfoM13RGsKqcitOck+S9zKDEIajAwjoRxYn8HdyKfh9
- jHmXR0BUwLOVIP14lMyAYej3oV9JxXg=
-Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com
- [209.85.161.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-322-WMo0QjrOPouX2zh5_1DUKQ-1; Tue, 11 May 2021 10:42:01 -0400
-X-MC-Unique: WMo0QjrOPouX2zh5_1DUKQ-1
-Received: by mail-oo1-f69.google.com with SMTP id
- i11-20020a4a6f4b0000b02901ef8b6e92a6so9307935oof.7
+ Tue, 11 May 2021 17:48:07 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=gmail.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id mkzO5wQTTsiu
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 May 2021 07:42:01 -0700 (PDT)
+ Tue, 11 May 2021 17:48:06 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com
+ [IPv6:2a00:1450:4864:20::62a])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5C6E96064C
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 11 May 2021 17:48:06 +0000 (UTC)
+Received: by mail-ej1-x62a.google.com with SMTP id b25so30977544eju.5
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 11 May 2021 10:48:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=tXU/u/oI0c/X+zEdSbjxSjUwDdEq6XptIKJISi7rLG4=;
+ b=MW+jnvnJIKnOGEtUwz3fsZFljt3ifuyz+WcJOv9QbqR3U2V0/NEvqymsIPF5umUnPa
+ n33vPvd5/pV04hDrPogIfeHSHw3/5t/Tw18SowZjV5KRFhEqo53ycPeWzNXZJK0vrygI
+ 2vdof3xPopC/8A3cK/cyPI92FtKVLjcJgCgI92yRKI3fSL1MbWf7DXTC5nmlSh7k7bKT
+ xKx/RDXI2UpE63LVp7qr+/fbudVqiymDhuwPb2LQOgahSE9OAOqxqh/qSlAecMo9Niyv
+ flgWhOIljYicY1kR15yAy7mDnLQkVAaueQyvWsVLdf5nBNIQKWydzX3qygCukvXMZKnR
+ i3sA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:subject:to:cc:references:from:message-id:date
- :user-agent:mime-version:in-reply-to:content-language
- :content-transfer-encoding;
- bh=k/z7NrUJTKIBdoAINSyBpZ9NunsNsM6n4BDyTwrTstY=;
- b=mB09eiEPha2TxHdQGRd6vMzLQbR1/il6pMY41zk2jC+mpLSeouMq/LYBs1iYSWLoEv
- oPx6VOCiX6eU8ohuhemonO5J8TVl+HRL13/nWOi9SFNFvAagxHxTb3dXauhdc3ggIjhk
- R8exjB6F0pT+NySZVPMqARCEDf8IAxr/sa4MMnZvDp70cxG5NfdS0NCg20BJ5rzQRfBR
- nomkIZ2Ys8vLs5AT25ZF8+FajQPpVJgePSJty3IZV1jIQmI+PcAIfG2itFkmSyn0WXzC
- rtnKGLFov2UOHQZWQ1cxqZL2aV6gesVymmwR9jCv2g6FjlzXqgTAOxV/dxr2wJoXnfhE
- OZpA==
-X-Gm-Message-State: AOAM530iHqYvMhnXKmtVYwkIlarAocU0X+385I9hYrf9CpKCT70nJtl7
- AaGcR+1+w65bEdQ3VEtXwwPYnTdOdNCWd7qJIHZN7x+Tegla7wjc5uusUG/dj9s217NkczFyFD4
- UseGvy2gBH/txp3ewEuHC1haiqLFGzPoxjMGreL2sww==
-X-Received: by 2002:a4a:ab83:: with SMTP id m3mr10122765oon.2.1620744120815;
- Tue, 11 May 2021 07:42:00 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyiqcX0afnpWZRWy60CV/jDkD2+4bdEWed+5anrz6ezPzlAoWGMEGtTJiX4q+FFlUrQrMxegg==
-X-Received: by 2002:a4a:ab83:: with SMTP id m3mr10122743oon.2.1620744120577;
- Tue, 11 May 2021 07:42:00 -0700 (PDT)
-Received: from [192.168.0.173] (ip68-103-222-6.ks.ok.cox.net. [68.103.222.6])
- by smtp.gmail.com with ESMTPSA id
- o6sm3917266ote.14.2021.05.11.07.41.59
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=tXU/u/oI0c/X+zEdSbjxSjUwDdEq6XptIKJISi7rLG4=;
+ b=j2kpmhoB1gJrqoG2R6ylw0sX+33R7nMzfziNWPzuRBdB+BZLhLtp8L/c7bV5DG7jEp
+ j34ne2oOD4rWvGxZ1t2XUupwUQF/62/PNmTnWUdbUO0TnTbd4OMOjkbV8dtEL8mG2RR+
+ GCihCoDhZ8aEfPF85ukPXMfXJIGSbEKP3O4KLD5ehyGRkVn7wIpYsO8nf+TA7Tr8rXaK
+ 78P2ZLVSXCyF4brzPRt+fl4VJOxpFS6g47swHpyidUeyRVAExg/uDvtKkoayyGyKNlYk
+ rDpghGP+4kh4dm1sWUy1u8E/9qjtIJTrmB7M4hYmI5Q7CtRZ64qg1JEsUcHFTc25fE0M
+ DS5w==
+X-Gm-Message-State: AOAM532izB1/BoidtqAO1Pv+m1fcNxIQf1PVaja7/v4m5pVhm/OyzShs
+ VlOj7yGaAkNuwFC1wt96K8/1r1jtDWI=
+X-Google-Smtp-Source: ABdhPJyM1s8XQ9N0atdYr9rep96El+/l6nDWVKGdCXtK/iGP0r/0gs+2i3+VLKt+W5qRYA++fuz3Gw==
+X-Received: by 2002:a17:907:2662:: with SMTP id
+ ci2mr33286546ejc.459.1620755284327; 
+ Tue, 11 May 2021 10:48:04 -0700 (PDT)
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com.
+ [209.85.221.49])
+ by smtp.gmail.com with ESMTPSA id ch30sm15154064edb.92.2021.05.11.10.48.03
+ for <virtualization@lists.linux-foundation.org>
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Tue, 11 May 2021 07:42:00 -0700 (PDT)
-Subject: Re: [PATCH] virtiofs: Enable multiple request queues
-To: Stefan Hajnoczi <stefanha@redhat.com>
-References: <20210507221527.699516-1-ckuehl@redhat.com>
- <YJpbEMePhQ88EWWR@stefanha-x1.localdomain>
-From: Connor Kuehl <ckuehl@redhat.com>
-Message-ID: <290eaac8-45d9-0bfb-94f5-9fb41e5a3e42@redhat.com>
-Date: Tue, 11 May 2021 09:41:59 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+ Tue, 11 May 2021 10:48:03 -0700 (PDT)
+Received: by mail-wr1-f49.google.com with SMTP id z17so1921995wrq.7
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 11 May 2021 10:48:03 -0700 (PDT)
+X-Received: by 2002:a5d:6285:: with SMTP id k5mr4589508wru.50.1620755283209;
+ Tue, 11 May 2021 10:48:03 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <YJpbEMePhQ88EWWR@stefanha-x1.localdomain>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=ckuehl@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, virtio-fs@redhat.com,
- linux-fsdevel@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>
+References: <20210511044253.469034-1-yuri.benditovich@daynix.com>
+ <20210511044253.469034-3-yuri.benditovich@daynix.com>
+In-Reply-To: <20210511044253.469034-3-yuri.benditovich@daynix.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date: Tue, 11 May 2021 13:47:26 -0400
+X-Gmail-Original-Message-ID: <CA+FuTSdfA6sT68AJNpa=VPBdwRFHvEY+=C-B_mS=y=WMpTyc=Q@mail.gmail.com>
+Message-ID: <CA+FuTSdfA6sT68AJNpa=VPBdwRFHvEY+=C-B_mS=y=WMpTyc=Q@mail.gmail.com>
+Subject: Re: [PATCH 2/4] virtio-net: add support of UDP segmentation (USO) on
+ the host
+To: Yuri Benditovich <yuri.benditovich@daynix.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ Network Development <netdev@vger.kernel.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org, Yan Vugenfirer <yan@daynix.com>,
+ Jakub Kicinski <kuba@kernel.org>, David Miller <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -130,25 +125,36 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 5/11/21 5:23 AM, Stefan Hajnoczi wrote:
-> On Fri, May 07, 2021 at 05:15:27PM -0500, Connor Kuehl wrote:
->> @@ -1245,7 +1262,8 @@ __releases(fiq->lock)
->>  		 req->in.h.nodeid, req->in.h.len,
->>  		 fuse_len_args(req->args->out_numargs, req->args->out_args));
->>  
->> -	fsvq = &fs->vqs[queue_id];
->> +	fsvq = this_cpu_read(this_cpu_fsvq);
-> 
-> Please check how CPU hotplug affects this patch. If the current CPU
-> doesn't have a vq because it was hotplugged, then it may be necessary to
-> pick another vq.
+On Tue, May 11, 2021 at 12:43 AM Yuri Benditovich
+<yuri.benditovich@daynix.com> wrote:
+>
+> Large UDP packet provided by the guest with GSO type set to
+> VIRTIO_NET_HDR_GSO_UDP_L4 will be divided to several UDP
+> packets according to the gso_size field.
+>
+> Signed-off-by: Yuri Benditovich <yuri.benditovich@daynix.com>
+> ---
+>  include/linux/virtio_net.h | 5 +++++
+>  1 file changed, 5 insertions(+)
+>
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index b465f8f3e554..4ecf9a1ca912 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -51,6 +51,11 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+>                         ip_proto = IPPROTO_UDP;
+>                         thlen = sizeof(struct udphdr);
+>                         break;
+> +               case VIRTIO_NET_HDR_GSO_UDP_L4:
+> +                       gso_type = SKB_GSO_UDP_L4;
+> +                       ip_proto = IPPROTO_UDP;
+> +                       thlen = sizeof(struct udphdr);
+> +                       break;
 
-I'll fix this in the next revision.
-
-Thanks,
-
-Connor
-
+If adding a new VIRTIO_NET_HDR type I suggest adding separate IPv4 and
+IPv6 variants, analogous to VIRTIO_NET_HDR_GSO_TCPV[46]. To avoid
+having to infer protocol again, as for UDP fragmentation offload (the
+retry case below this code).
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
