@@ -7,93 +7,92 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82832C43470
-	for <virtualization@archiver.kernel.org>; Tue, 11 May 2021 04:43:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 852CCC43603
+	for <virtualization@archiver.kernel.org>; Tue, 11 May 2021 04:43:41 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 221FD61935
-	for <virtualization@archiver.kernel.org>; Tue, 11 May 2021 04:43:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 221FD61935
+	by mail.kernel.org (Postfix) with ESMTPS id 3110C6191D
+	for <virtualization@archiver.kernel.org>; Tue, 11 May 2021 04:43:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3110C6191D
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6C06D60D53;
+	by smtp3.osuosl.org (Postfix) with ESMTP id 996F060D58;
 	Tue, 11 May 2021 04:43:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rnh-oe5e3_oC; Tue, 11 May 2021 04:43:34 +0000 (UTC)
+	with ESMTP id hVVKqteR7udg; Tue, 11 May 2021 04:43:34 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4287860D55;
-	Tue, 11 May 2021 04:43:31 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7D2E460B96;
+	Tue, 11 May 2021 04:43:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1D29BC000D;
-	Tue, 11 May 2021 04:43:31 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D5306C0024
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5702EC000D;
+	Tue, 11 May 2021 04:43:32 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AC6CEC000D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 May 2021 04:43:28 +0000 (UTC)
+ Tue, 11 May 2021 04:43:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id D0B5640E4B
+ by smtp1.osuosl.org (Postfix) with ESMTP id 9BC6D844DB
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 May 2021 04:43:28 +0000 (UTC)
+ Tue, 11 May 2021 04:43:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=daynix-com.20150623.gappssmtp.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CCSZaW2xFk6e
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id vZyGjinZ1Fj3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 May 2021 04:43:24 +0000 (UTC)
+ Tue, 11 May 2021 04:43:26 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com
- [IPv6:2a00:1450:4864:20::32a])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 90FF340508
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com
+ [IPv6:2a00:1450:4864:20::32c])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id E5A7B84472
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 May 2021 04:43:24 +0000 (UTC)
-Received: by mail-wm1-x32a.google.com with SMTP id o127so10309863wmo.4
+ Tue, 11 May 2021 04:43:25 +0000 (UTC)
+Received: by mail-wm1-x32c.google.com with SMTP id n84so10351216wma.0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 May 2021 21:43:24 -0700 (PDT)
+ Mon, 10 May 2021 21:43:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=daynix-com.20150623.gappssmtp.com; s=20150623;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=C9XpXxYtaOMpWOUjJ4wuUSOsoeZftgUi9oWw6L6+6PY=;
- b=i8N263f+uXxe91WLuxJx5RvGTcU+LOlIZILGfgaQzBDs6R/OaZ26o9Jduve+32BvM0
- SBW5jvdKVYeAZmZN2gJYZTbusqcxDTTC15Lpii1SMDeN7urjfzM0n4B6AIEXRELudkAm
- ONRljjTtiItJ/VZma2gKCNrnXZ4b4XK0kHPXfxOYFa5/HwbafB07Xt0fVqX7vfPtpn9d
- fMPog8BUQcwL0WZCqE/LfaVSMRv8ythODRvoqifUAjufxR7YfIiFvybGHoR/pVpoGsAj
- zjKpR1k5AeoLdOJ3xV/+lVo6WQMDN+ca4vpe7dLYnfXjH5BFwWj+7ZyGtcbGLngURzZD
- Vi9A==
+ bh=5pOfhSU30/+74TWykEgYzzcECzknBZN+gG9Fp9jV4LM=;
+ b=nh8fG27gkiOXB9Nd6Ql5AKT5b4yZ4SDOzi0e2MCZrznnSTBwvbi3UvjCMFYtvSaa5e
+ T5aL7BE9xtRQRhLITeB3qJFmGhMcI2W79nl6PLA8YvU4Mhhm1zyShXvMLKwy62DHATZL
+ deNH+G75y8mvkk3t3ZPupo6Mop+VgxQ1XhVfVkLLJ6lonX3bRpoevXYxsuFmxrfwQWNC
+ 9V/KziU2Eu967HWhLsQJq/0+fpFxuiw3xvw7fZo5uiMybxBVxXT2SxRxDVKSGKstA2jh
+ OhohXmo5shuPLwlqD7ikkEvUQiQjGWXdUEAqvLWNSoHSAYPK/hzkqwIiwmg4gmZFxMaq
+ pF8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=C9XpXxYtaOMpWOUjJ4wuUSOsoeZftgUi9oWw6L6+6PY=;
- b=VuBAIANwk3uRvW3mRDf8s0YvWYXP19jA8DtEWrD8QptSAddj7KwPSYZRI6FbxJ5j3O
- K5aXJVOo7ARiG9VmD1P5cVSH3AZqsu683rBGTb3Ja+zrXDCPnh8DFkLnifDBUUwb0lMV
- l+fU3j41usR9Fan4psowLPbmacTM87BLl71lvGlgSh2RemzhcsOWKcB5BmdgGCOn1SaA
- cnhjLlZIcFnPJ3RRxiW+KiVhJ4wBXnuWd440UQdHE3K+lTMhMtXDq7qS3FfiIwXWXgff
- nDxZZm28jvrGOQfRNhedC200KZLaxaPcPDRi9tHEzhzQePvE7t425VTPm5YFT7rZKXIi
- G+6w==
-X-Gm-Message-State: AOAM531WdL2IrB6LTKpacu/HObnQVymqMiVhcL+MB1yR9dBq71TFRNHC
- UpgkclzOQtkozBuyUhtw2h3rMQ==
-X-Google-Smtp-Source: ABdhPJyQk9PXGY/kEfZFu3FcsyaZ0+l7hvZVvgX/jf5mBiF4QiF5aERcUZgxITkN4JxfM3z5J6nLRg==
-X-Received: by 2002:a1c:4d17:: with SMTP id o23mr3023530wmh.102.1620708202793; 
- Mon, 10 May 2021 21:43:22 -0700 (PDT)
+ bh=5pOfhSU30/+74TWykEgYzzcECzknBZN+gG9Fp9jV4LM=;
+ b=DXQNGffcHdXiWAJCwts0idqp6dIvUcf4GdmShiSBqhX46knRQJisS490h5VJgyGUf3
+ 5zISs26IXSg+OPKZRfcwBwlwlyhiCBZNJLPRF31sRZvjxo+jWqxRB3EdiUANzCBFge9K
+ RBnLwP5QUZClKDPF45GyU1FicCwQF6CpP0cXKjAaKdnqCohx/tLn7+T1ZW3c1d8qTsot
+ 7C1DrHgsuSbebazcP3tnLAH7S1Z9nSDKjVvdXhhEx68P6QWOkdAETUUBuFFzzO8c+OZe
+ 9RYfWQm0759nIKUNNJrqb9vYnKalWYw9rqxMl9kJxA3AfMr6NyVnAxc6ElImS4K3ru/n
+ X5+Q==
+X-Gm-Message-State: AOAM53315/CF+YL7JYl9Q16Nsq5n1wxfGq1m20lSJ6+03cVWf27nFxg7
+ jRQ/Iak6p/5Lyxbmihy9MqABIysCpgWW2Q==
+X-Google-Smtp-Source: ABdhPJxz2fUN2Ek72KoGClY3cxAT8P1LdAZMCqfO5EoKr2QEdfTvTaJ0vok4Mb2bs3QB8c0H7KV+3A==
+X-Received: by 2002:a1c:7dd1:: with SMTP id y200mr2960343wmc.81.1620708204150; 
+ Mon, 10 May 2021 21:43:24 -0700 (PDT)
 Received: from f1.Home (bzq-79-180-42-161.red.bezeqint.net. [79.180.42.161])
- by smtp.gmail.com with ESMTPSA id a9sm22360520wmj.1.2021.05.10.21.43.21
+ by smtp.gmail.com with ESMTPSA id a9sm22360520wmj.1.2021.05.10.21.43.22
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 10 May 2021 21:43:22 -0700 (PDT)
+ Mon, 10 May 2021 21:43:23 -0700 (PDT)
 From: Yuri Benditovich <yuri.benditovich@daynix.com>
 To: davem@davemloft.net, kuba@kernel.org, mst@redhat.com, jasowang@redhat.com,
  netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
  virtualization@lists.linux-foundation.org
-Subject: [PATCH 2/4] virtio-net: add support of UDP segmentation (USO) on the
- host
-Date: Tue, 11 May 2021 07:42:51 +0300
-Message-Id: <20210511044253.469034-3-yuri.benditovich@daynix.com>
+Subject: [PATCH 3/4] tun: define feature bit for USO support
+Date: Tue, 11 May 2021 07:42:52 +0300
+Message-Id: <20210511044253.469034-4-yuri.benditovich@daynix.com>
 X-Mailer: git-send-email 2.26.3
 In-Reply-To: <20210511044253.469034-1-yuri.benditovich@daynix.com>
 References: <20210511044253.469034-1-yuri.benditovich@daynix.com>
@@ -115,31 +114,26 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Large UDP packet provided by the guest with GSO type set to
-VIRTIO_NET_HDR_GSO_UDP_L4 will be divided to several UDP
-packets according to the gso_size field.
+User mode software can probe this bit to check whether the
+USO feature is supported by TUN/TAP device.
 
 Signed-off-by: Yuri Benditovich <yuri.benditovich@daynix.com>
 ---
- include/linux/virtio_net.h | 5 +++++
- 1 file changed, 5 insertions(+)
+ include/uapi/linux/if_tun.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index b465f8f3e554..4ecf9a1ca912 100644
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -51,6 +51,11 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 			ip_proto = IPPROTO_UDP;
- 			thlen = sizeof(struct udphdr);
- 			break;
-+		case VIRTIO_NET_HDR_GSO_UDP_L4:
-+			gso_type = SKB_GSO_UDP_L4;
-+			ip_proto = IPPROTO_UDP;
-+			thlen = sizeof(struct udphdr);
-+			break;
- 		default:
- 			return -EINVAL;
- 		}
+diff --git a/include/uapi/linux/if_tun.h b/include/uapi/linux/if_tun.h
+index 454ae31b93c7..24f246920dd5 100644
+--- a/include/uapi/linux/if_tun.h
++++ b/include/uapi/linux/if_tun.h
+@@ -88,6 +88,7 @@
+ #define TUN_F_TSO6	0x04	/* I can handle TSO for IPv6 packets */
+ #define TUN_F_TSO_ECN	0x08	/* I can handle TSO with ECN bits. */
+ #define TUN_F_UFO	0x10	/* I can handle UFO packets */
++#define TUN_F_USO	0x20	/* I can handle USO packets */
+ 
+ /* Protocol info prepended to the packets (when IFF_NO_PI is not set) */
+ #define TUN_PKT_STRIP	0x0001
 -- 
 2.26.3
 
