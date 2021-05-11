@@ -2,96 +2,118 @@ Return-Path: <SRS0=GMN+=KG=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CCA3C433B4
-	for <virtualization@archiver.kernel.org>; Tue, 11 May 2021 10:45:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B95A6C433B4
+	for <virtualization@archiver.kernel.org>; Tue, 11 May 2021 14:42:09 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A37F76192C
-	for <virtualization@archiver.kernel.org>; Tue, 11 May 2021 10:45:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A37F76192C
+	by mail.kernel.org (Postfix) with ESMTPS id 32E18613AE
+	for <virtualization@archiver.kernel.org>; Tue, 11 May 2021 14:42:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 32E18613AE
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 28176405AA;
-	Tue, 11 May 2021 10:45:41 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id C38C64052B;
+	Tue, 11 May 2021 14:42:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id PVJtIaJ9DoX0; Tue, 11 May 2021 10:45:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B1C0140148;
-	Tue, 11 May 2021 10:45:39 +0000 (UTC)
+	with ESMTP id qqcB3RnRBTIK; Tue, 11 May 2021 14:42:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7611E40565;
+	Tue, 11 May 2021 14:42:07 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8F11BC000E;
-	Tue, 11 May 2021 10:45:39 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id ACE1BC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 560A7C000E;
+	Tue, 11 May 2021 14:42:07 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 23A8FC0001
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 May 2021 10:45:38 +0000 (UTC)
+ Tue, 11 May 2021 14:42:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A8B5784553
+ by smtp1.osuosl.org (Postfix) with ESMTP id 063E5843A5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 May 2021 10:45:38 +0000 (UTC)
+ Tue, 11 May 2021 14:42:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xiSoAzT2Gnbv
+ with ESMTP id KWjdWUSUBDw4
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 May 2021 10:45:38 +0000 (UTC)
+ Tue, 11 May 2021 14:42:04 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 10C2E83EAE
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 57F3C84395
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 May 2021 10:45:37 +0000 (UTC)
+ Tue, 11 May 2021 14:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1620729936;
+ s=mimecast20190719; t=1620744123;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=fz6APZgVVSzyZ2NvuvgdrfUOBc1EEiPUznfJ8AorQ6Y=;
- b=P+vsRsm0IwbWGjjcIP/87pCb3UPU4ZEYpqQvCkhfKNOD8J0eENmfG2xTJT6JMGXiuA+RGq
- K9lppFJeleAPa3zo6xsOh3AI3gF28ecu58geENek4LVHtEKmzqYxDqsHerXW0V0PKsw5+h
- pxnzkeimlosDuaUIiJ9G/dQLEDPin54=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-46-_56KFLUAMf2Yly7CyqlIag-1; Tue, 11 May 2021 06:45:33 -0400
-X-MC-Unique: _56KFLUAMf2Yly7CyqlIag-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9C0F5100670E;
- Tue, 11 May 2021 10:45:31 +0000 (UTC)
-Received: from sirius.home.kraxel.org (ovpn-112-11.ams2.redhat.com
- [10.36.112.11])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 0BA3462499;
- Tue, 11 May 2021 10:45:29 +0000 (UTC)
-Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
- id 577201800904; Tue, 11 May 2021 12:45:22 +0200 (CEST)
-From: Gerd Hoffmann <kraxel@redhat.com>
-To: dri-devel@lists.freedesktop.org
-Subject: [PATCH 2/2] drm/qxl: balance dumb_shadow_bo pin
-Date: Tue, 11 May 2021 12:45:22 +0200
-Message-Id: <20210511104522.2694803-3-kraxel@redhat.com>
-In-Reply-To: <20210511104522.2694803-1-kraxel@redhat.com>
-References: <20210511104522.2694803-1-kraxel@redhat.com>
+ bh=k/z7NrUJTKIBdoAINSyBpZ9NunsNsM6n4BDyTwrTstY=;
+ b=CEU9bA4oAX1zOyq2nwJM3WWSt4ghcxxhh3LYBcPRXEERkcvnaAoblJQu2dkfPWaHk3Ob/n
+ G3P2+txI/yackUUV5tyrQX0Aw72RfoM13RGsKqcitOck+S9zKDEIajAwjoRxYn8HdyKfh9
+ jHmXR0BUwLOVIP14lMyAYej3oV9JxXg=
+Received: from mail-oo1-f69.google.com (mail-oo1-f69.google.com
+ [209.85.161.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-322-WMo0QjrOPouX2zh5_1DUKQ-1; Tue, 11 May 2021 10:42:01 -0400
+X-MC-Unique: WMo0QjrOPouX2zh5_1DUKQ-1
+Received: by mail-oo1-f69.google.com with SMTP id
+ i11-20020a4a6f4b0000b02901ef8b6e92a6so9307935oof.7
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 11 May 2021 07:42:01 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+ :user-agent:mime-version:in-reply-to:content-language
+ :content-transfer-encoding;
+ bh=k/z7NrUJTKIBdoAINSyBpZ9NunsNsM6n4BDyTwrTstY=;
+ b=mB09eiEPha2TxHdQGRd6vMzLQbR1/il6pMY41zk2jC+mpLSeouMq/LYBs1iYSWLoEv
+ oPx6VOCiX6eU8ohuhemonO5J8TVl+HRL13/nWOi9SFNFvAagxHxTb3dXauhdc3ggIjhk
+ R8exjB6F0pT+NySZVPMqARCEDf8IAxr/sa4MMnZvDp70cxG5NfdS0NCg20BJ5rzQRfBR
+ nomkIZ2Ys8vLs5AT25ZF8+FajQPpVJgePSJty3IZV1jIQmI+PcAIfG2itFkmSyn0WXzC
+ rtnKGLFov2UOHQZWQ1cxqZL2aV6gesVymmwR9jCv2g6FjlzXqgTAOxV/dxr2wJoXnfhE
+ OZpA==
+X-Gm-Message-State: AOAM530iHqYvMhnXKmtVYwkIlarAocU0X+385I9hYrf9CpKCT70nJtl7
+ AaGcR+1+w65bEdQ3VEtXwwPYnTdOdNCWd7qJIHZN7x+Tegla7wjc5uusUG/dj9s217NkczFyFD4
+ UseGvy2gBH/txp3ewEuHC1haiqLFGzPoxjMGreL2sww==
+X-Received: by 2002:a4a:ab83:: with SMTP id m3mr10122765oon.2.1620744120815;
+ Tue, 11 May 2021 07:42:00 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyiqcX0afnpWZRWy60CV/jDkD2+4bdEWed+5anrz6ezPzlAoWGMEGtTJiX4q+FFlUrQrMxegg==
+X-Received: by 2002:a4a:ab83:: with SMTP id m3mr10122743oon.2.1620744120577;
+ Tue, 11 May 2021 07:42:00 -0700 (PDT)
+Received: from [192.168.0.173] (ip68-103-222-6.ks.ok.cox.net. [68.103.222.6])
+ by smtp.gmail.com with ESMTPSA id
+ o6sm3917266ote.14.2021.05.11.07.41.59
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Tue, 11 May 2021 07:42:00 -0700 (PDT)
+Subject: Re: [PATCH] virtiofs: Enable multiple request queues
+To: Stefan Hajnoczi <stefanha@redhat.com>
+References: <20210507221527.699516-1-ckuehl@redhat.com>
+ <YJpbEMePhQ88EWWR@stefanha-x1.localdomain>
+From: Connor Kuehl <ckuehl@redhat.com>
+Message-ID: <290eaac8-45d9-0bfb-94f5-9fb41e5a3e42@redhat.com>
+Date: Tue, 11 May 2021 09:41:59 -0500
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>,
- "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
- <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>,
- "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>,
- Dave Airlie <airlied@redhat.com>
+In-Reply-To: <YJpbEMePhQ88EWWR@stefanha-x1.localdomain>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=ckuehl@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: Miklos Szeredi <miklos@szeredi.hu>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, virtio-fs@redhat.com,
+ linux-fsdevel@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -108,29 +130,24 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The shadow bo is created in pinned state, so we have to unpin it when
-dropping the reference.  Otherwise ttm is unhappy and throws a WARN()
-on release.
+On 5/11/21 5:23 AM, Stefan Hajnoczi wrote:
+> On Fri, May 07, 2021 at 05:15:27PM -0500, Connor Kuehl wrote:
+>> @@ -1245,7 +1262,8 @@ __releases(fiq->lock)
+>>  		 req->in.h.nodeid, req->in.h.len,
+>>  		 fuse_len_args(req->args->out_numargs, req->args->out_args));
+>>  
+>> -	fsvq = &fs->vqs[queue_id];
+>> +	fsvq = this_cpu_read(this_cpu_fsvq);
+> 
+> Please check how CPU hotplug affects this patch. If the current CPU
+> doesn't have a vq because it was hotplugged, then it may be necessary to
+> pick another vq.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/qxl/qxl_display.c | 1 +
- 1 file changed, 1 insertion(+)
+I'll fix this in the next revision.
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index be5183733c1b..9e0a1e836011 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -801,6 +801,7 @@ static void qxl_prepare_shadow(struct qxl_device *qdev, struct qxl_bo *user_bo,
- 	    qdev->dumb_shadow_bo->surf.width  != surf.width ||
- 	    qdev->dumb_shadow_bo->surf.height != surf.height) {
- 		if (qdev->dumb_shadow_bo) {
-+			qxl_bo_unpin(qdev->dumb_shadow_bo);
- 			drm_gem_object_put
- 				(&qdev->dumb_shadow_bo->tbo.base);
- 			qdev->dumb_shadow_bo = NULL;
--- 
-2.31.1
+Thanks,
+
+Connor
 
 _______________________________________________
 Virtualization mailing list
