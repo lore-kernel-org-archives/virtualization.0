@@ -2,117 +2,101 @@ Return-Path: <SRS0=tDXz=KH=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
-	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41606C433B4
-	for <virtualization@archiver.kernel.org>; Wed, 12 May 2021 14:33:26 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82437C43460
+	for <virtualization@archiver.kernel.org>; Wed, 12 May 2021 15:31:12 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9D9366142E
-	for <virtualization@archiver.kernel.org>; Wed, 12 May 2021 14:33:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9D9366142E
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id EBD2D61CB3
+	for <virtualization@archiver.kernel.org>; Wed, 12 May 2021 15:31:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EBD2D61CB3
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 25074842CB;
-	Wed, 12 May 2021 14:33:25 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7198C404A3;
+	Wed, 12 May 2021 15:31:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dK_ctpFH9UXJ; Wed, 12 May 2021 14:33:24 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 9E11C83ED2;
-	Wed, 12 May 2021 14:33:23 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zVeKIS4GP_kB; Wed, 12 May 2021 15:31:10 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTP id D551F404A8;
+	Wed, 12 May 2021 15:31:09 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 72A64C000D;
-	Wed, 12 May 2021 14:33:23 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2033EC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BEF44C000E;
+	Wed, 12 May 2021 15:31:09 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BE1E3C0024
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 May 2021 14:33:22 +0000 (UTC)
+ Wed, 12 May 2021 15:31:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id EB9EF4037B
+ by smtp3.osuosl.org (Postfix) with ESMTP id A5BA56071D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 May 2021 14:33:21 +0000 (UTC)
+ Wed, 12 May 2021 15:31:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=gmail.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id csE3lBOMIRS1
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linaro.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id kYCE5JaPQu8P
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 May 2021 14:33:21 +0000 (UTC)
+ Wed, 12 May 2021 15:31:05 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com
- [IPv6:2a00:1450:4864:20::534])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D7F1740002
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com
+ [IPv6:2a00:1450:4864:20::529])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 995F7608E4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 May 2021 14:33:20 +0000 (UTC)
-Received: by mail-ed1-x534.google.com with SMTP id r11so3306196edt.13
+ Wed, 12 May 2021 15:31:01 +0000 (UTC)
+Received: by mail-ed1-x529.google.com with SMTP id f1so5349674edt.4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 May 2021 07:33:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=v8nnd2ujlB60GPiA1lPsUn5BttskeOt6aee1p1TS5NI=;
- b=Wpp5b+dJz7p84pYFu61NJPWS4c2Iy94l38MMIIrcvuSyboDZb8mrAauO3NExSxNvxO
- gxIiCahmDKdGGZLEachs9sYewc/p5Ffh5QD8PfCExLjZ9o4ms/CuLM7muZKbmq6kgAmz
- DoReFAC9jIdpFjCoLD9tthT3L7CPfVDbJoDVUq2838G0Gl0SWXxLGu/Q7nMpaNyPR1dX
- 1WWj5jqBeK0ZE76jprusRBgJ7gBIiGpZR8ajL4z4CQwT65uNBW2DDzDoEBCWOkLiTKpl
- uGDnqh2B7/aQwFYH5XPtPD83rkFQSovCQU+TH3bz/2A1RT2m5FZvOUqeeKwShBXTC5kg
- wGgg==
+ Wed, 12 May 2021 08:31:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=foMbcJ9t/jw1PCF1w8ZLUJQPw4LhtMPOdZ9n9vc+2JY=;
+ b=OSx+Ho0M1jKEBkXetkktVDTXudOBNAtPrBVu1YzuVKuTEL1/sS15FPlFFafNV89tco
+ NJmlEchhll3j8ZSNq0vnDjLSrR6IeXopJ2aWzzibU3P5McgiEBSg5oZxObnFBtfCd5Q5
+ MUSFdOM78SjxcxNUdfhiDx2preN2CamXZg+uo8TvF38qyhemUE1xaDY9JJhz31VE0hBq
+ K1KZmg8t3QdmgxzE860qpEhIS/YHtJ8T9mMzATy5C+kQxhq8AwfncXGJMrwPI8/zAtdk
+ vL28ba67Her9n6wZeYU5P+AljnG59cHjN91Wp36UCB8Yy//g85zmJIMFF4CgTUdtadqX
+ dP0A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=v8nnd2ujlB60GPiA1lPsUn5BttskeOt6aee1p1TS5NI=;
- b=AoI1JZfC0NvPnJQjcXuU1r85qxZLQihfLkMU6r8qFqEsj3UmHeNdIrhiFd4wB0Pz2U
- SQ6uhN5jxu0UYQ5OVQkINjVgunmCCzq/dF3z1XSx75H0K4Yl3uzm7Fj9YiGR2T2s3f6O
- +bhCarxhxvIBBJKqwvOrp1kHk7aEqM2NqZ2anPQfK3WPb0m4JGH4CCps61B3KnnmK3dQ
- yNY0soTpnZ4xZCbGzEFnB3M4kkCNBlfb1/02rnEZC+GgqWe35FIumzK4uxU7/1LIVkg3
- 17g6GB9rDoFn5zeLXY4Da0wO+w746l9nZdbND6ear9hahTKBPZZtRSpUb4RC3osSfv3E
- 3JuA==
-X-Gm-Message-State: AOAM533AeJEeg/1t2zyzxobrVCs0S6ZqmB0mWQ3kvRcUrVhMu+af3whm
- fHzI1PHJNMmTVav/IBBOAG+IAhc1t0Kv4g==
-X-Google-Smtp-Source: ABdhPJxswVJBRNjaoVYoDVoYZwIys2i+IPtrwI4e/nNLoC2/cJ8nmlzFe69p1gCgHmRu4RfxDY3nrA==
-X-Received: by 2002:a05:6402:4251:: with SMTP id
- g17mr42905882edb.205.1620829998511; 
- Wed, 12 May 2021 07:33:18 -0700 (PDT)
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com.
- [209.85.221.54])
- by smtp.gmail.com with ESMTPSA id n11sm15208061ejg.43.2021.05.12.07.33.17
- for <virtualization@lists.linux-foundation.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 12 May 2021 07:33:17 -0700 (PDT)
-Received: by mail-wr1-f54.google.com with SMTP id t18so23873175wry.1
- for <virtualization@lists.linux-foundation.org>;
- Wed, 12 May 2021 07:33:17 -0700 (PDT)
-X-Received: by 2002:a05:6000:1787:: with SMTP id
- e7mr45453515wrg.12.1620829996861; 
- Wed, 12 May 2021 07:33:16 -0700 (PDT)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=foMbcJ9t/jw1PCF1w8ZLUJQPw4LhtMPOdZ9n9vc+2JY=;
+ b=i/YHNGdjsa/RNpKoQqX130BF7hCooMwW6BpQ4bWgv1B0vbH4EI/hoGijb0jlcvuTss
+ OYQ6lxn09sc7uMwfPDPwWmOTyPiK0rit9rz3Z8yf9aPJsL7pIvnQi0YNy1xqd3JUQuAR
+ s7wJLh88bRzTTMTb1zFSnhQx3kApM72FTZw5KM6lG0kiU9FYVLh7jxS0wMU8+D/IGjyS
+ pBLSgXMF6BgsioNP7++/XnY7pIkYwvoiWj1aHBg6BNCKXBe9ajiYxodpJLHTQ5887vXI
+ 2Iqnl/c/QDW+ZCObVTIPfJA9A/b6/rdIyTSpEa7ZaMWc7K1CRBfHyXMpd+bPYOpWj7kU
+ wHFg==
+X-Gm-Message-State: AOAM533hU0i4PaORigHuraXVhbxe5+WwnC3pYtdW//8YHvV4nn4Bmi9e
+ qBRBRwZoDXPbK/pkarqDvlbRZA==
+X-Google-Smtp-Source: ABdhPJz7r5xZBOfByReNbNmN+wJFbb276iWLe5bA39oV+ikWetjEf06uCnPbDSA7ak1z9EzB+Nvgyw==
+X-Received: by 2002:aa7:d3c2:: with SMTP id o2mr44159494edr.111.1620833460097; 
+ Wed, 12 May 2021 08:31:00 -0700 (PDT)
+Received: from myrica ([2001:1715:4e26:a7e0:116c:c27a:3e7f:5eaf])
+ by smtp.gmail.com with ESMTPSA id di7sm68216edb.34.2021.05.12.08.30.58
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 12 May 2021 08:30:59 -0700 (PDT)
+Date: Wed, 12 May 2021 17:30:42 +0200
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Bixuan Cui <cuibixuan@huawei.com>
+Subject: Re: [PATCH -next] iommu/virtio: Add missing MODULE_DEVICE_TABLE
+Message-ID: <YJv0osddxKqlFUyT@myrica>
+References: <20210508031451.53493-1-cuibixuan@huawei.com>
 MIME-Version: 1.0
-References: <20210511044253.469034-1-yuri.benditovich@daynix.com>
- <20210511044253.469034-3-yuri.benditovich@daynix.com>
- <CA+FuTSdfA6sT68AJNpa=VPBdwRFHvEY+=C-B_mS=y=WMpTyc=Q@mail.gmail.com>
- <CAOEp5OcV-YmPFoewuCHg=ADFQ4BmVL5ioMgh3qVjUGk9mauejg@mail.gmail.com>
-In-Reply-To: <CAOEp5OcV-YmPFoewuCHg=ADFQ4BmVL5ioMgh3qVjUGk9mauejg@mail.gmail.com>
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Wed, 12 May 2021 10:32:39 -0400
-X-Gmail-Original-Message-ID: <CA+FuTSes20+KKhnNFHyOa_E0dp-RgUNFRj-YLHvjpqqL75zDXQ@mail.gmail.com>
-Message-ID: <CA+FuTSes20+KKhnNFHyOa_E0dp-RgUNFRj-YLHvjpqqL75zDXQ@mail.gmail.com>
-Subject: Re: [PATCH 2/4] virtio-net: add support of UDP segmentation (USO) on
- the host
-To: Yuri Benditovich <yuri.benditovich@daynix.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Network Development <netdev@vger.kernel.org>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Yan Vugenfirer <yan@daynix.com>, Jakub Kicinski <kuba@kernel.org>,
- David Miller <davem@davemloft.net>
+Content-Disposition: inline
+In-Reply-To: <20210508031451.53493-1-cuibixuan@huawei.com>
+Cc: Joerg Roedel <joro@8bytes.org>, kernel-janitors@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ iommu@lists.linux-foundation.org, Will Deacon <will@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -129,89 +113,34 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, May 12, 2021 at 2:10 AM Yuri Benditovich
-<yuri.benditovich@daynix.com> wrote:
->
-> On Tue, May 11, 2021 at 8:48 PM Willem de Bruijn
-> <willemdebruijn.kernel@gmail.com> wrote:
-> >
-> > On Tue, May 11, 2021 at 12:43 AM Yuri Benditovich
-> > <yuri.benditovich@daynix.com> wrote:
-> > >
-> > > Large UDP packet provided by the guest with GSO type set to
-> > > VIRTIO_NET_HDR_GSO_UDP_L4 will be divided to several UDP
-> > > packets according to the gso_size field.
-> > >
-> > > Signed-off-by: Yuri Benditovich <yuri.benditovich@daynix.com>
-> > > ---
-> > >  include/linux/virtio_net.h | 5 +++++
-> > >  1 file changed, 5 insertions(+)
-> > >
-> > > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> > > index b465f8f3e554..4ecf9a1ca912 100644
-> > > --- a/include/linux/virtio_net.h
-> > > +++ b/include/linux/virtio_net.h
-> > > @@ -51,6 +51,11 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
-> > >                         ip_proto = IPPROTO_UDP;
-> > >                         thlen = sizeof(struct udphdr);
-> > >                         break;
-> > > +               case VIRTIO_NET_HDR_GSO_UDP_L4:
-> > > +                       gso_type = SKB_GSO_UDP_L4;
-> > > +                       ip_proto = IPPROTO_UDP;
-> > > +                       thlen = sizeof(struct udphdr);
-> > > +                       break;
-> >
-> > If adding a new VIRTIO_NET_HDR type I suggest adding separate IPv4 and
-> > IPv6 variants, analogous to VIRTIO_NET_HDR_GSO_TCPV[46]. To avoid
-> > having to infer protocol again, as for UDP fragmentation offload (the
-> > retry case below this code).
->
-> Thank you for denoting this important point of distinguishing between v4 and v6.
-> Let's try to take a deeper look to see what is the correct thing to do
-> and please correct me if I'm wrong:
-> 1. For USO we do not need to guess the protocol as it is used with
-> VIRTIO_NET_HDR_F_NEEDS_CSUM (unlike UFO)
+On Sat, May 08, 2021 at 11:14:51AM +0800, Bixuan Cui wrote:
+> This patch adds missing MODULE_DEVICE_TABLE definition which generates
+> correct modalias for automatic loading of this driver when it is built
+> as an external module.
+> 
+> Reported-by: Hulk Robot <hulkci@huawei.com>
+> Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
 
-Enforcing that is a good start. We should also enforce that
-skb->protocol is initialized to one of htons(ETH_P_IP) or
-htons(ETH_P_IPV6), so that it does not have to be inferred by parsing.
+Fixes: fa4afd78ea12 ("iommu/virtio: Build virtio-iommu as module")
+Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
 
-These requirements were not enforced for previous values, and cannot
-be introduced afterwards, which has led to have to add that extra code
-to handle these obscure edge cases.
-
-I agree that with well behaved configurations, the need for separate
-_V4 and _V6 variants is not needed.
-
-> and the USO packets
-> transmitted by the guest are under the same clause as both
-> VIRTIO_NET_HDR_GSO_TCP, i.e. under if (hdr->flags &
-> VIRTIO_NET_HDR_F_NEEDS_CSUM) {
-> 2. If we even define VIRTIO_NET_HDR_GSO_UDPv4_L4 and
-> VIRTIO_NET_HDR_GSO_UDPv6_L4 - both will be translated to
-> SKB_GSO_UDP_L4, so this information is immediately lost (the code will
-> look like:
-> case VIRTIO_NET_HDR_GSO_UDP4_L4: case VIRTIO_NET_HDR_GSO_UDP6_L4
->     gso_type = SKB_GSO_UDP;
->
-> 3. When we will define the respective guest features (like
-> VIRTIO_NET_F_HOST_USO4 VIRTIO_NET_F_HOST_USO6) we will need to
-> recreate the virtio_net header from the skb when both v4 and v6 have
-> the same SKB_GSO_UDP_L4, (see virtio_net_hdr_from_skb) and I'm not
-> sure whether somebody needs the exact v4 or v6 information on guest RX
-> path.
-
-FWIW, it is good to keep in mind that virtio_net_hdr is also used
-outside virtio, in both ingress and egress paths.
-
-> 4. What is completely correct is that when we will start working with
-> the guest RX path we will need to define something like NETIF_F_USO4
-> and NETIF_F_USO6 and configure them according to exact guest offload
-> capabilities.
-> Do you agree?
-
-I don't immediately see the need for advertising this device feature
-on a per-protocol basis. Can you elaborate?
+> ---
+>  drivers/iommu/virtio-iommu.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> index 7c02481a81b4..c6e5ee4d9cef 100644
+> --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -1136,6 +1136,7 @@ static struct virtio_device_id id_table[] = {
+>  	{ VIRTIO_ID_IOMMU, VIRTIO_DEV_ANY_ID },
+>  	{ 0 },
+>  };
+> +MODULE_DEVICE_TABLE(virtio, id_table);
+>  
+>  static struct virtio_driver virtio_iommu_drv = {
+>  	.driver.name		= KBUILD_MODNAME,
+> 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
