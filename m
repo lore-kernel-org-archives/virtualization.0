@@ -7,62 +7,61 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12318C433B4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB451C43461
 	for <virtualization@archiver.kernel.org>; Wed, 12 May 2021 07:55:18 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A86BB613BA
-	for <virtualization@archiver.kernel.org>; Wed, 12 May 2021 07:55:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A86BB613BA
+	by mail.kernel.org (Postfix) with ESMTPS id 49321613BE
+	for <virtualization@archiver.kernel.org>; Wed, 12 May 2021 07:55:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 49321613BE
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 3B27D83D30;
+	by smtp1.osuosl.org (Postfix) with ESMTP id BB6CE83D42;
 	Wed, 12 May 2021 07:55:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id y6bZk06-HawR; Wed, 12 May 2021 07:55:16 +0000 (UTC)
+	with ESMTP id XgnwRWtfedqY; Wed, 12 May 2021 07:55:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E30C78343B;
-	Wed, 12 May 2021 07:55:15 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 667E48355F;
+	Wed, 12 May 2021 07:55:16 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B6735C000D;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EB399C0025;
 	Wed, 12 May 2021 07:55:15 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7BA94C0001
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 82508C000D
  for <virtualization@lists.linux-foundation.org>;
  Wed, 12 May 2021 07:55:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 6A3F0831F1
+ by smtp3.osuosl.org (Postfix) with ESMTP id 648BF60784
  for <virtualization@lists.linux-foundation.org>;
  Wed, 12 May 2021 07:55:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id V7Huy2ZptBX6
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id WeWujp2HEM01
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 May 2021 07:55:12 +0000 (UTC)
+ Wed, 12 May 2021 07:55:11 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from theia.8bytes.org (8bytes.org
- [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
- by smtp1.osuosl.org (Postfix) with ESMTPS id A1C1C83096
+Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 9A5A860753
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 May 2021 07:55:12 +0000 (UTC)
+ Wed, 12 May 2021 07:55:11 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549ad305.dip0.t-ipconnect.de
  [84.154.211.5])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id A32B141D;
- Wed, 12 May 2021 09:55:09 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 7C80E2DA;
+ Wed, 12 May 2021 09:55:08 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org,
 	Hyunwook Baek <baekhw@google.com>
-Subject: [PATCH 4/6] Revert "x86/sev-es: Handle string port IO to kernel
- memory properly"
-Date: Wed, 12 May 2021 09:54:43 +0200
-Message-Id: <20210512075445.18935-5-joro@8bytes.org>
+Subject: [PATCH 2/6] x86/sev-es: Forward page-faults which happen during
+ emulation
+Date: Wed, 12 May 2021 09:54:41 +0200
+Message-Id: <20210512075445.18935-3-joro@8bytes.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512075445.18935-1-joro@8bytes.org>
 References: <20210512075445.18935-1-joro@8bytes.org>
@@ -98,57 +97,33 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-This reverts commit 7024f60d655272bd2ca1d3a4c9e0a63319b1eea1.
+When emulating guest instructions for MMIO or IOIO accesses the #VC
+handler might get a page-fault and will not be able to complete. Forward
+the page-fault in this case to the correct handler instead of killing
+the machine.
 
-The commit reverted here introduces a short-cut into the #VC handlers
-memory access code which only works reliably in task context. But the
-kernels #VC handler can be invoked from any context, making the
-access_ok() call trigger a warning with CONFIG_DEBUG_ATOMIC_SLEEP
-enabled.
-
-Also the memcpy() used in the reverted patch is wrong, as it has no
-page-fault handling. Access to kernel memory can also fault due to
-kernel bugs, and those should not be reported as faults from the #VC
-handler but as bugs of their real call-site, which is correctly later
-done from vc_forward_exception().
-
-Fixes: 7024f60d6552 ("x86/sev-es: Handle string port IO to kernel memory properly")
-Cc: stable@vger.kernel.org # v5.11
+Fixes: 0786138c78e7 ("x86/sev-es: Add a Runtime #VC Exception Handler")
+Cc: stable@vger.kernel.org # v5.10+
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev.c | 12 ------------
- 1 file changed, 12 deletions(-)
+ arch/x86/kernel/sev.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index 110b39345b40..f4f319004713 100644
+index c49270c7669e..6530a844eb61 100644
 --- a/arch/x86/kernel/sev.c
 +++ b/arch/x86/kernel/sev.c
-@@ -333,12 +333,6 @@ static enum es_result vc_write_mem(struct es_em_ctxt *ctxt,
- 	u16 d2;
- 	u8  d1;
- 
--	/* If instruction ran in kernel mode and the I/O buffer is in kernel space */
--	if (!user_mode(ctxt->regs) && !access_ok(target, size)) {
--		memcpy(dst, buf, size);
--		return ES_OK;
--	}
--
- 	switch (size) {
- 	case 1:
- 		memcpy(&d1, buf, 1);
-@@ -388,12 +382,6 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
- 	u16 d2;
- 	u8  d1;
- 
--	/* If instruction ran in kernel mode and the I/O buffer is in kernel space */
--	if (!user_mode(ctxt->regs) && !access_ok(s, size)) {
--		memcpy(buf, src, size);
--		return ES_OK;
--	}
--
- 	switch (size) {
- 	case 1:
- 		if (__get_user(d1, s))
+@@ -1265,6 +1265,10 @@ static __always_inline void vc_forward_exception(struct es_em_ctxt *ctxt)
+ 	case X86_TRAP_UD:
+ 		exc_invalid_op(ctxt->regs);
+ 		break;
++	case X86_TRAP_PF:
++		write_cr2(ctxt->fi.cr2);
++		exc_page_fault(ctxt->regs, error_code);
++		break;
+ 	case X86_TRAP_AC:
+ 		exc_alignment_check(ctxt->regs, error_code);
+ 		break;
 -- 
 2.31.1
 
