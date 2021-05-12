@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 778FAC433B4
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10F4FC43600
 	for <virtualization@archiver.kernel.org>; Wed, 12 May 2021 07:55:21 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 04C58613BE
+	by mail.kernel.org (Postfix) with ESMTPS id 8B988613BF
 	for <virtualization@archiver.kernel.org>; Wed, 12 May 2021 07:55:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 04C58613BE
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8B988613BF
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 93544402F3;
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2141C83D23;
 	Wed, 12 May 2021 07:55:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fhYkG7uWayJS; Wed, 12 May 2021 07:55:18 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id MaiI5kLer7IU; Wed, 12 May 2021 07:55:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 6F60F40400;
+	by smtp1.osuosl.org (Postfix) with ESMTP id A76E38350A;
 	Wed, 12 May 2021 07:55:17 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 572B3C002D;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8EE48C0030;
 	Wed, 12 May 2021 07:55:16 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9BF6BC0001
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 04D05C0001
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 May 2021 07:55:13 +0000 (UTC)
+ Wed, 12 May 2021 07:55:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 7681C4027E
+ by smtp2.osuosl.org (Postfix) with ESMTP id E81CB4019A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 May 2021 07:55:13 +0000 (UTC)
+ Wed, 12 May 2021 07:55:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uu8F6H6GhKnq
+ with ESMTP id yGN1Fa_fgO4j
  for <virtualization@lists.linux-foundation.org>;
- Wed, 12 May 2021 07:55:12 +0000 (UTC)
+ Wed, 12 May 2021 07:55:11 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 15F014019A
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 9968F40015
  for <virtualization@lists.linux-foundation.org>;
  Wed, 12 May 2021 07:55:11 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549ad305.dip0.t-ipconnect.de
  [84.154.211.5])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 14ABF3E6;
- Wed, 12 May 2021 09:55:09 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id E9F862A5;
+ Wed, 12 May 2021 09:55:07 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org,
 	Hyunwook Baek <baekhw@google.com>
-Subject: [PATCH 3/6] x86/sev-es: Use __put_user()/__get_user
-Date: Wed, 12 May 2021 09:54:42 +0200
-Message-Id: <20210512075445.18935-4-joro@8bytes.org>
+Subject: [PATCH 1/6] x86/sev-es: Don't return NULL from sev_es_get_ghcb()
+Date: Wed, 12 May 2021 09:54:40 +0200
+Message-Id: <20210512075445.18935-2-joro@8bytes.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210512075445.18935-1-joro@8bytes.org>
 References: <20210512075445.18935-1-joro@8bytes.org>
@@ -96,84 +96,70 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The put_user() and get_user() functions do checks on the address which is
-passed to them. They check whether the address is actually a user-space
-address and whether its fine to access it. They also call might_fault()
-to indicate that they could fault and possibly sleep.
+The sev_es_get_ghcb() is called from several places, but only one of
+them checks the return value. The reaction to returning NULL is always
+the same: Calling panic() and kill the machine.
 
-All of these checks are neither wanted nor required in the #VC exception
-handler, which can be invoked from almost any context and also for MMIO
-instructions from kernel space on kernel memory. All the #VC handler
-wants to know is whether a fault happened when the access was tried.
+Instead of adding checks to all call-places, move the panic() into the
+function itself so that it will no longer return NULL.
 
-This is provided by __put_user()/__get_user(), which just do the access
-no matter what.
-
-Fixes: f980f9c31a92 ("x86/sev-es: Compile early handler code into kernel image")
+Fixes: 0786138c78e7 ("x86/sev-es: Add a Runtime #VC Exception Handler")
 Cc: stable@vger.kernel.org # v5.10+
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/x86/kernel/sev.c | 25 ++++++++++++-------------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
 
 diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index 6530a844eb61..110b39345b40 100644
+index 9578c82832aa..c49270c7669e 100644
 --- a/arch/x86/kernel/sev.c
 +++ b/arch/x86/kernel/sev.c
-@@ -342,22 +342,22 @@ static enum es_result vc_write_mem(struct es_em_ctxt *ctxt,
- 	switch (size) {
- 	case 1:
- 		memcpy(&d1, buf, 1);
--		if (put_user(d1, target))
-+		if (__put_user(d1, target))
- 			goto fault;
- 		break;
- 	case 2:
- 		memcpy(&d2, buf, 2);
--		if (put_user(d2, target))
-+		if (__put_user(d2, target))
- 			goto fault;
- 		break;
- 	case 4:
- 		memcpy(&d4, buf, 4);
--		if (put_user(d4, target))
-+		if (__put_user(d4, target))
- 			goto fault;
- 		break;
- 	case 8:
- 		memcpy(&d8, buf, 8);
--		if (put_user(d8, target))
-+		if (__put_user(d8, target))
- 			goto fault;
- 		break;
- 	default:
-@@ -396,22 +396,22 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
+@@ -203,8 +203,18 @@ static __always_inline struct ghcb *sev_es_get_ghcb(struct ghcb_state *state)
+ 	if (unlikely(data->ghcb_active)) {
+ 		/* GHCB is already in use - save its contents */
  
- 	switch (size) {
- 	case 1:
--		if (get_user(d1, s))
-+		if (__get_user(d1, s))
- 			goto fault;
- 		memcpy(buf, &d1, 1);
- 		break;
- 	case 2:
--		if (get_user(d2, s))
-+		if (__get_user(d2, s))
- 			goto fault;
- 		memcpy(buf, &d2, 2);
- 		break;
- 	case 4:
--		if (get_user(d4, s))
-+		if (__get_user(d4, s))
- 			goto fault;
- 		memcpy(buf, &d4, 4);
- 		break;
- 	case 8:
--		if (get_user(d8, s))
-+		if (__get_user(d8, s))
- 			goto fault;
- 		memcpy(buf, &d8, 8);
- 		break;
+-		if (unlikely(data->backup_ghcb_active))
+-			return NULL;
++		if (unlikely(data->backup_ghcb_active)) {
++			/*
++			 * Backup-GHCB is also already in use. There is no way
++			 * to continue here so just kill the machine. To make
++			 * panic() work, mark GHCBs inactive so that messages
++			 * can be printed out.
++			 */
++			data->ghcb_active        = false;
++			data->backup_ghcb_active = false;
++
++			panic("Unable to handle #VC exception! GHCB and Backup GHCB are already in use");
++		}
+ 
+ 		/* Mark backup_ghcb active before writing to it */
+ 		data->backup_ghcb_active = true;
+@@ -1284,7 +1294,6 @@ static __always_inline bool on_vc_fallback_stack(struct pt_regs *regs)
+  */
+ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ {
+-	struct sev_es_runtime_data *data = this_cpu_read(runtime_data);
+ 	irqentry_state_t irq_state;
+ 	struct ghcb_state state;
+ 	struct es_em_ctxt ctxt;
+@@ -1310,16 +1319,6 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 	 */
+ 
+ 	ghcb = sev_es_get_ghcb(&state);
+-	if (!ghcb) {
+-		/*
+-		 * Mark GHCBs inactive so that panic() is able to print the
+-		 * message.
+-		 */
+-		data->ghcb_active        = false;
+-		data->backup_ghcb_active = false;
+-
+-		panic("Unable to handle #VC exception! GHCB and Backup GHCB are already in use");
+-	}
+ 
+ 	vc_ghcb_invalidate(ghcb);
+ 	result = vc_init_em_ctxt(&ctxt, regs, error_code);
 -- 
 2.31.1
 
