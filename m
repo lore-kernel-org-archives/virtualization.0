@@ -7,90 +7,91 @@ X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
 	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD018C433B4
-	for <virtualization@archiver.kernel.org>; Thu, 13 May 2021 20:35:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 191E7C433B4
+	for <virtualization@archiver.kernel.org>; Thu, 13 May 2021 20:44:05 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2FC726121E
-	for <virtualization@archiver.kernel.org>; Thu, 13 May 2021 20:35:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2FC726121E
+	by mail.kernel.org (Postfix) with ESMTPS id 59CFD6143D
+	for <virtualization@archiver.kernel.org>; Thu, 13 May 2021 20:44:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 59CFD6143D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CAFEA4033A;
-	Thu, 13 May 2021 20:35:46 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id DF2104031B;
+	Thu, 13 May 2021 20:44:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JwICOoqaDCTT; Thu, 13 May 2021 20:35:45 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2FA3D402EF;
-	Thu, 13 May 2021 20:35:45 +0000 (UTC)
+	with ESMTP id 6G7enNCU_L55; Thu, 13 May 2021 20:44:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 514F4402EE;
+	Thu, 13 May 2021 20:44:02 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 00BCEC000D;
-	Thu, 13 May 2021 20:35:45 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 62381C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 178A0C000D;
+	Thu, 13 May 2021 20:44:02 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BD62DC0001
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 May 2021 20:35:43 +0000 (UTC)
+ Thu, 13 May 2021 20:44:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 3BCD04033A
+ by smtp3.osuosl.org (Postfix) with ESMTP id 968DD6060C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 May 2021 20:35:43 +0000 (UTC)
+ Thu, 13 May 2021 20:44:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id G688UdLvVnnS
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=gmail.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id jpht5VffQkuu
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 May 2021 20:35:41 +0000 (UTC)
+ Thu, 13 May 2021 20:43:58 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
 Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com
  [IPv6:2a00:1450:4864:20::62b])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E53964038A
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 6531D605DD
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 May 2021 20:35:40 +0000 (UTC)
-Received: by mail-ej1-x62b.google.com with SMTP id k10so10433916ejj.8
+ Thu, 13 May 2021 20:43:58 +0000 (UTC)
+Received: by mail-ej1-x62b.google.com with SMTP id c20so6284308ejm.3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 May 2021 13:35:40 -0700 (PDT)
+ Thu, 13 May 2021 13:43:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=4OSP4b7wpVi2J0VIXLzXQpYaouwViNp+zix3X51TtRM=;
- b=jULfFAQdup+JfQHyGNJe5gViVXOpfKZCPJbE4aABtwAQlIyYMLruaAymHorBENW7LV
- 6pvAO2R4lC6uUDYEOkb2xu40DTKaKml5fQajfG2EmM0hS3O2NAa5kfec62L5iXXKfqk8
- mqweY9rc4duXqwNVSuQ00GtNYGEYr+fgr50a0i+d39Y7eXE6EO6UN/Kj22auNPrFs0wM
- srFbcdTcD2IwBZ/hLxi0+ZbitC9kx2/VlUk8HznczXbBSgHNbdP+GYBk/XrDDqgDpbS6
- F8hKcswHBIqwzalmTMSBhA24UZj/r8952Si6xy8qs1KARhQWn9VNADNoH33CF1+R40hc
- eWSw==
+ :cc; bh=Zsi1VS1/M5Q4gHLg9ba2wD4/Zt4MEUxOebW8zMEgFb8=;
+ b=o6CmiB2EKAmYIWJvXeSOnrp0mEYkKXWDYisDmuTXFnFKVW4P7SmWp98YmjZZQ8s5vf
+ B86DUjzYxVkGaiR4+5WEwdC1xamBzEEpPQA19HHsPVWzZ5G7eX43w4tMyiPfn+sKc07h
+ ejU1ZP37ip8XzGNSzrBYoFqhP+ScCX3Ca+zu/Inz0toFv1zTGktFcaH3TJd9g43pipOn
+ grx6nIPteA+3NqiMB7uksSQuq7AKrfCEbBEZQ7035/3XDguTAJZlyqcmc7S9dXrUy+jn
+ eDI98aGEqHNHj0UD77DQeNg65Wz5/Vs+SpuxBd6HnqoEJnXoyUqeAuaYIoB+Y/uu8krz
+ v4Aw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=4OSP4b7wpVi2J0VIXLzXQpYaouwViNp+zix3X51TtRM=;
- b=IVEE6qKGGn8tCcIXll6KYUTSrXibBEIR5GPPQ19IVMx9U8CW4u/udMbWcF8X1x6ehs
- sBZckiYZ8JOGydut1kPeE+RLz2ApOnYAJkwfSvL6mlFfyuqjPv92x/trpz3e0A7OyFFp
- /3Qoi2X3C56HV0AHbRFMPE0NyAjC3eqnmz50eFTpFVEhKQQlY+SRDwe+T5jIsYY+FRiF
- YgmGmzwaDyPj9GlG9TCgHzfx9Ic+fFfNyp0drTZyBMHIMPbTCo7yVMPjIMBRPSnRBGSP
- 5PXXMi76yLvK59OxfbE34V4R1zMocRoHxj9T7tmfdfELaMcOMC3IECfc45avHgWrgWLU
- 0uLg==
-X-Gm-Message-State: AOAM532AcSROmeSxFyK6PaaSqhtnoaz5muJqGBnhnKKPW8Z9fcAIHtXN
- n/so3AmGs3t8jRTjLCASG4/QeykiWQ/xlQ==
-X-Google-Smtp-Source: ABdhPJy2F/8pEwXhPCV86pPS+fyOEa3QPGLB+4Nbu1YhuMllSlau+ha9LHN+pEn02TfoSLk76aWYKg==
-X-Received: by 2002:a17:907:3f1c:: with SMTP id
- hq28mr44739880ejc.349.1620938138769; 
- Thu, 13 May 2021 13:35:38 -0700 (PDT)
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com.
- [209.85.128.48])
- by smtp.gmail.com with ESMTPSA id b9sm3169334edt.2.2021.05.13.13.35.35
+ bh=Zsi1VS1/M5Q4gHLg9ba2wD4/Zt4MEUxOebW8zMEgFb8=;
+ b=OQqiXyhNdnUWvGO3T9iNjkuWC5sgyNOSb6Xyobn0zbe9JlfEEi7OdW11XCgRs3F07v
+ Y2KkLmmrBr0K9u8bYsOYHmGwef5Uy3WC7FBh+dRcsq59AjUfYCkCFN2hIqa1eAJuK8vb
+ /53MgU8ITvU0yrDGxFCUG+dxC2fYzgqKAGN7tmebtuWUWjaNZ1+x5q35+7KYEQJY847W
+ JgLajYN6Wrz3MsxxsC7n/ItYGJgD9a9lm8EZEkRxz7UXRgN1YXVXqj6XyJCYEobUIKaU
+ iRUnMdFX5PhkWiofN1kPsjcvLxgz9UKlXY+pmzVHTkjCww3GjjQeA5JTKLzcvpsBsneZ
+ JNgQ==
+X-Gm-Message-State: AOAM532/zsT8dvb0ivk6LtZFioUXanM8L3qAkAkFrkWwmjTkFO2L2l4Y
+ Yl8Y6oLLwaDBbLcIFyMfeQQ/HYhaHiKxfA==
+X-Google-Smtp-Source: ABdhPJz2W0BQJ/4wleWKAI9zbDGGEyA9c40PFYlcRdSa/kFfd+Nq46DkJ+UWnbMUrcxYk7rm49/PBw==
+X-Received: by 2002:a17:906:e2d9:: with SMTP id
+ gr25mr2957262ejb.373.1620938635699; 
+ Thu, 13 May 2021 13:43:55 -0700 (PDT)
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com.
+ [209.85.221.49])
+ by smtp.gmail.com with ESMTPSA id k9sm2543502eje.102.2021.05.13.13.43.54
  for <virtualization@lists.linux-foundation.org>
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 13 May 2021 13:35:36 -0700 (PDT)
-Received: by mail-wm1-f48.google.com with SMTP id
- 82-20020a1c01550000b0290142562ff7c9so447810wmb.3
+ Thu, 13 May 2021 13:43:54 -0700 (PDT)
+Received: by mail-wr1-f49.google.com with SMTP id r12so2480332wrp.1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 May 2021 13:35:35 -0700 (PDT)
-X-Received: by 2002:a7b:c94b:: with SMTP id i11mr34607045wml.120.1620938135207; 
- Thu, 13 May 2021 13:35:35 -0700 (PDT)
+ Thu, 13 May 2021 13:43:54 -0700 (PDT)
+X-Received: by 2002:a5d:64cf:: with SMTP id f15mr52466335wri.327.1620938634068; 
+ Thu, 13 May 2021 13:43:54 -0700 (PDT)
 MIME-Version: 1.0
 References: <20210511044253.469034-1-yuri.benditovich@daynix.com>
  <20210511044253.469034-5-yuri.benditovich@daynix.com>
@@ -105,17 +106,17 @@ References: <20210511044253.469034-1-yuri.benditovich@daynix.com>
  <CACGkMEuqXaJxGqC+CLoq7k4XDu+W3E3Kk3WvG-D6tnn2K4ZPNA@mail.gmail.com>
  <CAOEp5OfB62SQzxMj_GkVD4EM=Z+xf43TPoTZwMbPPa3BsX2ooA@mail.gmail.com>
  <CACGkMEu4NdyMoFKbyUGG1aGX+K=ShMZuVuMKYPauEBYz5pxYzA@mail.gmail.com>
-In-Reply-To: <CACGkMEu4NdyMoFKbyUGG1aGX+K=ShMZuVuMKYPauEBYz5pxYzA@mail.gmail.com>
+ <CAOEp5Oe7FQQFbO7KDiyBPs1=ox+6rOimOwounTHBuVki2Y3DAg@mail.gmail.com>
+In-Reply-To: <CAOEp5Oe7FQQFbO7KDiyBPs1=ox+6rOimOwounTHBuVki2Y3DAg@mail.gmail.com>
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Thu, 13 May 2021 16:34:57 -0400
-X-Gmail-Original-Message-ID: <CA+FuTScV+AJ+O3shOMLjUcy+PjBE8uWqCNt0FXWnq9L3gzrvaw@mail.gmail.com>
-Message-ID: <CA+FuTScV+AJ+O3shOMLjUcy+PjBE8uWqCNt0FXWnq9L3gzrvaw@mail.gmail.com>
+Date: Thu, 13 May 2021 16:43:16 -0400
+X-Gmail-Original-Message-ID: <CA+FuTSfr4gLwx0PaRCB1K=TUE_yawpnWx05U9yO0eQ1B+Pa+bg@mail.gmail.com>
+Message-ID: <CA+FuTSfr4gLwx0PaRCB1K=TUE_yawpnWx05U9yO0eQ1B+Pa+bg@mail.gmail.com>
 Subject: Re: [PATCH 4/4] tun: indicate support for USO feature
-To: Jason Wang <jasowang@redhat.com>
+To: Yuri Benditovich <yuri.benditovich@daynix.com>
 Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, mst <mst@redhat.com>,
  netdev <netdev@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
  virtualization <virtualization@lists.linux-foundation.org>,
- Yuri Benditovich <yuri.benditovich@daynix.com>,
  Yan Vugenfirer <yan@daynix.com>, Jakub Kicinski <kuba@kernel.org>,
  davem <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -134,34 +135,48 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-> > But surprisingly when TUN receives TUN_F_UFO it does not propagate it
-> > anywhere, there is no corresponding NETIF flag.
->
-> (It looks like I drop the community and other ccs accidentally, adding
-> them back and sorry)
->
-> Actually, there is one, NETIF_F_GSO_UDP.
->
-> Kernel used to have NETIF_F_UFO, but it was removed due to bugs and
-> the lack of real hardware support. Then we found it breaks uABI, so
-> Willem tries to make it appear for userspace again, and then it was
-> renamed to NETIF_F_GSO_UDP.
->
-> But I think it's a bug that we don't proporate TUN_F_UFO to NETIF
-> flag, this is a must for the driver that doesn't support
-> VIRTIO_NET_F_GUEST_UFO. I just try to disable all offloads and
-> mrg_rxbuf, then netperf UDP_STREAM from host to guest gives me bad
-> length packet in the guest.
->
-> Willem, I think we probably need to fix this.
+> > > > > So the question is what to do now:
+> > > > > A)
+> > > > > Finalize patches for guest TX and respective QEMU patches
+> > > > > Prepare RFC patches for guest RX, get ack on them
+> > > > > Change the spec
+> > > > > Finalize patches for guest RX according to the spec
+> > > > >
+> > > > > B)
+> > > > > Reject the patches for guest TX
+> > > > > Prepare RFC patches for everything, get ack on them
+> > > > > Change the spec
+> > > > > Finalize patches for everything according to the spec
+> > > > >
+> > > > > I'm for A) of course :)
+> > > >
+> > > > I'm for B :)
+> > > >
+> > > > The reasons are:
+> > > >
+> > > > 1) keep the assumption of tun_set_offload() to simply the logic and
+> > > > compatibility
+> > > > 2) it's hard or tricky to touch guest TX path only (e.g the
+> > > > virtio_net_hdr_from_skb() is called in both RX and TX)
+> > >
+> > > I suspect there is _some_ misunderstanding here.
+> > > I did not touch virtio_net_hdr_from_skb at all.
+> > >
+> >
+> > Typo, actually I meant virtio_net_hdr_to_skb().
+> OK.
+> 2) tun_get_user() which is guest TX - this is covered
+> 3) tap_get_user() which is guest TX - this is covered
+> 4) {t}packet_send() which is userspace TX - this is OK, the userspace
+> does not have this feature, it will never use USO
 
-We had to add back support for the kernel to accept UFO packets from
-userspace over tuntap.
+What do you mean exactly? I can certainly imagine packet socket users
+that could benefit from using udp gso.
 
-The kernel does not generate such packets, so a guest should never be
-concerned of receiving UFO packets.
-
-Perhaps i'm misunderstanding the problem here.
+When adding support for a new GSO type in virtio_net_hdr, it ideally
+is supported by all users of that interface. Alternatively, if some
+users do not support the flag, a call that sets the flag has to
+(continue to) fail hard, so that we can enable it at a later time.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
