@@ -4,106 +4,106 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93151C433B4
-	for <virtualization@archiver.kernel.org>; Thu, 13 May 2021 13:44:52 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D043CC433ED
+	for <virtualization@archiver.kernel.org>; Thu, 13 May 2021 13:47:36 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1D78C613BF
-	for <virtualization@archiver.kernel.org>; Thu, 13 May 2021 13:44:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1D78C613BF
+	by mail.kernel.org (Postfix) with ESMTPS id 6AF76613C8
+	for <virtualization@archiver.kernel.org>; Thu, 13 May 2021 13:47:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6AF76613C8
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A99DA4020F;
-	Thu, 13 May 2021 13:44:51 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 349AA606C1;
+	Thu, 13 May 2021 13:47:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2_aASvGkJ05p; Thu, 13 May 2021 13:44:50 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 541C9400D0;
-	Thu, 13 May 2021 13:44:50 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YKTt0nR6uGTt; Thu, 13 May 2021 13:47:35 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 9F79760694;
+	Thu, 13 May 2021 13:47:34 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2676DC000E;
-	Thu, 13 May 2021 13:44:50 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7115BC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 79593C000E;
+	Thu, 13 May 2021 13:47:34 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9EC48C0001
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 May 2021 13:44:48 +0000 (UTC)
+ Thu, 13 May 2021 13:47:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 5F9A183D56
+ by smtp4.osuosl.org (Postfix) with ESMTP id 8D2C740408
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 May 2021 13:44:48 +0000 (UTC)
+ Thu, 13 May 2021 13:47:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1bIQ0O9S7hLm
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id bMAvlYxWDu0t
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 May 2021 13:44:47 +0000 (UTC)
+ Thu, 13 May 2021 13:47:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 02ACB83B44
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 574D2403EF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 May 2021 13:44:46 +0000 (UTC)
+ Thu, 13 May 2021 13:47:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1620913485;
+ s=mimecast20190719; t=1620913650;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=oWoRXdPQG5Lp8dZ+UX0wcCkUvkRtLC4RqeaSswn2gS0=;
- b=eOtx/F5hOGLP5V9Wb9qcsAXs+5AEB0bpcAojhZkIwP8jeBbk54qsdU74PyGcS40bNt1gKh
- KRfBSodaLlg7j+EUlS1MjsUpdAqDIf+/LIKyFr3PU8kr1iEaHeoIW/p7FTRqEiojjLl6Oz
- n/bsUX2GbhjkB1lPC/5y9koVXPm0vpk=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-157-w2dKvJCcMGy8_Y1svX1IHw-1; Thu, 13 May 2021 09:44:41 -0400
-X-MC-Unique: w2dKvJCcMGy8_Y1svX1IHw-1
-Received: by mail-ed1-f72.google.com with SMTP id
- p8-20020aa7c8880000b029038ce714c8d6so321453eds.10
+ bh=A0dkUXbD61yHxsoYQsJu5ao3/IUZG53e3Y4MDccE/hg=;
+ b=dR/EPBRuSjW4N/CYZEMIyy73JeRb47RXJX2QZuD2KV5PoB8TTi6lAOnj+oswUD50l1PddJ
+ Ng0U9z+hWxQKutzhngNrx1kkrYLzl6h/wJnMQTHI4sWRunbCUcaHt6KxKNnZ2Xy/BVDr4w
+ J1/FB60L3Gnr2KG0NHLBoVwlhRXCv4s=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-67-R2nf5W2KPWOzty3UlVm7Ng-1; Thu, 13 May 2021 09:47:27 -0400
+X-MC-Unique: R2nf5W2KPWOzty3UlVm7Ng-1
+Received: by mail-ej1-f71.google.com with SMTP id
+ k9-20020a17090646c9b029039d323bd239so8350287ejs.16
  for <virtualization@lists.linux-foundation.org>;
- Thu, 13 May 2021 06:44:41 -0700 (PDT)
+ Thu, 13 May 2021 06:47:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=oWoRXdPQG5Lp8dZ+UX0wcCkUvkRtLC4RqeaSswn2gS0=;
- b=Q5xfkB1yJo+EzqjjnIqr2Iql0PIDsEmmYy6PREjvcWlkLzViHdS2y1US9fH13dWTcf
- ecw6zOeR4cWpsVB0KpQFAclYQLNuHSclodJUdxql3hZZ5j1XmEId9Ui9jyAADF7bnc1P
- uuDbn4Y6fSpZw4O5TmB5EDATJzy/XcrMStWX3KcxX0MFj1V16lu6SVxzt0FU0qH/mCQU
- UDCKJ0ohV4bPjaEld/HbA+Asw6uyKfsM5OWKY3KIjk3LXFdZD7T4eTDSPZHOh2L7EmPa
- Wis2PwfH2K1mLul8QQYnZSCFyBGkpcNNSE4bCKIugiJ1biapzvuxGPKsK9XEBDBA7KPj
- 68Bg==
-X-Gm-Message-State: AOAM532xJax2lKSGq5CpiQt5MxmJUNXUeOloQdp55Wk0XMsBXIL5blIi
- dkLgCxq7b7nRDVTzJytU5szYNRKTFH1GMrbz4/pvEoQ4THSmV1lHbDjcEbQ+qjxHfSZXwgq/yUH
- qBVD6ZzT7oJoITdIPzsZ0P/HrHESd2zsk4lqbJ58XuQ==
-X-Received: by 2002:a17:906:f28a:: with SMTP id
- gu10mr9366307ejb.135.1620913480731; 
- Thu, 13 May 2021 06:44:40 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyRgeZlJQmydhRmOxSudfdDEFokEqUOqWxM5HwrKX/tQlm/Hr03jIduTjjqf7mT/0OjHrCwUQ==
-X-Received: by 2002:a17:906:f28a:: with SMTP id
- gu10mr9366276ejb.135.1620913480499; 
- Thu, 13 May 2021 06:44:40 -0700 (PDT)
+ bh=A0dkUXbD61yHxsoYQsJu5ao3/IUZG53e3Y4MDccE/hg=;
+ b=DnA31HrEEfJvmeeTaYDJGC14mgcK3URxo/1Zv8pkr/CDN+8cI52Bo7NB4QYqcpX3Qz
+ eWjDWkQeD+HWldppN4Dn3nr4yH2rlK1CBBSU8LzjOWDXiizXhtt9mEzMClv6y1wuIK95
+ eP8RLu0r+D+YZQ151d7X57lO9ouQaKetDwfM9p1gWVIW/Krm5k4SZlgnSQuuUBjz4jom
+ EFtjpHnpDYG1lsUqPtJ1JDDBapxf7brtoUudr8zt3PGqJzqrvFqfz7Qfup7iZL+/E1XI
+ QsibQg4ATA+gb8ratpYhoSe9qXbE4iUejB+jdaLco1U+0Z94OGDBj5R6Nw15jq49/Te3
+ 06Jw==
+X-Gm-Message-State: AOAM5320hJjsWRlRt36GDL2DM/0usBucl1/JmA+cce2b/HQZ+F5Mezzd
+ UR4870rwgfqVtYblib4ZhYnydAeHAkmn43uIdh9+50L+4N3DBE1FAee1VZN6KFhGp5X51sTReF4
+ 9zhIkZ9nfSnX1D65jdmJlbD+3VnuQoYjxvRNCgy/GOw==
+X-Received: by 2002:a05:6402:1a:: with SMTP id
+ d26mr50917873edu.99.1620913646402; 
+ Thu, 13 May 2021 06:47:26 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxguXOshUlXIdgN5o0x789QBKRhPy8p6rcPd+Tw/RguN6tZBLRGwCFOYqpyXK4ryGcq9iJdZw==
+X-Received: by 2002:a05:6402:1a:: with SMTP id
+ d26mr50917841edu.99.1620913646200; 
+ Thu, 13 May 2021 06:47:26 -0700 (PDT)
 Received: from steredhat (host-79-18-148-79.retail.telecomitalia.it.
  [79.18.148.79])
- by smtp.gmail.com with ESMTPSA id q25sm1863114ejd.9.2021.05.13.06.44.39
+ by smtp.gmail.com with ESMTPSA id x18sm1882118eju.45.2021.05.13.06.47.24
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 13 May 2021 06:44:40 -0700 (PDT)
-Date: Thu, 13 May 2021 15:44:37 +0200
+ Thu, 13 May 2021 06:47:25 -0700 (PDT)
+Date: Thu, 13 May 2021 15:47:22 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [RFC PATCH v9 15/19] vhost/vsock: enable SEQPACKET for transport
-Message-ID: <20210513134437.xwz5gaulse4jqcmm@steredhat>
+Subject: Re: [RFC PATCH v9 17/19] vsock_test: add SOCK_SEQPACKET tests
+Message-ID: <20210513134722.i2mn54fsi5pyq4vq@steredhat>
 References: <20210508163027.3430238-1-arseny.krasnov@kaspersky.com>
- <20210508163634.3432505-1-arseny.krasnov@kaspersky.com>
+ <20210508163704.3432731-1-arseny.krasnov@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <20210508163634.3432505-1-arseny.krasnov@kaspersky.com>
+In-Reply-To: <20210508163704.3432731-1-arseny.krasnov@kaspersky.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -132,81 +132,202 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, May 08, 2021 at 07:36:31PM +0300, Arseny Krasnov wrote:
->This removes:
->1) Ignore of non-stream type of packets.
->This adds:
->1) Handling of SEQPACKET bit: if guest sets features with this bit cleared,
->   then SOCK_SEQPACKET support will be disabled.
->2) 'seqpacket_allow()' callback.
->3) Handling of SEQ_EOR bit: when vhost places data in buffers of guest's
->   rx queue, keep this bit set only when last piece of data is copied.
+On Sat, May 08, 2021 at 07:37:00PM +0300, Arseny Krasnov wrote:
+>This adds two tests of SOCK_SEQPACKET socket: both transfer data and
+>then test MSG_EOR and MSG_TRUNC flags. Cases for connect(), bind(),
+            ^
+We removed the MSG_EOR tests, right?
+
+>etc. are not tested, because it is same as for stream socket.
 >
 >Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
 >---
-> v8 -> v9:
-> 1) Move 'seqpacket_allow' to 'struct vhost_vsock'.
-> 2) Use cpu_to_le32()/le32_to_cpu() to work with 'flags' of packet.
+> tools/testing/vsock/util.c       | 32 +++++++++++++---
+> tools/testing/vsock/util.h       |  3 ++
+> tools/testing/vsock/vsock_test.c | 63 ++++++++++++++++++++++++++++++++
+> 3 files changed, 93 insertions(+), 5 deletions(-)
 >
-> drivers/vhost/vsock.c | 42 +++++++++++++++++++++++++++++++++++++++---
-> 1 file changed, 39 insertions(+), 3 deletions(-)
+>diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
+>index 93cbd6f603f9..2acbb7703c6a 100644
+>--- a/tools/testing/vsock/util.c
+>+++ b/tools/testing/vsock/util.c
+>@@ -84,7 +84,7 @@ void vsock_wait_remote_close(int fd)
+> }
 >
->diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
->index 5e78fb719602..3395b25d4a35 100644
->--- a/drivers/vhost/vsock.c
->+++ b/drivers/vhost/vsock.c
->@@ -31,7 +31,8 @@
+> /* Connect to <cid, port> and return the file descriptor. */
+>-int vsock_stream_connect(unsigned int cid, unsigned int port)
+>+static int vsock_connect(unsigned int cid, unsigned int port, int type)
+> {
+> 	union {
+> 		struct sockaddr sa;
+>@@ -101,7 +101,7 @@ int vsock_stream_connect(unsigned int cid, unsigned int port)
 >
-> enum {
-> 	VHOST_VSOCK_FEATURES = VHOST_FEATURES |
->-			       (1ULL << VIRTIO_F_ACCESS_PLATFORM)
->+			       (1ULL << VIRTIO_F_ACCESS_PLATFORM) |
->+			       (1ULL << VIRTIO_VSOCK_F_SEQPACKET)
+> 	control_expectln("LISTENING");
+>
+>-	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
+>+	fd = socket(AF_VSOCK, type, 0);
+>
+> 	timeout_begin(TIMEOUT);
+> 	do {
+>@@ -120,11 +120,21 @@ int vsock_stream_connect(unsigned int cid, unsigned int port)
+> 	return fd;
+> }
+>
+>+int vsock_stream_connect(unsigned int cid, unsigned int port)
+>+{
+>+	return vsock_connect(cid, port, SOCK_STREAM);
+>+}
+>+
+>+int vsock_seqpacket_connect(unsigned int cid, unsigned int port)
+>+{
+>+	return vsock_connect(cid, port, SOCK_SEQPACKET);
+>+}
+>+
+> /* Listen on <cid, port> and return the first incoming connection.  The remote
+>  * address is stored to clientaddrp.  clientaddrp may be NULL.
+>  */
+>-int vsock_stream_accept(unsigned int cid, unsigned int port,
+>-			struct sockaddr_vm *clientaddrp)
+>+static int vsock_accept(unsigned int cid, unsigned int port,
+>+			struct sockaddr_vm *clientaddrp, int type)
+> {
+> 	union {
+> 		struct sockaddr sa;
+>@@ -145,7 +155,7 @@ int vsock_stream_accept(unsigned int cid, unsigned int port,
+> 	int client_fd;
+> 	int old_errno;
+>
+>-	fd = socket(AF_VSOCK, SOCK_STREAM, 0);
+>+	fd = socket(AF_VSOCK, type, 0);
+>
+> 	if (bind(fd, &addr.sa, sizeof(addr.svm)) < 0) {
+> 		perror("bind");
+>@@ -189,6 +199,18 @@ int vsock_stream_accept(unsigned int cid, unsigned int port,
+> 	return client_fd;
+> }
+>
+>+int vsock_stream_accept(unsigned int cid, unsigned int port,
+>+			struct sockaddr_vm *clientaddrp)
+>+{
+>+	return vsock_accept(cid, port, clientaddrp, SOCK_STREAM);
+>+}
+>+
+>+int vsock_seqpacket_accept(unsigned int cid, unsigned int port,
+>+			   struct sockaddr_vm *clientaddrp)
+>+{
+>+	return vsock_accept(cid, port, clientaddrp, SOCK_SEQPACKET);
+>+}
+>+
+> /* Transmit one byte and check the return value.
+>  *
+>  * expected_ret:
+>diff --git a/tools/testing/vsock/util.h b/tools/testing/vsock/util.h
+>index e53dd09d26d9..a3375ad2fb7f 100644
+>--- a/tools/testing/vsock/util.h
+>+++ b/tools/testing/vsock/util.h
+>@@ -36,8 +36,11 @@ struct test_case {
+> void init_signals(void);
+> unsigned int parse_cid(const char *str);
+> int vsock_stream_connect(unsigned int cid, unsigned int port);
+>+int vsock_seqpacket_connect(unsigned int cid, unsigned int port);
+> int vsock_stream_accept(unsigned int cid, unsigned int port,
+> 			struct sockaddr_vm *clientaddrp);
+>+int vsock_seqpacket_accept(unsigned int cid, unsigned int port,
+>+			   struct sockaddr_vm *clientaddrp);
+> void vsock_wait_remote_close(int fd);
+> void send_byte(int fd, int expected_ret, int flags);
+> void recv_byte(int fd, int expected_ret, int flags);
+>diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+>index 5a4fb80fa832..ffec985fd36f 100644
+>--- a/tools/testing/vsock/vsock_test.c
+>+++ b/tools/testing/vsock/vsock_test.c
+>@@ -14,6 +14,8 @@
+> #include <errno.h>
+> #include <unistd.h>
+> #include <linux/kernel.h>
+>+#include <sys/types.h>
+>+#include <sys/socket.h>
+>
+> #include "timeout.h"
+> #include "control.h"
+>@@ -279,6 +281,62 @@ static void test_stream_msg_peek_server(const struct test_opts *opts)
+> 	close(fd);
+> }
+>
+>+#define MESSAGE_TRUNC_SZ 32
+>+static void test_seqpacket_msg_trunc_client(const struct test_opts *opts)
+>+{
+>+	int fd;
+>+	char buf[MESSAGE_TRUNC_SZ];
+>+
+>+	fd = vsock_seqpacket_connect(opts->peer_cid, 1234);
+>+	if (fd < 0) {
+>+		perror("connect");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	if (send(fd, buf, sizeof(buf), 0) != sizeof(buf)) {
+>+		perror("send failed");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	control_writeln("SENDDONE");
+>+	close(fd);
+>+}
+>+
+>+static void test_seqpacket_msg_trunc_server(const struct test_opts *opts)
+>+{
+>+	int fd;
+>+	char buf[MESSAGE_TRUNC_SZ / 2];
+>+	struct msghdr msg = {0};
+>+	struct iovec iov = {0};
+>+
+>+	fd = vsock_seqpacket_accept(VMADDR_CID_ANY, 1234, NULL);
+>+	if (fd < 0) {
+>+		perror("accept");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	control_expectln("SENDDONE");
+>+	iov.iov_base = buf;
+>+	iov.iov_len = sizeof(buf);
+>+	msg.msg_iov = &iov;
+>+	msg.msg_iovlen = 1;
+>+
+>+	ssize_t ret = recvmsg(fd, &msg, MSG_TRUNC);
+>+
+>+	if (ret != MESSAGE_TRUNC_SZ) {
+>+		printf("%zi\n", ret);
+>+		perror("MSG_TRUNC doesn't work");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	if (!(msg.msg_flags & MSG_TRUNC)) {
+>+		fprintf(stderr, "MSG_TRUNC expected\n");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	close(fd);
+>+}
+>+
+> static struct test_case test_cases[] = {
+> 	{
+> 		.name = "SOCK_STREAM connection reset",
+>@@ -309,6 +367,11 @@ static struct test_case test_cases[] = {
+> 		.run_client = test_stream_msg_peek_client,
+> 		.run_server = test_stream_msg_peek_server,
+> 	},
+>+	{
+>+		.name = "SOCK_SEQPACKET send data MSG_TRUNC",
+>+		.run_client = test_seqpacket_msg_trunc_client,
+>+		.run_server = test_seqpacket_msg_trunc_server,
+>+	},
+> 	{},
 > };
 >
-> enum {
->@@ -56,6 +57,7 @@ struct vhost_vsock {
-> 	atomic_t queued_replies;
+>-- 
+>2.25.1
 >
-> 	u32 guest_cid;
->+	bool seqpacket_allow;
-> };
->
-> static u32 vhost_transport_get_local_cid(void)
->@@ -112,6 +114,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
-> 		size_t nbytes;
-> 		size_t iov_len, payload_len;
-> 		int head;
->+		bool restore_flag = false;
->
-> 		spin_lock_bh(&vsock->send_pkt_list_lock);
-> 		if (list_empty(&vsock->send_pkt_list)) {
->@@ -174,6 +177,12 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
-> 		/* Set the correct length in the header */
-> 		pkt->hdr.len = cpu_to_le32(payload_len);
->
->+		if (pkt->off + payload_len < pkt->len &&
->+		    le32_to_cpu(pkt->hdr.flags) & VIRTIO_VSOCK_SEQ_EOR) {
->+			pkt->hdr.flags &= ~cpu_to_le32(VIRTIO_VSOCK_SEQ_EOR);
->+			restore_flag = true;
->+		}
-
-I think is better to move this code in the same block when we limit
-payload_len, something like this (not tested):
-
-		/* If the packet is greater than the space available in the
-		 * buffer, we split it using multiple buffers.
-		 */
-		if (payload_len > iov_len - sizeof(pkt->hdr)) {
-			payload_len = iov_len - sizeof(pkt->hdr);
-
-			if (le32_to_cpu(pkt->hdr.flags) & VIRTIO_VSOCK_SEQ_EOR) {
-				pkt->hdr.flags &= ~cpu_to_le32(VIRTIO_VSOCK_SEQ_EOR);
-				restore_flag = true;
-			}
-		}
-
-The rest LGTM.
 
 _______________________________________________
 Virtualization mailing list
