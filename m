@@ -7,79 +7,78 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A005DC433ED
-	for <virtualization@archiver.kernel.org>; Fri, 14 May 2021 17:23:19 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B5B0C433ED
+	for <virtualization@archiver.kernel.org>; Fri, 14 May 2021 17:23:38 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4D4636145E
-	for <virtualization@archiver.kernel.org>; Fri, 14 May 2021 17:23:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4D4636145E
+	by mail.kernel.org (Postfix) with ESMTPS id DB06561460
+	for <virtualization@archiver.kernel.org>; Fri, 14 May 2021 17:23:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DB06561460
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 25A0240604;
-	Fri, 14 May 2021 17:23:19 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id A7BC64185D;
+	Fri, 14 May 2021 17:23:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rlvzNS_7dpFq; Fri, 14 May 2021 17:23:18 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id WH7na2SIYEOo; Fri, 14 May 2021 17:23:36 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C238740610;
-	Fri, 14 May 2021 17:23:17 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0FDE041857;
+	Fri, 14 May 2021 17:23:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9D5F3C000D;
-	Fri, 14 May 2021 17:23:17 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 621FDC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DE850C000D;
+	Fri, 14 May 2021 17:23:35 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 392CFC0001
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 May 2021 17:23:17 +0000 (UTC)
+ Fri, 14 May 2021 17:23:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 5E28282DFC
+ by smtp4.osuosl.org (Postfix) with ESMTP id 19C4241857
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 May 2021 17:23:17 +0000 (UTC)
+ Fri, 14 May 2021 17:23:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id kwamFlxrWURB
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id FHpZB6ndSrK3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 May 2021 17:23:16 +0000 (UTC)
+ Fri, 14 May 2021 17:23:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id ADB90845BE
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 3BDB641858
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 May 2021 17:23:16 +0000 (UTC)
+ Fri, 14 May 2021 17:23:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1621012995;
+ s=mimecast20190719; t=1621013012;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=/osWbHv9H+D8jMkXYe0YG4c0I4+JjXX9FiaLxBUqIoc=;
- b=d2dx2X4wQSbZIwPtQEIlXMX9cMPdjcbfe6pykJ19NlRvKxFSXMRJNGDpiYhBwFucsLVCAG
- fhOxCBPES+IA50e/cgQX4OZRLR+J9YUsFYTYAyJ2BRRrLo8ewci3/7B7fprHUXVmeqn3nq
- Nwu1ADwwa59+TFP2oMmFWFXWCfB+WFM=
+ bh=CeyyYgXMaIv1KkLK2Mxpk2s8iuflkxKOKdYcMCECEco=;
+ b=Un3vFOyGfFeuF35VkMXclQzrT00pD+03upQF58X7Ffioz7yPb/n/T75vYZQnaa8+Qr+Y+X
+ GFHnex7BqQBxmRsAo7tiLZw3blUw48wHg2t1w9f+8etWELbCEsMdZdklpvrn9/Xp1Ayk19
+ EE9Y7dXHHtEu+2ZI38K8xLFFT0367DU=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-212-RRS-fpidOpKW1sq9Y9-_rQ-1; Fri, 14 May 2021 13:23:14 -0400
-X-MC-Unique: RRS-fpidOpKW1sq9Y9-_rQ-1
+ us-mta-326-DoFLkz1YPr-E5fxCEaU49Q-1; Fri, 14 May 2021 13:23:29 -0400
+X-MC-Unique: DoFLkz1YPr-E5fxCEaU49Q-1
 Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
  [10.5.11.23])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1D2E3107ACCA;
- Fri, 14 May 2021 17:23:11 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8BFDA107ACCA;
+ Fri, 14 May 2021 17:23:26 +0000 (UTC)
 Received: from t480s.redhat.com (ovpn-114-113.ams2.redhat.com [10.36.114.113])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 367F519D9B;
- Fri, 14 May 2021 17:23:04 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 671681A868;
+ Fri, 14 May 2021 17:23:11 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v2 1/6] fs/proc/kcore: drop KCORE_REMAP and KCORE_OTHER
-Date: Fri, 14 May 2021 19:22:42 +0200
-Message-Id: <20210514172247.176750-2-david@redhat.com>
+Subject: [PATCH v2 2/6] fs/proc/kcore: pfn_is_ram check only applies to
+ KCORE_RAM
+Date: Fri, 14 May 2021 19:22:43 +0200
+Message-Id: <20210514172247.176750-3-david@redhat.com>
 In-Reply-To: <20210514172247.176750-1-david@redhat.com>
 References: <20210514172247.176750-1-david@redhat.com>
 MIME-Version: 1.0
@@ -112,59 +111,80 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Commit db779ef67ffe ("proc/kcore: Remove unused kclist_add_remap()")
-removed the last user of KCORE_REMAP.
-
-Commit 595dd46ebfc1 ("vfs/proc/kcore, x86/mm/kcore: Fix SMAP fault when
-dumping vsyscall user page") removed the last user of KCORE_OTHER.
-
-Let's drop both types. While at it, also drop vaddr in "struct
-kcore_list", used by KCORE_REMAP only.
+Let's resturcture the code, using switch-case, and checking pfn_is_ram()
+only when we are dealing with KCORE_RAM.
 
 Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- fs/proc/kcore.c       | 7 ++-----
- include/linux/kcore.h | 3 ---
- 2 files changed, 2 insertions(+), 8 deletions(-)
+ fs/proc/kcore.c | 35 +++++++++++++++++++++++++++--------
+ 1 file changed, 27 insertions(+), 8 deletions(-)
 
 diff --git a/fs/proc/kcore.c b/fs/proc/kcore.c
-index 4d2e64e9016c..09f77d3c6e15 100644
+index 09f77d3c6e15..ed6fbb3bd50c 100644
 --- a/fs/proc/kcore.c
 +++ b/fs/proc/kcore.c
-@@ -380,11 +380,8 @@ read_kcore(struct file *file, char __user *buffer, size_t buflen, loff_t *fpos)
- 			phdr->p_type = PT_LOAD;
- 			phdr->p_flags = PF_R | PF_W | PF_X;
- 			phdr->p_offset = kc_vaddr_to_offset(m->addr) + data_offset;
--			if (m->type == KCORE_REMAP)
--				phdr->p_vaddr = (size_t)m->vaddr;
--			else
--				phdr->p_vaddr = (size_t)m->addr;
--			if (m->type == KCORE_RAM || m->type == KCORE_REMAP)
-+			phdr->p_vaddr = (size_t)m->addr;
-+			if (m->type == KCORE_RAM)
- 				phdr->p_paddr = __pa(m->addr);
- 			else if (m->type == KCORE_TEXT)
- 				phdr->p_paddr = __pa_symbol(m->addr);
-diff --git a/include/linux/kcore.h b/include/linux/kcore.h
-index da676cdbd727..86c0f1d18998 100644
---- a/include/linux/kcore.h
-+++ b/include/linux/kcore.h
-@@ -11,14 +11,11 @@ enum kcore_type {
- 	KCORE_RAM,
- 	KCORE_VMEMMAP,
- 	KCORE_USER,
--	KCORE_OTHER,
--	KCORE_REMAP,
- };
- 
- struct kcore_list {
- 	struct list_head list;
- 	unsigned long addr;
--	unsigned long vaddr;
- 	size_t size;
- 	int type;
- };
+@@ -483,25 +483,36 @@ read_kcore(struct file *file, char __user *buffer, size_t buflen, loff_t *fpos)
+ 				goto out;
+ 			}
+ 			m = NULL;	/* skip the list anchor */
+-		} else if (!pfn_is_ram(__pa(start) >> PAGE_SHIFT)) {
+-			if (clear_user(buffer, tsz)) {
+-				ret = -EFAULT;
+-				goto out;
+-			}
+-		} else if (m->type == KCORE_VMALLOC) {
++			goto skip;
++		}
++
++		switch (m->type) {
++		case KCORE_VMALLOC:
+ 			vread(buf, (char *)start, tsz);
+ 			/* we have to zero-fill user buffer even if no read */
+ 			if (copy_to_user(buffer, buf, tsz)) {
+ 				ret = -EFAULT;
+ 				goto out;
+ 			}
+-		} else if (m->type == KCORE_USER) {
++			break;
++		case KCORE_USER:
+ 			/* User page is handled prior to normal kernel page: */
+ 			if (copy_to_user(buffer, (char *)start, tsz)) {
+ 				ret = -EFAULT;
+ 				goto out;
+ 			}
+-		} else {
++			break;
++		case KCORE_RAM:
++			if (!pfn_is_ram(__pa(start) >> PAGE_SHIFT)) {
++				if (clear_user(buffer, tsz)) {
++					ret = -EFAULT;
++					goto out;
++				}
++				break;
++			}
++			fallthrough;
++		case KCORE_VMEMMAP:
++		case KCORE_TEXT:
+ 			if (kern_addr_valid(start)) {
+ 				/*
+ 				 * Using bounce buffer to bypass the
+@@ -525,7 +536,15 @@ read_kcore(struct file *file, char __user *buffer, size_t buflen, loff_t *fpos)
+ 					goto out;
+ 				}
+ 			}
++			break;
++		default:
++			pr_warn_once("Unhandled KCORE type: %d\n", m->type);
++			if (clear_user(buffer, tsz)) {
++				ret = -EFAULT;
++				goto out;
++			}
+ 		}
++skip:
+ 		buflen -= tsz;
+ 		*fpos += tsz;
+ 		buffer += tsz;
 -- 
 2.31.1
 
