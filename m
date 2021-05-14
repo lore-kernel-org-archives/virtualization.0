@@ -2,125 +2,113 @@ Return-Path: <SRS0=Tn2H=KJ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
 	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08F42C43461
-	for <virtualization@archiver.kernel.org>; Fri, 14 May 2021 12:41:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E967DC43460
+	for <virtualization@archiver.kernel.org>; Fri, 14 May 2021 12:47:43 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B37CE613E9
-	for <virtualization@archiver.kernel.org>; Fri, 14 May 2021 12:41:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B37CE613E9
+	by mail.kernel.org (Postfix) with ESMTPS id 8DF0861453
+	for <virtualization@archiver.kernel.org>; Fri, 14 May 2021 12:47:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8DF0861453
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7FB2583E0D;
-	Fri, 14 May 2021 12:41:52 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 59694842D9;
+	Fri, 14 May 2021 12:47:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lNYdoMMWjTnw; Fri, 14 May 2021 12:41:51 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 092C08397F;
-	Fri, 14 May 2021 12:41:50 +0000 (UTC)
+	with ESMTP id pDbRs8ZDwv38; Fri, 14 May 2021 12:47:42 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTP id D4B1783CCB;
+	Fri, 14 May 2021 12:47:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D55DEC000E;
-	Fri, 14 May 2021 12:41:50 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4A331C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B3F56C000E;
+	Fri, 14 May 2021 12:47:41 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 53953C0001
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 May 2021 12:41:49 +0000 (UTC)
+ Fri, 14 May 2021 12:47:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 38D6F404B6
+ by smtp2.osuosl.org (Postfix) with ESMTP id 2D08640162
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 May 2021 12:41:49 +0000 (UTC)
+ Fri, 14 May 2021 12:47:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=gmail.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id UBG3vVbKY2ax
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id FNBefPj-4eZv
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 May 2021 12:41:47 +0000 (UTC)
+ Fri, 14 May 2021 12:47:39 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com
- [IPv6:2a00:1450:4864:20::62b])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E2155402EE
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com
+ [IPv6:2a00:1450:4864:20::62c])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 23A784010C
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 May 2021 12:41:46 +0000 (UTC)
-Received: by mail-ej1-x62b.google.com with SMTP id k10so13241552ejj.8
+ Fri, 14 May 2021 12:47:39 +0000 (UTC)
+Received: by mail-ej1-x62c.google.com with SMTP id lz27so3156587ejb.11
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 May 2021 05:41:46 -0700 (PDT)
+ Fri, 14 May 2021 05:47:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=nHv2uj1+b6Ls/HccEvEXRYAb530bVVnX88BdEJ3onyc=;
- b=JlbCbr+YSBBjvbbbmMPif0StXP8x9Sxq9ELa6SgM1G0kYcX/aIh4JSE6TkY1gvFPZC
- oPISoTLPEx5aGEjpM+0bT0wKgwoB3HbE0vAcOj8RK2WFaInrRRWm/u5MorFhdML5hbNG
- 746ZpknFLLN8aghQRMLmsdXwSaBNImQxakLzLtlqPJVERgHXcndGg4SOXwNQYsDlRi2g
- wHH1XtlRo99XtFWmsCiA5ApAAAgdM0sOT1s7vJR7bJMMvU+5nhh+oA5Q1PdNRUz05/mT
- 7TlOTQRLY8OsQBfvRG6JH3jbd0GiLN+sZWK/aUoPMgMZdgRj7mp639G32eFGVPj4DjKf
- lOWA==
+ :cc; bh=HymSORogEmezZKPe6k3z0mroHhthunf7PpEqJRP7zL0=;
+ b=RPD+OijAMQuR6wAEY8XZWKOyKaKIUHXEXC24Y14snxgXcRxs1Cl72ncd2DBXx4XinR
+ ayXLuwrj3dktgKhaaDh3tpOshdrGc7ZZtOGgbeI7H537PacWsjZXww/0RLG/oyUXoWF6
+ SBDZuAaiUsBIsRr1dX+niAlfwpwiaTzOEjjFYdVu4YhHrO7+mLq0ZLjb34b3ZfLF2Rzo
+ s9GXEl0ip7tELQ6tzSZOUS0r7p6ic5wlzVJfGeC7z2d2PKM0heIDk91OiBUnLQrKXj9O
+ XFDfLD8fGG5i1S5jZ5Nwgj++KgpLzqbvTXD8y7Eyi09kOVSwViEA4CfCzD1fA2kT/3o8
+ hE/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=nHv2uj1+b6Ls/HccEvEXRYAb530bVVnX88BdEJ3onyc=;
- b=CUfBecu2qZLWeVqx6rS+fcYLE9gmxXuAf6UojhfUQ2iYS/yU6S7R8i8homLaz9RgES
- DSeWfNZgktjrocuHhXj7k6mB68uvlCmWKH5JyD9m65PpnXilc3L4POvzVGh/CSyg+gYE
- /pYp8DUBdmVW1jAPMB97w2nqdRssY5UAlWGFxB5ciMVVKN0pthk0zpFtvqyNV6VBmmGp
- K2WcnlSUvlq/Hhi4b7lZJAffKyI2oVnSjQ+caWfPUIY8j02xvHXXdQA8nCtyjsPCEWfT
- kQ1IOfLYV5bdTo5+ZplWSnSbCyfp8bJ4EcgLlDU9I1EK2vYFJKbPuifp09HsxWJ/nPqM
- Vc7Q==
-X-Gm-Message-State: AOAM532Lhl6AlP4qZ60Dq2j5sOrAoLYdzfPWViU6ge0rTfQDAyikH9mA
- C8fn1jTzxyA6d8+lHuf40eDi5obL4nOsUQ==
-X-Google-Smtp-Source: ABdhPJxSpJW9lWaBfRG18hTQs4WXOMZteMv/HB3QSFBgofWfk7TjuaRamK8nowcR0RZzBPDv2lZNgA==
-X-Received: by 2002:a17:906:3544:: with SMTP id
- s4mr49502924eja.73.1620996104666; 
- Fri, 14 May 2021 05:41:44 -0700 (PDT)
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com.
- [209.85.221.47])
- by smtp.gmail.com with ESMTPSA id p5sm3577644ejm.115.2021.05.14.05.41.43
+ bh=HymSORogEmezZKPe6k3z0mroHhthunf7PpEqJRP7zL0=;
+ b=CB3HTxkYf/nUoX4KsppuN8PPYSiBCarpAxtDyGc1s02ue6OEWbz+rXyyHZC/5VjvHH
+ yUqgI5j2SLTGvzH1Jo4k5erRuoALsEMkg69xjJD0AJvESWCpFiXbaqZWcE7UTJqZGy5V
+ UKta+ghpYnTydphDga+SIAgyFDQuV3D42H0WpnHZvKWK8O1TBwGnFPtZ4H3pIR7QhYSG
+ NlKwMdJGNCxpRDrFeEXEF5w+wDZAnJBCJU30PkgUYeOge8dKLXicrfr8QXgI+hgUPmGY
+ ChUMwWArCVN4wTY4q19zatERXCrNUJ1C9UDGbFSUA560z/+eWyxo97Quo7blVdrkx73E
+ LDIg==
+X-Gm-Message-State: AOAM533nKbGfaK/0Sh0NjUy/VeCGz2ps0Z5vdjx1gJX2wUHa2yV5uUbH
+ ILL+y8tK/u6kWjxL+4LZFYQC5bKN6tecpA==
+X-Google-Smtp-Source: ABdhPJxcA6aCxrAgh+3totTTwBTo+/8aeJRvSLV3hDKA87UP/muKghpw8d44CUsql2vMviFhjNUZOw==
+X-Received: by 2002:a17:907:3e99:: with SMTP id
+ hs25mr50601186ejc.518.1620996456871; 
+ Fri, 14 May 2021 05:47:36 -0700 (PDT)
+Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com.
+ [209.85.221.46])
+ by smtp.gmail.com with ESMTPSA id u6sm3611877ejn.14.2021.05.14.05.47.36
  for <virtualization@lists.linux-foundation.org>
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Fri, 14 May 2021 05:41:43 -0700 (PDT)
-Received: by mail-wr1-f47.google.com with SMTP id v12so29880933wrq.6
+ Fri, 14 May 2021 05:47:36 -0700 (PDT)
+Received: by mail-wr1-f46.google.com with SMTP id m9so29948580wrx.3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 May 2021 05:41:43 -0700 (PDT)
-X-Received: by 2002:a5d:64cf:: with SMTP id f15mr56760401wri.327.1620996102914; 
- Fri, 14 May 2021 05:41:42 -0700 (PDT)
+ Fri, 14 May 2021 05:47:36 -0700 (PDT)
+X-Received: by 2002:a05:6000:52:: with SMTP id
+ k18mr379123wrx.419.1620996455651; 
+ Fri, 14 May 2021 05:47:35 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210511044253.469034-1-yuri.benditovich@daynix.com>
- <20210511044253.469034-5-yuri.benditovich@daynix.com>
- <eb8c4984-f0cc-74ee-537f-fc60deaaaa73@redhat.com>
- <CAOEp5OdrCDPx4ijLcEOm=Wxma6hc=nyqw4Xm6bggBxvgtR0tbg@mail.gmail.com>
- <89759261-3a72-df6c-7a81-b7a48abfad44@redhat.com>
- <CAOEp5Ocm9Q69Fv=oeyCs01F9J4nCTPiOPpw9_BRZ0WnF+LtEFQ@mail.gmail.com>
- <CACGkMEsZBCzV+d_eLj1aYT+pkS5m1QAy7q8rUkNsdV0C8aL8tQ@mail.gmail.com>
- <CAOEp5OeSankfA6urXLW_fquSMrZ+WYXDtKNacort1UwR=WgxqA@mail.gmail.com>
- <CACGkMEt3bZrdqbWtWjSkXvv5v8iCHiN8hkD3T602RZnb6nPd9A@mail.gmail.com>
- <CAOEp5Odw=eaQWZCXr+U8PipPtO1Avjw-t3gEdKyvNYxuNa5TfQ@mail.gmail.com>
- <CACGkMEuqXaJxGqC+CLoq7k4XDu+W3E3Kk3WvG-D6tnn2K4ZPNA@mail.gmail.com>
- <CAOEp5OfB62SQzxMj_GkVD4EM=Z+xf43TPoTZwMbPPa3BsX2ooA@mail.gmail.com>
- <CACGkMEu4NdyMoFKbyUGG1aGX+K=ShMZuVuMKYPauEBYz5pxYzA@mail.gmail.com>
- <CA+FuTScV+AJ+O3shOMLjUcy+PjBE8uWqCNt0FXWnq9L3gzrvaw@mail.gmail.com>
- <CACGkMEuUF1vDNWbL9dRr1ZM4vFTLwc3j9uB-66451U1NvQ+2EA@mail.gmail.com>
- <CAOEp5OcozfSWszTm9VArOAH+wm2Fo8tH1QJDsLPZD8ieBLtg-g@mail.gmail.com>
-In-Reply-To: <CAOEp5OcozfSWszTm9VArOAH+wm2Fo8tH1QJDsLPZD8ieBLtg-g@mail.gmail.com>
+References: <20210208185558.995292-1-willemdebruijn.kernel@gmail.com>
+ <CA+FuTSewRRBMkbdKzKoQv+E749jgcO9rgB4DsDTCJG2OcRQH5Q@mail.gmail.com>
+ <CACGkMEszcyhb+QXCuOeJcgDCDrLHVMQ6n6Z-1f2=DN+7+dKA=Q@mail.gmail.com>
+In-Reply-To: <CACGkMEszcyhb+QXCuOeJcgDCDrLHVMQ6n6Z-1f2=DN+7+dKA=Q@mail.gmail.com>
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Fri, 14 May 2021 08:41:06 -0400
-X-Gmail-Original-Message-ID: <CA+FuTSeqzN0SPKNEyD=ZntYb6q4u0u_p=VsPfux4mFpPBZzCxQ@mail.gmail.com>
-Message-ID: <CA+FuTSeqzN0SPKNEyD=ZntYb6q4u0u_p=VsPfux4mFpPBZzCxQ@mail.gmail.com>
-Subject: Re: [PATCH 4/4] tun: indicate support for USO feature
-To: Yuri Benditovich <yuri.benditovich@daynix.com>
-Cc: mst <mst@redhat.com>, netdev <netdev@vger.kernel.org>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Yan Vugenfirer <yan@daynix.com>, Jakub Kicinski <kuba@kernel.org>,
- davem <davem@davemloft.net>
+Date: Fri, 14 May 2021 08:46:59 -0400
+X-Gmail-Original-Message-ID: <CA+FuTSdAeeu+TuWNwg2KAWoEo35oUuUssgWhvwotXM4XkPPPMg@mail.gmail.com>
+Message-ID: <CA+FuTSdAeeu+TuWNwg2KAWoEo35oUuUssgWhvwotXM4XkPPPMg@mail.gmail.com>
+Subject: Re: [PATCH RFC v2 0/4] virtio-net: add tx-hash, rx-tstamp, tx-tstamp
+ and tx-time
+To: Jason Wang <jasowang@redhat.com>
+Cc: Network Development <netdev@vger.kernel.org>,
+ Richard Cochran <richardcochran@gmail.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -137,77 +125,121 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, May 14, 2021 at 3:39 AM Yuri Benditovich
-<yuri.benditovich@daynix.com> wrote:
+On Fri, May 14, 2021 at 3:12 AM Jason Wang <jasowang@redhat.com> wrote:
 >
-> On Fri, May 14, 2021 at 10:16 AM Jason Wang <jasowang@redhat.com> wrote:
+> On Fri, May 14, 2021 at 6:50 AM Willem de Bruijn <willemb@google.com> wrote:
 > >
-> > On Fri, May 14, 2021 at 4:35 AM Willem de Bruijn
+> > On Mon, Feb 8, 2021 at 1:56 PM Willem de Bruijn
 > > <willemdebruijn.kernel@gmail.com> wrote:
 > > >
-> > > > > But surprisingly when TUN receives TUN_F_UFO it does not propagate it
-> > > > > anywhere, there is no corresponding NETIF flag.
-> > > >
-> > > > (It looks like I drop the community and other ccs accidentally, adding
-> > > > them back and sorry)
-> > > >
-> > > > Actually, there is one, NETIF_F_GSO_UDP.
-> > > >
-> > > > Kernel used to have NETIF_F_UFO, but it was removed due to bugs and
-> > > > the lack of real hardware support. Then we found it breaks uABI, so
-> > > > Willem tries to make it appear for userspace again, and then it was
-> > > > renamed to NETIF_F_GSO_UDP.
-> > > >
-> > > > But I think it's a bug that we don't proporate TUN_F_UFO to NETIF
-> > > > flag, this is a must for the driver that doesn't support
-> > > > VIRTIO_NET_F_GUEST_UFO. I just try to disable all offloads and
-> > > > mrg_rxbuf, then netperf UDP_STREAM from host to guest gives me bad
-> > > > length packet in the guest.
-> > > >
-> > > > Willem, I think we probably need to fix this.
+> > > From: Willem de Bruijn <willemb@google.com>
 > > >
-> > > We had to add back support for the kernel to accept UFO packets from
-> > > userspace over tuntap.
+> > > RFCv2 for four new features to the virtio network device:
 > > >
-> > > The kernel does not generate such packets, so a guest should never be
-> > > concerned of receiving UFO packets.
+> > > 1. pass tx flow state to host, for routing + telemetry
+> > > 2. pass rx tstamp to guest, for better RTT estimation
+> > > 3. pass tx tstamp to guest, idem
+> > > 3. pass tx delivery time to host, for accurate pacing
+> > >
+> > > All would introduce an extension to the virtio spec.
+> > > Concurrently with code review I will write ballots to
+> > > https://www.oasis-open.org/committees/ballots.php?wg_abbrev=virtio
+> > >
+> > > These changes are to the driver side. Evaluation additionally requires
+> > > achanges to qemu and at least one back-end. I implemented preliminary
+> > > support in Linux vhost-net. Both patches available through github at
+> > >
+> > > https://github.com/wdebruij/linux/tree/virtio-net-txhash-2
+> > > https://github.com/wdebruij/qemu/tree/virtio-net-txhash-2
+> > >
+> > > Changes RFC -> RFCv2
+> > >   - add transmit timestamp patch
+> > >   - see individual patches for other changes
+> > >
+> > > Willem de Bruijn (4):
+> > >   virtio-net: support transmit hash report
+> > >   virtio-net: support receive timestamp
+> > >   virtio-net: support transmit timestamp
+> > >   virtio-net: support future packet transmit time
 > >
-> > That's my feeling as well.
+> > Seeing Yuri's patchset adding new features reminded me that I did not
+> > follow-up on this patch series on the list.
 > >
-> > But when I:
+> > The patches themselves are mostly in good shape. The last tx tstamp
+> > issue can be resolved.
 > >
-> > 1) turn off all guest gso feature and mrg rx buffers, in this case
-> > virtio-net will only allocate 1500 bytes for each packet
-> > 2) doing netperf (UDP_STREAM) from local host to guest, I see packet
-> > were truncated in the guest
+> > But the device implementation I target only supports legacy mode.
+> > Below conversation that we had in one of the patches makes clear that
+> > supporting this in legacy is not feasible. Nor is upgrading that
+> > device in the short term. Until there is a device implementation that
+> > implements these offloads, these features are a dead letter. Not moving
+> > forward for now.
+> >
+> > Somewhat related: is there a plan for when we run out of 64 feature bits?
 >
-> Is it possible that the virtio-net does not disable UFO offload?
-> IMO it sets NETIF_F_LRO too bravely.
+> A quick thought: we need add (or reserve) a new feature bit to
+> indicate that we need more bits, and have transport specific
+> implementation of those extra bits negotiation. E.g for PCI, we can
+> introduce new fields in the capability.
 
-After we removed UFO completely, we found that guests may be migrated
-from old hosts with UFO support to newer without. And that they do not
-renegotiate features, so will continue to send UFO packets.
+Thanks Jason. Yes, that makes sense to me.
 
-I added back the absolute minimum support for UFO: for a host to be
-able to accept such UFO packets from userspace. But no device can
-advertise or negotiate the NETIF_F_USO feature again. If these packets
-arrive on the egress path, they will be immediately software segmented
-(or fragmented) in skb_segment. So the host will not forward such
-packets to another guest.
+The difference from 32 to 64 bit between virtio_pci_legacy.c and
+virtio_pci_modern.c is a good example:
 
-The behavior that Jason is experiencing, truncated packets received in
-a guest from the host, sound unrelated to this feature to me. Can you
-see what the original UDP datagram length is? Are these packets just
-marginally larger, or indeed clearly U[SF]O packets well beyond any
-reasonable MTU size?
+  static u64 vp_get_features(struct virtio_device *vdev)
+  {
+        struct virtio_pci_device *vp_dev = to_vp_device(vdev);
 
-Another option is that this is related to the host stack support for
-UDP_GRO. The stack can now build large packets, segments these on
-demand if needed (e.g., if such a packet arrives at a local socket
-that does not advertise UDP_GRO). Perhaps somehow such packets escape
-un-segmented to a guest. Do any devices where these packets may
-originate have features NETIF_F_GRO_UDP_FWD or NETIF_F_GRO_FRAGLIST
-enabled?
+        /* When someone needs more than 32 feature bits, we'll need to
+         * steal a bit to indicate that the rest are somewhere else. */
+        return ioread32(vp_dev->ioaddr + VIRTIO_PCI_HOST_FEATURES);
+ }
+
+  u64 vp_modern_get_features(struct virtio_pci_modern_device *mdev)
+  {
+        struct virtio_pci_common_cfg __iomem *cfg = mdev->common;
+
+        u64 features;
+
+        vp_iowrite32(0, &cfg->device_feature_select);
+        features = vp_ioread32(&cfg->device_feature);
+        vp_iowrite32(1, &cfg->device_feature_select);
+        features |= ((u64)vp_ioread32(&cfg->device_feature) << 32);
+
+        return features;
+  }
+
+device_feature_select is a 32-bit field, of which only values 0 and 1
+are defined so far, per the virtio 1.1 spec:
+
+"
+device_feature_select
+The driver uses this to select which feature bits device_feature
+shows. Value 0x0 selects Feature Bits 0 to 31, 0x1 selects Feature
+Bits 32 to 63, etc.
+"
+
+That leaves plenty of room for expansion, at least for pci devices.
+
+>
+> >
+> > > > > Actually, would it be possible to make new features available on
+> > > > > legacy devices? There is nothing in the features bits precluding it.
+> > > >
+> > > > I think it won't be possible: you are using feature bit 55,
+> > > > legacy devices have up to 32 feature bits. And of course the
+> > > > header looks a bit differently for legacy, you would have to add special
+> > > > code to handle that when mergeable buffers are off.
+> > >
+> > > I think I can make the latter work. I did start without a dependency
+> > > on the v1 header initially.
+> > >
+> > > Feature bit array length I had not considered. Good point. Need to
+> > > think about that. It would be very appealing if in particular the
+> > > tx-hash feature could work in legacy mode.
+> >
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
