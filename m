@@ -6,106 +6,109 @@ X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1793AC43460
-	for <virtualization@archiver.kernel.org>; Fri, 14 May 2021 07:31:24 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FD51C43461
+	for <virtualization@archiver.kernel.org>; Fri, 14 May 2021 07:38:57 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 961A2613CD
-	for <virtualization@archiver.kernel.org>; Fri, 14 May 2021 07:31:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 961A2613CD
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 03E6561452
+	for <virtualization@archiver.kernel.org>; Fri, 14 May 2021 07:38:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 03E6561452
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=daynix.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 343D984358;
-	Fri, 14 May 2021 07:31:23 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 868254012E;
+	Fri, 14 May 2021 07:38:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pNO33L-NaP66; Fri, 14 May 2021 07:31:22 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id CADDD83BD3;
-	Fri, 14 May 2021 07:31:21 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B3A1DC000D;
-	Fri, 14 May 2021 07:31:21 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D26C5C0001
- for <virtualization@lists.linux-foundation.org>;
- Fri, 14 May 2021 07:31:20 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B329F4012E
- for <virtualization@lists.linux-foundation.org>;
- Fri, 14 May 2021 07:31:20 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 2gPQRPJ8L4_p
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id maAQpvn-NsKZ; Fri, 14 May 2021 07:38:55 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 07AB24012A;
+	Fri, 14 May 2021 07:38:54 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CC048C000D;
+	Fri, 14 May 2021 07:38:54 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EC7EBC0001
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 May 2021 07:31:19 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 618564012A
+ Fri, 14 May 2021 07:38:53 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id DFDCB605F9
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 May 2021 07:31:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1620977478;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=qEwXortYNaxldB+sCYne8sqnUUpZSsLp70/SckpgE3s=;
- b=ZovNeuN2+SW2CTNZBpGQW07JXcA20pL8MPr7wUog1SJEctJGpYZmFP/IgOoWj33swUqlAe
- uICChviAlUV6BD+30qa6bz5/41VUI8VnsRFlbKxPN6qyIBJTPQgwDIv9X+vcJ2burR9TqD
- scroES6C8rqirWJJ5MiGCopadTFF+Gk=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-295-Bg1kVq0OO5WSWu86HFp2yw-1; Fri, 14 May 2021 03:31:16 -0400
-X-MC-Unique: Bg1kVq0OO5WSWu86HFp2yw-1
-Received: by mail-ej1-f72.google.com with SMTP id
- qk30-20020a170906d9deb02903916754e1b6so9264350ejb.2
+ Fri, 14 May 2021 07:38:53 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=daynix-com.20150623.gappssmtp.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id b2BkaWdm4xPO
  for <virtualization@lists.linux-foundation.org>;
- Fri, 14 May 2021 00:31:15 -0700 (PDT)
+ Fri, 14 May 2021 07:38:53 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-oo1-xc2b.google.com (mail-oo1-xc2b.google.com
+ [IPv6:2607:f8b0:4864:20::c2b])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2AEDF605EE
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 14 May 2021 07:38:53 +0000 (UTC)
+Received: by mail-oo1-xc2b.google.com with SMTP id
+ j17-20020a4ad6d10000b02901fef5280522so6196162oot.0
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 14 May 2021 00:38:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=daynix-com.20150623.gappssmtp.com; s=20150623;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=vLowYfteA+ucPyvyyoQpMI476zm+fyQH6C5ncpnpK5E=;
+ b=AYk72NwD5Q3AzJdlfMcjSDolwuKh6xqP/rjNsmWzcoa/+Qu5YhHpWqZo1aUKAzLIv0
+ ICAA1RY7CZXcksq2+uGo33ifQlK7+xMSrYLMazMUNMsBfX/lKtdas+bRz0jNb8NJSDjR
+ NszP6uDYsaA4OsOtdXYMYItno9bQxuGnNdlaY4K9yoBDPoYnHUUzkrQUnANC4uwhD9xn
+ Tb9CSvNHZ0Hs1fSInn+yUEx1YeWrQJ/OQ9zz7buXzDn/+t/nNzZO/qEIdRKrWO8gfsoJ
+ lyWu0gHWooSM67NF0PPyyM34fCoPed4R6XIAotCAvTfb060LzBT7cnKRqqzFw9QwiVFb
+ qe3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=qEwXortYNaxldB+sCYne8sqnUUpZSsLp70/SckpgE3s=;
- b=W749h32PRCdowosoXGGViIj7aamLAhzO+ie4R12Jx26jxq3ThFl7wb0dS+M3qhAL8B
- Id+8MzqFFIMNuAxHNTcO/LbUGH2P1S3YtmyM2VlEOe2uT2NVUAjZxrD05tWdKgxeck4c
- w/eqSJbqu4sBSoAp6Pe6fVCjuggRTin/mkaaoWO7dXX/IcLki4n+nQCdZ/c0MYN6jGrS
- wG7OGDj3I9S1h1YwIuc09q/AmIhyjRu1cAYaiALhWGgv63dfF+4xUECjUH3j+KVYsj98
- blTMEQK4uPvxQD8ceevFdtfj6vvPv11Q2uaQxqSmyWkJsJMEFORE4BQeu+iTiT8R7eWl
- eUnQ==
-X-Gm-Message-State: AOAM532EKc5W10ysaKn4xDhkQ0j5Q1M6aD4bvxPUqt2o3PBuT2wywxvd
- aFYZ68q6Vn+Lo3zX0XdKSm/Z2wyAYEGm+WGHmXsJZiE32nHWuikjMzMvrcBVg0v+ucNBTbxT6o4
- sP9mkJHvvYsIiL8Eha47JdwOHWuGA+NmUvj7f3a3NBFKlgz+LtNlXwyBymQ==
-X-Received: by 2002:aa7:dc49:: with SMTP id g9mr10881544edu.160.1620977474536; 
- Fri, 14 May 2021 00:31:14 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxG8avBVDLQcb88RwIjGEcI7lLXFcOmFPlv7+LK8Qxs01/mzkmQtnLTZTqGoCS/1yMev77rExPJWWaCKvsQL7A=
-X-Received: by 2002:a2e:9c91:: with SMTP id x17mr24353676lji.385.1620977463809; 
- Fri, 14 May 2021 00:31:03 -0700 (PDT)
+ bh=vLowYfteA+ucPyvyyoQpMI476zm+fyQH6C5ncpnpK5E=;
+ b=JwuSdEMTumVDc8UopRsOQxRtdHjGQgiH7afT4BvsE2ckKL2+amYfjKQ2wZsHMc7fFN
+ 8iGG0VMD7k7tv5o0SOAt11JgYdvXCRggYURz5vviic0GSU/IN5YGx+kpWfc5xbk7qOBb
+ t1xoN1c4EXkvFqSizzlXpp9YPRkIyM/clz5P0wLf/r/GzZMbyvM5LL3NwlGeQBo73X1L
+ 7KP1oPpk+3Xu7i6h48Sg7Kaml5S0K/pYDaksUPfiRgo1ok+ivRmU7JKPXqVN34ZKvgnx
+ xiVyU5X7fTT60LM0nZaW+MiORFBwL1aIEJcLAlyp6d/vnfG8BwLjcUHjGOZ54iRQY/iU
+ XtHg==
+X-Gm-Message-State: AOAM531LzvW5M8GCUnT613E03Sxv4K94jbNfLk4js7PPFwWuehrCH9DE
+ +231zXfD1oGWhNtjJf8jEA9JtRuwCS8dM67xlNXsYQ==
+X-Google-Smtp-Source: ABdhPJwS1fSKvV1YIb9Gu98m+Ob1K+gDnK+Fe1TYbqTQc1uLfyMToTcidxd+FUgOrDr3q3AMCSBbn2CU9cbW97R66N8=
+X-Received: by 2002:a05:6820:100a:: with SMTP id
+ v10mr31723524oor.55.1620977932134; 
+ Fri, 14 May 2021 00:38:52 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210423080942.2997-1-jasowang@redhat.com>
- <YJ1TgoFSwOkQrC+1@stefanha-x1.localdomain>
- <CACycT3v-2naEaXEtPqaKcGz8qpfnmp4VzrHefqLNhO=9=57jdQ@mail.gmail.com>
-In-Reply-To: <CACycT3v-2naEaXEtPqaKcGz8qpfnmp4VzrHefqLNhO=9=57jdQ@mail.gmail.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 14 May 2021 15:30:52 +0800
-Message-ID: <CACGkMEvKByPZFwN8bU6_SfRbS9i43am7X5WGJQtE=Yh+YKWOHw@mail.gmail.com>
-Subject: Re: Re: [RFC PATCH V2 0/7] Do not read from descripto ring
-To: Yongji Xie <xieyongji@bytedance.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: ashish.kalra@amd.com, file@sect.tu-berlin.de, kvm <kvm@vger.kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, konrad.wilk@oracle.com,
- linux-kernel <linux-kernel@vger.kernel.org>,
+References: <20210511044253.469034-1-yuri.benditovich@daynix.com>
+ <20210511044253.469034-5-yuri.benditovich@daynix.com>
+ <eb8c4984-f0cc-74ee-537f-fc60deaaaa73@redhat.com>
+ <CAOEp5OdrCDPx4ijLcEOm=Wxma6hc=nyqw4Xm6bggBxvgtR0tbg@mail.gmail.com>
+ <89759261-3a72-df6c-7a81-b7a48abfad44@redhat.com>
+ <CAOEp5Ocm9Q69Fv=oeyCs01F9J4nCTPiOPpw9_BRZ0WnF+LtEFQ@mail.gmail.com>
+ <CACGkMEsZBCzV+d_eLj1aYT+pkS5m1QAy7q8rUkNsdV0C8aL8tQ@mail.gmail.com>
+ <CAOEp5OeSankfA6urXLW_fquSMrZ+WYXDtKNacort1UwR=WgxqA@mail.gmail.com>
+ <CACGkMEt3bZrdqbWtWjSkXvv5v8iCHiN8hkD3T602RZnb6nPd9A@mail.gmail.com>
+ <CAOEp5Odw=eaQWZCXr+U8PipPtO1Avjw-t3gEdKyvNYxuNa5TfQ@mail.gmail.com>
+ <CACGkMEuqXaJxGqC+CLoq7k4XDu+W3E3Kk3WvG-D6tnn2K4ZPNA@mail.gmail.com>
+ <CAOEp5OfB62SQzxMj_GkVD4EM=Z+xf43TPoTZwMbPPa3BsX2ooA@mail.gmail.com>
+ <CACGkMEu4NdyMoFKbyUGG1aGX+K=ShMZuVuMKYPauEBYz5pxYzA@mail.gmail.com>
+ <CA+FuTScV+AJ+O3shOMLjUcy+PjBE8uWqCNt0FXWnq9L3gzrvaw@mail.gmail.com>
+ <CACGkMEuUF1vDNWbL9dRr1ZM4vFTLwc3j9uB-66451U1NvQ+2EA@mail.gmail.com>
+In-Reply-To: <CACGkMEuUF1vDNWbL9dRr1ZM4vFTLwc3j9uB-66451U1NvQ+2EA@mail.gmail.com>
+From: Yuri Benditovich <yuri.benditovich@daynix.com>
+Date: Fri, 14 May 2021 10:38:39 +0300
+Message-ID: <CAOEp5OcozfSWszTm9VArOAH+wm2Fo8tH1QJDsLPZD8ieBLtg-g@mail.gmail.com>
+Subject: Re: [PATCH 4/4] tun: indicate support for USO feature
+To: Jason Wang <jasowang@redhat.com>
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, mst <mst@redhat.com>,
+ netdev <netdev@vger.kernel.org>, linux-kernel <linux-kernel@vger.kernel.org>,
  virtualization <virtualization@lists.linux-foundation.org>,
- Christoph Hellwig <hch@infradead.org>, Stefan Hajnoczi <stefanha@redhat.com>
+ Yan Vugenfirer <yan@daynix.com>, Jakub Kicinski <kuba@kernel.org>,
+ davem <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,44 +125,59 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, May 14, 2021 at 2:07 PM Yongji Xie <xieyongji@bytedance.com> wrote:
+On Fri, May 14, 2021 at 10:16 AM Jason Wang <jasowang@redhat.com> wrote:
 >
-> On Fri, May 14, 2021 at 12:27 AM Stefan Hajnoczi <stefanha@redhat.com> wrote:
+> On Fri, May 14, 2021 at 4:35 AM Willem de Bruijn
+> <willemdebruijn.kernel@gmail.com> wrote:
 > >
-> > On Fri, Apr 23, 2021 at 04:09:35PM +0800, Jason Wang wrote:
-> > > Sometimes, the driver doesn't trust the device. This is usually
-> > > happens for the encrtpyed VM or VDUSE[1].
+> > > > But surprisingly when TUN receives TUN_F_UFO it does not propagate it
+> > > > anywhere, there is no corresponding NETIF flag.
+> > >
+> > > (It looks like I drop the community and other ccs accidentally, adding
+> > > them back and sorry)
+> > >
+> > > Actually, there is one, NETIF_F_GSO_UDP.
+> > >
+> > > Kernel used to have NETIF_F_UFO, but it was removed due to bugs and
+> > > the lack of real hardware support. Then we found it breaks uABI, so
+> > > Willem tries to make it appear for userspace again, and then it was
+> > > renamed to NETIF_F_GSO_UDP.
+> > >
+> > > But I think it's a bug that we don't proporate TUN_F_UFO to NETIF
+> > > flag, this is a must for the driver that doesn't support
+> > > VIRTIO_NET_F_GUEST_UFO. I just try to disable all offloads and
+> > > mrg_rxbuf, then netperf UDP_STREAM from host to guest gives me bad
+> > > length packet in the guest.
+> > >
+> > > Willem, I think we probably need to fix this.
 > >
-> > Thanks for doing this.
+> > We had to add back support for the kernel to accept UFO packets from
+> > userspace over tuntap.
 > >
-> > Can you describe the overall memory safety model that virtio drivers
-> > must follow? For example:
-> >
-> > - Driver-to-device buffers must be on dedicated pages to avoid
-> >   information leaks.
-> >
-> > - Driver-to-device buffers must be on dedicated pages to avoid memory
-> >   corruption.
-> >
-> > When I say "pages" I guess it's the IOMMU page size that matters?
-> >
-> > What is the memory access granularity of VDUSE?
-> >
+> > The kernel does not generate such packets, so a guest should never be
+> > concerned of receiving UFO packets.
 >
-> Now we use PAGE_SIZE as the access granularity. I think it should be
-> safe to access the Driver-to-device buffers in VDUSE case because we
-> also use bounce-buffering mechanism like swiotlb does.
+> That's my feeling as well.
 >
-> Thanks,
-> Yongji
+> But when I:
 >
+> 1) turn off all guest gso feature and mrg rx buffers, in this case
+> virtio-net will only allocate 1500 bytes for each packet
+> 2) doing netperf (UDP_STREAM) from local host to guest, I see packet
+> were truncated in the guest
 
-Yes, while at this, I wonder it's possible the re-use the swiotlb
-codes for VDUSE, or having some common library for this. Otherwise
-there would be duplicated codes (bugs).
-
-Thanks
-
+Is it possible that the virtio-net does not disable UFO offload?
+IMO it sets NETIF_F_LRO too bravely.
+>
+> >
+> > Perhaps i'm misunderstanding the problem here.
+> >
+>
+> I will re-check and get back to you.
+> (probably need a while since I will not be online for the next week).
+>
+> Thanks
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
