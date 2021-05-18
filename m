@@ -2,80 +2,107 @@ Return-Path: <SRS0=MByQ=KN=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_RED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBCD9C433B4
-	for <virtualization@archiver.kernel.org>; Tue, 18 May 2021 01:10:03 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26954C433ED
+	for <virtualization@archiver.kernel.org>; Tue, 18 May 2021 06:33:25 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7F2B5613AF
-	for <virtualization@archiver.kernel.org>; Tue, 18 May 2021 01:10:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7F2B5613AF
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	by mail.kernel.org (Postfix) with ESMTPS id 961C361261
+	for <virtualization@archiver.kernel.org>; Tue, 18 May 2021 06:33:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 961C361261
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=bytedance.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 55AD8402C0;
-	Tue, 18 May 2021 01:10:03 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 4DAC2405C9;
+	Tue, 18 May 2021 06:33:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xWnwq35dGuzm; Tue, 18 May 2021 01:10:02 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id droZBpyWyMU5; Tue, 18 May 2021 06:33:23 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTP id EB42B4025F;
-	Tue, 18 May 2021 01:10:01 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id D24BF40594;
+	Tue, 18 May 2021 06:33:22 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C9737C000E;
-	Tue, 18 May 2021 01:10:01 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 69F23C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9C4EAC000E;
+	Tue, 18 May 2021 06:33:22 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0BC82C0001
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 May 2021 01:10:00 +0000 (UTC)
+ Tue, 18 May 2021 06:33:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4D0174025F
+ by smtp1.osuosl.org (Postfix) with ESMTP id BC40B83B33
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 May 2021 01:10:00 +0000 (UTC)
+ Tue, 18 May 2021 06:33:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dOXvUtMhCGnc
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=bytedance-com.20150623.gappssmtp.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id i6453TZweNQM
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 May 2021 01:09:59 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 75655402D0
+ Tue, 18 May 2021 06:33:18 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com
+ [IPv6:2607:f8b0:4864:20::22d])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 91FEF83955
  for <virtualization@lists.linux-foundation.org>;
- Tue, 18 May 2021 01:09:59 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1510661396;
- Tue, 18 May 2021 01:09:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1621300198;
- bh=QEy0KRw8VajZyTOxPvZTSchBWwsGca12LIzpS3tWvsE=;
- h=From:To:Cc:Subject:Date:From;
- b=sBRWvqaeR49oMgE31OMZ0kFI5FZM/zNqlmDgFijL2EwlSBAaoJHgjL9mdGzJ3Ixv2
- UJDXOXe/fGRD1FjkRFpDZ6PiCEWQ59/MZwwkjT39aHR3P/YibQjfRxvH5YGOMzcd2v
- kKw8VVb6qsnT3vo6b7nIOKYzD17Ompn16/Rjgy3+ybYNBBna0R4KMHrB7iGXZXvTvs
- ILIlsi5A3B319gy8VAUylBe4f5VvjNumIH+TQ8lqraQrMRWjZGWYriW5hcTCueefq6
- f1KWX7Dlwk+gPYWdX4zvlqvCNjlkCytolzxbVXqVsccqAKd0mZanFTykk71/ectUTv
- yNyFWAd8IZSTg==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 1/3] powerpc/pseries: Fix hcall tracing recursion
- in pv queued spinlocks
-Date: Mon, 17 May 2021 21:09:54 -0400
-Message-Id: <20210518010956.1485782-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.2
+ Tue, 18 May 2021 06:33:18 +0000 (UTC)
+Received: by mail-oi1-x22d.google.com with SMTP id z3so8789009oib.5
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 17 May 2021 23:33:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=bytedance-com.20150623.gappssmtp.com; s=20150623;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=I/nOqogCBKj8Jo7Rsll9I66GD7iEvIt5ciCccCoZlEs=;
+ b=efso70W53jkPpp58wUOr49Ntk4YT0Tdc8wXwaFC1cR7+cc0IFUuQkV6CbuSUcoxVMG
+ 9CzgwIhjfiiFDfYRZNgqBRyHNFfZ3THqgEPS4PsK+k2FZCOapxeStrQV3Y7PqKsbcaXt
+ 3X3uGqISsLdwjxItwKZHSJ4J85lcy+kW6feqTlSZD3No5J4orNDS+AXA0Ce2IFRF+Bip
+ Q4Ip7mZ0TipDErgmLGeVDxctDJdSi1tyH/BgfpaMLuxsnkV5X+8oQimDusXXQ0jf06j9
+ KxT42ndCUuFTDGAQta6a4qjS5F/E8aoVGgq5GYlhLwbklK4ZpLO1bS6BQE48NzFiOnTC
+ EHHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=I/nOqogCBKj8Jo7Rsll9I66GD7iEvIt5ciCccCoZlEs=;
+ b=BAKzaqpPqqgApmFp676j+n6bp/nYRgd2rMrL7TRqlgOKhVmOwDD1evHX1vqnLvh9lQ
+ EXFW5WuwfsolVWgMKlpqafpmihe+BMibqqCF8LqbpkQfv7bbhYqTPyEsK++4fGO5JxoW
+ 6Etu8DlVHcFyDacl/m3i0y0VBZduofREl68Ce3yQAQ9zVNrmJhqzPFyAmHtcXj47q82X
+ IFG0UB4KrneN2R4jWDRZRlFDVyn/G+Ed6fkcymR259ZSqUdPcEsYyf6ZQYLv5JD5+0dY
+ YCDUSha6hb0cLUvyolamBZjPYkTTwQcGW+Ybj6jMBm5VmAGOc+ParxcGupk4i08mfNKk
+ rVyg==
+X-Gm-Message-State: AOAM5309X+xahHyuS4ytXd2ktXzv7Kb1yIqzoaL5yDpg0A9+ZP+xO5UR
+ 7epJMdQcdyL+WMtywv7d1n3Puqy5W6fXItCq+wVVpw==
+X-Google-Smtp-Source: ABdhPJyXuN6Re7o2UA119O3TaXWxZasTalN/bhhBmv6HsX0gOMzmDNGBw2/q8yqAkZU4yOgXyl+7l4nc4N1/K3xiTYA=
+X-Received: by 2002:aca:d417:: with SMTP id l23mr2805816oig.97.1621319597357; 
+ Mon, 17 May 2021 23:33:17 -0700 (PDT)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Cc: Sasha Levin <sashal@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>,
- Nicholas Piggin <npiggin@gmail.com>, virtualization@lists.linux-foundation.org,
- "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
- linuxppc-dev@lists.ozlabs.org
+References: <CAP_N_Z9xPgyf=au4VD+fXF8iorZHHk7Q4-CbJCOVUeupG4v4sw@mail.gmail.com>
+ <20210504161651.3b6fhi64d7g3jui4@steredhat>
+ <CAP_N_Z_cYjTCUpmLAW0xskUM_kAi=8e7iU8RXsMRnYWOxhA5OA@mail.gmail.com>
+ <20210505104933.wgdn4gw56kle2mec@steredhat>
+ <CAP_N_Z_DN+SYZ3E52HGdcmSfopBoNayKVzUdH7Nc2jUK5nfmLA@mail.gmail.com>
+ <CAP_N_Z9yZ4ydXaEn1e=70pDh3FyDjrrxgzis4YTfyDoZ5c8k+g@mail.gmail.com>
+ <20210510145055.y7mxqaq4zggajz5a@steredhat>
+ <CAP_N_Z94Pi4k8Dv6cHR0CZ9RTLJeQ3VWQoQgLTCWE4k+A01xbg@mail.gmail.com>
+ <20210514151701.6fp27qanjseom4tl@steredhat>
+ <CAP_N_Z8CGx83D7yperR3OhMb-6YVrADxbZxocxSbpz9czKoO=w@mail.gmail.com>
+ <20210517110208.lippuk4rv57cn6hj@steredhat>
+In-Reply-To: <20210517110208.lippuk4rv57cn6hj@steredhat>
+From: "Jiang Wang ." <jiang.wang@bytedance.com>
+Date: Mon, 17 May 2021 23:33:06 -0700
+Message-ID: <CAP_N_Z9hC7a4pKVP=MM1+Nk0fgNECTUfCB-at09mD9EpW03Ukg@mail.gmail.com>
+Subject: Re: Re: [RFC v2] virtio-vsock: add description for datagram type
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: cong.wang@bytedance.com, Xiongchun Duan <duanxiongchun@bytedance.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, cohuck@redhat.com,
+ virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Arseny Krasnov <arseny.krasnov@kaspersky.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -92,153 +119,138 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Nicholas Piggin <npiggin@gmail.com>
+On Mon, May 17, 2021 at 4:02 AM Stefano Garzarella <sgarzare@redhat.com> wrote:
+>
+> On Fri, May 14, 2021 at 11:55:29AM -0700, Jiang Wang . wrote:
+> >On Fri, May 14, 2021 at 8:17 AM Stefano Garzarella <sgarzare@redhat.com> wrote:
+> >> On Thu, May 13, 2021 at 04:26:03PM -0700, Jiang Wang . wrote:
+>
+> [...]
+>
+> >> >I see. I will add some limit to dgram packets. Also, when the
+> >> >virtqueues
+> >> >are shared between stream and dgram, both of them need to grab a lock
+> >> >before using the virtqueue, so one will not completely block another one.
+> >>
+> >> I'm not worried about the concurrent access that we definitely need to
+> >> handle with a lock, but more about the uncontrolled packet sending that
+> >> dgram might have, flooding the queues and preventing others from
+> >> communicating.
+> >
+> >That is a valid concern. Let me explain how I would handle that if we
+> >don't add two new virtqueues. For dgram, I also add a dgram_send_pkt_list,
+> >which is similar to send_pkt_list for stream (and seqpacket). But there
+> >is one difference. The dgram_send_pkt_list has a maximum size setting,
+> >and keep tracking how many pkts are in the list. The track number
+> >(dgram_send_pkt_list_size) is  increased when a packet is added
+> >to the list and is decreased when a packet
+> >is removed from the list and added to the virtqueue. In
+> >virtio_transport_send_pkt, if the current
+> >dgram_send_pkt_list_size is equal
+> >to the maximum ( let's say 128), then it will not add to the
+> >dgram_send_pkt_list and return an error to the application.
+>
+> For stream socket, we have the send_pkt_list and the send worker because
+> the virtqueue can be full and the transmitter needs to wait available
+> slots, because we can't discard packets.
+>
+> For dgram I think we don't need this, so we can avoid the
+> dgram_send_pkt_list and directly enqueue packets in the virtqueue.
+>
+> If there are no slots available, we can simply drop the packet.
+> In this way we don't have to put limits other than the available space
+> in the virtqueue.
 
-[ Upstream commit 2c8c89b95831f46a2fb31a8d0fef4601694023ce ]
+I considered this approach before. One question not clear to me is
+whether we should call virtqueue_kick for every dgram packet. If I
+am not wrong, each virtqueue_kick will lead to a vm_exit to the host.
+If we call virtqueue_kick() for each dgram packet, the performance
+might be bad when there are lots of packets. One idea is to set
+a threshold and a timer to call virtqueue_kick(). When there are
+lots of packets, we wait until a threshold. When there are few packets,
+the timer will make sure those packets will be delivered not too late.
 
-The paravit queued spinlock slow path adds itself to the queue then
-calls pv_wait to wait for the lock to become free. This is implemented
-by calling H_CONFER to donate cycles.
+Any other ideas for virtqueue_kick? If the threshold plus timer is fine,
+I can go this direction too.
 
-When hcall tracing is enabled, this H_CONFER call can lead to a spin
-lock being taken in the tracing code, which will result in the lock to
-be taken again, which will also go to the slow path because it queues
-behind itself and so won't ever make progress.
+> >
+> >In this way, the number of pending dgram pkts to be sent is limited.
+> >Then both stream and dgram sockets will compete to hold a lock
+> >for the tx virtqueue. Depending on the linux scheduler, this competition
+> >will be somewhat fair. As a result, dgram will not block stream completely.
+> >It will compete and share the virtqueue with stream, but stream
+> >can still send some pkts.
+> >
+> >Basically, the virtqueue becomes a first-come first-serve resource for
+> >the stream and dgram. When both stream and dgram applications
+> >have lots of data to send, dgram_send_pkt_list and send_pkt_list
+> >will still be a limited size, and each will have some chance to send out
+> >the data via virtqueue.  Does this address your concern?
+> >
+> >
+> >> So having 2 dedicated queues could avoid a credit mechanism at all for
+> >> connection-less sockets, and simply the receiver discards packets that
+> >> it can't handle.
+> >
+> >With 2 dedicated queues, we still need some kind of accounting for
+> >the dgram. Like the dgram_send_pkt_size I mentioned above.  Otherwise,
+> >it will cause OOM. It is not a real credit mechanism, but code is similar
+> >with or without 2 dedicated queues in my current prototype.
+>
+> I think in both cases we don't need an accounting, but we can drop
+> packets if the virtqueue is full.
+>
+> It's still not clear to me where OOM may occur. Can you elaborate on
+> this?
 
-An example trace of a deadlock:
+OOM depending on the implementation details. If we keep
+dgram_send_pkt_list, and put no limitation,  it may increase indefinitely
+and cause OOM. As long as we have some limitations or drop packets
+quickly, then we should be fine.
 
-  __pv_queued_spin_lock_slowpath
-  trace_clock_global
-  ring_buffer_lock_reserve
-  trace_event_buffer_lock_reserve
-  trace_event_buffer_reserve
-  trace_event_raw_event_hcall_exit
-  __trace_hcall_exit
-  plpar_hcall_norets_trace
-  __pv_queued_spin_lock_slowpath
-  trace_clock_global
-  ring_buffer_lock_reserve
-  trace_event_buffer_lock_reserve
-  trace_event_buffer_reserve
-  trace_event_raw_event_rcu_dyntick
-  rcu_irq_exit
-  irq_exit
-  __do_irq
-  call_do_irq
-  do_IRQ
-  hardware_interrupt_common_virt
+> >
+> >For receiver discarding packets part, could you explain more? I think
+> >receiver discarding pkts code also is same with or without 2 dedicated
+> >queues.
+>
+> Yep.
+>
+> > Both will use can_enqueue = virtio_transport_inc_rx_pkt(vvs, pkt);
+> >to check if a packet should be discarded or not.
+>
+> I don't think we can use virtio_transport_inc_rx_pkt() for dgram.
+> This is based on the credit mechanism (e.g. buf_alloc) that works when
+> you have a connection oriented socket.
+>
+> With dgram you can have multiple transmitter for a single socket, so how
+> we can exchange that information?
+>
+In my view, we don't need to exchange that information. Buf_alloc for
+dgram is local to a receiving socket. The sending sockets do not know
+about that. For receiving socket, it just checks if there is still buffer
+available to decide to drop a packet or not. If multiple transmitter
+send to a single socket, they will share the same buf_alloc, and packets
+will be dropped randomly for those transmitters.
 
-Fix this by introducing plpar_hcall_norets_notrace(), and using that to
-make SPLPAR virtual processor dispatching hcalls by the paravirt
-spinlock code.
+> If we reuse the VMCI implementation with skbuff, the sk_receive_skb()
+> already checks if the sk_rcvbuf is full and discards the packet in this
+> case, so we don't need an internal rx_queue.
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210508101455.1578318-2-npiggin@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/powerpc/include/asm/hvcall.h       |  3 +++
- arch/powerpc/include/asm/paravirt.h     | 22 +++++++++++++++++++---
- arch/powerpc/platforms/pseries/hvCall.S | 10 ++++++++++
- arch/powerpc/platforms/pseries/lpar.c   |  3 +--
- 4 files changed, 33 insertions(+), 5 deletions(-)
+OK.
 
-diff --git a/arch/powerpc/include/asm/hvcall.h b/arch/powerpc/include/asm/hvcall.h
-index c1fbccb04390..3e8e19f5746c 100644
---- a/arch/powerpc/include/asm/hvcall.h
-+++ b/arch/powerpc/include/asm/hvcall.h
-@@ -437,6 +437,9 @@
-  */
- long plpar_hcall_norets(unsigned long opcode, ...);
- 
-+/* Variant which does not do hcall tracing */
-+long plpar_hcall_norets_notrace(unsigned long opcode, ...);
-+
- /**
-  * plpar_hcall: - Make a pseries hypervisor call
-  * @opcode: The hypervisor call to make.
-diff --git a/arch/powerpc/include/asm/paravirt.h b/arch/powerpc/include/asm/paravirt.h
-index 9362c94fe3aa..588bfb9a0579 100644
---- a/arch/powerpc/include/asm/paravirt.h
-+++ b/arch/powerpc/include/asm/paravirt.h
-@@ -24,19 +24,35 @@ static inline u32 yield_count_of(int cpu)
- 	return be32_to_cpu(yield_count);
- }
- 
-+/*
-+ * Spinlock code confers and prods, so don't trace the hcalls because the
-+ * tracing code takes spinlocks which can cause recursion deadlocks.
-+ *
-+ * These calls are made while the lock is not held: the lock slowpath yields if
-+ * it can not acquire the lock, and unlock slow path might prod if a waiter has
-+ * yielded). So this may not be a problem for simple spin locks because the
-+ * tracing does not technically recurse on the lock, but we avoid it anyway.
-+ *
-+ * However the queued spin lock contended path is more strictly ordered: the
-+ * H_CONFER hcall is made after the task has queued itself on the lock, so then
-+ * recursing on that lock will cause the task to then queue up again behind the
-+ * first instance (or worse: queued spinlocks use tricks that assume a context
-+ * never waits on more than one spinlock, so such recursion may cause random
-+ * corruption in the lock code).
-+ */
- static inline void yield_to_preempted(int cpu, u32 yield_count)
- {
--	plpar_hcall_norets(H_CONFER, get_hard_smp_processor_id(cpu), yield_count);
-+	plpar_hcall_norets_notrace(H_CONFER, get_hard_smp_processor_id(cpu), yield_count);
- }
- 
- static inline void prod_cpu(int cpu)
- {
--	plpar_hcall_norets(H_PROD, get_hard_smp_processor_id(cpu));
-+	plpar_hcall_norets_notrace(H_PROD, get_hard_smp_processor_id(cpu));
- }
- 
- static inline void yield_to_any(void)
- {
--	plpar_hcall_norets(H_CONFER, -1, 0);
-+	plpar_hcall_norets_notrace(H_CONFER, -1, 0);
- }
- #else
- static inline bool is_shared_processor(void)
-diff --git a/arch/powerpc/platforms/pseries/hvCall.S b/arch/powerpc/platforms/pseries/hvCall.S
-index 2136e42833af..8a2b8d64265b 100644
---- a/arch/powerpc/platforms/pseries/hvCall.S
-+++ b/arch/powerpc/platforms/pseries/hvCall.S
-@@ -102,6 +102,16 @@ END_FTR_SECTION(0, 1);						\
- #define HCALL_BRANCH(LABEL)
- #endif
- 
-+_GLOBAL_TOC(plpar_hcall_norets_notrace)
-+	HMT_MEDIUM
-+
-+	mfcr	r0
-+	stw	r0,8(r1)
-+	HVSC				/* invoke the hypervisor */
-+	lwz	r0,8(r1)
-+	mtcrf	0xff,r0
-+	blr				/* return r3 = status */
-+
- _GLOBAL_TOC(plpar_hcall_norets)
- 	HMT_MEDIUM
- 
-diff --git a/arch/powerpc/platforms/pseries/lpar.c b/arch/powerpc/platforms/pseries/lpar.c
-index 764170fdb0f7..1c3ac0f66336 100644
---- a/arch/powerpc/platforms/pseries/lpar.c
-+++ b/arch/powerpc/platforms/pseries/lpar.c
-@@ -1827,8 +1827,7 @@ void hcall_tracepoint_unregfunc(void)
- 
- /*
-  * Since the tracing code might execute hcalls we need to guard against
-- * recursion. One example of this are spinlocks calling H_YIELD on
-- * shared processor partitions.
-+ * recursion.
-  */
- static DEFINE_PER_CPU(unsigned int, hcall_trace_depth);
- 
--- 
-2.30.2
+> Maybe someday we should convert stream to skbuff too, it would make our
+> lives easier.
+>
+Yeah.  I remember the original virtio vsock patch did use skb, but somehow
+it  did not use skb anymore when merging to the upstream, not sure why.
 
+Thanks,
+
+Jiang
+
+> Thanks,
+> Stefano
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
