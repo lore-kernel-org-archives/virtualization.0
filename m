@@ -2,71 +2,81 @@ Return-Path: <SRS0=KlxN=KO=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A1B5C433B4
-	for <virtualization@archiver.kernel.org>; Wed, 19 May 2021 13:18:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5FC22C433ED
+	for <virtualization@archiver.kernel.org>; Wed, 19 May 2021 13:53:16 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2599361355
-	for <virtualization@archiver.kernel.org>; Wed, 19 May 2021 13:18:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2599361355
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id 08BFE611B0
+	for <virtualization@archiver.kernel.org>; Wed, 19 May 2021 13:53:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 08BFE611B0
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E1A9D83E5B;
-	Wed, 19 May 2021 13:18:02 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id C71F4842F8;
+	Wed, 19 May 2021 13:53:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id eDxpUD4KrTIz; Wed, 19 May 2021 13:18:02 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7CC0783DDD;
-	Wed, 19 May 2021 13:18:01 +0000 (UTC)
+	with ESMTP id beM9GzfT_vfL; Wed, 19 May 2021 13:53:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 58839842CD;
+	Wed, 19 May 2021 13:53:14 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 55207C000E;
-	Wed, 19 May 2021 13:18:01 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D5B63C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 25A56C000E;
+	Wed, 19 May 2021 13:53:14 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 56AC2C0001
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 May 2021 13:17:59 +0000 (UTC)
+ Wed, 19 May 2021 13:53:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id C42B383DDD
+ by smtp4.osuosl.org (Postfix) with ESMTP id 372CA406A9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 May 2021 13:17:59 +0000 (UTC)
+ Wed, 19 May 2021 13:53:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VptLRKAZiu2u
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id le9cRCAb9lxk
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 May 2021 13:17:59 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-57.freemail.mail.aliyun.com
- (out30-57.freemail.mail.aliyun.com [115.124.30.57])
- by smtp1.osuosl.org (Postfix) with ESMTPS id A766083E31
+ Wed, 19 May 2021 13:53:12 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from theia.8bytes.org (8bytes.org
+ [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id DAD0B40666
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 May 2021 13:17:58 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R171e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=6; SR=0; TI=SMTPD_---0UZQFB7T_1621430275; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0UZQFB7T_1621430275) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 19 May 2021 21:17:55 +0800
+ Wed, 19 May 2021 13:53:11 +0000 (UTC)
+Received: from cap.home.8bytes.org (p549ad305.dip0.t-ipconnect.de
+ [84.154.211.5])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+ (No client certificate requested)
+ by theia.8bytes.org (Postfix) with ESMTPSA id EF587104;
+ Wed, 19 May 2021 15:53:07 +0200 (CEST)
+From: Joerg Roedel <joro@8bytes.org>
+To: x86@kernel.org,
+	Hyunwook Baek <baekhw@google.com>
+Subject: [PATCH v2 0/8] x86/sev-es: Fixes for SEV-ES Guest Support
+Date: Wed, 19 May 2021 15:52:43 +0200
+Message-Id: <20210519135251.30093-1-joro@8bytes.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Message-Id: <1621430043.1216998-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH] virtio: Introduce a new kick interface
- virtqueue_kick_try()
-Date: Wed, 19 May 2021 21:14:03 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Michael S. Tsirkin <mst@redhat.com>
-In-Reply-To: <20210519083900-mutt-send-email-mst@kernel.org>
-Cc: Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
- "David S. Miller" <davem@davemloft.net>,
- virtualization@lists.linux-foundation.org
+Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org,
+ Arvind Sankar <nivedita@alum.mit.edu>, hpa@zytor.com,
+ Jiri Slaby <jslaby@suse.cz>, Joerg Roedel <joro@8bytes.org>,
+ David Rientjes <rientjes@google.com>, Martin Radev <martin.b.radev@gmail.com>,
+ Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>,
+ Kees Cook <keescook@chromium.org>, Cfir Cohen <cfir@google.com>,
+ linux-coco@lists.linux.dev, Andy Lutomirski <luto@kernel.org>,
+ Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>,
+ Mike Stunes <mstunes@vmware.com>, Sean Christopherson <seanjc@google.com>,
+ linux-kernel@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+ Erdem Aktas <erdemaktas@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -83,129 +93,57 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, 19 May 2021 08:44:01 -0400, Michael S. Tsirkin <mst@redhat.com> wrote:
-> On Wed, May 19, 2021 at 07:47:57PM +0800, Xuan Zhuo wrote:
-> > Unlike virtqueue_kick(), virtqueue_kick_try() returns true only when the
-> > kick is successful. In virtio-net, we want to count the number of kicks.
-> > So we need an interface that can perceive whether the kick is actually
-> > executed.
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/net/virtio_net.c     |  8 ++++----
-> >  drivers/virtio/virtio_ring.c | 20 ++++++++++++++++++++
-> >  include/linux/virtio.h       |  2 ++
-> >  3 files changed, 26 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 9b6a4a875c55..167697030cb6 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -617,7 +617,7 @@ static int virtnet_xdp_xmit(struct net_device *dev,
-> >  	ret = nxmit;
-> >
-> >  	if (flags & XDP_XMIT_FLUSH) {
-> > -		if (virtqueue_kick_prepare(sq->vq) && virtqueue_notify(sq->vq))
-> > +		if (virtqueue_kick_try(sq->vq))
-> >  			kicks = 1;
-> >  	}
-> >  out:
-> > @@ -1325,7 +1325,7 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
-> >  		if (err)
-> >  			break;
-> >  	} while (rq->vq->num_free);
-> > -	if (virtqueue_kick_prepare(rq->vq) && virtqueue_notify(rq->vq)) {
-> > +	if (virtqueue_kick_try(rq->vq)) {
-> >  		unsigned long flags;
-> >
-> >  		flags = u64_stats_update_begin_irqsave(&rq->stats.syncp);
-> > @@ -1533,7 +1533,7 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
-> >
-> >  	if (xdp_xmit & VIRTIO_XDP_TX) {
-> >  		sq = virtnet_xdp_get_sq(vi);
-> > -		if (virtqueue_kick_prepare(sq->vq) && virtqueue_notify(sq->vq)) {
-> > +		if (virtqueue_kick_try(sq->vq)) {
-> >  			u64_stats_update_begin(&sq->stats.syncp);
-> >  			sq->stats.kicks++;
-> >  			u64_stats_update_end(&sq->stats.syncp);
-> > @@ -1710,7 +1710,7 @@ static netdev_tx_t start_xmit(struct sk_buff *skb, struct net_device *dev)
-> >  	}
-> >
-> >  	if (kick || netif_xmit_stopped(txq)) {
-> > -		if (virtqueue_kick_prepare(sq->vq) && virtqueue_notify(sq->vq)) {
-> > +		if (virtqueue_kick_try(sq->vq)) {
-> >  			u64_stats_update_begin(&sq->stats.syncp);
-> >  			sq->stats.kicks++;
-> >  			u64_stats_update_end(&sq->stats.syncp);
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index 71e16b53e9c1..1462be756875 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -1874,6 +1874,26 @@ bool virtqueue_kick(struct virtqueue *vq)
-> >  }
-> >  EXPORT_SYMBOL_GPL(virtqueue_kick);
-> >
-> > +/**
-> > + * virtqueue_kick_try - try update after add_buf
-> > + * @vq: the struct virtqueue
-> > + *
-> > + * After one or more virtqueue_add_* calls, invoke this to kick
-> > + * the other side.
-> > + *
-> > + * Caller must ensure we don't call this with other virtqueue
-> > + * operations at the same time (except where noted).
-> > + *
-> > + * Returns true if kick success, otherwise false.
->
-> so what is the difference between this and virtqueue_kick
-> which says
->
->  * Returns false if kick failed, otherwise true.
+From: Joerg Roedel <jroedel@suse.de>
 
-Calling virtqueue_kick, we can only know whether there is a kick failure, we
-don't know whether kick is called. It may return true, but kick is not called.
+Hi,
 
-virtqueue_kick_try() returns true only if the kick is successful, so that we can
-know whether kick has been called based on the return value, so as to count the
-number of kick calls.
+here is the second version of my pending SEV-ES fixes. The most
+important patches are patch 1 to 5, as they fix warnings and splats
+that trigger with various debugging options are enabled.
 
-Thanks.
+Patches 6 to 8 fix a correctness issue in the instruction emulation
+part of the #VC exception handler.
 
->
->
->
->
->
->
->
-> > + */
-> > +bool virtqueue_kick_try(struct virtqueue *vq)
-> > +{
-> > +	if (virtqueue_kick_prepare(vq) && virtqueue_notify(vq))
-> > +		return true;
-> > +	return false;
-> > +}
-> > +EXPORT_SYMBOL_GPL(virtqueue_kick_try);
-> > +
-> >  /**
-> >   * virtqueue_get_buf - get the next used buffer
-> >   * @_vq: the struct virtqueue we're talking about.
-> > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> > index b1894e0323fa..45cd6a0af24d 100644
-> > --- a/include/linux/virtio.h
-> > +++ b/include/linux/virtio.h
-> > @@ -59,6 +59,8 @@ int virtqueue_add_sgs(struct virtqueue *vq,
-> >
-> >  bool virtqueue_kick(struct virtqueue *vq);
-> >
-> > +bool virtqueue_kick_try(struct virtqueue *vq);
-> > +
-> >  bool virtqueue_kick_prepare(struct virtqueue *vq);
-> >
-> >  bool virtqueue_notify(struct virtqueue *vq);
-> > --
-> > 2.31.0
->
+Please review.
+
+Thanks,
+
+	Joerg
+
+Link to v1: https://lore.kernel.org/lkml/20210512075445.18935-1-joro@8bytes.org/
+
+Changes since v1:
+
+	- Documented why __get_user()/__put_user() are safe to use in
+	  the #VC handlers memory access path.
+
+	- Merged the revert into patch 3
+
+	- Refactored code in the instruction decoder and added #GP
+	  reporting when getting the instructions linear address fails.
+
+Joerg Roedel (8):
+  x86/sev-es: Don't return NULL from sev_es_get_ghcb()
+  x86/sev-es: Forward page-faults which happen during emulation
+  x86/sev-es: Use __put_user()/__get_user() for data accesses
+  x86/sev-es: Fix error message in runtime #VC handler
+  x86/sev-es: Leave NMI-mode before sending signals
+  x86/insn-eval: Make 0 a valid RIP for insn_get_effective_ip()
+  x86/insn: Extend error reporting from
+    insn_fetch_from_user[_inatomic]()
+  x86/sev-es: Propagate #GP if getting linear instruction address failed
+
+ arch/x86/include/asm/insn-eval.h |   6 +-
+ arch/x86/kernel/sev.c            | 127 +++++++++++++++++++++----------
+ arch/x86/kernel/umip.c           |  10 +--
+ arch/x86/lib/insn-eval.c         |  52 ++++++++-----
+ 4 files changed, 129 insertions(+), 66 deletions(-)
+
+
+base-commit: a50c5bebc99c525e7fbc059988c6a5ab8680cb76
+-- 
+2.31.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
