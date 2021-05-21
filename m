@@ -2,87 +2,92 @@ Return-Path: <SRS0=ctfp=KQ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EFC3C433B4
-	for <virtualization@archiver.kernel.org>; Fri, 21 May 2021 13:36:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCA1AC47078
+	for <virtualization@archiver.kernel.org>; Fri, 21 May 2021 14:44:34 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 27E6261164
-	for <virtualization@archiver.kernel.org>; Fri, 21 May 2021 13:36:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 27E6261164
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=kaod.org
+	by mail.kernel.org (Postfix) with ESMTPS id 77138610A8
+	for <virtualization@archiver.kernel.org>; Fri, 21 May 2021 14:44:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 77138610A8
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=alien8.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E02E884397;
-	Fri, 21 May 2021 13:36:49 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 3F1F582BC3;
+	Fri, 21 May 2021 14:44:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bWw4I662CiNf; Fri, 21 May 2021 13:36:49 +0000 (UTC)
+	with ESMTP id g2LnBx99yXfM; Fri, 21 May 2021 14:44:33 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 64129843B6;
-	Fri, 21 May 2021 13:36:48 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id E4B7683774;
+	Fri, 21 May 2021 14:44:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3AC32C000D;
-	Fri, 21 May 2021 13:36:48 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CD3C2C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B32B1C000E;
+	Fri, 21 May 2021 14:44:32 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F0096C0001
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 May 2021 13:36:46 +0000 (UTC)
+ Fri, 21 May 2021 14:44:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id B4BDD60787
+ by smtp1.osuosl.org (Postfix) with ESMTP id D6D6D83774
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 May 2021 13:36:46 +0000 (UTC)
+ Fri, 21 May 2021 14:44:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bbYCHLuta20N
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id IqF0t6AjxLK0
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 May 2021 13:36:44 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-44.mimecast.com
- (us-smtp-delivery-44.mimecast.com [207.211.30.44])
- by smtp3.osuosl.org (Postfix) with ESMTPS id C07E860628
+ Fri, 21 May 2021 14:44:30 +0000 (UTC)
+X-Greylist: delayed 00:09:46 by SQLgrey-1.8.0
+Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 8151182BC3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 May 2021 13:36:43 +0000 (UTC)
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-209-AAhjg02-MbOkPEdfh6xR_Q-1; Fri, 21 May 2021 09:36:38 -0400
-X-MC-Unique: AAhjg02-MbOkPEdfh6xR_Q-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ Fri, 21 May 2021 14:44:30 +0000 (UTC)
+Received: from zn.tnic (p200300ec2f0ea400b1711cbbd717391b.dip0.t-ipconnect.de
+ [IPv6:2003:ec:2f0e:a400:b171:1cbb:d717:391b])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3AA011007B14;
- Fri, 21 May 2021 13:36:37 +0000 (UTC)
-Received: from bahia.lan (ovpn-112-49.ams2.redhat.com [10.36.112.49])
- by smtp.corp.redhat.com (Postfix) with ESMTP id E40696A03C;
- Fri, 21 May 2021 13:36:15 +0000 (UTC)
-Date: Fri, 21 May 2021 15:36:14 +0200
-From: Greg Kurz <groug@kaod.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: [PATCH v4 4/5] virtiofs: Skip submounts in sget_fc()
-Message-ID: <20210521153614.061b0005@bahia.lan>
-In-Reply-To: <CAJfpegvBB-zRuZAM0m7fxMFCfw=CzN3uT3CqoQrRgizaTH4sOw@mail.gmail.com>
-References: <20210520154654.1791183-1-groug@kaod.org>
- <20210520154654.1791183-5-groug@kaod.org>
- <CAJfpegugQM-ChaGiLyfPkbFr9c=_BiOBQkJTeEz5yN0ujO_O4A@mail.gmail.com>
- <20210521103921.153a243d@bahia.lan>
- <CAJfpegsNBCX+2k4S_yqdTS15TTu=pbiRgw6SbvdVYoUSmGboGA@mail.gmail.com>
- <20210521120616.49d52565@bahia.lan>
- <CAJfpegvBB-zRuZAM0m7fxMFCfw=CzN3uT3CqoQrRgizaTH4sOw@mail.gmail.com>
+ by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 394031EC061D;
+ Fri, 21 May 2021 16:34:41 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+ t=1621607681;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+ bh=+eiP6mVRfierNZHVHWE39OmfVBD4FccBazbJrnrFRg0=;
+ b=ROd1grQ3afwj6jw9TXiBn8Gd9qql4j0xLcF+A4Lqj4zbmGPwP2BmwMNSG9cy7VgQRH6Y1i
+ q7L03gy8DOnoLw9UiHZ6w+3+1IRtJ3DdPWKaZRMMCu9EkiRcmi3F0YGbVRbTLJm25OqlWG
+ Wz3z6tI68a+fpsHb7fn5HUCNVbQJv6Y=
+Date: Fri, 21 May 2021 16:34:34 +0200
+From: Borislav Petkov <bp@alien8.de>
+To: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH v2 7/8] x86/insn: Extend error reporting from
+ insn_fetch_from_user[_inatomic]()
+Message-ID: <YKfE+gfK5AdE9ckm@zn.tnic>
+References: <20210519135251.30093-1-joro@8bytes.org>
+ <20210519135251.30093-8-joro@8bytes.org>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: kaod.org
-Cc: linux-kernel@vger.kernel.org, Max Reitz <mreitz@redhat.com>,
- virtio-fs-list <virtio-fs@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Vivek Goyal <vgoyal@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20210519135251.30093-8-joro@8bytes.org>
+Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org,
+ Arvind Sankar <nivedita@alum.mit.edu>, hpa@zytor.com,
+ Jiri Slaby <jslaby@suse.cz>, x86@kernel.org,
+ David Rientjes <rientjes@google.com>, Martin Radev <martin.b.radev@gmail.com>,
+ Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>,
+ Kees Cook <keescook@chromium.org>, Cfir Cohen <cfir@google.com>,
+ Hyunwook Baek <baekhw@google.com>, linux-coco@lists.linux.dev,
+ Andy Lutomirski <luto@kernel.org>, Dan Williams <dan.j.williams@intel.com>,
+ Juergen Gross <jgross@suse.com>, Mike Stunes <mstunes@vmware.com>,
+ Sean Christopherson <seanjc@google.com>, linux-kernel@vger.kernel.org,
+ Masami Hiramatsu <mhiramat@kernel.org>, Erdem Aktas <erdemaktas@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,125 +104,65 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, 21 May 2021 14:37:25 +0200
-Miklos Szeredi <miklos@szeredi.hu> wrote:
+On Wed, May 19, 2021 at 03:52:50PM +0200, Joerg Roedel wrote:
+> diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
+> index 4eecb9c7c6a0..d8a057ba0895 100644
+> --- a/arch/x86/lib/insn-eval.c
+> +++ b/arch/x86/lib/insn-eval.c
+> @@ -1442,27 +1442,36 @@ static int insn_get_effective_ip(struct pt_regs *regs, unsigned long *ip)
+>   * insn_fetch_from_user() - Copy instruction bytes from user-space memory
+>   * @regs:	Structure with register values as seen when entering kernel mode
+>   * @buf:	Array to store the fetched instruction
+> + * @copied:	Pointer to an int where the number of copied instruction bytes
+> + *		is stored. Can be NULL.
+>   *
+>   * Gets the linear address of the instruction and copies the instruction bytes
+>   * to the buf.
+>   *
+>   * Returns:
+>   *
+> - * Number of instruction bytes copied.
+> + * -EINVAL if the linear address of the instruction could not be calculated
+> + * -EFAULT if nothing was copied
+> + *       0 on success
+>   *
+> - * 0 if nothing was copied.
+>   */
+> -int insn_fetch_from_user(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
+> +int insn_fetch_from_user(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE],
+> +			 int *copied)
+>  {
+>  	unsigned long ip;
+>  	int not_copied;
+> +	int bytes;
+>  
+>  	if (insn_get_effective_ip(regs, &ip))
+> -		return 0;
+> +		return -EINVAL;
+>  
+>  	not_copied = copy_from_user(buf, (void __user *)ip, MAX_INSN_SIZE);
+>  
+> -	return MAX_INSN_SIZE - not_copied;
+> +	bytes = MAX_INSN_SIZE - not_copied;
+> +	if (copied)
+> +		*copied = bytes;
+> +
+> +	return bytes ? 0 : -EFAULT;
 
-> On Fri, 21 May 2021 at 12:06, Greg Kurz <groug@kaod.org> wrote:
-> >
-> > On Fri, 21 May 2021 10:50:34 +0200
-> > Miklos Szeredi <miklos@szeredi.hu> wrote:
-> >
-> > > On Fri, 21 May 2021 at 10:39, Greg Kurz <groug@kaod.org> wrote:
-> > > >
-> > > > On Fri, 21 May 2021 10:26:27 +0200
-> > > > Miklos Szeredi <miklos@szeredi.hu> wrote:
-> > > >
-> > > > > On Thu, 20 May 2021 at 17:47, Greg Kurz <groug@kaod.org> wrote:
-> > > > > >
-> > > > > > All submounts share the same virtio-fs device instance as the root
-> > > > > > mount. If the same virtiofs filesystem is mounted again, sget_fc()
-> > > > > > is likely to pick up any of these submounts and reuse it instead of
-> > > > > > the root mount.
-> > > > > >
-> > > > > > On the server side:
-> > > > > >
-> > > > > > # mkdir ${some_dir}
-> > > > > > # mkdir ${some_dir}/mnt1
-> > > > > > # mount -t tmpfs none ${some_dir}/mnt1
-> > > > > > # touch ${some_dir}/mnt1/THIS_IS_MNT1
-> > > > > > # mkdir ${some_dir}/mnt2
-> > > > > > # mount -t tmpfs none ${some_dir}/mnt2
-> > > > > > # touch ${some_dir}/mnt2/THIS_IS_MNT2
-> > > > > >
-> > > > > > On the client side:
-> > > > > >
-> > > > > > # mkdir /mnt/virtiofs1
-> > > > > > # mount -t virtiofs myfs /mnt/virtiofs1
-> > > > > > # ls /mnt/virtiofs1
-> > > > > > mnt1 mnt2
-> > > > > > # grep virtiofs /proc/mounts
-> > > > > > myfs /mnt/virtiofs1 virtiofs rw,seclabel,relatime 0 0
-> > > > > > none on /mnt/mnt1 type virtiofs (rw,relatime,seclabel)
-> > > > > > none on /mnt/mnt2 type virtiofs (rw,relatime,seclabel)
-> > > > > >
-> > > > > > And now remount it again:
-> > > > > >
-> > > > > > # mount -t virtiofs myfs /mnt/virtiofs2
-> > > > > > # grep virtiofs /proc/mounts
-> > > > > > myfs /mnt/virtiofs1 virtiofs rw,seclabel,relatime 0 0
-> > > > > > none on /mnt/mnt1 type virtiofs (rw,relatime,seclabel)
-> > > > > > none on /mnt/mnt2 type virtiofs (rw,relatime,seclabel)
-> > > > > > myfs /mnt/virtiofs2 virtiofs rw,seclabel,relatime 0 0
-> > > > > > # ls /mnt/virtiofs2
-> > > > > > THIS_IS_MNT2
-> > > > > >
-> > > > > > Submount mnt2 was picked-up instead of the root mount.
-> > > > >
-> > > >
-> > > > > Why is this a problem?
-> > > > >
-> > > >
-> > > > It seems very weird to mount the same filesystem again
-> > > > and to end up in one of its submounts. We should have:
-> > > >
-> > > > # ls /mnt/virtiofs2
-> > > > mnt1 mnt2
-> > >
-> > > Okay, sorry, I understand the problem.  The solution is wrong,
-> > > however: the position of the submount on that list is no indication
-> > > that it's the right one (it's possible that the root sb will go away
-> > > and only a sub-sb will remain).
-> > >
-> >
-> > Ah... I had myself convinced this could not happen, i.e. you can't
-> > unmount a parent sb with a sub-sb still mounted.
-> 
-> No, but it's possible for sub-sb to continue existing after it's no
-> longer a submount of original mount.
-> >
-> > How can this happen ?
-> 
-> E.g. move the submount out of the way, then unmount the parent, or
-> detach submount (umount -l) while keeping something open in there and
-> umount the parent.
-> 
+Why not simpler?
 
-Ok, I get it now. Thanks for the clarification.
+return value >= 0 says how many bytes were copied
+return value < 0 means some kind of error
 
-> > > Even just setting a flag in the root, indicating that it's the root
-> > > isn't fully going to solve the problem.
-> > >
-> > > Here's issue in full:
-> > >
-> > > case 1:  no connection for "myfs" exists
-> > >     - need to create fuse_conn, sb
-> > >
-> > > case 2: connection for "myfs" exists but only sb for submount
-> >
-> > How would we know this sb isn't a root sb ?
-> >
-> > >     - only create sb for root, reuse fuse_conn
-> > >
-> > > case 3: connection for "myfs" as well as root sb exists
-> > >    - reuse sb
-> > >
-> > > I'll think about how to fix this properly, it's probably going to be
-> > > rather more involved...
-> > >
-> >
-> > Sure. BTW I'm wondering why we never reuse sbs for submounts ?
-> 
-> Right, same general issue.
-> 
-> An sb can be identified by its root nodeid, so I guess the proper fix
-> to make the root nodeid be the key for virtio_fs_test_super().
-> 
+And then you don't need @copied...
 
-Cool, I was thinking about doing this exactly. :)
+Ditto for the other one.
 
-> Thanks,
-> Miklos
+-- 
+Regards/Gruss,
+    Boris.
 
+https://people.kernel.org/tglx/notes-about-netiquette
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
