@@ -1,115 +1,93 @@
-Return-Path: <SRS0=MQJa=KV=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=l/A6=KW=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_RED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC17CC47082
-	for <virtualization@archiver.kernel.org>; Wed, 26 May 2021 21:22:55 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B89DC47082
+	for <virtualization@archiver.kernel.org>; Thu, 27 May 2021 02:45:27 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6CBE66128B
-	for <virtualization@archiver.kernel.org>; Wed, 26 May 2021 21:22:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6CBE66128B
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 20CB8613D4
+	for <virtualization@archiver.kernel.org>; Thu, 27 May 2021 02:45:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 20CB8613D4
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1FEE2606BB;
-	Wed, 26 May 2021 21:22:55 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id BF0B24028A;
+	Thu, 27 May 2021 02:45:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kevGQpnRdYCZ; Wed, 26 May 2021 21:22:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C23BF60590;
-	Wed, 26 May 2021 21:22:53 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 95E9DC000D;
-	Wed, 26 May 2021 21:22:53 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5F89AC0001
- for <virtualization@lists.linux-foundation.org>;
- Wed, 26 May 2021 21:22:51 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 51C6040591
- for <virtualization@lists.linux-foundation.org>;
- Wed, 26 May 2021 21:22:51 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=gmail.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qcqrAY1ji6jj
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kaJvXsw8r2i8; Thu, 27 May 2021 02:45:25 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 21C1740259;
+	Thu, 27 May 2021 02:45:25 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D80B5C000E;
+	Thu, 27 May 2021 02:45:24 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9FE49C0001
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 May 2021 21:22:50 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com
- [IPv6:2a00:1450:4864:20::529])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 546ED4057B
+ Thu, 27 May 2021 02:45:23 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 85E766071E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 May 2021 21:22:50 +0000 (UTC)
-Received: by mail-ed1-x529.google.com with SMTP id h16so3229280edr.6
+ Thu, 27 May 2021 02:45:23 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id mFKRYpG-mTJk
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 May 2021 14:22:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=7bWUzz3mXf4ng9N21e9bEjKKU0Rq54acZv1GkQ/xcY0=;
- b=QfikG8wrkmC0m3tXTYmZxodBn7Xg0IuuRN5Yz3uWBPt5XyG519/kEF/cjtKsVu/DFb
- 742PzlhLYjmMM/bR+ePUG+ZTOFghKJ6xJ0RwXste9wLuIVJwVI3mhrv/z8q8e3sjkBji
- rJV76aXN2p6COObuBp/p54lbINi2h51pKqhPZBRdDMMFtSP1GKYMgwWFuyVBMaAFdt4c
- 5wZpGepxAhDtKDr2DvOanz0U9WZ47xdlGyxAbvOlmY43TzDCEcl8CaGYf4DU32f54T4h
- l6vEZbyLAkOqiAu2AmXR/oaQ5x7lbtCuNFF0sZ9e8xvMHo5lmvUiDOumNNLZor0DU78J
- SfCQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=7bWUzz3mXf4ng9N21e9bEjKKU0Rq54acZv1GkQ/xcY0=;
- b=NX8OFWcCxTiIqe1lEI0Ko1bfrSL4XoUsU9Rhyx9VMhCwydqayP6BLmMgcg77ykL5Kq
- msVt7qvhwMhV+9S/HqgF2ZZlvs6eHmwZBSyMfhC/irmEkhBVxXF0D4Ia61M4YcCjywjH
- rytg3rcPeNPyy2YepCKE7D5fnfGq8AbOYRMcGfsJc9Jt/u1L70JBIIO48hD5Epr6hTRt
- VES/oWxQsjyo36x2dJJXN5b84jgUF8dmU4FRMiH5Xu3E8aDtC8CTnZXlVBbjKqAQwO4P
- aJAySkqh+1Ql14BbjrX7JjBx4UIV6lrpgOardQSb7gOE7xw+wHa/zYTIVnBgIXmkwWoA
- zy2g==
-X-Gm-Message-State: AOAM530COgQbfqe+/kupRlie7bJkfKWYuPiHxZeYQtR2T2j5hhyuVtpS
- akX9ppnWnz0TE9e8bo7KCYSDTwlZ051WOw==
-X-Google-Smtp-Source: ABdhPJywlO+h/Teoi8dNM5dEDNs+BelyMVU10Lf4WHQjbun441tosZL72DpoJ1DcnJlNxXGiml3g1Q==
-X-Received: by 2002:a05:6402:2686:: with SMTP id
- w6mr252424edd.80.1622064167973; 
- Wed, 26 May 2021 14:22:47 -0700 (PDT)
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com.
- [209.85.128.53])
- by smtp.gmail.com with ESMTPSA id y9sm39399edc.46.2021.05.26.14.22.46
- for <virtualization@lists.linux-foundation.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 26 May 2021 14:22:47 -0700 (PDT)
-Received: by mail-wm1-f53.google.com with SMTP id t206so1540069wmf.0
+ Thu, 27 May 2021 02:45:22 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 58795606BA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 May 2021 14:22:46 -0700 (PDT)
-X-Received: by 2002:a05:600c:2209:: with SMTP id
- z9mr337264wml.120.1622064166487; 
- Wed, 26 May 2021 14:22:46 -0700 (PDT)
+ Thu, 27 May 2021 02:45:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1622083521;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=EWkYWiPlwYnDMl1EMPoJ122fbcn5PIsDKJeTg6UCCSE=;
+ b=gvs5vaBHtupu+iYmRzUTJSg3EP7UsV7zsncbwyamLLIMKQRnuiJ7CoyR7FrLJH38b6ugbb
+ J63HguRIahe0YOfgg6SYWnRmPhzqg9VfDNO4ftLe1IU0GSptuxU1I+frWJBsVxbooq1z3W
+ BR3PXD0zcRBOspvo4YK0xY0y9qadcE8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-112-4SezU8kSNVmSpV2_om6GiQ-1; Wed, 26 May 2021 22:45:19 -0400
+X-MC-Unique: 4SezU8kSNVmSpV2_om6GiQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4455C1883528;
+ Thu, 27 May 2021 02:45:18 +0000 (UTC)
+Received: from T590 (ovpn-12-72.pek2.redhat.com [10.72.12.72])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 712615C27C;
+ Thu, 27 May 2021 02:44:55 +0000 (UTC)
+Date: Thu, 27 May 2021 10:44:51 +0800
+From: Ming Lei <ming.lei@redhat.com>
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH 3/3] virtio_blk: implement blk_mq_ops->poll()
+Message-ID: <YK8Ho3mC117M8GXS@T590>
+References: <20210520141305.355961-1-stefanha@redhat.com>
+ <20210520141305.355961-4-stefanha@redhat.com>
 MIME-Version: 1.0
-References: <20210526082423.47837-1-mst@redhat.com>
- <20210526082423.47837-5-mst@redhat.com>
- <18b47c22-8c8a-7699-ffaf-ccfdcbf39d37@gmail.com>
-In-Reply-To: <18b47c22-8c8a-7699-ffaf-ccfdcbf39d37@gmail.com>
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Wed, 26 May 2021 17:22:08 -0400
-X-Gmail-Original-Message-ID: <CA+FuTSetvnwCzyuFkypkXgYycsMe1B3brW93upmg+KjGsgD-gA@mail.gmail.com>
-Message-ID: <CA+FuTSetvnwCzyuFkypkXgYycsMe1B3brW93upmg+KjGsgD-gA@mail.gmail.com>
-Subject: Re: [PATCH v3 4/4] virtio_net: disable cb aggressively
-To: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Network Development <netdev@vger.kernel.org>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Jakub Kicinski <kuba@kernel.org>, Wei Wang <weiwan@google.com>,
- David Miller <davem@davemloft.net>
+Content-Disposition: inline
+In-Reply-To: <20210520141305.355961-4-stefanha@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Cc: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-block@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+ Christoph Hellwig <hch@lst.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,37 +104,67 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, May 26, 2021 at 11:15 AM Eric Dumazet <eric.dumazet@gmail.com> wrote:
->
->
->
-> On 5/26/21 10:24 AM, Michael S. Tsirkin wrote:
-> > There are currently two cases where we poll TX vq not in response to a
-> > callback: start xmit and rx napi.  We currently do this with callbacks
-> > enabled which can cause extra interrupts from the card.  Used not to be
-> > a big issue as we run with interrupts disabled but that is no longer the
-> > case, and in some cases the rate of spurious interrupts is so high
-> > linux detects this and actually kills the interrupt.
+On Thu, May 20, 2021 at 03:13:05PM +0100, Stefan Hajnoczi wrote:
+> Request completion latency can be reduced by using polling instead of
+> irqs. Even Posted Interrupts or similar hardware support doesn't beat
+> polling. The reason is that disabling virtqueue notifications saves
+> critical-path CPU cycles on the host by skipping irq injection and in
+> the guest by skipping the irq handler. So let's add blk_mq_ops->poll()
+> support to virtio_blk.
+> 
+> The approach taken by this patch differs from the NVMe driver's
+> approach. NVMe dedicates hardware queues to polling and submits
+> REQ_HIPRI requests only on those queues. This patch does not require
+> exclusive polling queues for virtio_blk. Instead, it switches between
+> irqs and polling when one or more REQ_HIPRI requests are in flight on a
+> virtqueue.
+> 
+> This is possible because toggling virtqueue notifications is cheap even
+> while the virtqueue is running. NVMe cqs can't do this because irqs are
+> only enabled/disabled at queue creation time.
+> 
+> This toggling approach requires no configuration. There is no need to
+> dedicate queues ahead of time or to teach users and orchestration tools
+> how to set up polling queues.
 
-Temporarily disabling interrupts during free_old_xmit_skbs in
-virtnet_poll_cleantx might reduce the spurious interrupt rate by
-avoiding an additional Tx interrupt from being scheduled during
-virtnet_poll_cleantx.
+This approach looks good, and very neat thanks per-vq lock.
 
-It probably does not address all spurious interrupts, as
-virtnet_poll_cleantx might also run in between the scheduling of the
-Tx interrupt and the call to virtnet_poll_tx, right? The Tx and Rx
-interrupts racing.
+BTW, is there any virt-exit saved by disabling vq interrupt? I understand
+there isn't since virt-exit may only be involved in remote completion
+via sending IPI.
 
-If I can reproduce the report, I can also test how much this helps in practice.
+> 
+> Possible drawbacks of this approach:
+> 
+> - Hardware virtio_blk implementations may find virtqueue_disable_cb()
+>   expensive since it requires DMA. If such devices become popular then
 
-> > Fix up by disabling the callbacks before polling the tx vq.
->
->
-> It is not clear why we want to poll TX completions from ndo_start_xmit() in napi mode ?
+You mean the hardware need to consider order between DMA completion and
+interrupt notify? But it is disabling notify, guest just calls
+virtqueue_get_buf() to see if there is buffer available, if not, it will be
+polled again.
 
-Yes, we can simply exclude that. The original napi-tx patch did not
-make that change, but not for any strong reason.
+>   the virtio_blk driver could use a similar approach to NVMe when
+>   VIRTIO_F_ACCESS_PLATFORM is detected in the future.
+> 
+> - If a blk_poll() thread is descheduled it not only hurts polling
+>   performance but also delays completion of non-REQ_HIPRI requests on
+>   that virtqueue since vq notifications are disabled.
+> 
+> Performance:
+> 
+> - Benchmark: fio ioengine=pvsync2 numjobs=4 direct=1
+> - Guest: 4 vCPUs with one virtio-blk device (4 virtqueues)
+
+4 jobs can consume up all 4 vCPUs. Just run a quick fio test with
+'ioengine=io_uring --numjobs=1' on single vq, and IOPS can be improved
+by ~20%(hipri=1 vs hipri=0) with the 3 patches, and the virtio-blk is
+still backed on NVMe SSD.
+
+
+Thanks, 
+Ming
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
