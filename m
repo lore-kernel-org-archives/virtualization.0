@@ -1,117 +1,84 @@
-Return-Path: <SRS0=J7vq=KX=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=daDg=KY=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
-	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
-	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_RED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_RED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CA9AC47087
-	for <virtualization@archiver.kernel.org>; Fri, 28 May 2021 22:25:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC9D1C4708D
+	for <virtualization@archiver.kernel.org>; Sat, 29 May 2021 00:02:02 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A897461358
-	for <virtualization@archiver.kernel.org>; Fri, 28 May 2021 22:25:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A897461358
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 7EE2F613B6
+	for <virtualization@archiver.kernel.org>; Sat, 29 May 2021 00:02:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7EE2F613B6
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 54ED440E82;
-	Fri, 28 May 2021 22:25:57 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3C40840E81;
+	Sat, 29 May 2021 00:02:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RWSwtEGJkHQl; Fri, 28 May 2021 22:25:56 +0000 (UTC)
+	with ESMTP id BnUIur4Naxr1; Sat, 29 May 2021 00:02:01 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id AB33140ECB;
-	Fri, 28 May 2021 22:25:55 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id A6F0A404A1;
+	Sat, 29 May 2021 00:02:00 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6DC0BC000E;
-	Fri, 28 May 2021 22:25:55 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id ADC90C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8468DC000D;
+	Sat, 29 May 2021 00:02:00 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C525AC0001
  for <virtualization@lists.linux-foundation.org>;
- Fri, 28 May 2021 22:25:53 +0000 (UTC)
+ Sat, 29 May 2021 00:01:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 9CFDD400DE
+ by smtp4.osuosl.org (Postfix) with ESMTP id AA03340E47
  for <virtualization@lists.linux-foundation.org>;
- Fri, 28 May 2021 22:25:53 +0000 (UTC)
+ Sat, 29 May 2021 00:01:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=gmail.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1IcEgxxlnMxR
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7iCMLy_AU9aN
  for <virtualization@lists.linux-foundation.org>;
- Fri, 28 May 2021 22:25:52 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com
- [IPv6:2a00:1450:4864:20::531])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 9A445400D4
+ Sat, 29 May 2021 00:01:56 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [IPv6:2607:7c80:54:e::133])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 3CFDD404A1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 28 May 2021 22:25:52 +0000 (UTC)
-Received: by mail-ed1-x531.google.com with SMTP id o5so6522163edc.5
- for <virtualization@lists.linux-foundation.org>;
- Fri, 28 May 2021 15:25:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc:content-transfer-encoding;
- bh=yrBjQ7Lx1mhxXojaT5BK59jpSBAfuzBAQF2fCcC/VrM=;
- b=h6xXfopGioGNYSxEvqJZc9IzxUg0PKrW0f6NrQBM5LMuFgYxxz4Jxs2hkpZTJvK2q5
- Ynt+/OYJSjOVrL2N4DQhWECVc0Xoj8LAQJLlc6pe5B1mJG2b2GL9fCq6c6ygw5XKMp1Y
- a8UR3mnNy7W81PZwBAVR8R+sJ+HAMFW6RNZmyUZ3mILH8440RvZBDM5ZDTjdEuVMQSNM
- M9epeJBfwuJIDQnwG5JQ15RGyb1fbg8PEuG/1LkmTctny74e/OObX0xSdWAylYSFOWOb
- puVHbeMRYyWz+hrlaNrjCP6cqXEvWX6gJmeRiy2LOED5wLI9RXd4LxMQs4vWGPDHM/lu
- MEGQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc:content-transfer-encoding;
- bh=yrBjQ7Lx1mhxXojaT5BK59jpSBAfuzBAQF2fCcC/VrM=;
- b=IZBYxjfBZQZvpJimH/trvEsZ0jOw7VuQRkLPyse6/kDByu9AwghpegH6StEAOhPUpr
- Q1CnHyQxRlR0OpYjvMnpnAK79k8MHmDyaCLvVIBzgqDpE/g5qkh9yUIJr/WBzBRUVb3O
- TqCVMGgghH89gkBHtOKF6U1e1i2f85Aw+PWN4Y1NdQApzWNWGdn5UF4JbPXQeJmu8RPn
- KT/6zpwGdfSvwpjXlKv1NAW2/vRk7A4sKIm721fzkMlJD+vmsR6YWMTMVUS0BXejNFMu
- 388hNHACkWq2ggiFB75aN1wU56G/n7cvtnQbp1fi6xgpOlBSEBL+Qp1CoBjPOziv5RaL
- 2XHg==
-X-Gm-Message-State: AOAM533ZCbYhZxPtXA1O4GkyN+KOAc2m7s/Ch1frvZ6EgNJ5elcU6OOz
- bNcFkqrLnYmKfOI8hJrhlpiCaWRASeQ=
-X-Google-Smtp-Source: ABdhPJx4/M+YOc4UtmlTTtB+klGNAfx+YtSN6ixLmMGUQao9ABK3Wetfw5PhpJ2eK+dnye1ebPvUVQ==
-X-Received: by 2002:aa7:db08:: with SMTP id t8mr12075733eds.277.1622240750433; 
- Fri, 28 May 2021 15:25:50 -0700 (PDT)
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com.
- [209.85.128.44])
- by smtp.gmail.com with ESMTPSA id cn21sm3296444edb.36.2021.05.28.15.25.48
- for <virtualization@lists.linux-foundation.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Fri, 28 May 2021 15:25:49 -0700 (PDT)
-Received: by mail-wm1-f44.google.com with SMTP id
- l18-20020a1ced120000b029014c1adff1edso5332724wmh.4
- for <virtualization@lists.linux-foundation.org>;
- Fri, 28 May 2021 15:25:48 -0700 (PDT)
-X-Received: by 2002:a7b:c935:: with SMTP id h21mr2799976wml.183.1622240748511; 
- Fri, 28 May 2021 15:25:48 -0700 (PDT)
+ Sat, 29 May 2021 00:01:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+ Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:
+ Subject:Sender:Reply-To:Content-ID:Content-Description;
+ bh=wClK8t5OqOKAJXZRdJ7lK3nU0nLrVWRCjDxwfQ1YPMI=; b=oQEOU/XvSEfv8fMGMn0Ibiyl1G
+ LKUmNpGddt8Mx4Rzc2n1OXVQygVaS1Hp3LuerB4w21NGojS/f0EQXiAzFBr1Wx0TXBk0i5ANHtKRJ
+ tORl/HV+bZzjqJv3n8eqlqX5CJLFkASF/ji4lMdaKwVqP53Tjac61kBHeZKEj+N4Pu23FcC5xOn+V
+ VKRsUwZNciWxbginuPe10cDX1Zs6DbxYi+3erBw1ms7nDb0Venf7+yUudFgO3hPOUQaaubHAgAW5O
+ dVL+8ZZzNYUOxpoxQryTugtaikRc03ghdTOD+GqHfFjpcWM5edHLX/2Noj7eqktgzaSJcYUghauEZ
+ mvXFD1JQ==;
+Received: from [2601:1c0:6280:3f0::ce7d]
+ by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1lmmQF-001zoQ-B8; Sat, 29 May 2021 00:01:47 +0000
+Subject: Re: [PATCH 03/19] drivers/hv: minimal mshv module (/dev/mshv/)
+To: Nuno Das Neves <nunodasneves@linux.microsoft.com>,
+ linux-hyperv@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <1622241819-21155-1-git-send-email-nunodasneves@linux.microsoft.com>
+ <1622241819-21155-4-git-send-email-nunodasneves@linux.microsoft.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Message-ID: <e161e8cc-4d08-8bfd-ab1e-363ed5a39503@infradead.org>
+Date: Fri, 28 May 2021 17:01:46 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
 MIME-Version: 1.0
-References: <20210526082423.47837-1-mst@redhat.com>
- <20210526082423.47837-2-mst@redhat.com>
- <476e9418-156d-dbc9-5105-11d2816b95f7@redhat.com>
-In-Reply-To: <476e9418-156d-dbc9-5105-11d2816b95f7@redhat.com>
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Fri, 28 May 2021 18:25:11 -0400
-X-Gmail-Original-Message-ID: <CA+FuTSccMS4qEyexAuzjcuevS8KwaruJih5_0hgiOFz4BpDHzA@mail.gmail.com>
-Message-ID: <CA+FuTSccMS4qEyexAuzjcuevS8KwaruJih5_0hgiOFz4BpDHzA@mail.gmail.com>
-Subject: Re: [PATCH v3 1/4] virtio_net: move tx vq operation under tx queue
- lock
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- Network Development <netdev@vger.kernel.org>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Jakub Kicinski <kuba@kernel.org>, Wei Wang <weiwan@google.com>,
- David Miller <davem@davemloft.net>
+In-Reply-To: <1622241819-21155-4-git-send-email-nunodasneves@linux.microsoft.com>
+Content-Language: en-US
+Cc: wei.liu@kernel.org, ligrassi@microsoft.com, mikelley@microsoft.com,
+ virtualization@lists.linux-foundation.org, viremana@linux.microsoft.com,
+ sunilmut@microsoft.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,68 +90,67 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCBNYXkgMjYsIDIwMjEgYXQgMTE6NDEgUE0gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
-aGF0LmNvbT4gd3JvdGU6Cj4KPgo+IOWcqCAyMDIxLzUvMjYg5LiL5Y2INDoyNCwgTWljaGFlbCBT
-LiBUc2lya2luIOWGmemBkzoKPiA+IEl0J3MgdW5zYWZlIHRvIG9wZXJhdGUgYSB2cSBmcm9tIG11
-bHRpcGxlIHRocmVhZHMuCj4gPiBVbmZvcnR1bmF0ZWx5IHRoaXMgaXMgZXhhY3RseSB3aGF0IHdl
-IGRvIHdoZW4gaW52b2tpbmcKPiA+IGNsZWFuIHR4IHBvbGwgZnJvbSByeCBuYXBpLgo+ID4gU2Ft
-ZSBoYXBwZW5zIHdpdGggbmFwaS10eCBldmVuIHdpdGhvdXQgdGhlCj4gPiBvcHBvcnR1bmlzdGlj
-IGNsZWFuaW5nIGZyb20gdGhlIHJlY2VpdmUgaW50ZXJydXB0OiB0aGF0IHJhY2VzCj4gPiB3aXRo
-IHByb2Nlc3NpbmcgdGhlIHZxIGluIHN0YXJ0X3htaXQuCj4gPgo+ID4gQXMgYSBmaXggbW92ZSBl
-dmVyeXRoaW5nIHRoYXQgZGVhbHMgd2l0aCB0aGUgdnEgdG8gdW5kZXIgdHggbG9jay4KClRoaXMg
-cGF0Y2ggYWxzbyBkaXNhYmxlcyBjYWxsYmFja3MgZHVyaW5nIGZyZWVfb2xkX3htaXRfc2ticwpw
-cm9jZXNzaW5nIG9uIHR4IGludGVycnVwdC4gU2hvdWxkIHRoYXQgYmUgYSBzZXBhcmF0ZSBjb21t
-aXQsIHdpdGggaXRzCm93biBleHBsYW5hdGlvbj8KPiA+Cj4gPiBGaXhlczogYjkyZjFlNjc1MWE2
-ICgidmlydGlvLW5ldDogdHJhbnNtaXQgbmFwaSIpCj4gPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVs
-IFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgo+ID4gLS0tCj4gPiAgIGRyaXZlcnMvbmV0L3Zp
-cnRpb19uZXQuYyB8IDIyICsrKysrKysrKysrKysrKysrKysrKy0KPiA+ICAgMSBmaWxlIGNoYW5n
-ZWQsIDIxIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPiA+Cj4gPiBkaWZmIC0tZ2l0IGEv
-ZHJpdmVycy9uZXQvdmlydGlvX25ldC5jIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gPiBp
-bmRleCBhYzBjMTQzZjk3YjQuLjEyNTEyZDEwMDJlYyAxMDA2NDQKPiA+IC0tLSBhL2RyaXZlcnMv
-bmV0L3ZpcnRpb19uZXQuYwo+ID4gKysrIGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gPiBA
-QCAtMTUwOCw2ICsxNTA4LDggQEAgc3RhdGljIGludCB2aXJ0bmV0X3BvbGxfdHgoc3RydWN0IG5h
-cGlfc3RydWN0ICpuYXBpLCBpbnQgYnVkZ2V0KQo+ID4gICAgICAgc3RydWN0IHZpcnRuZXRfaW5m
-byAqdmkgPSBzcS0+dnEtPnZkZXYtPnByaXY7Cj4gPiAgICAgICB1bnNpZ25lZCBpbnQgaW5kZXgg
-PSB2cTJ0eHEoc3EtPnZxKTsKPiA+ICAgICAgIHN0cnVjdCBuZXRkZXZfcXVldWUgKnR4cTsKPiA+
-ICsgICAgIGludCBvcGFxdWU7Cj4gPiArICAgICBib29sIGRvbmU7Cj4gPgo+ID4gICAgICAgaWYg
-KHVubGlrZWx5KGlzX3hkcF9yYXdfYnVmZmVyX3F1ZXVlKHZpLCBpbmRleCkpKSB7Cj4gPiAgICAg
-ICAgICAgICAgIC8qIFdlIGRvbid0IG5lZWQgdG8gZW5hYmxlIGNiIGZvciBYRFAgKi8KPiA+IEBA
-IC0xNTE3LDEwICsxNTE5LDI4IEBAIHN0YXRpYyBpbnQgdmlydG5ldF9wb2xsX3R4KHN0cnVjdCBu
-YXBpX3N0cnVjdCAqbmFwaSwgaW50IGJ1ZGdldCkKPiA+Cj4gPiAgICAgICB0eHEgPSBuZXRkZXZf
-Z2V0X3R4X3F1ZXVlKHZpLT5kZXYsIGluZGV4KTsKPiA+ICAgICAgIF9fbmV0aWZfdHhfbG9jayh0
-eHEsIHJhd19zbXBfcHJvY2Vzc29yX2lkKCkpOwo+ID4gKyAgICAgdmlydHF1ZXVlX2Rpc2FibGVf
-Y2Ioc3EtPnZxKTsKPiA+ICAgICAgIGZyZWVfb2xkX3htaXRfc2ticyhzcSwgdHJ1ZSk7Cj4gPiAr
-Cj4gPiArICAgICBvcGFxdWUgPSB2aXJ0cXVldWVfZW5hYmxlX2NiX3ByZXBhcmUoc3EtPnZxKTsK
-PiA+ICsKPiA+ICsgICAgIGRvbmUgPSBuYXBpX2NvbXBsZXRlX2RvbmUobmFwaSwgMCk7Cj4gPiAr
-Cj4gPiArICAgICBpZiAoIWRvbmUpCj4gPiArICAgICAgICAgICAgIHZpcnRxdWV1ZV9kaXNhYmxl
-X2NiKHNxLT52cSk7Cj4gPiArCj4gPiAgICAgICBfX25ldGlmX3R4X3VubG9jayh0eHEpOwo+ID4K
-PiA+IC0gICAgIHZpcnRxdWV1ZV9uYXBpX2NvbXBsZXRlKG5hcGksIHNxLT52cSwgMCk7Cj4gPiAr
-ICAgICBpZiAoZG9uZSkgewo+ID4gKyAgICAgICAgICAgICBpZiAodW5saWtlbHkodmlydHF1ZXVl
-X3BvbGwoc3EtPnZxLCBvcGFxdWUpKSkgewoKU2hvdWxkIHRoaXMgYWxzbyBiZSBpbnNpZGUgdGhl
-IGxvY2ssIGFzIGl0IG9wZXJhdGVzIG9uIHZxPwoKSXMgdGhlcmUgYW55dGhpbmcgdGhhdCBpcyBu
-b3QgYWxsb3dlZCB0byBydW4gd2l0aCB0aGUgbG9jayBoZWxkPwoKPiA+ICsgICAgICAgICAgICAg
-ICAgICAgICBpZiAobmFwaV9zY2hlZHVsZV9wcmVwKG5hcGkpKSB7Cj4gPiArICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICBfX25ldGlmX3R4X2xvY2sodHhxLCByYXdfc21wX3Byb2Nlc3Nvcl9p
-ZCgpKTsKPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZpcnRxdWV1ZV9kaXNhYmxl
-X2NiKHNxLT52cSk7Cj4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICBfX25ldGlmX3R4
-X3VubG9jayh0eHEpOwo+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgX19uYXBpX3Nj
-aGVkdWxlKG5hcGkpOwo+ID4gKyAgICAgICAgICAgICAgICAgICAgIH0KPiA+ICsgICAgICAgICAg
-ICAgfQo+ID4gKyAgICAgfQo+Cj4KPiBJbnRlcmVzdGluZywgdGhpcyBsb29rcyBsaWtlIHNvbWVo
-d28gYSBvcGVuLWNvZGVkIHZlcnNpb24gb2YKPiB2aXJ0cXVldWVfbmFwaV9jb21wbGV0ZSgpLiBJ
-IHdvbmRlciBpZiB3ZSBjYW4gc2ltcGx5IGtlZXAgdXNpbmcKPiB2aXJ0cXVldWVfbmFwaV9jb21w
-bGV0ZSgpIGJ5IHNpbXBseSBtb3ZpbmcgdGhlIF9fbmV0aWZfdHhfdW5sb2NrKCkgYWZ0ZXIKPiB0
-aGF0Ogo+Cj4gbmV0aWZfdHhfbG9jayh0eHEpOwo+IGZyZWVfb2xkX3htaXRfc2ticyhzcSwgdHJ1
-ZSk7Cj4gdmlydHF1ZXVlX25hcGlfY29tcGxldGUobmFwaSwgc3EtPnZxLCAwKTsKPiBfX25ldGlm
-X3R4X3VubG9jayh0eHEpOwoKQWdyZWVkLiBBbmQgc3Vic2VxdWVudCBibG9jawoKICAgICAgIGlm
-IChzcS0+dnEtPm51bV9mcmVlID49IDIgKyBNQVhfU0tCX0ZSQUdTKQogICAgICAgICAgICAgICBu
-ZXRpZl90eF93YWtlX3F1ZXVlKHR4cSk7CgphcyB3ZWxsCgo+Cj4gVGhhbmtzCj4KPgo+ID4KPiA+
-ICAgICAgIGlmIChzcS0+dnEtPm51bV9mcmVlID49IDIgKyBNQVhfU0tCX0ZSQUdTKQo+ID4gICAg
-ICAgICAgICAgICBuZXRpZl90eF93YWtlX3F1ZXVlKHR4cSk7Cj4KX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
-ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
-bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 5/28/21 3:43 PM, Nuno Das Neves wrote:
+> Introduce a barebones module file for the mshv API.
+> Introduce CONFIG_HYPERV_ROOT_API for controlling compilation of mshv.
+> 
+> Co-developed-by: Lillian Grassin-Drake <ligrassi@microsoft.com>
+> Signed-off-by: Lillian Grassin-Drake <ligrassi@microsoft.com>
+> Signed-off-by: Nuno Das Neves <nunodasneves@linux.microsoft.com>
+> ---
+
+Hi,
+
+> diff --git a/drivers/hv/Kconfig b/drivers/hv/Kconfig
+> index 66c794d92391..d618b1fab2bb 100644
+> --- a/drivers/hv/Kconfig
+> +++ b/drivers/hv/Kconfig
+> @@ -27,4 +27,22 @@ config HYPERV_BALLOON
+>  	help
+>  	  Select this option to enable Hyper-V Balloon driver.
+>  
+> +config HYPERV_ROOT_API
+> +	tristate "Microsoft Hypervisor root partition interfaces: /dev/mshv"
+> +	depends on HYPERV
+> +	help
+> +	  Provides access to interfaces for managing guest virtual machines
+> +	  running under the Microsoft Hypervisor.
+> +
+> +	  These interfaces will only work when Linux is running as root
+> +	  partition on the Microsoft Hypervisor.
+> +
+> +	  The interfaces are provided via a device named /dev/mshv.
+> +
+> +	  To compile this as a module, choose M here.
+> +          The module is named mshv.
+
+^^^^^^^^^^^^^
+
+Please follow coding-style for Kconfig files:
+
+(from Documentation/process/coding-style.rst, section 10):
+
+For all of the Kconfig* configuration files throughout the source tree,
+the indentation is somewhat different.  Lines under a ``config`` definition
+are indented with one tab, while help text is indented an additional two
+spaces.
+
+> +
+> +	  If unsure, say N.
+> +
+> +
+>  endmenu
+
+thanks.
+-- 
+~Randy
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
