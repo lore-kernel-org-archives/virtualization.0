@@ -7,99 +7,100 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFFACC47091
-	for <virtualization@archiver.kernel.org>; Sun, 30 May 2021 08:05:30 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9ED1C47091
+	for <virtualization@archiver.kernel.org>; Sun, 30 May 2021 08:06:08 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 812BA610CC
-	for <virtualization@archiver.kernel.org>; Sun, 30 May 2021 08:05:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 812BA610CC
+	by mail.kernel.org (Postfix) with ESMTPS id 8695961107
+	for <virtualization@archiver.kernel.org>; Sun, 30 May 2021 08:06:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8695961107
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 487C840389;
-	Sun, 30 May 2021 08:05:30 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 50F166066F;
+	Sun, 30 May 2021 08:06:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TDiCqXnCviRi; Sun, 30 May 2021 08:05:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A564F40381;
-	Sun, 30 May 2021 08:05:28 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 764FDC000E;
-	Sun, 30 May 2021 08:05:28 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7F9B0C0001
- for <virtualization@lists.linux-foundation.org>;
- Sun, 30 May 2021 08:05:26 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 6151860637
- for <virtualization@lists.linux-foundation.org>;
- Sun, 30 May 2021 08:05:26 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ryW06PhDcHaH
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2uejoY3__Pyw; Sun, 30 May 2021 08:06:07 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTP id DD63E60611;
+	Sun, 30 May 2021 08:06:06 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C6EAAC000E;
+	Sun, 30 May 2021 08:06:06 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 50384C0001
  for <virtualization@lists.linux-foundation.org>;
- Sun, 30 May 2021 08:05:25 +0000 (UTC)
+ Sun, 30 May 2021 08:06:06 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 3E57A403F3
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 30 May 2021 08:06:06 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Js_Gynau3U9I
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 30 May 2021 08:06:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 6F43E60611
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 4019B403F2
  for <virtualization@lists.linux-foundation.org>;
- Sun, 30 May 2021 08:05:25 +0000 (UTC)
+ Sun, 30 May 2021 08:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1622361924;
+ s=mimecast20190719; t=1622361964;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=tReJm3Ow3/2+blqVFpQuF41IER1CEjyexFjR1pvGmUI=;
- b=IUmmqnP6p1y849nI8NbhfDNvBoLMhoFnWbskdLr0MFJ3gFRATrCX5RtTvjKr/2mFoJGHAM
- s2gXBSvO5pIa1hgMQIrGOEDuOZEI1xiqcGivq8gptwTOyk7I8RhsCZuX3yymKpMFMyELvk
- 9fOC5xVaprwEfFSOzFO1yH3UUXKIsXg=
+ bh=NX5CisLnC1pyP4PekqKqumzxuKrlCViEzhuLDUOe43Y=;
+ b=Y3mGqribvm7xm34TJ3DBISVSl034H42WeuuAE0bxK8e+x8F7P3GHaYytINW6X5VumxtUYN
+ 0YjulxH4IIsvtiyNs+Y3E0vgeYjgWUEqnXXvIPQ48huJB5LnfFnFNS6h3hrLh7L58d2WI8
+ NXfUBk0GVIV3KNgqmbvwehTZANdSmnI=
 Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
  [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-586-0bx37yXEN2qsl6qo3RYVvg-1; Sun, 30 May 2021 04:05:21 -0400
-X-MC-Unique: 0bx37yXEN2qsl6qo3RYVvg-1
+ us-mta-200-EfMs9WQ3N8KLUCm_SvVWGw-1; Sun, 30 May 2021 04:06:02 -0400
+X-MC-Unique: EfMs9WQ3N8KLUCm_SvVWGw-1
 Received: by mail-wm1-f72.google.com with SMTP id
- r15-20020a05600c35cfb029017cc4b1e9faso3441470wmq.8
+ h18-20020a05600c3512b029018434eb1bd8so3457489wmq.2
  for <virtualization@lists.linux-foundation.org>;
- Sun, 30 May 2021 01:05:21 -0700 (PDT)
+ Sun, 30 May 2021 01:06:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=tReJm3Ow3/2+blqVFpQuF41IER1CEjyexFjR1pvGmUI=;
- b=D1KTmEbKzz5FaiL/ELkQkURHEwTc/An4eFopo3ovpuQBUpQuJaK/1f9wpC1g726AIP
- ucDR4vqMGCkvXJxAy+onwWRaledbImWYuziu/y+9oDs6ghDZpvV7oAErcateIjg72jOR
- YWEllbTPjimC9N4/MkA3U5p2OV++cS3543BWJrRlb0RyFU8aVwCOpJAfr06VPtxImX0L
- fhEpZB9q0BvVL002pyBtOVIXukDqTGV0orh72FlMVdeiqf9SEs7uVQhqfqKEeDwh4xaM
- mPcJw9VhMGNmxMErpf/E45s4pwh3HpJRoPi0z7ITrhYbYwL97i1F2dtqTnTbRbB+KNHT
- qA9Q==
-X-Gm-Message-State: AOAM5314ot3RGERKW0ZnRmAGKTG0SEjKqlxHgZSXICdlELRy6/zXaSCd
- xsbWrszT27dul+KGLPJJ3qn7fCXxvj9WwBfXnSF1Xt+/uLWYBYOWn44ob4bc0R/g5O004ABE3mO
- vYc7kE0fdLuaoU2Xyxt5eLbhzvlT/bwmOCYCVnFw2yw==
-X-Received: by 2002:adf:f28f:: with SMTP id k15mr743512wro.223.1622361920195; 
- Sun, 30 May 2021 01:05:20 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx3YZyoXl4vPpKtwFqJkPaieEu99nqVfKrgR4uhLGUlDtCIVD6ILm7Z7HET2KJNYvxCHfOkPw==
-X-Received: by 2002:adf:f28f:: with SMTP id k15mr743497wro.223.1622361920084; 
- Sun, 30 May 2021 01:05:20 -0700 (PDT)
+ bh=NX5CisLnC1pyP4PekqKqumzxuKrlCViEzhuLDUOe43Y=;
+ b=S6GgCNsGgo1sP0cjKw0PywQJ8Vk5lbQiNYMkdjncwZ3IesDVS4UtfKXBxlh7J1fn0E
+ eggkHH2lj9qeVcMkZCI+YI7hn/Gvs9jb4yTM9Z1PkK4mVbkO3lm/aPIMi/qi7q6HxGzw
+ UPHyH0ONtYL8CtolutXEA68xtNDl9ArGZ6kz0xsb09anuQZvhdIN59g6Cb9O5a+aOp4v
+ GiDmHRin7wx4JTsYxprTlME5d/3yQZt6GUUDUAjECwI257UBnx/r+o2sTPgDsRbGlpJ2
+ iRf0zMUkCG0mBeBl0BFnw31ac211uGCRzHidQjlMJd82e6SPFNEMkpND320gnTUumxyg
+ dbvQ==
+X-Gm-Message-State: AOAM531FarDQcC1fbkIgnScFNVBg1MQbweJUL3d6YP5aHHJz45yMZ0sA
+ RXQuC8mb7HZrogWV4xEU4YAQniAr/3O+GdmIqNC7WSrjKhob6imFgnywDtbj5LAEc4OL6rZsjKW
+ Rm9ZmwBEheJdw8YVGMlzzFrH4DmhirIx7YeulMwwgbQ==
+X-Received: by 2002:adf:fd81:: with SMTP id d1mr16856545wrr.37.1622361960974; 
+ Sun, 30 May 2021 01:06:00 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxzV9Wt0dtS5PjEX5+L92Ox40mbwufjCbQO/9Ony6WmOrZN5hMvfaOO8dN5dDeyPSfRFSHKAw==
+X-Received: by 2002:adf:fd81:: with SMTP id d1mr16856533wrr.37.1622361960784; 
+ Sun, 30 May 2021 01:06:00 -0700 (PDT)
 Received: from redhat.com ([2a00:a040:196:94e6::1002])
- by smtp.gmail.com with ESMTPSA id b10sm13137948wrt.24.2021.05.30.01.05.18
+ by smtp.gmail.com with ESMTPSA id g23sm1945301wmk.3.2021.05.30.01.05.59
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 30 May 2021 01:05:19 -0700 (PDT)
-Date: Sun, 30 May 2021 04:05:16 -0400
+ Sun, 30 May 2021 01:06:00 -0700 (PDT)
+Date: Sun, 30 May 2021 04:05:57 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Eli Cohen <elic@nvidia.com>
-Subject: Re: [PATCH 1/2] vdpa/mlx5: Fix umem sizes assignments on VQ create
-Message-ID: <20210530040458-mutt-send-email-mst@kernel.org>
-References: <20210530063128.183258-1-elic@nvidia.com>
+Subject: Re: [PATCH 2/2] vdpa/mlx5: Fix possible failure in umem size
+ calculation
+Message-ID: <20210530040523-mutt-send-email-mst@kernel.org>
+References: <20210530063214.183335-1-elic@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <20210530063128.183258-1-elic@nvidia.com>
+In-Reply-To: <20210530063214.183335-1-elic@nvidia.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -122,34 +123,63 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, May 30, 2021 at 09:31:28AM +0300, Eli Cohen wrote:
-> Fix copy paste bug assigning umem1 size to umem2 and umem3.
+On Sun, May 30, 2021 at 09:32:14AM +0300, Eli Cohen wrote:
+> umem size is a 32 bit unsigned value so assigning it to an int could
+> cause false failures. Set the calculated value inside the function and
+> modify function name to reflect the fact it updates the size.
 > 
 > Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
 > Signed-off-by: Eli Cohen <elic@nvidia.com>
 
 could you clarify the impact of the bug please?
 
+
 > ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 15 +++++----------
+>  1 file changed, 5 insertions(+), 10 deletions(-)
 > 
 > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index 189e4385df40..53312f0460ad 100644
+> index 53312f0460ad..fdf3e74bffbd 100644
 > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
 > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -828,9 +828,9 @@ static int create_virtqueue(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtque
->  	MLX5_SET(virtio_q, vq_ctx, umem_1_id, mvq->umem1.id);
->  	MLX5_SET(virtio_q, vq_ctx, umem_1_size, mvq->umem1.size);
->  	MLX5_SET(virtio_q, vq_ctx, umem_2_id, mvq->umem2.id);
-> -	MLX5_SET(virtio_q, vq_ctx, umem_2_size, mvq->umem1.size);
-> +	MLX5_SET(virtio_q, vq_ctx, umem_2_size, mvq->umem2.size);
->  	MLX5_SET(virtio_q, vq_ctx, umem_3_id, mvq->umem3.id);
-> -	MLX5_SET(virtio_q, vq_ctx, umem_3_size, mvq->umem1.size);
-> +	MLX5_SET(virtio_q, vq_ctx, umem_3_size, mvq->umem3.size);
->  	MLX5_SET(virtio_q, vq_ctx, pd, ndev->mvdev.res.pdn);
->  	if (MLX5_CAP_DEV_VDPA_EMULATION(ndev->mvdev.mdev, eth_frame_offload_type))
->  		MLX5_SET(virtio_q, vq_ctx, virtio_version_1_0, 1);
+> @@ -610,8 +610,8 @@ static void cq_destroy(struct mlx5_vdpa_net *ndev, u16 idx)
+>  	mlx5_db_free(ndev->mvdev.mdev, &vcq->db);
+>  }
+>  
+> -static int umem_size(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq, int num,
+> -		     struct mlx5_vdpa_umem **umemp)
+> +static void set_umem_size(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq, int num,
+> +			  struct mlx5_vdpa_umem **umemp)
+>  {
+>  	struct mlx5_core_dev *mdev = ndev->mvdev.mdev;
+>  	int p_a;
+> @@ -634,7 +634,7 @@ static int umem_size(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *mvq
+>  		*umemp = &mvq->umem3;
+>  		break;
+>  	}
+> -	return p_a * mvq->num_ent + p_b;
+> +	(*umemp)->size = p_a * mvq->num_ent + p_b;
+>  }
+>  
+>  static void umem_frag_buf_free(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_umem *umem)
+> @@ -650,15 +650,10 @@ static int create_umem(struct mlx5_vdpa_net *ndev, struct mlx5_vdpa_virtqueue *m
+>  	void *in;
+>  	int err;
+>  	__be64 *pas;
+> -	int size;
+>  	struct mlx5_vdpa_umem *umem;
+>  
+> -	size = umem_size(ndev, mvq, num, &umem);
+> -	if (size < 0)
+> -		return size;
+> -
+> -	umem->size = size;
+> -	err = umem_frag_buf_alloc(ndev, umem, size);
+> +	set_umem_size(ndev, mvq, num, &umem);
+> +	err = umem_frag_buf_alloc(ndev, umem, umem->size);
+>  	if (err)
+>  		return err;
+>  
 > -- 
 > 2.31.1
 
