@@ -7,69 +7,69 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 279DDC47092
-	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:12 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68838C4708F
+	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:18 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D5DAD6135D
-	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D5DAD6135D
+	by mail.kernel.org (Postfix) with ESMTPS id 25DCE61242
+	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 25DCE61242
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B4EC883668;
-	Wed,  2 Jun 2021 06:55:11 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id F40CD60814;
+	Wed,  2 Jun 2021 06:55:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id n_TfFMZy-XBR; Wed,  2 Jun 2021 06:55:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 69CA283653;
-	Wed,  2 Jun 2021 06:55:10 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 44ABEC000E;
-	Wed,  2 Jun 2021 06:55:10 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 15811C0001
- for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:55:09 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 02BE060889
- for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:55:09 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SKCqEWgjNdl5
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Dd6mEH0gS0oS; Wed,  2 Jun 2021 06:55:17 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 986A060889;
+	Wed,  2 Jun 2021 06:55:16 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 75317C000E;
+	Wed,  2 Jun 2021 06:55:16 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1DDEBC0001
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:55:08 +0000 (UTC)
+ Wed,  2 Jun 2021 06:55:15 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id F39DD40272
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  2 Jun 2021 06:55:14 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lhqIDokTni2P
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  2 Jun 2021 06:55:14 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 46CF4607E9
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 4B2E140249
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:55:08 +0000 (UTC)
+ Wed,  2 Jun 2021 06:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=qi7AU80Oz7hj4K5BUy3Hu3UJMfMiprlsOMq1LlDbVww=; b=wfnn0CGP9teCIUigpA0cLAiCEG
- XaYeXRoQvQOrEfJFcuxKu18rxlCj9kAVnqYvA6ffbosWHxomIXQsSArr+ftwbguMp5SU3M9/bmk0L
- bqzQ8XiTRZ6QBfzP4K/UHsKW47GVQnDBFuGf6p23+3crdLQ2ThNz4kvRi6KgNmbzK/nin+yjIgWxz
- 6kQGuIL3DvYz9Jv29HP0rZaCMuA/qvMMWQpgEREhwRn38bXZiX53OXpalBkps4hZhmquoC2R0dNpO
- luUD0oRku7pr6gfgS8FYvxXuSkXea92js4/YEKQkinqriGTLqiSIzKawm91/GTGJJNVz/av0Gu21E
- TAsHH4GQ==;
+ bh=5ce2JiRw1Xfew42Ze/lpHvPyVGAKQBeRUdFT9myuT9Y=; b=D3gIVkolzefyEuZRqpxqbTjD1/
+ me+j80WuDmIEDCJoCJJi3EaA6ZCyWCHg/zV//LKDbuT47z7Uv/x4kG2fPmshfH/L7rjbpzOatrjCm
+ ARVjVeFvQjsO3HUvF2D9OqnaTSbbV853xQhgkz8ti5uaY4uAnMmLFziTNlF8DV+PTEuHXC3T5Pive
+ LO7ao7bFh4VNXvbPzkbKc4TXiRq98YZ/TLJxnVtZ5DgjQkmVu3QKesdVOoc5Nq3l6loa9nnM9JqI4
+ k1sn5uw5l5Y+eo2X4wE+smW+Tw3NfDakiaWjXDN2Xlkt/Jo9eltYtyzKb8C/e2tK4DiSGkIBOzcFb
+ t7mn9Egw==;
 Received: from shol69.static.otenet.gr ([83.235.170.67] helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1loKm6-0025Ys-7i; Wed, 02 Jun 2021 06:54:47 +0000
+ id 1loKmA-0025cC-BJ; Wed, 02 Jun 2021 06:54:50 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 11/30] swim3: use blk_mq_alloc_disk
-Date: Wed,  2 Jun 2021 09:53:26 +0300
-Message-Id: <20210602065345.355274-12-hch@lst.de>
+Subject: [PATCH 12/30] swim: use blk_mq_alloc_disk
+Date: Wed,  2 Jun 2021 09:53:27 +0300
+Message-Id: <20210602065345.355274-13-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210602065345.355274-1-hch@lst.de>
 References: <20210602065345.355274-1-hch@lst.de>
@@ -114,71 +114,73 @@ allocation.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/block/swim3.c | 33 ++++++++++++++-------------------
- 1 file changed, 14 insertions(+), 19 deletions(-)
+ drivers/block/swim.c | 34 ++++++++++++++--------------------
+ 1 file changed, 14 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/block/swim3.c b/drivers/block/swim3.c
-index a515d0c1d2cb..965af0a3e95b 100644
---- a/drivers/block/swim3.c
-+++ b/drivers/block/swim3.c
-@@ -1202,30 +1202,27 @@ static int swim3_attach(struct macio_dev *mdev,
- 			return rc;
- 	}
+diff --git a/drivers/block/swim.c b/drivers/block/swim.c
+index 2917b21f48ff..7ccc8d2a41bc 100644
+--- a/drivers/block/swim.c
++++ b/drivers/block/swim.c
+@@ -800,23 +800,20 @@ static int swim_floppy_init(struct swim_priv *swd)
+ 	spin_lock_init(&swd->lock);
  
--	disk = alloc_disk(1);
--	if (disk == NULL) {
--		rc = -ENOMEM;
--		goto out_unregister;
--	}
+ 	for (drive = 0; drive < swd->floppy_count; drive++) {
+-		struct request_queue *q;
 -
- 	fs = &floppy_states[floppy_count];
- 	memset(fs, 0, sizeof(*fs));
+-		swd->unit[drive].disk = alloc_disk(1);
+-		if (swd->unit[drive].disk == NULL) {
+-			err = -ENOMEM;
++		err = blk_mq_alloc_sq_tag_set(&swd->unit[drive].tag_set,
++				&swim_mq_ops, 2, BLK_MQ_F_SHOULD_MERGE);
++		if (err)
+ 			goto exit_put_disks;
+-		}
  
--	disk->queue = blk_mq_init_sq_queue(&fs->tag_set, &swim3_mq_ops, 2,
--						BLK_MQ_F_SHOULD_MERGE);
--	if (IS_ERR(disk->queue)) {
--		rc = PTR_ERR(disk->queue);
--		disk->queue = NULL;
--		goto out_put_disk;
-+	rc = blk_mq_alloc_sq_tag_set(&fs->tag_set, &swim3_mq_ops, 2,
-+			BLK_MQ_F_SHOULD_MERGE);
-+	if (rc)
-+		goto out_unregister;
-+
-+	disk = blk_mq_alloc_disk(&fs->tag_set, fs);
-+	if (IS_ERR(disk)) {
-+		rc = PTR_ERR(disk);
-+		goto out_free_tag_set;
+-		q = blk_mq_init_sq_queue(&swd->unit[drive].tag_set, &swim_mq_ops,
+-						2, BLK_MQ_F_SHOULD_MERGE);
+-		if (IS_ERR(q)) {
+-			err = PTR_ERR(q);
++		swd->unit[drive].disk =
++			blk_mq_alloc_disk(&swd->unit[drive].tag_set,
++					  &swd->unit[drive]);
++		if (IS_ERR(swd->unit[drive].disk)) {
++			blk_mq_free_tag_set(&swd->unit[drive].tag_set);
++			err = PTR_ERR(swd->unit[drive].disk);
+ 			goto exit_put_disks;
+ 		}
+ 
+-		swd->unit[drive].disk->queue = q;
+-		swd->unit[drive].disk->queue->queuedata = &swd->unit[drive];
+ 		swd->unit[drive].swd = swd;
  	}
--	disk->queue->queuedata = fs;
  
- 	rc = swim3_add_device(mdev, floppy_count);
- 	if (rc)
--		goto out_cleanup_queue;
-+		goto out_cleanup_disk;
+@@ -824,6 +821,7 @@ static int swim_floppy_init(struct swim_priv *swd)
+ 		swd->unit[drive].disk->flags = GENHD_FL_REMOVABLE;
+ 		swd->unit[drive].disk->major = FLOPPY_MAJOR;
+ 		swd->unit[drive].disk->first_minor = drive;
++		swd->unit[drive].disk->minors = 1;
+ 		sprintf(swd->unit[drive].disk->disk_name, "fd%d", drive);
+ 		swd->unit[drive].disk->fops = &floppy_fops;
+ 		swd->unit[drive].disk->events = DISK_EVENT_MEDIA_CHANGE;
+@@ -839,14 +837,10 @@ static int swim_floppy_init(struct swim_priv *swd)
+ 	do {
+ 		struct gendisk *disk = swd->unit[drive].disk;
  
- 	disk->major = FLOPPY_MAJOR;
- 	disk->first_minor = floppy_count;
-+	disk->minors = 1;
- 	disk->fops = &floppy_fops;
- 	disk->private_data = fs;
- 	disk->events = DISK_EVENT_MEDIA_CHANGE;
-@@ -1237,12 +1234,10 @@ static int swim3_attach(struct macio_dev *mdev,
- 	disks[floppy_count++] = disk;
- 	return 0;
- 
--out_cleanup_queue:
--	blk_cleanup_queue(disk->queue);
--	disk->queue = NULL;
-+out_cleanup_disk:
-+	blk_cleanup_disk(disk);
-+out_free_tag_set:
- 	blk_mq_free_tag_set(&fs->tag_set);
--out_put_disk:
--	put_disk(disk);
- out_unregister:
- 	if (floppy_count == 0)
- 		unregister_blkdev(FLOPPY_MAJOR, "fd");
+-		if (disk) {
+-			if (disk->queue) {
+-				blk_cleanup_queue(disk->queue);
+-				disk->queue = NULL;
+-			}
+-			blk_mq_free_tag_set(&swd->unit[drive].tag_set);
+-			put_disk(disk);
+-		}
++		if (!disk)
++			continue;
++		blk_cleanup_disk(disk);
++		blk_mq_free_tag_set(&swd->unit[drive].tag_set);
+ 	} while (drive--);
+ 	return err;
+ }
 -- 
 2.30.2
 
