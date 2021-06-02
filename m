@@ -7,67 +7,69 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B18BC4708F
-	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:56:14 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D667C47083
+	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:56:16 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EB9B661376
-	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:56:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EB9B661376
+	by mail.kernel.org (Postfix) with ESMTPS id 3C15161242
+	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:56:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3C15161242
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B84B6403F4;
-	Wed,  2 Jun 2021 06:56:13 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 0BFFE608F2;
+	Wed,  2 Jun 2021 06:56:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RhcHJytSaKcW; Wed,  2 Jun 2021 06:56:12 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id wqwkAW39CpTR; Wed,  2 Jun 2021 06:56:15 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2E5D0403BD;
-	Wed,  2 Jun 2021 06:56:12 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 84B90608D0;
+	Wed,  2 Jun 2021 06:56:14 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 173BCC000E;
-	Wed,  2 Jun 2021 06:56:12 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4C76DC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 605F6C0001;
+	Wed,  2 Jun 2021 06:56:14 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DDB35C0001
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:56:11 +0000 (UTC)
+ Wed,  2 Jun 2021 06:56:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 3A17A403E0
+ by smtp4.osuosl.org (Postfix) with ESMTP id C109D403FF
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:56:11 +0000 (UTC)
+ Wed,  2 Jun 2021 06:56:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id T9CGJ89IIJrQ
+ with ESMTP id g94qBz-e9l6Q
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:56:10 +0000 (UTC)
+ Wed,  2 Jun 2021 06:56:12 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E7C2B403BD
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 99409403EF
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:56:09 +0000 (UTC)
+ Wed,  2 Jun 2021 06:56:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=yE8r2l5ezl7YxULOvA5WBGUgnr1EKs2E6TVb/drKQds=; b=r98dDxDiRvwlhNhs3T+1sVCcmx
- 9LSO0JAkx53106Z5FUQCYz3et9mT695nE04/mTWwxr/+e0qSYn8Q1H1hjEWJdvuJc3pumGMIBHyUT
- t4W4GpkPuUNrdOHpe0KYFnWLvVAzI+WQwBh+pEi7U6I9KnMAFAlHPJRr4BSXUOn39VZTgNc5w2jvT
- YFMKttfQVUSu/qkAB2YLyqtpsqykpUWPfHXrpKaBY5Lxa/Kceg/Y0XBAcrgpyvG0PgFSkx/IaoPgV
- NvObxijOnNz7w1Y0/FNOweKAbiF8uEg9oHb82XorMJoTWx9Agt4jviXSvoy73IZqfJrU1acBTcolk
- E0JQevww==;
+ bh=Nt6wErfubiqnYVzweXP3z8/rIFCiMtQahAHnZtmIiWQ=; b=hKOfYl8YkpHQsdsCJlgWZugO4N
+ 8fA3EUPkn9+TcsNuxwOAiqb3mNj8IytqoaliRlOJGLTV2vKpHMO6rQ1hlUlt0+Mkm+c5R/1hkmkn7
+ oTHREX9ZW78opJHrkSMxB5aCt3NEqpb+8QhNRYh4/wvPcfO1Rb2/ZQR+g2Eo/Q/BlHFp+u+PN1zzV
+ pUp3mo54MUYKztGaP64TzrsyiDi6S2vcUaJtmVAkviIbIqZRFaDYaSgCXtB5+UEr/Ho31XLAOGGlI
+ c+6ImRaQZ98uKF5v5kiT9CbtO1B6knRIsPn1hDSDTVU+kF579t+oYPcuUhzdK5Z+yGE/Xb+qFY58k
+ TDv/4cKQ==;
 Received: from shol69.static.otenet.gr ([83.235.170.67] helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1loKn1-0026HM-J4; Wed, 02 Jun 2021 06:55:44 +0000
+ id 1loKn5-0026La-Sd; Wed, 02 Jun 2021 06:55:48 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 24/30] sx8: use blk_mq_alloc_disk and blk_cleanup_disk
-Date: Wed,  2 Jun 2021 09:53:39 +0300
-Message-Id: <20210602065345.355274-25-hch@lst.de>
+Subject: [PATCH 25/30] xen-blkfront: use blk_mq_alloc_disk and blk_cleanup_disk
+Date: Wed,  2 Jun 2021 09:53:40 +0300
+Message-Id: <20210602065345.355274-26-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210602065345.355274-1-hch@lst.de>
 References: <20210602065345.355274-1-hch@lst.de>
@@ -112,63 +114,152 @@ request_queue allocation.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/block/sx8.c | 23 +++++++----------------
- 1 file changed, 7 insertions(+), 16 deletions(-)
+ drivers/block/xen-blkfront.c | 96 +++++++++++++++---------------------
+ 1 file changed, 39 insertions(+), 57 deletions(-)
 
-diff --git a/drivers/block/sx8.c b/drivers/block/sx8.c
-index 2cdf2771f8e8..f01f860b0e62 100644
---- a/drivers/block/sx8.c
-+++ b/drivers/block/sx8.c
-@@ -1343,32 +1343,25 @@ static int carm_init_disk(struct carm_host *host, unsigned int port_no)
+diff --git a/drivers/block/xen-blkfront.c b/drivers/block/xen-blkfront.c
+index f2c1aedcdf5a..8d49f8fa98bb 100644
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -968,48 +968,6 @@ static void blkif_set_queue_limits(struct blkfront_info *info)
+ 	blk_queue_dma_alignment(rq, 511);
+ }
+ 
+-static int xlvbd_init_blk_queue(struct gendisk *gd, u16 sector_size,
+-				unsigned int physical_sector_size)
+-{
+-	struct request_queue *rq;
+-	struct blkfront_info *info = gd->private_data;
+-
+-	memset(&info->tag_set, 0, sizeof(info->tag_set));
+-	info->tag_set.ops = &blkfront_mq_ops;
+-	info->tag_set.nr_hw_queues = info->nr_rings;
+-	if (HAS_EXTRA_REQ && info->max_indirect_segments == 0) {
+-		/*
+-		 * When indirect descriptior is not supported, the I/O request
+-		 * will be split between multiple request in the ring.
+-		 * To avoid problems when sending the request, divide by
+-		 * 2 the depth of the queue.
+-		 */
+-		info->tag_set.queue_depth =  BLK_RING_SIZE(info) / 2;
+-	} else
+-		info->tag_set.queue_depth = BLK_RING_SIZE(info);
+-	info->tag_set.numa_node = NUMA_NO_NODE;
+-	info->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
+-	info->tag_set.cmd_size = sizeof(struct blkif_req);
+-	info->tag_set.driver_data = info;
+-
+-	if (blk_mq_alloc_tag_set(&info->tag_set))
+-		return -EINVAL;
+-	rq = blk_mq_init_queue(&info->tag_set);
+-	if (IS_ERR(rq)) {
+-		blk_mq_free_tag_set(&info->tag_set);
+-		return PTR_ERR(rq);
+-	}
+-
+-	rq->queuedata = info;
+-	info->rq = gd->queue = rq;
+-	info->gd = gd;
+-	info->sector_size = sector_size;
+-	info->physical_sector_size = physical_sector_size;
+-	blkif_set_queue_limits(info);
+-
+-	return 0;
+-}
+-
+ static const char *flush_info(struct blkfront_info *info)
  {
- 	struct carm_port *port = &host->port[port_no];
- 	struct gendisk *disk;
--	struct request_queue *q;
+ 	if (info->feature_flush && info->feature_fua)
+@@ -1146,12 +1104,36 @@ static int xlvbd_alloc_gendisk(blkif_sector_t capacity,
  
- 	port->host = host;
- 	port->port_no = port_no;
+ 	err = xlbd_reserve_minors(minor, nr_minors);
+ 	if (err)
+-		goto out;
++		return err;
+ 	err = -ENODEV;
  
--	disk = alloc_disk(CARM_MINORS_PER_MAJOR);
--	if (!disk)
--		return -ENOMEM;
-+	disk = blk_mq_alloc_disk(&host->tag_set, port);
-+	if (IS_ERR(disk))
-+		return PTR_ERR(disk);
+-	gd = alloc_disk(nr_minors);
+-	if (gd == NULL)
+-		goto release;
++	memset(&info->tag_set, 0, sizeof(info->tag_set));
++	info->tag_set.ops = &blkfront_mq_ops;
++	info->tag_set.nr_hw_queues = info->nr_rings;
++	if (HAS_EXTRA_REQ && info->max_indirect_segments == 0) {
++		/*
++		 * When indirect descriptior is not supported, the I/O request
++		 * will be split between multiple request in the ring.
++		 * To avoid problems when sending the request, divide by
++		 * 2 the depth of the queue.
++		 */
++		info->tag_set.queue_depth =  BLK_RING_SIZE(info) / 2;
++	} else
++		info->tag_set.queue_depth = BLK_RING_SIZE(info);
++	info->tag_set.numa_node = NUMA_NO_NODE;
++	info->tag_set.flags = BLK_MQ_F_SHOULD_MERGE;
++	info->tag_set.cmd_size = sizeof(struct blkif_req);
++	info->tag_set.driver_data = info;
++
++	err = blk_mq_alloc_tag_set(&info->tag_set);
++	if (err)
++		goto out_release_minors;
++
++	gd = blk_mq_alloc_disk(&info->tag_set, info);
++	if (IS_ERR(gd)) {
++		err = PTR_ERR(gd);
++		goto out_free_tag_set;
++	}
  
- 	port->disk = disk;
- 	sprintf(disk->disk_name, DRV_NAME "/%u",
- 		(unsigned int)host->id * CARM_MAX_PORTS + port_no);
- 	disk->major = host->major;
- 	disk->first_minor = port_no * CARM_MINORS_PER_MAJOR;
-+	disk->minors = CARM_MINORS_PER_MAJOR;
- 	disk->fops = &carm_bd_ops;
- 	disk->private_data = port;
+ 	strcpy(gd->disk_name, DEV_NAME);
+ 	ptr = encode_disk_name(gd->disk_name + sizeof(DEV_NAME) - 1, offset);
+@@ -1164,14 +1146,16 @@ static int xlvbd_alloc_gendisk(blkif_sector_t capacity,
  
--	q = blk_mq_init_queue(&host->tag_set);
--	if (IS_ERR(q))
--		return PTR_ERR(q);
--
--	blk_queue_max_segments(q, CARM_MAX_REQ_SG);
--	blk_queue_segment_boundary(q, CARM_SG_BOUNDARY);
--
--	q->queuedata = port;
--	disk->queue = q;
-+	blk_queue_max_segments(disk->queue, CARM_MAX_REQ_SG);
-+	blk_queue_segment_boundary(disk->queue, CARM_SG_BOUNDARY);
+ 	gd->major = XENVBD_MAJOR;
+ 	gd->first_minor = minor;
++	gd->minors = nr_minors;
+ 	gd->fops = &xlvbd_block_fops;
+ 	gd->private_data = info;
+ 	set_capacity(gd, capacity);
+ 
+-	if (xlvbd_init_blk_queue(gd, sector_size, physical_sector_size)) {
+-		del_gendisk(gd);
+-		goto release;
+-	}
++	info->rq = gd->queue;
++	info->gd = gd;
++	info->sector_size = sector_size;
++	info->physical_sector_size = physical_sector_size;
++	blkif_set_queue_limits(info);
+ 
+ 	xlvbd_flush(info);
+ 
+@@ -1186,9 +1170,10 @@ static int xlvbd_alloc_gendisk(blkif_sector_t capacity,
+ 
  	return 0;
+ 
+- release:
++out_free_tag_set:
++	blk_mq_free_tag_set(&info->tag_set);
++out_release_minors:
+ 	xlbd_release_minors(minor, nr_minors);
+- out:
+ 	return err;
  }
  
-@@ -1382,9 +1375,7 @@ static void carm_free_disk(struct carm_host *host, unsigned int port_no)
+@@ -1217,12 +1202,9 @@ static void xlvbd_release_gendisk(struct blkfront_info *info)
+ 	nr_minors = info->gd->minors;
+ 	xlbd_release_minors(minor, nr_minors);
  
- 	if (disk->flags & GENHD_FL_UP)
- 		del_gendisk(disk);
--	if (disk->queue)
--		blk_cleanup_queue(disk->queue);
--	put_disk(disk);
-+	blk_cleanup_disk(disk);
+-	blk_cleanup_queue(info->rq);
+-	blk_mq_free_tag_set(&info->tag_set);
+-	info->rq = NULL;
+-
+-	put_disk(info->gd);
++	blk_cleanup_disk(info->gd);
+ 	info->gd = NULL;
++	blk_mq_free_tag_set(&info->tag_set);
  }
  
- static int carm_init_shm(struct carm_host *host)
+ /* Already hold rinfo->ring_lock. */
 -- 
 2.30.2
 
