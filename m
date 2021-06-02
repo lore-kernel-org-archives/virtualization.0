@@ -7,69 +7,69 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1777BC4709C
-	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4329EC47093
+	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:59 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CAF65613D5
-	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CAF65613D5
+	by mail.kernel.org (Postfix) with ESMTPS id 083E361242
+	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 083E361242
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A22D9608C5;
-	Wed,  2 Jun 2021 06:55:54 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id D477C607E9;
+	Wed,  2 Jun 2021 06:55:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ysggCqWQGK9C; Wed,  2 Jun 2021 06:55:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 564B66079E;
-	Wed,  2 Jun 2021 06:55:53 +0000 (UTC)
+	with ESMTP id 9BJs_uh50wCH; Wed,  2 Jun 2021 06:55:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 86F636079E;
+	Wed,  2 Jun 2021 06:55:57 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3FDEBC000E;
-	Wed,  2 Jun 2021 06:55:53 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 67570C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 704DCC000E;
+	Wed,  2 Jun 2021 06:55:57 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 445F8C0001
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:55:51 +0000 (UTC)
+ Wed,  2 Jun 2021 06:55:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 46D4E402D4
+ by smtp2.osuosl.org (Postfix) with ESMTP id 265E8402C4
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:55:51 +0000 (UTC)
+ Wed,  2 Jun 2021 06:55:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=infradead.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ANkskBlXSME6
+ with ESMTP id M_siLYBZiQ9a
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:55:50 +0000 (UTC)
+ Wed,  2 Jun 2021 06:55:55 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 60F6140232
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 3844040232
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:55:50 +0000 (UTC)
+ Wed,  2 Jun 2021 06:55:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=dPXgPagX0YUjFpHkmb7+BJvE2rgQGNh10xmKRHSEoBw=; b=BmfFZoZgZc3og4CmFwOmdLx19i
- QO/EHgrku+yvgdhYC17jfB1aTEH3npIjzEWzSTOP+FtfRG47SoCYsd6XDZdDvG8QFc30baslGnBO5
- 603qv1a5lD3zj6piDqc7/7HezJHswlQmBy2hQzdsqi+Pq2AqXMvtz6CZelFZP4OuEsOQ481G/g0oe
- 2D5d45xL9+Y8IhSZ0SJ7QgmfDd59y+PvwieZLqYIaXHXwCMZQBwPlFGdwrK57V7ShUrkG8V37WJ3E
- EOpP42tJMZNBze5kjBlU3735zuT501c+A9ju4eeM4xto97GnaI9ogfZqwLOqhLmVBPmt6XU0UdEOR
- G7vAYXaA==;
+ bh=nI/ZQsUq4UAVWWD+XlWiGZNbHY/pEUl6HaoFswHnuQ4=; b=zGlrfHSC/oppIdruF4aRva3o8B
+ wtEFmwSmcFHEhWITeGFtHuY9Wo10P04noPv6NDlI408bgIBJRkVwwSNa+XWLEAJlAJuKZOmEWMLIK
+ ypzvochOmpTNDSw00TOxKnVYokteVrnhgtmSr1j1yBWFdJc27AJBjUNwKpISp0vKiLy2jjLimY0Ek
+ 6P9TdCUkFiGBNMeFMPeq+ck3KCV/5OtDAHAEJPXDdOXuVm3Wp8pMIeYa4M2y0KOxO5BAOQxPKiJkk
+ QtHEQ5wWjrHNPSLHnxZaMHUkkPwojUCno1EhOKjx/cVHeiOj1wg20mdo5EoURfDorHUaeAxyeZdGp
+ 7/lZ2gHg==;
 Received: from shol69.static.otenet.gr ([83.235.170.67] helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1loKmj-00260g-93; Wed, 02 Jun 2021 06:55:26 +0000
+ id 1loKmo-002647-90; Wed, 02 Jun 2021 06:55:31 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 20/30] nullb: use blk_mq_alloc_disk
-Date: Wed,  2 Jun 2021 09:53:35 +0300
-Message-Id: <20210602065345.355274-21-hch@lst.de>
+Subject: [PATCH 21/30] pd: use blk_mq_alloc_disk and blk_cleanup_disk
+Date: Wed,  2 Jun 2021 09:53:36 +0300
+Message-Id: <20210602065345.355274-22-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210602065345.355274-1-hch@lst.de>
 References: <20210602065345.355274-1-hch@lst.de>
@@ -114,32 +114,69 @@ request_queue allocation.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/block/null_blk/main.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/block/paride/pd.c | 30 ++++++++++++------------------
+ 1 file changed, 12 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/block/null_blk/main.c b/drivers/block/null_blk/main.c
-index d8e098f1e5b5..74fb2ec63219 100644
---- a/drivers/block/null_blk/main.c
-+++ b/drivers/block/null_blk/main.c
-@@ -1851,13 +1851,12 @@ static int null_add_dev(struct nullb_device *dev)
+diff --git a/drivers/block/paride/pd.c b/drivers/block/paride/pd.c
+index 828a45ffe0e7..3b2b8e872beb 100644
+--- a/drivers/block/paride/pd.c
++++ b/drivers/block/paride/pd.c
+@@ -879,18 +879,6 @@ static void pd_probe_drive(struct pd_unit *disk)
+ {
+ 	struct gendisk *p;
  
- 		rv = -ENOMEM;
- 		nullb->tag_set->timeout = 5 * HZ;
--		nullb->q = blk_mq_init_queue_data(nullb->tag_set, nullb);
--		if (IS_ERR(nullb->q))
--			goto out_cleanup_tags;
--		nullb->disk = alloc_disk_node(1, nullb->dev->home_node);
--		if (!nullb->disk)
-+		nullb->disk = blk_mq_alloc_disk(nullb->tag_set, nullb);
-+		if (IS_ERR(nullb->disk)) {
-+			rv = PTR_ERR(nullb->disk);
- 			goto out_cleanup_disk;
--		nullb->disk->queue = nullb->q;
-+		}
-+		nullb->q = nullb->disk->queue;
- 	} else if (dev->queue_mode == NULL_Q_BIO) {
- 		rv = -ENOMEM;
- 		nullb->disk = blk_alloc_disk(nullb->dev->home_node);
+-	p = alloc_disk(1 << PD_BITS);
+-	if (!p)
+-		return;
+-
+-	strcpy(p->disk_name, disk->name);
+-	p->fops = &pd_fops;
+-	p->major = major;
+-	p->first_minor = (disk - pd) << PD_BITS;
+-	p->events = DISK_EVENT_MEDIA_CHANGE;
+-	disk->gd = p;
+-	p->private_data = disk;
+-
+ 	memset(&disk->tag_set, 0, sizeof(disk->tag_set));
+ 	disk->tag_set.ops = &pd_mq_ops;
+ 	disk->tag_set.cmd_size = sizeof(struct pd_req);
+@@ -903,14 +891,21 @@ static void pd_probe_drive(struct pd_unit *disk)
+ 	if (blk_mq_alloc_tag_set(&disk->tag_set))
+ 		return;
+ 
+-	p->queue = blk_mq_init_queue(&disk->tag_set);
+-	if (IS_ERR(p->queue)) {
++	p = blk_mq_alloc_disk(&disk->tag_set, disk);
++	if (!p) {
+ 		blk_mq_free_tag_set(&disk->tag_set);
+-		p->queue = NULL;
+ 		return;
+ 	}
++	disk->gd = p;
++
++	strcpy(p->disk_name, disk->name);
++	p->fops = &pd_fops;
++	p->major = major;
++	p->first_minor = (disk - pd) << PD_BITS;
++	p->minors = 1 << PD_BITS;
++	p->events = DISK_EVENT_MEDIA_CHANGE;
++	p->private_data = disk;
+ 
+-	p->queue->queuedata = disk;
+ 	blk_queue_max_hw_sectors(p->queue, cluster);
+ 	blk_queue_bounce_limit(p->queue, BLK_BOUNCE_HIGH);
+ 
+@@ -1019,9 +1014,8 @@ static void __exit pd_exit(void)
+ 		if (p) {
+ 			disk->gd = NULL;
+ 			del_gendisk(p);
+-			blk_cleanup_queue(p->queue);
+ 			blk_mq_free_tag_set(&disk->tag_set);
+-			put_disk(p);
++			blk_cleanup_disk(p);
+ 			pi_release(disk->pi);
+ 		}
+ 	}
 -- 
 2.30.2
 
