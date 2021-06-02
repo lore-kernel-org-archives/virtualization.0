@@ -7,69 +7,69 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B994C4708F
-	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:27 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D35BC47099
+	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:33 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CE2D96135D
-	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CE2D96135D
+	by mail.kernel.org (Postfix) with ESMTPS id 019F76135D
+	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 06:55:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 019F76135D
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A2B99402D2;
-	Wed,  2 Jun 2021 06:55:26 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id D624660889;
+	Wed,  2 Jun 2021 06:55:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HW5IevlCxfBn; Wed,  2 Jun 2021 06:55:25 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 481C04017C;
-	Wed,  2 Jun 2021 06:55:25 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id KGMv8vA-YOS0; Wed,  2 Jun 2021 06:55:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 782D9607BA;
+	Wed,  2 Jun 2021 06:55:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 23D65C0026;
-	Wed,  2 Jun 2021 06:55:25 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AFF0FC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 54D44C000E;
+	Wed,  2 Jun 2021 06:55:31 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1510FC0001
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:55:24 +0000 (UTC)
+ Wed,  2 Jun 2021 06:55:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id AB0D740349
+ by smtp1.osuosl.org (Postfix) with ESMTP id 11A6E836A7
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:55:24 +0000 (UTC)
+ Wed,  2 Jun 2021 06:55:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=infradead.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0hmV86D6Aiza
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id JVa0hvVnNJmb
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:55:24 +0000 (UTC)
+ Wed,  2 Jun 2021 06:55:29 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from bombadil.infradead.org (bombadil.infradead.org
  [IPv6:2607:7c80:54:e::133])
- by smtp4.osuosl.org (Postfix) with ESMTPS id B3562402C8
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 3E10B83753
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 06:55:23 +0000 (UTC)
+ Wed,  2 Jun 2021 06:55:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
  MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
  :Reply-To:Content-Type:Content-ID:Content-Description;
- bh=yxB3CToEvB1AGII3Fhuj66pLyS4oXdc/Ax4ufYJhDmU=; b=2Ev1PQ3iAXTcAu7Nm/w91IlhBi
- XlySTC28St0acrPx9XgYMlbiWgHgwnXpAO7fssa+3RO6s6w1gNt/L0bRJxPAncGQ3wVJ/bZBHhsGL
- uVoo++YnZjLmVwV7/fA+A/a3WTVeZ7Iox3GoTmd7i9BvdmfF+QzgThe8cp3OM151RtbpSjuGYv1qk
- Z49auwfLnjtdi4znRE+V/2lHNnnW9JmtU9bmCTyqdsOZLGP/YzUu+pzLr8O4OJgs++QcKu78dpSPH
- xBu4qqzNSfKG6LxxIT8EjfGs2NvFuwBi/8BGzrjd39Z06zSSm1tbNqLwSjr7IrytRt6ttKelR32cD
- obDFH8eg==;
+ bh=JLPBr5a4Ln5tpVtARufaz5Rx9DFRvnAc8JDCRXj5CBM=; b=FBI391AmGpCGer8nPkf12dCy+o
+ eIEdbU42pvJv3rPD9dFUDNG20907L9ASE2fIQkUHxjUoIi8PgAItnVYsfQZ6hIztO2P1/v5yAnQCY
+ AEIEL8vqjQuYY/yLZNb4GnSP5PvUwFzpizHw+fRWs4gY52j0aZwRyeKYcxL1PkeJAHD+Jt16XML9Y
+ 6k/bwePGimCyBX6ZWlmiXus1eyEpeartBYIhWxPwfdF5ffOhB85DbtrRd+aBJwu9lstkJ64aPi30u
+ wP4A8hbv0iVNdk/AGNcCWJHaTuex2I57tAI1/KazjM7mVhow4NChmgEaGqXE5WnMhD7z0Peh8k1rH
+ SZflGEZA==;
 Received: from shol69.static.otenet.gr ([83.235.170.67] helo=localhost)
  by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1loKmM-0025j3-HR; Wed, 02 Jun 2021 06:55:03 +0000
+ id 1loKmR-0025lm-Ax; Wed, 02 Jun 2021 06:55:08 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 15/30] blk-mq: remove blk_mq_init_sq_queue
-Date: Wed,  2 Jun 2021 09:53:30 +0300
-Message-Id: <20210602065345.355274-16-hch@lst.de>
+Subject: [PATCH 16/30] aoe: use blk_mq_alloc_disk and blk_cleanup_disk
+Date: Wed,  2 Jun 2021 09:53:31 +0300
+Message-Id: <20210602065345.355274-17-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210602065345.355274-1-hch@lst.de>
 References: <20210602065345.355274-1-hch@lst.de>
@@ -109,62 +109,122 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-All users are gone now.
+Use blk_mq_alloc_disk and blk_cleanup_disk to simplify the gendisk and
+request_queue allocation.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- block/blk-mq.c         | 22 ----------------------
- include/linux/blk-mq.h |  4 ----
- 2 files changed, 26 deletions(-)
+ drivers/block/aoe/aoeblk.c | 33 ++++++++++++---------------------
+ drivers/block/aoe/aoedev.c |  3 +--
+ 2 files changed, 13 insertions(+), 23 deletions(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 1e6036e6fd66..25e25177c2b1 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -3156,28 +3156,6 @@ struct gendisk *__blk_mq_alloc_disk(struct blk_mq_tag_set *set, void *queuedata)
- }
- EXPORT_SYMBOL(__blk_mq_alloc_disk);
+diff --git a/drivers/block/aoe/aoeblk.c b/drivers/block/aoe/aoeblk.c
+index c34e71b0c4a9..06b360f7123a 100644
+--- a/drivers/block/aoe/aoeblk.c
++++ b/drivers/block/aoe/aoeblk.c
+@@ -338,14 +338,13 @@ static const struct blk_mq_ops aoeblk_mq_ops = {
+ 	.queue_rq	= aoeblk_queue_rq,
+ };
  
--/*
-- * Helper for setting up a queue with mq ops, given queue depth, and
-- * the passed in mq ops flags.
-- */
--struct request_queue *blk_mq_init_sq_queue(struct blk_mq_tag_set *set,
--					   const struct blk_mq_ops *ops,
--					   unsigned int queue_depth,
--					   unsigned int set_flags)
--{
+-/* alloc_disk and add_disk can sleep */
++/* blk_mq_alloc_disk and add_disk can sleep */
+ void
+ aoeblk_gdalloc(void *vp)
+ {
+ 	struct aoedev *d = vp;
+ 	struct gendisk *gd;
+ 	mempool_t *mp;
 -	struct request_queue *q;
--	int ret;
--
--	ret = blk_mq_alloc_sq_tag_set(set, ops, queue_depth, set_flags);
--	if (ret)
--		return ERR_PTR(ret);
--	q = blk_mq_init_queue(set);
--	if (IS_ERR(q))
--		blk_mq_free_tag_set(set);
--	return q;
--}
--EXPORT_SYMBOL(blk_mq_init_sq_queue);
--
- static struct blk_mq_hw_ctx *blk_mq_alloc_and_init_hctx(
- 		struct blk_mq_tag_set *set, struct request_queue *q,
- 		int hctx_idx, int node)
-diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
-index f496c6c5b5d2..02a4aab0aeac 100644
---- a/include/linux/blk-mq.h
-+++ b/include/linux/blk-mq.h
-@@ -443,10 +443,6 @@ struct request_queue *blk_mq_init_queue_data(struct blk_mq_tag_set *set,
- 		void *queuedata);
- int blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
- 		struct request_queue *q);
--struct request_queue *blk_mq_init_sq_queue(struct blk_mq_tag_set *set,
--						const struct blk_mq_ops *ops,
--						unsigned int queue_depth,
--						unsigned int set_flags);
- void blk_mq_unregister_dev(struct device *, struct request_queue *);
+ 	struct blk_mq_tag_set *set;
+ 	ulong flags;
+ 	int late = 0;
+@@ -362,19 +361,12 @@ aoeblk_gdalloc(void *vp)
+ 	if (late)
+ 		return;
  
- int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set);
+-	gd = alloc_disk(AOE_PARTITIONS);
+-	if (gd == NULL) {
+-		pr_err("aoe: cannot allocate disk structure for %ld.%d\n",
+-			d->aoemajor, d->aoeminor);
+-		goto err;
+-	}
+-
+ 	mp = mempool_create(MIN_BUFS, mempool_alloc_slab, mempool_free_slab,
+ 		buf_pool_cache);
+ 	if (mp == NULL) {
+ 		printk(KERN_ERR "aoe: cannot allocate bufpool for %ld.%d\n",
+ 			d->aoemajor, d->aoeminor);
+-		goto err_disk;
++		goto err;
+ 	}
+ 
+ 	set = &d->tag_set;
+@@ -391,12 +383,11 @@ aoeblk_gdalloc(void *vp)
+ 		goto err_mempool;
+ 	}
+ 
+-	q = blk_mq_init_queue(set);
+-	if (IS_ERR(q)) {
++	gd = blk_mq_alloc_disk(set, d);
++	if (IS_ERR(gd)) {
+ 		pr_err("aoe: cannot allocate block queue for %ld.%d\n",
+ 			d->aoemajor, d->aoeminor);
+-		blk_mq_free_tag_set(set);
+-		goto err_mempool;
++		goto err_tagset;
+ 	}
+ 
+ 	spin_lock_irqsave(&d->lock, flags);
+@@ -405,16 +396,16 @@ aoeblk_gdalloc(void *vp)
+ 	WARN_ON(d->flags & DEVFL_TKILL);
+ 	WARN_ON(d->gd);
+ 	WARN_ON(d->flags & DEVFL_UP);
+-	blk_queue_max_hw_sectors(q, BLK_DEF_MAX_SECTORS);
+-	blk_queue_io_opt(q, SZ_2M);
++	blk_queue_max_hw_sectors(gd->queue, BLK_DEF_MAX_SECTORS);
++	blk_queue_io_opt(gd->queue, SZ_2M);
+ 	d->bufpool = mp;
+-	d->blkq = gd->queue = q;
+-	q->queuedata = d;
++	d->blkq = gd->queue;
+ 	d->gd = gd;
+ 	if (aoe_maxsectors)
+-		blk_queue_max_hw_sectors(q, aoe_maxsectors);
++		blk_queue_max_hw_sectors(gd->queue, aoe_maxsectors);
+ 	gd->major = AOE_MAJOR;
+ 	gd->first_minor = d->sysminor;
++	gd->minors = AOE_PARTITIONS;
+ 	gd->fops = &aoe_bdops;
+ 	gd->private_data = d;
+ 	set_capacity(gd, d->ssize);
+@@ -435,10 +426,10 @@ aoeblk_gdalloc(void *vp)
+ 	spin_unlock_irqrestore(&d->lock, flags);
+ 	return;
+ 
++err_tagset:
++	blk_mq_free_tag_set(set);
+ err_mempool:
+ 	mempool_destroy(mp);
+-err_disk:
+-	put_disk(gd);
+ err:
+ 	spin_lock_irqsave(&d->lock, flags);
+ 	d->flags &= ~DEVFL_GD_NOW;
+diff --git a/drivers/block/aoe/aoedev.c b/drivers/block/aoe/aoedev.c
+index e2ea2356da06..c5753c6bfe80 100644
+--- a/drivers/block/aoe/aoedev.c
++++ b/drivers/block/aoe/aoedev.c
+@@ -277,9 +277,8 @@ freedev(struct aoedev *d)
+ 	if (d->gd) {
+ 		aoedisk_rm_debugfs(d);
+ 		del_gendisk(d->gd);
+-		put_disk(d->gd);
++		blk_cleanup_disk(d->gd);
+ 		blk_mq_free_tag_set(&d->tag_set);
+-		blk_cleanup_queue(d->blkq);
+ 	}
+ 	t = d->targets;
+ 	e = t + d->ntargets;
 -- 
 2.30.2
 
