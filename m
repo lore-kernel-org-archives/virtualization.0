@@ -2,86 +2,107 @@ Return-Path: <SRS0=+sHN=K4=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A60ECC47092
-	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 12:59:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71F77C47092
+	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 15:55:13 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 520DC613F1
-	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 12:59:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 520DC613F1
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	by mail.kernel.org (Postfix) with ESMTPS id 29B9C6139A
+	for <virtualization@archiver.kernel.org>; Wed,  2 Jun 2021 15:55:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 29B9C6139A
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1E14B60AB2;
-	Wed,  2 Jun 2021 12:59:40 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id DAA0360AE0;
+	Wed,  2 Jun 2021 15:55:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ton-8JuG0fKD; Wed,  2 Jun 2021 12:59:36 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id F3CB0608BA;
-	Wed,  2 Jun 2021 12:59:35 +0000 (UTC)
+	with ESMTP id FJ7l36uGmi4B; Wed,  2 Jun 2021 15:55:12 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 719DF6081A;
+	Wed,  2 Jun 2021 15:55:11 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C102BC000E;
-	Wed,  2 Jun 2021 12:59:35 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6F749C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0D184C0025;
+	Wed,  2 Jun 2021 15:55:11 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 93621C000D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 12:59:34 +0000 (UTC)
+ Wed,  2 Jun 2021 15:55:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 4A9C482F57
+ by smtp4.osuosl.org (Postfix) with ESMTP id 762E9404E1
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 12:59:34 +0000 (UTC)
+ Wed,  2 Jun 2021 15:55:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3a4cs3inBMRH
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linaro.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id uuakdelj6lBI
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 12:59:29 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp1.osuosl.org (Postfix) with ESMTPS id D2A1E825BF
+ Wed,  2 Jun 2021 15:55:08 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com
+ [IPv6:2a00:1450:4864:20::62c])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 0CF50404D4
  for <virtualization@lists.linux-foundation.org>;
- Wed,  2 Jun 2021 12:59:29 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 670E8613F0;
- Wed,  2 Jun 2021 12:59:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1622638769;
- bh=3pTJF8Uw7RKI6z+SHgf84kmB3egP8O9uPLS0sfmmP6Y=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=jJwn1XKGECVm249aCOaXizl2zxEJYlGwPip5pQSbzBVOUKTcvSD3V7A9zz/XUjvHQ
- 9Djj/PboHWd1g7J0td/yAkFnHr7/xp/DNc9SC6HJElgU+Yq3Pnh06qK+ukHfRtdXSy
- XXF3oNcIYUWB4WOFV78kiyer8pUebR94BImLxLZJ4K2hWcx7VYfSzyHsPk2Zlynwgj
- 9GhKGKcrYSH4iZD6S8i27OoT1OpGN43ejs6RHOBC07KsJiIGhRTNAE5WugiEg/tKUL
- 2CLYyn7DKXbPUlhiFDYFYujTOJzs5gD5C73M1PxgBzeNRcjel5X1Kjby1l2/XbTwGt
- fwoN8lqTLZKHg==
-Date: Wed, 2 Jun 2021 15:59:25 +0300
-From: Leon Romanovsky <leon@kernel.org>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio-net: fix the kzalloc/kfree mismatch problem
-Message-ID: <YLeArcxMkty2n/Xz@unreal>
-References: <1621821978.04102-1-xuanzhuo@linux.alibaba.com>
- <36d1b92c-7dc5-f84e-ef86-980b15c39965@redhat.com>
- <YLccNiOW8UGFowli@unreal>
- <abcc9911-67d8-8764-b986-d749187d4977@redhat.com>
+ Wed,  2 Jun 2021 15:55:07 +0000 (UTC)
+Received: by mail-ej1-x62c.google.com with SMTP id gb17so4572401ejc.8
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 02 Jun 2021 08:55:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=hFWxCNmxdTSACAJCND+vZHUnFP/1fNZmOF1MWz4k5Tg=;
+ b=yXNfKmP96TrMTc1Fw58DyLmvQouywbWAkFG+mPKml1w5NkKvkB7tlwVKXhtrYfhYuL
+ 9w34t/rrtl0+be93A97vYBsCY+/VKUxLlj4f3uPZUzrahRZiJrQIFpvIqdt6u8wJ1GSi
+ t/c92oJh6YRWVXittEyYvx9/q5OnGstliwJ8LNicLtSeDy1YLd+Z9/XcynHpAFoew2Mb
+ owOfd9AemYyanQavr+FDi0IpfYOVLzeUGY90Nf1+98UMK/MWSCptJb2bYGfH/ZG418E4
+ hLqvoydYYo2MpGbBUYT4aKmM+gWXjTc4jpVg3fpg6VoYNqGAl7rMNDIhqlEed6Hdc2k4
+ CcCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=hFWxCNmxdTSACAJCND+vZHUnFP/1fNZmOF1MWz4k5Tg=;
+ b=VngxEl6Go92+wp7PYyfT0nMcmLI/000J3G8kaPj8kvK4OLZnyskTyYCVDymx2M5sXl
+ LX9t1SP73kf2VhR5BC8F8K4Xz667G+fq6qQExab8ykws5jDgWVd3sseZVDlgkF2v5Ezi
+ LGpL1tUsy0vQ0s50N6zZdRz4Yy3ZC61N+ZStNY4YiRR4MsqTHj79GNpzx4cXvxr/K/nl
+ zKkENhcGo36KlQhHHNBBP4ghZESlzsN+Eg1XI3gQEDOjIrjgE1/RLi5FYF5W8zHm7hJ+
+ v7O/dF/ASdyUm02okI6+U538b+IilTC8HAttFaso1y3fggJ/M9zUp1AgmlG9xmE+fS11
+ 9+fQ==
+X-Gm-Message-State: AOAM531s6/f1kNzaWNPWg++MatWPLj7jS8gL3LsyPixppOICK/EGRsNX
+ 0Qu5hhbiaZ0sGG32sYo2iudDlg==
+X-Google-Smtp-Source: ABdhPJyC6GnC05iD/ICy8SYDfXi0Ni8SzID9FIdZOYY8DSW/Pt+sIC1nio2rktwF7w8ITr6XN/uu6Q==
+X-Received: by 2002:a17:906:f184:: with SMTP id
+ gs4mr2311464ejb.420.1622649306228; 
+ Wed, 02 Jun 2021 08:55:06 -0700 (PDT)
+Received: from localhost.localdomain (adsl-84-226-111-173.adslplus.ch.
+ [84.226.111.173])
+ by smtp.gmail.com with ESMTPSA id d24sm174249edr.95.2021.06.02.08.55.05
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 02 Jun 2021 08:55:05 -0700 (PDT)
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: rjw@rjwysocki.net,
+	lenb@kernel.org,
+	joro@8bytes.org,
+	mst@redhat.com
+Subject: [PATCH v3 0/6] Add support for ACPI VIOT
+Date: Wed,  2 Jun 2021 17:44:40 +0200
+Message-Id: <20210602154444.1077006-1-jean-philippe@linaro.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <abcc9911-67d8-8764-b986-d749187d4977@redhat.com>
-Cc: Max Gurtovoy <mgurtovoy@nvidia.com>,
- "Guodeqing \(A\)" <geffrey.guo@huawei.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "mst@redhat.com" <mst@redhat.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "kuba@kernel.org" <kuba@kernel.org>,
- "davem@davemloft.net" <davem@davemloft.net>
+Cc: jean-philippe@linaro.org, lorenzo.pieralisi@arm.com, eric.auger@redhat.com,
+ catalin.marinas@arm.com, sudeep.holla@arm.com, robin.murphy@arm.com,
+ virtualization@lists.linux-foundation.org, linux-acpi@vger.kernel.org,
+ iommu@lists.linux-foundation.org, sebastien.boeuf@intel.com,
+ guohanjun@huawei.com, will@kernel.org, dwmw2@infradead.org,
+ linux-arm-kernel@lists.infradead.org, baolu.lu@linux.intel.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,53 +114,65 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCBKdW4gMDIsIDIwMjEgYXQgMDM6MTk6NDZQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiDlnKggMjAyMS82LzIg5LiL5Y2IMTo1MCwgTGVvbiBSb21hbm92c2t5IOWGmemBkzoK
-PiA+IE9uIE1vbiwgTWF5IDI0LCAyMDIxIGF0IDEwOjM3OjE0QU0gKzA4MDAsIEphc29uIFdhbmcg
-d3JvdGU6Cj4gPiA+IOWcqCAyMDIxLzUvMjQg5LiK5Y2IMTA6MDYsIFh1YW4gWmh1byDlhpnpgZM6
-Cj4gPiA+ID4gT24gTW9uLCAyNCBNYXkgMjAyMSAwMTo0ODo1MyArMDAwMCwgR3VvZGVxaW5nIChB
-KSA8Z2VmZnJleS5ndW9AaHVhd2VpLmNvbT4gd3JvdGU6Cj4gPiA+ID4gPiA+IC0tLS0tT3JpZ2lu
-YWwgTWVzc2FnZS0tLS0tCj4gPiA+ID4gPiA+IEZyb206IE1heCBHdXJ0b3ZveSBbbWFpbHRvOm1n
-dXJ0b3ZveUBudmlkaWEuY29tXQo+ID4gPiA+ID4gPiBTZW50OiBTdW5kYXksIE1heSAyMywgMjAy
-MSAxNToyNQo+ID4gPiA+ID4gPiBUbzogR3VvZGVxaW5nIChBKSA8Z2VmZnJleS5ndW9AaHVhd2Vp
-LmNvbT47IG1zdEByZWRoYXQuY29tCj4gPiA+ID4gPiA+IENjOiBqYXNvd2FuZ0ByZWRoYXQuY29t
-OyBkYXZlbUBkYXZlbWxvZnQubmV0OyBrdWJhQGtlcm5lbC5vcmc7Cj4gPiA+ID4gPiA+IHZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnOyBuZXRkZXZAdmdlci5rZXJuZWwu
-b3JnCj4gPiA+ID4gPiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0hdIHZpcnRpby1uZXQ6IGZpeCB0aGUg
-a3phbGxvYy9rZnJlZSBtaXNtYXRjaCBwcm9ibGVtCj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiAK
-PiA+ID4gPiA+ID4gT24gNS8yMi8yMDIxIDExOjAyIEFNLCBndW9kZXFpbmcgd3JvdGU6Cj4gPiA+
-ID4gPiA+ID4gSWYgdGhlIHZpcnRpb19uZXQgZGV2aWNlIGRvZXMgbm90IHN1cHB1cnQgdGhlIGN0
-cmwgcXVldWUgZmVhdHVyZSwgdGhlCj4gPiA+ID4gPiA+ID4gdmktPmN0cmwgd2FzIG5vdCBhbGxv
-Y2F0ZWQsIHNvIHRoZXJlIGlzIG5vIG5lZWQgdG8gZnJlZSBpdC4KPiA+ID4gPiA+ID4geW91IGRv
-bid0IG5lZWQgdGhpcyBjaGVjay4KPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+IGZyb20ga2ZyZWUg
-ZG9jOgo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gIklmIEBvYmpwIGlzIE5VTEwsIG5vIG9wZXJh
-dGlvbiBpcyBwZXJmb3JtZWQuIgo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gVGhpcyBpcyBub3Qg
-YSBidWcuIEkndmUgc2V0IHZpLT5jdHJsIHRvIGJlIE5VTEwgaW4gY2FzZSAhdmktPmhhc19jdnEu
-Cj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ICAgICB5ZXMsICB0aGlzIGlzIG5v
-dCBhIGJ1ZywgdGhlIHBhdGNoIGlzIGp1c3QgYSBvcHRpbWl6YXRpb24sIGJlY2F1c2UgdGhlIHZp
-LT5jdHJsIG1heWJlCj4gPiA+ID4gPiAgICAgYmUgZnJlZWQgd2hpY2ggIHdhcyBub3QgYWxsb2Nh
-dGVkLCB0aGlzIG1heSBnaXZlIHBlb3BsZSBhIG1pc3VuZGVyc3RhbmRpbmcuCj4gPiA+ID4gPiAg
-ICAgVGhhbmtzLgo+ID4gPiA+IEkgdGhpbmsgaXQgbWF5IGJlIGVub3VnaCB0byBhZGQgYSBjb21t
-ZW50LCBhbmQgdGhlIGNvZGUgZG9lcyBub3QgbmVlZCB0byBiZQo+ID4gPiA+IG1vZGlmaWVkLgo+
-ID4gPiA+IAo+ID4gPiA+IFRoYW5rcy4KPiA+ID4gCj4gPiA+IE9yIGV2ZW4ganVzdCBsZWF2ZSB0
-aGUgY3VycmVudCBjb2RlIGFzIGlzLiBBIGxvdCBvZiBrZXJuZWwgY29kZXMgd2FzIHdyb3RlCj4g
-PiA+IHVuZGVyIHRoZSBhc3N1bXB0aW9uIHRoYXQga2ZyZWUoKSBzaG91bGQgZGVhbCB3aXRoIE5V
-TEwuCj4gPiBJdCBpcyBub3QgYXNzdW1wdGlvbiBidXQgc3RhbmRhcmQgcHJhY3RpY2UgdGhhdCBj
-YW4gYmUgc2VlbiBhcyBzaWRlCj4gPiBlZmZlY3Qgb2YgIjcpIENlbnRyYWxpemVkIGV4aXRpbmcg
-b2YgZnVuY3Rpb25zIiBzZWN0aW9uIG9mIGNvZGluZy1zdHlsZS5yc3QuCj4gPiAKPiA+IFRoYW5r
-cwo+IAo+IAo+IEkgZG9uJ3Qgc2VlIHRoZSBjb25uZWN0aW9uIHRvIHRoZSBjZW50cmFsaXplZCBl
-eGl0aW5nLgo+IAo+IFNvbWV0aGluZyBsaWtlOgo+IAo+IGlmIChmb28pCj4gwqDCoMKgIGtmcmVl
-KGZvbyk7Cj4gCj4gd29uJ3QgYnJlYWsgdGhlIGNlbnRyYWxpemF0aW9uLgoKVGhlIGtleSB3b3Jk
-cyBhcmUgInNpZGUgZWZmZWN0Ii4gT25jZSB5b3UgY2VudHJhbGl6ZSBldmVyeXRoaW5nLCB5b3UK
-d29uJ3Qgd2FudCB0byBzZWUgImlmIChmb28pIGtmcmVlKGZvbykiIHNwYWdoZXR0aSBjb2RlLgoK
-T2YgY291cnNlIHN1Y2ggY29uc3RydWN0aW9uIGRvZXNuJ3QgYnJlYWsgYW55dGhpbmcsIGJ1dCB0
-aGUgaWRlYSBpcwp0byByZWR1Y2UgdXNlbGVzcyBjb2RlIGFuZCBub3QgYWRkIGl0LgoKVGhhbmtz
-Cgo+IAo+IFRoYW5rcwo+IAo+IAo+ID4gCj4gCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Add a driver for the ACPI VIOT table, which provides topology
+information for para-virtual IOMMUs. Enable virtio-iommu on
+non-devicetree platforms, including x86.
+
+Since v2 [1] I tried to improve commit messages and comments. More
+feedback and review are always welcome. Joerg offered to take this
+series through the IOMMU tree, which requires acks for patches 1-3.
+
+You can find a QEMU implementation at [2], with extra support for
+testing all VIOT nodes including MMIO-based endpoints and IOMMU.
+This series is at [3].
+
+[1] https://lore.kernel.org/linux-iommu/20210423113836.3974972-1-jean-philippe@linaro.org/
+[2] https://jpbrucker.net/git/qemu/log/?h=virtio-iommu/acpi
+[3] https://jpbrucker.net/git/linux/log/?h=virtio-iommu/acpi
+
+Jean-Philippe Brucker (6):
+  ACPI: arm64: Move DMA setup operations out of IORT
+  ACPI: Move IOMMU setup code out of IORT
+  ACPI: Add driver for the VIOT table
+  iommu/dma: Pass address limit rather than size to
+    iommu_setup_dma_ops()
+  iommu/dma: Simplify calls to iommu_setup_dma_ops()
+  iommu/virtio: Enable x86 support
+
+ drivers/acpi/Kconfig         |   3 +
+ drivers/iommu/Kconfig        |   4 +-
+ drivers/acpi/Makefile        |   2 +
+ drivers/acpi/arm64/Makefile  |   1 +
+ include/acpi/acpi_bus.h      |   3 +
+ include/linux/acpi.h         |   3 +
+ include/linux/acpi_iort.h    |  14 +-
+ include/linux/acpi_viot.h    |  19 ++
+ include/linux/dma-iommu.h    |   4 +-
+ arch/arm64/mm/dma-mapping.c  |   2 +-
+ drivers/acpi/arm64/dma.c     |  50 +++++
+ drivers/acpi/arm64/iort.c    | 129 ++-----------
+ drivers/acpi/bus.c           |   2 +
+ drivers/acpi/scan.c          |  60 +++++-
+ drivers/acpi/viot.c          | 364 +++++++++++++++++++++++++++++++++++
+ drivers/iommu/amd/iommu.c    |   9 +-
+ drivers/iommu/dma-iommu.c    |  17 +-
+ drivers/iommu/intel/iommu.c  |  10 +-
+ drivers/iommu/virtio-iommu.c |   8 +
+ MAINTAINERS                  |   8 +
+ 20 files changed, 562 insertions(+), 150 deletions(-)
+ create mode 100644 include/linux/acpi_viot.h
+ create mode 100644 drivers/acpi/arm64/dma.c
+ create mode 100644 drivers/acpi/viot.c
+
+-- 
+2.31.1
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
