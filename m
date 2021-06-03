@@ -7,112 +7,104 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D195C47082
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 15:35:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19562C47097
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 15:37:30 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 35ED96100B
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 15:35:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 35ED96100B
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id CB28D6100B
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 15:37:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CB28D6100B
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id EAD7D60592;
-	Thu,  3 Jun 2021 15:35:17 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 924ED60B53;
+	Thu,  3 Jun 2021 15:37:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0SjYvAJItjke; Thu,  3 Jun 2021 15:35:14 +0000 (UTC)
+	with ESMTP id 1iIjxrKiqOcd; Thu,  3 Jun 2021 15:37:26 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D20816068B;
-	Thu,  3 Jun 2021 15:35:13 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8234C60B50;
+	Thu,  3 Jun 2021 15:37:25 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 966AEC000E;
-	Thu,  3 Jun 2021 15:35:13 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 369F2C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 683C2C0011;
+	Thu,  3 Jun 2021 15:37:25 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1AFC5C0001
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 15:35:12 +0000 (UTC)
+ Thu,  3 Jun 2021 15:37:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 1B159405C3
+ by smtp3.osuosl.org (Postfix) with ESMTP id 09C89606E4
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 15:35:12 +0000 (UTC)
+ Thu,  3 Jun 2021 15:37:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id OuPzW4TMLL3e
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Uv49MB7KODLY
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 15:35:08 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 11B35405B8
+ Thu,  3 Jun 2021 15:37:20 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-vs1-xe35.google.com (mail-vs1-xe35.google.com
+ [IPv6:2607:f8b0:4864:20::e35])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 37D696068B
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 15:35:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1622734506;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=HHcM+IgNoZ1DlGmkHUu2OKnC00B3Yz63C0t0xp+6d/4=;
- b=OE4g2yQeVixNBtZ4DaHjzKPGXhNBG1bBEX001i/qY38SrfWgXgHuzGI1/d32SggR+CKmm1
- 9tN2rchPqJfI6Ln5LXL1FREy6loidvqRMePt16SgUjYRDMnmf2Bn6HajWKOcbFRl2dpgn2
- yJNnRU7cF4CU05v/4DUDxvb/ODBbPvk=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-558-_UipOKqOOLGzcX9fiu0LaQ-1; Thu, 03 Jun 2021 11:35:05 -0400
-X-MC-Unique: _UipOKqOOLGzcX9fiu0LaQ-1
-Received: by mail-ej1-f72.google.com with SMTP id
- mp38-20020a1709071b26b02903df8ccd76fbso2091584ejc.23
+ Thu,  3 Jun 2021 15:37:20 +0000 (UTC)
+Received: by mail-vs1-xe35.google.com with SMTP id f11so3240741vst.0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 03 Jun 2021 08:35:05 -0700 (PDT)
+ Thu, 03 Jun 2021 08:37:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=+W0QahdA5jm5lLp4qGqziVkevJrOYYIsAeli4hbSoMY=;
+ b=Sczm7Uhat9CAttKCKONsBvTvpdWX5VANaO58Cd0mJFcJ+A28Gj9YspGmhSWIpVtNS9
+ gufvY+CGT5FXDIQfjOQ4ExwQIrmSjUqzpGxTG/ZkK/nXRMIOjYsW6gd0+0ljDlvbLbq6
+ AyHgMcG1V7VrDrAancwHixbwlfPPPcOtQ/Us++pps4NpXbaz33l8+avCCapAkCFya/10
+ FcaqevmvQJz8RurkVjboQlMdJ4KLmCFgJ9aWml7eHxoV4e7eWIKwWiCmbJjrhvsDE5K2
+ PLLnqagHSU8ORkIhfE1C9Sx6ZNkln7FGogf+yyT7tKXsIRL7oAHDTXDC0cZ4GcZV2dc7
+ 4ZRQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=HHcM+IgNoZ1DlGmkHUu2OKnC00B3Yz63C0t0xp+6d/4=;
- b=i7+J/1R52PN/bs6qTs79W+I/eSo19zanotO/0emTuyEHgrJbATG0umBcgEA543pnqB
- orehH2UQjSYZdNA04mqgQBB2suydkcZVxOZwXaffZSqqh+ke1pFX9f72bL8iwRSxvZME
- Y3gMBamJ7x8HsgQSFx71CxGl4jaj9DlBsuwjunu+eSQdQQXuVnR72+9028cXVWcXaydP
- FL46XcJjBG8+iB6QQQrMQIwwPQY2gjtnLPJhg+S8BW1xicz5VgOIw/1/LEKSx/b6yEgo
- K/AtaHcwHl5vai2XDavMQa0OGpUvtePUYn+N/WaBS625L5282hpucRU00497zzutKJA4
- ApaQ==
-X-Gm-Message-State: AOAM532+iCYTqAZ+IN2+gue8WIqHLSjoh7Oxp5KPLg+gbY3r+AJJ2P2Z
- 82vdjjkjkGIQ62vYjc5dXeFg11cwIblXcBP5dkgUFp2WIts2r0o21vdO2iyiwEmxhOKbaGT8Sej
- LjRR/rtuODGER0k5LR0Qr70J7ZAKNZmh+dJK//+jh3w==
-X-Received: by 2002:a05:6402:702:: with SMTP id w2mr66163edx.189.1622734504257; 
- Thu, 03 Jun 2021 08:35:04 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwqFolPWO7BwpcoKlZ9srf0hFGk5LbsUjrn2R3ivE3G00+T3IVZ522WwOzS0fxGTdmkJwWkVw==
-X-Received: by 2002:a05:6402:702:: with SMTP id w2mr66134edx.189.1622734504040; 
- Thu, 03 Jun 2021 08:35:04 -0700 (PDT)
-Received: from steredhat ([5.170.129.82])
- by smtp.gmail.com with ESMTPSA id p13sm1920100edq.67.2021.06.03.08.35.01
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 03 Jun 2021 08:35:03 -0700 (PDT)
-Date: Thu, 3 Jun 2021 17:34:59 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [PATCH v10 15/18] vhost/vsock: support SEQPACKET for transport
-Message-ID: <20210603153459.4qncp25nssuby4vp@steredhat>
-References: <20210520191357.1270473-1-arseny.krasnov@kaspersky.com>
- <20210520191916.1272540-1-arseny.krasnov@kaspersky.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=+W0QahdA5jm5lLp4qGqziVkevJrOYYIsAeli4hbSoMY=;
+ b=MVWXMsFf3g5LwKajMSxHwjA4vlCMN5QD42KMT/c092xkXBEtOBGwbjEixUaEe0J8A4
+ dfAN3j4Un6/IF4PoJt6/VEy0t/LyAgx1JBni/9x2IPZHOiud+gwTACiGKwwr/XMT1I1y
+ SWRb50ngxK/Szs5x7fWQ2cijSd8NNZe6YOHHj2f0M1lkMgj4b0Y6aNx5VzIZ6KhC3g3m
+ 4Pb4ylr97eY9esQR0rn22mbtnkyzD1Pb9eLCVvUq5Q96f63aAqfvws6IusaLdyqk0HE6
+ OgfI2rcctgMzgTqX2KaDvbUqg607r1OHgT6vtXlIAwNYZdFqrNoYmeB3g95AlXDx8AU6
+ xS8g==
+X-Gm-Message-State: AOAM533gmRJH8wNApsIeehQUaHbZ1TxvVtU0OWSlLke4hiF/vDHTVD5U
+ 37JalZZg+v8aRYRMbOZEWOqMn4qNAxdUfYm5b9jgFg==
+X-Google-Smtp-Source: ABdhPJzM3LSrPJI4FkB0laodTTeEei+m50SowhpqaGtsNgUdvieHcvbYUQloJUD/a79xzNmd816023E4d1PORKHhPJg=
+X-Received: by 2002:a05:6102:3023:: with SMTP id
+ v3mr756919vsa.19.1622734639015; 
+ Thu, 03 Jun 2021 08:37:19 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210520191916.1272540-1-arseny.krasnov@kaspersky.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Andra Paraschiv <andraprs@amazon.com>, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- oxffffaa@gmail.com, Norbert Slusarek <nslusarek@gmx.net>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
+References: <20210602065345.355274-1-hch@lst.de>
+ <20210602065345.355274-8-hch@lst.de>
+In-Reply-To: <20210602065345.355274-8-hch@lst.de>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Date: Thu, 3 Jun 2021 17:36:42 +0200
+Message-ID: <CAPDyKFoJssCnHv5tmG4vJJ9m0Zj5HkMEVYvnsjamvyemusZaUg@mail.gmail.com>
+Subject: Re: [PATCH 07/30] ms_block: use blk_mq_alloc_disk
+To: Christoph Hellwig <hch@lst.de>
+Cc: Justin Sanders <justin@coraid.com>, Vignesh Raghavendra <vigneshr@ti.com>,
+ Mike Snitzer <snitzer@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux-foundation.org, dm-devel@redhat.com,
+ "Md. Haris Iqbal" <haris.iqbal@ionos.com>,
+ Miquel Raynal <miquel.raynal@bootlin.com>, Jack Wang <jinpu.wang@ionos.com>,
+ Tim Waugh <tim@cyberelk.net>, linux-s390@vger.kernel.org,
+ Maxim Levitsky <maximlevitsky@gmail.com>, Richard Weinberger <richard@nod.at>,
+ Christian Borntraeger <borntraeger@de.ibm.com>, xen-devel@lists.xenproject.org,
+ Ilya Dryomov <idryomov@gmail.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alex Dubov <oakad@yahoo.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Josef Bacik <josef@toxicpanda.com>,
+ Denis Efremov <efremov@linux.com>, nbd@other.debian.org,
+ linux-block <linux-block@vger.kernel.org>, ceph-devel@vger.kernel.org,
+ Jens Axboe <axboe@kernel.dk>, Geoff Levand <geoff@infradead.org>,
+ linux-mmc <linux-mmc@vger.kernel.org>, linux-mtd@lists.infradead.org,
+ linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+ =?UTF-8?Q?Roger_Pau_Monn=C3=A9?= <roger.pau@citrix.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,167 +116,84 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, May 20, 2021 at 10:19:13PM +0300, Arseny Krasnov wrote:
+On Wed, 2 Jun 2021 at 08:54, Christoph Hellwig <hch@lst.de> wrote:
+>
+> Use the blk_mq_alloc_disk API to simplify the gendisk and request_queue
+> allocation.
+>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
-Please describe better the changes included in this patch in the first 
-part of the commit message.
+Acked-by: Ulf Hansson <ulf.hansson@linaro.org>
 
->As vhost places data in buffers of guest's rx queue, keep SEQ_EOR
->bit set only when last piece of data is copied. Otherwise we get
->sequence packets for one socket in guest's rx queue with SEQ_EOR bit
->set. Also remove ignore of non-stream type of packets, handle SEQPACKET
->feature bit.
->
->Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
->---
-> v9 -> v10:
-> 1) Move 'restore_flag' handling to 'payload_len' calculation
->    block.
->
-> drivers/vhost/vsock.c | 44 +++++++++++++++++++++++++++++++++++++++----
-> 1 file changed, 40 insertions(+), 4 deletions(-)
->
->diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
->index 5e78fb719602..63d15beaad05 100644
->--- a/drivers/vhost/vsock.c
->+++ b/drivers/vhost/vsock.c
->@@ -31,7 +31,8 @@
->
-> enum {
-> 	VHOST_VSOCK_FEATURES = VHOST_FEATURES |
->-			       (1ULL << VIRTIO_F_ACCESS_PLATFORM)
->+			       (1ULL << VIRTIO_F_ACCESS_PLATFORM) |
->+			       (1ULL << VIRTIO_VSOCK_F_SEQPACKET)
-> };
->
-> enum {
->@@ -56,6 +57,7 @@ struct vhost_vsock {
-> 	atomic_t queued_replies;
->
-> 	u32 guest_cid;
->+	bool seqpacket_allow;
-> };
->
-> static u32 vhost_transport_get_local_cid(void)
->@@ -112,6 +114,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
-> 		size_t nbytes;
-> 		size_t iov_len, payload_len;
-> 		int head;
->+		bool restore_flag = false;
->
-> 		spin_lock_bh(&vsock->send_pkt_list_lock);
-> 		if (list_empty(&vsock->send_pkt_list)) {
->@@ -168,9 +171,15 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
-> 		/* If the packet is greater than the space available in the
-> 		 * buffer, we split it using multiple buffers.
-> 		 */
->-		if (payload_len > iov_len - sizeof(pkt->hdr))
->+		if (payload_len > iov_len - sizeof(pkt->hdr)) {
-> 			payload_len = iov_len - sizeof(pkt->hdr);
->
+Kind regards
+Uffe
 
-Please, add a comment here to explain why we need this.
 
->+			if (le32_to_cpu(pkt->hdr.flags) & 
->VIRTIO_VSOCK_SEQ_EOR) {
->+				pkt->hdr.flags &= ~cpu_to_le32(VIRTIO_VSOCK_SEQ_EOR);
->+				restore_flag = true;
->+			}
->+		}
->+
-> 		/* Set the correct length in the header */
-> 		pkt->hdr.len = cpu_to_le32(payload_len);
+> ---
+>  drivers/memstick/core/ms_block.c | 25 ++++++++++---------------
+>  1 file changed, 10 insertions(+), 15 deletions(-)
 >
->@@ -181,6 +190,9 @@ vhost_transport_do_send_pkt(struct vhost_vsock 
->*vsock,
-> 			break;
-> 		}
+> diff --git a/drivers/memstick/core/ms_block.c b/drivers/memstick/core/ms_block.c
+> index 0bacf4268f83..dac258d12aca 100644
+> --- a/drivers/memstick/core/ms_block.c
+> +++ b/drivers/memstick/core/ms_block.c
+> @@ -2110,21 +2110,17 @@ static int msb_init_disk(struct memstick_dev *card)
+>         if (msb->disk_id  < 0)
+>                 return msb->disk_id;
 >
->+		if (restore_flag)
->+			pkt->hdr.flags |= cpu_to_le32(VIRTIO_VSOCK_SEQ_EOR);
->+
-
-Maybe we can restore the flag only if we are queueing again the same 
-packet, I mean in the `if (pkt->off < pkt->len) {` branch below.
-
-What do you think?
-
-> 		nbytes = copy_to_iter(pkt->buf + pkt->off, payload_len,
-> 				      &iov_iter);
-> 		if (nbytes != payload_len) {
->@@ -354,8 +366,7 @@ vhost_vsock_alloc_pkt(struct vhost_virtqueue *vq,
-> 		return NULL;
-> 	}
+> -       msb->disk = alloc_disk(0);
+> -       if (!msb->disk) {
+> -               rc = -ENOMEM;
+> +       rc = blk_mq_alloc_sq_tag_set(&msb->tag_set, &msb_mq_ops, 2,
+> +                                    BLK_MQ_F_SHOULD_MERGE);
+> +       if (rc)
+>                 goto out_release_id;
+> -       }
 >
->-	if (le16_to_cpu(pkt->hdr.type) == VIRTIO_VSOCK_TYPE_STREAM)
->-		pkt->len = le32_to_cpu(pkt->hdr.len);
->+	pkt->len = le32_to_cpu(pkt->hdr.len);
+> -       msb->queue = blk_mq_init_sq_queue(&msb->tag_set, &msb_mq_ops, 2,
+> -                                               BLK_MQ_F_SHOULD_MERGE);
+> -       if (IS_ERR(msb->queue)) {
+> -               rc = PTR_ERR(msb->queue);
+> -               msb->queue = NULL;
+> -               goto out_put_disk;
+> +       msb->disk = blk_mq_alloc_disk(&msb->tag_set, card);
+> +       if (IS_ERR(msb->disk)) {
+> +               rc = PTR_ERR(msb->disk);
+> +               goto out_free_tag_set;
+>         }
+> -
+> -       msb->queue->queuedata = card;
+> +       msb->queue = msb->disk->queue;
 >
-> 	/* No payload */
-> 	if (!pkt->len)
->@@ -398,6 +409,8 @@ static bool vhost_vsock_more_replies(struct 
->vhost_vsock *vsock)
-> 	return val < vq->num;
-> }
+>         blk_queue_max_hw_sectors(msb->queue, MS_BLOCK_MAX_PAGES);
+>         blk_queue_max_segments(msb->queue, MS_BLOCK_MAX_SEGS);
+> @@ -2135,7 +2131,6 @@ static int msb_init_disk(struct memstick_dev *card)
+>         sprintf(msb->disk->disk_name, "msblk%d", msb->disk_id);
+>         msb->disk->fops = &msb_bdops;
+>         msb->disk->private_data = msb;
+> -       msb->disk->queue = msb->queue;
 >
->+static bool vhost_transport_seqpacket_allow(u32 remote_cid);
->+
-> static struct virtio_transport vhost_transport = {
-> 	.transport = {
-> 		.module                   = THIS_MODULE,
->@@ -424,6 +437,10 @@ static struct virtio_transport vhost_transport = {
-> 		.stream_is_active         = virtio_transport_stream_is_active,
-> 		.stream_allow             = virtio_transport_stream_allow,
+>         capacity = msb->pages_in_block * msb->logical_block_count;
+>         capacity *= (msb->page_size / 512);
+> @@ -2155,8 +2150,8 @@ static int msb_init_disk(struct memstick_dev *card)
+>         dbg("Disk added");
+>         return 0;
 >
->+		.seqpacket_dequeue        = virtio_transport_seqpacket_dequeue,
->+		.seqpacket_enqueue        = virtio_transport_seqpacket_enqueue,
->+		.seqpacket_allow          = vhost_transport_seqpacket_allow,
->+
-> 		.notify_poll_in           = virtio_transport_notify_poll_in,
-> 		.notify_poll_out          = virtio_transport_notify_poll_out,
-> 		.notify_recv_init         = virtio_transport_notify_recv_init,
->@@ -441,6 +458,22 @@ static struct virtio_transport vhost_transport = {
-> 	.send_pkt = vhost_transport_send_pkt,
-> };
+> -out_put_disk:
+> -       put_disk(msb->disk);
+> +out_free_tag_set:
+> +       blk_mq_free_tag_set(&msb->tag_set);
+>  out_release_id:
+>         mutex_lock(&msb_disk_lock);
+>         idr_remove(&msb_disk_idr, msb->disk_id);
+> --
+> 2.30.2
 >
->+static bool vhost_transport_seqpacket_allow(u32 remote_cid)
->+{
->+	struct vhost_vsock *vsock;
->+	bool seqpacket_allow = false;
->+
->+	rcu_read_lock();
->+	vsock = vhost_vsock_get(remote_cid);
->+
->+	if (vsock)
->+		seqpacket_allow = vsock->seqpacket_allow;
->+
->+	rcu_read_unlock();
->+
->+	return seqpacket_allow;
->+}
->+
-> static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
-> {
-> 	struct vhost_virtqueue *vq = container_of(work, struct vhost_virtqueue,
->@@ -785,6 +818,9 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
-> 			goto err;
-> 	}
->
->+	if (features & (1ULL << VIRTIO_VSOCK_F_SEQPACKET))
->+		vsock->seqpacket_allow = true;
->+
-> 	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
-> 		vq = &vsock->vqs[i];
-> 		mutex_lock(&vq->mutex);
->-- 
->2.25.1
->
-
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
