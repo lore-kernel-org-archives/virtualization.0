@@ -7,81 +7,81 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB8A5C47082
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 10:16:47 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1BF7C47096
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 10:29:01 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 70634613EE
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 10:16:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 70634613EE
+	by mail.kernel.org (Postfix) with ESMTPS id 40EB6613E6
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 10:29:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 40EB6613E6
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 347A4400D0;
-	Thu,  3 Jun 2021 10:16:47 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id EC7F3606EA;
+	Thu,  3 Jun 2021 10:29:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ll-VN_2wGPDi; Thu,  3 Jun 2021 10:16:46 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5ovp__U6FefW; Thu,  3 Jun 2021 10:29:00 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D6C96400A7;
-	Thu,  3 Jun 2021 10:16:45 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 924F8605AE;
+	Thu,  3 Jun 2021 10:28:59 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A1F53C000D;
-	Thu,  3 Jun 2021 10:16:45 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7237CC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 604ECC000D;
+	Thu,  3 Jun 2021 10:28:59 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9B053C0001
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 10:16:44 +0000 (UTC)
+ Thu,  3 Jun 2021 10:28:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 5C157400C8
+ by smtp3.osuosl.org (Postfix) with ESMTP id 8130E606A8
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 10:16:44 +0000 (UTC)
+ Thu,  3 Jun 2021 10:28:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zlnrCRF1_VGk
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gnNZ76p1a-fk
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 10:16:43 +0000 (UTC)
+ Thu,  3 Jun 2021 10:28:56 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id B5B52400A7
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 33544605AE
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 10:16:43 +0000 (UTC)
+ Thu,  3 Jun 2021 10:28:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1622715402;
+ s=mimecast20190719; t=1622716134;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=5q6zye8jgaP4kJLBUCQQtBp65dRFCpe6nc6ebA8ldZo=;
- b=Lz3Vtg0cQJyZUsxPUHgTDjfpS24WGdI2YQH5CvIUmAS9FkLrgvr0/W6eOT0pRy9eIJar25
- KT37y3/7jHjnvVlEOZ2vldhNgnFVMyHbmTKCywvKbN5lwY+nqO5GyP9oeHf/Y2Xrmwnzlg
- nSlCnnvUDnKSfNbJEAy/vjojzT7eq5A=
+ bh=PPQToC1ik9oHfu1AmKA/86ffSnUnlZHx++iOqDu8E5Y=;
+ b=WrpWDpbb7Ccn+8Zor/3Vo7TK4zhN17rr3B259/cOh8LLG3dZcFrEsFW0Msyfw/aIB72Kb4
+ JwcdVUSFHvMHPfquiHfrKm3+vlbeTijaTahVpAkwCihGG63o7CoszFvPT/Zb8QHj5g+CRs
+ EcXVrQfMLmp3g6Lo+4HzXrNBrAUF7Lw=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-504-ap08A-feNfSxrnRV67tYHw-1; Thu, 03 Jun 2021 06:16:39 -0400
-X-MC-Unique: ap08A-feNfSxrnRV67tYHw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
- [10.5.11.12])
+ us-mta-109-OHMTbGSeMdydLSw4QWlSaw-1; Thu, 03 Jun 2021 06:28:52 -0400
+X-MC-Unique: OHMTbGSeMdydLSw4QWlSaw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 31E3A180FD6D;
- Thu,  3 Jun 2021 10:16:38 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C940C800D62;
+ Thu,  3 Jun 2021 10:28:51 +0000 (UTC)
 Received: from localhost (ovpn-114-228.ams2.redhat.com [10.36.114.228])
- by smtp.corp.redhat.com (Postfix) with ESMTP id CD0E061140;
- Thu,  3 Jun 2021 10:16:34 +0000 (UTC)
-Date: Thu, 3 Jun 2021 11:16:33 +0100
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 08E625C8AA;
+ Thu,  3 Jun 2021 10:28:41 +0000 (UTC)
+Date: Thu, 3 Jun 2021 11:28:41 +0100
 From: Stefan Hajnoczi <stefanha@redhat.com>
 To: Mike Christie <michael.christie@oracle.com>
-Subject: Re: [PATCH 1/9] vhost: move worker thread fields to new struct
-Message-ID: <YLisAZ9rbEYsubwI@stefanha-x1.localdomain>
+Subject: Re: [PATCH 2/9] vhost: move vhost worker creation to kick setup
+Message-ID: <YLiu2SSYO6OFvMej@stefanha-x1.localdomain>
 References: <20210525180600.6349-1-michael.christie@oracle.com>
- <20210525180600.6349-2-michael.christie@oracle.com>
+ <20210525180600.6349-3-michael.christie@oracle.com>
 MIME-Version: 1.0
-In-Reply-To: <20210525180600.6349-2-michael.christie@oracle.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+In-Reply-To: <20210525180600.6349-3-michael.christie@oracle.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Cc: linux-scsi@vger.kernel.org, mst@redhat.com,
  virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org,
  pbonzini@redhat.com
@@ -96,54 +96,62 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============2648099732721572408=="
+Content-Type: multipart/mixed; boundary="===============9043586525760541456=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
---===============2648099732721572408==
+--===============9043586525760541456==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="X8EHBs5SNGaS5/wR"
+	protocol="application/pgp-signature"; boundary="n/Dbkikjln5Hb9KX"
 Content-Disposition: inline
 
 
---X8EHBs5SNGaS5/wR
+--n/Dbkikjln5Hb9KX
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Tue, May 25, 2021 at 01:05:52PM -0500, Mike Christie wrote:
-> This is just a prep patch. It moves the worker related fields to a new
-> vhost_worker struct and moves the code around to create some helpers that
-> will be used in the next patches.
+On Tue, May 25, 2021 at 01:05:53PM -0500, Mike Christie wrote:
+> The next patch will add new ioctls that allows userspace to create workers
+> and bind them to devs and vqs after VHOST_SET_OWNER. To support older
+> tools, newer tools that want to go wild with worker threads, and newer
+> tools that want the old/default behavior this patch moves the default
+> worker setup to the kick setup.
+>=20
+> After the first vq's kick/poll setup is done we could start to get works
+> queued, so this is the point when we must have a worker setup. If we are
+> using older tools or the newer tools just want the default single vhost
+> thread per dev behavior then it will automatically be done here. If the
+> tools are using the newer ioctls that have already created the workers
+> then we also detect that here and do nothing.
 >=20
 > Signed-off-by: Mike Christie <michael.christie@oracle.com>
 > ---
->  drivers/vhost/vhost.c | 94 +++++++++++++++++++++++++++++--------------
->  drivers/vhost/vhost.h |  9 ++++-
->  2 files changed, 70 insertions(+), 33 deletions(-)
+>  drivers/vhost/vhost.c | 23 ++++++++++++++++-------
+>  1 file changed, 16 insertions(+), 7 deletions(-)
 
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---X8EHBs5SNGaS5/wR
+--n/Dbkikjln5Hb9KX
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmC4rAEACgkQnKSrs4Gr
-c8iIiwgAysz30R4KsMZziyBEl+84TYFQ/urwez3XYLdllPTZPcAwMCED2HhiXcjd
-gT4TAnqiTg0ysoReB9qEOsFGH0uNzbZev+F/gRGc1eo5qpx6ZFR2y8AwGrr+ydBf
-h3xs4CTctrb+DHfObfkkjPcd5pbQekyEUbzEbZHQAKCmQk+LsNGY3PFVQdwodErA
-CVnAJFYPKkxt5vPkYoR3CmYRj/9A1++7W/Egs1Lbb0DGcfpk2GTSdOyK7fRGzN5+
-LOyGg51GQoR1j5RaBFSfpRmt6JicZte0C//NjJbvb4PptYbNdxSQwlCe2ddIhI5X
-4Qfl2znad0AlqIMvYdxhEyeU2ECFag==
-=fCDC
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmC4rtkACgkQnKSrs4Gr
+c8iu4wf/Sk12UdeSXdEDKaWJ2ulcEl3xPNuQ07SuOYcgryJ97dPwlAcruGzMGcWt
+RXT085PKTuq3wXxBWV5TJgAduO15mBdTb3r3Ns0IH+kYmCtauaH0xi12LtiNsmKf
+sTf+3isPIWzjCjnLn+QzydOlJmnRbfGOlH6CDeMsg87HrpsuOJUEmgm5fuP6thSs
+ZKLB3D6cdhcOXlqH4Bqmj75VZNot7BYrfNczyah+zIcdS5oFvArraAMsbOm2ahTz
+HyrSRS8bmALHHLsZPry9PtltXQKdYeuSbwaRkpd4oWhTIP1EsbMRIuy/Trc59Y6r
+htvrEZK30F4/D12V5p9i03VZZ0QQPg==
+=D334
 -----END PGP SIGNATURE-----
 
---X8EHBs5SNGaS5/wR--
+--n/Dbkikjln5Hb9KX--
 
 
---===============2648099732721572408==
+--===============9043586525760541456==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -153,5 +161,5 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2648099732721572408==--
+--===============9043586525760541456==--
 
