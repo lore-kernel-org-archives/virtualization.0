@@ -2,91 +2,79 @@ Return-Path: <SRS0=cU2J=K5=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65F89C47082
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 10:45:17 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87997C47082
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 12:37:07 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0E239613D6
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 10:45:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0E239613D6
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 358C660FF1
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 12:37:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 358C660FF1
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C559D605E9;
-	Thu,  3 Jun 2021 10:45:16 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0098383DEC;
+	Thu,  3 Jun 2021 12:37:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9xtTtC46p6qP; Thu,  3 Jun 2021 10:45:16 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id KF_7htCJRePL; Thu,  3 Jun 2021 12:37:03 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 65D64600D4;
-	Thu,  3 Jun 2021 10:45:15 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id A3A1183E06;
+	Thu,  3 Jun 2021 12:37:02 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1D169C000D;
-	Thu,  3 Jun 2021 10:45:15 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 77543C0001
- for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 10:45:14 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4545AC0025;
+	Thu,  3 Jun 2021 12:37:02 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 22643C0001;
+ Thu,  3 Jun 2021 12:37:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 620EB405C4
- for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 10:45:14 +0000 (UTC)
+ by smtp2.osuosl.org (Postfix) with ESMTP id 03A31400E5;
+ Thu,  3 Jun 2021 12:37:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Quntg3Xs22hg
- for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 10:45:13 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 08mnMO9Is8VN; Thu,  3 Jun 2021 12:36:59 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E78D5405C2
- for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 10:45:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1622717111;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=DKnh0uyhdKqoboJLkz1MQbf+CPgU8STex9vsGZAVttw=;
- b=dy08ISs5m4KXakVAwg7VzUy1nzqERUxt+RyIHtaSApPtVJwaSiRJXbo8cbsqwxkTlPo/SY
- tLZWjru+Dy1S1K2XyidNtV3eHTS2TXbUJhN5y4KYmeP1ryQlqr5NuFkwm7MsRiuTbQ8Qgm
- u6QWmsB2oB8wh00ZwNB+FVYN6rCTuDM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-302-rgmo3ZBUPgyy8riSHYsp3g-1; Thu, 03 Jun 2021 06:45:08 -0400
-X-MC-Unique: rgmo3ZBUPgyy8riSHYsp3g-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
- [10.5.11.11])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0A950801817;
- Thu,  3 Jun 2021 10:45:07 +0000 (UTC)
-Received: from localhost (ovpn-114-228.ams2.redhat.com [10.36.114.228])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 01FB350F89;
- Thu,  3 Jun 2021 10:45:02 +0000 (UTC)
-Date: Thu, 3 Jun 2021 11:45:01 +0100
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Mike Christie <michael.christie@oracle.com>
-Subject: Re: [PATCH 3/9] vhost: modify internal functions to take a
- vhost_worker
-Message-ID: <YLiyrRdeD6vQ2VXc@stefanha-x1.localdomain>
-References: <20210525180600.6349-1-michael.christie@oracle.com>
- <20210525180600.6349-4-michael.christie@oracle.com>
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 2EBF1400CA;
+ Thu,  3 Jun 2021 12:36:59 +0000 (UTC)
+IronPort-SDR: U8eJZnyymn05XzbWNsm29g8RmNcysNgvoreJa5z99T1TB0S0NyJMLUVr8hsKUfh7sCW/4+XbfD
+ 7bXOJjKDkIZw==
+X-IronPort-AV: E=McAfee;i="6200,9189,10003"; a="201020030"
+X-IronPort-AV: E=Sophos;i="5.83,244,1616482800"; d="scan'208";a="201020030"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+ by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 03 Jun 2021 05:36:55 -0700
+IronPort-SDR: DMsT4IunyzTkMTPF0j+HWuKSdADAefIJviCOAMI8H+DVHk0IbyopR6+wX1W0nFTnGGRm62w+1Y
+ H1wyY/+b4K/Q==
+X-IronPort-AV: E=Sophos;i="5.83,244,1616482800"; d="scan'208";a="550676961"
+Received: from akleen-mobl1.amr.corp.intel.com (HELO [10.209.7.237])
+ ([10.209.7.237])
+ by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 03 Jun 2021 05:36:54 -0700
+Subject: Re: [PATCH v1 6/8] dma: Add return value to dma_unmap_page
+To: Robin Murphy <robin.murphy@arm.com>, mst@redhat.com
+References: <20210603004133.4079390-1-ak@linux.intel.com>
+ <20210603004133.4079390-7-ak@linux.intel.com>
+ <c3b15bc2-104b-dace-1f23-608197b18107@arm.com>
+From: Andi Kleen <ak@linux.intel.com>
+Message-ID: <dbca06fa-d708-3c76-2890-82ca5a781366@linux.intel.com>
+Date: Thu, 3 Jun 2021 05:36:53 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.2
 MIME-Version: 1.0
-In-Reply-To: <20210525180600.6349-4-michael.christie@oracle.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-Cc: linux-scsi@vger.kernel.org, mst@redhat.com,
- virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org,
- pbonzini@redhat.com
+In-Reply-To: <c3b15bc2-104b-dace-1f23-608197b18107@arm.com>
+Content-Language: en-US
+Cc: sathyanarayanan.kuppuswamy@linux.intel.com, x86@kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ iommu@lists.linux-foundation.org, jpoimboe@redhat.com, hch@lst.de,
+ m.szyprowski@samsung.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,114 +86,38 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============3623419014651007940=="
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
---===============3623419014651007940==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="F7RAaeNOJ2iI4bk5"
-Content-Disposition: inline
-
-
---F7RAaeNOJ2iI4bk5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Tue, May 25, 2021 at 01:05:54PM -0500, Mike Christie wrote:
-> -void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work)
-> +static void vhost_work_queue_on(struct vhost_work *work,
-> +				struct vhost_worker *worker)
->  {
-> -	if (!dev->worker)
-> -		return;
-> -
->  	if (!test_and_set_bit(VHOST_WORK_QUEUED, &work->flags)) {
->  		/* We can only add the work to the list after we're
->  		 * sure it was not in the list.
->  		 * test_and_set_bit() implies a memory barrier.
->  		 */
-> -		llist_add(&work->node, &dev->worker->work_list);
-> -		wake_up_process(dev->worker->task);
-> +		llist_add(&work->node, &worker->work_list);
-> +		wake_up_process(worker->task);
->  	}
->  }
-> +
-> +void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work)
-
-When should this function still be used? A doc comment contrasting it to
-vhost_work_queue_on() would be helpful. I would expect callers to switch
-to that instead of queuing work on dev->workers[0].
-
->  /* A lockless hint for busy polling code to exit the loop */
->  bool vhost_has_work(struct vhost_dev *dev)
->  {
-> -	return dev->worker && !llist_empty(&dev->worker->work_list);
-> +	int i;
-> +
-> +	for (i =3D 0; i < dev->num_workers; i++) {
-> +		if (!llist_empty(&dev->workers[i]->work_list))
-> +			return true;
-> +	}
-> +
-> +	return false;
->  }
->  EXPORT_SYMBOL_GPL(vhost_has_work);
-
-It's probably not necessary to poll all workers:
-
-drivers/vhost/net.c calls vhost_has_work() to busy poll a specific
-virtqueue. If the vq:worker mapping is 1:1 or N:1 then vhost_has_work()
-should be extended to include the struct vhost_virtqueue so we can poll
-just that vq worker's work_list.
->  /* Caller must have device mutex */
->  static int vhost_worker_try_create_def(struct vhost_dev *dev)
->  {
-> -	if (!dev->use_worker || dev->worker)
-> +	struct vhost_worker *worker;
-> +
-> +	if (!dev->use_worker || dev->workers)
->  		return 0;
-> =20
-> -	return vhost_worker_create(dev);
-> +	dev->workers =3D kcalloc(1, sizeof(struct vhost_worker *), GFP_KERNEL);
-
-GFP_KERNEL_ACCOUNT so that vhost memory associated with a process (the
-one that invoked the ioctl) is accounted? This may get trickier if the
-workers are shared between processes.
-
-The same applies for struct vhost_worker in vhost_worker_create().
-
---F7RAaeNOJ2iI4bk5
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmC4sq0ACgkQnKSrs4Gr
-c8gXxgf6AuE6XADmG7si7aHqwcDMJZ+rEPI+I8QDNKz/fJNr65aBbaPl5xrosoaF
-gs7CLIEdNshApxvMrB/2AffUwvv8CJYeWjCGtjKZAi5rjM0V0bVomsUEdDMoFlhy
-QijVpTOfdY77vZIsjcDWuDA8wfIni6yfFQ4g4Rpnj86qVROK777vzdKkrywqrdtK
-ntxM5SK1kWAiD1ulurJ6CgW3tYy7mVFM4pFwEXWmjm8kUmMe9OyQlll7HjUVsxgT
-cLQVsVWa64qyZx2etIJLGiQY7cT/6eI+v+9EmxdqEhnUngdLjpawe+Eld3wTffld
-rRDnZF8n/R2P0SZbiEPHzqGxMF0sOw==
-=xLx3
------END PGP SIGNATURE-----
-
---F7RAaeNOJ2iI4bk5--
-
-
---===============3623419014651007940==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3623419014651007940==--
-
+Cj4KPiBXaGF0IGl0IGxvb2tzIGxpa2UgdG8gbWUgaXMgYWJ1c2luZyBTV0lPVExCJ3MgaW50ZXJu
+YWwgaG91c2VrZWVwaW5nIHRvIAo+IGtlZXAgdHJhY2sgb2YgdmlydGlvLXNwZWNpZmljIHN0YXRl
+LiBUaGUgRE1BIEFQSSBkb2VzIG5vdCBhdHRlbXB0IHRvIAo+IHZhbGlkYXRlIGNhbGxzIGluIGdl
+bmVyYWwgc2luY2UgaW4gbWFueSBjYXNlcyB0aGUgYWRkaXRpb25hbCBvdmVyaGVhZCAKPiB3b3Vs
+ZCBiZSBwcm9oaWJpdGl2ZS4gSXQgaGFzIGFsd2F5cyBiZWVuIGNhbGxlcnMnIHJlc3BvbnNpYmls
+aXR5IHRvIAo+IGtlZXAgdHJhY2sgb2Ygd2hhdCB0aGV5IG1hcHBlZCBhbmQgbWFrZSBzdXJlIHN5
+bmMvdW5tYXAgY2FsbHMgbWF0Y2gsIAo+IGFuZCB0aGVyZSBhcmUgbWFueSwgbWFueSwgc3VidGxl
+IGFuZCBub3Qtc28tc3VidGxlIHdheXMgZm9yIHRoaW5ncyB0byAKPiBnbyB3cm9uZyBpZiB0aGV5
+IGRvbid0LiBJZiB2aXJ0aW8gaXMgbm90IGRvaW5nIGEgZ29vZCBlbm91Z2ggam9iIG9mIAo+IHRo
+YXQsIHdoYXQncyB0aGUganVzdGlmaWNhdGlvbiBmb3IgbWFraW5nIGl0IHRoZSBETUEgQVBJJ3Mg
+cHJvYmxlbT8KCkluIHRoaXMgY2FzZSBpdCdzIG5vdCBwcm9oaWJpdGl2ZSBhdCBhbGwuIEp1c3Qg
+YWRkaW5nIGEgZmV3IGVycm9yIApyZXR1cm5zLCBhbmQgY2hlY2tpbmcgdGhlIG92ZXJsYXAgKHdo
+aWNoIHNlZW1zIHRvIGhhdmUgYmVlbiBhbHJlYWR5IApzb2x2ZWQgYW55d2F5cykgSSB3b3VsZCBh
+cmd1ZSB0aGUgZXJyb3IgcmV0dXJucyBhcmUgZ29vZCBwcmFjdGljZSAKYW55d2F5cywgc28gdGhh
+dCBBUEkgdXNlcnMgY2FuIGNoZWNrIHRoYXQgc29tZXRoaW5nIGJhZCBoYXBwZW5pbmcgYW5kIAph
+Ym9ydC7CoCBUaGUgRE1BIEFQSSB3YXMgbmV2ZXIgdmVyeSBnb29kIGF0IHByb3BlciBlcnJvciBo
+YW5kbGluZywgYnV0IAp0aGVyZSdzIG5vIHJlYXNvbiBhdCBhbGwgdG8gY29udGludWUgYmVpbmcg
+YmFkIGl0IGZvcmV2ZXIuCgpBRkFJSyB0aGUgcmVzdCBqdXN0IHdvcmtzIGFueXdheXMsIHNvIGl0
+J3Mgbm90IHJlYWxseSBhIG5ldyBwcm9ibGVtIHRvIApiZSBzb2x2ZWQuCgo+Cj4+IEEgbmV3IGNh
+bGxiYWNrIGlzIHVzZWQgdG8gYXZvaWQgY2hhbmdpbmcgYWxsIHRoZSBJT01NVSBkcml2ZXJzLgo+
+Cj4gTml0OiBwcmVzdW1hYmx5IGJ5ICJJT01NVSBkcml2ZXJzIiB5b3UgYWN0dWFsbHkgbWVhbiBh
+cmNoIERNQSBBUEkgCj4gYmFja2VuZHM/Clllcwo+Cj4gwqBGdXJ0aGVybW9yZSwgQUZBSUNTIGl0
+J3Mgc3RpbGwgbm90IGdvaW5nIHRvIGhlbHAgYWdhaW5zdCBleGZpbHRyYXRpbmcgCj4gZ3Vlc3Qg
+bWVtb3J5IGJ5IG92ZXItdW5tYXBwaW5nIHRoZSBvcmlnaW5hbCBTV0lPVExCIHNsb3QgKndpdGhv
+dXQqIAo+IGdvaW5nIHBhc3QgdGhlIGVuZCBvZiB0aGUgd2hvbGUgYnVmZmVyLAoKVGhhdCB3b3Vs
+ZCBiZSBqdXN0IGV4ZmlsdHJhdGluZyBkYXRhIHRoYXQgaXMgYWxyZWFkeSBzaGFyZWQsIHVubGVz
+cyBJJ20gCm1pc3VuZGVyc3RhbmRpbmcgeW91LgoKLUFuZGkKCgpfX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
+VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
+aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
