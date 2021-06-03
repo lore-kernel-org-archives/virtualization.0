@@ -2,66 +2,68 @@ Return-Path: <SRS0=cU2J=K5=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09DEFC47096
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 13:23:13 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 445C4C47082
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 13:23:14 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A6559613E9
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 13:23:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A6559613E9
+	by mail.kernel.org (Postfix) with ESMTPS id E32BB613F1
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 13:23:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E32BB613F1
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6A462400F1;
-	Thu,  3 Jun 2021 13:23:12 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 48A39405A3;
+	Thu,  3 Jun 2021 13:23:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HF2O6ed_wCSD; Thu,  3 Jun 2021 13:23:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTP id EEC4B400CA;
-	Thu,  3 Jun 2021 13:23:07 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id dlwOazNIoOV1; Thu,  3 Jun 2021 13:23:09 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTP id AEA0B4051F;
+	Thu,  3 Jun 2021 13:23:08 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C2579C000E;
-	Thu,  3 Jun 2021 13:23:07 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EA8EBC0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1DB27C0025;
+	Thu,  3 Jun 2021 13:23:08 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 18DAAC0001
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 13:23:05 +0000 (UTC)
+ Thu,  3 Jun 2021 13:23:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id C333983E21
+ by smtp3.osuosl.org (Postfix) with ESMTP id 083B060B25
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 13:23:05 +0000 (UTC)
+ Thu,  3 Jun 2021 13:23:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id K6IlBn8v_ZxI
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id sUunMP0_Vt4m
  for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 13:23:01 +0000 (UTC)
+ Thu,  3 Jun 2021 13:23:02 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from theia.8bytes.org (8bytes.org
- [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
- by smtp1.osuosl.org (Postfix) with ESMTPS id BA68983DD6
+Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E94E460645
  for <virtualization@lists.linux-foundation.org>;
  Thu,  3 Jun 2021 13:23:01 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2ba7c.dip0.t-ipconnect.de
  [79.242.186.124])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 5720815C;
+ by theia.8bytes.org (Postfix) with ESMTPSA id E20F9374;
  Thu,  3 Jun 2021 15:22:58 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: Eric Biederman <ebiederm@xmission.com>,
 	x86@kernel.org
-Subject: [PATCH v2 0/2] x86: Disable kexec for SEV-ES guests
-Date: Thu,  3 Jun 2021 15:22:31 +0200
-Message-Id: <20210603132233.10004-1-joro@8bytes.org>
+Subject: [PATCH v2 1/2] kexec: Allow architecture code to opt-out at runtime
+Date: Thu,  3 Jun 2021 15:22:32 +0200
+Message-Id: <20210603132233.10004-2-joro@8bytes.org>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210603132233.10004-1-joro@8bytes.org>
+References: <20210603132233.10004-1-joro@8bytes.org>
 MIME-Version: 1.0
 Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
  Dave Hansen <dave.hansen@linux.intel.com>,
@@ -74,8 +76,8 @@ Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
  linux-coco@lists.linux.dev, Andy Lutomirski <luto@kernel.org>,
  Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>,
  Mike Stunes <mstunes@vmware.com>, Sean Christopherson <seanjc@google.com>,
- linux-kernel@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
- Erdem Aktas <erdemaktas@google.com>
+ linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+ Masami Hiramatsu <mhiramat@kernel.org>, Erdem Aktas <erdemaktas@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,40 +96,85 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Changes v1->v2:
+Allow a runtime opt-out of kexec support for architecture code in case
+the kernel is running in an environment where kexec is not properly
+supported yet.
 
-	- Rebased to v5.13-rc4
-	- Add the check also to the kexec_file_load system call
+This will be used on x86 when the kernel is running as an SEV-ES
+guest. SEV-ES guests need special handling for kexec to hand over all
+CPUs to the new kernel. This requires special hypervisor support and
+handling code in the guest which is not yet implemented.
 
-Original cover letter:
+Cc: stable@vger.kernel.org # v5.10+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ include/linux/kexec.h |  1 +
+ kernel/kexec.c        | 14 ++++++++++++++
+ kernel/kexec_file.c   |  9 +++++++++
+ 3 files changed, 24 insertions(+)
 
-Hi,
-
-two small patches to disable kexec on x86 when running as an SEV-ES
-guest. Trying to kexec a new kernel would fail anyway because there is
-no mechanism yet to hand over the APs from the old to the new kernel.
-Supporting this needs changes in the Hypervisor and the guest kernel
-as well.
-
-This code is currently being work on, but disable kexec in SEV-ES
-guests until it is ready.
-
-Please review.
-
-Regards,
-
-	Joerg
-
-Joerg Roedel (2):
-  kexec: Allow architecture code to opt-out at runtime
-  x86/kexec/64: Forbid kexec when running as an SEV-ES guest
-
- arch/x86/kernel/machine_kexec_64.c |  8 ++++++++
- include/linux/kexec.h              |  1 +
- kernel/kexec.c                     | 14 ++++++++++++++
- kernel/kexec_file.c                |  9 +++++++++
- 4 files changed, 32 insertions(+)
-
+diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+index 0c994ae37729..85c30dcd0bdc 100644
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -201,6 +201,7 @@ int arch_kexec_kernel_verify_sig(struct kimage *image, void *buf,
+ 				 unsigned long buf_len);
+ #endif
+ int arch_kexec_locate_mem_hole(struct kexec_buf *kbuf);
++bool arch_kexec_supported(void);
+ 
+ extern int kexec_add_buffer(struct kexec_buf *kbuf);
+ int kexec_locate_mem_hole(struct kexec_buf *kbuf);
+diff --git a/kernel/kexec.c b/kernel/kexec.c
+index c82c6c06f051..d03134160458 100644
+--- a/kernel/kexec.c
++++ b/kernel/kexec.c
+@@ -195,11 +195,25 @@ static int do_kexec_load(unsigned long entry, unsigned long nr_segments,
+  * that to happen you need to do that yourself.
+  */
+ 
++bool __weak arch_kexec_supported(void)
++{
++	return true;
++}
++
+ static inline int kexec_load_check(unsigned long nr_segments,
+ 				   unsigned long flags)
+ {
+ 	int result;
+ 
++	/*
++	 * The architecture may support kexec in general, but the kernel could
++	 * run in an environment where it is not (yet) possible to execute a new
++	 * kernel. Allow the architecture code to opt-out of kexec support when
++	 * it is running in such an environment.
++	 */
++	if (!arch_kexec_supported())
++		return -ENOSYS;
++
+ 	/* We only trust the superuser with rebooting the system. */
+ 	if (!capable(CAP_SYS_BOOT) || kexec_load_disabled)
+ 		return -EPERM;
+diff --git a/kernel/kexec_file.c b/kernel/kexec_file.c
+index 33400ff051a8..96d08a512e9c 100644
+--- a/kernel/kexec_file.c
++++ b/kernel/kexec_file.c
+@@ -358,6 +358,15 @@ SYSCALL_DEFINE5(kexec_file_load, int, kernel_fd, int, initrd_fd,
+ 	int ret = 0, i;
+ 	struct kimage **dest_image, *image;
+ 
++	/*
++	 * The architecture may support kexec in general, but the kernel could
++	 * run in an environment where it is not (yet) possible to execute a new
++	 * kernel. Allow the architecture code to opt-out of kexec support when
++	 * it is running in such an environment.
++	 */
++	if (!arch_kexec_supported())
++		return -ENOSYS;
++
+ 	/* We only trust the superuser with rebooting the system. */
+ 	if (!capable(CAP_SYS_BOOT) || kexec_load_disabled)
+ 		return -EPERM;
 -- 
 2.31.1
 
