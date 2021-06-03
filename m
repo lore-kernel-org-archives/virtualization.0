@@ -2,83 +2,91 @@ Return-Path: <SRS0=cU2J=K5=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44268C47096
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 13:55:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D74B4C47082
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 13:57:53 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id F24B3613AA
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 13:55:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F24B3613AA
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 920B9613AA
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 13:57:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 920B9613AA
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id BE8D783ECF;
-	Thu,  3 Jun 2021 13:55:19 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5FDCF83EE1;
+	Thu,  3 Jun 2021 13:57:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id k8cgT_FzNI6f; Thu,  3 Jun 2021 13:55:15 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id CBF5683D55;
-	Thu,  3 Jun 2021 13:55:14 +0000 (UTC)
+	with ESMTP id uXYVlfufqFU3; Thu,  3 Jun 2021 13:57:49 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 78DE883D55;
+	Thu,  3 Jun 2021 13:57:48 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A8AE0C000E;
-	Thu,  3 Jun 2021 13:55:14 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4C050C000E;
+	Thu,  3 Jun 2021 13:57:48 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 865B8C0001;
- Thu,  3 Jun 2021 13:55:13 +0000 (UTC)
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 49708C0001
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  3 Jun 2021 13:57:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 671E9605A0;
- Thu,  3 Jun 2021 13:55:13 +0000 (UTC)
+ by smtp3.osuosl.org (Postfix) with ESMTP id 22A87605A0
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  3 Jun 2021 13:57:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id WnJ_RRkwVOve; Thu,  3 Jun 2021 13:55:11 +0000 (UTC)
+ with ESMTP id E9HpnOEjs2Sr
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  3 Jun 2021 13:57:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 5C8186059A;
- Thu,  3 Jun 2021 13:55:11 +0000 (UTC)
-IronPort-SDR: B9ygMZVVugOxwF83QcPXuihygbTe0qQXsUmyBBLC8hUGYFVtVKBr4/1jv1TAvnlx7d/FpWQRSF
- kQyhdIZHgBAw==
-X-IronPort-AV: E=McAfee;i="6200,9189,10004"; a="201033925"
-X-IronPort-AV: E=Sophos;i="5.83,246,1616482800"; d="scan'208";a="201033925"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
- by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 03 Jun 2021 06:55:09 -0700
-IronPort-SDR: WSa7HuZNkrlwz34Gbfei5TXfLURTgD2GlmLyG8N/jgYZni0MyjUmN6cSa58+JEkd6TyCxYnzg9
- guBhNlSSzzuA==
-X-IronPort-AV: E=Sophos;i="5.83,246,1616482800"; d="scan'208";a="550698748"
-Received: from akleen-mobl1.amr.corp.intel.com (HELO [10.209.7.237])
- ([10.209.7.237])
- by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 03 Jun 2021 06:55:09 -0700
-Subject: Re: [PATCH v1 1/8] virtio: Force only split mode with protected guest
-To: Jason Wang <jasowang@redhat.com>, mst@redhat.com
-References: <20210603004133.4079390-1-ak@linux.intel.com>
- <20210603004133.4079390-2-ak@linux.intel.com>
- <28c8302b-6833-10b4-c0eb-67456e7c4069@redhat.com>
- <09e17c7f-ce51-1a46-72c4-12223bee4e3a@linux.intel.com>
- <1c08bc42-7448-351e-78bf-fcf68d2b2561@redhat.com>
- <5a2d0d70-fa6b-f08d-f222-5c00cf5f9d44@linux.intel.com>
- <9b10bb24-eb27-510e-cf0d-7818ab9166ef@redhat.com>
-From: Andi Kleen <ak@linux.intel.com>
-Message-ID: <9d6bc785-9613-a2e8-f78f-4547747a331d@linux.intel.com>
-Date: Thu, 3 Jun 2021 06:55:08 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.2
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7AF426059A
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  3 Jun 2021 13:57:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1622728665;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=qmLTHJrSQDbMU7UTLA4d0t4PiOLJgLmVKJZe+PUyZok=;
+ b=HcbTYTGkMY9rMIgdPNa/SDKKcmHFkjdhurOLukU+tz8k4wAUX8LseqgCaVqdiJKVeG4ePE
+ itE2s6Qs75+uRUQJNAsq8EOWhHpk5tIwm8xp1P4lWxKSOF4BQ86jCGWsABCteSoaZ/kgbQ
+ W254SL5Cv8BC8GOAdg1lgvRoTdVLZaE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-564-NqkgsowEMUKltENCWcyOoQ-1; Thu, 03 Jun 2021 09:57:36 -0400
+X-MC-Unique: NqkgsowEMUKltENCWcyOoQ-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
+ [10.5.11.11])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D00E0803624;
+ Thu,  3 Jun 2021 13:57:35 +0000 (UTC)
+Received: from localhost (ovpn-114-228.ams2.redhat.com [10.36.114.228])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id C790A60657;
+ Thu,  3 Jun 2021 13:57:31 +0000 (UTC)
+Date: Thu, 3 Jun 2021 14:57:30 +0100
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Mike Christie <michael.christie@oracle.com>
+Subject: Re: [PATCH 6/9] vhost-scsi: make SCSI cmd completion per vq
+Message-ID: <YLjfyqC1VD7kNFpH@stefanha-x1.localdomain>
+References: <20210525180600.6349-1-michael.christie@oracle.com>
+ <20210525180600.6349-7-michael.christie@oracle.com>
 MIME-Version: 1.0
-In-Reply-To: <9b10bb24-eb27-510e-cf0d-7818ab9166ef@redhat.com>
-Content-Language: en-US
-Cc: sathyanarayanan.kuppuswamy@linux.intel.com, x86@kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- iommu@lists.linux-foundation.org, jpoimboe@redhat.com, robin.murphy@arm.com,
- hch@lst.de, m.szyprowski@samsung.com
+In-Reply-To: <20210525180600.6349-7-michael.christie@oracle.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Cc: linux-scsi@vger.kernel.org, mst@redhat.com,
+ virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org,
+ pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -90,27 +98,63 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: multipart/mixed; boundary="===============5529404189550278543=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
-> Ok, but what I meant is this, if we don't read from the descriptor 
-> ring, and validate all the other metadata supplied by the device (used 
-> id and len). Then there should be no way for the device to suppress 
-> the dma flags to write to the indirect descriptor table.
->
-> Or do you have an example how it can do that?
+--===============5529404189550278543==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="mvXsWp4PhT0LQr2M"
+Content-Disposition: inline
 
-I don't. If you can validate everything it's probably ok
 
-The only drawback is even more code to audit and test.
+--mvXsWp4PhT0LQr2M
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--Andi
+On Tue, May 25, 2021 at 01:05:57PM -0500, Mike Christie wrote:
+> This patch separates the scsi cmd completion code paths so we can complete
+> cmds based on their vq instead of having all cmds complete on the same
+> worker/CPU. This will be useful with the next patch that allows us to
+> create mulitple worker threads and bind them to different vqs, so we can
+> have completions running on different threads/CPUs.
+>=20
+> Signed-off-by: Mike Christie <michael.christie@oracle.com>
+> ---
+>  drivers/vhost/scsi.c | 48 +++++++++++++++++++++++---------------------
+>  1 file changed, 25 insertions(+), 23 deletions(-)
 
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--mvXsWp4PhT0LQr2M
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmC438oACgkQnKSrs4Gr
+c8hBHwgAqiLjVqav8oRJZbb+h+FZfPrI5JEeMouqXSxGC/R3GNDnJXHoIosgbjUd
+isXzBnt1GHlhRBspQXx1i+z2TZ09csnLPdF25g1qwULMQmZ7pCAjdOIAzMaTauxn
+6GBGOB1P+YD4/QQAgdFWyUqI0t0VxfrHxHY5AgAoZ5b4DEt105OrUDMFlwXLbsXm
+rMZV8biElfES8egfDNuHg9Ityn/DtQZVB16FQZnB0bYU6elHpXXn+mcaqfKQWWoX
++VDFyFB0I8jmZRfgXf/VBgX9uZUy4ByW+sTE8M+/L0e6eymw75c7ZXSvgImcQazl
+rrCvDqyPsNL/jVotE0y8R1cvPFjJ/A==
+=6gup
+-----END PGP SIGNATURE-----
+
+--mvXsWp4PhT0LQr2M--
+
+
+--===============5529404189550278543==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5529404189550278543==--
+
