@@ -2,71 +2,78 @@ Return-Path: <SRS0=cU2J=K5=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.9 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F168C47097
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 17:09:11 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3732DC47096
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 17:33:46 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E4E1961407
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 17:09:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E4E1961407
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id E8D4C613DC
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 17:33:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E8D4C613DC
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B724A4018D;
-	Thu,  3 Jun 2021 17:09:10 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kuWH48RXuZGK; Thu,  3 Jun 2021 17:09:09 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C7AC640141;
-	Thu,  3 Jun 2021 17:09:08 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5EA50C000D;
-	Thu,  3 Jun 2021 17:09:08 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A7772C0001
- for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 17:09:06 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 840F8403C7
- for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 17:09:06 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id ACD5B405E3;
+	Thu,  3 Jun 2021 17:33:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VkXWXpzcg331
- for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 17:09:05 +0000 (UTC)
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7cpE3iGoQN5n; Thu,  3 Jun 2021 17:33:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTP id 36D54405FC;
+	Thu,  3 Jun 2021 17:33:44 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B00EFC0001;
+	Thu,  3 Jun 2021 17:33:43 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E568BC0001;
+ Thu,  3 Jun 2021 17:33:41 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id D1CDB83EF6;
+ Thu,  3 Jun 2021 17:33:41 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 4EqNSspSO_Ka; Thu,  3 Jun 2021 17:33:41 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-42.freemail.mail.aliyun.com
- (out30-42.freemail.mail.aliyun.com [115.124.30.42])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 207D540468
- for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 17:09:04 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R941e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=8; SR=0; TI=SMTPD_---0UbAY0W._1622740141; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0UbAY0W._1622740141) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 04 Jun 2021 01:09:01 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: netdev@vger.kernel.org
-Subject: [PATCH net] virtio-net: fix for skb_over_panic inside big mode
-Date: Fri,  4 Jun 2021 01:09:01 +0800
-Message-Id: <20210603170901.66504-1-xuanzhuo@linux.alibaba.com>
-X-Mailer: git-send-email 2.31.0
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 5826683EF0;
+ Thu,  3 Jun 2021 17:33:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D919600EF;
+ Thu,  3 Jun 2021 17:33:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1622741621;
+ bh=/UCRcRzeBqTtEan+hKQQytxiVuqK6B0k/wsPUAzHz04=;
+ h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+ b=MFTkiPeD9pCOCOqPoN5+CzEhXI99TCb/39pyxVHmsIu2k1fk8H/SddDyBYcnAZjdS
+ xdHSwL+7enafUpzCDPPWhuip9DqrJ3fgknH6swTLZGTiCVZtJ3H91+7Jf4luWtvAsM
+ t4nClvFCW1FHgSSW6qB2ZrbsTKofuoGjV47JEPaSNXeuxOGPapBCUc9lFVQruBLTTW
+ 2Ws3Gqt1g/sEt2+i9gvAEBowH0WoN7WHRtG++WdSXO3iwwOv55pJU+p4KiINspejbD
+ vefQqFY64InbySwuXs6s50UHsk9hQWmicWTdvP4UZup7oMXGa2YBPm9L/nb8oaeS9g
+ ITvifMb0XbFfw==
+Subject: Re: [PATCH v1 1/8] virtio: Force only split mode with protected guest
+To: Andi Kleen <ak@linux.intel.com>, mst@redhat.com
+References: <20210603004133.4079390-1-ak@linux.intel.com>
+ <20210603004133.4079390-2-ak@linux.intel.com>
+From: Andy Lutomirski <luto@kernel.org>
+Message-ID: <cc5c8265-83f7-aeb1-bc30-3367fe68bc97@kernel.org>
+Date: Thu, 3 Jun 2021 10:33:39 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- =?UTF-8?q?Corentin=20No=C3=ABl?= <corentin.noel@collabora.com>,
- virtualization@lists.linux-foundation.org, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20210603004133.4079390-2-ak@linux.intel.com>
+Content-Language: en-US
+Cc: sathyanarayanan.kuppuswamy@linux.intel.com, x86@kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ iommu@lists.linux-foundation.org, jpoimboe@redhat.com, robin.murphy@arm.com,
+ hch@lst.de, m.szyprowski@samsung.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -78,51 +85,26 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-SW4gdmlydGlvLW5ldCdzIGxhcmdlIHBhY2tldCBtb2RlLCB0aGVyZSBpcyBhIGhvbGUgaW4gdGhl
-IHNwYWNlIGJlaGluZApidWYuCgogICAgaGRyX3BhZGRlZF9sZW4gLSBoZHJfbGVuCgpXZSBtdXN0
-IHRha2UgdGhpcyBpbnRvIGFjY291bnQgd2hlbiBjYWxjdWxhdGluZyB0YWlscm9vbS4KClsgICA0
-NC41NDQzODVdIHNrYl9wdXQuY29sZCAobmV0L2NvcmUvc2tidWZmLmM6NTI1NCAoZGlzY3JpbWlu
-YXRvciAxKSBuZXQvY29yZS9za2J1ZmYuYzo1MjUyIChkaXNjcmltaW5hdG9yIDEpKQpbICAgNDQu
-NTQ0ODY0XSBwYWdlX3RvX3NrYiAoZHJpdmVycy9uZXQvdmlydGlvX25ldC5jOjQ4NSkgWyAgIDQ0
-LjU0NTM2MV0gcmVjZWl2ZV9idWYgKGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYzo4NDkgZHJpdmVy
-cy9uZXQvdmlydGlvX25ldC5jOjExMzEpClsgICA0NC41NDU4NzBdID8gbmV0aWZfcmVjZWl2ZV9z
-a2JfbGlzdF9pbnRlcm5hbCAobmV0L2NvcmUvZGV2LmM6NTcxNCkKWyAgIDQ0LjU0NjYyOF0gPyBk
-ZXZfZ3JvX3JlY2VpdmUgKG5ldC9jb3JlL2Rldi5jOjYxMDMpClsgICA0NC41NDcxMzVdID8gbmFw
-aV9jb21wbGV0ZV9kb25lICguL2luY2x1ZGUvbGludXgvbGlzdC5oOjM1IG5ldC9jb3JlL2Rldi5j
-OjU4NjcgbmV0L2NvcmUvZGV2LmM6NTg2MiBuZXQvY29yZS9kZXYuYzo2NTY1KQpbICAgNDQuNTQ3
-NjcyXSB2aXJ0bmV0X3BvbGwgKGRyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYzoxNDI3IGRyaXZlcnMv
-bmV0L3ZpcnRpb19uZXQuYzoxNTI1KQpbICAgNDQuNTQ4MjUxXSBfX25hcGlfcG9sbCAobmV0L2Nv
-cmUvZGV2LmM6Njk4NSkKWyAgIDQ0LjU0ODc0NF0gbmV0X3J4X2FjdGlvbiAobmV0L2NvcmUvZGV2
-LmM6NzA1NCBuZXQvY29yZS9kZXYuYzo3MTM5KQpbICAgNDQuNTQ5MjY0XSBfX2RvX3NvZnRpcnEg
-KC4vYXJjaC94ODYvaW5jbHVkZS9hc20vanVtcF9sYWJlbC5oOjE5IC4vaW5jbHVkZS9saW51eC9q
-dW1wX2xhYmVsLmg6MjAwIC4vaW5jbHVkZS90cmFjZS9ldmVudHMvaXJxLmg6MTQyIGtlcm5lbC9z
-b2Z0aXJxLmM6NTYwKQpbICAgNDQuNTQ5NzYyXSBpcnFfZXhpdF9yY3UgKGtlcm5lbC9zb2Z0aXJx
-LmM6NDMzIGtlcm5lbC9zb2Z0aXJxLmM6NjM3IGtlcm5lbC9zb2Z0aXJxLmM6NjQ5KQpbICAgNDQu
-NTUxMzg0XSBjb21tb25faW50ZXJydXB0IChhcmNoL3g4Ni9rZXJuZWwvaXJxLmM6MjQwIChkaXNj
-cmltaW5hdG9yIDEzKSkKWyAgIDQ0LjU1MTk5MV0gPyBhc21fY29tbW9uX2ludGVycnVwdCAoLi9h
-cmNoL3g4Ni9pbmNsdWRlL2FzbS9pZHRlbnRyeS5oOjYzOCkKWyAgIDQ0LjU1MjY1NF0gYXNtX2Nv
-bW1vbl9pbnRlcnJ1cHQgKC4vYXJjaC94ODYvaW5jbHVkZS9hc20vaWR0ZW50cnkuaDo2MzgpCgpG
-aXhlczogZmIzMjg1NmIxNmFkICgidmlydGlvLW5ldDogcGFnZV90b19za2IoKSB1c2UgYnVpbGRf
-c2tiIHdoZW4gdGhlcmUncyBzdWZmaWNpZW50IHRhaWxyb29tIikKU2lnbmVkLW9mZi1ieTogWHVh
-biBaaHVvIDx4dWFuemh1b0BsaW51eC5hbGliYWJhLmNvbT4KUmVwb3J0ZWQtYnk6IENvcmVudGlu
-IE5vw6tsIDxjb3JlbnRpbi5ub2VsQGNvbGxhYm9yYS5jb20+ClRlc3RlZC1ieTogQ29yZW50aW4g
-Tm/Dq2wgPGNvcmVudGluLm5vZWxAY29sbGFib3JhLmNvbT4KLS0tCiBkcml2ZXJzL25ldC92aXJ0
-aW9fbmV0LmMgfCAyICstCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRp
-b24oLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL25ldC92aXJ0aW9fbmV0LmMgYi9kcml2ZXJzL25l
-dC92aXJ0aW9fbmV0LmMKaW5kZXggZmE0MDdlYjhiNDU3Li43OGEwMWM3MWExN2MgMTAwNjQ0Ci0t
-LSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYworKysgYi9kcml2ZXJzL25ldC92aXJ0aW9fbmV0
-LmMKQEAgLTQwNiw3ICs0MDYsNyBAQCBzdGF0aWMgc3RydWN0IHNrX2J1ZmYgKnBhZ2VfdG9fc2ti
-KHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpLAogCSAqIGFkZF9yZWN2YnVmX21lcmdlYWJsZSgpICsg
-Z2V0X21lcmdlYWJsZV9idWZfbGVuKCkKIAkgKi8KIAl0cnVlc2l6ZSA9IGhlYWRyb29tID8gUEFH
-RV9TSVpFIDogdHJ1ZXNpemU7Ci0JdGFpbHJvb20gPSB0cnVlc2l6ZSAtIGxlbiAtIGhlYWRyb29t
-OworCXRhaWxyb29tID0gdHJ1ZXNpemUgLSBsZW4gLSBoZWFkcm9vbSAtIChoZHJfcGFkZGVkX2xl
-biAtIGhkcl9sZW4pOwogCWJ1ZiA9IHAgLSBoZWFkcm9vbTsKIAogCWxlbiAtPSBoZHJfbGVuOwot
-LSAKMi4zMS4wCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
-Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
-bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On 6/2/21 5:41 PM, Andi Kleen wrote:
+> Only allow split mode when in a protected guest. Followon
+> patches harden the split mode code paths, and we don't want
+> an malicious host to force anything else. Also disallow
+> indirect mode for similar reasons.
+
+I read this as "the virtio driver is buggy.  Let's disable most of the
+buggy code in one special case in which we need a driver without bugs.
+In all the other cases (e.g. hardware virtio device connected over
+USB-C), driver bugs are still allowed."
+
+Can we just fix the driver without special cases?
+
+--Andy
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
