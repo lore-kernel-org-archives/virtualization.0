@@ -4,65 +4,65 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4FD92C4709A
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 00:41:56 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C176C4709E
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 00:41:58 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C9E5961361
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 00:41:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C9E5961361
+	by mail.kernel.org (Postfix) with ESMTPS id 20DF261401
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 00:41:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 20DF261401
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8B69960AF7;
-	Thu,  3 Jun 2021 00:41:55 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id ECCD483D3E;
+	Thu,  3 Jun 2021 00:41:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0w58BZh-BwEU; Thu,  3 Jun 2021 00:41:54 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 0YiiaKKhYQe5; Thu,  3 Jun 2021 00:41:57 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 286E660ADD;
-	Thu,  3 Jun 2021 00:41:54 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0F84283D4A;
+	Thu,  3 Jun 2021 00:41:56 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E77AEC000E;
-	Thu,  3 Jun 2021 00:41:53 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EDF34C0025;
+	Thu,  3 Jun 2021 00:41:55 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 60860C0024;
- Thu,  3 Jun 2021 00:41:48 +0000 (UTC)
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 87C58C0001;
+ Thu,  3 Jun 2021 00:41:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 21A1383D39;
- Thu,  3 Jun 2021 00:41:47 +0000 (UTC)
+ by smtp1.osuosl.org (Postfix) with ESMTP id 3213983D4C;
+ Thu,  3 Jun 2021 00:41:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JlooF6lkhNck; Thu,  3 Jun 2021 00:41:46 +0000 (UTC)
+ with ESMTP id oS5dBcBkURbf; Thu,  3 Jun 2021 00:41:47 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 7134C83D3B;
- Thu,  3 Jun 2021 00:41:46 +0000 (UTC)
-IronPort-SDR: BAeFle3Ftll4h7qrDymujqRN2+rzv4Tgj/iWgNEOos6M6hyk7QyCXWrDA/APr3H4WxtPXlqY+J
- FYd4/KVtjkEQ==
-X-IronPort-AV: E=McAfee;i="6200,9189,10003"; a="191281570"
-X-IronPort-AV: E=Sophos;i="5.83,244,1616482800"; d="scan'208";a="191281570"
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 681B183D47;
+ Thu,  3 Jun 2021 00:41:47 +0000 (UTC)
+IronPort-SDR: UkuYdFlA2AIUjHMr5anYBfmsb8rYb4sU7TAtqC9T/0PUBulQHAhNswLoknMVGpvu37Q6X2Vb+P
+ MCXgSsRuaHXw==
+X-IronPort-AV: E=McAfee;i="6200,9189,10003"; a="191281569"
+X-IronPort-AV: E=Sophos;i="5.83,244,1616482800"; d="scan'208";a="191281569"
 Received: from orsmga004.jf.intel.com ([10.7.209.38])
  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
  02 Jun 2021 17:41:44 -0700
-IronPort-SDR: OxJF8Ua9Z2imFUH0gyNrbWEtQF8Rbg7NaK2nDBwa/a6xvvPOWkUG7ZB1eAmyF4p5G4d7331NtZ
- 1EnieV4InCBQ==
-X-IronPort-AV: E=Sophos;i="5.83,244,1616482800"; d="scan'208";a="549686678"
+IronPort-SDR: rlyoqNWWeXyvXoVbNuuUK3XZ1Fd5UUASA5LehE5YNWmgGQqO1lOphbl/vq+xhP/7KFutiwdzVk
+ eB9TI4QJcAnw==
+X-IronPort-AV: E=Sophos;i="5.83,244,1616482800"; d="scan'208";a="549686677"
 Received: from tassilo.jf.intel.com ([10.54.74.11])
  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
  02 Jun 2021 17:41:44 -0700
 From: Andi Kleen <ak@linux.intel.com>
 To: mst@redhat.com
-Subject: [PATCH v1 4/8] x86/tdx: Add arch_has_restricted_memory_access for TDX
-Date: Wed,  2 Jun 2021 17:41:29 -0700
-Message-Id: <20210603004133.4079390-5-ak@linux.intel.com>
+Subject: [PATCH v1 3/8] virtio: Harden split buffer detachment
+Date: Wed,  2 Jun 2021 17:41:28 -0700
+Message-Id: <20210603004133.4079390-4-ak@linux.intel.com>
 X-Mailer: git-send-email 2.25.4
 In-Reply-To: <20210603004133.4079390-1-ak@linux.intel.com>
 References: <20210603004133.4079390-1-ak@linux.intel.com>
@@ -88,62 +88,98 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-In virtio the host decides whether the guest uses the DMA
-API or not using the strangely named VIRTIO_F_ACCESS_PLATFORM
-bit (which really indicates whether the DMA API is used or not)
-
-For hardened virtio on TDX we want to enforce that that swiotlb is
-always used, which requires using the DMA API.  While IO wouldn't
-really work without the swiotlb, it might be possible that an
-attacker forces swiotlbless IO to manipulate memory in the guest.
-
-So we want to force the DMA API (which then forces swiotlb),
-but without relying on the host.
-
-There is already an arch_has_restricted_memory_acces hook for
-this, which is currently used only by s390. Enable
-the config option for the hook for x86 and enable it for TDX.
+Harden the split buffer detachment path by adding boundary checking. Note
+that when this fails we may fail to unmap some swiotlb mapping, which could
+result in a leak and a DOS. But that's acceptable because an malicious host
+can DOS us anyways.
 
 Signed-off-by: Andi Kleen <ak@linux.intel.com>
 ---
- arch/x86/Kconfig                 | 1 +
- arch/x86/mm/mem_encrypt_common.c | 7 +++++++
- 2 files changed, 8 insertions(+)
+ drivers/virtio/virtio_ring.c | 25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index 1531a0f905ed..3d804fce31b9 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -884,6 +884,7 @@ config INTEL_TDX_GUEST
- 	select X86_X2APIC
- 	select SECURITY_LOCKDOWN_LSM
- 	select X86_MEM_ENCRYPT_COMMON
-+	select ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
- 	help
- 	  Provide support for running in a trusted domain on Intel processors
- 	  equipped with Trusted Domain eXtenstions. TDX is a new Intel
-diff --git a/arch/x86/mm/mem_encrypt_common.c b/arch/x86/mm/mem_encrypt_common.c
-index 24c9117547b4..2244d1f033ab 100644
---- a/arch/x86/mm/mem_encrypt_common.c
-+++ b/arch/x86/mm/mem_encrypt_common.c
-@@ -9,6 +9,7 @@
- 
- #include <asm/mem_encrypt_common.h>
- #include <linux/dma-mapping.h>
-+#include <linux/virtio_config.h>
- #include <linux/swiotlb.h>
- 
- /* Override for DMA direct allocation check - ARCH_HAS_FORCE_DMA_UNENCRYPTED */
-@@ -37,3 +38,9 @@ void __init mem_encrypt_init(void)
- 		amd_mem_encrypt_init();
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index d37ff5a0ff58..1e9aa1e95e1b 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -651,12 +651,19 @@ static bool virtqueue_kick_prepare_split(struct virtqueue *_vq)
+ 	return needs_kick;
  }
  
-+int arch_has_restricted_virtio_memory_access(void)
-+{
-+	return is_tdx_guest();
-+}
-+EXPORT_SYMBOL_GPL(arch_has_restricted_virtio_memory_access);
+-static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+-			     void **ctx)
++static int detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
++			    void **ctx)
+ {
+ 	unsigned int i, j;
+ 	__virtio16 nextflag = cpu_to_virtio16(vq->vq.vdev, VRING_DESC_F_NEXT);
+ 
++	/* We'll leak DMA mappings when this happens, but nothing
++	 * can be done about that. In the worst case the host
++	 * could DOS us, but it can of course do that anyways.
++	 */
++	if (!inside_split_ring(vq, head))
++		return -EIO;
 +
+ 	/* Clear data ptr. */
+ 	vq->split.desc_state[head].data = NULL;
+ 
+@@ -666,6 +673,8 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+ 	while (vq->split.vring.desc[i].flags & nextflag) {
+ 		vring_unmap_one_split(vq, &vq->split.vring.desc[i]);
+ 		i = virtio16_to_cpu(vq->vq.vdev, vq->split.vring.desc[i].next);
++		if (!inside_split_ring(vq, i))
++			return -EIO;
+ 		vq->vq.num_free++;
+ 	}
+ 
+@@ -684,7 +693,7 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+ 
+ 		/* Free the indirect table, if any, now that it's unmapped. */
+ 		if (!indir_desc)
+-			return;
++			return 0;
+ 
+ 		len = virtio32_to_cpu(vq->vq.vdev,
+ 				vq->split.vring.desc[head].len);
+@@ -701,6 +710,7 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+ 	} else if (ctx) {
+ 		*ctx = vq->split.desc_state[head].indir_desc;
+ 	}
++	return 0;
+ }
+ 
+ static inline bool more_used_split(const struct vring_virtqueue *vq)
+@@ -717,6 +727,7 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
+ 	void *ret;
+ 	unsigned int i;
+ 	u16 last_used;
++	int err;
+ 
+ 	START_USE(vq);
+ 
+@@ -751,7 +762,12 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
+ 
+ 	/* detach_buf_split clears data, so grab it now. */
+ 	ret = vq->split.desc_state[i].data;
+-	detach_buf_split(vq, i, ctx);
++	err = detach_buf_split(vq, i, ctx);
++	if (err) {
++		END_USE(vq);
++		return NULL;
++	}
++
+ 	vq->last_used_idx++;
+ 	/* If we expect an interrupt for the next entry, tell host
+ 	 * by writing event index and flush out the write before
+@@ -863,6 +879,7 @@ static void *virtqueue_detach_unused_buf_split(struct virtqueue *_vq)
+ 		/* detach_buf_split clears data, so grab it now. */
+ 		buf = vq->split.desc_state[i].data;
+ 		detach_buf_split(vq, i, NULL);
++		/* Don't need to check for error because nothing is returned */
+ 		vq->split.avail_idx_shadow--;
+ 		vq->split.vring.avail->idx = cpu_to_virtio16(_vq->vdev,
+ 				vq->split.avail_idx_shadow);
 -- 
 2.25.4
 
