@@ -2,117 +2,71 @@ Return-Path: <SRS0=cU2J=K5=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.7 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+X-Spam-Status: No, score=-15.9 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 87E49C47082
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 07:49:22 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 707D5C47082
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 09:08:44 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 25B84613B4
-	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 07:49:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 25B84613B4
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 24D84613AC
+	for <virtualization@archiver.kernel.org>; Thu,  3 Jun 2021 09:08:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 24D84613AC
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=arm.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D673F40580;
-	Thu,  3 Jun 2021 07:49:21 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id EBDFA60B2B;
+	Thu,  3 Jun 2021 09:08:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2RKcshj6HzOM; Thu,  3 Jun 2021 07:49:20 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id HzAxEz2pJ7QE; Thu,  3 Jun 2021 09:08:42 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 27EB0401D7;
-	Thu,  3 Jun 2021 07:49:20 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3AFCF60B2E;
+	Thu,  3 Jun 2021 09:08:42 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DB390C000E;
-	Thu,  3 Jun 2021 07:49:19 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F316EC0001
- for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 07:49:17 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C963DC0025;
+	Thu,  3 Jun 2021 09:08:41 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F3804C0001;
+ Thu,  3 Jun 2021 09:08:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id C8168402A3
- for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 07:49:17 +0000 (UTC)
+ by smtp3.osuosl.org (Postfix) with ESMTP id DAD1460B2B;
+ Thu,  3 Jun 2021 09:08:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id m3el6loybtKT
- for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 07:49:15 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id k3S4zdcjjWy1; Thu,  3 Jun 2021 09:08:38 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id DB88A401D7
- for <virtualization@lists.linux-foundation.org>;
- Thu,  3 Jun 2021 07:49:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1622706553;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=t2A9CGiOMZhMhfDQcj3P5Ci9kIgs20PIu0iiJiXQ0zk=;
- b=Nb0nZnN84jVXZx8u11OBIzsrG8LPoVK5kojE4hYE+BixbfxQhTLSIyJJ2rWC5MyngGOpEk
- I6w7jRqEfr181W2bXcCP1BkFRoUeuogiUOhwY8KrpNfo5blFDiE7pbwg1y+HjHOhrj67lU
- BiswLtc+Zr6KU0M8wSlN4ERM4Btb0zw=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-204-u7delGAeOXqqJTxWwYsRLg-1; Thu, 03 Jun 2021 03:49:10 -0400
-X-MC-Unique: u7delGAeOXqqJTxWwYsRLg-1
-Received: by mail-pj1-f70.google.com with SMTP id
- t8-20020a17090aba88b029016baed73c00so1349658pjr.5
- for <virtualization@lists.linux-foundation.org>;
- Thu, 03 Jun 2021 00:49:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:subject:to:cc:references:from:message-id:date
- :user-agent:mime-version:in-reply-to:content-transfer-encoding
- :content-language;
- bh=t2A9CGiOMZhMhfDQcj3P5Ci9kIgs20PIu0iiJiXQ0zk=;
- b=RP0yrzpcK5CQfG2iQpLuxqT4GQQZ1BKV/wl/KgJ5H4D/HwCnpPVdsNu3pvqGYJMbJ0
- lpVmcRta5oOCvwqfSGOZWw7oeqYHdP9azJCqoembhJWSy9o6tJX83i+CD4Kto90zdzwV
- knfEqQdSVShsKXZmlI0sVJwD0f/k+L75LHFAEgdTqIE/ZMaBImEf4ovdlzhznMCxaTAx
- OPZcJ3g1fjIFv+jLBGoLE9tZrGbhc2Ry4Hxt1vZKdfeLudI9Bazjo0//XTzpQm4OhGm1
- VGiXbkbjZQ56sIXQQ3dtPG0IuENDhaMEVWb1L7k3y/4jQCU2EUHb0+yiE5OYIFS8NLNK
- PutA==
-X-Gm-Message-State: AOAM531tMc3TmIfqcbwHtrKu8kO2d9tVeiLEHrva9eQ4Jy15kXGZ5PQM
- 0/qe331auKv/yFWDZSTACH3t972zYpQWPSTNcb0tJkV7W8tmKTlYheLrvNdW5fzdbhJBBXMgEyA
- +Rim0/P5/dqldp/jGxtGzPvRRlFnXjyxAhCliZpdGkg==
-X-Received: by 2002:a17:902:e5d1:b029:107:810b:9f09 with SMTP id
- u17-20020a170902e5d1b0290107810b9f09mr13402433plf.83.1622706548889; 
- Thu, 03 Jun 2021 00:49:08 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxG1kHzMlk/6bgLGiT7M+fez88v/bqO0OSrRP1I21Nb0TVRNHi1+b2//xRb2XxgVhHvx/ciHw==
-X-Received: by 2002:a17:902:e5d1:b029:107:810b:9f09 with SMTP id
- u17-20020a170902e5d1b0290107810b9f09mr13402417plf.83.1622706548531; 
- Thu, 03 Jun 2021 00:49:08 -0700 (PDT)
-Received: from wangxiaodeMacBook-Air.local ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id a188sm1553571pfa.59.2021.06.03.00.49.06
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 03 Jun 2021 00:49:08 -0700 (PDT)
-Subject: Re: [PATCH v1] vdpa/mlx5: Add support for doorbell bypassing
-To: Eli Cohen <elic@nvidia.com>
-References: <20210602095358.83318-1-elic@nvidia.com>
- <f99c6019-3b7a-8a91-27fc-7db70e9f1c1c@redhat.com>
- <20210603073840.GB58414@mtl-vdi-166.wap.labs.mlnx>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <3ec31690-4cd8-1ea8-31dd-dfd3a8a25180@redhat.com>
-Date: Thu, 3 Jun 2021 15:49:04 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.10.2
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 9FE5B608C4;
+ Thu,  3 Jun 2021 09:08:38 +0000 (UTC)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+ by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 9098A11FB;
+ Thu,  3 Jun 2021 02:08:37 -0700 (PDT)
+Received: from [10.57.73.64] (unknown [10.57.73.64])
+ by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D83823F774;
+ Thu,  3 Jun 2021 02:08:35 -0700 (PDT)
+Subject: Re: [PATCH v1 6/8] dma: Add return value to dma_unmap_page
+To: Andi Kleen <ak@linux.intel.com>, mst@redhat.com
+References: <20210603004133.4079390-1-ak@linux.intel.com>
+ <20210603004133.4079390-7-ak@linux.intel.com>
+From: Robin Murphy <robin.murphy@arm.com>
+Message-ID: <c3b15bc2-104b-dace-1f23-608197b18107@arm.com>
+Date: Thu, 3 Jun 2021 10:08:29 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-In-Reply-To: <20210603073840.GB58414@mtl-vdi-166.wap.labs.mlnx>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
- mst@redhat.com
+In-Reply-To: <20210603004133.4079390-7-ak@linux.intel.com>
+Content-Language: en-GB
+Cc: sathyanarayanan.kuppuswamy@linux.intel.com, x86@kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ iommu@lists.linux-foundation.org, jpoimboe@redhat.com, hch@lst.de,
+ m.szyprowski@samsung.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,70 +78,207 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CuWcqCAyMDIxLzYvMyDkuIvljYgzOjM4LCBFbGkgQ29oZW4g5YaZ6YGTOgo+IE9uIFRodSwgSnVu
-IDAzLCAyMDIxIGF0IDAzOjExOjUxUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IOWcqCAy
-MDIxLzYvMiDkuIvljYg1OjUzLCBFbGkgQ29oZW4g5YaZ6YGTOgo+Pj4gSW1wbGVtZW50IG1seDVf
-Z2V0X3ZxX25vdGlmaWNhdGlvbigpIHRvIHJldHVybiB0aGUgZG9vcmJlbGwgYWRkcmVzcy4KPj4+
-IFNpbmNlIHRoZSBub3RpZmljYXRpb24gYXJlYSBpcyBtYXBwZWQgdG8gdXNlcnNwYWNlLCBtYWtl
-IHN1cmUgdGhhdCB0aGUKPj4+IEJBUiBzaXplIGlzIGF0IGxlYXN0IFBBR0VfU0laRSBsYXJnZS4K
-Pj4+Cj4+PiBTaWduZWQtb2ZmLWJ5OiBFbGkgQ29oZW4gPGVsaWNAbnZpZGlhLmNvbT4KPj4+IC0t
-LQo+Pj4gdjAgLS0+IHYxOgo+Pj4gICAgIE1ha2Ugc3VyZSBTRiBiYXIgc2l6ZSBpcyBub3Qgc21h
-bGxlciB0aGFuIFBBR0VfU0laRQo+Pj4KPj4+ICAgIGRyaXZlcnMvdmRwYS9tbHg1L2NvcmUvbWx4
-NV92ZHBhLmggfCAgMSArCj4+PiAgICBkcml2ZXJzL3ZkcGEvbWx4NS9jb3JlL3Jlc291cmNlcy5j
-IHwgIDEgKwo+Pj4gICAgZHJpdmVycy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5jICB8IDE3ICsr
-KysrKysrKysrKysrKysrCj4+PiAgICAzIGZpbGVzIGNoYW5nZWQsIDE5IGluc2VydGlvbnMoKykK
-Pj4+Cj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBhL21seDUvY29yZS9tbHg1X3ZkcGEuaCBi
-L2RyaXZlcnMvdmRwYS9tbHg1L2NvcmUvbWx4NV92ZHBhLmgKPj4+IGluZGV4IDA5YTE2YTNkMWIy
-YS4uMDAwMmIyMTM2YjQ4IDEwMDY0NAo+Pj4gLS0tIGEvZHJpdmVycy92ZHBhL21seDUvY29yZS9t
-bHg1X3ZkcGEuaAo+Pj4gKysrIGIvZHJpdmVycy92ZHBhL21seDUvY29yZS9tbHg1X3ZkcGEuaAo+
-Pj4gQEAgLTQyLDYgKzQyLDcgQEAgc3RydWN0IG1seDVfdmRwYV9yZXNvdXJjZXMgewo+Pj4gICAg
-CXUzMiBwZG47Cj4+PiAgICAJc3RydWN0IG1seDVfdWFyc19wYWdlICp1YXI7Cj4+PiAgICAJdm9p
-ZCBfX2lvbWVtICpraWNrX2FkZHI7Cj4+PiArCXU2NCBwaHlzX2tpY2tfYWRkcjsKPj4+ICAgIAl1
-MTYgdWlkOwo+Pj4gICAgCXUzMiBudWxsX21rZXk7Cj4+PiAgICAJYm9vbCB2YWxpZDsKPj4+IGRp
-ZmYgLS1naXQgYS9kcml2ZXJzL3ZkcGEvbWx4NS9jb3JlL3Jlc291cmNlcy5jIGIvZHJpdmVycy92
-ZHBhL21seDUvY29yZS9yZXNvdXJjZXMuYwo+Pj4gaW5kZXggODM2YWI5ZWYwZmE2Li5kNDYwNjIx
-M2Y4OGEgMTAwNjQ0Cj4+PiAtLS0gYS9kcml2ZXJzL3ZkcGEvbWx4NS9jb3JlL3Jlc291cmNlcy5j
-Cj4+PiArKysgYi9kcml2ZXJzL3ZkcGEvbWx4NS9jb3JlL3Jlc291cmNlcy5jCj4+PiBAQCAtMjUz
-LDYgKzI1Myw3IEBAIGludCBtbHg1X3ZkcGFfYWxsb2NfcmVzb3VyY2VzKHN0cnVjdCBtbHg1X3Zk
-cGFfZGV2ICptdmRldikKPj4+ICAgIAkJZ290byBlcnJfa2V5Owo+Pj4gICAgCWtpY2tfYWRkciA9
-IG1kZXYtPmJhcl9hZGRyICsgb2Zmc2V0Owo+Pj4gKwlyZXMtPnBoeXNfa2lja19hZGRyID0ga2lj
-a19hZGRyOwo+Pj4gICAgCXJlcy0+a2lja19hZGRyID0gaW9yZW1hcChraWNrX2FkZHIsIFBBR0Vf
-U0laRSk7Cj4+PiAgICAJaWYgKCFyZXMtPmtpY2tfYWRkcikgewo+Pj4gZGlmZiAtLWdpdCBhL2Ry
-aXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYyBiL2RyaXZlcnMvdmRwYS9tbHg1L25ldC9t
-bHg1X3ZuZXQuYwo+Pj4gaW5kZXggNTUwMGJjZmU4NGI0Li4xOTM2MDM5ZTA1YmQgMTAwNjQ0Cj4+
-PiAtLS0gYS9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMKPj4+ICsrKyBiL2RyaXZl
-cnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYwo+Pj4gQEAgLTE4NzEsOCArMTg3MSwyNSBAQCBz
-dGF0aWMgdm9pZCBtbHg1X3ZkcGFfZnJlZShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYpCj4+PiAg
-ICBzdGF0aWMgc3RydWN0IHZkcGFfbm90aWZpY2F0aW9uX2FyZWEgbWx4NV9nZXRfdnFfbm90aWZp
-Y2F0aW9uKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldiwgdTE2IGlkeCkKPj4+ICAgIHsKPj4+ICsJ
-c3RydWN0IG1seDVfdmRwYV9kZXYgKm12ZGV2ID0gdG9fbXZkZXYodmRldik7Cj4+PiAgICAJc3Ry
-dWN0IHZkcGFfbm90aWZpY2F0aW9uX2FyZWEgcmV0ID0ge307Cj4+PiArCXN0cnVjdCBtbHg1X3Zk
-cGFfbmV0ICpuZGV2Owo+Pj4gKwlwaHlzX2FkZHJfdCBhZGRyOwo+Pj4gKwo+Pj4gKwkvKiBJZiBT
-RiBCQVIgc2l6ZSBpcyBzbWFsbGVyIHRoYW4gUEFHRV9TSVpFLCBkbyBub3QgdXNlIGRpcmVjdAo+
-Pj4gKwkgKiBub3RpZmljYXRpb24gdG8gYXZvaWQgdGhlIHJpc2sgb2YgbWFwcGluZyBwYWdlcyB0
-aGF0IGNvbnRhaW4gQkFSIG9mIG1vcmUKPj4+ICsJICogdGhhbiBvbmUgU0YKPj4+ICsJICovCj4+
-PiArCWlmIChNTFg1X0NBUF9HRU4obXZkZXYtPm1kZXYsIGxvZ19taW5fc2Zfc2l6ZSkgKyAxMiA8
-IFBBR0VfU0hJRlQpCj4+PiArCQlyZXR1cm4gcmV0Owo+Pj4gKwo+Pj4gKwluZGV2ID0gdG9fbWx4
-NV92ZHBhX25kZXYobXZkZXYpOwo+Pj4gKwlhZGRyID0gKHBoeXNfYWRkcl90KW5kZXYtPm12ZGV2
-LnJlcy5waHlzX2tpY2tfYWRkcjsKPj4+ICsJaWYgKGFkZHIgJiB+UEFHRV9NQVNLKQo+Pj4gKwkJ
-cmV0dXJuIHJldDsKPj4KPj4gVGhpcyBoYXMgYmVlbiBjaGVja2VkIGJ5IHZob3N0LXZEUEEsIGFu
-ZCBpdCdzIGJldHRlciB0byBsZWF2ZSB0aG9zZSBwb2xpY3kKPj4gY2hlY2tpbmcgdG8gdGhlbSBk
-cml2ZXIgaW5zdGVhZCBvZiBjaGVja2luZyBpdCBpbiB0aGUgcGFyZW50Lgo+Pgo+IE5vdCBpbiBh
-bGwgaW52b2NhdGlvbnMgb2YgZ2V0X3ZxX25vdGlmaWNhdGlvbigpLiBGb3IgZXhhbXBsZSwgaW4K
-PiB2aG9zdF92ZHBhX2ZhdWx0KCkgeW91IGNhbGwgcmVtYXBfcGZuX3JhbmdlKCkgd2l0aCBub3Rp
-ZnkuYWRkciA+Pgo+IFBBR0VfU0hJRlQgc28gaXQgaXQgd2FzIG5vdCBhbGlnbmVkIHlvdSBtYXNr
-IHRoaXMgbWlzYWxpZ25tZW50LgoKCkluIG9yZGVyIHRvIGhhdmUgdmhvc3RfdmRwYV9mYXVsdCgp
-IHdvcmtzLCBpdCBzaG91bGQgZmlyc3QgcGFzcyB0aGUgCmNoZWNrIG9mIHZob3N0X3ZkcGFfbW1h
-cCgpLgoKT3RoZXdpc2Ugd2Ugd29uJ3QgaW5zdGFsbCB2bWEtPnZtX29wcyBzbyB0aGVyZSB3b24n
-dCBiZSBhIHBhZ2UgZmF1bHQgZm9yIAp0aGUgZG9vcmJlbGwuCgpUaGFua3MKCgo+Cj4+IFRoYW5r
-cwo+Pgo+Pgo+Pj4gKwlyZXQuYWRkciA9IChwaHlzX2FkZHJfdCluZGV2LT5tdmRldi5yZXMucGh5
-c19raWNrX2FkZHI7Cj4+PiArCXJldC5zaXplID0gUEFHRV9TSVpFOwo+Pj4gICAgCXJldHVybiBy
-ZXQ7Cj4+PiAgICB9CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
-YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+Hi Andi,
+
+On 2021-06-03 01:41, Andi Kleen wrote:
+> In some situations when we know swiotlb is forced and we have
+> to deal with untrusted hosts, it's useful to know if a mapping
+> was in the swiotlb or not. This allows us to abort any IO
+> operation that would access memory outside the swiotlb.
+> 
+> Otherwise it might be possible for a malicious host to inject
+> any guest page in a read operation. While it couldn't directly
+> access the results of the read() inside the guest, there
+> might scenarios where data is echoed back with a write(),
+> and that would then leak guest memory.
+> 
+> Add a return value to dma_unmap_single/page. Most users
+> of course will ignore it. The return value is set to EIO
+> if we're in forced swiotlb mode and the buffer is not inside
+> the swiotlb buffer. Otherwise it's always 0.
+
+I have to say my first impression of this isn't too good :(
+
+What it looks like to me is abusing SWIOTLB's internal housekeeping to 
+keep track of virtio-specific state. The DMA API does not attempt to 
+validate calls in general since in many cases the additional overhead 
+would be prohibitive. It has always been callers' responsibility to keep 
+track of what they mapped and make sure sync/unmap calls match, and 
+there are many, many, subtle and not-so-subtle ways for things to go 
+wrong if they don't. If virtio is not doing a good enough job of that, 
+what's the justification for making it the DMA API's problem?
+
+> A new callback is used to avoid changing all the IOMMU drivers.
+
+Nit: presumably by "IOMMU drivers" you actually mean arch DMA API backends?
+
+As an aside, we'll take a look at the rest of the series for the 
+perspective of our prototyping for Arm's Confidential Compute 
+Architecture, but I'm not sure we'll need it, since accesses beyond the 
+bounds of the shared SWIOTLB buffer shouldn't be an issue for us. 
+Furthermore, AFAICS it's still not going to help against exfiltrating 
+guest memory by over-unmapping the original SWIOTLB slot *without* going 
+past the end of the whole buffer, but I think Martin's patch *has* 
+addressed that already.
+
+Robin.
+
+> Signed-off-by: Andi Kleen <ak@linux.intel.com>
+> ---
+>   drivers/iommu/dma-iommu.c   | 17 +++++++++++------
+>   include/linux/dma-map-ops.h |  3 +++
+>   include/linux/dma-mapping.h |  7 ++++---
+>   kernel/dma/mapping.c        |  6 +++++-
+>   4 files changed, 23 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+> index 7ef13198721b..babe46f2ae3a 100644
+> --- a/drivers/iommu/dma-iommu.c
+> +++ b/drivers/iommu/dma-iommu.c
+> @@ -491,7 +491,8 @@ static void __iommu_dma_unmap(struct device *dev, dma_addr_t dma_addr,
+>   	iommu_dma_free_iova(cookie, dma_addr, size, iotlb_gather.freelist);
+>   }
+>   
+> -static void __iommu_dma_unmap_swiotlb(struct device *dev, dma_addr_t dma_addr,
+> +static int __iommu_dma_unmap_swiotlb_check(struct device *dev,
+> +		dma_addr_t dma_addr,
+>   		size_t size, enum dma_data_direction dir,
+>   		unsigned long attrs)
+>   {
+> @@ -500,12 +501,15 @@ static void __iommu_dma_unmap_swiotlb(struct device *dev, dma_addr_t dma_addr,
+>   
+>   	phys = iommu_iova_to_phys(domain, dma_addr);
+>   	if (WARN_ON(!phys))
+> -		return;
+> +		return -EIO;
+>   
+>   	__iommu_dma_unmap(dev, dma_addr, size);
+>   
+>   	if (unlikely(is_swiotlb_buffer(phys, size)))
+>   		swiotlb_tbl_unmap_single(dev, phys, size, dir, attrs);
+> +	else if (swiotlb_force == SWIOTLB_FORCE)
+> +		return -EIO;
+> +	return 0;
+>   }
+>   
+>   static dma_addr_t __iommu_dma_map(struct device *dev, phys_addr_t phys,
+> @@ -856,12 +860,13 @@ static dma_addr_t iommu_dma_map_page(struct device *dev, struct page *page,
+>   	return dma_handle;
+>   }
+>   
+> -static void iommu_dma_unmap_page(struct device *dev, dma_addr_t dma_handle,
+> +static int iommu_dma_unmap_page_check(struct device *dev, dma_addr_t dma_handle,
+>   		size_t size, enum dma_data_direction dir, unsigned long attrs)
+>   {
+>   	if (!(attrs & DMA_ATTR_SKIP_CPU_SYNC))
+>   		iommu_dma_sync_single_for_cpu(dev, dma_handle, size, dir);
+> -	__iommu_dma_unmap_swiotlb(dev, dma_handle, size, dir, attrs);
+> +	return __iommu_dma_unmap_swiotlb_check(dev, dma_handle, size, dir,
+> +					       attrs);
+>   }
+>   
+>   /*
+> @@ -946,7 +951,7 @@ static void iommu_dma_unmap_sg_swiotlb(struct device *dev, struct scatterlist *s
+>   	int i;
+>   
+>   	for_each_sg(sg, s, nents, i)
+> -		__iommu_dma_unmap_swiotlb(dev, sg_dma_address(s),
+> +		__iommu_dma_unmap_swiotlb_check(dev, sg_dma_address(s),
+>   				sg_dma_len(s), dir, attrs);
+>   }
+>   
+> @@ -1291,7 +1296,7 @@ static const struct dma_map_ops iommu_dma_ops = {
+>   	.mmap			= iommu_dma_mmap,
+>   	.get_sgtable		= iommu_dma_get_sgtable,
+>   	.map_page		= iommu_dma_map_page,
+> -	.unmap_page		= iommu_dma_unmap_page,
+> +	.unmap_page_check	= iommu_dma_unmap_page_check,
+>   	.map_sg			= iommu_dma_map_sg,
+>   	.unmap_sg		= iommu_dma_unmap_sg,
+>   	.sync_single_for_cpu	= iommu_dma_sync_single_for_cpu,
+> diff --git a/include/linux/dma-map-ops.h b/include/linux/dma-map-ops.h
+> index 0d53a96a3d64..0ed0190f7949 100644
+> --- a/include/linux/dma-map-ops.h
+> +++ b/include/linux/dma-map-ops.h
+> @@ -69,6 +69,9 @@ struct dma_map_ops {
+>   	u64 (*get_required_mask)(struct device *dev);
+>   	size_t (*max_mapping_size)(struct device *dev);
+>   	unsigned long (*get_merge_boundary)(struct device *dev);
+> +	int (*unmap_page_check)(struct device *dev, dma_addr_t dma_handle,
+> +			size_t size, enum dma_data_direction dir,
+> +			unsigned long attrs);
+>   };
+>   
+>   #ifdef CONFIG_DMA_OPS
+> diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+> index 37fbd12bd4ab..25b8382f8601 100644
+> --- a/include/linux/dma-mapping.h
+> +++ b/include/linux/dma-mapping.h
+> @@ -103,7 +103,7 @@ static inline int dma_mapping_error(struct device *dev, dma_addr_t dma_addr)
+>   dma_addr_t dma_map_page_attrs(struct device *dev, struct page *page,
+>   		size_t offset, size_t size, enum dma_data_direction dir,
+>   		unsigned long attrs);
+> -void dma_unmap_page_attrs(struct device *dev, dma_addr_t addr, size_t size,
+> +int dma_unmap_page_attrs(struct device *dev, dma_addr_t addr, size_t size,
+>   		enum dma_data_direction dir, unsigned long attrs);
+>   int dma_map_sg_attrs(struct device *dev, struct scatterlist *sg, int nents,
+>   		enum dma_data_direction dir, unsigned long attrs);
+> @@ -160,9 +160,10 @@ static inline dma_addr_t dma_map_page_attrs(struct device *dev,
+>   {
+>   	return DMA_MAPPING_ERROR;
+>   }
+> -static inline void dma_unmap_page_attrs(struct device *dev, dma_addr_t addr,
+> +static inline int dma_unmap_page_attrs(struct device *dev, dma_addr_t addr,
+>   		size_t size, enum dma_data_direction dir, unsigned long attrs)
+>   {
+> +	return 0;
+>   }
+>   static inline int dma_map_sg_attrs(struct device *dev, struct scatterlist *sg,
+>   		int nents, enum dma_data_direction dir, unsigned long attrs)
+> @@ -323,7 +324,7 @@ static inline dma_addr_t dma_map_single_attrs(struct device *dev, void *ptr,
+>   			size, dir, attrs);
+>   }
+>   
+> -static inline void dma_unmap_single_attrs(struct device *dev, dma_addr_t addr,
+> +static inline int dma_unmap_single_attrs(struct device *dev, dma_addr_t addr,
+>   		size_t size, enum dma_data_direction dir, unsigned long attrs)
+>   {
+>   	return dma_unmap_page_attrs(dev, addr, size, dir, attrs);
+> diff --git a/kernel/dma/mapping.c b/kernel/dma/mapping.c
+> index 9bf02c8d7d1b..dc0ce649d1f9 100644
+> --- a/kernel/dma/mapping.c
+> +++ b/kernel/dma/mapping.c
+> @@ -162,18 +162,22 @@ dma_addr_t dma_map_page_attrs(struct device *dev, struct page *page,
+>   }
+>   EXPORT_SYMBOL(dma_map_page_attrs);
+>   
+> -void dma_unmap_page_attrs(struct device *dev, dma_addr_t addr, size_t size,
+> +int dma_unmap_page_attrs(struct device *dev, dma_addr_t addr, size_t size,
+>   		enum dma_data_direction dir, unsigned long attrs)
+>   {
+>   	const struct dma_map_ops *ops = get_dma_ops(dev);
+> +	int ret = 0;
+>   
+>   	BUG_ON(!valid_dma_direction(dir));
+>   	if (dma_map_direct(dev, ops) ||
+>   	    arch_dma_unmap_page_direct(dev, addr + size))
+>   		dma_direct_unmap_page(dev, addr, size, dir, attrs);
+> +	else if (ops->unmap_page_check)
+> +		ret = ops->unmap_page_check(dev, addr, size, dir, attrs);
+>   	else if (ops->unmap_page)
+>   		ops->unmap_page(dev, addr, size, dir, attrs);
+>   	debug_dma_unmap_page(dev, addr, size, dir);
+> +	return ret;
+>   }
+>   EXPORT_SYMBOL(dma_unmap_page_attrs);
+>   
+> 
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
