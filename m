@@ -7,106 +7,108 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_RED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E35AC47082
-	for <virtualization@archiver.kernel.org>; Mon,  7 Jun 2021 11:04:43 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00D03C47082
+	for <virtualization@archiver.kernel.org>; Mon,  7 Jun 2021 12:28:34 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5604D61107
-	for <virtualization@archiver.kernel.org>; Mon,  7 Jun 2021 11:04:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5604D61107
+	by mail.kernel.org (Postfix) with ESMTPS id 7CE0C61208
+	for <virtualization@archiver.kernel.org>; Mon,  7 Jun 2021 12:28:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7CE0C61208
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1CC3982DE6;
-	Mon,  7 Jun 2021 11:04:41 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3823240276;
+	Mon,  7 Jun 2021 12:28:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id MbxBJE7HRqaB; Mon,  7 Jun 2021 11:04:36 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1wkMqQ9oUkO9; Mon,  7 Jun 2021 12:28:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 9BE16828DE;
-	Mon,  7 Jun 2021 11:04:35 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id E9936401DD;
+	Mon,  7 Jun 2021 12:28:27 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7C5B4C000E;
-	Mon,  7 Jun 2021 11:04:35 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 25259C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C3BCEC000D;
+	Mon,  7 Jun 2021 12:28:27 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D7FBDC0001
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Jun 2021 11:04:34 +0000 (UTC)
+ Mon,  7 Jun 2021 12:28:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 0584582DE6
+ by smtp2.osuosl.org (Postfix) with ESMTP id C5DE24020B
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Jun 2021 11:04:34 +0000 (UTC)
+ Mon,  7 Jun 2021 12:28:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dEaX1JQk65DQ
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id b8MUvDc64tYv
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Jun 2021 11:04:28 +0000 (UTC)
+ Mon,  7 Jun 2021 12:28:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9DAED828DE
+ by smtp2.osuosl.org (Postfix) with ESMTPS id D8A7D401F0
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Jun 2021 11:04:28 +0000 (UTC)
+ Mon,  7 Jun 2021 12:28:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1623063867;
+ s=mimecast20190719; t=1623068901;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=QdD5x4dg80ZW0QDtXcMbPwZDhNJK7IbUOr1MPhIjbVg=;
- b=KemB1Dj5bf3VqtBbBYBEjtgjdMWSgKUIq9CabQLVio3Uw8HREpA9IleS4Un3j/B08k7oW8
- 30qf2o16QNDJkR9JxcY/bkaPrjBSezINiDBNbDb3Tm1dEUk1dZFSUk3lN3ctbX9o208f0z
- F3ek7JDv38gpV7ZAk8VQSUxi/a2xWvI=
+ bh=WRij78svS0dl3UZRgR9Pu6WvQlaTV51Ty644G95OgJI=;
+ b=eR6flIbvnj3sO4ochHjg/fePwLVhSr6DxSYa+s9jrRrZJuFemf5RlL47WGBRjeo91mIyId
+ z1rRL5rtFUO7T9Mf8qZDfC4bIxGTxK594/OnUzBmBVx6piJRgfJiqXIvI5H+vud0Xy3C/1
+ wg0RbjpO/etg7ord2dajNhlsIw89Rjk=
 Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
  [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-203-7c1ACxoZMySpj4zsL0BJfQ-1; Mon, 07 Jun 2021 07:04:26 -0400
-X-MC-Unique: 7c1ACxoZMySpj4zsL0BJfQ-1
+ us-mta-559-DpSXU9JZNUqajSIR_9dDTw-1; Mon, 07 Jun 2021 08:28:20 -0400
+X-MC-Unique: DpSXU9JZNUqajSIR_9dDTw-1
 Received: by mail-ej1-f72.google.com with SMTP id
- b8-20020a170906d108b02903fa10388224so5165798ejz.18
+ hz18-20020a1709072cf2b02903fbaae9f4faso5215791ejc.4
  for <virtualization@lists.linux-foundation.org>;
- Mon, 07 Jun 2021 04:04:26 -0700 (PDT)
+ Mon, 07 Jun 2021 05:28:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=QdD5x4dg80ZW0QDtXcMbPwZDhNJK7IbUOr1MPhIjbVg=;
- b=WlLJkD6kyammd30NFIvd7UcIDE6XxbkYeZoPN2zgVOaBWR5NdlyjrQ+s9MCWGWW9tS
- hDs8iPdXVI8j2e4xP67Dy8Q9+ku11lH7TeViUAbZYW+ATrhb2j7/9CG8RtWVtTvoehTL
- YRd7mYE3TCRxfE+vjMl+eEyXL+DGHmpdkc3FNyEWHj911NYAlR5RjilEb5U/cRMEB+qu
- 3ibgRIxcCQbv1tyUYPzlrt0I1M0Z9Iva7W42jE6oFBXD8ycUs9oqb4tFw+ChdvKxE99a
- HNEPkGCRRnp6sOZxBZmq1GcCXMRQ45GEjtjpp9ZnbA9jp3igyeHfoxRiy5Nksd/N0zOD
- lzsg==
-X-Gm-Message-State: AOAM5313IGxCiC/m/OSfjz3iKH3fjxYSw07lQaCtn0iiwhEfhuAVcCB4
- nisweBXVI8K7YnMuhYd4WPvZXx9cxWIxtus7ZIGFe+bW1Ij0pE0mZD/ijRqOsr+BbUXwtlD7O3l
- VVrTaThuK0eIza0EXnrYQNoW2/Nc+iBye0G2MD2dlkA==
-X-Received: by 2002:a17:906:994d:: with SMTP id
- zm13mr17020367ejb.427.1623063865031; 
- Mon, 07 Jun 2021 04:04:25 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxe2C5l6pwY4urzIdLQAn60YhXhUzveWgvT8RFovl8hn5PZSOYXyfjQJxvksW7MzE7qHJSGxA==
-X-Received: by 2002:a17:906:994d:: with SMTP id
- zm13mr17020326ejb.427.1623063864755; 
- Mon, 07 Jun 2021 04:04:24 -0700 (PDT)
+ bh=WRij78svS0dl3UZRgR9Pu6WvQlaTV51Ty644G95OgJI=;
+ b=RibzzWIGZlHR7DHQ2GyZKy1nHJMpn5LfxiVnrr6za5cqg8Q7hGWgXIjHsDFduIcz1V
+ qhuX2NWf8Q5Wne3qHyl1kHTAV9gTEixWeT0dt3UuudF1wCLd+5KBUAo4p+IU2nkcHgyk
+ k3eWMwYzV+q4b2AH900JnKIu+8lXzQAbx1pR754Eel41zRy3oVnUbZ2pO/sC7cG8/Flt
+ itGGIZ0g/cxQxia8IemegJoorv642UCFESWvIjDtdDP7Rf9m1DNkjcvEGuTVtL5lbGAs
+ uXnU7jY0VVoXlaQE5IqAxuqYkSfc1fKDwW6P6Ug8lI+R/6Axd/FEtBUQeJJ9Ngtfohy1
+ lCEg==
+X-Gm-Message-State: AOAM533gLmLh23r62c26d7jRKAGfGtYwX4di0BXcwdj563tMyNJF1Usg
+ sIPg0CAe6EKQPWjsFn8zSE6ezxVZ428ZkShhxCsKrY6t+Uo+LAhCCD3IGK0nIkViEBc3CznYWYw
+ ccx5ChbVBZylHa4VTPKMVhiOYPWIY//aC2mQTkpPdbQ==
+X-Received: by 2002:a05:6402:1e8b:: with SMTP id
+ f11mr6855810edf.86.1623068898989; 
+ Mon, 07 Jun 2021 05:28:18 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzZ3ZxofwfGfhWVCp8PwP02oyvfbjO8HkBIsUJnHl308aHgTzkad+lmJfEl7kmAywsPe/MTtA==
+X-Received: by 2002:a05:6402:1e8b:: with SMTP id
+ f11mr6855790edf.86.1623068898787; 
+ Mon, 07 Jun 2021 05:28:18 -0700 (PDT)
 Received: from steredhat (host-79-18-148-79.retail.telecomitalia.it.
  [79.18.148.79])
- by smtp.gmail.com with ESMTPSA id bd3sm7565931edb.34.2021.06.07.04.04.23
+ by smtp.gmail.com with ESMTPSA id w1sm6577646eds.37.2021.06.07.05.28.17
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 07 Jun 2021 04:04:24 -0700 (PDT)
-Date: Mon, 7 Jun 2021 13:04:21 +0200
+ Mon, 07 Jun 2021 05:28:18 -0700 (PDT)
+Date: Mon, 7 Jun 2021 14:28:16 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [PATCH v10 11/18] virtio/vsock: dequeue callback for
- SOCK_SEQPACKET
-Message-ID: <20210607110421.wkx4dj7wipwsqztj@steredhat>
+Subject: Re: [MASSMAIL KLMS] Re: [PATCH v10 04/18] af_vsock: implement
+ SEQPACKET receive loop
+Message-ID: <20210607122816.yas4fpfmtvlrbfku@steredhat>
 References: <20210520191357.1270473-1-arseny.krasnov@kaspersky.com>
- <20210520191801.1272027-1-arseny.krasnov@kaspersky.com>
- <20210603144513.ryjzauq7abnjogu3@steredhat>
- <6b833ccf-ea93-db6a-4743-463ac1cfe817@kaspersky.com>
- <20210604150324.winiikx5h3p6gsyy@steredhat>
- <a81ae3cb-439f-7621-4ae6-bccd2c25b7e4@kaspersky.com>
+ <20210520191611.1271204-1-arseny.krasnov@kaspersky.com>
+ <20210604150638.rmx262k4wjmp2zob@steredhat>
+ <93254e99-1cf9-3135-f1c8-d60336bf41b5@kaspersky.com>
+ <20210607104816.fgudxa5a6pldkqts@steredhat>
+ <95a11b19-8266-7fc0-9426-edccd4512a2d@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <a81ae3cb-439f-7621-4ae6-bccd2c25b7e4@kaspersky.com>
+In-Reply-To: <95a11b19-8266-7fc0-9426-edccd4512a2d@kaspersky.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -139,204 +141,115 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jun 04, 2021 at 09:03:26PM +0300, Arseny Krasnov wrote:
+On Mon, Jun 07, 2021 at 02:29:28PM +0300, Arseny Krasnov wrote:
 >
->On 04.06.2021 18:03, Stefano Garzarella wrote:
->> On Fri, Jun 04, 2021 at 04:12:23PM +0300, Arseny Krasnov wrote:
->>> On 03.06.2021 17:45, Stefano Garzarella wrote:
->>>> On Thu, May 20, 2021 at 10:17:58PM +0300, Arseny Krasnov wrote:
->>>>> Callback fetches RW packets from rx queue of socket until whole record
->>>>> is copied(if user's buffer is full, user is not woken up). This is done
->>>>> to not stall sender, because if we wake up user and it leaves syscall,
->>>>> nobody will send credit update for rest of record, and sender will wait
->>>>> for next enter of read syscall at receiver's side. So if user buffer is
->>>>> full, we just send credit update and drop data.
+>On 07.06.2021 13:48, Stefano Garzarella wrote:
+>> On Fri, Jun 04, 2021 at 09:00:14PM +0300, Arseny Krasnov wrote:
+>>> On 04.06.2021 18:06, Stefano Garzarella wrote:
+>>>> On Thu, May 20, 2021 at 10:16:08PM +0300, Arseny Krasnov wrote:
+>>>>> Add receive loop for SEQPACKET. It looks like receive loop for
+>>>>> STREAM, but there are differences:
+>>>>> 1) It doesn't call notify callbacks.
+>>>>> 2) It doesn't care about 'SO_SNDLOWAT' and 'SO_RCVLOWAT' values, because
+>>>>>   there is no sense for these values in SEQPACKET case.
+>>>>> 3) It waits until whole record is received or error is found during
+>>>>>   receiving.
+>>>>> 4) It processes and sets 'MSG_TRUNC' flag.
+>>>>>
+>>>>> So to avoid extra conditions for two types of socket inside one loop, two
+>>>>> independent functions were created.
 >>>>>
 >>>>> Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
 >>>>> ---
 >>>>> v9 -> v10:
->>>>> 1) Number of dequeued bytes incremented even in case when
->>>>>    user's buffer is full.
->>>>> 2) Use 'msg_data_left()' instead of direct access to 'msg_hdr'.
->>>>> 3) Rename variable 'err' to 'dequeued_len', in case of error
->>>>>    it has negative value.
+>>>>> 1) Use 'msg_data_left()' instead of direct access to 'msg_hdr'.
 >>>>>
->>>>> include/linux/virtio_vsock.h            |  5 ++
->>>>> net/vmw_vsock/virtio_transport_common.c | 65 +++++++++++++++++++++++++
->>>>> 2 files changed, 70 insertions(+)
+>>>>> include/net/af_vsock.h   |  4 +++
+>>>>> net/vmw_vsock/af_vsock.c | 72 +++++++++++++++++++++++++++++++++++++++-
+>>>>> 2 files changed, 75 insertions(+), 1 deletion(-)
 >>>>>
->>>>> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
->>>>> index dc636b727179..02acf6e9ae04 100644
->>>>> --- a/include/linux/virtio_vsock.h
->>>>> +++ b/include/linux/virtio_vsock.h
->>>>> @@ -80,6 +80,11 @@ virtio_transport_dgram_dequeue(struct vsock_sock *vsk,
->>>>> 			       struct msghdr *msg,
->>>>> 			       size_t len, int flags);
+>>>>> diff --git a/include/net/af_vsock.h b/include/net/af_vsock.h
+>>>>> index b1c717286993..5175f5a52ce1 100644
+>>>>> --- a/include/net/af_vsock.h
+>>>>> +++ b/include/net/af_vsock.h
+>>>>> @@ -135,6 +135,10 @@ struct vsock_transport {
+>>>>> 	bool (*stream_is_active)(struct vsock_sock *);
+>>>>> 	bool (*stream_allow)(u32 cid, u32 port);
 >>>>>
->>>>> +ssize_t
->>>>> +virtio_transport_seqpacket_dequeue(struct vsock_sock *vsk,
->>>>> +				   struct msghdr *msg,
->>>>> +				   int flags,
->>>>> +				   bool *msg_ready);
->>>>> s64 virtio_transport_stream_has_data(struct vsock_sock *vsk);
->>>>> s64 virtio_transport_stream_has_space(struct vsock_sock *vsk);
->>>>>
->>>>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->>>>> index ad0d34d41444..61349b2ea7fe 100644
->>>>> --- a/net/vmw_vsock/virtio_transport_common.c
->>>>> +++ b/net/vmw_vsock/virtio_transport_common.c
->>>>> @@ -393,6 +393,59 @@ virtio_transport_stream_do_dequeue(struct vsock_sock *vsk,
+>>>>> +	/* SEQ_PACKET. */
+>>>>> +	ssize_t (*seqpacket_dequeue)(struct vsock_sock *vsk, struct msghdr *msg,
+>>>>> +				     int flags, bool *msg_ready);
+>>>>> +
+>>>>> 	/* Notification. */
+>>>>> 	int (*notify_poll_in)(struct vsock_sock *, size_t, bool *);
+>>>>> 	int (*notify_poll_out)(struct vsock_sock *, size_t, bool *);
+>>>>> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+>>>>> index c4f6bfa1e381..aede474343d1 100644
+>>>>> --- a/net/vmw_vsock/af_vsock.c
+>>>>> +++ b/net/vmw_vsock/af_vsock.c
+>>>>> @@ -1974,6 +1974,73 @@ static int __vsock_stream_recvmsg(struct sock *sk, struct msghdr *msg,
 >>>>> 	return err;
 >>>>> }
 >>>>>
->>>>> +static int virtio_transport_seqpacket_do_dequeue(struct vsock_sock *vsk,
->>>>> +						 struct msghdr *msg,
->>>>> +						 int flags,
->>>>> +						 bool *msg_ready)
+>>>>> +static int __vsock_seqpacket_recvmsg(struct sock *sk, struct msghdr *msg,
+>>>>> +				     size_t len, int flags)
 >>>>> +{
->>>>> +	struct virtio_vsock_sock *vvs = vsk->trans;
->>>>> +	struct virtio_vsock_pkt *pkt;
->>>>> +	int dequeued_len = 0;
->>>>> +	size_t user_buf_len = msg_data_left(msg);
+>>>>> +	const struct vsock_transport *transport;
+>>>>> +	bool msg_ready;
+>>>>> +	struct vsock_sock *vsk;
+>>>>> +	ssize_t record_len;
+>>>>> +	long timeout;
+>>>>> +	int err = 0;
+>>>>> +	DEFINE_WAIT(wait);
 >>>>> +
->>>>> +	*msg_ready = false;
->>>>> +	spin_lock_bh(&vvs->rx_lock);
+>>>>> +	vsk = vsock_sk(sk);
+>>>>> +	transport = vsk->transport;
 >>>>> +
->>>>> +	while (!*msg_ready && !list_empty(&vvs->rx_queue) && dequeued_len >= 0) {
->>>> I'
->>>>
->>>>> +		size_t bytes_to_copy;
->>>>> +		size_t pkt_len;
+>>>>> +	timeout = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
+>>>>> +	msg_ready = false;
+>>>>> +	record_len = 0;
 >>>>> +
->>>>> +		pkt = list_first_entry(&vvs->rx_queue, struct virtio_vsock_pkt, list);
->>>>> +		pkt_len = (size_t)le32_to_cpu(pkt->hdr.len);
->>>>> +		bytes_to_copy = min(user_buf_len, pkt_len);
+>>>>> +	while (1) {
+>>>>> +		ssize_t fragment_len;
 >>>>> +
->>>>> +		if (bytes_to_copy) {
->>>>> +			/* sk_lock is held by caller so no one else can dequeue.
->>>>> +			 * Unlock rx_lock since memcpy_to_msg() may sleep.
+>>>>> +		if (vsock_wait_data(sk, &wait, timeout, NULL, 0) <= 0) {
+>>>>> +			/* In case of any loop break(timeout, signal
+>>>>> +			 * interrupt or shutdown), we report user that
+>>>>> +			 * nothing was copied.
 >>>>> +			 */
->>>>> +			spin_unlock_bh(&vvs->rx_lock);
->>>>> +
->>>>> +			if (memcpy_to_msg(msg, pkt->buf, bytes_to_copy))
->>>>> +				dequeued_len = -EINVAL;
->>>> I think here is better to return the error returned by memcpy_to_msg(),
->>>> as we do in the other place where we use memcpy_to_msg().
+>>>>> +			err = 0;
+>>>> Why we report that nothing was copied?
 >>>>
->>>> I mean something like this:
->>>> 			err = memcpy_to_msgmsg, pkt->buf, bytes_to_copy);
->>>> 			if (err)
->>>> 				dequeued_len = err;
->>> Ack
->>>>> +			else
->>>>> +				user_buf_len -= bytes_to_copy;
->>>>> +
->>>>> +			spin_lock_bh(&vvs->rx_lock);
->>>>> +		}
->>>>> +
->>>> Maybe here we can simply break the cycle if we have an error:
->>>> 		if (dequeued_len < 0)
->>>> 			break;
->>>>
->>>> Or we can refactor a bit, simplifying the while() condition and also the
->>>> code in this way (not tested):
->>>>
->>>> 	while (!*msg_ready && !list_empty(&vvs->rx_queue)) {
->>>> 		...
->>>>
->>>> 		if (bytes_to_copy) {
->>>> 			int err;
->>>>
->>>> 			/* ...
->>>> 			*/
->>>> 			spin_unlock_bh(&vvs->rx_lock);
->>>> 			err = memcpy_to_msgmsg, pkt->buf, bytes_to_copy);
->>>> 			if (err) {
->>>> 				dequeued_len = err;
->>>> 				goto out;
->>>> 			}
->>>> 			spin_lock_bh(&vvs->rx_lock);
->>>>
->>>> 			user_buf_len -= bytes_to_copy;
->>>> 		}
->>>>
->>>> 		dequeued_len += pkt_len;
->>>>
->>>> 		if (le32_to_cpu(pkt->hdr.flags) & VIRTIO_VSOCK_SEQ_EOR)
->>>> 			*msg_ready = true;
->>>>
->>>> 		virtio_transport_dec_rx_pkt(vvs, pkt);
->>>> 		list_del(&pkt->list);
->>>> 		virtio_transport_free_pkt(pkt);
->>>> 	}
->>>>
->>>> out:
->>>> 	spin_unlock_bh(&vvs->rx_lock);
->>>>
->>>> 	virtio_transport_send_credit_update(vsk);
->>>>
->>>> 	return dequeued_len;
->>>> }
->>> I think we can't do 'goto out' or break, because in case of error, 
->>> we still need
->>> to free packet.
->> Didn't we have code that remove packets from a previous message?
->> I don't see it anymore.
+>>>> What happen to the bytes already copied in `msg`?
+>>> Seems i need to return result of vsock_wait_data()...
+>> I'm not sure.
 >>
->> For example if we have 10 packets queued for a message (the 10th 
->> packet
->> has the EOR flag) and the memcpy_to_msg() fails on the 2nd packet, with
->> you proposal we are freeing only the first 2 packets, the rest is there
->> and should be freed when reading the next message, but I don't see that
->> code.
+>> My biggest concern is if we reach timeout or get a signal while waiting
+>> for the other pieces of a message.
+>> I believe that we should not start copying a message if we have not
+>> received all the fragments. Otherwise we have this problem.
 >>
->> The same can happen if the recvmsg syscall is interrupted. In that case
->> we report that nothing was copied, but we freed the first N packets, so
->> they are lost but the other packets are still in the queue.
+>> When we are sure that we have all the pieces, then we should copy them
+>> without interrupting.
 >>
->> Please check also the patch where we implemented
->> __vsock_seqpacket_recvmsg().
->>
->> I thinks we should free packets only when we are sure we copied them to
->> the user space.
+>> IIRC this was done in previous versions.
 >
->Hm, yes, this is problem. To solve it i can restore previous approach
->with seqbegin/seqend. In that case i can detect unfinished record and
->drop it's packets. Seems seqbegin will be a bit like 
->VIRTIO_VSOCK_SEQ_EOR in flags
->field of header(e.g. VIRTIO_VSOCK_SEQ_BEGIN). Message id and length are 
->unneeded,
->as channel considedered lossless. What do You think?
+>As i remember, previous versions also returned 0, because i thought,
+>that for interrupted read we can copy piece of data to user's buffer,
+>but we must return that nothing copied or error. In this way user
+
+This can also be fine, but we should remove packet form the rx_queue 
+only when we are sure that we delivered the entire message.
+
 >
+>won't read part of message, because syscall returned that there is
+>nothing to copy. So as i understand, it is not enough - user's buffer
+>must be touched only when whole message is copied?
 
-I think VIRTIO_VSOCK_SEQ_BEGIN is redundant, using only EOR should be 
-fine.
+The important thing is to not remove packets from the rx_queue unless we 
+are sure that everything went well and we are returning the entire 
+message to the user.
 
-When we receive EOR we know that this is the last packet on this message 
-and the next packet will be the first of a new message.
-
-What we should do is check that we have all the fragments of a packet 
-and return them all together, otherwise we have to say we have nothing.
-
-For example as we process packets from the vitqueue and queue them in 
-the rx_queue we could use a counter of how many EORs are in the 
-rx_queue, which we decrease in virtio_transport_seqpacket_do_dequeue() 
-when we copied all the fragments.
-
-If the counter is 0, we don't remove anything from the queue and 
-virtio_transport_seqpacket_do_dequeue() returns 0.
-
-So .seqpacket_dequeue should return 0 if there is not at least one 
-complete message, or return the entire message. A partial message should 
-never return.
-
-What do you think?
-
-
-Maybe we should start using skbuffs for seqpackets as well, but that 
-might take some time, so that might be okay for now.
-
-Thanks,
 Stefano
 
 _______________________________________________
