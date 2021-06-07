@@ -4,83 +4,83 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_RED autolearn=unavailable
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_RED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6913CC47095
-	for <virtualization@archiver.kernel.org>; Mon,  7 Jun 2021 19:55:46 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64B33C47094
+	for <virtualization@archiver.kernel.org>; Mon,  7 Jun 2021 19:55:56 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2D85561139
-	for <virtualization@archiver.kernel.org>; Mon,  7 Jun 2021 19:55:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2D85561139
+	by mail.kernel.org (Postfix) with ESMTPS id 303AE6120F
+	for <virtualization@archiver.kernel.org>; Mon,  7 Jun 2021 19:55:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 303AE6120F
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0AF3E4038A;
-	Mon,  7 Jun 2021 19:55:46 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id F1CED6074E;
+	Mon,  7 Jun 2021 19:55:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3JKG7Y4ja5CX; Mon,  7 Jun 2021 19:55:44 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 619DC40265;
-	Mon,  7 Jun 2021 19:55:44 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7mInrNeGa4v4; Mon,  7 Jun 2021 19:55:55 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTP id B8DF0605CC;
+	Mon,  7 Jun 2021 19:55:54 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 49240C000E;
-	Mon,  7 Jun 2021 19:55:44 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D3A20C0001
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 91096C000E;
+	Mon,  7 Jun 2021 19:55:54 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 556D6C0001
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Jun 2021 19:55:42 +0000 (UTC)
+ Mon,  7 Jun 2021 19:55:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id B483E402FB
+ by smtp1.osuosl.org (Postfix) with ESMTP id 36A0D82F8B
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Jun 2021 19:55:42 +0000 (UTC)
+ Mon,  7 Jun 2021 19:55:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id o89fQveExz5f
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VfYvKxTCK8Jb
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Jun 2021 19:55:41 +0000 (UTC)
+ Mon,  7 Jun 2021 19:55:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 85F13402F6
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9F8E182D17
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Jun 2021 19:55:41 +0000 (UTC)
+ Mon,  7 Jun 2021 19:55:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1623095740;
+ s=mimecast20190719; t=1623095751;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=IKc/SqFtxV9V4C8mV49o0QGyi88/PNUdP7DzNiYq3kU=;
- b=awi3HOQlxVbeW6wjvBQNWssplz+nGLtU9YRzwcNTlr8gERvsmvCFb62bJBFIREKI68Svta
- Ja6gRkAsRA2H3lUiA+TdB9EACuiU4XxroRPaj/I5NT2KnSjzhvZUnZXzmSuO9AN+3A9y50
- ETtM5xrciO0LtKn4GcPayFzRf/4z9sQ=
+ bh=Vq0FXkjEaqVQtYMlODRy+q5RbBxL52gZGzEQgseX1Ic=;
+ b=Ii5SRYDWJzz7M6ipKl7FTrG/x1YIFLSnnsEtcIbrsdr9u3mTHC+A6Z13SmkDrvJRG5n/4U
+ WIQ+h+dzSz0h1pfeH0j+KvMhmfnY5Bt3f+P/7gdZvWWx7GRzdFNn6BKnxo0TvxbNyM4Tyu
+ iFXpenq0Vvh5gyRMTYz9+v7SD1/mGkI=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-323-r-RDHRl0MkqIwY02cuZ0sQ-1; Mon, 07 Jun 2021 15:55:38 -0400
-X-MC-Unique: r-RDHRl0MkqIwY02cuZ0sQ-1
+ us-mta-294-lBmuo3skPOeiocgp4fAR5Q-1; Mon, 07 Jun 2021 15:55:48 -0400
+X-MC-Unique: lBmuo3skPOeiocgp4fAR5Q-1
 Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
  [10.5.11.22])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9A04119253C5;
- Mon,  7 Jun 2021 19:55:35 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 38D4C1005D6C;
+ Mon,  7 Jun 2021 19:55:46 +0000 (UTC)
 Received: from t480s.redhat.com (ovpn-112-9.ams2.redhat.com [10.36.112.9])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 8976110013C1;
- Mon,  7 Jun 2021 19:55:31 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id E2B8810013C1;
+ Mon,  7 Jun 2021 19:55:35 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v1 07/12] mm/memory_hotplug: track present pages in memory
- groups
-Date: Mon,  7 Jun 2021 21:54:25 +0200
-Message-Id: <20210607195430.48228-8-david@redhat.com>
+Subject: [PATCH v1 08/12] ACPI: memhotplug: memory resources cannot be enabled
+ yet
+Date: Mon,  7 Jun 2021 21:54:26 +0200
+Message-Id: <20210607195430.48228-9-david@redhat.com>
 In-Reply-To: <20210607195430.48228-1-david@redhat.com>
 References: <20210607195430.48228-1-david@redhat.com>
 MIME-Version: 1.0
@@ -114,195 +114,29 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Let's track all present pages in each memory group. Especially, track
-memory present in ZONE_MOVABLE and memory present in one of the kernel
-zones (which really only is ZONE_NORMAL right now as memory groups only
-apply to hotplugged memory) separate;y within a memory group, to prepare
-for making smart auto-online decision for individualmemory blocks within a
-memory group based on group statistics.
+We allocate + initialize everything from scratch. In case enabling the
+device fails, we free all memory resourcs.
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/base/memory.c          | 10 +++++-----
- include/linux/memory.h         |  4 ++++
- include/linux/memory_hotplug.h | 13 +++++++++----
- mm/memory_hotplug.c            | 19 ++++++++++++++-----
- 4 files changed, 32 insertions(+), 14 deletions(-)
+ drivers/acpi/acpi_memhotplug.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/base/memory.c b/drivers/base/memory.c
-index 00c58a6632a6..d8ea448e5fb8 100644
---- a/drivers/base/memory.c
-+++ b/drivers/base/memory.c
-@@ -198,7 +198,7 @@ static int memory_block_online(struct memory_block *mem)
- 	}
- 
- 	ret = online_pages(start_pfn + nr_vmemmap_pages,
--			   nr_pages - nr_vmemmap_pages, zone);
-+			   nr_pages - nr_vmemmap_pages, zone, mem->group);
- 	if (ret) {
- 		if (nr_vmemmap_pages)
- 			mhp_deinit_memmap_on_memory(start_pfn, nr_vmemmap_pages);
-@@ -210,7 +210,7 @@ static int memory_block_online(struct memory_block *mem)
- 	 * now already properly populated.
+diff --git a/drivers/acpi/acpi_memhotplug.c b/drivers/acpi/acpi_memhotplug.c
+index 1d01d9414c40..eb4faf7c5cad 100644
+--- a/drivers/acpi/acpi_memhotplug.c
++++ b/drivers/acpi/acpi_memhotplug.c
+@@ -182,10 +182,6 @@ static int acpi_memory_enable_device(struct acpi_memory_device *mem_device)
+ 	 * (i.e. memory-hot-remove function)
  	 */
- 	if (nr_vmemmap_pages)
--		adjust_present_page_count(pfn_to_page(start_pfn),
-+		adjust_present_page_count(pfn_to_page(start_pfn), mem->group,
- 					  nr_vmemmap_pages);
- 
- 	return ret;
-@@ -228,16 +228,16 @@ static int memory_block_offline(struct memory_block *mem)
- 	 * can properly be torn down in offline_pages().
- 	 */
- 	if (nr_vmemmap_pages)
--		adjust_present_page_count(pfn_to_page(start_pfn),
-+		adjust_present_page_count(pfn_to_page(start_pfn), mem->group,
- 					  -nr_vmemmap_pages);
- 
- 	ret = offline_pages(start_pfn + nr_vmemmap_pages,
--			    nr_pages - nr_vmemmap_pages);
-+			    nr_pages - nr_vmemmap_pages, mem->group);
- 	if (ret) {
- 		/* offline_pages() failed. Account back. */
- 		if (nr_vmemmap_pages)
- 			adjust_present_page_count(pfn_to_page(start_pfn),
--						  nr_vmemmap_pages);
-+						  mem->group, nr_vmemmap_pages);
- 		return ret;
- 	}
- 
-diff --git a/include/linux/memory.h b/include/linux/memory.h
-index 6e20a6174fe5..0eceb8467d9a 100644
---- a/include/linux/memory.h
-+++ b/include/linux/memory.h
-@@ -28,6 +28,10 @@ struct memory_group {
- 	int nid;
- 	/* References from memory blocks + 1. */
- 	refcount_t refcount;
-+	/* Present (online) memory outside ZONE_MOVABLE of this memory group. */
-+	unsigned long present_kernel_pages;
-+	/* Present (online) memory in ZONE_MOVABLE of this memory group. */
-+	unsigned long present_movable_pages;
- 	/*
- 	 * Memory group type: static vs. dynamic.
- 	 *
-diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-index 5c910dc2526a..f607d6677873 100644
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -12,6 +12,7 @@ struct zone;
- struct pglist_data;
- struct mem_section;
- struct memory_block;
-+struct memory_group;
- struct resource;
- struct vmem_altmap;
- 
-@@ -111,13 +112,15 @@ static inline void zone_seqlock_init(struct zone *zone)
- extern int zone_grow_free_lists(struct zone *zone, unsigned long new_nr_pages);
- extern int zone_grow_waitqueues(struct zone *zone, unsigned long nr_pages);
- extern int add_one_highpage(struct page *page, int pfn, int bad_ppro);
--extern void adjust_present_page_count(struct page *page, long nr_pages);
-+extern void adjust_present_page_count(struct page *page,
-+				      struct memory_group *group,
-+				      long nr_pages);
- /* VM interface that may be used by firmware interface */
- extern int mhp_init_memmap_on_memory(unsigned long pfn, unsigned long nr_pages,
- 				     struct zone *zone);
- extern void mhp_deinit_memmap_on_memory(unsigned long pfn, unsigned long nr_pages);
- extern int online_pages(unsigned long pfn, unsigned long nr_pages,
--			struct zone *zone);
-+			struct zone *zone, struct memory_group *group);
- extern struct zone *test_pages_in_a_zone(unsigned long start_pfn,
- 					 unsigned long end_pfn);
- extern void __offline_isolated_pages(unsigned long start_pfn,
-@@ -322,7 +325,8 @@ static inline void pgdat_resize_init(struct pglist_data *pgdat) {}
- #ifdef CONFIG_MEMORY_HOTREMOVE
- 
- extern void try_offline_node(int nid);
--extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages);
-+extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages,
-+			 struct memory_group *group);
- extern int remove_memory(u64 start, u64 size);
- extern void __remove_memory(u64 start, u64 size);
- extern int offline_and_remove_memory(u64 start, u64 size);
-@@ -330,7 +334,8 @@ extern int offline_and_remove_memory(u64 start, u64 size);
- #else
- static inline void try_offline_node(int nid) {}
- 
--static inline int offline_pages(unsigned long start_pfn, unsigned long nr_pages)
-+static inline int offline_pages(unsigned long start_pfn, unsigned long nr_pages,
-+				struct memory_group *group)
- {
- 	return -EINVAL;
- }
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 4e039c82e7b6..5dacb0ed2997 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1039,9 +1039,11 @@ struct zone *zone_for_pfn_range(int online_type, int nid,
-  * This function should only be called by memory_block_{online,offline},
-  * and {online,offline}_pages.
-  */
--void adjust_present_page_count(struct page *page, long nr_pages)
-+void adjust_present_page_count(struct page *page, struct memory_group *group,
-+			       long nr_pages)
- {
- 	struct zone *zone = page_zone(page);
-+	const bool movable = zone_idx(zone) == ZONE_MOVABLE;
- 	unsigned long flags;
- 
- 	/*
-@@ -1054,6 +1056,11 @@ void adjust_present_page_count(struct page *page, long nr_pages)
- 	pgdat_resize_lock(zone->zone_pgdat, &flags);
- 	zone->zone_pgdat->node_present_pages += nr_pages;
- 	pgdat_resize_unlock(zone->zone_pgdat, &flags);
-+
-+	if (group && movable)
-+		group->present_movable_pages += nr_pages;
-+	else if (group && !movable)
-+		group->present_kernel_pages += nr_pages;
- }
- 
- int mhp_init_memmap_on_memory(unsigned long pfn, unsigned long nr_pages,
-@@ -1099,7 +1106,8 @@ void mhp_deinit_memmap_on_memory(unsigned long pfn, unsigned long nr_pages)
- 	kasan_remove_zero_shadow(__va(PFN_PHYS(pfn)), PFN_PHYS(nr_pages));
- }
- 
--int __ref online_pages(unsigned long pfn, unsigned long nr_pages, struct zone *zone)
-+int __ref online_pages(unsigned long pfn, unsigned long nr_pages,
-+		       struct zone *zone, struct memory_group *group)
- {
- 	unsigned long flags;
- 	int need_zonelists_rebuild = 0;
-@@ -1152,7 +1160,7 @@ int __ref online_pages(unsigned long pfn, unsigned long nr_pages, struct zone *z
- 	}
- 
- 	online_pages_range(pfn, nr_pages);
--	adjust_present_page_count(pfn_to_page(pfn), nr_pages);
-+	adjust_present_page_count(pfn_to_page(pfn), group, nr_pages);
- 
- 	node_states_set_node(nid, &arg);
- 	if (need_zonelists_rebuild)
-@@ -1896,7 +1904,8 @@ static int count_system_ram_pages_cb(unsigned long start_pfn,
- 	return 0;
- }
- 
--int __ref offline_pages(unsigned long start_pfn, unsigned long nr_pages)
-+int __ref offline_pages(unsigned long start_pfn, unsigned long nr_pages,
-+			struct memory_group *group)
- {
- 	const unsigned long end_pfn = start_pfn + nr_pages;
- 	unsigned long pfn, system_ram_pages = 0;
-@@ -2032,7 +2041,7 @@ int __ref offline_pages(unsigned long start_pfn, unsigned long nr_pages)
- 
- 	/* removal success */
- 	adjust_managed_page_count(pfn_to_page(start_pfn), -nr_pages);
--	adjust_present_page_count(pfn_to_page(start_pfn), -nr_pages);
-+	adjust_present_page_count(pfn_to_page(start_pfn), group, -nr_pages);
- 
- 	init_per_zone_wmark_min();
- 
+ 	list_for_each_entry(info, &mem_device->res_list, list) {
+-		if (info->enabled) { /* just sanity check...*/
+-			num_enabled++;
+-			continue;
+-		}
+ 		/*
+ 		 * If the memory block size is zero, please ignore it.
+ 		 * Don't try to do the following memory hotplug flowchart.
 -- 
 2.31.1
 
