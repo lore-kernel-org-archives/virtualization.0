@@ -5,61 +5,62 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD49FC47082
-	for <virtualization@archiver.kernel.org>; Tue,  8 Jun 2021 09:54:57 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43324C4743D
+	for <virtualization@archiver.kernel.org>; Tue,  8 Jun 2021 09:55:00 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6AE9861008
-	for <virtualization@archiver.kernel.org>; Tue,  8 Jun 2021 09:54:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6AE9861008
+	by mail.kernel.org (Postfix) with ESMTPS id 05FE96124C
+	for <virtualization@archiver.kernel.org>; Tue,  8 Jun 2021 09:55:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 05FE96124C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 327A940446;
-	Tue,  8 Jun 2021 09:54:57 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id DA3BA83A81;
+	Tue,  8 Jun 2021 09:54:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Ewhs0mgE0cKk; Tue,  8 Jun 2021 09:54:52 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id di31BXcKNvNU; Tue,  8 Jun 2021 09:54:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 4A21F40443;
-	Tue,  8 Jun 2021 09:54:52 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5BA9283143;
+	Tue,  8 Jun 2021 09:54:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B4427C0024;
-	Tue,  8 Jun 2021 09:54:51 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F400FC000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3777AC000B;
+	Tue,  8 Jun 2021 09:54:55 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F11F7C002A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Jun 2021 09:54:49 +0000 (UTC)
+ Tue,  8 Jun 2021 09:54:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id E119860732
+ by smtp1.osuosl.org (Postfix) with ESMTP id CD20482D61
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Jun 2021 09:54:49 +0000 (UTC)
+ Tue,  8 Jun 2021 09:54:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Ves06fvvNSuZ
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id xKaT2Gout9hJ
  for <virtualization@lists.linux-foundation.org>;
  Tue,  8 Jun 2021 09:54:49 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 4D1F460701
+Received: from theia.8bytes.org (8bytes.org
+ [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id BAD4D82DFB
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Jun 2021 09:54:49 +0000 (UTC)
+ Tue,  8 Jun 2021 09:54:48 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2ba7c.dip0.t-ipconnect.de
  [79.242.186.124])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 504BD465;
- Tue,  8 Jun 2021 11:54:46 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id AE20C434;
+ Tue,  8 Jun 2021 11:54:45 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v3 4/7] x86/sev-es: Run #VC handler in plain IRQ state
-Date: Tue,  8 Jun 2021 11:54:36 +0200
-Message-Id: <20210608095439.12668-5-joro@8bytes.org>
+Subject: [PATCH v3 3/7] x86/sev-es: Disable IRQs while GHCB is active
+Date: Tue,  8 Jun 2021 11:54:35 +0200
+Message-Id: <20210608095439.12668-4-joro@8bytes.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210608095439.12668-1-joro@8bytes.org>
 References: <20210608095439.12668-1-joro@8bytes.org>
@@ -95,43 +96,156 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Use irqentry_enter() and irqentry_exit() to track the runtime state of
-the #VC handler. The reason it ran in NMI mode was solely to make sure
-nothing interrupts the handler while the GHCB is in use.
+The #VC handler only cares about IRQs being disabled while the GHCB is
+active, as it must not be interrupted by something which could cause
+another #VC while it holds the GHCB (NMI is the exception for which the
+backup GHCB is there).
 
-This is handled now in sev_es_get/put_ghcb() directly, so there is no
-reason the #VC handler can not run in normal IRQ mode and enjoy the
-benefits like being able to send signals.
+Make sure nothing interrupts the code path while the GHCB is active by
+disabling IRQs in sev_es_get_ghcb() and restoring the previous irq state
+in sev_es_put_ghcb().
 
-Fixes: 62441a1fb532 ("x86/sev-es: Correctly track IRQ states in runtime #VC handler")
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/x86/kernel/sev.c | 39 +++++++++++++++++++++++++--------------
+ 1 file changed, 25 insertions(+), 14 deletions(-)
 
 diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index 2a922d1b03c8..b563fb747aed 100644
+index 4fd997bbf059..2a922d1b03c8 100644
 --- a/arch/x86/kernel/sev.c
 +++ b/arch/x86/kernel/sev.c
-@@ -1354,8 +1354,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
- 		return;
+@@ -192,14 +192,23 @@ void noinstr __sev_es_ist_exit(void)
+ 	this_cpu_write(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC], *(unsigned long *)ist);
+ }
+ 
+-static __always_inline struct ghcb *sev_es_get_ghcb(struct ghcb_state *state)
++static __always_inline struct ghcb *sev_es_get_ghcb(struct ghcb_state *state,
++						    unsigned long *flags)
+ {
+ 	struct sev_es_runtime_data *data;
+ 	struct ghcb *ghcb;
+ 
++	/*
++	 * Nothing shall interrupt this code path while holding the per-cpu
++	 * GHCB. The backup GHCB is only for NMIs interrupting this path.
++	 */
++	local_irq_save(*flags);
++
+ 	data = this_cpu_read(runtime_data);
+ 	ghcb = &data->ghcb_page;
+ 
++
++
+ 	if (unlikely(data->ghcb_active)) {
+ 		/* GHCB is already in use - save its contents */
+ 
+@@ -479,7 +488,8 @@ static enum es_result vc_slow_virt_to_phys(struct ghcb *ghcb, struct es_em_ctxt
+ /* Include code shared with pre-decompression boot stage */
+ #include "sev-shared.c"
+ 
+-static __always_inline void sev_es_put_ghcb(struct ghcb_state *state)
++static __always_inline void sev_es_put_ghcb(struct ghcb_state *state,
++					    unsigned long flags)
+ {
+ 	struct sev_es_runtime_data *data;
+ 	struct ghcb *ghcb;
+@@ -500,14 +510,17 @@ static __always_inline void sev_es_put_ghcb(struct ghcb_state *state)
+ 		vc_ghcb_invalidate(ghcb);
+ 		data->ghcb_active = false;
+ 	}
++
++	local_irq_restore(flags);
+ }
+ 
+ void noinstr __sev_es_nmi_complete(void)
+ {
+ 	struct ghcb_state state;
++	unsigned long flags;
+ 	struct ghcb *ghcb;
+ 
+-	ghcb = sev_es_get_ghcb(&state);
++	ghcb = sev_es_get_ghcb(&state, &flags);
+ 
+ 	vc_ghcb_invalidate(ghcb);
+ 	ghcb_set_sw_exit_code(ghcb, SVM_VMGEXIT_NMI_COMPLETE);
+@@ -517,7 +530,7 @@ void noinstr __sev_es_nmi_complete(void)
+ 	sev_es_wr_ghcb_msr(__pa_nodebug(ghcb));
+ 	VMGEXIT();
+ 
+-	sev_es_put_ghcb(&state);
++	sev_es_put_ghcb(&state, flags);
+ }
+ 
+ static u64 get_jump_table_addr(void)
+@@ -527,9 +540,7 @@ static u64 get_jump_table_addr(void)
+ 	struct ghcb *ghcb;
+ 	u64 ret = 0;
+ 
+-	local_irq_save(flags);
+-
+-	ghcb = sev_es_get_ghcb(&state);
++	ghcb = sev_es_get_ghcb(&state, &flags);
+ 
+ 	vc_ghcb_invalidate(ghcb);
+ 	ghcb_set_sw_exit_code(ghcb, SVM_VMGEXIT_AP_JUMP_TABLE);
+@@ -543,9 +554,7 @@ static u64 get_jump_table_addr(void)
+ 	    ghcb_sw_exit_info_2_is_valid(ghcb))
+ 		ret = ghcb->save.sw_exit_info_2;
+ 
+-	sev_es_put_ghcb(&state);
+-
+-	local_irq_restore(flags);
++	sev_es_put_ghcb(&state, flags);
+ 
+ 	return ret;
+ }
+@@ -666,9 +675,10 @@ static bool __init sev_es_setup_ghcb(void)
+ static void sev_es_ap_hlt_loop(void)
+ {
+ 	struct ghcb_state state;
++	unsigned long flags;
+ 	struct ghcb *ghcb;
+ 
+-	ghcb = sev_es_get_ghcb(&state);
++	ghcb = sev_es_get_ghcb(&state, &flags);
+ 
+ 	while (true) {
+ 		vc_ghcb_invalidate(ghcb);
+@@ -685,7 +695,7 @@ static void sev_es_ap_hlt_loop(void)
+ 			break;
  	}
  
--	irq_state = irqentry_nmi_enter(regs);
--	lockdep_assert_irqs_disabled();
-+	irq_state = irqentry_enter(regs);
- 	instrumentation_begin();
+-	sev_es_put_ghcb(&state);
++	sev_es_put_ghcb(&state, flags);
+ }
+ 
+ /*
+@@ -1333,6 +1343,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 	struct ghcb_state state;
+ 	struct es_em_ctxt ctxt;
+ 	enum es_result result;
++	unsigned long flags;
+ 	struct ghcb *ghcb;
  
  	/*
-@@ -1408,7 +1407,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+@@ -1353,7 +1364,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 	 * keep the IRQs disabled to protect us against concurrent TLB flushes.
+ 	 */
  
- out:
- 	instrumentation_end();
--	irqentry_nmi_exit(regs, irq_state);
-+	irqentry_exit(regs, irq_state);
+-	ghcb = sev_es_get_ghcb(&state);
++	ghcb = sev_es_get_ghcb(&state, &flags);
  
- 	return;
+ 	vc_ghcb_invalidate(ghcb);
+ 	result = vc_init_em_ctxt(&ctxt, regs, error_code);
+@@ -1361,7 +1372,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 	if (result == ES_OK)
+ 		result = vc_handle_exitcode(&ctxt, ghcb, error_code);
  
+-	sev_es_put_ghcb(&state);
++	sev_es_put_ghcb(&state, flags);
+ 
+ 	/* Done - now check the result */
+ 	switch (result) {
 -- 
 2.31.1
 
