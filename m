@@ -2,77 +2,98 @@ Return-Path: <SRS0=nkKT=LC=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 328F7C47082
-	for <virtualization@archiver.kernel.org>; Tue,  8 Jun 2021 12:18:07 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81A37C47082
+	for <virtualization@archiver.kernel.org>; Tue,  8 Jun 2021 12:20:40 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D43D56128A
-	for <virtualization@archiver.kernel.org>; Tue,  8 Jun 2021 12:18:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D43D56128A
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id 2850661352
+	for <virtualization@archiver.kernel.org>; Tue,  8 Jun 2021 12:20:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2850661352
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 9998C402B4;
-	Tue,  8 Jun 2021 12:18:06 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id E1D746061A;
+	Tue,  8 Jun 2021 12:20:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KPTyAXtrDhPI; Tue,  8 Jun 2021 12:18:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 091F5400F5;
-	Tue,  8 Jun 2021 12:18:05 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C82F3C000D;
-	Tue,  8 Jun 2021 12:18:04 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 70F12C0001
- for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Jun 2021 12:18:03 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 5ED67608A5
- for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Jun 2021 12:18:03 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=linuxfoundation.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YUMTbx18F0D0
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JCbOegpq3I0P; Tue,  8 Jun 2021 12:20:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 901C060692;
+	Tue,  8 Jun 2021 12:20:38 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 61C97C000D;
+	Tue,  8 Jun 2021 12:20:38 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6F8FFC0001
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Jun 2021 12:18:02 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 788C86061A
+ Tue,  8 Jun 2021 12:20:37 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 629DC839CD
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Jun 2021 12:18:02 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 62CBE61073;
- Tue,  8 Jun 2021 12:18:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1623154681;
- bh=Rq0V8EoWTmyVk1fYFOYY5fRKRTQNuYHRTh12/kWNbtg=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=H1OODlGxqj3f9PgYcve8Je+rJMf8ochjPr82KmTwcbbgt6Z3TZ1QIdoiqRnn8If34
- Wgr0/J2kXJrh3sm78t122hIM6uNe3ttXVE/fO/lcByqqR4WFnmAX6RrH3PVT77aEd9
- DdJh55o2W3nQNaiVilKdduuR1iXnQ4zg9B/7AdpE=
-Date: Tue, 8 Jun 2021 14:17:58 +0200
-From: Greg KH <gregkh@linuxfoundation.org>
-To: Corentin =?iso-8859-1?Q?No=EBl?= <corentin.noel@collabora.com>
-Subject: Re: virtio-net: kernel panic in virtio_net.c
-Message-ID: <YL9f9uFoPGj2Q9Zl@kroah.com>
-References: <1622688283.7488964-1-xuanzhuo@linux.alibaba.com>
- <6a9ec4daa03a68d8d74e90bec358324f95ec1c32.camel@collabora.com>
+ Tue,  8 Jun 2021 12:20:37 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id vziysgVfyznw
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Jun 2021 12:20:36 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-oi1-f180.google.com (mail-oi1-f180.google.com
+ [209.85.167.180])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id C95CA82B3E
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Jun 2021 12:20:36 +0000 (UTC)
+Received: by mail-oi1-f180.google.com with SMTP id t140so16074449oih.0
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 08 Jun 2021 05:20:36 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=OmTdNAirSU2hkyrUMU+ARQjy6bvUlpwnEGNeFoKbjA8=;
+ b=O01/kDPihdnAPcVUrc2NsqLr+CfIbjKets1Ju4OAtkjJ4i1lwGeNFpa7XIZ2GPmV+G
+ sTVJQXIBHTdr4pYXeqeXTFKHJJCtVIrotInl8pP3I/nx/pNSso/n11/ha/PT0rLPe+4k
+ 4cYqeUsNJSXUKpc6JyObYVjYjBMA25NCKKTQVYsxfgiP70YWrpT70w/yOZK+hXnF9wqC
+ wmP+EMlnYR0LAeVVB9pJzsfpoPR9A9o1SsKOxzwifq3SUkG0TuO064XurkUzcB92CSnE
+ /AgfQX9FoWgwxgrs7R8YBNFoBy9MGqbuV66iqPBXABtEk6I0sGnk/vKMgOZM409do4W7
+ GuPg==
+X-Gm-Message-State: AOAM530gsYkcWK6emiFBJw2+XO9J1Weke/rmLO4bgb9oKL0YG7ji4BlA
+ jkYcCV+pS2XWXpqcs3pr1/0nkzh1LuczcF4khXA=
+X-Google-Smtp-Source: ABdhPJzGnwuhGOuzkrFQmGHEbYgJZPCAHMUb8TTYp305sD+8WsA0diJEPnVIIf53jR51n274a7P1CxE1tcKsGbw4YpI=
+X-Received: by 2002:aca:b406:: with SMTP id d6mr2621167oif.71.1623154835851;
+ Tue, 08 Jun 2021 05:20:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <6a9ec4daa03a68d8d74e90bec358324f95ec1c32.camel@collabora.com>
-Cc: regressions@lists.linux.dev, "Michael S.Tsirkin" <mst@redhat.com>,
- stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Eric Dumazet <edumazet@google.com>
+References: <20210607195430.48228-1-david@redhat.com>
+ <20210607195430.48228-9-david@redhat.com>
+In-Reply-To: <20210607195430.48228-9-david@redhat.com>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Date: Tue, 8 Jun 2021 14:20:24 +0200
+Message-ID: <CAJZ5v0gnT6QSkhcgPbHOXm8_zRQrefkdZk3k3_Ne5XCqoAGguA@mail.gmail.com>
+Subject: Re: [PATCH v1 08/12] ACPI: memhotplug: memory resources cannot be
+ enabled yet
+To: David Hildenbrand <david@redhat.com>
+Cc: Wei Yang <richard.weiyang@linux.alibaba.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org,
+ Linux Memory Management List <linux-mm@kvack.org>,
+ ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+ Len Brown <lenb@kernel.org>, Pavel Tatashin <pasha.tatashin@soleen.com>,
+ Anshuman Khandual <anshuman.khandual@arm.com>,
+ Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>,
+ Oscar Salvador <osalvador@suse.de>,
+ Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+ "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Hui Zhu <teawater@gmail.com>, Marek Kedzierski <mkedzier@redhat.com>,
+ Mike Rapoport <rppt@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -84,283 +105,42 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jun 03, 2021 at 10:57:52AM +0200, Corentin No=EBl wrote:
-> Le jeudi 03 juin 2021 =E0 10:44 +0800, Xuan Zhuo a =E9crit :
-> > On Wed, 02 Jun 2021 19:54:41 +0200, Corentin No=EBl <
-> > corentin.noel@collabora.com> wrote:
-> > > Sure, here is the decoded trace:
-> > > =
+On Mon, Jun 7, 2021 at 9:55 PM David Hildenbrand <david@redhat.com> wrote:
+>
+> We allocate + initialize everything from scratch. In case enabling the
+> device fails, we free all memory resourcs.
+>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
 
-> > > [   44.523231] skbuff: skb_over_panic: text:ffffffffad1a8434
-> > > len:3762
-> > > put:3762 head:ffff9799e6b6b000 data:ffff9799e6b6b010 tail:0xec2
-> > > end:0xec0 dev:<NULL>
-> > > [   44.525254] kernel BUG at net/core/skbuff.c:110!
-> > > [   44.525910] invalid opcode: 0000 [#1] SMP PTI
-> > > [   44.526521] CPU: 2 PID: 245 Comm: llvmpipe-0 Not tainted 5.13.0-
-> > > rc4linux-v5.13-rc4-for-mesa-ci-184862285c49.tar.bz2 #1
-> > > [   44.528109] Hardware name: ChromiumOS crosvm, BIOS 0
-> > > [   44.529243] RIP: 0010:skb_panic (net/core/skbuff.c:110)
-> > > [ 44.530284] Code: 4f 70 50 8b 87 bc 00 00 00 50 8b 87 b8 00 00 00
-> > > 50
-> > > ff b7 c8 00 00 00 4c 8b 8f c0 00 00 00 48 c7 c7 f0 af cf ad e8 43
-> > > 4c fb
-> > > ff <0f> 0b 48 8b 14 24 48 c7 c1 20 23 b1 ad e8 ab ff ff ff 48 c7 c6
-> > > 60
-> > > All code
-> > > =3D=3D=3D=3D=3D=3D=3D=3D
-> > >    0:	4f 70 50             	rex.WRXB jo 0x53
-> > >    3:	8b 87 bc 00 00 00    	mov    0xbc(%rdi),%eax
-> > >    9:	50                   	push   %rax
-> > >    a:	8b 87 b8 00 00 00    	mov    0xb8(%rdi),%eax
-> > >   10:	50                   	push   %rax
-> > >   11:	ff b7 c8 00 00 00    	pushq  0xc8(%rdi)
-> > >   17:	4c 8b 8f c0 00 00 00 	mov    0xc0(%rdi),%r9
-> > >   1e:	48 c7 c7 f0 af cf ad 	mov    $0xffffffffadcfaff0,
-> > > %rdi
-> > >   25:	e8 43 4c fb ff       	callq  0xfffffffffffb4c6d
-> > >   2a:*	0f 0b                	ud2    		<--
-> > > trapping
-> > > instruction
-> > >   2c:	48 8b 14 24          	mov    (%rsp),%rdx
-> > >   30:	48 c7 c1 20 23 b1 ad 	mov    $0xffffffffadb12320,
-> > > %rcx
-> > >   37:	e8 ab ff ff ff       	callq  0xffffffffffffffe7
-> > >   3c:	48                   	rex.W
-> > >   3d:	c7                   	.byte 0xc7
-> > >   3e:	c6                   	(bad)
-> > >   3f:	60                   	(bad)
-> > > =
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-> > > Code starting with the faulting instruction
-> > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > >    0:	0f 0b                	ud2
-> > >    2:	48 8b 14 24          	mov    (%rsp),%rdx
-> > >    6:	48 c7 c1 20 23 b1 ad 	mov    $0xffffffffadb12320,
-> > > %rcx
-> > >    d:	e8 ab ff ff ff       	callq  0xffffffffffffffbd
-> > >   12:	48                   	rex.W
-> > >   13:	c7                   	.byte 0xc7
-> > >   14:	c6                   	(bad)
-> > >   15:	60                   	(bad)
-> > > [   44.533988] RSP: 0000:ffffa651c134fc20 EFLAGS: 00010246
-> > > [   44.534723] RAX: 000000000000008b RBX: 0000000000000010 RCX:
-> > > 00000000ffffdfff
-> > > [   44.535772] RDX: 0000000000000000 RSI: 00000000ffffffea RDI:
-> > > 0000000000000000
-> > > [   44.536693] RBP: ffffd77b009adac0 R08: ffffffffadf44b08 R09:
-> > > 0000000000009ffb
-> > > [   44.537569] R10: 00000000ffffe000 R11: 3fffffffffffffff R12:
-> > > ffff979ad2aa5600
-> > > [   44.538449] R13: 0000000000000000 R14: ffff9799e6b6b000 R15:
-> > > 0000000000000eb2
-> > > [   44.539300] FS:  00007fdb9cb11700(0000)
-> > > GS:ffff979aebd00000(0000)
-> > > knlGS:0000000000000000
-> > > [   44.540376] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > > [   44.541103] CR2: 00007f99099f4024 CR3: 0000000129558005 CR4:
-> > > 0000000000370ee0
-> > > [   44.542057] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
-> > > 0000000000000000
-> > > [   44.543063] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
-> > > 0000000000000400
-> > > [   44.544063] Call Trace:
-> > > [   44.544385] skb_put.cold (net/core/skbuff.c:5254 (discriminator
-> > > 1)
-> > > net/core/skbuff.c:5252 (discriminator 1))
-> > > [   44.544864] page_to_skb (drivers/net/virtio_net.c:485)
-> > > [   44.545361] receive_buf (drivers/net/virtio_net.c:849
-> > > drivers/net/virtio_net.c:1131)
-> > > [   44.545870] ? netif_receive_skb_list_internal
-> > > (net/core/dev.c:5714)
-> > > [   44.546628] ? dev_gro_receive (net/core/dev.c:6103)
-> > > [   44.547135] ? napi_complete_done (./include/linux/list.h:35
-> > > net/core/dev.c:5867 net/core/dev.c:5862 net/core/dev.c:6565)
-> > > [   44.547672] virtnet_poll (drivers/net/virtio_net.c:1427
-> > > drivers/net/virtio_net.c:1525)
-> > > [   44.548251] __napi_poll (net/core/dev.c:6985)
-> > > [   44.548744] net_rx_action (net/core/dev.c:7054
-> > > net/core/dev.c:7139)
-> > > [   44.549264] __do_softirq (./arch/x86/include/asm/jump_label.h:19
-> > > ./include/linux/jump_label.h:200 ./include/trace/events/irq.h:142
-> > > kernel/softirq.c:560)
-> > > [   44.549762] irq_exit_rcu (kernel/softirq.c:433
-> > > kernel/softirq.c:637
-> > > kernel/softirq.c:649)
-> > > [   44.551384] common_interrupt (arch/x86/kernel/irq.c:240
-> > > (discriminator 13))
-> > > [   44.551991] ? asm_common_interrupt
-> > > (./arch/x86/include/asm/idtentry.h:638)
-> > > [   44.552654] asm_common_interrupt
-> > > (./arch/x86/include/asm/idtentry.h:638)
-> > > [   44.553276] RIP: 0033:0x7fdb981a82e4
-> > > [ 44.553809] Code: d2 48 63 f6 c4 41 7a 6f 0c 01 c4 41 7a 6f 14 09
-> > > c4
-> > > 41 7a 6f 24 11 c4 41 7a 6f 2c 31 c4 c1 31 6a c2 c4 c1 19 6a d5 c5
-> > > f9 6c
-> > > f2 <c5> 79 6d c2 c5 f9 71 d6 08 c5 f9 db 44 24 20 c5 c1 71 f6 0b c5
-> > > f9
-> > > All code
-> > > =3D=3D=3D=3D=3D=3D=3D=3D
-> > >    0:	d2 48 63             	rorb   %cl,0x63(%rax)
-> > >    3:	f6 c4 41             	test   $0x41,%ah
-> > >    6:	7a 6f                	jp     0x77
-> > >    8:	0c 01                	or     $0x1,%al
-> > >    a:	c4 41 7a 6f 14 09    	vmovdqu (%r9,%rcx,1),%xmm10
-> > >   10:	c4 41 7a 6f 24 11    	vmovdqu (%r9,%rdx,1),%xmm12
-> > >   16:	c4 41 7a 6f 2c 31    	vmovdqu (%r9,%rsi,1),%xmm13
-> > >   1c:	c4 c1 31 6a c2       	vpunpckhdq
-> > > %xmm10,%xmm9,%xmm0
-> > >   21:	c4 c1 19 6a d5       	vpunpckhdq
-> > > %xmm13,%xmm12,%xmm2
-> > >   26:	c5 f9 6c f2          	vpunpcklqdq
-> > > %xmm2,%xmm0,%xmm6
-> > >   2a:*	c5 79 6d c2          	vpunpckhqdq
-> > > %xmm2,%xmm0,%xmm8
-> > > <-- trapping instruction
-> > >   2e:	c5 f9 71 d6 08       	vpsrlw $0x8,%xmm6,%xmm0
-> > >   33:	c5 f9 db 44 24 20    	vpand  0x20(%rsp),%xmm0,%xm
-> > > m0
-> > >   39:	c5 c1 71 f6 0b       	vpsllw $0xb,%xmm6,%xmm7
-> > >   3e:	c5                   	.byte 0xc5
-> > >   3f:	f9                   	stc
-> > > =
-
-> > > Code starting with the faulting instruction
-> > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > >    0:	c5 79 6d c2          	vpunpckhqdq
-> > > %xmm2,%xmm0,%xmm8
-> > >    4:	c5 f9 71 d6 08       	vpsrlw $0x8,%xmm6,%xmm0
-> > >    9:	c5 f9 db 44 24 20    	vpand  0x20(%rsp),%xmm0,%xm
-> > > m0
-> > >    f:	c5 c1 71 f6 0b       	vpsllw $0xb,%xmm6,%xmm7
-> > >   14:	c5                   	.byte 0xc5
-> > >   15:	f9                   	stc
-> > > [   44.556477] RSP: 002b:00007fdb9cb10240 EFLAGS: 00000202
-> > > [   44.557224] RAX: 0000000000122d40 RBX: 00007fdb5f9e8790 RCX:
-> > > 0000000000122d40
-> > > [   44.558200] RDX: 0000000000122d40 RSI: 0000000000122d40 RDI:
-> > > 000055d7049b9368
-> > > [   44.559088] RBP: 00007fdb9cb10ba0 R08: 00007fdb981a5174 R09:
-> > > 00007fdb5e544040
-> > > [   44.560042] R10: 000000000000ffff R11: 000000000000ffff R12:
-> > > 0000000000000000
-> > > [   44.560991] R13: 0000000000000000 R14: 0000000000005000 R15:
-> > > 0000000000000000
-> > > [   44.561965] Modules linked in:
-> > > [   44.562426] ---[ end trace 9a32eb9d31cb21a1 ]---
-> > > [   44.563091] RIP: 0010:skb_panic (net/core/skbuff.c:110)
-> > > [ 44.563721] Code: 4f 70 50 8b 87 bc 00 00 00 50 8b 87 b8 00 00 00
-> > > 50
-> > > ff b7 c8 00 00 00 4c 8b 8f c0 00 00 00 48 c7 c7 f0 af cf ad e8 43
-> > > 4c fb
-> > > ff <0f> 0b 48 8b 14 24 48 c7 c1 20 23 b1 ad e8 ab ff ff ff 48 c7 c6
-> > > 60
-> > > All code
-> > > =3D=3D=3D=3D=3D=3D=3D=3D
-> > >    0:	4f 70 50             	rex.WRXB jo 0x53
-> > >    3:	8b 87 bc 00 00 00    	mov    0xbc(%rdi),%eax
-> > >    9:	50                   	push   %rax
-> > >    a:	8b 87 b8 00 00 00    	mov    0xb8(%rdi),%eax
-> > >   10:	50                   	push   %rax
-> > >   11:	ff b7 c8 00 00 00    	pushq  0xc8(%rdi)
-> > >   17:	4c 8b 8f c0 00 00 00 	mov    0xc0(%rdi),%r9
-> > >   1e:	48 c7 c7 f0 af cf ad 	mov    $0xffffffffadcfaff0,
-> > > %rdi
-> > >   25:	e8 43 4c fb ff       	callq  0xfffffffffffb4c6d
-> > >   2a:*	0f 0b                	ud2    		<--
-> > > trapping
-> > > instruction
-> > >   2c:	48 8b 14 24          	mov    (%rsp),%rdx
-> > >   30:	48 c7 c1 20 23 b1 ad 	mov    $0xffffffffadb12320,
-> > > %rcx
-> > >   37:	e8 ab ff ff ff       	callq  0xffffffffffffffe7
-> > >   3c:	48                   	rex.W
-> > >   3d:	c7                   	.byte 0xc7
-> > >   3e:	c6                   	(bad)
-> > >   3f:	60                   	(bad)
-> > > =
-
-> > > Code starting with the faulting instruction
-> > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > >    0:	0f 0b                	ud2
-> > >    2:	48 8b 14 24          	mov    (%rsp),%rdx
-> > >    6:	48 c7 c1 20 23 b1 ad 	mov    $0xffffffffadb12320,
-> > > %rcx
-> > >    d:	e8 ab ff ff ff       	callq  0xffffffffffffffbd
-> > >   12:	48                   	rex.W
-> > >   13:	c7                   	.byte 0xc7
-> > >   14:	c6                   	(bad)
-> > >   15:	60                   	(bad)
-> > > [   44.566252] RSP: 0000:ffffa651c134fc20 EFLAGS: 00010246
-> > > [   44.567051] RAX: 000000000000008b RBX: 0000000000000010 RCX:
-> > > 00000000ffffdfff
-> > > [   44.567947] RDX: 0000000000000000 RSI: 00000000ffffffea RDI:
-> > > 0000000000000000
-> > > [   44.568839] RBP: ffffd77b009adac0 R08: ffffffffadf44b08 R09:
-> > > 0000000000009ffb
-> > > [   44.569725] R10: 00000000ffffe000 R11: 3fffffffffffffff R12:
-> > > ffff979ad2aa5600
-> > > [   44.570608] R13: 0000000000000000 R14: ffff9799e6b6b000 R15:
-> > > 0000000000000eb2
-> > > [   44.571483] FS:  00007fdb9cb11700(0000)
-> > > GS:ffff979aebd00000(0000)
-> > > knlGS:0000000000000000
-> > > [   44.572694] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > > [   44.573474] CR2: 00007f99099f4024 CR3: 0000000129558005 CR4:
-> > > 0000000000370ee0
-> > > [   44.574531] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
-> > > 0000000000000000
-> > > [   44.575597] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
-> > > 0000000000000400
-> > > [   44.576618] Kernel panic - not syncing: Fatal exception in
-> > > interrupt
-> > > [   44.577996] Kernel Offset: 0x2ba00000 from 0xffffffff81000000
-> > > (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
-> > > =
-
-> > =
-
-> > Can you test this patch on the latest net branch?
-> > =
-
-> > Thanks.
-> > =
-
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index fa407eb8b457..78a01c71a17c 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -406,7 +406,7 @@ static struct sk_buff *page_to_skb(struct
-> > virtnet_info *vi,
-> >          * add_recvbuf_mergeable() + get_mergeable_buf_len()
-> >          */
-> >         truesize =3D headroom ? PAGE_SIZE : truesize;
-> > -       tailroom =3D truesize - len - headroom;
-> > +       tailroom =3D truesize - len - headroom - (hdr_padded_len -
-> > hdr_len);
-> >         buf =3D p - headroom;
-> > =
-
-> >         len -=3D hdr_len;
-> =
-
-> With this patch and the latest net branch I no longer get crashes.
-
-Did this ever get properly submitted to the networking tree to get into
-5.13-final?
-
-thanks,
-
-greg k-h
+> ---
+>  drivers/acpi/acpi_memhotplug.c | 4 ----
+>  1 file changed, 4 deletions(-)
+>
+> diff --git a/drivers/acpi/acpi_memhotplug.c b/drivers/acpi/acpi_memhotplug.c
+> index 1d01d9414c40..eb4faf7c5cad 100644
+> --- a/drivers/acpi/acpi_memhotplug.c
+> +++ b/drivers/acpi/acpi_memhotplug.c
+> @@ -182,10 +182,6 @@ static int acpi_memory_enable_device(struct acpi_memory_device *mem_device)
+>          * (i.e. memory-hot-remove function)
+>          */
+>         list_for_each_entry(info, &mem_device->res_list, list) {
+> -               if (info->enabled) { /* just sanity check...*/
+> -                       num_enabled++;
+> -                       continue;
+> -               }
+>                 /*
+>                  * If the memory block size is zero, please ignore it.
+>                  * Don't try to do the following memory hotplug flowchart.
+> --
+> 2.31.1
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
