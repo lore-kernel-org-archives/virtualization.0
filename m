@@ -7,59 +7,61 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DFF4C48BCF
-	for <virtualization@archiver.kernel.org>; Tue,  8 Jun 2021 09:55:01 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 209DEC48BD1
+	for <virtualization@archiver.kernel.org>; Tue,  8 Jun 2021 09:55:02 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 38AEE61378
+	by mail.kernel.org (Postfix) with ESMTPS id DFD3861185
 	for <virtualization@archiver.kernel.org>; Tue,  8 Jun 2021 09:55:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 38AEE61378
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DFD3861185
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 451A183143;
-	Tue,  8 Jun 2021 09:55:00 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id B75C460701;
+	Tue,  8 Jun 2021 09:55:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id H3RQa-J5ZrBq; Tue,  8 Jun 2021 09:54:56 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ifgeh0zaL8wB; Tue,  8 Jun 2021 09:54:58 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTP id ED2B3834D3;
-	Tue,  8 Jun 2021 09:54:55 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 55BFE6089C;
+	Tue,  8 Jun 2021 09:54:57 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 76CB5C0024;
-	Tue,  8 Jun 2021 09:54:55 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 264A0C002A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 21513C0011;
+	Tue,  8 Jun 2021 09:54:57 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0F46CC0011
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Jun 2021 09:54:52 +0000 (UTC)
+ Tue,  8 Jun 2021 09:54:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 115A3404BF
+ by smtp4.osuosl.org (Postfix) with ESMTP id DD9B540444
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Jun 2021 09:54:55 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id hwZPPLvn0IjH
  for <virtualization@lists.linux-foundation.org>;
  Tue,  8 Jun 2021 09:54:52 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id iPo1olju80Ev
- for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Jun 2021 09:54:48 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 17C6540291
+Received: from theia.8bytes.org (8bytes.org
+ [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CB88540308
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Jun 2021 09:54:47 +0000 (UTC)
+ Tue,  8 Jun 2021 09:54:51 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2ba7c.dip0.t-ipconnect.de
  [79.242.186.124])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 201EB391;
- Tue,  8 Jun 2021 11:54:45 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 0E26A4CA;
+ Tue,  8 Jun 2021 11:54:48 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v3 2/7] x86/sev-es: Fix error message in runtime #VC handler
-Date: Tue,  8 Jun 2021 11:54:34 +0200
-Message-Id: <20210608095439.12668-3-joro@8bytes.org>
+Subject: [PATCH v3 7/7] x86/sev-es: Propagate #GP if getting linear
+ instruction address failed
+Date: Tue,  8 Jun 2021 11:54:39 +0200
+Message-Id: <20210608095439.12668-8-joro@8bytes.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210608095439.12668-1-joro@8bytes.org>
 References: <20210608095439.12668-1-joro@8bytes.org>
@@ -95,27 +97,45 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The runtime #VC handler is not "early" anymore. Fix the copy&paste error
-and remove that word from the error message.
+When an instruction is fetched from user-space, segmentation needs to
+be taken into account. This means that getting the linear address of
+an instruction can fail. Hardware would raise a #GP
+exception in that case, but the #VC exception handler would emulate it
+as a page-fault.
+
+The insn_fetch_from_user*() functions now provide the relevant
+information in case of an failure. Use that and propagate a #GP when
+the linear address of an instruction to fetch could not be calculated.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/sev.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index 651b81cd648e..4fd997bbf059 100644
+index 2b499affb2fb..737d7198aab1 100644
 --- a/arch/x86/kernel/sev.c
 +++ b/arch/x86/kernel/sev.c
-@@ -1369,7 +1369,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
- 		vc_finish_insn(&ctxt);
- 		break;
- 	case ES_UNSUPPORTED:
--		pr_err_ratelimited("Unsupported exit-code 0x%02lx in early #VC exception (IP: 0x%lx)\n",
-+		pr_err_ratelimited("Unsupported exit-code 0x%02lx in #VC exception (IP: 0x%lx)\n",
- 				   error_code, regs->ip);
- 		goto fail;
- 	case ES_VMM_ERROR:
+@@ -270,11 +270,18 @@ static enum es_result __vc_decode_user_insn(struct es_em_ctxt *ctxt)
+ 	int insn_bytes;
+ 
+ 	insn_bytes = insn_fetch_from_user_inatomic(ctxt->regs, buffer);
+-	if (insn_bytes <= 0) {
++	if (insn_bytes == 0) {
++		/* Nothing could be copied */
+ 		ctxt->fi.vector     = X86_TRAP_PF;
+ 		ctxt->fi.error_code = X86_PF_INSTR | X86_PF_USER;
+ 		ctxt->fi.cr2        = ctxt->regs->ip;
+ 		return ES_EXCEPTION;
++	} else if (insn_bytes == -EINVAL) {
++		/* Effective RIP could not be calculated */
++		ctxt->fi.vector     = X86_TRAP_GP;
++		ctxt->fi.error_code = 0;
++		ctxt->fi.cr2        = 0;
++		return ES_EXCEPTION;
+ 	}
+ 
+ 	if (!insn_decode_from_regs(&ctxt->insn, ctxt->regs, buffer, insn_bytes))
 -- 
 2.31.1
 
