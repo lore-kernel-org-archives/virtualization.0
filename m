@@ -2,196 +2,113 @@ Return-Path: <SRS0=l8rc=LD=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_RED,
-	USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_RED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A28E0C48BCF
-	for <virtualization@archiver.kernel.org>; Wed,  9 Jun 2021 21:04:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2C7BC48BCF
+	for <virtualization@archiver.kernel.org>; Wed,  9 Jun 2021 21:36:54 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3786E613EF
-	for <virtualization@archiver.kernel.org>; Wed,  9 Jun 2021 21:04:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3786E613EF
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
+	by mail.kernel.org (Postfix) with ESMTPS id 533C4613CB
+	for <virtualization@archiver.kernel.org>; Wed,  9 Jun 2021 21:36:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 533C4613CB
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E6E1D83C40;
-	Wed,  9 Jun 2021 21:04:06 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1E91083D17;
+	Wed,  9 Jun 2021 21:36:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yQrWxMHyTT57; Wed,  9 Jun 2021 21:04:06 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 9E31E83B9D;
-	Wed,  9 Jun 2021 21:04:05 +0000 (UTC)
+	with ESMTP id VXcuEZ7yyPE3; Wed,  9 Jun 2021 21:36:53 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 92F1783D12;
+	Wed,  9 Jun 2021 21:36:52 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 67C70C000D;
-	Wed,  9 Jun 2021 21:04:05 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B2053C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6863AC000E;
+	Wed,  9 Jun 2021 21:36:52 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5D8D1C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Jun 2021 21:04:04 +0000 (UTC)
+ Wed,  9 Jun 2021 21:36:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 9819E83BED
+ by smtp4.osuosl.org (Postfix) with ESMTP id 4B6D8402C6
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Jun 2021 21:04:04 +0000 (UTC)
+ Wed,  9 Jun 2021 21:36:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rQEbRxZFaTsm
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=gmail.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id QWGsWHS40Fyv
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Jun 2021 21:04:03 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from userp2130.oracle.com (userp2130.oracle.com [156.151.31.86])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 24C6083B9D
+ Wed,  9 Jun 2021 21:36:50 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com
+ [IPv6:2a00:1450:4864:20::62d])
+ by smtp4.osuosl.org (Postfix) with ESMTP id E1D7F40285
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Jun 2021 21:04:02 +0000 (UTC)
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
- by userp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 159L1Vt2036917;
- Wed, 9 Jun 2021 21:04:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=from : subject : to :
- cc : references : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2020-01-29;
- bh=E3mGRTTVSE/Fit/sA0Srs8TmI5Br6VKXrdzW4kLj1WE=;
- b=wqXTjaCS1sYKPwzuirXFQ2lz5eDczloljFpYF3debiDrRMDCDbCVNsPEFIKi5YoDDJ0w
- AM4Tf3CqSzEoks1lNdBWaP2SmqvVQDFH8+BECADMx4udg4zlagvLVRp9R2M1kyyY3PzV
- CRMRTqugzarcHbyXkaYMDbC25vd/Wf1lo+f7lUsFCrIoh57eYatTsU8Xukl4p0xQg19D
- zLKJpn0eOto68vb/JJSd37tBwUkfHDXeo5ugr/iGlqnLmDcD+1ps4hOuBZBcztZzmgKf
- XhZOdSVvKY2Slh+KnQ1AR7RH9WJM1ntmD42ZHM0U92hvvaIWobIjp9esMfnCKub3tCq1 6g== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
- by userp2130.oracle.com with ESMTP id 3900psa9mg-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 09 Jun 2021 21:04:01 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
- by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 159L0egc156166;
- Wed, 9 Jun 2021 21:04:00 GMT
-Received: from nam10-dm6-obe.outbound.protection.outlook.com
- (mail-dm6nam10lp2104.outbound.protection.outlook.com [104.47.58.104])
- by aserp3020.oracle.com with ESMTP id 3922ww641g-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 09 Jun 2021 21:04:00 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iURLcWJE6ceZP/egiuqSApurrwOVh7Ku45F8lfTNrFis6soZBl5PwVyFmGPNcpU449yQDWBggo/bnhvQLh46bOxIWxjnJ30+yqFry9NA6qoMMX+zCtaEEF9GVFrFCIhghUptWIKaAG4lkg+GOK6Jwi/I0y1LCK5LJWAsXsOYHWhKYFIGg8N84E7c7jwRgUCWVA2lkGE+nfxnQzt6o+puAwsKx8S3/4QDJJo5Uez0jXY6hB5mQ8CfyTlpEHZats84nn4FJMqgoOZ7ovu1p1ljfZh8TAMApEzShB3YxQRF9O+ZT9uqEQ4J1gZ1CSzCvJqo1lQlU4MEaMn4jAtk4iz5fQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=E3mGRTTVSE/Fit/sA0Srs8TmI5Br6VKXrdzW4kLj1WE=;
- b=l+hAbRV9mdKiGP8L/2hkwUYtM6PcxY/dbaH3PQV+lkg/mf36PSGdlMaAe2wx+5vGQXjGAEKonA7RUesb3J7p/6MnIeGHwyy3rsjxFQHYi/5RgzLV60D2PmlHnu+We++azIfDyGW8Gf8mZL6v4Arh593DLzihdzSKFJkPu0NSbzik2YegC69fwFXNHPi40cz958OL7xd5TSvB0jiBaczKF/sfriYway/n8ts+Vj0Ol7vt4Ujzy4JAxYwTI2yLzPDfsuAQyIQwhgeR0+gmywJfTty9vXgMa+/xm0M/EaBYPMJIALx1YmCk6CN1ew+dhRNMEFN4sJlGyWypJASJYsIy6A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=E3mGRTTVSE/Fit/sA0Srs8TmI5Br6VKXrdzW4kLj1WE=;
- b=cHhb3mAdLiPMaF2vvSAMGmCAkrnmnHFC1s6QMB2tGCkqy6+ZNVwP5SDfuHRQaz4eBkOw6N5MUurA0gAJRl5f32LpRn3Ls3zGsAC7yiOVGHM36Kxbksi6vAQLecGhQrSFeTpKMPxc/mbGOp+MznksQYTD5HmN6aIGYTsOcZvoxu4=
-Authentication-Results: lists.linux-foundation.org; dkim=none (message not
- signed) header.d=none;lists.linux-foundation.org; dmarc=none action=none
- header.from=oracle.com;
-Received: from BYAPR10MB3573.namprd10.prod.outlook.com (2603:10b6:a03:11e::32)
- by BYAPR10MB3623.namprd10.prod.outlook.com (2603:10b6:a03:11b::28)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4219.22; Wed, 9 Jun
- 2021 21:03:58 +0000
-Received: from BYAPR10MB3573.namprd10.prod.outlook.com
- ([fe80::b09d:e36a:4258:d3d0]) by BYAPR10MB3573.namprd10.prod.outlook.com
- ([fe80::b09d:e36a:4258:d3d0%7]) with mapi id 15.20.4195.030; Wed, 9 Jun 2021
- 21:03:58 +0000
-From: Mike Christie <michael.christie@oracle.com>
-Subject: Re: [PATCH 7/9] vhost: allow userspace to create workers
-To: Stefan Hajnoczi <stefanha@redhat.com>
-References: <20210525180600.6349-1-michael.christie@oracle.com>
- <20210525180600.6349-8-michael.christie@oracle.com>
- <YLjnk5GpFaCCOqCU@stefanha-x1.localdomain>
- <0c1aef53-4850-8c46-0706-9b7276716e68@oracle.com>
- <YL45CfpHyzSEcAJv@stefanha-x1.localdomain>
-Message-ID: <6882ef4d-8382-5b0d-272e-779e6fa9e7da@oracle.com>
-Date: Wed, 9 Jun 2021 16:03:55 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
-In-Reply-To: <YL45CfpHyzSEcAJv@stefanha-x1.localdomain>
-Content-Language: en-US
-X-Originating-IP: [73.88.28.6]
-X-ClientProxiedBy: DM5PR2001CA0001.namprd20.prod.outlook.com
- (2603:10b6:4:16::11) To BYAPR10MB3573.namprd10.prod.outlook.com
- (2603:10b6:a03:11e::32)
+ Wed,  9 Jun 2021 21:36:49 +0000 (UTC)
+Received: by mail-ej1-x62d.google.com with SMTP id h24so40653508ejy.2
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 09 Jun 2021 14:36:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=hTjdamam67na35okFD1d8nEO7/NAMJitaSPOTFgv+V4=;
+ b=L91WyrbPGUtgS7YmW9lG++XXxsYm/0TUhamUhPx2q0KglmWrBnOVqAj21Sdjdbdbxe
+ HWxRHLmpGeVIJufSP+TvHgzvr3VqHeZIrWB7b93wZCAIBMDWsXtAkvkn7o4GexHfmDQ1
+ soylWfkVRgUVkImDNSs/f+b9ZlavSRdQJqSp4ZukWDCBNX/OJseuxDlMiCEl97ogyKVh
+ 1SGGWmEkqAu66nfzED6o54Xz+39M25NCF9xWYoOwUSEXg9J9th7vkNQnK9M7fMjxdLcW
+ MXWd3/cOzfO/je5N/XIDJ3YyDIMDVg9a2KSOUVJCY3MhzQXbqiCyXHM5aONogtqY4l39
+ Md+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=hTjdamam67na35okFD1d8nEO7/NAMJitaSPOTFgv+V4=;
+ b=TEl//DDc2ekL//+wWRkW6t2Ei7CWs7i0tq1/nYqvhu5N99uJRezYoPf/pYjbfj/eAj
+ JUQFq4hkS+NWgPOehpAE3xCFDS08xKzNPRenMjYodNWHzFoKkBE1DmXVe5vaqYK8hVqN
+ u0wc7uim+hi0uhM946+XbAQqlHaxufVsStRZrqgd21onFRGt+55RQAOU///WJdKP+55K
+ ecCdkdvfD80V+x0RvJQZ26E3ltPVui6N8vSDccfjdYhJoiW1tQQ0Neb+c0mAL5IP2fjY
+ PM5by4EtZcpcAq3aVovpnEvvDVG4f5eH0BTs/+PzkkFYzssUHlC8/XMdzrhbfc9JIE+u
+ 5SIQ==
+X-Gm-Message-State: AOAM530JN4ZOKnzPQFHxBBF2eAqs8lqJHQ0F5RYhjNB5fwLFeKL3Rsk0
+ BchRA3snag/R5qyaV9AxfYsL+lwvf30l2w==
+X-Google-Smtp-Source: ABdhPJwaCSCRHwB+yHuUbb8UUy4h1IwWKGNNrFzuHszwlgX0zlBq5DonoErfFX2Ltj2B8fCgsKqtDw==
+X-Received: by 2002:a17:906:22c6:: with SMTP id
+ q6mr1609190eja.275.1623274608982; 
+ Wed, 09 Jun 2021 14:36:48 -0700 (PDT)
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com.
+ [209.85.128.53])
+ by smtp.gmail.com with ESMTPSA id r12sm371611edv.82.2021.06.09.14.36.47
+ for <virtualization@lists.linux-foundation.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 09 Jun 2021 14:36:48 -0700 (PDT)
+Received: by mail-wm1-f53.google.com with SMTP id l9so4926210wms.1
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 09 Jun 2021 14:36:47 -0700 (PDT)
+X-Received: by 2002:a7b:c935:: with SMTP id h21mr11765032wml.183.1623274607426; 
+ Wed, 09 Jun 2021 14:36:47 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [20.15.0.204] (73.88.28.6) by
- DM5PR2001CA0001.namprd20.prod.outlook.com (2603:10b6:4:16::11) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4219.21 via Frontend Transport; Wed, 9 Jun 2021 21:03:57 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: b7af07be-b682-407f-1347-08d92b8a192d
-X-MS-TrafficTypeDiagnostic: BYAPR10MB3623:
-X-Microsoft-Antispam-PRVS: <BYAPR10MB362380B675AD83F267091785F1369@BYAPR10MB3623.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:4941;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: iMP8vFustuE9ylLJdCFfFaOAbgRc040QJxkvCP0WgISHpg2hsuY8nCZXTj1Y3/dkjdxlsbLWUBliraRqOQGthX7qhgJTDt2H/Ee4zPqprv67EWmm9EB5nmltD1XzprpZCyAektWzbXekieORLqT7oBVN8gjzPU6yMbtvRxSn+EzlxgInKD8kobBB/xIALe/sBRE2c9p80+Dqq/EJjt+SlEdQKyj5ldVsheU1Kkg0hdG41NzW2mHNug3TZxjV2TH9V7xYP0tUa76nGgqTZ8qok8hn93ZUm38RUYAFFXVt5om666l7V5irQRfADoUkf1/K7D7P5vMCT0yBBEvKbHTjvS5qQy9KUK0PVgtKOo1w1E0zQXoLPpYQCLyn6bvJSyD0Z2Fcq1c0NZfQrl2BUQoKlMZKTEniuflIDaR5ea3aWbvuthofpee22ohbPaz1VxsCLaRMSD7O+OOSwrDcK8XTgNKZB98r6W7TO2wUMZrA9+0dkmo2M/DovWQihhq0QGmaLJZIl+UXwr/RyCsHhwahZ+xLyC/dh5Tr3//gAujVbvZSv9IvQSn9mxQR/zsRdNx0iOj+4FWki8J32nvHnovPbSHX0MAt7+jDC3S6MIBuRRY/WbvyTPRdiqsTFlzfXIuAMJRB5xm/Rt2F7YmBQwzEpo9c/xa24QELfliwXgvAymgmPPDs2cuJlUvFY9O+epiYC16bEIhd/kjFMqym1u89Mw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BYAPR10MB3573.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(396003)(136003)(39860400002)(346002)(376002)(366004)(86362001)(36756003)(4326008)(186003)(2906002)(316002)(66556008)(66476007)(8936002)(53546011)(956004)(83380400001)(66946007)(478600001)(38100700002)(16526019)(5660300002)(26005)(6916009)(6706004)(6486002)(8676002)(31686004)(2616005)(31696002)(16576012)(78286007)(43740500002)(45980500001);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?Windows-1252?Q?53OWhTFmZTZ35yElvsiciAnowg3Lg1z9wPHZDCQgNkPZZWGjsZxS17g8?=
- =?Windows-1252?Q?0g06/usfQIbRYXylbJHPk9Qeyzlx4hsY5L3e7H9Uwp1l98b6sCzg0YNR?=
- =?Windows-1252?Q?whS1zJ24dr8UJHzKSamg+bv3mFpVV2OUwtOsvZHXWXjOR3MXCN1g7DDW?=
- =?Windows-1252?Q?6RJVXnso0xNIBO0hwEWxwmv+NiMotnfjVGgeXyqXeLlsteGRhPUUycoV?=
- =?Windows-1252?Q?dL9Sc/FNsDPW4S12bHVjurKDxis/2I7IfG2WyfTN6hehqHscJBFhEQ18?=
- =?Windows-1252?Q?cOY2HwSKC/u4CTI0ARZGJe0Gbt9byf7ODpG9XbFzz3v+6sNJAfIpsq2t?=
- =?Windows-1252?Q?YZ6b3Iswq6aewx2CYTd5QxKi95kV9jAfcK5+Y78nG/b69z6dEP2926+j?=
- =?Windows-1252?Q?ZctGdgsgzminQY1e+1pqUWuuYTNnr2N5Tsoq/SJLFQ6rKrr9dBs8peUP?=
- =?Windows-1252?Q?fwQZhFt2Dz7UYN8g48TCk/10lvgXlVnMNlbSrj1YGWDm21LbN/3lW9Tc?=
- =?Windows-1252?Q?nJTr+7VX499RxAcObrsmwpUrKk19ThIIXDFy8FuRSNJLbmZJRCsh9Js6?=
- =?Windows-1252?Q?TxCdiyJJ7scvpNLdRcatpjNQOp3SJ8Ja3PQknUCT/IQoIT0NwXg5/h3/?=
- =?Windows-1252?Q?281n3Vi05GmoTTEF5i84cjdApDZbsfmGalG5S38N4dzfZiwpsOUfinXR?=
- =?Windows-1252?Q?FBBKXeVFnuHjgq6zMa8WnT21CIbX1J1AXwqltTr3JuntLHDrpR3YYIcK?=
- =?Windows-1252?Q?MXGOOS09JRtcT08jiR6jx4pebD3h7cftXg/4nMAg3S0SsR+wO5rakVP5?=
- =?Windows-1252?Q?VRcOquw6Fb2ZdHlvNBVh0F3t+kAgQ0zLGcd+J4qaWykNaLDyrA7YkNxk?=
- =?Windows-1252?Q?o+a4kwKGjMnL+AVIIIWn55OuD2d/cw4Z7C/p+EdKPhb03lVGLFoxJ/We?=
- =?Windows-1252?Q?pv2+MSWsGQsXXIdLMVyfN0GcMKWpN65YGMX5GWzoXKLwwczR/+NoeHJQ?=
- =?Windows-1252?Q?LRC3nX7vQpmk16blbnknA6Z7bz6tE01n90vOsOhuazxjb0syMb+OQNXH?=
- =?Windows-1252?Q?EGD32UET8jxPHfblBGVIU9bfT/hOVb9Cm9mdWBbdjIIVpoBJhCFGspdh?=
- =?Windows-1252?Q?I30hN3B+7OKP4t1NcNWfi2v5zPxk/j9K03IoIPvAZWgqrs/PLizCFrhe?=
- =?Windows-1252?Q?MV93V2LagjKCq21yjb1LIHkuAU/W768X45zT9/jryQg++jmLflb7pSG/?=
- =?Windows-1252?Q?V1QpiFoQ6FDf7BL3QVRPqCntX16dqU0/sE0I2Za4QswjrUUF0U29y8F3?=
- =?Windows-1252?Q?ZlnsRYd757+Uvd7fK5vzgoHwdZ2kt7T8skHgrScbv2lcDB663Ey/HUEM?=
- =?Windows-1252?Q?gmS2ZMypYXFC95WrvPG6GYdEFhm4x/MIfLjWMa8sHbkAxqTU2niF/s4x?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b7af07be-b682-407f-1347-08d92b8a192d
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB3573.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jun 2021 21:03:58.0769 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: +fNO1eRGPKl1UQAobD4AlJ4S54kyhHcWWZwq8+F3vhntfok+p8TQQi0P2XLDd5cRAmgagw7EysA2O9aUm3j71xG6uD2AiwPtCCV4yw5FP4s=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR10MB3623
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=10010
- signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
- suspectscore=0
- malwarescore=0 mlxscore=0 spamscore=0 phishscore=0 bulkscore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106090110
-X-Proofpoint-GUID: xJZb8NUog_bgYkjKIO2HOBfsW0L1stVN
-X-Proofpoint-ORIG-GUID: xJZb8NUog_bgYkjKIO2HOBfsW0L1stVN
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=10010
- signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0
- priorityscore=1501 clxscore=1015
- bulkscore=0 spamscore=0 mlxscore=0 adultscore=0 malwarescore=0
- phishscore=0 suspectscore=0 lowpriorityscore=0 mlxlogscore=999
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2106090110
-Cc: linux-scsi@vger.kernel.org, mst@redhat.com,
- virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org,
- pbonzini@redhat.com
+References: <20210526082423.47837-1-mst@redhat.com>
+ <CA+FuTScp-OhBnVzkXcsCBWxmq51VO6+8UGpSU5i3AJQV84eTLg@mail.gmail.com>
+ <CA+FuTSf09nOJ=St4-3318oXy2ey0qRKkti8FvwheEUdiHSK0HA@mail.gmail.com>
+In-Reply-To: <CA+FuTSf09nOJ=St4-3318oXy2ey0qRKkti8FvwheEUdiHSK0HA@mail.gmail.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date: Wed, 9 Jun 2021 17:36:09 -0400
+X-Gmail-Original-Message-ID: <CA+FuTSdrtsJpu2+ptT=6iUCnDH+1L1zgfT+1ggNC6kYcb5aTjg@mail.gmail.com>
+Message-ID: <CA+FuTSdrtsJpu2+ptT=6iUCnDH+1L1zgfT+1ggNC6kYcb5aTjg@mail.gmail.com>
+Subject: Re: [PATCH v3 0/4] virtio net: spurious interrupt related fixes
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ Network Development <netdev@vger.kernel.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Jakub Kicinski <kuba@kernel.org>, Wei Wang <weiwan@google.com>,
+ David Miller <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -208,65 +125,120 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 6/7/21 10:19 AM, Stefan Hajnoczi wrote:
-> My concern is that threads should probably accounted against
-> RLIMIT_NPROC and max_threads rather than something indirect like 128 *
-> RLIMIT_NOFILE (a userspace process can only have RLIMIT_NOFILE
-> vhost-user file descriptors open).
-> 
+On Mon, May 31, 2021 at 10:53 PM Willem de Bruijn
+<willemdebruijn.kernel@gmail.com> wrote:
+>
+> On Wed, May 26, 2021 at 11:34 AM Willem de Bruijn
+> <willemdebruijn.kernel@gmail.com> wrote:
+> >
+> > On Wed, May 26, 2021 at 4:24 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > >
+> > >
+> > > With the implementation of napi-tx in virtio driver, we clean tx
+> > > descriptors from rx napi handler, for the purpose of reducing tx
+> > > complete interrupts. But this introduces a race where tx complete
+> > > interrupt has been raised, but the handler finds there is no work to do
+> > > because we have done the work in the previous rx interrupt handler.
+> > > A similar issue exists with polling from start_xmit, it is however
+> > > less common because of the delayed cb optimization of the split ring -
+> > > but will likely affect the packed ring once that is more common.
+> > >
+> > > In particular, this was reported to lead to the following warning msg:
+> > > [ 3588.010778] irq 38: nobody cared (try booting with the
+> > > "irqpoll" option)
+> > > [ 3588.017938] CPU: 4 PID: 0 Comm: swapper/4 Not tainted
+> > > 5.3.0-19-generic #20~18.04.2-Ubuntu
+> > > [ 3588.017940] Call Trace:
+> > > [ 3588.017942]  <IRQ>
+> > > [ 3588.017951]  dump_stack+0x63/0x85
+> > > [ 3588.017953]  __report_bad_irq+0x35/0xc0
+> > > [ 3588.017955]  note_interrupt+0x24b/0x2a0
+> > > [ 3588.017956]  handle_irq_event_percpu+0x54/0x80
+> > > [ 3588.017957]  handle_irq_event+0x3b/0x60
+> > > [ 3588.017958]  handle_edge_irq+0x83/0x1a0
+> > > [ 3588.017961]  handle_irq+0x20/0x30
+> > > [ 3588.017964]  do_IRQ+0x50/0xe0
+> > > [ 3588.017966]  common_interrupt+0xf/0xf
+> > > [ 3588.017966]  </IRQ>
+> > > [ 3588.017989] handlers:
+> > > [ 3588.020374] [<000000001b9f1da8>] vring_interrupt
+> > > [ 3588.025099] Disabling IRQ #38
+> > >
+> > > This patchset attempts to fix this by cleaning up a bunch of races
+> > > related to the handling of sq callbacks (aka tx interrupts).
+> > > Somewhat tested but I couldn't reproduce the original issues
+> > > reported, sending out for help with testing.
+> > >
+> > > Wei, does this address the spurious interrupt issue you are
+> > > observing? Could you confirm please?
+> >
+> > Thanks for working on this, Michael. Wei is on leave. I'll try to reproduce.
+>
+> The original report was generated with five GCE virtual machines
+> sharing a sole-tenant node, together sending up to 160 netperf
+> tcp_stream connections to 16 other instances. Running Ubuntu 20.04-LTS
+> with kernel 5.4.0-1034-gcp.
+>
+> But the issue can also be reproduced with just two n2-standard-16
+> instances, running neper tcp_stream with high parallelism (-T 16 -F
+> 240).
+>
+> It's a bit faster to trigger by reducing the interrupt count threshold
+> from 99.9K/100K to 9.9K/10K. And I added additional logging to report
+> the unhandled rate even if lower.
+>
+> Unhandled interrupt rate scales with the number of queue pairs
+> (`ethtool -L $DEV combined $NUM`). It is essentially absent at 8
+> queues, at around 90% at 14 queues. By default these GCE instances
+> have one rx and tx interrupt per core, so 16 each. With the rx and tx
+> interrupts for a given virtio-queue pinned to the same core.
+>
+> Unfortunately, commit 3/4 did not have a significant impact on these
+> numbers. Have to think a bit more about possible mitigations. At least
+> I'll be able to test the more easily now.
 
-Ah ok, I see what you want I think.
+Continuing to experiment with approaches to avoid this interrupt disable.
 
-Ok, I think the options are:
+I think it's good to remember that the real bug is the disabling of
+interrupts, which may cause stalls in absence of receive events.
 
-0. Nothing. Just use existing indirect/RLIMIT_NOFILE.
+The spurious tx interrupts themselves are no worse than the processing
+the tx and rx interrupts strictly separately without the optimization.
+The clean-from-rx optimization just reduces latency. The spurious
+interrupts indicate a cycle optimization opportunity for sure. I
+support Jason's suggestion for a single combined interrupt for both tx
+and rx. That is not feasible as a bugfix for stable, so we need something
+to mitigate the impact in the short term.
 
-1. Do something like io_uring's create_io_thread/copy_process. If we call
-copy_process from the vhost ioctl context, then the userspace process that
-did the ioctl will have it's processes count incremented and checked against
-its rlimit.
+For that, I suggest just an approach to maintain most benefit
+from the opportunistic cleaning, while keeping spurious rate below the
+threshold. A few variants:
 
-The drawbacks:
-- This gets a little more complicated than just calling copy_process though.
-We end up duplicating a lot of the kthread API.
-- We have to deal with new error cases like the parent exiting early.
-- I think all devs sharing a worker have to have the same owner. kthread_use_mm
-and kthread_unuse_mm to switch between mm's for differrent owner's devs seem to
-be causing lots of errors. I'm still looking into this one though.
+1. In virtnet_poll_cleantx, a uniformly random draw on whether or not
+to attemp to clean. Not trivial to get a good random source that is
+essentially free. One example perhaps is sq->vq->num_free & 0x7, but
+not sure how randomized those bits are. Pro: this can be implemented
+strictly in virtio_net. Con: a probabilistic method will reduce the
+incidence rate, but it may still occur at the tail.
 
-2.  It's not really what you want, but for unbound work io_uring has a check for
-RLIMIT_NPROC in the io_uring code. It does:
+2. If also changing virtio_ring, in vring_interrupt count spurious
+interrupts and report this count through a new interface. Modify
+virtio_net to query and skip the optimization if above a threshold.
 
-wqe->acct[IO_WQ_ACCT_UNBOUND].max_workers =
-					task_rlimit(current, RLIMIT_NPROC);
+2a. slight variant: in virtio_net count consecutive succesful
+opportunistic cleaning operations. If 100% hit rate, then probably
+the tx interrupts are all spurious. Temporarily back off. (virtio_net
+is not called for interrupts if there is no work on the ring, so cannot
+count these events independently itself).
 
-then does:
+3. Modify virtio_ring to explicitly allow opportunistic cleaning and
+spurious interrupts on a per vring basis. Add a boolean to struct
+vring_virtqueue. And return IRQ_HANDLED instead of IRQ_NONE for these
+(only).
 
-if (!ret && acct->nr_workers < acct->max_workers) {
-
-Drawbacks:
-In vhost.c, we could do something similar. It would make sure that vhost.c does
-not create more worker threads than the rlimit value, but we wouldn't be
-incrementing the userspace process's process count. The userspace process could
-then create RLIMIT_NPROC threads and vhost.c could also create RLIMIT_NPROC
-threads, so we end up with 2 * RLIMIT_NPROC threads.
-
-3. Change the kthread and copy_process code so we can pass in the thread
-(or it's creds or some struct that has the values that need to be check) that
-needs to be checked and updated.
-
-Drawback:
-This might be considered too ugly for how special case vhost is. For example, we
-need checks/code like the io_thread/PF_IO_WORKER code in copy_process for io_uring.
-I can see how added that for io_uring because it affects so many users, but I can
-see how vhost is not special enough.
-
-
-
-
-
-
-
+The first two patches in Michael's series, which ensure that all relevant
+operations are executed with the tx lock held, perhaps shouldn't wait
+on additional interrupt suppression / mitigation work.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
