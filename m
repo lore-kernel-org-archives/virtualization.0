@@ -7,101 +7,101 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EEADC48BE8
-	for <virtualization@archiver.kernel.org>; Wed,  9 Jun 2021 11:20:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BECBC49EA4
+	for <virtualization@archiver.kernel.org>; Wed,  9 Jun 2021 11:20:28 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 152F361040
-	for <virtualization@archiver.kernel.org>; Wed,  9 Jun 2021 11:20:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 152F361040
+	by mail.kernel.org (Postfix) with ESMTPS id 25968613B8
+	for <virtualization@archiver.kernel.org>; Wed,  9 Jun 2021 11:20:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 25968613B8
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D4A6C40523;
-	Wed,  9 Jun 2021 11:20:26 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 42440404FD;
+	Wed,  9 Jun 2021 11:20:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 21F6FXJsMIth; Wed,  9 Jun 2021 11:20:25 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 5775440518;
+	with ESMTP id Ws3kkP89rDo4; Wed,  9 Jun 2021 11:20:26 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B521140524;
 	Wed,  9 Jun 2021 11:20:25 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2BCA7C002E;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 62839C0030;
 	Wed,  9 Jun 2021 11:20:24 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EA872C000B
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2F75CC000B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Jun 2021 11:20:21 +0000 (UTC)
+ Wed,  9 Jun 2021 11:20:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id CB06460597
+ by smtp1.osuosl.org (Postfix) with ESMTP id 0F7F883C44
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  9 Jun 2021 11:20:22 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=suse.de header.b="hgqBLcoJ";
+ dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
+ header.d=suse.de header.b="eGgR9KjA"; dkim=pass (1024-bit key)
+ header.d=suse.de header.b="hgqBLcoJ"; dkim=neutral
+ reason="invalid (unsupported algorithm ed25519-sha256)"
+ header.d=suse.de header.b="eGgR9KjA"
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id QAyHn5w4a2BW
  for <virtualization@lists.linux-foundation.org>;
  Wed,  9 Jun 2021 11:20:21 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.de header.b="feETavSA";
- dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
- header.d=suse.de header.b="FiHMe32N"; dkim=pass (1024-bit key)
- header.d=suse.de header.b="feETavSA"; dkim=neutral
- reason="invalid (unsupported algorithm ed25519-sha256)"
- header.d=suse.de header.b="FiHMe32N"
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id o3TBDT25PDNo
- for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Jun 2021 11:20:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 9B881608DD
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 30E2C83C46
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Jun 2021 11:20:20 +0000 (UTC)
+ Wed,  9 Jun 2021 11:20:21 +0000 (UTC)
 Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
  (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id C9F0C219E7;
- Wed,  9 Jun 2021 11:20:18 +0000 (UTC)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id 70A741FD4E;
+ Wed,  9 Jun 2021 11:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1623237618; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ t=1623237619; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=0LgmkNBFCrk1hW0/5PXKqc/A6qw4hyWmJvURgp3U/IY=;
- b=feETavSAwPIN91p0cp256C9fiEsKaNYIKuVNT50Mf3so2lwsaBjQikkEdEpjs8+dLr+wQZ
- aRXgCTaShXVXVpbrYad0kOe3F7/pN97IxqZCBf5JanIEjq1G4uCGdjvA1wfggeqAJJdyA7
- cuUfQ5zlL3AEG3KxZiJ6na/5xlBS7gc=
+ bh=uHgjG881Tzc6TF1wm3lJNykWl3nzYgQpZTifsGlExSU=;
+ b=hgqBLcoJY2hRbV6/3Hrf2WYuynMUd9lzWYUR+DdXlNfTZli8hzGqhtU3QmtTRRAqV6fS8M
+ wDJdF1FkdaZY1ArXcHL5VCIPMV0PRYELkHJOZDDwCl2CsYPEyMKRwPJ3ZZ5Ic5fk30uGGW
+ rCSXuXdk8BiSRqjnpkEqOsqJ8E3bvFY=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1623237618;
+ s=susede2_ed25519; t=1623237619;
  h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=0LgmkNBFCrk1hW0/5PXKqc/A6qw4hyWmJvURgp3U/IY=;
- b=FiHMe32Ni2REvI8BzxgNMv2YcNCb3Od9taV4cLY/CDSaTllreQL1Zf7x3eX+qMtrvXbqLK
- svw5Gcb+w5vufCDQ==
+ bh=uHgjG881Tzc6TF1wm3lJNykWl3nzYgQpZTifsGlExSU=;
+ b=eGgR9KjAmEUGAXpoJk3a/G6GTIkV9mSVYZLHZAU/NHGNMndowHzlD+P9aLIVMDFR5MbUPm
+ KIutgtmlNht3fHCg==
 Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
- by imap.suse.de (Postfix) with ESMTP id 249C311A98;
+ by imap.suse.de (Postfix) with ESMTP id CDACA118DD;
  Wed,  9 Jun 2021 11:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1623237618; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ t=1623237619; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=0LgmkNBFCrk1hW0/5PXKqc/A6qw4hyWmJvURgp3U/IY=;
- b=feETavSAwPIN91p0cp256C9fiEsKaNYIKuVNT50Mf3so2lwsaBjQikkEdEpjs8+dLr+wQZ
- aRXgCTaShXVXVpbrYad0kOe3F7/pN97IxqZCBf5JanIEjq1G4uCGdjvA1wfggeqAJJdyA7
- cuUfQ5zlL3AEG3KxZiJ6na/5xlBS7gc=
+ bh=uHgjG881Tzc6TF1wm3lJNykWl3nzYgQpZTifsGlExSU=;
+ b=hgqBLcoJY2hRbV6/3Hrf2WYuynMUd9lzWYUR+DdXlNfTZli8hzGqhtU3QmtTRRAqV6fS8M
+ wDJdF1FkdaZY1ArXcHL5VCIPMV0PRYELkHJOZDDwCl2CsYPEyMKRwPJ3ZZ5Ic5fk30uGGW
+ rCSXuXdk8BiSRqjnpkEqOsqJ8E3bvFY=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1623237618;
+ s=susede2_ed25519; t=1623237619;
  h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=0LgmkNBFCrk1hW0/5PXKqc/A6qw4hyWmJvURgp3U/IY=;
- b=FiHMe32Ni2REvI8BzxgNMv2YcNCb3Od9taV4cLY/CDSaTllreQL1Zf7x3eX+qMtrvXbqLK
- svw5Gcb+w5vufCDQ==
+ bh=uHgjG881Tzc6TF1wm3lJNykWl3nzYgQpZTifsGlExSU=;
+ b=eGgR9KjAmEUGAXpoJk3a/G6GTIkV9mSVYZLHZAU/NHGNMndowHzlD+P9aLIVMDFR5MbUPm
+ KIutgtmlNht3fHCg==
 Received: from director2.suse.de ([192.168.254.72]) by imap3-int with ESMTPSA
- id gK7nB/KjwGBTUgAALh3uQQ
+ id 0G1AMfKjwGBTUgAALh3uQQ
  (envelope-from <tzimmermann@suse.de>); Wed, 09 Jun 2021 11:20:18 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: daniel@ffwll.ch, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
@@ -113,9 +113,9 @@ To: daniel@ffwll.ch, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
  sean@poorly.run, airlied@redhat.com, kraxel@redhat.com, hjc@rock-chips.com,
  heiko@sntech.de, oleksandr_andrushchenko@epam.com, sumit.semwal@linaro.org,
  christian.koenig@amd.com
-Subject: [PATCH 7/9] drm/xen: Implement mmap as GEM object function
-Date: Wed,  9 Jun 2021 13:20:10 +0200
-Message-Id: <20210609112012.10019-8-tzimmermann@suse.de>
+Subject: [PATCH 8/9] drm/rockchip: Implement mmap as GEM object function
+Date: Wed,  9 Jun 2021 13:20:11 +0200
+Message-Id: <20210609112012.10019-9-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210609112012.10019-1-tzimmermann@suse.de>
 References: <20210609112012.10019-1-tzimmermann@suse.de>
@@ -146,218 +146,163 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 Moving the driver-specific mmap code into a GEM object function allows
 for using DRM helpers for various mmap callbacks.
 
-The respective xen functions are being removed. The file_operations
+The respective rockchip functions are being removed. The file_operations
 structure fops is now being created by the helper macro
 DEFINE_DRM_GEM_FOPS().
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/xen/xen_drm_front.c     |  16 +---
- drivers/gpu/drm/xen/xen_drm_front_gem.c | 108 +++++++++---------------
- drivers/gpu/drm/xen/xen_drm_front_gem.h |   7 --
- 3 files changed, 44 insertions(+), 87 deletions(-)
+ drivers/gpu/drm/rockchip/rockchip_drm_drv.c   | 13 +-----
+ drivers/gpu/drm/rockchip/rockchip_drm_fbdev.c |  3 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_gem.c   | 44 +++++--------------
+ drivers/gpu/drm/rockchip/rockchip_drm_gem.h   |  7 ---
+ 4 files changed, 15 insertions(+), 52 deletions(-)
 
-diff --git a/drivers/gpu/drm/xen/xen_drm_front.c b/drivers/gpu/drm/xen/xen_drm_front.c
-index 9f14d99c763c..434064c820e8 100644
---- a/drivers/gpu/drm/xen/xen_drm_front.c
-+++ b/drivers/gpu/drm/xen/xen_drm_front.c
-@@ -469,19 +469,7 @@ static void xen_drm_drv_release(struct drm_device *dev)
- 	kfree(drm_info);
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_drv.c b/drivers/gpu/drm/rockchip/rockchip_drm_drv.c
+index b730b8d5d949..2e3ab573a817 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_drv.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_drv.c
+@@ -208,16 +208,7 @@ static void rockchip_drm_unbind(struct device *dev)
+ 	drm_dev_put(drm_dev);
  }
  
--static const struct file_operations xen_drm_dev_fops = {
--	.owner          = THIS_MODULE,
--	.open           = drm_open,
--	.release        = drm_release,
+-static const struct file_operations rockchip_drm_driver_fops = {
+-	.owner = THIS_MODULE,
+-	.open = drm_open,
+-	.mmap = rockchip_gem_mmap,
+-	.poll = drm_poll,
+-	.read = drm_read,
 -	.unlocked_ioctl = drm_ioctl,
--#ifdef CONFIG_COMPAT
--	.compat_ioctl   = drm_compat_ioctl,
--#endif
--	.poll           = drm_poll,
--	.read           = drm_read,
--	.llseek         = no_llseek,
--	.mmap           = xen_drm_front_gem_mmap,
+-	.compat_ioctl = drm_compat_ioctl,
+-	.release = drm_release,
 -};
-+DEFINE_DRM_GEM_FOPS(xen_drm_dev_fops);
++DEFINE_DRM_GEM_FOPS(rockchip_drm_driver_fops);
  
- static const struct drm_driver xen_drm_driver = {
- 	.driver_features           = DRIVER_GEM | DRIVER_MODESET | DRIVER_ATOMIC,
-@@ -489,7 +477,7 @@ static const struct drm_driver xen_drm_driver = {
- 	.prime_handle_to_fd        = drm_gem_prime_handle_to_fd,
- 	.prime_fd_to_handle        = drm_gem_prime_fd_to_handle,
- 	.gem_prime_import_sg_table = xen_drm_front_gem_import_sg_table,
--	.gem_prime_mmap            = xen_drm_front_gem_prime_mmap,
-+	.gem_prime_mmap            = drm_gem_prime_mmap,
- 	.dumb_create               = xen_drm_drv_dumb_create,
- 	.fops                      = &xen_drm_dev_fops,
- 	.name                      = "xendrm-du",
-diff --git a/drivers/gpu/drm/xen/xen_drm_front_gem.c b/drivers/gpu/drm/xen/xen_drm_front_gem.c
-index b293c67230ef..dd358ba2bf8e 100644
---- a/drivers/gpu/drm/xen/xen_drm_front_gem.c
-+++ b/drivers/gpu/drm/xen/xen_drm_front_gem.c
-@@ -57,6 +57,47 @@ static void gem_free_pages_array(struct xen_gem_object *xen_obj)
- 	xen_obj->pages = NULL;
+ static const struct drm_driver rockchip_drm_driver = {
+ 	.driver_features	= DRIVER_MODESET | DRIVER_GEM | DRIVER_ATOMIC,
+@@ -226,7 +217,7 @@ static const struct drm_driver rockchip_drm_driver = {
+ 	.prime_handle_to_fd	= drm_gem_prime_handle_to_fd,
+ 	.prime_fd_to_handle	= drm_gem_prime_fd_to_handle,
+ 	.gem_prime_import_sg_table	= rockchip_gem_prime_import_sg_table,
+-	.gem_prime_mmap		= rockchip_gem_mmap_buf,
++	.gem_prime_mmap		= drm_gem_prime_mmap,
+ 	.fops			= &rockchip_drm_driver_fops,
+ 	.name	= DRIVER_NAME,
+ 	.desc	= DRIVER_DESC,
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_fbdev.c b/drivers/gpu/drm/rockchip/rockchip_drm_fbdev.c
+index 2fdc455c4ad7..d8418dd39d0e 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_fbdev.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_fbdev.c
+@@ -7,6 +7,7 @@
+ #include <drm/drm.h>
+ #include <drm/drm_fb_helper.h>
+ #include <drm/drm_fourcc.h>
++#include <drm/drm_prime.h>
+ #include <drm/drm_probe_helper.h>
+ 
+ #include "rockchip_drm_drv.h"
+@@ -24,7 +25,7 @@ static int rockchip_fbdev_mmap(struct fb_info *info,
+ 	struct drm_fb_helper *helper = info->par;
+ 	struct rockchip_drm_private *private = to_drm_private(helper);
+ 
+-	return rockchip_gem_mmap_buf(private->fbdev_bo, vma);
++	return drm_gem_prime_mmap(private->fbdev_bo, vma);
  }
  
-+static int xen_drm_front_gem_object_mmap(struct drm_gem_object *gem_obj,
-+					 struct vm_area_struct *vma)
-+{
-+	struct xen_gem_object *xen_obj = to_xen_gem_obj(gem_obj);
-+	int ret;
-+
-+	vma->vm_ops = gem_obj->funcs->vm_ops;
-+
+ static const struct fb_ops rockchip_drm_fbdev_ops = {
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_gem.c b/drivers/gpu/drm/rockchip/rockchip_drm_gem.c
+index 7971f57436dd..63eb73b624aa 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_gem.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_gem.c
+@@ -240,12 +240,22 @@ static int rockchip_drm_gem_object_mmap(struct drm_gem_object *obj,
+ 	int ret;
+ 	struct rockchip_gem_object *rk_obj = to_rockchip_obj(obj);
+ 
 +	/*
-+	 * Clear the VM_PFNMAP flag that was set by drm_gem_mmap(), and set the
-+	 * vm_pgoff (used as a fake buffer offset by DRM) to 0 as we want to map
-+	 * the whole buffer.
++	 * Set vm_pgoff (used as a fake buffer offset by DRM) to 0 and map the
++	 * whole buffer from the start.
 +	 */
-+	vma->vm_flags &= ~VM_PFNMAP;
-+	vma->vm_flags |= VM_MIXEDMAP;
 +	vma->vm_pgoff = 0;
 +
-+	/*
-+	 * According to Xen on ARM ABI (xen/include/public/arch-arm.h):
-+	 * all memory which is shared with other entities in the system
-+	 * (including the hypervisor and other guests) must reside in memory
-+	 * which is mapped as Normal Inner Write-Back Outer Write-Back
-+	 * Inner-Shareable.
-+	 */
-+	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
-+
-+	/*
-+	 * vm_operations_struct.fault handler will be called if CPU access
-+	 * to VM is here. For GPUs this isn't the case, because CPU  doesn't
-+	 * touch the memory. Insert pages now, so both CPU and GPU are happy.
-+	 *
-+	 * FIXME: as we insert all the pages now then no .fault handler must
-+	 * be called, so don't provide one
-+	 */
-+	ret = vm_map_pages(vma, xen_obj->pages, xen_obj->num_pages);
-+	if (ret < 0)
-+		DRM_ERROR("Failed to map pages into vma: %d\n", ret);
-+
-+	return ret;
-+}
-+
- static const struct vm_operations_struct xen_drm_drv_vm_ops = {
- 	.open           = drm_gem_vm_open,
- 	.close          = drm_gem_vm_close,
-@@ -67,6 +108,7 @@ static const struct drm_gem_object_funcs xen_drm_front_gem_object_funcs = {
- 	.get_sg_table = xen_drm_front_gem_get_sg_table,
- 	.vmap = xen_drm_front_gem_prime_vmap,
- 	.vunmap = xen_drm_front_gem_prime_vunmap,
-+	.mmap = xen_drm_front_gem_object_mmap,
- 	.vm_ops = &xen_drm_drv_vm_ops,
- };
+ 	/*
+ 	 * We allocated a struct page table for rk_obj, so clear
+ 	 * VM_PFNMAP flag that was set by drm_gem_mmap_obj()/drm_gem_mmap().
+ 	 */
++	vma->vm_flags |= VM_IO | VM_DONTEXPAND | VM_DONTDUMP;
+ 	vma->vm_flags &= ~VM_PFNMAP;
  
-@@ -238,58 +280,6 @@ xen_drm_front_gem_import_sg_table(struct drm_device *dev,
- 	return &xen_obj->base;
++	vma->vm_page_prot = pgprot_writecombine(vm_get_page_prot(vma->vm_flags));
++	vma->vm_page_prot = pgprot_decrypted(vma->vm_page_prot);
++
+ 	if (rk_obj->pages)
+ 		ret = rockchip_drm_gem_object_mmap_iommu(obj, vma);
+ 	else
+@@ -257,39 +267,6 @@ static int rockchip_drm_gem_object_mmap(struct drm_gem_object *obj,
+ 	return ret;
  }
  
--static int gem_mmap_obj(struct xen_gem_object *xen_obj,
--			struct vm_area_struct *vma)
+-int rockchip_gem_mmap_buf(struct drm_gem_object *obj,
+-			  struct vm_area_struct *vma)
 -{
 -	int ret;
 -
--	/*
--	 * clear the VM_PFNMAP flag that was set by drm_gem_mmap(), and set the
--	 * vm_pgoff (used as a fake buffer offset by DRM) to 0 as we want to map
--	 * the whole buffer.
--	 */
--	vma->vm_flags &= ~VM_PFNMAP;
--	vma->vm_flags |= VM_MIXEDMAP;
--	vma->vm_pgoff = 0;
--	/*
--	 * According to Xen on ARM ABI (xen/include/public/arch-arm.h):
--	 * all memory which is shared with other entities in the system
--	 * (including the hypervisor and other guests) must reside in memory
--	 * which is mapped as Normal Inner Write-Back Outer Write-Back
--	 * Inner-Shareable.
--	 */
--	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
+-	ret = drm_gem_mmap_obj(obj, obj->size, vma);
+-	if (ret)
+-		return ret;
 -
--	/*
--	 * vm_operations_struct.fault handler will be called if CPU access
--	 * to VM is here. For GPUs this isn't the case, because CPU
--	 * doesn't touch the memory. Insert pages now, so both CPU and GPU are
--	 * happy.
--	 * FIXME: as we insert all the pages now then no .fault handler must
--	 * be called, so don't provide one
--	 */
--	ret = vm_map_pages(vma, xen_obj->pages, xen_obj->num_pages);
--	if (ret < 0)
--		DRM_ERROR("Failed to map pages into vma: %d\n", ret);
--
--	return ret;
+-	return rockchip_drm_gem_object_mmap(obj, vma);
 -}
 -
--int xen_drm_front_gem_mmap(struct file *filp, struct vm_area_struct *vma)
+-/* drm driver mmap file operations */
+-int rockchip_gem_mmap(struct file *filp, struct vm_area_struct *vma)
 -{
--	struct xen_gem_object *xen_obj;
--	struct drm_gem_object *gem_obj;
+-	struct drm_gem_object *obj;
 -	int ret;
 -
 -	ret = drm_gem_mmap(filp, vma);
--	if (ret < 0)
+-	if (ret)
 -		return ret;
 -
--	gem_obj = vma->vm_private_data;
--	xen_obj = to_xen_gem_obj(gem_obj);
--	return gem_mmap_obj(xen_obj, vma);
+-	/*
+-	 * Set vm_pgoff (used as a fake buffer offset by DRM) to 0 and map the
+-	 * whole buffer from the start.
+-	 */
+-	vma->vm_pgoff = 0;
+-
+-	obj = vma->vm_private_data;
+-
+-	return rockchip_drm_gem_object_mmap(obj, vma);
 -}
 -
- int xen_drm_front_gem_prime_vmap(struct drm_gem_object *gem_obj, struct dma_buf_map *map)
+ static void rockchip_gem_release_object(struct rockchip_gem_object *rk_obj)
  {
- 	struct xen_gem_object *xen_obj = to_xen_gem_obj(gem_obj);
-@@ -313,17 +303,3 @@ void xen_drm_front_gem_prime_vunmap(struct drm_gem_object *gem_obj,
- {
- 	vunmap(map->vaddr);
- }
--
--int xen_drm_front_gem_prime_mmap(struct drm_gem_object *gem_obj,
--				 struct vm_area_struct *vma)
--{
--	struct xen_gem_object *xen_obj;
--	int ret;
--
--	ret = drm_gem_mmap_obj(gem_obj, gem_obj->size, vma);
--	if (ret < 0)
--		return ret;
--
--	xen_obj = to_xen_gem_obj(gem_obj);
--	return gem_mmap_obj(xen_obj, vma);
--}
-diff --git a/drivers/gpu/drm/xen/xen_drm_front_gem.h b/drivers/gpu/drm/xen/xen_drm_front_gem.h
-index a4e67d0a149c..eaea470f7001 100644
---- a/drivers/gpu/drm/xen/xen_drm_front_gem.h
-+++ b/drivers/gpu/drm/xen/xen_drm_front_gem.h
-@@ -15,9 +15,7 @@ struct dma_buf_attachment;
- struct dma_buf_map;
- struct drm_device;
- struct drm_gem_object;
--struct file;
- struct sg_table;
--struct vm_area_struct;
+ 	drm_gem_object_release(&rk_obj->base);
+@@ -301,6 +278,7 @@ static const struct drm_gem_object_funcs rockchip_gem_object_funcs = {
+ 	.get_sg_table = rockchip_gem_prime_get_sg_table,
+ 	.vmap = rockchip_gem_prime_vmap,
+ 	.vunmap	= rockchip_gem_prime_vunmap,
++	.mmap = rockchip_drm_gem_object_mmap,
+ 	.vm_ops = &drm_gem_cma_vm_ops,
+ };
  
- struct drm_gem_object *xen_drm_front_gem_create(struct drm_device *dev,
- 						size_t size);
-@@ -33,15 +31,10 @@ struct page **xen_drm_front_gem_get_pages(struct drm_gem_object *obj);
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_gem.h b/drivers/gpu/drm/rockchip/rockchip_drm_gem.h
+index 5a70a56cd406..47c1861eece0 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_gem.h
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_gem.h
+@@ -34,13 +34,6 @@ rockchip_gem_prime_import_sg_table(struct drm_device *dev,
+ int rockchip_gem_prime_vmap(struct drm_gem_object *obj, struct dma_buf_map *map);
+ void rockchip_gem_prime_vunmap(struct drm_gem_object *obj, struct dma_buf_map *map);
  
- void xen_drm_front_gem_free_object_unlocked(struct drm_gem_object *gem_obj);
- 
--int xen_drm_front_gem_mmap(struct file *filp, struct vm_area_struct *vma);
+-/* drm driver mmap file operations */
+-int rockchip_gem_mmap(struct file *filp, struct vm_area_struct *vma);
 -
- int xen_drm_front_gem_prime_vmap(struct drm_gem_object *gem_obj,
- 				 struct dma_buf_map *map);
- 
- void xen_drm_front_gem_prime_vunmap(struct drm_gem_object *gem_obj,
- 				    struct dma_buf_map *map);
- 
--int xen_drm_front_gem_prime_mmap(struct drm_gem_object *gem_obj,
--				 struct vm_area_struct *vma);
+-/* mmap a gem object to userspace. */
+-int rockchip_gem_mmap_buf(struct drm_gem_object *obj,
+-			  struct vm_area_struct *vma);
 -
- #endif /* __XEN_DRM_FRONT_GEM_H */
+ struct rockchip_gem_object *
+ 	rockchip_gem_create_object(struct drm_device *drm, unsigned int size,
+ 				   bool alloc_kmap);
 -- 
 2.31.1
 
