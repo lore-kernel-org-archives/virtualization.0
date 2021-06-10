@@ -2,101 +2,99 @@ Return-Path: <SRS0=uiEo=LE=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 818EBC47094
-	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 08:02:55 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03570C48BD1
+	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 08:02:56 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 207E6613DF
+	by mail.kernel.org (Postfix) with ESMTPS id B019C613DF
 	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 08:02:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 207E6613DF
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B019C613DF
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C02E6405C5;
-	Thu, 10 Jun 2021 08:02:54 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 87DBA60A40;
+	Thu, 10 Jun 2021 08:02:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id t4rEbL9ofDww; Thu, 10 Jun 2021 08:02:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C4E9C405B0;
-	Thu, 10 Jun 2021 08:02:52 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id s61o55BeB43G; Thu, 10 Jun 2021 08:02:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 29D4560786;
+	Thu, 10 Jun 2021 08:02:54 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8FAFCC000E;
-	Thu, 10 Jun 2021 08:02:52 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 20AD4C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5158AC002A;
+	Thu, 10 Jun 2021 08:02:53 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5F87FC000B
  for <virtualization@lists.linux-foundation.org>;
  Thu, 10 Jun 2021 08:02:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id F38DB6090C
+ by smtp1.osuosl.org (Postfix) with ESMTP id 5B4C18333F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 08:02:50 +0000 (UTC)
+ Thu, 10 Jun 2021 08:02:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=linaro.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VZQXP70hUTEK
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id iak0_6lQb96j
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 08:02:49 +0000 (UTC)
+ Thu, 10 Jun 2021 08:02:48 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com
- [IPv6:2a00:1450:4864:20::42f])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 82E2660786
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com
+ [IPv6:2a00:1450:4864:20::434])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 44B1983276
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 08:02:49 +0000 (UTC)
-Received: by mail-wr1-x42f.google.com with SMTP id i94so1142846wri.4
+ Thu, 10 Jun 2021 08:02:48 +0000 (UTC)
+Received: by mail-wr1-x434.google.com with SMTP id f2so1120069wri.11
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 01:02:49 -0700 (PDT)
+ Thu, 10 Jun 2021 01:02:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=6RXB71SyVnDwe+W+/t1+8vy/yq7qLr5G0jh20DC/Bss=;
- b=QucyImHywcYL/y83cvRmsRiKD++iTo3zd6mTlxBezBdFPtZasQVuYqtGGv0do+QWRV
- /HIzIZ/5Lg9nVXPJpvMYhS72HgEllbpptY3JiXTEVrkTf0YrVmcFp0TpPlKBleE2/2EC
- PQDULvv5kQkyHbCNEoI2gObWsbf3PT0SpnM6H+drvJqyVfL5GX6tRrD5m2ApWny++8pG
- qTs9z2RjLUzDgqeSdjtOvV25FNHahnS7jZge8fFQejUSG8Wd/FyscwbTgbgvumxIzo+I
- btijhQHxSqjMa4wIufmzjU8ioxh/6boPoUAUACGRyi1FVD6M8Jguh4wCOjW6ZIBwRv9i
- pNeg==
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=6d64EfMmKjBsLXuufmWEUBLj9XWA4YjPbU9Y/1wt2B8=;
+ b=ObI/IzUukEYxx+7H8+Qf0c5GsgYSNdbZSErulQp+S5M095cDQ63LAs4nqiCOr4OSe0
+ i/FNuhtV6CsQXPFO7XOQ6EM/eQxQDqwiYBae+RKq3EOIgwxnwJUnU7d09ygRpJh0rbiS
+ WmfD13dPCc27InjhoUw07zaBwR0qqlRJMZrskGrqVpjWJEuhLHcy7PnYvSBzEkMk7Y4C
+ X/nPyuSTqbaIwiPMZbeIP5zs4ELOKDWw4c7/dWuPyF1U172DTBtgjmadVm4nASZWRfbM
+ M0tjl+lcuIZQH59VeO5Eb0JfSz8aylyM0XkCrZmSE6BhddflN5ZkTX1nTFcqksk8IJHb
+ gIbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=6RXB71SyVnDwe+W+/t1+8vy/yq7qLr5G0jh20DC/Bss=;
- b=Qav6fJNKodNeFE/xbEBzRkkjDdA3qKCWbU/LkWzMDoDdcgSw58ICz5K8grKtNkaz0b
- 3ezt5m3m8tontfcAglYktwcX/huHDXUIwbmrxe0wbgkoqzwIR/U84H+JUhWESXXFLr4Y
- FfKVx6rBkh+YADIpQJnUSu+gdy/4tOlUe9+Wu1n6OaFcGFhWBUfGyzUHPK5/pMBPPpkm
- F0YG8Kotgoyv7+3nxRX0Y1U75san8ZuG0qxtT/vl+WU30w57GmEX9dEE/MsuYLH2nHBZ
- WsHFYJwEoxkC8weNgk6A9W0c6i+0r8Yq6w4kaZ+3ccAgbbEnsUPPgGXYvuElkAQn/A40
- QaLw==
-X-Gm-Message-State: AOAM531KZh2tIunolbgo2CrV0zeWQK7vkYbfnaCRtwOR6nIA74eLe6kY
- oNajkO7VZYvnTKLwQu7NB8f8XA==
-X-Google-Smtp-Source: ABdhPJwFgYjc7wkhqZoUYI1n6kA+z3B9xL0cuNBUbITlwvuieCO4FBI9I+AYPK1gK7RtlGKgbHUIwQ==
-X-Received: by 2002:adf:9031:: with SMTP id h46mr3948196wrh.125.1623312167592; 
- Thu, 10 Jun 2021 01:02:47 -0700 (PDT)
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=6d64EfMmKjBsLXuufmWEUBLj9XWA4YjPbU9Y/1wt2B8=;
+ b=X+iA5ylRgdBtyxzEmk9Fb+3ujT73eqauo4+7w7xIfph1aql43YBpkbM2Z9poqpDxKE
+ 9CegggFnp5SIhfAnZ07/cpcWJ3ElGzQVk4cGgjLLOpKMh4Yj8AgRehAWU/T2Q1Qf8ZrL
+ LhnHoyXcmx4GI7TUs3bOyLBzVMHPCq6FPxi4KsGLzkAyhYEDhaKYo5hifGv85Ggd802w
+ IxPVHHqp7gXeXMgYjTByO7NI4JwUOAZ3X3+RPNy/4NoqjwLAzq7UKcrMZZw3cOaKnzz7
+ updIV5KGCPJcGqxYw1COLPBBbM1wO5bJeoIqr+cQ2ZxwBJQ/sy4XSA3khKzlU6pC96EN
+ LsNg==
+X-Gm-Message-State: AOAM5320PAQGKmKiKQkPVrAJPIjsz5WuduSKAzWrOOyQyrYgwciMwedB
+ l0PVLINQroCbd9n9SpimTNAPBQ==
+X-Google-Smtp-Source: ABdhPJz3GLvas2zyoO7uIAb3y7v6qAeWCy4E0Q2PobZGKURJL4xC2/JOv5xITetYPC0Kt6UtuqclGw==
+X-Received: by 2002:a5d:6b81:: with SMTP id n1mr3885872wrx.144.1623312166388; 
+ Thu, 10 Jun 2021 01:02:46 -0700 (PDT)
 Received: from localhost.localdomain (adsl-84-226-111-173.adslplus.ch.
  [84.226.111.173])
- by smtp.gmail.com with ESMTPSA id o3sm2715059wrm.78.2021.06.10.01.02.46
+ by smtp.gmail.com with ESMTPSA id o3sm2715059wrm.78.2021.06.10.01.02.44
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 10 Jun 2021 01:02:47 -0700 (PDT)
+ Thu, 10 Jun 2021 01:02:45 -0700 (PDT)
 From: Jean-Philippe Brucker <jean-philippe@linaro.org>
 To: rjw@rjwysocki.net,
 	lenb@kernel.org,
 	joro@8bytes.org,
 	mst@redhat.com
-Subject: [PATCH v4 1/6] ACPI: arm64: Move DMA setup operations out of IORT
-Date: Thu, 10 Jun 2021 09:51:28 +0200
-Message-Id: <20210610075130.67517-2-jean-philippe@linaro.org>
+Subject: [PATCH v4 0/6] Add support for ACPI VIOT
+Date: Thu, 10 Jun 2021 09:51:27 +0200
+Message-Id: <20210610075130.67517-1-jean-philippe@linaro.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210610075130.67517-1-jean-philippe@linaro.org>
-References: <20210610075130.67517-1-jean-philippe@linaro.org>
 MIME-Version: 1.0
 Cc: jean-philippe@linaro.org, lorenzo.pieralisi@arm.com, eric.auger@redhat.com,
  catalin.marinas@arm.com, sudeep.holla@arm.com, robin.murphy@arm.com,
@@ -120,210 +118,57 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Extract generic DMA setup code out of IORT, so it can be reused by VIOT.
-Keep it in drivers/acpi/arm64 for now, since it could break x86
-platforms that haven't run this code so far, if they have invalid
-tables.
+Add a driver for the ACPI VIOT table, which provides topology
+information for para-virtual IOMMUs. Enable virtio-iommu on
+non-devicetree platforms, including x86.
 
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
----
- drivers/acpi/arm64/Makefile |  1 +
- include/linux/acpi.h        |  3 +++
- include/linux/acpi_iort.h   |  6 ++---
- drivers/acpi/arm64/dma.c    | 50 ++++++++++++++++++++++++++++++++++
- drivers/acpi/arm64/iort.c   | 54 ++++++-------------------------------
- drivers/acpi/scan.c         |  2 +-
- 6 files changed, 66 insertions(+), 50 deletions(-)
+Since v3 [1] I fixed a build bug for !CONFIG_IOMMU_API. Joerg offered to
+take this series through the IOMMU tree, which requires Acks for patches
+1-3.
+
+You can find a QEMU implementation at [2], with extra support for
+testing all VIOT nodes including MMIO-based endpoints and IOMMU.
+This series is at [3].
+
+[1] https://lore.kernel.org/linux-iommu/20210602154444.1077006-1-jean-philippe@linaro.org/
+[2] https://jpbrucker.net/git/qemu/log/?h=virtio-iommu/acpi
+[3] https://jpbrucker.net/git/linux/log/?h=virtio-iommu/acpi
+
+
+Jean-Philippe Brucker (6):
+  ACPI: arm64: Move DMA setup operations out of IORT
+  ACPI: Move IOMMU setup code out of IORT
+  ACPI: Add driver for the VIOT table
+  iommu/dma: Pass address limit rather than size to
+    iommu_setup_dma_ops()
+  iommu/dma: Simplify calls to iommu_setup_dma_ops()
+  iommu/virtio: Enable x86 support
+
+ drivers/acpi/Kconfig         |   3 +
+ drivers/iommu/Kconfig        |   4 +-
+ drivers/acpi/Makefile        |   2 +
+ drivers/acpi/arm64/Makefile  |   1 +
+ include/acpi/acpi_bus.h      |   3 +
+ include/linux/acpi.h         |   3 +
+ include/linux/acpi_iort.h    |  14 +-
+ include/linux/acpi_viot.h    |  19 ++
+ include/linux/dma-iommu.h    |   4 +-
+ arch/arm64/mm/dma-mapping.c  |   2 +-
+ drivers/acpi/arm64/dma.c     |  50 +++++
+ drivers/acpi/arm64/iort.c    | 129 ++-----------
+ drivers/acpi/bus.c           |   2 +
+ drivers/acpi/scan.c          |  78 +++++++-
+ drivers/acpi/viot.c          | 364 +++++++++++++++++++++++++++++++++++
+ drivers/iommu/amd/iommu.c    |   9 +-
+ drivers/iommu/dma-iommu.c    |  17 +-
+ drivers/iommu/intel/iommu.c  |  10 +-
+ drivers/iommu/virtio-iommu.c |   8 +
+ MAINTAINERS                  |   8 +
+ 20 files changed, 580 insertions(+), 150 deletions(-)
+ create mode 100644 include/linux/acpi_viot.h
  create mode 100644 drivers/acpi/arm64/dma.c
+ create mode 100644 drivers/acpi/viot.c
 
-diff --git a/drivers/acpi/arm64/Makefile b/drivers/acpi/arm64/Makefile
-index 6ff50f4ed947..66acbe77f46e 100644
---- a/drivers/acpi/arm64/Makefile
-+++ b/drivers/acpi/arm64/Makefile
-@@ -1,3 +1,4 @@
- # SPDX-License-Identifier: GPL-2.0-only
- obj-$(CONFIG_ACPI_IORT) 	+= iort.o
- obj-$(CONFIG_ACPI_GTDT) 	+= gtdt.o
-+obj-y				+= dma.o
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index c60745f657e9..7aaa9559cc19 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -259,9 +259,12 @@ void acpi_numa_x2apic_affinity_init(struct acpi_srat_x2apic_cpu_affinity *pa);
- 
- #ifdef CONFIG_ARM64
- void acpi_numa_gicc_affinity_init(struct acpi_srat_gicc_affinity *pa);
-+void acpi_arch_dma_setup(struct device *dev, u64 *dma_addr, u64 *dma_size);
- #else
- static inline void
- acpi_numa_gicc_affinity_init(struct acpi_srat_gicc_affinity *pa) { }
-+static inline void
-+acpi_arch_dma_setup(struct device *dev, u64 *dma_addr, u64 *dma_size) { }
- #endif
- 
- int acpi_numa_memory_affinity_init (struct acpi_srat_mem_affinity *ma);
-diff --git a/include/linux/acpi_iort.h b/include/linux/acpi_iort.h
-index 1a12baa58e40..f7f054833afd 100644
---- a/include/linux/acpi_iort.h
-+++ b/include/linux/acpi_iort.h
-@@ -34,7 +34,7 @@ struct irq_domain *iort_get_device_domain(struct device *dev, u32 id,
- void acpi_configure_pmsi_domain(struct device *dev);
- int iort_pmsi_get_dev_id(struct device *dev, u32 *dev_id);
- /* IOMMU interface */
--void iort_dma_setup(struct device *dev, u64 *dma_addr, u64 *size);
-+int iort_dma_get_ranges(struct device *dev, u64 *size);
- const struct iommu_ops *iort_iommu_configure_id(struct device *dev,
- 						const u32 *id_in);
- int iort_iommu_msi_get_resv_regions(struct device *dev, struct list_head *head);
-@@ -48,8 +48,8 @@ static inline struct irq_domain *iort_get_device_domain(
- { return NULL; }
- static inline void acpi_configure_pmsi_domain(struct device *dev) { }
- /* IOMMU interface */
--static inline void iort_dma_setup(struct device *dev, u64 *dma_addr,
--				  u64 *size) { }
-+static inline int iort_dma_get_ranges(struct device *dev, u64 *size)
-+{ return -ENODEV; }
- static inline const struct iommu_ops *iort_iommu_configure_id(
- 				      struct device *dev, const u32 *id_in)
- { return NULL; }
-diff --git a/drivers/acpi/arm64/dma.c b/drivers/acpi/arm64/dma.c
-new file mode 100644
-index 000000000000..f16739ad3cc0
---- /dev/null
-+++ b/drivers/acpi/arm64/dma.c
-@@ -0,0 +1,50 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+#include <linux/acpi.h>
-+#include <linux/acpi_iort.h>
-+#include <linux/device.h>
-+#include <linux/dma-direct.h>
-+
-+void acpi_arch_dma_setup(struct device *dev, u64 *dma_addr, u64 *dma_size)
-+{
-+	int ret;
-+	u64 end, mask;
-+	u64 dmaaddr = 0, size = 0, offset = 0;
-+
-+	/*
-+	 * If @dev is expected to be DMA-capable then the bus code that created
-+	 * it should have initialised its dma_mask pointer by this point. For
-+	 * now, we'll continue the legacy behaviour of coercing it to the
-+	 * coherent mask if not, but we'll no longer do so quietly.
-+	 */
-+	if (!dev->dma_mask) {
-+		dev_warn(dev, "DMA mask not set\n");
-+		dev->dma_mask = &dev->coherent_dma_mask;
-+	}
-+
-+	if (dev->coherent_dma_mask)
-+		size = max(dev->coherent_dma_mask, dev->coherent_dma_mask + 1);
-+	else
-+		size = 1ULL << 32;
-+
-+	ret = acpi_dma_get_range(dev, &dmaaddr, &offset, &size);
-+	if (ret == -ENODEV)
-+		ret = iort_dma_get_ranges(dev, &size);
-+	if (!ret) {
-+		/*
-+		 * Limit coherent and dma mask based on size retrieved from
-+		 * firmware.
-+		 */
-+		end = dmaaddr + size - 1;
-+		mask = DMA_BIT_MASK(ilog2(end) + 1);
-+		dev->bus_dma_limit = end;
-+		dev->coherent_dma_mask = min(dev->coherent_dma_mask, mask);
-+		*dev->dma_mask = min(*dev->dma_mask, mask);
-+	}
-+
-+	*dma_addr = dmaaddr;
-+	*dma_size = size;
-+
-+	ret = dma_direct_set_offset(dev, dmaaddr + offset, dmaaddr, size);
-+
-+	dev_dbg(dev, "dma_offset(%#08llx)%s\n", offset, ret ? " failed!" : "");
-+}
-diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
-index 3912a1f6058e..a940be1cf2af 100644
---- a/drivers/acpi/arm64/iort.c
-+++ b/drivers/acpi/arm64/iort.c
-@@ -1144,56 +1144,18 @@ static int rc_dma_get_range(struct device *dev, u64 *size)
- }
- 
- /**
-- * iort_dma_setup() - Set-up device DMA parameters.
-+ * iort_dma_get_ranges() - Look up DMA addressing limit for the device
-+ * @dev: device to lookup
-+ * @size: DMA range size result pointer
-  *
-- * @dev: device to configure
-- * @dma_addr: device DMA address result pointer
-- * @dma_size: DMA range size result pointer
-+ * Return: 0 on success, an error otherwise.
-  */
--void iort_dma_setup(struct device *dev, u64 *dma_addr, u64 *dma_size)
-+int iort_dma_get_ranges(struct device *dev, u64 *size)
- {
--	u64 end, mask, dmaaddr = 0, size = 0, offset = 0;
--	int ret;
--
--	/*
--	 * If @dev is expected to be DMA-capable then the bus code that created
--	 * it should have initialised its dma_mask pointer by this point. For
--	 * now, we'll continue the legacy behaviour of coercing it to the
--	 * coherent mask if not, but we'll no longer do so quietly.
--	 */
--	if (!dev->dma_mask) {
--		dev_warn(dev, "DMA mask not set\n");
--		dev->dma_mask = &dev->coherent_dma_mask;
--	}
--
--	if (dev->coherent_dma_mask)
--		size = max(dev->coherent_dma_mask, dev->coherent_dma_mask + 1);
-+	if (dev_is_pci(dev))
-+		return rc_dma_get_range(dev, size);
- 	else
--		size = 1ULL << 32;
--
--	ret = acpi_dma_get_range(dev, &dmaaddr, &offset, &size);
--	if (ret == -ENODEV)
--		ret = dev_is_pci(dev) ? rc_dma_get_range(dev, &size)
--				      : nc_dma_get_range(dev, &size);
--
--	if (!ret) {
--		/*
--		 * Limit coherent and dma mask based on size retrieved from
--		 * firmware.
--		 */
--		end = dmaaddr + size - 1;
--		mask = DMA_BIT_MASK(ilog2(end) + 1);
--		dev->bus_dma_limit = end;
--		dev->coherent_dma_mask = min(dev->coherent_dma_mask, mask);
--		*dev->dma_mask = min(*dev->dma_mask, mask);
--	}
--
--	*dma_addr = dmaaddr;
--	*dma_size = size;
--
--	ret = dma_direct_set_offset(dev, dmaaddr + offset, dmaaddr, size);
--
--	dev_dbg(dev, "dma_offset(%#08llx)%s\n", offset, ret ? " failed!" : "");
-+		return nc_dma_get_range(dev, size);
- }
- 
- static void __init acpi_iort_register_irq(int hwirq, const char *name,
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index e10d38ac7cf2..ea613df8f913 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -1537,7 +1537,7 @@ int acpi_dma_configure_id(struct device *dev, enum dev_dma_attr attr,
- 		return 0;
- 	}
- 
--	iort_dma_setup(dev, &dma_addr, &size);
-+	acpi_arch_dma_setup(dev, &dma_addr, &size);
- 
- 	iommu = iort_iommu_configure_id(dev, input_id);
- 	if (PTR_ERR(iommu) == -EPROBE_DEFER)
 -- 
 2.31.1
 
