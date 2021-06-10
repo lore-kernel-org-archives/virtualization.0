@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E004C47094
-	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 09:12:06 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27DB3C48BDF
+	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 09:12:08 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E2C5A61412
-	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 09:12:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E2C5A61412
+	by mail.kernel.org (Postfix) with ESMTPS id D4E2361407
+	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 09:12:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D4E2361407
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A57AB83D25;
-	Thu, 10 Jun 2021 09:12:05 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id A0A71403E0;
+	Thu, 10 Jun 2021 09:12:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id XjjQz7rIQ51j; Thu, 10 Jun 2021 09:12:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 2990583D10;
-	Thu, 10 Jun 2021 09:12:04 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id E7f6Sz4QtPhL; Thu, 10 Jun 2021 09:12:06 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 47AEA403A3;
+	Thu, 10 Jun 2021 09:12:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 56B85C002E;
-	Thu, 10 Jun 2021 09:12:03 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A1537C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1CD9DC0011;
+	Thu, 10 Jun 2021 09:12:06 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 12FC2C0028
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 09:12:01 +0000 (UTC)
+ Thu, 10 Jun 2021 09:12:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 81D9F6082F
- for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 09:12:01 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YdBK4ylsCCGZ
- for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 09:12:01 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by smtp3.osuosl.org (Postfix) with ESMTPS id D504160604
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6711F405C6
  for <virtualization@lists.linux-foundation.org>;
  Thu, 10 Jun 2021 09:12:00 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id aw-0ERK_SNsd
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 10 Jun 2021 09:11:59 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 9CB4C405D6
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 10 Jun 2021 09:11:59 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2ba7c.dip0.t-ipconnect.de
  [79.242.186.124])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 675854CA;
- Thu, 10 Jun 2021 11:11:58 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 3723D45B;
+ Thu, 10 Jun 2021 11:11:57 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v4 6/6] x86/sev-es: Propagate #GP if getting linear
- instruction address failed
-Date: Thu, 10 Jun 2021 11:11:41 +0200
-Message-Id: <20210610091141.30322-7-joro@8bytes.org>
+Subject: [PATCH v4 4/6] x86/insn-eval: Make 0 a valid RIP for
+ insn_get_effective_ip()
+Date: Thu, 10 Jun 2021 11:11:39 +0200
+Message-Id: <20210610091141.30322-5-joro@8bytes.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210610091141.30322-1-joro@8bytes.org>
 References: <20210610091141.30322-1-joro@8bytes.org>
@@ -96,45 +96,62 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-When an instruction is fetched from user-space, segmentation needs to
-be taken into account. This means that getting the linear address of
-an instruction can fail. Hardware would raise a #GP
-exception in that case, but the #VC exception handler would emulate it
-as a page-fault.
-
-The insn_fetch_from_user*() functions now provide the relevant
-information in case of an failure. Use that and propagate a #GP when
-the linear address of an instruction to fetch could not be calculated.
+In theory 0 is a valid value for the instruction pointer, so don't use
+it as the error return value from insn_get_effective_ip().
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/x86/lib/insn-eval.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index a7045a5a94ca..80c0d8385def 100644
---- a/arch/x86/kernel/sev.c
-+++ b/arch/x86/kernel/sev.c
-@@ -270,11 +270,18 @@ static enum es_result __vc_decode_user_insn(struct es_em_ctxt *ctxt)
- 	int insn_bytes;
+diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
+index a67afd74232c..4eecb9c7c6a0 100644
+--- a/arch/x86/lib/insn-eval.c
++++ b/arch/x86/lib/insn-eval.c
+@@ -1417,7 +1417,7 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs)
+ 	}
+ }
  
- 	insn_bytes = insn_fetch_from_user_inatomic(ctxt->regs, buffer);
--	if (insn_bytes <= 0) {
-+	if (insn_bytes == 0) {
-+		/* Nothing could be copied */
- 		ctxt->fi.vector     = X86_TRAP_PF;
- 		ctxt->fi.error_code = X86_PF_INSTR | X86_PF_USER;
- 		ctxt->fi.cr2        = ctxt->regs->ip;
- 		return ES_EXCEPTION;
-+	} else if (insn_bytes == -EINVAL) {
-+		/* Effective RIP could not be calculated */
-+		ctxt->fi.vector     = X86_TRAP_GP;
-+		ctxt->fi.error_code = 0;
-+		ctxt->fi.cr2        = 0;
-+		return ES_EXCEPTION;
+-static unsigned long insn_get_effective_ip(struct pt_regs *regs)
++static int insn_get_effective_ip(struct pt_regs *regs, unsigned long *ip)
+ {
+ 	unsigned long seg_base = 0;
+ 
+@@ -1430,10 +1430,12 @@ static unsigned long insn_get_effective_ip(struct pt_regs *regs)
+ 	if (!user_64bit_mode(regs)) {
+ 		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
+ 		if (seg_base == -1L)
+-			return 0;
++			return -EINVAL;
  	}
  
- 	if (!insn_decode_from_regs(&ctxt->insn, ctxt->regs, buffer, insn_bytes))
+-	return seg_base + regs->ip;
++	*ip = seg_base + regs->ip;
++
++	return 0;
+ }
+ 
+ /**
+@@ -1455,8 +1457,7 @@ int insn_fetch_from_user(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
+ 	unsigned long ip;
+ 	int not_copied;
+ 
+-	ip = insn_get_effective_ip(regs);
+-	if (!ip)
++	if (insn_get_effective_ip(regs, &ip))
+ 		return 0;
+ 
+ 	not_copied = copy_from_user(buf, (void __user *)ip, MAX_INSN_SIZE);
+@@ -1484,8 +1485,7 @@ int insn_fetch_from_user_inatomic(struct pt_regs *regs, unsigned char buf[MAX_IN
+ 	unsigned long ip;
+ 	int not_copied;
+ 
+-	ip = insn_get_effective_ip(regs);
+-	if (!ip)
++	if (insn_get_effective_ip(regs, &ip))
+ 		return 0;
+ 
+ 	not_copied = __copy_from_user_inatomic(buf, (void __user *)ip, MAX_INSN_SIZE);
 -- 
 2.31.1
 
