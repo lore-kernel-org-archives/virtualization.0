@@ -2,132 +2,108 @@ Return-Path: <SRS0=uiEo=LE=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 765BAC47094
-	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 07:47:19 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 818EBC47094
+	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 08:02:55 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 28828613C1
-	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 07:47:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 28828613C1
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 207E6613DF
+	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 08:02:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 207E6613DF
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E2CAB83C89;
-	Thu, 10 Jun 2021 07:47:18 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id C02E6405C5;
+	Thu, 10 Jun 2021 08:02:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Yc0ELMzJoDm4; Thu, 10 Jun 2021 07:47:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 66FD783C86;
-	Thu, 10 Jun 2021 07:47:17 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id t4rEbL9ofDww; Thu, 10 Jun 2021 08:02:53 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C4E9C405B0;
+	Thu, 10 Jun 2021 08:02:52 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 39C21C000E;
-	Thu, 10 Jun 2021 07:47:17 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C0EB0C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8FAFCC000E;
+	Thu, 10 Jun 2021 08:02:52 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 20AD4C000B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 07:47:15 +0000 (UTC)
+ Thu, 10 Jun 2021 08:02:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A6FD183C87
+ by smtp3.osuosl.org (Postfix) with ESMTP id F38DB6090C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 07:47:15 +0000 (UTC)
+ Thu, 10 Jun 2021 08:02:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vi5ZDZ550mNL
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linaro.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VZQXP70hUTEK
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 07:47:14 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 6F82E83C86
+ Thu, 10 Jun 2021 08:02:49 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com
+ [IPv6:2a00:1450:4864:20::42f])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 82E2660786
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 07:47:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1623311233;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=loF5cb29gw2Qr4WX1KQpGHzr7ki9z/ToQpTxS3i6VWU=;
- b=M5ctXOVP1oSvIgYF1KSfIBTTIh0uBkrT+p/jqdsYlgXdrwh1ezgU2Awc2zzhsO0xh4tBWV
- 6dJQZftu44rpYVA/gQqKEZ0jGzaAXpA0ovndTX8+jeuyJGgqJyXauJveV3TYsRecqckz3/
- TTgc0OPT7JX4v2htHtZ0t9Cb31ORo1s=
-Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com
- [209.85.210.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-331-nDtjXNv6O9ewSc9XQ9mWpw-1; Thu, 10 Jun 2021 03:47:11 -0400
-X-MC-Unique: nDtjXNv6O9ewSc9XQ9mWpw-1
-Received: by mail-pf1-f197.google.com with SMTP id
- c20-20020a621c140000b02902e9c6ad8cd9so792199pfc.16
+ Thu, 10 Jun 2021 08:02:49 +0000 (UTC)
+Received: by mail-wr1-x42f.google.com with SMTP id i94so1142846wri.4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 00:47:11 -0700 (PDT)
+ Thu, 10 Jun 2021 01:02:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=6RXB71SyVnDwe+W+/t1+8vy/yq7qLr5G0jh20DC/Bss=;
+ b=QucyImHywcYL/y83cvRmsRiKD++iTo3zd6mTlxBezBdFPtZasQVuYqtGGv0do+QWRV
+ /HIzIZ/5Lg9nVXPJpvMYhS72HgEllbpptY3JiXTEVrkTf0YrVmcFp0TpPlKBleE2/2EC
+ PQDULvv5kQkyHbCNEoI2gObWsbf3PT0SpnM6H+drvJqyVfL5GX6tRrD5m2ApWny++8pG
+ qTs9z2RjLUzDgqeSdjtOvV25FNHahnS7jZge8fFQejUSG8Wd/FyscwbTgbgvumxIzo+I
+ btijhQHxSqjMa4wIufmzjU8ioxh/6boPoUAUACGRyi1FVD6M8Jguh4wCOjW6ZIBwRv9i
+ pNeg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:subject:to:cc:references:from:message-id:date
- :user-agent:mime-version:in-reply-to:content-transfer-encoding
- :content-language;
- bh=loF5cb29gw2Qr4WX1KQpGHzr7ki9z/ToQpTxS3i6VWU=;
- b=PcmpoVm1nWfD68vaLcBmLEQZdPO/sZ3pixBv6TOi2j4ywT3mzHR2JryVLPa+MP4aXT
- fIDYlZN03buC2W8/IMAZiFALrKy1fC6kbFT5ybLYuwP2ufTbwawHKq1GIofmVjS/h+F/
- XOL0WuNqXtbRH5f3PAET3lZFUGJ+ViGsM36ln04eCrskqkd1CHq/E+jlKx2hX9BXMK3x
- gwEhwzIL0FA9rXBFhQwPSkEEMYJp5+YGd8USzYUuV/Ak+Jco+ryN1BrsF91OqwAZuQKr
- r05isyXiryenk5fH+bPDOEkpBij5sSc5U9PvHCh3Rps7jEkl/NCXfTOQnS9z8aS+Q3Id
- c0IQ==
-X-Gm-Message-State: AOAM5316PC4h8xVjY+cxidN0jtd7DeP4ABSKQsxU0Dvdb5J/O5onolUq
- Z/8rHHTQfctLWfV/OCBIz7/s+yztji9KE58bHUL5yLq3mVXrIHCZoHd9XNxMn32rIAGH4J8gPfH
- ab7FDtsMiCIkZW9w+l67pW3nc8a12enGcHTsCxJ/GbA==
-X-Received: by 2002:a62:6805:0:b029:2e9:a7c9:2503 with SMTP id
- d5-20020a6268050000b02902e9a7c92503mr1763813pfc.26.1623311230731; 
- Thu, 10 Jun 2021 00:47:10 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyqrvDw/tkXuYDtQELqf02BdCoSYQh21xwSXFSnN/JVfuMs/MqAAlU+YEIkeQA3no0RJlH3gQ==
-X-Received: by 2002:a62:6805:0:b029:2e9:a7c9:2503 with SMTP id
- d5-20020a6268050000b02902e9a7c92503mr1763775pfc.26.1623311230441; 
- Thu, 10 Jun 2021 00:47:10 -0700 (PDT)
-Received: from wangxiaodeMacBook-Air.local ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id n37sm1570183pfv.47.2021.06.10.00.47.00
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 10 Jun 2021 00:47:09 -0700 (PDT)
-Subject: Re: [RFC v1 0/6] virtio/vsock: introduce SOCK_DGRAM support
-To: Stefano Garzarella <sgarzare@redhat.com>
-References: <20210609232501.171257-1-jiang.wang@bytedance.com>
- <da90f17a-1c24-b475-76ef-f6a7fc2bcdd5@redhat.com>
- <CAP_N_Z_VDd+JUJ_Y-peOEc7FgwNGB8O3uZpVumQT_DbW62Jpjw@mail.gmail.com>
- <ac0c241c-1013-1304-036f-504d0edc5fd7@redhat.com>
- <20210610072358.3fuvsahxec2sht4y@steredhat>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <47ce307b-f95e-25c7-ed58-9cd1cbff5b57@redhat.com>
-Date: Thu, 10 Jun 2021 15:46:55 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.11.0
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+ :references:mime-version:content-transfer-encoding;
+ bh=6RXB71SyVnDwe+W+/t1+8vy/yq7qLr5G0jh20DC/Bss=;
+ b=Qav6fJNKodNeFE/xbEBzRkkjDdA3qKCWbU/LkWzMDoDdcgSw58ICz5K8grKtNkaz0b
+ 3ezt5m3m8tontfcAglYktwcX/huHDXUIwbmrxe0wbgkoqzwIR/U84H+JUhWESXXFLr4Y
+ FfKVx6rBkh+YADIpQJnUSu+gdy/4tOlUe9+Wu1n6OaFcGFhWBUfGyzUHPK5/pMBPPpkm
+ F0YG8Kotgoyv7+3nxRX0Y1U75san8ZuG0qxtT/vl+WU30w57GmEX9dEE/MsuYLH2nHBZ
+ WsHFYJwEoxkC8weNgk6A9W0c6i+0r8Yq6w4kaZ+3ccAgbbEnsUPPgGXYvuElkAQn/A40
+ QaLw==
+X-Gm-Message-State: AOAM531KZh2tIunolbgo2CrV0zeWQK7vkYbfnaCRtwOR6nIA74eLe6kY
+ oNajkO7VZYvnTKLwQu7NB8f8XA==
+X-Google-Smtp-Source: ABdhPJwFgYjc7wkhqZoUYI1n6kA+z3B9xL0cuNBUbITlwvuieCO4FBI9I+AYPK1gK7RtlGKgbHUIwQ==
+X-Received: by 2002:adf:9031:: with SMTP id h46mr3948196wrh.125.1623312167592; 
+ Thu, 10 Jun 2021 01:02:47 -0700 (PDT)
+Received: from localhost.localdomain (adsl-84-226-111-173.adslplus.ch.
+ [84.226.111.173])
+ by smtp.gmail.com with ESMTPSA id o3sm2715059wrm.78.2021.06.10.01.02.46
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 10 Jun 2021 01:02:47 -0700 (PDT)
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: rjw@rjwysocki.net,
+	lenb@kernel.org,
+	joro@8bytes.org,
+	mst@redhat.com
+Subject: [PATCH v4 1/6] ACPI: arm64: Move DMA setup operations out of IORT
+Date: Thu, 10 Jun 2021 09:51:28 +0200
+Message-Id: <20210610075130.67517-2-jean-philippe@linaro.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210610075130.67517-1-jean-philippe@linaro.org>
+References: <20210610075130.67517-1-jean-philippe@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <20210610072358.3fuvsahxec2sht4y@steredhat>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: cong.wang@bytedance.com, Andra Paraschiv <andraprs@amazon.com>,
- kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org,
- Norbert Slusarek <nslusarek@gmx.net>, jhansen@vmware.comments,
- Xiongchun Duan <duanxiongchun@bytedance.com>,
- Yongji Xie <xieyongji@bytedance.com>, Ingo Molnar <mingo@redhat.com>,
- Jakub Kicinski <kuba@kernel.org>, Alexander Popov <alex.popov@linux.com>,
- Steven Rostedt <rostedt@goodmis.org>,
- =?UTF-8?B?5p+056iz?= <chaiwen.cc@bytedance.com>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- "Jiang Wang ." <jiang.wang@bytedance.com>, Networking <netdev@vger.kernel.org>,
- linux-kernel@vger.kernel.org, Lu Wei <luwei32@huawei.com>,
- Colin Ian King <colin.king@canonical.com>,
- Arseny Krasnov <arseny.krasnov@kaspersky.com>,
- "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
+Cc: jean-philippe@linaro.org, lorenzo.pieralisi@arm.com, eric.auger@redhat.com,
+ catalin.marinas@arm.com, sudeep.holla@arm.com, robin.murphy@arm.com,
+ virtualization@lists.linux-foundation.org, linux-acpi@vger.kernel.org,
+ iommu@lists.linux-foundation.org, sebastien.boeuf@intel.com,
+ guohanjun@huawei.com, will@kernel.org, dwmw2@infradead.org,
+ linux-arm-kernel@lists.infradead.org, baolu.lu@linux.intel.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -139,89 +115,219 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CuWcqCAyMDIxLzYvMTAg5LiL5Y2IMzoyMywgU3RlZmFubyBHYXJ6YXJlbGxhIOWGmemBkzoKPiBP
-biBUaHUsIEp1biAxMCwgMjAyMSBhdCAxMjowMjozNVBNICswODAwLCBKYXNvbiBXYW5nIHdyb3Rl
-Ogo+Pgo+PiDlnKggMjAyMS82LzEwIOS4iuWNiDExOjQzLCBKaWFuZyBXYW5nIC4g5YaZ6YGTOgo+
-Pj4gT24gV2VkLCBKdW4gOSwgMjAyMSBhdCA2OjUxIFBNIEphc29uIFdhbmcgPGphc293YW5nQHJl
-ZGhhdC5jb20+IHdyb3RlOgo+Pj4+Cj4+Pj4g5ZyoIDIwMjEvNi8xMCDkuIrljYg3OjI0LCBKaWFu
-ZyBXYW5nIOWGmemBkzoKPj4+Pj4gVGhpcyBwYXRjaHNldCBpbXBsZW1lbnRzIHN1cHBvcnQgb2Yg
-U09DS19ER1JBTSBmb3IgdmlydGlvCj4+Pj4+IHRyYW5zcG9ydC4KPj4+Pj4KPj4+Pj4gRGF0YWdy
-YW0gc29ja2V0cyBhcmUgY29ubmVjdGlvbmxlc3MgYW5kIHVucmVsaWFibGUuIFRvIGF2b2lkIAo+
-Pj4+PiB1bmZhaXIgY29udGVudGlvbgo+Pj4+PiB3aXRoIHN0cmVhbSBhbmQgb3RoZXIgc29ja2V0
-cywgYWRkIHR3byBtb3JlIHZpcnRxdWV1ZXMgYW5kCj4+Pj4+IGEgbmV3IGZlYXR1cmUgYml0IHRv
-IGluZGljYXRlIGlmIHRob3NlIHR3byBuZXcgcXVldWVzIGV4aXN0IG9yIG5vdC4KPj4+Pj4KPj4+
-Pj4gRGdyYW0gZG9lcyBub3QgdXNlIHRoZSBleGlzdGluZyBjcmVkaXQgdXBkYXRlIG1lY2hhbmlz
-bSBmb3IKPj4+Pj4gc3RyZWFtIHNvY2tldHMuIFdoZW4gc2VuZGluZyBmcm9tIHRoZSBndWVzdC9k
-cml2ZXIsIHNlbmRpbmcgcGFja2V0cwo+Pj4+PiBzeW5jaHJvbm91c2x5LCBzbyB0aGUgc2VuZGVy
-IHdpbGwgZ2V0IGFuIGVycm9yIHdoZW4gdGhlIHZpcnRxdWV1ZSAKPj4+Pj4gaXMgZnVsbC4KPj4+
-Pj4gV2hlbiBzZW5kaW5nIGZyb20gdGhlIGhvc3QvZGV2aWNlLCBzZW5kIHBhY2tldHMgYXN5bmNo
-cm9ub3VzbHkKPj4+Pj4gYmVjYXVzZSB0aGUgZGVzY3JpcHRvciBtZW1vcnkgYmVsb25ncyB0byB0
-aGUgY29ycmVzcG9uZGluZyBRRU1VCj4+Pj4+IHByb2Nlc3MuCj4+Pj4KPj4+PiBXaGF0J3MgdGhl
-IHVzZSBjYXNlIGZvciB0aGUgZGF0YWdyYW0gdnNvY2s/Cj4+Pj4KPj4+IE9uZSB1c2UgY2FzZSBp
-cyBmb3Igbm9uIGNyaXRpY2FsIGluZm8gbG9nZ2luZyBmcm9tIHRoZSBndWVzdAo+Pj4gdG8gdGhl
-IGhvc3QsIHN1Y2ggYXMgdGhlIHBlcmZvcm1hbmNlIGRhdGEgb2Ygc29tZSBhcHBsaWNhdGlvbnMu
-Cj4+Cj4+Cj4+IEFueXRoaW5nIHRoYXQgcHJldmVudHMgeW91IGZyb20gdXNpbmcgdGhlIHN0cmVh
-bSBzb2NrZXQ/Cj4+Cj4+Cj4+Pgo+Pj4gSXQgY2FuIGFsc28gYmUgdXNlZCB0byByZXBsYWNlIFVE
-UCBjb21tdW5pY2F0aW9ucyBiZXR3ZWVuCj4+PiB0aGUgZ3Vlc3QgYW5kIHRoZSBob3N0Lgo+Pgo+
-Pgo+PiBBbnkgYWR2YW50YWdlIGZvciBWU09DSyBpbiB0aGlzIGNhc2U/IElzIGl0IGZvciBwZXJm
-b3JtYW5jZSAoSSBndWVzcyAKPj4gbm90IHNpbmNlIEkgZG9uJ3QgZXhlcGN0IHZzb2NrIHdpbGwg
-YmUgZmFzdGVyKS4KPgo+IEkgdGhpbmsgdGhlIGdlbmVyYWwgYWR2YW50YWdlIHRvIHVzaW5nIHZz
-b2NrIGFyZSBmb3IgdGhlIGd1ZXN0IGFnZW50cyAKPiB0aGF0IHBvdGVudGlhbGx5IGRvbid0IG5l
-ZWQgYW55IGNvbmZpZ3VyYXRpb24uCgoKUmlnaHQsIEkgd29uZGVyIGlmIHdlIHJlYWxseSBuZWVk
-IGRhdGFncmFtIGNvbnNpZGVyIHRoZSBob3N0IHRvIGd1ZXN0IApjb21tdW5pY2F0aW9uIGlzIHJl
-bGlhYmxlLgoKKE5vdGUgdGhhdCBJIGRvbid0IG9iamVjdCBpdCBzaW5jZSB2c29jayBoYXMgYWxy
-ZWFkeSBzdXBwb3J0ZWQgdGhhdCwgCmp1c3Qgd29uZGVyIGl0cyB1c2UgY2FzZXMpCgoKPgo+Pgo+
-PiBBbiBvYnZpb3VzIGRyYXdiYWNrIGlzIHRoYXQgaXQgYnJlYWtzIHRoZSBtaWdyYXRpb24uIFVz
-aW5nIFVEUCB5b3UgCj4+IGNhbiBoYXZlIGEgdmVyeSByaWNoIGZlYXR1cmVzIHN1cHBvcnQgZnJv
-bSB0aGUga2VybmVsIHdoZXJlIHZzb2NrIGNhbid0Lgo+Pgo+Cj4gVGhhbmtzIGZvciBicmluZ2lu
-ZyB0aGlzIHVwIQo+IFdoYXQgZmVhdHVyZXMgZG9lcyBVRFAgc3VwcG9ydCBhbmQgZGF0YWdyYW0g
-b24gdnNvY2sgY291bGQgbm90IHN1cHBvcnQ/CgoKRS5nIHRoZSBzZW5kcGFnZSgpIGFuZCBidXN5
-IHBvbGxpbmcuIEFuZCB1c2luZyBVRFAgbWVhbnMgcWRpc2NzIGFuZCBlQlBGIApjYW4gd29yay4K
-Cgo+Cj4+Cj4+Pgo+Pj4+PiBUaGUgdmlydGlvIHNwZWMgcGF0Y2ggaXMgaGVyZToKPj4+Pj4gaHR0
-cHM6Ly93d3cuc3Bpbmljcy5uZXQvbGlzdHMvbGludXgtdmlydHVhbGl6YXRpb24vbXNnNTAwMjcu
-aHRtbAo+Pj4+Cj4+Pj4gSGF2ZSBhIHF1aWNrIGdsYW5jZSwgSSBzdWdnZXN0IHRvIHNwbGl0IG1l
-cmdlYWJsZSByeCBidWZmZXIgaW50byBhbgo+Pj4+IHNlcGFyYXRlIHBhdGNoLgo+Pj4gU3VyZS4K
-Pj4+Cj4+Pj4gQnV0IEkgdGhpbmsgaXQncyB0aW1lIHRvIHJldmlzaXQgdGhlIGlkZWEgb2YgdW5p
-ZnlpbmcgdGhlIAo+Pj4+IHZpcnRpby1uZXQgYW5kCj4+Pj4gdmlydGlvLXZzb2NrLiBPdGhlcndp
-c2Ugd2UncmUgZHVwbGljYXRpbmcgZmVhdHVyZXMgYW5kIGJ1Z3MuCj4+PiBGb3IgbWVyZ2VhYmxl
-IHJ4YnVmIHJlbGF0ZWQgY29kZSwgSSB0aGluayBhIHNldCBvZiBjb21tb24gaGVscGVyCj4+PiBm
-dW5jdGlvbnMgY2FuIGJlIHVzZWQgYnkgYm90aCB2aXJ0aW8tbmV0IGFuZCB2aXJ0aW8tdnNvY2su
-IEZvciBvdGhlcgo+Pj4gcGFydHMsIHRoYXQgbWF5IG5vdCBiZSB2ZXJ5IGJlbmVmaWNpYWwuIEkg
-d2lsbCB0aGluayBhYm91dCBtb3JlLgo+Pj4KPj4+IElmIHRoZXJlIGlzIGEgcHJldmlvdXMgZW1h
-aWwgZGlzY3Vzc2lvbiBhYm91dCB0aGlzIHRvcGljLCBjb3VsZCB5b3UgCj4+PiBzZW5kIG1lCj4+
-PiBzb21lIGxpbmtzPyBJIGRpZCBhIHF1aWNrIHdlYiBzZWFyY2ggYnV0IGRpZCBub3QgZmluZCBh
-bnkgcmVsYXRlZAo+Pj4gaW5mby4gVGhhbmtzLgo+Pgo+Pgo+PiBXZSBoYWQgYSBsb3Q6Cj4+Cj4+
-IFsxXSAKPj4gaHR0cHM6Ly9wYXRjaHdvcmsua2VybmVsLm9yZy9wcm9qZWN0L2t2bS9wYXRjaC81
-QkRGRjUzNy4zMDUwODA2QGh1YXdlaS5jb20vCj4+IFsyXSAKPj4gaHR0cHM6Ly9saXN0cy5saW51
-eGZvdW5kYXRpb24ub3JnL3BpcGVybWFpbC92aXJ0dWFsaXphdGlvbi8yMDE4LU5vdmVtYmVyLzAz
-OTc5OC5odG1sCj4+IFszXSBodHRwczovL3d3dy5sa21sLm9yZy9sa21sLzIwMjAvMS8xNi8yMDQz
-Cj4+Cj4KPiBXaGVuIEkgdHJpZWQgaXQsIHRoZSBiaWdnZXN0IHByb2JsZW0gdGhhdCBibG9ja2Vk
-IG1lIHdlcmUgYWxsIHRoZSAKPiBmZWF0dXJlcyBzdHJpY3RseSByZWxhdGVkIHRvIFRDUC9JUCBz
-dGFjayBhbmQgZXRoZXJuZXQgZGV2aWNlcyB0aGF0IAo+IHZzb2NrIGRldmljZSBkb2Vzbid0IGtu
-b3cgaG93IHRvIGhhbmRsZTogVFNPLCBHU08sIGNoZWNrc3VtcywgTUFDLCAKPiBuYXBpLCB4ZHAs
-IG1pbiBldGhlcm5ldCBmcmFtZSBzaXplLCBNVFUsIGV0Yy4KCgpJdCBkZXBlbmRzIG9uIHdoaWNo
-IGxldmVsIHdlIHdhbnQgdG8gc2hhcmU6CgoxKSBzaGFyaW5nIGNvZGVzCjIpIHNoYXJpbmcgZGV2
-aWNlcwozKSBtYWtlIHZzb2NrIGEgcHJvdG9jb2wgdGhhdCBpcyB1bmRlcnN0b29kIGJ5IHRoZSBu
-ZXR3b3JrIGNvcmUKCldlIGNhbiBzdGFydCBmcm9tIDEpLCB0aGUgbG93IGxldmVsIHR4L3J4IGxv
-Z2ljIGNhbiBiZSBzaGFyZWQgYXQgYm90aCAKdmlydGlvLW5ldCBhbmQgdmhvc3QtbmV0LiBGb3Ig
-Mikgd2UgcHJvYmFibHkgbmVlZCBzb21lIHdvcmsgb24gdGhlIHNwZWMsIApwcm9iYWJseSB3aXRo
-IGEgbmV3IGZlYXR1cmUgYml0IHRvIGRlbW9uc3RyYXRlIHRoYXQgaXQncyBhIHZzb2NrIGRldmlj
-ZSAKbm90IGEgZXRoZXJuZXQgZGV2aWNlLiBUaGVuIGlmIGl0IGlzIHByb2JlZCBhcyBhIHZzb2Nr
-IGRldmljZSB3ZSB3b24ndCAKbGV0IHBhY2tldCB0byBiZSBkZWxpdmVyZWQgaW4gdGhlIFRDUC9J
-UCBzdGFjay4gRm9yIDMpLCBpdCB3b3VsZCBiZSBldmVuIApoYXJkZXIgYW5kIEknbSBub3Qgc3Vy
-ZSBpdCdzIHdvcnRoIHRvIGRvIHRoYXQuCgoKPgo+IFNvIGluIG15IG9waW5pb24gdG8gdW5pZnkg
-dGhlbSBpcyBub3Qgc28gc2ltcGxlLCBiZWNhdXNlIHZzb2NrIGlzIG5vdCAKPiByZWFsbHkgYW4g
-ZXRoZXJuZXQgZGV2aWNlLCBidXQgc2ltcGx5IGEgc29ja2V0LgoKCldlIGNhbiBzdGFydCBmcm9t
-IHNoYXJpbmcgY29kZXMuCgoKPgo+IEJ1dCBJIGZ1bGx5IGFncmVlIHRoYXQgd2Ugc2hvdWxkbid0
-IGR1cGxpY2F0ZSBmdW5jdGlvbmFsaXR5IGFuZCBjb2RlLCAKPiBzbyBtYXliZSB3ZSBjb3VsZCBm
-aW5kIHRob3NlIGNvbW1vbiBwYXJ0cyBhbmQgY3JlYXRlIGhlbHBlcnMgdG8gYmUgCj4gdXNlZCBi
-eSBib3RoLgoKClllcy4KClRoYW5rcwoKCj4KPiBUaGFua3MsCj4gU3RlZmFubwo+CgpfX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
-YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
-cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
-YXRpb24=
+Extract generic DMA setup code out of IORT, so it can be reused by VIOT.
+Keep it in drivers/acpi/arm64 for now, since it could break x86
+platforms that haven't run this code so far, if they have invalid
+tables.
+
+Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+---
+ drivers/acpi/arm64/Makefile |  1 +
+ include/linux/acpi.h        |  3 +++
+ include/linux/acpi_iort.h   |  6 ++---
+ drivers/acpi/arm64/dma.c    | 50 ++++++++++++++++++++++++++++++++++
+ drivers/acpi/arm64/iort.c   | 54 ++++++-------------------------------
+ drivers/acpi/scan.c         |  2 +-
+ 6 files changed, 66 insertions(+), 50 deletions(-)
+ create mode 100644 drivers/acpi/arm64/dma.c
+
+diff --git a/drivers/acpi/arm64/Makefile b/drivers/acpi/arm64/Makefile
+index 6ff50f4ed947..66acbe77f46e 100644
+--- a/drivers/acpi/arm64/Makefile
++++ b/drivers/acpi/arm64/Makefile
+@@ -1,3 +1,4 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ obj-$(CONFIG_ACPI_IORT) 	+= iort.o
+ obj-$(CONFIG_ACPI_GTDT) 	+= gtdt.o
++obj-y				+= dma.o
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index c60745f657e9..7aaa9559cc19 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -259,9 +259,12 @@ void acpi_numa_x2apic_affinity_init(struct acpi_srat_x2apic_cpu_affinity *pa);
+ 
+ #ifdef CONFIG_ARM64
+ void acpi_numa_gicc_affinity_init(struct acpi_srat_gicc_affinity *pa);
++void acpi_arch_dma_setup(struct device *dev, u64 *dma_addr, u64 *dma_size);
+ #else
+ static inline void
+ acpi_numa_gicc_affinity_init(struct acpi_srat_gicc_affinity *pa) { }
++static inline void
++acpi_arch_dma_setup(struct device *dev, u64 *dma_addr, u64 *dma_size) { }
+ #endif
+ 
+ int acpi_numa_memory_affinity_init (struct acpi_srat_mem_affinity *ma);
+diff --git a/include/linux/acpi_iort.h b/include/linux/acpi_iort.h
+index 1a12baa58e40..f7f054833afd 100644
+--- a/include/linux/acpi_iort.h
++++ b/include/linux/acpi_iort.h
+@@ -34,7 +34,7 @@ struct irq_domain *iort_get_device_domain(struct device *dev, u32 id,
+ void acpi_configure_pmsi_domain(struct device *dev);
+ int iort_pmsi_get_dev_id(struct device *dev, u32 *dev_id);
+ /* IOMMU interface */
+-void iort_dma_setup(struct device *dev, u64 *dma_addr, u64 *size);
++int iort_dma_get_ranges(struct device *dev, u64 *size);
+ const struct iommu_ops *iort_iommu_configure_id(struct device *dev,
+ 						const u32 *id_in);
+ int iort_iommu_msi_get_resv_regions(struct device *dev, struct list_head *head);
+@@ -48,8 +48,8 @@ static inline struct irq_domain *iort_get_device_domain(
+ { return NULL; }
+ static inline void acpi_configure_pmsi_domain(struct device *dev) { }
+ /* IOMMU interface */
+-static inline void iort_dma_setup(struct device *dev, u64 *dma_addr,
+-				  u64 *size) { }
++static inline int iort_dma_get_ranges(struct device *dev, u64 *size)
++{ return -ENODEV; }
+ static inline const struct iommu_ops *iort_iommu_configure_id(
+ 				      struct device *dev, const u32 *id_in)
+ { return NULL; }
+diff --git a/drivers/acpi/arm64/dma.c b/drivers/acpi/arm64/dma.c
+new file mode 100644
+index 000000000000..f16739ad3cc0
+--- /dev/null
++++ b/drivers/acpi/arm64/dma.c
+@@ -0,0 +1,50 @@
++// SPDX-License-Identifier: GPL-2.0-only
++#include <linux/acpi.h>
++#include <linux/acpi_iort.h>
++#include <linux/device.h>
++#include <linux/dma-direct.h>
++
++void acpi_arch_dma_setup(struct device *dev, u64 *dma_addr, u64 *dma_size)
++{
++	int ret;
++	u64 end, mask;
++	u64 dmaaddr = 0, size = 0, offset = 0;
++
++	/*
++	 * If @dev is expected to be DMA-capable then the bus code that created
++	 * it should have initialised its dma_mask pointer by this point. For
++	 * now, we'll continue the legacy behaviour of coercing it to the
++	 * coherent mask if not, but we'll no longer do so quietly.
++	 */
++	if (!dev->dma_mask) {
++		dev_warn(dev, "DMA mask not set\n");
++		dev->dma_mask = &dev->coherent_dma_mask;
++	}
++
++	if (dev->coherent_dma_mask)
++		size = max(dev->coherent_dma_mask, dev->coherent_dma_mask + 1);
++	else
++		size = 1ULL << 32;
++
++	ret = acpi_dma_get_range(dev, &dmaaddr, &offset, &size);
++	if (ret == -ENODEV)
++		ret = iort_dma_get_ranges(dev, &size);
++	if (!ret) {
++		/*
++		 * Limit coherent and dma mask based on size retrieved from
++		 * firmware.
++		 */
++		end = dmaaddr + size - 1;
++		mask = DMA_BIT_MASK(ilog2(end) + 1);
++		dev->bus_dma_limit = end;
++		dev->coherent_dma_mask = min(dev->coherent_dma_mask, mask);
++		*dev->dma_mask = min(*dev->dma_mask, mask);
++	}
++
++	*dma_addr = dmaaddr;
++	*dma_size = size;
++
++	ret = dma_direct_set_offset(dev, dmaaddr + offset, dmaaddr, size);
++
++	dev_dbg(dev, "dma_offset(%#08llx)%s\n", offset, ret ? " failed!" : "");
++}
+diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
+index 3912a1f6058e..a940be1cf2af 100644
+--- a/drivers/acpi/arm64/iort.c
++++ b/drivers/acpi/arm64/iort.c
+@@ -1144,56 +1144,18 @@ static int rc_dma_get_range(struct device *dev, u64 *size)
+ }
+ 
+ /**
+- * iort_dma_setup() - Set-up device DMA parameters.
++ * iort_dma_get_ranges() - Look up DMA addressing limit for the device
++ * @dev: device to lookup
++ * @size: DMA range size result pointer
+  *
+- * @dev: device to configure
+- * @dma_addr: device DMA address result pointer
+- * @dma_size: DMA range size result pointer
++ * Return: 0 on success, an error otherwise.
+  */
+-void iort_dma_setup(struct device *dev, u64 *dma_addr, u64 *dma_size)
++int iort_dma_get_ranges(struct device *dev, u64 *size)
+ {
+-	u64 end, mask, dmaaddr = 0, size = 0, offset = 0;
+-	int ret;
+-
+-	/*
+-	 * If @dev is expected to be DMA-capable then the bus code that created
+-	 * it should have initialised its dma_mask pointer by this point. For
+-	 * now, we'll continue the legacy behaviour of coercing it to the
+-	 * coherent mask if not, but we'll no longer do so quietly.
+-	 */
+-	if (!dev->dma_mask) {
+-		dev_warn(dev, "DMA mask not set\n");
+-		dev->dma_mask = &dev->coherent_dma_mask;
+-	}
+-
+-	if (dev->coherent_dma_mask)
+-		size = max(dev->coherent_dma_mask, dev->coherent_dma_mask + 1);
++	if (dev_is_pci(dev))
++		return rc_dma_get_range(dev, size);
+ 	else
+-		size = 1ULL << 32;
+-
+-	ret = acpi_dma_get_range(dev, &dmaaddr, &offset, &size);
+-	if (ret == -ENODEV)
+-		ret = dev_is_pci(dev) ? rc_dma_get_range(dev, &size)
+-				      : nc_dma_get_range(dev, &size);
+-
+-	if (!ret) {
+-		/*
+-		 * Limit coherent and dma mask based on size retrieved from
+-		 * firmware.
+-		 */
+-		end = dmaaddr + size - 1;
+-		mask = DMA_BIT_MASK(ilog2(end) + 1);
+-		dev->bus_dma_limit = end;
+-		dev->coherent_dma_mask = min(dev->coherent_dma_mask, mask);
+-		*dev->dma_mask = min(*dev->dma_mask, mask);
+-	}
+-
+-	*dma_addr = dmaaddr;
+-	*dma_size = size;
+-
+-	ret = dma_direct_set_offset(dev, dmaaddr + offset, dmaaddr, size);
+-
+-	dev_dbg(dev, "dma_offset(%#08llx)%s\n", offset, ret ? " failed!" : "");
++		return nc_dma_get_range(dev, size);
+ }
+ 
+ static void __init acpi_iort_register_irq(int hwirq, const char *name,
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index e10d38ac7cf2..ea613df8f913 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -1537,7 +1537,7 @@ int acpi_dma_configure_id(struct device *dev, enum dev_dma_attr attr,
+ 		return 0;
+ 	}
+ 
+-	iort_dma_setup(dev, &dma_addr, &size);
++	acpi_arch_dma_setup(dev, &dma_addr, &size);
+ 
+ 	iommu = iort_iommu_configure_id(dev, input_id);
+ 	if (PTR_ERR(iommu) == -EPROBE_DEFER)
+-- 
+2.31.1
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
