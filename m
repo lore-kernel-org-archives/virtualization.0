@@ -5,62 +5,62 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CF59C49EA3
-	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 09:12:07 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FB36C49361
+	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 09:12:06 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2EC6E613F5
-	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 09:12:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2EC6E613F5
+	by mail.kernel.org (Postfix) with ESMTPS id 2E73F6143C
+	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 09:12:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2E73F6143C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 411D083D0C;
-	Thu, 10 Jun 2021 09:12:06 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9B6C9405C6;
+	Thu, 10 Jun 2021 09:12:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id AMxBeRm8DB9o; Thu, 10 Jun 2021 09:12:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id AA16683D32;
-	Thu, 10 Jun 2021 09:12:04 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AB3F9C0028;
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ISGn5aWV3Goi; Thu, 10 Jun 2021 09:12:04 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id AEDFA405DC;
 	Thu, 10 Jun 2021 09:12:03 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EF93CC0023;
+	Thu, 10 Jun 2021 09:12:02 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 45EC3C000E
- for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 09:12:02 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E162283D0C
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1E366C0022
  for <virtualization@lists.linux-foundation.org>;
  Thu, 10 Jun 2021 09:12:01 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 9823383D18
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 10 Jun 2021 09:12:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 4qsrlH0KBx6U
+ with ESMTP id GE94Y8oPsbO1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 09:12:01 +0000 (UTC)
+ Thu, 10 Jun 2021 09:11:59 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0F9EE83D1B
+Received: from theia.8bytes.org (8bytes.org
+ [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9707183CEA
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 09:12:00 +0000 (UTC)
+ Thu, 10 Jun 2021 09:11:59 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2ba7c.dip0.t-ipconnect.de
  [79.242.186.124])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id C434E4B7;
- Thu, 10 Jun 2021 11:11:57 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 0DBE936A;
+ Thu, 10 Jun 2021 11:11:56 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v4 5/6] x86/insn: Extend error reporting from
- insn_fetch_from_user[_inatomic]()
-Date: Thu, 10 Jun 2021 11:11:40 +0200
-Message-Id: <20210610091141.30322-6-joro@8bytes.org>
+Subject: [PATCH v4 2/6] x86/sev-es: Disable IRQs while GHCB is active
+Date: Thu, 10 Jun 2021 11:11:37 +0200
+Message-Id: <20210610091141.30322-3-joro@8bytes.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210610091141.30322-1-joro@8bytes.org>
 References: <20210610091141.30322-1-joro@8bytes.org>
@@ -96,109 +96,156 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The error reporting from the insn_fetch_from_user*() functions is not
-very verbose. Extend it to include information on whether the linear
-RIP could not be calculated or whether the memory access faulted.
+The #VC handler only cares about IRQs being disabled while the GHCB is
+active, as it must not be interrupted by something which could cause
+another #VC while it holds the GHCB (NMI is the exception for which the
+backup GHCB is there).
 
-This will be used in the SEV-ES code to propagate the correct
-exception depending on what went wrong during instruction fetch.
+Make sure nothing interrupts the code path while the GHCB is active by
+disabling IRQs in sev_es_get_ghcb() and restoring the previous irq state
+in sev_es_put_ghcb().
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev.c    |  8 ++++----
- arch/x86/kernel/umip.c   | 10 ++++------
- arch/x86/lib/insn-eval.c |  8 ++++++--
- 3 files changed, 14 insertions(+), 12 deletions(-)
+ arch/x86/kernel/sev.c | 39 +++++++++++++++++++++++++--------------
+ 1 file changed, 25 insertions(+), 14 deletions(-)
 
 diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index 475bbc1b3547..a7045a5a94ca 100644
+index 4fd997bbf059..2a922d1b03c8 100644
 --- a/arch/x86/kernel/sev.c
 +++ b/arch/x86/kernel/sev.c
-@@ -267,17 +267,17 @@ static int vc_fetch_insn_kernel(struct es_em_ctxt *ctxt,
- static enum es_result __vc_decode_user_insn(struct es_em_ctxt *ctxt)
- {
- 	char buffer[MAX_INSN_SIZE];
--	int res;
-+	int insn_bytes;
+@@ -192,14 +192,23 @@ void noinstr __sev_es_ist_exit(void)
+ 	this_cpu_write(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC], *(unsigned long *)ist);
+ }
  
--	res = insn_fetch_from_user_inatomic(ctxt->regs, buffer);
--	if (!res) {
-+	insn_bytes = insn_fetch_from_user_inatomic(ctxt->regs, buffer);
-+	if (insn_bytes <= 0) {
- 		ctxt->fi.vector     = X86_TRAP_PF;
- 		ctxt->fi.error_code = X86_PF_INSTR | X86_PF_USER;
- 		ctxt->fi.cr2        = ctxt->regs->ip;
- 		return ES_EXCEPTION;
+-static __always_inline struct ghcb *sev_es_get_ghcb(struct ghcb_state *state)
++static __always_inline struct ghcb *sev_es_get_ghcb(struct ghcb_state *state,
++						    unsigned long *flags)
+ {
+ 	struct sev_es_runtime_data *data;
+ 	struct ghcb *ghcb;
+ 
++	/*
++	 * Nothing shall interrupt this code path while holding the per-cpu
++	 * GHCB. The backup GHCB is only for NMIs interrupting this path.
++	 */
++	local_irq_save(*flags);
++
+ 	data = this_cpu_read(runtime_data);
+ 	ghcb = &data->ghcb_page;
+ 
++
++
+ 	if (unlikely(data->ghcb_active)) {
+ 		/* GHCB is already in use - save its contents */
+ 
+@@ -479,7 +488,8 @@ static enum es_result vc_slow_virt_to_phys(struct ghcb *ghcb, struct es_em_ctxt
+ /* Include code shared with pre-decompression boot stage */
+ #include "sev-shared.c"
+ 
+-static __always_inline void sev_es_put_ghcb(struct ghcb_state *state)
++static __always_inline void sev_es_put_ghcb(struct ghcb_state *state,
++					    unsigned long flags)
+ {
+ 	struct sev_es_runtime_data *data;
+ 	struct ghcb *ghcb;
+@@ -500,14 +510,17 @@ static __always_inline void sev_es_put_ghcb(struct ghcb_state *state)
+ 		vc_ghcb_invalidate(ghcb);
+ 		data->ghcb_active = false;
+ 	}
++
++	local_irq_restore(flags);
+ }
+ 
+ void noinstr __sev_es_nmi_complete(void)
+ {
+ 	struct ghcb_state state;
++	unsigned long flags;
+ 	struct ghcb *ghcb;
+ 
+-	ghcb = sev_es_get_ghcb(&state);
++	ghcb = sev_es_get_ghcb(&state, &flags);
+ 
+ 	vc_ghcb_invalidate(ghcb);
+ 	ghcb_set_sw_exit_code(ghcb, SVM_VMGEXIT_NMI_COMPLETE);
+@@ -517,7 +530,7 @@ void noinstr __sev_es_nmi_complete(void)
+ 	sev_es_wr_ghcb_msr(__pa_nodebug(ghcb));
+ 	VMGEXIT();
+ 
+-	sev_es_put_ghcb(&state);
++	sev_es_put_ghcb(&state, flags);
+ }
+ 
+ static u64 get_jump_table_addr(void)
+@@ -527,9 +540,7 @@ static u64 get_jump_table_addr(void)
+ 	struct ghcb *ghcb;
+ 	u64 ret = 0;
+ 
+-	local_irq_save(flags);
+-
+-	ghcb = sev_es_get_ghcb(&state);
++	ghcb = sev_es_get_ghcb(&state, &flags);
+ 
+ 	vc_ghcb_invalidate(ghcb);
+ 	ghcb_set_sw_exit_code(ghcb, SVM_VMGEXIT_AP_JUMP_TABLE);
+@@ -543,9 +554,7 @@ static u64 get_jump_table_addr(void)
+ 	    ghcb_sw_exit_info_2_is_valid(ghcb))
+ 		ret = ghcb->save.sw_exit_info_2;
+ 
+-	sev_es_put_ghcb(&state);
+-
+-	local_irq_restore(flags);
++	sev_es_put_ghcb(&state, flags);
+ 
+ 	return ret;
+ }
+@@ -666,9 +675,10 @@ static bool __init sev_es_setup_ghcb(void)
+ static void sev_es_ap_hlt_loop(void)
+ {
+ 	struct ghcb_state state;
++	unsigned long flags;
+ 	struct ghcb *ghcb;
+ 
+-	ghcb = sev_es_get_ghcb(&state);
++	ghcb = sev_es_get_ghcb(&state, &flags);
+ 
+ 	while (true) {
+ 		vc_ghcb_invalidate(ghcb);
+@@ -685,7 +695,7 @@ static void sev_es_ap_hlt_loop(void)
+ 			break;
  	}
  
--	if (!insn_decode_from_regs(&ctxt->insn, ctxt->regs, buffer, res))
-+	if (!insn_decode_from_regs(&ctxt->insn, ctxt->regs, buffer, insn_bytes))
- 		return ES_DECODE_FAILED;
+-	sev_es_put_ghcb(&state);
++	sev_es_put_ghcb(&state, flags);
+ }
  
- 	if (ctxt->insn.immediate.got)
-diff --git a/arch/x86/kernel/umip.c b/arch/x86/kernel/umip.c
-index 8daa70b0d2da..337178809c89 100644
---- a/arch/x86/kernel/umip.c
-+++ b/arch/x86/kernel/umip.c
-@@ -346,14 +346,12 @@ bool fixup_umip_exception(struct pt_regs *regs)
- 	if (!regs)
- 		return false;
+ /*
+@@ -1333,6 +1343,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 	struct ghcb_state state;
+ 	struct es_em_ctxt ctxt;
+ 	enum es_result result;
++	unsigned long flags;
+ 	struct ghcb *ghcb;
  
--	nr_copied = insn_fetch_from_user(regs, buf);
--
  	/*
--	 * The insn_fetch_from_user above could have failed if user code
--	 * is protected by a memory protection key. Give up on emulation
--	 * in such a case.  Should we issue a page fault?
-+	 * Give up on emulation if fetching the instruction failed. Should we
-+	 * issue a page fault or a #GP?
+@@ -1353,7 +1364,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 	 * keep the IRQs disabled to protect us against concurrent TLB flushes.
  	 */
--	if (!nr_copied)
-+	nr_copied = insn_fetch_from_user(regs, buf);
-+	if (nr_copied <= 0)
- 		return false;
  
- 	if (!insn_decode_from_regs(&insn, regs, buf, nr_copied))
-diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
-index 4eecb9c7c6a0..1b5cdf8b7a4e 100644
---- a/arch/x86/lib/insn-eval.c
-+++ b/arch/x86/lib/insn-eval.c
-@@ -1451,6 +1451,8 @@ static int insn_get_effective_ip(struct pt_regs *regs, unsigned long *ip)
-  * Number of instruction bytes copied.
-  *
-  * 0 if nothing was copied.
-+ *
-+ * -EINVAL if the linear address of the instruction could not be calculated
-  */
- int insn_fetch_from_user(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
- {
-@@ -1458,7 +1460,7 @@ int insn_fetch_from_user(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
- 	int not_copied;
+-	ghcb = sev_es_get_ghcb(&state);
++	ghcb = sev_es_get_ghcb(&state, &flags);
  
- 	if (insn_get_effective_ip(regs, &ip))
--		return 0;
-+		return -EINVAL;
+ 	vc_ghcb_invalidate(ghcb);
+ 	result = vc_init_em_ctxt(&ctxt, regs, error_code);
+@@ -1361,7 +1372,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 	if (result == ES_OK)
+ 		result = vc_handle_exitcode(&ctxt, ghcb, error_code);
  
- 	not_copied = copy_from_user(buf, (void __user *)ip, MAX_INSN_SIZE);
+-	sev_es_put_ghcb(&state);
++	sev_es_put_ghcb(&state, flags);
  
-@@ -1479,6 +1481,8 @@ int insn_fetch_from_user(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
-  * Number of instruction bytes copied.
-  *
-  * 0 if nothing was copied.
-+ *
-+ * -EINVAL if the linear address of the instruction could not be calculated
-  */
- int insn_fetch_from_user_inatomic(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
- {
-@@ -1486,7 +1490,7 @@ int insn_fetch_from_user_inatomic(struct pt_regs *regs, unsigned char buf[MAX_IN
- 	int not_copied;
- 
- 	if (insn_get_effective_ip(regs, &ip))
--		return 0;
-+		return -EINVAL;
- 
- 	not_copied = __copy_from_user_inatomic(buf, (void __user *)ip, MAX_INSN_SIZE);
- 
+ 	/* Done - now check the result */
+ 	switch (result) {
 -- 
 2.31.1
 
