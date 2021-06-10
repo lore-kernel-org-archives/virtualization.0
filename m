@@ -2,67 +2,69 @@ Return-Path: <SRS0=uiEo=LE=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
+	USER_AGENT_GIT autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42F3FC48BD1
-	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 08:22:23 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7085FC48BDF
+	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 08:22:24 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EFF9D61439
-	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 08:22:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EFF9D61439
+	by mail.kernel.org (Postfix) with ESMTPS id 2DA6A6142F
+	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 08:22:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2DA6A6142F
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id BBCD582C4D;
-	Thu, 10 Jun 2021 08:22:22 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id E9C11403A1;
+	Thu, 10 Jun 2021 08:22:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id y010wJwLXGGu; Thu, 10 Jun 2021 08:22:22 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id IQDfHj9VqiwJ; Thu, 10 Jun 2021 08:22:22 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 714AA83CA5;
-	Thu, 10 Jun 2021 08:22:21 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4A8034039E;
+	Thu, 10 Jun 2021 08:22:22 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 017A1C0023;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3FC56C002B;
 	Thu, 10 Jun 2021 08:22:21 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DD156C0022
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 49D42C000D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 08:22:16 +0000 (UTC)
+ Thu, 10 Jun 2021 08:22:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id BC4CA405BB
+ by smtp3.osuosl.org (Postfix) with ESMTP id 39C7260844
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 10 Jun 2021 08:22:17 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id FuqkUBAe5muH
  for <virtualization@lists.linux-foundation.org>;
  Thu, 10 Jun 2021 08:22:16 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JARlLumJseZa
- for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 08:22:13 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
- by smtp4.osuosl.org (Postfix) with ESMTPS id D7C0940539
+Received: from out30-133.freemail.mail.aliyun.com
+ (out30-133.freemail.mail.aliyun.com [115.124.30.133])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7059C606F8
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 08:22:12 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=alimailimapcm10staff010182156082;
- MF=xuanzhuo@linux.alibaba.com; NM=1; PH=DS; RN=21; SR=0;
- TI=SMTPD_---0UbxH88i_1623313329; 
+ Thu, 10 Jun 2021 08:22:16 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R901e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=21; SR=0; TI=SMTPD_---0UbxDLwc_1623313330; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0UbxH88i_1623313329) by smtp.aliyun-inc.com(127.0.0.1);
- Thu, 10 Jun 2021 16:22:09 +0800
+ fp:SMTPD_---0UbxDLwc_1623313330) by smtp.aliyun-inc.com(127.0.0.1);
+ Thu, 10 Jun 2021 16:22:11 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: netdev@vger.kernel.org
-Subject: [PATCH net-next v5 00/15] virtio-net: support xdp socket zero copy
-Date: Thu, 10 Jun 2021 16:21:54 +0800
-Message-Id: <20210610082209.91487-1-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH net-next v5 04/15] xsk: XDP_SETUP_XSK_POOL support option
+ IFF_NOT_USE_DMA_ADDR
+Date: Thu, 10 Jun 2021 16:21:58 +0800
+Message-Id: <20210610082209.91487-5-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
+In-Reply-To: <20210610082209.91487-1-xuanzhuo@linux.alibaba.com>
+References: <20210610082209.91487-1-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
 Cc: Song Liu <songliubraving@fb.com>, Martin KaFai Lau <kafai@fb.com>,
  Jesper Dangaard Brouer <hawk@kernel.org>,
@@ -92,74 +94,31 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-XDP socket is an excellent by pass kernel network transmission framework. The
-zero copy feature of xsk (XDP socket) needs to be supported by the driver. The
-performance of zero copy is very good. mlx5 and intel ixgbe already support this
-feature, This patch set allows virtio-net to support xsk's zerocopy xmit
-feature.
+Some devices, such as virtio-net, do not directly use dma addr. These
+devices do not initialize dma after completing the xsk setup, so the dma
+check is skipped here.
 
-Compared with other drivers, the trouble with virtio-net is that when we bind
-the channel to xsk, we cannot directly disable/enable the channel. So we have to
-consider the buf that has been placed in the vq after the xsk is released by the
-upper layer.
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Reviewed-by: Dust Li <dust.li@linux.alibaba.com>
+Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
+---
+ net/xdp/xsk_buff_pool.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-My solution is to add a ctx to each buf placed in vq to record the page used,
-and add a reference to the page. So when the upper xsk is released, these pages
-are still safe in vq. We will process these bufs when we recycle buf or
-receive new data.
-
-In the case of rx, it will be more complicated, because we may encounter the buf
-of xsk, or it may be a normal buf. Especially in the case of merge, we may
-receive multiple bufs, and these bufs may be xsk buf and normal are
-mixed together.
-
-v5:
-   support rx
-
-v4:
-    1. add priv_flags IFF_NOT_USE_DMA_ADDR
-    2. more reasonable patch split
-
-Xuan Zhuo (15):
-  netdevice: priv_flags extend to 64bit
-  netdevice: add priv_flags IFF_NOT_USE_DMA_ADDR
-  virtio-net: add priv_flags IFF_NOT_USE_DMA_ADDR
-  xsk: XDP_SETUP_XSK_POOL support option IFF_NOT_USE_DMA_ADDR
-  virtio: support virtqueue_detach_unused_buf_ctx
-  virtio-net: unify the code for recycling the xmit ptr
-  virtio-net: standalone virtnet_aloc_frag function
-  virtio-net: split the receive_mergeable function
-  virtio-net: virtnet_poll_tx support budget check
-  virtio-net: independent directory
-  virtio-net: move to virtio_net.h
-  virtio-net: support AF_XDP zc tx
-  virtio-net: support AF_XDP zc rx
-  virtio-net: xsk direct xmit inside xsk wakeup
-  virtio-net: xsk zero copy xmit kick by threshold
-
- MAINTAINERS                           |   2 +-
- drivers/net/Kconfig                   |   8 +-
- drivers/net/Makefile                  |   2 +-
- drivers/net/virtio/Kconfig            |  11 +
- drivers/net/virtio/Makefile           |   7 +
- drivers/net/{ => virtio}/virtio_net.c | 670 +++++++++++-----------
- drivers/net/virtio/virtio_net.h       | 288 ++++++++++
- drivers/net/virtio/xsk.c              | 766 ++++++++++++++++++++++++++
- drivers/net/virtio/xsk.h              | 176 ++++++
- drivers/virtio/virtio_ring.c          |  22 +-
- include/linux/netdevice.h             | 143 ++---
- include/linux/virtio.h                |   2 +
- net/8021q/vlanproc.c                  |   2 +-
- net/xdp/xsk_buff_pool.c               |   2 +-
- 14 files changed, 1664 insertions(+), 437 deletions(-)
- create mode 100644 drivers/net/virtio/Kconfig
- create mode 100644 drivers/net/virtio/Makefile
- rename drivers/net/{ => virtio}/virtio_net.c (92%)
- create mode 100644 drivers/net/virtio/virtio_net.h
- create mode 100644 drivers/net/virtio/xsk.c
- create mode 100644 drivers/net/virtio/xsk.h
-
---
+diff --git a/net/xdp/xsk_buff_pool.c b/net/xdp/xsk_buff_pool.c
+index 8de01aaac4a0..a7e434de0308 100644
+--- a/net/xdp/xsk_buff_pool.c
++++ b/net/xdp/xsk_buff_pool.c
+@@ -171,7 +171,7 @@ int xp_assign_dev(struct xsk_buff_pool *pool,
+ 	if (err)
+ 		goto err_unreg_pool;
+ 
+-	if (!pool->dma_pages) {
++	if (!(netdev->priv_flags & IFF_NOT_USE_DMA_ADDR) && !pool->dma_pages) {
+ 		WARN(1, "Driver did not DMA map zero-copy buffers");
+ 		err = -EINVAL;
+ 		goto err_unreg_xsk;
+-- 
 2.31.0
 
 _______________________________________________
