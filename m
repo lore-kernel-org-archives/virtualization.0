@@ -2,108 +2,94 @@ Return-Path: <SRS0=uiEo=LE=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A7E1C48BDF
-	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 08:03:03 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93896C48BD1
+	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 08:06:42 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DB23A613ED
-	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 08:03:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DB23A613ED
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 4A78D613CB
+	for <virtualization@archiver.kernel.org>; Thu, 10 Jun 2021 08:06:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4A78D613CB
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 8E4E4405CF;
-	Thu, 10 Jun 2021 08:03:02 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0EA5B4014B;
+	Thu, 10 Jun 2021 08:06:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bYPAk-q46zj2; Thu, 10 Jun 2021 08:03:01 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8L6zBDmYhqrA; Thu, 10 Jun 2021 08:06:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 981CF405C2;
-	Thu, 10 Jun 2021 08:03:00 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 8CB0D400C9;
+	Thu, 10 Jun 2021 08:06:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3A776C000B;
-	Thu, 10 Jun 2021 08:03:00 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 303D2C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 454B8C000E;
+	Thu, 10 Jun 2021 08:06:40 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AAD1EC000B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 08:02:58 +0000 (UTC)
+ Thu, 10 Jun 2021 08:06:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 6F2E56090C
+ by smtp4.osuosl.org (Postfix) with ESMTP id 86406405B4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 08:02:55 +0000 (UTC)
+ Thu, 10 Jun 2021 08:06:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id TZEifN33xr7Q
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Ilz5cBq8eoUg
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 08:02:54 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com
- [IPv6:2a00:1450:4864:20::436])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 9BCF860A40
+ Thu, 10 Jun 2021 08:06:37 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 07686405B0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 08:02:54 +0000 (UTC)
-Received: by mail-wr1-x436.google.com with SMTP id c9so1137059wrt.5
- for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Jun 2021 01:02:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=FJBc4XHO8GWouyeNxEp4BksscCRnIRbJmCxL/Ho6xNQ=;
- b=gU/Ryt42Y4L8Qp2x4zkGmAWsnlMV2urCBzSFHee9R5LvVighC/9rUJhESGZ9a01xq1
- oHASaXq1yQegw1GEOgSrwev0K9L4dtJfB1/izSl/mO7JPn42KlbmwnjFmf2VAimfcVro
- y4bEILLbmi5TtrYBTBr/NsStPwbf+faeN04dStHpGfSdTMYbjNDEQBl5+TJpOZ3MW//u
- Myu6MnpiyjjoAgkFk/Is7V+9lvPzZ8qPMXQtnOdtD1fuc2na97yerJalm+kT29FPETUV
- PgRlnp+36UI5Jzn/PoxE5HrlAq0qsWl3IjeuKyAAIod2yg2sNnomolBdGI01fpDSLEdC
- TEyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=FJBc4XHO8GWouyeNxEp4BksscCRnIRbJmCxL/Ho6xNQ=;
- b=taqHlva/Vzv43jUT3MxVl5Dv29DkRWn8gwl6MQ6LRLRY9yRWD//Q1aorQ/IBx47od3
- fDfAdGh1bVioh0mmwT2cbh3BTPOupDXCshmJKEvZZYRQQm1GQE74U7tIBx4rAavSdEyH
- KlIMJF7V5i5suoBFdMT/tIdGwCOXq1eIwV1KtaahfhIqhaBxuiQb8O8fIvlIs99oJm2P
- R5C2eQFDmW5i0fmKwWnUX38egL3Ael/G0cqKgW2Fo51NLJm7bhlB5rzFRwQ/nti228qh
- EkVJPvuC3lK6atI/Hmpb++XgauuZul5UosFaUD/H25KljkLWVgznQShl5McQNJYz9S7W
- ZrxA==
-X-Gm-Message-State: AOAM5329VOUYvJ2emvYID2h7W6KTzJpAsLJp1UrfbJ3C804JwF4XueOV
- 4zvXrpFptJ61Xb6hCYyf2MNtWg==
-X-Google-Smtp-Source: ABdhPJwlkaaI7SJCgaZV7OEfblhli4jlnFL/3UcuvdXNz9ii3FGJkj1asIZoobCQXGL2eBrVB559+A==
-X-Received: by 2002:adf:f1ca:: with SMTP id z10mr3965395wro.396.1623312172834; 
- Thu, 10 Jun 2021 01:02:52 -0700 (PDT)
-Received: from localhost.localdomain (adsl-84-226-111-173.adslplus.ch.
- [84.226.111.173])
- by smtp.gmail.com with ESMTPSA id o3sm2715059wrm.78.2021.06.10.01.02.51
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 10 Jun 2021 01:02:52 -0700 (PDT)
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-To: rjw@rjwysocki.net,
-	lenb@kernel.org,
-	joro@8bytes.org,
-	mst@redhat.com
-Subject: [PATCH v4 5/6] iommu/dma: Simplify calls to iommu_setup_dma_ops()
-Date: Thu, 10 Jun 2021 09:51:32 +0200
-Message-Id: <20210610075130.67517-6-jean-philippe@linaro.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210610075130.67517-1-jean-philippe@linaro.org>
-References: <20210610075130.67517-1-jean-philippe@linaro.org>
+ Thu, 10 Jun 2021 08:06:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1623312395;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=IPnBtwHVsxTEGxlAHkETtzkbihoyU00inj0Cc3YSw0Y=;
+ b=a8dlYw6OW2+y7S1ZYK+y4lmK12kH8nW3ckoD7Mx7IUHUmIpkhbNSSqeizi/XJmzNdmgnhu
+ CAiRlWTDTwuJgrxiXuSo7RMRvbi5Zo5k4rwLsff5g4mVabPh8IFobTy5OwrmgwRxiJs+3i
+ I9FWE9ibDMkRYrM95I06L5AnG5Iff3k=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-282-DZJ-woXwOAiu5yg1c0Zz4g-1; Thu, 10 Jun 2021 04:06:23 -0400
+X-MC-Unique: DZJ-woXwOAiu5yg1c0Zz4g-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
+ [10.5.11.15])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C3685803622;
+ Thu, 10 Jun 2021 08:06:22 +0000 (UTC)
+Received: from localhost (ovpn-114-58.ams2.redhat.com [10.36.114.58])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 0B4F15D6AD;
+ Thu, 10 Jun 2021 08:06:18 +0000 (UTC)
+Date: Thu, 10 Jun 2021 09:06:17 +0100
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Mike Christie <michael.christie@oracle.com>
+Subject: Re: [PATCH 7/9] vhost: allow userspace to create workers
+Message-ID: <YMHH+das0nmMBbt5@stefanha-x1.localdomain>
+References: <20210525180600.6349-1-michael.christie@oracle.com>
+ <20210525180600.6349-8-michael.christie@oracle.com>
+ <YLjnk5GpFaCCOqCU@stefanha-x1.localdomain>
+ <0c1aef53-4850-8c46-0706-9b7276716e68@oracle.com>
+ <YL45CfpHyzSEcAJv@stefanha-x1.localdomain>
+ <6882ef4d-8382-5b0d-272e-779e6fa9e7da@oracle.com>
 MIME-Version: 1.0
-Cc: jean-philippe@linaro.org, lorenzo.pieralisi@arm.com, eric.auger@redhat.com,
- catalin.marinas@arm.com, sudeep.holla@arm.com, robin.murphy@arm.com,
- virtualization@lists.linux-foundation.org, linux-acpi@vger.kernel.org,
- iommu@lists.linux-foundation.org, sebastien.boeuf@intel.com,
- guohanjun@huawei.com, will@kernel.org, dwmw2@infradead.org,
- linux-arm-kernel@lists.infradead.org, baolu.lu@linux.intel.com
+In-Reply-To: <6882ef4d-8382-5b0d-272e-779e6fa9e7da@oracle.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Cc: linux-scsi@vger.kernel.org, mst@redhat.com,
+ virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org,
+ pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,87 +101,124 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============4744516271042060463=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-dma-iommu uses the address bounds described in domain->geometry during
-IOVA allocation. The address size parameters of iommu_setup_dma_ops()
-are useful for describing additional limits set by the platform
-firmware, but aren't needed for drivers that call this function from
-probe_finalize(). The base parameter can be zero because dma-iommu
-already removes the first IOVA page, and the limit parameter can be
-U64_MAX because it's only checked against the domain geometry. Simplify
-calls to iommu_setup_dma_ops().
 
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
----
- drivers/iommu/amd/iommu.c   |  9 +--------
- drivers/iommu/dma-iommu.c   |  4 +++-
- drivers/iommu/intel/iommu.c | 10 +---------
- 3 files changed, 5 insertions(+), 18 deletions(-)
+--===============4744516271042060463==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="WkdUzt4415XdCfLw"
+Content-Disposition: inline
 
-diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
-index 94b96d81fcfd..d3123bc05c08 100644
---- a/drivers/iommu/amd/iommu.c
-+++ b/drivers/iommu/amd/iommu.c
-@@ -1708,14 +1708,7 @@ static struct iommu_device *amd_iommu_probe_device(struct device *dev)
- 
- static void amd_iommu_probe_finalize(struct device *dev)
- {
--	struct iommu_domain *domain;
--
--	/* Domains are initialized for this device - have a look what we ended up with */
--	domain = iommu_get_domain_for_dev(dev);
--	if (domain->type == IOMMU_DOMAIN_DMA)
--		iommu_setup_dma_ops(dev, IOVA_START_PFN << PAGE_SHIFT, U64_MAX);
--	else
--		set_dma_ops(dev, NULL);
-+	iommu_setup_dma_ops(dev, 0, U64_MAX);
- }
- 
- static void amd_iommu_release_device(struct device *dev)
-diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-index c62e19bed302..175f8eaeb5b3 100644
---- a/drivers/iommu/dma-iommu.c
-+++ b/drivers/iommu/dma-iommu.c
-@@ -1322,7 +1322,9 @@ void iommu_setup_dma_ops(struct device *dev, u64 dma_base, u64 dma_limit)
- 	if (domain->type == IOMMU_DOMAIN_DMA) {
- 		if (iommu_dma_init_domain(domain, dma_base, dma_limit, dev))
- 			goto out_err;
--		dev->dma_ops = &iommu_dma_ops;
-+		set_dma_ops(dev, &iommu_dma_ops);
-+	} else {
-+		set_dma_ops(dev, NULL);
- 	}
- 
- 	return;
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index 85f18342603c..8d866940692a 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -5165,15 +5165,7 @@ static void intel_iommu_release_device(struct device *dev)
- 
- static void intel_iommu_probe_finalize(struct device *dev)
- {
--	dma_addr_t base = IOVA_START_PFN << VTD_PAGE_SHIFT;
--	struct iommu_domain *domain = iommu_get_domain_for_dev(dev);
--	struct dmar_domain *dmar_domain = to_dmar_domain(domain);
--
--	if (domain && domain->type == IOMMU_DOMAIN_DMA)
--		iommu_setup_dma_ops(dev, base,
--				    __DOMAIN_MAX_ADDR(dmar_domain->gaw));
--	else
--		set_dma_ops(dev, NULL);
-+	iommu_setup_dma_ops(dev, 0, U64_MAX);
- }
- 
- static void intel_iommu_get_resv_regions(struct device *device,
--- 
-2.31.1
+
+--WkdUzt4415XdCfLw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Jun 09, 2021 at 04:03:55PM -0500, Mike Christie wrote:
+> On 6/7/21 10:19 AM, Stefan Hajnoczi wrote:
+> > My concern is that threads should probably accounted against
+> > RLIMIT_NPROC and max_threads rather than something indirect like 128 *
+> > RLIMIT_NOFILE (a userspace process can only have RLIMIT_NOFILE
+> > vhost-user file descriptors open).
+> >=20
+>=20
+> Ah ok, I see what you want I think.
+>=20
+> Ok, I think the options are:
+>=20
+> 0. Nothing. Just use existing indirect/RLIMIT_NOFILE.
+>=20
+> 1. Do something like io_uring's create_io_thread/copy_process. If we call
+> copy_process from the vhost ioctl context, then the userspace process that
+> did the ioctl will have it's processes count incremented and checked agai=
+nst
+> its rlimit.
+>=20
+> The drawbacks:
+> - This gets a little more complicated than just calling copy_process thou=
+gh.
+> We end up duplicating a lot of the kthread API.
+> - We have to deal with new error cases like the parent exiting early.
+> - I think all devs sharing a worker have to have the same owner. kthread_=
+use_mm
+> and kthread_unuse_mm to switch between mm's for differrent owner's devs s=
+eem to
+> be causing lots of errors. I'm still looking into this one though.
+>=20
+> 2.  It's not really what you want, but for unbound work io_uring has a ch=
+eck for
+> RLIMIT_NPROC in the io_uring code. It does:
+>=20
+> wqe->acct[IO_WQ_ACCT_UNBOUND].max_workers =3D
+> 					task_rlimit(current, RLIMIT_NPROC);
+>=20
+> then does:
+>=20
+> if (!ret && acct->nr_workers < acct->max_workers) {
+>=20
+> Drawbacks:
+> In vhost.c, we could do something similar. It would make sure that vhost.=
+c does
+> not create more worker threads than the rlimit value, but we wouldn't be
+> incrementing the userspace process's process count. The userspace process=
+ could
+> then create RLIMIT_NPROC threads and vhost.c could also create RLIMIT_NPR=
+OC
+> threads, so we end up with 2 * RLIMIT_NPROC threads.
+
+Yes, in that case we might as well go with Option 0, so I think this
+option can be eliminated.
+
+> 3. Change the kthread and copy_process code so we can pass in the thread
+> (or it's creds or some struct that has the values that need to be check) =
+that
+> needs to be checked and updated.
+>=20
+> Drawback:
+> This might be considered too ugly for how special case vhost is. For exam=
+ple, we
+> need checks/code like the io_thread/PF_IO_WORKER code in copy_process for=
+ io_uring.
+> I can see how added that for io_uring because it affects so many users, b=
+ut I can
+> see how vhost is not special enough.
+
+This seems like the most general solution. If you try it and get
+negative feedback then maybe the maintainers can help suggest how to
+solve this problem :).
+
+Stefan
+
+--WkdUzt4415XdCfLw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmDBx/kACgkQnKSrs4Gr
+c8hLZAgAjb6u+fG0CjpUwqxso7DnJpytbBfDy4wzRVp0110EZ7wdQ96FXcWGzgiq
+TNdFfZMLHLzV6EmCZxdLGe6hmDvgO3Xmm+SV998QGty0mXDAu7VMqkuRHfw4+Jp2
+4NbR9yxhNwtH/R9ZV6E4fXLcbWaBXtkjmZNXpBgYtcFGEcILKf6zUpzilb5gNQT4
+zRWd5YWNkubtsCM6mETxD7bJR8V4xTNrM7ct3ESxNyA+B1svPAvqqinURb01GbQ/
+L4Fjkh+0wAj1y/QJzmej+6atPVZ0MdiMRiq4JnZLbpHCVpsFGxnyPD5gPj6UeFKQ
+Ap5rFMZOnLQZkvWLVGvSK01LkqpSYg==
+=oEH5
+-----END PGP SIGNATURE-----
+
+--WkdUzt4415XdCfLw--
+
+
+--===============4744516271042060463==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4744516271042060463==--
+
