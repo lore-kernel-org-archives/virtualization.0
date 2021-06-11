@@ -2,98 +2,120 @@ Return-Path: <SRS0=zOA3=LF=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
 	SPF_HELO_NONE,SPF_PASS,URIBL_RED autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D67DDC48BD1
-	for <virtualization@archiver.kernel.org>; Fri, 11 Jun 2021 08:22:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BDE39C48BE5
+	for <virtualization@archiver.kernel.org>; Fri, 11 Jun 2021 12:25:43 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 85CC760FD8
-	for <virtualization@archiver.kernel.org>; Fri, 11 Jun 2021 08:22:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 85CC760FD8
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+	by mail.kernel.org (Postfix) with ESMTPS id 698C461357
+	for <virtualization@archiver.kernel.org>; Fri, 11 Jun 2021 12:25:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 698C461357
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4A86D83B1B;
-	Fri, 11 Jun 2021 08:22:47 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2A88383BAA;
+	Fri, 11 Jun 2021 12:25:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9gkwoRBRm3hM; Fri, 11 Jun 2021 08:22:46 +0000 (UTC)
+	with ESMTP id rC1D1266DKoB; Fri, 11 Jun 2021 12:25:42 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id C6DC783A7C;
-	Fri, 11 Jun 2021 08:22:45 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id AC04883B71;
+	Fri, 11 Jun 2021 12:25:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8A6DBC000D;
-	Fri, 11 Jun 2021 08:22:45 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0E244C000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 75F22C000D;
+	Fri, 11 Jun 2021 12:25:41 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 01D05C000B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Jun 2021 08:22:45 +0000 (UTC)
+ Fri, 11 Jun 2021 12:25:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id E7C1340564
+ by smtp1.osuosl.org (Postfix) with ESMTP id E409B83B74
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Jun 2021 08:22:44 +0000 (UTC)
+ Fri, 11 Jun 2021 12:25:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id I1ZWg4Rb60Rr
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id UvrH8bm5nrKv
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Jun 2021 08:22:43 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ua1-f49.google.com (mail-ua1-f49.google.com
- [209.85.222.49])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 6C7604055F
+ Fri, 11 Jun 2021 12:25:40 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 0C72D83B71
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Jun 2021 08:22:43 +0000 (UTC)
-Received: by mail-ua1-f49.google.com with SMTP id p9so2294960uar.3
+ Fri, 11 Jun 2021 12:25:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1623414338;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=+saQX1pFifHAMfA75K26b9IDNQxzW3sh1B/T8sEy8xE=;
+ b=P7fQO0LHTp9kcgF1zZ03nFMXrCEGkvVSqBQ2+eQeadktk4YT+AXvOV3Jn0iWv6h0Aq+Fey
+ +czm6UqcoV0B0xZ6fiiq9bW/sq/EUfXyyQKvHS/4djoiJs5vc2PHd0UZ+9reC+weuNF4wm
+ Xaq8QI2ow7pO6ACiZDmJSHCAcCrcaAQ=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-328-LMB_LU0hNQWLuLVSdD_Nzw-1; Fri, 11 Jun 2021 08:25:37 -0400
+X-MC-Unique: LMB_LU0hNQWLuLVSdD_Nzw-1
+Received: by mail-ej1-f69.google.com with SMTP id
+ br12-20020a170906d14cb02904311c0f32adso1084927ejb.9
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Jun 2021 01:22:43 -0700 (PDT)
+ Fri, 11 Jun 2021 05:25:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=DaNuOXRSxAprVjd9ifIAHGPCmMrvZ/ZSFrIGL+2Y/dE=;
- b=n8idMftYvZIvgdBCxfdc+CYLhmP25Mkb2KAlavR/mBuQoVxuyQFSXExx1TbJ02OARO
- bOK4eHgthn8l33gsVIk91lbGDfPPJQNT4vHIYXuIv367tV3BDG3TuefsWx1jwML+wYQU
- J8eaC86CrLJC2gICGcR9OPFyftr4+z82fdudyMsjdV8yocnppbd9dnMAzLbbJ5MOXlbY
- QbVIabA09geN0rf3EbV1ep/diV6/0yI6337SL3Zkg6N6yZtreFR/K2dtKxTR1aKMdRQP
- Y5DL/TwDVFCLRyTcIWqyUlPm8GgwSLr9prR8049tBGFXhJp1gNnJhcxUaJ7lhNZmnXoS
- /PRg==
-X-Gm-Message-State: AOAM5336U/Pofi4h6Bb8b14rghwXI6PMs4QZK8OfL4pGWHtxsENouqTm
- YgSy3HDuBJpNt0jQi7J2PbZ1/EQ5DiFT2oASmC0=
-X-Google-Smtp-Source: ABdhPJyq4EqZlgDmCn8qqnGSQ1vrn3RQ/ZL8+yV4kreGJqiceay6WnvbNfvZoUE7c6JDA+lO6bKUsRxnP775QgEyE8M=
-X-Received: by 2002:ab0:71d9:: with SMTP id n25mr1885900uao.2.1623399762314;
- Fri, 11 Jun 2021 01:22:42 -0700 (PDT)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=+saQX1pFifHAMfA75K26b9IDNQxzW3sh1B/T8sEy8xE=;
+ b=dhmB3HFsAwuS2ByKJTWwhlJJp48yKtZ7QVNnocM2RaH+TtDpiHhJvudUDezXgUBIXn
+ 7tyIiCpBhj/FyDtxuPIuZXc7zZWRPVImwIPxqYlc2ha2InqXQF4tbgYOyMqeOZlTjiND
+ KUqe4Q+Z4OrRpkcAt77ghuxQ2fjXHoOj8U5/QJpBNoWfpMmv4SbakkaQKYq65HP2250i
+ WiTQz+g9vjaLg/qweF/NKKA+ouCbJ/1jeqjZNsqLZkZPnJM+d1hPeSy1Im5R0LENXcFQ
+ QweWmDOQYzmc9mMxSz5VUFHxGVElPENAduCfU8tseN30YR1lBSef3FcudIIvlsnh5M74
+ oWzA==
+X-Gm-Message-State: AOAM530hGDpi3TiaT59V5vWSfc7+W6nl1AZCg6vnUmur8rrdJcKrV8aM
+ +y8Ce5TkR/O1T6d00hFz+RpHdfGmmKtut5FoqyWmHq1H45s0jpNhnFbRcnde8CYu3nULIW6hTpv
+ 4y/9csS41itbwWVWUjDOv9OWOke5Hf3Z97PmtkEu7Ww==
+X-Received: by 2002:a17:906:2b04:: with SMTP id a4mr3391582ejg.6.1623414336107; 
+ Fri, 11 Jun 2021 05:25:36 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyPbmShTD8/mzWY6bPdx7L57uktKQ4wfEOyzzKRXT1hmYodewrqYPlF9qdrHraWuNSTa7EpDQ==
+X-Received: by 2002:a17:906:2b04:: with SMTP id a4mr3391574ejg.6.1623414335924; 
+ Fri, 11 Jun 2021 05:25:35 -0700 (PDT)
+Received: from steredhat (host-79-18-148-79.retail.telecomitalia.it.
+ [79.18.148.79])
+ by smtp.gmail.com with ESMTPSA id x15sm2111520edd.6.2021.06.11.05.25.34
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 11 Jun 2021 05:25:35 -0700 (PDT)
+Date: Fri, 11 Jun 2021 14:25:33 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+Subject: Re: [PATCH v11 00/18] virtio/vsock: introduce SOCK_SEQPACKET support
+Message-ID: <20210611122533.cy4jce4vxhhou5ms@steredhat>
+References: <20210611110744.3650456-1-arseny.krasnov@kaspersky.com>
+ <59b720a8-154f-ad29-e7a9-b86b69408078@kaspersky.com>
 MIME-Version: 1.0
-References: <cover.1623326176.git.viresh.kumar@linaro.org>
- <10442926ae8a65f716bfc23f32339a6b35e51d5a.1623326176.git.viresh.kumar@linaro.org>
- <CACRpkdZV2v2S5z7CZf_8DV=At9-oPSj7RYFH78hWy3ZX37QnDQ@mail.gmail.com>
- <20210611035623.z4f2ynumzozigqnv@vireshk-i7>
- <CAMuHMdVrtSnFpPbB0P3Wxqm1D6vU1_cnh3ypsZJRNF6ueKdAsw@mail.gmail.com>
- <20210611080122.tlkidv6bowuka6fw@vireshk-i7>
-In-Reply-To: <20210611080122.tlkidv6bowuka6fw@vireshk-i7>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 11 Jun 2021 10:22:30 +0200
-Message-ID: <CAMuHMdVL4VH09ixPcpqqokNJeYd68Th2Y6Lz4PZTF7h06OOBGw@mail.gmail.com>
-Subject: Re: [PATCH V3 1/3] gpio: Add virtio-gpio driver
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: Alistair Strachan <astrachan@google.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Viresh Kumar <vireshk@kernel.org>, Linus Walleij <linus.walleij@linaro.org>,
- virtualization@lists.linux-foundation.org,
- linux-kernel <linux-kernel@vger.kernel.org>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Bartosz Golaszewski <bgolaszewski@baylibre.com>,
- "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- stratos-dev@op-lists.linaro.org, "Enrico Weigelt,
- metux IT consult" <info@metux.net>, Bill Mills <bill.mills@linaro.org>
+In-Reply-To: <59b720a8-154f-ad29-e7a9-b86b69408078@kaspersky.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Andra Paraschiv <andraprs@amazon.com>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "oxffffaa@gmail.com" <oxffffaa@gmail.com>,
+ Norbert Slusarek <nslusarek@gmx.net>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -105,131 +127,91 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Viresh,
+Hi Arseny,
 
-On Fri, Jun 11, 2021 at 10:01 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
-> On 11-06-21, 09:42, Geert Uytterhoeven wrote:
-> > On Fri, Jun 11, 2021 at 5:56 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
-> > > On 10-06-21, 22:46, Linus Walleij wrote:
-> > > > thanks for working on this, it's a really interesting driver.
-> > > >
-> > > > My first question is conceptual:
-> > > >
-> > > > We previously have Geerts driver for virtualization:
-> > > > drivers/gpio/gpio-aggregator.c
-> > > >
-> > > > The idea with the aggregator is that a host script sets up a
-> > > > unique gpiochip for the virtualized instance using some poking
-> > > > in sysfs and pass that to the virtual machine.
-> > > > So this is Linux acting as virtualization host by definition.
-> >
-> > The gpio-aggregator is running on the host...
-> >
-> > > > I think virtio is more abstract and intended for the usecase
-> > > > where the hypervisor is not Linux, so this should be mentioned
-> > > > in the commit, possibly also in Kconfig so users immediately
-> > > > know what usecases the two different drivers are for.
-> >
-> > ... while the virtio-gpio driver is meant for the guest kernel.
-> >
-> > I my PoC "[PATCH QEMU v2 0/5] Add a GPIO backend"[1], I didn't have
-> > a virtio transport, but just hooked into the PL061 GPIO emulation
-> > in QEMU.  The PL061 QEMU driver talked to the GPIO backend, which
-> > talked to /dev/gpiochipN on the host.
+On Fri, Jun 11, 2021 at 02:17:00PM +0300, Arseny Krasnov wrote:
 >
-> Hmm, interesting.
->
-> > > Well, not actually.
-> > >
-> > > The host can actually be anything. It can be a Xen based dom0, which
-> > > runs some proprietary firmware, or Qemu running over Linux.
-> > >
-> > > It is left for the host to decide how it wants to club together the
-> > > GPIO pins from host and access them, with Linux host userspace it
-> > > would be playing with /dev/gpiochipN, while for a raw one it may
-> > > be accessing registers directly.
-> > >
-> > > And so the backend running at host, needs to pass the gpiochip
-> > > configurations and only the host understand it.
-> >
-> > So QEMU has to translate the virtio-gpio communication to e.g.
-> > /dev/gpiochipN on the host (or a different backend on non-Linux or
-> > bare-metal HV).
->
-> No, QEMU passes the raw messages to the backend daemon running in host
-> userspace (which shares a socket with qemu). The backend understands
-> the virtio/vhost protocols and so won't be required to change at all
-> if we move from Qemu to something else. And that's what we (Linaro)
-> are looking to do here with Project Stratos.
->
-> Create virtio based hypervisor agnostic backends.
+>On 11.06.2021 14:07, Arseny Krasnov wrote:
+>> 	This patchset implements support of SOCK_SEQPACKET for virtio
+>> transport.
+>> 	As SOCK_SEQPACKET guarantees to save record boundaries, so to
+>> do it, new bit for field 'flags' was added: SEQ_EOR. This bit is
+>> set to 1 in last RW packet of message.
+>> 	Now as  packets of one socket are not reordered neither on vsock
+>> nor on vhost transport layers, such bit allows to restore original
+>> message on receiver's side. If user's buffer is smaller than message
+>> length, when all out of size data is dropped.
+>> 	Maximum length of datagram is limited by 'peer_buf_alloc' value.
+>> 	Implementation also supports 'MSG_TRUNC' flags.
+>> 	Tests also implemented.
+>>
+>> 	Thanks to stsp2@yandex.ru for encouragements and initial design
+>> recommendations.
+>>
+>>  Arseny Krasnov (18):
+>>   af_vsock: update functions for connectible socket
+>>   af_vsock: separate wait data loop
+>>   af_vsock: separate receive data loop
+>>   af_vsock: implement SEQPACKET receive loop
+>>   af_vsock: implement send logic for SEQPACKET
+>>   af_vsock: rest of SEQPACKET support
+>>   af_vsock: update comments for stream sockets
+>>   virtio/vsock: set packet's type in virtio_transport_send_pkt_info()
+>>   virtio/vsock: simplify credit update function API
+>>   virtio/vsock: defines and constants for SEQPACKET
+>>   virtio/vsock: dequeue callback for SOCK_SEQPACKET
+>>   virtio/vsock: add SEQPACKET receive logic
+>>   virtio/vsock: rest of SOCK_SEQPACKET support
+>>   virtio/vsock: enable SEQPACKET for transport
+>>   vhost/vsock: enable SEQPACKET for transport
+>>   vsock/loopback: enable SEQPACKET for transport
+>>   vsock_test: add SOCK_SEQPACKET tests
+>>   virtio/vsock: update trace event for SEQPACKET
+>>
+>>  drivers/vhost/vsock.c                              |  56 ++-
+>>  include/linux/virtio_vsock.h                       |  10 +
+>>  include/net/af_vsock.h                             |   8 +
+>>  .../trace/events/vsock_virtio_transport_common.h   |   5 +-
+>>  include/uapi/linux/virtio_vsock.h                  |   9 +
+>>  net/vmw_vsock/af_vsock.c                           | 464 ++++++++++++------
+>>  net/vmw_vsock/virtio_transport.c                   |  26 ++
+>>  net/vmw_vsock/virtio_transport_common.c            | 179 +++++++-
+>>  net/vmw_vsock/vsock_loopback.c                     |  12 +
+>>  tools/testing/vsock/util.c                         |  32 +-
+>>  tools/testing/vsock/util.h                         |   3 +
+>>  tools/testing/vsock/vsock_test.c                   | 116 ++++++
+>>  12 files changed, 730 insertions(+), 190 deletions(-)
+>>
+>>  v10 -> v11:
+>>  General changelog:
+>>   - now data is copied to user's buffer only when
+>>     whole message is received.
+>>   - reader is woken up when EOR packet is received.
+>>   - if read syscall was interrupted by signal or
+>>     timeout, error is returned(not 0).
+>>
+>>  Per patch changelog:
+>>   see every patch after '---' line.
+>So here is new version for review with updates discussed earlier :)
 
-OK, IC.
+Thanks, I'll review next week, but I suggest you again to split in two 
+series, since patchwork (and netdev maintainers) are not happy with a 
+series of 18 patches.
 
-> > > The way I test it for now is by running this with Qemu over my x86
-> > > box, so my host side is indeed playing with sysfs Linux.
-> >
-> > Can you please share a link to the QEMU patches?
->
-> Unfortunately, they aren't in good shape right now and the backend is
-> a bit hacky (Just checking the data paths, but not touching
-> /dev/gpiochipN at all for now).
->
-> I didn't implement one as I am going to implement the backend in Rust
-> and not Qemu. So it doesn't depend on Qemu at all.
+If you still prefer to keep them together during development, then 
+please use the RFC tag.
 
-OK.
+Also did you take a look at the FAQ for netdev that I linked last time?
+I don't see the net-next tag...
 
-> To give you an idea of the whole thing, here is what we have done for
-> I2c for example, GPIO one will look very similar.
+Thanks,
+Stefano
 
-Oh, you also have i2c. Nice!
-
-> The Qemu patches:
->
-> https://yhbt.net/lore/all/cover.1617278395.git.viresh.kumar@linaro.org/T/
->
-> The stuff from tools/vhost-user-i2c/ directory (or patch 4/6) isn't
-> used anymore and the following Rust implementation replaces it:
->
-> https://github.com/vireshk/vhost-device/tree/master/src/i2c
-
-Thanks for the links!
-
-> > The GPIO aggregator came into play after talking to Alexander Graf and
-> > Peter Maydell.  To reduce the attack surface, they didn't want QEMU
-> > to be responsible for exporting to the guest a subset of all GPIOs of
-> > a gpiochip, only a full gpiochip.  However, the full gpiochip may
-> > contain critical GPIOs you do not want the guest to tamper with.
-> > Hence the GPIO aggregator was born, to take care of aggregating all
-> > GPIOs you want to export to a guest into a new virtual gpiochip.
-> >
-> > You can find more information about the GPIO Aggregator's use cases in
-> > "[PATCH v7 0/6] gpio: Add GPIO Aggregator"[2].
->
-> So I was actually looking to do some kind of aggregation on the host
-> side's backend daemon to share only a subset of GPIO pins, I will see
-> if that is something I can reuse. Thanks for sharing details.
-
-The same reasoning can apply to your backend daemon, so when using
-the GPIO aggregator, you can just control a full gpiochip, without
-having to implement access control on individual GPIO lines.
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
