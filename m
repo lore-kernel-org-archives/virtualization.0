@@ -2,105 +2,103 @@ Return-Path: <SRS0=07LM=LI=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A606C48BE6
-	for <virtualization@archiver.kernel.org>; Mon, 14 Jun 2021 09:14:49 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0D8DC49360
+	for <virtualization@archiver.kernel.org>; Mon, 14 Jun 2021 09:24:30 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C0EF761352
-	for <virtualization@archiver.kernel.org>; Mon, 14 Jun 2021 09:14:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C0EF761352
+	by mail.kernel.org (Postfix) with ESMTPS id 7712C61370
+	for <virtualization@archiver.kernel.org>; Mon, 14 Jun 2021 09:24:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7712C61370
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8717E83B16;
-	Mon, 14 Jun 2021 09:14:48 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 37E3F4026E;
+	Mon, 14 Jun 2021 09:24:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7ONQeiCdzqwZ; Mon, 14 Jun 2021 09:14:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 43C3583A7A;
-	Mon, 14 Jun 2021 09:14:47 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0AE48C000D;
-	Mon, 14 Jun 2021 09:14:47 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 55D0BC000B
- for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Jun 2021 09:14:45 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2736040405
- for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Jun 2021 09:14:45 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id W0zrT8VDN71e
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Fo-I9gGIIpOM; Mon, 14 Jun 2021 09:24:28 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5766240219;
+	Mon, 14 Jun 2021 09:24:28 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3069BC000D;
+	Mon, 14 Jun 2021 09:24:28 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2385CC000B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Jun 2021 09:14:43 +0000 (UTC)
+ Mon, 14 Jun 2021 09:24:27 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 0478F60654
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 14 Jun 2021 09:24:27 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linaro.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 4s0IGEcN0fLt
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 14 Jun 2021 09:24:26 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com
- [IPv6:2607:f8b0:4864:20::434])
- by smtp4.osuosl.org (Postfix) with ESMTPS id E8213403EA
+Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com
+ [IPv6:2607:f8b0:4864:20::52c])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 36FF8605C1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Jun 2021 09:14:43 +0000 (UTC)
-Received: by mail-pf1-x434.google.com with SMTP id g6so10095647pfq.1
+ Mon, 14 Jun 2021 09:24:26 +0000 (UTC)
+Received: by mail-pg1-x52c.google.com with SMTP id i34so8120799pgl.9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Jun 2021 02:14:43 -0700 (PDT)
+ Mon, 14 Jun 2021 02:24:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to:user-agent;
- bh=KENaF6daomgz5scNtXqZjtsZnSgCNhEWOpxx4RhJ4Yw=;
- b=VJx+kBHFYVtSRtJbdOXkmjTmPuh/Y5FBlscGVnemlXQ3z5mQXpwXFHZoLmqxiGjhtw
- 2svtmA0s+JTY622IJYpBay/e18FAtFK/RPkWfhhZuYCViUuRfEMXq1g4zNG5foQm83d6
- /7vAoP1BIr5vfyTnu69CjoTZcvGzNZdYn7HShgbPX3tKMk/cMTVatGYnzhWyH+/9M/jY
- igBoSRq2zPYW5clyihkJiXhHvWbACfbXXZiP8lZmeCsjJx4bzSosRmGKuiHBLWcHiIFW
- IUk0fA+Np1DkJepm6lBOeLr/0E7lWKK9O6mUo6p0CwBt8dxpY1ePRhBm3GZz9A3/kq2L
- mhzw==
+ bh=zMkdb6UnzsmFoGQuydSUH9T+jo8wlm34o+dnsVNGaOY=;
+ b=yj58aZCITvmYsGGj7Nk7gTFZgHtEggMHzWZ75qNOIRRTEuNfBJ51g2pH/ybeSJ1SwD
+ QJKQQJ4431wv40jvILOT2zTpLY37Pmb79CZJvSH9WHYT8yESH/hcwodGpHJ7gNkzhqCZ
+ 6rK4tGwNcv/UNi3KOr5c8YYV7WaX7n3MlyFNONQPvGHS2n4KZq9R+KlFTnoCPbERBwo0
+ CR/lqpjYEGcAVnQmENHr7EYajipilph4sbUz3rXzXsYYkck9f+B6Z6kqIA0bNpjbuhvH
+ eoPjDL+Ot1oOiVyu34IiHe6hfhvBVP4ManGNNsyv7dUYrYolzHjOSubEfP+hSrWQeAdf
+ s+BQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to:user-agent;
- bh=KENaF6daomgz5scNtXqZjtsZnSgCNhEWOpxx4RhJ4Yw=;
- b=WwZK3Vn5nY+V3AeV22idSx/qtdn+KZ8GAN1XNi+tNjZpbi4hrpfs6/NcDiZ6Xmsur/
- i1CADnPe92pg6hhaQnW/JEZLjz85bfbhQIikThnLEu8RNwrcItsRNre6BtaJCSeMXeYU
- VkTo7lmnXCMyw/P/CJDzfB+ukFL86z0vkOARLXi43T3JxCNo/fwDxtwtg1rxPD5+QDNw
- YFkkiALbg5n1i5Zdk61MvlB4IFQ6m9/wn3hODIvaKbEVlrLtvYqYp8kx79EOekPFiwRl
- rG6e9vwEkv4Y2Mvp06YLoY/EnQ5auBldGa1CLvCSmhMn5HNDiNMTGyPB1TSWqS6PNVER
- IMqQ==
-X-Gm-Message-State: AOAM532v54LHKiD55mDXkAJ8ISUpxo/eMklFhmjAJtGduZPvcFnpz2BO
- vXSfbkjERwv81vDjxXqh2aP1Xw==
-X-Google-Smtp-Source: ABdhPJzZLhEjeNg7mvi5U/yF0J7tUlxRUljd+rBr+kbJUkO3TmIBNVQe5LHoPiXGtU3JUsIhK4bRTQ==
-X-Received: by 2002:a63:4653:: with SMTP id v19mr15988605pgk.240.1623662083282; 
- Mon, 14 Jun 2021 02:14:43 -0700 (PDT)
+ bh=zMkdb6UnzsmFoGQuydSUH9T+jo8wlm34o+dnsVNGaOY=;
+ b=ILr4Fny0rvBQHKCzjwo8lzTr/CtEFocT0iofSuQnMrD2BJnWG5qT6XePx7pe1CB+3r
+ 347IFpjlXWolSvyHwWy4D31PGTGgdphEzTMTcZ7A0UJCWtwLDN9vPx6RiuU6ZUs6NdN7
+ qDnUG85v9ir1EMqpaHhHd0HufBIM0SqmC5CDCLtqyw5bcD4p0b0l+epkBTwW2zNeVkYj
+ rOEBk2ZHWORqNe2Y3OAsXTwpNmf9y+aSDtvqt+yvTKQlWzi4eeLW14HmzO9u73Dfwoz2
+ MJ309NmIiQKjSWaKNtk9MByIVYyl744vOzB94CvH8tMLOWA3r473jpmYBBJuK5H2frkh
+ w7CA==
+X-Gm-Message-State: AOAM531G9dxUORVkBereNNWNEC7payHY0Lzyn9AgErVz1QdrnIHk3CXK
+ q96+h2xoA1Ya5+qiJ0YFjdsBeA==
+X-Google-Smtp-Source: ABdhPJxlNHDHLzS1JN+AlXEDxsg1diObJaCyoiXgBPZpknYyUf1Rtey2rbTHk5lENDG3Si5HyrUmKw==
+X-Received: by 2002:a63:5057:: with SMTP id q23mr16171557pgl.271.1623662665642; 
+ Mon, 14 Jun 2021 02:24:25 -0700 (PDT)
 Received: from localhost ([136.185.134.182])
- by smtp.gmail.com with ESMTPSA id w21sm12531959pfq.143.2021.06.14.02.14.42
+ by smtp.gmail.com with ESMTPSA id ge13sm17169989pjb.2.2021.06.14.02.24.24
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 14 Jun 2021 02:14:42 -0700 (PDT)
-Date: Mon, 14 Jun 2021 14:44:41 +0530
+ Mon, 14 Jun 2021 02:24:24 -0700 (PDT)
+Date: Mon, 14 Jun 2021 14:54:22 +0530
 From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
+To: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
 Subject: Re: [PATCH V3 1/3] gpio: Add virtio-gpio driver
-Message-ID: <20210614091441.b6gaei3dgx73skvt@vireshk-i7>
+Message-ID: <20210614092422.jmq2i3vlkjmy6cvf@vireshk-i7>
 References: <cover.1623326176.git.viresh.kumar@linaro.org>
  <10442926ae8a65f716bfc23f32339a6b35e51d5a.1623326176.git.viresh.kumar@linaro.org>
  <CACRpkdZV2v2S5z7CZf_8DV=At9-oPSj7RYFH78hWy3ZX37QnDQ@mail.gmail.com>
  <20210611035623.z4f2ynumzozigqnv@vireshk-i7>
  <CAMuHMdVrtSnFpPbB0P3Wxqm1D6vU1_cnh3ypsZJRNF6ueKdAsw@mail.gmail.com>
- <20210611080122.tlkidv6bowuka6fw@vireshk-i7>
- <0478822f-9d10-deb8-86ae-3b4ac3bb0c6c@metux.net>
- <CAHp75Vf0+bCnnD3wtkrPvFbr2k3A0r3eWNp87PyksiC7euaqdw@mail.gmail.com>
+ <db2d29fd-ff27-0c75-2472-dd031564dbf1@metux.net>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <CAHp75Vf0+bCnnD3wtkrPvFbr2k3A0r3eWNp87PyksiC7euaqdw@mail.gmail.com>
+In-Reply-To: <db2d29fd-ff27-0c75-2472-dd031564dbf1@metux.net>
 User-Agent: NeoMutt/20180716-391-311a52
 Cc: Alistair Strachan <astrachan@google.com>,
  Vincent Guittot <vincent.guittot@linaro.org>,
@@ -111,10 +109,9 @@ Cc: Alistair Strachan <astrachan@google.com>,
  Bjorn Andersson <bjorn.andersson@linaro.org>,
  Bartosz Golaszewski <bgolaszewski@baylibre.com>,
  Geert Uytterhoeven <geert@linux-m68k.org>,
- "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>, "Enrico Weigelt,
- metux IT consult" <lkml@metux.net>, stratos-dev@op-lists.linaro.org,
- "Enrico Weigelt, metux IT consult" <info@metux.net>,
- Bill Mills <bill.mills@linaro.org>
+ "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+ stratos-dev@op-lists.linaro.org, "Enrico Weigelt,
+ metux IT consult" <info@metux.net>, Bill Mills <bill.mills@linaro.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,28 +128,33 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 14-06-21, 11:12, Andy Shevchenko wrote:
-> On Mon, Jun 14, 2021 at 11:08 AM Enrico Weigelt, metux IT consult
-> <lkml@metux.net> wrote:
-> >
-> > On 11.06.21 10:01, Viresh Kumar wrote:
-> >
-> > > No, QEMU passes the raw messages to the backend daemon running in host
-> > > userspace (which shares a socket with qemu). The backend understands
-> > > the virtio/vhost protocols and so won't be required to change at all
-> > > if we move from Qemu to something else. And that's what we (Linaro)
-> > > are looking to do here with Project Stratos.
-> >
-> > Note that this is completely different from my approach that I've posted
-> > in autumn last year. Viresh's protocol hasn't much in common with mine.
+On 14-06-21, 10:03, Enrico Weigelt, metux IT consult wrote:
+> for qemu side you might be interested in my patch queue from last year
+> (including the virtio-gpio implementation) - it also introduces an
+> gpio backend subsys that allows attaching simulation gpio's to various
+> backends. so far just implemented a dummy backend (that can be
+> manipulated by qemu console) and using it just in the virtio-gpio
+> device emulation.
 > 
-> That's why we have a thing called standard. And AFAIU virtio API/ABIs
-> should be officially registered and standardized.
+> https://github.com/oss-qm/qemu/tree/wip/gpio-v2
 
-Yes and here is the latest version (which is based on the work done by
-Enrico earlier). It isn't accepted yet and is under review.
+Interesting, so this is a qemu-specific backend you have here.
 
-https://lists.oasis-open.org/archives/virtio-comment/202106/msg00022.html
+The way we are looking to write the backend (in Project Stratos at
+Linaro) is to make it hypervisor agnostic. So any hypervisor that
+understands the vhost protocol can use our backend without changing a
+single line of code. The backend will not be part of any
+hypervisor's/VMM's source code. FWIW, this doesn't add anything
+special to the virtio protocol (like GPIO).
+
+Here is a C based backend we have for I2C:
+
+https://yhbt.net/lore/all/cover.1617278395.git.viresh.kumar@linaro.org/T/#m3b5044bad9769b170f505e63bd081eb27cef8db2
+
+I started with keeping code in QEMU itself but now replaced it with
+one in RUST.
+
+https://github.com/vireshk/vhost-device/tree/master/src/i2c
 
 -- 
 viresh
