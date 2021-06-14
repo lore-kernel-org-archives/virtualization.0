@@ -7,60 +7,61 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CCF24C49EAB
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC032C49EA7
 	for <virtualization@archiver.kernel.org>; Mon, 14 Jun 2021 13:53:54 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 952586128C
+	by mail.kernel.org (Postfix) with ESMTPS id 96E7661352
 	for <virtualization@archiver.kernel.org>; Mon, 14 Jun 2021 13:53:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 952586128C
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 96E7661352
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id EFA804023D;
-	Mon, 14 Jun 2021 13:53:53 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6C02E605A3;
+	Mon, 14 Jun 2021 13:53:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2h4yq9xW8isj; Mon, 14 Jun 2021 13:53:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3DE6E40202;
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YaeXWx7pDULY; Mon, 14 Jun 2021 13:53:53 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 7395C608C6;
 	Mon, 14 Jun 2021 13:53:52 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 36D6DC002A;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 93A26C002C;
 	Mon, 14 Jun 2021 13:53:51 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DC727C000F
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3471AC000B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Jun 2021 13:53:48 +0000 (UTC)
+ Mon, 14 Jun 2021 13:53:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B7AB4402D6
+ by smtp2.osuosl.org (Postfix) with ESMTP id C715F40100
  for <virtualization@lists.linux-foundation.org>;
  Mon, 14 Jun 2021 13:53:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 53OPq8Jj1_4H
+ with ESMTP id VEuB809IfnMq
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Jun 2021 13:53:46 +0000 (UTC)
+ Mon, 14 Jun 2021 13:53:48 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from theia.8bytes.org (8bytes.org
  [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
- by smtp2.osuosl.org (Postfix) with ESMTPS id AFF1740100
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 2940340131
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Jun 2021 13:53:46 +0000 (UTC)
+ Mon, 14 Jun 2021 13:53:48 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2ba7c.dip0.t-ipconnect.de
  [79.242.186.124])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 67FC7465;
- Mon, 14 Jun 2021 15:53:42 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 55E9F4E1;
+ Mon, 14 Jun 2021 15:53:44 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v5 1/6] x86/sev-es: Fix error message in runtime #VC handler
-Date: Mon, 14 Jun 2021 15:53:22 +0200
-Message-Id: <20210614135327.9921-2-joro@8bytes.org>
+Subject: [PATCH v5 4/6] x86/insn-eval: Make 0 a valid RIP for
+ insn_get_effective_ip()
+Date: Mon, 14 Jun 2021 15:53:25 +0200
+Message-Id: <20210614135327.9921-5-joro@8bytes.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210614135327.9921-1-joro@8bytes.org>
 References: <20210614135327.9921-1-joro@8bytes.org>
@@ -96,27 +97,62 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The runtime #VC handler is not "early" anymore. Fix the copy&paste error
-and remove that word from the error message.
+In theory 0 is a valid value for the instruction pointer, so don't use
+it as the error return value from insn_get_effective_ip().
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/lib/insn-eval.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index 651b81cd648e..4fd997bbf059 100644
---- a/arch/x86/kernel/sev.c
-+++ b/arch/x86/kernel/sev.c
-@@ -1369,7 +1369,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
- 		vc_finish_insn(&ctxt);
- 		break;
- 	case ES_UNSUPPORTED:
--		pr_err_ratelimited("Unsupported exit-code 0x%02lx in early #VC exception (IP: 0x%lx)\n",
-+		pr_err_ratelimited("Unsupported exit-code 0x%02lx in #VC exception (IP: 0x%lx)\n",
- 				   error_code, regs->ip);
- 		goto fail;
- 	case ES_VMM_ERROR:
+diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
+index a67afd74232c..4eecb9c7c6a0 100644
+--- a/arch/x86/lib/insn-eval.c
++++ b/arch/x86/lib/insn-eval.c
+@@ -1417,7 +1417,7 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs)
+ 	}
+ }
+ 
+-static unsigned long insn_get_effective_ip(struct pt_regs *regs)
++static int insn_get_effective_ip(struct pt_regs *regs, unsigned long *ip)
+ {
+ 	unsigned long seg_base = 0;
+ 
+@@ -1430,10 +1430,12 @@ static unsigned long insn_get_effective_ip(struct pt_regs *regs)
+ 	if (!user_64bit_mode(regs)) {
+ 		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
+ 		if (seg_base == -1L)
+-			return 0;
++			return -EINVAL;
+ 	}
+ 
+-	return seg_base + regs->ip;
++	*ip = seg_base + regs->ip;
++
++	return 0;
+ }
+ 
+ /**
+@@ -1455,8 +1457,7 @@ int insn_fetch_from_user(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
+ 	unsigned long ip;
+ 	int not_copied;
+ 
+-	ip = insn_get_effective_ip(regs);
+-	if (!ip)
++	if (insn_get_effective_ip(regs, &ip))
+ 		return 0;
+ 
+ 	not_copied = copy_from_user(buf, (void __user *)ip, MAX_INSN_SIZE);
+@@ -1484,8 +1485,7 @@ int insn_fetch_from_user_inatomic(struct pt_regs *regs, unsigned char buf[MAX_IN
+ 	unsigned long ip;
+ 	int not_copied;
+ 
+-	ip = insn_get_effective_ip(regs);
+-	if (!ip)
++	if (insn_get_effective_ip(regs, &ip))
+ 		return 0;
+ 
+ 	not_copied = __copy_from_user_inatomic(buf, (void __user *)ip, MAX_INSN_SIZE);
 -- 
 2.31.1
 
