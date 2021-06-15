@@ -2,100 +2,120 @@ Return-Path: <SRS0=k2cl=LJ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECA3FC48BDF
-	for <virtualization@archiver.kernel.org>; Tue, 15 Jun 2021 11:37:53 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 630D3C48BE5
+	for <virtualization@archiver.kernel.org>; Tue, 15 Jun 2021 14:33:40 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8D0A46145C
-	for <virtualization@archiver.kernel.org>; Tue, 15 Jun 2021 11:37:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8D0A46145C
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+	by mail.kernel.org (Postfix) with ESMTPS id 165D561490
+	for <virtualization@archiver.kernel.org>; Tue, 15 Jun 2021 14:33:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 165D561490
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5CA15605C1;
-	Tue, 15 Jun 2021 11:37:53 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id D70CB4037A;
+	Tue, 15 Jun 2021 14:33:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5vF2H7ySNlYQ; Tue, 15 Jun 2021 11:37:52 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 178C96059F;
-	Tue, 15 Jun 2021 11:37:52 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id buLQ1C3_kAvR; Tue, 15 Jun 2021 14:33:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 80BAC40012;
+	Tue, 15 Jun 2021 14:33:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E2D3AC000E;
-	Tue, 15 Jun 2021 11:37:51 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 68A8CC000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5B6DBC000D;
+	Tue, 15 Jun 2021 14:33:38 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 89C4BC000B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Jun 2021 11:37:49 +0000 (UTC)
+ Tue, 15 Jun 2021 14:33:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 4900E607E4
+ by smtp1.osuosl.org (Postfix) with ESMTP id 748B1834D5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Jun 2021 11:37:49 +0000 (UTC)
+ Tue, 15 Jun 2021 14:33:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uWNkelAs_iPd
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id T6SD0JIdOllT
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Jun 2021 11:37:48 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-vs1-f45.google.com (mail-vs1-f45.google.com
- [209.85.217.45])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 5BC4F6059F
+ Tue, 15 Jun 2021 14:33:36 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 2B36C834C7
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Jun 2021 11:37:48 +0000 (UTC)
-Received: by mail-vs1-f45.google.com with SMTP id x8so9592982vso.5
+ Tue, 15 Jun 2021 14:33:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1623767615;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=C+PEwO1vuzVKwcAXZ/qn4zNQsNTC2ftksP1m6DzEJUg=;
+ b=Lolxd9oNY3eqSJ8W+T9zYR0XiWrYAaCoHDa+e5QXYGD4eaHzc/Dva5ivyP/fZHCgE2uyZy
+ J2LO3vS+U3tycUI9nOPErJVY6TMqySRCENcDcFvAbWmcz3NrpuCtY7/lpBBcZv7jukQxEG
+ hIKqHVbbzupbdaEywnI0ooWg8HojaGE=
+Received: from mail-pg1-f197.google.com (mail-pg1-f197.google.com
+ [209.85.215.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-106-OHYDDwtGPLib7PY-bZ0bgA-1; Tue, 15 Jun 2021 10:33:31 -0400
+X-MC-Unique: OHYDDwtGPLib7PY-bZ0bgA-1
+Received: by mail-pg1-f197.google.com with SMTP id
+ h1-20020a63df410000b0290222939c0dd7so2369327pgj.4
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Jun 2021 04:37:48 -0700 (PDT)
+ Tue, 15 Jun 2021 07:33:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=dEMwKaBtIH7S3fAHfNJawJ0VDIFQVTRz5VU7710Dgcs=;
- b=lKbE4yYpPXS/BNvPDx0a35WH0zTnIb7RsYtd63TGAEhBrCwIoiQXwB1gB+grDPby2l
- vjWxz4acvWIVEk7hfgTU1EVF0xDc4U6e2WwWKzLv0PbIPhPa9DEQMKZC88HSYgqjMm0W
- Zbau1MmjcqeAejXRs4H+0FTUK23gSQz8B4X+8UnynsP28anRrDMN678b4FxJWvBgXhBc
- WQ2Nf/WJ7qAZS+23orQ1dvJHB/5/y7POWw84RUz91X+PD3tbxzcP9ZZTCNos7JB6mdJX
- 3Lcik86j9vgXwHLkJwE9iRq7656zYyhO/qtcrdMlMesZezLWfWMgaKZgCGImRxlbokt+
- 5+tQ==
-X-Gm-Message-State: AOAM533O80i544RG1W8aHcjlUkx81Bq4JGxiuAEM05i5306Q3opFOcD8
- BK7X26G1xKMWzT8yz1CFvf/UAqcaoJZ2hxsDVks=
-X-Google-Smtp-Source: ABdhPJzWu0ZzQHuXV4PYNLkuX4/zyAG0cMCexlumQE0LzgSqdbPE35wZuXi0z3ynFv+/B+I3sIMNXeQKnTb1W0uliBA=
-X-Received: by 2002:a05:6102:c4c:: with SMTP id
- y12mr4274193vss.18.1623757067039; 
- Tue, 15 Jun 2021 04:37:47 -0700 (PDT)
+ h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+ :user-agent:mime-version:in-reply-to:content-transfer-encoding
+ :content-language;
+ bh=C+PEwO1vuzVKwcAXZ/qn4zNQsNTC2ftksP1m6DzEJUg=;
+ b=IF5kpsv2ipZD7FSet1Uccx7wCxA96Qa2vcHJ6vNcREZMYLJVSIre9PyInv8+uSAiCP
+ Zh66bg9nhGloEHhhQwPhEz/G9K/TXRTy/Cub4eYLy16+IVqInkp4GRR4mKsmsGHS04bc
+ OUOiChhFMDEr66on69rLWYhOOh5uf1U7SvD4Pr/Y844YtLwcixRaPcvrwaEPaK6xGVBQ
+ eW7zFT8Vh9T8OJeFWspCrPuuY4fZhJ04Nnb5yBGRx6W7KAJUUbsXNCE9IzA2pXeZJ2s5
+ E0qf8VSt34KeOOYEgMrJaX/ZJaOqEhr+Q4NxmgfSo47vye8Go2s0A7Qd+WwXrZxThH3z
+ 80Rg==
+X-Gm-Message-State: AOAM530o4M/p6fyX5r2nW+xQSY83IM8t03tYv98UjqUFgWGJeM6Gmdqe
+ mS/DnzuV6h3WWvinDRskPnDvGYTr0Uf6ShZvvN8UESs6yGgBPHZlrVrVwMaXhDu6hvhKgkXq55K
+ 8tqbdqf1SphH1ndnz+2yYcpRFwScDa/x0EbDAlhAojA==
+X-Received: by 2002:a17:90a:6b42:: with SMTP id
+ x2mr10714889pjl.16.1623767610586; 
+ Tue, 15 Jun 2021 07:33:30 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzoLgAmk1b7+hVi09blQTTsivWllOjkeEFAcRwAwvRRMpCJnIURaBSkCjKYxfrUksdkBYUPgA==
+X-Received: by 2002:a17:90a:6b42:: with SMTP id
+ x2mr10714866pjl.16.1623767610322; 
+ Tue, 15 Jun 2021 07:33:30 -0700 (PDT)
+Received: from wangxiaodeMacBook-Air.local ([209.132.188.80])
+ by smtp.gmail.com with ESMTPSA id o16sm13419988pfk.129.2021.06.15.07.33.25
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Tue, 15 Jun 2021 07:33:29 -0700 (PDT)
+Subject: Re: [PATCH] vhost-vdpa: log warning message if vhost_vdpa_remove gets
+ blocked
+To: Gautam Dawar <gdawar.xilinx@gmail.com>
+References: <20210606132909.177640-1-gdawar.xilinx@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <aa866c72-c3d9-9022-aa5b-b5a9fc9e946a@redhat.com>
+Date: Tue, 15 Jun 2021 22:33:22 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.11.0
 MIME-Version: 1.0
-References: <cover.1623326176.git.viresh.kumar@linaro.org>
- <10442926ae8a65f716bfc23f32339a6b35e51d5a.1623326176.git.viresh.kumar@linaro.org>
- <CACRpkdZV2v2S5z7CZf_8DV=At9-oPSj7RYFH78hWy3ZX37QnDQ@mail.gmail.com>
- <20210611035623.z4f2ynumzozigqnv@vireshk-i7>
- <CAMuHMdVrtSnFpPbB0P3Wxqm1D6vU1_cnh3ypsZJRNF6ueKdAsw@mail.gmail.com>
- <20210611080122.tlkidv6bowuka6fw@vireshk-i7>
- <CAMuHMdVL4VH09ixPcpqqokNJeYd68Th2Y6Lz4PZTF7h06OOBGw@mail.gmail.com>
- <20210615111551.7tcz7teqp4olhodf@vireshk-i7>
-In-Reply-To: <20210615111551.7tcz7teqp4olhodf@vireshk-i7>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 15 Jun 2021 13:37:35 +0200
-Message-ID: <CAMuHMdUKNgRgH+=fHW9RZijdFT9syPu-FD=EyA-PkrtUrg3AdQ@mail.gmail.com>
-Subject: Re: [PATCH V3 1/3] gpio: Add virtio-gpio driver
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: Alistair Strachan <astrachan@google.com>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Viresh Kumar <vireshk@kernel.org>, Linus Walleij <linus.walleij@linaro.org>,
- virtualization@lists.linux-foundation.org,
- linux-kernel <linux-kernel@vger.kernel.org>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- Bartosz Golaszewski <bgolaszewski@baylibre.com>,
- "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- stratos-dev@op-lists.linaro.org, "Enrico Weigelt,
- metux IT consult" <info@metux.net>, Bill Mills <bill.mills@linaro.org>
+In-Reply-To: <20210606132909.177640-1-gdawar.xilinx@gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, gdawar@xilinx.com,
+ virtualization@lists.linux-foundation.org, martinh@xilinx.com,
+ hanand@xilinx.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,42 +127,44 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="gbk"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Viresh,
-
-On Tue, Jun 15, 2021 at 1:15 PM Viresh Kumar <viresh.kumar@linaro.org> wrote:
-> On 11-06-21, 10:22, Geert Uytterhoeven wrote:
-> > The same reasoning can apply to your backend daemon, so when using
-> > the GPIO aggregator, you can just control a full gpiochip, without
-> > having to implement access control on individual GPIO lines.
->
-> I tried to look at it and it surely looks very temping and may fit
-> well and reduce size of my backend :)
->
-> I am now wondering how interrupts can be made to work here. Do you
-> have anything in mind for that ?
->
-> GPIO sysfs already supports interrupts, just that you need to register
-> irq for the specific GPIO pins inside the aggregator ?
-
-So far I hadn't considered interrupts.
-Will think about it...
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CtTaIDIwMjEvNi82IM/Czuc5OjI5LCBHYXV0YW0gRGF3YXIg0LS1wDoKPiBGcm9tOiBHYXV0YW0g
+RGF3YXIgPGdkYXdhckB4aWxpbnguY29tPgo+Cj4gSWYgc29tZSBtb2R1bGUgaW52b2tlcyB2ZHBh
+X2RldmljZV91bnJlZ2lzdGVyICh1c3VhbGx5IGluIHRoZSBtb2R1bGUKPiB1bmxvYWQgZnVuY3Rp
+b24pIHdoZW4gdGhlIHVzZXJzcGFjZSBhcHAgKGVnLiBRRU1VKSB3aGljaCBoYWQgb3BlbmVkCj4g
+dGhlIHZob3N0LXZkcGEgY2hhcmFjdGVyIGRldmljZSBpcyBzdGlsbCBydW5uaW5nLCB2aG9zdF92
+ZHBhX3JlbW92ZSgpCj4gZnVuY3Rpb24gd2lsbCBibG9jayBpbmRlZmluaXRlbHkgaW4gY2FsbCB0
+byB3YWl0X2Zvcl9jb21wbGV0aW9uKCkuCj4KPiBUaGlzIGNhdXNlcyB0aGUgdmRwYV9kZXZpY2Vf
+dW5yZWdpc3RlciBjYWxsZXIgdG8gaGFuZyBhbmQgd2l0aCBhCj4gdXN1YWwgc2lkZS1lZmZlY3Qg
+b2Ygcm1tb2QgY29tbWFuZCBub3QgcmV0dXJuaW5nIHdoZW4gdGhpcyBjYWxsCj4gaXMgaW4gdGhl
+IG1vZHVsZV9leGl0IGZ1bmN0aW9uLgo+Cj4gVGhpcyBwYXRjaCBjb252ZXJ0cyB0aGUgd2FpdF9m
+b3JfY29tcGxldGlvbiBjYWxsIHRvIGl0cyB0aW1lb3V0IGJhc2VkCj4gY291bnRlcnBhcnQgKHdh
+aXRfZm9yX2NvbXBsZXRpb25fdGltZW91dCkgYW5kIGFsc28gYWRkcyBhIHdhcm5pbmcKPiBtZXNz
+YWdlIHRvIGFsZXJ0IHRoZSB1c2VyL2FkbWluaXN0cmF0b3IgYWJvdXQgdGhpcyBoYW5nIHNpdHVh
+dGlvbi4KPgo+IFRvIGV2ZW50dWFsbHkgZml4IHRoaXMgcHJvYmxlbSwgYSBtZWNoYW5pc20gd2ls
+bCBiZSByZXF1aXJlZCB0byBsZXQKPiB2aG9zdC12ZHBhIG1vZHVsZSBpbmZvcm0gdGhlIHVzZXJz
+cGFjZSBvZiB0aGlzIHNpdHVhdGlvbiBhbmQKPiB1c2Vyc3BhY2Ugd2lsbCBjbG9zZSB0aGUgZGVz
+Y3JpcHRvciBvZiB2aG9zdC12ZHBhIGNoYXIgZGV2aWNlLgo+IFRoaXMgd2lsbCBlbmFibGUgdmhv
+c3QtdmRwYSB0byBjb250aW51ZSB3aXRoIGdyYWNlZnVsIGNsZWFuLXVwLgo+Cj4gU2lnbmVkLW9m
+Zi1ieTogR2F1dGFtIERhd2FyIDxnZGF3YXJAeGlsaW54LmNvbT4KPiAtLS0KPiAgIGRyaXZlcnMv
+dmhvc3QvdmRwYS5jIHwgNiArKysrKy0KPiAgIDEgZmlsZSBjaGFuZ2VkLCA1IGluc2VydGlvbnMo
+KyksIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3ZkcGEuYyBi
+L2RyaXZlcnMvdmhvc3QvdmRwYS5jCj4gaW5kZXggYmZhNGM2ZWY1NTRlLi41NzJiNjRkMDliMDYg
+MTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aG9zdC92ZHBhLmMKPiArKysgYi9kcml2ZXJzL3Zob3N0
+L3ZkcGEuYwo+IEBAIC0xMDkxLDcgKzEwOTEsMTEgQEAgc3RhdGljIHZvaWQgdmhvc3RfdmRwYV9y
+ZW1vdmUoc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhKQo+ICAgCQlvcGVuZWQgPSBhdG9taWNfY21w
+eGNoZygmdi0+b3BlbmVkLCAwLCAxKTsKPiAgIAkJaWYgKCFvcGVuZWQpCj4gICAJCQlicmVhazsK
+PiAtCQl3YWl0X2Zvcl9jb21wbGV0aW9uKCZ2LT5jb21wbGV0aW9uKTsKPiArCQl3YWl0X2Zvcl9j
+b21wbGV0aW9uX3RpbWVvdXQoJnYtPmNvbXBsZXRpb24sCj4gKwkJCQkJICAgIG1zZWNzX3RvX2pp
+ZmZpZXMoMTAwMCkpOwo+ICsJCWRldl93YXJuX3JhdGVsaW1pdGVkKCZ2LT5kZXYsCj4gKwkJCQkg
+ICAgICIlcyB3YWl0aW5nIGZvciAvZGV2LyVzIHRvIGJlIGNsb3NlZFxuIiwKPiArCQkJCSAgICAg
+X19mdW5jX18sIGRldl9uYW1lKCZ2LT5kZXYpKTsKPiAgIAl9IHdoaWxlICgxKTsKPiAgIAo+ICAg
+CXB1dF9kZXZpY2UoJnYtPmRldik7CgoKQWNrZWQtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJl
+ZGhhdC5jb20+CgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
+L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
