@@ -2,122 +2,100 @@ Return-Path: <SRS0=d+i8=LK=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F264C48BE5
-	for <virtualization@archiver.kernel.org>; Wed, 16 Jun 2021 15:53:01 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4CB6C48BE5
+	for <virtualization@archiver.kernel.org>; Wed, 16 Jun 2021 16:22:30 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1C56660FF1
-	for <virtualization@archiver.kernel.org>; Wed, 16 Jun 2021 15:53:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1C56660FF1
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 58CDE61185
+	for <virtualization@archiver.kernel.org>; Wed, 16 Jun 2021 16:22:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 58CDE61185
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id EDDDE404AA;
-	Wed, 16 Jun 2021 15:53:00 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1272C4056E;
+	Wed, 16 Jun 2021 16:22:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mCPrrDcdcJOr; Wed, 16 Jun 2021 15:53:00 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 869F0403B3;
-	Wed, 16 Jun 2021 15:52:59 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id nvn8DVQeWWe2; Wed, 16 Jun 2021 16:22:28 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5A2BA40388;
+	Wed, 16 Jun 2021 16:22:28 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 60DA2C000D;
-	Wed, 16 Jun 2021 15:52:59 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A9E4FC000B
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 25BBBC000E;
+	Wed, 16 Jun 2021 16:22:28 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 12AA8C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Jun 2021 15:52:58 +0000 (UTC)
+ Wed, 16 Jun 2021 16:22:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 8BA55834C7
+ by smtp4.osuosl.org (Postfix) with ESMTP id E5DB140486
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Jun 2021 15:52:58 +0000 (UTC)
+ Wed, 16 Jun 2021 16:22:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eChSOSA267Qe
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id YsDGQHwznjwz
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Jun 2021 15:52:57 +0000 (UTC)
+ Wed, 16 Jun 2021 16:22:23 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id C2A2482BF4
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id E298B40388
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Jun 2021 15:52:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1623858776;
- h=from:from:reply-to:reply-to:subject:subject:date:date:
- message-id:message-id:to:to:cc:cc:mime-version:mime-version:
- content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=6r7FqEyIqGHuXZGRXFsW95199nXnF1UaOlSdhA4lIyc=;
- b=BvYKCIFARbyrRnAd0JzQU5HuFsck5HH3NlN80W0M7ILmEwDL/8Eo319ZFE2G9UbwN0S7q2
- 00+4WnfNJR2Yz7WSOFh2mZf63Lq1/boNpL33RtxCjhgp8NW79K8C+hXuM7mWweG1T+T89x
- 9drBKWVLPlfgofCTHcfZ5PLVsQ1ckmg=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-227-FNmFiXDuPzeJirjmM9sbyQ-1; Wed, 16 Jun 2021 11:52:50 -0400
-X-MC-Unique: FNmFiXDuPzeJirjmM9sbyQ-1
-Received: by mail-wr1-f72.google.com with SMTP id
- n2-20020adfb7420000b029010e47b59f31so1452481wre.9
- for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Jun 2021 08:52:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:reply-to:subject:to:cc:references:from
- :message-id:date:user-agent:mime-version:in-reply-to
- :content-transfer-encoding:content-language;
- bh=6r7FqEyIqGHuXZGRXFsW95199nXnF1UaOlSdhA4lIyc=;
- b=hC9qMsLAYzrvYIKAG14v//VQSNQy11HbOCN8q0wsoz/84ue+50BUsWjklkCR2qyYPK
- tU3nBa5/SS6SWrW0wjIMomLBcujBJby6nCYYNWQ+pFsZWr5OrFuxrDzCr3/ZDjDMzbZ3
- j9ElsS7q/XV6uHoVEiyvzSnjnLUr1GSdEnrjMYaO5xJtyr0IfvZJqRBFBOQ9SHw3LOyE
- VGOONQr6f2ZPYk+UafmUzkMzXCPRlyQKXHN0eIM/5ZDkecqr4rpFoK213ydnayRY6Uj7
- iEw8WuLUguAgiVlAhHwiUWHbogqjOHNrIpWY8V9EXT3djh9zMQFf0MxHLwJ6ANpreHbn
- heAw==
-X-Gm-Message-State: AOAM531hrA1Et+RnXLOkckmhbDg/P1dOO9I+oG1cpZKkF4K/Dcu8ieqA
- HuSl8O0toqDgDL/SIqI76bmZohD2ir6kwWjqi2YfOhEAukWOkNeE/NsQhHcbfWVufdvLxW+7sI0
- rWzQ0EVKocLfejJ106VuCDIPQk2rC8auFqk66UBLOQA==
-X-Received: by 2002:a5d:64c2:: with SMTP id f2mr55250wri.291.1623858769531;
- Wed, 16 Jun 2021 08:52:49 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJysyzQ5DAqgvGtPQdPC6k1RsxHctJlotRiVdhus3R8J8Yk+bdyOpT1kx5y2o1TBPyLSdtUNPA==
-X-Received: by 2002:a5d:64c2:: with SMTP id f2mr55237wri.291.1623858769411;
- Wed, 16 Jun 2021 08:52:49 -0700 (PDT)
-Received: from [192.168.43.95] ([37.172.247.238])
- by smtp.gmail.com with ESMTPSA id c13sm2703348wrb.5.2021.06.16.08.52.47
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 16 Jun 2021 08:52:48 -0700 (PDT)
-Subject: Re: [PATCH v4 6/6] iommu/virtio: Enable x86 support
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>, rjw@rjwysocki.net,
- lenb@kernel.org, joro@8bytes.org, mst@redhat.com
-References: <20210610075130.67517-1-jean-philippe@linaro.org>
- <20210610075130.67517-7-jean-philippe@linaro.org>
-From: Eric Auger <eric.auger@redhat.com>
-Message-ID: <9149c79e-6f88-5df5-80e7-4da4cb13d6e1@redhat.com>
-Date: Wed, 16 Jun 2021 17:52:46 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+ Wed, 16 Jun 2021 16:22:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=1d0Tl5rfohMOCIU/0DFB9J6Hwo/O5OgV8ZAPADtlBA0=; b=FTmH95Q23BqY4TkY4TDDOpOMxH
+ 9BtCg09BOIov7oalJ/k0iE3EaYw61VOCnIK0T+0XEkuV2C7lUm+GsDRXUJutWmZCHiimixdyrtPLt
+ ozU7afsS3dXlOwMxyhAcCVKRGTT7ybEV/mOs4dxAto9Ems80hcGpOQgqaG+5YjiDWRTDbzGMhoLEU
+ 7gWPiz5fJnrL5KDKrpMzgSJdXpEmUsFGv3dDoFsal53jiwMKjDDKUBv1hoEbG0adkF0kXyPeoe2lO
+ NdDudTUPcjbwLq4NgG5GBik6RFAB+pfIA+ZGmmR5uw4m9d7lBhU+1Uu7bwEZwwgLZcv3uBSVvlje9
+ 6PpMGJDQ==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100]
+ helo=noisy.programming.kicks-ass.net)
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1ltYIX-008FOd-VY; Wed, 16 Jun 2021 16:21:52 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 7874D300269;
+ Wed, 16 Jun 2021 18:04:26 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+ id 5620A2BD35DD3; Wed, 16 Jun 2021 18:04:26 +0200 (CEST)
+Date: Wed, 16 Jun 2021 18:04:26 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH v5 3/6] x86/sev-es: Split up runtime #VC handler for
+ correct state tracking
+Message-ID: <YMohCkW/mChNpkqi@hirez.programming.kicks-ass.net>
+References: <20210614135327.9921-1-joro@8bytes.org>
+ <20210614135327.9921-4-joro@8bytes.org>
 MIME-Version: 1.0
-In-Reply-To: <20210610075130.67517-7-jean-philippe@linaro.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=eric.auger@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: lorenzo.pieralisi@arm.com, catalin.marinas@arm.com, sudeep.holla@arm.com,
- robin.murphy@arm.com, virtualization@lists.linux-foundation.org,
- linux-acpi@vger.kernel.org, iommu@lists.linux-foundation.org,
- sebastien.boeuf@intel.com, guohanjun@huawei.com, will@kernel.org,
- dwmw2@infradead.org, linux-arm-kernel@lists.infradead.org,
- baolu.lu@linux.intel.com
+Content-Disposition: inline
+In-Reply-To: <20210614135327.9921-4-joro@8bytes.org>
+Cc: kvm@vger.kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org,
+ Arvind Sankar <nivedita@alum.mit.edu>, hpa@zytor.com,
+ Jiri Slaby <jslaby@suse.cz>, x86@kernel.org,
+ David Rientjes <rientjes@google.com>, Martin Radev <martin.b.radev@gmail.com>,
+ Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>,
+ Kees Cook <keescook@chromium.org>, Cfir Cohen <cfir@google.com>,
+ linux-coco@lists.linux.dev, Andy Lutomirski <luto@kernel.org>,
+ Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>,
+ Mike Stunes <mstunes@vmware.com>, Sean Christopherson <seanjc@google.com>,
+ linux-kernel@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+ Erdem Aktas <erdemaktas@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -129,88 +107,152 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: eric.auger@redhat.com
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi jean,
+On Mon, Jun 14, 2021 at 03:53:24PM +0200, Joerg Roedel wrote:
 
-On 6/10/21 9:51 AM, Jean-Philippe Brucker wrote:
-> With the VIOT support in place, x86 platforms can now use the
-> virtio-iommu.
->
-> Because the other x86 IOMMU drivers aren't yet ready to use the
-> acpi_dma_setup() path, x86 doesn't implement arch_setup_dma_ops() at the
-> moment. Similarly to Vt-d and AMD IOMMU, call iommu_setup_dma_ops() from
-> probe_finalize().
->
-> Acked-by: Joerg Roedel <jroedel@suse.de>
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
+> --- a/arch/x86/entry/entry_64.S
+> +++ b/arch/x86/entry/entry_64.S
+> @@ -506,7 +506,7 @@ SYM_CODE_START(\asmsym)
+>  
+>  	movq	%rsp, %rdi		/* pt_regs pointer */
+>  
+> -	call	\cfunc
+> +	call	kernel_\cfunc
+>  
+>  	/*
+>  	 * No need to switch back to the IST stack. The current stack is either
+> @@ -517,7 +517,7 @@ SYM_CODE_START(\asmsym)
+>  
+>  	/* Switch to the regular task stack */
+>  .Lfrom_usermode_switch_stack_\@:
+> -	idtentry_body safe_stack_\cfunc, has_error_code=1
+> +	idtentry_body user_\cfunc, has_error_code=1
+>  
+>  _ASM_NOKPROBE(\asmsym)
+>  SYM_CODE_END(\asmsym)
 
-Eric
-> ---
->  drivers/iommu/Kconfig        | 3 ++-
->  drivers/iommu/dma-iommu.c    | 1 +
->  drivers/iommu/virtio-iommu.c | 8 ++++++++
->  3 files changed, 11 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
-> index aff8a4830dd1..07b7c25cbed8 100644
-> --- a/drivers/iommu/Kconfig
-> +++ b/drivers/iommu/Kconfig
-> @@ -400,8 +400,9 @@ config HYPERV_IOMMU
->  config VIRTIO_IOMMU
->  	tristate "Virtio IOMMU driver"
->  	depends on VIRTIO
-> -	depends on ARM64
-> +	depends on (ARM64 || X86)
->  	select IOMMU_API
-> +	select IOMMU_DMA
->  	select INTERVAL_TREE
->  	select ACPI_VIOT if ACPI
->  	help
-> diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
-> index 175f8eaeb5b3..46ed43c400cf 100644
-> --- a/drivers/iommu/dma-iommu.c
-> +++ b/drivers/iommu/dma-iommu.c
-> @@ -1332,6 +1332,7 @@ void iommu_setup_dma_ops(struct device *dev, u64 dma_base, u64 dma_limit)
->  	 pr_warn("Failed to set up IOMMU for device %s; retaining platform DMA ops\n",
->  		 dev_name(dev));
->  }
-> +EXPORT_SYMBOL_GPL(iommu_setup_dma_ops);
->  
->  static struct iommu_dma_msi_page *iommu_dma_get_msi_page(struct device *dev,
->  		phys_addr_t msi_addr, struct iommu_domain *domain)
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index 218fe8560e8d..77aee1207ced 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -1026,6 +1026,13 @@ static struct iommu_device *viommu_probe_device(struct device *dev)
->  	return ERR_PTR(ret);
->  }
->  
-> +static void viommu_probe_finalize(struct device *dev)
+Consistency with idtentry_mce_db would seem to suggest using \cfunc and
+noist_\cfunc.
+
+amluto, tglx: do we have strong feelings on consistency?
+
+
+> +static bool noinstr vc_check_and_handle_db(struct pt_regs *regs, unsigned long error_code)
 > +{
-> +#ifndef CONFIG_ARCH_HAS_SETUP_DMA_OPS
-> +	iommu_setup_dma_ops(dev, 0, U64_MAX);
-> +#endif
-> +}
+> +	if (likely(error_code != SVM_EXIT_EXCP_BASE + X86_TRAP_DB))
+> +		return false;
+>  
+> +	vc_handle_trap_db(regs);
+
+It's a bit sad this does user_mode(regs) again.
+
 > +
->  static void viommu_release_device(struct device *dev)
+> +	return true;
+> +}
+
+Maybe something like:
+
+static __always_inline bool vc_is_db(unsigned long error_code)
+{
+	return error_code == SVM_EXIT_EXCP_BASE + X86_TRAP_DB;
+}
+
+> +
+> +/*
+> + * Runtime #VC exception handler when raised from kernel mode. Runs in NMI mode
+> + * and will panic when an error happens.
+> + */
+> +DEFINE_IDTENTRY_VC_KERNEL(exc_vmm_communication)
+> +{
+> +	irqentry_state_t irq_state;
+>  
+> +	/*
+> +	 * With the current implementation it is always possible to switch to a
+> +	 * safe stack because #VC exceptions only happen at known places, like
+> +	 * intercepted instructions or accesses to MMIO areas/IO ports. They can
+> +	 * also happen with code instrumentation when the hypervisor intercepts
+> +	 * #DB, but the critical paths are forbidden to be instrumented, so #DB
+> +	 * exceptions currently also only happen in safe places.
+> +	 *
+> +	 * But keep this here in case the noinstr annotations are violated due
+> +	 * to bug elsewhere.
+> +	 */
+> +	if (unlikely(on_vc_fallback_stack(regs))) {
+> +		instrumentation_begin();
+> +		panic("Can't handle #VC exception from unsupported context\n");
+> +		instrumentation_end();
+> +	}
+> +
+> +	/*
+> +	 * Handle #DB before calling into !noinstr code to avoid recursive #DB.
+> +	 */
+> +	if (vc_check_and_handle_db(regs, error_code))
+> +		return;
+
+	if (vc_is_db(error_core)) {
+		exc_debug(regs);
+		return;
+	}
+
+> +
+> +	irq_state = irqentry_nmi_enter(regs);
+> +
+> +	instrumentation_begin();
+> +
+> +	if (!vc_raw_handle_exception(regs, error_code)) {
+>  		/* Show some debug info */
+>  		show_regs(regs);
+>  
+> @@ -1443,23 +1448,38 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+>  		panic("Returned from Terminate-Request to Hypervisor\n");
+>  	}
+>  
+> +	instrumentation_end();
+> +	irqentry_nmi_exit(regs, irq_state);
+>  }
+>  
+> +/*
+> + * Runtime #VC exception handler when raised from user mode. Runs in IRQ mode
+> + * and will kill the current task with SIGBUS when an error happens.
+> + */
+> +DEFINE_IDTENTRY_VC_USER(exc_vmm_communication)
 >  {
->  	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-> @@ -1062,6 +1069,7 @@ static struct iommu_ops viommu_ops = {
->  	.iova_to_phys		= viommu_iova_to_phys,
->  	.iotlb_sync		= viommu_iotlb_sync,
->  	.probe_device		= viommu_probe_device,
-> +	.probe_finalize		= viommu_probe_finalize,
->  	.release_device		= viommu_release_device,
->  	.device_group		= viommu_device_group,
->  	.get_resv_regions	= viommu_get_resv_regions,
+> +	irqentry_state_t irq_state;
+> +
+> +	/*
+> +	 * Handle #DB before calling into !noinstr code to avoid recursive #DB.
+> +	 */
+> +	if (vc_check_and_handle_db(regs, error_code))
+> +		return;
+
+	if (vs_is_db(error_code)) {
+		noist_exc_debug(regs);
+		return;
+	}
+
+> +
+> +	irq_state = irqentry_enter(regs);
+>  	instrumentation_begin();
+>  
+> +	if (!vc_raw_handle_exception(regs, error_code)) {
+> +		/*
+> +		 * Do not kill the machine if user-space triggered the
+> +		 * exception. Send SIGBUS instead and let user-space deal with
+> +		 * it.
+> +		 */
+> +		force_sig_fault(SIGBUS, BUS_OBJERR, (void __user *)0);
+> +	}
+> +
+> +	instrumentation_end();
+> +	irqentry_exit(regs, irq_state);
+>  }
+
+Other than that, this seems *much* nicer. Thanks!
+
 
 _______________________________________________
 Virtualization mailing list
