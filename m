@@ -2,133 +2,111 @@ Return-Path: <SRS0=d+i8=LK=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,HTML_MESSAGE,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C900AC48BE5
-	for <virtualization@archiver.kernel.org>; Wed, 16 Jun 2021 19:12:30 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A486C48BE6
+	for <virtualization@archiver.kernel.org>; Wed, 16 Jun 2021 21:19:04 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8EF016128B
-	for <virtualization@archiver.kernel.org>; Wed, 16 Jun 2021 19:12:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8EF016128B
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=nvidia.com
+	by mail.kernel.org (Postfix) with ESMTPS id 0F891613DE
+	for <virtualization@archiver.kernel.org>; Wed, 16 Jun 2021 21:19:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0F891613DE
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=oasis-open.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6F6F060BE8;
-	Wed, 16 Jun 2021 19:12:30 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id CACDC40153;
+	Wed, 16 Jun 2021 21:19:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 88PnGJGeWh0b; Wed, 16 Jun 2021 19:12:28 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 5E0CE60BD6;
-	Wed, 16 Jun 2021 19:12:28 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 38CAEC0025;
-	Wed, 16 Jun 2021 19:12:28 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 21C58C000B
- for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Jun 2021 19:12:24 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 6A30B4021B
- for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Jun 2021 19:12:23 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=nvidia.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id LHW2l7bA4XXy
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kCVuWEyoV3Yf; Wed, 16 Jun 2021 21:19:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 35091404B9;
+	Wed, 16 Jun 2021 21:19:02 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 09F36C000D;
+	Wed, 16 Jun 2021 21:19:02 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5CB65C000B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Jun 2021 19:12:22 +0000 (UTC)
+ Wed, 16 Jun 2021 21:19:01 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 3D00640558
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 16 Jun 2021 21:19:01 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key)
+ header.d=oasis-open-org.20150623.gappssmtp.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id rrVeo6agmZ2s
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 16 Jun 2021 21:18:59 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam12on20601.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:fe5a::601])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 600DF404EF
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com
+ [IPv6:2a00:1450:4864:20::52e])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 9C4F340547
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Jun 2021 19:12:22 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=oOtAVKu3c1fSn6g70JG1pTk/uFRmvS8tq5FQIxdDj/LGMA+zLyflQlYcUviwb5G5He/ntYdWaGIQDksHm4GuoTxqOL00s03NI/DKBogeOPTAzslQkiq4WrUF3dd4Aogp3NHWbLQTRfge6foSZwopfdgjbvVYsqze7IdCmLKoPTpmmeXuMGF+svb3PvbhKTCRe03BT4CzBXY14hYyB58CMkG35COVevfRffrPpwGeiJH1Qa6F+RfbYtBBHTqRVr5bf0nf5AFm0OfV4QNI44jHU935+Rl2nMMHrVTrDLruwID/wAnh6A8tAYbsUFB7qCI9VFFyqRbxnRJhm3NxFQFVxA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=l8skW/ZNYMAFFfD4Bt65lhr2jB9ddxODj6yDVkCVtlg=;
- b=BZYpOgO9LYBTnNkfQ+fgDdGhllTAzPCyhnVcMaKK63ZQ+1RfaS/RKjCT1iL33ud99SIaLx+yr3AKVZYl5qP2DVCWotPHMJSRummwmzz7K1HKxnt2B7wnkZoczKAnSnZ3Ik7YWCEK3dlKqZ38VpYYjtcsfvfFIqCz3ARgUah9DtSsrQzk+hDo5F0uMt/uuJSGXaKg3z9pHDGdOoelmXqflJ2wSQAoWQurG2SXsorElLzfJsI22HIt0wzPKBG1kKjzgU0ofhPW7JHwnJZNyKECxQjmb6GDASgQfDUJhvPP3axCq19UD8/84NY0nqouP7Xlq9Ep+AHW7W70lqiUys+bPg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.34) smtp.rcpttodomain=redhat.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=none sp=none pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=l8skW/ZNYMAFFfD4Bt65lhr2jB9ddxODj6yDVkCVtlg=;
- b=Dga1IzemIBHNQx37DTRx/5LkNUqpYMJ3J0iDAt95xPxTRKcK5HM4TSBnapvnh34DdDNcMO8vNgtUpPUZqc/0XLc22LbjTOOG8jmy361Mt+m1LWskPV4nHe0KJoF/y92/tarSYCWm3aLorUSOKr9XrovE52vQ0URaG7o09unyv0uqb2C4x60A+5kq3qo0n6UnCI+zI91MirAA5apxPOlUbCw6Jn+PRQAT6A3q84BDu15LFPpBi+kjfi7xRUe7LWfrWW5HILPDUWX1avLSJ8TmFdNTngaJ8QDLEytmCaL74iUm0UE4muSYGT8thjBBxi0curFtlXAW0Qd9q0g0IuJKkw==
-Received: from MWHPR22CA0056.namprd22.prod.outlook.com (2603:10b6:300:12a::18)
- by DM5PR12MB2536.namprd12.prod.outlook.com (2603:10b6:4:b3::36) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4242.16; Wed, 16 Jun
- 2021 19:12:20 +0000
-Received: from CO1NAM11FT018.eop-nam11.prod.protection.outlook.com
- (2603:10b6:300:12a:cafe::43) by MWHPR22CA0056.outlook.office365.com
- (2603:10b6:300:12a::18) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4242.15 via Frontend
- Transport; Wed, 16 Jun 2021 19:12:20 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
- smtp.mailfrom=nvidia.com; redhat.com; dkim=none (message not signed)
- header.d=none;redhat.com; dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.34 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.34; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.34) by
- CO1NAM11FT018.mail.protection.outlook.com (10.13.175.16) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4242.16 via Frontend Transport; Wed, 16 Jun 2021 19:12:19 +0000
-Received: from sw-mtx-036.mtx.labs.mlnx (172.20.187.6) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
- Wed, 16 Jun 2021 19:12:16 +0000
-From: Parav Pandit <parav@nvidia.com>
-To: <virtualization@lists.linux-foundation.org>
-Subject: [PATCH linux-next v3 6/6] vdpa/mlx5: Forward only packets with
- allowed MAC address
-Date: Wed, 16 Jun 2021 22:11:55 +0300
-Message-ID: <20210616191155.102303-7-parav@nvidia.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210616191155.102303-1-parav@nvidia.com>
-References: <20210616191155.102303-1-parav@nvidia.com>
+ Wed, 16 Jun 2021 21:18:59 +0000 (UTC)
+Received: by mail-ed1-x52e.google.com with SMTP id r7so950560edv.12
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 16 Jun 2021 14:18:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oasis-open-org.20150623.gappssmtp.com; s=20150623;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=GuOvoVr42fUF6RXYTBLS9z75Ir34nLmbD9ONF5A+weo=;
+ b=c1mEftNOY2KGbd1EJ4ng6DNY44RCr6bREnVo0Cy8kWQlFsHkGqMCG9l7PsfazdX6AV
+ Y3LZcT5VWP5xEOBGZnrvOG77/JYRrfapCq9AtTYw2fY/bag0uFj2bdkHOH7Xm1T9ol1m
+ iOAc1XumUkndPoqfAKIDPGKjk6UmFCRvbz3M81vty93fzWy84faPqF2WvY89xQQsSAQp
+ CGArxqM+J7xfoYzzwBcDvhjrYAtyajWtMmflQ7S27BZaxrfkWvEqqLLPw74t8XIcQqf3
+ Hx18q230DzZqBsV5rZZH46T/fg+WzxhqMUUQ1qjcLhY3r4RuZK6SQR0hcgPt+cGAly0V
+ FNXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=GuOvoVr42fUF6RXYTBLS9z75Ir34nLmbD9ONF5A+weo=;
+ b=b0iRq4l+pLBhR7t43zQKul+LugefiKZ6ruN+adGiobZd9+mZ8EnfzFA/56h6mHLLuE
+ K+xkXNp2dURBnSAqnQ+1KXw7qHs7i0OmwC3TUTsebr5cEa5uiU3o3VVYHvHyBrnOgQVB
+ TYh9/syE92qa+y61AcneVkCT5U2Cr7IlwLxTbcuBPoDlCZ6hW90w+I3GUYAaO2d3Xsns
+ mYGKPbiFYN4O7Ij6TjVELMiEhJCiatEgJmCDIBGrgfIWE2Q+QMEgOVjiikCTTs/7ZYc2
+ RmiXghh4BMLAGNtSWgt2j+j+21iMbJCwmobH1Fj5Ek24l6rf8O3j6PTUMjmFLRXI2v3v
+ YFMg==
+X-Gm-Message-State: AOAM531AyyAKJWhMyqhTTmURlLs8s1SQA9HiYYULXJUnJZ0xlxgn98Ne
+ Cu5W8kVipNHn9Tz+Lnf+S2RkreNmcUT97nA+FttL
+X-Google-Smtp-Source: ABdhPJxOkycxelMkO/j14113S4EcbSnS8ppWgMEgn6s1Eo+gj/5FsMyctRdlx8b3j2hZrBbhK4USCXyJ9vc4eEVcJuQ=
+X-Received: by 2002:aa7:ccd4:: with SMTP id y20mr2071339edt.151.1623878337794; 
+ Wed, 16 Jun 2021 14:18:57 -0700 (PDT)
 MIME-Version: 1.0
-X-Originating-IP: [172.20.187.6]
-X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
- HQMAIL107.nvidia.com (172.20.187.13)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 2f77a491-8e17-4578-bc41-08d930faa9ea
-X-MS-TrafficTypeDiagnostic: DM5PR12MB2536:
-X-Microsoft-Antispam-PRVS: <DM5PR12MB253679385DA133474342F9D4DC0F9@DM5PR12MB2536.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1775;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: AFj4F3I3bPo0RUOK1PtyPCqV6aZOBL7145dDC/Fm9oLYWZ93non0qY6u/7OqxrWNWq7p6CN7edlQcj0zkGHmn9XqtDeZ9HqvJW1452a0PkIoKOqxuB8GL8LBWeVTDX+yGGc5FI/ymQGLDGHZYZq48pZe5fznhLWmU70xEznB72afCRvnAqRFCpWvmc4Y+Y+c1vCnAtxpmop51hBYaajOCmpCqPn+ndYEaRFldHmkn7tzRF7kZ9fbNAF5MvGGoUmge24djvZdRa2AwYhhdobOCNepRlkBwwDcNTdK8tj3LjOVS0GlMuqA9g6OYztHggebUWV3w2L52+S3BPdLkyxqaLLx3QysSja86qFCdt4/J50rRI3LIFsBkU3LXEo8QJKmSDeaklAYzz7xH+6sAtqN3wTSr/RuMAlCq3TXmhYDtYZWqHnFWeLFiZaosekFSFeqe6eiJeJbxDNZymYLGvEhEC735QsNl1vaVpHQ4zdVsBZnetuSIDiD/0ZT+VxSrKtpr+W/r+tXtKqykw6kvDk97qh6ZDD1XtCJ52VCJ0WtcTeuoyTpNQhL2cbxRXFAHwV8FKCO7f6Hceyvur8jpcOOShx9XeyYgXQOg+JK8tWlbZPti5G0YsPDeplZQn6Z3Lp6FbBsCeNKEG3UAtFP9loeGA==
-X-Forefront-Antispam-Report: CIP:216.228.112.34; CTRY:US; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:schybrid03.nvidia.com; CAT:NONE;
- SFS:(4636009)(36840700001)(46966006)(6666004)(2906002)(6916009)(2616005)(36906005)(16526019)(4326008)(5660300002)(8936002)(54906003)(8676002)(107886003)(70586007)(26005)(186003)(70206006)(47076005)(86362001)(83380400001)(82310400003)(36860700001)(356005)(498600001)(336012)(1076003)(426003)(36756003)(7636003);
- DIR:OUT; SFP:1101; 
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jun 2021 19:12:19.9176 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2f77a491-8e17-4578-bc41-08d930faa9ea
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.112.34];
- Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT018.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB2536
-Cc: elic@nvidia.com, mst@redhat.com
+References: <20210615174911.973-1-info@metux.net>
+ <CACRpkdbwLOOT6nuhpkT5x-AZVipsD2qG8Qu4xoiRotHQNknwzw@mail.gmail.com>
+ <c4b3b9b1-7665-c4a1-8a53-33f9481d7488@metux.net>
+In-Reply-To: <c4b3b9b1-7665-c4a1-8a53-33f9481d7488@metux.net>
+From: Chet Ensign <chet.ensign@oasis-open.org>
+Date: Wed, 16 Jun 2021 17:18:46 -0400
+Message-ID: <CAAwgnnNMVk8eznio6spnBoOktvuMhmQjPcCJwe6ArBjNDz-4=Q@mail.gmail.com>
+Subject: Re: [virtio-dev] banned on virtio list ? [Re: [PATCH] drivers: gpio:
+ add virtio-gpio guest driver]
+To: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
+Cc: virtio-dev@lists.oasis-open.org, Anton Vorontsov <anton@enomsg.org>,
+ Kees Cook <keescook@chromium.org>, Jonathan Corbet <corbet@lwn.net>,
+ Viresh Kumar <viresh.kumar@linaro.org>,
+ Linus Walleij <linus.walleij@linaro.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org,
+ Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+ Tony Luck <tony.luck@intel.com>,
+ "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+ Colin Cross <ccross@android.com>,
+ linux-riscv <linux-riscv@lists.infradead.org>, "Enrico Weigelt,
+ metux IT consult" <info@metux.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -140,158 +118,186 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============2298597607234753567=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Eli Cohen <elic@nvidia.com>
+--===============2298597607234753567==
+Content-Type: multipart/alternative; boundary="0000000000007ba97005c4e8a31a"
 
-Add rules to forward packets to the net device's TIR only if the
-destination MAC is equal to the configured MAC. This is required to
-prevent the netdevice from receiving traffic not destined to its
-configured MAC.
+--0000000000007ba97005c4e8a31a
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Reviewed-by: Parav Pandit <parav@nvidia.com>
----
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 76 +++++++++++++++++++++++--------
- 1 file changed, 58 insertions(+), 18 deletions(-)
+Hi mtx -
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 7f3d09f201fc..f7c8c34e76e9 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -148,7 +148,8 @@ struct mlx5_vdpa_net {
- 	struct mutex reslock;
- 	struct mlx5_flow_table *rxft;
- 	struct mlx5_fc *rx_counter;
--	struct mlx5_flow_handle *rx_rule;
-+	struct mlx5_flow_handle *rx_rule_ucast;
-+	struct mlx5_flow_handle *rx_rule_mcast;
- 	bool setup;
- 	u16 mtu;
- };
-@@ -1296,21 +1297,33 @@ static int add_fwd_to_tir(struct mlx5_vdpa_net *ndev)
- 	struct mlx5_flow_table_attr ft_attr = {};
- 	struct mlx5_flow_act flow_act = {};
- 	struct mlx5_flow_namespace *ns;
-+	struct mlx5_flow_spec *spec;
-+	void *headers_c;
-+	void *headers_v;
-+	u8 *dmac_c;
-+	u8 *dmac_v;
- 	int err;
- 
--	/* for now, one entry, match all, forward to tir */
--	ft_attr.max_fte = 1;
--	ft_attr.autogroup.max_num_groups = 1;
-+	spec = kvzalloc(sizeof(*spec), GFP_KERNEL);
-+	if (!spec)
-+		return -ENOMEM;
-+
-+	spec->match_criteria_enable = MLX5_MATCH_OUTER_HEADERS;
-+	ft_attr.max_fte = 2;
-+	ft_attr.autogroup.max_num_groups = 2;
- 
- 	ns = mlx5_get_flow_namespace(ndev->mvdev.mdev, MLX5_FLOW_NAMESPACE_BYPASS);
- 	if (!ns) {
--		mlx5_vdpa_warn(&ndev->mvdev, "get flow namespace\n");
--		return -EOPNOTSUPP;
-+		mlx5_vdpa_warn(&ndev->mvdev, "failed to get flow namespace\n");
-+		err = -EOPNOTSUPP;
-+		goto err_ns;
- 	}
- 
- 	ndev->rxft = mlx5_create_auto_grouped_flow_table(ns, &ft_attr);
--	if (IS_ERR(ndev->rxft))
--		return PTR_ERR(ndev->rxft);
-+	if (IS_ERR(ndev->rxft)) {
-+		err = PTR_ERR(ndev->rxft);
-+		goto err_ns;
-+	}
- 
- 	ndev->rx_counter = mlx5_fc_create(ndev->mvdev.mdev, false);
- 	if (IS_ERR(ndev->rx_counter)) {
-@@ -1318,37 +1331,64 @@ static int add_fwd_to_tir(struct mlx5_vdpa_net *ndev)
- 		goto err_fc;
- 	}
- 
-+	headers_c = MLX5_ADDR_OF(fte_match_param, spec->match_criteria, outer_headers);
-+	dmac_c = MLX5_ADDR_OF(fte_match_param, headers_c, outer_headers.dmac_47_16);
-+	memset(dmac_c, 0xff, ETH_ALEN);
-+	headers_v = MLX5_ADDR_OF(fte_match_param, spec->match_value, outer_headers);
-+	dmac_v = MLX5_ADDR_OF(fte_match_param, headers_v, outer_headers.dmac_47_16);
-+	ether_addr_copy(dmac_v, ndev->config.mac);
-+
- 	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST | MLX5_FLOW_CONTEXT_ACTION_COUNT;
- 	dest[0].type = MLX5_FLOW_DESTINATION_TYPE_TIR;
- 	dest[0].tir_num = ndev->res.tirn;
- 	dest[1].type = MLX5_FLOW_DESTINATION_TYPE_COUNTER;
- 	dest[1].counter_id = mlx5_fc_id(ndev->rx_counter);
--	ndev->rx_rule = mlx5_add_flow_rules(ndev->rxft, NULL, &flow_act, dest, 2);
--	if (IS_ERR(ndev->rx_rule)) {
--		err = PTR_ERR(ndev->rx_rule);
--		ndev->rx_rule = NULL;
--		goto err_rule;
-+	ndev->rx_rule_ucast = mlx5_add_flow_rules(ndev->rxft, spec, &flow_act, dest, 2);
-+
-+	if (IS_ERR(ndev->rx_rule_ucast)) {
-+		err = PTR_ERR(ndev->rx_rule_ucast);
-+		ndev->rx_rule_ucast = NULL;
-+		goto err_rule_ucast;
-+	}
-+
-+	memset(dmac_c, 0, ETH_ALEN);
-+	memset(dmac_v, 0, ETH_ALEN);
-+	dmac_c[0] = 1;
-+	dmac_v[0] = 1;
-+	flow_act.action = MLX5_FLOW_CONTEXT_ACTION_FWD_DEST;
-+	ndev->rx_rule_mcast = mlx5_add_flow_rules(ndev->rxft, spec, &flow_act, dest, 1);
-+	if (IS_ERR(ndev->rx_rule_mcast)) {
-+		err = PTR_ERR(ndev->rx_rule_mcast);
-+		ndev->rx_rule_mcast = NULL;
-+		goto err_rule_mcast;
- 	}
- 
-+	kvfree(spec);
- 	return 0;
- 
--err_rule:
-+err_rule_mcast:
-+	mlx5_del_flow_rules(ndev->rx_rule_ucast);
-+	ndev->rx_rule_ucast = NULL;
-+err_rule_ucast:
- 	mlx5_fc_destroy(ndev->mvdev.mdev, ndev->rx_counter);
- err_fc:
- 	mlx5_destroy_flow_table(ndev->rxft);
-+err_ns:
-+	kvfree(spec);
- 	return err;
- }
- 
- static void remove_fwd_to_tir(struct mlx5_vdpa_net *ndev)
- {
--	if (!ndev->rx_rule)
-+	if (!ndev->rx_rule_ucast)
- 		return;
- 
--	mlx5_del_flow_rules(ndev->rx_rule);
-+	mlx5_del_flow_rules(ndev->rx_rule_mcast);
-+	ndev->rx_rule_mcast = NULL;
-+	mlx5_del_flow_rules(ndev->rx_rule_ucast);
-+	ndev->rx_rule_ucast = NULL;
- 	mlx5_fc_destroy(ndev->mvdev.mdev, ndev->rx_counter);
- 	mlx5_destroy_flow_table(ndev->rxft);
--
--	ndev->rx_rule = NULL;
- }
- 
- static void mlx5_vdpa_kick_vq(struct vdpa_device *vdev, u16 idx)
--- 
-2.26.2
+I checked our logs and I don't see you as subscribed to either list. That
+should explain why you're being blocked.
+
+To subscribe to virtio-comment, follow the instructions at
+https://www.oasis-open.org/committees/comments/index.php?wg_abbrev=3Dvirtio
+
+To subscribe to virtio-dev, you can send a blank email to
+virtio-dev-subscribe@lists.oasis-open.org
+
+If those don't resolve the problem, let me know and I will investigate
+further.
+
+/chet
+
+On Wed, Jun 16, 2021 at 2:47 PM Enrico Weigelt, metux IT consult <
+lkml@metux.net> wrote:
+
+> On 16.06.21 10:31, Linus Walleij wrote:
+>
+> Hi folks,
+>
+>
+> <snip>
+>
+> interesting: trying to post my tex'fied spec to virtio-dev and
+> virtio-comment quite some time now, but always being blocked. What's
+> going on there ?
+>
+>
+> --mtx
+>
+> --
+> ---
+> Hinweis: unverschl=C3=BCsselte E-Mails k=C3=B6nnen leicht abgeh=C3=B6rt u=
+nd manipuliert
+> werden ! F=C3=BCr eine vertrauliche Kommunikation senden Sie bitte ihren
+> GPG/PGP-Schl=C3=BCssel zu.
+> ---
+> Enrico Weigelt, metux IT consult
+> Free software and Linux embedded engineering
+> info@metux.net -- +49-151-27565287
+>
+> ---------------------------------------------------------------------
+> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
+> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+>
+>
+
+--=20
+Chet Ensign
+
+Chief Technical Community Steward
+
+OASIS Open
+
++1 201-341-1393 <+1+201-341-1393>
+chet.ensign@oasis-open.org
+www.oasis-open.org
+
+--0000000000007ba97005c4e8a31a
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi mtx -=C2=A0<div><br></div><div>I checked our logs and I=
+ don&#39;t see you as subscribed to either list. That should explain why yo=
+u&#39;re being blocked.=C2=A0</div><div><br></div><div>To subscribe to virt=
+io-comment, follow the instructions at=C2=A0<a href=3D"https://www.oasis-op=
+en.org/committees/comments/index.php?wg_abbrev=3Dvirtio">https://www.oasis-=
+open.org/committees/comments/index.php?wg_abbrev=3Dvirtio</a></div><div><br=
+></div><div>To subscribe to virtio-dev, you can send a blank email to <a hr=
+ef=3D"mailto:virtio-dev-subscribe@lists.oasis-open.org">virtio-dev-subscrib=
+e@lists.oasis-open.org</a></div><div><br></div><div>If those don&#39;t reso=
+lve the problem, let me know and I will investigate further.=C2=A0</div><di=
+v><br></div><div>/chet</div></div><br><div class=3D"gmail_quote"><div dir=
+=3D"ltr" class=3D"gmail_attr">On Wed, Jun 16, 2021 at 2:47 PM Enrico Weigel=
+t, metux IT consult &lt;<a href=3D"mailto:lkml@metux.net">lkml@metux.net</a=
+>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"margin:0px=
+ 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">On =
+16.06.21 10:31, Linus Walleij wrote:<br>
+<br>
+Hi folks,<br>
+<br>
+<br>
+&lt;snip&gt;<br>
+<br>
+interesting: trying to post my tex&#39;fied spec to virtio-dev and<br>
+virtio-comment quite some time now, but always being blocked. What&#39;s <b=
+r>
+going on there ?<br>
+<br>
+<br>
+--mtx<br>
+<br>
+-- <br>
+---<br>
+Hinweis: unverschl=C3=BCsselte E-Mails k=C3=B6nnen leicht abgeh=C3=B6rt und=
+ manipuliert<br>
+werden ! F=C3=BCr eine vertrauliche Kommunikation senden Sie bitte ihren<br=
+>
+GPG/PGP-Schl=C3=BCssel zu.<br>
+---<br>
+Enrico Weigelt, metux IT consult<br>
+Free software and Linux embedded engineering<br>
+<a href=3D"mailto:info@metux.net" target=3D"_blank">info@metux.net</a> -- +=
+49-151-27565287<br>
+<br>
+---------------------------------------------------------------------<br>
+To unsubscribe, e-mail: <a href=3D"mailto:virtio-dev-unsubscribe@lists.oasi=
+s-open.org" target=3D"_blank">virtio-dev-unsubscribe@lists.oasis-open.org</=
+a><br>
+For additional commands, e-mail: <a href=3D"mailto:virtio-dev-help@lists.oa=
+sis-open.org" target=3D"_blank">virtio-dev-help@lists.oasis-open.org</a><br=
+>
+<br>
+</blockquote></div><br clear=3D"all"><div><br></div>-- <br><div dir=3D"ltr"=
+ class=3D"gmail_signature"><div dir=3D"ltr"><table cellspacing=3D"0" cellpa=
+dding=3D"0" style=3D"font-family:Arial;vertical-align:-webkit-baseline-midd=
+le"><tbody><tr><td width=3D"70" style=3D"vertical-align:middle"><span style=
+=3D"margin-right:5px;display:block"><img src=3D"https://drive.google.com/uc=
+?id=3D1hIW4KA06CCJq7fj33aZ_yzDDDxaXDW8c" width=3D"70" height=3D"70" style=
+=3D"max-width: 70px;"></span></td><td style=3D"vertical-align:middle"><h3 s=
+tyle=3D"margin:0px;font-size:16px;color:rgb(0,0,0)">Chet=C2=A0Ensign</h3><p=
+ style=3D"margin:0px;color:rgb(0,0,0);font-size:12px;line-height:20px">Chie=
+f Technical Community Steward</p><p style=3D"margin:0px;color:rgb(0,0,0);fo=
+nt-size:12px;line-height:20px">OASIS Open</p></td><td width=3D"30">=C2=A0</=
+td><td width=3D"1" style=3D"width:1px;border-bottom:none;border-left:1px so=
+lid rgb(34,72,229)">=C2=A0</td><td width=3D"30">=C2=A0</td><td style=3D"ver=
+tical-align:middle"><table cellspacing=3D"0" cellpadding=3D"0" style=3D"ver=
+tical-align:-webkit-baseline-middle;font-family:Arial"><tbody><tr style=3D"=
+vertical-align:middle"><td width=3D"30" style=3D"vertical-align:middle"><ta=
+ble cellspacing=3D"0" cellpadding=3D"0" style=3D"vertical-align:-webkit-bas=
+eline-middle;font-family:Arial"><tbody><tr><td style=3D"vertical-align:bott=
+om"><span style=3D"display:block;background-color:rgb(34,72,229)"><img src=
+=3D"https://cdn2.hubspot.net/hubfs/53/tools/email-signature-generator/icons=
+/phone-icon-2x.png" width=3D"13" style=3D"display: block;"></span></td></tr=
+></tbody></table></td><td style=3D"padding:2px;color:rgb(0,0,0)"><a href=3D=
+"tel:+1+201-341-1393" style=3D"color:rgb(0,0,0);font-size:12px" target=3D"_=
+blank">+1 201-341-1393</a></td></tr><tr style=3D"vertical-align:middle"><td=
+ width=3D"30" style=3D"vertical-align:middle"><table cellspacing=3D"0" cell=
+padding=3D"0" style=3D"vertical-align:-webkit-baseline-middle;font-family:A=
+rial"><tbody><tr><td style=3D"vertical-align:bottom"><span style=3D"display=
+:block;background-color:rgb(34,72,229)"><img src=3D"https://cdn2.hubspot.ne=
+t/hubfs/53/tools/email-signature-generator/icons/email-icon-2x.png" width=
+=3D"13" style=3D"display: block;"></span></td></tr></tbody></table></td><td=
+ style=3D"padding:2px"><a href=3D"mailto:chet.ensign@oasis-open.org" style=
+=3D"color:rgb(0,0,0);font-size:12px" target=3D"_blank">chet.ensign@oasis-op=
+en.org</a></td></tr><tr style=3D"vertical-align:middle"><td width=3D"30" st=
+yle=3D"vertical-align:middle"><table cellspacing=3D"0" cellpadding=3D"0" st=
+yle=3D"vertical-align:-webkit-baseline-middle;font-family:Arial"><tbody><tr=
+><td style=3D"vertical-align:bottom"><span style=3D"display:block;backgroun=
+d-color:rgb(34,72,229)"><img src=3D"https://cdn2.hubspot.net/hubfs/53/tools=
+/email-signature-generator/icons/link-icon-2x.png" width=3D"13" style=3D"di=
+splay: block;"></span></td></tr></tbody></table></td><td style=3D"padding:2=
+px"><a href=3D"https://www.oasis-open.org" style=3D"color:rgb(0,0,0);font-s=
+ize:12px" target=3D"_blank">www.oasis-open.org</a></td></tr></tbody></table=
+></td></tr></tbody></table></div></div>
+
+--0000000000007ba97005c4e8a31a--
+
+--===============2298597607234753567==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2298597607234753567==--
