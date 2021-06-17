@@ -2,185 +2,116 @@ Return-Path: <SRS0=fqYQ=LL=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_RED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B677C2B9F4
-	for <virtualization@archiver.kernel.org>; Thu, 17 Jun 2021 08:42:14 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82E8AC2B9F4
+	for <virtualization@archiver.kernel.org>; Thu, 17 Jun 2021 11:47:59 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1F35C6135C
-	for <virtualization@archiver.kernel.org>; Thu, 17 Jun 2021 08:42:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1F35C6135C
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=windriver.com
+	by mail.kernel.org (Postfix) with ESMTPS id 169F261410
+	for <virtualization@archiver.kernel.org>; Thu, 17 Jun 2021 11:47:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 169F261410
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C43F483DD6;
-	Thu, 17 Jun 2021 08:42:13 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id C4382415D3;
+	Thu, 17 Jun 2021 11:47:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5TGcrXYWvDsH; Thu, 17 Jun 2021 08:42:13 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 69B1883DC5;
-	Thu, 17 Jun 2021 08:42:12 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id oiEDzif8QClx; Thu, 17 Jun 2021 11:47:57 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 00495415D6;
+	Thu, 17 Jun 2021 11:47:56 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 10A07C000D;
-	Thu, 17 Jun 2021 08:42:12 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 38F37C000B;
- Thu, 17 Jun 2021 08:42:10 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B4862C000E;
+	Thu, 17 Jun 2021 11:47:56 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D89D0C000B
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 17 Jun 2021 11:47:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 1FAE66073D;
- Thu, 17 Jun 2021 08:42:10 +0000 (UTC)
+ by smtp2.osuosl.org (Postfix) with ESMTP id BE6FB4057B
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 17 Jun 2021 11:47:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=windriversystems.onmicrosoft.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mcWii4mI55RB; Thu, 17 Jun 2021 08:42:08 +0000 (UTC)
-X-Greylist: delayed 00:07:44 by SQLgrey-1.8.0
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0a-0064b401.pphosted.com (mx0a-0064b401.pphosted.com
- [205.220.166.238])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 376226066B;
- Thu, 17 Jun 2021 08:42:08 +0000 (UTC)
-Received: from pps.filterd (m0250809.ppops.net [127.0.0.1])
- by mx0a-0064b401.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id
- 15H8XtZn015730; Thu, 17 Jun 2021 01:33:55 -0700
-Received: from nam10-dm6-obe.outbound.protection.outlook.com
- (mail-dm6nam10lp2105.outbound.protection.outlook.com [104.47.58.105])
- by mx0a-0064b401.pphosted.com with ESMTP id 397sbmgbtg-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Thu, 17 Jun 2021 01:33:55 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Hfo0t/sdSSmSM5WUqTnd7jjaNUioQNJ5wQjqyDRvSAWXL+S2JuoOlphTUBRYZM08YTqPc+aGmCiCk7LPGL87h6pmJVIYETVnq0Hs2BzwkyxrDMP7euoyLuh2eHexS4qI9AUokBnVTCc+d4G+eD+lLdaqkOAObgACWFhicKAg2yPQfNDo4EnoL3o3h2uFRK6DDZBm9SsqJCO5kMzaRYRi1JtvaKrlQQJRQlUTErW35Crnf7T6OlWiIMgA6avApFH7p3IAPw9einYOIDWFU7tWjsF24N/EgM3Fnf07DxymxgclX56y5zKdJrVYT8f0Mm+lg7QhQKJXYjTkC01x8rCk/g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fQIH4RnxcDEWAifN50ekH8nw9gtzI43t9tCF7NHgR20=;
- b=LaU6rVVfx9V1fCjwPrpj185edBiGuHeoJT2PjADOtntpAt8VWUjYkGiMGE1SSvTlOmjDTtyY7YJITr1bqLhNvkp3G7APgXLFufm6Zjt6gSnUbCVORfaEmKd0h0tgGSLqQ64iFs7hfarZTZF/VuXDGrQJ98E+ECEO7EAtFagIRc0tZpzbLg0I7a69LW6fsC+mJsg+PoEUWRNSmO/ub/UQvixszwbTTTAr1cwET2AoGHz+baXw8hWrKR5caYsYGHPclb646eMrMCiJtCxphGiNTROoVtyAMyZo9oqfVI6SN2anf919pjSDJ2ozNnam3siPmwssNEPDs/LK9qYKSnbHKg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=windriver.com; dmarc=pass action=none
- header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=windriversystems.onmicrosoft.com;
- s=selector2-windriversystems-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=fQIH4RnxcDEWAifN50ekH8nw9gtzI43t9tCF7NHgR20=;
- b=btm53/y7VvX8ddQqAMJCLatb+lxAG2F0WxrIRUG+LV8SrFbetRfKSUSBuEutbK5V1x/AK8t+KIQNPUgN+oE59gsAlT7+GZsPz1JgAxWIu3wRf7xzWGKq5JkJeOOxZAsPr5jcEcKcb07t95swLV15v2+13EB3oEEeHMnhQldMzxo=
-Authentication-Results: windriver.com; dkim=none (message not signed)
- header.d=none;windriver.com; dmarc=none action=none
- header.from=windriver.com;
-Received: from MWHPR1101MB2351.namprd11.prod.outlook.com
- (2603:10b6:300:74::18) by MWHPR11MB1743.namprd11.prod.outlook.com
- (2603:10b6:300:114::8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4219.23; Thu, 17 Jun
- 2021 08:33:50 +0000
-Received: from MWHPR1101MB2351.namprd11.prod.outlook.com
- ([fe80::c5c:9f78:ea96:40e2]) by MWHPR1101MB2351.namprd11.prod.outlook.com
- ([fe80::c5c:9f78:ea96:40e2%10]) with mapi id 15.20.4219.026; Thu, 17 Jun 2021
- 08:33:50 +0000
-Subject: Re: [PATCH v8 03/10] eventfd: Increase the recursion depth of
- eventfd_signal()
-To: Xie Yongji <xieyongji@bytedance.com>, mst@redhat.com, jasowang@redhat.com, 
- stefanha@redhat.com, sgarzare@redhat.com, parav@nvidia.com,
- hch@infradead.org, christian.brauner@canonical.com,
- rdunlap@infradead.org, willy@infradead.org, viro@zeniv.linux.org.uk,
- axboe@kernel.dk, bcrl@kvack.org, corbet@lwn.net,
- mika.penttila@nextfour.com, dan.carpenter@oracle.com, joro@8bytes.org,
- gregkh@linuxfoundation.org
-References: <20210615141331.407-1-xieyongji@bytedance.com>
- <20210615141331.407-4-xieyongji@bytedance.com>
-From: He Zhe <zhe.he@windriver.com>
-Message-ID: <8aeac914-7602-7323-31bd-71015a26f74c@windriver.com>
-Date: Thu, 17 Jun 2021 16:33:40 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-In-Reply-To: <20210615141331.407-4-xieyongji@bytedance.com>
-Content-Language: en-US
-X-Originating-IP: [60.247.85.82]
-X-ClientProxiedBy: BYAPR04CA0001.namprd04.prod.outlook.com
- (2603:10b6:a03:40::14) To MWHPR1101MB2351.namprd11.prod.outlook.com
- (2603:10b6:300:74::18)
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linaro.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id f0VF6wArkkC0
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 17 Jun 2021 11:47:53 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com
+ [IPv6:2607:f8b0:4864:20::62f])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 5DBB2400D2
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 17 Jun 2021 11:47:53 +0000 (UTC)
+Received: by mail-pl1-x62f.google.com with SMTP id v13so2782101ple.9
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 17 Jun 2021 04:47:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to:user-agent;
+ bh=QasMKCIaT47MEF+OQcq8zCDU70HNznQ46OZY6zak3V8=;
+ b=YjZuzJ+NWs/14eFKW5mhz42xgNpTsEoV8oZ4cGMsIt9+TzUz1kdmMAfO7xXHgkQq0g
+ Ia52JM8iI2whXeKXN/2K6F02pd30D8emps0Jz+/nxWU8zMyroF/HKtyZs5qCYlzNmEFJ
+ m1yVj/8f0dsS3m91UPPLrJbA2NkmqZvlrMmaw9lNTbI7VTp9n0jNRu9BOOijGr2AEU18
+ UDj8Jdz3wNufxBoaVID02yn3JU9Jx6JugUxGJy8fvS3DFGr1i+L/IPXOWIzR9TlnRoRh
+ 9r23X01QaTcw9X0haydqFp7C96joqt3lzre2lMeS5hILGfLAh249oeK4Yi6TA9AHtQlQ
+ VIOQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to:user-agent;
+ bh=QasMKCIaT47MEF+OQcq8zCDU70HNznQ46OZY6zak3V8=;
+ b=ryVJLZMEesemSxQL6rtwdQfB5RSsPbwVVQ3BAX5aDEIBKOf/PRkbvt3clIk5mxgIbv
+ K2+4VLX0Gl3dT5JIjzsTKyEApeJ7h0patLfoZUS8yfB+pp/lYYjI9sypvka6jwdY8WNi
+ bglc6MUzpJDzcZPFMZfNGBlrch8D5xvWDsDgyuZSIcYgSlz0Fr36oQJ3DV0FtJDwr4rm
+ BFBmBjyMwls5ctNytW9U9wsv+XHCCARLUgZ397hyOz81OLQUyiF/M2KIbw9UV/l/+Ver
+ WpdHjU2dxpk47WW0VUq+4F41+wThnS8WrFduaHy4ZffUI3tR9vW1i6mjVkwHbDL/Olta
+ t2jw==
+X-Gm-Message-State: AOAM532FsZSnSC8BrTTZEZYpactk0jZ/69YC7aW7j5UzDRHB1WDTAwVO
+ ny1PFVoGnIhJpQNVGZGKKJbjnQ==
+X-Google-Smtp-Source: ABdhPJxIrIzZcQtKYc+FRL5bxfc04IWWpEdqgixoIsZEOGYOtWJ6eX9RHjce0kFNtrQQQX1ZD1W97A==
+X-Received: by 2002:a17:90a:6b42:: with SMTP id
+ x2mr5108905pjl.16.1623930472719; 
+ Thu, 17 Jun 2021 04:47:52 -0700 (PDT)
+Received: from localhost ([136.185.134.182])
+ by smtp.gmail.com with ESMTPSA id u23sm6288551pgk.38.2021.06.17.04.47.51
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 17 Jun 2021 04:47:51 -0700 (PDT)
+Date: Thu, 17 Jun 2021 17:17:49 +0530
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: "Enrico Weigelt, metux IT consult" <lkml@metux.net>
+Subject: Re: [PATCH] drivers: gpio: add virtio-gpio guest driver
+Message-ID: <20210617114749.uueu2v63duepfunb@vireshk-i7>
+References: <20210616114934.n3grzuh6c64wlaj6@vireshk-i7>
+ <5cffb354-0d00-5ace-260d-61ac0c4c7491@metux.net>
+ <20210617035901.kfzps6kg2emthjf4@vireshk-i7>
+ <116f8135-4ddf-e8fc-6838-94093702ec3d@metux.net>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from [128.224.162.175] (60.247.85.82) by
- BYAPR04CA0001.namprd04.prod.outlook.com (2603:10b6:a03:40::14) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4242.21 via Frontend Transport; Thu, 17 Jun 2021 08:33:44 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 1b7a1221-56f0-40fc-3276-08d9316aa1cd
-X-MS-TrafficTypeDiagnostic: MWHPR11MB1743:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <MWHPR11MB17430D16EAE2B19BAC7F4DC18F0E9@MWHPR11MB1743.namprd11.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:3968;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: YzrjIpuQNP3Y7IcJSect/ohk2Mnc3+1E2aqQDYI36pZ3FiUvylaysGx5xAhYhRe4tpZoM9pyhC5V3R/4f+aAgjgii5VF6mo4l0BBS74sCNYu3TNqn4BQ4LQAqEqbKa6GAW/VSACL1NI5K3QrdRITKyE1RxJ6YJCDWfmmSA+NySm8afePpkqddI36bQ7uE2krj/1UXdxAgIfjajCk+0fFCP+ourBcpuTMJhN6VFPlNI+O7MZ8U3bzqqIthmrNexpexpERECJcYS/w2eUavKlh25AdU6bWNAHvjcjuhWddIBLzgeJ5DMjYdcFQud7wkm7ZeTXMdhSV3PXiQFdIZw+rAD8pHt+Drsp9XTMkN33T5+HGVnRwYmRxtwRRRPPFD6V9rvqzZUlaCosRkTTxEkUn0UybdHt+j4s9/d5Wtcbk+y9ftsmk1g2SgFYp+UqU8gDv3xYKubZ1QvO8BkGuBwWw6uHQg3pH8XdBx2G/TqmqO7cUDFKN/YdPYK+CCexQf50ElOvNaDsL3hSdRVvECnTVX7KDcG5qE94aTI4mdtlSyYp/5X2xeEbYtgNxho5gBcJ0goF56ViM+xI/sIrslfjjoju1EJn1nftshyIcNLHPgVDkXE0MlrLHbFKrnlHUUOsATzsuqIUqwrkaRduamSuknw/mkg/uem46g33gMLZA6DawCdbu+XyJ5g6WgpkNTXKQd359h8mnwSrBUk7UyAXRzedOaJxuu7y/rck5RKf8flzbkK0oeYkelfJarCMDEjFcHjRmtzYXZKJ26kpxT63o3xHCpFZWu3jpUNCpoKn/XApVB39Agss8gAdDkQOOm+XHPrHuOr/qB6YFzwY1mIuQ8ffjC5i7Hy3/RhKpSyPWF/EHOgy9T2ew9uXjZyQCdBxR
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:MWHPR1101MB2351.namprd11.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(136003)(366004)(39850400004)(396003)(346002)(376002)(83380400001)(6486002)(38350700002)(38100700002)(53546011)(66556008)(8676002)(31696002)(7416002)(52116002)(478600001)(2906002)(8936002)(966005)(316002)(16526019)(5660300002)(66946007)(66476007)(16576012)(107886003)(4326008)(921005)(956004)(86362001)(6706004)(2616005)(31686004)(6666004)(26005)(186003)(36756003)(78286007)(45980500001)(43740500002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?bkYzOFV2OTZXeHJzNkVBVmFTRkQwRG41K1F1S2V6dGlYSGwvcm52eEJhVU0w?=
- =?utf-8?B?N1BJd0RnKysyQ1pOQWxsWXZUVThTenZ2b1pWUWprL3U0Rm9vcU8zM1FiUHoz?=
- =?utf-8?B?VGZPemUyc2JlZGNWYWZPdDU5YTR4WFFWSEVKQU02SmcrWkhhU3VwOURDbklI?=
- =?utf-8?B?QWxTYzZEbFE5VTQ3aHc5TDhYNFRKY3ZBQmRuazNyV2lHbGxFb2ZEb3BlUERw?=
- =?utf-8?B?ekRyaFZoR3BGNEIzR0JDUThoSFI4T1lhUHJ3dGlzY05UZytIczVKcWQ3V2Jt?=
- =?utf-8?B?eDJKTnpKQWdyRzVwNU1EK05DbHY4aG1KeGFZbjNzSElzRFB0NGxyeGRNZmhl?=
- =?utf-8?B?RjRyUjlzWFRZZitGOFdWdVV3Vk1hMDhRMGdOdXlmSHYxM1huUytVWG1FZkNZ?=
- =?utf-8?B?Q3FYRk1VQjJTKzllenBVTUQ5VnJsS0ZtVGkxVi9LbWtIOHpZUUR3L3FrTGUr?=
- =?utf-8?B?S2wwZ0xlbm53ZXpiU3IrWHR0Wm9PbEdRVkM3a3dmb1hQRFRkUml4UTVMSSts?=
- =?utf-8?B?bk1UVTBTU2I3V0IzeDIvck83NGd3cHNZTmtDSHNwNW9JMHl6cTdoT2pBdWlQ?=
- =?utf-8?B?V2dSbU16d2VNSThrN1c2YzVxQzJ4d3dSRmFScTZzTSs5Y29WTWs0SVF4eEdB?=
- =?utf-8?B?amxWaW4xMVJRcHR1T0VyZ1dtT1MzZDdkeWViclkxeUNGRVZ1RGYwMS9pWWZo?=
- =?utf-8?B?clVISmxmRlNlM0gzcjhLd3d2Vm9YVm5mUGdRRWUvWDBCNzNDd05tdFZBdlJr?=
- =?utf-8?B?M2ozN1M5Rit5TVlOZ3ZsTFk5Q3I4L1NROEN3dzU0ZEdHMjNkTDd0empzRzdG?=
- =?utf-8?B?Y2lXWXpSenI4R2tPaEdRZWVVSW5XZ3N2Z3JXL01GWEg2azNKTTZTbXoyc3Ny?=
- =?utf-8?B?RldhNmRUYUFuQUs1OFlMc3FPV0VabGdueTIvSU5uSjNYVnc2LzN1TDFVMktn?=
- =?utf-8?B?RnNqa0xCZTlEYzM1T00vR3hUTnYzaTFmMzdSOG0vaVk0bFVDNldKOUo4cHRE?=
- =?utf-8?B?YmtHblk1cEpyWjR5Zm1CTWtmNHl5MVpGWklmcmd4TC9wMnRLU01sVUx2ZzlG?=
- =?utf-8?B?aktvVVVnQ2FROHNuVUhNTXRaaURwTjY3c3MvT3pMd1F3bHRETFBTUFFPdG00?=
- =?utf-8?B?M0ZwMkUyb0FmWU0zdlZtUzVwMlNqYy80ejQ1MUJmY2dCV0xHNUFYaDNZZjUy?=
- =?utf-8?B?L0dLc0dTZW1oc0dpYSs4YjEyZERZV0RyNGExR3FLaWZtdzNwUUtTdWx3bzhL?=
- =?utf-8?B?c0NJY3BKaGh1aEFTamJ1TE1RcmRZYkVrbUxwekxJbHF5ZFJKRHVUVmhIU1B1?=
- =?utf-8?B?dE05SlMvMy9KZ2l6S0x5VHpaWk1oZWtnZGppQ1NUbmxlaG4vVGFkY3BweXZO?=
- =?utf-8?B?UjVFeHE1K2lBOXcyQnQ4Wi9vdzJlOEgzWVlmK2dPVEthOGxUKzJiMFExaXFV?=
- =?utf-8?B?YVB5MGRiRFA5SHBVSW5YZEFRcnFzTGhtcHpVQ2J6SUI3RUUzaFZyS3ZPR1R6?=
- =?utf-8?B?YUc5K2liOWZpczA3ZUk2VG41dU1lYkJ6QzhSeVJiOXYzR3FRTjN4SW9taTJ0?=
- =?utf-8?B?b1JCcGR6a2Yzb0puTWg2NHpYNDlPSUVXSDAvQURCdHdNV2x0elhaYUFNL0FV?=
- =?utf-8?B?elN4VG9wSUhTeTVzc3ZIckFLdWNDWHhkcWl0TlNQMkNvSkFjdmpQRFNxUXo0?=
- =?utf-8?B?cm1wdUVmUGpWb2M5UUIxd3lmM0llSFVYelFyN3diYWNkM2JqcEJwS1l4bFJv?=
- =?utf-8?Q?ppCBtUK8YSeKR1T9ze3qEd8Rdd2Qw1kJK7B0Mzk?=
-X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1b7a1221-56f0-40fc-3276-08d9316aa1cd
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR1101MB2351.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Jun 2021 08:33:50.4248 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: jkE1xQyYga1nOu/B54fDA+LtCc41/ZXOKujN2Co7y+3ro7RA92FU2jt8GqKQTt64caZaUa6CcDvGBjyfj/nNgg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR11MB1743
-X-Proofpoint-GUID: VrqGYeW4YzfhASZIlwQwfty2ef2XwwgG
-X-Proofpoint-ORIG-GUID: VrqGYeW4YzfhASZIlwQwfty2ef2XwwgG
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391, 18.0.790
- definitions=2021-06-17_05:2021-06-15,
- 2021-06-17 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1011 suspectscore=0
- impostorscore=0 lowpriorityscore=0 phishscore=0 mlxscore=0 spamscore=0
- priorityscore=1501 malwarescore=0 bulkscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2106170059
-Cc: He Zhe <Zhe.He@windriver.com>, kvm@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- iommu@lists.linux-foundation.org, songmuchun@bytedance.com,
- linux-fsdevel@vger.kernel.org
+Content-Disposition: inline
+In-Reply-To: <116f8135-4ddf-e8fc-6838-94093702ec3d@metux.net>
+User-Agent: NeoMutt/20180716-391-311a52
+Cc: Anton Vorontsov <anton@enomsg.org>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Kees Cook <keescook@chromium.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Linus Walleij <linus.walleij@linaro.org>, Jonathan Corbet <corbet@lwn.net>,
+ Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org,
+ Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+ Tony Luck <tony.luck@intel.com>,
+ "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+ Colin Cross <ccross@android.com>,
+ linux-riscv <linux-riscv@lists.infradead.org>, "Enrico Weigelt,
+ metux IT consult" <info@metux.net>, Bill Mills <bill.mills@linaro.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -197,77 +128,134 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On 17-06-21, 11:54, Enrico Weigelt, metux IT consult wrote:
+> Actually, I am subscribed in the list. We already had debates on it,
+> including on your postings (but also other things).
 
+Right.
 
-On 6/15/21 10:13 PM, Xie Yongji wrote:
-> Increase the recursion depth of eventfd_signal() to 1. This
-> is the maximum recursion depth we have found so far, which
-> can be triggered with the following call chain:
->
->     kvm_io_bus_write                        [kvm]
->       --> ioeventfd_write                   [kvm]
->         --> eventfd_signal                  [eventfd]
->           --> vhost_poll_wakeup             [vhost]
->             --> vduse_vdpa_kick_vq          [vduse]
->               --> eventfd_signal            [eventfd]
->
-> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> Acked-by: Jason Wang <jasowang@redhat.com>
+> And the ascii
+> version of the spec actually landed on the list last year, we had
+> discussions about it there.
 
-The fix had been posted one year ago.
+I tried to search for it earlier, but never found anything on virtio
+list.  Maybe I missed it then.
 
-https://lore.kernel.org/lkml/20200410114720.24838-1-zhe.he@windriver.com/
+> I've just had the problem that my patches didn't go through, which is
+> very strange, since I actually am on the list and other mails of mine
+> went through all the time. I'm now suspecting it's triggered by some
+> subtle difference between my regular mail clients and git send-email.
+> 
+> > Since you started this all and still want to do it, I will take my
+> > patches back and let you finish with what you started. I will help
+> > review them.
+> 
+> Thank you very much.
+> 
+> Please don't me wrong, I really don't wanna any kind of power play, just
+> wanna get an technically good solution. If there had been any mis-
+> understandings at that point, I'm officially saying sorry here.
 
+Its okay, we are both trying to make things better here :)
 
-> ---
->  fs/eventfd.c            | 2 +-
->  include/linux/eventfd.h | 5 ++++-
->  2 files changed, 5 insertions(+), 2 deletions(-)
->
-> diff --git a/fs/eventfd.c b/fs/eventfd.c
-> index e265b6dd4f34..cc7cd1dbedd3 100644
-> --- a/fs/eventfd.c
-> +++ b/fs/eventfd.c
-> @@ -71,7 +71,7 @@ __u64 eventfd_signal(struct eventfd_ctx *ctx, __u64 n)
->  	 * it returns true, the eventfd_signal() call should be deferred to a
->  	 * safe context.
->  	 */
-> -	if (WARN_ON_ONCE(this_cpu_read(eventfd_wake_count)))
-> +	if (WARN_ON_ONCE(this_cpu_read(eventfd_wake_count) > EFD_WAKE_DEPTH))
->  		return 0;
->  
->  	spin_lock_irqsave(&ctx->wqh.lock, flags);
-> diff --git a/include/linux/eventfd.h b/include/linux/eventfd.h
-> index fa0a524baed0..886d99cd38ef 100644
-> --- a/include/linux/eventfd.h
-> +++ b/include/linux/eventfd.h
-> @@ -29,6 +29,9 @@
->  #define EFD_SHARED_FCNTL_FLAGS (O_CLOEXEC | O_NONBLOCK)
->  #define EFD_FLAGS_SET (EFD_SHARED_FCNTL_FLAGS | EFD_SEMAPHORE)
->  
-> +/* Maximum recursion depth */
-> +#define EFD_WAKE_DEPTH 1
-> +
->  struct eventfd_ctx;
->  struct file;
->  
-> @@ -47,7 +50,7 @@ DECLARE_PER_CPU(int, eventfd_wake_count);
->  
->  static inline bool eventfd_signal_count(void)
->  {
-> -	return this_cpu_read(eventfd_wake_count);
-> +	return this_cpu_read(eventfd_wake_count) > EFD_WAKE_DEPTH;
+> Let's be friends.
+> 
+> You mentioned you've been missing with my spec. Please come foreward and
+> tell us what exactly you're missing and what your use cases are.
 
-count is just count. How deep is acceptable should be put
-where eventfd_signal_count is called.
+I have sent a detailed review of your spec patch, lets do it there
+point by point :)
 
+> Note that I've intentionally left off certain "more sophisticated"
+> functionality we find on *some* gpio controllers, eg. per-line irq
+> masking, pinmux settings for several reasons, e.g.:
+> 
+> * those are only implemented by some hardware
+> * often implemented in or at least need to be coordinated with other
+>   pieces of hw (e.g. in SoCs, pinmux is usually done in a separate
+>   device)
+> * it shall be possible to support even the most simple devices and
+>   have the more sophisticated things totally optional. minium
+>   requirements for silicon implementations should be the lowest possible
+>   (IOW: minimal number of logic gates)
+> 
+> >> You sound like a politician that tries to push an hidden agenda,
+> >> made by some secret interest group in the back room, against the
+> >> people - like "resistance is futile".
+> >
+> > :)
+> 
+> Perhaps I've been a bit overreacting at that point. But: this is really
+> that kind of talking we hear from politicians and corporate leaders
+> since many years, whenever they wanna push something through that we the
+> people don't want. Politicians use that as a social engineering tool for
+> demotivating any resistance. Over heare in Germany this even had become
+> a meme, and folks from CCC made a radio show about and named by that
+> (the German word is "alternativlos" - in english: without any
+> alternative). No idea about other countries, maybe it's a cultural
+> issue, but over here, those kind of talking had become a red light.
+> 
+> Of course, I never intended to accuse you of being one of these people.
+> Sorry if there's been misunderstanding.
 
-Zhe
+It sounded strange yesterday to be honest, but I have gone past it
+already :)
+ 
+> Let's get back to your implementation: you've mentioned you're routing
+> raw virtio traffic into userland, to some other process (outside VMMs
+> like qemu) - how exactly are you doing that ?
+> 
+> That could be interesting for completely different scenarios. For
+> example, I'm currently exploring how to get VirGL running between separate
+> processes running under the same kernel instance (fow now we
+> only have the driver side inside VM and the device outside it), means
+> driver and device are running as separate processes.
+> 
+> The primary use case are containers that shall have really GPU generic
+> drivers, not knowing anything about the actual hardware on the host.
+> Currently, container workloads wanting to use a GPU need to have special
+> drivers for exactly the HW the host happens to have. This makes generic,
+> portable container images a tuff problem.
+> 
+> I haven't digged deeply into the matter, but some virtio-tap transport
+> could be an relatively easy (probably not the most efficient) way to
+> solve this problem. In that scanario it would like this:
+> 
+> * we have a "virgl server" (could be some X or wayland application, or
+>   completely own compositor) opens up the device-end of an "virtio-tap"
+>   transport and attaches its virtio-gpio device emulation on it.
+> * "virtio-tap" now creates a driver-end, kernel probes an virtio-gpu
+>   instance on this (also leading to a new DRI device)
+> * container runtime picks the new DRI device and maps it into the
+>   container(s)
+>   [ yet open question, whether one DRI device for many containers
+>     is enough ]
+> * container application sees that virtio-gpu DRI device and speaks to
+>   it (mesa->virgl backend)
+> * the "virgl-server" receives buffers and commands from via virtio and
+>   sends them to the host's GL or Gallium API.
+> 
+> Once we're already there, we might think whether it could make sense
+> putting virtio routing into kvm itself, instead of letting qemu catch
+> page faults and virtual irqs. Yet have to see whether that's a good
+> idea, but I can imagine some performance improvements here.
 
->  }
->  
->  #else /* CONFIG_EVENTFD */
+We (at Linaro) work on software enablement normally and not end
+products (rarely that happen though), like framework level work in the
+kernel which can later be used by everyone to build their drivers on.
 
+There are many companies like Qualcomm, ST Micro, etc, who want to use
+Virtio in general for Automotive or other applications / solution. The
+purpose of Project Stratos [1], an initiative of Linaro, is working
+towards developing hypervisor agnostic Virtio interfaces and
+standards. The end products and applications will be worked on by the
+members directly and we need to add basic minimum support, with all
+the generally required APIs or interfaces.
+
+-- 
+viresh
+
+[1] https://linaro.atlassian.net/wiki/spaces/STR/overview
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
