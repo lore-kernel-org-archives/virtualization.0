@@ -4,125 +4,183 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-15.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CA14C2B9F4
-	for <virtualization@archiver.kernel.org>; Thu, 17 Jun 2021 06:58:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B677C2B9F4
+	for <virtualization@archiver.kernel.org>; Thu, 17 Jun 2021 08:42:14 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id F05CC613CE
-	for <virtualization@archiver.kernel.org>; Thu, 17 Jun 2021 06:58:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F05CC613CE
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 1F35C6135C
+	for <virtualization@archiver.kernel.org>; Thu, 17 Jun 2021 08:42:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1F35C6135C
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=windriver.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B6ADD83DB7;
-	Thu, 17 Jun 2021 06:58:53 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id C43F483DD6;
+	Thu, 17 Jun 2021 08:42:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ccKLCuIoV80v; Thu, 17 Jun 2021 06:58:53 +0000 (UTC)
+	with ESMTP id 5TGcrXYWvDsH; Thu, 17 Jun 2021 08:42:13 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5DA22831DA;
-	Thu, 17 Jun 2021 06:58:52 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 69B1883DC5;
+	Thu, 17 Jun 2021 08:42:12 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0C2B7C000D;
-	Thu, 17 Jun 2021 06:58:52 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B2363C000B
- for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Jun 2021 06:58:50 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 10A07C000D;
+	Thu, 17 Jun 2021 08:42:12 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 38F37C000B;
+ Thu, 17 Jun 2021 08:42:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9748B4021E
- for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Jun 2021 06:58:50 +0000 (UTC)
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1FAE66073D;
+ Thu, 17 Jun 2021 08:42:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id EPIomzSEk-jz
- for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Jun 2021 06:58:49 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 26C1C401EB
- for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Jun 2021 06:58:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1623913127;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=oOaHdq19h0FHSg5bZ7nKKung5JqY0zRI7wk+b6EfG4M=;
- b=Wm1J0GSQE+gTwtSKw6+ox5SY4OIAp+47miW3uBSoawh00mXxk9GEsF+S3AmSkk2nwZO4cM
- W+1F4JE2M+FcIgvdR1xOmh8hpwVNJphjDrCdsKmCk8sQlZNIOpiQoUSpupqqjnUsFv5td2
- 6JgfvQznCsIXw6l8sV09s6sFf7u78Jk=
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com
- [209.85.215.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-283-7LEc1ps0O_SeGUAteVRYvQ-1; Thu, 17 Jun 2021 02:58:46 -0400
-X-MC-Unique: 7LEc1ps0O_SeGUAteVRYvQ-1
-Received: by mail-pg1-f199.google.com with SMTP id
- k193-20020a633dca0000b029021ff326b222so3167771pga.9
- for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Jun 2021 23:58:45 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:subject:to:cc:references:from:message-id:date
- :user-agent:mime-version:in-reply-to:content-transfer-encoding
- :content-language;
- bh=oOaHdq19h0FHSg5bZ7nKKung5JqY0zRI7wk+b6EfG4M=;
- b=Qq7+0zdL1sMvjzz1++0J64pop4k/WkH1NfxCJb634vJ4y3sE8wdB2ThxowicXPZ4JX
- ndUNhploQubdNvDUec4IuQMXPlxcO7dOFgxnYm1m+OKoJVgMKl7hFIolMXYSlPYfPO9/
- Jmr2Ah48fuGiwOn5mXDH3Xa7BaQemnnehjtoGNjtaGNia63AkjTzkaectzAcjbETTtgc
- Lp4Q2sDJHARyLNBPoWul5971RjVJIdRD6Knq1z+un09Fl4hExrh1QlEzGFHgrQTh4rK2
- f7ZW4Ui0nsqsBXJrVO7FPaYAWotDW9qPG0cSlcudY1UvzDs+Dwh+RoUWFWBkndOZAVQ+
- AZsA==
-X-Gm-Message-State: AOAM5314AySktkjGGiMMk2rYaOIOqvUzhBivwEZbURiB1kfMhyZWi5Dj
- QTWB3A5tk91LBC1sdSgMgzAAMl5kcSXnHJ7PUTH9+Vjc7e2dtwyG2U7YbbrPzxG3iOO4p6dbBx+
- 1cE0h1VwcJLPsua79XyaGJhxEE1fJbHYy7mWgi7eH0A==
-X-Received: by 2002:a63:7c08:: with SMTP id x8mr3610834pgc.184.1623913125093; 
- Wed, 16 Jun 2021 23:58:45 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxwUSnD5cuh7xbAATrzKhJmHrpLZfoxOlAvgZTAR0bzrEOjJocAZWmX4wUY/0QaEbPCp+cKsg==
-X-Received: by 2002:a63:7c08:: with SMTP id x8mr3610801pgc.184.1623913124900; 
- Wed, 16 Jun 2021 23:58:44 -0700 (PDT)
-Received: from wangxiaodeMacBook-Air.local ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id j10sm930961pjz.36.2021.06.16.23.58.38
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 16 Jun 2021 23:58:44 -0700 (PDT)
-Subject: Re: [PATCH net-next v5 13/15] virtio-net: support AF_XDP zc rx
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-References: <1623911825.4660118-1-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <a8f79a9d-1328-f5e8-167b-4eda844c52ca@redhat.com>
-Date: Thu, 17 Jun 2021 14:58:36 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.11.0
-MIME-Version: 1.0
-In-Reply-To: <1623911825.4660118-1-xuanzhuo@linux.alibaba.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=windriversystems.onmicrosoft.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id mcWii4mI55RB; Thu, 17 Jun 2021 08:42:08 +0000 (UTC)
+X-Greylist: delayed 00:07:44 by SQLgrey-1.8.0
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from mx0a-0064b401.pphosted.com (mx0a-0064b401.pphosted.com
+ [205.220.166.238])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 376226066B;
+ Thu, 17 Jun 2021 08:42:08 +0000 (UTC)
+Received: from pps.filterd (m0250809.ppops.net [127.0.0.1])
+ by mx0a-0064b401.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id
+ 15H8XtZn015730; Thu, 17 Jun 2021 01:33:55 -0700
+Received: from nam10-dm6-obe.outbound.protection.outlook.com
+ (mail-dm6nam10lp2105.outbound.protection.outlook.com [104.47.58.105])
+ by mx0a-0064b401.pphosted.com with ESMTP id 397sbmgbtg-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Thu, 17 Jun 2021 01:33:55 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Hfo0t/sdSSmSM5WUqTnd7jjaNUioQNJ5wQjqyDRvSAWXL+S2JuoOlphTUBRYZM08YTqPc+aGmCiCk7LPGL87h6pmJVIYETVnq0Hs2BzwkyxrDMP7euoyLuh2eHexS4qI9AUokBnVTCc+d4G+eD+lLdaqkOAObgACWFhicKAg2yPQfNDo4EnoL3o3h2uFRK6DDZBm9SsqJCO5kMzaRYRi1JtvaKrlQQJRQlUTErW35Crnf7T6OlWiIMgA6avApFH7p3IAPw9einYOIDWFU7tWjsF24N/EgM3Fnf07DxymxgclX56y5zKdJrVYT8f0Mm+lg7QhQKJXYjTkC01x8rCk/g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fQIH4RnxcDEWAifN50ekH8nw9gtzI43t9tCF7NHgR20=;
+ b=LaU6rVVfx9V1fCjwPrpj185edBiGuHeoJT2PjADOtntpAt8VWUjYkGiMGE1SSvTlOmjDTtyY7YJITr1bqLhNvkp3G7APgXLFufm6Zjt6gSnUbCVORfaEmKd0h0tgGSLqQ64iFs7hfarZTZF/VuXDGrQJ98E+ECEO7EAtFagIRc0tZpzbLg0I7a69LW6fsC+mJsg+PoEUWRNSmO/ub/UQvixszwbTTTAr1cwET2AoGHz+baXw8hWrKR5caYsYGHPclb646eMrMCiJtCxphGiNTROoVtyAMyZo9oqfVI6SN2anf919pjSDJ2ozNnam3siPmwssNEPDs/LK9qYKSnbHKg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=windriver.com; dmarc=pass action=none
+ header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=windriversystems.onmicrosoft.com;
+ s=selector2-windriversystems-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=fQIH4RnxcDEWAifN50ekH8nw9gtzI43t9tCF7NHgR20=;
+ b=btm53/y7VvX8ddQqAMJCLatb+lxAG2F0WxrIRUG+LV8SrFbetRfKSUSBuEutbK5V1x/AK8t+KIQNPUgN+oE59gsAlT7+GZsPz1JgAxWIu3wRf7xzWGKq5JkJeOOxZAsPr5jcEcKcb07t95swLV15v2+13EB3oEEeHMnhQldMzxo=
+Authentication-Results: windriver.com; dkim=none (message not signed)
+ header.d=none;windriver.com; dmarc=none action=none
+ header.from=windriver.com;
+Received: from MWHPR1101MB2351.namprd11.prod.outlook.com
+ (2603:10b6:300:74::18) by MWHPR11MB1743.namprd11.prod.outlook.com
+ (2603:10b6:300:114::8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4219.23; Thu, 17 Jun
+ 2021 08:33:50 +0000
+Received: from MWHPR1101MB2351.namprd11.prod.outlook.com
+ ([fe80::c5c:9f78:ea96:40e2]) by MWHPR1101MB2351.namprd11.prod.outlook.com
+ ([fe80::c5c:9f78:ea96:40e2%10]) with mapi id 15.20.4219.026; Thu, 17 Jun 2021
+ 08:33:50 +0000
+Subject: Re: [PATCH v8 03/10] eventfd: Increase the recursion depth of
+ eventfd_signal()
+To: Xie Yongji <xieyongji@bytedance.com>, mst@redhat.com, jasowang@redhat.com, 
+ stefanha@redhat.com, sgarzare@redhat.com, parav@nvidia.com,
+ hch@infradead.org, christian.brauner@canonical.com,
+ rdunlap@infradead.org, willy@infradead.org, viro@zeniv.linux.org.uk,
+ axboe@kernel.dk, bcrl@kvack.org, corbet@lwn.net,
+ mika.penttila@nextfour.com, dan.carpenter@oracle.com, joro@8bytes.org,
+ gregkh@linuxfoundation.org
+References: <20210615141331.407-1-xieyongji@bytedance.com>
+ <20210615141331.407-4-xieyongji@bytedance.com>
+From: He Zhe <zhe.he@windriver.com>
+Message-ID: <8aeac914-7602-7323-31bd-71015a26f74c@windriver.com>
+Date: Thu, 17 Jun 2021 16:33:40 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+In-Reply-To: <20210615141331.407-4-xieyongji@bytedance.com>
 Content-Language: en-US
-Cc: Song Liu <songliubraving@fb.com>, Martin KaFai Lau <kafai@fb.com>,
- Jesper Dangaard Brouer <hawk@kernel.org>,
- Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
- Yonghong Song <yhs@fb.com>, John Fastabend <john.fastabend@gmail.com>,
- Alexei Starovoitov <ast@kernel.org>, Andrew Melnychenko <andrew@daynix.com>,
- Andrii Nakryiko <andrii@kernel.org>, netdev@vger.kernel.org,
- yuri Benditovich <yuri.benditovich@daynix.com>,
- =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?= <bjorn@kernel.org>,
- "dust.li" <dust.li@linux.alibaba.com>,
- Jonathan Lemon <jonathan.lemon@gmail.com>, KP Singh <kpsingh@kernel.org>,
- Jakub Kicinski <kuba@kernel.org>, bpf@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- "David S. Miller" <davem@davemloft.net>,
- Magnus Karlsson <magnus.karlsson@intel.com>
+X-Originating-IP: [60.247.85.82]
+X-ClientProxiedBy: BYAPR04CA0001.namprd04.prod.outlook.com
+ (2603:10b6:a03:40::14) To MWHPR1101MB2351.namprd11.prod.outlook.com
+ (2603:10b6:300:74::18)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from [128.224.162.175] (60.247.85.82) by
+ BYAPR04CA0001.namprd04.prod.outlook.com (2603:10b6:a03:40::14) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4242.21 via Frontend Transport; Thu, 17 Jun 2021 08:33:44 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 1b7a1221-56f0-40fc-3276-08d9316aa1cd
+X-MS-TrafficTypeDiagnostic: MWHPR11MB1743:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <MWHPR11MB17430D16EAE2B19BAC7F4DC18F0E9@MWHPR11MB1743.namprd11.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:3968;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: YzrjIpuQNP3Y7IcJSect/ohk2Mnc3+1E2aqQDYI36pZ3FiUvylaysGx5xAhYhRe4tpZoM9pyhC5V3R/4f+aAgjgii5VF6mo4l0BBS74sCNYu3TNqn4BQ4LQAqEqbKa6GAW/VSACL1NI5K3QrdRITKyE1RxJ6YJCDWfmmSA+NySm8afePpkqddI36bQ7uE2krj/1UXdxAgIfjajCk+0fFCP+ourBcpuTMJhN6VFPlNI+O7MZ8U3bzqqIthmrNexpexpERECJcYS/w2eUavKlh25AdU6bWNAHvjcjuhWddIBLzgeJ5DMjYdcFQud7wkm7ZeTXMdhSV3PXiQFdIZw+rAD8pHt+Drsp9XTMkN33T5+HGVnRwYmRxtwRRRPPFD6V9rvqzZUlaCosRkTTxEkUn0UybdHt+j4s9/d5Wtcbk+y9ftsmk1g2SgFYp+UqU8gDv3xYKubZ1QvO8BkGuBwWw6uHQg3pH8XdBx2G/TqmqO7cUDFKN/YdPYK+CCexQf50ElOvNaDsL3hSdRVvECnTVX7KDcG5qE94aTI4mdtlSyYp/5X2xeEbYtgNxho5gBcJ0goF56ViM+xI/sIrslfjjoju1EJn1nftshyIcNLHPgVDkXE0MlrLHbFKrnlHUUOsATzsuqIUqwrkaRduamSuknw/mkg/uem46g33gMLZA6DawCdbu+XyJ5g6WgpkNTXKQd359h8mnwSrBUk7UyAXRzedOaJxuu7y/rck5RKf8flzbkK0oeYkelfJarCMDEjFcHjRmtzYXZKJ26kpxT63o3xHCpFZWu3jpUNCpoKn/XApVB39Agss8gAdDkQOOm+XHPrHuOr/qB6YFzwY1mIuQ8ffjC5i7Hy3/RhKpSyPWF/EHOgy9T2ew9uXjZyQCdBxR
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:MWHPR1101MB2351.namprd11.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(4636009)(136003)(366004)(39850400004)(396003)(346002)(376002)(83380400001)(6486002)(38350700002)(38100700002)(53546011)(66556008)(8676002)(31696002)(7416002)(52116002)(478600001)(2906002)(8936002)(966005)(316002)(16526019)(5660300002)(66946007)(66476007)(16576012)(107886003)(4326008)(921005)(956004)(86362001)(6706004)(2616005)(31686004)(6666004)(26005)(186003)(36756003)(78286007)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?bkYzOFV2OTZXeHJzNkVBVmFTRkQwRG41K1F1S2V6dGlYSGwvcm52eEJhVU0w?=
+ =?utf-8?B?N1BJd0RnKysyQ1pOQWxsWXZUVThTenZ2b1pWUWprL3U0Rm9vcU8zM1FiUHoz?=
+ =?utf-8?B?VGZPemUyc2JlZGNWYWZPdDU5YTR4WFFWSEVKQU02SmcrWkhhU3VwOURDbklI?=
+ =?utf-8?B?QWxTYzZEbFE5VTQ3aHc5TDhYNFRKY3ZBQmRuazNyV2lHbGxFb2ZEb3BlUERw?=
+ =?utf-8?B?ekRyaFZoR3BGNEIzR0JDUThoSFI4T1lhUHJ3dGlzY05UZytIczVKcWQ3V2Jt?=
+ =?utf-8?B?eDJKTnpKQWdyRzVwNU1EK05DbHY4aG1KeGFZbjNzSElzRFB0NGxyeGRNZmhl?=
+ =?utf-8?B?RjRyUjlzWFRZZitGOFdWdVV3Vk1hMDhRMGdOdXlmSHYxM1huUytVWG1FZkNZ?=
+ =?utf-8?B?Q3FYRk1VQjJTKzllenBVTUQ5VnJsS0ZtVGkxVi9LbWtIOHpZUUR3L3FrTGUr?=
+ =?utf-8?B?S2wwZ0xlbm53ZXpiU3IrWHR0Wm9PbEdRVkM3a3dmb1hQRFRkUml4UTVMSSts?=
+ =?utf-8?B?bk1UVTBTU2I3V0IzeDIvck83NGd3cHNZTmtDSHNwNW9JMHl6cTdoT2pBdWlQ?=
+ =?utf-8?B?V2dSbU16d2VNSThrN1c2YzVxQzJ4d3dSRmFScTZzTSs5Y29WTWs0SVF4eEdB?=
+ =?utf-8?B?amxWaW4xMVJRcHR1T0VyZ1dtT1MzZDdkeWViclkxeUNGRVZ1RGYwMS9pWWZo?=
+ =?utf-8?B?clVISmxmRlNlM0gzcjhLd3d2Vm9YVm5mUGdRRWUvWDBCNzNDd05tdFZBdlJr?=
+ =?utf-8?B?M2ozN1M5Rit5TVlOZ3ZsTFk5Q3I4L1NROEN3dzU0ZEdHMjNkTDd0empzRzdG?=
+ =?utf-8?B?Y2lXWXpSenI4R2tPaEdRZWVVSW5XZ3N2Z3JXL01GWEg2azNKTTZTbXoyc3Ny?=
+ =?utf-8?B?RldhNmRUYUFuQUs1OFlMc3FPV0VabGdueTIvSU5uSjNYVnc2LzN1TDFVMktn?=
+ =?utf-8?B?RnNqa0xCZTlEYzM1T00vR3hUTnYzaTFmMzdSOG0vaVk0bFVDNldKOUo4cHRE?=
+ =?utf-8?B?YmtHblk1cEpyWjR5Zm1CTWtmNHl5MVpGWklmcmd4TC9wMnRLU01sVUx2ZzlG?=
+ =?utf-8?B?aktvVVVnQ2FROHNuVUhNTXRaaURwTjY3c3MvT3pMd1F3bHRETFBTUFFPdG00?=
+ =?utf-8?B?M0ZwMkUyb0FmWU0zdlZtUzVwMlNqYy80ejQ1MUJmY2dCV0xHNUFYaDNZZjUy?=
+ =?utf-8?B?L0dLc0dTZW1oc0dpYSs4YjEyZERZV0RyNGExR3FLaWZtdzNwUUtTdWx3bzhL?=
+ =?utf-8?B?c0NJY3BKaGh1aEFTamJ1TE1RcmRZYkVrbUxwekxJbHF5ZFJKRHVUVmhIU1B1?=
+ =?utf-8?B?dE05SlMvMy9KZ2l6S0x5VHpaWk1oZWtnZGppQ1NUbmxlaG4vVGFkY3BweXZO?=
+ =?utf-8?B?UjVFeHE1K2lBOXcyQnQ4Wi9vdzJlOEgzWVlmK2dPVEthOGxUKzJiMFExaXFV?=
+ =?utf-8?B?YVB5MGRiRFA5SHBVSW5YZEFRcnFzTGhtcHpVQ2J6SUI3RUUzaFZyS3ZPR1R6?=
+ =?utf-8?B?YUc5K2liOWZpczA3ZUk2VG41dU1lYkJ6QzhSeVJiOXYzR3FRTjN4SW9taTJ0?=
+ =?utf-8?B?b1JCcGR6a2Yzb0puTWg2NHpYNDlPSUVXSDAvQURCdHdNV2x0elhaYUFNL0FV?=
+ =?utf-8?B?elN4VG9wSUhTeTVzc3ZIckFLdWNDWHhkcWl0TlNQMkNvSkFjdmpQRFNxUXo0?=
+ =?utf-8?B?cm1wdUVmUGpWb2M5UUIxd3lmM0llSFVYelFyN3diYWNkM2JqcEJwS1l4bFJv?=
+ =?utf-8?Q?ppCBtUK8YSeKR1T9ze3qEd8Rdd2Qw1kJK7B0Mzk?=
+X-OriginatorOrg: windriver.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1b7a1221-56f0-40fc-3276-08d9316aa1cd
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR1101MB2351.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Jun 2021 08:33:50.4248 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: jkE1xQyYga1nOu/B54fDA+LtCc41/ZXOKujN2Co7y+3ro7RA92FU2jt8GqKQTt64caZaUa6CcDvGBjyfj/nNgg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR11MB1743
+X-Proofpoint-GUID: VrqGYeW4YzfhASZIlwQwfty2ef2XwwgG
+X-Proofpoint-ORIG-GUID: VrqGYeW4YzfhASZIlwQwfty2ef2XwwgG
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391, 18.0.790
+ definitions=2021-06-17_05:2021-06-15,
+ 2021-06-17 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1011 suspectscore=0
+ impostorscore=0 lowpriorityscore=0 phishscore=0 mlxscore=0 spamscore=0
+ priorityscore=1501 malwarescore=0 bulkscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2106170059
+Cc: He Zhe <Zhe.He@windriver.com>, kvm@vger.kernel.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ iommu@lists.linux-foundation.org, songmuchun@bytedance.com,
+ linux-fsdevel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -134,56 +192,83 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CuWcqCAyMDIxLzYvMTcg5LiL5Y2IMjozNywgWHVhbiBaaHVvIOWGmemBkzoKPiBPbiBUaHUsIDE3
-IEp1biAyMDIxIDE0OjAzOjI5ICswODAwLCBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29t
-PiB3cm90ZToKPj4g5ZyoIDIwMjEvNi8xNyDkuIvljYgxOjUzLCBYdWFuIFpodW8g5YaZ6YGTOgo+
-Pj4gT24gVGh1LCAxNyBKdW4gMjAyMSAxMToyMzo1MiArMDgwMCwgSmFzb24gV2FuZyA8amFzb3dh
-bmdAcmVkaGF0LmNvbT4gd3JvdGU6Cj4+Pj4g5ZyoIDIwMjEvNi8xMCDkuIvljYg0OjIyLCBYdWFu
-IFpodW8g5YaZ6YGTOgo+Pj4+PiBDb21wYXJlZCB0byB0aGUgY2FzZSBvZiB4c2sgdHgsIHRoZSBj
-YXNlIG9mIHhzayB6YyByeCBpcyBtb3JlCj4+Pj4+IGNvbXBsaWNhdGVkLgo+Pj4+Pgo+Pj4+PiBX
-aGVuIHdlIHByb2Nlc3MgdGhlIGJ1ZiByZWNlaXZlZCBieSB2cSwgd2UgbWF5IGVuY291bnRlciBv
-cmRpbmFyeQo+Pj4+PiBidWZmZXJzLCBvciB4c2sgYnVmZmVycy4gV2hhdCBtYWtlcyB0aGUgc2l0
-dWF0aW9uIG1vcmUgY29tcGxpY2F0ZWQgaXMKPj4+Pj4gdGhhdCBpbiB0aGUgY2FzZSBvZiBtZXJn
-ZWFibGUsIHdoZW4gbnVtX2J1ZmZlciA+IDEsIHdlIG1heSBzdGlsbAo+Pj4+PiBlbmNvdW50ZXIg
-dGhlIGNhc2Ugd2hlcmUgeHNrIGJ1ZmZlciBpcyBtaXhlZCB3aXRoIG9yZGluYXJ5IGJ1ZmZlci4K
-Pj4+Pj4KPj4+Pj4gQW5vdGhlciB0aGluZyB0aGF0IG1ha2VzIHRoZSBzaXR1YXRpb24gbW9yZSBj
-b21wbGljYXRlZCBpcyB0aGF0IHdoZW4gd2UKPj4+Pj4gZ2V0IGFuIHhzayBidWZmZXIgZnJvbSB2
-cSwgdGhlIHhzayBib3VuZCB0byB0aGlzIHhzayBidWZmZXIgbWF5IGhhdmUKPj4+Pj4gYmVlbiB1
-bmJvdW5kLgo+Pj4+Pgo+Pj4+PiBTaWduZWQtb2ZmLWJ5OiBYdWFuIFpodW8gPHh1YW56aHVvQGxp
-bnV4LmFsaWJhYmEuY29tPgo+Pj4+IFRoaXMgaXMgc29tZWhvdyBzaW1pbGFyIHRvIHRoZSBjYXNl
-IG9mIHR4IHdoZXJlIHdlIGRvbid0IGhhdmUgcGVyIHZxIHJlc2V0Lgo+Pj4+Cj4+Pj4gWy4uLl0K
-Pj4+Pgo+Pj4+PiAtCWlmICh2aS0+bWVyZ2VhYmxlX3J4X2J1ZnMpCj4+Pj4+ICsJaWYgKGlzX3hz
-a19jdHgoY3R4KSkKPj4+Pj4gKwkJc2tiID0gcmVjZWl2ZV94c2soZGV2LCB2aSwgcnEsIGJ1Ziwg
-bGVuLCB4ZHBfeG1pdCwgc3RhdHMpOwo+Pj4+PiArCWVsc2UgaWYgKHZpLT5tZXJnZWFibGVfcnhf
-YnVmcykKPj4+Pj4gICAgIAkJc2tiID0gcmVjZWl2ZV9tZXJnZWFibGUoZGV2LCB2aSwgcnEsIGJ1
-ZiwgY3R4LCBsZW4sIHhkcF94bWl0LAo+Pj4+PiAgICAgCQkJCQlzdGF0cyk7Cj4+Pj4+ICAgICAJ
-ZWxzZSBpZiAodmktPmJpZ19wYWNrZXRzKQo+Pj4+PiBAQCAtMTE3NSw2ICsxMjk2LDE0IEBAIHN0
-YXRpYyBib29sIHRyeV9maWxsX3JlY3Yoc3RydWN0IHZpcnRuZXRfaW5mbyAqdmksIHN0cnVjdCBy
-ZWNlaXZlX3F1ZXVlICpycSwKPj4+Pj4gICAgIAlpbnQgZXJyOwo+Pj4+PiAgICAgCWJvb2wgb29t
-Owo+Pj4+Pgo+Pj4+PiArCS8qIEJlY2F1c2UgdmlydGlvLW5ldCBkb2VzIG5vdCB5ZXQgc3VwcG9y
-dCBmbG93IGRpcmVjdCwKPj4+PiBOb3RlIHRoYXQgdGhpcyBpcyBub3QgdGhlIGNhc2UgYW55IG1v
-cmUuIFJTUyBoYXMgYmVlbiBzdXBwb3J0ZWQgYnkKPj4+PiB2aXJ0aW8gc3BlYyBhbmQgcWVtdS92
-aG9zdC90YXAgbm93LiBXZSBqdXN0IG5lZWQgc29tZSB3b3JrIG9uIHRoZQo+Pj4+IHZpcnRpby1u
-ZXQgZHJpdmVyIHBhcnQgKGUuZyB0aGUgZXRob29sIGludGVyZmFjZSkuCj4+PiBPaCwgYXJlIHRo
-ZXJlIGFueSBwbGFucz8gV2hvIGlzIGRvaW5nIHRoaXMgd29yaywgY2FuIEkgaGVscD8KPj4KPj4g
-UWVtdSBhbmQgc3BlYyBoYXMgc3VwcG9ydCBSU1MuCj4+Cj4+IFRBUCBzdXBwb3J0IGlzIHJlYWR5
-IHZpYSBzdGVlcmluZyBlQlBGIHByb2dyYW0sIHlvdSBjYW4gdHJ5IHRvIHBsYXkgaXQKPj4gd2l0
-aCBjdXJyZW50IHFlbXUgbWFzdGVyLgo+Pgo+PiBUaGUgb25seSB0aGluZyBtaXNzZWQgaXMgdGhl
-IExpbnV4IGRyaXZlciwgSSB0aGluayBZdXJpIG9yIEFuZHJldyBpcwo+PiB3b3JraW5nIG9uIHRo
-aXMuCj4gSSBmZWVsIHRoYXQgaW4gdGhlIGNhc2Ugb2YgeHNrLCB0aGUgZmxvdyBkaXJlY3RvciBp
-cyBtb3JlIGFwcHJvcHJpYXRlLgo+Cj4gVXNlcnMgbWF5IHN0aWxsIHdhbnQgdG8gYWxsb2NhdGUg
-cGFja2V0cyB0byBhIGNlcnRhaW4gY2hhbm5lbCBiYXNlZCBvbgo+IGluZm9ybWF0aW9uIHN1Y2gg
-YXMgcG9ydC9pcC90Y3AvdWRwLCBhbmQgdGhlbiB4c2sgd2lsbCBwcm9jZXNzIHRoZW0uCj4KPiBJ
-IHdpbGwgdHJ5IHRvIHB1c2ggdGhlIGZsb3cgZGlyZWN0b3IgdG8gdGhlIHNwZWMuCgoKVGhhdCB3
-b3VsZCBiZSBmaW5lLiBGb3IgdGhlIGJhY2tlbmQgaW1wbGVtZW50YXRpb24sIGl0IGNvdWxkIHN0
-aWxsIGJlIAppbXBsZW1lbnRlZCB2aWEgc3RlZXJpbmcgZUJQRi4KClRoYW5rcwoKCj4KPiBUaGFu
-a3MuCj4KPj4gVGhhbmtzCj4+Cj4+Cj4+PiBUaGFua3MuCj4+Pgo+Pj4+IFRoYW5rcwo+Pj4+Cj4+
-Pj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+
+
+On 6/15/21 10:13 PM, Xie Yongji wrote:
+> Increase the recursion depth of eventfd_signal() to 1. This
+> is the maximum recursion depth we have found so far, which
+> can be triggered with the following call chain:
+>
+>     kvm_io_bus_write                        [kvm]
+>       --> ioeventfd_write                   [kvm]
+>         --> eventfd_signal                  [eventfd]
+>           --> vhost_poll_wakeup             [vhost]
+>             --> vduse_vdpa_kick_vq          [vduse]
+>               --> eventfd_signal            [eventfd]
+>
+> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+
+The fix had been posted one year ago.
+
+https://lore.kernel.org/lkml/20200410114720.24838-1-zhe.he@windriver.com/
+
+
+> ---
+>  fs/eventfd.c            | 2 +-
+>  include/linux/eventfd.h | 5 ++++-
+>  2 files changed, 5 insertions(+), 2 deletions(-)
+>
+> diff --git a/fs/eventfd.c b/fs/eventfd.c
+> index e265b6dd4f34..cc7cd1dbedd3 100644
+> --- a/fs/eventfd.c
+> +++ b/fs/eventfd.c
+> @@ -71,7 +71,7 @@ __u64 eventfd_signal(struct eventfd_ctx *ctx, __u64 n)
+>  	 * it returns true, the eventfd_signal() call should be deferred to a
+>  	 * safe context.
+>  	 */
+> -	if (WARN_ON_ONCE(this_cpu_read(eventfd_wake_count)))
+> +	if (WARN_ON_ONCE(this_cpu_read(eventfd_wake_count) > EFD_WAKE_DEPTH))
+>  		return 0;
+>  
+>  	spin_lock_irqsave(&ctx->wqh.lock, flags);
+> diff --git a/include/linux/eventfd.h b/include/linux/eventfd.h
+> index fa0a524baed0..886d99cd38ef 100644
+> --- a/include/linux/eventfd.h
+> +++ b/include/linux/eventfd.h
+> @@ -29,6 +29,9 @@
+>  #define EFD_SHARED_FCNTL_FLAGS (O_CLOEXEC | O_NONBLOCK)
+>  #define EFD_FLAGS_SET (EFD_SHARED_FCNTL_FLAGS | EFD_SEMAPHORE)
+>  
+> +/* Maximum recursion depth */
+> +#define EFD_WAKE_DEPTH 1
+> +
+>  struct eventfd_ctx;
+>  struct file;
+>  
+> @@ -47,7 +50,7 @@ DECLARE_PER_CPU(int, eventfd_wake_count);
+>  
+>  static inline bool eventfd_signal_count(void)
+>  {
+> -	return this_cpu_read(eventfd_wake_count);
+> +	return this_cpu_read(eventfd_wake_count) > EFD_WAKE_DEPTH;
+
+count is just count. How deep is acceptable should be put
+where eventfd_signal_count is called.
+
+
+Zhe
+
+>  }
+>  
+>  #else /* CONFIG_EVENTFD */
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
