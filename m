@@ -2,75 +2,82 @@ Return-Path: <SRS0=81yh=LM=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EAEEC49361
-	for <virtualization@archiver.kernel.org>; Fri, 18 Jun 2021 11:19:19 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48107C48BDF
+	for <virtualization@archiver.kernel.org>; Fri, 18 Jun 2021 11:54:27 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 03DB561248
-	for <virtualization@archiver.kernel.org>; Fri, 18 Jun 2021 11:19:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 03DB561248
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=arm.com
+	by mail.kernel.org (Postfix) with ESMTPS id 02187613E9
+	for <virtualization@archiver.kernel.org>; Fri, 18 Jun 2021 11:54:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 02187613E9
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C6A8C605F1;
-	Fri, 18 Jun 2021 11:19:18 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id B3C90839BC;
+	Fri, 18 Jun 2021 11:54:26 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id syZRdhIYWuoZ; Fri, 18 Jun 2021 11:54:25 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 469A58397F;
+	Fri, 18 Jun 2021 11:54:25 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F25ACC000D;
+	Fri, 18 Jun 2021 11:54:24 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4C3C9C000B
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 18 Jun 2021 11:54:23 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 2D6DC605E3
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 18 Jun 2021 11:54:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vdKet-6c2yzs; Fri, 18 Jun 2021 11:19:17 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6FD75605F6;
-	Fri, 18 Jun 2021 11:19:16 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DEC08C0023;
-	Fri, 18 Jun 2021 11:19:15 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0BEBCC000B;
- Fri, 18 Jun 2021 11:19:15 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id DDC464042F;
- Fri, 18 Jun 2021 11:19:14 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3Rzr7vzEvYQg; Fri, 18 Jun 2021 11:19:13 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by smtp4.osuosl.org (Postfix) with ESMTP id 8AF3A40326;
- Fri, 18 Jun 2021 11:19:13 +0000 (UTC)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id AF4DF13A1;
- Fri, 18 Jun 2021 04:19:12 -0700 (PDT)
-Received: from [10.57.9.136] (unknown [10.57.9.136])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 05C003F719;
- Fri, 18 Jun 2021 04:19:09 -0700 (PDT)
-Subject: Re: [PATCH v4 5/6] iommu/dma: Simplify calls to iommu_setup_dma_ops()
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>
-References: <20210610075130.67517-1-jean-philippe@linaro.org>
- <20210610075130.67517-6-jean-philippe@linaro.org>
- <6ce5fecb-fc81-5bf1-3577-6a09437b243e@arm.com> <YMx6Z8aWBOrFiEcV@myrica>
-From: Robin Murphy <robin.murphy@arm.com>
-Message-ID: <f72b9fcd-b839-fac1-f35a-6907a9c66aed@arm.com>
-Date: Fri, 18 Jun 2021 12:19:02 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id vQci4qb-kcq7
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 18 Jun 2021 11:54:21 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 6E442605E0
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 18 Jun 2021 11:54:21 +0000 (UTC)
+Received: from cap.home.8bytes.org (p4ff2ba7c.dip0.t-ipconnect.de
+ [79.242.186.124])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+ (No client certificate requested)
+ by theia.8bytes.org (Postfix) with ESMTPSA id DF7473A7;
+ Fri, 18 Jun 2021 13:54:17 +0200 (CEST)
+From: Joerg Roedel <joro@8bytes.org>
+To: x86@kernel.org
+Subject: [PATCH v7 1/2] x86/sev: Make sure IRQs are disabled while GHCB is
+ active
+Date: Fri, 18 Jun 2021 13:54:08 +0200
+Message-Id: <20210618115409.22735-2-joro@8bytes.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210618115409.22735-1-joro@8bytes.org>
+References: <20210618115409.22735-1-joro@8bytes.org>
 MIME-Version: 1.0
-In-Reply-To: <YMx6Z8aWBOrFiEcV@myrica>
-Content-Language: en-GB
-Cc: lorenzo.pieralisi@arm.com, mst@redhat.com, catalin.marinas@arm.com,
- joro@8bytes.org, sudeep.holla@arm.com, rjw@rjwysocki.net,
- virtualization@lists.linux-foundation.org, linux-acpi@vger.kernel.org,
- iommu@lists.linux-foundation.org, sebastien.boeuf@intel.com,
- eric.auger@redhat.com, guohanjun@huawei.com, baolu.lu@linux.intel.com,
- will@kernel.org, dwmw2@infradead.org, linux-arm-kernel@lists.infradead.org,
- lenb@kernel.org
+Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org,
+ Arvind Sankar <nivedita@alum.mit.edu>, hpa@zytor.com,
+ Jiri Slaby <jslaby@suse.cz>, Joerg Roedel <joro@8bytes.org>,
+ David Rientjes <rientjes@google.com>, Martin Radev <martin.b.radev@gmail.com>,
+ Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>,
+ Kees Cook <keescook@chromium.org>, Cfir Cohen <cfir@google.com>,
+ linux-coco@lists.linux.dev, Andy Lutomirski <luto@kernel.org>,
+ Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>,
+ Mike Stunes <mstunes@vmware.com>, Sean Christopherson <seanjc@google.com>,
+ linux-kernel@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+ Erdem Aktas <erdemaktas@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -82,69 +89,168 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 2021-06-18 11:50, Jean-Philippe Brucker wrote:
-> On Wed, Jun 16, 2021 at 06:02:39PM +0100, Robin Murphy wrote:
->>> diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
->>> index c62e19bed302..175f8eaeb5b3 100644
->>> --- a/drivers/iommu/dma-iommu.c
->>> +++ b/drivers/iommu/dma-iommu.c
->>> @@ -1322,7 +1322,9 @@ void iommu_setup_dma_ops(struct device *dev, u64 dma_base, u64 dma_limit)
->>>    	if (domain->type == IOMMU_DOMAIN_DMA) {
->>>    		if (iommu_dma_init_domain(domain, dma_base, dma_limit, dev))
->>>    			goto out_err;
->>> -		dev->dma_ops = &iommu_dma_ops;
->>> +		set_dma_ops(dev, &iommu_dma_ops);
->>> +	} else {
->>> +		set_dma_ops(dev, NULL);
->>
->> I'm not keen on moving this here, since iommu-dma only knows that its own
->> ops are right for devices it *is* managing; it can't assume any particular
->> ops are appropriate for devices it isn't. The idea here is that
->> arch_setup_dma_ops() may have already set the appropriate ops for the
->> non-IOMMU case, so if the default domain type is passthrough then we leave
->> those in place.
->>
->> For example, I do still plan to revisit my conversion of arch/arm someday,
->> at which point I'd have to undo this for that reason.
-> 
-> Makes sense, I'll remove this bit.
-> 
->> Simplifying the base and size arguments is of course fine, but TBH I'd say
->> rip the whole bloody lot out of the arch_setup_dma_ops() flow now. It's a
->> considerable faff passing them around for nothing but a tenuous sanity check
->> in iommu_dma_init_domain(), and now that dev->dma_range_map is a common
->> thing we should expect that to give us any relevant limitations if we even
->> still care.
-> 
-> So I started working on this but it gets too bulky for a preparatory
-> patch. Dropping the parameters from arch_setup_dma_ops() seems especially
-> complicated because arm32 does need the size parameter for IOMMU mappings
-> and that value falls back to the bus DMA mask or U32_MAX in the absence of
-> dma-ranges. I could try to dig into this for a separate series.
-> 
-> Even only dropping the parameters from iommu_setup_dma_ops() isn't
-> completely trivial (8 files changed, 55 insertions(+), 36 deletions(-)
-> because we still need the lower IOVA limit from dma_range_map), so I'd
-> rather send it separately and have it sit in -next for a while.
+From: Joerg Roedel <jroedel@suse.de>
 
-Oh, sure, I didn't mean to imply that the whole cleanup should be within 
-the scope of this series, just that we can shave off as much as we *do* 
-need to touch here (which TBH is pretty much what you're doing already), 
-and mainly to start taking the attitude that these arguments are now 
-superseded and increasingly vestigial.
+The #VC handler only cares about IRQs being disabled while the GHCB is
+active, as it must not be interrupted by something which could cause
+another #VC while it holds the GHCB (NMI is the exception for which the
+backup GHCB exits).
 
-I expected the cross-arch cleanup to be a bit fiddly, but I'd forgotten 
-that arch/arm was still actively using these values, so maybe I can 
-revisit this when I pick up my iommu-dma conversion again (I swear it's 
-not dead, just resting!)
+Make sure nothing interrupts the code path while the GHCB is active by
+disabling IRQs in sev_es_get_ghcb() and restoring the previous irq state
+in sev_es_put_ghcb().
 
-Cheers,
-Robin.
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ arch/x86/kernel/sev.c | 34 ++++++++++++++++++++++------------
+ 1 file changed, 22 insertions(+), 12 deletions(-)
+
+diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
+index 8178db07a06a..9f32cbb773d9 100644
+--- a/arch/x86/kernel/sev.c
++++ b/arch/x86/kernel/sev.c
+@@ -12,7 +12,6 @@
+ #include <linux/sched/debug.h>	/* For show_regs() */
+ #include <linux/percpu-defs.h>
+ #include <linux/mem_encrypt.h>
+-#include <linux/lockdep.h>
+ #include <linux/printk.h>
+ #include <linux/mm_types.h>
+ #include <linux/set_memory.h>
+@@ -192,11 +191,19 @@ void noinstr __sev_es_ist_exit(void)
+ 	this_cpu_write(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC], *(unsigned long *)ist);
+ }
+ 
+-static __always_inline struct ghcb *sev_es_get_ghcb(struct ghcb_state *state)
++/*
++ * Nothing shall interrupt this code path while holding the per-CPU
++ * GHCB. The backup GHCB is only for NMIs interrupting this path.
++ *
++ * Callers must disable local interrupts around it.
++ */
++static noinstr struct ghcb *__sev_get_ghcb(struct ghcb_state *state)
+ {
+ 	struct sev_es_runtime_data *data;
+ 	struct ghcb *ghcb;
+ 
++	WARN_ON(!irqs_disabled());
++
+ 	data = this_cpu_read(runtime_data);
+ 	ghcb = &data->ghcb_page;
+ 
+@@ -213,7 +220,9 @@ static __always_inline struct ghcb *sev_es_get_ghcb(struct ghcb_state *state)
+ 			data->ghcb_active        = false;
+ 			data->backup_ghcb_active = false;
+ 
++			instrumentation_begin();
+ 			panic("Unable to handle #VC exception! GHCB and Backup GHCB are already in use");
++			instrumentation_end();
+ 		}
+ 
+ 		/* Mark backup_ghcb active before writing to it */
+@@ -486,11 +495,13 @@ static enum es_result vc_slow_virt_to_phys(struct ghcb *ghcb, struct es_em_ctxt
+ /* Include code shared with pre-decompression boot stage */
+ #include "sev-shared.c"
+ 
+-static __always_inline void sev_es_put_ghcb(struct ghcb_state *state)
++static noinstr void __sev_put_ghcb(struct ghcb_state *state)
+ {
+ 	struct sev_es_runtime_data *data;
+ 	struct ghcb *ghcb;
+ 
++	WARN_ON(!irqs_disabled());
++
+ 	data = this_cpu_read(runtime_data);
+ 	ghcb = &data->ghcb_page;
+ 
+@@ -514,7 +525,7 @@ void noinstr __sev_es_nmi_complete(void)
+ 	struct ghcb_state state;
+ 	struct ghcb *ghcb;
+ 
+-	ghcb = sev_es_get_ghcb(&state);
++	ghcb = __sev_get_ghcb(&state);
+ 
+ 	vc_ghcb_invalidate(ghcb);
+ 	ghcb_set_sw_exit_code(ghcb, SVM_VMGEXIT_NMI_COMPLETE);
+@@ -524,7 +535,7 @@ void noinstr __sev_es_nmi_complete(void)
+ 	sev_es_wr_ghcb_msr(__pa_nodebug(ghcb));
+ 	VMGEXIT();
+ 
+-	sev_es_put_ghcb(&state);
++	__sev_put_ghcb(&state);
+ }
+ 
+ static u64 get_jump_table_addr(void)
+@@ -536,7 +547,7 @@ static u64 get_jump_table_addr(void)
+ 
+ 	local_irq_save(flags);
+ 
+-	ghcb = sev_es_get_ghcb(&state);
++	ghcb = __sev_get_ghcb(&state);
+ 
+ 	vc_ghcb_invalidate(ghcb);
+ 	ghcb_set_sw_exit_code(ghcb, SVM_VMGEXIT_AP_JUMP_TABLE);
+@@ -550,7 +561,7 @@ static u64 get_jump_table_addr(void)
+ 	    ghcb_sw_exit_info_2_is_valid(ghcb))
+ 		ret = ghcb->save.sw_exit_info_2;
+ 
+-	sev_es_put_ghcb(&state);
++	__sev_put_ghcb(&state);
+ 
+ 	local_irq_restore(flags);
+ 
+@@ -675,7 +686,7 @@ static void sev_es_ap_hlt_loop(void)
+ 	struct ghcb_state state;
+ 	struct ghcb *ghcb;
+ 
+-	ghcb = sev_es_get_ghcb(&state);
++	ghcb = __sev_get_ghcb(&state);
+ 
+ 	while (true) {
+ 		vc_ghcb_invalidate(ghcb);
+@@ -692,7 +703,7 @@ static void sev_es_ap_hlt_loop(void)
+ 			break;
+ 	}
+ 
+-	sev_es_put_ghcb(&state);
++	__sev_put_ghcb(&state);
+ }
+ 
+ /*
+@@ -1351,7 +1362,6 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 	}
+ 
+ 	irq_state = irqentry_nmi_enter(regs);
+-	lockdep_assert_irqs_disabled();
+ 	instrumentation_begin();
+ 
+ 	/*
+@@ -1360,7 +1370,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 	 * keep the IRQs disabled to protect us against concurrent TLB flushes.
+ 	 */
+ 
+-	ghcb = sev_es_get_ghcb(&state);
++	ghcb = __sev_get_ghcb(&state);
+ 
+ 	vc_ghcb_invalidate(ghcb);
+ 	result = vc_init_em_ctxt(&ctxt, regs, error_code);
+@@ -1368,7 +1378,7 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 	if (result == ES_OK)
+ 		result = vc_handle_exitcode(&ctxt, ghcb, error_code);
+ 
+-	sev_es_put_ghcb(&state);
++	__sev_put_ghcb(&state);
+ 
+ 	/* Done - now check the result */
+ 	switch (result) {
+-- 
+2.31.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
