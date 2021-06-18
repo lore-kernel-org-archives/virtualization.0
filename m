@@ -2,126 +2,88 @@ Return-Path: <SRS0=81yh=LM=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E87C2C49EA3
-	for <virtualization@archiver.kernel.org>; Fri, 18 Jun 2021 15:56:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 41398C48BE8
+	for <virtualization@archiver.kernel.org>; Fri, 18 Jun 2021 16:25:09 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9288F611CD
-	for <virtualization@archiver.kernel.org>; Fri, 18 Jun 2021 15:56:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9288F611CD
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id DDB12613B4
+	for <virtualization@archiver.kernel.org>; Fri, 18 Jun 2021 16:25:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DDB12613B4
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 465A140230;
-	Fri, 18 Jun 2021 15:56:08 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 97B1A40261;
+	Fri, 18 Jun 2021 16:25:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OL5nWOv0V8u9; Fri, 18 Jun 2021 15:56:07 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id BFCD1400DC;
-	Fri, 18 Jun 2021 15:56:06 +0000 (UTC)
+	with ESMTP id Ift8ahH_cGF2; Fri, 18 Jun 2021 16:25:07 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id BD4C04024C;
+	Fri, 18 Jun 2021 16:25:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8BF56C000D;
-	Fri, 18 Jun 2021 15:56:06 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 74873C000B
- for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Jun 2021 15:56:05 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 61E91C0023;
+	Fri, 18 Jun 2021 16:25:06 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2EF24C000B;
+ Fri, 18 Jun 2021 16:25:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 55981606B1
- for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Jun 2021 15:56:05 +0000 (UTC)
+ by smtp4.osuosl.org (Postfix) with ESMTP id 0D8E940461;
+ Fri, 18 Jun 2021 16:25:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nsVTA6MuIc-8
- for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Jun 2021 15:56:04 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 226D660684
- for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Jun 2021 15:56:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1624031763;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=Awjn2v8qac0K7VClk6HbxoaGBdL5LeTfJlE9EQ+fOjk=;
- b=OAACkEV23Oi9tlYJ9U6BKxTTlbDgCuADiI3NKHffgpkobmiW82yyTu/8q3N8yYbpn25lYO
- nq0D3IsNHqkMs+XJxXZr4g3Hr23r4ngMGb8N0S0UYbqnXCQvomAYTXutfLQdbI6O+dhW4T
- IAuC/ma+p4ISyUZCXqAIUlmO4Tssu70=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-390--xXq2hOiOBmxt5o1VujLRQ-1; Fri, 18 Jun 2021 11:56:01 -0400
-X-MC-Unique: -xXq2hOiOBmxt5o1VujLRQ-1
-Received: by mail-wr1-f72.google.com with SMTP id
- k3-20020a5d62830000b029011a69a4d069so4355464wru.21
- for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Jun 2021 08:56:01 -0700 (PDT)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 2qQ8GTFtIaMP; Fri, 18 Jun 2021 16:25:02 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com
+ [209.85.210.42])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 9266E4044B;
+ Fri, 18 Jun 2021 16:25:02 +0000 (UTC)
+Received: by mail-ot1-f42.google.com with SMTP id
+ v22-20020a0568301416b029044e2d8e855eso1017001otp.8; 
+ Fri, 18 Jun 2021 09:25:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=Awjn2v8qac0K7VClk6HbxoaGBdL5LeTfJlE9EQ+fOjk=;
- b=gLmdQGwfTiZljQrbBauElNlC5WmFBL23CbOb5+C94IJ6RJp9MblqZQMzm3IN12dZ9z
- WhpXX7tS85SVDRuddOXwfM+6hTdVL4hEv9LoG/u6CyrhqAuHOxPQInpM2DzT9yG7Rn24
- 69n6lXJj35bnlD4w3WM+KKQUmiyawMZHjOPnNYVFcuMNucP6MKEzlqccGILm2wwdGKxq
- l13RTAlNgUS9pi3A7FOpbr5yudvwLIysL3JasyowErRnqxjUxdE1DnvRisc6k5CdRnDT
- GQ55vrd2rPGQESfP20OmI72kVVMfktYcCLVWeNGu0pglAzBRnIIbrgMifGSyHm5Mm9rG
- xi9w==
-X-Gm-Message-State: AOAM530PiI/m93Vjx1vCCA0iHobbiCjvPj3aOYKfxVekgBCnxjKc4dJo
- qAN/vhd4XIX+fXr+6hpUnZ+grLIdu5hHMFtrSjZ2tvzJgyIF5zWpieq0oXy04MqQ+1DyIXNJls5
- OnANKDHCCY1FkL+gAo3j65QPLRBzeGmUEPyVhQ7yslw==
-X-Received: by 2002:a5d:6d8a:: with SMTP id l10mr13665854wrs.63.1624031760677; 
- Fri, 18 Jun 2021 08:56:00 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyb8+5HIJLdutX7cENNNI1/ecBZD9YW9aCIcD5DoBeecwsxaAXgeOQAGd3lSOiR1Xdg+NTIjg==
-X-Received: by 2002:a5d:6d8a:: with SMTP id l10mr13665839wrs.63.1624031760459; 
- Fri, 18 Jun 2021 08:56:00 -0700 (PDT)
-Received: from steredhat.lan ([5.170.128.175])
- by smtp.gmail.com with ESMTPSA id m18sm8968801wmq.45.2021.06.18.08.55.58
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 18 Jun 2021 08:56:00 -0700 (PDT)
-Date: Fri, 18 Jun 2021 17:55:55 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [PATCH v11 11/18] virtio/vsock: dequeue callback for
- SOCK_SEQPACKET
-Message-ID: <20210618155555.j5p4v6j5gk2dboj3@steredhat.lan>
-References: <20210611110744.3650456-1-arseny.krasnov@kaspersky.com>
- <20210611111241.3652274-1-arseny.krasnov@kaspersky.com>
- <20210618134423.mksgnbmchmow4sgh@steredhat.lan>
- <bb323125-f802-1d16-7530-6e4f4abb00a6@kaspersky.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=ZZU5P+iMX1eayZbsPlUGjfuQx2j3OwJTyrdP+5iCl3M=;
+ b=dY/zIc/uISCYUmjiQsIBp6109yEXCozXsHLGvqlHvlsrdha58OC1OevYe2Q68NSCmp
+ tzXE0XiqAMcHP8ivcpjOJ3UrsOUQFdVY+aKR34GC4AJY3gHNg9N0LsG+OZqmlj3EqMlg
+ lAPCW3SYb8LBdOXRpMcOcUP32MYuE2FBrWr4h16bRl9klT8Huha+hTrepeGWrEfSRoHS
+ 49ZZ6EPBi9f7rQsMJpDUJxYnZvp8D3ZZ3S2yGu+Xk2qXC5mdb0FJcAFQTP1Lj3O+Hs+U
+ 1E9l0gbq3t4P05mmOqrfvS3vqDF7Rso9R/ykVngLroqvqdqDHIvpzVnTUMBwbeWTRr5a
+ ao8A==
+X-Gm-Message-State: AOAM5337Y0xcDFRrA4vl5v4W4e4wr/1EdkwdZM7YNcSbLmFoW3M+GL/L
+ spxFYfgLEVnYEHOiUrqaEIdxOcXZ6spbr3nkp5Y=
+X-Google-Smtp-Source: ABdhPJzydTvRNgwL/Ha8BrwOEHL7rEMgvutJjApCrXv4x1bixoCZJy1XQgWsHPmikeYeWmg5kza4Pgnnq4vVg9Tm7hE=
+X-Received: by 2002:a9d:6c4d:: with SMTP id g13mr10091430otq.321.1624033501565; 
+ Fri, 18 Jun 2021 09:25:01 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <bb323125-f802-1d16-7530-6e4f4abb00a6@kaspersky.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Andra Paraschiv <andraprs@amazon.com>,
- "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+References: <20210618152059.1194210-1-jean-philippe@linaro.org>
+ <20210618152059.1194210-4-jean-philippe@linaro.org>
+In-Reply-To: <20210618152059.1194210-4-jean-philippe@linaro.org>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Date: Fri, 18 Jun 2021 18:24:50 +0200
+Message-ID: <CAJZ5v0h4FjwgAjOzbLs7LupuDTaipPAfhdWqHjjuEOek3SVuSg@mail.gmail.com>
+Subject: Re: [PATCH v5 3/5] ACPI: Add driver for the VIOT table
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
  "Michael S. Tsirkin" <mst@redhat.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "oxffffaa@gmail.com" <oxffffaa@gmail.com>,
- Norbert Slusarek <nslusarek@gmx.net>, Stefan Hajnoczi <stefanha@redhat.com>,
- Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>
+ Catalin Marinas <catalin.marinas@arm.com>, Joerg Roedel <joro@8bytes.org>,
+ Sudeep Holla <sudeep.holla@arm.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+ Robin Murphy <robin.murphy@arm.com>, virtualization@lists.linux-foundation.org,
+ ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+ "open list:AMD IOMMU \(AMD-VI\)" <iommu@lists.linux-foundation.org>,
+ sebastien.boeuf@intel.com, Eric Auger <eric.auger@redhat.com>,
+ Hanjun Guo <guohanjun@huawei.com>, Lu Baolu <baolu.lu@linux.intel.com>,
+ Will Deacon <will@kernel.org>, David Woodhouse <dwmw2@infradead.org>,
+ Linux ARM <linux-arm-kernel@lists.infradead.org>, Len Brown <lenb@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -133,175 +95,556 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="iso-8859-1"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jun 18, 2021 at 06:04:37PM +0300, Arseny Krasnov wrote:
+On Fri, Jun 18, 2021 at 5:33 PM Jean-Philippe Brucker
+<jean-philippe@linaro.org> wrote:
 >
->On 18.06.2021 16:44, Stefano Garzarella wrote:
->> Hi Arseny,
->> the series looks great, I have just a question below about
->> seqpacket_dequeue.
->>
->> I also sent a couple a simple fixes, it would be great if you can review
->> them:
->> https://lore.kernel.org/netdev/20210618133526.300347-1-sgarzare@redhat.c=
-om/
->>
->>
->> On Fri, Jun 11, 2021 at 02:12:38PM +0300, Arseny Krasnov wrote:
->>> Callback fetches RW packets from rx queue of socket until whole record
->>> is copied(if user's buffer is full, user is not woken up). This is done
->>> to not stall sender, because if we wake up user and it leaves syscall,
->>> nobody will send credit update for rest of record, and sender will wait
->>> for next enter of read syscall at receiver's side. So if user buffer is
->>> full, we just send credit update and drop data.
->>>
->>> Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
->>> ---
->>> v10 -> v11:
->>> 1) 'msg_count' field added to count current number of EORs.
->>> 2) 'msg_ready' argument removed from callback.
->>> 3) If 'memcpy_to_msg()' failed during copy loop, there will be
->>>    no next attempts to copy data, rest of record will be freed.
->>>
->>> include/linux/virtio_vsock.h            |  5 ++
->>> net/vmw_vsock/virtio_transport_common.c | 84 +++++++++++++++++++++++++
->>> 2 files changed, 89 insertions(+)
->>>
->>> diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
->>> index dc636b727179..1d9a302cb91d 100644
->>> --- a/include/linux/virtio_vsock.h
->>> +++ b/include/linux/virtio_vsock.h
->>> @@ -36,6 +36,7 @@ struct virtio_vsock_sock {
->>> 	u32 rx_bytes;
->>> 	u32 buf_alloc;
->>> 	struct list_head rx_queue;
->>> +	u32 msg_count;
->>> };
->>>
->>> struct virtio_vsock_pkt {
->>> @@ -80,6 +81,10 @@ virtio_transport_dgram_dequeue(struct vsock_sock *vs=
-k,
->>> 			       struct msghdr *msg,
->>> 			       size_t len, int flags);
->>>
->>> +ssize_t
->>> +virtio_transport_seqpacket_dequeue(struct vsock_sock *vsk,
->>> +				   struct msghdr *msg,
->>> +				   int flags);
->>> s64 virtio_transport_stream_has_data(struct vsock_sock *vsk);
->>> s64 virtio_transport_stream_has_space(struct vsock_sock *vsk);
->>>
->>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/vi=
-rtio_transport_common.c
->>> index ad0d34d41444..1e1df19ec164 100644
->>> --- a/net/vmw_vsock/virtio_transport_common.c
->>> +++ b/net/vmw_vsock/virtio_transport_common.c
->>> @@ -393,6 +393,78 @@ virtio_transport_stream_do_dequeue(struct vsock_so=
-ck *vsk,
->>> 	return err;
->>> }
->>>
->>> +static int virtio_transport_seqpacket_do_dequeue(struct vsock_sock *vs=
-k,
->>> +						 struct msghdr *msg,
->>> +						 int flags)
->>> +{
->>> +	struct virtio_vsock_sock *vvs =3D vsk->trans;
->>> +	struct virtio_vsock_pkt *pkt;
->>> +	int dequeued_len =3D 0;
->>> +	size_t user_buf_len =3D msg_data_left(msg);
->>> +	bool copy_failed =3D false;
->>> +	bool msg_ready =3D false;
->>> +
->>> +	spin_lock_bh(&vvs->rx_lock);
->>> +
->>> +	if (vvs->msg_count =3D=3D 0) {
->>> +		spin_unlock_bh(&vvs->rx_lock);
->>> +		return 0;
->>> +	}
->>> +
->>> +	while (!msg_ready) {
->>> +		pkt =3D list_first_entry(&vvs->rx_queue, struct virtio_vsock_pkt, li=
-st);
->>> +
->>> +		if (!copy_failed) {
->>> +			size_t pkt_len;
->>> +			size_t bytes_to_copy;
->>> +
->>> +			pkt_len =3D (size_t)le32_to_cpu(pkt->hdr.len);
->>> +			bytes_to_copy =3D min(user_buf_len, pkt_len);
->>> +
->>> +			if (bytes_to_copy) {
->>> +				int err;
->>> +
->>> +				/* sk_lock is held by caller so no one else can dequeue.
->>> +				 * Unlock rx_lock since memcpy_to_msg() may sleep.
->>> +				 */
->>> +				spin_unlock_bh(&vvs->rx_lock);
->>> +
->>> +				err =3D memcpy_to_msg(msg, pkt->buf, bytes_to_copy);
->>> +				if (err) {
->>> +					/* Copy of message failed, set flag to skip
->>> +					 * copy path for rest of fragments. Rest of
->>> +					 * fragments will be freed without copy.
->>> +					 */
->>> +					copy_failed =3D true;
->>> +					dequeued_len =3D err;
->> If we fail to copy the message we will discard the entire packet.
->> Is it acceptable for the user point of view, or we should leave the
->> packet in the queue and the user can retry, maybe with a different
->> buffer?
->>
->> Then we can remove the packets only when we successfully copied all the
->> fragments.
->>
->> I'm not sure make sense, maybe better to check also other
->> implementations :-)
->>
->> Thanks,
->> Stefano
+> The ACPI Virtual I/O Translation Table describes topology of
+> para-virtual platforms, similarly to vendor tables DMAR, IVRS and IORT.
+> For now it describes the relation between virtio-iommu and the endpoints
+> it manages.
 >
->Understand, i'll check it on weekend, anyway I think it is
->not critical for implementation.
-
-Yep, I agree.
-
+> Three steps are needed to configure DMA of endpoints:
 >
+> (1) acpi_viot_init(): parse the VIOT table, find or create the fwnode
+>     associated to each vIOMMU device. This needs to happen after
+>     acpi_scan_init(), because it relies on the struct device and their
+>     fwnode to be available.
 >
->I have another question: may be it is useful to research for
->approach where packets are not queued until whole message
->is received, but copied to user's buffer thus freeing memory.
->(like previous implementation, of course with solution of problem
->where part of message still in queue, while reader was woken
->by timeout or signal).
+> (2) When probing the vIOMMU device, the driver registers its IOMMU ops
+>     within the IOMMU subsystem. This step doesn't require any
+>     intervention from the VIOT driver.
 >
->I think it is better, because=A0 in current version, sender may set
->'peer_alloc_buf' to=A0 for example 1MB, so at receiver we get
->1MB of 'kmalloc()' memory allocated, while having user's buffer
->to copy data there or drop it(if user's buffer is full). This way
->won't change spec(e.g. no message id or SEQ_BEGIN will be added).
+> (3) viot_iommu_configure(): before binding the endpoint to a driver,
+>     find the associated IOMMU ops. Register them, along with the
+>     endpoint ID, into the device's iommu_fwspec.
 >
->What do You think?
+> If step (3) happens before step (2), it is deferred until the IOMMU is
+> initialized, then retried.
+>
+> Tested-by: Eric Auger <eric.auger@redhat.com>
+> Reviewed-by: Eric Auger <eric.auger@redhat.com>
+> Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
 
-Yep, I see your point and it would be great, but I think the main issues =
+From the general ACPI perspective
 
-to fix is how to handle a signal while we are waiting other fragments =
+Acked-by: Rafael J. Wysocki <rafael@kernel.org>
 
-since the other peer can take unspecified time to send them.
+and I'm assuming that it will be routed through a different tree.
 
-Note that the 'peer_alloc_buf' in the sender, is the value get from the =
-
-receiver, so if the receiver doesn't want to allocate 1MB, can advertise =
-
-a small buffer size.
-
-Thanks,
-Stefano
-
+> ---
+>  drivers/acpi/Kconfig      |   3 +
+>  drivers/iommu/Kconfig     |   1 +
+>  drivers/acpi/Makefile     |   2 +
+>  include/linux/acpi_viot.h |  19 ++
+>  drivers/acpi/bus.c        |   2 +
+>  drivers/acpi/scan.c       |   3 +
+>  drivers/acpi/viot.c       | 366 ++++++++++++++++++++++++++++++++++++++
+>  MAINTAINERS               |   8 +
+>  8 files changed, 404 insertions(+)
+>  create mode 100644 include/linux/acpi_viot.h
+>  create mode 100644 drivers/acpi/viot.c
+>
+> diff --git a/drivers/acpi/Kconfig b/drivers/acpi/Kconfig
+> index eedec61e3476..3758c6940ed7 100644
+> --- a/drivers/acpi/Kconfig
+> +++ b/drivers/acpi/Kconfig
+> @@ -526,6 +526,9 @@ endif
+>
+>  source "drivers/acpi/pmic/Kconfig"
+>
+> +config ACPI_VIOT
+> +       bool
+> +
+>  endif  # ACPI
+>
+>  config X86_PM_TIMER
+> diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
+> index 1f111b399bca..aff8a4830dd1 100644
+> --- a/drivers/iommu/Kconfig
+> +++ b/drivers/iommu/Kconfig
+> @@ -403,6 +403,7 @@ config VIRTIO_IOMMU
+>         depends on ARM64
+>         select IOMMU_API
+>         select INTERVAL_TREE
+> +       select ACPI_VIOT if ACPI
+>         help
+>           Para-virtualised IOMMU driver with virtio.
+>
+> diff --git a/drivers/acpi/Makefile b/drivers/acpi/Makefile
+> index 700b41adf2db..a6e644c48987 100644
+> --- a/drivers/acpi/Makefile
+> +++ b/drivers/acpi/Makefile
+> @@ -118,3 +118,5 @@ video-objs                  += acpi_video.o video_detect.o
+>  obj-y                          += dptf/
+>
+>  obj-$(CONFIG_ARM64)            += arm64/
+> +
+> +obj-$(CONFIG_ACPI_VIOT)                += viot.o
+> diff --git a/include/linux/acpi_viot.h b/include/linux/acpi_viot.h
+> new file mode 100644
+> index 000000000000..1eb8ee5b0e5f
+> --- /dev/null
+> +++ b/include/linux/acpi_viot.h
+> @@ -0,0 +1,19 @@
+> +/* SPDX-License-Identifier: GPL-2.0-only */
+> +
+> +#ifndef __ACPI_VIOT_H__
+> +#define __ACPI_VIOT_H__
+> +
+> +#include <linux/acpi.h>
+> +
+> +#ifdef CONFIG_ACPI_VIOT
+> +void __init acpi_viot_init(void);
+> +int viot_iommu_configure(struct device *dev);
+> +#else
+> +static inline void acpi_viot_init(void) {}
+> +static inline int viot_iommu_configure(struct device *dev)
+> +{
+> +       return -ENODEV;
+> +}
+> +#endif
+> +
+> +#endif /* __ACPI_VIOT_H__ */
+> diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
+> index a4bd673934c0..d6f4e2f06fdb 100644
+> --- a/drivers/acpi/bus.c
+> +++ b/drivers/acpi/bus.c
+> @@ -27,6 +27,7 @@
+>  #include <linux/dmi.h>
+>  #endif
+>  #include <linux/acpi_iort.h>
+> +#include <linux/acpi_viot.h>
+>  #include <linux/pci.h>
+>  #include <acpi/apei.h>
+>  #include <linux/suspend.h>
+> @@ -1334,6 +1335,7 @@ static int __init acpi_init(void)
+>         acpi_wakeup_device_init();
+>         acpi_debugger_init();
+>         acpi_setup_sb_notify_handler();
+> +       acpi_viot_init();
+>         return 0;
+>  }
+>
+> diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+> index 2a2e690040e9..3e2bb04ab528 100644
+> --- a/drivers/acpi/scan.c
+> +++ b/drivers/acpi/scan.c
+> @@ -9,6 +9,7 @@
+>  #include <linux/kernel.h>
+>  #include <linux/acpi.h>
+>  #include <linux/acpi_iort.h>
+> +#include <linux/acpi_viot.h>
+>  #include <linux/iommu.h>
+>  #include <linux/signal.h>
+>  #include <linux/kthread.h>
+> @@ -1556,6 +1557,8 @@ static const struct iommu_ops *acpi_iommu_configure_id(struct device *dev,
+>                 return ops;
+>
+>         err = iort_iommu_configure_id(dev, id_in);
+> +       if (err && err != -EPROBE_DEFER)
+> +               err = viot_iommu_configure(dev);
+>
+>         /*
+>          * If we have reason to believe the IOMMU driver missed the initial
+> diff --git a/drivers/acpi/viot.c b/drivers/acpi/viot.c
+> new file mode 100644
+> index 000000000000..d2256326c73a
+> --- /dev/null
+> +++ b/drivers/acpi/viot.c
+> @@ -0,0 +1,366 @@
+> +// SPDX-License-Identifier: GPL-2.0
+> +/*
+> + * Virtual I/O topology
+> + *
+> + * The Virtual I/O Translation Table (VIOT) describes the topology of
+> + * para-virtual IOMMUs and the endpoints they manage. The OS uses it to
+> + * initialize devices in the right order, preventing endpoints from issuing DMA
+> + * before their IOMMU is ready.
+> + *
+> + * When binding a driver to a device, before calling the device driver's probe()
+> + * method, the driver infrastructure calls dma_configure(). At that point the
+> + * VIOT driver looks for an IOMMU associated to the device in the VIOT table.
+> + * If an IOMMU exists and has been initialized, the VIOT driver initializes the
+> + * device's IOMMU fwspec, allowing the DMA infrastructure to invoke the IOMMU
+> + * ops when the device driver configures DMA mappings. If an IOMMU exists and
+> + * hasn't yet been initialized, VIOT returns -EPROBE_DEFER to postpone probing
+> + * the device until the IOMMU is available.
+> + */
+> +#define pr_fmt(fmt) "ACPI: VIOT: " fmt
+> +
+> +#include <linux/acpi_viot.h>
+> +#include <linux/dma-iommu.h>
+> +#include <linux/fwnode.h>
+> +#include <linux/iommu.h>
+> +#include <linux/list.h>
+> +#include <linux/pci.h>
+> +#include <linux/platform_device.h>
+> +
+> +struct viot_iommu {
+> +       /* Node offset within the table */
+> +       unsigned int                    offset;
+> +       struct fwnode_handle            *fwnode;
+> +       struct list_head                list;
+> +};
+> +
+> +struct viot_endpoint {
+> +       union {
+> +               /* PCI range */
+> +               struct {
+> +                       u16             segment_start;
+> +                       u16             segment_end;
+> +                       u16             bdf_start;
+> +                       u16             bdf_end;
+> +               };
+> +               /* MMIO */
+> +               u64                     address;
+> +       };
+> +       u32                             endpoint_id;
+> +       struct viot_iommu               *viommu;
+> +       struct list_head                list;
+> +};
+> +
+> +static struct acpi_table_viot *viot;
+> +static LIST_HEAD(viot_iommus);
+> +static LIST_HEAD(viot_pci_ranges);
+> +static LIST_HEAD(viot_mmio_endpoints);
+> +
+> +static int __init viot_check_bounds(const struct acpi_viot_header *hdr)
+> +{
+> +       struct acpi_viot_header *start, *end, *hdr_end;
+> +
+> +       start = ACPI_ADD_PTR(struct acpi_viot_header, viot,
+> +                            max_t(size_t, sizeof(*viot), viot->node_offset));
+> +       end = ACPI_ADD_PTR(struct acpi_viot_header, viot, viot->header.length);
+> +       hdr_end = ACPI_ADD_PTR(struct acpi_viot_header, hdr, sizeof(*hdr));
+> +
+> +       if (hdr < start || hdr_end > end) {
+> +               pr_err(FW_BUG "Node pointer overflows\n");
+> +               return -EOVERFLOW;
+> +       }
+> +       if (hdr->length < sizeof(*hdr)) {
+> +               pr_err(FW_BUG "Empty node\n");
+> +               return -EINVAL;
+> +       }
+> +       return 0;
+> +}
+> +
+> +static int __init viot_get_pci_iommu_fwnode(struct viot_iommu *viommu,
+> +                                           u16 segment, u16 bdf)
+> +{
+> +       struct pci_dev *pdev;
+> +       struct fwnode_handle *fwnode;
+> +
+> +       pdev = pci_get_domain_bus_and_slot(segment, PCI_BUS_NUM(bdf),
+> +                                          bdf & 0xff);
+> +       if (!pdev) {
+> +               pr_err("Could not find PCI IOMMU\n");
+> +               return -ENODEV;
+> +       }
+> +
+> +       fwnode = pdev->dev.fwnode;
+> +       if (!fwnode) {
+> +               /*
+> +                * PCI devices aren't necessarily described by ACPI. Create a
+> +                * fwnode so the IOMMU subsystem can identify this device.
+> +                */
+> +               fwnode = acpi_alloc_fwnode_static();
+> +               if (!fwnode) {
+> +                       pci_dev_put(pdev);
+> +                       return -ENOMEM;
+> +               }
+> +               set_primary_fwnode(&pdev->dev, fwnode);
+> +       }
+> +       viommu->fwnode = pdev->dev.fwnode;
+> +       pci_dev_put(pdev);
+> +       return 0;
+> +}
+> +
+> +static int __init viot_get_mmio_iommu_fwnode(struct viot_iommu *viommu,
+> +                                            u64 address)
+> +{
+> +       struct acpi_device *adev;
+> +       struct resource res = {
+> +               .start  = address,
+> +               .end    = address,
+> +               .flags  = IORESOURCE_MEM,
+> +       };
+> +
+> +       adev = acpi_resource_consumer(&res);
+> +       if (!adev) {
+> +               pr_err("Could not find MMIO IOMMU\n");
+> +               return -EINVAL;
+> +       }
+> +       viommu->fwnode = &adev->fwnode;
+> +       return 0;
+> +}
+> +
+> +static struct viot_iommu * __init viot_get_iommu(unsigned int offset)
+> +{
+> +       int ret;
+> +       struct viot_iommu *viommu;
+> +       struct acpi_viot_header *hdr = ACPI_ADD_PTR(struct acpi_viot_header,
+> +                                                   viot, offset);
+> +       union {
+> +               struct acpi_viot_virtio_iommu_pci pci;
+> +               struct acpi_viot_virtio_iommu_mmio mmio;
+> +       } *node = (void *)hdr;
+> +
+> +       list_for_each_entry(viommu, &viot_iommus, list)
+> +               if (viommu->offset == offset)
+> +                       return viommu;
+> +
+> +       if (viot_check_bounds(hdr))
+> +               return NULL;
+> +
+> +       viommu = kzalloc(sizeof(*viommu), GFP_KERNEL);
+> +       if (!viommu)
+> +               return NULL;
+> +
+> +       viommu->offset = offset;
+> +       switch (hdr->type) {
+> +       case ACPI_VIOT_NODE_VIRTIO_IOMMU_PCI:
+> +               if (hdr->length < sizeof(node->pci))
+> +                       goto err_free;
+> +
+> +               ret = viot_get_pci_iommu_fwnode(viommu, node->pci.segment,
+> +                                               node->pci.bdf);
+> +               break;
+> +       case ACPI_VIOT_NODE_VIRTIO_IOMMU_MMIO:
+> +               if (hdr->length < sizeof(node->mmio))
+> +                       goto err_free;
+> +
+> +               ret = viot_get_mmio_iommu_fwnode(viommu,
+> +                                                node->mmio.base_address);
+> +               break;
+> +       default:
+> +               ret = -EINVAL;
+> +       }
+> +       if (ret)
+> +               goto err_free;
+> +
+> +       list_add(&viommu->list, &viot_iommus);
+> +       return viommu;
+> +
+> +err_free:
+> +       kfree(viommu);
+> +       return NULL;
+> +}
+> +
+> +static int __init viot_parse_node(const struct acpi_viot_header *hdr)
+> +{
+> +       int ret = -EINVAL;
+> +       struct list_head *list;
+> +       struct viot_endpoint *ep;
+> +       union {
+> +               struct acpi_viot_mmio mmio;
+> +               struct acpi_viot_pci_range pci;
+> +       } *node = (void *)hdr;
+> +
+> +       if (viot_check_bounds(hdr))
+> +               return -EINVAL;
+> +
+> +       if (hdr->type == ACPI_VIOT_NODE_VIRTIO_IOMMU_PCI ||
+> +           hdr->type == ACPI_VIOT_NODE_VIRTIO_IOMMU_MMIO)
+> +               return 0;
+> +
+> +       ep = kzalloc(sizeof(*ep), GFP_KERNEL);
+> +       if (!ep)
+> +               return -ENOMEM;
+> +
+> +       switch (hdr->type) {
+> +       case ACPI_VIOT_NODE_PCI_RANGE:
+> +               if (hdr->length < sizeof(node->pci)) {
+> +                       pr_err(FW_BUG "Invalid PCI node size\n");
+> +                       goto err_free;
+> +               }
+> +
+> +               ep->segment_start = node->pci.segment_start;
+> +               ep->segment_end = node->pci.segment_end;
+> +               ep->bdf_start = node->pci.bdf_start;
+> +               ep->bdf_end = node->pci.bdf_end;
+> +               ep->endpoint_id = node->pci.endpoint_start;
+> +               ep->viommu = viot_get_iommu(node->pci.output_node);
+> +               list = &viot_pci_ranges;
+> +               break;
+> +       case ACPI_VIOT_NODE_MMIO:
+> +               if (hdr->length < sizeof(node->mmio)) {
+> +                       pr_err(FW_BUG "Invalid MMIO node size\n");
+> +                       goto err_free;
+> +               }
+> +
+> +               ep->address = node->mmio.base_address;
+> +               ep->endpoint_id = node->mmio.endpoint;
+> +               ep->viommu = viot_get_iommu(node->mmio.output_node);
+> +               list = &viot_mmio_endpoints;
+> +               break;
+> +       default:
+> +               pr_warn("Unsupported node %x\n", hdr->type);
+> +               ret = 0;
+> +               goto err_free;
+> +       }
+> +
+> +       if (!ep->viommu) {
+> +               pr_warn("No IOMMU node found\n");
+> +               /*
+> +                * A future version of the table may use the node for other
+> +                * purposes. Keep parsing.
+> +                */
+> +               ret = 0;
+> +               goto err_free;
+> +       }
+> +
+> +       list_add(&ep->list, list);
+> +       return 0;
+> +
+> +err_free:
+> +       kfree(ep);
+> +       return ret;
+> +}
+> +
+> +/**
+> + * acpi_viot_init - Parse the VIOT table
+> + *
+> + * Parse the VIOT table, prepare the list of endpoints to be used during DMA
+> + * setup of devices.
+> + */
+> +void __init acpi_viot_init(void)
+> +{
+> +       int i;
+> +       acpi_status status;
+> +       struct acpi_table_header *hdr;
+> +       struct acpi_viot_header *node;
+> +
+> +       status = acpi_get_table(ACPI_SIG_VIOT, 0, &hdr);
+> +       if (ACPI_FAILURE(status)) {
+> +               if (status != AE_NOT_FOUND) {
+> +                       const char *msg = acpi_format_exception(status);
+> +
+> +                       pr_err("Failed to get table, %s\n", msg);
+> +               }
+> +               return;
+> +       }
+> +
+> +       viot = (void *)hdr;
+> +
+> +       node = ACPI_ADD_PTR(struct acpi_viot_header, viot, viot->node_offset);
+> +       for (i = 0; i < viot->node_count; i++) {
+> +               if (viot_parse_node(node))
+> +                       return;
+> +
+> +               node = ACPI_ADD_PTR(struct acpi_viot_header, node,
+> +                                   node->length);
+> +       }
+> +
+> +       acpi_put_table(hdr);
+> +}
+> +
+> +static int viot_dev_iommu_init(struct device *dev, struct viot_iommu *viommu,
+> +                              u32 epid)
+> +{
+> +       const struct iommu_ops *ops;
+> +
+> +       if (!viommu)
+> +               return -ENODEV;
+> +
+> +       /* We're not translating ourself */
+> +       if (viommu->fwnode == dev->fwnode)
+> +               return -EINVAL;
+> +
+> +       ops = iommu_ops_from_fwnode(viommu->fwnode);
+> +       if (!ops)
+> +               return IS_ENABLED(CONFIG_VIRTIO_IOMMU) ?
+> +                       -EPROBE_DEFER : -ENODEV;
+> +
+> +       return acpi_iommu_fwspec_init(dev, epid, viommu->fwnode, ops);
+> +}
+> +
+> +static int viot_pci_dev_iommu_init(struct pci_dev *pdev, u16 dev_id, void *data)
+> +{
+> +       u32 epid;
+> +       struct viot_endpoint *ep;
+> +       u32 domain_nr = pci_domain_nr(pdev->bus);
+> +
+> +       list_for_each_entry(ep, &viot_pci_ranges, list) {
+> +               if (domain_nr >= ep->segment_start &&
+> +                   domain_nr <= ep->segment_end &&
+> +                   dev_id >= ep->bdf_start &&
+> +                   dev_id <= ep->bdf_end) {
+> +                       epid = ((domain_nr - ep->segment_start) << 16) +
+> +                               dev_id - ep->bdf_start + ep->endpoint_id;
+> +
+> +                       /*
+> +                        * If we found a PCI range managed by the viommu, we're
+> +                        * the one that has to request ACS.
+> +                        */
+> +                       pci_request_acs();
+> +
+> +                       return viot_dev_iommu_init(&pdev->dev, ep->viommu,
+> +                                                  epid);
+> +               }
+> +       }
+> +       return -ENODEV;
+> +}
+> +
+> +static int viot_mmio_dev_iommu_init(struct platform_device *pdev)
+> +{
+> +       struct resource *mem;
+> +       struct viot_endpoint *ep;
+> +
+> +       mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+> +       if (!mem)
+> +               return -ENODEV;
+> +
+> +       list_for_each_entry(ep, &viot_mmio_endpoints, list) {
+> +               if (ep->address == mem->start)
+> +                       return viot_dev_iommu_init(&pdev->dev, ep->viommu,
+> +                                                  ep->endpoint_id);
+> +       }
+> +       return -ENODEV;
+> +}
+> +
+> +/**
+> + * viot_iommu_configure - Setup IOMMU ops for an endpoint described by VIOT
+> + * @dev: the endpoint
+> + *
+> + * Return: 0 on success, <0 on failure
+> + */
+> +int viot_iommu_configure(struct device *dev)
+> +{
+> +       if (dev_is_pci(dev))
+> +               return pci_for_each_dma_alias(to_pci_dev(dev),
+> +                                             viot_pci_dev_iommu_init, NULL);
+> +       else if (dev_is_platform(dev))
+> +               return viot_mmio_dev_iommu_init(to_platform_device(dev));
+> +       return -ENODEV;
+> +}
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index bc0ceef87b73..11f68a07772d 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -431,6 +431,14 @@ W: https://01.org/linux-acpi
+>  B:     https://bugzilla.kernel.org
+>  F:     drivers/acpi/acpi_video.c
+>
+> +ACPI VIOT DRIVER
+> +M:     Jean-Philippe Brucker <jean-philippe@linaro.org>
+> +L:     linux-acpi@vger.kernel.org
+> +L:     iommu@lists.linux-foundation.org
+> +S:     Maintained
+> +F:     drivers/acpi/viot.c
+> +F:     include/linux/acpi_viot.h
+> +
+>  ACPI WMI DRIVER
+>  L:     platform-driver-x86@vger.kernel.org
+>  S:     Orphan
+> --
+> 2.32.0
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
