@@ -2,65 +2,67 @@ Return-Path: <SRS0=aA1Z=LQ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1E11C49EA5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FE33C48BDF
 	for <virtualization@archiver.kernel.org>; Tue, 22 Jun 2021 14:48:51 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 43EA461369
+	by mail.kernel.org (Postfix) with ESMTPS id 4445F61378
 	for <virtualization@archiver.kernel.org>; Tue, 22 Jun 2021 14:48:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 43EA461369
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4445F61378
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A24DF4024E;
+	by smtp3.osuosl.org (Postfix) with ESMTP id B415B6082A;
 	Tue, 22 Jun 2021 14:48:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id AI1EctOfogWb; Tue, 22 Jun 2021 14:48:49 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VWwhg1R4v50g; Tue, 22 Jun 2021 14:48:50 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 08F85402DC;
-	Tue, 22 Jun 2021 14:48:48 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 84591605C3;
+	Tue, 22 Jun 2021 14:48:49 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 415D6C0023;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 776A9C0027;
 	Tue, 22 Jun 2021 14:48:48 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 857B1C001A
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DEA39C000E
  for <virtualization@lists.linux-foundation.org>;
  Tue, 22 Jun 2021 14:48:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 71F2E4024E
+ by smtp1.osuosl.org (Postfix) with ESMTP id CE94683A9F
  for <virtualization@lists.linux-foundation.org>;
  Tue, 22 Jun 2021 14:48:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lUVZfssetE-Y
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lBeYOZBTgsCc
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Jun 2021 14:48:45 +0000 (UTC)
+ Tue, 22 Jun 2021 14:48:46 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7F4DC40245
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 4335082A17
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Jun 2021 14:48:45 +0000 (UTC)
+ Tue, 22 Jun 2021 14:48:46 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2ba7c.dip0.t-ipconnect.de
  [79.242.186.124])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 0A56D133;
- Tue, 22 Jun 2021 16:48:41 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 070142DF;
+ Tue, 22 Jun 2021 16:48:43 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH 0/3] x86/sev: Minor updates for SEV guest support
-Date: Tue, 22 Jun 2021 16:48:22 +0200
-Message-Id: <20210622144825.27588-1-joro@8bytes.org>
+Subject: [PATCH 3/3] x86/sev: Use "SEV: " prefix for messages from sev.c
+Date: Tue, 22 Jun 2021 16:48:25 +0200
+Message-Id: <20210622144825.27588-4-joro@8bytes.org>
 X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210622144825.27588-1-joro@8bytes.org>
+References: <20210622144825.27588-1-joro@8bytes.org>
 MIME-Version: 1.0
 Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
  Dave Hansen <dave.hansen@linux.intel.com>,
@@ -93,30 +95,29 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Hi,
+The source file has been renamed froms sev-es.c to sev.c, but the
+messages are still prefixed with "SEV-ES: ". Change that to "SEV: " to
+make it consistent.
 
-here are three small patches to update SEV-ES guest support in Linux.
-It would be great to have at least patch 3 merged for v5.14 to avoid
-future merge conflicts. It contains defines needed by KVM and X86
-patches under development.
+Fixes: e759959fe3b8 ("x86/sev-es: Rename sev-es.{ch} to sev.{ch}")
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ arch/x86/kernel/sev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thanks,
-
-	Joerg
-
-Brijesh Singh (1):
-  x86/sev: Add defines for GHCB version 2 MSR protocol requests
-
-Joerg Roedel (2):
-  x86/sev: Add Comments to existing GHCB MSR protocol defines
-  x86/sev: Use "SEV: " prefix for messages from sev.c
-
- arch/x86/include/asm/sev-common.h | 17 +++++++++++++++++
- arch/x86/kernel/sev.c             |  2 +-
- 2 files changed, 18 insertions(+), 1 deletion(-)
-
-
-base-commit: be1a5408868af341f61f93c191b5e346ee88c82a
+diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
+index 87a4b00f028e..a6895e440bc3 100644
+--- a/arch/x86/kernel/sev.c
++++ b/arch/x86/kernel/sev.c
+@@ -7,7 +7,7 @@
+  * Author: Joerg Roedel <jroedel@suse.de>
+  */
+ 
+-#define pr_fmt(fmt)	"SEV-ES: " fmt
++#define pr_fmt(fmt)	"SEV: " fmt
+ 
+ #include <linux/sched/debug.h>	/* For show_regs() */
+ #include <linux/percpu-defs.h>
 -- 
 2.31.1
 
