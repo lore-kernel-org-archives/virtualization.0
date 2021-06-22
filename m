@@ -5,113 +5,120 @@ X-Spam-Level:
 X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C868FC49EA5
-	for <virtualization@archiver.kernel.org>; Tue, 22 Jun 2021 07:43:44 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70D3AC2B9F4
+	for <virtualization@archiver.kernel.org>; Tue, 22 Jun 2021 07:46:33 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7EEFB611BF
-	for <virtualization@archiver.kernel.org>; Tue, 22 Jun 2021 07:43:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7EEFB611BF
+	by mail.kernel.org (Postfix) with ESMTPS id 1B13C6128C
+	for <virtualization@archiver.kernel.org>; Tue, 22 Jun 2021 07:46:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1B13C6128C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 1D6E2402FF;
-	Tue, 22 Jun 2021 07:43:44 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id DB17F4026C;
+	Tue, 22 Jun 2021 07:46:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NrkS0yGQ2OOJ; Tue, 22 Jun 2021 07:43:43 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pFKKVYJoFjIl; Tue, 22 Jun 2021 07:46:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 79054402F9;
-	Tue, 22 Jun 2021 07:43:42 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3DC0D4015B;
+	Tue, 22 Jun 2021 07:46:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 401A1C001A;
-	Tue, 22 Jun 2021 07:43:42 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 15AC7C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1137BC001A;
+	Tue, 22 Jun 2021 07:46:31 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5B47BC000E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Jun 2021 07:43:41 +0000 (UTC)
+ Tue, 22 Jun 2021 07:46:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id E9C78402FB
+ by smtp1.osuosl.org (Postfix) with ESMTP id 49DFF83147
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Jun 2021 07:43:40 +0000 (UTC)
+ Tue, 22 Jun 2021 07:46:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id z8CscUlunDHf
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id mJr3GFrhiQEx
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Jun 2021 07:43:39 +0000 (UTC)
+ Tue, 22 Jun 2021 07:46:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id C53C0402F9
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 3D67B83145
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Jun 2021 07:43:39 +0000 (UTC)
+ Tue, 22 Jun 2021 07:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1624347818;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ s=mimecast20190719; t=1624347988;
+ h=from:from:reply-to:reply-to:subject:subject:date:date:
+ message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+ content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=seFGfHDp/ctlE2xRLA4P+4at9E41hNWtJBzXklzpCjw=;
- b=NB1QHu3cu+zPjML9i9a4NmEQXoGH0XN4r5wcJPBbbP0xqGR9bvFf2Q+BsQtZwQKl1xqycJ
- Np0dJPZmfqKx4Ul/A5lQLCuXJ8WoxCpM/TNHka4IG6X4MijQiYMRoStPU0pm7KKppgcz3L
- THN3wPbQxALX+zFANhtyT7HSq6c8560=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-268-W04MBqPzMOeIxCSH0uxeQw-1; Tue, 22 Jun 2021 03:43:37 -0400
-X-MC-Unique: W04MBqPzMOeIxCSH0uxeQw-1
-Received: by mail-pj1-f71.google.com with SMTP id
- j8-20020a17090a8408b02901651fe80217so1178887pjn.1
+ bh=s3LjnXyq6r2/NZ4srPYVVzflKXYSSWyYedh3TnwCQTw=;
+ b=OcuHfjzMlNuOvDIVGk2tCoyV1RRxAH6xj8VM322gSJaH6iEwPa0DEFplhpHybRgYNPYg0W
+ j2fuIY+N0Q32bnKeqNTzLZNf14MaZIGd8G8vIRhBTNZuI0kFNNPbTYcCCoq+tGCoOQVWRo
+ dMWMd1IYISx+EmGmmzgXT6csU7x0lqA=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-272-cR2nGGpGOtehxP3eVsUFIA-1; Tue, 22 Jun 2021 03:46:26 -0400
+X-MC-Unique: cR2nGGpGOtehxP3eVsUFIA-1
+Received: by mail-wr1-f69.google.com with SMTP id
+ h17-20020adff4d10000b029011a7b7961dbso7159882wrp.15
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Jun 2021 00:43:37 -0700 (PDT)
+ Tue, 22 Jun 2021 00:46:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:subject:to:cc:references:from:message-id:date
- :user-agent:mime-version:in-reply-to:content-transfer-encoding
- :content-language;
- bh=seFGfHDp/ctlE2xRLA4P+4at9E41hNWtJBzXklzpCjw=;
- b=kEBSlfoAgYQcpjsL6U+TJyiF7ukzqqLwFfDH6JbRlW/xUv9HyBPsqs1uPKWVIXyVD2
- sGYM1Ja4UrugjJ68z3nyEcmZ8x2Ua3TF6nw11AfB0r+rUmh3Sf70Pl+mtBgCWPIJnxbP
- x7hDn/XRSNNSbXu+JmSpgXcG500wjwA20q26760Rv0koR3jJiJqLc16IVIRbizEgl/xZ
- kHsI3KOxJ+RxkGsVEOWmXAgsKh01r51/5lxx4D46UQmImUR8ewp27IUyHQzh4FmkVOvP
- juZ2EIODxX3vzaHc1HV+YdbZ3mSTA/iS+zievnr7/A3VM+wotsx3QFFBAaxTRi32XnKZ
- Qu4A==
-X-Gm-Message-State: AOAM533wmLXxG47wMCk8+B/thc0zDlkuU4s8hQq5M0CUKRPURHKG5332
- ubkmM25ul4ch7RyRaR1WBrCPQXdL4FYoE8w0NmcAcy5re2xztfTqUIKu/OnL8Apjwz4fWjov0IH
- P/5t8EdeeHKWwW+Xussw0Ujda+sSBPjxwYginii+BLw==
-X-Received: by 2002:aa7:92c8:0:b029:303:645f:ae1a with SMTP id
- k8-20020aa792c80000b0290303645fae1amr2403616pfa.56.1624347815884; 
- Tue, 22 Jun 2021 00:43:35 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxODecFLW3KpM2PbIf9RO8OGY/muReWVu3V/4hBaKOZBj5L/kTH6Qc8G7s/DveHUMVILm2C/g==
-X-Received: by 2002:aa7:92c8:0:b029:303:645f:ae1a with SMTP id
- k8-20020aa792c80000b0290303645fae1amr2403593pfa.56.1624347815635; 
- Tue, 22 Jun 2021 00:43:35 -0700 (PDT)
-Received: from wangxiaodeMacBook-Air.local ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id x143sm10411207pfc.6.2021.06.22.00.43.33
+ h=x-gm-message-state:reply-to:subject:to:cc:references:from
+ :message-id:date:user-agent:mime-version:in-reply-to
+ :content-transfer-encoding:content-language;
+ bh=s3LjnXyq6r2/NZ4srPYVVzflKXYSSWyYedh3TnwCQTw=;
+ b=K3L58Yq+z2oNFR772YgmTcha1YzgszE4vEEpkp0qS5yIHRYqcQP5xepxO/dGBjT9p6
+ xcSWSn8Y/6HUZyXS15qUdAOI9o5GFnR8EDeMRSL4BAfjpUzFExTSUJtQbUZABGwglBjP
+ df3PrUvqzSwCfACLMk4pO1EAHztzyTqg83VaCqj0BUioUukIZEBVtuKLhDTcNpoMOAxL
+ 0QyBbSszaK043+ZEJSZ3tQHjC5nosDF947NjqYqUL4SO0u8Ro4EqDIjx6WZRd/s+U3mJ
+ /e0t1lYXWrQoFEZf9iMLbh9wLOQujESY84Ud9wRmxiI/Fxuc92hcnB00MO6yA+w3/5MC
+ CRMQ==
+X-Gm-Message-State: AOAM531YgaBZzGCdtAoYCfG0IMO46HwP5Oifha+VzqKk257ZBorI5Kqg
+ 4IQ0QCCwLO4Uyl+5nPYQfxiQ38eTpD89+8qFGf+nkSZEsumz3FH/XNYl+C+8gBvZJwePvETXBuB
+ HByxpwltf9CswgIlgz96IJLu2DAManRYZiz1aAauoFQ==
+X-Received: by 2002:a1c:4d01:: with SMTP id o1mr3031546wmh.98.1624347985739;
+ Tue, 22 Jun 2021 00:46:25 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzVTZrd+E+UXfTOnAcF9sG4wpKzb71hRRq2GCWLH0ZuH7Xsi2ZJaleDwWLEMxU4CJJmeqU6uQ==
+X-Received: by 2002:a1c:4d01:: with SMTP id o1mr3031507wmh.98.1624347985376;
+ Tue, 22 Jun 2021 00:46:25 -0700 (PDT)
+Received: from [192.168.43.95] ([37.173.9.63])
+ by smtp.gmail.com with ESMTPSA id w2sm17487368wrp.14.2021.06.22.00.46.22
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Tue, 22 Jun 2021 00:43:35 -0700 (PDT)
-Subject: Re: [PATCH linux-next v3 3/6] vdpa: Enable user to set mac and mtu of
- vdpa device
-To: Parav Pandit <parav@nvidia.com>, virtualization@lists.linux-foundation.org
-References: <20210616191155.102303-1-parav@nvidia.com>
- <20210616191155.102303-4-parav@nvidia.com>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <42d53f49-8528-7585-37c5-66b37d69064c@redhat.com>
-Date: Tue, 22 Jun 2021 15:43:28 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.11.0
+ Tue, 22 Jun 2021 00:46:24 -0700 (PDT)
+Subject: Re: [PATCH v5 4/5] iommu/dma: Pass address limit rather than size to
+ iommu_setup_dma_ops()
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>, rjw@rjwysocki.net,
+ lenb@kernel.org, joro@8bytes.org, mst@redhat.com
+References: <20210618152059.1194210-1-jean-philippe@linaro.org>
+ <20210618152059.1194210-5-jean-philippe@linaro.org>
+From: Eric Auger <eric.auger@redhat.com>
+Message-ID: <c773c186-6675-4a78-9512-8d04570ad7e2@redhat.com>
+Date: Tue, 22 Jun 2021 09:46:22 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-In-Reply-To: <20210616191155.102303-4-parav@nvidia.com>
+In-Reply-To: <20210618152059.1194210-5-jean-philippe@linaro.org>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=eric.auger@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Language: en-US
-Cc: elic@nvidia.com, mst@redhat.com
+Cc: lorenzo.pieralisi@arm.com, catalin.marinas@arm.com, sudeep.holla@arm.com,
+ robin.murphy@arm.com, virtualization@lists.linux-foundation.org,
+ linux-acpi@vger.kernel.org, iommu@lists.linux-foundation.org,
+ sebastien.boeuf@intel.com, guohanjun@huawei.com, will@kernel.org,
+ dwmw2@infradead.org, linux-arm-kernel@lists.infradead.org,
+ baolu.lu@linux.intel.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,140 +130,161 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="gbk"; Format="flowed"
+Reply-To: eric.auger@redhat.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CtTaIDIwMjEvNi8xNyDJz87nMzoxMSwgUGFyYXYgUGFuZGl0INC0tcA6Cj4gJCB2ZHBhIGRldiBh
-ZGQgbmFtZSBiYXIgbWdtdGRldiB2ZHBhc2ltX25ldAo+Cj4gJCB2ZHBhIGRldiBjb25maWcgc2V0
-IGJhciBtYWMgMDA6MTE6MjI6MzM6NDQ6NTUgbXR1IDkwMDAKPgo+ICQgdmRwYSBkZXYgY29uZmln
-IHNob3cKPiBiYXI6IG1hYyAwMDoxMToyMjozMzo0NDo1NSBsaW5rIHVwIGxpbmtfYW5ub3VuY2Ug
-ZmFsc2UgbXR1IDkwMDAgc3BlZWQgMCBkdXBsZXggMAo+Cj4gJCB2ZHBhIGRldiBjb25maWcgc2hv
-dyAtanAKPiB7Cj4gICAgICAiY29uZmlnIjogewo+ICAgICAgICAgICJiYXIiOiB7Cj4gICAgICAg
-ICAgICAgICJtYWMiOiAiMDA6MTE6MjI6MzM6NDQ6NTUiLAo+ICAgICAgICAgICAgICAibGluayAi
-OiAidXAiLAo+ICAgICAgICAgICAgICAibGlua19hbm5vdW5jZSAiOiBmYWxzZSwKPiAgICAgICAg
-ICAgICAgIm10dSI6IDkwMDAsCj4gICAgICAgICAgICAgICJzcGVlZCI6IDAsCj4gICAgICAgICAg
-ICAgICJkdXBsZXgiOiAwCj4gICAgICAgICAgfQo+ICAgICAgfQo+IH0KPgo+IFNpZ25lZC1vZmYt
-Ynk6IFBhcmF2IFBhbmRpdCA8cGFyYXZAbnZpZGlhLmNvbT4KPiBSZXZpZXdlZC1ieTogRWxpIENv
-aGVuIDxlbGljQG52aWRpYS5jb20+Cj4gLS0tCj4gY2hhbmdlbG9nOgo+IHYyLT52MzoKPiAgIC0g
-dXNpbmcgbmV3IHNldHVwX2NvbmZpZyBjYWxsYmFjayB0byBzZXR1cCBkZXZpY2UgcGFyYW1zIHZp
-YSBtZ210IHRvb2wKPiAgICAgdG8gYXZvaWQgbWl4aW5nIHdpdGggZXhpc3Rpbmcgc2V0X2NvbmZp
-ZygpLgo+IC0tLQo+ICAgZHJpdmVycy92ZHBhL3ZkcGEuYyAgICAgICB8IDkxICsrKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrLQo+ICAgaW5jbHVkZS9saW51eC92ZHBhLmggICAg
-ICB8IDE4ICsrKysrKysrCj4gICBpbmNsdWRlL3VhcGkvbGludXgvdmRwYS5oIHwgIDEgKwo+ICAg
-MyBmaWxlcyBjaGFuZ2VkLCAxMDkgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+Cj4gZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvdmRwYS92ZHBhLmMgYi9kcml2ZXJzL3ZkcGEvdmRwYS5jCj4gaW5k
-ZXggMTI5NTUyODI0NGMzLi40MDg3NGJkOTIxMjYgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92ZHBh
-L3ZkcGEuYwo+ICsrKyBiL2RyaXZlcnMvdmRwYS92ZHBhLmMKPiBAQCAtMTQsNyArMTQsNiBAQAo+
-ICAgI2luY2x1ZGUgPHVhcGkvbGludXgvdmRwYS5oPgo+ICAgI2luY2x1ZGUgPG5ldC9nZW5ldGxp
-bmsuaD4KPiAgICNpbmNsdWRlIDxsaW51eC9tb2RfZGV2aWNldGFibGUuaD4KPiAtI2luY2x1ZGUg
-PGxpbnV4L3ZpcnRpb19uZXQuaD4KPiAgICNpbmNsdWRlIDxsaW51eC92aXJ0aW9faWRzLmg+Cj4g
-ICAKPiAgIHN0YXRpYyBMSVNUX0hFQUQobWRldl9oZWFkKTsKPiBAQCAtODQ5LDEwICs4NDgsOTQg
-QEAgdmRwYV9ubF9jbWRfZGV2X2NvbmZpZ19nZXRfZHVtcGl0KHN0cnVjdCBza19idWZmICptc2cs
-IHN0cnVjdCBuZXRsaW5rX2NhbGxiYWNrICoKPiAgIAlyZXR1cm4gbXNnLT5sZW47Cj4gICB9Cj4g
-ICAKPiArc3RhdGljIGludCB2ZHBhX2Rldl9uZXRfY29uZmlnX3NldChzdHJ1Y3QgdmRwYV9kZXZp
-Y2UgKnZkZXYsCj4gKwkJCQkgICBzdHJ1Y3Qgc2tfYnVmZiAqc2tiLCBzdHJ1Y3QgZ2VubF9pbmZv
-ICppbmZvKQo+ICt7Cj4gKwlzdHJ1Y3QgbmxhdHRyICoqbmxfYXR0cnMgPSBpbmZvLT5hdHRyczsK
-PiArCXN0cnVjdCB2ZHBhX2Rldl9zZXRfY29uZmlnIGNvbmZpZyA9IHt9Owo+ICsJY29uc3QgdTgg
-Km1hY2FkZHI7Cj4gKwlpbnQgZXJyOwo+ICsKPiArCWlmICghbmV0bGlua19jYXBhYmxlKHNrYiwg
-Q0FQX05FVF9BRE1JTikpCj4gKwkJcmV0dXJuIC1FUEVSTTsKCgpJbnRlcmVzdGluZywgSSB3b25k
-ZXIgaG93IGNhcCB3b3VsZCBiZSB1c2VkIGZvciBvdGhlciB0eXBlIG9mIGRldmljZXMgCihlLmcg
-YmxvY2spLgoKCj4gKwo+ICsJaWYgKCF2ZGV2LT5jb25maWctPnNldHVwX2NvbmZpZykKPiArCQly
-ZXR1cm4gLUVPUE5PVFNVUFA7Cj4gKwo+ICsJaWYgKG5sX2F0dHJzW1ZEUEFfQVRUUl9ERVZfTkVU
-X0NGR19NQUNBRERSXSkgewo+ICsJCW1hY2FkZHIgPSBubGFfZGF0YShubF9hdHRyc1tWRFBBX0FU
-VFJfREVWX05FVF9DRkdfTUFDQUREUl0pOwo+ICsJCW1lbWNweShjb25maWcubmV0Lm1hYywgbWFj
-YWRkciwgc2l6ZW9mKGNvbmZpZy5uZXQubWFjKSk7Cj4gKwkJY29uZmlnLm5ldF9tYXNrLm1hY192
-YWxpZCA9IHRydWU7Cj4gKwl9Cj4gKwlpZiAobmxfYXR0cnNbVkRQQV9BVFRSX0RFVl9ORVRfQ0ZH
-X01UVV0pIHsKPiArCQljb25maWcubmV0Lm10dSA9Cj4gKwkJCW5sYV9nZXRfdTE2KG5sX2F0dHJz
-W1ZEUEFfQVRUUl9ERVZfTkVUX0NGR19NVFVdKTsKPiArCQljb25maWcubmV0X21hc2subXR1X3Zh
-bGlkID0gdHJ1ZTsKPiArCX0KCgpJbnN0ZWFkIG9mIGRvaW5nIG1lbWNweSBhbmQgcGFzcyB0aGUg
-d2hvbGUgY29uZmlnIHN0cnVjdHVyZSBsaWtlIHRoaXMuIEkgCndvbmRlciBpZiBpdCdzIGJldHRl
-ciB0byBzd2l0Y2ggdG8gdXNlOgoKdmRldi0+Y29uZmlnLT5zZXR1cF9jb25maWcodmRldiwgb2Zm
-c2V0b2Yoc3RydWN0IHZpcnRpb19uZXRfY29uZmlnLCAKbXR1KSwgJm10dSwgc2l6ZW9mKG10dSkp
-OwoKVGhlbiB0aGVyZSdzIG5vIG5lZWQgZm9yIHRoZSB2ZHBhX2Rldl9zZXRfY29uZmlnIHN0cnVj
-dHVyZSB3aGljaCB3aWxsIApiZWNhbWUgc3RydWN0dXJlIHZpcnRpb19uZXRfY29uZmlnIGdyYWR1
-YWxseS4KClRoZSBzZXR1cF9jb25maWcoKSBjYW4gZmFpbCBpZiB0aGUgb2Zmc2V0IGlzIG5vdCBh
-dCB0aGUgYm91bmRhcnkgb2YgYSAKc3BlY2lmaWMgYXR0cmlidXRlLgoKVGhhbmtzCgoKPiArCj4g
-KwltdXRleF9sb2NrKCZ2ZGV2LT5jZl9tdXRleCk7Cj4gKwllcnIgPSB2ZGV2LT5jb25maWctPnNl
-dHVwX2NvbmZpZyh2ZGV2LCAmY29uZmlnKTsKPiArCW11dGV4X3VubG9jaygmdmRldi0+Y2ZfbXV0
-ZXgpOwo+ICsJcmV0dXJuIGVycjsKPiArfQo+ICsKPiArc3RhdGljIGludCB2ZHBhX2Rldl9jb25m
-aWdfc2V0KHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldiwgc3RydWN0IHNrX2J1ZmYgKnNrYiwKPiAr
-CQkJICAgICAgIHN0cnVjdCBnZW5sX2luZm8gKmluZm8pCj4gK3sKPiArCWludCBlcnIgPSAtRU9Q
-Tk9UU1VQUDsKPiArCXUzMiBkZXZpY2VfaWQ7Cj4gKwo+ICsJaWYgKCF2ZGV2LT5tZGV2KQo+ICsJ
-CXJldHVybiAtRU9QTk9UU1VQUDsKPiArCj4gKwlkZXZpY2VfaWQgPSB2ZGV2LT5jb25maWctPmdl
-dF9kZXZpY2VfaWQodmRldik7Cj4gKwlzd2l0Y2ggKGRldmljZV9pZCkgewo+ICsJY2FzZSBWSVJU
-SU9fSURfTkVUOgo+ICsJCWVyciA9IHZkcGFfZGV2X25ldF9jb25maWdfc2V0KHZkZXYsIHNrYiwg
-aW5mbyk7Cj4gKwkJYnJlYWs7Cj4gKwlkZWZhdWx0Ogo+ICsJCWJyZWFrOwo+ICsJfQo+ICsJcmV0
-dXJuIGVycjsKPiArfQo+ICsKPiArc3RhdGljIGludCB2ZHBhX25sX2NtZF9kZXZfY29uZmlnX3Nl
-dF9kb2l0KHN0cnVjdCBza19idWZmICpza2IsIHN0cnVjdCBnZW5sX2luZm8gKmluZm8pCj4gK3sK
-PiArCXN0cnVjdCB2ZHBhX2RldmljZSAqdmRldjsKPiArCWNvbnN0IGNoYXIgKmRldm5hbWU7Cj4g
-KwlzdHJ1Y3QgZGV2aWNlICpkZXY7Cj4gKwlpbnQgZXJyOwo+ICsKPiArCWlmICghaW5mby0+YXR0
-cnNbVkRQQV9BVFRSX0RFVl9OQU1FXSkKPiArCQlyZXR1cm4gLUVJTlZBTDsKPiArCWRldm5hbWUg
-PSBubGFfZGF0YShpbmZvLT5hdHRyc1tWRFBBX0FUVFJfREVWX05BTUVdKTsKPiArCj4gKwltdXRl
-eF9sb2NrKCZ2ZHBhX2Rldl9tdXRleCk7Cj4gKwlkZXYgPSBidXNfZmluZF9kZXZpY2UoJnZkcGFf
-YnVzLCBOVUxMLCBkZXZuYW1lLCB2ZHBhX25hbWVfbWF0Y2gpOwo+ICsJaWYgKCFkZXYpIHsKPiAr
-CQltdXRleF91bmxvY2soJnZkcGFfZGV2X211dGV4KTsKPiArCQlOTF9TRVRfRVJSX01TR19NT0Qo
-aW5mby0+ZXh0YWNrLCAiZGV2aWNlIG5vdCBmb3VuZCIpOwo+ICsJCXJldHVybiAtRU5PREVWOwo+
-ICsJfQo+ICsJdmRldiA9IGNvbnRhaW5lcl9vZihkZXYsIHN0cnVjdCB2ZHBhX2RldmljZSwgZGV2
-KTsKPiArCWlmICghdmRldi0+bWRldikgewo+ICsJCW11dGV4X3VubG9jaygmdmRwYV9kZXZfbXV0
-ZXgpOwo+ICsJCXB1dF9kZXZpY2UoZGV2KTsKPiArCQlyZXR1cm4gLUVJTlZBTDsKPiArCX0KPiAr
-CWVyciA9IHZkcGFfZGV2X2NvbmZpZ19zZXQodmRldiwgc2tiLCBpbmZvKTsKPiArCXB1dF9kZXZp
-Y2UoZGV2KTsKPiArCW11dGV4X3VubG9jaygmdmRwYV9kZXZfbXV0ZXgpOwo+ICsJcmV0dXJuIGVy
-cjsKPiArfQo+ICsKPiAgIHN0YXRpYyBjb25zdCBzdHJ1Y3QgbmxhX3BvbGljeSB2ZHBhX25sX3Bv
-bGljeVtWRFBBX0FUVFJfTUFYICsgMV0gPSB7Cj4gICAJW1ZEUEFfQVRUUl9NR01UREVWX0JVU19O
-QU1FXSA9IHsgLnR5cGUgPSBOTEFfTlVMX1NUUklORyB9LAo+ICAgCVtWRFBBX0FUVFJfTUdNVERF
-Vl9ERVZfTkFNRV0gPSB7IC50eXBlID0gTkxBX1NUUklORyB9LAo+ICAgCVtWRFBBX0FUVFJfREVW
-X05BTUVdID0geyAudHlwZSA9IE5MQV9TVFJJTkcgfSwKPiArCVtWRFBBX0FUVFJfREVWX05FVF9D
-RkdfTUFDQUREUl0gPSBOTEFfUE9MSUNZX0VUSF9BRERSLAo+ICsJLyogdmlydGlvIHNwZWMgMS4x
-IHNlY3Rpb24gNS4xLjQuMSBmb3IgdmFsaWQgTVRVIHJhbmdlICovCj4gKwlbVkRQQV9BVFRSX0RF
-Vl9ORVRfQ0ZHX01UVV0gPSBOTEFfUE9MSUNZX01JTihOTEFfVTE2LCA2OCksCj4gICB9Owo+ICAg
-Cj4gICBzdGF0aWMgY29uc3Qgc3RydWN0IGdlbmxfb3BzIHZkcGFfbmxfb3BzW10gPSB7Cj4gQEAg
-LTg4Niw2ICs5NjksMTIgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBnZW5sX29wcyB2ZHBhX25sX29w
-c1tdID0gewo+ICAgCQkuZG9pdCA9IHZkcGFfbmxfY21kX2Rldl9jb25maWdfZ2V0X2RvaXQsCj4g
-ICAJCS5kdW1waXQgPSB2ZHBhX25sX2NtZF9kZXZfY29uZmlnX2dldF9kdW1waXQsCj4gICAJfSwK
-PiArCXsKPiArCQkuY21kID0gVkRQQV9DTURfREVWX0NPTkZJR19TRVQsCj4gKwkJLnZhbGlkYXRl
-ID0gR0VOTF9ET05UX1ZBTElEQVRFX1NUUklDVCB8IEdFTkxfRE9OVF9WQUxJREFURV9EVU1QLAo+
-ICsJCS5kb2l0ID0gdmRwYV9ubF9jbWRfZGV2X2NvbmZpZ19zZXRfZG9pdCwKPiArCQkuZmxhZ3Mg
-PSBHRU5MX0FETUlOX1BFUk0sCj4gKwl9LAo+ICAgfTsKPiAgIAo+ICAgc3RhdGljIHN0cnVjdCBn
-ZW5sX2ZhbWlseSB2ZHBhX25sX2ZhbWlseSBfX3JvX2FmdGVyX2luaXQgPSB7Cj4gZGlmZiAtLWdp
-dCBhL2luY2x1ZGUvbGludXgvdmRwYS5oIGIvaW5jbHVkZS9saW51eC92ZHBhLmgKPiBpbmRleCBi
-ZjEwNGY5ZjQ2MWEuLjliNzIzOGQ1MzEwZSAxMDA2NDQKPiAtLS0gYS9pbmNsdWRlL2xpbnV4L3Zk
-cGEuaAo+ICsrKyBiL2luY2x1ZGUvbGludXgvdmRwYS5oCj4gQEAgLTYsNiArNiw4IEBACj4gICAj
-aW5jbHVkZSA8bGludXgvZGV2aWNlLmg+Cj4gICAjaW5jbHVkZSA8bGludXgvaW50ZXJydXB0Lmg+
-Cj4gICAjaW5jbHVkZSA8bGludXgvdmhvc3RfaW90bGIuaD4KPiArI2luY2x1ZGUgPGxpbnV4L3Zp
-cnRpb19uZXQuaD4KPiArI2luY2x1ZGUgPGxpbnV4L2lmX2V0aGVyLmg+Cj4gICAKPiAgIC8qKgo+
-ICAgICogc3RydWN0IHZkcGFfY2FsbGxiYWNrIC0gdkRQQSBjYWxsYmFjayBkZWZpbml0aW9uLgo+
-IEBAIC03MCw2ICs3MiwxNyBAQCBzdHJ1Y3QgdmRwYV9pb3ZhX3JhbmdlIHsKPiAgIAl1NjQgbGFz
-dDsKPiAgIH07Cj4gICAKPiArc3RydWN0IHZkcGFfZGV2X3NldF9jb25maWcgewo+ICsJc3RydWN0
-IHsKPiArCQl1OCBtYWNbRVRIX0FMRU5dOwo+ICsJCXUxNiBtdHU7Cj4gKwl9IG5ldDsKPiArCXN0
-cnVjdCB7Cj4gKwkJdTggbWFjX3ZhbGlkOiAxOwo+ICsJCXU4IG10dV92YWxpZDogMTsKPiArCX0g
-bmV0X21hc2s7Cj4gK307Cj4gKwo+ICAgLyoqCj4gICAgKiBzdHJ1Y3QgdmRwYV9jb25maWdfb3Bz
-IC0gb3BlcmF0aW9ucyBmb3IgY29uZmlndXJpbmcgYSB2RFBBIGRldmljZS4KPiAgICAqIE5vdGU6
-IHZEUEEgZGV2aWNlIGRyaXZlcnMgYXJlIHJlcXVpcmVkIHRvIGltcGxlbWVudCBhbGwgb2YgdGhl
-Cj4gQEAgLTE2OSw2ICsxODIsOSBAQCBzdHJ1Y3QgdmRwYV9pb3ZhX3JhbmdlIHsKPiAgICAqCQkJ
-CUBidWY6IGJ1ZmZlciB1c2VkIHRvIHdyaXRlIGZyb20KPiAgICAqCQkJCUBsZW46IHRoZSBsZW5n
-dGggdG8gd3JpdGUgdG8KPiAgICAqCQkJCWNvbmZpZ3VyYXRpb24gc3BhY2UKPiArICogQHNldHVw
-X2NvbmZpZzoJCVNldHVwIGNvbmZpZ3VyYXRpb24gc3BhY2UKPiArICoJCQkJQHZkZXY6IHZkcGEg
-ZGV2aWNlCj4gKyAqCQkJCSNjb25maWc6IGNvbmZpZ3VyYXRpb24gdG8gYXBwbHkgdG8gZGV2aWNl
-Cj4gICAgKiBAZ2V0X2dlbmVyYXRpb246CQlHZXQgZGV2aWNlIGNvbmZpZyBnZW5lcmF0aW9uIChv
-cHRpb25hbCkKPiAgICAqCQkJCUB2ZGV2OiB2ZHBhIGRldmljZQo+ICAgICoJCQkJUmV0dXJucyB1
-MzI6IGRldmljZSBnZW5lcmF0aW9uCj4gQEAgLTI0MSw2ICsyNTcsOCBAQCBzdHJ1Y3QgdmRwYV9j
-b25maWdfb3BzIHsKPiAgIAkJCSAgIHZvaWQgKmJ1ZiwgdW5zaWduZWQgaW50IGxlbik7Cj4gICAJ
-dm9pZCAoKnNldF9jb25maWcpKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldiwgdW5zaWduZWQgaW50
-IG9mZnNldCwKPiAgIAkJCSAgIGNvbnN0IHZvaWQgKmJ1ZiwgdW5zaWduZWQgaW50IGxlbik7Cj4g
-KwlpbnQgKCpzZXR1cF9jb25maWcpKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldiwKPiArCQkJICAg
-IGNvbnN0IHN0cnVjdCB2ZHBhX2Rldl9zZXRfY29uZmlnICpjb25maWcpOwo+ICAgCXUzMiAoKmdl
-dF9nZW5lcmF0aW9uKShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYpOwo+ICAgCXN0cnVjdCB2ZHBh
-X2lvdmFfcmFuZ2UgKCpnZXRfaW92YV9yYW5nZSkoc3RydWN0IHZkcGFfZGV2aWNlICp2ZGV2KTsK
-PiAgIAo+IGRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgvdmRwYS5oIGIvaW5jbHVkZS91
-YXBpL2xpbnV4L3ZkcGEuaAo+IGluZGV4IDVjMzFlY2MzYjk1Ni4uZWMzNDk3ODliOGQxIDEwMDY0
-NAo+IC0tLSBhL2luY2x1ZGUvdWFwaS9saW51eC92ZHBhLmgKPiArKysgYi9pbmNsdWRlL3VhcGkv
-bGludXgvdmRwYS5oCj4gQEAgLTE4LDYgKzE4LDcgQEAgZW51bSB2ZHBhX2NvbW1hbmQgewo+ICAg
-CVZEUEFfQ01EX0RFVl9ERUwsCj4gICAJVkRQQV9DTURfREVWX0dFVCwJCS8qIGNhbiBkdW1wICov
-Cj4gICAJVkRQQV9DTURfREVWX0NPTkZJR19HRVQsCS8qIGNhbiBkdW1wICovCj4gKwlWRFBBX0NN
-RF9ERVZfQ09ORklHX1NFVCwKPiAgIH07Cj4gICAKPiAgIGVudW0gdmRwYV9hdHRyIHsKCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
-IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
-dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
-aXphdGlvbg==
+Hi Jean,
+
+On 6/18/21 5:20 PM, Jean-Philippe Brucker wrote:
+> Passing a 64-bit address width to iommu_setup_dma_ops() is valid on
+> virtual platforms, but isn't currently possible. The overflow check in
+> iommu_dma_init_domain() prevents this even when @dma_base isn't 0. Pass
+> a limit address instead of a size, so callers don't have to fake a size
+> to work around the check.
+>
+> The base and limit parameters are being phased out, because:
+> * they are redundant for x86 callers. dma-iommu already reserves the
+>   first page, and the upper limit is already in domain->geometry.
+> * they can now be obtained from dev->dma_range_map on Arm.
+> But removing them on Arm isn't completely straightforward so is left for
+> future work. As an intermediate step, simplify the x86 callers by
+> passing dummy limits.
+>
+> Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+
+Eric
+> ---
+>  include/linux/dma-iommu.h   |  4 ++--
+>  arch/arm64/mm/dma-mapping.c |  2 +-
+>  drivers/iommu/amd/iommu.c   |  2 +-
+>  drivers/iommu/dma-iommu.c   | 12 ++++++------
+>  drivers/iommu/intel/iommu.c |  5 +----
+>  5 files changed, 11 insertions(+), 14 deletions(-)
+>
+> diff --git a/include/linux/dma-iommu.h b/include/linux/dma-iommu.h
+> index 6e75a2d689b4..758ca4694257 100644
+> --- a/include/linux/dma-iommu.h
+> +++ b/include/linux/dma-iommu.h
+> @@ -19,7 +19,7 @@ int iommu_get_msi_cookie(struct iommu_domain *domain, dma_addr_t base);
+>  void iommu_put_dma_cookie(struct iommu_domain *domain);
+>  
+>  /* Setup call for arch DMA mapping code */
+> -void iommu_setup_dma_ops(struct device *dev, u64 dma_base, u64 size);
+> +void iommu_setup_dma_ops(struct device *dev, u64 dma_base, u64 dma_limit);
+>  
+>  /* The DMA API isn't _quite_ the whole story, though... */
+>  /*
+> @@ -50,7 +50,7 @@ struct msi_msg;
+>  struct device;
+>  
+>  static inline void iommu_setup_dma_ops(struct device *dev, u64 dma_base,
+> -		u64 size)
+> +				       u64 dma_limit)
+>  {
+>  }
+>  
+> diff --git a/arch/arm64/mm/dma-mapping.c b/arch/arm64/mm/dma-mapping.c
+> index 4bf1dd3eb041..6719f9efea09 100644
+> --- a/arch/arm64/mm/dma-mapping.c
+> +++ b/arch/arm64/mm/dma-mapping.c
+> @@ -50,7 +50,7 @@ void arch_setup_dma_ops(struct device *dev, u64 dma_base, u64 size,
+>  
+>  	dev->dma_coherent = coherent;
+>  	if (iommu)
+> -		iommu_setup_dma_ops(dev, dma_base, size);
+> +		iommu_setup_dma_ops(dev, dma_base, dma_base + size - 1);
+>  
+>  #ifdef CONFIG_XEN
+>  	if (xen_swiotlb_detect())
+> diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
+> index 3ac42bbdefc6..216323fb27ef 100644
+> --- a/drivers/iommu/amd/iommu.c
+> +++ b/drivers/iommu/amd/iommu.c
+> @@ -1713,7 +1713,7 @@ static void amd_iommu_probe_finalize(struct device *dev)
+>  	/* Domains are initialized for this device - have a look what we ended up with */
+>  	domain = iommu_get_domain_for_dev(dev);
+>  	if (domain->type == IOMMU_DOMAIN_DMA)
+> -		iommu_setup_dma_ops(dev, IOVA_START_PFN << PAGE_SHIFT, 0);
+> +		iommu_setup_dma_ops(dev, 0, U64_MAX);
+>  	else
+>  		set_dma_ops(dev, NULL);
+>  }
+> diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+> index 7bcdd1205535..c62e19bed302 100644
+> --- a/drivers/iommu/dma-iommu.c
+> +++ b/drivers/iommu/dma-iommu.c
+> @@ -319,16 +319,16 @@ static bool dev_is_untrusted(struct device *dev)
+>   * iommu_dma_init_domain - Initialise a DMA mapping domain
+>   * @domain: IOMMU domain previously prepared by iommu_get_dma_cookie()
+>   * @base: IOVA at which the mappable address space starts
+> - * @size: Size of IOVA space
+> + * @limit: Last address of the IOVA space
+>   * @dev: Device the domain is being initialised for
+>   *
+> - * @base and @size should be exact multiples of IOMMU page granularity to
+> + * @base and @limit + 1 should be exact multiples of IOMMU page granularity to
+>   * avoid rounding surprises. If necessary, we reserve the page at address 0
+>   * to ensure it is an invalid IOVA. It is safe to reinitialise a domain, but
+>   * any change which could make prior IOVAs invalid will fail.
+>   */
+>  static int iommu_dma_init_domain(struct iommu_domain *domain, dma_addr_t base,
+> -		u64 size, struct device *dev)
+> +				 dma_addr_t limit, struct device *dev)
+>  {
+>  	struct iommu_dma_cookie *cookie = domain->iova_cookie;
+>  	unsigned long order, base_pfn;
+> @@ -346,7 +346,7 @@ static int iommu_dma_init_domain(struct iommu_domain *domain, dma_addr_t base,
+>  	/* Check the domain allows at least some access to the device... */
+>  	if (domain->geometry.force_aperture) {
+>  		if (base > domain->geometry.aperture_end ||
+> -		    base + size <= domain->geometry.aperture_start) {
+> +		    limit < domain->geometry.aperture_start) {
+>  			pr_warn("specified DMA range outside IOMMU capability\n");
+>  			return -EFAULT;
+>  		}
+> @@ -1308,7 +1308,7 @@ static const struct dma_map_ops iommu_dma_ops = {
+>   * The IOMMU core code allocates the default DMA domain, which the underlying
+>   * IOMMU driver needs to support via the dma-iommu layer.
+>   */
+> -void iommu_setup_dma_ops(struct device *dev, u64 dma_base, u64 size)
+> +void iommu_setup_dma_ops(struct device *dev, u64 dma_base, u64 dma_limit)
+>  {
+>  	struct iommu_domain *domain = iommu_get_domain_for_dev(dev);
+>  
+> @@ -1320,7 +1320,7 @@ void iommu_setup_dma_ops(struct device *dev, u64 dma_base, u64 size)
+>  	 * underlying IOMMU driver needs to support via the dma-iommu layer.
+>  	 */
+>  	if (domain->type == IOMMU_DOMAIN_DMA) {
+> -		if (iommu_dma_init_domain(domain, dma_base, size, dev))
+> +		if (iommu_dma_init_domain(domain, dma_base, dma_limit, dev))
+>  			goto out_err;
+>  		dev->dma_ops = &iommu_dma_ops;
+>  	}
+> diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+> index be35284a2016..2f7213f0e7a1 100644
+> --- a/drivers/iommu/intel/iommu.c
+> +++ b/drivers/iommu/intel/iommu.c
+> @@ -5165,13 +5165,10 @@ static void intel_iommu_release_device(struct device *dev)
+>  
+>  static void intel_iommu_probe_finalize(struct device *dev)
+>  {
+> -	dma_addr_t base = IOVA_START_PFN << VTD_PAGE_SHIFT;
+>  	struct iommu_domain *domain = iommu_get_domain_for_dev(dev);
+> -	struct dmar_domain *dmar_domain = to_dmar_domain(domain);
+>  
+>  	if (domain && domain->type == IOMMU_DOMAIN_DMA)
+> -		iommu_setup_dma_ops(dev, base,
+> -				    __DOMAIN_MAX_ADDR(dmar_domain->gaw) - base);
+> +		iommu_setup_dma_ops(dev, 0, U64_MAX);
+>  	else
+>  		set_dma_ops(dev, NULL);
+>  }
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
