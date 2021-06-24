@@ -2,105 +2,90 @@ Return-Path: <SRS0=+b5l=LW=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DATE_IN_PAST_96_XX,
+	DKIM_INVALID,DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,URIBL_RED
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59752C2B9F4
-	for <virtualization@archiver.kernel.org>; Mon, 28 Jun 2021 12:06:14 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA716C2B9F4
+	for <virtualization@archiver.kernel.org>; Mon, 28 Jun 2021 13:01:53 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D0D3E61477
-	for <virtualization@archiver.kernel.org>; Mon, 28 Jun 2021 12:06:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D0D3E61477
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=arndb.de
+	by mail.kernel.org (Postfix) with ESMTPS id 4BFC461C69
+	for <virtualization@archiver.kernel.org>; Mon, 28 Jun 2021 13:01:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4BFC461C69
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 83A256073A;
-	Mon, 28 Jun 2021 12:06:13 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 10E5440387;
+	Mon, 28 Jun 2021 13:01:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id q-Vv31aGPBOX; Mon, 28 Jun 2021 12:06:12 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 35D4E60594;
-	Mon, 28 Jun 2021 12:06:12 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id aQG1sG7QvW9d; Mon, 28 Jun 2021 13:01:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 574AA40373;
+	Mon, 28 Jun 2021 13:01:51 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 14320C0010;
-	Mon, 28 Jun 2021 12:06:12 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 76D1AC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 312A8C001A;
+	Mon, 28 Jun 2021 13:01:51 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0603BC000E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Jun 2021 12:06:10 +0000 (UTC)
+ Mon, 28 Jun 2021 13:01:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 63EE460599
+ by smtp3.osuosl.org (Postfix) with ESMTP id DC7BD6058D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Jun 2021 12:06:10 +0000 (UTC)
+ Mon, 28 Jun 2021 13:01:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vwfRWg_qQKwJ
+ with ESMTP id PQKxbwLY0lZb
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Jun 2021 12:06:06 +0000 (UTC)
-X-Greylist: delayed 00:07:36 by SQLgrey-1.8.0
-Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.17.13])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 4E19260594
+ Mon, 28 Jun 2021 13:01:48 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2EF996058B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Jun 2021 12:06:06 +0000 (UTC)
-Received: from mail-wr1-f50.google.com ([209.85.221.50]) by
- mrelayeu.kundenserver.de (mreue109 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1MRCFu-1lczaK0vA4-00N9fk for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Jun 2021 13:53:24 +0200
-Received: by mail-wr1-f50.google.com with SMTP id y3so1506966wrq.3
- for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Jun 2021 04:53:24 -0700 (PDT)
-X-Gm-Message-State: AOAM532DujL4wB0acway2SUGxJZA8MFS7i12RKPfqad8u+KykmAKQVpV
- 2xLgsbSEOX9PNz53auRm5r2591wIE8plqENyB+s=
-X-Google-Smtp-Source: ABdhPJzgeeV1Oni80yiuTi9OxHyN5NYhrhIio7ch03ZD5B7a0G2ZxN8TSW57aRgI9A+sZfsbv891q4dL2gyadq0w/UQ=
-X-Received: by 2002:adf:e107:: with SMTP id t7mr26147077wrz.165.1624881203891; 
- Mon, 28 Jun 2021 04:53:23 -0700 (PDT)
+ Mon, 28 Jun 2021 13:01:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1624885307;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=yN2gKWfYSS2BvZ25yeJRmT/Gg0ySnY/1p9C8SnCeINA=;
+ b=OA4wX64iYjbdmkNautWRTk0RzLM5vE0kIi6uDrVajqw906sY9o3oCEcFH42vTqVY5CzdKM
+ 9XQK7zHpU6zrzse0arU4c8vnqsVeYFOoYjC1Wa/2Rc+1jJk1ntQEOik+7ErfDiQ63TXEGl
+ ZPQlvlgJq+L7o5wGLut12twwFrWLo80=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-274-6udnZiKlNlmnouAkGCPhCg-1; Mon, 28 Jun 2021 09:01:45 -0400
+X-MC-Unique: 6udnZiKlNlmnouAkGCPhCg-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E7FA3804308;
+ Mon, 28 Jun 2021 13:01:43 +0000 (UTC)
+Received: from localhost (ovpn-112-170.ams2.redhat.com [10.36.112.170])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 30B7B5C1CF;
+ Mon, 28 Jun 2021 13:01:40 +0000 (UTC)
+Date: Thu, 24 Jun 2021 10:40:52 +0100
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Mike Christie <michael.christie@oracle.com>
+Subject: Re: [PATCH 0/3] kthread: pass in user and check RLIMIT_NPROC
+Message-ID: <YNRTJFHxSlUSEqL5@stefanha-x1.localdomain>
+References: <20210624030804.4932-1-michael.christie@oracle.com>
 MIME-Version: 1.0
-References: <226a8d5663b7bb6f5d06ede7701eedb18d1bafa1.1616493817.git.jie.deng@intel.com>
- <YNmK0MP5ffQpiipt@ninjato>
- <CAK8P3a2qrfhyfZA-8qPVQ252tZXSBKVT==GigJMVvX5_XLPrCQ@mail.gmail.com>
- <YNmVg3ZhshshlbSx@ninjato>
- <CAK8P3a3Z-9MbsH6ZkXENZ-vt8+W5aP3t+EBcEGRmh2Cgr89R8Q@mail.gmail.com>
- <YNmg2IEpUlArZXPK@ninjato>
-In-Reply-To: <YNmg2IEpUlArZXPK@ninjato>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Mon, 28 Jun 2021 13:50:53 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a3vD0CpuJW=3w3nq0h9HECCiOigNWK-SvXq=m1zZpqvjA@mail.gmail.com>
-Message-ID: <CAK8P3a3vD0CpuJW=3w3nq0h9HECCiOigNWK-SvXq=m1zZpqvjA@mail.gmail.com>
-Subject: Re: [PATCH v10] i2c: virtio: add a virtio i2c frontend driver
-To: Wolfram Sang <wsa@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
- Jie Deng <jie.deng@intel.com>, Linux I2C <linux-i2c@vger.kernel.org>,
- virtualization@lists.linux-foundation.org, 
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
- conghui.chen@intel.com, kblaiech@mellanox.com, jarkko.nikula@linux.intel.com, 
- Sergey Semin <Sergey.Semin@baikalelectronics.ru>,
- Mike Rapoport <rppt@kernel.org>, 
- loic.poulain@linaro.org, Tali Perry <tali.perry1@gmail.com>, 
- =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, 
- Bjorn Andersson <bjorn.andersson@linaro.org>, yu1.wang@intel.com,
- shuo.a.liu@intel.com, 
- Viresh Kumar <viresh.kumar@linaro.org>, Stefan Hajnoczi <stefanha@redhat.com>, 
- Paolo Bonzini <pbonzini@redhat.com>
-X-Provags-ID: V03:K1:zsPuWy5RJErfFUWzClJepRY+qZeXRjrNyyHo8+xdw4SOoi/NmPH
- hXTicAt5vVpEF67PuJpZ5CzEvL793s/1nwYpG1DzGhvtrt1zMFs6WE77M0UyFYnkf3G7JRC
- ZP54gMyk+5p2QTG8upu4IRjV1PYC/K+K5kcKEljnZdP1vtauo0Ntgs9029Hsl8tre/EMOpC
- ouTjxsmOyV87neOcv9Aeg==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:LCpGRA/U8W4=:BzTSiibyjdFzXS8iv7DXJI
- f5RrdJXVDMwEIoqu9uvza6dMdjZAhqhNSIbVttVrc7TEEwvbUap0iKs3E6L7f/4KNqo55fojA
- B+56ycA5UwLoWan5x75v87f7/eB6HfdtKuDZxLC8sNynQYlaKOpl6sWnOh8XyYTK3fUstBNDx
- tu7zLT0BgZhtzSKBzdGSpG8kZmoeNEHiG9CU4pBuZvoGs03g/m4DSepvj4sqESbtYepCkvH1i
- lvWXpwE71KMWMrPACAWCY/0mjzIE72WRfZHJrSzshWZDSCRoaUzaJPDXf/EzEwbldFDRIN0O+
- iPdOMzgfkN1Hiagiiw1x4f6Us6TX9R9bGBLC2KmAU/WAYe7l9O1L6R4PRNo8wKsKJh2NGtwtV
- XON8dvZv/5Wb/IuO8FErgPzWWi59LcIxmLZWkGmNunriuH319h2TX2Rh8oSB/JlNbGwlDEyml
- syte/U7T3QUpIODRENaxE5TznIJwZJhjjxIqhUlT9XsiamjiQs8kRAaxX/nMrnyZL7Sml3ywW
- NeLG12gppV2+wlJjEUphMk=
+In-Reply-To: <20210624030804.4932-1-michael.christie@oracle.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Cc: mst@redhat.com, peterz@infradead.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, akpm@linux-foundation.org,
+ christian.brauner@ubuntu.com, christian@brauner.io
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,50 +97,62 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============9159371617686752707=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jun 28, 2021 at 12:13 PM Wolfram Sang <wsa@kernel.org> wrote:
->
->
-> > Ok, that's what I thought. There is one corner case that I've struggled
-> > with though: Suppose the host has an SMBus-only driver, and the
-> > proposed driver exposes this as an I2C device to the guest, which
-> > makes it available to guest user space (or a guest kernel driver)
-> > using the emulated smbus command set. Is it always possible for
-> > the host user space to turn the I2C transaction back into the
-> > expected SMBus transaction on the host?
->
-> If an SMBus commands gets converted to I2C messages, it can be converted
-> back to an SMBus command. I don't see anything preventing that right
-> now. However, the mapping-back code does look a bit clumsy, now that I
-> envision it. Maybe it is better, after all, to support I2C_SMBUS
-> directly and pass SMBus transactions as is. It should be a tad more
-> effiecient, too.
 
-You can fine Viresh's vhost-user implementation at
-https://lore.kernel.org/qemu-devel/cover.1617278395.git.viresh.kumar@linaro.org/t/#m3b5044bad9769b170f505e63bd081eb27cef8db2
+--===============9159371617686752707==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="tAINK5wpSU1Wy0aE"
+Content-Disposition: inline
 
-As you say, it does get a bit clumsy, but I think there is also a good argument
-to be made that the clumsiness is based on the host Linux user interface
-more than the on the requirements of the physical interface,
-and that should not have to be reflected in the virtio specification.
 
-> Speaking of it, I recall another gory detail: SMBus has transfers named
-> "read block data" and "block process call". These also need special
-> support from I2C host controllers before they can be emulated because
-> the length of the read needs to be adjusted in flight. These commands
-> are rare and not hard to implement. However, it makes exposing what is
-> supported a little more difficult.
+--tAINK5wpSU1Wy0aE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Right, this one has come up before as well: the preliminary result
-was to assume that this probably won't be needed, but would be easy
-enough to add later if necessary.
+On Wed, Jun 23, 2021 at 10:08:01PM -0500, Mike Christie wrote:
+> The vhost driver will create a kthread when userspace does a
+> VHOST_SET_OWNER ioctl, but the thread is charged to the kthreadd thread.
+> We can then end up violating the userspace process's RLIMIT_NPROC. This
+> patchset allows drivers to pass in the user to charge/check.
+>=20
+> The patches were made over Linus's current tree.
 
-       Arnd
+Makes sense from a vhost perspective and for future users, but I'm not
+familiar with the kthread internals:
+
+Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--tAINK5wpSU1Wy0aE
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmDUUyQACgkQnKSrs4Gr
+c8h3ugf/SnO91w5rQo5ExA9DoePrMOZqkuNg6cgYqUlV25038PRp49kMp9I9fUXD
+JuoebkNTOpavvl1JtW8auitS2pQkvkdLb4VkmzqgGBgQROmpik5sH7H9QACCh0oh
+huSYZVkw9PTEyo6fMnKr97+RoGncP/hORtADOuS8VfoMjhADfl0d/QIwBIilOmEA
+72x1CQQzVhzmgOp7wK7uBgWGDzA7RoesQHpQhtOidvmwnpSIIa3GZJwn58jM/NJK
++SScwhri8pg/zUGI0wboBpX7HCbkp3U5qF84WiOksuYSFZ3ojnqao9WTdXOVSbdK
+3DO/IaTA19tStIHHvcBdAiUuRohZXg==
+=dvls
+-----END PGP SIGNATURE-----
+
+--tAINK5wpSU1Wy0aE--
+
+
+--===============9159371617686752707==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============9159371617686752707==--
+
