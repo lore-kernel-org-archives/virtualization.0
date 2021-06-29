@@ -2,116 +2,108 @@ Return-Path: <SRS0=tbjA=LX=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C625C11F66
-	for <virtualization@archiver.kernel.org>; Tue, 29 Jun 2021 11:16:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C324DC11F68
+	for <virtualization@archiver.kernel.org>; Tue, 29 Jun 2021 13:58:43 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AD27B61D03
-	for <virtualization@archiver.kernel.org>; Tue, 29 Jun 2021 11:16:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AD27B61D03
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 6CBB661D8B
+	for <virtualization@archiver.kernel.org>; Tue, 29 Jun 2021 13:58:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6CBB661D8B
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 76F40607C8;
-	Tue, 29 Jun 2021 11:16:37 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 322F36080A;
+	Tue, 29 Jun 2021 13:58:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ahSH2Cv8smqO; Tue, 29 Jun 2021 11:16:36 +0000 (UTC)
+	with ESMTP id QcyLsjH_x1N2; Tue, 29 Jun 2021 13:58:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 13B886065F;
-	Tue, 29 Jun 2021 11:16:36 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 3A1FB607EA;
+	Tue, 29 Jun 2021 13:58:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B9FB1C001A;
-	Tue, 29 Jun 2021 11:16:35 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A6F94C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DACCBC001A;
+	Tue, 29 Jun 2021 13:58:40 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C122EC000E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Jun 2021 11:16:34 +0000 (UTC)
+ Tue, 29 Jun 2021 13:58:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id A1B6F402C2
+ by smtp3.osuosl.org (Postfix) with ESMTP id A1B17607F9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Jun 2021 11:16:34 +0000 (UTC)
+ Tue, 29 Jun 2021 13:58:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uXIgDMcP8D9y
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 93bmutVeLvOk
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Jun 2021 11:16:33 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com
- [IPv6:2607:f8b0:4864:20::1033])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 48B8D4011B
+ Tue, 29 Jun 2021 13:58:38 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 090F3607EA
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Jun 2021 11:16:33 +0000 (UTC)
-Received: by mail-pj1-x1033.google.com with SMTP id
- cs1-20020a17090af501b0290170856e1a8aso1660645pjb.3
- for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Jun 2021 04:16:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=xjV/iKi34jYFMReQkJHVyPn/3R5zf+ElzbUkU1MRvAQ=;
- b=dKJFli8NYw/mQKH3Kw4Xh/mZ1c75VxNBWzg2+Q31Y4qkdcoAI/y405XkWNU8+TlS4f
- zX3H5e5QzRv47ovxV/fZR0a2D8g1VDKvN37yUK9i7Lk3xCny/f5logx3MyHjdJO00P8e
- u3Js/sBNx6gl08KPRHp6lzQsxUCb60h+4Ep1hlpzJTACykLZhadUKt+onNeH3ossfpx7
- INL/XMqjN/KfiLrBaVcUGAIokQh9Bxz4z2/9ESGXFmx7KQFDFzuT64+WsCU/yR+1eyVR
- RQ8nO2Gz2D4W46BWxZDzoNW6tUm6i4eTxkp4IyfBwzJ6ZvZlzrNZUifZ/BmrVwPdXlq/
- gAgw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=xjV/iKi34jYFMReQkJHVyPn/3R5zf+ElzbUkU1MRvAQ=;
- b=l9DPa583M68ppOPSToxXnAs+MbZCRGZCFkbOTwCNeUKB+QdZigJjaDxr1cx6vRII6H
- bC07iPlHXRiU4fFKDJNFjR++S+aaPuZEOhqCBx2n+5zMT8LszKu4nSV+C+4J8dDQvWzJ
- BsiwC+zARbMZbnUXf/2eV6htmDDvs9SvnzS38VpzSLxRf5qMSorMd6kQ8INUHvC/9QNU
- bxBSf19CaY+fSDsyL2yAS4WuFuiCBZSZDPDu395wxHErbiBbVyIDTsrrikPM21hWTPuu
- A9igYtlCgP7ejVV3syjwXUz7Nka+G6JD519u6ubBQdgAT9haY6EU6VAPqOaqUSbf4/GM
- O6vA==
-X-Gm-Message-State: AOAM533zF4Uet1d/DBMYDg/xpYgE0FM0S61XAOqieB0DAad2pf3hmibX
- wXiOORrocKEvQkAzAJuTLvBsXg==
-X-Google-Smtp-Source: ABdhPJy+UGCUCuflwbi6dPqqusA18cX4k4AwlBxGfReRGnObOnWyb1uOJgfgGDyhAKi/3y/XEkRRMw==
-X-Received: by 2002:a17:903:18e:b029:127:a5ba:7243 with SMTP id
- z14-20020a170903018eb0290127a5ba7243mr22916869plg.4.1624965392695; 
- Tue, 29 Jun 2021 04:16:32 -0700 (PDT)
-Received: from localhost ([136.185.134.182])
- by smtp.gmail.com with ESMTPSA id u11sm17854532pjf.46.2021.06.29.04.16.31
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 29 Jun 2021 04:16:32 -0700 (PDT)
-Date: Tue, 29 Jun 2021 16:46:30 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Wolfram Sang <wsa@kernel.org>, Jie Deng <jie.deng@intel.com>,
- linux-i2c@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
- andriy.shevchenko@linux.intel.com, conghui.chen@intel.com,
- arnd@arndb.de, kblaiech@mellanox.com, jarkko.nikula@linux.intel.com,
- Sergey.Semin@baikalelectronics.ru, rppt@kernel.org,
- loic.poulain@linaro.org, tali.perry1@gmail.com,
- u.kleine-koenig@pengutronix.de, bjorn.andersson@linaro.org,
- yu1.wang@intel.com, shuo.a.liu@intel.com, stefanha@redhat.com,
- pbonzini@redhat.com
-Subject: Re: [PATCH v10] i2c: virtio: add a virtio i2c frontend driver
-Message-ID: <20210629111630.badum3mtumcujbyk@vireshk-i7>
-References: <226a8d5663b7bb6f5d06ede7701eedb18d1bafa1.1616493817.git.jie.deng@intel.com>
- <YNrw4rxihFLuqLtY@ninjato>
- <20210629101627.kwc2rszborc3kvjs@vireshk-i7>
- <YNr0uDx1fv+Gjd7m@ninjato>
- <20210629103014.nlk3mpetydc4mi6l@vireshk-i7>
- <YNr5Jf3WDTH7U5b7@ninjato> <YNr5ZRhT3qn+e9/m@ninjato>
- <20210629105649.nt63mxtiy6u7de3g@vireshk-i7>
- <YNr/2E/T4FRjLOgy@ninjato>
+ Tue, 29 Jun 2021 13:58:37 +0000 (UTC)
+Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
+ (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id 354AB21F44;
+ Tue, 29 Jun 2021 13:58:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1624975115; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
+ bh=czyn8Ol6WmjBIbWhgsw7YYkLk950NiTNopW4iRndWpU=;
+ b=RQDIkZgkPbOAfNjIQQdyQ7vPDxl7MTUjI1AqEvTVYpQybouNFsTvFjWEALeallLT0fQ4WC
+ 1lqYv+HJCivaPtOqzgwSE862U9o1TmDtDwkwJ58EahPu4pvJUrI0WRxphqktflQlim1EM2
+ py8A6Z3I1Ny6G2Z9SZFYKwnErIKzrXs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1624975115;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
+ bh=czyn8Ol6WmjBIbWhgsw7YYkLk950NiTNopW4iRndWpU=;
+ b=xa5RRJY2dV8xhxoEWNWboErj85NCZ3IJSzw6EKC1UfhcarTHVOMsPynb6INmZZX0W954Tm
+ xzgviKXAGzLnVYDg==
+Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
+ by imap.suse.de (Postfix) with ESMTP id D733411906;
+ Tue, 29 Jun 2021 13:58:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1624975115; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
+ bh=czyn8Ol6WmjBIbWhgsw7YYkLk950NiTNopW4iRndWpU=;
+ b=RQDIkZgkPbOAfNjIQQdyQ7vPDxl7MTUjI1AqEvTVYpQybouNFsTvFjWEALeallLT0fQ4WC
+ 1lqYv+HJCivaPtOqzgwSE862U9o1TmDtDwkwJ58EahPu4pvJUrI0WRxphqktflQlim1EM2
+ py8A6Z3I1Ny6G2Z9SZFYKwnErIKzrXs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1624975115;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
+ bh=czyn8Ol6WmjBIbWhgsw7YYkLk950NiTNopW4iRndWpU=;
+ b=xa5RRJY2dV8xhxoEWNWboErj85NCZ3IJSzw6EKC1UfhcarTHVOMsPynb6INmZZX0W954Tm
+ xzgviKXAGzLnVYDg==
+Received: from director2.suse.de ([192.168.254.72]) by imap3-int with ESMTPSA
+ id 74CmMwon22CidAAALh3uQQ
+ (envelope-from <tzimmermann@suse.de>); Tue, 29 Jun 2021 13:58:34 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: daniel@ffwll.ch,
+	airlied@redhat.com
+Subject: [PATCH] drm/aperture: Pass DRM driver structure instead of driver name
+Date: Tue, 29 Jun 2021 15:58:33 +0200
+Message-Id: <20210629135833.22679-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <YNr/2E/T4FRjLOgy@ninjato>
-User-Agent: NeoMutt/20180716-391-311a52
+Cc: linux-hyperv@vger.kernel.org, nouveau@lists.freedesktop.org,
+ intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, linux-rockchip@lists.infradead.org,
+ amd-gfx@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>,
+ linux-arm-msm@vger.kernel.org, linux-tegra@vger.kernel.org,
+ spice-devel@lists.freedesktop.org, linux-amlogic@lists.infradead.org,
+ freedreno@lists.freedesktop.org, linux-sunxi@lists.linux.dev,
+ linux-arm-kernel@lists.infradead.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -128,30 +120,446 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 29-06-21, 13:11, Wolfram Sang wrote:
-> 
-> > The case when ``length of \field{write_buf}''=0, and at the same time,
-> > ``length of \field{read_buf}''=0 is called not-a-read-write request
-> > and result for such a request is I2C device specific.
-> 
-> Obviously, I don't know much about the specs and their wording. Still I
-> wonder if we can't call it a zero length transfer?
+Print the name of the DRM driver when taking over fbdev devices. Makes
+the output to dmesg more consistent. Note that the driver name is only
+used for printing a string to the kernel log. No UAPI is affected by this
+change.
 
-Maybe that.
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c       |  2 +-
+ drivers/gpu/drm/armada/armada_drv.c           |  2 +-
+ drivers/gpu/drm/ast/ast_drv.c                 |  2 +-
+ drivers/gpu/drm/bochs/bochs_drv.c             |  2 +-
+ drivers/gpu/drm/drm_aperture.c                | 19 ++++++++++++-------
+ .../gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c   |  2 +-
+ drivers/gpu/drm/hyperv/hyperv_drm_drv.c       |  4 ++--
+ drivers/gpu/drm/i915/i915_drv.c               |  2 +-
+ drivers/gpu/drm/meson/meson_drv.c             |  2 +-
+ drivers/gpu/drm/mgag200/mgag200_drv.c         |  2 +-
+ drivers/gpu/drm/msm/msm_fbdev.c               |  2 +-
+ drivers/gpu/drm/nouveau/nouveau_drm.c         |  2 +-
+ drivers/gpu/drm/qxl/qxl_drv.c                 |  2 +-
+ drivers/gpu/drm/radeon/radeon_drv.c           |  2 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_drv.c   |  2 +-
+ drivers/gpu/drm/sun4i/sun4i_drv.c             |  2 +-
+ drivers/gpu/drm/tegra/drm.c                   |  2 +-
+ drivers/gpu/drm/tiny/cirrus.c                 |  2 +-
+ drivers/gpu/drm/vboxvideo/vbox_drv.c          |  2 +-
+ drivers/gpu/drm/vc4/vc4_drv.c                 |  2 +-
+ drivers/gpu/drm/virtio/virtgpu_drv.c          |  2 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_drv.c           |  2 +-
+ include/drm/drm_aperture.h                    | 14 +++++++++-----
+ 23 files changed, 43 insertions(+), 34 deletions(-)
 
-> This is allowed by
-> the I2C standard and SMBus has even a proper name for it (SMBUS_QUICK).
-> From my point of view, I would not say it is device specific because
-> devices are expected to ACK such a message.
-
-Actually we should skip the last line from my diff, i.e. completely
-drop "and result for such a request is I2C device specific".
-
-The device (host in virtio spec terminology) still needs to return
-success/failure as it does for other requests. Nothing special here.
-
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+index 6f30c525caac..accf9c1b967a 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -1278,7 +1278,7 @@ static int amdgpu_pci_probe(struct pci_dev *pdev,
+ #endif
+ 
+ 	/* Get rid of things like offb */
+-	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, "amdgpudrmfb");
++	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &amdgpu_kms_driver);
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/drivers/gpu/drm/armada/armada_drv.c b/drivers/gpu/drm/armada/armada_drv.c
+index dab0a1f0983b..31925ae3ab72 100644
+--- a/drivers/gpu/drm/armada/armada_drv.c
++++ b/drivers/gpu/drm/armada/armada_drv.c
+@@ -95,7 +95,7 @@ static int armada_drm_bind(struct device *dev)
+ 	}
+ 
+ 	/* Remove early framebuffers */
+-	ret = drm_aperture_remove_framebuffers(false, "armada-drm-fb");
++	ret = drm_aperture_remove_framebuffers(false, &armada_drm_driver);
+ 	if (ret) {
+ 		dev_err(dev, "[" DRM_NAME ":%s] can't kick out simple-fb: %d\n",
+ 			__func__, ret);
+diff --git a/drivers/gpu/drm/ast/ast_drv.c b/drivers/gpu/drm/ast/ast_drv.c
+index 5aa452b4efe6..86d5cd7b6318 100644
+--- a/drivers/gpu/drm/ast/ast_drv.c
++++ b/drivers/gpu/drm/ast/ast_drv.c
+@@ -100,7 +100,7 @@ static int ast_remove_conflicting_framebuffers(struct pci_dev *pdev)
+ 	primary = pdev->resource[PCI_ROM_RESOURCE].flags & IORESOURCE_ROM_SHADOW;
+ #endif
+ 
+-	return drm_aperture_remove_conflicting_framebuffers(base, size, primary, "astdrmfb");
++	return drm_aperture_remove_conflicting_framebuffers(base, size, primary, &ast_driver);
+ }
+ 
+ static int ast_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
+index c828cadbabff..0d232b44ecd7 100644
+--- a/drivers/gpu/drm/bochs/bochs_drv.c
++++ b/drivers/gpu/drm/bochs/bochs_drv.c
+@@ -110,7 +110,7 @@ static int bochs_pci_probe(struct pci_dev *pdev,
+ 		return -ENOMEM;
+ 	}
+ 
+-	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, "bochsdrmfb");
++	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &bochs_driver);
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/drivers/gpu/drm/drm_aperture.c b/drivers/gpu/drm/drm_aperture.c
+index 9335d9d6cf9a..9ac39cf11694 100644
+--- a/drivers/gpu/drm/drm_aperture.c
++++ b/drivers/gpu/drm/drm_aperture.c
+@@ -33,6 +33,10 @@
+  *
+  * .. code-block:: c
+  *
++ *	static const struct drm_driver example_driver = {
++ *		...
++ *	};
++ *
+  *	static int remove_conflicting_framebuffers(struct pci_dev *pdev)
+  *	{
+  *		bool primary = false;
+@@ -46,7 +50,7 @@
+  *	#endif
+  *
+  *		return drm_aperture_remove_conflicting_framebuffers(base, size, primary,
+- *		                                                    "example driver");
++ *		                                                    &example_driver);
+  *	}
+  *
+  *	static int probe(struct pci_dev *pdev)
+@@ -274,7 +278,7 @@ static void drm_aperture_detach_drivers(resource_size_t base, resource_size_t si
+  * @base: the aperture's base address in physical memory
+  * @size: aperture size in bytes
+  * @primary: also kick vga16fb if present
+- * @name: requesting driver name
++ * @req_driver: requesting DRM driver
+  *
+  * This function removes graphics device drivers which use memory range described by
+  * @base and @size.
+@@ -283,7 +287,7 @@ static void drm_aperture_detach_drivers(resource_size_t base, resource_size_t si
+  * 0 on success, or a negative errno code otherwise
+  */
+ int drm_aperture_remove_conflicting_framebuffers(resource_size_t base, resource_size_t size,
+-						 bool primary, const char *name)
++						 bool primary, const struct drm_driver *req_driver)
+ {
+ #if IS_REACHABLE(CONFIG_FB)
+ 	struct apertures_struct *a;
+@@ -296,7 +300,7 @@ int drm_aperture_remove_conflicting_framebuffers(resource_size_t base, resource_
+ 	a->ranges[0].base = base;
+ 	a->ranges[0].size = size;
+ 
+-	ret = remove_conflicting_framebuffers(a, name, primary);
++	ret = remove_conflicting_framebuffers(a, req_driver->name, primary);
+ 	kfree(a);
+ 
+ 	if (ret)
+@@ -312,7 +316,7 @@ EXPORT_SYMBOL(drm_aperture_remove_conflicting_framebuffers);
+ /**
+  * drm_aperture_remove_conflicting_pci_framebuffers - remove existing framebuffers for PCI devices
+  * @pdev: PCI device
+- * @name: requesting driver name
++ * @req_driver: requesting DRM driver
+  *
+  * This function removes graphics device drivers using memory range configured
+  * for any of @pdev's memory bars. The function assumes that PCI device with
+@@ -321,7 +325,8 @@ EXPORT_SYMBOL(drm_aperture_remove_conflicting_framebuffers);
+  * Returns:
+  * 0 on success, or a negative errno code otherwise
+  */
+-int drm_aperture_remove_conflicting_pci_framebuffers(struct pci_dev *pdev, const char *name)
++int drm_aperture_remove_conflicting_pci_framebuffers(struct pci_dev *pdev,
++						     const struct drm_driver *req_driver)
+ {
+ 	resource_size_t base, size;
+ 	int bar, ret = 0;
+@@ -339,7 +344,7 @@ int drm_aperture_remove_conflicting_pci_framebuffers(struct pci_dev *pdev, const
+ 	 * otherwise the vga fbdev driver falls over.
+ 	 */
+ #if IS_REACHABLE(CONFIG_FB)
+-	ret = remove_conflicting_pci_framebuffers(pdev, name);
++	ret = remove_conflicting_pci_framebuffers(pdev, req_driver->name);
+ #endif
+ 	if (ret == 0)
+ 		ret = vga_remove_vgacon(pdev);
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
+index f4bc5386574a..6f0297b854f2 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
+@@ -314,7 +314,7 @@ static int hibmc_pci_probe(struct pci_dev *pdev,
+ 	struct drm_device *dev;
+ 	int ret;
+ 
+-	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, "hibmcdrmfb");
++	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &hibmc_driver);
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/drivers/gpu/drm/hyperv/hyperv_drm_drv.c b/drivers/gpu/drm/hyperv/hyperv_drm_drv.c
+index eb06c92c4bfd..cd818a629183 100644
+--- a/drivers/gpu/drm/hyperv/hyperv_drm_drv.c
++++ b/drivers/gpu/drm/hyperv/hyperv_drm_drv.c
+@@ -82,7 +82,7 @@ static int hyperv_setup_gen1(struct hyperv_drm_device *hv)
+ 		return -ENODEV;
+ 	}
+ 
+-	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, "hypervdrmfb");
++	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &hyperv_driver);
+ 	if (ret) {
+ 		drm_err(dev, "Not able to remove boot fb\n");
+ 		return ret;
+@@ -127,7 +127,7 @@ static int hyperv_setup_gen2(struct hyperv_drm_device *hv,
+ 	drm_aperture_remove_conflicting_framebuffers(screen_info.lfb_base,
+ 						     screen_info.lfb_size,
+ 						     false,
+-						     "hypervdrmfb");
++						     &hyperv_driver);
+ 
+ 	hv->fb_size = (unsigned long)hv->mmio_megabytes * 1024 * 1024;
+ 
+diff --git a/drivers/gpu/drm/i915/i915_drv.c b/drivers/gpu/drm/i915/i915_drv.c
+index 850b499c71c8..62327c15f457 100644
+--- a/drivers/gpu/drm/i915/i915_drv.c
++++ b/drivers/gpu/drm/i915/i915_drv.c
+@@ -562,7 +562,7 @@ static int i915_driver_hw_probe(struct drm_i915_private *dev_priv)
+ 	if (ret)
+ 		goto err_perf;
+ 
+-	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, "inteldrmfb");
++	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, dev_priv->drm.driver);
+ 	if (ret)
+ 		goto err_ggtt;
+ 
+diff --git a/drivers/gpu/drm/meson/meson_drv.c b/drivers/gpu/drm/meson/meson_drv.c
+index a7388bf7c838..3d0ccc7eef1b 100644
+--- a/drivers/gpu/drm/meson/meson_drv.c
++++ b/drivers/gpu/drm/meson/meson_drv.c
+@@ -285,7 +285,7 @@ static int meson_drv_bind_master(struct device *dev, bool has_components)
+ 	 * Remove early framebuffers (ie. simplefb). The framebuffer can be
+ 	 * located anywhere in RAM
+ 	 */
+-	ret = drm_aperture_remove_framebuffers(false, "meson-drm-fb");
++	ret = drm_aperture_remove_framebuffers(false, &meson_driver);
+ 	if (ret)
+ 		goto free_drm;
+ 
+diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.c b/drivers/gpu/drm/mgag200/mgag200_drv.c
+index a701d9563257..36d1bfb3213f 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_drv.c
++++ b/drivers/gpu/drm/mgag200/mgag200_drv.c
+@@ -342,7 +342,7 @@ mgag200_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	struct drm_device *dev;
+ 	int ret;
+ 
+-	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, "mgag200drmfb");
++	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &mgag200_driver);
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/drivers/gpu/drm/msm/msm_fbdev.c b/drivers/gpu/drm/msm/msm_fbdev.c
+index 227404077e39..67fae60f2fa5 100644
+--- a/drivers/gpu/drm/msm/msm_fbdev.c
++++ b/drivers/gpu/drm/msm/msm_fbdev.c
+@@ -169,7 +169,7 @@ struct drm_fb_helper *msm_fbdev_init(struct drm_device *dev)
+ 	}
+ 
+ 	/* the fw fb could be anywhere in memory */
+-	ret = drm_aperture_remove_framebuffers(false, "msm");
++	ret = drm_aperture_remove_framebuffers(false, dev->driver);
+ 	if (ret)
+ 		goto fini;
+ 
+diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
+index a616cf4573b8..df8a2d92f473 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_drm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+@@ -738,7 +738,7 @@ static int nouveau_drm_probe(struct pci_dev *pdev,
+ 	nvkm_device_del(&device);
+ 
+ 	/* Remove conflicting drivers (vesafb, efifb etc). */
+-	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, "nouveaufb");
++	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &driver_pci);
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index 854e6c5a563f..31f4c86ceb99 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -95,7 +95,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, "qxl");
++	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &qxl_driver);
+ 	if (ret)
+ 		goto disable_pci;
+ 
+diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
+index 8cd135fa6dcd..82ee8244c9b3 100644
+--- a/drivers/gpu/drm/radeon/radeon_drv.c
++++ b/drivers/gpu/drm/radeon/radeon_drv.c
+@@ -330,7 +330,7 @@ static int radeon_pci_probe(struct pci_dev *pdev,
+ 		return -EPROBE_DEFER;
+ 
+ 	/* Get rid of things like offb */
+-	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, "radeondrmfb");
++	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &kms_driver);
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_drv.c b/drivers/gpu/drm/rockchip/rockchip_drm_drv.c
+index b730b8d5d949..17a189bb6bbc 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_drv.c
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_drv.c
+@@ -116,7 +116,7 @@ static int rockchip_drm_bind(struct device *dev)
+ 	int ret;
+ 
+ 	/* Remove existing drivers that may own the framebuffer memory. */
+-	ret = drm_aperture_remove_framebuffers(false, "rockchip-drm-fb");
++	ret = drm_aperture_remove_framebuffers(false, &rockchip_drm_driver);
+ 	if (ret) {
+ 		DRM_DEV_ERROR(dev,
+ 			      "Failed to remove existing framebuffers - %d.\n",
+diff --git a/drivers/gpu/drm/sun4i/sun4i_drv.c b/drivers/gpu/drm/sun4i/sun4i_drv.c
+index af335f58bdfc..6bc1c8d6d43b 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_drv.c
++++ b/drivers/gpu/drm/sun4i/sun4i_drv.c
+@@ -100,7 +100,7 @@ static int sun4i_drv_bind(struct device *dev)
+ 	drm->irq_enabled = true;
+ 
+ 	/* Remove early framebuffers (ie. simplefb) */
+-	ret = drm_aperture_remove_framebuffers(false, "sun4i-drm-fb");
++	ret = drm_aperture_remove_framebuffers(false, &sun4i_drv_driver);
+ 	if (ret)
+ 		goto cleanup_mode_config;
+ 
+diff --git a/drivers/gpu/drm/tegra/drm.c b/drivers/gpu/drm/tegra/drm.c
+index f96c237b2242..2c8fc14bba1f 100644
+--- a/drivers/gpu/drm/tegra/drm.c
++++ b/drivers/gpu/drm/tegra/drm.c
+@@ -1204,7 +1204,7 @@ static int host1x_drm_probe(struct host1x_device *dev)
+ 
+ 	drm_mode_config_reset(drm);
+ 
+-	err = drm_aperture_remove_framebuffers(false, "tegradrmfb");
++	err = drm_aperture_remove_framebuffers(false, &tegra_drm_driver);
+ 	if (err < 0)
+ 		goto hub;
+ 
+diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
+index 42611dacde88..a8b476a59c0d 100644
+--- a/drivers/gpu/drm/tiny/cirrus.c
++++ b/drivers/gpu/drm/tiny/cirrus.c
+@@ -550,7 +550,7 @@ static int cirrus_pci_probe(struct pci_dev *pdev,
+ 	struct cirrus_device *cirrus;
+ 	int ret;
+ 
+-	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, "cirrusdrmfb");
++	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &cirrus_driver);
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_drv.c b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+index 6d4b32da9866..879a2445cc44 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+@@ -43,7 +43,7 @@ static int vbox_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	if (!vbox_check_supported(VBE_DISPI_ID_HGSMI))
+ 		return -ENODEV;
+ 
+-	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, "vboxvideodrmfb");
++	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &driver);
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/drivers/gpu/drm/vc4/vc4_drv.c b/drivers/gpu/drm/vc4/vc4_drv.c
+index 8a60fb8ad370..73335feb712f 100644
+--- a/drivers/gpu/drm/vc4/vc4_drv.c
++++ b/drivers/gpu/drm/vc4/vc4_drv.c
+@@ -265,7 +265,7 @@ static int vc4_drm_bind(struct device *dev)
+ 	if (ret)
+ 		goto unbind_all;
+ 
+-	ret = drm_aperture_remove_framebuffers(false, "vc4drmfb");
++	ret = drm_aperture_remove_framebuffers(false, &vc4_drm_driver);
+ 	if (ret)
+ 		goto unbind_all;
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index ca77edbc5ea0..ed85a7863256 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -57,7 +57,7 @@ static int virtio_gpu_pci_quirk(struct drm_device *dev, struct virtio_device *vd
+ 		 vga ? "virtio-vga" : "virtio-gpu-pci",
+ 		 pname);
+ 	if (vga) {
+-		ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, "virtiodrmfb");
++		ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &driver);
+ 		if (ret)
+ 			return ret;
+ 	}
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
+index 086dc75e7b42..40864ce19ae1 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
+@@ -1574,7 +1574,7 @@ static int vmw_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	struct vmw_private *vmw;
+ 	int ret;
+ 
+-	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, "svgadrmfb");
++	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &driver);
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/include/drm/drm_aperture.h b/include/drm/drm_aperture.h
+index 6c148078780c..7096703c3949 100644
+--- a/include/drm/drm_aperture.h
++++ b/include/drm/drm_aperture.h
+@@ -6,20 +6,22 @@
+ #include <linux/types.h>
+ 
+ struct drm_device;
++struct drm_driver;
+ struct pci_dev;
+ 
+ int devm_aperture_acquire_from_firmware(struct drm_device *dev, resource_size_t base,
+ 					resource_size_t size);
+ 
+ int drm_aperture_remove_conflicting_framebuffers(resource_size_t base, resource_size_t size,
+-						 bool primary, const char *name);
++						 bool primary, const struct drm_driver *req_driver);
+ 
+-int drm_aperture_remove_conflicting_pci_framebuffers(struct pci_dev *pdev, const char *name);
++int drm_aperture_remove_conflicting_pci_framebuffers(struct pci_dev *pdev,
++						     const struct drm_driver *req_driver);
+ 
+ /**
+  * drm_aperture_remove_framebuffers - remove all existing framebuffers
+  * @primary: also kick vga16fb if present
+- * @name: requesting driver name
++ * @req_driver: requesting DRM driver
+  *
+  * This function removes all graphics device drivers. Use this function on systems
+  * that can have their framebuffer located anywhere in memory.
+@@ -27,9 +29,11 @@ int drm_aperture_remove_conflicting_pci_framebuffers(struct pci_dev *pdev, const
+  * Returns:
+  * 0 on success, or a negative errno code otherwise
+  */
+-static inline int drm_aperture_remove_framebuffers(bool primary, const char *name)
++static inline int
++drm_aperture_remove_framebuffers(bool primary, const struct drm_driver *req_driver)
+ {
+-	return drm_aperture_remove_conflicting_framebuffers(0, (resource_size_t)-1, primary, name);
++	return drm_aperture_remove_conflicting_framebuffers(0, (resource_size_t)-1, primary,
++							    req_driver);
+ }
+ 
+ #endif
 -- 
-viresh
+2.32.0
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
