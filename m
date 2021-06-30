@@ -2,102 +2,101 @@ Return-Path: <SRS0=+NJr=LY=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16418C11F65
-	for <virtualization@archiver.kernel.org>; Wed, 30 Jun 2021 08:32:23 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A3CEC11F68
+	for <virtualization@archiver.kernel.org>; Wed, 30 Jun 2021 09:52:00 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 952C761CC6
-	for <virtualization@archiver.kernel.org>; Wed, 30 Jun 2021 08:32:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 952C761CC6
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=arndb.de
+	by mail.kernel.org (Postfix) with ESMTPS id EABB461D0F
+	for <virtualization@archiver.kernel.org>; Wed, 30 Jun 2021 09:51:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EABB461D0F
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 50047606A3;
-	Wed, 30 Jun 2021 08:32:22 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1DSeOSSUcFvc; Wed, 30 Jun 2021 08:32:21 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 03D8560666;
-	Wed, 30 Jun 2021 08:32:21 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AA007C001A;
-	Wed, 30 Jun 2021 08:32:20 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 23DF1C000E
- for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Jun 2021 08:32:19 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id EFEE4403AA
- for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Jun 2021 08:32:18 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id A6BE34049A;
+	Wed, 30 Jun 2021 09:51:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5ygMHgVG9Ll2
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id xkXi2tD683ic; Wed, 30 Jun 2021 09:51:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 2AA87403CD;
+	Wed, 30 Jun 2021 09:51:58 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E4B13C0010;
+	Wed, 30 Jun 2021 09:51:57 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 60FE5C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Jun 2021 08:32:17 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.74])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 4721340184
+ Wed, 30 Jun 2021 09:51:56 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 429FE83AF1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Jun 2021 08:32:16 +0000 (UTC)
-Received: from mail-wr1-f48.google.com ([209.85.221.48]) by
- mrelayeu.kundenserver.de (mreue107 [213.165.67.113]) with ESMTPSA (Nemesis)
- id 1MGA0o-1lzZyt0lAK-00GbiG for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Jun 2021 10:32:15 +0200
-Received: by mail-wr1-f48.google.com with SMTP id i94so2559168wri.4
+ Wed, 30 Jun 2021 09:51:56 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id rCVr0tOrW3dl
  for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Jun 2021 01:32:15 -0700 (PDT)
-X-Gm-Message-State: AOAM532VT+XYJMc1/+h8XiiVOzZQ3QWcmKnjzf1gtvUIgHpLyvEHQdzG
- /t4F7dqQVcM7wnGdFqQ6GjoMTeuRFTF7JgRGPy0=
-X-Google-Smtp-Source: ABdhPJy+MGLGtZBULVT9Dq0Wsw+8kotCQEn+TV7Gj+Esc9Dq1TbrZjPLHyuAOFtqReu5JqSeSkHTDFb+c6zwiG1Jzss=
-X-Received: by 2002:adf:fd8e:: with SMTP id d14mr18081260wrr.361.1625041934904; 
- Wed, 30 Jun 2021 01:32:14 -0700 (PDT)
+ Wed, 30 Jun 2021 09:51:55 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 8260D827D2
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 30 Jun 2021 09:51:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1625046714;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=QLDSo2Z7zKdGrAmZB3cGG4Cv4LLSWVrxocNgHWfsXbw=;
+ b=O48PEsgZoeO56/BWKb0WwitiV4I3AmVVKZIC99zw39RgteLkwrC0l0CnSOozHN11JibvQV
+ T7JFCDxfNB9JK/A2S0mpgphfQZkgADJNSVenRrNMacDYRFJKMy9vRLnjYZ/1DW0ZkC358/
+ ADyD+KaARMzeJo50PGfABl8s2t2pUYk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-121-Oc54HgY3P36dWKvzQqTIHA-1; Wed, 30 Jun 2021 05:51:52 -0400
+X-MC-Unique: Oc54HgY3P36dWKvzQqTIHA-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
+ [10.5.11.12])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 241B31023F44;
+ Wed, 30 Jun 2021 09:51:49 +0000 (UTC)
+Received: from localhost (ovpn-113-77.ams2.redhat.com [10.36.113.77])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 6063060C17;
+ Wed, 30 Jun 2021 09:51:40 +0000 (UTC)
+Date: Wed, 30 Jun 2021 10:51:39 +0100
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Yongji Xie <xieyongji@bytedance.com>
+Subject: Re: Re: [PATCH v8 09/10] vduse: Introduce VDUSE - vDPA Device in
+ Userspace
+Message-ID: <YNw+q/ADMPviZi6S@stefanha-x1.localdomain>
+References: <20210615141331.407-1-xieyongji@bytedance.com>
+ <20210615141331.407-10-xieyongji@bytedance.com>
+ <YNSatrDFsg+4VvH4@stefanha-x1.localdomain>
+ <CACycT3vaXQ4dxC9QUzXXJs7og6TVqqVGa8uHZnTStacsYAiFwQ@mail.gmail.com>
 MIME-Version: 1.0
-References: <226a8d5663b7bb6f5d06ede7701eedb18d1bafa1.1616493817.git.jie.deng@intel.com>
- <YNrw4rxihFLuqLtY@ninjato> <05cc9484-f97b-0533-64fe-ff917c6b87ee@intel.com>
- <YNwd/t3DMKSOrTAT@ninjato> <3016ab8b-cbff-1309-6a1f-080703a4130f@intel.com>
- <CAK8P3a0Ew+RS_1buR+1OneH8XEqVjPOr0FGCF5d6CvFQuJqg6g@mail.gmail.com>
- <YNwmO0LhcS//hvc5@smile.fi.intel.com>
-In-Reply-To: <YNwmO0LhcS//hvc5@smile.fi.intel.com>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 30 Jun 2021 10:29:40 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a09CR4xnm+JW70quHz=6=AedrtNAc_2o=ZUNZ_Y30KnJw@mail.gmail.com>
-Message-ID: <CAK8P3a09CR4xnm+JW70quHz=6=AedrtNAc_2o=ZUNZ_Y30KnJw@mail.gmail.com>
-Subject: Re: [PATCH v10] i2c: virtio: add a virtio i2c frontend driver
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-X-Provags-ID: V03:K1:JwQ3ZcywDnUifWDgjNRbz2Qvf82YeUzrrIY2zF1L4eT4FVXijPY
- zk9cDlMVPB1fwUQLxIeNTPN9fYyymZP6qhp11FH82z8d0vFRigKeKmXoCoqkPKTHwkNOp7/
- pXQsg7wTUkX8gVlagSusFlcMS0DXsDyHO42pqvy4EMKN7pUyISG2I6ejIKcZhX3hiNFdqTq
- h0G7p/nICHAkBFOjOFYUg==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:0gsdDKw2CoI=:ChyhAuSOyMT6HuMlZLxirZ
- +ZXytU1Mr4D1xSqjrfxIHAkHoJH8RER1/+xAv4fAaQ8mbvz30uzcEaPRodCrb19NqSnhNmcW0
- tlyQVLuxSaR4pV7BEy61/NMZ4fg/s0IdZv3OWTuG/6NkIgnvPJlenTVAa3W+RK3SQYpkOqjtE
- ctBkvEy78B6WBjrKUP+jrutTkVPFEp0FnVDzERTIZfDvZSVbSVVTOYXRQQUSapWv9yeuBqqne
- H1clMR/FxuXIpv7AqxgSq2tjiQ+GytQqt8ZztVTynr/c8yIbY66MS8P7JYfuhJ8ickw6LPFUd
- aEHYmOadmWOFtZA5AGwk8mnWLTd5tAsFrzz9+xhbe23o9eZCXkmmaW+2zM5ohvgiKhsDVIkN5
- 35AWTLwY+1yPH9ebyXjrDHYuPZVKy6WudseBCUC37qirsgWnFj12GhTQF8wqoQ8udZWidyjrd
- zP8v6RiRZRAyQix3zbbFUilWUXLc4zl97C89xKrWcexWC+F4vTDr+5vqsNfFbfwBbclGfnn7s
- Lqkx7SynSRudduYfK8BquJRO1QY3oF0S16wa3O52Dx5qLGVx/hiyha85+348ndegyhkpitiNl
- KN3kYKPwQOrL7zp/mCn8gxQDesTjWVNoxUdEChSDGq6etOoaULkcJTEzM/Jxg9fgRwMmPaFdw
- 4uqw=
-Cc: Sergey Semin <Sergey.Semin@baikalelectronics.ru>,
- Bjorn Andersson <bjorn.andersson@linaro.org>, loic.poulain@linaro.org,
- "Michael S. Tsirkin" <mst@redhat.com>, Viresh Kumar <viresh.kumar@linaro.org>,
- shuo.a.liu@intel.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- virtualization@lists.linux-foundation.org, Wolfram Sang <wsa@kernel.org>,
- Paolo Bonzini <pbonzini@redhat.com>, jarkko.nikula@linux.intel.com,
- Linux I2C <linux-i2c@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>,
- =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
- kblaiech@mellanox.com, Tali Perry <tali.perry1@gmail.com>,
- conghui.chen@intel.com, Mike Rapoport <rppt@kernel.org>, yu1.wang@intel.com
+In-Reply-To: <CACycT3vaXQ4dxC9QUzXXJs7og6TVqqVGa8uHZnTStacsYAiFwQ@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Cc: kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Christian Brauner <christian.brauner@canonical.com>,
+ Jonathan Corbet <corbet@lwn.net>, joro@8bytes.org,
+ Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>,
+ Dan Carpenter <dan.carpenter@oracle.com>, Al Viro <viro@zeniv.linux.org.uk>,
+ songmuchun@bytedance.com, Jens Axboe <axboe@kernel.dk>,
+ Greg KH <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>, iommu@lists.linux-foundation.org,
+ bcrl@kvack.org, netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@nextfour.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -109,38 +108,102 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============2088035131554035454=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jun 30, 2021 at 10:09 AM Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
->
-> On Wed, Jun 30, 2021 at 09:55:49AM +0200, Arnd Bergmann wrote:
-> > On Wed, Jun 30, 2021 at 9:51 AM Jie Deng <jie.deng@intel.com> wrote:
->
-> ...
->
-> > On a related note, we are apparently still missing the bit in the virtio bus
-> > layer that fills in the dev->of_node pointer of the virtio device. Without
-> > this, it is not actually possible to automatically probe i2c devices connected
-> > to a virtio-i2c bus. The same problem came up again with the virtio-gpio
-> > driver that suffers from the same issue.
->
-> Don't we need to take care about fwnode handle as well?
 
-I'm fairly sure this gets set up automatically on DT based systems, based
-on the dev->of_node of the virtio device, with no changes to the i2c
-core core.
+--===============2088035131554035454==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="3lbE45OiRHDOxQny"
+Content-Disposition: inline
 
-If you want to automatically probe i2c devices on a virtio-i2c controller
-with ACPI, I have no idea if that would require changes to both
-i2c-core-acpi.c as well as the virtio core, or just one of them.
-So far, my assumption was that this would not be needed with ACPI.
 
-        Arnd
+--3lbE45OiRHDOxQny
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Jun 29, 2021 at 10:59:51AM +0800, Yongji Xie wrote:
+> On Mon, Jun 28, 2021 at 9:02 PM Stefan Hajnoczi <stefanha@redhat.com> wro=
+te:
+> >
+> > On Tue, Jun 15, 2021 at 10:13:30PM +0800, Xie Yongji wrote:
+> > > +/* ioctls */
+> > > +
+> > > +struct vduse_dev_config {
+> > > +     char name[VDUSE_NAME_MAX]; /* vduse device name */
+> > > +     __u32 vendor_id; /* virtio vendor id */
+> > > +     __u32 device_id; /* virtio device id */
+> > > +     __u64 features; /* device features */
+> > > +     __u64 bounce_size; /* bounce buffer size for iommu */
+> > > +     __u16 vq_size_max; /* the max size of virtqueue */
+> >
+> > The VIRTIO specification allows per-virtqueue sizes. A device can have
+> > two virtqueues, where the first one allows up to 1024 descriptors and
+> > the second one allows only 128 descriptors, for example.
+> >
+>=20
+> Good point! But it looks like virtio-vdpa/virtio-pci doesn't support
+> that now. All virtqueues have the same maximum size.
+
+I see struct vpda_config_ops only supports a per-device max vq size:
+u16 (*get_vq_num_max)(struct vdpa_device *vdev);
+
+virtio-pci supports per-virtqueue sizes because the struct
+virtio_pci_common_cfg->queue_size register is per-queue (controlled by
+queue_select).
+
+I guess this is a question for Jason: will vdpa will keep this limitation?
+If yes, then VDUSE can stick to it too without running into problems in
+the future.
+
+> > > +     __u16 padding; /* padding */
+> > > +     __u32 vq_num; /* the number of virtqueues */
+> > > +     __u32 vq_align; /* the allocation alignment of virtqueue's meta=
+data */
+> >
+> > I'm not sure what this is?
+> >
+>=20
+>  This will be used by vring_create_virtqueue() too.
+
+If there is no official definition for the meaning of this value then
+"/* same as vring_create_virtqueue()'s vring_align parameter */" would
+be clearer. That way the reader knows what to research in order to
+understand how this field works.
+
+I don't remember but maybe it was used to support vrings when the
+host/guest have non-4KB page sizes. I wonder if anyone has an official
+definition for this value?
+
+--3lbE45OiRHDOxQny
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmDcPqsACgkQnKSrs4Gr
+c8gDoggAyGvIGHHs1axRrEGCyXosmMHq1Gwk1Dsg+k0v8U5j732fua4fJO5b2bGG
+pzNxnV9FTNjogQfNxCplXlHf7caNNcC3DP+ICiJHaltNBj4xyNF+DB4DiUUgzX+b
+5OnyW39vt7baCjK8ArMUXRW7FAWMPyws++y74Gagc5jIG7ZBaXUQDXr00eIgOYo7
+ltAOLwHViZ7uNrXo7ohWRZpsBQkm2P8Hk7JNlxoQTjTKAp3kQ9eRdVR9/TrU0srE
+vZ6KxlGFgDlyd1lzWOh19y/MS2uhN2guJXrhqsF/2lOMh6v8qcHGKgdFCYJNctFq
+M0jd7vfZKILkd4ychd1eColy0HVSNw==
+=3k6c
+-----END PGP SIGNATURE-----
+
+--3lbE45OiRHDOxQny--
+
+
+--===============2088035131554035454==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2088035131554035454==--
+
