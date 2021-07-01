@@ -2,78 +2,74 @@ Return-Path: <SRS0=M3O5=LZ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_RED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,URIBL_RED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAE9EC11F69
-	for <virtualization@archiver.kernel.org>; Thu,  1 Jul 2021 10:45:23 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B162DC11F64
+	for <virtualization@archiver.kernel.org>; Thu,  1 Jul 2021 11:54:12 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5364661476
-	for <virtualization@archiver.kernel.org>; Thu,  1 Jul 2021 10:45:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5364661476
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 56D4461418
+	for <virtualization@archiver.kernel.org>; Thu,  1 Jul 2021 11:54:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 56D4461418
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=axis.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0B23C400CD;
-	Thu,  1 Jul 2021 10:45:21 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 174B883C5C;
+	Thu,  1 Jul 2021 11:54:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3Y0H1tK1wk3I; Thu,  1 Jul 2021 10:45:20 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id B3C2E401B5;
-	Thu,  1 Jul 2021 10:45:19 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id v-kxzI3s-Ic9; Thu,  1 Jul 2021 11:54:11 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BFE6E83B95;
+	Thu,  1 Jul 2021 11:54:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 848F9C0010;
-	Thu,  1 Jul 2021 10:45:19 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 243D8C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8DE9DC001A;
+	Thu,  1 Jul 2021 11:54:10 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E56D0C000E
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jul 2021 10:45:18 +0000 (UTC)
+ Thu,  1 Jul 2021 11:54:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 045A640625
+ by smtp1.osuosl.org (Postfix) with ESMTP id BF34083B84
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jul 2021 10:45:18 +0000 (UTC)
+ Thu,  1 Jul 2021 11:54:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id RSIwcJQM3hR1
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1NU80DPL8_s1
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jul 2021 10:45:16 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
- by smtp4.osuosl.org (Postfix) with ESMTPS id AB0A840611
+ Thu,  1 Jul 2021 11:54:08 +0000 (UTC)
+X-Greylist: delayed 00:07:10 by SQLgrey-1.8.0
+Received: from smtp1.axis.com (smtp1.axis.com [195.60.68.17])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 708FA83B60
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jul 2021 10:45:16 +0000 (UTC)
-X-IronPort-AV: E=McAfee;i="6200,9189,10031"; a="205506693"
-X-IronPort-AV: E=Sophos;i="5.83,313,1616482800"; d="scan'208";a="205506693"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
- by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 01 Jul 2021 03:45:15 -0700
-X-IronPort-AV: E=Sophos;i="5.83,313,1616482800"; d="scan'208";a="408887812"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
- by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 01 Jul 2021 03:45:12 -0700
-Received: from andy by smile with local (Exim 4.94.2)
- (envelope-from <andriy.shevchenko@linux.intel.com>)
- id 1lyuBv-006z0C-DF; Thu, 01 Jul 2021 13:45:07 +0300
-Date: Thu, 1 Jul 2021 13:45:07 +0300
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Jie Deng <jie.deng@intel.com>
-Subject: Re: [PATCH v11] i2c: virtio: add a virtio i2c frontend driver
-Message-ID: <YN2cs0H+5C892kM4@smile.fi.intel.com>
-References: <510c876952efa693339ab0d6cc78ba7be9ef6897.1625104206.git.jie.deng@intel.com>
+ Thu,  1 Jul 2021 11:54:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=axis.com; q=dns/txt; s=axis-central1; t=1625140447;
+ x=1656676447;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=hBC7lTy6FHyGqO0SQzntsJ4n9KAu05Qu1gGf+/akR6U=;
+ b=jn9rzHd3xPNIkSoHCjBB8SWuqOHRVJb1mfz13ZWTBp0pExCAT5FUUSOp
+ grsGJNsWLWpHQ7CG6cbc6HdBdw73fUNPP54pxdLjIvYN+Dk65SuM7H3+N
+ G408e4TM5sEod/ulNk93yV/6eQUVG/2jDi0QjzzXhZ58YTdipo/gAd4qL
+ WWvPY1JK/qUy+dLjkp19EYBNWnZvo1nEfQze64D2CqZvf3L405fj4z5Cr
+ Unka16LgI/qN+/U5FJ+j5T1WaA3lGI47gO6CgNHQUl0FtjwV+2CaElOD2
+ xFHgKwAwLE79FJvhJa4zCrzx45x1+X5bwQVmhgWNybOgQDMqMRW8pllRe w==;
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Subject: [PATCH] virtio_vdpa: reject invalid vq indices
+Date: Thu, 1 Jul 2021 13:46:52 +0200
+Message-ID: <20210701114652.21956-1-vincent.whitchurch@axis.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <510c876952efa693339ab0d6cc78ba7be9ef6897.1625104206.git.jie.deng@intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-Cc: yu1.wang@intel.com, arnd@arndb.de, mst@redhat.com, viresh.kumar@linaro.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- wsa@kernel.org, wsa+renesas@sang-engineering.com, linux-i2c@vger.kernel.org,
- stefanha@redhat.com, shuo.a.liu@intel.com, conghui.chen@intel.com
+Cc: Vincent Whitchurch <vincent.whitchurch@axis.com>, kernel@axis.com,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -90,27 +86,31 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Jul 01, 2021 at 11:24:46AM +0800, Jie Deng wrote:
-> Add an I2C bus driver for virtio para-virtualization.
-> 
-> The controller can be emulated by the backend driver in
-> any device model software by following the virtio protocol.
-> 
-> The device specification can be found on
-> https://lists.oasis-open.org/archives/virtio-comment/202101/msg00008.html.
-> 
-> By following the specification, people may implement different
-> backend drivers to emulate different controllers according to
-> their needs.
+Do not call vDPA drivers' callbacks with vq indicies larger than what
+the drivers indicate that they support.  vDPA drivers do not bounds
+check the indices.
 
-> 	- Use #ifdef CONFIG_PM_SLEEP to replace the "__maybe_unused".
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+---
+ drivers/virtio/virtio_vdpa.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Why is that?
-
+diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+index e28acf482e0c..e9b9dd03f44a 100644
+--- a/drivers/virtio/virtio_vdpa.c
++++ b/drivers/virtio/virtio_vdpa.c
+@@ -149,6 +149,9 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+ 	if (!name)
+ 		return NULL;
+ 
++	if (index >= vdpa->nvqs)
++		return ERR_PTR(-ENOENT);
++
+ 	/* Queue shouldn't already be set up. */
+ 	if (ops->get_vq_ready(vdpa, index))
+ 		return ERR_PTR(-ENOENT);
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.28.0
 
 _______________________________________________
 Virtualization mailing list
