@@ -2,98 +2,75 @@ Return-Path: <SRS0=M3O5=LZ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_AGENT_SANE_1 autolearn=unavailable
+X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 926B0C11F64
-	for <virtualization@archiver.kernel.org>; Thu,  1 Jul 2021 04:04:44 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7E96C11F64
+	for <virtualization@archiver.kernel.org>; Thu,  1 Jul 2021 06:11:04 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2AD9A61554
-	for <virtualization@archiver.kernel.org>; Thu,  1 Jul 2021 04:04:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2AD9A61554
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 6DAE761483
+	for <virtualization@archiver.kernel.org>; Thu,  1 Jul 2021 06:11:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6DAE761483
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id DB24E41612;
-	Thu,  1 Jul 2021 04:04:43 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 3318483AF0;
+	Thu,  1 Jul 2021 06:11:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LVtzN724OE3o; Thu,  1 Jul 2021 04:04:42 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 16E5A4160E;
-	Thu,  1 Jul 2021 04:04:42 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TLkdi0sWTPbU; Thu,  1 Jul 2021 06:11:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 47B6683AE4;
+	Thu,  1 Jul 2021 06:11:02 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D7B56C0010;
-	Thu,  1 Jul 2021 04:04:41 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B1162C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 24A51C0010;
+	Thu,  1 Jul 2021 06:11:02 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 55CFBC000E
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jul 2021 04:04:40 +0000 (UTC)
+ Thu,  1 Jul 2021 06:11:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 96C994160E
+ by smtp2.osuosl.org (Postfix) with ESMTP id 2F139400A7
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jul 2021 04:04:40 +0000 (UTC)
+ Thu,  1 Jul 2021 06:11:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id EZDE4fDBacBV
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id B_jK32HeDEj8
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jul 2021 04:04:39 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com
- [IPv6:2607:f8b0:4864:20::62c])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 1E67E41612
+ Thu,  1 Jul 2021 06:10:55 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 84D6640012
  for <virtualization@lists.linux-foundation.org>;
- Thu,  1 Jul 2021 04:04:38 +0000 (UTC)
-Received: by mail-pl1-x62c.google.com with SMTP id d1so2898560plg.6
- for <virtualization@lists.linux-foundation.org>;
- Wed, 30 Jun 2021 21:04:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=tlLiC0/suIzFL9Kc0HiGXCJ9guNpwuTifmDbO7ccBmk=;
- b=GjsPDXLqMMYdUtQ04S9QypWLzNfxSIdZN+wtJfxqs98oJc5FP3ISRbX2vsRPb4PlIW
- vEvCOlQb4NcDvwQh5ovIc6R2cKiIg/jsRX7gUTseHHRA8lYhQejsePqoDy5Z3Rh8pXKc
- z4Yt71s9d61EOaJklZX8BRcv2MrKq67YrL/S19LYhy4+A9066tuu43r7Efu/+SjFbuBy
- 3TYYVI/ZhG/3Sguxn9jXBA6u9DqiuKUwNnHi7164E4LbbRuHY8X8qHTZMPCIBcLjAdDs
- FIXOytssI5Ir/j4ocrqCrh8rXPlWkphvsLk6m2qOpsh/vq3gA0a1sW2PmFdFyjEF63Am
- VofQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=tlLiC0/suIzFL9Kc0HiGXCJ9guNpwuTifmDbO7ccBmk=;
- b=WZlf/eFAv+HaS3YDGmWIwcwsA/tdHH8Ge54ROY7ShLekIpZZynjyfBF8npTATiQT17
- UPPOCWy6vY/Vi3NW88cnwyYZLvhxRzU4d+cPdAEiZjxJ8VzidZkZIJVRTdWgzCUX67mz
- PZOOCGrIbnp0mBHogPXAJfJr+JkE7vIdOeDo/7LnxzLBVF0Yr+hcVaROhDWOsb3u4s4w
- 1llMtxg+K3Fn/6sbSHB3EQvfqf1rLVNcWDXJIykh5+txtv1uqb8CZBriOI6S8QwhLzXC
- DOFHR9so04uUEkThQ5QwYahAFiUqrY0YyDcyFG6cbZfD/e4nD0lFV4ZLwlpgauVfiQQH
- KcJA==
-X-Gm-Message-State: AOAM531zByxA8lzh1+HMGd2gWYR3im0+sEmXoywaEqpcT3aXE9yvKZGS
- iBTaGvutz9XriGS6lcuxPdsfIA==
-X-Google-Smtp-Source: ABdhPJxC8zqchwOE8jWRaqXwN4H0BnWwhHXMQTOWPNq3iG1fMlPMEl10tro8es2vXM0pEV3FpN+w/A==
-X-Received: by 2002:a17:90b:2504:: with SMTP id
- ns4mr8022103pjb.140.1625112278476; 
- Wed, 30 Jun 2021 21:04:38 -0700 (PDT)
-Received: from localhost ([106.201.108.2])
- by smtp.gmail.com with ESMTPSA id q7sm17404549pfk.192.2021.06.30.21.04.37
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 30 Jun 2021 21:04:38 -0700 (PDT)
-Date: Thu, 1 Jul 2021 09:34:36 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Jie Deng <jie.deng@intel.com>
+ Thu,  1 Jul 2021 06:10:55 +0000 (UTC)
+X-IronPort-AV: E=McAfee;i="6200,9189,10031"; a="206655749"
+X-IronPort-AV: E=Sophos;i="5.83,313,1616482800"; d="scan'208";a="206655749"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+ by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 30 Jun 2021 23:10:52 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.83,313,1616482800"; d="scan'208";a="420285841"
+Received: from dengjie-mobl1.ccr.corp.intel.com (HELO [10.239.154.58])
+ ([10.239.154.58])
+ by fmsmga007.fm.intel.com with ESMTP; 30 Jun 2021 23:10:48 -0700
 Subject: Re: [PATCH v11] i2c: virtio: add a virtio i2c frontend driver
-Message-ID: <20210701040436.p7kega6rzeqz5tlm@vireshk-i7>
+To: Viresh Kumar <viresh.kumar@linaro.org>
 References: <510c876952efa693339ab0d6cc78ba7be9ef6897.1625104206.git.jie.deng@intel.com>
+ <20210701040436.p7kega6rzeqz5tlm@vireshk-i7>
+From: Jie Deng <jie.deng@intel.com>
+Message-ID: <cb35472d-f79e-f3f8-405f-35c699d897a1@intel.com>
+Date: Thu, 1 Jul 2021 14:10:48 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.10.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <510c876952efa693339ab0d6cc78ba7be9ef6897.1625104206.git.jie.deng@intel.com>
-User-Agent: NeoMutt/20180716-391-311a52
+In-Reply-To: <20210701040436.p7kega6rzeqz5tlm@vireshk-i7>
+Content-Language: en-US
 Cc: yu1.wang@intel.com, arnd@arndb.de, mst@redhat.com,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
  wsa@kernel.org, wsa+renesas@sang-engineering.com, linux-i2c@vger.kernel.org,
@@ -110,127 +87,70 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 01-07-21, 11:24, Jie Deng wrote:
-> Changes v10 -> v11
-> 	- Remove vi->adap.class = I2C_CLASS_DEPRECATED.
-> 	- Use #ifdef CONFIG_PM_SLEEP to replace the "__maybe_unused".
-> 	- Remove "struct mutex lock" in "struct virtio_i2c".
-> 	- Support zero-length request.
-> 	- Remove unnecessary logs.
-> 	- Remove vi->adap.timeout = HZ / 10, just use the default value.
-> 	- Use BIT(0) to define VIRTIO_I2C_FLAGS_FAIL_NEXT.
-> 	- Add the virtio_device index to adapter's naming mechanism.
-
-Thanks Jie.
-
-I hope you are going to send a fix for specification as well (for the
-zero-length request) ?
-
-> diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-> +static int virtio_i2c_send_reqs(struct virtqueue *vq,
-> +				struct virtio_i2c_req *reqs,
-> +				struct i2c_msg *msgs, int nr)
-> +{
-> +	struct scatterlist *sgs[3], out_hdr, msg_buf, in_hdr;
-> +	int i, outcnt, incnt, err = 0;
-> +
-> +	for (i = 0; i < nr; i++) {
-> +		/*
-> +		 * Only 7-bit mode supported for this moment. For the address format,
-> +		 * Please check the Virtio I2C Specification.
-> +		 */
-> +		reqs[i].out_hdr.addr = cpu_to_le16(msgs[i].addr << 1);
-> +
-> +		if (i != nr - 1)
-> +			reqs[i].out_hdr.flags = cpu_to_le32(VIRTIO_I2C_FLAGS_FAIL_NEXT);
-> +
-> +		outcnt = incnt = 0;
-> +		sg_init_one(&out_hdr, &reqs[i].out_hdr, sizeof(reqs[i].out_hdr));
-> +		sgs[outcnt++] = &out_hdr;
-> +
-> +		reqs[i].buf = i2c_get_dma_safe_msg_buf(&msgs[i], 1);
-> +		if (!reqs[i].buf)
-> +			break;
-> +
-> +		sg_init_one(&msg_buf, reqs[i].buf, msgs[i].len);
-
-The len can be zero here for zero-length transfers.
-
-> +
-> +		if (msgs[i].flags & I2C_M_RD)
-> +			sgs[outcnt + incnt++] = &msg_buf;
-> +		else
-> +			sgs[outcnt++] = &msg_buf;
-> +
-> +		sg_init_one(&in_hdr, &reqs[i].in_hdr, sizeof(reqs[i].in_hdr));
-> +		sgs[outcnt + incnt++] = &in_hdr;
-
-Why are we still sending the msg_buf if the length is 0? Sending the
-buffer makes sense if you have some data to send, but otherwise it is
-just an extra sg element, which isn't required to be sent.
-
-> +
-> +		err = virtqueue_add_sgs(vq, sgs, outcnt, incnt, &reqs[i], GFP_KERNEL);
-> +		if (err < 0) {
-> +			i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], false);
-> +			break;
-> +		}
-> +	}
-> +
-> +	return i;
-
-I just noticed this now, but this function even tries to send data
-partially, which isn't right. If the caller (i2c device's driver)
-calls this for 5 struct i2c_msg instances, then all 5 need to get
-through or none.. where as we try to send as many as possible here.
-
-This looks broken to me. Rather return an error value here on success,
-or make it complete failure.
-
-Though to be fair I see i2c-core also returns number of messages
-processed from i2c_transfer().
-
-Wolfram, what's expected here ? Shouldn't all message transfer or
-none?
-
-> +#ifdef CONFIG_PM_SLEEP
-> +static int virtio_i2c_freeze(struct virtio_device *vdev)
-> +{
-> +	virtio_i2c_del_vqs(vdev);
-> +	return 0;
-> +}
-> +
-> +static int virtio_i2c_restore(struct virtio_device *vdev)
-> +{
-> +	return virtio_i2c_setup_vqs(vdev->priv);
-> +}
-> +#endif
-> +
-> +static struct virtio_driver virtio_i2c_driver = {
-> +	.id_table	= id_table,
-> +	.probe		= virtio_i2c_probe,
-> +	.remove		= virtio_i2c_remove,
-> +	.driver	= {
-> +		.name	= "i2c_virtio",
-> +	},
-> +#ifdef CONFIG_PM_SLEEP
-
-You could avoid this pair of ifdef by creating dummy versions of below
-routines for !CONFIG_PM_SLEEP case. Up to you.
-
-> +	.freeze = virtio_i2c_freeze,
-> +	.restore = virtio_i2c_restore,
-> +#endif
-> +};
-
--- 
-viresh
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+Ck9uIDIwMjEvNy8xIDEyOjA0LCBWaXJlc2ggS3VtYXIgd3JvdGU6Cj4gT24gMDEtMDctMjEsIDEx
+OjI0LCBKaWUgRGVuZyB3cm90ZToKPj4gQ2hhbmdlcyB2MTAgLT4gdjExCj4+IAktIFJlbW92ZSB2
+aS0+YWRhcC5jbGFzcyA9IEkyQ19DTEFTU19ERVBSRUNBVEVELgo+PiAJLSBVc2UgI2lmZGVmIENP
+TkZJR19QTV9TTEVFUCB0byByZXBsYWNlIHRoZSAiX19tYXliZV91bnVzZWQiLgo+PiAJLSBSZW1v
+dmUgInN0cnVjdCBtdXRleCBsb2NrIiBpbiAic3RydWN0IHZpcnRpb19pMmMiLgo+PiAJLSBTdXBw
+b3J0IHplcm8tbGVuZ3RoIHJlcXVlc3QuCj4+IAktIFJlbW92ZSB1bm5lY2Vzc2FyeSBsb2dzLgo+
+PiAJLSBSZW1vdmUgdmktPmFkYXAudGltZW91dCA9IEhaIC8gMTAsIGp1c3QgdXNlIHRoZSBkZWZh
+dWx0IHZhbHVlLgo+PiAJLSBVc2UgQklUKDApIHRvIGRlZmluZSBWSVJUSU9fSTJDX0ZMQUdTX0ZB
+SUxfTkVYVC4KPj4gCS0gQWRkIHRoZSB2aXJ0aW9fZGV2aWNlIGluZGV4IHRvIGFkYXB0ZXIncyBu
+YW1pbmcgbWVjaGFuaXNtLgo+IFRoYW5rcyBKaWUuCj4KPiBJIGhvcGUgeW91IGFyZSBnb2luZyB0
+byBzZW5kIGEgZml4IGZvciBzcGVjaWZpY2F0aW9uIGFzIHdlbGwgKGZvciB0aGUKPiB6ZXJvLWxl
+bmd0aCByZXF1ZXN0KSA/CgoKWWVzLiBJIHdpbGwgc2VuZCB0aGF0IGZpeCBvbmNlIHRoaXMgcGF0
+Y2ggZ2V0IG1lcmdlZC4KCgo+Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJj
+LXZpcnRpby5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy12aXJ0aW8uYwo+PiArc3RhdGljIGlu
+dCB2aXJ0aW9faTJjX3NlbmRfcmVxcyhzdHJ1Y3QgdmlydHF1ZXVlICp2cSwKPj4gKwkJCQlzdHJ1
+Y3QgdmlydGlvX2kyY19yZXEgKnJlcXMsCj4+ICsJCQkJc3RydWN0IGkyY19tc2cgKm1zZ3MsIGlu
+dCBucikKPj4gK3sKPj4gKwlzdHJ1Y3Qgc2NhdHRlcmxpc3QgKnNnc1szXSwgb3V0X2hkciwgbXNn
+X2J1ZiwgaW5faGRyOwo+PiArCWludCBpLCBvdXRjbnQsIGluY250LCBlcnIgPSAwOwo+PiArCj4+
+ICsJZm9yIChpID0gMDsgaSA8IG5yOyBpKyspIHsKPj4gKwkJLyoKPj4gKwkJICogT25seSA3LWJp
+dCBtb2RlIHN1cHBvcnRlZCBmb3IgdGhpcyBtb21lbnQuIEZvciB0aGUgYWRkcmVzcyBmb3JtYXQs
+Cj4+ICsJCSAqIFBsZWFzZSBjaGVjayB0aGUgVmlydGlvIEkyQyBTcGVjaWZpY2F0aW9uLgo+PiAr
+CQkgKi8KPj4gKwkJcmVxc1tpXS5vdXRfaGRyLmFkZHIgPSBjcHVfdG9fbGUxNihtc2dzW2ldLmFk
+ZHIgPDwgMSk7Cj4+ICsKPj4gKwkJaWYgKGkgIT0gbnIgLSAxKQo+PiArCQkJcmVxc1tpXS5vdXRf
+aGRyLmZsYWdzID0gY3B1X3RvX2xlMzIoVklSVElPX0kyQ19GTEFHU19GQUlMX05FWFQpOwo+PiAr
+Cj4+ICsJCW91dGNudCA9IGluY250ID0gMDsKPj4gKwkJc2dfaW5pdF9vbmUoJm91dF9oZHIsICZy
+ZXFzW2ldLm91dF9oZHIsIHNpemVvZihyZXFzW2ldLm91dF9oZHIpKTsKPj4gKwkJc2dzW291dGNu
+dCsrXSA9ICZvdXRfaGRyOwo+PiArCj4+ICsJCXJlcXNbaV0uYnVmID0gaTJjX2dldF9kbWFfc2Fm
+ZV9tc2dfYnVmKCZtc2dzW2ldLCAxKTsKPj4gKwkJaWYgKCFyZXFzW2ldLmJ1ZikKPj4gKwkJCWJy
+ZWFrOwo+PiArCj4+ICsJCXNnX2luaXRfb25lKCZtc2dfYnVmLCByZXFzW2ldLmJ1ZiwgbXNnc1tp
+XS5sZW4pOwo+IFRoZSBsZW4gY2FuIGJlIHplcm8gaGVyZSBmb3IgemVyby1sZW5ndGggdHJhbnNm
+ZXJzLgo+Cj4+ICsKPj4gKwkJaWYgKG1zZ3NbaV0uZmxhZ3MgJiBJMkNfTV9SRCkKPj4gKwkJCXNn
+c1tvdXRjbnQgKyBpbmNudCsrXSA9ICZtc2dfYnVmOwo+PiArCQllbHNlCj4+ICsJCQlzZ3Nbb3V0
+Y250KytdID0gJm1zZ19idWY7Cj4+ICsKPj4gKwkJc2dfaW5pdF9vbmUoJmluX2hkciwgJnJlcXNb
+aV0uaW5faGRyLCBzaXplb2YocmVxc1tpXS5pbl9oZHIpKTsKPj4gKwkJc2dzW291dGNudCArIGlu
+Y250KytdID0gJmluX2hkcjsKPiBXaHkgYXJlIHdlIHN0aWxsIHNlbmRpbmcgdGhlIG1zZ19idWYg
+aWYgdGhlIGxlbmd0aCBpcyAwPyBTZW5kaW5nIHRoZQo+IGJ1ZmZlciBtYWtlcyBzZW5zZSBpZiB5
+b3UgaGF2ZSBzb21lIGRhdGEgdG8gc2VuZCwgYnV0IG90aGVyd2lzZSBpdCBpcwo+IGp1c3QgYW4g
+ZXh0cmEgc2cgZWxlbWVudCwgd2hpY2ggaXNuJ3QgcmVxdWlyZWQgdG8gYmUgc2VudC4KCgpJIHRo
+aW5rIGEgZml4ZWQgbnVtYmVyIG9mIHNncyB3aWxsIG1ha2UgdGhpbmdzIGVhc2llciB0byBkZXZl
+bG9wIGJhY2tlbmQuCgpJZiB5b3UgcHJlZmVyIHRvIHBhcnNlIHRoZSBudW1iZXIgb2YgZGVzY3Jp
+cHRvcnMgaW5zdGVhZCBvZiB1c2luZyB0aGUgCm1zZyBsZW5ndGggdG8KCmRpc3Rpbmd1aXNoIHRo
+ZSB6ZXJvLWxlbmd0aCByZXF1ZXN0IGZyb20gb3RoZXIgcmVxdWVzdHMsIEknbSBPSyB0byBzZXQg
+YSAKbGltaXQuCgppZiAoIW1zZ3NbaV0ubGVuKSB7CiDCoMKgwqAgc2dfaW5pdF9vbmUoJm1zZ19i
+dWYsIHJlcXNbaV0uYnVmLCBtc2dzW2ldLmxlbik7CgogwqDCoMKgIGlmIChtc2dzW2ldLmZsYWdz
+ICYgSTJDX01fUkQpCiDCoMKgwqAgwqDCoMKgIHNnc1tvdXRjbnQgKyBpbmNudCsrXSA9ICZtc2df
+YnVmOwogwqDCoMKgIGVsc2UKIMKgwqDCoCDCoMKgwqAgc2dzW291dGNudCsrXSA9ICZtc2dfYnVm
+Owp9CgoKCj4KPj4gKyNpZmRlZiBDT05GSUdfUE1fU0xFRVAKPj4gK3N0YXRpYyBpbnQgdmlydGlv
+X2kyY19mcmVlemUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4+ICt7Cj4+ICsJdmlydGlv
+X2kyY19kZWxfdnFzKHZkZXYpOwo+PiArCXJldHVybiAwOwo+PiArfQo+PiArCj4+ICtzdGF0aWMg
+aW50IHZpcnRpb19pMmNfcmVzdG9yZShzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKPj4gK3sK
+Pj4gKwlyZXR1cm4gdmlydGlvX2kyY19zZXR1cF92cXModmRldi0+cHJpdik7Cj4+ICt9Cj4+ICsj
+ZW5kaWYKPj4gKwo+PiArc3RhdGljIHN0cnVjdCB2aXJ0aW9fZHJpdmVyIHZpcnRpb19pMmNfZHJp
+dmVyID0gewo+PiArCS5pZF90YWJsZQk9IGlkX3RhYmxlLAo+PiArCS5wcm9iZQkJPSB2aXJ0aW9f
+aTJjX3Byb2JlLAo+PiArCS5yZW1vdmUJCT0gdmlydGlvX2kyY19yZW1vdmUsCj4+ICsJLmRyaXZl
+cgk9IHsKPj4gKwkJLm5hbWUJPSAiaTJjX3ZpcnRpbyIsCj4+ICsJfSwKPj4gKyNpZmRlZiBDT05G
+SUdfUE1fU0xFRVAKPiBZb3UgY291bGQgYXZvaWQgdGhpcyBwYWlyIG9mIGlmZGVmIGJ5IGNyZWF0
+aW5nIGR1bW15IHZlcnNpb25zIG9mIGJlbG93Cj4gcm91dGluZXMgZm9yICFDT05GSUdfUE1fU0xF
+RVAgY2FzZS4gVXAgdG8geW91LgoKClRoYW5rIHlvdS4gSSdkIGxpa2UgdG8ga2VlcCB0aGUgc2Ft
+ZS4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
+YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
+aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
+by92aXJ0dWFsaXphdGlvbg==
