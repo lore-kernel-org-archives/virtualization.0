@@ -2,72 +2,78 @@ Return-Path: <SRS0=Lmm9=L2=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32887C11F68
-	for <virtualization@archiver.kernel.org>; Fri,  2 Jul 2021 08:47:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39831C11F68
+	for <virtualization@archiver.kernel.org>; Fri,  2 Jul 2021 09:58:37 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B53E26141E
-	for <virtualization@archiver.kernel.org>; Fri,  2 Jul 2021 08:47:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B53E26141E
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 85A0E6140E
+	for <virtualization@archiver.kernel.org>; Fri,  2 Jul 2021 09:58:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 85A0E6140E
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8132A82AF5;
-	Fri,  2 Jul 2021 08:47:51 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4BE6F83C34;
+	Fri,  2 Jul 2021 09:58:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lqwlJLgvfFX6; Fri,  2 Jul 2021 08:47:50 +0000 (UTC)
+	with ESMTP id DR39FfVuxDfZ; Fri,  2 Jul 2021 09:58:34 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id AFDFE8294A;
-	Fri,  2 Jul 2021 08:47:49 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BEDCC83C1C;
+	Fri,  2 Jul 2021 09:58:33 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6BD13C001A;
-	Fri,  2 Jul 2021 08:47:49 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5C308C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A18F4C0010;
+	Fri,  2 Jul 2021 09:58:33 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F1511C000E
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jul 2021 08:47:48 +0000 (UTC)
+ Fri,  2 Jul 2021 09:58:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 3023F60A76
+ by smtp2.osuosl.org (Postfix) with ESMTP id D75CB401C6
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jul 2021 08:47:48 +0000 (UTC)
+ Fri,  2 Jul 2021 09:58:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XK-R4hKGXaWi
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id KGYAeXcd8lxM
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jul 2021 08:47:46 +0000 (UTC)
+ Fri,  2 Jul 2021 09:58:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 3F8BF605E0
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 9C3B24018B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jul 2021 08:47:46 +0000 (UTC)
-X-IronPort-AV: E=McAfee;i="6200,9189,10032"; a="206875535"
-X-IronPort-AV: E=Sophos;i="5.83,316,1616482800"; d="scan'208";a="206875535"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
- by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 02 Jul 2021 01:47:45 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.83,316,1616482800"; d="scan'208";a="493880551"
-Received: from jiedeng-optiplex-7050.sh.intel.com ([10.239.154.104])
- by fmsmga002.fm.intel.com with ESMTP; 02 Jul 2021 01:47:41 -0700
-From: Jie Deng <jie.deng@intel.com>
-To: linux-i2c@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org
-Subject: [PATCH v12] i2c: virtio: add a virtio i2c frontend driver
-Date: Fri,  2 Jul 2021 16:46:47 +0800
-Message-Id: <f229cd761048bc143f88f33a3437bdbf891c39fd.1625214435.git.jie.deng@intel.com>
-X-Mailer: git-send-email 2.7.4
-Cc: arnd@arndb.de, mst@redhat.com, viresh.kumar@linaro.org, wsa@kernel.org,
- wsa+renesas@sang-engineering.com, stefanha@redhat.com, shuo.a.liu@intel.com,
- andriy.shevchenko@linux.intel.com, conghui.chen@intel.com, yu1.wang@intel.com
+ Fri,  2 Jul 2021 09:58:30 +0000 (UTC)
+X-IronPort-AV: E=McAfee;i="6200,9189,10032"; a="230377674"
+X-IronPort-AV: E=Sophos;i="5.83,316,1616482800"; d="scan'208";a="230377674"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+ by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 02 Jul 2021 02:58:26 -0700
+X-IronPort-AV: E=Sophos;i="5.83,316,1616482800"; d="scan'208";a="558990539"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+ by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 02 Jul 2021 02:58:23 -0700
+Received: from andy by smile with local (Exim 4.94.2)
+ (envelope-from <andriy.shevchenko@linux.intel.com>)
+ id 1lzFwA-007eal-2Q; Fri, 02 Jul 2021 12:58:18 +0300
+Date: Fri, 2 Jul 2021 12:58:18 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Jie Deng <jie.deng@intel.com>
+Subject: Re: [PATCH v12] i2c: virtio: add a virtio i2c frontend driver
+Message-ID: <YN7jOm68fUL4UA2Q@smile.fi.intel.com>
+References: <f229cd761048bc143f88f33a3437bdbf891c39fd.1625214435.git.jie.deng@intel.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+In-Reply-To: <f229cd761048bc143f88f33a3437bdbf891c39fd.1625214435.git.jie.deng@intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Cc: yu1.wang@intel.com, arnd@arndb.de, mst@redhat.com, viresh.kumar@linaro.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ wsa@kernel.org, wsa+renesas@sang-engineering.com, linux-i2c@vger.kernel.org,
+ stefanha@redhat.com, shuo.a.liu@intel.com, conghui.chen@intel.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -79,421 +85,106 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Add an I2C bus driver for virtio para-virtualization.
+On Fri, Jul 02, 2021 at 04:46:47PM +0800, Jie Deng wrote:
+> Add an I2C bus driver for virtio para-virtualization.
+> 
+> The controller can be emulated by the backend driver in
+> any device model software by following the virtio protocol.
+> 
+> The device specification can be found on
+> https://lists.oasis-open.org/archives/virtio-comment/202101/msg00008.html.
+> 
+> By following the specification, people may implement different
+> backend drivers to emulate different controllers according to
+> their needs.
 
-The controller can be emulated by the backend driver in
-any device model software by following the virtio protocol.
+...
 
-The device specification can be found on
-https://lists.oasis-open.org/archives/virtio-comment/202101/msg00008.html.
+> +static int virtio_i2c_complete_reqs(struct virtqueue *vq,
+> +				    struct virtio_i2c_req *reqs,
+> +				    struct i2c_msg *msgs, int nr,
+> +				    bool fail)
+> +{
+> +	struct virtio_i2c_req *req;
+> +	bool failed = fail;
+> +	unsigned int len;
+> +	int i, j = 0;
+> +
+> +	for (i = 0; i < nr; i++) {
+> +		/* Detach the ith request from the vq */
+> +		req = virtqueue_get_buf(vq, &len);
+> +
+> +		/*
+> +		 * Condition (req && req == &reqs[i]) should always meet since
+> +		 * we have total nr requests in the vq.
+> +		 */
+> +		if (!failed && (WARN_ON(!(req && req == &reqs[i])) ||
+> +		    (req->in_hdr.status != VIRTIO_I2C_MSG_OK)))
+> +			failed = true;
 
-By following the specification, people may implement different
-backend drivers to emulate different controllers according to
-their needs.
+...and after failed is true, we are continuing the loop, why?
 
-Co-developed-by: Conghui Chen <conghui.chen@intel.com>
-Signed-off-by: Conghui Chen <conghui.chen@intel.com>
-Signed-off-by: Jie Deng <jie.deng@intel.com>
----
-Changes v11 -> v12
-	- Do not sent msg_buf for zero-length request.
-	- Send requests to host only if all the number of transfers requested prepared successfully.
-	- Remove the line #include <linux/bits.h> in virtio_i2c.h
+> +		i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], !failed);
+> +		if (!failed)
 
-Changes v10 -> v11
-	- Remove vi->adap.class = I2C_CLASS_DEPRECATED.
-	- Use #ifdef CONFIG_PM_SLEEP to replace the "__maybe_unused".
-	- Remove "struct mutex lock" in "struct virtio_i2c".
-	- Support zero-length request.
-	- Remove unnecessary logs.
-	- Remove vi->adap.timeout = HZ / 10, just use the default value.
-	- Use BIT(0) to define VIRTIO_I2C_FLAGS_FAIL_NEXT.
-	- Add the virtio_device index to adapter's naming mechanism.
+> +			++j;
 
- drivers/i2c/busses/Kconfig      |  11 ++
- drivers/i2c/busses/Makefile     |   3 +
- drivers/i2c/busses/i2c-virtio.c | 269 ++++++++++++++++++++++++++++++++++++++++
- include/uapi/linux/virtio_i2c.h |  40 ++++++
- include/uapi/linux/virtio_ids.h |   1 +
- 5 files changed, 324 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-virtio.c
- create mode 100644 include/uapi/linux/virtio_i2c.h
+Besides better to read j++ the j itself can be renamed to something more
+verbose.
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 10acece..e47616a 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -21,6 +21,17 @@ config I2C_ALI1535
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-ali1535.
- 
-+config I2C_VIRTIO
-+	tristate "Virtio I2C Adapter"
-+	select VIRTIO
-+	help
-+	  If you say yes to this option, support will be included for the virtio
-+	  I2C adapter driver. The hardware can be emulated by any device model
-+	  software according to the virtio protocol.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called i2c-virtio.
-+
- config I2C_ALI1563
- 	tristate "ALI 1563"
- 	depends on PCI
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 69e9963..9843756 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -147,4 +147,7 @@ obj-$(CONFIG_I2C_XGENE_SLIMPRO) += i2c-xgene-slimpro.o
- obj-$(CONFIG_SCx200_ACB)	+= scx200_acb.o
- obj-$(CONFIG_I2C_FSI)		+= i2c-fsi.o
- 
-+# VIRTIO I2C host controller driver
-+obj-$(CONFIG_I2C_VIRTIO)	+= i2c-virtio.o
-+
- ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
-diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-new file mode 100644
-index 0000000..45746b5
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-virtio.c
-@@ -0,0 +1,269 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Virtio I2C Bus Driver
-+ *
-+ * The Virtio I2C Specification:
-+ * https://raw.githubusercontent.com/oasis-tcs/virtio-spec/master/virtio-i2c.tex
-+ *
-+ * Copyright (c) 2021 Intel Corporation. All rights reserved.
-+ */
-+
-+#include <linux/acpi.h>
-+#include <linux/completion.h>
-+#include <linux/err.h>
-+#include <linux/i2c.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/virtio.h>
-+#include <linux/virtio_ids.h>
-+#include <linux/virtio_config.h>
-+#include <linux/virtio_i2c.h>
-+
-+/**
-+ * struct virtio_i2c - virtio I2C data
-+ * @vdev: virtio device for this controller
-+ * @completion: completion of virtio I2C message
-+ * @adap: I2C adapter for this controller
-+ * @vq: the virtio virtqueue for communication
-+ */
-+struct virtio_i2c {
-+	struct virtio_device *vdev;
-+	struct completion completion;
-+	struct i2c_adapter adap;
-+	struct virtqueue *vq;
-+};
-+
-+/**
-+ * struct virtio_i2c_req - the virtio I2C request structure
-+ * @out_hdr: the OUT header of the virtio I2C message
-+ * @buf: the buffer into which data is read, or from which it's written
-+ * @in_hdr: the IN header of the virtio I2C message
-+ */
-+struct virtio_i2c_req {
-+	struct virtio_i2c_out_hdr out_hdr	____cacheline_aligned;
-+	uint8_t *buf				____cacheline_aligned;
-+	struct virtio_i2c_in_hdr in_hdr		____cacheline_aligned;
-+};
-+
-+static void virtio_i2c_msg_done(struct virtqueue *vq)
-+{
-+	struct virtio_i2c *vi = vq->vdev->priv;
-+
-+	complete(&vi->completion);
-+}
-+
-+static int virtio_i2c_send_reqs(struct virtqueue *vq,
-+				struct virtio_i2c_req *reqs,
-+				struct i2c_msg *msgs, int nr)
-+{
-+	struct scatterlist *sgs[3], out_hdr, msg_buf, in_hdr;
-+	int i, outcnt, incnt, err = 0;
-+
-+	for (i = 0; i < nr; i++) {
-+		/*
-+		 * Only 7-bit mode supported for this moment. For the address format,
-+		 * Please check the Virtio I2C Specification.
-+		 */
-+		reqs[i].out_hdr.addr = cpu_to_le16(msgs[i].addr << 1);
-+
-+		if (i != nr - 1)
-+			reqs[i].out_hdr.flags = cpu_to_le32(VIRTIO_I2C_FLAGS_FAIL_NEXT);
-+
-+		outcnt = incnt = 0;
-+		sg_init_one(&out_hdr, &reqs[i].out_hdr, sizeof(reqs[i].out_hdr));
-+		sgs[outcnt++] = &out_hdr;
-+
-+		if (msgs[i].len) {
-+			reqs[i].buf = i2c_get_dma_safe_msg_buf(&msgs[i], 1);
-+			if (!reqs[i].buf)
-+				break;
-+
-+			sg_init_one(&msg_buf, reqs[i].buf, msgs[i].len);
-+
-+			if (msgs[i].flags & I2C_M_RD)
-+				sgs[outcnt + incnt++] = &msg_buf;
-+			else
-+				sgs[outcnt++] = &msg_buf;
-+		}
-+
-+		sg_init_one(&in_hdr, &reqs[i].in_hdr, sizeof(reqs[i].in_hdr));
-+		sgs[outcnt + incnt++] = &in_hdr;
-+
-+		err = virtqueue_add_sgs(vq, sgs, outcnt, incnt, &reqs[i], GFP_KERNEL);
-+		if (err < 0) {
-+			i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], false);
-+			break;
-+		}
-+	}
-+
-+	return i;
-+}
-+
-+static int virtio_i2c_complete_reqs(struct virtqueue *vq,
-+				    struct virtio_i2c_req *reqs,
-+				    struct i2c_msg *msgs, int nr,
-+				    bool fail)
-+{
-+	struct virtio_i2c_req *req;
-+	bool failed = fail;
-+	unsigned int len;
-+	int i, j = 0;
-+
-+	for (i = 0; i < nr; i++) {
-+		/* Detach the ith request from the vq */
-+		req = virtqueue_get_buf(vq, &len);
-+
-+		/*
-+		 * Condition (req && req == &reqs[i]) should always meet since
-+		 * we have total nr requests in the vq.
-+		 */
-+		if (!failed && (WARN_ON(!(req && req == &reqs[i])) ||
-+		    (req->in_hdr.status != VIRTIO_I2C_MSG_OK)))
-+			failed = true;
-+
-+		i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], !failed);
-+		if (!failed)
-+			++j;
-+	}
-+
-+	return (fail ? -ETIMEDOUT : j);
-+}
-+
-+static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-+{
-+	struct virtio_i2c *vi = i2c_get_adapdata(adap);
-+	struct virtqueue *vq = vi->vq;
-+	struct virtio_i2c_req *reqs;
-+	unsigned long time_left;
-+	int ret;
-+
-+	reqs = kcalloc(num, sizeof(*reqs), GFP_KERNEL);
-+	if (!reqs)
-+		return -ENOMEM;
-+
-+	ret = virtio_i2c_send_reqs(vq, reqs, msgs, num);
-+	if (ret != num) {
-+		virtio_i2c_complete_reqs(vq, reqs, msgs, ret, true);
-+		ret = 0;
-+		goto err_free;
-+	}
-+
-+	reinit_completion(&vi->completion);
-+	virtqueue_kick(vq);
-+
-+	time_left = wait_for_completion_timeout(&vi->completion, adap->timeout);
-+	if (!time_left)
-+		dev_err(&adap->dev, "virtio i2c backend timeout.\n");
-+
-+	ret = virtio_i2c_complete_reqs(vq, reqs, msgs, num, !time_left);
-+
-+err_free:
-+	kfree(reqs);
-+	return ret;
-+}
-+
-+static void virtio_i2c_del_vqs(struct virtio_device *vdev)
-+{
-+	vdev->config->reset(vdev);
-+	vdev->config->del_vqs(vdev);
-+}
-+
-+static int virtio_i2c_setup_vqs(struct virtio_i2c *vi)
-+{
-+	struct virtio_device *vdev = vi->vdev;
-+
-+	vi->vq = virtio_find_single_vq(vdev, virtio_i2c_msg_done, "msg");
-+	return PTR_ERR_OR_ZERO(vi->vq);
-+}
-+
-+static u32 virtio_i2c_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+}
-+
-+static struct i2c_algorithm virtio_algorithm = {
-+	.master_xfer = virtio_i2c_xfer,
-+	.functionality = virtio_i2c_func,
-+};
-+
-+static int virtio_i2c_probe(struct virtio_device *vdev)
-+{
-+	struct device *pdev = vdev->dev.parent;
-+	struct virtio_i2c *vi;
-+	int ret;
-+
-+	vi = devm_kzalloc(&vdev->dev, sizeof(*vi), GFP_KERNEL);
-+	if (!vi)
-+		return -ENOMEM;
-+
-+	vdev->priv = vi;
-+	vi->vdev = vdev;
-+
-+	init_completion(&vi->completion);
-+
-+	ret = virtio_i2c_setup_vqs(vi);
-+	if (ret)
-+		return ret;
-+
-+	vi->adap.owner = THIS_MODULE;
-+	snprintf(vi->adap.name, sizeof(vi->adap.name),
-+		 "i2c_virtio at virtio bus %d", vdev->index);
-+	vi->adap.algo = &virtio_algorithm;
-+	vi->adap.dev.parent = &vdev->dev;
-+	i2c_set_adapdata(&vi->adap, vi);
-+
-+	/* Setup ACPI node for controlled devices which will be probed through ACPI */
-+	ACPI_COMPANION_SET(&vi->adap.dev, ACPI_COMPANION(pdev));
-+
-+	ret = i2c_add_adapter(&vi->adap);
-+	if (ret)
-+		virtio_i2c_del_vqs(vdev);
-+
-+	return ret;
-+}
-+
-+static void virtio_i2c_remove(struct virtio_device *vdev)
-+{
-+	struct virtio_i2c *vi = vdev->priv;
-+
-+	i2c_del_adapter(&vi->adap);
-+	virtio_i2c_del_vqs(vdev);
-+}
-+
-+static struct virtio_device_id id_table[] = {
-+	{ VIRTIO_ID_I2C_ADAPTER, VIRTIO_DEV_ANY_ID },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(virtio, id_table);
-+
-+#ifdef CONFIG_PM_SLEEP
-+static int virtio_i2c_freeze(struct virtio_device *vdev)
-+{
-+	virtio_i2c_del_vqs(vdev);
-+	return 0;
-+}
-+
-+static int virtio_i2c_restore(struct virtio_device *vdev)
-+{
-+	return virtio_i2c_setup_vqs(vdev->priv);
-+}
-+#endif
-+
-+static struct virtio_driver virtio_i2c_driver = {
-+	.id_table	= id_table,
-+	.probe		= virtio_i2c_probe,
-+	.remove		= virtio_i2c_remove,
-+	.driver	= {
-+		.name	= "i2c_virtio",
-+	},
-+#ifdef CONFIG_PM_SLEEP
-+	.freeze = virtio_i2c_freeze,
-+	.restore = virtio_i2c_restore,
-+#endif
-+};
-+module_virtio_driver(virtio_i2c_driver);
-+
-+MODULE_AUTHOR("Jie Deng <jie.deng@intel.com>");
-+MODULE_AUTHOR("Conghui Chen <conghui.chen@intel.com>");
-+MODULE_DESCRIPTION("Virtio i2c bus driver");
-+MODULE_LICENSE("GPL");
-diff --git a/include/uapi/linux/virtio_i2c.h b/include/uapi/linux/virtio_i2c.h
-new file mode 100644
-index 0000000..1b1754e
---- /dev/null
-+++ b/include/uapi/linux/virtio_i2c.h
-@@ -0,0 +1,40 @@
-+/* SPDX-License-Identifier: GPL-2.0-or-later WITH Linux-syscall-note */
-+/*
-+ * Definitions for virtio I2C Adpter
-+ *
-+ * Copyright (c) 2021 Intel Corporation. All rights reserved.
-+ */
-+
-+#ifndef _UAPI_LINUX_VIRTIO_I2C_H
-+#define _UAPI_LINUX_VIRTIO_I2C_H
-+
-+#include <linux/types.h>
-+
-+/* The bit 0 of the @virtio_i2c_out_hdr.@flags, used to group the requests */
-+#define VIRTIO_I2C_FLAGS_FAIL_NEXT	BIT(0)
-+
-+/**
-+ * struct virtio_i2c_out_hdr - the virtio I2C message OUT header
-+ * @addr: the controlled device address
-+ * @padding: used to pad to full dword
-+ * @flags: used for feature extensibility
-+ */
-+struct virtio_i2c_out_hdr {
-+	__le16 addr;
-+	__le16 padding;
-+	__le32 flags;
-+};
-+
-+/**
-+ * struct virtio_i2c_in_hdr - the virtio I2C message IN header
-+ * @status: the processing result from the backend
-+ */
-+struct virtio_i2c_in_hdr {
-+	__u8 status;
-+};
-+
-+/* The final status written by the device */
-+#define VIRTIO_I2C_MSG_OK	0
-+#define VIRTIO_I2C_MSG_ERR	1
-+
-+#endif /* _UAPI_LINUX_VIRTIO_I2C_H */
-diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
-index 4fe842c..3b5f05a 100644
---- a/include/uapi/linux/virtio_ids.h
-+++ b/include/uapi/linux/virtio_ids.h
-@@ -55,6 +55,7 @@
- #define VIRTIO_ID_FS			26 /* virtio filesystem */
- #define VIRTIO_ID_PMEM			27 /* virtio pmem */
- #define VIRTIO_ID_MAC80211_HWSIM	29 /* virtio mac80211-hwsim */
-+#define VIRTIO_ID_I2C_ADAPTER		34 /* virtio i2c adapter */
- #define VIRTIO_ID_BT			40 /* virtio bluetooth */
- 
- #endif /* _LINUX_VIRTIO_IDS_H */
+> +	}
+
+> +	return (fail ? -ETIMEDOUT : j);
+
+Redundant parentheses.
+
+> +}
+
+...
+
+> +	ret = virtio_i2c_send_reqs(vq, reqs, msgs, num);
+> +	if (ret != num) {
+> +		virtio_i2c_complete_reqs(vq, reqs, msgs, ret, true);
+
+Below you check the returned code, here is not.
+
+> +		ret = 0;
+> +		goto err_free;
+> +	}
+> +
+> +	reinit_completion(&vi->completion);
+> +	virtqueue_kick(vq);
+> +
+> +	time_left = wait_for_completion_timeout(&vi->completion, adap->timeout);
+> +	if (!time_left)
+> +		dev_err(&adap->dev, "virtio i2c backend timeout.\n");
+> +
+> +	ret = virtio_i2c_complete_reqs(vq, reqs, msgs, num, !time_left);
+> +
+> +err_free:
+> +	kfree(reqs);
+> +	return ret;
+
+> +++ b/include/uapi/linux/virtio_i2c.h
+
+> +#include <linux/types.h>
+> +
+> +/* The bit 0 of the @virtio_i2c_out_hdr.@flags, used to group the requests */
+> +#define VIRTIO_I2C_FLAGS_FAIL_NEXT	BIT(0)
+
+It's _BITUL() or so from linux/const.h.
+https://elixir.bootlin.com/linux/latest/source/include/uapi/linux/const.h#L28
+You may not use internal definitions in UAPI headers.
+
 -- 
-2.7.4
+With Best Regards,
+Andy Shevchenko
+
 
 _______________________________________________
 Virtualization mailing list
