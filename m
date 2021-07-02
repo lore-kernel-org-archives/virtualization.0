@@ -3,83 +3,93 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46E54C11F69
-	for <virtualization@archiver.kernel.org>; Fri,  2 Jul 2021 11:48:55 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EA1EC11F68
+	for <virtualization@archiver.kernel.org>; Fri,  2 Jul 2021 11:48:56 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EC38361413
-	for <virtualization@archiver.kernel.org>; Fri,  2 Jul 2021 11:48:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EC38361413
+	by mail.kernel.org (Postfix) with ESMTPS id 0BC4861402
+	for <virtualization@archiver.kernel.org>; Fri,  2 Jul 2021 11:48:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0BC4861402
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A483083DCE;
-	Fri,  2 Jul 2021 11:48:54 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id B92D34053F;
+	Fri,  2 Jul 2021 11:48:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ez9TQFp0L3uv; Fri,  2 Jul 2021 11:48:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 2622D83DBF;
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id bezvHxgHMG2W; Fri,  2 Jul 2021 11:48:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D4FAE40455;
 	Fri,  2 Jul 2021 11:48:53 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id ECFECC0010;
-	Fri,  2 Jul 2021 11:48:52 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 79E25C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3B52FC0020;
+	Fri,  2 Jul 2021 11:48:53 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7CB90C0010
  for <virtualization@lists.linux-foundation.org>;
  Fri,  2 Jul 2021 11:48:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 67F1E83DC5
+ by smtp2.osuosl.org (Postfix) with ESMTP id 698D140232
  for <virtualization@lists.linux-foundation.org>;
  Fri,  2 Jul 2021 11:48:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id C1ERCDAIzXpZ
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=suse.com header.b="N1vYjPTk";
+ dkim=pass (1024-bit key) header.d=suse.com header.b="N1vYjPTk"
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id CWy-ToB2jXRZ
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jul 2021 11:48:50 +0000 (UTC)
+ Fri,  2 Jul 2021 11:48:51 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 6C19383DBC
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 73803401F4
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Jul 2021 11:48:50 +0000 (UTC)
+ Fri,  2 Jul 2021 11:48:51 +0000 (UTC)
 Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
  (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id D11C62009A;
- Fri,  2 Jul 2021 11:48:47 +0000 (UTC)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id A1A7820559;
+ Fri,  2 Jul 2021 11:48:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1625226527; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
- bh=98c5XVosXkxsEF5csivCrj46Eo5ocAf/SNIwP2m+geg=;
- b=oKBp+2dXgQNMp818q+YuiaUS7ky3obkmqy8deUnZzLTorhZlH6jMsrh9Qq/9VJSc/87TIj
- bLhfHyAK7GAiS6SNOAM9z3rPqNfgDBmTutRwfRAeKT6Ybv9jN6KO+WxaxegUTSeTgdfuKk
- GMithEI10iywo9d8M/Ogeg9D/m0VKT4=
+ t=1625226529; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=eC9zp1q36Ee/jP4TtRNuvYFMVVhl5Tzhsv3C+E9+clA=;
+ b=N1vYjPTkNMmBGoewtUUjTnRF7u9M5swnA/bBnNvNo3Oh8+Pz3QSTdVEd5kGkFfJOfLZdge
+ foWtDCeJ3MvSQfcTp0LHyEy2JAB/5/L3MSBzVSAEp/zfYtd0B/KrpmkSIktTGIeSAISxHi
+ fZslf93tVQdGdu+llip7XG0j8k8llck=
 Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
- by imap.suse.de (Postfix) with ESMTP id 7B11911C84;
- Fri,  2 Jul 2021 11:48:47 +0000 (UTC)
+ by imap.suse.de (Postfix) with ESMTP id 41F0311C84;
+ Fri,  2 Jul 2021 11:48:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1625226527; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
- bh=98c5XVosXkxsEF5csivCrj46Eo5ocAf/SNIwP2m+geg=;
- b=oKBp+2dXgQNMp818q+YuiaUS7ky3obkmqy8deUnZzLTorhZlH6jMsrh9Qq/9VJSc/87TIj
- bLhfHyAK7GAiS6SNOAM9z3rPqNfgDBmTutRwfRAeKT6Ybv9jN6KO+WxaxegUTSeTgdfuKk
- GMithEI10iywo9d8M/Ogeg9D/m0VKT4=
+ t=1625226529; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=eC9zp1q36Ee/jP4TtRNuvYFMVVhl5Tzhsv3C+E9+clA=;
+ b=N1vYjPTkNMmBGoewtUUjTnRF7u9M5swnA/bBnNvNo3Oh8+Pz3QSTdVEd5kGkFfJOfLZdge
+ foWtDCeJ3MvSQfcTp0LHyEy2JAB/5/L3MSBzVSAEp/zfYtd0B/KrpmkSIktTGIeSAISxHi
+ fZslf93tVQdGdu+llip7XG0j8k8llck=
 Received: from director2.suse.de ([192.168.254.72]) by imap3-int with ESMTPSA
- id 1NKMHB/93mDDDAAALh3uQQ
- (envelope-from <varad.gautam@suse.com>); Fri, 02 Jul 2021 11:48:47 +0000
+ id 0PlUDiH93mDDDAAALh3uQQ
+ (envelope-from <varad.gautam@suse.com>); Fri, 02 Jul 2021 11:48:49 +0000
 To: kvm@vger.kernel.org,
 	virtualization@lists.linux-foundation.org
-Subject: [kvm-unit-tests PATCH 0/6] Initial x86_64 UEFI support
-Date: Fri,  2 Jul 2021 13:48:14 +0200
-Message-Id: <20210702114820.16712-1-varad.gautam@suse.com>
+Subject: [kvm-unit-tests PATCH 4/6] x86: efi_main: Self-relocate ELF .dynamic
+ addresses
+Date: Fri,  2 Jul 2021 13:48:18 +0200
+Message-Id: <20210702114820.16712-5-varad.gautam@suse.com>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210702114820.16712-1-varad.gautam@suse.com>
+References: <20210702114820.16712-1-varad.gautam@suse.com>
 MIME-Version: 1.0
 Cc: thomas.lendacky@amd.com, drjones@redhat.com, jroedel@suse.de,
  brijesh.singh@amd.com, pbonzini@redhat.com, bp@suse.de
@@ -102,52 +112,107 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This series brings EFI support to a reduced subset of kvm-unit-tests
-on x86_64. I'm sending it out for early review since it covers enough
-ground to allow adding KVM testcases for EFI-only environments.
+EFI expects a relocatable PE, and the loader will patch in the
+relocations from the COFF.
 
-EFI support works by changing the test entrypoint to a stub entry
-point for the EFI loader to jump to in long mode, where the test binary
-exits EFI boot services, performs the remaining CPU bootstrapping,
-and then calls the testcase main().
+Since we are wrapping an ELF into a PE here, the EFI loader will
+not handle ELF relocations, and we need to patch the ELF .dynamic
+section manually on early boot.
 
-Since the EFI loader only understands PE objects, the first commit
-introduces a `configure --efi` mode which builds each test as a shared
-lib. This shared lib is repackaged into a PE via objdump.
+Signed-off-by: Varad Gautam <varad.gautam@suse.com>
+---
+ x86/efi_main.c | 63 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 63 insertions(+)
 
-Commit 2-4 take a trip from the asm entrypoint to C to exit EFI and
-relocate ELF .dynamic contents.
-
-Commit 5 adds post-EFI long mode x86_64 setup and calls the testcase.
-
-Commit 6 patches out some broken tests for EFI. Testcases that refuse
-to build as shared libs are also left disabled, these need some massaging.
-
-git tree: https://github.com/varadgautam/kvm-unit-tests/commits/efi-stub
-
-Varad Gautam (6):
-  x86: Build tests as PE objects for the EFI loader
-  x86: Call efi_main from _efi_pe_entry
-  x86: efi_main: Get EFI memory map and exit boot services
-  x86: efi_main: Self-relocate ELF .dynamic addresses
-  cstart64.S: x86_64 bootstrapping after exiting EFI
-  x86: Disable some breaking tests for EFI and modify vmexit test
-
- .gitignore          |   2 +
- Makefile            |  16 ++-
- configure           |  11 ++
- lib/linux/uefi.h    | 337 ++++++++++++++++++++++++++++++++++++++++++++
- x86/Makefile.common |  45 ++++--
- x86/Makefile.x86_64 |  43 +++---
- x86/cstart64.S      |  78 ++++++++++
- x86/efi.lds         |  67 +++++++++
- x86/efi_main.c      | 167 ++++++++++++++++++++++
- x86/vmexit.c        |   7 +
- 10 files changed, 741 insertions(+), 32 deletions(-)
- create mode 100644 lib/linux/uefi.h
- create mode 100644 x86/efi.lds
- create mode 100644 x86/efi_main.c
-
+diff --git a/x86/efi_main.c b/x86/efi_main.c
+index 237d4e7..be3f9ab 100644
+--- a/x86/efi_main.c
++++ b/x86/efi_main.c
+@@ -1,9 +1,13 @@
+ #include <alloc_phys.h>
+ #include <linux/uefi.h>
++#include <elf.h>
+ 
+ unsigned long __efiapi efi_main(efi_handle_t handle, efi_system_table_t *sys_tab);
+ efi_system_table_t *efi_system_table = NULL;
+ 
++extern char ImageBase;
++extern char _DYNAMIC;
++
+ static void efi_free_pool(void *ptr)
+ {
+ 	efi_bs_call(free_pool, ptr);
+@@ -93,11 +97,70 @@ static efi_status_t exit_efi(void *handle)
+ 	return EFI_SUCCESS;
+ }
+ 
++static efi_status_t elf_reloc(unsigned long image_base, unsigned long dynamic)
++{
++	long relsz = 0, relent = 0;
++	Elf64_Rel *rel = 0;
++	Elf64_Dyn *dyn = (Elf64_Dyn *) dynamic;
++	unsigned long *addr;
++	int i;
++
++	for (i = 0; dyn[i].d_tag != DT_NULL; i++) {
++		switch (dyn[i].d_tag) {
++		case DT_RELA:
++			rel = (Elf64_Rel *)
++				((unsigned long) dyn[i].d_un.d_ptr + image_base);
++			break;
++		case DT_RELASZ:
++			relsz = dyn[i].d_un.d_val;
++			break;
++		case DT_RELAENT:
++			relent = dyn[i].d_un.d_val;
++			break;
++		default:
++			break;
++		}
++	}
++
++	if (!rel && relent == 0)
++		return EFI_SUCCESS;
++
++	if (!rel || relent == 0)
++		return EFI_LOAD_ERROR;
++
++	while (relsz > 0) {
++		/* apply the relocs */
++		switch (ELF64_R_TYPE (rel->r_info)) {
++		case R_X86_64_NONE:
++			break;
++		case R_X86_64_RELATIVE:
++			addr = (unsigned long *) (image_base + rel->r_offset);
++			*addr += image_base;
++			break;
++		default:
++			break;
++		}
++		rel = (Elf64_Rel *) ((char *) rel + relent);
++		relsz -= relent;
++	}
++	return EFI_SUCCESS;
++}
++
+ unsigned long __efiapi efi_main(efi_handle_t handle, efi_system_table_t *sys_tab)
+ {
++	unsigned long image_base, dyn;
+ 	efi_system_table = sys_tab;
+ 
+ 	exit_efi(handle);
+ 
++	image_base = (unsigned long) &ImageBase;
++	dyn = image_base + (unsigned long) &_DYNAMIC;
++
++	/* The EFI loader does not handle ELF relocations, so fixup
++	 * .dynamic addresses before proceeding any further. */
++	elf_reloc(image_base, dyn);
++
++	start64();
++
+ 	return 0;
+ }
 -- 
 2.30.2
 
