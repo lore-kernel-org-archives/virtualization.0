@@ -2,83 +2,88 @@ Return-Path: <SRS0=2LZG=L5=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0278EC07E98
-	for <virtualization@archiver.kernel.org>; Mon,  5 Jul 2021 07:13:44 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A34E0C07E99
+	for <virtualization@archiver.kernel.org>; Mon,  5 Jul 2021 07:19:32 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 84752613F6
-	for <virtualization@archiver.kernel.org>; Mon,  5 Jul 2021 07:13:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 84752613F6
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 58B5F613CB
+	for <virtualization@archiver.kernel.org>; Mon,  5 Jul 2021 07:19:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 58B5F613CB
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 46567402E7;
-	Mon,  5 Jul 2021 07:13:43 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1_PQOxzYojB8; Mon,  5 Jul 2021 07:13:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A67F4400B5;
-	Mon,  5 Jul 2021 07:13:40 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8149CC001A;
-	Mon,  5 Jul 2021 07:13:40 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D7D87C000E
- for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jul 2021 07:13:38 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id B48878316F
- for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jul 2021 07:13:38 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 15D8083A40;
+	Mon,  5 Jul 2021 07:19:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id TCcZO8wdExdB
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id G9NN-lSJmw6V; Mon,  5 Jul 2021 07:19:31 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8DBB8839CD;
+	Mon,  5 Jul 2021 07:19:30 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6D13BC001A;
+	Mon,  5 Jul 2021 07:19:30 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DB95DC000E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jul 2021 07:13:37 +0000 (UTC)
+ Mon,  5 Jul 2021 07:19:28 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id B8348403F5
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  5 Jul 2021 07:19:28 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id LnD1t0zJo0_D
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  5 Jul 2021 07:19:27 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 564E883145
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 5582540362
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jul 2021 07:13:37 +0000 (UTC)
-X-IronPort-AV: E=McAfee;i="6200,9189,10035"; a="196219105"
-X-IronPort-AV: E=Sophos;i="5.83,325,1616482800"; d="scan'208";a="196219105"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
- by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 05 Jul 2021 00:13:30 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.83,325,1616482800"; d="scan'208";a="562446643"
-Received: from dengjie-mobl1.ccr.corp.intel.com (HELO [10.239.154.58])
- ([10.239.154.58])
- by fmsmga001.fm.intel.com with ESMTP; 05 Jul 2021 00:13:26 -0700
-Subject: Re: [PATCH v12] i2c: virtio: add a virtio i2c frontend driver
-To: Viresh Kumar <viresh.kumar@linaro.org>
-References: <f229cd761048bc143f88f33a3437bdbf891c39fd.1625214435.git.jie.deng@intel.com>
- <20210705024056.ndth2bwn2itii5g3@vireshk-i7>
- <332af2be-0fb0-a846-8092-49d496fe8b6b@intel.com>
- <20210705043841.zujwo672nfdndpg2@vireshk-i7>
- <6aabc877-673a-e2bc-da2d-ec6741b4159b@intel.com>
- <20210705063003.a45ic3wn74nre6xe@vireshk-i7>
-From: Jie Deng <jie.deng@intel.com>
-Message-ID: <273be5a6-c45f-8f12-361f-65caf0c3d08b@intel.com>
-Date: Mon, 5 Jul 2021 15:13:25 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.10.0
+ Mon,  5 Jul 2021 07:19:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1625469566;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=vAxaFW9a7xpmG8B2uRDAj3X/DHOBu21mlVjLtanDQ7M=;
+ b=UbG5KCYuHSXiXBGSwB3RLgfJ5+v/uupXdPlfLXdh+U3S+vagpZNzT10/0rUa1clYTiazH1
+ qESzOP584r+SLgQaWqu0YbPKeHnrlUw1IBZKoLiLIVtCnC3qOfcArDugmlztzhAOkCjPnl
+ ofJoARXbIgeHBAetk2Jqk3Q4NAAqK08=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-237-9nB3Jf5cMJyCjT3G0w6Ckg-1; Mon, 05 Jul 2021 03:19:24 -0400
+X-MC-Unique: 9nB3Jf5cMJyCjT3G0w6Ckg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 68C0D801B0F;
+ Mon,  5 Jul 2021 07:19:23 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-13-21.pek2.redhat.com [10.72.13.21])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id B0B785D9DC;
+ Mon,  5 Jul 2021 07:19:13 +0000 (UTC)
+From: Jason Wang <jasowang@redhat.com>
+To: mst@redhat.com, jasowang@redhat.com,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org,
+ kvm@vger.kernel.org
+Subject: [PATCH 1/2] vdpa: support per virtqueue max queue size
+Date: Mon,  5 Jul 2021 15:19:09 +0800
+Message-Id: <20210705071910.31965-1-jasowang@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20210705063003.a45ic3wn74nre6xe@vireshk-i7>
-Content-Language: en-US
-Cc: yu1.wang@intel.com, arnd@arndb.de, mst@redhat.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- wsa@kernel.org, wsa+renesas@sang-engineering.com, linux-i2c@vger.kernel.org,
- stefanha@redhat.com, shuo.a.liu@intel.com, andriy.shevchenko@linux.intel.com,
- conghui.chen@intel.com
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Cc: netdev@vger.kernel.org, stefanha@redhat.com, xieyongji@bytedance.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -90,23 +95,199 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gMjAyMS83LzUgMTQ6MzAsIFZpcmVzaCBLdW1hciB3cm90ZToKCj4+Cj4+IFRoaXMgaXMgc3Rp
-bGwgbm90IGVub3VnaCB0byBjb252aW5jZSBtZS7CoCBTbyBJIHdvbid0IGNoYW5nZSB0aGVtIGZv
-ciBub3cKPj4gdW50aWwgSSBzZWUgaXQKPj4KPj4gaXMgdGhlIGNvbnNlbnN1cyBvZiB0aGUgbWFq
-b3JpdHkuCj4gRG8geW91IHNlZSByZXFzW2ldIHRvIGV2ZXIgYmUgTlVMTCBoZXJlID8gSWYgbm90
-LCB0aGVuIGlmIChyZXEpIGlzIGxpa2UgaWYKPiAodHJ1ZSkuCj4KPiBXaHkgd291bGQgeW91IHdh
-bnQgdG8gaGF2ZSBzb21ldGhpbmcgbGlrZSB0aGF0ID8KCk5vLiBDdXJyZW50bHksIHZpcnRpb19p
-MmNfY29tcGxldGVfcmVxcyBpcyBvbmx5IGNhbGxlZCBieSAKdmlydGlvX2kyY194ZmVyLCB0aHVz
-IHdlIGRvbid0CgpoYXZlIHJlcXNbaV0gdG8gYmUgTlVMTC4gQnV0IEkgdGhpbmsgInZpcnRpb19p
-MmNfY29tcGxldGVfcmVxcyIgYXMgYW4gCmluZGVwZW5kZW50IGZ1bmN0aW9uCgpzaG91bGQgY29u
-c2lkZXIgdGhpcyBmcm9tIGEgY2FsbGVlIHBlcnNwZWN0aXZlLgoKQW55d2F5LCBpZiB5b3UgcmVh
-bGx5IHRoaW5rIGl0IHNob3VsZCBiZSBjaGFuZ2VkLCBpdCBjYW4gYmUgZml4ZWQgCmluY3JlbWVu
-dGFsbHkgYXMgV29sZnJhbSBzYWlkLgoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
-bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
-bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Virtio spec allows the device to specify the per virtqueue max queue
+size. vDPA needs to adapt to this flexibility. E.g Qemu advertise a
+small control virtqueue for virtio-net.
+
+So this patch adds a index parameter to get_vq_num_max bus operations
+for the device to report its per virtqueue max queue size.
+
+Both VHOST_VDPA_GET_VRING_NUM and VDPA_ATTR_DEV_MAX_VQ_SIZE assume a
+global maximum size. So we iterate all the virtqueues to return the
+minimal size in this case. Actually, the VHOST_VDPA_GET_VRING_NUM is
+not a must for the userspace. Userspace may choose to check the
+VHOST_SET_VRING_NUM for proving or validating the maximum virtqueue
+size. Anyway, we can invent a per vq version of
+VHOST_VDPA_GET_VRING_NUM in the future if it's necessary.
+
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vdpa/ifcvf/ifcvf_main.c   |  2 +-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c |  2 +-
+ drivers/vdpa/vdpa.c               | 22 +++++++++++++++++++++-
+ drivers/vdpa/vdpa_sim/vdpa_sim.c  |  2 +-
+ drivers/vdpa/virtio_pci/vp_vdpa.c |  2 +-
+ drivers/vhost/vdpa.c              |  9 ++++++---
+ drivers/virtio/virtio_vdpa.c      |  2 +-
+ include/linux/vdpa.h              |  5 ++++-
+ 8 files changed, 36 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
+index ab0ab5cf0f6e..646b340db2af 100644
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -254,7 +254,7 @@ static void ifcvf_vdpa_set_status(struct vdpa_device *vdpa_dev, u8 status)
+ 	ifcvf_set_status(vf, status);
+ }
+ 
+-static u16 ifcvf_vdpa_get_vq_num_max(struct vdpa_device *vdpa_dev)
++static u16 ifcvf_vdpa_get_vq_num_max(struct vdpa_device *vdpa_dev, u16 qid)
+ {
+ 	return IFCVF_QUEUE_MAX;
+ }
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index dda5dc6f7737..afd6114d07b0 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1584,7 +1584,7 @@ static void mlx5_vdpa_set_config_cb(struct vdpa_device *vdev, struct vdpa_callba
+ }
+ 
+ #define MLX5_VDPA_MAX_VQ_ENTRIES 256
+-static u16 mlx5_vdpa_get_vq_num_max(struct vdpa_device *vdev)
++static u16 mlx5_vdpa_get_vq_num_max(struct vdpa_device *vdev, u16 idx)
+ {
+ 	return MLX5_VDPA_MAX_VQ_ENTRIES;
+ }
+diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+index bb3f1d1f0422..d77d59811389 100644
+--- a/drivers/vdpa/vdpa.c
++++ b/drivers/vdpa/vdpa.c
+@@ -239,6 +239,26 @@ void vdpa_unregister_driver(struct vdpa_driver *drv)
+ }
+ EXPORT_SYMBOL_GPL(vdpa_unregister_driver);
+ 
++/**
++ * vdpa_get_vq_num_max - get the maximum virtqueue size
++ * @vdev: vdpa device
++ */
++u16 vdpa_get_vq_num_max(struct vdpa_device *vdev)
++{
++	const struct vdpa_config_ops *ops = vdev->config;
++	u16 s, size = ops->get_vq_num_max(vdev, 0);
++	int i;
++
++	for (i = 1; i < vdev->nvqs; i++) {
++		s = ops->get_vq_num_max(vdev, i);
++		if (s && s < size)
++			size = s;
++	}
++
++	return size;
++}
++EXPORT_SYMBOL_GPL(vdpa_get_vq_num_max);
++
+ /**
+  * vdpa_mgmtdev_register - register a vdpa management device
+  *
+@@ -502,7 +522,7 @@ vdpa_dev_fill(struct vdpa_device *vdev, struct sk_buff *msg, u32 portid, u32 seq
+ 
+ 	device_id = vdev->config->get_device_id(vdev);
+ 	vendor_id = vdev->config->get_vendor_id(vdev);
+-	max_vq_size = vdev->config->get_vq_num_max(vdev);
++	max_vq_size = vdpa_get_vq_num_max(vdev);
+ 
+ 	err = -EMSGSIZE;
+ 	if (nla_put_string(msg, VDPA_ATTR_DEV_NAME, dev_name(&vdev->dev)))
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+index 98f793bc9376..49e29056f164 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -422,7 +422,7 @@ static void vdpasim_set_config_cb(struct vdpa_device *vdpa,
+ 	/* We don't support config interrupt */
+ }
+ 
+-static u16 vdpasim_get_vq_num_max(struct vdpa_device *vdpa)
++static u16 vdpasim_get_vq_num_max(struct vdpa_device *vdpa, u16 idx)
+ {
+ 	return VDPASIM_QUEUE_MAX;
+ }
+diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
+index c76ebb531212..2926641fb586 100644
+--- a/drivers/vdpa/virtio_pci/vp_vdpa.c
++++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+@@ -195,7 +195,7 @@ static void vp_vdpa_set_status(struct vdpa_device *vdpa, u8 status)
+ 		vp_vdpa_free_irq(vp_vdpa);
+ }
+ 
+-static u16 vp_vdpa_get_vq_num_max(struct vdpa_device *vdpa)
++static u16 vp_vdpa_get_vq_num_max(struct vdpa_device *vdpa, u16 qid)
+ {
+ 	return VP_VDPA_QUEUE_MAX;
+ }
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index fb41db3da611..c9ec395b8c42 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -289,11 +289,14 @@ static long vhost_vdpa_set_features(struct vhost_vdpa *v, u64 __user *featurep)
+ 
+ static long vhost_vdpa_get_vring_num(struct vhost_vdpa *v, u16 __user *argp)
+ {
+-	struct vdpa_device *vdpa = v->vdpa;
+-	const struct vdpa_config_ops *ops = vdpa->config;
+ 	u16 num;
+ 
+-	num = ops->get_vq_num_max(vdpa);
++	/*
++	 * VHOST_VDPA_GET_VRING_NUM asssumes a global max virtqueue
++	 * size. So we need to iterate all the virtqueue and return
++	 * the minimal one here.
++	 */
++	num = vdpa_get_vq_num_max(v->vdpa);
+ 
+ 	if (copy_to_user(argp, &num, sizeof(num)))
+ 		return -EFAULT;
+diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+index e28acf482e0c..a43bd5ec5ac6 100644
+--- a/drivers/virtio/virtio_vdpa.c
++++ b/drivers/virtio/virtio_vdpa.c
+@@ -158,7 +158,7 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+ 	if (!info)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	num = ops->get_vq_num_max(vdpa);
++	num = ops->get_vq_num_max(vdpa, index);
+ 	if (num == 0) {
+ 		err = -ENOENT;
+ 		goto error_new_virtqueue;
+diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+index f311d227aa1b..0f8977a54783 100644
+--- a/include/linux/vdpa.h
++++ b/include/linux/vdpa.h
+@@ -137,6 +137,7 @@ struct vdpa_iova_range {
+  *				@cb: virtio-vdev interrupt callback structure
+  * @get_vq_num_max:		Get the max size of virtqueue
+  *				@vdev: vdpa device
++ *				@idx: virtqueue index
+  *				Returns u16: max size of virtqueue
+  * @get_device_id:		Get virtio device id
+  *				@vdev: vdpa device
+@@ -229,7 +230,7 @@ struct vdpa_config_ops {
+ 	int (*set_features)(struct vdpa_device *vdev, u64 features);
+ 	void (*set_config_cb)(struct vdpa_device *vdev,
+ 			      struct vdpa_callback *cb);
+-	u16 (*get_vq_num_max)(struct vdpa_device *vdev);
++	u16 (*get_vq_num_max)(struct vdpa_device *vdev, u16 idx);
+ 	u32 (*get_device_id)(struct vdpa_device *vdev);
+ 	u32 (*get_vendor_id)(struct vdpa_device *vdev);
+ 	u8 (*get_status)(struct vdpa_device *vdev);
+@@ -270,6 +271,8 @@ void vdpa_unregister_device(struct vdpa_device *vdev);
+ int _vdpa_register_device(struct vdpa_device *vdev, int nvqs);
+ void _vdpa_unregister_device(struct vdpa_device *vdev);
+ 
++u16 vdpa_get_vq_num_max(struct vdpa_device *vdev);
++
+ /**
+  * struct vdpa_driver - operations for a vDPA driver
+  * @driver: underlying device driver
+-- 
+2.25.1
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
