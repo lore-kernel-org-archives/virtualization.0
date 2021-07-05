@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74C56C07E9A
-	for <virtualization@archiver.kernel.org>; Mon,  5 Jul 2021 08:26:26 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B9F7C07E9B
+	for <virtualization@archiver.kernel.org>; Mon,  5 Jul 2021 08:26:27 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 38E6E613F6
-	for <virtualization@archiver.kernel.org>; Mon,  5 Jul 2021 08:26:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 38E6E613F6
+	by mail.kernel.org (Postfix) with ESMTPS id 21EFC613F3
+	for <virtualization@archiver.kernel.org>; Mon,  5 Jul 2021 08:26:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 21EFC613F3
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1560D606E7;
+	by smtp4.osuosl.org (Postfix) with ESMTP id 95B9A40492;
 	Mon,  5 Jul 2021 08:26:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id J18I2U6knljC; Mon,  5 Jul 2021 08:26:25 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id U81tIqGffbyO; Mon,  5 Jul 2021 08:26:24 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 3F7A9607D3;
-	Mon,  5 Jul 2021 08:26:24 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id C266C4048C;
+	Mon,  5 Jul 2021 08:26:23 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0C6C1C0026;
-	Mon,  5 Jul 2021 08:26:24 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0C1C7C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 866B3C001A;
+	Mon,  5 Jul 2021 08:26:23 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 366B9C0027
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jul 2021 08:26:23 +0000 (UTC)
+ Mon,  5 Jul 2021 08:26:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 47EC8607B5
+ by smtp3.osuosl.org (Postfix) with ESMTP id 04C75607B5
  for <virtualization@lists.linux-foundation.org>;
  Mon,  5 Jul 2021 08:26:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6zavEEutgfji
+ with ESMTP id 4O_8YwsL8t34
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jul 2021 08:26:21 +0000 (UTC)
+ Mon,  5 Jul 2021 08:26:20 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by smtp3.osuosl.org (Postfix) with ESMTPS id EC89D607B6
+Received: from theia.8bytes.org (8bytes.org
+ [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5FE32607B2
  for <virtualization@lists.linux-foundation.org>;
  Mon,  5 Jul 2021 08:26:20 +0000 (UTC)
 Received: from cap.home.8bytes.org (p5b006775.dip0.t-ipconnect.de
  [91.0.103.117])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 07D7D9D9;
- Mon,  5 Jul 2021 10:26:17 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 6EB4E99A;
+ Mon,  5 Jul 2021 10:26:16 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [RFC PATCH 08/12] x86/sev: Park APs on AP Jump Table with GHCB
- protocol version 2
-Date: Mon,  5 Jul 2021 10:24:39 +0200
-Message-Id: <20210705082443.14721-9-joro@8bytes.org>
+Subject: [RFC PATCH 07/12] x86/sev: Setup code to park APs in the AP Jump Table
+Date: Mon,  5 Jul 2021 10:24:38 +0200
+Message-Id: <20210705082443.14721-8-joro@8bytes.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210705082443.14721-1-joro@8bytes.org>
 References: <20210705082443.14721-1-joro@8bytes.org>
@@ -96,253 +96,468 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-GHCB protocol version 2 adds the MSR-based AP-reset-hold VMGEXIT which
-does not need a GHCB. Use that to park APs in 16-bit protected mode on
-the AP Jump Table.
+The AP Jump Table under SEV-ES contains the reset vector where non-boot
+CPUs start executing when coming out of reset. This means that a CPU
+coming out of the AP-reset-hold VMGEXIT also needs to start executing at
+the reset vector stored in the AP Jump Table.
+
+The problem is to find a safe place to put the real-mode code which
+executes the VMGEXIT and jumps to the reset vector. The code can not be
+in kernel memory, because after kexec that memory is owned by the new
+kernel and the code might have been overwritten.
+
+Fortunately the AP Jump Table itself is a safe place, because the
+memory is not owned by the OS and will not be overwritten by a new
+kernel started through kexec. The table is 4k in size and only the
+first 4 bytes are used for the reset vector. This leaves enough space
+for some 16-bit code to do the job and even a small stack.
+
+Install 16-bit code into the AP Jump Table under SEV-ES after the APs
+have been brought up. The code will do an AP-reset-hold VMGEXIT and jump
+to the reset vector after being woken up.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/realmode.h    |  3 +
- arch/x86/kernel/sev.c              | 48 ++++++++++++++--
- arch/x86/realmode/rm/Makefile      | 11 ++--
- arch/x86/realmode/rm/header.S      |  3 +
- arch/x86/realmode/rm/sev_ap_park.S | 89 ++++++++++++++++++++++++++++++
- 5 files changed, 144 insertions(+), 10 deletions(-)
- create mode 100644 arch/x86/realmode/rm/sev_ap_park.S
+ arch/x86/include/asm/realmode.h         |   2 +
+ arch/x86/include/asm/sev-ap-jumptable.h |  25 +++++
+ arch/x86/kernel/sev.c                   | 105 +++++++++++++++++++
+ arch/x86/realmode/Makefile              |   9 +-
+ arch/x86/realmode/rmpiggy.S             |   6 ++
+ arch/x86/realmode/sev/Makefile          |  41 ++++++++
+ arch/x86/realmode/sev/ap_jump_table.S   | 130 ++++++++++++++++++++++++
+ arch/x86/realmode/sev/ap_jump_table.lds |  24 +++++
+ 8 files changed, 341 insertions(+), 1 deletion(-)
+ create mode 100644 arch/x86/include/asm/sev-ap-jumptable.h
+ create mode 100644 arch/x86/realmode/sev/Makefile
+ create mode 100644 arch/x86/realmode/sev/ap_jump_table.S
+ create mode 100644 arch/x86/realmode/sev/ap_jump_table.lds
 
 diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
-index 29590a4ddf24..668de0a8b1ae 100644
+index 5db5d083c873..29590a4ddf24 100644
 --- a/arch/x86/include/asm/realmode.h
 +++ b/arch/x86/include/asm/realmode.h
-@@ -23,6 +23,9 @@ struct real_mode_header {
- 	u32	trampoline_header;
+@@ -62,6 +62,8 @@ extern unsigned long initial_gs;
+ extern unsigned long initial_stack;
  #ifdef CONFIG_AMD_MEM_ENCRYPT
- 	u32	sev_es_trampoline_start;
-+	u32	sev_real_ap_park_asm;
-+	u32	sev_real_ap_park_seg;
-+	u32	sev_ap_park_gdt;
+ extern unsigned long initial_vc_handler;
++extern unsigned char rm_ap_jump_table_blob[];
++extern unsigned char rm_ap_jump_table_blob_end[];
  #endif
- #ifdef CONFIG_X86_64
- 	u32	trampoline_pgd;
+ 
+ extern unsigned char real_mode_blob[];
+diff --git a/arch/x86/include/asm/sev-ap-jumptable.h b/arch/x86/include/asm/sev-ap-jumptable.h
+new file mode 100644
+index 000000000000..1c8b2ce779e2
+--- /dev/null
++++ b/arch/x86/include/asm/sev-ap-jumptable.h
+@@ -0,0 +1,25 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * AMD Encrypted Register State Support
++ *
++ * Author: Joerg Roedel <jroedel@suse.de>
++ */
++#ifndef __ASM_SEV_AP_JUMPTABLE_H
++#define __ASM_SEV_AP_JUMPTABLE_H
++
++#define	SEV_APJT_CS16	0x8
++#define	SEV_APJT_DS16	0x10
++
++#define SEV_APJT_ENTRY	0x10
++
++#ifndef __ASSEMBLY__
++
++struct sev_ap_jump_table_header {
++	u16	reset_ip;
++	u16	reset_cs;
++	u16	gdt_offset;
++};
++
++#endif /* !__ASSEMBLY__ */
++
++#endif /* __ASM_SEV_AP_JUMPTABLE_H */
 diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index 0946ef732a62..2147ebd0e919 100644
+index eedba56b6bac..0946ef732a62 100644
 --- a/arch/x86/kernel/sev.c
 +++ b/arch/x86/kernel/sev.c
-@@ -27,6 +27,7 @@
- #include <asm/fpu/internal.h>
- #include <asm/processor.h>
- #include <asm/realmode.h>
-+#include <asm/tlbflush.h>
- #include <asm/traps.h>
- #include <asm/svm.h>
- #include <asm/smp.h>
-@@ -695,6 +696,35 @@ static bool __init sev_es_setup_ghcb(void)
- }
+@@ -19,6 +19,7 @@
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
  
- #ifdef CONFIG_HOTPLUG_CPU
-+static void __noreturn sev_jumptable_ap_park(void)
-+{
-+	local_irq_disable();
-+
-+	write_cr3(real_mode_header->trampoline_pgd);
-+
-+	/* Exiting long mode will fail if CR4.PCIDE is set. */
-+	if (boot_cpu_has(X86_FEATURE_PCID))
-+		cr4_clear_bits(X86_CR4_PCIDE);
-+
-+	asm volatile("xorq	%%r15, %%r15\n"
-+		     "xorq	%%r14, %%r14\n"
-+		     "xorq	%%r13, %%r13\n"
-+		     "xorq	%%r12, %%r12\n"
-+		     "xorq	%%r11, %%r11\n"
-+		     "xorq	%%r10, %%r10\n"
-+		     "xorq	%%r9,  %%r9\n"
-+		     "xorq	%%r8,  %%r8\n"
-+		     "xorq	%%rsi, %%rsi\n"
-+		     "xorq	%%rdi, %%rdi\n"
-+		     "xorq	%%rsp, %%rsp\n"
-+		     "xorq	%%rbp, %%rbp\n"
-+		     "ljmpl	*%0" : :
-+		     "m" (real_mode_header->sev_real_ap_park_asm),
-+		     "b" (sev_es_jump_table_pa >> 4));
-+	unreachable();
-+}
-+STACK_FRAME_NON_STANDARD(sev_jumptable_ap_park);
-+
- static void sev_es_ap_hlt_loop(void)
- {
- 	struct ghcb_state state;
-@@ -731,8 +761,10 @@ static void sev_es_play_dead(void)
- 	play_dead_common();
- 
- 	/* IRQs now disabled */
--
--	sev_es_ap_hlt_loop();
-+	if (sev_ap_jumptable_blob_installed)
-+		sev_jumptable_ap_park();
-+	else
-+		sev_es_ap_hlt_loop();
- 
- 	/*
- 	 * If we get here, the VCPU was woken up again. Jump to CPU
-@@ -762,8 +794,9 @@ static inline void sev_es_setup_play_dead(void) { }
- static void __init sev_es_setup_ap_jump_table_data(void *base, u32 pa)
- {
- 	struct sev_ap_jump_table_header *header;
-+	u64 *ap_jumptable_gdt, *sev_ap_park_gdt;
- 	struct desc_ptr *gdt_descr;
--	u64 *ap_jumptable_gdt;
-+	int idx;
- 
- 	header = base;
- 
-@@ -773,8 +806,13 @@ static void __init sev_es_setup_ap_jump_table_data(void *base, u32 pa)
- 	 * real-mode.
- 	 */
- 	ap_jumptable_gdt = (u64 *)(base + header->gdt_offset);
--	ap_jumptable_gdt[SEV_APJT_CS16 / 8] = GDT_ENTRY(0x9b, pa, 0xffff);
--	ap_jumptable_gdt[SEV_APJT_DS16 / 8] = GDT_ENTRY(0x93, pa, 0xffff);
-+	sev_ap_park_gdt  = __va(real_mode_header->sev_ap_park_gdt);
-+
-+	idx = SEV_APJT_CS16 / 8;
-+	ap_jumptable_gdt[idx] = sev_ap_park_gdt[idx] = GDT_ENTRY(0x9b, pa, 0xffff);
-+
-+	idx = SEV_APJT_DS16 / 8;
-+	ap_jumptable_gdt[idx] = sev_ap_park_gdt[idx] = GDT_ENTRY(0x93, pa, 0xffff);
- 
- 	/* Write correct GDT base address into GDT descriptor */
- 	gdt_descr = (struct desc_ptr *)(base + header->gdt_offset);
-diff --git a/arch/x86/realmode/rm/Makefile b/arch/x86/realmode/rm/Makefile
-index 83f1b6a56449..a7f84d43a0a3 100644
---- a/arch/x86/realmode/rm/Makefile
-+++ b/arch/x86/realmode/rm/Makefile
-@@ -27,11 +27,12 @@ wakeup-objs	+= video-vga.o
- wakeup-objs	+= video-vesa.o
- wakeup-objs	+= video-bios.o
- 
--realmode-y			+= header.o
--realmode-y			+= trampoline_$(BITS).o
--realmode-y			+= stack.o
--realmode-y			+= reboot.o
--realmode-$(CONFIG_ACPI_SLEEP)	+= $(wakeup-objs)
-+realmode-y				+= header.o
-+realmode-y				+= trampoline_$(BITS).o
-+realmode-y				+= stack.o
-+realmode-y				+= reboot.o
-+realmode-$(CONFIG_ACPI_SLEEP)		+= $(wakeup-objs)
-+realmode-$(CONFIG_AMD_MEM_ENCRYPT)	+= sev_ap_park.o
- 
- targets	+= $(realmode-y)
- 
-diff --git a/arch/x86/realmode/rm/header.S b/arch/x86/realmode/rm/header.S
-index 8c1db5bf5d78..6c17f8fd1eb4 100644
---- a/arch/x86/realmode/rm/header.S
-+++ b/arch/x86/realmode/rm/header.S
-@@ -22,6 +22,9 @@ SYM_DATA_START(real_mode_header)
- 	.long	pa_trampoline_header
- #ifdef CONFIG_AMD_MEM_ENCRYPT
- 	.long	pa_sev_es_trampoline_start
-+	.long	pa_sev_ap_park_asm
-+	.long	__KERNEL32_CS
-+	.long	pa_sev_ap_park_gdt;
- #endif
- #ifdef CONFIG_X86_64
- 	.long	pa_trampoline_pgd;
-diff --git a/arch/x86/realmode/rm/sev_ap_park.S b/arch/x86/realmode/rm/sev_ap_park.S
-new file mode 100644
-index 000000000000..0b63d0569d4d
---- /dev/null
-+++ b/arch/x86/realmode/rm/sev_ap_park.S
-@@ -0,0 +1,89 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#include <linux/linkage.h>
-+#include <asm/segment.h>
-+#include <asm/page_types.h>
-+#include <asm/processor-flags.h>
-+#include <asm/msr-index.h>
 +#include <asm/sev-ap-jumptable.h>
-+#include "realmode.h"
+ #include <asm/cpu_entry_area.h>
+ #include <asm/stacktrace.h>
+ #include <asm/sev.h>
+@@ -45,6 +46,9 @@ static struct ghcb __initdata *boot_ghcb;
+ /* Cached AP Jump Table Address */
+ static phys_addr_t sev_es_jump_table_pa;
+ 
++/* Whether the AP Jump Table blob was successfully installed */
++static bool sev_ap_jumptable_blob_installed __ro_after_init;
 +
-+	.section ".text32", "ax"
-+	.code32
+ /* #VC handler runtime per-CPU data */
+ struct sev_es_runtime_data {
+ 	struct ghcb ghcb_page;
+@@ -749,6 +753,107 @@ static void __init sev_es_setup_play_dead(void)
+ static inline void sev_es_setup_play_dead(void) { }
+ #endif
+ 
 +/*
-+ * The following code switches to 16-bit protected mode and sets up the
-+ * execution environment for the AP Jump Table blob. Then it jumps to the AP
-+ * Jump Table to park the AP.
-+ *
-+ * The code was copied from reboot.S and modified to fit the SEV-ES requirements
-+ * for AP parking. When this code is entered, all registers except %EAX-%EDX are
-+ * in reset state.
-+ *
-+ * The AP Jump Table physical base address is in %EBX upon entry.
-+ *
-+ * %EAX, %ECX, %EDX and EFLAGS are undefined. Only use registers %EAX-%EDX and
-+ * %ESP in this code.
++ * This function make the necessary runtime changes to the AP Jump Table blob.
++ * For now this only sets up the GDT used while the code executes. The GDT needs
++ * to contain 16-bit code and data segments with a base that points to AP Jump
++ * Table page.
 + */
-+SYM_CODE_START(sev_ap_park_asm)
++static void __init sev_es_setup_ap_jump_table_data(void *base, u32 pa)
++{
++	struct sev_ap_jump_table_header *header;
++	struct desc_ptr *gdt_descr;
++	u64 *ap_jumptable_gdt;
 +
-+	/* Switch to trampoline GDT as it is guaranteed < 4 GiB */
-+	movl	$__KERNEL_DS, %eax
-+	movl	%eax, %ds
-+	lgdt	pa_tr_gdt
-+
-+	/* Disable paging to drop us out of long mode */
-+	movl	%cr0, %eax
-+	btcl	$X86_CR0_PG_BIT, %eax
-+	movl	%eax, %cr0
-+
-+	ljmpl	$__KERNEL32_CS, $pa_sev_ap_park_paging_off
-+
-+SYM_INNER_LABEL(sev_ap_park_paging_off, SYM_L_GLOBAL)
-+	/* Clear EFER */
-+	movl	$0, %eax
-+	movl	$0, %edx
-+	movl	$MSR_EFER, %ecx
-+	wrmsr
-+
-+	/* Clear CR3 */
-+	movl	$0, %ecx
-+	movl	%ecx, %cr3
-+
-+	/* Set up the IDT for real mode. */
-+	lidtl	pa_machine_real_restart_idt
++	header = base;
 +
 +	/*
-+	 * Load the GDT with the 16-bit segments for the AP Jump Table
++	 * Setup 16-bit protected mode code and data segments for AP Jumptable.
++	 * Set the segment limits to 0xffff to already be compatible with
++	 * real-mode.
 +	 */
-+	lgdtl	pa_sev_ap_park_gdt
++	ap_jumptable_gdt = (u64 *)(base + header->gdt_offset);
++	ap_jumptable_gdt[SEV_APJT_CS16 / 8] = GDT_ENTRY(0x9b, pa, 0xffff);
++	ap_jumptable_gdt[SEV_APJT_DS16 / 8] = GDT_ENTRY(0x93, pa, 0xffff);
 +
-+	/* Setup Code and Data segments for AP Jump Table */
-+	movw	$SEV_APJT_DS16, %ax
-+	movw	%ax, %ds
-+	movw	%ax, %ss
++	/* Write correct GDT base address into GDT descriptor */
++	gdt_descr = (struct desc_ptr *)(base + header->gdt_offset);
++	gdt_descr->address += pa;
++}
 +
-+	/* Jump to the AP Jump Table into 16 bit protected mode */
-+	ljmpw	$SEV_APJT_CS16, $SEV_APJT_ENTRY
-+SYM_CODE_END(sev_ap_park_asm)
++/*
++ * This function sets up the AP Jump Table blob which contains code which runs
++ * in 16-bit protected mode to park an AP. After the AP is woken up again the
++ * code will disable protected mode and jump to the reset vector which is also
++ * stored in the AP Jump Table.
++ *
++ * The Jump Table is a safe place to park an AP, because it is owned by the
++ * BIOS and writable by the OS. Putting the code in kernel memory would break
++ * with kexec, because by the time th APs wake up the memory is owned by
++ * the new kernel, and possibly already overwritten.
++ *
++ * Kexec is also the reason this function is called as an init-call after SMP
++ * bringup. Only after all CPUs are up there is a guarantee that no AP is still
++ * parked in AP jump-table code.
++ */
++static int __init sev_es_setup_ap_jump_table_blob(void)
++{
++	size_t blob_size = rm_ap_jump_table_blob_end - rm_ap_jump_table_blob;
++	u16 startup_cs, startup_ip;
++	u16 __iomem *jump_table;
++	phys_addr_t pa;
 +
-+	.data
++	if (!sev_es_active())
++		return 0;
++
++	if (sev_get_ghcb_proto_ver() < 2) {
++		pr_info("AP Jump Table parking requires at least GHCB protocol version 2\n");
++		return 0;
++	}
++
++	pa = get_jump_table_addr();
++
++	/* Overflow and size checks for untrusted Jump Table address */
++	if (pa + PAGE_SIZE < pa || pa + PAGE_SIZE > SZ_4G) {
++		pr_info("AP Jump Table is above 4GB - not enabling AP Jump Table parking\n");
++		return 0;
++	}
++
++	/* On UP guests there is no jump table so this is not a failure */
++	if (!pa)
++		return 0;
++
++	jump_table = ioremap_encrypted(pa, PAGE_SIZE);
++	if (WARN_ON(!jump_table))
++		return -EINVAL;
++
++	/*
++	 * Safe reset vector to restore it later because the blob will
++	 * overwrite it.
++	 */
++	startup_ip = jump_table[0];
++	startup_cs = jump_table[1];
++
++	/* Install AP Jump Table Blob with real mode AP parking code */
++	memcpy_toio(jump_table, rm_ap_jump_table_blob, blob_size);
++
++	/* Setup AP Jumptable GDT */
++	sev_es_setup_ap_jump_table_data(jump_table, (u32)pa);
++
++	writew(startup_ip, &jump_table[0]);
++	writew(startup_cs, &jump_table[1]);
++
++	iounmap(jump_table);
++
++	pr_info("AP Jump Table Blob successfully set up\n");
++
++	/* Mark AP Jump Table blob as available */
++	sev_ap_jumptable_blob_installed = true;
++
++	return 0;
++}
++core_initcall(sev_es_setup_ap_jump_table_blob);
++
+ static void __init alloc_runtime_data(int cpu)
+ {
+ 	struct sev_es_runtime_data *data;
+diff --git a/arch/x86/realmode/Makefile b/arch/x86/realmode/Makefile
+index 6b1f3a4eeb44..e9a0a3b86a5a 100644
+--- a/arch/x86/realmode/Makefile
++++ b/arch/x86/realmode/Makefile
+@@ -12,12 +12,19 @@ KASAN_SANITIZE			:= n
+ KCSAN_SANITIZE			:= n
+ OBJECT_FILES_NON_STANDARD	:= y
+ 
++RMPIGGY-y				 = $(obj)/rm/realmode.bin
++RMPIGGY-$(CONFIG_AMD_MEM_ENCRYPT)	+= $(obj)/sev/ap_jump_table.bin
++
+ subdir- := rm
++subdir- := sev
+ 
+ obj-y += init.o
+ obj-y += rmpiggy.o
+ 
+-$(obj)/rmpiggy.o: $(obj)/rm/realmode.bin
++$(obj)/rmpiggy.o: $(RMPIGGY-y)
+ 
+ $(obj)/rm/realmode.bin: FORCE
+ 	$(Q)$(MAKE) $(build)=$(obj)/rm $@
++
++$(obj)/sev/ap_jump_table.bin: FORCE
++	$(Q)$(MAKE) $(build)=$(obj)/sev $@
+diff --git a/arch/x86/realmode/rmpiggy.S b/arch/x86/realmode/rmpiggy.S
+index c8fef76743f6..a659f98617ff 100644
+--- a/arch/x86/realmode/rmpiggy.S
++++ b/arch/x86/realmode/rmpiggy.S
+@@ -17,3 +17,9 @@ SYM_DATA_END_LABEL(real_mode_blob, SYM_L_GLOBAL, real_mode_blob_end)
+ SYM_DATA_START(real_mode_relocs)
+ 	.incbin	"arch/x86/realmode/rm/realmode.relocs"
+ SYM_DATA_END(real_mode_relocs)
++
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++SYM_DATA_START(rm_ap_jump_table_blob)
++	.incbin "arch/x86/realmode/sev/ap_jump_table.bin"
++SYM_DATA_END_LABEL(rm_ap_jump_table_blob, SYM_L_GLOBAL, rm_ap_jump_table_blob_end)
++#endif
+diff --git a/arch/x86/realmode/sev/Makefile b/arch/x86/realmode/sev/Makefile
+new file mode 100644
+index 000000000000..5a96a518ccb3
+--- /dev/null
++++ b/arch/x86/realmode/sev/Makefile
+@@ -0,0 +1,41 @@
++#
++# arch/x86/sev/Makefile
++#
++# This file is subject to the terms and conditions of the GNU General Public
++# License.  See the file "COPYING" in the main directory of this archive
++# for more details.
++#
++
++# Sanitizer runtimes are unavailable and cannot be linked here.
++KASAN_SANITIZE			:= n
++KCSAN_SANITIZE			:= n
++OBJECT_FILES_NON_STANDARD	:= y
++
++# Prevents link failures: __sanitizer_cov_trace_pc() is not linked in.
++KCOV_INSTRUMENT		:= n
++
++always-y := ap_jump_table.bin
++
++ap_jump_table-y				+= ap_jump_table.o
++
++targets	+= $(ap_jump_table-y)
++
++APJUMPTABLE_OBJS = $(addprefix $(obj)/,$(ap_jump_table-y))
++
++LDFLAGS_ap_jump_table.elf := -m elf_i386 -T
++
++targets += ap_jump_table.elf
++$(obj)/ap_jump_table.elf: $(obj)/ap_jump_table.lds $(APJUMPTABLE_OBJS) FORCE
++	$(call if_changed,ld)
++
++OBJCOPYFLAGS_ap_jump_table.bin := -O binary
++
++targets += ap_jump_table.bin
++$(obj)/ap_jump_table.bin: $(obj)/ap_jump_table.elf FORCE
++	$(call if_changed,objcopy)
++
++# ---------------------------------------------------------------------------
++
++KBUILD_AFLAGS	:= $(REALMODE_CFLAGS) -D__ASSEMBLY__
++GCOV_PROFILE := n
++UBSAN_SANITIZE := n
+diff --git a/arch/x86/realmode/sev/ap_jump_table.S b/arch/x86/realmode/sev/ap_jump_table.S
+new file mode 100644
+index 000000000000..547cb363bb94
+--- /dev/null
++++ b/arch/x86/realmode/sev/ap_jump_table.S
+@@ -0,0 +1,130 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++
++#include <linux/linkage.h>
++#include <asm/sev-ap-jumptable.h>
++
++/*
++ * This file contains the source code for the binary blob which gets copied to
++ * the SEV-ES AP Jumptable to park APs while offlining CPUs or booting a new
++ * kernel via KEXEC.
++ *
++ * The AP Jumptable is the only safe place to put this code, as any memory the
++ * kernel allocates will be owned (and possibly overwritten) by the new kernel
++ * once the APs are woken up.
++ *
++ * This code runs in 16-bit protected mode, the CS, DS, and SS segment bases are
++ * set to the beginning of the AP Jumptable page.
++ *
++ * Since the GDT will also be gone when the AP wakes up, this blob contains its
++ * own GDT, which is set up by the AP Jumptable setup code with the correct
++ * offsets.
++ *
++ * Author: Joerg Roedel <jroedel@suse.de>
++ */
++
++	.text
++	.org 0x0
++	.code16
++SYM_DATA_START(ap_jumptable_header)
++	.word	0			/* reset IP */
++	.word	0			/* reset CS */
++	.word	ap_jumptable_gdt	/* GDT Offset   */
++SYM_DATA_END(ap_jumptable_header)
++
++	.org	SEV_APJT_ENTRY
++SYM_CODE_START(ap_park_asm)
++
++	/* Switch to AP Jumptable GDT first */
++	lgdtl	ap_jumptable_gdt
++
++	/* Reload CS */
++	ljmpw	$SEV_APJT_CS16, $1f
++1:
++
++	/* Reload DS and SS */
++	movl	$SEV_APJT_DS16, %ecx
++	movl	%ecx, %ds
++	movl	%ecx, %ss
++
++	/*
++	 * Setup a stack pointing to the end of the AP Jumptable page.
++	 * The stack is needed ot reset EFLAGS after wakeup.
++	 */
++	movl	$0x1000, %esp
++
++	/* Execute AP reset hold VMGEXIT */
++2:	xorl	%edx, %edx
++	movl	$0x6, %eax
++	movl	$0xc0010130, %ecx
++	wrmsr
++	rep; vmmcall
++	rdmsr
++	movl	%eax, %ecx
++	andl	$0xfff, %ecx
++	cmpl	$0x7, %ecx
++	jne	2b
++	shrl	$12, %eax
++	jnz	3f
++	testl	%edx, %edx
++	jnz	3f
++	jmp	2b
++3:
++	/*
++	 * Successfully woken up - Patch the correct target into the far jump at
++	 * the end. An indirect far jump does not work here, because at the time
++	 * the jump is executed DS is already loaded with real-mode values.
++	 */
++
++	/* Jump target is at address 0x0 - copy it to the far jump instruction */
++	movl	$0, %ecx
++	movl	(%ecx), %eax
++	movl	%eax, jump_target
++
++	/* Reset EFLAGS */
++	pushl	$2
++	popfl
++
++	/* Setup DS and SS for real-mode */
++	movl	$0x18, %ecx
++	movl	%ecx, %ds
++	movl	%ecx, %ss
++
++	/* Reset remaining registers */
++	movl	$0, %esp
++	movl	$0, %eax
++	movl	$0, %ebx
++	movl	$0, %edx
++
++	/* Reset CR0 to get out of protected mode */
++	movl	$0x60000010, %ecx
++	movl	%ecx, %cr0
++
++	/*
++	 * The below sums up to a far-jump instruction which jumps to the reset
++	 * vector configured in the AP Jumptable and to real-mode. An indirect
++	 * jump would be cleaner, but requires a working DS base/limit. DS is
++	 * already loaded with real-mode values, therefore a direct far jump is
++	 * used which got the correct target patched in.
++	 */
++	.byte	0xea
++SYM_DATA_LOCAL(jump_target, .long 0)
++
++SYM_CODE_END(ap_park_asm)
++	/* Here comes the GDT */
 +	.balign	16
-+SYM_DATA_START(sev_ap_park_gdt)
-+	/* Self-pointer */
-+	.word	sev_ap_park_gdt_end - sev_ap_park_gdt - 1
-+	.long	pa_sev_ap_park_gdt
++SYM_DATA_START_LOCAL(ap_jumptable_gdt)
++	/* Offset zero used for GDT descriptor */
++	.word	ap_jumptable_gdt_end - ap_jumptable_gdt - 1
++	.long	ap_jumptable_gdt
 +	.word	0
 +
-+	/*
-+	 * Offset 0x8
-+	 * 32 bit code segment descriptor pointing to AP Jump table base
-+	 * Setup at runtime in sev_es_setup_ap_jump_table_data().
-+	 */
-+	.quad	0
++	/* 16 bit code segment - setup at boot */
++	.quad 0
 +
-+	/*
-+	 * Offset 0x10
-+	 * 32 bit data segment descriptor pointing to AP Jump table base
-+	 * Setup at runtime in sev_es_setup_ap_jump_table_data().
-+	 */
-+	.quad	0
-+SYM_DATA_END_LABEL(sev_ap_park_gdt, SYM_L_GLOBAL, sev_ap_park_gdt_end)
++	/* 16 bit data segment - setup at boot */
++	.quad 0
++
++	/* Offset 0x8 - real-mode data segment */
++	.long	0xffff0180
++	.long	0x00009300
++SYM_DATA_END_LABEL(ap_jumptable_gdt, SYM_L_LOCAL, ap_jumptable_gdt_end)
+diff --git a/arch/x86/realmode/sev/ap_jump_table.lds b/arch/x86/realmode/sev/ap_jump_table.lds
+new file mode 100644
+index 000000000000..e3a1220f36db
+--- /dev/null
++++ b/arch/x86/realmode/sev/ap_jump_table.lds
+@@ -0,0 +1,24 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * ap_jump_table.lds
++ *
++ * Linker script for the SEV-ES AP Jump Table Code
++ */
++
++OUTPUT_FORMAT("elf32-i386")
++OUTPUT_ARCH(i386)
++ENTRY(ap_park_asm)
++
++SECTIONS
++{
++	. = 0;
++	.text : {
++		*(.text)
++		*(.text.*)
++	}
++
++	/DISCARD/ : {
++		*(.note*)
++		*(.debug*)
++	}
++}
 -- 
 2.31.1
 
