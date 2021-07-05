@@ -2,113 +2,106 @@ Return-Path: <SRS0=2LZG=L5=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A192C07E9B
-	for <virtualization@archiver.kernel.org>; Mon,  5 Jul 2021 12:18:42 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F5DEC07E9B
+	for <virtualization@archiver.kernel.org>; Mon,  5 Jul 2021 12:50:17 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C317C61374
-	for <virtualization@archiver.kernel.org>; Mon,  5 Jul 2021 12:18:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C317C61374
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id A9CA1613E0
+	for <virtualization@archiver.kernel.org>; Mon,  5 Jul 2021 12:50:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A9CA1613E0
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 85A7B40375;
-	Mon,  5 Jul 2021 12:18:41 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 653CD40483;
+	Mon,  5 Jul 2021 12:50:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id T8VjhS5GWZMq; Mon,  5 Jul 2021 12:18:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 12E72401E8;
-	Mon,  5 Jul 2021 12:18:40 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DB476C001A;
-	Mon,  5 Jul 2021 12:18:39 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D764FC000E
- for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jul 2021 12:18:37 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id C4707402C6
- for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jul 2021 12:18:37 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XnlcMGm3hpCy
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id dqGKcvRzOpWv; Mon,  5 Jul 2021 12:50:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 43B0C403EC;
+	Mon,  5 Jul 2021 12:50:14 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1498BC001A;
+	Mon,  5 Jul 2021 12:50:14 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BECA1C000E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jul 2021 12:18:35 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com
- [IPv6:2607:f8b0:4864:20::431])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7A1864024C
+ Mon,  5 Jul 2021 12:50:12 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 8C14983837
  for <virtualization@lists.linux-foundation.org>;
- Mon,  5 Jul 2021 12:18:35 +0000 (UTC)
-Received: by mail-pf1-x431.google.com with SMTP id w22so12889546pff.5
+ Mon,  5 Jul 2021 12:50:12 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id iZgyF9MrJNKX
  for <virtualization@lists.linux-foundation.org>;
- Mon, 05 Jul 2021 05:18:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=u4GEMXqrVqxTiuERmBBzhK0c9EgdVjMcqN5EyjmdR60=;
- b=IxrUn1LmGvOtzScwNxvADvtlbcqMdlIb2lKdy744YfPAlPzhXlfo2xb9uEYNhFUHc6
- oWOSJUTSoMDUttRI0b9TaZts+dkOP1PuGqJdxM5Bo3BC/5IeLW8QaAG32wLD9HFPIHl5
- i1Rqz/8RbeQom8kwEmlCNkGMTIGSvV1IeYDAnrPMm0AZkWUQGrQF/oovTz+1ltVCAl6q
- Vtn0ta5A0zGr+Tag2SAH33SNdXKRGaTYASlihNvMApKV0tQAtkDTCS3uD47TBj+AFW4d
- S7IF0YH9w+6iSkvaAFUBSmx+W1s/0Vtbk9y2qF/s2AxjZBgy50hKCBsKS3h3tYas+WO2
- bzBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=u4GEMXqrVqxTiuERmBBzhK0c9EgdVjMcqN5EyjmdR60=;
- b=fqF1w7gWYt1VN9k0WnKsh3SkQnX70g6CcG12JSBGa2ZUwBKCfjfTpEfOP0D4mi4Hho
- hFBhq5vPw28k6rSFo/2tyNojatPoj8XqRGwoGy98dNA/w2noA3J3ZcB6iWGvdf1JIPLy
- b3FsAybb96mWXmucgHVoz6heZVn9IZtl5UkAE4AKdv98Z/k/PdhsCDem4gqckZw1jIWZ
- WmQ2KymVoAdVKp7tnlHSTWRcfb9DUAbZiowXcjDcchLuHQMsvWF8dcbai77R5oiqJzI3
- f/+fLCA+2TuKe09clHuIGGkWLH9yH35lyK4I1hAoHcTvn1J4etlD6P4wFVDbDCclEo4w
- tV9w==
-X-Gm-Message-State: AOAM532eBmYgyGQ060ihC6PJTILeuP/kX3Z1KwX1SST3djgiwHAD4uuk
- W5Z1Iw+tMgdsI4SIc06I1BLZjw==
-X-Google-Smtp-Source: ABdhPJyTYM9QsZt+DYXU859OWip3irzytNPEbNakK54hTszjXI/wJpcc+0dtyXT55ww9/BS+VBzBVA==
-X-Received: by 2002:a63:f556:: with SMTP id e22mr15436308pgk.189.1625487514767; 
- Mon, 05 Jul 2021 05:18:34 -0700 (PDT)
-Received: from localhost ([106.201.108.2])
- by smtp.gmail.com with ESMTPSA id f17sm21157918pjj.21.2021.07.05.05.18.33
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 05 Jul 2021 05:18:34 -0700 (PDT)
-Date: Mon, 5 Jul 2021 17:48:32 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Wolfram Sang <wsa@kernel.org>, Jie Deng <jie.deng@intel.com>,
- linux-i2c@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
- andriy.shevchenko@linux.intel.com, conghui.chen@intel.com,
- arnd@arndb.de, kblaiech@mellanox.com, jarkko.nikula@linux.intel.com,
- Sergey.Semin@baikalelectronics.ru, rppt@kernel.org,
- loic.poulain@linaro.org, tali.perry1@gmail.com,
- u.kleine-koenig@pengutronix.de, bjorn.andersson@linaro.org,
- yu1.wang@intel.com, shuo.a.liu@intel.com, stefanha@redhat.com,
- pbonzini@redhat.com
-Subject: Re: [PATCH v10] i2c: virtio: add a virtio i2c frontend driver
-Message-ID: <20210705121832.fmye5xnlbydoc5ir@vireshk-i7>
-References: <226a8d5663b7bb6f5d06ede7701eedb18d1bafa1.1616493817.git.jie.deng@intel.com>
- <YNrw4rxihFLuqLtY@ninjato>
- <20210629101627.kwc2rszborc3kvjs@vireshk-i7>
- <YNr0uDx1fv+Gjd7m@ninjato>
- <20210629103014.nlk3mpetydc4mi6l@vireshk-i7>
- <YNr5Jf3WDTH7U5b7@ninjato> <YNr5ZRhT3qn+e9/m@ninjato>
+ Mon,  5 Jul 2021 12:50:11 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id B35CD836A5
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  5 Jul 2021 12:50:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1625489410;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=W8G/JsyH47bF0khJGv25MPY6jNei9NxXk5kKt2MzRCU=;
+ b=WG/IDJw9zwQK88YZqshvNZRs+Ku1Vb1nWMw7ut/7X2nnkHhYXeJR0PAZJrCNqehz5okyd7
+ N0M3Mffc0o+nojO72ybSCg0rLJArvlPEE2jiiL7fM1ZYz3f9yHgksPj3RftXXrbOkupGZk
+ C6F21M9FQ5gnqbR6hc6L/bGK8rmhVJc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-145-ugf42SHOMTOwWKHm8Kh2QQ-1; Mon, 05 Jul 2021 08:50:09 -0400
+X-MC-Unique: ugf42SHOMTOwWKHm8Kh2QQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
+ [10.5.11.12])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id EA3EB1023F40;
+ Mon,  5 Jul 2021 12:50:05 +0000 (UTC)
+Received: from localhost (ovpn-114-164.ams2.redhat.com [10.36.114.164])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 5985260C0F;
+ Mon,  5 Jul 2021 12:49:59 +0000 (UTC)
+Date: Mon, 5 Jul 2021 13:49:58 +0100
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v8 10/10] Documentation: Add documentation for VDUSE
+Message-ID: <YOL/9mxkJaokKDHc@stefanha-x1.localdomain>
+References: <20210615141331.407-1-xieyongji@bytedance.com>
+ <20210615141331.407-11-xieyongji@bytedance.com>
+ <YNSCH6l31zwPxBjL@stefanha-x1.localdomain>
+ <CACycT3uxnQmXWsgmNVxQtiRhz1UXXTAJFY3OiAJqokbJH6ifMA@mail.gmail.com>
+ <YNxCDpM3bO5cPjqi@stefanha-x1.localdomain>
+ <CACycT3taKhf1cWp3Jd0aSVekAZvpbR-_fkyPLQ=B+jZBB5H=8Q@mail.gmail.com>
+ <YN3ABqCMLQf7ejOm@stefanha-x1.localdomain>
+ <CACycT3vo-diHgTSLw_FS2E+5ia5VjihE3qw7JmZR7JT55P-wQA@mail.gmail.com>
+ <8320d26d-6637-85c6-8773-49553dfa502d@redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <YNr5ZRhT3qn+e9/m@ninjato>
-User-Agent: NeoMutt/20180716-391-311a52
+In-Reply-To: <8320d26d-6637-85c6-8773-49553dfa502d@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Cc: kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Christian Brauner <christian.brauner@canonical.com>,
+ Jonathan Corbet <corbet@lwn.net>, joro@8bytes.org,
+ Matthew Wilcox <willy@infradead.org>, Christoph Hellwig <hch@infradead.org>,
+ Yongji Xie <xieyongji@bytedance.com>, Dan Carpenter <dan.carpenter@oracle.com>,
+ Al Viro <viro@zeniv.linux.org.uk>, songmuchun@bytedance.com,
+ Jens Axboe <axboe@kernel.dk>, Greg KH <gregkh@linuxfoundation.org>,
+ Randy Dunlap <rdunlap@infradead.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>, iommu@lists.linux-foundation.org,
+ bcrl@kvack.org, netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@nextfour.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,87 +113,170 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============2459970416827092063=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 29-06-21, 12:43, Wolfram Sang wrote:
-> 
-> > From the spec:
-> > 
-> > The case when ``length of \field{write_buf}''=0, and at the same time,
-> > ``length of \field{read_buf}''=0 doesn't make any sense.
-> > 
-> > I mentioned this in my first reply and to my understanding I did not get
-> > a reply that this has changed meanwhile.
-> > 
-> 
-> Also, this code as mentioned before:
-> 
-> > +             if (!msgs[i].len)
-> > +                     break;
-> 
-> I hope this can extended in the future to allow zero-length messages. If
-> this is impossible we need to set an adapter quirk instead.
 
-Wolfram,
-
-I stumbled again upon this while working at the backend implementation.
-
-If you look at i2c_smbus_xfer_emulated(), the command is always sent via
-msgbuf0[0]. Even in the case of I2C_SMBUS_QUICK, where we set msg[0].len = 0, we
-still send the buf. This is really confusing :(
-
-Do I understand correctly that we always need to send msg[0].buf even when
-msg[0].len is 0 ?
-
-If so, it would be difficult to implement this with the current i2c virtio
-specification, as the msg.len isn't really passed from guest to host, rather it
-is inferred using the length of the buffer itself. And so we can't really pass a
-buffer if length is 0.
-
-Moreover, the driver uses i2c_get_dma_safe_msg_buf(), which also depends on the
-length parameter here to allocate the buffer and copy data to it.
-
-All in all, the latest version of the driver doesn't work with "i2cdetect -q <bus>".
-
-To make it work, I had to add this:
-
-diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-index 731267d42292..5b8bd98ae38e 100644
---- a/drivers/i2c/busses/i2c-virtio.c
-+++ b/drivers/i2c/busses/i2c-virtio.c
-@@ -73,6 +73,9 @@ static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
-                sg_init_one(&out_hdr, &reqs[i].out_hdr, sizeof(reqs[i].out_hdr));
-                sgs[outcnt++] = &out_hdr;
-
-+               if (!msgs[i].len)
-+                       msgs[i].len = 1;
-+
-                if (msgs[i].len) {
-                        reqs[i].buf = i2c_get_dma_safe_msg_buf(&msgs[i], 1);
-                        if (!reqs[i].buf)
-
-which made it I2C_SMBUS_BYTE instead of I2C_SMBUS_QUICK.
-
-What should we do here Wolfram?
+--===============2459970416827092063==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="nJZEr38ROGX7NVP+"
+Content-Disposition: inline
 
 
-Jie, while wolfram comes back and replies to this, I think you need to switch
-back to NOT supporting zero length transfer and set update virtio_i2c_func() to
-return:
+--nJZEr38ROGX7NVP+
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-        I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
+On Mon, Jul 05, 2021 at 11:36:15AM +0800, Jason Wang wrote:
+>=20
+> =E5=9C=A8 2021/7/4 =E4=B8=8B=E5=8D=885:49, Yongji Xie =E5=86=99=E9=81=93:
+> > > > OK, I get you now. Since the VIRTIO specification says "Device
+> > > > configuration space is generally used for rarely-changing or
+> > > > initialization-time parameters". I assume the VDUSE_DEV_SET_CONFIG
+> > > > ioctl should not be called frequently.
+> > > The spec uses MUST and other terms to define the precise requirements.
+> > > Here the language (especially the word "generally") is weaker and mea=
+ns
+> > > there may be exceptions.
+> > >=20
+> > > Another type of access that doesn't work with the VDUSE_DEV_SET_CONFIG
+> > > approach is reads that have side-effects. For example, imagine a field
+> > > containing an error code if the device encounters a problem unrelated=
+ to
+> > > a specific virtqueue request. Reading from this field resets the error
+> > > code to 0, saving the driver an extra configuration space write access
+> > > and possibly race conditions. It isn't possible to implement those
+> > > semantics suing VDUSE_DEV_SET_CONFIG. It's another corner case, but it
+> > > makes me think that the interface does not allow full VIRTIO semantic=
+s.
+>=20
+>=20
+> Note that though you're correct, my understanding is that config space is
+> not suitable for this kind of error propagating. And it would be very hard
+> to implement such kind of semantic in some transports.=C2=A0 Virtqueue sh=
+ould be
+> much better. As Yong Ji quoted, the config space is used for
+> "rarely-changing or intialization-time parameters".
+>=20
+>=20
+> > Agreed. I will use VDUSE_DEV_GET_CONFIG in the next version. And to
+> > handle the message failure, I'm going to add a return value to
+> > virtio_config_ops.get() and virtio_cread_* API so that the error can
+> > be propagated to the virtio device driver. Then the virtio-blk device
+> > driver can be modified to handle that.
+> >=20
+> > Jason and Stefan, what do you think of this way?
 
-Support for zero-length transfers and I2C_FUNC_SMBUS_QUICK can be added
-separately.
+Why does VDUSE_DEV_GET_CONFIG need to support an error return value?
 
-Thanks.
+The VIRTIO spec provides no way for the device to report errors from
+config space accesses.
 
--- 
-viresh
+The QEMU virtio-pci implementation returns -1 from invalid
+virtio_config_read*() and silently discards virtio_config_write*()
+accesses.
+
+VDUSE can take the same approach with
+VDUSE_DEV_GET_CONFIG/VDUSE_DEV_SET_CONFIG.
+
+> I'd like to stick to the current assumption thich get_config won't fail.
+> That is to say,
+>=20
+> 1) maintain a config in the kernel, make sure the config space read can
+> always succeed
+> 2) introduce an ioctl for the vduse usersapce to update the config space.
+> 3) we can synchronize with the vduse userspace during set_config
+>=20
+> Does this work?
+
+I noticed that caching is also allowed by the vhost-user protocol
+messages (QEMU's docs/interop/vhost-user.rst), but the device doesn't
+know whether or not caching is in effect. The interface you outlined
+above requires caching.
+
+Is there a reason why the host kernel vDPA code needs to cache the
+configuration space?
+
+Here are the vhost-user protocol messages:
+
+  Virtio device config space
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  +--------+------+-------+---------+
+  | offset | size | flags | payload |
+  +--------+------+-------+---------+
+
+  :offset: a 32-bit offset of virtio device's configuration space
+
+  :size: a 32-bit configuration space access size in bytes
+
+  :flags: a 32-bit value:
+    - 0: Vhost master messages used for writeable fields
+    - 1: Vhost master messages used for live migration
+
+  :payload: Size bytes array holding the contents of the virtio
+            device's configuration space
+
+  ...
+
+  ``VHOST_USER_GET_CONFIG``
+    :id: 24
+    :equivalent ioctl: N/A
+    :master payload: virtio device config space
+    :slave payload: virtio device config space
+
+    When ``VHOST_USER_PROTOCOL_F_CONFIG`` is negotiated, this message is
+    submitted by the vhost-user master to fetch the contents of the
+    virtio device configuration space, vhost-user slave's payload size
+    MUST match master's request, vhost-user slave uses zero length of
+    payload to indicate an error to vhost-user master. The vhost-user
+    master may cache the contents to avoid repeated
+    ``VHOST_USER_GET_CONFIG`` calls.
+
+  ``VHOST_USER_SET_CONFIG``
+    :id: 25
+    :equivalent ioctl: N/A
+    :master payload: virtio device config space
+    :slave payload: N/A
+
+    When ``VHOST_USER_PROTOCOL_F_CONFIG`` is negotiated, this message is
+    submitted by the vhost-user master when the Guest changes the virtio
+    device configuration space and also can be used for live migration
+    on the destination host. The vhost-user slave must check the flags
+    field, and slaves MUST NOT accept SET_CONFIG for read-only
+    configuration space fields unless the live migration bit is set.
+
+Stefan
+
+--nJZEr38ROGX7NVP+
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmDi//YACgkQnKSrs4Gr
+c8jgKwf/S3jEpQ3OvcO2LwK0GDdjhgQBhsendLEbARZ7hCRFfpQT9NfPYYUu6ct/
+WLxxofULohkENWZgImWB7p0JD3XhfXusVRbY8gy70ZjrQ9LuTglcJHd0ZBOdW9nI
+ZE/AWB6ltdKTSFUmiEh+rQ2KyLB55l8VPpNhEL/KhztpGM3ZqpStVNwgpGJE4D53
+7/tXKbqCMBLdVenAetRVOdbi+/DXXgCpPVutcTKEirfkJqZaum8PqPQUoT4rh1j9
+vHVvnKRGLLsdLxCSa5Jw2jF9Ting+CbCV38QKdYTv8nWX7LFwIRd+xYkSkUea3i3
+aRvxtciBZWCajqsu/TEsHsk1sQn4Sg==
+=GVfM
+-----END PGP SIGNATURE-----
+
+--nJZEr38ROGX7NVP+--
+
+
+--===============2459970416827092063==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============2459970416827092063==--
+
