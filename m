@@ -7,69 +7,66 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6E35C11F6A
-	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 11:29:46 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A332C11F6F
+	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 11:29:49 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6917861F6B
-	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 11:29:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6917861F6B
+	by mail.kernel.org (Postfix) with ESMTPS id 0F2C861F89
+	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 11:29:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0F2C861F89
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4617F837B9;
-	Tue,  6 Jul 2021 11:29:46 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id BECC94036F;
+	Tue,  6 Jul 2021 11:29:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9GAM0sdO_peU; Tue,  6 Jul 2021 11:29:45 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0498E83750;
-	Tue,  6 Jul 2021 11:29:44 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pjR5z0mKjA3r; Tue,  6 Jul 2021 11:29:47 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 30D5740323;
+	Tue,  6 Jul 2021 11:29:47 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CADCEC0010;
-	Tue,  6 Jul 2021 11:29:44 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 87370C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0A1ECC0010;
+	Tue,  6 Jul 2021 11:29:47 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CF65EC001D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 11:29:43 +0000 (UTC)
+ Tue,  6 Jul 2021 11:29:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 6930C401B5
+ by smtp4.osuosl.org (Postfix) with ESMTP id B0BD340369
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  6 Jul 2021 11:29:44 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lHpQPfPme-Sn
  for <virtualization@lists.linux-foundation.org>;
  Tue,  6 Jul 2021 11:29:43 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id U2Hvj-ZtQWcl
- for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 11:29:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp2.osuosl.org (Postfix) with ESMTPS id BCEC7400CD
+ by smtp4.osuosl.org (Postfix) with ESMTPS id DB30C40323
  for <virtualization@lists.linux-foundation.org>;
+ Tue,  6 Jul 2021 11:29:43 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E9A4061DFA;
  Tue,  6 Jul 2021 11:29:42 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C52AF61F45;
- Tue,  6 Jul 2021 11:29:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1625570982;
- bh=2cP6HYPMtPVu7Ubwu2OuPXW6uDmh/dY1DWdA5sj8Tww=;
+ s=k20201202; t=1625570983;
+ bh=8yNEdd/0MjZ/xocDbC+PHtFygZD/hiHQOqnRNmoxL2A=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=G5CvV7SoNiQCeTDJ/E+Bib6Qej5z7TeuEo1sFYN79gle03xXIokj0KgZ+BoC80vGZ
- aLAaWafyJxaNELq0KwzE87dES9xOVIQxw+fz19OD5JQHiim9ZCVN744r8D7hbdkYT8
- QXGVg7G6lXMJPy7y7T1IkedGLpUsEIYMmvzRIIJyvoFYACWKovi5E9Olv7DmPmInbf
- T9Ib0e87oImSOE5qv3sU41MLpOo0+KcZUJblw47NZ88jJaIJMuuS8uKqnROPY5jr88
- 088j0Nq1FePGdGIYWB4K/oKdKQi03EuOORVO5t5pQamJ7bKVljsUiFOj+Zu31MvajW
- 0OY/jzrfujPSQ==
+ b=gGLz3ASUuoWKBkAiQlUFl8ZLXlbymlpX1HxfH1dLku4mWiLYY//fijbiE+phsr4w/
+ gnvinln6KrmDCpAngFyo6dyMon9oJvYqhsJ/qcs3XLmdNODfciUsXmy8lWrR0c4YGE
+ NdOYdPhpaSQE2FFmd44FRj55dpJLhs0Wi+iboXaJcmBO+7AiYbxUB1IxliwZz/kdak
+ JYAcBJdq/NqNdIQj1rPiOURchK0bqgNIdqvfEm0QB9DF5VEYTbOAGjXT3wEob3ilHE
+ LuvDbGcrjRIix1p/LIS50/nVndDAVki3l/Dj7j5dk7boVjcuthMjfPFEnbwaJpg4g5
+ UWV54v3D1QWpg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 08/31] drm/virtio: Fixes a potential NULL pointer
- dereference on probe failure
-Date: Tue,  6 Jul 2021 07:29:08 -0400
-Message-Id: <20210706112931.2066397-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 09/31] drm/virtio: Fix double free on probe failure
+Date: Tue,  6 Jul 2021 07:29:09 -0400
+Message-Id: <20210706112931.2066397-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112931.2066397-1-sashal@kernel.org>
 References: <20210706112931.2066397-1-sashal@kernel.org>
@@ -96,34 +93,34 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit 17f46f488a5d82c5568e6e786cd760bba1c2ee09 ]
+[ Upstream commit cec7f1774605a5ef47c134af62afe7c75c30b0ee ]
 
-The dev->dev_private might not be allocated if virtio_gpu_pci_quirk()
-or virtio_gpu_init() failed. In this case, we should avoid the cleanup
-in virtio_gpu_release().
+The virtio_gpu_init() will free vgdev and vgdev->vbufs on failure.
+But such failure will be caught by virtio_gpu_probe() and then
+virtio_gpu_release() will be called to do some cleanup which
+will free vgdev and vgdev->vbufs again. So let's set dev->dev_private
+to NULL to avoid double free.
 
 Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/20210517084913.403-1-xieyongji@bytedance.com
+Link: http://patchwork.freedesktop.org/patch/msgid/20210517084913.403-2-xieyongji@bytedance.com
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_kms.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/virtio/virtgpu_kms.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 476b9993b068..88ed5e235e55 100644
+index 88ed5e235e55..fcf9b572ec03 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -257,6 +257,9 @@ int virtio_gpu_driver_unload(struct drm_device *dev)
- 	flush_work(&vgdev->config_changed_work);
+@@ -233,6 +233,7 @@ int virtio_gpu_driver_load(struct drm_device *dev, unsigned long flags)
+ err_vbufs:
  	vgdev->vdev->config->del_vqs(vgdev->vdev);
- 
-+	if (!vgdev)
-+		return;
-+
- 	virtio_gpu_modeset_fini(vgdev);
- 	virtio_gpu_ttm_fini(vgdev);
- 	virtio_gpu_free_vbufs(vgdev);
+ err_vqs:
++	dev->dev_private = NULL;
+ 	kfree(vgdev);
+ 	return ret;
+ }
 -- 
 2.30.2
 
