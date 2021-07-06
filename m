@@ -7,85 +7,182 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A6ADC07E96
-	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 13:16:54 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56176C11F75
+	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 16:09:49 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DC56E6192B
-	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 13:16:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DC56E6192B
+	by mail.kernel.org (Postfix) with ESMTPS id EA0D961A11
+	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 16:09:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EA0D961A11
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A84E2605D5;
-	Tue,  6 Jul 2021 13:16:53 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id ABF914037A;
+	Tue,  6 Jul 2021 16:09:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7mbdRfiwkpPW; Tue,  6 Jul 2021 13:16:52 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id E33296059D;
-	Tue,  6 Jul 2021 13:16:51 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id AQ6kZrRq0Mbd; Tue,  6 Jul 2021 16:09:47 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 81B4540369;
+	Tue,  6 Jul 2021 16:09:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BC514C0010;
-	Tue,  6 Jul 2021 13:16:51 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 73E7CC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 44DFAC001A;
+	Tue,  6 Jul 2021 16:09:46 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9DC3DC000E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 13:16:50 +0000 (UTC)
+ Tue,  6 Jul 2021 16:09:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E2F3C82ECF
+ by smtp2.osuosl.org (Postfix) with ESMTP id 895BA401DE
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 13:14:19 +0000 (UTC)
+ Tue,  6 Jul 2021 16:09:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id WVOKdcby8ds7
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ktyLJy49Z35X
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 13:14:18 +0000 (UTC)
+ Tue,  6 Jul 2021 16:09:43 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id AA210839E5
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 1D4A640022
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 13:14:18 +0000 (UTC)
+ Tue,  6 Jul 2021 16:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1625577257;
+ s=mimecast20190719; t=1625587781;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=A+vURWiwExzHKQ1zqn329GpoJ8uorhaLWw889D3KLCk=;
- b=DdhISsDmqFxYpwO5yBG7fob0cpK7FQ7/65EDlr7eka7+bN/s6kxJk0osoOOH2lk1dyE+Kz
- mmgk7La+dS9CvanJEN4BsnXlgBRHKBKpLFpxtIbBOXGc0uxmXSu2l6G7jxaeLkoIxvOa1M
- dB8lhOfreEry1su4Iqzvq7j5/AM7eWw=
+ bh=5risqcJR3SRZugYRxSjL/FvvM4+olXr1vxcAoe7tQ/0=;
+ b=a2Fp2s0RNmEfhOiWtVlAxnwporE8Iec5f9NIyahKVrzYHnh6fhPpnX4ZwINyUJw0wEh3PI
+ 5NQ0wg4SC/rIaHvouVrje36CnZ5FjJBDVvQ98lGR6TwWYCbTsW/WwXWM9zeyY5KC1M+kNc
+ U2iNFU1hUfBVabsmDJ+GBo7xSi8o23Q=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-382-Rm8scm4zMfycpyJd6ld4yQ-1; Tue, 06 Jul 2021 09:14:15 -0400
-X-MC-Unique: Rm8scm4zMfycpyJd6ld4yQ-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
- [10.5.11.14])
+ us-mta-211-a5wCyw6hOsih0Wr2yFDVpA-1; Tue, 06 Jul 2021 12:09:40 -0400
+X-MC-Unique: a5wCyw6hOsih0Wr2yFDVpA-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
+ [10.5.11.23])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 90CE7824F98;
- Tue,  6 Jul 2021 13:14:14 +0000 (UTC)
-Received: from localhost (ovpn-115-23.ams2.redhat.com [10.36.115.23])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 7F3BF5DA60;
- Tue,  6 Jul 2021 13:14:10 +0000 (UTC)
-Date: Tue, 6 Jul 2021 14:14:09 +0100
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 1/2] vdpa: support per virtqueue max queue size
-Message-ID: <YORXIS+WmDkX2DN7@stefanha-x1.localdomain>
-References: <20210705071910.31965-1-jasowang@redhat.com>
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 973D9804140;
+ Tue,  6 Jul 2021 16:09:34 +0000 (UTC)
+Received: from localhost (ovpn-113-13.ams2.redhat.com [10.36.113.13])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id A281B16D28;
+ Tue,  6 Jul 2021 16:09:18 +0000 (UTC)
+From: Cornelia Huck <cohuck@redhat.com>
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v2 4/4] bus: Make remove callback return void
+In-Reply-To: <20210706154803.1631813-5-u.kleine-koenig@pengutronix.de>
+Organization: Red Hat GmbH
+References: <20210706154803.1631813-1-u.kleine-koenig@pengutronix.de>
+ <20210706154803.1631813-5-u.kleine-koenig@pengutronix.de>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date: Tue, 06 Jul 2021 18:09:17 +0200
+Message-ID: <87r1gbfmqa.fsf@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20210705071910.31965-1-jasowang@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- xieyongji@bytedance.com
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=cohuck@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: nvdimm@lists.linux.dev, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+ Samuel Iglesias Gonsalvez <siglesias@igalia.com>,
+ Jens Taprogge <jens.taprogge@taprogge.org>, Jaroslav Kysela <perex@perex.cz>,
+ Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+ Paul Mackerras <paulus@samba.org>,
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+ Wei Liu <wei.liu@kernel.org>, Maxim Levitsky <maximlevitsky@gmail.com>,
+ Samuel Holland <samuel@sholland.org>, Michael Ellerman <mpe@ellerman.id.au>,
+ linux-acpi@vger.kernel.org, linux-pci@vger.kernel.org,
+ xen-devel@lists.xenproject.org, Tomas Winkler <tomas.winkler@intel.com>,
+ Julien Grall <jgrall@amazon.com>, Ohad Ben-Cohen <ohad@wizery.com>,
+ Alex Elder <elder@kernel.org>, linux-parisc@vger.kernel.org,
+ Geoff Levand <geoff@infradead.org>, linux-fpga@vger.kernel.org,
+ linux-usb@vger.kernel.org, "Rafael J.
+ Wysocki" <rjw@rjwysocki.net>, linux-kernel@vger.kernel.org,
+ linux-spi@vger.kernel.org, Thorsten Scherer <t.scherer@eckelmann.de>,
+ kernel@pengutronix.de, Jon Mason <jdmason@kudzu.us>,
+ linux-ntb@googlegroups.com, Wu Hao <hao.wu@intel.com>,
+ David Woodhouse <dwmw@amazon.co.uk>,
+ Krzysztof =?utf-8?Q?Wilczy=C5=84sk?= =?utf-8?Q?i?= <kw@linux.com>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ Manohar Vanga <manohar.vanga@gmail.com>, linux-wireless@vger.kernel.org,
+ Dominik Brodowski <linux@dominikbrodowski.net>,
+ virtualization@lists.linux-foundation.org,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ target-devel@vger.kernel.org,
+ Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+ linux-i2c@vger.kernel.org, Kai-Heng Feng <kai.heng.feng@canonical.com>,
+ Stefano Stabellini <sstabellini@kernel.org>,
+ Stephen Hemminger <sthemmin@microsoft.com>, Ira Weiny <ira.weiny@intel.com>,
+ Helge Deller <deller@gmx.de>,
+ =?utf-8?Q?Rafa=C5=82_Mi=C5=82eck?= =?utf-8?Q?i?= <zajec5@gmail.com>,
+ industrypack-devel@lists.sourceforge.net, linux-mips@vger.kernel.org,
+ Len Brown <lenb@kernel.org>, alsa-devel@alsa-project.org,
+ linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
+ Maxime Ripard <mripard@kernel.org>, Johan Hovold <johan@kernel.org>,
+ greybus-dev@lists.linaro.org, Bjorn Helgaas <bhelgaas@google.com>,
+ Dave Jiang <dave.jiang@intel.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Mika Westerberg <mika.westerberg@linux.intel.com>,
+ linux-arm-kernel@lists.infradead.org, Johannes Thumshirn <morbidrsa@gmail.com>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>, Stephen Boyd <sboyd@kernel.org>,
+ Wolfram Sang <wsa@kernel.org>, Joey Pabalan <jpabalanb@gmail.com>,
+ Yehezkel Bernat <YehezkelShB@gmail.com>,
+ Pali =?utf-8?Q?Roh=C3=A1r?= <pali@kernel.org>,
+ Bodo Stroesser <bostroesser@gmail.com>,
+ Alison Schofield <alison.schofield@intel.com>,
+ Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+ Tyrel Datwyler <tyreld@linux.ibm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Tom Rix <trix@redhat.com>, SeongJae Park <sjpark@amazon.de>,
+ linux-hyperv@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+ Frank Li <lznuaa@gmail.com>, netdev@vger.kernel.org,
+ Qinglang Miao <miaoqinglang@huawei.com>, Jiri Slaby <jirislaby@kernel.org>,
+ Rob Herring <robh@kernel.org>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+ Mark Gross <mgross@linux.intel.com>, linux-staging@lists.linux.dev,
+ Dexuan Cui <decui@microsoft.com>, Jernej Skrabec <jernej.skrabec@gmail.com>,
+ Kishon Vijay Abraham I <kishon@ti.com>, Chen-Yu Tsai <wens@csie.org>,
+ linux-input@vger.kernel.org, Matt Porter <mporter@kernel.crashing.org>,
+ Allen Hubbe <allenbh@gmail.com>, Alex Dubov <oakad@yahoo.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, Jiri Kosina <jikos@kernel.org>,
+ Vladimir Zapolskiy <vz@mleia.com>, Russell King <rmk+kernel@armlinux.org.uk>,
+ Ben Widawsky <ben.widawsky@intel.com>, Moritz Fischer <mdf@kernel.org>,
+ linux-cxl@vger.kernel.org, Michael Buesch <m@bues.ch>,
+ Dan Williams <dan.j.williams@intel.com>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Cristian Marussi <cristian.marussi@arm.com>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Martyn Welch <martyn@welchs.me.uk>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-mmc@vger.kernel.org,
+ linux-sunxi@lists.linux.dev, Stefan Richter <stefanr@s5r6.in-berlin.de>,
+ Sudeep Holla <sudeep.holla@arm.com>, "David S.
+ Miller" <davem@davemloft.net>, Sven Van Asbroeck <TheSven73@gmail.com>,
+ kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-remoteproc@vger.kernel.org, Bjorn Andersson <bjorn.andersson@linaro.org>,
+ Kirti Wankhede <kwankhede@nvidia.com>,
+ Andreas Noever <andreas.noever@gmail.com>, linux-i3c@lists.infradead.org,
+ linux1394-devel@lists.sourceforge.net, Lee Jones <lee.jones@linaro.org>,
+ Arnd Bergmann <arnd@arndb.de>, linux-scsi@vger.kernel.org,
+ Vishal Verma <vishal.l.verma@intel.com>, Russell King <linux@armlinux.org.uk>,
+ Andy Gross <agross@kernel.org>, linux-serial@vger.kernel.org,
+ Jakub Kicinski <kuba@kernel.org>, Michael Jamet <michael.jamet@intel.com>,
+ William Breathitt Gray <vilhelm.gray@gmail.com>,
+ Hans de Goede <hdegoede@redhat.com>, Adrian Hunter <adrian.hunter@intel.com>,
+ Juergen Gross <jgross@suse.com>, linuxppc-dev@lists.ozlabs.org,
+ Takashi Iwai <tiwai@suse.com>, Alexandre Bounine <alex.bou9@gmail.com>,
+ Vinod Koul <vkoul@kernel.org>, Mark Brown <broonie@kernel.org>,
+ Marc Zyngier <maz@kernel.org>, dmaengine@vger.kernel.org,
+ Johannes Berg <johannes@sipsolutions.net>, Johannes Thumshirn <jth@kernel.org>,
+ Maximilian Luz <luzmaximilian@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -97,79 +194,54 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============4069386633925357938=="
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
---===============4069386633925357938==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="LaXrVM2vNYxuaCd2"
-Content-Disposition: inline
-
-
---LaXrVM2vNYxuaCd2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jul 05, 2021 at 03:19:09PM +0800, Jason Wang wrote:
-> Virtio spec allows the device to specify the per virtqueue max queue
-> size. vDPA needs to adapt to this flexibility. E.g Qemu advertise a
-> small control virtqueue for virtio-net.
->=20
-> So this patch adds a index parameter to get_vq_num_max bus operations
-> for the device to report its per virtqueue max queue size.
->=20
-> Both VHOST_VDPA_GET_VRING_NUM and VDPA_ATTR_DEV_MAX_VQ_SIZE assume a
-> global maximum size. So we iterate all the virtqueues to return the
-> minimal size in this case. Actually, the VHOST_VDPA_GET_VRING_NUM is
-> not a must for the userspace. Userspace may choose to check the
-> VHOST_SET_VRING_NUM for proving or validating the maximum virtqueue
-> size. Anyway, we can invent a per vq version of
-> VHOST_VDPA_GET_VRING_NUM in the future if it's necessary.
->=20
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vdpa/ifcvf/ifcvf_main.c   |  2 +-
->  drivers/vdpa/mlx5/net/mlx5_vnet.c |  2 +-
->  drivers/vdpa/vdpa.c               | 22 +++++++++++++++++++++-
->  drivers/vdpa/vdpa_sim/vdpa_sim.c  |  2 +-
->  drivers/vdpa/virtio_pci/vp_vdpa.c |  2 +-
->  drivers/vhost/vdpa.c              |  9 ++++++---
->  drivers/virtio/virtio_vdpa.c      |  2 +-
->  include/linux/vdpa.h              |  5 ++++-
->  8 files changed, 36 insertions(+), 10 deletions(-)
-
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---LaXrVM2vNYxuaCd2
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmDkVyEACgkQnKSrs4Gr
-c8hTKggAp8tSQbbf8/pQa6Bi9ldcTpa4FzjzvITQFELFg45XJ9q4WDx+eNMxRTpe
-IuvanLQoWiiQL2pYcUZCi/+PCGsj+bu44yJ24Uk9/cIWUbg+s8T+GLMxaNdEP8WO
-52McfMT5MK+waHfnbhZ2jaNEGAdo5EVRBIF1Q/7vdg9Lfr0YxRtVuZ6EVuuncW5y
-jETFKnKb0YdHpbO//gK/a7L6jLJEABTm0QQNK9OZnxnlbEuduUfeu8saUZSdDbWL
-G/7TR55TF+CFd27T7gTA7WLcQszFk1tg1fTbdnDUpU/588L6Gy5+6CoCb+5+a6Ts
-vdBRToz2iTg0KTFP/gYhTTQcxq7wmA==
-=eXQg
------END PGP SIGNATURE-----
-
---LaXrVM2vNYxuaCd2--
-
-
---===============4069386633925357938==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4069386633925357938==--
-
+T24gVHVlLCBKdWwgMDYgMjAyMSwgVXdlIEtsZWluZS1Lw7ZuaWcgPHUua2xlaW5lLWtvZW5pZ0Bw
+ZW5ndXRyb25peC5kZT4gd3JvdGU6Cgo+IFRoZSBkcml2ZXIgY29yZSBpZ25vcmVzIHRoZSByZXR1
+cm4gdmFsdWUgb2YgdGhpcyBjYWxsYmFjayBiZWNhdXNlIHRoZXJlCj4gaXMgb25seSBsaXR0bGUg
+aXQgY2FuIGRvIHdoZW4gYSBkZXZpY2UgZGlzYXBwZWFycy4KPgo+IFRoaXMgaXMgdGhlIGZpbmFs
+IGJpdCBvZiBhIGxvbmcgbGFzdGluZyBjbGVhbnVwIHF1ZXN0IHdoZXJlIHNldmVyYWwKPiBidXNl
+cyB3ZXJlIGNvbnZlcnRlZCB0byBhbHNvIHJldHVybiB2b2lkIGZyb20gdGhlaXIgcmVtb3ZlIGNh
+bGxiYWNrLgo+IEFkZGl0aW9uYWxseSBzb21lIHJlc291cmNlIGxlYWtzIHdlcmUgZml4ZWQgdGhh
+dCB3ZXJlIGNhdXNlZCBieSBkcml2ZXJzCj4gcmV0dXJuaW5nIGFuIGVycm9yIGNvZGUgaW4gdGhl
+IGV4cGVjdGF0aW9uIHRoYXQgdGhlIGRyaXZlciB3b24ndCBnbwo+IGF3YXkuCj4KPiBXaXRoIHN0
+cnVjdCBidXNfdHlwZTo6cmVtb3ZlIHJldHVybmluZyB2b2lkIGl0J3MgcHJldmVudGVkIHRoYXQg
+bmV3bHkKPiBpbXBsZW1lbnRlZCBidXNlcyByZXR1cm4gYW4gaWdub3JlZCBlcnJvciBjb2RlIGFu
+ZCBzbyBkb24ndCBhbnRpY2lwYXRlCj4gd3JvbmcgZXhwZWN0YXRpb25zIGZvciBkcml2ZXIgYXV0
+aG9ycy4KPgo+IEFja2VkLWJ5OiBSdXNzZWxsIEtpbmcgKE9yYWNsZSkgPHJtaytrZXJuZWxAYXJt
+bGludXgub3JnLnVrPiAoRm9yIEFSTSwgQW1iYSBhbmQgcmVsYXRlZCBwYXJ0cykKPiBBY2tlZC1i
+eTogTWFyayBCcm93biA8YnJvb25pZUBrZXJuZWwub3JnPgo+IEFja2VkLWJ5OiBDaGVuLVl1IFRz
+YWkgPHdlbnNAY3NpZS5vcmc+IChmb3IgZHJpdmVycy9idXMvc3VueGktcnNiLmMpCj4gQWNrZWQt
+Ynk6IFBhbGkgUm9ow6FyIDxwYWxpQGtlcm5lbC5vcmc+Cj4gQWNrZWQtYnk6IE1hdXJvIENhcnZh
+bGhvIENoZWhhYiA8bWNoZWhhYkBrZXJuZWwub3JnPiAoZm9yIGRyaXZlcnMvbWVkaWEpCj4gQWNr
+ZWQtYnk6IEhhbnMgZGUgR29lZGUgPGhkZWdvZWRlQHJlZGhhdC5jb20+IChGb3IgZHJpdmVycy9w
+bGF0Zm9ybSkKPiBBY2tlZC1ieTogQWxleGFuZHJlIEJlbGxvbmkgPGFsZXhhbmRyZS5iZWxsb25p
+QGJvb3RsaW4uY29tPgo+IEFja2VkLUJ5OiBWaW5vZCBLb3VsIDx2a291bEBrZXJuZWwub3JnPgo+
+IEFja2VkLWJ5OiBKdWVyZ2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+IChGb3IgWGVuKQo+IEFj
+a2VkLWJ5OiBMZWUgSm9uZXMgPGxlZS5qb25lc0BsaW5hcm8ub3JnPiAoRm9yIGRyaXZlcnMvbWZk
+KQo+IEFja2VkLWJ5OiBKb2hhbm5lcyBUaHVtc2hpcm4gPGp0aEBrZXJuZWwub3JnPiAoRm9yIGRy
+aXZlcnMvbWNiKQo+IEFja2VkLWJ5OiBKb2hhbiBIb3ZvbGQgPGpvaGFuQGtlcm5lbC5vcmc+Cj4g
+QWNrZWQtYnk6IFNyaW5pdmFzIEthbmRhZ2F0bGEgPHNyaW5pdmFzLmthbmRhZ2F0bGFAbGluYXJv
+Lm9yZz4gKEZvciBkcml2ZXJzL3NsaW1idXMpCj4gQWNrZWQtYnk6IEtpcnRpIFdhbmtoZWRlIDxr
+d2Fua2hlZGVAbnZpZGlhLmNvbT4gKEZvciBkcml2ZXJzL3ZmaW8pCj4gQWNrZWQtYnk6IE1heGlt
+aWxpYW4gTHV6IDxsdXptYXhpbWlsaWFuQGdtYWlsLmNvbT4KPiBBY2tlZC1ieTogSGVpa2tpIEty
+b2dlcnVzIDxoZWlra2kua3JvZ2VydXNAbGludXguaW50ZWwuY29tPiAoRm9yIHVscGkgYW5kIHR5
+cGVjKQo+IEFja2VkLWJ5OiBTYW11ZWwgSWdsZXNpYXMgR29uc8OhbHZleiA8c2lnbGVzaWFzQGln
+YWxpYS5jb20+IChGb3IgaXBhY2spCj4gUmV2aWV3ZWQtYnk6IFRvbSBSaXggPHRyaXhAcmVkaGF0
+LmNvbT4gKEZvciBmcGdhKQo+IEFja2VkLWJ5OiBHZW9mZiBMZXZhbmQgPGdlb2ZmQGluZnJhZGVh
+ZC5vcmc+IChGb3IgcHMzKQo+IFNpZ25lZC1vZmYtYnk6IFV3ZSBLbGVpbmUtS8O2bmlnIDx1Lmts
+ZWluZS1rb2VuaWdAcGVuZ3V0cm9uaXguZGU+Cj4gLS0tCj4KPiAgZHJpdmVycy9zMzkwL2Npby9j
+Y3dncm91cC5jICAgICAgICAgICAgICAgfCA0ICstLS0KPiAgZHJpdmVycy9zMzkwL2Npby9jc3Mu
+YyAgICAgICAgICAgICAgICAgICAgfCA0ICstLS0KPiAgZHJpdmVycy9zMzkwL2Npby9kZXZpY2Uu
+YyAgICAgICAgICAgICAgICAgfCA0ICstLS0KPiAgZHJpdmVycy9zMzkwL2Npby9zY20uYyAgICAg
+ICAgICAgICAgICAgICAgfCA0ICstLS0KPiAgZHJpdmVycy9zMzkwL2NyeXB0by9hcF9idXMuYyAg
+ICAgICAgICAgICAgfCA0ICstLS0KPiAgZHJpdmVycy92ZmlvL21kZXYvbWRldl9kcml2ZXIuYyAg
+ICAgICAgICAgfCA0ICstLS0KCkZvciBkcml2ZXJzL3MzOTAgYW5kIGRyaXZlcnMvdmZpbzoKClJl
+dmlld2VkLWJ5OiBDb3JuZWxpYSBIdWNrIDxjb2h1Y2tAcmVkaGF0LmNvbT4KCl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
+bg==
