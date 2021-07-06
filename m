@@ -2,86 +2,123 @@ Return-Path: <SRS0=EgWE=L6=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3B27C07E99
-	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 01:50:59 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39E8AC07E99
+	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 02:31:14 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3683E6197F
-	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 01:50:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3683E6197F
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id BA5E56128E
+	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 02:31:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BA5E56128E
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E313940434;
-	Tue,  6 Jul 2021 01:50:58 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 807B26075E;
+	Tue,  6 Jul 2021 02:31:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qq7rteXSYEuM; Tue,  6 Jul 2021 01:50:57 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7akqdaYO13kR; Tue,  6 Jul 2021 02:31:12 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3013140412;
-	Tue,  6 Jul 2021 01:50:57 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 077F36078C;
+	Tue,  6 Jul 2021 02:31:12 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E9EDAC001A;
-	Tue,  6 Jul 2021 01:50:56 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AC9B4C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CEC29C0010;
+	Tue,  6 Jul 2021 02:31:11 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9E30BC000E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 01:50:55 +0000 (UTC)
+ Tue,  6 Jul 2021 02:31:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 968B2400DC
+ by smtp4.osuosl.org (Postfix) with ESMTP id 79BEA40490
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 01:50:55 +0000 (UTC)
+ Tue,  6 Jul 2021 02:31:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MNUEnKlYADbs
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ov7atJMa8KC1
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 01:50:52 +0000 (UTC)
+ Tue,  6 Jul 2021 02:31:08 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 45344400BD
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id AB7554041E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 01:50:51 +0000 (UTC)
-X-IronPort-AV: E=McAfee;i="6200,9189,10036"; a="294681848"
-X-IronPort-AV: E=Sophos;i="5.83,327,1616482800"; d="scan'208";a="294681848"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
- by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 05 Jul 2021 18:50:29 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.83,327,1616482800"; d="scan'208";a="562831796"
-Received: from dengjie-mobl1.ccr.corp.intel.com (HELO [10.239.154.58])
- ([10.239.154.58])
- by fmsmga001.fm.intel.com with ESMTP; 05 Jul 2021 18:50:24 -0700
-Subject: Re: [PATCH v10] i2c: virtio: add a virtio i2c frontend driver
-To: Viresh Kumar <viresh.kumar@linaro.org>, Wolfram Sang <wsa@kernel.org>,
- linux-i2c@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-kernel@vger.kernel.org, mst@redhat.com, jasowang@redhat.com,
- andriy.shevchenko@linux.intel.com, conghui.chen@intel.com, arnd@arndb.de,
- kblaiech@mellanox.com, jarkko.nikula@linux.intel.com,
- Sergey.Semin@baikalelectronics.ru, rppt@kernel.org, loic.poulain@linaro.org,
- tali.perry1@gmail.com, u.kleine-koenig@pengutronix.de,
- bjorn.andersson@linaro.org, yu1.wang@intel.com, shuo.a.liu@intel.com,
- stefanha@redhat.com, pbonzini@redhat.com
-References: <226a8d5663b7bb6f5d06ede7701eedb18d1bafa1.1616493817.git.jie.deng@intel.com>
- <YNrw4rxihFLuqLtY@ninjato> <20210629101627.kwc2rszborc3kvjs@vireshk-i7>
- <YNr0uDx1fv+Gjd7m@ninjato> <20210629103014.nlk3mpetydc4mi6l@vireshk-i7>
- <YNr5Jf3WDTH7U5b7@ninjato> <YNr5ZRhT3qn+e9/m@ninjato>
- <20210705121832.fmye5xnlbydoc5ir@vireshk-i7>
-From: Jie Deng <jie.deng@intel.com>
-Message-ID: <29f27ee2-5a65-f635-0b0a-d35d7c4839fb@intel.com>
-Date: Tue, 6 Jul 2021 09:50:23 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.10.0
+ Tue,  6 Jul 2021 02:31:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1625538666;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=+t7xgkqb9EDjx9o5Ws18UiODNH1rDl4lfk/LxQtMlSA=;
+ b=R6lFr8rKtG4II2DzsSdSjXYfLMAGBbeOl99kxPgfTR1QOZx2DQftmSAyhI/nbDUQ3pKVGb
+ x+r5wppcTnDpPVk7sRy1xpVY/ICSNraJZENasgx7d2EeRERyYrca5bWtjEqgHkG1nkv2qY
+ rtygTiRSJdyy91EkAP+/64W7HjRMjPM=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-325-BDQY0HnjPhGnL6ZRjtw2vg-1; Mon, 05 Jul 2021 22:31:05 -0400
+X-MC-Unique: BDQY0HnjPhGnL6ZRjtw2vg-1
+Received: by mail-pj1-f71.google.com with SMTP id
+ t5-20020a17090a4485b029016f7fcb8a3dso828994pjg.2
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 05 Jul 2021 19:31:04 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+ :user-agent:mime-version:in-reply-to:content-transfer-encoding
+ :content-language;
+ bh=+t7xgkqb9EDjx9o5Ws18UiODNH1rDl4lfk/LxQtMlSA=;
+ b=JSNMoE5x2XUAUYlVkHlPTSVyDd0bsO8KeMmEUSa3fnDnLxTjuKaUKGDCFa0Bw/S1bE
+ fJV3bkL8nAypv6aDZHm4dsBtapQxct7GT13IKGMwIJemF4+QUq0krgZHAeAkybp5CQMq
+ TqzFrBrfZb7roClMZjrMkgu8aZuq8c9kn3EpSmPhlVCFHV2W2YJtLLhbt2udzJ1UuuhG
+ rALJpfSBCn+LB8euu//BNiDFG/t/351i5MetD7IC7DaDW256HsFQyzZHBPdCYOFIQQgm
+ 7f/4HJt9WhiUGL3bBQOtcDRhzIb6V/PGWfxO713HqZE7Zs4CyrB9DALrr6W1ByKsNFqT
+ S2Yw==
+X-Gm-Message-State: AOAM533JAmYSeWgbb+7GXban9ofx4jEVOqcASYW/P1MYPHyLUrQe4vEP
+ lcru9AN7eOlYt6zAFPEfDh4KYbpIBcGvPyKVTEx1NHqH9IF80pNn4qzLog+4GZKBYi2qIyOPmIO
+ lM8QGul6wBCg8aS7FmDMUWrhxagmuHo7Z55vgGvHjRw==
+X-Received: by 2002:a17:90b:124f:: with SMTP id
+ gx15mr2053891pjb.8.1625538664038; 
+ Mon, 05 Jul 2021 19:31:04 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzGJ3C4PIS2j1yjac50lMKMZ06m91aoC+A1GrgZ9KMYDd3ldGiJnB8VFZ5kPGCmj4zRcWEfnQ==
+X-Received: by 2002:a17:90b:124f:: with SMTP id
+ gx15mr2053875pjb.8.1625538663867; 
+ Mon, 05 Jul 2021 19:31:03 -0700 (PDT)
+Received: from wangxiaodeMacBook-Air.local ([209.132.188.80])
+ by smtp.gmail.com with ESMTPSA id d25sm13862589pgn.42.2021.07.05.19.31.00
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 05 Jul 2021 19:31:03 -0700 (PDT)
+Subject: Re: [PATCH 2/2] vdpa: vp_vdpa: don't use hard-coded maximum virtqueue
+ size
+To: "Michael S. Tsirkin" <mst@redhat.com>
+References: <20210705071910.31965-1-jasowang@redhat.com>
+ <20210705071910.31965-2-jasowang@redhat.com>
+ <20210705032602-mutt-send-email-mst@kernel.org>
+ <02139c5f-92c5-eda6-8d2d-8e1b6ac70f3e@redhat.com>
+ <20210705065534-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <e0744583-fcdc-07d0-a414-31d660089e2b@redhat.com>
+Date: Tue, 6 Jul 2021 10:30:59 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <20210705121832.fmye5xnlbydoc5ir@vireshk-i7>
+In-Reply-To: <20210705065534-mutt-send-email-mst@kernel.org>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Language: en-US
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
+ stefanha@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,91 +130,54 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-On 2021/7/5 20:18, Viresh Kumar wrote:
-> On 29-06-21, 12:43, Wolfram Sang wrote:
->>>  From the spec:
->>>
->>> The case when ``length of \field{write_buf}''=0, and at the same time,
->>> ``length of \field{read_buf}''=0 doesn't make any sense.
->>>
->>> I mentioned this in my first reply and to my understanding I did not get
->>> a reply that this has changed meanwhile.
->>>
->> Also, this code as mentioned before:
->>
->>> +             if (!msgs[i].len)
->>> +                     break;
->> I hope this can extended in the future to allow zero-length messages. If
->> this is impossible we need to set an adapter quirk instead.
-> Wolfram,
->
-> I stumbled again upon this while working at the backend implementation.
->
-> If you look at i2c_smbus_xfer_emulated(), the command is always sent via
-> msgbuf0[0]. Even in the case of I2C_SMBUS_QUICK, where we set msg[0].len = 0, we
-> still send the buf. This is really confusing :(
->
-> Do I understand correctly that we always need to send msg[0].buf even when
-> msg[0].len is 0 ?
->
-> If so, it would be difficult to implement this with the current i2c virtio
-> specification, as the msg.len isn't really passed from guest to host, rather it
-> is inferred using the length of the buffer itself. And so we can't really pass a
-> buffer if length is 0.
->
-> Moreover, the driver uses i2c_get_dma_safe_msg_buf(), which also depends on the
-> length parameter here to allocate the buffer and copy data to it.
->
-> All in all, the latest version of the driver doesn't work with "i2cdetect -q <bus>".
->
-> To make it work, I had to add this:
->
-> diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-> index 731267d42292..5b8bd98ae38e 100644
-> --- a/drivers/i2c/busses/i2c-virtio.c
-> +++ b/drivers/i2c/busses/i2c-virtio.c
-> @@ -73,6 +73,9 @@ static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
->                  sg_init_one(&out_hdr, &reqs[i].out_hdr, sizeof(reqs[i].out_hdr));
->                  sgs[outcnt++] = &out_hdr;
->
-> +               if (!msgs[i].len)
-> +                       msgs[i].len = 1;
-> +
->                  if (msgs[i].len) {
->                          reqs[i].buf = i2c_get_dma_safe_msg_buf(&msgs[i], 1);
->                          if (!reqs[i].buf)
->
-> which made it I2C_SMBUS_BYTE instead of I2C_SMBUS_QUICK.
->
-> What should we do here Wolfram?
->
->
-> Jie, while wolfram comes back and replies to this, I think you need to switch
-> back to NOT supporting zero length transfer and set update virtio_i2c_func() to
-> return:
->
->          I2C_FUNC_I2C | (I2C_FUNC_SMBUS_EMUL & ~I2C_FUNC_SMBUS_QUICK);
->
-> Support for zero-length transfers and I2C_FUNC_SMBUS_QUICK can be added
-> separately.
->
-> Thanks.
-
-
-It's OK to me. Let's see what Wolfram says when he comes back.
-
-I will send the updated version then.
-
-Thanks.
-
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CuWcqCAyMDIxLzcvNiDkuIrljYgxOjU5LCBNaWNoYWVsIFMuIFRzaXJraW4g5YaZ6YGTOgo+IE9u
+IE1vbiwgSnVsIDA1LCAyMDIxIGF0IDAzOjI5OjQ3UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
+Cj4+IOWcqCAyMDIxLzcvNSDkuIvljYgzOjI2LCBNaWNoYWVsIFMuIFRzaXJraW4g5YaZ6YGTOgo+
+Pj4gT24gTW9uLCBKdWwgMDUsIDIwMjEgYXQgMDM6MTk6MTBQTSArMDgwMCwgSmFzb24gV2FuZyB3
+cm90ZToKPj4+PiBUaGlzIHBhdGNoIHN3aXRjaCB0byByZWFkIHZpcnRxdWV1ZSBzaXplIGZyb20g
+dGhlIGNhcGFiaWxpdHkgaW5zdGVhZAo+Pj4+IG9mIGRlcGVuZGluZyBvbiB0aGUgaGFyZGNvZGVk
+IHZhbHVlLiBUaGlzIGFsbG93cyB0aGUgcGVyIHZpcnRxdWV1ZQo+Pj4+IHNpemUgY291bGQgYmUg
+YWR2ZXJ0aXNlZC4KPj4+Pgo+Pj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5n
+QHJlZGhhdC5jb20+Cj4+PiBTbyBsZXQncyBhZGQgYW4gaW9jdGwgZm9yIHRoaXM/IEl0J3MgcmVh
+bGx5IGEgYnVnIHdlIGRvbid0Li4KPj4KPj4gQXMgZXhwbGFpbmVkIGluIHBhdGNoIDEuIFFlbXUg
+ZG9lc24ndCB1c2UgVkhPU1RfVkRQQV9HRVRfVlJJTkdfTlVNIGFjdHVhbGx5Lgo+PiBJbnN0ZWFk
+IGl0IGNoZWNrcyB0aGUgcmVzdWx0IFZIT1NUX1ZEUEFfU0VUX1ZSSU5HX05VTS4KPj4KPj4gU28g
+SSBjaGFuZ2UgVkhPU1RfVkRQQV9HRVRfVlJJTkdfTlVNIHRvIHJldHVybiB0aGUgbWluaW1hbCBz
+aXplIG9mIGFsbCB0aGUKPj4gdmlydHF1ZXVlcy4KPj4KPj4gSWYgeW91IHdpc2ggd2UgY2FuIGFk
+ZCBhIFZIT1NUX1ZEUEFfR0VUX1ZSSU5HX05VTTIsIGJ1dCBJJ20gbm90IHN1cmUgaXQgd2lsbAo+
+PiBoYXZlIGEgdXNlciBvciBub3QuCj4+Cj4+IFRoYW5rcwo+IFF1ZXN0aW9uIGlzIGhvdyBkbyB3
+ZSBrbm93IHJldHVybmluZyB0aGUgbWluaW1hbCBhbmQgbm90IGUuZy4gdGhlIG1heAo+IHNpemUg
+aXMgdGhlIHJpZ2h0IHRoaW5nIHRvIGRvPwoKCkZvciB0aGUgbmV3IGlvY3RsLCBpdCB3aWxsIHJl
+dHVybiB0aGUgbWF4IHF1ZXVlIHNpemUgcGVyIHZxLgoKSXQncyBwcm9iYWJseSB0b28gbGF0ZSB0
+byBmaXggdGhlIG9sZCBvbmUsIHNvIGl0J3Mgb25seSBzYWZlIHRvIHJldHVybiAKdGhlIG1pbmlt
+YWwgb25lLgoKQWN0dWFsbHksIG1vc3Qgb2YgdGhlIHZEUEEgcGFyZW50cyBzaG91bGQgYmUgZmlu
+ZSBleGNlcHQgZm9yIHRoZSAKdnBfdmRwYS4gV2hlbiBydW5uaW5nIGluIGEgbmVzdGVkIGVudmly
+b25tZW50LCBRZW11IG9ubHkgYWR2ZXJ0aXNlIGN2cSAKd2l0aCA2NCBlbnRyaWVzLgoKVGhhbmtz
+CgoKPgo+Cj4+Pj4gLS0tCj4+Pj4gICAgZHJpdmVycy92ZHBhL3ZpcnRpb19wY2kvdnBfdmRwYS5j
+IHwgNiArKysrLS0KPj4+PiAgICAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCAyIGRl
+bGV0aW9ucygtKQo+Pj4+Cj4+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmRwYS92aXJ0aW9fcGNp
+L3ZwX3ZkcGEuYyBiL2RyaXZlcnMvdmRwYS92aXJ0aW9fcGNpL3ZwX3ZkcGEuYwo+Pj4+IGluZGV4
+IDI5MjY2NDFmYjU4Ni4uMTk4ZjcwNzZlNGQ5IDEwMDY0NAo+Pj4+IC0tLSBhL2RyaXZlcnMvdmRw
+YS92aXJ0aW9fcGNpL3ZwX3ZkcGEuYwo+Pj4+ICsrKyBiL2RyaXZlcnMvdmRwYS92aXJ0aW9fcGNp
+L3ZwX3ZkcGEuYwo+Pj4+IEBAIC0xOCw3ICsxOCw2IEBACj4+Pj4gICAgI2luY2x1ZGUgPGxpbnV4
+L3ZpcnRpb19wY2kuaD4KPj4+PiAgICAjaW5jbHVkZSA8bGludXgvdmlydGlvX3BjaV9tb2Rlcm4u
+aD4KPj4+PiAtI2RlZmluZSBWUF9WRFBBX1FVRVVFX01BWCAyNTYKPj4+PiAgICAjZGVmaW5lIFZQ
+X1ZEUEFfRFJJVkVSX05BTUUgInZwX3ZkcGEiCj4+Pj4gICAgI2RlZmluZSBWUF9WRFBBX05BTUVf
+U0laRSAyNTYKPj4+PiBAQCAtMTk3LDcgKzE5NiwxMCBAQCBzdGF0aWMgdm9pZCB2cF92ZHBhX3Nl
+dF9zdGF0dXMoc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhLCB1OCBzdGF0dXMpCj4+Pj4gICAgc3Rh
+dGljIHUxNiB2cF92ZHBhX2dldF92cV9udW1fbWF4KHN0cnVjdCB2ZHBhX2RldmljZSAqdmRwYSwg
+dTE2IHFpZCkKPj4+PiAgICB7Cj4+Pj4gLQlyZXR1cm4gVlBfVkRQQV9RVUVVRV9NQVg7Cj4+Pj4g
+KwlzdHJ1Y3QgdnBfdmRwYSAqdnBfdmRwYSA9IHZkcGFfdG9fdnAodmRwYSk7Cj4+Pj4gKwlzdHJ1
+Y3QgdmlydGlvX3BjaV9tb2Rlcm5fZGV2aWNlICptZGV2ID0gJnZwX3ZkcGEtPm1kZXY7Cj4+Pj4g
+Kwo+Pj4+ICsJcmV0dXJuIHZwX21vZGVybl9nZXRfcXVldWVfc2l6ZShtZGV2LCBxaWQpOwo+Pj4+
+ICAgIH0KPj4+PiAgICBzdGF0aWMgaW50IHZwX3ZkcGFfZ2V0X3ZxX3N0YXRlKHN0cnVjdCB2ZHBh
+X2RldmljZSAqdmRwYSwgdTE2IHFpZCwKPj4+PiAtLSAKPj4+PiAyLjI1LjEKCl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
+bg==
