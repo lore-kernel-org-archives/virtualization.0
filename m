@@ -7,77 +7,77 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80FADC07E96
-	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 11:27:13 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 304CEC11F7B
+	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 11:28:10 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 45BF761D87
-	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 11:27:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 45BF761D87
+	by mail.kernel.org (Postfix) with ESMTPS id DD52661F1C
+	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 11:28:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DD52661F1C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 20C6583829;
-	Tue,  6 Jul 2021 11:27:13 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id B2812403F2;
+	Tue,  6 Jul 2021 11:28:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VluZpVj9Hi3G; Tue,  6 Jul 2021 11:27:12 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id F238F8386F;
-	Tue,  6 Jul 2021 11:27:11 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id WadayunOaLWl; Tue,  6 Jul 2021 11:28:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 43330400CD;
+	Tue,  6 Jul 2021 11:28:08 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C05B7C0010;
-	Tue,  6 Jul 2021 11:27:11 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2385DC0010;
+	Tue,  6 Jul 2021 11:28:08 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8162FC000E
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3165DC000E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 11:27:10 +0000 (UTC)
+ Tue,  6 Jul 2021 11:28:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 7DEEB8386F
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2DAE183096
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 11:27:10 +0000 (UTC)
+ Tue,  6 Jul 2021 11:28:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0Am4gCAX4USq
+ with ESMTP id VkreImUzNOSq
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 11:27:10 +0000 (UTC)
+ Tue,  6 Jul 2021 11:28:06 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 1B97483829
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9292C82EDB
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 11:27:10 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B80761D77;
- Tue,  6 Jul 2021 11:27:09 +0000 (UTC)
+ Tue,  6 Jul 2021 11:28:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54DF261DD0;
+ Tue,  6 Jul 2021 11:28:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1625570829;
- bh=VdodptyE2GAk1rTtpPV2NfeKVvsJfvOCXSVUuquwcyw=;
+ s=k20201202; t=1625570886;
+ bh=Md+PWeccdaH1P25TBhNay+lk6iOBbKSSIXvLjJ4whyQ=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=Ay+NmuuLtai83bRw0haJITkE0PsGnU/c8d2moXJm3FiwwsKUfxvUyH+sHuyHK/pRn
- SqNUzniWmmR5NdGHM0PLD2J1NM9//oVTIWqtgwCXRUsFPG6kGCp+Q4cIwcmsoT8kOP
- LtE4ZsD8PiPPAAkv5xv++e/n0VJIIpDWBkF/ZLqylLlqEHQP5KtNrQ7FXxOPhiejsg
- 32MTvZYiMgPMrssJ/mXiDjT9oGn9LbbtyGKQXRLTj6Q7UbLab7Jr34d75kYJbSTl3H
- yNpCn3jq5noKv9xoAwnuQY000mIZ9JdLgs1tcXb7HjbN6GEA2DuoyaV1Fh01eDcV6V
- ywEymRb2SfK+g==
+ b=GvWR5xwsIL6IHewR4AeQtgL9wFQJIxupUd2YqQSvI5X7DBlrc4c4hgppXaapKMD7s
+ V+AWsFS5fGNmxK+BtmiwnarK7LD/MYf1hCuBrlKP73RGDfgKlJ92NxHIONlE64DsuC
+ DhCe6fV2ATXb9TEhsEjp+wH3hdR1E+3hdZgl63mUMOI/4Q7rN+5ktw7ikNGzj5mku1
+ YHAC2+edpBunotzVrR9R3W89bJC6mxUf+JIK7M2q2M3AQDIRc+EJIJiFFVqr18evix
+ TYXtU+NQGgWbyALO9hMvrgidUpSoSR7YKr+x0lFQL28zml1s/WGxKq94Aibp7NnI0V
+ 9I5ODOySWGt/Q==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 24/55] virtio_net: Remove BUG() to avoid machine
- dead
-Date: Tue,  6 Jul 2021 07:26:07 -0400
-Message-Id: <20210706112638.2065023-24-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 12/45] drm/virtio: Fixes a potential NULL pointer
+ dereference on probe failure
+Date: Tue,  6 Jul 2021 07:27:16 -0400
+Message-Id: <20210706112749.2065541-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210706112638.2065023-1-sashal@kernel.org>
-References: <20210706112638.2065023-1-sashal@kernel.org>
+In-Reply-To: <20210706112749.2065541-1-sashal@kernel.org>
+References: <20210706112749.2065541-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-Cc: Sasha Levin <sashal@kernel.org>,
- Xianting Tian <xianting.tian@linux.alibaba.com>, netdev@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Leon Romanovsky <leonro@nvidia.com>,
- "David S . Miller" <davem@davemloft.net>
+Cc: Sasha Levin <sashal@kernel.org>, Xie Yongji <xieyongji@bytedance.com>,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,35 +94,36 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Xianting Tian <xianting.tian@linux.alibaba.com>
+From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit 85eb1389458d134bdb75dad502cc026c3753a619 ]
+[ Upstream commit 17f46f488a5d82c5568e6e786cd760bba1c2ee09 ]
 
-We should not directly BUG() when there is hdr error, it is
-better to output a print when such error happens. Currently,
-the caller of xmit_skb() already did it.
+The dev->dev_private might not be allocated if virtio_gpu_pci_quirk()
+or virtio_gpu_init() failed. In this case, we should avoid the cleanup
+in virtio_gpu_release().
 
-Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20210517084913.403-1-xieyongji@bytedance.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/virtio_net.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_kms.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 0b1c6a8906b9..84a82c4a9535 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1550,7 +1550,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
- 	if (virtio_net_hdr_from_skb(skb, &hdr->hdr,
- 				    virtio_is_little_endian(vi->vdev), false,
- 				    0))
--		BUG();
-+		return -EPROTO;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index bed450fbb216..e1a5e74f4080 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -261,6 +261,9 @@ void virtio_gpu_driver_unload(struct drm_device *dev)
+ 	flush_work(&vgdev->config_changed_work);
+ 	vgdev->vdev->config->del_vqs(vgdev->vdev);
  
- 	if (vi->mergeable_rx_bufs)
- 		hdr->num_buffers = 0;
++	if (!vgdev)
++		return;
++
+ 	virtio_gpu_modeset_fini(vgdev);
+ 	virtio_gpu_ttm_fini(vgdev);
+ 	virtio_gpu_free_vbufs(vgdev);
 -- 
 2.30.2
 
