@@ -7,78 +7,79 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 536BBC07E96
-	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 11:23:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DEB9C07E9B
+	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 11:23:25 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id F068D61E11
-	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 11:23:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F068D61E11
+	by mail.kernel.org (Postfix) with ESMTPS id 3DB1761E1D
+	for <virtualization@archiver.kernel.org>; Tue,  6 Jul 2021 11:23:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3DB1761E1D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B2A5E403D7;
-	Tue,  6 Jul 2021 11:23:07 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 1A1E8403E7;
+	Tue,  6 Jul 2021 11:23:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rg2Esz9oEoMu; Tue,  6 Jul 2021 11:23:06 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 4B611403E0;
-	Tue,  6 Jul 2021 11:23:06 +0000 (UTC)
+	with ESMTP id psqk1UBFn14L; Tue,  6 Jul 2021 11:23:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B4F4340122;
+	Tue,  6 Jul 2021 11:23:23 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 29DC1C0010;
-	Tue,  6 Jul 2021 11:23:06 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9E3F1C0010;
+	Tue,  6 Jul 2021 11:23:23 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A9DB6C000E
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1D990C000E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 11:23:04 +0000 (UTC)
+ Tue,  6 Jul 2021 11:23:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 9814060613
+ by smtp3.osuosl.org (Postfix) with ESMTP id F406C6084A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 11:23:04 +0000 (UTC)
+ Tue,  6 Jul 2021 11:23:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=kernel.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id w7yfppEs30VK
+ with ESMTP id YPIKcnYSqaVF
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 11:23:03 +0000 (UTC)
+ Tue,  6 Jul 2021 11:23:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp3.osuosl.org (Postfix) with ESMTPS id D7DEA605D5
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7F26260613
  for <virtualization@lists.linux-foundation.org>;
- Tue,  6 Jul 2021 11:23:03 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA84461E06;
- Tue,  6 Jul 2021 11:23:02 +0000 (UTC)
+ Tue,  6 Jul 2021 11:23:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 809E261E1B;
+ Tue,  6 Jul 2021 11:23:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1625570583;
- bh=Qza9he5doydUo9WfPm2t/hOSnhKPAJPWVC3zPjBV9Us=;
+ s=k20201202; t=1625570602;
+ bh=Cw2ARdHoUyronOO5hDgZF3fHmbP47LLSQ6y+NnXGX74=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=fDBUOW9PKBJh71pAIiXALeuYETFUPJYG/E763p4FyOKfrZTP9yIdPGuxiWU2BXVha
- ehgrKnjdcuqBz9VdXS4nSUn6uiRzsLtdwP12Jq/HI51As+uc9aFXTfHqYPI2xVyX7d
- PiVhU5A4Pzu2DMK8fThb2ZCB8odCPCJolSRP95j+brwI/tMyjPmFIv6NpdZoG2Mwzy
- sQC8f9oLdzr8VyZ6GnW9bYN6tCEMy1IpRYtxNLpq8TGuud5SSTGERk9Sh9O2du51bq
- nffHp/FriV2ub7ZJdkGqzXZ4b6Qad02h2hFkxAe/gufZCYZPt1DoO9lQMS6H47wY/l
- STCOsY693esUw==
+ b=e2hL5XqtikPp8bI1mHqPOjBoH5+QPFqnSe2waFUD8WlpVCz0DXmt2X02uNjWA2m5U
+ GTMrg3U2VTIbIbbRfU+oWR9ZOkWNapDAxQM88rbtF9CxvUcuAY3p3LGjlLpoHcMZNL
+ tv1uxltMayCNcgrnaE8EPNjzK3Aq/KnEqToQVQzoQDXAEBxwqU+iEBdVrJEzLdnCZE
+ eUHB9CRALCGS/6AruVzppbVAkqq4yXMHo6VRiEhYSx0MisYu/hoFkSNJFppNjKpQn4
+ L3bK7qyXWC9Z/MYROaqnAUOwN1W9YIQHixrhSaXQquI+r1WZ3U/RxPVHGUhJswt/3r
+ s7KzZ8j6xr0Mg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 046/137] virtio-net: Add validation for used
- length
-Date: Tue,  6 Jul 2021 07:20:32 -0400
-Message-Id: <20210706112203.2062605-46-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 061/137] virtio_net: Remove BUG() to avoid
+ machine dead
+Date: Tue,  6 Jul 2021 07:20:47 -0400
+Message-Id: <20210706112203.2062605-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210706112203.2062605-1-sashal@kernel.org>
 References: <20210706112203.2062605-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-Cc: Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Xie Yongji <xieyongji@bytedance.com>, Jakub Kicinski <kuba@kernel.org>
+Cc: Sasha Levin <sashal@kernel.org>,
+ Xianting Tian <xianting.tian@linux.alibaba.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Leon Romanovsky <leonro@nvidia.com>,
+ "David S . Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,75 +96,35 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Xie Yongji <xieyongji@bytedance.com>
+From: Xianting Tian <xianting.tian@linux.alibaba.com>
 
-[ Upstream commit ad993a95c508417acdeb15244109e009e50d8758 ]
+[ Upstream commit 85eb1389458d134bdb75dad502cc026c3753a619 ]
 
-This adds validation for used length (might come
-from an untrusted device) to avoid data corruption
-or loss.
+We should not directly BUG() when there is hdr error, it is
+better to output a print when such error happens. Currently,
+the caller of xmit_skb() already did it.
 
-Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Link: https://lore.kernel.org/r/20210531135852.113-1-xieyongji@bytedance.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/virtio_net.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/net/virtio_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 286f836a53bf..e2c6c5675ec6 100644
+index e2c6c5675ec6..91e0e6254a01 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -660,6 +660,12 @@ static struct sk_buff *receive_small(struct net_device *dev,
- 	len -= vi->hdr_len;
- 	stats->bytes += len;
+@@ -1563,7 +1563,7 @@ static int xmit_skb(struct send_queue *sq, struct sk_buff *skb)
+ 	if (virtio_net_hdr_from_skb(skb, &hdr->hdr,
+ 				    virtio_is_little_endian(vi->vdev), false,
+ 				    0))
+-		BUG();
++		return -EPROTO;
  
-+	if (unlikely(len > GOOD_PACKET_LEN)) {
-+		pr_debug("%s: rx error: len %u exceeds max size %d\n",
-+			 dev->name, len, GOOD_PACKET_LEN);
-+		dev->stats.rx_length_errors++;
-+		goto err_len;
-+	}
- 	rcu_read_lock();
- 	xdp_prog = rcu_dereference(rq->xdp_prog);
- 	if (xdp_prog) {
-@@ -763,6 +769,7 @@ static struct sk_buff *receive_small(struct net_device *dev,
- err_xdp:
- 	rcu_read_unlock();
- 	stats->xdp_drops++;
-+err_len:
- 	stats->drops++;
- 	put_page(page);
- xdp_xmit:
-@@ -816,6 +823,12 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 	head_skb = NULL;
- 	stats->bytes += len - vi->hdr_len;
- 
-+	if (unlikely(len > truesize)) {
-+		pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
-+			 dev->name, len, (unsigned long)ctx);
-+		dev->stats.rx_length_errors++;
-+		goto err_skb;
-+	}
- 	rcu_read_lock();
- 	xdp_prog = rcu_dereference(rq->xdp_prog);
- 	if (xdp_prog) {
-@@ -943,13 +956,6 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
- 	}
- 	rcu_read_unlock();
- 
--	if (unlikely(len > truesize)) {
--		pr_debug("%s: rx error: len %u exceeds truesize %lu\n",
--			 dev->name, len, (unsigned long)ctx);
--		dev->stats.rx_length_errors++;
--		goto err_skb;
--	}
--
- 	head_skb = page_to_skb(vi, rq, page, offset, len, truesize, !xdp_prog,
- 			       metasize);
- 	curr_skb = head_skb;
+ 	if (vi->mergeable_rx_bufs)
+ 		hdr->num_buffers = 0;
 -- 
 2.30.2
 
