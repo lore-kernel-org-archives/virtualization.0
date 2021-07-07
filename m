@@ -1,69 +1,119 @@
 Return-Path: <SRS0=rr22=L7=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: **
-X-Spam-Status: No, score=2.3 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-	HTML_MESSAGE,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_RED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Level: 
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A697DC07E95
-	for <virtualization@archiver.kernel.org>; Wed,  7 Jul 2021 14:27:43 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 605B0C07E95
+	for <virtualization@archiver.kernel.org>; Wed,  7 Jul 2021 15:18:07 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5509561997
-	for <virtualization@archiver.kernel.org>; Wed,  7 Jul 2021 14:27:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5509561997
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 1064D61CC2
+	for <virtualization@archiver.kernel.org>; Wed,  7 Jul 2021 15:18:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1064D61CC2
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 1D33A606A2;
-	Wed,  7 Jul 2021 14:27:43 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bVWblNFaiEU4; Wed,  7 Jul 2021 14:27:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 2A1F560621;
-	Wed,  7 Jul 2021 14:27:41 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E7E1AC0010;
-	Wed,  7 Jul 2021 14:27:40 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E240FC000E
- for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Jul 2021 14:27:39 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B5DAB401BB
- for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Jul 2021 14:27:39 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id D1169401FE;
+	Wed,  7 Jul 2021 15:18:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id LcLQGXWq_qtm
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9fvZbUjxckw9; Wed,  7 Jul 2021 15:18:03 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B3451401CE;
+	Wed,  7 Jul 2021 15:18:02 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8BBBEC001A;
+	Wed,  7 Jul 2021 15:18:02 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5A21AC000E
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Jul 2021 14:27:36 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
- [IPv6:2a03:f480:1:14::7d])
- by smtp2.osuosl.org (Postfix) with ESMTPS id ECCF74002B
+ Wed,  7 Jul 2021 15:18:01 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 3C35260A44
  for <virtualization@lists.linux-foundation.org>;
- Wed,  7 Jul 2021 14:27:35 +0000 (UTC)
-Received: from b612.uc.pt ([193.137.201.233] helo=LAPTOP-EPOV2LRR)
- by s052d7dde.fastvps-server.com with esmtpsa
- (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
- (envelope-from <marle@saisti.eu>) id 1m17mG-0001lE-SB
- for virtualization@lists.linux-foundation.org; Wed, 07 Jul 2021 16:39:48 +0300
-From: "ML" <marialemos72@gmail.com>
-Subject: ICITS'22 - The 2022 International Conference on Information
- Technology & Systems | Costa Rica
-To: virtualization@lists.linux-foundation.org
+ Wed,  7 Jul 2021 15:18:01 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Ea-yH9bKLeAJ
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  7 Jul 2021 15:18:00 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 0020960A41
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  7 Jul 2021 15:17:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1625671078;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=fLKo2OPwq2DZHj/O8dwU7gitKGZtqVoZ1OSqBdlhM9o=;
+ b=EtmpQqOfzfR4D54HvlT8Iq/xD7q0rCfa/3jVptQEdUTE+Tkcy8LGaYUvnJMmMtI13C9jD9
+ kDgGA/gKxTVyAO1oPO8dq+AmdMFM9TzNKy6hecn7ZoGS+sP80I70YebOf2c/eatmSxac6I
+ mwNTS5LSXD3x1bMy0LywvFkLUwps6FU=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-368-MgX2JVklPC2kGp9HwENZYA-1; Wed, 07 Jul 2021 11:17:57 -0400
+X-MC-Unique: MgX2JVklPC2kGp9HwENZYA-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ p3-20020a05600c3583b02901f55d71e34aso1104958wmq.4
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 07 Jul 2021 08:17:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:to:cc:references:from:organization:subject
+ :message-id:date:user-agent:mime-version:in-reply-to
+ :content-language:content-transfer-encoding;
+ bh=fLKo2OPwq2DZHj/O8dwU7gitKGZtqVoZ1OSqBdlhM9o=;
+ b=rTqesd0OP+yGJn8zBQsybRlHYRR1JdYFjtqaFmBwVAj8lfxeUHGilb4OaV8PG5Ah2b
+ p3qPAnLxd8nXJw/YGn7vOvtTb+8yZRbDU56lfOpNkQXLmH8ErHc8I58Gl7Q98rCiD1fv
+ QO3O2jsgD6Sm8zAw5hdGe48aVdiGhicEUavoqKGggAO8FtS1/8IaBTzODqCvCylfLZIa
+ RlgX6J/ZtNAtPM/MRNo2Q8GUJ373Pt4O9j+3WgUzjsYfF31017fd6Y16s5UVXCrYV/l5
+ 6UWhJNk9sNXicJiMHekUpKLdfV+9HQ3hjBLlk+U7amFEoG5naYZ2lheHvg2WV5nL+iHP
+ Hz9g==
+X-Gm-Message-State: AOAM531Y4CrmNihvlyISDdcV7UyoxNoKeQLky/EsJzp5t9oDKWrguurM
+ D/akLHt4rQkI4vl10I1dY3dpFr4uWiHPdF+SDZNvC8h4OS41S3VGxw6qGD7bvqBr8PNkh0d8CkM
+ p9zWnqXNATZGlJE/KGkto1uD0hkYFxpM43Yx1QLralA==
+X-Received: by 2002:a05:6000:1a87:: with SMTP id
+ f7mr28329931wry.172.1625671075959; 
+ Wed, 07 Jul 2021 08:17:55 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzah6urErPg+YyoBdeo4INZfgkKtMjv5hY7UoQ8zErjkgLHiY+CIDanzMoZE9NYHKyRE1GXlQ==
+X-Received: by 2002:a05:6000:1a87:: with SMTP id
+ f7mr28329899wry.172.1625671075625; 
+ Wed, 07 Jul 2021 08:17:55 -0700 (PDT)
+Received: from [192.168.3.132] (p4ff23579.dip0.t-ipconnect.de. [79.242.53.121])
+ by smtp.gmail.com with ESMTPSA id x17sm25630828wrn.62.2021.07.07.08.17.54
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 07 Jul 2021 08:17:55 -0700 (PDT)
+To: Hui Zhu <teawater@gmail.com>, mst@redhat.com, jasowang@redhat.com,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+References: <20210623115839.3524-1-teawater@gmail.com>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [RFC] virtio-mem: Add support of memory_hotplug.memmap_on_memory
+Message-ID: <bc36b6fe-0d1a-6fe2-e8f3-49bbcaebcf41@redhat.com>
+Date: Wed, 7 Jul 2021 17:17:54 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-Date: Wed, 7 Jul 2021 14:39:49 +0100
-Message-ID: <11908428110703@gmail-com>
-X-Antivirus: AVG (VPS 210707-0, 7/7/2021), Outbound message
-X-Antivirus-Status: Clean
+In-Reply-To: <20210623115839.3524-1-teawater@gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: Hui Zhu <teawater@antfin.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -75,352 +125,251 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: intercits@gmail.com
-Content-Type: multipart/mixed; boundary="===============6363312924797668499=="
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is a multi-part message in MIME format
+On 23.06.21 13:58, Hui Zhu wrote:
+> From: Hui Zhu <teawater@antfin.com>
+> 
 
---===============6363312924797668499==
-Content-Type: multipart/alternative; charset=utf-8; boundary="lyTOWP6B7jz3pVi3LbS=_HDEubOfh0Qj5Y"
+Sorry for the delay, once I was back from vacation my inbox was 
+overflowing :)
 
-This is a multi-part message in MIME format
+> We did some virtio-mem resize tests in high memory pressure environment.
+> Memory increases slowly and sometimes fails in these tests.
+> This is a way to reproduce the issue.
+> Start a qemu with a small size of memory (132Mb) and resize the
+> virtio-mem to hotplug memory.
+> Then will get following error:
+> [    8.097461] virtio_mem virtio0: requested size: 0x10000000
+> [    8.098038] virtio_mem virtio0: plugging memory: 0x100000000 -
+> 0x107ffffff
+> [    8.098829] virtio_mem virtio0: adding memory: 0x100000000 -
+> 0x107ffffff
+> [    8.106298] kworker/0:1: vmemmap alloc failure: order:9,
+> mode:0x4cc0(GFP_KERNEL|__GFP_RETRY_MAYFAIL),
+> nodemask=(null),cpuset=/,mems_allowed=0
+> [    8.107609] CPU: 0 PID: 14 Comm: kworker/0:1 Not tainted 5.13.0-rc7+
+> [    8.108295] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+> BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+> [    8.109476] Workqueue: events_freezable virtio_mem_run_wq
+> [    8.110039] Call Trace:
+> [    8.110305]  dump_stack+0x76/0x94
+> [    8.110654]  warn_alloc.cold+0x7b/0xdf
+> [    8.111054]  ? __alloc_pages+0x2c2/0x310
+> [    8.111462]  vmemmap_alloc_block+0x86/0xdc
+> [    8.111891]  vmemmap_populate+0xfc/0x325
+> [    8.112309]  __populate_section_memmap+0x38/0x4e
+> [    8.112787]  sparse_add_section+0x167/0x244
+> [    8.113226]  __add_pages+0xa6/0x130
+> [    8.113592]  add_pages+0x12/0x60
+> [    8.113934]  add_memory_resource+0x114/0x2d0
+> [    8.114377]  add_memory_driver_managed+0x7c/0xc0
+> [    8.114852]  virtio_mem_add_memory+0x57/0xe0
+> [    8.115304]  virtio_mem_sbm_plug_and_add_mb+0x9a/0x130
+> [    8.115833]  virtio_mem_run_wq+0x9d5/0x1100
+> I think allocating 2 Mb contiguous memory will be slow and failed
+> in some cases, especially in high memory pressure environment.
 
---lyTOWP6B7jz3pVi3LbS=_HDEubOfh0Qj5Y
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+So, interrestingly, what failed was the 2 MB allcoation. But 
+vmemmap_populate() on x86-64 will actually fallback to individual 4k 
+allcoations. See arch/x86/mm/init_64.c:vmemmap_populate_hugepages(), 
+which falls back to vmemmap_populate_basepages().
 
-------------------------------  ------------------------------  -----------=
--------------------  -----------------------------
-ICITS'22 - The 2022 International Conference on Information Technology & Sy=
-stems
+We could certainly think about silencing this warning (GFP_NOWARN) and 
+instead printing a clearer warning like "vmemmap: populating huge page 
+failed; falling back to populating base pages"
 
-San Carlos, Costa Rica, 9 - 11 February 2022
-
-http://icits.me <http://icits.me/>
-------------------------------  ------------------------------  -----------=
--------------------  ------------------------------
-
-
-SCOPE
-
-ICITS'22 - The 2022 International Conference on Information Technology
-& Systems (http://icits.me <http://icits.me/>), to be held in Tecnol=C3=B3g=
-ico de Costa Rica,
-Campus de San Carlos, Costa Rica, 9 - 11 February 2022, is an
-international forum for researchers and practitioners to present and
-discuss the most recent innovations, trends, results, experiences and
-concerns in the several perspectives of Information Technology &
-Systems.
-
-We are pleased to invite you to submit your papers to ICITS'22. They
-can be written in English, Spanish or Portuguese. All submissions will
-be reviewed on the basis of relevance, originality, importance and
-clarity.
-
-
-
-TOPICS
-
-Submitted papers should be related with one or more of the main themes
-proposed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-
-B) Organizational Models and Information Systems (OMIS);
-
-C) Software and Systems Modeling (SSM);
-
-D) Software Systems, Architectures, Applications and Tools (SSAAT);
-
-E) Multimedia Systems and Applications (MSA);
-
-F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-
-G) Intelligent and Decision Support Systems (IDSS);
-
-H) Big Data Analytics and Applications (BDAA);
-
-I) Human-Computer Interaction (HCI);
-
-J) Ethics, Computers and Security (ECS)
-
-K) Health Informatics (HIS);
-
-L) Information Technologies in Education (ITE);
-
-M) Media, Applied Technology and Communication (MATC).
+Did you also see a "virtio_mem virtio0: adding memory failed: .." device 
+warning? If not, adding memory did succeed! Although it's suboptimal.
 
 
+> This commit try to add support of memory_hotplug.memmap_on_memory to
+> handle this issue.
+> 
+> Just let SBM mode support it because memory_hotplug.memmap_on_memory
+> need a single memory block.
+> 
+> Add nr_vmemmap_pages and sbs_vmemmap to struct sbm.
+> If memory_hotplug.memmap_on_memory is open, pages number of a memory
+> block's internal metadata will be store in nr_vmemmap_pages.
+> sbs_vmemmap is the number of vmemmap subblocks per Linux memory block.
+> The pages in the vmemmap subblocks should bigger than nr_vmemmap_pages
+> because sb_size need to span at least MAX_ORDER_NR_PAGES and
+> pageblock_nr_pages pages (virtio_mem_init).
+> All the pages in vmemmap subblocks is not going to add to the buddy
+> even if the pages that are not used to store the internal metadata
+> (struct pages) because they should not work reliably with
+> alloc_contig_range().
+> 
+> When resize virtio-mem, sbs_vmemmap is going to count in
+> virtio_mem_sbm_plug_and_add_mb, virtio_mem_sbm_unplug_any_sb_offline
+> and virtio_mem_sbm_unplug_any_sb_online.
+> Because internal metadata also need the real pages in the host to store
+> it.  I think resize virtio-mem size same with the actual memory
+> footprint
+> on the host is better if we want setup a memory cgroup for QEMU.
 
-SUBMISSION AND DECISION
+So the main thing I dislike about the current RFC state is the waste of 
+memory we signaled to the device we are going to use, but we are not 
+actually able to use. The remaining stuff looks reasonably clear to me, 
+although we could do some refactorings to make it read a bit nicer.
 
-Submitted papers written in English (until 10-page limit) must comply
-with the format of the Lecture Notes in Networks and Systems series
-(see Instructions for Authors at Springer Website), must not have been
-published before, not be under review for any other conference or
-publication and not include any information leading to the authors=E2=80=99=
+The "loss" currently corresponds to 2 MiB for a 128MB memory block -- 
+that's 1/64 of all added memory and just as much as the vmemmap itself!
 
-identification. Therefore, the authors=E2=80=99 names and affiliations shou=
-ld
-not be included in the version for evaluation by the Scientific
-Committee. This information should only be included in the
-camera-ready version, saved in Word or Latex format and also in PDF
-format. These files must be accompanied by the Consent to Publish form
-filled out, in a ZIP file, and uploaded at the conference management
-system.
+I don't see an easy way around this when keeping the subblock size at 2 
+MiB. We'd have to mess with "partial subblocks" when processing (un)plug 
+requests, which is just plain ugly.
 
-Submitted papers written in Spanish or Portuguese (until 15-page
-limit) must comply with the format of RISTI - Revista Ib=C3=A9rica de
-Sistemas e Tecnologias de Informa=C3=A7=C3=A3o (download instructions/templ=
-ate
-for authors in Spanish or Portuguese), must not have been published
-before, not be under review for any other conference or publication
-and not include any information leading to the authors=E2=80=99
-identification. Therefore, the authors=E2=80=99 names and affiliations shou=
-ld
-not be included in the version for evaluation by the Scientific
-Committee. This information should only be included in the
-camera-ready version, saved in Word. These files must be uploaded at
-the conference management system in a ZIP file.
+There is a big TODO item on my toto list to teach alloc_contig_range() 
+to handle pageblock_order properly and I shall start working on that 
+soonish. [1]
 
-All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D by =
-at least
-two members of the Scientific Committee.
-
-Based on Scientific Committee evaluation, a paper can be rejected or
-accepted by the Conference Chairs. In the later case, it can be
-accepted as paper or poster.
-
-The authors of papers accepted as posters must build and print a
-poster to be exhibited during the Conference. This poster must follow
-an A1 or A2 vertical format. The Conference can include Work Sessions
-where these posters are presented and orally discussed, with a 7
-minute limit per poster.
-
-The authors of accepted papers will have 15 minutes to present their
-work in a Conference Work Session; approximately 5 minutes of
-discussion will follow each presentation.
+What I think we should do is
 
 
+1. Implement the "memory_hotplug.memmap_on_memory" optimization for big 
+block mode with a single memory block only for now (Linux also only 
+supports this). Environments that desparately need this optimization can 
+set "force_bbm=1" when loading the virtio-mem module.
 
-PUBLICATION AND INDEXING
+It already has the correct flow -- virtio_mem_bbm_plug_and_add_bb() and 
+virtio_mem_bbm_remove_and_unplug_bb(). We'll have to teach:
 
-Papers accepted as posters are not published; they are only exhibited,
-presented and discussed during the conference.
+* virtio_mem_bbm_notify_going_offline() /
+   virtio_mem_bbm_notify_cancel_offline() about the special vmemmap
+   ranges
+* virtio_mem_bbm_offline_remove_and_unplug_bb() about the special
+   vmemmap ranges
 
-To ensure that a paper accepted as paper is published, at least one of
-the authors must be fully registered by the 5th of November 2021, and
-the paper must comply with the suggested layout and page-limit.
-Additionally, all recommended changes must be addressed by the authors
-before they submit the camera-ready version.
+I think that should be mostly it, but there might be more.
 
-No more than one paper per registration will be published. An extra
-fee must be paid for publication of additional papers, with a maximum
-of one additional paper per registration. One registration permits
-only the participation of one author in the conference.
+2. Optimize alloc_contig_range() such that we can drop the MAX_ORDER - 1 
+requirement. With most devices, we can then use a subblock size of 
+pageblock_order (2MiB on x86-64).
 
-Papers written in English and accepted and registered will be
-published in Proceedings by Springer, in a book of the Lecture Notes
-in Networks and Systems series, will  be submitted for indexation by
-SCOPUS, WoS, Google Scholar, SCImago, among others, and will be
-available in the SpringerLink Digital Library.
+3. Pick up a reduced variant of your RFC that implements the 
+optimization only if the sbm.vmemmap pages span complete subblocks. That 
+removes the need for sbm.nr_vmemmap_pages and consequently results in no 
+loss of plugged memory.
 
-Papers written in Spanish or Portuguese and accepted and registered
-will be published in a Special Issue of RISTI and will be submitted
-for indexation by SCOPUS, among others.
-
-
-
-IMPORTANT DATES
-
-Paper Submission: September 5, 2021
-
-Notification of Acceptance: October 17, 2021
-
-Payment of Registration, to ensure the inclusion of an accepted paper
-in the conference proceedings: November 5, 2021.
-
-Camera-ready Submission: November 5, 2021
+[1] 
+https://lkml.kernel.org/r/c8e21ac4-ace7-3176-8782-535bd6590583@redhat.com
 
 
+> @@ -1534,12 +1615,15 @@ static int virtio_mem_sbm_prepare_next_mb(struct virtio_mem *vm,
+>   static int virtio_mem_sbm_plug_and_add_mb(struct virtio_mem *vm,
+>   					  unsigned long mb_id, uint64_t *nb_sb)
+>   {
+> -	const int count = min_t(int, *nb_sb, vm->sbm.sbs_per_mb);
+> +	int count = min_t(int, *nb_sb, vm->sbm.sbs_per_mb);
+>   	int rc;
+>   
+>   	if (WARN_ON_ONCE(!count))
+>   		return -EINVAL;
+>   
+> +	if (vm->sbm.sbs_vmemmap)
+> +		count = max_t(int, count, vm->sbm.sbs_vmemmap);
+> +
 
-Website of ICITS'22: http://icits.me <http://icits.me/>
+If you exceed original *nb_sb (which can happen on bigger memory blocks 
+like with 2GB where the vmemmap actually spans multiple subblocks), you 
+can try plugging more than requested from the hypervisor.
 
+You'd instead have to return with -ENOSPC in case *nb_sb does not at 
+least span vm->sbm.sbs_vmemmap.
 
-ICITS'22 Team
-http://icits.me <http://icits.me> 
- 
- 
- 
+[...]
+
+>   		/*
+>   		 * Remove the block from Linux - this should never fail.
+>   		 * Hinder the block from getting onlined by marking it
+> @@ -1840,6 +1934,23 @@ static int virtio_mem_sbm_unplug_any_sb_offline(struct virtio_mem *vm,
+>   		rc = virtio_mem_sbm_remove_mb(vm, mb_id);
+>   		BUG_ON(rc);
+>   		mutex_lock(&vm->hotplug_mutex);
+> +
+> +		/* Remove vmemmap pages. */
+> +		if (vm->sbm.sbs_vmemmap) {
+> +			rc = virtio_mem_sbm_unplug_sb(vm, mb_id, 0,
+> +						      vm->sbm.sbs_vmemmap);
+> +			/*
+> +			 * Just warn because this error will
+> +			 * not affect next plug.
+> +			 */
+> +			WARN_ON(rc);
+
+We should avoid WARN_ON() and instead use dev_warn() for cases that can 
+actually happen. With panic_on_warn(), which some distributions enable, 
+we can crash the kernel.
+
+I think error handling might also not be correct. We'd actually want to 
+set the state to something like VIRTIO_MEM_SBM_MB_PLUGGED, to retry 
+unplug later. Further, we'd want to return to the main loop to retry 
+fixing this up.
+
+Because if you leave the vmemmap blocks plugged, 
+virtio_mem_sbm_plug_and_add_mb() will later keep failing with invalid 
+requests from the hypervisor I guess.
+
+[...]
+
+> -	if (virtio_mem_sbm_test_sb_unplugged(vm, mb_id, 0, vm->sbm.sbs_per_mb)) {
+> +	if (virtio_mem_sbm_test_sb_unplugged(vm, mb_id, vm->sbm.sbs_vmemmap,
+> +				vm->sbm.sbs_per_mb - vm->sbm.sbs_vmemmap)) {
+>   		mutex_unlock(&vm->hotplug_mutex);
+>   		rc = virtio_mem_sbm_offline_and_remove_mb(vm, mb_id);
+>   		mutex_lock(&vm->hotplug_mutex);
+> -		if (!rc)
+> +		if (!rc) {
+>   			virtio_mem_sbm_set_mb_state(vm, mb_id,
+>   						    VIRTIO_MEM_SBM_MB_UNUSED);
+> +			/* Remove vmemmap pages. */
+> +			if (vm->sbm.sbs_vmemmap) {
+> +				rc = virtio_mem_sbm_unplug_sb(vm, mb_id, 0,
+> +							vm->sbm.sbs_vmemmap);
+> +				/*
+> +				 * Just warn because this error will
+> +				 * not affect next plug.
+> +				 */
+> +				WARN_ON(rc);
+> +				if (!rc) {
+> +					if (*nb_sb >= vm->sbm.sbs_vmemmap)
+> +						*nb_sb -= vm->sbm.sbs_vmemmap;
+> +					else
+> +						*nb_sb = 0;
+> +				}
+> +			}
+> +		}
+
+Same comments as for virtio_mem_sbm_unplug_any_sb_offline().
+
+>   	}
+>   
+>   	return 0;
+> @@ -2444,6 +2578,15 @@ static int virtio_mem_init(struct virtio_mem *vm)
+>   		       memory_block_size_bytes() - 1;
+>   		vm->sbm.first_mb_id = virtio_mem_phys_to_mb_id(addr);
+>   		vm->sbm.next_mb_id = vm->sbm.first_mb_id;
+> +		if (mhp_supports_memmap_on_memory(memory_block_size_bytes())) {
+> +			vm->sbm.nr_vmemmap_pages
+> +				= PFN_DOWN(PFN_DOWN(memory_block_size_bytes()) *
+> +					   sizeof(struct page));
+
+I feel like we want memory hotplug code / vmemmap code to tell us 
+instead of calculating ourselves.
+
 
 
 -- 
-This email has been checked for viruses by AVG.
-https://www.avg.com
+Thanks,
 
---lyTOWP6B7jz3pVi3LbS=_HDEubOfh0Qj5Y
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <div class=3D"adn ads" data-legacy-message-id=3D"17a812a84db16fcf" data=
--message-id=3D"#msg-a:r-1499474762405574081">
-      <div class=3D"gs">
-        <div>
-          <div id=3D":19a" class=3D"ii gt">
-            <div id=3D":199" class=3D"a3s aiL ">---------------------------=
----
-              <wbr>&nbsp;</wbr>------------------------------
-              <wbr>&nbsp;</wbr>------------------------------
-              <wbr>&nbsp;</wbr>-----------------------------<br />ICITS'22 =
-- The 2022 International Conference on Information Technology &amp; Systems=
-<br /><br />San Carlos, Costa Rica, 9 - 11 February 2022<br /><br /><a href=
-=3D"http://icits.me/" rel=3D"noreferrer" target=3D"_blank" data-saferedirec=
-turl=3D"https://www.google.com/url?q=3Dhttp://icits.me&source=3Dgmail&ust=
-=3D1625751097078000&usg=3DAFQjCNHZudzUex040ZSHVQt__S5EeuF3hQ">http://icits.=
-me</a><br />------------------------------
-              <wbr>&nbsp;</wbr>------------------------------
-              <wbr>&nbsp;</wbr>------------------------------
-              <wbr>&nbsp;</wbr>------------------------------<br /><br /><b=
-r />SCOPE<br /><br />ICITS'22 - The 2022 International Conference on Inform=
-ation Technology<br />&amp; Systems (<a href=3D"http://icits.me/" rel=3D"no=
-referrer" target=3D"_blank" data-saferedirecturl=3D"https://www.google.com/=
-url?q=3Dhttp://icits.me&source=3Dgmail&ust=3D1625751097078000&usg=3DAFQjCNH=
-ZudzUex040ZSHVQt__S5EeuF3hQ">http://icits.me</a>), to be held in Tecnol&oac=
-ute;gico de Costa Rica,<br />Campus de San Carlos, Costa Rica, 9 - 11 Febru=
-ary 2022, is an<br />international forum for researchers and practitioners =
-to present and<br />discuss the most recent innovations, trends, results, e=
-xperiences and<br />concerns in the several perspectives of Information Tec=
-hnology &amp;<br />Systems.<br /><br />We are pleased to invite you to subm=
-it your papers to ICITS'22. They<br />can be written in English, Spanish or=
- Portuguese. All submissions will<br />be reviewed on the basis of relevanc=
-e, originality, importance and<br />clarity.<br /><br /><br /><br />TOPICS<=
-br /><br />Submitted papers should be related with one or more of the main =
-themes<br />proposed for the Conference:<br /><br />A) Information and Know=
-ledge Management (IKM);<br /><br />B) Organizational Models and Information=
- Systems (OMIS);<br /><br />C) Software and Systems Modeling (SSM);<br /><b=
-r />D) Software Systems, Architectures, Applications and Tools (SSAAT);<br =
-/><br />E) Multimedia Systems and Applications (MSA);<br /><br />F) Compute=
-r Networks, Mobility and Pervasive Systems (CNMPS);<br /><br />G) Intellige=
-nt and Decision Support Systems (IDSS);<br /><br />H) Big Data Analytics an=
-d Applications (BDAA);<br /><br />I) Human-Computer Interaction (HCI);<br /=
-><br />J) Ethics, Computers and Security (ECS)<br /><br />K) Health Informa=
-tics (HIS);<br /><br />L) Information Technologies in Education (ITE);<br /=
-><br />M) Media, Applied Technology and Communication (MATC).<br /><br /><b=
-r /><br />SUBMISSION AND DECISION<br /><br />Submitted papers written in En=
-glish (until 10-page limit) must comply<br />with the format of the Lecture=
- Notes in Networks and Systems series<br />(see Instructions for Authors at=
- Springer Website), must not have been<br />published before, not be under =
-review for any other conference or<br />publication and not include any inf=
-ormation leading to the authors&rsquo;<br />identification. Therefore, the =
-authors&rsquo; names and affiliations should<br />not be included in the ve=
-rsion for evaluation by the Scientific<br />Committee. This information sho=
-uld only be included in the<br />camera-ready version, saved in Word or Lat=
-ex format and also in PDF<br />format. These files must be accompanied by t=
-he Consent to Publish form<br />filled out, in a ZIP file, and uploaded at =
-the conference management<br />system.<br /><br />Submitted papers written =
-in Spanish or Portuguese (until 15-page<br />limit) must comply with the fo=
-rmat of RISTI - Revista Ib&eacute;rica de<br />Sistemas e Tecnologias de In=
-forma&ccedil;&atilde;o (download instructions/template<br />for authors in =
-Spanish or Portuguese), must not have been published<br />before, not be un=
-der review for any other conference or publication<br />and not include any=
- information leading to the authors&rsquo;<br />identification. Therefore, =
-the authors&rsquo; names and affiliations should<br />not be included in th=
-e version for evaluation by the Scientific<br />Committee. This information=
- should only be included in the<br />camera-ready version, saved in Word. T=
-hese files must be uploaded at<br />the conference management system in a Z=
-IP file.<br /><br />All papers will be subjected to a &ldquo;double-blind r=
-eview&rdquo; by at least<br />two members of the Scientific Committee.<br /=
-><br />Based on Scientific Committee evaluation, a paper can be rejected or=
-<br />accepted by the Conference Chairs. In the later case, it can be<br />=
-accepted as paper or poster.<br /><br />The authors of papers accepted as p=
-osters must build and print a<br />poster to be exhibited during the Confer=
-ence. This poster must follow<br />an A1 or A2 vertical format. The Confere=
-nce can include Work Sessions<br />where these posters are presented and or=
-ally discussed, with a 7<br />minute limit per poster.<br /><br />The autho=
-rs of accepted papers will have 15 minutes to present their<br />work in a =
-Conference Work Session; approximately 5 minutes of<br />discussion will fo=
-llow each presentation.<br /><br /><br /><br />PUBLICATION AND INDEXING<br =
-/><br />Papers accepted as posters are not published; they are only exhibit=
-ed,<br />presented and discussed during the conference.<br /><br />To ensur=
-e that a paper accepted as paper is published, at least one of<br />the aut=
-hors must be fully registered by the 5th of November 2021, and<br />the pap=
-er must comply with the suggested layout and page-limit.<br />Additionally,=
- all recommended changes must be addressed by the authors<br />before they =
-submit the camera-ready version.<br /><br />No more than one paper per regi=
-stration will be published. An extra<br />fee must be paid for publication =
-of additional papers, with a maximum<br />of one additional paper per regis=
-tration. One registration permits<br />only the participation of one author=
- in the conference.<br /><br />Papers written in English and accepted and r=
-egistered will be<br />published in Proceedings by Springer, in a book of t=
-he Lecture Notes<br />in Networks and Systems series, will&nbsp; be submitt=
-ed for indexation by<br />SCOPUS, WoS, Google Scholar, SCImago, among other=
-s, and will be<br />available in the SpringerLink Digital Library.<br /><br=
- />Papers written in Spanish or Portuguese and accepted and registered<br /=
->will be published in a Special Issue of RISTI and will be submitted<br />f=
-or indexation by SCOPUS, among others.<br /><br /><br /><br />IMPORTANT DAT=
-ES<br /><br />Paper Submission: September 5, 2021<br /><br />Notification o=
-f Acceptance: October 17, 2021<br /><br />Payment of Registration, to ensur=
-e the inclusion of an accepted paper<br />in the conference proceedings: No=
-vember 5, 2021.<br /><br />Camera-ready Submission: November 5, 2021<br /><=
-br /><br /><br />Website of ICITS'22: <a href=3D"http://icits.me/" rel=3D"n=
-oreferrer" target=3D"_blank" data-saferedirecturl=3D"https://www.google.com=
-/url?q=3Dhttp://icits.me&source=3Dgmail&ust=3D1625751097078000&usg=3DAFQjCN=
-HZudzUex040ZSHVQt__S5EeuF3hQ">http://icits.me</a><br /><br /><br />ICITS'22=
- Team<br /><a href=3D"http://icits.me" rel=3D"noreferrer" target=3D"_blank"=
- data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttp://icits.me&sou=
-rce=3Dgmail&ust=3D1625751097078000&usg=3DAFQjCNHZudzUex040ZSHVQt__S5EeuF3hQ=
-">http://icits.me</a>
-            </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
-<table style=3D"border-top: 1px solid #D3D4DE;">
-	<tr>
-        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
-=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
-n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
-s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
-=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
-a></td>
-		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
-13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
-free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
-source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
-"_blank" style=3D"color: #4453ea;">www.avg.com</a>
-		</td>
-	</tr>
-</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
-t=3D"1"> </a></div></body>
-</html>
-
---lyTOWP6B7jz3pVi3LbS=_HDEubOfh0Qj5Y--
-
-
---===============6363312924797668499==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+David / dhildenb
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6363312924797668499==--
-
