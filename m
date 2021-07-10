@@ -7,78 +7,78 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B367DC07E95
-	for <virtualization@archiver.kernel.org>; Sat, 10 Jul 2021 23:53:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1411C11F66
+	for <virtualization@archiver.kernel.org>; Sat, 10 Jul 2021 23:53:24 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7EC9F61456
-	for <virtualization@archiver.kernel.org>; Sat, 10 Jul 2021 23:53:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7EC9F61456
+	by mail.kernel.org (Postfix) with ESMTPS id AA39561406
+	for <virtualization@archiver.kernel.org>; Sat, 10 Jul 2021 23:53:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AA39561406
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 561084052C;
-	Sat, 10 Jul 2021 23:53:21 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7D6A24052D;
+	Sat, 10 Jul 2021 23:53:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 74zEton7TVhz; Sat, 10 Jul 2021 23:53:20 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 9B3DF404FF;
-	Sat, 10 Jul 2021 23:53:19 +0000 (UTC)
+	with ESMTP id dWbkQdsgQLIA; Sat, 10 Jul 2021 23:53:21 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id DED8F4051A;
+	Sat, 10 Jul 2021 23:53:20 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6D6D1C0010;
-	Sat, 10 Jul 2021 23:53:19 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 27A22C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AA2B9C0010;
+	Sat, 10 Jul 2021 23:53:20 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2EF7DC0022
  for <virtualization@lists.linux-foundation.org>;
- Sat, 10 Jul 2021 23:53:19 +0000 (UTC)
+ Sat, 10 Jul 2021 23:53:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 0AB5A6077E
+ by smtp2.osuosl.org (Postfix) with ESMTP id 1EE3240396
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 10 Jul 2021 23:53:20 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 19KVYcqpuIFZ
  for <virtualization@lists.linux-foundation.org>;
  Sat, 10 Jul 2021 23:53:19 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id TfcG1ll2uR10
- for <virtualization@lists.linux-foundation.org>;
- Sat, 10 Jul 2021 23:53:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 04B216072F
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 0F9CE402F6
  for <virtualization@lists.linux-foundation.org>;
- Sat, 10 Jul 2021 23:53:18 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D351C61433;
- Sat, 10 Jul 2021 23:53:16 +0000 (UTC)
+ Sat, 10 Jul 2021 23:53:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C23D613F9;
+ Sat, 10 Jul 2021 23:53:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1625961197;
- bh=nTT+xchQK5zW6cns9KJcPWUUEfrXKrOpcI7iLsIGi1g=;
+ s=k20201202; t=1625961198;
+ bh=er0SduiRWDtUZFVT+JqXZo1go7bIbj2776gLF2zIl3U=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=Dt7bIVdFGrkeGrhe7pvTOD+fUK2voE7K8TLWSMGDUazJJnYg0x0zEKWG28uwvWOvO
- mYvjsJtEDlMi4s4wV1KZZYiJjAbnj4iAojdXjzLF1VZhDIRGxH//jMsMfs/2crzWEh
- 1Y3WWv31VVpBiq7vXEHS56dd9oSw0hNJV4qm2fSBq/2UHCrQLdVbKYTmdNCBSz/yRM
- nD/LWkhiCCJmDyva9yWyaWdi+3BKezT8hk2LZm05NOi2pgOJ98/RbeMb6OJZt3dR3s
- 6dIWTf2hYjh5y8rAW0oE8i6zghVE4oqbFZ8ZkCKNQAMeEQr4so0IhvCN/XNO7Kipg6
- Y8OBfbVC7U3ew==
+ b=N0bU5sPIZKVw3nh5WFjKsm7251bZvyGLigjenbWxZ6+/mT600qKwLbhMr5sLxKo8e
+ YI0UqtWtLlMf1QchYvt2nxFBULlORnTNPmd1494yiFsDgsdKZt/PGPtcIP6qFzRZw0
+ rfLNKXAuxfyyNg3GKxPWLIADSo/5t9BoNFhZVnf7wKxyOwYelS8wwDNnZrCUGOBI/L
+ YaPlmocok+2kNSIDZfw94S/Hdp0rRNeNwFonXGlCouqJMRcHuMnlrXDC5neyGolcxf
+ H3j1tpi8brMadPdK9JS7Q1bbwNXNeeo/N1if8FQts+sRiqiFnwVZqxAlkkL09hArNX
+ OOJhHuMOMVwTQ==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 11/12] virtio-blk: Fix memory leak among
- suspend/resume procedure
-Date: Sat, 10 Jul 2021 19:53:01 -0400
-Message-Id: <20210710235302.3222809-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 12/12] virtio_console: Assure used length from
+ device is limited
+Date: Sat, 10 Jul 2021 19:53:02 -0400
+Message-Id: <20210710235302.3222809-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210710235302.3222809-1-sashal@kernel.org>
 References: <20210710235302.3222809-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-Cc: Sasha Levin <sashal@kernel.org>, "Michael S . Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- Xie Yongji <xieyongji@bytedance.com>
+Cc: Sasha Levin <sashal@kernel.org>, Xie Yongji <xieyongji@bytedance.com>,
+ virtualization@lists.linux-foundation.org,
+ "Michael S . Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -97,33 +97,43 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Xie Yongji <xieyongji@bytedance.com>
 
-[ Upstream commit b71ba22e7c6c6b279c66f53ee7818709774efa1f ]
+[ Upstream commit d00d8da5869a2608e97cfede094dfc5e11462a46 ]
 
-The vblk->vqs should be freed before we call init_vqs()
-in virtblk_restore().
+The buf->len might come from an untrusted device. This
+ensures the value would not exceed the size of the buffer
+to avoid data corruption or loss.
 
 Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-Link: https://lore.kernel.org/r/20210517084332.280-1-xieyongji@bytedance.com
 Acked-by: Jason Wang <jasowang@redhat.com>
+Link: https://lore.kernel.org/r/20210525125622.1203-1-xieyongji@bytedance.com
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/virtio_blk.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/char/virtio_console.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index bdc3efacd0d2..2bcc2bc64149 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -808,6 +808,8 @@ static int virtblk_freeze(struct virtio_device *vdev)
- 	blk_mq_stop_hw_queues(vblk->disk->queue);
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 226ccb7891d4..c2f1c921cb2c 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -487,7 +487,7 @@ static struct port_buffer *get_inbuf(struct port *port)
  
- 	vdev->config->del_vqs(vdev);
-+	kfree(vblk->vqs);
-+
- 	return 0;
- }
+ 	buf = virtqueue_get_buf(port->in_vq, &len);
+ 	if (buf) {
+-		buf->len = len;
++		buf->len = min_t(size_t, len, buf->size);
+ 		buf->offset = 0;
+ 		port->stats.bytes_received += len;
+ 	}
+@@ -1752,7 +1752,7 @@ static void control_work_handler(struct work_struct *work)
+ 	while ((buf = virtqueue_get_buf(vq, &len))) {
+ 		spin_unlock(&portdev->c_ivq_lock);
  
+-		buf->len = len;
++		buf->len = min_t(size_t, len, buf->size);
+ 		buf->offset = 0;
+ 
+ 		handle_control_message(vq->vdev, portdev, buf);
 -- 
 2.30.2
 
