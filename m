@@ -2,85 +2,86 @@ Return-Path: <SRS0=VeF6=MF=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_RED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_RED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 925DDC11F69
-	for <virtualization@archiver.kernel.org>; Tue, 13 Jul 2021 16:19:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EB97C07E96
+	for <virtualization@archiver.kernel.org>; Tue, 13 Jul 2021 16:19:25 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 457D661288
-	for <virtualization@archiver.kernel.org>; Tue, 13 Jul 2021 16:19:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 457D661288
+	by mail.kernel.org (Postfix) with ESMTPS id 45BCD610C7
+	for <virtualization@archiver.kernel.org>; Tue, 13 Jul 2021 16:19:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 45BCD610C7
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0A22F83264;
+	by smtp1.osuosl.org (Postfix) with ESMTP id CC0C683ADC;
 	Tue, 13 Jul 2021 16:19:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Q2xv2KD-OrvB; Tue, 13 Jul 2021 16:19:23 +0000 (UTC)
+	with ESMTP id BfYC3w2OWEhC; Tue, 13 Jul 2021 16:19:23 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A03BB82F87;
-	Tue, 13 Jul 2021 16:19:22 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1E97783AA3;
+	Tue, 13 Jul 2021 16:19:23 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 70DBEC0010;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C5B45C0023;
 	Tue, 13 Jul 2021 16:19:22 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2B35DC000E
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 13D68C0010
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 13 Jul 2021 16:19:21 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id EA56782F87
  for <virtualization@lists.linux-foundation.org>;
  Tue, 13 Jul 2021 16:19:20 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id D64BF608A4
- for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Jul 2021 16:19:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GJIWWHS_Uy1R
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id IjInhlBoJUq3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Jul 2021 16:19:19 +0000 (UTC)
+ Tue, 13 Jul 2021 16:19:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id E93A560ABC
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 24EC382D75
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Jul 2021 16:19:18 +0000 (UTC)
+ Tue, 13 Jul 2021 16:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1626193157;
+ s=mimecast20190719; t=1626193159;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding;
- bh=awbwz8Mi1G1+f2fwGt3ZEpkOa0ZEsi8ROYjzYe/Okus=;
- b=PoxG3ZFQEIknPgusP3jAlPopWFK8MOplxhvPlQ2MYBymohwpwqs7RRESBlrr/PIQ7r1MgN
- yILgJUWeVdPoaJ6k3pgEBvY9JfrFKROZeJ3IzsQJxrGxSoWecbADwrshRumoIVF7xWhlPn
- brxHJX0zBCcu+boIfCx7zS3+gHE2gD0=
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=cPecu7ZNX7bQJ/iS17rhbYrep1HtpV5Xs2IePf8joKs=;
+ b=dDVAjOw/WKfno6rbF/DLgCMsJaY2raE2eoRRDXSuhPQqbsSK83DoLLVzTbuiUKfSkqwGXs
+ Zd0bGHzANs5wq4SK8hGK2KeQ7XTACObxMQxsTSiuHJPJFmJJ20LPdJiZfqVYV2CyLpoKtU
+ kvIR4UFbTk4Do+/fpZV/CY5k8GOqQKo=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-456-JG1pSGTjO-m9PADZ5-L7Wg-1; Tue, 13 Jul 2021 12:19:16 -0400
-X-MC-Unique: JG1pSGTjO-m9PADZ5-L7Wg-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
- [10.5.11.23])
+ us-mta-482-WVhsITTWO6iMOj6mb1Vxlg-1; Tue, 13 Jul 2021 12:19:18 -0400
+X-MC-Unique: WVhsITTWO6iMOj6mb1Vxlg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
+ [10.5.11.13])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 258DB1B2C983;
- Tue, 13 Jul 2021 16:19:15 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9B0D5DF8A0;
+ Tue, 13 Jul 2021 16:19:16 +0000 (UTC)
 Received: from localhost (ovpn-112-172.ams2.redhat.com [10.36.112.172])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 9C1F819C44;
- Tue, 13 Jul 2021 16:19:14 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 32C5C60C2B;
+ Tue, 13 Jul 2021 16:19:16 +0000 (UTC)
 From: Stefan Hajnoczi <stefanha@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [RFC 0/3] cpuidle: add poll_source API and virtio vq polling
-Date: Tue, 13 Jul 2021 17:19:03 +0100
-Message-Id: <20210713161906.457857-1-stefanha@redhat.com>
+Subject: [RFC 1/3] cpuidle: add poll_source API
+Date: Tue, 13 Jul 2021 17:19:04 +0100
+Message-Id: <20210713161906.457857-2-stefanha@redhat.com>
+In-Reply-To: <20210713161906.457857-1-stefanha@redhat.com>
+References: <20210713161906.457857-1-stefanha@redhat.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Cc: Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@infradead.org>,
  Daniel Lezcano <daniel.lezcano@linaro.org>,
  "Michael S . Tsirkin" <mst@redhat.com>,
@@ -103,69 +104,252 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-These patches are not polished yet but I would like request feedback on this
-approach and share performance results with you.
+Introduce an API for adding cpuidle poll callbacks:
 
-Idle CPUs tentatively enter a busy wait loop before halting when the cpuidle
-haltpoll driver is enabled inside a virtual machine. This reduces wakeup
-latency for events that occur soon after the vCPU becomes idle.
+  struct poll_source_ops {
+      void (*start)(struct poll_source *src);
+      void (*stop)(struct poll_source *src);
+      void (*poll)(struct poll_source *src);
+  };
 
-This patch series extends the cpuidle busy wait loop with the new poll_source
-API so drivers can participate in polling. Such polling-aware drivers disable
-their device's irq during the busy wait loop to avoid the cost of interrupts.
-This reduces latency further than regular cpuidle haltpoll, which still relies
-on irqs.
+  int poll_source_register(struct poll_source *src);
+  int poll_source_unregister(struct poll_source *src);
 
-Virtio drivers are modified to use the poll_source API so all virtio device
-types get this feature. The following virtio-blk fio benchmark results show the
-improvement:
+When cpuidle enters the poll state it invokes ->start() and then invokes
+->poll() repeatedly from the busy wait loop. Finally ->stop() is invoked
+when the busy wait loop finishes.
 
-             IOPS (numjobs=4, iodepth=1, 4 virtqueues)
-               before   poll_source      io_poll
-4k randread    167102  186049 (+11%)  186654 (+11%)
-4k randwrite   162204  181214 (+11%)  181850 (+12%)
-4k randrw      159520  177071 (+11%)  177928 (+11%)
+The ->poll() function should check for activity and cause
+TIF_NEED_RESCHED to be set in order to stop the busy wait loop.
 
-The comparison against io_poll shows that cpuidle poll_source achieves
-equivalent performance to the block layer's io_poll feature (which I
-implemented in a separate patch series [1]).
+This API is intended to be used by drivers that can cheaply poll for
+events. Participating in cpuidle polling allows them to avoid interrupt
+latencies during periods where the CPU is going to poll anyway.
 
-The advantage of poll_source is that applications do not need to explicitly set
-the RWF_HIPRI I/O request flag. The poll_source approach is attractive because
-few applications actually use RWF_HIPRI and it takes advantage of CPU cycles we
-would have spent in cpuidle haltpoll anyway.
+Note that each poll_source is bound to a particular CPU. The API is
+mainly intended to by used by drivers that have multiple queues with irq
+affinity.
 
-The current series does not improve virtio-net. I haven't investigated deeply,
-but it is possible that NAPI and poll_source do not combine. See the final
-patch for a starting point on making the two work together.
-
-I have not tried this on bare metal but it might help there too. The cost of
-disabling a device's irq must be less than the savings from avoiding irq
-handling for this optimization to make sense.
-
-[1] https://lore.kernel.org/linux-block/20210520141305.355961-1-stefanha@redhat.com/
-
-Stefan Hajnoczi (3):
-  cpuidle: add poll_source API
-  virtio: add poll_source virtqueue polling
-  softirq: participate in cpuidle polling
-
- drivers/cpuidle/Makefile           |   1 +
- drivers/virtio/virtio_pci_common.h |   7 ++
- include/linux/interrupt.h          |   2 +
- include/linux/poll_source.h        |  53 +++++++++++++++
- include/linux/virtio.h             |   2 +
- include/linux/virtio_config.h      |   2 +
- drivers/cpuidle/poll_source.c      | 102 +++++++++++++++++++++++++++++
- drivers/cpuidle/poll_state.c       |   6 ++
- drivers/virtio/virtio.c            |  34 ++++++++++
- drivers/virtio/virtio_pci_common.c |  86 ++++++++++++++++++++++++
- drivers/virtio/virtio_pci_modern.c |   2 +
- kernel/softirq.c                   |  14 ++++
- 12 files changed, 311 insertions(+)
+Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+---
+ drivers/cpuidle/Makefile      |  1 +
+ include/linux/poll_source.h   | 53 +++++++++++++++++++
+ drivers/cpuidle/poll_source.c | 99 +++++++++++++++++++++++++++++++++++
+ drivers/cpuidle/poll_state.c  |  6 +++
+ 4 files changed, 159 insertions(+)
  create mode 100644 include/linux/poll_source.h
  create mode 100644 drivers/cpuidle/poll_source.c
 
+diff --git a/drivers/cpuidle/Makefile b/drivers/cpuidle/Makefile
+index 26bbc5e74123..994f72d6fe95 100644
+--- a/drivers/cpuidle/Makefile
++++ b/drivers/cpuidle/Makefile
+@@ -7,6 +7,7 @@ obj-y += cpuidle.o driver.o governor.o sysfs.o governors/
+ obj-$(CONFIG_ARCH_NEEDS_CPU_IDLE_COUPLED) += coupled.o
+ obj-$(CONFIG_DT_IDLE_STATES)		  += dt_idle_states.o
+ obj-$(CONFIG_ARCH_HAS_CPU_RELAX)	  += poll_state.o
++obj-$(CONFIG_ARCH_HAS_CPU_RELAX)	  += poll_source.o
+ obj-$(CONFIG_HALTPOLL_CPUIDLE)		  += cpuidle-haltpoll.o
+ 
+ ##################################################################################
+diff --git a/include/linux/poll_source.h b/include/linux/poll_source.h
+new file mode 100644
+index 000000000000..ccfb424e170b
+--- /dev/null
++++ b/include/linux/poll_source.h
+@@ -0,0 +1,53 @@
++/* SPDX-License-Identifier: GPL-2.0-or-later */
++/*
++ * poll_source.h - cpuidle busy waiting API
++ */
++#ifndef __LINUX_POLLSOURCE_H__
++#define __LINUX_POLLSOURCE_H__
++
++#include <linux/list.h>
++
++struct poll_source;
++
++struct poll_source_ops {
++	void (*start)(struct poll_source *src);
++	void (*stop)(struct poll_source *src);
++	void (*poll)(struct poll_source *src);
++};
++
++struct poll_source {
++	const struct poll_source_ops *ops;
++	struct list_head node;
++	int cpu;
++};
++
++/**
++ * poll_source_register - Add a poll_source for a CPU
++ */
++#if defined(CONFIG_CPU_IDLE) && defined(CONFIG_ARCH_HAS_CPU_RELAX)
++int poll_source_register(struct poll_source *src);
++#else
++static inline int poll_source_register(struct poll_source *src)
++{
++	return 0;
++}
++#endif
++
++/**
++ * poll_source_unregister - Remove a previously registered poll_source
++ */
++#if defined(CONFIG_CPU_IDLE) && defined(CONFIG_ARCH_HAS_CPU_RELAX)
++int poll_source_unregister(struct poll_source *src);
++#else
++static inline int poll_source_unregister(struct poll_source *src)
++{
++	return 0;
++}
++#endif
++
++/* Used by the cpuidle driver */
++void poll_source_start(void);
++void poll_source_run_once(void);
++void poll_source_stop(void);
++
++#endif /* __LINUX_POLLSOURCE_H__ */
+diff --git a/drivers/cpuidle/poll_source.c b/drivers/cpuidle/poll_source.c
+new file mode 100644
+index 000000000000..46100e5a71e4
+--- /dev/null
++++ b/drivers/cpuidle/poll_source.c
+@@ -0,0 +1,99 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * poll_source.c - cpuidle busy waiting API
++ */
++
++#include <linux/lockdep.h>
++#include <linux/percpu.h>
++#include <linux/poll_source.h>
++
++/* The per-cpu list of registered poll sources */
++DEFINE_PER_CPU(struct list_head, poll_source_list);
++
++/* Called from idle task with TIF_POLLING_NRFLAG set and irqs enabled */
++void poll_source_start(void)
++{
++	struct poll_source *src;
++
++	list_for_each_entry(src, this_cpu_ptr(&poll_source_list), node)
++		src->ops->start(src);
++}
++
++/* Called from idle task with TIF_POLLING_NRFLAG set and irqs enabled */
++void poll_source_run_once(void)
++{
++	struct poll_source *src;
++
++	list_for_each_entry(src, this_cpu_ptr(&poll_source_list), node)
++		src->ops->poll(src);
++}
++
++/* Called from idle task with TIF_POLLING_NRFLAG set and irqs enabled */
++void poll_source_stop(void)
++{
++	struct poll_source *src;
++
++	list_for_each_entry(src, this_cpu_ptr(&poll_source_list), node)
++		src->ops->stop(src);
++}
++
++static void poll_source_register_this_cpu(void *opaque)
++{
++	struct poll_source *src = opaque;
++
++	lockdep_assert_irqs_disabled();
++
++	list_add_tail(&src->node, this_cpu_ptr(&poll_source_list));
++}
++
++int poll_source_register(struct poll_source *src)
++{
++	if (!list_empty(&src->node))
++		return -EBUSY;
++
++	/*
++	 * There is no race with src->cpu iterating over poll_source_list
++	 * because smp_call_function_single() just sets TIF_NEED_RESCHED
++	 * instead of sending an IPI during idle.
++	 */
++	/* TODO but what happens if the flag isn't set yet when smp_call_function_single() is invoked? */
++	return smp_call_function_single(src->cpu,
++					poll_source_register_this_cpu,
++					src,
++					1);
++}
++EXPORT_SYMBOL_GPL(poll_source_register);
++
++static void poll_source_unregister_this_cpu(void *opaque)
++{
++	struct poll_source *src = opaque;
++
++	lockdep_assert_irqs_disabled();
++
++	/*
++	 * See comment in poll_source_register() about why this does not race
++	 * with the idle CPU iterating over poll_source_list.
++	 */
++	list_del_init(&src->node);
++}
++
++int poll_source_unregister(struct poll_source *src)
++{
++	return smp_call_function_single(src->cpu,
++					poll_source_unregister_this_cpu,
++					src,
++					1);
++}
++EXPORT_SYMBOL_GPL(poll_source_unregister);
++
++/* TODO what happens when a CPU goes offline? */
++static int __init poll_source_init(void)
++{
++	int i;
++
++	for_each_possible_cpu(i)
++		INIT_LIST_HEAD(&per_cpu(poll_source_list, i));
++
++	return 0;
++}
++core_initcall(poll_source_init);
+diff --git a/drivers/cpuidle/poll_state.c b/drivers/cpuidle/poll_state.c
+index f7e83613ae94..aa26870034ac 100644
+--- a/drivers/cpuidle/poll_state.c
++++ b/drivers/cpuidle/poll_state.c
+@@ -7,6 +7,7 @@
+ #include <linux/sched.h>
+ #include <linux/sched/clock.h>
+ #include <linux/sched/idle.h>
++#include <linux/poll_source.h>
+ 
+ #define POLL_IDLE_RELAX_COUNT	200
+ 
+@@ -22,9 +23,12 @@ static int __cpuidle poll_idle(struct cpuidle_device *dev,
+ 		unsigned int loop_count = 0;
+ 		u64 limit;
+ 
++		poll_source_start();
++
+ 		limit = cpuidle_poll_time(drv, dev);
+ 
+ 		while (!need_resched()) {
++			poll_source_run_once();
+ 			cpu_relax();
+ 			if (loop_count++ < POLL_IDLE_RELAX_COUNT)
+ 				continue;
+@@ -35,6 +39,8 @@ static int __cpuidle poll_idle(struct cpuidle_device *dev,
+ 				break;
+ 			}
+ 		}
++
++		poll_source_stop();
+ 	}
+ 	current_clr_polling();
+ 
 -- 
 2.31.1
 
