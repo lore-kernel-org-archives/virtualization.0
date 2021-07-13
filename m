@@ -2,108 +2,190 @@ Return-Path: <SRS0=VeF6=MF=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MSGID_FROM_MTA_HEADER,SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_AGENT_SANE_1
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0675FC11F66
-	for <virtualization@archiver.kernel.org>; Tue, 13 Jul 2021 10:51:08 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B9A7C11F66
+	for <virtualization@archiver.kernel.org>; Tue, 13 Jul 2021 11:03:23 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A9A3D61249
-	for <virtualization@archiver.kernel.org>; Tue, 13 Jul 2021 10:51:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A9A3D61249
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 15F5B61284
+	for <virtualization@archiver.kernel.org>; Tue, 13 Jul 2021 11:03:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 15F5B61284
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8C71683ACE;
-	Tue, 13 Jul 2021 10:51:07 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id D2C924024A;
+	Tue, 13 Jul 2021 11:03:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CBNzxs6lhR_m; Tue, 13 Jul 2021 10:51:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id BA5E483ACA;
-	Tue, 13 Jul 2021 10:51:03 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 903D6C001A;
-	Tue, 13 Jul 2021 10:51:03 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 94689C000E
- for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Jul 2021 10:51:02 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 74C82400F3
- for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Jul 2021 10:51:02 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rJHFpftIBg7n
- for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Jul 2021 10:51:01 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com
- [IPv6:2607:f8b0:4864:20::62d])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 8448A40254
- for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Jul 2021 10:51:01 +0000 (UTC)
-Received: by mail-pl1-x62d.google.com with SMTP id b12so7985013plh.10
- for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Jul 2021 03:51:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=xzH7sesTaozGr2aBJCA9PbVMd+/TXsUDxdM6aSXl45Y=;
- b=UfdEgV6ejBlsj8JxfNTCpyqoujkZOrd26OFYbtyNGrFFn1w8vIXL3x/tuh8kYEN7zh
- gMfxw3nWN67wNY+Ia620l6fmfgeo/5SjhwpvWAQldauqCMbEN1360puiqwBIkfK5Q4uZ
- wpSwJXVJjy3E6hA7Xjo4ciCm1nwSoklVD0YtzlI7ndrcYmCfBkYSFY80XKzfNVNVyMst
- nFIHVvEmojYLFlPQ2vf2P4X/xU56jTh3kY+isL6DcaxrPFjSjGwGKwIfDMUc7lh/xYoG
- z4d/R32YPIe0nHFMqPqcSzBaoBw9/4vKH5Sp/SESjA6uqWTeDPV9t93lEi7qZGCipQA5
- YXzA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=xzH7sesTaozGr2aBJCA9PbVMd+/TXsUDxdM6aSXl45Y=;
- b=TEjUNoDPHgeRm78NlQn0Sm7tUepc21dCDq/fP932gVRibv0xDki5wrtO3dydPK2dvW
- 7d49Ty9q+ZLxTvC1kxMW143rZgx5X5JBGyh3iCSqb2YBz5vi7oGntEUUI2Bs+tu+x719
- vagzQU1niSPlXerQP+TnI0aWQks6gIDcSMb/xj+Alzs1zkgqla8QhxZN1tVeFC2uhAlA
- WQsVSJK/QmifZr0uppCQ/M5E4Wri68fkaHk28mbdMpLIB26Gp16XlabuktQw2rR5/3Dt
- UcQwarVyh4HY2rFBxA9LJMJ0g63thXDJdPw8itFBINaPvPQ7dzjLouQWFjvcYaSaBCmH
- BGXQ==
-X-Gm-Message-State: AOAM5321MlWegR0F+I5XJvClO8SqOvaHJKsFeQLXDDoD4SvENHE+etJj
- boTzI8CuyS5g1x6tcWi+hUKELg==
-X-Google-Smtp-Source: ABdhPJwILSYWfsnEQ84NtkqSWa5u44NasPrQyL0/31BO0LHU+8bXmC3BJV9TCS/WGUJGHGqqDIiLVA==
-X-Received: by 2002:a17:90b:1294:: with SMTP id
- fw20mr18966339pjb.100.1626173460987; 
- Tue, 13 Jul 2021 03:51:00 -0700 (PDT)
-Received: from localhost ([106.201.108.2])
- by smtp.gmail.com with ESMTPSA id i8sm5898474pfk.18.2021.07.13.03.51.00
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 13 Jul 2021 03:51:00 -0700 (PDT)
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Rob Herring <robh+dt@kernel.org>, Arnd Bergmann <arnd@kernel.org>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Linus Walleij <linus.walleij@linaro.org>,
- Bartosz Golaszewski <bgolaszewski@baylibre.com>,
- Viresh Kumar <viresh.kumar@linaro.org>
-Subject: [PATCH 5/5] dt-bindings: gpio: Add bindings for gpio-virtio
-Date: Tue, 13 Jul 2021 16:20:34 +0530
-Message-Id: <268086e273df0c53e3a9a1e751304c63e50ebe12.1626173013.git.viresh.kumar@linaro.org>
-X-Mailer: git-send-email 2.31.1.272.g89b43f80a514
-In-Reply-To: <cover.1626173013.git.viresh.kumar@linaro.org>
-References: <cover.1626173013.git.viresh.kumar@linaro.org>
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id smtxDN6W3gPT; Tue, 13 Jul 2021 11:03:21 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3047B401C0;
+	Tue, 13 Jul 2021 11:03:21 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B4778C0023;
+	Tue, 13 Jul 2021 11:03:20 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1C312C000E;
+ Tue, 13 Jul 2021 11:03:19 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id EFE12833C9;
+ Tue, 13 Jul 2021 11:03:18 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="zH1fyTFG";
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.b="mj84pwQE"
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id EryT0QpG7LLv; Tue, 13 Jul 2021 11:03:17 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id C6179833B7;
+ Tue, 13 Jul 2021 11:03:17 +0000 (UTC)
+Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id
+ 16DB1Qvx007979; Tue, 13 Jul 2021 11:02:46 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=date : from : to : cc
+ : subject : message-id : references : content-type : in-reply-to :
+ mime-version; s=corp-2020-01-29;
+ bh=bJjYanza1S94svd51N3qTB5JtzOYaZZJ17wynlJ79pY=;
+ b=zH1fyTFGq6F7TV0dZQsDZmG7PLx6w+F79mxiqymAWv5WvnbZminL/KtweL5OZ1asQeG9
+ fr7Pf+PaZryMCoyqSmyrJ3NNv3XdxypeJyiRHIoXd35IkVRdAPc2YJBZ9gFxIgH5GY41
+ Kwpj8JbSlbdyB9TQ6VGcl+K2f+xbKXdEki/ofRg6zxkTXkhyBamhT+AooLBe6Ell0Amk
+ OfXANXFe9XsC8zefyboDX49DQm/uUU++BKIYg4mrg14r1WZsObodll0UQjnxulGQazNj
+ qSZvHqJ42SNN90zA3t4VRhCSGu9gcB74ZG/J3p2I6J4kikGDhheS9oDxvJKpB5zH/AU4 7Q== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+ by mx0b-00069f02.pphosted.com with ESMTP id 39r9hckb9n-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 13 Jul 2021 11:02:45 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+ by aserp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 16DAsfLe140212;
+ Tue, 13 Jul 2021 11:02:44 GMT
+Received: from nam12-dm6-obe.outbound.protection.outlook.com
+ (mail-dm6nam12lp2172.outbound.protection.outlook.com [104.47.59.172])
+ by aserp3020.oracle.com with ESMTP id 39q3cas8qc-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Tue, 13 Jul 2021 11:02:44 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=JxFqVzQUJVmeYxsJHe7j0XS9EusKlvb2s53l3S20rDpcWiAfPfY1bahr5fv/BiCZCSW2nXmhUGp7AZXZaAKktnumAMaFOX1UNh0qVVuqW/KAH/Cp1OCJjb00+QdEdAwjVPxPPremkYW9zTd685JSazlHBtUm5XddqnlBtgf8CBX0jI/OniUEBcfqcBnmEl6gKc2sKKmQVQd4mWX9cDx07VHjjCePGgTU98Gkae0f58NrEqJ+NGfCEdT2nbyxVt3LxGuIMjDOvDH2cuJcfTxXgXz0bHKX9+KTeE1WQbc7fAg8ysZUG5IGVBLIQsaRjBlb+/X6XhvTkbfGiatRWzm+Qw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bJjYanza1S94svd51N3qTB5JtzOYaZZJ17wynlJ79pY=;
+ b=dBbHUf7ieShb2GSGLTmImPIxvaioM7MzDDzZGyX+b8oppNvO27tgplELmYKJZJ1ruKHb1BBE7sJIpvBHchUBu1Q3yAHzl8DS+/b6Z0CnbM+UNLfxThaVryfanQrr/8DbSz3QtbAZXnh48641s3o/vfH1A+y1QaTIpo3p703bokirOB83S0Dalr4DyeU+jBDhn98eMyNwqyU1T5d4sUj9ROTS8eMGIGhlduET4P8YALeRBya9XJLvl13oca8Ow+Xf3tJuBjUI1sFMDZMASyKmK/PvpOVn+md0tOA1T5K0dKyT99uAwMhLL+VLiQ1dFXOFoaxRwoX3GIb/BcDLQOQlEQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bJjYanza1S94svd51N3qTB5JtzOYaZZJ17wynlJ79pY=;
+ b=mj84pwQEKcharaCiHQD0nItI2ZMd1yjs+B8gJJnKQC19FCWX2wjpOmy7vzrfHiVRYjKN6dc/smzCVH5Ju7hZK+pjnxwCpxIhscTjCRGvE50/KhmJZxqOTOck8nmow31MH1C96dHcWgFMAPDE87NQsSqSNm1p6J1TtKKHYOhx8G0=
+Authentication-Results: bytedance.com; dkim=none (message not signed)
+ header.d=none;bytedance.com; dmarc=none action=none header.from=oracle.com;
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28) by CO1PR10MB4706.namprd10.prod.outlook.com
+ (2603:10b6:303:9d::11) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4308.20; Tue, 13 Jul
+ 2021 11:02:42 +0000
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::3413:3c61:5067:ba73]) by MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::3413:3c61:5067:ba73%5]) with mapi id 15.20.4308.027; Tue, 13 Jul 2021
+ 11:02:42 +0000
+Date: Tue, 13 Jul 2021 14:02:11 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: Xie Yongji <xieyongji@bytedance.com>
+Subject: Re: [PATCH v9 07/17] virtio: Don't set FAILED status bit on device
+ index allocation failure
+Message-ID: <20210713110211.GK1954@kadam>
+References: <20210713084656.232-1-xieyongji@bytedance.com>
+ <20210713084656.232-8-xieyongji@bytedance.com>
+Content-Disposition: inline
+In-Reply-To: <20210713084656.232-8-xieyongji@bytedance.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-ClientProxiedBy: JN2P275CA0018.ZAFP275.PROD.OUTLOOK.COM (2603:1086:0:3::30)
+ To MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28)
 MIME-Version: 1.0
-Cc: devicetree@vger.kernel.org, Vincent Guittot <vincent.guittot@linaro.org>,
- Bill Mills <bill.mills@linaro.org>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-gpio@vger.kernel.org,
- "Enrico Weigelt, metux IT consult" <info@metux.net>
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from kadam (102.222.70.252) by
+ JN2P275CA0018.ZAFP275.PROD.OUTLOOK.COM (2603:1086:0:3::30) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4308.19 via Frontend Transport; Tue, 13 Jul 2021 11:02:27 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: ea0f191e-4339-4e89-4adf-08d945edbc55
+X-MS-TrafficTypeDiagnostic: CO1PR10MB4706:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <CO1PR10MB4706A0B2FFFE16DE7AD48D3C8E149@CO1PR10MB4706.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:1728;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: rpdNG6Y+TZgpyuFZA7SVbUDQheP54Pam3v1gDqisOyRoU9EDqfPKzZEw209umAW+FJOSeuDjm2MgGq0BRc4py8uoBTBrutu384grdYgid2RI7sUOWv9Q4/43oKoo4oj0NIFlTuaSS1Q7vStWelr5pOsvNESB3GA3n/0vVRDWU28+PBCy6FP7MGAuKH8RUZJ4riQyUmKaEaEObReMT+/iIjAomKqW8OE8W4K0Epf9EZDVgDFGpJDwPOYUEqJxLdSKeBz4Urm9d7JvaaMpq5FNsQdJGE91Inx3gXvtmstG7v3Ybq9EJ32708XjjOtggKrO600Lj8DUBmdc1aeTa9o9w93366pDbbfszin5nVwpjqqrkEMsdFFuiJ0kZY6Lijhh1BP/32LxsXwobxVtLQWDH2yqHgZLBrY9RQ6QhuU1cnyvkEBgzdC2Z4xFpmnDnH6JYAZbFhgxkW0f5u8slLvVCMjMlTwr6xTps/XTgjGG/3sW3GTsw0UonsBUlzf+hR6qUt6B18moGkWa0MTbiHcb/ukuV4ADBufonPPTwnJivPKqCdTOMvdFD37b2ukaIoc0aTE1fUf3uf7ge3ainhI1IvgDgcnSeYTtJNnZu227AXy5JEy6JEPWQICYUEibct8LHNdK7iZjtAvzBkZO3VfmCLVcjst3cIySlZUV61G0gnO48ZBCObE7hfq1apm7H7FjvGemJxTHVP2Au5NtY2GnEQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:MWHPR1001MB2365.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(376002)(136003)(366004)(39860400002)(396003)(346002)(86362001)(6496006)(316002)(55016002)(66476007)(4326008)(33716001)(66946007)(1076003)(44832011)(66556008)(6916009)(83380400001)(52116002)(5660300002)(26005)(33656002)(38350700002)(8676002)(186003)(478600001)(6666004)(8936002)(956004)(38100700002)(9576002)(4744005)(7416002)(9686003)(2906002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?WboQdJFAps6YvlryAunlFrzyZD0UU79y8FhIPmZr7Ah8/9fAioLTAMIbl9Kr?=
+ =?us-ascii?Q?6Fk8A2nH5Hjpi7ZxnOD3FHFosd9SO2Vqa3mwmN+Ckdqj/0s6JHEkKpcmbWR1?=
+ =?us-ascii?Q?h24Tgf0VO+p+IP2+qz/+zI6UHGyiiMXgAXwuvNJOpfTD5zyS6dE86KNlsXt/?=
+ =?us-ascii?Q?GdLnrN2YyW9AfwmnoTmApeS322qlDLfVcEQWhi55engwZl40jfOs+upycPrM?=
+ =?us-ascii?Q?yySZdZe3EIwtwtk83rJuvOmFT2nTZXbLKp5Lspy5iFBA40n7/xIHpD0jSA+L?=
+ =?us-ascii?Q?gR5/JIOMaXJK2yYHOO4DN142GzSad8fe2AoJadhAdw5Ty/9PRIH8in+s4esz?=
+ =?us-ascii?Q?lg9QODu3TeVEiXkQ6UW0xkJ8KbLYXxT1IIrcZqe6fxgabwBwrcQlL6WmG5tv?=
+ =?us-ascii?Q?WDERjZeyC9SPBcsIUl85db3x4buGRWXCAb0rV1w9I8otWA12qm2yLTxlqLo+?=
+ =?us-ascii?Q?ONbLBl260bZnu8cQf7ONSLYN72mWn6/S8HJ9d1P4tqfkvaK44Q3+RSMwPzk0?=
+ =?us-ascii?Q?V9Ix8KWPrUdodNfjfCOgJRwCz0wCbeco+ND1YrUzOOoFZyB+1vteoA/cYacU?=
+ =?us-ascii?Q?ozmkh3EORNcGKxplck1zq16wZZb3Oscxv2qZUKTjY1/81qXZ1t7IcBcjSfvZ?=
+ =?us-ascii?Q?1D6gfZn1zs76r8qCjYHOZuOE5v6p+7YuTHGXSpZSadQ2JYo7m6L7iHhTLiaF?=
+ =?us-ascii?Q?QHK+RRfN712z8fbxtJfI75dFAmMlIPyoLdHHe3IUvpWH7jrYlVjsCbDETo7h?=
+ =?us-ascii?Q?FSNKNkw7lgoE7CwPxTlCQRkRRZ50gb/z3d4r2hJAP4x+0j82CTEDT+nsfVOX?=
+ =?us-ascii?Q?jrLWTOWkaaGOiv5L6bPCz74DnrN1A91pas/Cj5bups6GyXNyI13+Rb3aUm3f?=
+ =?us-ascii?Q?y6kidH8sB/jsxu7lXbsXfuPcMg7avE5OyfingsZkq55k5bR5WkatVmn4t4Ya?=
+ =?us-ascii?Q?4jdndSftT2TMmDg8MS73GVs5othSWLK2BVD6SkUg701xzEozt/KntdSlJZAK?=
+ =?us-ascii?Q?0PbRzC1jRM7ZnW/vRnNkOvs4i6/5YbH3dS1wtPjZg9FnOvchLBDnW0xT7nb5?=
+ =?us-ascii?Q?/MwuGe+TEqKoRPaL2IdaITSIlP98xRl6+CpZt9kJfMXEAjTIQZwJ5qPrqHlS?=
+ =?us-ascii?Q?2UHTq4WAOpvqVK+zo+6lM3nkGwdKdRSkllV7hyTaF1eVzGASUZK2FnLY04UT?=
+ =?us-ascii?Q?zepItgOH8EC+wMfcLDF8Bw6s2gg21DAI2lnl/icYUaAwoeza3E1rwIbIOUO5?=
+ =?us-ascii?Q?0a5FgWz20gwttJUGteKEhfTmIMaZfgptHEdCOlGbrVnfVKPEJ1PWDZUyEhmi?=
+ =?us-ascii?Q?xy306PM8XOFuqohYG/BF5bEa?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ea0f191e-4339-4e89-4adf-08d945edbc55
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2365.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Jul 2021 11:02:42.1126 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: XpJCTAcd9jqhz8kFdygfGjEpvo5kDivkdYwPBDtzGykHuiTSw+z6+Rcgw+KBgEj9LDIiQ05qPQ9+GieqHclmHENvIPPo/BP7FtuxH5dfl5I=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1PR10MB4706
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=10043
+ signatures=668682
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0
+ malwarescore=0 mlxscore=0
+ suspectscore=0 phishscore=0 adultscore=0 mlxlogscore=999 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2107130070
+X-Proofpoint-ORIG-GUID: DFUk50LmBfb8Xb2NUJqW4oISIaKeSfxW
+X-Proofpoint-GUID: DFUk50LmBfb8Xb2NUJqW4oISIaKeSfxW
+Cc: kvm@vger.kernel.org, mst@redhat.com,
+ virtualization@lists.linux-foundation.org, christian.brauner@canonical.com,
+ corbet@lwn.net, joro@8bytes.org, willy@infradead.org, hch@infradead.org,
+ xiaodong.liu@intel.com, viro@zeniv.linux.org.uk, stefanha@redhat.com,
+ songmuchun@bytedance.com, axboe@kernel.dk, zhe.he@windriver.com,
+ gregkh@linuxfoundation.org, rdunlap@infradead.org,
+ linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, bcrl@kvack.org,
+ netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+ mika.penttila@nextfour.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,95 +202,19 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-gpio-virtio represents a virtio GPIO controller and this patch adds
-binding for the same. The gpio-virtio subnode can be part of a
-virtio,mmio node and is based on its binding.
+On Tue, Jul 13, 2021 at 04:46:46PM +0800, Xie Yongji wrote:
+> We don't need to set FAILED status bit on device index allocation
+> failure since the device initialization hasn't been started yet.
 
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
----
-Depends on:
+The commit message should say what the effect of this change is to the
+user.  Is this a bugfix?  Will it have any effect on runtime at all?
 
-https://lore.kernel.org/lkml/7c716c2eb7ace5b5a560d8502af93101dbb53d24.1626170146.git.viresh.kumar@linaro.org/
----
- .../devicetree/bindings/gpio/gpio-virtio.yaml | 67 +++++++++++++++++++
- 1 file changed, 67 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/gpio/gpio-virtio.yaml
+To me, hearing your thoughts on this is valuable even if you have to
+guess.  "I noticed this mistake during review and I don't think it will
+affect runtime."
 
-diff --git a/Documentation/devicetree/bindings/gpio/gpio-virtio.yaml b/Documentation/devicetree/bindings/gpio/gpio-virtio.yaml
-new file mode 100644
-index 000000000000..c813cdfd60fd
---- /dev/null
-+++ b/Documentation/devicetree/bindings/gpio/gpio-virtio.yaml
-@@ -0,0 +1,67 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/gpio/gpio-virtio.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Virtio memory mapped GPIO controller
-+
-+maintainers:
-+  - Viresh Kumar <viresh.kumar@linaro.org>
-+
-+description:
-+  Virtio GPIO controller, see /schemas/virtio/mmio.yaml for more details.
-+
-+allOf:
-+  - $ref: /schemas/gpio/gpio.yaml#
-+
-+properties:
-+  $nodename:
-+    pattern: '^gpio-virtio@[0-9]+$'
-+
-+  reg:
-+    description:
-+      The cell is the device ID of the GPIO device (VIRTIO_ID_GPIO) as per
-+      dt-bindings/virtio/virtio_ids.h.
-+    const: 41
-+    $ref: /schemas/virtio/mmio.yaml#/properties/reg
-+
-+  gpio-controller: true
-+
-+  "#gpio-cells":
-+    const: 2
-+
-+  interrupt-controller: true
-+
-+  "#interrupt-cells":
-+    const: 2
-+
-+required:
-+  - reg
-+  - gpio-controller
-+  - "#gpio-cells"
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/virtio/virtio_ids.h>
-+
-+    virtio@3000 {
-+        compatible = "virtio,mmio";
-+        reg = <0x3000 0x100>;
-+        interrupts = <41>;
-+
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        gpio-virtio@0 {
-+            reg = <VIRTIO_ID_GPIO>;
-+            gpio-controller;
-+            #gpio-cells = <2>;
-+            interrupt-controller;
-+            #interrupt-cells = <2>;
-+        };
-+    };
-+
-+...
--- 
-2.31.1.272.g89b43f80a514
+regards,
+dan carpenter
 
 _______________________________________________
 Virtualization mailing list
