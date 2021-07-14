@@ -7,64 +7,65 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2CDAC07E96
-	for <virtualization@archiver.kernel.org>; Wed, 14 Jul 2021 02:45:13 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D7A8C11F66
+	for <virtualization@archiver.kernel.org>; Wed, 14 Jul 2021 02:45:14 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3DDE4606A5
-	for <virtualization@archiver.kernel.org>; Wed, 14 Jul 2021 02:45:13 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3DDE4606A5
+	by mail.kernel.org (Postfix) with ESMTPS id 2CAEE61370
+	for <virtualization@archiver.kernel.org>; Wed, 14 Jul 2021 02:45:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2CAEE61370
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=baidu.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 63E93406A4;
-	Wed, 14 Jul 2021 02:45:11 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id E79A460905;
+	Wed, 14 Jul 2021 02:45:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id oZeD1BBg4SII; Wed, 14 Jul 2021 02:45:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B6D93406AA;
-	Wed, 14 Jul 2021 02:45:09 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ZveUFv8ZuJh3; Wed, 14 Jul 2021 02:45:13 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8973D60A57;
+	Wed, 14 Jul 2021 02:45:12 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2B7ABC0020;
-	Wed, 14 Jul 2021 02:45:09 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D7344C0010
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 60994C0010;
+	Wed, 14 Jul 2021 02:45:12 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DFB3DC001C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Jul 2021 02:45:07 +0000 (UTC)
+ Wed, 14 Jul 2021 02:45:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id B9B9883AEF
+ by smtp1.osuosl.org (Postfix) with ESMTP id CCEB382FA2
  for <virtualization@lists.linux-foundation.org>;
  Wed, 14 Jul 2021 02:45:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nv5rBHJxKLfh
+ with ESMTP id jonjOc_QTich
  for <virtualization@lists.linux-foundation.org>;
  Wed, 14 Jul 2021 02:45:06 +0000 (UTC)
-X-Greylist: delayed 00:16:00 by SQLgrey-1.8.0
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from baidu.com (usmx01.baidu.com [12.0.243.41])
- by smtp1.osuosl.org (Postfix) with ESMTP id E43D282FA2
+ by smtp1.osuosl.org (Postfix) with ESMTP id E90C183A5C
  for <virtualization@lists.linux-foundation.org>;
  Wed, 14 Jul 2021 02:45:06 +0000 (UTC)
-Received: from BC-Mail-HQEx02.internal.baidu.com (unknown [172.31.51.58])
- by Forcepoint Email with ESMTPS id 482C4258739D676063E3;
- Tue, 13 Jul 2021 19:29:07 -0700 (PDT)
+Received: from BC-Mail-HQEX01.internal.baidu.com (unknown [172.31.51.57])
+ by Forcepoint Email with ESMTPS id BC7D8C3915508456CFA2;
+ Tue, 13 Jul 2021 19:29:09 -0700 (PDT)
 Received: from BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) by
- BC-Mail-HQEx02.internal.baidu.com (172.31.51.58) with Microsoft SMTP Server
+ BC-Mail-HQEX01.internal.baidu.com (172.31.51.57) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2242.10; Wed, 14 Jul 2021 10:29:05 +0800
+ 15.1.2242.10; Wed, 14 Jul 2021 10:29:07 +0800
 Received: from LAPTOP-UKSR4ENP.internal.baidu.com (172.31.63.8) by
  BJHW-MAIL-EX27.internal.baidu.com (10.127.64.42) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2242.4; Wed, 14 Jul 2021 10:29:04 +0800
+ 15.1.2242.4; Wed, 14 Jul 2021 10:29:07 +0800
 From: Cai Huoqing <caihuoqing@baidu.com>
 To: <sgarzare@redhat.com>, <mst@redhat.com>, <jasowang@redhat.com>
-Subject: [PATCH 1/2] virtio_ring: fix error - unknown type name 'spinlock_t'
-Date: Wed, 14 Jul 2021 10:28:53 +0800
-Message-ID: <20210714022854.1077-2-caihuoqing@baidu.com>
+Subject: [PATCH 2/2] virtio_ring: fix error - 'prev' and 'head_flags' may be
+ used uninitialized in this function
+Date: Wed, 14 Jul 2021 10:28:54 +0800
+Message-ID: <20210714022854.1077-3-caihuoqing@baidu.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20210714022854.1077-1-caihuoqing@baidu.com>
 References: <20210714022854.1077-1-caihuoqing@baidu.com>
@@ -90,31 +91,38 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 when run "make virtio" in linux/tools,
-the error: unknown type name 'spinlock_t' occurs
+the error: "'prev' and 'head_flags' may be used
+uninitialized in this function" occurs
 
 Signed-off-by: Cai Huoqing <caihuoqing@baidu.com>
 ---
- include/linux/vringh.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/virtio/virtio_ring.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/vringh.h b/include/linux/vringh.h
-index 84db7b8f912f..ff21c2643792 100644
---- a/include/linux/vringh.h
-+++ b/include/linux/vringh.h
-@@ -43,11 +43,13 @@ struct vringh {
-        /* The vring (note: it may contain user pointers!) */
-        struct vring vring;
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 89bfe46a8a7f..290bdf8a3d36 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -486,7 +486,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+        struct vring_virtqueue *vq = to_vvq(_vq);
+        struct scatterlist *sg;
+        struct vring_desc *desc;
+-       unsigned int i, n, avail, descs_used, prev, err_idx;
++       unsigned int i, n, avail, descs_used, prev = 0, err_idx;
+        int head;
+        bool indirect;
 
-+#if IS_REACHABLE(CONFIG_VHOST_IOTLB)
-        /* IOTLB for this vring */
-        struct vhost_iotlb *iotlb;
+@@ -1173,8 +1173,8 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
+        struct vring_packed_desc *desc;
+        struct scatterlist *sg;
+        unsigned int i, n, c, descs_used, err_idx;
+-       __le16 head_flags, flags;
+-       u16 head, id, prev, curr, avail_used_flags;
++       __le16 head_flags = 0, flags;
++       u16 head, id, prev = 0, curr, avail_used_flags;
 
-        /* spinlock to synchronize IOTLB accesses */
-        spinlock_t *iotlb_lock;
-+#endif
+        START_USE(vq);
 
-        /* The function to call to notify the guest about added buffers */
-        void (*notify)(struct vringh *);
 --
 2.25.1
 
