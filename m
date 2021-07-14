@@ -2,85 +2,94 @@ Return-Path: <SRS0=HAf6=MG=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED autolearn=unavailable
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 948C4C07E9C
-	for <virtualization@archiver.kernel.org>; Wed, 14 Jul 2021 13:46:14 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57113C07E9A
+	for <virtualization@archiver.kernel.org>; Wed, 14 Jul 2021 14:25:16 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 35DF6613BF
-	for <virtualization@archiver.kernel.org>; Wed, 14 Jul 2021 13:46:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 35DF6613BF
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=perches.com
+	by mail.kernel.org (Postfix) with ESMTPS id 0B6366117A
+	for <virtualization@archiver.kernel.org>; Wed, 14 Jul 2021 14:25:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0B6366117A
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 6FD1960733;
-	Wed, 14 Jul 2021 13:46:13 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id CC88983C0A;
+	Wed, 14 Jul 2021 14:25:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dcJx7cTmXY0w; Wed, 14 Jul 2021 13:46:12 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id EA2D36074D;
-	Wed, 14 Jul 2021 13:46:11 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id cNtosXnm4JvX; Wed, 14 Jul 2021 14:25:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 54A1383BFB;
+	Wed, 14 Jul 2021 14:25:14 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 67077C0020;
-	Wed, 14 Jul 2021 13:46:11 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 29FE5C001A;
+	Wed, 14 Jul 2021 14:25:14 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9C17CC000E;
- Wed, 14 Jul 2021 13:46:09 +0000 (UTC)
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D4895C000E
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 14 Jul 2021 14:25:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 87B31402EA;
- Wed, 14 Jul 2021 13:46:09 +0000 (UTC)
+ by smtp4.osuosl.org (Postfix) with ESMTP id B533B40305
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 14 Jul 2021 14:25:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id LcH0tR2KllZ6; Wed, 14 Jul 2021 13:46:08 +0000 (UTC)
-X-Greylist: delayed 05:50:02 by SQLgrey-1.8.0
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from smtprelay.hostedemail.com (smtprelay0200.hostedemail.com
- [216.40.44.200])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 67213402D2;
- Wed, 14 Jul 2021 13:46:08 +0000 (UTC)
-Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com
- [10.5.19.251])
- by smtpgrave02.hostedemail.com (Postfix) with ESMTP id 9EC7418282F1F;
- Wed, 14 Jul 2021 04:20:20 +0000 (UTC)
-Received: from omf20.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
- by smtprelay07.hostedemail.com (Postfix) with ESMTP id 8829C1844C6AC;
- Wed, 14 Jul 2021 04:20:17 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by
- omf20.hostedemail.com (Postfix) with ESMTPA id A90B018A600; 
- Wed, 14 Jul 2021 04:20:10 +0000 (UTC)
-Message-ID: <8aa028a0117ecb51d209861f926a84ce74fe0c46.camel@perches.com>
-Subject: Re: [PATCH v9 03/17] vdpa: Fix code indentation
-From: Joe Perches <joe@perches.com>
-To: Xie Yongji <xieyongji@bytedance.com>, mst@redhat.com,
- jasowang@redhat.com,  stefanha@redhat.com, sgarzare@redhat.com,
- parav@nvidia.com, hch@infradead.org,  christian.brauner@canonical.com,
- rdunlap@infradead.org, willy@infradead.org,  viro@zeniv.linux.org.uk,
- axboe@kernel.dk, bcrl@kvack.org, corbet@lwn.net, 
- mika.penttila@nextfour.com, dan.carpenter@oracle.com, joro@8bytes.org, 
- gregkh@linuxfoundation.org, zhe.he@windriver.com, xiaodong.liu@intel.com
-Date: Tue, 13 Jul 2021 21:20:09 -0700
-In-Reply-To: <20210713084656.232-4-xieyongji@bytedance.com>
-References: <20210713084656.232-1-xieyongji@bytedance.com>
- <20210713084656.232-4-xieyongji@bytedance.com>
-User-Agent: Evolution 3.40.0-1 
+ with ESMTP id fJQyR5pkRoaQ
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 14 Jul 2021 14:25:10 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 44F7840279
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 14 Jul 2021 14:25:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1626272708;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=/nNLg7RS2OdgpG2Q0vTdal+uwHMaNAnRrGcEAwkI6Yk=;
+ b=XcJY/qIRIDjmd7IpQx+bCGPn1FS2dg/ML7GPcqdpo24uI2fAqGuPQh2fMNZDeWzpCJsc01
+ ZR8pUZj9YUzouvUAjN32WC/2vW6/4xWq7KeXX4ToCzFV3hJ6NUaVEHRttAuQgllp2GWrbp
+ J+0tFWrm+PgM352MHb4Gd2KlvPZdS/Q=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-205-0Cks6rrQMmG7eyvVV8lXlg-1; Wed, 14 Jul 2021 10:25:07 -0400
+X-MC-Unique: 0Cks6rrQMmG7eyvVV8lXlg-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
+ [10.5.11.22])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ACD81106B7D6;
+ Wed, 14 Jul 2021 14:25:05 +0000 (UTC)
+Received: from localhost (ovpn-112-200.ams2.redhat.com [10.36.112.200])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 3AE761000324;
+ Wed, 14 Jul 2021 14:25:05 +0000 (UTC)
+Date: Wed, 14 Jul 2021 15:25:04 +0100
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [virtio-dev] Fwd: [PATCH v2] Provide detailed specification of
+ virtio-blk lifetime metrics
+Message-ID: <YO7zwKbH6OEW2z1o@stefanha-x1.localdomain>
+References: <20210505193655.2414268-1-egranata@google.com>
+ <CAPR809ukYeThsPy4eg8A-G8b4Hwt7Prxh9P75=Vp9jnCKb6WqQ@mail.gmail.com>
+ <YO6ro345FI0XE8vv@stefanha-x1.localdomain>
+ <87pmvlck3p.fsf@redhat.com>
 MIME-Version: 1.0
-X-Rspamd-Server: rspamout05
-X-Rspamd-Queue-Id: A90B018A600
-X-Stat-Signature: w8c8skx4hq53kyxkkcs5f64b7rox7x57
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Session-ID: U2FsdGVkX19IxVK6JNPE/co+tp8AToMXmxFv5EZRX50=
-X-HE-Tag: 1626236410-955187
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org,
- songmuchun@bytedance.com, linux-fsdevel@vger.kernel.org
+In-Reply-To: <87pmvlck3p.fsf@redhat.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+Cc: linux-block@vger.kernel.org, virtio-dev@lists.oasis-open.org,
+ Enrico Granata <egranata@google.com>, hch@infradead.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -92,130 +101,107 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============5759315585455380953=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, 2021-07-13 at 16:46 +0800, Xie Yongji wrote:
-> Use tabs to indent the code instead of spaces.
 
-There are a lot more of these in this file.
+--===============5759315585455380953==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="+Yv6eVjta5rSDZ4E"
+Content-Disposition: inline
 
-$ ./scripts/checkpatch.pl --fix-inplace --strict include/linux/vdpa.h
 
-and a little typing gives:
----
- include/linux/vdpa.h | 50 +++++++++++++++++++++++++-------------------------
- 1 file changed, 25 insertions(+), 25 deletions(-)
+--+Yv6eVjta5rSDZ4E
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-index 3357ac98878d4..14cd4248e59fd 100644
---- a/include/linux/vdpa.h
-+++ b/include/linux/vdpa.h
-@@ -43,17 +43,17 @@ struct vdpa_vq_state_split {
-  * @last_used_idx: used index
-  */
- struct vdpa_vq_state_packed {
--        u16	last_avail_counter:1;
--        u16	last_avail_idx:15;
--        u16	last_used_counter:1;
--        u16	last_used_idx:15;
-+	u16	last_avail_counter:1;
-+	u16	last_avail_idx:15;
-+	u16	last_used_counter:1;
-+	u16	last_used_idx:15;
- };
- 
- struct vdpa_vq_state {
--     union {
--          struct vdpa_vq_state_split split;
--          struct vdpa_vq_state_packed packed;
--     };
-+	union {
-+		struct vdpa_vq_state_split split;
-+		struct vdpa_vq_state_packed packed;
-+	};
- };
- 
- struct vdpa_mgmt_dev;
-@@ -131,7 +131,7 @@ struct vdpa_iova_range {
-  *				@vdev: vdpa device
-  *				@idx: virtqueue index
-  *				@state: pointer to returned state (last_avail_idx)
-- * @get_vq_notification: 	Get the notification area for a virtqueue
-+ * @get_vq_notification:	Get the notification area for a virtqueue
-  *				@vdev: vdpa device
-  *				@idx: virtqueue index
-  *				Returns the notifcation area
-@@ -277,13 +277,13 @@ struct vdpa_device *__vdpa_alloc_device(struct device *parent,
- 					const struct vdpa_config_ops *config,
- 					size_t size, const char *name);
- 
--#define vdpa_alloc_device(dev_struct, member, parent, config, name)   \
--			  container_of(__vdpa_alloc_device( \
--				       parent, config, \
--				       sizeof(dev_struct) + \
--				       BUILD_BUG_ON_ZERO(offsetof( \
--				       dev_struct, member)), name), \
--				       dev_struct, member)
-+#define vdpa_alloc_device(dev_struct, member, parent, config, name)	\
-+	container_of(__vdpa_alloc_device(parent, config,		\
-+					 sizeof(dev_struct) +		\
-+					 BUILD_BUG_ON_ZERO(offsetof(dev_struct,	\
-+								    member)), \
-+					 name),				\
-+		     dev_struct, member)
- 
- int vdpa_register_device(struct vdpa_device *vdev, int nvqs);
- void vdpa_unregister_device(struct vdpa_device *vdev);
-@@ -308,8 +308,8 @@ struct vdpa_driver {
- int __vdpa_register_driver(struct vdpa_driver *drv, struct module *owner);
- void vdpa_unregister_driver(struct vdpa_driver *drv);
- 
--#define module_vdpa_driver(__vdpa_driver) \
--	module_driver(__vdpa_driver, vdpa_register_driver,	\
-+#define module_vdpa_driver(__vdpa_driver)				\
-+	module_driver(__vdpa_driver, vdpa_register_driver,		\
- 		      vdpa_unregister_driver)
- 
- static inline struct vdpa_driver *drv_to_vdpa(struct device_driver *driver)
-@@ -339,25 +339,25 @@ static inline struct device *vdpa_get_dma_dev(struct vdpa_device *vdev)
- 
- static inline void vdpa_reset(struct vdpa_device *vdev)
- {
--        const struct vdpa_config_ops *ops = vdev->config;
-+	const struct vdpa_config_ops *ops = vdev->config;
- 
- 	vdev->features_valid = false;
--        ops->set_status(vdev, 0);
-+	ops->set_status(vdev, 0);
- }
- 
- static inline int vdpa_set_features(struct vdpa_device *vdev, u64 features)
- {
--        const struct vdpa_config_ops *ops = vdev->config;
-+	const struct vdpa_config_ops *ops = vdev->config;
- 
- 	vdev->features_valid = true;
--        return ops->set_features(vdev, features);
-+	return ops->set_features(vdev, features);
- }
- 
--
--static inline void vdpa_get_config(struct vdpa_device *vdev, unsigned offset,
-+static inline void vdpa_get_config(struct vdpa_device *vdev,
-+				   unsigned int offset,
- 				   void *buf, unsigned int len)
- {
--        const struct vdpa_config_ops *ops = vdev->config;
-+	const struct vdpa_config_ops *ops = vdev->config;
- 
- 	/*
- 	 * Config accesses aren't supposed to trigger before features are set.
+On Wed, Jul 14, 2021 at 11:36:58AM +0200, Cornelia Huck wrote:
+> On Wed, Jul 14 2021, Stefan Hajnoczi <stefanha@redhat.com> wrote:
+>=20
+> > On Wed, May 05, 2021 at 12:37:26PM -0700, Enrico Granata wrote:
+> >> ---------- Forwarded message ---------
+> >> From: Enrico Granata <egranata@google.com>
+> >> Date: Wed, May 5, 2021 at 1:37 PM
+> >> Subject: [PATCH v2] Provide detailed specification of virtio-blk
+> >> lifetime metrics
+> >> To: <virtio-dev@lists.oasis-open.org>
+> >> Cc: <egranata@google.com>, <hch@infradead.org>, <mst@redhat.com>,
+> >> <linux-block@vger.kernel.org>,
+> >> <virtualization@lists.linux-foundation.org>
+> >>=20
+> >>=20
+> >> In the course of review, some concerns were surfaced about the
+> >> original virtio-blk lifetime proposal, as it depends on the eMMC
+> >> spec which is not open
+> >>=20
+> >> Add a more detailed description of the meaning of the fields
+> >> added by that proposal to the virtio-blk specification, as to
+> >> make it feasible to understand and implement the new lifetime
+> >> metrics feature without needing to refer to JEDEC's specification
+> >>=20
+> >> This patch does not change the meaning of those fields nor add
+> >> any new fields, but it is intended to provide an open and more
+> >> clear description of the meaning associated with those fields.
+> >>=20
+> >> Signed-off-by: Enrico Granata <egranata@google.com>
+> >> ---
+> >> Changes in v2:
+> >>   - clarified JEDEC references;
+> >>   - added VIRTIO_BLK prefix and cleaned up comment syntax;
+> >>   - clarified reserved block references
+> >>=20
+> >>  content.tex | 40 ++++++++++++++++++++++++++++++++--------
+> >>  1 file changed, 32 insertions(+), 8 deletions(-)
+> >
+> > Ping?
+> >
+> > Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+>=20
+> [Enrico is currently on leave of absence]
+>=20
+> Is there any outstanding feedback from the linux-block folks? I've lost
+> track of this, I'm afraid. (Your R-b is the only feedback I see on this
+> list...)
+>=20
+> We can certainly put up a vote. This is one of the things I wanted to
+> see fixed for the next release of the standard.
 
+I have CCed Christoph, linux-block@, and virtualization@. Here is the
+link to the patch that we're discussing:
+https://patchwork.kernel.org/project/linux-block/patch/20210505193655.24142=
+68-1-egranata@google.com/
+
+Stefan
+
+--+Yv6eVjta5rSDZ4E
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmDu88AACgkQnKSrs4Gr
+c8hYVAgAtnPGTJOBrka0qF+k5pZMbaxQ0R+0x3XTXkLy9ps2CboeHmh7hrmLCskK
+eQ+v6hPvAygCGNArFIqg/0AEUuXgu7xAEhwdDtFZ1ahO8ULxxrCFCWnFhhqn0U0k
+JAalGCzyTHpnDtYGWvvIEPYoF8GBrpeEWTJLrff1KReSujxuDeetB4jpPiLYwqE2
+hWNsEeQjlTNuCAGSAMAACG02JCs4thf8GNlAAkMZRD8K1O1iFkNQYmUCpebP9pl9
+qkIyPeVhpFCIO0hfDGA5TLoqdRne7vLbBeRawMf6JEESq1plQIpCNP0ez6KVmC9k
+b5Wb+AaQyWJsP0Wdf/Qb+QbiyGQoeA==
+=oGMA
+-----END PGP SIGNATURE-----
+
+--+Yv6eVjta5rSDZ4E--
+
+
+--===============5759315585455380953==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5759315585455380953==--
+
