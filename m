@@ -7,106 +7,105 @@ X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98689C07E95
-	for <virtualization@archiver.kernel.org>; Wed, 14 Jul 2021 02:26:37 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 344BAC07E95
+	for <virtualization@archiver.kernel.org>; Wed, 14 Jul 2021 02:28:47 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3C07E6128E
-	for <virtualization@archiver.kernel.org>; Wed, 14 Jul 2021 02:26:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3C07E6128E
+	by mail.kernel.org (Postfix) with ESMTPS id DF3ED6136E
+	for <virtualization@archiver.kernel.org>; Wed, 14 Jul 2021 02:28:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DF3ED6136E
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id F073460A49;
-	Wed, 14 Jul 2021 02:26:36 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id A92F440502;
+	Wed, 14 Jul 2021 02:28:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6z583mDlcfKB; Wed, 14 Jul 2021 02:26:36 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 716E1608EA;
-	Wed, 14 Jul 2021 02:26:35 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8xzli1zIpOZC; Wed, 14 Jul 2021 02:28:45 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 50DFA4050C;
+	Wed, 14 Jul 2021 02:28:45 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 35C5EC001C;
-	Wed, 14 Jul 2021 02:26:35 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F16A1C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 13465C0010;
+	Wed, 14 Jul 2021 02:28:45 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7A1D3C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Jul 2021 02:26:33 +0000 (UTC)
+ Wed, 14 Jul 2021 02:28:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id DF3EE60905
+ by smtp4.osuosl.org (Postfix) with ESMTP id 5A898402DD
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Jul 2021 02:26:33 +0000 (UTC)
+ Wed, 14 Jul 2021 02:28:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ub8F6ZPfAyqn
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linaro.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id nkJArZURbM61
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Jul 2021 02:26:33 +0000 (UTC)
+ Wed, 14 Jul 2021 02:28:42 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com
- [IPv6:2607:f8b0:4864:20::535])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 13784608E3
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com
+ [IPv6:2607:f8b0:4864:20::1033])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2A6B240280
  for <virtualization@lists.linux-foundation.org>;
- Wed, 14 Jul 2021 02:26:32 +0000 (UTC)
-Received: by mail-pg1-x535.google.com with SMTP id v7so699620pgl.2
+ Wed, 14 Jul 2021 02:28:41 +0000 (UTC)
+Received: by mail-pj1-x1033.google.com with SMTP id
+ i16-20020a17090acf90b02901736d9d2218so642992pju.1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Jul 2021 19:26:32 -0700 (PDT)
+ Tue, 13 Jul 2021 19:28:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to:user-agent;
- bh=aLOOUxsNuJzrisjcRZgamS/BIZMhFQu6M3e4Y30uR0Y=;
- b=vktLsQdD1T+XZaWFZlM+oLSx8DcvuVKrB3G/zetKYDvGAQifvvuAT+70hcekKu5a6n
- O6h2dCjsiUI1iulV9zJ/7vu1yEolfCOkvzpVsFSOVWeAGx/JzArOPmk77K2PH84RcOJ5
- fcJzs1TBUk3KG9x7I3GQqTsYqgmBCYkl3BWjJLX7hYoMfQVDnryLfCM2ScYD/L8ZnWv5
- zYoS4YJpvaCrrRHEXl8Jb31PIfXryjdcLLsXacnNWnDG65hWyjPNJH6rdVP0NzmZ0ER8
- EpJ/IszoDHZtmMaRiOSBaZQtF79WAtgi21j/s86rzv1NTu96zX4RIy2x83E9bN37VKXk
- w1Wg==
+ bh=q3Mse/Qf9kH6kL3f+V/QegEz6PSgmpb/uOwCZ33NNho=;
+ b=aHKYrK2Cxt4RWF9gLC6HBDZEdoBg/7Fa6O0Wao7w+RGUFtK5uQwcvN82pIwLDVlNDf
+ LzBQZumX2tOjCErjDVmaKsMEqm7UBoF+ymz/sc/V/dNM5BOWYV0GG8ngvsb/OFlZX4SE
+ /MxCCTFkKFuOkIWLAFxVaO448KIw+tsxmLGjeTSaTbDFVr5Oqit3LL+QKcOh0vqKbhPT
+ DIQ1BP1fuV/3LBAiNABT2wJScLUvH1+GVavKGTqnWAX1mwu5NeuasY8mBufXVFCZa5LT
+ knWmK+ljj0vpUYdqITiFCT/RfLrGW2x0IqI8ViZ6F7VxHnWfKU663QCIQYcyscUNdJoC
+ ySGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to:user-agent;
- bh=aLOOUxsNuJzrisjcRZgamS/BIZMhFQu6M3e4Y30uR0Y=;
- b=rWAUZULxQ8SdnqQECeDFAKvES0FbrdSzCVqr3Ud6qeo/M3H6QD5PWN3hFhz9O68/Es
- KmLhkwSN5FhCoXG4pGEP0wShOEYxdIKEVsjeTa1XGI5Z8WeywNQzJTxYQZ/OM6U+IZiF
- PQGStMaFWX/pDI5y7gnJi2t/ATktQ5tL93S24HwDIFJXap0pqxv4gdV1SqijUEhbSZRV
- t+CpzglPmkCWHpBNHxsqTK7Aul0EV4KwuGQDHm2wd5CxQ38Qm7e+pR4L8Zlt6c7f0Xif
- Yrv3U+AYLZ0eyKRiXMlAG3WeWiqAdbGO8jN7Y//MXXRtKg7qJQEBIawAZr8h1l3/oqHt
- H8XA==
-X-Gm-Message-State: AOAM531jhUUPFD0sQsDZTsF6S7RAhNm8YTC/hSnUsjDQQqm05v1edAaZ
- 5iNelTmBDe+cqF98ETusyzHdfg==
-X-Google-Smtp-Source: ABdhPJy6+4rpbrfnR4e8usInKISk1VWBWA8IDr8PyYcnfj+Yoar6cVYPjxczpgOa4x4kBz8KXAA0RA==
-X-Received: by 2002:a62:3344:0:b029:25e:a0a8:1c51 with SMTP id
- z65-20020a6233440000b029025ea0a81c51mr7560777pfz.58.1626229592462; 
- Tue, 13 Jul 2021 19:26:32 -0700 (PDT)
+ bh=q3Mse/Qf9kH6kL3f+V/QegEz6PSgmpb/uOwCZ33NNho=;
+ b=oqD2uWhkjqCkUAwLUCdXal//4eyoKIa+WWAmP8otsjIPutSRlGgpG2D4sPgwEKWRW3
+ Yx0a4OFgQ2isSd+T+ZdkJj0VZ9TOgjltBNHTiwtW8is++2D9GpnYj7+RBHtBijgMO/n+
+ /uJH2DS58+lEwctCFycBqTFRl/gGHwVaxElXbgGFyZBK9sXiI813UX7SMxfepgvGTFzX
+ rSIbh62qiK5riPQriknyqnqxdHX8iR/MhKZ0MCbB4Mkzh5QIc8XyN9TEM2oUoV1j7dOJ
+ kX9zI58fZeWaESPyboXP513xEQX6FAQnjtca6Ez5zk9NiwkeYY6FNZbQ6RdvjPD54G0c
+ kfUw==
+X-Gm-Message-State: AOAM531KnYHqrSWH3821roZBKTRr7L6+ZGsoFLE0Pqyppe4pf03tByxE
+ T0rRcGqbIjLDNyzTjJiQ2Sy3aA==
+X-Google-Smtp-Source: ABdhPJyt4NHsC3qOWPB9o2tHUAeBKYlYoHdwMOIAoYDCLLFljAqMtU6kHp2eOuJwsLQb9fy5g6WHxQ==
+X-Received: by 2002:a17:902:8bc3:b029:124:919f:6213 with SMTP id
+ r3-20020a1709028bc3b0290124919f6213mr5940902plo.51.1626229721486; 
+ Tue, 13 Jul 2021 19:28:41 -0700 (PDT)
 Received: from localhost ([106.201.108.2])
- by smtp.gmail.com with ESMTPSA id v27sm477952pfi.166.2021.07.13.19.26.31
+ by smtp.gmail.com with ESMTPSA id q4sm501078pfn.23.2021.07.13.19.28.40
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 13 Jul 2021 19:26:31 -0700 (PDT)
-Date: Wed, 14 Jul 2021 07:56:30 +0530
+ Tue, 13 Jul 2021 19:28:41 -0700 (PDT)
+Date: Wed, 14 Jul 2021 07:58:39 +0530
 From: Viresh Kumar <viresh.kumar@linaro.org>
 To: Arnd Bergmann <arnd@kernel.org>
 Subject: Re: [PATCH 1/5] dt-bindings: virtio: mmio: Add support for device
  subnode
-Message-ID: <20210714022630.d7vrazygmbooflcf@vireshk-i7>
+Message-ID: <20210714022839.izxkrezgaobmkixy@vireshk-i7>
 References: <cover.1626173013.git.viresh.kumar@linaro.org>
  <aa4bf68fdd13b885a6dc1b98f88834916d51d97d.1626173013.git.viresh.kumar@linaro.org>
- <CAL_Jsq+SiE+ciZfASHKUfLU1YMPfB43YmSciT_+gQHvL99_wUA@mail.gmail.com>
- <20210713151917.zouwfckidnjxvohn@vireshk-i7>
- <CAL_JsqL9255n5RT=Gq_uru7rEP0bSVcyfXEPRY4F0M4S2HPvTA@mail.gmail.com>
- <CAK8P3a3Gve=M9GF-E+2OJED1Hd1qngxOkVSO15wB0jVWK8D0_Q@mail.gmail.com>
+ <CAK8P3a2MZzTpdp8rb1rUEXpx9OChLJJX5Sq+e=hc8hs25iQMsg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <CAK8P3a3Gve=M9GF-E+2OJED1Hd1qngxOkVSO15wB0jVWK8D0_Q@mail.gmail.com>
+In-Reply-To: <CAK8P3a2MZzTpdp8rb1rUEXpx9OChLJJX5Sq+e=hc8hs25iQMsg@mail.gmail.com>
 User-Agent: NeoMutt/20180716-391-311a52
 Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
  Vincent Guittot <vincent.guittot@linaro.org>,
  "Michael S. Tsirkin" <mst@redhat.com>, "Enrico Weigelt,
  metux IT consult" <info@metux.net>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE"
- <virtualization@lists.linux-foundation.org>, DTML <devicetree@vger.kernel.org>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org, DTML <devicetree@vger.kernel.org>,
  Rob Herring <robh+dt@kernel.org>, Bill Mills <bill.mills@linaro.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -124,74 +123,47 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 13-07-21, 22:34, Arnd Bergmann wrote:
-> On Tue, Jul 13, 2021 at 9:35 PM Rob Herring <robh+dt@kernel.org> wrote:
-> > There shouldn't be. We have nodes be multiple providers (e.g clocks
-> > and resets) already.
+On 13-07-21, 14:32, Arnd Bergmann wrote:
+> On Tue, Jul 13, 2021 at 12:51 PM Viresh Kumar <viresh.kumar@linaro.org> wrote:
 > 
-> I think this would be a little different, but it can still work. There is in
-> fact already some precedent of doing this, with Jean-Philippe's virtio-iommu
-> binding, which is documented in both
+> > +
+> > +    virtio@3200 {
+> > +        compatible = "virtio,mmio";
+> > +        reg = <0x3200 0x100>;
+> > +        interrupts = <43>;
+> > +
+> > +        #address-cells = <1>;
+> > +        #size-cells = <0>;
+> > +
+> > +        i2c-virtio@0 {
+> > +            reg = <VIRTIO_ID_I2C_ADAPTER>;
+> > +        };
+> > +    };
 > 
-> Documentation/devicetree/bindings/virtio/iommu.txt
-> Documentation/devicetree/bindings/virtio/mmio.txt
+> This works, but it seems oddly inconsistent with the way we do the same thing
+> for PCI, USB and MMC devices that normally don't need device tree properties but
+> can optionally have those.
 > 
-> Unfortunately, those are still slightly different from where I think we should
-> be going here, but it's probably close enough to fit into the general
-> system.
+> All of the above use the "compatible" property to identify the device,
+> rather than
+> using the "reg" property. Neither of them is actually great here,
+> since we already
+> know what the device is and how to talk to it, but I'd still prefer doing this
+> with
 > 
-> What we have with virtio-iommu is two special hacks:
->  - on virtio-mmio, a node with 'compatible="virtio,mmio"' may optionally
->    have an '#iommu-cells=<1>', in which case we assume it's an iommu.
->  - for virtio-pci, the node has the standard PCI 'reg' property but a special
->    'compatible="virtio,pci-iommu"' property that I think is different from any
->    other PCI node.
+>        compatible = "virtio,34";
 > 
-> I think for other virtio devices, we should come up with a way to define a
-> binding per device (i2c, gpio, ...) without needing to cram this into the
-> "virtio,mmio" binding or coming up with special compatible strings for
-> PCI devices.
-> 
-> Having a child device for the virtio device type gives a better separation
-> here, since it lets you have two nodes with 'compatible' strings that each
-> make sense for their respective parent buses: The parent is either a PCI
-> device or a plain mmio based device, and the child is a virtio device with
-> its own namespace for compatible values. As you say, the downside is
-> that this requires an extra node that is redundant because there is always
-> a 1:1 relation with its parent.
-> 
-> Having a combined node gets rid of the redundancy but if we want to
-> identify the device for the purpose of defining a custom binding, it would have
-> to have two compatible strings, something like
-> 
-> compatible="virtio,mmio", "virtio,device34";
-> 
-> for a virtio-mmio device of device-id 34 (i2c), or a PCI device with
-> 
-> compatible="pci1af4,1041", "virtio,device34";
-> 
-> which also does not quite feel right.
+> or similar, where 34 is the numerical value of VIRTIO_ID_I2C_ADAPTER.
+> This would then be required in the virtio-i2c binding.
+> I think you can skip the #address-cells/#size-cells then.
 
-I agree that even if the device is discoverable at runtime, we should
-still have some sort of stuff in DT to distinguish the devices, and
-"virtio,deviceDID" sounds good enough for that, considering that we
-already do it for USB, etc.
+That works, sure.
 
-And I am fine with both the ways, a new node or just using the parent
-node. So whatever you guys decide is fine.
+I think I misunderstood it when you said it earlier and thought that
+you are asking to add compatible in the parent node itself and so did
+it this way.
 
-> > Direct userspace access to I2C, GPIO, etc. has its issues, we're going
-> > to repeat that with guests?
-> 
-> Passing through the i2c or gpio access from a Linux host is just one
-> way to use it, you could do the same with an emulated i2c device
-> from qemu, and you could have a fake i2c device behind a virtio-i2c
-> controller.
-
-Or it can be firmware controlled device as well, as Rob said earlier.
-I think that's what Vincent will be doing for SCMI.
-
-Though all I have tested until now is direct userspace access.
+Though that may be the way we will end up doing it now :)
 
 -- 
 viresh
