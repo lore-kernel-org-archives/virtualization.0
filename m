@@ -7,96 +7,145 @@ X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30893C07E96
-	for <virtualization@archiver.kernel.org>; Thu, 15 Jul 2021 09:30:47 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D911C07E96
+	for <virtualization@archiver.kernel.org>; Thu, 15 Jul 2021 09:42:32 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EA636613BA
-	for <virtualization@archiver.kernel.org>; Thu, 15 Jul 2021 09:30:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EA636613BA
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id C7C36613A9
+	for <virtualization@archiver.kernel.org>; Thu, 15 Jul 2021 09:42:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C7C36613A9
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id C2F5242257;
-	Thu, 15 Jul 2021 09:30:46 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 8260B402B3;
+	Thu, 15 Jul 2021 09:42:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id WQKglpRgcb0G; Thu, 15 Jul 2021 09:30:45 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id sshe9GBDEafm; Thu, 15 Jul 2021 09:42:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E6FE24226C;
-	Thu, 15 Jul 2021 09:30:44 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 087E8400BA;
+	Thu, 15 Jul 2021 09:42:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CF12FC001A;
-	Thu, 15 Jul 2021 09:30:44 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B757BC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A587AC001A;
+	Thu, 15 Jul 2021 09:42:29 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 651D8C000E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Jul 2021 09:30:43 +0000 (UTC)
+ Thu, 15 Jul 2021 09:42:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 9969660B5D
+ by smtp1.osuosl.org (Postfix) with ESMTP id 3F72882572
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Jul 2021 09:30:43 +0000 (UTC)
+ Thu, 15 Jul 2021 09:42:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.de header.b="mM6TvzD+";
- dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
- header.d=suse.de header.b="9n4RAZIl"
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id C6X0HNX0QJZ9
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VpqR9aA4kI0l
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Jul 2021 09:30:43 +0000 (UTC)
+ Thu, 15 Jul 2021 09:42:27 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp3.osuosl.org (Postfix) with ESMTPS id CAEAA60B55
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 837DC82505
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Jul 2021 09:30:42 +0000 (UTC)
-Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id 1272A2292A;
- Thu, 15 Jul 2021 09:30:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1626341440; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
+ Thu, 15 Jul 2021 09:42:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1626342146;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=nJ/9Gr3eoqAJctk2n0YKskrK9wmCBCiTnG1XoGzapDI=;
- b=mM6TvzD+WxjROMOi/gWqrn7PSiPCDpLD6WFrsvluzyQRIdSW5GdZnzQNDsXahukZSgNZVl
- kxFRryMdyn6YEoKww+M/YVZZVZSXtELAQx/t5aEgE4wtUdQ4A05yTpjchHzvP3KUTFB3i4
- UBviofXBgCZ66eXH7JxGD88RPtfE7g0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1626341440;
- h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=nJ/9Gr3eoqAJctk2n0YKskrK9wmCBCiTnG1XoGzapDI=;
- b=9n4RAZIl1JRu0f5W7QK7mpSfUC0/LJ7Rj6J5FOqSeOobNUdqOlmG1ET6mISiFvOME+JjCm
- G8CJrusBP8iRvxAw==
-Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap1.suse-dmz.suse.de (Postfix) with ESMTPS id D7EC613AB6;
- Thu, 15 Jul 2021 09:30:39 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap1.suse-dmz.suse.de with ESMTPSA id cp57Mz8A8GDcBgAAGKfGzw
- (envelope-from <tzimmermann@suse.de>); Thu, 15 Jul 2021 09:30:39 +0000
-Subject: Re: [PATCH -next v2] drm/bochs: Fix missing pci_disable_device() on
- error in bochs_pci_probe()
-To: Yang Yingliang <yangyingliang@huawei.com>, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
-References: <20210715020551.1030812-1-yangyingliang@huawei.com>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <49771e7d-666a-bac3-2cd7-23008a95ad8e@suse.de>
-Date: Thu, 15 Jul 2021 11:30:39 +0200
+ bh=4PdOfMSnG9LJU18W2DtAkqVS77pNiWqr5hxkOihWpm0=;
+ b=gRgFDNxfhUWL5CnIjetV6CTPYtIkNNb8wzRGAJ1ypWXAo+NpwQOnWjVEIBCADqRU2nF5Iw
+ BWcHdGDUHASueFrCh1YORvGrYTeyEebuHq/nGh9LMr1e1NBQR/Gzt6F9zxlUtQnjDIfbkD
+ Cn9DvcHuWP/QqdcK3Q8RQdjwluz+FQw=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-346-eiuweBugMAKz91pU3xXTeQ-1; Thu, 15 Jul 2021 05:42:25 -0400
+X-MC-Unique: eiuweBugMAKz91pU3xXTeQ-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ m4-20020adffa040000b02901404c442853so3054705wrr.12
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 15 Jul 2021 02:42:24 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:to:cc:references:from:organization:subject
+ :message-id:date:user-agent:mime-version:in-reply-to
+ :content-language:content-transfer-encoding;
+ bh=4PdOfMSnG9LJU18W2DtAkqVS77pNiWqr5hxkOihWpm0=;
+ b=fgWKe8KDD/L8ZLqnWUkfHpghNz8MT5V16Tx3N/iUBSVlWtMbskWgrOSPPfyLDOcTnt
+ T0X7o+KjOXEg2/MXDrnr5qZQtpUPa7C4gBBDYKa/39rRIr+SgAW6sl3NV4JdbSdNeUAo
+ 5R/HudrKvc+ks+Bj4FghyYCi2nEzYnu4GEl0L35k4dLuD6Ikz3KylqVpRGZ2sm7izw7Q
+ Q/O8aI6AyyWg8r4F1kr8U6m9MtPBEnkebf3Am1bmNBF3yCaLw1iJQL5chwsax6FbRWNc
+ v4a/VWifRqlaSyqUe31FPuxFl61dwNUAkMn3O7139tdzaCCYcMAzxkqp59qgBhd9LumH
+ NVUQ==
+X-Gm-Message-State: AOAM530M7Zt7hLGJQ5P4Ymy1x/X1mbO5EqJsIZ2tQpQgPXpcdujWn5ou
+ 9+jj1mlX4ueH3/5rxKyQ+75uK581SVVe3S51S3lAzRhIoSdB2MlgZSWq1Lv7BLUoF89kRjjMW1i
+ UUZWIRJAO3a6uWfXGa9T8Zc8l2aq79+4ZeLgEMTMpPg==
+X-Received: by 2002:a1c:4e18:: with SMTP id g24mr3536112wmh.175.1626342144022; 
+ Thu, 15 Jul 2021 02:42:24 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzAXwE/gJvtgWH3VbzGQK7W3cyGE+l9fkhB4QJqLvhmzLWnJPkHReE1uIFCe9c8tBBrApBQSg==
+X-Received: by 2002:a1c:4e18:: with SMTP id g24mr3536099wmh.175.1626342143837; 
+ Thu, 15 Jul 2021 02:42:23 -0700 (PDT)
+Received: from [192.168.3.132] (p4ff23bb3.dip0.t-ipconnect.de. [79.242.59.179])
+ by smtp.gmail.com with ESMTPSA id q5sm4533504wmc.0.2021.07.15.02.42.21
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Thu, 15 Jul 2021 02:42:23 -0700 (PDT)
+To: Heiko Carstens <hca@linux.ibm.com>,
+ Andrew Morton <akpm@linux-foundation.org>
+References: <20210712124052.26491-1-david@redhat.com>
+ <20210712124052.26491-2-david@redhat.com> <YO9FWrT9h21e/G8X@osiris>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [PATCH v1 1/4] mm/memory_hotplug: use "unsigned long" for PFN in
+ zone_for_pfn_range()
+Message-ID: <99c59db8-4c3d-6bee-9acc-41a8f76899ef@redhat.com>
+Date: Thu, 15 Jul 2021 11:42:21 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <20210715020551.1030812-1-yangyingliang@huawei.com>
-Cc: airlied@linux.ie
+In-Reply-To: <YO9FWrT9h21e/G8X@osiris>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: Michel Lespinasse <michel@lespinasse.org>,
+ Kefeng Wang <wangkefeng.wang@huawei.com>, Rich Felker <dalias@libc.org>,
+ Wei Yang <richard.weiyang@linux.alibaba.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+ Catalin Marinas <catalin.marinas@arm.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Michal Hocko <mhocko@kernel.org>,
+ linux-mm@kvack.org, Paul Mackerras <paulus@samba.org>,
+ "H. Peter Anvin" <hpa@zytor.com>, Will Deacon <will@kernel.org>,
+ Ard Biesheuvel <ardb@kernel.org>, Laurent Dufour <ldufour@linux.ibm.com>,
+ Dave Jiang <dave.jiang@intel.com>, Baoquan He <bhe@redhat.com>,
+ Christian Borntraeger <borntraeger@de.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>,
+ "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-acpi@vger.kernel.org,
+ Ingo Molnar <mingo@redhat.com>,
+ Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+ Anton Blanchard <anton@ozlabs.org>, Len Brown <lenb@kernel.org>,
+ Nathan Lynch <nathanl@linux.ibm.com>,
+ Pavel Tatashin <pasha.tatashin@soleen.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Anshuman Khandual <anshuman.khandual@arm.com>,
+ Nicholas Piggin <npiggin@gmail.com>, Vishal Verma <vishal.l.verma@intel.com>,
+ Borislav Petkov <bp@alien8.de>, Sergei Trofimovich <slyfox@gentoo.org>,
+ Andy Lutomirski <luto@kernel.org>, Jia He <justin.he@arm.com>,
+ Dan Williams <dan.j.williams@intel.com>,
+ virtualization@lists.linux-foundation.org, Vlastimil Babka <vbabka@suse.cz>,
+ Oscar Salvador <osalvador@suse.de>, Christophe Leroy <christophe.leroy@c-s.fr>,
+ Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+ Yoshinori Sato <ysato@users.sourceforge.jp>,
+ Pierre Morel <pmorel@linux.ibm.com>, Scott Cheloha <cheloha@linux.ibm.com>,
+ "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-kernel@vger.kernel.org,
+ Thomas Gleixner <tglx@linutronix.de>,
+ Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+ "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>, Joe Perches <joe@perches.com>,
+ Mike Rapoport <rppt@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -108,127 +157,53 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============8038439024407917294=="
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============8038439024407917294==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="ABSJuNRvgtVRizXpSLt8b9avW36PfrpRS"
+On 14.07.21 22:13, Heiko Carstens wrote:
+> On Mon, Jul 12, 2021 at 02:40:49PM +0200, David Hildenbrand wrote:
+>> Checkpatch complained on a follow-up patch that we are using "unsigned"
+>> here, which defaults to "unsigned int" and checkpatch is correct.
+>>
+>> Use "unsigned long" instead, just as we do in other places when handling
+>> PFNs. This can bite us once we have physical addresses in the range of
+>> multiple TB.
+>>
+>> Fixes: e5e689302633 ("mm, memory_hotplug: display allowed zones in the preferred ordering")
+>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>   include/linux/memory_hotplug.h | 4 ++--
+>>   mm/memory_hotplug.c            | 4 ++--
+>>   2 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> I'd propose to add Cc: <stable@vger.kernel.org> since I actually had
+> the fun to try to debug something like this a couple of years ago:
+> 6cdb18ad98a4 ("mm/vmstat: fix overflow in mod_zone_page_state()")
+> 
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---ABSJuNRvgtVRizXpSLt8b9avW36PfrpRS
-Content-Type: multipart/mixed; boundary="HFvtUBen1oNeXSkMyBE7tGhl5aQoTXbSv";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Yang Yingliang <yangyingliang@huawei.com>, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
-Cc: airlied@linux.ie, kraxel@redhat.com
-Message-ID: <49771e7d-666a-bac3-2cd7-23008a95ad8e@suse.de>
-Subject: Re: [PATCH -next v2] drm/bochs: Fix missing pci_disable_device() on
- error in bochs_pci_probe()
-References: <20210715020551.1030812-1-yangyingliang@huawei.com>
-In-Reply-To: <20210715020551.1030812-1-yangyingliang@huawei.com>
+Good point, and thinking again what can go wrong, I tend to agree. We 
+are trying to keep zones contiguous and it could happen that we end up 
+with something like ZONE_DMA here (via default_kernel_zone_for_pfn()) 
+and would consequently online something to ZONE_DMA that doesn't belong 
+there, resulting in crashes.
 
---HFvtUBen1oNeXSkMyBE7tGhl5aQoTXbSv
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+@Andrew can you add  Cc: <stable@vger.kernel.org> and
 
-Hi,
+"As we will search for a fitting zone using the wrong pfn, we might end 
+up onlining memory to one of the special kernel zones, such as ZONE_DMA, 
+which can end badly as the onlined memory does not satisfy properties of 
+these zones."
 
-for the change
+Thanks Heiko!
 
+-- 
+Thanks,
 
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-
-
-but there are some style issues AFAICS.
-
-Am 15.07.21 um 04:05 schrieb Yang Yingliang:
-> Replace pci_enable_device() with pcim_enable_device(),
-> pci_disable_device() will be called in release automatically.
->=20
-> Reported-by: Hulk Robot <hulkci@huawei.com>
-> Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-
-S-o-b line goes first
-
-> ---
-> v2:
->    use pcim_enable_device()
-
-This changelog should rather be located between the commit description=20
-and the first S-o-b line.
-
-Best regards
-Thomas
-
-> ---
->   drivers/gpu/drm/tiny/bochs.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.=
-c
-> index a2cfecfa8556..73415fa9ae0f 100644
-> --- a/drivers/gpu/drm/tiny/bochs.c
-> +++ b/drivers/gpu/drm/tiny/bochs.c
-> @@ -648,7 +648,7 @@ static int bochs_pci_probe(struct pci_dev *pdev, co=
-nst struct pci_device_id *ent
->   	if (IS_ERR(dev))
->   		return PTR_ERR(dev);
->  =20
-> -	ret =3D pci_enable_device(pdev);
-> +	ret =3D pcim_enable_device(pdev);
->   	if (ret)
->   		goto err_free_dev;
->  =20
->=20
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
-
---HFvtUBen1oNeXSkMyBE7tGhl5aQoTXbSv--
-
---ABSJuNRvgtVRizXpSLt8b9avW36PfrpRS
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmDwAD8FAwAAAAAACgkQlh/E3EQov+By
-NRAAiUrdLMyeq9mv4+Lh9MLnJbPei3guqnKqDae5PhaAELNBNS1kxK9CBkoXXa5rfFGx4PeBowCF
-KB5fcMs9Px8a3zj9cNbt2DBAa0pJ9aQP49C8iVJulvrheK8aCOnxv0mF0KFtieZZB1UmGHon9zRf
-FfpqsipdPHsmUvkDnsI/zlDbfiSG2SnOog64OsRhJFUhVaHs9Nkpv0rvKdzr+Y3BhNWnYk+wCJqp
-ftYah5H63xFFt2SZ1oY4FGh0RqaarA1p191k5AArg9W5fFnS37dN/K8C97nbcQTWfk7JzqnZAjiv
-MFSc+S6Bh0wHV9r0eOXZeyvAHSrg2glkXx8U5fGNpGU8WJdJZGoT8ag32iPpMLsn+uQR+RaoTh2W
-yPe6A6QICOOzS9b8KWccfloAPPKN6YWK52gw2i6qO99UflkDaOkYbDl2aIcmOVl8wHc2mU+UI1OD
-vegZ7Soc1Ixp8DDhJj/2KIjz1+N9nQECY5KNqM8H/1vkZE53pS/VdWkAtK41fHtMG4jP6cDMwze1
-34p+OH/BmjTLwaSatoZGgcsqJpwse7BnzF1Mhtr7FJ43IXmbO+68nxVsuEeTWsJrFSKQgYyXBmsl
-1ZV2CWHa7/KmyMPhDWBDEYqsv6oNiY2T3ESmtlkjgWGIapzby7nhJFE00n03hYhE6Umrb2g0SoJR
-4nM=
-=+QTY
------END PGP SIGNATURE-----
-
---ABSJuNRvgtVRizXpSLt8b9avW36PfrpRS--
-
---===============8038439024407917294==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+David / dhildenb
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8038439024407917294==--
