@@ -7,58 +7,59 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41931C07E9B
-	for <virtualization@archiver.kernel.org>; Mon, 19 Jul 2021 10:39:06 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AD62C636CE
+	for <virtualization@archiver.kernel.org>; Mon, 19 Jul 2021 10:39:05 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D95BA610C7
-	for <virtualization@archiver.kernel.org>; Mon, 19 Jul 2021 10:39:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D95BA610C7
+	by mail.kernel.org (Postfix) with ESMTPS id E00D6610FB
+	for <virtualization@archiver.kernel.org>; Mon, 19 Jul 2021 10:39:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E00D6610FB
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A4B6C60799;
-	Mon, 19 Jul 2021 10:39:05 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6HOwqBP1ZGkq; Mon, 19 Jul 2021 10:39:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 3714C6077E;
+	by smtp4.osuosl.org (Postfix) with ESMTP id A0AEA402CE;
 	Mon, 19 Jul 2021 10:39:04 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id wvNA7W0aZEPK; Mon, 19 Jul 2021 10:39:03 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id BAED5402EF;
+	Mon, 19 Jul 2021 10:39:02 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 12268C0010;
-	Mon, 19 Jul 2021 10:39:04 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 289BDC001F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B2DE0C002A;
+	Mon, 19 Jul 2021 10:39:01 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8260CC0010
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jul 2021 10:39:01 +0000 (UTC)
+ Mon, 19 Jul 2021 10:39:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 0BD4782444
+ by smtp2.osuosl.org (Postfix) with ESMTP id 71EA54012D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jul 2021 10:39:01 +0000 (UTC)
+ Mon, 19 Jul 2021 10:39:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=nvidia.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id M7fIts9pQ6mV
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id jPbfNKctUchy
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jul 2021 10:39:00 +0000 (UTC)
+ Mon, 19 Jul 2021 10:38:59 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM02-DM3-obe.outbound.protection.outlook.com
- (mail-dm3nam07on2054.outbound.protection.outlook.com [40.107.95.54])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 5F84A8248F
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com
+ (mail-mw2nam12on20612.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:fe5a::612])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B0031400C7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jul 2021 10:39:00 +0000 (UTC)
+ Mon, 19 Jul 2021 10:38:59 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=oX1cgRCQpKBV4USleJilvfjs4WsYsOE4fEhGFfsZUIPOg82lNrOrfh3mq3tuwQlKovBFBAAJGvnipMaY8wBbnOrT2lTdnjsiBkwh8/BLGniei6s0/PZWQk6aH0Sr1yMlBxIfvYL8oboXrOB4uj/rQDlwYn6SCMUfvcsDLk4ozFNi3c6a73tWSq6uYcwLXtvpLNgwqZd0+Jpe68UDPKm2HA4GODDbOOoxPyy74K3whHE/G2bU4Cxr010e7Pjqn6hxsgwJ9+cqKy8/A9A5K9f6iQgt+Cyxao9t2rELHbAhh/+ITFZG7LJbgd7cPM7zGPYi4AiR6p6BSxpWEj3et3qXUQ==
+ b=HdAfCkELPq6KiBtTqwv3bba0XRaj9UP+ZSTjcbh+LVy1OBOm+GLQ4M6mBmyY5sI71A+bXbDaAbUM+7t3f3+L92PMcuKI7jveRAjm25PpN5gF0hMuVTafXp1qbsJygAfoV8pCFHRuT7tiYAGtMu7eGGfRo/HC0NWKcs8ZaPY39JE6KBCcgNulUCv/GyfYVzHfFxXclBf7rDreK2zMIxPkqM24kA8ORTAGTKDFYbpPctVI01tTWhAm7seIz6pQSRlS7Yv71OYBFSkRo+u3LmNTSqyI7uA08VzP1SdwtA7Ru5ne1TcXSjo60TDyjJW4d13KoDcV1/PRHXHQJ0ogrVOndw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Zqr0cMIdgdwmZmBUmAD7MYIwWJ6SotNbx+U0JPjAhB0=;
- b=NBGAn6OGZPXoV/mWDjaQAoOAWGHyyeesq9rxjzLE7AglJj37ljta3fgAemx2zAfJBQtfUHKijLBq41uGRL6qF6eN8pchm04wngu1Fi9fVUAajMmgLBBwfy/qub/QXiRb8HuM1C5f/oCFFWOEomshC7BgwXfV71L8S49rOl0P4YS5QgmUOjVjO++Ex7Do1vT1uixerMmQPA07T7zM65h/hwkKJWlIuibvEhs2k9ISnvhUkRr6KIbN345z+lyXX30k4rA1GtWDsU8DobHAegqBYs5iVRpzKaaVrBsiylAc1YECJttBeONpuovcZTyPXKL0gv0F8tYoYfiD3TU8RQvq/Q==
+ bh=bRPLg6HV1FDjY6d0jnN3qhdMWR0Ny0/qx0PiF7upXIw=;
+ b=UjskiqEtK70HKU2HXwz7gbR/wy12CxLsBLv5xEZDoFjdECBgvupD46l/Aq1nvu5vnzmgDv4ixgkVV6zHbbNneCC0LJndZ4AZTdCq3brNxGhQY5GaIy/U90kesokZO3TyRSPGQw/wCTlYxfDG3QjKDPrAjCZDq61ZkrvE8pgPDsOmW7Og6jkyja15r7U2OmBiZbBDiubt8HkWm/Jf4ml01bIETcyCScM6iLARoh/QowajAUgtTKVPLU77Jp9ODj9NTS/D7Fao+4wkO9dNtLOOwqzofYFcC07sIHu27ENM9RmG2WWNak24KDNz/LOp8W6043hBI8mN9SCrE3iONDmXRQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  216.228.112.34) smtp.rcpttodomain=lists.linux-foundation.org
  smtp.mailfrom=nvidia.com; dmarc=pass (p=quarantine sp=none pct=100)
@@ -66,18 +67,18 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Zqr0cMIdgdwmZmBUmAD7MYIwWJ6SotNbx+U0JPjAhB0=;
- b=qASswlV6tSR9IuvNWVkmqKYDpHiIOF3wod/rd3a6ISgU6nZdZNwQfFvW4ZWKOzEGOLaiFTyr5M8g1hdQFfemH1D06ovtBVmDQoVtbA5PBunB13o2Pg3KPXToG8G3WK37k0dNVsATZOHzXjiQTohY/TfBaaWqL6NTrfZ3y9TVxntiZno4Hu15SvX2vYtKBkfrtRlCTaAu2iAD09KR53roAKdAc5ginFo+5Jpz3BC6xxFjO2WzQ5rhR2XVLpMxx74fomzfDbwMeDfyK6k/Ta7/DfHGAavfSg7H8StyiZS+pZBd3l7WpZHsy6ar66Rfqg2oqC0QBaxzDQ66sOKl5J3WgQ==
+ bh=bRPLg6HV1FDjY6d0jnN3qhdMWR0Ny0/qx0PiF7upXIw=;
+ b=oA5Q45A1ealwh3c4cmgs5KLSAxqIJgdmoh+aHve6vpNnp/+aoV68t5k6bd7IFwHBsOIcL7fvvO0s6pEkK8QR1eExbI/vVVsC448mhHd931swaGhVJtYTCBExStGjgp4e6/12bb67xqbKAufK3ChKeUm/Cz9ALx4y4pW8tYaK2y7r9sFbBUcT4a6ulaCnct/d3HlTt1fumxG+Hca/3cUxW/fQsf7hqoBIv+fC1xzS9Zpv8rb9yZFnGL3RDEpCoaquEcuWxwU7YLsjS4H0IW1n5g+BwkBQruwwwpP4+IwqXjoVWVi9RXdMD64Hrs+3WJRnE6KSAWnyCqNgoo1fKhssMQ==
 Received: from DM6PR11CA0034.namprd11.prod.outlook.com (2603:10b6:5:190::47)
- by DM6PR12MB3402.namprd12.prod.outlook.com (2603:10b6:5:3b::11) with
+ by CY4PR12MB1431.namprd12.prod.outlook.com (2603:10b6:903:43::18) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.29; Mon, 19 Jul
- 2021 10:38:58 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.25; Mon, 19 Jul
+ 2021 10:38:57 +0000
 Received: from DM6NAM11FT060.eop-nam11.prod.protection.outlook.com
- (2603:10b6:5:190:cafe::e7) by DM6PR11CA0034.outlook.office365.com
+ (2603:10b6:5:190:cafe::bf) by DM6PR11CA0034.outlook.office365.com
  (2603:10b6:5:190::47) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.22 via Frontend
- Transport; Mon, 19 Jul 2021 10:38:58 +0000
+ Transport; Mon, 19 Jul 2021 10:38:57 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
  smtp.mailfrom=nvidia.com; lists.linux-foundation.org; dkim=none (message not
  signed) header.d=none;lists.linux-foundation.org; dmarc=pass action=none
@@ -88,15 +89,14 @@ Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
 Received: from mail.nvidia.com (216.228.112.34) by
  DM6NAM11FT060.mail.protection.outlook.com (10.13.173.63) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4331.21 via Frontend Transport; Mon, 19 Jul 2021 10:38:58 +0000
+ 15.20.4331.21 via Frontend Transport; Mon, 19 Jul 2021 10:38:57 +0000
 Received: from sw-mtx-036.mtx.labs.mlnx (172.20.187.5) by HQMAIL107.nvidia.com
  (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
- Mon, 19 Jul 2021 10:38:57 +0000
+ Mon, 19 Jul 2021 10:38:56 +0000
 To: <mst@redhat.com>, <virtualization@lists.linux-foundation.org>
-Subject: [PATCH v2 4/4] virtio_pci: Support surprise removal of virtio pci
- device
-Date: Mon, 19 Jul 2021 13:38:41 +0300
-Message-ID: <20210719103841.1488049-5-parav@nvidia.com>
+Subject: [PATCH v2 3/4] virtio: Protect vqs list access
+Date: Mon, 19 Jul 2021 13:38:40 +0300
+Message-ID: <20210719103841.1488049-4-parav@nvidia.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210719103841.1488049-1-parav@nvidia.com>
 References: <20210719103841.1488049-1-parav@nvidia.com>
@@ -106,28 +106,28 @@ X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
  HQMAIL107.nvidia.com (172.20.187.13)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 6c891b81-7bf1-43be-5886-08d94aa16a41
-X-MS-TrafficTypeDiagnostic: DM6PR12MB3402:
-X-Microsoft-Antispam-PRVS: <DM6PR12MB34021BD59504E521DBB974F0DCE19@DM6PR12MB3402.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
+X-MS-Office365-Filtering-Correlation-Id: c1ef9ce9-3f39-4cc6-622a-08d94aa169f7
+X-MS-TrafficTypeDiagnostic: CY4PR12MB1431:
+X-Microsoft-Antispam-PRVS: <CY4PR12MB1431FD38D1A0B195A515C6F5DCE19@CY4PR12MB1431.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:6790;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 9+KX2nMMNXvgOWLM1H+dOF1/DH1R+6rqId4z4oEHbIGlaK3XZqPtk4eL1uPsdfvA7ftIupGubfXNRlh7URNTgoZzhA/DwCE8+Yo1t3wblcwCThx7EWZ4tt6P5hqdY0mPnXtYqt/JJumVDC7DO4Z0qhJOQCXi1FfiHtpPwd+k5UUJaaccFbTqej73YpLaCuPrm68TIS3gu0C23hD3eL1opUS/r995j5fBqHtgNUb9Ta2uKXm1SIS0CHAoOwcT3GjJmVYoOuOgYGox3egnE159W/hy2pGgvhNyS41S392EfUCn4wGWdWCS8uzXf7cmcVUuHVoXmQ4jmH7GYclaSt3Y5N7Q0cIwP1hXuQoT5P52IfTBCSKlYVzcuJs6FoiKWbCdUVuF9rcE5qbq9HXR1Zqvd62Ighw9t9K7IuIicVTdSNrSDYoKbxCN7CDkoYKXGNlmYntZFIAQSRWPisagTnZSL+Ni8h6a0KNEl+txtgvVKzkb5+cme7UjagZrm8A2MmAdeP+1HXAstkW9Ma2952COnVH2j9lbWvtBtOOJoMwaZyy3E64vUy+FdLNrRmuAATW6D5LAm2ILA+56VBnZIOQF/gS/IjuqeK1fjS5KCH92ixGxIiKdKprooRPRP8T3bg28C/+DzEHbzjuS8FAB3c1R+qCOa8xBiqu6Cec7l5R5oGotElyWfPGEsXhq7jmCusB1gOsiFeUVoQvdjKKF1pzpzA==
+X-Microsoft-Antispam-Message-Info: hWMbsjJbovQ/R4Q+hRDaN/JYKdZ5XX447RTUzHBoSeSt5xHtBNIrqKclH3bGIKWJRDqWSAwPDxoa90HwZnE5kuTyqDOXbNxaS4k80c5h6P9EUhHeVdmWCpooGqzpnRweeQFyOjZ/fHHMzN/AWtkI0YNh/KoxluU/uINWqpZDvDSSRQwIBmUAYVGmpCCwCNXBTrWdNLfQu5cXEjOE3UjS+4AIWQ0qscWruEQ7xB3SFyxGiz7xZdkXM5OAkqgUv7/Y/JIZGnVMqRyaCxNdQCqumi/py5ngUD+6iDfUj9t6Rq7Y63Kc5AvAfPYBJgBmsFVeKeV7hAtMCGyopX903rXfUtbx4eTBH43sT4u2prIJl8CNiHeAVU5NXBD3mTjW8aDUQXzImhobxRD8lNT3QSpr6UlQNNv2YN+cw9WFlyswK5/doSAYH/TulxAP3r3XL3A7MIBlYhYPsTdbV8MygD4CUkrPbwhsGJM416myqllstj/7+XI62QuyfnG/U1G05/PtXGMBpLFKMO3oyfTmRrlGxZ4lDLmOppOb0Gxicfq6mkmYB3747vcWl9h4GVKsv/gZZhpnB+EPHsOFhoEXH9y/0fd3t+6itYzgPkIyCFgLgnO0MZ0wxQt7plVBY3/5qFeCQEvUIiyapOWuW3NzimH32lhTCJClPbLXYinXR/01/Nq5vqfQaY86N0QWfyINDL2t59Lq/ppQ7um/SNiIfR2h7g==
 X-Forefront-Antispam-Report: CIP:216.228.112.34; CTRY:US; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:schybrid03.nvidia.com; CAT:NONE;
- SFS:(4636009)(376002)(39860400002)(396003)(136003)(346002)(46966006)(36840700001)(16526019)(186003)(83380400001)(47076005)(356005)(2616005)(36860700001)(336012)(426003)(82740400003)(7636003)(36906005)(110136005)(1076003)(5660300002)(316002)(2906002)(6666004)(478600001)(26005)(4326008)(8936002)(107886003)(36756003)(8676002)(86362001)(70586007)(82310400003)(70206006);
+ SFS:(4636009)(396003)(39860400002)(376002)(136003)(346002)(36840700001)(46966006)(36860700001)(6666004)(70206006)(8936002)(316002)(110136005)(2906002)(26005)(83380400001)(107886003)(186003)(16526019)(36756003)(47076005)(82310400003)(336012)(70586007)(478600001)(7636003)(86362001)(4326008)(356005)(8676002)(5660300002)(82740400003)(1076003)(426003)(36906005)(2616005);
  DIR:OUT; SFP:1101; 
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Jul 2021 10:38:58.1284 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6c891b81-7bf1-43be-5886-08d94aa16a41
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Jul 2021 10:38:57.6466 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: c1ef9ce9-3f39-4cc6-622a-08d94aa169f7
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.112.34];
  Helo=[mail.nvidia.com]
 X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT060.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB3402
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR12MB1431
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -147,75 +147,96 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-When a virtio pci device undergo surprise removal (aka async removal in
-PCIe spec), mark the device as broken so that any upper layer drivers can
-abort any outstanding operation.
+VQs may be accessed to mark the device broken while they are
+created/destroyed. Hence protect the access to the vqs list.
 
-When a virtio net pci device undergo surprise removal which is used by a
-NetworkManager, a below call trace was observed.
-
-kernel:watchdog: BUG: soft lockup - CPU#1 stuck for 26s! [kworker/1:1:27059]
-watchdog: BUG: soft lockup - CPU#1 stuck for 52s! [kworker/1:1:27059]
-CPU: 1 PID: 27059 Comm: kworker/1:1 Tainted: G S      W I  L    5.13.0-hotplug+ #8
-Hardware name: Dell Inc. PowerEdge R640/0H28RR, BIOS 2.9.4 11/06/2020
-Workqueue: events linkwatch_event
-RIP: 0010:virtnet_send_command+0xfc/0x150 [virtio_net]
-Call Trace:
- virtnet_set_rx_mode+0xcf/0x2a7 [virtio_net]
- ? __hw_addr_create_ex+0x85/0xc0
- __dev_mc_add+0x72/0x80
- igmp6_group_added+0xa7/0xd0
- ipv6_mc_up+0x3c/0x60
- ipv6_find_idev+0x36/0x80
- addrconf_add_dev+0x1e/0xa0
- addrconf_dev_config+0x71/0x130
- addrconf_notify+0x1f5/0xb40
- ? rtnl_is_locked+0x11/0x20
- ? __switch_to_asm+0x42/0x70
- ? finish_task_switch+0xaf/0x2c0
- ? raw_notifier_call_chain+0x3e/0x50
- raw_notifier_call_chain+0x3e/0x50
- netdev_state_change+0x67/0x90
- linkwatch_do_dev+0x3c/0x50
- __linkwatch_run_queue+0xd2/0x220
- linkwatch_event+0x21/0x30
- process_one_work+0x1c8/0x370
- worker_thread+0x30/0x380
- ? process_one_work+0x370/0x370
- kthread+0x118/0x140
- ? set_kthread_struct+0x40/0x40
- ret_from_fork+0x1f/0x30
-
-Hence, add the ability to abort the command on surprise removal
-which prevents infinite loop and system lockup.
-
+Fixes: e2dcdfe95c0b ("virtio: virtio_break_device() to mark all virtqueues broken.")
 Signed-off-by: Parav Pandit <parav@nvidia.com>
 ---
 changelog:
+v1->v2:
+ - use the hole in current struct to place vqs_list_lock to have natural packing
 v0->v1:
- - fixed typo in comment
+ - use spinlock instead of rwlock
 ---
- drivers/virtio/virtio_pci_common.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/virtio/virtio.c      | 1 +
+ drivers/virtio/virtio_ring.c | 8 ++++++++
+ include/linux/virtio.h       | 1 +
+ 3 files changed, 10 insertions(+)
 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 222d630c41fc..b35bb2d57f62 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -576,6 +576,13 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
- 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
- 	struct device *dev = get_device(&vp_dev->vdev.dev);
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 4b15c00c0a0a..49984d2cba24 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -355,6 +355,7 @@ int register_virtio_device(struct virtio_device *dev)
+ 	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
  
-+	/*
-+	 * Device is marked broken on surprise removal so that virtio upper
-+	 * layers can abort any ongoing operation.
-+	 */
-+	if (!pci_device_is_present(pci_dev))
-+		virtio_break_device(&vp_dev->vdev);
-+
- 	pci_disable_sriov(pci_dev);
+ 	INIT_LIST_HEAD(&dev->vqs);
++	spin_lock_init(&dev->vqs_list_lock);
  
- 	unregister_virtio_device(&vp_dev->vdev);
+ 	/*
+ 	 * device_add() causes the bus infrastructure to look for a matching
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index d5934c2e5a89..c2aaa0eff6df 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1755,7 +1755,9 @@ static struct virtqueue *vring_create_virtqueue_packed(
+ 			cpu_to_le16(vq->packed.event_flags_shadow);
+ 	}
+ 
++	spin_lock(&vdev->vqs_list_lock);
+ 	list_add_tail(&vq->vq.list, &vdev->vqs);
++	spin_unlock(&vdev->vqs_list_lock);
+ 	return &vq->vq;
+ 
+ err_desc_extra:
+@@ -2229,7 +2231,9 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+ 	memset(vq->split.desc_state, 0, vring.num *
+ 			sizeof(struct vring_desc_state_split));
+ 
++	spin_lock(&vdev->vqs_list_lock);
+ 	list_add_tail(&vq->vq.list, &vdev->vqs);
++	spin_unlock(&vdev->vqs_list_lock);
+ 	return &vq->vq;
+ 
+ err_extra:
+@@ -2291,7 +2295,9 @@ void vring_del_virtqueue(struct virtqueue *_vq)
+ {
+ 	struct vring_virtqueue *vq = to_vvq(_vq);
+ 
++	spin_lock(&vq->vq.vdev->vqs_list_lock);
+ 	list_del(&_vq->list);
++	spin_unlock(&vq->vq.vdev->vqs_list_lock);
+ 
+ 	if (vq->we_own_ring) {
+ 		if (vq->packed_ring) {
+@@ -2386,12 +2392,14 @@ void virtio_break_device(struct virtio_device *dev)
+ {
+ 	struct virtqueue *_vq;
+ 
++	spin_lock(&dev->vqs_list_lock);
+ 	list_for_each_entry(_vq, &dev->vqs, list) {
+ 		struct vring_virtqueue *vq = to_vvq(_vq);
+ 
+ 		/* Pairs with READ_ONCE() in virtqueue_is_broken(). */
+ 		WRITE_ONCE(vq->broken, true);
+ 	}
++	spin_unlock(&dev->vqs_list_lock);
+ }
+ EXPORT_SYMBOL_GPL(virtio_break_device);
+ 
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index b1894e0323fa..41edbc01ffa4 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -110,6 +110,7 @@ struct virtio_device {
+ 	bool config_enabled;
+ 	bool config_change_pending;
+ 	spinlock_t config_lock;
++	spinlock_t vqs_list_lock; /* Protects VQs list access */
+ 	struct device dev;
+ 	struct virtio_device_id id;
+ 	const struct virtio_config_ops *config;
 -- 
 2.27.0
 
