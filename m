@@ -2,92 +2,94 @@ Return-Path: <SRS0=a9bH=ML=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CF7DC07E95
-	for <virtualization@archiver.kernel.org>; Mon, 19 Jul 2021 14:15:12 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73025C07E95
+	for <virtualization@archiver.kernel.org>; Mon, 19 Jul 2021 14:20:36 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 191B9610D2
-	for <virtualization@archiver.kernel.org>; Mon, 19 Jul 2021 14:15:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 191B9610D2
+	by mail.kernel.org (Postfix) with ESMTPS id 05F62610D2
+	for <virtualization@archiver.kernel.org>; Mon, 19 Jul 2021 14:20:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 05F62610D2
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CF9C64030F;
-	Mon, 19 Jul 2021 14:15:11 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id BC9D7605FA;
+	Mon, 19 Jul 2021 14:20:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QEK60xubCUD3; Mon, 19 Jul 2021 14:15:10 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 18E6840294;
-	Mon, 19 Jul 2021 14:15:10 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id xFcGPQVr9-wC; Mon, 19 Jul 2021 14:20:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 2295860744;
+	Mon, 19 Jul 2021 14:20:34 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F3E69C0010;
-	Mon, 19 Jul 2021 14:15:09 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B65E7C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E485EC0010;
+	Mon, 19 Jul 2021 14:20:33 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9C9E0C000E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jul 2021 14:15:08 +0000 (UTC)
+ Mon, 19 Jul 2021 14:20:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id A5040402FF
+ by smtp2.osuosl.org (Postfix) with ESMTP id 7D47D40135
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jul 2021 14:15:08 +0000 (UTC)
+ Mon, 19 Jul 2021 14:20:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gvwFfBruEi-r
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=nvidia.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id jZELjxo5Txcg
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jul 2021 14:15:07 +0000 (UTC)
+ Mon, 19 Jul 2021 14:20:31 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com
- (mail-bn7nam10on20631.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7e8a::631])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 6F77440294
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com
+ (mail-bn8nam11on2088.outbound.protection.outlook.com [40.107.236.88])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 983C84012D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jul 2021 14:15:07 +0000 (UTC)
+ Mon, 19 Jul 2021 14:20:31 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=izN+tIBTE/2MvTVc6+e2tP2nKpXBry5b2B7hgmUdfYs5j2grjyj2deKq8btWReF96s7TgVFpgjiS9iK34gliC1zo+k0MZKN/9fvSTO/SBux1TERO0kwpl0/wLq9fA+jGD76EzTYxQjiqc8exyBRjU/+t03uFb+fJUuloUNM0EC/MCORYfVv3JO5i4aLNlaFE05qi5cfHMNCCgrL8RJhub6JWJiwCBhnIypiKPFUC+/vfnihLEXBxrE0QDgOpABN2D1iTwgjJ7cUTJD1HPZpa/Bo2zzAQAHPCT2n3wK/eyXOz5CcQpiyEk5XnP/4TaMlISWhrRzScsTCWIyDGAsp31g==
+ b=S0zZ0+66fbWEArNX4em2YWJrcgLw0QKypRse9Jw3dAy8Y7KIqF5V+O+UUhpa/0QPQNsdkb7fv3BbPPV0jOv7n7I6piZ3ZOnTc3bYBuDkXJsSGZvmrdM1ulRbpM8ZOR8IJkqC3UMtD+ruNHUXCqwCUDdV9b6HYUaNCfCFOHSz1uLAd64YiTfJ0HsBEwQMZ0vXM91nHM6ZdzhOGyR3qa2qXivbFoYMPWpv4cm/SSScqd4Mj1SYT0uFrSa1PkIKQrMhYvFnXTMzWz6ezRBGx+H2OYLJ9FoLOp1NWxc3FlOl6KqVMyxOF89D4QbLLmxLfGPJqAdRbywcXL67b8POzdvdRg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1zGKV7RweprnKFjwQFXT2IBjirlFtpYLeUiIEGLpXNs=;
- b=MpIlbj7/7B9nSwv/o7BoCQ/F5Ee03Xy6YZiK0TMNysxEZ9XeDcAY7ZylQDxuE4Tm/2NuEP8xt15bzTf3Hz7Al3jAajq+3aVVAtCx0SUF1Oj8TBhqnvsIEHx5Np+UHKQeX9OqautrZ7P+wa/Z3Ysy9j0ZLea6Of2CDQfH+fZU2ZODCnN2P91l3SYlTDZVZ0oolkGPPw4v6DobcdhOryiUkp4O/DtZ0Vd6UaU9366EUpv4P/+D0pzIwBPqVlpOXevMYIt7ZDiYK2jCuGzOS0S2isqC2rxZZpPo7/yoMeYIlZzspCsk6NM2UVc9xoGTge0XEqY2wXoNVJGnmmxJ9SvA0Q==
+ bh=LU5WEDed8/gDkskz/Nm6UZsG2S/YASH42xI0jphhUXY=;
+ b=n0QyB/LL1mFDlD+rMStQceWfU8LPa/C+Zc9gr7qDUf5X3ZRDv/lam1LmlHDZQM7kFGI8Cu4DRoWHmw0y7qu6can+g+JerZJ0eQ9URfa4Yzpjfqoe5YFXVnPwZSCKEaO+FuOJfiDlJC8jmTGobEZN8afw2RsKFaHdjqzT65xcIgoRBw5ni3uD054baDLRGo6Xr187RVT1qvPGMUdJKeE8q2W2r5u3Rof+ah+ThTDS5dteRce2JfwIw1Nj+kjp8IkEscMv0tumAkkkDlJMlFORyY/R2e0PQ/IFaHRYhPic7F692n4rs0wQgFnBxHtf1weHJ51lNC0LBjdizP8Fg/eZLA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=1zGKV7RweprnKFjwQFXT2IBjirlFtpYLeUiIEGLpXNs=;
- b=a2BetAb2RNMIglcaYeL0BdGfqoKbInGZnGuHzKVbFDGYh5lGLXJjdNYrFqfaV74JUa9PNxYXC3kXkHL0d9Fo+0+5jsp03cB+Leejwv5QKYy7DfR7aI3L27sLDTfXjDCLB2bzWbarFw1dVjcxxlktTFR27tWOg35xy5l8TZd2LB18k6cGOAkhjLdxlaPLyWey75xj7wzd/GfvB1iN9TKmH1MGB71T780ko4dhM8gAYWKqWaPSXa8ktK+h4ydifmL6H9XQ2D4cAoF+t1beE4kQuhaImLkpy8Y/Ofj7VpnjyeFNzz/AlGw8myRGYZ9VgSEBfz0ykFvdznX80ON76Oj2Ow==
+ bh=LU5WEDed8/gDkskz/Nm6UZsG2S/YASH42xI0jphhUXY=;
+ b=Y/0wAMo/uV6BJg1cOLM9Mln6kuazVh55/lZC4kAkDXUO7mYnvbwfyooDMscoxY2TRKgRRL7m7v6z/ARc/sTLRd2AmhQ1Xz5AS3DxN8EJAu3Z4S50ZR+B6OjsTGW/JTYM536G1iisYsrxCS6iu0t41T3f9NKMXdfN3R5B3JrPjmHYsCDP+cUpDmgHIsU8KOPxr8mANgTe4dKIuyM2zaLcqQZYCXRwYpoPDw34gwPcuraSLoYOFjnbPimLoMmi44NBOF+2ZLS8K5BfFDn++tpScfPgZ3Typx+Le4YmK7z3IFjjy1Ho6uaRCdEviCtf8jVWA8/1GfHMYKrdKGDlAizFqQ==
 Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by PH0PR12MB5452.namprd12.prod.outlook.com (2603:10b6:510:d7::16)
+ by PH0PR12MB5465.namprd12.prod.outlook.com (2603:10b6:510:ec::11)
  with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.21; Mon, 19 Jul
- 2021 14:15:02 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4331.24; Mon, 19 Jul
+ 2021 14:20:29 +0000
 Received: from PH0PR12MB5481.namprd12.prod.outlook.com
  ([fe80::ace1:9322:ab32:7293]) by PH0PR12MB5481.namprd12.prod.outlook.com
  ([fe80::ace1:9322:ab32:7293%3]) with mapi id 15.20.4331.032; Mon, 19 Jul 2021
- 14:15:02 +0000
+ 14:20:29 +0000
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: RE: [PATCH 4/4] virtio_pci: Support surprise removal of virtio pci
- device
-Thread-Topic: [PATCH 4/4] virtio_pci: Support surprise removal of virtio pci
- device
-Thread-Index: AQHXet9qXyqqP8cKqUKjOeX+GMx7yqtHo++AgAImpFCAAGziAIAAIaqg
-Date: Mon, 19 Jul 2021 14:15:02 +0000
-Message-ID: <PH0PR12MB5481E20BD629993381E334E5DCE19@PH0PR12MB5481.namprd12.prod.outlook.com>
+Subject: RE: [PATCH 1/4] virtio: Improve vq->broken access to avoid any
+ compiler optimization
+Thread-Topic: [PATCH 1/4] virtio: Improve vq->broken access to avoid any
+ compiler optimization
+Thread-Index: AQHXet9oIEipiPbuTECOdqhlwyb4batHobWAgAIi27CAAHJAAIAAJJyw
+Date: Mon, 19 Jul 2021 14:20:29 +0000
+Message-ID: <PH0PR12MB5481E200CD85DDAA621FC476DCE19@PH0PR12MB5481.namprd12.prod.outlook.com>
 References: <20210717074258.1463313-1-parav@nvidia.com>
- <20210717074258.1463313-5-parav@nvidia.com>
- <20210717164152-mutt-send-email-mst@kernel.org>
- <PH0PR12MB54813A3CA2397ACE87A1DAF6DCE19@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20210719080539-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20210719080539-mutt-send-email-mst@kernel.org>
+ <20210717074258.1463313-2-parav@nvidia.com>
+ <20210717163319-mutt-send-email-mst@kernel.org>
+ <PH0PR12MB5481EBA531451478010F926DDCE19@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <20210719080316-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20210719080316-mutt-send-email-mst@kernel.org>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
@@ -95,61 +97,54 @@ X-MS-TNEF-Correlator:
 authentication-results: redhat.com; dkim=none (message not signed)
  header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 4dda5d90-c54d-40c0-12aa-08d94abf99b4
-x-ms-traffictypediagnostic: PH0PR12MB5452:
-x-microsoft-antispam-prvs: <PH0PR12MB54525DA78ACD8986DE8DA742DCE19@PH0PR12MB5452.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:9508;
+x-ms-office365-filtering-correlation-id: 13a936b6-1c0e-4926-5b9f-08d94ac05c80
+x-ms-traffictypediagnostic: PH0PR12MB5465:
+x-microsoft-antispam-prvs: <PH0PR12MB5465EE42ED530F7D91920959DCE19@PH0PR12MB5465.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8882;
 x-ms-exchange-senderadcheck: 1
 x-ms-exchange-antispam-relay: 0
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: Qtb+TLC3j1SrHE+MpAFYxOYz7i82qUx2K5QPbAArEEGdQDpXZFwVpezQ4onnGlQaFPmV7imc6ou1NiU6A4bxR77qnxNzt7SqwzWrqODdedZvnVQXq1I1C9tAH5Xp8Qrxfcv/5HY29BmNS3tTtwCLvnacMmXIjpAYIhBiUH8HOyMmuFJIt4CV6eFB/4yUok1aJ/yq/X/FDRjq0EQ4R1Gttd48uCoZWK9qth6R1+w08m6zSUidpcesTJ1wNGQ/etoLpWVcbKpmo+84ZrjenZEvVcRb3IpLYc20YZChHeGsceg0hsM2WYwyP0uviFlx1DI0DVJnHwo4yNCZgu3mT/KO/DSNhbHTCilEc6YPNqL4J6clyd1/xu1Vty4wFgcNwG+bq5dNbQTDPCX++cly/GsKMwE4eRvRBW+IHYyEqfy4H/F/Ftqmd48ozandxxtyIcna7cR2Mc6kjLhOPPfh8Pt9uS43HBwPHh5lOxUhOBVwuBj3AliiUpFv8es+scdcD/b/LHwKp/4SQdo+MhtTCy6H1+u8xTJ+85nVNBr5gRRZEeZxxHzZidJIKjSVfqUPxTiZpi465WmTE49maIgFiUrHCM6M1mz+rAafp+YuCc28qif0rH0LSFiiXRNDcEFs0EboIXe5TS3xFmOY3U7f+un5s7YRm2B1bd1W//bg/e4VWBrNwKL1nRmCeFST8u1/3QWz/Cxb98evSCcRifXJH4fIUQ==
+x-microsoft-antispam-message-info: 8MHC0vQMv+9uDRudOGYvez8Uoenbv8p76rYL91pJRFrcNxhDB9abM3dAdJ37S+boTZ9xmYeIODwqDbjQHNN16zwRgRwz//q0Tz+5FbeXyhv+gM/odz01zxUEB+WPjm6FcBFz0aY/3HybtPR46VIvyMH//E8kWUgalgMYiNSaP0BIkoP4dvkplGs2EeJX/y0H4c4b1rDv2qJ17DlaJ+JpZVEuQTjTmtzzUwTN0pp/FXKwlkzZzq8qezBK858evJLjs3TpCSoiPa8nA8aHx2+hSQWpxk1lqpVpz1wr8BRYe6ep8QtddXcUrR94aEQLyfrfYirX0qtMqVoxn9k49+2Zn1cFHGMi9E4DZircisKBIDMnbExU6FE81N3hG5CHV6cINF7IsTc3iq+Q34DNIYS9TlXb4mcAi5WyplZ6n28RwDZFCQl3pyP97q00Sg3nJSPZkKPBQhr8T7zilWRUyJRo1b5KOC+29eLNyRKnLJNYRtNO2M7H1NdWHExxCCTjcz+udrn0fp+/0aTu45dbh1x4sCFaUIr4fAie6PLLT0BZwWUdm2No4Q74ho4iluSw1QoIvXcSaa2sh6/MtJkPCvUkxWHVSDkQn6YsJKkHS07ujcPlAt7KCW6tINYIK5mQrZOEORKhTJFeYyUf7PIKWjoVYDMBLCBzqHluK/+3jTHZ5wUSAF4bQ710muj3Cvv4t1Wr10N08WOKOxv+fqrqGRyQfQ==
 x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(136003)(376002)(366004)(39860400002)(346002)(396003)(86362001)(186003)(7696005)(6506007)(71200400001)(8936002)(9686003)(83380400001)(4326008)(6916009)(26005)(2906002)(55236004)(55016002)(5660300002)(66476007)(66556008)(64756008)(8676002)(316002)(122000001)(66446008)(76116006)(38100700002)(66946007)(52536014)(33656002)(478600001)(38070700004);
+ SFS:(4636009)(396003)(376002)(366004)(346002)(39860400002)(136003)(4326008)(76116006)(5660300002)(52536014)(8676002)(66946007)(66556008)(8936002)(66476007)(66446008)(64756008)(26005)(55236004)(2906002)(86362001)(9686003)(122000001)(71200400001)(55016002)(7696005)(478600001)(316002)(6916009)(38100700002)(33656002)(6506007)(83380400001)(186003)(38070700004);
  DIR:OUT; SFP:1101; 
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?NDF3YzZPbVIvVUZQdXNaL05YdkIxdDA2bkNrZStJU0tpazZLaUdYbHA2aWdN?=
- =?utf-8?B?UE1kRTFZd1JPMzlmWFhhMzRKd05sNWpxNHZwSE16Tlo4SzZ2aGNXN1pkRTZH?=
- =?utf-8?B?cThqTGxFdHZlMi9YL0ppNTMxWUtoeDk0dFZJbkQ4K2ZBOFBKYXZ2Szd3dG5N?=
- =?utf-8?B?bXFwTU9wZTh6QmwycTlLZ05ISElTeWd4NWJpQ0NLREZMT1dySXlVWjhDTmE2?=
- =?utf-8?B?UmRXUmVOZEVzcWtMSEJBc3BZUk5nSm5DK3A3MUo3S0hNOG5SVFZCbzR5VXhv?=
- =?utf-8?B?cTJ4REhqM3R2R2xZL2NFK2xQVC93aXVQZitmb1lhaTVOQmNjZ0s4OTNSdVNK?=
- =?utf-8?B?QmUrZ3RUSVZPcHMrcm94bkRoM2hzdVBNZEJscWlzRDErRjRrdEMwaURYbDdP?=
- =?utf-8?B?aldtRGxOT0Y3N0s4WStXdkV0MzBJZmlSS3orL1FNaDBwZ2IvRFlhNkFDdUpH?=
- =?utf-8?B?dmNBSklEcmJjemFNeTVZdVcxdHBtRmIyL256Y1dJNUtBb0NyclZWaWV2WmhG?=
- =?utf-8?B?NGJBUUE3UnBwMSsxL1VPUVZuK3IwN1VzelhBeFc5L3c5eWVkakh4QmNTRGlV?=
- =?utf-8?B?ZEpaOXV6aVQ3elZjaHBoNGJRTE5SK3ZoNmJFeUdRN1ZTU2JEaXpmcDZURmtJ?=
- =?utf-8?B?SHA5eW5oOVFsUUYrUmtqQUh3aHg1anBiNlhXbWtQWFRWYXYvRzdDZ3c5eUFH?=
- =?utf-8?B?L3lsSEdVTTNGM0p2bjJScHB2UURSbGFmTStXSnl4UTBzVjhacDI1TVpIa1ZX?=
- =?utf-8?B?TDkzNWRNaGN1NFpwS1hpUmxkVlZRK0o4UGZ0NXNLZENZNTdkR1ZzYmVwL1ZM?=
- =?utf-8?B?bEMxdUlBUXNDK1JUTDhSWDM3NnlRbWdybWU1ZlFuaS82NEttc04xeEcrWVFP?=
- =?utf-8?B?OFF5MXJESzN2RDBLZkJVRWFHeDh3ZlRuQW1VL2I5YzBnUHByVVV6cHRPZ3ht?=
- =?utf-8?B?bGdrbWFicWg2dTZCa2IwaWRmSlJDL1VXemdyRkNhTUZlK3pnMlRmL09DZU44?=
- =?utf-8?B?MDhoZEY2NmEvUWhXeWFsMFNxd1IrdzlZd3ZvWkMydHgzQ1hsc01EelppVWJp?=
- =?utf-8?B?alhnbk9vbWtrdUJydk1QWWMwVmdibGRVbWZ3UkR2ZzNWcEdheEo1Qm1QQmZa?=
- =?utf-8?B?YUJabzQvbkVrUEgxSENYYU45MXZoa0dEbVZVMGNyMjE5RHRrYU1XUTVPR1da?=
- =?utf-8?B?am9rbW13WTNnQy9LaUVnZnVhYUNTNVFYUS9SblJjVTFId0ErYVZPcmxrQXVp?=
- =?utf-8?B?Y2czNk1rU2lmdEpZYnBKSEZreGFyVTRHSG9FZ1UrUHVaQU1BL053WFVaR3Jo?=
- =?utf-8?B?UGp0cU1aSHRheFhhcWNFcGNaTm5xL0JJd1dDdzVYRWV2R3NoYXpiNkFyTG1Z?=
- =?utf-8?B?b0pYdnNZSE96Z2NsSWZLczJiT3dhUGErM3d5cWRpaEJMczZQTll0anpLQlpY?=
- =?utf-8?B?THBOQ0gxdkNteWRDK2pkVmZpY0d1TkFGaUExaVdkMmx2RkVlWmpMVXFJUmJL?=
- =?utf-8?B?RHRhQU5xY0RhMkYwMzAvUDYrMkV1bXFkV1JvcUJRY0hHNktPbFZ5MnNiZ28r?=
- =?utf-8?B?ai9EWDQvQklEbUw0ZVdQMWF0S04zYTlRRFNPOVg3ZGVEMzhrVEMxMjQzV3Er?=
- =?utf-8?B?SXhPbkwzSEhZblpidEdKUG8zb29LVE5RdFVrc20vcUxuZjJ2a2N5TmhUSXFz?=
- =?utf-8?B?WkNjMG1mSHBKak1acjRDazgrNjE4SGlhZkwvQlRZSVNvcU5EU3ZzUEY3Y2Y2?=
- =?utf-8?Q?m84PafrnhGJIgZbx+ciLzD/3/Xch/GGp5TFnU4c?=
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?0uObFFL2iagfEQsrlEhqT+/LaSC1XYS+W0FvdAWhmXBKLELOsIXjj8RhsLQU?=
+ =?us-ascii?Q?Av3xOvxfqtSZtpUdx7NWATqmRynQ6ITpcdPSNG+Ru+WrUwRGg5Ulw3Gxo4bF?=
+ =?us-ascii?Q?Vylr+iwpupCwzutqZTpOoVTzukN9aLBngudTuSFOsxVUqP2oBbU83I4MheAa?=
+ =?us-ascii?Q?aseHN3RWFUPACt2sruQVa7BnSJt92Tpxumd9i84rhcME9aKfj7CyPAUkX/J3?=
+ =?us-ascii?Q?8kvr4geeo3ZBcgLk450yupx+SPOnEpcZvcNLAS1T9c7NUtx649NJXRALuPui?=
+ =?us-ascii?Q?AqyKFsqMYGScfQwYspcWZINTGo/LcoWGDXHRDP9O2oowor7wAxf+eGRSDnzq?=
+ =?us-ascii?Q?5Ti+M/9CpS/3bBi21VILUVFZTxfBHMlAJaHiMtu249tE6OCfUQj5naLdeQFo?=
+ =?us-ascii?Q?EgnOvVKaRsFcIC1kYzAohUfgqXlR3A9ro6kxWFs58SAt/ndXSQAbu0v6Ga0e?=
+ =?us-ascii?Q?fcBBYMNsCik1CjRG+Ol8Yyn2Lzyd6Pz6hCjX25GD613EwMwzfq2BBtrMoDvG?=
+ =?us-ascii?Q?2kSNMaF4Re6aTvvSy5hPbmZGnvrXAyPlOF8vXUjfm1xPME7kHCiMh7EgTnyw?=
+ =?us-ascii?Q?bE7BD9vdQ7FeV6uX6gm9IsObLMza0wZNjsa9j/nKeLjwYk0+bUZyyv+ZyDcs?=
+ =?us-ascii?Q?9UF13qSXaX0PzSsdENTzUeXaD0Jic/w7QnUu0B+EqhUpFve2nVa6uFuexjxB?=
+ =?us-ascii?Q?KzyoyY5e0PmyPdx31K0/+VIatWvArmxLCgLcoFSe4uDNmN1oRUOzN8Lflqgx?=
+ =?us-ascii?Q?eHT6h0OyuSfTK1E7ae0Hf1cCFtNo8JRjneQsgotDtlKvgICgT4kf0SHfYtCD?=
+ =?us-ascii?Q?uKFmPgbGLUIZ5ZcMLRPezfE8cRcHlcwHLp0F4CKVEC4zykiNLKraDBtOkZIN?=
+ =?us-ascii?Q?/sChw3Molc2Ly/Uovk0Knb192tfLWRQF/XsmCXzA8xKCUQY50bj2jzK8hHQA?=
+ =?us-ascii?Q?92yvjykgxtQE2Eb17AMDq7raFYLZ9PI4niriWwxuHGCjT5Uce/xlPeUszOo4?=
+ =?us-ascii?Q?4e/WdIgtctNvnw1euLYjNHfS4QIx5cYwwf4aj5ZemIdy24GP/3K32Ls8vrJn?=
+ =?us-ascii?Q?FhVSvP9UjmYkVv9Bj7MZITM9fyrXLWQ0gtzU74iZJSge2BeORqlqwfS8nnDI?=
+ =?us-ascii?Q?rFUsHSshYtRijNoN3GjRQu/csTOmPlEWJoJAFTxocKXNHEkMR9s+EjdndK34?=
+ =?us-ascii?Q?jGnLDkfb3uNGmbercDR17azNUDue9Qy858v8rteSGE3sNT3L8NCCog68ZDvZ?=
+ =?us-ascii?Q?WnQUVUK6MHRxS/FhuXN4CYC8i6I9o0DTv3y7JKQHqTwjl4aU0gJUkj6OIhZH?=
+ =?us-ascii?Q?lmbT+DQkva5UfOHZhBHorlly?=
 x-ms-exchange-transport-forked: True
 MIME-Version: 1.0
 X-OriginatorOrg: Nvidia.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4dda5d90-c54d-40c0-12aa-08d94abf99b4
-X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Jul 2021 14:15:02.6644 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 13a936b6-1c0e-4926-5b9f-08d94ac05c80
+X-MS-Exchange-CrossTenant-originalarrivaltime: 19 Jul 2021 14:20:29.4851 (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: aKm+DTMeMGhFH6wcltr9qom40suuuaspkUuDfaaxy+i7o8ixXp3M+lOhanNB7Qd0x7kK9kMOr+O5klv+iAG8zw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB5452
+X-MS-Exchange-CrossTenant-userprincipalname: b/QZptzj9LlmI2oB8cVY6KA9obgSdme3yAgBkxEyly7O2mE+n8vCUaEzMnShVPB00z2H4kou9RBsHsRAS9G/rw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB5465
 Cc: "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -166,56 +161,114 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 From: Parav Pandit via Virtualization
  <virtualization@lists.linux-foundation.org>
 Reply-To: Parav Pandit <parav@nvidia.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-DQoNCj4gRnJvbTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4NCj4gU2VudDog
-TW9uZGF5LCBKdWx5IDE5LCAyMDIxIDU6MzcgUE0NCj4gDQo+IE9uIE1vbiwgSnVsIDE5LCAyMDIx
-IGF0IDA1OjQ0OjQ5QU0gKzAwMDAsIFBhcmF2IFBhbmRpdCB3cm90ZToNCj4gPg0KPiA+DQo+ID4g
-PiBGcm9tOiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPg0KPiA+ID4gU2VudDog
-U3VuZGF5LCBKdWx5IDE4LCAyMDIxIDI6MTcgQU0NCj4gPiA+DQo+ID4gPiBPbiBTYXQsIEp1bCAx
-NywgMjAyMSBhdCAxMDo0Mjo1OEFNICswMzAwLCBQYXJhdiBQYW5kaXQgd3JvdGU6DQo+ID4gPiA+
-IFdoZW4gYSB2aXJ0aW8gcGNpIGRldmljZSB1bmRlcmdvIHN1cnByaXNlIHJlbW92YWwgKGFrYSBh
-c3luYw0KPiA+ID4gPiByZW1vdmFsbiBpbg0KPiA+ID4NCj4gPiA+IHR5cG8NCj4gPiBGaXhpbmcg
-aXQuIENoZWNrcGF0Y2gucGwgYW5kIGNvZGVzcGVsbCwgYm90aCBkaWRuJ3QgY2F0Y2ggaXQuIPCf
-mIoNCj4gPg0KPiA+ID4NCj4gPiA+IE9LIHRoYXQncyBuaWNlLCBidXQgSSBzdXNwZWN0IHRoaXMg
-aXMgbm90IGVub3VnaC4NCj4gPiA+IEZvciBleGFtcGxlIHdlIG5lZWQgdG8gYWxzbyBmaXggdXAg
-YWxsIGNvbmZpZyBzcGFjZSByZWFkcyB0byBoYW5kbGUNCj4gPiA+IGFsbC1vbmVzIHBhdHRlcm5z
-IHNwZWNpYWxseS4NCj4gPiA+DQo+ID4gPiBFLmcuDQo+ID4gPg0KPiA+ID4gICAgICAgICAvKiBB
-ZnRlciB3cml0aW5nIDAgdG8gZGV2aWNlX3N0YXR1cywgdGhlIGRyaXZlciBNVVNUIHdhaXQgZm9y
-IGEgcmVhZCBvZg0KPiA+ID4gICAgICAgICAgKiBkZXZpY2Vfc3RhdHVzIHRvIHJldHVybiAwIGJl
-Zm9yZSByZWluaXRpYWxpemluZyB0aGUgZGV2aWNlLg0KPiA+ID4gICAgICAgICAgKiBUaGlzIHdp
-bGwgZmx1c2ggb3V0IHRoZSBzdGF0dXMgd3JpdGUsIGFuZCBmbHVzaCBpbiBkZXZpY2Ugd3JpdGVz
-LA0KPiA+ID4gICAgICAgICAgKiBpbmNsdWRpbmcgTVNJLVggaW50ZXJydXB0cywgaWYgYW55Lg0K
-PiA+ID4gICAgICAgICAgKi8NCj4gPiA+ICAgICAgICAgd2hpbGUgKHZwX21vZGVybl9nZXRfc3Rh
-dHVzKG1kZXYpKQ0KPiA+ID4gICAgICAgICAgICAgICAgIG1zbGVlcCgxKTsNCj4gPiA+DQo+ID4g
-PiBsb3RzIG9mIGNvZGUgaW4gZHJpdmVycyBuZWVkcyB0byBiZSBmaXhlZCB0b28uDQo+ID4gQWJv
-dmUgb25lIHBhcnRpY3VsYXJseSBrbm93biB0byB1cyBpbiB0aGUgaG90IHBsdWcgYXJlYS4NCj4g
-PiBBYm92ZSBmaXggaXMgbmVlZGVkIHRvIGNsb3NlIHRoZSByYWNlIG9mIGhvdCBwbHVnIGFuZCB1
-bnBsdWcgaGFwcGVuaW5nIGluDQo+IHBhcmFsbGVsLCB3aGljaCBpcyBvY2N1cnJpbmcgdG9kYXks
-IGJ1dCBsZXNzIGNvbW1vbi4NCj4gPiBJdCBpcyBpbiBteSB0b2RvIGxpc3QgdG8gZml4IGl0Lg0K
-PiA+IFdpbGwgdGFrZSBjYXJlIG9mIGl0IGluIG5lYXIgZnV0dXJlIGluIG90aGVyIHNlcmllcy4N
-Cj4gPg0KPiA+ID4NCj4gPiA+IEkgZ3Vlc3Mgd2UgbmVlZCB0byBhbm5vdGF0ZSBkcml2ZXJzIHNv
-bWVob3cgdG8gbWFyayB1cCB3aGV0aGVyIHRoZXkNCj4gPiA+IHN1cHBvcnQgc3VycHJpc2UgcmVt
-b3ZhbD8gQW5kIG1heWJlIGZpbmQgYSB3YXkgdG8gbGV0IGhvc3Qga25vdz8NCj4gPiBXaGF0IGlz
-IHRoZSBiZW5lZml0IG9mIGl0PyBXaG8gY2FuIG1ha2UgdXNlIG9mIHRoYXQgaW5mb3JtYXRpb24/
-DQo+IA0KPiBGb3IgZXhhbXBsZSwgaG9zdCBjb3VsZCBhdm9pZCByZW1vdmluZyBkZXZpY2VzIGJ5
-IGhvdCByZW1vdmFsIGlmIGd1ZXN0IGlzDQo+IG5vdCByZWFkeSBmb3IgaXQuIE9yIGxpYm9zaW5m
-byBjb3VsZCB1c2UgdGhhdCB0byB0ZWxsIHVzZXJzIHdoYXQgdG8gZG8uDQpOb3Qgc3VyZSBob3cg
-dG8gYWNoaWV2ZSBpdC4gQmVjYXVzZSB0aGlzIGlzIGRlY2lkZWQgYnkgdGhlIHBjaSBob3QgcGx1
-ZyBkcml2ZXIgYXQgYml0IGVhcmx5IHN0YWdlLg0KQW5kIHBjaSBob3QgcGx1ZyBzbG90IGRvZXNu
-J3Qga25vdyB3aGF0IGlzIGdvaW5nIHRvIGFycml2ZSBpbiBpdC4NCg0KPiANCj4gPiBJbiB2aXJ0
-aW8gcGNpIGNhc2UsIGl0IGlzIHNpbWlsYXIgaW1wcm92ZW1lbnQgdG8gd2hhdCBudm1lIHBjaSBk
-cml2ZXIgd2VudA0KPiB0aHJvdWdoIGZldyB5ZWFycyBiYWNrIHRvIHN1cHBvcnQgaG90IHBsdWcv
-dW5wbHVnLg0KPiA+IExldHMgY29tcGxldGUgdGhpcyBvZiBmaXhlcyB0byBtYWtlIGl0IGxpdHRs
-ZSBtb3JlIHJvYnVzdCBsaWtlIG52bWUuDQo+IA0KPiBBdCBsZWFzdCBwbGVhc2UgbWVudGlvbiBp
-biBjb21taXQgbG9nIHRoYXQgaXQncyBpbmNvbXBsZXRlLg0KVGhpcyBmaXggaXMgc2VsZi1jb250
-YWluZWQuIEkgZG9u4oCZdCBzZWUgbWVudGlvbmluZyBhYm91dCBvdGhlciBidWdzIGluIHRoaXMg
-Y29tbWl0IGxvZy4NCkJ1dCBzdXJlIHllcywgSSB3aWxsIG1lbnRpb25lZCBpbiB0aGUgY292ZXIg
-bGV0dGVyIHRoYXQgbW9yZSBpbXByb3ZlbWVudHMgd2lsbCBiZSBkb25lIHN1YnNlcXVlbnRseS4N
-ClRoYW5rcy4NCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+
+> From: Michael S. Tsirkin <mst@redhat.com>
+> Sent: Monday, July 19, 2021 5:35 PM
+> 
+> On Mon, Jul 19, 2021 at 05:26:22AM +0000, Parav Pandit wrote:
+> >
+> >
+> > > From: Michael S. Tsirkin <mst@redhat.com>
+> > > Sent: Sunday, July 18, 2021 2:09 AM
+> > >
+> > > On Sat, Jul 17, 2021 at 10:42:55AM +0300, Parav Pandit wrote:
+> > > > Currently vq->broken field is read by virtqueue_is_broken() in
+> > > > busy loop in one context by virtnet_send_command().
+> > > >
+> > > > vq->broken is set to true in other process context by
+> > > > virtio_break_device(). Reader and writer are accessing it without
+> > > > any synchronization. This may lead to a compiler optimization
+> > > > which may result to optimize reading vq->broken only once.
+> > > >
+> > > > Hence, force reading vq->broken on each invocation of
+> > > > virtqueue_is_broken() and ensure that its update is visible.
+> > > >
+> > > > Fixes: e2dcdfe95c0b ("virtio: virtio_break_device() to mark all
+> > > > virtqueues broken.")
+> > >
+> > > This is all theoretical right?
+> > > virtqueue_get_buf is not inlined so compiler generally assumes any
+> > > vq field can change.
+> > Broken bit checking cannot rely on some other kernel API for correctness.
+> > So it possibly not hitting this case now, but we shouldn't depend other APIs
+> usage to ensure correctness.
+> >
+> > >
+> > > I'm inclined to not include a Fixes
+> > > tag then. And please do change subject to say "theoretical"
+> > > to make that clear to people.
+> > >
+> > I do not have any strong opinion on fixes tag. But virtio_broken_queue()
+> API should be self-contained; for that I am not sure if this just theoretical.
+> > Do you mean theoretical, because we haven't hit this bug?
+> 
+> Because with existing code I don't believe existing compilers are clever
+> enough to optimize this away.
+Ok. got it. I will mention in the commit log.
+
+> 
+> > > > Signed-off-by: Parav Pandit <parav@nvidia.com>
+> > > > ---
+> > > >  drivers/virtio/virtio_ring.c | 6 ++++--
+> > > >  1 file changed, 4 insertions(+), 2 deletions(-)
+> > > >
+> > > > diff --git a/drivers/virtio/virtio_ring.c
+> > > > b/drivers/virtio/virtio_ring.c index 89bfe46a8a7f..7f379fe7d78d
+> > > > 100644
+> > > > --- a/drivers/virtio/virtio_ring.c
+> > > > +++ b/drivers/virtio/virtio_ring.c
+> > > > @@ -2373,7 +2373,7 @@ bool virtqueue_is_broken(struct virtqueue
+> > > > *_vq) {
+> > > >  	struct vring_virtqueue *vq = to_vvq(_vq);
+> > > >
+> > > > -	return vq->broken;
+> > > > +	return READ_ONCE(vq->broken);
+> > > >  }
+> > > >  EXPORT_SYMBOL_GPL(virtqueue_is_broken);
+> > > >
+> > > > @@ -2387,7 +2387,9 @@ void virtio_break_device(struct
+> > > > virtio_device
+> > > > *dev)
+> > > >
+> > > >  	list_for_each_entry(_vq, &dev->vqs, list) {
+> > > >  		struct vring_virtqueue *vq = to_vvq(_vq);
+> > > > -		vq->broken = true;
+> > > > +
+> > > > +		/* Pairs with READ_ONCE() in virtqueue_is_broken(). */
+> > > > +		smp_store_release(&vq->broken, true);
+> > >
+> > > A bit puzzled here. Why do we need release semantics here?
+> > > IUC store_release does not generally pair with READ_ONCE - does it?
+> > >
+> > It does; paired at few places, such as,
+> >
+> > (a) in uverbs_main.c, default_async_file
+> > (b) in netlink.c, cb_table
+> > (c) fs/dcache.c i_dir_seq,
+> >
+> > However, in this scenario, WRITE_ONCE() is enough. So I will simplify and
+> use that in v1.
+> >
+> >
+> > > The commit log does not describe this either.
+> > In commit log I mentioned that "ensure that update is visible".
+> > I think a better commit log is, to say: "ensure that broken bit is written".
+> 
+> "is read repeatedly" maybe.
+
+I updated it to below in v2.
+
+" Hence, force reading vq->broken on each invocation of
+virtqueue_is_broken() and also force writing it so that such update is visible to the readers."
+
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
