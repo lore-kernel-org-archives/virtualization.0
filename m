@@ -2,98 +2,92 @@ Return-Path: <SRS0=a9bH=ML=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA023C07E95
-	for <virtualization@archiver.kernel.org>; Mon, 19 Jul 2021 21:04:22 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8351CC07E95
+	for <virtualization@archiver.kernel.org>; Mon, 19 Jul 2021 21:30:20 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5A5A96113E
-	for <virtualization@archiver.kernel.org>; Mon, 19 Jul 2021 21:04:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5A5A96113E
+	by mail.kernel.org (Postfix) with ESMTPS id 06EB7610C7
+	for <virtualization@archiver.kernel.org>; Mon, 19 Jul 2021 21:30:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 06EB7610C7
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0ECDC82F77;
-	Mon, 19 Jul 2021 21:04:22 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id A47CE40365;
+	Mon, 19 Jul 2021 21:30:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id MIgSzihXyYc6; Mon, 19 Jul 2021 21:04:21 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fUKiVp_VjaEa; Mon, 19 Jul 2021 21:30:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 84AC482D57;
-	Mon, 19 Jul 2021 21:04:20 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id EF7D440363;
+	Mon, 19 Jul 2021 21:30:16 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 56C1BC001A;
-	Mon, 19 Jul 2021 21:04:20 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7DD79C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BFB64C001A;
+	Mon, 19 Jul 2021 21:30:16 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2AAC8C000E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jul 2021 21:04:18 +0000 (UTC)
+ Mon, 19 Jul 2021 21:30:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 692D9402AA
+ by smtp2.osuosl.org (Postfix) with ESMTP id 17F87402AA
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jul 2021 21:04:18 +0000 (UTC)
+ Mon, 19 Jul 2021 21:30:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id EkQ14YAjcLq6
+ with ESMTP id cefKygN_gpg7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jul 2021 21:04:17 +0000 (UTC)
+ Mon, 19 Jul 2021 21:30:13 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 8685240155
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 96DEB400B8
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Jul 2021 21:04:17 +0000 (UTC)
+ Mon, 19 Jul 2021 21:30:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1626728656;
+ s=mimecast20190719; t=1626730212;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=mDzv4r/nKmHoEY/y/S31BYFYyCyd3ydFbHliB67gI10=;
- b=ZypLFW8xkdb+aFF0+TYJSwLYYxoRilXOWlapqh1Q0ab+HWjaMvE0qNEOCF513jq3mnmqTP
- Xf4u2FDuMC+aK3ODd32jdxf25UYJNFcPF83xDHDsZLdNQc/A71nuN6orvpzXWMyG0jYPOB
- Bq1S03cjjNY2iDIPeK2DVGMW8wGjzSU=
+ bh=dG16gNlXaHcUyckB4zj2EV2whasjEhhcwORskpcNxoE=;
+ b=VsjcIP5g4EgAUi7RWucOC4j1CMLplZVnyAT5FBm7Sn/b9sBM6yGUsU4H1VEsoUmQvUFRzs
+ rlHHHV+ao2UPyIy4SO6Va94L66mSZ0B3NyZTbcQiWnu8BBH/LlMl6ZzncdfTd14eGE16cl
+ ru9lIhrdmUpXpJ2Qc/5ldY72b9uvAog=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-590-Lt425qk5P-W4_BxnE0IKdQ-1; Mon, 19 Jul 2021 17:04:15 -0400
-X-MC-Unique: Lt425qk5P-W4_BxnE0IKdQ-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
- [10.5.11.23])
+ us-mta-33-3m2FqKCxPaiSMo1jWbqsxA-1; Mon, 19 Jul 2021 17:30:11 -0400
+X-MC-Unique: 3m2FqKCxPaiSMo1jWbqsxA-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A49EA100C610;
- Mon, 19 Jul 2021 21:04:13 +0000 (UTC)
-Received: from fuller.cnet (ovpn-112-6.gru2.redhat.com [10.97.112.6])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 79F4A2706E;
- Mon, 19 Jul 2021 21:04:01 +0000 (UTC)
-Received: by fuller.cnet (Postfix, from userid 1000)
- id E87DB4172ED4; Mon, 19 Jul 2021 18:03:55 -0300 (-03)
-Date: Mon, 19 Jul 2021 18:03:55 -0300
-From: Marcelo Tosatti <mtosatti@redhat.com>
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [RFC 1/3] cpuidle: add poll_source API
-Message-ID: <20210719210355.GA46373@fuller.cnet>
-References: <20210713161906.457857-1-stefanha@redhat.com>
- <20210713161906.457857-2-stefanha@redhat.com>
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9AB10362F8;
+ Mon, 19 Jul 2021 21:30:09 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-118-17.rdu2.redhat.com [10.10.118.17])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id A92535D9D3;
+ Mon, 19 Jul 2021 21:30:04 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+ id 32E71223E4F; Mon, 19 Jul 2021 17:30:04 -0400 (EDT)
+Date: Mon, 19 Jul 2021 17:30:04 -0400
+From: Vivek Goyal <vgoyal@redhat.com>
+To: Jeffle Xu <jefflexu@linux.alibaba.com>
+Subject: Re: [PATCH v2 0/4] virtiofs,fuse: support per-file DAX
+Message-ID: <YPXu3BefIi7Ts48I@redhat.com>
+References: <20210716104753.74377-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20210713161906.457857-2-stefanha@redhat.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-Cc: Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@infradead.org>,
- "Michael S . Tsirkin" <mst@redhat.com>,
- Daniel Lezcano <daniel.lezcano@linaro.org>,
- "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-kernel@vger.kernel.org,
- Ming Lei <ming.lei@redhat.com>, linux-block@vger.kernel.org,
- linux-pm@vger.kernel.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <20210716104753.74377-1-jefflexu@linux.alibaba.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Cc: miklos@szeredi.hu, virtualization@lists.linux-foundation.org,
+ joseph.qi@linux.alibaba.com, bo.liu@linux.alibaba.com, stefanha@redhat.com,
+ linux-fsdevel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,191 +104,88 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Stefan,
+On Fri, Jul 16, 2021 at 06:47:49PM +0800, Jeffle Xu wrote:
+> This patchset adds support of per-file DAX for virtiofs, which is
+> inspired by Ira Weiny's work on ext4[1] and xfs[2].
+> 
+> There are three related scenarios:
+> 1. Alloc inode: get per-file DAX flag from fuse_attr.flags. (patch 3)
+> 2. Per-file DAX flag changes when the file has been opened. (patch 3)
+> In this case, the dentry and inode are all marked as DONT_CACHE, and
+> the DAX state won't be updated until the file is closed and reopened
+> later.
+> 3. Users can change the per-file DAX flag inside the guest by chattr(1).
+> (patch 4)
+> 4. Create new files under directories with DAX enabled. When creating
+> new files in ext4/xfs on host, the new created files will inherit the
+> per-file DAX flag from the directory, and thus the new created files in
+> virtiofs will also inherit the per-file DAX flag if the fuse server
+> derives fuse_attr.flags from the underlying ext4/xfs inode's per-file
+> DAX flag.
 
-On Tue, Jul 13, 2021 at 05:19:04PM +0100, Stefan Hajnoczi wrote:
-> Introduce an API for adding cpuidle poll callbacks:
-> 
->   struct poll_source_ops {
->       void (*start)(struct poll_source *src);
->       void (*stop)(struct poll_source *src);
->       void (*poll)(struct poll_source *src);
->   };
-> 
->   int poll_source_register(struct poll_source *src);
->   int poll_source_unregister(struct poll_source *src);
-> 
-> When cpuidle enters the poll state it invokes ->start() and then invokes
-> ->poll() repeatedly from the busy wait loop. Finally ->stop() is invoked
-> when the busy wait loop finishes.
-> 
-> The ->poll() function should check for activity and cause
-> TIF_NEED_RESCHED to be set in order to stop the busy wait loop.
-> 
-> This API is intended to be used by drivers that can cheaply poll for
-> events. Participating in cpuidle polling allows them to avoid interrupt
-> latencies during periods where the CPU is going to poll anyway.
-> 
-> Note that each poll_source is bound to a particular CPU. The API is
-> mainly intended to by used by drivers that have multiple queues with irq
-> affinity.
-> 
-> Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
-> ---
->  drivers/cpuidle/Makefile      |  1 +
->  include/linux/poll_source.h   | 53 +++++++++++++++++++
->  drivers/cpuidle/poll_source.c | 99 +++++++++++++++++++++++++++++++++++
->  drivers/cpuidle/poll_state.c  |  6 +++
->  4 files changed, 159 insertions(+)
->  create mode 100644 include/linux/poll_source.h
->  create mode 100644 drivers/cpuidle/poll_source.c
-> 
-> diff --git a/drivers/cpuidle/Makefile b/drivers/cpuidle/Makefile
-> index 26bbc5e74123..994f72d6fe95 100644
-> --- a/drivers/cpuidle/Makefile
-> +++ b/drivers/cpuidle/Makefile
-> @@ -7,6 +7,7 @@ obj-y += cpuidle.o driver.o governor.o sysfs.o governors/
->  obj-$(CONFIG_ARCH_NEEDS_CPU_IDLE_COUPLED) += coupled.o
->  obj-$(CONFIG_DT_IDLE_STATES)		  += dt_idle_states.o
->  obj-$(CONFIG_ARCH_HAS_CPU_RELAX)	  += poll_state.o
-> +obj-$(CONFIG_ARCH_HAS_CPU_RELAX)	  += poll_source.o
->  obj-$(CONFIG_HALTPOLL_CPUIDLE)		  += cpuidle-haltpoll.o
->  
->  ##################################################################################
-> diff --git a/include/linux/poll_source.h b/include/linux/poll_source.h
-> new file mode 100644
-> index 000000000000..ccfb424e170b
-> --- /dev/null
-> +++ b/include/linux/poll_source.h
-> @@ -0,0 +1,53 @@
-> +/* SPDX-License-Identifier: GPL-2.0-or-later */
-> +/*
-> + * poll_source.h - cpuidle busy waiting API
-> + */
-> +#ifndef __LINUX_POLLSOURCE_H__
-> +#define __LINUX_POLLSOURCE_H__
-> +
-> +#include <linux/list.h>
-> +
-> +struct poll_source;
-> +
-> +struct poll_source_ops {
-> +	void (*start)(struct poll_source *src);
-> +	void (*stop)(struct poll_source *src);
-> +	void (*poll)(struct poll_source *src);
-> +};
-> +
-> +struct poll_source {
-> +	const struct poll_source_ops *ops;
-> +	struct list_head node;
-> +	int cpu;
-> +};
-> +
-> +/**
-> + * poll_source_register - Add a poll_source for a CPU
-> + */
-> +#if defined(CONFIG_CPU_IDLE) && defined(CONFIG_ARCH_HAS_CPU_RELAX)
-> +int poll_source_register(struct poll_source *src);
-> +#else
-> +static inline int poll_source_register(struct poll_source *src)
-> +{
-> +	return 0;
-> +}
-> +#endif
-> +
-> +/**
-> + * poll_source_unregister - Remove a previously registered poll_source
-> + */
-> +#if defined(CONFIG_CPU_IDLE) && defined(CONFIG_ARCH_HAS_CPU_RELAX)
-> +int poll_source_unregister(struct poll_source *src);
-> +#else
-> +static inline int poll_source_unregister(struct poll_source *src)
-> +{
-> +	return 0;
-> +}
-> +#endif
-> +
-> +/* Used by the cpuidle driver */
-> +void poll_source_start(void);
-> +void poll_source_run_once(void);
-> +void poll_source_stop(void);
-> +
-> +#endif /* __LINUX_POLLSOURCE_H__ */
-> diff --git a/drivers/cpuidle/poll_source.c b/drivers/cpuidle/poll_source.c
-> new file mode 100644
-> index 000000000000..46100e5a71e4
-> --- /dev/null
-> +++ b/drivers/cpuidle/poll_source.c
-> @@ -0,0 +1,99 @@
-> +// SPDX-License-Identifier: GPL-2.0-or-later
-> +/*
-> + * poll_source.c - cpuidle busy waiting API
-> + */
-> +
-> +#include <linux/lockdep.h>
-> +#include <linux/percpu.h>
-> +#include <linux/poll_source.h>
-> +
-> +/* The per-cpu list of registered poll sources */
-> +DEFINE_PER_CPU(struct list_head, poll_source_list);
-> +
-> +/* Called from idle task with TIF_POLLING_NRFLAG set and irqs enabled */
-> +void poll_source_start(void)
-> +{
-> +	struct poll_source *src;
-> +
-> +	list_for_each_entry(src, this_cpu_ptr(&poll_source_list), node)
-> +		src->ops->start(src);
-> +}
-> +
-> +/* Called from idle task with TIF_POLLING_NRFLAG set and irqs enabled */
-> +void poll_source_run_once(void)
-> +{
-> +	struct poll_source *src;
-> +
-> +	list_for_each_entry(src, this_cpu_ptr(&poll_source_list), node)
-> +		src->ops->poll(src);
-> +}
-> +
-> +/* Called from idle task with TIF_POLLING_NRFLAG set and irqs enabled */
-> +void poll_source_stop(void)
-> +{
-> +	struct poll_source *src;
-> +
-> +	list_for_each_entry(src, this_cpu_ptr(&poll_source_list), node)
-> +		src->ops->stop(src);
-> +}
-> +
-> +static void poll_source_register_this_cpu(void *opaque)
-> +{
-> +	struct poll_source *src = opaque;
-> +
-> +	lockdep_assert_irqs_disabled();
-> +
-> +	list_add_tail(&src->node, this_cpu_ptr(&poll_source_list));
-> +}
-> +
-> +int poll_source_register(struct poll_source *src)
-> +{
-> +	if (!list_empty(&src->node))
-> +		return -EBUSY;
-> +
-> +	/*
-> +	 * There is no race with src->cpu iterating over poll_source_list
-> +	 * because smp_call_function_single() just sets TIF_NEED_RESCHED
+Thinking little bit more about this from requirement perspective. I think
+we are trying to address two use cases here.
 
-Hum... what about 
+A. Client does not know which files DAX should be used on. Only server
+   knows it and server passes this information to client. I suspect
+   that's your primary use case.
 
-CPU-0				CPU-1
+B. Client is driving which files are supposed to be using DAX. This is
+   exactly same as the model ext4/xfs are using by storing a persistent
+   flag on inode. 
 
-poll_source_start		poll_source_register IPI'ing CPU-0
+Current patches seem to be a hybrid of both approach A and B. 
 
-Perhaps a llist can be used?
+If we were to implement B, then fuse client probably needs to have the
+capability to query FS_XFLAG_DAX on inode and decide whether to
+enable DAX or not. (Without extra round trip). Or know it indirectly
+by extending GETATTR and requesting this explicitly.
 
->               while (!need_resched()) {
-> +                     poll_source_run_once();
+If we were only implementing A, then server does not have a way to 
+tell client to enable DAX. Server can either look at FS_XFLAG_DAX
+and decide to enable DAX or use some other property. Given querying
+FS_XFLAG_DAX will be an extra ioctl() on every inode lookup/getattr,
+it probably will be a server option. But enabling on server does not
+mean client will enable it.
 
-Probably want to use static_key's for ->start, ->stop and ->poll?
+I think my primary concern with this patch right now is trying to
+figure out which requirement we are trying to cater to first and how
+to connect server and client well so they both understand what mode
+they are operating in and interact well.
+
+Vivek
+
+> 
+> 
+> Any comment is welcome.
+> 
+> [1] commit 9cb20f94afcd ("fs/ext4: Make DAX mount option a tri-state")
+> [2] commit 02beb2686ff9 ("fs/xfs: Make DAX mount option a tri-state")
+> 
+> 
+> changes since v1:
+> - add support for changing per-file DAX flags inside guest (patch 4)
+> 
+> v1:https://www.spinics.net/lists/linux-virtualization/msg51008.html
+> 
+> Jeffle Xu (4):
+>   fuse: add fuse_should_enable_dax() helper
+>   fuse: Make DAX mount option a tri-state
+>   fuse: add per-file DAX flag
+>   fuse: support changing per-file DAX flag inside guest
+> 
+>  fs/fuse/dax.c             | 36 ++++++++++++++++++++++++++++++++++--
+>  fs/fuse/file.c            |  4 ++--
+>  fs/fuse/fuse_i.h          | 16 ++++++++++++----
+>  fs/fuse/inode.c           |  7 +++++--
+>  fs/fuse/ioctl.c           |  9 ++++++---
+>  fs/fuse/virtio_fs.c       | 16 ++++++++++++++--
+>  include/uapi/linux/fuse.h |  5 +++++
+>  7 files changed, 78 insertions(+), 15 deletions(-)
+> 
+> -- 
+> 2.27.0
+> 
 
 _______________________________________________
 Virtualization mailing list
