@@ -2,101 +2,77 @@ Return-Path: <SRS0=6mDK=MM=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46BAAC07E9B
-	for <virtualization@archiver.kernel.org>; Tue, 20 Jul 2021 09:07:45 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 937B6C07E95
+	for <virtualization@archiver.kernel.org>; Tue, 20 Jul 2021 09:22:34 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E67E061209
-	for <virtualization@archiver.kernel.org>; Tue, 20 Jul 2021 09:07:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E67E061209
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id 426C9611F2
+	for <virtualization@archiver.kernel.org>; Tue, 20 Jul 2021 09:22:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 426C9611F2
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 0BD76403BA;
-	Tue, 20 Jul 2021 09:07:44 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 00D6B824CE;
+	Tue, 20 Jul 2021 09:22:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pQn1HFBiZ8lF; Tue, 20 Jul 2021 09:07:43 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FM3zRFYQLGsi; Tue, 20 Jul 2021 09:22:33 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9B0E340392;
-	Tue, 20 Jul 2021 09:07:40 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 7F39981D65;
+	Tue, 20 Jul 2021 09:22:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6D6C6C0010;
-	Tue, 20 Jul 2021 09:07:40 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 29AE9C0010;
+	Tue, 20 Jul 2021 09:22:32 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1102EC000E
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3A28AC000E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Jul 2021 09:07:39 +0000 (UTC)
+ Tue, 20 Jul 2021 09:22:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id E598960813
+ by smtp3.osuosl.org (Postfix) with ESMTP id 0E4A960796
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Jul 2021 09:07:38 +0000 (UTC)
+ Tue, 20 Jul 2021 09:22:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.de header.b="qPP+VPih";
- dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
- header.d=suse.de header.b="Cqa4nl1n"
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MH-mrg6yMydr
+ with ESMTP id hvegyteyN4BI
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Jul 2021 09:07:36 +0000 (UTC)
+ Tue, 20 Jul 2021 09:22:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 08822607F3
+Received: from out30-54.freemail.mail.aliyun.com
+ (out30-54.freemail.mail.aliyun.com [115.124.30.54])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id BC224605F2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 20 Jul 2021 09:07:35 +0000 (UTC)
-Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id 3F96F1FD3E;
- Tue, 20 Jul 2021 09:07:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1626772053; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=QfevtJ7CO69XvR/FgxUv0tcNBb6dOkmnHZF1Y+3ecPE=;
- b=qPP+VPihQCLt5SbGo30Cs//xoYyzsjBqGVUjA1v7oynKA9Cpsold5dkRVWMNHDcSRlokhM
- LCow4zT5u2rnHLYUO2ZSdDffdy0kluHmt+QDRZjUPkycsfob/l4ri3ItuHoA1M49cw+IO6
- 6tZ/1WMRGEGu9BMKvVp4Kr+7n7Rcpac=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1626772053;
- h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=QfevtJ7CO69XvR/FgxUv0tcNBb6dOkmnHZF1Y+3ecPE=;
- b=Cqa4nl1n11cdmVl8DLDjDwA/2gnzCV/ihRUyR8BgzbHvrr18EHskqB+DQPNMIsOG1Ft4ET
- YFTG7BbQu9ai/GAA==
-Received: from imap1.suse-dmz.suse.de (imap1.suse-dmz.suse.de [192.168.254.73])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap1.suse-dmz.suse.de (Postfix) with ESMTPS id 0403213A2E;
- Tue, 20 Jul 2021 09:07:32 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap1.suse-dmz.suse.de with ESMTPSA id pTTIOVSS9mD+FgAAGKfGzw
- (envelope-from <tzimmermann@suse.de>); Tue, 20 Jul 2021 09:07:32 +0000
-Subject: Re: [PATCH -next v2 resend] drm/bochs: Fix missing
- pci_disable_device() on error in bochs_pci_probe()
-To: Yang Yingliang <yangyingliang@huawei.com>, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
-References: <20210715132845.2415619-1-yangyingliang@huawei.com>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <5c3f06d5-509a-0e59-7021-d25180f82de9@suse.de>
-Date: Tue, 20 Jul 2021 11:07:32 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+ Tue, 20 Jul 2021 09:22:28 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R211e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=7; SR=0; TI=SMTPD_---0UgPaTDY_1626772944; 
+Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com
+ fp:SMTPD_---0UgPaTDY_1626772944) by smtp.aliyun-inc.com(127.0.0.1);
+ Tue, 20 Jul 2021 17:22:25 +0800
+Subject: Re: [PATCH v2 3/4] fuse: add per-file DAX flag
+From: JeffleXu <jefflexu@linux.alibaba.com>
+To: Vivek Goyal <vgoyal@redhat.com>
+References: <20210716104753.74377-1-jefflexu@linux.alibaba.com>
+ <20210716104753.74377-4-jefflexu@linux.alibaba.com>
+ <YPXWA+Uo5vFuHCH0@redhat.com>
+ <61bca75f-2efa-f032-41d6-fcb525d8b528@linux.alibaba.com>
+Message-ID: <9746c189-bbce-738c-7308-bdf094996bc8@linux.alibaba.com>
+Date: Tue, 20 Jul 2021 17:22:24 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <20210715132845.2415619-1-yangyingliang@huawei.com>
-Cc: airlied@linux.ie, daniel@ffwll.ch
+In-Reply-To: <61bca75f-2efa-f032-41d6-fcb525d8b528@linux.alibaba.com>
+Content-Language: en-US
+Cc: miklos@szeredi.hu, virtualization@lists.linux-foundation.org,
+ joseph.qi@linux.alibaba.com, bo.liu@linux.alibaba.com, stefanha@redhat.com,
+ linux-fsdevel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -108,117 +84,133 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============0570905236621416609=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============0570905236621416609==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="1tWaCOjUssnJCaas5KXmJJXzgakIpD6xl"
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---1tWaCOjUssnJCaas5KXmJJXzgakIpD6xl
-Content-Type: multipart/mixed; boundary="3UkehBvmd5mFqfwTL1h90To2blVmYbJVN";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Yang Yingliang <yangyingliang@huawei.com>, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
-Cc: kraxel@redhat.com, airlied@linux.ie, daniel@ffwll.ch
-Message-ID: <5c3f06d5-509a-0e59-7021-d25180f82de9@suse.de>
-Subject: Re: [PATCH -next v2 resend] drm/bochs: Fix missing
- pci_disable_device() on error in bochs_pci_probe()
-References: <20210715132845.2415619-1-yangyingliang@huawei.com>
-In-Reply-To: <20210715132845.2415619-1-yangyingliang@huawei.com>
-
---3UkehBvmd5mFqfwTL1h90To2blVmYbJVN
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
-
-Hi
-
-Am 15.07.21 um 15:28 schrieb Yang Yingliang:
-> Replace pci_enable_device() with pcim_enable_device(),
-> pci_disable_device() will be called in release automatically.
->=20
-> v2:
->    use pcim_enable_device()
->=20
-> Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-> Reported-by: Hulk Robot <hulkci@huawei.com>
-> Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
-
-Thanks, I'll merge it into drm-misc-next as v3. I also had to update the =
-
-path to the bochs driver meanwhile.
-
-Best regards
-Thomas
-
-> ---
->   drivers/gpu/drm/bochs/bochs_drv.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/=
-bochs_drv.c
-> index c828cadbabff..8065c9537237 100644
-> --- a/drivers/gpu/drm/bochs/bochs_drv.c
-> +++ b/drivers/gpu/drm/bochs/bochs_drv.c
-> @@ -118,7 +118,7 @@ static int bochs_pci_probe(struct pci_dev *pdev,
->   	if (IS_ERR(dev))
->   		return PTR_ERR(dev);
->  =20
-> -	ret =3D pci_enable_device(pdev);
-> +	ret =3D pcim_enable_device(pdev);
->   	if (ret)
->   		goto err_free_dev;
->  =20
->=20
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
 
 
---3UkehBvmd5mFqfwTL1h90To2blVmYbJVN--
+On 7/20/21 2:51 PM, JeffleXu wrote:
+> 
+> 
+> On 7/20/21 3:44 AM, Vivek Goyal wrote:
+>> On Fri, Jul 16, 2021 at 06:47:52PM +0800, Jeffle Xu wrote:
+>>> Add one flag for fuse_attr.flags indicating if DAX shall be enabled for
+>>> this file.
+>>>
+>>> When the per-file DAX flag changes for an *opened* file, the state of
+>>> the file won't be updated until this file is closed and reopened later.
+>>>
+>>> Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
+>>> ---
+>>>  fs/fuse/dax.c             | 21 +++++++++++++++++----
+>>>  fs/fuse/file.c            |  4 ++--
+>>>  fs/fuse/fuse_i.h          |  5 +++--
+>>>  fs/fuse/inode.c           |  5 ++++-
+>>>  include/uapi/linux/fuse.h |  5 +++++
+>>>  5 files changed, 31 insertions(+), 9 deletions(-)
+>>>
+>>> diff --git a/fs/fuse/dax.c b/fs/fuse/dax.c
+>>> index a478e824c2d0..0e862119757a 100644
+>>> --- a/fs/fuse/dax.c
+>>> +++ b/fs/fuse/dax.c
+>>> @@ -1341,7 +1341,7 @@ static const struct address_space_operations fuse_dax_file_aops  = {
+>>>  	.invalidatepage	= noop_invalidatepage,
+>>>  };
+>>>  
+>>> -static bool fuse_should_enable_dax(struct inode *inode)
+>>> +static bool fuse_should_enable_dax(struct inode *inode, unsigned int flags)
+>>>  {
+>>>  	struct fuse_conn *fc = get_fuse_conn(inode);
+>>>  	unsigned int mode;
+>>> @@ -1354,18 +1354,31 @@ static bool fuse_should_enable_dax(struct inode *inode)
+>>>  	if (mode == FUSE_DAX_MOUNT_NEVER)
+>>>  		return false;
+>>>  
+>>> -	return true;
+>>> +	if (mode == FUSE_DAX_MOUNT_ALWAYS)
+>>> +		return true;
+>>> +
+>>> +	WARN_ON(mode != FUSE_DAX_MOUNT_INODE);
+>>> +	return flags & FUSE_ATTR_DAX;
+>>>  }
+>>>  
+>>> -void fuse_dax_inode_init(struct inode *inode)
+>>> +void fuse_dax_inode_init(struct inode *inode, unsigned int flags)
+>>>  {
+>>> -	if (!fuse_should_enable_dax(inode))
+>>> +	if (!fuse_should_enable_dax(inode, flags))
+>>>  		return;
+>>>  
+>>>  	inode->i_flags |= S_DAX;
+>>>  	inode->i_data.a_ops = &fuse_dax_file_aops;
+>>>  }
+>>>  
+>>> +void fuse_dax_dontcache(struct inode *inode, bool newdax)
+>>> +{
+>>> +	struct fuse_conn *fc = get_fuse_conn(inode);
+>>> +
+>>> +	if (fc->dax && fc->dax->mode == FUSE_DAX_MOUNT_INODE &&
+>>> +	    IS_DAX(inode) != newdax)
+>>> +		d_mark_dontcache(inode);
+>>> +}
+>>> +
+>>
+>> This capability to mark an inode dontcache should probably be in a
+>> separate patch. These seem to logically two functionalities. One is
+>> enabling DAX on an inode. And second is making sure how soon you
+>> see the effect of that change and hence marking inode dontcache.
+> 
+> OK, sounds reasonable.
+> 
+>>
+>> Not sure how useful this is. In cache=none mode we should get rid of
+>> inode ASAP. In cache=auto mode we will get rid of after 1 second (or
+>> after a user specified timeout). So only place this seems to be
+>> useful is cache=always.
+> 
+> Actually dontcache here is used to avoid dynamic switching between DAX
+> and non-DAX state while file is opened. The complexity of dynamic
+> switching is that, you have to clear the address_space, since page cache
+> and DAX entry can not coexist in the address space. Besides,
+> inode->a_ops also needs to be changed dynamically.
 
---1tWaCOjUssnJCaas5KXmJJXzgakIpD6xl
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+FYI some context on the complication of switching DAX state dynamically,
+when Ira Weiny was working on per-file DAX of ext4/xfs.
 
------BEGIN PGP SIGNATURE-----
+> At LSF/MM we discussed the difficulties of switching the DAX state of
+a file with active mappings / page cache.  It was thought the races
+could be avoided by limiting DAX state flips to 0-length files.
+>
+> However, this turns out to not be true.[3][5] This is because address
+space operations (a_ops) may be in use at any time the inode is referenced.
+> from Ira Weiny
 
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmD2klQFAwAAAAAACgkQlh/E3EQov+Dn
-LRAAytKE28XZKTScOgeBjGLyb6I50t+nAoIMtve7Gc22yETMye3+lkQ8ulGWm8OC931jHub2Qz8v
-3VsC3q2YuJSdXLPpPRGe59bgtnzSqgvvmEYzGXJ/dB6yhS4DDbks885mZBg5HusB5hvpwyE29lki
-67RuwzuQQ1tXmxSSuPmI5kT2BtawUxvP1bbU/44xgmhfUP4YMm53eLV/ELRvyvDjFfSJOxF857hQ
-ijfX6xWc3i7zLES4EPIc0sqNj0PPrP2wnuzUf6X65phtbS276Ym7tG9vTuI18YTnk7On9boiFtDr
-ZWeTSEmBq4nTi+XRsY3JPRQaGOmzMVx8vjex6iht5Uf835wX1j3F7FOEac9vP+/XFSVv4hAJ2/cy
-n2kuvhhLbko1TDgquFTqBI2cYZofEe6kkHqi0SSrIKn7/K7bJehJIBAZcHyqpBB5S6P1BkiusACM
-cqgM6NZ5t1OwFm1YFM9Oop4Hj2Kyat6Ucuv6O1sOLCfvWFS16g0jaJBUPfEar58Ly6FFefRvPD5v
-+3Ma64SwyLbRkVLxJjPYL2VuqDuVlTyGca8G42iHSi9P8gUTEJ797lWVLtKUi0HFxIPk75G6ctaU
-70sbjXHpsnIPS/+c6ekVJKDyDog2VBXAH7ip+tgDDxxYdlU1ssUGG5GqyETK65Y+bGqGTNcl0sJa
-rlI=
-=Sdka
------END PGP SIGNATURE-----
+[1]
+https://patchwork.kernel.org/project/xfs/cover/20200407182958.568475-1-ira.weiny@intel.com/
+[2] https://lore.kernel.org/lkml/20200305155144.GA5598@lst.de/
+[3] https://lore.kernel.org/lkml/20200401040021.GC56958@magnolia/
+[4] https://lore.kernel.org/lkml/20200403182904.GP80283@magnolia/
 
---1tWaCOjUssnJCaas5KXmJJXzgakIpD6xl--
+> 
+> With dontcache, dynamic switching is no longer needed and the DAX state
+> will be decided only when inode (in memory) is initialized. The downside
+> is that the new DAX state won't be updated until the file is closed and
+> reopened later.
+> 
+> 'cache=none' only invalidates dentry, while the inode (in memory) is
+> still there (with address_space uncleared and a_ops unchanged).
+> 
+> The dynamic switching may be done, though it's not such straightforward.
+> Currently, ext4/xfs are all implemented in this dontcache way, i.e., the
+> new DAX state won't be seen until the file is closed and reopened later.
+> 
 
---===============0570905236621416609==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+-- 
+Thanks,
+Jeffle
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0570905236621416609==--
