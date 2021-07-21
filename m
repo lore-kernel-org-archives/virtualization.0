@@ -2,81 +2,93 @@ Return-Path: <SRS0=hAHP=MN=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78728C12002
-	for <virtualization@archiver.kernel.org>; Wed, 21 Jul 2021 09:33:11 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 453E2C636C9
+	for <virtualization@archiver.kernel.org>; Wed, 21 Jul 2021 09:41:51 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 275FE60E08
-	for <virtualization@archiver.kernel.org>; Wed, 21 Jul 2021 09:33:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 275FE60E08
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id E6B5F60FDA
+	for <virtualization@archiver.kernel.org>; Wed, 21 Jul 2021 09:41:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E6B5F60FDA
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id DBCA4403F0;
-	Wed, 21 Jul 2021 09:33:10 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id A40BD60885;
+	Wed, 21 Jul 2021 09:41:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id no4-R8z4s-7W; Wed, 21 Jul 2021 09:33:10 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id AddLBK5RwhMJ; Wed, 21 Jul 2021 09:41:49 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 6CEAF40265;
-	Wed, 21 Jul 2021 09:33:09 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 2E129607C0;
+	Wed, 21 Jul 2021 09:41:49 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 37D94C001A;
-	Wed, 21 Jul 2021 09:33:09 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0E978C001A;
+	Wed, 21 Jul 2021 09:41:49 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4F2F1C000E
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 53985C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Jul 2021 09:33:08 +0000 (UTC)
+ Wed, 21 Jul 2021 09:41:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 3041782909
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2DCEA82ECF
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Jul 2021 09:33:08 +0000 (UTC)
+ Wed, 21 Jul 2021 09:41:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=linuxfoundation.org
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rLsmFRd1un1p
+ with ESMTP id s8_RrpvH0gEQ
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Jul 2021 09:33:07 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9A6D9826DA
+ Wed, 21 Jul 2021 09:41:45 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 0B51382C3E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Jul 2021 09:33:07 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 94CFD61181;
- Wed, 21 Jul 2021 09:33:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1626859987;
- bh=Ugfx0SLzjHVJOXOYrQ6di8BvRX/xV7sv48IdSOw9ZyY=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=dRBpow7Zp5CnRW8JDVuBsfZ/qRKkDPziZDOOFaq+2VQzvemV+PiuxGEyFbSVnwT7H
- UYPymfrdxJzK/rPY0jkVVYp0BRTKy/yOXARUiOLH7jEBOAne59Wrg49pvo369+L2Y5
- 0fAj94XKe1pY5nok/O0HfPiozcVoTwVblgrZZMn0=
-Date: Wed, 21 Jul 2021 11:33:04 +0200
-From: Greg KH <gregkh@linuxfoundation.org>
-To: Jorgen Hansen <jhansen@vmware.com>
-Subject: Re: [PATCH] MAINTAINERS: Update for VMCI driver
-Message-ID: <YPfp0Ff6KuyPlyrc@kroah.com>
-References: <1626776941-9163-1-git-send-email-jhansen@vmware.com>
- <YPan14jucU9/u6JL@kroah.com>
- <0C3493F7-AF29-417B-94EA-26871283E65A@vmware.com>
- <YPfiNuKonyTIKcDL@kroah.com>
- <6344A6B0-F7B7-450C-9BDF-AF9056D211F3@vmware.com>
+ Wed, 21 Jul 2021 09:41:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1626860503;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=TDBluuFB4Emt7468WeyjkHVbK6/rC03Tb1lfcuLDBLU=;
+ b=eCHM8pI+OZtc84DvLBB6pAI6XoYrcV1M/F3HSRDFBSe2Od4loJDG/g8SmkoaxRyNXmeN1d
+ jXLQ+0ugy1HKVQ4GaNcoq+kPY1Q4LyBt6H+PEAqp4tg6w5RmnMD5SB5ag79bR1irXsLdJU
+ SBtwkAimQ/SUVcwB5QOltKQAvFtLhLU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-562-5kiFAxWbPDm2L0-Gll-sLw-1; Wed, 21 Jul 2021 05:41:40 -0400
+X-MC-Unique: 5kiFAxWbPDm2L0-Gll-sLw-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
+ [10.5.11.12])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9DF4C8B94E3;
+ Wed, 21 Jul 2021 09:41:38 +0000 (UTC)
+Received: from localhost (ovpn-114-233.ams2.redhat.com [10.36.114.233])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 1292160E1C;
+ Wed, 21 Jul 2021 09:41:30 +0000 (UTC)
+Date: Wed, 21 Jul 2021 10:41:29 +0100
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC 0/3] cpuidle: add poll_source API and virtio vq polling
+Message-ID: <YPfryV7qZVRbjNgP@stefanha-x1.localdomain>
+References: <20210713161906.457857-1-stefanha@redhat.com>
+ <1008dee4-fce1-2462-1520-f5432bc89a07@redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <6344A6B0-F7B7-450C-9BDF-AF9056D211F3@vmware.com>
-Cc: Pv-drivers <Pv-drivers@vmware.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
+In-Reply-To: <1008dee4-fce1-2462-1520-f5432bc89a07@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Cc: Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@infradead.org>,
+ Daniel Lezcano <daniel.lezcano@linaro.org>,
+ "Michael S . Tsirkin" <mst@redhat.com>, linux-pm@vger.kernel.org,
+ "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-kernel@vger.kernel.org,
+ Ming Lei <ming.lei@redhat.com>, linux-block@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -88,49 +100,161 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============0682676354527814443=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCBKdWwgMjEsIDIwMjEgYXQgMDk6MjY6MTVBTSArMDAwMCwgSm9yZ2VuIEhhbnNlbiB3
-cm90ZToKPiAKPiAKPiA+IE9uIDIxIEp1bCAyMDIxLCBhdCAxMTowMCwgR3JlZyBLSCA8Z3JlZ2to
-QGxpbnV4Zm91bmRhdGlvbi5vcmc+IHdyb3RlOgo+ID4gCj4gPiBPbiBXZWQsIEp1bCAyMSwgMjAy
-MSBhdCAwODo0NjoxNUFNICswMDAwLCBKb3JnZW4gSGFuc2VuIHdyb3RlOgo+ID4+IAo+ID4+IAo+
-ID4+PiBPbiAyMCBKdWwgMjAyMSwgYXQgMTI6MzksIEdyZWcgS0ggPGdyZWdraEBsaW51eGZvdW5k
-YXRpb24ub3JnPiB3cm90ZToKPiA+Pj4gCj4gPj4+IE9uIFR1ZSwgSnVsIDIwLCAyMDIxIGF0IDAz
-OjI5OjAxQU0gLTA3MDAsIEpvcmdlbiBIYW5zZW4gd3JvdGU6Cj4gPj4+PiBBZGQgbWFpbnRhaW5l
-ciBpbmZvIGZvciB0aGUgVk13YXJlIFZNQ0kgZHJpdmVyLgo+ID4+Pj4gCj4gPj4+PiBTaWduZWQt
-b2ZmLWJ5OiBKb3JnZW4gSGFuc2VuIDxqaGFuc2VuQHZtd2FyZS5jb20+Cj4gPj4+PiAtLS0KPiA+
-Pj4+IE1BSU5UQUlORVJTIHwgOCArKysrKysrKwo+ID4+Pj4gMSBmaWxlIGNoYW5nZWQsIDggaW5z
-ZXJ0aW9ucygrKQo+ID4+Pj4gCj4gPj4+PiBkaWZmIC0tZ2l0IGEvTUFJTlRBSU5FUlMgYi9NQUlO
-VEFJTkVSUwo+ID4+Pj4gaW5kZXggYTYxZjRmMy4uN2U3YzZmYSAxMDA2NDQKPiA+Pj4+IC0tLSBh
-L01BSU5UQUlORVJTCj4gPj4+PiArKysgYi9NQUlOVEFJTkVSUwo+ID4+Pj4gQEAgLTE5NzkyLDYg
-KzE5NzkyLDE0IEBAIEw6CW5ldGRldkB2Z2VyLmtlcm5lbC5vcmcKPiA+Pj4+IFM6CVN1cHBvcnRl
-ZAo+ID4+Pj4gRjoJZHJpdmVycy9wdHAvcHRwX3Ztdy5jCj4gPj4+PiAKPiA+Pj4+ICtWTVdBUkUg
-Vk1DSSBEUklWRVIKPiA+Pj4+ICtNOglKb3JnZW4gSGFuc2VuIDxqaGFuc2VuQHZtd2FyZS5jb20+
-Cj4gPj4+PiArTToJVmlzaG51IERhc2EgPHZkYXNhQHZtd2FyZS5jb20+Cj4gPj4+PiArTToJIlZN
-d2FyZSwgSW5jLiIgPHB2LWRyaXZlcnNAdm13YXJlLmNvbT4KPiA+Pj4gCj4gPj4+IFBsZWFzZSBk
-byBub3QgdXNlIGdlbmVyaWMgYWxpYXNlcyBhcyB0aGV5IHByb3ZpZGUgbm8gcGVyc29uYWwKPiA+
-Pj4gcmVzcG9uc2liaWxpdHkuICBKdXN0IHN0aWNrIHdpdGggcmVhbCBwZW9wbGUuCj4gPj4gCj4g
-Pj4gVGhhdCBtYWtlcyBzZW5zZS4gSG93ZXZlciwgdGhlIHB2LWRyaXZlcnMgbGlzdCBpcyB1c2Vk
-IGZvciBrZWVwaW5nIG1hbmFnZXJzCj4gPj4gYW5kIHBlb3BsZSBoZWxwaW5nIHdpdGggdGVzdGlu
-ZyBpbiB0aGUgbG9vcC4gU28gd291bGQgYWRkaW5nIHB2LWRyaXZlcnMgYXMgYQo+ID4+IHNlY29u
-ZCBMOiBlbnRyeSBiZSBPSz8KPiA+IAo+ID4gSXMgaXQgcmVhbGx5IGEgbGlzdD8gIElmIG5vdCwg
-dGhlbiB0aGF0IHdvdWxkIG5vdCBtYWtlIG11Y2ggc2Vuc2UuCj4gCj4gSXQgaXMgLSB3aXRoIFZN
-d2FyZSBzdWJzY3JpYmVycyBvbmx5IGJ1dCBhbnlvbmUgY2FuIHBvc3QgdG8gaXQuIElmIHRoZSBp
-bnRlbnQgb2YgdGhlCj4gTDogZW50cmllcyBpcyB0byBhbGxvdyBmb2xrcyB0byBzdWJzY3JpYmUg
-dG8gcmVsZXZhbnQgaW5mb3JtYXRpb24sIHRoZW4gaXQgaXNu4oCZdAo+IGFwcHJvcHJpYXRlLgoK
-VGhlbiBtYXJrIGl0IGFzIGEgcHJpdmF0ZSBsaXN0LgoKPiBBbGwgZXhpc3Rpbmcgdm13IGRyaXZl
-ciBtYWludGFpbmVyIGVudHJpZXMgaGF2ZSBwdi1kcml2ZXJzIGFzIGFuIE06IGVudHJ5LAo+IHNv
-IGhhcyB0aGVyZSBiZWVuIGEgY2hhbmdlIGluIHBvbGljeSByZWdhcmRpbmcgdGhpcz8gVGhlIGFw
-cHJvYWNoIGhhcwo+IGJlZW4gcXVpdGUgdXNlZnVsIGZvciB1cy4KCkl0J3MgYSBoaXQtb3ItbWlz
-cyBwb2xpY3ksIHNvbWUgb2YgdXMgbm90aWNlIGl0LCBvdGhlcnMgZG8gbm90LiAgbm90aGluZwpv
-ZmZpY2lhbCBhdCBhbGwsIGp1c3QgdGhvc2Ugb2YgdXMgd2l0aCBtb3JlIGV4cGVyaWVuY2Uga25v
-dyB0aGF0IGFsaWFzZXMKbGlrZSB0aGlzIHVzdWFsbHkgYXRyb3BoeSBhbmQgYmVjb21lIHVzZWxl
-c3MuICBUaGVyZSBhcmUgbWFueSBzdWNoCmV4YW1wbGVzIG9mIHVzZWxlc3Mgb25lcyBpbiB0aGUg
-TUFJTlRBSU5FUlMgZmlsZSByaWdodCBub3cgOigKCnRoYW5rcywKCmdyZWcgay1oCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+
+--===============0682676354527814443==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="U3hY+f6lEQj1AEW4"
+Content-Disposition: inline
+
+
+--U3hY+f6lEQj1AEW4
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Jul 21, 2021 at 11:29:55AM +0800, Jason Wang wrote:
+>=20
+> =E5=9C=A8 2021/7/14 =E4=B8=8A=E5=8D=8812:19, Stefan Hajnoczi =E5=86=99=E9=
+=81=93:
+> > These patches are not polished yet but I would like request feedback on=
+ this
+> > approach and share performance results with you.
+> >=20
+> > Idle CPUs tentatively enter a busy wait loop before halting when the cp=
+uidle
+> > haltpoll driver is enabled inside a virtual machine. This reduces wakeup
+> > latency for events that occur soon after the vCPU becomes idle.
+> >=20
+> > This patch series extends the cpuidle busy wait loop with the new poll_=
+source
+> > API so drivers can participate in polling. Such polling-aware drivers d=
+isable
+> > their device's irq during the busy wait loop to avoid the cost of inter=
+rupts.
+> > This reduces latency further than regular cpuidle haltpoll, which still=
+ relies
+> > on irqs.
+> >=20
+> > Virtio drivers are modified to use the poll_source API so all virtio de=
+vice
+> > types get this feature. The following virtio-blk fio benchmark results =
+show the
+> > improvement:
+> >=20
+> >               IOPS (numjobs=3D4, iodepth=3D1, 4 virtqueues)
+> >                 before   poll_source      io_poll
+> > 4k randread    167102  186049 (+11%)  186654 (+11%)
+> > 4k randwrite   162204  181214 (+11%)  181850 (+12%)
+> > 4k randrw      159520  177071 (+11%)  177928 (+11%)
+> >=20
+> > The comparison against io_poll shows that cpuidle poll_source achieves
+> > equivalent performance to the block layer's io_poll feature (which I
+> > implemented in a separate patch series [1]).
+> >=20
+> > The advantage of poll_source is that applications do not need to explic=
+itly set
+> > the RWF_HIPRI I/O request flag. The poll_source approach is attractive =
+because
+> > few applications actually use RWF_HIPRI and it takes advantage of CPU c=
+ycles we
+> > would have spent in cpuidle haltpoll anyway.
+> >=20
+> > The current series does not improve virtio-net. I haven't investigated =
+deeply,
+> > but it is possible that NAPI and poll_source do not combine. See the fi=
+nal
+> > patch for a starting point on making the two work together.
+> >=20
+> > I have not tried this on bare metal but it might help there too. The co=
+st of
+> > disabling a device's irq must be less than the savings from avoiding irq
+> > handling for this optimization to make sense.
+> >=20
+> > [1] https://lore.kernel.org/linux-block/20210520141305.355961-1-stefanh=
+a@redhat.com/
+>=20
+>=20
+> Hi Stefan:
+>=20
+> Some questions:
+>=20
+> 1) What's the advantages of introducing polling at virtio level instead of
+> doing it at each subsystems? Polling in virtio level may only work well if
+> all (or most) of the devices are virtio
+
+I'm not sure I understand the question. cpuidle haltpoll benefits all
+devices today, except it incurs interrupt latency. The poll_source API
+eliminates the interrupt latency for drivers that can disable device
+interrupts cheaply.
+
+This patch adds poll_source to core virtio code so that all virtio
+drivers get this feature for free. No driver-specific changes are
+needed.
+
+If you mean networking, block layer, etc by "subsystems" then there's
+nothing those subsystems can do to help. Whether poll_source can be used
+depends on the specific driver, not the subsystem. If you consider
+drivers/virtio/ a subsystem, then that's exactly what the patch series
+is doing.
+
+> 2) What's the advantages of using cpuidle instead of using a thread (and
+> leverage the scheduler)?
+
+In order to combine with the existing cpuidle infrastructure. No new
+polling loop is introduced and no additional CPU cycles are spent on
+polling.
+
+If cpuidle itself is converted to threads then poll_source would
+automatically operate in a thread too, but this patch series doesn't
+change how the core cpuidle code works.
+
+> 3) Any reason it's virtio_pci specific not a general virtio one?
+
+Good idea, it is possible to move the virtio_pci changes into virtio.c.
+
+Other transports can't use this feature yet though. Only virtio_pci
+supports vq irq affinity. But the code can be generic and if other
+transports ever support vq irq affinity they'll get it for free.
+
+> (Btw, do we need to cc scheduler guys?)
+
+I'm not sure. This patch series doesn't change how cpuidle interacts
+with the scheduler. The cpuidle maintainers can pull in more people, if
+necessary.
+
+Stefan
+
+--U3hY+f6lEQj1AEW4
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmD368kACgkQnKSrs4Gr
+c8i8JAf9HH8W0fz2vJuNPKVE0C0NjgfddSwNS/qOC8QlvWYGeNomDImzTeWf04Dg
+F4QU7Mx2cI2kUyxo8bRCPwLp6bsRw6PZyztQSN/GAJw3Y6sGdLhgizW4GKjGwHWs
+0a5UDJ7JQUlg/4d9NNEAf6MhN3jZnvJBUpYXzsbIgEPRkiaJzZG1TpEZa3yxd8qc
+4AWL97LrIbUPV20oZULnlYtaQbEICaG/VO+ORH/3vjioqAXTr7uALXq7w66hMG6I
+gtgH5iq3V/10HSTzAhIiQHizUMQ1b2pdX9Vz4x/+KTcYsgsud2V+TCAJeBKo32bO
+JVo0XAVh6Cl0oUt4xdworkCl46gbrg==
+=U9/g
+-----END PGP SIGNATURE-----
+
+--U3hY+f6lEQj1AEW4--
+
+
+--===============0682676354527814443==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0682676354527814443==--
+
