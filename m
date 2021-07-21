@@ -2,79 +2,79 @@ Return-Path: <SRS0=hAHP=MN=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-20.4 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,
-	UNPARSEABLE_RELAY,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-11.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02343C12002
-	for <virtualization@archiver.kernel.org>; Wed, 21 Jul 2021 14:14:54 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73984C12002
+	for <virtualization@archiver.kernel.org>; Wed, 21 Jul 2021 14:20:38 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A6F4961242
-	for <virtualization@archiver.kernel.org>; Wed, 21 Jul 2021 14:14:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A6F4961242
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id 01F7361242
+	for <virtualization@archiver.kernel.org>; Wed, 21 Jul 2021 14:20:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 01F7361242
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6B6324014C;
-	Wed, 21 Jul 2021 14:14:53 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id C3E5482861;
+	Wed, 21 Jul 2021 14:20:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id AeEwZ8pIzamk; Wed, 21 Jul 2021 14:14:52 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D6EFC400D0;
-	Wed, 21 Jul 2021 14:14:51 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id NOdsoNrI7b0z; Wed, 21 Jul 2021 14:20:36 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 3AAAC8280E;
+	Wed, 21 Jul 2021 14:20:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B5977C0010;
-	Wed, 21 Jul 2021 14:14:51 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 233F5C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0B075C0010;
+	Wed, 21 Jul 2021 14:20:36 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 75F24C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Jul 2021 14:14:50 +0000 (UTC)
+ Wed, 21 Jul 2021 14:20:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 117E760891
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6416240272
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Jul 2021 14:14:50 +0000 (UTC)
+ Wed, 21 Jul 2021 14:20:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Vqyi8EkI0Egz
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id OdN6cBktvkyY
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Jul 2021 14:14:48 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 8F6BA6088D
+ Wed, 21 Jul 2021 14:20:33 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 0BDB64026E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Jul 2021 14:14:47 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R211e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04400; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=7; SR=0; TI=SMTPD_---0UgX56vV_1626876884; 
-Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0UgX56vV_1626876884) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 21 Jul 2021 22:14:45 +0800
-Subject: Re: [PATCH v2 3/4] fuse: add per-file DAX flag
-To: Vivek Goyal <vgoyal@redhat.com>
-References: <20210716104753.74377-1-jefflexu@linux.alibaba.com>
- <20210716104753.74377-4-jefflexu@linux.alibaba.com>
- <YPXWA+Uo5vFuHCH0@redhat.com>
- <61bca75f-2efa-f032-41d6-fcb525d8b528@linux.alibaba.com>
- <YPcjlN1ThL4UX8dn@redhat.com>
-From: JeffleXu <jefflexu@linux.alibaba.com>
-Message-ID: <0ad3b5d2-3d19-a33b-7841-1912ea30c081@linux.alibaba.com>
-Date: Wed, 21 Jul 2021 22:14:44 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.11.0
+ Wed, 21 Jul 2021 14:20:32 +0000 (UTC)
+Received: from cap.home.8bytes.org (p4ff2b1ea.dip0.t-ipconnect.de
+ [79.242.177.234])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+ (No client certificate requested)
+ by theia.8bytes.org (Postfix) with ESMTPSA id BC9EF87B;
+ Wed, 21 Jul 2021 16:20:22 +0200 (CEST)
+From: Joerg Roedel <joro@8bytes.org>
+To: x86@kernel.org,
+	Eric Biederman <ebiederm@xmission.com>
+Subject: [PATCH 00/12] x86/sev: KEXEC/KDUMP support for SEV-ES guests
+Date: Wed, 21 Jul 2021 16:20:03 +0200
+Message-Id: <20210721142015.1401-1-joro@8bytes.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-In-Reply-To: <YPcjlN1ThL4UX8dn@redhat.com>
-Content-Language: en-US
-Cc: miklos@szeredi.hu, virtualization@lists.linux-foundation.org,
- joseph.qi@linux.alibaba.com, bo.liu@linux.alibaba.com, stefanha@redhat.com,
- linux-fsdevel@vger.kernel.org
+Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org,
+ Arvind Sankar <nivedita@alum.mit.edu>, hpa@zytor.com,
+ Jiri Slaby <jslaby@suse.cz>, Joerg Roedel <joro@8bytes.org>,
+ David Rientjes <rientjes@google.com>, Martin Radev <martin.b.radev@gmail.com>,
+ Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>,
+ Kees Cook <keescook@chromium.org>, Cfir Cohen <cfir@google.com>,
+ linux-coco@lists.linux.dev, Andy Lutomirski <luto@kernel.org>,
+ Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>,
+ Mike Stunes <mstunes@vmware.com>, Sean Christopherson <seanjc@google.com>,
+ kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+ Masami Hiramatsu <mhiramat@kernel.org>, Erdem Aktas <erdemaktas@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -91,123 +91,128 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+From: Joerg Roedel <jroedel@suse.de>
+
+Hi,
+
+here are changes to enable kexec/kdump in SEV-ES guests. The biggest
+problem for supporting kexec/kdump under SEV-ES is to find a way to
+hand the non-boot CPUs (APs) from one kernel to another.
+
+Without SEV-ES the first kernel parks the CPUs in a HLT loop until
+they get reset by the kexec'ed kernel via an INIT-SIPI-SIPI sequence.
+For virtual machines the CPU reset is emulated by the hypervisor,
+which sets the vCPU registers back to reset state.
+
+This does not work under SEV-ES, because the hypervisor has no access
+to the vCPU registers and can't make modifications to them. So an
+SEV-ES guest needs to reset the vCPU itself and park it using the
+AP-reset-hold protocol. Upon wakeup the guest needs to jump to
+real-mode and to the reset-vector configured in the AP-Jump-Table.
+
+The code to do this is the main part of this patch-set. It works by
+placing code on the AP Jump-Table page itself to park the vCPU and for
+jumping to the reset vector upon wakeup. The code on the AP Jump Table
+runs in 16-bit protected mode with segment base set to the beginning
+of the page. The AP Jump-Table is usually not within the first 1MB of
+memory, so the code can't run in real-mode.
+
+The AP Jump-Table is the best place to put the parking code, because
+the memory is owned, but read-only by the firmware and writeable by
+the OS. Only the first 4 bytes are used for the reset-vector, leaving
+the rest of the page for code/data/stack to park a vCPU. The code
+can't be in kernel memory because by the time the vCPU wakes up the
+memory will be owned by the new kernel, which might have overwritten it
+already.
+
+The other patches add initial GHCB Version 2 protocol support, because
+kexec/kdump need the MSR-based (without a GHCB) AP-reset-hold VMGEXT,
+which is a GHCB protocol version 2 feature.
+
+The kexec'ed kernel is also entered via the decompressor and needs
+MMIO support there, so this patch-set also adds MMIO #VC support to
+the decompressor and support for handling CLFLUSH instructions.
+
+Finally there is also code to disable kexec/kdump support at runtime
+when the environment does not support it (e.g. no GHCB protocol
+version 2 support or AP Jump Table over 4GB).
+
+The diffstat looks big, but most of it is moving code for MMIO #VC
+support around to make it available to the decompressor.
+
+Known problems:
+
+	It currently only works reliable when the kexec_file syscall
+	is used. With the kexec syscall it works one time, and the
+	second kexec then hangs because the sha256 verification fails
+	in the purgatory.
+
+	For the kexec syscall the purgatory is loaded from user-space,
+	were most likely the issue needs to be fixed. But the question
+	is whether this is a useful way. The user-space purgatory has
+	other ways to break under SEV-ES, which can be enabled via
+	kexec-tool command line options. For example enabling console
+	support for the purgatory will definitly break kexec for
+	SEV-ES.
+
+	So the question is whether is makes sense to only support
+	kexec_file() under SEV-ES, where the in-kernel purgatory is
+	used (which has less ways to break under SEV-ES).
+
+With that said, please review :)
+
+Regards,
+
+	Joerg
+
+Joerg Roedel (12):
+  kexec: Allow architecture code to opt-out at runtime
+  x86/kexec/64: Forbid kexec when running as an SEV-ES guest
+  x86/sev: Save and print negotiated GHCB protocol version
+  x86/sev: Do not hardcode GHCB protocol version
+  x86/sev: Use GHCB protocol version 2 if supported
+  x86/sev: Cache AP Jump Table Address
+  x86/sev: Setup code to park APs in the AP Jump Table
+  x86/sev: Park APs on AP Jump Table with GHCB protocol version 2
+  x86/sev: Use AP Jump Table blob to stop CPU
+  x86/sev: Add MMIO handling support to boot/compressed/ code
+  x86/sev: Handle CLFLUSH MMIO events
+  x86/sev: Support kexec under SEV-ES with AP Jump Table blob
+
+ arch/x86/boot/compressed/sev.c          |  56 +-
+ arch/x86/include/asm/realmode.h         |   5 +
+ arch/x86/include/asm/sev-ap-jumptable.h |  25 +
+ arch/x86/include/asm/sev.h              |  13 +-
+ arch/x86/kernel/machine_kexec_64.c      |  12 +
+ arch/x86/kernel/process.c               |   8 +
+ arch/x86/kernel/sev-shared.c            | 333 +++++++++-
+ arch/x86/kernel/sev.c                   | 494 ++++++---------
+ arch/x86/lib/insn-eval-shared.c         | 805 ++++++++++++++++++++++++
+ arch/x86/lib/insn-eval.c                | 802 +----------------------
+ arch/x86/realmode/Makefile              |   9 +-
+ arch/x86/realmode/rm/Makefile           |  11 +-
+ arch/x86/realmode/rm/header.S           |   3 +
+ arch/x86/realmode/rm/sev_ap_park.S      |  89 +++
+ arch/x86/realmode/rmpiggy.S             |   6 +
+ arch/x86/realmode/sev/Makefile          |  41 ++
+ arch/x86/realmode/sev/ap_jump_table.S   | 130 ++++
+ arch/x86/realmode/sev/ap_jump_table.lds |  24 +
+ include/linux/kexec.h                   |   1 +
+ kernel/kexec.c                          |  14 +
+ kernel/kexec_file.c                     |   9 +
+ 21 files changed, 1764 insertions(+), 1126 deletions(-)
+ create mode 100644 arch/x86/include/asm/sev-ap-jumptable.h
+ create mode 100644 arch/x86/lib/insn-eval-shared.c
+ create mode 100644 arch/x86/realmode/rm/sev_ap_park.S
+ create mode 100644 arch/x86/realmode/sev/Makefile
+ create mode 100644 arch/x86/realmode/sev/ap_jump_table.S
+ create mode 100644 arch/x86/realmode/sev/ap_jump_table.lds
 
 
-On 7/21/21 3:27 AM, Vivek Goyal wrote:
-> On Tue, Jul 20, 2021 at 02:51:34PM +0800, JeffleXu wrote:
->>
->>
->> On 7/20/21 3:44 AM, Vivek Goyal wrote:
->>> On Fri, Jul 16, 2021 at 06:47:52PM +0800, Jeffle Xu wrote:
->>>> Add one flag for fuse_attr.flags indicating if DAX shall be enabled for
->>>> this file.
->>>>
->>>> When the per-file DAX flag changes for an *opened* file, the state of
->>>> the file won't be updated until this file is closed and reopened later.
->>>>
->>>> Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
->>>> ---
->>>>  fs/fuse/dax.c             | 21 +++++++++++++++++----
->>>>  fs/fuse/file.c            |  4 ++--
->>>>  fs/fuse/fuse_i.h          |  5 +++--
->>>>  fs/fuse/inode.c           |  5 ++++-
->>>>  include/uapi/linux/fuse.h |  5 +++++
->>>>  5 files changed, 31 insertions(+), 9 deletions(-)
->>>>
->>>> diff --git a/fs/fuse/dax.c b/fs/fuse/dax.c
->>>> index a478e824c2d0..0e862119757a 100644
->>>> --- a/fs/fuse/dax.c
->>>> +++ b/fs/fuse/dax.c
->>>> @@ -1341,7 +1341,7 @@ static const struct address_space_operations fuse_dax_file_aops  = {
->>>>  	.invalidatepage	= noop_invalidatepage,
->>>>  };
->>>>  
->>>> -static bool fuse_should_enable_dax(struct inode *inode)
->>>> +static bool fuse_should_enable_dax(struct inode *inode, unsigned int flags)
->>>>  {
->>>>  	struct fuse_conn *fc = get_fuse_conn(inode);
->>>>  	unsigned int mode;
->>>> @@ -1354,18 +1354,31 @@ static bool fuse_should_enable_dax(struct inode *inode)
->>>>  	if (mode == FUSE_DAX_MOUNT_NEVER)
->>>>  		return false;
->>>>  
->>>> -	return true;
->>>> +	if (mode == FUSE_DAX_MOUNT_ALWAYS)
->>>> +		return true;
->>>> +
->>>> +	WARN_ON(mode != FUSE_DAX_MOUNT_INODE);
->>>> +	return flags & FUSE_ATTR_DAX;
->>>>  }
->>>>  
->>>> -void fuse_dax_inode_init(struct inode *inode)
->>>> +void fuse_dax_inode_init(struct inode *inode, unsigned int flags)
->>>>  {
->>>> -	if (!fuse_should_enable_dax(inode))
->>>> +	if (!fuse_should_enable_dax(inode, flags))
->>>>  		return;
->>>>  
->>>>  	inode->i_flags |= S_DAX;
->>>>  	inode->i_data.a_ops = &fuse_dax_file_aops;
->>>>  }
->>>>  
->>>> +void fuse_dax_dontcache(struct inode *inode, bool newdax)
->>>> +{
->>>> +	struct fuse_conn *fc = get_fuse_conn(inode);
->>>> +
->>>> +	if (fc->dax && fc->dax->mode == FUSE_DAX_MOUNT_INODE &&
->>>> +	    IS_DAX(inode) != newdax)
->>>> +		d_mark_dontcache(inode);
->>>> +}
->>>> +
->>>
->>> This capability to mark an inode dontcache should probably be in a
->>> separate patch. These seem to logically two functionalities. One is
->>> enabling DAX on an inode. And second is making sure how soon you
->>> see the effect of that change and hence marking inode dontcache.
->>
->> OK, sounds reasonable.
->>
->>>
->>> Not sure how useful this is. In cache=none mode we should get rid of
->>> inode ASAP. In cache=auto mode we will get rid of after 1 second (or
->>> after a user specified timeout). So only place this seems to be
->>> useful is cache=always.
->>
->> Actually dontcache here is used to avoid dynamic switching between DAX
->> and non-DAX state while file is opened. The complexity of dynamic
->> switching is that, you have to clear the address_space, since page cache
->> and DAX entry can not coexist in the address space. Besides,
->> inode->a_ops also needs to be changed dynamically.
->>
->> With dontcache, dynamic switching is no longer needed and the DAX state
->> will be decided only when inode (in memory) is initialized. The downside
->> is that the new DAX state won't be updated until the file is closed and
->> reopened later.
->>
->> 'cache=none' only invalidates dentry, while the inode (in memory) is
->> still there (with address_space uncleared and a_ops unchanged).
-> 
-> Aha.., that's a good point.
->>
->> The dynamic switching may be done, though it's not such straightforward.
->> Currently, ext4/xfs are all implemented in this dontcache way, i.e., the
->> new DAX state won't be seen until the file is closed and reopened later.
-> 
-> Got it. Agreed that dontcache seems reasonable if file's DAX state
-> has changed. Keep it in separate patch though with proper commit
-> logs.
-> 
-> Also, please copy virtiofs list (virtio-fs@redhat.com) when you post
-> patches next time.
-> 
-
-Got it. By the way, what's the git repository of virtiofsd? AFAIK,
-virtiofsd included in qemu (git@github.com:qemu/qemu.git) doesn't
-support DAX yet?
-
+base-commit: 2734d6c1b1a089fb593ef6a23d4b70903526fe0c
 -- 
-Thanks,
-Jeffle
+2.31.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
