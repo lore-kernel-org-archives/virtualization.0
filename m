@@ -2,97 +2,102 @@ Return-Path: <SRS0=hAHP=MN=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCD89C636C9
-	for <virtualization@archiver.kernel.org>; Wed, 21 Jul 2021 14:43:04 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A02DC6377B
+	for <virtualization@archiver.kernel.org>; Wed, 21 Jul 2021 20:53:46 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 755516121F
-	for <virtualization@archiver.kernel.org>; Wed, 21 Jul 2021 14:43:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 755516121F
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id CFE1360FEA
+	for <virtualization@archiver.kernel.org>; Wed, 21 Jul 2021 20:53:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CFE1360FEA
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=ACULAB.COM
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 26FD4600C9;
-	Wed, 21 Jul 2021 14:43:04 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7CAF840521;
+	Wed, 21 Jul 2021 20:53:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id H-rpkbdjXasP; Wed, 21 Jul 2021 14:43:03 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id NQSJXk49Esgs; Wed, 21 Jul 2021 20:53:42 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id D5F12606C6;
-	Wed, 21 Jul 2021 14:43:02 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 33E1A403B8;
+	Wed, 21 Jul 2021 20:53:42 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A6033C0010;
-	Wed, 21 Jul 2021 14:43:02 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A8BD9C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EAC2CC0010;
+	Wed, 21 Jul 2021 20:53:41 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 82462C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Jul 2021 14:43:01 +0000 (UTC)
+ Wed, 21 Jul 2021 20:53:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 89791402C0
+ by smtp2.osuosl.org (Postfix) with ESMTP id 6A659403B2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Jul 2021 14:43:01 +0000 (UTC)
+ Wed, 21 Jul 2021 20:53:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9xuNRzZ0lHHO
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id t6pDKHZU4Rcs
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Jul 2021 14:43:00 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id B55F14026B
+ Wed, 21 Jul 2021 20:53:36 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from eu-smtp-delivery-151.mimecast.com
+ (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 973F14012B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Jul 2021 14:43:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1626878579;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=aKs3+Xdc2Yu+lcTu46rzXDZNt56m1hbeO49s4AhSxWY=;
- b=b5AhOuFdD00mAzbUu8FtMiwbabWhYSquAVqRZ8p3qEwI2Tf/vVmTKkNvZqh7FUsBQduBiT
- a5EFU/N6YdBYJ5yf/HOmXS9dpumcMM8IHETAp4k3VvFhL95wM7JMfvaXx3LlkccuwyNWw0
- Hvn98gpB1U6fQaT9IYcjtVlrxVFDldw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-599-s-RFpwf6O2aYXw05b7YYdg-1; Wed, 21 Jul 2021 10:42:58 -0400
-X-MC-Unique: s-RFpwf6O2aYXw05b7YYdg-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F0B17760C0;
- Wed, 21 Jul 2021 14:42:55 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.17.21])
- by smtp.corp.redhat.com (Postfix) with ESMTP id E7E0E61F21;
- Wed, 21 Jul 2021 14:42:50 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
- id 568DB223E70; Wed, 21 Jul 2021 10:42:50 -0400 (EDT)
-Date: Wed, 21 Jul 2021 10:42:50 -0400
-From: Vivek Goyal <vgoyal@redhat.com>
-To: JeffleXu <jefflexu@linux.alibaba.com>
-Subject: Re: [PATCH v2 0/4] virtiofs,fuse: support per-file DAX
-Message-ID: <YPgyalU0avl9KI/U@redhat.com>
-References: <20210716104753.74377-1-jefflexu@linux.alibaba.com>
- <YPXu3BefIi7Ts48I@redhat.com>
- <031efb1d-7c0d-35fb-c147-dcc3b6cac0ef@linux.alibaba.com>
- <YPchgf665bwUMKWU@redhat.com>
- <38e9da34-cc2b-f496-7ebb-18db8da1aa01@linux.alibaba.com>
- <YPgXuacFfJ/JVRjo@redhat.com>
+ Wed, 21 Jul 2021 20:53:35 +0000 (UTC)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-243-8fs3cIPQN2uXPNUECXN4gA-1; Wed, 21 Jul 2021 21:53:31 +0100
+X-MC-Unique: 8fs3cIPQN2uXPNUECXN4gA-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.23; Wed, 21 Jul 2021 21:53:30 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.023; Wed, 21 Jul 2021 21:53:30 +0100
+From: David Laight <David.Laight@ACULAB.COM>
+To: 'Yunsheng Lin' <linyunsheng@huawei.com>, "davem@davemloft.net"
+ <davem@davemloft.net>, "kuba@kernel.org" <kuba@kernel.org>, "mst@redhat.com"
+ <mst@redhat.com>, "jasowang@redhat.com" <jasowang@redhat.com>
+Subject: RE: [PATCH v2 3/4] tools headers UAPI: add cpu_relax() implementation
+ for x86 and arm64
+Thread-Topic: [PATCH v2 3/4] tools headers UAPI: add cpu_relax()
+ implementation for x86 and arm64
+Thread-Index: AQHXfQ/RMbMxcgsnGkW4/hrjrWfzM6tN6faQ
+Date: Wed, 21 Jul 2021 20:53:29 +0000
+Message-ID: <5db490c6f264431e91bcdbb62fcf3be5@AcuMS.aculab.com>
+References: <1626747709-34013-1-git-send-email-linyunsheng@huawei.com>
+ <1626747709-34013-4-git-send-email-linyunsheng@huawei.com>
+In-Reply-To: <1626747709-34013-4-git-send-email-linyunsheng@huawei.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <YPgXuacFfJ/JVRjo@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-Cc: miklos@szeredi.hu, "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
- virtualization@lists.linux-foundation.org, joseph.qi@linux.alibaba.com,
- bo.liu@linux.alibaba.com, stefanha@redhat.com, linux-fsdevel@vger.kernel.org
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Cc: "linuxarm@openeuler.org" <linuxarm@openeuler.org>,
+ "deanbo422@gmail.com" <deanbo422@gmail.com>,
+ "nickhu@andestech.com" <nickhu@andestech.com>,
+ "yury.norov@gmail.com" <yury.norov@gmail.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "joe@perches.com" <joe@perches.com>,
+ "ndesaulniers@gooogle.com" <ndesaulniers@gooogle.com>,
+ "green.hu@gmail.com" <green.hu@gmail.com>,
+ "ojeda@kernel.org" <ojeda@kernel.org>,
+ "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+ "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -109,36 +114,34 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jul 21, 2021 at 08:48:57AM -0400, Vivek Goyal wrote:
-[..]
-> > > So is "dax=inode" enough for your needs? What's your requirement,
-> > > can you give little bit of more details.
-> > 
-> > In our use case, the backend fs is something like SquashFS on host. The
-> > content of the file on host is downloaded *as needed*. When the file is
-> > not completely ready (completely downloaded), the guest will follow the
-> > normal IO routine, i.e., by FUSE_READ/FUSE_WRITE request. While the file
-> > is completely ready, per-file DAX is enabled for this file. IOW the FUSE
-> > server need to dynamically decide if per-file DAX shall be enabled,
-> > depending on if the file is completely downloaded.
+From: Yunsheng Lin
+> Sent: 20 July 2021 03:22
 > 
-> So you don't want to enable DAX yet because guest might fault on
-> a section of file which has not been downloaded yet?
+> As x86 and arm64 is the two available systems that I can build
+> and test the cpu_relax() implementation, so only add cpu_relax()
+> implementation for x86 and arm64, other arches can be added easily
+> when needed.
 > 
-> I am wondering if somehow user fault handling can help with this.
-> If we could handle faults for this file in user space, then you
-> should be able to download that particular page[s] and resolve
-> the fault?
+...
+> +#if defined(__i386__) || defined(__x86_64__)
+> +/* REP NOP (PAUSE) is a good thing to insert into busy-wait loops. */
+> +static __always_inline void rep_nop(void)
+> +{
+> +	asm volatile("rep; nop" ::: "memory");
+> +}
 
-Stefan mentioned that can't we block when fuse mmap request comes
-in and download corresponding section of file. Or do whatever you
-are doing in FUSE_READ. 
+Beware, Intel increased the stall for 'rep nop' in some recent
+cpu to IIRC about 200 cycles.
 
-IOW, even if you enable dax in your use case on all files,
-FUSE_SETUPMAPPING request will give you control to make sure 
-file section being mmaped has been downloaded.
+They even document that this might have a detrimental effect.
+It is basically far too long for the sort of thing it makes
+sense to busy-wait for.
 
-Vivek
+	David
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
 _______________________________________________
 Virtualization mailing list
