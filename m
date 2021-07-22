@@ -2,107 +2,119 @@ Return-Path: <SRS0=qcdz=MO=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91812C6377D
-	for <virtualization@archiver.kernel.org>; Thu, 22 Jul 2021 10:32:21 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13B7BC63793
+	for <virtualization@archiver.kernel.org>; Thu, 22 Jul 2021 12:55:31 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 34D626128A
-	for <virtualization@archiver.kernel.org>; Thu, 22 Jul 2021 10:32:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 34D626128A
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id C4B34613AE
+	for <virtualization@archiver.kernel.org>; Thu, 22 Jul 2021 12:55:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C4B34613AE
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id EA72B82A0E;
-	Thu, 22 Jul 2021 10:32:20 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8DEA760772;
+	Thu, 22 Jul 2021 12:55:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Cnls5bLSqBbs; Thu, 22 Jul 2021 10:32:20 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 97307828F7;
-	Thu, 22 Jul 2021 10:32:19 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PJfheRCofKCB; Thu, 22 Jul 2021 12:55:29 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 111486062D;
+	Thu, 22 Jul 2021 12:55:29 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 57CD9C001A;
-	Thu, 22 Jul 2021 10:32:19 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 49EA4C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D50B1C001A;
+	Thu, 22 Jul 2021 12:55:28 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B1B24C000E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jul 2021 10:32:18 +0000 (UTC)
+ Thu, 22 Jul 2021 12:55:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 4217682A0B
+ by smtp2.osuosl.org (Postfix) with ESMTP id 93C75404F1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jul 2021 10:32:18 +0000 (UTC)
+ Thu, 22 Jul 2021 12:55:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Euf1hyoHDHMs
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Gu5PUV_QqQQT
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jul 2021 10:32:17 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com
- [IPv6:2607:f8b0:4864:20::1031])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 4AA11828F7
+ Thu, 22 Jul 2021 12:55:26 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id A32E3400DF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jul 2021 10:32:17 +0000 (UTC)
-Received: by mail-pj1-x1031.google.com with SMTP id my10so5535945pjb.1
+ Thu, 22 Jul 2021 12:55:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1626958525;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=1CwiWu4T1TCrXr2lCQ50ReEt7fD3KW4sYxtYxQrRVQw=;
+ b=bqwGdoQMPWctexDqhtJ/CEPvumJ02nUrZg+NTN8fxaLYofI06RoagEvEBortPhdQnm3Lb+
+ BroF/Y9soe9+V2kiN7fN3v+BxsEAePmjvtRyhKhFe1emTHQ//Xl9jI152peliphiDP9Loq
+ joCuCo8yMWaFUVLphLdPkPHZQ/E94cY=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-165-vR_MCWYCPh63tpYdBjIqQA-1; Thu, 22 Jul 2021 08:55:23 -0400
+X-MC-Unique: vR_MCWYCPh63tpYdBjIqQA-1
+Received: by mail-ej1-f72.google.com with SMTP id
+ p20-20020a1709064994b02903cd421d7803so1766904eju.22
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jul 2021 03:32:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=nQ1eEZRSLoztR9oGZiRIl6wZybSjsReiwmSu0q04ypY=;
- b=Tzy7i8uBqDU5WkjECLstHTLuMa2ll1zWDSUtwXWnN97OOuCMXw+wdLllSBaRx9D84I
- Adzlr7jk7Iynjp7Xn00A/jm6WyHNCkPJvEg16R3ciXOQX6IF3BRgs2ni0zTdH+PzdZu2
- +W0Hrrb8qZeDnRcMAworXLZhjLfxSpWmhyBEmxAK7/f5XsQv5EF7fSjEsBvMU3MX/9qq
- wjVLPyiszIUBf/bu8s1blJHgIzi66lCZCsPBS3gI7DIaFjv4JYXTADz2y0/4lzO1/VAd
- 1W7q2Ruc5bI7k5VtykqM04f6qsLu+8lIE6MrJ66LSqBSzP/HNYEZkFK+r0TIrVBqslr5
- +alg==
+ Thu, 22 Jul 2021 05:55:22 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=nQ1eEZRSLoztR9oGZiRIl6wZybSjsReiwmSu0q04ypY=;
- b=H870TVdeAqiCixTPN2g0dfnyxXXjKt+1Og1kHGL+OquxN76yfnX2DheAabrwdViIpd
- j8mSSjiEEtajxvl0EXdl6aznqyVEQJdp+qSa4oXbSdOPmO/uXG6t556323pbYp2Z3SNI
- a8WgY7zQ3vX/7BZnSVMOAqHa8XUhEbD44mkhKwR4+8BVUNe18/f5WFSPs2HqQDEfIv5A
- tfF6uL8eHM7nUzoIwupUMrNHpnpUWRd7F/ZMCDQNYP32iqFokO0NTeIkW/NoqGZ9fSfD
- fI41aEH+8RI7jxK/fckupvvUC28Nq1F1+6TADO/EJC4KYCe0+TBmoF5fw6Mqhr8A5uvJ
- 4luQ==
-X-Gm-Message-State: AOAM532srsT6tOu5MJjFQjYkV3C495ohkIm+FVCS5p8qTekanuqnvkEH
- aGodJXGEdI3eiHy0Jye032+PHw==
-X-Google-Smtp-Source: ABdhPJyUM0Nh/ZZU8PlUBD7bVExz4En72F/n5jCdD9fyns8C1FqeX/qL28P0ibWHtUrOdOvk8BwMIQ==
-X-Received: by 2002:a65:63c1:: with SMTP id n1mr40288329pgv.398.1626949936590; 
- Thu, 22 Jul 2021 03:32:16 -0700 (PDT)
-Received: from localhost ([106.201.108.2])
- by smtp.gmail.com with ESMTPSA id r128sm1625271pfc.155.2021.07.22.03.32.15
+ :mime-version:content-disposition:in-reply-to;
+ bh=1CwiWu4T1TCrXr2lCQ50ReEt7fD3KW4sYxtYxQrRVQw=;
+ b=CveBhjl0Q0rmvJmA+hu7xu/iPGl00G0u7EUIQO5YUzWrIfC6qqBP/mqjQxCstqdURt
+ Lbs9MiaAettLl/mhn601/Nwg6R4HzIbCYYrEHgHBvj9IjNcerr5lZ1tg+Z1AEmBNykSV
+ 3zlCyTGNpyMrQKQ9LAwB9nnojv/4kCzoynPj/RBi34rV8pKSLWsiDkITB3IopaKY3PiF
+ cZk+/GWEoDMLYzvPXse1O7rIcYtKg/fJnKAHImSJ6yAq9NlKg7thGFkdZoYzSC7teZ9y
+ QYR1H4gVcSOoY2J10buJrfarcXt8GG13BpgLlxJQCHrhTIPbcv2+5L3DEjyFCloQQ8Dh
+ rLgA==
+X-Gm-Message-State: AOAM530hY+BYtTUU0wXk39sqxnTuaFqxoq2EFbagTg7cBkw+Plg40BZa
+ SaZofqkBBpObet+Kq7/0pkkXK5UA4LVdlKpt3YRo2mGHWaS+grD6LkTHmEF0P6O8mGld8WPmq2/
+ jPgrO+BHlMY49WRVCgaoQL42akP+tBcerrlKR2rybwA==
+X-Received: by 2002:a17:906:4b47:: with SMTP id
+ j7mr43399492ejv.104.1626958522043; 
+ Thu, 22 Jul 2021 05:55:22 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyQU28JFAqvNmUaGfaHpdW27wO3IJ4E+xBiNDz/aPu1UOIaWniwAJM4pJxCmsaa9I5ynqJCHA==
+X-Received: by 2002:a17:906:4b47:: with SMTP id
+ j7mr43399477ejv.104.1626958521846; 
+ Thu, 22 Jul 2021 05:55:21 -0700 (PDT)
+Received: from steredhat (host-79-18-148-79.retail.telecomitalia.it.
+ [79.18.148.79])
+ by smtp.gmail.com with ESMTPSA id g11sm12413592edt.85.2021.07.22.05.55.20
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 22 Jul 2021 03:32:16 -0700 (PDT)
-Date: Thu, 22 Jul 2021 16:02:14 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Arnd Bergmann <arnd@kernel.org>
-Subject: Re: [PATCH V2 1/5] dt-bindings: virtio: Add binding for virtio devices
-Message-ID: <20210722103214.vwdsaj6577pi4bdz@vireshk-i7>
-References: <cover.1626947324.git.viresh.kumar@linaro.org>
- <fced2f2b9dcf3f32f16866d7d104f46171316396.1626947324.git.viresh.kumar@linaro.org>
- <CAK8P3a1jqtu1BJmnfFLEgNXsPCfiTzd0sxwJBxdgNySmETBQSg@mail.gmail.com>
+ Thu, 22 Jul 2021 05:55:21 -0700 (PDT)
+Date: Thu, 22 Jul 2021 14:55:19 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Lee Jones <lee.jones@linaro.org>
+Subject: Re: [PATCH 1/1] virtio/vsock: Make vsock virtio packet buff size
+ configurable
+Message-ID: <20210722125519.jzs7crke7yqfh73e@steredhat>
+References: <20210721143001.182009-1-lee.jones@linaro.org>
 MIME-Version: 1.0
+In-Reply-To: <20210721143001.182009-1-lee.jones@linaro.org>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <CAK8P3a1jqtu1BJmnfFLEgNXsPCfiTzd0sxwJBxdgNySmETBQSg@mail.gmail.com>
-User-Agent: NeoMutt/20180716-391-311a52
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, "Enrico Weigelt,
- metux IT consult" <info@metux.net>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE"
- <virtualization@lists.linux-foundation.org>, DTML <devicetree@vger.kernel.org>,
- Rob Herring <robh+dt@kernel.org>, Bill Mills <bill.mills@linaro.org>
+Cc: jiang.wang@bytedance.com, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Ram Muthiah <rammuthiah@google.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+ virtualization@lists.linux-foundation.org,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,37 +126,79 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 22-07-21, 12:28, Arnd Bergmann wrote:
-> On Thu, Jul 22, 2021 at 11:57 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
-> >
-> > Allow virtio device sub-nodes to be added to the virtio mmio or pci
-> > nodes. The compatible property for virtio device must be of format
-> > "virtio,<DID>", where DID is virtio device ID in hexadecimal format.
-> >
-> > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> 
-> Looks good to me overall. One question would be for the exact format of
-> the 'compatible' string. After seeing this version, I would slightly prefer
-> "virtio,device22" over "virtio,22". I think in the previous version
-> we had mentioned both, but not actually decided on which one to use.
+On Wed, Jul 21, 2021 at 03:30:00PM +0100, Lee Jones wrote:
+>From: Ram Muthiah <rammuthiah@google.com>
+>
+>After a virtual device has been running for some time, the SLAB
+>sustains ever increasing fragmentation. Contributing to this
+>fragmentation are the virtio packet buffer allocations which
+>are a drain on 64Kb compound pages. Eventually these can't be
+>allocated due to fragmentation.
+>
+>To enable successful allocations for this packet buffer, the
+>packet buffer's size needs to be reduced.
+>
+>In order to enable a reduction without impacting current users,
+>this variable is being exposed as a command line parameter.
+>
+>Cc: "Michael S. Tsirkin" <mst@redhat.com>
+>Cc: Jason Wang <jasowang@redhat.com>
+>Cc: Stefan Hajnoczi <stefanha@redhat.com>
+>Cc: Stefano Garzarella <sgarzare@redhat.com>
+>Cc: "David S. Miller" <davem@davemloft.net>
+>Cc: Jakub Kicinski <kuba@kernel.org>
+>Cc: virtualization@lists.linux-foundation.org
+>Cc: kvm@vger.kernel.org
+>Cc: netdev@vger.kernel.org
+>Signed-off-by: Ram Muthiah <rammuthiah@google.com>
+>Signed-off-by: Lee Jones <lee.jones@linaro.org>
+>---
+> include/linux/virtio_vsock.h            | 4 +++-
+> net/vmw_vsock/virtio_transport_common.c | 4 ++++
+> 2 files changed, 7 insertions(+), 1 deletion(-)
+>
+>diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+>index 35d7eedb5e8e4..8c77d60a74d34 100644
+>--- a/include/linux/virtio_vsock.h
+>+++ b/include/linux/virtio_vsock.h
+>@@ -7,9 +7,11 @@
+> #include <net/sock.h>
+> #include <net/af_vsock.h>
+>
+>+extern uint virtio_transport_max_vsock_pkt_buf_size;
+>+
+> #define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 4)
+> #define VIRTIO_VSOCK_MAX_BUF_SIZE		0xFFFFFFFFUL
+>-#define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE		(1024 * 64)
+>+#define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE		virtio_transport_max_vsock_pkt_buf_size
+>
+> enum {
+> 	VSOCK_VQ_RX     = 0, /* for host to guest data */
+>diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>index 169ba8b72a630..d0d913afec8b6 100644
+>--- a/net/vmw_vsock/virtio_transport_common.c
+>+++ b/net/vmw_vsock/virtio_transport_common.c
+>@@ -26,6 +26,10 @@
+> /* Threshold for detecting small packets to copy */
+> #define GOOD_COPY_LEN  128
+>
+>+uint virtio_transport_max_vsock_pkt_buf_size = 1024 * 64;
+>+module_param(virtio_transport_max_vsock_pkt_buf_size, uint, 0444);
+>+EXPORT_SYMBOL_GPL(virtio_transport_max_vsock_pkt_buf_size);
+>+
 
-Right, so there were few doubts I had.
-- Should I use "device" as well or not.
-- Should I use hex value or decimal.
+Maybe better to add an entry under sysfs similar to what Jiang proposed 
+here:
+https://lists.linuxfoundation.org/pipermail/virtualization/2021-June/054769.html
 
-I went with what's already done with USB/PCI, and so dropped device
-and used hex values.
+Thanks,
+Stefano
 
-I don't have any strong opinions about using or dropping "device", I
-am fine with whatever You/Rob suggest.
-
--- 
-viresh
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
