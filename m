@@ -1,120 +1,97 @@
-Return-Path: <SRS0=qcdz=MO=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=XE2Y=MP=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Level: **
+X-Spam-Status: No, score=2.5 required=3.0 tests=BAYES_00,DEAR_SOMETHING,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13B7BC63793
-	for <virtualization@archiver.kernel.org>; Thu, 22 Jul 2021 12:55:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00A8EC4338F
+	for <virtualization@archiver.kernel.org>; Fri, 23 Jul 2021 01:28:52 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C4B34613AE
-	for <virtualization@archiver.kernel.org>; Thu, 22 Jul 2021 12:55:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C4B34613AE
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
-Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id 92A3960EBC
+	for <virtualization@archiver.kernel.org>; Fri, 23 Jul 2021 01:28:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 92A3960EBC
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8DEA760772;
-	Thu, 22 Jul 2021 12:55:30 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 57AB060642;
+	Fri, 23 Jul 2021 01:28:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id PJfheRCofKCB; Thu, 22 Jul 2021 12:55:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 111486062D;
-	Thu, 22 Jul 2021 12:55:29 +0000 (UTC)
+	with ESMTP id otDvWtPAXEGB; Fri, 23 Jul 2021 01:28:50 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id CA77C60622;
+	Fri, 23 Jul 2021 01:28:49 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D50B1C001A;
-	Thu, 22 Jul 2021 12:55:28 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B1B24C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7AE40C001A;
+	Fri, 23 Jul 2021 01:28:49 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8EA6EC000E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jul 2021 12:55:27 +0000 (UTC)
+ Fri, 23 Jul 2021 01:28:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 93C75404F1
+ by smtp1.osuosl.org (Postfix) with ESMTP id 6D55083412
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jul 2021 12:55:27 +0000 (UTC)
+ Fri, 23 Jul 2021 01:28:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Gu5PUV_QqQQT
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=gmail.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id e2A_YSUp0THy
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jul 2021 12:55:26 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id A32E3400DF
+ Fri, 23 Jul 2021 01:28:47 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com
+ [IPv6:2a00:1450:4864:20::634])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9D6D983410
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jul 2021 12:55:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1626958525;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=1CwiWu4T1TCrXr2lCQ50ReEt7fD3KW4sYxtYxQrRVQw=;
- b=bqwGdoQMPWctexDqhtJ/CEPvumJ02nUrZg+NTN8fxaLYofI06RoagEvEBortPhdQnm3Lb+
- BroF/Y9soe9+V2kiN7fN3v+BxsEAePmjvtRyhKhFe1emTHQ//Xl9jI152peliphiDP9Loq
- joCuCo8yMWaFUVLphLdPkPHZQ/E94cY=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-165-vR_MCWYCPh63tpYdBjIqQA-1; Thu, 22 Jul 2021 08:55:23 -0400
-X-MC-Unique: vR_MCWYCPh63tpYdBjIqQA-1
-Received: by mail-ej1-f72.google.com with SMTP id
- p20-20020a1709064994b02903cd421d7803so1766904eju.22
+ Fri, 23 Jul 2021 01:28:47 +0000 (UTC)
+Received: by mail-ej1-x634.google.com with SMTP id e19so1249291ejs.9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 22 Jul 2021 05:55:22 -0700 (PDT)
+ Thu, 22 Jul 2021 18:28:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=Netb+ect03+36FLGwDHd6H/dLS0TneICG6z+ys8RBN4=;
+ b=jd75CZ9uyiu7T5nJkgc6IoWFAvuBhHaJ2SgKAP4XsSSzq73Xx283ucqTgWtAfHNuqN
+ syMFdfhLRxRWvucUws8Qp+KKWY/E14Z2aqna7FqFNP7FWV6tlRjfZyYcokAxWiJBWqk0
+ yvS92VCOqgl6oNuRRoBM+iQv/MlPBzHASqVHmpr/h4E2YokVM0lY+KUzTzYn65vSgawx
+ crVLsTZMqBfaGY5wO5j9eAPqWwlL5QsxwxMV5MwIRuxfq2cBYQ7ItuG3ipeRfI818Wkf
+ 8FAf7S1u6+3rX3ihs2bwZWpAdt4VbCs8oPMJYZN/YRF3vX4tOHtrvicRQhncPygEns9w
+ uMnw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=1CwiWu4T1TCrXr2lCQ50ReEt7fD3KW4sYxtYxQrRVQw=;
- b=CveBhjl0Q0rmvJmA+hu7xu/iPGl00G0u7EUIQO5YUzWrIfC6qqBP/mqjQxCstqdURt
- Lbs9MiaAettLl/mhn601/Nwg6R4HzIbCYYrEHgHBvj9IjNcerr5lZ1tg+Z1AEmBNykSV
- 3zlCyTGNpyMrQKQ9LAwB9nnojv/4kCzoynPj/RBi34rV8pKSLWsiDkITB3IopaKY3PiF
- cZk+/GWEoDMLYzvPXse1O7rIcYtKg/fJnKAHImSJ6yAq9NlKg7thGFkdZoYzSC7teZ9y
- QYR1H4gVcSOoY2J10buJrfarcXt8GG13BpgLlxJQCHrhTIPbcv2+5L3DEjyFCloQQ8Dh
- rLgA==
-X-Gm-Message-State: AOAM530hY+BYtTUU0wXk39sqxnTuaFqxoq2EFbagTg7cBkw+Plg40BZa
- SaZofqkBBpObet+Kq7/0pkkXK5UA4LVdlKpt3YRo2mGHWaS+grD6LkTHmEF0P6O8mGld8WPmq2/
- jPgrO+BHlMY49WRVCgaoQL42akP+tBcerrlKR2rybwA==
-X-Received: by 2002:a17:906:4b47:: with SMTP id
- j7mr43399492ejv.104.1626958522043; 
- Thu, 22 Jul 2021 05:55:22 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyQU28JFAqvNmUaGfaHpdW27wO3IJ4E+xBiNDz/aPu1UOIaWniwAJM4pJxCmsaa9I5ynqJCHA==
-X-Received: by 2002:a17:906:4b47:: with SMTP id
- j7mr43399477ejv.104.1626958521846; 
- Thu, 22 Jul 2021 05:55:21 -0700 (PDT)
-Received: from steredhat (host-79-18-148-79.retail.telecomitalia.it.
- [79.18.148.79])
- by smtp.gmail.com with ESMTPSA id g11sm12413592edt.85.2021.07.22.05.55.20
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 22 Jul 2021 05:55:21 -0700 (PDT)
-Date: Thu, 22 Jul 2021 14:55:19 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Lee Jones <lee.jones@linaro.org>
-Subject: Re: [PATCH 1/1] virtio/vsock: Make vsock virtio packet buff size
- configurable
-Message-ID: <20210722125519.jzs7crke7yqfh73e@steredhat>
-References: <20210721143001.182009-1-lee.jones@linaro.org>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=Netb+ect03+36FLGwDHd6H/dLS0TneICG6z+ys8RBN4=;
+ b=b7PRl/myxk4HiFYfZ7Zk01Ida4hDnXoxU8ggCzfziUILBoDWDm18Oe8jKl56hTUTBQ
+ G33TnY+wfKGDgp9rgM3jghzuP6iEwflAoAaQ1Ma/25XxQquoj+CagTHQ7yLEP1vbKpOO
+ CiZoneM/fAC6EZYUgww1ziBUPQuw67capviYX9Lxaqf5Rr+aOz9DDYlKCrietk+xJx77
+ 8sybP9kGPkEZAy8qUTxbsOKEQvznr/6pmCyEv/jCEGgKXD5j3GhmSPun1XvcGg1UYxMX
+ yG/nd9TlJKSQvSaoj4jeoQCoJE0NrK0ealRpu6CAahtSSqRT62S3SoQZ3qi3Svri19gw
+ /HnQ==
+X-Gm-Message-State: AOAM532aLPirWsDj20A1WJFacz9HcGkhAiWAKA1tYimzxbVDxov0FNj1
+ 3R1Nqh+hd56v0bf6heoHbPCF9jK4L2YEYQl6ssva+ciFGCo=
+X-Google-Smtp-Source: ABdhPJwsNGw2VvPCLcsOKeXj5j9KiWbeRSlK189AMju2NBWTm1qMTx7tDIWWOM4mDXNn2ySIhJim9s4xLyeYzxuHJDc=
+X-Received: by 2002:a17:907:7293:: with SMTP id
+ dt19mr2504373ejc.122.1627003725810; 
+ Thu, 22 Jul 2021 18:28:45 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210721143001.182009-1-lee.jones@linaro.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: jiang.wang@bytedance.com, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, Ram Muthiah <rammuthiah@google.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+References: <CACFia2dwacaVVYD+1uG=CDGaJqdCOSBvZ5FcXp04caecaWAY3w@mail.gmail.com>
+In-Reply-To: <CACFia2dwacaVVYD+1uG=CDGaJqdCOSBvZ5FcXp04caecaWAY3w@mail.gmail.com>
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Date: Fri, 23 Jul 2021 09:28:09 +0800
+Message-ID: <CAMDZJNXthLpAPHn62gA1qSmfLOoDFcFGdgnNwW6yA+wjn0FjgQ@mail.gmail.com>
+Subject: Re: PROBLEM: virtio_net LRO kernel panics
+To: Ivan <ivan@prestigetransportation.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
  virtualization@lists.linux-foundation.org,
- "David S. Miller" <davem@davemloft.net>
+ Willem de Bruijn <willemb@google.com>, "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,79 +103,148 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jul 21, 2021 at 03:30:00PM +0100, Lee Jones wrote:
->From: Ram Muthiah <rammuthiah@google.com>
+On Fri, Jul 23, 2021 at 7:29 AM Ivan <ivan@prestigetransportation.com> wrote:
 >
->After a virtual device has been running for some time, the SLAB
->sustains ever increasing fragmentation. Contributing to this
->fragmentation are the virtio packet buffer allocations which
->are a drain on 64Kb compound pages. Eventually these can't be
->allocated due to fragmentation.
+> Dear Sir,
 >
->To enable successful allocations for this packet buffer, the
->packet buffer's size needs to be reduced.
+> I've been plagued with kernel panics recently. The problem is easily
+> reproducible on any virtual machine that uses the virtio-net driver
+> from stock Linux kernel. Simply isuse this command:
 >
->In order to enable a reduction without impacting current users,
->this variable is being exposed as a command line parameter.
+> echo 1 > /proc/sys/net/ipv4/ip_forward
+> ...and the kernel panics.
 >
->Cc: "Michael S. Tsirkin" <mst@redhat.com>
->Cc: Jason Wang <jasowang@redhat.com>
->Cc: Stefan Hajnoczi <stefanha@redhat.com>
->Cc: Stefano Garzarella <sgarzare@redhat.com>
->Cc: "David S. Miller" <davem@davemloft.net>
->Cc: Jakub Kicinski <kuba@kernel.org>
->Cc: virtualization@lists.linux-foundation.org
->Cc: kvm@vger.kernel.org
->Cc: netdev@vger.kernel.org
->Signed-off-by: Ram Muthiah <rammuthiah@google.com>
->Signed-off-by: Lee Jones <lee.jones@linaro.org>
->---
-> include/linux/virtio_vsock.h            | 4 +++-
-> net/vmw_vsock/virtio_transport_common.c | 4 ++++
-> 2 files changed, 7 insertions(+), 1 deletion(-)
->
->diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
->index 35d7eedb5e8e4..8c77d60a74d34 100644
->--- a/include/linux/virtio_vsock.h
->+++ b/include/linux/virtio_vsock.h
->@@ -7,9 +7,11 @@
-> #include <net/sock.h>
-> #include <net/af_vsock.h>
->
->+extern uint virtio_transport_max_vsock_pkt_buf_size;
->+
-> #define VIRTIO_VSOCK_DEFAULT_RX_BUF_SIZE	(1024 * 4)
-> #define VIRTIO_VSOCK_MAX_BUF_SIZE		0xFFFFFFFFUL
->-#define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE		(1024 * 64)
->+#define VIRTIO_VSOCK_MAX_PKT_BUF_SIZE		virtio_transport_max_vsock_pkt_buf_size
->
-> enum {
-> 	VSOCK_VQ_RX     = 0, /* for host to guest data */
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index 169ba8b72a630..d0d913afec8b6 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -26,6 +26,10 @@
-> /* Threshold for detecting small packets to copy */
-> #define GOOD_COPY_LEN  128
->
->+uint virtio_transport_max_vsock_pkt_buf_size = 1024 * 64;
->+module_param(virtio_transport_max_vsock_pkt_buf_size, uint, 0444);
->+EXPORT_SYMBOL_GPL(virtio_transport_max_vsock_pkt_buf_size);
->+
+> Is there any way we can possibly fix this?
+Hi
+what is your kernel version, and features of your netdevice.
+I set the option, and the kernel does not panic. 5.13.0+
 
-Maybe better to add an entry under sysfs similar to what Jiang proposed 
-here:
-https://lists.linuxfoundation.org/pipermail/virtualization/2021-June/054769.html
+echo 1 > /proc/sys/net/ipv4/ip_forward
 
-Thanks,
-Stefano
+root@localhost-upstream:~# ethtool -k eth0
+Features for eth0:
+rx-checksumming: on [fixed]
+tx-checksumming: on
+tx-checksum-ipv4: off [fixed]
+tx-checksum-ip-generic: on
+tx-checksum-ipv6: off [fixed]
+tx-checksum-fcoe-crc: off [fixed]
+tx-checksum-sctp: off [fixed]
+scatter-gather: on
+tx-scatter-gather: on
+tx-scatter-gather-fraglist: off [fixed]
+tcp-segmentation-offload: on
+tx-tcp-segmentation: on
+tx-tcp-ecn-segmentation: on
+tx-tcp-mangleid-segmentation: off
+tx-tcp6-segmentation: on
+generic-segmentation-offload: on
+generic-receive-offload: on
+large-receive-offload: off
+rx-vlan-offload: off [fixed]
+tx-vlan-offload: off [fixed]
+ntuple-filters: off [fixed]
+receive-hashing: off [fixed]
+highdma: on [fixed]
+rx-vlan-filter: on [fixed]
+vlan-challenged: off [fixed]
+tx-lockless: off [fixed]
+netns-local: off [fixed]
+tx-gso-robust: on [fixed]
+tx-fcoe-segmentation: off [fixed]
+tx-gre-segmentation: off [fixed]
+tx-gre-csum-segmentation: off [fixed]
+tx-ipxip4-segmentation: off [fixed]
+tx-ipxip6-segmentation: off [fixed]
+tx-udp_tnl-segmentation: off [fixed]
+tx-udp_tnl-csum-segmentation: off [fixed]
+tx-gso-partial: off [fixed]
+tx-tunnel-remcsum-segmentation: off [fixed]
+tx-sctp-segmentation: off [fixed]
+tx-esp-segmentation: off [fixed]
+tx-udp-segmentation: off [fixed]
+tx-gso-list: off [fixed]
+fcoe-mtu: off [fixed]
+tx-nocache-copy: off
+loopback: off [fixed]
+rx-fcs: off [fixed]
+rx-all: off [fixed]
+tx-vlan-stag-hw-insert: off [fixed]
+rx-vlan-stag-hw-parse: off [fixed]
+rx-vlan-stag-filter: off [fixed]
+l2-fwd-offload: off [fixed]
+hw-tc-offload: off [fixed]
+esp-hw-offload: off [fixed]
+esp-tx-csum-hw-offload: off [fixed]
+rx-udp_tunnel-port-offload: off [fixed]
+tls-hw-tx-offload: off [fixed]
+tls-hw-rx-offload: off [fixed]
+rx-gro-hw: off [fixed]
+tls-hw-record: off [fixed]
+rx-gro-list: off
+macsec-hw-offload: off [fixed]
+rx-udp-gro-forwarding: off
+hsr-tag-ins-offload: off [fixed]
+hsr-tag-rm-offload: off [fixed]
+hsr-fwd-offload: off [fixed]
+hsr-dup-offload: off [fixed]
 
+> kernel: ------------[ cut here ]------------
+> kernel: netdevice: eth0: failed to disable LRO!
+> kernel: WARNING: CPU: 1 PID: 424 at net/core/dev.c:1768
+> dev_disable_lro+0x108/0x150
+> kernel: Modules linked in: nls_iso8859_1 nls_cp437 vfat fat usbhid
+> atkbd libps2 ahci libahci virtio_net ohci_pci net_failover failover
+> i8042 serio lpc_ich mfd_core libata ohci_hcd ehci_pci ehci_hcd usbcore
+> rng_core i2c_piix4 i2c_core virtio_pci usb_common
+> virtio_pci_modern_dev virtio_ring virtio loop unix
+> kernel: CPU: 1 PID: 424 Comm: bash Not tainted 5.13.4-gnu.4-NuMini #1
+> kernel: Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS
+> VirtualBox 12/01/2006
+> kernel: RIP: 0010:dev_disable_lro+0x108/0x150
+> kernel: Code: ae 88 74 14 be 25 00 00 00 48 89 df e8 f1 54 ed ff 48 85
+> c0 48 0f 44 eb 4c 89 e2 48 89 ee 48 c7 c7 00 c6 ae 88 e8 7a 76 0c 00
+> <0f> 0b e9 2d ff ff ff 80 3d e8 70 97 00 00 49 c7 c4 73 bb ae 88 75
+> kernel: RSP: 0018:ffffb596c0237d80 EFLAGS: 00010282
+> kernel: RAX: 0000000000000000 RBX: ffff9af9c1835000 RCX: ffff9af9fed17538
+> kernel: RDX: 00000000ffffffd8 RSI: 0000000000000027 RDI: ffff9af9fed17530
+> kernel: RBP: ffff9af9c1835000 R08: ffffffff88c96ac8 R09: 0000000000004ffb
+> kernel: R10: 00000000fffff000 R11: 3fffffffffffffff R12: ffffffff88ac7c3d
+> kernel: R13: 0000000000000000 R14: ffffffff88cb2748 R15: ffff9af9c12166c8
+> kernel: FS:  00007fd4911b8740(0000) GS:ffff9af9fed00000(0000)
+> knlGS:0000000000000000
+> kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> kernel: CR2: 0000000000532008 CR3: 000000000115c000 CR4: 00000000000406e0
+> kernel: Call Trace:
+> kernel:  devinet_sysctl_forward+0x1ac/0x1e0
+> kernel:  proc_sys_call_handler+0x127/0x230
+> kernel:  new_sync_write+0x114/0x1a0
+> kernel:  vfs_write+0x18c/0x220
+> kernel:  ksys_write+0x5a/0xd0
+> kernel:  do_syscall_64+0x45/0x80
+> kernel:  entry_SYSCALL_64_after_hwframe+0x44/0xae
+> kernel: RIP: 0033:0x7fd4912b79b3
+> kernel: Code: 8b 15 b9 74 0d 00 f7 d8 64 89 02 48 c7 c0 ff ff ff ff eb
+> b7 0f 1f 00 64 8b 04 25 18 00 00 00 85 c0 75 14 b8 01 00 00 00 0f 05
+> <48> 3d 00 f0 ff ff 77 55 c3 0f 1f 40 00 48 83 ec 28 48 89 54 24 18
+> kernel: RSP: 002b:00007ffe96fdd858 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+> kernel: RAX: ffffffffffffffda RBX: 0000000000000002 RCX: 00007fd4912b79b3
+> kernel: RDX: 0000000000000002 RSI: 0000000000536810 RDI: 0000000000000001
+> kernel: RBP: 0000000000536810 R08: 000000000000000a R09: 0000000000000000
+> kernel: R10: 00007fd49134f040 R11: 0000000000000246 R12: 0000000000000002
+> kernel: R13: 00007fd4913906c0 R14: 00007fd49138c520 R15: 00007fd49138b920
+> kernel: ---[ end trace ee7985b10570603d ]---
+> kernel: ------------[ cut here ]------------
+
+
+
+-- 
+Best regards, Tonghao
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
