@@ -2,116 +2,121 @@ Return-Path: <SRS0=XE2Y=MP=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8BF6C4338F
-	for <virtualization@archiver.kernel.org>; Fri, 23 Jul 2021 10:33:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5094BC4338F
+	for <virtualization@archiver.kernel.org>; Fri, 23 Jul 2021 12:10:43 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 65D9960F26
-	for <virtualization@archiver.kernel.org>; Fri, 23 Jul 2021 10:33:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 65D9960F26
+	by mail.kernel.org (Postfix) with ESMTPS id D767660EBD
+	for <virtualization@archiver.kernel.org>; Fri, 23 Jul 2021 12:10:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D767660EBD
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 207D740215;
-	Fri, 23 Jul 2021 10:33:39 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 90D8B40177;
+	Fri, 23 Jul 2021 12:10:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rzPg8UJUXkQB; Fri, 23 Jul 2021 10:33:38 +0000 (UTC)
+	with ESMTP id RdU2aVDLtJoU; Fri, 23 Jul 2021 12:10:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A3689401E3;
-	Fri, 23 Jul 2021 10:33:37 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 320F7400A4;
+	Fri, 23 Jul 2021 12:10:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 72F9CC001A;
-	Fri, 23 Jul 2021 10:33:37 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 90EE2C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EE6A0C001A;
+	Fri, 23 Jul 2021 12:10:40 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4042CC000E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jul 2021 10:33:36 +0000 (UTC)
+ Fri, 23 Jul 2021 12:10:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 72FC2600CA
+ by smtp2.osuosl.org (Postfix) with ESMTP id 22115400FE
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jul 2021 10:33:36 +0000 (UTC)
+ Fri, 23 Jul 2021 12:10:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ipA8lwWVZC5T
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id IRLI1Ah8wAkG
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jul 2021 10:33:33 +0000 (UTC)
+ Fri, 23 Jul 2021 12:10:38 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 8D75960AFB
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 61AA5400A4
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jul 2021 10:33:33 +0000 (UTC)
+ Fri, 23 Jul 2021 12:10:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1627036412;
+ s=mimecast20190719; t=1627042236;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=IWXyBqJzTfNuRmfNKIdetBtP1RNy5LmtjYqPiHgsQrU=;
- b=cp48jOk+g7Ot3kFvLXWnTfzUIP7gMls5vnN5CY7Sd0Hf4X1644+kMvHBPWQ4MULZBuxMI8
- HMuLH+hkREopDQALaylPKRX1/z2fcNWYH3HrG5oAQ2jbaSppI1CvbgObod7OEmD1/Y5mbi
- I2Ee0soSsPXLRRXPnQBeHlkpGnSmoZs=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-272-a4NYGmOUN4auFaPEyzcdQw-1; Fri, 23 Jul 2021 06:33:31 -0400
-X-MC-Unique: a4NYGmOUN4auFaPEyzcdQw-1
-Received: by mail-ej1-f72.google.com with SMTP id
- hb18-20020a1709071612b029052883e9de3eso420391ejc.19
+ bh=jrUq+tDYS1o0ADpuP+GAtrKfXpud7C8xQk9ZtM+66hY=;
+ b=iUgbCAFzNcG6tj1174HV8/3A4U0uMoCYqPvMR4YZfmrcObpqfTweI+zL4iJhz8z7CSSh5w
+ iaDIQBNARx3eQwGwxke55xbNcW6Qy9iBCP1zq2w/nY7ElLpJ5JHDIwKcEH2Q/NFqyOoGE0
+ LJUNi5IL/AeNquuZ6b9s6rZ+nLRkgew=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-556-IyhE94QROa6g4EGdKmSL7w-1; Fri, 23 Jul 2021 08:10:35 -0400
+X-MC-Unique: IyhE94QROa6g4EGdKmSL7w-1
+Received: by mail-wr1-f72.google.com with SMTP id
+ v16-20020adfa1d00000b02901401e436a18so885667wrv.21
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jul 2021 03:33:31 -0700 (PDT)
+ Fri, 23 Jul 2021 05:10:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=IWXyBqJzTfNuRmfNKIdetBtP1RNy5LmtjYqPiHgsQrU=;
- b=s8Zp9Dc8ELBEeaII1YyMskZeqBS0bGDRRJJ2h176X7c5ONikKpypNSqbkTIxBxRrJI
- 282nvkThevo2w0gzNjnk7CD5mRME4KDMtPO49IeqOIMFx8n3ig8XiqeurGYk7j6+ntaC
- n4maRZcc+Bh4UZKy5trzyUl7dhYL0zbBaUvazEY4wBMpYlq0Shc7/Q0TONBCvBjiuCvN
- rakLz2gAu2S02DXtradbECg+KB/+kBDnYdnwbmMzVfqgo3qOHeF55XEDwH8P7El+NSxZ
- HD7FYEPaNV/wuy3FVg5YNnIcSRpz2/Tw4vuyGCm+DmxNl7TFJEK9jafVOUX4pTnLZgoW
- 0VOg==
-X-Gm-Message-State: AOAM530l0xwaUTAXDWvVUnOOyjdUzyBkcDmhELrS0o9PuMEG5zpSY63e
- jkF5TsbVmHeKwIzIs7S40UtnCbE4icyqI/zrtb9VY4d20QL3ypHmPL5yNmeG6H9gluC4NZRGTRE
- U3JdiunCueRKGFBLHVrHG78p1kviqui3tpq3niWRlsw==
-X-Received: by 2002:aa7:d84a:: with SMTP id f10mr4786526eds.45.1627036410174; 
- Fri, 23 Jul 2021 03:33:30 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzRTzuSNg37MjiloriLMkgLspNTzQ30700CgwYyTWYABO4p2OU/0d1DQ2yMLQ5IlbC1/5DVhA==
-X-Received: by 2002:aa7:d84a:: with SMTP id f10mr4786499eds.45.1627036409965; 
- Fri, 23 Jul 2021 03:33:29 -0700 (PDT)
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=jrUq+tDYS1o0ADpuP+GAtrKfXpud7C8xQk9ZtM+66hY=;
+ b=Wyt969kLDUgyavzBQpzwY4Y7MPuX/tZkcpGLpWHFMPDomBQ/6SEbx0IsYexcGmV3BL
+ 9If257np0B+WB6jljuT/v4bBiVkNTtsnDDFluutu4yQT1QEjaeqrQrtByDmVrP76F6HT
+ 6vPjUbv4Qg2wwClq7yL05BOpEbOnAERYq6jXm6SCDeDlM+Fb4T3tF/tVEbD3qFXVr4gg
+ md85PYb9cDYYf4OtOFZGnou9XY8MRQJ1hW/1eHp1NJdetqzHwhglIe/a3h/g45TnO3VC
+ 1AxLQFTPGjbTLmBT1B2QYmxqof4oRz+60sh7dnDCzvA2j07uWfTbXErhbHu7tN56gtVF
+ nYhg==
+X-Gm-Message-State: AOAM532IpK1UIa4sZ1AttXGMlrr+kJArWZhCG7O8F0v2G/rfpwSIZHDN
+ TCz5YnvlGsZpRqdUuQKRju0SVWfju6iy0EGgrUe3gtbBf+74j5V4V+0Wt9ye1jcw+AFgcBWQa3d
+ bP9RE83I6BGwEhkjjRMxZAFlXA472tlUuD2Qgizom6Q==
+X-Received: by 2002:a05:600c:8a9:: with SMTP id
+ l41mr4237786wmp.161.1627042234271; 
+ Fri, 23 Jul 2021 05:10:34 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx8PRGzPRMIfyybE39283VZoQoe/7AqATcpzwY0Co/jb2Zhmeq8xgiIND4qCwJQSsKJI0Jzsg==
+X-Received: by 2002:a05:600c:8a9:: with SMTP id
+ l41mr4237753wmp.161.1627042233990; 
+ Fri, 23 Jul 2021 05:10:33 -0700 (PDT)
 Received: from redhat.com ([2.55.16.196])
- by smtp.gmail.com with ESMTPSA id cq22sm13751399edb.77.2021.07.23.03.33.27
+ by smtp.gmail.com with ESMTPSA id x18sm32079653wrw.19.2021.07.23.05.10.31
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 23 Jul 2021 03:33:29 -0700 (PDT)
-Date: Fri, 23 Jul 2021 06:33:24 -0400
+ Fri, 23 Jul 2021 05:10:33 -0700 (PDT)
+Date: Fri, 23 Jul 2021 08:10:29 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Subject: Re: [PATCH V2.1 5/5] virtio: Bind virtio device to device-tree node
-Message-ID: <20210723062427-mutt-send-email-mst@kernel.org>
-References: <026ad5f274d64d46590623f9f3a04b8abfbe62d7.1626947324.git.viresh.kumar@linaro.org>
- <3606cdcc637682a3eb401d617e6e247431b78ec6.1627019436.git.viresh.kumar@linaro.org>
+To: Ivan <ivan@prestigetransportation.com>
+Subject: Re: PROBLEM: virtio_net LRO kernel panics
+Message-ID: <20210723080924-mutt-send-email-mst@kernel.org>
+References: <CACFia2dwacaVVYD+1uG=CDGaJqdCOSBvZ5FcXp04caecaWAY3w@mail.gmail.com>
+ <CAMDZJNXthLpAPHn62gA1qSmfLOoDFcFGdgnNwW6yA+wjn0FjgQ@mail.gmail.com>
+ <CACFia2fDZHUZB5wJ7LK8M2sv_+W58rHw0NzzrwPPoX9=s7yPdQ@mail.gmail.com>
+ <9547a9e5-738c-2009-a2af-66173d305c2d@redhat.com>
+ <CACFia2eLCJuy=w1r20691s_cSYkBkPaY-Dbd-9CkrcpSAe7z6g@mail.gmail.com>
+ <5fd9c67f-d900-7694-f0a8-62682c8a14c8@redhat.com>
+ <CACFia2eH3eCZxtt70LB5zoPbhLXRv=crPh5oOhR=6mY3auDdQA@mail.gmail.com>
+ <20210723035713-mutt-send-email-mst@kernel.org>
+ <CACFia2fWhWKMGF3g8SfU++2-jQ1rCKtCJo3h08KmhGfMTuZaQQ@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <3606cdcc637682a3eb401d617e6e247431b78ec6.1627019436.git.viresh.kumar@linaro.org>
+In-Reply-To: <CACFia2fWhWKMGF3g8SfU++2-jQ1rCKtCJo3h08KmhGfMTuZaQQ@mail.gmail.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Arnd Bergmann <arnd@kernel.org>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>, "Enrico Weigelt,
- metux IT consult" <info@metux.net>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, devicetree@vger.kernel.org,
- Rob Herring <robh+dt@kernel.org>, Bill Mills <bill.mills@linaro.org>
+Cc: "David S. Miller" <davem@davemloft.net>,
+ virtualization@lists.linux-foundation.org,
+ Willem de Bruijn <willemb@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,145 +128,40 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Jul 23, 2021 at 11:41:31AM +0530, Viresh Kumar wrote:
-> Bind the virtio devices with their of_node. This will help users of the
-> virtio devices to mention their dependencies on the device in the DT
-> itself. Like GPIO pin users can use the phandle of the device node, or
-> the node may contain more subnodes to add i2c or spi eeproms and other
-> users.
-> 
-> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> ---
-> V2->V2.1
-> - Remove list of virtio device and use of_device_is_compatible() instead.
-> 
->  drivers/virtio/virtio.c | 56 ++++++++++++++++++++++++++++++++++++++---
->  1 file changed, 53 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index 4b15c00c0a0a..7c56b3416895 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -4,6 +4,7 @@
->  #include <linux/virtio_config.h>
->  #include <linux/module.h>
->  #include <linux/idr.h>
-> +#include <linux/of.h>
->  #include <uapi/linux/virtio_ids.h>
->  
->  /* Unique numbering for virtio devices. */
-> @@ -292,6 +293,9 @@ static int virtio_dev_remove(struct device *_d)
->  
->  	/* Acknowledge the device's existence again. */
->  	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-> +
-> +	of_node_put(dev->dev.of_node);
-> +
->  	return 0;
->  }
->  
-> @@ -319,6 +323,42 @@ void unregister_virtio_driver(struct virtio_driver *driver)
->  }
->  EXPORT_SYMBOL_GPL(unregister_virtio_driver);
->  
-> +static int virtio_device_of_init(struct virtio_device *dev)
-> +{
-> +	struct device_node *np, *pnode = dev->dev.parent->of_node;
-
-dev_of_node? I think gcc will then be smart enough to
-make this a nop with !IS_ENABLED(CONFIG_OF).
-
-
-> +	int ret, count;
-> +	char compat[12];
-
-I think this assumes device id is 16 bits but it's defined as u32
-just in case.
-If it's ever extended we will then get
-into need to handle snprintf errors which is currently missing.
-To keep things simple we can do
-	char compat[] = "virtio,XXXXXXXX";
-
-> +
-> +	if (!pnode)
-> +		return 0;
-> +
-> +	count = of_get_available_child_count(pnode);
-> +	if (!count)
-> +		return 0;
-> +
-> +	/* There can be only 1 child node */
-> +	if (WARN_ON(count > 1))
-> +		return -EINVAL;
-> +
-> +	np = of_get_next_available_child(pnode, NULL);
-> +	if (WARN_ON(!np))
-> +		return -ENODEV;
-> +
-> +	snprintf(compat, sizeof(compat), "virtio,%x", dev->id.device);
-
-worth checking this returns < sizeof(compat) and BUG_ON.
-
-> +
-> +	if (!of_device_is_compatible(np, compat)) {
-> +		ret = -EINVAL;
-> +		goto out;
-> +	}
-> +
-> +	dev->dev.of_node = np;
-> +	return 0;
-> +
-> +out:
-> +	of_node_put(np);
-> +	return ret;
-> +}
-> +
-
-
-
->  /**
->   * register_virtio_device - register virtio device
->   * @dev        : virtio device to be registered
-> @@ -343,6 +383,10 @@ int register_virtio_device(struct virtio_device *dev)
->  	dev->index = err;
->  	dev_set_name(&dev->dev, "virtio%u", dev->index);
->  
-> +	err = virtio_device_of_init(dev);
-> +	if (err)
-> +		goto out_ida_remove;
-> +
->  	spin_lock_init(&dev->config_lock);
->  	dev->config_enabled = false;
->  	dev->config_change_pending = false;
-> @@ -362,10 +406,16 @@ int register_virtio_device(struct virtio_device *dev)
->  	 */
->  	err = device_add(&dev->dev);
->  	if (err)
-> -		ida_simple_remove(&virtio_index_ida, dev->index);
-> +		goto out_of_node_put;
-> +
-> +	return 0;
-> +
-> +out_of_node_put:
-> +	of_node_put(dev->dev.of_node);
-> +out_ida_remove:
-> +	ida_simple_remove(&virtio_index_ida, dev->index);
->  out:
-> -	if (err)
-> -		virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
-> +	virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
->  	return err;
->  }
->  EXPORT_SYMBOL_GPL(register_virtio_device);
-> -- 
-> 2.31.1.272.g89b43f80a514
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gRnJpLCBKdWwgMjMsIDIwMjEgYXQgMDM6MDY6MDRBTSAtMDUwMCwgSXZhbiB3cm90ZToKPiBP
+biBGcmksIEp1bCAyMywgMjAyMSBhdCAyOjU5IEFNIE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJl
+ZGhhdC5jb20+IHdyb3RlOgo+ID4KPiA+IE9uIFRodSwgSnVsIDIyLCAyMDIxIGF0IDExOjUwOjEx
+UE0gLTA1MDAsIEl2YW4gd3JvdGU6Cj4gPiA+IE9uIFRodSwgSnVsIDIyLCAyMDIxIGF0IDExOjI1
+IFBNIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4gPiA+IOWcqCAy
+MDIxLzcvMjMg5LiK5Y2IMTA6NTQsIEl2YW4g5YaZ6YGTOgo+ID4gPiA+ID4gT24gVGh1LCBKdWwg
+MjIsIDIwMjEgYXQgOTozNyBQTSBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPiB3cm90
+ZToKPiA+ID4gPiA+PiBEb2VzIGl0IHdvcmsgaWYgeW91IHR1cm4gb2ZmIGxybyBiZWZvcmUgZW5h
+YmxpbmcgdGhlIGZvcndhcmRpbmc/Cj4gPiA+ID4gPiAwIHJvb3RATnVSYWlkOn4jIGV0aHRvb2wg
+LUsgZXRoMCBscm8gb2ZmCj4gPiA+ID4gPiBBY3R1YWwgY2hhbmdlczoKPiA+ID4gPiA+IHJ4LWxy
+bzogb24gW3JlcXVlc3RlZCBvZmZdCj4gPiA+ID4gPiBDb3VsZCBub3QgY2hhbmdlIGFueSBkZXZp
+Y2UgZmVhdHVyZXMKPiA+ID4gPgo+ID4gPiA+IE9rLCBpdCBsb29rcyBsaWtlIHRoZSBkZXZpY2Ug
+bWlzc2VzIHRoZSBWSVJUSU9fTkVUX0ZfQ1RSTF9HVUVTVF9PRkZMT0FEUwo+ID4gPiA+IHdoaWNo
+IG1ha2VzIGl0IGltcG9zc2libGUgdG8gY2hhbmdlIHRoZSBMUk8gc2V0dGluZy4KPiA+ID4gPgo+
+ID4gPiA+IERpZCB5b3UgdXNlIHFlbXU/IElmIHllcywgd2hhdCdzIHRoZSBxZW11IHZlcnNpb24g
+eW91J3ZlIHVzZWQ/Cj4gPiA+Cj4gPiA+IFRoZXNlIGFyZSBWaXJ0dWFsQm94IG1hY2hpbmVzLCB3
+aGljaCBJJ3ZlIGJlZW4gdXNpbmcgZm9yIHllYXJzIHdpdGgKPiA+ID4gbG9uZ3Rlcm0ga2VybmVs
+cyA0LjE5LCBhbmQgSSBuZXZlciBoYWQgc3VjaCBhIHByb2JsZW0uICBCdXQgbm93IHRoYXQgSQo+
+ID4gPiB0cmllZCB1cGdyYWRpbmcgdG8ga2VybmVscyA1LjEwIG9yIDUuMTMgLS0gdGhlIHBhbmlj
+cyBzdGFydGVkLiAgVGhlc2UKPiA+ID4gYXJlIGp1c3QgZ2VuZXJpYyBrZXJuZWwgYnVpbGRzLCBh
+bmQgYSBtaW5pbWFsaXN0aWMgdXNlcnNwYWNlLgo+ID4KPiA+IEkgd291bGQgYmUgdXNlZnVsIHRv
+IHNlZSB0aGUgZmVhdHVyZXMgeW91ciB2aXJ0dWFsYm94IGluc3RhbmNlIHByb3ZpZGVzCj4gPgo+
+ID4gY2F0IC9zeXMvY2xhc3MvbmV0L2V0aDAvZGV2aWNlL2ZlYXR1cmVzCj4gCj4gIyBjYXQgL3N5
+cy9jbGFzcy9uZXQvZXRoMC9kZXZpY2UvZmVhdHVyZXMKPiAxMTAwMDEwMTEwMTExMDExMTExMTAw
+MDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwCgpJIHdhcyBhYmxlIHRv
+IHJlcHJvZHVjZSB0aGUgd2FybmluZyBidXQgbm90IHRoZSBwYW5pYy4KT1RPSCBpZiBMUk8gc3Rh
+eXMgb24gd2hlbiBlbmFibGluZyBmb3J3YXJkaW5nIHRoYXQKaXMgYWxyZWFkeSBhIHByb2JsZW0u
+IEFueSBjaGFuY2UgeW91IGNhbiBiaXNlY3QgdG8KZmluZCBvdXQgd2hpY2ggY2hhbmdlIGludHJv
+ZHVjZWQgdGhlIHBhbmljPwoKLS0gCk1TVAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
