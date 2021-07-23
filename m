@@ -7,78 +7,80 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40839C4338F
-	for <virtualization@archiver.kernel.org>; Fri, 23 Jul 2021 12:53:50 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F652C4338F
+	for <virtualization@archiver.kernel.org>; Fri, 23 Jul 2021 12:53:57 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0AC3160EFD
-	for <virtualization@archiver.kernel.org>; Fri, 23 Jul 2021 12:53:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0AC3160EFD
+	by mail.kernel.org (Postfix) with ESMTPS id B13A860F02
+	for <virtualization@archiver.kernel.org>; Fri, 23 Jul 2021 12:53:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B13A860F02
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id CE5FF4021B;
-	Fri, 23 Jul 2021 12:53:49 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8486D405FE;
+	Fri, 23 Jul 2021 12:53:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id PyOArdSfOLyS; Fri, 23 Jul 2021 12:53:49 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id mqi7kv_qhLWh; Fri, 23 Jul 2021 12:53:55 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 74C9C400EF;
-	Fri, 23 Jul 2021 12:53:48 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id AAC0E405EA;
+	Fri, 23 Jul 2021 12:53:54 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 514BFC001A;
-	Fri, 23 Jul 2021 12:53:48 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2B641C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 90BE6C001A;
+	Fri, 23 Jul 2021 12:53:54 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BEDB0C000E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jul 2021 12:53:47 +0000 (UTC)
+ Fri, 23 Jul 2021 12:53:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 19979401E9
+ by smtp2.osuosl.org (Postfix) with ESMTP id AE21540249
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jul 2021 12:53:47 +0000 (UTC)
+ Fri, 23 Jul 2021 12:53:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tqLu4VPwbybb
+ with ESMTP id 96OXCSWiNE_b
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jul 2021 12:53:46 +0000 (UTC)
+ Fri, 23 Jul 2021 12:53:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 517A6400EF
+ by smtp2.osuosl.org (Postfix) with ESMTPS id DC8E44020D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Jul 2021 12:53:46 +0000 (UTC)
+ Fri, 23 Jul 2021 12:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1627044825;
+ s=mimecast20190719; t=1627044830;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=gyJyx55HAmoGVAJ3/fwHgQgmTxMahZRdR8vu+clKwGM=;
- b=Q9sMbgOH+vp90M2kq2HbE/+/VIWCBlLIlzxvQxRfRzQbcVSTkeI6QBBunnRLuycM+A6HVs
- g3J66TX0WdVejcSF/6+sVGThwwY1TBvMby4J427ndyR0zdVLmzk9Q3HjDynLaB+jSQvpKk
- /E60+TgfZ8eVhVRihCz+ZhFoNYc9Y4s=
+ bh=PGbLMpFDd21ynThNxaFHPKcL/KPx11hoJBf3NnE1f6c=;
+ b=e2gmB9CZslD1OwN42PlFmV6FjKnnbDFrxIZQrS6PvY73yR5hMeFPnUaJ6TRBX18bckNv14
+ q0fsS5rrCtlVpDzXNenATuQJxULGcxT0pkVJKsnWdp3OGcfgbh6AN/fJqWF89gqcXjHLZ5
+ T5Z6hdC9LWGYS0CO3utvlt9JVfwGYLo=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-486-2kvrrxK9Pty_ACU86rb3_w-1; Fri, 23 Jul 2021 08:53:42 -0400
-X-MC-Unique: 2kvrrxK9Pty_ACU86rb3_w-1
+ us-mta-418-SiHiXldkNFuWogFuiZ9B7A-1; Fri, 23 Jul 2021 08:53:47 -0400
+X-MC-Unique: SiHiXldkNFuWogFuiZ9B7A-1
 Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
  [10.5.11.15])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id AA25B801AE3;
- Fri, 23 Jul 2021 12:53:39 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 53349801AEB;
+ Fri, 23 Jul 2021 12:53:45 +0000 (UTC)
 Received: from t480s.redhat.com (ovpn-112-253.ams2.redhat.com [10.36.112.253])
- by smtp.corp.redhat.com (Postfix) with ESMTP id C9ED051C63;
- Fri, 23 Jul 2021 12:53:29 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 120B051C63;
+ Fri, 23 Jul 2021 12:53:39 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v2 7/9] virtio-mem: use a single dynamic memory group for a
- single virtio-mem device
-Date: Fri, 23 Jul 2021 14:52:08 +0200
-Message-Id: <20210723125210.29987-8-david@redhat.com>
+Subject: [PATCH v2 8/9] mm/memory_hotplug: memory group aware "auto-movable"
+ online policy
+Date: Fri, 23 Jul 2021 14:52:09 +0200
+Message-Id: <20210723125210.29987-9-david@redhat.com>
 In-Reply-To: <20210723125210.29987-1-david@redhat.com>
 References: <20210723125210.29987-1-david@redhat.com>
 MIME-Version: 1.0
@@ -113,88 +115,184 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Let's use a single dynamic memory group.
+Use memory groups to improve our "auto-movable" onlining policy:
+
+1. For static memory groups (e.g., a DIMM), online a memory block MOVABLE
+   only if all other memory blocks in the group are either MOVABLE or could
+   be onlined MOVABLE. A DIMM will either be MOVABLE or not, not a mixture.
+
+2. For dynamic memory groups (e.g., a virtio-mem device), online a
+   memory block MOVABLE only if all other memory blocks inside the
+   current unit are either MOVABLE or could be onlined MOVABLE. For a
+   virtio-mem device with a device block size with 512 MiB, all 128 MiB
+   memory blocks wihin a 512 MiB unit will either be MOVABLE or not, not
+   a mixture.
+
+We have to pass the memory group to zone_for_pfn_range() to take the
+memory group into account.
+
+Note: for now, there seems to be no compelling reason to make this
+behavior configurable.
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/virtio/virtio_mem.c | 22 +++++++++++++++++++---
- 1 file changed, 19 insertions(+), 3 deletions(-)
+ drivers/base/memory.c          | 18 +++++++------
+ include/linux/memory_hotplug.h |  3 ++-
+ mm/memory_hotplug.c            | 48 +++++++++++++++++++++++++++++++---
+ 3 files changed, 57 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 774986695dc4..19036922f7ef 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -143,6 +143,8 @@ struct virtio_mem {
- 	 * add_memory_driver_managed().
- 	 */
- 	const char *resource_name;
-+	/* Memory group identification. */
-+	int mgid;
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index e96c4f436ac3..1d34f30a9a80 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -182,7 +182,8 @@ static int memory_block_online(struct memory_block *mem)
+ 	struct zone *zone;
+ 	int ret;
+ 
+-	zone = zone_for_pfn_range(mem->online_type, mem->nid, start_pfn, nr_pages);
++	zone = zone_for_pfn_range(mem->online_type, mem->nid, mem->group,
++				  start_pfn, nr_pages);
  
  	/*
- 	 * We don't want to add too much memory if it's not getting onlined,
-@@ -626,8 +628,8 @@ static int virtio_mem_add_memory(struct virtio_mem *vm, uint64_t addr,
- 		addr + size - 1);
- 	/* Memory might get onlined immediately. */
- 	atomic64_add(size, &vm->offline_size);
--	rc = add_memory_driver_managed(vm->nid, addr, size, vm->resource_name,
--				       MHP_MERGE_RESOURCE);
-+	rc = add_memory_driver_managed(vm->mgid, addr, size, vm->resource_name,
-+				       MHP_MERGE_RESOURCE | MHP_NID_IS_MGID);
- 	if (rc) {
- 		atomic64_sub(size, &vm->offline_size);
- 		dev_warn(&vm->vdev->dev, "adding memory failed: %d\n", rc);
-@@ -2562,6 +2564,7 @@ static bool virtio_mem_has_memory_added(struct virtio_mem *vm)
- static int virtio_mem_probe(struct virtio_device *vdev)
+ 	 * Although vmemmap pages have a different lifecycle than the pages
+@@ -379,12 +380,13 @@ static ssize_t phys_device_show(struct device *dev,
+ 
+ #ifdef CONFIG_MEMORY_HOTREMOVE
+ static int print_allowed_zone(char *buf, int len, int nid,
++			      struct memory_group *group,
+ 			      unsigned long start_pfn, unsigned long nr_pages,
+ 			      int online_type, struct zone *default_zone)
  {
- 	struct virtio_mem *vm;
-+	uint64_t unit_pages;
- 	int rc;
+ 	struct zone *zone;
  
- 	BUILD_BUG_ON(sizeof(struct virtio_mem_req) != 24);
-@@ -2596,6 +2599,16 @@ static int virtio_mem_probe(struct virtio_device *vdev)
- 	if (rc)
- 		goto out_del_vq;
+-	zone = zone_for_pfn_range(online_type, nid, start_pfn, nr_pages);
++	zone = zone_for_pfn_range(online_type, nid, group, start_pfn, nr_pages);
+ 	if (zone == default_zone)
+ 		return 0;
  
-+	/* use a single dynamic memory group to cover the whole memory device */
-+	if (vm->in_sbm)
-+		unit_pages = PHYS_PFN(memory_block_size_bytes());
-+	else
-+		unit_pages = PHYS_PFN(vm->bbm.bb_size);
-+	rc = register_dynamic_memory_group(vm->nid, unit_pages);
-+	if (rc < 0)
-+		goto out_del_resource;
-+	vm->mgid = rc;
-+
+@@ -397,9 +399,10 @@ static ssize_t valid_zones_show(struct device *dev,
+ 	struct memory_block *mem = to_memory_block(dev);
+ 	unsigned long start_pfn = section_nr_to_pfn(mem->start_section_nr);
+ 	unsigned long nr_pages = PAGES_PER_SECTION * sections_per_block;
++	struct memory_group *group = mem->group;
+ 	struct zone *default_zone;
++	int nid = mem->nid;
+ 	int len = 0;
+-	int nid;
+ 
  	/*
- 	 * If we still have memory plugged, we have to unplug all memory first.
- 	 * Registering our parent resource makes sure that this memory isn't
-@@ -2610,7 +2623,7 @@ static int virtio_mem_probe(struct virtio_device *vdev)
- 	vm->memory_notifier.notifier_call = virtio_mem_memory_notifier_cb;
- 	rc = register_memory_notifier(&vm->memory_notifier);
- 	if (rc)
--		goto out_del_resource;
-+		goto out_unreg_group;
- 	rc = register_virtio_mem_device(vm);
- 	if (rc)
- 		goto out_unreg_mem;
-@@ -2624,6 +2637,8 @@ static int virtio_mem_probe(struct virtio_device *vdev)
- 	return 0;
- out_unreg_mem:
- 	unregister_memory_notifier(&vm->memory_notifier);
-+out_unreg_group:
-+	unregister_memory_group(vm->mgid);
- out_del_resource:
- 	virtio_mem_delete_resource(vm);
- out_del_vq:
-@@ -2688,6 +2703,7 @@ static void virtio_mem_remove(struct virtio_device *vdev)
- 	} else {
- 		virtio_mem_delete_resource(vm);
- 		kfree_const(vm->resource_name);
-+		unregister_memory_group(vm->mgid);
+ 	 * Check the existing zone. Make sure that we do that only on the
+@@ -418,14 +421,13 @@ static ssize_t valid_zones_show(struct device *dev,
+ 		goto out;
  	}
  
- 	/* remove all tracking data - no locking needed */
+-	nid = mem->nid;
+-	default_zone = zone_for_pfn_range(MMOP_ONLINE, nid, start_pfn,
+-					  nr_pages);
++	default_zone = zone_for_pfn_range(MMOP_ONLINE, nid, group,
++					  start_pfn, nr_pages);
+ 
+ 	len += sysfs_emit_at(buf, len, "%s", default_zone->name);
+-	len += print_allowed_zone(buf, len, nid, start_pfn, nr_pages,
++	len += print_allowed_zone(buf, len, nid, group, start_pfn, nr_pages,
+ 				  MMOP_ONLINE_KERNEL, default_zone);
+-	len += print_allowed_zone(buf, len, nid, start_pfn, nr_pages,
++	len += print_allowed_zone(buf, len, nid, group, start_pfn, nr_pages,
+ 				  MMOP_ONLINE_MOVABLE, default_zone);
+ out:
+ 	len += sysfs_emit_at(buf, len, "\n");
+diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+index 23c4d369ad30..97f874a60607 100644
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -348,7 +348,8 @@ extern void sparse_remove_section(struct mem_section *ms,
+ extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
+ 					  unsigned long pnum);
+ extern struct zone *zone_for_pfn_range(int online_type, int nid,
+-		unsigned long start_pfn, unsigned long nr_pages);
++		struct memory_group *group, unsigned long start_pfn,
++		unsigned long nr_pages);
+ extern int arch_create_linear_mapping(int nid, u64 start, u64 size,
+ 				      struct mhp_params *params);
+ void arch_remove_linear_mapping(u64 start, u64 size);
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 8d556396b5d4..93fb89efdc80 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -850,12 +850,53 @@ static struct zone *default_kernel_zone_for_pfn(int nid, unsigned long start_pfn
+  *    "present pages" is an upper limit that can get reached at runtime. As
+  *    we base our calculations on KERNEL_EARLY, this is not an issue.
+  */
+-static struct zone *auto_movable_zone_for_pfn(int nid, unsigned long pfn,
++static struct zone *auto_movable_zone_for_pfn(int nid,
++					      struct memory_group *group,
++					      unsigned long pfn,
+ 					      unsigned long nr_pages)
+ {
++	unsigned long online_pages = 0, max_pages, end_pfn;
++	struct page *page;
++
+ 	if (!auto_movable_ratio)
+ 		goto kernel_zone;
+ 
++	if (group && !group->is_dynamic) {
++		max_pages = group->s.max_pages;
++		online_pages = group->present_movable_pages;
++
++		/* If anything is !MOVABLE online the rest !MOVABLE. */
++		if (group->present_kernel_pages)
++			goto kernel_zone;
++	} else if (!group || group->d.unit_pages == nr_pages) {
++		max_pages = nr_pages;
++	} else {
++		max_pages = group->d.unit_pages;
++		/*
++		 * Take a look at all online sections in the current unit.
++		 * We can safely assume that all pages within a section belong
++		 * to the same zone, because dynamic memory groups only deal
++		 * with hotplugged memory.
++		 */
++		pfn = ALIGN_DOWN(pfn, group->d.unit_pages);
++		end_pfn = pfn + group->d.unit_pages;
++		for (; pfn < end_pfn; pfn += PAGES_PER_SECTION) {
++			page = pfn_to_online_page(pfn);
++			if (!page)
++				continue;
++			/* If anything is !MOVABLE online the rest !MOVABLE. */
++			if (page_zonenum(page) != ZONE_MOVABLE)
++				goto kernel_zone;
++			online_pages += PAGES_PER_SECTION;
++		}
++	}
++
++	/*
++	 * Online MOVABLE if we could *currently* online all remaining parts
++	 * MOVABLE. We expect to (add+) online them immediately next, so if
++	 * nobody interferes, all will be MOVABLE if possible.
++	 */
++	nr_pages = max_pages - online_pages;
+ 	if (!auto_movable_can_online_movable(NUMA_NO_NODE, nr_pages))
+ 		goto kernel_zone;
+ 
+@@ -895,7 +936,8 @@ static inline struct zone *default_zone_for_pfn(int nid, unsigned long start_pfn
+ }
+ 
+ struct zone *zone_for_pfn_range(int online_type, int nid,
+-		unsigned long start_pfn, unsigned long nr_pages)
++		struct memory_group *group, unsigned long start_pfn,
++		unsigned long nr_pages)
+ {
+ 	if (online_type == MMOP_ONLINE_KERNEL)
+ 		return default_kernel_zone_for_pfn(nid, start_pfn, nr_pages);
+@@ -904,7 +946,7 @@ struct zone *zone_for_pfn_range(int online_type, int nid,
+ 		return &NODE_DATA(nid)->node_zones[ZONE_MOVABLE];
+ 
+ 	if (online_policy == ONLINE_POLICY_AUTO_MOVABLE)
+-		return auto_movable_zone_for_pfn(nid, start_pfn, nr_pages);
++		return auto_movable_zone_for_pfn(nid, group, start_pfn, nr_pages);
+ 
+ 	return default_zone_for_pfn(nid, start_pfn, nr_pages);
+ }
 -- 
 2.31.1
 
