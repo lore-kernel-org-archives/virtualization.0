@@ -2,84 +2,91 @@ Return-Path: <SRS0=Dg4u=MS=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 12D84C4338F
-	for <virtualization@archiver.kernel.org>; Mon, 26 Jul 2021 15:47:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04166C4338F
+	for <virtualization@archiver.kernel.org>; Mon, 26 Jul 2021 16:04:17 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AE32B60F51
-	for <virtualization@archiver.kernel.org>; Mon, 26 Jul 2021 15:47:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org AE32B60F51
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	by mail.kernel.org (Postfix) with ESMTPS id 988ED60EB2
+	for <virtualization@archiver.kernel.org>; Mon, 26 Jul 2021 16:04:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 988ED60EB2
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 776F74021E;
-	Mon, 26 Jul 2021 15:47:36 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 565E0400C3;
+	Mon, 26 Jul 2021 16:04:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id aVvqkZUdQaTN; Mon, 26 Jul 2021 15:47:35 +0000 (UTC)
+	with ESMTP id pnjZt8n7-vIM; Mon, 26 Jul 2021 16:04:15 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D583F400C3;
-	Mon, 26 Jul 2021 15:47:34 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C6B40402A9;
+	Mon, 26 Jul 2021 16:04:14 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8CFB5C001A;
-	Mon, 26 Jul 2021 15:47:34 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 80D6AC001A;
+	Mon, 26 Jul 2021 16:04:14 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EA19DC000E
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1B0EFC000E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jul 2021 15:47:32 +0000 (UTC)
+ Mon, 26 Jul 2021 16:04:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id D030140395
+ by smtp4.osuosl.org (Postfix) with ESMTP id 0276D403A2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jul 2021 15:47:32 +0000 (UTC)
+ Mon, 26 Jul 2021 16:04:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1Lrv-v5kb57B
+ with ESMTP id sI4kdmKJ1W0u
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jul 2021 15:47:31 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-oi1-f173.google.com (mail-oi1-f173.google.com
- [209.85.167.173])
- by smtp4.osuosl.org (Postfix) with ESMTPS id A1DBA40390
+ Mon, 26 Jul 2021 16:04:11 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 68551401CA
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jul 2021 15:47:31 +0000 (UTC)
-Received: by mail-oi1-f173.google.com with SMTP id q6so11346642oiw.7
- for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jul 2021 08:47:31 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc:content-transfer-encoding;
- bh=1d5cbYYMozpblAP6PNRBcPUfwE0i3V4+yazexCHen30=;
- b=RY081z7tKXS7TQgvpfuQZXNzCnLkrUm/LhEUrjDY6DM/UgIfCdFUEWq6KRo3pS9rnC
- tgATxMHc4aQadEaMwNQo2A/eTtEx/xkJK/TWCgWXSnEhZKmVyEFdBz1GqJmX4euIA2Ki
- ovFqKuvfVOieeIa3J18OhsbXNBr8QKPYEJ8HqjuU/cCTcMYBPhkDSxs1c1KMNw/4dxlZ
- PDtYPmGCa970b1N6sTGhUa9eFYRKJ++O3BnD5Ramgul2IdVWUJXmk1qFQGFhsw9ykwwU
- pxd9MopudVP8SjM1586q5CyQ7G8dTdImyAQOFo4PUes6BBo81SvdxLuvEtgbfBHfLpZj
- JtCg==
-X-Gm-Message-State: AOAM532QpR+mlCsYj2RxZoC+qoWI2e01jr89SF7+5adaxZqtGkwDXI4+
- mDHd2hshoHhqIuvJ9XbTm91VelDxPfkoB4AS0BU=
-X-Google-Smtp-Source: ABdhPJx0q9YBnz9WLfHdhCVrn/hzRPrULJgYI/JQvdfQmpyoGjjcrki0nozWOZyNW1UvlHssLxm5idt1i650SQcmG3o=
-X-Received: by 2002:aca:d7d5:: with SMTP id o204mr11062448oig.69.1627314450708; 
- Mon, 26 Jul 2021 08:47:30 -0700 (PDT)
-MIME-Version: 1.0
+ Mon, 26 Jul 2021 16:04:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1627315450;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=QIP/LBs71jmp/6QkKSJbRqY1gCpKITsOxnFKXVkn2OM=;
+ b=B/ebodk2deKZKBE26Mx84KqZVnH/Kfq4rtMQjJ2+a3bCLsmWCoJALtago+9Y2Obmuqu0ql
+ T4UvtCGqLSc9HPSX0m1EcYGEPz7tuNxwe/8v2gmc7U9CoGSDTTFbPZgDKxACtUi60Gv6ld
+ TvzZbrw9jOtxv0yHaPtn2tqqFhfSVo8=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-1-M8oZpeUcNbGwK0xKCvjWow-1; Mon, 26 Jul 2021 12:02:44 -0400
+X-MC-Unique: M8oZpeUcNbGwK0xKCvjWow-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
+ [10.5.11.13])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9DA3C802928;
+ Mon, 26 Jul 2021 16:01:27 +0000 (UTC)
+Received: from localhost (ovpn-113-151.ams2.redhat.com [10.36.113.151])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id C167C6091B;
+ Mon, 26 Jul 2021 16:01:19 +0000 (UTC)
+Date: Mon, 26 Jul 2021 17:01:18 +0100
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: "Rafael J. Wysocki" <rafael@kernel.org>
+Subject: Re: [RFC 0/3] cpuidle: add poll_source API and virtio vq polling
+Message-ID: <YP7cTjrfipfsJe9O@stefanha-x1.localdomain>
 References: <20210713161906.457857-1-stefanha@redhat.com>
  <1008dee4-fce1-2462-1520-f5432bc89a07@redhat.com>
  <YPfryV7qZVRbjNgP@stefanha-x1.localdomain>
  <869a993d-a1b0-1c39-d081-4cdd2b71041f@redhat.com>
  <YP7SEkDEIBOch9U8@stefanha-x1.localdomain>
-In-Reply-To: <YP7SEkDEIBOch9U8@stefanha-x1.localdomain>
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Date: Mon, 26 Jul 2021 17:47:19 +0200
-Message-ID: <CAJZ5v0h+RrRP-3MtV8dgxmba0rDfqoOw54DsFh0yx3YGUAVRqw@mail.gmail.com>
-Subject: Re: [RFC 0/3] cpuidle: add poll_source API and virtio vq polling
-To: Stefan Hajnoczi <stefanha@redhat.com>
+ <CAJZ5v0h+RrRP-3MtV8dgxmba0rDfqoOw54DsFh0yx3YGUAVRqw@mail.gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <CAJZ5v0h+RrRP-3MtV8dgxmba0rDfqoOw54DsFh0yx3YGUAVRqw@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Cc: Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@infradead.org>,
  "Michael S . Tsirkin" <mst@redhat.com>,
  Daniel Lezcano <daniel.lezcano@linaro.org>,
@@ -98,109 +105,201 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============4266818183406414532=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gTW9uLCBKdWwgMjYsIDIwMjEgYXQgNToxNyBQTSBTdGVmYW4gSGFqbm9jemkgPHN0ZWZhbmhh
-QHJlZGhhdC5jb20+IHdyb3RlOgo+Cj4gT24gVGh1LCBKdWwgMjIsIDIwMjEgYXQgMDU6MDQ6NTdQ
-TSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPiA+Cj4gPiDlnKggMjAyMS83LzIxIOS4i+WNiDU6
-NDEsIFN0ZWZhbiBIYWpub2N6aSDlhpnpgZM6Cj4gPiA+IE9uIFdlZCwgSnVsIDIxLCAyMDIxIGF0
-IDExOjI5OjU1QU0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4g5ZyoIDIwMjEvNy8x
-NCDkuIrljYgxMjoxOSwgU3RlZmFuIEhham5vY3ppIOWGmemBkzoKPiA+ID4gPiA+IFRoZXNlIHBh
-dGNoZXMgYXJlIG5vdCBwb2xpc2hlZCB5ZXQgYnV0IEkgd291bGQgbGlrZSByZXF1ZXN0IGZlZWRi
-YWNrIG9uIHRoaXMKPiA+ID4gPiA+IGFwcHJvYWNoIGFuZCBzaGFyZSBwZXJmb3JtYW5jZSByZXN1
-bHRzIHdpdGggeW91Lgo+ID4gPiA+ID4KPiA+ID4gPiA+IElkbGUgQ1BVcyB0ZW50YXRpdmVseSBl
-bnRlciBhIGJ1c3kgd2FpdCBsb29wIGJlZm9yZSBoYWx0aW5nIHdoZW4gdGhlIGNwdWlkbGUKPiA+
-ID4gPiA+IGhhbHRwb2xsIGRyaXZlciBpcyBlbmFibGVkIGluc2lkZSBhIHZpcnR1YWwgbWFjaGlu
-ZS4gVGhpcyByZWR1Y2VzIHdha2V1cAo+ID4gPiA+ID4gbGF0ZW5jeSBmb3IgZXZlbnRzIHRoYXQg
-b2NjdXIgc29vbiBhZnRlciB0aGUgdkNQVSBiZWNvbWVzIGlkbGUuCj4gPiA+ID4gPgo+ID4gPiA+
-ID4gVGhpcyBwYXRjaCBzZXJpZXMgZXh0ZW5kcyB0aGUgY3B1aWRsZSBidXN5IHdhaXQgbG9vcCB3
-aXRoIHRoZSBuZXcgcG9sbF9zb3VyY2UKPiA+ID4gPiA+IEFQSSBzbyBkcml2ZXJzIGNhbiBwYXJ0
-aWNpcGF0ZSBpbiBwb2xsaW5nLiBTdWNoIHBvbGxpbmctYXdhcmUgZHJpdmVycyBkaXNhYmxlCj4g
-PiA+ID4gPiB0aGVpciBkZXZpY2UncyBpcnEgZHVyaW5nIHRoZSBidXN5IHdhaXQgbG9vcCB0byBh
-dm9pZCB0aGUgY29zdCBvZiBpbnRlcnJ1cHRzLgo+ID4gPiA+ID4gVGhpcyByZWR1Y2VzIGxhdGVu
-Y3kgZnVydGhlciB0aGFuIHJlZ3VsYXIgY3B1aWRsZSBoYWx0cG9sbCwgd2hpY2ggc3RpbGwgcmVs
-aWVzCj4gPiA+ID4gPiBvbiBpcnFzLgo+ID4gPiA+ID4KPiA+ID4gPiA+IFZpcnRpbyBkcml2ZXJz
-IGFyZSBtb2RpZmllZCB0byB1c2UgdGhlIHBvbGxfc291cmNlIEFQSSBzbyBhbGwgdmlydGlvIGRl
-dmljZQo+ID4gPiA+ID4gdHlwZXMgZ2V0IHRoaXMgZmVhdHVyZS4gVGhlIGZvbGxvd2luZyB2aXJ0
-aW8tYmxrIGZpbyBiZW5jaG1hcmsgcmVzdWx0cyBzaG93IHRoZQo+ID4gPiA+ID4gaW1wcm92ZW1l
-bnQ6Cj4gPiA+ID4gPgo+ID4gPiA+ID4gICAgICAgICAgICAgICAgSU9QUyAobnVtam9icz00LCBp
-b2RlcHRoPTEsIDQgdmlydHF1ZXVlcykKPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgYmVmb3Jl
-ICAgcG9sbF9zb3VyY2UgICAgICBpb19wb2xsCj4gPiA+ID4gPiA0ayByYW5kcmVhZCAgICAxNjcx
-MDIgIDE4NjA0OSAoKzExJSkgIDE4NjY1NCAoKzExJSkKPiA+ID4gPiA+IDRrIHJhbmR3cml0ZSAg
-IDE2MjIwNCAgMTgxMjE0ICgrMTElKSAgMTgxODUwICgrMTIlKQo+ID4gPiA+ID4gNGsgcmFuZHJ3
-ICAgICAgMTU5NTIwICAxNzcwNzEgKCsxMSUpICAxNzc5MjggKCsxMSUpCj4gPiA+ID4gPgo+ID4g
-PiA+ID4gVGhlIGNvbXBhcmlzb24gYWdhaW5zdCBpb19wb2xsIHNob3dzIHRoYXQgY3B1aWRsZSBw
-b2xsX3NvdXJjZSBhY2hpZXZlcwo+ID4gPiA+ID4gZXF1aXZhbGVudCBwZXJmb3JtYW5jZSB0byB0
-aGUgYmxvY2sgbGF5ZXIncyBpb19wb2xsIGZlYXR1cmUgKHdoaWNoIEkKPiA+ID4gPiA+IGltcGxl
-bWVudGVkIGluIGEgc2VwYXJhdGUgcGF0Y2ggc2VyaWVzIFsxXSkuCj4gPiA+ID4gPgo+ID4gPiA+
-ID4gVGhlIGFkdmFudGFnZSBvZiBwb2xsX3NvdXJjZSBpcyB0aGF0IGFwcGxpY2F0aW9ucyBkbyBu
-b3QgbmVlZCB0byBleHBsaWNpdGx5IHNldAo+ID4gPiA+ID4gdGhlIFJXRl9ISVBSSSBJL08gcmVx
-dWVzdCBmbGFnLiBUaGUgcG9sbF9zb3VyY2UgYXBwcm9hY2ggaXMgYXR0cmFjdGl2ZSBiZWNhdXNl
-Cj4gPiA+ID4gPiBmZXcgYXBwbGljYXRpb25zIGFjdHVhbGx5IHVzZSBSV0ZfSElQUkkgYW5kIGl0
-IHRha2VzIGFkdmFudGFnZSBvZiBDUFUgY3ljbGVzIHdlCj4gPiA+ID4gPiB3b3VsZCBoYXZlIHNw
-ZW50IGluIGNwdWlkbGUgaGFsdHBvbGwgYW55d2F5Lgo+ID4gPiA+ID4KPiA+ID4gPiA+IFRoZSBj
-dXJyZW50IHNlcmllcyBkb2VzIG5vdCBpbXByb3ZlIHZpcnRpby1uZXQuIEkgaGF2ZW4ndCBpbnZl
-c3RpZ2F0ZWQgZGVlcGx5LAo+ID4gPiA+ID4gYnV0IGl0IGlzIHBvc3NpYmxlIHRoYXQgTkFQSSBh
-bmQgcG9sbF9zb3VyY2UgZG8gbm90IGNvbWJpbmUuIFNlZSB0aGUgZmluYWwKPiA+ID4gPiA+IHBh
-dGNoIGZvciBhIHN0YXJ0aW5nIHBvaW50IG9uIG1ha2luZyB0aGUgdHdvIHdvcmsgdG9nZXRoZXIu
-Cj4gPiA+ID4gPgo+ID4gPiA+ID4gSSBoYXZlIG5vdCB0cmllZCB0aGlzIG9uIGJhcmUgbWV0YWwg
-YnV0IGl0IG1pZ2h0IGhlbHAgdGhlcmUgdG9vLiBUaGUgY29zdCBvZgo+ID4gPiA+ID4gZGlzYWJs
-aW5nIGEgZGV2aWNlJ3MgaXJxIG11c3QgYmUgbGVzcyB0aGFuIHRoZSBzYXZpbmdzIGZyb20gYXZv
-aWRpbmcgaXJxCj4gPiA+ID4gPiBoYW5kbGluZyBmb3IgdGhpcyBvcHRpbWl6YXRpb24gdG8gbWFr
-ZSBzZW5zZS4KPiA+ID4gPiA+Cj4gPiA+ID4gPiBbMV0gaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcv
-bGludXgtYmxvY2svMjAyMTA1MjAxNDEzMDUuMzU1OTYxLTEtc3RlZmFuaGFAcmVkaGF0LmNvbS8K
-PiA+ID4gPgo+ID4gPiA+IEhpIFN0ZWZhbjoKPiA+ID4gPgo+ID4gPiA+IFNvbWUgcXVlc3Rpb25z
-Ogo+ID4gPiA+Cj4gPiA+ID4gMSkgV2hhdCdzIHRoZSBhZHZhbnRhZ2VzIG9mIGludHJvZHVjaW5n
-IHBvbGxpbmcgYXQgdmlydGlvIGxldmVsIGluc3RlYWQgb2YKPiA+ID4gPiBkb2luZyBpdCBhdCBl
-YWNoIHN1YnN5c3RlbXM/IFBvbGxpbmcgaW4gdmlydGlvIGxldmVsIG1heSBvbmx5IHdvcmsgd2Vs
-bCBpZgo+ID4gPiA+IGFsbCAob3IgbW9zdCkgb2YgdGhlIGRldmljZXMgYXJlIHZpcnRpbwo+ID4g
-PiBJJ20gbm90IHN1cmUgSSB1bmRlcnN0YW5kIHRoZSBxdWVzdGlvbi4gY3B1aWRsZSBoYWx0cG9s
-bCBiZW5lZml0cyBhbGwKPiA+ID4gZGV2aWNlcyB0b2RheSwgZXhjZXB0IGl0IGluY3VycyBpbnRl
-cnJ1cHQgbGF0ZW5jeS4gVGhlIHBvbGxfc291cmNlIEFQSQo+ID4gPiBlbGltaW5hdGVzIHRoZSBp
-bnRlcnJ1cHQgbGF0ZW5jeSBmb3IgZHJpdmVycyB0aGF0IGNhbiBkaXNhYmxlIGRldmljZQo+ID4g
-PiBpbnRlcnJ1cHRzIGNoZWFwbHkuCj4gPiA+Cj4gPiA+IFRoaXMgcGF0Y2ggYWRkcyBwb2xsX3Nv
-dXJjZSB0byBjb3JlIHZpcnRpbyBjb2RlIHNvIHRoYXQgYWxsIHZpcnRpbwo+ID4gPiBkcml2ZXJz
-IGdldCB0aGlzIGZlYXR1cmUgZm9yIGZyZWUuIE5vIGRyaXZlci1zcGVjaWZpYyBjaGFuZ2VzIGFy
-ZQo+ID4gPiBuZWVkZWQuCj4gPiA+Cj4gPiA+IElmIHlvdSBtZWFuIG5ldHdvcmtpbmcsIGJsb2Nr
-IGxheWVyLCBldGMgYnkgInN1YnN5c3RlbXMiIHRoZW4gdGhlcmUncwo+ID4gPiBub3RoaW5nIHRo
-b3NlIHN1YnN5c3RlbXMgY2FuIGRvIHRvIGhlbHAuIFdoZXRoZXIgcG9sbF9zb3VyY2UgY2FuIGJl
-IHVzZWQKPiA+ID4gZGVwZW5kcyBvbiB0aGUgc3BlY2lmaWMgZHJpdmVyLCBub3QgdGhlIHN1YnN5
-c3RlbS4gSWYgeW91IGNvbnNpZGVyCj4gPiA+IGRyaXZlcnMvdmlydGlvLyBhIHN1YnN5c3RlbSwg
-dGhlbiB0aGF0J3MgZXhhY3RseSB3aGF0IHRoZSBwYXRjaCBzZXJpZXMKPiA+ID4gaXMgZG9pbmcu
-Cj4gPgo+ID4KPiA+IEkgbWVhbnQsIGlmIHdlIGNob29zZSB0byB1c2UgaWRsZSBwb2xsLCB3ZSBo
-YXZlIHNvbWUgc2V2ZXJhbCBjaG9pY2VzOgo+ID4KPiA+IDEpIGJ1cyBsZXZlbCAoZS5nIHRoZSB2
-aXJ0aW8pCj4gPiAyKSBzdWJzeXN0ZW0gbGV2ZWwgKGUuZyB0aGUgbmV0d29ya2luZyBhbmQgYmxv
-Y2spCj4gPgo+ID4gSSdtIG5vdCBzdXJlIHdoaWNoIG9uZSBpcyBiZXR0ZXIuCj4KPiBUaGlzIEFQ
-SSBpcyBpbnRlbmRlZCB0byBiZSBkcml2ZXItIG9yIGJ1cy1sZXZlbC4gSSBkb24ndCB0aGluawo+
-IHN1YnN5c3RlbXMgY2FuIGRvIHZlcnkgbXVjaCBzaW5jZSB0aGV5IGRvbid0IGtub3cgdGhlIGhh
-cmR3YXJlCj4gY2FwYWJpbGl0aWVzIChjaGVhcCBpbnRlcnJ1cHQgZGlzYWJsaW5nKSBhbmQgaW4g
-bW9zdCBjYXNlcyB0aGVyZSdzIG5vCj4gYWR2YW50YWdlIG9mIHBsdW1iaW5nIGl0IHRocm91Z2gg
-c3Vic3lzdGVtcyB3aGVuIGRyaXZlcnMgY2FuIGNhbGwgdGhlCj4gQVBJIGRpcmVjdGx5Lgo+Cj4g
-PiA+ID4gMikgV2hhdCdzIHRoZSBhZHZhbnRhZ2VzIG9mIHVzaW5nIGNwdWlkbGUgaW5zdGVhZCBv
-ZiB1c2luZyBhIHRocmVhZCAoYW5kCj4gPiA+ID4gbGV2ZXJhZ2UgdGhlIHNjaGVkdWxlcik/Cj4g
-PiA+IEluIG9yZGVyIHRvIGNvbWJpbmUgd2l0aCB0aGUgZXhpc3RpbmcgY3B1aWRsZSBpbmZyYXN0
-cnVjdHVyZS4gTm8gbmV3Cj4gPiA+IHBvbGxpbmcgbG9vcCBpcyBpbnRyb2R1Y2VkIGFuZCBubyBh
-ZGRpdGlvbmFsIENQVSBjeWNsZXMgYXJlIHNwZW50IG9uCj4gPiA+IHBvbGxpbmcuCj4gPiA+Cj4g
-PiA+IElmIGNwdWlkbGUgaXRzZWxmIGlzIGNvbnZlcnRlZCB0byB0aHJlYWRzIHRoZW4gcG9sbF9z
-b3VyY2Ugd291bGQKPiA+ID4gYXV0b21hdGljYWxseSBvcGVyYXRlIGluIGEgdGhyZWFkIHRvbywg
-YnV0IHRoaXMgcGF0Y2ggc2VyaWVzIGRvZXNuJ3QKPiA+ID4gY2hhbmdlIGhvdyB0aGUgY29yZSBj
-cHVpZGxlIGNvZGUgd29ya3MuCj4gPgo+ID4KPiA+IFNvIG5ldHdvcmtpbmcgc3Vic3lzdGVtIGNh
-biB1c2UgTkFQSSBidXN5IHBvbGxpbmcgaW4gdGhlIHByb2Nlc3MgY29udGV4dAo+ID4gd2hpY2gg
-bWVhbnMgaXQgY2FuIGJlIGxldmVyYWdlZCBieSB0aGUgc2NoZWR1bGVyLgo+ID4KPiA+IEknbSBu
-b3Qgc3VyZSBpdCdzIGEgZ29vZCBpZGVhIHRvIHBvbGwgZHJpdmVycyBmb3IgYSBzcGVjaWZpYyBi
-dXMgaW4gdGhlCj4gPiBnZW5lcmFsIGNwdSBpZGxlIGxheWVyLgo+Cj4gV2h5PyBNYXliZSBiZWNh
-dXNlIHRoZSBjcHVpZGxlIGV4ZWN1dGlvbiBlbnZpcm9ubWVudCBpcyBhIGxpdHRsZSBzcGVjaWFs
-PwoKV2VsbCwgdGhpcyB3b3VsZCBiZSBwcm9uZSB0byBhYnVzZS4KClRoZSB0aW1lIHNwZW50IGlu
-IHRoYXQgZHJpdmVyIGNhbGxiYWNrIGNvdW50cyBhcyBDUFUgaWRsZSB0aW1lIHdoaWxlCml0IHJl
-YWxseSBpcyB0aGUgZHJpdmVyIHJ1bm5pbmcgYW5kIHRoZXJlIGlzIG5vdCBsaW1pdCBvbiBob3cg
-bXVjaAp0aW1lIHRoZSBjYWxsYmFjayBjYW4gdGFrZSwgd2hpbGUgZG9pbmcgY29zdGx5IHRoaW5n
-cyBpbiB0aGUgaWRsZSBsb29wCmlzIGdlbmVyYWxseSBhdm9pZGVkLCBiZWNhdXNlIG9uIHdha2V1
-cCB0aGUgQ1BVIG5lZWRzIHRvIGJlIGF2YWlsYWJsZQp0byB0aGUgdGFzayBuZWVkaW5nIGl0IGFz
-IHNvb24gYXMgcG9zc2libGUuICBJT1csIHRoZSBjYWxsYmFjawpwb3RlbnRpYWxseSBhZGQgdW5i
-b3VuZGVkIGxhdGVuY3kgdG8gdGhlIENQVSB3YWtldXAgcGF0aC4KX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
-ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
-bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+--===============4266818183406414532==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="MI6BC+4T2wQdz2QD"
+Content-Disposition: inline
+
+
+--MI6BC+4T2wQdz2QD
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jul 26, 2021 at 05:47:19PM +0200, Rafael J. Wysocki wrote:
+> On Mon, Jul 26, 2021 at 5:17 PM Stefan Hajnoczi <stefanha@redhat.com> wro=
+te:
+> >
+> > On Thu, Jul 22, 2021 at 05:04:57PM +0800, Jason Wang wrote:
+> > >
+> > > =E5=9C=A8 2021/7/21 =E4=B8=8B=E5=8D=885:41, Stefan Hajnoczi =E5=86=99=
+=E9=81=93:
+> > > > On Wed, Jul 21, 2021 at 11:29:55AM +0800, Jason Wang wrote:
+> > > > > =E5=9C=A8 2021/7/14 =E4=B8=8A=E5=8D=8812:19, Stefan Hajnoczi =E5=
+=86=99=E9=81=93:
+> > > > > > These patches are not polished yet but I would like request fee=
+dback on this
+> > > > > > approach and share performance results with you.
+> > > > > >
+> > > > > > Idle CPUs tentatively enter a busy wait loop before halting whe=
+n the cpuidle
+> > > > > > haltpoll driver is enabled inside a virtual machine. This reduc=
+es wakeup
+> > > > > > latency for events that occur soon after the vCPU becomes idle.
+> > > > > >
+> > > > > > This patch series extends the cpuidle busy wait loop with the n=
+ew poll_source
+> > > > > > API so drivers can participate in polling. Such polling-aware d=
+rivers disable
+> > > > > > their device's irq during the busy wait loop to avoid the cost =
+of interrupts.
+> > > > > > This reduces latency further than regular cpuidle haltpoll, whi=
+ch still relies
+> > > > > > on irqs.
+> > > > > >
+> > > > > > Virtio drivers are modified to use the poll_source API so all v=
+irtio device
+> > > > > > types get this feature. The following virtio-blk fio benchmark =
+results show the
+> > > > > > improvement:
+> > > > > >
+> > > > > >                IOPS (numjobs=3D4, iodepth=3D1, 4 virtqueues)
+> > > > > >                  before   poll_source      io_poll
+> > > > > > 4k randread    167102  186049 (+11%)  186654 (+11%)
+> > > > > > 4k randwrite   162204  181214 (+11%)  181850 (+12%)
+> > > > > > 4k randrw      159520  177071 (+11%)  177928 (+11%)
+> > > > > >
+> > > > > > The comparison against io_poll shows that cpuidle poll_source a=
+chieves
+> > > > > > equivalent performance to the block layer's io_poll feature (wh=
+ich I
+> > > > > > implemented in a separate patch series [1]).
+> > > > > >
+> > > > > > The advantage of poll_source is that applications do not need t=
+o explicitly set
+> > > > > > the RWF_HIPRI I/O request flag. The poll_source approach is att=
+ractive because
+> > > > > > few applications actually use RWF_HIPRI and it takes advantage =
+of CPU cycles we
+> > > > > > would have spent in cpuidle haltpoll anyway.
+> > > > > >
+> > > > > > The current series does not improve virtio-net. I haven't inves=
+tigated deeply,
+> > > > > > but it is possible that NAPI and poll_source do not combine. Se=
+e the final
+> > > > > > patch for a starting point on making the two work together.
+> > > > > >
+> > > > > > I have not tried this on bare metal but it might help there too=
+=2E The cost of
+> > > > > > disabling a device's irq must be less than the savings from avo=
+iding irq
+> > > > > > handling for this optimization to make sense.
+> > > > > >
+> > > > > > [1] https://lore.kernel.org/linux-block/20210520141305.355961-1=
+-stefanha@redhat.com/
+> > > > >
+> > > > > Hi Stefan:
+> > > > >
+> > > > > Some questions:
+> > > > >
+> > > > > 1) What's the advantages of introducing polling at virtio level i=
+nstead of
+> > > > > doing it at each subsystems? Polling in virtio level may only wor=
+k well if
+> > > > > all (or most) of the devices are virtio
+> > > > I'm not sure I understand the question. cpuidle haltpoll benefits a=
+ll
+> > > > devices today, except it incurs interrupt latency. The poll_source =
+API
+> > > > eliminates the interrupt latency for drivers that can disable device
+> > > > interrupts cheaply.
+> > > >
+> > > > This patch adds poll_source to core virtio code so that all virtio
+> > > > drivers get this feature for free. No driver-specific changes are
+> > > > needed.
+> > > >
+> > > > If you mean networking, block layer, etc by "subsystems" then there=
+'s
+> > > > nothing those subsystems can do to help. Whether poll_source can be=
+ used
+> > > > depends on the specific driver, not the subsystem. If you consider
+> > > > drivers/virtio/ a subsystem, then that's exactly what the patch ser=
+ies
+> > > > is doing.
+> > >
+> > >
+> > > I meant, if we choose to use idle poll, we have some several choices:
+> > >
+> > > 1) bus level (e.g the virtio)
+> > > 2) subsystem level (e.g the networking and block)
+> > >
+> > > I'm not sure which one is better.
+> >
+> > This API is intended to be driver- or bus-level. I don't think
+> > subsystems can do very much since they don't know the hardware
+> > capabilities (cheap interrupt disabling) and in most cases there's no
+> > advantage of plumbing it through subsystems when drivers can call the
+> > API directly.
+> >
+> > > > > 2) What's the advantages of using cpuidle instead of using a thre=
+ad (and
+> > > > > leverage the scheduler)?
+> > > > In order to combine with the existing cpuidle infrastructure. No new
+> > > > polling loop is introduced and no additional CPU cycles are spent on
+> > > > polling.
+> > > >
+> > > > If cpuidle itself is converted to threads then poll_source would
+> > > > automatically operate in a thread too, but this patch series doesn't
+> > > > change how the core cpuidle code works.
+> > >
+> > >
+> > > So networking subsystem can use NAPI busy polling in the process cont=
+ext
+> > > which means it can be leveraged by the scheduler.
+> > >
+> > > I'm not sure it's a good idea to poll drivers for a specific bus in t=
+he
+> > > general cpu idle layer.
+> >
+> > Why? Maybe because the cpuidle execution environment is a little specia=
+l?
+>=20
+> Well, this would be prone to abuse.
+>=20
+> The time spent in that driver callback counts as CPU idle time while
+> it really is the driver running and there is not limit on how much
+> time the callback can take, while doing costly things in the idle loop
+> is generally avoided, because on wakeup the CPU needs to be available
+> to the task needing it as soon as possible.  IOW, the callback
+> potentially add unbounded latency to the CPU wakeup path.
+
+How is this different from driver interrupt handlers running during
+cpuidle?
+
+Stefan
+
+--MI6BC+4T2wQdz2QD
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmD+3E4ACgkQnKSrs4Gr
+c8hRBQf+JotrV0ZbnSaJ7lwx3V2P8/CMTWTqCLrxS67BoELl8ThmMuZpu2MoGl7O
+F5L4mNr6JSqNrnaUpOWYq6kz0aqWCLTZUsI9Fq8h0FE++dPZ4HNirMwEzPLybARa
+6uM3gm5dYaPuvt1y6ZaCOdzzDwSPvzFpITdGNPNFXZqNE7HbRh30xz2PCxnTzzMi
+9XD3IdPx9oXqaEjWIPQP94lvRztEHZHBD5NXoIS2rRPsjnUme9LuxpFvvicJqqL2
+GJW2XCMgm+AGCJ5p2fo5nzzAb28deMQtxXiMaLZC6vcW55Y/kXmW8Q9ar8o1PihB
+ExvwAAIbSPpynlUnYqOsYldwWW2ZNw==
+=t0SP
+-----END PGP SIGNATURE-----
+
+--MI6BC+4T2wQdz2QD--
+
+
+--===============4266818183406414532==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4266818183406414532==--
+
