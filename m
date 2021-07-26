@@ -1,69 +1,96 @@
 Return-Path: <SRS0=Dg4u=MS=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: **
-X-Spam-Status: No, score=2.3 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-	HTML_MESSAGE,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Level: 
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1458BC4338F
-	for <virtualization@archiver.kernel.org>; Mon, 26 Jul 2021 10:53:03 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A682EC4338F
+	for <virtualization@archiver.kernel.org>; Mon, 26 Jul 2021 15:17:50 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A4D5160462
-	for <virtualization@archiver.kernel.org>; Mon, 26 Jul 2021 10:53:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A4D5160462
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 5744B60F51
+	for <virtualization@archiver.kernel.org>; Mon, 26 Jul 2021 15:17:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 5744B60F51
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 650E66060E;
-	Mon, 26 Jul 2021 10:53:02 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2qw6lopogwIe; Mon, 26 Jul 2021 10:53:01 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 85486605FC;
-	Mon, 26 Jul 2021 10:53:00 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4431BC0010;
-	Mon, 26 Jul 2021 10:53:00 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 31ED7C000E
- for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jul 2021 10:52:59 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 16CD44010E
- for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jul 2021 10:52:59 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 1CE734014C;
+	Mon, 26 Jul 2021 15:17:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fd6n-G67JmqN
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ZGel3z5xw0Sn; Mon, 26 Jul 2021 15:17:49 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 7D6EB400C3;
+	Mon, 26 Jul 2021 15:17:48 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 54552C001A;
+	Mon, 26 Jul 2021 15:17:48 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EA1E9C000E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jul 2021 10:52:57 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
- [IPv6:2a03:f480:1:14::7d])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 52CD540187
+ Mon, 26 Jul 2021 15:17:46 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id E4FDA40390
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jul 2021 10:52:56 +0000 (UTC)
-Received: from [37.189.17.205] (helo=LAPTOP-EPOV2LRR)
- by s052d7dde.fastvps-server.com with esmtpsa
- (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
- (envelope-from <marle@saisti.eu>) id 1m7xzz-0004fq-IC
- for virtualization@lists.linux-foundation.org; Mon, 26 Jul 2021 13:38:15 +0300
-From: "ML" <marialemos72@gmail.com>
-Subject: ICITS'22 - The 2022 International Conference on Information
- Technology & Systems | Costa Rica
-To: virtualization@lists.linux-foundation.org
+ Mon, 26 Jul 2021 15:17:46 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id cLUrvCIHysH5
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 26 Jul 2021 15:17:45 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 26B7340389
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 26 Jul 2021 15:17:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1627312663;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=FMlQ25hJH+R6pFD/1ahHb0bRBusBkFzxUiCW7bLMoRM=;
+ b=FsXc7g6CCp7fRi/Zugz3/W+yI6mwq3ZP8nRX07GkLz3BvuXAap0UVDKisMrXbu0PnJFIv8
+ h/WHgXBifEipww0BegoLl1N9z2HA1Dr8In0EX+ywCRmuGZLnSLxBTVDkfgxEw8kQciLiLi
+ OM/QabP0QUPcaJw1EneqaETs9LON42A=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-119-g6CjAF31OVu8ZPoQLsfTDA-1; Mon, 26 Jul 2021 11:17:42 -0400
+X-MC-Unique: g6CjAF31OVu8ZPoQLsfTDA-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
+ [10.5.11.23])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 94014107ACF5;
+ Mon, 26 Jul 2021 15:17:40 +0000 (UTC)
+Received: from localhost (ovpn-113-151.ams2.redhat.com [10.36.113.151])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 896FC19C59;
+ Mon, 26 Jul 2021 15:17:39 +0000 (UTC)
+Date: Mon, 26 Jul 2021 16:17:38 +0100
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC 0/3] cpuidle: add poll_source API and virtio vq polling
+Message-ID: <YP7SEkDEIBOch9U8@stefanha-x1.localdomain>
+References: <20210713161906.457857-1-stefanha@redhat.com>
+ <1008dee4-fce1-2462-1520-f5432bc89a07@redhat.com>
+ <YPfryV7qZVRbjNgP@stefanha-x1.localdomain>
+ <869a993d-a1b0-1c39-d081-4cdd2b71041f@redhat.com>
 MIME-Version: 1.0
-Date: Mon, 26 Jul 2021 11:38:15 +0100
-Message-ID: <18468143588140@gmail-com>
-X-Antivirus: AVG (VPS 210726-0, 26/7/2021), Outbound message
-X-Antivirus-Status: Clean
+In-Reply-To: <869a993d-a1b0-1c39-d081-4cdd2b71041f@redhat.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Cc: Jens Axboe <axboe@kernel.dk>, Christoph Hellwig <hch@infradead.org>,
+ Daniel Lezcano <daniel.lezcano@linaro.org>,
+ "Michael S . Tsirkin" <mst@redhat.com>, linux-pm@vger.kernel.org,
+ "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-kernel@vger.kernel.org,
+ Ming Lei <ming.lei@redhat.com>, linux-block@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -75,346 +102,186 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: intercits@gmail.com
-Content-Type: multipart/mixed; boundary="===============7132726355748286374=="
+Content-Type: multipart/mixed; boundary="===============4249320151734475925=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is a multi-part message in MIME format
 
---===============7132726355748286374==
-Content-Type: multipart/alternative; charset=utf-8; boundary="V7HPWhwDjmZ8EKDOVJ1IqwUop46lSX=_N2"
-
-This is a multi-part message in MIME format
-
---V7HPWhwDjmZ8EKDOVJ1IqwUop46lSX=_N2
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+--===============4249320151734475925==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="jE35KopBNKOzFkBR"
 Content-Disposition: inline
 
----------------------------------------------------------------------------=
------------------------------------------
-ICITS'22 - The 2022 International Conference on Information Technology & Sy=
-stems
-San Carlos, Costa Rica, 9 - 11 February 2022
-http://icits.me <http://icits.me>
----------------------------------------------------------------------------=
------------------------------------------
- 
-SCOPE
- 
-ICITS'22 - The 2022 International Conference on Information Technology & Sy=
-stems (http://icits.me <http://icits.me>), to be held in Tecnol=C3=B3gico d=
-e Costa Rica, Campus de San Carlos, Costa Rica, 9 - 11 February 2022, is an=
- international forum for researchers and practitioners to present and discu=
-ss the most recent innovations, trends, results, experiences and concerns i=
-n the several perspectives of Information Technology & Systems.  
- 
-We are pleased to invite you to submit your papers to ICITS'22. They can be=
- written in English, Spanish or Portuguese. All submissions will be reviewe=
-d on the basis of relevance, originality, importance and clarity.
- 
- 
-TOPICS
- 
-Submitted papers should be related with one or more of the main themes prop=
-osed for the Conference:  
- 
-A) Information and Knowledge Management (IKM);  
-B) Organizational Models and Information Systems (OMIS);  
-C) Software and Systems Modeling (SSM);  
-D) Software Systems, Architectures, Applications and Tools (SSAAT);  
-E) Multimedia Systems and Applications (MSA);  
-F) Computer Networks, Mobility and Pervasive Systems (CNMPS);  
-G) Intelligent and Decision Support Systems (IDSS);  
-H) Big Data Analytics and Applications (BDAA);  
-I) Human-Computer Interaction (HCI);  
-J) Ethics, Computers and Security (ECS)  
-K) Health Informatics (HIS);  
-L) Information Technologies in Education (ITE);  
-M) Media, Applied Technology and Communication (MATC).
- 
- 
-SUBMISSION and DECISION
- 
-Submitted papers written in English (until 10-page limit) must comply with =
-the format of the Lecture Notes in Networks and Systems series (see Instruc=
-tions for Authors at Springer Website), must not have been published before=
-, not be under review for any other conference or publication and not inclu=
-de any information leading to the authors=E2=80=99 identification. Therefor=
-e, the authors=E2=80=99 names and affiliations should not be included in th=
-e version for evaluation by the Scientific Committee. This information shou=
-ld only be included in the camera-ready version, saved in Word or Latex for=
-mat and also in PDF format. These files must be accompanied by the Consent =
-to Publish form filled out, in a ZIP file, and uploaded at the conference m=
-anagement system.
-  
-Submitted papers written in Spanish or Portuguese (until 15-page limit) mus=
-t comply with the format of RISTI - Revista Ib=C3=A9rica de Sistemas e Tecn=
-ologias de Informa=C3=A7=C3=A3o (download instructions/template for authors=
- in Spanish or Portuguese), must not have been published before, not be und=
-er review for any other conference or publication and not include any infor=
-mation leading to the authors=E2=80=99 identification. Therefore, the autho=
-rs=E2=80=99 names and affiliations should not be included in the version fo=
-r evaluation by the Scientific Committee. This information should only be i=
-ncluded in the camera-ready version, saved in Word. These files must be upl=
-oaded at the conference management system in a ZIP file.
-  
-All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D by =
-at least two members of the Scientific Committee.  
-Based on Scientific Committee evaluation, a paper can be rejected or accept=
-ed by the Conference Chairs. In the later case, it can be accepted as paper=
- or poster.
-  
-The authors of papers accepted as posters must build and print a poster to =
-be exhibited during the Conference. This poster must follow an A1 or A2 ver=
-tical format. The Conference can include Work Sessions where these posters =
-are presented and orally discussed, with a 7 minute limit per poster.
-  
-The authors of accepted papers will have 15 minutes to present their work i=
-n a Conference Work Session; approximately 5 minutes of discussion will fol=
-low each presentation.
- 
- 
-PUBLICATION and INDEXING  
- 
-Papers accepted as posters are not published; they are only exhibited, pres=
-ented and discussed during the conference.  
- 
-To ensure that a paper accepted as paper is published, at least one of the =
-authors must be fully registered by the 5th of November 2021, and the paper=
- must comply with the suggested layout and page-limit. Additionally, all re=
-commended changes must be addressed by the authors before they submit the c=
-amera-ready version.  
-No more than one paper per registration will be published. An extra fee mus=
-t be paid for publication of additional papers, with a maximum of one addit=
-ional paper per registration. One registration permits only the participati=
-on of one author in the conference.  
- 
-Papers written in English and accepted and registered will be published in =
-Proceedings by Springer, in a book of the Lecture Notes in Networks and Sys=
-tems series, will  be submitted for indexation by SCOPUS, WoS, Google Schol=
-ar, SCImago, among others, and will be available in the SpringerLink Digita=
-l Library.  
- 
-Papers written in Spanish or Portuguese and accepted and registered will be=
- published in a Special Issue of RISTI and will be submitted for indexation=
- by SCOPUS, among others.
- 
- 
-IMPORTANT DATES
- 
-Paper Submission: September 5, 2021  
- 
-Notification of Acceptance: October 17, 2021  
- 
-Payment of Registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: November 5, 2021.  
- 
-Camera-ready Submission: November 5, 2021
- 
- 
-Website of ICITS'22: http://icits.me <http://icits.me>
- 
- 
-ICITS'22 Team
-http://icits.me <http://icits.me>
 
-
--- 
-This email has been checked for viruses by AVG.
-https://www.avg.com
-
---V7HPWhwDjmZ8EKDOVJ1IqwUop46lSX=_N2
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+--jE35KopBNKOzFkBR
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <div class=3D"adn ads" data-message-id=3D"#msg-a:r-1499474762405574081"=
- data-legacy-message-id=3D"17a812a84db16fcf">
-      <div class=3D"gs">
-        <div>
-          <div id=3D":19a" class=3D"ii gt">
-            <div id=3D":199" class=3D"a3s aiL ">---------------------------=
----------------------------------------------------------------------------=
---------------</div>
-            <div class=3D"a3s aiL ">ICITS'22 - The 2022 International Confe=
-rence on Information Technology &amp; Systems</div>
-            <div class=3D"a3s aiL ">San Carlos, Costa Rica, 9 - 11 February=
- 2022</div>
-            <div class=3D"a3s aiL "><a href=3D"http://icits.me">http://icit=
-s.me</a><br />-------------------------------------------------------------=
--------------------------------------------------------<br />&nbsp;</div>
-            <div class=3D"a3s aiL ">SCOPE</div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">ICITS'22 - The 2022 International Confe=
-rence on Information Technology &amp; Systems (<a href=3D"http://icits.me">=
-http://icits.me</a>), to be held in Tecnol&oacute;gico de Costa Rica, Campu=
-s de San Carlos, Costa Rica, 9 - 11 February 2022, is an international foru=
-m for researchers and practitioners to present and discuss the most recent =
-innovations, trends, results, experiences and concerns in the several persp=
-ectives of Information Technology &amp; Systems.&nbsp; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">We are pleased to invite you to submit =
-your papers to ICITS'22. They can be written in English, Spanish or Portugu=
-ese. All submissions will be reviewed on the basis of relevance, originalit=
-y, importance and clarity.<br />&nbsp;</div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">TOPICS</div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Submitted papers should be related with=
- one or more of the main themes proposed for the Conference:&nbsp; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">A) Information and Knowledge Management=
- (IKM);&nbsp; </div>
-            <div class=3D"a3s aiL ">B) Organizational Models and Informatio=
-n Systems (OMIS);&nbsp; </div>
-            <div class=3D"a3s aiL ">C) Software and Systems Modeling (SSM);=
-&nbsp; </div>
-            <div class=3D"a3s aiL ">D) Software Systems, Architectures, App=
-lications and Tools (SSAAT);&nbsp; </div>
-            <div class=3D"a3s aiL ">E) Multimedia Systems and Applications =
-(MSA);&nbsp; </div>
-            <div class=3D"a3s aiL ">F) Computer Networks, Mobility and Perv=
-asive Systems (CNMPS);&nbsp; </div>
-            <div class=3D"a3s aiL ">G) Intelligent and Decision Support Sys=
-tems (IDSS);&nbsp; </div>
-            <div class=3D"a3s aiL ">H) Big Data Analytics and Applications =
-(BDAA);&nbsp; </div>
-            <div class=3D"a3s aiL ">I) Human-Computer Interaction (HCI);&nb=
-sp; </div>
-            <div class=3D"a3s aiL ">J) Ethics, Computers and Security (ECS)=
-&nbsp; </div>
-            <div class=3D"a3s aiL ">K) Health Informatics (HIS);&nbsp; </di=
-v>
-            <div class=3D"a3s aiL ">L) Information Technologies in Educatio=
-n (ITE);&nbsp; </div>
-            <div class=3D"a3s aiL ">M) Media, Applied Technology and Commun=
-ication (MATC).<br />&nbsp;</div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">SUBMISSION and DECISION</div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Submitted papers written in English (un=
-til 10-page limit) must comply with the format of the Lecture Notes in Netw=
-orks and Systems series (see Instructions for Authors at Springer Website),=
- must not have been published before, not be under review for any other con=
-ference or publication and not include any information leading to the autho=
-rs&rsquo; identification. Therefore, the authors&rsquo; names and affiliati=
-ons should not be included in the version for evaluation by the Scientific =
-Committee. This information should only be included in the camera-ready ver=
-sion, saved in Word or Latex format and also in PDF format. These files mus=
-t be accompanied by the Consent to Publish form filled out, in a ZIP file, =
-and uploaded at the conference management system.</div>
-            <div class=3D"a3s aiL ">&nbsp; </div>
-            <div class=3D"a3s aiL ">Submitted papers written in Spanish or =
-Portuguese (until 15-page limit) must comply with the format of RISTI - Rev=
-ista Ib&eacute;rica de Sistemas e Tecnologias de Informa&ccedil;&atilde;o (=
-download instructions/template for authors in Spanish or Portuguese), must =
-not have been published before, not be under review for any other conferenc=
-e or publication and not include any information leading to the authors&rsq=
-uo; identification. Therefore, the authors&rsquo; names and affiliations sh=
-ould not be included in the version for evaluation by the Scientific Commit=
-tee. This information should only be included in the camera-ready version, =
-saved in Word. These files must be uploaded at the conference management sy=
-stem in a ZIP file.</div>
-            <div class=3D"a3s aiL ">&nbsp; </div>
-            <div class=3D"a3s aiL ">All papers will be subjected to a &ldqu=
-o;double-blind review&rdquo; by at least two members of the Scientific Comm=
-ittee.&nbsp; </div>
-            <div class=3D"a3s aiL ">Based on Scientific Committee evaluatio=
-n, a paper can be rejected or accepted by the Conference Chairs. In the lat=
-er case, it can be accepted as paper or poster.</div>
-            <div class=3D"a3s aiL ">&nbsp; </div>
-            <div class=3D"a3s aiL ">The authors of papers accepted as poste=
-rs must build and print a poster to be exhibited during the Conference. Thi=
-s poster must follow an A1 or A2 vertical format. The Conference can includ=
-e Work Sessions where these posters are presented and orally discussed, wit=
-h a 7 minute limit per poster.</div>
-            <div class=3D"a3s aiL ">&nbsp; </div>
-            <div class=3D"a3s aiL ">The authors of accepted papers will hav=
-e 15 minutes to present their work in a Conference Work Session; approximat=
-ely 5 minutes of discussion will follow each presentation.<br />&nbsp;</div=
->
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">PUBLICATION and INDEXING&nbsp; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Papers accepted as posters are not publ=
-ished; they are only exhibited, presented and discussed during the conferen=
-ce.&nbsp; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">To ensure that a paper accepted as pape=
-r is published, at least one of the authors must be fully registered by the=
- 5th of November 2021, and the paper must comply with the suggested layout =
-and page-limit. Additionally, all recommended changes must be addressed by =
-the authors before they submit the camera-ready version.&nbsp; </div>
-            <div class=3D"a3s aiL ">No more than one paper per registration=
- will be published. An extra fee must be paid for publication of additional=
- papers, with a maximum of one additional paper per registration. One regis=
-tration permits only the participation of one author in the conference.&nbs=
-p; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Papers written in English and accepted =
-and registered will be published in Proceedings by Springer, in a book of t=
-he Lecture Notes in Networks and Systems series, will&nbsp; be submitted fo=
-r indexation by SCOPUS, WoS, Google Scholar, SCImago, among others, and wil=
-l be available in the SpringerLink Digital Library.&nbsp; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Papers written in Spanish or Portuguese=
- and accepted and registered will be published in a Special Issue of RISTI =
-and will be submitted for indexation by SCOPUS, among others.<br />&nbsp;</=
-div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">IMPORTANT DATES</div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Paper Submission: September 5, 2021&nbs=
-p; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Notification of Acceptance: October 17,=
- 2021&nbsp; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Payment of Registration, to ensure the =
-inclusion of an accepted paper in the conference proceedings: November 5, 2=
-021.&nbsp; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Camera-ready Submission: November 5, 20=
-21<br />&nbsp;<br />&nbsp;<br />Website of ICITS'22: <a href=3D"http://icit=
-s.me">http://icits.me</a><br />&nbsp;<br />&nbsp;<br />ICITS'22 Team<br /><=
-a href=3D"http://icits.me">http://icits.me</a></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
-<table style=3D"border-top: 1px solid #D3D4DE;">
-	<tr>
-        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
-=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
-n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
-s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
-=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
-a></td>
-		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
-13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
-free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
-source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
-"_blank" style=3D"color: #4453ea;">www.avg.com</a>
-		</td>
-	</tr>
-</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
-t=3D"1"> </a></div></body>
-</html>
+On Thu, Jul 22, 2021 at 05:04:57PM +0800, Jason Wang wrote:
+>=20
+> =E5=9C=A8 2021/7/21 =E4=B8=8B=E5=8D=885:41, Stefan Hajnoczi =E5=86=99=E9=
+=81=93:
+> > On Wed, Jul 21, 2021 at 11:29:55AM +0800, Jason Wang wrote:
+> > > =E5=9C=A8 2021/7/14 =E4=B8=8A=E5=8D=8812:19, Stefan Hajnoczi =E5=86=
+=99=E9=81=93:
+> > > > These patches are not polished yet but I would like request feedbac=
+k on this
+> > > > approach and share performance results with you.
+> > > >=20
+> > > > Idle CPUs tentatively enter a busy wait loop before halting when th=
+e cpuidle
+> > > > haltpoll driver is enabled inside a virtual machine. This reduces w=
+akeup
+> > > > latency for events that occur soon after the vCPU becomes idle.
+> > > >=20
+> > > > This patch series extends the cpuidle busy wait loop with the new p=
+oll_source
+> > > > API so drivers can participate in polling. Such polling-aware drive=
+rs disable
+> > > > their device's irq during the busy wait loop to avoid the cost of i=
+nterrupts.
+> > > > This reduces latency further than regular cpuidle haltpoll, which s=
+till relies
+> > > > on irqs.
+> > > >=20
+> > > > Virtio drivers are modified to use the poll_source API so all virti=
+o device
+> > > > types get this feature. The following virtio-blk fio benchmark resu=
+lts show the
+> > > > improvement:
+> > > >=20
+> > > >                IOPS (numjobs=3D4, iodepth=3D1, 4 virtqueues)
+> > > >                  before   poll_source      io_poll
+> > > > 4k randread    167102  186049 (+11%)  186654 (+11%)
+> > > > 4k randwrite   162204  181214 (+11%)  181850 (+12%)
+> > > > 4k randrw      159520  177071 (+11%)  177928 (+11%)
+> > > >=20
+> > > > The comparison against io_poll shows that cpuidle poll_source achie=
+ves
+> > > > equivalent performance to the block layer's io_poll feature (which I
+> > > > implemented in a separate patch series [1]).
+> > > >=20
+> > > > The advantage of poll_source is that applications do not need to ex=
+plicitly set
+> > > > the RWF_HIPRI I/O request flag. The poll_source approach is attract=
+ive because
+> > > > few applications actually use RWF_HIPRI and it takes advantage of C=
+PU cycles we
+> > > > would have spent in cpuidle haltpoll anyway.
+> > > >=20
+> > > > The current series does not improve virtio-net. I haven't investiga=
+ted deeply,
+> > > > but it is possible that NAPI and poll_source do not combine. See th=
+e final
+> > > > patch for a starting point on making the two work together.
+> > > >=20
+> > > > I have not tried this on bare metal but it might help there too. Th=
+e cost of
+> > > > disabling a device's irq must be less than the savings from avoidin=
+g irq
+> > > > handling for this optimization to make sense.
+> > > >=20
+> > > > [1] https://lore.kernel.org/linux-block/20210520141305.355961-1-ste=
+fanha@redhat.com/
+> > >=20
+> > > Hi Stefan:
+> > >=20
+> > > Some questions:
+> > >=20
+> > > 1) What's the advantages of introducing polling at virtio level inste=
+ad of
+> > > doing it at each subsystems? Polling in virtio level may only work we=
+ll if
+> > > all (or most) of the devices are virtio
+> > I'm not sure I understand the question. cpuidle haltpoll benefits all
+> > devices today, except it incurs interrupt latency. The poll_source API
+> > eliminates the interrupt latency for drivers that can disable device
+> > interrupts cheaply.
+> >=20
+> > This patch adds poll_source to core virtio code so that all virtio
+> > drivers get this feature for free. No driver-specific changes are
+> > needed.
+> >=20
+> > If you mean networking, block layer, etc by "subsystems" then there's
+> > nothing those subsystems can do to help. Whether poll_source can be used
+> > depends on the specific driver, not the subsystem. If you consider
+> > drivers/virtio/ a subsystem, then that's exactly what the patch series
+> > is doing.
+>=20
+>=20
+> I meant, if we choose to use idle poll, we have some several choices:
+>=20
+> 1) bus level (e.g the virtio)
+> 2) subsystem level (e.g the networking and block)
+>=20
+> I'm not sure which one is better.
 
---V7HPWhwDjmZ8EKDOVJ1IqwUop46lSX=_N2--
+This API is intended to be driver- or bus-level. I don't think
+subsystems can do very much since they don't know the hardware
+capabilities (cheap interrupt disabling) and in most cases there's no
+advantage of plumbing it through subsystems when drivers can call the
+API directly.
+
+> > > 2) What's the advantages of using cpuidle instead of using a thread (=
+and
+> > > leverage the scheduler)?
+> > In order to combine with the existing cpuidle infrastructure. No new
+> > polling loop is introduced and no additional CPU cycles are spent on
+> > polling.
+> >=20
+> > If cpuidle itself is converted to threads then poll_source would
+> > automatically operate in a thread too, but this patch series doesn't
+> > change how the core cpuidle code works.
+>=20
+>=20
+> So networking subsystem can use NAPI busy polling in the process context
+> which means it can be leveraged by the scheduler.
+>=20
+> I'm not sure it's a good idea to poll drivers for a specific bus in the
+> general cpu idle layer.
+
+Why? Maybe because the cpuidle execution environment is a little special?
+
+> Another questions, are those numbers measured by APICV capable machine?
+
+Yes.
+
+> Virtio-net turns on the tx interrupts since 2 years ago. And we don't see
+> too much difference when measured with a APICV host.
+
+My understand is NAPI always takes the first interrupt. Polling only
+happens on subsequent rounds until there's no more work to do.
+
+There seem to be multiple factors that would influence tx performance
+like how full the tx queues are, whether more packets are sent during
+NAPI polling, whether you're benchmarking a physical PCIe NIC or a
+vhost_net software device, etc.
+
+Regarding APICV and software devices, the benchmark results I posted
+show that avoiding the interrupt injection helps even with APICV.
+
+Stefan
+
+--jE35KopBNKOzFkBR
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmD+0hIACgkQnKSrs4Gr
+c8hEMwf/UorkfbFzgbz8WztHfFLygTqvvZ+SQp1NtIS713IwgbLzCS1YSae8MgOx
+1DbSdXqGM/iQUzorcrJVzKyc2jNsRAYDTw8bK0sF6XIAptbrDcHRFs/o6NAZw4vB
+h4ohjd1H0UYaDgKZP0sX0ecu/V4gJ2IPteUcGS+L9ZfXw7IVSXFU/6iHAmkmSz6D
+uwwBwvYgFKgmfeg1z0MGNHB2P8akYlGjHJkDX8oXQLVULAGqpCONfu347leIMM50
+X1r9n8BUpJy9ieIKr1ED4uVmTJImbsR7ReXLFjp3U5DLErhWr8OEZL3wEA3q4J1M
+7NAjTB9t4Aecd7549QNpbF16aC+pgQ==
+=U0jQ
+-----END PGP SIGNATURE-----
+
+--jE35KopBNKOzFkBR--
 
 
---===============7132726355748286374==
+--===============4249320151734475925==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -424,5 +291,5 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7132726355748286374==--
+--===============4249320151734475925==--
 
