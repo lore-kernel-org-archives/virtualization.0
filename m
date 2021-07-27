@@ -7,100 +7,101 @@ X-Spam-Status: No, score=-16.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE772C432BE
-	for <virtualization@archiver.kernel.org>; Tue, 27 Jul 2021 05:24:33 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C193DC4338F
+	for <virtualization@archiver.kernel.org>; Tue, 27 Jul 2021 05:24:37 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7BB38610A5
-	for <virtualization@archiver.kernel.org>; Tue, 27 Jul 2021 05:24:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 7BB38610A5
+	by mail.kernel.org (Postfix) with ESMTPS id 88C57610D0
+	for <virtualization@archiver.kernel.org>; Tue, 27 Jul 2021 05:24:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 88C57610D0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 56F79404B4;
-	Tue, 27 Jul 2021 05:24:31 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6A21183834;
+	Tue, 27 Jul 2021 05:24:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RXL5oMSwAXuX; Tue, 27 Jul 2021 05:24:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DAF874045F;
-	Tue, 27 Jul 2021 05:24:28 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id HIIsu9H7R5pq; Tue, 27 Jul 2021 05:24:36 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 06F52837B6;
+	Tue, 27 Jul 2021 05:24:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B5464C0010;
-	Tue, 27 Jul 2021 05:24:28 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C3F1DC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E4453C0010;
+	Tue, 27 Jul 2021 05:24:35 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 86B3CC000E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jul 2021 05:24:26 +0000 (UTC)
+ Tue, 27 Jul 2021 05:24:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B33B0403A9
+ by smtp4.osuosl.org (Postfix) with ESMTP id 8282E404BA
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jul 2021 05:24:26 +0000 (UTC)
+ Tue, 27 Jul 2021 05:24:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=linaro.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Gj9U72FPAbVe
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 6tR9mhN0cOFs
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jul 2021 05:24:26 +0000 (UTC)
+ Tue, 27 Jul 2021 05:24:34 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com
- [IPv6:2607:f8b0:4864:20::635])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 31AAA402C8
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com
+ [IPv6:2607:f8b0:4864:20::1031])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 67BE3404B8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Jul 2021 05:24:26 +0000 (UTC)
-Received: by mail-pl1-x635.google.com with SMTP id e21so9979368pla.5
+ Tue, 27 Jul 2021 05:24:34 +0000 (UTC)
+Received: by mail-pj1-x1031.google.com with SMTP id
+ o44-20020a17090a0a2fb0290176ca3e5a2fso3296573pjo.1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Jul 2021 22:24:26 -0700 (PDT)
+ Mon, 26 Jul 2021 22:24:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
  h=from:to:cc:subject:date:message-id:in-reply-to:references
  :mime-version:content-transfer-encoding;
- bh=eK8DOqvzTIA+QnY/7E9eUfZzzNYH4fK9bj2nYZkAiVA=;
- b=dteFSvxfHiolxWExFCYBJpIdo7z7XthW2duKjP9HC9nPVQnFZxCHAaDfYC/WnS+tCs
- Q7bfzBcs2VcLHnHdgtN3Yl58ZdpAMmqjlLP1IaZ/Zz2IWkg+K8X1xHO/NryCoqAItG1j
- Ou3dHWLNXdjeP8RiFRY7QG/mAu5B8BOCOUo7Fz9PPjJzpPQ6KnfiIoYkSrLMeIAf3DK5
- xfC/HxiYc/e+RUzrim8Jp8nO9FbXeM8NhSoG/OZitD3rrAtDsQ2aCIpDW9euJlXcQOO4
- 9+wpvm7zzZyQRq8Yqvw6kLxNCjLqjObe0rjc6Bj577cCozYlzYviWuV5gAULASRIDxSX
- 1azA==
+ bh=2bReu9/QiDlixJ/zUrMpF+Tdh8nXeZ2MTWODegeEltE=;
+ b=sguymNCUwJvY2Vm/IznufncDBF3sjETSlEYR+vj6oJ+UM67MLBhMqFWHk4mxJ2PsSK
+ 5b/s7cah1FqzNg7kC19ikh307/G6HXGV6vMozb6gQ9Ivrinas5A5uGFE+gYR4y+sp8CP
+ ooRPiSyF+J/ZHTpxuhxzjHDtCtY6Ig6pMCAsZA77tabFVO9u5bZFxnaz0DMP43yxUwc0
+ BsPvx34ZEDZ4sn9IAvNFCcHSOMaiylMSvxoU6OsQqf64kvFfB6/cJZ/Wc6nZS8In21fJ
+ Il3PEhvnL7Rv74YUjSqCJQU+77wRAcE34sRn7mrHM27QxxrNB5RZ77Q1OyKTtOWvxq+T
+ z91A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
  :references:mime-version:content-transfer-encoding;
- bh=eK8DOqvzTIA+QnY/7E9eUfZzzNYH4fK9bj2nYZkAiVA=;
- b=jiqbcrHNuhQV1/6d9+hG+qVhc0SwNQYHrk38GGl4hOzFGX7cBA+EMzL3ExwklS7Oik
- tEzm6AGvhYt8sYdmNWTXFbWirTwTmMA3yHMUjnyCeDwIlk6TJoHWM9FAjBuobIpy5Eo4
- PdJsT2XteUxaETomf+KNTM3+K15M2QUIumGmMVnzVI1ti9hlQ/3PKHJwshAZQv+Oe6DK
- w1xsX4mARNl2LAwvM52hJyEOt6NtoPqgFbJrm2hFysjQIb0sf7lEhp4VUAGnnz2yZ2XZ
- tVNl5ShH5Hm2FP2F+NxDR/tcjEducg8LZ1ckZF/PzDTbqkdhSpYddb1fWPAgifsHbds4
- UZYA==
-X-Gm-Message-State: AOAM533c5+PonibdiezcWehzhe5AVClB3QFSx1MEim+JPPBzWA1jlWd0
- mqE31KH4OG/xC7x4pjzaqORuMQ==
-X-Google-Smtp-Source: ABdhPJzRk7RQiqieWBYc81OTRLrRYzwmnBZjPv5WDsKGoRHCVQivVdcYtDMy5wkfqeCcdgrSLdnhHQ==
-X-Received: by 2002:a17:902:e843:b029:12b:2260:b634 with SMTP id
- t3-20020a170902e843b029012b2260b634mr17178785plg.27.1627363465701; 
- Mon, 26 Jul 2021 22:24:25 -0700 (PDT)
+ bh=2bReu9/QiDlixJ/zUrMpF+Tdh8nXeZ2MTWODegeEltE=;
+ b=ItHlRFqA4Zzr6PKzSQGVQsOPqXf50sNyyQJzj/hFpV3I1q56iM9brHeA995MW8URsc
+ CzC+O1WoX4ba8YOWWyOZherUG8gucMR6WlG8x6QxbwQuEpEoTugpCQGmlISgcM6ypAlm
+ P7v1IaTzBno0r4fbpZpy9RLCT+/OLsLrq/0eJPWBzKTaMBJZYDSwuty032tBQEw6FvVT
+ RYV6aaEfkyjNCMYihFyFO0cgKvk02LhQfdChR5TXhqQvPvC1Tv0s80RdPxMEe7bBjYui
+ TLFV0eSJcaCPdzA0/hlweR0qVograuBGUl9sY2LMCvnwWvf2e6r/BtfBOudKI3VFsSGP
+ Oqzg==
+X-Gm-Message-State: AOAM533/E3aXJCT2GK2804cP9d/y91irUOJOQ+PSwjYnos70F4TjiPrC
+ Y5WIXab2CYielGLnBPe1jZ5mJ87G2cwgJg==
+X-Google-Smtp-Source: ABdhPJy6I9aeK/9Rc3UXH2kpfbIZFK/LBxRNWnIHopkBRg9v94YtfYYGkl2/6Qm2SBVK8JZ5lLhYiQ==
+X-Received: by 2002:a17:90a:86:: with SMTP id a6mr2447703pja.133.1627363473907; 
+ Mon, 26 Jul 2021 22:24:33 -0700 (PDT)
 Received: from localhost ([122.172.201.85])
- by smtp.gmail.com with ESMTPSA id k20sm1263589pji.3.2021.07.26.22.24.19
+ by smtp.gmail.com with ESMTPSA id b9sm1857444pfm.124.2021.07.26.22.24.27
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 26 Jul 2021 22:24:19 -0700 (PDT)
+ Mon, 26 Jul 2021 22:24:28 -0700 (PDT)
 From: Viresh Kumar <viresh.kumar@linaro.org>
 To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
  Rob Herring <robh+dt@kernel.org>, Arnd Bergmann <arnd@kernel.org>,
  Jean-Philippe Brucker <jean-philippe@linaro.org>
-Subject: [PATCH V4 4/5] uapi: virtio_ids: Sync ids with specification
-Date: Tue, 27 Jul 2021 10:53:51 +0530
-Message-Id: <61b27e3bc61fb0c9f067001e95cfafc5d37d414a.1627362340.git.viresh.kumar@linaro.org>
+Subject: [PATCH V4 5/5] virtio: Bind virtio device to device-tree node
+Date: Tue, 27 Jul 2021 10:53:52 +0530
+Message-Id: <94c12705602929968477aaf27e02439eb7a7f253.1627362340.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.31.1.272.g89b43f80a514
 In-Reply-To: <cover.1627362340.git.viresh.kumar@linaro.org>
 References: <cover.1627362340.git.viresh.kumar@linaro.org>
 MIME-Version: 1.0
 Cc: "Enrico Weigelt, metux IT consult" <info@metux.net>,
- Vincent Guittot <vincent.guittot@linaro.org>, devicetree@vger.kernel.org,
- Viresh Kumar <viresh.kumar@linaro.org>, Bill Mills <bill.mills@linaro.org>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+ Vincent Guittot <vincent.guittot@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
+ devicetree@vger.kernel.org, Viresh Kumar <viresh.kumar@linaro.org>,
+ Bill Mills <bill.mills@linaro.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,39 +118,115 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This synchronizes the virtio ids with the latest list from virtio
-specification.
+Bind the virtio devices with their of_node. This will help users of the
+virtio devices to mention their dependencies on the device in the DT
+itself. Like GPIO pin users can use the phandle of the device node, or
+the node may contain more subnodes to add i2c or spi eeproms and other
+users.
 
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- include/uapi/linux/virtio_ids.h | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/virtio/virtio.c | 57 ++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 54 insertions(+), 3 deletions(-)
 
-diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
-index 70a8057ad4bb..3c8e11820fdb 100644
---- a/include/uapi/linux/virtio_ids.h
-+++ b/include/uapi/linux/virtio_ids.h
-@@ -54,8 +54,20 @@
- #define VIRTIO_ID_SOUND			25 /* virtio sound */
- #define VIRTIO_ID_FS			26 /* virtio filesystem */
- #define VIRTIO_ID_PMEM			27 /* virtio pmem */
-+#define VIRTIO_ID_RPMB			28 /* virtio rpmb */
- #define VIRTIO_ID_MAC80211_HWSIM	29 /* virtio mac80211-hwsim */
-+#define VIRTIO_ID_VIDEO_ENCODER		30 /* virtio video encoder */
-+#define VIRTIO_ID_VIDEO_DECODER		31 /* virtio video decoder */
-+#define VIRTIO_ID_SCMI			32 /* virtio scmi */
-+#define VIRTIO_ID_NITRO_SEC_MOD		33 /* virtio nitro secure module*/
-+#define VIRTIO_ID_I2C_ADAPTER		34 /* virtio i2c adapter */
-+#define VIRTIO_ID_WATCHDOG		35 /* virtio watchdog */
-+#define VIRTIO_ID_CAN			36 /* virtio can */
-+#define VIRTIO_ID_DMABUF		37 /* virtio dmabuf */
-+#define VIRTIO_ID_PARAM_SERV		38 /* virtio parameter server */
-+#define VIRTIO_ID_AUDIO_POLICY		39 /* virtio audio policy */
- #define VIRTIO_ID_BT			40 /* virtio bluetooth */
-+#define VIRTIO_ID_GPIO			41 /* virtio gpio */
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 4b15c00c0a0a..5f80786c2aa2 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -4,6 +4,7 @@
+ #include <linux/virtio_config.h>
+ #include <linux/module.h>
+ #include <linux/idr.h>
++#include <linux/of.h>
+ #include <uapi/linux/virtio_ids.h>
  
- /*
-  * Virtio Transitional IDs
+ /* Unique numbering for virtio devices. */
+@@ -292,6 +293,9 @@ static int virtio_dev_remove(struct device *_d)
+ 
+ 	/* Acknowledge the device's existence again. */
+ 	virtio_add_status(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
++
++	of_node_put(dev->dev.of_node);
++
+ 	return 0;
+ }
+ 
+@@ -319,6 +323,43 @@ void unregister_virtio_driver(struct virtio_driver *driver)
+ }
+ EXPORT_SYMBOL_GPL(unregister_virtio_driver);
+ 
++static int virtio_device_of_init(struct virtio_device *dev)
++{
++	struct device_node *np, *pnode = dev_of_node(dev->dev.parent);
++	char compat[] = "virtio,deviceXXXXXXXX";
++	int ret, count;
++
++	if (!pnode)
++		return 0;
++
++	count = of_get_available_child_count(pnode);
++	if (!count)
++		return 0;
++
++	/* There can be only 1 child node */
++	if (WARN_ON(count > 1))
++		return -EINVAL;
++
++	np = of_get_next_available_child(pnode, NULL);
++	if (WARN_ON(!np))
++		return -ENODEV;
++
++	ret = snprintf(compat, sizeof(compat), "virtio,device%x", dev->id.device);
++	BUG_ON(ret >= sizeof(compat));
++
++	if (!of_device_is_compatible(np, compat)) {
++		ret = -EINVAL;
++		goto out;
++	}
++
++	dev->dev.of_node = np;
++	return 0;
++
++out:
++	of_node_put(np);
++	return ret;
++}
++
+ /**
+  * register_virtio_device - register virtio device
+  * @dev        : virtio device to be registered
+@@ -343,6 +384,10 @@ int register_virtio_device(struct virtio_device *dev)
+ 	dev->index = err;
+ 	dev_set_name(&dev->dev, "virtio%u", dev->index);
+ 
++	err = virtio_device_of_init(dev);
++	if (err)
++		goto out_ida_remove;
++
+ 	spin_lock_init(&dev->config_lock);
+ 	dev->config_enabled = false;
+ 	dev->config_change_pending = false;
+@@ -362,10 +407,16 @@ int register_virtio_device(struct virtio_device *dev)
+ 	 */
+ 	err = device_add(&dev->dev);
+ 	if (err)
+-		ida_simple_remove(&virtio_index_ida, dev->index);
++		goto out_of_node_put;
++
++	return 0;
++
++out_of_node_put:
++	of_node_put(dev->dev.of_node);
++out_ida_remove:
++	ida_simple_remove(&virtio_index_ida, dev->index);
+ out:
+-	if (err)
+-		virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
++	virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
+ 	return err;
+ }
+ EXPORT_SYMBOL_GPL(register_virtio_device);
 -- 
 2.31.1.272.g89b43f80a514
 
