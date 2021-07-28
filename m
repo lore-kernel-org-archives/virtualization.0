@@ -2,100 +2,88 @@ Return-Path: <SRS0=JFNa=MU=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E47D9C432BE
-	for <virtualization@archiver.kernel.org>; Wed, 28 Jul 2021 09:01:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46C02C4338F
+	for <virtualization@archiver.kernel.org>; Wed, 28 Jul 2021 13:40:00 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 76A4560FC0
-	for <virtualization@archiver.kernel.org>; Wed, 28 Jul 2021 09:01:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 76A4560FC0
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=arndb.de
+	by mail.kernel.org (Postfix) with ESMTPS id 0139961019
+	for <virtualization@archiver.kernel.org>; Wed, 28 Jul 2021 13:39:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0139961019
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4225660872;
-	Wed, 28 Jul 2021 09:01:43 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id C82B660897;
+	Wed, 28 Jul 2021 13:39:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id IEOE3KRP5jmp; Wed, 28 Jul 2021 09:01:42 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id D8F12605A6;
-	Wed, 28 Jul 2021 09:01:41 +0000 (UTC)
+	with ESMTP id rUaY8FgBE62e; Wed, 28 Jul 2021 13:39:57 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 24B3460892;
+	Wed, 28 Jul 2021 13:39:57 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A5FA3C001A;
-	Wed, 28 Jul 2021 09:01:41 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4D3D2C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EC338C001A;
+	Wed, 28 Jul 2021 13:39:56 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 94623C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Jul 2021 09:01:40 +0000 (UTC)
+ Wed, 28 Jul 2021 13:39:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 379054017A
+ by smtp4.osuosl.org (Postfix) with ESMTP id 7C34F405CC
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Jul 2021 09:01:40 +0000 (UTC)
+ Wed, 28 Jul 2021 13:39:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ScWivTqlbdW9
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=linuxfoundation.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id diG481vmRxyk
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Jul 2021 09:01:37 +0000 (UTC)
+ Wed, 28 Jul 2021 13:39:54 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.134])
- by smtp2.osuosl.org (Postfix) with ESMTPS id BC27E40004
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 3CD23402C6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Jul 2021 09:01:36 +0000 (UTC)
-Received: from mail-wr1-f46.google.com ([209.85.221.46]) by
- mrelayeu.kundenserver.de (mreue011 [213.165.67.97]) with ESMTPSA (Nemesis) id
- 1MV5rK-1maofL2gaM-00S5kR for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Jul 2021 11:01:33 +0200
-Received: by mail-wr1-f46.google.com with SMTP id n12so1593791wrr.2
- for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Jul 2021 02:01:33 -0700 (PDT)
-X-Gm-Message-State: AOAM532TVkBYwAWTfoR7y8i7if+6k0c5nYkB24eBCS9d3CXaMJX19mYc
- XCHR18egw5SBo8KMiZN/CKmL37xtswu/b7aHKa4=
-X-Google-Smtp-Source: ABdhPJzsTaVx3R8Xjt7RmEMRCOEETac71shB32aGf6LsvyM2QcF0PWl6f37f55OVAfeM0QRVKWrKMZbildTjD36IfgI=
-X-Received: by 2002:adf:e107:: with SMTP id t7mr28823475wrz.165.1627462893205; 
- Wed, 28 Jul 2021 02:01:33 -0700 (PDT)
+ Wed, 28 Jul 2021 13:39:54 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1582E60F9B;
+ Wed, 28 Jul 2021 13:39:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+ s=korg; t=1627479593;
+ bh=4OdhEgoy72ayOVqPMBW8RwgohEHFt0wPEe5LTOk/UBs=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=GQQstxouxk3H78OvzM2xnb4D22LC0VQxzKMZQuPdrMsjHjP7JJYQlFl5J6fdBNSS8
+ BQUHeAKnKskbSmp4WxMHeAV5MxcasQ3hFmOhbrEFZBPP5AdsYUcjbpmxSVIc/9Uads
+ P4Q/m5qPIsXP5iFEmasxN/oDyhRoz5ZhReaMW4IY=
+Date: Wed, 28 Jul 2021 15:39:51 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v2 3/9] drivers/base/memory: introduce "memory groups" to
+ logically group memory blocks
+Message-ID: <YQFeJ1P9wQvlqAz7@kroah.com>
+References: <20210723125210.29987-1-david@redhat.com>
+ <20210723125210.29987-4-david@redhat.com>
 MIME-Version: 1.0
-References: <20210727131217.15092-1-xianting.tian@linux.alibaba.com>
- <CAK8P3a15ykABd61Rad5iaZtGN=-+Guk0CNyCMK3XD7TgubG7hg@mail.gmail.com>
- <be29127d-8cec-c7b8-ac96-4da94198dc03@linux.alibaba.com>
- <CAK8P3a1O02Ho2dM3F+bUXf9Ze8uRKYzY5fFmRGpszUXg_nrH4w@mail.gmail.com>
- <0d03a42b-b46c-408f-17a4-b6c094c0c29e@linux.alibaba.com>
-In-Reply-To: <0d03a42b-b46c-408f-17a4-b6c094c0c29e@linux.alibaba.com>
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 28 Jul 2021 11:01:17 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a2Hde16rbUPAwvtY7t+uE7C4jM8_pQCqTLj=-d4=T2MSg@mail.gmail.com>
-Message-ID: <CAK8P3a2Hde16rbUPAwvtY7t+uE7C4jM8_pQCqTLj=-d4=T2MSg@mail.gmail.com>
-Subject: Re: [PATCH] virtio-console: avoid DMA from vmalloc area
-To: Xianting Tian <xianting.tian@linux.alibaba.com>
-X-Provags-ID: V03:K1:o5xxxgZLSIvsu7issqFgEpEsJxNeM9Apk0sje5o93/19e13FPVd
- 4eTacnkUwFe8wj/uOtawkogxn5/ZFvoJ9nXk8rfNrRWlqfSo2C/6KNCltcYF79adiLtJSh8
- 4iI+wOqeDcsHydWnArg9gJqZ6YN1zr1A8fJoi6Ioo60Kl9hp81+2QXC66jDdqAKbcVtLSKs
- NmLbFBz+GoKTxSkc2dEaQ==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:58hSoB8z1ls=:SjJjY4cKUeFJRmjghrKnqN
- mYr9eDH+Nd4QpW9M1pkjYiULnpLo4wsATNhWsHy1gEORwVvR3PY8rrDtZP4gGod/gUQHk1Z7j
- jJsOZcybEnLzsGMvRrRxCbXBvf0pmM6WyohxKx5fIxShowMDKQKbCLEZ/fqKiJnW29YkV2sPk
- msEsRDiZyCaULc+ZUIGLPdX8zem5ucW+l4ydLs/fM7XoSDz4Z4nMOJ/CnRjThMhnHmY2W64yq
- 8GVSRUhS0WxK/qF0PKYTwX7dkJgnXB07iUX8TYOklVRh9qQpLrvHMHNWuWphsptF990QMh7K4
- fNBL/1GXvUaMsAN+LUkTMugitKiVOtvMMC9YwtrfLV5CWC3y79N1XlxxvkEG4TZCCWXo4Hrk6
- bJl2Qp/7ARtUn2HEs1SZdq3byqeJzZcT6gA7ly+p07zCd3UWvPwQFIrLiRfdScMXA8Tg9gyWu
- UxGOyYEnpiklwG3mC+EGIN+Pw5C+WCO9NRrGfSaku0MFzPl/VLwHtdMDYY8X+esuVLvHQHujM
- 7DgSxyfOr13HK00M0uy9LAfT1BB7joCfkOO6C/M8G0jwMVsrK7lyNMhDgv+OqhSavm2Q6/tCw
- 9bcuttnvp6Ob0EUAAk4FkiPM5s2F0Deis85W9AFX0hogdizVqW24fVOXUR1QJhPnZG8/g5omU
- POFPDOTGk7o3xt5QxkbJMayce6R7AX7XZIhLPwbu+vryEBw11GJwU5M4+MjRMbOGAqdI8wCxw
- /cg52Ai7DGoZMYEHyCj8vAMyTe85uPS8KBfulY3096yfbqyZ1MQt20HlOCzO1kdNdjqYIEyVm
- s66S0+m+5/7cFcL/9Kug45NgYYo8m+kpv1P0O04rOi5KyJD4VeUwuvXeYQ/SBpB5qkRYXlV
-Cc: Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>,
- gregkh <gregkh@linuxfoundation.org>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE"
- <virtualization@lists.linux-foundation.org>,
- linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Omar Sandoval <osandov@fb.com>
+Content-Disposition: inline
+In-Reply-To: <20210723125210.29987-4-david@redhat.com>
+Cc: Wei Yang <richard.weiyang@linux.alibaba.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
+ linux-acpi@vger.kernel.org, Len Brown <lenb@kernel.org>,
+ Pavel Tatashin <pasha.tatashin@soleen.com>,
+ Anshuman Khandual <anshuman.khandual@arm.com>,
+ Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>,
+ Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>,
+ Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+ "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-kernel@vger.kernel.org,
+ Hui Zhu <teawater@gmail.com>, Andrew Morton <akpm@linux-foundation.org>,
+ Marek Kedzierski <mkedzier@redhat.com>, Mike Rapoport <rppt@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,28 +95,311 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCBKdWwgMjgsIDIwMjEgYXQgMTA6MjggQU0gWGlhbnRpbmcgVGlhbgo8eGlhbnRpbmcu
-dGlhbkBsaW51eC5hbGliYWJhLmNvbT4gd3JvdGU6Cj4g5ZyoIDIwMjEvNy8yOCDkuIvljYgzOjI1
-LCBBcm5kIEJlcmdtYW5uIOWGmemBkzoKPgo+IEkgY2hlY2tlZCBzZXZlcmFsIGh2YyBiYWNrZW5k
-cywgbGlrZSBkcml2ZXJzL3R0eS9odmMvaHZjX3Jpc2N2X3NiaS5jLAo+IGRyaXZlcnMvdHR5L2h2
-Yy9odmNfaXVjdi5jLCBkcml2ZXJzL3R0eS9odmMvaHZjX3J0YXMuYywgdGhleSBkb24ndCB1c2Ug
-ZG1hLgo+Cj4gSSBub3QgZmluaXNoZWQgYWxsIGh2YyBiYWNrZW5kcyBjaGVjayB5ZXQuIEJ1dCBJ
-IHRoaW5rIGV2ZW4gaWYgYWxsIGh2Ywo+IGJhY2tlbmRzIGRvbid0IHVzZSBkbWEgY3VycmVudGx5
-LCBpdCBpcyBzdGlsbCBwb3NzaWJsZSB0aGF0IHRoZSBodmMKPiBiYWNrZW5kIHVzaW5nIGRtYSB3
-aWxsIGJlIGFkZGVkIGluIHRoZSBmdXJ0dXJlLgo+Cj4gU28gSSBhZ3JlZSB3aXRoIHlvdSBpdCBz
-aG91bGQgYmV0dGVyIGJlIGZpeGVkIGluIHRoZSBodmMgZnJhbWV3b3JrLAo+IHNvbHZlIHRoZSBp
-c3N1ZSBpbiB0aGUgZmlyc3QgcGxhY2UuCgpPaywgc291bmRzIGdvb2QgdG8gbWUsIG5vIG5lZWQg
-dG8gY2hlY2sgbW9yZSBiYWNrZW5kcyB0aGVuLgpJIHNlZSB0aGUgaHZjLWNvbnNvbGUgZHJpdmVy
-IGlzIGxpc3RlZCBhcyAnT2RkIEZpeGVzJyBpbiB0aGUgbWFpbnRhaW5lcgpsaXN0LCB3aXRoIG5v
-Ym9keSBhc3NpZ25lZCBvdGhlciB0aGFuIHRoZSBwcGMga2VybmVsIGxpc3QgKGFkZGVkIHRvIENj
-KS4KCk9uY2UgeW91IGNvbWUgdXAgd2l0aCBhIGZpeCBpbiBodmNfY29uc29sZS5jLCBwbGVhc2Ug
-c2VuZCB0aGF0IHRvIHRoZQp0dHkgbWFpbnRhaW5lcnMsIHRoZSBwcGMgbGlzdCBhbmQgbWUsIGFu
-ZCBJJ2xsIHJldmlldyBpdC4KCiAgICAgICAgQXJuZApfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
-dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Fri, Jul 23, 2021 at 02:52:04PM +0200, David Hildenbrand wrote:
+> In our "auto-movable" memory onlining policy, we want to make decisions
+> across memory blocks of a single memory device. Examples of memory devices
+> include ACPI memory devices (in the simplest case a single DIMM) and
+> virtio-mem. For now, we don't have a connection between a single memory
+> block device and the real memory device. Each memory device consists of
+> 1..X memory block devices.
+> 
+> Let's logically group memory blocks belonging to the same memory device
+> in "memory groups". Memory groups can span multiple physical ranges and a
+> memory group itself does not contain any information regarding physical
+> ranges, only properties (e.g., "max_pages") necessary for improved memory
+> onlining.
+> 
+> Introduce two memory group types:
+> 
+> 1) Static memory group: E.g., a single ACPI memory device, consisting of
+>    1..X memory resources. A memory group consists of 1..Y memory blocks.
+>    The whole group is added/removed in one go. If any part cannot get
+>    offlined, the whole group cannot be removed.
+> 
+> 2) Dynamic memory group: E.g., a single virtio-mem device. Memory is
+>    dynamically added/removed in a fixed granularity, called a "unit",
+>    consisting of 1..X memory blocks. A unit is added/removed in one go.
+>    If any part of a unit cannot get offlined, the whole unit cannot be
+>    removed.
+> 
+> In case of 1) we usually want either all memory managed by ZONE_MOVABLE
+> or none. In case of 2) we usually want to have as many units as possible
+> managed by ZONE_MOVABLE. We want a single unit to be of the same type.
+> 
+> For now, memory groups are an internal concept that is not exposed to
+> user space; we might want to change that in the future, though.
+> 
+> add_memory() users can specify a mgid instead of a nid when passing
+> the MHP_NID_IS_MGID flag.
+> 
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  drivers/base/memory.c          | 102 +++++++++++++++++++++++++++++++--
+>  include/linux/memory.h         |  46 ++++++++++++++-
+>  include/linux/memory_hotplug.h |   6 +-
+>  mm/memory_hotplug.c            |  11 +++-
+>  4 files changed, 158 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+> index 86ec2dc82fc2..42109e7fb0b5 100644
+> --- a/drivers/base/memory.c
+> +++ b/drivers/base/memory.c
+> @@ -82,6 +82,11 @@ static struct bus_type memory_subsys = {
+>   */
+>  static DEFINE_XARRAY(memory_blocks);
+>  
+> +/*
+> + * Memory groups, indexed by memory group identification (mgid).
+> + */
+> +static DEFINE_XARRAY_FLAGS(memory_groups, XA_FLAGS_ALLOC);
+> +
+>  static BLOCKING_NOTIFIER_HEAD(memory_chain);
+>  
+>  int register_memory_notifier(struct notifier_block *nb)
+> @@ -634,7 +639,8 @@ int register_memory(struct memory_block *memory)
+>  }
+>  
+>  static int init_memory_block(unsigned long block_id, unsigned long state,
+> -			     unsigned long nr_vmemmap_pages)
+> +			     unsigned long nr_vmemmap_pages,
+> +			     struct memory_group *group)
+>  {
+>  	struct memory_block *mem;
+>  	int ret = 0;
+> @@ -653,6 +659,11 @@ static int init_memory_block(unsigned long block_id, unsigned long state,
+>  	mem->nid = NUMA_NO_NODE;
+>  	mem->nr_vmemmap_pages = nr_vmemmap_pages;
+>  
+> +	if (group) {
+> +		mem->group = group;
+> +		refcount_inc(&group->refcount);
+> +	}
+> +
+>  	ret = register_memory(mem);
+>  
+>  	return ret;
+> @@ -671,7 +682,7 @@ static int add_memory_block(unsigned long base_section_nr)
+>  	if (section_count == 0)
+>  		return 0;
+>  	return init_memory_block(memory_block_id(base_section_nr),
+> -				 MEM_ONLINE, 0);
+> +				 MEM_ONLINE, 0,  NULL);
+>  }
+>  
+>  static void unregister_memory(struct memory_block *memory)
+> @@ -681,6 +692,11 @@ static void unregister_memory(struct memory_block *memory)
+>  
+>  	WARN_ON(xa_erase(&memory_blocks, memory->dev.id) == NULL);
+>  
+> +	if (memory->group) {
+> +		refcount_dec(&memory->group->refcount);
+> +		memory->group = NULL;
+
+Who freed the memory for the group?
+
+> +	}
+> +
+>  	/* drop the ref. we got via find_memory_block() */
+>  	put_device(&memory->dev);
+>  	device_unregister(&memory->dev);
+> @@ -694,7 +710,8 @@ static void unregister_memory(struct memory_block *memory)
+>   * Called under device_hotplug_lock.
+>   */
+>  int create_memory_block_devices(unsigned long start, unsigned long size,
+> -				unsigned long vmemmap_pages)
+> +				unsigned long vmemmap_pages,
+> +				struct memory_group *group)
+>  {
+>  	const unsigned long start_block_id = pfn_to_block_id(PFN_DOWN(start));
+>  	unsigned long end_block_id = pfn_to_block_id(PFN_DOWN(start + size));
+> @@ -707,7 +724,8 @@ int create_memory_block_devices(unsigned long start, unsigned long size,
+>  		return -EINVAL;
+>  
+>  	for (block_id = start_block_id; block_id != end_block_id; block_id++) {
+> -		ret = init_memory_block(block_id, MEM_OFFLINE, vmemmap_pages);
+> +		ret = init_memory_block(block_id, MEM_OFFLINE, vmemmap_pages,
+> +					group);
+>  		if (ret)
+>  			break;
+>  	}
+> @@ -891,3 +909,79 @@ int for_each_memory_block(void *arg, walk_memory_blocks_func_t func)
+>  	return bus_for_each_dev(&memory_subsys, NULL, &cb_data,
+>  				for_each_memory_block_cb);
+>  }
+> +
+> +static int register_memory_group(struct memory_group group)
+> +{
+> +	struct memory_group *new_group;
+> +	uint32_t mgid;
+> +	int ret;
+> +
+> +	if (!node_possible(group.nid))
+> +		return -EINVAL;
+> +
+> +	new_group = kzalloc(sizeof(group), GFP_KERNEL);
+> +	if (!new_group)
+> +		return -ENOMEM;
+> +	*new_group = group;
+
+You burried a memcpy here, why?  Please be explicit as this is now a
+dynamic structure.
+
+> +	refcount_set(&new_group->refcount, 1);
+
+Why not just use a kref?  You seem to be treating it as a kref would
+work, right?
+
+> +
+> +	ret = xa_alloc(&memory_groups, &mgid, new_group, xa_limit_31b,
+> +		       GFP_KERNEL);
+> +	if (ret)
+> +		kfree(new_group);
+> +	return ret ? ret : mgid;
+
+I hate ?: please spell this out:
+	if (ret)
+		return ret;
+	return mgid;
+
+There, more obvious and you can read it in 10 years when you have to go
+fix it up...
+
+
+
+> +}
+> +
+> +int register_static_memory_group(int nid, unsigned long max_pages)
+> +{
+> +	struct memory_group group = {
+> +		.nid = nid,
+> +		.s = {
+> +			.max_pages = max_pages,
+> +		},
+> +	};
+> +
+> +	if (!max_pages)
+> +		return -EINVAL;
+> +	return register_memory_group(group);
+> +}
+> +EXPORT_SYMBOL_GPL(register_static_memory_group);
+
+Let's make our global namespace a bit nicer:
+	memory_group_register_static()
+	memory_group_register_dynamic()
+
+and so on.  Use prefixes please, not suffixes.
+
+
+> +
+> +int register_dynamic_memory_group(int nid, unsigned long unit_pages)
+> +{
+> +	struct memory_group group = {
+> +		.nid = nid,
+> +		.is_dynamic = true,
+> +		.d = {
+> +			.unit_pages = unit_pages,
+> +		},
+> +	};
+> +
+> +	if (!unit_pages || !is_power_of_2(unit_pages) ||
+> +	    unit_pages < PHYS_PFN(memory_block_size_bytes()))
+> +		return -EINVAL;
+> +	return register_memory_group(group);
+> +}
+> +EXPORT_SYMBOL_GPL(register_dynamic_memory_group);
+> +
+> +int unregister_memory_group(int mgid)
+> +{
+> +	struct memory_group *group;
+> +
+> +	if (mgid < 0)
+> +		return -EINVAL;
+> +
+> +	group = xa_load(&memory_groups, mgid);
+> +	if (!group || refcount_read(&group->refcount) > 1)
+> +		return -EINVAL;
+> +
+> +	xa_erase(&memory_groups, mgid);
+> +	kfree(group);
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL_GPL(unregister_memory_group);
+
+memory_group_unregister()
+
+
+> +
+> +struct memory_group *get_memory_group(int mgid)
+> +{
+> +	return xa_load(&memory_groups, mgid);
+> +}
+
+Global function?
+
+
+> diff --git a/include/linux/memory.h b/include/linux/memory.h
+> index 97e92e8b556a..6e20a6174fe5 100644
+> --- a/include/linux/memory.h
+> +++ b/include/linux/memory.h
+> @@ -23,6 +23,42 @@
+>  
+>  #define MIN_MEMORY_BLOCK_SIZE     (1UL << SECTION_SIZE_BITS)
+>  
+> +struct memory_group {
+> +	/* Nid the whole group belongs to. */
+> +	int nid;
+
+What is a "nid"?
+
+> +	/* References from memory blocks + 1. */
+
+Blank line above this?
+
+And put the structure comments in proper kernel doc so that others can
+read them and we can verify it is correct over time.
+
+> +	refcount_t refcount;
+> +	/*
+> +	 * Memory group type: static vs. dynamic.
+> +	 *
+> +	 * Static: All memory in the group belongs to a single unit, such as,
+> +	 * a DIMM. All memory belonging to the group will be added in
+> +	 * one go and removed in one go -- it's static.
+> +	 *
+> +	 * Dynamic: Memory within the group is added/removed dynamically in
+> +	 * units of the specified granularity of at least one memory block.
+> +	 */
+> +	bool is_dynamic;
+> +
+> +	union {
+> +		struct {
+> +			/*
+> +			 * Maximum number of pages we'll have in this static
+> +			 * memory group.
+> +			 */
+> +			unsigned long max_pages;
+> +		} s;
+> +		struct {
+> +			/*
+> +			 * Unit in pages in which memory is added/removed in
+> +			 * this dynamic memory group. This granularity defines
+> +			 * the alignment of a unit in physical address space.
+> +			 */
+> +			unsigned long unit_pages;
+> +		} d;
+
+so is_dynamic determines which to use here?  Please be explicit.
+
+
+thanks,
+
+greg k-h
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
