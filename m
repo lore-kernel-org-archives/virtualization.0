@@ -7,67 +7,65 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9BEAC4338F
-	for <virtualization@archiver.kernel.org>; Fri, 30 Jul 2021 10:45:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7538C4338F
+	for <virtualization@archiver.kernel.org>; Fri, 30 Jul 2021 10:50:32 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8112160F9B
-	for <virtualization@archiver.kernel.org>; Fri, 30 Jul 2021 10:45:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 8112160F9B
+	by mail.kernel.org (Postfix) with ESMTPS id 802B560F9B
+	for <virtualization@archiver.kernel.org>; Fri, 30 Jul 2021 10:50:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 802B560F9B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5222760A73;
-	Fri, 30 Jul 2021 10:45:44 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5627560732;
+	Fri, 30 Jul 2021 10:50:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Z4KDVogUwhjL; Fri, 30 Jul 2021 10:45:43 +0000 (UTC)
+	with ESMTP id axXx0iKSgqn5; Fri, 30 Jul 2021 10:50:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id D5FCF605F8;
-	Fri, 30 Jul 2021 10:45:42 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A8EB56060A;
+	Fri, 30 Jul 2021 10:50:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A90C3C0010;
-	Fri, 30 Jul 2021 10:45:42 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C40E7C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 760C5C0010;
+	Fri, 30 Jul 2021 10:50:30 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AD673C000E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jul 2021 10:45:41 +0000 (UTC)
+ Fri, 30 Jul 2021 10:50:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A0C5983252
+ by smtp3.osuosl.org (Postfix) with ESMTP id 99ECC60732
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jul 2021 10:45:41 +0000 (UTC)
+ Fri, 30 Jul 2021 10:50:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=linuxfoundation.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NSWtfo5Y2Jkp
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id JXjeeBMe10lk
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jul 2021 10:45:40 +0000 (UTC)
+ Fri, 30 Jul 2021 10:50:27 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp1.osuosl.org (Postfix) with ESMTPS id C27E283218
+ by smtp3.osuosl.org (Postfix) with ESMTPS id C1DD66060A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Jul 2021 10:45:40 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB77E60F6B;
- Fri, 30 Jul 2021 10:45:39 +0000 (UTC)
+ Fri, 30 Jul 2021 10:50:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2E0E60FE7;
+ Fri, 30 Jul 2021 10:50:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1627641940;
- bh=a7NunjToxf5g9csFohYneAsYQ/mI2EiLSZB/amu8H+4=;
+ s=korg; t=1627642227;
+ bh=uwvhp1h+jNLtcu2/e0VGZBLHK4ouCJF0eW8DngsMKtY=;
  h=Subject:To:Cc:From:Date:From;
- b=GEMv2o6irRd6Cbx4ADCMu1h04v8KCQtEMtBLVzNpLxxOa4v3V70rX3bl1e9Hvn9Rr
- RmHAgtrs6A8/8jmHOpdAHbDOAq5W3D3AVVj6YKQvajOoTF+qYzRSSdEUD+wLv039FF
- kacy3GWysHDuxsCreu0ZJYEVR0kRv/7HCg9MU2FA=
+ b=r6dxtrGTyJf1CK0nXfOWmhoOwCG3KVBdBtpqkgO+9uuG8/wH8TsiVi0Wim3KlYQoM
+ r6g+tJEpanCNmZYch4UhSUIPH0uiI5fEIR67RasY0sofBrhtqnMIX9rkdiFBVFj8nl
+ fMMNgSIxwe7lcSzKiTw2E9c2iX32BjNOoEHuvws8=
 Subject: Patch "virtio_net: Do not pull payload in skb->head" has been added
- to the 4.19-stable tree
+ to the 4.14-stable tree
 To: davem@davemloft.net, edumazet@google.com, gregkh@linuxfoundation.org,
  jasowang@redhat.com, matthieu.baerts@tessares.net, mst@redhat.com,
  virtualization@lists.linux-foundation.org, xuanzhuo@linux.alibaba.com
 From: <gregkh@linuxfoundation.org>
-Date: Fri, 30 Jul 2021 12:45:29 +0200
-Message-ID: <1627641929243225@kroah.com>
+Date: Fri, 30 Jul 2021 12:50:17 +0200
+Message-ID: <1627642217211167@kroah.com>
 MIME-Version: 1.0
 X-stable: commit
 X-Patchwork-Hint: ignore 
@@ -93,12 +91,12 @@ This is a note to let you know that I've just added the patch titled
 
     virtio_net: Do not pull payload in skb->head
 
-to the 4.19-stable tree which can be found at:
+to the 4.14-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      virtio_net-do-not-pull-payload-in-skb-head.patch
-and it can be found in the queue-4.19 subdirectory.
+and it can be found in the queue-4.14 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
@@ -159,7 +157,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -413,9 +413,13 @@ static struct sk_buff *page_to_skb(struc
+@@ -339,9 +339,13 @@ static struct sk_buff *page_to_skb(struc
  	offset += hdr_padded_len;
  	p += hdr_padded_len;
  
@@ -172,10 +170,10 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	if (len <= skb_tailroom(skb))
 +		copy = len;
 +	else
-+		copy = ETH_HLEN + metasize;
++		copy = ETH_HLEN;
  	skb_put_data(skb, p, copy);
  
- 	if (metasize) {
+ 	len -= copy;
 --- a/include/linux/virtio_net.h
 +++ b/include/linux/virtio_net.h
 @@ -65,14 +65,18 @@ static inline int virtio_net_hdr_to_skb(
@@ -200,7 +198,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			return -EINVAL;
  	} else {
  		/* gso packets without NEEDS_CSUM do not set transport_offset.
-@@ -102,14 +106,14 @@ retry:
+@@ -100,14 +104,14 @@ retry:
  			}
  
  			p_off = keys.control.thoff + thlen;
@@ -221,8 +219,9 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 Patches currently in stable-queue which might be from edumazet@google.com are
 
-queue-4.19/virtio_net-do-not-pull-payload-in-skb-head.patch
-queue-4.19/gro-ensure-frag0-meets-ip-header-alignment.patch
+queue-4.14/net-annotate-data-race-around-sk_ll_usec.patch
+queue-4.14/virtio_net-do-not-pull-payload-in-skb-head.patch
+queue-4.14/gro-ensure-frag0-meets-ip-header-alignment.patch
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
