@@ -2,114 +2,96 @@ Return-Path: <SRS0=GDYi=MZ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-14.0 required=3.0 tests=BAYES_00,INCLUDES_CR_TRAILER,
+	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31462C4320E
-	for <virtualization@archiver.kernel.org>; Mon,  2 Aug 2021 18:35:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC0E4C4338F
+	for <virtualization@archiver.kernel.org>; Mon,  2 Aug 2021 19:40:39 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C0E5E610FD
-	for <virtualization@archiver.kernel.org>; Mon,  2 Aug 2021 18:35:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org C0E5E610FD
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 6856360E09
+	for <virtualization@archiver.kernel.org>; Mon,  2 Aug 2021 19:40:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 6856360E09
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 793734040C;
-	Mon,  2 Aug 2021 18:35:07 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id C6D4B401EA;
+	Mon,  2 Aug 2021 19:40:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1RhVkVOIW7xk; Mon,  2 Aug 2021 18:35:06 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id BAAA4403FB;
-	Mon,  2 Aug 2021 18:35:05 +0000 (UTC)
+	with ESMTP id BzZNPTNt1Z57; Mon,  2 Aug 2021 19:40:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 662C040022;
+	Mon,  2 Aug 2021 19:40:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 90581C001A;
-	Mon,  2 Aug 2021 18:35:05 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 62FF9C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 39143C0010;
+	Mon,  2 Aug 2021 19:40:36 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 842EEC000E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Aug 2021 18:35:04 +0000 (UTC)
+ Mon,  2 Aug 2021 19:40:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 44D096082E
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6B3FB40394
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Aug 2021 18:35:04 +0000 (UTC)
+ Mon,  2 Aug 2021 19:40:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id TrMtHej2LkZa
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id dsNK_tpZ3EBc
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Aug 2021 18:35:03 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 15BF56076D
+ Mon,  2 Aug 2021 19:40:32 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-il1-f177.google.com (mail-il1-f177.google.com
+ [209.85.166.177])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 73AA940393
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Aug 2021 18:35:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1627929301;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=wminINGDgWcNHoLPUasL8rgS7uCgoeCj4rIW6d1gFd0=;
- b=YvBg4D6Ok09eOJC7TpSEwFAEQ2FIpkAD3RnFGXJllgtpEvvvY32RT1vEPaP+v9hID1svZ8
- IadKbOyRJWI8L53OId502PzHZFsdKqe9b3ZT219OP8kpZrOG124J/W9kmYAeKeXtHkZ1v6
- kb346tGfSInQ8X5ngvqAx7EFrrPb2rg=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-361-q9oLcTtuMvmqLroXSJUKkg-1; Mon, 02 Aug 2021 14:35:00 -0400
-X-MC-Unique: q9oLcTtuMvmqLroXSJUKkg-1
-Received: by mail-ej1-f72.google.com with SMTP id
- a19-20020a1709063e93b0290551ea218ea2so5011651ejj.5
+ Mon,  2 Aug 2021 19:40:32 +0000 (UTC)
+Received: by mail-il1-f177.google.com with SMTP id z3so17466065ile.12
  for <virtualization@lists.linux-foundation.org>;
- Mon, 02 Aug 2021 11:35:00 -0700 (PDT)
+ Mon, 02 Aug 2021 12:40:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=wminINGDgWcNHoLPUasL8rgS7uCgoeCj4rIW6d1gFd0=;
- b=O3T1F1AWk1Og8TNi/swKF//c3cXeNVxcHx120KmParizZMnkhC6mD2IbzIhtxdDfyG
- H8UzBZnqn1JUPQLV9v3jF0WFgQQkTZcQ07VNQMggdSpcogZbe34QleO+KQ3GbAi885Ir
- RRYIr2LBD9ENkQn+5A5uI6ohnVEovTwaCk3s7xrBj3PROTEK1svf/FXTlOVBtneeGH5s
- h9p6FEWY3tPCsI6gxJ4A4mDAFJCsRQ5sA5T+dnUtFLagEhGANSqpW9NcdVnJurIcdDzT
- M2G7dSZSUO5M8+267jeEdmb8RuUPixZdpz8TFTsXwB0OgeUu3R2hu1N0g7ZulGALCj9H
- Jp1g==
-X-Gm-Message-State: AOAM533a4I1rLD9HngCBlpFb8w4gmyDEOxnAS4aPgBMSorefeWteBG89
- OOd4J8BiN17+El+KDrT5Zj43T9kBUlTtkGroO5iZoRsgs/9Po2vTSYCQQINDXlsNWnHKqMhM6Ac
- BKgbVtIaFGwCSQFmTPhwmrINtpdm0183TzvZaFlkL8w==
-X-Received: by 2002:a50:fb18:: with SMTP id d24mr20985346edq.225.1627929299327; 
- Mon, 02 Aug 2021 11:34:59 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwoCyMdXrDgg3jX2cUmgPnbyHqQZI1zsIxFF27gl9okbIV2OgI+ba2TaS/45evhjSuB8kSK5g==
-X-Received: by 2002:a50:fb18:: with SMTP id d24mr20985334edq.225.1627929299147; 
- Mon, 02 Aug 2021 11:34:59 -0700 (PDT)
-Received: from steredhat (host-79-18-148-79.retail.telecomitalia.it.
- [79.18.148.79])
- by smtp.gmail.com with ESMTPSA id n13sm6705376eda.36.2021.08.02.11.34.58
+ bh=J8SamgvZjMzZn8SFG0WG31f9EjYNKG8kJLg4LvePeV4=;
+ b=dOzSFcUuTmuZtNBQulagr+PGmH3dX8VhNjKHKw4SGl8YMmFSx65mceFRne7sBFlql2
+ DwcFYER8BjuVhVHFjhVuzQqp4k7R7ibO6O7MJ6YYcXGZBmj8IBorEfT5qr90C1ho58Ll
+ kl/9SyKpZ33jLxMexZhrrje/9ca3fxdGtZ3ru3CJhzCe+366+5uWwlEWsrPPFcCv42Gz
+ iOXcenl6OtFqIC7gk0ctRnn+sqUT+kPVVOh8+qz+0sSOe8JXEFp7SF3X+GcF+bA/AhIs
+ RygpnIvVdgaj+E7lDX0c1WoYcPq6sxRl3hwKQQU6UJgRxkrv1XHYT5ROkaremnib5m1K
+ 1TUA==
+X-Gm-Message-State: AOAM533QRj4tBbhqeOXetZ9bs5ong3NZpZSALm7rLy4F7haLiIz1PBM0
+ c+IWK725/IqdX8VMJIWxvg==
+X-Google-Smtp-Source: ABdhPJyPJE+Qj7qQn68NldmLQPEMe/MUrKp2yfQyf7zytJe8uOU6ZNPkulS1r9hRjNuLeHzyrwrO/Q==
+X-Received: by 2002:a92:b108:: with SMTP id t8mr605095ilh.6.1627933231644;
+ Mon, 02 Aug 2021 12:40:31 -0700 (PDT)
+Received: from robh.at.kernel.org ([64.188.179.248])
+ by smtp.gmail.com with ESMTPSA id c8sm7708834ioa.51.2021.08.02.12.40.29
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 02 Aug 2021 11:34:58 -0700 (PDT)
-Date: Mon, 2 Aug 2021 20:34:56 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Harshavardhan Unnibhavi <harshanavkis@gmail.com>
-Subject: Re: [PATCH net] VSOCK: handle VIRTIO_VSOCK_OP_CREDIT_REQUEST
-Message-ID: <20210802183456.zvr6raqtgwrm3s52@steredhat>
-References: <20210802173506.2383-1-harshanavkis@gmail.com>
+ Mon, 02 Aug 2021 12:40:30 -0700 (PDT)
+Received: (nullmailer pid 1475286 invoked by uid 1000);
+ Mon, 02 Aug 2021 19:40:27 -0000
+Date: Mon, 2 Aug 2021 13:40:27 -0600
+From: Rob Herring <robh@kernel.org>
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: Re: [PATCH V4 3/5] dt-bindings: gpio: Add bindings for gpio-virtio
+Message-ID: <YQhKKyPmOUE8z+US@robh.at.kernel.org>
+References: <cover.1627362340.git.viresh.kumar@linaro.org>
+ <acf7402ef4aabc0ad6295c32846f2bef1cd9b56a.1627362340.git.viresh.kumar@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <20210802173506.2383-1-harshanavkis@gmail.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, imbrenda@linux.vnet.ibm.com, stefanha@redhat.com,
- kuba@kernel.org, asias@redhat.com, virtualization@lists.linux-foundation.org,
- davem@davemloft.net
+In-Reply-To: <acf7402ef4aabc0ad6295c32846f2bef1cd9b56a.1627362340.git.viresh.kumar@linaro.org>
+Cc: Arnd Bergmann <arnd@kernel.org>,
+ Vincent Guittot <vincent.guittot@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>, "Enrico Weigelt,
+ metux IT consult" <info@metux.net>, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Bartosz Golaszewski <bgolaszewski@baylibre.com>, devicetree@vger.kernel.org,
+ linux-gpio@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+ Bill Mills <bill.mills@linaro.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,52 +103,95 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Aug 02, 2021 at 07:35:06PM +0200, Harshavardhan Unnibhavi wrote:
->The original implementation of the virtio-vsock driver does not
->handle a VIRTIO_VSOCK_OP_CREDIT_REQUEST as required by the
->virtio-vsock specification. The vsock device emulated by
->vhost-vsock and the virtio-vsock driver never uses this request,
->which was probably why nobody noticed it. However, another
->implementation of the device may use this request type.
->
->Hence, this commit introduces a way to handle an explicit credit
->request by responding with a corresponding credit update as
->required by the virtio-vsock specification.
->
->Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
->
->Signed-off-by: Harshavardhan Unnibhavi <harshanavkis@gmail.com>
->---
-> net/vmw_vsock/virtio_transport_common.c | 3 +++
-> 1 file changed, 3 insertions(+)
->
->diff --git a/net/vmw_vsock/virtio_transport_common.c 
->b/net/vmw_vsock/virtio_transport_common.c
->index 169ba8b72a63..081e7ae93cb1 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -1079,6 +1079,9 @@ virtio_transport_recv_connected(struct sock *sk,
-> 		virtio_transport_recv_enqueue(vsk, pkt);
-> 		sk->sk_data_ready(sk);
-> 		return err;
->+	case VIRTIO_VSOCK_OP_CREDIT_REQUEST:
->+		virtio_transport_send_credit_update(vsk);
->+		break;
-> 	case VIRTIO_VSOCK_OP_CREDIT_UPDATE:
-> 		sk->sk_write_space(sk);
-> 		break;
->-- 2.17.1
->
+On Tue, Jul 27, 2021 at 10:53:50AM +0530, Viresh Kumar wrote:
+> This patch adds binding for virtio GPIO controller, it is based on
+> virtio-device bindings.
+> 
+> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+> ---
+>  .../devicetree/bindings/gpio/gpio-virtio.yaml | 59 +++++++++++++++++++
+>  1 file changed, 59 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/gpio/gpio-virtio.yaml
+> 
+> diff --git a/Documentation/devicetree/bindings/gpio/gpio-virtio.yaml b/Documentation/devicetree/bindings/gpio/gpio-virtio.yaml
+> new file mode 100644
+> index 000000000000..601d85754577
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/gpio/gpio-virtio.yaml
+> @@ -0,0 +1,59 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/gpio/gpio-virtio.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Virtio GPIO controller
+> +
+> +maintainers:
+> +  - Viresh Kumar <viresh.kumar@linaro.org>
+> +
+> +allOf:
+> +  - $ref: /schemas/virtio/virtio-device.yaml#
+> +
+> +description:
+> +  Virtio GPIO controller, see /schemas/virtio/virtio-device.yaml for more
+> +  details.
+> +
+> +properties:
+> +  $nodename:
+> +    const: gpio
+> +
+> +  compatible:
+> +    const: virtio,device29
+> +
+> +  gpio-controller: true
+> +
+> +  "#gpio-cells":
+> +    const: 2
+> +
+> +  interrupt-controller: true
+> +
+> +  "#interrupt-cells":
+> +    const: 2
 
-The patch LGTM, thanks for fixing this long-time issue!
+Humm, how does one implement interrupts without a parent interrupt? It 
+uses the parent virtio,mmio interrupt?
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-
+> +
+> +required:
+> +  - compatible
+> +  - gpio-controller
+> +  - "#gpio-cells"
+> +
+> +unevaluatedProperties: false
+> +
+> +examples:
+> +  - |
+> +    virtio@3000 {
+> +        compatible = "virtio,mmio";
+> +        reg = <0x3000 0x100>;
+> +        interrupts = <41>;
+> +
+> +        gpio {
+> +            compatible = "virtio,device29";
+> +            gpio-controller;
+> +            #gpio-cells = <2>;
+> +            interrupt-controller;
+> +            #interrupt-cells = <2>;
+> +        };
+> +    };
+> +
+> +...
+> -- 
+> 2.31.1.272.g89b43f80a514
+> 
+> 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
