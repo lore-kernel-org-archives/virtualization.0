@@ -7,105 +7,96 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7D6AC432BE
-	for <virtualization@archiver.kernel.org>; Tue,  3 Aug 2021 11:37:23 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA908C4338F
+	for <virtualization@archiver.kernel.org>; Tue,  3 Aug 2021 12:59:40 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6B9AC60C3F
-	for <virtualization@archiver.kernel.org>; Tue,  3 Aug 2021 11:37:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 6B9AC60C3F
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 8E60860F38
+	for <virtualization@archiver.kernel.org>; Tue,  3 Aug 2021 12:59:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 8E60860F38
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 43DC26071B;
-	Tue,  3 Aug 2021 11:37:23 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 543504025B;
+	Tue,  3 Aug 2021 12:59:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id n-2Zo0I9WAj3; Tue,  3 Aug 2021 11:37:22 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id CouXd9VCx_Jk; Tue,  3 Aug 2021 12:59:39 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6D41F606D5;
-	Tue,  3 Aug 2021 11:37:21 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E3975401C4;
+	Tue,  3 Aug 2021 12:59:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4742EC001A;
-	Tue,  3 Aug 2021 11:37:21 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 717A0C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B4E42C001C;
+	Tue,  3 Aug 2021 12:59:38 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A994FC000E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Aug 2021 11:37:20 +0000 (UTC)
+ Tue,  3 Aug 2021 12:59:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 54215832B0
+ by smtp4.osuosl.org (Postfix) with ESMTP id 99A58401C4
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Aug 2021 11:37:20 +0000 (UTC)
+ Tue,  3 Aug 2021 12:59:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id N7cAC6vzhCPc
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 05vkqLTITCgA
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Aug 2021 11:37:19 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com
- [IPv6:2607:f8b0:4864:20::634])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 5D1A082FA2
+ Tue,  3 Aug 2021 12:59:35 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CA247401BB
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Aug 2021 11:37:19 +0000 (UTC)
-Received: by mail-pl1-x634.google.com with SMTP id t3so21244228plg.9
- for <virtualization@lists.linux-foundation.org>;
- Tue, 03 Aug 2021 04:37:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=lyHPGnrDqtjmesKnhAqm7ap8dmXtrIEAp5hauUQrxIg=;
- b=yIbKAhAQb5ITTaZWHl5XueJVHbzOPOD7c0swK8JDs6HfDU4sVhK7fWZh/xFgxYYggk
- QK49KQ46ZmDc9IXDnM3yJpitU05jEi9yL9rBXz24tx6/llAuRGPgh7tbI1D+6271/wea
- MC6mt9DaSc0GyNILRlSWrLYd6xD0Uy5C1iy3gnL3FHgytiSG3Wxn2EmjbEl1IDwtu55F
- W+vQeA1xN+ALI2cQuHIxkVODcd7RjUq7zqlmRRASsKFbJn5VPhl8+I/tIM81CMhBmKcK
- gOYyqrR8tciDzwVvklhiG1OZRMH8yqRe5zA7neGMc6OoX6O/GW1a3xVZXW514j6+75z2
- 1S2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=lyHPGnrDqtjmesKnhAqm7ap8dmXtrIEAp5hauUQrxIg=;
- b=tVc2MFXtrUlsPaNEXHER/rfk9SsPGiJ0pp7g3UTA4tsWCvCA42PxN6mYx5QclBPidA
- 7bD+v1G+PHQGIj1hSVVMyGa5z+2pDorHnu6UGxnWIXB/xoK7CvZo75ZdJbjwF1lgmRdn
- roZ4ukVSz5yyy8ZVyrYPNp8hWY9JTrT3m1Eo96h7JP26+v9JSY6YndsYEInz9Cea7DaA
- l86Bu8epa3oSO5wxzgiPg0asyuUrAgc6Udq/yoOZ5y3/qaEvVMJ7MXuyHrqNEwjE8jYg
- HV3hKZPO80+Yz70mhz+w3Wa5PT0OWGAxR5WdKQaH1hzrgqaHBxgVi1Tk9nk7gwoy+vUO
- UzVQ==
-X-Gm-Message-State: AOAM531Nc5jposKnOYCvLId+N5tJd6V72pjQZQmv5tekGQQjf49ncZCY
- WF8/1W7NFU3wOZA9TPieNsEAxg==
-X-Google-Smtp-Source: ABdhPJzk/HKT1QqpIOv0teFh+F2fwM7w3ipgn+FFVfMcJFQ78YWZXYR0V3mygUzfqI3x7afQZSaveg==
-X-Received: by 2002:a17:90a:aa05:: with SMTP id
- k5mr21855090pjq.47.1627990638742; 
- Tue, 03 Aug 2021 04:37:18 -0700 (PDT)
-Received: from localhost ([122.172.201.85])
- by smtp.gmail.com with ESMTPSA id t37sm15390085pfg.14.2021.08.03.04.37.17
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 03 Aug 2021 04:37:18 -0700 (PDT)
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Arnd Bergmann <arnd@kernel.org>, Linus Walleij <linus.walleij@linaro.org>,
- Bartosz Golaszewski <bgolaszewski@baylibre.com>,
- "Enrico Weigelt, metux IT consult" <info@metux.net>,
- Viresh Kumar <vireshk@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V4 2/2] gpio: virtio: Add IRQ support
-Date: Tue,  3 Aug 2021 17:06:56 +0530
-Message-Id: <75c8e6e5e8dfa1889938f3a6b2d991763c7a3717.1627989586.git.viresh.kumar@linaro.org>
-X-Mailer: git-send-email 2.31.1.272.g89b43f80a514
-In-Reply-To: <cover.1627989586.git.viresh.kumar@linaro.org>
-References: <cover.1627989586.git.viresh.kumar@linaro.org>
+ Tue,  3 Aug 2021 12:59:35 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id 76B6E200CB;
+ Tue,  3 Aug 2021 12:59:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1627995573; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=9QPs+cU2ZGWZbuOTh+h4AsI971+Z+102tN5zRb+VoGc=;
+ b=vaEhDgsZN4ercqzarSKgkxlhKq84cFuK8QDW4MLVA3nxoocpHHUvKQPgye648IZADVsOag
+ MVmheGMCqxndgHRaf2XDxUWqgsbl91W/rtOWW7qwcpEooitKjCwvPHZ3jSQptvY2V0Au/t
+ ZrdtxE9z8nWomhA4/BaysCUcnaMoKfI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1627995573;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=9QPs+cU2ZGWZbuOTh+h4AsI971+Z+102tN5zRb+VoGc=;
+ b=F2wsvLOOLOs04M7+ojOYTgaMcmHjZ9bdvykBV8dqYNkgZj3hNKieU770K0+zqN2fyrWdSQ
+ XH5TehGkmxC/fkAA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id F3BAA13CD6;
+ Tue,  3 Aug 2021 12:59:32 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id IL4yOrQ9CWExZwAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Tue, 03 Aug 2021 12:59:32 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: airlied@redhat.com, airlied@linux.ie, daniel@ffwll.ch,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, noralf@tronnes.org,
+ drawat.floss@gmail.com, kraxel@redhat.com, hdegoede@redhat.com,
+ sean@poorly.run, rodrigosiqueiramelo@gmail.com, melissa.srw@gmail.com,
+ sam@ravnborg.org
+Subject: [PATCH 05/11] drm/mgag200: Use offset-adjusted shadow-plane mappings
+Date: Tue,  3 Aug 2021 14:59:22 +0200
+Message-Id: <20210803125928.27780-6-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20210803125928.27780-1-tzimmermann@suse.de>
+References: <20210803125928.27780-1-tzimmermann@suse.de>
 MIME-Version: 1.0
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Viresh Kumar <viresh.kumar@linaro.org>, Bill Mills <bill.mills@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-gpio@vger.kernel.org,
- Geert Uytterhoeven <geert@linux-m68k.org>, Marc Zyngier <maz@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, stratos-dev@op-lists.linaro.org
+Cc: linux-hyperv@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,437 +113,39 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch adds IRQ support for the virtio GPIO driver. Note that this
-uses the irq_bus_lock/unlock() callbacks, since those operations over
-virtio may sleep. Also the notifications for the eventq are processed
-using a work item to allow sleep-able operations.
+For framebuffers with non-zero offset fields, shadow-plane helpers
+provide a pointer to the first byte of the contained data. Use it in
+mgag200.
 
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpio/Kconfig             |   1 +
- drivers/gpio/gpio-virtio.c       | 281 ++++++++++++++++++++++++++++++-
- include/uapi/linux/virtio_gpio.h |  25 +++
- 3 files changed, 303 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/mgag200/mgag200_mode.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index e5993d6864fb..222f4ae98a35 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -1672,6 +1672,7 @@ config GPIO_MOCKUP
- config GPIO_VIRTIO
- 	tristate "VirtIO GPIO support"
- 	depends on VIRTIO
-+	select GPIOLIB_IRQCHIP
- 	help
- 	  Say Y here to enable guest support for virtio-based GPIO controllers.
+diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
+index 3b3059f471c2..6e2db8cfe3b7 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_mode.c
++++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
+@@ -1601,7 +1601,7 @@ mgag200_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
+ 	mga_crtc_load_lut(crtc);
+ 	mgag200_enable_display(mdev);
  
-diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
-index 3ed4240fe670..0be132d75396 100644
---- a/drivers/gpio/gpio-virtio.c
-+++ b/drivers/gpio/gpio-virtio.c
-@@ -17,6 +17,7 @@
- #include <linux/module.h>
- #include <linux/mutex.h>
- #include <linux/virtio_config.h>
-+#include <linux/workqueue.h>
- #include <uapi/linux/virtio_gpio.h>
- #include <uapi/linux/virtio_ids.h>
- 
-@@ -28,6 +29,16 @@ struct virtio_gpio_line {
- 	unsigned int rxlen;
- };
- 
-+struct vgpio_irq_line {
-+	u8 type;
-+	bool masked;
-+	bool update_pending;
-+	bool queued;
-+
-+	struct virtio_gpio_irq_request ireq;
-+	struct virtio_gpio_irq_response ires;
-+};
-+
- struct virtio_gpio {
- 	struct virtio_device *vdev;
- 	struct mutex lock; /* Protects virtqueue operation */
-@@ -35,6 +46,12 @@ struct virtio_gpio {
- 	struct virtio_gpio_config config;
- 	struct virtio_gpio_line *lines;
- 	struct virtqueue *request_vq;
-+
-+	/* fields for irq support */
-+	struct virtqueue *event_vq;
-+	struct mutex irq_lock; /* Protects irq operation */
-+	struct work_struct work;
-+	struct vgpio_irq_line *irq_lines;
- };
- 
- static int _virtio_gpio_req(struct virtio_gpio *vgpio, u16 type, u16 gpio,
-@@ -187,6 +204,220 @@ static void virtio_gpio_set(struct gpio_chip *gc, unsigned int gpio, int value)
- 	virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_SET_VALUE, gpio, value, NULL);
+-	mgag200_handle_damage(mdev, fb, &fullscreen, &shadow_plane_state->map[0]);
++	mgag200_handle_damage(mdev, fb, &fullscreen, &shadow_plane_state->data[0]);
  }
  
-+/* Interrupt handling */
-+static void virtio_gpio_irq_prepare(struct virtio_gpio *vgpio, u16 gpio)
-+{
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[gpio];
-+	struct virtio_gpio_irq_request *ireq = &irq_line->ireq;
-+	struct virtio_gpio_irq_response *ires = &irq_line->ires;
-+	struct scatterlist *sgs[2], req_sg, res_sg;
-+	int ret;
-+
-+	ireq->gpio = cpu_to_le16(gpio);
-+	sg_init_one(&req_sg, ireq, sizeof(*ireq));
-+	sg_init_one(&res_sg, ires, sizeof(*ires));
-+	sgs[0] = &req_sg;
-+	sgs[1] = &res_sg;
-+
-+	ret = virtqueue_add_sgs(vgpio->event_vq, sgs, 1, 1, irq_line, GFP_KERNEL);
-+	if (ret) {
-+		dev_err(&vgpio->vdev->dev, "failed to add request to eventq\n");
-+		return;
-+	}
-+
-+	WARN_ON(irq_line->queued);
-+
-+	irq_line->queued = true;
-+	virtqueue_kick(vgpio->event_vq);
-+}
-+
-+static void virtio_gpio_irq_eoi(struct irq_data *d)
-+{
-+	/*
-+	 * Queue buffers, by calling virtio_gpio_irq_prepare(), from
-+	 * virtio_gpio_event_vq() itself, after taking into consideration the
-+	 * masking status of the interrupt.
-+	 */
-+}
-+
-+static void virtio_gpio_irq_mask(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-+
-+	irq_line->masked = true;
-+	irq_line->update_pending = true;
-+}
-+
-+static void virtio_gpio_irq_unmask(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-+
-+	irq_line->masked = false;
-+	irq_line->update_pending = true;
-+}
-+
-+static int virtio_gpio_irq_set_type(struct irq_data *d, unsigned int type)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-+
-+	switch (type) {
-+	case IRQ_TYPE_NONE:
-+		type = VIRTIO_GPIO_IRQ_TYPE_NONE;
-+		break;
-+	case IRQ_TYPE_EDGE_RISING:
-+		type = VIRTIO_GPIO_IRQ_TYPE_EDGE_RISING;
-+		break;
-+	case IRQ_TYPE_EDGE_FALLING:
-+		type = VIRTIO_GPIO_IRQ_TYPE_EDGE_FALLING;
-+		break;
-+	case IRQ_TYPE_EDGE_BOTH:
-+		type = VIRTIO_GPIO_IRQ_TYPE_EDGE_BOTH;
-+		break;
-+	case IRQ_TYPE_LEVEL_LOW:
-+		type = VIRTIO_GPIO_IRQ_TYPE_LEVEL_LOW;
-+		break;
-+	case IRQ_TYPE_LEVEL_HIGH:
-+		type = VIRTIO_GPIO_IRQ_TYPE_LEVEL_HIGH;
-+		break;
-+	default:
-+		dev_err(&vgpio->vdev->dev, "unsupported irq type: %u\n", type);
-+		return -EINVAL;
-+	}
-+
-+	irq_line->type = type;
-+	irq_line->update_pending = true;
-+
-+	return 0;
-+}
-+
-+static void update_irq_type(struct virtio_gpio *vgpio, u16 gpio, u8 type)
-+{
-+	virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_IRQ_TYPE, gpio, type, NULL);
-+}
-+
-+static void virtio_gpio_irq_bus_lock(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+
-+	mutex_lock(&vgpio->irq_lock);
-+}
-+
-+static void virtio_gpio_irq_bus_sync_unlock(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	int gpio = d->hwirq;
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[gpio];
-+
-+	if (unlikely(!irq_line->update_pending))
-+		goto out;
-+
-+	if (irq_line->masked) {
-+		update_irq_type(vgpio, gpio, VIRTIO_GPIO_IRQ_TYPE_NONE);
-+	} else {
-+		update_irq_type(vgpio, gpio, irq_line->type);
-+		virtio_gpio_irq_prepare(vgpio, gpio);
-+	}
-+
-+	irq_line->update_pending = false;
-+
-+out:
-+	mutex_unlock(&vgpio->irq_lock);
-+}
-+
-+static struct irq_chip vgpio_irq_chip = {
-+	.name			= "virtio-gpio",
-+	.irq_eoi		= virtio_gpio_irq_eoi,
-+	.irq_mask		= virtio_gpio_irq_mask,
-+	.irq_unmask		= virtio_gpio_irq_unmask,
-+	.irq_set_type		= virtio_gpio_irq_set_type,
-+
-+	/* These are required to implement irqchip for slow busses */
-+	.irq_bus_lock		= virtio_gpio_irq_bus_lock,
-+	.irq_bus_sync_unlock	= virtio_gpio_irq_bus_sync_unlock,
-+};
-+
-+static void vgpio_work_handler(struct work_struct *work)
-+{
-+	struct virtio_gpio *vgpio = container_of(work, struct virtio_gpio,
-+						 work);
-+	struct device *dev = &vgpio->vdev->dev;
-+	struct vgpio_irq_line *irq_line;
-+	int irq, gpio, ret;
-+	unsigned int len;
-+
-+	mutex_lock(&vgpio->irq_lock);
-+
-+	while (true) {
-+		irq_line = virtqueue_get_buf(vgpio->event_vq, &len);
-+		if (!irq_line)
-+			break;
-+
-+		if (len != sizeof(irq_line->ires)) {
-+			dev_err(dev, "irq with incorrect length (%u : %lu)\n",
-+				len, sizeof(irq_line->ires));
-+			continue;
-+		}
-+
-+		WARN_ON(!irq_line->queued);
-+		irq_line->queued = false;
-+
-+		/* Buffer is returned after interrupt is masked */
-+		if (irq_line->ires.status == VIRTIO_GPIO_IRQ_STATUS_INVALID)
-+			continue;
-+
-+		if (WARN_ON(irq_line->ires.status != VIRTIO_GPIO_IRQ_STATUS_VALID))
-+			continue;
-+
-+		/*
-+		 * Find GPIO line number from the offset of irq_line within the
-+		 * irq_lines block. We can also get GPIO number from
-+		 * irq-request, but better not rely on a value returned by
-+		 * remote.
-+		 */
-+		gpio = irq_line - vgpio->irq_lines;
-+		WARN_ON(gpio >= vgpio->config.ngpio);
-+
-+		irq = irq_find_mapping(vgpio->gc.irq.domain, gpio);
-+		WARN_ON(!irq);
-+
-+		local_irq_disable();
-+		ret = generic_handle_irq(irq);
-+		local_irq_enable();
-+
-+		if (ret)
-+			dev_err(dev, "failed to handle interrupt: %d\n", ret);
-+
-+		/* The interrupt may have been disabled by now */
-+		if (irq_line->update_pending && irq_line->masked)
-+			update_irq_type(vgpio, gpio, VIRTIO_GPIO_IRQ_TYPE_NONE);
-+		else
-+			virtio_gpio_irq_prepare(vgpio, gpio);
-+
-+		irq_line->update_pending = false;
-+	};
-+
-+	mutex_unlock(&vgpio->irq_lock);
-+}
-+
-+static void virtio_gpio_event_vq(struct virtqueue *vq)
-+{
-+	struct virtio_gpio *vgpio = vq->vdev->priv;
-+
-+	/*
-+	 * We can't initiate virtio-gpio operations from hard irq context, as
-+	 * they need sleep-able context.
-+	 */
-+	schedule_work(&vgpio->work);
-+}
-+
- static void virtio_gpio_request_vq(struct virtqueue *vq)
- {
- 	struct virtio_gpio_line *line;
-@@ -211,14 +442,15 @@ static void virtio_gpio_free_vqs(struct virtio_device *vdev)
- static int virtio_gpio_alloc_vqs(struct virtio_gpio *vgpio,
- 				 struct virtio_device *vdev)
- {
--	const char * const names[] = { "requestq" };
-+	const char * const names[] = { "requestq", "eventq" };
- 	vq_callback_t *cbs[] = {
- 		virtio_gpio_request_vq,
-+		virtio_gpio_event_vq,
- 	};
--	struct virtqueue *vqs[1] = { NULL };
-+	struct virtqueue *vqs[2] = { NULL, NULL };
- 	int ret;
+ static void
+@@ -1650,7 +1650,7 @@ mgag200_simple_display_pipe_update(struct drm_simple_display_pipe *pipe,
+ 		return;
  
--	ret = virtio_find_vqs(vdev, 1, vqs, cbs, names, NULL);
-+	ret = virtio_find_vqs(vdev, vgpio->irq_lines ? 2 : 1, vqs, cbs, names, NULL);
- 	if (ret) {
- 		dev_err(&vdev->dev, "failed to find vqs: %d\n", ret);
- 		return ret;
-@@ -226,11 +458,23 @@ static int virtio_gpio_alloc_vqs(struct virtio_gpio *vgpio,
- 
- 	if (!vqs[0]) {
- 		dev_err(&vdev->dev, "failed to find requestq vq\n");
--		return -ENODEV;
-+		goto out;
- 	}
- 	vgpio->request_vq = vqs[0];
- 
-+	if (vgpio->irq_lines && !vqs[1]) {
-+		dev_err(&vdev->dev, "failed to find eventq vq\n");
-+		goto out;
-+	}
-+	vgpio->event_vq = vqs[1];
-+
- 	return 0;
-+
-+out:
-+	if (vqs[0] || vqs[1])
-+		virtio_gpio_free_vqs(vdev);
-+
-+	return -ENODEV;
+ 	if (drm_atomic_helper_damage_merged(old_state, state, &damage))
+-		mgag200_handle_damage(mdev, fb, &damage, &shadow_plane_state->map[0]);
++		mgag200_handle_damage(mdev, fb, &damage, &shadow_plane_state->data[0]);
  }
  
- static const char **virtio_gpio_get_names(struct virtio_gpio *vgpio)
-@@ -326,6 +570,29 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
- 	vgpio->gc.owner			= THIS_MODULE;
- 	vgpio->gc.can_sleep		= true;
- 
-+	/* Interrupt support */
-+	if (virtio_has_feature(vdev, VIRTIO_GPIO_F_IRQ)) {
-+		vgpio->irq_lines = devm_kcalloc(dev, config->ngpio,
-+						sizeof(*vgpio->irq_lines),
-+						GFP_KERNEL);
-+		if (!vgpio->irq_lines)
-+			return -ENOMEM;
-+
-+		/* The event comes from the outside so no parent handler */
-+		vgpio->gc.irq.parent_handler	= NULL;
-+		vgpio->gc.irq.num_parents	= 0;
-+		vgpio->gc.irq.parents		= NULL;
-+		vgpio->gc.irq.default_type	= IRQ_TYPE_NONE;
-+		vgpio->gc.irq.handler		= handle_fasteoi_irq;
-+		vgpio->gc.irq.chip		= &vgpio_irq_chip;
-+
-+		for (i = 0; i < config->ngpio; i++)
-+			vgpio->irq_lines[i].type = VIRTIO_GPIO_IRQ_TYPE_NONE;
-+
-+		mutex_init(&vgpio->irq_lock);
-+		INIT_WORK(&vgpio->work, vgpio_work_handler);
-+	}
-+
- 	ret = virtio_gpio_alloc_vqs(vgpio, vdev);
- 	if (ret)
- 		return ret;
-@@ -358,7 +625,13 @@ static const struct virtio_device_id id_table[] = {
- };
- MODULE_DEVICE_TABLE(virtio, id_table);
- 
-+static const unsigned int features[] = {
-+	VIRTIO_GPIO_F_IRQ,
-+};
-+
- static struct virtio_driver virtio_gpio_driver = {
-+	.feature_table		= features,
-+	.feature_table_size	= ARRAY_SIZE(features),
- 	.id_table		= id_table,
- 	.probe			= virtio_gpio_probe,
- 	.remove			= virtio_gpio_remove,
-diff --git a/include/uapi/linux/virtio_gpio.h b/include/uapi/linux/virtio_gpio.h
-index 844574acf095..297ffdae1a5d 100644
---- a/include/uapi/linux/virtio_gpio.h
-+++ b/include/uapi/linux/virtio_gpio.h
-@@ -5,12 +5,16 @@
- 
- #include <linux/types.h>
- 
-+/* Virtio GPIO Feature bits */
-+#define VIRTIO_GPIO_F_IRQ			0
-+
- /* Virtio GPIO request types */
- #define VIRTIO_GPIO_MSG_GET_NAMES		0x0001
- #define VIRTIO_GPIO_MSG_GET_DIRECTION		0x0002
- #define VIRTIO_GPIO_MSG_SET_DIRECTION		0x0003
- #define VIRTIO_GPIO_MSG_GET_VALUE		0x0004
- #define VIRTIO_GPIO_MSG_SET_VALUE		0x0005
-+#define VIRTIO_GPIO_MSG_IRQ_TYPE		0x0006
- 
- /* Possible values of the status field */
- #define VIRTIO_GPIO_STATUS_OK			0x0
-@@ -21,6 +25,14 @@
- #define VIRTIO_GPIO_DIRECTION_OUT		0x01
- #define VIRTIO_GPIO_DIRECTION_IN		0x02
- 
-+/* Virtio GPIO IRQ types */
-+#define VIRTIO_GPIO_IRQ_TYPE_NONE		0x00
-+#define VIRTIO_GPIO_IRQ_TYPE_EDGE_RISING	0x01
-+#define VIRTIO_GPIO_IRQ_TYPE_EDGE_FALLING	0x02
-+#define VIRTIO_GPIO_IRQ_TYPE_EDGE_BOTH		0x03
-+#define VIRTIO_GPIO_IRQ_TYPE_LEVEL_HIGH		0x04
-+#define VIRTIO_GPIO_IRQ_TYPE_LEVEL_LOW		0x08
-+
- struct virtio_gpio_config {
- 	__u16 ngpio;
- 	__u8 padding[2];
-@@ -44,4 +56,17 @@ struct virtio_gpio_response_get_names {
- 	__u8 value[];
- };
- 
-+/* Virtio GPIO IRQ Request / Response */
-+struct virtio_gpio_irq_request {
-+	__u16 gpio;
-+};
-+
-+struct virtio_gpio_irq_response {
-+	__u8 status;
-+};
-+
-+/* Possible values of the interrupt status field */
-+#define VIRTIO_GPIO_IRQ_STATUS_INVALID		0x0
-+#define VIRTIO_GPIO_IRQ_STATUS_VALID		0x1
-+
- #endif /* _LINUX_VIRTIO_GPIO_H */
+ static const struct drm_simple_display_pipe_funcs
 -- 
-2.31.1.272.g89b43f80a514
+2.32.0
 
 _______________________________________________
 Virtualization mailing list
