@@ -2,84 +2,108 @@ Return-Path: <SRS0=yluT=M2=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,URIBL_RED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_RED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76C80C4320A
-	for <virtualization@archiver.kernel.org>; Tue,  3 Aug 2021 10:54:33 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2683BC4338F
+	for <virtualization@archiver.kernel.org>; Tue,  3 Aug 2021 11:37:16 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3694660FC2
-	for <virtualization@archiver.kernel.org>; Tue,  3 Aug 2021 10:54:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 3694660FC2
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=arm.com
+	by mail.kernel.org (Postfix) with ESMTPS id AFA7360F48
+	for <virtualization@archiver.kernel.org>; Tue,  3 Aug 2021 11:37:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org AFA7360F48
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 3B6C14019B;
-	Tue,  3 Aug 2021 10:54:32 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 62DA060750;
+	Tue,  3 Aug 2021 11:37:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id PYP-6kIdARk3; Tue,  3 Aug 2021 10:54:31 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9544440219;
-	Tue,  3 Aug 2021 10:54:30 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qx8LW0Wvsszv; Tue,  3 Aug 2021 11:37:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id EEF796063E;
+	Tue,  3 Aug 2021 11:37:13 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1CB12C0020;
-	Tue,  3 Aug 2021 10:54:30 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C7EC9C001A;
+	Tue,  3 Aug 2021 11:37:13 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1A449C000E;
- Tue,  3 Aug 2021 10:54:28 +0000 (UTC)
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8158EC000E
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  3 Aug 2021 11:37:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id EBABD81DCA;
- Tue,  3 Aug 2021 10:54:27 +0000 (UTC)
+ by smtp1.osuosl.org (Postfix) with ESMTP id 5D9CE82FA2
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  3 Aug 2021 11:37:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linaro.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SUnKzj3FMNbG; Tue,  3 Aug 2021 10:54:27 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by smtp1.osuosl.org (Postfix) with ESMTP id 1DF2F81D67;
- Tue,  3 Aug 2021 10:54:26 +0000 (UTC)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 237041396;
- Tue,  3 Aug 2021 03:54:26 -0700 (PDT)
-Received: from [10.57.36.146] (unknown [10.57.36.146])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 805143F40C;
- Tue,  3 Aug 2021 03:54:22 -0700 (PDT)
-Subject: Re: [PATCH v10 01/17] iova: Export alloc_iova_fast() and
- free_iova_fast()
-To: Yongji Xie <xieyongji@bytedance.com>, Jason Wang <jasowang@redhat.com>
-References: <20210729073503.187-1-xieyongji@bytedance.com>
- <20210729073503.187-2-xieyongji@bytedance.com>
- <43d88942-1cd3-c840-6fec-4155fd544d80@redhat.com>
- <CACycT3vcpwyA3xjD29f1hGnYALyAd=-XcWp8+wJiwSqpqUu00w@mail.gmail.com>
-From: Robin Murphy <robin.murphy@arm.com>
-Message-ID: <6e05e25e-e569-402e-d81b-8ac2cff1c0e8@arm.com>
-Date: Tue, 3 Aug 2021 11:53:45 +0100
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
+ with ESMTP id a6aHmUIKe2cw
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  3 Aug 2021 11:37:12 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com
+ [IPv6:2607:f8b0:4864:20::102b])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 44FAC82F77
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  3 Aug 2021 11:37:12 +0000 (UTC)
+Received: by mail-pj1-x102b.google.com with SMTP id
+ g23-20020a17090a5797b02901765d605e14so4244340pji.5
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 03 Aug 2021 04:37:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=lx8aY+/yDtRv3FLOutHx5ZS4iEMyIdYBOMCpO0cyw18=;
+ b=BUOS8Ggwq+VCAPWWigjVP6z8eL2qBxxXXQBzAIuTNLlNZXZxPG4jPoV/9pRshmmPte
+ gdH/a/PdZt30r1WZkEoC+6upgD9f6cwEtXdpNuhy0qY08oNZlxyYLMPfb18zMZPmljTc
+ 3cDhZ3vYl3qbrLYPUjkmv54kKQyMdH5yBLC20skpM3bXCbOFTTgAHbWUqn8OPDGin1MB
+ KOvd+xRYIi+k8vyURRBTnFR5+8q5NpLedWzLZx0hXEOzdeTtZJWK5Cumwh4BSnUcaVMe
+ 7/OWuyQr0QVSOq/aLUQyLSZNCaWBAMGGzuca90NABo62tyJ0KZytiDXryJ0BAf73yI7V
+ gtmg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=lx8aY+/yDtRv3FLOutHx5ZS4iEMyIdYBOMCpO0cyw18=;
+ b=DoFlMer7MlMfAeydIKqhG2NbDM6ObkV/LxWwB6hD9Q/P5qPHTtPYdbPEFV7iL02YQW
+ 5SQ5Golb9G9Ze58obQyYcmEonS9bEceRDfKaYY3jnZHlYltMD3YfCU4D6USOV/k2RqWK
+ 4IIRkCelMoLtCyjzA9bRXt78C6BGx5mh+pY1VOOgcf7nRUWXXZV6PxfMgl8TyG+B3//j
+ jNgxuTmdOipZ7nVj3F/Z1NmcCiMe98Qz2GCuWqoa03fgFK300+PedR+S1TzAbNZLz5nv
+ XnGDhtP7BNMGOpo+kpP2pnDzK+A5qpXmF9t1dkMxsmTrED5H+EwypJ93x5dUn7s8S2+i
+ y5Sg==
+X-Gm-Message-State: AOAM531I8oDsITXd6CgAU7U7yp4LQohH4ZZPRirWXOo7U6TfVIfFhB7z
+ rP6Drrr88gU8W1i/xFwYnZ3T7Q==
+X-Google-Smtp-Source: ABdhPJza6By/DI7WFRBuWNKSnUEnJyrqLv1g7UqN9TlFDao7Pbvy0JReR7BuPUrsYAZVWyN05p6Fiw==
+X-Received: by 2002:a63:120e:: with SMTP id h14mr647881pgl.215.1627990631637; 
+ Tue, 03 Aug 2021 04:37:11 -0700 (PDT)
+Received: from localhost ([122.172.201.85])
+ by smtp.gmail.com with ESMTPSA id s36sm17710157pgk.64.2021.08.03.04.37.10
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 03 Aug 2021 04:37:11 -0700 (PDT)
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: Arnd Bergmann <arnd@kernel.org>, Linus Walleij <linus.walleij@linaro.org>,
+ Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+ "Enrico Weigelt, metux IT consult" <info@metux.net>,
+ Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Viresh Kumar <vireshk@kernel.org>
+Subject: [PATCH V4 0/2] gpio: Add virtio based driver
+Date: Tue,  3 Aug 2021 17:06:54 +0530
+Message-Id: <cover.1627989586.git.viresh.kumar@linaro.org>
+X-Mailer: git-send-email 2.31.1.272.g89b43f80a514
 MIME-Version: 1.0
-In-Reply-To: <CACycT3vcpwyA3xjD29f1hGnYALyAd=-XcWp8+wJiwSqpqUu00w@mail.gmail.com>
-Content-Language: en-GB
-Cc: kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Christian Brauner <christian.brauner@canonical.com>,
- Jonathan Corbet <corbet@lwn.net>, Matthew Wilcox <willy@infradead.org>,
- Christoph Hellwig <hch@infradead.org>,
- Dan Carpenter <dan.carpenter@oracle.com>,
- Liu Xiaodong <xiaodong.liu@intel.com>, Joe Perches <joe@perches.com>,
- Al Viro <viro@zeniv.linux.org.uk>, Stefan Hajnoczi <stefanha@redhat.com>,
- songmuchun@bytedance.com, Jens Axboe <axboe@kernel.dk>,
- He Zhe <zhe.he@windriver.com>, Greg KH <gregkh@linuxfoundation.org>,
- Randy Dunlap <rdunlap@infradead.org>,
- linux-kernel <linux-kernel@vger.kernel.org>, iommu@lists.linux-foundation.org,
- bcrl@kvack.org, netdev@vger.kernel.org, linux-fsdevel@vger.kernel.org,
- =?UTF-8?Q?Mika_Penttil=c3=a4?= <mika.penttila@nextfour.com>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Viresh Kumar <viresh.kumar@linaro.org>, Bill Mills <bill.mills@linaro.org>,
+ Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-gpio@vger.kernel.org,
+ Geert Uytterhoeven <geert@linux-m68k.org>, Marc Zyngier <maz@kernel.org>,
+ Thomas Gleixner <tglx@linutronix.de>, stratos-dev@op-lists.linaro.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -91,34 +115,55 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gMjAyMS0wOC0wMyAwOTo1NCwgWW9uZ2ppIFhpZSB3cm90ZToKPiBPbiBUdWUsIEF1ZyAzLCAy
-MDIxIGF0IDM6NDEgUE0gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4gd3JvdGU6Cj4+
-Cj4+Cj4+IOWcqCAyMDIxLzcvMjkg5LiL5Y2IMzozNCwgWGllIFlvbmdqaSDlhpnpgZM6Cj4+PiBF
-eHBvcnQgYWxsb2NfaW92YV9mYXN0KCkgYW5kIGZyZWVfaW92YV9mYXN0KCkgc28gdGhhdAo+Pj4g
-c29tZSBtb2R1bGVzIGNhbiB1c2UgaXQgdG8gaW1wcm92ZSBpb3ZhIGFsbG9jYXRpb24gZWZmaWNp
-ZW5jeS4KPj4KPj4KPj4gSXQncyBiZXR0ZXIgdG8gZXhwbGFpbiB3aHkgYWxsb2NfaW92YSgpIGlz
-IG5vdCBzdWZmaWNpZW50IGhlcmUuCj4+Cj4gCj4gRmluZS4KCldoYXQgSSBmYWlsIHRvIHVuZGVy
-c3RhbmQgZnJvbSB0aGUgbGF0ZXIgcGF0Y2hlcyBpcyB3aGF0IHRoZSBJT1ZBIGRvbWFpbiAKYWN0
-dWFsbHkgcmVwcmVzZW50cy4gSWYgdGhlICJkZXZpY2UiIGlzIGEgdXNlcnNwYWNlIHByb2Nlc3Mg
-dGhlbiAKbG9naWNhbGx5IHRoZSAiSU9WQSIgd291bGQgYmUgdGhlIHVzZXJzcGFjZSBhZGRyZXNz
-LCBzbyBwcmVzdW1hYmx5IApzb21ld2hlcmUgeW91J3JlIGhhdmluZyB0byB0cmFuc2xhdGUgYmV0
-d2VlbiB0aGlzIGFyYml0cmFyeSBhZGRyZXNzIApzcGFjZSBhbmQgYWN0dWFsIHVzYWJsZSBhZGRy
-ZXNzZXMgLSBpZiB5b3UncmUgd29ycmllZCBhYm91dCBlZmZpY2llbmN5IApzdXJlbHkgaXQgd291
-bGQgYmUgZXZlbiBiZXR0ZXIgdG8gbm90IGRvIHRoYXQ/CgpQcmVzdW1hYmx5IHVzZXJzcGFjZSBk
-b2Vzbid0IGhhdmUgYW55IGNvbmNlcm4gYWJvdXQgYWxpZ25tZW50IGFuZCB0aGUgCnRoaW5ncyB3
-ZSBoYXZlIHRvIHdvcnJ5IGFib3V0IGZvciB0aGUgRE1BIEFQSSBpbiBnZW5lcmFsLCBzbyBpdCdz
-IHByZXR0eSAKbXVjaCBqdXN0IGFsbG9jYXRpbmcgc2xvdHMgaW4gYSBidWZmZXIsIGFuZCB0aGVy
-ZSBhcmUgZmFyIG1vcmUgZWZmZWN0aXZlIAp3YXlzIHRvIGRvIHRoYXQgdGhhbiBhIGZ1bGwtYmxv
-d24gYWRkcmVzcyBzcGFjZSBtYW5hZ2VyLiBJZiB5b3UncmUgZ29pbmcgCnRvIHJldXNlIGFueSBp
-bmZyYXN0cnVjdHVyZSBJJ2QgaGF2ZSBleHBlY3RlZCBpdCB0byBiZSBTV0lPVExCIHJhdGhlciAK
-dGhhbiB0aGUgSU9WQSBhbGxvY2F0b3IuIEJlY2F1c2UsIHkna25vdywgeW91J3JlICpsaXRlcmFs
-bHkgaW1wbGVtZW50aW5nIAphIHNvZnR3YXJlIEkvTyBUTEIqIDspCgpSb2Jpbi4KX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
-bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
-Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
-aW9u
+Hello,
+
+This adds Virtio GPIO driver based on the proposed specification [1].
+
+The specification for basic GPIO operations is already reviewed by Linus and
+Arnd, while the IRQ stuff is still under discussion and not finalized.
+
+I am sharing the code, so everyone gets more clarity on how it will work
+eventually in Linux.
+
+I have tested this patchset with Qemu guest with help of the libgpiod utility.
+I have also tested basic handling of interrupts on the guest side. It works as
+expected.
+
+The host side virtio-backend isn't ready yet and my tests only tested the flow
+control between guest and host, but didn't play with real GPIO pins.  That will
+be done once I have a working backend in place (WIP).
+
+V3->V4:
+- Lots of changes, as the specification changed too much. Better forget
+  everything we have done until now :)
+
+--
+Viresh
+
+[1] https://lists.oasis-open.org/archives/virtio-dev/202107/msg00232.html
+
+Viresh Kumar (2):
+  gpio: Add virtio-gpio driver
+  gpio: virtio: Add IRQ support
+
+ MAINTAINERS                      |   7 +
+ drivers/gpio/Kconfig             |  10 +
+ drivers/gpio/Makefile            |   1 +
+ drivers/gpio/gpio-virtio.c       | 648 +++++++++++++++++++++++++++++++
+ include/uapi/linux/virtio_gpio.h |  72 ++++
+ 5 files changed, 738 insertions(+)
+ create mode 100644 drivers/gpio/gpio-virtio.c
+ create mode 100644 include/uapi/linux/virtio_gpio.h
+
+-- 
+2.31.1.272.g89b43f80a514
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
