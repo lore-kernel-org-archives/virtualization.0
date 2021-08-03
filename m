@@ -1,116 +1,145 @@
-Return-Path: <SRS0=GDYi=MZ=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=yluT=M2=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_RED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 786D0C4338F
-	for <virtualization@archiver.kernel.org>; Mon,  2 Aug 2021 20:21:53 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B58CC432BE
+	for <virtualization@archiver.kernel.org>; Tue,  3 Aug 2021 02:30:18 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3313760EB5
-	for <virtualization@archiver.kernel.org>; Mon,  2 Aug 2021 20:21:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 3313760EB5
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id D0E0660EE8
+	for <virtualization@archiver.kernel.org>; Tue,  3 Aug 2021 02:30:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D0E0660EE8
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id EAFD2401CD;
-	Mon,  2 Aug 2021 20:21:52 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8A26B82F49;
+	Tue,  3 Aug 2021 02:30:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lgVrWmaVqVnX; Mon,  2 Aug 2021 20:21:50 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id dhQSd93TYGzJ; Tue,  3 Aug 2021 02:30:16 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9225A40184;
-	Mon,  2 Aug 2021 20:21:49 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 3038182F4F;
+	Tue,  3 Aug 2021 02:30:16 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6B6B7C001A;
-	Mon,  2 Aug 2021 20:21:49 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CA09CC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E3FFAC001A;
+	Tue,  3 Aug 2021 02:30:15 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 77E1EC000E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Aug 2021 20:21:48 +0000 (UTC)
+ Tue,  3 Aug 2021 02:30:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id B8DC3405F0
+ by smtp1.osuosl.org (Postfix) with ESMTP id 612A082F4F
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Aug 2021 20:21:48 +0000 (UTC)
+ Tue,  3 Aug 2021 02:30:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Fvr9VTWSxXVL
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id cP3CJwxQWXdr
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Aug 2021 20:21:47 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 84C98405EF
+ Tue,  3 Aug 2021 02:30:13 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from NAM02-DM3-obe.outbound.protection.outlook.com
+ (mail-dm3nam07on20610.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7e83::610])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 0FCCE82F49
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Aug 2021 20:21:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1627935706;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=nZJ2bhBWwA0LZ+VBVsgySygKSYSWVNXAFAku40qnCTw=;
- b=TSMkvdt4shB6KZDXbcp/BXP1odrk/5Bjy9DMAxIecnRrDRnT6sMgZjCEHnUfgTEak/AhRd
- 7S1EQuOrHT19Hu86mxEa44P6YT7kzn6pOJlSp5kmFVEx1NjkNfT1Wav5VbwhhGptfPQ97p
- qZiVQ0+VlCgfp0HiN32PErTbs8rP1Hg=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-133-uqoEeu1HNwCg_eyPyq92PA-1; Mon, 02 Aug 2021 16:21:43 -0400
-X-MC-Unique: uqoEeu1HNwCg_eyPyq92PA-1
-Received: by mail-ed1-f69.google.com with SMTP id
- d12-20020a50fe8c0000b02903a4b519b413so9369900edt.9
- for <virtualization@lists.linux-foundation.org>;
- Mon, 02 Aug 2021 13:21:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=nZJ2bhBWwA0LZ+VBVsgySygKSYSWVNXAFAku40qnCTw=;
- b=Uve3jfOHGon7h5GzLgsHTElAN024AjKA+rRku0mK3ytNKa46Gtyc1yDB3AciZGW5ui
- ZdjzIoN8T8aFs71OjFGYaIEw5shYZvIRVa6aCQVKEuiEKN8I2VJ2pkA3KM40TH4q/ZQX
- XgYCa0TLuOGhNKNKhpJfXKF8w+P7ibreaAtE1oD4WyI6qtkI1d1ywlHMq18AvVsvN0Dq
- cyYRanERSRLy8sg4N7RIWebsGehYNAnFAkvFFrYSVJwfbqwHPAiqr41XM8nvXZ/HtYN3
- LrjXyA/R1WQzwt6sp9lYnIdONXJvSg5o3qTu7PJtjxQsF/XPhU9YCx3aT5pod7izDbk8
- TdaA==
-X-Gm-Message-State: AOAM531A89pZdt0+OOKiLieBkpYzB8U2Il33uDZlxb9QDhYjJNWpoIiQ
- a4NHYkP7WavrAN/z/RUcdVhCtGdCsbu/YksWGb60a3xGoG+w/25qg76mIdFDS31JrxRo0X57Vio
- GZEpMVuNM8/Lic2UyWscZkbZ3Mg8ZwUrm1Mv3V9UeOA==
-X-Received: by 2002:a05:6402:514e:: with SMTP id
- n14mr21858775edd.129.1627935702056; 
- Mon, 02 Aug 2021 13:21:42 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzLxuoBXOKeZ2Gk3OBbPWhzbkg9zy7nptJari08wguyDBRuf7wpsWw8MvrrZcTEuWohqALx5A==
-X-Received: by 2002:a05:6402:514e:: with SMTP id
- n14mr21858756edd.129.1627935701885; 
- Mon, 02 Aug 2021 13:21:41 -0700 (PDT)
-Received: from redhat.com ([2.55.140.205])
- by smtp.gmail.com with ESMTPSA id k20sm5085851ejr.93.2021.08.02.13.21.38
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 02 Aug 2021 13:21:41 -0700 (PDT)
-Date: Mon, 2 Aug 2021 16:21:36 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: fuguancheng <fuguancheng@bytedance.com>
-Subject: Re: [PATCH 0/4] Add multi-cid support for vsock driver
-Message-ID: <20210802162038-mutt-send-email-mst@kernel.org>
-References: <20210802120720.547894-1-fuguancheng@bytedance.com>
+ Tue,  3 Aug 2021 02:30:12 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=aMHVhDcNMvoi8CaxkMh+QOurKsSBVfR/jLUEKDGxp48N9DlHDf3wDNSocbxDybfzmh2KAkqJ2Sh5zPW28WnDtze1j7I9hSQUwEQWTRE6XmzLJB8qupq6wSRY1WJL4VhAEu4uUn16a5C9eme5YNxkCRipBZdI4TihmifVjzILgk9bhmDtYtoD85ZUX/20mNWx7AyAvcKUY1gzHWHMrwkG9tZ9bQGZzOn2qU1L2qfAS8NNorTkBP3OVb6lDUjb/fwB911bMFlG+D7aXtduy3E/UjCYd/2LXsajdm5NllfLYNU0gmFieuPjPG22YKjHx11G9vx9+7T63FlH9r3NqbpkZA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=lRAn4uOxw3Mt1tum1fkXTHW62TYa7a5koq7jmqEYJ9o=;
+ b=YdI/72Klt9zbFbIaeXOIDF8Lkg22zNyoUlQE07Kd7Bh4xxA9GBZWvIDbE4LEnq7mgUJj6S+83BuBpKwaCOGiiHbfHCpAyfKk3oz/En7cyJbGalooT5YWVlrN7IeSoSi7B1UnvF7d6dhDmj+4xt6jNxe7FzfhCig+/4929v61oWCjEhaSLHYGcigNQFIsWXSuFXBvk/zAvZrEWdjjjEAEhvb875O6Vr1lV1EBakCV6+1IWozfvHov9oNHsCzaLQG6zWzHVJnIfQX/hfYWUzjEzljoB8TIzIskGlLkhN4XyOILB2No4pfiLMhbNlOiee9jgAk47KBW7l1ElWzTQSwR7g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=lRAn4uOxw3Mt1tum1fkXTHW62TYa7a5koq7jmqEYJ9o=;
+ b=nZX9gyDYSyZeJSOYwJ6kW5p0WNDiI5qeiGZLwVZcU41+BWE2Q25hpsiS1G7+nl0wqoN8XkVXVuJRO1RqIfm1ljSJqvBZE94daCdK41IkR647Cv8sPlx1iwEKMVv7aXrtDjzEDiXOp5a1nC0xiP4p4pNp6NPSnXc/b5+5v3jt8GrmdKr/ZxmTjNvSj2WNf1zsDQm60QLHqwXBEMuUxZP7aglDTtLa0xg9SA+XeIEcXUpqsQ7JOF7UAR2zJW6W6XJxRxjvjlRkFjYGCa+i/qXnwOOF5maSWZsAHcbR+pcHuNxziQm7FVshb/AsSZI/hUnNrx65I68OgArdtZiaStEoJg==
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
+ by PH0PR12MB5497.namprd12.prod.outlook.com (2603:10b6:510:eb::22)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4373.20; Tue, 3 Aug
+ 2021 02:30:11 +0000
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::ace1:9322:ab32:7293]) by PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::ace1:9322:ab32:7293%3]) with mapi id 15.20.4373.026; Tue, 3 Aug 2021
+ 02:30:11 +0000
+To: "mst@redhat.com" <mst@redhat.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
+Subject: RE: [PATCH v3 0/4] virtio short improvements
+Thread-Topic: [PATCH v3 0/4] virtio short improvements
+Thread-Index: AQHXfjyEgkBpWMMsPk+MOQpth6qjnqtZajIggAe3oAA=
+Date: Tue, 3 Aug 2021 02:30:10 +0000
+Message-ID: <PH0PR12MB54813F761DEA56B792B29E0EDCF09@PH0PR12MB5481.namprd12.prod.outlook.com>
+References: <20210721142648.1525924-1-parav@nvidia.com>
+ <PH0PR12MB54815548E4E659AE8A023702DCEB9@PH0PR12MB5481.namprd12.prod.outlook.com>
+In-Reply-To: <PH0PR12MB54815548E4E659AE8A023702DCEB9@PH0PR12MB5481.namprd12.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: redhat.com; dkim=none (message not signed)
+ header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: a80d919a-1df2-4ecd-860c-08d956269e19
+x-ms-traffictypediagnostic: PH0PR12MB5497:
+x-microsoft-antispam-prvs: <PH0PR12MB5497C44B88D0D5FB5BBD7621DCF09@PH0PR12MB5497.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:5797;
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 5XB9M+ivQszDPsqq1fEO1lEKWEmIFJbrSgd1L+rbkFndmUX94ZcyGDFqGMHvaxUfBZPA6CeHkRgzZAobQpbpH9/tI+xQgAWTAclzSjpANKcPkmZHh2kaZJayb9iMmDeNK3I3Mya1aB5YfVg96Xtu+wKm0ynS71muppuEUeFSRhXIRjsgPzw4nDmxkxZt2DETghWFRB7MxsBbC/uB4aj9ek4+bQ/w2GcJ7W9+woL5mYgYsaJB1apZuqLw9YBsH7tGzEU5AXT6iqEJqJRE5ZbKOBkqv6KtCdn8ius7+XuOGAj+AY3a9DpN8yiJFo6/uGFVMQcjjG+1L9yS4CLbjfYVY+/5S6/hqHSS+yNS7EfH7foy9+unCim6Fm4EXDkmzC3L0SwystCEt4SO4+pSRr2q8sHL0TyoyOg7S8npmR7D/i9o+8rcXaSl9VC47LFY1kD6MLweAJdYy7urTQfp6iMQaxEJkkm7sMGDSniRTgIIaSMgUtY2XKKcaKtJLpCg2vTA7yxW2K1g6QmqzsjeHPwdSiLYR1S2misYenl7TcDAk8cBJUT/5483ovyDXPqc5Q/XUaYVG9FghsCTFt2hD69gv0RBT7UNbQdamBEPhiCt2zeKzIMTfiBcnbu+o5GrXqGmdq3xDdxwpDT5tO0Z+auer+I26N/5YxNF3RUiv0y0/pi6ztAw2c2qJ+UcEaPmIzaikMIp3V/JRgw8aR2KXT8hhA==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(4636009)(376002)(366004)(346002)(396003)(39860400002)(136003)(38100700002)(122000001)(8936002)(83380400001)(2906002)(33656002)(110136005)(7696005)(52536014)(38070700005)(478600001)(5660300002)(66476007)(71200400001)(26005)(6506007)(76116006)(8676002)(55016002)(66556008)(186003)(9686003)(53546011)(66446008)(55236004)(64756008)(316002)(66946007)(86362001);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?OZaW3TaGROYDf0OQH0jHIGgIbRzj0kqIg+G9KdBlfkkY06V/0VfeoEujxsZK?=
+ =?us-ascii?Q?eX92c54Pw1COINHFQoUi83HaB2cZne8ZwrfDZ27b+RmqGby90GKR544StKoA?=
+ =?us-ascii?Q?NKnvLNf/MEkFN1yx9TNESbfy1rPG2ooi8ecjDXssK1olgdIdUxU17Mk1TMkZ?=
+ =?us-ascii?Q?73jSxCCyfwNcTnbjxkzCjUrdmNNSuwXJW7sfT2eSBqN7yIMjIR6z98MfDLeg?=
+ =?us-ascii?Q?lD9POD4Clc6xl2OjpcjCjc4rtDn3t4Wir5zDUelRmbxfid23OY/Yr8QcMWg5?=
+ =?us-ascii?Q?5dAB9wPe25mVnVSRAzM/rcrRi5bPihWw35W+pUzD4TYQfLLsl6aCMNbjPlro?=
+ =?us-ascii?Q?gkyTl3J720zl2HxaVTB64Bp/PZbqa7vCc6kRt0wROXv3zVXvouj5j/PWLawW?=
+ =?us-ascii?Q?Rm/nlAvojkuQtxAfJCT+tP2FYq2MqwRrOfeuLlkS0BYC7cjVmvSHseYss487?=
+ =?us-ascii?Q?ZqLLTBri9IpRAiPrQBLuyAbVSK4Z9AvjKge8D+Z1pRs01aCqzRSvQI5Rv34S?=
+ =?us-ascii?Q?Cp6ZdED5sk+uJa/oJWCOdp4LWtWBTqmTlYTnwTbuLjjPYHcJcnUrYD+rM0fG?=
+ =?us-ascii?Q?qB7XvgQlcO2B8r/2MaH1QpPRuLl2DMfrE2I3fVAZ1sgyBRR+2eLopy9V4Kcl?=
+ =?us-ascii?Q?fzPs1VTKGSkxViuKJtqSXAYH9e8QlviqdbidGD+CsepU926++PNxkMZ6j670?=
+ =?us-ascii?Q?UYqr11tVguRKOq3V3MmOdvUpYkBvTk7o2FNjOBKMztG+jGlRVFtoSduTzQSz?=
+ =?us-ascii?Q?l9s2o3ELUrbLP0TVae270XrhfMny9bSPdX+DLLJLqpHusGZDsDdo87DiEa0q?=
+ =?us-ascii?Q?QmRWTa1UXRyZ7Ek+XjO0Pq2+iv/17C8/0JpXWaQNXUPKIGZSgxoF0d/c4/Sx?=
+ =?us-ascii?Q?mgQxzjwsm1cYTJhmCksMDzeQfYjXpFxP+himOgVQ915kFfgOVxMW7QJUGYh4?=
+ =?us-ascii?Q?Nvq9g2NTEVi/xU3CBzIT60T24c6MWqa6Zv/JOz1k7xNUdwVDH1NbR70HluT1?=
+ =?us-ascii?Q?dklajn0SblJfh5s8jQ0NVp8SZjAgtWZlTP7P6ndMb8hW5VutqK04jh9U++js?=
+ =?us-ascii?Q?eCQe8jnvAX2cnLgokcnySP0Sp/LtUNPoLl86wxYumcpGQ9K61K9VSystUMVl?=
+ =?us-ascii?Q?YIOPFJtvyo0ci6CarKrx943rQ2im+dL/rilj0aYRYnmyYKM06LxCaF67Q0SV?=
+ =?us-ascii?Q?5o53NjZMF7x7KIyENk0vU4M0QYWEMCQsch4YMav5dqprCamtu6xQHCvc4jQW?=
+ =?us-ascii?Q?e3FOW0UbtfK7+6Hsq4VqWMz2EAHlaGCrebuaXJIecnlcOnagOh/kl8Z2ouAu?=
+ =?us-ascii?Q?p+7hoGhncrjGEoHrvkFBY7UX?=
+x-ms-exchange-transport-forked: True
 MIME-Version: 1.0
-In-Reply-To: <20210802120720.547894-1-fuguancheng@bytedance.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: andraprs@amazon.com, kvm@vger.kernel.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- stefanha@redhat.com, colin.king@canonical.com, kuba@kernel.org,
- arseny.krasnov@kaspersky.com, davem@davemloft.net
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a80d919a-1df2-4ecd-860c-08d956269e19
+X-MS-Exchange-CrossTenant-originalarrivaltime: 03 Aug 2021 02:30:10.9301 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: MrdzhkHJ1Enh4+25yMOTmO7cnOCDb1ZFF0oUrU2XjjHpKrM7jT6tYuAMcK/75FqoluQeVbj3ykqf6PT8nJLb/w==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB5497
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,72 +151,50 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Parav Pandit via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Aug 02, 2021 at 08:07:16PM +0800, fuguancheng wrote:
-> This patchset enables the user to specify additional CIDS for host and
-> guest when booting up the guest machine. The guest's additional CIDS cannot
-> be repeated, and can be used to communicate with the host. The user can
-> also choose to specify a set of additional host cids, which can be
-> used to communicate with the guest who specify them. The original
-> CID(VHOST_DEFAULT_CID) is still available for host. The guest cid field is
-> deleted.
-> 
-> To ensure that multiple guest CID maps to the same vhost_vsock struct,
-> a struct called vhost_vsock_ref is added.  The function of vhost_vsock_ref
-> is simply used to allow multiple guest CIDS map to the
-> same vhost_vsock struct.
-> 
-> If not specified, the host and guest will now use the first CID specified
-> in the array for connect operation. If the host or guest wants to use
-> one specific CID, the bind operation can be performed before the connect
-> operation so that the vsock_auto_bind operation can be avoided.
-> 
-> Hypervisors such as qemu needs to be modified to use this feature. The
-> required changes including at least the following:
-> 1. Invoke the modified ioctl call with the request code
-> VHOST_VSOCK_SET_GUEST_CID. Also see struct multi_cid_message for
-> arguments used in this ioctl call.
-> 2. Write new arguments to the emulated device config space.
-> 3. Modify the layout of the data written to the device config space.
-> See struct virtio_vsock_config for reference.
-> 
-> I have tested this setup with iperf3.  The communication between host
-> and guest using original CID or additional CIDS worked normally.
-> Not tested in extreme conditions where memory is insufficient.
-> 
-> Linux kernel newbies here, any suggestions are welcomed.
-> Thanks in advance!
+Hi Michael,
 
-Could you supply a bit info about the motivation for this feature?
-I wonder whether it's be better to have multiple VQs
-instead of tweaking the CID in the message header.
-
-
-> fuguancheng (4):
->   VSOCK DRIVER: Add multi-cid support for guest
->   VSOCK DRIVER: support communication using additional guest cid
->   VSOCK DRIVER: support specifying additional cids for host
->   VSOCK DRIVER: support communication using host additional cids
+> From: Parav Pandit
+> Sent: Thursday, July 29, 2021 10:09 AM
 > 
->  drivers/vhost/vsock.c                   | 338 ++++++++++++++++++++++++++++----
->  include/net/af_vsock.h                  |   5 +
->  include/uapi/linux/vhost.h              |   9 +
->  include/uapi/linux/virtio_vsock.h       |   8 +-
->  net/vmw_vsock/af_vsock.c                |  28 ++-
->  net/vmw_vsock/virtio_transport.c        | 129 +++++++++++-
->  net/vmw_vsock/virtio_transport_common.c |   5 +-
->  net/vmw_vsock/vsock_loopback.c          |   8 +
->  8 files changed, 471 insertions(+), 59 deletions(-)
+> Hi Michael,
 > 
-> -- 
-> 2.11.0
-> 
+> > From: Parav Pandit <parav@nvidia.com>
+> > Sent: Wednesday, July 21, 2021 7:57 PM
+> > To: mst@redhat.com; virtualization@lists.linux-foundation.org
+> > Cc: Parav Pandit <parav@nvidia.com>
+> > Subject: [PATCH v3 0/4] virtio short improvements
+> >
+> > Hi,
+> >
+> > This series contains small improvements for virtio pci driver.
+> > The main idea is to support surprise removal of virtio pci device when
+> > the driver is already loaded. Future patches will further improve
+> > other areas of hotplug.
+> >
+> > Patches 1 to 3 prepare the code to handle surprise removal by marking
+> > the device as broken in patch-4.
+> >
+> > Patch summary:
+> > patch-1: ensures that compiler optimization doesn't occur on vq->broken
+> >          flag
+> > patch-2: maintains the mirror sequence on VQ delete and VQ create
+> > patch-3: protects vqs list for simultaneous access from reader and a
+> > writer
+> > patch-4: handles surprise removal of virtio pci device which avoids
+> >          call trace and system lockup
+> >
+> Any comments to address or will you please take this short series?
 > 
 
+Can we please proceed with these series?
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
