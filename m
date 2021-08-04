@@ -8,99 +8,103 @@ X-Spam-Status: No, score=-2.2 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68DE1C4338F
-	for <virtualization@archiver.kernel.org>; Wed,  4 Aug 2021 16:18:08 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BCEFC4338F
+	for <virtualization@archiver.kernel.org>; Wed,  4 Aug 2021 17:28:38 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0A03260F94
-	for <virtualization@archiver.kernel.org>; Wed,  4 Aug 2021 16:18:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0A03260F94
+	by mail.kernel.org (Postfix) with ESMTPS id 23E9F60EE5
+	for <virtualization@archiver.kernel.org>; Wed,  4 Aug 2021 17:28:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 23E9F60EE5
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id B432483C55;
-	Wed,  4 Aug 2021 16:18:07 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id E1FCA605C3;
+	Wed,  4 Aug 2021 17:28:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4smzmzXDJdYN; Wed,  4 Aug 2021 16:18:06 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id c-p0sCit-6oJ; Wed,  4 Aug 2021 17:28:37 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A1FA483C42;
-	Wed,  4 Aug 2021 16:18:05 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 5F5AD600BB;
+	Wed,  4 Aug 2021 17:28:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7D89FC001A;
-	Wed,  4 Aug 2021 16:18:05 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0A60EC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 35647C0010;
+	Wed,  4 Aug 2021 17:28:36 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 88523C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Aug 2021 16:18:04 +0000 (UTC)
+ Wed,  4 Aug 2021 17:28:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id DD8A983C55
+ by smtp4.osuosl.org (Postfix) with ESMTP id 8407F40665
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Aug 2021 16:18:03 +0000 (UTC)
+ Wed,  4 Aug 2021 17:28:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ub5e-r6PhmnZ
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=gmail.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id tV55twuJTnRO
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Aug 2021 16:18:02 +0000 (UTC)
+ Wed,  4 Aug 2021 17:28:33 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ot1-x332.google.com (mail-ot1-x332.google.com
- [IPv6:2607:f8b0:4864:20::332])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9773A83C42
+Received: from mail-ot1-x336.google.com (mail-ot1-x336.google.com
+ [IPv6:2607:f8b0:4864:20::336])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id B707A4065A
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Aug 2021 16:18:02 +0000 (UTC)
-Received: by mail-ot1-x332.google.com with SMTP id
- c2-20020a0568303482b029048bcf4c6bd9so2111980otu.8
+ Wed,  4 Aug 2021 17:28:33 +0000 (UTC)
+Received: by mail-ot1-x336.google.com with SMTP id
+ v8-20020a0568301bc8b02904d5b4e5ca3aso2292093ota.13
  for <virtualization@lists.linux-foundation.org>;
- Wed, 04 Aug 2021 09:18:02 -0700 (PDT)
+ Wed, 04 Aug 2021 10:28:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=subject:to:cc:references:from:message-id:date:user-agent
  :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=qTPO93ek00ieZ4h1jlHx4mVRBJbxujN/y8xcY6o8WNU=;
- b=vOGVqPRwQG7VOW4uzaSShTmRzf9UrbcW3jjG4dVkIXUL1wcy03pjQ09wMSRwifLbt+
- jy/rgAtrflpyz0lrws8UHJ0Nqwq8VRfadft9DCEBJ/vcqBlajv4vVoNwcudF/nwLE0U4
- M0+lrv+P4KOyOXqys4GGCGizOh4PoYmtiBnyK1fWx0xN9KwQ+eSiOyqQwN2oeXnxwZfK
- T/DxACEFGQcBSrvukZlfizkVa44fLBsZdpfq7TGmgB+MMY8Iqw7J+ttwg3voOdqLB5ea
- XDqq58WpHBme8e0+ByizWvBiVy71HFEMGpogvsZ4iXz48sEEqNB5Yq2fALwRlgAAE/Wg
- 2ixA==
+ bh=1gu89wY9LreYODHlzcyea31Rq8lJ9lifCsibkahK734=;
+ b=twallvAmbFxBl9Z6qyLi8tqJmCVWfRSu/r/bTsFejuxvtLNsGrdH36quktEn8bDI+f
+ gDUiowVe2a0q9gRWDDvzbWNLcm0YPIHYtEcKjx3LWpHkjO1VMuXLmq1JGO8Wbh08dPuU
+ WijtEETtWIn8YQmPUOaTBpfBLNnFlD0us43hrTvzZe12eO8kkPqBTfFEMkP9SoZksxfw
+ mFpegkN7IiZ2ZzbSWutYBzy9TESGxJC5cr0ITIkkuyY+WPUbdtDzUlLPmjPuVt8jbTuc
+ TTlAd7VxK0h+dgZHGDQt/wHli10k0oluN271z2YqbNgFZ56E+kmYRNNR6KOq/mgAMO8A
+ NOyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:subject:to:cc:references:from:message-id:date
  :user-agent:mime-version:in-reply-to:content-language
  :content-transfer-encoding;
- bh=qTPO93ek00ieZ4h1jlHx4mVRBJbxujN/y8xcY6o8WNU=;
- b=OEg/1/4ISjEn7l9bZzm253ZmTsaXfk3y9X3Kb8bsV5ZRSyNwAUnJqQZPmcUJtd+7op
- UG/khNvRoB1fcum5hsQmQt+v/jGKaL98CtcivbkP85AdPLIwsCOHWHtgggnBFYR+FTZ6
- xIOVNGF2nlljzsSv+BlmYuwQe55cuEYgZXxsByfuL7Y2tne3M1MDwDMAB4+VyP+BLjOD
- 5bASZbppmkZ4Ui7PjrzgPz4m7AyBuZeqHmDUYKgC6X4Omb/qBPsP6EsXBmv7n7rGa7Yi
- sVib+dZeExe+OYhz9rV6IumTYOKlH7tnsxQUUX3QlDyPIZ/iF+c46Y4y3UDoj1rJnr0f
- 9dOw==
-X-Gm-Message-State: AOAM532s25eHGE/s0ahg+LeL9oI/cek5MDyqNNGBbpgBgjHV1cH6H18D
- pSiPuC36ETwpUUJFsZwU2g0=
-X-Google-Smtp-Source: ABdhPJwSKtdqMSiQmc6Z/AVzL+juoGVbxNK3lLBYUFOpDi9n6YEh0UcLX2VLGTRMpx9/Cpt8Q13SNg==
-X-Received: by 2002:a9d:d04:: with SMTP id 4mr386968oti.251.1628093880856;
- Wed, 04 Aug 2021 09:18:00 -0700 (PDT)
+ bh=1gu89wY9LreYODHlzcyea31Rq8lJ9lifCsibkahK734=;
+ b=WN7BNFwlsDIaNu+pgovvmHHTYVmEPnJGESDF0CjQ8Qipk0I/Hl62CZNqn0TZkgL3w7
+ WIYEBHDjNDSvSj36tejUiU1hbs+Jz1NUjueswp6xn20XaEbjpXKzUu5hrfnHjPLAmevc
+ TKABgkb9Gkdj0tLpwTEs0QwEcXlX26UQOHXdw60XHh301SxG2a+bulZziY2HJHSzscJG
+ Q9tAiT+PuBXOCqNXu87NOQDGemNJLakft4S/LebXbB7T1PRwpdHIuN0exqFLIAyG03lY
+ IYobaN0dT4OGZIQ+AdcfjDHh1dY/7GAsnbOqMGSYJTin9tARtfmME/Z4dw1sJd0PoSAc
+ 13Iw==
+X-Gm-Message-State: AOAM531BpUIu6Ap1vVz00mLT6KgME6BtEC4N4YIkYBHkavw1nEpvG5PR
+ 5nxFnqpFvsoK7BoD2wTFiqQ=
+X-Google-Smtp-Source: ABdhPJxfTJB+1amIiaMzKYuEzbZBRIy7VzQ7/+ItNJE/ANxFmOKfDrAXgp4L0cILRQmu/1zpKeW+wA==
+X-Received: by 2002:a9d:7550:: with SMTP id b16mr623424otl.309.1628098112834; 
+ Wed, 04 Aug 2021 10:28:32 -0700 (PDT)
 Received: from Davids-MacBook-Pro.local ([8.48.134.45])
- by smtp.googlemail.com with ESMTPSA id a7sm470157oti.47.2021.08.04.09.17.57
+ by smtp.googlemail.com with ESMTPSA id r25sm418421oos.24.2021.08.04.10.28.29
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 04 Aug 2021 09:18:00 -0700 (PDT)
+ Wed, 04 Aug 2021 10:28:32 -0700 (PDT)
 Subject: Re: [PATCH net-next 03/21] ethtool, stats: introduce standard XDP
  statistics
-To: Jakub Kicinski <kuba@kernel.org>, Saeed Mahameed <saeed@kernel.org>
+To: Jakub Kicinski <kuba@kernel.org>
 References: <20210803163641.3743-1-alexandr.lobakin@intel.com>
  <20210803163641.3743-4-alexandr.lobakin@intel.com>
  <20210803134900.578b4c37@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
  <ec0aefbc987575d1979f9102d331bd3e8f809824.camel@kernel.org>
  <20210804053650.22aa8a5b@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <43e91ce1-0f82-5820-7cac-b42461a0311a@gmail.com>
+ <20210804094432.08d0fa86@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 From: David Ahern <dsahern@gmail.com>
-Message-ID: <43e91ce1-0f82-5820-7cac-b42461a0311a@gmail.com>
-Date: Wed, 4 Aug 2021 10:17:56 -0600
+Message-ID: <d21933cb-9d24-9bdd-cf18-e5077796ddf7@gmail.com>
+Date: Wed, 4 Aug 2021 11:28:28 -0600
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
  Gecko/20100101 Thunderbird/78.12.0
 MIME-Version: 1.0
-In-Reply-To: <20210804053650.22aa8a5b@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <20210804094432.08d0fa86@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
 Content-Language: en-US
 Cc: Michal Kubecek <mkubecek@suse.cz>, Andrew Lunn <andrew@lunn.ch>,
  Song Liu <songliubraving@fb.com>, Vladyslav Tarasiuk <vladyslavt@nvidia.com>,
@@ -114,11 +118,11 @@ Cc: Michal Kubecek <mkubecek@suse.cz>, Andrew Lunn <andrew@lunn.ch>,
  Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org,
  John Fastabend <john.fastabend@gmail.com>,
  Russell King <linux@armlinux.org.uk>, Michal Kubiak <michal.kubiak@intel.com>,
- Martin Habets <habetsm.xilinx@gmail.com>,
+ Andrii Nakryiko <andrii@kernel.org>, Martin Habets <habetsm.xilinx@gmail.com>,
  virtualization@lists.linux-foundation.org, Guy Tzalik <gtzalik@amazon.com>,
  Jesper Dangaard Brouer <hawk@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
  Ido Schimmel <idosch@nvidia.com>, Lukasz Czapnik <lukasz.czapnik@intel.com>,
- KP Singh <kpsingh@kernel.org>, Andrii Nakryiko <andrii@kernel.org>,
+ KP Singh <kpsingh@kernel.org>, Saeed Mahameed <saeed@kernel.org>,
  Claudiu Manoil <claudiu.manoil@nxp.com>,
  Alexander Lobakin <alexandr.lobakin@intel.com>, Dan Murphy <dmurphy@ti.com>,
  Yonghong Song <yhs@fb.com>, Shay Agroskin <shayagr@amazon.com>,
@@ -148,51 +152,89 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 8/4/21 6:36 AM, Jakub Kicinski wrote:
->> XDP is going to always be eBPF based ! why not just report such stats
->> to a special BPF_MAP ? BPF stack can collect the stats from the driver
->> and report them to this special MAP upon user request.
-> Do you mean replacing the ethtool-netlink / rtnetlink etc. with
-> a new BPF_MAP? I don't think adding another category of uAPI thru 
-> which netdevice stats are exposed would do much good :( Plus it 
-> doesn't address the "yet another cacheline" concern.
+On 8/4/21 10:44 AM, Jakub Kicinski wrote:
+> On Wed, 4 Aug 2021 10:17:56 -0600 David Ahern wrote:
+>> On 8/4/21 6:36 AM, Jakub Kicinski wrote:
+>>>> XDP is going to always be eBPF based ! why not just report such stats
+>>>> to a special BPF_MAP ? BPF stack can collect the stats from the driver
+>>>> and report them to this special MAP upon user request.  
+>>> Do you mean replacing the ethtool-netlink / rtnetlink etc. with
+>>> a new BPF_MAP? I don't think adding another category of uAPI thru 
+>>> which netdevice stats are exposed would do much good :( Plus it 
+>>> doesn't address the "yet another cacheline" concern.
+>>>
+>>> To my understanding the need for stats recognizes the fact that (in
+>>> large organizations) fleet monitoring is done by different teams than
+>>> XDP development. So XDP team may have all the stats they need, but the
+>>> team doing fleet monitoring has no idea how to get to them.
+>>>
+>>> To bridge the two worlds we need a way for the infra team to ask the
+>>> XDP for well-defined stats. Maybe we should take a page from the BPF
+>>> iterators book and create a program type for bridging the two worlds?
+>>> Called by networking core when duping stats to extract from the
+>>> existing BPF maps all the relevant stats and render them into a well
+>>> known struct? Users' XDP design can still use a single per-cpu map with
+>>> all the stats if they so choose, but there's a way to implement more
+>>> optimal designs and still expose well-defined stats.
+>>>
+>>> Maybe that's too complex, IDK.  
+>>
+>> I was just explaining to someone internally how to get stats at all of
+>> the different points in the stack to track down reasons for dropped packets:
+>>
+>> ethtool -S for h/w and driver
+>> tc -s for drops by the qdisc
+>> /proc/net/softnet_stat for drops at the backlog layer
+>> netstat -s for network and transport layer
+>>
+>> yet another command and API just adds to the nightmare of explaining and
+>> understanding these stats.
 > 
-> To my understanding the need for stats recognizes the fact that (in
-> large organizations) fleet monitoring is done by different teams than
-> XDP development. So XDP team may have all the stats they need, but the
-> team doing fleet monitoring has no idea how to get to them.
+> Are you referring to RTM_GETSTATS when you say "yet another command"?
+> RTM_GETSTATS exists and is used by offloads today.
 > 
-> To bridge the two worlds we need a way for the infra team to ask the
-> XDP for well-defined stats. Maybe we should take a page from the BPF
-> iterators book and create a program type for bridging the two worlds?
-> Called by networking core when duping stats to extract from the
-> existing BPF maps all the relevant stats and render them into a well
-> known struct? Users' XDP design can still use a single per-cpu map with
-> all the stats if they so choose, but there's a way to implement more
-> optimal designs and still expose well-defined stats.
+> I'd expect ip -s (-s) to be extended to run GETSTATS and display the xdp
+> stats. (Not sure why ip -s was left out of your list :))
+
+It's on my diagram, and yes, forgot to add it here.
+
 > 
-> Maybe that's too complex, IDK.
+>> There is real value in continuing to use ethtool API for XDP stats. Not
+>> saying this reorg of the XDP stats is the right thing to do, only that
+>> the existing API has real user benefits.
+> 
+> RTM_GETSTATS is an existing API. New ethtool stats are intended to be HW
+> stats. I don't want to go back to ethtool being a dumping ground for all
+> stats because that's what the old interface encouraged.
 
-I was just explaining to someone internally how to get stats at all of
-the different points in the stack to track down reasons for dropped packets:
+driver stats are important too. e.g., mlx5's cache stats and per-queue
+stats.
 
-ethtool -S for h/w and driver
-tc -s for drops by the qdisc
-/proc/net/softnet_stat for drops at the backlog layer
-netstat -s for network and transport layer
+> 
+>> Does anyone have data that shows bumping a properly implemented counter
+>> causes a noticeable performance degradation and if so by how much? You
+>> mention 'yet another cacheline' but collecting stats on stack and
+>> incrementing the driver structs at the end of the napi loop should not
+>> have a huge impact versus the value the stats provide.
+> 
+> Not sure, maybe Jesper has some numbers. Maybe Intel folks do?
 
-yet another command and API just adds to the nightmare of explaining and
-understanding these stats.
+I just ran some quick tests with my setup and measured about 1.2% worst
+case. Certainly not exhaustive. Perhaps Intel or Mellanox can provide
+numbers for their high speed nics - e.g. ConnectX-6 and a saturated host.
 
-There is real value in continuing to use ethtool API for XDP stats. Not
-saying this reorg of the XDP stats is the right thing to do, only that
-the existing API has real user benefits.
+> 
+> I'm just allergic to situations when there is a decision made and 
+> then months later patches are posted disregarding the decision, 
+> without analysis on why that decision was wrong. And while the
+> maintainer who made the decision is on vacation.
+> 
 
-Does anyone have data that shows bumping a properly implemented counter
-causes a noticeable performance degradation and if so by how much? You
-mention 'yet another cacheline' but collecting stats on stack and
-incrementing the driver structs at the end of the napi loop should not
-have a huge impact versus the value the stats provide.
+stats is one of the many sensitive topics. I have been consistent in
+defending the need to use existing APIs and tooling and not relying on
+XDP program writers to add the relevant stats and then provide whatever
+tool is needed to extract and print them. Standardization for
+fundamental analysis tools.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
