@@ -7,67 +7,69 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F451C4338F
-	for <virtualization@archiver.kernel.org>; Wed,  4 Aug 2021 10:06:54 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D8F6C4338F
+	for <virtualization@archiver.kernel.org>; Wed,  4 Aug 2021 10:07:28 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4A91D60F0F
-	for <virtualization@archiver.kernel.org>; Wed,  4 Aug 2021 10:06:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4A91D60F0F
+	by mail.kernel.org (Postfix) with ESMTPS id E748961004
+	for <virtualization@archiver.kernel.org>; Wed,  4 Aug 2021 10:07:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E748961004
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1C3D483BD2;
-	Wed,  4 Aug 2021 10:06:54 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id B1BE640334;
+	Wed,  4 Aug 2021 10:07:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id v9QjCRqnKQ13; Wed,  4 Aug 2021 10:06:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CBBFE83BDA;
-	Wed,  4 Aug 2021 10:06:52 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zu3of0a-kmOS; Wed,  4 Aug 2021 10:07:26 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0E82640238;
+	Wed,  4 Aug 2021 10:07:26 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A9477C0010;
-	Wed,  4 Aug 2021 10:06:52 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5E297C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E8642C0010;
+	Wed,  4 Aug 2021 10:07:25 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 13278C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Aug 2021 10:06:51 +0000 (UTC)
+ Wed,  4 Aug 2021 10:07:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 4055683BDA
+ by smtp3.osuosl.org (Postfix) with ESMTP id EA425606EB
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Aug 2021 10:06:51 +0000 (UTC)
+ Wed,  4 Aug 2021 10:07:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SpVfBly_os1O
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id mH3qDf45HOkR
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Aug 2021 10:06:50 +0000 (UTC)
+ Wed,  4 Aug 2021 10:07:24 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9C44283BD2
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 4FA2560685
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Aug 2021 10:06:50 +0000 (UTC)
+ Wed,  4 Aug 2021 10:07:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=dYcXyjvxFPaNEf5TNwLHSpdHad4RJoLUYH/Eh2LY224=; b=M53rJ+CQ8lQ4cD7WtCKS/GnMEp
- odCybjbHRrL6lXoV/C4xRLyzI3taQPoI5jeicWaJKCFztdZWjTcUyCISpGMaPta3MOa/dW3GPAJXi
- NZizDS/+2ezXcfB4Z5v0ipw/q8fzOnp+93V+AIQSmf+Um+lCBP3IQuVu9DH4qzGA4odDqxR6+Dbyq
- jbtPWT4pJbPEsvgX4jFyWinGFi+017VlG4xfdXAJqDMjWiB0Tewr9GBWCVI24qNaCZOnnXM5pag4g
- rZhKGgG18ckW2QamG0HaY188YH4xbwMuGQhuQRojd55CrYDHWEzPTM9PBroO1FVr7G6wqdCzH8FTF
- TxAjFTOQ==;
+ bh=NZknjnxuRdtVbQDQYhSn8YTBpZ/TDM68s7+7a3SjKg0=; b=btczJd5QJxPrmePLIu+d3R+FxZ
+ iP+SfhLRaRrUCwlvcXh6uqOXKqHWDqH+IS9T4Qr1c3Y3S5zGwPZuvTui5y1euzpNDTmFWZuRemdqz
+ PNgBVV0qeCdgNBkm473GGvmEIjMhT/3eTMMMJd3gyghRK90WdcWMWwiSOzomnsUnqLz235mJAIKXg
+ xQBi5388xGH/XQ1fLh82k3mCJ3JLqUErRqrn41ICzF8+Z001NhPZh567KvBZo+EHrbeVp7XYo2jAz
+ 2Io/T7Mo6KNEag5y4PJfRwGSCnXSdGAYE6mzQ9DuGxwarjmBMxhWvYeh15e+JnfvyM32rPYPjokZ2
+ EBliTZcQ==;
 Received: from [2a02:1205:5023:1f80:c068:bd3d:78b3:7d37] (helo=localhost)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1mBDlD-005fg4-2r; Wed, 04 Aug 2021 10:04:34 +0000
+ id 1mBDly-005fn4-Il; Wed, 04 Aug 2021 10:05:46 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 10/15] sd: use bvec_virt
-Date: Wed,  4 Aug 2021 11:56:29 +0200
-Message-Id: <20210804095634.460779-11-hch@lst.de>
+Subject: [PATCH 11/15] ubd: use bvec_virt
+Date: Wed,  4 Aug 2021 11:56:30 +0200
+Message-Id: <20210804095634.460779-12-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210804095634.460779-1-hch@lst.de>
 References: <20210804095634.460779-1-hch@lst.de>
@@ -106,22 +108,23 @@ Use bvec_virt instead of open coding it.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/scsi/sd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/um/drivers/ubd_kern.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index b8d55af763f9..5b5b8266e142 100644
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -886,7 +886,7 @@ static blk_status_t sd_setup_unmap_cmnd(struct scsi_cmnd *cmd)
- 	cmd->cmnd[0] = UNMAP;
- 	cmd->cmnd[8] = 24;
+diff --git a/arch/um/drivers/ubd_kern.c b/arch/um/drivers/ubd_kern.c
+index e497185dd393..cd9dc0556e91 100644
+--- a/arch/um/drivers/ubd_kern.c
++++ b/arch/um/drivers/ubd_kern.c
+@@ -1268,8 +1268,7 @@ static void ubd_map_req(struct ubd *dev, struct io_thread_req *io_req,
+ 		rq_for_each_segment(bvec, req, iter) {
+ 			BUG_ON(i >= io_req->desc_cnt);
  
--	buf = page_address(rq->special_vec.bv_page);
-+	buf = bvec_virt(&rq->special_vec);
- 	put_unaligned_be16(6 + 16, &buf[0]);
- 	put_unaligned_be16(16, &buf[2]);
- 	put_unaligned_be64(lba, &buf[8]);
+-			io_req->io_desc[i].buffer =
+-				page_address(bvec.bv_page) + bvec.bv_offset;
++			io_req->io_desc[i].buffer = bvec_virt(&bvec);
+ 			io_req->io_desc[i].length = bvec.bv_len;
+ 			i++;
+ 		}
 -- 
 2.30.2
 
