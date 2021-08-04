@@ -5,71 +5,71 @@ X-Spam-Level:
 X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50521C4338F
-	for <virtualization@archiver.kernel.org>; Wed,  4 Aug 2021 10:08:25 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A6FAC4338F
+	for <virtualization@archiver.kernel.org>; Wed,  4 Aug 2021 10:09:29 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0032E60FC4
-	for <virtualization@archiver.kernel.org>; Wed,  4 Aug 2021 10:08:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0032E60FC4
+	by mail.kernel.org (Postfix) with ESMTPS id D2F7560FC4
+	for <virtualization@archiver.kernel.org>; Wed,  4 Aug 2021 10:09:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D2F7560FC4
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C2C2F83BF4;
-	Wed,  4 Aug 2021 10:08:24 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 952A040332;
+	Wed,  4 Aug 2021 10:09:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jD0PuEDAzVSB; Wed,  4 Aug 2021 10:08:24 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6785F83BE9;
-	Wed,  4 Aug 2021 10:08:23 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3FD48C0010;
-	Wed,  4 Aug 2021 10:08:23 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 32057C000E
- for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Aug 2021 10:08:22 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 1FAAF4035E
- for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Aug 2021 10:08:22 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZYEu708Oqze2
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ndAVEd430FWR; Wed,  4 Aug 2021 10:09:27 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B775640105;
+	Wed,  4 Aug 2021 10:09:26 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8FDB9C0010;
+	Wed,  4 Aug 2021 10:09:26 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 17F55C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Aug 2021 10:08:21 +0000 (UTC)
+ Wed,  4 Aug 2021 10:09:25 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id EEE8B82525
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  4 Aug 2021 10:09:24 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gdbuMF4z7zwh
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  4 Aug 2021 10:09:24 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 42B7C40105
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 2C45D824DC
  for <virtualization@lists.linux-foundation.org>;
- Wed,  4 Aug 2021 10:08:21 +0000 (UTC)
+ Wed,  4 Aug 2021 10:09:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=oMvRWCLKrL+bowlss1NI78OonpPCjFhffGqbW1HL1dE=; b=PiGgligciY2JYE5SDrtu6obMwA
- JlTA6jTK8DsWt04NG7bvfXCd+jFrkLqFjyatUHoFYIHCjgKeYJHw3+FkCqJnEq1IM4m6SyvLHfIJB
- IRnccfp2CZ5McjKDNc9c7POb5ql3XzqYFBzggkxh/WzrVV8xKnQttPADvzjZVY/nRh6IDSsdELvrg
- a6ZMV56E6o35SIqhcJHlfw7iPo52vpVltSfZrzxDhEiyw0nqFlqT1n3kVZllZ4u4cF3qVZyWoOD/2
- fgdrcUVO1Ri/vrLWCR+Aym2cAZN57zgC2UrwuLGhgZ/j39gtQYnEJWfxeU8NnOr37FNumoD4pKxGo
- Vjm7IimQ==;
+ bh=wyyw2rjwpeKt+uQ2R+atw48w8P/AsLXlrqL/3XjtagU=; b=EmV6wYhTID92E2/QH8cEJm9OBH
+ Yj11U/S2V0Hrv2p9BVSZFeXitTb/4GQ7dD/D85AjD12oMskgXdiP4UTkPDNvmOTruXevB/3R3nSZ3
+ Q+haEu1tvC6c0a2RDGO8xyaj051lbiurKpzRbbMn3Snroz16BZpMSCOm7RGagO6vfL+mVcAk3RTwR
+ I9blmlHNhNUQq1N41qQctVMcMJ0hKF6KhRDZMCCDTBHzWWNRyyVonzvr50lKZkfdCE13ypvIIMafG
+ CVvyuhuMkN3vOsN/B5JIsZEfY2jrK1qZlNwanH9pU2DzvavPYVrs1AhnJiXJy7bMx5XrD7KKwEG1j
+ m/IVXkvQ==;
 Received: from [2a02:1205:5023:1f80:c068:bd3d:78b3:7d37] (helo=localhost)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1mBDmp-005fsd-4I; Wed, 04 Aug 2021 10:06:21 +0000
+ id 1mBDnR-005fxa-Fc; Wed, 04 Aug 2021 10:06:53 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 12/15] ps3vram: use bvec_virt
-Date: Wed,  4 Aug 2021 11:56:31 +0200
-Message-Id: <20210804095634.460779-13-hch@lst.de>
+Subject: [PATCH 13/15] dasd: use bvec_virt
+Date: Wed,  4 Aug 2021 11:56:32 +0200
+Message-Id: <20210804095634.460779-14-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210804095634.460779-1-hch@lst.de>
 References: <20210804095634.460779-1-hch@lst.de>
@@ -108,22 +108,113 @@ Use bvec_virt instead of open coding it.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/block/ps3vram.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/block/dasd_diag.c |  2 +-
+ drivers/s390/block/dasd_eckd.c | 14 +++++++-------
+ drivers/s390/block/dasd_fba.c  |  4 ++--
+ 3 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/block/ps3vram.c b/drivers/block/ps3vram.c
-index 7fbf469651c4..c7b19e128b03 100644
---- a/drivers/block/ps3vram.c
-+++ b/drivers/block/ps3vram.c
-@@ -541,7 +541,7 @@ static struct bio *ps3vram_do_bio(struct ps3_system_bus_device *dev,
+diff --git a/drivers/s390/block/dasd_diag.c b/drivers/s390/block/dasd_diag.c
+index 6bb775236c16..db5987281010 100644
+--- a/drivers/s390/block/dasd_diag.c
++++ b/drivers/s390/block/dasd_diag.c
+@@ -552,7 +552,7 @@ static struct dasd_ccw_req *dasd_diag_build_cp(struct dasd_device *memdev,
+ 	dbio = dreq->bio;
+ 	recid = first_rec;
+ 	rq_for_each_segment(bv, req, iter) {
+-		dst = page_address(bv.bv_page) + bv.bv_offset;
++		dst = bvec_virt(&bv);
+ 		for (off = 0; off < bv.bv_len; off += blksize) {
+ 			memset(dbio, 0, sizeof (struct dasd_diag_bio));
+ 			dbio->type = rw_cmd;
+diff --git a/drivers/s390/block/dasd_eckd.c b/drivers/s390/block/dasd_eckd.c
+index 0de1a463c509..8610ea414322 100644
+--- a/drivers/s390/block/dasd_eckd.c
++++ b/drivers/s390/block/dasd_eckd.c
+@@ -3267,7 +3267,7 @@ static int dasd_eckd_ese_read(struct dasd_ccw_req *cqr, struct irb *irb)
+ 	end_blk = (curr_trk + 1) * recs_per_trk;
  
- 	bio_for_each_segment(bvec, bio, iter) {
- 		/* PS3 is ppc64, so we don't handle highmem */
--		char *ptr = page_address(bvec.bv_page) + bvec.bv_offset;
-+		char *ptr = bvec_virt(&bvec);
- 		size_t len = bvec.bv_len, retlen;
- 
- 		dev_dbg(&dev->core, "    %s %zu bytes at offset %llu\n", op,
+ 	rq_for_each_segment(bv, req, iter) {
+-		dst = page_address(bv.bv_page) + bv.bv_offset;
++		dst = bvec_virt(&bv);
+ 		for (off = 0; off < bv.bv_len; off += blksize) {
+ 			if (first_blk + blk_count >= end_blk) {
+ 				cqr->proc_bytes = blk_count * blksize;
+@@ -3999,7 +3999,7 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_cmd_single(
+ 			      last_rec - recid + 1, cmd, basedev, blksize);
+ 	}
+ 	rq_for_each_segment(bv, req, iter) {
+-		dst = page_address(bv.bv_page) + bv.bv_offset;
++		dst = bvec_virt(&bv);
+ 		if (dasd_page_cache) {
+ 			char *copy = kmem_cache_alloc(dasd_page_cache,
+ 						      GFP_DMA | __GFP_NOWARN);
+@@ -4166,7 +4166,7 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_cmd_track(
+ 	idaw_dst = NULL;
+ 	idaw_len = 0;
+ 	rq_for_each_segment(bv, req, iter) {
+-		dst = page_address(bv.bv_page) + bv.bv_offset;
++		dst = bvec_virt(&bv);
+ 		seg_len = bv.bv_len;
+ 		while (seg_len) {
+ 			if (new_track) {
+@@ -4509,7 +4509,7 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_tpm_track(
+ 		new_track = 1;
+ 		recid = first_rec;
+ 		rq_for_each_segment(bv, req, iter) {
+-			dst = page_address(bv.bv_page) + bv.bv_offset;
++			dst = bvec_virt(&bv);
+ 			seg_len = bv.bv_len;
+ 			while (seg_len) {
+ 				if (new_track) {
+@@ -4542,7 +4542,7 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_tpm_track(
+ 		}
+ 	} else {
+ 		rq_for_each_segment(bv, req, iter) {
+-			dst = page_address(bv.bv_page) + bv.bv_offset;
++			dst = bvec_virt(&bv);
+ 			last_tidaw = itcw_add_tidaw(itcw, 0x00,
+ 						    dst, bv.bv_len);
+ 			if (IS_ERR(last_tidaw)) {
+@@ -4778,7 +4778,7 @@ static struct dasd_ccw_req *dasd_eckd_build_cp_raw(struct dasd_device *startdev,
+ 			idaws = idal_create_words(idaws, rawpadpage, PAGE_SIZE);
+ 	}
+ 	rq_for_each_segment(bv, req, iter) {
+-		dst = page_address(bv.bv_page) + bv.bv_offset;
++		dst = bvec_virt(&bv);
+ 		seg_len = bv.bv_len;
+ 		if (cmd == DASD_ECKD_CCW_READ_TRACK)
+ 			memset(dst, 0, seg_len);
+@@ -4839,7 +4839,7 @@ dasd_eckd_free_cp(struct dasd_ccw_req *cqr, struct request *req)
+ 	if (private->uses_cdl == 0 || recid > 2*blk_per_trk)
+ 		ccw++;
+ 	rq_for_each_segment(bv, req, iter) {
+-		dst = page_address(bv.bv_page) + bv.bv_offset;
++		dst = bvec_virt(&bv);
+ 		for (off = 0; off < bv.bv_len; off += blksize) {
+ 			/* Skip locate record. */
+ 			if (private->uses_cdl && recid <= 2*blk_per_trk)
+diff --git a/drivers/s390/block/dasd_fba.c b/drivers/s390/block/dasd_fba.c
+index 3ad319aee51e..e084f4dedddd 100644
+--- a/drivers/s390/block/dasd_fba.c
++++ b/drivers/s390/block/dasd_fba.c
+@@ -501,7 +501,7 @@ static struct dasd_ccw_req *dasd_fba_build_cp_regular(
+ 	}
+ 	recid = first_rec;
+ 	rq_for_each_segment(bv, req, iter) {
+-		dst = page_address(bv.bv_page) + bv.bv_offset;
++		dst = bvec_virt(&bv);
+ 		if (dasd_page_cache) {
+ 			char *copy = kmem_cache_alloc(dasd_page_cache,
+ 						      GFP_DMA | __GFP_NOWARN);
+@@ -583,7 +583,7 @@ dasd_fba_free_cp(struct dasd_ccw_req *cqr, struct request *req)
+ 	if (private->rdc_data.mode.bits.data_chain != 0)
+ 		ccw++;
+ 	rq_for_each_segment(bv, req, iter) {
+-		dst = page_address(bv.bv_page) + bv.bv_offset;
++		dst = bvec_virt(&bv);
+ 		for (off = 0; off < bv.bv_len; off += blksize) {
+ 			/* Skip locate record. */
+ 			if (private->rdc_data.mode.bits.data_chain == 0)
 -- 
 2.30.2
 
