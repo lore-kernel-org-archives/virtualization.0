@@ -7,103 +7,104 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 804E5C432BE
-	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 07:19:10 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2002C4338F
+	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 07:20:35 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2EE3B61179
-	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 07:19:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 2EE3B61179
+	by mail.kernel.org (Postfix) with ESMTPS id 53BEF61179
+	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 07:20:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 53BEF61179
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id ED97683B45;
-	Fri,  6 Aug 2021 07:19:09 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2106B6089F;
+	Fri,  6 Aug 2021 07:20:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id r-rfHZ8nn9_h; Fri,  6 Aug 2021 07:19:09 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id iol3rH-aCgQW; Fri,  6 Aug 2021 07:20:34 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8A90983B34;
-	Fri,  6 Aug 2021 07:19:08 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id CEB686087B;
+	Fri,  6 Aug 2021 07:20:33 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 43C83C001A;
-	Fri,  6 Aug 2021 07:19:08 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8E9CCC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A498AC001A;
+	Fri,  6 Aug 2021 07:20:33 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CD626C000E
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 07:19:07 +0000 (UTC)
+ Fri,  6 Aug 2021 07:20:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 04F904047A
+ by smtp2.osuosl.org (Postfix) with ESMTP id C5D764014E
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 07:19:06 +0000 (UTC)
+ Fri,  6 Aug 2021 07:20:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zBWyqeLXd1do
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id CsiRGsTruhI6
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 07:19:05 +0000 (UTC)
+ Fri,  6 Aug 2021 07:20:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 6C0504047F
+ by smtp2.osuosl.org (Postfix) with ESMTPS id D220340124
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 07:19:05 +0000 (UTC)
+ Fri,  6 Aug 2021 07:20:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1628234344;
+ s=mimecast20190719; t=1628234429;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Y3mKwkaoUVrfQ+lC5tkgN91edlf3gr8pvb0ti7ZT+lk=;
- b=WZH27EUSyrWteg5OXqqo3Hr7DCnFBF0bjUwCbzVPi+KF2v5cgY7XMf5e3a698EUmk/WZn6
- lRIMFzXYdIl4F/lLEUUr5ycpHyaqEzlGmIgEFDIBjJ4MtgMD1vsKyqx9yUUz6gcPFtycT8
- ceB7kWdhB3gsGwYZ8H6b+J+lycJEuW0=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-80-9OK8s_8vNBSZmwIjYa47sA-1; Fri, 06 Aug 2021 03:19:01 -0400
-X-MC-Unique: 9OK8s_8vNBSZmwIjYa47sA-1
-Received: by mail-ed1-f71.google.com with SMTP id
- dh21-20020a0564021d35b02903be0aa37025so2175037edb.7
+ bh=HTm9fbXgLtcZGdGW/3I21kvZ1VGYI5U7k0mhmEpEDg0=;
+ b=FSTa0CY5QWVMGSAhJkJC7vjnuHrBQCQfqwkY3HEfrr+B3P9NL1ZZzdAfJtB+3FwPXwV1nx
+ 2WS96G0N6qoKpi1YBaXeve/LdBjuzFszM7dgnpn9eUQH9IyYQFj5DsxiApY/6bHmjiEmYU
+ bWdDXK9GSg1mp+a/TUA8U1aSU2vMsns=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-152-JYemRZ9aPumgz91Q77IW1w-1; Fri, 06 Aug 2021 03:20:28 -0400
+X-MC-Unique: JYemRZ9aPumgz91Q77IW1w-1
+Received: by mail-ej1-f71.google.com with SMTP id
+ g19-20020a1709065953b02905a4506b6d92so2869177ejr.7
  for <virtualization@lists.linux-foundation.org>;
- Fri, 06 Aug 2021 00:19:00 -0700 (PDT)
+ Fri, 06 Aug 2021 00:20:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=Y3mKwkaoUVrfQ+lC5tkgN91edlf3gr8pvb0ti7ZT+lk=;
- b=KV7LhUHYxdbzv+RgdU5iHsQx/JZd8E2kQehnspyjq4g5ai+9ykn3L7BlgDhHHfqCsq
- SI4d21oIl+nBczxljm0shjBVif7WzMPBjcAVjnQlzQKZs9GlMU1VQmbCiHQrxyh74HmN
- pKK8KSQ7QZUQxqq1xeyE2h6nRtXS0QPUeRujeAcuS8+50Z+lAW7uX1SKdZfdATW+qwyM
- ta/W4TLuV7ICX3HCOH6bZtQVL0GmkEmxQF8EkNLqgTDd3e6/c/jMdYxR5jIIKakWI7Nv
- mfhVxAg+yD+D7aG8PB3uHT8ukj2RAFWs4s52qCJ/QfLhOdSx7snYvltriqMQnvV/R0uc
- 1oHQ==
-X-Gm-Message-State: AOAM5312sSxJnPGq3gxd9hjLD9wIwuwVP21ehW8D07yqK+2zXip1VHg9
- mEfnq7GAp6HHUpNSacrp23be191Flnd6wsVqbpcSV/QY7Cvbf+v7uDDTr/NsxZ+xOD7mdaRqcxP
- wA+iRekKjgwIEI/6GlbiHRBKzqTX6GCppF/FxHadJVQ==
-X-Received: by 2002:a17:906:1c81:: with SMTP id
- g1mr8634571ejh.361.1628234339944; 
- Fri, 06 Aug 2021 00:18:59 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJx6JY7p7UFxuDeInSSMYr1fMOjaIuzdqeeTRahm0VW7d3WQBlqeSCHdg1JEhMKVsqgo8q29Yw==
-X-Received: by 2002:a17:906:1c81:: with SMTP id
- g1mr8634556ejh.361.1628234339817; 
- Fri, 06 Aug 2021 00:18:59 -0700 (PDT)
+ bh=HTm9fbXgLtcZGdGW/3I21kvZ1VGYI5U7k0mhmEpEDg0=;
+ b=dOeoJ6DU93AI8xQnNCuKbrnPvziBGBZi5hx7/K225s5/Os6wCXrH9kBoM38oQxxdaY
+ 087ugTj20IB3j6NFdfwC8jJ1hy7bCqwILLBsNE5+JmuJEMFFqC2yJfnCX20uNh9nICNc
+ UxK4cwJ7urBRcEK1QV003XTLJIyT0dk2FWEu+LaJq/FSCrGmJ5aNAun/WBW3+nKoEWqn
+ MB5tCOMJjEvzlmdzx+mGucBasPETt+aC+BmNzxtwOxkNPblGvOvzMjhFhLeFtxOxJ/fH
+ e+WpRw8ua78TxqUl48xawOZHnF5nWOAhH4fzpf0s0RgmvVI3+bCkv8EARCspnKSXu3vN
+ H/ng==
+X-Gm-Message-State: AOAM533ujGezJJsS2Nz7onLgFxpHrB8vtYUXGRlR3MA6MTCJ0setp2jP
+ Wu6b/5R/BVDo+AXjd7Vi7+gb4Uay+Ekyp3qkwv2ZUK1kPP2Goa2qMwpO+y02NGQBxIp+Tu5RHHh
+ gRCI3SVlPY2QbRIXcZe8qz0L5HRce/2dJrXUnqOac3g==
+X-Received: by 2002:a05:6402:361:: with SMTP id
+ s1mr11209649edw.172.1628234427597; 
+ Fri, 06 Aug 2021 00:20:27 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyuVKndM6vRqX10g0DMF+zN0NMme5c3sOtXbrtFonOTm7kn0n+W/NJwkU2ojVAcnd/691RvGg==
+X-Received: by 2002:a05:6402:361:: with SMTP id
+ s1mr11209627edw.172.1628234427450; 
+ Fri, 06 Aug 2021 00:20:27 -0700 (PDT)
 Received: from steredhat (host-79-18-148-79.retail.telecomitalia.it.
  [79.18.148.79])
- by smtp.gmail.com with ESMTPSA id g9sm3459573edl.52.2021.08.06.00.18.58
+ by smtp.gmail.com with ESMTPSA id p16sm3396595eds.73.2021.08.06.00.20.26
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 06 Aug 2021 00:18:59 -0700 (PDT)
-Date: Fri, 6 Aug 2021 09:18:57 +0200
+ Fri, 06 Aug 2021 00:20:27 -0700 (PDT)
+Date: Fri, 6 Aug 2021 09:20:24 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [RFC PATCH v1 1/7] virtio/vsock: add 'VIRTIO_VSOCK_SEQ_EOM' bit
-Message-ID: <20210806071857.h4zneiblcf5tathq@steredhat>
+Subject: Re: [RFC PATCH v1 2/7] vsock: rename implementation from 'record' to
+ 'message'
+Message-ID: <20210806072024.ejp2d5sgfatga6oz@steredhat>
 References: <20210726163137.2589102-1-arseny.krasnov@kaspersky.com>
- <20210726163307.2589516-1-arseny.krasnov@kaspersky.com>
+ <20210726163328.2589649-1-arseny.krasnov@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <20210726163307.2589516-1-arseny.krasnov@kaspersky.com>
+In-Reply-To: <20210726163328.2589649-1-arseny.krasnov@kaspersky.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -132,35 +133,20 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Jul 26, 2021 at 07:33:04PM +0300, Arseny Krasnov wrote:
->This bit is used to mark end of messages('EOM' - end of message), while
->'VIRIO_VSOCK_SEQ_EOR' is used to pass MSG_EOR.
+On Mon, Jul 26, 2021 at 07:33:25PM +0300, Arseny Krasnov wrote:
+>As 'record' is not same as 'message', rename current variables,
+>comments and defines from 'record' concept to 'message'.
 >
 >Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
 >---
-> include/uapi/linux/virtio_vsock.h | 1 +
-> 1 file changed, 1 insertion(+)
->
->diff --git a/include/uapi/linux/virtio_vsock.h b/include/uapi/linux/virtio_vsock.h
->index 3dd3555b2740..1de3211a2988 100644
->--- a/include/uapi/linux/virtio_vsock.h
->+++ b/include/uapi/linux/virtio_vsock.h
->@@ -98,6 +98,7 @@ enum virtio_vsock_shutdown {
-> /* VIRTIO_VSOCK_OP_RW flags values */
-> enum virtio_vsock_rw {
-> 	VIRTIO_VSOCK_SEQ_EOR = 1,
->+	VIRTIO_VSOCK_SEQ_EOM = 2,
-> };
+> drivers/vhost/vsock.c                   | 18 +++++++++---------
+> net/vmw_vsock/virtio_transport_common.c | 14 +++++++-------
+> 2 files changed, 16 insertions(+), 16 deletions(-)
 
-Already said, but I'll repeat it for completeness.
 
-It's better to rename the flag 1 and use it in the same way we did 
-before, so it's backward compatible.
+This patch is fine, I think you can move here the renaming of the flag 
+too.
 
-Obviously we have to update the specifications too, explaining the 
-difference between the two :-)
-
-Thanks,
 Stefano
 
 _______________________________________________
