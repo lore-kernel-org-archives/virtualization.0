@@ -4,154 +4,98 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7D1AC4338F
-	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 08:56:03 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E251C4338F
+	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 12:47:41 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 671F460EBC
-	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 08:56:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 671F460EBC
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id E14D6611B0
+	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 12:47:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E14D6611B0
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 24C4D40453;
-	Fri,  6 Aug 2021 08:56:03 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 9FDD4607B5;
+	Fri,  6 Aug 2021 12:47:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id m5ROms7maiDX; Fri,  6 Aug 2021 08:56:02 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B171240403;
-	Fri,  6 Aug 2021 08:56:01 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id DICNTm1KH3nt; Fri,  6 Aug 2021 12:47:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id D5BDF605E5;
+	Fri,  6 Aug 2021 12:47:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 89EE5C001A;
-	Fri,  6 Aug 2021 08:56:01 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 13FE3C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9BABBC001A;
+	Fri,  6 Aug 2021 12:47:38 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 66C63C000E
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 08:56:00 +0000 (UTC)
+ Fri,  6 Aug 2021 12:47:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E519382C8F
+ by smtp2.osuosl.org (Postfix) with ESMTP id 464E84021E
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 08:55:59 +0000 (UTC)
+ Fri,  6 Aug 2021 12:47:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=nvidia.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id iuqcQYDuLxkP
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id aCHgT2Hp7x9h
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 08:55:59 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM04-BN8-obe.outbound.protection.outlook.com
- (mail-bn8nam08on20613.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7e8d::613])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 01A6E82AF8
+ Fri,  6 Aug 2021 12:47:35 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 7936C4021C
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 08:55:58 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=JzdwLtT3cK89bI38FMp81IOZz0453I+CJZyUP2Th55e9W18Y04Re3Yg+3AGoE01tzaLihkWOYn+kLfEGnBqheQ0RO+Mcil7YJ5G/1WQbjQZ5M9Cqsgf7jk4F43Vq8591yJslJk+lQTBIp/J4Cc+FIXNEqYEFVjtwEpcrKX3EhKNNrWxPCCaP6QkWpc5kJX2cydMAMAs+pPF85P5yD+q1qRunvYYtmxFBft4/+k7bdXNKcszdobpQv+LMtK+NRbkMfm7y9vmdJHiA5+hJnuFSIZbs/f2fHd3WxT29f4Vy+UlzZ/BGnaQ80VV/llzplx+tl+tAw11hrjWwTjkUlRPTGQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LNQbl8mxvqF3RhtKxthlGO7urmIikr8/7R3S/Y77DUc=;
- b=LAumTLCrjqdG7BBa5OozD9ceLKVL0hHprwRXfVE6Iw500znqM3kYeHi1+T3lMaOgLUYvF2jfTIftixTTPgfdoT0YT2oM7HTO8sNcgrTyGHH5G+zmlWS1JhAiG6X96K3MgEjk6SDdSHqTdZAFcRCtO26WfXEwnYyDwOdgN7WbvKr/GjiS8TgxXRurRIwQ/+H/pq2zmBsW0401+t2tCRCjR3FMkteVCdNV9VA3tHdbtPBUJoiGx87nJS6lY0Fz8Sqscuot0lhHhi+RssVdjPVMHHHq1Z8PIYY6wGt6AKw4guG5HW7/T6vHO0WdGptMd1rUckIY76gFu78bANTT6MtByw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=LNQbl8mxvqF3RhtKxthlGO7urmIikr8/7R3S/Y77DUc=;
- b=eBwR1is0rJZM6a5KQNoHkdOLtjuInWRnxtwEWWqtwrK0RVoWarzFzQhjhZb98IFAdr3W0alMx1jM2kTyp993EsXDYjVGKocy6JrnoURrKLW+WtLqjJo21EGSDvjhqNw0+58D3rVFw1hafSe5VA0PhryeeYw7hj6ujmDP6ns5bSpA4MJ3OWqo1KGXJAZpwj8/P8WUHzq2Hyl63Mth6HgBtuo/+xzgiOVGyif9Q7U1hhwuBleEnf8uYvqgkiFKRWnP9JSKfkCnsPxSnMHpcPKR/+Brn7DRLWuHPCOxn0yrMhjqW0oitHicrBpGlDkGOspNjFDQDsr1UMQMN+RzxEAsmA==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by PH0PR12MB5420.namprd12.prod.outlook.com (2603:10b6:510:e8::18)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.16; Fri, 6 Aug
- 2021 08:55:57 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::249d:884d:4c20:ed29]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::249d:884d:4c20:ed29%4]) with mapi id 15.20.4394.020; Fri, 6 Aug 2021
- 08:55:57 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Subject: RE: [PATCH linux-next v3 0/6] vdpa: enable user to set mac, mtu
-Thread-Topic: [PATCH linux-next v3 0/6] vdpa: enable user to set mac, mtu
-Thread-Index: AQHXYuOH3YVTcMY6VEeAGlknhW/FN6tk+uIAgAEa9oCAAGJZgIAAALAg
-Date: Fri, 6 Aug 2021 08:55:56 +0000
-Message-ID: <PH0PR12MB54812C49AAA468E1E6A871A9DCF39@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <20210616191155.102303-1-parav@nvidia.com>
- <20210805055623-mutt-send-email-mst@kernel.org>
- <e3b31032-222a-e1bc-f452-a965b456f48b@redhat.com>
- <20210806034817-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20210806034817-mutt-send-email-mst@kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: redhat.com; dkim=none (message not signed)
- header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: e2025534-bed5-4a8a-cfbd-08d958b80177
-x-ms-traffictypediagnostic: PH0PR12MB5420:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <PH0PR12MB542000BBEBD1500E99875F18DCF39@PH0PR12MB5420.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:8882;
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: RYxHyTB3vo/pe/EfiipLOE0qaAjcKjYV41jQY0C60Ecvho/fIcQBnFO5noC1OG+FOz3MW7+2L6c+cO4aShqN+ZqW328i0yDRcxGIrbaOeIZ36PqjhO+xPX6poanfwC+gBtzehTrxauFDMjwYZAH4XiCkxgmf85ni5SlLF4bxiB3NEOVCskoxHTVtN30SMhPV9scuQpFDf2kwMSiixF8udoXcNIYGxKVfa/J4ZU9O/Kh78tOeZKNKNYft2ClA7YCzSnKgQBlawLo8naPgLRHT7Mc0Wgik2K00MVKuaWGBElsibk6i3io8IGdXRcn+i+arTcdOz0SKUoj7V5/6dc1KLvSbdd6VhQAvv76FzVSXWVnrspwqWIQ2eiym/qyjOUB6GUIt1FNlHMzy5tWfSE/934ZSm3/iCDl+TLrpLDnfvFNFW/CznYD4ryNi1IUvkjjslrTVxg5vKCMaS0z4xNV21IfWg5uMGz5TnYkdj2HCxm19U4ZX/MzZdkjthtITeuQOTbWT5CVcaa2zFBPG2IqfaVRqOmUGcB9MV4BvdPypAXFKoodCjhCt6A9qjSU+0SejrIRt7TdGTB/ZC1znJLBQtKsCZEkTD4xeniJYnUsOYUiejJmgi4EmyU2tcHrDDC8Dk+vVBAvzM7i5DQ5YAlC8J+ZYv3eNitW7koqX+WVc2ncsQ/no5C5yYBgansSvNO3qOlsSeqGoVMVQXROZROf6oQ==
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(346002)(366004)(39860400002)(136003)(396003)(376002)(6506007)(8936002)(66446008)(316002)(55236004)(66476007)(54906003)(66556008)(86362001)(26005)(83380400001)(71200400001)(64756008)(4326008)(107886003)(76116006)(66946007)(110136005)(38100700002)(122000001)(38070700005)(7696005)(8676002)(33656002)(5660300002)(186003)(55016002)(2906002)(9686003)(52536014)(478600001);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?YjNMOFhZbURlbFBjRkpiRXZSTFRjRThqOVNudGhHYWRUNDJhODhpUnprcXc0?=
- =?utf-8?B?aEtpNTlaK2ZvNldKdmZ1MURYak5sM1lRaW1ZanRybUlhUHMyenV3M09iSDJh?=
- =?utf-8?B?M21kdVU3MkRPVzFTejI1T0tNcGU2bGluSmF2WSszbHoxKzR4SG5SeDZEcW4x?=
- =?utf-8?B?aHBhNjE2QWMzbzkzenBCUkhnbVphQ2hPY1luY2MwY29HallWSGtZNlhSSnJ3?=
- =?utf-8?B?RUJiamc1Tlg4Q3RyelNNMlFaVUppRDhlYllkblVKeEVWcUE0bExNY2FwMkhi?=
- =?utf-8?B?ZXhWcWFHd05mLzJyZ3NZV3V6eDYwS2d6ZTVES2IxM2ZlWTFkREJkWTlXTEhL?=
- =?utf-8?B?TDZrY2tvN05lL3lMcFZkWk9NbXhFTHhyVkpzci8yempabndhVkUyQkNCSE1S?=
- =?utf-8?B?NnNSNlQzclZIeVlYK1NFVCtxSlYrTEEwOXlUeS82ekRYZnBCVXYzVm92eEUz?=
- =?utf-8?B?cTBuUHJZWHdvQ2pBNkZRNHpDRTYwS0JaSHl0dHR0ak9qZ09WeXhUVUlIaVA3?=
- =?utf-8?B?STJCb0tacDVuSVB1YmE2UzBBaHQ1TzV1S01MVWZpUEZOZmhNUTVScU5WaDZl?=
- =?utf-8?B?bUF1aTB2SndMRXZsaWk1UjhOOE5zanVVQkVxYlBQUDg3NWQvUzVDeXRCWE1l?=
- =?utf-8?B?VHBnRnYySUJMVjhRMzlid3l4U2RIMmIvZzFzdU1YTHl5VDdpR1gxVFBxdG9R?=
- =?utf-8?B?aE1MaFQwQ1VaTDRRKzg4cjV2MTFyTUJFMGdZRjd2ZU01RCtDTHE4UFhCZWxS?=
- =?utf-8?B?NUdTMVQvTlNmeTNaWWtlR09yWExYQVpJY0taTDFWRnpWeExBWWlPQzFXa2w5?=
- =?utf-8?B?cExyRXhPd1hDRi9UN2Z5a1Vac2hsajdLNE5tVnZYZkNuRlJjd1RUOW51bnpr?=
- =?utf-8?B?RWRSMDFWTG9DNzB5dnFCREtNbGprV0JTdmlnTzhuWVp0aUdKeXRjclo1R0ZT?=
- =?utf-8?B?TmVlZk5xckt1MjRGbXBsMVNHTXhRa08rL2dqR2VGUG9ROWxUYWtuT0N3a0FO?=
- =?utf-8?B?LzZSR2QzU0tJVDVIOSt4QVVWR0ZnQ2tYRmIyOFBVS2sxTmp2dk8rQVhsVE5N?=
- =?utf-8?B?UWs0YnJ5clhtNk9USDNVcm8rMVBxTlNNeEdvd2VYbTBwNldmVDdiMlR2ZXpS?=
- =?utf-8?B?MWtMemJ4NjFqTHpCb24xbHZseTl6MjFGNGZTSHB0eS80UGl3bndGTnFlWXd1?=
- =?utf-8?B?U0RTRVFBcklEV2pMbW0rYTZwT1A4WjRnQnY4S3ZmNkZQcUErKzg2QlZ4RDJJ?=
- =?utf-8?B?dndVSDFFRjBKblI1SlhQdjdoRkloYzZjbEZDK0wwaFN1OUFGaFd6RDQzdFBE?=
- =?utf-8?B?NVRJdnQxWTltVTBpMnBhMnU5Ky9jTis4V0dITkM4UGNmM0J0KzlYVUFuTU1E?=
- =?utf-8?B?SFp3U0VGUUUzcWNJSE15U2FoNWEvVkNSQmtIR1lPQTdhTW9zRHhQTmFGWDBi?=
- =?utf-8?B?WGtBZjBCY0FRejdTWDlGZ1VGeFhUZkhORGVIaHVCdmg2bGxKZDQyMzc3V3Y1?=
- =?utf-8?B?WG5QYldqdWhOMlNSWWxpWEdjK2lMb09VeXdkODJsUDk3cDI2YTBtY0p1ZENN?=
- =?utf-8?B?eHlFakN4ZmhWakdZc1lmS2hKUDJ0em9GUHNnc0s2V1dWR1ZHamxqRXQ4Sm5O?=
- =?utf-8?B?VzBlcVpiQjRUNHRQMHRTWHpkSU5pOGc5VXVHRkZiU0tHQjdlV0tEYU51YlR0?=
- =?utf-8?B?WFFjak5wTWtyT2gxakMyYko1dFJNNHVrNFpVZzBrRThldkR5STBIUEM4eTVz?=
- =?utf-8?Q?tZxEEC9seDry0jrErff6jZoR79lshHx9QfBTDRX?=
+ Fri,  6 Aug 2021 12:47:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1628254054;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=971GhShz25Kr5BT/yqIK2pAuLtt/U3ecg5I+mmxzob0=;
+ b=C7lUokzjxdAMbLoqqe9EpvRvf655yQWkoH4igG/Ty5/2zCjfyNvJzXygMlLW0m9iJmUxy9
+ 3mxp+gwuLhKb6s0TZNftkgEFZKZVNmaULgGQPsbgke2Dz+lH42//KiB/bDwwAN6N8ikTHi
+ HKWCjwhf1Z/yAXK4pDYwQU2QLbD5BTo=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-201-M9FlUlnAMRCzKX-mM45-aQ-1; Fri, 06 Aug 2021 08:47:33 -0400
+X-MC-Unique: M9FlUlnAMRCzKX-mM45-aQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
+ [10.5.11.15])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 06F2E1084F5F;
+ Fri,  6 Aug 2021 12:47:30 +0000 (UTC)
+Received: from t480s.redhat.com (unknown [10.39.192.224])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 16DFE5D6A1;
+ Fri,  6 Aug 2021 12:47:16 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH v3 0/9] mm/memory_hotplug: "auto-movable" online policy and
+ memory groups
+Date: Fri,  6 Aug 2021 14:47:06 +0200
+Message-Id: <20210806124715.17090-1-david@redhat.com>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e2025534-bed5-4a8a-cfbd-08d958b80177
-X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Aug 2021 08:55:56.9868 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: nJzbNm5c0aWcuV5o2mirv/X365Ce9F7l9ea6iwBUGJSBrxuAg3bnSKe6WnG4SJCsTJrOZ+M8DJn7KxysV2J5vQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB5420
-Cc: Eli Cohen <elic@nvidia.com>, "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Cc: Wei Yang <richard.weiyang@linux.alibaba.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
+ linux-acpi@vger.kernel.org, Len Brown <lenb@kernel.org>,
+ Pavel Tatashin <pasha.tatashin@soleen.com>,
+ Anshuman Khandual <anshuman.khandual@arm.com>,
+ Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>,
+ Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>,
+ Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Rafael J. Wysocki" <rjw@rjwysocki.net>, Hui Zhu <teawater@gmail.com>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ Marek Kedzierski <mkedzier@redhat.com>, Mike Rapoport <rppt@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -163,62 +107,253 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+Hi,
+
+this series is based on v5.14-rc3, with [2] on top.
 
 
-> From: Michael S. Tsirkin <mst@redhat.com>
-> Sent: Friday, August 6, 2021 2:12 PM
+I. Goal
+
+The goal of this series is improving in-kernel auto-online support. It
+tackles the fundamental problems that:
+
+ 1) We can create zone imbalances when onlining all memory blindly to
+    ZONE_MOVABLE, in the worst case crashing the system. We have to know
+    upfront how much memory we are going to hotplug such that we can
+    safely enable auto-onlining of all hotplugged memory to ZONE_MOVABLE
+    via "online_movable". This is far from practical and only applicable in
+    limited setups -- like inside VMs under the RHV/oVirt hypervisor which
+    will never hotplug more than 3 times the boot memory (and the
+    limitation is only in place due to the Linux limitation).
+
+ 2) We see more setups that implement dynamic VM resizing, hot(un)plugging
+    memory to resize VM memory. In these setups, we might hotplug a lot of
+    memory, but it might happen in various small steps in both directions
+    (e.g., 2 GiB -> 8 GiB -> 4 GiB -> 16 GiB ...). virtio-mem is the
+    primary driver of this upstream right now, performing such dynamic
+    resizing NUMA-aware via multiple virtio-mem devices.
+
+    Onlining all hotplugged memory to ZONE_NORMAL means we basically have
+    no hotunplug guarantees. Onlining all to ZONE_MOVABLE means we can
+    easily run into zone imbalances when growing a VM. We want a mixture,
+    and we want as much memory as reasonable/configured in ZONE_MOVABLE.
+    Details regarding zone imbalances can be found at [1].
+
+ 3) Memory devices consist of 1..X memory block devices, however, the
+    kernel doesn't really track the relationship. Consequently, also user
+    space has no idea. We want to make per-device decisions.
+
+    As one example, for memory hotunplug it doesn't make sense to use a
+    mixture of zones within a single DIMM: we want all MOVABLE if
+    possible, otherwise all !MOVABLE, because any !MOVABLE part will easily
+    block the whole DIMM from getting hotunplugged.
+
+    As another example, virtio-mem operates on individual units that span
+    1..X memory blocks. Similar to a DIMM, we want a unit to either be all
+    MOVABLE or !MOVABLE. A "unit" can be thought of like a DIMM, however,
+    all units of a virtio-mem device logically belong together and are
+    managed (added/removed) by a single driver. We want as much memory of
+    a virtio-mem device to be MOVABLE as possible.
+
+ 4) We want memory onlining to be done right from the kernel while adding
+    memory, not triggered by user space via udev rules; for example, this
+    is reqired for fast memory hotplug for drivers that add individual
+    memory blocks, like virito-mem. We want a way to configure a policy in
+    the kernel and avoid implementing advanced policies in user space.
+
+The auto-onlining support we have in the kernel is not sufficient. All we
+have is a) online everything MOVABLE (online_movable) b) online everything
+!MOVABLE (online_kernel) c) keep zones contiguous (online). This series
+allows configuring c) to mean instead "online movable if possible according
+to the coniguration, driven by a maximum MOVABLE:KERNEL ratio" -- a new
+onlining policy.
 
 
-> >  enum vdpa_attr {
-> > @@ -33,6 +34,16 @@ enum vdpa_attr {
-> >  	VDPA_ATTR_DEV_MAX_VQS,			/* u32 */
-> >  	VDPA_ATTR_DEV_MAX_VQ_SIZE,		/* u16 */
-> > +	VDPA_ATTR_DEV_NET_CFG_MACADDR,		/* binary */
-> > +	VDPA_ATTR_DEV_NET_STATUS,		/* u8 */
-> > +	VDPA_ATTR_DEV_NET_CFG_MAX_VQP,		/* u16 */
-> > +	VDPA_ATTR_DEV_NET_CFG_MTU,		/* u16 */
-> > +	VDPA_ATTR_DEV_NET_CFG_SPEED,		/* u16 */
-> > +	VDPA_ATTR_DEV_NET_CFG_DUPLEX,		/* u16 */
-> > +	VDPA_ATTR_DEV_NET_CFG_RSS_MAX_KEY_LEN,	/* u8 */
-> > +	VDPA_ATTR_DEV_NET_CFG_RSS_MAX_IT_LEN,	/* u16 */
-> > +	VDPA_ATTR_DEV_NET_CFG_RSS_HASH_TYPES,	/* u32 */
-> > +
-> >  	/* new attributes must be added above here */
-> >  	VDPA_ATTR_MAX,
-> >  };
-> 
-> The point is to try and not reinvent a dedicated vpda interface where a
-> generic one exits.
-> E.g. for phy things such as mac speed etc, I think most people are using
-> ethtool things right?
+II. Approach
 
-As you know vdpa is the backend device for the front-end netdevice accessed by the ethtool.
-vdpa management tool here is composing the vdpa device.
+This series does 3 things:
 
-For example creator (hypervisor) of the vdpa devices knows that a guest VM is given 4 vcpus,
-So hypervisor creates a vdpa devices with config space layout as,
-max_virtqueue_pairs = 4.
-And the MAC address chosen by hypervisor in mac[6].
+ 1) Introduces the "auto-movable" online policy that initially operates on
+    individual memory blocks only. It uses a maximum MOVABLE:KERNEL ratio
+    to make a decision whether a memory block will be onlined to
+    ZONE_MOVABLE or not. However, in the basic form, hotplugged KERNEL
+    memory does not allow for more MOVABLE memory (details in the
+    patches). CMA memory is treated like MOVABLE memory.
 
-Guest VM ethtool can still chose to use less number of channels.
+ 2) Introduces static (e.g., DIMM) and dynamic (e.g., virtio-mem) memory
+    groups and uses group information to make decisions in the
+    "auto-movable" online policy across memory blocks of a single memory
+    device (modeled as memory group). More details can be found in patch
+    #3 or in the DIMM example below.
 
-Typically,
-ethtool is for guest VM.
-vdpa device is in hypevisor.
+ 3) Maximizes ZONE_MOVABLE memory within dynamic memory groups, by
+    allowing ZONE_NORMAL memory within a dynamic memory group to allow for
+    more ZONE_MOVABLE memory within the same memory group. The target use
+    case is dynamic VM resizing using virtio-mem. See the virtio-mem
+    example below.
 
-How can hypervisor compose a vdpa device without any tool?
-How can it tell ethtool, what is supported and what are the defaults?
+I remember that the basic idea of using a ratio to implement a policy in
+the kernel was once mentioned by Vitaly Kuznetsov, but I might be wrong
+(I lost the pointer to that discussion).
 
-I must be misunderstanding your comment about ethtool.
-Can you please explain?
+For me, the main use case is using it along with virtio-mem (and
+DIMMs / ppc64 dlpar where necessary) for dynamic resizing of VMs,
+increasing the amount of memory we can hotunplug reliably again if we
+might eventually hotplug a lot of memory to a VM.
+
+
+III. Target Usage
+
+The target usage will be:
+
+ 1) Linux boots with "mhp_default_online_type=offline"
+
+ 2) User space (e.g., systemd unit) configures memory onlining (according
+    to a config file and system properties), for example:
+    * Setting memory_hotplug.online_policy=auto-movable
+    * Setting memory_hotplug.auto_movable_ratio=301
+    * Setting memory_hotplug.auto_movable_numa_aware=true
+
+ 3) User space enabled auto onlining via "echo online >
+    /sys/devices/system/memory/auto_online_blocks"
+
+ 4) User space triggers manual onlining of all already-offline memory
+    blocks (go over offline memory blocks and set them to "online")
+
+
+IV. Example
+
+For DIMMs, hotplugging 4 GiB DIMMs to a 4 GiB VM with a configured ratio of
+301% results in the following layout:
+	Memory block 0-15:    DMA32   (early)
+	Memory block 32-47:   Normal  (early)
+	Memory block 48-79:   Movable (DIMM 0)
+	Memory block 80-111:  Movable (DIMM 1)
+	Memory block 112-143: Movable (DIMM 2)
+	Memory block 144-275: Normal  (DIMM 3)
+	Memory block 176-207: Normal  (DIMM 4)
+	... all Normal
+	(-> hotplugged Normal memory does not allow for more Movable memory)
+
+For virtio-mem, using a simple, single virtio-mem device with a 4 GiB VM
+will result in the following layout:
+	Memory block 0-15:    DMA32   (early)
+	Memory block 32-47:   Normal  (early)
+	Memory block 48-143:  Movable (virtio-mem, first 12 GiB)
+	Memory block 144:     Normal  (virtio-mem, next 128 MiB)
+	Memory block 145-147: Movable (virtio-mem, next 384 MiB)
+	Memory block 148:     Normal  (virtio-mem, next 128 MiB)
+	Memory block 149-151: Movable (virtio-mem, next 384 MiB)
+	... Normal/Movable mixture as above
+	(-> hotplugged Normal memory allows for more Movable memory within
+	    the same device)
+
+Which gives us maximum flexibility when dynamically growing/shrinking a
+VM in smaller steps.
+
+
+V. Doc Update
+
+I'll update the memory-hotplug.rst documentation, once the overhaul [1] is
+usptream. Until then, details can be found in patch #2.
+
+
+VI. Future Work
+
+ 1) Use memory groups for ppc64 dlpar
+ 2) Being able to specify a portion of (early) kernel memory that will be
+    excluded from the ratio. Like "128 MiB globally/per node" are excluded.
+
+    This might be helpful when starting VMs with extremely small memory
+    footprint (e.g., 128 MiB) and hotplugging memory later -- not wanting
+    the first hotplugged units getting onlined to ZONE_MOVABLE. One
+    alternative would be a trigger to not consider ZONE_DMA memory
+    in the ratio. We'll have to see if this is really rrequired.
+ 3) Indicate to user space that MOVABLE might be a bad idea -- especially
+    relevant when memory ballooning without support for balloon compaction
+    is active.
+
+
+v2 -> v3:
+- "mm/memory_hotplug: introduce "auto-movable" online policy"
+-- Fixup !CONFIG_CMA compilation issue
+- "drivers/base/memory: introduce "memory groups" to logically group memory
+   blocks": Address Gregs feedback
+-- Rename and document group handling functions
+-- Store list of memory blocks instead of a reference count
+-- Return -EBUSY if memory_group_unregister() fails because there are
+   still memory blocks added
+-- Document why memory_group_register() copies the given structure
+-- Simplify return handling in register memory_group_register()
+-- Document "struct memory_group" properly
+- Adjust other code to renamed group handling functions
+- Minor comment fixes and add some more comments
+
+v1 -> v2:
+- Split out all cleanup patches into [2]
+- Minor patch description updates
+- "dax/kmem: use a single static memory group for a single probed unit"
+-- Added
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Marek Kedzierski <mkedzier@redhat.com>
+Cc: Hui Zhu <teawater@gmail.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: virtualization@lists.linux-foundation.org
+Cc: linux-mm@kvack.org
+Cc: linux-acpi@vger.kernel.org
+
+[1] https://lkml.kernel.org/r/20210707073205.3835-1-david@redhat.com
+[2] https://lkml.kernel.org/r/20210712124052.26491-1-david@redhat.com
+
+David Hildenbrand (9):
+  mm: track present early pages per zone
+  mm/memory_hotplug: introduce "auto-movable" online policy
+  drivers/base/memory: introduce "memory groups" to logically group
+    memory blocks
+  mm/memory_hotplug: track present pages in memory groups
+  ACPI: memhotplug: use a single static memory group for a single memory
+    device
+  dax/kmem: use a single static memory group for a single probed unit
+  virtio-mem: use a single dynamic memory group for a single virtio-mem
+    device
+  mm/memory_hotplug: memory group aware "auto-movable" online policy
+  mm/memory_hotplug: improved dynamic memory group aware "auto-movable"
+    online policy
+
+ drivers/acpi/acpi_memhotplug.c |  35 +++-
+ drivers/base/memory.c          | 225 ++++++++++++++++++++---
+ drivers/dax/kmem.c             |  40 +++-
+ drivers/virtio/virtio_mem.c    |  22 ++-
+ include/linux/memory.h         |  55 +++++-
+ include/linux/memory_hotplug.h |  21 ++-
+ include/linux/mmzone.h         |   7 +
+ mm/memory_hotplug.c            | 325 ++++++++++++++++++++++++++++++++-
+ mm/page_alloc.c                |   3 +
+ 9 files changed, 683 insertions(+), 50 deletions(-)
+
+-- 
+2.31.1
 
 _______________________________________________
 Virtualization mailing list
