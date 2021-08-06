@@ -2,103 +2,99 @@ Return-Path: <SRS0=epgR=M5=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52558C4338F
-	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 12:48:57 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DCCFC4338F
+	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 14:52:14 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 06E19611C3
-	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 12:48:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 06E19611C3
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id E2DF86105A
+	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 14:52:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E2DF86105A
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=arndb.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id CD628605F7;
-	Fri,  6 Aug 2021 12:48:56 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9D60C83AE2;
+	Fri,  6 Aug 2021 14:52:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RkekPP884fWn; Fri,  6 Aug 2021 12:48:55 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 2C650605E5;
-	Fri,  6 Aug 2021 12:48:55 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id AmbBXTZKqBnM; Fri,  6 Aug 2021 14:52:12 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 4EB4383ADB;
+	Fri,  6 Aug 2021 14:52:12 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 12FBAC001A;
-	Fri,  6 Aug 2021 12:48:55 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 26E37C001A;
+	Fri,  6 Aug 2021 14:52:12 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1B8EDC000E
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 11C0EC000E
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 12:48:54 +0000 (UTC)
+ Fri,  6 Aug 2021 14:52:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id F1CA740628
+ by smtp4.osuosl.org (Postfix) with ESMTP id 0C765405F5
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 12:48:53 +0000 (UTC)
+ Fri,  6 Aug 2021 14:52:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id OTd0FVdOcWGt
+ with ESMTP id NPNj_aKxuJ3H
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 12:48:53 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 11E6140607
+ Fri,  6 Aug 2021 14:52:07 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.134])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 28D3740628
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 12:48:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1628254132;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=r/SgQo4rPUsW9F0dO56kaeaqlgSVg1Obn3tnWbE8+Ww=;
- b=Mqui/rXxaetL6ydmmkx7YGjeViGHPh4P+6GegmT2sg5D9FqEdy0Ngp9O4KQpv3eju62X/t
- q1nP7m9WfyLiWIRRYVFm4ieN0Rsi9mpJQQN4oHi8G4ZpFh3WdAm1iyQsvTVb/r2hYccN6O
- OkYmHs2qicVjnGZZG8S7MkF0Y3G87QU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-434-nhBixEt3MnqJpJGiX_Bmfg-1; Fri, 06 Aug 2021 08:48:51 -0400
-X-MC-Unique: nhBixEt3MnqJpJGiX_Bmfg-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BC6FE107ACF5;
- Fri,  6 Aug 2021 12:48:48 +0000 (UTC)
-Received: from t480s.redhat.com (unknown [10.39.192.224])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 021885D6A1;
- Fri,  6 Aug 2021 12:48:42 +0000 (UTC)
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH v3 9/9] mm/memory_hotplug: improved dynamic memory group aware
- "auto-movable" online policy
-Date: Fri,  6 Aug 2021 14:47:15 +0200
-Message-Id: <20210806124715.17090-10-david@redhat.com>
-In-Reply-To: <20210806124715.17090-1-david@redhat.com>
-References: <20210806124715.17090-1-david@redhat.com>
+ Fri,  6 Aug 2021 14:52:06 +0000 (UTC)
+Received: from mail-wr1-f47.google.com ([209.85.221.47]) by
+ mrelayeu.kundenserver.de (mreue011 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1MlfL0-1mujtG0yuY-00inkV for <virtualization@lists.linux-foundation.org>;
+ Fri, 06 Aug 2021 16:52:04 +0200
+Received: by mail-wr1-f47.google.com with SMTP id c9so11397166wri.8
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 06 Aug 2021 07:52:04 -0700 (PDT)
+X-Gm-Message-State: AOAM531vi0gLOasp/r1B9sEPRovWfGbr8lXpPvM851IJ7FX/z9lUUZKy
+ ZtsxbiFRabmXclrxow9zm6Mp2jiSSpnSmtX0gL0=
+X-Google-Smtp-Source: ABdhPJzaR6qJfePFLgCHPEvS2rl+ctcdCp7KoQ3Fcdv85XiJXg5JdFJiE2fEE5Q5uLbt8pe01lz22DOOlzKs3X1rUrA=
+X-Received: by 2002:adf:f446:: with SMTP id f6mr11689710wrp.361.1628261523856; 
+ Fri, 06 Aug 2021 07:52:03 -0700 (PDT)
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-Cc: Wei Yang <richard.weiyang@linux.alibaba.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- linux-acpi@vger.kernel.org, Len Brown <lenb@kernel.org>,
- Pavel Tatashin <pasha.tatashin@soleen.com>,
- Anshuman Khandual <anshuman.khandual@arm.com>,
- Dan Williams <dan.j.williams@intel.com>, Michal Hocko <mhocko@kernel.org>,
- Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>,
- Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- "Rafael J. Wysocki" <rjw@rjwysocki.net>, Hui Zhu <teawater@gmail.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Marek Kedzierski <mkedzier@redhat.com>, Mike Rapoport <rppt@kernel.org>
+References: <20210806030138.123479-1-xianting.tian@linux.alibaba.com>
+ <20210806030138.123479-2-xianting.tian@linux.alibaba.com>
+In-Reply-To: <20210806030138.123479-2-xianting.tian@linux.alibaba.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Fri, 6 Aug 2021 16:51:47 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a2=BmVv0tvUKaca+LYxuAussAJtAJW9O3fRN2CbV2-9aw@mail.gmail.com>
+Message-ID: <CAK8P3a2=BmVv0tvUKaca+LYxuAussAJtAJW9O3fRN2CbV2-9aw@mail.gmail.com>
+Subject: Re: [PATCH v4 1/2] tty: hvc: pass DMA capable memory to put_chars()
+To: Xianting Tian <xianting.tian@linux.alibaba.com>
+X-Provags-ID: V03:K1:OFhpfsKLcsQV4t0EYb6IvtJoSrA+DPNk8VVbxwUrYDYSQeq2tgK
+ uRsgFr2cTHk71iFSJV7eaEtKVkAeUxlPWCXMKJDETuMLUQu9+bnlXfvQN+NnIaoewpFVTkv
+ tiCJS9zNqM5HSKkMZ4TB+qkLlr9fz+d0Z8MorbOLXN+U5yds6vq9Ad82+U3s/u4sdD5ZmGm
+ sKJVx+p2VfcMgcJIASx+A==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:tepUAV1ISzU=:JR4XUVcq6mxQLw7oD8owlB
+ pwTWJkJAaIzuJ3TE3Y4pNCN9ZvegoQsABBg00WGEGsk9ADXKiNXRiSKD2uZ0aoR9pI3nrvGrN
+ DfUQSZJ3XxMlkT2O5FcFBrQ2desUJsKJARnCOAfF7SIMbjoy+wttOUBRuD4mYOzNIGfI+DFJo
+ iBuOIR9pCw8h8hdu89VL9lbu9Fkhx1OtGyRq5Yjw3H+j7l0lEN3LEmPc+YzDKcI+7SED8IFv/
+ gzHHaHmwK+2Th3UWd3e+2q3sohJnO8ruWPvuYtO9gFKhu48ofvy8p8n+N9mSu9QyGyYfVvOZj
+ dojcqa8brvWvlniIudyFDsiZgc2H1itciq6+W71P4doEJVrYPxRDmqtnXZbeoix2x0NekkHXJ
+ TWWZEMyUmRKRWQGx762PgF+tXq3FnyGqPHG8oVAbvp9E6AyqgWZbUcGdHuYWfJ8OPKVJiCjC4
+ On3GlurWJ/4xocaFPL2cpIQyc4F4qeZ1eMu8b/KlCF3tSpQtwN3UQ0fp1dJXklpgZoVXVpnro
+ YXmh3JuI2rflfDC9bDWjIBb4BkMcatVLYQemfr9ph/qMj//Jh81YAtAC5TKQs9LnT1zz1Xyvb
+ lYsFyHkgB6yoqu7CUzwSGJSx0i6SwzoaLh47h1MFu9wh5yiXd/7KQOcGeWiagkhCDaa8Pn24n
+ ary00BZO2oD4esSqblfuR6poUs2xFLDvVudhaSprOK4QOfgzL/d/MMSyjIHrVjfQoH6ZKOcXq
+ 9Gps8eWE4lxrH7+1amd18D/BANpK/srVJ7QZ9gXQN9uW2KFGjeyeQ/o81lEJvfNZJmeuMVDQ4
+ JHMsaLUa8RCAAoMLVKWnXMGc3VoLxGqHMFFfcrWywF7GLNiRnrWPC5j9dmtquU36BhkoKTGz6
+ YfkFVga+kqF6/87sRbUNidH9KAVNULjCqOctrvd3+Lzb5I5SHEWyn1EqvXYotMNgjuOXgWymA
+ wwn+JVrRwHwbH65LXQY7mslmtlJfBeYX5EzUnHvpIekfH54Z5NOjZ
+Cc: Arnd Bergmann <arnd@arndb.de>, Jiri Slaby <jirislaby@kernel.org>,
+ Amit Shah <amit@kernel.org>, gregkh <gregkh@linuxfoundation.org>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE"
+ <virtualization@lists.linux-foundation.org>, Guo Ren <guoren@kernel.org>,
+ linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Omar Sandoval <osandov@fb.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,238 +111,40 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Currently, the "auto-movable" online policy does not allow for hotplugged
-KERNEL (ZONE_NORMAL) memory to increase the amount of MOVABLE memory we can
-have, primarily, because there is no coordiantion across memory devices and
-we don't want to create zone-imbalances accidentially when unplugging
-memory.
+On Fri, Aug 6, 2021 at 5:01 AM Xianting Tian
+<xianting.tian@linux.alibaba.com> wrote:
+> @@ -163,6 +155,13 @@ static void hvc_console_print(struct console *co, const char *b,
+>         if (vtermnos[index] == -1)
+>                 return;
+>
+> +       list_for_each_entry(hp, &hvc_structs, next)
+> +               if (hp->vtermno == vtermnos[index])
+> +                       break;
+> +
+> +       c = hp->c;
+> +
+> +       spin_lock_irqsave(&hp->c_lock, flags);
 
-However, within a single memory device it's different. Let's allow for
-KERNEL memory within a dynamic memory group to allow for more MOVABLE
-within the same memory group. The only thing we have to take care of is
-that the managing driver avoids zone imbalances by unplugging MOVABLE
-memory first, otherwise there can be corner cases where unplug of memory
-could result in (accidential) zone imbalances.
+The loop looks like it might race against changes to the list. It seems strange
+that the print function has to actually search for the structure here.
 
-virtio-mem is the only user of dynamic memory groups and recently added
-support for prioritizing unplug of ZONE_MOVABLE over ZONE_NORMAL, so we
-don't need a new toggle to enable it for dynamic memory groups.
+It may be better to have yet another array for the buffer pointers next to
+the cons_ops[] and vtermnos[] arrays.
 
-We limit this handling to dynamic memory groups, because:
+> +/*
+> + * These sizes are most efficient for vio, because they are the
+> + * native transfer size. We could make them selectable in the
+> + * future to better deal with backends that want other buffer sizes.
+> + */
+> +#define N_OUTBUF       16
+> +#define N_INBUF                16
+> +
+> +#define __ALIGNED__ __attribute__((__aligned__(sizeof(long))))
 
-* We want to keep the runtime overhead for collecting stats when onlining
-  a single memory block small. We tend to have only a handful of dynamic
-  memory groups, but we can have quite some static memory groups (e.g., 256
-  DIMMs).
-* It doesn't make too much sense for static memory groups, as we try
-  onlining all applicable memory blocks either completely to ZONE_MOVABLE
-  or not. In ordinary operation, we won't have a mixture of zones
-  within a static memory group.
+I think you need a higher alignment for DMA buffers, instead of sizeof(long),
+I would suggest ARCH_DMA_MINALIGN.
 
-When adding memory to a dynamic memory group, we'll first online memory to
-ZONE_MOVABLE as long as early KERNEL memory allows for it. Then, we'll
-online the next unit(s) to ZONE_NORMAL, until we can online the next
-unit(s) to ZONE_MOVABLE.
-
-For a simple virtio-mem device with a MOVABLE:KERNEL ratio of 3:1, it
-will result in a layout like:
-
-  [M][M][M][M][M][M][M][M][N][M][M][M][N][M][M][M]...
-  ^ movable memory due to early kernel memory
-			   ^ allows for more movable memory ...
-			      ^-----^ ... here
-				       ^ allows for more movable memory ...
-				          ^-----^ ... here
-
-While the created layout is sub-optimal when it comes to contiguous zones,
-it gives us the maximum flexibility when dynamically growing/shrinking a
-device; we can grow small VMs really big in small steps, and still
-shrink reliably to e.g., 1/4 of the maximum VM size in this example,
-removing full memory blocks along with meta data more reliably.
-
-Mark dynamic memory groups in the xarray such that we can efficiently
-iterate over them when collecting stats. In usual setups, we have one
-virtio-mem device per NUMA node, and usually only a small number of NUMA
-nodes.
-
-Note: for now, there seems to be no compelling reason to make this
-behavior configurable.
-
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/base/memory.c  | 30 +++++++++++++++++++++
- include/linux/memory.h |  3 +++
- mm/memory_hotplug.c    | 60 +++++++++++++++++++++++++++++++++++++++---
- 3 files changed, 89 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/base/memory.c b/drivers/base/memory.c
-index b699ddc42693..440fd656c002 100644
---- a/drivers/base/memory.c
-+++ b/drivers/base/memory.c
-@@ -86,6 +86,7 @@ static DEFINE_XARRAY(memory_blocks);
-  * Memory groups, indexed by memory group id (mgid).
-  */
- static DEFINE_XARRAY_FLAGS(memory_groups, XA_FLAGS_ALLOC);
-+#define MEMORY_GROUP_MARK_DYNAMIC	XA_MARK_1
- 
- static BLOCKING_NOTIFIER_HEAD(memory_chain);
- 
-@@ -939,6 +940,8 @@ static int memory_group_register(struct memory_group group)
- 	if (ret) {
- 		kfree(new_group);
- 		return ret;
-+	} else if (group.is_dynamic) {
-+		xa_set_mark(&memory_groups, mgid, MEMORY_GROUP_MARK_DYNAMIC);
- 	}
- 	return mgid;
- }
-@@ -1044,3 +1047,30 @@ struct memory_group *memory_group_find_by_id(int mgid)
- {
- 	return xa_load(&memory_groups, mgid);
- }
-+
-+/*
-+ * This is an internal helper only to be used in core memory hotplug code to
-+ * walk all dynamic memory groups excluding a given memory group, either
-+ * belonging to a specific node, or belonging to any node.
-+ */
-+int walk_dynamic_memory_groups(int nid, walk_memory_groups_func_t func,
-+			       struct memory_group *excluded, void *arg)
-+{
-+	struct memory_group *group;
-+	unsigned long index;
-+	int ret = 0;
-+
-+	xa_for_each_marked(&memory_groups, index, group,
-+			   MEMORY_GROUP_MARK_DYNAMIC) {
-+		if (group == excluded)
-+			continue;
-+#ifdef CONFIG_NUMA
-+		if (nid != NUMA_NO_NODE && group->nid != nid)
-+			continue;
-+#endif /* CONFIG_NUMA */
-+		ret = func(group, arg);
-+		if (ret)
-+			break;
-+	}
-+	return ret;
-+}
-diff --git a/include/linux/memory.h b/include/linux/memory.h
-index 6ffdc1db385f..cbcc43ad2b97 100644
---- a/include/linux/memory.h
-+++ b/include/linux/memory.h
-@@ -146,6 +146,9 @@ extern int memory_group_register_static(int nid, unsigned long max_pages);
- extern int memory_group_register_dynamic(int nid, unsigned long unit_pages);
- extern int memory_group_unregister(int mgid);
- struct memory_group *memory_group_find_by_id(int mgid);
-+typedef int (*walk_memory_groups_func_t)(struct memory_group *, void *);
-+int walk_dynamic_memory_groups(int nid, walk_memory_groups_func_t func,
-+			       struct memory_group *excluded, void *arg);
- #endif /* CONFIG_MEMORY_HOTPLUG_SPARSE */
- 
- #ifdef CONFIG_MEMORY_HOTPLUG
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index fd2edd99f8df..39faf2b56b50 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -752,11 +752,44 @@ static void auto_movable_stats_account_zone(struct auto_movable_stats *stats,
- #endif /* CONFIG_CMA */
- 	}
- }
-+struct auto_movable_group_stats {
-+	unsigned long movable_pages;
-+	unsigned long req_kernel_early_pages;
-+};
- 
--static bool auto_movable_can_online_movable(int nid, unsigned long nr_pages)
-+static int auto_movable_stats_account_group(struct memory_group *group,
-+					   void *arg)
-+{
-+	const int ratio = READ_ONCE(auto_movable_ratio);
-+	struct auto_movable_group_stats *stats = arg;
-+	long pages;
-+
-+	/*
-+	 * We don't support modifying the config while the auto-movable online
-+	 * policy is already enabled. Just avoid the division by zero below.
-+	 */
-+	if (!ratio)
-+		return 0;
-+
-+	/*
-+	 * Calculate how many early kernel pages this group requires to
-+	 * satisfy the configured zone ratio.
-+	 */
-+	pages = group->present_movable_pages * 100 / ratio;
-+	pages -= group->present_kernel_pages;
-+
-+	if (pages > 0)
-+		stats->req_kernel_early_pages += pages;
-+	stats->movable_pages += group->present_movable_pages;
-+	return 0;
-+}
-+
-+static bool auto_movable_can_online_movable(int nid, struct memory_group *group,
-+					    unsigned long nr_pages)
- {
--	struct auto_movable_stats stats = {};
- 	unsigned long kernel_early_pages, movable_pages;
-+	struct auto_movable_group_stats group_stats = {};
-+	struct auto_movable_stats stats = {};
- 	pg_data_t *pgdat = NODE_DATA(nid);
- 	struct zone *zone;
- 	int i;
-@@ -777,6 +810,21 @@ static bool auto_movable_can_online_movable(int nid, unsigned long nr_pages)
- 	kernel_early_pages = stats.kernel_early_pages;
- 	movable_pages = stats.movable_pages;
- 
-+	/*
-+	 * Kernel memory inside dynamic memory group allows for more MOVABLE
-+	 * memory within the same group. Remove the effect of all but the
-+	 * current group from the stats.
-+	 */
-+	walk_dynamic_memory_groups(nid, auto_movable_stats_account_group,
-+				   group, &group_stats);
-+	if (kernel_early_pages <= group_stats.req_kernel_early_pages)
-+		return false;
-+	kernel_early_pages -= group_stats.req_kernel_early_pages;
-+	movable_pages -= group_stats.movable_pages;
-+
-+	if (group && group->is_dynamic)
-+		kernel_early_pages += group->present_kernel_pages;
-+
- 	/*
- 	 * Test if we could online the given number of pages to ZONE_MOVABLE
- 	 * and still stay in the configured ratio.
-@@ -834,6 +882,10 @@ static struct zone *default_kernel_zone_for_pfn(int nid, unsigned long start_pfn
-  *    with unmovable allocations). While there are corner cases where it might
-  *    still work, it is barely relevant in practice.
-  *
-+ * Exceptions are dynamic memory groups, which allow for more MOVABLE
-+ * memory within the same memory group -- because in that case, there is
-+ * coordination within the single memory device managed by a single driver.
-+ *
-  * We rely on "present pages" instead of "managed pages", as the latter is
-  * highly unreliable and dynamic in virtualized environments, and does not
-  * consider boot time allocations. For example, memory ballooning adjusts the
-@@ -899,12 +951,12 @@ static struct zone *auto_movable_zone_for_pfn(int nid,
- 	 * nobody interferes, all will be MOVABLE if possible.
- 	 */
- 	nr_pages = max_pages - online_pages;
--	if (!auto_movable_can_online_movable(NUMA_NO_NODE, nr_pages))
-+	if (!auto_movable_can_online_movable(NUMA_NO_NODE, group, nr_pages))
- 		goto kernel_zone;
- 
- #ifdef CONFIG_NUMA
- 	if (auto_movable_numa_aware &&
--	    !auto_movable_can_online_movable(nid, nr_pages))
-+	    !auto_movable_can_online_movable(nid, group, nr_pages))
- 		goto kernel_zone;
- #endif /* CONFIG_NUMA */
- 
--- 
-2.31.1
-
+       Arnd
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
