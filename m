@@ -2,118 +2,112 @@ Return-Path: <SRS0=epgR=M5=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CBC1C4338F
-	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 07:44:52 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 914BBC4338F
+	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 08:42:40 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id ED535610FD
-	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 07:44:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org ED535610FD
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 21B5460F59
+	for <virtualization@archiver.kernel.org>; Fri,  6 Aug 2021 08:42:40 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 21B5460F59
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B6EB740258;
-	Fri,  6 Aug 2021 07:44:51 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id BAE0D402C4;
+	Fri,  6 Aug 2021 08:42:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id s9FxD0jfvlJU; Fri,  6 Aug 2021 07:44:50 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id jJgsaMHtwc0t; Fri,  6 Aug 2021 08:42:38 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 41F7C40249;
-	Fri,  6 Aug 2021 07:44:50 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 16BDB40111;
+	Fri,  6 Aug 2021 08:42:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0CB85C001A;
-	Fri,  6 Aug 2021 07:44:50 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6D1D0C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D39B7C001A;
+	Fri,  6 Aug 2021 08:42:37 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3774CC000E
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 07:44:48 +0000 (UTC)
+ Fri,  6 Aug 2021 08:42:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 5A70B82AF8
+ by smtp2.osuosl.org (Postfix) with ESMTP id 2516C402BF
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 07:44:48 +0000 (UTC)
+ Fri,  6 Aug 2021 08:42:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id O35Fu_X-BJ5g
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Qe2vChFpu6Kx
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 07:44:47 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com
- [IPv6:2607:f8b0:4864:20::1032])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0EB5982AC8
+ Fri,  6 Aug 2021 08:42:35 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id E1BE340111
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Aug 2021 07:44:46 +0000 (UTC)
-Received: by mail-pj1-x1032.google.com with SMTP id
- dw2-20020a17090b0942b0290177cb475142so21372065pjb.2
+ Fri,  6 Aug 2021 08:42:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1628239353;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=8c4Csku1c78Mrj7sNQ2Xw9qFouSxJOuudRfOlOYi9zk=;
+ b=KrhQPVJQOFuxUAEbEIepyfEbJpFs8ie5HFCA/0M6tC+Csv8j8tZNHd9+R9uqcfyVoxAEe+
+ EJZ09JGpMusJx4zr2qdce1Ev9kb3wPVV6PFm++jiBC0oCCSJkHnmyzl2d8R6vR5LkcclVa
+ 9mg8+ZGWS4wiKjgK/U2RBqltJIjH9j0=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-241-svXv3gGiM1CNXQQ-T-UX2Q-1; Fri, 06 Aug 2021 04:42:32 -0400
+X-MC-Unique: svXv3gGiM1CNXQQ-T-UX2Q-1
+Received: by mail-ed1-f69.google.com with SMTP id
+ c1-20020aa7df010000b02903bb5c6f746eso4518560edy.10
  for <virtualization@lists.linux-foundation.org>;
- Fri, 06 Aug 2021 00:44:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=HLoPc1uP3W6cbVHev0+XuSTJyiY+fEhdaCUYmE93+kk=;
- b=lYq4fiRmC6kteclmEVNZkBsF97AjsC+PJ746EbB3Go9ITSt+2udR5j/biuCNZslSig
- MmarzGrN1NNnBIik/E0K/VvTY7qsX0372b34O8qnHvdH6e1uXaFKuXJT/sBYzWm+eb+u
- xper1W4OpmKO6de7oMVBdZFghgF/cuODS4ofnHoVwe1rdGCMRQOvRqxPmhvqlQhJq/bg
- Mqt7GIbkSDSsRgs3bD4qOE6xqhKxGLVSe6Ke+VM0cqkQPBHCuuBzVU5wVzczj8OmD/Fx
- xZskcIVspC963xU3EhiF5yUsUI8AiR8rTbM07FX6TR5sYm/UMglvpUUKGNW8Q3T9qbQT
- hQEg==
+ Fri, 06 Aug 2021 01:42:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=HLoPc1uP3W6cbVHev0+XuSTJyiY+fEhdaCUYmE93+kk=;
- b=ZmpXieX6YU+UhwndGGoFpJItdiY/xBr/Calo2HPgoMZlDAjCb52PJpbXxKEr70CXow
- rkB1eljZEDcXAM5kRpn+AIfZAny/m7OXg4h2MUrPWsZkbkPa1M5KMFtogdjKrn2ktWE4
- +hEz9TFbjjtk2i17IRLJT0Ydq/Inxz2hdD/r56pTr0qBB1f2u2gSDcm+8sWIX7k+klWg
- RxmDctGQ28/+vOGuLPQdgdLpomftD48PyLz4g9mwN1p3MghhFfzFurEShudmemNmwLGw
- eJsmllKFbZN3dONkSs/kyStKnqM+KTf//ISiI0K4Gl81EvqU/vtVLy6QcVtC/zYMlJh3
- twEA==
-X-Gm-Message-State: AOAM532HlfP16/P07r5TOVjNMg8pPv+HlfW3CC+Oc0NWfyZF3sp/ntdb
- OOAjMtHvHyafT5TmFv9DoR0daQ==
-X-Google-Smtp-Source: ABdhPJyrfoYXeQrSbRRrPna+3iA3J7eBpuiUp18COesHdOnPDAz3eag54rg83K3WYN0xnCE3R1HYnw==
-X-Received: by 2002:a17:902:b282:b029:12c:4ce3:8852 with SMTP id
- u2-20020a170902b282b029012c4ce38852mr7566606plr.31.1628235886440; 
- Fri, 06 Aug 2021 00:44:46 -0700 (PDT)
-Received: from localhost ([122.172.201.85])
- by smtp.gmail.com with ESMTPSA id w2sm8099623pjq.5.2021.08.06.00.44.45
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=8c4Csku1c78Mrj7sNQ2Xw9qFouSxJOuudRfOlOYi9zk=;
+ b=lHartOWAlbi9AKEr2GLAc5iom8qDGUim4WyO3GjUpUdRBGFmDo/9jQ6OoodSAuG+If
+ Z/83SYvj9OENNeLLQUIXyP0Em0+RAAlOjXoYOBisG/PxWXX6JOaiVpC9KC/jc9lQlUEA
+ 5Au6kKSmfFCprsIXe6vwVf92oHhrXJigimQeAoqxq0igxr1fuXlPoDls2C8PkV35jbK1
+ hLCSPRFos7XMZPBF/OfVJPnKOUopyA/eouyMPFRTwYz8RyHdU18R866v9jzQavkyT3xJ
+ VaTKV7Uzz38ucvIp+i8w/5rz9I9HElKCL/G7/4/5/+6dOYkSuPepuDvNy1e6HcdkN0Ig
+ lpKg==
+X-Gm-Message-State: AOAM532DmByR6B9psRKmQ38bf/h7fpc7/lHEU6T5iWCrgejrDGtIleek
+ n5MHMIBqXl6WJqPPdTtRevYqIAnj+EiGlYVgZNWGsj4vZmhhS6cDAJZ8CegNzr6tYXdagHi9DeR
+ 7xWXFEAY0EQVxsyJyN1xKcRO88EUO51M8BKjBkbOieg==
+X-Received: by 2002:a50:ff03:: with SMTP id a3mr1957243edu.100.1628239351189; 
+ Fri, 06 Aug 2021 01:42:31 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzNYIVCHtzOw010C3ok1GQCf5+Qg3kQn0jmKZjzenN3blwwyY++mKhDsFFPHm3DlScSJzhoXg==
+X-Received: by 2002:a50:ff03:: with SMTP id a3mr1957235edu.100.1628239351064; 
+ Fri, 06 Aug 2021 01:42:31 -0700 (PDT)
+Received: from redhat.com ([2.55.145.148])
+ by smtp.gmail.com with ESMTPSA id x13sm2634731ejv.64.2021.08.06.01.42.29
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 06 Aug 2021 00:44:45 -0700 (PDT)
-Date: Fri, 6 Aug 2021 13:14:44 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Arnd Bergmann <arnd@kernel.org>
-Subject: Re: [Stratos-dev] [PATCH V4 2/2] gpio: virtio: Add IRQ support
-Message-ID: <20210806074444.zsxwb2pmgjcq2dl2@vireshk-i7>
-References: <cover.1627989586.git.viresh.kumar@linaro.org>
- <75c8e6e5e8dfa1889938f3a6b2d991763c7a3717.1627989586.git.viresh.kumar@linaro.org>
- <CAK8P3a29NfFWwtGHhqos1P8f_SmzPJTXvEY5BZJAEMbV2SKe-Q@mail.gmail.com>
- <0100017b1610f711-c53c79f2-9e28-4c45-bb42-8db09688b18e-000000@email.amazonses.com>
- <CAK8P3a0DWkfQcZpmyfKcdNt1MHf8ha6a9L2LmLt1Tv-j0HDr3w@mail.gmail.com>
- <20210805124922.j7lts7tfmm4t2kpf@vireshk-i7>
- <CAK8P3a0kbmPLGCBrjAv7-dW=JWq-pdSBeGUHCxUFmMKvKhCg7w@mail.gmail.com>
+ Fri, 06 Aug 2021 01:42:30 -0700 (PDT)
+Date: Fri, 6 Aug 2021 04:42:27 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH linux-next v3 0/6] vdpa: enable user to set mac, mtu
+Message-ID: <20210806034817-mutt-send-email-mst@kernel.org>
+References: <20210616191155.102303-1-parav@nvidia.com>
+ <20210805055623-mutt-send-email-mst@kernel.org>
+ <e3b31032-222a-e1bc-f452-a965b456f48b@redhat.com>
 MIME-Version: 1.0
+In-Reply-To: <e3b31032-222a-e1bc-f452-a965b456f48b@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <CAK8P3a0kbmPLGCBrjAv7-dW=JWq-pdSBeGUHCxUFmMKvKhCg7w@mail.gmail.com>
-User-Agent: NeoMutt/20180716-391-311a52
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Viresh Kumar <vireshk@kernel.org>,
- Linus Walleij <linus.walleij@linaro.org>, Cornelia Huck <cohuck@redhat.com>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE"
- <virtualization@lists.linux-foundation.org>,
- Bartosz Golaszewski <bgolaszewski@baylibre.com>,
- Geert Uytterhoeven <geert@linux-m68k.org>,
- "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
- Marc Zyngier <maz@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
- "Enrico Weigelt, metux IT consult" <info@metux.net>,
- Stratos Mailing List <stratos-dev@op-lists.linaro.org>
+Cc: elic@nvidia.com, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,156 +119,51 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 05-08-21, 15:10, Arnd Bergmann wrote:
-> I hope this can still be simplified by working out better which state
-> transitions are needed exactly. In particular, I would expect that we
-> can get away with not sending a VIRTIO_GPIO_MSG_IRQ_TYPE
-> for 'mask' state changes at all, but use that only for forcing 'enabled'
-> state changes.
-
-Something like this ?
-
-struct vgpio_irq_line {
-	u8 type;
-	bool masked;
-	bool update_pending;
-	bool queued;
-
-	struct virtio_gpio_irq_request ireq ____cacheline_aligned;
-	struct virtio_gpio_irq_response ires ____cacheline_aligned;
-};
-
-static void virtio_gpio_irq_disable(struct irq_data *d)
-{
-	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-
-	irq_line->masked = true;
-	irq_line->update_pending = true;
-}
-
-static void virtio_gpio_irq_enable(struct irq_data *d)
-{
-	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-
-	irq_line->masked = false;
-	irq_line->update_pending = true;
-
-	/* Queue the buffer unconditionally on enable */
-	virtio_gpio_irq_prepare(vgpio, d->hwirq);
-}
-
-static void virtio_gpio_irq_mask(struct irq_data *d)
-{
-	/* Nothing to do here */
-}
-
-static void virtio_gpio_irq_unmask(struct irq_data *d)
-{
-	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-
-	/* Queue the buffer unconditionally on unmask */
-	virtio_gpio_irq_prepare(vgpio, d->hwirq);
-}
-
-static int virtio_gpio_irq_set_type(struct irq_data *d, unsigned int type)
-{
-	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-
-	switch (type) {
-	case IRQ_TYPE_NONE:
-		type = VIRTIO_GPIO_IRQ_TYPE_NONE;
-		break;
-	case IRQ_TYPE_EDGE_RISING:
-		type = VIRTIO_GPIO_IRQ_TYPE_EDGE_RISING;
-		break;
-	case IRQ_TYPE_EDGE_FALLING:
-		type = VIRTIO_GPIO_IRQ_TYPE_EDGE_FALLING;
-		break;
-	case IRQ_TYPE_EDGE_BOTH:
-		type = VIRTIO_GPIO_IRQ_TYPE_EDGE_BOTH;
-		break;
-	case IRQ_TYPE_LEVEL_LOW:
-		type = VIRTIO_GPIO_IRQ_TYPE_LEVEL_LOW;
-		break;
-	case IRQ_TYPE_LEVEL_HIGH:
-		type = VIRTIO_GPIO_IRQ_TYPE_LEVEL_HIGH;
-		break;
-	default:
-		dev_err(&vgpio->vdev->dev, "unsupported irq type: %u\n", type);
-		return -EINVAL;
-	}
-
-	irq_line->type = type;
-	irq_line->update_pending = true;
-
-	return 0;
-}
-
-static void update_irq_type(struct virtio_gpio *vgpio, u16 gpio, u8 type)
-{
-	virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_IRQ_TYPE, gpio, type, NULL);
-}
-
-static void virtio_gpio_irq_bus_lock(struct irq_data *d)
-{
-	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-
-	mutex_lock(&vgpio->irq_lock);
-}
-
-static void virtio_gpio_irq_bus_sync_unlock(struct irq_data *d)
-{
-	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-	u8 type = irq_line->masked ? VIRTIO_GPIO_IRQ_TYPE_NONE : irq_line->type;
-
-	if (irq_line->update_pending) {
-		irq_line->update_pending = false;
-		update_irq_type(vgpio, d->hwirq, type);
-	}
-
-	mutex_unlock(&vgpio->irq_lock);
-}
-
-static struct irq_chip vgpio_irq_chip = {
-	.name			= "virtio-gpio",
-	.irq_enable		= virtio_gpio_irq_enable,
-	.irq_disable		= virtio_gpio_irq_disable,
-	.irq_mask		= virtio_gpio_irq_mask,
-	.irq_unmask		= virtio_gpio_irq_unmask,
-	.irq_set_type		= virtio_gpio_irq_set_type,
-
-	/* These are required to implement irqchip for slow busses */
-	.irq_bus_lock		= virtio_gpio_irq_bus_lock,
-	.irq_bus_sync_unlock	= virtio_gpio_irq_bus_sync_unlock,
-};
-
-> One part that I think is missing though is remembering the case
-> when an eventq message came in after an interrupt got masked
-> when the message was already armed. In this case, the
-> virtio_gpio_event_vq() function would not call the irq handler,
-> but the subsequent "unmask" callback would need to arrange
-> having it called.
-
-I will come back to this.
-
--- 
-viresh
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gRnJpLCBBdWcgMDYsIDIwMjEgYXQgMTA6NTA6MjdBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiDlnKggMjAyMS84LzUg5LiL5Y2INTo1NywgTWljaGFlbCBTLiBUc2lya2luIOWGmemB
+kzoKPiA+IE9uIFdlZCwgSnVuIDE2LCAyMDIxIGF0IDEwOjExOjQ5UE0gKzAzMDAsIFBhcmF2IFBh
+bmRpdCB3cm90ZToKPiA+ID4gQ3VycmVudGx5IHVzZXIgY2Fubm90IHNldCB0aGUgbWFjIGFkZHJl
+c3MgYW5kIG10dSBvZiB0aGUgdmRwYSBkZXZpY2UuCj4gPiA+IFRoaXMgcGF0Y2hzZXQgZW5hYmxl
+cyB1c2VycyB0byBzZXQgdGhlIG1hYyBhZGRyZXNzIGFuZCBtdHUgb2YgdGhlIHZkcGEKPiA+ID4g
+ZGV2aWNlIG9uY2UgdGhlIGRldmljZSBpcyBjcmVhdGVkLgo+ID4gPiBJZiBhIHZlbmRvciBkcml2
+ZXIgc3VwcG9ydHMgc3VjaCBjb25maWd1cmF0aW9uIHVzZXIgY2FuIHNldCBpdCBvdGhlcndpc2UK
+PiA+ID4gdXNlciBnZXRzIHVuc3VwcG9ydGVkIGVycm9yLgo+ID4gVGhpcyBtYWtlcyBzZW5zZSB0
+byBtZSBvdmVyYWxsLiBQZW9wbGUgYXJlIHVzZWQgdG8KPiA+IHVzZSBuZXRsaW5rIHRvIHNldCB0
+aGVzZSBwYXJhbWV0ZXJzLCBhbmQgdmlydGlvIGRvZXMKPiA+IG5vdCBuZWNlc3NhcmlseSBoYXZl
+IGEgd2F5IHRvIHNldCBhbGwgZGV2aWNlCj4gPiBwYXJhbWV0ZXJzIC0gdGhleSBjYW4gYmUgUk8g
+aW4gdGhlIGNvbmZpZyBzcGFjZS4KPiAKPiAKPiBJIGRvbid0IGdldCBoZXJlLCB3ZSBuZWVkIHRv
+IGNhcmUgUk8gYXMgd2VsbCAoZS5nIHRoZSBtYXhfdmlydHF1ZXVlX3BhaXJzKS4KClBvaW50IEkg
+dHJpZWQgdG8gbWFrZSBpcywgYSB2aXJ0aW8gdHJhbnNwb3J0IHdpbGwgbm90IGFsbG93IHdyaXRp
+bmcKbWF4X3ZpcnRxdWV1ZV9wYWlycywgYnV0IHdoZW4gbWFuYWdpbmcgdmlydGlvIFZGcyBmcm9t
+IGEgUEYgd2UgZG8gbmVlZAp0byBzZXQgaXQuICBUaHVzIHZpcnRpbyBkZXZpY2VzIG5lZWQgYSBu
+ZXcgc2V0IG9mIGludGVyZmFjZXMgZm9yCm1hbmFnaW5nIHRoZW0sIGl0IGlzIG5vdCBqdXN0IGEg
+dmlydGlvIHRyYW5zcG9ydC4KCj4gQW5kIGRvIHdlIHJlYWxseSB3YW50IG5ldGxpbmsgdUFQSSBm
+b3IgdmlydGlvIGxpa2U6Cj4gCj4gIGVudW0gdmRwYV9hdHRyIHsKPiBAQCAtMzMsNiArMzQsMTYg
+QEAgZW51bSB2ZHBhX2F0dHIgewo+ICAJVkRQQV9BVFRSX0RFVl9NQVhfVlFTLAkJCS8qIHUzMiAq
+Lwo+ICAJVkRQQV9BVFRSX0RFVl9NQVhfVlFfU0laRSwJCS8qIHUxNiAqLwo+ICsJVkRQQV9BVFRS
+X0RFVl9ORVRfQ0ZHX01BQ0FERFIsCQkvKiBiaW5hcnkgKi8KPiArCVZEUEFfQVRUUl9ERVZfTkVU
+X1NUQVRVUywJCS8qIHU4ICovCj4gKwlWRFBBX0FUVFJfREVWX05FVF9DRkdfTUFYX1ZRUCwJCS8q
+IHUxNiAqLwo+ICsJVkRQQV9BVFRSX0RFVl9ORVRfQ0ZHX01UVSwJCS8qIHUxNiAqLwo+ICsJVkRQ
+QV9BVFRSX0RFVl9ORVRfQ0ZHX1NQRUVELAkJLyogdTE2ICovCj4gKwlWRFBBX0FUVFJfREVWX05F
+VF9DRkdfRFVQTEVYLAkJLyogdTE2ICovCj4gKwlWRFBBX0FUVFJfREVWX05FVF9DRkdfUlNTX01B
+WF9LRVlfTEVOLAkvKiB1OCAqLwo+ICsJVkRQQV9BVFRSX0RFVl9ORVRfQ0ZHX1JTU19NQVhfSVRf
+TEVOLAkvKiB1MTYgKi8KPiArCVZEUEFfQVRUUl9ERVZfTkVUX0NGR19SU1NfSEFTSF9UWVBFUywJ
+LyogdTMyICovCj4gKwo+ICAJLyogbmV3IGF0dHJpYnV0ZXMgbXVzdCBiZSBhZGRlZCBhYm92ZSBo
+ZXJlICovCj4gIAlWRFBBX0FUVFJfTUFYLAo+ICB9OwoKVGhlIHBvaW50IGlzIHRvIHRyeSBhbmQg
+bm90IHJlaW52ZW50IGEgZGVkaWNhdGVkIHZwZGEgaW50ZXJmYWNlCndoZXJlIGEgZ2VuZXJpYyBv
+bmUgZXhpdHMuCkUuZy4gZm9yIHBoeSB0aGluZ3Mgc3VjaCBhcyBtYWMgc3BlZWQgZXRjLCBJIHRo
+aW5rIG1vc3QgcGVvcGxlIGFyZSB1c2luZwpldGh0b29sIHRoaW5ncyByaWdodD8KCj4gT3Igdmly
+dGlvIHVBUEkgYW5kIG1ha2UgbmV0bGluayBhIHRyYW5zcG9ydD8KPiAKPiBJIHByZWZlciB0aGUg
+bGF0dGVyIHNpbmNlIHdlIHdpbGwgbWVldCB0aGUgc2ltaWxhciBpc3N1ZSBhdCB0aGUgaGFyZHdh
+cmUKPiBsZXZlbCB3aGVuIHdlIHdhbnQgdG8gY3JlYXRlIGFuZCBwcm92aXNpb24gdmlydGlvIGRl
+dmljZSBkeW5hbWljYWxseS4KPiAKPiBUaGFua3MKCkNyZWF0aW5nIGRldmljZXMgZHluYW1pY2Fs
+bHkgZXhpc3RzIHdpdGggZS5nLiB2eGxhbi4KVGhhdCBpcyB1c2luZyBJRkxBX01UVSBJRkxBX0FE
+RFJFU1MgZXRjLgoKCj4gCj4gPiAKPiA+IAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
