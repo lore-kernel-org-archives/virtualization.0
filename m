@@ -2,154 +2,117 @@ Return-Path: <SRS0=ROIW=NA=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6198FC4338F
-	for <virtualization@archiver.kernel.org>; Mon,  9 Aug 2021 03:13:21 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95FC7C4338F
+	for <virtualization@archiver.kernel.org>; Mon,  9 Aug 2021 03:29:32 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DEBD161002
-	for <virtualization@archiver.kernel.org>; Mon,  9 Aug 2021 03:13:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org DEBD161002
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id 2DFBF60FF2
+	for <virtualization@archiver.kernel.org>; Mon,  9 Aug 2021 03:29:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 2DFBF60FF2
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 8E48B401E5;
-	Mon,  9 Aug 2021 03:13:20 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id E5F43605AF;
+	Mon,  9 Aug 2021 03:29:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qSPRgph4xe5X; Mon,  9 Aug 2021 03:13:19 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id B6049400F5;
-	Mon,  9 Aug 2021 03:13:18 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id iI3cy01SXOnr; Mon,  9 Aug 2021 03:29:31 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 86900605BA;
+	Mon,  9 Aug 2021 03:29:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 87986C0010;
-	Mon,  9 Aug 2021 03:13:18 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6E9A8C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5E1C1C0010;
+	Mon,  9 Aug 2021 03:29:30 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 33BE9C000E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 Aug 2021 03:13:17 +0000 (UTC)
+ Mon,  9 Aug 2021 03:29:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 4B8F382E14
+ by smtp3.osuosl.org (Postfix) with ESMTP id 232E7605BA
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 Aug 2021 03:13:17 +0000 (UTC)
+ Mon,  9 Aug 2021 03:29:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=nvidia.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id N-k_hD4cKeXb
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id D20ocFcMhCXJ
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 Aug 2021 03:13:15 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM02-DM3-obe.outbound.protection.outlook.com
- (mail-dm3nam07on2075.outbound.protection.outlook.com [40.107.95.75])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 176B982D45
+ Mon,  9 Aug 2021 03:29:28 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 68D8A605AF
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 Aug 2021 03:13:15 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=HWcUubyUV6VuN31nL1E6uq2qTdnRQ4r/9fZ+LMmEA1fyWbqDPorvEXSa//Ed5lM2k2FYO9Ty2AAqGuDynTPn63pCjLq8HKHekGLTZLrOgxSfPvRFSpIr+LeUE9o8YNA0FrB5p7A4a8MKOj8OIQ5goGSb4jnIJcF1uwrrRzhSGb6/AIgQS1fB6yrvrjsB1DWYbQLoWWTqC2F0Cbq0VpQMN3A2PZsNz6mA3Kp6j3lOnaQA0FRMJ/Sk0IpgQdr+BSHfU0nKXDTE4cr9BwdojYRQXLmpbv4G+3bT9LCY7Vz6TnsEllB7kNK1CYRZcQSQfunPAIqYEBu5AufQYSbRZgpfQA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WOeH/9l8+Vyn5ERW0a0Z4sHrb2mNLcIE0+8FG/lFj+Y=;
- b=cR/DNid/d0sspNRYG6xxijmZ4mdc6YfGvKa05QQK8GES/Mwm1XKCrn7/zlKLDjXS/eEJABcsHmlOt6eysj9PUPCp8S0m5BIIsOYhvx+QJUF9dQwQjuTG6Kmar2XpiwKQV+J2M5nnbXtRCi2f3SeHvzrYMP+DP4EZjn72u9QaWdldS9NkK+SLhZZBpBO6D/MiCF0kHoUiPr9QhBOJZy9yj4mDFovLQGXXcxctyu28HYGivKZBYer1OG2432onZm4U0Cu6X6y++2kXlum+ngL3G1ptqCnhX4mv7TDAwRftvflio2irqeATkttdLryDNUzU+4vEAuz/H3OpBIbN3EpgaA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WOeH/9l8+Vyn5ERW0a0Z4sHrb2mNLcIE0+8FG/lFj+Y=;
- b=Ig6zqDXoEFWW1cStD6H5WTCoGUcpqdaKimGKeTWYAnE86dMeSVTwuozJU/nEXpzJavmqzK4iKNAhTtzOECFPllDEpEFzEbLg3Mwo4LByseBi4vvmp6vJSFy0hvg7umFA1dxyK/RIdP0EVxRq8VCXEUgiHqpA6/HY+iYG9dblFBepsVVkfPNgaSHlJjnu6H2OgpJcXecGH4OkAKoRlWSbia0N/85ZZPX1AB+PBuzHV8Kh8V1o9LTNuMDzhY6NERT+vScBBeQUye1Zyv4v7l59De6F6KfU9eXDFm5LZ6I79xZqgcFM0AHjMoLh2Nv0LiLFiX5jtqaHi8l8/7FFXwaX2w==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by PH0PR12MB5467.namprd12.prod.outlook.com (2603:10b6:510:e6::15)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.20; Mon, 9 Aug
- 2021 03:13:11 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::249d:884d:4c20:ed29]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::249d:884d:4c20:ed29%4]) with mapi id 15.20.4394.022; Mon, 9 Aug 2021
- 03:13:11 +0000
-To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Subject: RE: [PATCH linux-next v3 0/6] vdpa: enable user to set mac, mtu
-Thread-Topic: [PATCH linux-next v3 0/6] vdpa: enable user to set mac, mtu
-Thread-Index: AQHXYuOH3YVTcMY6VEeAGlknhW/FN6tk+uIAgAEa9oCAAGJZgIAAALAggARY0QCAAACsYA==
-Date: Mon, 9 Aug 2021 03:13:11 +0000
-Message-ID: <PH0PR12MB54814CEFF97574642C78171BDCF69@PH0PR12MB5481.namprd12.prod.outlook.com>
+ Mon,  9 Aug 2021 03:29:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1628479767;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=Tt+PFaJzEc0ptTvvuSYYQ6Bz14J73Y9yAxVu0Fi1/KU=;
+ b=NmkVtXLeZHBOCWuPQ4gGodCADxEkXqFYwUZDtJlri/L1CPeTmoQhMYzD5ukz61UQ2U6smU
+ MFCi4qXHtBx9B3wYnk2+fsCI+9+84/HVMwlTgzL9TlR1b+H5LUiy/xx6SjM3wFrS7bfAhn
+ rc4QutsV8TOX4x4BYvRbq8iUvWiwPSY=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-591-Z2eLIzzDOiGxTsvN3gcbMw-1; Sun, 08 Aug 2021 23:29:26 -0400
+X-MC-Unique: Z2eLIzzDOiGxTsvN3gcbMw-1
+Received: by mail-pl1-f199.google.com with SMTP id
+ h19-20020a170902eed3b029012d3624d993so142605plb.2
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 08 Aug 2021 20:29:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+ :user-agent:mime-version:in-reply-to:content-transfer-encoding
+ :content-language;
+ bh=Tt+PFaJzEc0ptTvvuSYYQ6Bz14J73Y9yAxVu0Fi1/KU=;
+ b=MaV72/I0cVw8YOW6UzdBEOZvdqD1ayPiefigHPOB+a1zRkgZwc5m9j0vpfUygPiC6L
+ AHU/+1npObtP4ffW71LYFvsQMpASTR8LMgMXgKs7zclsUjKcxdDCakm2bR/rBdxwAmrf
+ Cx6gMAMlb8D4bCEs26D8HmFdLJfXI91HutBWrvp2iN3L5oStLamky4cY7pgtwV9PZgmp
+ aHLL81uCdbmg0qR+VPcG2VGbZFu4ciCLFCLYiywXcCGeLOXqU0TQUraihth5UG3FVEEK
+ Gq6kEgp+pNcgjk0C3V4shq6lN/yee7GXCFikngMdjsa6GHP5XarqcXvZmoIN0Iw8M7sp
+ OgNw==
+X-Gm-Message-State: AOAM531n+a5DmFz22BGNTjrYula6c83usm8y7/XXpN2fbJCr9hCNwgL2
+ BmT5j857T/LuGzNAp4nH/98JBDow5dNBsbD42MlW/c9wmXS97dsYls4L4jUlCc6Ad+XVm08HXyp
+ mCwR4WN59ZNazz7MYJ8+qE8XLw9bDtYcpsQztwhBHpg==
+X-Received: by 2002:a65:68d1:: with SMTP id k17mr730066pgt.285.1628479764905; 
+ Sun, 08 Aug 2021 20:29:24 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzQ6wWMhR0dUpL8uB9l6lPzfMQm8oCDlQrdWjRvAjFl1+HCFPyh8ijunoSt9V6Y3KsNQMNvVg==
+X-Received: by 2002:a65:68d1:: with SMTP id k17mr730051pgt.285.1628479764679; 
+ Sun, 08 Aug 2021 20:29:24 -0700 (PDT)
+Received: from wangxiaodeMacBook-Air.local ([209.132.188.80])
+ by smtp.gmail.com with ESMTPSA id o127sm18530076pfb.48.2021.08.08.20.29.22
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Sun, 08 Aug 2021 20:29:24 -0700 (PDT)
+Subject: Re: [PATCH linux-next v3 0/6] vdpa: enable user to set mac, mtu
+To: Parav Pandit <parav@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>
 References: <20210616191155.102303-1-parav@nvidia.com>
  <20210805055623-mutt-send-email-mst@kernel.org>
  <e3b31032-222a-e1bc-f452-a965b456f48b@redhat.com>
  <20210806034817-mutt-send-email-mst@kernel.org>
  <PH0PR12MB54812C49AAA468E1E6A871A9DCF39@PH0PR12MB5481.namprd12.prod.outlook.com>
  <be8a0173-b7fb-eabf-bc4a-9492133674ef@redhat.com>
-In-Reply-To: <be8a0173-b7fb-eabf-bc4a-9492133674ef@redhat.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: redhat.com; dkim=none (message not signed)
- header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: e28f5075-4352-479f-cced-08d95ae39ec5
-x-ms-traffictypediagnostic: PH0PR12MB5467:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <PH0PR12MB5467A99C97018B5A71415786DCF69@PH0PR12MB5467.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:8273;
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: BeOJe7gwq7ODC5vCEBvdHhw5DPuw7CWrLJNl+cOup2qPibTYDOgKwRDJFvJjbWoj/n6iAGYfzW21Bo6dZxGbGVY0YLI9Cx7VphCHuqvGoosJOclNn457QI+QmExkCollCFwlEX2vYhCVukSmAA+s1dYoD7YqMomMTYDbraQtCdnhZAOqomvD0wlpQW8X0zi8r2ZCDwfNkp884bsQklO/Q5Cf2ynCBxgRj2VRUE1euCjEvRT5IiZ+VjCWrUELSoXpVY6lSSyzGVUshL7i1DozA8z3V9raHPcVto3j56q4ZVWzdmnArgtJhLPDrNnkBrAti5uAejEDuLWW6O9yYpxrUfUecgZBwDepZVuIFZPdwrzRN1UlunXoEbZff9eKHkB0SdNbhqy0hRNhyExj+dWRPSlG2ZSSGXUkmihbgNRpFncruP37UoNHzw44v0mzZaXEiSJf0pr/yuo3S/uR67pnEEnkJ948VvIKFhnlzBEoawTpz/idbr3V5B8sf91GC4xx4t23OGIVRuuIDyT3TMR1f5wD/X9LD5y/8VSomsfI4q3QY4jws3tEQa1tT1qGKk851RoGUIRAoNKISgo6KWR1gnqtmQlkIKfPV12vBbiFtkxQ7iFXGyUWvoYAt0CzQGoDTSsZlqQRRw2LR9YGIF884P03v6l+NffchuEh/40J/LY5Tp+9Go/iFRCvw2j0UtDbFQGoaFhQwwbEOMyWB0BNuQ==
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(366004)(39860400002)(346002)(396003)(376002)(136003)(4326008)(38100700002)(66476007)(54906003)(64756008)(122000001)(7696005)(66556008)(316002)(66946007)(66446008)(76116006)(8936002)(71200400001)(110136005)(8676002)(33656002)(186003)(55236004)(52536014)(2906002)(5660300002)(107886003)(55016002)(9686003)(86362001)(478600001)(26005)(38070700005)(6506007);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?c3luRS9rcGtXcGYvd2xlaFpxRDFkbC9NMFpNbk9Nbmsvck5hMkJsOCtBZEUv?=
- =?utf-8?B?YWNSYjBFUFg0bzh4WHZVQ2lNVDFyMVBSdmtaeHBoV1N6YUhqelltY3lWTXlM?=
- =?utf-8?B?emd6OXhweDhocTZvMGFmVWxybXNWSUMzZ1oway9jeU5PWm50YlJaelBwaGhk?=
- =?utf-8?B?anJpL2s2blkrVnFyeThLMmtkd3N1bk1YTWd4UGhvcnAwcEJSSzRRRyt1UWRQ?=
- =?utf-8?B?S2ZCU1FMWVRrMzh0eXdOSVFueFBGbkdEcHNhTS9iQjFtMm9UaHVwYm5pc2ZH?=
- =?utf-8?B?b1BDNWdaR21VaitRNnNYbHlNdTRKOE9MYmFWRTc3alpBUUx1eWRydEZqOHZE?=
- =?utf-8?B?SXBPMUZkNkRtRXU1RkRja0twb2VINGZYcmh4SE5pT20rSGFTSjN6K01yd01U?=
- =?utf-8?B?Q0ZhMFI4M0o3ZUtBREUxNHVDRWVNRGFNRTh6Y2U4YS9SV1VERkF2Q001cGhr?=
- =?utf-8?B?cm1KdU5DRVNOMTFRVVNUSDZGNFJOUUFud3RzaTFJbWdSbytYbDg0c0JQRWpE?=
- =?utf-8?B?c3lhOVEvSFN1c21YTnpRbGdNeW9sZE9aUDFiYVF4SDZ1Sjg0NUluU2JjVGNv?=
- =?utf-8?B?clhnWFRtUzhIZlNJQThJT1NIaTZycmNYL0NuenFLNzhLV2dkM0FqeXdEYmov?=
- =?utf-8?B?dyswcHpIMXNYa1ZTQnRvZEtoWUhtRnBvTm84OVM0dVNHMTBBQnJZTTJ3cHBD?=
- =?utf-8?B?bWNXd09vdTU3Z3JIOXM3cHg5MFlmV2VhNUxPdHZteTF2T3JFZVkyaU5RaVhO?=
- =?utf-8?B?OVprcTJ6SDFDL0FjcW1VNUdVVGprczN4OHU4a0xJTm1mTWZ6R2ZBWksyRDZS?=
- =?utf-8?B?MVVOZzRYUDE1OU5OYVdKMWc0TXBYZjExQ2FNdVlzdVc0b3lDWWN1bExFRzBX?=
- =?utf-8?B?cmh1YWtKOWd1dHp3bnVBM09udjJzSGRjL1ROdUYvMVlLQ3FZQTIyc1JPem10?=
- =?utf-8?B?YVpsczVjckk0ZmR5dnd5YlNoNFFxb2tZTXI5LzRwemV4OEJxVXBRcEJuUjI1?=
- =?utf-8?B?UlhWanJjNDVjVnNVeEdtWElSeFphQ2kzM3ZMaXVhY28yYlhjODJQQ3doMjdo?=
- =?utf-8?B?VGJPa2NvUkNYNy9wQVlWMFN5azllVTFraDVoZFFoOVlKczdmSERBdkRmVVBs?=
- =?utf-8?B?SS9za3FTeFo0MHdCL1VKZUYrenU2NjdGcmQyYlV4Yno0TzlkdFFQMStLQm43?=
- =?utf-8?B?R3htZTY1MENIa29XMDdHYUlwM0F2dGxLL2JmY1c0RFhCQWJvT0JxRzdWQmFB?=
- =?utf-8?B?elhUaWU4aDYzdVZSaTQxNzhZTGVJRW9lZU55NzA1VXBBbm1ybVFtMEk2a3Vm?=
- =?utf-8?B?c0VJSTNxTkNMN2xCeEdiUTV1Undydk1ndXNXbXRiaG41WWhZREhaSm15cDh1?=
- =?utf-8?B?SkdGK3lKRHVYem51aklRaVpxaGgzRGVIajBSYWhKaEduWkNPQktmU3NKWm9P?=
- =?utf-8?B?YWN0K0lHbUlMZmtwMEw3SDBCNWh6K3VYNk1ZUU5YaHZIMzAxZW1MbW9QU3B3?=
- =?utf-8?B?SmY5WW5SVHM3RXJRQTU5b2FianlkN0JDMlh1OXhNcGdzSG1pR1FVa1E1ZEZN?=
- =?utf-8?B?ZHRUQ0lkMVNBWW42Wlh3TmJQYzJnVk5nNkIrRUdmVVlyaTFYVzAyMUo2QkZE?=
- =?utf-8?B?MHRaMzV0WXNqSVRpVzNEN2dGTTFQODg5eGdSd3hTTVgvN0Jjam1WZG83L2lQ?=
- =?utf-8?B?c3pSSUJVWkhmNTFOSVAxaXVlYmdEZ3NpN28xdDJhUm40eml0UUtJaUJhc1d5?=
- =?utf-8?Q?mxTMA0uzRGDQ3wdjjr1GdkUv4/uR3SdgAxUiekG?=
+ <PH0PR12MB54814CEFF97574642C78171BDCF69@PH0PR12MB5481.namprd12.prod.outlook.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <dfcd8c33-7a67-9a75-426b-17585e2efe21@redhat.com>
+Date: Mon, 9 Aug 2021 11:29:20 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.12.0
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e28f5075-4352-479f-cced-08d95ae39ec5
-X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Aug 2021 03:13:11.5941 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: hfBxzi0YWEw0JMybfPAL3KoaeFTGPUOILDP/KwwbOdlcorXpESm1Y+rUsbcBowzmWe7u8xc3bfCZmW6QDPAYZw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB5467
+In-Reply-To: <PH0PR12MB54814CEFF97574642C78171BDCF69@PH0PR12MB5481.namprd12.prod.outlook.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
 Cc: Eli Cohen <elic@nvidia.com>, "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -163,64 +126,44 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Jason,
-
-> From: Jason Wang <jasowang@redhat.com>
-> Sent: Monday, August 9, 2021 8:38 AM
-> > For example creator (hypervisor) of the vdpa devices knows that a
-> > guest VM is given 4 vcpus, So hypervisor creates a vdpa devices with
-> > config space layout as, max_virtqueue_pairs = 4.
-> > And the MAC address chosen by hypervisor in mac[6].
-> >
-> > Guest VM ethtool can still chose to use less number of channels.
-> >
-> > Typically,
-> > ethtool is for guest VM.
-> > vdpa device is in hypevisor.
-> >
-> > How can hypervisor compose a vdpa device without any tool?
-> > How can it tell ethtool, what is supported and what are the defaults?
-> 
-> 
-> Reread the cover letter:
-> 
-> "
-> 
-> This patchset enables users to set the mac address and mtu of the vdpa
-> device once the device is created.
-> 
-> "
-> 
-> It looks to me the mechanism that introduced in the series is not for
-> provisioning but for post-creation configuration?
-> 
-> 
-> >
-> > I must be misunderstanding your comment about ethtool.
-> > Can you please explain?
-> 
-> 
-> I guess the meaning is that, if the vDPA is assigned to guest, it's the
-> charge of guest to configure the MTU/MAC/RSS via the existing management
-> interface like ethtool/iproute2 netlink protocol. The control virtqueue
-> is designed for this.
-> 
-> But if it was used for provisioning, it looks like another topic which
-> should be done during the device creation.
-
-We already discussed and agreed, that I should change these params as creation time params instead post-creation.
-We were waiting for Michael to respond if he is ok with either 
-(a) extendible individual param or 
-(b) should prefer to see a typecast based structure blob coming through netlink.
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CuWcqCAyMDIxLzgvOSDkuIrljYgxMToxMywgUGFyYXYgUGFuZGl0IOWGmemBkzoKPiBIaSBKYXNv
+biwKPgo+PiBGcm9tOiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+PiBTZW50OiBN
+b25kYXksIEF1Z3VzdCA5LCAyMDIxIDg6MzggQU0KPj4+IEZvciBleGFtcGxlIGNyZWF0b3IgKGh5
+cGVydmlzb3IpIG9mIHRoZSB2ZHBhIGRldmljZXMga25vd3MgdGhhdCBhCj4+PiBndWVzdCBWTSBp
+cyBnaXZlbiA0IHZjcHVzLCBTbyBoeXBlcnZpc29yIGNyZWF0ZXMgYSB2ZHBhIGRldmljZXMgd2l0
+aAo+Pj4gY29uZmlnIHNwYWNlIGxheW91dCBhcywgbWF4X3ZpcnRxdWV1ZV9wYWlycyA9IDQuCj4+
+PiBBbmQgdGhlIE1BQyBhZGRyZXNzIGNob3NlbiBieSBoeXBlcnZpc29yIGluIG1hY1s2XS4KPj4+
+Cj4+PiBHdWVzdCBWTSBldGh0b29sIGNhbiBzdGlsbCBjaG9zZSB0byB1c2UgbGVzcyBudW1iZXIg
+b2YgY2hhbm5lbHMuCj4+Pgo+Pj4gVHlwaWNhbGx5LAo+Pj4gZXRodG9vbCBpcyBmb3IgZ3Vlc3Qg
+Vk0uCj4+PiB2ZHBhIGRldmljZSBpcyBpbiBoeXBldmlzb3IuCj4+Pgo+Pj4gSG93IGNhbiBoeXBl
+cnZpc29yIGNvbXBvc2UgYSB2ZHBhIGRldmljZSB3aXRob3V0IGFueSB0b29sPwo+Pj4gSG93IGNh
+biBpdCB0ZWxsIGV0aHRvb2wsIHdoYXQgaXMgc3VwcG9ydGVkIGFuZCB3aGF0IGFyZSB0aGUgZGVm
+YXVsdHM/Cj4+Cj4+IFJlcmVhZCB0aGUgY292ZXIgbGV0dGVyOgo+Pgo+PiAiCj4+Cj4+IFRoaXMg
+cGF0Y2hzZXQgZW5hYmxlcyB1c2VycyB0byBzZXQgdGhlIG1hYyBhZGRyZXNzIGFuZCBtdHUgb2Yg
+dGhlIHZkcGEKPj4gZGV2aWNlIG9uY2UgdGhlIGRldmljZSBpcyBjcmVhdGVkLgo+Pgo+PiAiCj4+
+Cj4+IEl0IGxvb2tzIHRvIG1lIHRoZSBtZWNoYW5pc20gdGhhdCBpbnRyb2R1Y2VkIGluIHRoZSBz
+ZXJpZXMgaXMgbm90IGZvcgo+PiBwcm92aXNpb25pbmcgYnV0IGZvciBwb3N0LWNyZWF0aW9uIGNv
+bmZpZ3VyYXRpb24/Cj4+Cj4+Cj4+PiBJIG11c3QgYmUgbWlzdW5kZXJzdGFuZGluZyB5b3VyIGNv
+bW1lbnQgYWJvdXQgZXRodG9vbC4KPj4+IENhbiB5b3UgcGxlYXNlIGV4cGxhaW4/Cj4+Cj4+IEkg
+Z3Vlc3MgdGhlIG1lYW5pbmcgaXMgdGhhdCwgaWYgdGhlIHZEUEEgaXMgYXNzaWduZWQgdG8gZ3Vl
+c3QsIGl0J3MgdGhlCj4+IGNoYXJnZSBvZiBndWVzdCB0byBjb25maWd1cmUgdGhlIE1UVS9NQUMv
+UlNTIHZpYSB0aGUgZXhpc3RpbmcgbWFuYWdlbWVudAo+PiBpbnRlcmZhY2UgbGlrZSBldGh0b29s
+L2lwcm91dGUyIG5ldGxpbmsgcHJvdG9jb2wuIFRoZSBjb250cm9sIHZpcnRxdWV1ZQo+PiBpcyBk
+ZXNpZ25lZCBmb3IgdGhpcy4KPj4KPj4gQnV0IGlmIGl0IHdhcyB1c2VkIGZvciBwcm92aXNpb25p
+bmcsIGl0IGxvb2tzIGxpa2UgYW5vdGhlciB0b3BpYyB3aGljaAo+PiBzaG91bGQgYmUgZG9uZSBk
+dXJpbmcgdGhlIGRldmljZSBjcmVhdGlvbi4KPiBXZSBhbHJlYWR5IGRpc2N1c3NlZCBhbmQgYWdy
+ZWVkLCB0aGF0IEkgc2hvdWxkIGNoYW5nZSB0aGVzZSBwYXJhbXMgYXMgY3JlYXRpb24gdGltZSBw
+YXJhbXMgaW5zdGVhZCBwb3N0LWNyZWF0aW9uLgo+IFdlIHdlcmUgd2FpdGluZyBmb3IgTWljaGFl
+bCB0byByZXNwb25kIGlmIGhlIGlzIG9rIHdpdGggZWl0aGVyCj4gKGEpIGV4dGVuZGlibGUgaW5k
+aXZpZHVhbCBwYXJhbSBvcgo+IChiKSBzaG91bGQgcHJlZmVyIHRvIHNlZSBhIHR5cGVjYXN0IGJh
+c2VkIHN0cnVjdHVyZSBibG9iIGNvbWluZyB0aHJvdWdoIG5ldGxpbmsuCgoKUmlnaHQuIFNvIGl0
+J3MgZm9yIGNyZWF0aW9uIHRpbWUgcGFyYW1zLgoKTWljaGFlbCwgcGxlYXNlIGFkdmlzZSB3aGlj
+aCB3YXkgaXMgYmV0dGVyLgoKVGhhbmtzCgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
