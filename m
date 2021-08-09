@@ -2,118 +2,146 @@ Return-Path: <SRS0=ROIW=NA=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A2F0C4338F
-	for <virtualization@archiver.kernel.org>; Mon,  9 Aug 2021 07:30:29 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 489C1C4338F
+	for <virtualization@archiver.kernel.org>; Mon,  9 Aug 2021 07:34:02 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C2F1C61051
-	for <virtualization@archiver.kernel.org>; Mon,  9 Aug 2021 07:30:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org C2F1C61051
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id D743E61078
+	for <virtualization@archiver.kernel.org>; Mon,  9 Aug 2021 07:34:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D743E61078
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 88434400F2;
-	Mon,  9 Aug 2021 07:30:28 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 986E482E14;
+	Mon,  9 Aug 2021 07:34:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JfIUxwBS1ABA; Mon,  9 Aug 2021 07:30:27 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 944E8400BE;
-	Mon,  9 Aug 2021 07:30:26 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id h4f1wMwtZL-c; Mon,  9 Aug 2021 07:34:00 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 3CE8382B51;
+	Mon,  9 Aug 2021 07:34:00 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6150BC001A;
-	Mon,  9 Aug 2021 07:30:26 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 103E3C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EC521C001A;
+	Mon,  9 Aug 2021 07:33:59 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EB592C000E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 Aug 2021 07:30:25 +0000 (UTC)
+ Mon,  9 Aug 2021 07:33:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0940F400F2
+ by smtp2.osuosl.org (Postfix) with ESMTP id C65C840178
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 Aug 2021 07:30:25 +0000 (UTC)
+ Mon,  9 Aug 2021 07:33:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=nvidia.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yiPZFX5hAwz8
+ with ESMTP id n8u-uBagnOHX
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 Aug 2021 07:30:23 +0000 (UTC)
+ Mon,  9 Aug 2021 07:33:57 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com
- [IPv6:2607:f8b0:4864:20::102e])
- by smtp2.osuosl.org (Postfix) with ESMTPS id C1F5E400BE
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam11on2055.outbound.protection.outlook.com [40.107.223.55])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id D158D4011F
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 Aug 2021 07:30:23 +0000 (UTC)
-Received: by mail-pj1-x102e.google.com with SMTP id
- mq2-20020a17090b3802b0290178911d298bso5683679pjb.1
- for <virtualization@lists.linux-foundation.org>;
- Mon, 09 Aug 2021 00:30:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=6AaH/QvzJmMTb/tLFdsE2g2dSuN00KFriVjp+nrWMKo=;
- b=n3JUpjnMCUehTXcRC2vvYvjrX4sIYgtTBEdqO95/Jt9Hn9OnclNx9GduauyhRey287
- 8nLtSx5vopa18swm/eS0hMKso9qA3Fhd83TVyljzMEEPfFFGRM/VvDb3XNmXiPrTvfKd
- lVlxk2E8NZOZXs4nO1t/xEGMRdcfrsC/n2KdKJwKvcsMlinlYgPB4iSY3rK5an8sEFH9
- bmTsjn94+sKBDYBbjRA3tJQCluMZeCV5VDnIXdMBDYMAxKSoCXIukdBvFwuF7xPlC4f+
- VRH6yUcShJeOGMF6Q1fDQffqMLo0AenRzsdrZqQqUA+vZAQQhjmb0MFQIgOFjajTZLsc
- x/VQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=6AaH/QvzJmMTb/tLFdsE2g2dSuN00KFriVjp+nrWMKo=;
- b=aQFt6zVPjLEpwxqEQTSyap8zkZ1rAV27sv8IPgeWtkpL9jEiSaD0QSlFLgl0yKMhQG
- 8Bp0nfjNI7/P02sTpSKwXbL3iwQwnElmyljo6aV4SzvfZOYFWDYDDI7HnpfbABNCt0ES
- n6EcMC4GQ0biy7gBjHLg45+YBcddSlPq896doeoz4LceU9wA8YS6h9hs6iFQT8t4gR4k
- 33T6pkBvzrXdyrsQw6rahx9c2oOqa/H7NZuvoLdoWUUsn8gzHxxCFVBT+Lb+1PMzBJ73
- 4breoXUQ/swkw54JPD+O5mAqhPa0hhHidkC+ger3NihHs0XVJmiDwPxrTXwjY5ydH0Z8
- m6pQ==
-X-Gm-Message-State: AOAM533BeT4rKAqyiRVdPGpRoiqd5PgK1x/ha+XeVLMAoNDQ9NJY6OtZ
- YLY+0WCvtlvRqFtvJePMSRxW8w==
-X-Google-Smtp-Source: ABdhPJxeoZhdVD34qHvFm3x0OrPEUWTYjI47uQbkZF5kBJ2jSlkeRPl7vBozGIeSrM03ZFEKr0P5+A==
-X-Received: by 2002:a17:90a:17a3:: with SMTP id
- q32mr3416980pja.195.1628494223102; 
- Mon, 09 Aug 2021 00:30:23 -0700 (PDT)
-Received: from localhost ([122.172.201.85])
- by smtp.gmail.com with ESMTPSA id r17sm23592320pgu.8.2021.08.09.00.30.21
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 09 Aug 2021 00:30:22 -0700 (PDT)
-Date: Mon, 9 Aug 2021 13:00:20 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Arnd Bergmann <arnd@kernel.org>
-Subject: Re: [Stratos-dev] [PATCH V4 2/2] gpio: virtio: Add IRQ support
-Message-ID: <20210809073020.y6ruibdm37xnx7hg@vireshk-i7>
-References: <cover.1627989586.git.viresh.kumar@linaro.org>
- <75c8e6e5e8dfa1889938f3a6b2d991763c7a3717.1627989586.git.viresh.kumar@linaro.org>
- <CAK8P3a29NfFWwtGHhqos1P8f_SmzPJTXvEY5BZJAEMbV2SKe-Q@mail.gmail.com>
- <0100017b1610f711-c53c79f2-9e28-4c45-bb42-8db09688b18e-000000@email.amazonses.com>
- <CAK8P3a0DWkfQcZpmyfKcdNt1MHf8ha6a9L2LmLt1Tv-j0HDr3w@mail.gmail.com>
- <20210805124922.j7lts7tfmm4t2kpf@vireshk-i7>
- <CAK8P3a0kbmPLGCBrjAv7-dW=JWq-pdSBeGUHCxUFmMKvKhCg7w@mail.gmail.com>
- <0100017b1a6c0a05-e41dc16c-b326-4017-a63d-a24a6c1fde70-000000@email.amazonses.com>
- <CAK8P3a2rrueXJHZxuiiShgVmLD916RaxW7xQHHjQXNFkM3Fpvg@mail.gmail.com>
+ Mon,  9 Aug 2021 07:33:57 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ZlqJIcpzds52bxEfFY45TYAaHzU0xtkyOWXKy6Vmrp4B58GIfb/v81X31+0QP0hVedkFTe7I8LPSY6490m70QHj7E97g2qc8zqNTqNvM0KR9tml1XyCp3vQIS+5zVvHiGmr6H6Dk75Porm+gLQoNOckriU+n8K5birVplomTCiE3wCFoLk62lC4JhtsPzWx/IIW7kf7JcRoZdhMVMHDdBkajPaf8KYd7lKea238wvC94Y9yS/41TwCZwLuZsEL6mPkrB+g+enov9pHFsus5/HFrzVaOo6mRVH7U+h+LhuxajMTfrlpOGVNSSZ6jXgziSU6MEGZxDb8pw/KGW4STxhQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bRj9CGJOOJH1lTi/SxkToxjXuHLBl6W/qOu+UWLm13A=;
+ b=ntv1xJNPMOC0ciAC7TF5PAsc+AfJo5cjLW5qpiVtzSTL11VXtlW+wDJvNih4rsTM3nuoLfA4fmSK01xpkeXpIYAOT0FEiv/hneG4rQGbjQmU3RA2QlkQ1NnU4n/QXhdDOuCx135h4AwaxhGrgEA4iAtxP78n3XZaNfZ55lD1ifXXolwSW+51qZjX99w4qL8JOckqZpDHLka5WMTs2b1qmDOTPya8EPVk8Zr79Sp0f2ihOicfU0piPGszzmBDW0r49bbeNe+NDGMpZH5VSP7K3uznvHtXyE8iASJE2M7OkF/9apEXXOAg1yaiVCYG7ZrZIAWWYjZ1QgFVqGMaCLIhVg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bRj9CGJOOJH1lTi/SxkToxjXuHLBl6W/qOu+UWLm13A=;
+ b=n+nT2TJdScZRjjFo4SX7cgUSV12jQ4JnTuZe/nTgEVLyXUTHTzJeeLqxjDylAgeRKK0whDHum3F4gJaynDfSlg/jJw2cikM4HbUmN4EZLQE4qUZgOvb1PLYRdPOJH/NZ9XXeCSjdyv+hSouQfVGwOPpTGC5DksipXLeC0mBW08Q1ZLs6yvC92F/fPnX/v8juwKMgg4/d3GL5pch9AkGS54x+grbuLQ4cSWuf5TGZsg+h7ynn6fm6z6ySOp1bmBCQ8OhDvzc6fIyF9U1+pU+jji2UCzUoqUQ0DH6vXvuIxPiGptfz9rjiQ2bJxHTG1iKIXEdUr9ISnd1M6B7IFYB1CA==
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
+ by PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.19; Mon, 9 Aug
+ 2021 07:33:56 +0000
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::249d:884d:4c20:ed29]) by PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::249d:884d:4c20:ed29%4]) with mapi id 15.20.4394.022; Mon, 9 Aug 2021
+ 07:33:56 +0000
+To: Parav Pandit <parav@nvidia.com>, "mst@redhat.com" <mst@redhat.com>
+Subject: RE: [PATCH v3 0/4] virtio short improvements
+Thread-Topic: [PATCH v3 0/4] virtio short improvements
+Thread-Index: AQHXfjyEgkBpWMMsPk+MOQpth6qjnqtZajIggAe3oACACcLwcA==
+Date: Mon, 9 Aug 2021 07:33:56 +0000
+Message-ID: <PH0PR12MB54814E4657560159AB5910BEDCF69@PH0PR12MB5481.namprd12.prod.outlook.com>
+References: <20210721142648.1525924-1-parav@nvidia.com>
+ <PH0PR12MB54815548E4E659AE8A023702DCEB9@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <PH0PR12MB54813F761DEA56B792B29E0EDCF09@PH0PR12MB5481.namprd12.prod.outlook.com>
+In-Reply-To: <PH0PR12MB54813F761DEA56B792B29E0EDCF09@PH0PR12MB5481.namprd12.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: nvidia.com; dkim=none (message not signed)
+ header.d=none;nvidia.com; dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 31366eb7-927a-4001-d1d4-08d95b080b90
+x-ms-traffictypediagnostic: PH0PR12MB5481:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <PH0PR12MB5481E15BBCAEB2665B6123F4DCF69@PH0PR12MB5481.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:4714;
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: b5Jp5JYK1l6W4DxhGXa0mirCCGntob1o0S5wmpiXF1hlBGrh0aj0DtcaK0rZwu5OP2ByrwcfHSP8HnaOllR/KK/eTz3x/yAgiFEtnsrr/cN/mEy7couM/IclzRpeDMuxN0aWZJTys5WRgQ1PHr24+UU/js0Nsn2D8Tc496caSsS5mkXJxtb612XIt2YxEVzqgs0BCBitVdiTWDeXs5XaKBz/C/BQRw/r0Q52SssVKjNRcn0DOsxj7k9oWb2x9n+0mg8a/AORq2qhlc8Ct1vxvkJL0vggNnAah98Jar+ZGs2Gkg8l3YrWfCpDJMKKxhzZXOa4lrWVj3AtjC9vVY7boUjHRkuPaUHmcPzXmXlUKxeCPWu3qkeU0acf4kVpU3KIDyvXgoK/eLXHASfXZcDKoRRad6YiYTSjo49+nZDV45CxQmGkeAKyXfAQpCDDc4AUaUJO4LSDNtCPWQ1rZ9wHxG3kkHfHaoBtBiWBgPMk1KMMUxk+RAc3EKW3QG5ea+4PQRFe6pClYhXorXlHfyX8uN+j19bpSYw4XUYHcoICTTzfbMDAjqBWuL4Kpj89xs+vtxR5TrNAcoOpSJlUyaD2KLAU03XLO0C2SxZqp6CqrSNLziYyG851UrMnXJEWLvAQhX0Gdm2nUuwRadXJ0PrzuPyYBcEx/nagicIQvokY7rS3HiUAz2cFJZrstj/fhuVtJHAIY0u6avwdnDJrKy0aBg==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(4636009)(396003)(346002)(376002)(39860400002)(136003)(366004)(55236004)(5660300002)(52536014)(71200400001)(86362001)(6506007)(53546011)(7696005)(4326008)(478600001)(9686003)(186003)(55016002)(26005)(76116006)(8936002)(38100700002)(83380400001)(122000001)(64756008)(8676002)(2906002)(66946007)(66556008)(66446008)(33656002)(38070700005)(316002)(110136005)(66476007);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?ZSXZUbDjkr/ST68jxepdZ8UNvc0Jndw9s/vOXawhuOUMQvNaPwpB6F0ix9U4?=
+ =?us-ascii?Q?u5RHCFXeAzr4iH3PaDPmQUb/1bavhlou00w63zBsS7TwLLYegI6gsNLvOI53?=
+ =?us-ascii?Q?q75TcKS00cjxvLywDhXm4wjGmc0uP1gUfguZBamcUnNHPAJ27GSC8mdcrI0S?=
+ =?us-ascii?Q?mN/D+bz+AgTBXdFMUbuP9zu0My+PLJ1bB4OeF2MAMXLqdAX4Hh794q/vQ9PX?=
+ =?us-ascii?Q?N6SaFY2TMx+3qmjaReJT3MskLQMlpnQvSpKknOUdw6aKddTwub0kdLCgVXPi?=
+ =?us-ascii?Q?vkuzdSC25oUtW92wB1WM3jNo+/okUiZAmypyZeTKWrsB5+sfOicoUFVLB3FS?=
+ =?us-ascii?Q?KmwWWt5ngBItMNDC7/cc9Va5+KsHHLm62W2Vavxx4/KSIQjLMDFyQlRHBdqV?=
+ =?us-ascii?Q?Ma+gb/wdLru0sXyceSDim4JCz7pBOt2CF2uFS3eARrOY21qcnfOfj01WEoyw?=
+ =?us-ascii?Q?sBje9l+i99uevJ4beVuBBEDnAqv14LkIML3p/Rs7Rs8U0Ewe7/4duxOAEvCd?=
+ =?us-ascii?Q?HGmSUkTQ6S85MEW4fJ2aP482sJgbmjVkXPE4Rl1JMB/nTxo/+BM4XgybRt1P?=
+ =?us-ascii?Q?5Ebgk23okl0+OprC4Fd6Lr0VX5LrBivG+D+CO6rt18fcogQqHvzZ5eFk70Ot?=
+ =?us-ascii?Q?7mmXv14xkglb2XlEuUUFPeICo06ww7qejNic6uBLnaOfxV2uKnoiHd+ma/eh?=
+ =?us-ascii?Q?U6uHIT5968jJFMYB0Q6DX0+TkzgXdtdodLJZjI6KkjvNvPyw99AXaZeSEvSt?=
+ =?us-ascii?Q?u8VVx3JzWWJN6VTnzcjbFltlCSZ8F1tg1oACb4mnbuoeQFQb5gXq4uqJW9z6?=
+ =?us-ascii?Q?WjYPdm3OIqMZ5wOsW0qoMPmQTfrHNR47CQp+i0Q60ZPAr7srcO5I1DDYIP9c?=
+ =?us-ascii?Q?fm0H0tcMAfisQxRu0Wrh7HEZ9YGkX0A9QRFoSVWovUfT6yMN/zLbMsLjSqxT?=
+ =?us-ascii?Q?1tDd0iv4zu2etDFvZCK+hurupGLxRv7RHWIhjkgegYZOaD2GBOqFDj8xURLG?=
+ =?us-ascii?Q?ZZCrpns0x+JOzmrEK0ioYJxvPg7Se8p/iHnjO668eJni8LNpusDf6PEUexd5?=
+ =?us-ascii?Q?Z1YLEPOYA6QEcZMTNhQ7Q6dW++YvuekVMKImi56hvRMTtd5WhVJIbpD/UXwK?=
+ =?us-ascii?Q?sXoVS5aleGGnEPqK5vgmYuBB0OclF/U5sas1Qk/zkSunOv9lzBFz0KH82T3s?=
+ =?us-ascii?Q?q20WrKwDjey0IW7NQ8e1xzTokjYVZ1qwnAzJkW+7txnMz4pX+lHO5ur/gETi?=
+ =?us-ascii?Q?NauTtCqKcokY9saEJJLyFkD6o2v/fquDymEBB/SVpQWYNWjSdRSvZEzYSrzB?=
+ =?us-ascii?Q?92vfAyKi/7yv7jI52LXAGnSg?=
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a2rrueXJHZxuiiShgVmLD916RaxW7xQHHjQXNFkM3Fpvg@mail.gmail.com>
-User-Agent: NeoMutt/20180716-391-311a52
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Viresh Kumar <vireshk@kernel.org>,
- Linus Walleij <linus.walleij@linaro.org>, Cornelia Huck <cohuck@redhat.com>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE"
- <virtualization@lists.linux-foundation.org>,
- Bartosz Golaszewski <bgolaszewski@baylibre.com>,
- Geert Uytterhoeven <geert@linux-m68k.org>,
- "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
- Marc Zyngier <maz@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
- "Enrico Weigelt, metux IT consult" <info@metux.net>,
- Stratos Mailing List <stratos-dev@op-lists.linaro.org>
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 31366eb7-927a-4001-d1d4-08d95b080b90
+X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Aug 2021 07:33:56.0327 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: Rdw89C9PF9ho8MwlJLRZSfurOxxmmWzxq+2XHuT/JNfPd4per0INmbqP4rN843Ahy/oXoSAFygIo4G6N21mqyQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB5481
+Cc: "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,55 +153,57 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Parav Pandit via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 06-08-21, 10:00, Arnd Bergmann wrote:
-> On Fri, Aug 6, 2021 at 9:44 AM Viresh Kumar via Stratos-dev
-> <stratos-dev@op-lists.linaro.org> wrote:
-> >
-> > On 05-08-21, 15:10, Arnd Bergmann wrote:
-> > > I hope this can still be simplified by working out better which state
-> > > transitions are needed exactly. In particular, I would expect that we
-> > > can get away with not sending a VIRTIO_GPIO_MSG_IRQ_TYPE
-> > > for 'mask' state changes at all, but use that only for forcing 'enabled'
-> > > state changes.
-> >
-> > Something like this ?
-> 
-> > static void virtio_gpio_irq_mask(struct irq_data *d)
-> > {
-> >         /* Nothing to do here */
-> > }
-> 
-> You'd have to do /something/ here I think, if only setting the flag
-> that we don't want to deliver the next interrupt.
-> 
-> > static void virtio_gpio_irq_unmask(struct irq_data *d)
-> > {
-> >         struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-> >         struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-> >
-> >         /* Queue the buffer unconditionally on unmask */
-> >         virtio_gpio_irq_prepare(vgpio, d->hwirq);
-> > }
-> 
-> And check the flag here to not requeue it if it's masked.
+Hi Michael,
 
-I am not sure I understand why this would be required. If the
-interrupt is getting disabled, then unmask will not get called here
-and so we won't requeue anything. Same will happen with threaded
-handlers where the interrupt gets unmasked at a later point of time.
+> From: Virtualization <virtualization-bounces@lists.linux-foundation.org> On
+> Behalf Of Parav Pandit via Virtualization
+> Hi Michael,
+> 
+> > From: Parav Pandit
+> > Sent: Thursday, July 29, 2021 10:09 AM
+> >
+> > Hi Michael,
+> >
+> > > From: Parav Pandit <parav@nvidia.com>
+> > > Sent: Wednesday, July 21, 2021 7:57 PM
+> > > To: mst@redhat.com; virtualization@lists.linux-foundation.org
+> > > Cc: Parav Pandit <parav@nvidia.com>
+> > > Subject: [PATCH v3 0/4] virtio short improvements
+> > >
+> > > Hi,
+> > >
+> > > This series contains small improvements for virtio pci driver.
+> > > The main idea is to support surprise removal of virtio pci device
+> > > when the driver is already loaded. Future patches will further
+> > > improve other areas of hotplug.
+> > >
+> > > Patches 1 to 3 prepare the code to handle surprise removal by
+> > > marking the device as broken in patch-4.
+> > >
+> > > Patch summary:
+> > > patch-1: ensures that compiler optimization doesn't occur on vq->broken
+> > >          flag
+> > > patch-2: maintains the mirror sequence on VQ delete and VQ create
+> > > patch-3: protects vqs list for simultaneous access from reader and a
+> > > writer
+> > > patch-4: handles surprise removal of virtio pci device which avoids
+> > >          call trace and system lockup
+> > >
+> > Any comments to address or will you please take this short series?
+> >
+> 
+> Can we please proceed with these series?
 
-> Now, there is already a flag in the irq descriptor, so rather than
-> having double accounting, the easy way may be to
-> just use irqd_irq_masked()/irq_state_set_masked(), or
-> have the irq core take care of this.
-
--- 
-viresh
+We want users to stop facing the call trace and lockup.
+Can you please respond to this short series?
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
