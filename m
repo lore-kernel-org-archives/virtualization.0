@@ -2,108 +2,127 @@ Return-Path: <SRS0=EG+p=NB=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F2FAC432BE
-	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 10:25:44 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14932C43214
+	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 13:24:51 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E3F1960F94
-	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 10:25:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E3F1960F94
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id AFE9261076
+	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 13:24:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org AFE9261076
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id ADA3E403AE;
-	Tue, 10 Aug 2021 10:25:43 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 76E908377F;
+	Tue, 10 Aug 2021 13:24:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Z-fhW6ozZU9F; Tue, 10 Aug 2021 10:25:40 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id mIcMF_50ranm; Tue, 10 Aug 2021 13:24:46 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 755D540398;
-	Tue, 10 Aug 2021 10:25:39 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 46E4F81BD9;
+	Tue, 10 Aug 2021 13:24:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 506A9C001A;
-	Tue, 10 Aug 2021 10:25:39 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A03B3C001F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2A131C0010;
+	Tue, 10 Aug 2021 13:24:46 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2E1E0C000E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 10:25:37 +0000 (UTC)
+ Tue, 10 Aug 2021 13:24:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 81D5540398
+ by smtp1.osuosl.org (Postfix) with ESMTP id 1D54E81D98
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 10:25:37 +0000 (UTC)
+ Tue, 10 Aug 2021 13:24:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1VLv7L7vZc9V
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Qc-i8t7Dfm4L
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 10:25:34 +0000 (UTC)
+ Tue, 10 Aug 2021 13:24:40 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com
- [IPv6:2607:f8b0:4864:20::1030])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 2572C402CA
+Received: from NAM12-MW2-obe.outbound.protection.outlook.com
+ (mail-mw2nam12on2075.outbound.protection.outlook.com [40.107.244.75])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 310EE81BD9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 10:25:34 +0000 (UTC)
-Received: by mail-pj1-x1030.google.com with SMTP id j1so32366908pjv.3
- for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 03:25:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=aaX/9qrbs7zeiD+mav7S/8AD1133u0eel6S8hdX3pSE=;
- b=tLwnHWoXhR8CVmYbvxLdIShmzOy7nmBoMf/pTeMVkowIX+aXErnv0+f81Atnh5+Qaq
- Ufb0UMMySNSFzvCbU4E1HN8WInwyeurhCW+rMwGi250PJrxMNt8arunb4YJ+flxj1947
- 32dGCDVkhg0H1C9EewApDx0JQk4Tz1+cWBRe+UZavRasXfuPw1DQ6mXt2hfgj9su6ISb
- eUo0B9bAKhI2U7x4JENokslfAIudHEjkaYQL9uC8Uu/bs8UPtJWdugXQ48eaipagxCRz
- XuzhRFbibRy+0rjfmGEtA+4C7O9tGzsAq//VjipY2poFnl2a8PNtYDzJNUY3KVp1aEHI
- 5dyw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=aaX/9qrbs7zeiD+mav7S/8AD1133u0eel6S8hdX3pSE=;
- b=Zq/B2trso9JeDqNGVYVBhkxEDNcKrOO1AE8M09uRU/YYUTy71WAif9pLXFkzSx9PH0
- dnboUsEqTtz0rNad8+kkXxkb1/oBW01gxk6pIpugStlhNkH2xGoyHiLUp21VM/oXF/LG
- YQJbi6xkq+YEsC6JkwcOAgmWhVQwmN5Z8V1DvACmQrRy2o8YPsRJDZKfzz0TlpVR9imu
- KhpzrD8/ssdEb9nERpF9IQqch/tNRoYcGawhAjb5UM9pNaeXeRsKZrn5ebBKz1vhAa7U
- nyoQqzcNU5eb7GvMvDy9TSOrmgxrXZ1Cmnn5qY/2Ch4ZIhISiWEGQLdDvR11bTz2VaK5
- PVFA==
-X-Gm-Message-State: AOAM530uv7FD23IqshRmTKKpzTX67+1ZoCoHRlmmfEryJ06DxBij6jkV
- jrcWWg4PL/avq2EhsvF2zbibg5mFlsR0Ug==
-X-Google-Smtp-Source: ABdhPJx5ry/JhUA0Fq7eGuOtd4afh5XJ9g00kLN6Gdq+U3BibgK39PETNaK9GGBlqVqRYrRzHrp8VQ==
-X-Received: by 2002:a63:5259:: with SMTP id s25mr257444pgl.397.1628591133559; 
- Tue, 10 Aug 2021 03:25:33 -0700 (PDT)
-Received: from localhost ([122.172.201.85])
- by smtp.gmail.com with ESMTPSA id l2sm23044136pfc.157.2021.08.10.03.25.32
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 10 Aug 2021 03:25:33 -0700 (PDT)
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Arnd Bergmann <arnd@kernel.org>, Linus Walleij <linus.walleij@linaro.org>,
- Bartosz Golaszewski <bgolaszewski@baylibre.com>,
- "Enrico Weigelt, metux IT consult" <info@metux.net>,
- Viresh Kumar <vireshk@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V5 2/2] gpio: virtio: Add IRQ support
-Date: Tue, 10 Aug 2021 15:55:16 +0530
-Message-Id: <96223fb8143a4eaa9b183d376ff46e5cd8ef54b4.1628590591.git.viresh.kumar@linaro.org>
-X-Mailer: git-send-email 2.31.1.272.g89b43f80a514
-In-Reply-To: <cover.1628590591.git.viresh.kumar@linaro.org>
-References: <cover.1628590591.git.viresh.kumar@linaro.org>
+ Tue, 10 Aug 2021 13:24:40 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=HdK2dBFG9L54MEQAqNjCwV6MYQUTxgjbCCRHlUIpo/MqAx2zDaK9oKd6BNpzQx3KDHkfJyFjZsJI+kyCn+GUq6hMjM40UghZJAhVct+GGzsza+UE3PbZgdm/+Itcuz2IzkypZt+wVcrDuw4OJh/XlO7rTZvr/8RyoOmih9HAs2EIOfoa1dfzxsIdXed+hbAzXDhq9ZdG2JNkLkEN6qHjYyq2zkeliBN1AxEMaGlrE7fu5t3WFRKHFsLeSaScKKv+0L27SwNrhlqygvRP8VchjLW3H9ukz85nTapq14i86ifGGNvI7tT/nEQAA2UIp6nsURYuhr4sqnr3KrWvqW5Vsg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=XIZz0T7KW/x9ZpJKkdADEz/jphyki1j0IWRbQqPrBQA=;
+ b=NU8vfxiggZ29MLm8wWk0j3vsg/7XVdtBhwQF338PGbRTGvHuvpcU+1J6aH4A0pwHmNHUVZt1Z+ewk+1spSWPeBPJ5Zc4t7BKVgn93AV/HqV/stmPOvZhmAr90eFEwMFpD+FZJ8MMhTAcvhkssU+0GT9N1GQRKpleZRTGDJJ8/PwjRisELEIt0KXrhRbxKInC5GZgez9PPtZ1kmYx/Hb80A9z8B+EZhAcSz3lNuZwHLyUvLRCq/+FGQlBaqP8UmCXIkkombqGWcs0TMCRnwTYu+y0j2e2sIgP7LF5fYwYyUJzOQARII/d2yXm3867xcSBrZesMIR+m4T5mYdb+Ri9TA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.34) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=nvidia.com; 
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=XIZz0T7KW/x9ZpJKkdADEz/jphyki1j0IWRbQqPrBQA=;
+ b=phi+ExbBda7JleGEU12VRQVdMBfbHqaKqUiycGJaXhjzjrkDVktkGl2IJAyxk7B8JifXH1E57JZfhi7U2JgUDISEaHcspUXSHn0bTx1Zyr23IPnVlLEzYeZLk15PHOY2MEkkgEKK4Kx0D4kuvuXKgKfO0z6PgwcqWFZLawiV3Qz2e23qO7dVv8ff+YoqWzzT1pERwpSe3P9spKlgNEs8xQE1ohUmlwAx+SIv7EeZmETRf25u7Cm43IokcRZSiQv7Ee6vabL9F6Nm0rNJFPOuBNE6VRyeHp+/XbS4yGxYpcrNQ0SIDIN7zFtjYoWKKaA3flWAgSCW4t0G5BXXrVNMeQ==
+Received: from CO2PR05CA0088.namprd05.prod.outlook.com (2603:10b6:104:1::14)
+ by CY4PR12MB1494.namprd12.prod.outlook.com (2603:10b6:910:f::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.21; Tue, 10 Aug
+ 2021 13:24:38 +0000
+Received: from CO1NAM11FT067.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:104:1:cafe::5d) by CO2PR05CA0088.outlook.office365.com
+ (2603:10b6:104:1::14) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4415.4 via Frontend
+ Transport; Tue, 10 Aug 2021 13:24:38 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
+ smtp.mailfrom=nvidia.com; vger.kernel.org; dkim=none (message not signed)
+ header.d=none; vger.kernel.org; dmarc=pass action=none header.from=nvidia.com; 
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.34 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.34; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.34) by
+ CO1NAM11FT067.mail.protection.outlook.com (10.13.174.212) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4394.16 via Frontend Transport; Tue, 10 Aug 2021 13:24:38 +0000
+Received: from sw-mtx-036.mtx.labs.mlnx (172.20.187.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
+ Tue, 10 Aug 2021 13:24:37 +0000
+To: <davem@davemloft.net>, <kuba@kernel.org>, <netdev@vger.kernel.org>
+Subject: [PATCH RESEND net-next 00/10] devlink: Control auxiliary devices
+Date: Tue, 10 Aug 2021 16:24:14 +0300
+Message-ID: <20210810132424.9129-1-parav@nvidia.com>
+X-Mailer: git-send-email 2.26.2
 MIME-Version: 1.0
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Vincent Guittot <vincent.guittot@linaro.org>,
- Viresh Kumar <viresh.kumar@linaro.org>, Bill Mills <bill.mills@linaro.org>,
- Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-gpio@vger.kernel.org,
- Geert Uytterhoeven <geert@linux-m68k.org>, Marc Zyngier <maz@kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, stratos-dev@op-lists.linaro.org
+X-Originating-IP: [172.20.187.5]
+X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 69523da0-d9fa-4e7e-d197-08d95c023422
+X-MS-TrafficTypeDiagnostic: CY4PR12MB1494:
+X-Microsoft-Antispam-PRVS: <CY4PR12MB1494C98E85E0F49A28834A3EDCF79@CY4PR12MB1494.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8273;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: WQBEUZdo9aHnYfM5l8crs/O6BVS+QoS2dthrQ4UTyKLUkIATnYUZFsMjb9CYMaGAoNu9x/z1gJUvg0sizpLl/qTHMLmGHYqYcEoBM0ubG+geTEElQLqSuo3rWxsSzRQqZUe+/w5VW1ovtKnZn21cVqlcYhsvHg4xmx/Vdw5wx+GQvHK+AgGu3Z8/ewTFBYc09Lta8wZGzuDMMtzLRneAshtbqoC+6IHlHcgqeP6aVXoGQ0pFFtuxhPBtP+ZY1gGBpeTKXrHTNM6/j/SA1ia9PMZ+HoBTiZbhmGSDplPJzpKzNk5giCKpPlFHxaZRpdFvdR1cizQFmxhJ1RA3Nm1UxV5xXITz2TIK0IVd8ezcX1m/xMXRYMEg4OgE0F8WEMw21mBfEiFD2FKv6pjqavTkJ1UJxh/QZ67v4aVLz/YfyNlKDXaneDoEtJHDUOdRf5BBb7o3DYjAuCjgA9tpTmF4r6CZfc4QradY8vgflIL34cH7Jiak4asQXCkQea1ucvMv7xV9bgQOa+hYf+plaF+IjuekWB44FQ0Llte6N3HP4h0Ww3GXq6JXUSole0T0xQXF0xWgCDqC4rWKLSt+GvSkQfJecduj3mJVdeKXacgQyJk393cNJuCmBOJijhpsfBzOgpLVMQ7QCEw0Q8tDhl9IfWl3sL/KhKik0L46LvPt4xwPG7m8+K6TMj5kko+93Mw087ziRtMrpUTOgrISQ1f1fvubAfX4LbjutDDr1Kc6mjR/ILgMT8DSyz6bMWA4ddyBAAXEhcD0OhJRCNx1VZD9J2U0ETCvINQ5O8Cjo9pRQ9E=
+X-Forefront-Antispam-Report: CIP:216.228.112.34; CTRY:US; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:schybrid03.nvidia.com; CAT:NONE;
+ SFS:(4636009)(136003)(346002)(376002)(396003)(39860400002)(46966006)(36840700001)(54906003)(316002)(36906005)(110136005)(4326008)(6666004)(82740400003)(426003)(1076003)(966005)(82310400003)(47076005)(478600001)(7636003)(336012)(5660300002)(2906002)(36756003)(2616005)(8936002)(26005)(36860700001)(83380400001)(356005)(186003)(70206006)(70586007)(8676002)(86362001)(107886003)(16526019);
+ DIR:OUT; SFP:1101; 
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Aug 2021 13:24:38.3013 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 69523da0-d9fa-4e7e-d197-08d95c023422
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.112.34];
+ Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT067.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR12MB1494
+Cc: linux-rdma@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,462 +134,124 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Parav Pandit via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch adds IRQ support for the virtio GPIO driver. Note that this
-uses the irq_bus_lock/unlock() callbacks, since those operations over
-virtio may sleep. Also the notifications for the eventq are processed
-using a work item to allow sleep-able operations.
+(Resend to CC RDMA and vdpa mailing lists).
 
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
----
- drivers/gpio/Kconfig             |   1 +
- drivers/gpio/gpio-virtio.c       | 301 ++++++++++++++++++++++++++++++-
- include/uapi/linux/virtio_gpio.h |  25 +++
- 3 files changed, 323 insertions(+), 4 deletions(-)
+Hi Dave, Jakub,
 
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index e5993d6864fb..222f4ae98a35 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -1672,6 +1672,7 @@ config GPIO_MOCKUP
- config GPIO_VIRTIO
- 	tristate "VirtIO GPIO support"
- 	depends on VIRTIO
-+	select GPIOLIB_IRQCHIP
- 	help
- 	  Say Y here to enable guest support for virtio-based GPIO controllers.
- 
-diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
-index 4dc2d383508f..0cb2c708c705 100644
---- a/drivers/gpio/gpio-virtio.c
-+++ b/drivers/gpio/gpio-virtio.c
-@@ -16,6 +16,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
-+#include <linux/spinlock.h>
- #include <linux/virtio_config.h>
- #include <uapi/linux/virtio_gpio.h>
- #include <uapi/linux/virtio_ids.h>
-@@ -28,6 +29,17 @@ struct virtio_gpio_line {
- 	unsigned int rxlen;
- };
- 
-+struct vgpio_irq_line {
-+	u8 type;
-+	bool disabled;
-+	bool masked;
-+	bool queued;
-+	bool update_pending;
-+
-+	struct virtio_gpio_irq_request ireq ____cacheline_aligned;
-+	struct virtio_gpio_irq_response ires ____cacheline_aligned;
-+};
-+
- struct virtio_gpio {
- 	struct virtio_device *vdev;
- 	struct mutex lock; /* Protects virtqueue operation */
-@@ -35,6 +47,12 @@ struct virtio_gpio {
- 	struct virtio_gpio_config config;
- 	struct virtio_gpio_line *lines;
- 	struct virtqueue *request_vq;
-+
-+	/* irq support */
-+	struct virtqueue *event_vq;
-+	struct mutex irq_lock; /* Protects irq operation */
-+	spinlock_t eventq_lock; /* Protects queuing of the buffer */
-+	struct vgpio_irq_line *irq_lines;
- };
- 
- static int _virtio_gpio_req(struct virtio_gpio *vgpio, u16 type, u16 gpio,
-@@ -187,6 +205,236 @@ static void virtio_gpio_set(struct gpio_chip *gc, unsigned int gpio, int value)
- 	virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_SET_VALUE, gpio, value, NULL);
- }
- 
-+/* Interrupt handling */
-+static void virtio_gpio_irq_prepare(struct virtio_gpio *vgpio, u16 gpio)
-+{
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[gpio];
-+	struct virtio_gpio_irq_request *ireq = &irq_line->ireq;
-+	struct virtio_gpio_irq_response *ires = &irq_line->ires;
-+	struct scatterlist *sgs[2], req_sg, res_sg;
-+	int ret;
-+
-+	if (WARN_ON(irq_line->queued || irq_line->masked || irq_line->disabled))
-+		return;
-+
-+	ireq->gpio = cpu_to_le16(gpio);
-+	sg_init_one(&req_sg, ireq, sizeof(*ireq));
-+	sg_init_one(&res_sg, ires, sizeof(*ires));
-+	sgs[0] = &req_sg;
-+	sgs[1] = &res_sg;
-+
-+	ret = virtqueue_add_sgs(vgpio->event_vq, sgs, 1, 1, irq_line, GFP_ATOMIC);
-+	if (ret) {
-+		dev_err(&vgpio->vdev->dev, "failed to add request to eventq\n");
-+		return;
-+	}
-+
-+	irq_line->queued = true;
-+	virtqueue_kick(vgpio->event_vq);
-+}
-+
-+static void virtio_gpio_irq_enable(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-+
-+	spin_lock(&vgpio->eventq_lock);
-+	irq_line->disabled = false;
-+	irq_line->masked = false;
-+
-+	/* Queue the buffer unconditionally on enable */
-+	virtio_gpio_irq_prepare(vgpio, d->hwirq);
-+	spin_unlock(&vgpio->eventq_lock);
-+
-+	irq_line->update_pending = true;
-+}
-+
-+static void virtio_gpio_irq_disable(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-+
-+	spin_lock(&vgpio->eventq_lock);
-+	irq_line->disabled = true;
-+	irq_line->masked = true;
-+	spin_unlock(&vgpio->eventq_lock);
-+
-+	irq_line->update_pending = true;
-+}
-+
-+static void virtio_gpio_irq_mask(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-+
-+	spin_lock(&vgpio->eventq_lock);
-+	irq_line->masked = true;
-+	spin_unlock(&vgpio->eventq_lock);
-+}
-+
-+static void virtio_gpio_irq_unmask(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-+
-+	spin_lock(&vgpio->eventq_lock);
-+	irq_line->masked = false;
-+
-+	/* Queue the buffer unconditionally on unmask */
-+	virtio_gpio_irq_prepare(vgpio, d->hwirq);
-+	spin_unlock(&vgpio->eventq_lock);
-+}
-+
-+static int virtio_gpio_irq_set_type(struct irq_data *d, unsigned int type)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-+
-+	switch (type) {
-+	case IRQ_TYPE_NONE:
-+		type = VIRTIO_GPIO_IRQ_TYPE_NONE;
-+		break;
-+	case IRQ_TYPE_EDGE_RISING:
-+		type = VIRTIO_GPIO_IRQ_TYPE_EDGE_RISING;
-+		break;
-+	case IRQ_TYPE_EDGE_FALLING:
-+		type = VIRTIO_GPIO_IRQ_TYPE_EDGE_FALLING;
-+		break;
-+	case IRQ_TYPE_EDGE_BOTH:
-+		type = VIRTIO_GPIO_IRQ_TYPE_EDGE_BOTH;
-+		break;
-+	case IRQ_TYPE_LEVEL_LOW:
-+		type = VIRTIO_GPIO_IRQ_TYPE_LEVEL_LOW;
-+		break;
-+	case IRQ_TYPE_LEVEL_HIGH:
-+		type = VIRTIO_GPIO_IRQ_TYPE_LEVEL_HIGH;
-+		break;
-+	default:
-+		dev_err(&vgpio->vdev->dev, "unsupported irq type: %u\n", type);
-+		return -EINVAL;
-+	}
-+
-+	irq_line->type = type;
-+	irq_line->update_pending = true;
-+
-+	return 0;
-+}
-+
-+static void virtio_gpio_irq_bus_lock(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+
-+	mutex_lock(&vgpio->irq_lock);
-+}
-+
-+static void virtio_gpio_irq_bus_sync_unlock(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-+	u8 type = irq_line->disabled ? VIRTIO_GPIO_IRQ_TYPE_NONE : irq_line->type;
-+
-+	if (irq_line->update_pending) {
-+		irq_line->update_pending = false;
-+		virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_IRQ_TYPE, d->hwirq, type,
-+				NULL);
-+	}
-+
-+	mutex_unlock(&vgpio->irq_lock);
-+}
-+
-+static struct irq_chip vgpio_irq_chip = {
-+	.name			= "virtio-gpio",
-+	.irq_enable		= virtio_gpio_irq_enable,
-+	.irq_disable		= virtio_gpio_irq_disable,
-+	.irq_mask		= virtio_gpio_irq_mask,
-+	.irq_unmask		= virtio_gpio_irq_unmask,
-+	.irq_set_type		= virtio_gpio_irq_set_type,
-+
-+	/* These are required to implement irqchip for slow busses */
-+	.irq_bus_lock		= virtio_gpio_irq_bus_lock,
-+	.irq_bus_sync_unlock	= virtio_gpio_irq_bus_sync_unlock,
-+};
-+
-+static bool ignore_irq(struct virtio_gpio *vgpio, int gpio,
-+		       struct vgpio_irq_line *irq_line)
-+{
-+	bool ignore = false;
-+
-+	spin_lock(&vgpio->eventq_lock);
-+	irq_line->queued = false;
-+
-+	/* Interrupt is disabled currently */
-+	if (irq_line->masked || irq_line->disabled) {
-+		ignore = true;
-+		goto unlock;
-+	}
-+
-+	/*
-+	 * Buffer is returned as the interrupt was disabled earlier, but is
-+	 * enabled again now. Requeue the buffers.
-+	 */
-+	if (irq_line->ires.status == VIRTIO_GPIO_IRQ_STATUS_INVALID) {
-+		virtio_gpio_irq_prepare(vgpio, gpio);
-+		ignore = true;
-+		goto unlock;
-+	}
-+
-+	if (WARN_ON(irq_line->ires.status != VIRTIO_GPIO_IRQ_STATUS_VALID))
-+		ignore = true;
-+
-+unlock:
-+	spin_unlock(&vgpio->eventq_lock);
-+
-+	return ignore;
-+}
-+
-+static void virtio_gpio_event_vq(struct virtqueue *vq)
-+{
-+	struct virtio_gpio *vgpio = vq->vdev->priv;
-+	struct device *dev = &vgpio->vdev->dev;
-+	struct vgpio_irq_line *irq_line;
-+	int irq, gpio, ret;
-+	unsigned int len;
-+
-+	while (true) {
-+		irq_line = virtqueue_get_buf(vgpio->event_vq, &len);
-+		if (!irq_line)
-+			break;
-+
-+		if (len != sizeof(irq_line->ires)) {
-+			dev_err(dev, "irq with incorrect length (%u : %u)\n",
-+				len, (unsigned int)sizeof(irq_line->ires));
-+			continue;
-+		}
-+
-+		/*
-+		 * Find GPIO line number from the offset of irq_line within the
-+		 * irq_lines block. We can also get GPIO number from
-+		 * irq-request, but better not to rely on a buffer returned by
-+		 * remote.
-+		 */
-+		gpio = irq_line - vgpio->irq_lines;
-+		WARN_ON(gpio >= vgpio->config.ngpio);
-+
-+		if (unlikely(ignore_irq(vgpio, gpio, irq_line)))
-+			continue;
-+
-+		irq = irq_find_mapping(vgpio->gc.irq.domain, gpio);
-+		WARN_ON(!irq);
-+
-+		ret = generic_handle_irq(irq);
-+		if (ret)
-+			dev_err(dev, "failed to handle interrupt: %d\n", ret);
-+	};
-+}
-+
- static void virtio_gpio_request_vq(struct virtqueue *vq)
- {
- 	struct virtio_gpio_line *line;
-@@ -211,14 +459,15 @@ static void virtio_gpio_free_vqs(struct virtio_device *vdev)
- static int virtio_gpio_alloc_vqs(struct virtio_gpio *vgpio,
- 				 struct virtio_device *vdev)
- {
--	const char * const names[] = { "requestq" };
-+	const char * const names[] = { "requestq", "eventq" };
- 	vq_callback_t *cbs[] = {
- 		virtio_gpio_request_vq,
-+		virtio_gpio_event_vq,
- 	};
--	struct virtqueue *vqs[1] = { NULL };
-+	struct virtqueue *vqs[2] = { NULL, NULL };
- 	int ret;
- 
--	ret = virtio_find_vqs(vdev, 1, vqs, cbs, names, NULL);
-+	ret = virtio_find_vqs(vdev, vgpio->irq_lines ? 2 : 1, vqs, cbs, names, NULL);
- 	if (ret) {
- 		dev_err(&vdev->dev, "failed to find vqs: %d\n", ret);
- 		return ret;
-@@ -226,11 +475,23 @@ static int virtio_gpio_alloc_vqs(struct virtio_gpio *vgpio,
- 
- 	if (!vqs[0]) {
- 		dev_err(&vdev->dev, "failed to find requestq vq\n");
--		return -ENODEV;
-+		goto out;
- 	}
- 	vgpio->request_vq = vqs[0];
- 
-+	if (vgpio->irq_lines && !vqs[1]) {
-+		dev_err(&vdev->dev, "failed to find eventq vq\n");
-+		goto out;
-+	}
-+	vgpio->event_vq = vqs[1];
-+
- 	return 0;
-+
-+out:
-+	if (vqs[0] || vqs[1])
-+		virtio_gpio_free_vqs(vdev);
-+
-+	return -ENODEV;
- }
- 
- static const char **virtio_gpio_get_names(struct virtio_gpio *vgpio)
-@@ -326,6 +587,32 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
- 	vgpio->gc.owner			= THIS_MODULE;
- 	vgpio->gc.can_sleep		= true;
- 
-+	/* Interrupt support */
-+	if (virtio_has_feature(vdev, VIRTIO_GPIO_F_IRQ)) {
-+		vgpio->irq_lines = devm_kcalloc(dev, config->ngpio,
-+						sizeof(*vgpio->irq_lines),
-+						GFP_KERNEL);
-+		if (!vgpio->irq_lines)
-+			return -ENOMEM;
-+
-+		/* The event comes from the outside so no parent handler */
-+		vgpio->gc.irq.parent_handler	= NULL;
-+		vgpio->gc.irq.num_parents	= 0;
-+		vgpio->gc.irq.parents		= NULL;
-+		vgpio->gc.irq.default_type	= IRQ_TYPE_NONE;
-+		vgpio->gc.irq.handler		= handle_level_irq;
-+		vgpio->gc.irq.chip		= &vgpio_irq_chip;
-+
-+		for (i = 0; i < config->ngpio; i++) {
-+			vgpio->irq_lines[i].type = VIRTIO_GPIO_IRQ_TYPE_NONE;
-+			vgpio->irq_lines[i].disabled = true;
-+			vgpio->irq_lines[i].masked = true;
-+		}
-+
-+		mutex_init(&vgpio->irq_lock);
-+		spin_lock_init(&vgpio->eventq_lock);
-+	}
-+
- 	ret = virtio_gpio_alloc_vqs(vgpio, vdev);
- 	if (ret)
- 		return ret;
-@@ -358,7 +645,13 @@ static const struct virtio_device_id id_table[] = {
- };
- MODULE_DEVICE_TABLE(virtio, id_table);
- 
-+static const unsigned int features[] = {
-+	VIRTIO_GPIO_F_IRQ,
-+};
-+
- static struct virtio_driver virtio_gpio_driver = {
-+	.feature_table		= features,
-+	.feature_table_size	= ARRAY_SIZE(features),
- 	.id_table		= id_table,
- 	.probe			= virtio_gpio_probe,
- 	.remove			= virtio_gpio_remove,
-diff --git a/include/uapi/linux/virtio_gpio.h b/include/uapi/linux/virtio_gpio.h
-index 844574acf095..297ffdae1a5d 100644
---- a/include/uapi/linux/virtio_gpio.h
-+++ b/include/uapi/linux/virtio_gpio.h
-@@ -5,12 +5,16 @@
- 
- #include <linux/types.h>
- 
-+/* Virtio GPIO Feature bits */
-+#define VIRTIO_GPIO_F_IRQ			0
-+
- /* Virtio GPIO request types */
- #define VIRTIO_GPIO_MSG_GET_NAMES		0x0001
- #define VIRTIO_GPIO_MSG_GET_DIRECTION		0x0002
- #define VIRTIO_GPIO_MSG_SET_DIRECTION		0x0003
- #define VIRTIO_GPIO_MSG_GET_VALUE		0x0004
- #define VIRTIO_GPIO_MSG_SET_VALUE		0x0005
-+#define VIRTIO_GPIO_MSG_IRQ_TYPE		0x0006
- 
- /* Possible values of the status field */
- #define VIRTIO_GPIO_STATUS_OK			0x0
-@@ -21,6 +25,14 @@
- #define VIRTIO_GPIO_DIRECTION_OUT		0x01
- #define VIRTIO_GPIO_DIRECTION_IN		0x02
- 
-+/* Virtio GPIO IRQ types */
-+#define VIRTIO_GPIO_IRQ_TYPE_NONE		0x00
-+#define VIRTIO_GPIO_IRQ_TYPE_EDGE_RISING	0x01
-+#define VIRTIO_GPIO_IRQ_TYPE_EDGE_FALLING	0x02
-+#define VIRTIO_GPIO_IRQ_TYPE_EDGE_BOTH		0x03
-+#define VIRTIO_GPIO_IRQ_TYPE_LEVEL_HIGH		0x04
-+#define VIRTIO_GPIO_IRQ_TYPE_LEVEL_LOW		0x08
-+
- struct virtio_gpio_config {
- 	__u16 ngpio;
- 	__u8 padding[2];
-@@ -44,4 +56,17 @@ struct virtio_gpio_response_get_names {
- 	__u8 value[];
- };
- 
-+/* Virtio GPIO IRQ Request / Response */
-+struct virtio_gpio_irq_request {
-+	__u16 gpio;
-+};
-+
-+struct virtio_gpio_irq_response {
-+	__u8 status;
-+};
-+
-+/* Possible values of the interrupt status field */
-+#define VIRTIO_GPIO_IRQ_STATUS_INVALID		0x0
-+#define VIRTIO_GPIO_IRQ_STATUS_VALID		0x1
-+
- #endif /* _LINUX_VIRTIO_GPIO_H */
+Currently, for mlx5 multi-function device, a user is not able to control
+which functionality to enable/disable. For example, each PCI
+PF, VF, SF function by default has netdevice, RDMA and vdpa-net
+devices always enabled.
+
+Hence, enable user to control which device functionality to enable/disable.
+
+This is achieved by using existing devlink params [1] to
+enable/disable eth, rdma and vdpa net functionality control knob.
+
+For example user interested in only vdpa device function: performs,
+
+$ devlink dev param set pci/0000:06:00.0 name enable_rdma value false \
+                   cmode driverinit
+$ devlink dev param set pci/0000:06:00.0 name enable_eth value false \
+                   cmode driverinit
+$ devlink dev param set pci/0000:06:00.0 name enable_vnet value true \
+                   cmode driverinit
+
+$ devlink dev reload pci/0000:06:00.0
+
+Reload command honors parameters set, initializes the device that user
+has composed using devlink dev params and resources.
+Devices before reload:
+
+            mlx5_core.sf.4
+         (subfunction device)
+                  /\
+                 /| \
+                / |  \
+               /  |   \
+ mlx5_core.eth.4  |  mlx5_core.rdma.4
+(SF eth aux dev)  |  (SF rdma aux dev)
+    |             |        |
+    |             |        |
+ enp6s0f0s88      |      mlx5_0
+ (SF netdev)      |  (SF rdma device)
+                  |
+         mlx5_core.vnet.4
+         (SF vnet aux dev)
+                 |
+                 |
+        auxiliary/mlx5_core.sf.4
+        (vdpa net mgmt device)
+
+Above example reconfigures the device with only VDPA functionality.
+Devices after reload:
+
+            mlx5_core.sf.4
+         (subfunction device)
+                  /\
+                 /  \
+                /    \
+               /      \
+ mlx5_core.vnet.4     no eth, no rdma aux devices
+ (SF vnet aux dev) 
+
+Above parameters enable user to compose the device as needed based
+on the use case.
+
+Since devlink params are done on the devlink instance, these
+knobs are uniformly usable for PCI PF, VF and SF devices.
+
+Patch summary:
+patch-1 adds generic enable_eth devlink parameter to control Ethernet
+        auxiliary device function
+patch-2 adds generic enable_rdma devlink parameter to control RDMA
+        auxiliary device function
+patch-3 adds generic enable_vnet devlink parameter to control VDPA net
+        auxilariy device function
+patch-4 rework the code to register single device parameter
+patch-5 added APIs to register, unregister single device parameter
+patch-6 added APIs to publish, unpublishe single device parameter
+patch-7 Fixed missing parameter unpublish call in mlx5 driver
+patch-8 extends mlx5 driver to support enable_eth devlink parameter
+patch-9 extends mlx5 driver to support enable_rdma devlink parameter
+patch-10 extends mlx5 driver to support enable_vnet devlink parameter
+
+Subsequent to this series, in future mlx5 driver will be updated to use
+single device parameter API for metadata enable/disable knob which is
+only applicable on the eswitch manager device.
+
+[1] https://www.kernel.org/doc/html/latest/networking/devlink/devlink-params.html
+
+Parav Pandit (10):
+  devlink: Add new "enable_eth" generic device param
+  devlink: Add new "enable_rdma" generic device param
+  devlink: Add new "enable_vnet" generic device param
+  devlink: Create a helper function for one parameter registration
+  devlink: Add API to register and unregister single parameter
+  devlink: Add APIs to publish, unpublish individual parameter
+  net/mlx5: Fix unpublish devlink parameters
+  net/mlx5: Support enable_eth devlink dev param
+  net/mlx5: Support enable_rdma devlink dev param
+  net/mlx5: Support enable_vnet devlink dev param
+
+ .../networking/devlink/devlink-params.rst     |  12 ++
+ drivers/net/ethernet/mellanox/mlx5/core/dev.c |  74 +++++++-
+ .../net/ethernet/mellanox/mlx5/core/devlink.c | 159 ++++++++++++++++++
+ .../ethernet/mellanox/mlx5/core/mlx5_core.h   |   5 +
+ include/net/devlink.h                         |  20 +++
+ net/core/devlink.c                            | 124 +++++++++++++-
+ 6 files changed, 382 insertions(+), 12 deletions(-)
+
 -- 
-2.31.1.272.g89b43f80a514
+2.26.2
 
 _______________________________________________
 Virtualization mailing list
