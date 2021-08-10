@@ -2,134 +2,115 @@ Return-Path: <SRS0=EG+p=NB=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 265F3C432BE
-	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 13:25:02 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 09601C4338F
+	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 14:32:30 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DD30861077
-	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 13:25:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org DD30861077
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id 9BF7160EBB
+	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 14:32:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9BF7160EBB
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id AFA8A81D18;
-	Tue, 10 Aug 2021 13:25:01 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 5F3D060843;
+	Tue, 10 Aug 2021 14:32:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nWoshYiI6Wve; Tue, 10 Aug 2021 13:24:57 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id S4moRV9IRyaL; Tue, 10 Aug 2021 14:32:25 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 203E1835D9;
-	Tue, 10 Aug 2021 13:24:57 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1084C606CB;
+	Tue, 10 Aug 2021 14:32:25 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9EF83C0020;
-	Tue, 10 Aug 2021 13:24:56 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AD058C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D3F60C001A;
+	Tue, 10 Aug 2021 14:32:24 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8768FC000E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 13:24:55 +0000 (UTC)
+ Tue, 10 Aug 2021 14:32:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9D103402B5
+ by smtp1.osuosl.org (Postfix) with ESMTP id 6499683404
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 13:24:55 +0000 (UTC)
+ Tue, 10 Aug 2021 14:32:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=nvidia.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NWtOcLU3hsdJ
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id buYU3So7tsUv
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 13:24:51 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM02-SN1-obe.outbound.protection.outlook.com
- (mail-sn1anam02on2055.outbound.protection.outlook.com [40.107.96.55])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 4A1C9404F5
+ Tue, 10 Aug 2021 14:32:22 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 817FB831E7
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 13:24:47 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=TRdW3tnj5CIucf+2uB3umC4izSiwUKLDWwa5CmyRtEIn7IR3kJ32cwLjUrgkYl31fAbGKOdG19FCyrM1Gsj9jN9HzeCPTVt+M5lQtx/xXBGFc8EhEWIOKwzWWkWRjI0goR6/LX5RQwvte81SYTEtGTxPaDd4F5eguzaQFyuMd2oI2mNZ5SPr1bgw8aHniTKDJd9ixDHChMqluk+W0tRJnd0u/LSObmHfGaxMNtHHqBzkMNuJ20SdrRUs6IoJkB0W0x76vh5AJpDg40j7xQZmmjKzo7Tvm/0Ayob7vCXIQnz5acO7F2I8tfHVvPBaoEoeL7K4R30DF1lazfWQ7TX9dQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zOWPJ9JIrwjGsqY/KrjRI8m9WzSl5Cf6VcnQWxLM6SE=;
- b=HyD5XkSIZv4r/15yRWp3NSAWy2rGI1VPQQGJWg2a85CMu97rD+A+SBJYE2b5lukNVg3PAJsoigKFQs3n06LdlfV9HUQTuSzGittn157Mo4Ep2KgzhkeEpFEEBQQ17WUx8Vu4ZY+QYB+JyeKNV0DIeJtMEVklYPIMiHsehbC0bnH7RHfr3mjbljM6mngCkSFqzJaQr9JlrZpd+pazrOYb740m1vVeuLZrAIzuv74spj/6LHhCXh2e2vpU9ofRYtQ0vHVSar0rJi2xTKwriZ6aUYo2RdB/rsevN9h4KMX5knoLTmTs1ftGADm+BMjOqnh27hgPVATq9x1vllVE+hHVKQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.34) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=nvidia.com; 
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zOWPJ9JIrwjGsqY/KrjRI8m9WzSl5Cf6VcnQWxLM6SE=;
- b=uVmRk6CcS4biRjL16kjmkdLg7qorNTkhkst+W9RALdnnrh6/VTZTDnylQQcpMM9/xUWpXyH7I+KNzj5JRBrbL+TsE37K9TSyB1rojzX+b6XEOr/iPpRDuLbCKUDt/1L6n9PHd1iU0zdXKtJlSraHvcV3g5/NE4Anf8okYLaZBtXX28GgTGIOqs4Q/5I0SItvxg+9Lu5RVA1pPEjsvkQOfiRRy+2SJfcsnELQNLIJe8h7RAPi1joAQWPyFm0HxzgUm9DHRvTGYqG98jrvW78drSo9Yt9hSfKji/vZVcMReSpdT0DNN4dVg+Y6qc0qxP1zYVzYH/4Ruf+//oqfVSvLQA==
-Received: from MW4PR03CA0027.namprd03.prod.outlook.com (2603:10b6:303:8f::32)
- by MWHPR12MB1822.namprd12.prod.outlook.com (2603:10b6:300:114::11)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4415.14; Tue, 10 Aug
- 2021 13:24:45 +0000
-Received: from CO1NAM11FT017.eop-nam11.prod.protection.outlook.com
- (2603:10b6:303:8f:cafe::36) by MW4PR03CA0027.outlook.office365.com
- (2603:10b6:303:8f::32) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.15 via Frontend
- Transport; Tue, 10 Aug 2021 13:24:45 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
- smtp.mailfrom=nvidia.com; vger.kernel.org; dkim=none (message not signed)
- header.d=none; vger.kernel.org; dmarc=pass action=none header.from=nvidia.com; 
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.34 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.34; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.34) by
- CO1NAM11FT017.mail.protection.outlook.com (10.13.175.108) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4394.16 via Frontend Transport; Tue, 10 Aug 2021 13:24:44 +0000
-Received: from sw-mtx-036.mtx.labs.mlnx (172.20.187.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
- Tue, 10 Aug 2021 13:24:42 +0000
-To: <davem@davemloft.net>, <kuba@kernel.org>, <netdev@vger.kernel.org>
-Subject: [PATCH RESEND net-next 06/10] devlink: Add APIs to publish,
- unpublish individual parameter
-Date: Tue, 10 Aug 2021 16:24:20 +0300
-Message-ID: <20210810132424.9129-7-parav@nvidia.com>
-X-Mailer: git-send-email 2.26.2
-In-Reply-To: <20210810132424.9129-1-parav@nvidia.com>
-References: <20210810132424.9129-1-parav@nvidia.com>
+ Tue, 10 Aug 2021 14:32:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1628605941;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=om5Y/ZhdMeC1b5IvOSlyVjyQ6lHMYCbKlin2oMAH9GY=;
+ b=FdcpXm+bYMSn1ynEGINj2IB13GSGOihqt6LmhRzkzHDbYFEj8xVb2f7pUKPblA3ASHbN5p
+ 7z/dtCSHlX9y3Bg/ryUl/g9v0x362Vhf251LhH2wOrvgXPaJ+flyNuENbHeuLQfyD3hRfq
+ MstWbK0wiIGB7wu2NuRoR7Dhmn0lRk8=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-319-kB5jBUtuNWK3Nu5xyQ-o1Q-1; Tue, 10 Aug 2021 10:32:19 -0400
+X-MC-Unique: kB5jBUtuNWK3Nu5xyQ-o1Q-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ v20-20020aa7d9d40000b02903be68450bf3so3058299eds.23
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 10 Aug 2021 07:32:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=om5Y/ZhdMeC1b5IvOSlyVjyQ6lHMYCbKlin2oMAH9GY=;
+ b=Blbn3qCyerhF58Q72B1i9JL4JEn6j/qlH8CEFeP65tLYvrn+uEHTw/12Vf5ML3lqMT
+ x/dEuEUnOAnTpYoTNPQY+64Ge9sa3sZK2+B/N/MTUnoud3Y0f5YmSTCpTfma0GnaUaAq
+ TOVYC1KMX4th7we97+mfQLWCaoKOWdrJ3sB6AeUkAGY+W8OJkG1tsBw6Tg/WC+Is7FOy
+ U4Mq3ZbOyGQpx2yGtET+tVrNFBqjluCwi7GeXr6YXoUDlvWnHTX94afFsLFoPbA4NrPP
+ oEYOvaz8T7Wp7WH5Xfg/n+/YhKgZ3JkP8tEkmrTUdubc64F2m+3louzCEb3PLKIylb8m
+ qAeQ==
+X-Gm-Message-State: AOAM5334GFEOqs4MKaM9g2icEm9kozrFVBIpoUxjPv09PaJQ2h0kLgJ0
+ o77Twiz9ruv9KKEGLpcnms9wX1HGdu8S4pux0vU8MKt+285b496L6LRcUBP8UlDLnkMXzJXTcBp
+ mIqLaHHGWvXfUH6R/jqgs4eUnrVws78mRFFI5JGbyFw==
+X-Received: by 2002:aa7:d896:: with SMTP id u22mr3440860edq.290.1628605938788; 
+ Tue, 10 Aug 2021 07:32:18 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy2L+u7J7XHZTTPT8H/MAFOxXTK17efl+SevY+l1CC/Xy8T3Q/6wiwJtOObK/1SAolUCXNpow==
+X-Received: by 2002:aa7:d896:: with SMTP id u22mr3440839edq.290.1628605938644; 
+ Tue, 10 Aug 2021 07:32:18 -0700 (PDT)
+Received: from redhat.com ([2.55.156.103])
+ by smtp.gmail.com with ESMTPSA id bm1sm6996069ejb.38.2021.08.10.07.32.16
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 10 Aug 2021 07:32:17 -0700 (PDT)
+Date: Tue, 10 Aug 2021 10:32:13 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Eli Cohen <elic@nvidia.com>
+Subject: Re: [PATCH 0/3] vdpa/mlx5: Add Control VQ and MAC and Multi queue
+ support
+Message-ID: <20210810093152-mutt-send-email-mst@kernel.org>
+References: <20210809080043.169701-1-elic@nvidia.com>
+ <20210809053528-mutt-send-email-mst@kernel.org>
+ <20210809094803.GA217441@mtl-vdi-166.wap.labs.mlnx>
+ <20210809054908-mutt-send-email-mst@kernel.org>
+ <20210809095950.GA217852@mtl-vdi-166.wap.labs.mlnx>
 MIME-Version: 1.0
-X-Originating-IP: [172.20.187.5]
-X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
- HQMAIL107.nvidia.com (172.20.187.13)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: f3b5435e-8c95-478f-e341-08d95c02381f
-X-MS-TrafficTypeDiagnostic: MWHPR12MB1822:
-X-Microsoft-Antispam-PRVS: <MWHPR12MB1822EDE507A791653202E4DCDCF79@MWHPR12MB1822.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:2000;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 2ssO7EdOLF+DdFAORveHPAXg4d9JSe6e0MKih+MdV7BcUGwyEY1MQc8sMnjOY5KZTGEsfwqVmpkE69fGOYmFNSI/V1DtHzjLYbKAOiloSy/yfscNrvpNflhXGApAMB3WSsprPoJN/cJUXJuZAK4pQNUD3Dtr7nkx5Y2FUKjbnFCUuU02lpovayuIHRgT15JkGCsWlQIdhFqF/D6+oiuIcoCj6koKXnjzBQx6XduF+SYEUVNK6J5LBMEFkE+qxeSsgXqFvSwYfKTPhgAouMMjBCvcfD6JpE3H3SNSBtOWREhkc6j7Fj3aN+eZ7GjlLnIk4EZzvNY/6r2upobLGmDdzJfWFeiQs6GLTuky/M0sO96FZ3RduKxnSVzv2zp2PZWrk7KYBZo6gsr54aOKJEno4DdqjloB4f2wZi5yLFIzGQxxuivbyzBSuhy329qb4WtD7ykuzHQ8mEo69iZkBmFc/jsqfdqgEbnwjxVpZxvUIg7okEWsKnHeYgF5RMjeQ06e4AvyC2wbVrtP+xAOeoUIMD9K1a3fwXQJMf2pjDS87gDzaMwEJW3OB0+/6Bmd9ekDGxdbe9a6V7+xOBSkyRSkmUr+vbuEPIZ1tMx93XsPvWUyTnjuOHO20O/mrUQYrC8yAxkCyWtgmqqaXKE3wKC9Db8YuUFrQlZkCFA/+L+hD0SyRyWjyxNx+6UWx+fV6ibPfTVvjG/e8VKB5+Zkfl4LRw==
-X-Forefront-Antispam-Report: CIP:216.228.112.34; CTRY:US; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:schybrid03.nvidia.com; CAT:NONE;
- SFS:(4636009)(396003)(346002)(136003)(376002)(39860400002)(36840700001)(46966006)(110136005)(70206006)(356005)(36906005)(36756003)(316002)(54906003)(47076005)(16526019)(186003)(1076003)(70586007)(2616005)(8676002)(107886003)(7636003)(36860700001)(8936002)(82310400003)(86362001)(82740400003)(2906002)(478600001)(4326008)(6666004)(26005)(426003)(336012)(5660300002);
- DIR:OUT; SFP:1101; 
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Aug 2021 13:24:44.9800 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: f3b5435e-8c95-478f-e341-08d95c02381f
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.112.34];
- Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT017.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR12MB1822
-Cc: linux-rdma@vger.kernel.org, Leon
- Romanovsky <leonro@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
- virtualization@lists.linux-foundation.org
+In-Reply-To: <20210809095950.GA217852@mtl-vdi-166.wap.labs.mlnx>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: eperezma@redhat.com, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -141,100 +122,75 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Enable drivers to publish/unpublish individual parameter.
+On Mon, Aug 09, 2021 at 12:59:50PM +0300, Eli Cohen wrote:
+> On Mon, Aug 09, 2021 at 05:50:02AM -0400, Michael S. Tsirkin wrote:
+> > On Mon, Aug 09, 2021 at 12:48:03PM +0300, Eli Cohen wrote:
+> > > On Mon, Aug 09, 2021 at 05:35:49AM -0400, Michael S. Tsirkin wrote:
+> > > > On Mon, Aug 09, 2021 at 11:00:40AM +0300, Eli Cohen wrote:
+> > > > > Hi Michael,
+> > > > > 
+> > > > > First patch is just a cleaup.
+> > > > > Second patch adds control virtqueue support for mlx5_vdpa and handle MAC
+> > > > > configutations through the control VQ.
+> > > > > Third patch adds multi queue support for mlx5_vdpa accepting
+> > > > > configurations from the control VQ.
+> > > > 
+> > > > Threading broken again :(
+> > > 
+> > > My mail client failed after sending the first two patches so I sent the
+> > > other two as distinct emails. I assume it is realted but how can you see
+> > > that threading is broken?
+> > 
+> > Patches 2 and 3 do not have In-Reply-To or References headers.
+> > 
+> > Patch 1 does:
+> > 
+> > In-Reply-To: <20210809080043.169701-1-elic@nvidia.com>
+> > References: <20210809080043.169701-1-elic@nvidia.com>
+> > 
+> > One way to fix the setup is using git-send-email.
+> > 
+> 
+> I did use git-send-email and here's what I got:
+> 
+> ...
+> Result: 250
+> (mbox) Adding cc: Eli Cohen <elic@nvidia.com> from line 'From: Eli Cohen
+> <elic@nvidia.com>'
+> (body) Adding cc: Eli Cohen <elic@nvidia.com> from line 'Signed-off-by:
+> Eli Cohen <elic@nvidia.com>'
+> 4.3.1 Insufficient system resources
 
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
----
- include/net/devlink.h |  4 ++++
- net/core/devlink.c    | 48 +++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 52 insertions(+)
+That's your server's response.
 
-diff --git a/include/net/devlink.h b/include/net/devlink.h
-index f6459ee77114..1151497c0ec5 100644
---- a/include/net/devlink.h
-+++ b/include/net/devlink.h
-@@ -1651,6 +1651,10 @@ void devlink_param_unregister(struct devlink *devlink,
- 			      const struct devlink_param *param);
- void devlink_params_publish(struct devlink *devlink);
- void devlink_params_unpublish(struct devlink *devlink);
-+void devlink_param_publish(struct devlink *devlink,
-+			   const struct devlink_param *param);
-+void devlink_param_unpublish(struct devlink *devlink,
-+			     const struct devlink_param *param);
- int devlink_port_params_register(struct devlink_port *devlink_port,
- 				 const struct devlink_param *params,
- 				 size_t params_count);
-diff --git a/net/core/devlink.c b/net/core/devlink.c
-index 629291175af3..ee9787314cff 100644
---- a/net/core/devlink.c
-+++ b/net/core/devlink.c
-@@ -9982,6 +9982,54 @@ void devlink_params_unpublish(struct devlink *devlink)
- }
- EXPORT_SYMBOL_GPL(devlink_params_unpublish);
- 
-+/**
-+ * devlink_param_publish - publish one configuration parameter
-+ *
-+ * @devlink: devlink
-+ * @param: one configuration parameter
-+ *
-+ * Publish previously registered configuration parameter.
-+ */
-+void devlink_param_publish(struct devlink *devlink,
-+			   const struct devlink_param *param)
-+{
-+	struct devlink_param_item *param_item;
-+
-+	list_for_each_entry(param_item, &devlink->param_list, list) {
-+		if (param_item->param != param || param_item->published)
-+			continue;
-+		param_item->published = true;
-+		devlink_param_notify(devlink, 0, param_item,
-+				     DEVLINK_CMD_PARAM_NEW);
-+		break;
-+	}
-+}
-+EXPORT_SYMBOL_GPL(devlink_param_publish);
-+
-+/**
-+ * devlink_param_unpublish - unpublish one configuration parameter
-+ *
-+ * @devlink: devlink
-+ * @param: one configuration parameter
-+ *
-+ * Unpublish previously registered configuration parameter.
-+ */
-+void devlink_param_unpublish(struct devlink *devlink,
-+			     const struct devlink_param *param)
-+{
-+	struct devlink_param_item *param_item;
-+
-+	list_for_each_entry(param_item, &devlink->param_list, list) {
-+		if (param_item->param != param || !param_item->published)
-+			continue;
-+		param_item->published = false;
-+		devlink_param_notify(devlink, 0, param_item,
-+				     DEVLINK_CMD_PARAM_DEL);
-+		break;
-+	}
-+}
-+EXPORT_SYMBOL_GPL(devlink_param_unpublish);
-+
- /**
-  *	devlink_port_params_register - register port configuration parameters
-  *
--- 
-2.26.2
+> 
+> Maybe it was a temporary problem. I will resend. Should I put v1 on it?
+
+v1 is implicit.  Either v2 or "resend" in the prefix.
+
+> > 
+> > 
+> > > > 
+> > > > > Eli Cohen (3):
+> > > > >   vdpa/mlx5: Remove redundant header file inclusion
+> > > > >   vdpa/mlx5: Add support for control VQ and MAC setting
+> > > > >   vdpa/mlx5: Add multiqueue support
+> > > > > 
+> > > > >  drivers/vdpa/mlx5/core/mlx5_vdpa.h |  25 +-
+> > > > >  drivers/vdpa/mlx5/core/mr.c        |  87 ++++--
+> > > > >  drivers/vdpa/mlx5/core/resources.c |  41 +++
+> > > > >  drivers/vdpa/mlx5/net/mlx5_vnet.c  | 471 +++++++++++++++++++++++++----
+> > > > >  4 files changed, 549 insertions(+), 75 deletions(-)
+> > > > > 
+> > > > > -- 
+> > > > > 2.31.1
+> > > > 
+> > 
 
 _______________________________________________
 Virtualization mailing list
