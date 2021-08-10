@@ -1,120 +1,138 @@
-Return-Path: <SRS0=ROIW=NA=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=EG+p=NB=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE680C4338F
-	for <virtualization@archiver.kernel.org>; Mon,  9 Aug 2021 10:47:02 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 68F00C4338F
+	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 03:02:39 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 887AA60EE9
-	for <virtualization@archiver.kernel.org>; Mon,  9 Aug 2021 10:47:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 887AA60EE9
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 1038261051
+	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 03:02:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 1038261051
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4191E82B08;
-	Mon,  9 Aug 2021 10:47:02 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id B5BFF606AA;
+	Tue, 10 Aug 2021 03:02:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id eu-COEp8miNY; Mon,  9 Aug 2021 10:47:01 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 7DB7982A4E;
-	Mon,  9 Aug 2021 10:47:00 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5665CC0010;
-	Mon,  9 Aug 2021 10:47:00 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 552BBC000E
- for <virtualization@lists.linux-foundation.org>;
- Mon,  9 Aug 2021 10:46:59 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 3E2CF60724
- for <virtualization@lists.linux-foundation.org>;
- Mon,  9 Aug 2021 10:46:59 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8Sd54XCuNiBG
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id AhwkKuO8_gEc; Tue, 10 Aug 2021 03:02:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 455DC605A8;
+	Tue, 10 Aug 2021 03:02:34 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 17420C0010;
+	Tue, 10 Aug 2021 03:02:34 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8E23FC000E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 Aug 2021 10:46:58 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com
- [IPv6:2607:f8b0:4864:20::636])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 263086070F
+ Tue, 10 Aug 2021 03:02:32 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 70EC3833DB
  for <virtualization@lists.linux-foundation.org>;
- Mon,  9 Aug 2021 10:46:58 +0000 (UTC)
-Received: by mail-pl1-x636.google.com with SMTP id a20so15957117plm.0
+ Tue, 10 Aug 2021 03:02:32 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id UUljWGpyxCPN
  for <virtualization@lists.linux-foundation.org>;
- Mon, 09 Aug 2021 03:46:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=+lXsAMRVCRHKcw8DLcgU+vSRIUJz4YchWDyat4QT5pI=;
- b=BTWLAgVTp/jZa3QIwowBsSzCo85GoobAVUyd3zHDA2iqXw9p/vjiqIn+Qd5kb9hAcu
- uEFZpT/do4lw70a96ZWS6dCYmzys52dS/ruek9mDdqmOuwhI+idt6EFO08pvMb4GDccE
- c2AQnn/xH385VEJ8vEzD73X08lg2VtKbMZ7ejZbCb8GLURrwtRWwFdek//9fZT5s1PRv
- CRKuWHfL6mXa/TQ6amBAUStkFpna37XHiKISaU8ApzgQE9U7RI4unjr8pcGzOFENcm2+
- oAs0xu/YRL02eISvm6x2UNr2clkFykID56pb4btMISYPJHvWKzSC6dgzGBUZW/Baiq7R
- 73hA==
+ Tue, 10 Aug 2021 03:02:31 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 63223833CD
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 10 Aug 2021 03:02:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1628564550;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=oaO6ycaF20ZgcRI3wGSVNh4K2MMhBW7g6tA5PypVq9o=;
+ b=TXK4yjPkiJz+2fIBZ2txcrImcJ8gFHsmE7TBf9iRDeUyw/1PLE0FmVwjxFGufRuewucUKr
+ H8cF9RcEcjocn6Omn/CbIENlSsC1wtITjfro6xQSRnfaLua6R+WBI3vL4YVahydUHhOS4G
+ VuBWxrUhRZRAcQUqUB6T5aPrjPoQa5w=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-416-exSik6ZUPJuPyxKXUbPjMw-1; Mon, 09 Aug 2021 23:02:27 -0400
+X-MC-Unique: exSik6ZUPJuPyxKXUbPjMw-1
+Received: by mail-pl1-f199.google.com with SMTP id
+ f4-20020a170902ce84b029012ccdab6e58so9621017plg.0
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 09 Aug 2021 20:02:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=+lXsAMRVCRHKcw8DLcgU+vSRIUJz4YchWDyat4QT5pI=;
- b=kTIHj2AJ8UvOQjZFuWTQfjE7snKmEgj92REsNNU80ECjweX3x7k/KDqpSnDhHlstE1
- JU4TFJUcf1Fv48tzFU45pb5zIwOlh/doF9mSnk6j4GDcQ91bNDJY1Aen1lYTE/ciCNVz
- GfahnJAYrWt/PhDdJCJl/4hfoH9JzlFfFLeBO/8wpiadsogHj4NSz52WUTZzrjRAfKBa
- ZhodAXlHnVXPWoKlMCtQq1Yc7XNk2Y9YQdv2fArt3sDvMxAv39zqS8s68iFyIE3hfB/q
- UhkFXtCFJ9S5nageBA6LCrQgcpC3M3zXiDHbWPGowTUPk52LJitfQDb+PWD9wop/kAqI
- uFGg==
-X-Gm-Message-State: AOAM532kx9siGrnFXuqVxOweur0g6ROBaeSO4nPtg/pORFnyWfM+8Z9s
- Fya91t4QCQMD9te4RO3+SN82Bw==
-X-Google-Smtp-Source: ABdhPJzaU/6cqJUhFI6s4fWBGkwnUqmq+NgsVZQt4Jg0fLiG+SjXI6ltbkxtyoMosuemw+S+Hp4yvw==
-X-Received: by 2002:a63:db4b:: with SMTP id x11mr48497pgi.396.1628506017407;
- Mon, 09 Aug 2021 03:46:57 -0700 (PDT)
-Received: from localhost ([122.172.201.85])
- by smtp.gmail.com with ESMTPSA id c24sm23601851pgj.11.2021.08.09.03.46.56
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 09 Aug 2021 03:46:56 -0700 (PDT)
-Date: Mon, 9 Aug 2021 16:16:54 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Arnd Bergmann <arnd@kernel.org>
-Subject: Re: [Stratos-dev] [PATCH V4 2/2] gpio: virtio: Add IRQ support
-Message-ID: <20210809104654.7crxtuxswbdbkg5p@vireshk-i7>
-References: <75c8e6e5e8dfa1889938f3a6b2d991763c7a3717.1627989586.git.viresh.kumar@linaro.org>
- <CAK8P3a29NfFWwtGHhqos1P8f_SmzPJTXvEY5BZJAEMbV2SKe-Q@mail.gmail.com>
- <0100017b1610f711-c53c79f2-9e28-4c45-bb42-8db09688b18e-000000@email.amazonses.com>
- <CAK8P3a0DWkfQcZpmyfKcdNt1MHf8ha6a9L2LmLt1Tv-j0HDr3w@mail.gmail.com>
- <20210805124922.j7lts7tfmm4t2kpf@vireshk-i7>
- <CAK8P3a0kbmPLGCBrjAv7-dW=JWq-pdSBeGUHCxUFmMKvKhCg7w@mail.gmail.com>
- <0100017b1a6c0a05-e41dc16c-b326-4017-a63d-a24a6c1fde70-000000@email.amazonses.com>
- <CAK8P3a2rrueXJHZxuiiShgVmLD916RaxW7xQHHjQXNFkM3Fpvg@mail.gmail.com>
- <20210809073020.y6ruibdm37xnx7hg@vireshk-i7>
- <CAK8P3a3TabswETDAUec-2rbiNBk_K48-UdpTA5Ckvu5ogOyHjQ@mail.gmail.com>
+ h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+ :user-agent:mime-version:in-reply-to:content-transfer-encoding
+ :content-language;
+ bh=oaO6ycaF20ZgcRI3wGSVNh4K2MMhBW7g6tA5PypVq9o=;
+ b=CcIb+CtuGA4WhHTUe96OZRO0lNfkSBiN9iFFST9VNs0LhIs4TrEAkdy5I32RhcmqOL
+ ymooWS+vy/UgQTxc7laZ7jdw9I1RzzmGyBt0S09ErpvNY4zrXOacb2LOZ3/+dc+6LFkg
+ 8j6ZWAc4Sm1WCI0wJpIPBVmdnZP5Hlm6ZrVzKo1uxJFO9Q1wSY9b4amAk6cS/TAv1w06
+ 8qKb7Ne5a85JO2GPYj8mfP96GpjXPpY+Q9Q2y5fjCPmhuCjulmJm/1jJmbPwoHAtLpoV
+ roQG4KY1xOdjh9FMhpj+STdsSFZn3+KJvR7LviWwpqzGXyM1KCYKCkp6hqMhVcKeEorS
+ nYHw==
+X-Gm-Message-State: AOAM5312SHwAgUZ2TDIJ3s3ZAzWe3nuuTQA4seRoxnvOUKgmG9s9qJ23
+ uvHs9fnfNIEWOCNRfWz+/ugkla+9P8ZNzJxfVlIcEpXviNx4hac04lqlgDL5+HaxQN1J9JyM+n5
+ gUUPHgdh9C63jdaj4GrZGl4XLOcczb3AyehexSqpRHg==
+X-Received: by 2002:a63:f754:: with SMTP id f20mr131585pgk.385.1628564546405; 
+ Mon, 09 Aug 2021 20:02:26 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz4iIBidP48y9gv61bBqE2YoRFI1FZjnrIQXCCS9iv1FkdxvVNARb2MOe/u6xBBvn1K8bmYbw==
+X-Received: by 2002:a63:f754:: with SMTP id f20mr131560pgk.385.1628564546126; 
+ Mon, 09 Aug 2021 20:02:26 -0700 (PDT)
+Received: from wangxiaodeMacBook-Air.local ([209.132.188.80])
+ by smtp.gmail.com with ESMTPSA id z18sm17386165pfn.88.2021.08.09.20.02.18
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 09 Aug 2021 20:02:25 -0700 (PDT)
+Subject: Re: [PATCH v10 01/17] iova: Export alloc_iova_fast() and
+ free_iova_fast()
+To: Yongji Xie <xieyongji@bytedance.com>, Robin Murphy <robin.murphy@arm.com>
+References: <20210729073503.187-1-xieyongji@bytedance.com>
+ <20210729073503.187-2-xieyongji@bytedance.com>
+ <43d88942-1cd3-c840-6fec-4155fd544d80@redhat.com>
+ <CACycT3vcpwyA3xjD29f1hGnYALyAd=-XcWp8+wJiwSqpqUu00w@mail.gmail.com>
+ <6e05e25e-e569-402e-d81b-8ac2cff1c0e8@arm.com>
+ <CACycT3sm2r8NMMUPy1k1PuSZZ3nM9aic-O4AhdmRRCwgmwGj4Q@mail.gmail.com>
+ <417ce5af-4deb-5319-78ce-b74fb4dd0582@arm.com>
+ <CACycT3vARzvd4-dkZhDHqUkeYoSxTa2ty0z0ivE1znGti+n1-g@mail.gmail.com>
+ <8c381d3d-9bbd-73d6-9733-0f0b15c40820@redhat.com>
+ <CACycT3steXFeg7NRbWpo2J59dpYcumzcvM2zcPJAVe40-EvvEg@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <b427cf12-2ff6-e5cd-fe6a-3874d8622a29@redhat.com>
+Date: Tue, 10 Aug 2021 11:02:14 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a3TabswETDAUec-2rbiNBk_K48-UdpTA5Ckvu5ogOyHjQ@mail.gmail.com>
-User-Agent: NeoMutt/20180716-391-311a52
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Viresh Kumar <vireshk@kernel.org>,
- Linus Walleij <linus.walleij@linaro.org>, Cornelia Huck <cohuck@redhat.com>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE"
- <virtualization@lists.linux-foundation.org>,
- Bartosz Golaszewski <bgolaszewski@baylibre.com>,
- Geert Uytterhoeven <geert@linux-m68k.org>,
- "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
- Marc Zyngier <maz@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
- "Enrico Weigelt, metux IT consult" <info@metux.net>,
- Stratos Mailing List <stratos-dev@op-lists.linaro.org>
+In-Reply-To: <CACycT3steXFeg7NRbWpo2J59dpYcumzcvM2zcPJAVe40-EvvEg@mail.gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: kvm <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Christian Brauner <christian.brauner@canonical.com>,
+ Jonathan Corbet <corbet@lwn.net>, Matthew Wilcox <willy@infradead.org>,
+ Christoph Hellwig <hch@infradead.org>,
+ Dan Carpenter <dan.carpenter@oracle.com>,
+ Liu Xiaodong <xiaodong.liu@intel.com>, linux-fsdevel@vger.kernel.org,
+ Al Viro <viro@zeniv.linux.org.uk>, Stefan Hajnoczi <stefanha@redhat.com>,
+ songmuchun@bytedance.com, Jens Axboe <axboe@kernel.dk>,
+ He Zhe <zhe.he@windriver.com>, Greg KH <gregkh@linuxfoundation.org>,
+ Randy Dunlap <rdunlap@infradead.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>, iommu@lists.linux-foundation.org,
+ bcrl@kvack.org, netdev@vger.kernel.org, Joe Perches <joe@perches.com>,
+ =?UTF-8?Q?Mika_Penttil=c3=a4?= <mika.penttila@nextfour.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,406 +144,59 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 09-08-21, 09:55, Arnd Bergmann wrote:
-> Ah, right. There is already a flag that gets checked by the caller.
-> 
-> It does feel odd to have an empty 'irq_mask' callback though, so
-> maybe there is still something missing, just not what I thought.
-> 
-> It's probably the result of calling handle_level_irq(), which as you
-> said is closer to what we want, but is not exactly what we need for
-> this protocol.
-
-Okay, I have tried to take care of locking as well now and used local
-flags only to make sure I can depend on them to get the locking
-working properly. Lets see what's broken in this now :)
-
--- 
-viresh
-
--------------------------8<-------------------------
-
-diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
-index 199f8ace1e88..48dc469cfc64 100644
---- a/drivers/gpio/gpio-virtio.c
-+++ b/drivers/gpio/gpio-virtio.c
-@@ -16,6 +16,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/mutex.h>
-+#include <linux/spinlock.h>
- #include <linux/virtio_config.h>
- #include <uapi/linux/virtio_gpio.h>
- #include <uapi/linux/virtio_ids.h>
-@@ -28,6 +29,17 @@ struct virtio_gpio_line {
- 	unsigned int rxlen;
- };
- 
-+struct vgpio_irq_line {
-+	u8 type;
-+	bool disabled;
-+	bool update_pending;
-+	bool masked;
-+	bool queued;
-+
-+	struct virtio_gpio_irq_request ireq ____cacheline_aligned;
-+	struct virtio_gpio_irq_response ires ____cacheline_aligned;
-+};
-+
- struct virtio_gpio {
- 	struct virtio_device *vdev;
- 	struct mutex lock; /* Protects virtqueue operation */
-@@ -35,6 +47,12 @@ struct virtio_gpio {
- 	struct virtio_gpio_config config;
- 	struct virtio_gpio_line *lines;
- 	struct virtqueue *request_vq;
-+
-+	/* irq support */
-+	struct virtqueue *event_vq;
-+	struct mutex irq_lock; /* Protects irq operation */
-+	spinlock_t eventq_lock; /* Protects queuing of the buffer */
-+	struct vgpio_irq_line *irq_lines;
- };
- 
- static int _virtio_gpio_req(struct virtio_gpio *vgpio, u16 type, u16 gpio,
-@@ -187,6 +205,240 @@ static void virtio_gpio_set(struct gpio_chip *gc, unsigned int gpio, int value)
- 	virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_SET_VALUE, gpio, value, NULL);
- }
- 
-+/* Interrupt handling */
-+static void virtio_gpio_irq_prepare(struct virtio_gpio *vgpio, u16 gpio)
-+{
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[gpio];
-+	struct virtio_gpio_irq_request *ireq = &irq_line->ireq;
-+	struct virtio_gpio_irq_response *ires = &irq_line->ires;
-+	struct scatterlist *sgs[2], req_sg, res_sg;
-+	int ret;
-+
-+	if (WARN_ON(irq_line->queued || irq_line->masked || irq_line->disabled))
-+		return;
-+
-+	ireq->gpio = cpu_to_le16(gpio);
-+	sg_init_one(&req_sg, ireq, sizeof(*ireq));
-+	sg_init_one(&res_sg, ires, sizeof(*ires));
-+	sgs[0] = &req_sg;
-+	sgs[1] = &res_sg;
-+
-+	ret = virtqueue_add_sgs(vgpio->event_vq, sgs, 1, 1, irq_line, GFP_ATOMIC);
-+	if (ret) {
-+		dev_err(&vgpio->vdev->dev, "failed to add request to eventq\n");
-+		return;
-+	}
-+
-+	irq_line->queued = true;
-+	virtqueue_kick(vgpio->event_vq);
-+}
-+
-+static void virtio_gpio_irq_enable(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-+
-+	spin_lock(&vgpio->eventq_lock);
-+	irq_line->disabled = false;
-+	irq_line->masked = false;
-+
-+	/* Queue the buffer unconditionally on enable */
-+	virtio_gpio_irq_prepare(vgpio, d->hwirq);
-+	spin_unlock(&vgpio->eventq_lock);
-+
-+	irq_line->update_pending = true;
-+}
-+
-+static void virtio_gpio_irq_disable(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-+
-+	spin_lock(&vgpio->eventq_lock);
-+	irq_line->disabled = true;
-+	irq_line->masked = true;
-+	spin_unlock(&vgpio->eventq_lock);
-+
-+	irq_line->update_pending = true;
-+}
-+
-+static void virtio_gpio_irq_mask(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-+
-+	spin_lock(&vgpio->eventq_lock);
-+	irq_line->masked = true;
-+	spin_unlock(&vgpio->eventq_lock);
-+}
-+
-+static void virtio_gpio_irq_unmask(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-+
-+	spin_lock(&vgpio->eventq_lock);
-+	irq_line->masked = false;
-+
-+	/* Queue the buffer unconditionally on unmask */
-+	virtio_gpio_irq_prepare(vgpio, d->hwirq);
-+	spin_unlock(&vgpio->eventq_lock);
-+}
-+
-+static int virtio_gpio_irq_set_type(struct irq_data *d, unsigned int type)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-+
-+	switch (type) {
-+	case IRQ_TYPE_NONE:
-+		type = VIRTIO_GPIO_IRQ_TYPE_NONE;
-+		break;
-+	case IRQ_TYPE_EDGE_RISING:
-+		type = VIRTIO_GPIO_IRQ_TYPE_EDGE_RISING;
-+		break;
-+	case IRQ_TYPE_EDGE_FALLING:
-+		type = VIRTIO_GPIO_IRQ_TYPE_EDGE_FALLING;
-+		break;
-+	case IRQ_TYPE_EDGE_BOTH:
-+		type = VIRTIO_GPIO_IRQ_TYPE_EDGE_BOTH;
-+		break;
-+	case IRQ_TYPE_LEVEL_LOW:
-+		type = VIRTIO_GPIO_IRQ_TYPE_LEVEL_LOW;
-+		break;
-+	case IRQ_TYPE_LEVEL_HIGH:
-+		type = VIRTIO_GPIO_IRQ_TYPE_LEVEL_HIGH;
-+		break;
-+	default:
-+		dev_err(&vgpio->vdev->dev, "unsupported irq type: %u\n", type);
-+		return -EINVAL;
-+	}
-+
-+	irq_line->type = type;
-+	irq_line->update_pending = true;
-+
-+	return 0;
-+}
-+
-+static void update_irq_type(struct virtio_gpio *vgpio, u16 gpio, u8 type)
-+{
-+	virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_IRQ_TYPE, gpio, type, NULL);
-+}
-+
-+static void virtio_gpio_irq_bus_lock(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+
-+	mutex_lock(&vgpio->irq_lock);
-+}
-+
-+static void virtio_gpio_irq_bus_sync_unlock(struct irq_data *d)
-+{
-+	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
-+	u8 type = irq_line->disabled ? VIRTIO_GPIO_IRQ_TYPE_NONE : irq_line->type;
-+
-+	if (irq_line->update_pending) {
-+		irq_line->update_pending = false;
-+		update_irq_type(vgpio, d->hwirq, type);
-+	}
-+
-+	mutex_unlock(&vgpio->irq_lock);
-+}
-+
-+static struct irq_chip vgpio_irq_chip = {
-+	.name			= "virtio-gpio",
-+	.irq_enable		= virtio_gpio_irq_enable,
-+	.irq_disable		= virtio_gpio_irq_disable,
-+	.irq_mask		= virtio_gpio_irq_mask,
-+	.irq_unmask		= virtio_gpio_irq_unmask,
-+	.irq_set_type		= virtio_gpio_irq_set_type,
-+
-+	/* These are required to implement irqchip for slow busses */
-+	.irq_bus_lock		= virtio_gpio_irq_bus_lock,
-+	.irq_bus_sync_unlock	= virtio_gpio_irq_bus_sync_unlock,
-+};
-+
-+static bool skip_irq_event(struct virtio_gpio *vgpio, int gpio,
-+			   struct vgpio_irq_line *irq_line)
-+{
-+	bool skip = false;
-+
-+	spin_lock(&vgpio->eventq_lock);
-+	irq_line->queued = false;
-+
-+	/* Interrupt is disabled currently */
-+	if (irq_line->masked || irq_line->disabled) {
-+		skip = true;
-+		goto unlock;
-+	}
-+
-+	/*
-+	 * Buffer is returned after the interrupt is masked. The interrupt is
-+	 * already enabled again now, requeue the buffers.
-+	 */
-+	if (irq_line->ires.status == VIRTIO_GPIO_IRQ_STATUS_INVALID) {
-+		virtio_gpio_irq_prepare(vgpio, gpio);
-+		skip = true;
-+		goto unlock;
-+	}
-+
-+	if (WARN_ON(irq_line->ires.status != VIRTIO_GPIO_IRQ_STATUS_VALID))
-+		skip = true;
-+
-+unlock:
-+	spin_unlock(&vgpio->eventq_lock);
-+
-+	return skip;
-+}
-+
-+static void virtio_gpio_event_vq(struct virtqueue *vq)
-+{
-+	struct virtio_gpio *vgpio = vq->vdev->priv;
-+	struct device *dev = &vgpio->vdev->dev;
-+	struct vgpio_irq_line *irq_line;
-+	int irq, gpio, ret;
-+	unsigned int len;
-+
-+	while (true) {
-+		irq_line = virtqueue_get_buf(vgpio->event_vq, &len);
-+		if (!irq_line)
-+			break;
-+
-+		if (len != sizeof(irq_line->ires)) {
-+			dev_err(dev, "irq with incorrect length (%u : %u)\n",
-+				len, (unsigned)sizeof(irq_line->ires));
-+			continue;
-+		}
-+
-+		/*
-+		 * Find GPIO line number from the offset of irq_line within the
-+		 * irq_lines block. We can also get GPIO number from
-+		 * irq-request, but better not rely on a value returned by
-+		 * remote.
-+		 */
-+		gpio = irq_line - vgpio->irq_lines;
-+		WARN_ON(gpio >= vgpio->config.ngpio);
-+
-+		if (skip_irq_event(vgpio, gpio, irq_line))
-+			continue;
-+
-+		irq = irq_find_mapping(vgpio->gc.irq.domain, gpio);
-+		WARN_ON(!irq);
-+
-+		ret = generic_handle_irq(irq);
-+		if (ret)
-+			dev_err(dev, "failed to handle interrupt: %d\n", ret);
-+	};
-+}
-+
- static void virtio_gpio_request_vq(struct virtqueue *vq)
- {
- 	struct virtio_gpio_line *line;
-@@ -211,14 +463,15 @@ static void virtio_gpio_free_vqs(struct virtio_device *vdev)
- static int virtio_gpio_alloc_vqs(struct virtio_gpio *vgpio,
- 				 struct virtio_device *vdev)
- {
--	const char * const names[] = { "requestq" };
-+	const char * const names[] = { "requestq", "eventq" };
- 	vq_callback_t *cbs[] = {
- 		virtio_gpio_request_vq,
-+		virtio_gpio_event_vq,
- 	};
--	struct virtqueue *vqs[1] = { NULL };
-+	struct virtqueue *vqs[2] = { NULL, NULL };
- 	int ret;
- 
--	ret = virtio_find_vqs(vdev, 1, vqs, cbs, names, NULL);
-+	ret = virtio_find_vqs(vdev, vgpio->irq_lines ? 2 : 1, vqs, cbs, names, NULL);
- 	if (ret) {
- 		dev_err(&vdev->dev, "failed to find vqs: %d\n", ret);
- 		return ret;
-@@ -226,11 +479,23 @@ static int virtio_gpio_alloc_vqs(struct virtio_gpio *vgpio,
- 
- 	if (!vqs[0]) {
- 		dev_err(&vdev->dev, "failed to find requestq vq\n");
--		return -ENODEV;
-+		goto out;
- 	}
- 	vgpio->request_vq = vqs[0];
- 
-+	if (vgpio->irq_lines && !vqs[1]) {
-+		dev_err(&vdev->dev, "failed to find eventq vq\n");
-+		goto out;
-+	}
-+	vgpio->event_vq = vqs[1];
-+
- 	return 0;
-+
-+out:
-+	if (vqs[0] || vqs[1])
-+		virtio_gpio_free_vqs(vdev);
-+
-+	return -ENODEV;
- }
- 
- static const char **virtio_gpio_get_names(struct virtio_gpio *vgpio)
-@@ -326,6 +591,32 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
- 	vgpio->gc.owner			= THIS_MODULE;
- 	vgpio->gc.can_sleep		= true;
- 
-+	/* Interrupt support */
-+	if (virtio_has_feature(vdev, VIRTIO_GPIO_F_IRQ)) {
-+		vgpio->irq_lines = devm_kcalloc(dev, config->ngpio,
-+						sizeof(*vgpio->irq_lines),
-+						GFP_KERNEL);
-+		if (!vgpio->irq_lines)
-+			return -ENOMEM;
-+
-+		/* The event comes from the outside so no parent handler */
-+		vgpio->gc.irq.parent_handler	= NULL;
-+		vgpio->gc.irq.num_parents	= 0;
-+		vgpio->gc.irq.parents		= NULL;
-+		vgpio->gc.irq.default_type	= IRQ_TYPE_NONE;
-+		vgpio->gc.irq.handler		= handle_level_irq;
-+		vgpio->gc.irq.chip		= &vgpio_irq_chip;
-+
-+		for (i = 0; i < config->ngpio; i++) {
-+			vgpio->irq_lines[i].type = VIRTIO_GPIO_IRQ_TYPE_NONE;
-+			vgpio->irq_lines[i].disabled = true;
-+			vgpio->irq_lines[i].masked = true;
-+		}
-+
-+		mutex_init(&vgpio->irq_lock);
-+		spin_lock_init(&vgpio->eventq_lock);
-+	}
-+
- 	ret = virtio_gpio_alloc_vqs(vgpio, vdev);
- 	if (ret)
- 		return ret;
-@@ -358,7 +649,13 @@ static const struct virtio_device_id id_table[] = {
- };
- MODULE_DEVICE_TABLE(virtio, id_table);
- 
-+static const unsigned int features[] = {
-+	VIRTIO_GPIO_F_IRQ,
-+};
-+
- static struct virtio_driver virtio_gpio_driver = {
-+	.feature_table		= features,
-+	.feature_table_size	= ARRAY_SIZE(features),
- 	.id_table		= id_table,
- 	.probe			= virtio_gpio_probe,
- 	.remove			= virtio_gpio_remove,
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CuWcqCAyMDIxLzgvOSDkuIvljYgxOjU2LCBZb25namkgWGllIOWGmemBkzoKPiBPbiBUaHUsIEF1
+ZyA1LCAyMDIxIGF0IDk6MzEgUE0gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4gd3Jv
+dGU6Cj4+Cj4+IOWcqCAyMDIxLzgvNSDkuIvljYg4OjM0LCBZb25namkgWGllIOWGmemBkzoKPj4+
+PiBNeSBtYWluIHBvaW50LCB0aG91Z2gsIGlzIHRoYXQgaWYgeW91J3ZlIGFscmVhZHkgZ290IHNv
+bWV0aGluZyBlbHNlCj4+Pj4ga2VlcGluZyB0cmFjayBvZiB0aGUgYWN0dWFsIGFkZHJlc3Nlcywg
+dGhlbiB0aGUgd2F5IHlvdSdyZSB1c2luZyBhbgo+Pj4+IGlvdmFfZG9tYWluIGFwcGVhcnMgdG8g
+YmUgc29tZXRoaW5nIHlvdSBjb3VsZCBkbyB3aXRoIGEgdHJpdmlhbCBiaXRtYXAKPj4+PiBhbGxv
+Y2F0b3IuIFRoYXQncyB3aHkgSSBkb24ndCBidXkgdGhlIGVmZmljaWVuY3kgYXJndW1lbnQuIFRo
+ZSBtYWluCj4+Pj4gZGVzaWduIHBvaW50cyBvZiB0aGUgSU9WQSBhbGxvY2F0b3IgYXJlIHRvIG1h
+bmFnZSBsYXJnZSBhZGRyZXNzIHNwYWNlcwo+Pj4+IHdoaWxlIHRyeWluZyB0byBtYXhpbWlzZSBz
+cGF0aWFsIGxvY2FsaXR5IHRvIG1pbmltaXNlIHRoZSB1bmRlcmx5aW5nCj4+Pj4gcGFnZXRhYmxl
+IHVzYWdlLCBhbmQgYWxsb2NhdGluZyB3aXRoIGEgZmxleGlibGUgbGltaXQgdG8gc3VwcG9ydAo+
+Pj4+IG11bHRpcGxlIGRldmljZXMgd2l0aCBkaWZmZXJlbnQgYWRkcmVzc2luZyBjYXBhYmlsaXRp
+ZXMgaW4gdGhlIHNhbWUKPj4+PiBhZGRyZXNzIHNwYWNlLiBJZiBub25lIG9mIHRob3NlIGFzcGVj
+dHMgYXJlIHJlbGV2YW50IHRvIHRoZSB1c2UtY2FzZSAtCj4+Pj4gd2hpY2ggQUZBSUNTIGFwcGVh
+cnMgdG8gYmUgdHJ1ZSBoZXJlIC0gdGhlbiBhcyBhIGdlbmVyYWwtcHVycG9zZQo+Pj4+IHJlc291
+cmNlIGFsbG9jYXRvciBpdCdzIHJ1YmJpc2ggYW5kIGhhcyBhbiB1bnJlYXNvbmFibHkgbWFzc2l2
+ZSBtZW1vcnkKPj4+PiBvdmVyaGVhZCBhbmQgdGhlcmUgYXJlIG1hbnksIG1hbnkgYmV0dGVyIGNo
+b2ljZXMuCj4+Pj4KPj4+IE9LLCBJIGdldCB5b3VyIHBvaW50LiBBY3R1YWxseSB3ZSB1c2VkIHRo
+ZSBnZW5wb29sIGFsbG9jYXRvciBpbiB0aGUKPj4+IGVhcmx5IHZlcnNpb24uIE1heWJlIHdlIGNh
+biBmYWxsIGJhY2sgdG8gdXNpbmcgaXQuCj4+Cj4+IEkgdGhpbmsgbWF5YmUgeW91IGNhbiBzaGFy
+ZSBzb21lIHBlcmYgbnVtYmVycyB0byBzZWUgaG93IG11Y2gKPj4gYWxsb2NfaW92YV9mYXN0KCkg
+Y2FuIGhlbHAuCj4+Cj4gSSBkaWQgc29tZSBmaW8gdGVzdHNbMV0gd2l0aCBhIHJhbS1iYWNrZW5k
+IHZkdXNlIGJsb2NrIGRldmljZVsyXS4KPgo+IEZvbGxvd2luZyBhcmUgc29tZSBwZXJmb3JtYW5j
+ZSBkYXRhOgo+Cj4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBudW1qb2JzPTEgICBudW1q
+b2JzPTIgICAgbnVtam9icz00ICAgbnVtam9icz04Cj4gaW92YV9hbGxvY19mYXN0ICAgIDE0NWsg
+aW9wcyAgICAgIDI2NWsgaW9wcyAgICAgIDUxNGsgaW9wcyAgICAgIDc1OGsgaW9wcwo+Cj4gaW92
+YV9hbGxvYyAgICAgICAgICAgIDEzN2sgaW9wcyAgICAgMTcwayBpb3BzICAgICAgMTI4ayBpb3Bz
+ICAgICAgMTEzayBpb3BzCj4KPiBnZW5fcG9vbF9hbGxvYyAgIDE0M2sgaW9wcyAgICAgIDI3MGsg
+aW9wcyAgICAgIDQ1OGsgaW9wcyAgICAgIDUyMWsgaW9wcwo+Cj4gVGhlIGlvdmFfYWxsb2NfZmFz
+dCgpIGhhcyB0aGUgYmVzdCBwZXJmb3JtYW5jZSBzaW5jZSB3ZSBhbHdheXMgaGl0IHRoZQo+IHBl
+ci1jcHUgY2FjaGUuIFJlZ2FyZGxlc3Mgb2YgdGhlIHBlci1jcHUgY2FjaGUsIHRoZSBnZW5wb29s
+IGFsbG9jYXRvcgo+IHNob3VsZCBiZSBiZXR0ZXIgdGhhbiB0aGUgaW92YSBhbGxvY2F0b3IuCgoK
+SSB0aGluayB3ZSBzZWUgY29udmluY2luZyBudW1iZXJzIGZvciB1c2luZyBpb3ZhX2FsbG9jX2Zh
+c3QoKSB0aGFuIHRoZSAKZ2VuX3BvbGxfYWxsb2MoKSAoNDUlIGltcHJvdmVtZW50IG9uIGpvYj04
+KS4KClRoYW5rcwoKCj4KPiBbMV0gZmlvIGpvYmZpbGU6Cj4KPiBbZ2xvYmFsXQo+IHJ3PXJhbmRy
+ZWFkCj4gZGlyZWN0PTEKPiBpb2VuZ2luZT1saWJhaW8KPiBpb2RlcHRoPTE2Cj4gdGltZV9iYXNl
+ZD0xCj4gcnVudGltZT02MHMKPiBncm91cF9yZXBvcnRpbmcKPiBicz00awo+IGZpbGVuYW1lPS9k
+ZXYvdmRhCj4gW2pvYl0KPiBudW1qb2JzPS4uCj4KPiBbMl0gICQgcWVtdS1zdG9yYWdlLWRhZW1v
+biBcCj4gICAgICAgIC0tY2hhcmRldiBzb2NrZXQsaWQ9Y2hhcm1vbml0b3IscGF0aD0vdG1wL3Ft
+cC5zb2NrLHNlcnZlcixub3dhaXQgXAo+ICAgICAgICAtLW1vbml0b3IgY2hhcmRldj1jaGFybW9u
+aXRvciBcCj4gICAgICAgIC0tYmxvY2tkZXYKPiBkcml2ZXI9aG9zdF9kZXZpY2UsY2FjaGUuZGly
+ZWN0PW9uLGFpbz1uYXRpdmUsZmlsZW5hbWU9L2Rldi9udWxsYjAsbm9kZS1uYW1lPWRpc2swCj4g
+XAo+ICAgICAgICAtLWV4cG9ydCB0eXBlPXZkdXNlLWJsayxpZD10ZXN0LG5vZGUtbmFtZT1kaXNr
+MCx3cml0YWJsZT1vbixuYW1lPXZkdXNlLW51bGwsbnVtLXF1ZXVlcz0xNixxdWV1ZS1zaXplPTEy
+OAo+Cj4gVGhlIHFlbXUtc3RvcmFnZS1kYWVtb24gY2FuIGJlIGJ1aWxkZWQgYmFzZWQgb24gdGhl
+IHJlcG86Cj4gaHR0cHM6Ly9naXRodWIuY29tL2J5dGVkYW5jZS9xZW11L3RyZWUvdmR1c2UtdGVz
+dC4KPgo+IFRoYW5rcywKPiBZb25namkKPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
