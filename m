@@ -2,100 +2,100 @@ Return-Path: <SRS0=EG+p=NB=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2158FC4338F
-	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 10:25:38 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED6BAC4338F
+	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 10:25:41 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id BD7EB61051
-	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 10:25:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org BD7EB61051
+	by mail.kernel.org (Postfix) with ESMTPS id A44CA61029
+	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 10:25:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A44CA61029
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7684E82B8C;
+	by smtp3.osuosl.org (Postfix) with ESMTP id 66A87607EA;
+	Tue, 10 Aug 2021 10:25:41 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id LlvbLPYwOXY6; Tue, 10 Aug 2021 10:25:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 48FD56066F;
 	Tue, 10 Aug 2021 10:25:37 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id P9Bsk7gprhvh; Tue, 10 Aug 2021 10:25:33 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 17B7D82798;
-	Tue, 10 Aug 2021 10:25:33 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E386EC001A;
-	Tue, 10 Aug 2021 10:25:32 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9D994C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 23BE0C001A;
+	Tue, 10 Aug 2021 10:25:37 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E6312C000E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 10:25:31 +0000 (UTC)
+ Tue, 10 Aug 2021 10:25:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 8B27940232
+ by smtp3.osuosl.org (Postfix) with ESMTP id D52F660685
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 10 Aug 2021 10:25:35 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id YMA4SlKFO3hi
  for <virtualization@lists.linux-foundation.org>;
  Tue, 10 Aug 2021 10:25:31 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id valSSL2WB_F8
- for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 10:25:27 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com
- [IPv6:2607:f8b0:4864:20::1036])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 07629400EC
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com
+ [IPv6:2607:f8b0:4864:20::1033])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 1B70F6066F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 10:25:26 +0000 (UTC)
-Received: by mail-pj1-x1036.google.com with SMTP id
- t7-20020a17090a5d87b029017807007f23so3587496pji.5
+ Tue, 10 Aug 2021 10:25:30 +0000 (UTC)
+Received: by mail-pj1-x1033.google.com with SMTP id
+ cp15-20020a17090afb8fb029017891959dcbso3628937pjb.2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 03:25:26 -0700 (PDT)
+ Tue, 10 Aug 2021 03:25:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=ZdCiYC9u4FnuS70bUd9/octYWkdJG1zK6Pj5AbL4FKs=;
- b=cQctpUWGgS8XavHH49A7V07HpxQh3UZrgT0rpm6Xo7pjORT+h6V/gpJmAk/K9q82l0
- BXpx2fSycKX07osBbPOk/myawlvQA2W1M+F/f8oOsBLdfuRqo6JaTriVSznwdhJadbrP
- 2kKOFPWUDPXnGnLFu5FFweje7fwSYSsPE36n/iipqP85ti4NnpCTiS+XjRlVk1MFh/nE
- Bfno9U2KlR96Faike7CAHkTU3WBSWpIlTIaEY9yC7TQ4/ZJvYmj0aashV0IlkVQFkRi2
- JFkacqTJxlS3oqGOYl77XZRvrIPSD6kp9q20EvRFTryUlmnBhYmsbKQadXdFz8Cur9No
- 0ccw==
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=SJNs1y0sMMvih2QgKCIls+eEidULg1+VeluUs6F/Dy0=;
+ b=E7tQ4RfSXuwRKRy9mgGufaBEvtvlp6gFQ8WPhkrmoVkRHLMO8j4256bbGpmG5UCAk4
+ Hn8nBg7qD/cSMul+xED3lvdkX+Jl4ZcvLGO/qK8tTdsYct7Tp1Dv0J0ZfcoS44LO4I//
+ DU0cFRIQneVwMiu+vbsrlxB3gXwMxctXfcsJBFXaq/LJhOe9TQnm7W1lHCXy3evX8rRS
+ 519MvyFTffhM6vp9Td+FS1k9hEGT5mTVmpLDZg7e14epLWEKhIKLKEL/l943nyQxvL06
+ 5dum27mourdJrS9TEjUXKOtuCkb5AN7fnWSVv2Pcq1YZ+mNVvsqT3IIDEm+CEaCFU2Cn
+ pPwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=ZdCiYC9u4FnuS70bUd9/octYWkdJG1zK6Pj5AbL4FKs=;
- b=Vy3bs6roaIA51mG/a40pb9DU/3b2MzPTks6RVsE0NAWOPQhP7iaebxfz+PyRTUV7Wi
- Nd7XESLHdWRlCNSnQ27h5JrITgldKEOU7jE9gWqePeEnGvTbaYAU2gEsp25PG+tLe7NN
- GUFHf7fqcIP9lODRx/vIiyLH9LUUsozJ8Y5ZtJZGcEHeUUYMmP+jf/GYy9PmlTZhQsZC
- 3Szi10Jt5Y7evgnr2eKeh/yX7vWkvjpoATuMsLS5pncrlrEwFfYu2NXd4yCat9LBawbU
- 5pfPRbbOd3QQzjVJL7+eQ+1HU2KOx05P25KJJNwbyyfBPU1ovdnPGASmgdvVsmCtoZP9
- xhTw==
-X-Gm-Message-State: AOAM530jKwv4Uhznrn/a84WnS0n9sq25Tp4FLUdyLAvN1MgD6OpLvt4D
- jfJ9uy71fA7++uh2zydJ9un1bw==
-X-Google-Smtp-Source: ABdhPJwfe8truRga+QTqCjf8OWZq0lELLcSbl5CksIhnr3YftGvX2WA1G7Yb3PcGGaa9QKuM2Hs74w==
-X-Received: by 2002:a65:450c:: with SMTP id n12mr312121pgq.316.1628591126406; 
- Tue, 10 Aug 2021 03:25:26 -0700 (PDT)
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+ :references:mime-version:content-transfer-encoding;
+ bh=SJNs1y0sMMvih2QgKCIls+eEidULg1+VeluUs6F/Dy0=;
+ b=Ab6XMXSqmWCNzduLAIh2aUwWTwULm8romP76y27Vf87kZaTy4DiOsfFC1f4OlfnW9z
+ JKWC9JQxwYa5+4rTjeSE7v7ZpRQlB3uOylJY923vaiBoBOwJAUMqXt1r0rzuol1QgC3f
+ wBCJLiw0vBdB/F71RUbvziofD9sNA5PBAypQvgodVfFJeKQ1dmAOmPjwzBY1CfhVz/XI
+ 8ADtFMI8DrwHVrppBJEa2JbmRXiNraCT2skLWedrxVfVGhVpV81S4oJk7rSQ0YcPMwKF
+ V8CV7v9brnXM5cPiQu0UezdrU932d1tNvfOTQQwSsGa+J83uw7e2DjChBVOb0dJdERi9
+ iWhw==
+X-Gm-Message-State: AOAM531u2hE/y07KegGa9r1qd7nx95m6PeeLc9pUlwxQLFllOiJwrbnO
+ G6uQngqomT9oJATREIxEluzCUw==
+X-Google-Smtp-Source: ABdhPJyK2ovhAYs0MYDBmcR1NWHveZ+3Ltom8CFf3Ez2cLzxzJiF7GKM9gBdpuqeeCEIW8959AheJA==
+X-Received: by 2002:a65:63c2:: with SMTP id n2mr91182pgv.292.1628591130506;
+ Tue, 10 Aug 2021 03:25:30 -0700 (PDT)
 Received: from localhost ([122.172.201.85])
- by smtp.gmail.com with ESMTPSA id a11sm27981920pgj.75.2021.08.10.03.25.25
+ by smtp.gmail.com with ESMTPSA id k197sm2143426pfd.190.2021.08.10.03.25.29
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 10 Aug 2021 03:25:25 -0700 (PDT)
+ Tue, 10 Aug 2021 03:25:29 -0700 (PDT)
 From: Viresh Kumar <viresh.kumar@linaro.org>
 To: Arnd Bergmann <arnd@kernel.org>, Linus Walleij <linus.walleij@linaro.org>,
  Bartosz Golaszewski <bgolaszewski@baylibre.com>,
  "Enrico Weigelt, metux IT consult" <info@metux.net>,
- Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Viresh Kumar <vireshk@kernel.org>
-Subject: [PATCH V5 0/2] gpio: Add virtio based driver
-Date: Tue, 10 Aug 2021 15:55:14 +0530
-Message-Id: <cover.1628590591.git.viresh.kumar@linaro.org>
+ Viresh Kumar <vireshk@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V5 1/2] gpio: Add virtio-gpio driver
+Date: Tue, 10 Aug 2021 15:55:15 +0530
+Message-Id: <afc7b34cee856f1ed1a65034f4a9fe705dd04d6a.1628590591.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.31.1.272.g89b43f80a514
+In-Reply-To: <cover.1628590591.git.viresh.kumar@linaro.org>
+References: <cover.1628590591.git.viresh.kumar@linaro.org>
 MIME-Version: 1.0
 Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
  Vincent Guittot <vincent.guittot@linaro.org>,
@@ -120,57 +120,513 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hello,
+This patch adds a new driver for Virtio based GPIO devices.
 
-This adds Virtio GPIO driver based on the proposed specification [1].
+This allows a guest VM running Linux to access GPIO lines provided by
+the host. It supports all basic operations, except interrupts for the
+GPIO lines.
 
-The specification for basic GPIO operations is already reviewed by Linus and
-Arnd, while the IRQ stuff is still under discussion and not finalized.
+Based on the initial work posted by:
+"Enrico Weigelt, metux IT consult" <lkml@metux.net>.
 
-I am sharing the code, so everyone gets more clarity on how it will work
-eventually in Linux.
-
-I have tested this patchset with Qemu guest with help of the libgpiod utility.
-I have also tested basic handling of interrupts on the guest side. It works as
-expected.
-
-The host side virtio-backend isn't ready yet and my tests only tested the flow
-control between guest and host, but didn't play with real GPIO pins.  That will
-be done once I have a working backend in place (WIP).
-
-V4->V5:
-- Use ____cacheline_aligned for buffers.
-- Proper locking in place, which avoids the use of work-item for processing
-  interrupts.
-- Separate callbacks for enable/disable of irqs.
-- The irq is disabled at the host only for enable/disable now, instead of
-  mask/unmask.
-- mask/unmask only control the queuing of buffers now.
-- Use handle_level_irq() instead of handle_fasteoi_irq().
-- Other minor changes.
-
-V3->V4:
-- Lots of changes, as the specification changed too much. Better forget
-  everything we have done until now :)
-
---
-Viresh
-
-[1] https://lists.oasis-open.org/archives/virtio-dev/202107/msg00232.html
-
-Viresh Kumar (2):
-  gpio: Add virtio-gpio driver
-  gpio: virtio: Add IRQ support
-
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+---
+Enrico, lemme know if you want me to add your co-developed by and
+signed-off-by. Didn't want to add without checking with you first.
+---
  MAINTAINERS                      |   7 +
- drivers/gpio/Kconfig             |  10 +
+ drivers/gpio/Kconfig             |   9 +
  drivers/gpio/Makefile            |   1 +
- drivers/gpio/gpio-virtio.c       | 668 +++++++++++++++++++++++++++++++
- include/uapi/linux/virtio_gpio.h |  72 ++++
- 5 files changed, 758 insertions(+)
+ drivers/gpio/gpio-virtio.c       | 375 +++++++++++++++++++++++++++++++
+ include/uapi/linux/virtio_gpio.h |  47 ++++
+ 5 files changed, 439 insertions(+)
  create mode 100644 drivers/gpio/gpio-virtio.c
  create mode 100644 include/uapi/linux/virtio_gpio.h
 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index a61f4f3b78a9..f632acd7d98c 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -19647,6 +19647,13 @@ F:	Documentation/filesystems/virtiofs.rst
+ F:	fs/fuse/virtio_fs.c
+ F:	include/uapi/linux/virtio_fs.h
+ 
++VIRTIO GPIO DRIVER
++M:	Enrico Weigelt, metux IT consult <info@metux.net>
++M:	Viresh Kumar <vireshk@kernel.org>
++S:	Maintained
++F:	drivers/gpio/gpio-virtio.c
++F:	include/uapi/linux/virtio_gpio.h
++
+ VIRTIO GPU DRIVER
+ M:	David Airlie <airlied@linux.ie>
+ M:	Gerd Hoffmann <kraxel@redhat.com>
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index fab571016adf..e5993d6864fb 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -1669,6 +1669,15 @@ config GPIO_MOCKUP
+ 	  tools/testing/selftests/gpio/gpio-mockup.sh. Reference the usage in
+ 	  it.
+ 
++config GPIO_VIRTIO
++	tristate "VirtIO GPIO support"
++	depends on VIRTIO
++	help
++	  Say Y here to enable guest support for virtio-based GPIO controllers.
++
++	  These virtual GPIOs can be routed to real GPIOs or attached to
++	  simulators on the host (like QEMU).
++
+ endmenu
+ 
+ endif
+diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
+index 32a32659866a..e0301cfedd8d 100644
+--- a/drivers/gpio/Makefile
++++ b/drivers/gpio/Makefile
+@@ -165,6 +165,7 @@ obj-$(CONFIG_GPIO_UCB1400)		+= gpio-ucb1400.o
+ obj-$(CONFIG_GPIO_UNIPHIER)		+= gpio-uniphier.o
+ obj-$(CONFIG_GPIO_VF610)		+= gpio-vf610.o
+ obj-$(CONFIG_GPIO_VIPERBOARD)		+= gpio-viperboard.o
++obj-$(CONFIG_GPIO_VIRTIO)		+= gpio-virtio.o
+ obj-$(CONFIG_GPIO_VISCONTI)		+= gpio-visconti.o
+ obj-$(CONFIG_GPIO_VR41XX)		+= gpio-vr41xx.o
+ obj-$(CONFIG_GPIO_VX855)		+= gpio-vx855.o
+diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
+new file mode 100644
+index 000000000000..4dc2d383508f
+--- /dev/null
++++ b/drivers/gpio/gpio-virtio.c
+@@ -0,0 +1,375 @@
++// SPDX-License-Identifier: GPL-2.0+
++/*
++ * GPIO driver for virtio-based virtual GPIO controllers
++ *
++ * Copyright (C) 2021 metux IT consult
++ * Enrico Weigelt, metux IT consult <info@metux.net>
++ *
++ * Copyright (C) 2021 Linaro.
++ * Viresh Kumar <viresh.kumar@linaro.org>
++ */
++
++#include <linux/completion.h>
++#include <linux/err.h>
++#include <linux/gpio/driver.h>
++#include <linux/io.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include <linux/virtio_config.h>
++#include <uapi/linux/virtio_gpio.h>
++#include <uapi/linux/virtio_ids.h>
++
++struct virtio_gpio_line {
++	struct mutex lock; /* Protects line operation */
++	struct completion completion;
++	struct virtio_gpio_request req ____cacheline_aligned;
++	struct virtio_gpio_response res ____cacheline_aligned;
++	unsigned int rxlen;
++};
++
++struct virtio_gpio {
++	struct virtio_device *vdev;
++	struct mutex lock; /* Protects virtqueue operation */
++	struct gpio_chip gc;
++	struct virtio_gpio_config config;
++	struct virtio_gpio_line *lines;
++	struct virtqueue *request_vq;
++};
++
++static int _virtio_gpio_req(struct virtio_gpio *vgpio, u16 type, u16 gpio,
++			    u8 txvalue, u8 *rxvalue, void *response, u32 rxlen)
++{
++	struct virtio_gpio_line *line = &vgpio->lines[gpio];
++	struct virtio_gpio_request *req = &line->req;
++	struct virtio_gpio_response *res = response;
++	struct scatterlist *sgs[2], req_sg, res_sg;
++	struct device *dev = &vgpio->vdev->dev;
++	int ret;
++
++	/*
++	 * Prevent concurrent requests for the same line since we have
++	 * pre-allocated request/response buffers for each GPIO line. Moreover
++	 * Linux always accesses a GPIO line sequentially, so this locking shall
++	 * always go through without any delays.
++	 */
++	mutex_lock(&line->lock);
++
++	req->type = cpu_to_le16(type);
++	req->gpio = cpu_to_le16(gpio);
++	req->value = txvalue;
++
++	sg_init_one(&req_sg, req, sizeof(*req));
++	sg_init_one(&res_sg, res, rxlen);
++	sgs[0] = &req_sg;
++	sgs[1] = &res_sg;
++
++	line->rxlen = 0;
++	reinit_completion(&line->completion);
++
++	/*
++	 * Virtqueue callers need to ensure they don't call its APIs with other
++	 * virtqueue operations at the same time.
++	 */
++	mutex_lock(&vgpio->lock);
++	ret = virtqueue_add_sgs(vgpio->request_vq, sgs, 1, 1, line, GFP_KERNEL);
++	if (ret) {
++		dev_err(dev, "failed to add request to vq\n");
++		mutex_unlock(&vgpio->lock);
++		goto out;
++	}
++
++	virtqueue_kick(vgpio->request_vq);
++	mutex_unlock(&vgpio->lock);
++
++	if (!wait_for_completion_timeout(&line->completion, HZ)) {
++		dev_err(dev, "GPIO operation timed out\n");
++		ret = -ETIMEDOUT;
++		goto out;
++	}
++
++	if (unlikely(res->status != VIRTIO_GPIO_STATUS_OK)) {
++		dev_err(dev, "GPIO request failed: %d\n", gpio);
++		ret = -EINVAL;
++		goto out;
++	}
++
++	if (unlikely(line->rxlen != rxlen)) {
++		dev_err(dev, "GPIO operation returned incorrect len (%u : %u)\n",
++			rxlen, line->rxlen);
++		ret = -EINVAL;
++		goto out;
++	}
++
++	if (rxvalue)
++		*rxvalue = res->value;
++
++out:
++	mutex_unlock(&line->lock);
++	return ret;
++}
++
++static int virtio_gpio_req(struct virtio_gpio *vgpio, u16 type, u16 gpio,
++			   u8 txvalue, u8 *rxvalue)
++{
++	struct virtio_gpio_line *line = &vgpio->lines[gpio];
++	struct virtio_gpio_response *res = &line->res;
++
++	return _virtio_gpio_req(vgpio, type, gpio, txvalue, rxvalue, res,
++				sizeof(*res));
++}
++
++static void virtio_gpio_free(struct gpio_chip *gc, unsigned int gpio)
++{
++	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
++
++	virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_SET_DIRECTION, gpio,
++			VIRTIO_GPIO_DIRECTION_NONE, NULL);
++}
++
++static int virtio_gpio_get_direction(struct gpio_chip *gc, unsigned int gpio)
++{
++	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
++	u8 direction;
++	int ret;
++
++	ret = virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_GET_DIRECTION, gpio, 0,
++			      &direction);
++	if (ret)
++		return ret;
++
++	switch (direction) {
++	case VIRTIO_GPIO_DIRECTION_IN:
++		return GPIO_LINE_DIRECTION_IN;
++	case VIRTIO_GPIO_DIRECTION_OUT:
++		return GPIO_LINE_DIRECTION_OUT;
++	default:
++		return -EINVAL;
++	}
++}
++
++static int virtio_gpio_direction_input(struct gpio_chip *gc, unsigned int gpio)
++{
++	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
++
++	return virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_SET_DIRECTION, gpio,
++			       VIRTIO_GPIO_DIRECTION_IN, NULL);
++}
++
++static int virtio_gpio_direction_output(struct gpio_chip *gc, unsigned int gpio,
++					int value)
++{
++	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
++	int ret;
++
++	ret = virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_SET_VALUE, gpio, value, NULL);
++	if (ret)
++		return ret;
++
++	return virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_SET_DIRECTION, gpio,
++			       VIRTIO_GPIO_DIRECTION_OUT, NULL);
++}
++
++static int virtio_gpio_get(struct gpio_chip *gc, unsigned int gpio)
++{
++	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
++	u8 value;
++	int ret;
++
++	ret = virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_GET_VALUE, gpio, 0, &value);
++	return ret ? ret : value;
++}
++
++static void virtio_gpio_set(struct gpio_chip *gc, unsigned int gpio, int value)
++{
++	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
++
++	virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_SET_VALUE, gpio, value, NULL);
++}
++
++static void virtio_gpio_request_vq(struct virtqueue *vq)
++{
++	struct virtio_gpio_line *line;
++	unsigned int len;
++
++	do {
++		line = virtqueue_get_buf(vq, &len);
++		if (!line)
++			return;
++
++		line->rxlen = len;
++		complete(&line->completion);
++	} while (1);
++}
++
++static void virtio_gpio_free_vqs(struct virtio_device *vdev)
++{
++	vdev->config->reset(vdev);
++	vdev->config->del_vqs(vdev);
++}
++
++static int virtio_gpio_alloc_vqs(struct virtio_gpio *vgpio,
++				 struct virtio_device *vdev)
++{
++	const char * const names[] = { "requestq" };
++	vq_callback_t *cbs[] = {
++		virtio_gpio_request_vq,
++	};
++	struct virtqueue *vqs[1] = { NULL };
++	int ret;
++
++	ret = virtio_find_vqs(vdev, 1, vqs, cbs, names, NULL);
++	if (ret) {
++		dev_err(&vdev->dev, "failed to find vqs: %d\n", ret);
++		return ret;
++	}
++
++	if (!vqs[0]) {
++		dev_err(&vdev->dev, "failed to find requestq vq\n");
++		return -ENODEV;
++	}
++	vgpio->request_vq = vqs[0];
++
++	return 0;
++}
++
++static const char **virtio_gpio_get_names(struct virtio_gpio *vgpio)
++{
++	struct virtio_gpio_config *config = &vgpio->config;
++	struct virtio_gpio_response_get_names *res;
++	struct device *dev = &vgpio->vdev->dev;
++	u8 *gpio_names, *str;
++	const char **names;
++	int i, ret, len;
++
++	if (!config->gpio_names_size)
++		return NULL;
++
++	len = sizeof(*res) + config->gpio_names_size;
++	res = devm_kzalloc(dev, len, GFP_KERNEL);
++	if (!res)
++		return NULL;
++	gpio_names = res->value;
++
++	ret = _virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_GET_NAMES, 0, 0, NULL,
++			       res, len);
++	if (ret) {
++		dev_err(dev, "Failed to get GPIO names: %d\n", ret);
++		return NULL;
++	}
++
++	names = devm_kcalloc(dev, config->ngpio, sizeof(names), GFP_KERNEL);
++	if (!names)
++		return NULL;
++
++	/* NULL terminate the string instead of checking it */
++	gpio_names[config->gpio_names_size - 1] = '\0';
++
++	for (i = 0, str = gpio_names; i < config->ngpio; i++) {
++		names[i] = str;
++		str += strlen(str) + 1; /* zero-length strings are allowed */
++
++		if (str > gpio_names + config->gpio_names_size) {
++			dev_err(dev, "gpio_names block is too short (%d)\n", i);
++			return NULL;
++		}
++	}
++
++	return names;
++}
++
++static int virtio_gpio_probe(struct virtio_device *vdev)
++{
++	struct virtio_gpio_config *config;
++	struct device *dev = &vdev->dev;
++	struct virtio_gpio *vgpio;
++	int ret, i;
++
++	vgpio = devm_kzalloc(dev, sizeof(*vgpio), GFP_KERNEL);
++	if (!vgpio)
++		return -ENOMEM;
++
++	config = &vgpio->config;
++
++	/* Read configuration */
++	virtio_cread_bytes(vdev, 0, config, sizeof(*config));
++	config->gpio_names_size = le32_to_cpu(config->gpio_names_size);
++	config->ngpio = le16_to_cpu(config->ngpio);
++	if (!config->ngpio) {
++		dev_err(dev, "Number of GPIOs can't be zero\n");
++		return -EINVAL;
++	}
++
++	vgpio->lines = devm_kcalloc(dev, config->ngpio, sizeof(*vgpio->lines), GFP_KERNEL);
++	if (!vgpio->lines)
++		return -ENOMEM;
++
++	for (i = 0; i < config->ngpio; i++) {
++		mutex_init(&vgpio->lines[i].lock);
++		init_completion(&vgpio->lines[i].completion);
++	}
++
++	mutex_init(&vgpio->lock);
++	vdev->priv = vgpio;
++
++	vgpio->vdev			= vdev;
++	vgpio->gc.free			= virtio_gpio_free;
++	vgpio->gc.get_direction		= virtio_gpio_get_direction;
++	vgpio->gc.direction_input	= virtio_gpio_direction_input;
++	vgpio->gc.direction_output	= virtio_gpio_direction_output;
++	vgpio->gc.get			= virtio_gpio_get;
++	vgpio->gc.set			= virtio_gpio_set;
++	vgpio->gc.ngpio			= config->ngpio;
++	vgpio->gc.base			= -1; /* Allocate base dynamically */
++	vgpio->gc.label			= dev_name(dev);
++	vgpio->gc.parent		= dev;
++	vgpio->gc.owner			= THIS_MODULE;
++	vgpio->gc.can_sleep		= true;
++
++	ret = virtio_gpio_alloc_vqs(vgpio, vdev);
++	if (ret)
++		return ret;
++
++	/* Mark the device ready to perform operations from within probe() */
++	virtio_device_ready(vdev);
++
++	vgpio->gc.names = virtio_gpio_get_names(vgpio);
++
++	ret = gpiochip_add_data(&vgpio->gc, vgpio);
++	if (ret) {
++		virtio_gpio_free_vqs(vdev);
++		dev_err(dev, "Failed to add virtio-gpio controller\n");
++	}
++
++	return ret;
++}
++
++static void virtio_gpio_remove(struct virtio_device *vdev)
++{
++	struct virtio_gpio *vgpio = vdev->priv;
++
++	gpiochip_remove(&vgpio->gc);
++	virtio_gpio_free_vqs(vdev);
++}
++
++static const struct virtio_device_id id_table[] = {
++	{ VIRTIO_ID_GPIO, VIRTIO_DEV_ANY_ID },
++	{},
++};
++MODULE_DEVICE_TABLE(virtio, id_table);
++
++static struct virtio_driver virtio_gpio_driver = {
++	.id_table		= id_table,
++	.probe			= virtio_gpio_probe,
++	.remove			= virtio_gpio_remove,
++	.driver			= {
++		.name		= KBUILD_MODNAME,
++		.owner		= THIS_MODULE,
++	},
++};
++module_virtio_driver(virtio_gpio_driver);
++
++MODULE_AUTHOR("Enrico Weigelt, metux IT consult <info@metux.net>");
++MODULE_AUTHOR("Viresh Kumar <viresh.kumar@linaro.org>");
++MODULE_DESCRIPTION("VirtIO GPIO driver");
++MODULE_LICENSE("GPL");
+diff --git a/include/uapi/linux/virtio_gpio.h b/include/uapi/linux/virtio_gpio.h
+new file mode 100644
+index 000000000000..844574acf095
+--- /dev/null
++++ b/include/uapi/linux/virtio_gpio.h
+@@ -0,0 +1,47 @@
++/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
++
++#ifndef _LINUX_VIRTIO_GPIO_H
++#define _LINUX_VIRTIO_GPIO_H
++
++#include <linux/types.h>
++
++/* Virtio GPIO request types */
++#define VIRTIO_GPIO_MSG_GET_NAMES		0x0001
++#define VIRTIO_GPIO_MSG_GET_DIRECTION		0x0002
++#define VIRTIO_GPIO_MSG_SET_DIRECTION		0x0003
++#define VIRTIO_GPIO_MSG_GET_VALUE		0x0004
++#define VIRTIO_GPIO_MSG_SET_VALUE		0x0005
++
++/* Possible values of the status field */
++#define VIRTIO_GPIO_STATUS_OK			0x0
++#define VIRTIO_GPIO_STATUS_ERR			0x1
++
++/* Direction types */
++#define VIRTIO_GPIO_DIRECTION_NONE		0x00
++#define VIRTIO_GPIO_DIRECTION_OUT		0x01
++#define VIRTIO_GPIO_DIRECTION_IN		0x02
++
++struct virtio_gpio_config {
++	__u16 ngpio;
++	__u8 padding[2];
++	__u32 gpio_names_size;
++} __packed;
++
++/* Virtio GPIO Request / Response */
++struct virtio_gpio_request {
++	__u16 type;
++	__u16 gpio;
++	__u32 value;
++};
++
++struct virtio_gpio_response {
++	__u8 status;
++	__u8 value;
++};
++
++struct virtio_gpio_response_get_names {
++	__u8 status;
++	__u8 value[];
++};
++
++#endif /* _LINUX_VIRTIO_GPIO_H */
 -- 
 2.31.1.272.g89b43f80a514
 
