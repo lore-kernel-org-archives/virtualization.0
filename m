@@ -7,57 +7,58 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C2B2DC4338F
-	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 13:25:01 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 265F3C432BE
+	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 13:25:02 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7B14261019
+	by mail.kernel.org (Postfix) with ESMTPS id DD30861077
 	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 13:25:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 7B14261019
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org DD30861077
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 48D084045F;
+	by smtp1.osuosl.org (Postfix) with ESMTP id AFA8A81D18;
 	Tue, 10 Aug 2021 13:25:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id GmWxqmUucDoo; Tue, 10 Aug 2021 13:24:57 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id nWoshYiI6Wve; Tue, 10 Aug 2021 13:24:57 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9996E40462;
-	Tue, 10 Aug 2021 13:24:56 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 203E1835D9;
+	Tue, 10 Aug 2021 13:24:57 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 73C24C0010;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9EF83C0020;
 	Tue, 10 Aug 2021 13:24:56 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 77A00C000E
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AD058C000E
  for <virtualization@lists.linux-foundation.org>;
  Tue, 10 Aug 2021 13:24:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 61CEE402A2
+ by smtp4.osuosl.org (Postfix) with ESMTP id 9D103402B5
  for <virtualization@lists.linux-foundation.org>;
  Tue, 10 Aug 2021 13:24:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id m4en_IJgCFzP
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=nvidia.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id NWtOcLU3hsdJ
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 13:24:50 +0000 (UTC)
+ Tue, 10 Aug 2021 13:24:51 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam12on2060c.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:fe5a::60c])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 32D8540470
+Received: from NAM02-SN1-obe.outbound.protection.outlook.com
+ (mail-sn1anam02on2055.outbound.protection.outlook.com [40.107.96.55])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 4A1C9404F5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 13:24:50 +0000 (UTC)
+ Tue, 10 Aug 2021 13:24:47 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=BjO2JZ4oeJM2kUmRf65ZR3LzKygpotK3lZdh7rCmlk7Szu9u/KlTek4uHUOhpoimmGC8XOly3jamDgbK2E/eLjkIZsiIiqqgtFm8TPfuFTZNYQBpv2zxxIMR0tcOmpmxssHTSVo8xi0Q5J32/I3Ke0M2bQbtqzWQKKsWqmEYVISRUTwZHm9GWRJoyizAtFbWznSBd0l30IveNU433IhLXFSZSjriADCJiEtURPQILTHXNLxUcMt9zbTaJEoigUe/YOcYZDOodnOhlk+nf5gUlxGayXLVh0B0kzyrtbDHenol4rqP8qxTRidKKFkeKMTCCwWGyUH0X9o8kFs/EAwSpg==
+ b=TRdW3tnj5CIucf+2uB3umC4izSiwUKLDWwa5CmyRtEIn7IR3kJ32cwLjUrgkYl31fAbGKOdG19FCyrM1Gsj9jN9HzeCPTVt+M5lQtx/xXBGFc8EhEWIOKwzWWkWRjI0goR6/LX5RQwvte81SYTEtGTxPaDd4F5eguzaQFyuMd2oI2mNZ5SPr1bgw8aHniTKDJd9ixDHChMqluk+W0tRJnd0u/LSObmHfGaxMNtHHqBzkMNuJ20SdrRUs6IoJkB0W0x76vh5AJpDg40j7xQZmmjKzo7Tvm/0Ayob7vCXIQnz5acO7F2I8tfHVvPBaoEoeL7K4R30DF1lazfWQ7TX9dQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=oIi8hzPJyZfyI2sfgdbiTFzKy/YbYasDVyImO8S2Rt8=;
- b=YwCBwt+TjRvS4kyAhmhnN3/mz/ELf3BKTCpxXX0OXjRnXjqcL6RQq/HiRT0gUewcbpwpjuZ9Ai07hMsKdotevgDJ6MUWHp8S2VqoQ81/XVLLRBDPuUA7BFrR1oFQoSHpgcjbotzzV7qjQTHq1yuMsYbu7asuNSRNVk14Ws0T26e3loasTRMIBMf3aqkxCGGEi3gUXecO23Gg2SF0j8UTB4C3bYUbhQIvoga7GqoRHCKwHsvssjxr+n+x51o/UOxutypgUdwhm/jIs2oaGNhQ5mEi26/RpbyoO9n80+R/vUby76Y+r3O0p+Ip+M6kcZyEQi8Z8JWK/PirArmslweNjw==
+ bh=zOWPJ9JIrwjGsqY/KrjRI8m9WzSl5Cf6VcnQWxLM6SE=;
+ b=HyD5XkSIZv4r/15yRWp3NSAWy2rGI1VPQQGJWg2a85CMu97rD+A+SBJYE2b5lukNVg3PAJsoigKFQs3n06LdlfV9HUQTuSzGittn157Mo4Ep2KgzhkeEpFEEBQQ17WUx8Vu4ZY+QYB+JyeKNV0DIeJtMEVklYPIMiHsehbC0bnH7RHfr3mjbljM6mngCkSFqzJaQr9JlrZpd+pazrOYb740m1vVeuLZrAIzuv74spj/6LHhCXh2e2vpU9ofRYtQ0vHVSar0rJi2xTKwriZ6aUYo2RdB/rsevN9h4KMX5knoLTmTs1ftGADm+BMjOqnh27hgPVATq9x1vllVE+hHVKQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  216.228.112.34) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
  dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=nvidia.com; 
@@ -65,18 +66,18 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=oIi8hzPJyZfyI2sfgdbiTFzKy/YbYasDVyImO8S2Rt8=;
- b=qEMkfrHsak42sZuj0nGvvYnFX7K7TkuGGP7Rcbr5z5kQGk/cMnXbD07KY1qAmceuRmD4Feq+XsCC9mIme6FARWlswcQVcSob9+LJrCI1FKtgmQyW8A+L6JrdJ1g1N9hoNbwZVSMyW7dxHSu6RjmzybXNfHoRXEKQhmyqXQrYNI2utsluyJW5d5LEjDQ2z7CzhmRTlvrIhvVAPda0SfzjqUD/Elqn7zwO2wcGVWe/tLUZkHT65/vY/CxmHyTk/JcSRIW4rDXT7dD/wsOsOV5NiWVdonUh6Gz0cXU1PaGJXD/lX36GOcTjAKdp+8gNm531ch6RyNvZ5OYEwdpolUuleQ==
-Received: from MW4PR03CA0002.namprd03.prod.outlook.com (2603:10b6:303:8f::7)
- by DM5PR12MB1721.namprd12.prod.outlook.com (2603:10b6:3:10d::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.21; Tue, 10 Aug
- 2021 13:24:48 +0000
+ bh=zOWPJ9JIrwjGsqY/KrjRI8m9WzSl5Cf6VcnQWxLM6SE=;
+ b=uVmRk6CcS4biRjL16kjmkdLg7qorNTkhkst+W9RALdnnrh6/VTZTDnylQQcpMM9/xUWpXyH7I+KNzj5JRBrbL+TsE37K9TSyB1rojzX+b6XEOr/iPpRDuLbCKUDt/1L6n9PHd1iU0zdXKtJlSraHvcV3g5/NE4Anf8okYLaZBtXX28GgTGIOqs4Q/5I0SItvxg+9Lu5RVA1pPEjsvkQOfiRRy+2SJfcsnELQNLIJe8h7RAPi1joAQWPyFm0HxzgUm9DHRvTGYqG98jrvW78drSo9Yt9hSfKji/vZVcMReSpdT0DNN4dVg+Y6qc0qxP1zYVzYH/4Ruf+//oqfVSvLQA==
+Received: from MW4PR03CA0027.namprd03.prod.outlook.com (2603:10b6:303:8f::32)
+ by MWHPR12MB1822.namprd12.prod.outlook.com (2603:10b6:300:114::11)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4415.14; Tue, 10 Aug
+ 2021 13:24:45 +0000
 Received: from CO1NAM11FT017.eop-nam11.prod.protection.outlook.com
- (2603:10b6:303:8f:cafe::96) by MW4PR03CA0002.outlook.office365.com
- (2603:10b6:303:8f::7) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4415.14 via Frontend
- Transport; Tue, 10 Aug 2021 13:24:48 +0000
+ (2603:10b6:303:8f:cafe::36) by MW4PR03CA0027.outlook.office365.com
+ (2603:10b6:303:8f::32) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.15 via Frontend
+ Transport; Tue, 10 Aug 2021 13:24:45 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
  smtp.mailfrom=nvidia.com; vger.kernel.org; dkim=none (message not signed)
  header.d=none; vger.kernel.org; dmarc=pass action=none header.from=nvidia.com; 
@@ -86,15 +87,15 @@ Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
 Received: from mail.nvidia.com (216.228.112.34) by
  CO1NAM11FT017.mail.protection.outlook.com (10.13.175.108) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4394.16 via Frontend Transport; Tue, 10 Aug 2021 13:24:48 +0000
+ 15.20.4394.16 via Frontend Transport; Tue, 10 Aug 2021 13:24:44 +0000
 Received: from sw-mtx-036.mtx.labs.mlnx (172.20.187.5) by HQMAIL107.nvidia.com
  (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
- Tue, 10 Aug 2021 13:24:45 +0000
+ Tue, 10 Aug 2021 13:24:42 +0000
 To: <davem@davemloft.net>, <kuba@kernel.org>, <netdev@vger.kernel.org>
-Subject: [PATCH RESEND net-next 10/10] net/mlx5: Support enable_vnet devlink
- dev param
-Date: Tue, 10 Aug 2021 16:24:24 +0300
-Message-ID: <20210810132424.9129-11-parav@nvidia.com>
+Subject: [PATCH RESEND net-next 06/10] devlink: Add APIs to publish,
+ unpublish individual parameter
+Date: Tue, 10 Aug 2021 16:24:20 +0300
+Message-ID: <20210810132424.9129-7-parav@nvidia.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210810132424.9129-1-parav@nvidia.com>
 References: <20210810132424.9129-1-parav@nvidia.com>
@@ -104,29 +105,30 @@ X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
  HQMAIL107.nvidia.com (172.20.187.13)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 9334ceaa-3954-4dfb-b9b5-08d95c023a22
-X-MS-TrafficTypeDiagnostic: DM5PR12MB1721:
-X-Microsoft-Antispam-PRVS: <DM5PR12MB17219C93358E101B57AA8080DCF79@DM5PR12MB1721.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:4125;
+X-MS-Office365-Filtering-Correlation-Id: f3b5435e-8c95-478f-e341-08d95c02381f
+X-MS-TrafficTypeDiagnostic: MWHPR12MB1822:
+X-Microsoft-Antispam-PRVS: <MWHPR12MB1822EDE507A791653202E4DCDCF79@MWHPR12MB1822.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:2000;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: VbWvl9W1mSCM9F2kad5gjuUdntCljrDxgwsGGI0zPCkJijey+YesFq0EH8H/4FqjL5WJzKhGBr3nybtWK+X866Gy2uT5dnlNeMdGyXqUsFjyIagt3/TuV2ZBv56jYOAteqMde7zBGLPt79kPUlsy5XFY/Yv23c79fgXc8RnpQXAfQewdyxfSRlmI53L/ltYeCt8FU8N5zl6nSR0XwLfxbD1soUTmKlxvfhWEWn/WSqBDOLGr0pTDlweXBnOc5yU+sm9j/dxb2Irmjc29qYz1DumrCOHCQxNXXgFZW+zOuBiASM2RPwoylp5Z+IsqJA+G52aYnZaVDgrGwYQA2XNz0vuNZ7ALxFtZ6lQ7gDgSV/snvbB0b48g6R31jYDDO6FVy4DYgnKBddgrBcYxvKNCyV4Md7tr36RbzoAzE+WJuzwABhlmynlRnKoB8INdiYDoWpLuY8e6yEyDYfSVzrWy6Cw4wr90elkqFLyyd4MAA/BXaKqYUrIWgvcr4QFz7g63amDFyaNpsjFde3yBNKD9bqa67AJgFIWdao/VZmKj1MPEi2IVoDoO3ZNVImgzNsTrAlrtiFOo/OuLvHJOTPRsIBDpFGDqxYf64O2F5a2zycRce1/1+N9RsmVJ51RejAXEb64uVIUb7HjBsYFXP8PFoLXfWSP/WznWJwT3WJXNc6tV+FdDvPjjQBNE6anCXEpwJEJOUosDRqXBLlTVwyx6Wg==
+X-Microsoft-Antispam-Message-Info: 2ssO7EdOLF+DdFAORveHPAXg4d9JSe6e0MKih+MdV7BcUGwyEY1MQc8sMnjOY5KZTGEsfwqVmpkE69fGOYmFNSI/V1DtHzjLYbKAOiloSy/yfscNrvpNflhXGApAMB3WSsprPoJN/cJUXJuZAK4pQNUD3Dtr7nkx5Y2FUKjbnFCUuU02lpovayuIHRgT15JkGCsWlQIdhFqF/D6+oiuIcoCj6koKXnjzBQx6XduF+SYEUVNK6J5LBMEFkE+qxeSsgXqFvSwYfKTPhgAouMMjBCvcfD6JpE3H3SNSBtOWREhkc6j7Fj3aN+eZ7GjlLnIk4EZzvNY/6r2upobLGmDdzJfWFeiQs6GLTuky/M0sO96FZ3RduKxnSVzv2zp2PZWrk7KYBZo6gsr54aOKJEno4DdqjloB4f2wZi5yLFIzGQxxuivbyzBSuhy329qb4WtD7ykuzHQ8mEo69iZkBmFc/jsqfdqgEbnwjxVpZxvUIg7okEWsKnHeYgF5RMjeQ06e4AvyC2wbVrtP+xAOeoUIMD9K1a3fwXQJMf2pjDS87gDzaMwEJW3OB0+/6Bmd9ekDGxdbe9a6V7+xOBSkyRSkmUr+vbuEPIZ1tMx93XsPvWUyTnjuOHO20O/mrUQYrC8yAxkCyWtgmqqaXKE3wKC9Db8YuUFrQlZkCFA/+L+hD0SyRyWjyxNx+6UWx+fV6ibPfTVvjG/e8VKB5+Zkfl4LRw==
 X-Forefront-Antispam-Report: CIP:216.228.112.34; CTRY:US; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:schybrid03.nvidia.com; CAT:NONE;
- SFS:(4636009)(136003)(39860400002)(396003)(346002)(376002)(46966006)(36840700001)(186003)(70206006)(107886003)(8676002)(2906002)(336012)(70586007)(82310400003)(82740400003)(7636003)(16526019)(26005)(83380400001)(4326008)(47076005)(356005)(36756003)(8936002)(478600001)(36906005)(1076003)(2616005)(5660300002)(316002)(36860700001)(54906003)(86362001)(110136005)(426003)(6666004);
+ SFS:(4636009)(396003)(346002)(136003)(376002)(39860400002)(36840700001)(46966006)(110136005)(70206006)(356005)(36906005)(36756003)(316002)(54906003)(47076005)(16526019)(186003)(1076003)(70586007)(2616005)(8676002)(107886003)(7636003)(36860700001)(8936002)(82310400003)(86362001)(82740400003)(2906002)(478600001)(4326008)(6666004)(26005)(426003)(336012)(5660300002);
  DIR:OUT; SFP:1101; 
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Aug 2021 13:24:48.3170 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9334ceaa-3954-4dfb-b9b5-08d95c023a22
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Aug 2021 13:24:44.9800 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: f3b5435e-8c95-478f-e341-08d95c02381f
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.112.34];
  Helo=[mail.nvidia.com]
 X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT017.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB1721
-Cc: linux-rdma@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR12MB1822
+Cc: linux-rdma@vger.kernel.org, Leon
+ Romanovsky <leonro@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
  virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -147,147 +149,90 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Enable user to disable VDPA net auxiliary device so that when it is not
-required, user can disable it.
-
-For example,
-
-$ devlink dev param set pci/0000:06:00.0 \
-              name enable_vnet value false cmode driverinit
-$ devlink dev reload pci/0000:06:00.0
-
-At this point devlink instance do not create auxiliary device
-mlx5_core.vnet.2 for the VDPA net functionality.
+Enable drivers to publish/unpublish individual parameter.
 
 Signed-off-by: Parav Pandit <parav@nvidia.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
 Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/dev.c | 16 ++++++-
- .../net/ethernet/mellanox/mlx5/core/devlink.c | 42 +++++++++++++++++++
- .../ethernet/mellanox/mlx5/core/mlx5_core.h   |  1 +
- 3 files changed, 57 insertions(+), 2 deletions(-)
+ include/net/devlink.h |  4 ++++
+ net/core/devlink.c    | 48 +++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 52 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/dev.c b/drivers/net/ethernet/mellanox/mlx5/core/dev.c
-index cb86844099c0..ff6b03dc7e32 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/dev.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/dev.c
-@@ -116,7 +116,7 @@ static bool is_eth_enabled(struct mlx5_core_dev *dev)
- 	return err ? false : val.vbool;
+diff --git a/include/net/devlink.h b/include/net/devlink.h
+index f6459ee77114..1151497c0ec5 100644
+--- a/include/net/devlink.h
++++ b/include/net/devlink.h
+@@ -1651,6 +1651,10 @@ void devlink_param_unregister(struct devlink *devlink,
+ 			      const struct devlink_param *param);
+ void devlink_params_publish(struct devlink *devlink);
+ void devlink_params_unpublish(struct devlink *devlink);
++void devlink_param_publish(struct devlink *devlink,
++			   const struct devlink_param *param);
++void devlink_param_unpublish(struct devlink *devlink,
++			     const struct devlink_param *param);
+ int devlink_port_params_register(struct devlink_port *devlink_port,
+ 				 const struct devlink_param *params,
+ 				 size_t params_count);
+diff --git a/net/core/devlink.c b/net/core/devlink.c
+index 629291175af3..ee9787314cff 100644
+--- a/net/core/devlink.c
++++ b/net/core/devlink.c
+@@ -9982,6 +9982,54 @@ void devlink_params_unpublish(struct devlink *devlink)
  }
+ EXPORT_SYMBOL_GPL(devlink_params_unpublish);
  
--static bool is_vnet_supported(struct mlx5_core_dev *dev)
-+bool mlx5_vnet_supported(struct mlx5_core_dev *dev)
- {
- 	if (!IS_ENABLED(CONFIG_MLX5_VDPA_NET))
- 		return false;
-@@ -138,6 +138,17 @@ static bool is_vnet_supported(struct mlx5_core_dev *dev)
- 	return true;
- }
- 
-+static bool is_vnet_enabled(struct mlx5_core_dev *dev)
++/**
++ * devlink_param_publish - publish one configuration parameter
++ *
++ * @devlink: devlink
++ * @param: one configuration parameter
++ *
++ * Publish previously registered configuration parameter.
++ */
++void devlink_param_publish(struct devlink *devlink,
++			   const struct devlink_param *param)
 +{
-+	union devlink_param_value val;
-+	int err;
++	struct devlink_param_item *param_item;
 +
-+	err = devlink_param_driverinit_value_get(priv_to_devlink(dev),
-+						 DEVLINK_PARAM_GENERIC_ID_ENABLE_VNET,
-+						 &val);
-+	return err ? false : val.vbool;
++	list_for_each_entry(param_item, &devlink->param_list, list) {
++		if (param_item->param != param || param_item->published)
++			continue;
++		param_item->published = true;
++		devlink_param_notify(devlink, 0, param_item,
++				     DEVLINK_CMD_PARAM_NEW);
++		break;
++	}
 +}
++EXPORT_SYMBOL_GPL(devlink_param_publish);
 +
- static bool is_ib_rep_supported(struct mlx5_core_dev *dev)
- {
- 	if (!IS_ENABLED(CONFIG_MLX5_INFINIBAND))
-@@ -226,7 +237,8 @@ static const struct mlx5_adev_device {
- 	bool (*is_enabled)(struct mlx5_core_dev *dev);
- } mlx5_adev_devices[] = {
- 	[MLX5_INTERFACE_PROTOCOL_VNET] = { .suffix = "vnet",
--					   .is_supported = &is_vnet_supported },
-+					   .is_supported = &mlx5_vnet_supported,
-+					   .is_enabled = &is_vnet_enabled },
- 	[MLX5_INTERFACE_PROTOCOL_IB] = { .suffix = "rdma",
- 					 .is_supported = &mlx5_rdma_supported,
- 					 .is_enabled = &is_ib_enabled },
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-index f247ffb325a9..6f4d7c7f06e0 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/devlink.c
-@@ -680,6 +680,42 @@ static void mlx5_devlink_rdma_param_unregister(struct devlink *devlink)
- 	devlink_param_unregister(devlink, &enable_rdma_param);
- }
- 
-+static const struct devlink_param enable_vnet_param =
-+	DEVLINK_PARAM_GENERIC(ENABLE_VNET, BIT(DEVLINK_PARAM_CMODE_DRIVERINIT),
-+			      NULL, NULL, NULL);
-+
-+static int mlx5_devlink_vnet_param_register(struct devlink *devlink)
++/**
++ * devlink_param_unpublish - unpublish one configuration parameter
++ *
++ * @devlink: devlink
++ * @param: one configuration parameter
++ *
++ * Unpublish previously registered configuration parameter.
++ */
++void devlink_param_unpublish(struct devlink *devlink,
++			     const struct devlink_param *param)
 +{
-+	struct mlx5_core_dev *dev = devlink_priv(devlink);
-+	union devlink_param_value value;
-+	int err;
++	struct devlink_param_item *param_item;
 +
-+	if (!mlx5_vnet_supported(dev))
-+		return 0;
-+
-+	err = devlink_param_register(devlink, &enable_vnet_param);
-+	if (err)
-+		return err;
-+
-+	value.vbool = true;
-+	devlink_param_driverinit_value_set(devlink,
-+					   DEVLINK_PARAM_GENERIC_ID_ENABLE_VNET,
-+					   value);
-+	devlink_param_publish(devlink, &enable_rdma_param);
-+	return 0;
++	list_for_each_entry(param_item, &devlink->param_list, list) {
++		if (param_item->param != param || !param_item->published)
++			continue;
++		param_item->published = false;
++		devlink_param_notify(devlink, 0, param_item,
++				     DEVLINK_CMD_PARAM_DEL);
++		break;
++	}
 +}
++EXPORT_SYMBOL_GPL(devlink_param_unpublish);
 +
-+static void mlx5_devlink_vnet_param_unregister(struct devlink *devlink)
-+{
-+	struct mlx5_core_dev *dev = devlink_priv(devlink);
-+
-+	if (!mlx5_vnet_supported(dev))
-+		return;
-+
-+	devlink_param_unpublish(devlink, &enable_vnet_param);
-+	devlink_param_unregister(devlink, &enable_vnet_param);
-+}
-+
- static int mlx5_devlink_auxdev_params_register(struct devlink *devlink)
- {
- 	int err;
-@@ -692,8 +728,13 @@ static int mlx5_devlink_auxdev_params_register(struct devlink *devlink)
- 	if (err)
- 		goto rdma_err;
- 
-+	err = mlx5_devlink_vnet_param_register(devlink);
-+	if (err)
-+		goto vnet_err;
- 	return 0;
- 
-+vnet_err:
-+	mlx5_devlink_rdma_param_unregister(devlink);
- rdma_err:
- 	mlx5_devlink_eth_param_unregister(devlink);
- 	return err;
-@@ -701,6 +742,7 @@ static int mlx5_devlink_auxdev_params_register(struct devlink *devlink)
- 
- static void mlx5_devlink_auxdev_params_unregister(struct devlink *devlink)
- {
-+	mlx5_devlink_vnet_param_unregister(devlink);
- 	mlx5_devlink_rdma_param_unregister(devlink);
- 	mlx5_devlink_eth_param_unregister(devlink);
- }
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
-index b36fbcdc048e..2059b7319867 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/mlx5_core.h
-@@ -273,5 +273,6 @@ static inline u32 mlx5_sriov_get_vf_total_msix(struct pci_dev *pdev)
- 
- bool mlx5_eth_supported(struct mlx5_core_dev *dev);
- bool mlx5_rdma_supported(struct mlx5_core_dev *dev);
-+bool mlx5_vnet_supported(struct mlx5_core_dev *dev);
- 
- #endif /* __MLX5_CORE_H__ */
+ /**
+  *	devlink_port_params_register - register port configuration parameters
+  *
 -- 
 2.26.2
 
