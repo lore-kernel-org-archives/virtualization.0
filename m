@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6660C4338F
-	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 13:24:54 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C268EC41537
+	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 13:24:56 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 93FB361077
-	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 13:24:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 93FB361077
+	by mail.kernel.org (Postfix) with ESMTPS id 7301261076
+	for <virtualization@archiver.kernel.org>; Tue, 10 Aug 2021 13:24:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 7301261076
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 57AB940468;
-	Tue, 10 Aug 2021 13:24:54 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 37F5A40515;
+	Tue, 10 Aug 2021 13:24:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OHjLzXSwOqZ0; Tue, 10 Aug 2021 13:24:50 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PrQeblpQi5VG; Tue, 10 Aug 2021 13:24:52 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id CB1AA402A2;
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0D5EC4020D;
 	Tue, 10 Aug 2021 13:24:48 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 96504C001C;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D79E3C0020;
 	Tue, 10 Aug 2021 13:24:48 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1974EC0010
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8F003C001C
  for <virtualization@lists.linux-foundation.org>;
  Tue, 10 Aug 2021 13:24:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 08FFD404F5
+ by smtp1.osuosl.org (Postfix) with ESMTP id 7494681D9F
  for <virtualization@lists.linux-foundation.org>;
  Tue, 10 Aug 2021 13:24:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=nvidia.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id s6lUVhITj7ym
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id U4G3ttRVQeQg
  for <virtualization@lists.linux-foundation.org>;
  Tue, 10 Aug 2021 13:24:43 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com
- (mail-bn7nam10on20613.outbound.protection.outlook.com
- [IPv6:2a01:111:f400:7e8a::613])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 1DF21402D3
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com
+ (mail-co1nam11on20626.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7eab::626])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9831481D73
  for <virtualization@lists.linux-foundation.org>;
  Tue, 10 Aug 2021 13:24:43 +0000 (UTC)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=LtlyHD4OEbAtieImnflqsbswcaQyEFtGOfkvBswMa8zolIfWXwBQfe3g/ehRUPERmRToyyV3k74b9jD1ehHivWyCnM3O++OwzvX8MnKBLCsvBZgEUg3Fwuoz/D88DYWZ+TM5lOvOkP4FYphbys2KvAVM+jcBAQjZsuwGYz1aSDz3Pkfi8zvETwofclSI8nbkbGwvtOOhWvBdVrfpFwqFSNftyguw+7wvPH8Z0yAtjm/X2F/zOujtpURuONJXJSoxBMjOzD7pY6kCCHLW6l2JELIC1ti7VlGDLTYg1wUeIK+7VVgrpwiW59dn82l4QNR/oXumMYYmI+FeHxrPeKfCYA==
+ b=JSAJHiBPHL+1hkZe5wTLgNpBXJLna4x+jJNgMdnuEOHE/W/8VedcsQPFVHCl3MHmu6l6FpgoctABVePFiZHYCXoaEEQ/MUmheuTz6jhTejrfKiLgBVONGnRvK5LjD66oamFGmD8+0BCD1v+24Uk2bAisTIiF94l6uZvX8TFDdg5gzNJ+nPFXL8fIn/IjVrQT/km9mdp6es4mng/LeF/fXc4XGyZkFc9m2hU6UULb8DE8em6HfGUFBkLtrANzQM74xUuMrD/vl7yC/hxeCslkw7uBsOwxHhcemol7gtYhuom5PaRmimbhYL+7vymj876pmtTKhaz+2JVz+Q/TOFoxOQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/4TP67xCYbvJGydxqx01Hd7b5IUy0HkbZU1Dxdmel6g=;
- b=d0JTDdzXBj3iHFi08U9wDpWgoZ+GDheSCvtyVva4YI08IQp2xCO/GC+WVZkLJoOJnlOHwOUL2YrKXfob6SSpvtDSDe9Po9VEh/Gmi1vqlgNGIYCeRPmNKwiemHLLiruBChnYGPzZ1zeqHsjbLRQyAcKLL9I0VvnaJqUx07nWI44Ct4DHJzEw3f3aOyyMrYfxvDZR3aJ5/t/RpbhKNl2MoGutQ/+8lC0lOnthFPZSc90eTk16h1/jKonKY2WN5su06wOWSWQpbAWSv1Rn16VvXDfy0sjNv+duchU3M8udPilWSXEjsD7vzMJ8+2p2G7xlsTbqFW0TC1KIT0hHgLSQbw==
+ bh=w4/S67V7WOYwqMo9/yFokbt27R1+xYcr9QtOyrtDXIQ=;
+ b=TsEAY44ZrMkDxg20KolzLaqf0FbaIPckdJgc1EqTaEdV85WaI8ppHQOU2R3lWpHvNWyfqNvUWXenGLf0rCA/nMeXfGk7L8puydrSb4wX1W51vFsmRsaanXseGp1wA9h7mPiR6AILvJa9H2Mwf039zTE5dKJxwgWGWc6zBiaSLiZbQWFq70lUVHZhJvTRnoo9ltOhrvd0DuVDJV/GupBvKS3Euh3MOYWeUQ4mpgIv0N6oQP45ZIsn8JibKeyvdSUTmbFCuxUPzv9sW08xRw16XGjmJZ0OYCcc7HJfS47UokoRmbwHp1MboURzzuQ2kBogK2p6H48VvvXygwlXGa60Gw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  216.228.112.34) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
  dmarc=pass (p=quarantine sp=none pct=100) action=none header.from=nvidia.com; 
@@ -67,17 +67,17 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/4TP67xCYbvJGydxqx01Hd7b5IUy0HkbZU1Dxdmel6g=;
- b=evG7CajBgkbbQT4lnJ2mUP97NvAvVWNxulOOcd1fCDKwUfOgwfwSlyuTsZz8+nfx0fFQSN+7RjYTY/+yfjaHDazE4118F0grMHncoL6s7p+cTKyL96pa5gN/XOzvoRC45XGUOJ8iPo3SB7BlzcibACp4a1VHs8/BP4/9HxN7ZyCSIwP6ZfSgtqGk6SbO55AaSyXK2JphWBKtnODRy5RIq4eWyH1daER6S96qaMDcJjYgPNcPwN6AHA+MsgLuazCPwqp4t3Kw0qDlD+1YBxt/n7ojrExaTvkEOmR2t1JEOIIbgRC7Tyg62u78zxeUpVWguwoXRw7bdnb5NKtaahnDqQ==
-Received: from MW4PR03CA0025.namprd03.prod.outlook.com (2603:10b6:303:8f::30)
- by MW2PR12MB2393.namprd12.prod.outlook.com (2603:10b6:907:11::17)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.15; Tue, 10 Aug
+ bh=w4/S67V7WOYwqMo9/yFokbt27R1+xYcr9QtOyrtDXIQ=;
+ b=Cq/ToheyhhH5EEBx0gjhzE603391DHItPV3xj57veRkesYhuYjzkIlME5TxVSnS51ZR+AG2+3a7QHKIIS0lflnoT5tvdQS0c2E+H2271m8UjE5ZTxzCx/F3GhIRGQZkJy9/6uDPlGYfeg76tcozJNogmwfac3r1C+99yZghn4aMDHrD96zEDHpjbVEl6Uevpbdu0JLyV3MPJ+JIzWzvyEwk3iBWkknQRDWjroccq/v6KnISSyKxLH/2qSXzdW4SXUIoSpF9mCAbcfrxmAMrLLY1hm7PfyAa8qCqWukKcJlnBgzrVJmQ1bJnKnskGUJUh8reA5lHi8AV4kJq3EDY3Qw==
+Received: from MW4PR03CA0017.namprd03.prod.outlook.com (2603:10b6:303:8f::22)
+ by DM6PR12MB2796.namprd12.prod.outlook.com (2603:10b6:5:50::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.19; Tue, 10 Aug
  2021 13:24:40 +0000
 Received: from CO1NAM11FT017.eop-nam11.prod.protection.outlook.com
- (2603:10b6:303:8f:cafe::1c) by MW4PR03CA0025.outlook.office365.com
- (2603:10b6:303:8f::30) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.15 via Frontend
+ (2603:10b6:303:8f:cafe::20) by MW4PR03CA0017.outlook.office365.com
+ (2603:10b6:303:8f::22) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4394.17 via Frontend
  Transport; Tue, 10 Aug 2021 13:24:40 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
  smtp.mailfrom=nvidia.com; vger.kernel.org; dkim=none (message not signed)
@@ -91,12 +91,12 @@ Received: from mail.nvidia.com (216.228.112.34) by
  15.20.4394.16 via Frontend Transport; Tue, 10 Aug 2021 13:24:40 +0000
 Received: from sw-mtx-036.mtx.labs.mlnx (172.20.187.5) by HQMAIL107.nvidia.com
  (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2;
- Tue, 10 Aug 2021 13:24:38 +0000
+ Tue, 10 Aug 2021 13:24:39 +0000
 To: <davem@davemloft.net>, <kuba@kernel.org>, <netdev@vger.kernel.org>
-Subject: [PATCH RESEND net-next 02/10] devlink: Add new "enable_rdma" generic
+Subject: [PATCH RESEND net-next 03/10] devlink: Add new "enable_vnet" generic
  device param
-Date: Tue, 10 Aug 2021 16:24:16 +0300
-Message-ID: <20210810132424.9129-3-parav@nvidia.com>
+Date: Tue, 10 Aug 2021 16:24:17 +0300
+Message-ID: <20210810132424.9129-4-parav@nvidia.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20210810132424.9129-1-parav@nvidia.com>
 References: <20210810132424.9129-1-parav@nvidia.com>
@@ -106,28 +106,28 @@ X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
  HQMAIL107.nvidia.com (172.20.187.13)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 85ef2907-353d-4187-3181-08d95c02354d
-X-MS-TrafficTypeDiagnostic: MW2PR12MB2393:
-X-Microsoft-Antispam-PRVS: <MW2PR12MB2393DE247874FFF96E984D3FDCF79@MW2PR12MB2393.namprd12.prod.outlook.com>
+X-MS-Office365-Filtering-Correlation-Id: 8a75ade7-7867-419d-7170-08d95c023599
+X-MS-TrafficTypeDiagnostic: DM6PR12MB2796:
+X-Microsoft-Antispam-PRVS: <DM6PR12MB2796B0247F623B4695437882DCF79@DM6PR12MB2796.namprd12.prod.outlook.com>
 X-MS-Oob-TLC-OOBClassifiers: OLM:6430;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: jbRxrR5i0hSC+V3iFdGfsVlqX655xrZuPmL4quEy84Q8WeCUfCYhzAwcODmVB+684mv8hn9T7NC2KPuiYUpqlBossFHsWip2zMsxSQr1vfBJGPe0Hpe9PkbqU5pXf/+tZCNItCyObk6/Yq+NHQYD6kho/UkpJG4bjR5wVuksuw7JhhDRotybyFQx3uy2zpRfMV9Rly3w60LTxNRqn9tWlSlwpNwQSfKlTlYapsF1wNWNguWVv5R0S1bmC1/n+alOdTwDT0hKJwCXsm3Xi7nJx+fSpnBptvx1H9J2RUf1EyG81mwVN8PWXssW71E/B1FKLQgBwllY+ecfUHrNCMrh/sQGkMaqeCl6e+HPvIpKaPwq8UVaABgw1A05sVIzJ0repScidgg2tFhtUNUTe4VH1v8E/f/FuBCB94DKmAz0pVtMbAXj1DgmAEchuBUppfTZ+/8I3X7SEkttxVKuuPnt0JLn2wREYVR+0YHX/LShF1aKBQfzysxeDOJTzIVF7SdRw3MEZsLnH8dMdYIl2LZAH9NAtKDIn559eyobtHrplZ2AX+lKkVCRkmJue+/ssUTTqJ4wps/KUqes4Sa8UfpfmLviESPDCdqS7Ziw+XrCIZqQoeUOy0CbOEzKwBBnibnvyndh4pIsuPFrcLayd3FpA50kMyv40fFwMXRrLMT0O8uK5uVlXbkOTncMenVA71Uswe9lbUR/zTNhqe+hzu8T1AEKogcqTrqngS/xUoPTRZU=
+X-Microsoft-Antispam-Message-Info: yeZeYQdFxdGwJ1Q5bJN+1NL+kdPvgDYk8A6EoconSDw42hfl0Ty1drrgAdhZBFMuUUYdSGbxCODPnjWMVFeJRoHcRIgOi7+XNkIjkrulw0h0E3EqLbndoPNmUiTnZkAfcgQrE8feB2/lDVfplsma97pfZv4CyFgcSLdfTV5sCh6MGTmZWuN7UcSivRzyCTrcnsca9vEh4BBfcv0cSQqeIbF8ZXtlSFEFIjBCW97OFi173vfS0Anyc4Yzd8xYdDX1pPfU8SWQcVRAsAmdRgTI/yQemlLB5PcSgt4rSJmrQdB52UY0NufG+q0bTRsmdo8QVIft/GTzRlnwREOUVNNlpmfLijRl9O+sW68T32+MRmuCQyJeWm11fs2tq2vysY7pn/OAn+5vajKUTEYAoUxeA6GVR4Vg0WMSFYIks79w/H5MCGT0VCZkwFjt2GIu8m1RBF8jPqroxaWvDHM0GOQbJHoVA2ylxwjyZGVbCrmjUMHewQkX39GItmUsYYXlyFG9XpnIgYGEFL9y5l7GQhPJngR4wxV/Q+jfcWGmEG1UI2zSNdan77/halN5ylBIfCINIWTjHMdUzFMHKa9SbT+ibluyqpWJOihFq7iyMPiDMqfMGrrWMRiMLyRzcwWS8lsXGJdHnmlCcGnzS2WNbpAs7jr8DSnMhZWJar70eq4xZAt8A6BbCSs8QPCHYVImuw5YhnYqwjmEVBv0N7nF31f6Rw5pO1Ej0UdjujT9QQ/t2nU=
 X-Forefront-Antispam-Report: CIP:216.228.112.34; CTRY:US; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:schybrid03.nvidia.com; CAT:NONE;
- SFS:(4636009)(136003)(376002)(346002)(396003)(39860400002)(46966006)(36840700001)(4326008)(478600001)(70586007)(70206006)(36756003)(107886003)(82310400003)(47076005)(26005)(82740400003)(2906002)(110136005)(7636003)(54906003)(1076003)(2616005)(316002)(86362001)(356005)(16526019)(83380400001)(36860700001)(186003)(8676002)(6666004)(336012)(5660300002)(426003)(36906005)(8936002)(41533002);
+ SFS:(4636009)(396003)(346002)(376002)(39860400002)(136003)(46966006)(36840700001)(4326008)(478600001)(70206006)(2906002)(1076003)(426003)(70586007)(7636003)(8936002)(5660300002)(336012)(186003)(82310400003)(26005)(36756003)(356005)(16526019)(47076005)(82740400003)(6666004)(86362001)(110136005)(54906003)(8676002)(316002)(36860700001)(36906005)(107886003)(2616005)(83380400001)(41533002);
  DIR:OUT; SFP:1101; 
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Aug 2021 13:24:40.2407 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 85ef2907-353d-4187-3181-08d95c02354d
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Aug 2021 13:24:40.7464 (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8a75ade7-7867-419d-7170-08d95c023599
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.112.34];
  Helo=[mail.nvidia.com]
 X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT017.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW2PR12MB2393
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB2796
 Cc: linux-rdma@vger.kernel.org, Leon
  Romanovsky <leonro@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
  virtualization@lists.linux-foundation.org
@@ -151,18 +151,18 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 Add new device generic parameter to enable/disable creation of
-RDMA auxiliary device and associated device functionality
+VDPA net auxiliary device and associated device functionality
 in the devlink instance.
 
 User who prefers to disable such functionality can disable it using below
 example.
 
 $ devlink dev param set pci/0000:06:00.0 \
-              name enable_rdma value false cmode driverinit
+              name enable_vnet value false cmode driverinit
 $ devlink dev reload pci/0000:06:00.0
 
 At this point devlink instance do not create auxiliary device for the
-RDMA functionality.
+VDPA net functionality.
 
 Signed-off-by: Parav Pandit <parav@nvidia.com>
 Reviewed-by: Jiri Pirko <jiri@nvidia.com>
@@ -174,54 +174,54 @@ Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
  3 files changed, 13 insertions(+)
 
 diff --git a/Documentation/networking/devlink/devlink-params.rst b/Documentation/networking/devlink/devlink-params.rst
-index 219c1272f2d6..a49da0b049b6 100644
+index a49da0b049b6..4878907e9232 100644
 --- a/Documentation/networking/devlink/devlink-params.rst
 +++ b/Documentation/networking/devlink/devlink-params.rst
-@@ -101,6 +101,10 @@ own name.
+@@ -105,6 +105,10 @@ own name.
       - Boolean
-      - When enabled, the device driver will instantiate Ethernet specific
+      - When enabled, the device driver will instantiate RDMA specific
         auxiliary device of the devlink device.
-+   * - ``enable_rdma``
++   * - ``enable_vnet``
 +     - Boolean
-+     - When enabled, the device driver will instantiate RDMA specific
-+       auxiliary device of the devlink device.
++     - When enabled, the device driver will instantiate VDPA networking
++       specific auxiliary device of the devlink device.
     * - ``internal_err_reset``
       - Boolean
       - When enabled, the device driver will reset the device on internal
 diff --git a/include/net/devlink.h b/include/net/devlink.h
-index 1e3e183bb2c2..6f4f0416e598 100644
+index 6f4f0416e598..0a0becbcdc49 100644
 --- a/include/net/devlink.h
 +++ b/include/net/devlink.h
-@@ -520,6 +520,7 @@ enum devlink_param_generic_id {
- 	DEVLINK_PARAM_GENERIC_ID_ENABLE_ROCE,
+@@ -521,6 +521,7 @@ enum devlink_param_generic_id {
  	DEVLINK_PARAM_GENERIC_ID_ENABLE_REMOTE_DEV_RESET,
  	DEVLINK_PARAM_GENERIC_ID_ENABLE_ETH,
-+	DEVLINK_PARAM_GENERIC_ID_ENABLE_RDMA,
+ 	DEVLINK_PARAM_GENERIC_ID_ENABLE_RDMA,
++	DEVLINK_PARAM_GENERIC_ID_ENABLE_VNET,
  
  	/* add new param generic ids above here*/
  	__DEVLINK_PARAM_GENERIC_ID_MAX,
-@@ -563,6 +564,9 @@ enum devlink_param_generic_id {
- #define DEVLINK_PARAM_GENERIC_ENABLE_ETH_NAME "enable_eth"
- #define DEVLINK_PARAM_GENERIC_ENABLE_ETH_TYPE DEVLINK_PARAM_TYPE_BOOL
+@@ -567,6 +568,9 @@ enum devlink_param_generic_id {
+ #define DEVLINK_PARAM_GENERIC_ENABLE_RDMA_NAME "enable_rdma"
+ #define DEVLINK_PARAM_GENERIC_ENABLE_RDMA_TYPE DEVLINK_PARAM_TYPE_BOOL
  
-+#define DEVLINK_PARAM_GENERIC_ENABLE_RDMA_NAME "enable_rdma"
-+#define DEVLINK_PARAM_GENERIC_ENABLE_RDMA_TYPE DEVLINK_PARAM_TYPE_BOOL
++#define DEVLINK_PARAM_GENERIC_ENABLE_VNET_NAME "enable_vnet"
++#define DEVLINK_PARAM_GENERIC_ENABLE_VNET_TYPE DEVLINK_PARAM_TYPE_BOOL
 +
  #define DEVLINK_PARAM_GENERIC(_id, _cmodes, _get, _set, _validate)	\
  {									\
  	.id = DEVLINK_PARAM_GENERIC_ID_##_id,				\
 diff --git a/net/core/devlink.c b/net/core/devlink.c
-index 9a59f45c8bf9..b68d6921d34f 100644
+index b68d6921d34f..867ae7e39788 100644
 --- a/net/core/devlink.c
 +++ b/net/core/devlink.c
-@@ -4282,6 +4282,11 @@ static const struct devlink_param devlink_param_generic[] = {
- 		.name = DEVLINK_PARAM_GENERIC_ENABLE_ETH_NAME,
- 		.type = DEVLINK_PARAM_GENERIC_ENABLE_ETH_TYPE,
+@@ -4287,6 +4287,11 @@ static const struct devlink_param devlink_param_generic[] = {
+ 		.name = DEVLINK_PARAM_GENERIC_ENABLE_RDMA_NAME,
+ 		.type = DEVLINK_PARAM_GENERIC_ENABLE_RDMA_TYPE,
  	},
 +	{
-+		.id = DEVLINK_PARAM_GENERIC_ID_ENABLE_RDMA,
-+		.name = DEVLINK_PARAM_GENERIC_ENABLE_RDMA_NAME,
-+		.type = DEVLINK_PARAM_GENERIC_ENABLE_RDMA_TYPE,
++		.id = DEVLINK_PARAM_GENERIC_ID_ENABLE_VNET,
++		.name = DEVLINK_PARAM_GENERIC_ENABLE_VNET_NAME,
++		.type = DEVLINK_PARAM_GENERIC_ENABLE_VNET_TYPE,
 +	},
  };
  
