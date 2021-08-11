@@ -7,87 +7,87 @@ X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B2FCAC432BE
-	for <virtualization@archiver.kernel.org>; Wed, 11 Aug 2021 12:25:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28343C432BE
+	for <virtualization@archiver.kernel.org>; Wed, 11 Aug 2021 12:28:31 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 60EB460FC4
-	for <virtualization@archiver.kernel.org>; Wed, 11 Aug 2021 12:25:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 60EB460FC4
+	by mail.kernel.org (Postfix) with ESMTPS id CA86860F22
+	for <virtualization@archiver.kernel.org>; Wed, 11 Aug 2021 12:28:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org CA86860F22
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 26E3240336;
-	Wed, 11 Aug 2021 12:25:43 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 91DCB4058B;
+	Wed, 11 Aug 2021 12:28:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id b2fTWhVwD0go; Wed, 11 Aug 2021 12:25:39 +0000 (UTC)
+	with ESMTP id XSy2PjVwN1OD; Wed, 11 Aug 2021 12:28:26 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id CB36D403EE;
-	Wed, 11 Aug 2021 12:25:38 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E7F3F40562;
+	Wed, 11 Aug 2021 12:28:25 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 99716C001A;
-	Wed, 11 Aug 2021 12:25:38 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 08F1DC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BFCE7C001A;
+	Wed, 11 Aug 2021 12:28:25 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 71725C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Aug 2021 12:25:37 +0000 (UTC)
+ Wed, 11 Aug 2021 12:28:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id DBEF5829A9
+ by smtp2.osuosl.org (Postfix) with ESMTP id 5F59740491
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Aug 2021 12:25:36 +0000 (UTC)
+ Wed, 11 Aug 2021 12:28:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=linaro.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yBH74ExfU3Te
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id LC_qPOVZ7NYb
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Aug 2021 12:25:32 +0000 (UTC)
+ Wed, 11 Aug 2021 12:28:20 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com
- [IPv6:2a00:1450:4864:20::233])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 76F6C8276E
+Received: from mail-lj1-x235.google.com (mail-lj1-x235.google.com
+ [IPv6:2a00:1450:4864:20::235])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 2CD0E404AE
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Aug 2021 12:25:32 +0000 (UTC)
-Received: by mail-lj1-x233.google.com with SMTP id h2so4262411lji.6
+ Wed, 11 Aug 2021 12:28:20 +0000 (UTC)
+Received: by mail-lj1-x235.google.com with SMTP id x9so4302981ljj.2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Aug 2021 05:25:32 -0700 (PDT)
+ Wed, 11 Aug 2021 05:28:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=zEH3nbdjRk3iKKEKjuiI8MahBqLUdJ0ANeHswehlAC4=;
- b=fryX8NC6y6XlhC7j8uc53VpWuPhaK1RvrhW4QxLCjceOa1J59cngm58Q5breUEAZbO
- OdlWLshstDrjt6UOfytqzUzuH9ayTdiWPqaDLgUlsUlCyZld1UlCCVRE0nBVaW4paNh6
- 1a3FNJ14ZhQ8hNw03miW5hJUrtt3hETfd0HLclQFNJOttkWqXJ3IQJ2dZonNKhWThxNV
- s25hAQibOskooQ2GsZBsZ7KyVni2733OGYGblU+c4qNb68oeRVGM9Zmcpn+boaMC4754
- 13X17tG6W+wmrmnj86w4abOEdedO5ZYDks6sohT3FniDvvsgkv/WrYVhuuAwaLgJG3Rb
- a1kg==
+ :cc; bh=D5OlZ8oq6iOCdn4aMeG+EEph9Sb1Lla5I4LvuXvSK8A=;
+ b=yxqhdCu/Qo68ddda8afkVdUuov6gTdX9x074yF+7r4kxHkkK2vFbEbiXB2Kl42komk
+ uz5NPqfrnDYX3RbRLlnmXZODJDggmdPFMxMDSLwoD2l/HwkgDbE1gvy7STJCz+e65YtN
+ z5xesgxo3uN8jH9rYn0Sob+2LRCkPlEIYS237Vz7rm8UqyQsV9NsHYVvmJqG1bjPQAMX
+ zRStxZCtg5aGpGjtPDcYzmvw1ubJIwRv/tIDlskxY8flufvRcPbFDuYaVf3Con+7JPUe
+ rOYO6dE9dJyA56ZEgtW0ecC8NkUjs+NlntX1f9Y4W60bbXOss6v4DpUWQ7CLJZgNXKct
+ bixA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=zEH3nbdjRk3iKKEKjuiI8MahBqLUdJ0ANeHswehlAC4=;
- b=Z8ru7jt9PBSQJnkpAn/Nx24+A9rDs4U22UzDr9/rf+BTyPt3ms5k5qr/Aqf2ZehQYn
- OuBwtsEcGdI+3L0yF27ud624JqYVWeBbow2xj+bKblsA989DY5g+SnuvZrRjxy0kqRSP
- yygj5YKyCQq63gnXQ3bqhpWx77xtE6WLZVX7JqZkvLYKR8rSF/4cAFejhlOQLmUaEa6M
- 0L5sQUbtCZFEWkuJhKCzd9+OzDsFOMUuQXmGwyvOTMeeXKLLhJ960GAuY7BfsQWp/OBS
- zR9iWXUI3WwyMRtlc4aAy+ETZAQf7wSTx6fRVkYplqWQ2HY+/moQSKRKL30Ipj3kAzmz
- zdwg==
-X-Gm-Message-State: AOAM531Ym1r37uFarewvfUyIqtBZkiuasgaoOL0jnimEF2LzsgjkwfXw
- i2GFhI4qKQCil4/BrNaWySWZQCEYjsLACX0bqpVQPg==
-X-Google-Smtp-Source: ABdhPJz/gGHq1zq1jYiqFyFHQT7Hh0KkvI1s2Ai88t2QU+nt6YVYNQmSr60cJpcwWEILkaeEmBjD5VELf9BFPZPEGi4=
-X-Received: by 2002:a2e:9a4b:: with SMTP id k11mr12624317ljj.368.1628684730077; 
- Wed, 11 Aug 2021 05:25:30 -0700 (PDT)
+ bh=D5OlZ8oq6iOCdn4aMeG+EEph9Sb1Lla5I4LvuXvSK8A=;
+ b=e5EESPy3B7tAtDrp747AjS/Zscmc+Oe7ehBDHM2/72P9a3r6T4eZPXmBBmT5X7+9iY
+ J9PSSzL075gjGhaUFFsUTtM6kBnzPzqkdy025t9r+nmG/L+rA+FUz2jS3A8XNOz8ajmX
+ FP4UWcNEdP8Ke7pdkDFnXkwOTE9UXY1uXG46rJ++bKkjVE/7OoUtSRUXsaYkgcixRnlN
+ AU94GuRLECkYa64dfMsrdHediya+ANIRs2CDlmc3+eHu3HPBbyP/CB8uzc7jHRAeIoyA
+ ui9JmkIio0vt6t/e888Y0wqf2iN5aKx7Xlf5bjBOqNbFZ9RbyO1oqlzs668ZxnYfmeuS
+ PfaQ==
+X-Gm-Message-State: AOAM532l4qjJx00tNlOaUvYbDBrttZ2HeMkNP7sN4lJzgnLUUmH3wjvT
+ Pn+DzHA+EK50yKErBdzr4r2W6aYssMdBWsa6uipvgA==
+X-Google-Smtp-Source: ABdhPJwR2jWpMR0T0owMZaLYzWcyHOEHETHN6xD7KLu7UfEpJk7ksIDK0sBzw2b6PX7p1HpG0zZox0yZRkt4VIF0sKA=
+X-Received: by 2002:a2e:a231:: with SMTP id i17mr12603890ljm.467.1628684898091; 
+ Wed, 11 Aug 2021 05:28:18 -0700 (PDT)
 MIME-Version: 1.0
 References: <cover.1628590591.git.viresh.kumar@linaro.org>
- <afc7b34cee856f1ed1a65034f4a9fe705dd04d6a.1628590591.git.viresh.kumar@linaro.org>
-In-Reply-To: <afc7b34cee856f1ed1a65034f4a9fe705dd04d6a.1628590591.git.viresh.kumar@linaro.org>
+ <96223fb8143a4eaa9b183d376ff46e5cd8ef54b4.1628590591.git.viresh.kumar@linaro.org>
+In-Reply-To: <96223fb8143a4eaa9b183d376ff46e5cd8ef54b4.1628590591.git.viresh.kumar@linaro.org>
 From: Linus Walleij <linus.walleij@linaro.org>
-Date: Wed, 11 Aug 2021 14:25:18 +0200
-Message-ID: <CACRpkdajnPsD01ztx5xdVnR=cEK78KY+D169HXeDKuaOMS9qfQ@mail.gmail.com>
-Subject: Re: [PATCH V5 1/2] gpio: Add virtio-gpio driver
+Date: Wed, 11 Aug 2021 14:28:07 +0200
+Message-ID: <CACRpkdbonnFd5xu=3_CdR=1QtxL0fDoWX-A16fTPMJypWsmcdw@mail.gmail.com>
+Subject: Re: [PATCH V5 2/2] gpio: virtio: Add IRQ support
 To: Viresh Kumar <viresh.kumar@linaro.org>
 Cc: Arnd Bergmann <arnd@kernel.org>,
  Vincent Guittot <vincent.guittot@linaro.org>,
@@ -120,19 +120,14 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Tue, Aug 10, 2021 at 12:25 PM Viresh Kumar <viresh.kumar@linaro.org> wrote:
 
-> This patch adds a new driver for Virtio based GPIO devices.
->
-> This allows a guest VM running Linux to access GPIO lines provided by
-> the host. It supports all basic operations, except interrupts for the
-> GPIO lines.
->
-> Based on the initial work posted by:
-> "Enrico Weigelt, metux IT consult" <lkml@metux.net>.
+> This patch adds IRQ support for the virtio GPIO driver. Note that this
+> uses the irq_bus_lock/unlock() callbacks, since those operations over
+> virtio may sleep. Also the notifications for the eventq are processed
+> using a work item to allow sleep-able operations.
 >
 > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 
-I see there is a dependency that needs to be fixed but
-the driver looks good to me:
+Looks good to me from a GPIO point of view:
 Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
 Yours,
