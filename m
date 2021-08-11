@@ -2,111 +2,74 @@ Return-Path: <SRS0=15I4=NC=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-11.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54728C4338F
-	for <virtualization@archiver.kernel.org>; Wed, 11 Aug 2021 05:39:08 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6964FC4338F
+	for <virtualization@archiver.kernel.org>; Wed, 11 Aug 2021 06:56:33 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EB76260E09
-	for <virtualization@archiver.kernel.org>; Wed, 11 Aug 2021 05:39:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org EB76260E09
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 021466024A
+	for <virtualization@archiver.kernel.org>; Wed, 11 Aug 2021 06:56:32 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 021466024A
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A49BD831F8;
-	Wed, 11 Aug 2021 05:39:07 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id B2F8060866;
+	Wed, 11 Aug 2021 06:56:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kqV9D9zRbN7Q; Wed, 11 Aug 2021 05:39:03 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 03Vok2AUa78G; Wed, 11 Aug 2021 06:56:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0E5C182C33;
-	Wed, 11 Aug 2021 05:39:03 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 42FC460832;
+	Wed, 11 Aug 2021 06:56:28 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D8DEAC001A;
-	Wed, 11 Aug 2021 05:39:02 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 78BE1C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 170DFC0010;
+	Wed, 11 Aug 2021 06:56:28 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BFA32C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Aug 2021 05:39:01 +0000 (UTC)
+ Wed, 11 Aug 2021 06:56:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 7554D404A5
+ by smtp3.osuosl.org (Postfix) with ESMTP id 9B3D560847
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Aug 2021 05:39:01 +0000 (UTC)
+ Wed, 11 Aug 2021 06:56:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1MkEYT6KcaER
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id nZkj7E-VHg6G
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Aug 2021 05:38:57 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com
- [IPv6:2607:f8b0:4864:20::102a])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 9567D40435
+ Wed, 11 Aug 2021 06:56:25 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from out30-131.freemail.mail.aliyun.com
+ (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 7B16A607CF
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Aug 2021 05:38:57 +0000 (UTC)
-Received: by mail-pj1-x102a.google.com with SMTP id
- w13-20020a17090aea0db029017897a5f7bcso2856563pjy.5
- for <virtualization@lists.linux-foundation.org>;
- Tue, 10 Aug 2021 22:38:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=9C16aGrQd4DbmatTkdrN+5r9o60LDqyKnHni66oi5yA=;
- b=ay0Z1NCDG8WPAn0RRxsixr6dpvr8p3y035Y6DM7CKPLF66XtxVf/sGr/q2+7hVyGVL
- xcflIio6ixnfRRGtcl/5KkgLtZOB7FIEkp1fyih99x8YgYKnxcwd4L96wIA66wTHDsS6
- De+km3kdPeHefFd9x6AgF1K79DBr4IUgdVRzH6rJTP0gfnRgWkwSaUCSdvIsdz0pE29k
- Or/CuxzYPn3vrRDz3/rr4lIpxBYsK1B96T2ed09VcExRXsLwDGAfGQu9RLou53lMuYy+
- mDzGmi1oL4rp6XLd3heku9vLzLtzx9jnhtzCLTovxxPd6wZpbQxYW6reVTjUdWqNGGVL
- 6/Yg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=9C16aGrQd4DbmatTkdrN+5r9o60LDqyKnHni66oi5yA=;
- b=fAiUY+uPHJZ6Hej9pTP7zs4nrCNN2AsrXJnjgJ4LjTwRAMMGABa45vF2uH6x3tFntZ
- HAs6xL4VGr2xUoJhUQDvpHOvSckFzFlt1UqlZ6S3ucCss+PnzudxqMbdG0cofHvPBnod
- Aa6rcBIEJE9tZRfra+PrsWwWj51NsJiRyPm0+WCKb6qIfa7HC517kCb2a3koOtN75Ngt
- QTXJu1qJETvep6rmZoleTjeT75r+X2smCT9wP9KZdfgAFMTJ0JWiMwFVLgIeaXqJ7Fod
- Tpk+EmR4mz3Bmcc4OokUregUfKfj8wt0JkpMXIq81hcPKvPlC51EpV79qG1rj+2AYKE4
- F5sg==
-X-Gm-Message-State: AOAM533Xf9Jw4eboRWtsVLW/BbkJL4HXKkYrrpKaVbL8Nc+MWTDKAqqY
- dGnW50IRK5HSEtsry3BsGecvUA==
-X-Google-Smtp-Source: ABdhPJz670d+mhV5NHPn4IBMMT7nwf5ci7sI0cLkCTuYIabeyKuBFTWpGjH65c1d6erAUk37z2/Zog==
-X-Received: by 2002:a17:902:9897:b029:12d:17ac:3d40 with SMTP id
- s23-20020a1709029897b029012d17ac3d40mr14926473plp.67.1628660336982; 
- Tue, 10 Aug 2021 22:38:56 -0700 (PDT)
-Received: from localhost ([122.172.201.85])
- by smtp.gmail.com with ESMTPSA id o9sm27927871pfh.217.2021.08.10.22.38.55
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 10 Aug 2021 22:38:56 -0700 (PDT)
-Date: Wed, 11 Aug 2021 11:08:54 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Rob Herring <robh+dt@kernel.org>, Arnd Bergmann <arnd@kernel.org>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Bartosz Golaszewski <bgolaszewski@baylibre.com>,
- Linus Walleij <linus.walleij@linaro.org>
-Subject: Re: [PATCH V4 0/5] virtio: Add virtio-device bindings
-Message-ID: <20210811053854.37uf55p62r525ees@vireshk-i7>
-References: <cover.1627362340.git.viresh.kumar@linaro.org>
- <20210804035623.flacrogemvjina3o@vireshk-i7>
+ Wed, 11 Aug 2021 06:56:25 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R691e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=8; SR=0; TI=SMTPD_---0UifQe5k_1628664981; 
+Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
+ fp:SMTPD_---0UifQe5k_1628664981) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 11 Aug 2021 14:56:21 +0800
+From: Jeffle Xu <jefflexu@linux.alibaba.com>
+To: vgoyal@redhat.com,
+	stefanha@redhat.com,
+	miklos@szeredi.hu
+Subject: [virtiofsd PATCH v2 0/4] virtiofsd: support per-file DAX
+Date: Wed, 11 Aug 2021 14:56:17 +0800
+Message-Id: <20210811065621.12737-1-jefflexu@linux.alibaba.com>
+X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210804070653.118123-1-jefflexu@linux.alibaba.com>
+References: <20210804070653.118123-1-jefflexu@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20210804035623.flacrogemvjina3o@vireshk-i7>
-User-Agent: NeoMutt/20180716-391-311a52
-Cc: devicetree@vger.kernel.org, Vincent Guittot <vincent.guittot@linaro.org>,
- Arnd Bergmann <arnd@arndb.de>, Bill Mills <bill.mills@linaro.org>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Wolfram Sang <wsa@kernel.org>, linux-gpio@vger.kernel.org,
- linux-i2c@vger.kernel.org, "Enrico Weigelt, metux IT consult" <info@metux.net>
+Cc: linux-fsdevel@vger.kernel.org, virtio-fs@redhat.com,
+ bo.liu@linux.alibaba.com, joseph.qi@linux.alibaba.com,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,23 +86,48 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 04-08-21, 09:26, Viresh Kumar wrote:
-> Michael,
-> 
-> I hope you will be picking this series (Now that it is reviewed by
-> others) ? Just so you know, Wolfram needs the 4th patch, 4/5, to base
-> the virtio-i2c driver over it and has requested an immutable branch
-> for the same.
+I mentioned in virtiofsd PATCH v1 that virtiofsd exits once ioctl() is
+called. After depper investigation into this issue, I find that it is
+because ioctl() is blocked out the whitelist of seccomp of virtiofsd.
 
-Michael, we need an immutable branch with the following patch:
+To support ioctl, ioctl syscall shall be added into the whitelist (see patch
+1).
 
-  uapi: virtio_ids: Sync ids with specification
+And this is the complete workable version for virtiofsd:
+- virtiofsd now supports FUSE_IOCTL now, though currently only
+  FS_IOC_G[S]ETFLAGS/FS_IOC_FSG[S]ETXATTR are supported.
+- During FUSE_INIT, virtiofsd advertise support for per-file DAX only
+  when the backend fs is ext4/xfs.
+- FS_IOC_SETFLAGS/FS_IOC_FSSETXATTR FUSE_IOCTL will be directed to host,
+  so that FS_DAX_FL could be flushed to backed fs persistently.
+- During FUSE_LOOKUP, virtiofsd will decide DAX shall be enabled for
+  current file according to if this file is marked with FS_DAX_FL in the
+  backend fs.
 
-This will enable Wolfram to apply the I2C driver for 5.15-rc1 and
-maybe Linus as well for the GPIO driver.
+
+PS.
+In the current implementation, the kernel always advertise
+FUSE_PERFILE_DAX no matter whether it's mounted with '-o dax=inode' or
+not. It can be fixed in the next version, and I need more feedbacks so far.
+
+Any comment on this whole series is welcome.
+
+Jeffle Xu (4):
+  virtiofsd: add .ioctl() support
+  virtiofsd: expand fuse protocol to support per-file DAX
+  virtiofsd: support per-file DAX negotiation in FUSE_INIT
+  virtiofsd: support per-file DAX in FUSE_LOOKUP
+
+ include/standard-headers/linux/fuse.h |   2 +
+ tools/virtiofsd/fuse_common.h         |   5 ++
+ tools/virtiofsd/fuse_lowlevel.c       |   6 ++
+ tools/virtiofsd/passthrough_ll.c      | 115 ++++++++++++++++++++++++++
+ tools/virtiofsd/passthrough_seccomp.c |   1 +
+ 5 files changed, 129 insertions(+)
 
 -- 
-viresh
+2.27.0
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
