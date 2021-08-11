@@ -7,115 +7,113 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4702FC432BE
-	for <virtualization@archiver.kernel.org>; Wed, 11 Aug 2021 09:12:55 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7383EC4338F
+	for <virtualization@archiver.kernel.org>; Wed, 11 Aug 2021 09:22:36 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E6ED560F55
-	for <virtualization@archiver.kernel.org>; Wed, 11 Aug 2021 09:12:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E6ED560F55
+	by mail.kernel.org (Postfix) with ESMTPS id 0BACE60FC0
+	for <virtualization@archiver.kernel.org>; Wed, 11 Aug 2021 09:22:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0BACE60FC0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id AC866404E9;
-	Wed, 11 Aug 2021 09:12:54 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id C559F60809;
+	Wed, 11 Aug 2021 09:22:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KbqocNBiDpnR; Wed, 11 Aug 2021 09:12:50 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3B169404E5;
-	Wed, 11 Aug 2021 09:12:50 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ELYhIq7MkIla; Wed, 11 Aug 2021 09:22:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 61134605C7;
+	Wed, 11 Aug 2021 09:22:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E3650C001A;
-	Wed, 11 Aug 2021 09:12:49 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 34C52C0010;
+	Wed, 11 Aug 2021 09:22:31 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1D801C000E
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5F442C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Aug 2021 09:12:48 +0000 (UTC)
+ Wed, 11 Aug 2021 09:22:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id EBE7E607CF
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5C59460824
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Aug 2021 09:12:47 +0000 (UTC)
+ Wed, 11 Aug 2021 09:22:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id m_cBKOe0t_Cb
+ with ESMTP id sY25rgs6Osw5
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Aug 2021 09:12:47 +0000 (UTC)
+ Wed, 11 Aug 2021 09:22:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 561BA6079C
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 1B29160809
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Aug 2021 09:12:47 +0000 (UTC)
+ Wed, 11 Aug 2021 09:22:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1628673165;
+ s=mimecast20190719; t=1628673748;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=xXwE7CHo/JY+uapmOrMsy/SWDFuCzkqxTC2MlTmyXRU=;
- b=PNqRbR0LCPP26r8qJyRM55VysXR+ZyvAF8CTULKwFk15qy1NRgy2UoYSCC2s5YBYa9vs6C
- 9Phodca/oMtaaqWr4kqj1oOs/oRrI5MjMn52c9p8gLUcZ4fwVd+ateECb8aitmXugn9e7B
- lW5rIlePq0M6sar42bmsQUDYctNx3go=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-494-BfSZ-8fkN9ChCUPIhUEItQ-1; Wed, 11 Aug 2021 05:12:44 -0400
-X-MC-Unique: BfSZ-8fkN9ChCUPIhUEItQ-1
-Received: by mail-ed1-f70.google.com with SMTP id
- z4-20020a05640240c4b02903be90a10a52so879492edb.19
+ bh=2OLGJiyz5UaykHTThCz8bOAjGg8pe3qYt43SOMCUzTo=;
+ b=caf/lhGZaHeW8uGt+8UWTun7B34FoccULjwmIx53jBFzv8Eq5Tl6HACmFN7Abl3U7gcluE
+ 2CHwqOxF1cjLeiHwSY2T16n42FGAgzALQqDL7vjLhukISO6b6A8rgK3BT38jY+KRRO0eSd
+ hB/Pb+lavP4XsegoS9OzjqS372OiQOE=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-142-d208EJVHOMeNScZtwzvOuA-1; Wed, 11 Aug 2021 05:22:26 -0400
+X-MC-Unique: d208EJVHOMeNScZtwzvOuA-1
+Received: by mail-ed1-f71.google.com with SMTP id
+ n4-20020aa7c6840000b02903be94ce771fso364082edq.11
  for <virtualization@lists.linux-foundation.org>;
- Wed, 11 Aug 2021 02:12:44 -0700 (PDT)
+ Wed, 11 Aug 2021 02:22:26 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=xXwE7CHo/JY+uapmOrMsy/SWDFuCzkqxTC2MlTmyXRU=;
- b=hLt2Pecchtv7P63GunsFCFpCl+Jx/7Fg3y6neS7iN6F/mrmkx2sl0+w1KYW6T/rGQN
- 3UeqeozSmZB0h6FiddM2H1mU5QHqz9fte/4lzbHaxj3sG9d0Es5XvlIuskqzJnfqSiMr
- l6zdovEOQFAYa9cLHH8SzmYyXg061xbuotcuvLvVNd9o97vl9qA3zwNyS7fJjs+wR6ke
- H3npVxvbN84V4HYS9m8dJnQKIXZ2VpHr7A2dLFqS0gHgkvPDUvmP5QnWAhdpw5fVjGtf
- XmhXlY1rLzFQSzaa5alNsJqovFjn1JE75nkwqnsougyi2L1Eiy/dBDretX3hcVpY4435
- It4g==
-X-Gm-Message-State: AOAM530EuhKhfbyT+MacVe06SNhZOz6fBFJb5VIDnucnhDFTG1k/JJ4T
- aVwAZL1CtbfGxSzFed7kg3hePc8ZOiGqWHT5jLK/wFFWHAsy4H+8tjpzK+63EvjUj4zK8EFPIPg
- tw1jWBk8r8YZBo3pIlGOKJEGwmABUZUpgpgrxI46fHw==
-X-Received: by 2002:a17:906:b1d3:: with SMTP id
- bv19mr1140406ejb.361.1628673163551; 
- Wed, 11 Aug 2021 02:12:43 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzOBdpK/bCd9lXs8Es1fYDQDN9tg88WZ+etc/k124zb/U4oV6dt2a1qRBU8C9IEa088GmY3XQ==
-X-Received: by 2002:a17:906:b1d3:: with SMTP id
- bv19mr1140394ejb.361.1628673163432; 
- Wed, 11 Aug 2021 02:12:43 -0700 (PDT)
+ bh=2OLGJiyz5UaykHTThCz8bOAjGg8pe3qYt43SOMCUzTo=;
+ b=rTkt+nxrSAurF+xTIIR65KQyG4J8Sll9AuFx8RKtUNQ0ete3seyz+dduvWam7CzcJs
+ WaQaWnHuLINHFYv++siosDcUyrH3FgBeiq/Ly5uQM66//qvQyG7RxxnLXZC5tnj/E1Cl
+ 5m1yW1aVD8tqWYjC0oFJ4oRoWR4jJ1P3EImPX6JrT7d3bmPRcj0PGHZcP/URakec9bKW
+ zEqyMwYqkSpdsGr+7MILAzgpO/Lj79GHmRy15m1ZPDHpBJLmzZhrkZCTH7AhcQkqarU/
+ 7pVxaufw+SCzsiIWXrJyQMpWfQYLqfSep4ZlhPPYxCMQtCx+MFzOqNeR9Qo9PBOr/R8z
+ gzFA==
+X-Gm-Message-State: AOAM533YaBtJH0+v8I7F32jpr1dhZdG0BU2jk2FyIbj8WMm4YrajB4xu
+ y2L5Xcj9+WVOxL4D1Gn6YfUK7571z6Fbo5+IPfZCXZiiHfbWjq9e8hFb0ViIG63QJ+CNJl8sX2J
+ 6L89AgJeT8/5VBV5+Hw5WiXVcvWY1IdubQcmuNpfjHw==
+X-Received: by 2002:a17:906:ac1:: with SMTP id
+ z1mr2618370ejf.261.1628673745796; 
+ Wed, 11 Aug 2021 02:22:25 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxXzGekdwf/b0v/VzWVWjv1GzKpDuBNLFQla3yFB/mlHFrJDQkHRw2W4dWl+bab5+yUTgokeA==
+X-Received: by 2002:a17:906:ac1:: with SMTP id
+ z1mr2618352ejf.261.1628673745617; 
+ Wed, 11 Aug 2021 02:22:25 -0700 (PDT)
 Received: from steredhat (a-nu5-14.tin.it. [212.216.181.13])
- by smtp.gmail.com with ESMTPSA id ee11sm8306374edb.26.2021.08.11.02.12.42
+ by smtp.gmail.com with ESMTPSA id jo17sm3962562ejb.40.2021.08.11.02.22.24
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 11 Aug 2021 02:12:43 -0700 (PDT)
-Date: Wed, 11 Aug 2021 11:12:40 +0200
+ Wed, 11 Aug 2021 02:22:25 -0700 (PDT)
+Date: Wed, 11 Aug 2021 11:22:23 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [RFC PATCH v2 5/5] vsock_test: update message bounds test for
- MSG_EOR
-Message-ID: <20210811091240.jbum3572eelgbbpi@steredhat>
-References: <20210810113901.1214116-1-arseny.krasnov@kaspersky.com>
- <20210810114119.1215014-1-arseny.krasnov@kaspersky.com>
+Subject: Re: [virtio-comment] [RFC PATCH v7 1/2] virtio-vsock: use C style
+ defines for constants
+Message-ID: <20210811092223.5huvk5mewtalnkdg@steredhat>
+References: <20210810114616.1216243-1-arseny.krasnov@kaspersky.com>
+ <20210810114653.1216436-1-arseny.krasnov@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <20210810114119.1215014-1-arseny.krasnov@kaspersky.com>
+In-Reply-To: <20210810114653.1216436-1-arseny.krasnov@kaspersky.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Andra Paraschiv <andraprs@amazon.com>, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, stsp2@yandex.ru,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- oxffffaa@gmail.com, Norbert Slusarek <nslusarek@gmx.net>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>
+Cc: Andra Paraschiv <andraprs@amazon.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, cohuck@redhat.com,
+ Colin Ian King <colin.king@canonical.com>, oxffffaa@gmail.com,
+ Norbert Slusarek <nslusarek@gmx.net>, Stefan Hajnoczi <stefanha@redhat.com>,
+ virtio-comment@lists.oasis-open.org, Jakub Kicinski <kuba@kernel.org>,
+ virtualization@lists.linux-foundation.org,
+ "David S. Miller" <davem@davemloft.net>, Jorgen Hansen <jhansen@vmware.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -132,51 +130,19 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Aug 10, 2021 at 02:41:16PM +0300, Arseny Krasnov wrote:
->Set 'MSG_EOR' in one of message sent, check that 'MSG_EOR'
->is visible in corresponding message at receiver.
+On Tue, Aug 10, 2021 at 02:46:49PM +0300, Arseny Krasnov wrote:
+>This:
+>1) Replaces enums with C style "defines", because
+>   use of enums is not documented, while "defines"
+>   are widely used in spec.
+>2) Adds defines for some constants.
 >
+>Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 >Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
 >---
-> tools/testing/vsock/vsock_test.c | 8 +++++++-
-> 1 file changed, 7 insertions(+), 1 deletion(-)
->
->diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
->index 67766bfe176f..2a3638c0a008 100644
->--- a/tools/testing/vsock/vsock_test.c
->+++ b/tools/testing/vsock/vsock_test.c
->@@ -282,6 +282,7 @@ static void test_stream_msg_peek_server(const struct test_opts *opts)
-> }
->
-> #define MESSAGES_CNT 7
->+#define MSG_EOR_IDX (MESSAGES_CNT / 2)
-> static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
-> {
-> 	int fd;
->@@ -294,7 +295,7 @@ static void test_seqpacket_msg_bounds_client(const struct test_opts *opts)
->
-> 	/* Send several messages, one with MSG_EOR flag */
-> 	for (int i = 0; i < MESSAGES_CNT; i++)
->-		send_byte(fd, 1, 0);
->+		send_byte(fd, 1, (i == MSG_EOR_IDX) ? MSG_EOR : 0);
->
-> 	control_writeln("SENDDONE");
-> 	close(fd);
->@@ -324,6 +325,11 @@ static void test_seqpacket_msg_bounds_server(const struct test_opts *opts)
-> 			perror("message bound violated");
-> 			exit(EXIT_FAILURE);
-> 		}
->+
->+		if ((i == MSG_EOR_IDX) ^ !!(msg.msg_flags & MSG_EOR)) {
->+			perror("MSG_EOR");
->+			exit(EXIT_FAILURE);
->+		}
-> 	}
->
-> 	close(fd);
->-- 
->2.25.1
->
+> virtio-vsock.tex | 54 +++++++++++++++++++++++++-----------------------
+> 1 file changed, 28 insertions(+), 26 deletions(-)
+
 
 Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
