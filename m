@@ -2,117 +2,99 @@ Return-Path: <SRS0=F+q/=ND=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C80B6C4338F
-	for <virtualization@archiver.kernel.org>; Thu, 12 Aug 2021 08:03:46 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AC0CC4338F
+	for <virtualization@archiver.kernel.org>; Thu, 12 Aug 2021 08:54:50 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5F51060EB9
-	for <virtualization@archiver.kernel.org>; Thu, 12 Aug 2021 08:03:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 5F51060EB9
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id ED35E61059
+	for <virtualization@archiver.kernel.org>; Thu, 12 Aug 2021 08:54:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org ED35E61059
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=arndb.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 1B0F440736;
-	Thu, 12 Aug 2021 08:03:46 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id AD68F60B6C;
+	Thu, 12 Aug 2021 08:54:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pZoV6lhWzYvi; Thu, 12 Aug 2021 08:03:42 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id E4ZMOgJjB818; Thu, 12 Aug 2021 08:54:45 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id AB1AD40731;
-	Thu, 12 Aug 2021 08:03:41 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 503E660699;
+	Thu, 12 Aug 2021 08:54:45 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 89A60C001A;
-	Thu, 12 Aug 2021 08:03:41 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 653E2C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 11DC9C0010;
+	Thu, 12 Aug 2021 08:54:45 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 26B40C000E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Aug 2021 08:03:40 +0000 (UTC)
+ Thu, 12 Aug 2021 08:54:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 5585660617
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1098F605E5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Aug 2021 08:03:40 +0000 (UTC)
+ Thu, 12 Aug 2021 08:54:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yHxrv4Jxjli2
+ with ESMTP id 9StF_cyXdKO0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Aug 2021 08:03:38 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 41E1A606B3
+ Thu, 12 Aug 2021 08:54:42 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.75])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 67D3060699
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Aug 2021 08:03:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1628755417;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=VNcc4FKKgeh1x9olC7E03PuQx1nzor6Qv2O5Zs+wmJk=;
- b=Sf6Yikze2SB5zWc7S+RxoPEJejWvB6o+cAOzpKrwXSxN5aGpJr6evPRps168OBX5iSMU/4
- O+D62emJdqBKyer12IieSCYam4iSTsAoDWTPMj8PV92ZFkF8z2pFiS7/LZ/n/yR7vvs7mB
- Kxz56V2Zfipxnawki/74wTxTgCYcCFo=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-6-wzYeTPN_MLmg8tp-F2xxfw-1; Thu, 12 Aug 2021 04:03:36 -0400
-X-MC-Unique: wzYeTPN_MLmg8tp-F2xxfw-1
-Received: by mail-ej1-f70.google.com with SMTP id
- zp23-20020a17090684f7b02905a13980d522so1501016ejb.2
+ Thu, 12 Aug 2021 08:54:41 +0000 (UTC)
+Received: from mail-wr1-f41.google.com ([209.85.221.41]) by
+ mrelayeu.kundenserver.de (mreue109 [213.165.67.113]) with ESMTPSA (Nemesis)
+ id 1MnJdC-1muphK1OQ0-00jJAY for <virtualization@lists.linux-foundation.org>;
+ Thu, 12 Aug 2021 10:54:38 +0200
+Received: by mail-wr1-f41.google.com with SMTP id h13so7202837wrp.1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Aug 2021 01:03:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=VNcc4FKKgeh1x9olC7E03PuQx1nzor6Qv2O5Zs+wmJk=;
- b=qboU+XAq9WPg/t5+5Q0bo13qDY8VbSC+iOMRZV6RLLvEIeJAfCAKXP5hivyPYM8jNh
- HgSCare8l5UK1A0EW3zF8YJuQ1MafMWMCYZMI5mXdBdybSsMn6Giz+y5ABKyT2iLgD3G
- +1Tls96+pvFL/gyipclZk+SBQuX5GGg/Dkdvwg1GIONkvkm9DqcumrOfwC8UuNCLs8Ux
- VqYB9UAMY/Lumpv2HY1sF93AeskpRDKW6AV8EhQadym9JOzheSMF05auLP+3zP0eNgfk
- vR3s6OoLrNjw6vAuk1ro/oHw0m+NIQxycy9TS9D/DjFCbDQzGdutejH7hGT6tDHjZL6E
- +urw==
-X-Gm-Message-State: AOAM531uTfca84qWSuxCMAYTNY7CiOX3ZChsNBlXvMQ9sfrDMeOCJk+V
- JatSmcKy+XAVeN8aal/MsYufBhPKZgwr333cZJLXMFbCXfMY0XtfeqQZMnMlxmFy9fRBp24z/TX
- AzZti0HesF0tmLQKs7RDqM0qJov+qJnS4V2EeRy6N/w==
-X-Received: by 2002:a17:906:4750:: with SMTP id
- j16mr2439923ejs.26.1628755414867; 
- Thu, 12 Aug 2021 01:03:34 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxU2tcTx6Y7xB9zzU+HQALuAB5KSTmssapC5dM7OHV8xYFOQBEDoFPmmXvbwzdWXnsrrWl5+w==
-X-Received: by 2002:a17:906:4750:: with SMTP id
- j16mr2439913ejs.26.1628755414694; 
- Thu, 12 Aug 2021 01:03:34 -0700 (PDT)
-Received: from steredhat (host-79-36-51-142.retail.telecomitalia.it.
- [79.36.51.142])
- by smtp.gmail.com with ESMTPSA id k18sm752908edo.62.2021.08.12.01.03.33
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 12 Aug 2021 01:03:34 -0700 (PDT)
-Date: Thu, 12 Aug 2021 10:03:32 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Longpeng(Mike)" <longpeng2@huawei.com>
-Subject: Re: [PATCH resend] vsock/virtio: avoid potential deadlock when vsock
- device remove
-Message-ID: <20210812080332.o4vxw72gn5uuqtik@steredhat>
-References: <20210812053056.1699-1-longpeng2@huawei.com>
+ Thu, 12 Aug 2021 01:54:38 -0700 (PDT)
+X-Gm-Message-State: AOAM531q5l7wAbVGDjXaWbzyp6RxhGp/0CuPiQlJLIqJmqmyJcTYvlOG
+ 7KeGKiZspIHwc/5ri209aKO09aGoykS92dhokn0=
+X-Google-Smtp-Source: ABdhPJzZv/5OPQVMV4X72DNrEeILwE4MD89RT2+33mM5oD+u5NtsqZPGmxrUuRpkUtjSdyCe45aXAKV0gko4m0wLh/Y=
+X-Received: by 2002:adf:fd89:: with SMTP id d9mr701787wrr.361.1628758477814;
+ Thu, 12 Aug 2021 01:54:37 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210812053056.1699-1-longpeng2@huawei.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Stefan Hajnoczi <stefanha@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>
+References: <20210806030138.123479-1-xianting.tian@linux.alibaba.com>
+ <20210806030138.123479-2-xianting.tian@linux.alibaba.com>
+ <CAK8P3a2=BmVv0tvUKaca+LYxuAussAJtAJW9O3fRN2CbV2-9aw@mail.gmail.com>
+ <f18d017b-d6f7-cf87-8859-8d6b50c7c289@linux.alibaba.com>
+In-Reply-To: <f18d017b-d6f7-cf87-8859-8d6b50c7c289@linux.alibaba.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Thu, 12 Aug 2021 10:54:22 +0200
+X-Gmail-Original-Message-ID: <CAK8P3a2ykLvJkhX+wDAOHdyLHjPFAfhOxi5BNM9kTKv_8F7VQg@mail.gmail.com>
+Message-ID: <CAK8P3a2ykLvJkhX+wDAOHdyLHjPFAfhOxi5BNM9kTKv_8F7VQg@mail.gmail.com>
+Subject: Re: [PATCH v4 1/2] tty: hvc: pass DMA capable memory to put_chars()
+To: Xianting TIan <xianting.tian@linux.alibaba.com>
+X-Provags-ID: V03:K1:9San7FZUVTBB1OcFfMZ3LnJZDhOB2eLJA12eJxgBO5Es9qhOhNu
+ omjnyXONAxDGBANkLGJF3OZGlqX1dywESiWkQEshBcq8XDwqKx8m2bsHufKpONXizqzyRRn
+ qplccuUSWoJCz3pILphpaFkJVCh5kMPn4ezmDEbeKrAtgMYjO5IR5CoCu8JXy07BKgAe/lO
+ nPhOIrlrN2Opi7AKFd2Ww==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:IwjBcLCHqpg=:0rS9lxscJCj3zy7ND9kM7i
+ xK88lPS55xVbi9PnsTN7D6zpald0uwfu4xS9eWG4C4OAxOGIdQyCt7RcQkdCsVezeU1bxH687
+ 37xXXp1uUJJ6HjYLvBKFjRQssHFOu4097LwzJnIA0wQ2xqd51b+E6JpjsfqEWhqRoPw/R22qV
+ ZV4XjgzH95QXjeZyqi0a6aD2UP5cg1CYgoNdlS+SNzs8rx63Ep/6UTtbnEHywCKCHF9Klg+hJ
+ ECPKPzBZfTe0hNYVFPpZPe+d2gUJnVMvbmZCRz2cXUq6AAcWCPMsqszeDy0ZpgafY7oMxYI7a
+ vgf+uh85omIGJP5Q3m6MtpD5n4OAsjx8f990VHBKYG1HxSmg05kAyMXnA5/GDZi/cncPODi+L
+ uNLlerWmnsgZ3/OJv6PvUJLp00Z+bAmHtnK0ek1bSD2nfyPisHZhGZaPd7krEdtgv0e2Is8Id
+ VVSKYh11XJAMSoPFqEXX+R5os/gw5y2kHojNO0OSd8a4vA9XPenaO6jmHipucOgf3fmkZ+oH5
+ gevrj0GaEg4eZMrOkvq3x+tdfVq6lB+vHr+cTKS1c10FYFmjGAeiHArj37ctU7URZu1Zfy6qV
+ 31xdf9DzmJzbf0qkewfOMtiq3gyUnaO4ymY7JRCE9lV4wPeuztGBfYEYakc7RVdZ2S5pzgaEH
+ 3ThBN52AW78QwpV8DLKRw4TwT/n8Z0efTf7ipKp6uuZ8de3e9b2JZ4CHzQZRlrwktJUI8QzZW
+ RjsiyW1IFfa0k/jrYVG9JhVA5vQ1HeoUMjbC70Qu94Vg6nvmQZqLTH4dbwOtjFSauBdAq656D
+ mwaYkg4Zxf0NIpE1B37AbwQkw0m+PsVOT7wwunMRh/jIhqDieS8wiitfLNxYpONNDxvMCbi
+Cc: Arnd Bergmann <arnd@arndb.de>, Jiri Slaby <jirislaby@kernel.org>,
+ Amit Shah <amit@kernel.org>, gregkh <gregkh@linuxfoundation.org>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE"
+ <virtualization@lists.linux-foundation.org>, Guo Ren <guoren@kernel.org>,
+ linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Omar Sandoval <osandov@fb.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,101 +106,30 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Aug 12, 2021 at 01:30:56PM +0800, Longpeng(Mike) wrote:
->There's a potential deadlock case when remove the vsock device or
->process the RESET event:
->
->  vsock_for_each_connected_socket:
->      spin_lock_bh(&vsock_table_lock) ----------- (1)
->      ...
->          virtio_vsock_reset_sock:
->              lock_sock(sk) --------------------- (2)
->      ...
->      spin_unlock_bh(&vsock_table_lock)
->
->lock_sock() may do initiative schedule when the 'sk' is owned by
->other thread at the same time, we would receivce a warning message
->that "scheduling while atomic".
->
->Even worse, if the next task (selected by the scheduler) try to
->release a 'sk', it need to request vsock_table_lock and the deadlock
->occur, cause the system into softlockup state.
->  Call trace:
->   queued_spin_lock_slowpath
->   vsock_remove_bound
->   vsock_remove_sock
->   virtio_transport_release
->   __vsock_release
->   vsock_release
->   __sock_release
->   sock_close
->   __fput
->   ____fput
->
->So we should not require sk_lock in this case, just like the behavior
->in vhost_vsock or vmci.
-
-The difference with vhost_vsock is that here we call it also when we 
-receive an event in the event queue (for example because we are 
-migrating the VM).
-
-I think the idea of this lock was to prevent concurrency with RX loop, 
-but actually if a socket is connected, it can only change state to 
-TCP_CLOSING/TCP_CLOSE.
-
-I don't think there is any problem not to take the lock, at most we 
-could take the rx_lock in virtio_vsock_event_handle(), but I'm not sure 
-it's necessary.
-
->
->Cc: Stefan Hajnoczi <stefanha@redhat.com>
->Cc: Stefano Garzarella <sgarzare@redhat.com>
->Cc: "David S. Miller" <davem@davemloft.net>
->Cc: Jakub Kicinski <kuba@kernel.org>
-
-We should add:
-Fixes: 0ea9e1d3a9e3 ("VSOCK: Introduce virtio_transport.ko")
->Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
->---
-> net/vmw_vsock/virtio_transport.c | 7 +++++--
-> 1 file changed, 5 insertions(+), 2 deletions(-)
->
->diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
->index e0c2c99..4f7c99d 100644
->--- a/net/vmw_vsock/virtio_transport.c
->+++ b/net/vmw_vsock/virtio_transport.c
->@@ -357,11 +357,14 @@ static void virtio_vsock_event_fill(struct virtio_vsock *vsock)
->
-> static void virtio_vsock_reset_sock(struct sock *sk)
-> {
->-	lock_sock(sk);
->+	/* vmci_transport.c doesn't take sk_lock here either.  At least we're
->+	 * under vsock_table_lock so the sock cannot disappear while 
->we're
->+	 * executing.
->+	 */
->+
-> 	sk->sk_state = TCP_CLOSE;
-> 	sk->sk_err = ECONNRESET;
-> 	sk_error_report(sk);
->-	release_sock(sk);
-> }
->
-> static void virtio_vsock_update_guest_cid(struct virtio_vsock *vsock)
->-- 
->1.8.3.1
->
-
-With the Fixes tag added:
-
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVGh1LCBBdWcgMTIsIDIwMjEgYXQgMTA6MDggQU0gWGlhbnRpbmcgVElhbgo8eGlhbnRpbmcu
+dGlhbkBsaW51eC5hbGliYWJhLmNvbT4gd3JvdGU6Cj4g5ZyoIDIwMjEvOC82IOS4i+WNiDEwOjUx
+LCBBcm5kIEJlcmdtYW5uIOWGmemBkzoKPiA+IE9uIEZyaSwgQXVnIDYsIDIwMjEgYXQgNTowMSBB
+TSBYaWFudGluZyBUaWFuCj4gPj4gKyNkZWZpbmUgX19BTElHTkVEX18gX19hdHRyaWJ1dGVfXygo
+X19hbGlnbmVkX18oc2l6ZW9mKGxvbmcpKSkpCj4gPiBJIHRoaW5rIHlvdSBuZWVkIGEgaGlnaGVy
+IGFsaWdubWVudCBmb3IgRE1BIGJ1ZmZlcnMsIGluc3RlYWQgb2Ygc2l6ZW9mKGxvbmcpLAo+ID4g
+SSB3b3VsZCBzdWdnZXN0IEFSQ0hfRE1BX01JTkFMSUdOLgo+Cj4gQXMgc29tZSBBUkNIKGVnLCB4
+ODYsIHJpc2N2KSBkb2Vzbid0IGRlZmluZSBBUkNIX0RNQV9NSU5BTElHLCBzbyBpIHRoaW5rCj4g
+aXQgJ3MgYmV0dGVyIHJlbWFpbiB0aGUgY29kZSB1bmNoYW5nZWQsCj4KPiBJIHdpbGwgc2VuZCB2
+NSBwYXRjaCBzb29uLgoKSSB0aGluayB5b3UgY291bGQganVzdCB1c2UgIkwxX0NBQ0hFX0JZVEVT
+IiBhcyB0aGUgYWxpZ25tZW50IGluIHRoaXMgY2FzZS4KVGhpcyB3aWxsIG1ha2UgdGhlIHN0cnVj
+dHVyZSBzbGlnaHRseSBsYXJnZXIgZm9yIGFyY2hpdGVjdHVyZXMgdGhhdCBkbyBub3QgaGF2ZQph
+bGlnbm1lbnQgY29uc3RyYWludHMgb24gRE1BIGJ1ZmZlcnMsIGJ1dCB1c2luZyBhIHNtYWxsZXIg
+YWxpZ25tZW50IGlzCmNsZWFybHkgd3JvbmcuIEFub3RoZXIgb3B0aW9uIHdvdWxkIGJlIHRvIHVz
+ZSBBUkNIX0tNQUxMT0NfTUlOQUxJR04uCgpOb3RlIHRoYXQgdGhlcmUgaXMgYSBwYXRjaCB0byBh
+ZGQgQVJDSF9ETUFfTUlOQUxJR04gdG8gcmlzY3YgYWxyZWFkeSwKYXMgc29tZSBpbXBsZW1lbnRh
+dGlvbnMgZG8gbm90IGhhdmUgY29oZXJlbnQgRE1BLiBJIGhhZCBmYWlsZWQgdG8KcmVhbGl6ZWQg
+dGhvdWdoIHRoYXQgb24geDg2IHlvdSBkbyBub3QgZ2V0IGFuIEFSQ0hfRE1BX01JTkFMSUdOCmRl
+ZmluaXRpb24uCgogICAgICAgQXJuZApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
+bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
+b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
