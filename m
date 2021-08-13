@@ -6,73 +6,73 @@ X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FC54C4338F
-	for <virtualization@archiver.kernel.org>; Fri, 13 Aug 2021 08:02:21 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F1EEC4338F
+	for <virtualization@archiver.kernel.org>; Fri, 13 Aug 2021 08:08:35 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 17BA96104F
-	for <virtualization@archiver.kernel.org>; Fri, 13 Aug 2021 08:02:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 17BA96104F
+	by mail.kernel.org (Postfix) with ESMTPS id A057760F00
+	for <virtualization@archiver.kernel.org>; Fri, 13 Aug 2021 08:08:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A057760F00
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id CD580606EA;
-	Fri, 13 Aug 2021 08:02:20 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 67CC340754;
+	Fri, 13 Aug 2021 08:08:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ZXffqMIHJjlN; Fri, 13 Aug 2021 08:02:17 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id XQPcB6fUht_E; Fri, 13 Aug 2021 08:08:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 8E192605C0;
-	Fri, 13 Aug 2021 08:02:16 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id BB02F4074C;
+	Fri, 13 Aug 2021 08:08:29 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 714D6C001A;
-	Fri, 13 Aug 2021 08:02:16 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6FD64C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8F076C001A;
+	Fri, 13 Aug 2021 08:08:29 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 30EDCC000E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Aug 2021 08:02:14 +0000 (UTC)
+ Fri, 13 Aug 2021 08:08:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 5C2A54012E
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1D0166066D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Aug 2021 08:02:14 +0000 (UTC)
+ Fri, 13 Aug 2021 08:08:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=infradead.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Eo-oih0tqYPt
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id t8VKodVN1Ysm
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Aug 2021 08:02:09 +0000 (UTC)
+ Fri, 13 Aug 2021 08:08:24 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 86CEB400BB
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 14E22605CC
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Aug 2021 08:02:09 +0000 (UTC)
+ Fri, 13 Aug 2021 08:08:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
  References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=Si6+tA9D1y9EtzA7fh9EgJw213gBjxE8cIu39WNfpqM=; b=kKNETURQC2XIzBmc596h1eynqR
- cW9A2OBkLxe74dTeo8jpFByDwxQbOUshieUvzgWw/Zq+/gXYymQPfDZNItNGMCeGi+iS0mKUjlbEs
- 18zhFj/1KoA0wT3RpKNHgNt/Zt/ooGDTQhqfQZMGVXaNP6a+pNLtY0xH72epEAWg+ZOMt3DbnmByN
- K1GvMeWF45WoTFmJ/QeavyyPhoGVojFuy3i+eQeyIXACx25wLMUoNE/Rigi79v3HBq8N30EgckY13
- FhI5tMlDrK/gsN9o1qI0HlZ9KKwJvKqgeGGKJiJnjc/OQXXiLTltL2hV8EMgIQ8j4YERJnv01ExH2
- 36X0GZzg==;
+ bh=9uWCFAcyzkVj8no+O0RsCmvXvpv4eWhAb7u9P+Jl+OQ=; b=skolZA0941a9vaUZQjHgRhvFcO
+ noo8dvQYNH3YQWFixE/g/Oqa0E5fFrhuFY22BTP1ffQxL+CNHP3+pHRxDfAlVhQ1fjeZbFhxBcpFp
+ wguhbgaYjMXpFIksAmp5LLR34Bfvu840nTRaHX7sAu689DUOBFyLy6SaM8o0/T+3+ZeRBghm9amva
+ eMhPxO+xayDbhuWM0HqeF/rr4O+zadv8uSge/qRFcOrDWv941ztngfG+iSJ1dDMyEbANHNMVB4SLu
+ b3YC3dA4pdD9r6/MVNO8rYpYYOTmD+3S1UWQ8hFCQ9g6dyDKijDHeZ0XZdzjIRPY8qpoGora5iFkn
+ kATt0VhQ==;
 Received: from hch by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat
- Linux)) id 1mES4r-00FT89-TJ; Fri, 13 Aug 2021 07:58:17 +0000
-Date: Fri, 13 Aug 2021 08:58:05 +0100
+ Linux)) id 1mES9E-00FTGj-HZ; Fri, 13 Aug 2021 08:02:49 +0000
+Date: Fri, 13 Aug 2021 09:02:36 +0100
 From: Christoph Hellwig <hch@infradead.org>
 To: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Subject: Re: [PATCH v4 10/15] asm/io.h: Add ioremap_shared fallback
-Message-ID: <YRYmDcPNT6iYxTJc@infradead.org>
+Subject: Re: [PATCH v4 11/15] pci: Add pci_iomap_shared{,_range}
+Message-ID: <YRYnHNOSeS/kQW2H@infradead.org>
 References: <20210805005218.2912076-1-sathyanarayanan.kuppuswamy@linux.intel.com>
- <20210805005218.2912076-11-sathyanarayanan.kuppuswamy@linux.intel.com>
+ <20210805005218.2912076-12-sathyanarayanan.kuppuswamy@linux.intel.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20210805005218.2912076-11-sathyanarayanan.kuppuswamy@linux.intel.com>
+In-Reply-To: <20210805005218.2912076-12-sathyanarayanan.kuppuswamy@linux.intel.com>
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
  casper.infradead.org. See http://www.infradead.org/rpr.html
 Cc: Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
@@ -109,8 +109,20 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-_shared is just a horrible name for these.  Please find a more specific
-name, and document them instead of just adding to the macro forrest.
+On Wed, Aug 04, 2021 at 05:52:14PM -0700, Kuppuswamy Sathyanarayanan wrote:
+> +extern void __iomem *pci_iomap_shared(struct pci_dev *dev, int bar,
+> +				      unsigned long max);
+> +extern void __iomem *pci_iomap_shared_range(struct pci_dev *dev, int bar,
+> +					    unsigned long offset,
+> +					    unsigned long maxlen);
+
+No need for externs here.
+
+> +/**
+> + * pci_iomap_shared_range - create a virtual shared mapping cookie for a
+> + *                          PCI BAR
+
+This reads like completely garbage from a markow chain.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
