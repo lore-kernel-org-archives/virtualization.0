@@ -6,112 +6,105 @@ X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED2BEC4320A
-	for <virtualization@archiver.kernel.org>; Mon, 16 Aug 2021 20:51:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF11CC4338F
+	for <virtualization@archiver.kernel.org>; Mon, 16 Aug 2021 20:54:41 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 908FC60FDA
-	for <virtualization@archiver.kernel.org>; Mon, 16 Aug 2021 20:51:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 908FC60FDA
+	by mail.kernel.org (Postfix) with ESMTPS id 4AD4460F36
+	for <virtualization@archiver.kernel.org>; Mon, 16 Aug 2021 20:54:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4AD4460F36
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4B447400F4;
-	Mon, 16 Aug 2021 20:51:19 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 0ECD340360;
+	Mon, 16 Aug 2021 20:54:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id W-QE0ZJkSKsR; Mon, 16 Aug 2021 20:51:15 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D384D402F2;
-	Mon, 16 Aug 2021 20:51:14 +0000 (UTC)
+	with ESMTP id gz9fy8tm4Xr9; Mon, 16 Aug 2021 20:54:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 8402B402F2;
+	Mon, 16 Aug 2021 20:54:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A2755C0010;
-	Mon, 16 Aug 2021 20:51:14 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E91A4C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 443ABC0010;
+	Mon, 16 Aug 2021 20:54:36 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E32FCC000E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Aug 2021 20:51:12 +0000 (UTC)
+ Mon, 16 Aug 2021 20:54:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id D8DC180E91
+ by smtp4.osuosl.org (Postfix) with ESMTP id B1CC8401FC
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Aug 2021 20:51:12 +0000 (UTC)
+ Mon, 16 Aug 2021 20:54:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tRA_UQ5ouu05
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id qnlRvM85tH2N
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Aug 2021 20:51:12 +0000 (UTC)
+ Mon, 16 Aug 2021 20:54:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 1755680E81
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id EDF9C401F8
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Aug 2021 20:51:11 +0000 (UTC)
+ Mon, 16 Aug 2021 20:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1629147070;
+ s=mimecast20190719; t=1629147269;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=nezBhRzGRO8/tDJu4lidssTTxDaXeeuciraua8okEFM=;
- b=DYkTGPeQc4NMA4Z1izBhLzA8VmhLYmv4lAWvYUvS/u3Yx+UM6veiGUH0uwcER5tF/OGZwo
- cy5awMC3pyXTgSr+mOLSsSAAjBA1syFwLAqAt7C3shNYlidHq0fA1Sm1ZksPNeGnJSYoA0
- tH0yPO/UAokxYtrurFv/sySTMjk1KJk=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-263-1lna09dnNA2r0ADiPBrOKQ-1; Mon, 16 Aug 2021 16:51:09 -0400
-X-MC-Unique: 1lna09dnNA2r0ADiPBrOKQ-1
-Received: by mail-ed1-f69.google.com with SMTP id
- y22-20020a0564023596b02903bd9452ad5cso9428351edc.20
+ bh=Mgnd656ubER6m5U6lwnHn022dCGrOqShw0lNJclqLes=;
+ b=c2pfd7gHixL6FWLk+mR55iepFbcsbPB/OUQILRmuQiPQpGNajmclb0F7u5Goijl8GCWKkW
+ JRPRlw4ghPP8dkakPO7nHou2QsrAQDJVfltml75UQ9E4kq/u3+0yu7sQFmdyeGmmzb8GTh
+ 6jepdZFNUOi11xOzO0R3MurSbEqO0HI=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-424-d1TwMitTOEiwTUZR2Yyi1g-1; Mon, 16 Aug 2021 16:54:28 -0400
+X-MC-Unique: d1TwMitTOEiwTUZR2Yyi1g-1
+Received: by mail-ej1-f69.google.com with SMTP id
+ k12-20020a170906680cb02905aeccdbd1efso5170354ejr.9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Aug 2021 13:51:08 -0700 (PDT)
+ Mon, 16 Aug 2021 13:54:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=nezBhRzGRO8/tDJu4lidssTTxDaXeeuciraua8okEFM=;
- b=cD8Ywv2qhpISDYIJZ2IdbodBBcgrCqurq6Tiak/rOvTNTqZ/IPPBr6Nr8kHN8tIPkb
- i5/Yus3oRCFP1MMK7s7zIYE0d7BITxPsS83FlbjNYq1kmcRURmHTwE+9v3QrSyVG5wnz
- wx13bLZwmv1OuIpNzjLNG/0FS/cNKHIHmubFIicM9RshiiKFk+oVOCj3bH9mDHGXeVro
- kvvxgP2HBNe97SLK1DlYErE+ih1h0U+dVo8WM29tcQGq2r99781aPF7iwiJZx6R0DjzX
- Rc408GqN7jkDLTF5qOnv0OATy/G3e35QG9sUXHh0dOItxuo9MFn5o7ZxcWDkcONSZcEM
- wYnQ==
-X-Gm-Message-State: AOAM533gBUtHK2shoUzWBGi5AmM7kCvHFQX85rmWw8ZcMu9UYE5tk/Db
- fYba+3kXHP0ICCjaSq87B3KTKHIeazskC9l9gl9evCD9T7/KeFNZtvP2GPq7sGcYnTVrRaAvUD7
- Vh1F1N2rRV8Pxm0eeZVD6fiju4H1mtPtXbDWtwEuJDw==
-X-Received: by 2002:a17:906:f298:: with SMTP id
- gu24mr22673ejb.334.1629147067939; 
- Mon, 16 Aug 2021 13:51:07 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxYYvhwWoxKiBf+lL9yG+hy1LuaH/1Y8s+RUPkUxqZI/Iirj8SHyMDinH+7LYeyTyPlVxshzw==
-X-Received: by 2002:a17:906:f298:: with SMTP id
- gu24mr22662ejb.334.1629147067781; 
- Mon, 16 Aug 2021 13:51:07 -0700 (PDT)
+ :mime-version:content-disposition:in-reply-to;
+ bh=Mgnd656ubER6m5U6lwnHn022dCGrOqShw0lNJclqLes=;
+ b=WqTQhkJ1HP3zP3nh8+uLEzM3hlDD1N5aP1IoJ+D+hkx3SOLqGf0b5/VQlOgnWELnWf
+ Uyf00qGx2hdOuU3QIElsY3TapKvesGY+n9iPNu9JWqRKxZdKpLbuXDFGzfu9tOMKaY/z
+ MqtD1MqUwByxDmpgTvOO34xAXn99UONsmrFumVNL6wfKJ6PGiTHfO0SKYg+TDCMf+KdW
+ MhiuKHO6gjZgOF57OVO8cTYTQgdOvAB5tQecGCPsL3GdzQXWw2BFNvVKVh39XCFYiF03
+ 7MCRmdMJqJ3HGJdzxWeBe2zxzvVG5nUbYdLLY6vaeeCqWtLQVeDPhIKIpRX+sh1ulgQb
+ i8ug==
+X-Gm-Message-State: AOAM530uLvuXLm8uBBvfsDHEWj+p9t2ihPNHqL0zyjFY+rNXzIsd004+
+ D96mNPsPqFbXahoJOpXrEykA3Rnywqq/00JnFjpKcE4ngsAV8106Nel5AI9UKQddqEb1F367Dom
+ XMEl47nC1eSNDEHxW+vmvM02u4Tr8JNVtBEfhdTfuKQ==
+X-Received: by 2002:aa7:c78e:: with SMTP id n14mr38000eds.381.1629147267505;
+ Mon, 16 Aug 2021 13:54:27 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz1mcJKGuG+F8JNEKu5Q5gEnSm6OBT3z0GtsjDRnIC1UDlwaYncAxXdoSRDv75SBMEdCQprzQ==
+X-Received: by 2002:aa7:c78e:: with SMTP id n14mr37991eds.381.1629147267392;
+ Mon, 16 Aug 2021 13:54:27 -0700 (PDT)
 Received: from redhat.com ([2.55.150.133])
- by smtp.gmail.com with ESMTPSA id f12sm121943ejz.99.2021.08.16.13.51.05
+ by smtp.gmail.com with ESMTPSA id q30sm34982edi.84.2021.08.16.13.54.26
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 16 Aug 2021 13:51:06 -0700 (PDT)
-Date: Mon, 16 Aug 2021 16:51:03 -0400
+ Mon, 16 Aug 2021 13:54:26 -0700 (PDT)
+Date: Mon, 16 Aug 2021 16:54:23 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
+To: Parav Pandit <parav@nvidia.com>
 Subject: Re: [PATCH linux-next v3 0/6] vdpa: enable user to set mac, mtu
-Message-ID: <20210816165029-mutt-send-email-mst@kernel.org>
-References: <20210806034817-mutt-send-email-mst@kernel.org>
+Message-ID: <20210816165217-mutt-send-email-mst@kernel.org>
+References: <20210616191155.102303-1-parav@nvidia.com>
+ <20210805055623-mutt-send-email-mst@kernel.org>
+ <e3b31032-222a-e1bc-f452-a965b456f48b@redhat.com>
+ <20210806034817-mutt-send-email-mst@kernel.org>
  <PH0PR12MB54812C49AAA468E1E6A871A9DCF39@PH0PR12MB5481.namprd12.prod.outlook.com>
- <be8a0173-b7fb-eabf-bc4a-9492133674ef@redhat.com>
- <20210809052121.GA209158@mtl-vdi-166.wap.labs.mlnx>
- <PH0PR12MB5481F74DCC09018C476D7262DCF69@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20210809055748.GA210406@mtl-vdi-166.wap.labs.mlnx>
- <PH0PR12MB5481E4454B3785A40AB8A181DCF69@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20210809060746.GA210718@mtl-vdi-166.wap.labs.mlnx>
- <PH0PR12MB54813DD5B2E36DEF5364C1A5DCF69@PH0PR12MB5481.namprd12.prod.outlook.com>
- <CACGkMEvqOBL40h7wRq9atZ=L6DwR_CuSE_ZTZ4aMHnuSxNbKSw@mail.gmail.com>
+ <20210809053624-mutt-send-email-mst@kernel.org>
+ <PH0PR12MB5481CF2E07B38C45A2829B7BDCF69@PH0PR12MB5481.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEvqOBL40h7wRq9atZ=L6DwR_CuSE_ZTZ4aMHnuSxNbKSw@mail.gmail.com>
+In-Reply-To: <PH0PR12MB5481CF2E07B38C45A2829B7BDCF69@PH0PR12MB5481.namprd12.prod.outlook.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -130,21 +123,79 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gTW9uLCBBdWcgMDksIDIwMjEgYXQgMDM6MDU6MzFQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiA+IFNvIEkgZG9u4oCZdCBzZWUgdGhlbSBhcyBtdXR1YWxseSBleGNsdXNpdmUgY2FwYWJp
-bGl0eS4KPiAKPiBZZXMsIHdlIHByb2JhYmx5IG5lZWQgYm90aC4KPiAKPiBDVlEgZm9yIHBvc3Qg
-Y3JlYXRpb24gY29uZmlndXJhdGlvbiBhbmQgbmV0bGluayBBUEkgZm9yIHByb3Zpc2lvbmluZy4K
-ClRvIG5vdGUgd2hlbiBob3N0IHdhbnRzIHRvIGNoYW5nZSBwb3N0IHByb3Zpc2lvbmluZyBpdCB3
-aWxsIGFsc28gdXNlCm5ldGxpbmsgSSBndWVzcy4KCj4gPgo+ID4gPiBidXQgaXQncyBiZWluZyB1
-c2VkIGFsbCBvdmVyIGFuZCBMaW51eCBoYXMgYSBzcGVjaWZpYyBBUEkgdG8KPiA+ID4gZ2VuZXJh
-dGUgcmFuZG9tIE1BQyBhZGRyZXNzZXM6IGV0aF9od19hZGRyX3JhbmRvbSgpLgo+IAo+IFllcywg
-YnV0IGl0IHVzZXMgbG9jYWwgYXNzaWdubWVudCBiaXQsIG1hbmFnZW1lbnQgbWF5IHdhbnQgdXNl
-IG90aGVycy4KPiAKPiBUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
-aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
-cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Mon, Aug 09, 2021 at 09:51:49AM +0000, Parav Pandit wrote:
+> > From: Michael S. Tsirkin <mst@redhat.com>
+> > Sent: Monday, August 9, 2021 3:10 PM
+> > 
+> > On Fri, Aug 06, 2021 at 08:55:56AM +0000, Parav Pandit wrote:
+> > >
+> > >
+> > > >
+> > > > The point is to try and not reinvent a dedicated vpda interface
+> > > > where a generic one exits.
+> > > > E.g. for phy things such as mac speed etc, I think most people are
+> > > > using ethtool things right?
+> > >
+> > > As you know vdpa is the backend device for the front-end netdevice
+> > accessed by the ethtool.
+> > > vdpa management tool here is composing the vdpa device.
+> > >
+> > > For example creator (hypervisor) of the vdpa devices knows that a
+> > > guest VM is given 4 vcpus, So hypervisor creates a vdpa devices with
+> > > config space layout as, max_virtqueue_pairs = 4.
+> > > And the MAC address chosen by hypervisor in mac[6].
+> > >
+> > > Guest VM ethtool can still chose to use less number of channels.
+> > >
+> > > Typically,
+> > > ethtool is for guest VM.
+> > > vdpa device is in hypevisor.
+> > >
+> > > How can hypervisor compose a vdpa device without any tool?
+> > > How can it tell ethtool, what is supported and what are the defaults?
+> > >
+> > > I must be misunderstanding your comment about ethtool.
+> > > Can you please explain?
+> > 
+> > 
+> > I am basically saying that we probably want to be able to change MAC of a
+> > VDPA device on the host without desroying and recreating the device as long
+> > as it's not in use.
+> Ok. I understood your comment now.
+> Yes, this was the objective which is why they are present as independent config knob.
+> Jason was suggesting to have them as creation only knobs, which requires recreate.
+> 
+> I don't have strong opinion for either method.
+> 
+> Passing them at creation time is simpler for user.
+> If user needs the ability to modify and reuse same device with different config, extending such support in future like this patch should possible.
+> 
+> So there are two questions to close.
+> 1. Can we start with config params at vdpa device creation time?
+
+I'm not sure whether we need both but I'd like to see a full API
+and I think we all agree host wants ability to tweak mac after
+device creation even if guest is not allowed to change mac, right?
+
+> 2. Is it ok to have these config params as individual fields at netlink U->K UAPI level?
+> This is the method proposed in this patch series.
+> (Similar to incrementally growing vxlan ip link command).
+> 
+> Or 
+> They should be packed in a structure between U-> K and deal with typecasting based on size and more?
+> (Jason's input).
+
+I'm inclined to say vxlan is closer to a model to follow.
+
+-- 
+MST
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
