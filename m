@@ -3,84 +3,113 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=ham autolearn_force=no version=3.4.0
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA37CC4338F
-	for <virtualization@archiver.kernel.org>; Mon, 16 Aug 2021 16:40:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52502C4338F
+	for <virtualization@archiver.kernel.org>; Mon, 16 Aug 2021 16:51:25 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5E6E760FD7
-	for <virtualization@archiver.kernel.org>; Mon, 16 Aug 2021 16:40:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 5E6E760FD7
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	by mail.kernel.org (Postfix) with ESMTPS id D693B60EFE
+	for <virtualization@archiver.kernel.org>; Mon, 16 Aug 2021 16:51:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D693B60EFE
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2552640290;
-	Mon, 16 Aug 2021 16:40:42 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 9E7314028A;
+	Mon, 16 Aug 2021 16:51:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NZ5HETmSYEdi; Mon, 16 Aug 2021 16:40:38 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 8B7A24023B;
-	Mon, 16 Aug 2021 16:40:37 +0000 (UTC)
+	with ESMTP id oqxogZ1wWGi0; Mon, 16 Aug 2021 16:51:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 0D3344023B;
+	Mon, 16 Aug 2021 16:51:19 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 504A7C0010;
-	Mon, 16 Aug 2021 16:40:37 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F22A8C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D6C24C0010;
+	Mon, 16 Aug 2021 16:51:18 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 44229C000E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Aug 2021 16:40:35 +0000 (UTC)
+ Mon, 16 Aug 2021 16:51:18 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id E16DA6073B
+ by smtp4.osuosl.org (Postfix) with ESMTP id 258B4402C9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Aug 2021 16:40:35 +0000 (UTC)
+ Mon, 16 Aug 2021 16:51:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id RI8uYzaTgFI1
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id QHgUHKDIvEj0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Aug 2021 16:40:35 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 3718860633
+ Mon, 16 Aug 2021 16:51:16 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-oi1-x230.google.com (mail-oi1-x230.google.com
+ [IPv6:2607:f8b0:4864:20::230])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id C7DA9402A1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Aug 2021 16:40:35 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPS id BD79F60BD3;
- Mon, 16 Aug 2021 16:40:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1629132034;
- bh=A1t/Z5jL6guB6cSSzNC8PKIYow9T3ryW5fNaPG350RM=;
- h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
- b=DELH67EHML32fwu3iniCKLvZcMJyOtGrAm24p0wtsGlP1Lit8knMIDfsst0vurXCh
- d5R48IPdFycnOwahpVois64EO7PI2DPCEzL+c5XSfIue1QBAhrDqbUOrsqDsmwRbHM
- clnSbtV4xVjvC/g58MCVfnOzm9OkAaTjJ15gMg+YjekVNXLHVBGbBOFPYQUldLFVNT
- K6pGDjKPw4jdBZUD1Rw9iJHz9ZIsgOBBHx7QXxmt/71Fe2VLCedPlbVT39/T5vKIdv
- MrKTg2bhhQGKU8+zq3carA6bb19Vu9YJ6r9HN7pGkaL+83R3lCqPVvFXJODLuEzMYN
- RuMnIrtcYmKPA==
-Subject: Re: [GIT PULL] virtio,vhost,vdpa: bugfixes
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <20210816005054-mutt-send-email-mst@kernel.org>
-References: <20210816005054-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <20210816005054-mutt-send-email-mst@kernel.org>
-X-PR-Tracked-Remote: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-X-PR-Tracked-Commit-Id: 879753c816dbbdb2a9a395aa4448d29feee92d1a
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 94e95d58997f5234aec02f0eba92ee215b787065
-Message-Id: <162913203472.19716.9875992701958753677.pr-tracker-bot@kernel.org>
-Date: Mon, 16 Aug 2021 16:40:34 +0000
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
- vincent.whitchurch@axis.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
- elic@nvidia.com, Linus Torvalds <torvalds@linux-foundation.org>,
- neeraju@codeaurora.org, dan.carpenter@oracle.com
+ Mon, 16 Aug 2021 16:51:16 +0000 (UTC)
+Received: by mail-oi1-x230.google.com with SMTP id w6so27508921oiv.11
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 16 Aug 2021 09:51:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+ h=subject:to:cc:references:from:message-id:date:user-agent
+ :mime-version:in-reply-to:content-language:content-transfer-encoding;
+ bh=lkHKKxx6E91blWpox1bXj/LIePIAFS6deUe/aal8ts0=;
+ b=2M7PsQmoW0m68H0tIVJvrAROv1UoWp/uy48nnzobRrc03mo4J/lqcPLEQEF1kpJUHw
+ HQBa4gX5fuTsQap76AZD/5O7VV8iT7vusfHhUAUKN78fP0BZSnTbz5bFFrpuEHica0IG
+ vNOnPFWucI7QTNpQA0kxldWWTEaok+vCXtpMF9OBhganoAYTPaU0jWc3pk2ipYfiP3qw
+ KJv7dYM9ZKsD48MEvHmMnjHIhntqyqYB/aLy5wa1Nk3VqVwfnK6sD7DQ+glML2iy7RW5
+ 8bKOFtNVZE+7XBNUsAmXKRXSN7yXiZDUd4eqzd5A6g+KiYc52tKP/BJj3qVXfxUmmZ/Y
+ b/Lg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+ :user-agent:mime-version:in-reply-to:content-language
+ :content-transfer-encoding;
+ bh=lkHKKxx6E91blWpox1bXj/LIePIAFS6deUe/aal8ts0=;
+ b=EvqDKec//9CUAK0866ebmz/jjGTF7PNYTgPngS49du/BO6ZikASg3VCsHe1Dc5t5VN
+ Y5srA6c03m179sz15k3W2Xq05Ipjzt8pEmCrB721k3feQV8N3QnToIx4fXAXBMx1b7oI
+ olkSa8W1RDwVYVlY97LUKV6VLc0y80Jz5nhdAZT+7FYx7kDASC1kpAwgThclyeri0bAn
+ phNnZFnvA6SzmV2rXko1G+gzAC6Cvfdj9mDz3BX+LOYRFvNWy46dwYKJV/QWIG+4LJTI
+ Y2Utg/IKzF1dxKZzHwsloLr2sB1+ItfF8cMwKIVkzFjARvsHdyHEecUkCvnSThKcKlfZ
+ Tusw==
+X-Gm-Message-State: AOAM533iG+/H+cDrumnZfNfgd1hG1PU5VnW3Wp4heW5rW4/8nPg+EHzw
+ L36XVffqYMB6+Kz713VI9d6gNw==
+X-Google-Smtp-Source: ABdhPJwPiJZucbHV+gTb5R7I/kfPLblHKKXb+EIub7hcvBOP41sFKxi/Q6epHu0YRXyVvO62JSl/PA==
+X-Received: by 2002:a54:4619:: with SMTP id p25mr42850oip.5.1629132675579;
+ Mon, 16 Aug 2021 09:51:15 -0700 (PDT)
+Received: from [192.168.1.30] ([207.135.234.126])
+ by smtp.gmail.com with ESMTPSA id u18sm2018498ooi.40.2021.08.16.09.51.13
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 16 Aug 2021 09:51:15 -0700 (PDT)
+Subject: Re: add a bvec_virt helper
+To: Christoph Hellwig <hch@lst.de>
+References: <20210804095634.460779-1-hch@lst.de>
+From: Jens Axboe <axboe@kernel.dk>
+Message-ID: <4e321dab-188d-ca0a-a98c-4a587e7b5f27@kernel.dk>
+Date: Mon, 16 Aug 2021 10:51:13 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+MIME-Version: 1.0
+In-Reply-To: <20210804095634.460779-1-hch@lst.de>
+Content-Language: en-US
+Cc: Jan Hoeppner <hoeppner@linux.ibm.com>, Mike Snitzer <snitzer@redhat.com>,
+ linux-nvme@lists.infradead.org, virtualization@lists.linux-foundation.org,
+ Song Liu <song@kernel.org>, dm-devel@redhat.com,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>, linux-s390@vger.kernel.org,
+ linux-scsi@vger.kernel.org, Richard Weinberger <richard@nod.at>,
+ Ilya Dryomov <idryomov@gmail.com>, linux-um@lists.infradead.org,
+ Coly Li <colyli@suse.de>, linux-raid@vger.kernel.org,
+ linux-bcache@vger.kernel.org, Stefan Haberland <sth@linux.ibm.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ ceph-devel@vger.kernel.org, linux-block@vger.kernel.org,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Geoff Levand <geoff@infradead.org>, Phillip Lougher <phillip@squashfs.org.uk>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -92,24 +121,25 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The pull request you sent on Mon, 16 Aug 2021 00:50:54 -0400:
+On 8/4/21 3:56 AM, Christoph Hellwig wrote:
+> Hi Jens,
+> 
+> this series adds a bvec_virt helper to return the virtual address of the
+> data in bvec to replace the open coded calculation, and as a reminder
+> that generall bio/bvec data can be in high memory unless it is caller
+> controller or in an architecture specific driver where highmem is
+> impossible.
 
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/94e95d58997f5234aec02f0eba92ee215b787065
-
-Thank you!
+Applied, thanks.
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+Jens Axboe
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
