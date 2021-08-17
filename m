@@ -7,63 +7,62 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 83A1AC4320A
-	for <virtualization@archiver.kernel.org>; Tue, 17 Aug 2021 02:24:00 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5768EC432BE
+	for <virtualization@archiver.kernel.org>; Tue, 17 Aug 2021 02:24:01 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4206E60551
-	for <virtualization@archiver.kernel.org>; Tue, 17 Aug 2021 02:24:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4206E60551
+	by mail.kernel.org (Postfix) with ESMTPS id 1B71660551
+	for <virtualization@archiver.kernel.org>; Tue, 17 Aug 2021 02:24:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 1B71660551
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id DC44B607C5;
-	Tue, 17 Aug 2021 02:23:59 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id EBF618374F;
+	Tue, 17 Aug 2021 02:24:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id E1tpJ6OWBlPG; Tue, 17 Aug 2021 02:23:56 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id aulR0Oa9jJhy; Tue, 17 Aug 2021 02:23:57 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 72A8A607DC;
-	Tue, 17 Aug 2021 02:23:55 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CA392C0029;
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2C7E483720;
 	Tue, 17 Aug 2021 02:23:54 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2EA8AC0023
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 04947C0010;
+	Tue, 17 Aug 2021 02:23:54 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9CF3CC000E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Aug 2021 02:23:53 +0000 (UTC)
+ Tue, 17 Aug 2021 02:23:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 1E217607DC
+ by smtp1.osuosl.org (Postfix) with ESMTP id 9944383705
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Aug 2021 02:23:53 +0000 (UTC)
+ Tue, 17 Aug 2021 02:23:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8QrW_Win-INq
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id cN5Q_ESomQ3X
  for <virtualization@lists.linux-foundation.org>;
  Tue, 17 Aug 2021 02:23:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-56.freemail.mail.aliyun.com
- (out30-56.freemail.mail.aliyun.com [115.124.30.56])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 5239E6079A
+Received: from out30-57.freemail.mail.aliyun.com
+ (out30-57.freemail.mail.aliyun.com [115.124.30.57])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id B3C5880FE8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Aug 2021 02:23:52 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R551e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=8; SR=0; TI=SMTPD_---0UjH7KNJ_1629167029; 
+ Tue, 17 Aug 2021 02:23:51 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R111e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=8; SR=0; TI=SMTPD_---0UjHGpao_1629167027; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0UjH7KNJ_1629167029) by smtp.aliyun-inc.com(127.0.0.1);
- Tue, 17 Aug 2021 10:23:49 +0800
+ fp:SMTPD_---0UjHGpao_1629167027) by smtp.aliyun-inc.com(127.0.0.1);
+ Tue, 17 Aug 2021 10:23:48 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: vgoyal@redhat.com,
 	stefanha@redhat.com,
 	miklos@szeredi.hu
-Subject: [virtiofsd PATCH v4 4/4] virtiofsd: support per-file DAX in
- FUSE_LOOKUP
-Date: Tue, 17 Aug 2021 10:23:47 +0800
-Message-Id: <20210817022347.18098-5-jefflexu@linux.alibaba.com>
+Subject: [virtiofsd PATCH v4 1/4] virtiofsd: add .ioctl() support
+Date: Tue, 17 Aug 2021 10:23:44 +0800
+Message-Id: <20210817022347.18098-2-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210817022347.18098-1-jefflexu@linux.alibaba.com>
 References: <20210817022220.17574-1-jefflexu@linux.alibaba.com>
@@ -88,90 +87,117 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-For passthrough, when the corresponding virtiofs in guest is mounted
-with '-o dax=inode', advertise that the file is capable of per-file
-DAX if the inode in the backend fs is marked with FS_DAX_FL flag.
+Add .ioctl() support for passthrough, in prep for the following support
+for following per-file DAX feature.
+
+Once advertising support for per-file DAX feature, virtiofsd should
+support storing FS_DAX_FL flag persistently passed by
+FS_IOC_SETFLAGS/FS_IOC_FSSETXATTR ioctl, and set FUSE_ATTR_DAX in
+FUSE_LOOKUP accordingly if the file is capable of per-file DAX.
+
+When it comes to passthrough, it passes corresponding ioctls to host
+directly. Currently only these ioctls that are needed for per-file DAX
+feature, i.e., FS_IOC_GETFLAGS/FS_IOC_SETFLAGS and
+FS_IOC_FSGETXATTR/FS_IOC_FSSETXATTR are supported. Later we can restrict
+the flags/attributes allowed to be set to reinforce the security, or
+extend the scope of allowed ioctls if it is really needed later.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- tools/virtiofsd/passthrough_ll.c | 43 ++++++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+ tools/virtiofsd/passthrough_ll.c      | 53 +++++++++++++++++++++++++++
+ tools/virtiofsd/passthrough_seccomp.c |  1 +
+ 2 files changed, 54 insertions(+)
 
 diff --git a/tools/virtiofsd/passthrough_ll.c b/tools/virtiofsd/passthrough_ll.c
-index 5b6228210f..4cbd904248 100644
+index b76d878509..e170b17adb 100644
 --- a/tools/virtiofsd/passthrough_ll.c
 +++ b/tools/virtiofsd/passthrough_ll.c
-@@ -171,6 +171,7 @@ struct lo_data {
-     int allow_direct_io;
-     int announce_submounts;
-     int perfile_dax_cap; /* capability of backend fs */
-+    bool perfile_dax; /* enable per-file DAX or not */
-     bool use_statx;
-     struct lo_inode root;
-     GHashTable *inodes; /* protected by lo->mutex */
-@@ -716,6 +717,10 @@ static void lo_init(void *userdata, struct fuse_conn_info *conn)
+@@ -54,6 +54,7 @@
+ #include <sys/wait.h>
+ #include <sys/xattr.h>
+ #include <syslog.h>
++#include <linux/fs.h>
  
-     if (conn->capable & FUSE_CAP_PERFILE_DAX && lo->perfile_dax_cap ) {
-         conn->want |= FUSE_CAP_PERFILE_DAX;
-+	lo->perfile_dax = 1;
+ #include "qemu/cutils.h"
+ #include "passthrough_helpers.h"
+@@ -2105,6 +2106,57 @@ out:
+     fuse_reply_err(req, saverr);
+ }
+ 
++static void lo_ioctl(fuse_req_t req, fuse_ino_t ino, unsigned int cmd, void *arg,
++                  struct fuse_file_info *fi, unsigned flags, const void *in_buf,
++                  size_t in_bufsz, size_t out_bufsz)
++{
++    int fd = lo_fi_fd(req, fi);
++    int res;
++    int saverr = ENOSYS;
++
++    fuse_log(FUSE_LOG_DEBUG, "lo_ioctl(ino=%" PRIu64 ", cmd=0x%x, flags=0x%x, "
++	     "in_bufsz = %lu, out_bufsz = %lu)\n",
++	     ino, cmd, flags, in_bufsz, out_bufsz);
++
++    /* unrestricted ioctl is not supported yet */
++    if (flags & FUSE_IOCTL_UNRESTRICTED)
++        goto out;
++
++    /*
++     * Currently only those ioctls needed to support per-file DAX feature,
++     * i.e., FS_IOC_GETFLAGS/FS_IOC_SETFLAGS and
++     * FS_IOC_FSGETXATTR/FS_IOC_FSSETXATTR are supported.
++     */
++    if (cmd == FS_IOC_SETFLAGS || cmd == FS_IOC_FSSETXATTR) {
++        res = ioctl(fd, cmd, in_buf);
++        if (res < 0)
++            goto out_err;
++
++	fuse_reply_ioctl(req, 0, NULL, 0);
++    }
++    else if (cmd == FS_IOC_GETFLAGS || cmd == FS_IOC_FSGETXATTR) {
++	/* reused for 'unsigned int' for FS_IOC_GETFLAGS */
++	struct fsxattr attr;
++
++        res = ioctl(fd, cmd, &attr);
++        if (res < 0)
++            goto out_err;
++
++        fuse_reply_ioctl(req, 0, &attr, out_bufsz);
 +    }
 +    else {
-+	lo->perfile_dax = 0;
-     }
- }
- 
-@@ -983,6 +988,41 @@ static int do_statx(struct lo_data *lo, int dirfd, const char *pathname,
-     return 0;
- }
- 
-+/*
-+ * If the file is marked with FS_DAX_FL or FS_XFLAG_DAX, then DAX should be
-+ * enabled for this file.
-+ */
-+static bool lo_should_enable_dax(struct lo_data *lo, struct lo_inode *dir,
-+				 const char *name)
-+{
-+    int res, fd;
-+    int ret = false;;
-+    unsigned int attr;
-+    struct fsxattr xattr;
-+
-+    if (!lo->perfile_dax)
-+	return false;
-+
-+    /* Open file without O_PATH, so that ioctl can be called. */
-+    fd = openat(dir->fd, name, O_NOFOLLOW);
-+    if (fd == -1)
-+        return false;
-+
-+    if (lo->perfile_dax_cap == DAX_CAP_FLAGS) {
-+        res = ioctl(fd, FS_IOC_GETFLAGS, &attr);
-+        if (!res && (attr & FS_DAX_FL))
-+	    ret = true;
-+    }
-+    else if (lo->perfile_dax_cap == DAX_CAP_XATTR) {
-+	res = ioctl(fd, FS_IOC_FSGETXATTR, &xattr);
-+	if (!res && (xattr.fsx_xflags & FS_XFLAG_DAX))
-+	    ret = true;
++	fuse_log(FUSE_LOG_DEBUG, "Unsupported ioctl 0x%x\n", cmd);
++	goto out;
 +    }
 +
-+    close(fd);
-+    return ret;
++    return;
++
++out_err:
++	saverr = errno;
++out:
++	fuse_reply_err(req, saverr);
 +}
 +
- /*
-  * Increments nlookup on the inode on success. unref_inode_lolocked() must be
-  * called eventually to decrement nlookup again. If inodep is non-NULL, the
-@@ -1038,6 +1078,9 @@ static int lo_do_lookup(fuse_req_t req, fuse_ino_t parent, const char *name,
-         e->attr_flags |= FUSE_ATTR_SUBMOUNT;
-     }
- 
-+    if (lo_should_enable_dax(lo, dir, name))
-+	e->attr_flags |= FUSE_ATTR_DAX;
-+
-     inode = lo_find(lo, &e->attr, mnt_id);
-     if (inode) {
-         close(newfd);
+ static void lo_fsyncdir(fuse_req_t req, fuse_ino_t ino, int datasync,
+                         struct fuse_file_info *fi)
+ {
+@@ -3279,6 +3331,7 @@ static struct fuse_lowlevel_ops lo_oper = {
+     .create = lo_create,
+     .getlk = lo_getlk,
+     .setlk = lo_setlk,
++    .ioctl = lo_ioctl,
+     .open = lo_open,
+     .release = lo_release,
+     .flush = lo_flush,
+diff --git a/tools/virtiofsd/passthrough_seccomp.c b/tools/virtiofsd/passthrough_seccomp.c
+index 62441cfcdb..2a5f7614fc 100644
+--- a/tools/virtiofsd/passthrough_seccomp.c
++++ b/tools/virtiofsd/passthrough_seccomp.c
+@@ -62,6 +62,7 @@ static const int syscall_allowlist[] = {
+     SCMP_SYS(gettid),
+     SCMP_SYS(gettimeofday),
+     SCMP_SYS(getxattr),
++    SCMP_SYS(ioctl),
+     SCMP_SYS(linkat),
+     SCMP_SYS(listxattr),
+     SCMP_SYS(lseek),
 -- 
 2.27.0
 
