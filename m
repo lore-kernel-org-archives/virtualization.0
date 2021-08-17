@@ -2,97 +2,94 @@ Return-Path: <SRS0=dYih=NI=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F209BC4338F
-	for <virtualization@archiver.kernel.org>; Tue, 17 Aug 2021 14:54:41 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F3CDC4338F
+	for <virtualization@archiver.kernel.org>; Tue, 17 Aug 2021 14:58:00 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7816C60FA0
-	for <virtualization@archiver.kernel.org>; Tue, 17 Aug 2021 14:54:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 7816C60FA0
+	by mail.kernel.org (Postfix) with ESMTPS id D3E0E60FA0
+	for <virtualization@archiver.kernel.org>; Tue, 17 Aug 2021 14:57:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D3E0E60FA0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4386F60617;
-	Tue, 17 Aug 2021 14:54:41 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9EE81402FF;
+	Tue, 17 Aug 2021 14:57:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ZBMCxGkpIhYb; Tue, 17 Aug 2021 14:54:37 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VzmXfh-4ftfa; Tue, 17 Aug 2021 14:57:55 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 992C9600B6;
-	Tue, 17 Aug 2021 14:54:36 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 33F844023F;
+	Tue, 17 Aug 2021 14:57:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6C56EC001A;
-	Tue, 17 Aug 2021 14:54:36 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3362BC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0A0B9C001A;
+	Tue, 17 Aug 2021 14:57:55 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 419B0C000E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Aug 2021 14:54:35 +0000 (UTC)
+ Tue, 17 Aug 2021 14:57:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 1B2CC400FB
+ by smtp4.osuosl.org (Postfix) with ESMTP id 1D30F402E0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Aug 2021 14:54:35 +0000 (UTC)
+ Tue, 17 Aug 2021 14:57:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Mlg9FSQR5rdZ
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id gbXV7sNop-dA
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Aug 2021 14:54:31 +0000 (UTC)
+ Tue, 17 Aug 2021 14:57:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id D3DAF400BD
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 0DA784023F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Aug 2021 14:54:30 +0000 (UTC)
+ Tue, 17 Aug 2021 14:57:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1629212069;
+ s=mimecast20190719; t=1629212271;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=iwqtQA5c8IMZ/VG1YjrV8VQlVP1OvjA9/1fjYP9qLvA=;
- b=TzADJ3vrdQstqYDTKdEub5bE/KQj9uNzVZ9D0+c9R3MiRegOTg8ImuN4AePOj48RiRhR4Z
- L8rpCQ0cW4bCUU+iNCUPCyD9kNYzb5hHmSkRWYNIKoOy47saCdMCcl2p805mw3bYN1HdXa
- oNX/0rrJoPv9mR5e97m+/gMqpBMiF3g=
+ bh=Hk86/KYj3ZK8RgsgOcBS3p9RbAsZ92PjYs1lZc6coX8=;
+ b=anuMZLddL6CqepgZBgq9uqiruYAMtroj+jzqU5ui+XuZZ21+qrNISVfAee0CDmrhlVK2Jc
+ 6zzOFTn5YMmwzoqrv9xgs+ks5UJ2hLuvSXZOg1XucFVEJ0BO/Xu0cze2UJisKtlGlGEjI9
+ l7o33p7EBvBObuBYVKQXq6DR8mJsl4U=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-237-k9rS56UMMiK1PsCZaz336w-1; Tue, 17 Aug 2021 10:54:28 -0400
-X-MC-Unique: k9rS56UMMiK1PsCZaz336w-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
- [10.5.11.23])
+ us-mta-300-yLla6GVTPeifjsf4fyH-kg-1; Tue, 17 Aug 2021 10:57:49 -0400
+X-MC-Unique: yLla6GVTPeifjsf4fyH-kg-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
+ [10.5.11.15])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2309087D54D;
- Tue, 17 Aug 2021 14:54:27 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 83F00EC1A1;
+ Tue, 17 Aug 2021 14:57:48 +0000 (UTC)
 Received: from horse.redhat.com (unknown [10.22.10.24])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 2645B19D9D;
- Tue, 17 Aug 2021 14:54:23 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 5949B5D6AB;
+ Tue, 17 Aug 2021 14:57:41 +0000 (UTC)
 Received: by horse.redhat.com (Postfix, from userid 10451)
- id 9C7B7220637; Tue, 17 Aug 2021 10:54:22 -0400 (EDT)
-Date: Tue, 17 Aug 2021 10:54:22 -0400
+ id D5A5A220637; Tue, 17 Aug 2021 10:57:40 -0400 (EDT)
+Date: Tue, 17 Aug 2021 10:57:40 -0400
 From: Vivek Goyal <vgoyal@redhat.com>
 To: JeffleXu <jefflexu@linux.alibaba.com>
-Subject: Re: [Virtio-fs] [PATCH v4 0/8] fuse,virtiofs: support per-file DAX
-Message-ID: <YRvNnmy5Mra/AUix@redhat.com>
+Subject: Re: [PATCH v4 0/8] fuse,virtiofs: support per-file DAX
+Message-ID: <YRvOZI3CvLsF96JA@redhat.com>
 References: <20210817022220.17574-1-jefflexu@linux.alibaba.com>
  <CAJfpeguw1hMOaxpDmjmijhf=-JEW95aEjxfVo_=D_LyWx8LDgw@mail.gmail.com>
- <YRuCHvhICtTzMK04@work-vm>
- <CAJfpegvM+S5Xru3Yfc88C64mecvco=f99y-TajQBDfkLD-S8zQ@mail.gmail.com>
- <0896b1f6-c8c4-6071-c05b-a333c6cccacd@linux.alibaba.com>
+ <YRut5sioYfc2M1p7@redhat.com>
+ <6043c0b8-0ff1-2e11-0dd0-e23f9ff6b952@linux.alibaba.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <0896b1f6-c8c4-6071-c05b-a333c6cccacd@linux.alibaba.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+In-Reply-To: <6043c0b8-0ff1-2e11-0dd0-e23f9ff6b952@linux.alibaba.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Cc: Miklos Szeredi <miklos@szeredi.hu>,
- "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
  virtualization@lists.linux-foundation.org,
  virtio-fs-list <virtio-fs@redhat.com>, Joseph Qi <joseph.qi@linux.alibaba.com>,
+ Liu Bo <bo.liu@linux.alibaba.com>, Stefan Hajnoczi <stefanha@redhat.com>,
  linux-fsdevel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -110,96 +107,61 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Aug 17, 2021 at 09:08:35PM +0800, JeffleXu wrote:
+On Tue, Aug 17, 2021 at 09:22:53PM +0800, JeffleXu wrote:
 > 
 > 
-> On 8/17/21 6:09 PM, Miklos Szeredi wrote:
-> > On Tue, 17 Aug 2021 at 11:32, Dr. David Alan Gilbert
-> > <dgilbert@redhat.com> wrote:
-> >>
-> >> * Miklos Szeredi (miklos@szeredi.hu) wrote:
-> >>> On Tue, 17 Aug 2021 at 04:22, Jeffle Xu <jefflexu@linux.alibaba.com> wrote:
-> >>>>
-> >>>> This patchset adds support of per-file DAX for virtiofs, which is
-> >>>> inspired by Ira Weiny's work on ext4[1] and xfs[2].
+> On 8/17/21 8:39 PM, Vivek Goyal wrote:
+> > On Tue, Aug 17, 2021 at 10:06:53AM +0200, Miklos Szeredi wrote:
+> >> On Tue, 17 Aug 2021 at 04:22, Jeffle Xu <jefflexu@linux.alibaba.com> wrote:
 > >>>
-> >>> Can you please explain the background of this change in detail?
-> >>>
-> >>> Why would an admin want to enable DAX for a particular virtiofs file
-> >>> and not for others?
+> >>> This patchset adds support of per-file DAX for virtiofs, which is
+> >>> inspired by Ira Weiny's work on ext4[1] and xfs[2].
 > >>
-> >> Where we're contending on virtiofs dax cache size it makes a lot of
-> >> sense; it's quite expensive for us to map something into the cache
-> >> (especially if we push something else out), so selectively DAXing files
-> >> that are expected to be hot could help reduce cache churn.
+> >> Can you please explain the background of this change in detail?
+> >>
+> >> Why would an admin want to enable DAX for a particular virtiofs file
+> >> and not for others?
 > > 
-> > If this is a performance issue, it should be fixed in a way that
-> > doesn't require hand tuning like you suggest, I think.
+> > Initially I thought that they needed it because they are downloading
+> > files on the fly from server. So they don't want to enable dax on the file
+> > till file is completely downloaded. 
+> 
+> Right, it's our initial requirement.
+> 
+> 
+> > But later I realized that they should
+> > be able to block in FUSE_SETUPMAPPING call and make sure associated
+> > file section has been downloaded before returning and solve the problem.
+> > So that can't be the primary reason.
+> 
+> Saying we want to access 4KB of one file inside guest, if it goes
+> through FUSE request routine, then the fuse daemon only need to download
+> this 4KB from remote server. But if it goes through DAX, then the fuse
+> daemon need to download the whole DAX window (e.g., 2MB) from remote
+> server, so called amplification. Maybe we could decrease the DAX window
+> size, but it's a trade off.
+
+Downloading 2MB chunk should not be a big issue (IMHO). And if this
+turns out to be real concern, we could experiment with a smaller
+mapping granularity.
+
+> 
 > > 
-> > I'm not sure what the  ext4/xfs case for per-file DAX is.  Maybe that
-> > can help understand the virtiofs case as well.
+> > Other reason mentioned I think was that only certain files benefit
+> > from DAX. But not much details are there after that. It will be nice
+> > to hear a more concrete use case and more details about this usage.
 > > 
 > 
-> Some hints why ext4/xfs support per-file DAX can be found [1] and [2].
-> 
-> "Boaz Harrosh wondered why someone might want to turn DAX off for a
-> persistent memory device. Hellwig said that the performance "could
-> suck"; Williams noted that the page cache could be useful for some
-> applications as well. Jan Kara pointed out that reads from persistent
-> memory are close to DRAM speed, but that writes are not; the page cache
-> could be helpful for frequent writes. Applications need to change to
-> fully take advantage of DAX, Williams said; part of the promise of
-> adding a flag is that users can do DAX on smaller granularities than a
-> full filesystem."
-> 
-> In summary, page cache is preferable in some cases, and thus more fine
-> grained way of DAX control is needed.
+> Apart from our internal requirement, more fine grained control for DAX
+> shall be general and more flexible. Glad to hear more discussion from
+> community.
 
-In case of virtiofs, we are using page cache on host. So this probably
-is not a factor for us. Writes will go in page cache of host.
-
-> 
-> 
-> As for virtiofs, Dr. David Alan Gilbert has mentioned that various files
-> may compete for limited DAX window resource.
-> 
-> Besides, supporting DAX for small files can be expensive. Small files
-> can consume DAX window resource rapidly, and if small files are accessed
-> only once, the cost of mmap/munmap on host can not be ignored.
-
-W.r.r access pattern, same applies to large files also. So if a section
-of large file is accessed only once, it will consume dax window as well
-and will have to be reclaimed.
-
-Dax in virtiofs provides speed gain only if map file once and access
-it multiple times. If that pattern does not hold true, then dax does
-not seem to provide speed gains and in fact might be slower than
-non-dax.
-
-So if there is a pattern where we know some files are accessed repeatedly
-while others are not, then enabling/disabling dax selectively will make
-sense. Question is how many workloads really know that and how will
-you make that decision. Do you have any data to back that up.
-
-W.r.t small file, is that a real concern. If that file is being accessed
-mutliple times, then we will still see the speed gain. Only down side
-is that there is little wastage of resources because our minimum dax
-mapping granularity is 2MB. I am wondering can we handle that by
-supporting other dax mapping granularities as well. say 256K and let
-users choose it.
+Sure it will be more general and flexible. But there needs to be 1-2
+good concrete use cases to justify additional complexity. And I don't
+think that so far a good use case has come forward.
 
 Thanks
 Vivek
-> 
-> 
-> [1]
-> https://lore.kernel.org/lkml/20200428002142.404144-1-ira.weiny@intel.com/
-> [2] https://lwn.net/Articles/787973/
-> 
-> -- 
-> Thanks,
-> Jeffle
-> 
 
 _______________________________________________
 Virtualization mailing list
