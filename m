@@ -7,63 +7,62 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,
 	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63741C43216
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEF88C00144
 	for <virtualization@archiver.kernel.org>; Tue, 17 Aug 2021 02:22:36 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2858F60F46
+	by mail.kernel.org (Postfix) with ESMTPS id 96E5C60F55
 	for <virtualization@archiver.kernel.org>; Tue, 17 Aug 2021 02:22:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 2858F60F46
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 96E5C60F55
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 4A92A404A7;
-	Tue, 17 Aug 2021 02:22:35 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6EE4A8379C;
+	Tue, 17 Aug 2021 02:22:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nBW2pPZzHeOn; Tue, 17 Aug 2021 02:22:31 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B8CC9404A9;
-	Tue, 17 Aug 2021 02:22:30 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ncga-FA_ZrLN; Tue, 17 Aug 2021 02:22:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 4AC4583753;
+	Tue, 17 Aug 2021 02:22:29 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8FD73C0024;
-	Tue, 17 Aug 2021 02:22:30 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1C4D9C0010;
+	Tue, 17 Aug 2021 02:22:29 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 359C0C0022
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C2D75C0025
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Aug 2021 02:22:29 +0000 (UTC)
+ Tue, 17 Aug 2021 02:22:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id CB5EF607A2
+ by smtp3.osuosl.org (Postfix) with ESMTP id 8E0996079A
  for <virtualization@lists.linux-foundation.org>;
  Tue, 17 Aug 2021 02:22:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id oYHIVJu1XgxC
- for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Aug 2021 02:22:26 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
- by smtp3.osuosl.org (Postfix) with ESMTPS id EB951607DC
+ with ESMTP id eIAnwvYnWB_q
  for <virtualization@lists.linux-foundation.org>;
  Tue, 17 Aug 2021 02:22:25 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R191e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=8; SR=0; TI=SMTPD_---0UjHGpNF_1629166943; 
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from out30-44.freemail.mail.aliyun.com
+ (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 94E58607C5
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 17 Aug 2021 02:22:25 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R151e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=8; SR=0; TI=SMTPD_---0UjHTKZC_1629166942; 
 Received: from localhost(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0UjHGpNF_1629166943) by smtp.aliyun-inc.com(127.0.0.1);
- Tue, 17 Aug 2021 10:22:23 +0800
+ fp:SMTPD_---0UjHTKZC_1629166942) by smtp.aliyun-inc.com(127.0.0.1);
+ Tue, 17 Aug 2021 10:22:22 +0800
 From: Jeffle Xu <jefflexu@linux.alibaba.com>
 To: vgoyal@redhat.com,
 	stefanha@redhat.com,
 	miklos@szeredi.hu
-Subject: [PATCH v4 6/8] fuse: mark inode DONT_CACHE when per-file DAX
- indication changes
-Date: Tue, 17 Aug 2021 10:22:18 +0800
-Message-Id: <20210817022220.17574-7-jefflexu@linux.alibaba.com>
+Subject: [PATCH v4 4/8] fuse: negotiate if server/client supports per-file DAX
+Date: Tue, 17 Aug 2021 10:22:16 +0800
+Message-Id: <20210817022220.17574-5-jefflexu@linux.alibaba.com>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20210817022220.17574-1-jefflexu@linux.alibaba.com>
 References: <20210817022220.17574-1-jefflexu@linux.alibaba.com>
@@ -87,73 +86,68 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-When the per-file DAX indication changes while the file is still
-*opened*, it is quite complicated and maybe fragile to dynamically
-change the DAX state.
+Among the FUSE_INIT phase, server/client shall negotiate if supporting
+per-file DAX.
 
-Hence mark the inode and corresponding dentries as DONE_CACHE once the
-per-file DAX indication changes, so that the inode instance will be
-evicted and freed as soon as possible once the file is closed and the
-last reference to the inode is put. And then when the file gets reopened
-next time, the inode will reflect the new DAX state.
+Requirements for server:
+- capable of handling SETFLAGS/FSSETXATTR ioctl and storing
+  FS_DAX_FL/FS_XFLAG_DAX persistently.
+- set FUSE_ATTR_DAX if the file capable of per-file DAX when replying
+  FUSE_LOOKUP request accordingly.
 
-In summary, when the per-file DAX indication changes for an *opened*
-file, the state of the file won't be updated until this file is closed
-and reopened later.
+Requirements for client:
+- capable of handling per-file DAX when receiving FUSE_ATTR_DAX.
 
 Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
 ---
- fs/fuse/dax.c    | 9 +++++++++
- fs/fuse/fuse_i.h | 1 +
- fs/fuse/inode.c  | 3 +++
- 3 files changed, 13 insertions(+)
+ fs/fuse/fuse_i.h |  3 +++
+ fs/fuse/inode.c  | 12 ++++++++----
+ 2 files changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/fs/fuse/dax.c b/fs/fuse/dax.c
-index 30833f8d37dd..f7ede0be4e00 100644
---- a/fs/fuse/dax.c
-+++ b/fs/fuse/dax.c
-@@ -1364,6 +1364,15 @@ void fuse_dax_inode_init(struct inode *inode, unsigned int flags)
- 	inode->i_data.a_ops = &fuse_dax_file_aops;
- }
- 
-+void fuse_dax_dontcache(struct inode *inode, bool newdax)
-+{
-+	struct fuse_conn *fc = get_fuse_conn(inode);
-+
-+	if (fc->dax_mode == FUSE_DAX_INODE &&
-+	    fc->perfile_dax && (!!IS_DAX(inode) != newdax))
-+		d_mark_dontcache(inode);
-+}
-+
- bool fuse_dax_check_alignment(struct fuse_conn *fc, unsigned int map_alignment)
- {
- 	if (fc->dax && (map_alignment > FUSE_DAX_SHIFT)) {
 diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-index 7b7b4c208af2..56fe1c4d2136 100644
+index a23dd8d0c181..0b21e76a379a 100644
 --- a/fs/fuse/fuse_i.h
 +++ b/fs/fuse/fuse_i.h
-@@ -1260,6 +1260,7 @@ void fuse_dax_conn_free(struct fuse_conn *fc);
- bool fuse_dax_inode_alloc(struct super_block *sb, struct fuse_inode *fi);
- void fuse_dax_inode_init(struct inode *inode, unsigned int flags);
- void fuse_dax_inode_cleanup(struct inode *inode);
-+void fuse_dax_dontcache(struct inode *inode, bool newdax);
- bool fuse_dax_check_alignment(struct fuse_conn *fc, unsigned int map_alignment);
- void fuse_dax_cancel_work(struct fuse_conn *fc);
+@@ -770,6 +770,9 @@ struct fuse_conn {
+ 	/* Propagate syncfs() to server */
+ 	unsigned int sync_fs:1;
+ 
++	/* Does the filesystem support per-file DAX? */
++	unsigned int perfile_dax:1;
++
+ 	/** The number of requests waiting for completion */
+ 	atomic_t num_waiting;
  
 diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-index 8080f78befed..8c9774c6a210 100644
+index 0bc0d8af81e1..9d302079281c 100644
 --- a/fs/fuse/inode.c
 +++ b/fs/fuse/inode.c
-@@ -269,6 +269,9 @@ void fuse_change_attributes(struct inode *inode, struct fuse_attr *attr,
- 		if (inval)
- 			invalidate_inode_pages2(inode->i_mapping);
- 	}
-+
-+	if (IS_ENABLED(CONFIG_FUSE_DAX))
-+		fuse_dax_dontcache(inode, attr->flags & FUSE_ATTR_DAX);
- }
- 
- static void fuse_init_inode(struct inode *inode, struct fuse_attr *attr)
+@@ -1087,10 +1087,12 @@ static void process_init_reply(struct fuse_mount *fm, struct fuse_args *args,
+ 					min_t(unsigned int, fc->max_pages_limit,
+ 					max_t(unsigned int, arg->max_pages, 1));
+ 			}
+-			if (IS_ENABLED(CONFIG_FUSE_DAX) &&
+-			    arg->flags & FUSE_MAP_ALIGNMENT &&
+-			    !fuse_dax_check_alignment(fc, arg->map_alignment)) {
+-				ok = false;
++			if (IS_ENABLED(CONFIG_FUSE_DAX)) {
++				if (arg->flags & FUSE_MAP_ALIGNMENT &&
++				    !fuse_dax_check_alignment(fc, arg->map_alignment))
++					ok = false;
++				if (arg->flags & FUSE_PERFILE_DAX)
++					fc->perfile_dax = 1;
+ 			}
+ 			if (arg->flags & FUSE_HANDLE_KILLPRIV_V2) {
+ 				fc->handle_killpriv_v2 = 1;
+@@ -1145,6 +1147,8 @@ void fuse_send_init(struct fuse_mount *fm)
+ #ifdef CONFIG_FUSE_DAX
+ 	if (fm->fc->dax)
+ 		ia->in.flags |= FUSE_MAP_ALIGNMENT;
++	if (fm->fc->dax_mode == FUSE_DAX_INODE)
++		ia->in.flags |= FUSE_PERFILE_DAX;
+ #endif
+ 	if (fm->fc->auto_submounts)
+ 		ia->in.flags |= FUSE_SUBMOUNTS;
 -- 
 2.27.0
 
