@@ -2,101 +2,79 @@ Return-Path: <SRS0=8Uya=NJ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48C78C432BE
-	for <virtualization@archiver.kernel.org>; Wed, 18 Aug 2021 03:36:09 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCA80C4338F
+	for <virtualization@archiver.kernel.org>; Wed, 18 Aug 2021 03:40:06 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DB35A60EBD
-	for <virtualization@archiver.kernel.org>; Wed, 18 Aug 2021 03:36:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org DB35A60EBD
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 610436108E
+	for <virtualization@archiver.kernel.org>; Wed, 18 Aug 2021 03:40:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 610436108E
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A0E6940239;
-	Wed, 18 Aug 2021 03:36:08 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 28D28606A2;
+	Wed, 18 Aug 2021 03:40:06 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zHG-SovR4S1S; Wed, 18 Aug 2021 03:40:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 9D0DB605F8;
+	Wed, 18 Aug 2021 03:40:01 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7124CC0010;
+	Wed, 18 Aug 2021 03:40:01 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BFA64C000E
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 Aug 2021 03:39:59 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id 9CA57402EA
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 Aug 2021 03:39:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wVyuFKvRsHif; Wed, 18 Aug 2021 03:36:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0317A4023B;
-	Wed, 18 Aug 2021 03:36:03 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C97BDC0010;
-	Wed, 18 Aug 2021 03:36:03 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CADA9C000E
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ZXtr9mqYlYsX
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Aug 2021 03:36:02 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id BB53660683
+ Wed, 18 Aug 2021 03:39:58 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from out30-131.freemail.mail.aliyun.com
+ (out30-131.freemail.mail.aliyun.com [115.124.30.131])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 4BC5040276
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Aug 2021 03:36:02 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aLr9Rp9NPdfY
- for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Aug 2021 03:35:58 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com
- [IPv6:2607:f8b0:4864:20::634])
- by smtp3.osuosl.org (Postfix) with ESMTPS id B486A606D3
- for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Aug 2021 03:35:58 +0000 (UTC)
-Received: by mail-pl1-x634.google.com with SMTP id e19so934447pla.10
- for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Aug 2021 20:35:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=EoTD+9gdzWVQQgsWt1rt2oOyKjIz9skCn5yxqOmC3zo=;
- b=pVeg7w7P875hbyg3bTn84brdJTkJ8iFc7UK5zIrFpTJ8irRojNeSsVZKELAr1Myctn
- EqII4735e2rObDRI3Yd56bHjnL9ZWIB60ctbOgg09/wHWMN2bB/HcLyQlOVGJZYWCM5h
- 482t0+BrLDhliLZR/jRD466g0KeMFwG+QO8RhauTw0lMnZ5rSgoEUZGKJDpFW9AAxJjn
- m3I6R8zzO5gATxEiD2CYqmL/wzrIlkMzDrtUheaLlSNB5UK8I06zIDvtncy+QFfxuwUv
- Q5sqUZOcIrwpQPCtWuoGZOSghergP2bJRY+na3GilNXjzWmDeYxuwywrh0NQv+1ndK9k
- NphQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=EoTD+9gdzWVQQgsWt1rt2oOyKjIz9skCn5yxqOmC3zo=;
- b=SvKlbhjSSTit4z2vl70zVHVPJ3i/orVx8gHdTGAuhlx2rgONAluzSobMh8tVKgrknr
- hJCdqzzQ6Rfp1pwLxYuFcGED2l9LT09GOcK1cLsdoBKGpewlTDQwApptEpcKqDxxpkQP
- meq3eoMHwRIKio+dwJKwp947d+1D+aiV0mCF8p/0FYgvhudLKziinMNczJdoCwulexLH
- 4D2cSLhcEuJoWWEVON+1dB2YM1byUCKsZ6aKDM3TuezMyKYPROhJhX1NaG5XHKbOUpqT
- c/AZd5YlgdWMTyWogHXcEt1gVhTqnKQxNR//I5CB80WPZ+rVp0Ume1wSPHysIJrCJkIQ
- Wwjg==
-X-Gm-Message-State: AOAM532G1xAkR9pZ+QxpPwdYibj8oDurALk20fQK0iIdi7zv5YFoP5aI
- gZ2pA+TZZ8w0Kzvb5Gz5Nbw7iQ==
-X-Google-Smtp-Source: ABdhPJy7/RHf3X+g1zoSTwUZ+x+dwqR2Mme5lAt2zkS8vxqJXUy6l+yqqb3nxmP7N//YmDMbzSNIfQ==
-X-Received: by 2002:a17:90b:1950:: with SMTP id
- nk16mr7099560pjb.11.1629257757974; 
- Tue, 17 Aug 2021 20:35:57 -0700 (PDT)
-Received: from localhost ([122.172.201.85])
- by smtp.gmail.com with ESMTPSA id j5sm3431254pjv.56.2021.08.17.20.35.57
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 17 Aug 2021 20:35:57 -0700 (PDT)
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Wolfram Sang <wsa@kernel.org>, Jie Deng <jie.deng@intel.com>,
- Viresh Kumar <viresh.kumar@linaro.org>
-Subject: [PATCH] i2c: virtio: Update i2c-adapter's of_node
-Date: Wed, 18 Aug 2021 09:05:50 +0530
-Message-Id: <376bd0a3a34e8f0de297103dd2f711bb236a8615.1629257677.git.viresh.kumar@linaro.org>
-X-Mailer: git-send-email 2.31.1.272.g89b43f80a514
+ Wed, 18 Aug 2021 03:39:57 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R951e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=jefflexu@linux.alibaba.com;
+ NM=1; PH=DS; RN=8; SR=0; TI=SMTPD_---0Ujd4Stm_1629257994; 
+Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com
+ fp:SMTPD_---0Ujd4Stm_1629257994) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 18 Aug 2021 11:39:55 +0800
+Subject: Re: [PATCH v4 0/8] fuse,virtiofs: support per-file DAX
+To: Miklos Szeredi <miklos@szeredi.hu>
+References: <20210817022220.17574-1-jefflexu@linux.alibaba.com>
+ <CAJfpeguw1hMOaxpDmjmijhf=-JEW95aEjxfVo_=D_LyWx8LDgw@mail.gmail.com>
+ <YRut5sioYfc2M1p7@redhat.com>
+ <6043c0b8-0ff1-2e11-0dd0-e23f9ff6b952@linux.alibaba.com>
+ <CAJfpegv01k5hEyJ3LPDWJoqB+vL8hwTan9dLu1pkkD0xoRuFzw@mail.gmail.com>
+From: JeffleXu <jefflexu@linux.alibaba.com>
+Message-ID: <1100b711-012d-d68b-7078-20eea6fa4bab@linux.alibaba.com>
+Date: Wed, 18 Aug 2021 11:39:54 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.11.0
 MIME-Version: 1.0
-Cc: arnd@kernel.org, Vincent Guittot <vincent.guittot@linaro.org>,
- linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+In-Reply-To: <CAJfpegv01k5hEyJ3LPDWJoqB+vL8hwTan9dLu1pkkD0xoRuFzw@mail.gmail.com>
+Content-Language: en-US
+Cc: virtualization@lists.linux-foundation.org,
+ virtio-fs-list <virtio-fs@redhat.com>, Joseph Qi <joseph.qi@linux.alibaba.com>,
+ Liu Bo <bo.liu@linux.alibaba.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ linux-fsdevel@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,29 +91,65 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Set of-node of the adapter to the virtio device's of-node to enable
-automatic parsing the of the I2C devices, if present in the DT.
 
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
----
- drivers/i2c/busses/i2c-virtio.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-index d3e60d9cde10..2dde69cfb9aa 100644
---- a/drivers/i2c/busses/i2c-virtio.c
-+++ b/drivers/i2c/busses/i2c-virtio.c
-@@ -228,6 +228,7 @@ static int virtio_i2c_probe(struct virtio_device *vdev)
- 	vi->adap.algo = &virtio_algorithm;
- 	vi->adap.quirks = &virtio_i2c_quirks;
- 	vi->adap.dev.parent = &vdev->dev;
-+	vi->adap.dev.of_node = vdev->dev.of_node;
- 	i2c_set_adapdata(&vi->adap, vi);
- 
- 	/*
+On 8/17/21 10:08 PM, Miklos Szeredi wrote:
+> On Tue, 17 Aug 2021 at 15:22, JeffleXu <jefflexu@linux.alibaba.com> wrote:
+>>
+>>
+>>
+>> On 8/17/21 8:39 PM, Vivek Goyal wrote:
+>>> On Tue, Aug 17, 2021 at 10:06:53AM +0200, Miklos Szeredi wrote:
+>>>> On Tue, 17 Aug 2021 at 04:22, Jeffle Xu <jefflexu@linux.alibaba.com> wrote:
+>>>>>
+>>>>> This patchset adds support of per-file DAX for virtiofs, which is
+>>>>> inspired by Ira Weiny's work on ext4[1] and xfs[2].
+>>>>
+>>>> Can you please explain the background of this change in detail?
+>>>>
+>>>> Why would an admin want to enable DAX for a particular virtiofs file
+>>>> and not for others?
+>>>
+>>> Initially I thought that they needed it because they are downloading
+>>> files on the fly from server. So they don't want to enable dax on the file
+>>> till file is completely downloaded.
+>>
+>> Right, it's our initial requirement.
+>>
+>>
+>>> But later I realized that they should
+>>> be able to block in FUSE_SETUPMAPPING call and make sure associated
+>>> file section has been downloaded before returning and solve the problem.
+>>> So that can't be the primary reason.
+>>
+>> Saying we want to access 4KB of one file inside guest, if it goes
+>> through FUSE request routine, then the fuse daemon only need to download
+>> this 4KB from remote server. But if it goes through DAX, then the fuse
+>> daemon need to download the whole DAX window (e.g., 2MB) from remote
+>> server, so called amplification. Maybe we could decrease the DAX window
+>> size, but it's a trade off.
+> 
+> That could be achieved with a plain fuse filesystem on the host (which
+> will get 4k READ requests for accesses to mapped area inside guest).
+> Since this can be done selectively for files which are not yet
+> downloaded, the extra layer wouldn't be a performance problem.
+
+I'm not sure if I fully understand your idea. Then in this case, host
+daemon only prepares 4KB while guest thinks that the whole DAX window
+(e.g., 2MB) has been fully mapped. Then when guest really accesses the
+remained part (2MB - 4KB), page fault is triggered, and now host daemon
+is responsible for downloading the remained part?
+
+> 
+> Is there a reason why that wouldn't work?
+> 
+> Thanks,
+> Miklos
+> 
+
 -- 
-2.31.1.272.g89b43f80a514
-
+Thanks,
+Jeffle
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
