@@ -7,75 +7,75 @@ X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,
 	SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3055CC4338F
-	for <virtualization@archiver.kernel.org>; Wed, 18 Aug 2021 05:11:09 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3963C4338F
+	for <virtualization@archiver.kernel.org>; Wed, 18 Aug 2021 05:20:54 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C4E0960249
-	for <virtualization@archiver.kernel.org>; Wed, 18 Aug 2021 05:11:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org C4E0960249
+	by mail.kernel.org (Postfix) with ESMTPS id 9ABBA61051
+	for <virtualization@archiver.kernel.org>; Wed, 18 Aug 2021 05:20:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9ABBA61051
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 88221402B8;
-	Wed, 18 Aug 2021 05:11:08 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 68BDD80CB9;
+	Wed, 18 Aug 2021 05:20:54 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QuoVKiGyP3VK; Wed, 18 Aug 2021 05:20:50 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E5C5580CA5;
+	Wed, 18 Aug 2021 05:20:49 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BD887C001A;
+	Wed, 18 Aug 2021 05:20:49 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 35FFDC000E
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 Aug 2021 05:20:49 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 2C9734035D
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 Aug 2021 05:20:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id aWPbCLkjtmGq; Wed, 18 Aug 2021 05:11:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D0A71400D2;
-	Wed, 18 Aug 2021 05:11:03 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 94547C001A;
-	Wed, 18 Aug 2021 05:11:03 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 31090C000E
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id j29gNTJkptnZ
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Aug 2021 05:11:02 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 19649402F7
- for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Aug 2021 05:11:02 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rP6Y3pOOnPgm
- for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Aug 2021 05:11:01 +0000 (UTC)
+ Wed, 18 Aug 2021 05:20:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-131.freemail.mail.aliyun.com
- (out30-131.freemail.mail.aliyun.com [115.124.30.131])
- by smtp4.osuosl.org (Postfix) with ESMTPS id BA886403AD
+Received: from out30-132.freemail.mail.aliyun.com
+ (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id CD2DB400D2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Aug 2021 05:11:00 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R611e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04420; MF=jefflexu@linux.alibaba.com;
- NM=1; PH=DS; RN=7; SR=0; TI=SMTPD_---0Ujd6AJ2_1629263457; 
+ Wed, 18 Aug 2021 05:20:47 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R141e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=alimailimapcm10staff010182156082;
+ MF=jefflexu@linux.alibaba.com; NM=1; PH=DS; RN=8; SR=0;
+ TI=SMTPD_---0UjdW34i_1629264044; 
 Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0Ujd6AJ2_1629263457) by smtp.aliyun-inc.com(127.0.0.1);
- Wed, 18 Aug 2021 13:10:57 +0800
-Subject: Re: [Virtio-fs] [PATCH v4 0/8] fuse,virtiofs: support per-file DAX
+ fp:SMTPD_---0UjdW34i_1629264044) by smtp.aliyun-inc.com(127.0.0.1);
+ Wed, 18 Aug 2021 13:20:44 +0800
+Subject: Re: [PATCH v4 0/8] fuse,virtiofs: support per-file DAX
 To: Vivek Goyal <vgoyal@redhat.com>
 References: <20210817022220.17574-1-jefflexu@linux.alibaba.com>
  <CAJfpeguw1hMOaxpDmjmijhf=-JEW95aEjxfVo_=D_LyWx8LDgw@mail.gmail.com>
- <YRuCHvhICtTzMK04@work-vm>
- <CAJfpegvM+S5Xru3Yfc88C64mecvco=f99y-TajQBDfkLD-S8zQ@mail.gmail.com>
- <0896b1f6-c8c4-6071-c05b-a333c6cccacd@linux.alibaba.com>
- <YRvNnmy5Mra/AUix@redhat.com>
+ <YRut5sioYfc2M1p7@redhat.com>
+ <6043c0b8-0ff1-2e11-0dd0-e23f9ff6b952@linux.alibaba.com>
+ <YRvOZI3CvLsF96JA@redhat.com>
 From: JeffleXu <jefflexu@linux.alibaba.com>
-Message-ID: <509ea06b-27db-63f9-d32f-563f2f6c2290@linux.alibaba.com>
-Date: Wed, 18 Aug 2021 13:10:57 +0800
+Message-ID: <bde1d657-0aa4-324d-064e-711efa893c2f@linux.alibaba.com>
+Date: Wed, 18 Aug 2021 13:20:43 +0800
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
  Gecko/20100101 Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <YRvNnmy5Mra/AUix@redhat.com>
+In-Reply-To: <YRvOZI3CvLsF96JA@redhat.com>
 Content-Language: en-US
 Cc: Miklos Szeredi <miklos@szeredi.hu>,
- "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
  virtualization@lists.linux-foundation.org,
  virtio-fs-list <virtio-fs@redhat.com>, Joseph Qi <joseph.qi@linux.alibaba.com>,
+ Liu Bo <bo.liu@linux.alibaba.com>, Stefan Hajnoczi <stefanha@redhat.com>,
  linux-fsdevel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -95,89 +95,50 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
 
-On 8/17/21 10:54 PM, Vivek Goyal wrote:
-> On Tue, Aug 17, 2021 at 09:08:35PM +0800, JeffleXu wrote:
+On 8/17/21 10:57 PM, Vivek Goyal wrote:
+> On Tue, Aug 17, 2021 at 09:22:53PM +0800, JeffleXu wrote:
 >>
 >>
->> On 8/17/21 6:09 PM, Miklos Szeredi wrote:
->>> On Tue, 17 Aug 2021 at 11:32, Dr. David Alan Gilbert
->>> <dgilbert@redhat.com> wrote:
->>>>
->>>> * Miklos Szeredi (miklos@szeredi.hu) wrote:
->>>>> On Tue, 17 Aug 2021 at 04:22, Jeffle Xu <jefflexu@linux.alibaba.com> wrote:
->>>>>>
->>>>>> This patchset adds support of per-file DAX for virtiofs, which is
->>>>>> inspired by Ira Weiny's work on ext4[1] and xfs[2].
+>> On 8/17/21 8:39 PM, Vivek Goyal wrote:
+>>> On Tue, Aug 17, 2021 at 10:06:53AM +0200, Miklos Szeredi wrote:
+>>>> On Tue, 17 Aug 2021 at 04:22, Jeffle Xu <jefflexu@linux.alibaba.com> wrote:
 >>>>>
->>>>> Can you please explain the background of this change in detail?
->>>>>
->>>>> Why would an admin want to enable DAX for a particular virtiofs file
->>>>> and not for others?
+>>>>> This patchset adds support of per-file DAX for virtiofs, which is
+>>>>> inspired by Ira Weiny's work on ext4[1] and xfs[2].
 >>>>
->>>> Where we're contending on virtiofs dax cache size it makes a lot of
->>>> sense; it's quite expensive for us to map something into the cache
->>>> (especially if we push something else out), so selectively DAXing files
->>>> that are expected to be hot could help reduce cache churn.
+>>>> Can you please explain the background of this change in detail?
+>>>>
+>>>> Why would an admin want to enable DAX for a particular virtiofs file
+>>>> and not for others?
 >>>
->>> If this is a performance issue, it should be fixed in a way that
->>> doesn't require hand tuning like you suggest, I think.
->>>
->>> I'm not sure what the  ext4/xfs case for per-file DAX is.  Maybe that
->>> can help understand the virtiofs case as well.
->>>
+>>> Initially I thought that they needed it because they are downloading
+>>> files on the fly from server. So they don't want to enable dax on the file
+>>> till file is completely downloaded. 
 >>
->> Some hints why ext4/xfs support per-file DAX can be found [1] and [2].
+>> Right, it's our initial requirement.
 >>
->> "Boaz Harrosh wondered why someone might want to turn DAX off for a
->> persistent memory device. Hellwig said that the performance "could
->> suck"; Williams noted that the page cache could be useful for some
->> applications as well. Jan Kara pointed out that reads from persistent
->> memory are close to DRAM speed, but that writes are not; the page cache
->> could be helpful for frequent writes. Applications need to change to
->> fully take advantage of DAX, Williams said; part of the promise of
->> adding a flag is that users can do DAX on smaller granularities than a
->> full filesystem."
 >>
->> In summary, page cache is preferable in some cases, and thus more fine
->> grained way of DAX control is needed.
+>>> But later I realized that they should
+>>> be able to block in FUSE_SETUPMAPPING call and make sure associated
+>>> file section has been downloaded before returning and solve the problem.
+>>> So that can't be the primary reason.
+>>
+>> Saying we want to access 4KB of one file inside guest, if it goes
+>> through FUSE request routine, then the fuse daemon only need to download
+>> this 4KB from remote server. But if it goes through DAX, then the fuse
+>> daemon need to download the whole DAX window (e.g., 2MB) from remote
+>> server, so called amplification. Maybe we could decrease the DAX window
+>> size, but it's a trade off.
 > 
-> In case of virtiofs, we are using page cache on host. So this probably
-> is not a factor for us. Writes will go in page cache of host.
-> 
->>
->>
->> As for virtiofs, Dr. David Alan Gilbert has mentioned that various files
->> may compete for limited DAX window resource.
->>
->> Besides, supporting DAX for small files can be expensive. Small files
->> can consume DAX window resource rapidly, and if small files are accessed
->> only once, the cost of mmap/munmap on host can not be ignored.
-> 
-> W.r.r access pattern, same applies to large files also. So if a section
-> of large file is accessed only once, it will consume dax window as well
-> and will have to be reclaimed.
-> 
-> Dax in virtiofs provides speed gain only if map file once and access
-> it multiple times. If that pattern does not hold true, then dax does
-> not seem to provide speed gains and in fact might be slower than
-> non-dax.
-> 
-> So if there is a pattern where we know some files are accessed repeatedly
-> while others are not, then enabling/disabling dax selectively will make
-> sense. Question is how many workloads really know that and how will
-> you make that decision. Do you have any data to back that up.
+> Downloading 2MB chunk should not be a big issue (IMHO). 
 
-There's no precise performance data yet. Empirically, small files used
-to have worse performance with dax, while frequently accessed files
-(such as .so libraries) behave better with dax.
+Then the latency increases. Latency really matters in our use case.
 
+
+> And if this
+> turns out to be real concern, we could experiment with a smaller
+> mapping granularity.
 > 
-> W.r.t small file, is that a real concern. If that file is being accessed
-> mutliple times, then we will still see the speed gain. Only down side
-> is that there is little wastage of resources because our minimum dax
-> mapping granularity is 2MB. I am wondering can we handle that by
-> supporting other dax mapping granularities as well. say 256K and let
-> users choose it.
 
 
 -- 
