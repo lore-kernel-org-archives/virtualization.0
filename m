@@ -1,108 +1,69 @@
 Return-Path: <SRS0=8Uya=NJ=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-21.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Level: **
+X-Spam-Status: No, score=2.3 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+	HTML_MESSAGE,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE0EAC4338F
-	for <virtualization@archiver.kernel.org>; Wed, 18 Aug 2021 11:14:50 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 719EBC4338F
+	for <virtualization@archiver.kernel.org>; Wed, 18 Aug 2021 13:17:13 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 776BA61058
-	for <virtualization@archiver.kernel.org>; Wed, 18 Aug 2021 11:14:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 776BA61058
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 21F266108E
+	for <virtualization@archiver.kernel.org>; Wed, 18 Aug 2021 13:17:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 21F266108E
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3694640193;
-	Wed, 18 Aug 2021 11:14:50 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id DAEBC6074F;
+	Wed, 18 Aug 2021 13:17:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id u-IdPcXh_6aZ; Wed, 18 Aug 2021 11:14:46 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id NTCBiVKjVcjh; Wed, 18 Aug 2021 13:17:09 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id ED5DD40152;
-	Wed, 18 Aug 2021 11:14:45 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id D18D4606B1;
+	Wed, 18 Aug 2021 13:17:05 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C18EFC001A;
-	Wed, 18 Aug 2021 11:14:45 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A3672C001A;
+	Wed, 18 Aug 2021 13:17:05 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EC176C000E
+ by lists.linuxfoundation.org (Postfix) with ESMTP id ED6ECC000E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Aug 2021 11:14:43 +0000 (UTC)
+ Wed, 18 Aug 2021 13:17:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D30374015D
+ by smtp2.osuosl.org (Postfix) with ESMTP id CE326401C7
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Aug 2021 11:14:43 +0000 (UTC)
+ Wed, 18 Aug 2021 13:17:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id D93D5DO90cbw
+ with ESMTP id wRy0E85Zv4_Q
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Aug 2021 11:14:38 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com
- [IPv6:2607:f8b0:4864:20::534])
- by smtp2.osuosl.org (Postfix) with ESMTPS id DAF8B4012E
+ Wed, 18 Aug 2021 13:17:00 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
+ [IPv6:2a03:f480:1:14::7d])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 01FF340101
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Aug 2021 11:14:38 +0000 (UTC)
-Received: by mail-pg1-x534.google.com with SMTP id s11so1882230pgr.11
- for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Aug 2021 04:14:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=hYCVitY4NepEqhbNNc8e1wNp5s7DekT0/GaWOAsJUgM=;
- b=UjKFWL6g4lDA420x1GuIzQDeRh3n//5ppYaCrqJCx872H7GF5z6HH6V1W0BCU6DZLK
- 0GWIlrEysTNZI6JgCThsHQPTxN1qYi7pKJMnDiPOeCYNwl6SkFT80zTxGcmtFTsG8yVg
- xUiy+elanQZzC6H1d8/lfX4jR5WUDtHhD7cgScZW8J/UAMEU8njekObOoCi4t827MpeZ
- 0YY8M3tLjMwG44GPqsEvFrdXuVAcmRDDQoHqkdWim+dN+WiUceSlCWriVYQF+RlvNtCC
- EJ17/MPxZ4hTHxUAhjqrPjdOhOIlXBBKVJSCUwVbbiYP+as2XUJbZj0TcE0QwurbFf5L
- nvdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=hYCVitY4NepEqhbNNc8e1wNp5s7DekT0/GaWOAsJUgM=;
- b=SLypTSZEeVYFBnwMSX904X7rw8DzzrSWf5dCLCbp0q/mn5HTZabKjbDcpV95E9bS3T
- GeI1y6iv2smo9cJiZCH5YYOVP8LbtOpwWzJiiXOfwu7pWhNblC00wV3PuEL3vQXPYMoQ
- gZ/yVssOCbO736igDJ8I6CjR8NAFwEP0wNgsbz+y3teomxCGvU/GgLgRRMmCX/b7mmSh
- Ksnr5kYy31lR1L2hD12qnTCYxJLSUfPc5UoEFzzom5XgnCQeV8rEluYL5r+taOU20R+7
- KsCqic2qTb3nwzDaDDN+MDsRdLvXqonzMXX37GdfYbc4WMBa+brXSIhCBth2gSZCkh0F
- WLtg==
-X-Gm-Message-State: AOAM533zCSEninPN3jzLNIXlvk1qsE5HF0HZ6DuybqBhd9SR1Uqyv1l6
- EjBZY0ndzWW660sSLHCGmm1nBQ==
-X-Google-Smtp-Source: ABdhPJwFJ1R6ftHUODByocxViXO+e4yYFYHpHEI1cKtX+VQrtYea2i7R48f2vbynUW/FTNJlsNCFAA==
-X-Received: by 2002:aa7:8c19:0:b0:3e1:4b9e:cf89 with SMTP id
- c25-20020aa78c19000000b003e14b9ecf89mr8867326pfd.58.1629285278170; 
- Wed, 18 Aug 2021 04:14:38 -0700 (PDT)
-Received: from localhost ([122.172.201.85])
- by smtp.gmail.com with ESMTPSA id c196sm7286667pga.92.2021.08.18.04.14.37
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 18 Aug 2021 04:14:37 -0700 (PDT)
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Linus Walleij <linus.walleij@linaro.org>,
- Bartosz Golaszewski <bgolaszewski@baylibre.com>,
- "Enrico Weigelt, metux IT consult" <info@metux.net>,
- Viresh Kumar <vireshk@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V6] gpio: Add virtio-gpio driver
-Date: Wed, 18 Aug 2021 16:44:31 +0530
-Message-Id: <5c7fa820040852362bc2e48c7f879631caf7112b.1629284933.git.viresh.kumar@linaro.org>
-X-Mailer: git-send-email 2.31.1.272.g89b43f80a514
+ Wed, 18 Aug 2021 13:16:59 +0000 (UTC)
+Received: from [37.189.17.205] (helo=LAPTOP-EPOV2LRR)
+ by s052d7dde.fastvps-server.com with esmtpsa
+ (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
+ (envelope-from <marle@saisti.eu>) id 1mGKtK-0008Em-7I
+ for virtualization@lists.linux-foundation.org; Wed, 18 Aug 2021 15:41:58 +0300
+From: "ML" <marialemos72@gmail.com>
+Subject: ICITS'22 - The 2022 International Conference on Information
+ Technology & Systems | Costa Rica
+To: virtualization@lists.linux-foundation.org
 MIME-Version: 1.0
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
- Vincent Guittot <vincent.guittot@linaro.org>, Arnd Bergmann <arnd@kernel.org>,
- Viresh Kumar <viresh.kumar@linaro.org>, Bill Mills <bill.mills@linaro.org>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-gpio@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
- stratos-dev@op-lists.linaro.org
+Date: Wed, 18 Aug 2021 13:41:58 +0100
+Message-ID: <7924518627203@gmail-com>
+X-Antivirus: AVG (VPS 210816-2, 16/8/2021), Outbound message
+X-Antivirus-Status: Clean
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,545 +75,354 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Reply-To: intercits@gmail.com
+Content-Type: multipart/mixed; boundary="===============8866488840977216690=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patch adds a new driver for Virtio based GPIO devices.
+This is a multi-part message in MIME format
 
-This allows a guest VM running Linux to access GPIO lines provided by
-the host. It supports all basic operations, except interrupts for the
-GPIO lines.
+--===============8866488840977216690==
+Content-Type: multipart/alternative; charset=utf-8; boundary="ZM43L69OLRKDfN7O1zag=_WJboXeNKfwOz"
 
-Based on the initial work posted by:
-"Enrico Weigelt, metux IT consult" <lkml@metux.net>.
+This is a multi-part message in MIME format
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
----
-Bartosz,
+--ZM43L69OLRKDfN7O1zag=_WJboXeNKfwOz
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Can you please pick this up for 5.15, the specification is already merged now:
-
-https://github.com/oasis-tcs/virtio-spec/blob/master/virtio-gpio.tex
-
-I will follow up with the IRQ stuff separately.
-
-V5->V6:
-- Sent separately, without irq-support.
-- Include the change for virtio_ids.h.
-
- MAINTAINERS                      |   7 +
- drivers/gpio/Kconfig             |   9 +
- drivers/gpio/Makefile            |   1 +
- drivers/gpio/gpio-virtio.c       | 375 +++++++++++++++++++++++++++++++
- include/uapi/linux/virtio_gpio.h |  47 ++++
- include/uapi/linux/virtio_ids.h  |   1 +
- 6 files changed, 440 insertions(+)
- create mode 100644 drivers/gpio/gpio-virtio.c
- create mode 100644 include/uapi/linux/virtio_gpio.h
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index a61f4f3b78a9..f632acd7d98c 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -19647,6 +19647,13 @@ F:	Documentation/filesystems/virtiofs.rst
- F:	fs/fuse/virtio_fs.c
- F:	include/uapi/linux/virtio_fs.h
+---------------------------------------------------------------------------=
+-----------------------------------------
+ICITS'22 - The 2022 International Conference on Information Technology & Sy=
+stems
+San Carlos, Costa Rica, 9 - 11 February 2022
+http://icits.me <http://icits.me>
+---------------------------------------------------------------------------=
+-----------------------------------------
  
-+VIRTIO GPIO DRIVER
-+M:	Enrico Weigelt, metux IT consult <info@metux.net>
-+M:	Viresh Kumar <vireshk@kernel.org>
-+S:	Maintained
-+F:	drivers/gpio/gpio-virtio.c
-+F:	include/uapi/linux/virtio_gpio.h
-+
- VIRTIO GPU DRIVER
- M:	David Airlie <airlied@linux.ie>
- M:	Gerd Hoffmann <kraxel@redhat.com>
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index fab571016adf..e5993d6864fb 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -1669,6 +1669,15 @@ config GPIO_MOCKUP
- 	  tools/testing/selftests/gpio/gpio-mockup.sh. Reference the usage in
- 	  it.
+SCOPE
  
-+config GPIO_VIRTIO
-+	tristate "VirtIO GPIO support"
-+	depends on VIRTIO
-+	help
-+	  Say Y here to enable guest support for virtio-based GPIO controllers.
-+
-+	  These virtual GPIOs can be routed to real GPIOs or attached to
-+	  simulators on the host (like QEMU).
-+
- endmenu
+ICITS'22 - The 2022 International Conference on Information Technology & Sy=
+stems (http://icits.me <http://icits.me>), to be held in Tecnol=C3=B3gico d=
+e Costa Rica, Campus de San Carlos, Costa Rica, 9 - 11 February 2022, is an=
+ international forum for researchers and practitioners to present and discu=
+ss the most recent innovations, trends, results, experiences and concerns i=
+n the several perspectives of Information Technology & Systems.  
  
- endif
-diff --git a/drivers/gpio/Makefile b/drivers/gpio/Makefile
-index 32a32659866a..e0301cfedd8d 100644
---- a/drivers/gpio/Makefile
-+++ b/drivers/gpio/Makefile
-@@ -165,6 +165,7 @@ obj-$(CONFIG_GPIO_UCB1400)		+= gpio-ucb1400.o
- obj-$(CONFIG_GPIO_UNIPHIER)		+= gpio-uniphier.o
- obj-$(CONFIG_GPIO_VF610)		+= gpio-vf610.o
- obj-$(CONFIG_GPIO_VIPERBOARD)		+= gpio-viperboard.o
-+obj-$(CONFIG_GPIO_VIRTIO)		+= gpio-virtio.o
- obj-$(CONFIG_GPIO_VISCONTI)		+= gpio-visconti.o
- obj-$(CONFIG_GPIO_VR41XX)		+= gpio-vr41xx.o
- obj-$(CONFIG_GPIO_VX855)		+= gpio-vx855.o
-diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
-new file mode 100644
-index 000000000000..4dc2d383508f
---- /dev/null
-+++ b/drivers/gpio/gpio-virtio.c
-@@ -0,0 +1,375 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+/*
-+ * GPIO driver for virtio-based virtual GPIO controllers
-+ *
-+ * Copyright (C) 2021 metux IT consult
-+ * Enrico Weigelt, metux IT consult <info@metux.net>
-+ *
-+ * Copyright (C) 2021 Linaro.
-+ * Viresh Kumar <viresh.kumar@linaro.org>
-+ */
-+
-+#include <linux/completion.h>
-+#include <linux/err.h>
-+#include <linux/gpio/driver.h>
-+#include <linux/io.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/mutex.h>
-+#include <linux/virtio_config.h>
-+#include <uapi/linux/virtio_gpio.h>
-+#include <uapi/linux/virtio_ids.h>
-+
-+struct virtio_gpio_line {
-+	struct mutex lock; /* Protects line operation */
-+	struct completion completion;
-+	struct virtio_gpio_request req ____cacheline_aligned;
-+	struct virtio_gpio_response res ____cacheline_aligned;
-+	unsigned int rxlen;
-+};
-+
-+struct virtio_gpio {
-+	struct virtio_device *vdev;
-+	struct mutex lock; /* Protects virtqueue operation */
-+	struct gpio_chip gc;
-+	struct virtio_gpio_config config;
-+	struct virtio_gpio_line *lines;
-+	struct virtqueue *request_vq;
-+};
-+
-+static int _virtio_gpio_req(struct virtio_gpio *vgpio, u16 type, u16 gpio,
-+			    u8 txvalue, u8 *rxvalue, void *response, u32 rxlen)
-+{
-+	struct virtio_gpio_line *line = &vgpio->lines[gpio];
-+	struct virtio_gpio_request *req = &line->req;
-+	struct virtio_gpio_response *res = response;
-+	struct scatterlist *sgs[2], req_sg, res_sg;
-+	struct device *dev = &vgpio->vdev->dev;
-+	int ret;
-+
-+	/*
-+	 * Prevent concurrent requests for the same line since we have
-+	 * pre-allocated request/response buffers for each GPIO line. Moreover
-+	 * Linux always accesses a GPIO line sequentially, so this locking shall
-+	 * always go through without any delays.
-+	 */
-+	mutex_lock(&line->lock);
-+
-+	req->type = cpu_to_le16(type);
-+	req->gpio = cpu_to_le16(gpio);
-+	req->value = txvalue;
-+
-+	sg_init_one(&req_sg, req, sizeof(*req));
-+	sg_init_one(&res_sg, res, rxlen);
-+	sgs[0] = &req_sg;
-+	sgs[1] = &res_sg;
-+
-+	line->rxlen = 0;
-+	reinit_completion(&line->completion);
-+
-+	/*
-+	 * Virtqueue callers need to ensure they don't call its APIs with other
-+	 * virtqueue operations at the same time.
-+	 */
-+	mutex_lock(&vgpio->lock);
-+	ret = virtqueue_add_sgs(vgpio->request_vq, sgs, 1, 1, line, GFP_KERNEL);
-+	if (ret) {
-+		dev_err(dev, "failed to add request to vq\n");
-+		mutex_unlock(&vgpio->lock);
-+		goto out;
-+	}
-+
-+	virtqueue_kick(vgpio->request_vq);
-+	mutex_unlock(&vgpio->lock);
-+
-+	if (!wait_for_completion_timeout(&line->completion, HZ)) {
-+		dev_err(dev, "GPIO operation timed out\n");
-+		ret = -ETIMEDOUT;
-+		goto out;
-+	}
-+
-+	if (unlikely(res->status != VIRTIO_GPIO_STATUS_OK)) {
-+		dev_err(dev, "GPIO request failed: %d\n", gpio);
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
-+	if (unlikely(line->rxlen != rxlen)) {
-+		dev_err(dev, "GPIO operation returned incorrect len (%u : %u)\n",
-+			rxlen, line->rxlen);
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
-+	if (rxvalue)
-+		*rxvalue = res->value;
-+
-+out:
-+	mutex_unlock(&line->lock);
-+	return ret;
-+}
-+
-+static int virtio_gpio_req(struct virtio_gpio *vgpio, u16 type, u16 gpio,
-+			   u8 txvalue, u8 *rxvalue)
-+{
-+	struct virtio_gpio_line *line = &vgpio->lines[gpio];
-+	struct virtio_gpio_response *res = &line->res;
-+
-+	return _virtio_gpio_req(vgpio, type, gpio, txvalue, rxvalue, res,
-+				sizeof(*res));
-+}
-+
-+static void virtio_gpio_free(struct gpio_chip *gc, unsigned int gpio)
-+{
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+
-+	virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_SET_DIRECTION, gpio,
-+			VIRTIO_GPIO_DIRECTION_NONE, NULL);
-+}
-+
-+static int virtio_gpio_get_direction(struct gpio_chip *gc, unsigned int gpio)
-+{
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	u8 direction;
-+	int ret;
-+
-+	ret = virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_GET_DIRECTION, gpio, 0,
-+			      &direction);
-+	if (ret)
-+		return ret;
-+
-+	switch (direction) {
-+	case VIRTIO_GPIO_DIRECTION_IN:
-+		return GPIO_LINE_DIRECTION_IN;
-+	case VIRTIO_GPIO_DIRECTION_OUT:
-+		return GPIO_LINE_DIRECTION_OUT;
-+	default:
-+		return -EINVAL;
-+	}
-+}
-+
-+static int virtio_gpio_direction_input(struct gpio_chip *gc, unsigned int gpio)
-+{
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+
-+	return virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_SET_DIRECTION, gpio,
-+			       VIRTIO_GPIO_DIRECTION_IN, NULL);
-+}
-+
-+static int virtio_gpio_direction_output(struct gpio_chip *gc, unsigned int gpio,
-+					int value)
-+{
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	int ret;
-+
-+	ret = virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_SET_VALUE, gpio, value, NULL);
-+	if (ret)
-+		return ret;
-+
-+	return virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_SET_DIRECTION, gpio,
-+			       VIRTIO_GPIO_DIRECTION_OUT, NULL);
-+}
-+
-+static int virtio_gpio_get(struct gpio_chip *gc, unsigned int gpio)
-+{
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+	u8 value;
-+	int ret;
-+
-+	ret = virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_GET_VALUE, gpio, 0, &value);
-+	return ret ? ret : value;
-+}
-+
-+static void virtio_gpio_set(struct gpio_chip *gc, unsigned int gpio, int value)
-+{
-+	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
-+
-+	virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_SET_VALUE, gpio, value, NULL);
-+}
-+
-+static void virtio_gpio_request_vq(struct virtqueue *vq)
-+{
-+	struct virtio_gpio_line *line;
-+	unsigned int len;
-+
-+	do {
-+		line = virtqueue_get_buf(vq, &len);
-+		if (!line)
-+			return;
-+
-+		line->rxlen = len;
-+		complete(&line->completion);
-+	} while (1);
-+}
-+
-+static void virtio_gpio_free_vqs(struct virtio_device *vdev)
-+{
-+	vdev->config->reset(vdev);
-+	vdev->config->del_vqs(vdev);
-+}
-+
-+static int virtio_gpio_alloc_vqs(struct virtio_gpio *vgpio,
-+				 struct virtio_device *vdev)
-+{
-+	const char * const names[] = { "requestq" };
-+	vq_callback_t *cbs[] = {
-+		virtio_gpio_request_vq,
-+	};
-+	struct virtqueue *vqs[1] = { NULL };
-+	int ret;
-+
-+	ret = virtio_find_vqs(vdev, 1, vqs, cbs, names, NULL);
-+	if (ret) {
-+		dev_err(&vdev->dev, "failed to find vqs: %d\n", ret);
-+		return ret;
-+	}
-+
-+	if (!vqs[0]) {
-+		dev_err(&vdev->dev, "failed to find requestq vq\n");
-+		return -ENODEV;
-+	}
-+	vgpio->request_vq = vqs[0];
-+
-+	return 0;
-+}
-+
-+static const char **virtio_gpio_get_names(struct virtio_gpio *vgpio)
-+{
-+	struct virtio_gpio_config *config = &vgpio->config;
-+	struct virtio_gpio_response_get_names *res;
-+	struct device *dev = &vgpio->vdev->dev;
-+	u8 *gpio_names, *str;
-+	const char **names;
-+	int i, ret, len;
-+
-+	if (!config->gpio_names_size)
-+		return NULL;
-+
-+	len = sizeof(*res) + config->gpio_names_size;
-+	res = devm_kzalloc(dev, len, GFP_KERNEL);
-+	if (!res)
-+		return NULL;
-+	gpio_names = res->value;
-+
-+	ret = _virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_GET_NAMES, 0, 0, NULL,
-+			       res, len);
-+	if (ret) {
-+		dev_err(dev, "Failed to get GPIO names: %d\n", ret);
-+		return NULL;
-+	}
-+
-+	names = devm_kcalloc(dev, config->ngpio, sizeof(names), GFP_KERNEL);
-+	if (!names)
-+		return NULL;
-+
-+	/* NULL terminate the string instead of checking it */
-+	gpio_names[config->gpio_names_size - 1] = '\0';
-+
-+	for (i = 0, str = gpio_names; i < config->ngpio; i++) {
-+		names[i] = str;
-+		str += strlen(str) + 1; /* zero-length strings are allowed */
-+
-+		if (str > gpio_names + config->gpio_names_size) {
-+			dev_err(dev, "gpio_names block is too short (%d)\n", i);
-+			return NULL;
-+		}
-+	}
-+
-+	return names;
-+}
-+
-+static int virtio_gpio_probe(struct virtio_device *vdev)
-+{
-+	struct virtio_gpio_config *config;
-+	struct device *dev = &vdev->dev;
-+	struct virtio_gpio *vgpio;
-+	int ret, i;
-+
-+	vgpio = devm_kzalloc(dev, sizeof(*vgpio), GFP_KERNEL);
-+	if (!vgpio)
-+		return -ENOMEM;
-+
-+	config = &vgpio->config;
-+
-+	/* Read configuration */
-+	virtio_cread_bytes(vdev, 0, config, sizeof(*config));
-+	config->gpio_names_size = le32_to_cpu(config->gpio_names_size);
-+	config->ngpio = le16_to_cpu(config->ngpio);
-+	if (!config->ngpio) {
-+		dev_err(dev, "Number of GPIOs can't be zero\n");
-+		return -EINVAL;
-+	}
-+
-+	vgpio->lines = devm_kcalloc(dev, config->ngpio, sizeof(*vgpio->lines), GFP_KERNEL);
-+	if (!vgpio->lines)
-+		return -ENOMEM;
-+
-+	for (i = 0; i < config->ngpio; i++) {
-+		mutex_init(&vgpio->lines[i].lock);
-+		init_completion(&vgpio->lines[i].completion);
-+	}
-+
-+	mutex_init(&vgpio->lock);
-+	vdev->priv = vgpio;
-+
-+	vgpio->vdev			= vdev;
-+	vgpio->gc.free			= virtio_gpio_free;
-+	vgpio->gc.get_direction		= virtio_gpio_get_direction;
-+	vgpio->gc.direction_input	= virtio_gpio_direction_input;
-+	vgpio->gc.direction_output	= virtio_gpio_direction_output;
-+	vgpio->gc.get			= virtio_gpio_get;
-+	vgpio->gc.set			= virtio_gpio_set;
-+	vgpio->gc.ngpio			= config->ngpio;
-+	vgpio->gc.base			= -1; /* Allocate base dynamically */
-+	vgpio->gc.label			= dev_name(dev);
-+	vgpio->gc.parent		= dev;
-+	vgpio->gc.owner			= THIS_MODULE;
-+	vgpio->gc.can_sleep		= true;
-+
-+	ret = virtio_gpio_alloc_vqs(vgpio, vdev);
-+	if (ret)
-+		return ret;
-+
-+	/* Mark the device ready to perform operations from within probe() */
-+	virtio_device_ready(vdev);
-+
-+	vgpio->gc.names = virtio_gpio_get_names(vgpio);
-+
-+	ret = gpiochip_add_data(&vgpio->gc, vgpio);
-+	if (ret) {
-+		virtio_gpio_free_vqs(vdev);
-+		dev_err(dev, "Failed to add virtio-gpio controller\n");
-+	}
-+
-+	return ret;
-+}
-+
-+static void virtio_gpio_remove(struct virtio_device *vdev)
-+{
-+	struct virtio_gpio *vgpio = vdev->priv;
-+
-+	gpiochip_remove(&vgpio->gc);
-+	virtio_gpio_free_vqs(vdev);
-+}
-+
-+static const struct virtio_device_id id_table[] = {
-+	{ VIRTIO_ID_GPIO, VIRTIO_DEV_ANY_ID },
-+	{},
-+};
-+MODULE_DEVICE_TABLE(virtio, id_table);
-+
-+static struct virtio_driver virtio_gpio_driver = {
-+	.id_table		= id_table,
-+	.probe			= virtio_gpio_probe,
-+	.remove			= virtio_gpio_remove,
-+	.driver			= {
-+		.name		= KBUILD_MODNAME,
-+		.owner		= THIS_MODULE,
-+	},
-+};
-+module_virtio_driver(virtio_gpio_driver);
-+
-+MODULE_AUTHOR("Enrico Weigelt, metux IT consult <info@metux.net>");
-+MODULE_AUTHOR("Viresh Kumar <viresh.kumar@linaro.org>");
-+MODULE_DESCRIPTION("VirtIO GPIO driver");
-+MODULE_LICENSE("GPL");
-diff --git a/include/uapi/linux/virtio_gpio.h b/include/uapi/linux/virtio_gpio.h
-new file mode 100644
-index 000000000000..844574acf095
---- /dev/null
-+++ b/include/uapi/linux/virtio_gpio.h
-@@ -0,0 +1,47 @@
-+/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-+
-+#ifndef _LINUX_VIRTIO_GPIO_H
-+#define _LINUX_VIRTIO_GPIO_H
-+
-+#include <linux/types.h>
-+
-+/* Virtio GPIO request types */
-+#define VIRTIO_GPIO_MSG_GET_NAMES		0x0001
-+#define VIRTIO_GPIO_MSG_GET_DIRECTION		0x0002
-+#define VIRTIO_GPIO_MSG_SET_DIRECTION		0x0003
-+#define VIRTIO_GPIO_MSG_GET_VALUE		0x0004
-+#define VIRTIO_GPIO_MSG_SET_VALUE		0x0005
-+
-+/* Possible values of the status field */
-+#define VIRTIO_GPIO_STATUS_OK			0x0
-+#define VIRTIO_GPIO_STATUS_ERR			0x1
-+
-+/* Direction types */
-+#define VIRTIO_GPIO_DIRECTION_NONE		0x00
-+#define VIRTIO_GPIO_DIRECTION_OUT		0x01
-+#define VIRTIO_GPIO_DIRECTION_IN		0x02
-+
-+struct virtio_gpio_config {
-+	__u16 ngpio;
-+	__u8 padding[2];
-+	__u32 gpio_names_size;
-+} __packed;
-+
-+/* Virtio GPIO Request / Response */
-+struct virtio_gpio_request {
-+	__u16 type;
-+	__u16 gpio;
-+	__u32 value;
-+};
-+
-+struct virtio_gpio_response {
-+	__u8 status;
-+	__u8 value;
-+};
-+
-+struct virtio_gpio_response_get_names {
-+	__u8 status;
-+	__u8 value[];
-+};
-+
-+#endif /* _LINUX_VIRTIO_GPIO_H */
-diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
-index 70a8057ad4bb..e04fa2bfc0eb 100644
---- a/include/uapi/linux/virtio_ids.h
-+++ b/include/uapi/linux/virtio_ids.h
-@@ -56,6 +56,7 @@
- #define VIRTIO_ID_PMEM			27 /* virtio pmem */
- #define VIRTIO_ID_MAC80211_HWSIM	29 /* virtio mac80211-hwsim */
- #define VIRTIO_ID_BT			40 /* virtio bluetooth */
-+#define VIRTIO_ID_GPIO			41 /* virtio gpio */
+We are pleased to invite you to submit your papers to ICITS'22. They can be=
+ written in English, Spanish or Portuguese. All submissions will be reviewe=
+d on the basis of relevance, originality, importance and clarity.
  
- /*
-  * Virtio Transitional IDs
+ 
+TOPICS
+ 
+Submitted papers should be related with one or more of the main themes prop=
+osed for the Conference:  
+ 
+A) Information and Knowledge Management (IKM);  
+B) Organizational Models and Information Systems (OMIS);  
+C) Software and Systems Modeling (SSM);  
+D) Software Systems, Architectures, Applications and Tools (SSAAT);  
+E) Multimedia Systems and Applications (MSA);  
+F) Computer Networks, Mobility and Pervasive Systems (CNMPS);  
+G) Intelligent and Decision Support Systems (IDSS);  
+H) Big Data Analytics and Applications (BDAA);  
+I) Human-Computer Interaction (HCI);  
+J) Ethics, Computers and Security (ECS)  
+K) Health Informatics (HIS);  
+L) Information Technologies in Education (ITE);  
+M) Media, Applied Technology and Communication (MATC).
+ 
+ 
+SUBMISSION and DECISION
+ 
+Submitted papers written in English (until 10-page limit) must comply with =
+the format of the Lecture Notes in Networks and Systems series (see Instruc=
+tions for Authors at Springer Website), must not have been published before=
+, not be under review for any other conference or publication and not inclu=
+de any information leading to the authors=E2=80=99 identification. Therefor=
+e, the authors=E2=80=99 names and affiliations should not be included in th=
+e version for evaluation by the Scientific Committee. This information shou=
+ld only be included in the camera-ready version, saved in Word or Latex for=
+mat and also in PDF format. These files must be accompanied by the Consent =
+to Publish form filled out, in a ZIP file, and uploaded at the conference m=
+anagement system.
+  
+Submitted papers written in Spanish or Portuguese (until 15-page limit) mus=
+t comply with the format of RISTI - Revista Ib=C3=A9rica de Sistemas e Tecn=
+ologias de Informa=C3=A7=C3=A3o (download instructions/template for authors=
+ in Spanish or Portuguese), must not have been published before, not be und=
+er review for any other conference or publication and not include any infor=
+mation leading to the authors=E2=80=99 identification. Therefore, the autho=
+rs=E2=80=99 names and affiliations should not be included in the version fo=
+r evaluation by the Scientific Committee. This information should only be i=
+ncluded in the camera-ready version, saved in Word. These files must be upl=
+oaded at the conference management system in a ZIP file.
+  
+All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D by =
+at least two members of the Scientific Committee.  
+Based on Scientific Committee evaluation, a paper can be rejected or accept=
+ed by the Conference Chairs. In the later case, it can be accepted as paper=
+ or poster.
+  
+The authors of papers accepted as posters must build and print a poster to =
+be exhibited during the Conference. This poster must follow an A1 or A2 ver=
+tical format. The Conference can include Work Sessions where these posters =
+are presented and orally discussed, with a 7 minute limit per poster.
+  
+The authors of accepted papers will have 15 minutes to present their work i=
+n a Conference Work Session; approximately 5 minutes of discussion will fol=
+low each presentation.
+ 
+ 
+PUBLICATION and INDEXING  
+ 
+Papers accepted as posters are not published; they are only exhibited, pres=
+ented and discussed during the conference.  
+ 
+To ensure that a paper accepted as paper is published, at least one of the =
+authors must be fully registered by the 5th of November 2021, and the paper=
+ must comply with the suggested layout and page-limit. Additionally, all re=
+commended changes must be addressed by the authors before they submit the c=
+amera-ready version.  
+No more than one paper per registration will be published. An extra fee mus=
+t be paid for publication of additional papers, with a maximum of one addit=
+ional paper per registration. One registration permits only the participati=
+on of one author in the conference.  
+ 
+Papers written in English and accepted and registered will be published in =
+Proceedings by Springer, in a book of the Lecture Notes in Networks and Sys=
+tems series, will  be submitted for indexation by SCOPUS, WoS, Google Schol=
+ar, SCImago, among others, and will be available in the SpringerLink Digita=
+l Library.  
+ 
+Papers written in Spanish or Portuguese and accepted and registered will be=
+ published in a Special Issue of RISTI and will be submitted for indexation=
+ by SCOPUS, among others.
+ 
+ 
+IMPORTANT DATES
+ 
+Paper Submission: September 5, 2021  
+ 
+Notification of Acceptance: October 17, 2021  
+ 
+Payment of Registration, to ensure the inclusion of an accepted paper in th=
+e conference proceedings: November 5, 2021.  
+ 
+Camera-ready Submission: November 5, 2021
+ 
+ 
+Website of ICITS'22: http://icits.me <http://icits.me>
+ 
+ 
+ICITS'22 Team
+http://icits.me <http://icits.me>
+
+
 -- 
-2.31.1.272.g89b43f80a514
+This email has been checked for viruses by AVG.
+https://www.avg.com
+
+--ZM43L69OLRKDfN7O1zag=_WJboXeNKfwOz
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
+" />
+  </head>
+  <body>
+    <div class=3D"adn ads" data-message-id=3D"#msg-a:r-1499474762405574081"=
+ data-legacy-message-id=3D"17a812a84db16fcf">
+      <div class=3D"gs">
+        <div>
+          <div id=3D":19a" class=3D"ii gt">
+            <div id=3D":199" class=3D"a3s aiL ">---------------------------=
+---------------------------------------------------------------------------=
+--------------</div>
+            <div class=3D"a3s aiL ">ICITS'22 - The 2022 International Confe=
+rence on Information Technology &amp; Systems</div>
+            <div class=3D"a3s aiL ">San Carlos, Costa Rica, 9 - 11 February=
+ 2022</div>
+            <div class=3D"a3s aiL "><a href=3D"http://icits.me">http://icit=
+s.me</a><br />-------------------------------------------------------------=
+-------------------------------------------------------<br />&nbsp;</div>
+            <div class=3D"a3s aiL ">SCOPE</div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">ICITS'22 - The 2022 International Confe=
+rence on Information Technology &amp; Systems (<a href=3D"http://icits.me">=
+http://icits.me</a>), to be held in Tecnol&oacute;gico de Costa Rica, Campu=
+s de San Carlos, Costa Rica, 9 - 11 February 2022, is an international foru=
+m for researchers and practitioners to present and discuss the most recent =
+innovations, trends, results, experiences and concerns in the several persp=
+ectives of Information Technology &amp; Systems.&nbsp; </div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">We are pleased to invite you to submit =
+your papers to ICITS'22. They can be written in English, Spanish or Portugu=
+ese. All submissions will be reviewed on the basis of relevance, originalit=
+y, importance and clarity.<br />&nbsp;</div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">TOPICS</div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">Submitted papers should be related with=
+ one or more of the main themes proposed for the Conference:&nbsp; </div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">A) Information and Knowledge Management=
+ (IKM);&nbsp; </div>
+            <div class=3D"a3s aiL ">B) Organizational Models and Informatio=
+n Systems (OMIS);&nbsp; </div>
+            <div class=3D"a3s aiL ">C) Software and Systems Modeling (SSM);=
+&nbsp; </div>
+            <div class=3D"a3s aiL ">D) Software Systems, Architectures, App=
+lications and Tools (SSAAT);&nbsp; </div>
+            <div class=3D"a3s aiL ">E) Multimedia Systems and Applications =
+(MSA);&nbsp; </div>
+            <div class=3D"a3s aiL ">F) Computer Networks, Mobility and Perv=
+asive Systems (CNMPS);&nbsp; </div>
+            <div class=3D"a3s aiL ">G) Intelligent and Decision Support Sys=
+tems (IDSS);&nbsp; </div>
+            <div class=3D"a3s aiL ">H) Big Data Analytics and Applications =
+(BDAA);&nbsp; </div>
+            <div class=3D"a3s aiL ">I) Human-Computer Interaction (HCI);&nb=
+sp; </div>
+            <div class=3D"a3s aiL ">J) Ethics, Computers and Security (ECS)=
+&nbsp; </div>
+            <div class=3D"a3s aiL ">K) Health Informatics (HIS);&nbsp; </di=
+v>
+            <div class=3D"a3s aiL ">L) Information Technologies in Educatio=
+n (ITE);&nbsp; </div>
+            <div class=3D"a3s aiL ">M) Media, Applied Technology and Commun=
+ication (MATC).<br />&nbsp;</div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">SUBMISSION and DECISION</div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">Submitted papers written in English (un=
+til 10-page limit) must comply with the format of the Lecture Notes in Netw=
+orks and Systems series (see Instructions for Authors at Springer Website),=
+ must not have been published before, not be under review for any other con=
+ference or publication and not include any information leading to the autho=
+rs&rsquo; identification. Therefore, the authors&rsquo; names and affiliati=
+ons should not be included in the version for evaluation by the Scientific =
+Committee. This information should only be included in the camera-ready ver=
+sion, saved in Word or Latex format and also in PDF format. These files mus=
+t be accompanied by the Consent to Publish form filled out, in a ZIP file, =
+and uploaded at the conference management system.</div>
+            <div class=3D"a3s aiL ">&nbsp; </div>
+            <div class=3D"a3s aiL ">Submitted papers written in Spanish or =
+Portuguese (until 15-page limit) must comply with the format of RISTI - Rev=
+ista Ib&eacute;rica de Sistemas e Tecnologias de Informa&ccedil;&atilde;o (=
+download instructions/template for authors in Spanish or Portuguese), must =
+not have been published before, not be under review for any other conferenc=
+e or publication and not include any information leading to the authors&rsq=
+uo; identification. Therefore, the authors&rsquo; names and affiliations sh=
+ould not be included in the version for evaluation by the Scientific Commit=
+tee. This information should only be included in the camera-ready version, =
+saved in Word. These files must be uploaded at the conference management sy=
+stem in a ZIP file.</div>
+            <div class=3D"a3s aiL ">&nbsp; </div>
+            <div class=3D"a3s aiL ">All papers will be subjected to a &ldqu=
+o;double-blind review&rdquo; by at least two members of the Scientific Comm=
+ittee.&nbsp; </div>
+            <div class=3D"a3s aiL ">Based on Scientific Committee evaluatio=
+n, a paper can be rejected or accepted by the Conference Chairs. In the lat=
+er case, it can be accepted as paper or poster.</div>
+            <div class=3D"a3s aiL ">&nbsp; </div>
+            <div class=3D"a3s aiL ">The authors of papers accepted as poste=
+rs must build and print a poster to be exhibited during the Conference. Thi=
+s poster must follow an A1 or A2 vertical format. The Conference can includ=
+e Work Sessions where these posters are presented and orally discussed, wit=
+h a 7 minute limit per poster.</div>
+            <div class=3D"a3s aiL ">&nbsp; </div>
+            <div class=3D"a3s aiL ">The authors of accepted papers will hav=
+e 15 minutes to present their work in a Conference Work Session; approximat=
+ely 5 minutes of discussion will follow each presentation.<br />&nbsp;</div=
+>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">PUBLICATION and INDEXING&nbsp; </div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">Papers accepted as posters are not publ=
+ished; they are only exhibited, presented and discussed during the conferen=
+ce.&nbsp; </div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">To ensure that a paper accepted as pape=
+r is published, at least one of the authors must be fully registered by the=
+ 5th of November 2021, and the paper must comply with the suggested layout =
+and page-limit. Additionally, all recommended changes must be addressed by =
+the authors before they submit the camera-ready version.&nbsp; </div>
+            <div class=3D"a3s aiL ">No more than one paper per registration=
+ will be published. An extra fee must be paid for publication of additional=
+ papers, with a maximum of one additional paper per registration. One regis=
+tration permits only the participation of one author in the conference.&nbs=
+p; </div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">Papers written in English and accepted =
+and registered will be published in Proceedings by Springer, in a book of t=
+he Lecture Notes in Networks and Systems series, will&nbsp; be submitted fo=
+r indexation by SCOPUS, WoS, Google Scholar, SCImago, among others, and wil=
+l be available in the SpringerLink Digital Library.&nbsp; </div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">Papers written in Spanish or Portuguese=
+ and accepted and registered will be published in a Special Issue of RISTI =
+and will be submitted for indexation by SCOPUS, among others.<br />&nbsp;</=
+div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">IMPORTANT DATES</div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">Paper Submission: September 5, 2021&nbs=
+p; </div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">Notification of Acceptance: October 17,=
+ 2021&nbsp; </div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">Payment of Registration, to ensure the =
+inclusion of an accepted paper in the conference proceedings: November 5, 2=
+021.&nbsp; </div>
+            <div class=3D"a3s aiL ">&nbsp;</div>
+            <div class=3D"a3s aiL ">Camera-ready Submission: November 5, 20=
+21<br />&nbsp;<br />&nbsp;<br />Website of ICITS'22: <a href=3D"http://icit=
+s.me">http://icits.me</a><br />&nbsp;<br />&nbsp;<br />ICITS'22 Team<br /><=
+a href=3D"http://icits.me">http://icits.me</a></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
+<table style=3D"border-top: 1px solid #D3D4DE;">
+	<tr>
+        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
+=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
+n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
+s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
+=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
+a></td>
+		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
+13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
+free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
+source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
+"_blank" style=3D"color: #4453ea;">www.avg.com</a>
+		</td>
+	</tr>
+</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
+t=3D"1"> </a></div></body>
+</html>
+
+--ZM43L69OLRKDfN7O1zag=_WJboXeNKfwOz--
+
+
+--===============8866488840977216690==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8866488840977216690==--
+
