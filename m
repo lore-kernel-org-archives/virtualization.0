@@ -2,117 +2,114 @@ Return-Path: <SRS0=U4FE=NK=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C7F52C4338F
-	for <virtualization@archiver.kernel.org>; Thu, 19 Aug 2021 13:57:41 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17F45C4320A
+	for <virtualization@archiver.kernel.org>; Thu, 19 Aug 2021 20:58:47 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7C31461100
-	for <virtualization@archiver.kernel.org>; Thu, 19 Aug 2021 13:57:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 7C31461100
+	by mail.kernel.org (Postfix) with ESMTPS id B1CC661029
+	for <virtualization@archiver.kernel.org>; Thu, 19 Aug 2021 20:58:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B1CC661029
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4B076814A1;
-	Thu, 19 Aug 2021 13:57:41 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7051640001;
+	Thu, 19 Aug 2021 20:58:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JSBfG6nwV1b6; Thu, 19 Aug 2021 13:57:37 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id tbiJrzADc3Z6; Thu, 19 Aug 2021 20:58:42 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E2ACB81069;
-	Thu, 19 Aug 2021 13:57:36 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A20A74011D;
+	Thu, 19 Aug 2021 20:58:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B50B9C0010;
-	Thu, 19 Aug 2021 13:57:36 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6C651C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 740DCC001A;
+	Thu, 19 Aug 2021 20:58:41 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4EAA2C000E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Aug 2021 13:57:35 +0000 (UTC)
+ Thu, 19 Aug 2021 20:58:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 5556D8106A
+ by smtp3.osuosl.org (Postfix) with ESMTP id 2F9B3600B3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Aug 2021 13:57:35 +0000 (UTC)
+ Thu, 19 Aug 2021 20:58:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mH6JE4xmK-BV
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id LA2LIPw7ANK0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Aug 2021 13:57:34 +0000 (UTC)
+ Thu, 19 Aug 2021 20:58:36 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id AF79281069
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2F0A46061D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Aug 2021 13:57:33 +0000 (UTC)
+ Thu, 19 Aug 2021 20:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1629381452;
+ s=mimecast20190719; t=1629406714;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=FeQUTOQZFedjwKHUiIdbPnfehFdeVRFseWj/JjhYKq0=;
- b=JmWxT7YhtCO75/aOFP0y3fWdp2Ec65mWTeaWxI14YTP1gzq7wBT5VRRMJlUlMs8yxBUazs
- 2hSJnZ5B9mr7BD0ur7uIZePFrDixD+Y8YbUmHuRAt6hCyjRAKTVvirrCG2eHf8FMvikzVl
- SBotARnxBp2KTZ9OweezBFAArmLLz60=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-345-MvOuCN7sN9S8oxgYpeSEqg-1; Thu, 19 Aug 2021 09:57:31 -0400
-X-MC-Unique: MvOuCN7sN9S8oxgYpeSEqg-1
-Received: by mail-wm1-f71.google.com with SMTP id
- j33-20020a05600c1c21b02902e6828f7a20so1572478wms.7
+ bh=2UHMerpqZ9eR069h1JBuFg7zOxooV3lEAS9zu/hg+/c=;
+ b=DpYtFG6QGnrKsYByET2IRttC13xIVt6XeUlHFqgRkj5K38rHNhHhaU2t/ChAa1FjTbCSq9
+ wQ/QJFXdpM7jdZZxvW8b/mFmFpgwlH2pXDoPBSa01ca3rXu8tnB93ppYruSmd2Js0eNFiK
+ fMagahc5jFh0FvWtnH48Mf4e1eyXV54=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-205-SBPLr101O2u79bTgFvPMeA-1; Thu, 19 Aug 2021 16:58:31 -0400
+X-MC-Unique: SBPLr101O2u79bTgFvPMeA-1
+Received: by mail-ej1-f70.google.com with SMTP id
+ h22-20020a170906719600b005bc74a33a63so2773156ejk.8
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Aug 2021 06:57:31 -0700 (PDT)
+ Thu, 19 Aug 2021 13:58:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=FeQUTOQZFedjwKHUiIdbPnfehFdeVRFseWj/JjhYKq0=;
- b=P1BkwFbvkQhgG1MJ/72nwREdbIXrd3teNZZHyKGykJP+4j9hl52+z8fUzBl16y6+7+
- ymPFIaWZT78/6OPA8Xv6hK/qL3n3H+uy/qC3CHHP+0tOw1aJEzu/hgSRqlH3EiKo6X+Q
- rK6XfhnREzel3+nH/7CEe85XUS0L8BmdBYKsB31zxQGaj1ei7G5ji2wen6iU5uWU10hY
- YD3uFQ6eYUc+jbABS5vMwwAOHXnBAyiRyNOCy6Ai8TKBlmGxrsUa2aaQnpPmI8xCgjMS
- wZ31bYFe6mczqI32OTMTMaW0V3UhpJcd/Io/biQGlxdJs8Cz1WlfogWkx6cPZJgHwM9z
- oITQ==
-X-Gm-Message-State: AOAM532rsrNMbo4J9l4evTOaE9xBC6/84TUqyihhV18z1nt7FQSzSnfk
- eTvj1qV/zm3SsMeuj78m68z9/+HcDDKVmZrDv+syaB8YutpfykXKH1A/L0iTrsY96lLSn2L1m6r
- tUwtwTXGqDB/d9/AwTGSSc2XZRPQz0MTt9SK5xbjvmQ==
-X-Received: by 2002:adf:e746:: with SMTP id c6mr3970201wrn.276.1629381450162; 
- Thu, 19 Aug 2021 06:57:30 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwPnPPiuPzwm8tAhF9mEQ0DkA/msxGcayzoUv7cKBC+BcIMzN4u6pCJ7sEyf0pjKKrp3rXIVw==
-X-Received: by 2002:adf:e746:: with SMTP id c6mr3970164wrn.276.1629381449837; 
- Thu, 19 Aug 2021 06:57:29 -0700 (PDT)
-Received: from work-vm (cpc109021-salf6-2-0-cust453.10-2.cable.virginm.net.
- [82.29.237.198])
- by smtp.gmail.com with ESMTPSA id j7sm7793993wmi.37.2021.08.19.06.57.28
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=2UHMerpqZ9eR069h1JBuFg7zOxooV3lEAS9zu/hg+/c=;
+ b=h1nyXRnzER7iiNuhFPmBH0znP2P3fLxrkZDBcSMvtbHPRsomhw335PyvNCYvnc8cDE
+ huxTb0pSVIRhgkx/64hk7a1oIdpOrCTKaxYkHMLAS8dFCECZCqi5wjr4RmjV+AxEaStM
+ /H8qvarVQ5dfCRtB00ZIofLAMSsyw0eqhBO4N1gGx5tvMcGgagmDzWPXqoIZeGQRz0Cg
+ wotWhkJNZOD2Py3Y3og9QimTKnA/w3+Ye5gfaPjRVwIQ7eVYOb6ck5rj3Ex6QzdcEuJD
+ uFLiHjaZLvJV8NE+t1itotEQYi+/MNzujhL20odTZcBeJmC4QJZzaB7kMcIGTqPB5yJe
+ FT/g==
+X-Gm-Message-State: AOAM533qDhkXEtWDeo6yM8ZkQXZkHn0uA73fb1RvsUS72NzUOlr6x/jl
+ KUpGFBEdVPfzhFyfcb8YH2C52pJQQXltsJwE4yqScfS3M4vxbTvDipXN1vZ7hLLPR0AzgFdXG51
+ wsf5y78s6Y4i7kVEvp2T+BvaNEWg6H6iUnDbmGqlL4Q==
+X-Received: by 2002:aa7:d40e:: with SMTP id z14mr18796736edq.250.1629406710406; 
+ Thu, 19 Aug 2021 13:58:30 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy65DUcopDhD9RE8G3tq56LZZGuM8sRyIax2Z3iB8RPCZVKilCkyTXN7VWm57VY1lQdwIHiMA==
+X-Received: by 2002:aa7:d40e:: with SMTP id z14mr18796726edq.250.1629406710273; 
+ Thu, 19 Aug 2021 13:58:30 -0700 (PDT)
+Received: from redhat.com ([2.55.137.136])
+ by smtp.gmail.com with ESMTPSA id p25sm1549075ejf.50.2021.08.19.13.58.28
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 19 Aug 2021 06:57:29 -0700 (PDT)
-Date: Thu, 19 Aug 2021 14:57:27 +0100
-From: "Dr. David Alan Gilbert" <dgilbert@redhat.com>
-To: JeffleXu <jefflexu@linux.alibaba.com>
-Subject: Re: [Virtio-fs] [virtiofsd PATCH v4 3/4] virtiofsd: support per-file
- DAX negotiation in FUSE_INIT
-Message-ID: <YR5jRwVNeZfZVLh3@work-vm>
-References: <20210817022220.17574-1-jefflexu@linux.alibaba.com>
- <20210817022347.18098-1-jefflexu@linux.alibaba.com>
- <20210817022347.18098-4-jefflexu@linux.alibaba.com>
- <YRvuzrRo2t2SyQk/@work-vm>
- <e6426e51-7a2c-57a1-8d7b-3cb0cff89fb9@linux.alibaba.com>
+ Thu, 19 Aug 2021 13:58:29 -0700 (PDT)
+Date: Thu, 19 Aug 2021 16:58:26 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Alexander Potapenko <glider@google.com>
+Subject: Re: Use of uninitialized memory with CONFIG_HW_RANDOM_VIRTIO
+Message-ID: <20210819165742-mutt-send-email-mst@kernel.org>
+References: <CAG_fn=WwQ29akxY1Eq=N_=HCF3t7z+T2obh9aRVUDFy1FSA3-Q@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <e6426e51-7a2c-57a1-8d7b-3cb0cff89fb9@linux.alibaba.com>
-User-Agent: Mutt/2.0.7 (2021-05-04)
+In-Reply-To: <CAG_fn=WwQ29akxY1Eq=N_=HCF3t7z+T2obh9aRVUDFy1FSA3-Q@mail.gmail.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=dgilbert@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: miklos@szeredi.hu, virtualization@lists.linux-foundation.org,
- virtio-fs@redhat.com, joseph.qi@linux.alibaba.com, stefanha@redhat.com,
- linux-fsdevel@vger.kernel.org, vgoyal@redhat.com
+Cc: Laurent Vivier <lvivier@redhat.com>, amit@kernel.org, rusty@rustcorp.com.au,
+ virtualization@lists.linux-foundation.org,
+ syzkaller <syzkaller@googlegroups.com>, akong@redhat.com,
+ Dmitriy Vyukov <dvyukov@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,198 +121,129 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-* JeffleXu (jefflexu@linux.alibaba.com) wrote:
-> 
-> 
-> On 8/18/21 1:15 AM, Dr. David Alan Gilbert wrote:
-> > * Jeffle Xu (jefflexu@linux.alibaba.com) wrote:
-> >> In FUSE_INIT negotiating phase, server/client should advertise if it
-> >> supports per-file DAX.
-> >>
-> >> Once advertising support for per-file DAX feature, virtiofsd should
-> >> support storing FS_DAX_FL flag persistently passed by
-> >> FS_IOC_SETFLAGS/FS_IOC_FSSETXATTR ioctl, and set FUSE_ATTR_DAX in
-> >> FUSE_LOOKUP accordingly if the file is capable of per-file DAX.
-> >>
-> >> Currently only ext4/xfs since linux kernel v5.8 support storing
-> >> FS_DAX_FL flag persistently, and thus advertise support for per-file
-> >> DAX feature only when the backend fs type is ext4 and xfs.
-> > 
-> > I'm a little worried about the meaning of the flags we're storing and
-> > the fact we're storing them in the normal host DAX flags.
-> > 
-> > Doesn't this mean that we're using a single host flag to mean:
-> >   a) It can be mapped as DAX on the host if it was a real DAX device
-> >   b) We can map it as DAX inside the guest with virtiofs?
-> 
-> Yes the side effect is that the host file is also dax enabled if the
-> backend fs is built upon real nvdimm device.
-> 
-> The rationale here is that, fuse daemon shall be capable of *marking*
-> the file as dax capable *persistently*, so that it can be informed that
-> this file is capable of dax later.
+On Fri, Nov 13, 2020 at 06:26:16PM +0100, Alexander Potapenko wrote:
+> Hi Amos, Rusty, Amit, Michael,
+> =
 
-Right, so my worry here is that the untrusted guest changes both it's
-own behaviour (fine) and also the behaviour of the host (less fine).
+> I am hitting something that I believe to be a minor problem in the
+> virtio RNG driver.
+> When running the kernel under KMSAN with "-device virtio-rng-pci"
+> passed to QEMU, I am seeing reports about rng_fillbuf in
+> drivers/char/hw_random/core.c being used before initialization (see
+> the report below).
+> =
 
-> I'm not sure if xattr (extent attribute) is a better option for this?
+> This can be verified by initializing rng_fillbuf with 'A' as follows:
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+> index 8c1c47dd9f46..44d609a5796a 100644
+> --- a/drivers/char/hw_random/core.c
+> +++ b/drivers/char/hw_random/core.c
+> @@ -439,8 +439,11 @@ static int hwrng_fillfn(void *unused)
+>                 if (IS_ERR(rng) || !rng)
+>                         break;
+>                 mutex_lock(&reading_mutex);
+> +               memset(rng_fillbuf, 'A', rng_buffer_size());
+> +               rng_fillbuf[rng_buffer_size()-1] =3D 0;
+>                 rc =3D rng_get_data(rng, rng_fillbuf,
+>                                   rng_buffer_size(), 1);
+> +               pr_err("rng_fillbuf: %s\n", rng_fillbuf);
+>                 mutex_unlock(&reading_mutex);
+>                 put_rng(rng);
+>                 if (rc <=3D 0) {
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> =
 
-Well, if you used an xattr for it, it wouldn't clash with whatever the
-host did (especially if it used the xattr mapping).
+> and booting the kernel: the first call of hwrng_fillfn() will print
+> "AAAAAAA.." instead of random data.
+> =
 
-Dave
+> For some reason on that first iteration vi->busy is true here:
+> https://elixir.bootlin.com/linux/latest/source/drivers/char/hw_random/vir=
+tio-rng.c#L62,
+> therefore the buffer is not being sent to virtio ring.
+> =
 
-> 
-> > 
-> > what happens when we're using usernamespaces for the guest?
-> > 
-> > Dave
-> > 
-> > 
-> >> Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-> >> ---
-> >>  tools/virtiofsd/fuse_common.h    |  5 +++++
-> >>  tools/virtiofsd/fuse_lowlevel.c  |  6 ++++++
-> >>  tools/virtiofsd/passthrough_ll.c | 29 +++++++++++++++++++++++++++++
-> >>  3 files changed, 40 insertions(+)
-> >>
-> >> diff --git a/tools/virtiofsd/fuse_common.h b/tools/virtiofsd/fuse_common.h
-> >> index 8a75729be9..ee6fc64c23 100644
-> >> --- a/tools/virtiofsd/fuse_common.h
-> >> +++ b/tools/virtiofsd/fuse_common.h
-> >> @@ -372,6 +372,11 @@ struct fuse_file_info {
-> >>   */
-> >>  #define FUSE_CAP_HANDLE_KILLPRIV_V2 (1 << 28)
-> >>  
-> >> +/**
-> >> + * Indicates support for per-file DAX.
-> >> + */
-> >> +#define FUSE_CAP_PERFILE_DAX (1 << 29)
-> >> +
-> >>  /**
-> >>   * Ioctl flags
-> >>   *
-> >> diff --git a/tools/virtiofsd/fuse_lowlevel.c b/tools/virtiofsd/fuse_lowlevel.c
-> >> index 50fc5c8d5a..04a4f17423 100644
-> >> --- a/tools/virtiofsd/fuse_lowlevel.c
-> >> +++ b/tools/virtiofsd/fuse_lowlevel.c
-> >> @@ -2065,6 +2065,9 @@ static void do_init(fuse_req_t req, fuse_ino_t nodeid,
-> >>      if (arg->flags & FUSE_HANDLE_KILLPRIV_V2) {
-> >>          se->conn.capable |= FUSE_CAP_HANDLE_KILLPRIV_V2;
-> >>      }
-> >> +    if (arg->flags & FUSE_PERFILE_DAX) {
-> >> +        se->conn.capable |= FUSE_CAP_PERFILE_DAX;
-> >> +    }
-> >>  #ifdef HAVE_SPLICE
-> >>  #ifdef HAVE_VMSPLICE
-> >>      se->conn.capable |= FUSE_CAP_SPLICE_WRITE | FUSE_CAP_SPLICE_MOVE;
-> >> @@ -2180,6 +2183,9 @@ static void do_init(fuse_req_t req, fuse_ino_t nodeid,
-> >>      if (se->conn.want & FUSE_CAP_POSIX_ACL) {
-> >>          outarg.flags |= FUSE_POSIX_ACL;
-> >>      }
-> >> +    if (se->op.ioctl && (se->conn.want & FUSE_CAP_PERFILE_DAX)) {
-> >> +        outarg.flags |= FUSE_PERFILE_DAX;
-> >> +    }
-> >>      outarg.max_readahead = se->conn.max_readahead;
-> >>      outarg.max_write = se->conn.max_write;
-> >>      if (se->conn.max_background >= (1 << 16)) {
-> >> diff --git a/tools/virtiofsd/passthrough_ll.c b/tools/virtiofsd/passthrough_ll.c
-> >> index e170b17adb..5b6228210f 100644
-> >> --- a/tools/virtiofsd/passthrough_ll.c
-> >> +++ b/tools/virtiofsd/passthrough_ll.c
-> >> @@ -53,8 +53,10 @@
-> >>  #include <sys/syscall.h>
-> >>  #include <sys/wait.h>
-> >>  #include <sys/xattr.h>
-> >> +#include <sys/vfs.h>
-> >>  #include <syslog.h>
-> >>  #include <linux/fs.h>
-> >> +#include <linux/magic.h>
-> >>  
-> >>  #include "qemu/cutils.h"
-> >>  #include "passthrough_helpers.h"
-> >> @@ -136,6 +138,13 @@ enum {
-> >>      SANDBOX_CHROOT,
-> >>  };
-> >>  
-> >> +/* capability of storing DAX flag persistently */
-> >> +enum {
-> >> +    DAX_CAP_NONE,  /* not supported */
-> >> +    DAX_CAP_FLAGS, /* stored in flags (FS_IOC_GETFLAGS/FS_IOC_SETFLAGS) */
-> >> +    DAX_CAP_XATTR, /* stored in xflags (FS_IOC_FSGETXATTR/FS_IOC_FSSETXATTR) */
-> >> +};
-> >> +
-> >>  typedef struct xattr_map_entry {
-> >>      char *key;
-> >>      char *prepend;
-> >> @@ -161,6 +170,7 @@ struct lo_data {
-> >>      int readdirplus_clear;
-> >>      int allow_direct_io;
-> >>      int announce_submounts;
-> >> +    int perfile_dax_cap; /* capability of backend fs */
-> >>      bool use_statx;
-> >>      struct lo_inode root;
-> >>      GHashTable *inodes; /* protected by lo->mutex */
-> >> @@ -703,6 +713,10 @@ static void lo_init(void *userdata, struct fuse_conn_info *conn)
-> >>          conn->want &= ~FUSE_CAP_HANDLE_KILLPRIV_V2;
-> >>          lo->killpriv_v2 = 0;
-> >>      }
-> >> +
-> >> +    if (conn->capable & FUSE_CAP_PERFILE_DAX && lo->perfile_dax_cap ) {
-> >> +        conn->want |= FUSE_CAP_PERFILE_DAX;
-> >> +    }
-> >>  }
-> >>  
-> >>  static void lo_getattr(fuse_req_t req, fuse_ino_t ino,
-> >> @@ -3800,6 +3814,7 @@ static void setup_root(struct lo_data *lo, struct lo_inode *root)
-> >>      int fd, res;
-> >>      struct stat stat;
-> >>      uint64_t mnt_id;
-> >> +    struct statfs statfs;
-> >>  
-> >>      fd = open("/", O_PATH);
-> >>      if (fd == -1) {
-> >> @@ -3826,6 +3841,20 @@ static void setup_root(struct lo_data *lo, struct lo_inode *root)
-> >>          root->posix_locks = g_hash_table_new_full(
-> >>              g_direct_hash, g_direct_equal, NULL, posix_locks_value_destroy);
-> >>      }
-> >> +
-> >> +    /*
-> >> +     * Currently only ext4/xfs since linux kernel v5.8 support storing
-> >> +     * FS_DAX_FL flag persistently. Ext4 accesses this flag through
-> >> +     * FS_IOC_G[S]ETFLAGS ioctl, while xfs accesses this flag through
-> >> +     * FS_IOC_FSG[S]ETXATTR ioctl.
-> >> +     */
-> >> +    res = fstatfs(fd, &statfs);
-> >> +    if (!res) {
-> >> +	if (statfs.f_type == EXT4_SUPER_MAGIC)
-> >> +	    lo->perfile_dax_cap = DAX_CAP_FLAGS;
-> >> +	else if (statfs.f_type == XFS_SUPER_MAGIC)
-> >> +	    lo->perfile_dax_cap = DAX_CAP_XATTR;
-> >> +    }
-> >>  }
-> >>  
-> >>  static guint lo_key_hash(gconstpointer key)
-> >> -- 
-> >> 2.27.0
-> >>
-> >> _______________________________________________
-> >> Virtio-fs mailing list
-> >> Virtio-fs@redhat.com
-> >> https://listman.redhat.com/mailman/listinfo/virtio-fs
-> >>
-> 
-> -- 
+> While probably being benign, this bug is preventing syzkaller from
+> finding more bugs, so it would be nice to fix it.
+> Perhaps the easiest solution is to kzalloc rng_fillbuf, but if it's
+> critical for this driver to not skip even the first read, then maybe
+> you have better ideas?
+> =
+
+> KMSAN report follows:
+> =
+
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D
+> BUG: KMSAN: uninit-value in _mix_pool_bytes+0x7d2/0x950
+> drivers/char/random.c:570
+> CPU: 0 PID: 2711 Comm: hwrng Not tainted 5.9.0-rc8-syzkaller #0
+> Hardware name: Google Google Compute Engine/Google Compute Engine,
+> BIOS Google 01/01/2011
+> Call Trace:
+>  __dump_stack lib/dump_stack.c:77 [inline]
+>  dump_stack+0x21c/0x280 lib/dump_stack.c:118
+>  kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:122
+>  __msan_warning+0x5f/0xa0 mm/kmsan/kmsan_instr.c:201
+>  _mix_pool_bytes+0x7d2/0x950 drivers/char/random.c:570
+>  mix_pool_bytes+0xca/0x2a0 drivers/char/random.c:599
+>  add_hwgenerator_randomness+0x4ac/0x500 drivers/char/random.c:2319
+>  hwrng_fillfn+0x6ae/0x940 drivers/char/hw_random/core.c:452
+>  kthread+0x51c/0x560 kernel/kthread.c:293
+>  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+> =
+
+> Uninit was created at:
+>  kmsan_save_stack_with_flags mm/kmsan/kmsan.c:129 [inline]
+>  kmsan_internal_poison_shadow+0x5c/0xf0 mm/kmsan/kmsan.c:112
+>  kmsan_slab_alloc+0x8d/0xe0 mm/kmsan/kmsan_hooks.c:80
+>  slab_alloc_node mm/slub.c:2903 [inline]
+>  slab_alloc mm/slub.c:2912 [inline]
+>  kmem_cache_alloc_trace+0x61e/0xc90 mm/slub.c:2929
+>  kmalloc include/linux/slab.h:554 [inline]
+>  hwrng_modinit+0x103/0x2ef drivers/char/hw_random/core.c:621
+>  do_one_initcall+0x371/0x9c0 init/main.c:1208
+>  do_initcall_level+0x1e5/0x3c6 init/main.c:1281
+>  do_initcalls+0x127/0x1cb init/main.c:1297
+>  do_basic_setup+0x33/0x36 init/main.c:1317
+>  kernel_init_freeable+0x238/0x38b init/main.c:1517
+>  kernel_init+0x1f/0x840 init/main.c:1406
+>  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D
+> =
+
 > Thanks,
-> Jeffle
-> 
--- 
-Dr. David Alan Gilbert / dgilbert@redhat.com / Manchester, UK
+> Alex
+
+
+Cc Laurent - I think he said he was going to look at virtio rng.
+
+
+> -- =
+
+> Alexander Potapenko
+> Software Engineer
+> =
+
+> Google Germany GmbH
+> Erika-Mann-Stra=DFe, 33
+> 80636 M=FCnchen
+> =
+
+> Gesch=E4ftsf=FChrer: Paul Manicle, Halimah DeLaine Prado
+> Registergericht und -nummer: Hamburg, HRB 86891
+> Sitz der Gesellschaft: Hamburg
 
 _______________________________________________
 Virtualization mailing list
