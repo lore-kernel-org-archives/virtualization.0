@@ -2,112 +2,83 @@ Return-Path: <SRS0=U4FE=NK=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DFB47C4338F
-	for <virtualization@archiver.kernel.org>; Thu, 19 Aug 2021 01:42:39 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9775C4338F
+	for <virtualization@archiver.kernel.org>; Thu, 19 Aug 2021 03:12:46 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7C61C610A1
-	for <virtualization@archiver.kernel.org>; Thu, 19 Aug 2021 01:42:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 7C61C610A1
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 4CFFA610F7
+	for <virtualization@archiver.kernel.org>; Thu, 19 Aug 2021 03:12:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4CFFA610F7
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=canb.auug.org.au
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3638F607EC;
-	Thu, 19 Aug 2021 01:42:39 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id F01F3401F8;
+	Thu, 19 Aug 2021 03:12:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5lJGE8mgG9Ii; Thu, 19 Aug 2021 01:42:35 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7E5CA60BB9;
-	Thu, 19 Aug 2021 01:42:20 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4B291C001A;
-	Thu, 19 Aug 2021 01:42:20 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CE5E9C000E
- for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Aug 2021 01:42:18 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B6FEF40275
- for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Aug 2021 01:42:18 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=gmail.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5FV20uE_rpBy
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lqoLqASvBzU0; Thu, 19 Aug 2021 03:12:42 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4A493400B9;
+	Thu, 19 Aug 2021 03:12:41 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1DAC1C001A;
+	Thu, 19 Aug 2021 03:12:41 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EF88EC000E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Aug 2021 01:42:18 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com
- [IPv6:2607:f8b0:4864:20::529])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 1BFAA402D9
+ Thu, 19 Aug 2021 03:12:39 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id D76C140752
  for <virtualization@lists.linux-foundation.org>;
- Thu, 19 Aug 2021 01:42:15 +0000 (UTC)
-Received: by mail-pg1-x529.google.com with SMTP id y23so4313141pgi.7
+ Thu, 19 Aug 2021 03:12:39 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=canb.auug.org.au
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id U2v8flLZVdtO
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Aug 2021 18:42:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:subject:from:in-reply-to:date:cc
- :content-transfer-encoding:message-id:references:to;
- bh=vE2NquF8aYczXeoe6PGRGJC5TmHhDUeKxtlQ0G2jkj0=;
- b=TzkGaYSavbzKcla9b22EsIZ0UYcGwBCBQIe7qkkxrWrB9VDShq4qDo/WgRh2Ompz2v
- V1wAoaQfblkOpY5Tw0JpwU4pcsI9xRF8BvwvDxeEjv8WmlHw8IiYhCaCURe6N/IZVhsY
- Ad7YMItNSYzdTQwTXOIeo8ZOpP4MY0RDR1YQRUVIubHozViqgo8PifeL4s2Dmh42dwN4
- Y1REyb8/lkPkdqPUSo2o9YrtXfhGI4pM9rfANGyFthSOEC8GgJwwj4u6vEKSWNL8PPqV
- E0Bg7NHdpxsxFaxEjUPfmaposl06OVyYGBHh8PBmm9+TFXmyqlLBYVvAXJn5LbTcbTGy
- qv+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
- :content-transfer-encoding:message-id:references:to;
- bh=vE2NquF8aYczXeoe6PGRGJC5TmHhDUeKxtlQ0G2jkj0=;
- b=F954HPEt2A/Oo+vTqdE1I9IR9zRlmkUIkXdv6xjjnTUyupVEaBMEeI19sLaryAi85g
- l9JP9iYNzR16vNO2Cb4r3vhkKI6VPFJ3BRJgVYFKnxbB2mcth88btNaS5DSCuy3W9cqW
- D8EBLPugzw3834b4E811n1ca3dDII8Xd/77Dgp38kDvjWzFQFh4Hz29YseHLYxBy4ge1
- OTEfMIwgoitHZMzuj0RTq6O9GbO7NdVInvvOFtFsdm01Wxi4ru3MIK8f9k4/MKe4Nzhb
- nSk+GP8+U6qmz+3HwRnrzeBtQsGA9JEkO02gfaYRchgu7rg3T2fIChoxp6GRnTtsChWO
- YUpg==
-X-Gm-Message-State: AOAM533NpoCF5Ai1wrDxlE/RwEEwHJDDlvpRWthC1dxoCgR4mqUWGqac
- gWanPEty6kWiHVLLEtO77AU=
-X-Google-Smtp-Source: ABdhPJwc/9Y6Qg1flKQWhWZ4XJflaQczD3jDWqCEJHeKG8vExwOCWSrEETTQioJ+3wL3HUrYCxLX0A==
-X-Received: by 2002:a63:1155:: with SMTP id 21mr11652333pgr.346.1629337334181; 
- Wed, 18 Aug 2021 18:42:14 -0700 (PDT)
-Received: from smtpclient.apple (c-24-6-216-183.hsd1.ca.comcast.net.
- [24.6.216.183])
- by smtp.gmail.com with ESMTPSA id t18sm1046591pfg.111.2021.08.18.18.42.12
- (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
- Wed, 18 Aug 2021 18:42:13 -0700 (PDT)
-Mime-Version: 1.0 (Mac OS X Mail 14.0 \(3654.120.0.1.13\))
-Subject: Re: [kvm-unit-tests PATCH 0/6] Initial x86_64 UEFI support
-From: Nadav Amit <nadav.amit@gmail.com>
-In-Reply-To: <CAA03e5H6mM0z5r4knbjHDLS4svLP6WQuhC_5BnSgCyXpRZgqAQ@mail.gmail.com>
-Date: Wed, 18 Aug 2021 18:42:11 -0700
-Message-Id: <0250F07B-AC9A-4110-B2F4-8537A40D8848@gmail.com>
-References: <20210702114820.16712-1-varad.gautam@suse.com>
- <CAA03e5HCdx2sLRqs2jkLDz3z8SB9JhCdxGv7Y6_ER-kMaqHXUg@mail.gmail.com>
- <YRuURERGp8CQ1jAX@suse.de>
- <CAA03e5FTrkLpZ3yr3nBphOW3D+8HF-Wmo4um4MTXum3BR6BMQw@mail.gmail.com>
- <71db10eb-997f-aac1-5d41-3bcbc34c114d@suse.com>
- <CAA03e5H6mM0z5r4knbjHDLS4svLP6WQuhC_5BnSgCyXpRZgqAQ@mail.gmail.com>
-To: Marc Orr <marcorr@google.com>
-X-Mailer: Apple Mail (2.3654.120.0.1.13)
-Cc: "Lendacky, Thomas" <thomas.lendacky@amd.com>,
- Andrew Jones <drjones@redhat.com>, Joerg Roedel <jroedel@suse.de>, "Singh,
- Brijesh" <brijesh.singh@amd.com>, kvm list <kvm@vger.kernel.org>,
- Tom Roeder <tmroeder@google.com>,
- "Hyunwook \(Wooky\) Baek" <baekhw@google.com>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>,
- Zixuan Wang <zixuanwang@google.com>, Erdem Aktas <erdemaktas@google.com>,
- Paolo Bonzini <pbonzini@redhat.com>, bp@suse.de
+ Thu, 19 Aug 2021 03:12:35 +0000 (UTC)
+X-Greylist: delayed 00:05:40 by SQLgrey-1.8.0
+Received: from ozlabs.org (bilbo.ozlabs.org [203.11.71.1])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 6FEFD4074C
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 19 Aug 2021 03:12:35 +0000 (UTC)
+Received: from authenticated.ozlabs.org (localhost [127.0.0.1])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange ECDHE (P-256) server-signature RSA-PSS (4096 bits) server-digest
+ SHA256) (No client certificate requested)
+ by mail.ozlabs.org (Postfix) with ESMTPSA id 4GqqRw47HGz9sVw;
+ Thu, 19 Aug 2021 13:06:52 +1000 (AEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canb.auug.org.au;
+ s=201702; t=1629342413;
+ bh=3CY+GC+/4FbWVWTR9SwmZRjFqyi6hW0w0sxX9wtxZ2g=;
+ h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+ b=EcY9FQD9xHkLJzKWddIICTtnVSADJTSBGCHqSZG1/ciVaw3IESCfGLzJ3hWvsbn5t
+ usgGuEZMt8bafYKikvU4NaBej4avIVUMza0iA1lwm5EunCUasopHdW4DK6iztlEhKF
+ VhsRR3NIC5Gsfh0LhSoPyKBHAaLu35BUjFF7SkDYHa3PmHOrIAx8my7cBz3Z/REO7B
+ xrSmWfsM9M/o2dI1mgcTJzMAPZtThEOYjZJCIrgg7UkvZW6KztZxLtBlK7etSgHb9+
+ OghhDLR4sHpUSEzkilJUuYJyrsCbQsJqLvKr46vygycM5JgPcuvl3fiDOmbYsnH9Tt
+ e782oNJ34kwEg==
+Date: Thu, 19 Aug 2021 13:06:51 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Jie Deng <jie.deng@intel.com>
+Subject: Re: [PATCH] i2c: virtio: Fix the compiler warning when CONFIG_ACPI
+ is not set
+Message-ID: <20210819130651.73945bcc@canb.auug.org.au>
+In-Reply-To: <4309f869890e70810f2c40a8d60495240e318303.1629333590.git.jie.deng@intel.com>
+References: <4309f869890e70810f2c40a8d60495240e318303.1629333590.git.jie.deng@intel.com>
+MIME-Version: 1.0
+Cc: viresh.kumar@linaro.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, wsa@kernel.org,
+ linux-i2c@vger.kernel.org, conghui.chen@intel.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,23 +90,92 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8272095173847349350=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+--===============8272095173847349350==
+Content-Type: multipart/signed; boundary="Sig_/QJA95UnxUR0M=zAmKUp0atE";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
 
-> On Aug 18, 2021, at 6:32 PM, Marc Orr <marcorr@google.com> wrote:
-> 
-> This sounds great to us. We will also experiment with combining the
-> two patchsets and report back when we have some experience with this.
-> Though, please do also report back if you have an update on this
-> before we do.
+--Sig_/QJA95UnxUR0M=zAmKUp0atE
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Just wondering (aka, my standard question): does it work on
-bare-metal (putting aside tests that rely on test-devices)?
+Hi Jie,
+
+On Thu, 19 Aug 2021 08:48:41 +0800 Jie Deng <jie.deng@intel.com> wrote:
+>
+> Fix the compiler warning "drivers/i2c/busses/i2c-virtio.c:208:17:
+> warning: unused variable 'pdev' [-Wunused-variable]" when CONFIG_ACPI
+> is not set.
+>=20
+> Fixes: 8fb12751ac78 ("i2c: virtio: add a virtio i2c frontend driver")
+
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+
+> Signed-off-by: Jie Deng <jie.deng@intel.com>
+> ---
+>  drivers/i2c/busses/i2c-virtio.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-vir=
+tio.c
+> index d3e60d9..964c601 100644
+> --- a/drivers/i2c/busses/i2c-virtio.c
+> +++ b/drivers/i2c/busses/i2c-virtio.c
+> @@ -205,7 +205,6 @@ static const struct i2c_adapter_quirks virtio_i2c_qui=
+rks =3D {
+> =20
+>  static int virtio_i2c_probe(struct virtio_device *vdev)
+>  {
+> -	struct device *pdev =3D vdev->dev.parent;
+>  	struct virtio_i2c *vi;
+>  	int ret;
+> =20
+> @@ -234,7 +233,7 @@ static int virtio_i2c_probe(struct virtio_device *vde=
+v)
+>  	 * Setup ACPI node for controlled devices which will be probed through
+>  	 * ACPI.
+>  	 */
+> -	ACPI_COMPANION_SET(&vi->adap.dev, ACPI_COMPANION(pdev));
+> +	ACPI_COMPANION_SET(&vi->adap.dev, ACPI_COMPANION(vdev->dev.parent));
+> =20
+>  	ret =3D i2c_add_adapter(&vi->adap);
+>  	if (ret)
+
+Looks good to me.
+
+--=20
+Cheers,
+Stephen Rothwell
+
+--Sig_/QJA95UnxUR0M=zAmKUp0atE
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEENIC96giZ81tWdLgKAVBC80lX0GwFAmEdyssACgkQAVBC80lX
+0Gxw7Qf/fdlmIsM8h5nIZGD7ptVdJSD3poHXXbuM7T9D+8HSLed0ci4jpDOaO7rW
+cC4bcMYOQQHYT3ZgalMDSQmf+nlwWbgFyQ8RPZ6RnssrwOG0CH8LKtU+HBYSBgZu
+ETkW58Ny+0dUUXD88MPatdr/1+VnSVEGNnUrQSoegkOBrbU3GNhQ0AnCG8CLh/5D
+5chhc6aU2GumqlcsWcl6jhyEVtlzZyqTBe9GaC1sbCamsqHluIc7XV38vz+q1Q4R
+nIWedufbBlcPNJWsyDQlzay2A1YaT/7QX+aEOqo/mClRADMJw9kxE7xF1hMecH+f
+FcWBGpkAwyhDkZu/xpleFsc1+Pwg+w==
+=Sc41
+-----END PGP SIGNATURE-----
+
+--Sig_/QJA95UnxUR0M=zAmKUp0atE--
+
+--===============8272095173847349350==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8272095173847349350==--
