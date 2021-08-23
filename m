@@ -7,95 +7,91 @@ X-Spam-Status: No, score=-17.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A372C4320A
-	for <virtualization@archiver.kernel.org>; Mon, 23 Aug 2021 06:58:17 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF0F9C4320A
+	for <virtualization@archiver.kernel.org>; Mon, 23 Aug 2021 07:55:19 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2A40A61356
-	for <virtualization@archiver.kernel.org>; Mon, 23 Aug 2021 06:58:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 2A40A61356
+	by mail.kernel.org (Postfix) with ESMTPS id 839BC61360
+	for <virtualization@archiver.kernel.org>; Mon, 23 Aug 2021 07:55:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 839BC61360
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 3B8F580CF9;
-	Mon, 23 Aug 2021 06:58:16 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 47DD740357;
+	Mon, 23 Aug 2021 07:55:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id juek4WrT39Py; Mon, 23 Aug 2021 06:58:12 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id mvCAbjVQDzVf; Mon, 23 Aug 2021 07:55:15 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id CB44D80D2C;
-	Mon, 23 Aug 2021 06:58:11 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 010AE40347;
+	Mon, 23 Aug 2021 07:55:15 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 62076C0020;
-	Mon, 23 Aug 2021 06:58:11 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7BBDEC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C0CDFC0010;
+	Mon, 23 Aug 2021 07:55:14 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CC606C000E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Aug 2021 06:58:10 +0000 (UTC)
+ Mon, 23 Aug 2021 07:55:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 7839E606BB
+ by smtp4.osuosl.org (Postfix) with ESMTP id BB70540330
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Aug 2021 06:58:10 +0000 (UTC)
+ Mon, 23 Aug 2021 07:55:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id EcVQ3XF855Bp
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id vGkCdOXB83lx
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Aug 2021 06:58:06 +0000 (UTC)
+ Mon, 23 Aug 2021 07:55:09 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 6AC9A60617
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id B829340301
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Aug 2021 06:58:06 +0000 (UTC)
+ Mon, 23 Aug 2021 07:55:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1629701885;
+ s=mimecast20190719; t=1629705308;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
  bh=/hocWjKMUK0ZY0xyvvkq28cKqCTWsZd73eIRRl/mYVE=;
- b=RfP+iLos71IceY0BhoGHzoN0Lnxk5aNZilclIziqR3Hd4KqB9JFHbv2huqN/a3MOGIYLdP
- PD7A02vz27HJC8yFDn0grazYAGi//Z9XzWEBGD37atIi/2GLt7ve73dLFIXy1dEghCkvtX
- sLK5QBL4mdZwy9akwu5jfZUT68Es8vU=
-Received: from mail-pg1-f200.google.com (mail-pg1-f200.google.com
- [209.85.215.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-261-_Hwd-oMSNx-53Rk0dHZesA-1; Mon, 23 Aug 2021 02:58:02 -0400
-X-MC-Unique: _Hwd-oMSNx-53Rk0dHZesA-1
-Received: by mail-pg1-f200.google.com with SMTP id
- r35-20020a635d230000b0290239a31e9f24so9835861pgb.9
+ b=RRUyH2p6H5l7c7eizzPRnm1JOpyp4gDMzk1VShTUpwWqjVvgxYL57nxVAg8XzUqmM8bhNs
+ Aq3UGURz4OpLH20eExTj2KJRXRshc6FILVfVeA+Y2AffDfk0KwjXBoRy+jW7S2DZWXWy5K
+ fHt8A1MZyndSPcC/lOhTZaAQQLptiHo=
+Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
+ [209.85.214.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-144-KcAmtE5mNFOhZgwLgyUtig-1; Mon, 23 Aug 2021 03:55:04 -0400
+X-MC-Unique: KcAmtE5mNFOhZgwLgyUtig-1
+Received: by mail-pl1-f197.google.com with SMTP id
+ n1-20020a170902e54100b0012dbd2c897cso3935977plf.20
  for <virtualization@lists.linux-foundation.org>;
- Sun, 22 Aug 2021 23:58:02 -0700 (PDT)
+ Mon, 23 Aug 2021 00:55:04 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:subject:to:cc:references:from:message-id:date
  :user-agent:mime-version:in-reply-to:content-transfer-encoding
  :content-language;
  bh=/hocWjKMUK0ZY0xyvvkq28cKqCTWsZd73eIRRl/mYVE=;
- b=kBUho81px/qyRs/3bVnQc/xOgR+PGEKGpB8/TKLTBGOoUFs1Bk7+fA2BkQVs2PfFgO
- hB0MlyZbowJBzlFSprHym8lpotVpeV6fKQOTLiJb0U2wc0uKPP7ylFJOV8lWluIa24K0
- 60ytCLzMyaK8etoHJnj8/g7FDlL5fDuXTENIJodGqd12LFeYr/DCeyAl6AEL8QDjA4Da
- JBQ82lzoFcNW9JPMR5ir0keZjKVQ0Tm+E2FE6KaTkkqZUxtEWPCK3juA0P04tmQUgHaS
- 4CMnz1SKr+adME0jkR0p2dvYnboLVHvTrJ1EN2vo62Kt7A3rXEYgUyjgXq8f6/IT+M2U
- 9pyA==
-X-Gm-Message-State: AOAM531d2fwN9a7IKJ0bvLDq/CV7GRNIsWHPDqPraeQReVmoJvx1G1ea
- MT0IL4yrxfoI2owLyZWk5f+b63LKEL7mhvUWFhMezz2jNz3wAuqALscQXlyyavcL7b1+6byJELs
- rTSvMaQCWIvl6EUPyIeC6gW9v6sRk9OgHL5w7Re6Cuw==
-X-Received: by 2002:a17:90a:aa0a:: with SMTP id
- k10mr7188476pjq.99.1629701881186; 
- Sun, 22 Aug 2021 23:58:01 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxgslxYwYrbvGv5EgiwG6tr9OdiL/dalv7HzGkqbGgVxO8rK4j2bwdb77v10gkoOlHwx7i8eQ==
-X-Received: by 2002:a17:90a:aa0a:: with SMTP id
- k10mr7188443pjq.99.1629701880852; 
- Sun, 22 Aug 2021 23:58:00 -0700 (PDT)
+ b=nk9uyZEM0trn96icMYQS6Wv2f/oNIyVlsdkLx2pbd2l81uhFqy0jhzkpbHiSQyS6Zn
+ QFkCljYQuKFHgD9iSHrbw5M8lnI2gSBKiEvQyNjnNAUjeLl8QwVRIgybx39O4IhAkmfz
+ ZwGkpUGSrisxSeAPx6mROWDNLr1GhSEgyJ+ekWD59uW0E7qZN9dQ+EvGQJsOdT4QJTUV
+ 3Z6ntJ7JO6y0MWDSLihd0cDZWwgofQS4a9ugNicTFmwBeYubpnGWsfpUuZ7nD1JXSMM7
+ MYPR4TDOuYMzIMZApDvqysdEiHjlLzVJJR2ANtDzgMIJgjNI2qj2Ugfnz9ipzoD/LFE5
+ lGAg==
+X-Gm-Message-State: AOAM532MAlWKB1WRYjveBtpRHHWjIyXZHqD8ShNEeNxRVwkzM4fGQud9
+ ZYLYUbnl8+/jh79oBxUW7QLqUnUzH+Yu824c/GpSe5xgR5IUsD/4IL+oe2BEGrfjSjvlUJjGfav
+ TOB/40nBiD8Q5mK4e6H9az9qixeXLuOfgvKYZacgKtg==
+X-Received: by 2002:a63:5b01:: with SMTP id p1mr30762365pgb.250.1629705303610; 
+ Mon, 23 Aug 2021 00:55:03 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy/gdooVRaBJkpdnxcchxAVLcay4ARXGkH6bG99GZDLGfQfCwwVMA6TovyMi4F/iOGpo+25iw==
+X-Received: by 2002:a63:5b01:: with SMTP id p1mr30762322pgb.250.1629705303264; 
+ Mon, 23 Aug 2021 00:55:03 -0700 (PDT)
 Received: from wangxiaodeMacBook-Air.local ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id y62sm14484297pfg.88.2021.08.22.23.57.52
+ by smtp.gmail.com with ESMTPSA id fh2sm13229446pjb.12.2021.08.23.00.54.55
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Sun, 22 Aug 2021 23:58:00 -0700 (PDT)
+ Mon, 23 Aug 2021 00:55:02 -0700 (PDT)
 Subject: Re: [PATCH v11 12/12] Documentation: Add documentation for VDUSE
 To: Xie Yongji <xieyongji@bytedance.com>, mst@redhat.com,
  stefanha@redhat.com, sgarzare@redhat.com, parav@nvidia.com,
@@ -108,8 +104,8 @@ To: Xie Yongji <xieyongji@bytedance.com>, mst@redhat.com,
 References: <20210818120642.165-1-xieyongji@bytedance.com>
  <20210818120642.165-13-xieyongji@bytedance.com>
 From: Jason Wang <jasowang@redhat.com>
-Message-ID: <10f7fdd7-742b-e2f9-674d-a93cd09ad863@redhat.com>
-Date: Mon, 23 Aug 2021 14:57:51 +0800
+Message-ID: <d556d720-b25e-efe1-8c2b-295bade93a8d@redhat.com>
+Date: Mon, 23 Aug 2021 15:54:50 +0800
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
  Gecko/20100101 Thunderbird/78.13.0
 MIME-Version: 1.0
