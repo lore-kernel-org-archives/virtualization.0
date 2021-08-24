@@ -2,120 +2,136 @@ Return-Path: <SRS0=e+fm=NP=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BB42C4338F
-	for <virtualization@archiver.kernel.org>; Tue, 24 Aug 2021 09:35:23 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1482AC4338F
+	for <virtualization@archiver.kernel.org>; Tue, 24 Aug 2021 09:47:24 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D2774613E8
-	for <virtualization@archiver.kernel.org>; Tue, 24 Aug 2021 09:35:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D2774613E8
+	by mail.kernel.org (Postfix) with ESMTPS id B04D661374
+	for <virtualization@archiver.kernel.org>; Tue, 24 Aug 2021 09:47:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B04D661374
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9A9AA607F6;
-	Tue, 24 Aug 2021 09:35:22 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 601464038E;
+	Tue, 24 Aug 2021 09:47:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TzazXGNRzsMj; Tue, 24 Aug 2021 09:35:18 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 2EC8460665;
-	Tue, 24 Aug 2021 09:35:18 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0F4FAC0010;
-	Tue, 24 Aug 2021 09:35:18 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E900AC000E
- for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Aug 2021 09:35:16 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C3A4440123
- for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Aug 2021 09:35:16 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id w9zHmSxtBEUb
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pMO_stcBac3s; Tue, 24 Aug 2021 09:47:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C13BB40365;
+	Tue, 24 Aug 2021 09:47:18 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 95A21C0010;
+	Tue, 24 Aug 2021 09:47:18 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6E3E9C000E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Aug 2021 09:35:15 +0000 (UTC)
+ Tue, 24 Aug 2021 09:47:17 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 6A44D80EB8
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 24 Aug 2021 09:47:17 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fIFQubhS6pAC
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 24 Aug 2021 09:47:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 6EBCF400BA
+ by smtp1.osuosl.org (Postfix) with ESMTPS id AB47C80E98
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Aug 2021 09:35:15 +0000 (UTC)
+ Tue, 24 Aug 2021 09:47:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1629797714;
+ s=mimecast20190719; t=1629798435;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=b7E3pZkD3MubnrwjhggwPy3LUOFiUjatyo0wJnLA0Bs=;
- b=bXFt8JbVHyH9SGGYzqpBaZ8OBtntQwdBzwFXcp3YLb+WQVegQNPj5RFKCRfQQSfKuEDsTq
- uQ9Z/cs0cjGHArgirk8UAWFMEfHFSKNotigMnOT0S6XiSLZi16+sPRTriPoxDxBlb59JQk
- +GfTKGgCLD8Ndwn/oYkEUUFrcgt/9T4=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-184-ivhQRe3sPNW4caGTAn5l8Q-1; Tue, 24 Aug 2021 05:35:12 -0400
-X-MC-Unique: ivhQRe3sPNW4caGTAn5l8Q-1
-Received: by mail-ed1-f70.google.com with SMTP id
- eg56-20020a05640228b8b02903be79801f9aso10176025edb.21
+ bh=byOliS/hAlH982j95uoj9FjiMsaJUQkzdYQOZKOZeFM=;
+ b=EpSjaKaORit2KBe35XMrcFltkhci8RVMV7pN97m/XqxyihAXn2G+tohwnWuAezzH4bp48M
+ efD8nrjBZJ6yjreif7/fjD3rTeTWH11Tav+ryGfZYH2nwH71eP7mowc9EipQYYwbSrgdrl
+ bEd+dJo0mtOfCZWeq1ubGE6hNpUgYI4=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-384-pkOxeyGBM8SXFG9rImuLlQ-1; Tue, 24 Aug 2021 05:47:14 -0400
+X-MC-Unique: pkOxeyGBM8SXFG9rImuLlQ-1
+Received: by mail-ej1-f72.google.com with SMTP id
+ m18-20020a170906849200b005c701c9b87cso1556006ejx.8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Aug 2021 02:35:12 -0700 (PDT)
+ Tue, 24 Aug 2021 02:47:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=b7E3pZkD3MubnrwjhggwPy3LUOFiUjatyo0wJnLA0Bs=;
- b=UErrHzYh5ly01gWbp3DmAnVUzLiD3pawbn9XloQDLY6L1P4Mj4RtSJAP1rmtipC4gI
- 6PflsRTnFQdQtK6B55pWedMH6RjPAyZJ8cuzACZmNjvfX2Yu/oKHNIdGxLFcVvvfvBJt
- b7Di9dr0+rFK2Xj8vhQZUfRyJvBJLmqPZkwlqjndK0BVfaF+mxzN9La6XAlJ17LOtvuy
- H1l2hK1O4GC0dYgp1aLFLJtu/6zAu62U4aTnjWtwt2KQWk99l7veTwyWQH4ea/Xkziyh
- 4w9KCOKCxGbaQtfNRqgkNEj/fu3ZPWTMWGe4hHwt+YZZmuM4AF3iwaUVY/wAgP/+WN7t
- n4uQ==
-X-Gm-Message-State: AOAM530+fOfDgqnQduRXRQGbcJoSPu56/QX1nXit9CPNJy/dZXUZ+9CO
- 4Ap/hyh0pq82dYuUNhvDH+PF3/uL8jjaX/5AKlkQ4yYHTV4frw5cjH/5xWdwFcvKvdrfsq0ckV5
- waUWu0VP4Z4OX0SZgIkr+/33NCRREGRd7wrKrbCPBZw==
-X-Received: by 2002:a17:906:af9a:: with SMTP id
- mj26mr6395828ejb.96.1629797711405; 
- Tue, 24 Aug 2021 02:35:11 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyE/dfr1jMMNgjFi0bSbz10F0JkP0qaSvvgTRRC3w7irR7nsl5Lsw6h2kwBO9ydSz9NMnlstQ==
-X-Received: by 2002:a17:906:af9a:: with SMTP id
- mj26mr6395807ejb.96.1629797711224; 
- Tue, 24 Aug 2021 02:35:11 -0700 (PDT)
-Received: from steredhat (host-79-45-8-152.retail.telecomitalia.it.
- [79.45.8.152])
- by smtp.gmail.com with ESMTPSA id ay20sm3865686ejb.48.2021.08.24.02.35.10
+ bh=byOliS/hAlH982j95uoj9FjiMsaJUQkzdYQOZKOZeFM=;
+ b=D6oNVTw9ykXMwn7mdBAL2aoOtJYt0RMPcV3+2fI20v5Klp706OV7KxoX5KOZdfL8oJ
+ /sDVRT6Ukmty2RSnfU8pMg2/Fj3dKbQ8GqrS0LjpQX00DivrxGlWeipDJW/Ey88I0yo1
+ sYgUVIos5VwpBvt6Uh6KNchX5om5/5tREFf51kbcn1Y7x3Z2TkbByuzIO6DAofyKXQYc
+ rckctzJNqn/34lLLtmXgb258/Ycsta3vlxyZzEIneQrbVCKOb2fhrvlvFeQKeVjDuGHE
+ K8+/3CqTSnboXFzfSHm8KKQtErTa+ESi0XoGs8nc/2o9wA4WqAbevCOJaD4o73wSkKkN
+ +ibw==
+X-Gm-Message-State: AOAM532UDjofr/7jf2M9DVqd4lT3VOMpbXwvZs4nJ4vPlRMeXAjKhEKl
+ RsxgWSLEyHfVmEbra3UNrHX6qwxC/QeL87TtIEcYHCNIuyTvteLunuV/QV41DImYRWt7tXeANL/
+ BV5cSXPo6m9buNDfnHmJGRdP83ztou/iN2/1HxcuIqA==
+X-Received: by 2002:a17:906:3542:: with SMTP id
+ s2mr40413073eja.379.1629798433282; 
+ Tue, 24 Aug 2021 02:47:13 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyUO88Sc9irEBtMZmBbVQ8WcILdFFNEosAjyt1865+nkRLAobkOu3Zuf3KEOK5TLE4bRYLW2A==
+X-Received: by 2002:a17:906:3542:: with SMTP id
+ s2mr40413054eja.379.1629798433111; 
+ Tue, 24 Aug 2021 02:47:13 -0700 (PDT)
+Received: from redhat.com ([2.55.137.225])
+ by smtp.gmail.com with ESMTPSA id b18sm2800522ejl.90.2021.08.24.02.47.06
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 24 Aug 2021 02:35:10 -0700 (PDT)
-Date: Tue, 24 Aug 2021 11:35:08 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
-Subject: Re: [RFC PATCH v8 2/2] virtio-vsock: SOCK_SEQPACKET description
-Message-ID: <20210824093508.6q5bq7necic6ovwf@steredhat>
-References: <20210816085528.4175303-1-arseny.krasnov@kaspersky.com>
- <20210816085617.4175597-1-arseny.krasnov@kaspersky.com>
+ Tue, 24 Aug 2021 02:47:12 -0700 (PDT)
+Date: Tue, 24 Aug 2021 05:47:03 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Andi Kleen <ak@linux.intel.com>
+Subject: Re: [PATCH v4 11/15] pci: Add pci_iomap_shared{,_range}
+Message-ID: <20210824053830-mutt-send-email-mst@kernel.org>
+References: <20210805005218.2912076-1-sathyanarayanan.kuppuswamy@linux.intel.com>
+ <20210805005218.2912076-12-sathyanarayanan.kuppuswamy@linux.intel.com>
+ <20210823195409-mutt-send-email-mst@kernel.org>
+ <26a3cce5-ddf7-cbe6-a41e-58a2aea48f78@linux.intel.com>
+ <CAPcyv4iJVQKJ3bVwZhD08c8GNEP0jW2gx=H504NXcYK5o2t01A@mail.gmail.com>
+ <d992b5af-8d57-6aa6-bd49-8e2b8d832b19@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <20210816085617.4175597-1-arseny.krasnov@kaspersky.com>
+In-Reply-To: <d992b5af-8d57-6aa6-bd49-8e2b8d832b19@linux.intel.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Andra Paraschiv <andraprs@amazon.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, cohuck@redhat.com,
- Colin Ian King <colin.king@canonical.com>, oxffffaa@gmail.com,
- Norbert Slusarek <nslusarek@gmx.net>, Stefan Hajnoczi <stefanha@redhat.com>,
- virtio-comment@lists.oasis-open.org, Jakub Kicinski <kuba@kernel.org>,
- virtualization@lists.linux-foundation.org,
- "David S. Miller" <davem@davemloft.net>
+Cc: "Kuppuswamy, Sathyanarayanan" <sathyanarayanan.kuppuswamy@linux.intel.com>,
+ Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
+ Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, Linux PCI <linux-pci@vger.kernel.org>,
+ linux-mips@vger.kernel.org,
+ James E J Bottomley <James.Bottomley@hansenpartnership.com>,
+ Dave Hansen <dave.hansen@intel.com>, Peter H Anvin <hpa@zytor.com>,
+ sparclinux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+ linux-arch <linux-arch@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+ Helge Deller <deller@gmx.de>, X86 ML <x86@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+ Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@alien8.de>,
+ Andy Lutomirski <luto@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
+ Dan Williams <dan.j.williams@intel.com>,
+ virtualization@lists.linux-foundation.org, Richard Henderson <rth@twiddle.net>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-parisc@vger.kernel.org,
+ Sean Christopherson <seanjc@google.com>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ linux-alpha@vger.kernel.org, "David S . Miller" <davem@davemloft.net>,
+ Kirill Shutemov <kirill.shutemov@linux.intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,106 +143,64 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Aug 16, 2021 at 11:56:13AM +0300, Arseny Krasnov wrote:
->This adds description of SOCK_SEQPACKET socket type
->support for virtio-vsock.
->
->Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
->---
-> virtio-vsock.tex | 43 ++++++++++++++++++++++++++++++++++++++-----
-> 1 file changed, 38 insertions(+), 5 deletions(-)
->
->diff --git a/virtio-vsock.tex b/virtio-vsock.tex
->index ad57f9d..51d785a 100644
->--- a/virtio-vsock.tex
->+++ b/virtio-vsock.tex
->@@ -16,7 +16,10 @@ \subsection{Virtqueues}\label{sec:Device Types / Socket Device / Virtqueues}
->
-> \subsection{Feature bits}\label{sec:Device Types / Socket Device / Feature bits}
->
->-There are currently no feature bits defined for this device.
->+\begin{description}
->+\item VIRTIO_VSOCK_F_SEQPACKET (1) SOCK_SEQPACKET socket type is
->+    supported.
->+\end{description}
->
-> \subsection{Device configuration layout}\label{sec:Device Types / Socket Device / Device configuration layout}
->
->@@ -135,15 +138,17 @@ \subsubsection{Addressing}\label{sec:Device Types / Socket Device / Device Opera
-> consists of a (cid, port number) tuple. The header fields used for this are
-> \field{src_cid}, \field{src_port}, \field{dst_cid}, and \field{dst_port}.
->
->-Currently only stream sockets are supported. \field{type} is 1 (VIRTIO_VSOCK_TYPE_STREAM)
->-for stream socket types.
->+Currently stream and seqpacket sockets are supported. \field{type} is 1 (VIRTIO_VSOCK_TYPE_STREAM)
->+for stream socket types, and 2 (VIRTIO_VSOCK_TYPE_SEQPACKET) for seqpacket socket types.
->
-> \begin{lstlisting}
->-#define VIRTIO_VSOCK_TYPE_STREAM 1
->+#define VIRTIO_VSOCK_TYPE_STREAM    1
->+#define VIRTIO_VSOCK_TYPE_SEQPACKET 2
-> \end{lstlisting}
->
-> Stream sockets provide in-order, guaranteed, connection-oriented delivery
->-without message boundaries.
->+without message boundaries. Seqpacket sockets provide in-order, 
->guaranteed,
->+connection-oriented delivery with message and record boundaries.
->
-> \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device / Device Operation / Buffer Space Management}
-> \field{buf_alloc} and \field{fwd_cnt} are used for buffer space management of
->@@ -244,6 +249,34 @@ \subsubsection{Stream Sockets}\label{sec:Device Types / Socket Device / Device O
-> destination) address tuple for a new connection while the other peer is still
-> processing the old connection.
->
->+\subsubsection{Seqpacket Sockets}\label{sec:Device Types / Socket Device / Device Operation / Seqpacket Sockets}
->+
->+\paragraph{Message and record boundaries}\label{sec:Device Types / Socket Device / Device Operation / Seqpacket Sockets / Boundaries}
->+Two types of boundaries supported: message and record boundaries.
->+
->+Message is data, sent by single system call. Message boundary means
-   ^
-Could be "A message contains data sent by a single system call"
+On Mon, Aug 23, 2021 at 07:14:18PM -0700, Andi Kleen wrote:
+> 
+> On 8/23/2021 6:04 PM, Dan Williams wrote:
+> > On Mon, Aug 23, 2021 at 5:31 PM Kuppuswamy, Sathyanarayanan
+> > <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
+> > > 
+> > > 
+> > > On 8/23/21 4:56 PM, Michael S. Tsirkin wrote:
+> > > > > Add a new variant of pci_iomap for mapping all PCI resources
+> > > > > of a devices as shared memory with a hypervisor in a confidential
+> > > > > guest.
+> > > > > 
+> > > > > Signed-off-by: Andi Kleen<ak@linux.intel.com>
+> > > > > Signed-off-by: Kuppuswamy Sathyanarayanan<sathyanarayanan.kuppuswamy@linux.intel.com>
+> > > > I'm a bit puzzled by this part. So why should the guest*not*  map
+> > > > pci memory as shared? And if the answer is never (as it seems to be)
+> > > > then why not just make regular pci_iomap DTRT?
+> > > It is in the context of confidential guest (where VMM is un-trusted). So
+> > > we don't want to make all PCI resource as shared. It should be allowed
+> > > only for hardened drivers/devices.
+> > That's confusing, isn't device authorization what keeps unaudited
+> > drivers from loading against untrusted devices? I'm feeling like
+> > Michael that this should be a detail that drivers need not care about
+> > explicitly, in which case it does not need to be exported because the
+> > detail can be buried in lower levels.
+> 
+> We originally made it default (similar to AMD), but it during code audit we
+> found a lot of drivers who do ioremap early outside the probe function.
+> Since it would be difficult to change them all we made it opt-in, which
+> ensures that only drivers that have been enabled can talk with the host at
+> all and can't be attacked. That made the problem of hardening all these
+> drivers a lot more practical.
+> 
+> Currently we only really need virtio and MSI-X shared, so for changing two
+> places in the tree you avoid a lot of headache elsewhere.
+> 
+> Note there is still a command line option to override if you want to allow
+> and load other drivers.
+> 
+> -Andi
 
->+that data of single send system call is guaranteed to be read wholly by single
->+receive system call. If receive buffer is not enough, then out of size data
->+will be dropped.
->+
->+Record is any number of subsequent messages, where last message is sent with POSIX
->+MSG_EOR flag set. Record boundary means that receiver gets MSG_EOR flag set
->+in the corresponding message where sender set it.
->+
->+To provide message boundaries, last RW packet of each message has VIRTIO_VSOCK_SEQ_EOM
->+bit (bit 0) set in the \field{flags} of packet's header.
->+
->+\begin{lstlisting}
->+#define VIRTIO_VSOCK_SEQ_EOM 1
->+\end{lstlisting}
->+
->+To provide record boundaries, last RW packet of each record has VIRTIO_VSOCK_SEQ_EOR
->+bit (bit 1) set in the \field{flags} of packet's header.
->+
->+\begin{lstlisting}
->+#define VIRTIO_VSOCK_SEQ_EOR 2
->+\end{lstlisting}
->+
+I see. Hmm. It's a bit of a random thing to do it at the map time
+though. E.g. DMA is all handled transparently behind the DMA API.
+Hardening is much more than just replacing map with map_shared
+and I suspect what you will end up with is basically
+vendors replacing map with map shared to make things work
+for their users and washing their hands.
 
-For other flags in the specs we use the shift operator, which is 
-actually clearer to understand which bit is set, so I guess we could use 
-it here too:
+I would say an explicit flag in the driver that says "hardened"
+and refusing to init a non hardened one would be better.
 
-#define VIRTIO_VSOCK_SEQ_EOM (1 << 0)
-#define VIRTIO_VSOCK_SEQ_EOR (1 << 1)
-
-The rest LGTM.
-
-Thanks,
-Stefano
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
