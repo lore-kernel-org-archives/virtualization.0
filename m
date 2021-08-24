@@ -2,91 +2,127 @@ Return-Path: <SRS0=e+fm=NP=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54E0EC4338F
-	for <virtualization@archiver.kernel.org>; Tue, 24 Aug 2021 10:22:30 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B37C2C4338F
+	for <virtualization@archiver.kernel.org>; Tue, 24 Aug 2021 10:31:50 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id BFD74610FB
-	for <virtualization@archiver.kernel.org>; Tue, 24 Aug 2021 10:22:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org BFD74610FB
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=kaod.org
+	by mail.kernel.org (Postfix) with ESMTPS id 4F124608FE
+	for <virtualization@archiver.kernel.org>; Tue, 24 Aug 2021 10:31:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4F124608FE
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 691F84039C;
-	Tue, 24 Aug 2021 10:22:29 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 14B6D60723;
+	Tue, 24 Aug 2021 10:31:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id eyjj8-sp-vC1; Tue, 24 Aug 2021 10:22:25 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id bWZ55M_VulT9; Tue, 24 Aug 2021 10:31:46 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 7E19B400BA;
-	Tue, 24 Aug 2021 10:22:24 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 9FFFF600B9;
+	Tue, 24 Aug 2021 10:31:45 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 53DC9C001A;
-	Tue, 24 Aug 2021 10:22:24 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F3464C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 82A64C001A;
+	Tue, 24 Aug 2021 10:31:45 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CA7D0C000E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Aug 2021 10:22:23 +0000 (UTC)
+ Tue, 24 Aug 2021 10:31:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id D449F80F2B
+ by smtp2.osuosl.org (Postfix) with ESMTP id B11E5400BA
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Aug 2021 10:22:23 +0000 (UTC)
+ Tue, 24 Aug 2021 10:31:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GdRJq-lzL9wM
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id vmZsO_x5gT4r
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Aug 2021 10:22:20 +0000 (UTC)
-X-Greylist: delayed 00:05:16 by SQLgrey-1.8.0
-Received: from us-smtp-delivery-44.mimecast.com
- (us-smtp-delivery-44.mimecast.com [205.139.111.44])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9BD2680F81
+ Tue, 24 Aug 2021 10:31:43 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B9EDA400A8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Aug 2021 10:22:19 +0000 (UTC)
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-513--UwY5AVyOrKyXJaVXm99qQ-1; Tue, 24 Aug 2021 06:15:29 -0400
-X-MC-Unique: -UwY5AVyOrKyXJaVXm99qQ-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
- [10.5.11.12])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DB07D8799F7;
- Tue, 24 Aug 2021 10:15:27 +0000 (UTC)
-Received: from bahia.lan (unknown [10.39.192.231])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 94BBB60CC9;
- Tue, 24 Aug 2021 10:15:16 +0000 (UTC)
-Date: Tue, 24 Aug 2021 12:15:15 +0200
-From: Greg Kurz <groug@kaod.org>
-To: JeffleXu <jefflexu@linux.alibaba.com>
-Subject: Re: [Virtio-fs] [virtiofsd PATCH v4 4/4] virtiofsd: support
- per-file DAX in FUSE_LOOKUP
-Message-ID: <20210824121515.5419d6a7@bahia.lan>
-In-Reply-To: <4494052b-aff1-e2e3-e704-c8743168f62e@linux.alibaba.com>
-References: <20210817022220.17574-1-jefflexu@linux.alibaba.com>
- <20210817022347.18098-1-jefflexu@linux.alibaba.com>
- <20210817022347.18098-5-jefflexu@linux.alibaba.com>
- <YRwHRmL/jUSqgkIU@work-vm>
- <29627110-e4bf-836f-2343-1faeb36ad4d3@linux.alibaba.com>
- <YR5Xzw02IuVAN94b@work-vm>
- <4494052b-aff1-e2e3-e704-c8743168f62e@linux.alibaba.com>
+ Tue, 24 Aug 2021 10:31:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1629801102;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=feIhjhva5jefoIxfoE0azoq+AbsdStJdrlY7GGgP55M=;
+ b=Grp/aBGff6h+IQKzcuhP/volgFxSahSJj1muP9IeiGj7oGmiZSE36X3qiwXyuhVBf5EFrf
+ W4K4wPx5IzdGKqYnD4G4faGs0xCPCLn6xFHR9eJnAWQOCpTfqzawi1sPNxXhn6wnE4THEu
+ CaH+7hgkszL/EP52op9TNBSVnxWPmpY=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-173-i12KxII0Ple0SlEFWX6r4Q-1; Tue, 24 Aug 2021 06:31:41 -0400
+X-MC-Unique: i12KxII0Ple0SlEFWX6r4Q-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ m16-20020a056402511000b003bead176527so1722569edd.10
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 24 Aug 2021 03:31:41 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=feIhjhva5jefoIxfoE0azoq+AbsdStJdrlY7GGgP55M=;
+ b=WnItKgsrZdV6xzVef39DUXju56G2EZub+0tjFdEp319Vi7h9GOfkKJzAgcmn8+fUmp
+ jZanexgrFlY8WbJUmoyBWGfb+2YGytRBcXFD2mj/gnbmsFQb5CV7Wi1WwXS5FDz2Sbjl
+ mFbdI2uCWPkCkx+pxFqL/05VioZv2KVQYod4GeCIOYQTlSdwnjsWCQz+0evgffCU7lHV
+ mmNXnU/p36xElKxaYCDOQdLKwGWlLyjr6S+8jVRGqjVrA9arPGc8XwOxa+l+kxQPbZsx
+ gi9F433qMdYVc1CseK6nZkBwCIVGY3MZosR8C+SccgsvVH8p/cF+pal3eoT/cQWn2zck
+ f5Hg==
+X-Gm-Message-State: AOAM533tI5u10zkMJ2HPBDusR49s5pXuJORcyRgPxhUAT8tpdi4zPhJ6
+ Eei+pV8bXLeEsfX7VyyUExFfjOYz73k4ACrijJsISyhrPpYz3KVtJXC1iE7MwelAFDz+IQcdGCp
+ 19eHGy+/LhHDEkAdG1ndClsHYSsTjzvfAAyAsNkgOzg==
+X-Received: by 2002:a17:906:d04b:: with SMTP id
+ bo11mr40707211ejb.513.1629801100366; 
+ Tue, 24 Aug 2021 03:31:40 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx1lClZImhRtvJCoGEAqkfeG/l8kJgXUskqq5Rw2DFLftK9EBSu/dk7LEDZ72T8m++O+df9pA==
+X-Received: by 2002:a17:906:d04b:: with SMTP id
+ bo11mr40707195ejb.513.1629801100235; 
+ Tue, 24 Aug 2021 03:31:40 -0700 (PDT)
+Received: from steredhat (host-79-45-8-152.retail.telecomitalia.it.
+ [79.45.8.152])
+ by smtp.gmail.com with ESMTPSA id c28sm9029348ejc.102.2021.08.24.03.31.38
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 24 Aug 2021 03:31:39 -0700 (PDT)
+Date: Tue, 24 Aug 2021 12:31:37 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+Subject: Re: [RFC PATCH v3 0/6] virtio/vsock: introduce MSG_EOR flag for
+ SEQPACKET
+Message-ID: <20210824103137.v3fny2yc5ww46p33@steredhat>
+References: <20210816085036.4173627-1-arseny.krasnov@kaspersky.com>
+ <3f3fc268-10fc-1917-32c2-dc0e7737dc48@kaspersky.com>
+ <20210824100523.yn5hgiycz2ysdnvm@steredhat>
+ <d28ff03e-c8ab-f7c6-68a2-90c9a400d029@kaspersky.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+In-Reply-To: <d28ff03e-c8ab-f7c6-68a2-90c9a400d029@kaspersky.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=groug@kaod.org
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: kaod.org
-Cc: miklos@szeredi.hu, "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
- virtualization@lists.linux-foundation.org, virtio-fs@redhat.com,
- joseph.qi@linux.alibaba.com, stefanha@redhat.com,
- linux-fsdevel@vger.kernel.org, vgoyal@redhat.com
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Andra Paraschiv <andraprs@amazon.com>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ "stsp2@yandex.ru" <stsp2@yandex.ru>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "oxffffaa@gmail.com" <oxffffaa@gmail.com>,
+ Norbert Slusarek <nslusarek@gmx.net>, Stefan Hajnoczi <stefanha@redhat.com>,
+ Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,135 +134,39 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, 20 Aug 2021 13:03:23 +0800
-JeffleXu <jefflexu@linux.alibaba.com> wrote:
+On Tue, Aug 24, 2021 at 01:18:06PM +0300, Arseny Krasnov wrote:
+>
+>On 24.08.2021 13:05, Stefano Garzarella wrote:
+>> Caution: This is an external email. Be cautious while opening links or attachments.
+>>
+>>
+>>
+>> Hi Arseny,
+>>
+>> On Mon, Aug 23, 2021 at 09:41:16PM +0300, Arseny Krasnov wrote:
+>>> Hello, please ping :)
+>>>
+>> Sorry, I was off last week.
+>> I left some minor comments in the patches.
+>>
+>> Let's wait a bit for other comments before next version, also on the
+>> spec, then I think you can send the next version without RFC tag.
+>> The target should be the net-next tree, since this is a new feature.
+>Hello,
+>
+>E.g. next version will be [net-next] instead of [RFC] for both
+>kernel and spec patches?
 
-> 
-> 
-> On 8/19/21 9:08 PM, Dr. David Alan Gilbert wrote:
-> > * JeffleXu (jefflexu@linux.alibaba.com) wrote:
-> >>
-> >>
-> >> On 8/18/21 3:00 AM, Dr. David Alan Gilbert wrote:
-> >>> * Jeffle Xu (jefflexu@linux.alibaba.com) wrote:
-> >>>> For passthrough, when the corresponding virtiofs in guest is mounted
-> >>>> with '-o dax=inode', advertise that the file is capable of per-file
-> >>>> DAX if the inode in the backend fs is marked with FS_DAX_FL flag.
-> >>>>
-> >>>> Signed-off-by: Jeffle Xu <jefflexu@linux.alibaba.com>
-> >>>> ---
-> >>>>  tools/virtiofsd/passthrough_ll.c | 43 ++++++++++++++++++++++++++++++++
-> >>>>  1 file changed, 43 insertions(+)
-> >>>>
-> >>>> diff --git a/tools/virtiofsd/passthrough_ll.c b/tools/virtiofsd/passthrough_ll.c
-> >>>> index 5b6228210f..4cbd904248 100644
-> >>>> --- a/tools/virtiofsd/passthrough_ll.c
-> >>>> +++ b/tools/virtiofsd/passthrough_ll.c
-> >>>> @@ -171,6 +171,7 @@ struct lo_data {
-> >>>>      int allow_direct_io;
-> >>>>      int announce_submounts;
-> >>>>      int perfile_dax_cap; /* capability of backend fs */
-> >>>> +    bool perfile_dax; /* enable per-file DAX or not */
-> >>>>      bool use_statx;
-> >>>>      struct lo_inode root;
-> >>>>      GHashTable *inodes; /* protected by lo->mutex */
-> >>>> @@ -716,6 +717,10 @@ static void lo_init(void *userdata, struct fuse_conn_info *conn)
-> >>>>  
-> >>>>      if (conn->capable & FUSE_CAP_PERFILE_DAX && lo->perfile_dax_cap ) {
-> >>>>          conn->want |= FUSE_CAP_PERFILE_DAX;
-> >>>> +	lo->perfile_dax = 1;
-> >>>> +    }
-> >>>> +    else {
-> >>>> +	lo->perfile_dax = 0;
-> >>>>      }
-> >>>>  }
-> >>>>  
-> >>>> @@ -983,6 +988,41 @@ static int do_statx(struct lo_data *lo, int dirfd, const char *pathname,
-> >>>>      return 0;
-> >>>>  }
-> >>>>  
-> >>>> +/*
-> >>>> + * If the file is marked with FS_DAX_FL or FS_XFLAG_DAX, then DAX should be
-> >>>> + * enabled for this file.
-> >>>> + */
-> >>>> +static bool lo_should_enable_dax(struct lo_data *lo, struct lo_inode *dir,
-> >>>> +				 const char *name)
-> >>>> +{
-> >>>> +    int res, fd;
-> >>>> +    int ret = false;;
-> >>>> +    unsigned int attr;
-> >>>> +    struct fsxattr xattr;
-> >>>> +
-> >>>> +    if (!lo->perfile_dax)
-> >>>> +	return false;
-> >>>> +
-> >>>> +    /* Open file without O_PATH, so that ioctl can be called. */
-> >>>> +    fd = openat(dir->fd, name, O_NOFOLLOW);
-> >>>> +    if (fd == -1)
-> >>>> +        return false;
-> >>>
-> >>> Doesn't that defeat the whole benefit of using O_PATH - i.e. that we
-> >>> might stumble into a /dev node or something else we're not allowed to
-> >>> open?
-> >>
-> >> As far as I know, virtiofsd will pivot_root/chroot to the source
-> >> directory, and can only access files inside the source directory
-> >> specified by "-o source=". Then where do these unexpected files come
-> >> from? Besides, fd opened without O_PATH here is temporary and used for
-> >> FS_IOC_GETFLAGS/FS_IOC_FSGETXATTR ioctl only. It's closed when the
-> >> function returns.
-> > 
-> > The guest is still allowed to mknod.
-> > See:
-> >    https://lists.gnu.org/archive/html/qemu-devel/2021-01/msg05461.html
-> > 
-> > also it's legal to expose a root filesystem for a guest; the virtiofsd
-> > should *never* open a device other than O_PATH - and it's really tricky
-> > to do a check to see if it is a device in a race-free way.
-> > 
-> 
-> Fine. Got it. However the returned fd (opened without O_PATH) is only
-> used for FS_IOC_GETFLAGS/FS_IOC_FSGETXATTR ioctl, while in most cases
-> for special device files, these two ioctls should return -ENOTTY.
-> 
+Nope, net-next tag is useful only for kernel patches (net tree - 
+Documentation/networking/netdev-FAQ.rst).
 
-The actual problem is that a FIFO will cause openat() to block until
-the other end of the FIFO is open for writing...
-
-> If it's really a security issue, then lo_inode_open() could be used to
-
-... and cause a DoS on virtiofsd. So yes, this is a security issue and
-lo_inode_open() was introduced specifically to handle this.
-
-> get a temporary fd, i.e., check if it's a special file before opening.
-> After all, FUSE_OPEN also handles in this way. Besides, I can't
-> understand what "race-free way" means.
-> 
-
-"race-free way" means a way that guarantees that file type
-cannot change between the time you check it and the time
-you open it (TOCTOU error). For example, doing a plain stat(),
-checking st_mode and proceeding to open() is wrong : nothing
-prevents the file to be unlinked and replaced by something
-else between stat() and open().
-
-We avoid that by keeping O_PATH fds around and using
-lo_inode_open() instead of openat().
-
-In your case, it seems that you should do the checking after
-you have an actual lo_inode for the target file, and pass
-that to lo_should_enable_dax() instead of the parent lo_inode
-and target name.
-
-Cheers,
-
---
-Greg
+Thanks,
+Stefano
 
 _______________________________________________
 Virtualization mailing list
