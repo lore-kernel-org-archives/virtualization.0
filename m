@@ -7,87 +7,118 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A812C4338F
-	for <virtualization@archiver.kernel.org>; Tue, 24 Aug 2021 11:00:39 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 159AFC432BE
+	for <virtualization@archiver.kernel.org>; Tue, 24 Aug 2021 11:10:18 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4B4DD6135F
-	for <virtualization@archiver.kernel.org>; Tue, 24 Aug 2021 11:00:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4B4DD6135F
+	by mail.kernel.org (Postfix) with ESMTPS id B617260FD9
+	for <virtualization@archiver.kernel.org>; Tue, 24 Aug 2021 11:10:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B617260FD9
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1DAC080E14;
-	Tue, 24 Aug 2021 11:00:39 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 688CF40461;
+	Tue, 24 Aug 2021 11:10:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id c2cC6D4JAnOC; Tue, 24 Aug 2021 11:00:34 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id XFkxgvYZc3iU; Tue, 24 Aug 2021 11:10:13 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0BC0D80D88;
-	Tue, 24 Aug 2021 11:00:34 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 6ED6440488;
+	Tue, 24 Aug 2021 11:10:12 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E4C55C001A;
-	Tue, 24 Aug 2021 11:00:33 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 51DA5C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 42DB6C001A;
+	Tue, 24 Aug 2021 11:10:12 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2D99EC000E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Aug 2021 11:00:32 +0000 (UTC)
+ Tue, 24 Aug 2021 11:10:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 31248400AE
+ by smtp1.osuosl.org (Postfix) with ESMTP id 1C51580ECB
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Aug 2021 11:00:32 +0000 (UTC)
+ Tue, 24 Aug 2021 11:10:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id LT8STXCUA37P
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id iTAbny0H_zHr
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Aug 2021 11:00:27 +0000 (UTC)
+ Tue, 24 Aug 2021 11:10:07 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 675C0400A8
+ by smtp1.osuosl.org (Postfix) with ESMTPS id E177280F12
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Aug 2021 11:00:27 +0000 (UTC)
+ Tue, 24 Aug 2021 11:10:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1629802826;
+ s=mimecast20190719; t=1629803405;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=AITPksYvMoEXxNB1LWW4gg0jWVIK1CjIJ+gc/HJY6ys=;
- b=gDgOrjh90oTxVzrhfGvHeSZ5X39QvGIhLoZEvZwAPwqBVCHyOdiqyPzxRZYHvCsGBpTD50
- L/cHmOp7T5vZHvnq0TbWjtlrIysf7NiI2kkDIPQh/5nhS2a4VbHx5hmaG5r+1llWlVmQoC
- zjbdcX3FGtvYADVfkMIskOyAo+o97WY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-347-eBmXFg38NdiFhZ25EZQvqQ-1; Tue, 24 Aug 2021 07:00:25 -0400
-X-MC-Unique: eBmXFg38NdiFhZ25EZQvqQ-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
- [10.5.11.11])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0AFE58799ED;
- Tue, 24 Aug 2021 11:00:24 +0000 (UTC)
-Received: from localhost (unknown [10.39.195.0])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 3FA8C1346F;
- Tue, 24 Aug 2021 11:00:11 +0000 (UTC)
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [RFC PATCH 1/1] fuse: disable local irqs when processing vq
- completions
-Date: Tue, 24 Aug 2021 11:59:44 +0100
-Message-Id: <20210824105944.172659-2-stefanha@redhat.com>
-In-Reply-To: <20210824105944.172659-1-stefanha@redhat.com>
-References: <20210824105944.172659-1-stefanha@redhat.com>
+ bh=6MzIVYD6Rkcf1avefY9xlULEY3kI1KocMJ7+mbhVSUk=;
+ b=I+hW0o4gKzNZCcyLLGmPXpTUAgEfLqx8O99UanPmvllneCK2e1RKBOE/1KooEC9+TC8+qs
+ Q7dUlHp3aXkJQ9D3GAIEojcX3zuhS2qMBuSN8bfPtlD0YEJtpHSgi8+YOIk5vcT45V35+s
+ Xgpu1nqQ2zht3yqxH8ll/SPkaYaz0es=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-143-RsY4YYC3On6m5a9Tklqtjg-1; Tue, 24 Aug 2021 07:10:02 -0400
+X-MC-Unique: RsY4YYC3On6m5a9Tklqtjg-1
+Received: by mail-ed1-f69.google.com with SMTP id
+ eg56-20020a05640228b8b02903be79801f9aso10289598edb.21
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 24 Aug 2021 04:10:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=6MzIVYD6Rkcf1avefY9xlULEY3kI1KocMJ7+mbhVSUk=;
+ b=njAVZWWu0wxiqoISV0IhaP9rSzEa/G80/d74Pa3vuPvxqvoym3bpwMiDptFXEKKGdJ
+ zPPeu/LLF0tKZSAH5gwrEih6ku9SzqvLAWazPgiiAhwysbty2hm4k6XYdZvjV3zK8z+m
+ snMpsJCyLGM8Qd23X4OYsrwJ2nqxDCqaYoJl3c6BgQDHYqf018tKr6bSLTjyNgXgI6lf
+ UI/0TrgcKiwmw22KUwackjAZkt4pbnIiLHLO874kGVIOwYFfu9+MmUofSlZ9FcHcU7Xs
+ spwHPCHkqhNIDxduhsUrIj2uHmK12wcYAXcvdREsScxU+FvzKpQLzM8gmZmTxAtMvlYW
+ zgDQ==
+X-Gm-Message-State: AOAM532B8oHbPGF049Qu/m5TgfFv2KU4LsHqs0QVLPbGWAhJ8wv5bq9u
+ KwOBsrcdqVgL7dHRrXKXOoBLZ5xV9NA4OryfT5pFzBNR3P6B2A+f9ikYH+C3R0BVi6o71oNVFem
+ bQ4kDAqvQpvCBowIXeuH/yMQCUhGyjTeSSga+YbgImA==
+X-Received: by 2002:a17:906:9bdc:: with SMTP id
+ de28mr40030311ejc.154.1629803401151; 
+ Tue, 24 Aug 2021 04:10:01 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJym2zZCfOfkB6aYg6hvpM9EYCUNutnmi5ZkMGiE/H3YmE4qf/VSJ5+nHLjDGlfYfIZpl2VYMg==
+X-Received: by 2002:a17:906:9bdc:: with SMTP id
+ de28mr40030281ejc.154.1629803400969; 
+ Tue, 24 Aug 2021 04:10:00 -0700 (PDT)
+Received: from steredhat (host-79-45-8-152.retail.telecomitalia.it.
+ [79.45.8.152])
+ by smtp.gmail.com with ESMTPSA id u2sm9003772ejc.61.2021.08.24.04.09.58
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 24 Aug 2021 04:10:00 -0700 (PDT)
+Date: Tue, 24 Aug 2021 13:09:56 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Xie Yongji <xieyongji@bytedance.com>
+Subject: Re: [PATCH v11 03/12] vdpa: Fix some coding style issues
+Message-ID: <20210824110956.gtajf34s2xpm66gx@steredhat>
+References: <20210818120642.165-1-xieyongji@bytedance.com>
+ <20210818120642.165-4-xieyongji@bytedance.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>,
- linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
- vgoyal@redhat.com, Xiaoling Gao <xiagao@redhat.com>
+In-Reply-To: <20210818120642.165-4-xieyongji@bytedance.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: kvm@vger.kernel.org, mst@redhat.com,
+ virtualization@lists.linux-foundation.org, christian.brauner@canonical.com,
+ corbet@lwn.net, joro@8bytes.org, willy@infradead.org, hch@infradead.org,
+ dan.carpenter@oracle.com, xiaodong.liu@intel.com,
+ linux-fsdevel@vger.kernel.org, viro@zeniv.linux.org.uk, stefanha@redhat.com,
+ songmuchun@bytedance.com, axboe@kernel.dk, zhe.he@windriver.com,
+ gregkh@linuxfoundation.org, rdunlap@infradead.org,
+ linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, bcrl@kvack.org,
+ netdev@vger.kernel.org, joe@perches.com, robin.murphy@arm.com,
+ mika.penttila@nextfour.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,98 +130,102 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The virtqueue completion handler function runs on a work queue and local
-irqs are still enabled. There is a race where the completion handler
-function grabs the next completed request just before vring_interrupt()
-runs. vring_interrupt() sees an empty virtqueue and returns IRQ_NONE,
-falsely declaring this interrupt unhandled.
+On Wed, Aug 18, 2021 at 08:06:33PM +0800, Xie Yongji wrote:
+>Fix some code indent issues and following checkpatch warning:
+>
+>WARNING: Prefer 'unsigned int' to bare use of 'unsigned'
+>371: FILE: include/linux/vdpa.h:371:
+>+static inline void vdpa_get_config(struct vdpa_device *vdev, unsigned offset,
+>
+>Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
+>---
+> include/linux/vdpa.h | 34 +++++++++++++++++-----------------
+> 1 file changed, 17 insertions(+), 17 deletions(-)
 
-The unhandled irq causes the kernel to disable the irq:
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
-  irq 77: nobody cared (try booting with the "irqpoll" option)
-  ...
-  handlers:
-  [<00000000d33eeed7>] vring_interrupt
-  Disabling IRQ #77
-
-The driver hangs afterwards since virtqueue irqs are now ignored.
-
-Disable local irqs before calling virtqueue_get_buf() and re-enable them
-afterwards so that vring_interrupt() doesn't run during the race window.
-
-Reported-by: Xiaoling Gao <xiagao@redhat.com>
-Cc: Michael Tsirkin <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
----
-I'm not 100% convinced this fixes everything because vring_interrupt()
-can still run after our critical section and find the virtqueue empty.
-virtqueue_disable_cb() should minimize that but it's only a hint and
-there is a small window when the race condition can happen before it's
-called.
----
- fs/fuse/virtio_fs.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
-
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 8f52cdaa8445..57e1f264b0a8 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -319,9 +319,10 @@ static void virtio_fs_hiprio_done_work(struct work_struct *work)
- 	struct virtio_fs_vq *fsvq = container_of(work, struct virtio_fs_vq,
- 						 done_work);
- 	struct virtqueue *vq = fsvq->vq;
-+	unsigned long flags;
- 
- 	/* Free completed FUSE_FORGET requests */
--	spin_lock(&fsvq->lock);
-+	spin_lock_irqsave(&fsvq->lock, flags);
- 	do {
- 		unsigned int len;
- 		void *req;
-@@ -333,7 +334,7 @@ static void virtio_fs_hiprio_done_work(struct work_struct *work)
- 			dec_in_flight_req(fsvq);
- 		}
- 	} while (!virtqueue_enable_cb(vq) && likely(!virtqueue_is_broken(vq)));
--	spin_unlock(&fsvq->lock);
-+	spin_unlock_irqrestore(&fsvq->lock, flags);
- }
- 
- static void virtio_fs_request_dispatch_work(struct work_struct *work)
-@@ -601,11 +602,15 @@ static void virtio_fs_requests_done_work(struct work_struct *work)
- 	struct virtqueue *vq = fsvq->vq;
- 	struct fuse_req *req;
- 	struct fuse_req *next;
-+	unsigned long flags;
- 	unsigned int len;
- 	LIST_HEAD(reqs);
- 
--	/* Collect completed requests off the virtqueue */
--	spin_lock(&fsvq->lock);
-+	/*
-+	 * Collect completed requests off the virtqueue with irqs disabled to
-+	 * prevent races with vring_interrupt().
-+	 */
-+	spin_lock_irqsave(&fsvq->lock, flags);
- 	do {
- 		virtqueue_disable_cb(vq);
- 
-@@ -615,7 +620,7 @@ static void virtio_fs_requests_done_work(struct work_struct *work)
- 			spin_unlock(&fpq->lock);
- 		}
- 	} while (!virtqueue_enable_cb(vq) && likely(!virtqueue_is_broken(vq)));
--	spin_unlock(&fsvq->lock);
-+	spin_unlock_irqrestore(&fsvq->lock, flags);
- 
- 	/* End requests */
- 	list_for_each_entry_safe(req, next, &reqs, list) {
--- 
-2.31.1
+>
+>diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+>index 954b340f6c2f..8a645f8f4476 100644
+>--- a/include/linux/vdpa.h
+>+++ b/include/linux/vdpa.h
+>@@ -43,17 +43,17 @@ struct vdpa_vq_state_split {
+>  * @last_used_idx: used index
+>  */
+> struct vdpa_vq_state_packed {
+>-        u16	last_avail_counter:1;
+>-        u16	last_avail_idx:15;
+>-        u16	last_used_counter:1;
+>-        u16	last_used_idx:15;
+>+	u16	last_avail_counter:1;
+>+	u16	last_avail_idx:15;
+>+	u16	last_used_counter:1;
+>+	u16	last_used_idx:15;
+> };
+>
+> struct vdpa_vq_state {
+>-     union {
+>-          struct vdpa_vq_state_split split;
+>-          struct vdpa_vq_state_packed packed;
+>-     };
+>+	union {
+>+		struct vdpa_vq_state_split split;
+>+		struct vdpa_vq_state_packed packed;
+>+	};
+> };
+>
+> struct vdpa_mgmt_dev;
+>@@ -131,7 +131,7 @@ struct vdpa_iova_range {
+>  *				@vdev: vdpa device
+>  *				@idx: virtqueue index
+>  *				@state: pointer to returned state (last_avail_idx)
+>- * @get_vq_notification: 	Get the notification area for a virtqueue
+>+ * @get_vq_notification:	Get the notification area for a virtqueue
+>  *				@vdev: vdpa device
+>  *				@idx: virtqueue index
+>  *				Returns the notifcation area
+>@@ -353,25 +353,25 @@ static inline struct device *vdpa_get_dma_dev(struct vdpa_device *vdev)
+>
+> static inline void vdpa_reset(struct vdpa_device *vdev)
+> {
+>-        const struct vdpa_config_ops *ops = vdev->config;
+>+	const struct vdpa_config_ops *ops = vdev->config;
+>
+> 	vdev->features_valid = false;
+>-        ops->set_status(vdev, 0);
+>+	ops->set_status(vdev, 0);
+> }
+>
+> static inline int vdpa_set_features(struct vdpa_device *vdev, u64 features)
+> {
+>-        const struct vdpa_config_ops *ops = vdev->config;
+>+	const struct vdpa_config_ops *ops = vdev->config;
+>
+> 	vdev->features_valid = true;
+>-        return ops->set_features(vdev, features);
+>+	return ops->set_features(vdev, features);
+> }
+>
+>-
+>-static inline void vdpa_get_config(struct vdpa_device *vdev, unsigned offset,
+>-				   void *buf, unsigned int len)
+>+static inline void vdpa_get_config(struct vdpa_device *vdev,
+>+				   unsigned int offset, void *buf,
+>+				   unsigned int len)
+> {
+>-        const struct vdpa_config_ops *ops = vdev->config;
+>+	const struct vdpa_config_ops *ops = vdev->config;
+>
+> 	/*
+> 	 * Config accesses aren't supposed to trigger before features are set.
+>-- 
+>2.11.0
+>
 
 _______________________________________________
 Virtualization mailing list
