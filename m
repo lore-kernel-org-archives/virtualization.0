@@ -2,89 +2,94 @@ Return-Path: <SRS0=Jt+z=NQ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F3D1C4338F
-	for <virtualization@archiver.kernel.org>; Wed, 25 Aug 2021 10:24:37 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC59BC4338F
+	for <virtualization@archiver.kernel.org>; Wed, 25 Aug 2021 14:52:43 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1B05D6120A
-	for <virtualization@archiver.kernel.org>; Wed, 25 Aug 2021 10:24:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 1B05D6120A
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 7EFF7610E8
+	for <virtualization@archiver.kernel.org>; Wed, 25 Aug 2021 14:52:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 7EFF7610E8
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D09A360BD3;
-	Wed, 25 Aug 2021 10:24:36 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 3F40C80DC1;
+	Wed, 25 Aug 2021 14:52:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id r_SwkyPoBJPU; Wed, 25 Aug 2021 10:24:33 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6CB8A60835;
-	Wed, 25 Aug 2021 10:24:32 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TTcWkODhjKQz; Wed, 25 Aug 2021 14:52:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B4DE380DD4;
+	Wed, 25 Aug 2021 14:52:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 507E1C0010;
-	Wed, 25 Aug 2021 10:24:32 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 87448C0010;
+	Wed, 25 Aug 2021 14:52:38 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 39004C000E
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 921A2C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Aug 2021 10:24:31 +0000 (UTC)
+ Wed, 25 Aug 2021 14:52:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 2881060B4E
+ by smtp3.osuosl.org (Postfix) with ESMTP id 87A14613B8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Aug 2021 10:24:31 +0000 (UTC)
+ Wed, 25 Aug 2021 14:52:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id liqHjrj0uGtY
+ with ESMTP id rpPs4jlfJg-k
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Aug 2021 10:24:30 +0000 (UTC)
+ Wed, 25 Aug 2021 14:52:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id B96C560835
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 05297613B6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Aug 2021 10:24:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1629887068;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding;
- bh=WVyb3Uv0Tbq8Di9FJJZjAihDGm9Mo6ze8JS8vqgSS3g=;
- b=EAfkLpsXlUScSo+qIYiRw+mmXPIdee+TkcwjPt14m4sIEOHROWcW+qqbW8Cgr3I9ib7C+V
- PhCmEcBz1LPwRO3K2lNeHKZmgrc/N2gwlZllBNKFJSB55bPYuOqfK9wOMz1yUJOv6EYi6x
- 6Tokuv7EX9J9laYfJLKvYkzwmiEofeI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-219-plshk3JbP2qnDyiPWsUHPQ-1; Wed, 25 Aug 2021 06:24:25 -0400
-X-MC-Unique: plshk3JbP2qnDyiPWsUHPQ-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
- [10.5.11.16])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 09F2ADF8AC;
- Wed, 25 Aug 2021 10:24:24 +0000 (UTC)
-Received: from t480s.redhat.com (unknown [10.39.193.23])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 83E545C1D1;
- Wed, 25 Aug 2021 10:24:16 +0000 (UTC)
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH v1] virtio-mem: fix sleeping in RCU read side section in
- virtio_mem_online_page_cb()
-Date: Wed, 25 Aug 2021 12:24:15 +0200
-Message-Id: <20210825102415.7516-1-david@redhat.com>
+ Wed, 25 Aug 2021 14:52:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36A4E610CD;
+ Wed, 25 Aug 2021 14:52:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1629903156;
+ bh=JavDwpgii8kF2lXyvHOwR8IF/SUWfOr82rbSiTe1nco=;
+ h=Date:From:To:Cc:Subject:In-Reply-To:From;
+ b=etlal+X6PK/iyyE+nCKJqe8xvh6sOY35Jz8lqksr6gEQVCToh4OokpBhqzSLN+EQd
+ CbpLIssWEQtnZPMe70kfBxZJeme2Vw5EfXhChn/2RVE74/XOQ0ogJdDJbJSxQ6B6tW
+ NpWtwQV/bKLoQqX4+aw+rClsxeZQuTcMptgtwqLJE9cPhKmxBAMOvE9u1TAbpbyusm
+ 2r/bieajK+y11XHoHy7rRrWGS+kpuVvgAm5FMOgzMz/YOJ/ryEgttZaNO+A2gFqSgV
+ gSDOXXqDHEGwZCzB6XgcGfNipfy8ECvl8ldyO/Fs4RX/PiHXnplmt9Ddb5SbfOzVkW
+ H7gyI/GMyzCTg==
+Date: Wed, 25 Aug 2021 09:52:35 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Andi Kleen <ak@linux.intel.com>
+Subject: Re: [PATCH v4 11/15] pci: Add pci_iomap_shared{,_range}
+Message-ID: <20210825145235.GA3565590@bjorn-Precision-5520>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org,
- Andrew Morton <akpm@linux-foundation.org>,
- Linus Torvalds <torvalds@linux-foundation.org>,
- Dan Carpenter <dan.carpenter@oracle.com>
+Content-Disposition: inline
+In-Reply-To: <bb8c6f96-2597-bb80-bd08-7958405e1bf5@linux.intel.com>
+Cc: "Kuppuswamy, Sathyanarayanan" <sathyanarayanan.kuppuswamy@linux.intel.com>,
+ Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>,
+ Linux PCI <linux-pci@vger.kernel.org>, linux-mips@vger.kernel.org,
+ James E J Bottomley <James.Bottomley@hansenpartnership.com>,
+ Dave Hansen <dave.hansen@intel.com>, Peter H Anvin <hpa@zytor.com>,
+ sparclinux@vger.kernel.org, Rajat Jain <rajatja@google.com>,
+ Thomas Gleixner <tglx@linutronix.de>, linux-arch <linux-arch@vger.kernel.org>,
+ Jonathan Corbet <corbet@lwn.net>, Helge Deller <deller@gmx.de>,
+ X86 ML <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Arnd Bergmann <arnd@arndb.de>, Tony Luck <tony.luck@intel.com>,
+ Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
+ Bjorn Helgaas <bhelgaas@google.com>, Dan Williams <dan.j.williams@intel.com>,
+ virtualization@lists.linux-foundation.org, Richard Henderson <rth@twiddle.net>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-parisc@vger.kernel.org,
+ Sean Christopherson <seanjc@google.com>,
+ Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ linux-alpha@vger.kernel.org, "David S . Miller" <davem@davemloft.net>,
+ Kirill Shutemov <kirill.shutemov@linux.intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,59 +106,34 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-virtio_mem_set_fake_offline() might sleep now, and we call it under
-rcu_read_lock(). To fix it, simply move the rcu_read_unlock() further
-up, as we're done with the device.
+On Tue, Aug 24, 2021 at 01:50:00PM -0700, Andi Kleen wrote:
+> 
+> On 8/24/2021 1:31 PM, Bjorn Helgaas wrote:
+> > On Tue, Aug 24, 2021 at 01:14:02PM -0700, Andi Kleen wrote:
+> > > On 8/24/2021 11:55 AM, Bjorn Helgaas wrote:
+> > > > [+cc Rajat; I still don't know what "shared memory with a hypervisor
+> > > > in a confidential guest" means,
+> > > A confidential guest is a guest which uses memory encryption to isolate
+> > > itself from the host. It doesn't trust the host. But it still needs to
+> > > communicate with the host for IO, so it has some special memory areas that
+> > > are explicitly marked shared. These are used to do IO with the host. All
+> > > their usage needs to be carefully hardened to avoid any security attacks on
+> > > the guest, that's why we want to limit this interaction only to a small set
+> > > of hardened drivers. For MMIO, the set is currently only virtio and MSI-X.
+> > Good material for the commit log next time around.  Thanks!
+> 
+> This is all in the patch intro too, which should make it into the merge
+> commits.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 6cc26d77613a: "virtio-mem: use page_offline_(start|end) when setting PageOffline()
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: virtualization@lists.linux-foundation.org
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
+It's good if the cover letter makes into the merge commit log.
 
-The problematic commit is in v5.14-rc1 .. v5.14-rc7, but it suspect
-might be too late for v5.14.
+It's probably just because my git foo is lacking, but merge commit
+logs don't seem as discoverable as the actual patch commit logs.  Five
+years from now, if I want to learn about pci_iomap_shared() history, I
+would "git log -p lib/pci_iomap.c" and search for it.  But I don't
+think I would see the merge commit then.
 
-The original commit went upstream via Andrews tree, we could take this fix
-via Andrews tree as well or via the vhost tree (MST), I don't particularly
-care. (putting Linus on CC just in case)
-
----
- drivers/virtio/virtio_mem.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 09ed55de07d7..b91bc810a87e 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -1242,12 +1242,19 @@ static void virtio_mem_online_page_cb(struct page *page, unsigned int order)
- 			do_online = virtio_mem_bbm_get_bb_state(vm, id) !=
- 				    VIRTIO_MEM_BBM_BB_FAKE_OFFLINE;
- 		}
-+
-+		/*
-+		 * virtio_mem_set_fake_offline() might sleep, we don't need
-+		 * the device anymore. See virtio_mem_remove() how races
-+		 * between memory onlining and device removal are handled.
-+		 */
-+		rcu_read_unlock();
-+
- 		if (do_online)
- 			generic_online_page(page, order);
- 		else
- 			virtio_mem_set_fake_offline(PFN_DOWN(addr), 1 << order,
- 						    false);
--		rcu_read_unlock();
- 		return;
- 	}
- 	rcu_read_unlock();
--- 
-2.31.1
-
+Bjorn
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
