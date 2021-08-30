@@ -2,137 +2,112 @@ Return-Path: <SRS0=/Kss=NV=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 13002C4320A
-	for <virtualization@archiver.kernel.org>; Mon, 30 Aug 2021 21:00:08 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DAE0C432BE
+	for <virtualization@archiver.kernel.org>; Mon, 30 Aug 2021 21:10:29 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B79CD60F6C
-	for <virtualization@archiver.kernel.org>; Mon, 30 Aug 2021 21:00:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B79CD60F6C
+	by mail.kernel.org (Postfix) with ESMTPS id 4475460FA0
+	for <virtualization@archiver.kernel.org>; Mon, 30 Aug 2021 21:10:29 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4475460FA0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7E33C80E19;
-	Mon, 30 Aug 2021 21:00:07 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 04EE2400EE;
+	Mon, 30 Aug 2021 21:10:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UXsvza25kCqs; Mon, 30 Aug 2021 21:00:03 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id imLD3NbWiKYN; Mon, 30 Aug 2021 21:10:25 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 18A8B80DF2;
-	Mon, 30 Aug 2021 21:00:03 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 6F44D400DD;
+	Mon, 30 Aug 2021 21:10:24 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E8795C001A;
-	Mon, 30 Aug 2021 21:00:02 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 467BBC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5206CC0010;
+	Mon, 30 Aug 2021 21:10:24 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D4F88C000E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Aug 2021 21:00:01 +0000 (UTC)
+ Mon, 30 Aug 2021 21:10:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 2937380DF3
+ by smtp1.osuosl.org (Postfix) with ESMTP id B854F80E4E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Aug 2021 21:00:01 +0000 (UTC)
+ Mon, 30 Aug 2021 21:10:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6n2bk42rATt7
+ with ESMTP id ncQAzWJ05feO
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Aug 2021 21:00:00 +0000 (UTC)
+ Mon, 30 Aug 2021 21:10:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 3C4D280DF2
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 202A680E2F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Aug 2021 21:00:00 +0000 (UTC)
+ Mon, 30 Aug 2021 21:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1630357199;
+ s=mimecast20190719; t=1630357820;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=ZDgZoaGxuF8+VxsBt8mWUj6L6RMapnQD42kDmE3TNZQ=;
- b=GH03Om/445Kfh0spCpfgBXGkgopeKaJKIqsbbIqGNoDmAlnZTvAthA2tI2dz9Aq5cuTnHb
- S/4bNzDF2aRH+g5BXDAau4HDRE6CwBE5H4ZiUVX0kxknRtFixsmYk2gTkESXfR+1kQusEc
- NugrIp20O33foRVdV+QJ3G9RR3jW/9o=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-457-dBtyjiwlMbqRaGmiPeox9A-1; Mon, 30 Aug 2021 16:59:57 -0400
-X-MC-Unique: dBtyjiwlMbqRaGmiPeox9A-1
-Received: by mail-wm1-f70.google.com with SMTP id
- m22-20020a7bca56000000b002e7508f3faeso5163630wml.2
+ bh=H+618f6pIQ7QqyteZqRd+k8qoLUdo13s2E6E3MFo9/Y=;
+ b=NBR8UifYubAHdJHB6EXmwlNxVjMKQkQZHD9XJ4wYjvp0rHMxjAfTQAP+yKJxE8Kef9PY0b
+ 8GCuFiWuzaNiheprjcJtK9VlQ/5X/JVkmc0cRFo9DLZIOa0UOOKY6BAo2A6IldcOsNYMP9
+ plvRgjplpqeNTciVM+R113TksoBGH2w=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-298-8xd2eTK-PuiMmVfXvtoe8A-1; Mon, 30 Aug 2021 17:10:19 -0400
+X-MC-Unique: 8xd2eTK-PuiMmVfXvtoe8A-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ f17-20020a05600c155100b002f05f30ff03so259228wmg.3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Aug 2021 13:59:57 -0700 (PDT)
+ Mon, 30 Aug 2021 14:10:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=ZDgZoaGxuF8+VxsBt8mWUj6L6RMapnQD42kDmE3TNZQ=;
- b=gjVgsO4RxG36rkFw/xeq+xGtMbyYqW3QsCU660DbDip6KMaVqZHsyhvLIEJPeWNqWX
- YZEZdF3AUxgeGpCdp4LCWHqaS0mYdIP2zsBK49/fOCHTKttyzL4mjcmNYFCNXMBwxNNB
- rxp/p+soQndwMVzeTwCmlNrAx9zty4vS08ylT0bvM6r44Onzi5vOmcrfVg40DmNpkpvJ
- DAwzPkLm6E9beArznweJNf8QSBogmVvQWquUi24DQ0b/BPO4xfcCh3WVOTIbq3XSdL7s
- YwXCtQ/75Hi2WYy1mXGaU8+9SLcT0VI6SrC8K6j3JPp9/vYdY1MPx3vHtvYoo4aryrD+
- BYBA==
-X-Gm-Message-State: AOAM5332V8S9UlgPCsIdDMB9Gb0OTimWRUhMNXaOQsIpwrWWgYc26V5z
- Gx743ZE6/x6mgZhoEcgTQ7O54MDfTZQc/DD9kL+Gb/PjMrLlIOZ3puUPim2wwv/bSw0fM2/jlx8
- lZEKPn+i0Uz3OHmITUR9GetsiqJEAOrOXPp6GZsLGUg==
-X-Received: by 2002:a1c:7f48:: with SMTP id a69mr887129wmd.166.1630357196521; 
- Mon, 30 Aug 2021 13:59:56 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxjS6eag15Cf7xmVDHk/qvmWoQLzIdnk7dLXkY7XjvOHcTw6SiXs3ksmYcUzh73pyrAtLIGDA==
-X-Received: by 2002:a1c:7f48:: with SMTP id a69mr887093wmd.166.1630357196296; 
- Mon, 30 Aug 2021 13:59:56 -0700 (PDT)
+ :mime-version:content-disposition:in-reply-to;
+ bh=H+618f6pIQ7QqyteZqRd+k8qoLUdo13s2E6E3MFo9/Y=;
+ b=Oqj6DW0CmooZSZcWA+a9SQ5lbIDBet0/HLhsm68z/kcCGwcqONFzeuikxLJRKIBrth
+ TObIWhPAs2PyjFGoyxbAfJBd6Yabt6Ht8kD93yz4pSBfuz5BLA/TpDQb8cQaT8Hp7tLD
+ VRt9Ct53vnJLr3FJxU6KIrbwm5CioqXaI4lqw/RSi5aR9KWaWktN3a74xYzStnP+ttRq
+ L6nzrGighaQAx3I2SwcJQRl42KiSlKf+KJUNVdtIzf6V5qRpT3hcn2YfWzCHpgDmpKZP
+ iiNAi2m1BTub8rSfpCh8F7CsMxzsAj03yKFG2k6jP4GXToqsKr6Dv206GFQDIpUNjFyT
+ JMsA==
+X-Gm-Message-State: AOAM530TQ2GGHl58CEsANT/C5N5RHbp3oxOb77TjOH1L35CRWWAGDt73
+ vBnNgo6oR/DBbkMFphp4fVQwdUJe0yPKeEDcYQK7MPdxdL4Wbha+YTw80IdGT0RuR0aDOIbjDOA
+ BSyv8XXCT2LwpYsyrEcNPRI5MMCUSiBDQyRa9ypb7tw==
+X-Received: by 2002:a1c:f414:: with SMTP id z20mr933898wma.94.1630357817835;
+ Mon, 30 Aug 2021 14:10:17 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxCALB10bxh63E5WvwArTBCCDlGaCHtgsikTuncNYNnIlBrCWXTlsk5nCq4LlIE12ZJaPWdQQ==
+X-Received: by 2002:a1c:f414:: with SMTP id z20mr933890wma.94.1630357817655;
+ Mon, 30 Aug 2021 14:10:17 -0700 (PDT)
 Received: from redhat.com ([2.55.138.60])
- by smtp.gmail.com with ESMTPSA id z9sm12277068wre.11.2021.08.30.13.59.52
+ by smtp.gmail.com with ESMTPSA id g138sm601124wmg.34.2021.08.30.14.10.16
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 30 Aug 2021 13:59:55 -0700 (PDT)
-Date: Mon, 30 Aug 2021 16:59:50 -0400
+ Mon, 30 Aug 2021 14:10:17 -0700 (PDT)
+Date: Mon, 30 Aug 2021 17:10:13 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Andi Kleen <ak@linux.intel.com>
-Subject: Re: [PATCH v4 11/15] pci: Add pci_iomap_shared{,_range}
-Message-ID: <20210830163723-mutt-send-email-mst@kernel.org>
-References: <20210823195409-mutt-send-email-mst@kernel.org>
- <26a3cce5-ddf7-cbe6-a41e-58a2aea48f78@linux.intel.com>
- <CAPcyv4iJVQKJ3bVwZhD08c8GNEP0jW2gx=H504NXcYK5o2t01A@mail.gmail.com>
- <d992b5af-8d57-6aa6-bd49-8e2b8d832b19@linux.intel.com>
- <20210824053830-mutt-send-email-mst@kernel.org>
- <d21a2a2d-4670-ba85-ce9a-fc8ea80ef1be@linux.intel.com>
- <20210829112105-mutt-send-email-mst@kernel.org>
- <09b340dd-c8a8-689c-4dad-4fe0e36d39ae@linux.intel.com>
- <20210829181635-mutt-send-email-mst@kernel.org>
- <3a88a255-a528-b00a-912b-e71198d5f58f@linux.intel.com>
+To: Li RongQing <lirongqing@baidu.com>
+Subject: Re: [PATCH] virtio_net: reduce raw_smp_processor_id() calling in
+ virtnet_xdp_get_sq
+Message-ID: <20210830170837-mutt-send-email-mst@kernel.org>
+References: <1629966095-16341-1-git-send-email-lirongqing@baidu.com>
 MIME-Version: 1.0
-In-Reply-To: <3a88a255-a528-b00a-912b-e71198d5f58f@linux.intel.com>
+In-Reply-To: <1629966095-16341-1-git-send-email-lirongqing@baidu.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: "Kuppuswamy, Sathyanarayanan" <sathyanarayanan.kuppuswamy@linux.intel.com>,
- Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
- Linux Doc Mailing List <linux-doc@vger.kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, Linux PCI <linux-pci@vger.kernel.org>,
- linux-mips@vger.kernel.org,
- James E J Bottomley <James.Bottomley@hansenpartnership.com>,
- Dave Hansen <dave.hansen@intel.com>, Peter H Anvin <hpa@zytor.com>,
- sparclinux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
- linux-arch <linux-arch@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>,
- Helge Deller <deller@gmx.de>, X86 ML <x86@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
- Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@alien8.de>,
- Andy Lutomirski <luto@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
- Dan Williams <dan.j.williams@intel.com>,
- virtualization@lists.linux-foundation.org, Richard Henderson <rth@twiddle.net>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-parisc@vger.kernel.org,
- Sean Christopherson <seanjc@google.com>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- linux-alpha@vger.kernel.org, "David S . Miller" <davem@davemloft.net>,
- Kirill Shutemov <kirill.shutemov@linux.intel.com>
+Cc: netdev@vger.kernel.org, bpf@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -144,88 +119,59 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Aug 29, 2021 at 10:11:46PM -0700, Andi Kleen wrote:
-> =
+On Thu, Aug 26, 2021 at 04:21:35PM +0800, Li RongQing wrote:
+> smp_processor_id()/raw* will be called once each when not
+> more queues in virtnet_xdp_get_sq() which is called in
+> non-preemptible context, so it's safe to call the function
+> smp_processor_id() once.
+> 
+> Signed-off-by: Li RongQing <lirongqing@baidu.com>
 
-> On 8/29/2021 3:26 PM, Michael S. Tsirkin wrote:
-> > On Sun, Aug 29, 2021 at 09:17:53AM -0700, Andi Kleen wrote:
-> > > Also I changing this single call really that bad? It's not that we ch=
-anging
-> > > anything drastic here, just give the low level subsystem a better hin=
-t about
-> > > the intention. If you don't like the function name, could make it an
-> > > argument instead?
-> > My point however is that the API should say that the
-> > driver has been audited,
-> =
+commit log should probably explain why it's a good idea
+to replace raw_smp_processor_id with smp_processor_id
+in the case of curr_queue_pairs <= nr_cpu_ids.
 
-> We have that status in the struct device. If you want to tie the ioremap =
-to
-> that we could define a ioremap_device() with a device argument and decide
-> based on that.
-
-But it's not the device that is audited. And it's not the device
-that might be secure or insecure. It's the driver.
-
-> Or we can add _audited to the name. ioremap_shared_audited?
-
-But it's not the mapping that has to be done in handled special way.
-It's any data we get from device, not all of it coming from IO, e.g.
-there's DMA and interrupts that all have to be validated.
-Wouldn't you say that what is really wanted is just not running
-unaudited drivers in the first place?
-
-> =
-
-> > not that the mapping has been
-> > done in some special way. For example the mapping can be
-> > in some kind of wrapper, not directly in the driver.
-> > However you want the driver validated, not the wrapper.
-> > =
-
-> > Here's an idea:
-> =
-
-> =
-
-> I don't think magic differences of API behavior based on some define are a
-> good idea.=A0 That's easy to miss.
-
-Well ... my point is that actually there is no difference in API
-behaviour. the map is the same map, exactly same data goes to device. If
-anything any non-shared map is special in that encrypted data goes to
-device.
-
-> =
-
-> That's a "COME FROM" in API design.
-> =
-
-> Also it wouldn't handle the case that a driver has both private and shared
-> ioremaps, e.g. for BIOS structures.
-
-Hmm. Interesting.  It's bios maps that are unusual and need to be private t=
-hough ...
-
-> And we've been avoiding that drivers can self declare auditing, we've been
-> trying to have a separate centralized list so that it's easier to enforce
-> and avoids any cut'n'paste mistakes.
-> =
-
-> -Andi
-
-Now I'm confused. What is proposed here seems to be basically that,
-drivers need to declare auditing by replacing ioremap with
-ioremap_shared.
-
--- =
-
-MST
+> ---
+>  drivers/net/virtio_net.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 2e42210a6503..2a7b368c1da2 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -528,19 +528,20 @@ static int __virtnet_xdp_xmit_one(struct virtnet_info *vi,
+>   * functions to perfectly solve these three problems at the same time.
+>   */
+>  #define virtnet_xdp_get_sq(vi) ({                                       \
+> +	int cpu = smp_processor_id();                                   \
+>  	struct netdev_queue *txq;                                       \
+>  	typeof(vi) v = (vi);                                            \
+>  	unsigned int qp;                                                \
+>  									\
+>  	if (v->curr_queue_pairs > nr_cpu_ids) {                         \
+>  		qp = v->curr_queue_pairs - v->xdp_queue_pairs;          \
+> -		qp += smp_processor_id();                               \
+> +		qp += cpu;                                              \
+>  		txq = netdev_get_tx_queue(v->dev, qp);                  \
+>  		__netif_tx_acquire(txq);                                \
+>  	} else {                                                        \
+> -		qp = smp_processor_id() % v->curr_queue_pairs;          \
+> +		qp = cpu % v->curr_queue_pairs;                         \
+>  		txq = netdev_get_tx_queue(v->dev, qp);                  \
+> -		__netif_tx_lock(txq, raw_smp_processor_id());           \
+> +		__netif_tx_lock(txq, cpu);                              \
+>  	}                                                               \
+>  	v->sq + qp;                                                     \
+>  })
+> -- 
+> 2.33.0.69.gc420321.dirty
+> 
+> 
 
 _______________________________________________
 Virtualization mailing list
