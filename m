@@ -2,100 +2,137 @@ Return-Path: <SRS0=/Kss=NV=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82479C432BE
-	for <virtualization@archiver.kernel.org>; Mon, 30 Aug 2021 17:01:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13002C4320A
+	for <virtualization@archiver.kernel.org>; Mon, 30 Aug 2021 21:00:08 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2F86D60F23
-	for <virtualization@archiver.kernel.org>; Mon, 30 Aug 2021 17:01:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 2F86D60F23
+	by mail.kernel.org (Postfix) with ESMTPS id B79CD60F6C
+	for <virtualization@archiver.kernel.org>; Mon, 30 Aug 2021 21:00:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B79CD60F6C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E205580D01;
-	Mon, 30 Aug 2021 17:01:39 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7E33C80E19;
+	Mon, 30 Aug 2021 21:00:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sR3RRhN-sAoo; Mon, 30 Aug 2021 17:01:36 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8469C80CBD;
-	Mon, 30 Aug 2021 17:01:35 +0000 (UTC)
+	with ESMTP id UXsvza25kCqs; Mon, 30 Aug 2021 21:00:03 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 18A8B80DF2;
+	Mon, 30 Aug 2021 21:00:03 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6406FC001A;
-	Mon, 30 Aug 2021 17:01:35 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A6745C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E8795C001A;
+	Mon, 30 Aug 2021 21:00:02 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 467BBC000E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Aug 2021 17:01:33 +0000 (UTC)
+ Mon, 30 Aug 2021 21:00:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 83725605A0
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2937380DF3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Aug 2021 17:01:33 +0000 (UTC)
+ Mon, 30 Aug 2021 21:00:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MityLZ48Lf40
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 6n2bk42rATt7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Aug 2021 17:01:32 +0000 (UTC)
+ Mon, 30 Aug 2021 21:00:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 709DD6059B
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 3C4D280DF2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Aug 2021 17:01:32 +0000 (UTC)
+ Mon, 30 Aug 2021 21:00:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1630342891;
+ s=mimecast20190719; t=1630357199;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=06rvpPjfGHRxtuzxe0ONGxY52t641dbaQ6VBP807xC8=;
- b=CPwNyUh8sppBnJL7S62/6+Nl3Ukl9/Jj6W/MsRVrQvJB02uTJBFUjK3zpdUT+URS36KcGb
- XRWtb0iWs2nSoKlGR29tlGSsFeX7wlTEXjLmcTJ4Mk7YHhYdHJD30G3pIuyKwlyNWEd+0t
- VYlRU51LHD6m1u2H136CCWD0QewcHO8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-562-YC3A-iJ9OgGpgjBz47NLCQ-1; Mon, 30 Aug 2021 13:01:29 -0400
-X-MC-Unique: YC3A-iJ9OgGpgjBz47NLCQ-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
- [10.5.11.12])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 715FC106B1C7;
- Mon, 30 Aug 2021 17:01:28 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.8.102])
- by smtp.corp.redhat.com (Postfix) with ESMTP id F122B60BF4;
- Mon, 30 Aug 2021 17:01:12 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
- id 7EE9F2241BF; Mon, 30 Aug 2021 13:01:12 -0400 (EDT)
-Date: Mon, 30 Aug 2021 13:01:12 -0400
-From: Vivek Goyal <vgoyal@redhat.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Subject: Re: [PATCH v4 5/5] virtiofs: propagate sync() to file server
-Message-ID: <YS0O2MlR2G2LJH/0@redhat.com>
-References: <20210520154654.1791183-1-groug@kaod.org>
- <20210520154654.1791183-6-groug@kaod.org>
- <CAOQ4uxh69ii5Yk-DgFAq+TrrvJ6xCv9s8sKLfo3aBCSWjJvp9Q@mail.gmail.com>
- <YRqEPjzHg9IlifBo@redhat.com>
- <YSpUgzG8rM5LeFDy@miu.piliscsaba.redhat.com>
+ bh=ZDgZoaGxuF8+VxsBt8mWUj6L6RMapnQD42kDmE3TNZQ=;
+ b=GH03Om/445Kfh0spCpfgBXGkgopeKaJKIqsbbIqGNoDmAlnZTvAthA2tI2dz9Aq5cuTnHb
+ S/4bNzDF2aRH+g5BXDAau4HDRE6CwBE5H4ZiUVX0kxknRtFixsmYk2gTkESXfR+1kQusEc
+ NugrIp20O33foRVdV+QJ3G9RR3jW/9o=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-457-dBtyjiwlMbqRaGmiPeox9A-1; Mon, 30 Aug 2021 16:59:57 -0400
+X-MC-Unique: dBtyjiwlMbqRaGmiPeox9A-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ m22-20020a7bca56000000b002e7508f3faeso5163630wml.2
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 30 Aug 2021 13:59:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=ZDgZoaGxuF8+VxsBt8mWUj6L6RMapnQD42kDmE3TNZQ=;
+ b=gjVgsO4RxG36rkFw/xeq+xGtMbyYqW3QsCU660DbDip6KMaVqZHsyhvLIEJPeWNqWX
+ YZEZdF3AUxgeGpCdp4LCWHqaS0mYdIP2zsBK49/fOCHTKttyzL4mjcmNYFCNXMBwxNNB
+ rxp/p+soQndwMVzeTwCmlNrAx9zty4vS08ylT0bvM6r44Onzi5vOmcrfVg40DmNpkpvJ
+ DAwzPkLm6E9beArznweJNf8QSBogmVvQWquUi24DQ0b/BPO4xfcCh3WVOTIbq3XSdL7s
+ YwXCtQ/75Hi2WYy1mXGaU8+9SLcT0VI6SrC8K6j3JPp9/vYdY1MPx3vHtvYoo4aryrD+
+ BYBA==
+X-Gm-Message-State: AOAM5332V8S9UlgPCsIdDMB9Gb0OTimWRUhMNXaOQsIpwrWWgYc26V5z
+ Gx743ZE6/x6mgZhoEcgTQ7O54MDfTZQc/DD9kL+Gb/PjMrLlIOZ3puUPim2wwv/bSw0fM2/jlx8
+ lZEKPn+i0Uz3OHmITUR9GetsiqJEAOrOXPp6GZsLGUg==
+X-Received: by 2002:a1c:7f48:: with SMTP id a69mr887129wmd.166.1630357196521; 
+ Mon, 30 Aug 2021 13:59:56 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxjS6eag15Cf7xmVDHk/qvmWoQLzIdnk7dLXkY7XjvOHcTw6SiXs3ksmYcUzh73pyrAtLIGDA==
+X-Received: by 2002:a1c:7f48:: with SMTP id a69mr887093wmd.166.1630357196296; 
+ Mon, 30 Aug 2021 13:59:56 -0700 (PDT)
+Received: from redhat.com ([2.55.138.60])
+ by smtp.gmail.com with ESMTPSA id z9sm12277068wre.11.2021.08.30.13.59.52
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 30 Aug 2021 13:59:55 -0700 (PDT)
+Date: Mon, 30 Aug 2021 16:59:50 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Andi Kleen <ak@linux.intel.com>
+Subject: Re: [PATCH v4 11/15] pci: Add pci_iomap_shared{,_range}
+Message-ID: <20210830163723-mutt-send-email-mst@kernel.org>
+References: <20210823195409-mutt-send-email-mst@kernel.org>
+ <26a3cce5-ddf7-cbe6-a41e-58a2aea48f78@linux.intel.com>
+ <CAPcyv4iJVQKJ3bVwZhD08c8GNEP0jW2gx=H504NXcYK5o2t01A@mail.gmail.com>
+ <d992b5af-8d57-6aa6-bd49-8e2b8d832b19@linux.intel.com>
+ <20210824053830-mutt-send-email-mst@kernel.org>
+ <d21a2a2d-4670-ba85-ce9a-fc8ea80ef1be@linux.intel.com>
+ <20210829112105-mutt-send-email-mst@kernel.org>
+ <09b340dd-c8a8-689c-4dad-4fe0e36d39ae@linux.intel.com>
+ <20210829181635-mutt-send-email-mst@kernel.org>
+ <3a88a255-a528-b00a-912b-e71198d5f58f@linux.intel.com>
 MIME-Version: 1.0
+In-Reply-To: <3a88a255-a528-b00a-912b-e71198d5f58f@linux.intel.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <YSpUgzG8rM5LeFDy@miu.piliscsaba.redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-Cc: Amir Goldstein <amir73il@gmail.com>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtio-fs-list <virtio-fs@redhat.com>, Max Reitz <mreitz@redhat.com>,
- Stefan Hajnoczi <stefanha@redhat.com>,
- linux-fsdevel <linux-fsdevel@vger.kernel.org>,
- virtualization@lists.linux-foundation.org, Robert Krawitz <rlk@redhat.com>
+Cc: "Kuppuswamy, Sathyanarayanan" <sathyanarayanan.kuppuswamy@linux.intel.com>,
+ Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
+ Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, Linux PCI <linux-pci@vger.kernel.org>,
+ linux-mips@vger.kernel.org,
+ James E J Bottomley <James.Bottomley@hansenpartnership.com>,
+ Dave Hansen <dave.hansen@intel.com>, Peter H Anvin <hpa@zytor.com>,
+ sparclinux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+ linux-arch <linux-arch@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+ Helge Deller <deller@gmx.de>, X86 ML <x86@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+ Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@alien8.de>,
+ Andy Lutomirski <luto@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
+ Dan Williams <dan.j.williams@intel.com>,
+ virtualization@lists.linux-foundation.org, Richard Henderson <rth@twiddle.net>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-parisc@vger.kernel.org,
+ Sean Christopherson <seanjc@google.com>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ linux-alpha@vger.kernel.org, "David S . Miller" <davem@davemloft.net>,
+ Kirill Shutemov <kirill.shutemov@linux.intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,257 +144,88 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Aug 28, 2021 at 05:21:39PM +0200, Miklos Szeredi wrote:
-> On Mon, Aug 16, 2021 at 11:29:02AM -0400, Vivek Goyal wrote:
-> > On Sun, Aug 15, 2021 at 05:14:06PM +0300, Amir Goldstein wrote:
-> 
-> > > I wonder - even if the server does not support SYNCFS or if the kernel
-> > > does not trust the server with SYNCFS, fuse_sync_fs() can wait
-> > > until all pending requests up to this call have been completed, either
-> > > before or after submitting the SYNCFS request. No?
-> > 
-> > > 
-> > > Does virtiofsd track all requests prior to SYNCFS request to make
-> > > sure that they were executed on the host filesystem before calling
-> > > syncfs() on the host filesystem?
-> > 
-> > Hi Amir,
-> > 
-> > I don't think virtiofsd has any such notion. I would think, that
-> > client should make sure all pending writes have completed and
-> > then send SYNCFS request.
-> > 
-> > Looking at the sync_filesystem(), I am assuming vfs will take care
-> > of flushing out all dirty pages and then call ->sync_fs.
-> > 
-> > Having said that, I think fuse queues the writeback request internally
-> > and signals completion of writeback to mm(end_page_writeback()). And
-> > that's why fuse_fsync() has notion of waiting for all pending
-> > writes to finish on an inode (fuse_sync_writes()).
-> > 
-> > So I think you have raised a good point. That is if there are pending
-> > writes at the time of syncfs(), we don't seem to have a notion of
-> > first waiting for all these writes to finish before we send
-> > FUSE_SYNCFS request to server.
-> 
-> So here a proposed patch for fixing this.  Works by counting write requests
-> initiated up till the syncfs call.  Since more than one syncfs can be in
-> progress counts are kept in "buckets" in order to wait for the correct write
-> requests in each instance.
-> 
-> I tried to make this lightweight, but the cacheline bounce due to the counter is
-> still there, unfortunately.  fc->num_waiting also causes cacheline bouce, so I'm
-> not going to optimize this (percpu counter?) until that one is also optimizied.
-> 
-> Not yet tested, and I'm not sure how to test this.
-> 
-> Comments?
-> 
-> Thanks,
-> Miklos
-> 
-> 
-> diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-> index 97f860cfc195..8d1d6e895534 100644
-> --- a/fs/fuse/file.c
-> +++ b/fs/fuse/file.c
-> @@ -389,6 +389,7 @@ struct fuse_writepage_args {
->  	struct list_head queue_entry;
->  	struct fuse_writepage_args *next;
->  	struct inode *inode;
-> +	struct fuse_sync_bucket *bucket;
->  };
->  
->  static struct fuse_writepage_args *fuse_find_writeback(struct fuse_inode *fi,
-> @@ -1608,6 +1609,9 @@ static void fuse_writepage_free(struct fuse_writepage_args *wpa)
->  	struct fuse_args_pages *ap = &wpa->ia.ap;
->  	int i;
->  
-> +	if (wpa->bucket && atomic_dec_and_test(&wpa->bucket->num_writepages))
+On Sun, Aug 29, 2021 at 10:11:46PM -0700, Andi Kleen wrote:
+> =
 
-Hi Miklos,
+> On 8/29/2021 3:26 PM, Michael S. Tsirkin wrote:
+> > On Sun, Aug 29, 2021 at 09:17:53AM -0700, Andi Kleen wrote:
+> > > Also I changing this single call really that bad? It's not that we ch=
+anging
+> > > anything drastic here, just give the low level subsystem a better hin=
+t about
+> > > the intention. If you don't like the function name, could make it an
+> > > argument instead?
+> > My point however is that the API should say that the
+> > driver has been audited,
+> =
 
-Wondering why this wpa->bucket check is there. Isn't every wpa is associated
-bucket.  So when do we run into situation when wpa->bucket = NULL.
+> We have that status in the struct device. If you want to tie the ioremap =
+to
+> that we could define a ioremap_device() with a device argument and decide
+> based on that.
 
+But it's not the device that is audited. And it's not the device
+that might be secure or insecure. It's the driver.
 
-> +		wake_up(&wpa->bucket->waitq);
-> +
->  	for (i = 0; i < ap->num_pages; i++)
->  		__free_page(ap->pages[i]);
->  
-> @@ -1871,6 +1875,19 @@ static struct fuse_writepage_args *fuse_writepage_args_alloc(void)
->  
->  }
->  
-> +static void fuse_writepage_add_to_bucket(struct fuse_conn *fc,
-> +					 struct fuse_writepage_args *wpa)
-> +{
-> +	if (!fc->sync_fs)
-> +		return;
-> +
-> +	rcu_read_lock();
-> +	do {
-> +		wpa->bucket = rcu_dereference(fc->curr_bucket);
-> +	} while (unlikely(!atomic_inc_not_zero(&wpa->bucket->num_writepages)));
+> Or we can add _audited to the name. ioremap_shared_audited?
 
-So this loop is there because fuse_sync_fs() might be replacing
-fc->curr_bucket. And we are fetching this pointer under rcu. So it is
-possible that fuse_fs_sync() dropped its reference and that led to
-->num_writepages 0 and we don't want to use this bucket.
+But it's not the mapping that has to be done in handled special way.
+It's any data we get from device, not all of it coming from IO, e.g.
+there's DMA and interrupts that all have to be validated.
+Wouldn't you say that what is really wanted is just not running
+unaudited drivers in the first place?
 
-What if fuse_sync_fs() dropped its reference but still there is another
-wpa in progress and hence ->num_writepages is not zero. We still don't
-want to use this bucket for new wpa, right?
+> =
 
-> +	rcu_read_unlock();
-> +}
-> +
->  static int fuse_writepage_locked(struct page *page)
->  {
->  	struct address_space *mapping = page->mapping;
-> @@ -1898,6 +1915,7 @@ static int fuse_writepage_locked(struct page *page)
->  	if (!wpa->ia.ff)
->  		goto err_nofile;
->  
-> +	fuse_writepage_add_to_bucket(fc, wpa);
->  	fuse_write_args_fill(&wpa->ia, wpa->ia.ff, page_offset(page), 0);
->  
->  	copy_highpage(tmp_page, page);
-> @@ -2148,6 +2166,8 @@ static int fuse_writepages_fill(struct page *page,
->  			__free_page(tmp_page);
->  			goto out_unlock;
->  		}
-> +		fuse_writepage_add_to_bucket(fc, wpa);
-> +
->  		data->max_pages = 1;
->  
->  		ap = &wpa->ia.ap;
-> diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-> index 07829ce78695..ee638e227bb3 100644
-> --- a/fs/fuse/fuse_i.h
-> +++ b/fs/fuse/fuse_i.h
-> @@ -515,6 +515,14 @@ struct fuse_fs_context {
->  	void **fudptr;
->  };
->  
-> +struct fuse_sync_bucket {
-> +	atomic_t num_writepages;
-> +	union {
-> +		wait_queue_head_t waitq;
-> +		struct rcu_head rcu;
-> +	};
-> +};
-> +
->  /**
->   * A Fuse connection.
->   *
-> @@ -807,6 +815,9 @@ struct fuse_conn {
->  
->  	/** List of filesystems using this connection */
->  	struct list_head mounts;
-> +
-> +	/* New writepages go into this bucket */
-> +	struct fuse_sync_bucket *curr_bucket;
->  };
->  
->  /*
-> diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-> index b9beb39a4a18..524b2d128985 100644
-> --- a/fs/fuse/inode.c
-> +++ b/fs/fuse/inode.c
-> @@ -506,10 +506,24 @@ static int fuse_statfs(struct dentry *dentry, struct kstatfs *buf)
->  	return err;
->  }
->  
-> +static struct fuse_sync_bucket *fuse_sync_bucket_alloc(void)
-> +{
-> +	struct fuse_sync_bucket *bucket;
-> +
-> +	bucket = kzalloc(sizeof(*bucket), GFP_KERNEL | __GFP_NOFAIL);
-> +	if (bucket) {
-> +		init_waitqueue_head(&bucket->waitq);
-> +		/* Initial active count */
-> +		atomic_set(&bucket->num_writepages, 1);
-> +	}
-> +	return bucket;
-> +}
-> +
->  static int fuse_sync_fs(struct super_block *sb, int wait)
->  {
->  	struct fuse_mount *fm = get_fuse_mount_super(sb);
->  	struct fuse_conn *fc = fm->fc;
-> +	struct fuse_sync_bucket *bucket, *new_bucket;
->  	struct fuse_syncfs_in inarg;
->  	FUSE_ARGS(args);
->  	int err;
-> @@ -528,6 +542,31 @@ static int fuse_sync_fs(struct super_block *sb, int wait)
->  	if (!fc->sync_fs)
->  		return 0;
->  
-> +	new_bucket = fuse_sync_bucket_alloc();
-> +	spin_lock(&fc->lock);
-> +	bucket = fc->curr_bucket;
-> +	if (atomic_read(&bucket->num_writepages) != 0) {
-> +		/* One more for count completion of old bucket */
-> +		atomic_inc(&new_bucket->num_writepages);
-> +		rcu_assign_pointer(fc->curr_bucket, new_bucket);
-> +		/* Drop initially added active count */
-> +		atomic_dec(&bucket->num_writepages);
-> +		spin_unlock(&fc->lock);
-> +
-> +		wait_event(bucket->waitq, atomic_read(&bucket->num_writepages) == 0);
-> +		/*
-> +		 * Drop count on new bucket, possibly resulting in a completion
-> +		 * if more than one syncfs is going on
-> +		 */
-> +		if (atomic_dec_and_test(&new_bucket->num_writepages))
-> +			wake_up(&new_bucket->waitq);
-> +		kfree_rcu(bucket, rcu);
-> +	} else {
-> +		spin_unlock(&fc->lock);
-> +		/* Free unused */
-> +		kfree(new_bucket);
-When can we run into the situation when fc->curr_bucket is num_writepages
-== 0. When install a bucket it has count 1. And only time it can go to
-0 is when we have dropped the initial reference. And initial reference
-can be dropped only after removing bucket from fc->curr_bucket.
+> > not that the mapping has been
+> > done in some special way. For example the mapping can be
+> > in some kind of wrapper, not directly in the driver.
+> > However you want the driver validated, not the wrapper.
+> > =
 
-IOW, we don't drop initial reference on a bucket if it is in
-fc->curr_bucket. And that mean anything installed fc->curr_bucket should
-not ever have a reference count of 0. What am I missing.
+> > Here's an idea:
+> =
 
-Thanks
-Vivek
+> =
 
-> +	}
+> I don't think magic differences of API behavior based on some define are a
+> good idea.=A0 That's easy to miss.
 
-> +
->  	memset(&inarg, 0, sizeof(inarg));
->  	args.in_numargs = 1;
->  	args.in_args[0].size = sizeof(inarg);
-> @@ -770,6 +809,7 @@ void fuse_conn_put(struct fuse_conn *fc)
->  			fiq->ops->release(fiq);
->  		put_pid_ns(fc->pid_ns);
->  		put_user_ns(fc->user_ns);
-> +		kfree_rcu(fc->curr_bucket, rcu);
->  		fc->release(fc);
->  	}
->  }
-> @@ -1418,6 +1458,7 @@ int fuse_fill_super_common(struct super_block *sb, struct fuse_fs_context *ctx)
->  	if (sb->s_flags & SB_MANDLOCK)
->  		goto err;
->  
-> +	fc->curr_bucket = fuse_sync_bucket_alloc();
->  	fuse_sb_defaults(sb);
->  
->  	if (ctx->is_bdev) {
-> 
+Well ... my point is that actually there is no difference in API
+behaviour. the map is the same map, exactly same data goes to device. If
+anything any non-shared map is special in that encrypted data goes to
+device.
+
+> =
+
+> That's a "COME FROM" in API design.
+> =
+
+> Also it wouldn't handle the case that a driver has both private and shared
+> ioremaps, e.g. for BIOS structures.
+
+Hmm. Interesting.  It's bios maps that are unusual and need to be private t=
+hough ...
+
+> And we've been avoiding that drivers can self declare auditing, we've been
+> trying to have a separate centralized list so that it's easier to enforce
+> and avoids any cut'n'paste mistakes.
+> =
+
+> -Andi
+
+Now I'm confused. What is proposed here seems to be basically that,
+drivers need to declare auditing by replacing ioremap with
+ioremap_shared.
+
+-- =
+
+MST
 
 _______________________________________________
 Virtualization mailing list
