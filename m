@@ -1,113 +1,104 @@
-Return-Path: <SRS0=/Kss=NV=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=kXQI=NW=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B39EC432BE
-	for <virtualization@archiver.kernel.org>; Mon, 30 Aug 2021 21:48:48 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B15B6C432BE
+	for <virtualization@archiver.kernel.org>; Tue, 31 Aug 2021 00:23:37 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0B5FE60E90
-	for <virtualization@archiver.kernel.org>; Mon, 30 Aug 2021 21:48:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0B5FE60E90
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 304CE60FF2
+	for <virtualization@archiver.kernel.org>; Tue, 31 Aug 2021 00:23:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 304CE60FF2
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id CE4B1605AB;
-	Mon, 30 Aug 2021 21:48:47 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id A699E40236;
+	Tue, 31 Aug 2021 00:23:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id fOWVN7beK-0p; Mon, 30 Aug 2021 21:48:44 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 5FADE606B9;
-	Mon, 30 Aug 2021 21:48:43 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 19290C0010;
-	Mon, 30 Aug 2021 21:48:43 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2D845C000E
- for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Aug 2021 21:48:42 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 07FC24038F
- for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Aug 2021 21:48:42 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ijMV_mxPWB6f
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4a52YQDh-cIy; Tue, 31 Aug 2021 00:23:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 01B9E400FD;
+	Tue, 31 Aug 2021 00:23:32 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B02DBC001A;
+	Tue, 31 Aug 2021 00:23:31 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 58F9BC000E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Aug 2021 21:48:40 +0000 (UTC)
+ Tue, 31 Aug 2021 00:23:30 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2531B81CA3
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 31 Aug 2021 00:23:30 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id NERRdyZu3lVa
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 31 Aug 2021 00:23:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id CF34F40198
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 81F9C81CA0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Aug 2021 21:48:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1630360118;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=AmK5AK//VpDNOflKYrie75fU9H15kJEGNG5tiW/9pzA=;
- b=RVODUNDAVOSbrtZemWwsw+8SdJ1FaYLDkXY/+aINyP3f3oeXYTMcphyz5D0JSRwuEn4GCb
- 5R3HUrNhSVZgzMUT2sr9FWUc0BnJ6OI4WphZXhu/aToc4NXyY0A3eGcodLOhc6jTqiPM3Q
- dL7Rro/flEF+xsW21kE9oLunBERa3RQ=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-228-NqY_sKmPMK6hNhLbhxx2bQ-1; Mon, 30 Aug 2021 17:48:37 -0400
-X-MC-Unique: NqY_sKmPMK6hNhLbhxx2bQ-1
-Received: by mail-wr1-f70.google.com with SMTP id
- p1-20020adfcc81000000b001576cccf12cso3574810wrj.6
- for <virtualization@lists.linux-foundation.org>;
- Mon, 30 Aug 2021 14:48:36 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=AmK5AK//VpDNOflKYrie75fU9H15kJEGNG5tiW/9pzA=;
- b=sniMmjKQ8BXXowejBf+2O+QE9+KjjjGyRDzMfPFwMq3u0c7r1BkQotq7HJ4XNIiMMB
- LNumCVDsu+JUEu7Z1sbw+6CzmTFvv6lOqJzYJaLyqF6IE/SCPjX3evBOZPlelfr/PHDm
- KskLrjPXfRS3K0/K5F3+/TldvdLKkGg0+duyLbug8C3C9IeL5+rtbRK1hkDFqei8iVqR
- I8znSOc04aaSasISTtoLhMyGxbx9EI0f8Q11kThPqR3G5Y4SUtl9KMC+0sEqL89FjYdh
- GjZ7mxT8Qw25xUS26EguziC2ZR8ZiHFiLvEuXlwNWXMEBs0lzWRzNQ6ovuBNKSr6tayT
- yj+Q==
-X-Gm-Message-State: AOAM533Fs+9S6KQGLkb7IrYaBdx0dND7U4MpSL0QX1gC9rqC3Ovr1VN9
- KPHShcYDDbOnynf/eu1oom9zS2YBxzZNgIBZMcOsn1y6xeZmirZ2q8hB2ABgkaDM5dcPoBdMV5T
- 3R22gB3Xw4NksBV6peLqjw2J8lK2efdyUB3R4HZtvMw==
-X-Received: by 2002:a1c:35c9:: with SMTP id c192mr967737wma.121.1630360115922; 
- Mon, 30 Aug 2021 14:48:35 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy5fhrlu0kEOzo1cvWkb9o9z8Fn1FmpxfqvNOtZoj6358rRlPDpe9fYiRVrse76ReP25wmvgw==
-X-Received: by 2002:a1c:35c9:: with SMTP id c192mr967723wma.121.1630360115695; 
- Mon, 30 Aug 2021 14:48:35 -0700 (PDT)
-Received: from redhat.com ([2.55.138.60])
- by smtp.gmail.com with ESMTPSA id v62sm68440wme.21.2021.08.30.14.48.33
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 30 Aug 2021 14:48:35 -0700 (PDT)
-Date: Mon, 30 Aug 2021 17:48:31 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: Re: [PATCH 1/1] virtio-blk: add num_io_queues module parameter
-Message-ID: <20210830174345-mutt-send-email-mst@kernel.org>
-References: <20210830120023.22202-1-mgurtovoy@nvidia.com>
+ Tue, 31 Aug 2021 00:23:29 +0000 (UTC)
+X-IronPort-AV: E=McAfee;i="6200,9189,10092"; a="197936059"
+X-IronPort-AV: E=Sophos;i="5.84,364,1620716400"; d="scan'208";a="197936059"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+ by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 30 Aug 2021 17:23:19 -0700
+X-IronPort-AV: E=Sophos;i="5.84,364,1620716400"; d="scan'208";a="540780855"
+Received: from akleen-mobl1.amr.corp.intel.com (HELO [10.212.223.22])
+ ([10.212.223.22])
+ by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 30 Aug 2021 17:23:18 -0700
+Subject: Re: [PATCH v4 11/15] pci: Add pci_iomap_shared{,_range}
+To: "Michael S. Tsirkin" <mst@redhat.com>
+References: <20210823195409-mutt-send-email-mst@kernel.org>
+ <26a3cce5-ddf7-cbe6-a41e-58a2aea48f78@linux.intel.com>
+ <CAPcyv4iJVQKJ3bVwZhD08c8GNEP0jW2gx=H504NXcYK5o2t01A@mail.gmail.com>
+ <d992b5af-8d57-6aa6-bd49-8e2b8d832b19@linux.intel.com>
+ <20210824053830-mutt-send-email-mst@kernel.org>
+ <d21a2a2d-4670-ba85-ce9a-fc8ea80ef1be@linux.intel.com>
+ <20210829112105-mutt-send-email-mst@kernel.org>
+ <09b340dd-c8a8-689c-4dad-4fe0e36d39ae@linux.intel.com>
+ <20210829181635-mutt-send-email-mst@kernel.org>
+ <3a88a255-a528-b00a-912b-e71198d5f58f@linux.intel.com>
+ <20210830163723-mutt-send-email-mst@kernel.org>
+From: Andi Kleen <ak@linux.intel.com>
+Message-ID: <69fc30f4-e3e2-add7-ec13-4db3b9cc0cbd@linux.intel.com>
+Date: Mon, 30 Aug 2021 17:23:17 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-In-Reply-To: <20210830120023.22202-1-mgurtovoy@nvidia.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: axboe@kernel.dk, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- stefanha@redhat.com, oren@nvidia.com
+In-Reply-To: <20210830163723-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Cc: "Kuppuswamy, Sathyanarayanan" <sathyanarayanan.kuppuswamy@linux.intel.com>,
+ Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
+ Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, Linux PCI <linux-pci@vger.kernel.org>,
+ linux-mips@vger.kernel.org,
+ James E J Bottomley <James.Bottomley@hansenpartnership.com>,
+ Dave Hansen <dave.hansen@intel.com>, Peter H Anvin <hpa@zytor.com>,
+ sparclinux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+ linux-arch <linux-arch@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>,
+ Helge Deller <deller@gmx.de>, X86 ML <x86@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
+ Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@alien8.de>,
+ Andy Lutomirski <luto@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
+ Dan Williams <dan.j.williams@intel.com>,
+ virtualization@lists.linux-foundation.org, Richard Henderson <rth@twiddle.net>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-parisc@vger.kernel.org,
+ Sean Christopherson <seanjc@google.com>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ linux-alpha@vger.kernel.org, "David S . Miller" <davem@davemloft.net>,
+ Kirill Shutemov <kirill.shutemov@linux.intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,72 +110,49 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Aug 30, 2021 at 03:00:23PM +0300, Max Gurtovoy wrote:
-> Sometimes a user would like to control the amount of IO queues to be
-> created for a block device. For example, for limiting the memory
-> footprint of virtio-blk devices.
-> 
-> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+
+On 8/30/2021 1:59 PM, Michael S. Tsirkin wrote:
+>
+>> Or we can add _audited to the name. ioremap_shared_audited?
+> But it's not the mapping that has to be done in handled special way.
+> It's any data we get from device, not all of it coming from IO, e.g.
+> there's DMA and interrupts that all have to be validated.
+> Wouldn't you say that what is really wanted is just not running
+> unaudited drivers in the first place?
 
 
-Hmm. It's already limited by # of CPUs... Why not just limit
-from the hypervisor side? What's the actual use-case here?
+Yes.
 
-> ---
->  drivers/block/virtio_blk.c | 26 +++++++++++++++++++++++++-
->  1 file changed, 25 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index e574fbf5e6df..77e8468e8593 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -24,6 +24,28 @@
->  /* The maximum number of sg elements that fit into a virtqueue */
->  #define VIRTIO_BLK_MAX_SG_ELEMS 32768
->  
-> +static int virtblk_queue_count_set(const char *val,
-> +		const struct kernel_param *kp)
-> +{
-> +	unsigned int n;
-> +	int ret;
-> +
-> +	ret = kstrtouint(val, 10, &n);
-> +	if (ret != 0 || n > nr_cpu_ids)
-> +		return -EINVAL;
-> +	return param_set_uint(val, kp);
-> +}
-> +
-> +static const struct kernel_param_ops queue_count_ops = {
-> +	.set = virtblk_queue_count_set,
-> +	.get = param_get_uint,
-> +};
-> +
-> +static unsigned int num_io_queues;
-> +module_param_cb(num_io_queues, &queue_count_ops, &num_io_queues, 0644);
-> +MODULE_PARM_DESC(num_io_queues,
-> +		 "Number of IO virt queues to use for blk device.");
-> +
->  static int major;
->  static DEFINE_IDA(vd_index_ida);
->  
-> @@ -501,7 +523,9 @@ static int init_vq(struct virtio_blk *vblk)
->  	if (err)
->  		num_vqs = 1;
->  
-> -	num_vqs = min_t(unsigned int, nr_cpu_ids, num_vqs);
-> +	num_vqs = min_t(unsigned int,
-> +			min_not_zero(num_io_queues, nr_cpu_ids),
-> +			num_vqs);
->  
->  	vblk->vqs = kmalloc_array(num_vqs, sizeof(*vblk->vqs), GFP_KERNEL);
->  	if (!vblk->vqs)
-> -- 
-> 2.18.1
+
+>
+>> And we've been avoiding that drivers can self declare auditing, we've been
+>> trying to have a separate centralized list so that it's easier to enforce
+>> and avoids any cut'n'paste mistakes.
+>>
+>> -Andi
+> Now I'm confused. What is proposed here seems to be basically that,
+> drivers need to declare auditing by replacing ioremap with
+> ioremap_shared.
+
+Auditing is declared on the device model level using a central allow list.
+
+But this cannot do anything to initcalls that run before probe, that's 
+why an extra level of defense of ioremap opt-in is useful. But it's not 
+the primary mechanism to declare a driver audited, that's the allow 
+list. The ioremap is just another mechanism to avoid having to touch a 
+lot of legacy drivers.
+
+If we agree on that then the original proposed semantics of 
+"ioremap_shared" may be acceptable?
+
+-Andi
+
+
 
 _______________________________________________
 Virtualization mailing list
