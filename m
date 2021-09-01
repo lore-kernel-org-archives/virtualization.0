@@ -1,68 +1,116 @@
-Return-Path: <SRS0=kXQI=NW=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=XZyc=NX=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-X-Spam-Level: **
-X-Spam-Status: No, score=2.3 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-	HTML_MESSAGE,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no
+X-Spam-Level: 
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4735BC432BE
-	for <virtualization@archiver.kernel.org>; Tue, 31 Aug 2021 22:39:11 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AB8AC432BE
+	for <virtualization@archiver.kernel.org>; Wed,  1 Sep 2021 01:13:47 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E079660698
-	for <virtualization@archiver.kernel.org>; Tue, 31 Aug 2021 22:39:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E079660698
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id A7BFB6101B
+	for <virtualization@archiver.kernel.org>; Wed,  1 Sep 2021 01:13:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A7BFB6101B
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A6697613A6;
-	Tue, 31 Aug 2021 22:39:10 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2u50cHcUTN66; Tue, 31 Aug 2021 22:39:06 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 25DFD60585;
-	Tue, 31 Aug 2021 22:39:06 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F04B6C001A;
-	Tue, 31 Aug 2021 22:39:05 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C602EC000E
- for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Aug 2021 22:39:04 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id A8AAC80C88
- for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Aug 2021 22:39:04 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6FAAB81AF5;
+	Wed,  1 Sep 2021 01:13:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JR3emXIcJqJo
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qmg-vDx6asqz; Wed,  1 Sep 2021 01:13:42 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1B5AB81A5F;
+	Wed,  1 Sep 2021 01:13:42 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E3052C0010;
+	Wed,  1 Sep 2021 01:13:41 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4DA08C000E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Aug 2021 22:39:00 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
- [IPv6:2a03:f480:1:14::7d])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 1F66680C52
+ Wed,  1 Sep 2021 01:13:40 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 2F2CD40102
  for <virtualization@lists.linux-foundation.org>;
- Tue, 31 Aug 2021 22:39:00 +0000 (UTC)
-Received: from [37.189.17.205] (helo=LAPTOP-EPOV2LRR)
- by s052d7dde.fastvps-server.com with esmtpsa
- (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
- (envelope-from <marle@saisti.eu>) id 1mLC7j-0002UM-40
- for virtualization@lists.linux-foundation.org; Wed, 01 Sep 2021 01:20:55 +0300
-From: "ML" <marialemos72@gmail.com>
-Subject: ICITS'22 | Costa Rica | Deadline: September 13
-To: virtualization@lists.linux-foundation.org
+ Wed,  1 Sep 2021 01:13:40 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id DM0F6VPnKnEy
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  1 Sep 2021 01:13:36 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id D83F3400C3
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  1 Sep 2021 01:13:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1630458814;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=sl+B5379yUDrNJLwbrud/Hr861vIy0CoL8FyVMZ0J3I=;
+ b=KG3qHBGBUOWFquC+X74nuBxxdBcPFAlyee1KDCDIgUiL+doGMD+HwrxOiHkaR1ssqhq+tr
+ F66md4ePeZKgk9wUEQOiFr0Gbgz10tZtYnszyszidB9ycjPh60fnH+puihQSJ95AO9VwjG
+ GZnSeu5Pwz0L8XwK8Z5kcCqAOJVyarg=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-109-477OSgBZOjWPvaY2Q__tLQ-1; Tue, 31 Aug 2021 21:13:30 -0400
+X-MC-Unique: 477OSgBZOjWPvaY2Q__tLQ-1
+Received: by mail-ej1-f71.google.com with SMTP id
+ c25-20020a170906529900b005c56c92caa2so596843ejm.19
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 31 Aug 2021 18:13:30 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=sl+B5379yUDrNJLwbrud/Hr861vIy0CoL8FyVMZ0J3I=;
+ b=MrxNmj8tZ6KX4kpVL+WfhuG/Ryh1qN+etEK/iWCk+mhHnUZ7YiV+5k4b18uvsG4kgF
+ NG8ZyIaAt9WMHr8Y+6EqIzQIExmDY6GwepNwmJhk8Xn/kPml+9PG+ajbb4dsBnswfp9+
+ 8auKezm02ZQV27kbYDcj767Kh2+iy5kPa77wjj20EMbJ6o5JeojQtDp+a18rA170ekaE
+ nNRa0KZR5flNaWGFl1LlGK6RB1rOyYcx4nLvN6r1b8CEgtSGFO6VfeggP34OhI4h2uil
+ KM7pJ/v7HGWUsLlFW0/wCZlse8kdvIJYzBNC00AEOdFMQ2oWM10qxwCeUwN/sdxriPsB
+ h1SQ==
+X-Gm-Message-State: AOAM531qpbxkdFFkgrTPBg7LHgLz3xDiIB7cIuvyYLv8DOZYBJTRdnLr
+ xU6NtFazUrG8PWy7m82a63fj317BsJmI5fBj8uAF3PpJKVl521dctwsRKCkqc/B0si3lzjZxWc2
+ wY2L5//T9ylnzhaKX1HDaK63B3YBcBXQHSJhNORiz2Q==
+X-Received: by 2002:a50:c94d:: with SMTP id p13mr33269514edh.246.1630458809473; 
+ Tue, 31 Aug 2021 18:13:29 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJySTZcwEyyGQ5PYi0P8Rcg+TP54FRYMBelhds9a0EEYaI54fNLFAvMTADqrrHk30ZxX6DNjuw==
+X-Received: by 2002:a50:c94d:: with SMTP id p13mr33269487edh.246.1630458809215; 
+ Tue, 31 Aug 2021 18:13:29 -0700 (PDT)
+Received: from redhat.com ([2.55.138.60])
+ by smtp.gmail.com with ESMTPSA id e11sm10198944edq.30.2021.08.31.18.13.25
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 31 Aug 2021 18:13:28 -0700 (PDT)
+Date: Tue, 31 Aug 2021 21:13:23 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jiang Wang <jiang.wang@bytedance.com>
+Subject: Re: [virtio-comment] [PATCH v5] virtio-vsock: add description for
+ datagram type
+Message-ID: <20210831211205-mutt-send-email-mst@kernel.org>
+References: <20210610181203.979686-1-jiang.wang@bytedance.com>
 MIME-Version: 1.0
-Date: Tue, 31 Aug 2021 23:20:55 +0100
-Message-ID: <81881676564765@gmail-com>
-X-Antivirus: AVG (VPS 210831-8, 31/8/2021), Outbound message
-X-Antivirus-Status: Clean
+In-Reply-To: <20210610181203.979686-1-jiang.wang@bytedance.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: cong.wang@bytedance.com, duanxiongchun@bytedance.com, cohuck@redhat.com,
+ virtualization@lists.linux-foundation.org, xieyongji@bytedance.com,
+ chaiwen.cc@bytedance.com, stefanha@redhat.com,
+ virtio-comment@lists.oasis-open.org, asias@redhat.com,
+ arseny.krasnov@kaspersky.com, jhansen@vmware.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -74,350 +122,204 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: intercits@gmail.com
-Content-Type: multipart/mixed; boundary="===============0864426000908046715=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is a multi-part message in MIME format
+On Thu, Jun 10, 2021 at 06:12:03PM +0000, Jiang Wang wrote:
+> Add supports for datagram type for virtio-vsock. Datagram
+> sockets are connectionless and unreliable. To avoid contention
+> with stream and other sockets, add two more virtqueues and
+> a new feature bit to identify if those two new queues exist or not.
+> 
+> Also add descriptions for resource management of datagram, which
+> does not use the existing credit update mechanism associated with
+> stream sockets.
+> 
+> Signed-off-by: Jiang Wang <jiang.wang@bytedance.com>
 
---===============0864426000908046715==
-Content-Type: multipart/alternative; charset=utf-8; boundary="JFjxJ1vxpvn1=_R1472eJdn35eqJ8xlK5k"
+Is this going anywhere? Linux with this included was just released but
+if no one has the cycles to work on the spec then it's not too late to
+disable the guest code in a stable@ patch.
 
-This is a multi-part message in MIME format
-
---JFjxJ1vxpvn1=_R1472eJdn35eqJ8xlK5k
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
----------------------------------------------------------------------------=
------------------------------------------
-ICITS'22 - The 2022 International Conference on Information Technology & Sy=
-stems
-San Carlos, Costa Rica, 9 - 11 February 2022
-http://icits.me <http://icits.me/>
----------------------------------------------------------------------------=
------------------------------------------
- 
-SCOPE
- 
-ICITS'22 - The 2022 International Conference on Information Technology & Sy=
-stems (http://icits.me <http://icits.me/>), to be held in Tecnol=C3=B3gico =
-de Costa Rica, Campus de San Carlos, Costa Rica, 9 - 11 February 2022, is a=
-n international forum for researchers and practitioners to present and disc=
-uss the most recent innovations, trends, results, experiences and concerns =
-in the several perspectives of Information Technology & Systems.  
- 
-We are pleased to invite you to submit your papers to ICITS'22. They can be=
- written in English, Spanish or Portuguese. All submissions will be reviewe=
-d on the basis of relevance, originality, importance and clarity.
- 
- 
-TOPICS
- 
-Submitted papers should be related with one or more of the main themes prop=
-osed for the Conference:  
- 
-A) Information and Knowledge Management (IKM);  
-B) Organizational Models and Information Systems (OMIS);  
-C) Software and Systems Modeling (SSM);  
-D) Software Systems, Architectures, Applications and Tools (SSAAT);  
-E) Multimedia Systems and Applications (MSA);  
-F) Computer Networks, Mobility and Pervasive Systems (CNMPS);  
-G) Intelligent and Decision Support Systems (IDSS);  
-H) Big Data Analytics and Applications (BDAA);  
-I) Human-Computer Interaction (HCI);  
-J) Ethics, Computers and Security (ECS)  
-K) Health Informatics (HIS);  
-L) Information Technologies in Education (ITE);  
-M) Media, Applied Technology and Communication (MATC).
- 
- 
-SUBMISSION and DECISION
- 
-Submitted papers written in English (until 10-page limit) must comply with =
-the format of the Lecture Notes in Networks and Systems series (see Instruc=
-tions for Authors at Springer Website), must not have been published before=
-, not be under review for any other conference or publication and not inclu=
-de any information leading to the authors=E2=80=99 identification. Therefor=
-e, the authors=E2=80=99 names and affiliations should not be included in th=
-e version for evaluation by the Scientific Committee. This information shou=
-ld only be included in the camera-ready version, saved in Word or Latex for=
-mat and also in PDF format. These files must be accompanied by the Consent =
-to Publish form filled out, in a ZIP file, and uploaded at the conference m=
-anagement system.
-Submitted papers written in Spanish or Portuguese (until 15-page limit) mus=
-t comply with the format of RISTI - Revista Ib=C3=A9rica de Sistemas e Tecn=
-ologias de Informa=C3=A7=C3=A3o (download instructions/template for authors=
- in Spanish or Portuguese), must not have been published before, not be und=
-er review for any other conference or publication and not include any infor=
-mation leading to the authors=E2=80=99 identification. Therefore, the autho=
-rs=E2=80=99 names and affiliations should not be included in the version fo=
-r evaluation by the Scientific Committee. This information should only be i=
-ncluded in the camera-ready version, saved in Word. These files must be upl=
-oaded at the conference management system in a ZIP file.
-All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D by =
-at least two members of the Scientific Committee.  
-Based on Scientific Committee evaluation, a paper can be rejected or accept=
-ed by the Conference Chairs. In the later case, it can be accepted as paper=
- or poster.
-The authors of papers accepted as posters must build and print a poster to =
-be exhibited during the Conference. This poster must follow an A1 or A2 ver=
-tical format. The Conference can include Work Sessions where these posters =
-are presented and orally discussed, with a 7 minute limit per poster.
-The authors of accepted papers will have 15 minutes to present their work i=
-n a Conference Work Session; approximately 5 minutes of discussion will fol=
-low each presentation.
- 
- 
-PUBLICATION and INDEXING  
- 
-Papers accepted as posters are not published; they are only exhibited, pres=
-ented and discussed during the conference.  
- 
-To ensure that a paper accepted as paper is published, at least one of the =
-authors must be fully registered by the 5th of November 2021, and the paper=
- must comply with the suggested layout and page-limit. Additionally, all re=
-commended changes must be addressed by the authors before they submit the c=
-amera-ready version.  
-No more than one paper per registration will be published. An extra fee mus=
-t be paid for publication of additional papers, with a maximum of one addit=
-ional paper per registration. One registration permits only the participati=
-on of one author in the conference.  
- 
-Papers written in English and accepted and registered will be published in =
-Proceedings by Springer, in a book of the Lecture Notes in Networks and Sys=
-tems series, will  be submitted for indexation by SCOPUS, WoS, Google Schol=
-ar, SCImago, among others, and will be available in the SpringerLink Digita=
-l Library.  
- 
-Papers written in Spanish or Portuguese and accepted and registered will be=
- published in a Special Issue of RISTI and will be submitted for indexation=
- by SCOPUS, among others.
- 
- 
-IMPORTANT DATES
- 
-Paper Submission: September 13, 2021  
- 
-Notification of Acceptance: October 17, 2021  
- 
-Payment of Registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: November 5, 2021.  
- 
-Camera-ready Submission: November 5, 2021
- 
- 
-Website of ICITS'22: http://icits.me <http://icits.me/>
- 
- 
-ICITS'22 Team
-http://icits.me <http://icits.me/>
-
-
--- 
-This email has been checked for viruses by AVG.
-https://www.avg.com
-
---JFjxJ1vxpvn1=_R1472eJdn35eqJ8xlK5k
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <div class=3D"adn ads" data-legacy-message-id=3D"17a812a84db16fcf" data=
--message-id=3D"#msg-a:r-1499474762405574081">
-      <div class=3D"gs">
-        <div>
-          <div id=3D":19a" class=3D"ii gt">
-            <div id=3D":199" class=3D"a3s aiL ">---------------------------=
----------------------------------------------------------------------------=
---------------</div>
-            <div class=3D"a3s aiL ">ICITS'22 - The 2022 International Confe=
-rence on Information Technology &amp; Systems</div>
-            <div class=3D"a3s aiL ">San Carlos, Costa Rica, 9 - 11 February=
- 2022</div>
-            <div class=3D"a3s aiL "><a href=3D"http://icits.me/">http://ici=
-ts.me</a><br />------------------------------------------------------------=
---------------------------------------------------------<br />&nbsp;</div>
-            <div class=3D"a3s aiL ">SCOPE</div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">ICITS'22 - The 2022 International Confe=
-rence on Information Technology &amp; Systems (<a href=3D"http://icits.me/"=
->http://icits.me</a>), to be held in Tecnol&oacute;gico de Costa Rica, Camp=
-us de San Carlos, Costa Rica, 9 - 11 February 2022, is an international for=
-um for researchers and practitioners to present and discuss the most recent=
- innovations, trends, results, experiences and concerns in the several pers=
-pectives of Information Technology &amp; Systems.&nbsp; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">We are pleased to invite you to submit =
-your papers to ICITS'22. They can be written in English, Spanish or Portugu=
-ese. All submissions will be reviewed on the basis of relevance, originalit=
-y, importance and clarity.<br />&nbsp;</div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">TOPICS</div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Submitted papers should be related with=
- one or more of the main themes proposed for the Conference:&nbsp; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">A) Information and Knowledge Management=
- (IKM);&nbsp; </div>
-            <div class=3D"a3s aiL ">B) Organizational Models and Informatio=
-n Systems (OMIS);&nbsp; </div>
-            <div class=3D"a3s aiL ">C) Software and Systems Modeling (SSM);=
-&nbsp; </div>
-            <div class=3D"a3s aiL ">D) Software Systems, Architectures, App=
-lications and Tools (SSAAT);&nbsp; </div>
-            <div class=3D"a3s aiL ">E) Multimedia Systems and Applications =
-(MSA);&nbsp; </div>
-            <div class=3D"a3s aiL ">F) Computer Networks, Mobility and Perv=
-asive Systems (CNMPS);&nbsp; </div>
-            <div class=3D"a3s aiL ">G) Intelligent and Decision Support Sys=
-tems (IDSS);&nbsp; </div>
-            <div class=3D"a3s aiL ">H) Big Data Analytics and Applications =
-(BDAA);&nbsp; </div>
-            <div class=3D"a3s aiL ">I) Human-Computer Interaction (HCI);&nb=
-sp; </div>
-            <div class=3D"a3s aiL ">J) Ethics, Computers and Security (ECS)=
-&nbsp; </div>
-            <div class=3D"a3s aiL ">K) Health Informatics (HIS);&nbsp; </di=
-v>
-            <div class=3D"a3s aiL ">L) Information Technologies in Educatio=
-n (ITE);&nbsp; </div>
-            <div class=3D"a3s aiL ">M) Media, Applied Technology and Commun=
-ication (MATC).<br />&nbsp;</div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">SUBMISSION and DECISION</div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Submitted papers written in English (un=
-til 10-page limit) must comply with the format of the Lecture Notes in Netw=
-orks and Systems series (see Instructions for Authors at Springer Website),=
- must not have been published before, not be under review for any other con=
-ference or publication and not include any information leading to the autho=
-rs&rsquo; identification. Therefore, the authors&rsquo; names and affiliati=
-ons should not be included in the version for evaluation by the Scientific =
-Committee. This information should only be included in the camera-ready ver=
-sion, saved in Word or Latex format and also in PDF format. These files mus=
-t be accompanied by the Consent to Publish form filled out, in a ZIP file, =
-and uploaded at the conference management system.</div>
-            <div class=3D"a3s aiL "> </div>
-            <div class=3D"a3s aiL ">Submitted papers written in Spanish or =
-Portuguese (until 15-page limit) must comply with the format of RISTI - Rev=
-ista Ib&eacute;rica de Sistemas e Tecnologias de Informa&ccedil;&atilde;o (=
-download instructions/template for authors in Spanish or Portuguese), must =
-not have been published before, not be under review for any other conferenc=
-e or publication and not include any information leading to the authors&rsq=
-uo; identification. Therefore, the authors&rsquo; names and affiliations sh=
-ould not be included in the version for evaluation by the Scientific Commit=
-tee. This information should only be included in the camera-ready version, =
-saved in Word. These files must be uploaded at the conference management sy=
-stem in a ZIP file.</div>
-            <div class=3D"a3s aiL "> </div>
-            <div class=3D"a3s aiL ">All papers will be subjected to a &ldqu=
-o;double-blind review&rdquo; by at least two members of the Scientific Comm=
-ittee.&nbsp; </div>
-            <div class=3D"a3s aiL ">Based on Scientific Committee evaluatio=
-n, a paper can be rejected or accepted by the Conference Chairs. In the lat=
-er case, it can be accepted as paper or poster.</div>
-            <div class=3D"a3s aiL "> </div>
-            <div class=3D"a3s aiL ">The authors of papers accepted as poste=
-rs must build and print a poster to be exhibited during the Conference. Thi=
-s poster must follow an A1 or A2 vertical format. The Conference can includ=
-e Work Sessions where these posters are presented and orally discussed, wit=
-h a 7 minute limit per poster.</div>
-            <div class=3D"a3s aiL "> </div>
-            <div class=3D"a3s aiL ">The authors of accepted papers will hav=
-e 15 minutes to present their work in a Conference Work Session; approximat=
-ely 5 minutes of discussion will follow each presentation.<br />&nbsp;</div=
->
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">PUBLICATION and INDEXING&nbsp; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Papers accepted as posters are not publ=
-ished; they are only exhibited, presented and discussed during the conferen=
-ce.&nbsp; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">To ensure that a paper accepted as pape=
-r is published, at least one of the authors must be fully registered by the=
- 5th of November 2021, and the paper must comply with the suggested layout =
-and page-limit. Additionally, all recommended changes must be addressed by =
-the authors before they submit the camera-ready version.&nbsp; </div>
-            <div class=3D"a3s aiL ">No more than one paper per registration=
- will be published. An extra fee must be paid for publication of additional=
- papers, with a maximum of one additional paper per registration. One regis=
-tration permits only the participation of one author in the conference.&nbs=
-p; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Papers written in English and accepted =
-and registered will be published in Proceedings by Springer, in a book of t=
-he Lecture Notes in Networks and Systems series, will&nbsp; be submitted fo=
-r indexation by SCOPUS, WoS, Google Scholar, SCImago, among others, and wil=
-l be available in the SpringerLink Digital Library.&nbsp; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Papers written in Spanish or Portuguese=
- and accepted and registered will be published in a Special Issue of RISTI =
-and will be submitted for indexation by SCOPUS, among others.<br />&nbsp;</=
-div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">IMPORTANT DATES</div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Paper Submission: September 13, 2021&nb=
-sp; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Notification of Acceptance: October 17,=
- 2021&nbsp; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Payment of Registration, to ensure the =
-inclusion of an accepted paper in the conference proceedings: November 5, 2=
-021.&nbsp; </div>
-            <div class=3D"a3s aiL ">&nbsp;</div>
-            <div class=3D"a3s aiL ">Camera-ready Submission: November 5, 20=
-21<br />&nbsp;<br />&nbsp;<br />Website of ICITS'22: <a href=3D"http://icit=
-s.me/">http://icits.me</a><br />&nbsp;<br />&nbsp;<br />ICITS'22 Team<br />=
-<a href=3D"http://icits.me/">http://icits.me</a></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
-<table style=3D"border-top: 1px solid #D3D4DE;">
-	<tr>
-        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
-=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
-n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
-s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
-=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
-a></td>
-		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
-13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
-free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
-source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
-"_blank" style=3D"color: #4453ea;">www.avg.com</a>
-		</td>
-	</tr>
-</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
-t=3D"1"> </a></div></body>
-</html>
-
---JFjxJ1vxpvn1=_R1472eJdn35eqJ8xlK5k--
-
-
---===============0864426000908046715==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> ---
+> 
+> V2: addressed the comments for the previous version.
+> V3: add description for the mergeable receive buffer.
+> V4: add a feature bit for stream and reserver a bit for seqpacket.
+> Fix mrg_rxbuf related sentences.
+> V5: removed mergeable rx buffer part. It will go to a 
+> separate patch. Fixed comments about tx, rx, feature bit etc.
+> 
+>  virtio-vsock.tex | 71 +++++++++++++++++++++++++++++++++++++++++++++++---------
+>  1 file changed, 60 insertions(+), 11 deletions(-)
+> 
+> diff --git a/virtio-vsock.tex b/virtio-vsock.tex
+> index da7e641..26a62ac 100644
+> --- a/virtio-vsock.tex
+> +++ b/virtio-vsock.tex
+> @@ -9,14 +9,37 @@ \subsection{Device ID}\label{sec:Device Types / Socket Device / Device ID}
+>  
+>  \subsection{Virtqueues}\label{sec:Device Types / Socket Device / Virtqueues}
+>  \begin{description}
+> -\item[0] rx
+> -\item[1] tx
+> +\item[0] stream rx
+> +\item[1] stream tx
+> +\item[2] datagram rx
+> +\item[3] datagram tx
+> +\item[4] event
+> +\end{description}
+> +The virtio socket device uses 5 queues if feature bit VIRTIO_VSOCK_F_DRGAM is set. Otherwise, it
+> +only uses 3 queues, as the following.
+> +
+> +\begin{description}
+> +\item[0] stream rx
+> +\item[1] stream tx
+>  \item[2] event
+>  \end{description}
+>  
+> +When behavior differs between stream and datagram rx/tx virtqueues
+> +their full names are used. Common behavior is simply described in
+> +terms of rx/tx virtqueues and applies to both stream and datagram
+> +virtqueues.
+> +
+>  \subsection{Feature bits}\label{sec:Device Types / Socket Device / Feature bits}
+>  
+> -There are currently no feature bits defined for this device.
+> +\begin{description}
+> +\item[VIRTIO_VSOCK_F_STREAM (0)] Device has support for stream socket type.
+> +\end{description}
+> +
+> +\begin{description}
+> +\item[VIRTIO_VSOCK_F_DGRAM (2)] Device has support for datagram socket type.
+> +\end{description}
+> +
+> +If no feature bits are defined, assume device only supports stream socket type.
+>  
+>  \subsection{Device configuration layout}\label{sec:Device Types / Socket Device / Device configuration layout}
+>  
+> @@ -107,6 +130,9 @@ \subsection{Device Operation}\label{sec:Device Types / Socket Device / Device Op
+>  
+>  \subsubsection{Virtqueue Flow Control}\label{sec:Device Types / Socket Device / Device Operation / Virtqueue Flow Control}
+>  
+> +Flow control applies to stream sockets; datagram sockets do not have
+> +flow control.
+> +
+>  The tx virtqueue carries packets initiated by applications and replies to
+>  received packets.  The rx virtqueue carries packets initiated by the device and
+>  replies to previously transmitted packets.
+> @@ -140,12 +166,15 @@ \subsubsection{Addressing}\label{sec:Device Types / Socket Device / Device Opera
+>  consists of a (cid, port number) tuple. The header fields used for this are
+>  \field{src_cid}, \field{src_port}, \field{dst_cid}, and \field{dst_port}.
+>  
+> -Currently only stream sockets are supported. \field{type} is 1 for stream
+> -socket types.
+> +Currently stream and datagram (dgram) sockets are supported. \field{type} is 1 for stream
+> +socket types. \field{type} is 3 for dgram socket types.
+>  
+>  Stream sockets provide in-order, guaranteed, connection-oriented delivery
+>  without message boundaries.
+>  
+> +Datagram sockets provide unordered, unreliable, connectionless messages 
+> +with message boundaries and a maximum length.
+> +
+>  \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device / Device Operation / Buffer Space Management}
+>  \field{buf_alloc} and \field{fwd_cnt} are used for buffer space management of
+>  stream sockets. The guest and the device publish how much buffer space is
+> @@ -162,7 +191,7 @@ \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device /
+>  u32 peer_free = peer_buf_alloc - (tx_cnt - peer_fwd_cnt);
+>  \end{lstlisting}
+>  
+> -If there is insufficient buffer space, the sender waits until virtqueue buffers
+> +For stream sockets, if there is insufficient buffer space, the sender waits until virtqueue buffers
+>  are returned and checks \field{buf_alloc} and \field{fwd_cnt} again. Sending
+>  the VIRTIO_VSOCK_OP_CREDIT_REQUEST packet queries how much buffer space is
+>  available. The reply to this query is a VIRTIO_VSOCK_OP_CREDIT_UPDATE packet.
+> @@ -170,22 +199,33 @@ \subsubsection{Buffer Space Management}\label{sec:Device Types / Socket Device /
+>  previously receiving a VIRTIO_VSOCK_OP_CREDIT_REQUEST packet. This allows
+>  communicating updates any time a change in buffer space occurs.
+>  
+> +Unlike stream sockets, dgram sockets do not use VIRTIO_VSOCK_OP_CREDIT_UPDATE or
+> +VIRTIO_VSOCK_OP_CREDIT_REQUEST packets. The dgram buffer management
+> +is split to two parts: sender side and receiver side. For the sender side, if the 
+> +virtqueue is full, the packet will be dropped.
+> +For the receiver side, the packet is dropped by the receiver if there is no space in the
+> +receive buffer.
+> +
+>  \drivernormative{\paragraph}{Device Operation: Buffer Space Management}{Device Types / Socket Device / Device Operation / Buffer Space Management}
+> -VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
+> -sufficient free buffer space for the payload.
+> +For stream sockets, VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
+> +sufficient free buffer space for the payload. For dgram sockets, VIRTIO_VSOCK_OP_RW data packets
+> +MAY be transmitted when the peer rx buffer is full. Then the packet will be dropped by the peer,
+> +and driver will not get any notification.
+>  
+>  All packets associated with a stream flow MUST contain valid information in
+>  \field{buf_alloc} and \field{fwd_cnt} fields.
+>  
+>  \devicenormative{\paragraph}{Device Operation: Buffer Space Management}{Device Types / Socket Device / Device Operation / Buffer Space Management}
+> -VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
+> -sufficient free buffer space for the payload.
+> +For stream sockets, VIRTIO_VSOCK_OP_RW data packets MUST only be transmitted when the peer has
+> +sufficient free buffer space for the payload. For dgram sockets, VIRTIO_VSOCK_OP_RW data packets
+> +MAY be transmitted when the peer rx buffer is full. Then the packet will be dropped by the peer,
+> +and the device will not get any notification.
+>  
+>  All packets associated with a stream flow MUST contain valid information in
+>  \field{buf_alloc} and \field{fwd_cnt} fields.
+>  
+>  \subsubsection{Receive and Transmit}\label{sec:Device Types / Socket Device / Device Operation / Receive and Transmit}
+> -The driver queues outgoing packets on the tx virtqueue and incoming packet
+> +The driver queues outgoing packets on the tx virtqueue and allocates incoming packet
+>  receive buffers on the rx virtqueue. Packets are of the following form:
+>  
+>  \begin{lstlisting}
+> @@ -195,6 +235,7 @@ \subsubsection{Receive and Transmit}\label{sec:Device Types / Socket Device / De
+>  };
+>  \end{lstlisting}
+>  
+> +
+>  Virtqueue buffers for outgoing packets are read-only. Virtqueue buffers for
+>  incoming packets are write-only.
+>  
+> @@ -240,6 +281,14 @@ \subsubsection{Stream Sockets}\label{sec:Device Types / Socket Device / Device O
+>  destination) address tuple for a new connection while the other peer is still
+>  processing the old connection.
+>  
+> +\subsubsection{Datagram Sockets}\label{sec:Device Types / Socket Device / Device Operation / Datagram Sockets}
+> +
+> +Datagram (dgram) sockets are connectionless and unreliable. The sender just sends
+> +a message to the peer and hopes it will be delivered. A VIRTIO_VSOCK_OP_RST reply is sent if
+> +a receiving socket does not exist on the destination.
+> +If the transmission or receiving buffers are full, the packets
+> +are dropped.
+> +
+>  \subsubsection{Device Events}\label{sec:Device Types / Socket Device / Device Operation / Device Events}
+>  
+>  Certain events are communicated by the device to the driver using the event
+> -- 
+> 2.11.0
+> 
+> 
+> This publicly archived list offers a means to provide input to the
+> OASIS Virtual I/O Device (VIRTIO) TC.
+> 
+> In order to verify user consent to the Feedback License terms and
+> to minimize spam in the list archive, subscription is required
+> before posting.
+> 
+> Subscribe: virtio-comment-subscribe@lists.oasis-open.org
+> Unsubscribe: virtio-comment-unsubscribe@lists.oasis-open.org
+> List help: virtio-comment-help@lists.oasis-open.org
+> List archive: https://lists.oasis-open.org/archives/virtio-comment/
+> Feedback License: https://www.oasis-open.org/who/ipr/feedback_license.pdf
+> List Guidelines: https://www.oasis-open.org/policies-guidelines/mailing-lists
+> Committee: https://www.oasis-open.org/committees/virtio/
+> Join OASIS: https://www.oasis-open.org/join/
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0864426000908046715==--
-
