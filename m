@@ -4,80 +4,103 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5297C432BE
-	for <virtualization@archiver.kernel.org>; Wed,  1 Sep 2021 06:20:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE2A1C432BE
+	for <virtualization@archiver.kernel.org>; Wed,  1 Sep 2021 06:28:51 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7789560F23
-	for <virtualization@archiver.kernel.org>; Wed,  1 Sep 2021 06:20:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 7789560F23
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+	by mail.kernel.org (Postfix) with ESMTPS id 3C89D60295
+	for <virtualization@archiver.kernel.org>; Wed,  1 Sep 2021 06:28:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 3C89D60295
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 30712401D8;
-	Wed,  1 Sep 2021 06:20:03 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id F06E64015C;
+	Wed,  1 Sep 2021 06:28:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6kyMlMOcD7G6; Wed,  1 Sep 2021 06:19:59 +0000 (UTC)
+	with ESMTP id 4sKSAE5-uTzM; Wed,  1 Sep 2021 06:28:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id C8EA940003;
-	Wed,  1 Sep 2021 06:19:58 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 7B476401BE;
+	Wed,  1 Sep 2021 06:28:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9B89AC0010;
-	Wed,  1 Sep 2021 06:19:58 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9CF0DC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5A655C0010;
+	Wed,  1 Sep 2021 06:28:46 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DB12EC000E
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Sep 2021 06:19:55 +0000 (UTC)
+ Wed,  1 Sep 2021 06:28:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 8C75C4041E
+ by smtp2.osuosl.org (Postfix) with ESMTP id C91A8401BE
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Sep 2021 06:19:55 +0000 (UTC)
+ Wed,  1 Sep 2021 06:28:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 2Y7VgNlTob0r
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id msHZ-kLZEmH6
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Sep 2021 06:19:51 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from casper.infradead.org (casper.infradead.org
- [IPv6:2001:8b0:10b:1236::1])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 7C3764041A
+ Wed,  1 Sep 2021 06:28:44 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id EC0364015C
  for <virtualization@lists.linux-foundation.org>;
- Wed,  1 Sep 2021 06:19:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=+olqZsf6bAX4osBZPKKIMT0l5hnOLxO3gzA9/z2x/Po=; b=dWxkNESFLdcE17ZkOOKTM/QcPX
- ET8iXU812Iuu9GGevlXcf6H8zI6o3A93cv/JjixVshao+iBbgaG1mTbj58jEb3LsqC2yKywqm/J9X
- Uo6BKxmvgTqq/tWPPimeZN0bZycd+6L5ZSw24HLIVUte7cg1wl0SFdz6uFs4p605JZsP/iPdBDF6b
- gtHseKQnIrXSv+++0NnBbfFLmcnILE6lDW+W1tOxMesbZQ0ouviPBIVXrFN5ivSIdEjrcoTSQqAn1
- PlFDP3f+XTWNBW7FNa/U4KaY/knxrf3Yhzngyx0YuFMViUQ6lXWXDXNZmU1eempVTSi8noHj9NMy7
- t7+FK/cQ==;
-Received: from hch by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat
- Linux)) id 1mLJaJ-001whS-0n; Wed, 01 Sep 2021 06:19:00 +0000
-Date: Wed, 1 Sep 2021 07:18:55 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: Re: [PATCH 1/1] virtio-blk: avoid preallocating big SGL for data
-Message-ID: <YS8bT23rdMfT/+AF@infradead.org>
-References: <20210830233500.51395-1-mgurtovoy@nvidia.com>
+ Wed,  1 Sep 2021 06:28:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1630477722;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=13+6GGuujafCJ6d7vfvCn9dSviEdofS8K878FjlroFQ=;
+ b=eAy7m0Vd6hZIhQ8w5BTZnC/MHbIun8wMqmMBHdIBQ8Wyw/nVj1mBb4qE/qouKSYz4/SNBa
+ FxUR1eOiVdS29bvw/Mi65isNTqtNTH/t8ZcdFC0lO7C6jyMh88R/7x4L+e1jL6UVrZTyQ8
+ 8b1Y++Shm7qXmXGB/UK1UlHaj1vlXKs=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-328-dYAMxw06NyOwIL1H_VSRYA-1; Wed, 01 Sep 2021 02:28:41 -0400
+X-MC-Unique: dYAMxw06NyOwIL1H_VSRYA-1
+Received: by mail-lj1-f198.google.com with SMTP id
+ q9-20020a2e9689000000b001b964fa10b3so660174lji.18
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 31 Aug 2021 23:28:41 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=13+6GGuujafCJ6d7vfvCn9dSviEdofS8K878FjlroFQ=;
+ b=qA+CS1STPGA5azCjzGnR0EukE7qpJmHX8Y9s64bX1QN0MQuQmNaW3l8D+RYjF6yo9R
+ 1ZP03PRgoNefpbxMNQ5B2KcGusIQTvnU0G0Nc0iMH0tdUJDY5aDsi7OFHm8F/0EzNq0x
+ tzV6W1GXGrAEljsVOS2KjUIRNPA0ITLyJmvg3KRBxh/WW4CR/Ni34tZ8QQFTPp51Ch4z
+ +OhL39/ica2CHp2gyU1sp18bu8r3qy91NMSK3lJITOvmm2Q4GxW7xp20aZbzqOphQp47
+ M7RAfgyAVFKVF1GlVquhSx+HRcaSQIpte14Y+I/vk4WGRgzdgrFWo2U/X8zVwPReYA4q
+ kiqg==
+X-Gm-Message-State: AOAM532RAzRJ310qZmT5TEQyM8a51MRvMLcpThOijbsY9aRo4OUXXPwa
+ OfaO08/NuTdtv7Ja9endo/YTnDBsGVJJ5J7i+/3dL+7XrAHZVe8Lz5efuxsal12eB7ZdCDpIQ4m
+ q7EPk5Gj1nZmuXQmpRpDLZO4hcaB0eJNkSDSoqvokTMhuxKudVvUTUd1Suw==
+X-Received: by 2002:a2e:9549:: with SMTP id t9mr18598451ljh.404.1630477720064; 
+ Tue, 31 Aug 2021 23:28:40 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyi6gJEpE+qC75ucZJpi1mRAapU20JsMY0ZMLHK2VDqDNaXZwkJgcb1a2Mm5JzMblditU1d1EEj06vpxsYdR9g=
+X-Received: by 2002:a2e:9549:: with SMTP id t9mr18598438ljh.404.1630477719863; 
+ Tue, 31 Aug 2021 23:28:39 -0700 (PDT)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20210830233500.51395-1-mgurtovoy@nvidia.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
- casper.infradead.org. See http://www.infradead.org/rpr.html
-Cc: axboe@kernel.dk, linux-block@vger.kernel.org, kvm@vger.kernel.org,
- mst@redhat.com, israelr@nvidia.com, virtualization@lists.linux-foundation.org,
- hch@infradead.org, nitzanc@nvidia.com, stefanha@redhat.com, oren@nvidia.com
+References: <20210829183138.574915-1-elic@nvidia.com>
+In-Reply-To: <20210829183138.574915-1-elic@nvidia.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Wed, 1 Sep 2021 14:28:29 +0800
+Message-ID: <CACGkMEuvv1dV2Mfptd8LLFbOr2N_b83tcCZJd4VePmXQo3=RaQ@mail.gmail.com>
+Subject: Re: [PATCH] vdpa/mlx5: Fix required dependency on vhost vring
+To: Eli Cohen <elic@nvidia.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: kernel test robot <lkp@intel.com>, mst <mst@redhat.com>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ eperezma <eperezma@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,70 +117,37 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Aug 31, 2021 at 02:35:00AM +0300, Max Gurtovoy wrote:
-> No need to pre-allocate a big buffer for the IO SGL anymore. If a device
-> has lots of deep queues, preallocation for the sg list can consume
-> substantial amounts of memory. For HW virtio-blk device, nr_hw_queues
-> can be 64 or 128 and each queue's depth might be 128. This means the
-> resulting preallocation for the data SGLs is big.
-> 
-> Switch to runtime allocation for SGL for lists longer than 2 entries.
-> This is the approach used by NVMe drivers so it should be reasonable for
-> virtio block as well. Runtime SGL allocation has always been the case
-> for the legacy I/O path so this is nothing new.
-> 
-> The preallocated small SGL depends on SG_CHAIN so if the ARCH doesn't
-> support SG_CHAIN, use only runtime allocation for the SGL.
-> 
-> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> Reviewed-by: Israel Rukshin <israelr@nvidia.com>
+On Mon, Aug 30, 2021 at 2:31 AM Eli Cohen <elic@nvidia.com> wrote:
+>
+> With the introduction of control virtqueue support, selecting VHOST_RING
+> is required.
+>
+> Reported-by: kernel test robot <lkp@intel.com>
+> Fixes: 63078736419b ("vdpa/mlx5: Add support for control VQ and MAC setting")
+> Signed-off-by: Eli Cohen <elic@nvidia.com>
 > ---
->  drivers/block/virtio_blk.c | 37 ++++++++++++++++++++++---------------
->  1 file changed, 22 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 77e8468e8593..9a4c5d428b58 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -24,6 +24,12 @@
->  /* The maximum number of sg elements that fit into a virtqueue */
->  #define VIRTIO_BLK_MAX_SG_ELEMS 32768
->  
-> +#ifdef CONFIG_ARCH_NO_SG_CHAIN
-> +#define VIRTIO_BLK_INLINE_SG_CNT	0
-> +#else
-> +#define VIRTIO_BLK_INLINE_SG_CNT	2
-> +#endif
-> +
->  static int virtblk_queue_count_set(const char *val,
->  		const struct kernel_param *kp)
->  {
-> @@ -99,7 +105,7 @@ struct virtio_blk {
->  struct virtblk_req {
->  	struct virtio_blk_outhdr out_hdr;
->  	u8 status;
-> -	struct scatterlist sg[];
-> +	struct sg_table sg_table;
 
-Please keep the sg flexible array member here instead of the pointer
-arithmetics that is added instead below.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-> +	err = sg_alloc_table_chained(&vbr->sg_table,
-> +				     blk_rq_nr_phys_segments(req),
-> +				     vbr->sg_table.sgl,
-> +				     VIRTIO_BLK_INLINE_SG_CNT);
-> +	if (err)
-> +		return BLK_STS_RESOURCE;
-> +
+>  drivers/vdpa/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+> index a503c1b2bfd9..e48e2b10ca36 100644
+> --- a/drivers/vdpa/Kconfig
+> +++ b/drivers/vdpa/Kconfig
+> @@ -53,6 +53,7 @@ config MLX5_VDPA
+>  config MLX5_VDPA_NET
+>         tristate "vDPA driver for ConnectX devices"
+>         select MLX5_VDPA
+> +       select VHOST_RING
+>         depends on MLX5_CORE
+>         help
+>           VDPA network driver for ConnectX6 and newer. Provides offloading
+> --
+> 2.31.1
+>
 
-This will BUG() for requests without segments (fush and discard).  You
-probably want a separate helper to actually map data in the, extending
-the big switch on the op.  While we're at it, the blk_mq_start_request
-should also move as close as possible to the actual sending of the
-request to the host.
-
-You'll also need to select SG_POOL now that you're using these
-functions.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
