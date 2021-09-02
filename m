@@ -2,90 +2,113 @@ Return-Path: <SRS0=fDOL=NY=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CC11CC432BE
-	for <virtualization@archiver.kernel.org>; Thu,  2 Sep 2021 15:00:47 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1515C432BE
+	for <virtualization@archiver.kernel.org>; Thu,  2 Sep 2021 15:16:37 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4C391610F9
-	for <virtualization@archiver.kernel.org>; Thu,  2 Sep 2021 15:00:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4C391610F9
+	by mail.kernel.org (Postfix) with ESMTPS id 9CB05610A2
+	for <virtualization@archiver.kernel.org>; Thu,  2 Sep 2021 15:16:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9CB05610A2
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0EE3C614FD;
-	Thu,  2 Sep 2021 15:00:47 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 5E1B74076D;
+	Thu,  2 Sep 2021 15:16:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id orO-NCCKqcpP; Thu,  2 Sep 2021 15:00:43 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QpQf0b83HgK3; Thu,  2 Sep 2021 15:16:33 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 94A566144C;
-	Thu,  2 Sep 2021 15:00:42 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E307E40768;
+	Thu,  2 Sep 2021 15:16:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 65F93C001A;
-	Thu,  2 Sep 2021 15:00:42 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1A4A5C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BA601C0010;
+	Thu,  2 Sep 2021 15:16:32 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 14867C000E
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Sep 2021 15:00:41 +0000 (UTC)
+ Thu,  2 Sep 2021 15:16:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 14EA0406D9
+ by smtp2.osuosl.org (Postfix) with ESMTP id 01F4140768
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Sep 2021 15:00:41 +0000 (UTC)
+ Thu,  2 Sep 2021 15:16:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yGTeo9sL9_3I
+ with ESMTP id I_tE9aDhM5pd
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Sep 2021 15:00:40 +0000 (UTC)
+ Thu,  2 Sep 2021 15:16:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 3F7784018D
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 40F2740749
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Sep 2021 15:00:39 +0000 (UTC)
+ Thu,  2 Sep 2021 15:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1630594838;
+ s=mimecast20190719; t=1630595789;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=NhX65RT1ifaHwGOlvzI1CW4C3zVZPOJhKK0Ufgw3iQA=;
- b=AxL6mSp6G2YR07BNKmMW+0aMcV3fCU4pvoF01XLAnVDwslKS/24892+9nkIh6twP7l8U7D
- QRLomyh0HiobW84sdNtNLsksLGzr3uGwPFC5PBRK7k/WT0YE0Xd3Ao5IPsILp/mHQOOXLA
- YJqSNNlbqqNwOBlEMevzw3UbI4Irb9Q=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-369-q_HuT_iJNrmGjPs7czfHew-1; Thu, 02 Sep 2021 11:00:37 -0400
-X-MC-Unique: q_HuT_iJNrmGjPs7czfHew-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id EC6E0100C60C;
- Thu,  2 Sep 2021 15:00:35 +0000 (UTC)
-Received: from localhost (unknown [10.39.194.169])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 64D651AC7E;
- Thu,  2 Sep 2021 15:00:32 +0000 (UTC)
-Date: Thu, 2 Sep 2021 16:00:31 +0100
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: Re: [PATCH 1/1] virtio-blk: remove unneeded "likely" statements
-Message-ID: <YTDnD1c8rk3SWcx9@stefanha-x1.localdomain>
-References: <20210830120111.22661-1-mgurtovoy@nvidia.com>
+ bh=P+xP+wLYOPrkRCNRBb2x5tHhjBwlMaOVmyphk+jfNrg=;
+ b=GZQ2YH3vtgEXTQ7m+yUY4cxfKGg7DYtYs/dcanDeNFeFuw0uLFeRTmMGFpiWoM93atErsO
+ 52s0+vGXkW8Jzj2eUYVo3hWkPdUsgb39/2tnTZlt4twfLEVH7QM+BAx50UTKfchdA8g82k
+ Fr9cwPwgVO2wi1f5iR1N85NN0KTatEs=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-482-SxfHZRLmO2qnE8cILPj6lA-1; Thu, 02 Sep 2021 11:16:28 -0400
+X-MC-Unique: SxfHZRLmO2qnE8cILPj6lA-1
+Received: by mail-ej1-f72.google.com with SMTP id
+ x21-20020a170906135500b005d8d4900c5eso1094923ejb.4
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 02 Sep 2021 08:16:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=P+xP+wLYOPrkRCNRBb2x5tHhjBwlMaOVmyphk+jfNrg=;
+ b=j6gs71hFSpaiooGwuZSjXKq4WalUzw0TCbpSDWPPWIngx/v7q5zLTL74ftwMSAoPYL
+ jRTwQmKazwYZnrI/3BqBVwjoJ6vmGYqMgx7FNX7O0MZoG6hyZxgjLdTEOE200UAc73Mr
+ ntLLW339wCQ2W+/XdQxmf+ml4z7oid+nZSZGl/OqwQGPQkt8PgnXGjx0KAtTpfBnYyhc
+ RmT37OII9HqO+ow3eFWD5Q13qk3aC2+awXGiHLCZH/FZ0o13b8Ct6dxbXw0ClmH9/7eU
+ JGxpFTK+vAklWNxBGc5LLSIJ1tNEn14IEG384r14bxjKS645rO/YI3z7FVLxulGR/K9D
+ cETw==
+X-Gm-Message-State: AOAM531MMlQty1Wi4iRK1v9gMha9iojR5I0mqAPfSRp48IArVaef5EgM
+ FenSkPb0DVlV5E1SjumWKx9P2RoGEz2qCEZkZvhLxSCiNp3yTrkb2f/Nys1/d1bZhdmncWXdbRy
+ Dp6Uf5+vCzdS7LmQvWB/sVDqJ/kGohnvNwHGYxOgPRQ==
+X-Received: by 2002:a05:6402:2909:: with SMTP id
+ ee9mr3940287edb.377.1630595787552; 
+ Thu, 02 Sep 2021 08:16:27 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxvdswIUfKGCpx598o8TrM8YiJqz9vjAp7AEL9/nn4zRuT+kpCK9mYHSHPKCJI7JCs7p2TIFQ==
+X-Received: by 2002:a05:6402:2909:: with SMTP id
+ ee9mr3940266edb.377.1630595787408; 
+ Thu, 02 Sep 2021 08:16:27 -0700 (PDT)
+Received: from redhat.com ([2.55.140.175])
+ by smtp.gmail.com with ESMTPSA id bx11sm1366868ejb.107.2021.09.02.08.16.24
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 02 Sep 2021 08:16:26 -0700 (PDT)
+Date: Thu, 2 Sep 2021 11:16:22 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Junji Wei <weijunji@bytedance.com>
+Subject: Re: [RFC 5/5] hw/virtio-rdma: VirtIO rdma device
+Message-ID: <20210902111601-mutt-send-email-mst@kernel.org>
+References: <20210902130625.25277-1-weijunji@bytedance.com>
+ <20210902130625.25277-6-weijunji@bytedance.com>
 MIME-Version: 1.0
-In-Reply-To: <20210830120111.22661-1-mgurtovoy@nvidia.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-Cc: axboe@kernel.dk, kvm@vger.kernel.org, mst@redhat.com,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- oren@nvidia.com
+In-Reply-To: <20210902130625.25277-6-weijunji@bytedance.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: qemu-devel@nongnu.org, xieyongji@bytedance.com, linux-rdma@vger.kernel.org,
+ cohuck@redhat.com, yuval.shaia.ml@gmail.com,
+ virtualization@lists.linux-foundation.org, jgg@ziepe.ca, dledford@redhat.com,
+ chaiwen.cc@bytedance.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -97,66 +120,29 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============5617033840548461220=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Thu, Sep 02, 2021 at 09:06:25PM +0800, Junji Wei wrote:
+> diff --git a/include/standard-headers/linux/virtio_ids.h b/include/standard-headers/linux/virtio_ids.h
+> index b052355ac7..4c2151bffb 100644
+> --- a/include/standard-headers/linux/virtio_ids.h
+> +++ b/include/standard-headers/linux/virtio_ids.h
+> @@ -48,5 +48,6 @@
+>  #define VIRTIO_ID_FS           26 /* virtio filesystem */
+>  #define VIRTIO_ID_PMEM         27 /* virtio pmem */
+>  #define VIRTIO_ID_MAC80211_HWSIM 29 /* virtio mac80211-hwsim */
+> +#define VIRTIO_ID_RDMA         30 /* virtio rdma */
 
---===============5617033840548461220==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="wVBj43Tcb8AeCyD2"
-Content-Disposition: inline
+You can start by registering this with the virtio TC.
 
-
---wVBj43Tcb8AeCyD2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Aug 30, 2021 at 03:01:11PM +0300, Max Gurtovoy wrote:
-> Usually we use "likely/unlikely" to optimize the fast path. Remove
-> redundant "likely" statements in the control path to ease on the code.
->=20
-> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> ---
->  drivers/block/virtio_blk.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-
-It would be nice to tweak the commit description before merging this. I
-had trouble parsing the second sentence. If I understand correctly the
-purpose of this patch is to make the code simpler and easier to read:
-
-  s/ease on the code/simplify the code and make it easier to read/
-
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---wVBj43Tcb8AeCyD2
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmEw5w8ACgkQnKSrs4Gr
-c8jUHQf/VJ5hb++9DIHpheWC7yNi4OPiAS2B/1vypNz2ryOtT/6dEWtuLPgyw/fy
-eD2d5GkdqujwQvl09h4esZpK1zVAdCj5J6L4R1m5RH6DqVG2GYnNzx1AdD8w0tgG
-kMlizFNxPdlU6LSbJ+CPIky0FaleRbYEKjtUTJ9rjLwEYg9gCbEfZhR8dGt3jXca
-tYM81eATEMjuUSa+G6tePeTUCuGX/zljWb+IjEfLONNy4cNWCfwY1+77iLDAf62q
-bARLaXudlC/tyKjQguEF8GqvkvMRnYv9uQRV6YjpY6uchBaNh+X4kBF9XnQnBvtU
-Nws0aRuTL+wQcNp9/vwVW9i6e+JFCQ==
-=sHMp
------END PGP SIGNATURE-----
-
---wVBj43Tcb8AeCyD2--
-
-
---===============5617033840548461220==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+>  #endif /* _LINUX_VIRTIO_IDS_H */
+> -- 
+> 2.11.0
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5617033840548461220==--
-
