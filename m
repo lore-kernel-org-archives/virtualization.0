@@ -7,82 +7,82 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F067C432BE
-	for <virtualization@archiver.kernel.org>; Thu,  2 Sep 2021 12:21:42 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4B4CC432BE
+	for <virtualization@archiver.kernel.org>; Thu,  2 Sep 2021 13:47:16 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4BC6161059
-	for <virtualization@archiver.kernel.org>; Thu,  2 Sep 2021 12:21:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4BC6161059
+	by mail.kernel.org (Postfix) with ESMTPS id 6829F60525
+	for <virtualization@archiver.kernel.org>; Thu,  2 Sep 2021 13:47:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 6829F60525
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0A29181BC5;
-	Thu,  2 Sep 2021 12:21:42 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 22DC64073B;
+	Thu,  2 Sep 2021 13:47:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QmluYBjh47wi; Thu,  2 Sep 2021 12:21:38 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fNXbU7Fq35wA; Thu,  2 Sep 2021 13:47:12 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 985E881D21;
-	Thu,  2 Sep 2021 12:21:37 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 436AB40716;
+	Thu,  2 Sep 2021 13:47:11 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6E3A9C001A;
-	Thu,  2 Sep 2021 12:21:37 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 62ADDC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 19B30C0010;
+	Thu,  2 Sep 2021 13:47:11 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E8C06C000E
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Sep 2021 12:21:36 +0000 (UTC)
+ Thu,  2 Sep 2021 13:47:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 44507614BE
+ by smtp3.osuosl.org (Postfix) with ESMTP id D0E5D614E6
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Sep 2021 12:21:36 +0000 (UTC)
+ Thu,  2 Sep 2021 13:47:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id LfLRu7GIunxJ
+ with ESMTP id XO-lFe9wkSfR
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Sep 2021 12:21:35 +0000 (UTC)
+ Thu,  2 Sep 2021 13:47:09 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 99E2561467
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id C96A6606CB
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Sep 2021 12:21:35 +0000 (UTC)
+ Thu,  2 Sep 2021 13:47:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1630585294;
+ s=mimecast20190719; t=1630590427;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=hY16j+oJ/RLc0kDkzsh1MP+pUads19JdDqlb34c/SbA=;
- b=DCcFktGz87gqf1C0ZPsTqglgKbUP2fXdCWSQPT+wu2nvJJS6053RRsPQXbZmoAe/v9ryFV
- rmm3Ppx0iwGBwC1pgoa5vZod+4GmBK8LdIqBH6N4bfch0mhpZHHR/iL/X8uNPjSyjihlen
- yx+ZZAIfgPB8up7wvNfIfR95boy1GgA=
+ bh=fNCtS0KdZQb1B+CbwtzJg7He2oOCTmFUj9S0sz1v7Nk=;
+ b=NwpLSHoYW0fws6n99zjcyzqJu+Foj46up5n6lcEKPQXB/sOjnzRUscRZ5M0hbCH+KZYu8M
+ atvRrOESDRQUXM8HeeAZnjMVQHwXX/zg2E879Sw2C4zQ+X4sJ5f1BG5PXEkXNDbePlW5BW
+ T1RdF1eaCisX29MuAdRpcAr/zAnxrXY=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-102-0WyANDvvPRKEuZC_JugsvA-1; Thu, 02 Sep 2021 08:21:33 -0400
-X-MC-Unique: 0WyANDvvPRKEuZC_JugsvA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
- [10.5.11.22])
+ us-mta-15-Jr-IF8qhOO2RLTAWFXNFiw-1; Thu, 02 Sep 2021 09:45:58 -0400
+X-MC-Unique: Jr-IF8qhOO2RLTAWFXNFiw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CF6FCEC1A6;
- Thu,  2 Sep 2021 12:21:31 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7AB2F8145EE;
+ Thu,  2 Sep 2021 13:45:56 +0000 (UTC)
 Received: from localhost (unknown [10.39.194.169])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 6161E100EBC1;
- Thu,  2 Sep 2021 12:21:28 +0000 (UTC)
-Date: Thu, 2 Sep 2021 13:21:27 +0100
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 480795C3DF;
+ Thu,  2 Sep 2021 13:45:53 +0000 (UTC)
+Date: Thu, 2 Sep 2021 14:45:52 +0100
 From: Stefan Hajnoczi <stefanha@redhat.com>
 To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: Re: [PATCH v3 1/1] virtio-blk: avoid preallocating big SGL for data
-Message-ID: <YTDBx/E/UJZWTFlG@stefanha-x1.localdomain>
-References: <20210901131434.31158-1-mgurtovoy@nvidia.com>
+Subject: Re: [PATCH v2 1/1] virtio-blk: add num_io_queues module parameter
+Message-ID: <YTDVkDIr5WLdlRsK@stefanha-x1.localdomain>
+References: <20210831135035.6443-1-mgurtovoy@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <20210901131434.31158-1-mgurtovoy@nvidia.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+In-Reply-To: <20210831135035.6443-1-mgurtovoy@nvidia.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Cc: axboe@kernel.dk, linux-block@vger.kernel.org, kvm@vger.kernel.org,
  mst@redhat.com, israelr@nvidia.com, virtualization@lists.linux-foundation.org,
  hch@infradead.org, nitzanc@nvidia.com, oren@nvidia.com
@@ -97,99 +97,100 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============3736173486286664190=="
+Content-Type: multipart/mixed; boundary="===============3522817652727510118=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
---===============3736173486286664190==
+--===============3522817652727510118==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="z2rIWpdHIslofiCP"
+	protocol="application/pgp-signature"; boundary="vesxpy2vj8JazjFf"
 Content-Disposition: inline
 
 
---z2rIWpdHIslofiCP
+--vesxpy2vj8JazjFf
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, Sep 01, 2021 at 04:14:34PM +0300, Max Gurtovoy wrote:
-> No need to pre-allocate a big buffer for the IO SGL anymore. If a device
-> has lots of deep queues, preallocation for the sg list can consume
-> substantial amounts of memory. For HW virtio-blk device, nr_hw_queues
-> can be 64 or 128 and each queue's depth might be 128. This means the
-> resulting preallocation for the data SGLs is big.
->=20
-> Switch to runtime allocation for SGL for lists longer than 2 entries.
-> This is the approach used by NVMe drivers so it should be reasonable for
-> virtio block as well. Runtime SGL allocation has always been the case
-> for the legacy I/O path so this is nothing new.
->=20
-> The preallocated small SGL depends on SG_CHAIN so if the ARCH doesn't
-> support SG_CHAIN, use only runtime allocation for the SGL.
->=20
-> Re-organize the setup of the IO request to fit the new sg chain
-> mechanism.
->=20
-> No performance degradation was seen (fio libaio engine with 16 jobs and
-> 128 iodepth):
->=20
-> IO size      IOPs Rand Read (before/after)         IOPs Rand Write (befor=
-e/after)
-> --------     ---------------------------------    -----------------------=
------------
-> 512B          318K/316K                                    329K/325K
->=20
-> 4KB           323K/321K                                    353K/349K
->=20
-> 16KB          199K/208K                                    250K/275K
->=20
-> 128KB         36K/36.1K                                    39.2K/41.7K
+On Tue, Aug 31, 2021 at 04:50:35PM +0300, Max Gurtovoy wrote:
+> Sometimes a user would like to control the amount of IO queues to be
+> created for a block device. For example, for limiting the memory
+> footprint of virtio-blk devices.
 >=20
 > Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> Reviewed-by: Israel Rukshin <israelr@nvidia.com>
 > ---
 >=20
-> changes from V2:
->  - initialize vbr->out_hdr.sector during virtblk_setup_cmd
+> changes from v1:
+>  - use param_set_uint_minmax (from Christoph)
+>  - added "Should > 0" to module description
 >=20
-> changes from V1:
->  - Kconfig update (from Christoph)
->  - Re-order cmd setup (from Christoph)
->  - use flexible sg pointer in the cmd (from Christoph)
->  - added perf numbers to commit msg (from Feng Li)
->=20
+> Note: This commit apply on top of Jens's branch for-5.15/drivers
 > ---
->  drivers/block/Kconfig      |   1 +
->  drivers/block/virtio_blk.c | 155 +++++++++++++++++++++++--------------
->  2 files changed, 100 insertions(+), 56 deletions(-)
+>  drivers/block/virtio_blk.c | 20 +++++++++++++++++++-
+>  1 file changed, 19 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 4b49df2dfd23..9332fc4e9b31 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -24,6 +24,22 @@
+>  /* The maximum number of sg elements that fit into a virtqueue */
+>  #define VIRTIO_BLK_MAX_SG_ELEMS 32768
+> =20
+> +static int virtblk_queue_count_set(const char *val,
+> +		const struct kernel_param *kp)
+> +{
+> +	return param_set_uint_minmax(val, kp, 1, nr_cpu_ids);
+> +}
+> +
+> +static const struct kernel_param_ops queue_count_ops =3D {
+> +	.set =3D virtblk_queue_count_set,
+> +	.get =3D param_get_uint,
+> +};
+> +
+> +static unsigned int num_io_queues;
+> +module_param_cb(num_io_queues, &queue_count_ops, &num_io_queues, 0644);
+> +MODULE_PARM_DESC(num_io_queues,
+> +		 "Number of IO virt queues to use for blk device. Should > 0");
+> +
+>  static int major;
+>  static DEFINE_IDA(vd_index_ida);
+> =20
+> @@ -501,7 +517,9 @@ static int init_vq(struct virtio_blk *vblk)
+>  	if (err)
+>  		num_vqs =3D 1;
+> =20
+> -	num_vqs =3D min_t(unsigned int, nr_cpu_ids, num_vqs);
+> +	num_vqs =3D min_t(unsigned int,
+> +			min_not_zero(num_io_queues, nr_cpu_ids),
+> +			num_vqs);
 
-Hi Max,
-I can run benchmark to give everyone more confidence about this change.
-Should I test this version or are you still planning to make code
-changes?
+If you respin, please consider calling them request queues. That's the
+terminology from the VIRTIO spec and it's nice to keep it consistent.
+But the purpose of num_io_queues is clear, so:
 
-Stefan
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---z2rIWpdHIslofiCP
+--vesxpy2vj8JazjFf
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmEwwccACgkQnKSrs4Gr
-c8g4aAf/e1JaN7Xed1hTL+F4WDY4o+YDC+vleCJtGmv90L4hCtsq9UyokNwgVE8N
-K7rdoJP48GJNZtS0yehyVx+fz8Hsud01k805Ye9RlgOymN3gtaLWvX70EFBwlg0s
-39HvbUWThJTvzt5glLaHwVnyayVdeBNTDQ+h7g6jhE22txOUtvGS0XuJZft0+Y5S
-LMqE4qb8WypZtD7M7TzAlUbVkxEvd3QiPCOLK73qukjXzgOX2C4BGCShr4YIo5Mc
-yA6/GiKsp5twzFFkNCTZb6Kt0P3uI6/eNINpfuPqJy6+k/UXFkuMO6J3ulZeLCwp
-+pNtlvXyq///2N3FcZtSm6U3gJeu0Q==
-=IrFB
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmEw1ZAACgkQnKSrs4Gr
+c8ilgwgAlIOafEmW7i5SZAO2+Ms/0rz8GU5rO5BZfriDJF+tb2PTi80awwHdmw1K
+L9criCNflNxb/LT6eBcdW/2xczmSQkeHLUTyA5xEvsmb940rIoSgNjrEEEajvTk8
+nUS0BNUezEciYxAWaxIZcDn+0ev/WZyZKJxuokLVmJNd1aPUKg+pN694/paIKdY8
+kGnIrBByZK+4ihd9VRb1zY44EVSAdPGsW3F/ko7lklIRlbEO/TKX00dEgfpscWy9
+SnSaCPLvqON7/s9GZDOFetH8sCCnewa1fhAMmHWvM4jYufwJCxzE6eEDZssTAZgK
+Ytb0LAQrUDnz5vMNUPRiZMH+4mqwIw==
+=aE7d
 -----END PGP SIGNATURE-----
 
---z2rIWpdHIslofiCP--
+--vesxpy2vj8JazjFf--
 
 
---===============3736173486286664190==
+--===============3522817652727510118==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -199,5 +200,5 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3736173486286664190==--
+--===============3522817652727510118==--
 
