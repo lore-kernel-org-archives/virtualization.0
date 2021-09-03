@@ -2,80 +2,121 @@ Return-Path: <SRS0=H6i0=NZ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 11CD1C433F5
-	for <virtualization@archiver.kernel.org>; Fri,  3 Sep 2021 05:31:09 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A45CFC433F5
+	for <virtualization@archiver.kernel.org>; Fri,  3 Sep 2021 06:55:50 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8B97460F90
-	for <virtualization@archiver.kernel.org>; Fri,  3 Sep 2021 05:31:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 8B97460F90
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id 462F06102A
+	for <virtualization@archiver.kernel.org>; Fri,  3 Sep 2021 06:55:50 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 462F06102A
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 474EC606DE;
-	Fri,  3 Sep 2021 05:31:08 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 122BE83046;
+	Fri,  3 Sep 2021 06:55:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id azWn2AyyQ8s5; Fri,  3 Sep 2021 05:31:07 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zSOguXfwY-ro; Fri,  3 Sep 2021 06:55:49 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C52F0606D3;
-	Fri,  3 Sep 2021 05:31:06 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8D05983027;
+	Fri,  3 Sep 2021 06:55:48 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 98453C0010;
-	Fri,  3 Sep 2021 05:31:06 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B2E2DC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4CA40C0010;
+	Fri,  3 Sep 2021 06:55:48 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0E0EAC000E
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Sep 2021 05:31:04 +0000 (UTC)
+ Fri,  3 Sep 2021 06:55:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id A9E2A606DE
+ by smtp4.osuosl.org (Postfix) with ESMTP id EB191425D8
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Sep 2021 05:31:04 +0000 (UTC)
+ Fri,  3 Sep 2021 06:55:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KCsip0e4MXL2
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id u0G01lsI1UAx
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Sep 2021 05:31:03 +0000 (UTC)
+ Fri,  3 Sep 2021 06:55:45 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-44.freemail.mail.aliyun.com
- (out30-44.freemail.mail.aliyun.com [115.124.30.44])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 2774F606D3
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id B99B54254B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Sep 2021 05:31:02 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R881e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=alimailimapcm10staff010182156082;
- MF=jefflexu@linux.alibaba.com; NM=1; PH=DS; RN=8; SR=0;
- TI=SMTPD_---0Un3x3K1_1630647058; 
-Received: from admindeMacBook-Pro-2.local(mailfrom:jefflexu@linux.alibaba.com
- fp:SMTPD_---0Un3x3K1_1630647058) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 03 Sep 2021 13:30:58 +0800
-Subject: Re: [PATCH v4 0/8] fuse,virtiofs: support per-file DAX
-To: Miklos Szeredi <miklos@szeredi.hu>
-References: <20210817022220.17574-1-jefflexu@linux.alibaba.com>
- <CAJfpeguw1hMOaxpDmjmijhf=-JEW95aEjxfVo_=D_LyWx8LDgw@mail.gmail.com>
- <YRut5sioYfc2M1p7@redhat.com>
- <6043c0b8-0ff1-2e11-0dd0-e23f9ff6b952@linux.alibaba.com>
- <CAJfpegv01k5hEyJ3LPDWJoqB+vL8hwTan9dLu1pkkD0xoRuFzw@mail.gmail.com>
-From: JeffleXu <jefflexu@linux.alibaba.com>
-Message-ID: <a1d891b5-f8ef-b5fe-c20c-e3e01203b368@linux.alibaba.com>
-Date: Fri, 3 Sep 2021 13:30:58 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.13.0
+ Fri,  3 Sep 2021 06:55:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1630652144;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=EeO/1ruPx/J3HagGwQQq0jPFzGgymZG7mS2oDGjCub4=;
+ b=AEC5tqOyojbpH3X8GZVtqdsU1HIfKgKTL+SdhIdqmKQQpW8bOc/WVsYi5OOVTFmUXQMifq
+ L4wAJRULZix6bDKBOuNlyLM9v7/xMf6R6xJ7vM0nfZ7RJrVtw5IXr7MdfRqoQ13vFNcatK
+ Rl+W8rixVIZpx6Ve3/WN8PQuCI0o/BA=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-557-EY6nSuYtNtqsIP0qX-bk4A-1; Fri, 03 Sep 2021 02:55:43 -0400
+X-MC-Unique: EY6nSuYtNtqsIP0qX-bk4A-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ a23-20020aa7cf17000000b003caffcef4beso2273152edy.5
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 02 Sep 2021 23:55:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=EeO/1ruPx/J3HagGwQQq0jPFzGgymZG7mS2oDGjCub4=;
+ b=KT00R7HwOvrBp2e1yncB5iDzbJ/jX1g7mlxs7OqX9ZYrEQZgwasNnAdPTe7+sLGlbu
+ lJr+JhLf7sScuVtfuYxcsIbPDETyV+yiYOD+07vJJ9GthTCeXNrJlHyrID7b9eLuEySz
+ kD+R/08CoPxWWeO+5igivYABd6HMcAb+PgRRxTzs4SkbzrvCtJ6kl1BRI4U7g+dp7K4a
+ cf1ivbocOmAOYP2nA80kFTgGsWOAGX7awbCXx75QJm8suWPNQH8sexgQm+moKzZRt6Py
+ kCQvcujo7YISxvbYPnAkIKFqE7l+oifRYgWczHNQaLW8+EFN+sIxTD/lL2Mc4qBuDM1E
+ pC2g==
+X-Gm-Message-State: AOAM533143rXcVkAIVZSFryIAeslwx6XUrjb9FBBUEbzy+kQRa8luG3I
+ tVbslWYUS97M2VLwCBE2gh549zrj2HuclO2UmZl0TdrQRv6dbwnRUoYYN9I65cxf8j3YpRRo/IV
+ ZCZA33iHRajZmC78eFCW/3sKwkqUlfMEv16+hZ81TDg==
+X-Received: by 2002:a05:6402:2909:: with SMTP id
+ ee9mr2379473edb.377.1630652142359; 
+ Thu, 02 Sep 2021 23:55:42 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzqmSk8HBLIJKh7TPV1i1K1+xzAXzo7Ae30A7P6UZPUjSR75Ct+E874fXO8233Bd4c/cP2SjA==
+X-Received: by 2002:a05:6402:2909:: with SMTP id
+ ee9mr2379457edb.377.1630652142126; 
+ Thu, 02 Sep 2021 23:55:42 -0700 (PDT)
+Received: from steredhat (host-79-51-2-59.retail.telecomitalia.it.
+ [79.51.2.59])
+ by smtp.gmail.com with ESMTPSA id k12sm2391179edq.59.2021.09.02.23.55.40
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 02 Sep 2021 23:55:41 -0700 (PDT)
+Date: Fri, 3 Sep 2021 08:55:39 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+Subject: Re: [PATCH net-next v4 3/6] vhost/vsock: support MSG_EOR bit
+ processing
+Message-ID: <20210903065539.nb2hk4sszdtlqfmb@steredhat>
+References: <20210903061353.3187150-1-arseny.krasnov@kaspersky.com>
+ <20210903061541.3187840-1-arseny.krasnov@kaspersky.com>
 MIME-Version: 1.0
-In-Reply-To: <CAJfpegv01k5hEyJ3LPDWJoqB+vL8hwTan9dLu1pkkD0xoRuFzw@mail.gmail.com>
-Content-Language: en-US
-Cc: virtualization@lists.linux-foundation.org,
- virtio-fs-list <virtio-fs@redhat.com>, Joseph Qi <joseph.qi@linux.alibaba.com>,
- Liu Bo <bo.liu@linux.alibaba.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- linux-fsdevel@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>
+In-Reply-To: <20210903061541.3187840-1-arseny.krasnov@kaspersky.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Andra Paraschiv <andraprs@amazon.com>, kvm@vger.kernel.org,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, stsp2@yandex.ru,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ oxffffaa@gmail.com, Norbert Slusarek <nslusarek@gmx.net>,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Colin Ian King <colin.king@canonical.com>, Jakub Kicinski <kuba@kernel.org>,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -87,73 +128,80 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Fri, Sep 03, 2021 at 09:15:38AM +0300, Arseny Krasnov wrote:
+>'MSG_EOR' handling has similar logic as 'MSG_EOM' - if bit present
+>in packet's header, reset it to 0. Then restore it back if packet
+>processing wasn't completed. Instead of bool variable for each
+>flag, bit mask variable was added: it has logical OR of 'MSG_EOR'
+>and 'MSG_EOM' if needed, to restore flags, this variable is ORed
+>with flags field of packet.
+>
+>Signed-off-by: Arseny Krasnov <arseny.krasnov@kaspersky.com>
+>---
+> drivers/vhost/vsock.c | 22 +++++++++++++---------
+> 1 file changed, 13 insertions(+), 9 deletions(-)
+>
+>diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+>index feaf650affbe..93e8d635e18f 100644
+>--- a/drivers/vhost/vsock.c
+>+++ b/drivers/vhost/vsock.c
+>@@ -114,7 +114,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+> 		size_t nbytes;
+> 		size_t iov_len, payload_len;
+> 		int head;
+>-		bool restore_flag = false;
+>+		u32 flags_to_restore = 0;
+>
+> 		spin_lock_bh(&vsock->send_pkt_list_lock);
+> 		if (list_empty(&vsock->send_pkt_list)) {
+>@@ -179,15 +179,20 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+> 			 * created dynamically and are initialized with header
+> 			 * of current packet(except length). But in case of
+> 			 * SOCK_SEQPACKET, we also must clear message delimeter
+>-			 * bit(VIRTIO_VSOCK_SEQ_EOM). Otherwise, instead of one
+>-			 * packet with delimeter(which marks end of message),
+>-			 * there will be sequence of packets with delimeter
+>-			 * bit set. After initialized header will be copied to
+>-			 * rx buffer, this bit will be restored.
+>+			 * bit (VIRTIO_VSOCK_SEQ_EOM) and MSG_EOR bit
+>+			 * (VIRTIO_VSOCK_SEQ_EOR) if set. Otherwise,
+>+			 * there will be sequence of packets with these
+>+			 * bits set. After initialized header will be copied to
+>+			 * rx buffer, these required bits will be restored.
+> 			 */
+> 			if (le32_to_cpu(pkt->hdr.flags) & VIRTIO_VSOCK_SEQ_EOM) {
+> 				pkt->hdr.flags &= ~cpu_to_le32(VIRTIO_VSOCK_SEQ_EOM);
+>-				restore_flag = true;
+>+				flags_to_restore |= VIRTIO_VSOCK_SEQ_EOM;
+>+
+>+				if (le32_to_cpu(pkt->hdr.flags & VIRTIO_VSOCK_SEQ_EOR)) {
+>+					pkt->hdr.flags &= ~cpu_to_le32(VIRTIO_VSOCK_SEQ_EOR);
+>+					flags_to_restore |= VIRTIO_VSOCK_SEQ_EOR;
+>+				}
+> 			}
+> 		}
+>
+>@@ -224,8 +229,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+> 		 * to send it with the next available buffer.
+> 		 */
+> 		if (pkt->off < pkt->len) {
+>-			if (restore_flag)
+>-				pkt->hdr.flags |= cpu_to_le32(VIRTIO_VSOCK_SEQ_EOM);
+>+			pkt->hdr.flags |= cpu_to_le32(flags_to_restore);
+>
+> 			/* We are queueing the same virtio_vsock_pkt to handle
+> 			 * the remaining bytes, and we want to deliver it
+>-- 
+>2.25.1
+>
 
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
-On 8/17/21 10:08 PM, Miklos Szeredi wrote:
-> On Tue, 17 Aug 2021 at 15:22, JeffleXu <jefflexu@linux.alibaba.com> wrote:
->>
->>
->>
->> On 8/17/21 8:39 PM, Vivek Goyal wrote:
->>> On Tue, Aug 17, 2021 at 10:06:53AM +0200, Miklos Szeredi wrote:
->>>> On Tue, 17 Aug 2021 at 04:22, Jeffle Xu <jefflexu@linux.alibaba.com> wrote:
->>>>>
->>>>> This patchset adds support of per-file DAX for virtiofs, which is
->>>>> inspired by Ira Weiny's work on ext4[1] and xfs[2].
->>>>
->>>> Can you please explain the background of this change in detail?
->>>>
->>>> Why would an admin want to enable DAX for a particular virtiofs file
->>>> and not for others?
->>>
->>> Initially I thought that they needed it because they are downloading
->>> files on the fly from server. So they don't want to enable dax on the file
->>> till file is completely downloaded.
->>
->> Right, it's our initial requirement.
->>
->>
->>> But later I realized that they should
->>> be able to block in FUSE_SETUPMAPPING call and make sure associated
->>> file section has been downloaded before returning and solve the problem.
->>> So that can't be the primary reason.
->>
->> Saying we want to access 4KB of one file inside guest, if it goes
->> through FUSE request routine, then the fuse daemon only need to download
->> this 4KB from remote server. But if it goes through DAX, then the fuse
->> daemon need to download the whole DAX window (e.g., 2MB) from remote
->> server, so called amplification. Maybe we could decrease the DAX window
->> size, but it's a trade off.
-> 
-> That could be achieved with a plain fuse filesystem on the host (which
-> will get 4k READ requests for accesses to mapped area inside guest).
-> Since this can be done selectively for files which are not yet
-> downloaded, the extra layer wouldn't be a performance problem.
-> 
-> Is there a reason why that wouldn't work?
-
-I didn't realize this mechanism (working around from user space) before
-sending this patch set.
-
-After learning the virtualization and KVM stuffs, I find that, as Vivek
-Goyal replied in [1], virtiofsd/qemu need to somehow hook the user page
-fault and then download the remained part.
-
-IMHO, this mechanism (as you proposed by implementing a plain fuse
-filesystem on the host) seems a little bit sophisticated so far.
-
-
-[1] https://lore.kernel.org/linux-fsdevel/YR08KnP8cO8LjKY7@redhat.com/
-
-
--- 
-Thanks,
-Jeffle
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
