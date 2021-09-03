@@ -2,102 +2,108 @@ Return-Path: <SRS0=H6i0=NZ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FA1BC433F5
-	for <virtualization@archiver.kernel.org>; Fri,  3 Sep 2021 00:08:20 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1139FC433EF
+	for <virtualization@archiver.kernel.org>; Fri,  3 Sep 2021 00:58:19 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E67396108B
-	for <virtualization@archiver.kernel.org>; Fri,  3 Sep 2021 00:08:19 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E67396108B
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=bytedance.com
+	by mail.kernel.org (Postfix) with ESMTPS id ABE7661054
+	for <virtualization@archiver.kernel.org>; Fri,  3 Sep 2021 00:58:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org ABE7661054
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A7833400E8;
-	Fri,  3 Sep 2021 00:08:19 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6046C83673;
+	Fri,  3 Sep 2021 00:58:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vZ0_0QjtwOd2; Fri,  3 Sep 2021 00:08:18 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id t8hqjFZxJE7f; Fri,  3 Sep 2021 00:58:16 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D668A400DE;
-	Fri,  3 Sep 2021 00:08:17 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id EAC8383658;
+	Fri,  3 Sep 2021 00:58:15 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B616AC001A;
-	Fri,  3 Sep 2021 00:08:17 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 25B4AC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C1342C001A;
+	Fri,  3 Sep 2021 00:58:15 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5E3C1C000E
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Sep 2021 00:08:16 +0000 (UTC)
+ Fri,  3 Sep 2021 00:58:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0C7D84017A
+ by smtp3.osuosl.org (Postfix) with ESMTP id 3AB0960749
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Sep 2021 00:08:16 +0000 (UTC)
+ Fri,  3 Sep 2021 00:58:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id R004VXJawiZs
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id yERrD7KWYoOq
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Sep 2021 00:08:14 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com
- [IPv6:2a00:1450:4864:20::22f])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 648E0400DE
+ Fri,  3 Sep 2021 00:58:13 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 578BA606EA
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Sep 2021 00:08:14 +0000 (UTC)
-Received: by mail-lj1-x22f.google.com with SMTP id i28so6737346ljm.7
+ Fri,  3 Sep 2021 00:58:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1630630692;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=dweDyOYjcmK69myJXjFnVZ/WQ447Q7GxQ0zWDd/1fFI=;
+ b=BeBOEe6BK/egvYZju1heTP/MSRWakmziaTzNOKXjTfWUHxtWU7rjb6q+EY6ZUEc7vxPbWa
+ dhtM1ZCZgLuADq5ClmuHvcytaKdLWtGO0wyq+QF2eq2rVxKgXZlRRRamZaBlwboYYhZbfZ
+ 58oTdQXUc/NqREd1wIJB2bBICebrPMk=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-169-6vDcrh0SMhCm_SduwGFrlw-1; Thu, 02 Sep 2021 20:58:11 -0400
+X-MC-Unique: 6vDcrh0SMhCm_SduwGFrlw-1
+Received: by mail-lj1-f200.google.com with SMTP id
+ p11-20020a2ea40b000000b001d68cffb055so1616760ljn.6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 02 Sep 2021 17:08:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=bytedance-com.20150623.gappssmtp.com; s=20150623;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=shoT/h8kZ8kAkaA/UCG7GFMuSxrSKJjs1CdQsvCygG4=;
- b=bXpajAQ4YFoGiili5xZh4yiZPANCuRjVBDTFUtxOoRjwEXRRf3VR7omR3fmnzUp13s
- S7ZP2z4LKv0ZxZ/1CRtgI3OxrIW1G2dNoL1h0F06NbJoThJkO/yU6Ce0Gh+Bn4adXGlV
- tiSutVH0hsf78sIOeucQ81ZuZPEMYBo+1/ZovJPGccXoMt8uQJQV9Sf/WuDgcRwg0j62
- du2mkFsrLEfPOAQTnAn3ucXbccPzpulNu7tKOHV2dn8U+ZehFlFfuKW/Ihgjgw4W3jly
- /tw4qDb7ldtyVpij9vyJPT5SJXK+lC8wV4UCXx/mT6su90anp815C5pexZnrliwA3MnX
- 7rBA==
+ Thu, 02 Sep 2021 17:58:10 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=shoT/h8kZ8kAkaA/UCG7GFMuSxrSKJjs1CdQsvCygG4=;
- b=aJDX7laxM53nB2O5AHsjng8CVyJOJl2EIn2ueJ3LPgimRgsPE8qmrkm1TCZDmVmDp2
- RGhXHj/e/dkwHjgE3TjDzaZm1i2KUK6XTcH7tNuGr7poQqSaFtK0UOhLPZDbG+1js+lP
- gBebhH+pbI6hmJwycpWeBswZ0G8FP1lTGH2uBw9KArYy2uCy3krCAYplq7lD33Gpkl08
- HapmnM+0L1FWfeYCLJ+1EYaiNypBF1Dm0LI6v/KRK1Usbj8FAXUetvPUt3N7uGm308mB
- LzfJ3tvGTqwuSQBW43Z6DA5nOHgO+UCL6XQc7r+IN4h43dojMmb52B+GhB+ZIOEXowtn
- qFcA==
-X-Gm-Message-State: AOAM531Vns+MEXwRKQukD2weih2W9ITtTKB+m4pSnJdNZHoIWKAD/oxb
- MdiN5nq2DlHTvjqlO3NPcdAuTx6PapYsz2NV1uPOVA==
-X-Google-Smtp-Source: ABdhPJx5I1IdpxhkpsguRQ4JPAPtlipDcsgKg+UlXLioNZhYCF8dI5mAyqAScnV24edPO9Z8E/BPvGUEu6lw4Ff0vQA=
-X-Received: by 2002:a2e:b001:: with SMTP id y1mr742680ljk.360.1630627692098;
- Thu, 02 Sep 2021 17:08:12 -0700 (PDT)
+ bh=dweDyOYjcmK69myJXjFnVZ/WQ447Q7GxQ0zWDd/1fFI=;
+ b=ca+lawKjnUN8axhH1VkGztjek6vjpIXOvTI7fkM39ce/vMpfmh94ysQY6XIf/711Xi
+ SugnADGN3U0Fo1ut0WjFQnMKLT/ah3Qxak5flwNI9N2nO1wn1lNr0dwHNClLUbbcXrMC
+ /4kF0HIlp7ZLTlEb/L3fthndm+HOyIZ2VJ2rTuSCdHu//5leDbeHUJnT7ntZK9HA/MGL
+ 8n9DEhrZoIFnRh0a06+OaM/dcOJ3oOIa7umUA48q/fHtGMwYRd2BCCD4nj9fOB762dju
+ Hzl90FvGQeKVJJjklkULTPTQyLy4C+IouRMT1oisekLAeFim7YJaK+nnDh84zIlM4rlY
+ E10A==
+X-Gm-Message-State: AOAM531GgUVKLy2+U/SyOETVD5zvnlI4hDSWk1Of3EEf7og9mh+xLBDT
+ +Y17o9vK3Iqntt18KpSp8ZP6b0+xIMlORv3AvfxAUzcJQzlhSbV5Hff43l0xgjmZkiGjy5M/Ya+
+ s2ofcGqUrbiDO0tU2ZniDEc5rb5F2gUzlYPxiqurGxpQm2yhAmjq7lu4dyg==
+X-Received: by 2002:a2e:801a:: with SMTP id j26mr822126ljg.385.1630630689490; 
+ Thu, 02 Sep 2021 17:58:09 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxv+cC/51MDemLJlyzI1/sE33ac9c6oU7NLMZ7/q8qpYz09PPl+mZKp6gK057IgTiCC/j+wiUqVqDbsh2Yb5aA=
+X-Received: by 2002:a2e:801a:: with SMTP id j26mr822105ljg.385.1630630689270; 
+ Thu, 02 Sep 2021 17:58:09 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210610181203.979686-1-jiang.wang@bytedance.com>
- <YTDam7jdjRz686bp@stefanha-x1.localdomain>
-In-Reply-To: <YTDam7jdjRz686bp@stefanha-x1.localdomain>
-From: "Jiang Wang ." <jiang.wang@bytedance.com>
-Date: Thu, 2 Sep 2021 17:08:01 -0700
-Message-ID: <CAP_N_Z_hHFbmd4tVMNYMrGiUt43Rs0N9rwM6F3Q_Wu1MTyfeKA@mail.gmail.com>
-Subject: Re: [virtio-comment] Re: [PATCH v5] virtio-vsock: add description for
- datagram type
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Cong Wang <cong.wang@bytedance.com>,
- Xiongchun Duan <duanxiongchun@bytedance.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, cohuck@redhat.com,
- virtualization@lists.linux-foundation.org,
- Yongji Xie <xieyongji@bytedance.com>,
- =?UTF-8?B?5p+056iz?= <chaiwen.cc@bytedance.com>,
- virtio-comment@lists.oasis-open.org, asias@redhat.com,
- Arseny Krasnov <arseny.krasnov@kaspersky.com>,
- Jorgen Hansen <jhansen@vmware.com>
+References: <20210902130625.25277-1-weijunji@bytedance.com>
+In-Reply-To: <20210902130625.25277-1-weijunji@bytedance.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 3 Sep 2021 08:57:57 +0800
+Message-ID: <CACGkMEsz4HQKpaw3P=ODXvN2AuqO+_YE0UHpzOFk5GbzX13V4A@mail.gmail.com>
+Subject: Re: [RFC 0/5] VirtIO RDMA
+To: Junji Wei <weijunji@bytedance.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: qemu-devel <qemu-devel@nongnu.org>, mst <mst@redhat.com>,
+ linux-rdma@vger.kernel.org, Yongji Xie <xieyongji@bytedance.com>,
+ Cornelia Huck <cohuck@redhat.com>, yuval.shaia.ml@gmail.com,
+ virtualization <virtualization@lists.linux-foundation.org>, jgg@ziepe.ca,
+ dledford@redhat.com, =?UTF-8?B?5p+056iz?= <chaiwen.cc@bytedance.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,134 +120,29 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Sep 2, 2021 at 7:07 AM Stefan Hajnoczi <stefanha@redhat.com> wrote:
+On Thu, Sep 2, 2021 at 9:07 PM Junji Wei <weijunji@bytedance.com> wrote:
 >
-> On Thu, Jun 10, 2021 at 06:12:03PM +0000, Jiang Wang wrote:
-> > Add supports for datagram type for virtio-vsock. Datagram
-> > sockets are connectionless and unreliable. To avoid contention
-> > with stream and other sockets, add two more virtqueues and
-> > a new feature bit to identify if those two new queues exist or not.
-> >
-> > Also add descriptions for resource management of datagram, which
-> > does not use the existing credit update mechanism associated with
-> > stream sockets.
-> >
-> > Signed-off-by: Jiang Wang <jiang.wang@bytedance.com>
-> > ---
+> Hi all,
 >
-> Overall this looks good. The tricky thing will be implementing dgram
-> sockets in a way that minimizes dropped packets and provides some degree
-> of fairness between senders. Those are implementation issues though and
-> not visible at the device specification level.
+> This RFC aims to reopen the discussion of Virtio RDMA.
+> Now this is based on Yuval Shaia's RFC "VirtIO RDMA"
+> which implemented a frame for Virtio RDMA and a simple
+> control path (Not sure if Yuval Shaia has any further
+> plan for it).
 >
-> > diff --git a/virtio-vsock.tex b/virtio-vsock.tex
-> > index da7e641..26a62ac 100644
-> > --- a/virtio-vsock.tex
-> > +++ b/virtio-vsock.tex
-> > @@ -9,14 +9,37 @@ \subsection{Device ID}\label{sec:Device Types / Socket Device / Device ID}
-> >
-> >  \subsection{Virtqueues}\label{sec:Device Types / Socket Device / Virtqueues}
-> >  \begin{description}
-> > -\item[0] rx
-> > -\item[1] tx
-> > +\item[0] stream rx
-> > +\item[1] stream tx
-> > +\item[2] datagram rx
-> > +\item[3] datagram tx
-> > +\item[4] event
-> > +\end{description}
-> > +The virtio socket device uses 5 queues if feature bit VIRTIO_VSOCK_F_DRGAM is set. Otherwise, it
-> > +only uses 3 queues, as the following.
+> We try to extend this work and implement a simple
+> data-path and a completed control path. Now this can
+> work with SEND, RECV and REG_MR in kernel. There is a
+> simple test module in this patch that can communicate
+> with ibv_rc_pingpong in rdma-core.
 >
-> s/as the following/as follows:/
->
-Will do.
+> During doing this work, we have found some problems and
+> would like to ask for some suggestions from community:
 
-> > +
-> > +\begin{description}
-> > +\item[0] stream rx
-> > +\item[1] stream tx
-> >  \item[2] event
-> >  \end{description}
-> >
-> > +When behavior differs between stream and datagram rx/tx virtqueues
-> > +their full names are used. Common behavior is simply described in
-> > +terms of rx/tx virtqueues and applies to both stream and datagram
-> > +virtqueues.
-> > +
-> >  \subsection{Feature bits}\label{sec:Device Types / Socket Device / Feature bits}
-> >
-> > -There are currently no feature bits defined for this device.
-> > +\begin{description}
-> > +\item[VIRTIO_VSOCK_F_STREAM (0)] Device has support for stream socket type.
-> > +\end{description}
-> > +
-> > +\begin{description}
-> > +\item[VIRTIO_VSOCK_F_DGRAM (2)] Device has support for datagram socket type.
->
-> Is this really bit 2 or did you mean bit 1 (value 0x2)?
->
-I left bit 1 for SEQPACKET feature bit.  That will probably merge
-before this patch.
+I think it would be beneficial if you can post a spec patch.
 
-> What happens to the virtqueue layout when VIRTIO_VSOCK_F_DGRAM is
-> present and VIRTIO_VSOCK_F_STREAM is absent? The virtqueue section above
-> implies that VIRTIO_VSOCK_F_STREAM is always present.
->
-yeah, good question. I  think then it means the first two queues will be used
-for dgram?
+Thanks
 
-> > +\end{description}
-> > +
-> > +If no feature bits are defined, assume device only supports stream socket type.
->
-> It's cleaner to define VIRTIO_VSOCK_F_NO_STREAM (0) instead. When the
-> bit is set the stream socket type is not available and the stream_rx/tx
-> virtqueues are absent.
->
-> This way it's not necessary to define special behavior depending on
-> certain combinations of feature bits.
->
-Agree. I went back and read old emails again and found I missed the
-negative bit part. So repeating the previous question, if
-VIRTIO_VSOCK_F_NO_STREAM  and VIRTIO_VSOCK_F_DGRAM
-present, then we will only have 3 queues and the first two are for dgram, right?
-
-Also, I am wondering what if an implementation only sets
-VIRTIO_VSOCK_F_NO_STREAM bit, but somehow forgot (or for whatever
-reason) to set VIRTIO_VSOCK_F_DGRAM bit? Does that mean there will
-be no virtqueues? The implementation is a mistake? Because it will not
-do anything.
-Do we need to explicitly add a sentence in the spec to say something like
-"Don't set VIRTIO_VSOCK_F_NO_STREAM alone" etc?
-
-
-> >  \subsubsection{Receive and Transmit}\label{sec:Device Types / Socket Device / Device Operation / Receive and Transmit}
-> > -The driver queues outgoing packets on the tx virtqueue and incoming packet
-> > +The driver queues outgoing packets on the tx virtqueue and allocates incoming packet
-> >  receive buffers on the rx virtqueue. Packets are of the following form:
->
-> This change seems unrelated to dgram sockets. I don't think adding the
-> word "allocates" makes things clearer or more precise. The driver may
-> reuse receive buffers rather than allocating fresh buffers. I suggest
-> dropping this change.
->
-Got it. Will do.
-
-> >
-> >  \begin{lstlisting}
-> > @@ -195,6 +235,7 @@ \subsubsection{Receive and Transmit}\label{sec:Device Types / Socket Device / De
-> >  };
-> >  \end{lstlisting}
-> >
-> > +
-> >  Virtqueue buffers for outgoing packets are read-only. Virtqueue buffers for
-> >  incoming packets are write-only.
-> >
->
-> Unnecessary whitespace change. Please drop.
-
-Sure.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
