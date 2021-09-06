@@ -4,132 +4,114 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7C6FC433F5
-	for <virtualization@archiver.kernel.org>; Mon,  6 Sep 2021 10:43:32 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 330BBC433F5
+	for <virtualization@archiver.kernel.org>; Mon,  6 Sep 2021 11:21:01 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5E31A60EBA
-	for <virtualization@archiver.kernel.org>; Mon,  6 Sep 2021 10:43:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 5E31A60EBA
+	by mail.kernel.org (Postfix) with ESMTPS id CAAC26103B
+	for <virtualization@archiver.kernel.org>; Mon,  6 Sep 2021 11:21:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org CAAC26103B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 24D62607FD;
-	Mon,  6 Sep 2021 10:43:32 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 88A3B40440;
+	Mon,  6 Sep 2021 11:21:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5qdWfIBpe-qS; Mon,  6 Sep 2021 10:43:31 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 80164605FC;
-	Mon,  6 Sep 2021 10:43:30 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4A86FC001D;
-	Mon,  6 Sep 2021 10:43:30 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C1695C001B
- for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Sep 2021 10:43:28 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id AFB9140191
- for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Sep 2021 10:43:28 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id g4l1Cl8yz4Ko
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id k1mYA_nfqKoi; Mon,  6 Sep 2021 11:20:59 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 074AD40409;
+	Mon,  6 Sep 2021 11:20:58 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DC300C001C;
+	Mon,  6 Sep 2021 11:20:58 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 399F3C001B
  for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Sep 2021 10:43:27 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+ Mon,  6 Sep 2021 11:20:58 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 24DE481036
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  6 Sep 2021 11:20:58 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id iuQJ_dOZglAe
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  6 Sep 2021 11:20:57 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 9926B40189
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id D201C81013
  for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Sep 2021 10:43:27 +0000 (UTC)
+ Mon,  6 Sep 2021 11:20:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1630925006;
+ s=mimecast20190719; t=1630927255;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Ul4qFH3gT696MqPqcmDxIOKc6JmUkzaJFABQhow9EWg=;
- b=jS/4G4hsSU7TeVPlCE0Ti6JQdICkGYroM73RM/9qW4a7z76rpZ0wkyDL8KuKuQ3qair+4f
- IlfyXpqlRCz0RxQQZtQGlxk1uVTIR5oun8JNUSsIF59ovWac6PsA9sdrFYvLaBtmVtvxDY
- 68nyTjuDh/EPGZY7cWwzhcO6nvqSTZ4=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-23-EFv2U-rROwqTQgR02_FOjw-1; Mon, 06 Sep 2021 06:43:25 -0400
-X-MC-Unique: EFv2U-rROwqTQgR02_FOjw-1
-Received: by mail-wr1-f70.google.com with SMTP id
- p18-20020a5d4e12000000b0015940dc586aso1089590wrt.6
+ bh=PwCcwobqarvdp7b4ZxKmDRuHy822IrmJf431Zj87HGM=;
+ b=c8VndKIXRd3uk4l/vu4ezfYK7J6KNb0Du+QtllfoiroG7oy8SwZ5+hyF2SrGCYDxLuV/Ql
+ zcHohVvcsFXhk/2YAsJnKZUrSd9gJBp40zD5ZI72ZIIdNmFrboxR9CZxwYuz8qU/BvdLrI
+ 4YpWkmsd8VLqyRiDxAjh9InDSaMipyM=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-485-QneELQ7sMei9_bW-W-1mZQ-1; Mon, 06 Sep 2021 07:20:54 -0400
+X-MC-Unique: QneELQ7sMei9_bW-W-1mZQ-1
+Received: by mail-ej1-f70.google.com with SMTP id
+ o14-20020a1709062e8e00b005d37183e041so2177412eji.21
  for <virtualization@lists.linux-foundation.org>;
- Mon, 06 Sep 2021 03:43:25 -0700 (PDT)
+ Mon, 06 Sep 2021 04:20:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=Ul4qFH3gT696MqPqcmDxIOKc6JmUkzaJFABQhow9EWg=;
- b=aSr6vYAdu1D0+Nylm+lwXCSMB3oRSB5qfj02cQLkhB3UTFRiKt7zj52QoREHpNEa0G
- iC8C2JZVpL9OW7/Fttrdtl0W3LEQVTOELcusV8+nK5vQzllf266XDevBLSuoTl7eAJMw
- RtDKroQzA6dSroI+XrWDqJpnNW6cwIL4VPeGWhQ+yjTIkcHwBxszouyQUuUYkFzqYF9Y
- 6c39BYLxMDLVvMQ/sTeBFYb/KbJGxDFq1h3dGbbJTjDvgk2BOdM8B2E6bo1BSADHUCsP
- 5DmQy6et9SFIa8bMx9TFHdRHfgEvJ5/wRdVqzklU06Q+b4AdW9yWYZFF0ea3gh0KUgSP
- zb0g==
-X-Gm-Message-State: AOAM530ZlIHpe0/cFH0OVnWt8pLLnQvdcFbPZrMMacX0/vDr/wQVg18c
- q2wuMdtVDDdY3+rNy05H0PR3jRTAQUPdld/ADGvT+G/zWmBlH5ZjoMvOU2B2GN+CS3q9WjgOoMM
- pp0RI4lDzLA33F5iDG2KQOAOF4p88IsgjWSxASAd5qw==
-X-Received: by 2002:a05:600c:3543:: with SMTP id
- i3mr10798051wmq.2.1630925004177; 
- Mon, 06 Sep 2021 03:43:24 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzq0y7NDDKEVc4QMn/xSXfsLrateDW5EX086OFKHb0Me/zK5A7xaZmIg1gdA2WViHz/LIzfeQ==
-X-Received: by 2002:a05:600c:3543:: with SMTP id
- i3mr10798024wmq.2.1630925003942; 
- Mon, 06 Sep 2021 03:43:23 -0700 (PDT)
+ bh=PwCcwobqarvdp7b4ZxKmDRuHy822IrmJf431Zj87HGM=;
+ b=XQWtA3zcq+WJdNc4HdyU6mAszyovRS4QlWR2/XitYLzBeT8QM+u+6WKMzLGaYSxCsH
+ Y6i/y/IfqNQdK96TiUC9TVmrxFW44Z8Pe5qchQ9a2ofepQxbPVMUnUiHt04pkpY+M1EO
+ N9JwMKzV0oC1cWHzphrngUaJ14h9OKK1oFBr0xDusjIM1LruA7VoSGrnrvK4oYXseaoL
+ fMeaZmxRPwQpdWKnRIfoCshQixaaycazfZ8M9qEgrMmooPiOU6HKMYDklbVN4w2ri6BB
+ DOTeFoIiHKx++Gu8sFqXv2teb+8B2TWBffqioHxJJnns/aMl1s/VYEsdpjhSJOIYWli3
+ Dblw==
+X-Gm-Message-State: AOAM5312Vk3mqKFACqUi4OEp565pjBADdR1Z+QWrjoMjq4k/Fu2TzyJK
+ moZrnxyac0e+zg/sBs3b4zix01c5+CSTETL1TJc0xEQEYPi0lxVLV/n/GMafc4ibslCe7tqWwfN
+ 9qAyUD+PsVc8zbcJZZnzDwCODwGOukGoyefV0be3m0A==
+X-Received: by 2002:a50:fb08:: with SMTP id d8mr12725041edq.160.1630927253392; 
+ Mon, 06 Sep 2021 04:20:53 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwnXiZkAIDU73uVyPn+3O20GkHTxFw7vX6uAGTN6zNHOCvY8p6FyX/5L/Q7XXf2IlUH+ouktQ==
+X-Received: by 2002:a50:fb08:: with SMTP id d8mr12725016edq.160.1630927253147; 
+ Mon, 06 Sep 2021 04:20:53 -0700 (PDT)
 Received: from redhat.com ([2.55.131.183])
- by smtp.gmail.com with ESMTPSA id g5sm7424960wrq.80.2021.09.06.03.43.17
+ by smtp.gmail.com with ESMTPSA id f1sm4406891edq.89.2021.09.06.04.20.49
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 06 Sep 2021 03:43:22 -0700 (PDT)
-Date: Mon, 6 Sep 2021 06:43:15 -0400
+ Mon, 06 Sep 2021 04:20:51 -0700 (PDT)
+Date: Mon, 6 Sep 2021 07:20:47 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Yongji Xie <xieyongji@bytedance.com>
-Subject: Re: [PATCH v13 05/13] vdpa: Add reset callback in vdpa_config_ops
-Message-ID: <20210906053210-mutt-send-email-mst@kernel.org>
-References: <20210831103634.33-1-xieyongji@bytedance.com>
- <20210831103634.33-6-xieyongji@bytedance.com>
- <20210906015524-mutt-send-email-mst@kernel.org>
- <CACycT3v4ZVnh7DGe_RtAOx4Vvau0km=HWyCM=KzKhD+ahYKafQ@mail.gmail.com>
- <20210906023131-mutt-send-email-mst@kernel.org>
- <CACycT3ssC1bhNzY9Pk=LPvKjMrFFavTfCKTJtR2XEiVYqDxT1Q@mail.gmail.com>
- <20210906035338-mutt-send-email-mst@kernel.org>
- <CACycT3vQHRsJ_j5f4T9RoB4MQzBoYO5ts3egVe9K6TcCVfLOFQ@mail.gmail.com>
+To: Max Gurtovoy <mgurtovoy@nvidia.com>
+Subject: Re: [PATCH v2 1/1] virtio-blk: add num_io_queues module parameter
+Message-ID: <20210906071957-mutt-send-email-mst@kernel.org>
+References: <20210831135035.6443-1-mgurtovoy@nvidia.com>
+ <YTDVkDIr5WLdlRsK@stefanha-x1.localdomain>
+ <20210905120234-mutt-send-email-mst@kernel.org>
+ <98309fcd-3abe-1f27-fe52-e8fcc58bec13@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <CACycT3vQHRsJ_j5f4T9RoB4MQzBoYO5ts3egVe9K6TcCVfLOFQ@mail.gmail.com>
+In-Reply-To: <98309fcd-3abe-1f27-fe52-e8fcc58bec13@nvidia.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: kvm <kvm@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Christian Brauner <christian.brauner@canonical.com>,
- Will Deacon <will@kernel.org>, Jonathan Corbet <corbet@lwn.net>,
- joro@8bytes.org, Matthew Wilcox <willy@infradead.org>,
- Christoph Hellwig <hch@infradead.org>,
- Dan Carpenter <dan.carpenter@oracle.com>, John Garry <john.garry@huawei.com>,
- Liu Xiaodong <xiaodong.liu@intel.com>, linux-fsdevel@vger.kernel.org,
- Al Viro <viro@zeniv.linux.org.uk>, Stefan Hajnoczi <stefanha@redhat.com>,
- songmuchun@bytedance.com, Jens Axboe <axboe@kernel.dk>,
- He Zhe <zhe.he@windriver.com>, Greg KH <gregkh@linuxfoundation.org>,
- Randy Dunlap <rdunlap@infradead.org>,
- linux-kernel <linux-kernel@vger.kernel.org>, iommu@lists.linux-foundation.org,
- bcrl@kvack.org, netdev@vger.kernel.org, Joe Perches <joe@perches.com>,
- Robin Murphy <robin.murphy@arm.com>,
- Mika =?iso-8859-1?Q?Penttil=E4?= <mika.penttila@nextfour.com>
+Cc: axboe@kernel.dk, linux-block@vger.kernel.org, kvm@vger.kernel.org,
+ israelr@nvidia.com, virtualization@lists.linux-foundation.org,
+ hch@infradead.org, nitzanc@nvidia.com, Stefan Hajnoczi <stefanha@redhat.com>,
+ oren@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -146,181 +128,91 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 06, 2021 at 04:45:55PM +0800, Yongji Xie wrote:
-> On Mon, Sep 6, 2021 at 4:01 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Mon, Sep 06, 2021 at 03:06:44PM +0800, Yongji Xie wrote:
-> > > On Mon, Sep 6, 2021 at 2:37 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > >
-> > > > On Mon, Sep 06, 2021 at 02:09:25PM +0800, Yongji Xie wrote:
-> > > > > On Mon, Sep 6, 2021 at 1:56 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > >
-> > > > > > On Tue, Aug 31, 2021 at 06:36:26PM +0800, Xie Yongji wrote:
-> > > > > > > This adds a new callback to support device specific reset
-> > > > > > > behavior. The vdpa bus driver will call the reset function
-> > > > > > > instead of setting status to zero during resetting.
-> > > > > > >
-> > > > > > > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> > > > > >
-> > > > > >
-> > > > > > This does gloss over a significant change though:
-> > > > > >
-> > > > > >
-> > > > > > > ---
-> > > > > > > @@ -348,12 +352,12 @@ static inline struct device *vdpa_get_dma_dev(struct vdpa_device *vdev)
-> > > > > > >       return vdev->dma_dev;
-> > > > > > >  }
-> > > > > > >
-> > > > > > > -static inline void vdpa_reset(struct vdpa_device *vdev)
-> > > > > > > +static inline int vdpa_reset(struct vdpa_device *vdev)
-> > > > > > >  {
-> > > > > > >       const struct vdpa_config_ops *ops = vdev->config;
-> > > > > > >
-> > > > > > >       vdev->features_valid = false;
-> > > > > > > -     ops->set_status(vdev, 0);
-> > > > > > > +     return ops->reset(vdev);
-> > > > > > >  }
-> > > > > > >
-> > > > > > >  static inline int vdpa_set_features(struct vdpa_device *vdev, u64 features)
-> > > > > >
-> > > > > >
-> > > > > > Unfortunately this breaks virtio_vdpa:
-> > > > > >
-> > > > > >
-> > > > > > static void virtio_vdpa_reset(struct virtio_device *vdev)
-> > > > > > {
-> > > > > >         struct vdpa_device *vdpa = vd_get_vdpa(vdev);
-> > > > > >
-> > > > > >         vdpa_reset(vdpa);
-> > > > > > }
-> > > > > >
-> > > > > >
-> > > > > > and there's no easy way to fix this, kernel can't recover
-> > > > > > from a reset failure e.g. during driver unbind.
-> > > > > >
-> > > > >
-> > > > > Yes, but it should be safe with the protection of software IOTLB even
-> > > > > if the reset() fails during driver unbind.
-> > > > >
-> > > > > Thanks,
-> > > > > Yongji
-> > > >
-> > > > Hmm. I don't see it.
-> > > > What exactly will happen? What prevents device from poking at
-> > > > memory after reset? Note that dma unmap in e.g. del_vqs happens
-> > > > too late.
-> > >
-> > > But I didn't see any problems with touching the memory for virtqueues.
-> >
-> > Drivers make the assumption that after reset returns no new
-> > buffers will be consumed. For example a bunch of drivers
-> > call virtqueue_detach_unused_buf.
+On Mon, Sep 06, 2021 at 01:31:32AM +0300, Max Gurtovoy wrote:
 > 
-> I'm not sure if I get your point. But it looks like
-> virtqueue_detach_unused_buf() will check the driver's metadata first
-> rather than read the memory from virtqueue.
+> On 9/5/2021 7:02 PM, Michael S. Tsirkin wrote:
+> > On Thu, Sep 02, 2021 at 02:45:52PM +0100, Stefan Hajnoczi wrote:
+> > > On Tue, Aug 31, 2021 at 04:50:35PM +0300, Max Gurtovoy wrote:
+> > > > Sometimes a user would like to control the amount of IO queues to be
+> > > > created for a block device. For example, for limiting the memory
+> > > > footprint of virtio-blk devices.
+> > > > 
+> > > > Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+> > > > ---
+> > > > 
+> > > > changes from v1:
+> > > >   - use param_set_uint_minmax (from Christoph)
+> > > >   - added "Should > 0" to module description
+> > > > 
+> > > > Note: This commit apply on top of Jens's branch for-5.15/drivers
+> > > > ---
+> > > >   drivers/block/virtio_blk.c | 20 +++++++++++++++++++-
+> > > >   1 file changed, 19 insertions(+), 1 deletion(-)
+> > > > 
+> > > > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> > > > index 4b49df2dfd23..9332fc4e9b31 100644
+> > > > --- a/drivers/block/virtio_blk.c
+> > > > +++ b/drivers/block/virtio_blk.c
+> > > > @@ -24,6 +24,22 @@
+> > > >   /* The maximum number of sg elements that fit into a virtqueue */
+> > > >   #define VIRTIO_BLK_MAX_SG_ELEMS 32768
+> > > > +static int virtblk_queue_count_set(const char *val,
+> > > > +		const struct kernel_param *kp)
+> > > > +{
+> > > > +	return param_set_uint_minmax(val, kp, 1, nr_cpu_ids);
+> > > > +}
+
+
+Hmm which tree is this for?
+
+> > > > +
+> > > > +static const struct kernel_param_ops queue_count_ops = {
+> > > > +	.set = virtblk_queue_count_set,
+> > > > +	.get = param_get_uint,
+> > > > +};
+> > > > +
+> > > > +static unsigned int num_io_queues;
+> > > > +module_param_cb(num_io_queues, &queue_count_ops, &num_io_queues, 0644);
+> > > > +MODULE_PARM_DESC(num_io_queues,
+> > > > +		 "Number of IO virt queues to use for blk device. Should > 0");
+
+
+
+better:
+
++MODULE_PARM_DESC(num_io_request_queues,
++                "Limit number of IO request virt queues to use for each device. 0 for now limit");
+
+
+> > > > +
+> > > >   static int major;
+> > > >   static DEFINE_IDA(vd_index_ida);
+> > > > @@ -501,7 +517,9 @@ static int init_vq(struct virtio_blk *vblk)
+> > > >   	if (err)
+> > > >   		num_vqs = 1;
+> > > > -	num_vqs = min_t(unsigned int, nr_cpu_ids, num_vqs);
+> > > > +	num_vqs = min_t(unsigned int,
+> > > > +			min_not_zero(num_io_queues, nr_cpu_ids),
+> > > > +			num_vqs);
+> > > If you respin, please consider calling them request queues. That's the
+> > > terminology from the VIRTIO spec and it's nice to keep it consistent.
+> > > But the purpose of num_io_queues is clear, so:
+> > > 
+> > > Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> > I did this:
+> > +static unsigned int num_io_request_queues;
+> > +module_param_cb(num_io_request_queues, &queue_count_ops, &num_io_request_queues, 0644);
+> > +MODULE_PARM_DESC(num_io_request_queues,
+> > +                "Limit number of IO request virt queues to use for each device. 0 for now limit");
 > 
-> > I can't say whether block makes this assumption anywhere.
-> > Needs careful auditing.
-> >
-> > > The memory should not be freed after dma unmap?
-> >
-> > But unmap does not happen until after the reset.
-> >
+> The parameter is writable and can be changed and then new devices might be
+> probed with new value.
 > 
-> I mean the memory is totally allocated and controlled by the VDUSE
-> driver. The VDUSE driver will not return them to the buddy system
-> unless userspace unmap it.
-
-Right. But what stops VDUSE from poking at memory after
-reset failed?
-
-
-
-> >
-> > > And the memory for the bounce buffer should also be safe to be
-> > > accessed by userspace in this case.
-> > >
-> > > > And what about e.g. interrupts?
-> > > > E.g. we have this:
-> > > >
-> > > >         /* Virtqueues are stopped, nothing can use vblk->vdev anymore. */
-> > > >         vblk->vdev = NULL;
-> > > >
-> > > > and this is no longer true at this point.
-> > > >
-> > >
-> > > You're right. But I didn't see where the interrupt handler will use
-> > > the vblk->vdev.
-> >
-> > static void virtblk_done(struct virtqueue *vq)
-> > {
-> >         struct virtio_blk *vblk = vq->vdev->priv;
-> >
-> > vq->vdev is the same as vblk->vdev.
-> >
+> It can't be zero in the code. we can change param_set_uint_minmax args and
+> say that 0 says nr_cpus.
 > 
-> We will test the vq->ready (will be set to false in del_vqs()) before
-> injecting an interrupt in the VDUSE driver. So it should be OK?
-
-Maybe not ...  It's not designed for such asynchronous access, so e.g.
-there's no locking or memory ordering around accesses.
-
-
-> >
-> > > So it seems to be not too late to fix it:
-> > >
-> > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > index 5c25ff6483ad..ea41a7389a26 100644
-> > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > @@ -665,13 +665,13 @@ static void vduse_vdpa_set_config(struct
-> > > vdpa_device *vdpa, unsigned int offset,
-> > >  static int vduse_vdpa_reset(struct vdpa_device *vdpa)
-> > >  {
-> > >         struct vduse_dev *dev = vdpa_to_vduse(vdpa);
-> > > +       int ret;
-> > >
-> > > -       if (vduse_dev_set_status(dev, 0))
-> > > -               return -EIO;
-> > > +       ret = vduse_dev_set_status(dev, 0);
-> > >
-> > >         vduse_dev_reset(dev);
-> > >
-> > > -       return 0;
-> > > +       return ret;
-> > >  }
-> > >
-> > >  static u32 vduse_vdpa_get_generation(struct vdpa_device *vdpa)
-> > >
-> > > Thanks,
-> > > Yongji
-> >
-> > Needs some comments to explain why it's done like this.
-> >
-> 
-> This is used to make sure the userspace can't not inject the interrupt
-> any more after reset. The vduse_dev_reset() will clear the interrupt
-> callback and flush the irq kworker.
-> 
-> > BTW device is generally wedged at this point right?
-> > E.g. if reset during initialization fails, userspace
-> > will still get the reset at some later point and be
-> > confused ...
-> >
-> 
-> Sorry, I don't get why userspace will get the reset at some later point?
-> 
-> Thanks,
-> Yongji
-
-I am generally a bit confused about how does reset work with vduse.
-We clearly want device to get back to its original state.
-How is that supposed to be achieved?
-
--- 
-MST
+> I'm ok with the renaming but I prefer to stick to the description we gave in
+> V3 of this patch (and maybe enable value of 0 as mentioned above).
 
 _______________________________________________
 Virtualization mailing list
