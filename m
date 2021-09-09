@@ -4,112 +4,118 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43B72C433EF
-	for <virtualization@archiver.kernel.org>; Thu,  9 Sep 2021 13:58:05 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6A3FC433EF
+	for <virtualization@archiver.kernel.org>; Thu,  9 Sep 2021 15:40:58 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DCA9761260
-	for <virtualization@archiver.kernel.org>; Thu,  9 Sep 2021 13:58:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org DCA9761260
+	by mail.kernel.org (Postfix) with ESMTPS id 85DB96113A
+	for <virtualization@archiver.kernel.org>; Thu,  9 Sep 2021 15:40:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 85DB96113A
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id A6EE540354;
-	Thu,  9 Sep 2021 13:58:04 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 4776660B01;
+	Thu,  9 Sep 2021 15:40:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id d_eSXNXwFXga; Thu,  9 Sep 2021 13:58:03 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id D9D8340330;
-	Thu,  9 Sep 2021 13:58:02 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id yhFKJ3rG3TVj; Thu,  9 Sep 2021 15:40:57 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id C32BD6059F;
+	Thu,  9 Sep 2021 15:40:56 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B07C4C000F;
-	Thu,  9 Sep 2021 13:58:02 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E11C1C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AB799C000F;
+	Thu,  9 Sep 2021 15:40:56 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CE7ADC000D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Sep 2021 13:58:00 +0000 (UTC)
+ Thu,  9 Sep 2021 15:40:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id BEC2340116
+ by smtp4.osuosl.org (Postfix) with ESMTP id BE167404A8
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Sep 2021 13:58:00 +0000 (UTC)
+ Thu,  9 Sep 2021 15:40:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id euUMLkhJawXl
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1EN7I9cOUu1i
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Sep 2021 13:57:59 +0000 (UTC)
+ Thu,  9 Sep 2021 15:40:54 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 224D6400B5
+ by smtp4.osuosl.org (Postfix) with ESMTPS id EB674404A7
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Sep 2021 13:57:58 +0000 (UTC)
+ Thu,  9 Sep 2021 15:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1631195878;
+ s=mimecast20190719; t=1631202052;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=6lRrSINgYt7KKDKEjczqr2TnpglKua5JOe8A4G8xWzs=;
- b=Xw762+qjIu4KyZtG7LJ3X4mgo4RZUCTJFQMuUTjTxE/t1HqswTlqBUkdsZxBxU6eC+0W4n
- 0d6WKYmo05u8nGoeIYutBQXyiUWGhMmku32Q2pINIIwKR8ENnGD4tdwEzwkUjrk/fLRUWf
- z/zAnB0a8HRE1PqMpUa6JzWUVBN6378=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-483-gcxqc9YdPYeXsyOmvoeHCA-1; Thu, 09 Sep 2021 09:57:56 -0400
-X-MC-Unique: gcxqc9YdPYeXsyOmvoeHCA-1
-Received: by mail-ej1-f72.google.com with SMTP id
- ne21-20020a1709077b95b029057eb61c6fdfso827623ejc.22
+ bh=WBYiYhsVVzfTpEKTlWDA25Qp/Q4qm4nDo+fBNglD38I=;
+ b=cMm8tpy4v2jmzW3Eohd7im3nszA1jdRRr8yKfdpc9ZpaQX1lag/XukvhUbrbHYsdQskP9V
+ 8/jb3SCLspEgdDTv+nF5SmgRtMGreYdAPiaEGyejUU6cz5ESahOD9Z4ZuEMpUpfAm6uaXE
+ D/21NuCMyIK+tnleBkYl68071ZC48Dk=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-517-oc_ZYquRMmGM_2fw4A5oUA-1; Thu, 09 Sep 2021 11:40:51 -0400
+X-MC-Unique: oc_ZYquRMmGM_2fw4A5oUA-1
+Received: by mail-wm1-f71.google.com with SMTP id
+ x10-20020a7bc20a000000b002f8cf761457so710950wmi.1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 09 Sep 2021 06:57:56 -0700 (PDT)
+ Thu, 09 Sep 2021 08:40:51 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=6lRrSINgYt7KKDKEjczqr2TnpglKua5JOe8A4G8xWzs=;
- b=Vm6l1HZj2Kn0xuFdTNmKsQdjQHD5EEl7YIGjXiResB17voFlH0E3XnkkV/jOJuQ6B/
- TqtLsEpaeqZoBjUL/PFcD+Lz8aDsZPIBDNP9ODQdDkZfo0JtwI5bUll2eJQ8HFd2u/W1
- VQltc8pGiCt6l0UfOpDlNPeog3zsUYM8U2i0ukis8utdOLxYDJBCgjls8p4fVcTwD00g
- O4EKMDdGyEOjPw/RIAFLaXQahPYlrUN41OqABOwQrSXKJfN1HzFdN/rlwlCQcf8qjfNd
- zAAebJdprl+/aKncCqBFSTjva1p/di6HeU1FGfEBgb9RDxtRZUYA3Up34Fh3Nf+/mbps
- 13Kw==
-X-Gm-Message-State: AOAM530byNwM3bjXuCmZbixd0WUln3QVTNJrOKBwpGW2aAtgl6IvHqG1
- sU704TBUlYnbWVDbh8wOjuFFCEWHi+JzamfjI9mixVLMQyzxLKNa2dJOrLDHr+UUZC8BYxACrao
- EiyKaUo5P26tVtSVkZLse2ENCVwH7ZZf+wdFBQk37sQ==
-X-Received: by 2002:a17:906:3693:: with SMTP id
- a19mr3635328ejc.237.1631195875147; 
- Thu, 09 Sep 2021 06:57:55 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwpJzxglH5/0UharMIxDbvc3npEImAW6R9ruLt01RvaJ13152dqSzgpdHFBX0CBhIiMaKK/zg==
-X-Received: by 2002:a17:906:3693:: with SMTP id
- a19mr3635311ejc.237.1631195874906; 
- Thu, 09 Sep 2021 06:57:54 -0700 (PDT)
+ bh=WBYiYhsVVzfTpEKTlWDA25Qp/Q4qm4nDo+fBNglD38I=;
+ b=s7QyCzV3gZNZjTd1v4pbh7pQXNoYBl7OrVxeCbZ3GEbHurh14f63Yw9cQVdYyTOuZ+
+ O9Ljy3iVW4f4S8JS6f2Y8/pyJZYmFsNYXbnfsj08xvG+JOJFvi4nJvH8Dj61SgXTCFHU
+ DqjHZRQRgLTe/hyvvbLltPBZghnBEsIzG6ZHpmoeUcqNrNZslKm7oOWy7sz29YCJMPcj
+ TqTWc0DtaAM2++dsnB8lzr3YjWt1pBx8+VGE+r58v9/WBEy10fFXvep7caBahUh8NaDL
+ IOTWngkN2/Zzh09Ica2mpgOd5fqcZ9unDwXGEp5ghpqS0OpO/GIb3cIqaSF5x2SAi/sN
+ 7yiw==
+X-Gm-Message-State: AOAM5302U2eDB67Kfh17qF1mB8ZPKyRkMpOcCaeTejPNLUcP9r5DRB5p
+ nAKPQuLhwwxuFp72i7Nuu2yPxae6bVxfTxQTO1wwPxaVduPHgmJ1y3SsVzHnmBFv+i0ICudLtVh
+ OB2mVfZDA5hpemlnCmb+uzxMgU35yWkglfvCqpfnF+g==
+X-Received: by 2002:adf:e384:: with SMTP id e4mr4349334wrm.163.1631202050612; 
+ Thu, 09 Sep 2021 08:40:50 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz5Am4d/lKBmohH9Lzy/1jzcAVTjXLDkspGZBDFHm4AcucevN0az97m19jUsDd6QfUM7rXXsg==
+X-Received: by 2002:adf:e384:: with SMTP id e4mr4349308wrm.163.1631202050439; 
+ Thu, 09 Sep 2021 08:40:50 -0700 (PDT)
 Received: from redhat.com ([2.55.145.189])
- by smtp.gmail.com with ESMTPSA id z12sm1178369edi.44.2021.09.09.06.57.52
+ by smtp.gmail.com with ESMTPSA id 129sm1885672wmz.26.2021.09.09.08.40.48
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 09 Sep 2021 06:57:54 -0700 (PDT)
-Date: Thu, 9 Sep 2021 09:57:50 -0400
+ Thu, 09 Sep 2021 08:40:49 -0700 (PDT)
+Date: Thu, 9 Sep 2021 11:40:46 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Wu Zongyong <wuzongyong@linux.alibaba.com>
-Subject: Re: [PATCH 6/6] vp_vdpa: introduce legacy virtio pci driver
-Message-ID: <20210909095725-mutt-send-email-mst@kernel.org>
-References: <cover.1631101392.git.wuzongyong@linux.alibaba.com>
- <8b084e5beb1111ad98bb64177ebd0e9845c178fa.1631101392.git.wuzongyong@linux.alibaba.com>
+To: Max Gurtovoy <mgurtovoy@nvidia.com>
+Subject: Re: [PATCH v2 1/1] virtio-blk: add num_io_queues module parameter
+Message-ID: <20210909114029-mutt-send-email-mst@kernel.org>
+References: <20210831135035.6443-1-mgurtovoy@nvidia.com>
+ <YTDVkDIr5WLdlRsK@stefanha-x1.localdomain>
+ <20210905120234-mutt-send-email-mst@kernel.org>
+ <98309fcd-3abe-1f27-fe52-e8fcc58bec13@nvidia.com>
+ <20210906071957-mutt-send-email-mst@kernel.org>
+ <1cbbe6e2-1473-8696-565c-518fc1016a1a@nvidia.com>
+ <20210909094001-mutt-send-email-mst@kernel.org>
+ <456e1704-67e9-aac9-a82a-44fed65dd153@nvidia.com>
 MIME-Version: 1.0
-In-Reply-To: <8b084e5beb1111ad98bb64177ebd0e9845c178fa.1631101392.git.wuzongyong@linux.alibaba.com>
+In-Reply-To: <456e1704-67e9-aac9-a82a-44fed65dd153@nvidia.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: wei.yang1@linux.alibaba.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+Cc: axboe@kernel.dk, linux-block@vger.kernel.org, kvm@vger.kernel.org,
+ israelr@nvidia.com, virtualization@lists.linux-foundation.org,
+ hch@infradead.org, nitzanc@nvidia.com, Stefan Hajnoczi <stefanha@redhat.com>,
+ oren@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,468 +132,114 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Sep 08, 2021 at 08:20:37PM +0800, Wu Zongyong wrote:
-> This patch implements a vdpa driver for legacy virtio-pci device. And
-> this has been tested with the ENI(Elastic Network Interface) which is a
-> hardware virtio network device in Alibaba ECS baremetal instance.
+On Thu, Sep 09, 2021 at 06:37:37PM +0300, Max Gurtovoy wrote:
 > 
-> Note that legacy device doesn't support to change the virtqueue size, so
-> users should use get_vq_num_unchangeable callback to check if the
-> virqueue size can be changed.
+> On 9/9/2021 4:42 PM, Michael S. Tsirkin wrote:
+> > On Mon, Sep 06, 2021 at 02:59:40PM +0300, Max Gurtovoy wrote:
+> > > On 9/6/2021 2:20 PM, Michael S. Tsirkin wrote:
+> > > > On Mon, Sep 06, 2021 at 01:31:32AM +0300, Max Gurtovoy wrote:
+> > > > > On 9/5/2021 7:02 PM, Michael S. Tsirkin wrote:
+> > > > > > On Thu, Sep 02, 2021 at 02:45:52PM +0100, Stefan Hajnoczi wrote:
+> > > > > > > On Tue, Aug 31, 2021 at 04:50:35PM +0300, Max Gurtovoy wrote:
+> > > > > > > > Sometimes a user would like to control the amount of IO queues to be
+> > > > > > > > created for a block device. For example, for limiting the memory
+> > > > > > > > footprint of virtio-blk devices.
+> > > > > > > > 
+> > > > > > > > Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+> > > > > > > > ---
+> > > > > > > > 
+> > > > > > > > changes from v1:
+> > > > > > > >     - use param_set_uint_minmax (from Christoph)
+> > > > > > > >     - added "Should > 0" to module description
+> > > > > > > > 
+> > > > > > > > Note: This commit apply on top of Jens's branch for-5.15/drivers
+> > > > > > > > ---
+> > > > > > > >     drivers/block/virtio_blk.c | 20 +++++++++++++++++++-
+> > > > > > > >     1 file changed, 19 insertions(+), 1 deletion(-)
+> > > > > > > > 
+> > > > > > > > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> > > > > > > > index 4b49df2dfd23..9332fc4e9b31 100644
+> > > > > > > > --- a/drivers/block/virtio_blk.c
+> > > > > > > > +++ b/drivers/block/virtio_blk.c
+> > > > > > > > @@ -24,6 +24,22 @@
+> > > > > > > >     /* The maximum number of sg elements that fit into a virtqueue */
+> > > > > > > >     #define VIRTIO_BLK_MAX_SG_ELEMS 32768
+> > > > > > > > +static int virtblk_queue_count_set(const char *val,
+> > > > > > > > +		const struct kernel_param *kp)
+> > > > > > > > +{
+> > > > > > > > +	return param_set_uint_minmax(val, kp, 1, nr_cpu_ids);
+> > > > > > > > +}
+> > > > Hmm which tree is this for?
+> > > I've mentioned in the note that it apply on branch for-5.15/drivers. But now
+> > > you can apply it on linus/master as well.
+> > > 
+> > > 
+> > > > > > > > +
+> > > > > > > > +static const struct kernel_param_ops queue_count_ops = {
+> > > > > > > > +	.set = virtblk_queue_count_set,
+> > > > > > > > +	.get = param_get_uint,
+> > > > > > > > +};
+> > > > > > > > +
+> > > > > > > > +static unsigned int num_io_queues;
+> > > > > > > > +module_param_cb(num_io_queues, &queue_count_ops, &num_io_queues, 0644);
+> > > > > > > > +MODULE_PARM_DESC(num_io_queues,
+> > > > > > > > +		 "Number of IO virt queues to use for blk device. Should > 0");
+> > > > 
+> > > > better:
+> > > > 
+> > > > +MODULE_PARM_DESC(num_io_request_queues,
+> > > > +                "Limit number of IO request virt queues to use for each device. 0 for now limit");
+> > > You proposed it and I replied on it bellow.
+> > 
+> > Can't say I understand 100% what you are saying. Want to send
+> > a description that does make sense to you but
+> > also reflects reality? 0 is the default so
+> > "should > 0" besides being ungrammatical does not seem t"
+> > reflect what it does ...
+> 
+> if you "modprobe virtio_blk" the previous behavior will happen.
+> 
+> You can't "modprobe virtio_blk num_io_request_queues=0" since the minimal
+> value is 1.
+> 
+> So your description is not reflecting the code.
+> 
+> We can do:
+> 
+> MODULE_PARM_DESC(num_io_request_queues, "Number of request virt queues to use for blk device. Minimum value is 1 queue");
 
-Hmm isn't this implicit in this being a legacy device?
+What's the default value? We should document that.
 
-> If not, users should get the virqueue size
-> first by the get_vq_num_max callback first then allocate same size
-> memory for the virtqueue otherwise the device won't work correctly.
-> 
-> Signed-off-by: Wu Zongyong <wuzongyong@linux.alibaba.com>
-> ---
->  drivers/vdpa/Kconfig                     |   7 +
->  drivers/vdpa/virtio_pci/Makefile         |   1 +
->  drivers/vdpa/virtio_pci/vp_vdpa_common.c |   5 +
->  drivers/vdpa/virtio_pci/vp_vdpa_common.h |  11 +
->  drivers/vdpa/virtio_pci/vp_vdpa_legacy.c | 346 +++++++++++++++++++++++
->  5 files changed, 370 insertions(+)
->  create mode 100644 drivers/vdpa/virtio_pci/vp_vdpa_legacy.c
-> 
-> diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
-> index a503c1b2bfd9..ccb4fdb11f0f 100644
-> --- a/drivers/vdpa/Kconfig
-> +++ b/drivers/vdpa/Kconfig
-> @@ -67,4 +67,11 @@ config VP_VDPA
->  	help
->  	  This kernel module bridges virtio PCI device to vDPA bus.
->  
-> +config VP_VDPA_LEGACY
-> +	bool "Support legacy virtio pci device"
-> +	depends on VP_VDPA
-> +	select VIRTIO_PCI_LIB_LEGACY
-> +	help
-> +	  This option enables bridges legacy virito PCI device to vDPA bus.
-> +
->  endif # VDPA
-> diff --git a/drivers/vdpa/virtio_pci/Makefile b/drivers/vdpa/virtio_pci/Makefile
-> index a772d86952b1..77c52dfb8b56 100644
-> --- a/drivers/vdpa/virtio_pci/Makefile
-> +++ b/drivers/vdpa/virtio_pci/Makefile
-> @@ -1,4 +1,5 @@
->  # SPDX-License-Identifier: GPL-2.0
->  
->  vp_vdpa-y += vp_vdpa_common.o vp_vdpa_modern.o
-> +vp_vdpa-$(CONFIG_VP_VDPA_LEGACY) += vp_vdpa_legacy.o
->  obj-$(CONFIG_VP_VDPA) += vp_vdpa.o
-> diff --git a/drivers/vdpa/virtio_pci/vp_vdpa_common.c b/drivers/vdpa/virtio_pci/vp_vdpa_common.c
-> index 3ff24c9ad6e4..fa91dc153244 100644
-> --- a/drivers/vdpa/virtio_pci/vp_vdpa_common.c
-> +++ b/drivers/vdpa/virtio_pci/vp_vdpa_common.c
-> @@ -8,6 +8,7 @@
->   * Based on virtio_pci_modern.c.
->   */
->  
-> +#include "linux/err.h"
->  #include <linux/irqreturn.h>
->  #include <linux/interrupt.h>
->  #include "vp_vdpa_common.h"
-> @@ -172,6 +173,10 @@ static int vp_vdpa_probe(struct pci_dev *pdev, const struct pci_device_id *id)
->  		return ret;
->  
->  	vp_vdpa = vp_vdpa_modern_probe(pdev);
-> +	if (PTR_ERR(vp_vdpa) == -ENODEV) {
-> +		dev_info(&pdev->dev, "Tring legacy driver");
-> +		vp_vdpa = vp_vdpa_legacy_probe(pdev);
-> +	}
->  	if (IS_ERR(vp_vdpa))
->  		return PTR_ERR(vp_vdpa);
->  
-> diff --git a/drivers/vdpa/virtio_pci/vp_vdpa_common.h b/drivers/vdpa/virtio_pci/vp_vdpa_common.h
-> index 57886b55a2e9..39f241d8321b 100644
-> --- a/drivers/vdpa/virtio_pci/vp_vdpa_common.h
-> +++ b/drivers/vdpa/virtio_pci/vp_vdpa_common.h
-> @@ -10,6 +10,7 @@
->  #include <linux/virtio_ring.h>
->  #include <linux/virtio_pci.h>
->  #include <linux/virtio_pci_modern.h>
-> +#include <linux/virtio_pci_legacy.h>
->  
->  #define VP_VDPA_DRIVER_NAME "vp_vdpa"
->  #define VP_VDPA_NAME_SIZE 256
-> @@ -26,6 +27,7 @@ struct vp_vdpa {
->  	struct vdpa_device vdpa;
->  	struct pci_dev *pci_dev;
->  	struct virtio_pci_modern_device mdev;
-> +	struct virtio_pci_legacy_device ldev;
->  	struct vp_vring *vring;
->  	struct vdpa_callback config_cb;
->  	char msix_name[VP_VDPA_NAME_SIZE];
-> @@ -53,4 +55,13 @@ void vp_vdpa_free_irq_vectors(void *data);
->  
->  struct vp_vdpa *vp_vdpa_modern_probe(struct pci_dev *pdev);
->  
-> +#if IS_ENABLED(CONFIG_VP_VDPA_LEGACY)
-> +struct vp_vdpa *vp_vdpa_legacy_probe(struct pci_dev *pdev);
-> +#else
-> +static inline struct vp_vdpa *vp_vdpa_legacy_probe(struct pci_dev *pdev)
-> +{
-> +	return ERR_PTR(-ENODEV);
-> +}
-> +#endif
-> +
->  #endif
-> diff --git a/drivers/vdpa/virtio_pci/vp_vdpa_legacy.c b/drivers/vdpa/virtio_pci/vp_vdpa_legacy.c
-> new file mode 100644
-> index 000000000000..75a6879a27ca
-> --- /dev/null
-> +++ b/drivers/vdpa/virtio_pci/vp_vdpa_legacy.c
-> @@ -0,0 +1,346 @@
-> +// SPDX-License-Identifier: GPL-2.0-only
-> +/*
-> + * vDPA bridge driver for legacy virtio-pci device
-> + *
-> + * Copyright (c) 2021, Alibaba Inc. All rights reserved.
-> + * Author: Wu Zongyong <wuzongyong@linux.alibaba.com>
-> + */
-> +
-> +#include "linux/pci.h"
-> +#include "linux/virtio_byteorder.h"
-> +#include "linux/virtio_pci_legacy.h"
-> +#include <uapi/linux/virtio_net.h>
-> +#include <uapi/linux/virtio_blk.h>
-> +#include <linux/virtio_ids.h>
-> +#include <linux/virtio_pci.h>
-> +#include "vp_vdpa_common.h"
-> +
-> +static struct virtio_pci_legacy_device *vdpa_to_ldev(struct vdpa_device *vdpa)
-> +{
-> +	struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
-> +
-> +	return &vp_vdpa->ldev;
-> +}
-> +
-> +static u64 vp_vdpa_get_features(struct vdpa_device *vdpa)
-> +{
-> +	struct virtio_pci_legacy_device *ldev = vdpa_to_ldev(vdpa);
-> +
-> +	return vp_legacy_get_features(ldev);
-> +}
-> +
-> +static int vp_vdpa_set_features(struct vdpa_device *vdpa, u64 features)
-> +{
-> +	struct virtio_pci_legacy_device *ldev = vdpa_to_ldev(vdpa);
-> +
-> +	vp_legacy_set_features(ldev, features);
-> +
-> +	return 0;
-> +}
-> +
-> +static u8 vp_vdpa_get_status(struct vdpa_device *vdpa)
-> +{
-> +	struct virtio_pci_legacy_device *ldev = vdpa_to_ldev(vdpa);
-> +
-> +	return vp_legacy_get_status(ldev);
-> +}
-> +
-> +static int vp_vdpa_set_vq_state_split(struct vdpa_device *vdpa,
-> +				      const struct vdpa_vq_state *state)
-> +{
-> +	const struct vdpa_vq_state_split *split = &state->split;
-> +
-> +	if (split->avail_index == 0)
-> +		return 0;
-> +
-> +	return -EOPNOTSUPP;
-> +}
-> +
-> +static int vp_vdpa_set_vq_state(struct vdpa_device *vdpa, u16 qid,
-> +				const struct vdpa_vq_state *state)
-> +{
-> +	struct virtio_pci_legacy_device *ldev = vdpa_to_ldev(vdpa);
-> +
-> +	/* Note that this is not supported by virtio specification.
-> +	 * But if the state is by chance equal to the device initial
-> +	 * state, we can let it go.
-> +	 */
-> +	if (!vp_legacy_get_queue_enable(ldev, qid))
-> +		return vp_vdpa_set_vq_state_split(vdpa,	state);
-> +
-> +	return -EOPNOTSUPP;
-> +}
-> +
-> +static void vp_vdpa_set_vq_ready(struct vdpa_device *vdpa,
-> +				 u16 qid, bool ready)
-> +{
-> +	struct virtio_pci_legacy_device *ldev = vdpa_to_ldev(vdpa);
-> +
-> +	/* Legacy devices can only be activated by setting vq address,
-> +	 * and queue_enable is not supported by specification. So for
-> +	 * legacy devices, we use @vp_vdpa_set_vq_address to set vq
-> +	 * ready instead.
-> +	 */
-> +	if (!ready)
-> +		vp_legacy_set_queue_address(ldev, qid, 0);
-> +}
-> +
-> +static bool vp_vdpa_get_vq_ready(struct vdpa_device *vdpa, u16 qid)
-> +{
-> +	struct virtio_pci_legacy_device *ldev = vdpa_to_ldev(vdpa);
-> +
-> +	return vp_legacy_get_queue_enable(ldev, qid);
-> +}
-> +
-> +/* Legacy devices don't support set vq num by specification,
-> + * just report an error if someone try to set it.
-> + */
-> +static void vp_vdpa_set_vq_num(struct vdpa_device *vdpa, u16 qid,
-> +			       u32 num)
-> +{
-> +	struct virtio_pci_legacy_device *ldev = vdpa_to_ldev(vdpa);
-> +
-> +	dev_err(&ldev->pci_dev->dev, "legacy device don't support set vq num\n");
-> +}
-> +
-> +static u16 vp_vdpa_get_vq_num_max(struct vdpa_device *vdpa)
-> +{
-> +	struct virtio_pci_legacy_device *ldev = vdpa_to_ldev(vdpa);
-> +
-> +	/* assume all virtqueues have the same size */
-> +	return vp_legacy_get_queue_size(ldev, 0);
-> +}
-> +
-> +static int vp_vdpa_set_vq_address(struct vdpa_device *vdpa, u16 qid,
-> +				  u64 desc_area, u64 driver_area,
-> +				  u64 device_area)
-> +{
-> +	struct virtio_pci_legacy_device *ldev = vdpa_to_ldev(vdpa);
-> +
-> +	vp_legacy_set_queue_address(ldev, qid, desc_area >> VIRTIO_PCI_QUEUE_ADDR_SHIFT);
-> +
-> +	return 0;
-> +}
-> +
-> +static u32 vp_vdpa_get_device_id(struct vdpa_device *vdpa)
-> +{
-> +	struct virtio_pci_legacy_device *ldev = vdpa_to_ldev(vdpa);
-> +
-> +	return ldev->id.device;
-> +}
-> +
-> +static u32 vp_vdpa_get_vendor_id(struct vdpa_device *vdpa)
-> +{
-> +	struct virtio_pci_legacy_device *ldev = vdpa_to_ldev(vdpa);
-> +
-> +	return ldev->id.vendor;
-> +}
-> +
-> +static size_t vp_vdpa_get_config_size(struct vdpa_device *vdpa)
-> +{
-> +	struct virtio_pci_legacy_device *ldev = vdpa_to_ldev(vdpa);
-> +	size_t size;
-> +
-> +	switch (ldev->id.device) {
-> +	case VIRTIO_ID_NET:
-> +		size = sizeof(struct virtio_net_config);
-> +		break;
-> +	case VIRTIO_ID_BLOCK:
-> +		size = sizeof(struct virtio_blk_config);
-> +		break;
-> +	default:
-> +		size = 0;
-> +		dev_err(&ldev->pci_dev->dev, "VIRTIO ID %u not support\n", ldev->id.device);
-> +	}
-> +
-> +	return size;
-> +}
-> +
-> +static void vp_vdpa_get_config(struct vdpa_device *vdpa,
-> +			       unsigned int offset,
-> +			       void *buf, unsigned int len)
-> +{
-> +	struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
-> +	struct virtio_pci_legacy_device *ldev = &vp_vdpa->ldev;
-> +	void __iomem *ioaddr = ldev->ioaddr +
-> +		VIRTIO_PCI_CONFIG_OFF(vp_vdpa->vectors) +
-> +		offset;
-> +	u8 *p = buf;
-> +	int i;
-> +
-> +	/* legacy devices don't have a configuration generation field,
-> +	 * so we just read it once.
-> +	 */
-> +	for (i = 0; i < len; i++)
-> +		*p++ = ioread8(ioaddr + i);
-> +}
-> +
-> +static void vp_vdpa_set_config(struct vdpa_device *vdpa,
-> +			       unsigned int offset, const void *buf,
-> +			       unsigned int len)
-> +{
-> +	struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
-> +	struct virtio_pci_legacy_device *ldev = &vp_vdpa->ldev;
-> +	void __iomem *ioaddr = ldev->ioaddr +
-> +		VIRTIO_PCI_CONFIG_OFF(vp_vdpa->vectors) +
-> +		offset;
-> +	const u8 *p = buf;
-> +	int i;
-> +
-> +	for (i = 0; i < len; i++)
-> +		iowrite8(*p++, ioaddr + i);
-> +}
-> +
-> +static void vp_vdpa_set_status(struct vdpa_device *vdpa, u8 status)
-> +{
-> +	struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
-> +	struct virtio_pci_legacy_device *ldev = &vp_vdpa->ldev;
-> +	u8 s = vp_vdpa_get_status(vdpa);
-> +
-> +	if (status & VIRTIO_CONFIG_S_DRIVER_OK &&
-> +	    !(s & VIRTIO_CONFIG_S_DRIVER_OK)) {
-> +		vp_vdpa_request_irq(vp_vdpa);
-> +	}
-> +
-> +	vp_legacy_set_status(ldev, status);
-> +
-> +	if (!(status & VIRTIO_CONFIG_S_DRIVER_OK) &&
-> +	    (s & VIRTIO_CONFIG_S_DRIVER_OK)) {
-> +		vp_vdpa_free_irq(vp_vdpa);
-> +	}
-> +}
-> +
-> +static bool vp_vdpa_get_vq_num_unchangeable(struct vdpa_device *vdpa)
-> +{
-> +	return true;
-> +}
-> +
-> +static const struct vdpa_config_ops vp_vdpa_ops = {
-> +	.get_features	= vp_vdpa_get_features,
-> +	.set_features	= vp_vdpa_set_features,
-> +	.get_status	= vp_vdpa_get_status,
-> +	.set_status	= vp_vdpa_set_status,
-> +	.get_vq_num_max	= vp_vdpa_get_vq_num_max,
-> +	.get_vq_state	= vp_vdpa_get_vq_state,
-> +	.set_vq_state	= vp_vdpa_set_vq_state,
-> +	.set_vq_cb	= vp_vdpa_set_vq_cb,
-> +	.set_vq_ready	= vp_vdpa_set_vq_ready,
-> +	.get_vq_ready	= vp_vdpa_get_vq_ready,
-> +	.set_vq_num	= vp_vdpa_set_vq_num,
-> +	.set_vq_address	= vp_vdpa_set_vq_address,
-> +	.kick_vq	= vp_vdpa_kick_vq,
-> +	.get_device_id	= vp_vdpa_get_device_id,
-> +	.get_vendor_id	= vp_vdpa_get_vendor_id,
-> +	.get_vq_align	= vp_vdpa_get_vq_align,
-> +	.get_config_size = vp_vdpa_get_config_size,
-> +	.get_config	= vp_vdpa_get_config,
-> +	.set_config	= vp_vdpa_set_config,
-> +	.set_config_cb  = vp_vdpa_set_config_cb,
-> +	.get_vq_irq	= vp_vdpa_get_vq_irq,
-> +	.get_vq_num_unchangeable = vp_vdpa_get_vq_num_unchangeable,
-> +};
-> +
-> +static u16 vp_vdpa_get_num_queues(struct vp_vdpa *vp_vdpa)
-> +{
-> +	struct virtio_pci_legacy_device *ldev = &vp_vdpa->ldev;
-> +	u32 features = vp_legacy_get_features(ldev);
-> +	u16 num;
-> +
-> +	switch (ldev->id.device) {
-> +	case VIRTIO_ID_NET:
-> +		num = 2;
-> +		if (features & VIRTIO_NET_F_MQ) {
-> +			__virtio16 max_virtqueue_pairs;
-> +
-> +			vp_vdpa_get_config(&vp_vdpa->vdpa,
-> +				offsetof(struct virtio_net_config, max_virtqueue_pairs),
-> +				&max_virtqueue_pairs,
-> +				sizeof(max_virtqueue_pairs));
-> +			num = 2 * __virtio16_to_cpu(virtio_legacy_is_little_endian(),
-> +						max_virtqueue_pairs);
-> +		}
-> +
-> +		if (features & VIRTIO_NET_F_CTRL_VQ)
-> +			num += 1;
-> +		break;
-> +	case VIRTIO_ID_BLOCK:
-> +		num = 1;
-> +		break;
-> +	default:
-> +		num = 0;
-> +		dev_err(&ldev->pci_dev->dev, "VIRTIO ID %u not support\n", ldev->id.device);
-> +	}
-> +
-> +	return num;
-> +}
-> +
-> +static u16 vp_vdpa_queue_vector(struct vp_vdpa *vp_vdpa, u16 idx, u16 vector)
-> +{
-> +	return vp_legacy_queue_vector(&vp_vdpa->ldev, idx, vector);
-> +}
-> +
-> +static u16 vp_vdpa_config_vector(struct vp_vdpa *vp_vdpa, u16 vector)
-> +{
-> +	return vp_legacy_config_vector(&vp_vdpa->ldev, vector);
-> +}
-> +
-> +struct vp_vdpa *vp_vdpa_legacy_probe(struct pci_dev *pdev)
-> +{
-> +	struct device *dev = &pdev->dev;
-> +	struct vp_vdpa *vp_vdpa;
-> +	struct virtio_pci_legacy_device *ldev;
-> +	int ret, i;
-> +
-> +	vp_vdpa = vdpa_alloc_device(struct vp_vdpa, vdpa, dev, &vp_vdpa_ops, NULL);
-> +	if (vp_vdpa == NULL) {
-> +		dev_err(dev, "vp_vdpa: Failed to allocate vDPA structure\n");
-> +		return ERR_PTR(-ENOMEM);
-> +	}
-> +
-> +	ldev = &vp_vdpa->ldev;
-> +	ldev->pci_dev = pdev;
-> +
-> +	ret = vp_legacy_probe(ldev);
-> +	if (ret) {
-> +		dev_err(dev, "Failed to probe legacy PCI device\n");
-> +		goto err;
-> +	}
-> +
-> +	pci_set_master(pdev);
-> +	pci_set_drvdata(pdev, vp_vdpa);
-> +
-> +	vp_vdpa->vdpa.dma_dev = &pdev->dev;
-> +	vp_vdpa->queues = vp_vdpa_get_num_queues(vp_vdpa);
-> +
-> +	ret = devm_add_action_or_reset(dev, vp_vdpa_free_irq_vectors, pdev);
-> +	if (ret) {
-> +		dev_err(dev,
-> +			"Failed for adding devres for freeing irq vectors\n");
-> +		goto err;
-> +	}
-> +
-> +	vp_vdpa->vring = devm_kcalloc(dev, vp_vdpa->queues,
-> +				      sizeof(*vp_vdpa->vring),
-> +				      GFP_KERNEL);
-> +	if (!vp_vdpa->vring) {
-> +		ret = -ENOMEM;
-> +		dev_err(dev, "Fail to allocate virtqueues\n");
-> +		goto err;
-> +	}
-> +
-> +	for (i = 0; i < vp_vdpa->queues; i++) {
-> +		vp_vdpa->vring[i].irq = VIRTIO_MSI_NO_VECTOR;
-> +		vp_vdpa->vring[i].notify = ldev->ioaddr + VIRTIO_PCI_QUEUE_NOTIFY;
-> +		vp_vdpa->vring[i].notify_pa = pci_resource_start(pdev, 0) + VIRTIO_PCI_QUEUE_NOTIFY;
-> +	}
-> +	vp_vdpa->config_irq = VIRTIO_MSI_NO_VECTOR;
-> +
-> +	vp_vdpa->queue_vector = vp_vdpa_queue_vector;
-> +	vp_vdpa->config_vector = vp_vdpa_config_vector;
-> +
-> +	return vp_vdpa;
-> +
-> +err:
-> +	put_device(&vp_vdpa->vdpa.dev);
-> +	return ERR_PTR(ret);
-> +}
-> -- 
-> 2.31.1
+> > 
+> > > > 
+> > > > > > > > +
+> > > > > > > >     static int major;
+> > > > > > > >     static DEFINE_IDA(vd_index_ida);
+> > > > > > > > @@ -501,7 +517,9 @@ static int init_vq(struct virtio_blk *vblk)
+> > > > > > > >     	if (err)
+> > > > > > > >     		num_vqs = 1;
+> > > > > > > > -	num_vqs = min_t(unsigned int, nr_cpu_ids, num_vqs);
+> > > > > > > > +	num_vqs = min_t(unsigned int,
+> > > > > > > > +			min_not_zero(num_io_queues, nr_cpu_ids),
+> > > > > > > > +			num_vqs);
+> > > > > > > If you respin, please consider calling them request queues. That's the
+> > > > > > > terminology from the VIRTIO spec and it's nice to keep it consistent.
+> > > > > > > But the purpose of num_io_queues is clear, so:
+> > > > > > > 
+> > > > > > > Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+> > > > > > I did this:
+> > > > > > +static unsigned int num_io_request_queues;
+> > > > > > +module_param_cb(num_io_request_queues, &queue_count_ops, &num_io_request_queues, 0644);
+> > > > > > +MODULE_PARM_DESC(num_io_request_queues,
+> > > > > > +                "Limit number of IO request virt queues to use for each device. 0 for now limit");
+> > > > > The parameter is writable and can be changed and then new devices might be
+> > > > > probed with new value.
+> > > > > 
+> > > > > It can't be zero in the code. we can change param_set_uint_minmax args and
+> > > > > say that 0 says nr_cpus.
+> > > > > 
+> > > > > I'm ok with the renaming but I prefer to stick to the description we gave in
+> > > > > V3 of this patch (and maybe enable value of 0 as mentioned above).
 
 _______________________________________________
 Virtualization mailing list
