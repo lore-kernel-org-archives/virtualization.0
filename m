@@ -2,122 +2,95 @@ Return-Path: <SRS0=fv7C=OC=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B04A7C433EF
-	for <virtualization@archiver.kernel.org>; Sun, 12 Sep 2021 11:46:11 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 221ACC433EF
+	for <virtualization@archiver.kernel.org>; Sun, 12 Sep 2021 17:06:42 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3EA7161056
-	for <virtualization@archiver.kernel.org>; Sun, 12 Sep 2021 11:46:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 3EA7161056
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 9158A60FE3
+	for <virtualization@archiver.kernel.org>; Sun, 12 Sep 2021 17:06:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9158A60FE3
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id F0A0E4023E;
-	Sun, 12 Sep 2021 11:46:10 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 465AD60639;
+	Sun, 12 Sep 2021 17:06:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id e3cfLZ1H_3Ix; Sun, 12 Sep 2021 11:46:09 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D023D401E9;
-	Sun, 12 Sep 2021 11:46:08 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id wWA5zFDP80iQ; Sun, 12 Sep 2021 17:06:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id AC99E605F5;
+	Sun, 12 Sep 2021 17:06:39 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AE6B4C0011;
-	Sun, 12 Sep 2021 11:46:08 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CF4F4C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8459AC000F;
+	Sun, 12 Sep 2021 17:06:39 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 877F7C000D
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Sep 2021 11:46:07 +0000 (UTC)
+ Sun, 12 Sep 2021 17:06:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id B0A5060BCE
+ by smtp3.osuosl.org (Postfix) with ESMTP id 6E46260609
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Sep 2021 11:46:07 +0000 (UTC)
+ Sun, 12 Sep 2021 17:06:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sQQOTnUPRcDj
+ with ESMTP id pWV7M_PRCN15
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Sep 2021 11:46:04 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 90BD460B9F
+ Sun, 12 Sep 2021 17:06:37 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com
+ [IPv6:2607:f8b0:4864:20::72b])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 4E077605F5
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Sep 2021 11:46:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1631447163;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=2w6P0+qJqIqn2oiEb43xpIz2t91vGIQGpoY+hx464sg=;
- b=WR1RtWprDIrbv95VnKj3Q4fQBq9tw7v/vV4EZI18oFrjqu4V34UfdJs+LB13C66XPZFONz
- 2pSD0Cmw627OHcmOkxkPFmoRpXwwHpssNDK9Bstvp9bE2qyv5BQnNSvMbkoTZ9dmlRROk9
- gdKzFO1SGF/PK5rfTVAGYji68qnGVhc=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-14-hD0TInrfPMedUFE0cpekAg-1; Sun, 12 Sep 2021 07:46:01 -0400
-X-MC-Unique: hD0TInrfPMedUFE0cpekAg-1
-Received: by mail-wr1-f71.google.com with SMTP id
- p10-20020a5d68ca000000b001552bf8b9daso1801855wrw.22
+ Sun, 12 Sep 2021 17:06:37 +0000 (UTC)
+Received: by mail-qk1-x72b.google.com with SMTP id t4so7992048qkb.9
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Sep 2021 04:46:01 -0700 (PDT)
+ Sun, 12 Sep 2021 10:06:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20210112;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc:content-transfer-encoding;
+ bh=Yc8/eVDLWuaLuu6jQN/20x4CRwpCukX6gU/dh4RDWB4=;
+ b=oktCZBmzHLqgmGGbwKkFfLmxdM4yW7NiY2sJ/qCurPbVAdSvdHAXCwATIdehSnvB3y
+ ppqDJ9BrXMwr1P4Jw5xrknYSHShBQMPqWXjrbo23XM5temt7iOhFWY2Dim7lFnzDQDkJ
+ DPq0+4rWwXLZj/T/6oyCOp6NzgTM47SBs5kiCbw0muo/YHD7PAqDheFvl1A74Kek8Hax
+ d1BnNmHbJdm54KLK0GtVsWfC0FwiO3D1jTo+/kjqhU/+nMet3K87uLsCvQNu2ULNLeT5
+ LKiokwIzusUCUEJQo7bnGch0xSKFLVtueOKEsWImGpOI3FgnjrtPBljCyksRcIxeT7Aa
+ mn9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=2w6P0+qJqIqn2oiEb43xpIz2t91vGIQGpoY+hx464sg=;
- b=0r2RS0GwzAgPZswlnpBT/DMEwb13Hg/xEAuQcvknk2GTcS/cGkBmpM7XDnAJtxITFL
- e5lfmpVF+Du7p5UXcNM6LVH5fwyFGQ0MIS4BriQuxpS8slUuqLnrEmdPlVnN7cEfLlnC
- WPNd/yf8mcYLNETqqXjmZqoiPW1/knl0WhT5U+tdT1PdvOEMQlhubIul7xGzpnAJeDQ/
- D5eJMFYptY1NVIgTrQC+9t+pQpy7X72zRYdPxhB/nEGRd7+MYv8dxf3RrXwx4NbHKG1s
- 3OIePVuHHQGFsVH/9fdDkCi50umSyeL0Cv9kCEPmjpqZQIzzjjqkQhVYLULzbbh4WAK4
- Tu1A==
-X-Gm-Message-State: AOAM532wUyZFEMFaAVO8SJ3Yt3S0EQMDLlE1RABZT/ZKXnkayP6lucK9
- 71q/j2KAmMk4c4TDtKW1bN1e8u4Xj0XezsnODPxJXZB11Kj9m6Efp1sk6LRWA/p3q55nJaoe9OE
- 1YtpIsn38yOUko3+ncsMaf6RJtwrbATK22NCb8Uczqw==
-X-Received: by 2002:a5d:530c:: with SMTP id e12mr7269109wrv.81.1631447160668; 
- Sun, 12 Sep 2021 04:46:00 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwhUjgCMAnGYGrbpzgxtHHYuSfveqwGzajauA4sHdyXGigncu1+dSH127F1yaBqipVA7eIjRw==
-X-Received: by 2002:a5d:530c:: with SMTP id e12mr7269091wrv.81.1631447160421; 
- Sun, 12 Sep 2021 04:46:00 -0700 (PDT)
-Received: from redhat.com ([2.55.27.174])
- by smtp.gmail.com with ESMTPSA id y18sm4339175wrq.6.2021.09.12.04.45.56
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 12 Sep 2021 04:45:59 -0700 (PDT)
-Date: Sun, 12 Sep 2021 07:45:54 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: Re: [PATCH v2 1/1] virtio-blk: add num_io_queues module parameter
-Message-ID: <20210912074308-mutt-send-email-mst@kernel.org>
-References: <20210909114029-mutt-send-email-mst@kernel.org>
- <da61fec0-e90f-0020-c836-c2e58d32be27@nvidia.com>
- <20210909123035-mutt-send-email-mst@kernel.org>
- <0cd4ab50-1bb2-3baf-fc00-b2045e8f8eb1@nvidia.com>
- <20210909185525-mutt-send-email-mst@kernel.org>
- <9de9a43a-2d3a-493b-516e-4601778b9237@nvidia.com>
- <20210912050531-mutt-send-email-mst@kernel.org>
- <f58f955e-ef27-fba1-7417-8d37a175e872@nvidia.com>
- <20210912054959-mutt-send-email-mst@kernel.org>
- <eb7c3e87-d71e-9f86-c5c6-6a8b9474f78a@nvidia.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc:content-transfer-encoding;
+ bh=Yc8/eVDLWuaLuu6jQN/20x4CRwpCukX6gU/dh4RDWB4=;
+ b=wkKHKu5SsyfQ2C6i3eRoX6mWxYUvKfxhaj4BUDNQiTK1eUZ+KiLzWYjM+5OUF2++1H
+ 5ok3bY6f7k6H2/6z6b/ZGi+QKz7obk83J7eOZmlm0dsCilodOMd3/aZO78S+S9KQUfHv
+ 2/a/b/vyEdxjI/TcGZscT/68Ar7nvP/K3xhX6PSzAor3aeFvjVswnf+aOYwLNE9vaGHE
+ M8+7NAxohd5l/x2nLVgW5V/0icr0HTbRi0rrzHqgKoHOAFSDpe01faDGh4FQ1is1Q2pV
+ 6pScYlKMyBRw04kLIgWaA4clj5Y8yWvJ00rxcYFE3psdTripahY2zIaICmBHUVheP86L
+ aLzQ==
+X-Gm-Message-State: AOAM532WFeQS9eD6TbiqXHHvo+Hy3X3ujsvLpUAfXvZ6Yr6bmtkE3F1b
+ FzZkdnBs12ZljXqkYtNoSPaDj5v+dunRlSueBkHWwg==
+X-Google-Smtp-Source: ABdhPJwKk0AK8jKkuwI/1IYJV+dt0j7bYScKgM819ls2GX672BYA89y9Ud/rre5G9nsysC/iv18YAsPk+tTyeovBJs4=
+X-Received: by 2002:a37:8044:: with SMTP id b65mr6541700qkd.150.1631466395928; 
+ Sun, 12 Sep 2021 10:06:35 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <eb7c3e87-d71e-9f86-c5c6-6a8b9474f78a@nvidia.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: axboe@kernel.dk, linux-block@vger.kernel.org, kvm@vger.kernel.org,
- israelr@nvidia.com, virtualization@lists.linux-foundation.org,
- hch@infradead.org, nitzanc@nvidia.com, Stefan Hajnoczi <stefanha@redhat.com>,
- oren@nvidia.com
+References: <CAG_fn=WwQ29akxY1Eq=N_=HCF3t7z+T2obh9aRVUDFy1FSA3-Q@mail.gmail.com>
+ <20210819165742-mutt-send-email-mst@kernel.org>
+ <d0d232ab-5222-5eef-60de-e8cc0f2a0791@redhat.com>
+In-Reply-To: <d0d232ab-5222-5eef-60de-e8cc0f2a0791@redhat.com>
+Date: Sun, 12 Sep 2021 19:05:59 +0200
+Message-ID: <CAG_fn=Um3Up2VyGOC0ezJ51N8AWZfGcWz+98cvwpBrJkby3+NA@mail.gmail.com>
+Subject: Re: Use of uninitialized memory with CONFIG_HW_RANDOM_VIRTIO
+To: Laurent Vivier <lvivier@redhat.com>
+Cc: amit@kernel.org, rusty@rustcorp.com.au,
+ virtualization@lists.linux-foundation.org,
+ syzkaller <syzkaller@googlegroups.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ akong@redhat.com, Dmitriy Vyukov <dvyukov@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -129,181 +102,94 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Alexander Potapenko via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Alexander Potapenko <glider@google.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Sep 12, 2021 at 01:33:13PM +0300, Max Gurtovoy wrote:
-> 
-> On 9/12/2021 12:50 PM, Michael S. Tsirkin wrote:
-> > On Sun, Sep 12, 2021 at 12:37:26PM +0300, Max Gurtovoy wrote:
-> > > On 9/12/2021 12:07 PM, Michael S. Tsirkin wrote:
-> > > > On Sat, Sep 11, 2021 at 03:56:45PM +0300, Max Gurtovoy wrote:
-> > > > > On 9/10/2021 1:57 AM, Michael S. Tsirkin wrote:
-> > > > > > On Thu, Sep 09, 2021 at 07:45:42PM +0300, Max Gurtovoy wrote:
-> > > > > > > On 9/9/2021 7:31 PM, Michael S. Tsirkin wrote:
-> > > > > > > > On Thu, Sep 09, 2021 at 06:51:56PM +0300, Max Gurtovoy wrote:
-> > > > > > > > > On 9/9/2021 6:40 PM, Michael S. Tsirkin wrote:
-> > > > > > > > > > On Thu, Sep 09, 2021 at 06:37:37PM +0300, Max Gurtovoy wrote:
-> > > > > > > > > > > On 9/9/2021 4:42 PM, Michael S. Tsirkin wrote:
-> > > > > > > > > > > > On Mon, Sep 06, 2021 at 02:59:40PM +0300, Max Gurtovoy wrote:
-> > > > > > > > > > > > > On 9/6/2021 2:20 PM, Michael S. Tsirkin wrote:
-> > > > > > > > > > > > > > On Mon, Sep 06, 2021 at 01:31:32AM +0300, Max Gurtovoy wrote:
-> > > > > > > > > > > > > > > On 9/5/2021 7:02 PM, Michael S. Tsirkin wrote:
-> > > > > > > > > > > > > > > > On Thu, Sep 02, 2021 at 02:45:52PM +0100, Stefan Hajnoczi wrote:
-> > > > > > > > > > > > > > > > > On Tue, Aug 31, 2021 at 04:50:35PM +0300, Max Gurtovoy wrote:
-> > > > > > > > > > > > > > > > > > Sometimes a user would like to control the amount of IO queues to be
-> > > > > > > > > > > > > > > > > > created for a block device. For example, for limiting the memory
-> > > > > > > > > > > > > > > > > > footprint of virtio-blk devices.
-> > > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> > > > > > > > > > > > > > > > > > ---
-> > > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > changes from v1:
-> > > > > > > > > > > > > > > > > >          - use param_set_uint_minmax (from Christoph)
-> > > > > > > > > > > > > > > > > >          - added "Should > 0" to module description
-> > > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > Note: This commit apply on top of Jens's branch for-5.15/drivers
-> > > > > > > > > > > > > > > > > > ---
-> > > > > > > > > > > > > > > > > >          drivers/block/virtio_blk.c | 20 +++++++++++++++++++-
-> > > > > > > > > > > > > > > > > >          1 file changed, 19 insertions(+), 1 deletion(-)
-> > > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > > > > > > > > > > > > > > > > > index 4b49df2dfd23..9332fc4e9b31 100644
-> > > > > > > > > > > > > > > > > > --- a/drivers/block/virtio_blk.c
-> > > > > > > > > > > > > > > > > > +++ b/drivers/block/virtio_blk.c
-> > > > > > > > > > > > > > > > > > @@ -24,6 +24,22 @@
-> > > > > > > > > > > > > > > > > >          /* The maximum number of sg elements that fit into a virtqueue */
-> > > > > > > > > > > > > > > > > >          #define VIRTIO_BLK_MAX_SG_ELEMS 32768
-> > > > > > > > > > > > > > > > > > +static int virtblk_queue_count_set(const char *val,
-> > > > > > > > > > > > > > > > > > +		const struct kernel_param *kp)
-> > > > > > > > > > > > > > > > > > +{
-> > > > > > > > > > > > > > > > > > +	return param_set_uint_minmax(val, kp, 1, nr_cpu_ids);
-> > > > > > > > > > > > > > > > > > +}
-> > > > > > > > > > > > > > Hmm which tree is this for?
-> > > > > > > > > > > > > I've mentioned in the note that it apply on branch for-5.15/drivers. But now
-> > > > > > > > > > > > > you can apply it on linus/master as well.
-> > > > > > > > > > > > > 
-> > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > > +
-> > > > > > > > > > > > > > > > > > +static const struct kernel_param_ops queue_count_ops = {
-> > > > > > > > > > > > > > > > > > +	.set = virtblk_queue_count_set,
-> > > > > > > > > > > > > > > > > > +	.get = param_get_uint,
-> > > > > > > > > > > > > > > > > > +};
-> > > > > > > > > > > > > > > > > > +
-> > > > > > > > > > > > > > > > > > +static unsigned int num_io_queues;
-> > > > > > > > > > > > > > > > > > +module_param_cb(num_io_queues, &queue_count_ops, &num_io_queues, 0644);
-> > > > > > > > > > > > > > > > > > +MODULE_PARM_DESC(num_io_queues,
-> > > > > > > > > > > > > > > > > > +		 "Number of IO virt queues to use for blk device. Should > 0");
-> > > > > > > > > > > > > > better:
-> > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > +MODULE_PARM_DESC(num_io_request_queues,
-> > > > > > > > > > > > > > +                "Limit number of IO request virt queues to use for each device. 0 for now limit");
-> > > > > > > > > > > > > You proposed it and I replied on it bellow.
-> > > > > > > > > > > > Can't say I understand 100% what you are saying. Want to send
-> > > > > > > > > > > > a description that does make sense to you but
-> > > > > > > > > > > > also reflects reality? 0 is the default so
-> > > > > > > > > > > > "should > 0" besides being ungrammatical does not seem t"
-> > > > > > > > > > > > reflect what it does ...
-> > > > > > > > > > > if you "modprobe virtio_blk" the previous behavior will happen.
-> > > > > > > > > > > 
-> > > > > > > > > > > You can't "modprobe virtio_blk num_io_request_queues=0" since the minimal
-> > > > > > > > > > > value is 1.
-> > > > > > > > > > > 
-> > > > > > > > > > > So your description is not reflecting the code.
-> > > > > > > > > > > 
-> > > > > > > > > > > We can do:
-> > > > > > > > > > > 
-> > > > > > > > > > > MODULE_PARM_DESC(num_io_request_queues, "Number of request virt queues to use for blk device. Minimum value is 1 queue");
-> > > > > > > > > > What's the default value? We should document that.
-> > > > > > > > > default value for static global variables is 0.
-> > > > > > > > > 
-> > > > > > > > > MODULE_PARM_DESC(num_io_request_queues, "Number of request virt queues to
-> > > > > > > > > use for blk device. Minimum value is 1 queue. Default and Maximum value is
-> > > > > > > > > equal to the total number of CPUs");
-> > > > > > > > So it says it's the # of cpus but yoiu inspect it with
-> > > > > > > > sysfs and it's actually 0. Let's say that's confusing
-> > > > > > > > at the least. why not just let users set it to 0
-> > > > > > > > and document that?
-> > > > > > > > 
-> > > > > > > Setting it by the user to 0 makes no sense.
-> > > > > > > 
-> > > > > > > We can say "if not set, the value equals to the total number of CPUs".
-> > > > > > the value is 0. it seems to mean "no limit". the actual # of queues is
-> > > > > > then te smaller between # of cpus and # of hardware queues.
-> > > > > > I see no reason not to allow user to set that especially if
-> > > > > > it was originally the value then user changed it
-> > > > > > and is trying to change it back.
-> > > > > I fine with that.
-> > > > > 
-> > > > > MODULE_PARM_DESC(num_io_request_queues, "Number of request virt queues to use for blk device. 0 value means no limitation");
-> > > > > 
-> > > > OK and the second distinction is that it's a limit on the
-> > > > number, not the actual number. It's never more than what's provided
-> > > > by the hypervisor.
-> > > MODULE_PARM_DESC(num_io_request_queues, "Maximal number of request virt queues to use for blk device. 0 value means no limitation");
-> > > 
-> > > is that ok ?
-> > 
-> > Looks ok. And then do we need to limit this to nr_cpu_ids?
-> > Setting a value that's too high seems harmless ...
-> 
-> why would you want that ?
-
-So one can write a script that keeps working even when hypervisor
-changes the # of CPU IDs.
-
-It's also consistent with other parameters, e.g.:
-
-        clocksource.verify_n_cpus= [KNL]
-                        Limit the number of CPUs checked for clocksources
-                        marked with CLOCK_SOURCE_VERIFY_PERCPU that
-                        are marked unstable due to excessive skew.
-                        A negative value says to check all CPUs, while
-                        zero says not to check any.  Values larger than
-                        nr_cpu_ids are silently truncated to nr_cpu_ids.
-
-			^^^^^^^^^^^^
-
-                        The actual CPUs are chosen randomly, with
-                        no replacement if the same CPU is chosen twice.
-
-
-> 
-> > 
-> > > > > > > The actual value of the created queues can be seen in /sys/block/vda/mq/ as
-> > > > > > > done today.
-> > > > > > > > > > > > > > > > > > +
-> > > > > > > > > > > > > > > > > >          static int major;
-> > > > > > > > > > > > > > > > > >          static DEFINE_IDA(vd_index_ida);
-> > > > > > > > > > > > > > > > > > @@ -501,7 +517,9 @@ static int init_vq(struct virtio_blk *vblk)
-> > > > > > > > > > > > > > > > > >          	if (err)
-> > > > > > > > > > > > > > > > > >          		num_vqs = 1;
-> > > > > > > > > > > > > > > > > > -	num_vqs = min_t(unsigned int, nr_cpu_ids, num_vqs);
-> > > > > > > > > > > > > > > > > > +	num_vqs = min_t(unsigned int,
-> > > > > > > > > > > > > > > > > > +			min_not_zero(num_io_queues, nr_cpu_ids),
-> > > > > > > > > > > > > > > > > > +			num_vqs);
-> > > > > > > > > > > > > > > > > If you respin, please consider calling them request queues. That's the
-> > > > > > > > > > > > > > > > > terminology from the VIRTIO spec and it's nice to keep it consistent.
-> > > > > > > > > > > > > > > > > But the purpose of num_io_queues is clear, so:
-> > > > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > > > Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> > > > > > > > > > > > > > > > I did this:
-> > > > > > > > > > > > > > > > +static unsigned int num_io_request_queues;
-> > > > > > > > > > > > > > > > +module_param_cb(num_io_request_queues, &queue_count_ops, &num_io_request_queues, 0644);
-> > > > > > > > > > > > > > > > +MODULE_PARM_DESC(num_io_request_queues,
-> > > > > > > > > > > > > > > > +                "Limit number of IO request virt queues to use for each device. 0 for now limit");
-> > > > > > > > > > > > > > > The parameter is writable and can be changed and then new devices might be
-> > > > > > > > > > > > > > > probed with new value.
-> > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > It can't be zero in the code. we can change param_set_uint_minmax args and
-> > > > > > > > > > > > > > > say that 0 says nr_cpus.
-> > > > > > > > > > > > > > > 
-> > > > > > > > > > > > > > > I'm ok with the renaming but I prefer to stick to the description we gave in
-> > > > > > > > > > > > > > > V3 of this patch (and maybe enable value of 0 as mentioned above).
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+SGkgTGF1cmVudCwKCkRvIHlvdSBieSBhbnkgY2hhbmNlIGhhdmUgYW4gdXBkYXRlIG9uIHRoaXM/
+CgpUaGFua3MsCkFsZXgKCk9uIEZyaSwgQXVnIDIwLCAyMDIxIGF0IDY6MTUgUE0gTGF1cmVudCBW
+aXZpZXIgPGx2aXZpZXJAcmVkaGF0LmNvbT4gd3JvdGU6Cj4KPiBPbiAxOS8wOC8yMDIxIDIyOjU4
+LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiBPbiBGcmksIE5vdiAxMywgMjAyMCBhdCAw
+NjoyNjoxNlBNICswMTAwLCBBbGV4YW5kZXIgUG90YXBlbmtvIHdyb3RlOgo+ID4+IEhpIEFtb3Ms
+IFJ1c3R5LCBBbWl0LCBNaWNoYWVsLAo+ID4+Cj4gPj4gSSBhbSBoaXR0aW5nIHNvbWV0aGluZyB0
+aGF0IEkgYmVsaWV2ZSB0byBiZSBhIG1pbm9yIHByb2JsZW0gaW4gdGhlCj4gPj4gdmlydGlvIFJO
+RyBkcml2ZXIuCj4gPj4gV2hlbiBydW5uaW5nIHRoZSBrZXJuZWwgdW5kZXIgS01TQU4gd2l0aCAi
+LWRldmljZSB2aXJ0aW8tcm5nLXBjaSIKPiA+PiBwYXNzZWQgdG8gUUVNVSwgSSBhbSBzZWVpbmcg
+cmVwb3J0cyBhYm91dCBybmdfZmlsbGJ1ZiBpbgo+ID4+IGRyaXZlcnMvY2hhci9od19yYW5kb20v
+Y29yZS5jIGJlaW5nIHVzZWQgYmVmb3JlIGluaXRpYWxpemF0aW9uIChzZWUKPiA+PiB0aGUgcmVw
+b3J0IGJlbG93KS4KPiA+Pgo+ID4+IFRoaXMgY2FuIGJlIHZlcmlmaWVkIGJ5IGluaXRpYWxpemlu
+ZyBybmdfZmlsbGJ1ZiB3aXRoICdBJyBhcyBmb2xsb3dzOgo+ID4+ID09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PQo+ID4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2NoYXIv
+aHdfcmFuZG9tL2NvcmUuYyBiL2RyaXZlcnMvY2hhci9od19yYW5kb20vY29yZS5jCj4gPj4gaW5k
+ZXggOGMxYzQ3ZGQ5ZjQ2Li40NGQ2MDlhNTc5NmEgMTAwNjQ0Cj4gPj4gLS0tIGEvZHJpdmVycy9j
+aGFyL2h3X3JhbmRvbS9jb3JlLmMKPiA+PiArKysgYi9kcml2ZXJzL2NoYXIvaHdfcmFuZG9tL2Nv
+cmUuYwo+ID4+IEBAIC00MzksOCArNDM5LDExIEBAIHN0YXRpYyBpbnQgaHdybmdfZmlsbGZuKHZv
+aWQgKnVudXNlZCkKPiA+PiAgICAgICAgICAgICAgICAgaWYgKElTX0VSUihybmcpIHx8ICFybmcp
+Cj4gPj4gICAgICAgICAgICAgICAgICAgICAgICAgYnJlYWs7Cj4gPj4gICAgICAgICAgICAgICAg
+IG11dGV4X2xvY2soJnJlYWRpbmdfbXV0ZXgpOwo+ID4+ICsgICAgICAgICAgICAgICBtZW1zZXQo
+cm5nX2ZpbGxidWYsICdBJywgcm5nX2J1ZmZlcl9zaXplKCkpOwo+ID4+ICsgICAgICAgICAgICAg
+ICBybmdfZmlsbGJ1ZltybmdfYnVmZmVyX3NpemUoKS0xXSA9IDA7Cj4gPj4gICAgICAgICAgICAg
+ICAgIHJjID0gcm5nX2dldF9kYXRhKHJuZywgcm5nX2ZpbGxidWYsCj4gPj4gICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgIHJuZ19idWZmZXJfc2l6ZSgpLCAxKTsKPiA+PiArICAgICAg
+ICAgICAgICAgcHJfZXJyKCJybmdfZmlsbGJ1ZjogJXNcbiIsIHJuZ19maWxsYnVmKTsKPiA+PiAg
+ICAgICAgICAgICAgICAgbXV0ZXhfdW5sb2NrKCZyZWFkaW5nX211dGV4KTsKPiA+PiAgICAgICAg
+ICAgICAgICAgcHV0X3JuZyhybmcpOwo+ID4+ICAgICAgICAgICAgICAgICBpZiAocmMgPD0gMCkg
+ewo+ID4+ID09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQo+ID4+Cj4g
+Pj4gYW5kIGJvb3RpbmcgdGhlIGtlcm5lbDogdGhlIGZpcnN0IGNhbGwgb2YgaHdybmdfZmlsbGZu
+KCkgd2lsbCBwcmludAo+ID4+ICJBQUFBQUFBLi4iIGluc3RlYWQgb2YgcmFuZG9tIGRhdGEuCj4g
+Pj4KPiA+PiBGb3Igc29tZSByZWFzb24gb24gdGhhdCBmaXJzdCBpdGVyYXRpb24gdmktPmJ1c3kg
+aXMgdHJ1ZSBoZXJlOgo+ID4+IGh0dHBzOi8vZWxpeGlyLmJvb3RsaW4uY29tL2xpbnV4L2xhdGVz
+dC9zb3VyY2UvZHJpdmVycy9jaGFyL2h3X3JhbmRvbS92aXJ0aW8tcm5nLmMjTDYyLAo+ID4+IHRo
+ZXJlZm9yZSB0aGUgYnVmZmVyIGlzIG5vdCBiZWluZyBzZW50IHRvIHZpcnRpbyByaW5nLgo+ID4+
+Cj4gPj4gV2hpbGUgcHJvYmFibHkgYmVpbmcgYmVuaWduLCB0aGlzIGJ1ZyBpcyBwcmV2ZW50aW5n
+IHN5emthbGxlciBmcm9tCj4gPj4gZmluZGluZyBtb3JlIGJ1Z3MsIHNvIGl0IHdvdWxkIGJlIG5p
+Y2UgdG8gZml4IGl0Lgo+ID4+IFBlcmhhcHMgdGhlIGVhc2llc3Qgc29sdXRpb24gaXMgdG8ga3ph
+bGxvYyBybmdfZmlsbGJ1ZiwgYnV0IGlmIGl0J3MKPiA+PiBjcml0aWNhbCBmb3IgdGhpcyBkcml2
+ZXIgdG8gbm90IHNraXAgZXZlbiB0aGUgZmlyc3QgcmVhZCwgdGhlbiBtYXliZQo+ID4+IHlvdSBo
+YXZlIGJldHRlciBpZGVhcz8KPiA+Pgo+ID4+IEtNU0FOIHJlcG9ydCBmb2xsb3dzOgo+ID4+Cj4g
+Pj4gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K
+PiA+PiBCVUc6IEtNU0FOOiB1bmluaXQtdmFsdWUgaW4gX21peF9wb29sX2J5dGVzKzB4N2QyLzB4
+OTUwCj4gPj4gZHJpdmVycy9jaGFyL3JhbmRvbS5jOjU3MAo+ID4+IENQVTogMCBQSUQ6IDI3MTEg
+Q29tbTogaHdybmcgTm90IHRhaW50ZWQgNS45LjAtcmM4LXN5emthbGxlciAjMAo+ID4+IEhhcmR3
+YXJlIG5hbWU6IEdvb2dsZSBHb29nbGUgQ29tcHV0ZSBFbmdpbmUvR29vZ2xlIENvbXB1dGUgRW5n
+aW5lLAo+ID4+IEJJT1MgR29vZ2xlIDAxLzAxLzIwMTEKPiA+PiBDYWxsIFRyYWNlOgo+ID4+ICBf
+X2R1bXBfc3RhY2sgbGliL2R1bXBfc3RhY2suYzo3NyBbaW5saW5lXQo+ID4+ICBkdW1wX3N0YWNr
+KzB4MjFjLzB4MjgwIGxpYi9kdW1wX3N0YWNrLmM6MTE4Cj4gPj4gIGttc2FuX3JlcG9ydCsweGY3
+LzB4MWUwIG1tL2ttc2FuL2ttc2FuX3JlcG9ydC5jOjEyMgo+ID4+ICBfX21zYW5fd2FybmluZysw
+eDVmLzB4YTAgbW0va21zYW4va21zYW5faW5zdHIuYzoyMDEKPiA+PiAgX21peF9wb29sX2J5dGVz
+KzB4N2QyLzB4OTUwIGRyaXZlcnMvY2hhci9yYW5kb20uYzo1NzAKPiA+PiAgbWl4X3Bvb2xfYnl0
+ZXMrMHhjYS8weDJhMCBkcml2ZXJzL2NoYXIvcmFuZG9tLmM6NTk5Cj4gPj4gIGFkZF9od2dlbmVy
+YXRvcl9yYW5kb21uZXNzKzB4NGFjLzB4NTAwIGRyaXZlcnMvY2hhci9yYW5kb20uYzoyMzE5Cj4g
+Pj4gIGh3cm5nX2ZpbGxmbisweDZhZS8weDk0MCBkcml2ZXJzL2NoYXIvaHdfcmFuZG9tL2NvcmUu
+Yzo0NTIKPiA+PiAga3RocmVhZCsweDUxYy8weDU2MCBrZXJuZWwva3RocmVhZC5jOjI5Mwo+ID4+
+ICByZXRfZnJvbV9mb3JrKzB4MWYvMHgzMCBhcmNoL3g4Ni9lbnRyeS9lbnRyeV82NC5TOjI5NAo+
+ID4+Cj4gPj4gVW5pbml0IHdhcyBjcmVhdGVkIGF0Ogo+ID4+ICBrbXNhbl9zYXZlX3N0YWNrX3dp
+dGhfZmxhZ3MgbW0va21zYW4va21zYW4uYzoxMjkgW2lubGluZV0KPiA+PiAga21zYW5faW50ZXJu
+YWxfcG9pc29uX3NoYWRvdysweDVjLzB4ZjAgbW0va21zYW4va21zYW4uYzoxMTIKPiA+PiAga21z
+YW5fc2xhYl9hbGxvYysweDhkLzB4ZTAgbW0va21zYW4va21zYW5faG9va3MuYzo4MAo+ID4+ICBz
+bGFiX2FsbG9jX25vZGUgbW0vc2x1Yi5jOjI5MDMgW2lubGluZV0KPiA+PiAgc2xhYl9hbGxvYyBt
+bS9zbHViLmM6MjkxMiBbaW5saW5lXQo+ID4+ICBrbWVtX2NhY2hlX2FsbG9jX3RyYWNlKzB4NjFl
+LzB4YzkwIG1tL3NsdWIuYzoyOTI5Cj4gPj4gIGttYWxsb2MgaW5jbHVkZS9saW51eC9zbGFiLmg6
+NTU0IFtpbmxpbmVdCj4gPj4gIGh3cm5nX21vZGluaXQrMHgxMDMvMHgyZWYgZHJpdmVycy9jaGFy
+L2h3X3JhbmRvbS9jb3JlLmM6NjIxCj4gPj4gIGRvX29uZV9pbml0Y2FsbCsweDM3MS8weDljMCBp
+bml0L21haW4uYzoxMjA4Cj4gPj4gIGRvX2luaXRjYWxsX2xldmVsKzB4MWU1LzB4M2M2IGluaXQv
+bWFpbi5jOjEyODEKPiA+PiAgZG9faW5pdGNhbGxzKzB4MTI3LzB4MWNiIGluaXQvbWFpbi5jOjEy
+OTcKPiA+PiAgZG9fYmFzaWNfc2V0dXArMHgzMy8weDM2IGluaXQvbWFpbi5jOjEzMTcKPiA+PiAg
+a2VybmVsX2luaXRfZnJlZWFibGUrMHgyMzgvMHgzOGIgaW5pdC9tYWluLmM6MTUxNwo+ID4+ICBr
+ZXJuZWxfaW5pdCsweDFmLzB4ODQwIGluaXQvbWFpbi5jOjE0MDYKPiA+PiAgcmV0X2Zyb21fZm9y
+aysweDFmLzB4MzAgYXJjaC94ODYvZW50cnkvZW50cnlfNjQuUzoyOTQKPiA+PiA9PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQo+ID4+Cj4gPj4gVGhh
+bmtzLAo+ID4+IEFsZXgKPiA+Cj4gPgo+ID4gQ2MgTGF1cmVudCAtIEkgdGhpbmsgaGUgc2FpZCBo
+ZSB3YXMgZ29pbmcgdG8gbG9vayBhdCB2aXJ0aW8gcm5nLgo+Cj4gSSB3aWxsIGhhdmUgbG9vayBu
+ZXh0IHdlZWsuCj4KPiBUaGFua3MsCj4gTGF1cmVudAo+CgoKLS0gCkFsZXhhbmRlciBQb3RhcGVu
+a28KU29mdHdhcmUgRW5naW5lZXIKCkdvb2dsZSBHZXJtYW55IEdtYkgKRXJpa2EtTWFubi1TdHJh
+w59lLCAzMwo4MDYzNiBNw7xuY2hlbgoKR2VzY2jDpGZ0c2bDvGhyZXI6IFBhdWwgTWFuaWNsZSwg
+SGFsaW1haCBEZUxhaW5lIFByYWRvClJlZ2lzdGVyZ2VyaWNodCB1bmQgLW51bW1lcjogSGFtYnVy
+ZywgSFJCIDg2ODkxClNpdHogZGVyIEdlc2VsbHNjaGFmdDogSGFtYnVyZwpfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
+IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
+aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
