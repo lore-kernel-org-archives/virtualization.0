@@ -1,96 +1,122 @@
-Return-Path: <SRS0=fv7C=OC=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=Do4E=OD=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 221ACC433EF
-	for <virtualization@archiver.kernel.org>; Sun, 12 Sep 2021 17:06:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24757C433F5
+	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 01:44:02 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9158A60FE3
-	for <virtualization@archiver.kernel.org>; Sun, 12 Sep 2021 17:06:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9158A60FE3
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id A4840610A3
+	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 01:44:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A4840610A3
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 465AD60639;
-	Sun, 12 Sep 2021 17:06:41 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6095360663;
+	Mon, 13 Sep 2021 01:44:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wWA5zFDP80iQ; Sun, 12 Sep 2021 17:06:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id AC99E605F5;
-	Sun, 12 Sep 2021 17:06:39 +0000 (UTC)
+	with ESMTP id jg4Rf8sSW_I5; Mon, 13 Sep 2021 01:44:00 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A467560768;
+	Mon, 13 Sep 2021 01:43:59 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8459AC000F;
-	Sun, 12 Sep 2021 17:06:39 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 877F7C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 78DEDC0011;
+	Mon, 13 Sep 2021 01:43:59 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 514B3C000D
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Sep 2021 17:06:38 +0000 (UTC)
+ Mon, 13 Sep 2021 01:43:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 6E46260609
+ by smtp4.osuosl.org (Postfix) with ESMTP id 39EAC4029A
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Sep 2021 17:06:38 +0000 (UTC)
+ Mon, 13 Sep 2021 01:43:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pWV7M_PRCN15
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id p4-fEdSTQt1X
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Sep 2021 17:06:37 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com
- [IPv6:2607:f8b0:4864:20::72b])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 4E077605F5
+ Mon, 13 Sep 2021 01:43:56 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id A2BD340227
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Sep 2021 17:06:37 +0000 (UTC)
-Received: by mail-qk1-x72b.google.com with SMTP id t4so7992048qkb.9
+ Mon, 13 Sep 2021 01:43:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1631497434;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=2eMvAkKPRESIUFYrpmwrNvYdqqq5Ur7pmSNopNS7rtA=;
+ b=jPdq7FgAecRS/nadQ+cju4GLuPcpfqS5wxPumiz+A677WiHxERgKd0x5ultATTsYThaxa/
+ nKfn/N+LR8/QEgwWJZcWBP20ms5NDo5URQX8jUL2Gr2R2/YAfYhXzXhZSweM80hjNLMZv0
+ yx86Q8Nqllcue1wql0eA22GqKijCOA4=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-429-JZKtyk9YPdS7WiODF6qB1w-1; Sun, 12 Sep 2021 21:43:52 -0400
+X-MC-Unique: JZKtyk9YPdS7WiODF6qB1w-1
+Received: by mail-lf1-f70.google.com with SMTP id
+ y4-20020ac255a4000000b003e3d5adca9cso2713197lfg.6
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Sep 2021 10:06:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20210112;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc:content-transfer-encoding;
- bh=Yc8/eVDLWuaLuu6jQN/20x4CRwpCukX6gU/dh4RDWB4=;
- b=oktCZBmzHLqgmGGbwKkFfLmxdM4yW7NiY2sJ/qCurPbVAdSvdHAXCwATIdehSnvB3y
- ppqDJ9BrXMwr1P4Jw5xrknYSHShBQMPqWXjrbo23XM5temt7iOhFWY2Dim7lFnzDQDkJ
- DPq0+4rWwXLZj/T/6oyCOp6NzgTM47SBs5kiCbw0muo/YHD7PAqDheFvl1A74Kek8Hax
- d1BnNmHbJdm54KLK0GtVsWfC0FwiO3D1jTo+/kjqhU/+nMet3K87uLsCvQNu2ULNLeT5
- LKiokwIzusUCUEJQo7bnGch0xSKFLVtueOKEsWImGpOI3FgnjrtPBljCyksRcIxeT7Aa
- mn9w==
+ Sun, 12 Sep 2021 18:43:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc:content-transfer-encoding;
- bh=Yc8/eVDLWuaLuu6jQN/20x4CRwpCukX6gU/dh4RDWB4=;
- b=wkKHKu5SsyfQ2C6i3eRoX6mWxYUvKfxhaj4BUDNQiTK1eUZ+KiLzWYjM+5OUF2++1H
- 5ok3bY6f7k6H2/6z6b/ZGi+QKz7obk83J7eOZmlm0dsCilodOMd3/aZO78S+S9KQUfHv
- 2/a/b/vyEdxjI/TcGZscT/68Ar7nvP/K3xhX6PSzAor3aeFvjVswnf+aOYwLNE9vaGHE
- M8+7NAxohd5l/x2nLVgW5V/0icr0HTbRi0rrzHqgKoHOAFSDpe01faDGh4FQ1is1Q2pV
- 6pScYlKMyBRw04kLIgWaA4clj5Y8yWvJ00rxcYFE3psdTripahY2zIaICmBHUVheP86L
- aLzQ==
-X-Gm-Message-State: AOAM532WFeQS9eD6TbiqXHHvo+Hy3X3ujsvLpUAfXvZ6Yr6bmtkE3F1b
- FzZkdnBs12ZljXqkYtNoSPaDj5v+dunRlSueBkHWwg==
-X-Google-Smtp-Source: ABdhPJwKk0AK8jKkuwI/1IYJV+dt0j7bYScKgM819ls2GX672BYA89y9Ud/rre5G9nsysC/iv18YAsPk+tTyeovBJs4=
-X-Received: by 2002:a37:8044:: with SMTP id b65mr6541700qkd.150.1631466395928; 
- Sun, 12 Sep 2021 10:06:35 -0700 (PDT)
+ :message-id:subject:to:cc;
+ bh=2eMvAkKPRESIUFYrpmwrNvYdqqq5Ur7pmSNopNS7rtA=;
+ b=UjWg+nDMOZZh/aaArTRJF9FtWvrX2F7JxwgSozKHiK4S1UHwDUabIr2j5BCtg4KXlE
+ 8vJDCdKu6ST3wepfmar6nRwzDCcfg7jLzfco7XjufDuslnTh53G40ZvKbB4Iqonm8LOv
+ uh+WQrLSUn37vjqZsOSRdmZaJZgTjqSty8YcC1yH00O9XcGqRgHFey6yjFL4QbVswmmP
+ bgdrcC4ejHWXhjYP0yDrj5ZI97whWDK8rzEODlI8LmFFmdHSSQxbEMmm3hNi/YGoGFY5
+ he3xVJXkmShKWyEnjal/zppi86joAVLb0hy8sHNqmJ+1wFILH/ixkS3dV3W/0CnwyrJu
+ rrag==
+X-Gm-Message-State: AOAM532Q1rd2QnsioMMXV5t9aF7d2LbwujcBz/4vRAc8Z38j2rrOX5ek
+ mv82h8/iD4kzZ13+Slo228MtZH2n+nDxdM6p487Qc1JYKhgkdmgoAKgzcrK4x871zWLTH8DAYoI
+ 9TZhmC5mTY3w4eXmAvnTnjcv8c0GtY2pQQrQ5cph8WrnlbDj+CP/N+tdCjw==
+X-Received: by 2002:a05:6512:32ca:: with SMTP id
+ f10mr5159472lfg.498.1631497431274; 
+ Sun, 12 Sep 2021 18:43:51 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxKao013jd4wQWQxJ9G/A6Ua2RQ/GDiD9jHbpVVqWB0qLnS0bMuARlA2vnr+vORhj9XgesMObY7E9AzODm/S6I=
+X-Received: by 2002:a05:6512:32ca:: with SMTP id
+ f10mr5159454lfg.498.1631497430885; 
+ Sun, 12 Sep 2021 18:43:50 -0700 (PDT)
 MIME-Version: 1.0
-References: <CAG_fn=WwQ29akxY1Eq=N_=HCF3t7z+T2obh9aRVUDFy1FSA3-Q@mail.gmail.com>
- <20210819165742-mutt-send-email-mst@kernel.org>
- <d0d232ab-5222-5eef-60de-e8cc0f2a0791@redhat.com>
-In-Reply-To: <d0d232ab-5222-5eef-60de-e8cc0f2a0791@redhat.com>
-Date: Sun, 12 Sep 2021 19:05:59 +0200
-Message-ID: <CAG_fn=Um3Up2VyGOC0ezJ51N8AWZfGcWz+98cvwpBrJkby3+NA@mail.gmail.com>
-Subject: Re: Use of uninitialized memory with CONFIG_HW_RANDOM_VIRTIO
-To: Laurent Vivier <lvivier@redhat.com>
-Cc: amit@kernel.org, rusty@rustcorp.com.au,
- virtualization@lists.linux-foundation.org,
- syzkaller <syzkaller@googlegroups.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- akong@redhat.com, Dmitriy Vyukov <dvyukov@google.com>
+References: <cover.1631101392.git.wuzongyong@linux.alibaba.com>
+ <ebd83066e3897aae63e4b02f8729a73dd09931c6.1631101392.git.wuzongyong@linux.alibaba.com>
+ <CACGkMEtAZg+Nkx_1WJAP2=xQ6o6G9Vd=xYvFmR6YRp8vBg2Tqg@mail.gmail.com>
+ <20210909080157.GA17383@L-PF27918B-1352.localdomain>
+ <CACGkMEsnp7-axbZWuB_w7ZkSWKa0Y+Ej-Kq0QSfO2-DNN=ShVA@mail.gmail.com>
+ <20210909095726.GA17469@L-PF27918B-1352.localdomain>
+ <CACGkMEvy-DWjAD636+YshY5VUE_mDQo0JBxEw7uBp5rExMj2_w@mail.gmail.com>
+ <20210910073231.GA17715@L-PF27918B-1352.localdomain>
+ <CACLfguWeXwWJ9yd18vHbYicOk5=eMZJ0X=m86EKjmgHu35NdVA@mail.gmail.com>
+ <20210910092013.GA17783@L-PF27918B-1352.localdomain>
+ <CACLfguXFDra77Nqiv+ArUEOzTf9rzi0gLK4_r0ofCfJHSO056Q@mail.gmail.com>
+In-Reply-To: <CACLfguXFDra77Nqiv+ArUEOzTf9rzi0gLK4_r0ofCfJHSO056Q@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 13 Sep 2021 09:43:40 +0800
+Message-ID: <CACGkMEte0iEpDh4dT6Bgd6Be2O3BwpOsehP14A8kLeqTdqBQ9A@mail.gmail.com>
+Subject: Re: [PATCH 5/6] vdpa: add get_vq_num_unchangeable callback in
+ vdpa_config_ops
+To: Cindy Lu <lulu@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: wei.yang1@linux.alibaba.com, mst <mst@redhat.com>,
+ Wu Zongyong <wuzongyong@linux.alibaba.com>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,94 +128,231 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Alexander Potapenko via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Alexander Potapenko <glider@google.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-SGkgTGF1cmVudCwKCkRvIHlvdSBieSBhbnkgY2hhbmNlIGhhdmUgYW4gdXBkYXRlIG9uIHRoaXM/
-CgpUaGFua3MsCkFsZXgKCk9uIEZyaSwgQXVnIDIwLCAyMDIxIGF0IDY6MTUgUE0gTGF1cmVudCBW
-aXZpZXIgPGx2aXZpZXJAcmVkaGF0LmNvbT4gd3JvdGU6Cj4KPiBPbiAxOS8wOC8yMDIxIDIyOjU4
-LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gPiBPbiBGcmksIE5vdiAxMywgMjAyMCBhdCAw
-NjoyNjoxNlBNICswMTAwLCBBbGV4YW5kZXIgUG90YXBlbmtvIHdyb3RlOgo+ID4+IEhpIEFtb3Ms
-IFJ1c3R5LCBBbWl0LCBNaWNoYWVsLAo+ID4+Cj4gPj4gSSBhbSBoaXR0aW5nIHNvbWV0aGluZyB0
-aGF0IEkgYmVsaWV2ZSB0byBiZSBhIG1pbm9yIHByb2JsZW0gaW4gdGhlCj4gPj4gdmlydGlvIFJO
-RyBkcml2ZXIuCj4gPj4gV2hlbiBydW5uaW5nIHRoZSBrZXJuZWwgdW5kZXIgS01TQU4gd2l0aCAi
-LWRldmljZSB2aXJ0aW8tcm5nLXBjaSIKPiA+PiBwYXNzZWQgdG8gUUVNVSwgSSBhbSBzZWVpbmcg
-cmVwb3J0cyBhYm91dCBybmdfZmlsbGJ1ZiBpbgo+ID4+IGRyaXZlcnMvY2hhci9od19yYW5kb20v
-Y29yZS5jIGJlaW5nIHVzZWQgYmVmb3JlIGluaXRpYWxpemF0aW9uIChzZWUKPiA+PiB0aGUgcmVw
-b3J0IGJlbG93KS4KPiA+Pgo+ID4+IFRoaXMgY2FuIGJlIHZlcmlmaWVkIGJ5IGluaXRpYWxpemlu
-ZyBybmdfZmlsbGJ1ZiB3aXRoICdBJyBhcyBmb2xsb3dzOgo+ID4+ID09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PQo+ID4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2NoYXIv
-aHdfcmFuZG9tL2NvcmUuYyBiL2RyaXZlcnMvY2hhci9od19yYW5kb20vY29yZS5jCj4gPj4gaW5k
-ZXggOGMxYzQ3ZGQ5ZjQ2Li40NGQ2MDlhNTc5NmEgMTAwNjQ0Cj4gPj4gLS0tIGEvZHJpdmVycy9j
-aGFyL2h3X3JhbmRvbS9jb3JlLmMKPiA+PiArKysgYi9kcml2ZXJzL2NoYXIvaHdfcmFuZG9tL2Nv
-cmUuYwo+ID4+IEBAIC00MzksOCArNDM5LDExIEBAIHN0YXRpYyBpbnQgaHdybmdfZmlsbGZuKHZv
-aWQgKnVudXNlZCkKPiA+PiAgICAgICAgICAgICAgICAgaWYgKElTX0VSUihybmcpIHx8ICFybmcp
-Cj4gPj4gICAgICAgICAgICAgICAgICAgICAgICAgYnJlYWs7Cj4gPj4gICAgICAgICAgICAgICAg
-IG11dGV4X2xvY2soJnJlYWRpbmdfbXV0ZXgpOwo+ID4+ICsgICAgICAgICAgICAgICBtZW1zZXQo
-cm5nX2ZpbGxidWYsICdBJywgcm5nX2J1ZmZlcl9zaXplKCkpOwo+ID4+ICsgICAgICAgICAgICAg
-ICBybmdfZmlsbGJ1ZltybmdfYnVmZmVyX3NpemUoKS0xXSA9IDA7Cj4gPj4gICAgICAgICAgICAg
-ICAgIHJjID0gcm5nX2dldF9kYXRhKHJuZywgcm5nX2ZpbGxidWYsCj4gPj4gICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIHJuZ19idWZmZXJfc2l6ZSgpLCAxKTsKPiA+PiArICAgICAg
-ICAgICAgICAgcHJfZXJyKCJybmdfZmlsbGJ1ZjogJXNcbiIsIHJuZ19maWxsYnVmKTsKPiA+PiAg
-ICAgICAgICAgICAgICAgbXV0ZXhfdW5sb2NrKCZyZWFkaW5nX211dGV4KTsKPiA+PiAgICAgICAg
-ICAgICAgICAgcHV0X3JuZyhybmcpOwo+ID4+ICAgICAgICAgICAgICAgICBpZiAocmMgPD0gMCkg
-ewo+ID4+ID09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQo+ID4+Cj4g
-Pj4gYW5kIGJvb3RpbmcgdGhlIGtlcm5lbDogdGhlIGZpcnN0IGNhbGwgb2YgaHdybmdfZmlsbGZu
-KCkgd2lsbCBwcmludAo+ID4+ICJBQUFBQUFBLi4iIGluc3RlYWQgb2YgcmFuZG9tIGRhdGEuCj4g
-Pj4KPiA+PiBGb3Igc29tZSByZWFzb24gb24gdGhhdCBmaXJzdCBpdGVyYXRpb24gdmktPmJ1c3kg
-aXMgdHJ1ZSBoZXJlOgo+ID4+IGh0dHBzOi8vZWxpeGlyLmJvb3RsaW4uY29tL2xpbnV4L2xhdGVz
-dC9zb3VyY2UvZHJpdmVycy9jaGFyL2h3X3JhbmRvbS92aXJ0aW8tcm5nLmMjTDYyLAo+ID4+IHRo
-ZXJlZm9yZSB0aGUgYnVmZmVyIGlzIG5vdCBiZWluZyBzZW50IHRvIHZpcnRpbyByaW5nLgo+ID4+
-Cj4gPj4gV2hpbGUgcHJvYmFibHkgYmVpbmcgYmVuaWduLCB0aGlzIGJ1ZyBpcyBwcmV2ZW50aW5n
-IHN5emthbGxlciBmcm9tCj4gPj4gZmluZGluZyBtb3JlIGJ1Z3MsIHNvIGl0IHdvdWxkIGJlIG5p
-Y2UgdG8gZml4IGl0Lgo+ID4+IFBlcmhhcHMgdGhlIGVhc2llc3Qgc29sdXRpb24gaXMgdG8ga3ph
-bGxvYyBybmdfZmlsbGJ1ZiwgYnV0IGlmIGl0J3MKPiA+PiBjcml0aWNhbCBmb3IgdGhpcyBkcml2
-ZXIgdG8gbm90IHNraXAgZXZlbiB0aGUgZmlyc3QgcmVhZCwgdGhlbiBtYXliZQo+ID4+IHlvdSBo
-YXZlIGJldHRlciBpZGVhcz8KPiA+Pgo+ID4+IEtNU0FOIHJlcG9ydCBmb2xsb3dzOgo+ID4+Cj4g
-Pj4gPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT0K
-PiA+PiBCVUc6IEtNU0FOOiB1bmluaXQtdmFsdWUgaW4gX21peF9wb29sX2J5dGVzKzB4N2QyLzB4
-OTUwCj4gPj4gZHJpdmVycy9jaGFyL3JhbmRvbS5jOjU3MAo+ID4+IENQVTogMCBQSUQ6IDI3MTEg
-Q29tbTogaHdybmcgTm90IHRhaW50ZWQgNS45LjAtcmM4LXN5emthbGxlciAjMAo+ID4+IEhhcmR3
-YXJlIG5hbWU6IEdvb2dsZSBHb29nbGUgQ29tcHV0ZSBFbmdpbmUvR29vZ2xlIENvbXB1dGUgRW5n
-aW5lLAo+ID4+IEJJT1MgR29vZ2xlIDAxLzAxLzIwMTEKPiA+PiBDYWxsIFRyYWNlOgo+ID4+ICBf
-X2R1bXBfc3RhY2sgbGliL2R1bXBfc3RhY2suYzo3NyBbaW5saW5lXQo+ID4+ICBkdW1wX3N0YWNr
-KzB4MjFjLzB4MjgwIGxpYi9kdW1wX3N0YWNrLmM6MTE4Cj4gPj4gIGttc2FuX3JlcG9ydCsweGY3
-LzB4MWUwIG1tL2ttc2FuL2ttc2FuX3JlcG9ydC5jOjEyMgo+ID4+ICBfX21zYW5fd2FybmluZysw
-eDVmLzB4YTAgbW0va21zYW4va21zYW5faW5zdHIuYzoyMDEKPiA+PiAgX21peF9wb29sX2J5dGVz
-KzB4N2QyLzB4OTUwIGRyaXZlcnMvY2hhci9yYW5kb20uYzo1NzAKPiA+PiAgbWl4X3Bvb2xfYnl0
-ZXMrMHhjYS8weDJhMCBkcml2ZXJzL2NoYXIvcmFuZG9tLmM6NTk5Cj4gPj4gIGFkZF9od2dlbmVy
-YXRvcl9yYW5kb21uZXNzKzB4NGFjLzB4NTAwIGRyaXZlcnMvY2hhci9yYW5kb20uYzoyMzE5Cj4g
-Pj4gIGh3cm5nX2ZpbGxmbisweDZhZS8weDk0MCBkcml2ZXJzL2NoYXIvaHdfcmFuZG9tL2NvcmUu
-Yzo0NTIKPiA+PiAga3RocmVhZCsweDUxYy8weDU2MCBrZXJuZWwva3RocmVhZC5jOjI5Mwo+ID4+
-ICByZXRfZnJvbV9mb3JrKzB4MWYvMHgzMCBhcmNoL3g4Ni9lbnRyeS9lbnRyeV82NC5TOjI5NAo+
-ID4+Cj4gPj4gVW5pbml0IHdhcyBjcmVhdGVkIGF0Ogo+ID4+ICBrbXNhbl9zYXZlX3N0YWNrX3dp
-dGhfZmxhZ3MgbW0va21zYW4va21zYW4uYzoxMjkgW2lubGluZV0KPiA+PiAga21zYW5faW50ZXJu
-YWxfcG9pc29uX3NoYWRvdysweDVjLzB4ZjAgbW0va21zYW4va21zYW4uYzoxMTIKPiA+PiAga21z
-YW5fc2xhYl9hbGxvYysweDhkLzB4ZTAgbW0va21zYW4va21zYW5faG9va3MuYzo4MAo+ID4+ICBz
-bGFiX2FsbG9jX25vZGUgbW0vc2x1Yi5jOjI5MDMgW2lubGluZV0KPiA+PiAgc2xhYl9hbGxvYyBt
-bS9zbHViLmM6MjkxMiBbaW5saW5lXQo+ID4+ICBrbWVtX2NhY2hlX2FsbG9jX3RyYWNlKzB4NjFl
-LzB4YzkwIG1tL3NsdWIuYzoyOTI5Cj4gPj4gIGttYWxsb2MgaW5jbHVkZS9saW51eC9zbGFiLmg6
-NTU0IFtpbmxpbmVdCj4gPj4gIGh3cm5nX21vZGluaXQrMHgxMDMvMHgyZWYgZHJpdmVycy9jaGFy
-L2h3X3JhbmRvbS9jb3JlLmM6NjIxCj4gPj4gIGRvX29uZV9pbml0Y2FsbCsweDM3MS8weDljMCBp
-bml0L21haW4uYzoxMjA4Cj4gPj4gIGRvX2luaXRjYWxsX2xldmVsKzB4MWU1LzB4M2M2IGluaXQv
-bWFpbi5jOjEyODEKPiA+PiAgZG9faW5pdGNhbGxzKzB4MTI3LzB4MWNiIGluaXQvbWFpbi5jOjEy
-OTcKPiA+PiAgZG9fYmFzaWNfc2V0dXArMHgzMy8weDM2IGluaXQvbWFpbi5jOjEzMTcKPiA+PiAg
-a2VybmVsX2luaXRfZnJlZWFibGUrMHgyMzgvMHgzOGIgaW5pdC9tYWluLmM6MTUxNwo+ID4+ICBr
-ZXJuZWxfaW5pdCsweDFmLzB4ODQwIGluaXQvbWFpbi5jOjE0MDYKPiA+PiAgcmV0X2Zyb21fZm9y
-aysweDFmLzB4MzAgYXJjaC94ODYvZW50cnkvZW50cnlfNjQuUzoyOTQKPiA+PiA9PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQo+ID4+Cj4gPj4gVGhh
-bmtzLAo+ID4+IEFsZXgKPiA+Cj4gPgo+ID4gQ2MgTGF1cmVudCAtIEkgdGhpbmsgaGUgc2FpZCBo
-ZSB3YXMgZ29pbmcgdG8gbG9vayBhdCB2aXJ0aW8gcm5nLgo+Cj4gSSB3aWxsIGhhdmUgbG9vayBu
-ZXh0IHdlZWsuCj4KPiBUaGFua3MsCj4gTGF1cmVudAo+CgoKLS0gCkFsZXhhbmRlciBQb3RhcGVu
-a28KU29mdHdhcmUgRW5naW5lZXIKCkdvb2dsZSBHZXJtYW55IEdtYkgKRXJpa2EtTWFubi1TdHJh
-w59lLCAzMwo4MDYzNiBNw7xuY2hlbgoKR2VzY2jDpGZ0c2bDvGhyZXI6IFBhdWwgTWFuaWNsZSwg
-SGFsaW1haCBEZUxhaW5lIFByYWRvClJlZ2lzdGVyZ2VyaWNodCB1bmQgLW51bW1lcjogSGFtYnVy
-ZywgSFJCIDg2ODkxClNpdHogZGVyIEdlc2VsbHNjaGFmdDogSGFtYnVyZwpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Fri, Sep 10, 2021 at 11:11 PM Cindy Lu <lulu@redhat.com> wrote:
+>
+> On Fri, Sep 10, 2021 at 5:20 PM Wu Zongyong
+> <wuzongyong@linux.alibaba.com> wrote:
+> >
+> > On Fri, Sep 10, 2021 at 04:25:18PM +0800, Cindy Lu wrote:
+> > > ,
+> > >
+> > > On Fri, Sep 10, 2021 at 3:33 PM Wu Zongyong
+> > > <wuzongyong@linux.alibaba.com> wrote:
+> > > >
+> > > > On Fri, Sep 10, 2021 at 09:45:53AM +0800, Jason Wang wrote:
+> > > > > On Thu, Sep 9, 2021 at 5:57 PM Wu Zongyong <wuzongyong@linux.alibaba.com> wrote:
+> > > > > >
+> > > > > > On Thu, Sep 09, 2021 at 05:28:26PM +0800, Jason Wang wrote:
+> > > > > > > On Thu, Sep 9, 2021 at 4:02 PM Wu Zongyong <wuzongyong@linux.alibaba.com> wrote:
+> > > > > > > >
+> > > > > > > > On Thu, Sep 09, 2021 at 10:55:03AM +0800, Jason Wang wrote:
+> > > > > > > > > On Wed, Sep 8, 2021 at 8:23 PM Wu Zongyong <wuzongyong@linux.alibaba.com> wrote:
+> > > > > > > > > >
+> > > > > > > > > > This new callback is used to indicate whether the vring size can be
+> > > > > > > > > > change or not. It is useful when we have a legacy virtio pci device as
+> > > > > > > > > > the vdpa device for there is no way to negotiate the vring num by the
+> > > > > > > > > > specification.
+> > > > > > > > >
+> > > > > > > > > So I'm not sure it's worth bothering. E.g what if we just fail
+> > > > > > > > > VHOST_SET_VRING_NUM it the value doesn't match what hardware has?
+> > > > > > > > >
+> > > > > > > > > Thanks
+> > > > > > > > >
+> > > > > > > > I think we should not call VHOST_SET_VRING_NUM in that case.
+> > > > > > > >
+> > > > > > > > If the hardware reports that the virtqueue size cannot be changed, we
+> > > > > > > > should call VHOST_GET_VRING_NUM to get the static virtqueue size
+> > > > > > > > firstly, then allocate the same size memory for the virtqueues and write
+> > > > > > > > the address to hardware finally.
+> > > > > > > >
+> > > > > > > > For QEMU, we will ignore the properties rx/tx_queue_size and just get it
+> > > > > > > > from the hardware if this new callback return true.
+> > > > > > >
+> > > > > > > This will break live migration. My understanding is that we can
+> > > > > > > advertise those capability/limitation via the netlink management
+> > > > > > > protocol then management layer can choose to use the correct queue
+> > > > > > > size.
+> > > > > > >
+> > > > > > > Thanks
+> > > > > > I agree, it is a good idea.
+> > > > > > BTW, can we also advertise mac address of network device? I found the
+> > > > > > mac address generated by libvirt or qemu will break the network datapath
+> > > > > > down if I don't specify the right mac explicitly in the XML or qemu
+> > > > > > commandline.
+> > > > >
+> > > > > We never saw this before, AFAIK when vhost-vdpa is used, currently
+> > > > > qemu will probably ignore the mac address set via command line since
+> > > > > the config space is read from the device instead of qemu itself?
+> > > > >
+> > > >
+> > > > I saw the code below in qemu:
+> > > >
+> > > > static void virtio_net_device_realize(DeviceState *dev, Error **errp)
+> > > > {
+> > > >     ...
+> > > >     if (nc->peer && nc->peer->info->type == NET_CLIENT_DRIVER_VHOST_VDPA) {
+> > > >         struct virtio_net_config netcfg = {};
+> > > >         memcpy(&netcfg.mac, &n->nic_conf.macaddr, ETH_ALEN);
+> > > >         vhost_net_set_config(get_vhost_net(nc->peer),
+> > > >             (uint8_t *)&netcfg, 0, ETH_ALEN, VHOST_SET_CONFIG_TYPE_MASTER);
+> > > >     }
+> > > >     ...
+> > > > }
+> > > >
+> > > > This write the mac address set via cmdline into vdpa device config, and
+> > > > then guest will read it back.
+> > > > If I remove these codes, it behaves like you said.
+> > > >
+> > > >
+> > > Hi Zongyong
+> > > I think this code only works while qemu get an all 0 mac address from
+> > > hardware , you can get more information from the function
+> > > virtio_net_get_config.
+> >
+> > It depends how vdpa_config_ops->set_config implements.
+> > For mlx5, callback set_config do nothing. But for virtio-pci, callback
+> > set_config will write the config register of the vdpa device, so qemu
+> > will write the mac set via cmdline to hardware and the mac guest read
+> > it back is the value writted by qemu just now.
+> >
+> So here comes a question, which MAC address has higher priority ?
+> the MAC address in hardware or the MAC address from the cmdline?
+> If both of these two MAC addresses exist, which should we use?
+> I have checked the spec, not sure if the bit VIRTIO_NET_F_MAC is the right one?
+
+I think so, if VIRTIO_NET_F_MAC is set, qemu can override the mac otherwise not.
+
+Thanks
+
+> if yes, I will post a patch in qemu and add check for this bit before
+> we set the mac to hardware
+> https://docs.oasis-open.org/virtio/virtio/v1.1/csprd01/virtio-v1.1-csprd01.html
+>
+> Thanks
+> cindy
+> > > > > Thanks
+> > > > >
+> > > > > > >
+> > > > > > > >
+> > > > > > > > What do you think?
+> > > > > > > > > >
+> > > > > > > > > > Signed-off-by: Wu Zongyong <wuzongyong@linux.alibaba.com>
+> > > > > > > > > > ---
+> > > > > > > > > >  drivers/vhost/vdpa.c         | 19 +++++++++++++++++++
+> > > > > > > > > >  drivers/virtio/virtio_vdpa.c |  5 ++++-
+> > > > > > > > > >  include/linux/vdpa.h         |  4 ++++
+> > > > > > > > > >  include/uapi/linux/vhost.h   |  2 ++
+> > > > > > > > > >  4 files changed, 29 insertions(+), 1 deletion(-)
+> > > > > > > > > >
+> > > > > > > > > > diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> > > > > > > > > > index 9479f7f79217..2204d27d1e5d 100644
+> > > > > > > > > > --- a/drivers/vhost/vdpa.c
+> > > > > > > > > > +++ b/drivers/vhost/vdpa.c
+> > > > > > > > > > @@ -350,6 +350,22 @@ static long vhost_vdpa_get_iova_range(struct vhost_vdpa *v, u32 __user *argp)
+> > > > > > > > > >         return 0;
+> > > > > > > > > >  }
+> > > > > > > > > >
+> > > > > > > > > > +static long vhost_vdpa_get_vring_num_unchangeable(struct vhost_vdpa *v,
+> > > > > > > > > > +                                                 u32 __user *argp)
+> > > > > > > > > > +{
+> > > > > > > > > > +       struct vdpa_device *vdpa = v->vdpa;
+> > > > > > > > > > +       const struct vdpa_config_ops *ops = vdpa->config;
+> > > > > > > > > > +       bool unchangeable = false;
+> > > > > > > > > > +
+> > > > > > > > > > +       if (ops->get_vq_num_unchangeable)
+> > > > > > > > > > +               unchangeable = ops->get_vq_num_unchangeable(vdpa);
+> > > > > > > > > > +
+> > > > > > > > > > +       if (copy_to_user(argp, &unchangeable, sizeof(unchangeable)))
+> > > > > > > > > > +               return -EFAULT;
+> > > > > > > > > > +
+> > > > > > > > > > +       return 0;
+> > > > > > > > > > +}
+> > > > > > > > > > +
+> > > > > > > > > >  static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+> > > > > > > > > >                                    void __user *argp)
+> > > > > > > > > >  {
+> > > > > > > > > > @@ -487,6 +503,9 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
+> > > > > > > > > >         case VHOST_VDPA_GET_IOVA_RANGE:
+> > > > > > > > > >                 r = vhost_vdpa_get_iova_range(v, argp);
+> > > > > > > > > >                 break;
+> > > > > > > > > > +       case VHOST_VDPA_GET_VRING_NUM_UNCHANGEABLE:
+> > > > > > > > > > +               r = vhost_vdpa_get_vring_num_unchangeable(v, argp);
+> > > > > > > > > > +               break;
+> > > > > > > > > >         default:
+> > > > > > > > > >                 r = vhost_dev_ioctl(&v->vdev, cmd, argp);
+> > > > > > > > > >                 if (r == -ENOIOCTLCMD)
+> > > > > > > > > > diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+> > > > > > > > > > index 72eaef2caeb1..afb47465307a 100644
+> > > > > > > > > > --- a/drivers/virtio/virtio_vdpa.c
+> > > > > > > > > > +++ b/drivers/virtio/virtio_vdpa.c
+> > > > > > > > > > @@ -146,6 +146,7 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+> > > > > > > > > >         struct vdpa_vq_state state = {0};
+> > > > > > > > > >         unsigned long flags;
+> > > > > > > > > >         u32 align, num;
+> > > > > > > > > > +       bool may_reduce_num = true;
+> > > > > > > > > >         int err;
+> > > > > > > > > >
+> > > > > > > > > >         if (!name)
+> > > > > > > > > > @@ -171,8 +172,10 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+> > > > > > > > > >
+> > > > > > > > > >         /* Create the vring */
+> > > > > > > > > >         align = ops->get_vq_align(vdpa);
+> > > > > > > > > > +       if (ops->get_vq_num_unchangeable)
+> > > > > > > > > > +               may_reduce_num = !ops->get_vq_num_unchangeable(vdpa);
+> > > > > > > > > >         vq = vring_create_virtqueue(index, num, align, vdev,
+> > > > > > > > > > -                                   true, true, ctx,
+> > > > > > > > > > +                                   true, may_reduce_num, ctx,
+> > > > > > > > > >                                     virtio_vdpa_notify, callback, name);
+> > > > > > > > > >         if (!vq) {
+> > > > > > > > > >                 err = -ENOMEM;
+> > > > > > > > > > diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+> > > > > > > > > > index 35648c11e312..f809b7ada00d 100644
+> > > > > > > > > > --- a/include/linux/vdpa.h
+> > > > > > > > > > +++ b/include/linux/vdpa.h
+> > > > > > > > > > @@ -195,6 +195,9 @@ struct vdpa_iova_range {
+> > > > > > > > > >   *                             @vdev: vdpa device
+> > > > > > > > > >   *                             Returns the iova range supported by
+> > > > > > > > > >   *                             the device.
+> > > > > > > > > > + * @get_vq_num_unchangeable    Check if size of virtqueue is unchangeable (optional)
+> > > > > > > > > > + *                             @vdev: vdpa device
+> > > > > > > > > > + *                             Returns boolean: unchangeable (true) or not (false)
+> > > > > > > > > >   * @set_map:                   Set device memory mapping (optional)
+> > > > > > > > > >   *                             Needed for device that using device
+> > > > > > > > > >   *                             specific DMA translation (on-chip IOMMU)
+> > > > > > > > > > @@ -262,6 +265,7 @@ struct vdpa_config_ops {
+> > > > > > > > > >                            const void *buf, unsigned int len);
+> > > > > > > > > >         u32 (*get_generation)(struct vdpa_device *vdev);
+> > > > > > > > > >         struct vdpa_iova_range (*get_iova_range)(struct vdpa_device *vdev);
+> > > > > > > > > > +       bool (*get_vq_num_unchangeable)(struct vdpa_device *vdev);
+> > > > > > > > > >
+> > > > > > > > > >         /* DMA ops */
+> > > > > > > > > >         int (*set_map)(struct vdpa_device *vdev, struct vhost_iotlb *iotlb);
+> > > > > > > > > > diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+> > > > > > > > > > index c998860d7bbc..184f1f7f8498 100644
+> > > > > > > > > > --- a/include/uapi/linux/vhost.h
+> > > > > > > > > > +++ b/include/uapi/linux/vhost.h
+> > > > > > > > > > @@ -150,4 +150,6 @@
+> > > > > > > > > >  /* Get the valid iova range */
+> > > > > > > > > >  #define VHOST_VDPA_GET_IOVA_RANGE      _IOR(VHOST_VIRTIO, 0x78, \
+> > > > > > > > > >                                              struct vhost_vdpa_iova_range)
+> > > > > > > > > > +/* Check if the vring size can be change */
+> > > > > > > > > > +#define VHOST_VDPA_GET_VRING_NUM_UNCHANGEABLE _IOR(VHOST_VIRTIO, 0X79, bool)
+> > > > > > > > > >  #endif
+> > > > > > > > > > --
+> > > > > > > > > > 2.31.1
+> > > > > > > > > >
+> > > > > > > >
+> > > > > >
+> > > >
+> >
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
