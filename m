@@ -2,109 +2,132 @@ Return-Path: <SRS0=Do4E=OD=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-7.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70989C433EF
-	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 16:19:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 08AF4C433EF
+	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 16:21:37 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2291F60FA0
-	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 16:19:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 2291F60FA0
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+	by mail.kernel.org (Postfix) with ESMTPS id 94B9360F6C
+	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 16:21:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 94B9360F6C
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E627B80C55;
-	Mon, 13 Sep 2021 16:19:13 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5881480EDC;
+	Mon, 13 Sep 2021 16:21:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kUZnoFuuUbj6; Mon, 13 Sep 2021 16:19:13 +0000 (UTC)
+	with ESMTP id AoyKNr8xLrSO; Mon, 13 Sep 2021 16:21:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8ACAE80C0B;
-	Mon, 13 Sep 2021 16:19:12 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E9C2980EF2;
+	Mon, 13 Sep 2021 16:21:34 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5C92BC0011;
-	Mon, 13 Sep 2021 16:19:12 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B8565C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BA56FC0011;
+	Mon, 13 Sep 2021 16:21:34 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 69AA2C000D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 16:19:10 +0000 (UTC)
+ Mon, 13 Sep 2021 16:21:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id A59F040131
+ by smtp4.osuosl.org (Postfix) with ESMTP id 580BC40253
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 16:19:10 +0000 (UTC)
+ Mon, 13 Sep 2021 16:21:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=gmail.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XYcNLldBTGPx
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id e66MTLauSRvI
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 16:19:09 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-oi1-x22c.google.com (mail-oi1-x22c.google.com
- [IPv6:2607:f8b0:4864:20::22c])
- by smtp2.osuosl.org (Postfix) with ESMTPS id C002B40004
+ Mon, 13 Sep 2021 16:21:32 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 3AAD540228
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 16:19:09 +0000 (UTC)
-Received: by mail-oi1-x22c.google.com with SMTP id h133so14764734oib.7
- for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 09:19:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=sender:date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=N/xWzsBvqbn7jaeScL3f3s2ZA+9ZXt9gbvH0hh2wYqs=;
- b=RQ7hh2BPtVQZCJRpUOs9J8RxaFes0UR5KxWnf1sYxhufmrjNmW2didexyDITFZdsxC
- Kvghcihb327Yic4NNqHkQyNXtCmj8oSYQhjONbUbocrdgBxlGaKHrDE5SWd4I9YquUc0
- WenkrxhySOFXNmrd8Vj7BM+jehzX+H40j5ioqeaw34F5FPyARB7L7HgurPoa2CG7WlsO
- qWkbVVfRUgGmnC1CnbVCLRTFiXOdiEjVccsieju0hDofc4gktQJjl2/U6F6d67tMQIFb
- VmOZiXxeB7i1a7f4y02oiA0OLralUSa22zrW8QKQwjJqzvioMuAh1Q3NIeq6ChX1Nsvz
- +reg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
- :references:mime-version:content-disposition:in-reply-to;
- bh=N/xWzsBvqbn7jaeScL3f3s2ZA+9ZXt9gbvH0hh2wYqs=;
- b=fJv9juEVh83Dry9KhVgpFGsWORuz6iW9VvW0Pmog6jlk1Nfh9f48au5oLqrGrk6mgL
- zpMtMjNKv8R36vRVo5nJiNnyWdmE8E/NKHwEHAJtvtNCQs8l34bZU6zC9J+V7o+7VIkU
- PMHRnAPUdMTV/VPHez0P1nDxHAha01k7G7ywGO+F/Q7LDbUjUrkabaZ/nIE1+9Gy/GFg
- zaDZEtL2z1jz09hwciOXq92eUGdp96+xK2g3Fkzt72VQ/o6sYscckE3Z1kEOvLHCFjvp
- 4kx0LZ6vp0wbxoANiDrIm1MUQDavbS3bT7Gqhg47FiPNZhiNlSQp5/AzEOz5rO1OVzgg
- DIRA==
-X-Gm-Message-State: AOAM532djyGZ99EydiCn1ND9oEMDwfUNfpFT6MBmkZVgTGSZct9LRdEh
- e3OWIvVEEyDFF087R8BZNIo=
-X-Google-Smtp-Source: ABdhPJy8IIqfMvGEvR4RTQ17OcjoZehc+ZdejnMHeNu4ua85Usp8hsBvX6aPh4XYk6wkuD65e3OEKA==
-X-Received: by 2002:a05:6808:3a3:: with SMTP id
- n3mr8437749oie.41.1631549948824; 
- Mon, 13 Sep 2021 09:19:08 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
- by smtp.gmail.com with ESMTPSA id
- w12sm1789648oie.41.2021.09.13.09.19.07
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 13 Sep 2021 09:19:08 -0700 (PDT)
-Date: Mon, 13 Sep 2021 09:19:07 -0700
-From: Guenter Roeck <linux@roeck-us.net>
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Subject: Re: [PATCH V3 5/5] virtio: Bind virtio device to device-tree node
-Message-ID: <20210913161907.GA176753@roeck-us.net>
-References: <cover.1627273794.git.viresh.kumar@linaro.org>
- <454a58f998b0d16847d72a97b32192829fab2c8c.1627273794.git.viresh.kumar@linaro.org>
- <20210913144905.GA1267554@roeck-us.net>
+ Mon, 13 Sep 2021 16:21:32 +0000 (UTC)
+X-IronPort-AV: E=McAfee;i="6200,9189,10106"; a="219847123"
+X-IronPort-AV: E=Sophos;i="5.85,290,1624345200"; d="scan'208";a="219847123"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+ by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 13 Sep 2021 09:21:31 -0700
+X-IronPort-AV: E=Sophos;i="5.85,290,1624345200"; d="scan'208";a="609068367"
+Received: from holdensm-mobl.amr.corp.intel.com (HELO [10.212.147.16])
+ ([10.212.147.16])
+ by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 13 Sep 2021 09:21:30 -0700
+Subject: Re: [PATCH v2 00/12] x86/sev: KEXEC/KDUMP support for SEV-ES guests
+To: Joerg Roedel <jroedel@suse.de>
+References: <20210913155603.28383-1-joro@8bytes.org>
+ <4e033293-b81d-1e21-6fd6-f507b6821d3c@intel.com> <YT941raolZvGTVR/@suse.de>
+From: Dave Hansen <dave.hansen@intel.com>
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+ z5cecg==
+Message-ID: <9aa5c10b-56ee-8b26-56d5-870c44e6fbcc@intel.com>
+Date: Mon, 13 Sep 2021 09:21:27 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20210913144905.GA1267554@roeck-us.net>
-Cc: Arnd Bergmann <arnd@kernel.org>,
- Vincent Guittot <vincent.guittot@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
- Jean-Philippe Brucker <jean-philippe@linaro.org>, "Enrico Weigelt,
- metux IT consult" <info@metux.net>, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
- Bill Mills <bill.mills@linaro.org>
+In-Reply-To: <YT941raolZvGTVR/@suse.de>
+Content-Language: en-US
+Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org,
+ Arvind Sankar <nivedita@alum.mit.edu>, hpa@zytor.com,
+ Jiri Slaby <jslaby@suse.cz>, Joerg Roedel <joro@8bytes.org>, x86@kernel.org,
+ David Rientjes <rientjes@google.com>, Masami Hiramatsu <mhiramat@kernel.org>,
+ Martin Radev <martin.b.radev@gmail.com>,
+ Tom Lendacky <thomas.lendacky@amd.com>, Kees Cook <keescook@chromium.org>,
+ Cfir Cohen <cfir@google.com>, linux-coco@lists.linux.dev,
+ Andy Lutomirski <luto@kernel.org>, Dan Williams <dan.j.williams@intel.com>,
+ Juergen Gross <jgross@suse.com>, Mike Stunes <mstunes@vmware.com>,
+ Sean Christopherson <seanjc@google.com>, kexec@lists.infradead.org,
+ linux-kernel@vger.kernel.org, Eric Biederman <ebiederm@xmission.com>,
+ Erdem Aktas <erdemaktas@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,55 +144,24 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 13, 2021 at 07:49:07AM -0700, Guenter Roeck wrote:
-> On Mon, Jul 26, 2021 at 10:21:45AM +0530, Viresh Kumar wrote:
-> > Bind the virtio devices with their of_node. This will help users of the
-> > virtio devices to mention their dependencies on the device in the DT
-> > itself. Like GPIO pin users can use the phandle of the device node, or
-> > the node may contain more subnodes to add i2c or spi eeproms and other
-> > users.
-> > 
-> > Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-> > Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-> 
-> This patch causes a boot failure on sparc64: The virtio device no longer
-> instantiates. Reverting this patch fixes the problem. Bisect log attached.
-> 
+On 9/13/21 9:14 AM, Joerg Roedel wrote:
+> On Mon, Sep 13, 2021 at 09:02:38AM -0700, Dave Hansen wrote:
+>> On 9/13/21 8:55 AM, Joerg Roedel wrote:
+>>> This does not work under SEV-ES, because the hypervisor has no access
+>>> to the vCPU registers and can't make modifications to them. So an
+>>> SEV-ES guest needs to reset the vCPU itself and park it using the
+>>> AP-reset-hold protocol. Upon wakeup the guest needs to jump to
+>>> real-mode and to the reset-vector configured in the AP-Jump-Table.
+>> How does this end up looking to an end user that tries to kexec() from a
+>> an SEV-ES kernel?  Does it just hang?
+> Yes, the kexec will just hang. This patch-set contains code to disable
+> the kexec syscalls in situations where it would not work for that
+> reason.
 
-In case it matters: The problem is here:
-
-+       if (!of_device_is_compatible(np, compat)) {
-+               ret = -EINVAL;
-+               goto out;
-+       }
-
-Guenter
-
-> Guenter
-> 
-> ---
-> # bad: [6880fa6c56601bb8ed59df6c30fd390cc5f6dd8f] Linux 5.15-rc1
-> # good: [926de8c4326c14fcf35f1de142019043597a4fac] Merge tag 'acpi-5.15-rc1-3' of git://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm
-> git bisect start 'HEAD' '926de8c4326c'
-> # good: [8177a5c96229ff24da1e362789e359b68b4f34f5] Merge tag 'libata-5.15-2021-09-11' of git://git.kernel.dk/linux-block
-> git bisect good 8177a5c96229ff24da1e362789e359b68b4f34f5
-> # bad: [78e709522d2c012cb0daad2e668506637bffb7c2] Merge tag 'for_linus' of git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost
-> git bisect bad 78e709522d2c012cb0daad2e668506637bffb7c2
-> # bad: [7bc7f61897b66bef78bb5952e3d1e9f3aaf9ccca] Documentation: Add documentation for VDUSE
-> git bisect bad 7bc7f61897b66bef78bb5952e3d1e9f3aaf9ccca
-> # bad: [41116599a0731f4cd451e9d191d879ab45e31945] virtio/vsock: add 'VIRTIO_VSOCK_SEQ_EOR' bit.
-> git bisect bad 41116599a0731f4cd451e9d191d879ab45e31945
-> # good: [5262912ef3cfc5e518892c3d67fb36412cb813e2] vdpa/mlx5: Add support for control VQ and MAC setting
-> git bisect good 5262912ef3cfc5e518892c3d67fb36412cb813e2
-> # good: [7f815fce08d563006e43d1b7d2f9a0a4f3b832f3] dt-bindings: i2c: Add bindings for i2c-virtio
-> git bisect good 7f815fce08d563006e43d1b7d2f9a0a4f3b832f3
-> # good: [d5a8680dfab0547a4ecd708b1fe9de48598a6757] uapi: virtio_ids: Sync ids with specification
-> git bisect good d5a8680dfab0547a4ecd708b1fe9de48598a6757
-> # bad: [9af8f1061646e8e22b66413bedf7b3e2ab3d69e5] virtio/vsock: rename 'EOR' to 'EOM' bit.
-> git bisect bad 9af8f1061646e8e22b66413bedf7b3e2ab3d69e5
-> # bad: [694a1116b405d887c893525a6766b390989c8606] virtio: Bind virtio device to device-tree node
-> git bisect bad 694a1116b405d887c893525a6766b390989c8606
-> # first bad commit: [694a1116b405d887c893525a6766b390989c8606] virtio: Bind virtio device to device-tree node
+Got it.  The end-user-visible symptom just wasn't obvious.  If you
+revise these, it might be nice to add that so that folks who cherry-pick
+stable patches or update to new stable kernels have an idea what this
+might fix.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
