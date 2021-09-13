@@ -2,134 +2,121 @@ Return-Path: <SRS0=Do4E=OD=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F13FEC433EF
-	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 06:50:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 45E70C433EF
+	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 06:52:10 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9F64960FC1
-	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 06:50:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9F64960FC1
+	by mail.kernel.org (Postfix) with ESMTPS id D95F760FC1
+	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 06:52:09 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D95F760FC1
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 6FB8F40447;
-	Mon, 13 Sep 2021 06:50:24 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id A8AE64044E;
+	Mon, 13 Sep 2021 06:52:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id crKGlH8gpImb; Mon, 13 Sep 2021 06:50:23 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B53AB403D9;
-	Mon, 13 Sep 2021 06:50:22 +0000 (UTC)
+	with ESMTP id uNKroklC9LnG; Mon, 13 Sep 2021 06:52:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3CEA640449;
+	Mon, 13 Sep 2021 06:52:08 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 864BDC0011;
-	Mon, 13 Sep 2021 06:50:22 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4B110C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 12DD6C0011;
+	Mon, 13 Sep 2021 06:52:08 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0F74EC000D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 06:50:21 +0000 (UTC)
+ Mon, 13 Sep 2021 06:52:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 260778101D
+ by smtp2.osuosl.org (Postfix) with ESMTP id E0D0540249
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 06:50:21 +0000 (UTC)
+ Mon, 13 Sep 2021 06:52:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NHg6KbtPKOSL
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id g1GYxmJ91sNA
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 06:50:20 +0000 (UTC)
+ Mon, 13 Sep 2021 06:52:04 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 07B8B8101C
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id DE526401EF
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 06:50:19 +0000 (UTC)
+ Mon, 13 Sep 2021 06:52:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1631515818;
+ s=mimecast20190719; t=1631515922;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=MyDTqnCM7+1l/i+LYvpu8caLxbFrAy8F0rFuYAKYUbQ=;
- b=ewLaVgqkCsmxnpNhraBISUYDsz31gofyO4lA86WPrIP7pmfp7J5H3AwwM7eG+b8MqCQIvu
- 7gd/35KMdYRVGkzf2KjSVYylS58WZmszROFYJ+9XhxzVqwRunDawadcKj+FjKyc1LQWuz/
- DwlNUgHr6YjehUIDGzE3LPBg6b+iNcc=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-499-KGawBEekNb6saViSUdkIpw-1; Mon, 13 Sep 2021 02:50:17 -0400
-X-MC-Unique: KGawBEekNb6saViSUdkIpw-1
-Received: by mail-wm1-f72.google.com with SMTP id
- b139-20020a1c8091000000b002fb33c467c8so4496812wmd.5
+ bh=Kl26xpXTnGYgFarHlszjYjC6hsL4Xd95eYecdgvpeDw=;
+ b=fF/+P0eL+PEcumVQ9JMJfLBoaVbCqrsV5qQDLhgjZRjjJt38C1b9Bn4VUHPpNcMNgTGat3
+ dIaJqFi5R5lXacls2lMLF3FpyhovMCmodgNf+wxdeQZD5K42RDLFgLO9gKDSCmLw13cOD4
+ LAyvbGSGu7HBK0/sXABgpYGKZREqljs=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-546-_OxL_xufMQGZlmKO28x_Cg-1; Mon, 13 Sep 2021 02:51:59 -0400
+X-MC-Unique: _OxL_xufMQGZlmKO28x_Cg-1
+Received: by mail-wr1-f69.google.com with SMTP id
+ q14-20020a5d574e000000b00157b0978ddeso2298385wrw.5
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Sep 2021 23:50:17 -0700 (PDT)
+ Sun, 12 Sep 2021 23:51:59 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=MyDTqnCM7+1l/i+LYvpu8caLxbFrAy8F0rFuYAKYUbQ=;
- b=DOwmWr/Kn6pG8mfKZhQ/zupYblQnfw/76pexDrZwIUMGrlGg5yglPhJMdwBzFDM7KA
- b5pRn+0gizqPgwl8y8xcTxQXiJP7yJptP6fJeJEM9MZEb7zZJ3cvlsxvzpbBZQKFGuGg
- xb4s2wvs3fbuL6phhpJH8QOT5MA/O7qy5sU5bs7GLd7rP9q5C9ornTO/1GReKPQXXhwI
- 32RbkYZ9n6B+rT//nP/GFL6WA5MF3y6j9ymCe/E+ezdnoG2izscnqWf1BLp1bkEZUoap
- CduxVoRUYmrWSCupFVd/d1myOw4iJJKPAJMTF2jdHTk85N1zxac5UdBEPNS6OQXyuH2v
- bR3g==
-X-Gm-Message-State: AOAM532sqq1th7eCCvLe2XgU2KrRKLuzNgYTL6xlvtUof46KAMFvrC6z
- z694K1YF3PwckTCIXaEUimrd/YEHFZDTeO0oBvOz/2QD87XrxZSkMqcAkM5kcWAAXAWaCgg3Pa8
- uVbfNlZ8g7ISjaxFQyLdcMUnMVwXf0kJutpN9bEU3ew==
-X-Received: by 2002:adf:fe82:: with SMTP id l2mr5774806wrr.268.1631515816389; 
- Sun, 12 Sep 2021 23:50:16 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwcfkgu3ConcE2PukWR2cAEy3AU4MhrJ9eakHtv6dPbV1CFh1HXDoihq8fVIZUBqRBUMAYQfw==
-X-Received: by 2002:adf:fe82:: with SMTP id l2mr5774770wrr.268.1631515816044; 
- Sun, 12 Sep 2021 23:50:16 -0700 (PDT)
-Received: from redhat.com ([2.55.27.174])
- by smtp.gmail.com with ESMTPSA id h8sm5857613wmb.35.2021.09.12.23.50.11
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 12 Sep 2021 23:50:15 -0700 (PDT)
-Date: Mon, 13 Sep 2021 02:50:08 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 6/9] virtio_pci: harden MSI-X interrupts
-Message-ID: <20210913024153-mutt-send-email-mst@kernel.org>
-References: <20210913055353.35219-1-jasowang@redhat.com>
- <20210913055353.35219-7-jasowang@redhat.com>
- <20210913015711-mutt-send-email-mst@kernel.org>
- <CACGkMEva2j57tG=-QYG7NdgEV28i-gpBReRR+UX7YwrHzRWydw@mail.gmail.com>
- <20210913022257-mutt-send-email-mst@kernel.org>
- <CACGkMEsWJq0SMMfTBdoOxVa1_=k9nZkrRu2wYZo7WO-01p_sgQ@mail.gmail.com>
- <20210913023626-mutt-send-email-mst@kernel.org>
+ h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+ :user-agent:mime-version:in-reply-to:content-language
+ :content-transfer-encoding;
+ bh=Kl26xpXTnGYgFarHlszjYjC6hsL4Xd95eYecdgvpeDw=;
+ b=Sms4tGWUixnDtI4GrumhSwzGxPiO2cD4sxs+Cqq5zxosnTKTM3lHcVMnyeCqLovqVc
+ yyHs1bUUJHKAdDIydUcRkIqyOMZ93lPfcvBtvGUP7n5SeCF6d2BwbAh64+qXyeVGdSzW
+ KyF2hBwk6ORVxEttrCqw0r5E2YAm5J6ZNECLsmfH5ErInLic4DKPXnEdTRied1JY4W6S
+ JqAuDkXmcdG2UQ0G96stdPQ3lVYa8s2FB8fd3F1x35g/KTsnjdSQo8DZxbH9yY2xbEl3
+ x2FHWHFaUWbiIC4nwNx04lpLxbylGBXM7O/SNkvW8IrrcYDq8qGUVhkYztiNs/yqeBmH
+ Vrtw==
+X-Gm-Message-State: AOAM531ffHl82B1rhhZrm8Ma7n5+v/GqCSphZvWc+mHqW4xo7CWOpAte
+ F4Xg+ybLY3j4s1VdqJg4tm+gF7+FglHg+pezFdJ/lXGuwZVSk0BZW0YYahOL13c30BInT1uMOSd
+ vFf4LIsFKIsJ3buZ88xUcYjh3qYYbFGzod/hzQMR50IfooizIshlBgWhsQRrJFPCrx+iOHhEjio
+ pw6cete8LiMuXzXym6
+X-Received: by 2002:a1c:3184:: with SMTP id x126mr9319871wmx.123.1631515918073; 
+ Sun, 12 Sep 2021 23:51:58 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx/aMYfCMZS36L28j4NzgJRcpAIrASgnPhaikQ6W+JcGOCweIChh0CuuOAkAxXS6w5QjxMC7A==
+X-Received: by 2002:a1c:3184:: with SMTP id x126mr9319858wmx.123.1631515917833; 
+ Sun, 12 Sep 2021 23:51:57 -0700 (PDT)
+Received: from [192.168.100.42] ([82.142.27.6])
+ by smtp.gmail.com with ESMTPSA id i5sm6438470wrc.86.2021.09.12.23.51.55
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Sun, 12 Sep 2021 23:51:56 -0700 (PDT)
+Subject: Re: Use of uninitialized memory with CONFIG_HW_RANDOM_VIRTIO
+To: Alexander Potapenko <glider@google.com>
+References: <CAG_fn=WwQ29akxY1Eq=N_=HCF3t7z+T2obh9aRVUDFy1FSA3-Q@mail.gmail.com>
+ <20210819165742-mutt-send-email-mst@kernel.org>
+ <d0d232ab-5222-5eef-60de-e8cc0f2a0791@redhat.com>
+ <CAG_fn=Um3Up2VyGOC0ezJ51N8AWZfGcWz+98cvwpBrJkby3+NA@mail.gmail.com>
+From: Laurent Vivier <lvivier@redhat.com>
+Message-ID: <639bbb70-eca8-97c5-7faa-8563e594d67a@redhat.com>
+Date: Mon, 13 Sep 2021 08:51:54 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-In-Reply-To: <20210913023626-mutt-send-email-mst@kernel.org>
+In-Reply-To: <CAG_fn=Um3Up2VyGOC0ezJ51N8AWZfGcWz+98cvwpBrJkby3+NA@mail.gmail.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=lvivier@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: "Kuppuswamy, Sathyanarayanan" <sathyanarayanan.kuppuswamy@linux.intel.com>,
- Kuppuswamy Sathyanarayanan <knsathya@kernel.org>, "kaplan,
- david" <david.kaplan@amd.com>, Peter Zijlstra <peterz@infradead.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- James E J Bottomley <James.Bottomley@hansenpartnership.com>,
- Dave Hansen <dave.hansen@intel.com>, Peter H Anvin <hpa@zytor.com>,
- Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@linux.intel.com>,
- Jonathan Corbet <corbet@lwn.net>, Helge Deller <deller@gmx.de>,
- X86 ML <x86@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Arnd Bergmann <arnd@arndb.de>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
- "Hetzelt, Felicitas" <f.hetzelt@tu-berlin.de>, Tony Luck <tony.luck@intel.com>,
- Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
- Bjorn Helgaas <bhelgaas@google.com>, Dan Williams <dan.j.williams@intel.com>,
- Richard Henderson <rth@twiddle.net>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Sean Christopherson <seanjc@google.com>,
- linux-kernel <linux-kernel@vger.kernel.org>, pbonzini <pbonzini@redhat.com>,
- "David S . Miller" <davem@davemloft.net>,
- Kirill Shutemov <kirill.shutemov@linux.intel.com>
+Content-Language: en-US
+Cc: amit@kernel.org, rusty@rustcorp.com.au,
+ virtualization@lists.linux-foundation.org,
+ syzkaller <syzkaller@googlegroups.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ akong@redhat.com, Dmitriy Vyukov <dvyukov@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -146,218 +133,122 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 13, 2021 at 02:37:42AM -0400, Michael S. Tsirkin wrote:
-> On Mon, Sep 13, 2021 at 02:34:01PM +0800, Jason Wang wrote:
-> > On Mon, Sep 13, 2021 at 2:28 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > On Mon, Sep 13, 2021 at 02:08:02PM +0800, Jason Wang wrote:
-> > > > On Mon, Sep 13, 2021 at 2:04 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > >
-> > > > > On Mon, Sep 13, 2021 at 01:53:50PM +0800, Jason Wang wrote:
-> > > > > > We used to synchronize pending MSI-X irq handlers via
-> > > > > > synchronize_irq(), this may not work for the untrusted device which
-> > > > > > may keep sending interrupts after reset which may lead unexpected
-> > > > > > results. Similarly, we should not enable MSI-X interrupt until the
-> > > > > > device is ready. So this patch fixes those two issues by:
-> > > > > >
-> > > > > > 1) switching to use disable_irq() to prevent the virtio interrupt
-> > > > > >    handlers to be called after the device is reset.
-> > > > > > 2) using IRQF_NO_AUTOEN and enable the MSI-X irq during .ready()
-> > > > > >
-> > > > > > This can make sure the virtio interrupt handler won't be called before
-> > > > > > virtio_device_ready() and after reset.
-> > > > > >
-> > > > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > > >
-> > > > > I don't get the threat model here. Isn't disabling irqs done by the
-> > > > > hypervisor anyway? Is there a reason to trust disable_irq but not
-> > > > > device reset?
-> > > >
-> > > > My understanding is that e.g in the case of SEV/TDX we don't trust the
-> > > > hypervisor. So the hypervisor can keep sending interrupts even if the
-> > > > device is reset. The guest can only trust its own software interrupt
-> > > > management logic to avoid call virtio callback in this case.
-> > > >
-> > > > Thanks
-> > >
-> > > Hmm but I don't see how do these patches do this.
-> > > They call disable_irq but can't the hypervisor keep
-> > > sending interrupts after disable_irq, too?
-> > 
-> > Yes, but since the irq is disabled, the vring or config callback won't
-> > be called in this case.
-> > 
-> > Thanks
+Hi Alexander,
+
+On 12/09/2021 19:05, Alexander Potapenko wrote:
+> Hi Laurent,
 > 
-> But doen't "irq is disabled" basically mean "we told the hypervisor
-> to disable the irq"?  What extractly prevents hypervisor from
-> sending the irq even if guest thinks it disabled it?
+> Do you by any chance have an update on this?
 
-More generally, can't we for example blow away the
-indir_desc array that we use to keep the ctx pointers?
-Won't that be enough?
+I'm sorry I didn't have the time until now.
 
+I try today.
 
-And looking at all this closely, I suspect it is wise to just completely
-disable hotplug/unplug for encrypted guests. Or maybe it's already
-the case?
+Could you give more details how to reproduce this?
+(kernel version, .config, tools to run?)
 
-
-> > >
-> > >
-> > >
-> > > > >
-> > > > > Cc a bunch more people ...
-> > > > >
-> > > > >
-> > > > > > ---
-> > > > > >  drivers/virtio/virtio_pci_common.c | 27 +++++++++++++++++++++------
-> > > > > >  drivers/virtio/virtio_pci_common.h |  6 ++++--
-> > > > > >  drivers/virtio/virtio_pci_legacy.c |  5 +++--
-> > > > > >  drivers/virtio/virtio_pci_modern.c |  6 ++++--
-> > > > > >  4 files changed, 32 insertions(+), 12 deletions(-)
-> > > > > >
-> > > > > > diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> > > > > > index b35bb2d57f62..0b9523e6dd39 100644
-> > > > > > --- a/drivers/virtio/virtio_pci_common.c
-> > > > > > +++ b/drivers/virtio/virtio_pci_common.c
-> > > > > > @@ -24,8 +24,8 @@ MODULE_PARM_DESC(force_legacy,
-> > > > > >                "Force legacy mode for transitional virtio 1 devices");
-> > > > > >  #endif
-> > > > > >
-> > > > > > -/* wait for pending irq handlers */
-> > > > > > -void vp_synchronize_vectors(struct virtio_device *vdev)
-> > > > > > +/* disable irq handlers */
-> > > > > > +void vp_disable_vectors(struct virtio_device *vdev)
-> > > > > >  {
-> > > > > >       struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> > > > > >       int i;
-> > > > > > @@ -34,7 +34,20 @@ void vp_synchronize_vectors(struct virtio_device *vdev)
-> > > > > >               synchronize_irq(vp_dev->pci_dev->irq);
-> > > > > >
-> > > > > >       for (i = 0; i < vp_dev->msix_vectors; ++i)
-> > > > > > -             synchronize_irq(pci_irq_vector(vp_dev->pci_dev, i));
-> > > > > > +             disable_irq(pci_irq_vector(vp_dev->pci_dev, i));
-> > > > > > +}
-> > > > > > +
-> > > > > > +/* enable irq handlers */
-> > > > > > +void vp_enable_vectors(struct virtio_device *vdev)
-> > > > > > +{
-> > > > > > +     struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> > > > > > +     int i;
-> > > > > > +
-> > > > > > +     if (vp_dev->intx_enabled)
-> > > > > > +             return;
-> > > > > > +
-> > > > > > +     for (i = 0; i < vp_dev->msix_vectors; ++i)
-> > > > > > +             enable_irq(pci_irq_vector(vp_dev->pci_dev, i));
-> > > > > >  }
-> > > > > >
-> > > > > >  /* the notify function used when creating a virt queue */
-> > > > > > @@ -141,7 +154,8 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
-> > > > > >       snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
-> > > > > >                "%s-config", name);
-> > > > > >       err = request_irq(pci_irq_vector(vp_dev->pci_dev, v),
-> > > > > > -                       vp_config_changed, 0, vp_dev->msix_names[v],
-> > > > > > +                       vp_config_changed, IRQF_NO_AUTOEN,
-> > > > > > +                       vp_dev->msix_names[v],
-> > > > > >                         vp_dev);
-> > > > > >       if (err)
-> > > > > >               goto error;
-> > > > > > @@ -160,7 +174,8 @@ static int vp_request_msix_vectors(struct virtio_device *vdev, int nvectors,
-> > > > > >               snprintf(vp_dev->msix_names[v], sizeof *vp_dev->msix_names,
-> > > > > >                        "%s-virtqueues", name);
-> > > > > >               err = request_irq(pci_irq_vector(vp_dev->pci_dev, v),
-> > > > > > -                               vp_vring_interrupt, 0, vp_dev->msix_names[v],
-> > > > > > +                               vp_vring_interrupt, IRQF_NO_AUTOEN,
-> > > > > > +                               vp_dev->msix_names[v],
-> > > > > >                                 vp_dev);
-> > > > > >               if (err)
-> > > > > >                       goto error;
-> > > > > > @@ -337,7 +352,7 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned nvqs,
-> > > > > >                        "%s-%s",
-> > > > > >                        dev_name(&vp_dev->vdev.dev), names[i]);
-> > > > > >               err = request_irq(pci_irq_vector(vp_dev->pci_dev, msix_vec),
-> > > > > > -                               vring_interrupt, 0,
-> > > > > > +                               vring_interrupt, IRQF_NO_AUTOEN,
-> > > > > >                                 vp_dev->msix_names[msix_vec],
-> > > > > >                                 vqs[i]);
-> > > > > >               if (err)
-> > > > > > diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-> > > > > > index beec047a8f8d..a235ce9ff6a5 100644
-> > > > > > --- a/drivers/virtio/virtio_pci_common.h
-> > > > > > +++ b/drivers/virtio/virtio_pci_common.h
-> > > > > > @@ -102,8 +102,10 @@ static struct virtio_pci_device *to_vp_device(struct virtio_device *vdev)
-> > > > > >       return container_of(vdev, struct virtio_pci_device, vdev);
-> > > > > >  }
-> > > > > >
-> > > > > > -/* wait for pending irq handlers */
-> > > > > > -void vp_synchronize_vectors(struct virtio_device *vdev);
-> > > > > > +/* disable irq handlers */
-> > > > > > +void vp_disable_vectors(struct virtio_device *vdev);
-> > > > > > +/* enable irq handlers */
-> > > > > > +void vp_enable_vectors(struct virtio_device *vdev);
-> > > > > >  /* the notify function used when creating a virt queue */
-> > > > > >  bool vp_notify(struct virtqueue *vq);
-> > > > > >  /* the config->del_vqs() implementation */
-> > > > > > diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
-> > > > > > index d62e9835aeec..bdf6bc667ab5 100644
-> > > > > > --- a/drivers/virtio/virtio_pci_legacy.c
-> > > > > > +++ b/drivers/virtio/virtio_pci_legacy.c
-> > > > > > @@ -97,8 +97,8 @@ static void vp_reset(struct virtio_device *vdev)
-> > > > > >       /* Flush out the status write, and flush in device writes,
-> > > > > >        * including MSi-X interrupts, if any. */
-> > > > > >       ioread8(vp_dev->ioaddr + VIRTIO_PCI_STATUS);
-> > > > > > -     /* Flush pending VQ/configuration callbacks. */
-> > > > > > -     vp_synchronize_vectors(vdev);
-> > > > > > +     /* Disable VQ/configuration callbacks. */
-> > > > > > +     vp_disable_vectors(vdev);
-> > > > > >  }
-> > > > > >
-> > > > > >  static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
-> > > > > > @@ -194,6 +194,7 @@ static void del_vq(struct virtio_pci_vq_info *info)
-> > > > > >  }
-> > > > > >
-> > > > > >  static const struct virtio_config_ops virtio_pci_config_ops = {
-> > > > > > +     .ready          = vp_enable_vectors,
-> > > > > >       .get            = vp_get,
-> > > > > >       .set            = vp_set,
-> > > > > >       .get_status     = vp_get_status,
-> > > > > > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
-> > > > > > index 30654d3a0b41..acf0f6b6381d 100644
-> > > > > > --- a/drivers/virtio/virtio_pci_modern.c
-> > > > > > +++ b/drivers/virtio/virtio_pci_modern.c
-> > > > > > @@ -172,8 +172,8 @@ static void vp_reset(struct virtio_device *vdev)
-> > > > > >        */
-> > > > > >       while (vp_modern_get_status(mdev))
-> > > > > >               msleep(1);
-> > > > > > -     /* Flush pending VQ/configuration callbacks. */
-> > > > > > -     vp_synchronize_vectors(vdev);
-> > > > > > +     /* Disable VQ/configuration callbacks. */
-> > > > > > +     vp_disable_vectors(vdev);
-> > > > > >  }
-> > > > > >
-> > > > > >  static u16 vp_config_vector(struct virtio_pci_device *vp_dev, u16 vector)
-> > > > > > @@ -380,6 +380,7 @@ static bool vp_get_shm_region(struct virtio_device *vdev,
-> > > > > >  }
-> > > > > >
-> > > > > >  static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
-> > > > > > +     .ready          = vp_enable_vectors,
-> > > > > >       .get            = NULL,
-> > > > > >       .set            = NULL,
-> > > > > >       .generation     = vp_generation,
-> > > > > > @@ -397,6 +398,7 @@ static const struct virtio_config_ops virtio_pci_config_nodev_ops = {
-> > > > > >  };
-> > > > > >
-> > > > > >  static const struct virtio_config_ops virtio_pci_config_ops = {
-> > > > > > +     .ready          = vp_enable_vectors,
-> > > > > >       .get            = vp_get,
-> > > > > >       .set            = vp_set,
-> > > > > >       .generation     = vp_generation,
-> > > > > > --
-> > > > > > 2.25.1
-> > > > >
-> > >
+Thanks,
+Laurent
+> Thanks,
+> Alex
+> 
+> On Fri, Aug 20, 2021 at 6:15 PM Laurent Vivier <lvivier@redhat.com> wrote:
+>>
+>> On 19/08/2021 22:58, Michael S. Tsirkin wrote:
+>>> On Fri, Nov 13, 2020 at 06:26:16PM +0100, Alexander Potapenko wrote:
+>>>> Hi Amos, Rusty, Amit, Michael,
+>>>>
+>>>> I am hitting something that I believe to be a minor problem in the
+>>>> virtio RNG driver.
+>>>> When running the kernel under KMSAN with "-device virtio-rng-pci"
+>>>> passed to QEMU, I am seeing reports about rng_fillbuf in
+>>>> drivers/char/hw_random/core.c being used before initialization (see
+>>>> the report below).
+>>>>
+>>>> This can be verified by initializing rng_fillbuf with 'A' as follows:
+>>>> ==========================================
+>>>> diff --git a/drivers/char/hw_random/core.c b/drivers/char/hw_random/core.c
+>>>> index 8c1c47dd9f46..44d609a5796a 100644
+>>>> --- a/drivers/char/hw_random/core.c
+>>>> +++ b/drivers/char/hw_random/core.c
+>>>> @@ -439,8 +439,11 @@ static int hwrng_fillfn(void *unused)
+>>>>                 if (IS_ERR(rng) || !rng)
+>>>>                         break;
+>>>>                 mutex_lock(&reading_mutex);
+>>>> +               memset(rng_fillbuf, 'A', rng_buffer_size());
+>>>> +               rng_fillbuf[rng_buffer_size()-1] = 0;
+>>>>                 rc = rng_get_data(rng, rng_fillbuf,
+>>>>                                   rng_buffer_size(), 1);
+>>>> +               pr_err("rng_fillbuf: %s\n", rng_fillbuf);
+>>>>                 mutex_unlock(&reading_mutex);
+>>>>                 put_rng(rng);
+>>>>                 if (rc <= 0) {
+>>>> ==========================================
+>>>>
+>>>> and booting the kernel: the first call of hwrng_fillfn() will print
+>>>> "AAAAAAA.." instead of random data.
+>>>>
+>>>> For some reason on that first iteration vi->busy is true here:
+>>>> https://elixir.bootlin.com/linux/latest/source/drivers/char/hw_random/virtio-rng.c#L62,
+>>>> therefore the buffer is not being sent to virtio ring.
+>>>>
+>>>> While probably being benign, this bug is preventing syzkaller from
+>>>> finding more bugs, so it would be nice to fix it.
+>>>> Perhaps the easiest solution is to kzalloc rng_fillbuf, but if it's
+>>>> critical for this driver to not skip even the first read, then maybe
+>>>> you have better ideas?
+>>>>
+>>>> KMSAN report follows:
+>>>>
+>>>> =====================================================
+>>>> BUG: KMSAN: uninit-value in _mix_pool_bytes+0x7d2/0x950
+>>>> drivers/char/random.c:570
+>>>> CPU: 0 PID: 2711 Comm: hwrng Not tainted 5.9.0-rc8-syzkaller #0
+>>>> Hardware name: Google Google Compute Engine/Google Compute Engine,
+>>>> BIOS Google 01/01/2011
+>>>> Call Trace:
+>>>>  __dump_stack lib/dump_stack.c:77 [inline]
+>>>>  dump_stack+0x21c/0x280 lib/dump_stack.c:118
+>>>>  kmsan_report+0xf7/0x1e0 mm/kmsan/kmsan_report.c:122
+>>>>  __msan_warning+0x5f/0xa0 mm/kmsan/kmsan_instr.c:201
+>>>>  _mix_pool_bytes+0x7d2/0x950 drivers/char/random.c:570
+>>>>  mix_pool_bytes+0xca/0x2a0 drivers/char/random.c:599
+>>>>  add_hwgenerator_randomness+0x4ac/0x500 drivers/char/random.c:2319
+>>>>  hwrng_fillfn+0x6ae/0x940 drivers/char/hw_random/core.c:452
+>>>>  kthread+0x51c/0x560 kernel/kthread.c:293
+>>>>  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+>>>>
+>>>> Uninit was created at:
+>>>>  kmsan_save_stack_with_flags mm/kmsan/kmsan.c:129 [inline]
+>>>>  kmsan_internal_poison_shadow+0x5c/0xf0 mm/kmsan/kmsan.c:112
+>>>>  kmsan_slab_alloc+0x8d/0xe0 mm/kmsan/kmsan_hooks.c:80
+>>>>  slab_alloc_node mm/slub.c:2903 [inline]
+>>>>  slab_alloc mm/slub.c:2912 [inline]
+>>>>  kmem_cache_alloc_trace+0x61e/0xc90 mm/slub.c:2929
+>>>>  kmalloc include/linux/slab.h:554 [inline]
+>>>>  hwrng_modinit+0x103/0x2ef drivers/char/hw_random/core.c:621
+>>>>  do_one_initcall+0x371/0x9c0 init/main.c:1208
+>>>>  do_initcall_level+0x1e5/0x3c6 init/main.c:1281
+>>>>  do_initcalls+0x127/0x1cb init/main.c:1297
+>>>>  do_basic_setup+0x33/0x36 init/main.c:1317
+>>>>  kernel_init_freeable+0x238/0x38b init/main.c:1517
+>>>>  kernel_init+0x1f/0x840 init/main.c:1406
+>>>>  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+>>>> =====================================================
+>>>>
+>>>> Thanks,
+>>>> Alex
+>>>
+>>>
+>>> Cc Laurent - I think he said he was going to look at virtio rng.
+>>
+>> I will have look next week.
+>>
+>> Thanks,
+>> Laurent
+>>
+> 
+> 
 
 _______________________________________________
 Virtualization mailing list
