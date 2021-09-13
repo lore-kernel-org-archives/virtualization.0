@@ -2,101 +2,106 @@ Return-Path: <SRS0=Do4E=OD=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-10.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,HTML_MESSAGE,INCLUDES_CR_TRAILER,
-	INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04CB8C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 12:26:56 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8900EC433F5
+	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 14:49:13 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 874D060F6C
-	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 12:26:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 874D060F6C
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 2AB8460698
+	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 14:49:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 2AB8460698
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5199E606ED;
-	Mon, 13 Sep 2021 12:26:55 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id E687C40461;
+	Mon, 13 Sep 2021 14:49:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id iwVMGuO32m6O; Mon, 13 Sep 2021 12:26:54 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id xV_GXWcc7Lcs; Mon, 13 Sep 2021 14:49:12 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id EF27260669;
-	Mon, 13 Sep 2021 12:26:53 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9781B40472;
+	Mon, 13 Sep 2021 14:49:11 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CE21CC0011;
-	Mon, 13 Sep 2021 12:26:53 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BE15EC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6F9CFC0011;
+	Mon, 13 Sep 2021 14:49:11 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 777B2C000D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 12:26:52 +0000 (UTC)
+ Mon, 13 Sep 2021 14:49:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id ABBEF401CD
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6123140402
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 12:26:52 +0000 (UTC)
+ Mon, 13 Sep 2021 14:49:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lDER2x1u2Wbp
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id DirTTxNHCjfA
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 12:26:51 +0000 (UTC)
+ Mon, 13 Sep 2021 14:49:08 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-io1-xd34.google.com (mail-io1-xd34.google.com
- [IPv6:2607:f8b0:4864:20::d34])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7772D400C3
+Received: from mail-oo1-xc30.google.com (mail-oo1-xc30.google.com
+ [IPv6:2607:f8b0:4864:20::c30])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id EC11540430
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 12:26:51 +0000 (UTC)
-Received: by mail-io1-xd34.google.com with SMTP id b200so11746772iof.13
+ Mon, 13 Sep 2021 14:49:07 +0000 (UTC)
+Received: by mail-oo1-xc30.google.com with SMTP id
+ y3-20020a4ab403000000b00290e2a52c71so3477334oon.2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 05:26:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=2ekkJ1mBgfTRlb47nm2TtvJwx4CSRMP/xrIjq+fk3Oo=;
- b=sGT+QAuwSW19EIXWFaWPXmdLxMbAFgXIHEy1xDAhU4+z+jAzzSQS8jEdiq1cOKjNXp
- AEA0Q4vypqOr12G4dx7k6Kv8g5kqZHMsSnW/3g2njJuRPj3NrjpK0PQJgzCqh//IvHS8
- ssPHA1om8oN1Y1yS6PS51U5s/ObJsP60RZJSA6ZvsSFkUmBjSKvavE2otYUu1FWf1UBe
- w84GSETP+8+fMaPgwqmfy9qTAre5qBEYd0WFlBNCuRT3zVqPBZTxu/VEmc6yBJvVbIV4
- /brcDS179JhN1HuUAoc0+Yn692V0vDXnurZj3h/lsx7rFAga8wx2gFrm7UL8LRB4mPw2
- Xrcw==
+ Mon, 13 Sep 2021 07:49:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=sender:date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=q4jWiRn0EuHca/77FmGUXr9JidHyCu6zqvvX4/H4GKc=;
+ b=Oz4McVU7NUlBp5WhDmQCi6Kh7HTc5Rl7MA17CpdMCeyAedY8PqerQ5ZMsO/oZQTcsq
+ ebPiBeex7sZpeptcYzJqjjwz6CrqjN1Or0saJf+j4AYRMZlE99FzKEif5S14Ehj9nh3t
+ O4MooFl+HRGB5LkqXqsakryHdEoj3qZoK7HykK67I0OTTEkZfLpif0em+R9t1LR5KSKI
+ 3Y0hx5mRM2GJ6yxywzA5zISi0maQgwJZZr3lyAxVL+1TEq905c6zvmoWmm7RffqxhZwJ
+ wpnn6Js5pBeJR40DrhMSD3euygHa1KIGBT6y6iv+JIIexebTrbLrolzv8kjSKR+p/wCa
+ KWJw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=2ekkJ1mBgfTRlb47nm2TtvJwx4CSRMP/xrIjq+fk3Oo=;
- b=r+I7NVXd08/S0+Ju0MAEEFnf3uyrchlXsAP5thbCO2NWtHh/WnIuh5FpwGLggP4nWQ
- +b01vVmkpPUqaR7qZH+yUzt0GONqvvMh6Vqd6iTv3LSObtvWE2NDgLGhqcTxGxnr+XLz
- 0FoUEtOeTTHzI56txEqlJReZfrUhOLWHXEYHbxRnA9Q4ekmfGls5WKWb9iFFZ4sOY/v+
- mvQhcEOsaOr2HEnu7RQB4Ge2ymJPj77ewMKtxORgxQultsPwtCBRuSFTyYkLhXqJBbB7
- av7moGu+StahQLINz2FVM0XzItkS0GimVcbw20R9yoQqrHPnArjckkhujj5yPHX8tZ4/
- lZFw==
-X-Gm-Message-State: AOAM5313xIzTmsAzsBOGEPBmXWPVqYktAfXT6QjucbXqTQvE2WraKJgo
- /b9l2chieqs980TFe1fkx4rD2hf3JnwWXZ6WnX4ZzQ==
-X-Google-Smtp-Source: ABdhPJyfvXrzBw0lHhWkmwc0B+rZ3jHO1sjYpaCBCUtFMbcAvp6p8q5S8TNTdoUw9vOKbXklqlXib5417wFfXH92wo4=
-X-Received: by 2002:a02:5d83:: with SMTP id w125mr9133413jaa.20.1631536010534; 
- Mon, 13 Sep 2021 05:26:50 -0700 (PDT)
+ h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+ :references:mime-version:content-disposition:in-reply-to;
+ bh=q4jWiRn0EuHca/77FmGUXr9JidHyCu6zqvvX4/H4GKc=;
+ b=1n5Sl9gy6X0LkCm5ax2H1I3DPbJAC2FAKF5esV3cnawV3Z1atf+KsuCJmYA3ajoGkf
+ kLfJWhjlclKae4Un2GJoSHm9G0Da/WiMXRL4eSR/sJFHTMOH0632MfFBWB45ZmqWclbS
+ 4hEM/gcnRdW+MiiDe7KMpwTv7SJn4TsMhh0darJXNedQfCzziYHhM+UXggPMmZodR+5I
+ CrAPQtxSCGrJJljtuP2XTQyBVx7mh4ZeY3b4KD5HCxGq8eWBJANnKs7kHxjVkJGfR63/
+ jEoeMlKtLC0Mjqp/Cy2lqdnC4OGHlxxmH+5lxY2Nbi+0QurADin1R8PGKUKlxcn+OkSn
+ /qKQ==
+X-Gm-Message-State: AOAM530iEzLVfFalImC9nLzOdZB0Vm4kAF5UvfOMk5JueG+E++RB6qIr
+ xt9ugl4uzBTq4KWbFQI4ru4=
+X-Google-Smtp-Source: ABdhPJzBzQ6oFo9K/fhw61EZCPISGz1/7xiPnY6usVy1xPG080I7ZprWhAO98fijOUj6RgBYRpPmbw==
+X-Received: by 2002:a4a:a8c9:: with SMTP id r9mr9488940oom.49.1631544546943;
+ Mon, 13 Sep 2021 07:49:06 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+ by smtp.gmail.com with ESMTPSA id
+ b2sm1893686ook.46.2021.09.13.07.49.06
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 13 Sep 2021 07:49:06 -0700 (PDT)
+Date: Mon, 13 Sep 2021 07:49:05 -0700
+From: Guenter Roeck <linux@roeck-us.net>
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: Re: [PATCH V3 5/5] virtio: Bind virtio device to device-tree node
+Message-ID: <20210913144905.GA1267554@roeck-us.net>
+References: <cover.1627273794.git.viresh.kumar@linaro.org>
+ <454a58f998b0d16847d72a97b32192829fab2c8c.1627273794.git.viresh.kumar@linaro.org>
 MIME-Version: 1.0
-References: <20210913104640.85839-1-mst@redhat.com>
-In-Reply-To: <20210913104640.85839-1-mst@redhat.com>
-From: Viresh Kumar <viresh.kumar@linaro.org>
-Date: Mon, 13 Sep 2021 17:56:39 +0530
-Message-ID: <CAKohpo=U5wrBuNumOD=rOwCzewExsJj-M0fBhvN2BqH3rirk=Q@mail.gmail.com>
-Subject: Re: [PATCH] virtio: don't fail on !of_device_is_compatible
-To: "Michael S. Tsirkin" <mst@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <454a58f998b0d16847d72a97b32192829fab2c8c.1627273794.git.viresh.kumar@linaro.org>
 Cc: Arnd Bergmann <arnd@kernel.org>,
  Vincent Guittot <vincent.guittot@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
  Jean-Philippe Brucker <jean-philippe@linaro.org>, "Enrico Weigelt,
- metux IT consult" <info@metux.net>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE"
- <virtualization@lists.linux-foundation.org>,
- "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
- Rob Herring <robh+dt@kernel.org>, Bill Mills <bill.mills@linaro.org>
+ metux IT consult" <info@metux.net>, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+ Bill Mills <bill.mills@linaro.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -108,140 +113,50 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============1879831233963830726=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
---===============1879831233963830726==
-Content-Type: multipart/alternative; boundary="00000000000058b8c605cbdf94e9"
+On Mon, Jul 26, 2021 at 10:21:45AM +0530, Viresh Kumar wrote:
+> Bind the virtio devices with their of_node. This will help users of the
+> virtio devices to mention their dependencies on the device in the DT
+> itself. Like GPIO pin users can use the phandle of the device node, or
+> the node may contain more subnodes to add i2c or spi eeproms and other
+> users.
+> 
+> Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 
---00000000000058b8c605cbdf94e9
-Content-Type: text/plain; charset="UTF-8"
+This patch causes a boot failure on sparc64: The virtio device no longer
+instantiates. Reverting this patch fixes the problem. Bisect log attached.
 
-Sorry about HTML (From phone)..
+Guenter
 
-On Mon, 13 Sep 2021, 16:17 Michael S. Tsirkin, <mst@redhat.com> wrote:
-
-> A recent change checking of_device_is_compatible on probe broke some
-> powerpc/pseries setups. Apparently there virtio devices do not have a
-> "compatible" property - they are matched by PCI vendor/device ids.
->
-> Let's just skip of_node setup but proceed with initialization like we
-> did previously.
->
-> Fixes: 694a1116b405 ("virtio: Bind virtio device to device-tree node")
-> Reported-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: Viresh Kumar <viresh.kumar@linaro.org>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->
-> Arnd could you help review this pls? Viresh is on vacation.
->
->  drivers/virtio/virtio.c | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index c46cc1fbc7ae..19a70a2361b4 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -347,8 +347,13 @@ static int virtio_device_of_init(struct virtio_device
-> *dev)
->         ret = snprintf(compat, sizeof(compat), "virtio,device%x",
-> dev->id.device);
->         BUG_ON(ret >= sizeof(compat));
->
-> +       /*
-> +        * On powerpc/pseries virtio devices are PCI devices so PCI
-> +        * vendor/device ids play the role of the "compatible" property.
-> +        * Simply don't init of_node in this case.
-> +        */
->         if (!of_device_is_compatible(np, compat)) {
-> -               ret = -EINVAL;
-> +               ret = 0;
->                 goto out;
->         }
->
-
-Reviewed-by: Viresh Kumar <viresh.kumar@linaro.org>
-
->
-
---00000000000058b8c605cbdf94e9
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"auto"><div>Sorry about HTML (From phone)..<br><br><div class=3D=
-"gmail_quote"><div dir=3D"ltr" class=3D"gmail_attr">On Mon, 13 Sep 2021, 16=
-:17 Michael S. Tsirkin, &lt;<a href=3D"mailto:mst@redhat.com">mst@redhat.co=
-m</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" style=3D"margin=
-:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">A recent change ch=
-ecking of_device_is_compatible on probe broke some<br>
-powerpc/pseries setups. Apparently there virtio devices do not have a<br>
-&quot;compatible&quot; property - they are matched by PCI vendor/device ids=
-.<br>
-<br>
-Let&#39;s just skip of_node setup but proceed with initialization like we<b=
-r>
-did previously.<br>
-<br>
-Fixes: 694a1116b405 (&quot;virtio: Bind virtio device to device-tree node&q=
-uot;)<br>
-Reported-by: Alexey Kardashevskiy &lt;<a href=3D"mailto:aik@ozlabs.ru" targ=
-et=3D"_blank" rel=3D"noreferrer">aik@ozlabs.ru</a>&gt;<br>
-Cc: Arnd Bergmann &lt;<a href=3D"mailto:arnd@arndb.de" target=3D"_blank" re=
-l=3D"noreferrer">arnd@arndb.de</a>&gt;<br>
-Cc: Viresh Kumar &lt;<a href=3D"mailto:viresh.kumar@linaro.org" target=3D"_=
-blank" rel=3D"noreferrer">viresh.kumar@linaro.org</a>&gt;<br>
-Signed-off-by: Michael S. Tsirkin &lt;<a href=3D"mailto:mst@redhat.com" tar=
-get=3D"_blank" rel=3D"noreferrer">mst@redhat.com</a>&gt;<br>
----<br>
-<br>
-Arnd could you help review this pls? Viresh is on vacation.<br>
-<br>
-=C2=A0drivers/virtio/virtio.c | 7 ++++++-<br>
-=C2=A01 file changed, 6 insertions(+), 1 deletion(-)<br>
-<br>
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c<br>
-index c46cc1fbc7ae..19a70a2361b4 100644<br>
---- a/drivers/virtio/virtio.c<br>
-+++ b/drivers/virtio/virtio.c<br>
-@@ -347,8 +347,13 @@ static int virtio_device_of_init(struct virtio_device =
-*dev)<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 ret =3D snprintf(compat, sizeof(compat), &quot;=
-virtio,device%x&quot;, dev-&gt;id.device);<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 BUG_ON(ret &gt;=3D sizeof(compat));<br>
-<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0/*<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 * On powerpc/pseries virtio devices are PCI de=
-vices so PCI<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 * vendor/device ids play the role of the &quot=
-;compatible&quot; property.<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 * Simply don&#39;t init of_node in this case.<=
-br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 */<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 if (!of_device_is_compatible(np, compat)) {<br>
--=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0ret =3D -EINVAL;<br=
->
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0ret =3D 0;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 goto out;<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br></blockquote></div></div><div dir=3D"auto"=
-><br></div><div dir=3D"auto">Reviewed-by: Viresh Kumar &lt;<a href=3D"mailt=
-o:viresh.kumar@linaro.org">viresh.kumar@linaro.org</a>&gt;</div><div dir=3D=
-"auto"><div class=3D"gmail_quote"><blockquote class=3D"gmail_quote" style=
-=3D"margin:0 0 0 .8ex;border-left:1px #ccc solid;padding-left:1ex">
-</blockquote></div></div></div>
-
---00000000000058b8c605cbdf94e9--
-
---===============1879831233963830726==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+---
+# bad: [6880fa6c56601bb8ed59df6c30fd390cc5f6dd8f] Linux 5.15-rc1
+# good: [926de8c4326c14fcf35f1de142019043597a4fac] Merge tag 'acpi-5.15-rc1-3' of git://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm
+git bisect start 'HEAD' '926de8c4326c'
+# good: [8177a5c96229ff24da1e362789e359b68b4f34f5] Merge tag 'libata-5.15-2021-09-11' of git://git.kernel.dk/linux-block
+git bisect good 8177a5c96229ff24da1e362789e359b68b4f34f5
+# bad: [78e709522d2c012cb0daad2e668506637bffb7c2] Merge tag 'for_linus' of git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost
+git bisect bad 78e709522d2c012cb0daad2e668506637bffb7c2
+# bad: [7bc7f61897b66bef78bb5952e3d1e9f3aaf9ccca] Documentation: Add documentation for VDUSE
+git bisect bad 7bc7f61897b66bef78bb5952e3d1e9f3aaf9ccca
+# bad: [41116599a0731f4cd451e9d191d879ab45e31945] virtio/vsock: add 'VIRTIO_VSOCK_SEQ_EOR' bit.
+git bisect bad 41116599a0731f4cd451e9d191d879ab45e31945
+# good: [5262912ef3cfc5e518892c3d67fb36412cb813e2] vdpa/mlx5: Add support for control VQ and MAC setting
+git bisect good 5262912ef3cfc5e518892c3d67fb36412cb813e2
+# good: [7f815fce08d563006e43d1b7d2f9a0a4f3b832f3] dt-bindings: i2c: Add bindings for i2c-virtio
+git bisect good 7f815fce08d563006e43d1b7d2f9a0a4f3b832f3
+# good: [d5a8680dfab0547a4ecd708b1fe9de48598a6757] uapi: virtio_ids: Sync ids with specification
+git bisect good d5a8680dfab0547a4ecd708b1fe9de48598a6757
+# bad: [9af8f1061646e8e22b66413bedf7b3e2ab3d69e5] virtio/vsock: rename 'EOR' to 'EOM' bit.
+git bisect bad 9af8f1061646e8e22b66413bedf7b3e2ab3d69e5
+# bad: [694a1116b405d887c893525a6766b390989c8606] virtio: Bind virtio device to device-tree node
+git bisect bad 694a1116b405d887c893525a6766b390989c8606
+# first bad commit: [694a1116b405d887c893525a6766b390989c8606] virtio: Bind virtio device to device-tree node
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1879831233963830726==--
