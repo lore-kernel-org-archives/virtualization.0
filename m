@@ -7,59 +7,60 @@ X-Spam-Status: No, score=-16.7 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 152D9C4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E1DAC433EF
 	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 15:56:30 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D564461107
-	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 15:56:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D564461107
+	by mail.kernel.org (Postfix) with ESMTPS id 2837E6113B
+	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 15:56:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 2837E6113B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id AFB6D402C9;
-	Mon, 13 Sep 2021 15:56:29 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 51H0c5L0wicG; Mon, 13 Sep 2021 15:56:28 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E29F0401EC;
-	Mon, 13 Sep 2021 15:56:27 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BDA7BC001C;
-	Mon, 13 Sep 2021 15:56:27 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 70DD0C0026
- for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 15:56:26 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 490C780F28
- for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 15:56:26 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 7638680F29;
+	Mon, 13 Sep 2021 15:56:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id EQETQOdIGX_k
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id hlkTG-DyHUmX; Mon, 13 Sep 2021 15:56:27 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A5EAC80F2A;
+	Mon, 13 Sep 2021 15:56:26 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6A554C0025;
+	Mon, 13 Sep 2021 15:56:26 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 92034C002B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 15:56:25 +0000 (UTC)
+ Mon, 13 Sep 2021 15:56:24 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 4CC4740131
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 13 Sep 2021 15:56:23 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lTCDiR8LnUb9
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 13 Sep 2021 15:56:22 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 75F3E80F1B
+Received: from theia.8bytes.org (8bytes.org
+ [IPv6:2a01:238:4383:600:38bc:a715:4b6d:a889])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 8F90D401C7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 15:56:25 +0000 (UTC)
+ Mon, 13 Sep 2021 15:56:22 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549ad441.dip0.t-ipconnect.de
  [84.154.212.65])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 555131074;
- Mon, 13 Sep 2021 17:56:20 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id CC69CFCF;
+ Mon, 13 Sep 2021 17:56:18 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v2 06/12] x86/sev: Cache AP Jump Table Address
-Date: Mon, 13 Sep 2021 17:55:57 +0200
-Message-Id: <20210913155603.28383-7-joro@8bytes.org>
+Subject: [PATCH v2 04/12] x86/sev: Do not hardcode GHCB protocol version
+Date: Mon, 13 Sep 2021 17:55:55 +0200
+Message-Id: <20210913155603.28383-5-joro@8bytes.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20210913155603.28383-1-joro@8bytes.org>
 References: <20210913155603.28383-1-joro@8bytes.org>
@@ -96,92 +97,71 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Store the physical address of the AP Jump Table in kernel memory so
-that it does not need to be fetched from the Hypervisor again.
+Introduce the sev_get_ghcb_proto_ver() which will return the negotiated
+GHCB protocol version and use it to set the version field in the GHCB.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev.c | 26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ arch/x86/boot/compressed/sev.c | 5 +++++
+ arch/x86/kernel/sev-shared.c   | 5 ++++-
+ arch/x86/kernel/sev.c          | 5 +++++
+ 3 files changed, 14 insertions(+), 1 deletion(-)
 
+diff --git a/arch/x86/boot/compressed/sev.c b/arch/x86/boot/compressed/sev.c
+index 1a2e49730f8b..101e08c67296 100644
+--- a/arch/x86/boot/compressed/sev.c
++++ b/arch/x86/boot/compressed/sev.c
+@@ -119,6 +119,11 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
+ /* Include code for early handlers */
+ #include "../../kernel/sev-shared.c"
+ 
++static u64 sev_get_ghcb_proto_ver(void)
++{
++	return GHCB_PROTOCOL_MAX;
++}
++
+ static bool early_setup_sev_es(void)
+ {
+ 	if (!sev_es_negotiate_protocol(NULL))
+diff --git a/arch/x86/kernel/sev-shared.c b/arch/x86/kernel/sev-shared.c
+index 73eeb5897d16..36eaac2773ed 100644
+--- a/arch/x86/kernel/sev-shared.c
++++ b/arch/x86/kernel/sev-shared.c
+@@ -28,6 +28,9 @@ struct sev_ghcb_protocol_info {
+ 	unsigned int vm_proto;
+ };
+ 
++/* Returns the negotiated GHCB Protocol version */
++static u64 sev_get_ghcb_proto_ver(void);
++
+ static bool __init sev_es_check_cpu_features(void)
+ {
+ 	if (!has_cpuflag(X86_FEATURE_RDRAND)) {
+@@ -122,7 +125,7 @@ static enum es_result sev_es_ghcb_hv_call(struct ghcb *ghcb,
+ 	enum es_result ret;
+ 
+ 	/* Fill in protocol and format specifiers */
+-	ghcb->protocol_version = GHCB_PROTOCOL_MAX;
++	ghcb->protocol_version = sev_get_ghcb_proto_ver();
+ 	ghcb->ghcb_usage       = GHCB_DEFAULT_USAGE;
+ 
+ 	ghcb_set_sw_exit_code(ghcb, exit_code);
 diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index 5d3422e8b25e..eedba56b6bac 100644
+index 8084bfd7cce1..5d3422e8b25e 100644
 --- a/arch/x86/kernel/sev.c
 +++ b/arch/x86/kernel/sev.c
-@@ -42,6 +42,9 @@ static struct ghcb boot_ghcb_page __bss_decrypted __aligned(PAGE_SIZE);
-  */
- static struct ghcb __initdata *boot_ghcb;
+@@ -498,6 +498,11 @@ static enum es_result vc_slow_virt_to_phys(struct ghcb *ghcb, struct es_em_ctxt
+ /* Negotiated GHCB protocol version */
+ static struct sev_ghcb_protocol_info ghcb_protocol_info __ro_after_init;
  
-+/* Cached AP Jump Table Address */
-+static phys_addr_t sev_es_jump_table_pa;
++static u64 sev_get_ghcb_proto_ver(void)
++{
++	return ghcb_protocol_info.vm_proto;
++}
 +
- /* #VC handler runtime per-CPU data */
- struct sev_es_runtime_data {
- 	struct ghcb ghcb_page;
-@@ -546,12 +549,14 @@ void noinstr __sev_es_nmi_complete(void)
- 	__sev_put_ghcb(&state);
- }
- 
--static u64 get_jump_table_addr(void)
-+static phys_addr_t get_jump_table_addr(void)
+ static noinstr void __sev_put_ghcb(struct ghcb_state *state)
  {
- 	struct ghcb_state state;
- 	unsigned long flags;
- 	struct ghcb *ghcb;
--	u64 ret = 0;
-+
-+	if (sev_es_jump_table_pa)
-+		return sev_es_jump_table_pa;
- 
- 	local_irq_save(flags);
- 
-@@ -567,39 +572,36 @@ static u64 get_jump_table_addr(void)
- 
- 	if (ghcb_sw_exit_info_1_is_valid(ghcb) &&
- 	    ghcb_sw_exit_info_2_is_valid(ghcb))
--		ret = ghcb->save.sw_exit_info_2;
-+		sev_es_jump_table_pa = (phys_addr_t)ghcb->save.sw_exit_info_2;
- 
- 	__sev_put_ghcb(&state);
- 
- 	local_irq_restore(flags);
- 
--	return ret;
-+	return sev_es_jump_table_pa;
- }
- 
- int sev_es_setup_ap_jump_table(struct real_mode_header *rmh)
- {
- 	u16 startup_cs, startup_ip;
--	phys_addr_t jump_table_pa;
--	u64 jump_table_addr;
- 	u16 __iomem *jump_table;
-+	phys_addr_t pa;
- 
--	jump_table_addr = get_jump_table_addr();
-+	pa = get_jump_table_addr();
- 
- 	/* On UP guests there is no jump table so this is not a failure */
--	if (!jump_table_addr)
-+	if (!pa)
- 		return 0;
- 
- 	/* Check if AP Jump Table is page-aligned */
--	if (jump_table_addr & ~PAGE_MASK)
-+	if (pa & ~PAGE_MASK)
- 		return -EINVAL;
- 
--	jump_table_pa = jump_table_addr & PAGE_MASK;
--
- 	startup_cs = (u16)(rmh->trampoline_start >> 4);
- 	startup_ip = (u16)(rmh->sev_es_trampoline_start -
- 			   rmh->trampoline_start);
- 
--	jump_table = ioremap_encrypted(jump_table_pa, PAGE_SIZE);
-+	jump_table = ioremap_encrypted(pa, PAGE_SIZE);
- 	if (!jump_table)
- 		return -EIO;
- 
+ 	struct sev_es_runtime_data *data;
 -- 
 2.33.0
 
