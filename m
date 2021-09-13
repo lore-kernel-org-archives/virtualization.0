@@ -2,108 +2,112 @@ Return-Path: <SRS0=Do4E=OD=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=unavailable autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D94ADC433EF
-	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 06:40:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04F29C433FE
+	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 06:41:46 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 846D460FE6
-	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 06:40:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 846D460FE6
+	by mail.kernel.org (Postfix) with ESMTPS id A5EAB60FC1
+	for <virtualization@archiver.kernel.org>; Mon, 13 Sep 2021 06:41:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A5EAB60FC1
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 53DC74043D;
-	Mon, 13 Sep 2021 06:40:30 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 6FD1E4043E;
+	Mon, 13 Sep 2021 06:41:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yE39VabH4xNB; Mon, 13 Sep 2021 06:40:29 +0000 (UTC)
+	with ESMTP id QNz2SZQad2wB; Mon, 13 Sep 2021 06:41:44 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id D6FD14042D;
-	Mon, 13 Sep 2021 06:40:28 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 23C3F40449;
+	Mon, 13 Sep 2021 06:41:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id ACB65C0011;
-	Mon, 13 Sep 2021 06:40:28 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 607C0C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 04F83C0011;
+	Mon, 13 Sep 2021 06:41:44 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 01792C000D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 06:40:27 +0000 (UTC)
+ Mon, 13 Sep 2021 06:41:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 3DE4B607A2
+ by smtp1.osuosl.org (Postfix) with ESMTP id D77BB81815
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 06:40:27 +0000 (UTC)
+ Mon, 13 Sep 2021 06:41:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6IAKBiqx3zzc
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id KP5o8YhFNxOV
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 06:40:26 +0000 (UTC)
+ Mon, 13 Sep 2021 06:41:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 3E5E5606CF
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 20B9081770
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 06:40:26 +0000 (UTC)
+ Mon, 13 Sep 2021 06:41:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1631515225;
+ s=mimecast20190719; t=1631515301;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=SNxZ6jfEB10N8bQSVi6FJlKI5Z8SzdhMdny04tYpht8=;
- b=X0exopsUf8Epl9Y2R/+xIDd6B4Jg50JIQy6yfNG39j+mJ7OqUK8Z68CARlqUIvxauYZIxU
- xa0d6duppsDgSPN1a2ukGkJboYXS5x0QqTZNEiUpUG1oOuDdcXV07fCbuPBEeoJnuVtMqz
- iXG8/xxNRzWftB90czZfUfBUImmVrUw=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-333-4C0kWB7bMx6AttDbf8-lZA-1; Mon, 13 Sep 2021 02:40:22 -0400
-X-MC-Unique: 4C0kWB7bMx6AttDbf8-lZA-1
-Received: by mail-lj1-f200.google.com with SMTP id
- p11-20020a2ea40b000000b001d68cffb055so3736175ljn.6
+ bh=A7ak6bO3ZbDQcmYe8pOAt6ZN28nqsiJpqhbYVS/xAd8=;
+ b=Bi/FrQ+oSW56U5+7pve/eXIb/NYx8LSX+aUvrpNS/lSzRZ0eT0xC8N6Hj+gUHCKqhjI73H
+ M1r9lKWyVlsl2k3k/Dl7nkAqFQBGVylXhxHOZ+YF3G2qAHAfnRDHY3IAz6pDz4s3fi/WRb
+ 7Acyzlt+0z1VFjqfQPRzvPy6IuO+J6c=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-206-vyTyGu8VMeGDeejibdlcoQ-1; Mon, 13 Sep 2021 02:41:39 -0400
+X-MC-Unique: vyTyGu8VMeGDeejibdlcoQ-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ a27-20020a5d457b000000b0015b11fccc5eso2291734wrc.10
  for <virtualization@lists.linux-foundation.org>;
- Sun, 12 Sep 2021 23:40:22 -0700 (PDT)
+ Sun, 12 Sep 2021 23:41:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=SNxZ6jfEB10N8bQSVi6FJlKI5Z8SzdhMdny04tYpht8=;
- b=Ah+PRKUlFeZZSLCg0aKtjMReVCt8BDIwRcRq2su7EqmOrYKmoj/8lUT01qMV5LYwno
- 72rvsaisX7aaARYx+Jc4f4eBZ2kNkZqXouECxjwluo1z5XeFrB3eUfEbtANi+fnLjSnY
- pdEW91ibp4LIgYCqtlAd4tuM7ifRn9S3pGQ9R015Flnk81Z2Kb4ftP+6t25F+FNfdMTa
- jKrNxhuXSFfEDETIVZnwTxhSJiVeNzvbG+XpwTg/5JnD2Q8VW5bNXocD1L8vQls5W6IM
- kyMOJz2sdSmQLQ1T4sDhPJXdoqUc0jyj+lxH0A6isowxmIReRBJIhZj0Z84oXxGtM/dF
- fABw==
-X-Gm-Message-State: AOAM531vWqiwA6vw8S8MrxZTv1VJnRt5kGZv+5gvdNAHmPqnY/MZ+zr0
- +dLXQgbcsePvNzQ+tiFA3OtjyslOWTIreEqtU7dLsQVgKIaeRFKtxtc1kPoYhszYlQem5eHcygl
- cDtdum8EjwjEpb62vq5pJhuRInh3Ef9iPJJnMpH8MvWZbqlUJ9Ij/FVMqbw==
-X-Received: by 2002:a05:651c:b09:: with SMTP id
- b9mr9047006ljr.307.1631515220979; 
- Sun, 12 Sep 2021 23:40:20 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJw0g4ZtKt366bShruOpPC8FbnDMpMosrO9a0LtyFIWOpuNLnVfP2k62Agqw3j6tdkQr3IW2xNdlviEYUy7A4GQ=
-X-Received: by 2002:a05:651c:b09:: with SMTP id
- b9mr9046985ljr.307.1631515220704; 
- Sun, 12 Sep 2021 23:40:20 -0700 (PDT)
-MIME-Version: 1.0
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=A7ak6bO3ZbDQcmYe8pOAt6ZN28nqsiJpqhbYVS/xAd8=;
+ b=sTgsGhwL/DOtYNYPWp2eZc5HxaJvkhmZLOYXhRZNnF5BAM3FwhfySG2AUF+W9wX70r
+ MY/e+b03d4CUuSRkRJNZNaHtj/BHXkVb8dSFVLqlMbKObDTnjLHWEW6O6pwZz2bOQMoU
+ BVfgW+Iaei6beLaCX4nVrgT0/oM08xQdbv/Y1UQx0qxo61yyn+WXvDvsU2Qzz99gZBrX
+ MR5JkiKvJMhdR4Blx9PLmr7H1fbl270Z5LT8G8o9as5qCC4g39drXUKlI0eiPYTKjPym
+ 2zHbXqFJsfJAkNpz3f0zOFM3nU4QsSZLhMeq5+NhpDTnJn5Bfn6Zx8/sxQFEwMo3RK8H
+ oMkw==
+X-Gm-Message-State: AOAM532xIayt5eahJXBdc2UjH7P/E6zVvJ2m7sKmagfJtY9aIYBYSrQV
+ aLcp86bpYJznMYFzJfp69FnFnj5LKqcfS6MGYPy5KQJmXYpLlYoaRxYCfPRi6t/ZP+9sqN7Zw2S
+ cHjjN9blpXtD5CbKP/ETXioFoGGDvKAJvdRUUoif3kw==
+X-Received: by 2002:adf:cf05:: with SMTP id o5mr10577226wrj.270.1631515298310; 
+ Sun, 12 Sep 2021 23:41:38 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwsD+bT8UWlKmgvA78K+/pI1lMXq4Gz36uYronKSczbZYhYO104bBjXmMrJqzweRJ9POQwkcg==
+X-Received: by 2002:adf:cf05:: with SMTP id o5mr10577212wrj.270.1631515298130; 
+ Sun, 12 Sep 2021 23:41:38 -0700 (PDT)
+Received: from redhat.com ([2.55.27.174])
+ by smtp.gmail.com with ESMTPSA id z7sm8061280wre.72.2021.09.12.23.41.35
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Sun, 12 Sep 2021 23:41:37 -0700 (PDT)
+Date: Mon, 13 Sep 2021 02:41:33 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 7/9] virtio-pci: harden INTX interrupts
+Message-ID: <20210913023757-mutt-send-email-mst@kernel.org>
 References: <20210913055353.35219-1-jasowang@redhat.com>
- <20210913055353.35219-10-jasowang@redhat.com>
- <20210913023428-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20210913023428-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 13 Sep 2021 14:40:09 +0800
-Message-ID: <CACGkMEsqFbnog3jktR0Ms-u75yHfo8zKO-SC66iN2fLZ185XWQ@mail.gmail.com>
-Subject: Re: [PATCH 9/9] virtio_ring: validate used buffer length
-To: "Michael S. Tsirkin" <mst@redhat.com>
+ <20210913055353.35219-8-jasowang@redhat.com>
+ <20210913022824-mutt-send-email-mst@kernel.org>
+ <CACGkMEtnmLzQDNVYnAYSsEmjjRJVDhuK6VNj56S__zU9+5-JQQ@mail.gmail.com>
+MIME-Version: 1.0
+In-Reply-To: <CACGkMEtnmLzQDNVYnAYSsEmjjRJVDhuK6VNj56S__zU9+5-JQQ@mail.gmail.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
 Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Hetzelt,
  Felicitas" <f.hetzelt@tu-berlin.de>,
  linux-kernel <linux-kernel@vger.kernel.org>, "kaplan,
@@ -125,161 +129,105 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 13, 2021 at 2:36 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Mon, Sep 13, 2021 at 01:53:53PM +0800, Jason Wang wrote:
-> > This patch validate the used buffer length provided by the device
-> > before trying to use it. This is done by record the in buffer length
-> > in a new field in desc_state structure during virtqueue_add(), then we
-> > can fail the virtqueue_get_buf() when we find the device is trying to
-> > give us a used buffer length which is greater than the in buffer
-> > length.
+On Mon, Sep 13, 2021 at 02:36:54PM +0800, Jason Wang wrote:
+> On Mon, Sep 13, 2021 at 2:33 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 > >
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
->
-> Hmm this was proposed in the past. The overhead here is
-> not negligeable, so I'd like to know more -
-> when is it a problem if the used len is too big?
+> > On Mon, Sep 13, 2021 at 01:53:51PM +0800, Jason Wang wrote:
+> > > This patch tries to make sure the virtio interrupt handler for INTX
+> > > won't be called after a reset and before virtio_device_ready(). We
+> > > can't use IRQF_NO_AUTOEN since we're using shared interrupt
+> > > (IRQF_SHARED). So this patch tracks the INTX enabling status in a new
+> > > intx_soft_enabled variable and toggle it during in
+> > > vp_disable/enable_vectors(). The INTX interrupt handler will check
+> > > intx_soft_enabled before processing the actual interrupt.
+> > >
+> > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> >
+> >
+> > Not all that excited about all the memory barriers for something
+> > that should be an extremely rare event (for most kernels -
+> > literally once per boot). Can't we do better?
+> 
+> I'm not sure, but do we need to care about the slow path (INTX)?
 
-One example is: https://github.com/fuzzsa/fuzzsa-bugs/blob/master/virtio_rng.md
+Otherwise we won't try to support this, right?
 
-And there would be more I guess.
+> (Or do you have a better approach?)
+> 
+> Thanks
 
-> Don't the affected drivers already track the length somewhere
-> and so can validated it without the extra cost in
-> virtio core?
+Don't know really, maybe rcu or whatever?
+But let's try to be much more specific - is there anything
+specific we are trying to protect against here?
 
-Probably, but this requires the changes in each device driver. And it
-would be easily forgotten if new drivers are introduced?
 
-Thanks
 
->
-> > ---
-> >  drivers/virtio/virtio_ring.c | 23 +++++++++++++++++++++++
-> >  1 file changed, 23 insertions(+)
 > >
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index d2ca0a7365f8..b8374a6144f3 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -69,6 +69,7 @@
-> >  struct vring_desc_state_split {
-> >       void *data;                     /* Data for callback. */
-> >       struct vring_desc *indir_desc;  /* Indirect descriptor, if any. */
-> > +     u64 buflen;                     /* In buffer length */
-> >  };
+> > > ---
+> > >  drivers/virtio/virtio_pci_common.c | 18 ++++++++++++++++--
+> > >  drivers/virtio/virtio_pci_common.h |  1 +
+> > >  2 files changed, 17 insertions(+), 2 deletions(-)
+> > >
+> > > diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+> > > index 0b9523e6dd39..835197151dc1 100644
+> > > --- a/drivers/virtio/virtio_pci_common.c
+> > > +++ b/drivers/virtio/virtio_pci_common.c
+> > > @@ -30,8 +30,12 @@ void vp_disable_vectors(struct virtio_device *vdev)
+> > >       struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> > >       int i;
+> > >
+> > > -     if (vp_dev->intx_enabled)
+> > > +     if (vp_dev->intx_enabled) {
+> > > +             vp_dev->intx_soft_enabled = false;
+> > > +             /* ensure the vp_interrupt see this intx_soft_enabled value */
+> > > +             smp_wmb();
+> > >               synchronize_irq(vp_dev->pci_dev->irq);
+> > > +     }
+> > >
+> > >       for (i = 0; i < vp_dev->msix_vectors; ++i)
+> > >               disable_irq(pci_irq_vector(vp_dev->pci_dev, i));
+> > > @@ -43,8 +47,12 @@ void vp_enable_vectors(struct virtio_device *vdev)
+> > >       struct virtio_pci_device *vp_dev = to_vp_device(vdev);
+> > >       int i;
+> > >
+> > > -     if (vp_dev->intx_enabled)
+> > > +     if (vp_dev->intx_enabled) {
+> > > +             vp_dev->intx_soft_enabled = true;
+> > > +             /* ensure the vp_interrupt see this intx_soft_enabled value */
+> > > +             smp_wmb();
+> > >               return;
+> > > +     }
+> > >
+> > >       for (i = 0; i < vp_dev->msix_vectors; ++i)
+> > >               enable_irq(pci_irq_vector(vp_dev->pci_dev, i));
+> > > @@ -97,6 +105,12 @@ static irqreturn_t vp_interrupt(int irq, void *opaque)
+> > >       struct virtio_pci_device *vp_dev = opaque;
+> > >       u8 isr;
+> > >
+> > > +     if (!vp_dev->intx_soft_enabled)
+> > > +             return IRQ_NONE;
+> > > +
+> > > +     /* read intx_soft_enabled before read others */
+> > > +     smp_rmb();
+> > > +
+> > >       /* reading the ISR has the effect of also clearing it so it's very
+> > >        * important to save off the value. */
+> > >       isr = ioread8(vp_dev->isr);
+> > > diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
+> > > index a235ce9ff6a5..3c06e0f92ee4 100644
+> > > --- a/drivers/virtio/virtio_pci_common.h
+> > > +++ b/drivers/virtio/virtio_pci_common.h
+> > > @@ -64,6 +64,7 @@ struct virtio_pci_device {
+> > >       /* MSI-X support */
+> > >       int msix_enabled;
+> > >       int intx_enabled;
+> > > +     bool intx_soft_enabled;
+> > >       cpumask_var_t *msix_affinity_masks;
+> > >       /* Name strings for interrupts. This size should be enough,
+> > >        * and I'm too lazy to allocate each name separately. */
+> > > --
+> > > 2.25.1
 > >
-> >  struct vring_desc_state_packed {
-> > @@ -76,6 +77,7 @@ struct vring_desc_state_packed {
-> >       struct vring_packed_desc *indir_desc; /* Indirect descriptor, if any. */
-> >       u16 num;                        /* Descriptor list length. */
-> >       u16 last;                       /* The last desc state in a list. */
-> > +     u64 buflen;                     /* In buffer length */
-> >  };
-> >
-> >  struct vring_desc_extra {
-> > @@ -490,6 +492,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
-> >       unsigned int i, n, avail, descs_used, prev, err_idx;
-> >       int head;
-> >       bool indirect;
-> > +     u64 buflen = 0;
-> >
-> >       START_USE(vq);
-> >
-> > @@ -571,6 +574,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
-> >                                                    VRING_DESC_F_NEXT |
-> >                                                    VRING_DESC_F_WRITE,
-> >                                                    indirect);
-> > +                     buflen += sg->length;
-> >               }
-> >       }
-> >       /* Last one doesn't continue. */
-> > @@ -605,6 +609,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
-> >
-> >       /* Store token and indirect buffer state. */
-> >       vq->split.desc_state[head].data = data;
-> > +     vq->split.desc_state[head].buflen = buflen;
-> >       if (indirect)
-> >               vq->split.desc_state[head].indir_desc = desc;
-> >       else
-> > @@ -784,6 +789,11 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
-> >               BAD_RING(vq, "id %u is not a head!\n", i);
-> >               return NULL;
-> >       }
-> > +     if (unlikely(*len > vq->split.desc_state[i].buflen)) {
-> > +             BAD_RING(vq, "used len %d is larger than in buflen %lld\n",
-> > +                     *len, vq->split.desc_state[i].buflen);
-> > +             return NULL;
-> > +     }
-> >
-> >       /* detach_buf_split clears data, so grab it now. */
-> >       ret = vq->split.desc_state[i].data;
-> > @@ -1062,6 +1072,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
-> >       unsigned int i, n, err_idx;
-> >       u16 head, id;
-> >       dma_addr_t addr;
-> > +     u64 buflen = 0;
-> >
-> >       head = vq->packed.next_avail_idx;
-> >       desc = alloc_indirect_packed(total_sg, gfp);
-> > @@ -1089,6 +1100,8 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
-> >                       desc[i].addr = cpu_to_le64(addr);
-> >                       desc[i].len = cpu_to_le32(sg->length);
-> >                       i++;
-> > +                     if (n >= out_sgs)
-> > +                             buflen += sg->length;
-> >               }
-> >       }
-> >
-> > @@ -1141,6 +1154,7 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
-> >       vq->packed.desc_state[id].data = data;
-> >       vq->packed.desc_state[id].indir_desc = desc;
-> >       vq->packed.desc_state[id].last = id;
-> > +     vq->packed.desc_state[id].buflen = buflen;
-> >
-> >       vq->num_added += 1;
-> >
-> > @@ -1176,6 +1190,7 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
-> >       unsigned int i, n, c, descs_used, err_idx;
-> >       __le16 head_flags, flags;
-> >       u16 head, id, prev, curr, avail_used_flags;
-> > +     u64 buflen = 0;
-> >
-> >       START_USE(vq);
-> >
-> > @@ -1250,6 +1265,8 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
-> >                                       1 << VRING_PACKED_DESC_F_AVAIL |
-> >                                       1 << VRING_PACKED_DESC_F_USED;
-> >                       }
-> > +                     if (n >= out_sgs)
-> > +                             buflen += sg->length;
-> >               }
-> >       }
-> >
-> > @@ -1268,6 +1285,7 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
-> >       vq->packed.desc_state[id].data = data;
-> >       vq->packed.desc_state[id].indir_desc = ctx;
-> >       vq->packed.desc_state[id].last = prev;
-> > +     vq->packed.desc_state[id].buflen = buflen;
-> >
-> >       /*
-> >        * A driver MUST NOT make the first descriptor in the list
-> > @@ -1455,6 +1473,11 @@ static void *virtqueue_get_buf_ctx_packed(struct virtqueue *_vq,
-> >               BAD_RING(vq, "id %u is not a head!\n", id);
-> >               return NULL;
-> >       }
-> > +     if (unlikely(*len > vq->packed.desc_state[id].buflen)) {
-> > +             BAD_RING(vq, "used len %d is larger than in buflen %lld\n",
-> > +                     *len, vq->packed.desc_state[id].buflen);
-> > +             return NULL;
-> > +     }
-> >
-> >       /* detach_buf_packed clears data, so grab it now. */
-> >       ret = vq->packed.desc_state[id].data;
-> > --
-> > 2.25.1
->
 
 _______________________________________________
 Virtualization mailing list
