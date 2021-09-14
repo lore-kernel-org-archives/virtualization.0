@@ -3,97 +3,96 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF852C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 05:55:25 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EFF5C433FE
+	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 05:55:32 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4AD3561151
-	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 05:55:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4AD3561151
+	by mail.kernel.org (Postfix) with ESMTPS id B946560F6D
+	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 05:55:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B946560F6D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=bytedance.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 071CC80BED;
-	Tue, 14 Sep 2021 05:55:25 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6F18E607DE;
+	Tue, 14 Sep 2021 05:55:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id MQDE1uwFJD1r; Tue, 14 Sep 2021 05:55:24 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id B3F8480BDD;
-	Tue, 14 Sep 2021 05:55:23 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id oEYH_CFfjGqs; Tue, 14 Sep 2021 05:55:30 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id DF6BF607C9;
+	Tue, 14 Sep 2021 05:55:29 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8C53AC0011;
-	Tue, 14 Sep 2021 05:55:23 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6C2AFC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B9D6FC0011;
+	Tue, 14 Sep 2021 05:55:29 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8ACA3C000D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 05:55:22 +0000 (UTC)
+ Tue, 14 Sep 2021 05:55:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 6625E40183
+ by smtp3.osuosl.org (Postfix) with ESMTP id 6B897607D9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 05:55:22 +0000 (UTC)
+ Tue, 14 Sep 2021 05:55:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=bytedance-com.20150623.gappssmtp.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id RAD1hcx0RFMH
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id FxrtbJE_b0pU
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 05:55:20 +0000 (UTC)
+ Tue, 14 Sep 2021 05:55:24 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com
- [IPv6:2607:f8b0:4864:20::531])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 43716400C7
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com
+ [IPv6:2607:f8b0:4864:20::530])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 13FD8607C9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 05:55:19 +0000 (UTC)
-Received: by mail-pg1-x531.google.com with SMTP id w7so11688699pgk.13
+ Tue, 14 Sep 2021 05:55:23 +0000 (UTC)
+Received: by mail-pg1-x530.google.com with SMTP id e7so11726877pgk.2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 22:55:19 -0700 (PDT)
+ Mon, 13 Sep 2021 22:55:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=bytedance-com.20150623.gappssmtp.com; s=20150623;
- h=from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=6P3Hg4gutReG5Sbg1AE6RT45vebLhTpUQQ0b1X0Vkms=;
- b=MTzR0KmUJ1q87fdNpZpMK9h6XXbkg3fNZXH1AdkDVsoU3folKJwrb7SxjpFephEJ+s
- Co9XYjV55zRvYYAZqUnw6dO4OMIo8ugxiV0uPZtcCDCHNYWlF++UvRgPoWrYlnf3+3U0
- 3Anob837AbiXEBBpPm/SKtgL2qJkxWYS9phkXAGetq1PZCNQZPdzkCxIx5xxDuDLQxN8
- 3CbGgvObm98SUG0bw9brVu0UgqOsKtB11gRlqpzemoPM4lmQHqmIVG9OWn0XkMSRb79W
- nFTzBA0FqXd/Kd+xCv1JFnHJkeax4Z+gFbP9DwSy2dC0cdz6pCuDHdB+g7eumCL2TwRJ
- 0j3Q==
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=fcrREBHmUss8HUTYx3tNLzB0BZ/FP/l7HKKTmPrsNB0=;
+ b=g8225Mo4a48P+CZC64h/29+Mrj5CMYapoXxB6t3Q8hqT/hIbf/ybQ/zOm1Mj1DCdzR
+ AGqxPG34/pJm+uVVr3VYNgwu0O8oJkCJ1IJQ7KxQcnHGX/XvOZOQ9/rzx1MXKBzRjVO2
+ 2zFCnzovaRErZIMGVpBYTCcqb2nCdMooQyq6U9DQkFDOUoNOdW2G/aRsZ5l5fVR87FO7
+ 3VBB8kJ7j0d5Ggk8bEqPYA0JNtgn/DgV9GZPIg+DOVzM+BIGIcdBwZPZ1vglavSpaoFC
+ xYjW/V0yLUaZ7G/TYw6MiryPR4CHi8EKzVH4T1zFKpISXVI/Eu8WO1GsMgPgLoK3Y+Js
+ 73Zg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
- :content-transfer-encoding;
- bh=6P3Hg4gutReG5Sbg1AE6RT45vebLhTpUQQ0b1X0Vkms=;
- b=Okbyp+Xawq1VqthEeF0JbPCGSxDRkMWjnaTf5BMPGNF8RGJQvQrCuW13dWLX2z0NAN
- uTghdsdOH8XutA3wfHgWMNGDOy+PqrMkDOBss5HHGX6jZqmUfVItSGKQgEXm1yv8HHRY
- PjVcFT2rjFUO3bmA/LJGpikX8ci74puRtn9u2LAJJ8S+MS+ZZFW5LnKqx5rPv7Zc3Dt/
- ij6XUi6Nkoi60LpkjrqJT5muHRc/Pw/IvTVVERV8d+Cy2F+P1XooEEcFsPuBVQ2q7FR6
- A5Gc0lE+PNBH4aCPlWXTUcV1GsTnLhgoPuVTD0eBn16vBGdEDaP3S4ge/AqT/nwjozWO
- yV8w==
-X-Gm-Message-State: AOAM532N29lhqYMNy72jve7wUGAYaKOoW5gdZTnbSv6pHjo5ijXvFTR0
- 74CegOrGLffVJe8NKa2wuZeeKw==
-X-Google-Smtp-Source: ABdhPJw5fb14z2YynodbTwMlTVY7BcqTzJq0/T4qCik4yyJ5qrktWf11pHZnIZuysBAmwYQb055O/Q==
-X-Received: by 2002:aa7:9115:0:b029:359:69db:bc89 with SMTP id
- 21-20020aa791150000b029035969dbbc89mr3185623pfh.32.1631598919355; 
- Mon, 13 Sep 2021 22:55:19 -0700 (PDT)
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+ :references:mime-version:content-transfer-encoding;
+ bh=fcrREBHmUss8HUTYx3tNLzB0BZ/FP/l7HKKTmPrsNB0=;
+ b=gG47+XwpZFrU7EJmijb1He8DVGRYcPqgFDtOUEYMJB8b9A+2+MrfWl+ZhzW4k2PXr7
+ tPSWmL+pRHV0i4BQtc1UPaC2+1xezesqXnCqAzziJLZAN4ClnmHYYLdRFkx8gek10vfY
+ TBDweGZspgXD0A7Ff4DwT+8C0DSgUI0kw0FZHYK/uqwoJFO3hILHXwxJAyKLhzDpXRtj
+ VmoU/TG0WrSZhEM7JFeKwAnwQSTJc4rZjgAdoxZuxgUtVnw1obnlnC6Ijagmd7dxPuiP
+ ngG3tgggl2hpymiDtQmeYyJOYUEzNb43f5AZjY5xMIx1fhz+egPWu51K4eT1eOXHjKnk
+ gvMQ==
+X-Gm-Message-State: AOAM533mfdCvwOIFwtgHKBf4WqWLmzQWBm3fDUO/CvMrRe+/vKsH/uYJ
+ 6OKUy+rc3AAnWDf8Oi7C5T4Bfw==
+X-Google-Smtp-Source: ABdhPJx1lRSMYoXfZ7QwZluqQ2H35nMPToRIhOxCTMYPW4JwOzZ+KXvDJmRHHGEPRLfI4tlcypSidw==
+X-Received: by 2002:a63:ec06:: with SMTP id j6mr14261115pgh.259.1631598923320; 
+ Mon, 13 Sep 2021 22:55:23 -0700 (PDT)
 Received: from ip-10-124-121-13.byted.org
  (ec2-54-241-92-238.us-west-1.compute.amazonaws.com. [54.241.92.238])
- by smtp.gmail.com with ESMTPSA id v14sm719432pfi.111.2021.09.13.22.55.17
+ by smtp.gmail.com with ESMTPSA id v14sm719432pfi.111.2021.09.13.22.55.21
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 13 Sep 2021 22:55:18 -0700 (PDT)
+ Mon, 13 Sep 2021 22:55:22 -0700 (PDT)
 From: Jiang Wang <jiang.wang@bytedance.com>
 To: jiangleetcode@gmail.com
-Subject: [RFC v2 0/5] virtio/vsock: introduce SOCK_DGRAM support
-Date: Tue, 14 Sep 2021 05:54:33 +0000
-Message-Id: <20210914055440.3121004-1-jiang.wang@bytedance.com>
+Subject: [RFC v2 1/5] virtio/vsock: add VIRTIO_VSOCK_F_DGRAM feature bit
+Date: Tue, 14 Sep 2021 05:54:34 +0000
+Message-Id: <20210914055440.3121004-2-jiang.wang@bytedance.com>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20210914055440.3121004-1-jiang.wang@bytedance.com>
+References: <20210914055440.3121004-1-jiang.wang@bytedance.com>
 MIME-Version: 1.0
 Cc: cong.wang@bytedance.com, duanxiongchun@bytedance.com, kvm@vger.kernel.org,
  mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -114,51 +113,233 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-VGhpcyBwYXRjaHNldCBpbXBsZW1lbnRzIHN1cHBvcnQgb2YgU09DS19ER1JBTSBmb3IgdmlydGlv
-CnRyYW5zcG9ydC4KCkRhdGFncmFtIHNvY2tldHMgYXJlIGNvbm5lY3Rpb25sZXNzIGFuZCB1bnJl
-bGlhYmxlLiBUbyBhdm9pZCB1bmZhaXIgY29udGVudGlvbgp3aXRoIHN0cmVhbSBhbmQgb3RoZXIg
-c29ja2V0cywgYWRkIHR3byBtb3JlIHZpcnRxdWV1ZXMgYW5kCmEgbmV3IGZlYXR1cmUgYml0IHRv
-IGluZGljYXRlIGlmIHRob3NlIHR3byBuZXcgcXVldWVzIGV4aXN0IG9yIG5vdC4KCkRncmFtIGRv
-ZXMgbm90IHVzZSB0aGUgZXhpc3RpbmcgY3JlZGl0IHVwZGF0ZSBtZWNoYW5pc20gZm9yCnN0cmVh
-bSBzb2NrZXRzLiBXaGVuIHNlbmRpbmcgZnJvbSB0aGUgZ3Vlc3QvZHJpdmVyLCBzZW5kaW5nIHBh
-Y2tldHMKc3luY2hyb25vdXNseSwgc28gdGhlIHNlbmRlciB3aWxsIGdldCBhbiBlcnJvciB3aGVu
-IHRoZSB2aXJ0cXVldWUgaXMgZnVsbC4KV2hlbiBzZW5kaW5nIGZyb20gdGhlIGhvc3QvZGV2aWNl
-LCBzZW5kIHBhY2tldHMgYXN5bmNocm9ub3VzbHkKYmVjYXVzZSB0aGUgZGVzY3JpcHRvciBtZW1v
-cnkgYmVsb25ncyB0byB0aGUgY29ycmVzcG9uZGluZyBRRU1VCnByb2Nlc3MuCgpUaGUgdmlydGlv
-IHNwZWMgcGF0Y2ggaXMgaGVyZToKaHR0cHM6Ly93d3cubWFpbC1hcmNoaXZlLmNvbS92aXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZy9tc2c0NzQ1Ny5odG1sCgpGb3IgdGhv
-c2Ugd2hvIHByZWZlciBnaXQgcmVwbywgaGVyZSBpcyB0aGUgbGluayBmb3IgdGhlIGxpbnV4IGtl
-cm5lbO+8mgpodHRwczovL2dpdGh1Yi5jb20vSmlhbmcxMTU1L2xpbnV4L3RyZWUvdnNvY2stZGdy
-YW0tdjIKCnFlbXUgcGF0Y2ggbGluazoKaHR0cHM6Ly9saXN0cy5nbnUub3JnL2FyY2hpdmUvaHRt
-bC9xZW11LWRldmVsLzIwMjEtMDkvbXNnMDM0NjIuaHRtbAoKClRvIGRvOgoxLiB1c2Ugc2tiIHdo
-ZW4gcmVjZWl2aW5nIHBhY2tldHMKMi4gc3VwcG9ydCBtdWx0aXBsZSB0cmFuc3BvcnQKMy4gc3Vw
-cG9ydCBtZXJnZWFibGUgcnggYnVmZmVyCjQuIHN1cHBvcnQgZGlzYWJsaW5nIEZfU1RSRUFNIGZl
-YXR1cmUgYml0CgoKdjEgLT4gdjIgOgogIC0gZml4IG1pZ3JhdGlvbiBidWcgaW4gdmhvc3QtdnNv
-Y2sKICAtIHJlbmFtZSBzb21lIHZhcmlhYmxlcwogIC0gY2xlYW4gdXAgc29tZSBjb2RlIGluIHZp
-cnRpby12c29jawogIC0gdXNlIGxlX3RvX2NwdTE2IGluIHZpcnRpby12c29jawoKCgpKaWFuZyBX
-YW5nICg1KToKICB2aXJ0aW8vdnNvY2s6IGFkZCBWSVJUSU9fVlNPQ0tfRl9ER1JBTSBmZWF0dXJl
-IGJpdAogIHZpcnRpby92c29jazogYWRkIHN1cHBvcnQgZm9yIHZpcnRpbyBkYXRhZ3JhbQogIHZo
-b3N0L3Zzb2NrOiBhZGQgc3VwcG9ydCBmb3Igdmhvc3QgZGdyYW0uCiAgdnNvY2tfdGVzdDogYWRk
-IHRlc3RzIGZvciB2c29jayBkZ3JhbQogIHZpcnRpby92c29jazogYWRkIHN5c2ZzIGZvciByeCBi
-dWYgbGVuIGZvciBkZ3JhbQoKIGRyaXZlcnMvdmhvc3QvdnNvY2suYyAgICAgICAgICAgICAgICAg
-ICAgICAgICB8IDIyMCArKysrKysrLS0KIGluY2x1ZGUvbGludXgvdmlydGlvX3Zzb2NrLmggICAg
-ICAgICAgICAgICAgICB8ICAgOSArCiBpbmNsdWRlL25ldC9hZl92c29jay5oICAgICAgICAgICAg
-ICAgICAgICAgICAgfCAgIDEgKwogLi4uL2V2ZW50cy92c29ja192aXJ0aW9fdHJhbnNwb3J0X2Nv
-bW1vbi5oICAgIHwgICAyICsKIGluY2x1ZGUvdWFwaS9saW51eC92aXJ0aW9fdnNvY2suaCAgICAg
-ICAgICAgICB8ICAgMyArCiBuZXQvdm13X3Zzb2NrL2FmX3Zzb2NrLmMgICAgICAgICAgICAgICAg
-ICAgICAgfCAgMTIgKwogbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNwb3J0LmMgICAgICAgICAg
-ICAgIHwgNDYzICsrKysrKysrKysrKysrKy0tLQogbmV0L3Ztd192c29jay92aXJ0aW9fdHJhbnNw
-b3J0X2NvbW1vbi5jICAgICAgIHwgMTgxICsrKysrKy0KIHRvb2xzL3Rlc3RpbmcvdnNvY2svdXRp
-bC5jICAgICAgICAgICAgICAgICAgICB8IDEwNSArKysrCiB0b29scy90ZXN0aW5nL3Zzb2NrL3V0
-aWwuaCAgICAgICAgICAgICAgICAgICAgfCAgIDQgKwogdG9vbHMvdGVzdGluZy92c29jay92c29j
-a190ZXN0LmMgICAgICAgICAgICAgIHwgMTk1ICsrKysrKysrCiAxMSBmaWxlcyBjaGFuZ2VkLCAx
-MDgzIGluc2VydGlvbnMoKyksIDExMiBkZWxldGlvbnMoLSkKCi0tIAoyLjIwLjEKCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+When this feature is enabled, allocate 5 queues,
+otherwise, allocate 3 queues to be compatible with
+old QEMU versions.
+
+Signed-off-by: Jiang Wang <jiang.wang@bytedance.com>
+---
+ drivers/vhost/vsock.c             |  3 +-
+ include/linux/virtio_vsock.h      |  9 ++++
+ include/uapi/linux/virtio_vsock.h |  2 +
+ net/vmw_vsock/virtio_transport.c  | 79 +++++++++++++++++++++++++++----
+ 4 files changed, 82 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index f249622ef11b..c79789af0365 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -32,7 +32,8 @@
+ enum {
+ 	VHOST_VSOCK_FEATURES = VHOST_FEATURES |
+ 			       (1ULL << VIRTIO_F_ACCESS_PLATFORM) |
+-			       (1ULL << VIRTIO_VSOCK_F_SEQPACKET)
++			       (1ULL << VIRTIO_VSOCK_F_SEQPACKET) |
++			       (1ULL << VIRTIO_VSOCK_F_DGRAM)
+ };
+ 
+ enum {
+diff --git a/include/linux/virtio_vsock.h b/include/linux/virtio_vsock.h
+index 35d7eedb5e8e..87d849aeb3ec 100644
+--- a/include/linux/virtio_vsock.h
++++ b/include/linux/virtio_vsock.h
+@@ -18,6 +18,15 @@ enum {
+ 	VSOCK_VQ_MAX    = 3,
+ };
+ 
++enum {
++	VSOCK_VQ_STREAM_RX     = 0, /* for host to guest data */
++	VSOCK_VQ_STREAM_TX     = 1, /* for guest to host data */
++	VSOCK_VQ_DGRAM_RX       = 2,
++	VSOCK_VQ_DGRAM_TX       = 3,
++	VSOCK_VQ_EX_EVENT       = 4,
++	VSOCK_VQ_EX_MAX         = 5,
++};
++
+ /* Per-socket state (accessed via vsk->trans) */
+ struct virtio_vsock_sock {
+ 	struct vsock_sock *vsk;
+diff --git a/include/uapi/linux/virtio_vsock.h b/include/uapi/linux/virtio_vsock.h
+index 3dd3555b2740..cff54ba9b924 100644
+--- a/include/uapi/linux/virtio_vsock.h
++++ b/include/uapi/linux/virtio_vsock.h
+@@ -40,6 +40,8 @@
+ 
+ /* The feature bitmap for virtio vsock */
+ #define VIRTIO_VSOCK_F_SEQPACKET	1	/* SOCK_SEQPACKET supported */
++/* The feature bitmap for virtio net */
++#define VIRTIO_VSOCK_F_DGRAM	0	/* Host support dgram vsock */
+ 
+ struct virtio_vsock_config {
+ 	__le64 guest_cid;
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index 4f7c99dfd16c..bb89f538f5f3 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -27,7 +27,8 @@ static DEFINE_MUTEX(the_virtio_vsock_mutex); /* protects the_virtio_vsock */
+ 
+ struct virtio_vsock {
+ 	struct virtio_device *vdev;
+-	struct virtqueue *vqs[VSOCK_VQ_MAX];
++	struct virtqueue **vqs;
++	bool has_dgram;
+ 
+ 	/* Virtqueue processing is deferred to a workqueue */
+ 	struct work_struct tx_work;
+@@ -334,7 +335,10 @@ static int virtio_vsock_event_fill_one(struct virtio_vsock *vsock,
+ 	struct scatterlist sg;
+ 	struct virtqueue *vq;
+ 
+-	vq = vsock->vqs[VSOCK_VQ_EVENT];
++	if (vsock->has_dgram)
++		vq = vsock->vqs[VSOCK_VQ_EX_EVENT];
++	else
++		vq = vsock->vqs[VSOCK_VQ_EVENT];
+ 
+ 	sg_init_one(&sg, event, sizeof(*event));
+ 
+@@ -352,7 +356,10 @@ static void virtio_vsock_event_fill(struct virtio_vsock *vsock)
+ 		virtio_vsock_event_fill_one(vsock, event);
+ 	}
+ 
+-	virtqueue_kick(vsock->vqs[VSOCK_VQ_EVENT]);
++	if (vsock->has_dgram)
++		virtqueue_kick(vsock->vqs[VSOCK_VQ_EX_EVENT]);
++	else
++		virtqueue_kick(vsock->vqs[VSOCK_VQ_EVENT]);
+ }
+ 
+ static void virtio_vsock_reset_sock(struct sock *sk)
+@@ -395,7 +402,10 @@ static void virtio_transport_event_work(struct work_struct *work)
+ 		container_of(work, struct virtio_vsock, event_work);
+ 	struct virtqueue *vq;
+ 
+-	vq = vsock->vqs[VSOCK_VQ_EVENT];
++	if (vsock->has_dgram)
++		vq = vsock->vqs[VSOCK_VQ_EX_EVENT];
++	else
++		vq = vsock->vqs[VSOCK_VQ_EVENT];
+ 
+ 	mutex_lock(&vsock->event_lock);
+ 
+@@ -415,7 +425,10 @@ static void virtio_transport_event_work(struct work_struct *work)
+ 		}
+ 	} while (!virtqueue_enable_cb(vq));
+ 
+-	virtqueue_kick(vsock->vqs[VSOCK_VQ_EVENT]);
++	if (vsock->has_dgram)
++		virtqueue_kick(vsock->vqs[VSOCK_VQ_EX_EVENT]);
++	else
++		virtqueue_kick(vsock->vqs[VSOCK_VQ_EVENT]);
+ out:
+ 	mutex_unlock(&vsock->event_lock);
+ }
+@@ -438,6 +451,10 @@ static void virtio_vsock_tx_done(struct virtqueue *vq)
+ 	queue_work(virtio_vsock_workqueue, &vsock->tx_work);
+ }
+ 
++static void virtio_vsock_dgram_tx_done(struct virtqueue *vq)
++{
++}
++
+ static void virtio_vsock_rx_done(struct virtqueue *vq)
+ {
+ 	struct virtio_vsock *vsock = vq->vdev->priv;
+@@ -449,6 +466,10 @@ static void virtio_vsock_rx_done(struct virtqueue *vq)
+ 
+ static bool virtio_transport_seqpacket_allow(u32 remote_cid);
+ 
++static void virtio_vsock_dgram_rx_done(struct virtqueue *vq)
++{
++}
++
+ static struct virtio_transport virtio_transport = {
+ 	.transport = {
+ 		.module                   = THIS_MODULE,
+@@ -571,13 +592,29 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+ 		virtio_vsock_tx_done,
+ 		virtio_vsock_event_done,
+ 	};
++	vq_callback_t *ex_callbacks[] = {
++		virtio_vsock_rx_done,
++		virtio_vsock_tx_done,
++		virtio_vsock_dgram_rx_done,
++		virtio_vsock_dgram_tx_done,
++		virtio_vsock_event_done,
++	};
++
+ 	static const char * const names[] = {
+ 		"rx",
+ 		"tx",
+ 		"event",
+ 	};
++	static const char * const ex_names[] = {
++		"rx",
++		"tx",
++		"dgram_rx",
++		"dgram_tx",
++		"event",
++	};
++
+ 	struct virtio_vsock *vsock = NULL;
+-	int ret;
++	int ret, max_vq;
+ 
+ 	ret = mutex_lock_interruptible(&the_virtio_vsock_mutex);
+ 	if (ret)
+@@ -598,9 +635,30 @@ static int virtio_vsock_probe(struct virtio_device *vdev)
+ 
+ 	vsock->vdev = vdev;
+ 
+-	ret = virtio_find_vqs(vsock->vdev, VSOCK_VQ_MAX,
+-			      vsock->vqs, callbacks, names,
+-			      NULL);
++	if (virtio_has_feature(vdev, VIRTIO_VSOCK_F_DGRAM))
++		vsock->has_dgram = true;
++
++	if (vsock->has_dgram)
++		max_vq = VSOCK_VQ_EX_MAX;
++	else
++		max_vq = VSOCK_VQ_MAX;
++
++	vsock->vqs = kmalloc_array(max_vq, sizeof(struct virtqueue *), GFP_KERNEL);
++	if (!vsock->vqs) {
++		ret = -ENOMEM;
++		goto out;
++	}
++
++	if (vsock->has_dgram) {
++		ret = virtio_find_vqs(vsock->vdev, max_vq,
++				      vsock->vqs, ex_callbacks, ex_names,
++				      NULL);
++	} else {
++		ret = virtio_find_vqs(vsock->vdev, max_vq,
++				      vsock->vqs, callbacks, names,
++				      NULL);
++	}
++
+ 	if (ret < 0)
+ 		goto out;
+ 
+@@ -725,7 +783,8 @@ static struct virtio_device_id id_table[] = {
+ };
+ 
+ static unsigned int features[] = {
+-	VIRTIO_VSOCK_F_SEQPACKET
++	VIRTIO_VSOCK_F_SEQPACKET,
++	VIRTIO_VSOCK_F_DGRAM
+ };
+ 
+ static struct virtio_driver virtio_vsock_driver = {
+-- 
+2.20.1
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
