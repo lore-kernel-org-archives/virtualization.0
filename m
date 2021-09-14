@@ -3,89 +3,113 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS autolearn=ham
-	autolearn_force=no version=3.4.0
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0A71C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 12:23:01 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31788C4332F
+	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 12:58:40 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 87D8D60F26
-	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 12:23:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 87D8D60F26
+	by mail.kernel.org (Postfix) with ESMTPS id D244E610D1
+	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 12:58:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D244E610D1
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 43301400E4;
-	Tue, 14 Sep 2021 12:23:01 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9B8AB80F65;
+	Tue, 14 Sep 2021 12:58:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KK14QmptdUfm; Tue, 14 Sep 2021 12:23:00 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 77347400DE;
-	Tue, 14 Sep 2021 12:22:59 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2dPMAf8KXpg6; Tue, 14 Sep 2021 12:58:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2247F80C62;
+	Tue, 14 Sep 2021 12:58:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 56EEFC000F;
-	Tue, 14 Sep 2021 12:22:59 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7B28CC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 08B2BC000F;
+	Tue, 14 Sep 2021 12:58:38 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 547CAC000D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 12:22:58 +0000 (UTC)
+ Tue, 14 Sep 2021 12:58:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 54DF9400E4
+ by smtp3.osuosl.org (Postfix) with ESMTP id 3D72E607DA
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 12:22:58 +0000 (UTC)
+ Tue, 14 Sep 2021 12:58:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wIGVMbc8fQyf
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id liRvgi7eiyrb
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 12:22:57 +0000 (UTC)
+ Tue, 14 Sep 2021 12:58:35 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 226A6400DE
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id CB0CD607D3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 12:22:56 +0000 (UTC)
+ Tue, 14 Sep 2021 12:58:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1631622175;
+ s=mimecast20190719; t=1631624314;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=crCMDIQfbcqlNNuWe8wMVzG0binTQZ+93JYNDaWlRUQ=;
- b=KH7Vml8bFo6kt7Fr8VHfkZMT8ehjI7s00CCICT65AWHCULNgEc1j3pojlmz4t9aCFA2muQ
- HK2NWuoAj4d0LUK/MAdsX+NSr1+o7m5yWNLWMH39699fSXd8jw69/7fMuh8qaJWlmJX5cx
- /E1oMFhSYytOHjeQrBompDyyg699QgA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-376-A_E-DCZaMKK9c-ke32RRYw-1; Tue, 14 Sep 2021 08:22:54 -0400
-X-MC-Unique: A_E-DCZaMKK9c-ke32RRYw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
- [10.5.11.12])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0ED355074C;
- Tue, 14 Sep 2021 12:22:53 +0000 (UTC)
-Received: from localhost (unknown [10.39.192.255])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 6FA1F60C7F;
- Tue, 14 Sep 2021 12:22:48 +0000 (UTC)
-Date: Tue, 14 Sep 2021 13:22:47 +0100
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: Re: [PATCH v3 1/1] virtio-blk: avoid preallocating big SGL for data
-Message-ID: <YUCUF7co94CRGkGU@stefanha-x1.localdomain>
-References: <20210901131434.31158-1-mgurtovoy@nvidia.com>
- <YTYvOetMHvocg9UZ@stefanha-x1.localdomain>
- <692f8e81-8585-1d39-e7a4-576ae01438a1@nvidia.com>
+ bh=+i8tXrYj4yDnCoPDe/Tv3/7/5YA9BMLPa/F1k7LioJM=;
+ b=EMTRTFVfIvGlHQ404ZTrJT6w8JHsyOGWPXbrZ4ci4RBDzd1vCRQ65jhoDY3Z6F3Gn8Ro18
+ A/qDYt33ykXW5B9UWzWu7Z+SviVLnfxB4sAoSCMuuKufYjrJ4gAQKK1pbm8v1mi69aT2ij
+ 4nJhRzzj+0cTmRJJ+LpIltH/hNfDQHI=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-319-Gfj3NfqJO-mubayqrF_VJw-1; Tue, 14 Sep 2021 08:58:33 -0400
+X-MC-Unique: Gfj3NfqJO-mubayqrF_VJw-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ r7-20020a5d6947000000b0015e0f68a63bso1726945wrw.22
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 14 Sep 2021 05:58:33 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=+i8tXrYj4yDnCoPDe/Tv3/7/5YA9BMLPa/F1k7LioJM=;
+ b=bNj8ylVDcisSvb7qTLNm0Av5gsP9uc31HCjYSBXuexXhv5uIDumCPtr2zyKWk81FGy
+ iJ7oB4dc8B3/TtHlgwo/o3AUa55pr6SsgCX/OJPy/YEpLDRW3IutfZLYpuQDUosxi4Rn
+ 8EJyrEzRPP1P4z0tGY2GJiopE4fV7dgtgkhz2MbC/FUw5J72aKKMXUwgyrPDci/MiuGy
+ pnti7OIz9t8P2HuR8TRjV9rfsPZ/X//1hryMY4PPjYQWU/06mYbbXtdVB5u0zL6rX2DT
+ 0ToBeyzuF0m6pcCcW5fny4r/MLGU9wDXWA1eIBeN80HD0lirOHl3U1nY6B8uV1+SuaSf
+ J3cw==
+X-Gm-Message-State: AOAM533QAPsdxnqXLJWk3NCtXFI9r+OZ+WVwrC5GZFb075PlRd2r2iy+
+ 8A08LpClSkIboqUOGbpdJ5gRD3KWGGvx0DqdDnTqZMzt4CO+vqHuhHUbmFmTC4swRAFH3BSt5jA
+ 4cXnSGehiv3XFQqzbwW9Ya5Edw/6u7V1gYYiGF8FpvA==
+X-Received: by 2002:a1c:cc03:: with SMTP id h3mr2044630wmb.73.1631624312218;
+ Tue, 14 Sep 2021 05:58:32 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyHtbUQhdNaZzLMjWktMr/Fa0pUFCfp6kfBfoBbJYkI/xrFMVITu+svlOkLkMY+p+sXXK31Tw==
+X-Received: by 2002:a1c:cc03:: with SMTP id h3mr2044619wmb.73.1631624312047;
+ Tue, 14 Sep 2021 05:58:32 -0700 (PDT)
+Received: from redhat.com ([2.55.151.134])
+ by smtp.gmail.com with ESMTPSA id c9sm11063685wrf.77.2021.09.14.05.58.30
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 14 Sep 2021 05:58:31 -0700 (PDT)
+Date: Tue, 14 Sep 2021 08:58:28 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Wu Zongyong <wuzongyong@linux.alibaba.com>
+Subject: Re: [PATCH v2 4/5] vdpa: add new vdpa attribute
+ VDPA_ATTR_DEV_F_VERSION_1
+Message-ID: <20210914085711-mutt-send-email-mst@kernel.org>
+References: <cover.1631101392.git.wuzongyong@linux.alibaba.com>
+ <cover.1631621507.git.wuzongyong@linux.alibaba.com>
+ <834528d24c839080215b2e077f100e9ed5073edc.1631621507.git.wuzongyong@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <692f8e81-8585-1d39-e7a4-576ae01438a1@nvidia.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-Cc: axboe@kernel.dk, linux-block@vger.kernel.org, kvm@vger.kernel.org,
- mst@redhat.com, israelr@nvidia.com, virtualization@lists.linux-foundation.org,
- hch@infradead.org, nitzanc@nvidia.com, oren@nvidia.com
+In-Reply-To: <834528d24c839080215b2e077f100e9ed5073edc.1631621507.git.wuzongyong@linux.alibaba.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: wei.yang1@linux.alibaba.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -97,128 +121,119 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============0642381637274856732=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Tue, Sep 14, 2021 at 08:24:51PM +0800, Wu Zongyong wrote:
+> This new attribute advertises whether the vdpa device is legacy or not.
+> Users can pick right virtqueue size if the vdpa device is legacy which
+> doesn't support to change virtqueue size.
+> 
+> Signed-off-by: Wu Zongyong <wuzongyong@linux.alibaba.com>
 
---===============0642381637274856732==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="aGmDvTLAe56x7DHM"
-Content-Disposition: inline
+So if we are bothering with legacy, I think there are
+several things to do when building the interface
+- support transitional devices, that is allow userspace
+  to tell device it's in legacy mode
+- support reporting/setting supporting endian-ness
 
-
---aGmDvTLAe56x7DHM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Sep 13, 2021 at 05:50:21PM +0300, Max Gurtovoy wrote:
->=20
-> On 9/6/2021 6:09 PM, Stefan Hajnoczi wrote:
-> > On Wed, Sep 01, 2021 at 04:14:34PM +0300, Max Gurtovoy wrote:
-> > > No need to pre-allocate a big buffer for the IO SGL anymore. If a dev=
-ice
-> > > has lots of deep queues, preallocation for the sg list can consume
-> > > substantial amounts of memory. For HW virtio-blk device, nr_hw_queues
-> > > can be 64 or 128 and each queue's depth might be 128. This means the
-> > > resulting preallocation for the data SGLs is big.
-> > >=20
-> > > Switch to runtime allocation for SGL for lists longer than 2 entries.
-> > > This is the approach used by NVMe drivers so it should be reasonable =
-for
-> > > virtio block as well. Runtime SGL allocation has always been the case
-> > > for the legacy I/O path so this is nothing new.
-> > >=20
-> > > The preallocated small SGL depends on SG_CHAIN so if the ARCH doesn't
-> > > support SG_CHAIN, use only runtime allocation for the SGL.
-> > >=20
-> > > Re-organize the setup of the IO request to fit the new sg chain
-> > > mechanism.
-> > >=20
-> > > No performance degradation was seen (fio libaio engine with 16 jobs a=
-nd
-> > > 128 iodepth):
-> > >=20
-> > > IO size      IOPs Rand Read (before/after)         IOPs Rand Write (b=
-efore/after)
-> > > --------     ---------------------------------    -------------------=
----------------
-> > > 512B          318K/316K                                    329K/325K
-> > >=20
-> > > 4KB           323K/321K                                    353K/349K
-> > >=20
-> > > 16KB          199K/208K                                    250K/275K
-> > >=20
-> > > 128KB         36K/36.1K                                    39.2K/41.7K
-> > I ran fio randread benchmarks with 4k, 16k, 64k, and 128k at iodepth 1,
-> > 8, and 64 on two vCPUs. The results look fine, there is no significant
-> > regression.
-> >=20
-> > iodepth=3D1 and iodepth=3D64 are very consistent. For some reason the
-> > iodepth=3D8 has significant variance but I don't think it's the fault of
-> > this patch.
-> >=20
-> > Fio results and the Jupyter notebook export are available here (check
-> > out benchmark.html to see the graphs):
-> >=20
-> > https://gitlab.com/stefanha/virt-playbooks/-/tree/virtio-blk-sgl-alloca=
-tion-benchmark/notebook
-> >=20
-> > Guest:
-> > - Fedora 34
-> > - Linux v5.14
-> > - 2 vCPUs (pinned), 4 GB RAM (single host NUMA node)
-> > - 1 IOThread (pinned)
-> > - virtio-blk aio=3Dnative,cache=3Dnone,format=3Draw
-> > - QEMU 6.1.0
-> >=20
-> > Host:
-> > - RHEL 8.3
-> > - Linux 4.18.0-240.22.1.el8_3.x86_64
-> > - Intel(R) Xeon(R) Silver 4214 CPU @ 2.20GHz
-> > - Intel Optane DC P4800X
-> >=20
-> > Stefan
->=20
-> Thanks, Stefan.
->=20
-> Would you like me to add some of the results in my commit msg ? or Tested=
--By
-> sign ?
-
-Thanks, there's no need to change the commit description.
-
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Tested-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---aGmDvTLAe56x7DHM
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmFAlBcACgkQnKSrs4Gr
-c8irGwgAifRcb8J6P8Ki4ql4+nWOw59zpPqBsh8+wmslHwj+5Sj5x040BOGESY6V
-peZCMYgqgdWV7Ckgyd/4Er+L85wo41zn7+ylsi/NqkRVnZBg7HgRTiLL7GbBX8Zz
-eLYIqr4aFpRE93y/RAFbnPTU4cEGK8GnhdbLgODHrnmg+VQ8DT9Lb0Ov/1UqcB5i
-+EWw4mLhlDAHOcuz0YQpiGTbKe9kvTnwTjZh+DmMi4FjH6xnyEYCq4JfFmkVLC3Q
-H7TgCz5EQ5QzXDVsMR7HmYPcU0s0Fofq1dlexF2Fx7riubX7oIn6+UZnSh+XxLlL
-2lswIFATfoBLB4VfjgimVUD51zOt2w==
-=QoZd
------END PGP SIGNATURE-----
-
---aGmDvTLAe56x7DHM--
-
-
---===============0642381637274856732==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> ---
+>  drivers/vdpa/vdpa.c          | 6 ++++++
+>  drivers/virtio/virtio_vdpa.c | 7 ++++++-
+>  include/uapi/linux/vdpa.h    | 1 +
+>  3 files changed, 13 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> index 1dc121a07a93..533d7f589eee 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -12,6 +12,7 @@
+>  #include <linux/slab.h>
+>  #include <linux/vdpa.h>
+>  #include <uapi/linux/vdpa.h>
+> +#include <uapi/linux/virtio_config.h>
+>  #include <net/genetlink.h>
+>  #include <linux/mod_devicetable.h>
+>  
+> @@ -494,6 +495,7 @@ vdpa_dev_fill(struct vdpa_device *vdev, struct sk_buff *msg, u32 portid, u32 seq
+>  	u16 max_vq_size;
+>  	u32 device_id;
+>  	u32 vendor_id;
+> +	u64 features;
+>  	void *hdr;
+>  	int err;
+>  
+> @@ -508,6 +510,7 @@ vdpa_dev_fill(struct vdpa_device *vdev, struct sk_buff *msg, u32 portid, u32 seq
+>  	device_id = vdev->config->get_device_id(vdev);
+>  	vendor_id = vdev->config->get_vendor_id(vdev);
+>  	max_vq_size = vdev->config->get_vq_num_max(vdev);
+> +	features = vdev->config->get_features(vdev);
+>  
+>  	err = -EMSGSIZE;
+>  	if (nla_put_string(msg, VDPA_ATTR_DEV_NAME, dev_name(&vdev->dev)))
+> @@ -520,6 +523,9 @@ vdpa_dev_fill(struct vdpa_device *vdev, struct sk_buff *msg, u32 portid, u32 seq
+>  		goto msg_err;
+>  	if (nla_put_u16(msg, VDPA_ATTR_DEV_MAX_VQ_SIZE, max_vq_size))
+>  		goto msg_err;
+> +	if (features & BIT_ULL(VIRTIO_F_VERSION_1) &&
+> +	    nla_put_flag(msg, VDPA_ATTR_DEV_VERSION_1))
+> +		goto msg_err;
+>  
+>  	genlmsg_end(msg, hdr);
+>  	return 0;
+> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+> index 72eaef2caeb1..1cba957c4cdc 100644
+> --- a/drivers/virtio/virtio_vdpa.c
+> +++ b/drivers/virtio/virtio_vdpa.c
+> @@ -7,6 +7,7 @@
+>   *
+>   */
+>  
+> +#include "linux/virtio_config.h"
+>  #include <linux/init.h>
+>  #include <linux/module.h>
+>  #include <linux/device.h>
+> @@ -145,6 +146,7 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+>  	/* Assume split virtqueue, switch to packed if necessary */
+>  	struct vdpa_vq_state state = {0};
+>  	unsigned long flags;
+> +	bool may_reduce_num = false;
+>  	u32 align, num;
+>  	int err;
+>  
+> @@ -169,10 +171,13 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+>  		goto error_new_virtqueue;
+>  	}
+>  
+> +	if (ops->get_features(vdpa) & BIT_ULL(VIRTIO_F_VERSION_1))
+> +		may_reduce_num = true;
+> +
+>  	/* Create the vring */
+>  	align = ops->get_vq_align(vdpa);
+>  	vq = vring_create_virtqueue(index, num, align, vdev,
+> -				    true, true, ctx,
+> +				    true, may_reduce_num, ctx,
+>  				    virtio_vdpa_notify, callback, name);
+>  	if (!vq) {
+>  		err = -ENOMEM;
+> diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+> index 66a41e4ec163..ce0b74276a5b 100644
+> --- a/include/uapi/linux/vdpa.h
+> +++ b/include/uapi/linux/vdpa.h
+> @@ -32,6 +32,7 @@ enum vdpa_attr {
+>  	VDPA_ATTR_DEV_VENDOR_ID,		/* u32 */
+>  	VDPA_ATTR_DEV_MAX_VQS,			/* u32 */
+>  	VDPA_ATTR_DEV_MAX_VQ_SIZE,		/* u16 */
+> +	VDPA_ATTR_DEV_VERSION_1,		/* flag */
+>  
+>  	/* new attributes must be added above here */
+>  	VDPA_ATTR_MAX,
+> -- 
+> 2.31.1
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0642381637274856732==--
-
