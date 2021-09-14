@@ -2,125 +2,92 @@ Return-Path: <SRS0=LSNt=OE=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-17.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB5CAC433F5
-	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 09:45:35 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 516EFC433F5
+	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 11:04:25 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9BA2661108
-	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 09:45:35 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9BA2661108
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id D3F2460F23
+	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 11:04:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D3F2460F23
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5805B6081D;
-	Tue, 14 Sep 2021 09:45:35 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 8FC0480E8E;
+	Tue, 14 Sep 2021 11:04:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Ve1K3M4Ff0cn; Tue, 14 Sep 2021 09:45:34 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id E6F0B6060C;
-	Tue, 14 Sep 2021 09:45:33 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ohR6pCsFiRfh; Tue, 14 Sep 2021 11:04:23 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2A11E80C15;
+	Tue, 14 Sep 2021 11:04:23 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CD842C0011;
-	Tue, 14 Sep 2021 09:45:33 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1FE7EC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 00AE5C000F;
+	Tue, 14 Sep 2021 11:04:23 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7FFE8C000D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 09:45:32 +0000 (UTC)
+ Tue, 14 Sep 2021 11:04:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id F20A24033D
+ by smtp4.osuosl.org (Postfix) with ESMTP id 60B7B4029A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 09:45:31 +0000 (UTC)
+ Tue, 14 Sep 2021 11:04:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id OgEBvANDSVq9
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id HEg8h22NDOLD
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 09:45:30 +0000 (UTC)
+ Tue, 14 Sep 2021 11:04:19 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 9092B4032F
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 61B9C40295
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 09:45:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1631612729;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=E5LbE6tJqoUXws78/lpKd/8E8fVAHtF02Bi+7E0E5fs=;
- b=VfAU49d5BGQE41zBt+oMgrVKmS9tGl9Hje9XRIizSfXNGeanpmkLRdpvB+g+1y1OCVXEmM
- LHaKZwB6v/OmBDyr0OfwJiZha6c4IbR3YRogOel613Zks3Sj+hKxsY/UW83AJuUxsmcoKq
- /YyPoaGJOsizp5srZO9qx1isjJTplMk=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-559-djjld0Q7MeSrQJ-k89N0yA-1; Tue, 14 Sep 2021 05:45:28 -0400
-X-MC-Unique: djjld0Q7MeSrQJ-k89N0yA-1
-Received: by mail-wm1-f70.google.com with SMTP id
- k29-20020a05600c1c9d00b00304e40495b2so480510wms.9
- for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 02:45:28 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:subject:to:cc:references:from:organization
- :message-id:date:user-agent:mime-version:in-reply-to
- :content-language:content-transfer-encoding;
- bh=E5LbE6tJqoUXws78/lpKd/8E8fVAHtF02Bi+7E0E5fs=;
- b=wGyBxu2azkrwMGyU4pSqE8hnrSnhHtpSR1j9ib59bpsbpna+TKWKe0kPDYQ1GOIyN9
- HX7yKJllcdWSC6UD/yHkITZNOJN0ZFzZfc/jHUjwcNXgFSzqItRlV5s+wFwOSLGlfmlh
- zbSKXUQQR+SyPsKJwvSqV/gNlsS2Wj+2q5nBlQ4va2YvFy0eVSv3fXpwK2SqSrsrsTWp
- OT3tjTv2UAby+QqX5/x0IC55xevCIb0QUf/v2f6gg2l/0KTdcfuIKzbIdbwDX256g8DL
- icTLNARrCvQjxqtLmNKkuI3F0+anpZPi6kZ9+l9WPkfXnqIJdNtKro8m+6MDnb4prCns
- XHdw==
-X-Gm-Message-State: AOAM5330ec7Bdf6GPeH2fnPDjPPhRK8lesxIxbI/kRBMqW6XzI5fm3kQ
- ryJIb8XDMo7IiFc2iuuS2Q+zNghZ4qCnPCoYNyf8XWOM/+yMzQ8nGxjajlv14A+YY28Xt+TZcb1
- psZhj2VXJ/f7GQTC26cI7ZerfUZ6w7IudtPWKHxEEVg==
-X-Received: by 2002:adf:9bdb:: with SMTP id e27mr17402906wrc.162.1631612727182; 
- Tue, 14 Sep 2021 02:45:27 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy8IcKWrpo+CJ7yCXWiJlrYgqbtEzRpSOIG2NkaYA3QbTjmbDrA7ukm1vPG4+wVUH0DoQ1dzw==
-X-Received: by 2002:adf:9bdb:: with SMTP id e27mr17402881wrc.162.1631612726956; 
- Tue, 14 Sep 2021 02:45:26 -0700 (PDT)
-Received: from [192.168.3.132] (p5b0c6041.dip0.t-ipconnect.de. [91.12.96.65])
- by smtp.gmail.com with ESMTPSA id
- f5sm591405wmb.47.2021.09.14.02.45.25
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Tue, 14 Sep 2021 02:45:26 -0700 (PDT)
-Subject: Re: [PATCH v4 3/3] virtio-mem: disallow mapping virtio-mem memory via
- /dev/mem
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20210902160919.25683-1-david@redhat.com>
- <20210902160919.25683-4-david@redhat.com>
- <20210903025630-mutt-send-email-mst@kernel.org>
-From: David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Message-ID: <e5344ed1-6aaf-9e0a-a32d-f7cf69fe5a34@redhat.com>
-Date: Tue, 14 Sep 2021 11:45:25 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+ Tue, 14 Sep 2021 11:04:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=mMZLspAs4SibC8RtzDy4xBKwM9DL7s6XmwYmYiusX18=; b=rNwoE9hFA4si/ZyTkc3P2xDSE7
+ dcDCaJMft5fR4xVFBTYgKbPlTrZobXVQCFvH5slK9GNtC8AsiWSO1E52cxfHL+8hDcJzCnIU7bnO+
+ 5284nOCG0guLsFRtNKk9mOpa+t8kHLtFTlOqLF5cadZkcvqQYIQhTJYITteqcomdiUyCmoaczvSVd
+ 3bUD9lxuc3YT+t2ug8Z+Mr0ptYmcX5blTE3UTp7QhWKR3vNK7bdpN3aI6Ik2v1hXccBUNiwH8cNqE
+ 7FS0N0sS7q4CoyuNfKZozcRXEoLqjCQctkiifuggp9azW6hpMeitTSp8Yo6dePlYN8Ge4Ly83VSTj
+ rAXlcRvA==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100]
+ helo=noisy.programming.kicks-ass.net)
+ by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1mQ6DQ-00Ea8d-1B; Tue, 14 Sep 2021 11:03:20 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id CE829300255;
+ Tue, 14 Sep 2021 13:03:02 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+ id A4AA62D0615DB; Tue, 14 Sep 2021 13:03:02 +0200 (CEST)
+Date: Tue, 14 Sep 2021 13:03:02 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH 7/9] virtio-pci: harden INTX interrupts
+Message-ID: <YUCBZjjk77q8JS4f@hirez.programming.kicks-ass.net>
+References: <20210913055353.35219-1-jasowang@redhat.com>
+ <20210913055353.35219-8-jasowang@redhat.com> <875yv4f99j.ffs@tglx>
 MIME-Version: 1.0
-In-Reply-To: <20210903025630-mutt-send-email-mst@kernel.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- Andy Shevchenko <andy.shevchenko@gmail.com>, Hanjun Guo <guohanjun@huawei.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Dan Williams <dan.j.williams@intel.com>
+Content-Disposition: inline
+In-Reply-To: <875yv4f99j.ffs@tglx>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>, david.kaplan@amd.com,
+ mst@redhat.com, f.hetzelt@tu-berlin.de, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, konrad.wilk@oracle.com,
+ Will Deacon <will@kernel.org>, Boqun Feng <boqun.feng@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -132,92 +99,86 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 03.09.21 09:02, Michael S. Tsirkin wrote:
-> On Thu, Sep 02, 2021 at 06:09:19PM +0200, David Hildenbrand wrote:
->> We don't want user space to be able to map virtio-mem device memory
->> directly (e.g., via /dev/mem) in order to have guarantees that in a sane
->> setup we'll never accidentially access unplugged memory within the
->> device-managed region of a virtio-mem device, just as required by the
->> virtio-spec.
->>
->> As soon as the virtio-mem driver is loaded, the device region is visible
->> in /proc/iomem via the parent device region. From that point on user space
->> is aware of the device region and we want to disallow mapping anything
->> inside that region (where we will dynamically (un)plug memory) until
->> the driver has been unloaded cleanly and e.g., another driver might take
->> over.
->>
->> By creating our parent IORESOURCE_SYSTEM_RAM resource with
->> IORESOURCE_EXCLUSIVE, we will disallow any /dev/mem access to our
->> device region until the driver was unloaded cleanly and removed the
->> parent region. This will work even though only some memory blocks are
->> actually currently added to Linux and appear as busy in the resource tree.
->>
->> So access to the region from user space is only possible
->> a) if we don't load the virtio-mem driver.
->> b) after unloading the virtio-mem driver cleanly.
->>
->> Don't build virtio-mem if access to /dev/mem cannot be restricticted --
->> if we have CONFIG_DEVMEM=y but CONFIG_STRICT_DEVMEM is not set.
->>
->> Reviewed-by: Dan Williams <dan.j.williams@intel.com>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
-> 
-> 
->> ---
->>   drivers/virtio/Kconfig      | 1 +
->>   drivers/virtio/virtio_mem.c | 4 +++-
->>   2 files changed, 4 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
->> index ce1b3f6ec325..ff80cd03f1d1 100644
->> --- a/drivers/virtio/Kconfig
->> +++ b/drivers/virtio/Kconfig
->> @@ -101,6 +101,7 @@ config VIRTIO_MEM
->>   	depends on MEMORY_HOTPLUG_SPARSE
->>   	depends on MEMORY_HOTREMOVE
->>   	depends on CONTIG_ALLOC
->> +	depends on !DEVMEM || STRICT_DEVMEM
->>   	help
->>   	 This driver provides access to virtio-mem paravirtualized memory
->>   	 devices, allowing to hotplug and hotunplug memory.
-> 
-> It would be nicer if there was a symbol in the MEMORY_ namespace
-> we can depend on exported by mm and depending on !DEVMEM ||
-> STRICT_DEVMEM.
-> 
-> E.g.
-> 
-> config MEMORY_EXCLUSIVE
->          def_bool y
->          depends on !DEVMEM || STRICT_DEVMEM
-> 
-> and then in virtio
-> 	depends on MEMORY_EXCLUSIVE
-> 
-> 
+On Mon, Sep 13, 2021 at 11:36:24PM +0200, Thomas Gleixner wrote:
 
-Yes, but I'm not able to come up with an expressive name. 
-MEMORY_EXCLUSIVE can be highly misleading ...
-
-
-> the virtio change itself is ok though:
+> That's the real problem and for that your barrier is at the wrong place
+> because you want to make sure that those stores are visible before the
+> store to intx_soft_enabled becomes visible, i.e. this should be:
 > 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+>         /* Ensure that all preceeding stores are visible before intx_soft_enabled */
+> 	smp_wmb();
+> 	vp_dev->intx_soft_enabled = true;
 
-Thanks!
+That arguably wants to be smp_store_release() instead of smp_wmb() :-)
 
+> Now Micheal is not really enthusiatic about the barrier in the interrupt
+> handler hotpath, which is understandable.
+> 
+> As the device startup is not really happening often it's sensible to do
+> the following
+> 
+>         disable_irq();
+>         vp_dev->intx_soft_enabled = true;
+>         enable_irq();
+> 
+> because:
+> 
+>         disable_irq()
+>           synchronize_irq()
+> 
+> acts as a barrier for the preceeding stores:
+> 
+>         disable_irq()
+>    	  raw_spin_lock(desc->lock);
+>           __disable_irq(desc);
+>    	  raw_spin_unlock(desc->lock);
+> 
+>           synchronize_irq()
+>             do {
+>    	      raw_spin_lock(desc->lock);
+>               in_progress = check_inprogress(desc);
+>    	      raw_spin_unlock(desc->lock);
+>             } while (in_progress);     
 
--- 
-Thanks,
+Here you rely on the UNLOCK+LOCK pattern because we have two adjacent
+critical sections (or rather, the same twice), which provides RCtso
+ordering, which is sufficient to make the below store:
 
-David / dhildenb
+> 
+>         intx_soft_enabled = true;
 
+a RELEASE. still, I would suggest writing it at least using
+WRITE_ONCE() with a comment on.
+
+	disable_irq();
+	/*
+	 * The above disable_irq() provides TSO ordering and as such
+	 * promotes the below store to store-release.
+	 */
+	WRITE_ONCE(intx_soft_enabled, true);
+	enable_irq();
+
+> In this case synchronize_irq() prevents the subsequent store to
+> intx_soft_enabled to leak into the __disable_irq(desc) section which in
+> turn makes it impossible for an interrupt handler to observe
+> intx_soft_enabled == true before the prerequisites which preceed the
+> call to disable_irq() are visible.
+> 
+> Of course the memory ordering wizards might disagree, but if they do,
+> then we have a massive chase of ordering problems vs. similar constructs
+> all over the tree ahead of us.
+
+Your case, UNLOCK s + LOCK s, is fully documented to provide RCtso
+ordering. The more general case of: UNLOCK r + LOCK s, will shortly
+appear in documentation near you. Meaning we can forget about the
+details an blanket state that any UNLOCK followed by a LOCK (on the same
+CPU) will provide TSO ordering.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
