@@ -7,97 +7,93 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E30B2C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 02:54:52 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ACE82C433F5
+	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 02:58:08 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9F4D361108
-	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 02:54:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9F4D361108
+	by mail.kernel.org (Postfix) with ESMTPS id 3EF3E6112D
+	for <virtualization@archiver.kernel.org>; Tue, 14 Sep 2021 02:58:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 3EF3E6112D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6AF1980EE1;
-	Tue, 14 Sep 2021 02:54:52 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 00E6E607C6;
+	Tue, 14 Sep 2021 02:58:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HWcBXJsUzrzS; Tue, 14 Sep 2021 02:54:51 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id gQuTq4E68WYa; Tue, 14 Sep 2021 02:58:07 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 2A80380EC9;
-	Tue, 14 Sep 2021 02:54:51 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A975B607BC;
+	Tue, 14 Sep 2021 02:58:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DDD9CC0011;
-	Tue, 14 Sep 2021 02:54:50 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A6B57C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 75E14C0011;
+	Tue, 14 Sep 2021 02:58:06 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5F69EC000D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 02:54:49 +0000 (UTC)
+ Tue, 14 Sep 2021 02:58:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 87809607BC
+ by smtp3.osuosl.org (Postfix) with ESMTP id 48550607BC
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 02:54:49 +0000 (UTC)
+ Tue, 14 Sep 2021 02:58:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Ulpixp-ysyv8
+ with ESMTP id veEOpP3PV5KP
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 02:54:49 +0000 (UTC)
+ Tue, 14 Sep 2021 02:58:04 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id DA1D7607A6
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 89270607A6
  for <virtualization@lists.linux-foundation.org>;
- Tue, 14 Sep 2021 02:54:48 +0000 (UTC)
+ Tue, 14 Sep 2021 02:58:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1631588087;
+ s=mimecast20190719; t=1631588283;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=2iqkjL4GDcy5sECCQzQ/skpl5d4IINm3ZOrf2JUASKI=;
- b=bNky28NWhOOUthdK2knvIZFdr8P4WFW/o3W1joUGHYOjU7h1xL5x/GdMn+M0dSPjZlMO59
- GEAUQHtTqIKxHijvC8Ou2G8aHY+Dd3GlcBA7eXe2GxTMW36qUbXTFPYK1vOY/hsj3hocQv
- k7D2rFB223q/LaQxk+AtsfxBRLs/AVI=
+ bh=wLQAP9QEuGEZ7dNU/LIcvxNGVI1xJN9i8W+8d0addzo=;
+ b=eLZLYTpEBzJsDRrbpB7Ijlysr0BstQVcJFPo7nPw9jYV+wkIbUn5wnms5rQ8UornB4HzXR
+ 18aUxFYE50L/YWnEL3gI2Fi9v0E7/Jkv/yKm0G/VccC9zh4FkDiHz1NzQ9BHLQ3wQorniD
+ nuyd5zgI26pUWPswxfuNLcI4KtmOXYE=
 Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
  [209.85.208.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-551-f05REmDSNLarYGmQ_pT4fg-1; Mon, 13 Sep 2021 22:54:46 -0400
-X-MC-Unique: f05REmDSNLarYGmQ_pT4fg-1
+ us-mta-445--PcLZX_BNYmWCz9aA5lzkQ-1; Mon, 13 Sep 2021 22:58:02 -0400
+X-MC-Unique: -PcLZX_BNYmWCz9aA5lzkQ-1
 Received: by mail-lj1-f199.google.com with SMTP id
- e10-20020a05651c04ca00b001c99c74e564so5158793lji.11
+ c16-20020a2e89d0000000b001d018ef42aaso5147163ljk.23
  for <virtualization@lists.linux-foundation.org>;
- Mon, 13 Sep 2021 19:54:46 -0700 (PDT)
+ Mon, 13 Sep 2021 19:58:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=2iqkjL4GDcy5sECCQzQ/skpl5d4IINm3ZOrf2JUASKI=;
- b=Matiqscuevq05xw3y4K+cfGvwjOYa/jHX3i6bNv2+l4d1Gu0X8aZnXjOxXfO6UuWME
- LVorjNFSV13IgFb8J32yDpMzomoKfwg+lAMZuO4bBfyZYzroZ0ke+tU8oCl/am25IkFt
- NtuHm4gjZXUwj92Q27oWDMoICsNlNGmv96JbE8PqnQMQbY6lHLhRSKcNDgBJSZgbwA+z
- w6tCunhdrgah41eP/p3W9Qg2kkqIgaY4uZSrHOO9CHcfroBSc2y9UCYjeBEubhnT3No8
- mECUMMthEo59vjCLkKeZLXrpO2bKnpg1irHq8B0vQF54wmlVJOTeZ9op16jK4LLK5baq
- Kvmg==
-X-Gm-Message-State: AOAM533shge3jUXRhwD6UhX4gZXqOLpmhe8ZF++Ul5aDwjL9MwfL3nrP
- soxrS5m4aFmIGMm0KZTJMrn9Q/o2DseF4nIXE+X9TSmDF/EXAOymVDbZ6KLAVMr3g7S2tMtYrLY
- 28luHsigRfJ8pBgAPnJjCeWzz8xGgWu+vmDJxYdieomeDPVZmjOegnEYaqg==
-X-Received: by 2002:a05:651c:54c:: with SMTP id
- q12mr13782878ljp.369.1631588085010; 
- Mon, 13 Sep 2021 19:54:45 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzaTINYhS6tDRXrQ6Lk4q9w4sJ1IVKyCRLBqQuBmBwar8J332/jBaIEEyI4rgyAuTGQJKxzOEMT5AJzxZBjRig=
-X-Received: by 2002:a05:651c:54c:: with SMTP id
- q12mr13782860ljp.369.1631588084831; 
- Mon, 13 Sep 2021 19:54:44 -0700 (PDT)
+ bh=wLQAP9QEuGEZ7dNU/LIcvxNGVI1xJN9i8W+8d0addzo=;
+ b=sq66CRKkUeivQO9ThoAIZHMISv5JJLajc8lYJDFnZsNFydB6wzFV0XB034pamgHOtw
+ rwoqMXvqhegDSL/i7QQSnnZSixhTIJJ16cyVPpX2aoCc8kq6u9qku8+WV2e7cCmI0R/p
+ 1eUPhuHI+4i/j6I6AKMFyAIuFZcRyxhseJo3Ax7SBuHpdJtPRWGNjlBVrTuS++2DvFNA
+ wohM8gZJ3DDqL5AqrxhIDE8OMszhSUjDaeKGpL3JKGuurTHGMylriBjEQZ4BcJKgXfB4
+ 7H5Tg9cKgk53FrpjYMUP/Hu8fR5nCK6ZCp0yktnbyFm3ATsy7uj9vADIcl890gJUtLbH
+ S1Cw==
+X-Gm-Message-State: AOAM530rf9AELef6TiGDWbzBLdWyF62dZ9ArFgv9hiSatfY03PztIpAO
+ NiwHXezunDCEdd3taKVNhmp99eOXWtrRW1AlEwrZL70c1lcJ4weBTna8/YxzOqwlh0wKb+Of2m6
+ 522JFGs266Y0AOTszhNWOOZZxaVqEgLzdXwZnrXOXzffUg5ho8F9xIjyg6Q==
+X-Received: by 2002:ac2:5fc5:: with SMTP id q5mr11186997lfg.629.1631588280748; 
+ Mon, 13 Sep 2021 19:58:00 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwZC8OcqaVG/6wIzi5QuuXTYBI1782ihBgQO0EjUxc0y3dp1p7F1hVlqy6wCvm0lvR72dsVjZ1KZgZg7/hfytk=
+X-Received: by 2002:ac2:5fc5:: with SMTP id q5mr11186982lfg.629.1631588280536; 
+ Mon, 13 Sep 2021 19:58:00 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210909063738.46970-1-elic@nvidia.com>
-In-Reply-To: <20210909063738.46970-1-elic@nvidia.com>
+References: <20210909123635.30884-1-elic@nvidia.com>
+ <20210909123635.30884-3-elic@nvidia.com>
+In-Reply-To: <20210909123635.30884-3-elic@nvidia.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 14 Sep 2021 10:54:34 +0800
-Message-ID: <CACGkMEuwjX+gpdsxyCvgm5wp2FN5XhuaSGbhjH6dFm0F0edpYQ@mail.gmail.com>
-Subject: Re: [PATCH] vdpa/mlx5: Avoid executing set_vq_ready() if device is
- reset
+Date: Tue, 14 Sep 2021 10:57:49 +0800
+Message-ID: <CACGkMEu7Xj4=GmEOXcCNiimidonZgERpvrvxV9ee_Lqj0kxrSQ@mail.gmail.com>
+Subject: Re: [PATCH 2/3] vdpa/mlx5: Rename control VQ workqueue to vdpa wq
 To: Eli Cohen <elic@nvidia.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
@@ -122,37 +118,75 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Sep 9, 2021 at 2:37 PM Eli Cohen <elic@nvidia.com> wrote:
+On Thu, Sep 9, 2021 at 8:36 PM Eli Cohen <elic@nvidia.com> wrote:
 >
-> Avoid executing set_vq_ready() if the device has been reset. In such
-> case, the features are cleared and cannot be used in conditional
-> statements. Such reference happens is the function ctrl_vq_idx().
+> A subesequent patch will use the same workqueue for executing other
+> work not related to control VQ. Rename the workqueue and the work queue
+> entry used to convey information to the workqueue.
 >
-> Fixes: 9c90709cf8e7 ("vdpa/mlx5: Add multiqueue support")
 > Signed-off-by: Eli Cohen <elic@nvidia.com>
 
 Acked-by: Jason Wang <jasowang@redhat.com>
 
 > ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 3 +++
->  1 file changed, 3 insertions(+)
+>  drivers/vdpa/mlx5/core/mlx5_vdpa.h | 2 +-
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c  | 8 ++++----
+>  2 files changed, 5 insertions(+), 5 deletions(-)
 >
+> diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa.h b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> index 01a848adf590..81dc3d88d3dd 100644
+> --- a/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> +++ b/drivers/vdpa/mlx5/core/mlx5_vdpa.h
+> @@ -63,7 +63,7 @@ struct mlx5_control_vq {
+>         unsigned short head;
+>  };
+>
+> -struct mlx5_ctrl_wq_ent {
+> +struct mlx5_vdpa_wq_ent {
+>         struct work_struct work;
+>         struct mlx5_vdpa_dev *mvdev;
+>  };
 > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index 64dfd0f500d2..bd56de7484dc 100644
+> index 08ac15b17b83..59f1874648ae 100644
 > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
 > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -1714,6 +1714,9 @@ static void mlx5_vdpa_set_vq_ready(struct vdpa_device *vdev, u16 idx, bool ready
+> @@ -1556,14 +1556,14 @@ static void mlx5_cvq_kick_handler(struct work_struct *work)
+>  {
+>         virtio_net_ctrl_ack status = VIRTIO_NET_ERR;
+>         struct virtio_net_ctrl_hdr ctrl;
+> -       struct mlx5_ctrl_wq_ent *wqent;
+> +       struct mlx5_vdpa_wq_ent *wqent;
+>         struct mlx5_vdpa_dev *mvdev;
+>         struct mlx5_control_vq *cvq;
+>         struct mlx5_vdpa_net *ndev;
+>         size_t read, write;
+>         int err;
+>
+> -       wqent = container_of(work, struct mlx5_ctrl_wq_ent, work);
+> +       wqent = container_of(work, struct mlx5_vdpa_wq_ent, work);
+>         mvdev = wqent->mvdev;
+>         ndev = to_mlx5_vdpa_ndev(mvdev);
+>         cvq = &mvdev->cvq;
+> @@ -1615,7 +1615,7 @@ static void mlx5_vdpa_kick_vq(struct vdpa_device *vdev, u16 idx)
+>         struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
 >         struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
 >         struct mlx5_vdpa_virtqueue *mvq;
+> -       struct mlx5_ctrl_wq_ent *wqent;
+> +       struct mlx5_vdpa_wq_ent *wqent;
 >
-> +       if (!mvdev->actual_features)
-> +               return;
-> +
 >         if (!is_index_valid(mvdev, idx))
 >                 return;
+> @@ -2466,7 +2466,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name)
+>         if (err)
+>                 goto err_mr;
 >
+> -       mvdev->wq = create_singlethread_workqueue("mlx5_vdpa_ctrl_wq");
+> +       mvdev->wq = create_singlethread_workqueue("mlx5_vdpa_wq");
+>         if (!mvdev->wq) {
+>                 err = -ENOMEM;
+>                 goto err_res2;
 > --
-> 2.32.0
+> 2.31.1
 >
 
 _______________________________________________
