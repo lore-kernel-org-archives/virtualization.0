@@ -1,134 +1,114 @@
-Return-Path: <SRS0=bZ0l=OF=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=0+SM=OG=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A1D1C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 15 Sep 2021 22:00:54 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1E20C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 16 Sep 2021 01:06:19 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 22F3361130
-	for <virtualization@archiver.kernel.org>; Wed, 15 Sep 2021 22:00:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 22F3361130
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.ibm.com
+	by mail.kernel.org (Postfix) with ESMTPS id 9797661157
+	for <virtualization@archiver.kernel.org>; Thu, 16 Sep 2021 01:06:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9797661157
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id DA6B982F6C;
-	Wed, 15 Sep 2021 22:00:53 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 562EF60764;
+	Thu, 16 Sep 2021 01:06:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EPJ3cfxymOXj; Wed, 15 Sep 2021 22:00:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 6CFF182419;
-	Wed, 15 Sep 2021 22:00:52 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id cY7fvhmyfnOu; Thu, 16 Sep 2021 01:06:18 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id BDF38606BD;
+	Thu, 16 Sep 2021 01:06:17 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4065BC000F;
-	Wed, 15 Sep 2021 22:00:52 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 55D1BC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A30BDC0011;
+	Thu, 16 Sep 2021 01:06:17 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 62318C000D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 15 Sep 2021 22:00:51 +0000 (UTC)
+ Thu, 16 Sep 2021 01:06:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 312E060C15
+ by smtp3.osuosl.org (Postfix) with ESMTP id 50383606C5
  for <virtualization@lists.linux-foundation.org>;
- Wed, 15 Sep 2021 22:00:51 +0000 (UTC)
+ Thu, 16 Sep 2021 01:06:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=ibm.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id J1hcbyD_nusy
+ with ESMTP id jvQCV29vxj1d
  for <virtualization@lists.linux-foundation.org>;
- Wed, 15 Sep 2021 22:00:50 +0000 (UTC)
+ Thu, 16 Sep 2021 01:06:13 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
- [148.163.158.5])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 8D7B360C06
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 57158606BD
  for <virtualization@lists.linux-foundation.org>;
- Wed, 15 Sep 2021 22:00:50 +0000 (UTC)
-Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
- by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.0.43) with SMTP id 18FLkXGE003306;
- Wed, 15 Sep 2021 18:00:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
- h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=7iRl93veTxWRAyX6LRpljyA5dM+WNqPPZrX1ZQjpDxo=;
- b=dr5NBOWW2BLAQtGuDVVqDzyx2X6SolIHIOI/2XdPrfwF3gpwPW6NI+ybxJc455VnssvD
- QW58y+f9A5kqAbRa3TO/2WEFB+8S/xU9PF9Ew7tMIsAs7kI+Lr/IxdXvjx61OG9FUwx8
- uPiEGdXv+dLs2RNPESd5LqET2Mk66fcWQXAMZaY+A5zPoJjmCOJcQ4T9rOh4fZsRWBj0
- YWPuyR9c6BbNXB2HBmVObDoOOtJNrwur6m5FzpPxcEkhtKieQ03UmU+YSSenYHa3TOgb
- Tq9jU0wUD/wlFdvJ7Yvx5/k0bcJf7a47aoCP8vXi5dTx88SXf1ECAbO5c+ZttmP9diAj uQ== 
-Received: from pps.reinject (localhost [127.0.0.1])
- by mx0b-001b2d01.pphosted.com with ESMTP id 3b3p7nkgyk-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 15 Sep 2021 18:00:49 -0400
-Received: from m0098419.ppops.net (m0098419.ppops.net [127.0.0.1])
- by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18FLxluZ023762;
- Wed, 15 Sep 2021 18:00:49 -0400
-Received: from ppma02fra.de.ibm.com (47.49.7a9f.ip4.static.sl-reverse.com
- [159.122.73.71])
- by mx0b-001b2d01.pphosted.com with ESMTP id 3b3p7nkgxs-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 15 Sep 2021 18:00:48 -0400
-Received: from pps.filterd (ppma02fra.de.ibm.com [127.0.0.1])
- by ppma02fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18FLcWSX019628;
- Wed, 15 Sep 2021 22:00:47 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com
- (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
- by ppma02fra.de.ibm.com with ESMTP id 3b0m39sxcy-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 15 Sep 2021 22:00:47 +0000
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com
- [9.149.105.62])
- by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP
- id 18FLuBlI43123000
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 15 Sep 2021 21:56:11 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id B1132AE075;
- Wed, 15 Sep 2021 22:00:42 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id EFEE3AE073;
- Wed, 15 Sep 2021 22:00:41 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.37.195])
- by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
- Wed, 15 Sep 2021 22:00:41 +0000 (GMT)
-Date: Thu, 16 Sep 2021 00:00:39 +0200
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
- Christian Borntraeger <borntraeger@de.ibm.com>, Pierre Morel
- <pmorel@linux.ibm.com>,
- Michael Mueller <mimu@linux.ibm.com>, linux-s390@vger.kernel.org,
- virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/1] virtio/s390: fix vritio-ccw device teardown
-Message-ID: <20210916000039.7aebfe1a.pasic@linux.ibm.com>
-In-Reply-To: <20210915215742.1793314-1-pasic@linux.ibm.com>
-References: <20210915215742.1793314-1-pasic@linux.ibm.com>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+ Thu, 16 Sep 2021 01:06:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1631754372;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=x63Yqn0DtCTzc9ERFDPUQ+PBwhc7qmVzV00IKh6bfhQ=;
+ b=c/GApsqdARBmroNR4jjrWjgJ+udzzUrbBINKGM+j0JL6gPrduNQ5HkNtTeONrReir8HtpP
+ rfGQJW3q+pg5K4XXv3nnX5n2bLBhsyeNOsHFhDmYWVrQR8tbYDW5IvxF7sLwenfQA5xQUr
+ 8aJjSPa71uaYv5ScWvyk9o3D7tsAmFM=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-274-UpBFhKX4MeSUhJBHOTw7aQ-1; Wed, 15 Sep 2021 21:06:11 -0400
+X-MC-Unique: UpBFhKX4MeSUhJBHOTw7aQ-1
+Received: by mail-lf1-f72.google.com with SMTP id
+ g4-20020a19ac04000000b003eb3973e4e2so2360251lfc.17
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 15 Sep 2021 18:06:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=x63Yqn0DtCTzc9ERFDPUQ+PBwhc7qmVzV00IKh6bfhQ=;
+ b=AHI/Vi0OGnuf+Wlijnwp8ol74N6jTOEs2um80OHs3AkHHHtGf4k0WZggM513MycXr7
+ ZijmLOMfhO1CFwbwiIcYaoEIqlfJxL+cmjGtgdFK6pjqMfpX3N9IloRFyXiKFtK/tSPv
+ WL5cR3v9SZImB+6ekmGPxP7t/4d+QwD276Gy8x50wy7s4lBIoENqAaya0+ltJL76IWId
+ Jtd+VDc7cO6koTn2z41npvhx8eUnAuYNP7F7JvA2joidcmx5LfoWs2rDrAaItjgJaOb1
+ E4QnXOZUI9/9igKH01Mt9EBdEr6eU33wOsuOpHq86lQksr4ewQuz+EU31ex0E5rPfm1e
+ wuOA==
+X-Gm-Message-State: AOAM531ytnRSlriSo834fJK3q5Y5pELsNzBlQGcR9GjgVw63KdlDnspv
+ klpiC5EGY2pd9vPuhoeZJBYy9L8Y9w4zkWXqHz6rcxKEA3eufKZdUkW8DeHDLdkFIPbKlqNMCuQ
+ BgWnjFC5kgdsVmv06bEJpdL4f2qmIqARXp9frolPk+wqAl2a+HsYh0tviAQ==
+X-Received: by 2002:ac2:5fb2:: with SMTP id s18mr2084341lfe.580.1631754369476; 
+ Wed, 15 Sep 2021 18:06:09 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwLREPTBZ+yEpea8lnS1iCiKbHI40pQquw5U16RGNn37qtYRldzDq0hnokb3vg/CzcUr8urYy8bPv7gWMmHLFo=
+X-Received: by 2002:ac2:5fb2:: with SMTP id s18mr2084329lfe.580.1631754369221; 
+ Wed, 15 Sep 2021 18:06:09 -0700 (PDT)
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: hjQy-GMimYKERMsYSCFa8wkPpfhLKgTA
-X-Proofpoint-ORIG-GUID: pE6FKmP0iyw7cx1AdM6mKabhtla7FJn1
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.687,Hydra:6.0.235,FMLib:17.0.607.475
- definitions=2020-10-13_15,2020-10-13_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 adultscore=0
- mlxscore=0 phishscore=0 malwarescore=0 bulkscore=0 priorityscore=1501
- mlxlogscore=999 lowpriorityscore=0 impostorscore=0 spamscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109030001 definitions=main-2109150107
-Cc: bfu@redhat.com, Vineeth Vijayan <vneethv@linux.ibm.com>
+References: <cover.1631101392.git.wuzongyong@linux.alibaba.com>
+ <cover.1631621507.git.wuzongyong@linux.alibaba.com>
+ <834528d24c839080215b2e077f100e9ed5073edc.1631621507.git.wuzongyong@linux.alibaba.com>
+ <20210914085711-mutt-send-email-mst@kernel.org>
+ <CACGkMEu3RUGpe74Vh-FAZD3MwOC3gqU0OEf8A1ULvq7GSMm6Jg@mail.gmail.com>
+ <20210915033756-mutt-send-email-mst@kernel.org>
+ <CACGkMEtN0Z=rgMhaWNO=6h-KXGdosBuOdqoWoND-=Tf+afyUYw@mail.gmail.com>
+ <20210915070805-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20210915070805-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 16 Sep 2021 09:05:58 +0800
+Message-ID: <CACGkMEvqZqwRxjnBLpX+=MYbho0q8Hs7OZbsx4ATzhfwOkB73w@mail.gmail.com>
+Subject: Re: [PATCH v2 4/5] vdpa: add new vdpa attribute
+ VDPA_ATTR_DEV_F_VERSION_1
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: wei.yang1@linux.alibaba.com, Wu Zongyong <wuzongyong@linux.alibaba.com>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -145,24 +125,162 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-s/vritio/virtio/
-(subject)
+On Wed, Sep 15, 2021 at 7:09 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Wed, Sep 15, 2021 at 04:06:57PM +0800, Jason Wang wrote:
+> > On Wed, Sep 15, 2021 at 3:38 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > >
+> > > On Wed, Sep 15, 2021 at 11:18:06AM +0800, Jason Wang wrote:
+> > > > On Tue, Sep 14, 2021 at 8:58 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > >
+> > > > > On Tue, Sep 14, 2021 at 08:24:51PM +0800, Wu Zongyong wrote:
+> > > > > > This new attribute advertises whether the vdpa device is legacy or not.
+> > > > > > Users can pick right virtqueue size if the vdpa device is legacy which
+> > > > > > doesn't support to change virtqueue size.
+> > > > > >
+> > > > > > Signed-off-by: Wu Zongyong <wuzongyong@linux.alibaba.com>
+> > > > >
+> > > > > So if we are bothering with legacy,
+> > > >
+> > > > I think we'd better not. I guess the following may work:
+> > > >
+> > > > 1) disable the driver on BE host
+> > > > 2) present VERSION_1 with ACCESS_PLATFORM in get_features()
+> > > > 3) extend the management to advertise max_queue_size and
+> > > > min_queue_size, for ENI they are the same so management layer knows it
+> > > > needs to set the queue_size correctly during launching qemu
+> > > >
+> > > > Thoughts?
+> > > >
+> > > > Thanks
+> > >
+> > > There are other subtle differences such as header size without
+> > > mergeable buffers for net.
+> >
+> > This can be solved by mandating the feature of a mergeable buffer?
+> >
+> > Thanks
+>
+> PXE and some dpdk versions are only some of the guests that
+> disable mergeable buffers feature.
 
-[..]
+True, but consider
 
-On Wed, 15 Sep 2021 23:57:42 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
+1) the legacy stuffs requires changes in several software layers
+2) it is how virtio 1.0 works e.g device can fail the feature negotiation
+3) it is not supported since day 0
+4) management API can be extended to advertise the mandated features
 
-> Since commit 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and
-> classic notifiers") we were supposed to make sure that
-> virtio_ccw_release_dev() completes before the ccw device, and the
-> attached dma pool are torn down, but unfortunately we did not.
-> Before that commit it used to be OK to delay cleaning up the memory
-> allocated by virtio-ccw indefinitely (which isn't really intuitive for
-> guys used to destruction happens in reverse construction order).
-> 
+It looks affordable.
 
-[..]
+Thanks
+
+>
+> > >
+> > >
+> > > > > I think there are
+> > > > > several things to do when building the interface
+> > > > > - support transitional devices, that is allow userspace
+> > > > >   to tell device it's in legacy mode
+> > > > > - support reporting/setting supporting endian-ness
+> > > > >
+> > > > > > ---
+> > > > > >  drivers/vdpa/vdpa.c          | 6 ++++++
+> > > > > >  drivers/virtio/virtio_vdpa.c | 7 ++++++-
+> > > > > >  include/uapi/linux/vdpa.h    | 1 +
+> > > > > >  3 files changed, 13 insertions(+), 1 deletion(-)
+> > > > > >
+> > > > > > diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> > > > > > index 1dc121a07a93..533d7f589eee 100644
+> > > > > > --- a/drivers/vdpa/vdpa.c
+> > > > > > +++ b/drivers/vdpa/vdpa.c
+> > > > > > @@ -12,6 +12,7 @@
+> > > > > >  #include <linux/slab.h>
+> > > > > >  #include <linux/vdpa.h>
+> > > > > >  #include <uapi/linux/vdpa.h>
+> > > > > > +#include <uapi/linux/virtio_config.h>
+> > > > > >  #include <net/genetlink.h>
+> > > > > >  #include <linux/mod_devicetable.h>
+> > > > > >
+> > > > > > @@ -494,6 +495,7 @@ vdpa_dev_fill(struct vdpa_device *vdev, struct sk_buff *msg, u32 portid, u32 seq
+> > > > > >       u16 max_vq_size;
+> > > > > >       u32 device_id;
+> > > > > >       u32 vendor_id;
+> > > > > > +     u64 features;
+> > > > > >       void *hdr;
+> > > > > >       int err;
+> > > > > >
+> > > > > > @@ -508,6 +510,7 @@ vdpa_dev_fill(struct vdpa_device *vdev, struct sk_buff *msg, u32 portid, u32 seq
+> > > > > >       device_id = vdev->config->get_device_id(vdev);
+> > > > > >       vendor_id = vdev->config->get_vendor_id(vdev);
+> > > > > >       max_vq_size = vdev->config->get_vq_num_max(vdev);
+> > > > > > +     features = vdev->config->get_features(vdev);
+> > > > > >
+> > > > > >       err = -EMSGSIZE;
+> > > > > >       if (nla_put_string(msg, VDPA_ATTR_DEV_NAME, dev_name(&vdev->dev)))
+> > > > > > @@ -520,6 +523,9 @@ vdpa_dev_fill(struct vdpa_device *vdev, struct sk_buff *msg, u32 portid, u32 seq
+> > > > > >               goto msg_err;
+> > > > > >       if (nla_put_u16(msg, VDPA_ATTR_DEV_MAX_VQ_SIZE, max_vq_size))
+> > > > > >               goto msg_err;
+> > > > > > +     if (features & BIT_ULL(VIRTIO_F_VERSION_1) &&
+> > > > > > +         nla_put_flag(msg, VDPA_ATTR_DEV_VERSION_1))
+> > > > > > +             goto msg_err;
+> > > > > >
+> > > > > >       genlmsg_end(msg, hdr);
+> > > > > >       return 0;
+> > > > > > diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+> > > > > > index 72eaef2caeb1..1cba957c4cdc 100644
+> > > > > > --- a/drivers/virtio/virtio_vdpa.c
+> > > > > > +++ b/drivers/virtio/virtio_vdpa.c
+> > > > > > @@ -7,6 +7,7 @@
+> > > > > >   *
+> > > > > >   */
+> > > > > >
+> > > > > > +#include "linux/virtio_config.h"
+> > > > > >  #include <linux/init.h>
+> > > > > >  #include <linux/module.h>
+> > > > > >  #include <linux/device.h>
+> > > > > > @@ -145,6 +146,7 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+> > > > > >       /* Assume split virtqueue, switch to packed if necessary */
+> > > > > >       struct vdpa_vq_state state = {0};
+> > > > > >       unsigned long flags;
+> > > > > > +     bool may_reduce_num = false;
+> > > > > >       u32 align, num;
+> > > > > >       int err;
+> > > > > >
+> > > > > > @@ -169,10 +171,13 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+> > > > > >               goto error_new_virtqueue;
+> > > > > >       }
+> > > > > >
+> > > > > > +     if (ops->get_features(vdpa) & BIT_ULL(VIRTIO_F_VERSION_1))
+> > > > > > +             may_reduce_num = true;
+> > > > > > +
+> > > > > >       /* Create the vring */
+> > > > > >       align = ops->get_vq_align(vdpa);
+> > > > > >       vq = vring_create_virtqueue(index, num, align, vdev,
+> > > > > > -                                 true, true, ctx,
+> > > > > > +                                 true, may_reduce_num, ctx,
+> > > > > >                                   virtio_vdpa_notify, callback, name);
+> > > > > >       if (!vq) {
+> > > > > >               err = -ENOMEM;
+> > > > > > diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
+> > > > > > index 66a41e4ec163..ce0b74276a5b 100644
+> > > > > > --- a/include/uapi/linux/vdpa.h
+> > > > > > +++ b/include/uapi/linux/vdpa.h
+> > > > > > @@ -32,6 +32,7 @@ enum vdpa_attr {
+> > > > > >       VDPA_ATTR_DEV_VENDOR_ID,                /* u32 */
+> > > > > >       VDPA_ATTR_DEV_MAX_VQS,                  /* u32 */
+> > > > > >       VDPA_ATTR_DEV_MAX_VQ_SIZE,              /* u16 */
+> > > > > > +     VDPA_ATTR_DEV_VERSION_1,                /* flag */
+> > > > > >
+> > > > > >       /* new attributes must be added above here */
+> > > > > >       VDPA_ATTR_MAX,
+> > > > > > --
+> > > > > > 2.31.1
+> > > > >
+> > >
+>
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
