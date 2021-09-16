@@ -7,68 +7,66 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C987C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 16 Sep 2021 16:33:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E68B5C4332F
+	for <virtualization@archiver.kernel.org>; Thu, 16 Sep 2021 16:52:45 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CAB6261AFD
-	for <virtualization@archiver.kernel.org>; Thu, 16 Sep 2021 16:33:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org CAB6261AFD
+	by mail.kernel.org (Postfix) with ESMTPS id 91E8163261
+	for <virtualization@archiver.kernel.org>; Thu, 16 Sep 2021 16:52:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 91E8163261
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 8E57F41616;
-	Thu, 16 Sep 2021 16:33:14 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 61B614080A;
+	Thu, 16 Sep 2021 16:52:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VZSmYaO49fkI; Thu, 16 Sep 2021 16:33:13 +0000 (UTC)
+	with ESMTP id A9hZ1zgMZJfN; Thu, 16 Sep 2021 16:52:44 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id DC96C415A8;
-	Thu, 16 Sep 2021 16:33:12 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D44CE407F1;
+	Thu, 16 Sep 2021 16:52:43 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AC19EC000F;
-	Thu, 16 Sep 2021 16:33:12 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 23F07C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A4483C000F;
+	Thu, 16 Sep 2021 16:52:43 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DE125C000D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 16 Sep 2021 16:33:11 +0000 (UTC)
+ Thu, 16 Sep 2021 16:52:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 0690B4042B
+ by smtp4.osuosl.org (Postfix) with ESMTP id C015240825
  for <virtualization@lists.linux-foundation.org>;
- Thu, 16 Sep 2021 16:33:11 +0000 (UTC)
+ Thu, 16 Sep 2021 16:52:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=linuxfoundation.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NxD0GrBmkXyZ
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Y1R-O75I42Uc
  for <virtualization@lists.linux-foundation.org>;
- Thu, 16 Sep 2021 16:33:09 +0000 (UTC)
+ Thu, 16 Sep 2021 16:52:41 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp2.osuosl.org (Postfix) with ESMTPS id AC308402E1
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CF1CB407F1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 16 Sep 2021 16:33:09 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A24861AFB;
- Thu, 16 Sep 2021 16:33:08 +0000 (UTC)
+ Thu, 16 Sep 2021 16:52:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F0A526325F;
+ Thu, 16 Sep 2021 16:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1631809989;
- bh=hwJG96tOPc4sN1QfidDh9o9m5ZLVMkjVoQ2Rc3a3q6c=;
+ s=korg; t=1631811161;
+ bh=We1WAH98abIdQl6WDRwYDdwBqGyJa6AdZyPB/uCcD+Q=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=AYvqtuKF9nZ8ouQ7kGCmhiWrTWOmGjnEZhVzJwtGGw0qPY+srEiaYiGhWznY1w+pj
- rL+/jSUDFh6DU6OISeJE3vUIffcktumgRGEmTl4D7pyK9M/rNqv5nMmieXnszgl8rY
- qK/W0gROvXWHDWuBbT7cORzynP+yOvb51nAux1oE=
+ b=GlelumZY/s755cilsg6uAkNT07moi4pCLjpKd+eXda4UYQbg3BgyemZPthLeUjKUG
+ Xd8QOlG4FdsnDWMfryawWUD3s7BhF1bq4oVPZ0RhDccqG93U/wWTaDGLDWIKiOG8Sw
+ VECUIVa2BlLNeYOCQw05vVHAah54SRwHRWGP0CoU=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 5.13 358/380] mm/memory_hotplug: use "unsigned long" for PFN
+Subject: [PATCH 5.14 404/432] mm/memory_hotplug: use "unsigned long" for PFN
  in zone_for_pfn_range()
-Date: Thu, 16 Sep 2021 18:01:55 +0200
-Message-Id: <20210916155816.237296764@linuxfoundation.org>
+Date: Thu, 16 Sep 2021 18:02:33 +0200
+Message-Id: <20210916155824.533541303@linuxfoundation.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210916155803.966362085@linuxfoundation.org>
-References: <20210916155803.966362085@linuxfoundation.org>
+In-Reply-To: <20210916155810.813340753@linuxfoundation.org>
+References: <20210916155810.813340753@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Cc: Michel Lespinasse <michel@lespinasse.org>,
@@ -220,7 +218,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/include/linux/memory_hotplug.h
 +++ b/include/linux/memory_hotplug.h
-@@ -366,8 +366,8 @@ extern void sparse_remove_section(struct
+@@ -339,8 +339,8 @@ extern void sparse_remove_section(struct
  		unsigned long map_offset, struct vmem_altmap *altmap);
  extern struct page *sparse_decode_mem_map(unsigned long coded_mem_map,
  					  unsigned long pnum);
@@ -233,7 +231,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  void arch_remove_linear_mapping(u64 start, u64 size);
 --- a/mm/memory_hotplug.c
 +++ b/mm/memory_hotplug.c
-@@ -834,8 +834,8 @@ static inline struct zone *default_zone_
+@@ -708,8 +708,8 @@ static inline struct zone *default_zone_
  	return movable_node_enabled ? movable_zone : kernel_zone;
  }
  
