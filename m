@@ -2,97 +2,133 @@ Return-Path: <SRS0=H5WS=OJ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_2
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EF45C433F5
-	for <virtualization@archiver.kernel.org>; Sun, 19 Sep 2021 19:45:26 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8019AC433F5
+	for <virtualization@archiver.kernel.org>; Sun, 19 Sep 2021 22:39:53 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 24AE661051
-	for <virtualization@archiver.kernel.org>; Sun, 19 Sep 2021 19:45:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 24AE661051
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id F002061051
+	for <virtualization@archiver.kernel.org>; Sun, 19 Sep 2021 22:39:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org F002061051
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id D40744043C;
-	Sun, 19 Sep 2021 19:45:25 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 92F9F402CF;
+	Sun, 19 Sep 2021 22:39:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6Z5MnwcQ9TbZ; Sun, 19 Sep 2021 19:45:24 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 462EA4041D;
-	Sun, 19 Sep 2021 19:45:24 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VN2tHKcQHXQz; Sun, 19 Sep 2021 22:39:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 8297B40190;
+	Sun, 19 Sep 2021 22:39:50 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E4521C0011;
-	Sun, 19 Sep 2021 19:45:23 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EB39CC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 61364C000F;
+	Sun, 19 Sep 2021 22:39:50 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 90F66C000D
  for <virtualization@lists.linux-foundation.org>;
- Sun, 19 Sep 2021 19:45:22 +0000 (UTC)
+ Sun, 19 Sep 2021 22:39:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id D969D83E54
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6CF0440350
  for <virtualization@lists.linux-foundation.org>;
- Sun, 19 Sep 2021 19:45:22 +0000 (UTC)
+ Sun, 19 Sep 2021 22:39:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mtED1efVbAZh
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=ibm.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id esdTwXc-9WZH
  for <virtualization@lists.linux-foundation.org>;
- Sun, 19 Sep 2021 19:45:21 +0000 (UTC)
+ Sun, 19 Sep 2021 22:39:47 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 9C10683E4F
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com
+ [148.163.156.1])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 7843440347
  for <virtualization@lists.linux-foundation.org>;
- Sun, 19 Sep 2021 19:45:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1632080720;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=4oAWpa0o9G4j995IPJun3Q9gB79UMusoI6QFX2kWtMI=;
- b=deMm3KXb62/OZwQ9u+A9OaCt6L1g95NP4dH2Tj/7De5s3Hv+iMyFbpVKp72NvS5RBlFzzR
- 5JU3S1Cgh4l1wOcHitID9qfjpA4c7gQnSvEjjk9pU4H6nfMklkYgt5CdhDlDj/CVD5lRj4
- HmYdzBHIH7801CSE5zZKsp4Qn45ZnH4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-269-9h9lRDY3M0STrH3llpuhmg-1; Sun, 19 Sep 2021 15:45:16 -0400
-X-MC-Unique: 9h9lRDY3M0STrH3llpuhmg-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
- [10.5.11.23])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C3EF91084681;
- Sun, 19 Sep 2021 19:45:14 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.32.42])
- by smtp.corp.redhat.com (Postfix) with ESMTP id A554219724;
- Sun, 19 Sep 2021 19:45:04 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
- id F16C122827F; Sun, 19 Sep 2021 15:45:03 -0400 (EDT)
-Date: Sun, 19 Sep 2021 15:45:03 -0400
-From: Vivek Goyal <vgoyal@redhat.com>
-To: JeffleXu <jefflexu@linux.alibaba.com>
-Subject: Re: [Virtio-fs] [PATCH v4 0/8] fuse,virtiofs: support per-file DAX
-Message-ID: <YUeTP1B+JE5gGudq@redhat.com>
-References: <20210817022220.17574-1-jefflexu@linux.alibaba.com>
- <CAJfpeguw1hMOaxpDmjmijhf=-JEW95aEjxfVo_=D_LyWx8LDgw@mail.gmail.com>
- <YRuCHvhICtTzMK04@work-vm> <YRuuRo8jEs5dkfw9@redhat.com>
- <299689e9-bdeb-a715-3f31-8c70369cf0ba@linux.alibaba.com>
+ Sun, 19 Sep 2021 22:39:47 +0000 (UTC)
+Received: from pps.filterd (m0098394.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18JM0eNS026178; 
+ Sun, 19 Sep 2021 18:39:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
+ h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=NOo7aphByIffGzCjytW4K5tlJde9y3XX6jvfzqwO2p4=;
+ b=hmEz349sAfzVGCvorQoNl2rv+BgIzoGCxxoGi9gFH0JQZLebUN4z3y6GmF5MCVi/tcNK
+ zVj1EpjD6Cfi8LLFt4jGsGkevWTAKJGBOZdNPFpaLePyBx5iPxl2ru7mc2O9xwwVAaTf
+ FHWuk1klfbLORdws+Dl4xb72rpYLXk+oVWej8gbW1Dlg7593x/q2OTNA/87YfMFWKwFZ
+ L9ONi+jE0LR3d0xGA2Sc2iVhwOaGzSuVI6HVcJBQMopl82VJdjrnQImLFfXQN8RSFEMx
+ gRsRWV6fl0uzrFQ6bPOrr88vF02LhmAwZSwXO9SvNE4opEYOG2B+EtuL5GhAPjDJzUaq Dw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3b5w4d49b3-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Sun, 19 Sep 2021 18:39:46 -0400
+Received: from m0098394.ppops.net (m0098394.ppops.net [127.0.0.1])
+ by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18JMaGNb021508;
+ Sun, 19 Sep 2021 18:39:46 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com
+ [149.81.74.108])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3b5w4d49ar-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Sun, 19 Sep 2021 18:39:45 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+ by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18JMWoJM004446;
+ Sun, 19 Sep 2021 22:39:43 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com
+ (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+ by ppma05fra.de.ibm.com with ESMTP id 3b57r8h2nx-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Sun, 19 Sep 2021 22:39:43 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com
+ [9.149.105.232])
+ by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
+ 18JMdd3864028960
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Sun, 19 Sep 2021 22:39:39 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 93A5D5208E;
+ Sun, 19 Sep 2021 22:39:39 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.4.199])
+ by d06av21.portsmouth.uk.ibm.com (Postfix) with SMTP id A8DB952089; 
+ Sun, 19 Sep 2021 22:39:38 +0000 (GMT)
+Date: Mon, 20 Sep 2021 00:39:35 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 1/1] virtio/s390: fix vritio-ccw device teardown
+Message-ID: <20210920003935.1369f9fe.pasic@linux.ibm.com>
+In-Reply-To: <87mtobh9xn.fsf@redhat.com>
+References: <20210915215742.1793314-1-pasic@linux.ibm.com>
+ <87pmt8hp5o.fsf@redhat.com>
+ <20210916151835.4ab512b2.pasic@linux.ibm.com>
+ <87mtobh9xn.fsf@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <299689e9-bdeb-a715-3f31-8c70369cf0ba@linux.alibaba.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-Cc: Miklos Szeredi <miklos@szeredi.hu>,
- "Dr. David Alan Gilbert" <dgilbert@redhat.com>,
- virtualization@lists.linux-foundation.org,
- virtio-fs-list <virtio-fs@redhat.com>, Joseph Qi <joseph.qi@linux.alibaba.com>,
- Liu Bo <bo.liu@linux.alibaba.com>, linux-fsdevel@vger.kernel.org
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Vo_b5A4_7bFStOBJqnClaqJfUDOVFbDR
+X-Proofpoint-ORIG-GUID: DI9__-iXJR6ZE_G5dJfTm66tONOyFUfq
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-09-19_07,2021-09-17_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015
+ priorityscore=1501 malwarescore=0 mlxlogscore=999 suspectscore=0
+ spamscore=0 lowpriorityscore=0 impostorscore=0 bulkscore=0 mlxscore=0
+ adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109030001 definitions=main-2109190167
+Cc: linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+ Pierre Morel <pmorel@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ bfu@redhat.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@de.ibm.com>,
+ Vineeth Vijayan <vneethv@linux.ibm.com>, kvm@vger.kernel.org,
+ Michael Mueller <mimu@linux.ibm.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -109,111 +145,152 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Sep 16, 2021 at 04:21:59PM +0800, JeffleXu wrote:
-> Hi, I add some performance statistics below.
-> 
-> 
-> On 8/17/21 8:40 PM, Vivek Goyal wrote:
-> > On Tue, Aug 17, 2021 at 10:32:14AM +0100, Dr. David Alan Gilbert wrote:
-> >> * Miklos Szeredi (miklos@szeredi.hu) wrote:
-> >>> On Tue, 17 Aug 2021 at 04:22, Jeffle Xu <jefflexu@linux.alibaba.com> wrote:
-> >>>>
-> >>>> This patchset adds support of per-file DAX for virtiofs, which is
-> >>>> inspired by Ira Weiny's work on ext4[1] and xfs[2].
-> >>>
-> >>> Can you please explain the background of this change in detail?
-> >>>
-> >>> Why would an admin want to enable DAX for a particular virtiofs file
-> >>> and not for others?
-> >>
-> >> Where we're contending on virtiofs dax cache size it makes a lot of
-> >> sense; it's quite expensive for us to map something into the cache
-> >> (especially if we push something else out), so selectively DAXing files
-> >> that are expected to be hot could help reduce cache churn.
-> 
-> Yes, the performance of dax can be limited when the DAX window is
-> limited, where dax window may be contended by multiple files.
-> 
-> I tested kernel compiling in virtiofs, emulating the scenario where a
-> lot of files contending dax window and triggering dax window reclaiming.
-> 
-> Environment setup:
-> - guest vCPU: 16
-> - time make vmlinux -j128
-> 
-> type    | cache  | cache-size | time
-> ------- | ------ | ---------- | ----
-> non-dax | always |   --       | real 2m48.119s
-> dax     | always | 64M        | real 4m49.563s
-> dax     | always |   1G       | real 3m14.200s
-> dax     | always |   4G       | real 2m41.141s
-> 
-> 
-> It can be seen that there's performance drop, comparing to the normal
-> buffered IO, when dax window resource is restricted and dax window
-> relcaiming is triggered. The smaller the cache size is, the worse the
-> performance is. The performance drop can be alleviated and eliminated as
-> cache size increases.
-> 
-> Though we may not compile kernel in virtiofs, indeed we may access a lot
-> of small files in virtiofs and suffer this performance drop.
+On Fri, 17 Sep 2021 10:40:20 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-Hi Jeffle,
-
-If you access lot of big files or a file bigger than dax window, still
-you will face performance drop due to reclaim. IOW, if data being
-accessed is bigger than dax window, then reclaim will trigger and
-performance drop will be observed. So I think its not fair to assciate
-performance drop with big for small files as such.
-
-What makes more sense is that memomry usage argument you have used
-later in the email. That is, we have a fixed chunk size of 2MB. And
-that means we use 512 * 64 = 32K of memory per chunk. So if a file
-is smaller than 32K in size, it might be better to just access it
-without DAX and incur the cost of page cache in guest instead. Even this
-argument also works only if dax window is being utilized fully.
-
-Anyway, I think Miklos already asked you to send patches so that
-virtiofs daemon specifies which file to use dax on. So are you
-planning to post patches again for that. (And drop patches to
-read dax attr from per inode from filesystem in guest).
-
-Thanks
-Vivek
-
+> On Thu, Sep 16 2021, Halil Pasic <pasic@linux.ibm.com> wrote:
 > 
+> > On Thu, 16 Sep 2021 10:59:15 +0200
+> > Cornelia Huck <cohuck@redhat.com> wrote:
+> >  
+> >> > Since commit 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and
+> >> > classic notifiers") we were supposed to make sure that
+> >> > virtio_ccw_release_dev() completes before the ccw device, and the
+> >> > attached dma pool are torn down, but unfortunately we did not.
+> >> > Before that commit it used to be OK to delay cleaning up the memory
+> >> > allocated by virtio-ccw indefinitely (which isn't really intuitive for
+> >> > guys used to destruction happens in reverse construction order).
+> >> >
+> >> > To accomplish this let us take a reference on the ccw device before we
+> >> > allocate the dma_area and give it up after dma_area was freed.
+> >> >
+> >> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> >> > Fixes: 48720ba56891 ("virtio/s390: use DMA memory for ccw I/O and
+> >> > classic notifiers")
+> >> > Reported-by: bfu@redhat.com
+> >> > ---
+> >> >
+> >> > I'm not certain this is the only hot-unplug and teardonw related problem
+> >> > with virtio-ccw.
+> >> >
+> >> > Some things that are not perfectly clear to me:
+> >> > * What would happen if we observed an hot-unplug while we are doing
+> >> >   wait_event() in ccw_io_helper()? Do we get stuck? I don't thin we
+> >> >   are guaranteed to receive an irq for a subchannel that is gone.    
+> >> 
+> >> Hm. I think we may need to do a wake_up during remove handling.  
+> >
+> > My guess is that the BQL is saving us from ever seeing this with QEMU
+> > as the hypervisor-userspace. Nevertheless I don't think we should rely
+> > on that.  
 > 
-> > In that case probaly we should just make DAX window larger. I assume
-> 
-> Yes, as the DAX window gets larger, it is less likely that we can run
-> short of dax window resource.
-> 
-> However it doesn't come without cost. 'struct page' descriptor for dax
-> window will consume guest memory at a ratio of ~1.5% (64/4096 = ~1.5%,
-> page descriptor is of 64 bytes size, assuming 4K sized page). That is,
-> every 1GB cache size will cost 16MB guest memory. As the cache size
-> increases, the memory footprint for page descriptors also increases,
-> which may offset the benefit of dax by eliminating guest page cache.
-> 
-> In summary, per-file dax feature tries to achieve a balance between
-> performance and memory overhead, by offering a finer gained control for
-> dax to users.
-> 
-> 
-> > that selecting which files to turn DAX on, will itself will not be
-> > a trivial. Not sure what heuristics are being deployed to determine
-> > that. Will like to know more about it.
-> 
-> Currently we enable dax for hot and large blob files, while disabling
-> dax for other miscellaneous small files.
-> 
-> 
-> 
-> -- 
-> Thanks,
-> Jeffle
+> I agree. Let's do that via a separate patch.
 > 
 
+I understand you would like us to finish the discussion on the alternate
+approach before giving an r-b for this patch, right?
+
+> >  
+> >>   
+> >> > * cdev->online seems to be manipulated under cdev->ccwlock, but
+> >> >   in virtio_ccw_remove() we look at it to decide should we clean up
+> >> >   or not. What is the idea there? I guess we want to avoid doing
+> >> >   if nothing is there or twice. But I don't understand how stuff
+> >> >   interlocks.    
+> >> 
+> >> We only created the virtio device when we onlined the ccw device. Do you
+> >> have a better idea how to check for that? (And yes, I'm not sure the
+> >> locking is correct.)
+> >>   
+> >
+> > Thanks, if I find time for it, I will try to understand this better and
+> > come back with my findings.
+> >  
+> >> > * Can virtio_ccw_remove() get called while !cdev->online and 
+> >> >   virtio_ccw_online() is running on a different cpu? If yes, what would
+> >> >   happen then?    
+> >> 
+> >> All of the remove/online/... etc. callbacks are invoked via the ccw bus
+> >> code. We have to trust that it gets it correct :) (Or have the common
+> >> I/O layer maintainers double-check it.)
+> >>   
+> >
+> > Vineeth, what is your take on this? Are the struct ccw_driver
+> > virtio_ccw_remove and the virtio_ccw_online callbacks mutually
+> > exclusive. Please notice that we may initiate the onlining by
+> > calling ccw_device_set_online() from a workqueue.
+> >
+> > @Conny: I'm not sure what is your definition of 'it gets it correct'...
+> > I doubt CIO can make things 100% foolproof in this area.  
+> 
+> Not 100% foolproof, but "don't online a device that is in the progress
+> of going away" seems pretty basic to me.
+> 
+
+I hope Vineeth will chime in on this.
+
+> >  
+> >> >  
+> >> > The main addresse of these questions is Conny ;).  
+> >
+> > In any case, I think we can go step by step. I would like the issue
+> > this patch intends to address, addressed first. Then we can think
+> > about the rest.
+> >  
+> >> >
+> >> > An alternative to this approach would be to inc and dec the refcount
+> >> > in ccw_device_dma_zalloc() and ccw_device_dma_free() respectively.    
+> >> 
+> >> Yeah, I also thought about that. This would give us more get/put
+> >> operations, but might be the safer option.  
+> >
+> > My understanding is, that having the ccw device go away while in a
+> > middle of doing ccw stuff (about to submit, or waiting for a channel
+> > program, or whatever) was bad before.  
+> 
+> What do you mean with "was bad before"?
+
+Using an already invalid pointer to the ccw device is always bad. I'm
+not sure what prevented this from happening before commit 48720ba56891.
+I'm aware of the fact that virtio_ccw_release_dev() didn't use to
+deference the vcdev->cdev before that commit, so we didn't have this
+exact problem. Can you tell me, how did we use to ensure that all
+dereferences of vcdev->cdev are legit, i.e. happened while the
+ccw device is still fully alive before commit 48720ba56891?
+
+> 
+> > So my intuition tells me that
+> > drivers should manage explicitly. Yes virtio_ccw happens to have dma
+> > memory whose lifetime is more or less the lifetime of struct virtio_ccw,
+> > but that may not be always the case.  
+> 
+> I'm not sure what you're getting at here. Regardless of the lifetime of
+> the dma memory, it depends on the presence of the ccw device to which it
+> is tied. This means that the ccw device must not be released while the
+> dma memory is alive. We can use the approach in your patch here due to
+> the lifetime of the dma memory that virtio-ccw allocates when we start
+> using the device and frees when we stop using the device, or we can use
+> get/put with every allocate/release dma memory pair, which should be
+> safe for everyone?
+> 
+
+What I mean is that ccw_device_dma_[zalloc,free]() take a pointer to the
+ccw_device. If we get/put in those we can ensure that, provided the
+alloc and the free calls are properly paired, the device will be still
+alive (and the pointer valid) for the free, if it was valid for the
+alloc. But it does not ensure that each and every call to alloc is with
+a valid pointer, or that other uses of the pointer are OK. So I don't
+think it is completely safe for everyone, because we could try to use
+a pointer to a ccw device when not having any dma memory allocated from
+its pool.
+
+This patch takes reference to cdev before the pointer is published via
+vcdev->cdev and drops the reference after *vcdev is freed. The idea is
+that the pointee basically outlives the pointer. (Without having a full
+understanding of how things are synchronized).
+
+Regards,
+Halil
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
