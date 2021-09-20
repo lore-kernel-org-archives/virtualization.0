@@ -2,94 +2,135 @@ Return-Path: <SRS0=sYkO=OK=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C1EDC433EF
-	for <virtualization@archiver.kernel.org>; Mon, 20 Sep 2021 13:07:39 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C859C433EF
+	for <virtualization@archiver.kernel.org>; Mon, 20 Sep 2021 13:28:00 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 070A1610FB
-	for <virtualization@archiver.kernel.org>; Mon, 20 Sep 2021 13:07:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 070A1610FB
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id E0EFB60F23
+	for <virtualization@archiver.kernel.org>; Mon, 20 Sep 2021 13:27:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E0EFB60F23
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C93C9826D6;
-	Mon, 20 Sep 2021 13:07:38 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 9C72840408;
+	Mon, 20 Sep 2021 13:27:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id s7fWZXrTsmGK; Mon, 20 Sep 2021 13:07:36 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8D58A82505;
-	Mon, 20 Sep 2021 13:07:35 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id FC2J31GrYEDg; Mon, 20 Sep 2021 13:27:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2203A403F7;
+	Mon, 20 Sep 2021 13:27:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 35E45C0011;
-	Mon, 20 Sep 2021 13:07:35 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 54406C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E73A3C001C;
+	Mon, 20 Sep 2021 13:27:57 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5BF0AC000F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Sep 2021 13:07:34 +0000 (UTC)
+ Mon, 20 Sep 2021 13:27:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 358D6606A0
+ by smtp4.osuosl.org (Postfix) with ESMTP id 3DDB240408
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Sep 2021 13:07:34 +0000 (UTC)
+ Mon, 20 Sep 2021 13:27:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=fail (1024-bit key) reason="fail (message has been altered)"
- header.d=linuxfoundation.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 998kOzmilH1x
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Mx4cqn52AGyU
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Sep 2021 13:07:32 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 4A3CE605AD
+ Mon, 20 Sep 2021 13:27:55 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com
+ [148.163.156.1])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id A0A18403F7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 20 Sep 2021 13:07:32 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B60C6109E;
- Mon, 20 Sep 2021 13:07:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1632143252;
- bh=Eq3xcueqLrRY/llEuBuOtCWyYwgkpnFYt2qPGs8yOoA=;
- h=Subject:To:Cc:From:Date:From;
- b=qQ1r0k5eHC7tW91F1j5QZPfycEZ3nOh5J6KkxjZBNrFd5B4gblzrnY8UaihFVt+8/
- /moZirgqV64CFfRQPw2TsfRXBBY69sNF+0z6fRVIUaRLMWJgq1vRWtPst993hOB3Cn
- AIcQ7RReNjNUHsAN9SL4s0GM6Psw0EYId5tczy7A=
-Subject: Patch "mm/memory_hotplug: use "unsigned long" for PFN in
- zone_for_pfn_range()" has been added to the 4.19-stable tree
-To: 20210607195430.48228-1-david@redhat.com, akpm@linux-foundation.org,
- aneesh.kumar@linux.ibm.com, anshuman.khandual@arm.com, anton@ozlabs.org,
- ardb@kernel.org, bauerman@linux.ibm.com, benh@kernel.crashing.org,
- bhe@redhat.com, borntraeger@de.ibm.com, bp@alien8.de, catalin.marinas@arm.com,
- cheloha@linux.ibm.com, christophe.leroy@c-s.fr, dalias@libc.org,
- dan.j.williams@intel.com, dave.hansen@linux.intel.com, dave.jiang@intel.com,
- david@redhat.com, gor@linux.ibm.com, gregkh@linuxfoundation.org,
- hca@linux.ibm.com, hpa@zytor.com, jasowang@redhat.com, joe@perches.com,
- justin.he@arm.com, ldufour@linux.ibm.com, lenb@kernel.org, luto@kernel.org,
- mhocko@kernel.org, michel@lespinasse.org, mingo@redhat.com, mpe@ellerman.id.au,
- mst@redhat.com, nathanl@linux.ibm.com, npiggin@gmail.com, osalvador@suse.de,
- pankaj.gupta.linux@gmail.com, pankaj.gupta@ionos.com,
- pasha.tatashin@soleen.com, paulus@samba.org, peterz@infradead.org,
- pmorel@linux.ibm.com, rafael.j.wysocki@intel.com,
- richard.weiyang@linux.alibaba.com, rjw@rjwysocki.net, rppt@kernel.org, 
- slyfox@gentoo.org, songmuchun@bytedance.com, tglx@linutronix.de,
- torvalds@linux-foundation.org, vbabka@suse.cz,
- virtualization@lists.linux-foundation.org, vishal.l.verma@intel.com,
- vkuznets@redhat.com, wangkefeng.wang@huawei.com, will@kernel.org,
- ysato@users.sourceforge.jp
-From: <gregkh@linuxfoundation.org>
-Date: Mon, 20 Sep 2021 15:07:29 +0200
-Message-ID: <1632143249169148@kroah.com>
+ Mon, 20 Sep 2021 13:27:55 +0000 (UTC)
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18KDD7wN024097; 
+ Mon, 20 Sep 2021 09:27:55 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
+ h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=U7cmcijDA1vNzgXHEI3npVm3DS1EdsroG6ZTmXPrYJY=;
+ b=RJ6jIXbk/+7kl5zb/i4F2MDCokka5vKNUjVo6y42PcZYg+5YVtBzr6eOwpzGk0yui8Bu
+ H6ELeQfQGXzsY1D75vELW8ufqhfBHpUfs2KXY3jIhrQYCLXeBbfHXHkN3gGrukwskch6
+ StDpJko7PCLVlS6sTQdb9iIkGXOLeK+P8vfFnOq2jQFQe+Jz7BHHQRjtfOd5y3bQMiUo
+ IAKX0KcwHfxmytkQVvQqIiXaxbzl521gk+CLAnpXg6xHYe3ivN3SZtg53Dwvnu8WqHVe
+ h5Roun6Kcvdypyj54bKqN2oiGTaf/vemDjQR3bzFpltL1/Ep2HtKzsiYtaAMEz+y0sDr Tw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3b5w69a0a5-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Mon, 20 Sep 2021 09:27:54 -0400
+Received: from m0098396.ppops.net (m0098396.ppops.net [127.0.0.1])
+ by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18KDDKRj027950;
+ Mon, 20 Sep 2021 09:27:54 -0400
+Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com
+ [159.122.73.72])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3b5w69a09a-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Mon, 20 Sep 2021 09:27:54 -0400
+Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
+ by ppma06fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18KDD6nJ031008;
+ Mon, 20 Sep 2021 13:27:51 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com
+ (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+ by ppma06fra.de.ibm.com with ESMTP id 3b57cj87jy-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Mon, 20 Sep 2021 13:27:51 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (d06av24.portsmouth.uk.ibm.com
+ [9.149.105.60])
+ by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP
+ id 18KDN5d561866464
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Mon, 20 Sep 2021 13:23:05 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 5CB7342041;
+ Mon, 20 Sep 2021 13:27:48 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 8E3C24204D;
+ Mon, 20 Sep 2021 13:27:47 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.4.199])
+ by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
+ Mon, 20 Sep 2021 13:27:47 +0000 (GMT)
+Date: Mon, 20 Sep 2021 15:27:44 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 1/1] virtio/s390: fix vritio-ccw device teardown
+Message-ID: <20210920152744.55af1201.pasic@linux.ibm.com>
+In-Reply-To: <875yuvh73k.fsf@redhat.com>
+References: <20210915215742.1793314-1-pasic@linux.ibm.com>
+ <87pmt8hp5o.fsf@redhat.com>
+ <20210916151835.4ab512b2.pasic@linux.ibm.com>
+ <87mtobh9xn.fsf@redhat.com>
+ <20210920003935.1369f9fe.pasic@linux.ibm.com>
+ <875yuvh73k.fsf@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-X-stable: commit
-X-Patchwork-Hint: ignore 
-Cc: stable-commits@vger.kernel.org
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 4eHUpD-siLTy7unl_x02mAm-wE0tsff9
+X-Proofpoint-ORIG-GUID: FPpECGWfhLUor-LoVx62bmLIqey1yVpV
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-09-20_07,2021-09-20_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 mlxscore=0
+ bulkscore=0 mlxlogscore=999 priorityscore=1501 phishscore=0 clxscore=1015
+ malwarescore=0 spamscore=0 adultscore=0 suspectscore=0 lowpriorityscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109030001
+ definitions=main-2109200084
+Cc: linux-s390@vger.kernel.org, Vasily Gorbik <gor@linux.ibm.com>,
+ Pierre Morel <pmorel@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+ bfu@redhat.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@de.ibm.com>,
+ Vineeth Vijayan <vneethv@linux.ibm.com>, kvm@vger.kernel.org,
+ Michael Mueller <mimu@linux.ibm.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,154 +147,76 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Mon, 20 Sep 2021 12:30:39 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-This is a note to let you know that I've just added the patch titled
+> On Mon, Sep 20 2021, Halil Pasic <pasic@linux.ibm.com> wrote:
+[..]
+> 
+> Basically, the vcdev is supposed to be around while the ccw device is
+> online (with a tail end until references have been given up, of course.)
+> It embeds a virtio device that has the ccw device as a parent, which
+> will give us a reference on the ccw device as long as the virtio device
+> is alive. Any interactions with the ccw device (except freeing the dma
+> buffer) are limited to the time where we still have a reference to it
+> via the virtio device.
+>
 
-    mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
-
-to the 4.19-stable tree which can be found at:
-    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-
-The filename of the patch is:
-     mm-memory_hotplug-use-unsigned-long-for-pfn-in-zone_for_pfn_range.patch
-and it can be found in the queue-4.19 subdirectory.
-
-If you, or anyone else, feels it should not be added to the stable tree,
-please let <stable@vger.kernel.org> know about it.
-
-
-From 7cf209ba8a86410939a24cb1aeb279479a7e0ca6 Mon Sep 17 00:00:00 2001
-From: David Hildenbrand <david@redhat.com>
-Date: Tue, 7 Sep 2021 19:54:59 -0700
-Subject: mm/memory_hotplug: use "unsigned long" for PFN in zone_for_pfn_range()
-
-From: David Hildenbrand <david@redhat.com>
-
-commit 7cf209ba8a86410939a24cb1aeb279479a7e0ca6 upstream.
-
-Patch series "mm/memory_hotplug: preparatory patches for new online policy and memory"
-
-These are all cleanups and one fix previously sent as part of [1]:
-[PATCH v1 00/12] mm/memory_hotplug: "auto-movable" online policy and memory
-groups.
-
-These patches make sense even without the other series, therefore I pulled
-them out to make the other series easier to digest.
-
-[1] https://lkml.kernel.org/r/20210607195430.48228-1-david@redhat.com
-
-This patch (of 4):
-
-Checkpatch complained on a follow-up patch that we are using "unsigned"
-here, which defaults to "unsigned int" and checkpatch is correct.
-
-As we will search for a fitting zone using the wrong pfn, we might end
-up onlining memory to one of the special kernel zones, such as ZONE_DMA,
-which can end badly as the onlined memory does not satisfy properties of
-these zones.
-
-Use "unsigned long" instead, just as we do in other places when handling
-PFNs.  This can bite us once we have physical addresses in the range of
-multiple TB.
-
-Link: https://lkml.kernel.org/r/20210712124052.26491-2-david@redhat.com
-Fixes: e5e689302633 ("mm, memory_hotplug: display allowed zones in the preferred ordering")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Pankaj Gupta <pankaj.gupta@ionos.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mike Rapoport <rppt@kernel.org>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Cc: Anton Blanchard <anton@ozlabs.org>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jia He <justin.he@arm.com>
-Cc: Joe Perches <joe@perches.com>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Laurent Dufour <ldufour@linux.ibm.com>
-Cc: Michel Lespinasse <michel@lespinasse.org>
-Cc: Nathan Lynch <nathanl@linux.ibm.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Pierre Morel <pmorel@linux.ibm.com>
-Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Scott Cheloha <cheloha@linux.ibm.com>
-Cc: Sergei Trofimovich <slyfox@gentoo.org>
-Cc: Thiago Jung Bauermann <bauerman@linux.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Vishal Verma <vishal.l.verma@intel.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/linux/memory_hotplug.h |    4 ++--
- mm/memory_hotplug.c            |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
-
---- a/include/linux/memory_hotplug.h
-+++ b/include/linux/memory_hotplug.h
-@@ -344,6 +344,6 @@ extern struct page *sparse_decode_mem_ma
- 					  unsigned long pnum);
- extern bool allow_online_pfn_range(int nid, unsigned long pfn, unsigned long nr_pages,
- 		int online_type);
--extern struct zone *zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages);
-+extern struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages);
- #endif /* __LINUX_MEMORY_HOTPLUG_H */
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -783,8 +783,8 @@ static inline struct zone *default_zone_
- 	return movable_node_enabled ? movable_zone : kernel_zone;
- }
- 
--struct zone * zone_for_pfn_range(int online_type, int nid, unsigned start_pfn,
--		unsigned long nr_pages)
-+struct zone *zone_for_pfn_range(int online_type, int nid,
-+		unsigned long start_pfn, unsigned long nr_pages)
- {
- 	if (online_type == MMOP_ONLINE_KERNEL)
- 		return default_kernel_zone_for_pfn(nid, start_pfn, nr_pages);
+I didn't remember that device_add() takes a reference to the parent, and
+that device_del() before device_put(dev) and remove callback.
 
 
-Patches currently in stable-queue which might be from david@redhat.com are
+> >  
+> >>   
+> >> > So my intuition tells me that
+> >> > drivers should manage explicitly. Yes virtio_ccw happens to have dma
+> >> > memory whose lifetime is more or less the lifetime of struct virtio_ccw,
+> >> > but that may not be always the case.    
+> >> 
+> >> I'm not sure what you're getting at here. Regardless of the lifetime of
+> >> the dma memory, it depends on the presence of the ccw device to which it
+> >> is tied. This means that the ccw device must not be released while the
+> >> dma memory is alive. We can use the approach in your patch here due to
+> >> the lifetime of the dma memory that virtio-ccw allocates when we start
+> >> using the device and frees when we stop using the device, or we can use
+> >> get/put with every allocate/release dma memory pair, which should be
+> >> safe for everyone?
+> >>   
+> >
+> > What I mean is that ccw_device_dma_[zalloc,free]() take a pointer to the
+> > ccw_device. If we get/put in those we can ensure that, provided the
+> > alloc and the free calls are properly paired, the device will be still
+> > alive (and the pointer valid) for the free, if it was valid for the
+> > alloc. But it does not ensure that each and every call to alloc is with
+> > a valid pointer, or that other uses of the pointer are OK. So I don't
+> > think it is completely safe for everyone, because we could try to use
+> > a pointer to a ccw device when not having any dma memory allocated from
+> > its pool.  
+> 
+> But the problem is the dma memory, right? Also, it is the same issue for
+> any potential caller of the ccw_device_dma_* interfaces.
 
-queue-4.19/x86-mm-fix-kern_addr_valid-to-cope-with-existing-but-not-present-entries.patch
-queue-4.19/mm-memory_hotplug-use-unsigned-long-for-pfn-in-zone_for_pfn_range.patch
-queue-4.19/mm-page_alloc-speed-up-the-iteration-of-max_order.patch
+I tend to agree, my argument was based on the assumption that we did not
+use to take a reference to the ccw device in virtio_ccw_online(), but we
+do via register_virtio_device(). This reference however gets dropped
+right before virtio_ccw_release_dev() is called.
+> 
+> >
+> > This patch takes reference to cdev before the pointer is published via
+> > vcdev->cdev and drops the reference after *vcdev is freed. The idea is
+> > that the pointee basically outlives the pointer. (Without having a full
+> > understanding of how things are synchronized).  
+> 
+> I don't think we have to care about accessing ->cdev (see above.) Plus,
+> as we give up the dma memory at the very last point, we would also give
+> up the reference via that memory at the very last point, so I'm not sure
+> what additional problems could come up.
+
+I understand now. Let me think about it some more. I'm wonderning about
+leafs. Will come back at you shortly.
+
+Regards,
+Halil
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
