@@ -7,97 +7,97 @@ X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 698C8C433FE
-	for <virtualization@archiver.kernel.org>; Tue, 21 Sep 2021 16:05:18 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55AC5C433F5
+	for <virtualization@archiver.kernel.org>; Tue, 21 Sep 2021 16:08:12 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 22E2560FE6
-	for <virtualization@archiver.kernel.org>; Tue, 21 Sep 2021 16:05:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 22E2560FE6
+	by mail.kernel.org (Postfix) with ESMTPS id 1618361242
+	for <virtualization@archiver.kernel.org>; Tue, 21 Sep 2021 16:08:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 1618361242
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6AAC8403C7;
-	Tue, 21 Sep 2021 16:05:17 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id D328D400EF;
+	Tue, 21 Sep 2021 16:08:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id oW2gRpywfiii; Tue, 21 Sep 2021 16:05:15 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3xlWjXfl50Qc; Tue, 21 Sep 2021 16:08:10 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 51C90403F0;
-	Tue, 21 Sep 2021 16:05:15 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 22E914021E;
+	Tue, 21 Sep 2021 16:08:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DD5E2C000D;
-	Tue, 21 Sep 2021 16:05:14 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6F49BC000F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A7DB5C0020;
+	Tue, 21 Sep 2021 16:08:09 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 589C3C000F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Sep 2021 16:05:13 +0000 (UTC)
+ Tue, 21 Sep 2021 16:08:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 5115280F43
+ by smtp1.osuosl.org (Postfix) with ESMTP id 3EF4B81AD1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Sep 2021 16:05:13 +0000 (UTC)
+ Tue, 21 Sep 2021 16:08:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=linaro.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id saExhUy2ewWM
+ with ESMTP id QhzVvuwthl7s
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Sep 2021 16:05:12 +0000 (UTC)
+ Tue, 21 Sep 2021 16:08:07 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com
- [IPv6:2a00:1450:4864:20::432])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 2F1A280AC0
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com
+ [IPv6:2a00:1450:4864:20::433])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id DC0148104B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Sep 2021 16:05:12 +0000 (UTC)
-Received: by mail-wr1-x432.google.com with SMTP id t8so33772864wri.1
+ Tue, 21 Sep 2021 16:08:06 +0000 (UTC)
+Received: by mail-wr1-x433.google.com with SMTP id w29so40794321wra.8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 21 Sep 2021 09:05:12 -0700 (PDT)
+ Tue, 21 Sep 2021 09:08:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
  h=date:from:to:cc:subject:message-id:references:mime-version
  :content-disposition:in-reply-to;
- bh=gbhCudCRqsSPPfgLZae8+wcvvU+Va6IH5/SUP4OHRQ0=;
- b=aRZJUcSX6Y3XBmn3tkIFVZMeWRtKzuyye+NTDyqyK+Jr+VjiMtRgY7PUQ7YTkeAGO7
- OizSDdZiNhnNZGK+baCgeYk3guHhh7h6pQK8XBgMaW1X+6pRGcIHgcPtjrCykmUl+TMV
- faURgtco8FRIng9mDP02P22JEmYd9SZcU7BN+dBakg6sRZAharYpynJdGpnfJz4PsuKw
- +8lvNpQP+0w6SCVs6Cb4YRy0GWO4xJTtyKf/0GLXDxbFk0czQklD7UVDdzM0AbH350pD
- /1UAoeTAOq/q/glUWyqdfClVjPQg9JgCcjmch5R1d4jB7je782yBdw7YwG4fn4u/Je3j
- Hi0Q==
+ bh=b9ayZN/31+YJCtPuFwl2kU4KlsDWXPcoXAZudGxGmkE=;
+ b=DuTlqIELBcGgf37jsY8ukVZk5Fk1L8Yv7fME3/uVBv2BV0R5CE3HH+dF19Z6gGDqGD
+ fYBEVlNicATgh6arOapOe1LFNbDsfic1cz7Fynn/pWt6XrvfcAg50tr/07zbEbwR1Fvi
+ J/4hDrmHbboyPx2XYhwpZ54RNEuhu15dFtQafVYSW2EWCBWlk+KTCnGJc3QCQJN2rCQN
+ gYRy4ijGnKm6mzxf/eQUoAzhvAEzcHlkQQaH+tifKMG8cVByB6fCEYRx+j2Tq0lvrnbT
+ 2N38zuj/FQMEeRmTjT1IMFxKjy3cBZ00aF01+UzXcA2bgo+erpC4ZXIXg4r7sAKdGALI
+ UJqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=gbhCudCRqsSPPfgLZae8+wcvvU+Va6IH5/SUP4OHRQ0=;
- b=Dupl+tdZ1aV4zZVdQJbD7d0wRXox9UXCgsyahSCeLHOhyiLBuOvEYC2GQV6N9Z0FoK
- oh182vZ2F3kvolTQckTlYsfYfoSMnSmRv3CQaiw2nTZbgYpc2EHGmjAUJNJejQQsBUiG
- Kt8bcz5HaPcNSpkP2+SdhNEQIL1LrXpmb0OnAdEBUv+5L4R/MQ2zxrP/rrkKOC9JuIhs
- E0dRb0ksmwi2AtELIJsAsSpdB5yMaWINcIkbPodEna+AwLwYpXdNzt6HRqwhRtet8YA4
- LZlQ/VBNhLNgGMUyZsgo12PQvAGMt+vIvrkTuyeAl/RuWrFqvJJX+GcmSTkrPnyA6IKa
- SPwQ==
-X-Gm-Message-State: AOAM5335CQxXKK2jy6t9U7dszZIN9trIrp+sQNWkisAMTEUGd8z9YvJs
- 4wHwLr37eb0DTDpPQ2yz5ixD8Q==
-X-Google-Smtp-Source: ABdhPJwQ5ZH/isufxraKDORq4lCwIokvgZG93u1Y74aucCOMgMsxkuZwXJ8u1kr13CcLxTFlhFQ/8g==
-X-Received: by 2002:a1c:9d96:: with SMTP id g144mr5726353wme.12.1632240307855; 
- Tue, 21 Sep 2021 09:05:07 -0700 (PDT)
+ bh=b9ayZN/31+YJCtPuFwl2kU4KlsDWXPcoXAZudGxGmkE=;
+ b=Evtv45cTorqcO6BcAGU2ATSCk/8p0bObNF8wzeWOgdALJ53iElKlRkOIM8HoAdsLWV
+ kJoUpDyM3bh84fTjYOOtHimLh0GFucTsA7svLtx/ljD6ksli63DxT1OAskg5uBMFnixT
+ P9KOwtg9jcHW3GAvTmlHjXmPtxkI9X7N4TDhmiH8bHjXyDDvo1maeisTSIdpclSC8nsj
+ eP6r1l6dzz5gj8VYlgaQsdVgnDlYCYoWQPWITr7yBXYGUMUlrU5b2UiI8OW5HAfx4UrZ
+ Vm4slleu2ed16jk2My7kId8VlpgvNigmCkZK5S6XfqLQ8jf4G/uoVsqms8IDlPs03sSE
+ K6zQ==
+X-Gm-Message-State: AOAM530EcFT3NrEid+nDgXx1av9EWuaSSxrjIcHCi1bVPvSY7rWprKs4
+ BlD4uMaUeMxfllQY7kHQ+EuwGA==
+X-Google-Smtp-Source: ABdhPJw1Eh516Iqqx9GmwH6vXri7X153H2N0zgCSBKTK5AVeIfT+nPMR0g1LJE13anrDSDQ5KxfNCQ==
+X-Received: by 2002:a05:6000:105:: with SMTP id
+ o5mr35717468wrx.413.1632240484578; 
+ Tue, 21 Sep 2021 09:08:04 -0700 (PDT)
 Received: from myrica (cpc92880-cmbg19-2-0-cust679.5-4.cable.virginm.net.
  [82.27.106.168])
- by smtp.gmail.com with ESMTPSA id n15sm5518661wrg.58.2021.09.21.09.05.06
+ by smtp.gmail.com with ESMTPSA id d2sm19541616wrc.32.2021.09.21.09.08.03
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 21 Sep 2021 09:05:07 -0700 (PDT)
-Date: Tue, 21 Sep 2021 17:04:45 +0100
+ Tue, 21 Sep 2021 09:08:04 -0700 (PDT)
+Date: Tue, 21 Sep 2021 17:07:42 +0100
 From: Jean-Philippe Brucker <jean-philippe@linaro.org>
 To: Vivek Gautam <vivek.gautam@arm.com>
-Subject: Re: [PATCH RFC v1 05/11] iommu/virtio: Add SVA feature and related
- enable/disable callbacks
-Message-ID: <YUoCneU8zveJ54Kv@myrica>
+Subject: Re: [PATCH RFC v1 08/11] iommu/arm-smmu-v3: Implement shared context
+ alloc and free ops
+Message-ID: <YUoDTv0bhbfcu4MS@myrica>
 References: <20210423095147.27922-1-vivek.gautam@arm.com>
- <20210423095147.27922-6-vivek.gautam@arm.com>
+ <20210423095147.27922-9-vivek.gautam@arm.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20210423095147.27922-6-vivek.gautam@arm.com>
-X-TUID: dlqycTTe2OVr
+In-Reply-To: <20210423095147.27922-9-vivek.gautam@arm.com>
 Cc: jacob.jun.pan@linux.intel.com, mst@redhat.com, joro@8bytes.org,
  will.deacon@arm.com, linux-kernel@vger.kernel.org,
  shameerali.kolothum.thodi@huawei.com,
@@ -121,388 +121,440 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Apr 23, 2021 at 03:21:41PM +0530, Vivek Gautam wrote:
-> Add a feature flag to virtio iommu for Shared virtual addressing
-> (SVA). This feature would indicate the availablily path for handling
-> device page faults, and the provision for sending page response.
+On Fri, Apr 23, 2021 at 03:21:44PM +0530, Vivek Gautam wrote:
+> Implementing the alloc_shared_cd and free_shared_cd in cd-lib, and
+> start using them for arm-smmu-v3-sva implementation.
+> 
+> Signed-off-by: Vivek Gautam <vivek.gautam@arm.com>
+> ---
+>  .../arm/arm-smmu-v3/arm-smmu-v3-cd-lib.c      | 71 ++++++++--------
+>  .../iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c   | 83 ++++++++-----------
+>  drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c   |  1 -
+>  drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h   | 14 ----
+>  4 files changed, 73 insertions(+), 96 deletions(-)
+> 
+> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-cd-lib.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-cd-lib.c
+> index 537b7c784d40..b87829796596 100644
+> --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-cd-lib.c
+> +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-cd-lib.c
+> @@ -285,16 +285,14 @@ static bool arm_smmu_free_asid(struct xarray *xa, void *cookie_cd)
+>   * descriptor is using it, try to replace it.
+>   */
+>  static struct arm_smmu_ctx_desc *
+> -arm_smmu_share_asid(struct mm_struct *mm, u16 asid)
+> +arm_smmu_share_asid(struct iommu_pasid_table *tbl, struct mm_struct *mm,
+> +		    struct xarray *xa, u16 asid, u32 asid_bits)
 
-In this case the feature should probably be called PAGE_REQUEST or
-similar. SVA aggregates PF + PASID + shared page tables
+xa and asid_bits could be stored in some arch-specific section of the
+iommu_pasid_table struct. Other table drivers wouldn't need those
+arguments.
+
+More a comment for the parent series: it may be clearer to give a
+different prefix to functions in this file (arm_smmu_cd_, pst_arm_?).
+Reading this patch I'm a little confused by what belongs in the IOMMU
+driver and what is done by this library. (I also keep reading 'tbl' as
+'tlb'. Maybe we could make it 'table' since that doesn't take a lot more
+space)
+
+>  {
+>  	int ret;
+>  	u32 new_asid;
+>  	struct arm_smmu_ctx_desc *cd;
+> -	struct arm_smmu_device *smmu;
+> -	struct arm_smmu_domain *smmu_domain;
+> -	struct iommu_pasid_table *tbl;
+>  
+> -	cd = xa_load(&arm_smmu_asid_xa, asid);
+> +	cd = xa_load(xa, asid);
+>  	if (!cd)
+>  		return NULL;
+>  
+> @@ -306,12 +304,8 @@ arm_smmu_share_asid(struct mm_struct *mm, u16 asid)
+>  		return cd;
+>  	}
+>  
+> -	smmu_domain = container_of(cd, struct arm_smmu_domain, s1_cfg.cd);
+> -	smmu = smmu_domain->smmu;
+> -	tbl = smmu_domain->tbl;
+> -
+> -	ret = xa_alloc(&arm_smmu_asid_xa, &new_asid, cd,
+> -		       XA_LIMIT(1, (1 << smmu->asid_bits) - 1), GFP_KERNEL);
+> +	ret = xa_alloc(xa, &new_asid, cd, XA_LIMIT(1, (1 << asid_bits) - 1),
+> +		       GFP_KERNEL);
+>  	if (ret)
+>  		return ERR_PTR(-ENOSPC);
+>  	/*
+> @@ -325,48 +319,52 @@ arm_smmu_share_asid(struct mm_struct *mm, u16 asid)
+>  	 * be some overlap between use of both ASIDs, until we invalidate the
+>  	 * TLB.
+>  	 */
+> -	ret = iommu_psdtable_write(tbl, &tbl->cfg, 0, cd);
+> +	ret = arm_smmu_write_ctx_desc(&tbl->cfg, 0, cd);
+>  	if (ret)
+>  		return ERR_PTR(-ENOSYS);
+>  
+>  	/* Invalidate TLB entries previously associated with that context */
+> -	iommu_psdtable_flush_tlb(tbl, smmu_domain, asid);
+> +	iommu_psdtable_flush_tlb(tbl, tbl->cookie, asid);
+>  
+> -	xa_erase(&arm_smmu_asid_xa, asid);
+> +	xa_erase(xa, asid);
+>  	return NULL;
+>  }
+>  
+> -struct arm_smmu_ctx_desc *
+> -arm_smmu_alloc_shared_cd(struct iommu_pasid_table *tbl, struct mm_struct *mm)
+> +static struct iommu_psdtable_mmu_notifier *
+> +arm_smmu_alloc_shared_cd(struct iommu_pasid_table *tbl, struct mm_struct *mm,
+> +			 struct xarray *xa, u32 asid_bits)
+>  {
+>  	u16 asid;
+>  	int err = 0;
+>  	u64 tcr, par, reg;
+>  	struct arm_smmu_ctx_desc *cd;
+>  	struct arm_smmu_ctx_desc *ret = NULL;
+> +	struct iommu_psdtable_mmu_notifier *pst_mn;
+>  
+>  	asid = arm64_mm_context_get(mm);
+>  	if (!asid)
+>  		return ERR_PTR(-ESRCH);
+>  
+> +	pst_mn = kzalloc(sizeof(*pst_mn), GFP_KERNEL);
+> +	if (!pst_mn) {
+> +		err = -ENOMEM;
+> +		goto out_put_context;
+> +	}
+> +
+>  	cd = kzalloc(sizeof(*cd), GFP_KERNEL);
+>  	if (!cd) {
+>  		err = -ENOMEM;
+> -		goto out_put_context;
+> +		goto out_free_mn;
+>  	}
+>  
+>  	refcount_set(&cd->refs, 1);
+>  
+> -	mutex_lock(&arm_smmu_asid_lock);
+> -	ret = arm_smmu_share_asid(mm, asid);
+> +	ret = arm_smmu_share_asid(tbl, mm, xa, asid, asid_bits);
+>  	if (ret) {
+> -		mutex_unlock(&arm_smmu_asid_lock);
+>  		goto out_free_cd;
+>  	}
+>  
+> -	err = xa_insert(&arm_smmu_asid_xa, asid, cd, GFP_KERNEL);
+> -	mutex_unlock(&arm_smmu_asid_lock);
+> -
+> +	err = xa_insert(xa, asid, cd, GFP_KERNEL);
+>  	if (err)
+>  		goto out_free_asid;
+>  
+> @@ -406,21 +404,26 @@ arm_smmu_alloc_shared_cd(struct iommu_pasid_table *tbl, struct mm_struct *mm)
+>  	cd->asid = asid;
+>  	cd->mm = mm;
+>  
+> -	return cd;
+> +	pst_mn->vendor.cd = cd;
+> +	return pst_mn;
+>  
+>  out_free_asid:
+> -	iommu_psdtable_free_asid(tbl, &arm_smmu_asid_xa, cd);
+> +	arm_smmu_free_asid(xa, cd);
+>  out_free_cd:
+>  	kfree(cd);
+> +out_free_mn:
+> +	kfree(pst_mn);
+>  out_put_context:
+>  	arm64_mm_context_put(mm);
+>  	return err < 0 ? ERR_PTR(err) : ret;
+>  }
+>  
+> -void arm_smmu_free_shared_cd(struct iommu_pasid_table *tbl,
+> -			     struct arm_smmu_ctx_desc *cd)
+> +static void arm_smmu_free_shared_cd(struct iommu_pasid_table *tbl,
+> +				    struct xarray *xa, void *cookie)
+
+Could we pass a struct iommu_psdtable_mmu_notifier, since that's what
+alloc_shared() returns?
+
+>  {
+> -	if (iommu_psdtable_free_asid(tbl, &arm_smmu_asid_xa, cd)) {
+> +	struct arm_smmu_ctx_desc *cd = cookie;
+> +
+> +	if (iommu_psdtable_free_asid(tbl, xa, cd)) {
+>  		/* Unpin ASID */
+>  		arm64_mm_context_put(cd->mm);
+>  		kfree(cd);
+> @@ -428,11 +431,13 @@ void arm_smmu_free_shared_cd(struct iommu_pasid_table *tbl,
+>  }
+>  
+>  struct iommu_vendor_psdtable_ops arm_cd_table_ops = {
+> -	.alloc	 = arm_smmu_alloc_cd_tables,
+> -	.free	 = arm_smmu_free_cd_tables,
+> -	.prepare = arm_smmu_prepare_cd,
+> -	.write	 = arm_smmu_write_ctx_desc,
+> -	.free_asid = arm_smmu_free_asid,
+> +	.alloc		= arm_smmu_alloc_cd_tables,
+> +	.free		= arm_smmu_free_cd_tables,
+> +	.prepare	= arm_smmu_prepare_cd,
+> +	.write		= arm_smmu_write_ctx_desc,
+> +	.free_asid	= arm_smmu_free_asid,
+> +	.alloc_shared	= arm_smmu_alloc_shared_cd,
+> +	.free_shared	= arm_smmu_free_shared_cd,
+>  };
+>  
+>  struct iommu_pasid_table *
+> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c
+> index da35d4cc0c1e..ef28d0c409da 100644
+> --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c
+> +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3-sva.c
+> @@ -13,23 +13,12 @@
+>  #include "../../io-pgtable-arm.h"
+>  #include "../../iommu-pasid-table.h"
+>  
+> -struct arm_smmu_mmu_notifier {
+> -	struct mmu_notifier		mn;
+> -	struct arm_smmu_ctx_desc	*cd;
+> -	bool				cleared;
+> -	refcount_t			refs;
+> -	struct list_head		list;
+> -	struct arm_smmu_domain		*domain;
+> -};
+> -
+> -#define mn_to_smmu(mn) container_of(mn, struct arm_smmu_mmu_notifier, mn)
+> -
+>  struct arm_smmu_bond {
+> -	struct iommu_sva		sva;
+> -	struct mm_struct		*mm;
+> -	struct arm_smmu_mmu_notifier	*smmu_mn;
+> -	struct list_head		list;
+> -	refcount_t			refs;
+> +	struct iommu_sva			sva;
+> +	struct mm_struct			*mm;
+> +	struct iommu_psdtable_mmu_notifier	*smmu_mn;
+> +	struct list_head			list;
+> +	refcount_t				refs;
+>  };
+>  
+>  #define sva_to_bond(handle) \
+> @@ -41,20 +30,22 @@ static void arm_smmu_mm_invalidate_range(struct mmu_notifier *mn,
+>  					 struct mm_struct *mm,
+>  					 unsigned long start, unsigned long end)
+>  {
+> -	struct arm_smmu_mmu_notifier *smmu_mn = mn_to_smmu(mn);
+> -	struct arm_smmu_domain *smmu_domain = smmu_mn->domain;
+> +	struct iommu_psdtable_mmu_notifier *smmu_mn = mn_to_pstiommu(mn);
+> +	struct arm_smmu_domain *smmu_domain = smmu_mn->cookie;
+> +	struct arm_smmu_ctx_desc *cd = smmu_mn->vendor.cd;
+>  	size_t size = end - start + 1;
+>  
+>  	if (!(smmu_domain->smmu->features & ARM_SMMU_FEAT_BTM))
+> -		arm_smmu_tlb_inv_range_asid(start, size, smmu_mn->cd->asid,
+> +		arm_smmu_tlb_inv_range_asid(start, size, cd->asid,
+>  					    PAGE_SIZE, false, smmu_domain);
+>  	arm_smmu_atc_inv_domain(smmu_domain, mm->pasid, start, size);
+>  }
+>  
+>  static void arm_smmu_mm_release(struct mmu_notifier *mn, struct mm_struct *mm)
+>  {
+> -	struct arm_smmu_mmu_notifier *smmu_mn = mn_to_smmu(mn);
+> -	struct arm_smmu_domain *smmu_domain = smmu_mn->domain;
+> +	struct iommu_psdtable_mmu_notifier *smmu_mn = mn_to_pstiommu(mn);
+> +	struct arm_smmu_domain *smmu_domain = smmu_mn->cookie;
+> +	struct arm_smmu_ctx_desc *cd = smmu_mn->vendor.cd;
+>  	struct iommu_pasid_table *tbl = smmu_domain->tbl;
+>  
+>  	mutex_lock(&sva_lock);
+> @@ -69,7 +60,7 @@ static void arm_smmu_mm_release(struct mmu_notifier *mn, struct mm_struct *mm)
+>  	 */
+>  	iommu_psdtable_write(tbl, &tbl->cfg, mm->pasid, &quiet_cd);
+
+Another comment for the parent series: I'd prefer making this a
+"iommu_psdtable_quiesce()" call, instead of passing "quiet_cd" between
+driver and library. Because that won't work if the SMMU driver is a module
+or disabled - build of virtio-iommu will probably fail since quiet_cd will
+be undefined. We could make the library built-in and move quiet_cd there,
+but an explicit library call seems cleaner.
+
+>  
+> -	iommu_psdtable_flush_tlb(tbl, smmu_domain, smmu_mn->cd->asid);
+> +	iommu_psdtable_flush_tlb(tbl, smmu_domain, cd->asid);
+
+We can directly call arm_smmu_tlb_inv* here. iommu_psdtable_flush_tlb()
+should only be called from the library. But with the previous comment,
+this invalidation would move to the library.
+
+>  	arm_smmu_atc_inv_domain(smmu_domain, mm->pasid, 0, 0);
+>  
+>  	smmu_mn->cleared = true;
+> @@ -78,7 +69,7 @@ static void arm_smmu_mm_release(struct mmu_notifier *mn, struct mm_struct *mm)
+>  
+>  static void arm_smmu_mmu_notifier_free(struct mmu_notifier *mn)
+>  {
+> -	kfree(mn_to_smmu(mn));
+> +	kfree(mn_to_pstiommu(mn));
+>  }
+>  
+>  static struct mmu_notifier_ops arm_smmu_mmu_notifier_ops = {
+> @@ -88,63 +79,59 @@ static struct mmu_notifier_ops arm_smmu_mmu_notifier_ops = {
+>  };
+>  
+>  /* Allocate or get existing MMU notifier for this {domain, mm} pair */
+> -static struct arm_smmu_mmu_notifier *
+> +static struct iommu_psdtable_mmu_notifier *
+>  arm_smmu_mmu_notifier_get(struct arm_smmu_domain *smmu_domain,
+>  			  struct mm_struct *mm)
+>  {
+>  	int ret;
+> -	struct arm_smmu_ctx_desc *cd;
+> -	struct arm_smmu_mmu_notifier *smmu_mn;
+> +	struct iommu_psdtable_mmu_notifier *smmu_mn;
+> +	struct arm_smmu_device *smmu = smmu_domain->smmu;
+>  	struct iommu_pasid_table *tbl = smmu_domain->tbl;
+>  
+> -	list_for_each_entry(smmu_mn, &smmu_domain->mmu_notifiers, list) {
+> +	list_for_each_entry(smmu_mn, &tbl->mmu_notifiers, list) {
+>  		if (smmu_mn->mn.mm == mm) {
+>  			refcount_inc(&smmu_mn->refs);
+>  			return smmu_mn;
+>  		}
+>  	}
+>  
+> -	cd = arm_smmu_alloc_shared_cd(tbl, mm);
+> -	if (IS_ERR(cd))
+> -		return ERR_CAST(cd);
+> -
+> -	smmu_mn = kzalloc(sizeof(*smmu_mn), GFP_KERNEL);
+> -	if (!smmu_mn) {
+> -		ret = -ENOMEM;
+> -		goto err_free_cd;
+> -	}
+> +	mutex_lock(&arm_smmu_asid_lock);
+> +	smmu_mn = iommu_psdtable_alloc_shared(tbl, mm, &arm_smmu_asid_xa,
+> +					      smmu->asid_bits);
+> +	mutex_unlock(&arm_smmu_asid_lock);
+> +	if (IS_ERR(smmu_mn))
+> +		return ERR_CAST(smmu_mn);
+>  
+>  	refcount_set(&smmu_mn->refs, 1);
+> -	smmu_mn->cd = cd;
+> -	smmu_mn->domain = smmu_domain;
+> +	smmu_mn->cookie = smmu_domain;
+>  	smmu_mn->mn.ops = &arm_smmu_mmu_notifier_ops;
+>  
+>  	ret = mmu_notifier_register(&smmu_mn->mn, mm);
+> -	if (ret) {
+> -		kfree(smmu_mn);
+> +	if (ret)
+>  		goto err_free_cd;
+> -	}
+>  
+> -	ret = iommu_psdtable_write(tbl, &tbl->cfg, mm->pasid, cd);
+> +	ret = iommu_psdtable_write(tbl, &tbl->cfg, mm->pasid,
+> +				   smmu_mn->vendor.cd);
+
+Pass smmu_mn here, and let the library code get the cd (to allow for other
+pasid table implementations)
+
+>  	if (ret)
+>  		goto err_put_notifier;
+>  
+> -	list_add(&smmu_mn->list, &smmu_domain->mmu_notifiers);
+> +	list_add(&smmu_mn->list, &tbl->mmu_notifiers);
+
+I'd keep the mmu_notifiers list in domain if the library doesn't use it
+for anything.
+
+That made me wonder whether the whole of arm_smmu_mmu_notifer_get/put()
+could move to the library, since the virtio-iommu version seems to be the
+same. They probably belong in iommu-sva-lib but we can revisit that when
+there are more users.
 
 Thanks,
 Jean
 
-> Also add necessary methods to enable and disable SVA so that the
-> masters can enable the SVA path. This also requires enabling the
-> PRI capability on the device.
-> 
-> Signed-off-by: Vivek Gautam <vivek.gautam@arm.com>
-> ---
->  drivers/iommu/virtio-iommu.c      | 268 ++++++++++++++++++++++++++++++
->  include/uapi/linux/virtio_iommu.h |   1 +
->  2 files changed, 269 insertions(+)
-> 
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index 3da5f0807711..250c137a211b 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -18,6 +18,7 @@
->  #include <linux/of_iommu.h>
->  #include <linux/of_platform.h>
->  #include <linux/pci.h>
-> +#include <linux/pci-ats.h>
->  #include <linux/platform_device.h>
->  #include <linux/virtio.h>
->  #include <linux/virtio_config.h>
-> @@ -26,6 +27,7 @@
+>  	return smmu_mn;
 >  
->  #include <uapi/linux/virtio_iommu.h>
->  #include "iommu-pasid-table.h"
-> +#include "iommu-sva-lib.h"
->  
->  #define MSI_IOVA_BASE			0x8000000
->  #define MSI_IOVA_LENGTH			0x100000
-> @@ -37,6 +39,9 @@
->  /* Some architectures need an Address Space ID for each page table */
->  DEFINE_XARRAY_ALLOC1(viommu_asid_xa);
->  
-> +static DEFINE_MUTEX(sva_lock);
-> +static DEFINE_MUTEX(iopf_lock);
-> +
->  struct viommu_dev_pri_work {
->  	struct work_struct		work;
->  	struct viommu_dev		*dev;
-> @@ -71,6 +76,7 @@ struct viommu_dev {
->  
->  	bool				has_map:1;
->  	bool				has_table:1;
-> +	bool				has_sva:1;
->  };
->  
->  struct viommu_mapping {
-> @@ -124,6 +130,12 @@ struct viommu_endpoint {
->  	void				*pstf;
->  	/* Preferred page table format */
->  	void				*pgtf;
-> +
-> +	/* sva */
-> +	bool				ats_supported;
-> +	bool				pri_supported;
-> +	bool				sva_enabled;
-> +	bool				iopf_enabled;
->  };
->  
->  struct viommu_ep_entry {
-> @@ -582,6 +594,64 @@ static int viommu_add_pstf(struct viommu_endpoint *vdev, void *pstf, size_t len)
->  	return 0;
+>  err_put_notifier:
+>  	/* Frees smmu_mn */
+>  	mmu_notifier_put(&smmu_mn->mn);
+>  err_free_cd:
+> -	arm_smmu_free_shared_cd(tbl, cd);
+> +	iommu_psdtable_free_shared(tbl, &arm_smmu_asid_xa, smmu_mn->vendor.cd);
+>  	return ERR_PTR(ret);
 >  }
 >  
-> +static int viommu_init_ats_pri(struct viommu_endpoint *vdev)
-> +{
-> +	struct device *dev = vdev->dev;
-> +	struct pci_dev *pdev = to_pci_dev(dev);
-> +
-> +	if (!dev_is_pci(vdev->dev))
-> +		return -EINVAL;
-> +
-> +	if (pci_ats_supported(pdev))
-> +		vdev->ats_supported = true;
-> +
-> +	if (pci_pri_supported(pdev))
-> +		vdev->pri_supported = true;
-> +
-> +	return 0;
-> +}
-> +
-> +static int viommu_enable_pri(struct viommu_endpoint *vdev)
-> +{
-> +	int ret;
-> +	struct pci_dev *pdev;
-> +
-> +	/* Let's allow only 4 requests for PRI right now */
-> +	size_t max_inflight_pprs = 4;
-> +
-> +	if (!vdev->pri_supported || !vdev->ats_supported)
-> +		return -ENODEV;
-> +
-> +	pdev = to_pci_dev(vdev->dev);
-> +
-> +	ret = pci_reset_pri(pdev);
-> +	if (ret)
-> +		return ret;
-> +
-> +	ret = pci_enable_pri(pdev, max_inflight_pprs);
-> +	if (ret) {
-> +		dev_err(vdev->dev, "cannot enable PRI: %d\n", ret);
-> +		return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static void viommu_disable_pri(struct viommu_endpoint *vdev)
-> +{
-> +	struct pci_dev *pdev;
-> +
-> +	if (!dev_is_pci(vdev->dev))
-> +		return;
-> +
-> +	pdev = to_pci_dev(vdev->dev);
-> +
-> +	if (!pdev->pri_enabled)
-> +		return;
-> +
-> +	pci_disable_pri(pdev);
-> +}
-> +
->  static int viommu_init_queues(struct viommu_dev *viommu)
+> -static void arm_smmu_mmu_notifier_put(struct arm_smmu_mmu_notifier *smmu_mn)
+> +static void
+> +arm_smmu_mmu_notifier_put(struct iommu_psdtable_mmu_notifier *smmu_mn)
 >  {
->  	viommu->iopf_pri = iopf_queue_alloc(dev_name(viommu->dev));
-> @@ -684,6 +754,10 @@ static int viommu_probe_endpoint(struct viommu_dev *viommu, struct device *dev)
->  	if (ret)
->  		goto out_free_eps;
+>  	struct mm_struct *mm = smmu_mn->mn.mm;
+> -	struct arm_smmu_ctx_desc *cd = smmu_mn->cd;
+> -	struct arm_smmu_domain *smmu_domain = smmu_mn->domain;
+> +	struct arm_smmu_ctx_desc *cd = smmu_mn->vendor.cd;
+> +	struct arm_smmu_domain *smmu_domain = smmu_mn->cookie;
+>  	struct iommu_pasid_table *tbl = smmu_domain->tbl;
 >  
-> +	ret = viommu_init_ats_pri(vdev);
-> +	if (ret)
-> +		goto out_free_eps;
-> +
->  	kfree(probe);
->  	return 0;
+>  	if (!refcount_dec_and_test(&smmu_mn->refs))
+> @@ -164,7 +151,7 @@ static void arm_smmu_mmu_notifier_put(struct arm_smmu_mmu_notifier *smmu_mn)
 >  
-> @@ -1681,6 +1755,194 @@ static int viommu_of_xlate(struct device *dev, struct of_phandle_args *args)
->  	return iommu_fwspec_add_ids(dev, args->args, 1);
+>  	/* Frees smmu_mn */
+>  	mmu_notifier_put(&smmu_mn->mn);
+> -	arm_smmu_free_shared_cd(tbl, cd);
+> +	iommu_psdtable_free_shared(tbl, &arm_smmu_asid_xa, cd);
 >  }
 >  
-> +static bool viommu_endpoint_iopf_supported(struct viommu_endpoint *vdev)
-> +{
-> +	/* TODO: support Stall model later */
-> +	return vdev->pri_supported;
-> +}
-> +
-> +bool viommu_endpoint_sva_supported(struct viommu_endpoint *vdev)
-> +{
-> +	struct viommu_dev *viommu = vdev->viommu;
-> +
-> +	if (!viommu->has_sva)
-> +		return false;
-> +
-> +	return vdev->pasid_bits;
-> +}
-> +
-> +bool viommu_endpoint_sva_enabled(struct viommu_endpoint *vdev)
-> +{
-> +	bool enabled;
-> +
-> +	mutex_lock(&sva_lock);
-> +	enabled = vdev->sva_enabled;
-> +	mutex_unlock(&sva_lock);
-> +	return enabled;
-> +}
-> +
-> +static int viommu_endpoint_sva_enable_iopf(struct viommu_endpoint *vdev)
-> +{
-> +	int ret;
-> +	struct device *dev = vdev->dev;
-> +
-> +	if (!viommu_endpoint_iopf_supported(vdev))
-> +		return 0;
-> +
-> +	if (!vdev->iopf_enabled)
-> +		return -EINVAL;
-> +
-> +	if (vdev->pri_supported) {
-> +		ret = iopf_queue_add_device(vdev->viommu->iopf_pri, dev);
-> +		if (ret)
-> +			return ret;
-> +	} else {
-> +		/* No other way to handle io page fault then */
-> +		return -EINVAL;
-> +	}
-> +
-> +	ret = iommu_register_device_fault_handler(dev, iommu_queue_iopf, dev);
-> +	if (ret)
-> +		iopf_queue_remove_device(vdev->viommu->iopf_pri, dev);
-> +
-> +	return ret;
-> +}
-> +
-> +static void viommu_endpoint_sva_disable_iopf(struct viommu_endpoint *vdev)
-> +{
-> +	struct device *dev = vdev->dev;
-> +
-> +	if (!vdev->iopf_enabled)
-> +		return;
-> +
-> +	iommu_unregister_device_fault_handler(dev);
-> +	iopf_queue_remove_device(vdev->viommu->iopf_pri, dev);
-> +}
-> +
-> +static int viommu_endpoint_enable_sva(struct viommu_endpoint *vdev)
-> +{
-> +	int ret;
-> +
-> +	mutex_lock(&sva_lock);
-> +	ret = viommu_endpoint_sva_enable_iopf(vdev);
-> +	if (!ret)
-> +		vdev->sva_enabled = true;
-> +	mutex_unlock(&sva_lock);
-> +
-> +	return ret;
-> +}
-> +
-> +static int viommu_endpoint_disable_sva(struct viommu_endpoint *vdev)
-> +{
-> +	mutex_lock(&sva_lock);
-> +	viommu_endpoint_sva_disable_iopf(vdev);
-> +	vdev->sva_enabled = false;
-> +	mutex_unlock(&sva_lock);
-> +
-> +	return 0;
-> +}
-> +
-> +int viommu_endpoint_enable_iopf(struct viommu_endpoint *vdev)
-> +{
-> +	int ret;
-> +
-> +	mutex_lock(&iopf_lock);
-> +	if (vdev->pri_supported) {
-> +		ret = viommu_enable_pri(vdev);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +	vdev->iopf_enabled = true;
-> +	mutex_unlock(&iopf_lock);
-> +	return 0;
-> +}
-> +
-> +int viommu_endpoint_disable_iopf(struct viommu_endpoint *vdev)
-> +{
-> +	if (vdev->sva_enabled)
-> +		return -EBUSY;
-> +
-> +	mutex_lock(&iopf_lock);
-> +	viommu_disable_pri(vdev);
-> +	vdev->iopf_enabled = false;
-> +	mutex_unlock(&iopf_lock);
-> +	return 0;
-> +}
-> +
-> +static bool viommu_dev_has_feature(struct device *dev,
-> +				   enum iommu_dev_features feat)
-> +{
-> +	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
-> +
-> +	if (!vdev)
-> +		return false;
-> +
-> +	switch (feat) {
-> +	case IOMMU_DEV_FEAT_IOPF:
-> +		return viommu_endpoint_iopf_supported(vdev);
-> +	case IOMMU_DEV_FEAT_SVA:
-> +		return viommu_endpoint_sva_supported(vdev);
-> +	default:
-> +		return false;
-> +	}
-> +}
-> +
-> +static bool viommu_dev_feature_enabled(struct device *dev,
-> +				       enum iommu_dev_features feat)
-> +{
-> +	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
-> +
-> +	if (!vdev)
-> +		return false;
-> +
-> +	switch (feat) {
-> +	case IOMMU_DEV_FEAT_IOPF:
-> +		return vdev->iopf_enabled;
-> +	case IOMMU_DEV_FEAT_SVA:
-> +		return viommu_endpoint_sva_enabled(vdev);
-> +	default:
-> +		return false;
-> +	}
-> +}
-> +
-> +static int viommu_dev_enable_feature(struct device *dev,
-> +				     enum iommu_dev_features feat)
-> +{
-> +	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
-> +
-> +	if (!viommu_dev_has_feature(dev, feat))
-> +		return -ENODEV;
-> +
-> +	if (viommu_dev_feature_enabled(dev, feat))
-> +		return -EBUSY;
-> +
-> +	switch (feat) {
-> +	case IOMMU_DEV_FEAT_IOPF:
-> +		return viommu_endpoint_enable_iopf(vdev);
-> +	case IOMMU_DEV_FEAT_SVA:
-> +		return viommu_endpoint_enable_sva(vdev);
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +}
-> +
-> +static int viommu_dev_disable_feature(struct device *dev,
-> +				      enum iommu_dev_features feat)
-> +{
-> +	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
-> +
-> +	if (!viommu_dev_feature_enabled(dev, feat))
-> +		return -EINVAL;
-> +
-> +	switch (feat) {
-> +	case IOMMU_DEV_FEAT_IOPF:
-> +		return viommu_endpoint_disable_iopf(vdev);
-> +	case IOMMU_DEV_FEAT_SVA:
-> +		return viommu_endpoint_disable_sva(vdev);
-> +	default:
-> +		return -EINVAL;
-> +	}
-> +}
->  static struct iommu_ops viommu_ops = {
->  	.domain_alloc		= viommu_domain_alloc,
->  	.domain_free		= viommu_domain_free,
-> @@ -1695,6 +1957,9 @@ static struct iommu_ops viommu_ops = {
->  	.get_resv_regions	= viommu_get_resv_regions,
->  	.put_resv_regions	= generic_iommu_put_resv_regions,
->  	.of_xlate		= viommu_of_xlate,
-> +	.dev_feat_enabled	= viommu_dev_feature_enabled,
-> +	.dev_enable_feat	= viommu_dev_enable_feature,
-> +	.dev_disable_feat	= viommu_dev_disable_feature,
+>  static struct iommu_sva *
+> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+> index bbc4dc75de72..e55567b4d2f4 100644
+> --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+> +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.c
+> @@ -1987,7 +1987,6 @@ static struct iommu_domain *arm_smmu_domain_alloc(unsigned type)
+>  	mutex_init(&smmu_domain->init_mutex);
+>  	INIT_LIST_HEAD(&smmu_domain->devices);
+>  	spin_lock_init(&smmu_domain->devices_lock);
+> -	INIT_LIST_HEAD(&smmu_domain->mmu_notifiers);
+>  
+>  	return &smmu_domain->domain;
+>  }
+> diff --git a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h
+> index 13ff024ab0d5..8a689b4316ac 100644
+> --- a/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h
+> +++ b/drivers/iommu/arm/arm-smmu-v3/arm-smmu-v3.h
+> @@ -737,8 +737,6 @@ struct arm_smmu_domain {
+>  
+>  	struct list_head		devices;
+>  	spinlock_t			devices_lock;
+> -
+> -	struct list_head		mmu_notifiers;
 >  };
 >  
->  static int viommu_init_vqs(struct viommu_dev *viommu)
-> @@ -1811,6 +2076,8 @@ static int viommu_probe(struct virtio_device *vdev)
->  		goto err_free_vqs;
->  	}
+>  static inline struct arm_smmu_domain *to_smmu_domain(struct iommu_domain *dom)
+> @@ -773,10 +771,6 @@ struct iommu_sva *arm_smmu_sva_bind(struct device *dev, struct mm_struct *mm,
+>  void arm_smmu_sva_unbind(struct iommu_sva *handle);
+>  u32 arm_smmu_sva_get_pasid(struct iommu_sva *handle);
+>  void arm_smmu_sva_notifier_synchronize(void);
+> -struct arm_smmu_ctx_desc *
+> -arm_smmu_alloc_shared_cd(struct iommu_pasid_table *tbl, struct mm_struct *mm);
+> -void arm_smmu_free_shared_cd(struct iommu_pasid_table *tbl,
+> -			     struct arm_smmu_ctx_desc *cd);
+>  #else /* CONFIG_ARM_SMMU_V3_SVA */
+>  static inline bool arm_smmu_sva_supported(struct arm_smmu_device *smmu)
+>  {
+> @@ -832,13 +826,5 @@ static inline u32 arm_smmu_sva_get_pasid(struct iommu_sva *handle)
+>  }
 >  
-> +	viommu->has_sva = virtio_has_feature(vdev, VIRTIO_IOMMU_F_SVA);
-> +
->  	viommu->geometry = (struct iommu_domain_geometry) {
->  		.aperture_start	= input_start,
->  		.aperture_end	= input_end,
-> @@ -1902,6 +2169,7 @@ static unsigned int features[] = {
->  	VIRTIO_IOMMU_F_PROBE,
->  	VIRTIO_IOMMU_F_MMIO,
->  	VIRTIO_IOMMU_F_ATTACH_TABLE,
-> +	VIRTIO_IOMMU_F_SVA,
->  };
->  
->  static struct virtio_device_id id_table[] = {
-> diff --git a/include/uapi/linux/virtio_iommu.h b/include/uapi/linux/virtio_iommu.h
-> index 53aa88e6b077..88a3db493108 100644
-> --- a/include/uapi/linux/virtio_iommu.h
-> +++ b/include/uapi/linux/virtio_iommu.h
-> @@ -17,6 +17,7 @@
->  #define VIRTIO_IOMMU_F_PROBE			4
->  #define VIRTIO_IOMMU_F_MMIO			5
->  #define VIRTIO_IOMMU_F_ATTACH_TABLE		6
-> +#define VIRTIO_IOMMU_F_SVA			7
->  
->  struct virtio_iommu_range_64 {
->  	__le64					start;
+>  static inline void arm_smmu_sva_notifier_synchronize(void) {}
+> -struct arm_smmu_ctx_desc *
+> -arm_smmu_alloc_shared_cd(struct iommu_pasid_table *tbl, struct mm_struct *mm)
+> -{
+> -	return ERR_PTR(-EINVAL);
+> -}
+> -
+> -static inline void arm_smmu_free_shared_cd(struct iommu_pasid_table *tbl,
+> -					   struct arm_smmu_ctx_desc *cd) {}
+>  #endif /* CONFIG_ARM_SMMU_V3_SVA */
+>  #endif /* _ARM_SMMU_V3_H */
 > -- 
 > 2.17.1
 > 
