@@ -7,86 +7,91 @@ X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F62DC433EF
-	for <virtualization@archiver.kernel.org>; Wed, 22 Sep 2021 17:09:29 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73395C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 22 Sep 2021 17:51:15 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C4D4560FE6
-	for <virtualization@archiver.kernel.org>; Wed, 22 Sep 2021 17:09:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org C4D4560FE6
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 0538E611CA
+	for <virtualization@archiver.kernel.org>; Wed, 22 Sep 2021 17:51:14 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0538E611CA
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 930744058B;
-	Wed, 22 Sep 2021 17:09:28 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id BAFB7608B8;
+	Wed, 22 Sep 2021 17:51:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id cNecSjm45AkZ; Wed, 22 Sep 2021 17:09:27 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1499B4058E;
-	Wed, 22 Sep 2021 17:09:27 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id dmy9WK-McgQw; Wed, 22 Sep 2021 17:51:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 7935D60609;
+	Wed, 22 Sep 2021 17:51:13 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D8901C0011;
-	Wed, 22 Sep 2021 17:09:26 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B52BEC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5F292C000F;
+	Wed, 22 Sep 2021 17:51:13 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8B706C000D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Sep 2021 17:09:25 +0000 (UTC)
+ Wed, 22 Sep 2021 17:51:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B1327405E1
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6CA51407A4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Sep 2021 17:09:25 +0000 (UTC)
+ Wed, 22 Sep 2021 17:51:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aggdTKNGbXFN
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=google.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fvTaxIj_OBY0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Sep 2021 17:09:24 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id C7C1A405A8
+ Wed, 22 Sep 2021 17:51:09 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-qk1-x72c.google.com (mail-qk1-x72c.google.com
+ [IPv6:2607:f8b0:4864:20::72c])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 438A240691
  for <virtualization@lists.linux-foundation.org>;
- Wed, 22 Sep 2021 17:09:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1632330563;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=BQsej0EuCL2beLZAb1gxjyy0OhJfKtFa7H9euSdki+w=;
- b=KGGY/25bJPYLsK+sXDzgT4q+vDcxgUyHLOHELBcClcH9oanypt+dlzwGi9KtAKF4RnpNUs
- JHN3jOhyvnS9bl9/P6oxY+3xWczonaHY3YdWNtPePWupmvAcywsWhfoNaIr5F5t1MmjkdN
- 8eSs4xMrY6a6zK1aXUgWYElfeLqgoK0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-495-LNokeKBaN3iaxMNmJKsS3g-1; Wed, 22 Sep 2021 13:09:22 -0400
-X-MC-Unique: LNokeKBaN3iaxMNmJKsS3g-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
- [10.5.11.11])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D266E79EDC;
- Wed, 22 Sep 2021 17:09:20 +0000 (UTC)
-Received: from thinkpad.redhat.com (unknown [10.39.192.105])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 50BFA652A1;
- Wed, 22 Sep 2021 17:09:18 +0000 (UTC)
-From: Laurent Vivier <lvivier@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] hwrng: virtio - always add a pending request
-Date: Wed, 22 Sep 2021 19:09:03 +0200
-Message-Id: <20210922170903.577801-5-lvivier@redhat.com>
-In-Reply-To: <20210922170903.577801-1-lvivier@redhat.com>
-References: <20210922170903.577801-1-lvivier@redhat.com>
+ Wed, 22 Sep 2021 17:51:09 +0000 (UTC)
+Received: by mail-qk1-x72c.google.com with SMTP id i132so12819135qke.1
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 22 Sep 2021 10:51:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20210112;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc:content-transfer-encoding;
+ bh=rZT2K/Q8MUfaC2qjpJTTFyZ9xAJMAYxQ7cgEJCjq2XY=;
+ b=MPds0ZGb7d0+CWzI3IilgsLSQygqyPWCjWlOAXUh2tHeCGrHgpetNvxFmfD6QnhOQV
+ 1bdl5zXekJR4RUdJYMmgVcLebiNcBUPeRUVsy57tWR2SJvZEqg0xZb8frrm+Wom5QqIT
+ mL5HC0qmGPH+zzRqBhXinHZCCIGvLqAs+9S2biycWjurIpNIxmG3M5PU9IuPk9VzCgmK
+ Qsnw0QAypE6Sfu8609A3TGaAQ6ue+0MbApyeG7ZX4YH92Fy/L6sCPY+AU3JdXySi60Yw
+ WKz0pXYX6Mkcd7YiEgbzEpUyKfBEiTXlEGs1h7v6hyQPpGvXTU+xSDQCWXTGHkOVMoir
+ 90VQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc:content-transfer-encoding;
+ bh=rZT2K/Q8MUfaC2qjpJTTFyZ9xAJMAYxQ7cgEJCjq2XY=;
+ b=7lHEwQ/28EpY8wm6GcGg/gUyZfH13VeticgCP7SfY86qxZHvycx5M+r5LKV8yupT/6
+ xxiQXV1wrD0t1B+f/uO8A1vHP2sq0Z4WA54YFYtRSD9UEz51qZc+x/Wt9d5qVnk7dRwP
+ uFJBtsPII18fDVWmRkAXujPKjJ2L/TeFllNh/CchIlF0WPb/IU0nn1unh+x79XrV33L4
+ gjoeaJNd4dZYAC87rfjenkz9pwfsFJhJI4CxCVyGqikpnDw9IO693rrdd9kNr8wPNPfz
+ 92TgJ2Cc1UDs9G16n66usihWwbzpMHZY1XvOo6YJIm6JcuWPvC+qbK2MnDO6p1wIdXHC
+ J7rg==
+X-Gm-Message-State: AOAM531l9EKaN+S3BpHbUU66W1ky1+GG4DAtmR5+dwFL3PpQZ6oBJcQv
+ YnkDn0uwd+DDaLTwWF8z3R3XJn7z4pG9/0n5b2xPEA==
+X-Google-Smtp-Source: ABdhPJxZSPLU6e99TrTbzJ6w6df7pzDnSCeIHFgfVnVpx2mXfKFc++W0UqO880O7okYtJcSCtbBn/emVclazGAvdlEg=
+X-Received: by 2002:a37:8044:: with SMTP id b65mr531503qkd.150.1632333067678; 
+ Wed, 22 Sep 2021 10:51:07 -0700 (PDT)
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-Cc: Laurent Vivier <lvivier@redhat.com>,
- Herbert Xu <herbert@gondor.apana.org.au>, amit@kernel.org,
- "Michael S . Tsirkin" <mst@redhat.com>, rusty@rustcorp.com.au,
+References: <20210922170903.577801-1-lvivier@redhat.com>
+In-Reply-To: <20210922170903.577801-1-lvivier@redhat.com>
+Date: Wed, 22 Sep 2021 19:50:31 +0200
+Message-ID: <CAG_fn=Xpek=e6drdCBQXUUvd5kAh-Ui7Xfjg6CY=MNpt0KHjqg@mail.gmail.com>
+Subject: Re: [PATCH 0/4] hwrng: virtio - add an internal buffer
+To: Laurent Vivier <lvivier@redhat.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, amit@kernel.org,
+ rusty@rustcorp.com.au, LKML <linux-kernel@vger.kernel.org>,
  virtualization@lists.linux-foundation.org,
- Alexander Potapenko <glider@google.com>, linux-crypto@vger.kernel.org,
+ "Michael S . Tsirkin" <mst@redhat.com>, linux-crypto@vger.kernel.org,
  Matt Mackall <mpm@selenic.com>, akong@redhat.com,
  Dmitriy Vyukov <dvyukov@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -100,108 +105,39 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Alexander Potapenko via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Alexander Potapenko <glider@google.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-If we ensure we have already some data available by enqueuing
-again the buffer once data are exhausted, we can return what we
-have without waiting for the device answer.
-
-Signed-off-by: Laurent Vivier <lvivier@redhat.com>
----
- drivers/char/hw_random/virtio-rng.c | 24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
-index 8ba97cf4ca8f..0b3c9b643495 100644
---- a/drivers/char/hw_random/virtio-rng.c
-+++ b/drivers/char/hw_random/virtio-rng.c
-@@ -20,7 +20,6 @@ struct virtrng_info {
- 	struct virtqueue *vq;
- 	char name[25];
- 	int index;
--	bool busy;
- 	bool hwrng_register_done;
- 	bool hwrng_removed;
- 	/* data transfer */
-@@ -44,16 +43,16 @@ static void random_recv_done(struct virtqueue *vq)
- 		return;
- 
- 	vi->data_idx = 0;
--	vi->busy = false;
- 
- 	complete(&vi->have_data);
- }
- 
--/* The host will fill any buffer we give it with sweet, sweet randomness. */
--static void register_buffer(struct virtrng_info *vi)
-+static void request_entropy(struct virtrng_info *vi)
- {
- 	struct scatterlist sg;
- 
-+	reinit_completion(&vi->have_data);
-+
- 	sg_init_one(&sg, vi->data, sizeof(vi->data));
- 
- 	/* There should always be room for one buffer. */
-@@ -69,6 +68,8 @@ static unsigned int copy_data(struct virtrng_info *vi, void *buf,
- 	memcpy(buf, vi->data + vi->data_idx, size);
- 	vi->data_idx += size;
- 	vi->data_avail -= size;
-+	if (vi->data_avail == 0)
-+		request_entropy(vi);
- 	return size;
- }
- 
-@@ -98,13 +99,7 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
- 	 * so either size is 0 or data_avail is 0
- 	 */
- 	while (size != 0) {
--		/* data_avail is 0 */
--		if (!vi->busy) {
--			/* no pending request, ask for more */
--			vi->busy = true;
--			reinit_completion(&vi->have_data);
--			register_buffer(vi);
--		}
-+		/* data_avail is 0 but a request is pending */
- 		ret = wait_for_completion_killable(&vi->have_data);
- 		if (ret < 0)
- 			return ret;
-@@ -126,8 +121,7 @@ static void virtio_cleanup(struct hwrng *rng)
- {
- 	struct virtrng_info *vi = (struct virtrng_info *)rng->priv;
- 
--	if (vi->busy)
--		complete(&vi->have_data);
-+	complete(&vi->have_data);
- }
- 
- static int probe_common(struct virtio_device *vdev)
-@@ -163,6 +157,9 @@ static int probe_common(struct virtio_device *vdev)
- 		goto err_find;
- 	}
- 
-+	/* we always have a pending entropy request */
-+	request_entropy(vi);
-+
- 	return 0;
- 
- err_find:
-@@ -181,7 +178,6 @@ static void remove_common(struct virtio_device *vdev)
- 	vi->data_idx = 0;
- 	complete(&vi->have_data);
- 	vdev->config->reset(vdev);
--	vi->busy = false;
- 	if (vi->hwrng_register_done)
- 		hwrng_unregister(&vi->hwrng);
- 	vdev->config->del_vqs(vdev);
--- 
-2.31.1
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gV2VkLCBTZXAgMjIsIDIwMjEgYXQgNzowOSBQTSBMYXVyZW50IFZpdmllciA8bHZpdmllckBy
+ZWRoYXQuY29tPiB3cm90ZToKPgo+IGh3cm5nIGNvcmUgdXNlcyB0d28gYnVmZmVycyB0aGF0IGNh
+biBiZSBtaXhlZCBpbiB0aGUgdmlydGlvLXJuZyBxdWV1ZS4KPgo+IFRoaXMgc2VyaWVzIGZpeGVz
+IHRoZSBwcm9ibGVtIGJ5IGFkZGluZyBhbiBpbnRlcm5hbCBidWZmZXIgaW4gdmlydGlvLXJuZy4K
+Pgo+IE9uY2UgdGhlIGludGVybmFsIGJ1ZmZlciBpcyBhZGRlZCwgd2UgY2FuIGZpeCB0d28gb3Ro
+ZXIgcHJvYmxlbXM6Cj4KPiAtIHRvIGJlIGFibGUgdG8gcmVsZWFzZSB0aGUgZHJpdmVyIHdpdGhv
+dXQgd2FpdGluZyB0aGUgZGV2aWNlIHJlbGVhc2VzIHRoZQo+ICAgYnVmZmVyCj4KPiAtIGFjdHVh
+bGx5IHJldHVybnMgc29tZSBkYXRhIHdoZW4gd2FpdD0wIGFzIHdlIGNhbiBoYXZlIHNvbWUgYWxy
+ZWFkeQo+ICAgYXZhaWxhYmxlIGRhdGEKPgo+IEl0IGFsc28gdHJpZXMgdG8gaW1wcm92ZSB0aGUg
+cGVyZm9ybWFuY2UgYnkgYWx3YXlzIGhhdmluZyBhIGJ1ZmZlciBpbgo+IHRoZSBxdWV1ZSBvZiB0
+aGUgZGV2aWNlLgoKVGVzdGVkLWJ5OiBBbGV4YW5kZXIgUG90YXBlbmtvIDxnbGlkZXJAZ29vZ2xl
+LmNvbT4KZm9yIHRoZSBzZXJpZXMKCldpdGggdGhlc2UgZm91ciBwYXRjaGVzIGFwcGxpZWQsIEtN
+U0FOIHN0b3BzIHJlcG9ydGluZyBib290LXRpbWUKZXJyb3JzIGluIF9taXhfcG9vbF9ieXRlcyBy
+ZXBvcnRlZCBoZXJlOgpodHRwczovL3d3dy5zcGluaWNzLm5ldC9saXN0cy9saW51eC12aXJ0dWFs
+aXphdGlvbi9tc2c0NjMxMC5odG1sCgo+IExhdXJlbnQgVml2aWVyICg0KToKPiAgIGh3cm5nOiB2
+aXJ0aW8gLSBhZGQgYW4gaW50ZXJuYWwgYnVmZmVyCj4gICBod3JuZzogdmlydGlvIC0gZG9uJ3Qg
+d2FpdCBvbiBjbGVhbnVwCj4gICBod3JuZzogdmlydGlvIC0gZG9uJ3Qgd2FzdGUgZW50cm9weQo+
+ICAgaHdybmc6IHZpcnRpbyAtIGFsd2F5cyBhZGQgYSBwZW5kaW5nIHJlcXVlc3QKPgo+ICBkcml2
+ZXJzL2NoYXIvaHdfcmFuZG9tL3ZpcnRpby1ybmcuYyB8IDg0ICsrKysrKysrKysrKysrKysrKysr
+Ky0tLS0tLS0tCj4gIDEgZmlsZSBjaGFuZ2VkLCA2MyBpbnNlcnRpb25zKCspLCAyMSBkZWxldGlv
+bnMoLSkKPgo+IC0tCj4gMi4zMS4xCj4KPgoKCi0tIApBbGV4YW5kZXIgUG90YXBlbmtvClNvZnR3
+YXJlIEVuZ2luZWVyCgpHb29nbGUgR2VybWFueSBHbWJICkVyaWthLU1hbm4tU3RyYcOfZSwgMzMK
+ODA2MzYgTcO8bmNoZW4KCkdlc2Now6RmdHNmw7xocmVyOiBQYXVsIE1hbmljbGUsIEhhbGltYWgg
+RGVMYWluZSBQcmFkbwpSZWdpc3RlcmdlcmljaHQgdW5kIC1udW1tZXI6IEhhbWJ1cmcsIEhSQiA4
+Njg5MQpTaXR6IGRlciBHZXNlbGxzY2hhZnQ6IEhhbWJ1cmcKX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
+cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
+dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
