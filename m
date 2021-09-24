@@ -2,99 +2,78 @@ Return-Path: <SRS0=hBt6=OO=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DB33C433F5
-	for <virtualization@archiver.kernel.org>; Fri, 24 Sep 2021 22:43:50 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AFA5C4332F
+	for <virtualization@archiver.kernel.org>; Fri, 24 Sep 2021 23:03:38 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EC98661261
-	for <virtualization@archiver.kernel.org>; Fri, 24 Sep 2021 22:43:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org EC98661261
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id BCF2261039
+	for <virtualization@archiver.kernel.org>; Fri, 24 Sep 2021 23:03:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org BCF2261039
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=canonical.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 9F745835C8;
-	Fri, 24 Sep 2021 22:43:49 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7AB2D607A7;
+	Fri, 24 Sep 2021 23:03:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id eIm5gOj1pB0j; Fri, 24 Sep 2021 22:43:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 211DF8355F;
-	Fri, 24 Sep 2021 22:43:47 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id cBG3BhndgNxC; Fri, 24 Sep 2021 23:03:36 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 2A610614B3;
+	Fri, 24 Sep 2021 23:03:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E0D69C0011;
-	Fri, 24 Sep 2021 22:43:46 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 581D7C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 07999C0011;
+	Fri, 24 Sep 2021 23:03:36 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9C54FC000D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Sep 2021 22:43:45 +0000 (UTC)
+ Fri, 24 Sep 2021 23:03:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 40DD78355F
+ by smtp3.osuosl.org (Postfix) with ESMTP id 8E591607A7
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Sep 2021 22:43:45 +0000 (UTC)
+ Fri, 24 Sep 2021 23:03:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FezcYMs7GuHW
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1ZoQLhCM5Uw3
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Sep 2021 22:43:44 +0000 (UTC)
+ Fri, 24 Sep 2021 23:03:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 5661F8349A
+Received: from smtp-relay-canonical-0.canonical.com
+ (smtp-relay-canonical-0.canonical.com [185.125.188.120])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 547BA60761
  for <virtualization@lists.linux-foundation.org>;
- Fri, 24 Sep 2021 22:43:44 +0000 (UTC)
-X-IronPort-AV: E=McAfee;i="6200,9189,10117"; a="224233865"
-X-IronPort-AV: E=Sophos;i="5.85,321,1624345200"; d="scan'208";a="224233865"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
- by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 24 Sep 2021 15:43:43 -0700
-X-IronPort-AV: E=Sophos;i="5.85,321,1624345200"; d="scan'208";a="704339730"
-Received: from akleen-mobl1.amr.corp.intel.com (HELO [10.251.20.113])
- ([10.251.20.113])
- by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 24 Sep 2021 15:43:41 -0700
-Subject: Re: [PATCH v4 11/15] pci: Add pci_iomap_shared{,_range}
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20210824053830-mutt-send-email-mst@kernel.org>
- <d21a2a2d-4670-ba85-ce9a-fc8ea80ef1be@linux.intel.com>
- <20210829112105-mutt-send-email-mst@kernel.org>
- <09b340dd-c8a8-689c-4dad-4fe0e36d39ae@linux.intel.com>
- <20210829181635-mutt-send-email-mst@kernel.org>
- <3a88a255-a528-b00a-912b-e71198d5f58f@linux.intel.com>
- <20210830163723-mutt-send-email-mst@kernel.org>
- <69fc30f4-e3e2-add7-ec13-4db3b9cc0cbd@linux.intel.com>
- <20210910054044-mutt-send-email-mst@kernel.org>
- <f672dc1c-5280-7bbc-7a56-7c7aab31725c@linux.intel.com>
- <20210911195006-mutt-send-email-mst@kernel.org>
-From: Andi Kleen <ak@linux.intel.com>
-Message-ID: <ad1e41d1-3f4e-8982-16ea-18a3b2c04019@linux.intel.com>
-Date: Fri, 24 Sep 2021 15:43:40 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+ Fri, 24 Sep 2021 23:03:33 +0000 (UTC)
+Received: from localhost (1.general.cking.uk.vpn [10.172.193.212])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest
+ SHA256) (No client certificate requested)
+ by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 548F03F0AA; 
+ Fri, 24 Sep 2021 23:03:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+ s=20210705; t=1632524610;
+ bh=d5U2GkrHZIUhRCDfV/26YdMlC5mdNTj/avHWnIDd59w=;
+ h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type;
+ b=mfTMOZMR5ACJF5cjnZ0qJpqdwpV1TBmYWrQBsT7j+U9xZJeaax4qJy//dZfzdnyT4
+ hk7+e0CjJLzJBxkE1VjegeJJ/bJHBtGTHUe+F+/UawF+VHWm2ZILX7AiJiJykjz2tN
+ UFejqzygovp4B82lU7E0xeJaY3QIGHO/y9kVqgD2/3QmxVik7NdnOAU/uuq3QfbLtd
+ YaEnAzglhCSCd3Apd1i24epCMWey6nA5ICgWazZNlo1LxFcIPzp2SYR/A0+iROAZsD
+ lfM34EXvsxvRQ7ryFaY45rBa6mZVKDxF1BSKxYj50iTrpxnmuHFCeQppaYjQdXJV7U
+ 3xj3QqaGZ+V0w==
+From: Colin King <colin.king@canonical.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+ "James E . J . Bottomley" <jejb@linux.ibm.com>,
+ "Martin K . Petersen" <martin.petersen@oracle.com>,
+ virtualization@lists.linux-foundation.org, linux-scsi@vger.kernel.org
+Subject: [PATCH] scsi: virtio_scsi: Fix spelling mistake "Unsupport" ->
+ "Unsupported"
+Date: Sat, 25 Sep 2021 00:03:30 +0100
+Message-Id: <20210924230330.143785-1-colin.king@canonical.com>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-In-Reply-To: <20210911195006-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Cc: "Kuppuswamy, Sathyanarayanan" <sathyanarayanan.kuppuswamy@linux.intel.com>,
- Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
- Linux Doc Mailing List <linux-doc@vger.kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, Linux PCI <linux-pci@vger.kernel.org>,
- linux-mips@vger.kernel.org,
- James E J Bottomley <James.Bottomley@hansenpartnership.com>,
- Dave Hansen <dave.hansen@intel.com>, Peter H Anvin <hpa@zytor.com>,
- sparclinux@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
- linux-arch <linux-arch@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>,
- Helge Deller <deller@gmx.de>, X86 ML <x86@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Arnd Bergmann <arnd@arndb.de>,
- Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@alien8.de>,
- Andy Lutomirski <luto@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
- Dan Williams <dan.j.williams@intel.com>,
- virtualization@lists.linux-foundation.org, Richard Henderson <rth@twiddle.net>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-parisc@vger.kernel.org,
- Sean Christopherson <seanjc@google.com>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- linux-alpha@vger.kernel.org, "David S . Miller" <davem@davemloft.net>,
- Kirill Shutemov <kirill.shutemov@linux.intel.com>
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,31 +85,45 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+From: Colin Ian King <colin.king@canonical.com>
 
->> Hmm, yes that's true. I guess we can make it default to opt-in for
->> pci_iomap.
->>
->> It only really matters for device less ioremaps.
-> OK. And same thing for other things with device, such as
-> devm_platform_ioremap_resource.
-> If we agree on all that, this will basically remove virtio
-> changes from the picture ;)
+There are a couple of spelling mistakes in pr_info and pr_err messages.
+Fix them.
 
-Hi we revisited this now. One problem with removing the ioremap opt-in 
-is that it's still possible for drivers to get at devices without going 
-through probe. For example they can walk the PCI device list. Some 
-drivers do that for various reasons. So if we remove the opt-in we would 
-need to audit and possibly fix all that, which would be potentially a 
-lot of churn. That's why I think it's better to keep the opt-in.
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+---
+ drivers/scsi/virtio_scsi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-
--Andi
-
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index c25ce8f0e0af..07d0250f17c3 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -300,7 +300,7 @@ static void virtscsi_handle_transport_reset(struct virtio_scsi *vscsi,
+ 		}
+ 		break;
+ 	default:
+-		pr_info("Unsupport virtio scsi event reason %x\n", event->reason);
++		pr_info("Unsupported virtio scsi event reason %x\n", event->reason);
+ 	}
+ }
+ 
+@@ -392,7 +392,7 @@ static void virtscsi_handle_event(struct work_struct *work)
+ 		virtscsi_handle_param_change(vscsi, event);
+ 		break;
+ 	default:
+-		pr_err("Unsupport virtio scsi event %x\n", event->event);
++		pr_err("Unsupported virtio scsi event %x\n", event->event);
+ 	}
+ 	virtscsi_kick_event(vscsi, event_node);
+ }
+-- 
+2.32.0
 
 _______________________________________________
 Virtualization mailing list
