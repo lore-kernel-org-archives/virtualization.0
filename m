@@ -2,107 +2,106 @@ Return-Path: <SRS0=Jws+=OR=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CEC0C433EF
-	for <virtualization@archiver.kernel.org>; Mon, 27 Sep 2021 09:32:12 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 525AAC433FE
+	for <virtualization@archiver.kernel.org>; Mon, 27 Sep 2021 09:36:44 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 25AC160F4B
-	for <virtualization@archiver.kernel.org>; Mon, 27 Sep 2021 09:32:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 25AC160F4B
+	by mail.kernel.org (Postfix) with ESMTPS id 0D10D60FC2
+	for <virtualization@archiver.kernel.org>; Mon, 27 Sep 2021 09:36:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0D10D60FC2
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D5C31605D0;
-	Mon, 27 Sep 2021 09:32:11 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id C40D081815;
+	Mon, 27 Sep 2021 09:36:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id oTGwT9uS-hxW; Mon, 27 Sep 2021 09:32:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 87FB060796;
-	Mon, 27 Sep 2021 09:32:10 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5FF7DC0011;
-	Mon, 27 Sep 2021 09:32:10 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 31711C000D
- for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Sep 2021 09:32:09 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 0B6BC81815
- for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Sep 2021 09:32:09 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uQNGrr5k2n-I
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id imWVfi4T8nEx; Mon, 27 Sep 2021 09:36:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 72E1581501;
+	Mon, 27 Sep 2021 09:36:42 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 41DA1C0011;
+	Mon, 27 Sep 2021 09:36:42 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D9F61C000D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Sep 2021 09:32:08 +0000 (UTC)
+ Mon, 27 Sep 2021 09:36:40 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id C98D0607BB
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 27 Sep 2021 09:36:40 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id uHVptNJWLsBj
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 27 Sep 2021 09:36:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 3AB7B81501
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2AC7660796
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Sep 2021 09:32:08 +0000 (UTC)
+ Mon, 27 Sep 2021 09:36:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1632735127;
+ s=mimecast20190719; t=1632735399;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=hha6vL8+kgRFRejoaAGUuH6/XDbDSBp6ZRA9Bz723U8=;
- b=M/hrVJ1vcIU/86RKfuzIanElXmW7zlk+xHPy+4oOYV5lAs83C1NkU8lJeylj8Bu//ZrodE
- aIi5oqvmmnc3icsLxWigeWk4XZIhzvjYIL6yXx8QpekfGNG8U+ZuhAZdBrI/rzmzekRAye
- 8sjljUDsLMI5vsG1McEu89uw+Y1Ig64=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-563-z585gAmxNhGwY0oB6Iq4aw-1; Mon, 27 Sep 2021 05:32:05 -0400
-X-MC-Unique: z585gAmxNhGwY0oB6Iq4aw-1
-Received: by mail-wr1-f72.google.com with SMTP id
- j15-20020a5d564f000000b00160698bf7e9so500979wrw.13
+ bh=VwkEEsx/SFo4vZQiJMyrqZ3z0jMskB1/efBB0bt6CTQ=;
+ b=SlKqJUZ++HlcEfjgqU2XmM1xg6qYaEk0FK/izwh2JtoFh4COTFky9uLDtOGvha+gQFZWu/
+ aIm+nTyvT1u3EAZdz6J6RWus4lMJIp0zbgnp2SCtpBFFoJMiqOxvhcztkH2eygkxomYyRS
+ Jkqi2kTM7Tq6JpQbVAcBmVXF5dAmnYE=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-538-b8cfVHXTMKSapQWS6S4fUA-1; Mon, 27 Sep 2021 05:36:38 -0400
+X-MC-Unique: b8cfVHXTMKSapQWS6S4fUA-1
+Received: by mail-wr1-f71.google.com with SMTP id
+ u7-20020adfed47000000b0016061b6caa8so3079916wro.16
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Sep 2021 02:32:05 -0700 (PDT)
+ Mon, 27 Sep 2021 02:36:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=hha6vL8+kgRFRejoaAGUuH6/XDbDSBp6ZRA9Bz723U8=;
- b=hsB4GAczr32Vi9kwMkp0WXhjSvxvjKzNIaK1MJwEJBaC8C0al8zBcwcNKZR9C9C6Km
- t7R7xINiGWuxRs1k8HNFxnx3EBwZuxHkUkbULFGha74WE3Bun8wlUlnGkRltcAaomUUl
- cRnCo95fWsdQKfWKbGaxanCSY9qOAvIcjPF8hyRWhseyVxc4p68WVXJwPPXVstaqZrVw
- pApW6r8UcPF2m8qeG/Obx4GuYyEivwVS7SXPYixcR85S9k14cfcKKoo20jL1ZXZ4kzH1
- ty+rH8eO9ZCx7ZETYTfMIzFAR4Lw1cLtx1IM6+ig53Nbf3Ra40HQcH9uXKEgu6cKxGrI
- uRSA==
-X-Gm-Message-State: AOAM533LDQednjKxEM+z6V2UFlj2cwXfL+Q2P2XI3kscaj9d3gjUG22r
- kmv2glqrZRhvKvqYqgo+Ymmkp4ExiFozmRN8UsX9l+QpXItVj5lWT3RyXOdq8qnWoO/F5cYGTto
- w4ljw2fhALT01mmwMQQSfhcP845V5b20EPnNusQzteg==
-X-Received: by 2002:a1c:149:: with SMTP id 70mr14434836wmb.187.1632735124348; 
- Mon, 27 Sep 2021 02:32:04 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwTU4NNTP2HGI7OzM+EzYF7opQVO5IGaLtp4UKJfZpY1HlzX9J5DT46xdOlGweUx96TXH9s/w==
-X-Received: by 2002:a1c:149:: with SMTP id 70mr14434800wmb.187.1632735124041; 
- Mon, 27 Sep 2021 02:32:04 -0700 (PDT)
+ bh=VwkEEsx/SFo4vZQiJMyrqZ3z0jMskB1/efBB0bt6CTQ=;
+ b=rjO0/87ZB+AvY6ny713wEK8MbWtDT37gViMucdZq6Ma34jk+4qrt9th4uLWkNHo9/R
+ dGqEm8mlcm/9QN/pHk+9a/UIh4QSqsbNTPa/rCurXkC4uXDhHyualZEnfNPBY4a0yc3A
+ xdO+G1g759H16gkJAbhzaPkzl4g6HoRGPpePRLmj+2dhXXWHfiZultd2t/MhNRFxitky
+ ERFcabrOYynyxw4KbyFIcG7xl4pO8H9Gl9+eh0WUoWaZN8sJnojpaGoDzfk9jXNnicfm
+ 29NBelaXIL333VC2BoELuMnd1nocyFhqttS/7THSmRAG3aG++cTP1BeuaFkYCD3KcyRr
+ zRfg==
+X-Gm-Message-State: AOAM531/yTQuVpFkzah0QrKEajEbxSTfcIMo9Y99alLXaQVBKgRxpfis
+ jK51N7BSYmV/Tvl0admoZYvJjlmaC/udeOb5qNI6tGA/NuDOwIOCYZWuqRJgQpVIZ+tpig8gmlJ
+ 9uf+KofB6rFmGHHL4a2aKnrzE1TAH2kDR1sj2+9Xt9A==
+X-Received: by 2002:a7b:c351:: with SMTP id l17mr14852298wmj.120.1632735396491; 
+ Mon, 27 Sep 2021 02:36:36 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxUjNj6KYNQACo9ai9IgeUezllhTcbixb9Qv1AxHht+R+8Mp3IWM1C4FYLVNPVbrfGjtOTfXA==
+X-Received: by 2002:a7b:c351:: with SMTP id l17mr14852289wmj.120.1632735396332; 
+ Mon, 27 Sep 2021 02:36:36 -0700 (PDT)
 Received: from redhat.com ([2.55.16.138])
- by smtp.gmail.com with ESMTPSA id k17sm16160443wrq.7.2021.09.27.02.32.01
+ by smtp.gmail.com with ESMTPSA id r2sm2011396wmq.28.2021.09.27.02.36.34
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 27 Sep 2021 02:32:03 -0700 (PDT)
-Date: Mon, 27 Sep 2021 05:31:59 -0400
+ Mon, 27 Sep 2021 02:36:35 -0700 (PDT)
+Date: Mon, 27 Sep 2021 05:36:32 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: Re: [PATCH 1/2] virtio: introduce virtio_dev_to_node helper
-Message-ID: <20210927053121-mutt-send-email-mst@kernel.org>
-References: <20210926145518.64164-1-mgurtovoy@nvidia.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH] virtio_ring: check desc == NULL when packed and indirect
+Message-ID: <20210927053429-mutt-send-email-mst@kernel.org>
+References: <20210927030618.81278-1-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-In-Reply-To: <20210926145518.64164-1-mgurtovoy@nvidia.com>
+In-Reply-To: <20210927030618.81278-1-xuanzhuo@linux.alibaba.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: axboe@kernel.dk, linux-block@vger.kernel.org, kvm@vger.kernel.org,
- israelr@nvidia.com, virtualization@lists.linux-foundation.org,
- hch@infradead.org, nitzanc@nvidia.com, stefanha@redhat.com, oren@nvidia.com
+Cc: "David S. Miller" <davem@davemloft.net>, Tiwei Bie <tiwei.bie@intel.com>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,76 +118,74 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Sep 26, 2021 at 05:55:17PM +0300, Max Gurtovoy wrote:
-> Also expose numa_node field as a sysfs attribute. Now virtio device
-> drivers will be able to allocate memory that is node-local to the
-> device. This significantly helps performance and it's oftenly used in
-> other drivers such as NVMe, for example.
+On Mon, Sep 27, 2021 at 11:06:18AM +0800, Xuan Zhuo wrote:
+> In the case of packed, use indirect desc, since desc is allocated by
+> kmalloc_array(), we should check whether its return value is NULL.
 > 
-> Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-
-If you have to respin this, it is better to split this in
-two patches, one with the helper one adding a sysfs attribute.
-
-
+> Fixes: 1ce9e6055fa ("virtio_ring: introduce packed ring support")
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 > ---
->  drivers/virtio/virtio.c | 10 ++++++++++
->  include/linux/virtio.h  | 13 +++++++++++++
->  2 files changed, 23 insertions(+)
+>  drivers/virtio/virtio_ring.c | 27 ++++++++++++++++-----------
+>  1 file changed, 16 insertions(+), 11 deletions(-)
 > 
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index 588e02fb91d3..bdbd76c5c58c 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -60,12 +60,22 @@ static ssize_t features_show(struct device *_d,
->  }
->  static DEVICE_ATTR_RO(features);
->  
-> +static ssize_t numa_node_show(struct device *_d,
-> +			      struct device_attribute *attr, char *buf)
-> +{
-> +	struct virtio_device *vdev = dev_to_virtio(_d);
-> +
-> +	return sysfs_emit(buf, "%d\n", virtio_dev_to_node(vdev));
-> +}
-> +static DEVICE_ATTR_RO(numa_node);
-> +
->  static struct attribute *virtio_dev_attrs[] = {
->  	&dev_attr_device.attr,
->  	&dev_attr_vendor.attr,
->  	&dev_attr_status.attr,
->  	&dev_attr_modalias.attr,
->  	&dev_attr_features.attr,
-> +	&dev_attr_numa_node.attr,
->  	NULL,
->  };
->  ATTRIBUTE_GROUPS(virtio_dev);
-> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> index 41edbc01ffa4..05b586ac71d1 100644
-> --- a/include/linux/virtio.h
-> +++ b/include/linux/virtio.h
-> @@ -125,6 +125,19 @@ static inline struct virtio_device *dev_to_virtio(struct device *_dev)
->  	return container_of(_dev, struct virtio_device, dev);
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index dd95dfd85e98..7dd381eae725 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -1050,21 +1050,20 @@ static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
 >  }
 >  
-> +/**
-> + * virtio_dev_to_node - return the NUMA node for a given virtio device
-> + * @vdev:	device to get the NUMA node for.
-> + */
-> +static inline int virtio_dev_to_node(struct virtio_device *vdev)
-> +{
-> +	struct device *parent = vdev->dev.parent;
-> +
-> +	if (!parent)
-> +		return NUMA_NO_NODE;
-> +	return dev_to_node(parent);
-> +}
-> +
->  void virtio_add_status(struct virtio_device *dev, unsigned int status);
->  int register_virtio_device(struct virtio_device *dev);
->  void unregister_virtio_device(struct virtio_device *dev);
+>  static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
+> -				       struct scatterlist *sgs[],
+> -				       unsigned int total_sg,
+> -				       unsigned int out_sgs,
+> -				       unsigned int in_sgs,
+> -				       void *data,
+> -				       gfp_t gfp)
+> +					 struct scatterlist *sgs[],
+> +					 struct vring_packed_desc *desc,
+> +					 unsigned int total_sg,
+> +					 unsigned int out_sgs,
+> +					 unsigned int in_sgs,
+> +					 void *data,
+> +					 gfp_t gfp)
+>  {
+> -	struct vring_packed_desc *desc;
+>  	struct scatterlist *sg;
+>  	unsigned int i, n, err_idx;
+>  	u16 head, id;
+>  	dma_addr_t addr;
+>  
+>  	head = vq->packed.next_avail_idx;
+> -	desc = alloc_indirect_packed(total_sg, gfp);
+>  
+>  	if (unlikely(vq->vq.num_free < 1)) {
+>  		pr_debug("Can't add buf len 1 - avail = 0\n");
+> @@ -1191,9 +1190,15 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
+>  
+>  	BUG_ON(total_sg == 0);
+>  
+> -	if (virtqueue_use_indirect(_vq, total_sg))
+> -		return virtqueue_add_indirect_packed(vq, sgs, total_sg,
+> -				out_sgs, in_sgs, data, gfp);
+> +	if (virtqueue_use_indirect(_vq, total_sg)) {
+> +		desc = alloc_indirect_packed(total_sg, gfp);
+> +		if (desc) {
+> +			return virtqueue_add_indirect_packed(vq, sgs, desc,
+> +							     total_sg,
+> +							     out_sgs, in_sgs,
+> +							     data, gfp);
+> +		}
+
+Eschew {} for a single statement if conditions pls.
+
+
+> +	}
+>  
+>  	head = vq->packed.next_avail_idx;
+>  	avail_used_flags = vq->packed.avail_used_flags;
 > -- 
-> 2.18.1
+> 2.31.0
 
 _______________________________________________
 Virtualization mailing list
