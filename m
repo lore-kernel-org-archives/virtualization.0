@@ -2,74 +2,74 @@ Return-Path: <SRS0=Jws+=OR=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7191FC433F5
-	for <virtualization@archiver.kernel.org>; Mon, 27 Sep 2021 12:01:22 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F547C4332F
+	for <virtualization@archiver.kernel.org>; Mon, 27 Sep 2021 18:23:36 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 279FF60FD7
-	for <virtualization@archiver.kernel.org>; Mon, 27 Sep 2021 12:01:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 279FF60FD7
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+	by mail.kernel.org (Postfix) with ESMTPS id 40EAF60F11
+	for <virtualization@archiver.kernel.org>; Mon, 27 Sep 2021 18:23:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 40EAF60F11
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id EBA88817BA;
-	Mon, 27 Sep 2021 12:01:21 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 06C8A4014E;
+	Mon, 27 Sep 2021 18:23:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lxAtLqVOmo7B; Mon, 27 Sep 2021 12:01:20 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id uYck42ubjRxT; Mon, 27 Sep 2021 18:23:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 5BFD2817EB;
-	Mon, 27 Sep 2021 12:01:20 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 65B3140104;
+	Mon, 27 Sep 2021 18:23:34 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 25C55C0011;
-	Mon, 27 Sep 2021 12:01:20 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3B417C001C;
+	Mon, 27 Sep 2021 18:23:34 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8A126C000D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5FE98C000F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Sep 2021 12:01:18 +0000 (UTC)
+ Mon, 27 Sep 2021 18:23:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 6BADF4061D
+ by smtp4.osuosl.org (Postfix) with ESMTP id 4EE45402B8
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Sep 2021 12:01:18 +0000 (UTC)
+ Mon, 27 Sep 2021 18:23:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
+ dkim=pass (2048-bit key) header.d=kernel.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tJfUDtiBP6V9
+ with ESMTP id l6FWiG9UaCpk
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Sep 2021 12:01:18 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from casper.infradead.org (casper.infradead.org
- [IPv6:2001:8b0:10b:1236::1])
- by smtp4.osuosl.org (Postfix) with ESMTPS id D98F840568
+ Mon, 27 Sep 2021 18:23:32 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id CC7E040261
  for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Sep 2021 12:01:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=l2WBiCb5duYJRA9nKpihqrJOH1Qjg6utSrFiu8qAdtc=; b=ZGz56D9PDMH0Z9KBoJRxNY2ws2
- uVWo1Tb+nHx18sJhRIukJIc3iQcK9Wq7R/S3CySv3a02INLlb1huajuVkEF24S64o6ZY278l4ONa2
- HQrv0yZMzld8QDfhONwlXZgTm5TTqQ7Fik+veQ0TlPxViY0XWEmgtr2iXv0o/Co54MwG41vxpgUZN
- A+2vYVjVnm+GZ9qtMcDthxkSJ1QJSqyimFyAk+MP8fAexcfwmxpvOU1zoUZ8l37UHiD0Dj/28XlkT
- /p/s/usXaUf8qKamgnSKObW0qorVTPGgiQDpObevLviNeBs+6tZEuxpC8IuVh8AbwztReRuXb4wMt
- E5c10lNQ==;
-Received: from hch by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat
- Linux)) id 1mUpIF-009idw-Rh; Mon, 27 Sep 2021 11:59:48 +0000
-Date: Mon, 27 Sep 2021 12:59:35 +0100
-From: Christoph Hellwig <hch@infradead.org>
+ Mon, 27 Sep 2021 18:23:32 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B08FD60F11;
+ Mon, 27 Sep 2021 18:23:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1632767012;
+ bh=PEfnJvnMLX3HzCxJvQOSm8TUcP24eAq+3o46ij/lCio=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=QLX7Zbm4eAjOypOxP3TA0hEiGTi5+UE4LoaR/+AApBexUvYyohRYQVbI6jMzxjzjT
+ x7C7XuRfXr6R9vbREJgTXejWww6Lx5aCMT2aHSOGCp0SOLNXpE+mYwjX4WLlXSMT/v
+ ZQS+g0wnvpq2ujW9XJK1OJLZHddrXuJyi1DYhLxcyxKjd12eTHHdCDmnTrUleN96Fl
+ c0eXtldARexqmfxnp8zVCcFkE7CuqzWmIfQixgEC/+FST13Chzurawv41c4mZmdM3l
+ o92h+WUxGNbEEr32hKNpIE6ePp5Mommzze6dEOXkqbDFXVaeu5/hQN3ae0lE+I/uXl
+ B+LQXXK7y6xLA==
+Date: Mon, 27 Sep 2021 21:23:28 +0300
+From: Leon Romanovsky <leon@kernel.org>
 To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: Re: [PATCH v3 1/1] virtio-blk: avoid preallocating big SGL for data
-Message-ID: <YVGyJ7jkixtgPVSY@infradead.org>
-References: <20210901131434.31158-1-mgurtovoy@nvidia.com>
+Subject: Re: [PATCH 2/2] virtio-blk: set NUMA affinity for a tagset
+Message-ID: <YVIMIFxjRcfDDub4@unreal>
+References: <20210926145518.64164-1-mgurtovoy@nvidia.com>
+ <20210926145518.64164-2-mgurtovoy@nvidia.com>
+ <YVGsMsIjD2+aS3eC@unreal>
+ <0c155679-e1db-3d1e-2b4e-a0f12ce5950c@nvidia.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20210901131434.31158-1-mgurtovoy@nvidia.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
- casper.infradead.org. See http://www.infradead.org/rpr.html
+In-Reply-To: <0c155679-e1db-3d1e-2b4e-a0f12ce5950c@nvidia.com>
 Cc: axboe@kernel.dk, linux-block@vger.kernel.org, kvm@vger.kernel.org,
  mst@redhat.com, israelr@nvidia.com, virtualization@lists.linux-foundation.org,
  hch@infradead.org, nitzanc@nvidia.com, stefanha@redhat.com, oren@nvidia.com
@@ -89,9 +89,55 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Looks good,
+On Mon, Sep 27, 2021 at 08:25:09PM +0300, Max Gurtovoy wrote:
+> 
+> On 9/27/2021 2:34 PM, Leon Romanovsky wrote:
+> > On Sun, Sep 26, 2021 at 05:55:18PM +0300, Max Gurtovoy wrote:
+> > > To optimize performance, set the affinity of the block device tagset
+> > > according to the virtio device affinity.
+> > > 
+> > > Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+> > > ---
+> > >   drivers/block/virtio_blk.c | 2 +-
+> > >   1 file changed, 1 insertion(+), 1 deletion(-)
+> > > 
+> > > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> > > index 9b3bd083b411..1c68c3e0ebf9 100644
+> > > --- a/drivers/block/virtio_blk.c
+> > > +++ b/drivers/block/virtio_blk.c
+> > > @@ -774,7 +774,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+> > >   	memset(&vblk->tag_set, 0, sizeof(vblk->tag_set));
+> > >   	vblk->tag_set.ops = &virtio_mq_ops;
+> > >   	vblk->tag_set.queue_depth = queue_depth;
+> > > -	vblk->tag_set.numa_node = NUMA_NO_NODE;
+> > > +	vblk->tag_set.numa_node = virtio_dev_to_node(vdev);
+> > I afraid that by doing it, you will increase chances to see OOM, because
+> > in NUMA_NO_NODE, MM will try allocate memory in whole system, while in
+> > the latter mode only on specific NUMA which can be depleted.
+> 
+> This is a common methodology we use in the block layer and in NVMe subsystem
+> and we don't afraid of the OOM issue you raised.
 
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+There are many reasons for that, but we are talking about virtio here
+and not about NVMe.
+
+> 
+> This is not new and I guess that the kernel MM will (or should) be handling
+> the fallback you raised.
+
+I afraid that it is not. Can you point me to the place where such
+fallback is implemented?
+
+> 
+> Anyway, if we're doing this in NVMe I don't see a reason to afraid doing it
+> in virtio-blk.
+
+Still, it is nice to have some empirical data to support this copy/paste.
+
+There are too many myths related to optimizations, so finally it will be
+good to get some supportive data.
+
+Thanks
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
