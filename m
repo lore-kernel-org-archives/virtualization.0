@@ -2,81 +2,92 @@ Return-Path: <SRS0=Y9jr=OS=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C8EAC433EF
-	for <virtualization@archiver.kernel.org>; Tue, 28 Sep 2021 16:27:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7DB76C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 28 Sep 2021 18:23:26 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E61E260F5B
-	for <virtualization@archiver.kernel.org>; Tue, 28 Sep 2021 16:27:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E61E260F5B
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	by mail.kernel.org (Postfix) with ESMTPS id 20CA561371
+	for <virtualization@archiver.kernel.org>; Tue, 28 Sep 2021 18:23:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 20CA561371
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id B9C896077A;
-	Tue, 28 Sep 2021 16:27:51 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id C2EFC60B38;
+	Tue, 28 Sep 2021 18:23:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id c6ZB5dmG9gA7; Tue, 28 Sep 2021 16:27:50 +0000 (UTC)
+	with ESMTP id RPnqC85c--VB; Tue, 28 Sep 2021 18:23:24 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id EB348606FF;
-	Tue, 28 Sep 2021 16:27:49 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 51D0A60B24;
+	Tue, 28 Sep 2021 18:23:24 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BE474C0011;
-	Tue, 28 Sep 2021 16:27:49 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9F566C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 06EA4C0011;
+	Tue, 28 Sep 2021 18:23:24 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0CB15C000D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Sep 2021 16:27:48 +0000 (UTC)
+ Tue, 28 Sep 2021 18:23:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 8B0A140105
+ by smtp4.osuosl.org (Postfix) with ESMTP id E77C241485
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Sep 2021 16:27:48 +0000 (UTC)
+ Tue, 28 Sep 2021 18:23:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id cW6kKx6xtoHH
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id oyzR2vG3QG0a
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Sep 2021 16:27:46 +0000 (UTC)
+ Tue, 28 Sep 2021 18:23:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 99156400C5
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id D2CFA41482
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Sep 2021 16:27:46 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 636A360EE9;
- Tue, 28 Sep 2021 16:27:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1632846466;
- bh=pxmRZz6UdCKyo/pIVTPGaxM9qJvC87Qcki0mcSQG0Gc=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=QOZ1Eyxws/1pmJeQ1d8Rz+AAw2zaFbTsRdmGXgZ0EuuCNMAnvjr0hvhZkhJZYEjfj
- uW8aT2SBMEBI6njSafdsdsdK2Np+fmUeCOChkM6Tp/gt5QnJTmiUg0/vjJE+k6yUIE
- VNiZh45LgC+8EhnSmzhPQzliLswMH2tgkFYLGahoPXXexWTnU6J7KKKL8jC82GzVRR
- 57UETot+3TQaJmhd1ITCbcBIcMkDwZAjD1hX0uVIIA+GVmMh9e+GKb1nuSBOtvX76c
- 0ZuADBIy+RtZmPDHKonWSA3KftxSaj8l94/qhoO58dfGzRDH1m2Dx0TA+IDh/jt3GK
- QjdJG113AplqA==
-Date: Tue, 28 Sep 2021 19:27:42 +0300
-From: Leon Romanovsky <leon@kernel.org>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: Re: [PATCH 2/2] virtio-blk: set NUMA affinity for a tagset
-Message-ID: <YVNCflMxWh4m7ewU@unreal>
-References: <20210926145518.64164-1-mgurtovoy@nvidia.com>
- <20210926145518.64164-2-mgurtovoy@nvidia.com>
- <YVGsMsIjD2+aS3eC@unreal>
- <0c155679-e1db-3d1e-2b4e-a0f12ce5950c@nvidia.com>
- <YVIMIFxjRcfDDub4@unreal>
- <f8de7c19-9f04-a458-6c1d-8133a83aa93f@nvidia.com>
+ Tue, 28 Sep 2021 18:23:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1632853400;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=8/a5gkIL9yAofs88ckFRESPQGSjIdBv52g14ib29Qfw=;
+ b=fSH7GZ1PtF8GFEluGZIH5MaHzfZmrJ0fCrzXSiBry14JbWeXeaLeHDjwI3SeP8eg4r3kwj
+ BfKmdxL2T6eZ3KZ4kd5P45j/Ggg0I/y7dCDGsEUBun/Fw18Wiyx0Txn8ONFh3itKTxdEgg
+ i9JFgvNmB6zvROnf0Y5t2mMXK+yFigQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-297-iyZcQTaONDm3MWfcKShKpA-1; Tue, 28 Sep 2021 14:23:19 -0400
+X-MC-Unique: iyZcQTaONDm3MWfcKShKpA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
+ [10.5.11.13])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 810A51023F50;
+ Tue, 28 Sep 2021 18:23:16 +0000 (UTC)
+Received: from t480s.redhat.com (unknown [10.39.194.120])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 0433660877;
+ Tue, 28 Sep 2021 18:22:59 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH v1 0/8] proc/vmcore: sanitize access to virtio-mem memory
+Date: Tue, 28 Sep 2021 20:22:50 +0200
+Message-Id: <20210928182258.12451-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <f8de7c19-9f04-a458-6c1d-8133a83aa93f@nvidia.com>
-Cc: axboe@kernel.dk, linux-block@vger.kernel.org,
- Jason Gunthorpe <jgg@nvidia.com>, kvm@vger.kernel.org, mst@redhat.com,
- israelr@nvidia.com, virtualization@lists.linux-foundation.org,
- hch@infradead.org, nitzanc@nvidia.com, stefanha@redhat.com, oren@nvidia.com,
- Yaron Gepstein <yarong@nvidia.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Cc: Michal Hocko <mhocko@suse.com>, x86@kernel.org,
+ virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
+ "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Stefano Stabellini <sstabellini@kernel.org>, Baoquan He <bhe@redhat.com>,
+ "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+ Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org,
+ Dave Young <dyoung@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Oscar Salvador <osalvador@suse.de>, Juergen Gross <jgross@suse.com>,
+ kexec@lists.infradead.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ Mike Rapoport <rppt@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,61 +104,107 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Sep 28, 2021 at 06:59:15PM +0300, Max Gurtovoy wrote:
-> 
-> On 9/27/2021 9:23 PM, Leon Romanovsky wrote:
-> > On Mon, Sep 27, 2021 at 08:25:09PM +0300, Max Gurtovoy wrote:
-> > > On 9/27/2021 2:34 PM, Leon Romanovsky wrote:
-> > > > On Sun, Sep 26, 2021 at 05:55:18PM +0300, Max Gurtovoy wrote:
-> > > > > To optimize performance, set the affinity of the block device tagset
-> > > > > according to the virtio device affinity.
-> > > > > 
-> > > > > Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-> > > > > ---
-> > > > >    drivers/block/virtio_blk.c | 2 +-
-> > > > >    1 file changed, 1 insertion(+), 1 deletion(-)
-> > > > > 
-> > > > > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > > > > index 9b3bd083b411..1c68c3e0ebf9 100644
-> > > > > --- a/drivers/block/virtio_blk.c
-> > > > > +++ b/drivers/block/virtio_blk.c
-> > > > > @@ -774,7 +774,7 @@ static int virtblk_probe(struct virtio_device *vdev)
-> > > > >    	memset(&vblk->tag_set, 0, sizeof(vblk->tag_set));
-> > > > >    	vblk->tag_set.ops = &virtio_mq_ops;
-> > > > >    	vblk->tag_set.queue_depth = queue_depth;
-> > > > > -	vblk->tag_set.numa_node = NUMA_NO_NODE;
-> > > > > +	vblk->tag_set.numa_node = virtio_dev_to_node(vdev);
-> > > > I afraid that by doing it, you will increase chances to see OOM, because
-> > > > in NUMA_NO_NODE, MM will try allocate memory in whole system, while in
-> > > > the latter mode only on specific NUMA which can be depleted.
-> > > This is a common methodology we use in the block layer and in NVMe subsystem
-> > > and we don't afraid of the OOM issue you raised.
-> > There are many reasons for that, but we are talking about virtio here
-> > and not about NVMe.
-> 
-> Ok. what reasons ?
+As so often with virtio-mem changes that mess with common MM
+infrastructure, this might be a good candiate to go via Andrew's tree.
 
-For example, NVMe are physical devices that rely on DMA operations,
-PCI connectivity e.t.c to operate. Such systems indeed can benefit from
-NUMA locality hints. At the end, these devices are physically connected
-to that NUMA node.
+--
 
-In our case, virtio-blk is a software interface that doesn't have all
-these limitations. On the contrary, the virtio-blk can be created on one
-CPU and moved later to be close to the QEMU which can run on another NUMA
-node.
+After removing /dev/kmem, sanitizing /proc/kcore and handling /dev/mem,
+this series tackles the last sane way how a VM could accidentially access
+logically unplugged memory managed by a virtio-mem device: /proc/vmcore
 
-Also this patch increases chances to get OOM by factor of NUMA nodes.
-Before your patch, the virtio_blk can allocate from X memory, after your
-patch it will be X/NUMB_NUMA_NODES.
+When dumping memory via "makedumpfile", PG_offline pages, used by
+virtio-mem to flag logically unplugged memory, are already properly
+excluded; however, especially when accessing/copying /proc/vmcore "the
+usual way", we can still end up reading logically unplugged memory part of
+a virtio-mem device.
 
-In addition, it has all chances to even hurt performance.
+Patch #1-#3 are cleanups. Patch #4 extends the existing oldmem_pfn_is_ram
+mechanism. Patch #5-#7 are virtio-mem refactorings for patch #8, which
+implements the virtio-mem logic to query the state of device blocks.
 
-So yes, post v2, but as Stefan and I asked, please provide supportive
-performance results, because what was done for another subsystem doesn't
-mean that it will be applicable here.
+Patch #8:
 
-Thanks
+"
+Although virtio-mem currently supports reading unplugged memory in the
+hypervisor, this will change in the future, indicated to the device via
+a new feature flag. We similarly sanitized /proc/kcore access recently.
+[...]
+Distributions that support virtio-mem+kdump have to make sure that the
+virtio_mem module will be part of the kdump kernel or the kdump initrd;
+dracut was recently [2] extended to include virtio-mem in the generated
+initrd. As long as no special kdump kernels are used, this will
+automatically make sure that virtio-mem will be around in the kdump initrd
+and sanitize /proc/vmcore access -- with dracut.
+"
+
+This is the last remaining bit to support
+VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE [3] in the Linux implementation of
+virtio-mem.
+
+Note: this is best-effort. We'll never be able to control what runs inside
+the second kernel, really, but we also don't have to care: we only care
+about sane setups where we don't want our VM getting zapped once we
+touch the wrong memory location while dumping. While we usually expect sane
+setups to use "makedumfile", nothing really speaks against just copying
+/proc/vmcore, especially in environments where HWpoisioning isn't typically
+expected. Also, we really don't want to put all our trust completely on the
+memmap, so sanitizing also makes sense when just using "makedumpfile".
+
+[1] https://lkml.kernel.org/r/20210526093041.8800-1-david@redhat.com
+[2] https://github.com/dracutdevs/dracut/pull/1157
+[3] https://lists.oasis-open.org/archives/virtio-comment/202109/msg00021.html
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Vivek Goyal <vgoyal@redhat.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Cc: x86@kernel.org
+Cc: xen-devel@lists.xenproject.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: kexec@lists.infradead.org
+Cc: linux-fsdevel@vger.kernel.org
+Cc: linux-mm@kvack.org
+
+David Hildenbrand (8):
+  x86/xen: update xen_oldmem_pfn_is_ram() documentation
+  x86/xen: simplify xen_oldmem_pfn_is_ram()
+  proc/vmcore: let pfn_is_ram() return a bool
+  proc/vmcore: convert oldmem_pfn_is_ram callback to more generic vmcore
+    callbacks
+  virtio-mem: factor out hotplug specifics from virtio_mem_init() into
+    virtio_mem_init_hotplug()
+  virtio-mem: factor out hotplug specifics from virtio_mem_probe() into
+    virtio_mem_init_hotplug()
+  virtio-mem: factor out hotplug specifics from virtio_mem_remove() into
+    virtio_mem_deinit_hotplug()
+  virtio-mem: kdump mode to sanitize /proc/vmcore access
+
+ arch/x86/kernel/aperture_64.c |  13 +-
+ arch/x86/xen/mmu_hvm.c        |  31 ++--
+ drivers/virtio/virtio_mem.c   | 297 ++++++++++++++++++++++++----------
+ fs/proc/vmcore.c              | 105 ++++++++----
+ include/linux/crash_dump.h    |  26 ++-
+ 5 files changed, 332 insertions(+), 140 deletions(-)
+
+
+base-commit: 5816b3e6577eaa676ceb00a848f0fd65fe2adc29
+-- 
+2.31.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
