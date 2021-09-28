@@ -2,104 +2,88 @@ Return-Path: <SRS0=Y9jr=OS=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7EA20C4332F
-	for <virtualization@archiver.kernel.org>; Tue, 28 Sep 2021 03:20:24 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23585C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 28 Sep 2021 06:47:48 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 23B3B6128A
-	for <virtualization@archiver.kernel.org>; Tue, 28 Sep 2021 03:20:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 23B3B6128A
+	by mail.kernel.org (Postfix) with ESMTPS id B464C61157
+	for <virtualization@archiver.kernel.org>; Tue, 28 Sep 2021 06:47:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B464C61157
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id E31D380D22;
-	Tue, 28 Sep 2021 03:20:23 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7BC9260AD7;
+	Tue, 28 Sep 2021 06:47:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TZy9g8bh6AR7; Tue, 28 Sep 2021 03:20:23 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 953C780D14;
-	Tue, 28 Sep 2021 03:20:22 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id bHzOQZzmTVON; Tue, 28 Sep 2021 06:47:46 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1AD9360ACB;
+	Tue, 28 Sep 2021 06:47:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 66888C0011;
-	Tue, 28 Sep 2021 03:20:22 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BC26FC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F382EC0011;
+	Tue, 28 Sep 2021 06:47:45 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E825FC000D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Sep 2021 03:20:20 +0000 (UTC)
+ Tue, 28 Sep 2021 06:47:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 9F96A80D14
+ by smtp2.osuosl.org (Postfix) with ESMTP id D5040402A2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Sep 2021 03:20:20 +0000 (UTC)
+ Tue, 28 Sep 2021 06:47:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id WVvgTGVc3sCV
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id RFI4f4dF7dYW
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Sep 2021 03:20:20 +0000 (UTC)
+ Tue, 28 Sep 2021 06:47:43 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id E6A5780D18
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 7E22E40229
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Sep 2021 03:20:19 +0000 (UTC)
+ Tue, 28 Sep 2021 06:47:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1632799218;
+ s=mimecast20190719; t=1632811662;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=kx6fea1Fq7Zi1mNmn/VWrlCh1bjTv9PS8D5opva6ZlI=;
- b=FxZ8mq62hxhgINt1xQiO/81Yl51gvelEr1ORsoUl2a38o7e8OZREEQiJ6AHEA4cAAPjyIo
- updemCj2ETV8Ap94z1y90scd0bDGcfsKOWSfKkBPtzyaR3U2mN6P5g9jEhtoMjfbKoHCom
- sRFVO9NIJRVpiRTazJ++wIUNDYwq7zQ=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-194-RLq6AhtBPNiE_t0CzgNZSA-1; Mon, 27 Sep 2021 23:20:17 -0400
-X-MC-Unique: RLq6AhtBPNiE_t0CzgNZSA-1
-Received: by mail-lf1-f69.google.com with SMTP id
- n22-20020a0565120ad600b003fcc09af59fso12575463lfu.21
- for <virtualization@lists.linux-foundation.org>;
- Mon, 27 Sep 2021 20:20:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=kx6fea1Fq7Zi1mNmn/VWrlCh1bjTv9PS8D5opva6ZlI=;
- b=Vj6hx3miFfwUWFIq3FY9qcRqi6shKINlDjBPFW9ZbbsZDm/OkTNzD+IV3q7wzYk4fr
- OsF9RXC/+8uZF3LPEhtqhL5i82JwLYg9KIVRtxWRzq+iYn4XWVsy/8R7LLHl64k6T1Wo
- N3kov1UmpR4t5UmTVDZ7/qvKkG2NshHtI5r8NVMRd0O2GSDbIDfEv05moX/AolikMc1o
- PqyBOrFkCo+kdnHYltsg1oMqPfsNrJdAJEMogsnwDRKbpFI23q673HWYcXwk19AwowLv
- MlBf06hWoiFyHdM/wL6esWgOKGmER9TSz9lz+ht1JpzVMNiX0D2/peECZw85k+qPzT4I
- pfsA==
-X-Gm-Message-State: AOAM532ArJzhvU6UvtNPr8S9FWNNRikKN1JnWI6s7IfsPoUyu5/I6DV9
- sXdYBnPmoNn+1K234zbsG6I0eSwIP+2SxZTUGUYzqh2AaRTLxRUKPyEbaRSklJcLZn6k+D0bXJA
- eRgCAaFVX7XlXIwbefCXIeOras7+/lNB2zRRZY7kky3nrk4W3WFaA0BBoMw==
-X-Received: by 2002:a05:6512:32ca:: with SMTP id
- f10mr3467264lfg.498.1632799215996; 
- Mon, 27 Sep 2021 20:20:15 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzXXYw8tYC5S6eFE0s95VNWsgfqkdbfpgiCrjeN7mGRhEMQB6BoieKL7Oar/YJNfvFIysot5M/+HOvuIoOzgr8=
-X-Received: by 2002:a05:6512:32ca:: with SMTP id
- f10mr3467245lfg.498.1632799215812; 
- Mon, 27 Sep 2021 20:20:15 -0700 (PDT)
+ bh=sCmNJ5vO7haCV1drO5nn+RW5ibWF9pJv3xiWMlwH7+g=;
+ b=giP7kwsSY+HiQ9ak6pxrkQvBEQXSj4jr965v6TVqU2Rl7L9NNQvax6lSizqfrHt+Y6rWLB
+ AxGCLOV0zf1aq8Wk98Txt/CSU4FPVohBpQusuQB0DwsTmv7YvoBIs9M1a8q946QYh9t8Sv
+ RP2qgh4Ex5zFGSuR56iaYen8VHOiM0M=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-108-_X6jgUWMN0ePwSNylaNBSQ-1; Tue, 28 Sep 2021 02:47:40 -0400
+X-MC-Unique: _X6jgUWMN0ePwSNylaNBSQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ED4CD1808312;
+ Tue, 28 Sep 2021 06:47:38 +0000 (UTC)
+Received: from localhost (unknown [10.39.192.122])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 196165F70B;
+ Tue, 28 Sep 2021 06:47:34 +0000 (UTC)
+Date: Tue, 28 Sep 2021 08:47:33 +0200
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Max Gurtovoy <mgurtovoy@nvidia.com>
+Subject: Re: [PATCH 2/2] virtio-blk: set NUMA affinity for a tagset
+Message-ID: <YVK6hdcrXwQHrXQ9@stefanha-x1.localdomain>
+References: <20210926145518.64164-1-mgurtovoy@nvidia.com>
+ <20210926145518.64164-2-mgurtovoy@nvidia.com>
+ <YVF8RBZSaJs9BScd@stefanha-x1.localdomain>
+ <21295187-41c4-5fb6-21c3-28004eb7c5d8@nvidia.com>
 MIME-Version: 1.0
-References: <20210927105412.18579-1-xuanzhuo@linux.alibaba.com>
- <20210927105412.18579-3-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <20210927105412.18579-3-xuanzhuo@linux.alibaba.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 28 Sep 2021 11:20:04 +0800
-Message-ID: <CACGkMEs4Eo9bx7i2wsc3h=48_iH7Et_mpv=SUWoo2Sewm-NjSQ@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] virtio_ring: check desc == NULL when packed and
- indirect
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, Tiwei Bie <tiwei.bie@intel.com>,
- virtualization <virtualization@lists.linux-foundation.org>
+In-Reply-To: <21295187-41c4-5fb6-21c3-28004eb7c5d8@nvidia.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Cc: axboe@kernel.dk, linux-block@vger.kernel.org, kvm@vger.kernel.org,
+ mst@redhat.com, israelr@nvidia.com, virtualization@lists.linux-foundation.org,
+ hch@infradead.org, nitzanc@nvidia.com, oren@nvidia.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,77 +95,110 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============8389483731532564288=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 27, 2021 at 6:54 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
->
-> In the case of packed, use indirect desc, since desc is allocated by
-> kmalloc_array(), we should check whether its return value is NULL.
->
-> This patch alloc desc inside virtqueue_add_packe(), if desc == NULL,
-> fall back to not using indirect.
->
-> Fixes: 1ce9e6055fa ("virtio_ring: introduce packed ring support")
-> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+--===============8389483731532564288==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="tlmjEO+SMhyWD/NG"
+Content-Disposition: inline
 
-> ---
->  drivers/virtio/virtio_ring.c | 14 +++++++++-----
->  1 file changed, 9 insertions(+), 5 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 91a46c4da87d..62323c27bfe4 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -1051,20 +1051,19 @@ static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
->
->  static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
->                                          struct scatterlist *sgs[],
-> +                                        struct vring_packed_desc *desc,
->                                          unsigned int total_sg,
->                                          unsigned int out_sgs,
->                                          unsigned int in_sgs,
->                                          void *data,
->                                          gfp_t gfp)
->  {
-> -       struct vring_packed_desc *desc;
->         struct scatterlist *sg;
->         unsigned int i, n, err_idx;
->         u16 head, id;
->         dma_addr_t addr;
->
->         head = vq->packed.next_avail_idx;
-> -       desc = alloc_indirect_packed(total_sg, gfp);
->
->         if (unlikely(vq->vq.num_free < 1)) {
->                 pr_debug("Can't add buf len 1 - avail = 0\n");
-> @@ -1191,9 +1190,14 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
->
->         BUG_ON(total_sg == 0);
->
-> -       if (virtqueue_use_indirect(_vq, total_sg))
-> -               return virtqueue_add_indirect_packed(vq, sgs, total_sg,
-> -                               out_sgs, in_sgs, data, gfp);
-> +       if (virtqueue_use_indirect(_vq, total_sg)) {
-> +               desc = alloc_indirect_packed(total_sg, gfp);
-> +               if (desc)
-> +                       return virtqueue_add_indirect_packed(vq, sgs, desc,
-> +                                                            total_sg,
-> +                                                            out_sgs, in_sgs,
-> +                                                            data, gfp);
-> +       }
->
->         head = vq->packed.next_avail_idx;
->         avail_used_flags = vq->packed.avail_used_flags;
-> --
-> 2.31.0
->
+
+--tlmjEO+SMhyWD/NG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Sep 27, 2021 at 08:39:30PM +0300, Max Gurtovoy wrote:
+>=20
+> On 9/27/2021 11:09 AM, Stefan Hajnoczi wrote:
+> > On Sun, Sep 26, 2021 at 05:55:18PM +0300, Max Gurtovoy wrote:
+> > > To optimize performance, set the affinity of the block device tagset
+> > > according to the virtio device affinity.
+> > >=20
+> > > Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+> > > ---
+> > >   drivers/block/virtio_blk.c | 2 +-
+> > >   1 file changed, 1 insertion(+), 1 deletion(-)
+> > >=20
+> > > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> > > index 9b3bd083b411..1c68c3e0ebf9 100644
+> > > --- a/drivers/block/virtio_blk.c
+> > > +++ b/drivers/block/virtio_blk.c
+> > > @@ -774,7 +774,7 @@ static int virtblk_probe(struct virtio_device *vd=
+ev)
+> > >   	memset(&vblk->tag_set, 0, sizeof(vblk->tag_set));
+> > >   	vblk->tag_set.ops =3D &virtio_mq_ops;
+> > >   	vblk->tag_set.queue_depth =3D queue_depth;
+> > > -	vblk->tag_set.numa_node =3D NUMA_NO_NODE;
+> > > +	vblk->tag_set.numa_node =3D virtio_dev_to_node(vdev);
+> > >   	vblk->tag_set.flags =3D BLK_MQ_F_SHOULD_MERGE;
+> > >   	vblk->tag_set.cmd_size =3D
+> > >   		sizeof(struct virtblk_req) +
+> > I implemented NUMA affinity in the past and could not demonstrate a
+> > performance improvement:
+> > https://lists.linuxfoundation.org/pipermail/virtualization/2020-June/04=
+8248.html
+> >=20
+> > The pathological case is when a guest with vNUMA has the virtio-blk-pci
+> > device on the "wrong" host NUMA node. Then memory accesses should cross
+> > NUMA nodes. Still, it didn't seem to matter.
+>=20
+> I think the reason you didn't see any improvement is since you didn't use
+> the right device for the node query. See my patch 1/2.
+
+That doesn't seem to be the case. Please see
+drivers/base/core.c:device_add():
+
+  /* use parent numa_node */
+  if (parent && (dev_to_node(dev) =3D=3D NUMA_NO_NODE))
+          set_dev_node(dev, dev_to_node(parent));
+
+IMO it's cleaner to use dev_to_node(&vdev->dev) than to directly access
+the parent.
+
+Have I missed something?
+
+>=20
+> I can try integrating these patches in my series and fix it.
+>=20
+> BTW, we might not see a big improvement because of other bottlenecks but
+> this is known perf optimization we use often in block storage drivers.
+
+Let's see benchmark results. Otherwise this is just dead code that adds
+complexity.
+
+Stefan
+
+--tlmjEO+SMhyWD/NG
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmFSuoMACgkQnKSrs4Gr
+c8jpCgf8CGJHEk5t5Yz49uW2kuVSk/IZC3Uk7tJ7zK+xNzn1d2lgfpCvVl0a0AdC
+YxDeNMKrD5Oh+0AWZaOpenc0FMWZIC4gu85XGpyyxkbgcQWImQPTLNsR2l7ZlDsI
+thxfw+TkrccTvpq/X6J28iiMxqLi2HEvUd8bTj/4QVUQJgYpDyc75YflbJtwgcIv
+mmr8PBanK2J3O7AoNfPK+kARXD1/74w3p45z3iPLrnvFr79KgqEAH+34xSZCA2BJ
+ohOfaQJ68mrHkshlcblnsNAk2LZWPU8yoUSh4Buf7LcEMEbxbCGEHdZtuOgARhNM
+KxyuXSb7Q+TiRYQwAc6Sz2sSCqLFJg==
+=cy+s
+-----END PGP SIGNATURE-----
+
+--tlmjEO+SMhyWD/NG--
+
+
+--===============8389483731532564288==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============8389483731532564288==--
+
