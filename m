@@ -2,79 +2,79 @@ Return-Path: <SRS0=Y9jr=OS=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DECECC433F5
-	for <virtualization@archiver.kernel.org>; Tue, 28 Sep 2021 18:23:50 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E22D2C433F5
+	for <virtualization@archiver.kernel.org>; Tue, 28 Sep 2021 18:23:57 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 915A361371
-	for <virtualization@archiver.kernel.org>; Tue, 28 Sep 2021 18:23:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 915A361371
+	by mail.kernel.org (Postfix) with ESMTPS id 9B8EE61361
+	for <virtualization@archiver.kernel.org>; Tue, 28 Sep 2021 18:23:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9B8EE61361
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 5498940583;
-	Tue, 28 Sep 2021 18:23:50 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 635D640407;
+	Tue, 28 Sep 2021 18:23:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zGkWd4H0dvil; Tue, 28 Sep 2021 18:23:49 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id nQrrv0UAlMcm; Tue, 28 Sep 2021 18:23:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id AF43B40580;
-	Tue, 28 Sep 2021 18:23:48 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0A1964025A;
+	Tue, 28 Sep 2021 18:23:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 97CD9C0011;
-	Tue, 28 Sep 2021 18:23:48 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2FF53C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D3E85C0011;
+	Tue, 28 Sep 2021 18:23:55 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3E407C000D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Sep 2021 18:23:47 +0000 (UTC)
+ Tue, 28 Sep 2021 18:23:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 10AA560B3A
+ by smtp3.osuosl.org (Postfix) with ESMTP id 36B8960B3D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Sep 2021 18:23:47 +0000 (UTC)
+ Tue, 28 Sep 2021 18:23:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id QPA_h9lkYhQA
+ with ESMTP id 53rCtLG_N8UC
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Sep 2021 18:23:46 +0000 (UTC)
+ Tue, 28 Sep 2021 18:23:54 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7EF2C60B34
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 8AA7460B34
  for <virtualization@lists.linux-foundation.org>;
- Tue, 28 Sep 2021 18:23:46 +0000 (UTC)
+ Tue, 28 Sep 2021 18:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1632853425;
+ s=mimecast20190719; t=1632853433;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=iXipVHA7HDBxHYsFQ8A47J68c7im5DD1EeD2KWkQL+g=;
- b=LpJTz1uGsziiZ185xv3fNcqHaXbhuTXq0cAUbF6brEUYvl4hrhukpgOC+EQjvTX3IZYCz9
- KZl5xw2TPg8ePtcTRu3FsSFyzXPu+rAL0hyAB6rPbFjqetroq+H57YxDn9h9Axf9hlfuxP
- RyB4vH39NI3QkpnP+7/TOWxmdoW+Aac=
+ bh=rRKr51/8zMLS50oc29PqKZsNRavWkybmtHfcIniBEhA=;
+ b=bm0FYZtUD4yWki63YmFUxIAN8X3u/zoe3j9b6zhFlBmZP86nQaS4e2xEPzt3bna2UzDjJE
+ Pi0tfURFhQr42liWzPfH0EBrhnGuD7yuUO029QhquD6zeAUMsJILhJT+KzJw9Mg7aOLZRM
+ s5Tr6jRi8bmquPutYekjrJH7dVsEKTA=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-440-5NJ-y1XEOa2GaoLjlra03g-1; Tue, 28 Sep 2021 14:23:44 -0400
-X-MC-Unique: 5NJ-y1XEOa2GaoLjlra03g-1
+ us-mta-441-77qRMUygOxyTob3UgChZqw-1; Tue, 28 Sep 2021 14:23:52 -0400
+X-MC-Unique: 77qRMUygOxyTob3UgChZqw-1
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
  [10.5.11.13])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C8A7EA40C6;
- Tue, 28 Sep 2021 18:23:41 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F21C1A40C2;
+ Tue, 28 Sep 2021 18:23:49 +0000 (UTC)
 Received: from t480s.redhat.com (unknown [10.39.194.120])
- by smtp.corp.redhat.com (Postfix) with ESMTP id A78BE60877;
- Tue, 28 Sep 2021 18:23:22 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 3200E60854;
+ Tue, 28 Sep 2021 18:23:41 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v1 2/8] x86/xen: simplify xen_oldmem_pfn_is_ram()
-Date: Tue, 28 Sep 2021 20:22:52 +0200
-Message-Id: <20210928182258.12451-3-david@redhat.com>
+Subject: [PATCH v1 3/8] proc/vmcore: let pfn_is_ram() return a bool
+Date: Tue, 28 Sep 2021 20:22:53 +0200
+Message-Id: <20210928182258.12451-4-david@redhat.com>
 In-Reply-To: <20210928182258.12451-1-david@redhat.com>
 References: <20210928182258.12451-1-david@redhat.com>
 MIME-Version: 1.0
@@ -107,43 +107,51 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Let's simplify return handling.
+The callback should deal with errors internally, it doesn't make sense to
+expose these via pfn_is_ram(). We'll rework the callbacks next. Right now
+we consider errors as if "it's RAM"; no functional change.
 
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- arch/x86/xen/mmu_hvm.c | 11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ fs/proc/vmcore.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/xen/mmu_hvm.c b/arch/x86/xen/mmu_hvm.c
-index b242d1f4b426..eb61622df75b 100644
---- a/arch/x86/xen/mmu_hvm.c
-+++ b/arch/x86/xen/mmu_hvm.c
-@@ -21,23 +21,16 @@ static int xen_oldmem_pfn_is_ram(unsigned long pfn)
- 		.domid = DOMID_SELF,
- 		.pfn = pfn,
- 	};
--	int ram;
- 
- 	if (HYPERVISOR_hvm_op(HVMOP_get_mem_type, &a))
- 		return -ENXIO;
- 
- 	switch (a.mem_type) {
- 	case HVMMEM_mmio_dm:
--		ram = 0;
--		break;
--	case HVMMEM_ram_rw:
--	case HVMMEM_ram_ro:
-+		return 0;
- 	default:
--		ram = 1;
--		break;
-+		return 1;
- 	}
--
--	return ram;
+diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
+index 9a15334da208..a9bd80ab670e 100644
+--- a/fs/proc/vmcore.c
++++ b/fs/proc/vmcore.c
+@@ -84,11 +84,11 @@ void unregister_oldmem_pfn_is_ram(void)
  }
- #endif
+ EXPORT_SYMBOL_GPL(unregister_oldmem_pfn_is_ram);
  
+-static int pfn_is_ram(unsigned long pfn)
++static bool pfn_is_ram(unsigned long pfn)
+ {
+ 	int (*fn)(unsigned long pfn);
+ 	/* pfn is ram unless fn() checks pagetype */
+-	int ret = 1;
++	bool ret = true;
+ 
+ 	/*
+ 	 * Ask hypervisor if the pfn is really ram.
+@@ -97,7 +97,7 @@ static int pfn_is_ram(unsigned long pfn)
+ 	 */
+ 	fn = oldmem_pfn_is_ram;
+ 	if (fn)
+-		ret = fn(pfn);
++		ret = !!fn(pfn);
+ 
+ 	return ret;
+ }
+@@ -124,7 +124,7 @@ ssize_t read_from_oldmem(char *buf, size_t count,
+ 			nr_bytes = count;
+ 
+ 		/* If pfn is not ram, return zeros for sparse dump files */
+-		if (pfn_is_ram(pfn) == 0)
++		if (!pfn_is_ram(pfn))
+ 			memset(buf, 0, nr_bytes);
+ 		else {
+ 			if (encrypted)
 -- 
 2.31.1
 
