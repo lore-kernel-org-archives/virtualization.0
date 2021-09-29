@@ -2,75 +2,120 @@ Return-Path: <SRS0=D/KU=OT=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F062C43217
-	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 15:11:41 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FCEDC433FE
+	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 21:53:53 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3382961390
-	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 15:11:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 3382961390
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=axis.com
+	by mail.kernel.org (Postfix) with ESMTPS id B2800613CE
+	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 21:53:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B2800613CE
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 06B0B40731;
-	Wed, 29 Sep 2021 15:11:41 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8182760780;
+	Wed, 29 Sep 2021 21:53:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id INtEr3-n5jtQ; Wed, 29 Sep 2021 15:11:39 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A950F40746;
-	Wed, 29 Sep 2021 15:11:38 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3B95CC0023;
-	Wed, 29 Sep 2021 15:11:38 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0F002C0022
- for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 15:11:36 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 8262D60E8F
- for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 15:11:29 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=axis.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id T0jc4X-Nn-6D
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 3ROzgyOnyNfL; Wed, 29 Sep 2021 21:53:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id AC36260729;
+	Wed, 29 Sep 2021 21:53:50 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7FC84C0011;
+	Wed, 29 Sep 2021 21:53:50 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 176CDC000D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 15:11:28 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp2.axis.com (smtp2.axis.com [195.60.68.18])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 0D37260E7D
+ Wed, 29 Sep 2021 21:53:50 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id F2F3440210
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 15:11:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=axis.com; q=dns/txt; s=axis-central1; t=1632928288;
- x=1664464288; h=from:to:cc:subject:date:message-id:in-reply-to:
- references:mime-version:content-transfer-encoding;
- bh=OSpsqaSPCR0KkwR/V5TWdFbuLeIYeNSAyBlJF+6Nw08=;
- b=OygCTZBOjqmbHXpn3auLcjyAdF5zaNNmCkIdNB2IUQINO57pJtxNrPSP
- JDVnDwOYQsoRe3hblK9lOOSfMIEllyV+BxRjvvax7d9Y49PitY2ACrUJT
- MsJ7UvxZ8q64OVQviKwSXHUGTnOdnHHEx3z5AFtFthgzC0k8FIM0fRXO+
- tmohNN1LrFBhoymMcGJxuJaxhU3Zl4Ri4++70W6hLgrjScYLWL/zcZ9Q+
- fzrfA3TWY+o3GJDxaRswn7Ap22DYwIPEGKZYtmyJ87ALxxAr6Y4pzgEm+
- zBEYwePx4xEDasgifvVlyxaoY0WbRPncnD0jk5zMAabavaPYP89KVrnIv Q==;
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
-To: <mst@redhat.com>, <jasowang@redhat.com>
-Subject: [RFC PATCH 02/10] vhost: push virtqueue area pointers into a user
- struct
-Date: Wed, 29 Sep 2021 17:11:11 +0200
-Message-ID: <20210929151119.14778-3-vincent.whitchurch@axis.com>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20210929151119.14778-1-vincent.whitchurch@axis.com>
-References: <20210929151119.14778-1-vincent.whitchurch@axis.com>
+ Wed, 29 Sep 2021 21:53:49 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id pq-ps0MupwVH
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 29 Sep 2021 21:53:48 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id C7A22400DA
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 29 Sep 2021 21:53:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1632952426;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=qvINF4SM68Prl3kIR+W3XWzCfR13nCs67wMsp78hZS0=;
+ b=aXBHzwBOre57pWxA3k9cnoz64ZwRSDOSYdT8WoQ0GvoK44KHLUFlY8UJOPtCyPjf+z5L2w
+ +0bBTNm6ax5BmZy5I8eMPQA5qgXVMZtIHrkpPRcj/fxLYcZK2quo2HcrvEWQBb6MtFedvt
+ aBCIG+B2JqqlKiZHjPx4dQqsqyj/y0I=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-590-rV6QxTR4N8ufXEuJS-VviA-1; Wed, 29 Sep 2021 17:53:44 -0400
+X-MC-Unique: rV6QxTR4N8ufXEuJS-VviA-1
+Received: by mail-ed1-f69.google.com with SMTP id
+ b7-20020a50e787000000b003d59cb1a923so3974023edn.5
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 29 Sep 2021 14:53:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=qvINF4SM68Prl3kIR+W3XWzCfR13nCs67wMsp78hZS0=;
+ b=tK35rredA9wzTM7dbF55NDSc4INqyjVR/UDOAdMHjxFKZUcraqVT/AWwZyGhUiCV9U
+ j2lgi8RHDqKdqzOMknhBpvRF2YzSKGRGnQAsEv1O3jpDV1xWpJpM9JaOVHT46qVSBEzV
+ hDCUAQv145+Ax9iyQ/lrtVvc0Meop90ffRoGhUNdf1XcsCljPKVNZLkBO5IgX/6XLhl4
+ Ur5b9H6CJxYWI5/OJPMs4kE++sCnBmbkAF0NJrcFjOg6VDn1Gp8S0eoElZq2khLUN/yP
+ T5JdWC/xnMDecBNcWxq1Mh72qd2XBDnWXbg0zrrwXCy726+nuN7o3dFjZ/T+4r3LO320
+ HulQ==
+X-Gm-Message-State: AOAM532Scq5pJH1ezcW1oe31HMF/moBkME59tDbAsgiYVdNOXs1C6+it
+ 34aZkQMIb8rX3XJ6tMllxuyeHePtEmSNTOQB/37bwn+QXJBoSDgO8y5VXYvSuiy27SpJLMQ9b0I
+ 6xc8uhTYBLxrqf7ZUPllGxRJJ3vLbbn1LCjgsmSRnDw==
+X-Received: by 2002:a17:906:63ca:: with SMTP id
+ u10mr2489622ejk.411.1632952422831; 
+ Wed, 29 Sep 2021 14:53:42 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw8hV//adJejY4GUcQ3+niP0HFMpgIe2i1Dyx1Z3LZOmlwml5NPIBUJ9Ydgj2rmwhxrTWyQsQ==
+X-Received: by 2002:a17:906:63ca:: with SMTP id
+ u10mr2489587ejk.411.1632952422518; 
+ Wed, 29 Sep 2021 14:53:42 -0700 (PDT)
+Received: from redhat.com ([2.55.134.220])
+ by smtp.gmail.com with ESMTPSA id ec19sm558649edb.72.2021.09.29.14.53.40
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 29 Sep 2021 14:53:41 -0700 (PDT)
+Date: Wed, 29 Sep 2021 17:53:38 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Wei Wang <weiwan@google.com>
+Subject: Re: [PATCH net] virtio-net: suppress bad irq warning for tx napi
+Message-ID: <20210929175118-mutt-send-email-mst@kernel.org>
+References: <CA+FuTSe-6MSpB4hwwvwPgDqHkxYJoxMZMDbOusNqiq0Gwa1eiQ@mail.gmail.com>
+ <CA+FuTSdkJcj_ikNnJmGadBZ1fa7q26MZ1g3ERf8Ax+YbXvgcng@mail.gmail.com>
+ <20210203052924-mutt-send-email-mst@kernel.org>
+ <CAF=yD-J8rsr9JWdMGBSc-muFGMG2=YCWYwWOiQBQZuryioBUoA@mail.gmail.com>
+ <20210203175837-mutt-send-email-mst@kernel.org>
+ <CAEA6p_BqKECAU=C55TpJedG9gkZDakiiN27dcWOTJYH0YOFA_w@mail.gmail.com>
+ <CA+FuTSf-uWyK6Jz=G67p+ep693oTczF55EUzrH9fXzBqTnoMQA@mail.gmail.com>
+ <CAEA6p_DGgErG6oa1T9zJr+K6CosxoMb-TA=f2kQ_1bFdeMWAcg@mail.gmail.com>
+ <20210413011508-mutt-send-email-mst@kernel.org>
+ <CAEA6p_CCsfOrJO8CUcvmt0hg2bDE36UjJqeqKPOEBx0+ieJ2uA@mail.gmail.com>
 MIME-Version: 1.0
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org,
- Vincent Whitchurch <vincent.whitchurch@axis.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, kernel@axis.com,
- stefanha@redhat.com, pbonzini@redhat.com
+In-Reply-To: <CAEA6p_CCsfOrJO8CUcvmt0hg2bDE36UjJqeqKPOEBx0+ieJ2uA@mail.gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
+ Linux Kernel Network Developers <netdev@vger.kernel.org>,
+ Willem de Bruijn <willemb@google.com>,
+ virtualization@lists.linux-foundation.org, Jakub Kicinski <kuba@kernel.org>,
+ David Miller <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -87,370 +132,247 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-In order to prepare for allowing vhost to operate on kernel buffers,
-push the virtqueue desc/avail/used area pointers down to a new "user"
-struct.
+On Wed, Sep 29, 2021 at 01:21:58PM -0700, Wei Wang wrote:
+> On Mon, Apr 12, 2021 at 10:16 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Fri, Feb 05, 2021 at 02:28:33PM -0800, Wei Wang wrote:
+> > > On Thu, Feb 4, 2021 at 12:48 PM Willem de Bruijn
+> > > <willemdebruijn.kernel@gmail.com> wrote:
+> > > >
+> > > > On Wed, Feb 3, 2021 at 6:53 PM Wei Wang <weiwan@google.com> wrote:
+> > > > >
+> > > > > On Wed, Feb 3, 2021 at 3:10 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > >
+> > > > > > On Wed, Feb 03, 2021 at 01:24:08PM -0500, Willem de Bruijn wrote:
+> > > > > > > On Wed, Feb 3, 2021 at 5:42 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > > > >
+> > > > > > > > On Tue, Feb 02, 2021 at 07:06:53PM -0500, Willem de Bruijn wrote:
+> > > > > > > > > On Tue, Feb 2, 2021 at 6:53 PM Willem de Bruijn <willemb@google.com> wrote:
+> > > > > > > > > >
+> > > > > > > > > > On Tue, Feb 2, 2021 at 6:47 PM Wei Wang <weiwan@google.com> wrote:
+> > > > > > > > > > >
+> > > > > > > > > > > On Tue, Feb 2, 2021 at 3:12 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > > > > > > > > > >
+> > > > > > > > > > > > On Thu, Jan 28, 2021 at 04:21:36PM -0800, Wei Wang wrote:
+> > > > > > > > > > > > > With the implementation of napi-tx in virtio driver, we clean tx
+> > > > > > > > > > > > > descriptors from rx napi handler, for the purpose of reducing tx
+> > > > > > > > > > > > > complete interrupts. But this could introduce a race where tx complete
+> > > > > > > > > > > > > interrupt has been raised, but the handler found there is no work to do
+> > > > > > > > > > > > > because we have done the work in the previous rx interrupt handler.
+> > > > > > > > > > > > > This could lead to the following warning msg:
+> > > > > > > > > > > > > [ 3588.010778] irq 38: nobody cared (try booting with the
+> > > > > > > > > > > > > "irqpoll" option)
+> > > > > > > > > > > > > [ 3588.017938] CPU: 4 PID: 0 Comm: swapper/4 Not tainted
+> > > > > > > > > > > > > 5.3.0-19-generic #20~18.04.2-Ubuntu
+> > > > > > > > > > > > > [ 3588.017940] Call Trace:
+> > > > > > > > > > > > > [ 3588.017942]  <IRQ>
+> > > > > > > > > > > > > [ 3588.017951]  dump_stack+0x63/0x85
+> > > > > > > > > > > > > [ 3588.017953]  __report_bad_irq+0x35/0xc0
+> > > > > > > > > > > > > [ 3588.017955]  note_interrupt+0x24b/0x2a0
+> > > > > > > > > > > > > [ 3588.017956]  handle_irq_event_percpu+0x54/0x80
+> > > > > > > > > > > > > [ 3588.017957]  handle_irq_event+0x3b/0x60
+> > > > > > > > > > > > > [ 3588.017958]  handle_edge_irq+0x83/0x1a0
+> > > > > > > > > > > > > [ 3588.017961]  handle_irq+0x20/0x30
+> > > > > > > > > > > > > [ 3588.017964]  do_IRQ+0x50/0xe0
+> > > > > > > > > > > > > [ 3588.017966]  common_interrupt+0xf/0xf
+> > > > > > > > > > > > > [ 3588.017966]  </IRQ>
+> > > > > > > > > > > > > [ 3588.017989] handlers:
+> > > > > > > > > > > > > [ 3588.020374] [<000000001b9f1da8>] vring_interrupt
+> > > > > > > > > > > > > [ 3588.025099] Disabling IRQ #38
+> > > > > > > > > > > > >
+> > > > > > > > > > > > > This patch adds a new param to struct vring_virtqueue, and we set it for
+> > > > > > > > > > > > > tx virtqueues if napi-tx is enabled, to suppress the warning in such
+> > > > > > > > > > > > > case.
+> > > > > > > > > > > > >
+> > > > > > > > > > > > > Fixes: 7b0411ef4aa6 ("virtio-net: clean tx descriptors from rx napi")
+> > > > > > > > > > > > > Reported-by: Rick Jones <jonesrick@google.com>
+> > > > > > > > > > > > > Signed-off-by: Wei Wang <weiwan@google.com>
+> > > > > > > > > > > > > Signed-off-by: Willem de Bruijn <willemb@google.com>
+> > > > > > > > > > > >
+> > > > > > > > > > > >
+> > > > > > > > > > > > This description does not make sense to me.
+> > > > > > > > > > > >
+> > > > > > > > > > > > irq X: nobody cared
+> > > > > > > > > > > > only triggers after an interrupt is unhandled repeatedly.
+> > > > > > > > > > > >
+> > > > > > > > > > > > So something causes a storm of useless tx interrupts here.
+> > > > > > > > > > > >
+> > > > > > > > > > > > Let's find out what it was please. What you are doing is
+> > > > > > > > > > > > just preventing linux from complaining.
+> > > > > > > > > > >
+> > > > > > > > > > > The traffic that causes this warning is a netperf tcp_stream with at
+> > > > > > > > > > > least 128 flows between 2 hosts. And the warning gets triggered on the
+> > > > > > > > > > > receiving host, which has a lot of rx interrupts firing on all queues,
+> > > > > > > > > > > and a few tx interrupts.
+> > > > > > > > > > > And I think the scenario is: when the tx interrupt gets fired, it gets
+> > > > > > > > > > > coalesced with the rx interrupt. Basically, the rx and tx interrupts
+> > > > > > > > > > > get triggered very close to each other, and gets handled in one round
+> > > > > > > > > > > of do_IRQ(). And the rx irq handler gets called first, which calls
+> > > > > > > > > > > virtnet_poll(). However, virtnet_poll() calls virtnet_poll_cleantx()
+> > > > > > > > > > > to try to do the work on the corresponding tx queue as well. That's
+> > > > > > > > > > > why when tx interrupt handler gets called, it sees no work to do.
+> > > > > > > > > > > And the reason for the rx handler to handle the tx work is here:
+> > > > > > > > > > > https://lists.linuxfoundation.org/pipermail/virtualization/2017-April/034740.html
+> > > > > > > > > >
+> > > > > > > > > > Indeed. It's not a storm necessarily. The warning occurs after one
+> > > > > > > > > > hundred such events, since boot, which is a small number compared real
+> > > > > > > > > > interrupt load.
+> > > > > > > > >
+> > > > > > > > > Sorry, this is wrong. It is the other call to __report_bad_irq from
+> > > > > > > > > note_interrupt that applies here.
+> > > > > > > > >
+> > > > > > > > > > Occasionally seeing an interrupt with no work is expected after
+> > > > > > > > > > 7b0411ef4aa6 ("virtio-net: clean tx descriptors from rx napi"). As
+> > > > > > > > > > long as this rate of events is very low compared to useful interrupts,
+> > > > > > > > > > and total interrupt count is greatly reduced vs not having work
+> > > > > > > > > > stealing, it is a net win.
+> > > > > > > >
+> > > > > > > > Right, but if 99900 out of 100000 interrupts were wasted, then it is
+> > > > > > > > surely an even greater win to disable interrupts while polling like
+> > > > > > > > this.  Might be tricky to detect, disabling/enabling aggressively every
+> > > > > > > > time even if there's nothing in the queue is sure to cause lots of cache
+> > > > > > > > line bounces, and we don't want to enable callbacks if they were not
+> > > > > > > > enabled e.g. by start_xmit ...  Some kind of counter?
+> > > > > > >
+> > > > > > > Yes. It was known that the work stealing is more effective in some
+> > > > > > > workloads than others. But a 99% spurious rate I had not anticipated.
+> > > > > > >
+> > > > > > > Most interesting is the number of interrupts suppressed as a result of
+> > > > > > > the feature. That is not captured by this statistic.
+> > > > > > >
+> > > > > > > In any case, we'll take a step back to better understand behavior. And
+> > > > > > > especially why this high spurious rate exhibits in this workload with
+> > > > > > > many concurrent flows.
+> > > > > >
+> > > > > >
+> > > > > > I've been thinking about it. Imagine work stealing working perfectly.
+> > > > > > Each time we xmit a packet, it is stolen and freed.
+> > > > > > Since xmit enables callbacks (just in case!) we also
+> > > > > > get an interrupt, which is automatically spurious.
+> > > > > >
+> > > > > > My conclusion is that we shouldn't just work around it but instead
+> > > > > > (or additionally?)
+> > > > > > reduce the number of interrupts by disabling callbacks e.g. when
+> > > > > > a. we are currently stealing packets
+> > > > > > or
+> > > > > > b. we stole all packets
+> > > >
+> > > > Agreed. This might prove a significant performance gain at the same time :)
+> > > >
+> > > > > >
+> > > > > Thinking along this line, that probably means, we should disable cb on
+> > > > > the tx virtqueue, when scheduling the napi work on the rx side, and
+> > > > > reenable it after the rx napi work is done?
+> > > > > Also, I wonder if it is too late to disable cb at the point we start
+> > > > > to steal pkts or have stolen all pkts.
+> > > >
+> > > > The earlier the better. I see no benefit to delay until the rx handler
+> > > > actually runs.
+> > > >
+> > >
+> > > I've been thinking more on this. I think the fundamental issue here is
+> > > that the rx napi handler virtnet_poll() does the tx side work by
+> > > calling virtnet_poll_cleantx() without any notification to the tx
+> > > side.
+> > > I am thinking, in virtnet_poll(), instead of directly call
+> > > virtnet_poll_cleantx(), why not do virtqueue_napi_schedule() to
+> > > schedule the tx side napi, and let the tx napi handler do the cleaning
+> > > work. This way, we automatically call virtqueue_disable_cb() on the tx
+> > > vq, and after the tx work is done, virtqueue_napi_complete() is called
+> > > to re-enable the cb on the tx side. This way, the tx side knows what
+> > > has been done, and will likely reduce the # of spurious tx interrupts?
+> > > And I don't think there is much cost in doing that, since
+> > > napi_schedule() basically queues the tx napi to the back of its
+> > > napi_list, and serves it right after the rx napi handler is done.
+> > > What do you guys think? I could quickly test it up to see if it solves
+> > > the issue.
+> >
+> >
+> > Sure pls test. I think you will want to disable event index
+> > for now to make sure disable cb is not a nop (I am working on
+> > fixing that).
+> >
+> 
+> Hi Michael and Jason,
+> 
+> I'd like to follow up on this issue a bit more.
+> I've done some more investigation into this issue:
+> 1. With Michael's recent patch: a7766ef18b336 ("virtio_net: disable cb
+> aggressively"), we are still seeing this issue with a tcp_stream test
+> with 240 flows.
+> 2. We've tried with the following patch to suppress cleaning tx queue
+> from rx napi handler for 10% of the time:
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 79bd2585ec6b..711768dbc617 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1510,6 +1510,8 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+>                 return;
+> 
+>         if (__netif_tx_trylock(txq)) {
+> +               if (virtqueue_more_used(sq->vq) && !prandom_u32_max(10))
+> +                       goto unlock;
+>                 do {
+>                         virtqueue_disable_cb(sq->vq);
+>                         free_old_xmit_skbs(sq, true);
+> @@ -1518,6 +1520,7 @@ static void virtnet_poll_cleantx(struct receive_queue *rq)
+>                 if (sq->vq->num_free >= 2 + MAX_SKB_FRAGS)
+>                         netif_tx_wake_queue(txq);
+> 
+> +unlock:
+>                 __netif_tx_unlock(txq);
+>         }
+>  }
+> This also does not help. It turns out skipping 10% is just not enough.
+> We have to skip for 50% of the time in order for the warning to be
+> suppressed.
+> And this does not seem to be a viable solution since how much we skip
+> probably will depend on the traffic pattern.
+> 
+> My questions here:
+> 1. Michael mentioned that if we use split queues with event idx, the
+> interrupts are not actually being disabled. Is this still the case? If
+> so, is that also the cause for so many spurious interrupts?
+> 2. Michael also submitted another patch: 8d622d21d248 ("virtio: fix up
+> virtio_disable_cb"). I am not quite sure, would that change help
+> reduce the # of spurious interrupts we see if we use split queues with
+> event idx? From my limited understanding, that patch skips calling
+> virtqueue_disable_cb_split() if event_trigger is set for split queues.
+> 
+> BTW, I have the setup to reproduce this issue easily. So do let me
+> know if you have other ideas on how to fix it.
+> 
+> Thanks.
+> Wei
 
-No functional change intended.
+I think that commit is needed to fix the issue, yes.
 
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
----
- drivers/vhost/vdpa.c  |  6 +--
- drivers/vhost/vhost.c | 90 +++++++++++++++++++++----------------------
- drivers/vhost/vhost.h |  8 ++--
- 3 files changed, 53 insertions(+), 51 deletions(-)
+My suggestion is to try v5.14 in its entirety
+rather than cherry-picking.
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index f41d081777f5..6f05388f5a21 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -400,9 +400,9 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 	switch (cmd) {
- 	case VHOST_SET_VRING_ADDR:
- 		if (ops->set_vq_address(vdpa, idx,
--					(u64)(uintptr_t)vq->desc,
--					(u64)(uintptr_t)vq->avail,
--					(u64)(uintptr_t)vq->used))
-+					(u64)(uintptr_t)vq->user.desc,
-+					(u64)(uintptr_t)vq->user.avail,
-+					(u64)(uintptr_t)vq->user.used))
- 			r = -EINVAL;
- 		break;
- 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 59edb5a1ffe2..108994f386f7 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -46,8 +46,8 @@ enum {
- 	VHOST_MEMORY_F_LOG = 0x1,
- };
- 
--#define vhost_used_event(vq) ((__virtio16 __user *)&vq->avail->ring[vq->num])
--#define vhost_avail_event(vq) ((__virtio16 __user *)&vq->used->ring[vq->num])
-+#define vhost_used_event(vq) ((__virtio16 __user *)&vq->user.avail->ring[vq->num])
-+#define vhost_avail_event(vq) ((__virtio16 __user *)&vq->user.used->ring[vq->num])
- 
- #ifdef CONFIG_VHOST_CROSS_ENDIAN_LEGACY
- static void vhost_disable_cross_endian(struct vhost_virtqueue *vq)
-@@ -306,7 +306,7 @@ static void vhost_vring_call_reset(struct vhost_vring_call *call_ctx)
- 
- bool vhost_vq_is_setup(struct vhost_virtqueue *vq)
- {
--	return vq->avail && vq->desc && vq->used && vhost_vq_access_ok(vq);
-+	return vq->user.avail && vq->user.desc && vq->user.used && vhost_vq_access_ok(vq);
- }
- EXPORT_SYMBOL_GPL(vhost_vq_is_setup);
- 
-@@ -314,9 +314,9 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 			   struct vhost_virtqueue *vq)
- {
- 	vq->num = 1;
--	vq->desc = NULL;
--	vq->avail = NULL;
--	vq->used = NULL;
-+	vq->user.desc = NULL;
-+	vq->user.avail = NULL;
-+	vq->user.used = NULL;
- 	vq->last_avail_idx = 0;
- 	vq->avail_idx = 0;
- 	vq->last_used_idx = 0;
-@@ -444,8 +444,8 @@ static size_t vhost_get_avail_size(struct vhost_virtqueue *vq,
- 	size_t event __maybe_unused =
- 	       vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
- 
--	return sizeof(*vq->avail) +
--	       sizeof(*vq->avail->ring) * num + event;
-+	return sizeof(*vq->user.avail) +
-+	       sizeof(*vq->user.avail->ring) * num + event;
- }
- 
- static size_t vhost_get_used_size(struct vhost_virtqueue *vq,
-@@ -454,14 +454,14 @@ static size_t vhost_get_used_size(struct vhost_virtqueue *vq,
- 	size_t event __maybe_unused =
- 	       vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
- 
--	return sizeof(*vq->used) +
--	       sizeof(*vq->used->ring) * num + event;
-+	return sizeof(*vq->user.used) +
-+	       sizeof(*vq->user.used->ring) * num + event;
- }
- 
- static size_t vhost_get_desc_size(struct vhost_virtqueue *vq,
- 				  unsigned int num)
- {
--	return sizeof(*vq->desc) * num;
-+	return sizeof(*vq->user.desc) * num;
- }
- 
- void vhost_dev_init(struct vhost_dev *dev,
-@@ -959,7 +959,7 @@ static inline int vhost_put_used(struct vhost_virtqueue *vq,
- 				 struct vring_used_elem *head, int idx,
- 				 int count)
- {
--	return vhost_copy_to_user(vq, vq->used->ring + idx, head,
-+	return vhost_copy_to_user(vq, vq->user.used->ring + idx, head,
- 				  count * sizeof(*head));
- }
- 
-@@ -967,14 +967,14 @@ static inline int vhost_put_used_flags(struct vhost_virtqueue *vq)
- 
- {
- 	return vhost_put_user(vq, cpu_to_vhost16(vq, vq->used_flags),
--			      &vq->used->flags);
-+			      &vq->user.used->flags);
- }
- 
- static inline int vhost_put_used_idx(struct vhost_virtqueue *vq)
- 
- {
- 	return vhost_put_user(vq, cpu_to_vhost16(vq, vq->last_used_idx),
--			      &vq->used->idx);
-+			      &vq->user.used->idx);
- }
- 
- #define vhost_get_user(vq, x, ptr, type)		\
-@@ -1018,20 +1018,20 @@ static void vhost_dev_unlock_vqs(struct vhost_dev *d)
- static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq,
- 				      __virtio16 *idx)
- {
--	return vhost_get_avail(vq, *idx, &vq->avail->idx);
-+	return vhost_get_avail(vq, *idx, &vq->user.avail->idx);
- }
- 
- static inline int vhost_get_avail_head(struct vhost_virtqueue *vq,
- 				       __virtio16 *head, int idx)
- {
- 	return vhost_get_avail(vq, *head,
--			       &vq->avail->ring[idx & (vq->num - 1)]);
-+			       &vq->user.avail->ring[idx & (vq->num - 1)]);
- }
- 
- static inline int vhost_get_avail_flags(struct vhost_virtqueue *vq,
- 					__virtio16 *flags)
- {
--	return vhost_get_avail(vq, *flags, &vq->avail->flags);
-+	return vhost_get_avail(vq, *flags, &vq->user.avail->flags);
- }
- 
- static inline int vhost_get_used_event(struct vhost_virtqueue *vq,
-@@ -1043,13 +1043,13 @@ static inline int vhost_get_used_event(struct vhost_virtqueue *vq,
- static inline int vhost_get_used_idx(struct vhost_virtqueue *vq,
- 				     __virtio16 *idx)
- {
--	return vhost_get_used(vq, *idx, &vq->used->idx);
-+	return vhost_get_used(vq, *idx, &vq->user.used->idx);
- }
- 
- static inline int vhost_get_desc(struct vhost_virtqueue *vq,
- 				 struct vring_desc *desc, int idx)
- {
--	return vhost_copy_from_user(vq, desc, vq->desc + idx, sizeof(*desc));
-+	return vhost_copy_from_user(vq, desc, vq->user.desc + idx, sizeof(*desc));
- }
- 
- static void vhost_iotlb_notify_vq(struct vhost_dev *d,
-@@ -1363,12 +1363,12 @@ int vq_meta_prefetch(struct vhost_virtqueue *vq)
- 	if (!vq->iotlb)
- 		return 1;
- 
--	return iotlb_access_ok(vq, VHOST_MAP_RO, (u64)(uintptr_t)vq->desc,
-+	return iotlb_access_ok(vq, VHOST_MAP_RO, (u64)(uintptr_t)vq->user.desc,
- 			       vhost_get_desc_size(vq, num), VHOST_ADDR_DESC) &&
--	       iotlb_access_ok(vq, VHOST_MAP_RO, (u64)(uintptr_t)vq->avail,
-+	       iotlb_access_ok(vq, VHOST_MAP_RO, (u64)(uintptr_t)vq->user.avail,
- 			       vhost_get_avail_size(vq, num),
- 			       VHOST_ADDR_AVAIL) &&
--	       iotlb_access_ok(vq, VHOST_MAP_WO, (u64)(uintptr_t)vq->used,
-+	       iotlb_access_ok(vq, VHOST_MAP_WO, (u64)(uintptr_t)vq->user.used,
- 			       vhost_get_used_size(vq, num), VHOST_ADDR_USED);
- }
- EXPORT_SYMBOL_GPL(vq_meta_prefetch);
-@@ -1412,7 +1412,7 @@ bool vhost_vq_access_ok(struct vhost_virtqueue *vq)
- 	if (!vq_log_access_ok(vq, vq->log_base))
- 		return false;
- 
--	return vq_access_ok(vq, vq->num, vq->desc, vq->avail, vq->used);
-+	return vq_access_ok(vq, vq->num, vq->user.desc, vq->user.avail, vq->user.used);
- }
- EXPORT_SYMBOL_GPL(vhost_vq_access_ok);
- 
-@@ -1523,8 +1523,8 @@ static long vhost_vring_set_addr(struct vhost_dev *d,
- 		return -EFAULT;
- 
- 	/* Make sure it's safe to cast pointers to vring types. */
--	BUILD_BUG_ON(__alignof__ *vq->avail > VRING_AVAIL_ALIGN_SIZE);
--	BUILD_BUG_ON(__alignof__ *vq->used > VRING_USED_ALIGN_SIZE);
-+	BUILD_BUG_ON(__alignof__ *vq->user.avail > VRING_AVAIL_ALIGN_SIZE);
-+	BUILD_BUG_ON(__alignof__ *vq->user.used > VRING_USED_ALIGN_SIZE);
- 	if ((a.avail_user_addr & (VRING_AVAIL_ALIGN_SIZE - 1)) ||
- 	    (a.used_user_addr & (VRING_USED_ALIGN_SIZE - 1)) ||
- 	    (a.log_guest_addr & (VRING_USED_ALIGN_SIZE - 1)))
-@@ -1548,10 +1548,10 @@ static long vhost_vring_set_addr(struct vhost_dev *d,
- 	}
- 
- 	vq->log_used = !!(a.flags & (0x1 << VHOST_VRING_F_LOG));
--	vq->desc = (void __user *)(unsigned long)a.desc_user_addr;
--	vq->avail = (void __user *)(unsigned long)a.avail_user_addr;
-+	vq->user.desc = (void __user *)(unsigned long)a.desc_user_addr;
-+	vq->user.avail = (void __user *)(unsigned long)a.avail_user_addr;
- 	vq->log_addr = a.log_guest_addr;
--	vq->used = (void __user *)(unsigned long)a.used_user_addr;
-+	vq->user.used = (void __user *)(unsigned long)a.used_user_addr;
- 
- 	return 0;
- }
-@@ -1912,8 +1912,8 @@ static int log_used(struct vhost_virtqueue *vq, u64 used_offset, u64 len)
- 	if (!vq->iotlb)
- 		return log_write(vq->log_base, vq->log_addr + used_offset, len);
- 
--	ret = translate_desc(vq, (uintptr_t)vq->used + used_offset,
--			     len, iov, 64, VHOST_ACCESS_WO);
-+	ret = translate_desc(vq, (uintptr_t)vq->user.used + used_offset,
-+			     len, vq->log_iov, 64, VHOST_ACCESS_WO);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -1972,9 +1972,9 @@ static int vhost_update_used_flags(struct vhost_virtqueue *vq)
- 		/* Make sure the flag is seen before log. */
- 		smp_wmb();
- 		/* Log used flag write. */
--		used = &vq->used->flags;
--		log_used(vq, (used - (void __user *)vq->used),
--			 sizeof vq->used->flags);
-+		used = &vq->user.used->flags;
-+		log_used(vq, (used - (void __user *)vq->user.used),
-+			 sizeof vq->user.used->flags);
- 		if (vq->log_ctx)
- 			eventfd_signal(vq->log_ctx, 1);
- 	}
-@@ -1991,7 +1991,7 @@ static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
- 		smp_wmb();
- 		/* Log avail event write */
- 		used = vhost_avail_event(vq);
--		log_used(vq, (used - (void __user *)vq->used),
-+		log_used(vq, (used - (void __user *)vq->user.used),
- 			 sizeof *vhost_avail_event(vq));
- 		if (vq->log_ctx)
- 			eventfd_signal(vq->log_ctx, 1);
-@@ -2015,14 +2015,14 @@ int vhost_vq_init_access(struct vhost_virtqueue *vq)
- 		goto err;
- 	vq->signalled_used_valid = false;
- 	if (!vq->iotlb &&
--	    !access_ok(&vq->used->idx, sizeof vq->used->idx)) {
-+	    !access_ok(&vq->user.used->idx, sizeof vq->user.used->idx)) {
- 		r = -EFAULT;
- 		goto err;
- 	}
- 	r = vhost_get_used_idx(vq, &last_used_idx);
- 	if (r) {
- 		vq_err(vq, "Can't access used idx at %p\n",
--		       &vq->used->idx);
-+		       &vq->user.used->idx);
- 		goto err;
- 	}
- 	vq->last_used_idx = vhost16_to_cpu(vq, last_used_idx);
-@@ -2214,7 +2214,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- 	if (vq->avail_idx == vq->last_avail_idx) {
- 		if (unlikely(vhost_get_avail_idx(vq, &avail_idx))) {
- 			vq_err(vq, "Failed to access avail idx at %p\n",
--				&vq->avail->idx);
-+				&vq->user.avail->idx);
- 			return -EFAULT;
- 		}
- 		vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
-@@ -2242,7 +2242,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- 	if (unlikely(vhost_get_avail_head(vq, &ring_head, last_avail_idx))) {
- 		vq_err(vq, "Failed to read head: idx %d address %p\n",
- 		       last_avail_idx,
--		       &vq->avail->ring[last_avail_idx % vq->num]);
-+		       &vq->user.avail->ring[last_avail_idx % vq->num]);
- 		return -EFAULT;
- 	}
- 
-@@ -2277,7 +2277,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- 		ret = vhost_get_desc(vq, &desc, i);
- 		if (unlikely(ret)) {
- 			vq_err(vq, "Failed to get descriptor: idx %d addr %p\n",
--			       i, vq->desc + i);
-+			       i, vq->user.desc + i);
- 			return -EFAULT;
- 		}
- 		if (desc.flags & cpu_to_vhost16(vq, VRING_DESC_F_INDIRECT)) {
-@@ -2366,7 +2366,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
- 	int start;
- 
- 	start = vq->last_used_idx & (vq->num - 1);
--	used = vq->used->ring + start;
-+	used = vq->user.used->ring + start;
- 	if (vhost_put_used(vq, heads, start, count)) {
- 		vq_err(vq, "Failed to write used");
- 		return -EFAULT;
-@@ -2375,7 +2375,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
- 		/* Make sure data is seen before log. */
- 		smp_wmb();
- 		/* Log used ring entry write. */
--		log_used(vq, ((void __user *)used - (void __user *)vq->used),
-+		log_used(vq, ((void __user *)used - (void __user *)vq->user.used),
- 			 count * sizeof *used);
- 	}
- 	old = vq->last_used_idx;
-@@ -2418,7 +2418,7 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
- 		smp_wmb();
- 		/* Log used index update. */
- 		log_used(vq, offsetof(struct vring_used, idx),
--			 sizeof vq->used->idx);
-+			 sizeof vq->user.used->idx);
- 		if (vq->log_ctx)
- 			eventfd_signal(vq->log_ctx, 1);
- 	}
-@@ -2523,7 +2523,7 @@ bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 		r = vhost_update_used_flags(vq);
- 		if (r) {
- 			vq_err(vq, "Failed to enable notification at %p: %d\n",
--			       &vq->used->flags, r);
-+			       &vq->user.used->flags, r);
- 			return false;
- 		}
- 	} else {
-@@ -2540,7 +2540,7 @@ bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 	r = vhost_get_avail_idx(vq, &avail_idx);
- 	if (r) {
- 		vq_err(vq, "Failed to check avail idx at %p: %d\n",
--		       &vq->avail->idx, r);
-+		       &vq->user.avail->idx, r);
- 		return false;
- 	}
- 
-@@ -2560,7 +2560,7 @@ void vhost_disable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- 		r = vhost_update_used_flags(vq);
- 		if (r)
- 			vq_err(vq, "Failed to disable notification at %p: %d\n",
--			       &vq->used->flags, r);
-+			       &vq->user.used->flags, r);
- 	}
- }
- EXPORT_SYMBOL_GPL(vhost_disable_notify);
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 638bb640d6b4..b1db4ffe75f0 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -72,9 +72,11 @@ struct vhost_virtqueue {
- 	/* The actual ring of buffers. */
- 	struct mutex mutex;
- 	unsigned int num;
--	vring_desc_t __user *desc;
--	vring_avail_t __user *avail;
--	vring_used_t __user *used;
-+	struct {
-+		vring_desc_t __user *desc;
-+		vring_avail_t __user *avail;
-+		vring_used_t __user *used;
-+	} user;
- 	const struct vhost_iotlb_map *meta_iotlb[VHOST_NUM_ADDRS];
- 	struct file *kick;
- 	struct vhost_vring_call call_ctx;
--- 
-2.28.0
+If you see that the issue is
+fixed there I can point you to a list of commit to backport.
+
+> 
+> > > > > Because the steal work is done
+> > > > > in the napi handler of the rx queue. But the tx interrupt must have
+> > > > > been raised before that. Will we come back to process the tx interrupt
+> > > > > again after we re-enabled the cb on the tx side?
+> > > > >
+> > > > > > This should be enough to reduce the chances below 99% ;)
+> > > > > >
+> > > > > > One annoying thing is that with split and event index, we do not disable
+> > > > > > interrupts. Could be worth revisiting, for now maybe just disable the
+> > > > > > event index feature? I am not sure it is actually worth it with
+> > > > > > stealing.
+> > > >
+> > > > With event index, we suppress interrupts when another interrupt is
+> > > > already pending from a previous packet, right? When the previous
+> > > > position of the producer is already beyond the consumer. It doesn't
+> > > > matter whether the previous packet triggered a tx interrupt or
+> > > > deferred to an already scheduled rx interrupt? From that seems fine to
+> > > > leave it out.
+> >
 
 _______________________________________________
 Virtualization mailing list
