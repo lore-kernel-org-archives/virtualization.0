@@ -2,64 +2,67 @@ Return-Path: <SRS0=D/KU=OT=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4636DC4332F
-	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 15:11:40 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F062C43217
+	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 15:11:41 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CEAE061108
-	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 15:11:39 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org CEAE061108
+	by mail.kernel.org (Postfix) with ESMTPS id 3382961390
+	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 15:11:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 3382961390
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=axis.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A7281610D8;
-	Wed, 29 Sep 2021 15:11:39 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 06B0B40731;
+	Wed, 29 Sep 2021 15:11:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id evgtzWIMI4AQ; Wed, 29 Sep 2021 15:11:38 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 337C960EAA;
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id INtEr3-n5jtQ; Wed, 29 Sep 2021 15:11:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A950F40746;
 	Wed, 29 Sep 2021 15:11:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 05632C0011;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3B95CC0023;
 	Wed, 29 Sep 2021 15:11:38 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 14B0AC000D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0F002C0022
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 15:11:35 +0000 (UTC)
+ Wed, 29 Sep 2021 15:11:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 67B9560C1B
+ by smtp3.osuosl.org (Postfix) with ESMTP id 8262D60E8F
  for <virtualization@lists.linux-foundation.org>;
  Wed, 29 Sep 2021 15:11:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=axis.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id A0iBfhy_tPhT
+ with ESMTP id T0jc4X-Nn-6D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 15:11:27 +0000 (UTC)
+ Wed, 29 Sep 2021 15:11:28 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from smtp2.axis.com (smtp2.axis.com [195.60.68.18])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 24EC760E8F
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 0D37260E7D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 15:11:26 +0000 (UTC)
+ Wed, 29 Sep 2021 15:11:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=axis.com; q=dns/txt; s=axis-central1; t=1632928287;
- x=1664464287; h=from:to:cc:subject:date:message-id:in-reply-to:
+ d=axis.com; q=dns/txt; s=axis-central1; t=1632928288;
+ x=1664464288; h=from:to:cc:subject:date:message-id:in-reply-to:
  references:mime-version:content-transfer-encoding;
- bh=I+ZMDQoEY380qKi1YymoFVScbq3gPR3k5KyEBTna3rA=;
- b=ofCnioe64Jgl2tehEN04FooySNEf2QNyQQ0OB4yXG0pM29XZ+vh4KRHk
- wo6Kw1NGOxNPkZpvr6wVsBzlDNNZf7ZzWX7D2ITJom0BaG1WB90z21Ltm
- K7Sa/P+6zHJ9zNln0iULJvBMrgI9eVEfpxNhYrxZ5vbBPBNNF5KTEXn2l
- 11hm+b6waMNe4jMaazf0nhmxOwGAy9pVPrFJwY5E7u20bKpDgdYxrtdCN
- RWDhfPSJWcgak5UDdrHjfhx0bEUnn1wqXynQ58frguUxrZ4YNmpkxqT2X
- 2tx+Q89m5zrEeSlSSa730Fy8LtSmvbonFLev6AZ+hwbndT5xvkqpWP4Up w==;
+ bh=OSpsqaSPCR0KkwR/V5TWdFbuLeIYeNSAyBlJF+6Nw08=;
+ b=OygCTZBOjqmbHXpn3auLcjyAdF5zaNNmCkIdNB2IUQINO57pJtxNrPSP
+ JDVnDwOYQsoRe3hblK9lOOSfMIEllyV+BxRjvvax7d9Y49PitY2ACrUJT
+ MsJ7UvxZ8q64OVQviKwSXHUGTnOdnHHEx3z5AFtFthgzC0k8FIM0fRXO+
+ tmohNN1LrFBhoymMcGJxuJaxhU3Zl4Ri4++70W6hLgrjScYLWL/zcZ9Q+
+ fzrfA3TWY+o3GJDxaRswn7Ap22DYwIPEGKZYtmyJ87ALxxAr6Y4pzgEm+
+ zBEYwePx4xEDasgifvVlyxaoY0WbRPncnD0jk5zMAabavaPYP89KVrnIv Q==;
 From: Vincent Whitchurch <vincent.whitchurch@axis.com>
 To: <mst@redhat.com>, <jasowang@redhat.com>
-Subject: [RFC PATCH 06/10] vhost: extract ioctl locking to common code
-Date: Wed, 29 Sep 2021 17:11:15 +0200
-Message-ID: <20210929151119.14778-7-vincent.whitchurch@axis.com>
+Subject: [RFC PATCH 02/10] vhost: push virtqueue area pointers into a user
+ struct
+Date: Wed, 29 Sep 2021 17:11:11 +0200
+Message-ID: <20210929151119.14778-3-vincent.whitchurch@axis.com>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20210929151119.14778-1-vincent.whitchurch@axis.com>
 References: <20210929151119.14778-1-vincent.whitchurch@axis.com>
@@ -84,263 +87,368 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Extract the mutex locking for the vhost ioctl into common code.  This
-will allow the common code to easily add some extra handling required
-for adding a kernel API to control vhost.
+In order to prepare for allowing vhost to operate on kernel buffers,
+push the virtqueue desc/avail/used area pointers down to a new "user"
+struct.
+
+No functional change intended.
 
 Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
 ---
- drivers/vhost/common.c |  7 ++++++-
- drivers/vhost/net.c    | 14 +-------------
- drivers/vhost/vhost.c  | 10 ++++++++--
- drivers/vhost/vhost.h  |  1 +
- drivers/vhost/vsock.c  | 12 ------------
- 5 files changed, 16 insertions(+), 28 deletions(-)
+ drivers/vhost/vdpa.c  |  6 +--
+ drivers/vhost/vhost.c | 90 +++++++++++++++++++++----------------------
+ drivers/vhost/vhost.h |  8 ++--
+ 3 files changed, 53 insertions(+), 51 deletions(-)
 
-diff --git a/drivers/vhost/common.c b/drivers/vhost/common.c
-index 27d4672b15d3..a5722ad65e24 100644
---- a/drivers/vhost/common.c
-+++ b/drivers/vhost/common.c
-@@ -60,8 +60,13 @@ static long vhost_ioctl(struct file *file, unsigned int ioctl, unsigned long arg
- {
- 	struct vhost_dev *dev = file->private_data;
- 	struct vhost *vhost = dev->vhost;
-+	long ret;
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index f41d081777f5..6f05388f5a21 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -400,9 +400,9 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+ 	switch (cmd) {
+ 	case VHOST_SET_VRING_ADDR:
+ 		if (ops->set_vq_address(vdpa, idx,
+-					(u64)(uintptr_t)vq->desc,
+-					(u64)(uintptr_t)vq->avail,
+-					(u64)(uintptr_t)vq->used))
++					(u64)(uintptr_t)vq->user.desc,
++					(u64)(uintptr_t)vq->user.avail,
++					(u64)(uintptr_t)vq->user.used))
+ 			r = -EINVAL;
+ 		break;
  
--	return vhost->ops->ioctl(dev, ioctl, arg);
-+	mutex_lock(&dev->mutex);
-+	ret = vhost->ops->ioctl(dev, ioctl, arg);
-+	mutex_unlock(&dev->mutex);
-+
-+	return ret;
- }
- 
- static ssize_t vhost_read_iter(struct kiocb *iocb, struct iov_iter *to)
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 8910d9e2a74e..b5590b7862a9 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1505,7 +1505,6 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
- 	struct vhost_net_ubuf_ref *ubufs, *oldubufs = NULL;
- 	int r;
- 
--	mutex_lock(&n->dev.mutex);
- 	r = vhost_dev_check_owner(&n->dev);
- 	if (r)
- 		goto err;
-@@ -1573,7 +1572,6 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
- 		sockfd_put(oldsock);
- 	}
- 
--	mutex_unlock(&n->dev.mutex);
- 	return 0;
- 
- err_used:
-@@ -1587,7 +1585,6 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
- err_vq:
- 	mutex_unlock(&vq->mutex);
- err:
--	mutex_unlock(&n->dev.mutex);
- 	return r;
- }
- 
-@@ -1598,7 +1595,6 @@ static long vhost_net_reset_owner(struct vhost_net *n)
- 	long err;
- 	struct vhost_iotlb *umem;
- 
--	mutex_lock(&n->dev.mutex);
- 	err = vhost_dev_check_owner(&n->dev);
- 	if (err)
- 		goto done;
-@@ -1613,7 +1609,6 @@ static long vhost_net_reset_owner(struct vhost_net *n)
- 	vhost_dev_reset_owner(&n->dev, umem);
- 	vhost_net_vq_reset(n);
- done:
--	mutex_unlock(&n->dev.mutex);
- 	if (tx_sock)
- 		sockfd_put(tx_sock);
- 	if (rx_sock)
-@@ -1639,7 +1634,6 @@ static int vhost_net_set_features(struct vhost_net *n, u64 features)
- 		vhost_hlen = 0;
- 		sock_hlen = hdr_len;
- 	}
--	mutex_lock(&n->dev.mutex);
- 	if ((features & (1 << VHOST_F_LOG_ALL)) &&
- 	    !vhost_log_access_ok(&n->dev))
- 		goto out_unlock;
-@@ -1656,11 +1650,9 @@ static int vhost_net_set_features(struct vhost_net *n, u64 features)
- 		n->vqs[i].sock_hlen = sock_hlen;
- 		mutex_unlock(&n->vqs[i].vq.mutex);
- 	}
--	mutex_unlock(&n->dev.mutex);
- 	return 0;
- 
- out_unlock:
--	mutex_unlock(&n->dev.mutex);
- 	return -EFAULT;
- }
- 
-@@ -1668,7 +1660,6 @@ static long vhost_net_set_owner(struct vhost_net *n)
- {
- 	int r;
- 
--	mutex_lock(&n->dev.mutex);
- 	if (vhost_dev_has_owner(&n->dev)) {
- 		r = -EBUSY;
- 		goto out;
-@@ -1681,7 +1672,6 @@ static long vhost_net_set_owner(struct vhost_net *n)
- 		vhost_net_clear_ubuf_info(n);
- 	vhost_net_flush(n);
- out:
--	mutex_unlock(&n->dev.mutex);
- 	return r;
- }
- 
-@@ -1721,20 +1711,18 @@ static long vhost_net_ioctl(struct vhost_dev *dev, unsigned int ioctl,
- 			return -EFAULT;
- 		if (features & ~VHOST_NET_BACKEND_FEATURES)
- 			return -EOPNOTSUPP;
--		vhost_set_backend_features(&n->dev, features);
-+		__vhost_set_backend_features(&n->dev, features);
- 		return 0;
- 	case VHOST_RESET_OWNER:
- 		return vhost_net_reset_owner(n);
- 	case VHOST_SET_OWNER:
- 		return vhost_net_set_owner(n);
- 	default:
--		mutex_lock(&n->dev.mutex);
- 		r = vhost_dev_ioctl(&n->dev, ioctl, argp);
- 		if (r == -ENOIOCTLCMD)
- 			r = vhost_vring_ioctl(&n->dev, ioctl, argp);
- 		else
- 			vhost_net_flush(n);
--		mutex_unlock(&n->dev.mutex);
- 		return r;
- 	}
- }
 diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 9354061ce75e..9d6496b7ad85 100644
+index 59edb5a1ffe2..108994f386f7 100644
 --- a/drivers/vhost/vhost.c
 +++ b/drivers/vhost/vhost.c
-@@ -2821,18 +2821,24 @@ struct vhost_msg_node *vhost_dequeue_msg(struct vhost_dev *dev,
- }
- EXPORT_SYMBOL_GPL(vhost_dequeue_msg);
+@@ -46,8 +46,8 @@ enum {
+ 	VHOST_MEMORY_F_LOG = 0x1,
+ };
  
--void vhost_set_backend_features(struct vhost_dev *dev, u64 features)
-+void __vhost_set_backend_features(struct vhost_dev *dev, u64 features)
+-#define vhost_used_event(vq) ((__virtio16 __user *)&vq->avail->ring[vq->num])
+-#define vhost_avail_event(vq) ((__virtio16 __user *)&vq->used->ring[vq->num])
++#define vhost_used_event(vq) ((__virtio16 __user *)&vq->user.avail->ring[vq->num])
++#define vhost_avail_event(vq) ((__virtio16 __user *)&vq->user.used->ring[vq->num])
+ 
+ #ifdef CONFIG_VHOST_CROSS_ENDIAN_LEGACY
+ static void vhost_disable_cross_endian(struct vhost_virtqueue *vq)
+@@ -306,7 +306,7 @@ static void vhost_vring_call_reset(struct vhost_vring_call *call_ctx)
+ 
+ bool vhost_vq_is_setup(struct vhost_virtqueue *vq)
  {
- 	struct vhost_virtqueue *vq;
- 	int i;
- 
--	mutex_lock(&dev->mutex);
- 	for (i = 0; i < dev->nvqs; ++i) {
- 		vq = dev->vqs[i];
- 		mutex_lock(&vq->mutex);
- 		vq->acked_backend_features = features;
- 		mutex_unlock(&vq->mutex);
- 	}
-+}
-+EXPORT_SYMBOL_GPL(__vhost_set_backend_features);
-+
-+void vhost_set_backend_features(struct vhost_dev *dev, u64 features)
-+{
-+	mutex_lock(&dev->mutex);
-+	__vhost_set_backend_features(dev, features);
- 	mutex_unlock(&dev->mutex);
+-	return vq->avail && vq->desc && vq->used && vhost_vq_access_ok(vq);
++	return vq->user.avail && vq->user.desc && vq->user.used && vhost_vq_access_ok(vq);
  }
- EXPORT_SYMBOL_GPL(vhost_set_backend_features);
+ EXPORT_SYMBOL_GPL(vhost_vq_is_setup);
+ 
+@@ -314,9 +314,9 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+ 			   struct vhost_virtqueue *vq)
+ {
+ 	vq->num = 1;
+-	vq->desc = NULL;
+-	vq->avail = NULL;
+-	vq->used = NULL;
++	vq->user.desc = NULL;
++	vq->user.avail = NULL;
++	vq->user.used = NULL;
+ 	vq->last_avail_idx = 0;
+ 	vq->avail_idx = 0;
+ 	vq->last_used_idx = 0;
+@@ -444,8 +444,8 @@ static size_t vhost_get_avail_size(struct vhost_virtqueue *vq,
+ 	size_t event __maybe_unused =
+ 	       vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
+ 
+-	return sizeof(*vq->avail) +
+-	       sizeof(*vq->avail->ring) * num + event;
++	return sizeof(*vq->user.avail) +
++	       sizeof(*vq->user.avail->ring) * num + event;
+ }
+ 
+ static size_t vhost_get_used_size(struct vhost_virtqueue *vq,
+@@ -454,14 +454,14 @@ static size_t vhost_get_used_size(struct vhost_virtqueue *vq,
+ 	size_t event __maybe_unused =
+ 	       vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX) ? 2 : 0;
+ 
+-	return sizeof(*vq->used) +
+-	       sizeof(*vq->used->ring) * num + event;
++	return sizeof(*vq->user.used) +
++	       sizeof(*vq->user.used->ring) * num + event;
+ }
+ 
+ static size_t vhost_get_desc_size(struct vhost_virtqueue *vq,
+ 				  unsigned int num)
+ {
+-	return sizeof(*vq->desc) * num;
++	return sizeof(*vq->user.desc) * num;
+ }
+ 
+ void vhost_dev_init(struct vhost_dev *dev,
+@@ -959,7 +959,7 @@ static inline int vhost_put_used(struct vhost_virtqueue *vq,
+ 				 struct vring_used_elem *head, int idx,
+ 				 int count)
+ {
+-	return vhost_copy_to_user(vq, vq->used->ring + idx, head,
++	return vhost_copy_to_user(vq, vq->user.used->ring + idx, head,
+ 				  count * sizeof(*head));
+ }
+ 
+@@ -967,14 +967,14 @@ static inline int vhost_put_used_flags(struct vhost_virtqueue *vq)
+ 
+ {
+ 	return vhost_put_user(vq, cpu_to_vhost16(vq, vq->used_flags),
+-			      &vq->used->flags);
++			      &vq->user.used->flags);
+ }
+ 
+ static inline int vhost_put_used_idx(struct vhost_virtqueue *vq)
+ 
+ {
+ 	return vhost_put_user(vq, cpu_to_vhost16(vq, vq->last_used_idx),
+-			      &vq->used->idx);
++			      &vq->user.used->idx);
+ }
+ 
+ #define vhost_get_user(vq, x, ptr, type)		\
+@@ -1018,20 +1018,20 @@ static void vhost_dev_unlock_vqs(struct vhost_dev *d)
+ static inline int vhost_get_avail_idx(struct vhost_virtqueue *vq,
+ 				      __virtio16 *idx)
+ {
+-	return vhost_get_avail(vq, *idx, &vq->avail->idx);
++	return vhost_get_avail(vq, *idx, &vq->user.avail->idx);
+ }
+ 
+ static inline int vhost_get_avail_head(struct vhost_virtqueue *vq,
+ 				       __virtio16 *head, int idx)
+ {
+ 	return vhost_get_avail(vq, *head,
+-			       &vq->avail->ring[idx & (vq->num - 1)]);
++			       &vq->user.avail->ring[idx & (vq->num - 1)]);
+ }
+ 
+ static inline int vhost_get_avail_flags(struct vhost_virtqueue *vq,
+ 					__virtio16 *flags)
+ {
+-	return vhost_get_avail(vq, *flags, &vq->avail->flags);
++	return vhost_get_avail(vq, *flags, &vq->user.avail->flags);
+ }
+ 
+ static inline int vhost_get_used_event(struct vhost_virtqueue *vq,
+@@ -1043,13 +1043,13 @@ static inline int vhost_get_used_event(struct vhost_virtqueue *vq,
+ static inline int vhost_get_used_idx(struct vhost_virtqueue *vq,
+ 				     __virtio16 *idx)
+ {
+-	return vhost_get_used(vq, *idx, &vq->used->idx);
++	return vhost_get_used(vq, *idx, &vq->user.used->idx);
+ }
+ 
+ static inline int vhost_get_desc(struct vhost_virtqueue *vq,
+ 				 struct vring_desc *desc, int idx)
+ {
+-	return vhost_copy_from_user(vq, desc, vq->desc + idx, sizeof(*desc));
++	return vhost_copy_from_user(vq, desc, vq->user.desc + idx, sizeof(*desc));
+ }
+ 
+ static void vhost_iotlb_notify_vq(struct vhost_dev *d,
+@@ -1363,12 +1363,12 @@ int vq_meta_prefetch(struct vhost_virtqueue *vq)
+ 	if (!vq->iotlb)
+ 		return 1;
+ 
+-	return iotlb_access_ok(vq, VHOST_MAP_RO, (u64)(uintptr_t)vq->desc,
++	return iotlb_access_ok(vq, VHOST_MAP_RO, (u64)(uintptr_t)vq->user.desc,
+ 			       vhost_get_desc_size(vq, num), VHOST_ADDR_DESC) &&
+-	       iotlb_access_ok(vq, VHOST_MAP_RO, (u64)(uintptr_t)vq->avail,
++	       iotlb_access_ok(vq, VHOST_MAP_RO, (u64)(uintptr_t)vq->user.avail,
+ 			       vhost_get_avail_size(vq, num),
+ 			       VHOST_ADDR_AVAIL) &&
+-	       iotlb_access_ok(vq, VHOST_MAP_WO, (u64)(uintptr_t)vq->used,
++	       iotlb_access_ok(vq, VHOST_MAP_WO, (u64)(uintptr_t)vq->user.used,
+ 			       vhost_get_used_size(vq, num), VHOST_ADDR_USED);
+ }
+ EXPORT_SYMBOL_GPL(vq_meta_prefetch);
+@@ -1412,7 +1412,7 @@ bool vhost_vq_access_ok(struct vhost_virtqueue *vq)
+ 	if (!vq_log_access_ok(vq, vq->log_base))
+ 		return false;
+ 
+-	return vq_access_ok(vq, vq->num, vq->desc, vq->avail, vq->used);
++	return vq_access_ok(vq, vq->num, vq->user.desc, vq->user.avail, vq->user.used);
+ }
+ EXPORT_SYMBOL_GPL(vhost_vq_access_ok);
+ 
+@@ -1523,8 +1523,8 @@ static long vhost_vring_set_addr(struct vhost_dev *d,
+ 		return -EFAULT;
+ 
+ 	/* Make sure it's safe to cast pointers to vring types. */
+-	BUILD_BUG_ON(__alignof__ *vq->avail > VRING_AVAIL_ALIGN_SIZE);
+-	BUILD_BUG_ON(__alignof__ *vq->used > VRING_USED_ALIGN_SIZE);
++	BUILD_BUG_ON(__alignof__ *vq->user.avail > VRING_AVAIL_ALIGN_SIZE);
++	BUILD_BUG_ON(__alignof__ *vq->user.used > VRING_USED_ALIGN_SIZE);
+ 	if ((a.avail_user_addr & (VRING_AVAIL_ALIGN_SIZE - 1)) ||
+ 	    (a.used_user_addr & (VRING_USED_ALIGN_SIZE - 1)) ||
+ 	    (a.log_guest_addr & (VRING_USED_ALIGN_SIZE - 1)))
+@@ -1548,10 +1548,10 @@ static long vhost_vring_set_addr(struct vhost_dev *d,
+ 	}
+ 
+ 	vq->log_used = !!(a.flags & (0x1 << VHOST_VRING_F_LOG));
+-	vq->desc = (void __user *)(unsigned long)a.desc_user_addr;
+-	vq->avail = (void __user *)(unsigned long)a.avail_user_addr;
++	vq->user.desc = (void __user *)(unsigned long)a.desc_user_addr;
++	vq->user.avail = (void __user *)(unsigned long)a.avail_user_addr;
+ 	vq->log_addr = a.log_guest_addr;
+-	vq->used = (void __user *)(unsigned long)a.used_user_addr;
++	vq->user.used = (void __user *)(unsigned long)a.used_user_addr;
+ 
+ 	return 0;
+ }
+@@ -1912,8 +1912,8 @@ static int log_used(struct vhost_virtqueue *vq, u64 used_offset, u64 len)
+ 	if (!vq->iotlb)
+ 		return log_write(vq->log_base, vq->log_addr + used_offset, len);
+ 
+-	ret = translate_desc(vq, (uintptr_t)vq->used + used_offset,
+-			     len, iov, 64, VHOST_ACCESS_WO);
++	ret = translate_desc(vq, (uintptr_t)vq->user.used + used_offset,
++			     len, vq->log_iov, 64, VHOST_ACCESS_WO);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -1972,9 +1972,9 @@ static int vhost_update_used_flags(struct vhost_virtqueue *vq)
+ 		/* Make sure the flag is seen before log. */
+ 		smp_wmb();
+ 		/* Log used flag write. */
+-		used = &vq->used->flags;
+-		log_used(vq, (used - (void __user *)vq->used),
+-			 sizeof vq->used->flags);
++		used = &vq->user.used->flags;
++		log_used(vq, (used - (void __user *)vq->user.used),
++			 sizeof vq->user.used->flags);
+ 		if (vq->log_ctx)
+ 			eventfd_signal(vq->log_ctx, 1);
+ 	}
+@@ -1991,7 +1991,7 @@ static int vhost_update_avail_event(struct vhost_virtqueue *vq, u16 avail_event)
+ 		smp_wmb();
+ 		/* Log avail event write */
+ 		used = vhost_avail_event(vq);
+-		log_used(vq, (used - (void __user *)vq->used),
++		log_used(vq, (used - (void __user *)vq->user.used),
+ 			 sizeof *vhost_avail_event(vq));
+ 		if (vq->log_ctx)
+ 			eventfd_signal(vq->log_ctx, 1);
+@@ -2015,14 +2015,14 @@ int vhost_vq_init_access(struct vhost_virtqueue *vq)
+ 		goto err;
+ 	vq->signalled_used_valid = false;
+ 	if (!vq->iotlb &&
+-	    !access_ok(&vq->used->idx, sizeof vq->used->idx)) {
++	    !access_ok(&vq->user.used->idx, sizeof vq->user.used->idx)) {
+ 		r = -EFAULT;
+ 		goto err;
+ 	}
+ 	r = vhost_get_used_idx(vq, &last_used_idx);
+ 	if (r) {
+ 		vq_err(vq, "Can't access used idx at %p\n",
+-		       &vq->used->idx);
++		       &vq->user.used->idx);
+ 		goto err;
+ 	}
+ 	vq->last_used_idx = vhost16_to_cpu(vq, last_used_idx);
+@@ -2214,7 +2214,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 	if (vq->avail_idx == vq->last_avail_idx) {
+ 		if (unlikely(vhost_get_avail_idx(vq, &avail_idx))) {
+ 			vq_err(vq, "Failed to access avail idx at %p\n",
+-				&vq->avail->idx);
++				&vq->user.avail->idx);
+ 			return -EFAULT;
+ 		}
+ 		vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
+@@ -2242,7 +2242,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 	if (unlikely(vhost_get_avail_head(vq, &ring_head, last_avail_idx))) {
+ 		vq_err(vq, "Failed to read head: idx %d address %p\n",
+ 		       last_avail_idx,
+-		       &vq->avail->ring[last_avail_idx % vq->num]);
++		       &vq->user.avail->ring[last_avail_idx % vq->num]);
+ 		return -EFAULT;
+ 	}
+ 
+@@ -2277,7 +2277,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 		ret = vhost_get_desc(vq, &desc, i);
+ 		if (unlikely(ret)) {
+ 			vq_err(vq, "Failed to get descriptor: idx %d addr %p\n",
+-			       i, vq->desc + i);
++			       i, vq->user.desc + i);
+ 			return -EFAULT;
+ 		}
+ 		if (desc.flags & cpu_to_vhost16(vq, VRING_DESC_F_INDIRECT)) {
+@@ -2366,7 +2366,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+ 	int start;
+ 
+ 	start = vq->last_used_idx & (vq->num - 1);
+-	used = vq->used->ring + start;
++	used = vq->user.used->ring + start;
+ 	if (vhost_put_used(vq, heads, start, count)) {
+ 		vq_err(vq, "Failed to write used");
+ 		return -EFAULT;
+@@ -2375,7 +2375,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+ 		/* Make sure data is seen before log. */
+ 		smp_wmb();
+ 		/* Log used ring entry write. */
+-		log_used(vq, ((void __user *)used - (void __user *)vq->used),
++		log_used(vq, ((void __user *)used - (void __user *)vq->user.used),
+ 			 count * sizeof *used);
+ 	}
+ 	old = vq->last_used_idx;
+@@ -2418,7 +2418,7 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
+ 		smp_wmb();
+ 		/* Log used index update. */
+ 		log_used(vq, offsetof(struct vring_used, idx),
+-			 sizeof vq->used->idx);
++			 sizeof vq->user.used->idx);
+ 		if (vq->log_ctx)
+ 			eventfd_signal(vq->log_ctx, 1);
+ 	}
+@@ -2523,7 +2523,7 @@ bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ 		r = vhost_update_used_flags(vq);
+ 		if (r) {
+ 			vq_err(vq, "Failed to enable notification at %p: %d\n",
+-			       &vq->used->flags, r);
++			       &vq->user.used->flags, r);
+ 			return false;
+ 		}
+ 	} else {
+@@ -2540,7 +2540,7 @@ bool vhost_enable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ 	r = vhost_get_avail_idx(vq, &avail_idx);
+ 	if (r) {
+ 		vq_err(vq, "Failed to check avail idx at %p: %d\n",
+-		       &vq->avail->idx, r);
++		       &vq->user.avail->idx, r);
+ 		return false;
+ 	}
+ 
+@@ -2560,7 +2560,7 @@ void vhost_disable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ 		r = vhost_update_used_flags(vq);
+ 		if (r)
+ 			vq_err(vq, "Failed to disable notification at %p: %d\n",
+-			       &vq->used->flags, r);
++			       &vq->user.used->flags, r);
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(vhost_disable_notify);
 diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 562387b92730..408ff243ed31 100644
+index 638bb640d6b4..b1db4ffe75f0 100644
 --- a/drivers/vhost/vhost.h
 +++ b/drivers/vhost/vhost.h
-@@ -302,6 +302,7 @@ void vhost_enqueue_msg(struct vhost_dev *dev,
- struct vhost_msg_node *vhost_dequeue_msg(struct vhost_dev *dev,
- 					 struct list_head *head);
- void vhost_set_backend_features(struct vhost_dev *dev, u64 features);
-+void __vhost_set_backend_features(struct vhost_dev *dev, u64 features);
- 
- __poll_t vhost_chr_poll(struct file *file, struct vhost_dev *dev,
- 			    poll_table *wait);
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 93f74a0010d5..062767636226 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -583,8 +583,6 @@ static int vhost_vsock_start(struct vhost_vsock *vsock)
- 	size_t i;
- 	int ret;
- 
--	mutex_lock(&vsock->dev.mutex);
--
- 	ret = vhost_dev_check_owner(&vsock->dev);
- 	if (ret)
- 		goto err;
-@@ -614,7 +612,6 @@ static int vhost_vsock_start(struct vhost_vsock *vsock)
- 	 */
- 	vhost_work_queue(&vsock->dev, &vsock->send_pkt_work);
- 
--	mutex_unlock(&vsock->dev.mutex);
- 	return 0;
- 
- err_vq:
-@@ -629,7 +626,6 @@ static int vhost_vsock_start(struct vhost_vsock *vsock)
- 		mutex_unlock(&vq->mutex);
- 	}
- err:
--	mutex_unlock(&vsock->dev.mutex);
- 	return ret;
- }
- 
-@@ -638,8 +634,6 @@ static int vhost_vsock_stop(struct vhost_vsock *vsock)
- 	size_t i;
- 	int ret;
- 
--	mutex_lock(&vsock->dev.mutex);
--
- 	ret = vhost_dev_check_owner(&vsock->dev);
- 	if (ret)
- 		goto err;
-@@ -653,7 +647,6 @@ static int vhost_vsock_stop(struct vhost_vsock *vsock)
- 	}
- 
- err:
--	mutex_unlock(&vsock->dev.mutex);
- 	return ret;
- }
- 
-@@ -821,7 +814,6 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
- 	if (features & ~VHOST_VSOCK_FEATURES)
- 		return -EOPNOTSUPP;
- 
--	mutex_lock(&vsock->dev.mutex);
- 	if ((features & (1 << VHOST_F_LOG_ALL)) &&
- 	    !vhost_log_access_ok(&vsock->dev)) {
- 		goto err;
-@@ -841,11 +833,9 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
- 		vq->acked_features = features;
- 		mutex_unlock(&vq->mutex);
- 	}
--	mutex_unlock(&vsock->dev.mutex);
- 	return 0;
- 
- err:
--	mutex_unlock(&vsock->dev.mutex);
- 	return -EFAULT;
- }
- 
-@@ -893,13 +883,11 @@ static long vhost_vsock_dev_ioctl(struct vhost_dev *dev, unsigned int ioctl,
- 		vhost_set_backend_features(&vsock->dev, features);
- 		return 0;
- 	default:
--		mutex_lock(&vsock->dev.mutex);
- 		r = vhost_dev_ioctl(&vsock->dev, ioctl, argp);
- 		if (r == -ENOIOCTLCMD)
- 			r = vhost_vring_ioctl(&vsock->dev, ioctl, argp);
- 		else
- 			vhost_vsock_flush(vsock);
--		mutex_unlock(&vsock->dev.mutex);
- 		return r;
- 	}
- }
+@@ -72,9 +72,11 @@ struct vhost_virtqueue {
+ 	/* The actual ring of buffers. */
+ 	struct mutex mutex;
+ 	unsigned int num;
+-	vring_desc_t __user *desc;
+-	vring_avail_t __user *avail;
+-	vring_used_t __user *used;
++	struct {
++		vring_desc_t __user *desc;
++		vring_avail_t __user *avail;
++		vring_used_t __user *used;
++	} user;
+ 	const struct vhost_iotlb_map *meta_iotlb[VHOST_NUM_ADDRS];
+ 	struct file *kick;
+ 	struct vhost_vring_call call_ctx;
 -- 
 2.28.0
 
