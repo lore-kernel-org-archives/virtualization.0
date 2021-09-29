@@ -2,125 +2,73 @@ Return-Path: <SRS0=D/KU=OT=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE6E1C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 15:07:20 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D45FFC433F5
+	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 15:11:30 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9EF1C61406
-	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 15:07:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9EF1C61406
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 5D9A0613D3
+	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 15:11:30 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 5D9A0613D3
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=axis.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 65E0B60C1A;
-	Wed, 29 Sep 2021 15:07:20 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 2DF5E83753;
+	Wed, 29 Sep 2021 15:11:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DL-fdK8JJ_Rf; Wed, 29 Sep 2021 15:07:19 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 1390E60C1F;
-	Wed, 29 Sep 2021 15:07:19 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E7601C000F;
-	Wed, 29 Sep 2021 15:07:18 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3E29FC000D
- for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 15:07:17 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 2727D832EA
- for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 15:07:17 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Fae28QV5Mu_t
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kvgZfU7tlpE9; Wed, 29 Sep 2021 15:11:29 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id C1D4D8364B;
+	Wed, 29 Sep 2021 15:11:28 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 96C69C0011;
+	Wed, 29 Sep 2021 15:11:28 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 915D5C000D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 15:07:16 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 77469832DC
+ Wed, 29 Sep 2021 15:11:27 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 7901B60E93
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 15:07:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1632928035;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=gapF6Q7MxbKj+/Jpg0HNCHa+0ngI63VYNLFNHFDInM4=;
- b=LhgWWRM1iezTsTbyUR0RtFUrGC/j9CAkX9XNLkr26OzJ0jzngXIVrJF8SNuHREeS62SorG
- grdPpCCVlxAKIK7wd6VSRyO/nJC1x12+3E+HeHD8exYmlE9MnyiAy+Nd9zpHxCnqS3NrRI
- k6aF7ceeafd+YR3eQZqEfJTwbyfUP/8=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-67-bDbWU6f5Pe6Z8k9vx4wpaw-1; Wed, 29 Sep 2021 11:07:14 -0400
-X-MC-Unique: bDbWU6f5Pe6Z8k9vx4wpaw-1
-Received: by mail-wr1-f70.google.com with SMTP id
- r7-20020a5d6947000000b0015e0f68a63bso704435wrw.22
+ Wed, 29 Sep 2021 15:11:27 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=axis.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id EJcnrOAFo_V8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 08:07:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:subject:to:cc:references:from:organization
- :message-id:date:user-agent:mime-version:in-reply-to
- :content-language:content-transfer-encoding;
- bh=gapF6Q7MxbKj+/Jpg0HNCHa+0ngI63VYNLFNHFDInM4=;
- b=Sx2ycDczpciU2X4v/kRi68WLg4EmjmkxPfgLNfBdSbsVlUR+6wcgwhEMwz4GM//5is
- 8j9jFpsgMDivFjsEZdD/gt7WC7Cml+m4nQz//Mbq8GZsujmG2j/Eag0LQ1h03sW85Z1Y
- 6JicOqVQckWdWe2IJAwC0iq9Wah/RmHAqWI6DEyV4OxNMcLwq+rJbFzLfzBxZefyNykh
- FRPXCXDIek52eif/FCznApjld7ZbqUXqxXM62vreWIWd78FUe2pG4J4U6xpg5ENQfAye
- HISl+lneqsqyyBI//50an6auvVd9FaP/FFW561E/5nmH9WcT54fuGmdSi+X19QVME4K3
- j0HQ==
-X-Gm-Message-State: AOAM532RQJdCpb/is21+yF/HBR+ZOxrPKsR16zlHiPwKytaHie9sNPHI
- mGhceBZws7Q7kwNg/tpcFisAbZAoHBqTZDxoqb/cdMXLJENmyWAR8BgRiJIhflHkBVMuw10z4TF
- TF3Cd4B4T5NAtJKV+cX5SCVmTOGXKFnxzc3XAh14tGA==
-X-Received: by 2002:a5d:4e4e:: with SMTP id r14mr378686wrt.147.1632928032837; 
- Wed, 29 Sep 2021 08:07:12 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxo/OiD1pi8Vj8uvbtvhFWxk5A000qCxnhsR/1CMHH5asTCVBPsn8x+8H3lxRFK4haIMhJq1A==
-X-Received: by 2002:a5d:4e4e:: with SMTP id r14mr378630wrt.147.1632928032598; 
- Wed, 29 Sep 2021 08:07:12 -0700 (PDT)
-Received: from [192.168.3.132] (p4ff23c3b.dip0.t-ipconnect.de. [79.242.60.59])
- by smtp.gmail.com with ESMTPSA id
- f8sm177044wrx.15.2021.09.29.08.07.11
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 29 Sep 2021 08:07:12 -0700 (PDT)
-Subject: Re: [PATCH v1 2/8] x86/xen: simplify xen_oldmem_pfn_is_ram()
-To: Boris Ostrovsky <boris.ostrovsky@oracle.com>, linux-kernel@vger.kernel.org
-References: <20210928182258.12451-1-david@redhat.com>
- <20210928182258.12451-3-david@redhat.com>
- <4ab2f8c2-c3d5-30b3-a670-a8b38e218b6e@oracle.com>
- <bfe72f46-9a0d-1a87-64bd-4b03999edd1e@redhat.com>
- <e9a230f9-85cb-d4c1-8027-508b7c344d94@redhat.com>
- <3b935aa0-6d85-0bcd-100e-15098add3c4c@oracle.com>
-From: David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-Message-ID: <e6ace8c8-8a2d-9bf7-e65b-91d0037c4d08@redhat.com>
-Date: Wed, 29 Sep 2021 17:07:10 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.11.0
+ Wed, 29 Sep 2021 15:11:24 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from smtp1.axis.com (smtp1.axis.com [195.60.68.17])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2993260C25
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 29 Sep 2021 15:11:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=axis.com; q=dns/txt; s=axis-central1; t=1632928284;
+ x=1664464284;
+ h=from:to:cc:subject:date:message-id:mime-version:
+ content-transfer-encoding;
+ bh=chXe7LowbepFp9WcjiVKhwfFPB4CO+NsYBHetH4uz4g=;
+ b=dJY9A3hZVMJsSQakuuGHoCw6UtJsRy/UMxKtIjYxm7HBdY/rwrb2JfrO
+ KhDCng2pfKcYOKFA/tnoyIhg3jJ4dpu3aaO1Y2T/9JZr417ChWz8mAopu
+ CLGXK/46hepia2oAW6tg9cr0j+hdDO9gM2DDNAxQ98Oxo58JTUtqWBjQY
+ WT4Ac8jb6+tn+L3yIO3LyRbgWOds+ZXT/rYVQCBAnlj/guSMjb8D3TzaX
+ HyPv3LJfCk/fnzFVvkdAUu1hPSbs3p1hS9IqPBqDG2IsI7h+edxTKKei+
+ FsvRR1ao2PGUPS7c1kpZJamWRnvN33YFDnFw9znDv9J/23GRLIR/PFvfl g==;
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+To: <mst@redhat.com>, <jasowang@redhat.com>
+Subject: [RFC PATCH 00/10] Support kernel buffers in vhost
+Date: Wed, 29 Sep 2021 17:11:09 +0200
+Message-ID: <20210929151119.14778-1-vincent.whitchurch@axis.com>
+X-Mailer: git-send-email 2.28.0
 MIME-Version: 1.0
-In-Reply-To: <3b935aa0-6d85-0bcd-100e-15098add3c4c@oracle.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: Michal Hocko <mhocko@suse.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- x86@kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <sstabellini@kernel.org>,
- Baoquan He <bhe@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
- Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org,
- Dave Young <dyoung@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>,
- Oscar Salvador <osalvador@suse.de>, Juergen Gross <jgross@suse.com>,
- kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@kernel.org>
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org,
+ Vincent Whitchurch <vincent.whitchurch@axis.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, kernel@axis.com,
+ stefanha@redhat.com, pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -132,38 +80,78 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gMjkuMDkuMjEgMTY6MjIsIEJvcmlzIE9zdHJvdnNreSB3cm90ZToKPiAKPiBPbiA5LzI5LzIx
-IDU6MDMgQU0sIERhdmlkIEhpbGRlbmJyYW5kIHdyb3RlOgo+PiBPbiAyOS4wOS4yMSAxMDo0NSwg
-RGF2aWQgSGlsZGVuYnJhbmQgd3JvdGU6Cj4+Pj4KPj4+IENhbiB3ZSBnbyBvbmUgc3RlcCBmdXJ0
-aGVyIGFuZCBkbwo+Pj4KPj4+Cj4+PiBAQCAtMjAsMjQgKzIwLDExIEBAIHN0YXRpYyBpbnQgeGVu
-X29sZG1lbV9wZm5faXNfcmFtKHVuc2lnbmVkIGxvbmcgcGZuKQo+Pj4gIMKgwqDCoMKgwqDCoMKg
-wqDCoCBzdHJ1Y3QgeGVuX2h2bV9nZXRfbWVtX3R5cGUgYSA9IHsKPj4+ICDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgIC5kb21pZCA9IERPTUlEX1NFTEYsCj4+PiAgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAucGZuID0gcGZuLAo+Pj4gK8KgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqAgLm1lbV90eXBlID0gSFZNTUVNX3JhbV9ydywKPj4+ICDCoMKgwqDCoMKg
-wqDCoMKgwqAgfTsKPj4+IC3CoMKgwqDCoMKgwqAgaW50IHJhbTsKPj4+ICDCoMKgIC3CoMKgwqDC
-oMKgwqAgaWYgKEhZUEVSVklTT1JfaHZtX29wKEhWTU9QX2dldF9tZW1fdHlwZSwgJmEpKQo+Pj4g
-LcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0dXJuIC1FTlhJTzsKPj4+IC0KPj4+IC3C
-oMKgwqDCoMKgwqAgc3dpdGNoIChhLm1lbV90eXBlKSB7Cj4+PiAtwqDCoMKgwqDCoMKgIGNhc2Ug
-SFZNTUVNX21taW9fZG06Cj4+PiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCByYW0gPSAw
-Owo+Pj4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgYnJlYWs7Cj4+PiAtwqDCoMKgwqDC
-oMKgIGNhc2UgSFZNTUVNX3JhbV9ydzoKPj4+IC3CoMKgwqDCoMKgwqAgY2FzZSBIVk1NRU1fcmFt
-X3JvOgo+Pj4gLcKgwqDCoMKgwqDCoCBkZWZhdWx0Ogo+Pj4gLcKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqAgcmFtID0gMTsKPj4+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGJyZWFr
-Owo+Pj4gLcKgwqDCoMKgwqDCoCB9Cj4+PiAtCj4+PiAtwqDCoMKgwqDCoMKgIHJldHVybiByYW07
-Cj4+PiArwqDCoMKgwqDCoMKgIEhZUEVSVklTT1JfaHZtX29wKEhWTU9QX2dldF9tZW1fdHlwZSwg
-JmEpOwo+Pj4gK8KgwqDCoMKgwqDCoCByZXR1cm4gYS5tZW1fdHlwZSAhPSBIVk1NRU1fbW1pb19k
-bTsKPiAKPiAKPiBJIHdhcyBhY3R1YWxseSB0aGlua2luZyBvZiBhc2tpbmcgeW91IHRvIGFkZCBh
-bm90aGVyIHBhdGNoIHdpdGggcHJfd2Fybl9vbmNlKCkgaGVyZSAoYW5kIHByaW50IGVycm9yIGNv
-ZGUgYXMgd2VsbCkuIFRoaXMgY2FsbCBmYWlsaW5nIGlzIGluZGljYXRpb24gb2Ygc29tZXRoaW5n
-IGdvaW5nIHF1aXRlIHdyb25nIGFuZCBpdCB3b3VsZCBiZSBnb29kIHRvIGtub3cgYWJvdXQgdGhp
-cy4KCldpbGwgaW5jbHVkZSBhIHBhdGNoIGluIHYyLCB0aGFua3MhCgoKLS0gClRoYW5rcywKCkRh
-dmlkIC8gZGhpbGRlbmIKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
-aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
-bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+vhost currently expects that the virtqueues and the queued buffers are
+accessible from a userspace process' address space.  However, when using vhost
+to communicate between two Linux systems running on two physical CPUs in an AMP
+configuration (on a single SoC or via something like PCIe), it is undesirable
+from a security perspective to make the entire kernel memory of the other Linux
+system accessible from userspace.
+
+To remedy this, this series adds support to vhost for placing the virtqueues
+and queued buffers in kernel memory.  Since userspace should not be allowed to
+control the placement and attributes of these virtqueues, a mechanism to do
+this from kernel space is added.  A vDPA-based test driver is added which uses
+this support to allow virtio-net and vhost-net to communicate with each other
+on the same system without exposing kernel memory to userspace via /dev/mem or
+similar.
+
+This vDPA-based test driver is intended to be used as the basis for the
+implementation of driver which will allow Linux-Linux communication between
+physical CPUs on SoCs using virtio and vhost, for instance by using information
+from the device tree to indicate the location of shared memory, and the mailbox
+API to trigger interrupts between the CPUs.
+
+This patchset is also available at:
+
+ https://github.com/vwax/linux/tree/vhost/rfc
+
+Vincent Whitchurch (10):
+  vhost: scsi: use copy_to_iter()
+  vhost: push virtqueue area pointers into a user struct
+  vhost: add iov wrapper
+  vhost: add support for kernel buffers
+  vhost: extract common code for file_operations handling
+  vhost: extract ioctl locking to common code
+  vhost: add support for kernel control
+  vhost: net: add support for kernel control
+  vdpa: add test driver for kernel buffers in vhost
+  selftests: add vhost_kernel tests
+
+ drivers/vdpa/Kconfig                          |   8 +
+ drivers/vdpa/Makefile                         |   1 +
+ drivers/vdpa/vhost_kernel_test/Makefile       |   2 +
+ .../vhost_kernel_test/vhost_kernel_test.c     | 575 ++++++++++++++++++
+ drivers/vhost/Kconfig                         |   6 +
+ drivers/vhost/Makefile                        |   3 +
+ drivers/vhost/common.c                        | 340 +++++++++++
+ drivers/vhost/net.c                           | 212 ++++---
+ drivers/vhost/scsi.c                          |  50 +-
+ drivers/vhost/test.c                          |   2 +-
+ drivers/vhost/vdpa.c                          |   6 +-
+ drivers/vhost/vhost.c                         | 437 ++++++++++---
+ drivers/vhost/vhost.h                         | 109 +++-
+ drivers/vhost/vsock.c                         |  95 +--
+ include/linux/vhost.h                         |  23 +
+ tools/testing/selftests/Makefile              |   1 +
+ .../vhost_kernel/vhost_kernel_test.c          | 287 +++++++++
+ .../vhost_kernel/vhost_kernel_test.sh         | 125 ++++
+ 18 files changed, 2020 insertions(+), 262 deletions(-)
+ create mode 100644 drivers/vdpa/vhost_kernel_test/Makefile
+ create mode 100644 drivers/vdpa/vhost_kernel_test/vhost_kernel_test.c
+ create mode 100644 drivers/vhost/common.c
+ create mode 100644 include/linux/vhost.h
+ create mode 100644 tools/testing/selftests/vhost_kernel/vhost_kernel_test.c
+ create mode 100755 tools/testing/selftests/vhost_kernel/vhost_kernel_test.sh
+
+-- 
+2.28.0
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
