@@ -2,187 +2,188 @@ Return-Path: <SRS0=D/KU=OT=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB770C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 01:00:17 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 91CF4C433F5
+	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 01:17:01 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6C067613D3
-	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 01:00:17 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 6C067613D3
+	by mail.kernel.org (Postfix) with ESMTPS id 3D0CA6135D
+	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 01:17:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 3D0CA6135D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3515B414BC;
-	Wed, 29 Sep 2021 01:00:17 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id EE094401EC;
+	Wed, 29 Sep 2021 01:17:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id JO7x0JUutlLu; Wed, 29 Sep 2021 01:00:16 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id SYTQoWfrH-UZ; Wed, 29 Sep 2021 01:16:59 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A74B0414C0;
-	Wed, 29 Sep 2021 01:00:15 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 3E43840022;
+	Wed, 29 Sep 2021 01:16:59 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 76FF5C0011;
-	Wed, 29 Sep 2021 01:00:15 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 16B0EC000F;
+	Wed, 29 Sep 2021 01:16:59 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5491EC000D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4E741C000D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 01:00:14 +0000 (UTC)
+ Wed, 29 Sep 2021 01:16:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 302C880D61
+ by smtp1.osuosl.org (Postfix) with ESMTP id 3DD4681C6E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 01:00:14 +0000 (UTC)
+ Wed, 29 Sep 2021 01:16:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="hVXvaBtC";
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="S5mM7ni+";
  dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="LFX7LrDE"
+ header.b="yPcgJj8v"
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3uOmoCiNJ_55
+ with ESMTP id DfVEWk-nHAe5
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 01:00:13 +0000 (UTC)
+ Wed, 29 Sep 2021 01:16:56 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
- [205.220.165.32])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 420B580D5E
+Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
+ [205.220.177.32])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 7807281A34
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 01:00:13 +0000 (UTC)
-Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18T0uGFR027809; 
- Wed, 29 Sep 2021 00:59:48 GMT
+ Wed, 29 Sep 2021 01:16:56 +0000 (UTC)
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18SNwmnt008676; 
+ Wed, 29 Sep 2021 01:16:33 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
  h=subject : to : cc :
  references : from : message-id : date : in-reply-to : content-type :
  content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=V/TLEl3TSdMAyJh6JfXUElRd52hZpPV6ykH3Gpm4PSs=;
- b=hVXvaBtCgcikPRqZata01px0F8UK+neel2ByL2FAl7uMtDCLvSYQ+cFQF3RQKqdD0ZZX
- 7ijg5nbacJrgLM7nROys9NTrK/Q5FHnZdtSiWN1xQzLE940J66uuoOG4RRK7M6U4tJdo
- I2u6jq8gh2k5e0sT0C5m46+Rk4yx05TsGhW4sTmv+5ej2BF8EO7H/gIMd77jnx4P1LAu
- zqCB42TxiM9HZnJ6K1cPmo13F1eMF6juj8pAmeNfu5X+uEFZnNl4CJ0kSLX0cZPevmVe
- Zc7a6OmAxv2Fi3mODU1YyTPBBTh67/uoio83Ny5ie340gRnQ5Ir7kmx+OzBZkspK1eNy TQ== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
- by mx0b-00069f02.pphosted.com with ESMTP id 3bbj90t6c6-1
+ bh=29kxuht8FBylVu7vhTw9VNiUY7i0G7ocmqZ4RJmM6eM=;
+ b=S5mM7ni+vydjM1PAgwgSB5ZZAQMuxsvs2j1wRGIAOwvN9jgBXNYnV32olK27P6Q7I3Lp
+ NANOz66tM9WvJHQUqnjh47LxH+ziNzsocR0mTQgB73n4yE1ZFjySFVjJvboNhg2K/shZ
+ wL5Mk5XK8rt9jO8BLXNf3Y7/5OLT/Wuak1vm1mifQ21QPfviSiEa/x6ur8+TwpoP7rCT
+ tcu+iZj1cRA6SvO1IrHrU4t4K2VAM3LMyGUwawTqtboGbPeL4UjAWtrlTq2P7H3NuRaP
+ jtoznPRwLfqdcjQCHXWA9hMhZUYfhLQMRF/adtHQAn5XXuoHMfTNaWk0WWUBMgCLGBAZ Xg== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+ by mx0b-00069f02.pphosted.com with ESMTP id 3bbh6nutf0-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 29 Sep 2021 00:59:48 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
- by userp3020.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 18T0u7oZ080542;
- Wed, 29 Sep 2021 00:59:47 GMT
-Received: from nam12-bn8-obe.outbound.protection.outlook.com
- (mail-bn8nam12lp2176.outbound.protection.outlook.com [104.47.55.176])
- by userp3020.oracle.com with ESMTP id 3bc3cde2ch-1
+ Wed, 29 Sep 2021 01:16:33 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+ by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 18T1APhx096729;
+ Wed, 29 Sep 2021 01:16:32 GMT
+Received: from nam10-bn7-obe.outbound.protection.outlook.com
+ (mail-bn7nam10lp2104.outbound.protection.outlook.com [104.47.70.104])
+ by userp3030.oracle.com with ESMTP id 3bc3bj69f0-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 29 Sep 2021 00:59:46 +0000
+ Wed, 29 Sep 2021 01:16:31 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=bRYPEpugJ9/kn192HWLjN0kgdKt0uh/28VBdW95/iRGcgCcBx4a1qaRZ+p7FUz6RqxbIzFstU8F5jAC1izzXmjkvm/JQkEIhvq+l8h/L3mqMfDtSW0FX2tRcRPWSaz8qH3O8TCm5MQguu3aVcKwjBWN/NYjkeHHTVRZZgYwWmzPj84fRI8IMvUUPCh7mnRdLPTaR02LZ2FL/TKFAY4Q3bO7mT1BM21kvf7EYdl1v3Jtsi/CIZEShKzpvfr6JjpOB+k+VrMfkzSB5qGWszq8/9Ln359tTzKyPCJqimJ+LeTKO4c20eWbesjM6klB68aDnNdpLXrCdqd/TpbEruUHydQ==
+ b=QxP5g7WRfn+x3DGjt5jJz1wfvQDGyxRlxAoXlhe1F4CpRph+eVJ+pcINkYPguHUcvS8P2gcGWwWyV30ImlAig7DnFdlYBqzbcU3Bx4ypLqV+RW8yi11TBpMdPj7CY7YiLqYoC+LwYXNWvrADU40gZl5RNNr12sLyhbsslgB8ZtVGTxxaRYl/I4l6P7Z0fjNX04hENQreKqbO4djBVFY2yTWxjLYT8kfkhldw25OCVVdYKoe0r2MBkIzMc5hvgTwBuYQ9lXXeiIr0SN5KiU3MtaydR9RHT4ACMbtGYSLvt8bhCEcZhfM/7lxUXIr7aJsiiJ0lg3HI/ZAHssgETUqMaw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version; 
- bh=V/TLEl3TSdMAyJh6JfXUElRd52hZpPV6ykH3Gpm4PSs=;
- b=d8L81g3gafUvnJP8AkTeD0CHfm0Ftpk75HzwWLY2F1l0VhEWwljn55V7j0zKf3BPFMFWT++NVA3SyR6slWElV8/Gd5rL14ZehChFtAIIuo7avqY7Eq0iHNn+QhNO3Hd1R9akHL6H7fE83muDm3AUAdpErFETG9IBPAahDCvuYIgCEoC5vUy+VlWVRS9D9KW6T5yGgZ0MNNscsW2r42hT1z28QKIHPyqT55ucbsoXDiUc6mXYl4O8gWZAsoZvhzLlAtMEOxwoCLGtTjHHf2cU6/zoqQaNq6S+Yz9p2BVs/phq0ktTsNvcnHEDTUp7BEuI5Ixeh/6ZwtaQEB/o1iy/eA==
+ bh=29kxuht8FBylVu7vhTw9VNiUY7i0G7ocmqZ4RJmM6eM=;
+ b=JSHWHz+r+EV4ZU7ruWc4ZPcGs3F/b1CyaSaMflhS5qpNc9SmZ2bEB/GDmtTsGpnuEaQpzZARSGkCYDbdzVrkz9731Ji3bw8CDkNfecI2xFqtzOxol+wN//o/V/bzZ0Vgs3PREv0pRlEOD9SIVX28E/9xgjFiVAmSsWd0/tswiM4ZkVdsxNwY9C/kvLmy9LNq8PZupgYbOrUKXJjFFf0ThqGYo9mvS6jijuXkKborgiZouGaX+R0IcqUmFphgCAQKQKxx6mEuqXxpnUPytQNRAr5vzUMgYzB603cnrG+rGEwkKIt47rcQzrhejgAWkGOGtwPJZFzvkDMnIfioYb+1bw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=V/TLEl3TSdMAyJh6JfXUElRd52hZpPV6ykH3Gpm4PSs=;
- b=LFX7LrDEUGDw60gGrAfcpceYQzyKT2dymiTJdlpyzx38aasi6CKRGH/hoH71/S7shvzA6UTY1KYmmN2LoBRjaWmV4xPBq39qlnQgtoBv+Sg3UjLcIfmhNewP68tGx07i540Ad+NYzq/YhONIdQgVI+LCqRUr9tvwU4QD/j81Ctg=
+ bh=29kxuht8FBylVu7vhTw9VNiUY7i0G7ocmqZ4RJmM6eM=;
+ b=yPcgJj8v/tWyp5G+0Dzl9NhxjnfVKdHY6Rb8fl7e9kyGERyo1nw2PO1eOLoLtQGKDZ+mS0WkDie6wyz9vo6kzyHBWiazwcRlKS2tgW5TAYVUODkd2UUjvVgPj//V69i0mkOP2hrlHLq1QGtxDEV/TmHVzKxVopan2GsdJ/m1IvU=
 Authentication-Results: kvack.org; dkim=none (message not signed)
  header.d=none;kvack.org; dmarc=none action=none header.from=oracle.com;
 Received: from CH0PR10MB5020.namprd10.prod.outlook.com (2603:10b6:610:c0::22)
- by CH0PR10MB5369.namprd10.prod.outlook.com (2603:10b6:610:dd::15)
+ by CH0PR10MB5050.namprd10.prod.outlook.com (2603:10b6:610:c3::21)
  with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4544.13; Wed, 29 Sep
- 2021 00:59:44 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4544.15; Wed, 29 Sep
+ 2021 01:16:29 +0000
 Received: from CH0PR10MB5020.namprd10.prod.outlook.com
  ([fe80::f44b:db92:7a0:782b]) by CH0PR10MB5020.namprd10.prod.outlook.com
  ([fe80::f44b:db92:7a0:782b%7]) with mapi id 15.20.4544.021; Wed, 29 Sep 2021
- 00:59:44 +0000
-Subject: Re: [PATCH v1 2/8] x86/xen: simplify xen_oldmem_pfn_is_ram()
+ 01:16:29 +0000
+Subject: Re: [PATCH v1 1/8] x86/xen: update xen_oldmem_pfn_is_ram()
+ documentation
 To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
 References: <20210928182258.12451-1-david@redhat.com>
- <20210928182258.12451-3-david@redhat.com>
+ <20210928182258.12451-2-david@redhat.com>
 From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Message-ID: <4ab2f8c2-c3d5-30b3-a670-a8b38e218b6e@oracle.com>
-Date: Tue, 28 Sep 2021 20:59:36 -0400
+Message-ID: <69da3297-d4ab-54b2-3a43-d536e6dee888@oracle.com>
+Date: Tue, 28 Sep 2021 21:16:21 -0400
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
  Gecko/20100101 Thunderbird/78.14.0
-In-Reply-To: <20210928182258.12451-3-david@redhat.com>
+In-Reply-To: <20210928182258.12451-2-david@redhat.com>
 Content-Language: en-US
-X-ClientProxiedBy: SJ0PR03CA0382.namprd03.prod.outlook.com
- (2603:10b6:a03:3a1::27) To CH0PR10MB5020.namprd10.prod.outlook.com
+X-ClientProxiedBy: BY3PR03CA0012.namprd03.prod.outlook.com
+ (2603:10b6:a03:39a::17) To CH0PR10MB5020.namprd10.prod.outlook.com
  (2603:10b6:610:c0::22)
 MIME-Version: 1.0
 Received: from [10.74.101.163] (160.34.89.163) by
- SJ0PR03CA0382.namprd03.prod.outlook.com (2603:10b6:a03:3a1::27) with
+ BY3PR03CA0012.namprd03.prod.outlook.com (2603:10b6:a03:39a::17) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.13 via Frontend
- Transport; Wed, 29 Sep 2021 00:59:39 +0000
+ Transport; Wed, 29 Sep 2021 01:16:25 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: b2ecdb2c-8bf6-4a70-f1aa-08d982e46cc3
-X-MS-TrafficTypeDiagnostic: CH0PR10MB5369:
-X-Microsoft-Antispam-PRVS: <CH0PR10MB53693BAD65805A7C130FCE4D8AA99@CH0PR10MB5369.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:4303;
+X-MS-Office365-Filtering-Correlation-Id: a616770d-cbad-4270-d866-08d982e6c3e4
+X-MS-TrafficTypeDiagnostic: CH0PR10MB5050:
+X-Microsoft-Antispam-PRVS: <CH0PR10MB50503EF6FB495FB1375400738AA99@CH0PR10MB5050.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:3383;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: /GLtQduKEu0nuKS491KxNqoTHQpCM5FfFHZrVUnc1wlIbJWQBnbvxLZPOgmiM1aKQqV2tYfWDD4K8EkovZ3OJe1KV+mp6DciQ/j5YMGYScE/JXE5wgnEzJuF1bTOwQRdNpdY1pBg0I49F1UNXERxLa52fdOjZlp5tdHRacWQt24TUuGLJuuCjuOGCA4lGPpzpCA+P/tzTyEFDV50rH6iWAtXI51PXzA+jz6AUTcCugpVbuSrEOFWibhPONYZzXahetG0yCyHN1f5I7Im12udigrkz3MIO+Y9hHK+6pDdAmEm7ppVQyno/DVQxmk7MU0Nfa6WINFIsrktR3N2tlEIb9vp5JCK0xxo0zMo94aH6TDc1IJicyOEYvrhYpeCBk5I2nxvklGd71/r/jaN2dJwYkfQYadGTsG+PGngOcUvVKhHHV3PzgRAbZFa4qK/6eHSm/aTyaxhup3T36GHgfGUcBmO2RA7ZnS62NQUpjuEhhG+XmFY89biT2eaIUdte7Bf/YdaubCMeiHPWwVb1j5Q/rm25ICfa+wsSbIPVhiKvZ+KJ2oYrdogE3fsp/uf7PLFJcGa0n/hNFzCJ4BMWNXfOo1tOSj37EIE/e9FzWG87CZ7M0fyF0M6qvrwLiXCy924XGfk3ZqpXvcoYQkdR2npLk1ChxSeGIXkh7Pkv35201JcH6PX6hapKUDpu1pk/W/OHdIIiTBnxUORsJQJ1oZadC4IjXDVNs39eqooRNXsYrPfy8vdD6HcUZhqqzI390pr
+X-Microsoft-Antispam-Message-Info: 16H6WlWiCX4aJmp+b7S6ufcVG9yGpz0+NqmjE3IISJ6YJ9aYwFWS4mSIZlenZ5+6dwLGjfoCmnD0a1pUdSPFraSkFTFhzkBove1xExAbDCE4DVtJQI0Xy8gw9Vx/IPiwQMrGjgwac7YBKNdIybqfc0kPxH0j2YVKk4P860oj18APLrGQt7ZA9RhwLUvbCl7If3Jt1wUXEDou2eYLlltsWY2WlOslw3SXItGWWZ26ct9Pei5/oPKmGpTSC8Ue0LDQmAxdpg8KWrC+xyvgFUpYKYfd7OQmgyzGUz4G8XBPhy9UpB95XnVvtedshuFsh5a9aBO9P33PIPjUKCe8UDXtPlsFy3Ivhosc/oNKbyDct0yBIhEFbZY0k2FoScM9+BrmecfnJzddc8xLM9LeTkbm/rc8dNGZAWTeUOmpWk+V9nKVz1OHLmPUyCQR6oCvWvCSd/qvbwopbNeqpyFu2Bdxl9yxY57+E+NIByFjEqhFW1n5/n9X7SMVrWNWurwqYWHx2zF0i5pNXoJMCmZWshel85WGmx+v0eYItuV1V4WaG6F/GJkTD97xljzFYdWiJW39nx5YtdL8oJtxdb8jsPRT35ewOuPPsp3NybBW5pLfrsdX/P9Iu75mlDH6GIOALoM9FTRw/9u7x0VRULOqDjg1f00Lr5vH21sVLje+g5FU3YHkDmBe+dH53fE79ghQT6MwbgJ66C/LofczwBL7up4PPb573NYWsZ1ZfjpsINZcyes=
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:CH0PR10MB5020.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(366004)(8676002)(31686004)(86362001)(8936002)(44832011)(5660300002)(7416002)(38100700002)(31696002)(83380400001)(186003)(6486002)(508600001)(2616005)(36756003)(956004)(4326008)(2906002)(66556008)(66476007)(316002)(16576012)(66946007)(4744005)(6666004)(54906003)(26005)(53546011)(43740500002)(45980500001);
+ SFS:(366004)(2906002)(5660300002)(36756003)(186003)(26005)(8676002)(6486002)(16576012)(86362001)(53546011)(54906003)(8936002)(316002)(66476007)(508600001)(31696002)(956004)(38100700002)(31686004)(44832011)(2616005)(558084003)(4326008)(83380400001)(66556008)(6666004)(66946007)(7416002)(43740500002)(45980500001);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?M29aVzR2Q0txNnpqNmpzRXJxWm1xaTY0SnhOa3lZMDJzN0tKT2JJU3hxZzMy?=
- =?utf-8?B?dTFFZlFEMDRwaHkvWUU1amZNT2dvOHNVZEQ1SFprTm80c20yaHZ3NWFFMDB1?=
- =?utf-8?B?RDBxWUNNenBuVWpvOUg1WDM3L3p5Qkd3dDlWWnlScnl6UVNHME05T3RycUN0?=
- =?utf-8?B?bUc4ekdmN3lyTDh5S3FiZk1JSlpzQndSbmdMS1ltWTlacWs1dzlHd0ZXeFJr?=
- =?utf-8?B?SmEwWjdIVHdUd3dDU0NNeThUSVVpL2x4LzMxVjVvU2xMNDJ2ZkdVZEFFQUlN?=
- =?utf-8?B?SDBscWMvQ08rOURweWFDUllxWnRQUlg5UnFHYTZMM0ZabU1tQlZwY0ZXdjkv?=
- =?utf-8?B?a1JLcTB4SDVib010QlZWMndpRU93cXlFYXhsTU1MNHdielZKRkU5Mmp5VXBn?=
- =?utf-8?B?RW5uSVhORWZkMnNTaUlMMk5aUmZWQzNZUGJ1ZTd3VnZ3cmdVeEVwazNYbzFl?=
- =?utf-8?B?bVRVK2ZBa2pYd0tySjlQVGFWcTVUYTU1elFnMjZsNk05d3NoT1VwWmRZbGlv?=
- =?utf-8?B?V3ZiSnp5WjZzeU1pamVPUW1sRTJHOHlmSnFpNktmenNsRG5UNnNUblgwOVdk?=
- =?utf-8?B?T2NyMUlacEtTQzd5RzY3cDJUMGRiQndtVG5zMmJsOXQ4OVgrTzExTkVwbHZh?=
- =?utf-8?B?ZmdxMkovZG9FOEs5eGJhZnU0dk9ucFByVW9aOXBpaHAyaUN4eFQvNFFDdG9T?=
- =?utf-8?B?VDZObXorVUthV1lLMHZBTUpGaDdNNDNhSWYwQ2oyOVZNMitidEJQYUFrdTlP?=
- =?utf-8?B?eEd6OGRVTDNFeThsSGRLNFpNSHUxZWlBanpMN05yVWdMKzM5bmVBVFpTWm9F?=
- =?utf-8?B?bEV2UkZzb0syU25xdzlQeWVremJSVW1tRDloOWRycE1ESlVxNTQrd015enJu?=
- =?utf-8?B?ODRCVjN0aFZWOTZ4NVhFRGdJMlFhVm9GQ2c4c1ZtdEJ2V0NJNEpPVTdFWXJ5?=
- =?utf-8?B?cHJVYXJHa1Y0ZFplSkxMbkJ1bGc3QnVHRzRYTE84TlhNSEdDdStWV0JJTnp3?=
- =?utf-8?B?M2xBMmxyS0Ewd2d6Z3drMldHMW91WStlY01RV0I5bnhvSVQzQU5nWjJYNFNB?=
- =?utf-8?B?UnBzYWlPVC9SZFFjTG9KUHNPVDlDeGlXQ1dPTGtrSHhJKy9YUTN4Y21sQTVh?=
- =?utf-8?B?d1BNKzV2b0xGS1lGWnM5bmxQNDZpRm9ZbTFMZ1A4WG12K1VTNnVNYW0wVjR4?=
- =?utf-8?B?THNBRWNnQ21PcVJXclM1ckVMM1VIVlR4UjJOT1JNdFduR2JnYWhMRnBhelJB?=
- =?utf-8?B?d3pqbmlocFF4RTJwY0E4YWxxdERRSytSWXlYdGhYOURoT21wRHdYOXBWc1Z1?=
- =?utf-8?B?WDk1ZXlBaEozYmFtUHB2RUgySTBSZTFxditoMncvbzAwd2NFUENSWUMrV241?=
- =?utf-8?B?cmFNWTU4MlgzQjdSK3ZsWUhEZUxoSW9SOSttaFYyNmNxSzVLYjFqdXNPQ3Qy?=
- =?utf-8?B?VE40VnVyVUM2SDBTb1pEM3pPV1VPamJRR09Cdml4NkRsODRHU0ROUnpHbVR0?=
- =?utf-8?B?TFR6SUxGREdMUlg0M2docGtocDdGZ09GS21aamxnQ3Y2U3BFOEY3YTRxZmJE?=
- =?utf-8?B?U296Q3VRSWFCVXBrcjRONm51ajFEbnNHQXhQb2FKV2Y1WWRiajc3REl2ZlVB?=
- =?utf-8?B?cXNwRUErTkZLb2MwZmNIa1JMRFRMR2FMK1VieUc1N25BM3p4emVtTXVteE5K?=
- =?utf-8?B?cWwwQmlmWmV4VW9salA2dHliQzJvQVlXT1ZUWm9tWTRuSVJETVJnV2xIaFpj?=
- =?utf-8?Q?qM/9ursR9C93lhAgnOXohypRvjed+/zsY142v8g?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?ZFVPZHl0SUp6cWlFMWt5NENlZDY2UmZIODVFcFBobUwxa1RMRDZheTBKNWVR?=
+ =?utf-8?B?cEhrMXY2MnFrZmw5Y3BPWU9wcTVpYlYrYnV1eHJVaHM5SzhVNE9IUjcxR3JD?=
+ =?utf-8?B?TEVFMG9aL1UreWk0NUFubWQrWEVKZEo2V0Zvci9uSWZUSTl1ZHFha096blV4?=
+ =?utf-8?B?aC9rTFVsajVwQ0M5MmxOQkluNG5SM1dRbEhYY0FpZnQ1L1FMbGNpTjZwMlIr?=
+ =?utf-8?B?OEUzdmJHN1RJZHYxTUFRMnVPRExjdHJXTFA1dGM3S0V3UVhjR1dZdEVrSDBN?=
+ =?utf-8?B?TWZRckxVNnJXSSs1NmZ4YmlVM0Z6RHlLZTVTTFdpaEVINE12R0creTRPWVJ0?=
+ =?utf-8?B?OFJMdE5FR2lIb3RDTVNXWnMvNHdPVVVCcUxnendON1Noa2h3NC9JWGhrSU9t?=
+ =?utf-8?B?eC94eHQ1dDJUV2h6WFkreGwzRWRYRkZrcDZ3MFBaOWRCWUlVNW4rNkt2WC9p?=
+ =?utf-8?B?OEhQSWhkeUpMeURxcCtpY1c5WVZ0TTBjdElhbmY4U0NPS1V0UGVpY0NsNEtR?=
+ =?utf-8?B?cHhQUUROckEvVVVzK3VhL3VtZ092ZCs1VWJGOXk4OVBMUGR3c0h3QkhTaUFC?=
+ =?utf-8?B?Y0tJdUdkRVFsMksrd05XdVdhSHpVcE9sSW5RQS9nWjZzS3lsSG9KaXlkVWJa?=
+ =?utf-8?B?aTVoTXpveExUMUJKTFpmUXYwTEhucExOY1NlSm1ZV1MzMmNUa0wxYVpsaHZD?=
+ =?utf-8?B?ZEx4VW1LMnphVUZLd2lGdVZkTlRoVmI2WHNqbkFwOVVneVA0TTZSREs4L2Rn?=
+ =?utf-8?B?WWZCN2lzdUZjVytaVVA4NHB2RTBvbktZSkdJc0ZYU01YbWd6L0pVYWRMVS9G?=
+ =?utf-8?B?OGoyNGhKMGpQQ3EvaWxkUzVuVlpxV1YwOThwakx6YWZhdGZkVG92K3dHdkxv?=
+ =?utf-8?B?dW4yeVY2OTRZN1JXTEdvTHM4VWhGSmpVRUZjOUxiNWRvNndaV2VsSHllSFZN?=
+ =?utf-8?B?YWpJbTN3emNzdTlZWU83WUNlYVdxbXVvMlRXYnVpR0FBbXpnY2paY2ZWR0w0?=
+ =?utf-8?B?Z09CWS8rZm15emJUQzB0bkFBK0xma0pZbXpmRm1Ldmt3d0srcnFLQzVBSmZP?=
+ =?utf-8?B?dnpVYnBmV05SemljeGhCVGg2VXo1V3pWcUZZQWRhQ3dJdEVlOGtmUUpwaWZJ?=
+ =?utf-8?B?Slk2MmpvTlRtOUZjek5yWWJScy9TbjJxUnpJSTdXb0tpSmZ1cE1TTFpkNnAz?=
+ =?utf-8?B?cUV3WFlaNVhnbW9KYWhucXpqQjFKdjJyZWk3SFgyVHlRK2orOVJVKzVEeDZF?=
+ =?utf-8?B?MkVUeTVRUFFxNkNDS0hCdzNOMWJkVUxsbG9nZThEQnIyUVliSWk1THl6b3Nr?=
+ =?utf-8?B?L2NwVFpMRFhTR1F2VnVyOFVJTGM4Qktoa2krSXM0Z2U0dFZUeFpjWTU5WTBs?=
+ =?utf-8?B?TUhlR2ZpM0hHeE8yMHMzU2MwNkMrYjBVN0ZNTU9OMk82UDhETzdNcGhTaVU5?=
+ =?utf-8?B?Uml5ckhvWThTNUhBNTNqN3E5SlArdERWb0R3dUVFS0NFNzFiMEtvc2o5Kys5?=
+ =?utf-8?B?L2hDemw3Zmt0NUlybDdyZEN1YktDZHV0U09pelVsZnNEb1lmbzZxRDRMR2Ju?=
+ =?utf-8?B?cDEyNG42U2VWM2NDblJDK3RiQ2VaNVMwUkpOeEhleFpzVTQ5amtjRHlXQzNw?=
+ =?utf-8?B?UXZ3UFZOUWtrWVlMUE1ubjVYTmRjRTltOGZtK2hPdmkzUlNmY2FNWG9RRG02?=
+ =?utf-8?B?eG1SM2p0Q2ZCTnhrL2dIb1FXSlNNSlpMbnZ3MlAzaXo3U095K0lvODRRVVlE?=
+ =?utf-8?Q?lJIzvyWsXoohpGXi/HRQWiAVc8VLhlwRN+ObALT?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b2ecdb2c-8bf6-4a70-f1aa-08d982e46cc3
+X-MS-Exchange-CrossTenant-Network-Message-Id: a616770d-cbad-4270-d866-08d982e6c3e4
 X-MS-Exchange-CrossTenant-AuthSource: CH0PR10MB5020.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Sep 2021 00:59:44.0970 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Sep 2021 01:16:29.2698 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: jPnPpC4o1PIuxrZIeWMkZEYrwo6PjuOGte00wgc+DM0DOjWAOj+8yJDzhAK6MOQHJlhUXNznmcuIQ9C927e/5D2C9Jv9a+BBOgJ3yhubdSQ=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR10MB5369
+X-MS-Exchange-CrossTenant-UserPrincipalName: jhJNUDbPq9E7buvUhHDySSAnSBj4fRjvG9y5fnk+MaoBLDtX27618HkrnWHdJK3xpzGy+yEmdFGArONk3O23keonihVfIN3TJZZKU5DmGr4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR10MB5050
 X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10121
  signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0
- mlxscore=0 mlxlogscore=999
- phishscore=0 bulkscore=0 suspectscore=0 malwarescore=0 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
- definitions=main-2109290002
-X-Proofpoint-GUID: pElT9iCsyLFVrZ-JexoHkUs6hWbbmLap
-X-Proofpoint-ORIG-GUID: pElT9iCsyLFVrZ-JexoHkUs6hWbbmLap
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
+ suspectscore=0
+ mlxscore=0 spamscore=0 adultscore=0 bulkscore=0 phishscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2109290004
+X-Proofpoint-ORIG-GUID: 5V-l9q6ebGhxpzbciIoppgWmMIrUUE-Z
+X-Proofpoint-GUID: 5V-l9q6ebGhxpzbciIoppgWmMIrUUE-Z
 Cc: Michal Hocko <mhocko@suse.com>, "Michael S. Tsirkin" <mst@redhat.com>,
  x86@kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
  "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <sstabellini@kernel.org>,
@@ -204,30 +205,22 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Ck9uIDkvMjgvMjEgMjoyMiBQTSwgRGF2aWQgSGlsZGVuYnJhbmQgd3JvdGU6Cj4gTGV0J3Mgc2lt
-cGxpZnkgcmV0dXJuIGhhbmRsaW5nLgo+Cj4gU2lnbmVkLW9mZi1ieTogRGF2aWQgSGlsZGVuYnJh
-bmQgPGRhdmlkQHJlZGhhdC5jb20+Cj4gLS0tCj4gIGFyY2gveDg2L3hlbi9tbXVfaHZtLmMgfCAx
-MSArKy0tLS0tLS0tLQo+ICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCA5IGRlbGV0
-aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2FyY2gveDg2L3hlbi9tbXVfaHZtLmMgYi9hcmNoL3g4
-Ni94ZW4vbW11X2h2bS5jCj4gaW5kZXggYjI0MmQxZjRiNDI2Li5lYjYxNjIyZGY3NWIgMTAwNjQ0
-Cj4gLS0tIGEvYXJjaC94ODYveGVuL21tdV9odm0uYwo+ICsrKyBiL2FyY2gveDg2L3hlbi9tbXVf
-aHZtLmMKPiBAQCAtMjEsMjMgKzIxLDE2IEBAIHN0YXRpYyBpbnQgeGVuX29sZG1lbV9wZm5faXNf
-cmFtKHVuc2lnbmVkIGxvbmcgcGZuKQo+ICAJCS5kb21pZCA9IERPTUlEX1NFTEYsCj4gIAkJLnBm
-biA9IHBmbiwKPiAgCX07Cj4gLQlpbnQgcmFtOwo+ICAKPiAgCWlmIChIWVBFUlZJU09SX2h2bV9v
-cChIVk1PUF9nZXRfbWVtX3R5cGUsICZhKSkKPiAgCQlyZXR1cm4gLUVOWElPOwo+ICAKPiAgCXN3
-aXRjaCAoYS5tZW1fdHlwZSkgewo+ICAJY2FzZSBIVk1NRU1fbW1pb19kbToKPiAtCQlyYW0gPSAw
-Owo+IC0JCWJyZWFrOwo+IC0JY2FzZSBIVk1NRU1fcmFtX3J3Ogo+IC0JY2FzZSBIVk1NRU1fcmFt
-X3JvOgo+ICsJCXJldHVybiAwOwo+ICAJZGVmYXVsdDoKPiAtCQlyYW0gPSAxOwo+IC0JCWJyZWFr
-Owo+ICsJCXJldHVybiAxOwo+ICAJfQo+IC0KPiAtCXJldHVybiByYW07Cj4gIH0KPiAgI2VuZGlm
-Cj4gIAoKCkhvdyBhYm91dAoKwqDCoMKgIHJldHVybiBhLm1lbV90eXBlICE9IEhWTU1FTV9tbWlv
-X2RtOwoKClJlc3VsdCBzaG91bGQgYmUgcHJvbW90ZWQgdG8gaW50IGFuZCB0aGlzIGhhcyBhZGRl
-ZCBiZW5lZml0IG9mIG5vdCByZXF1aXJpbmcgY2hhbmdlcyBpbiBwYXRjaCA0LgoKCi1ib3JpcwoK
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
-YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
-b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
-cnR1YWxpemF0aW9u
+
+On 9/28/21 2:22 PM, David Hildenbrand wrote:
+> The callback is only used for the vmcore nowadays.
+>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+
+
+Reviewed-by: Boris Ostrovsky <boris.ostrvsky@oracle.com>
+
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
