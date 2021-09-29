@@ -2,100 +2,122 @@ Return-Path: <SRS0=D/KU=OT=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF924C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 08:41:08 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D6EBFC433EF
+	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 08:45:54 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 61BA161407
-	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 08:41:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 61BA161407
+	by mail.kernel.org (Postfix) with ESMTPS id 89A13613D0
+	for <virtualization@archiver.kernel.org>; Wed, 29 Sep 2021 08:45:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 89A13613D0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 26205403AF;
-	Wed, 29 Sep 2021 08:41:08 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4BC1082479;
+	Wed, 29 Sep 2021 08:45:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uH5VQnwy-tsI; Wed, 29 Sep 2021 08:41:06 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 38CD140431;
-	Wed, 29 Sep 2021 08:41:06 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ANLu8WkyjmXN; Wed, 29 Sep 2021 08:45:53 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E83EB81D2D;
+	Wed, 29 Sep 2021 08:45:52 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E81F0C000F;
-	Wed, 29 Sep 2021 08:41:05 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EF6C8C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B2DDCC000F;
+	Wed, 29 Sep 2021 08:45:52 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F0C07C000D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 08:41:04 +0000 (UTC)
+ Wed, 29 Sep 2021 08:45:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D0449401EA
+ by smtp4.osuosl.org (Postfix) with ESMTP id D9132415A5
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 08:41:04 +0000 (UTC)
+ Wed, 29 Sep 2021 08:45:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aAbs9baBtySu
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 5KJuchQC1QrE
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 08:41:03 +0000 (UTC)
+ Wed, 29 Sep 2021 08:45:49 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id CC398400B5
+ by smtp4.osuosl.org (Postfix) with ESMTPS id B072B41570
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 08:41:03 +0000 (UTC)
+ Wed, 29 Sep 2021 08:45:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1632904862;
+ s=mimecast20190719; t=1632905148;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=BWnNMXLVSn3vdKQFS+RK+5bioF+NKyoX4ChEqIq7uU0=;
- b=VSIB0kFyKnUDoNBZUadNVy5em+I3/oYuwB07Uy2l5MaLwPHW4CUWEWh9oKaCAVFq6d+y9h
- wPjLms47cdwWYRZ8VqXY6/Qes7F18bCiuos2GHKgrFdp2IZ/6LaF3AWIvcWH0kCAsqQ8Rz
- G4JQTiIU/8dxrbrDKivNV+sWyFLot2M=
-Received: from mail-yb1-f198.google.com (mail-yb1-f198.google.com
- [209.85.219.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-594-EfEsYBZlNT2cHaS9SwL1tg-1; Wed, 29 Sep 2021 04:41:01 -0400
-X-MC-Unique: EfEsYBZlNT2cHaS9SwL1tg-1
-Received: by mail-yb1-f198.google.com with SMTP id
- w4-20020a056902100400b005b6b29d9a27so2586647ybt.20
+ bh=Gvu4L83YOBGLGvWqLGUuGEaO/DEUZyEQ1rFR5bn6b8M=;
+ b=JX8sXbowIGFwf7cZnZnH3wolVvbBg/04UwcHDM4LArKbK7y5RdnLF7GKBfNlCIqxj7WeYb
+ EJQIzjv+Oko8xuDDKM8M1tO52KUIC4K0DaVpqAhlyP0JmqIwixnUFtYcSt5jJSOtPXDc77
+ LK4n2WibCqgob34LQwQqKU6A/2Ads4g=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-518-4pqthK31ORCdGzB13yjhpg-1; Wed, 29 Sep 2021 04:45:47 -0400
+X-MC-Unique: 4pqthK31ORCdGzB13yjhpg-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ y23-20020a05600c365700b003015b277f98so578905wmq.2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 01:41:01 -0700 (PDT)
+ Wed, 29 Sep 2021 01:45:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=BWnNMXLVSn3vdKQFS+RK+5bioF+NKyoX4ChEqIq7uU0=;
- b=QqAz291LH/hJwFY78gKYYBiyCZEKUz/lRJuiAXJ+3J7Zrhs5S1ZltLSXEGJe2UFEEx
- obuOWD0hRCY8Xm5u87b7ImeV8l6O0B1mUEaRxSox2t8iFvt87VXtE3rO5AEg1k0vX1GA
- Pu+d2b6n1sTO41lyIN2uUcnSnufYrJQs5hXP64/XXNKgu5SkHUNSVZ9AWFEBaG65r1Sa
- 75i50pFzIII08SxasQ6nFVvl9AXhXAyVwkNK4kyvt5aqxyh6QkfX1ThC6D7NEHFfHETs
- vvYQgAJnsd49GhgNkJYhkX+m0GYhzkHPbWxVBvvEjLcitLzI/xs4w/FisoNiXwWw7eh9
- 4vxw==
-X-Gm-Message-State: AOAM5329Xb7gKMVEJ0psvMVOv+y5sBDrgc5AqEaGUn0jnKB+6x+Exbuc
- 5MMpeXe0q8vv3SdtbQMGKYjkLrEHkiBOb+LK507SQZdK/vDonGjp4N/BAEV6ThMCoxfZmmS0pmT
- TEO+tyWHMZIZNC/1W1xrCzoLi99EgsBKMcStX9Hy4V3eER1Fg/BuJaoiz6A==
-X-Received: by 2002:a25:4745:: with SMTP id u66mr11941429yba.421.1632904860951; 
- Wed, 29 Sep 2021 01:41:00 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwcyrSgChCJFJEyNIZA5VAiIyibH+mqxzUutWDBZdNvkWnaqPffsJpdf1TlV3c3mA39I9b/Wx48Xl/6htUK5Ow=
-X-Received: by 2002:a25:4745:: with SMTP id u66mr11941418yba.421.1632904860699; 
- Wed, 29 Sep 2021 01:41:00 -0700 (PDT)
+ h=x-gm-message-state:subject:to:cc:references:from:organization
+ :message-id:date:user-agent:mime-version:in-reply-to
+ :content-language:content-transfer-encoding;
+ bh=Gvu4L83YOBGLGvWqLGUuGEaO/DEUZyEQ1rFR5bn6b8M=;
+ b=U1eRfUt+gM8QzUrdX9/Hbp2e964ZSSG6EXsaNg1Oihtq0Ind5XbXOBg+Jei5Jia5J9
+ oPHkbbepM+SU/v+3xHcfPPjuLQFMJWiF7n9Ux+dYfRhInNeFVAp147BqYeZJclk263w7
+ Oabs9N2t53zAIi4pr9cYE0/9zE+76qjdd9kIAdHY5jfXU5oSU0BBDWN8R/7XHo1tgwj3
+ z2V7tyAwMwVb4lguAuo6mNaVloVTK+7nbbZhXdamdR4d6vYa0wSeWjlQ72mWRo1ZtIPd
+ Rc3ejmzk2YyBj2Sl/dzW2JZC2mOAs9InAkWcyfyY5K75B2uAN+3n/XXSVpgcP31PLAfm
+ LgpQ==
+X-Gm-Message-State: AOAM532X78clXnVmiTnioaiCTw3cMO5AEPOp8nnd6YIEXxHZnLI4HKhU
+ BQoY1PzT45LQu3e1bhE9Em4/DpFV1OnMSHvPKmAnCouPiDfsKLqAl4MOMYrH3Hiax5NS+V/dSDF
+ mVyXDCQRwE42fFDJkBzF01wqsTijxFFJbxmQ76NemYg==
+X-Received: by 2002:a1c:7c0f:: with SMTP id x15mr8734504wmc.149.1632905146277; 
+ Wed, 29 Sep 2021 01:45:46 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyaikWIkzzrJGqHValULa/ZmnNfg4rl1LyjKqzMWVt+gz9mbskxaXhni5v3m042+vSd753h3g==
+X-Received: by 2002:a1c:7c0f:: with SMTP id x15mr8734485wmc.149.1632905146123; 
+ Wed, 29 Sep 2021 01:45:46 -0700 (PDT)
+Received: from [192.168.3.132] (p4ff23c3b.dip0.t-ipconnect.de. [79.242.60.59])
+ by smtp.gmail.com with ESMTPSA id
+ t126sm893773wma.4.2021.09.29.01.45.44
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 29 Sep 2021 01:45:45 -0700 (PDT)
+Subject: Re: [PATCH v1 2/8] x86/xen: simplify xen_oldmem_pfn_is_ram()
+To: Boris Ostrovsky <boris.ostrovsky@oracle.com>, linux-kernel@vger.kernel.org
+References: <20210928182258.12451-1-david@redhat.com>
+ <20210928182258.12451-3-david@redhat.com>
+ <4ab2f8c2-c3d5-30b3-a670-a8b38e218b6e@oracle.com>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Message-ID: <bfe72f46-9a0d-1a87-64bd-4b03999edd1e@redhat.com>
+Date: Wed, 29 Sep 2021 10:45:44 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
-References: <20210929083050.88-1-xieyongji@bytedance.com>
-In-Reply-To: <20210929083050.88-1-xieyongji@bytedance.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 29 Sep 2021 16:40:49 +0800
-Message-ID: <CACGkMEtYny-5pH8o0BjMjpDU3ZOVq5rLQV11AqpxDEpsYpGPKQ@mail.gmail.com>
-Subject: Re: [PATCH v2] vduse: Fix race condition between resetting and irq
- injecting
-To: Xie Yongji <xieyongji@bytedance.com>
+In-Reply-To: <4ab2f8c2-c3d5-30b3-a670-a8b38e218b6e@oracle.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: virtualization <virtualization@lists.linux-foundation.org>,
- mst <mst@redhat.com>
+Content-Language: en-US
+Cc: Michal Hocko <mhocko@suse.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ x86@kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
+ "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <sstabellini@kernel.org>,
+ Baoquan He <bhe@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+ Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org,
+ Dave Young <dyoung@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>,
+ Oscar Salvador <osalvador@suse.de>, Juergen Gross <jgross@suse.com>,
+ kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
+ Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,132 +129,31 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Sep 29, 2021 at 4:32 PM Xie Yongji <xieyongji@bytedance.com> wrote:
->
-> The interrupt might be triggered after a reset since there is
-> no synchronization between resetting and irq injecting. And it
-> might break something if the interrupt is delayed until a new
-> round of device initialization.
->
-> Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
-> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> ---
->  drivers/vdpa/vdpa_user/vduse_dev.c | 37 +++++++++++++++++++++++++------------
->  1 file changed, 25 insertions(+), 12 deletions(-)
->
-> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> index cefb301b2ee4..841667a896dd 100644
-> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> @@ -80,6 +80,7 @@ struct vduse_dev {
->         struct vdpa_callback config_cb;
->         struct work_struct inject;
->         spinlock_t irq_lock;
-> +       struct rw_semaphore rwsem;
->         int minor;
->         bool broken;
->         bool connected;
-> @@ -410,6 +411,8 @@ static void vduse_dev_reset(struct vduse_dev *dev)
->         if (domain->bounce_map)
->                 vduse_domain_reset_bounce_map(domain);
->
-> +       down_write(&dev->rwsem);
-> +
->         dev->status = 0;
->         dev->driver_features = 0;
->         dev->generation++;
-> @@ -443,6 +446,8 @@ static void vduse_dev_reset(struct vduse_dev *dev)
->                 flush_work(&vq->inject);
->                 flush_work(&vq->kick);
->         }
-> +
-> +       up_write(&dev->rwsem);
-
-Rethink about this, do we need to sync set_status() as well?
-
-Thanks
-
->  }
->
->  static int vduse_vdpa_set_vq_address(struct vdpa_device *vdpa, u16 idx,
-> @@ -885,6 +890,23 @@ static void vduse_vq_irq_inject(struct work_struct *work)
->         spin_unlock_irq(&vq->irq_lock);
->  }
->
-> +static int vduse_dev_queue_irq_work(struct vduse_dev *dev,
-> +                                   struct work_struct *irq_work)
-> +{
-> +       int ret = -EINVAL;
-> +
-> +       down_read(&dev->rwsem);
-> +       if (!(dev->status & VIRTIO_CONFIG_S_DRIVER_OK))
-> +               goto unlock;
-> +
-> +       ret = 0;
-> +       queue_work(vduse_irq_wq, irq_work);
-> +unlock:
-> +       up_read(&dev->rwsem);
-> +
-> +       return ret;
-> +}
-> +
->  static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
->                             unsigned long arg)
->  {
-> @@ -966,12 +988,7 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
->                 break;
->         }
->         case VDUSE_DEV_INJECT_CONFIG_IRQ:
-> -               ret = -EINVAL;
-> -               if (!(dev->status & VIRTIO_CONFIG_S_DRIVER_OK))
-> -                       break;
-> -
-> -               ret = 0;
-> -               queue_work(vduse_irq_wq, &dev->inject);
-> +               ret = vduse_dev_queue_irq_work(dev, &dev->inject);
->                 break;
->         case VDUSE_VQ_SETUP: {
->                 struct vduse_vq_config config;
-> @@ -1049,10 +1066,6 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
->         case VDUSE_VQ_INJECT_IRQ: {
->                 u32 index;
->
-> -               ret = -EINVAL;
-> -               if (!(dev->status & VIRTIO_CONFIG_S_DRIVER_OK))
-> -                       break;
-> -
->                 ret = -EFAULT;
->                 if (get_user(index, (u32 __user *)argp))
->                         break;
-> @@ -1061,9 +1074,8 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
->                 if (index >= dev->vq_num)
->                         break;
->
-> -               ret = 0;
->                 index = array_index_nospec(index, dev->vq_num);
-> -               queue_work(vduse_irq_wq, &dev->vqs[index].inject);
-> +               ret = vduse_dev_queue_irq_work(dev, &dev->vqs[index].inject);
->                 break;
->         }
->         default:
-> @@ -1144,6 +1156,7 @@ static struct vduse_dev *vduse_dev_create(void)
->         INIT_LIST_HEAD(&dev->send_list);
->         INIT_LIST_HEAD(&dev->recv_list);
->         spin_lock_init(&dev->irq_lock);
-> +       init_rwsem(&dev->rwsem);
->
->         INIT_WORK(&dev->inject, vduse_dev_irq_inject);
->         init_waitqueue_head(&dev->waitq);
-> --
-> 2.11.0
->
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+PiAKPiBIb3cgYWJvdXQKPiAKPiAgwqDCoMKgIHJldHVybiBhLm1lbV90eXBlICE9IEhWTU1FTV9t
+bWlvX2RtOwo+IAoKSGEsIGhvdyBjb3VsZCBJIGhhdmUgbWlzc2VkIHRoYXQgOikKCj4gCj4gUmVz
+dWx0IHNob3VsZCBiZSBwcm9tb3RlZCB0byBpbnQgYW5kIHRoaXMgaGFzIGFkZGVkIGJlbmVmaXQg
+b2Ygbm90IHJlcXVpcmluZyBjaGFuZ2VzIGluIHBhdGNoIDQuCj4gCgpDYW4gd2UgZ28gb25lIHN0
+ZXAgZnVydGhlciBhbmQgZG8KCgpAQCAtMjAsMjQgKzIwLDExIEBAIHN0YXRpYyBpbnQgeGVuX29s
+ZG1lbV9wZm5faXNfcmFtKHVuc2lnbmVkIGxvbmcgcGZuKQogICAgICAgICBzdHJ1Y3QgeGVuX2h2
+bV9nZXRfbWVtX3R5cGUgYSA9IHsKICAgICAgICAgICAgICAgICAuZG9taWQgPSBET01JRF9TRUxG
+LAogICAgICAgICAgICAgICAgIC5wZm4gPSBwZm4sCisgICAgICAgICAgICAgICAubWVtX3R5cGUg
+PSBIVk1NRU1fcmFtX3J3LAogICAgICAgICB9OwotICAgICAgIGludCByYW07CiAgCi0gICAgICAg
+aWYgKEhZUEVSVklTT1JfaHZtX29wKEhWTU9QX2dldF9tZW1fdHlwZSwgJmEpKQotICAgICAgICAg
+ICAgICAgcmV0dXJuIC1FTlhJTzsKLQotICAgICAgIHN3aXRjaCAoYS5tZW1fdHlwZSkgewotICAg
+ICAgIGNhc2UgSFZNTUVNX21taW9fZG06Ci0gICAgICAgICAgICAgICByYW0gPSAwOwotICAgICAg
+ICAgICAgICAgYnJlYWs7Ci0gICAgICAgY2FzZSBIVk1NRU1fcmFtX3J3OgotICAgICAgIGNhc2Ug
+SFZNTUVNX3JhbV9ybzoKLSAgICAgICBkZWZhdWx0OgotICAgICAgICAgICAgICAgcmFtID0gMTsK
+LSAgICAgICAgICAgICAgIGJyZWFrOwotICAgICAgIH0KLQotICAgICAgIHJldHVybiByYW07Cisg
+ICAgICAgSFlQRVJWSVNPUl9odm1fb3AoSFZNT1BfZ2V0X21lbV90eXBlLCAmYSk7CisgICAgICAg
+cmV0dXJuIGEubWVtX3R5cGUgIT0gSFZNTUVNX21taW9fZG07CiAgfQogICNlbmRpZgoKCkFzc3Vt
+aW5nIHRoYXQgaWYgSFlQRVJWSVNPUl9odm1fb3AoKSBmYWlscyB0aGF0Ci5tZW1fdHlwZSBpcyBu
+b3Qgc2V0IHRvIEhWTU1FTV9tbWlvX2RtLgoKLS0gClRoYW5rcywKCkRhdmlkIC8gZGhpbGRlbmIK
+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxp
+emF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9u
+Lm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92
+aXJ0dWFsaXphdGlvbg==
