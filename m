@@ -2,99 +2,90 @@ Return-Path: <SRS0=nfYb=OU=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB246C433FE
-	for <virtualization@archiver.kernel.org>; Thu, 30 Sep 2021 09:05:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3559AC433FE
+	for <virtualization@archiver.kernel.org>; Thu, 30 Sep 2021 09:28:47 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 76A3B6140F
-	for <virtualization@archiver.kernel.org>; Thu, 30 Sep 2021 09:05:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 76A3B6140F
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	by mail.kernel.org (Postfix) with ESMTPS id D87CC613A7
+	for <virtualization@archiver.kernel.org>; Thu, 30 Sep 2021 09:28:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D87CC613A7
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4A5A184093;
-	Thu, 30 Sep 2021 09:05:16 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9684E84050;
+	Thu, 30 Sep 2021 09:28:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jjdm_G0tpl7e; Thu, 30 Sep 2021 09:05:15 +0000 (UTC)
+	with ESMTP id LIU1fcOI-Vvb; Thu, 30 Sep 2021 09:28:45 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E342284049;
-	Thu, 30 Sep 2021 09:05:14 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2731D83FB5;
+	Thu, 30 Sep 2021 09:28:45 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B00C8C0011;
-	Thu, 30 Sep 2021 09:05:14 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 93FBFC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DE480C000F;
+	Thu, 30 Sep 2021 09:28:44 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 76FEAC000D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Sep 2021 09:05:13 +0000 (UTC)
+ Thu, 30 Sep 2021 09:28:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 6BD2940330
+ by smtp4.osuosl.org (Postfix) with ESMTP id 5F3A2403C1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Sep 2021 09:05:13 +0000 (UTC)
+ Thu, 30 Sep 2021 09:28:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id S8r64iEhEEWw
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id LK24zjN43vVl
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Sep 2021 09:05:12 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ot1-f42.google.com (mail-ot1-f42.google.com
- [209.85.210.42])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 9140B40200
+ Thu, 30 Sep 2021 09:28:42 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 61C544038B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Sep 2021 09:05:12 +0000 (UTC)
-Received: by mail-ot1-f42.google.com with SMTP id
- 77-20020a9d0ed3000000b00546e10e6699so6426212otj.2
- for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Sep 2021 02:05:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=A0kBNA83hCb4HCc/FO3KjbqdDYyweltNhd4aS4t5/kU=;
- b=Bx+fTMAR0R2d5rD19+/Nxj/+tRenvSKuh5WYsYvowdj5ctS7LIFI8lJQ4BsdfkK0Ez
- eTP3xp7GnXYlZvprBmYnk22SUJaHC7SZDfAB3DPSsov6W3Q7h3SG0/RhkbmcGjn2HySa
- AETcYqHucC72kOZvCkfhbAyFjCmKFmxn4VxKOvFgYGa07fD7KDYsD6sp6IYje1/kDtkb
- UtAA3zo2hNuQ7ahkhasmrHoQb40Yd/Fvef37qaQlMyXoW8wR3HLgBbsT2rxsEQMcB/uR
- k233/SfTUY0gjxOiV+9P8Zt3IlSoz5fcPtpdV574KqkcxaelOkCB8ymPpPfFfSezCbVS
- GHQw==
-X-Gm-Message-State: AOAM533FslQh94kUf/WtSZJvoi4SAMEp9xEGNANCk9/5SkfsQHxsmAI9
- OklHDu1CR2+qfjTyBduSIlnAZBdo/IWdVPKvfHk=
-X-Google-Smtp-Source: ABdhPJxQvr32DBDvE9GooVKcASD2AsIl4lfSqdKR1BOYS2VPGs0tjNvE9npSlrVtmKJ8P2bAkPp+G83bpdvcAuxPNP4=
-X-Received: by 2002:a05:6830:2784:: with SMTP id
- x4mr4274581otu.86.1632992711404; 
- Thu, 30 Sep 2021 02:05:11 -0700 (PDT)
+ Thu, 30 Sep 2021 09:28:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1632994121;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=erwNcHC5pZk/HIPbuHvdtR1FQdHg+yCvajhjxRWVl2c=;
+ b=CjGI+46Xj7yQG/JOIL6RuyLwq70rssB3Lbd0lF06alqyTRHHmV393JYLToaEMmbJyEl3Ud
+ P3VKzU/ZZCdC6aYphSuvmSpsaB/S+FIujymqTeF/m466k5obDRO+jnQulh0vVMuyEhAg8p
+ WfBKstVR0u6VvKBeSGNnHlzbyaG8+gU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-508-pE8b_A_zOw6Vv86nMLe66Q-1; Thu, 30 Sep 2021 05:28:39 -0400
+X-MC-Unique: pE8b_A_zOw6Vv86nMLe66Q-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
+ [10.5.11.15])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 142AD835DE2;
+ Thu, 30 Sep 2021 09:28:38 +0000 (UTC)
+Received: from localhost (unknown [10.39.192.253])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 0E5C61865D;
+ Thu, 30 Sep 2021 09:28:24 +0000 (UTC)
+From: Cornelia Huck <cohuck@redhat.com>
+To: Halil Pasic <pasic@linux.ibm.com>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xie Yongji
+ <xieyongji@bytedance.com>, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
+In-Reply-To: <20210930012049.3780865-1-pasic@linux.ibm.com>
+Organization: Red Hat GmbH
+References: <20210930012049.3780865-1-pasic@linux.ibm.com>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date: Thu, 30 Sep 2021 11:28:23 +0200
+Message-ID: <87r1d64dl4.fsf@redhat.com>
 MIME-Version: 1.0
-References: <20210930010511.3387967-1-sathyanarayanan.kuppuswamy@linux.intel.com>
- <20210930010511.3387967-2-sathyanarayanan.kuppuswamy@linux.intel.com>
- <20210930014229.GA447956@rowland.harvard.edu>
- <CAPcyv4iiEC3B2i81evZpLP+XHa8dLkfgWmrY7HocORwP8FMPZQ@mail.gmail.com>
- <f9b7cf97-0a14-1c80-12ab-23213ec2f4f2@linux.intel.com>
- <CAPcyv4gDgQYf0ct_Xy32gQBcWhs6d2uL+wUq4pfzszDHcUHbwQ@mail.gmail.com>
-In-Reply-To: <CAPcyv4gDgQYf0ct_Xy32gQBcWhs6d2uL+wUq4pfzszDHcUHbwQ@mail.gmail.com>
-From: "Rafael J. Wysocki" <rafael@kernel.org>
-Date: Thu, 30 Sep 2021 11:05:00 +0200
-Message-ID: <CAJZ5v0gOEffKJoH7P9=QOAxXFbMGOf9j0V1DsixQwaAehicnfA@mail.gmail.com>
-Subject: Re: [PATCH v2 1/6] driver core: Move the "authorized" attribute from
- USB/Thunderbolt to core
-To: Dan Williams <dan.j.williams@intel.com>
-Cc: "Kuppuswamy, Sathyanarayanan" <sathyanarayanan.kuppuswamy@linux.intel.com>,
- Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
- "Michael S . Tsirkin" <mst@redhat.com>, Linux PCI <linux-pci@vger.kernel.org>,
- virtualization@lists.linux-foundation.org,
- Andreas Noever <andreas.noever@gmail.com>,
- "Rafael J . Wysocki" <rafael@kernel.org>, Andi Kleen <ak@linux.intel.com>,
- Jonathan Corbet <corbet@lwn.net>, X86 ML <x86@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Alan Stern <stern@rowland.harvard.edu>,
- Michael Jamet <michael.jamet@intel.com>, Borislav Petkov <bp@alien8.de>,
- Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>,
- Mika Westerberg <mika.westerberg@linux.intel.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- USB list <linux-usb@vger.kernel.org>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- Yehezkel Bernat <YehezkelShB@gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Cc: Halil Pasic <pasic@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@de.ibm.com>, markver@us.ibm.com,
+ linux-s390@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,56 +102,78 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Sep 30, 2021 at 6:59 AM Dan Williams <dan.j.williams@intel.com> wrote:
->
-> On Wed, Sep 29, 2021 at 7:39 PM Kuppuswamy, Sathyanarayanan
-> <sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
-> >
-> >
-> >
-> > On 9/29/21 6:55 PM, Dan Williams wrote:
-> > >> Also, you ignored the usb_[de]authorize_interface() functions and
-> > >> their friends.
-> > > Ugh, yes.
-> >
-> > I did not change it because I am not sure about the interface vs device
-> > dependency.
-> >
->
-> This is was the rationale for has_probe_authorization flag. USB
-> performs authorization of child devices based on the authorization
-> state of the parent interface.
->
-> > I think following change should work.
-> >
-> > diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
-> > index f57b5a7a90ca..84969732d09c 100644
-> > --- a/drivers/usb/core/driver.c
-> > +++ b/drivers/usb/core/driver.c
-> > @@ -334,7 +334,7 @@ static int usb_probe_interface(struct device *dev)
-> >         if (udev->dev.authorized == false) {
-> >                 dev_err(&intf->dev, "Device is not authorized for usage\n");
-> >                 return error;
-> > -       } else if (intf->authorized == 0) {
-> > +       } else if (intf->dev.authorized == 0) {
->
-> == false
+On Thu, Sep 30 2021, Halil Pasic <pasic@linux.ibm.com> wrote:
 
-Or even (!intf->dev.authorized).
-
-> >                 dev_err(&intf->dev, "Interface %d is not authorized for usage\n",
-> >                                 intf->altsetting->desc.bInterfaceNumber);
-> >                 return error;
-> > @@ -546,7 +546,7 @@ int usb_driver_claim_interface(struct usb_driver *driver,
-> >                 return -EBUSY;
-> >
-> >         /* reject claim if interface is not authorized */
-> > -       if (!iface->authorized)
-> > +       if (!iface->dev.authorized)
+> This patch fixes a regression introduced by commit 82e89ea077b9
+> ("virtio-blk: Add validation for block size in config space") and
+> enables similar checks in verify() on big endian platforms.
 >
-> I'd do == false to keep it consistent with other conversions.
+> The problem with checking multi-byte config fields in the verify
+> callback, on big endian platforms, and with a possibly transitional
+> device is the following. The verify() callback is called between
+> config->get_features() and virtio_finalize_features(). That we have a
+> device that offered F_VERSION_1 then we have the following options
+> either the device is transitional, and then it has to present the legacy
+> interface, i.e. a big endian config space until F_VERSION_1 is
+> negotiated, or we have a non-transitional device, which makes
+> F_VERSION_1 mandatory, and only implements the non-legacy interface and
+> thus presents a little endian config space. Because at this point we
+> can't know if the device is transitional or non-transitional, we can't
+> know do we need to byte swap or not.
+>
+> The virtio spec explicitly states that the driver MAY read config
+> between reading and writing the features so saying that first accessing
+> the config before feature negotiation is done is not an option. The
+> specification ain't clear about setting the features multiple times
+> before FEATURES_OK, so I guess that should be fine.
+>
+> I don't consider this patch super clean, but frankly I don't think we
+> have a ton of options. Another option that may or man not be cleaner,
+> but is also IMHO much uglier is to figure out whether the device is
+> transitional by rejecting _F_VERSION_1, then resetting it and proceeding
+> according tho what we have figured out, hoping that the characteristics
+> of the device didn't change.
+>
+> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
+> Reported-by: markver@us.ibm.com
+> ---
+>  drivers/virtio/virtio.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index 0a5b54034d4b..9dc3cfa17b1c 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -249,6 +249,10 @@ static int virtio_dev_probe(struct device *_d)
+>  		if (device_features & (1ULL << i))
+>  			__virtio_set_bit(dev, i);
+>  
+> +	/* Write back features before validate to know endianness */
+> +	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+> +		dev->config->finalize_features(dev);
 
-But this looks odd, FWIW.
+This really looks like a mess :(
+
+We end up calling ->finalize_features twice: once before ->validate, and
+once after, that time with the complete song and dance. The first time,
+we operate on one feature set; after validation, we operate on another,
+and there might be interdependencies between the two (like a that a bit
+is cleared because of another bit, which would not happen if validate
+had a chance to clear that bit before).
+
+I'm not sure whether that is even a problem in the spec: while the
+driver may read the config before finally accepting features, it does
+not really make sense to do so before a feature bit as basic as
+VERSION_1 which determines the endianness has been negotiated. For
+VERSION_1, we can probably go ahead and just assume that we will accept
+it if offered, but what about other (future) bits?
+
+> +
+>  	if (drv->validate) {
+>  		err = drv->validate(dev);
+>  		if (err)
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
