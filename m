@@ -2,94 +2,95 @@ Return-Path: <SRS0=nfYb=OU=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0763EC433EF
-	for <virtualization@archiver.kernel.org>; Thu, 30 Sep 2021 01:55:27 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EF1CC433F5
+	for <virtualization@archiver.kernel.org>; Thu, 30 Sep 2021 04:59:41 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B648361872
-	for <virtualization@archiver.kernel.org>; Thu, 30 Sep 2021 01:55:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B648361872
+	by mail.kernel.org (Postfix) with ESMTPS id 1297361439
+	for <virtualization@archiver.kernel.org>; Thu, 30 Sep 2021 04:59:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 1297361439
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7304584080;
-	Thu, 30 Sep 2021 01:55:26 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id D515442553;
+	Thu, 30 Sep 2021 04:59:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tNJICnTTfoCx; Thu, 30 Sep 2021 01:55:25 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8zq5SmyjY2_t; Thu, 30 Sep 2021 04:59:40 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0E68383F34;
-	Thu, 30 Sep 2021 01:55:25 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 95BD942544;
+	Thu, 30 Sep 2021 04:59:39 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E456EC0011;
-	Thu, 30 Sep 2021 01:55:24 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2A3F3C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6A117C000F;
+	Thu, 30 Sep 2021 04:59:39 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C597DC000D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Sep 2021 01:55:24 +0000 (UTC)
+ Thu, 30 Sep 2021 04:59:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 0CD2242569
+ by smtp4.osuosl.org (Postfix) with ESMTP id AFF9642546
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Sep 2021 01:55:24 +0000 (UTC)
+ Thu, 30 Sep 2021 04:59:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=intel-com.20210112.gappssmtp.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bP0r7YtVHyuP
+ with ESMTP id z3jcS3u3GhWk
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Sep 2021 01:55:23 +0000 (UTC)
+ Thu, 30 Sep 2021 04:59:36 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com
- [IPv6:2607:f8b0:4864:20::42b])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 07EAF42554
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com
+ [IPv6:2607:f8b0:4864:20::1032])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id E01BF42544
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Sep 2021 01:55:22 +0000 (UTC)
-Received: by mail-pf1-x42b.google.com with SMTP id k26so3564849pfi.5
+ Thu, 30 Sep 2021 04:59:36 +0000 (UTC)
+Received: by mail-pj1-x1032.google.com with SMTP id
+ ce20-20020a17090aff1400b0019f13f6a749so5553285pjb.4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 29 Sep 2021 18:55:22 -0700 (PDT)
+ Wed, 29 Sep 2021 21:59:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=intel-com.20210112.gappssmtp.com; s=20210112;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=ppSjAe5S3xlWKT7s8el3Il5gQkJrN0MmdVf0E/AP7Gc=;
- b=ydGPiSJNMnM7op/wkyAmXwGCpbqUNFYUHuTIB1J9VMHKIEt0sSU7kMooEJf9ONRPIA
- 1epCxOZbM0aS2EhNFY6KaCCjZUa3fkU0LWjAEDekFcojleEFYbUWcOuBjLnFNrOYEP0b
- mA+QtRVrgb+QVIzp8Q6gIPM6zutuAF5hBMmH4psZDUSy/atAm1KGSsMtdvT9RYXwFNoC
- 0OxTcAvRXaSSlv2eJGo5aW5AjIbbmaejIHX929b6XcPXwpNZj92Vz8XUEuL92z5RkXVg
- 41hSRYzrA1jBcQMejxi5WxXv4SfKoIIdMc6rLHA0kQZZpePX/R7ifabPflyujG0OznzI
- tNCg==
+ :cc; bh=VTM9z+DcTeYF3hZgKWEu9ebVrBPYT2J8Mz8sj8erXZk=;
+ b=PCpbwU/Blt/pbMA6NT2nm2SIqNzMnAtcLzxhxbtj3rTw2MHvXasv4KZ/zpwWPlZn7y
+ xPWsxFGYK8u70vbz7XcbGiHpsKtrQjK346ig5ArayijRkOVR0ZSgmSdFgnxE9i5Sf9pW
+ 0deGfEYYnNhaWRDtv3KVBZBS8spTYrA43Nq9+AxcJVFP4EVbUPaWHgG3/ccF/i1QocQh
+ Qw4w3IvzGqNsfXW9sLxObs8iR9rV/NKytwQ8uw+30BCP3sXi3JaL/1APxK4M9G1CofGl
+ mDPEFjR6CHHEV+e1F5uOIa2vub/p77kBLKF9waZAxea7kzN/oqO6LWY664QZ4RAJnbzu
+ 9G/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=ppSjAe5S3xlWKT7s8el3Il5gQkJrN0MmdVf0E/AP7Gc=;
- b=DGnOiJjzaL3xUaMXn2ux+lwcjpilIih0BenePWG2AIaKbRgwvNLIEf2XD6qnGpat9e
- RQ0BmHBVTcxpaCJtLK9HDbKC11feEYRR+tKKHxKk+PzCmj4a2u7qmxYYbObD4P/kVyWQ
- m1u5h8yHkKloGIrirIVFck2FNHolCSa/o4UaTz7rZnji1/xZ0GbuAoDhB1VGzjteRsoo
- 4D9PKY7xu6AMBoaxywfdZKOVKjAnWwdMyNK6+fDbRSXRBsUf4/dR1RbUgCPmOPuBKBSP
- TuSbl0xifXnOydERwPqCuYpHPH4hMd1AuA7B7Sd4RNsW0s7rP2Xr1zHc4puJB9/nERAX
- kueg==
-X-Gm-Message-State: AOAM5312yfI+r68J4+c9sLOG3e35MJxxAISgOQa6/juIAJIT2QasGu64
- HKtpDXjaUyausha2mHmNlt3wPiKYdG6kQ8V1oKamhw==
-X-Google-Smtp-Source: ABdhPJxRCE7JDiUtfbj2unJgpoYL58Y7cUzTX2X/PJ4QmiFOuX+rJGY6EYObim88lDm7ERTzm39OsGnRXceY8UTFM6A=
-X-Received: by 2002:a63:d709:: with SMTP id d9mr2624751pgg.377.1632966921696; 
- Wed, 29 Sep 2021 18:55:21 -0700 (PDT)
+ bh=VTM9z+DcTeYF3hZgKWEu9ebVrBPYT2J8Mz8sj8erXZk=;
+ b=AQmglzKTmou8kib9gw40PVqGit62YPDOhkqBDw3Tmzi9bNnYgrhes3Iip3uppfwz9p
+ IDKPvYhYL25wNxXuOxsBbiHr3v1b4QfN6JH2cyR0o/CJh6Vzie5d1SPevcfnZMFgy0Qp
+ yChtU+WzWPpqrvQHXvinyJQTmxgGvZQo9ZQCYzDJMY482/pe1/ob28ONgdiuOt1d8l7M
+ qz6zfITZPsPluYj6+jGgaDKqclXxwZAlHLP2nRm2iztic/wlrCiWT5WPNqButZbXaSfk
+ nb/qI53eKFUZ7D+PzFACyOX9GNzA+2pAxQtkZC4VWj627z2/2u7kb0zo5qRMd3XVLr76
+ WMcw==
+X-Gm-Message-State: AOAM531R+a9P8gvykTElrmzRK1xjROv89F0nt7aFa/TMBUkQaqN8qxX/
+ Sr6urHo4YaeyQQ6KKiWeWopg/ssqqTxjmkSkvGnzUQ==
+X-Google-Smtp-Source: ABdhPJyybPbFqs+kvSA+EffRawV4Hj+ykPs983Fz8BFHzbiq+5hEn89iPiOxS6iB4aUV2nFWiaggHuioY3Gye2yZA4U=
+X-Received: by 2002:a17:902:bd8d:b0:13a:8c8:a2b2 with SMTP id
+ q13-20020a170902bd8d00b0013a08c8a2b2mr2377812pls.89.1632977976213; Wed, 29
+ Sep 2021 21:59:36 -0700 (PDT)
 MIME-Version: 1.0
 References: <20210930010511.3387967-1-sathyanarayanan.kuppuswamy@linux.intel.com>
  <20210930010511.3387967-2-sathyanarayanan.kuppuswamy@linux.intel.com>
  <20210930014229.GA447956@rowland.harvard.edu>
-In-Reply-To: <20210930014229.GA447956@rowland.harvard.edu>
+ <CAPcyv4iiEC3B2i81evZpLP+XHa8dLkfgWmrY7HocORwP8FMPZQ@mail.gmail.com>
+ <f9b7cf97-0a14-1c80-12ab-23213ec2f4f2@linux.intel.com>
+In-Reply-To: <f9b7cf97-0a14-1c80-12ab-23213ec2f4f2@linux.intel.com>
 From: Dan Williams <dan.j.williams@intel.com>
-Date: Wed, 29 Sep 2021 18:55:12 -0700
-Message-ID: <CAPcyv4iiEC3B2i81evZpLP+XHa8dLkfgWmrY7HocORwP8FMPZQ@mail.gmail.com>
+Date: Wed, 29 Sep 2021 21:59:25 -0700
+Message-ID: <CAPcyv4gDgQYf0ct_Xy32gQBcWhs6d2uL+wUq4pfzszDHcUHbwQ@mail.gmail.com>
 Subject: Re: [PATCH v2 1/6] driver core: Move the "authorized" attribute from
  USB/Thunderbolt to core
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Jonathan Corbet <corbet@lwn.net>,
- Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>,
- Andi Kleen <ak@linux.intel.com>, "Michael S . Tsirkin" <mst@redhat.com>,
+To: "Kuppuswamy, Sathyanarayanan" <sathyanarayanan.kuppuswamy@linux.intel.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Andi Kleen <ak@linux.intel.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>,
  Michael Jamet <michael.jamet@intel.com>,
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>, X86 ML <x86@kernel.org>,
  Yehezkel Bernat <YehezkelShB@gmail.com>,
@@ -97,7 +98,8 @@ Cc: Jonathan Corbet <corbet@lwn.net>,
  Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
  Andreas Noever <andreas.noever@gmail.com>, Ingo Molnar <mingo@redhat.com>,
  Borislav Petkov <bp@alien8.de>, Linux PCI <linux-pci@vger.kernel.org>,
- Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>,
+ Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>,
+ Thomas Gleixner <tglx@linutronix.de>,
  virtualization@lists.linux-foundation.org,
  Mika Westerberg <mika.westerberg@linux.intel.com>,
  USB list <linux-usb@vger.kernel.org>, "Rafael J . Wysocki" <rafael@kernel.org>
@@ -117,49 +119,86 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Sep 29, 2021 at 6:43 PM Alan Stern <stern@rowland.harvard.edu> wrote:
+On Wed, Sep 29, 2021 at 7:39 PM Kuppuswamy, Sathyanarayanan
+<sathyanarayanan.kuppuswamy@linux.intel.com> wrote:
 >
-> On Wed, Sep 29, 2021 at 06:05:06PM -0700, Kuppuswamy Sathyanarayanan wrote:
-> > Currently bus drivers like "USB" or "Thunderbolt" implement a custom
-> > version of device authorization to selectively authorize the driver
-> > probes. Since there is a common requirement, move the "authorized"
-> > attribute support to the driver core in order to allow it to be used
-> > by other subsystems / buses.
-> >
-> > Similar requirements have been discussed in the PCI [1] community for
-> > PCI bus drivers as well.
-> >
-> > No functional changes are intended. It just converts authorized
-> > attribute from int to bool and moves it to the driver core. There
-> > should be no user-visible change in the location or semantics of
-> > attributes for USB devices.
-> >
-> > Regarding thunderbolt driver, although it declares sw->authorized as
-> > "int" and allows 0,1,2 as valid values for sw->authorized attribute,
-> > but within the driver, in all authorized attribute related checks,
-> > it is treated as bool value. So when converting the authorized
-> > attribute from int to bool value, there should be no functional
-> > changes other than value 2 being not visible to the user.
-> >
-> > [1]: https://lore.kernel.org/all/CACK8Z6E8pjVeC934oFgr=VB3pULx_GyT2NkzAogdRQJ9TKSX9A@mail.gmail.com/
-> >
-> > Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-> > Signed-off-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
 >
-> Since you're moving the authorized flag from the USB core to the
-> driver core, the corresponding sysfs attribute functions should be
-> moved as well.
+>
+> On 9/29/21 6:55 PM, Dan Williams wrote:
+> >> Also, you ignored the usb_[de]authorize_interface() functions and
+> >> their friends.
+> > Ugh, yes.
+>
+> I did not change it because I am not sure about the interface vs device
+> dependency.
+>
 
-Unlike when 'removable' moved from USB to the driver core there isn't
-a common definition for how the 'authorized' sysfs-attribute behaves
-across buses. The only common piece is where this flag is stored in
-the data structure, i.e. the 'authorized' sysfs interface is
-purposefully left bus specific.
+This is was the rationale for has_probe_authorization flag. USB
+performs authorization of child devices based on the authorization
+state of the parent interface.
 
-> Also, you ignored the usb_[de]authorize_interface() functions and
-> their friends.
+> I think following change should work.
+>
+> diff --git a/drivers/usb/core/driver.c b/drivers/usb/core/driver.c
+> index f57b5a7a90ca..84969732d09c 100644
+> --- a/drivers/usb/core/driver.c
+> +++ b/drivers/usb/core/driver.c
+> @@ -334,7 +334,7 @@ static int usb_probe_interface(struct device *dev)
+>         if (udev->dev.authorized == false) {
+>                 dev_err(&intf->dev, "Device is not authorized for usage\n");
+>                 return error;
+> -       } else if (intf->authorized == 0) {
+> +       } else if (intf->dev.authorized == 0) {
 
-Ugh, yes.
+== false.
+
+>                 dev_err(&intf->dev, "Interface %d is not authorized for usage\n",
+>                                 intf->altsetting->desc.bInterfaceNumber);
+>                 return error;
+> @@ -546,7 +546,7 @@ int usb_driver_claim_interface(struct usb_driver *driver,
+>                 return -EBUSY;
+>
+>         /* reject claim if interface is not authorized */
+> -       if (!iface->authorized)
+> +       if (!iface->dev.authorized)
+
+I'd do == false to keep it consistent with other conversions.
+
+>                 return -ENODEV;
+>
+>         dev->driver = &driver->drvwrap.driver;
+> diff --git a/drivers/usb/core/message.c b/drivers/usb/core/message.c
+> index 47548ce1cfb1..ab3c8d1e4db9 100644
+> --- a/drivers/usb/core/message.c
+> +++ b/drivers/usb/core/message.c
+> @@ -1791,9 +1791,9 @@ void usb_deauthorize_interface(struct usb_interface *intf)
+>
+>         device_lock(dev->parent);
+>
+> -       if (intf->authorized) {
+> +       if (intf->dev.authorized) {
+>                 device_lock(dev);
+> -               intf->authorized = 0;
+> +               intf->dev.authorized = 0;
+
+= false;
+
+>                 device_unlock(dev);
+>
+>                 usb_forced_unbind_intf(intf);
+> @@ -1811,9 +1811,9 @@ void usb_authorize_interface(struct usb_interface *intf)
+>   {
+>         struct device *dev = &intf->dev;
+>
+> -       if (!intf->authorized) {
+> +       if (!intf->dev.authorized) {
+>                 device_lock(dev);
+> -               intf->authorized = 1; /* authorize interface */
+> +               intf->dev.authorized = 1; /* authorize interface */
+
+= true
+
+...not sure that comment is worth preserving.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
