@@ -2,127 +2,106 @@ Return-Path: <SRS0=nfYb=OU=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6FB1DC433FE
-	for <virtualization@archiver.kernel.org>; Thu, 30 Sep 2021 08:04:41 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1689BC433F5
+	for <virtualization@archiver.kernel.org>; Thu, 30 Sep 2021 08:49:43 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 23020617E5
-	for <virtualization@archiver.kernel.org>; Thu, 30 Sep 2021 08:04:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 23020617E5
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=de.ibm.com
+	by mail.kernel.org (Postfix) with ESMTPS id AF8E7619A6
+	for <virtualization@archiver.kernel.org>; Thu, 30 Sep 2021 08:49:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org AF8E7619A6
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E0AAF613C2;
-	Thu, 30 Sep 2021 08:04:40 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 800CA42531;
+	Thu, 30 Sep 2021 08:49:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7ReWFhYvBO2u; Thu, 30 Sep 2021 08:04:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 64C77613AC;
-	Thu, 30 Sep 2021 08:04:39 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id dLZae4RtYlqD; Thu, 30 Sep 2021 08:49:41 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 28251415C4;
+	Thu, 30 Sep 2021 08:49:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 36E6EC000F;
-	Thu, 30 Sep 2021 08:04:39 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D1AEEC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 00643C0011;
+	Thu, 30 Sep 2021 08:49:41 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 39DAFC000D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Sep 2021 08:04:37 +0000 (UTC)
+ Thu, 30 Sep 2021 08:49:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B60C4402F7
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2904583FB1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Sep 2021 08:04:37 +0000 (UTC)
+ Thu, 30 Sep 2021 08:49:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=ibm.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wlQUrHIFl7lI
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linaro.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id d8GLzrDYaz7W
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Sep 2021 08:04:35 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
- [148.163.158.5])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7157C400FD
+ Thu, 30 Sep 2021 08:49:39 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com
+ [IPv6:2a00:1450:4864:20::333])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 3E66F83FA9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 30 Sep 2021 08:04:35 +0000 (UTC)
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
- by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 18U817oZ013790; 
- Thu, 30 Sep 2021 04:04:33 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
- h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=kkPJmvW2xAXV762eAmF0Upv9MHk9Nfc9lsbyksb+m98=;
- b=XoGjjkWjNyd6g3nXdrU3kQU0Kk9mErirbOnCCSf/Ta8yT6ihYQwbQxlNfDQmO9Ixk1+T
- 9psKnivPSNT7ZJ+6dGNWLOqVt4F2FriIwMV+buX2kAW1CqRoPhNxgk5pm3RJlnimSZEi
- xJT7cEo52qk1IoRCXnMlRNhXXtbVAzOGjG6p4W7pCjxERwh2Hz7OlZAPbgzug+aoOpl9
- NKfJLCH/CGT5rxyJpt6GQXkPSCTeimC9y5OpXLEWb2kIIaD3rNgT1gwvZCGgS8KYSdNj
- LqChFFVHS0+KkBBfbSJkry8k5z9GiZQXZxEZ6LTGbFgsgMJr5EhdCtb4iRfuOzC+8Zmu rg== 
-Received: from pps.reinject (localhost [127.0.0.1])
- by mx0b-001b2d01.pphosted.com with ESMTP id 3bd6phkuxj-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Thu, 30 Sep 2021 04:04:33 -0400
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
- by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 18U7DGkP024633;
- Thu, 30 Sep 2021 04:04:33 -0400
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com
- [169.51.49.98])
- by mx0b-001b2d01.pphosted.com with ESMTP id 3bd6phkuwt-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Thu, 30 Sep 2021 04:04:32 -0400
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
- by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 18U8268k006351;
- Thu, 30 Sep 2021 08:04:31 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com
- (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
- by ppma03ams.nl.ibm.com with ESMTP id 3b9udagswj-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Thu, 30 Sep 2021 08:04:30 +0000
-Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com
- [9.149.105.59])
- by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
- 18U84QaG066106
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 30 Sep 2021 08:04:26 GMT
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 58A93A404D;
- Thu, 30 Sep 2021 08:04:26 +0000 (GMT)
-Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 4B797A406D;
- Thu, 30 Sep 2021 08:04:24 +0000 (GMT)
-Received: from li-43c5434c-23b8-11b2-a85c-c4958fb47a68.ibm.com (unknown
- [9.171.49.149])
- by d06av23.portsmouth.uk.ibm.com (Postfix) with ESMTP;
- Thu, 30 Sep 2021 08:04:24 +0000 (GMT)
-Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
-To: Halil Pasic <pasic@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
- Jason Wang <jasowang@redhat.com>, Xie Yongji <xieyongji@bytedance.com>,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-References: <20210930012049.3780865-1-pasic@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <bd0bc232-8527-a4c7-d9be-3b4541914412@de.ibm.com>
-Date: Thu, 30 Sep 2021 10:04:23 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+ Thu, 30 Sep 2021 08:49:38 +0000 (UTC)
+Received: by mail-wm1-x333.google.com with SMTP id
+ i6-20020a1c3b06000000b0030d05169e9bso5529777wma.4
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 30 Sep 2021 01:49:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=W9cgTk6h0wqbwfayatXQtxHz8mob4jZCCoq7sCyhp1s=;
+ b=eDUuL0ja//PuyQ4fz3l1hxyHwsDpNJ5f3l6+0Y2z6OfrW7O1uddJSWX4e7FGcFAMa1
+ 9LYUj8wO2yxSk/JUNdXvJq7aO5QrczADrIhrCk9uRBbQ4qb4YCaYdI/OVVhhAhSc5G8s
+ f38pfWZD4da7JbtDolq6vbv3GKZ8vfXXVer4xPD4lYLWQ17RIz8v2SSckshCMfFywrWM
+ UiwZcc3qwiw681dRJuv/gMZBn7y8RLyJtR85zXh0uCuxlNfSC+P54nKcc5Y5Owgqqw+o
+ iI8GiFwU1oejKRoluZVITVWv/sZQoKnvBqERIZpoi/u+vWuFOaaQQIMW5dUWY+SfYO6U
+ lExA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=W9cgTk6h0wqbwfayatXQtxHz8mob4jZCCoq7sCyhp1s=;
+ b=vvhvncZJuFvgMlGUQuyxq7q69NRI9amkQXx7rEiyIBGd3Zw08psHfcueApbv7kvRsp
+ oCq6z+hU4ouuX/vpjROhCgY6/iETSxd45q4OfyAdbZJNgAXUgo7aheQlo294E7IPrWlR
+ n2/rkBX9gpogUsBqW36VtCmmoyUgX1fz3Dq4e7vW4x1f4Asn+apjM4M4rESQs39h3D3l
+ YlZSLLT2Qd4w8USx/luD+NzCQQ8qkPnJSzWES5V4VwjgmNk79j70fg2fmVP+smZdYcaa
+ po8nHiDR1OZ905apBIoyvEqlWRDEffBtqU99NrZwCdYbPjEkDIxoD/9vD1xwZ7iGrltF
+ rstw==
+X-Gm-Message-State: AOAM532Tgrs86Rhx5T2n0GDmjeaewMZheIAn6NobWzSFI+UMDP7Prrr4
+ xe9ozxBAwsBUPmP2cRa1env02g==
+X-Google-Smtp-Source: ABdhPJx7UmI5t0e1WRrw+EyEdQREOHgR4PKY+8e7EznFDej38q+RoHIFqgsrXw9rDiLo5EFXAV7sIg==
+X-Received: by 2002:a7b:c948:: with SMTP id i8mr14365780wml.193.1632991777323; 
+ Thu, 30 Sep 2021 01:49:37 -0700 (PDT)
+Received: from myrica (cpc92880-cmbg19-2-0-cust679.5-4.cable.virginm.net.
+ [82.27.106.168])
+ by smtp.gmail.com with ESMTPSA id n66sm2295448wmn.2.2021.09.30.01.49.36
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 30 Sep 2021 01:49:36 -0700 (PDT)
+Date: Thu, 30 Sep 2021 09:49:16 +0100
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Vivek Kumar Gautam <vivek.gautam@arm.com>
+Subject: Re: [PATCH RFC v1 01/11] uapi/virtio-iommu: Add page request grp-id
+ and flags information
+Message-ID: <YVV6DD7zmy1MKva0@myrica>
+References: <20210423095147.27922-1-vivek.gautam@arm.com>
+ <20210423095147.27922-2-vivek.gautam@arm.com>
+ <YUoBHA6NZaz8wlkA@myrica>
+ <3b490967-58b5-7c4a-2275-250e26d24aeb@arm.com>
 MIME-Version: 1.0
-In-Reply-To: <20210930012049.3780865-1-pasic@linux.ibm.com>
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: TSWvZ-IXC16uKbmTdBeW7eF2-vSbc9Pd
-X-Proofpoint-GUID: 4bTrRFDLcPRUF63OhNJLCQZMPF6C0G-s
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-09-30_02,2021-09-29_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 mlxscore=0
- priorityscore=1501 mlxlogscore=999 spamscore=0 clxscore=1011
- lowpriorityscore=0 phishscore=0 impostorscore=0 bulkscore=0 adultscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2109300049
-Cc: linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
- markver@us.ibm.com
+Content-Disposition: inline
+In-Reply-To: <3b490967-58b5-7c4a-2275-250e26d24aeb@arm.com>
+Cc: jacob.jun.pan@linux.intel.com, mst@redhat.com, joro@8bytes.org,
+ will.deacon@arm.com, linux-kernel@vger.kernel.org,
+ shameerali.kolothum.thodi@huawei.com,
+ virtualization@lists.linux-foundation.org, eric.auger@redhat.com,
+ iommu@lists.linux-foundation.org, yi.l.liu@intel.com,
+ Lorenzo.Pieralisi@arm.com, robin.murphy@arm.com,
+ linux-arm-kernel@lists.infradead.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -134,72 +113,25 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+On Thu, Sep 30, 2021 at 10:26:35AM +0530, Vivek Kumar Gautam wrote:
+> > I'm not sure why we made it 32-bit in Linux UAPI, it's a little wasteful.
+> > PCIe PRGI is 9-bits and SMMU STAG is 16-bits. Since the scope of the grpid
+> > is the endpoint, 16-bit means 64k in-flight faults per endpoint, which
+> > seems more than enough.
+> 
+> Right, I will update this to 16-bits field. It won't be okay to update the
+> iommu uAPI now, right?
 
+Since there is no UAPI transport for the fault request/response at the
+moment, it should be possible to update it.
 
-Am 30.09.21 um 03:20 schrieb Halil Pasic:
-> This patch fixes a regression introduced by commit 82e89ea077b9
-> ("virtio-blk: Add validation for block size in config space") and
-> enables similar checks in verify() on big endian platforms.
-> 
-> The problem with checking multi-byte config fields in the verify
-> callback, on big endian platforms, and with a possibly transitional
-> device is the following. The verify() callback is called between
-> config->get_features() and virtio_finalize_features(). That we have a
-> device that offered F_VERSION_1 then we have the following options
-> either the device is transitional, and then it has to present the legacy
-> interface, i.e. a big endian config space until F_VERSION_1 is
-> negotiated, or we have a non-transitional device, which makes
-> F_VERSION_1 mandatory, and only implements the non-legacy interface and
-> thus presents a little endian config space. Because at this point we
-> can't know if the device is transitional or non-transitional, we can't
-> know do we need to byte swap or not.
-> 
-> The virtio spec explicitly states that the driver MAY read config
-> between reading and writing the features so saying that first accessing
-> the config before feature negotiation is done is not an option. The
-> specification ain't clear about setting the features multiple times
-> before FEATURES_OK, so I guess that should be fine.
-> 
-> I don't consider this patch super clean, but frankly I don't think we
-> have a ton of options. Another option that may or man not be cleaner,
-> but is also IMHO much uglier is to figure out whether the device is
-> transitional by rejecting _F_VERSION_1, then resetting it and proceeding
-> according tho what we have figured out, hoping that the characteristics
-> of the device didn't change.
-> 
-> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
-> Reported-by: markver@us.ibm.com
-
-To make sure that it lands there, meybe add
-cc stable 5.14
-> ---
->   drivers/virtio/virtio.c | 4 ++++
->   1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index 0a5b54034d4b..9dc3cfa17b1c 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -249,6 +249,10 @@ static int virtio_dev_probe(struct device *_d)
->   		if (device_features & (1ULL << i))
->   			__virtio_set_bit(dev, i);
->   
-> +	/* Write back features before validate to know endianness */
-> +	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
-> +		dev->config->finalize_features(dev);
-> +
->   	if (drv->validate) {
->   		err = drv->validate(dev);
->   		if (err)
-> 
-> base-commit: 02d5e016800d082058b3d3b7c3ede136cdc6ddcb
-> 
+Thanks,
+Jean
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
