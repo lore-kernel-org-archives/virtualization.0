@@ -2,91 +2,91 @@ Return-Path: <SRS0=yNrU=OV=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91993C433F5
-	for <virtualization@archiver.kernel.org>; Fri,  1 Oct 2021 15:18:57 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCE7BC433F5
+	for <virtualization@archiver.kernel.org>; Fri,  1 Oct 2021 15:49:36 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3DC36615A4
-	for <virtualization@archiver.kernel.org>; Fri,  1 Oct 2021 15:18:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 3DC36615A4
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 7D08F61A7D
+	for <virtualization@archiver.kernel.org>; Fri,  1 Oct 2021 15:49:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 7D08F61A7D
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 0726D40415;
-	Fri,  1 Oct 2021 15:18:57 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 3E290407D1;
+	Fri,  1 Oct 2021 15:49:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lZ3xvePynEYZ; Fri,  1 Oct 2021 15:18:56 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id WZIQ-oxkkmxE; Fri,  1 Oct 2021 15:49:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 633F8403C6;
-	Fri,  1 Oct 2021 15:18:55 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5A7DD40432;
+	Fri,  1 Oct 2021 15:49:34 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 31B21C000F;
-	Fri,  1 Oct 2021 15:18:55 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 278FBC000F;
+	Fri,  1 Oct 2021 15:49:34 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 93F82C000D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 33840C000D
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Oct 2021 15:18:53 +0000 (UTC)
+ Fri,  1 Oct 2021 15:49:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 82FC8614E9
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1B5D0607D8
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Oct 2021 15:18:53 +0000 (UTC)
+ Fri,  1 Oct 2021 15:49:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 14OmsPtptSVq
+ with ESMTP id hb4QEvyh-z3y
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Oct 2021 15:18:52 +0000 (UTC)
+ Fri,  1 Oct 2021 15:49:32 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 5800D614E8
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E3D66606F2
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Oct 2021 15:18:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1633101531;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=7C7nph0IhS1Fw7syhYok+wzYniobVwIXFwlQp7ZOwZk=;
- b=WUt+ijyGr/JiAsIwrN4Nboo3VEiLVW/lEmTrYedIIE784vGNcvbO0tBygJl7c2xZkS9m3P
- kMlfwN2Kjtbn+d3o4G1MhvtpwbB9LucEPUgmiVwCz2sEDqvsoLF1xpLZ5i63deNb9dAy89
- K6UpkvLGa5OXTRFlXCqHdi+fpVNKYgE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-523-gwn_3wreOuavPHbos-PwJQ-1; Fri, 01 Oct 2021 11:18:50 -0400
-X-MC-Unique: gwn_3wreOuavPHbos-PwJQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5FD2D81426E;
- Fri,  1 Oct 2021 15:18:48 +0000 (UTC)
-Received: from localhost (unknown [10.39.192.75])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id B975660936;
- Fri,  1 Oct 2021 15:18:47 +0000 (UTC)
-From: Cornelia Huck <cohuck@redhat.com>
-To: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
-In-Reply-To: <20211001162213.18d7375e.pasic@linux.ibm.com>
-Organization: Red Hat GmbH
-References: <20210930012049.3780865-1-pasic@linux.ibm.com>
- <87r1d64dl4.fsf@redhat.com> <20210930130350.0cdc7c65.pasic@linux.ibm.com>
- <87ilyi47wn.fsf@redhat.com> <20211001162213.18d7375e.pasic@linux.ibm.com>
-User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
-Date: Fri, 01 Oct 2021 17:18:46 +0200
-Message-ID: <87v92g3h9l.fsf@redhat.com>
+ Fri,  1 Oct 2021 15:49:31 +0000 (UTC)
+X-IronPort-AV: E=McAfee;i="6200,9189,10124"; a="204958166"
+X-IronPort-AV: E=Sophos;i="5.85,339,1624345200"; d="scan'208";a="204958166"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+ by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 01 Oct 2021 08:49:30 -0700
+X-IronPort-AV: E=Sophos;i="5.85,339,1624345200"; d="scan'208";a="619225739"
+Received: from akleen-mobl1.amr.corp.intel.com (HELO [10.135.37.9])
+ ([10.135.37.9])
+ by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 01 Oct 2021 08:49:29 -0700
+Subject: Re: [PATCH v2 4/6] virtio: Initialize authorized attribute for
+ confidential guest
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Kuppuswamy, Sathyanarayanan" <sathyanarayanan.kuppuswamy@linux.intel.com>
+References: <20210930010511.3387967-1-sathyanarayanan.kuppuswamy@linux.intel.com>
+ <20210930010511.3387967-5-sathyanarayanan.kuppuswamy@linux.intel.com>
+ <20210930065953-mutt-send-email-mst@kernel.org>
+ <CAPcyv4hP6mtzKS-CVb-aKf-kYuiLM771PMxN2zeBEfoj6NbctA@mail.gmail.com>
+ <6d1e2701-5095-d110-3b0a-2697abd0c489@linux.intel.com>
+ <YVXWaF73gcrlvpnf@kroah.com>
+ <1cfdce51-6bb4-f7af-a86b-5854b6737253@linux.intel.com>
+ <YVaywQLAboZ6b36V@kroah.com>
+From: Andi Kleen <ak@linux.intel.com>
+Message-ID: <64eb085b-ef9d-dc6e-5bfd-d23ca0149b5e@linux.intel.com>
+Date: Fri, 1 Oct 2021 08:49:28 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-Cc: linux-s390@vger.kernel.org, markver@us.ibm.com,
- "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>,
- Xie Yongji <xieyongji@bytedance.com>,
- Christian Borntraeger <borntraeger@de.ibm.com>
+In-Reply-To: <YVaywQLAboZ6b36V@kroah.com>
+Content-Language: en-US
+Cc: Jonathan Corbet <corbet@lwn.net>,
+ Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Michael Jamet <michael.jamet@intel.com>,
+ Linux PCI <linux-pci@vger.kernel.org>, X86 ML <x86@kernel.org>,
+ virtualization@lists.linux-foundation.org,
+ Yehezkel Bernat <YehezkelShB@gmail.com>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Andreas Noever <andreas.noever@gmail.com>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, "Reshetova, Elena" <elena.reshetova@intel.com>,
+ Bjorn Helgaas <bhelgaas@google.com>, Dan Williams <dan.j.williams@intel.com>,
+ USB list <linux-usb@vger.kernel.org>,
+ Mika Westerberg <mika.westerberg@linux.intel.com>,
+ Thomas Gleixner <tglx@linutronix.de>, "Rafael J . Wysocki" <rafael@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,194 +98,122 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Oct 01 2021, Halil Pasic <pasic@linux.ibm.com> wrote:
 
-> On Thu, 30 Sep 2021 13:31:04 +0200
-> Cornelia Huck <cohuck@redhat.com> wrote:
->
->> On Thu, Sep 30 2021, Halil Pasic <pasic@linux.ibm.com> wrote:
->> 
->> > On Thu, 30 Sep 2021 11:28:23 +0200
->> > Cornelia Huck <cohuck@redhat.com> wrote:
->> >  
->> >> On Thu, Sep 30 2021, Halil Pasic <pasic@linux.ibm.com> wrote:
->> >> > @@ -249,6 +249,10 @@ static int virtio_dev_probe(struct device *_d)
->> >> >  		if (device_features & (1ULL << i))
->> >> >  			__virtio_set_bit(dev, i);
->> >> >  
->> >> > +	/* Write back features before validate to know endianness */
->> >> > +	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
->> >> > +		dev->config->finalize_features(dev);    
->> >> 
->> >> This really looks like a mess :(
->> >> 
->> >> We end up calling ->finalize_features twice: once before ->validate, and
->> >> once after, that time with the complete song and dance. The first time,
->> >> we operate on one feature set; after validation, we operate on another,
->> >> and there might be interdependencies between the two (like a that a bit
->> >> is cleared because of another bit, which would not happen if validate
->> >> had a chance to clear that bit before).  
->> >
->> > Basically the second set is a subset of the first set.  
->> 
->> I don't think that's clear.
->
-> Validate can only remove features, or? So I guess after validate
-> is a subset of before validate.
-
-I was thinking about (more-or-less hypothetical) interdependencies (see
-above). But that's not terribly important.
-
->
->
->> 
->> >  
->> >> 
->> >> I'm not sure whether that is even a problem in the spec: while the
->> >> driver may read the config before finally accepting features  
->> >
->> > I'm not sure I'm following you. Let me please qoute the specification:
->> > """
->> > 4. Read device feature bits, and write the subset of feature bits
->> > understood by the OS and driver to the device. During this step the driver MAY read (but MUST NOT write) the device-specific configuration fields to check that it can support the device before accepting it. 
->> > 5. Set the FEATURES_OK status bit. The driver MUST NOT accept new feature bits after this step. 
->> > """
->> > https://docs.oasis-open.org/virtio/virtio/v1.1/cs01/virtio-v1.1-cs01.html#x1-930001  
->> 
->> Yes, exactly, it MAY read before accepting features. How does the device
->> know whether the config space is little-endian or not?
->> 
->
-> Well that is what we are talking about. One can try to infer things from
-> the spec. This reset dance I called ugly is probably the cleanest,
-> because the spec says that re-nego should work.
->
->> >  
->> >> , it does
->> >> not really make sense to do so before a feature bit as basic as
->> >> VERSION_1 which determines the endianness has been negotiated.   
->> >
->> > Are you suggesting that ->verify() should be after
->> > virtio_finalize_features()?  
->> 
->> No, that would defeat the entire purpose of verify. After
->> virtio_finalize_features(), we are done with feature negotiation.
+On 10/1/2021 12:03 AM, Greg Kroah-Hartman wrote:
+> On Thu, Sep 30, 2021 at 12:04:05PM -0700, Kuppuswamy, Sathyanarayanan wrote:
 >>
->
-> Exactly!
-
-It seems we are in violent agreement :)
-
->  
->> > Wouldn't
->> > that mean that verify() can't reject feature bits? But that is the whole
->> > point of commit 82e89ea077b9 ("virtio-blk: Add validation for block size
->> > in config space"). Do you think that the commit in question is
->> > conceptually flawed? My understanding of the verify is, that it is supposed
->> > to fence features and feature bits we can't support, e.g. because of
->> > config space things, but I may be wrong.  
->> 
->> No, that commit is not really flawed on its own, I think the whole
->> procedure may be problematic.
->> 
->
-> I agree! But that regression really hurts us. Maybe the best band-aid is
-> to conditional-compile it (not compile the check if s390).
-
-It's probably most likely to hit on s390 (big-endian, and devices with a
-blocksize != 512 in common use); but I'd like to make that band-aid more
-generic than "exclude for s390". A hack for honouring VERSION_1 before
-negotiation has finished is probably better as a stop-gap before we
-manage to figure out how to deal with this properly.
-
->
->> >
->> > The trouble is, feature bits are not negotiated one by one, but basically all
->> > at once. I suppose, I did the next best thing to first negotiating
->> > VERSION_1.  
->> 
->> We probably need to special-case VERSION_1 to move at least forward;
->> i.e. proceed as if we accepted it when reading the config space.
->> 
->> The problem is that we do not know what the device assumes when we read
->> the config space prior to setting FEATURES_OK. It may assume
->> little-endian if it offered VERSION_1, or it may not. The spec does not
->> really say what happens before feature negotiation has finished.
->> 
-> No it does not, but I hope, the implementations we care the most about do
-> little endian if VERSION_1 is set but FEATURES_OK is not yet done. A
-> transitional device would have to act upon a feature that is set,
-> because for legacy there is no FEATURES_OK. Where we can run into
-> trouble is minimum required feature set, e.g. mandatory features.
-
-All ugly :(
-
->
-> I will do some testing.
->
->> >
->> >  
->> >> For
->> >> VERSION_1, we can probably go ahead and just assume that we will accept
->> >> it if offered, but what about other (future) bits?  
->> >
->> > I don't quite understand.  
->> 
->> There might be other bits in the future that change how the config space
->> works. We cannot assume that any of those bits will be accepted if
->> offered; i.e. we need a special hack for VERSION_1.
->
-> I tend to agree. What I didn't consider in this patch is that, setting
-> bits does not only set bits, but may also change the device in a way,
-> that clearing the bit would not change it back.
->
->> 
->> >
->> > Anyway, how do you think we should solve this problem?  
->> 
->> This is a mess. For starters, we need to think about if we should do
->> something in the spec, and if yes, what.. Then, we can probably think
->> about how to implement that properly.
+>> On 9/30/21 8:23 AM, Greg Kroah-Hartman wrote:
+>>> On Thu, Sep 30, 2021 at 08:18:18AM -0700, Kuppuswamy, Sathyanarayanan wrote:
+>>>>
+>>>> On 9/30/21 6:36 AM, Dan Williams wrote:
+>>>>>> And in particular, not all virtio drivers are hardened -
+>>>>>> I think at this point blk and scsi drivers have been hardened - so
+>>>>>> treating them all the same looks wrong.
+>>>>> My understanding was that they have been audited, Sathya?
+>>>> Yes, AFAIK, it has been audited. Andi also submitted some patches
+>>>> related to it. Andi, can you confirm.
+>>> What is the official definition of "audited"?
 >>
+>> In our case (Confidential Computing platform), the host is an un-trusted
+>> entity. So any interaction with host from the drivers will have to be
+>> protected against the possible attack from the host. For example, if we
+>> are accessing a memory based on index value received from host, we have
+>> to make sure it does not lead to out of bound access or when sharing the
+>> memory with the host, we need to make sure only the required region is
+>> shared with the host and the memory is un-shared after use properly.
+> You have not defined the term "audited" here at all in any way that can
+> be reviewed or verified by anyone from what I can tell.
 >
-> I agree.
->
->  
->> As we have an error right now that is basically a regression, we
->> probably need a band-aid to keep going. Not sure if your patch is the
->> right approach, maybe we really need to special-case VERSION_1 (the
->> "assume we accepted it" hack mentioned above.) This will likely fix the
->> reported problem (I assume that is s390x on QEMU); do we know about
->> other VMMs? Any other big-endian architectures?
->
-> I didn't quite get it. Would this hack take place in QEMU or in the guest
-> kernel?
+> You have only described a new model that you wish the kernel to run in,
+> one in which it does not trust the hardware at all.  That is explicitly
+> NOT what the kernel has been designed for so far,
 
-I'd say we need a hack here so that we assume little-endian config space
-if VERSION_1 has been offered; if your patch here works, I assume QEMU
-does what we expect (assmuming little-endian as well.) I'm mostly
-wondering what happens if you use a different VMM; can we expect it to
-work similar to QEMU? Even if it helps for s390, we should double-check
-what happens for other architectures.
+It has been already done for a few USB/TB drivers, but yes not for the 
+majority of the kernel.
+
+>   and if you wish to
+> change that, lots of things need to be done outside of simply running
+> some fuzzers on a few random drivers.
+
+The goal is to do similar work as USB/TB did, but do it for a small set 
+of virtio drivers and use a custom allow list for those for the specific 
+secure guest cases.
+
+(there are some other goals, but let's not discuss them here for now)
+
 
 >
->> 
->> Anyone have any better suggestions?
->> 
+> For one example, how do you ensure that the memory you are reading from
+> hasn't been modified by the host between writing to it the last time you
+> did?
+
+It's similar techniques as we do on user space accesses. For example if 
+you bound check some value the code needs to ensure it is cached in 
+private memory, not reread from MMIO or shared memory. Of course that's 
+a good idea anyways for performance because MMIO is slow.
+
+In the concrete cases of virtio the main problem was the free list in 
+shared memory, but that has been addressed now.
+
+
+
+>   Do you have a list of specific drivers and kernel options that you
+> feel you now "trust"?
+
+For TDX it's currently only virtio net/block/console
+
+But we expect this list to grow slightly over time, but not at a high 
+rate (so hopefully <10)
+
+
+> If so, how long does that trust last for?  Until
+> someonen else modifies that code?  What about modifications to functions
+> that your "audited" code touches?  Who is doing this auditing?  How do
+> you know the auditing has been done correctly?  Who has reviewed and
+> audited the tools that are doing the auditing?  Where is the
+> specification that has been agreed on how the auditing must be done?
+> And so on...
+
+Well, I mean we already have a similar situation with user space APIs. 
+So it's not a new problem. For those we've done it for many years, with 
+audits and extra fuzzing.
+
+There are people working on the audit and fuzzing today. How exactly it 
+will be ensured long term is still be worked out, but I expect we can 
+work out something.
+
 >
-> There is the conditional compile, as an option but I would not say it is
-> better.
+> I feel like there are a lot of different things all being mixed up here
+> into one "oh we want this to happen!" type of thread.
 
-Yes, I agree.
 
-Anyone else have an idea? This is a nasty regression; we could revert the
-patch, which would remove the symptoms and give us some time, but that
-doesn't really feel right, I'd do that only as a last resort.
+
+Agreed. The thread ended up about a lot of stuff which is outside the 
+scope of the patches.
+
+>    Please let's just
+> stick to the one request that I had here, which was to move the way that
+> busses are allowed to authorize the devices they wish to control into a
+> generic way instead of being bus-specific logic.
+>
+> Any requests outside of that type of functionality are just that,
+> outside the scope of this patchset and should get their own patch series
+> and discussion.
+
+
+Yes that's the intention. This patch kit is only about controlling what 
+devices can enumerate.
+
+Also please let's avoid the "trusted" term. It's really misleading and 
+confusing in the context of confidential computing.
+
+
+-Andi
 
 _______________________________________________
 Virtualization mailing list
