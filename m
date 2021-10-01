@@ -2,87 +2,125 @@ Return-Path: <SRS0=yNrU=OV=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07E09C433F5
-	for <virtualization@archiver.kernel.org>; Fri,  1 Oct 2021 07:03:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0287DC433F5
+	for <virtualization@archiver.kernel.org>; Fri,  1 Oct 2021 07:21:50 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8CEC8619F5
-	for <virtualization@archiver.kernel.org>; Fri,  1 Oct 2021 07:03:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 8CEC8619F5
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id 99EF461A87
+	for <virtualization@archiver.kernel.org>; Fri,  1 Oct 2021 07:21:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 99EF461A87
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5C2AF843FE;
-	Fri,  1 Oct 2021 07:03:37 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 66AA984405;
+	Fri,  1 Oct 2021 07:21:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tFWF7QDfl4_m; Fri,  1 Oct 2021 07:03:36 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id D126184129;
-	Fri,  1 Oct 2021 07:03:35 +0000 (UTC)
+	with ESMTP id PjYxpcf3Wgg2; Fri,  1 Oct 2021 07:21:48 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id DEE378440A;
+	Fri,  1 Oct 2021 07:21:47 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A681AC0011;
-	Fri,  1 Oct 2021 07:03:35 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 650ECC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B06BAC000F;
+	Fri,  1 Oct 2021 07:21:47 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3AA05C000F
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Oct 2021 07:03:34 +0000 (UTC)
+ Fri,  1 Oct 2021 07:21:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 3E74240146
+ by smtp1.osuosl.org (Postfix) with ESMTP id 1D7158440B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Oct 2021 07:03:34 +0000 (UTC)
+ Fri,  1 Oct 2021 07:21:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=linuxfoundation.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FTlzphJTHV1q
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id XePNK1Rqgwi1
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Oct 2021 07:03:33 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 6427340017
+ Fri,  1 Oct 2021 07:21:44 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
+ [148.163.158.5])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id BF46B8440A
  for <virtualization@lists.linux-foundation.org>;
- Fri,  1 Oct 2021 07:03:33 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 706EA60551;
- Fri,  1 Oct 2021 07:03:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1633071813;
- bh=0W38PdEXHIVQIPll+lj+mk7xZAUxC8QpCqNUBGSB+/8=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=hgoTVKlDOzzRJAnGmyuCwIrPAJq3TBrkWxku6bsjIb9/ByohDLcD1EsZgSY7se0TI
- CG6q4Q9ASHZQ1Ge5WQJ9cuWOdgkVpeIV8KWygEsbGCk3UM89UEA/GOzhDqsNKz+K58
- Qhk0jK55DRI+q71MyjEfmxI23voJ/6FHW597Iwks=
-Date: Fri, 1 Oct 2021 09:03:29 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: "Kuppuswamy, Sathyanarayanan" <sathyanarayanan.kuppuswamy@linux.intel.com>
-Subject: Re: [PATCH v2 4/6] virtio: Initialize authorized attribute for
- confidential guest
-Message-ID: <YVaywQLAboZ6b36V@kroah.com>
-References: <20210930010511.3387967-1-sathyanarayanan.kuppuswamy@linux.intel.com>
- <20210930010511.3387967-5-sathyanarayanan.kuppuswamy@linux.intel.com>
- <20210930065953-mutt-send-email-mst@kernel.org>
- <CAPcyv4hP6mtzKS-CVb-aKf-kYuiLM771PMxN2zeBEfoj6NbctA@mail.gmail.com>
- <6d1e2701-5095-d110-3b0a-2697abd0c489@linux.intel.com>
- <YVXWaF73gcrlvpnf@kroah.com>
- <1cfdce51-6bb4-f7af-a86b-5854b6737253@linux.intel.com>
+ Fri,  1 Oct 2021 07:21:44 +0000 (UTC)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1917EUqE003866; 
+ Fri, 1 Oct 2021 03:21:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
+ h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=+auYqQBWFVzXygfs16wfY6wyZrHBoiWb8QO4x6kT1oY=;
+ b=j087lqmtblQnk5tQT1MFmP7tIemwQxkKeiVpl33+nrfszaW4xbiRCuQhZQgUU9xvgA2o
+ Qm3OM9kjzSq3Vwgp8/nuf70yniVYgb3aN3g+jhYoAWtZo+WE0+cTVeokE+68Pkg/V+pj
+ Jbg6A0hSw/pAc3veACOaOEV65sLnLZo8Dr76Z6oTAOxLm8175PR354P/g5c1jMFljUpS
+ q7M8utJpBbddi/h0glDq36e2sRkn5/4096TdqAfxF+IMbjbIkmIiHrE7f1ZYM3L9AZqP
+ KeTqDZguEb6LE/VFtdHYTfsOddwyUWai/5DkUY7FefNW4V6SLT0tTUEPUs0e+ErAHRhq wQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3bdws484dd-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Fri, 01 Oct 2021 03:21:42 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+ by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1917I6LN016830;
+ Fri, 1 Oct 2021 03:21:42 -0400
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com
+ [169.51.49.98])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3bdws484cw-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Fri, 01 Oct 2021 03:21:42 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+ by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1917I5Af027457;
+ Fri, 1 Oct 2021 07:21:40 GMT
+Received: from b06cxnps3074.portsmouth.uk.ibm.com
+ (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
+ by ppma03ams.nl.ibm.com with ESMTP id 3b9udaue2a-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Fri, 01 Oct 2021 07:21:40 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com
+ [9.149.105.62])
+ by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
+ 1917LaYv43647370
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Fri, 1 Oct 2021 07:21:36 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 080AFAE05D;
+ Fri,  1 Oct 2021 07:21:36 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 322A8AE056;
+ Fri,  1 Oct 2021 07:21:35 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.45.119])
+ by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
+ Fri,  1 Oct 2021 07:21:35 +0000 (GMT)
+Date: Fri, 1 Oct 2021 09:21:25 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
+Message-ID: <20211001092125.64fef348.pasic@linux.ibm.com>
+In-Reply-To: <20210930070444-mutt-send-email-mst@kernel.org>
+References: <20210930012049.3780865-1-pasic@linux.ibm.com>
+ <20210930070444-mutt-send-email-mst@kernel.org>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <1cfdce51-6bb4-f7af-a86b-5854b6737253@linux.intel.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Andi Kleen <ak@linux.intel.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Michael Jamet <michael.jamet@intel.com>,
- Linux PCI <linux-pci@vger.kernel.org>, X86 ML <x86@kernel.org>,
- virtualization@lists.linux-foundation.org,
- Yehezkel Bernat <YehezkelShB@gmail.com>,
- Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- Andreas Noever <andreas.noever@gmail.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Bjorn Helgaas <bhelgaas@google.com>,
- Dan Williams <dan.j.williams@intel.com>, USB list <linux-usb@vger.kernel.org>,
- Mika Westerberg <mika.westerberg@linux.intel.com>,
- Thomas Gleixner <tglx@linutronix.de>, "Rafael J . Wysocki" <rafael@kernel.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: lH2xwuMhX2Y3AiUs1ca1bpVL38yP9cmT
+X-Proofpoint-GUID: xlT7K0u0aaQPp35iwhVj2WTFIDKe9dpn
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-09-30_07,2021-09-30_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0
+ clxscore=1015 bulkscore=0 mlxlogscore=999 malwarescore=0 spamscore=0
+ adultscore=0 suspectscore=0 phishscore=0 priorityscore=1501
+ impostorscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110010047
+Cc: linux-s390@vger.kernel.org, markver@us.ibm.com,
+ Christian Borntraeger <borntraeger@de.ibm.com>,
+ Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>,
+ Xie Yongji <xieyongji@bytedance.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,66 +137,148 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Sep 30, 2021 at 12:04:05PM -0700, Kuppuswamy, Sathyanarayanan wrote:
-> 
-> 
-> On 9/30/21 8:23 AM, Greg Kroah-Hartman wrote:
-> > On Thu, Sep 30, 2021 at 08:18:18AM -0700, Kuppuswamy, Sathyanarayanan wrote:
-> > > 
-> > > 
-> > > On 9/30/21 6:36 AM, Dan Williams wrote:
-> > > > > And in particular, not all virtio drivers are hardened -
-> > > > > I think at this point blk and scsi drivers have been hardened - so
-> > > > > treating them all the same looks wrong.
-> > > > My understanding was that they have been audited, Sathya?
-> > > 
-> > > Yes, AFAIK, it has been audited. Andi also submitted some patches
-> > > related to it. Andi, can you confirm.
+On Thu, 30 Sep 2021 07:12:21 -0400
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
+
+> On Thu, Sep 30, 2021 at 03:20:49AM +0200, Halil Pasic wrote:
+> > This patch fixes a regression introduced by commit 82e89ea077b9
+> > ("virtio-blk: Add validation for block size in config space") and
+> > enables similar checks in verify() on big endian platforms.
 > > 
-> > What is the official definition of "audited"?
+> > The problem with checking multi-byte config fields in the verify
+> > callback, on big endian platforms, and with a possibly transitional
+> > device is the following. The verify() callback is called between
+> > config->get_features() and virtio_finalize_features(). That we have a
+> > device that offered F_VERSION_1 then we have the following options
+> > either the device is transitional, and then it has to present the legacy
+> > interface, i.e. a big endian config space until F_VERSION_1 is
+> > negotiated, or we have a non-transitional device, which makes
+> > F_VERSION_1 mandatory, and only implements the non-legacy interface and
+> > thus presents a little endian config space. Because at this point we
+> > can't know if the device is transitional or non-transitional, we can't
+> > know do we need to byte swap or not.  
+> 
+> Hmm which transport does this refer to?
+
+It is the same with virtio-ccw and virtio-pci. I see the same problem
+with both on s390x. I didn't try with virtio-blk-pci-non-transitional
+yet (have to figure out how to do that with libvirt) for pci I used
+virtio-blk-pci.
+
+> Distinguishing between legacy and modern drivers is transport
+> specific.  PCI presents
+> legacy and modern at separate addresses so distinguishing
+> between these two should be no trouble.
+
+You mean the device id? Yes that is bolted down in the spec, but
+currently we don't exploit that information. Furthermore there
+is a fat chance that with QEMU even the allegedly non-transitional
+devices only present a little endian config space after VERSION_1
+was negotiated. Namely get_config for virtio-blk is implemented in
+virtio_blk_update_config() which does virtio_stl_p(vdev,
+&blkcfg.blk_size, blk_size) and in there we don't care
+about transitional or not:
+
+static inline bool virtio_access_is_big_endian(VirtIODevice *vdev)
+{
+#if defined(LEGACY_VIRTIO_IS_BIENDIAN)
+    return virtio_is_big_endian(vdev);
+#elif defined(TARGET_WORDS_BIGENDIAN)
+    if (virtio_vdev_has_feature(vdev, VIRTIO_F_VERSION_1)) {
+        /* Devices conforming to VIRTIO 1.0 or later are always LE. */
+        return false;
+    }
+    return true;
+#else
+    return false;
+#endif
+}
+
+
+> Channel i/o has versioning so same thing?
+>
+
+Don't think so. Both a transitional and a non-transitional device
+would have to accept revisions higher than 0 if the driver tried to
+negotiate those (and we do in our case).
+ 
+> > The virtio spec explicitly states that the driver MAY read config
+> > between reading and writing the features so saying that first accessing
+> > the config before feature negotiation is done is not an option. The
+> > specification ain't clear about setting the features multiple times
+> > before FEATURES_OK, so I guess that should be fine.
+> > 
+> > I don't consider this patch super clean, but frankly I don't think we
+> > have a ton of options. Another option that may or man not be cleaner,
+> > but is also IMHO much uglier is to figure out whether the device is
+> > transitional by rejecting _F_VERSION_1, then resetting it and proceeding
+> > according tho what we have figured out, hoping that the characteristics
+> > of the device didn't change.  
+> 
+> I am confused here. So is the problem at the device or at the driver level?
+
+We have a driver regression. Since the 82e89ea077b9 ("virtio-blk: Add
+validation for block size in config space") virtio-blk is broken on
+s390.
+
+The deeper problem is in the spec. We stated that the driver may read
+config space before the feature negotiation is finalized, but we didn't
+think enough about what happens when native endiannes is not little
+endian in the different cases.
+
+I believe, for non-transitional devices we have a problem in the host as
+well (i.e. in QEMU).
+
+> I suspect it's actually the host that has the issue, not
+> the guest?
+
+I tend to say we have a problem both in the host and in the guest. I'm
+more concerned about the problem in the guest, because that is a really
+nasty regression. For the host. I think for legacy we don't have a
+problem, because both sides would operate on the assumption no
+_F_VERSION_1, IMHO the implementation for the transitional devices is
+correct. For non-transitional flavor, it depends on the device. For
+example virtio-net and virtio-blk is broken, because we use primitives
+like virtio_stl_p() and those don't do the right thing before feature
+negotiation is completed. On the other hand virtio-crypto.c as a truly
+non-transitional device uses stl_le_p() and IMHO does the right thing.
+
+Thanks for your comments! I hope I managed to answer your questions. I
+need some guidance on how do we want to move forward on this.
+
+Regards,
+Halil
+
 > 
 > 
-> In our case (Confidential Computing platform), the host is an un-trusted
-> entity. So any interaction with host from the drivers will have to be
-> protected against the possible attack from the host. For example, if we
-> are accessing a memory based on index value received from host, we have
-> to make sure it does not lead to out of bound access or when sharing the
-> memory with the host, we need to make sure only the required region is
-> shared with the host and the memory is un-shared after use properly.
+> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> > Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
+> > Reported-by: markver@us.ibm.com
+> > ---
+> >  drivers/virtio/virtio.c | 4 ++++
+> >  1 file changed, 4 insertions(+)
+> > 
+> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > index 0a5b54034d4b..9dc3cfa17b1c 100644
+> > --- a/drivers/virtio/virtio.c
+> > +++ b/drivers/virtio/virtio.c
+> > @@ -249,6 +249,10 @@ static int virtio_dev_probe(struct device *_d)
+> >  		if (device_features & (1ULL << i))
+> >  			__virtio_set_bit(dev, i);
+> >  
+> > +	/* Write back features before validate to know endianness */
+> > +	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+> > +		dev->config->finalize_features(dev);
+> > +
+> >  	if (drv->validate) {
+> >  		err = drv->validate(dev);
+> >  		if (err)
+> > 
+> > base-commit: 02d5e016800d082058b3d3b7c3ede136cdc6ddcb
+> > -- 
+> > 2.25.1  
+> 
 
-You have not defined the term "audited" here at all in any way that can
-be reviewed or verified by anyone from what I can tell.
-
-You have only described a new model that you wish the kernel to run in,
-one in which it does not trust the hardware at all.  That is explicitly
-NOT what the kernel has been designed for so far, and if you wish to
-change that, lots of things need to be done outside of simply running
-some fuzzers on a few random drivers.
-
-For one example, how do you ensure that the memory you are reading from
-hasn't been modified by the host between writing to it the last time you
-did?  Do you have a list of specific drivers and kernel options that you
-feel you now "trust"?  If so, how long does that trust last for?  Until
-someonen else modifies that code?  What about modifications to functions
-that your "audited" code touches?  Who is doing this auditing?  How do
-you know the auditing has been done correctly?  Who has reviewed and
-audited the tools that are doing the auditing?  Where is the
-specification that has been agreed on how the auditing must be done?
-And so on...
-
-I feel like there are a lot of different things all being mixed up here
-into one "oh we want this to happen!" type of thread.  Please let's just
-stick to the one request that I had here, which was to move the way that
-busses are allowed to authorize the devices they wish to control into a
-generic way instead of being bus-specific logic.
-
-Any requests outside of that type of functionality are just that,
-outside the scope of this patchset and should get their own patch series
-and discussion.
-
-thanks,
-
-greg k-h
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
