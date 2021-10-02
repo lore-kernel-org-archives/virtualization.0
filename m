@@ -2,106 +2,101 @@ Return-Path: <SRS0=UZhq=OW=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B956FC433EF
-	for <virtualization@archiver.kernel.org>; Sat,  2 Oct 2021 18:13:52 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4EC3C433EF
+	for <virtualization@archiver.kernel.org>; Sat,  2 Oct 2021 18:21:01 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4671F61B32
-	for <virtualization@archiver.kernel.org>; Sat,  2 Oct 2021 18:13:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4671F61B32
+	by mail.kernel.org (Postfix) with ESMTPS id 86A0561B3D
+	for <virtualization@archiver.kernel.org>; Sat,  2 Oct 2021 18:21:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 86A0561B3D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 0BE5640558;
-	Sat,  2 Oct 2021 18:13:52 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 51B7C846E2;
+	Sat,  2 Oct 2021 18:21:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id AjphdMI-X0QI; Sat,  2 Oct 2021 18:13:51 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B653B4053B;
-	Sat,  2 Oct 2021 18:13:50 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8D0F6C000F;
-	Sat,  2 Oct 2021 18:13:50 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 70C56C000D
- for <virtualization@lists.linux-foundation.org>;
- Sat,  2 Oct 2021 18:13:48 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 4BFAE846F1
- for <virtualization@lists.linux-foundation.org>;
- Sat,  2 Oct 2021 18:13:48 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id e_AelXVlrZqT
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id xHk2K2Zaj_U0; Sat,  2 Oct 2021 18:21:00 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id CA546846DF;
+	Sat,  2 Oct 2021 18:20:59 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9B3EFC000F;
+	Sat,  2 Oct 2021 18:20:59 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 917D6C000D
  for <virtualization@lists.linux-foundation.org>;
- Sat,  2 Oct 2021 18:13:47 +0000 (UTC)
+ Sat,  2 Oct 2021 18:20:58 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 8C50E401C3
+ for <virtualization@lists.linux-foundation.org>;
+ Sat,  2 Oct 2021 18:20:58 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id IEf2VENNQKmQ
+ for <virtualization@lists.linux-foundation.org>;
+ Sat,  2 Oct 2021 18:20:57 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0B542846EC
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 570AB4017C
  for <virtualization@lists.linux-foundation.org>;
- Sat,  2 Oct 2021 18:13:46 +0000 (UTC)
+ Sat,  2 Oct 2021 18:20:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1633198425;
+ s=mimecast20190719; t=1633198855;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=3oSEK/nQsdZlU+yYMpXszg2Kp8d5WMgwuTa52Aw2D3Y=;
- b=I8PsR+DgGuOe1K9hlg6YjY22aR5Q3e7Ss+hf0JhsEsvBw8KhKOQl8wwofCop3rYD9rw05z
- i5jXyuChArjpBK80ERj3mzsiF/HfAj4X1I5h8pfFsW2baxt/IIhhjvfOCDh48jSwdlbQ1x
- FM56uT5HnB3echT77ZAsr+x24o/MtO0=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-242-jF93yDg_NI-iI2sh2fdjBg-1; Sat, 02 Oct 2021 14:13:44 -0400
-X-MC-Unique: jF93yDg_NI-iI2sh2fdjBg-1
-Received: by mail-ed1-f72.google.com with SMTP id
- c7-20020a05640227c700b003d27f41f1d4so13219288ede.16
+ bh=/BseWdc8UQJjK9a1ZYawAXysMdy6qiRjZCYAo+Mifu0=;
+ b=TmtS3vGu5isUbRW0uxCYnKSJ8vlOUMAk/IlwSUKmgy8z6qujKPovFoo4lgj2NFUhDrl3zB
+ /upscCxTUBz5OuZNs6XrqAX9xtzFDx68QNDKdqsUlZn3XEnHEnd0pD5ZB63lZD71j+OBQv
+ uTZ/i9N8IeGYhgmiGocy0ZiUwFRegWY=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-461-Rxcu6AcBNZKFtosYF20ojg-1; Sat, 02 Oct 2021 14:20:52 -0400
+X-MC-Unique: Rxcu6AcBNZKFtosYF20ojg-1
+Received: by mail-wm1-f72.google.com with SMTP id
+ j21-20020a05600c1c1500b00300f1679e4dso7687435wms.4
  for <virtualization@lists.linux-foundation.org>;
- Sat, 02 Oct 2021 11:13:43 -0700 (PDT)
+ Sat, 02 Oct 2021 11:20:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=3oSEK/nQsdZlU+yYMpXszg2Kp8d5WMgwuTa52Aw2D3Y=;
- b=d6EowTRuyFF044fyMZypG7fzwlF38VmQt0ee4K2J5qaK+jaD7epoDNyPNQR6Mn8L0U
- KbUe3XS6ny8Q5gCKq9lQRSUaLJ77r6aNl1CQ5qTmNF/PER93MOnibqwIcDYMYMhRxTI/
- ggwYa1VE4nBLYlkQ3aG2+Mz9YKYbYrbXI2UAmoAVF7aRIoB/Qh8UbSyxat340qgRL39w
- IOtKAiBTQY1IYviD1GWU/qAXTFnSBYaF0sTq1NOHSznxK2+esIU/uZ5ps0qwonZXAKmB
- Ff7VGD8xgDDDElmKV1SHWtSb8WCb/OTeliAav3g8oZzsbP1WxbdoF3PyBExHb0QpJCMn
- k4CQ==
-X-Gm-Message-State: AOAM533PmIAxvfNHqGTL0FRfzdfa6RrX8yCTOyqF7w1v5WhFhKBolSIg
- X5o2eRvF7O1KkN2tpNC8yLcQrIEE9QmNtEQOk3CVTiREWNt9W1+Bas+jtW4kiC7mHYN5Ae0prhp
- 3fJ2tpKri6A8iyA8yCBf2s06DAh6M40KDAUiFYAqeyA==
-X-Received: by 2002:a17:906:3148:: with SMTP id
- e8mr5549047eje.240.1633198422797; 
- Sat, 02 Oct 2021 11:13:42 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwRv0l7yLWVghnzKaRjGETRmZdWUznHgB707hsC9MH/6Nu9SV2dEEHSsiG1hSfbsv5Yq/RsSA==
-X-Received: by 2002:a17:906:3148:: with SMTP id
- e8mr5549025eje.240.1633198422593; 
- Sat, 02 Oct 2021 11:13:42 -0700 (PDT)
+ bh=/BseWdc8UQJjK9a1ZYawAXysMdy6qiRjZCYAo+Mifu0=;
+ b=8K5UVmXfUFuI0LQ+yOughh1JV38BIePc6llRYoQeUWAwE9ahe86M8gpwv2B9QoDk7N
+ zOtB7NVWr7ZdEtBeR+E3YCw47hYpas70dq2qXruoLkMVQKA30qoagDGa3xo9ythYoQ7s
+ aQvAGgy+dy3CWfyGKjTE9BP44VEaQ1+95oxHGuKnj2WPUqBfvAPHpo2Q263EAmDL1M78
+ wtOoeER5MWE9pbxJZB8F/3JO7djsXfSaapPDH8FcsQKcPStOQpZuPX6jvVCXcRP6XnRX
+ ZZhej4JOU3vHM3i+54/MTHrKZFYys/oAKcfGsUIyT4qVTsxJXDAwkVqpUt2AyZMyVf9L
+ 9GIg==
+X-Gm-Message-State: AOAM531Uzal8AWa9NKTMmh8OfnVTAxlrLMl9kXYCmFR2kVZIdOAgLbhx
+ 0h8Iq+/uS8/xkGG49DhfG1xGJwzGsOB+DG2xOde25OUuiHVZvt8uwL36LQlNpWlMXl5LzlSXrzn
+ adhNawMGmdYdOBsljlxMjhtmxgboNBJceRcRQ/EbgVw==
+X-Received: by 2002:adf:dd49:: with SMTP id u9mr4550512wrm.341.1633198851276; 
+ Sat, 02 Oct 2021 11:20:51 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwvZQk7jDjIn08h5VZz1gHIyPHtFcuVU64tR+3kyaT84IIZkayL+B4+uQQLa/omoliyoequsA==
+X-Received: by 2002:adf:dd49:: with SMTP id u9mr4550499wrm.341.1633198851080; 
+ Sat, 02 Oct 2021 11:20:51 -0700 (PDT)
 Received: from redhat.com ([2.55.22.213])
- by smtp.gmail.com with ESMTPSA id d10sm4409791eja.81.2021.10.02.11.13.39
+ by smtp.gmail.com with ESMTPSA id s3sm9210727wrm.40.2021.10.02.11.20.49
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 02 Oct 2021 11:13:41 -0700 (PDT)
-Date: Sat, 2 Oct 2021 14:13:37 -0400
+ Sat, 02 Oct 2021 11:20:50 -0700 (PDT)
+Date: Sat, 2 Oct 2021 14:20:47 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Cornelia Huck <cohuck@redhat.com>
 Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
-Message-ID: <20211002082128-mutt-send-email-mst@kernel.org>
+Message-ID: <20211002141351-mutt-send-email-mst@kernel.org>
 References: <20210930012049.3780865-1-pasic@linux.ibm.com>
- <87r1d64dl4.fsf@redhat.com>
- <20210930130350.0cdc7c65.pasic@linux.ibm.com>
- <87ilyi47wn.fsf@redhat.com>
- <20211001162213.18d7375e.pasic@linux.ibm.com>
- <87v92g3h9l.fsf@redhat.com>
+ <20210930070444-mutt-send-email-mst@kernel.org>
+ <87fstm47no.fsf@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <87v92g3h9l.fsf@redhat.com>
+In-Reply-To: <87fstm47no.fsf@redhat.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -127,41 +122,115 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Oct 01, 2021 at 05:18:46PM +0200, Cornelia Huck wrote:
-> I'd say we need a hack here so that we assume little-endian config space
-> if VERSION_1 has been offered; if your patch here works, I assume QEMU
-> does what we expect (assmuming little-endian as well.) I'm mostly
-> wondering what happens if you use a different VMM; can we expect it to
-> work similar to QEMU?
+On Thu, Sep 30, 2021 at 01:36:27PM +0200, Cornelia Huck wrote:
+> On Thu, Sep 30 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > On Thu, Sep 30, 2021 at 03:20:49AM +0200, Halil Pasic wrote:
+> >> This patch fixes a regression introduced by commit 82e89ea077b9
+> >> ("virtio-blk: Add validation for block size in config space") and
+> >> enables similar checks in verify() on big endian platforms.
+> >> 
+> >> The problem with checking multi-byte config fields in the verify
+> >> callback, on big endian platforms, and with a possibly transitional
+> >> device is the following. The verify() callback is called between
+> >> config->get_features() and virtio_finalize_features(). That we have a
+> >> device that offered F_VERSION_1 then we have the following options
+> >> either the device is transitional, and then it has to present the legacy
+> >> interface, i.e. a big endian config space until F_VERSION_1 is
+> >> negotiated, or we have a non-transitional device, which makes
+> >> F_VERSION_1 mandatory, and only implements the non-legacy interface and
+> >> thus presents a little endian config space. Because at this point we
+> >> can't know if the device is transitional or non-transitional, we can't
+> >> know do we need to byte swap or not.
+> >
+> > Hmm which transport does this refer to?
+> > Distinguishing between legacy and modern drivers is transport
+> > specific.  PCI presents
+> > legacy and modern at separate addresses so distinguishing
+> > between these two should be no trouble.
+> 
+> Hm, what about transitional devices?
 
-Hard to say of course ... hopefully other VMMs are actually
-implementing the spec. E.g. IIUC rust vmm is modern only.
+transitional devices can be accessed through a modern
+or a legacy interface, not both. Device knows how
+it's accessed. It should key endian-ness decisions on
+this not on feature negotiation.
 
+> > Channel i/o has versioning so same thing?
+> 
+> It can turn off VERSION_1, but not legacy. (I had hacked up a patchset
+> to potentially disable legacy some time ago, but did not have any
+> resources to follow up on this.)
 
-> Even if it helps for s390, we should double-check
-> what happens for other architectures.
+That's ok, my point is that revision is negotiated before config
+accesses, IIUC a legacy driver expecting BE will use revision 0, modern
+one will use revision 1 and up.
+
 > 
 > >
+> >> The virtio spec explicitly states that the driver MAY read config
+> >> between reading and writing the features so saying that first accessing
+> >> the config before feature negotiation is done is not an option. The
+> >> specification ain't clear about setting the features multiple times
+> >> before FEATURES_OK, so I guess that should be fine.
 > >> 
-> >> Anyone have any better suggestions?
-> >> 
+> >> I don't consider this patch super clean, but frankly I don't think we
+> >> have a ton of options. Another option that may or man not be cleaner,
+> >> but is also IMHO much uglier is to figure out whether the device is
+> >> transitional by rejecting _F_VERSION_1, then resetting it and proceeding
+> >> according tho what we have figured out, hoping that the characteristics
+> >> of the device didn't change.
 > >
-> > There is the conditional compile, as an option but I would not say it is
-> > better.
+> > I am confused here. So is the problem at the device or at the driver level?
+> > I suspect it's actually the host that has the issue, not
+> > the guest?
 > 
-> Yes, I agree.
+> >From my perspective the problem is that the version of the device
+> remains in limbo as long as the features have not yet been finalized,
+> which means that the endianness of the config space remains in limbo as
+> well. Both device and driver might come to different conclusions.
+
+Version === legacy versus modern?
+It is true that feature negotiation can not be used by device to decide that
+question simply because it happens too late.
+So let's not use it for that then ;)
+
+Yes we have VERSION_1 which looks like it should allow this, but
+unfortunately it only helps with that for the driver, not the device.
+
+In practice legacy versus modern has to be determined by
+transport specific versioning, luckily we have that for all
+specified transports (can't say what happens with rproc).
+
 > 
-> Anyone else have an idea? This is a nasty regression; we could revert the
-> patch, which would remove the symptoms and give us some time, but that
-> doesn't really feel right, I'd do that only as a last resort.
-
-Well we have Halil's hack (except I would limit it
-to only apply to BE, only do devices with validate,
-and only in modern mode), and we will fix QEMU to be spec compliant.
-Between these why do we need any conditional compiles?
-
--- 
-MST
+> >
+> >
+> >> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> >> Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
+> >> Reported-by: markver@us.ibm.com
+> >> ---
+> >>  drivers/virtio/virtio.c | 4 ++++
+> >>  1 file changed, 4 insertions(+)
+> >> 
+> >> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> >> index 0a5b54034d4b..9dc3cfa17b1c 100644
+> >> --- a/drivers/virtio/virtio.c
+> >> +++ b/drivers/virtio/virtio.c
+> >> @@ -249,6 +249,10 @@ static int virtio_dev_probe(struct device *_d)
+> >>  		if (device_features & (1ULL << i))
+> >>  			__virtio_set_bit(dev, i);
+> >>  
+> >> +	/* Write back features before validate to know endianness */
+> >> +	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+> >> +		dev->config->finalize_features(dev);
+> >> +
+> >>  	if (drv->validate) {
+> >>  		err = drv->validate(dev);
+> >>  		if (err)
+> >> 
+> >> base-commit: 02d5e016800d082058b3d3b7c3ede136cdc6ddcb
+> >> -- 
+> >> 2.25.1
 
 _______________________________________________
 Virtualization mailing list
