@@ -2,92 +2,115 @@ Return-Path: <SRS0=UZhq=OW=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CCC46C433FE
-	for <virtualization@archiver.kernel.org>; Sat,  2 Oct 2021 14:44:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B956FC433EF
+	for <virtualization@archiver.kernel.org>; Sat,  2 Oct 2021 18:13:52 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 781D461A78
-	for <virtualization@archiver.kernel.org>; Sat,  2 Oct 2021 14:44:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 781D461A78
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id 4671F61B32
+	for <virtualization@archiver.kernel.org>; Sat,  2 Oct 2021 18:13:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4671F61B32
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3E53540663;
-	Sat,  2 Oct 2021 14:44:09 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 0BE5640558;
+	Sat,  2 Oct 2021 18:13:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lfh78Z-mfE6V; Sat,  2 Oct 2021 14:44:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id A08AB40641;
-	Sat,  2 Oct 2021 14:44:07 +0000 (UTC)
+	with ESMTP id AjphdMI-X0QI; Sat,  2 Oct 2021 18:13:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id B653B4053B;
+	Sat,  2 Oct 2021 18:13:50 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 75E84C000F;
-	Sat,  2 Oct 2021 14:44:07 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8D0F6C000F;
+	Sat,  2 Oct 2021 18:13:50 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4076CC000D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 70C56C000D
  for <virtualization@lists.linux-foundation.org>;
- Sat,  2 Oct 2021 14:44:06 +0000 (UTC)
+ Sat,  2 Oct 2021 18:13:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 1F89982771
+ by smtp1.osuosl.org (Postfix) with ESMTP id 4BFAE846F1
  for <virtualization@lists.linux-foundation.org>;
- Sat,  2 Oct 2021 14:44:06 +0000 (UTC)
+ Sat,  2 Oct 2021 18:13:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=linuxfoundation.org
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KwLJ3Stm0yur
+ with ESMTP id e_AelXVlrZqT
  for <virtualization@lists.linux-foundation.org>;
- Sat,  2 Oct 2021 14:44:05 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 72B3D82718
+ Sat,  2 Oct 2021 18:13:47 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 0B542846EC
  for <virtualization@lists.linux-foundation.org>;
- Sat,  2 Oct 2021 14:44:05 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDE8161A38;
- Sat,  2 Oct 2021 14:44:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1633185845;
- bh=RVXCE1KtXB8pEGemhZzbi1pw9kaZh7HJ77HnqA+Npns=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=KmKcktd/wdJOAcwgKPmcihqF52yuGkwO6RKYCQVgvR3byomenOLbvq2VfDP6EjvI0
- plksHABi/Z/OXC4bfqZU2y4MUj4nw/JE7r+MlNbFWxMgZ3xVT+GKw6RNwYkpMQ3q5H
- Df6XaN3sMEBBNp5q2PWkokq4AYxKlEzAikICkvoM=
-Date: Sat, 2 Oct 2021 16:44:00 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Andi Kleen <ak@linux.intel.com>
-Subject: Re: [PATCH v2 4/6] virtio: Initialize authorized attribute for
- confidential guest
-Message-ID: <YVhwMJyJeAb8iEFL@kroah.com>
-References: <20210930065953-mutt-send-email-mst@kernel.org>
- <CAPcyv4hP6mtzKS-CVb-aKf-kYuiLM771PMxN2zeBEfoj6NbctA@mail.gmail.com>
- <6d1e2701-5095-d110-3b0a-2697abd0c489@linux.intel.com>
- <YVXWaF73gcrlvpnf@kroah.com>
- <1cfdce51-6bb4-f7af-a86b-5854b6737253@linux.intel.com>
- <YVaywQLAboZ6b36V@kroah.com>
- <64eb085b-ef9d-dc6e-5bfd-d23ca0149b5e@linux.intel.com>
- <20211002070218-mutt-send-email-mst@kernel.org>
- <YVg/F10PCFNOtCnL@kroah.com>
- <95ba71c5-87b8-7716-fbe4-bdc9b04b6812@linux.intel.com>
+ Sat,  2 Oct 2021 18:13:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1633198425;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=3oSEK/nQsdZlU+yYMpXszg2Kp8d5WMgwuTa52Aw2D3Y=;
+ b=I8PsR+DgGuOe1K9hlg6YjY22aR5Q3e7Ss+hf0JhsEsvBw8KhKOQl8wwofCop3rYD9rw05z
+ i5jXyuChArjpBK80ERj3mzsiF/HfAj4X1I5h8pfFsW2baxt/IIhhjvfOCDh48jSwdlbQ1x
+ FM56uT5HnB3echT77ZAsr+x24o/MtO0=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-242-jF93yDg_NI-iI2sh2fdjBg-1; Sat, 02 Oct 2021 14:13:44 -0400
+X-MC-Unique: jF93yDg_NI-iI2sh2fdjBg-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ c7-20020a05640227c700b003d27f41f1d4so13219288ede.16
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 02 Oct 2021 11:13:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=3oSEK/nQsdZlU+yYMpXszg2Kp8d5WMgwuTa52Aw2D3Y=;
+ b=d6EowTRuyFF044fyMZypG7fzwlF38VmQt0ee4K2J5qaK+jaD7epoDNyPNQR6Mn8L0U
+ KbUe3XS6ny8Q5gCKq9lQRSUaLJ77r6aNl1CQ5qTmNF/PER93MOnibqwIcDYMYMhRxTI/
+ ggwYa1VE4nBLYlkQ3aG2+Mz9YKYbYrbXI2UAmoAVF7aRIoB/Qh8UbSyxat340qgRL39w
+ IOtKAiBTQY1IYviD1GWU/qAXTFnSBYaF0sTq1NOHSznxK2+esIU/uZ5ps0qwonZXAKmB
+ Ff7VGD8xgDDDElmKV1SHWtSb8WCb/OTeliAav3g8oZzsbP1WxbdoF3PyBExHb0QpJCMn
+ k4CQ==
+X-Gm-Message-State: AOAM533PmIAxvfNHqGTL0FRfzdfa6RrX8yCTOyqF7w1v5WhFhKBolSIg
+ X5o2eRvF7O1KkN2tpNC8yLcQrIEE9QmNtEQOk3CVTiREWNt9W1+Bas+jtW4kiC7mHYN5Ae0prhp
+ 3fJ2tpKri6A8iyA8yCBf2s06DAh6M40KDAUiFYAqeyA==
+X-Received: by 2002:a17:906:3148:: with SMTP id
+ e8mr5549047eje.240.1633198422797; 
+ Sat, 02 Oct 2021 11:13:42 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwRv0l7yLWVghnzKaRjGETRmZdWUznHgB707hsC9MH/6Nu9SV2dEEHSsiG1hSfbsv5Yq/RsSA==
+X-Received: by 2002:a17:906:3148:: with SMTP id
+ e8mr5549025eje.240.1633198422593; 
+ Sat, 02 Oct 2021 11:13:42 -0700 (PDT)
+Received: from redhat.com ([2.55.22.213])
+ by smtp.gmail.com with ESMTPSA id d10sm4409791eja.81.2021.10.02.11.13.39
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Sat, 02 Oct 2021 11:13:41 -0700 (PDT)
+Date: Sat, 2 Oct 2021 14:13:37 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
+Message-ID: <20211002082128-mutt-send-email-mst@kernel.org>
+References: <20210930012049.3780865-1-pasic@linux.ibm.com>
+ <87r1d64dl4.fsf@redhat.com>
+ <20210930130350.0cdc7c65.pasic@linux.ibm.com>
+ <87ilyi47wn.fsf@redhat.com>
+ <20211001162213.18d7375e.pasic@linux.ibm.com>
+ <87v92g3h9l.fsf@redhat.com>
 MIME-Version: 1.0
+In-Reply-To: <87v92g3h9l.fsf@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <95ba71c5-87b8-7716-fbe4-bdc9b04b6812@linux.intel.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, "Kuppuswamy,
- Sathyanarayanan" <sathyanarayanan.kuppuswamy@linux.intel.com>,
- Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>, Michael Jamet <michael.jamet@intel.com>,
- Linux PCI <linux-pci@vger.kernel.org>, X86 ML <x86@kernel.org>,
- virtualization@lists.linux-foundation.org,
- Yehezkel Bernat <YehezkelShB@gmail.com>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- Andreas Noever <andreas.noever@gmail.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "Reshetova, Elena" <elena.reshetova@intel.com>,
- Bjorn Helgaas <bhelgaas@google.com>, Dan Williams <dan.j.williams@intel.com>,
- USB list <linux-usb@vger.kernel.org>,
- Mika Westerberg <mika.westerberg@linux.intel.com>,
- Thomas Gleixner <tglx@linutronix.de>, "Rafael J . Wysocki" <rafael@kernel.org>
+Cc: linux-s390@vger.kernel.org, markver@us.ibm.com,
+ Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>,
+ Xie Yongji <xieyongji@bytedance.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -104,80 +127,42 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Oct 02, 2021 at 07:20:22AM -0700, Andi Kleen wrote:
+On Fri, Oct 01, 2021 at 05:18:46PM +0200, Cornelia Huck wrote:
+> I'd say we need a hack here so that we assume little-endian config space
+> if VERSION_1 has been offered; if your patch here works, I assume QEMU
+> does what we expect (assmuming little-endian as well.) I'm mostly
+> wondering what happens if you use a different VMM; can we expect it to
+> work similar to QEMU?
+
+Hard to say of course ... hopefully other VMMs are actually
+implementing the spec. E.g. IIUC rust vmm is modern only.
+
+
+> Even if it helps for s390, we should double-check
+> what happens for other architectures.
 > 
-> On 10/2/2021 4:14 AM, Greg Kroah-Hartman wrote:
-> > On Sat, Oct 02, 2021 at 07:04:28AM -0400, Michael S. Tsirkin wrote:
-> > > On Fri, Oct 01, 2021 at 08:49:28AM -0700, Andi Kleen wrote:
-> > > > >    Do you have a list of specific drivers and kernel options that you
-> > > > > feel you now "trust"?
-> > > > For TDX it's currently only virtio net/block/console
-> > > > 
-> > > > But we expect this list to grow slightly over time, but not at a high rate
-> > > > (so hopefully <10)
-> > > Well there are already >10 virtio drivers and I think it's reasonable
-> > > that all of these will be used with encrypted guests. The list will
-> > > grow.
-> > What is keeping "all" drivers from being on this list?
+> >
+> >> 
+> >> Anyone have any better suggestions?
+> >> 
+> >
+> > There is the conditional compile, as an option but I would not say it is
+> > better.
 > 
-> It would be too much work to harden them all, and it would be pointless
-> because all these drivers are never legitimately needed in a virtualized
-> environment which only virtualize a very small number of devices.
-
-Why would you not want to properly review and fix up all kernel drivers?
-That feels like you are being lazy.
-
-What exactly are you meaning by "harden"?  Why isn't it automated?  Who
-is doing this work?  Where is it being done?
-
-Come on, you have a small number of virtio drivers, to somehow say that
-they are now divided up into trusted/untrusted feels very very odd.
-
-Just do the real work here, everyone will benefit, including yourself.
-
-> >   How exactly are
-> > you determining what should, and should not, be allowed?
+> Yes, I agree.
 > 
-> Everything that has had reasonable effort at hardening can be added. But if
-> someone proposes to add a driver that should trigger additional scrutiny in
-> code review. We should also request them to do some fuzzing.
+> Anyone else have an idea? This is a nasty regression; we could revert the
+> patch, which would remove the symptoms and give us some time, but that
+> doesn't really feel right, I'd do that only as a last resort.
 
-You can provide that fuzzing right now, why isn't syzbot running on
-these interfaces today?
+Well we have Halil's hack (except I would limit it
+to only apply to BE, only do devices with validate,
+and only in modern mode), and we will fix QEMU to be spec compliant.
+Between these why do we need any conditional compiles?
 
-And again, what _exactly_ do you all mean by "hardening" that has
-happened?  Where is that documented and who did that work?
+-- 
+MST
 
-> > And why not just put all of that into userspace and have it pick and
-> > choose?  That should be the end-goal here, you don't want to encode
-> > policy like this in the kernel, right?
-> 
-> How would user space know what drivers have been hardened? This is really
-> something that the kernel needs to determine. I don't think we can outsource
-> it to anyone else.
-
-It would "know" just as well as you know today in the kernel.  There is
-no difference here.
-
-Just do the real work here, and "harden" all of the virtio drivers
-please.  What prevents that?
-
-> Also BTW of course user space can still override it, but really the defaults
-> should be a kernel policy.
-> 
-> There's also the additional problem that one of the goals of confidential
-> guest is to just move existing guest virtual images into them without much
-> changes. So it's better for such a case if as much as possible of the policy
-> is in the kernel. But that's more a secondary consideration, the first point
-> is really the important part.
-
-Where exactly are all of these "goals" and "requirements" documented and
-who is defining them and forcing them on us without actually doing any
-of the work involved?
-
-thanks,
-
-greg k-h
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
