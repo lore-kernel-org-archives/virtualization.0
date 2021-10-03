@@ -1,131 +1,131 @@
-Return-Path: <SRS0=UZhq=OW=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=b/cG=OX=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 781A3C433FE
-	for <virtualization@archiver.kernel.org>; Sat,  2 Oct 2021 18:41:10 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A7F2C433F5
+	for <virtualization@archiver.kernel.org>; Sun,  3 Oct 2021 05:00:59 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 254E061B3F
-	for <virtualization@archiver.kernel.org>; Sat,  2 Oct 2021 18:41:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 254E061B3F
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id A852061A4F
+	for <virtualization@archiver.kernel.org>; Sun,  3 Oct 2021 05:00:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A852061A4F
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id DB75C6081D;
-	Sat,  2 Oct 2021 18:41:09 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 65C78426C6;
+	Sun,  3 Oct 2021 05:00:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ngOKd2EkHocg; Sat,  2 Oct 2021 18:41:09 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7AkdN6cccjxq; Sun,  3 Oct 2021 05:00:57 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 68E816061A;
-	Sat,  2 Oct 2021 18:41:08 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 062C540667;
+	Sun,  3 Oct 2021 05:00:56 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3969CC000F;
-	Sat,  2 Oct 2021 18:41:08 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 28CA2C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CE263C000F;
+	Sun,  3 Oct 2021 05:00:56 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4EA06C000D
  for <virtualization@lists.linux-foundation.org>;
- Sat,  2 Oct 2021 18:41:07 +0000 (UTC)
+ Sun,  3 Oct 2021 05:00:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 11076844C5
+ by smtp2.osuosl.org (Postfix) with ESMTP id 34F5F4052F
  for <virtualization@lists.linux-foundation.org>;
- Sat,  2 Oct 2021 18:41:07 +0000 (UTC)
+ Sun,  3 Oct 2021 05:00:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id TDLXifSr7KUl
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=ibm.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 0uGLgHNbte3S
  for <virtualization@lists.linux-foundation.org>;
- Sat,  2 Oct 2021 18:41:06 +0000 (UTC)
+ Sun,  3 Oct 2021 05:00:55 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 46D3E844C0
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
+ [148.163.158.5])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id C9A40404D4
  for <virtualization@lists.linux-foundation.org>;
- Sat,  2 Oct 2021 18:41:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1633200064;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=ST0KR7EU4N0YWDaDZLrBL4QmpL0x0hJwSn6j1QI0rBo=;
- b=WFcS156LyoF6LU39OH2UscFA4SumAoQCbj5BeH3OAsEiu5ZeyqIhWWLSY2qcxPuLBMH5Wp
- D/66XOvgXqYB3o5UWKIil99XS5MCFoSlRHHSbtbySYVijEUkpZ4H2Ewc/Kg9qCoK9SJy5j
- 5g7SpcoSjsClczL0sKyK6kGkHt1Ur6M=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-482-1pmUf6YLP42jEfC_v9kQfg-1; Sat, 02 Oct 2021 14:41:03 -0400
-X-MC-Unique: 1pmUf6YLP42jEfC_v9kQfg-1
-Received: by mail-ed1-f72.google.com with SMTP id
- y15-20020a50ce0f000000b003dab997cf7dso9748677edi.9
- for <virtualization@lists.linux-foundation.org>;
- Sat, 02 Oct 2021 11:41:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=ST0KR7EU4N0YWDaDZLrBL4QmpL0x0hJwSn6j1QI0rBo=;
- b=DU3HtM1dhS0oY6u3dyVPi0uEmr6HITkDJ47yhM9VkgApSD9mpjW65Xj9uUZyKstilz
- sO4qJDsjKxE8FS4Bfi+Uxjjy4e/3tUq5/+cyGnvIDYGpmMOe/pKEAEP8w42VW9z7xEtW
- 2SZysIbty6tb8ByRlqlA0IcQkjAbLhkTq7r6q4iaNS0v4o4dUaOG6W1NddRkWwzB2kv/
- 2otO3G6bTq+0/YVajiky1hbtzRI28H6DEet17et/JgFDhxP2spG6KoSGnJuOLJEda6TZ
- iT8Ghm/eD0oc9VqbCuQrPzYcwrMxrY1c7VwfIDFyG2INDZcat+FfI3K9Hv9Oz3RywMCz
- vvmA==
-X-Gm-Message-State: AOAM530xq3JT7oWxBymhbVg4PvjVFHMkK0VUPkWMrudgGLSMXkGjQu8v
- eejtL6G9W0Ba/8Aqr9bUcsf58NLrPnzoHbqFhEJuizTrFUXYpqqayxKRcMOk/z70aGLLfqGcO74
- KvEnqMFUv81ooEQtrv9Aj2k5EfdmMBkB+LZqOpYLVoQ==
-X-Received: by 2002:a50:da8d:: with SMTP id q13mr5838532edj.198.1633200062592; 
- Sat, 02 Oct 2021 11:41:02 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxGpM5OHPmCsSpi/pPXyOIbm5UqYLz0NOB9b8PBSBu07W665C9nUJCeC1Y0L2Zy/zB57lHbAA==
-X-Received: by 2002:a50:da8d:: with SMTP id q13mr5838496edj.198.1633200062359; 
- Sat, 02 Oct 2021 11:41:02 -0700 (PDT)
-Received: from redhat.com ([2.55.22.213])
- by smtp.gmail.com with ESMTPSA id a23sm4866108edv.33.2021.10.02.11.40.57
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 02 Oct 2021 11:41:01 -0700 (PDT)
-Date: Sat, 2 Oct 2021 14:40:55 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Andi Kleen <ak@linux.intel.com>
-Subject: Re: [PATCH v2 4/6] virtio: Initialize authorized attribute for
- confidential guest
-Message-ID: <20211002142138-mutt-send-email-mst@kernel.org>
-References: <20210930065953-mutt-send-email-mst@kernel.org>
- <CAPcyv4hP6mtzKS-CVb-aKf-kYuiLM771PMxN2zeBEfoj6NbctA@mail.gmail.com>
- <6d1e2701-5095-d110-3b0a-2697abd0c489@linux.intel.com>
- <YVXWaF73gcrlvpnf@kroah.com>
- <1cfdce51-6bb4-f7af-a86b-5854b6737253@linux.intel.com>
- <YVaywQLAboZ6b36V@kroah.com>
- <64eb085b-ef9d-dc6e-5bfd-d23ca0149b5e@linux.intel.com>
- <20211002070218-mutt-send-email-mst@kernel.org>
- <YVg/F10PCFNOtCnL@kroah.com>
- <95ba71c5-87b8-7716-fbe4-bdc9b04b6812@linux.intel.com>
+ Sun,  3 Oct 2021 05:00:54 +0000 (UTC)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1934eiEa029361; 
+ Sun, 3 Oct 2021 01:00:53 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
+ h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=9aTRdAry9oa2Td1IOB8PmdFe2TgHdkTyMDM7HsVccss=;
+ b=pK7Zn/YGFkmSao2D+JvtM0vGncNFMoTML27y1dDB28L6bqai8iODsCaJgjLQvYECtcDf
+ zDAVLVGNEi905b+AO7hRp4gQ6/t0IpAL/mlj91vgsOmndUfgJhfwYc4D6hY41zt42kWO
+ bcsnKd8bM6zdyAahdFJg7n55z82o0ZQkqnjX0JE2w6Qzwzj9wwJejD1h9sDtfAL/MrYn
+ 1fZf+ofCiqD0vaq9VIINYYZI7HCTYuMVY5zpV3IW4D0dQ1ZePU/OWSeLiK17qIoEVhEE
+ 5xJy1NbVYV2N/MdjBR8j6XRN9Ysa2iWEgbaMgUFue48+xtfIulagi0Jp/DgZqsetmgHM aQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3bf5998dy0-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Sun, 03 Oct 2021 01:00:52 -0400
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+ by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1934v8xV011206;
+ Sun, 3 Oct 2021 01:00:52 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com
+ [169.51.49.99])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3bf5998du1-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Sun, 03 Oct 2021 01:00:52 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+ by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1934upE6027032;
+ Sun, 3 Oct 2021 05:00:42 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com
+ (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+ by ppma04ams.nl.ibm.com with ESMTP id 3bef2a54fh-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Sun, 03 Oct 2021 05:00:42 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com
+ [9.149.105.61])
+ by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
+ 19350cLj39256524
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Sun, 3 Oct 2021 05:00:38 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 8F82611C06C;
+ Sun,  3 Oct 2021 05:00:38 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 3E01D11C05C;
+ Sun,  3 Oct 2021 05:00:37 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.45.119])
+ by d06av25.portsmouth.uk.ibm.com (Postfix) with SMTP;
+ Sun,  3 Oct 2021 05:00:37 +0000 (GMT)
+Date: Sun, 3 Oct 2021 07:00:30 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
+Message-ID: <20211003070030.658fc94e.pasic@linux.ibm.com>
+In-Reply-To: <20211002141351-mutt-send-email-mst@kernel.org>
+References: <20210930012049.3780865-1-pasic@linux.ibm.com>
+ <20210930070444-mutt-send-email-mst@kernel.org>
+ <87fstm47no.fsf@redhat.com>
+ <20211002141351-mutt-send-email-mst@kernel.org>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: zjFRvHS7YL9eje-eFWlRkxwM6doaGMQX
+X-Proofpoint-GUID: irBnKU-342cRIG5fuouN_yVNjvz8YDyW
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-In-Reply-To: <95ba71c5-87b8-7716-fbe4-bdc9b04b6812@linux.intel.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Jonathan Corbet <corbet@lwn.net>, "Kuppuswamy,
- Sathyanarayanan" <sathyanarayanan.kuppuswamy@linux.intel.com>,
- Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
- "Rafael J . Wysocki" <rafael@kernel.org>,
- Michael Jamet <michael.jamet@intel.com>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, X86 ML <x86@kernel.org>,
- virtualization@lists.linux-foundation.org,
- Yehezkel Bernat <YehezkelShB@gmail.com>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- Andreas Noever <andreas.noever@gmail.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Linux PCI <linux-pci@vger.kernel.org>,
- Bjorn Helgaas <bhelgaas@google.com>, Dan Williams <dan.j.williams@intel.com>,
- USB list <linux-usb@vger.kernel.org>,
- Mika Westerberg <mika.westerberg@linux.intel.com>,
- Thomas Gleixner <tglx@linutronix.de>, "Reshetova,
- Elena" <elena.reshetova@intel.com>
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-02_07,2021-10-01_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ mlxscore=0 bulkscore=0
+ mlxlogscore=999 lowpriorityscore=0 adultscore=0 suspectscore=0
+ clxscore=1015 phishscore=0 priorityscore=1501 spamscore=0 impostorscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110030035
+Cc: linux-s390@vger.kernel.org, markver@us.ibm.com,
+ Christian Borntraeger <borntraeger@de.ibm.com>,
+ Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>,
+ Xie Yongji <xieyongji@bytedance.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -142,95 +142,52 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Oct 02, 2021 at 07:20:22AM -0700, Andi Kleen wrote:
-> 
-> On 10/2/2021 4:14 AM, Greg Kroah-Hartman wrote:
-> > On Sat, Oct 02, 2021 at 07:04:28AM -0400, Michael S. Tsirkin wrote:
-> > > On Fri, Oct 01, 2021 at 08:49:28AM -0700, Andi Kleen wrote:
-> > > > >    Do you have a list of specific drivers and kernel options that you
-> > > > > feel you now "trust"?
-> > > > For TDX it's currently only virtio net/block/console
-> > > > 
-> > > > But we expect this list to grow slightly over time, but not at a high rate
-> > > > (so hopefully <10)
-> > > Well there are already >10 virtio drivers and I think it's reasonable
-> > > that all of these will be used with encrypted guests. The list will
-> > > grow.
-> > What is keeping "all" drivers from being on this list?
-> 
-> It would be too much work to harden them all, and it would be pointless
-> because all these drivers are never legitimately needed in a virtualized
-> environment which only virtualize a very small number of devices.
-> 
-> >   How exactly are
-> > you determining what should, and should not, be allowed?
-> 
-> Everything that has had reasonable effort at hardening can be added. But if
-> someone proposes to add a driver that should trigger additional scrutiny in
-> code review. We should also request them to do some fuzzing.
+On Sat, 2 Oct 2021 14:20:47 -0400
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Looks like out of tree modules get a free pass then.
-Which is exactly the reverse of what it should be,
-people who spent the time to get their drivers into the kernel
-expect that if kernel decides to change some API their
-driver is automatically updated. This was always the social
-contract, was it not?
+> > >From my perspective the problem is that the version of the device  
+> > remains in limbo as long as the features have not yet been finalized,
+> > which means that the endianness of the config space remains in limbo as
+> > well. Both device and driver might come to different conclusions.  
+> 
+> Version === legacy versus modern?
+> It is true that feature negotiation can not be used by device to decide that
+> question simply because it happens too late.
+> So let's not use it for that then ;)
+> 
+> Yes we have VERSION_1 which looks like it should allow this, but
+> unfortunately it only helps with that for the driver, not the device.
+> 
+> In practice legacy versus modern has to be determined by
+> transport specific versioning, luckily we have that for all
+> specified transports (can't say what happens with rproc).
 
-> It's a bit similar to someone trying to add a new syscall interface. That
-> also triggers much additional scrutiny for good reasons and people start
-> fuzzing it.
-> 
-> 
-> >    How can
-> > drivers move on, or off, of it over time?
-> 
-> Adding something is submitting a patch to the allow list.
-> 
-> I'm not sure the "off" case would happen, unless the driver is completely
-> removed, or maybe it has some unfixable security problem. But that is all
-> rather unlikely.
-> 
-> 
-> > 
-> > And why not just put all of that into userspace and have it pick and
-> > choose?  That should be the end-goal here, you don't want to encode
-> > policy like this in the kernel, right?
-> 
-> How would user space know what drivers have been hardened? This is really
-> something that the kernel needs to determine. I don't think we can outsource
-> it to anyone else.
+So if we look at ccw, you say that the revision negotiation already
+determines whether VERSION_1 is negotiated or not, and the
+feature bit VERSION_1 is superfluous?
 
-IIUC userspace is the distro. It can also do more than a binary on/off,
-e.g. it can decide "only virtio", "no out of tree drivers".
-A distro can also ship configs with a specific features
-enabled/disabled. E.g. I can see where some GPU drivers will be
-included by some distros since they are so useful, and excluded
-by others since they are so big and hard to audit.
-I don't see how the kernel can reasonably make a stand here.
-Is "some audit and some fuzzing" a good policy? How much is enough?
+That would also imply, that 
+1) if revision > 0 was negotiated then the device must offer VERSION_1
+2) if revision > 0 was negotiated and the driver cleared VERSION_1
+   the device must refuse to operate.
+3) if revision > 0 was negotiated then the driver should reject 
+   to drive a device if it does not offer VERSION_1
+4) if revision > 0 was negotiated the driver must accept VERSION_1
+5) if revision > 0 was *not* negotiated then the device should not offer
+   VERSION_1 because at this point it is already certain that the device
+   can not act in accordance to the virtio 1.0 or higher interface.
 
-> Also BTW of course user space can still override it, but really the defaults
-> should be a kernel policy.
+Does that sound about right?
 
-Well if userspace sets the policy then I'm not sure we also want
-a kernel one ... but if yes I'd like it to be in a central
-place so whoever is building the kernel can tweak it easily
-and rebuild, without poking at individual drivers.
+IMHO we should also change 
+https://docs.oasis-open.org/virtio/virtio/v1.1/cs01/virtio-v1.1-cs01.html#x1-160003
+and the definition of VERSION_1 because both sides have to know what is
+going on before features are fully negotiated. Or?
 
-> There's also the additional problem that one of the goals of confidential
-> guest is to just move existing guest virtual images into them without much
-> changes. So it's better for such a case if as much as possible of the policy
-> is in the kernel.
+Regards,
+Halil
 
-If it's e.g. the kernel command line then we can set that
-when building the kernel right? No need for a dedicated interface
-just for this ...
 
-> But that's more a secondary consideration, the first point
-> is really the important part.
-> 
-> 
-> -Andi
 
 _______________________________________________
 Virtualization mailing list
