@@ -2,111 +2,99 @@ Return-Path: <SRS0=QelU=OY=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66BBCC433EF
-	for <virtualization@archiver.kernel.org>; Mon,  4 Oct 2021 15:39:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7892EC433F5
+	for <virtualization@archiver.kernel.org>; Mon,  4 Oct 2021 15:46:12 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1A30561357
-	for <virtualization@archiver.kernel.org>; Mon,  4 Oct 2021 15:39:45 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 1A30561357
+	by mail.kernel.org (Postfix) with ESMTPS id 331EE6137C
+	for <virtualization@archiver.kernel.org>; Mon,  4 Oct 2021 15:46:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 331EE6137C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id D75AC8440A;
-	Mon,  4 Oct 2021 15:39:44 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0450C84C0E;
+	Mon,  4 Oct 2021 15:46:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 57_Apq_F80Dc; Mon,  4 Oct 2021 15:39:44 +0000 (UTC)
+	with ESMTP id AtbEVyJjxWCv; Mon,  4 Oct 2021 15:46:11 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 528D984244;
-	Mon,  4 Oct 2021 15:39:43 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8278484C13;
+	Mon,  4 Oct 2021 15:46:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 24EE4C0011;
-	Mon,  4 Oct 2021 15:39:43 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 94324C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 502E2C0011;
+	Mon,  4 Oct 2021 15:46:10 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8DC8EC000D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Oct 2021 15:39:42 +0000 (UTC)
+ Mon,  4 Oct 2021 15:46:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 90E56404F4
+ by smtp3.osuosl.org (Postfix) with ESMTP id 62369607AC
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Oct 2021 15:39:42 +0000 (UTC)
+ Mon,  4 Oct 2021 15:46:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yuYyX2ZP_k0z
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 3AL1XIdET-bk
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Oct 2021 15:39:40 +0000 (UTC)
+ Mon,  4 Oct 2021 15:46:06 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 772BC40184
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 76AF86064B
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Oct 2021 15:39:40 +0000 (UTC)
+ Mon,  4 Oct 2021 15:46:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1633361979;
+ s=mimecast20190719; t=1633362365;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=qU1FtB2Eld4jQppv2Kg9J4SKZoBotXi+g3+/KDP2nB0=;
- b=V4RtETxcvXDGWwaymAdFj+cVMsx0CwWQ+8SGt65LBzk/72qgDMANeDR8xUegslY8ca7ugF
- EL2DDlIWVBeGfhOY628IAzt14tmcNVobhnu3A4/vFJWebZ6k7LxYkH/w6qpIXVFoJtDvQr
- kTvGZvVjDtj1v5cTi+Jc9/KJPz4KcJY=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-8-J70mJlwHNwWfmOEzDHUdEg-1; Mon, 04 Oct 2021 11:39:38 -0400
-X-MC-Unique: J70mJlwHNwWfmOEzDHUdEg-1
-Received: by mail-ed1-f70.google.com with SMTP id
- t28-20020a508d5c000000b003dad7fc5caeso7674338edt.11
- for <virtualization@lists.linux-foundation.org>;
- Mon, 04 Oct 2021 08:39:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=qU1FtB2Eld4jQppv2Kg9J4SKZoBotXi+g3+/KDP2nB0=;
- b=1bcUqU5IWxEukWY7/ZhbLYhyNnj5XuiLY3OtFZRK/+dttbvPtIqhZV7Q4Qp0aO1Bx0
- up0WZC+nTsFjbXGvqzxYcjOjC116laroUv+WA7egmhmZyt9piFwNB8AelHjTBpdJr0lj
- ptgZlMmgPnCWERdptnBXM33kAVLcSrzvbNLWVRjJQECEB1yVPMpkhv+CmcMX3mkHTq9z
- VdNku+9vQGcwn270HnkcGIBKtmCgxe2K//O0m+0nXtMRmr6/sHLsn1FyfsFKUyUdNeYe
- usjEkt4qe+xj8FK4hXke+NX2BaXOF7nzY5stHMSai+PZM8lMGahHv33FQ9Q1MV2c7CuY
- 68Wg==
-X-Gm-Message-State: AOAM533W4XfJhSk/PskTyWLdjLH4G/AafFTyMj2QX4sYO+8KUEY1GM92
- g0e75h5P0NKz53H1ewIuCKxzPvnnCz4OhbAMu7JX0b3FASBcj+Y0BRJk2pm0i/Zo/mh1I/sdIlB
- xKlpaKiZCtBsLUdI3GYFuD9aw2W86cu1aIEN9ouM1MQ==
-X-Received: by 2002:a17:906:a2c9:: with SMTP id
- by9mr13462726ejb.305.1633361977035; 
- Mon, 04 Oct 2021 08:39:37 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJymXaxS/ytfZ06+7jKPOhRySBzCqaPSUjBwPFfvyPHjd3iZN7oI5pN28PgDrC2yAGlapCwmMA==
-X-Received: by 2002:a17:906:a2c9:: with SMTP id
- by9mr13462700ejb.305.1633361976806; 
- Mon, 04 Oct 2021 08:39:36 -0700 (PDT)
-Received: from redhat.com (93-172-224-64.bb.netvision.net.il. [93.172.224.64])
- by smtp.gmail.com with ESMTPSA id
- o5sm7374753eds.26.2021.10.04.08.39.35
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 04 Oct 2021 08:39:36 -0700 (PDT)
-Date: Mon, 4 Oct 2021 11:39:33 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xie Yongji <xieyongji@bytedance.com>
-Subject: Re: [PATCH v5] virtio-blk: Add validation for block size in config
- space
-Message-ID: <20211004113722-mutt-send-email-mst@kernel.org>
-References: <20210809101609.148-1-xieyongji@bytedance.com>
- <20211004112623-mutt-send-email-mst@kernel.org>
+ bh=/kgxHPxpLf6tZjNevWzK9k9Z43+ZiXIpJpi5hdMq0z0=;
+ b=XMRbuasuWMdRdkkTewCKD9xn++bEitVkX/DV/+ByfyKYchlmDfmeArCSWl4769uAIfAwjL
+ nRgiDnA7cnybwZM/n7XMN1fpeSttMSWi7kLMRXh2b1FS2hERcivK5jxM4k0y/neQLvdVWZ
+ pW7QZqXZkCeD/nVxHoo7W84KSfiSNtE=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-263-x44U3w48N9KR2IkCHQKonA-1; Mon, 04 Oct 2021 11:46:02 -0400
+X-MC-Unique: x44U3w48N9KR2IkCHQKonA-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
+ [10.5.11.15])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 341D58F51C;
+ Mon,  4 Oct 2021 15:46:01 +0000 (UTC)
+Received: from localhost (unknown [10.39.193.66])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 21AE36B544;
+ Mon,  4 Oct 2021 15:45:08 +0000 (UTC)
+From: Cornelia Huck <cohuck@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [virtio-dev] Re: [RFC PATCH 1/1] virtio: write back features
+ before verify
+In-Reply-To: <20211004110152-mutt-send-email-mst@kernel.org>
+Organization: Red Hat GmbH
+References: <20210930012049.3780865-1-pasic@linux.ibm.com>
+ <20210930070444-mutt-send-email-mst@kernel.org>
+ <87fstm47no.fsf@redhat.com>
+ <20211002141351-mutt-send-email-mst@kernel.org>
+ <20211003070030.658fc94e.pasic@linux.ibm.com>
+ <20211003021027-mutt-send-email-mst@kernel.org>
+ <20211003032253-mutt-send-email-mst@kernel.org>
+ <87ee912e45.fsf@redhat.com>
+ <20211004083455-mutt-send-email-mst@kernel.org>
+ <878rz83lx0.fsf@redhat.com>
+ <20211004110152-mutt-send-email-mst@kernel.org>
+User-Agent: Notmuch/0.32.1 (https://notmuchmail.org)
+Date: Mon, 04 Oct 2021 17:45:06 +0200
+Message-ID: <87zgro23r1.fsf@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20211004112623-mutt-send-email-mst@kernel.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
- stefanha@redhat.com, virtualization@lists.linux-foundation.org
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Cc: linux-s390@vger.kernel.org, markver@us.ibm.com,
+ Christian Borntraeger <borntraeger@de.ibm.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>,
+ Xie Yongji <xieyongji@bytedance.com>, virtio-dev@lists.oasis-open.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,125 +111,86 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Oct 04, 2021 at 11:27:29AM -0400, Michael S. Tsirkin wrote:
-> On Mon, Aug 09, 2021 at 06:16:09PM +0800, Xie Yongji wrote:
-> > An untrusted device might presents an invalid block size
-> > in configuration space. This tries to add validation for it
-> > in the validate callback and clear the VIRTIO_BLK_F_BLK_SIZE
-> > feature bit if the value is out of the supported range.
-> > 
-> > And we also double check the value in virtblk_probe() in
-> > case that it's changed after the validation.
-> > 
-> > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> 
-> So I had to revert this due basically bugs in QEMU.
-> 
-> My suggestion at this point is to try and update
-> blk_queue_logical_block_size to BUG_ON when the size
-> is out of a reasonable range.
-> 
-> This has the advantage of fixing more hardware, not just virtio.
-> 
-> 
-> 
-> > ---
-> >  drivers/block/virtio_blk.c | 39 +++++++++++++++++++++++++++++++++------
-> >  1 file changed, 33 insertions(+), 6 deletions(-)
-> > 
-> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > index 4b49df2dfd23..afb37aac09e8 100644
-> > --- a/drivers/block/virtio_blk.c
-> > +++ b/drivers/block/virtio_blk.c
-> > @@ -692,6 +692,28 @@ static const struct blk_mq_ops virtio_mq_ops = {
-> >  static unsigned int virtblk_queue_depth;
-> >  module_param_named(queue_depth, virtblk_queue_depth, uint, 0444);
-> >  
-> > +static int virtblk_validate(struct virtio_device *vdev)
-> > +{
-> > +	u32 blk_size;
-> > +
-> > +	if (!vdev->config->get) {
-> > +		dev_err(&vdev->dev, "%s failure: config access disabled\n",
-> > +			__func__);
-> > +		return -EINVAL;
-> > +	}
-> > +
-> > +	if (!virtio_has_feature(vdev, VIRTIO_BLK_F_BLK_SIZE))
-> > +		return 0;
-> > +
-> > +	blk_size = virtio_cread32(vdev,
-> > +			offsetof(struct virtio_blk_config, blk_size));
-> > +
-> > +	if (blk_size < SECTOR_SIZE || blk_size > PAGE_SIZE)
-> > +		__virtio_clear_bit(vdev, VIRTIO_BLK_F_BLK_SIZE);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> >  static int virtblk_probe(struct virtio_device *vdev)
-> >  {
-> >  	struct virtio_blk *vblk;
+On Mon, Oct 04 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-I started wondering about this. So let's assume is
-PAGE_SIZE < blk_size (after all it's up to guest at many platforms).
+> On Mon, Oct 04, 2021 at 04:27:23PM +0200, Cornelia Huck wrote:
+>> On Mon, Oct 04 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>> 
+>> > On Mon, Oct 04, 2021 at 02:01:14PM +0200, Cornelia Huck wrote:
+>> >> On Sun, Oct 03 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>> >> > @@ -160,6 +163,33 @@ \subsection{Legacy Interface: A Note on Feature
+>> >> >  Specification text within these sections generally does not apply
+>> >> >  to non-transitional devices.
+>> >> >  
+>> >> > +\begin{note}
+>> >> > +The device offers different features when used through
+>> >> > +the legacy interface and when operated in accordance with this
+>> >> > +specification.
+>> >> > +\end{note}
+>> >> > +
+>> >> > +Transitional drivers MUST use Devices only through the legacy interface
+>> >> 
+>> >> s/Devices only through the legacy interface/devices through the legacy
+>> >> interface only/
+>> >> 
+>> >> ?
+>> >
+>> > Both versions are actually confused, since how do you
+>> > find out that device does not offer VIRTIO_F_VERSION_1?
+>> >
+>> > I think what this should really say is
+>> >
+>> > Transitional drivers MUST NOT accept VIRTIO_F_VERSION_1 through
+>> > the legacy interface.
+>> 
+>> Ok, that makes sense.
+>> 
+>> Would it make sense that transitional drivers MUST accept VERSION_1
+>> through the non-legacy interface? Or is that redundant?
+>
+> We already have:
+>
+> A driver MUST accept VIRTIO_F_VERSION_1 if it is offered.
 
-Will using the device even work given blk size is less than what
-is can support?
+Yep, so it is redundant.
 
-And what exactly happens today if blk_size is out of this range?
+>
+>
+>> >
+>> >
+>> > Does linux actually satisfy this? Will it accept VIRTIO_F_VERSION_1
+>> > through the legacy interface if offered?
+>> 
+>> I think that the Linux drivers will not operate on feature bit 32+ if
+>> they are in legacy mode?
+>
+>
+> Well ... with PCI there's no *way* for host to set bit 32 through
+> legacy. But it might be possible with MMIO/CCW. Can you tell me
+> what happens then?
 
+ccw does not support accessing bit 32+, either. Not sure about mmio.
 
+>
+>
+>> >> 
+>> >> Generally, looks good to me.
+>> >
+>> > Do we want to also add explanation that features can be
+>> > changed until FEATURES_OK?
+>> 
+>> I always considered that to be implict, as feature negotiation is not
+>> over until we have FEATURES_OK. Not sure whether we need an extra note.
+>
+> Well Halil here says once you set a feature bit you can't clear it.
+> So maybe not ...
 
+Ok, so what about something like
 
+"If FEATURES_OK is not set, the driver MAY change the set of features it
+accepts."
 
-> > @@ -703,12 +725,6 @@ static int virtblk_probe(struct virtio_device *vdev)
-> >  	u8 physical_block_exp, alignment_offset;
-> >  	unsigned int queue_depth;
-> >  
-> > -	if (!vdev->config->get) {
-> > -		dev_err(&vdev->dev, "%s failure: config access disabled\n",
-> > -			__func__);
-> > -		return -EINVAL;
-> > -	}
-> > -
-> >  	err = ida_simple_get(&vd_index_ida, 0, minor_to_index(1 << MINORBITS),
-> >  			     GFP_KERNEL);
-> >  	if (err < 0)
-> > @@ -823,6 +839,14 @@ static int virtblk_probe(struct virtio_device *vdev)
-> >  	else
-> >  		blk_size = queue_logical_block_size(q);
-> >  
-> > +	if (unlikely(blk_size < SECTOR_SIZE || blk_size > PAGE_SIZE)) {
-> > +		dev_err(&vdev->dev,
-> > +			"block size is changed unexpectedly, now is %u\n",
-> > +			blk_size);
-> > +		err = -EINVAL;
-> > +		goto err_cleanup_disk;
-> > +	}
-> > +
-> >  	/* Use topology information if available */
-> >  	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_TOPOLOGY,
-> >  				   struct virtio_blk_config, physical_block_exp,
-> > @@ -881,6 +905,8 @@ static int virtblk_probe(struct virtio_device *vdev)
-> >  	device_add_disk(&vdev->dev, vblk->disk, virtblk_attr_groups);
-> >  	return 0;
-> >  
-> > +err_cleanup_disk:
-> > +	blk_cleanup_disk(vblk->disk);
-> >  out_free_tags:
-> >  	blk_mq_free_tag_set(&vblk->tag_set);
-> >  out_free_vq:
-> > @@ -983,6 +1009,7 @@ static struct virtio_driver virtio_blk = {
-> >  	.driver.name			= KBUILD_MODNAME,
-> >  	.driver.owner			= THIS_MODULE,
-> >  	.id_table			= id_table,
-> > +	.validate			= virtblk_validate,
-> >  	.probe				= virtblk_probe,
-> >  	.remove				= virtblk_remove,
-> >  	.config_changed			= virtblk_config_changed,
-> > -- 
-> > 2.11.0
+in the device initialization section?
 
 _______________________________________________
 Virtualization mailing list
