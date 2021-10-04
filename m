@@ -1,115 +1,132 @@
-Return-Path: <SRS0=b/cG=OX=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=QelU=OY=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AA80C433F5
-	for <virtualization@archiver.kernel.org>; Sun,  3 Oct 2021 07:26:24 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DC09CC4332F
+	for <virtualization@archiver.kernel.org>; Mon,  4 Oct 2021 02:23:55 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CE55461B1F
-	for <virtualization@archiver.kernel.org>; Sun,  3 Oct 2021 07:26:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org CE55461B1F
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 684CA61354
+	for <virtualization@archiver.kernel.org>; Mon,  4 Oct 2021 02:23:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 684CA61354
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 60ACD401C9;
-	Sun,  3 Oct 2021 07:26:23 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2591E60BB9;
+	Mon,  4 Oct 2021 02:23:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id u3ouDVLlm_z5; Sun,  3 Oct 2021 07:26:22 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kbmKavlM7RpS; Mon,  4 Oct 2021 02:23:54 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 650FB4019B;
-	Sun,  3 Oct 2021 07:26:21 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A786C605A3;
+	Mon,  4 Oct 2021 02:23:53 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 39556C000F;
-	Sun,  3 Oct 2021 07:26:21 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A5BD0C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7FC72C0011;
+	Mon,  4 Oct 2021 02:23:53 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2F24BC000D
  for <virtualization@lists.linux-foundation.org>;
- Sun,  3 Oct 2021 07:26:19 +0000 (UTC)
+ Mon,  4 Oct 2021 02:23:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 9C0EC848C8
+ by smtp4.osuosl.org (Postfix) with ESMTP id 10C57403C9
  for <virtualization@lists.linux-foundation.org>;
- Sun,  3 Oct 2021 07:26:19 +0000 (UTC)
+ Mon,  4 Oct 2021 02:23:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 13U_FkUw5dAy
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=ibm.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id DXqIa7k8IkhQ
  for <virtualization@lists.linux-foundation.org>;
- Sun,  3 Oct 2021 07:26:18 +0000 (UTC)
+ Mon,  4 Oct 2021 02:23:51 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 8055B84889
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com
+ [148.163.156.1])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 345C9403C0
  for <virtualization@lists.linux-foundation.org>;
- Sun,  3 Oct 2021 07:26:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1633245977;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=hDTlj8yauGXn36BnLPk7YQFUogtZGxp6fGoAswuoG/g=;
- b=QidvNu62E4bNDHYqHM5YlrewFq6OervBRK7H4H9jrCcUUC04OtGnCPqLrryF7TjLfCQWS0
- F33Zl51FWOeF4j3FDxn/SMVVC+hsf2FptD0c5/5oPf2/dFT2rdlyoA9cYRDMuNmgCeaaag
- TXifiOjo3k5vgRXdkxbHANGpNILphSI=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-481-s8JM7tpdPiazf8aWnTgZxw-1; Sun, 03 Oct 2021 03:26:14 -0400
-X-MC-Unique: s8JM7tpdPiazf8aWnTgZxw-1
-Received: by mail-wm1-f72.google.com with SMTP id
- 5-20020a1c00050000b02902e67111d9f0so6876163wma.4
- for <virtualization@lists.linux-foundation.org>;
- Sun, 03 Oct 2021 00:26:14 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=hDTlj8yauGXn36BnLPk7YQFUogtZGxp6fGoAswuoG/g=;
- b=HtXEBuY+7RB4m+ZLpVsrKY7a/4gltjFBXZ9nqGhRSngG4OWB8Ro3LE9Pli98LXX+Wo
- GI0Rab3wejzQR800w6pn2lONxKtKf+d6BQgbEtjPghxAxHbUVtvo2pDYgf5/cLpSWPzp
- ZBGmRxIVqHrBruw957FvI/lBCl4IWwFdE5NsT+VizJwmRlxzLnFvU23LE1hIW354c7GI
- D7RCg3zrFWHl4Oz8VxcDXFM6SWJZqBC5F/K0UfrXDLpt+0PtkOvjxTBn3LEQSItqp2PU
- gH1M0T5u1W2SQ0ZzLd8Eb2TCfXTzBFM+IyVy1Dn2o+kV69vGE+jiaGBpO055MHOmZtnx
- MPLw==
-X-Gm-Message-State: AOAM531lWqrEPnX8YswkOsqMoi7box4IvU8GR9KjJ9KQU96RD5ZUoICn
- bhcENGaBcSc1xTv7fYNlSJklmxIyPKNU+uet98VbzSDExUe8/e6FevP4lQpuwqJab3dwYl9TpBm
- 0uVoN9i1oog1qhvnpVFnW2cN8VGyf+O1ctpchcBmhzA==
-X-Received: by 2002:a5d:56cc:: with SMTP id m12mr7015396wrw.22.1633245973399; 
- Sun, 03 Oct 2021 00:26:13 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxNAQtpj1eV275e1gGoSR2AJUhmX2Av/LkhXFA8TjxRNFl9fJFjPs+0pBxxeePuOYAE3C5EmA==
-X-Received: by 2002:a5d:56cc:: with SMTP id m12mr7015373wrw.22.1633245973096; 
- Sun, 03 Oct 2021 00:26:13 -0700 (PDT)
-Received: from redhat.com ([2.55.22.213])
- by smtp.gmail.com with ESMTPSA id b15sm4804079wrr.90.2021.10.03.00.26.10
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 03 Oct 2021 00:26:11 -0700 (PDT)
-Date: Sun, 3 Oct 2021 03:26:07 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Halil Pasic <pasic@linux.ibm.com>
+ Mon,  4 Oct 2021 02:23:51 +0000 (UTC)
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1942HAJn013952; 
+ Sun, 3 Oct 2021 22:23:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
+ h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=BtW7404GpwTKkqUTjmtVhCQlU8hAD4j8yFpxhidkv9E=;
+ b=Scl5gXNsWoxA+9pclCDWadANOxwMTegy+ilhXb141GCCW0y6vT8DgNC0IqTJ53husE6x
+ n5x6mqzCdiofe92xGUQlCSrxBY6S+SP/RS8gWlu56xWfUczEJ4WfAujSY7Q6vKpwXeBm
+ hLHrOwIhwcseEa5XJkCSVE3v2eQQjd16T2wCIRdyr8pyHFSFI1kJ0bWRfV1NeoBqoHhQ
+ NWPX7DNBFVmQvBiUSijIxJB+JmS7IZZLqxsz/RdUU+fE1+y+wDuwT6aG7OpRC3HpZyYH
+ glgS+9eYP6yZrc3f9oYVqReHiz5p3OvMrFoWeYK+huDQ2zCAcjocz6VNXEy9E2N436k6 Rw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3bfrprr2et-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Sun, 03 Oct 2021 22:23:48 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+ by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1942NmPB004228;
+ Sun, 3 Oct 2021 22:23:48 -0400
+Received: from ppma03fra.de.ibm.com (6b.4a.5195.ip4.static.sl-reverse.com
+ [149.81.74.107])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3bfrprr2eb-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Sun, 03 Oct 2021 22:23:48 -0400
+Received: from pps.filterd (ppma03fra.de.ibm.com [127.0.0.1])
+ by ppma03fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1942MT84009622;
+ Mon, 4 Oct 2021 02:23:46 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com
+ (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+ by ppma03fra.de.ibm.com with ESMTP id 3bef290aje-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Mon, 04 Oct 2021 02:23:45 +0000
+Received: from d06av24.portsmouth.uk.ibm.com (mk.ibm.com [9.149.105.60])
+ by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP
+ id 1942IQpa56492426
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Mon, 4 Oct 2021 02:18:26 GMT
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 5760A42045;
+ Mon,  4 Oct 2021 02:23:42 +0000 (GMT)
+Received: from d06av24.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id AE12342041;
+ Mon,  4 Oct 2021 02:23:41 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.45.119])
+ by d06av24.portsmouth.uk.ibm.com (Postfix) with SMTP;
+ Mon,  4 Oct 2021 02:23:41 +0000 (GMT)
+Date: Mon, 4 Oct 2021 04:23:23 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
-Message-ID: <20211003032253-mutt-send-email-mst@kernel.org>
+Message-ID: <20211004042323.730c6a5e.pasic@linux.ibm.com>
+In-Reply-To: <20211002082128-mutt-send-email-mst@kernel.org>
 References: <20210930012049.3780865-1-pasic@linux.ibm.com>
- <20210930070444-mutt-send-email-mst@kernel.org>
- <87fstm47no.fsf@redhat.com>
- <20211002141351-mutt-send-email-mst@kernel.org>
- <20211003070030.658fc94e.pasic@linux.ibm.com>
- <20211003021027-mutt-send-email-mst@kernel.org>
+ <87r1d64dl4.fsf@redhat.com>
+ <20210930130350.0cdc7c65.pasic@linux.ibm.com>
+ <87ilyi47wn.fsf@redhat.com>
+ <20211001162213.18d7375e.pasic@linux.ibm.com>
+ <87v92g3h9l.fsf@redhat.com>
+ <20211002082128-mutt-send-email-mst@kernel.org>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <20211003021027-mutt-send-email-mst@kernel.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: Y7yW0o3qPlgrIsoRY6SAyO-846f8MTod
+X-Proofpoint-GUID: x2D0ejPsNex5tElS_xlaqVr8c-MW3FnQ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-03_11,2021-10-01_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 bulkscore=0
+ malwarescore=0 suspectscore=0 priorityscore=1501 lowpriorityscore=0
+ phishscore=0 impostorscore=0 mlxlogscore=999 mlxscore=0 adultscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110040013
 Cc: linux-s390@vger.kernel.org, markver@us.ibm.com,
  Christian Borntraeger <borntraeger@de.ibm.com>,
  Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Xie Yongji <xieyongji@bytedance.com>, virtio-dev@lists.oasis-open.org
+ virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>,
+ Xie Yongji <xieyongji@bytedance.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,151 +143,104 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Oct 03, 2021 at 02:42:30AM -0400, Michael S. Tsirkin wrote:
-> On Sun, Oct 03, 2021 at 07:00:30AM +0200, Halil Pasic wrote:
-> > On Sat, 2 Oct 2021 14:20:47 -0400
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > 
-> > > > >From my perspective the problem is that the version of the device  
-> > > > remains in limbo as long as the features have not yet been finalized,
-> > > > which means that the endianness of the config space remains in limbo as
-> > > > well. Both device and driver might come to different conclusions.  
-> > > 
-> > > Version === legacy versus modern?
-> > > It is true that feature negotiation can not be used by device to decide that
-> > > question simply because it happens too late.
-> > > So let's not use it for that then ;)
-> > > 
-> > > Yes we have VERSION_1 which looks like it should allow this, but
-> > > unfortunately it only helps with that for the driver, not the device.
-> > > 
-> > > In practice legacy versus modern has to be determined by
-> > > transport specific versioning, luckily we have that for all
-> > > specified transports (can't say what happens with rproc).
-> > 
-> > So if we look at ccw, you say that the revision negotiation already
-> > determines whether VERSION_1 is negotiated or not, and the
-> > feature bit VERSION_1 is superfluous?
-> > 
-> > That would also imply, that 
-> > 1) if revision > 0 was negotiated then the device must offer VERSION_1
-> > 2) if revision > 0 was negotiated and the driver cleared VERSION_1
-> >    the device must refuse to operate.
-> > 3) if revision > 0 was negotiated then the driver should reject 
-> >    to drive a device if it does not offer VERSION_1
-> > 4) if revision > 0 was negotiated the driver must accept VERSION_1
-> > 5) if revision > 0 was *not* negotiated then the device should not offer
-> >    VERSION_1 because at this point it is already certain that the device
-> >    can not act in accordance to the virtio 1.0 or higher interface.
-> > 
-> > Does that sound about right?
-> 
-> To me, it does.
-> 
-> > IMHO we should also change 
-> > https://docs.oasis-open.org/virtio/virtio/v1.1/cs01/virtio-v1.1-cs01.html#x1-160003
-> > and the definition of VERSION_1 because both sides have to know what is
-> > going on before features are fully negotiated. Or?
-> > 
-> > Regards,
-> > Halil
-> > 
-> 
-> I guess so. And I guess we need transport-specific sections
-> describing this behaviour for each transport.
-> 
-> So something like this, for starters?
+On Sat, 2 Oct 2021 14:13:37 -0400
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-Sent too early. So here's what I propose. Could you pls take a look
-and if you like this, post a ccw section?
-There's also an attempt to prevent fallback from modern to legacy
-here since if driver does fallback then failing FEATURES_OK can't work
-properly.
-That's a separate issue, will be a separate patch when I post
-this for consideration by the TC.
+> > Anyone else have an idea? This is a nasty regression; we could revert the
+> > patch, which would remove the symptoms and give us some time, but that
+> > doesn't really feel right, I'd do that only as a last resort.  
+> 
+> Well we have Halil's hack (except I would limit it
+> to only apply to BE, only do devices with validate,
+> and only in modern mode), and we will fix QEMU to be spec compliant.
+> Between these why do we need any conditional compiles?
+
+We don't. As I stated before, this hack is flawed because it
+effectively breaks fencing features by the driver with QEMU. Some
+features can not be unset after once set, because we tend to try to
+enable the corresponding functionality whenever we see a write
+features operation with the feature bit set, and we don't disable, if a
+subsequent features write operation stores the feature bit as not set.
+But it looks like VIRTIO_1 is fine to get cleared afterwards. So my hack
+should actually look like posted below, modulo conditions.
+
+Regarding the conditions I guess checking that driver_features has
+F_VERSION_1 already satisfies "only modern mode", or? For now
+I've deliberately omitted the has verify and the is big endian
+conditions so we have a better chance to see if something breaks
+(i.e. the approach does not work). I can add in those extra conditions
+later.
+
+--------------------------8<---------------------
+
+From: Halil Pasic <pasic@linux.ibm.com>
+Date: Thu, 30 Sep 2021 02:38:47 +0200
+Subject: [PATCH] virtio: write back feature VERSION_1 before verify
+
+This patch fixes a regression introduced by commit 82e89ea077b9
+("virtio-blk: Add validation for block size in config space") and
+enables similar checks in verify() on big endian platforms.
+
+The problem with checking multi-byte config fields in the verify
+callback, on big endian platforms, and with a possibly transitional
+device is the following. The verify() callback is called between
+config->get_features() and virtio_finalize_features(). That we have a
+device that offered F_VERSION_1 then we have the following options
+either the device is transitional, and then it has to present the legacy
+interface, i.e. a big endian config space until F_VERSION_1 is
+negotiated, or we have a non-transitional device, which makes
+F_VERSION_1 mandatory, and only implements the non-legacy interface and
+thus presents a little endian config space. Because at this point we
+can't know if the device is transitional or non-transitional, we can't
+know do we need to byte swap or not.
+
+The virtio spec explicitly states that the driver MAY read config
+between reading and writing the features so saying that first accessing
+the config before feature negotiation is done is not an option. The
+specification ain't clear about setting the features multiple times
+before FEATURES_OK, so I guess that should be fine to set F_VERSION_1
+since at this point we already know that we are about to negotiate
+F_VERSION_1.
+
+I don't consider this patch super clean, but frankly I don't think we
+have a ton of options. Another option that may or man not be cleaner,
+but is also IMHO much uglier is to figure out whether the device is
+transitional by rejecting _F_VERSION_1, then resetting it and proceeding
+according tho what we have figured out, hoping that the characteristics
+of the device didn't change.
+
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
+Reported-by: markver@us.ibm.com
+---
+ drivers/virtio/virtio.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 0a5b54034d4b..2b9358f2e22a 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -239,6 +239,12 @@ static int virtio_dev_probe(struct device *_d)
+ 		driver_features_legacy = driver_features;
+ 	}
+ 
++	/* Write F_VERSION_1 feature to pin down endianness */
++	if (device_features & (1ULL << VIRTIO_F_VERSION_1) & driver_features) {
++		dev->features = (1ULL << VIRTIO_F_VERSION_1);
++		dev->config->finalize_features(dev);
++	}
++
+ 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+ 		dev->features = driver_features & device_features;
+ 	else
+-- 
+2.31.1
 
 
-diff --git a/content.tex b/content.tex
-index 1398390..06271f4 100644
---- a/content.tex
-+++ b/content.tex
-@@ -140,10 +140,13 @@ \subsection{Legacy Interface: A Note on Feature
- Bits}\label{sec:Basic Facilities of a Virtio Device / Feature
- Bits / Legacy Interface: A Note on Feature Bits}
- 
--Transitional Drivers MUST detect Legacy Devices by detecting that
--the feature bit VIRTIO_F_VERSION_1 is not offered.
--Transitional devices MUST detect Legacy drivers by detecting that
--VIRTIO_F_VERSION_1 has not been acknowledged by the driver.
-+Transitional drivers MAY support operating legacy devices.
-+Transitional devices MAY support operation by legacy drivers.
-+
-+Transitional drivers MUST detect legacy devices in a way that is
-+transport specific.
-+Transitional devices MUST detect legacy drivers in a way that
-+is transport specific.
- 
- In this case device is used through the legacy interface.
- 
-@@ -160,6 +163,33 @@ \subsection{Legacy Interface: A Note on Feature
- Specification text within these sections generally does not apply
- to non-transitional devices.
- 
-+\begin{note}
-+The device offers different features when used through
-+the legacy interface and when operated in accordance with this
-+specification.
-+\end{note}
-+
-+Transitional drivers MUST use Devices only through the legacy interface
-+if the feature bit VIRTIO_F_VERSION_1 is not offered.
-+Transitional devices MUST NOT offer VIRTIO_F_VERSION_1 when used through
-+the legacy interface.
-+
-+When the driver uses a device through the legacy interface, then it
-+MUST only accept the features the device offered through the
-+legacy interface.
-+
-+When used through the legacy interface, the device SHOULD
-+validate that the driver only accepted the features it
-+offered through the legacy interface.
-+
-+When operating a transitional device, a transitional driver
-+SHOULD NOT use the device through the legacy interface if
-+operation through the modern interface has failed.
-+In particular, a transitional driver
-+SHOULD NOT fall back to using the device through the
-+legacy interface if feature negotiation failed
-+(since that would defeat the purpose of the FEATURES_OK bit).
-+
- \section{Notifications}\label{sec:Basic Facilities of a Virtio Device
- / Notifications}
- 
-@@ -1003,6 +1033,12 @@ \subsubsection{Common configuration structure layout}\label{sec:Virtio Transport
- 
- The driver MUST NOT write a 0 to \field{queue_enable}.
- 
-+\paragraph}{Legacy Interface: Common configuration structure layout}\label{sec:Virtio Transport Options / Virtio Over PCI Bus / PCI Device Layout / Legacy Interface: Common configuration structure layout}
-+Transitional drivers SHOULD detect legacy devices by detecting
-+that the device has the Transitional PCI Device ID in
-+the range 0x1000 to 0x103f and lacks a VIRTIO_PCI_CAP_COMMON_CFG
-+capability specifying the location of a common configuration structure.
-+
- \subsubsection{Notification structure layout}\label{sec:Virtio Transport Options / Virtio Over PCI Bus / PCI Device Layout / Notification capability}
- 
- The notification location is found using the VIRTIO_PCI_CAP_NOTIFY_CFG
-@@ -1288,6 +1324,10 @@ \subsubsection{Legacy Interfaces: A Note on PCI Device Layout}\label{sec:Virtio
- Transitional devices MUST present part of configuration
- registers in a legacy configuration structure in BAR0 in the first I/O
- region of the PCI device, as documented below.
-+
-+Transitional devices SHOULD detect legacy drivers by detecting
-+access to the legacy configuration structure.
-+
- When using the legacy interface, transitional drivers
- MUST use the legacy configuration structure in BAR0 in the first
- I/O region of the PCI device, as documented below.
 
+
+
+ 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
