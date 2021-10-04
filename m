@@ -2,113 +2,88 @@ Return-Path: <SRS0=QelU=OY=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03622C433FE
-	for <virtualization@archiver.kernel.org>; Mon,  4 Oct 2021 15:07:48 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23AD9C433F5
+	for <virtualization@archiver.kernel.org>; Mon,  4 Oct 2021 15:14:12 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B45C26124D
-	for <virtualization@archiver.kernel.org>; Mon,  4 Oct 2021 15:07:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B45C26124D
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id CC25F61154
+	for <virtualization@archiver.kernel.org>; Mon,  4 Oct 2021 15:14:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org CC25F61154
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 73D1540873;
-	Mon,  4 Oct 2021 15:07:47 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9915884A0D;
+	Mon,  4 Oct 2021 15:14:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mtVoj4rLYovw; Mon,  4 Oct 2021 15:07:46 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9A327402DD;
-	Mon,  4 Oct 2021 15:07:45 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id r9pZ01GaHrlb; Mon,  4 Oct 2021 15:14:10 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 21552849E4;
+	Mon,  4 Oct 2021 15:14:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6B36BC0011;
-	Mon,  4 Oct 2021 15:07:45 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 026EEC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DE640C0011;
+	Mon,  4 Oct 2021 15:14:09 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 80C9CC000D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Oct 2021 15:07:44 +0000 (UTC)
+ Mon,  4 Oct 2021 15:14:08 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id E066D40871
+ by smtp1.osuosl.org (Postfix) with ESMTP id 7DDAF84A0D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Oct 2021 15:07:44 +0000 (UTC)
+ Mon,  4 Oct 2021 15:14:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bWTR4E_6-Fin
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id iMwPSLhUSEiK
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Oct 2021 15:07:43 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id A908B402DD
+ Mon,  4 Oct 2021 15:14:07 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ua1-f53.google.com (mail-ua1-f53.google.com
+ [209.85.222.53])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 58980849FF
  for <virtualization@lists.linux-foundation.org>;
- Mon,  4 Oct 2021 15:07:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1633360062;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=985LDnfzYRs2ce2VWBJ5EWrnvqpFRI7lu5SFcPvp2wc=;
- b=YAY8fhM7LCWRaBI4D/XKFQNxnL2YmC0NI6+bAa7+pLsVBMZ7JG2kr5H/BsihY8OenTK7Bt
- Z59RBAcxBiXpcCRVTCZ6sBGauMQP4gAab3D2l/reWglMALa6ZGmtkk9NvECwQFgF8hvkcM
- JcmWtQt33jdnDY3ntotGbgA8U9D32Ak=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-44-Q9wGCTSDM9Kc8YZVXapgIQ-1; Mon, 04 Oct 2021 11:07:41 -0400
-X-MC-Unique: Q9wGCTSDM9Kc8YZVXapgIQ-1
-Received: by mail-ed1-f69.google.com with SMTP id
- u17-20020a50d511000000b003daa3828c13so17471783edi.12
+ Mon,  4 Oct 2021 15:14:07 +0000 (UTC)
+Received: by mail-ua1-f53.google.com with SMTP id u11so12569705uaw.3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 04 Oct 2021 08:07:41 -0700 (PDT)
+ Mon, 04 Oct 2021 08:14:07 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=985LDnfzYRs2ce2VWBJ5EWrnvqpFRI7lu5SFcPvp2wc=;
- b=W/+RDHHbY6whwd2DIC5tLx3PYO9o1t2hjW76iTwpUPn/kqfrqDDt98NUjQa26be8Mq
- TtUTd5qvhAL9Gfh9mi6cncw8yPcpdWjcdsT2rp2d+HliVyKG1pG//nJB0UVfTps8ql/7
- awFJIyujwmm9XnYb8dJ4xBlIKMY3e+oSBhl02U+fN3lGLQSAQ/m4yJSt1qODgGlGEQ+m
- RPwq4W9K+aAf2gzHndcbg/mp31UUb84pOIEyLH5VDXvYUeCM3V7qjMPcGPDlDMgpQmdK
- pqHwH3KRxToWYmGae7Eumuz5EooZUqz9q8FHUu97DObzNz4Eels7ll0AOwTuVu3hzbv9
- gQ1A==
-X-Gm-Message-State: AOAM530qz3Gl4ip7aGPkQGFOCXEfAGyJ2+essN45KFNfYUuXcpa3A00P
- y4xbhz1GTT5ziUgFI0XbNEXnnfJ5Egf9C4/+4F/zOv1iwTWS2Hycox2w5XeA3k2/zopi3LGUQ9b
- Z7NWkfxJE9Q+qKVJJ3Bt57ZfdTPggDLXO9Xb1VuTJ1g==
-X-Received: by 2002:a50:cf02:: with SMTP id c2mr19027268edk.325.1633360060385; 
- Mon, 04 Oct 2021 08:07:40 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy2R3Yw9rloBmg/pn4N4NgpeHLThvy4ibN5NrAyU9aRc3amYe7O7XoVjZkHq3LcnnrMqExsaQ==
-X-Received: by 2002:a50:cf02:: with SMTP id c2mr19027231edk.325.1633360060137; 
- Mon, 04 Oct 2021 08:07:40 -0700 (PDT)
-Received: from redhat.com (93-172-224-64.bb.netvision.net.il. [93.172.224.64])
- by smtp.gmail.com with ESMTPSA id
- j22sm6750947ejt.11.2021.10.04.08.07.38
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 04 Oct 2021 08:07:39 -0700 (PDT)
-Date: Mon, 4 Oct 2021 11:07:37 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [RFC PATCH 1/1] virtio: write back features before verify
-Message-ID: <20211004110537-mutt-send-email-mst@kernel.org>
-References: <20210930012049.3780865-1-pasic@linux.ibm.com>
- <20210930070444-mutt-send-email-mst@kernel.org>
- <20211001092125.64fef348.pasic@linux.ibm.com>
- <20211002055605-mutt-send-email-mst@kernel.org>
- <87bl452d90.fsf@redhat.com>
- <20211004090018-mutt-send-email-mst@kernel.org>
- <875yuc3ln2.fsf@redhat.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=04u9HrHvopK+Qx0rr9TojIrIzwVyQ9P12bAyng4Dcac=;
+ b=qP2f+xUsTZTeulZvKN1YKpYTwy/47y/DhlBIYHacHKEbnVuyux+0GyZ5rkx2Tz/Rq+
+ VUCdew8pq5NsL9xncYTN3r/9L2E9yVa15hoILGAu0eOCREFhds0k60LLud+TZKtB77ZZ
+ E9nsNouFh8s1FAQxQ5RxFtYTjXQ2UFPqCvW6wykQ9Komy1hdPRqojM3+5eWU4EK+LQ+C
+ j9eYHDspusE+XAX88WsBBtkOBKtS2NuasIjlPicXAQS1jpmI6XR0mCdWHDnhQwAnQvY2
+ IHf52dr/hv3d4Z3Ji3AIQ+hmuljRxShFog8qOBf7iMyU9+VT9K2BMpT8OGGK1QyoUCQc
+ 8HvA==
+X-Gm-Message-State: AOAM532wbyE10JY7uob5laLyaoePvJL5WaCzRRTwXLMwY+i1IOyNNaG7
+ Zv0BDN6y0W3M/WZ2RZhcrNfJBNAPGeqNIyOos5Q=
+X-Google-Smtp-Source: ABdhPJyV7757NDGwKZMKgvNplAl+Z/hrqly7udXrzzrg4UvhsbNv5XCDntVWXukH0mEfWvrMrHX+meN/Yb93gpCse5g=
+X-Received: by 2002:ab0:58c1:: with SMTP id r1mr7168725uac.89.1633360446142;
+ Mon, 04 Oct 2021 08:14:06 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <875yuc3ln2.fsf@redhat.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: linux-s390@vger.kernel.org, markver@us.ibm.com,
- Christian Borntraeger <borntraeger@de.ibm.com>, qemu-devel@nongnu.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Halil Pasic <pasic@linux.ibm.com>, Xie Yongji <xieyongji@bytedance.com>
+References: <c987d0bf744150ca05bd952f5f9e5fb3244d27b0.1633350340.git.geert+renesas@glider.be>
+ <CAHp75VcBVGLbNxnZ4FwvdoyxQjA_V8MVHdrSYOQdxTm5bFDc5g@mail.gmail.com>
+In-Reply-To: <CAHp75VcBVGLbNxnZ4FwvdoyxQjA_V8MVHdrSYOQdxTm5bFDc5g@mail.gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 4 Oct 2021 17:13:54 +0200
+Message-ID: <CAMuHMdWctqTZRzrHfTsxnK0JNDa1k0o8SNcGMCG1DejoZM70yw@mail.gmail.com>
+Subject: Re: [PATCH] gpio: aggregator: Add interrupt support
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Arnd Bergmann <arnd@kernel.org>,
+ "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+ Viresh Kumar <viresh.kumar@linaro.org>,
+ Linus Walleij <linus.walleij@linaro.org>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org,
+ Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+ Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+ metux IT consult <lkml@metux.net>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ stratos-dev@op-lists.linaro.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,101 +100,64 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Oct 04, 2021 at 04:33:21PM +0200, Cornelia Huck wrote:
-> On Mon, Oct 04 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > On Mon, Oct 04, 2021 at 02:19:55PM +0200, Cornelia Huck wrote:
-> >> 
-> >> [cc:qemu-devel]
-> >> 
-> >> On Sat, Oct 02 2021, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >> 
-> >> > On Fri, Oct 01, 2021 at 09:21:25AM +0200, Halil Pasic wrote:
-> >> >> On Thu, 30 Sep 2021 07:12:21 -0400
-> >> >> "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >> >> 
-> >> >> > On Thu, Sep 30, 2021 at 03:20:49AM +0200, Halil Pasic wrote:
-> >> >> > > This patch fixes a regression introduced by commit 82e89ea077b9
-> >> >> > > ("virtio-blk: Add validation for block size in config space") and
-> >> >> > > enables similar checks in verify() on big endian platforms.
-> >> >> > > 
-> >> >> > > The problem with checking multi-byte config fields in the verify
-> >> >> > > callback, on big endian platforms, and with a possibly transitional
-> >> >> > > device is the following. The verify() callback is called between
-> >> >> > > config->get_features() and virtio_finalize_features(). That we have a
-> >> >> > > device that offered F_VERSION_1 then we have the following options
-> >> >> > > either the device is transitional, and then it has to present the legacy
-> >> >> > > interface, i.e. a big endian config space until F_VERSION_1 is
-> >> >> > > negotiated, or we have a non-transitional device, which makes
-> >> >> > > F_VERSION_1 mandatory, and only implements the non-legacy interface and
-> >> >> > > thus presents a little endian config space. Because at this point we
-> >> >> > > can't know if the device is transitional or non-transitional, we can't
-> >> >> > > know do we need to byte swap or not.  
-> >> >> > 
-> >> >> > Hmm which transport does this refer to?
-> >> >> 
-> >> >> It is the same with virtio-ccw and virtio-pci. I see the same problem
-> >> >> with both on s390x. I didn't try with virtio-blk-pci-non-transitional
-> >> >> yet (have to figure out how to do that with libvirt) for pci I used
-> >> >> virtio-blk-pci.
-> >> >> 
-> >> >> > Distinguishing between legacy and modern drivers is transport
-> >> >> > specific.  PCI presents
-> >> >> > legacy and modern at separate addresses so distinguishing
-> >> >> > between these two should be no trouble.
-> >> >> 
-> >> >> You mean the device id? Yes that is bolted down in the spec, but
-> >> >> currently we don't exploit that information. Furthermore there
-> >> >> is a fat chance that with QEMU even the allegedly non-transitional
-> >> >> devices only present a little endian config space after VERSION_1
-> >> >> was negotiated. Namely get_config for virtio-blk is implemented in
-> >> >> virtio_blk_update_config() which does virtio_stl_p(vdev,
-> >> >> &blkcfg.blk_size, blk_size) and in there we don't care
-> >> >> about transitional or not:
-> >> >> 
-> >> >> static inline bool virtio_access_is_big_endian(VirtIODevice *vdev)
-> >> >> {
-> >> >> #if defined(LEGACY_VIRTIO_IS_BIENDIAN)
-> >> >>     return virtio_is_big_endian(vdev);
-> >> >> #elif defined(TARGET_WORDS_BIGENDIAN)
-> >> >>     if (virtio_vdev_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-> >> >>         /* Devices conforming to VIRTIO 1.0 or later are always LE. */
-> >> >>         return false;
-> >> >>     }
-> >> >>     return true;
-> >> >> #else
-> >> >>     return false;
-> >> >> #endif
-> >> >> }
-> >> >> 
-> >> >
-> >> > ok so that's a QEMU bug. Any virtio 1.0 and up
-> >> > compatible device must use LE.
-> >> > It can also present a legacy config space where the
-> >> > endian depends on the guest.
-> >> 
-> >> So, how is the virtio core supposed to determine this? A
-> >> transport-specific callback?
+Hi Andy,
+
+On Mon, Oct 4, 2021 at 3:21 PM Andy Shevchenko
+<andy.shevchenko@gmail.com> wrote:
+> On Mon, Oct 4, 2021 at 3:45 PM Geert Uytterhoeven
+> <geert+renesas@glider.be> wrote:
+> > Currently the GPIO Aggregator does not support interrupts.  This means
+> > that kernel drivers going from a GPIO to an IRQ using gpiod_to_irq(),
+> > and userspace applications using line events do not work.
 > >
-> > I'd say a field in VirtIODevice is easiest.
-> 
-> The transport needs to set this as soon as it has figured out whether
-> we're using legacy or not.
+> > Add interrupt support by providing a gpio_chip.to_irq() callback, which
+> > just calls into the parent GPIO controller.
+> >
+> > Note that this does not implement full interrupt controller (irq_chip)
+> > support, so using e.g. gpio-keys with "interrupts" instead of "gpios"
+> > still does not work.
+>
+> ...
+>
+> > @@ -414,7 +421,8 @@ static struct gpiochip_fwd *gpiochip_fwd_create(struct device *dev,
+> >         for (i = 0; i < ngpios; i++) {
+> >                 struct gpio_chip *parent = gpiod_to_chip(descs[i]);
+> >
+> > -               dev_dbg(dev, "%u => gpio-%d\n", i, desc_to_gpio(descs[i]));
+> > +               dev_dbg(dev, "%u => gpio %d irq %d\n", i,
+> > +                       desc_to_gpio(descs[i]), gpiod_to_irq(descs[i]));
+>
+> This is an unconditional call that will allocate the IRQ descriptor
 
-Basically on each device config access?
+If DEBUG and CONFIG_DYNAMIC_DEBUG* are not enabled, it's a no-op
+(protected by if (0) { ... }).
+If CONFIG_DYNAMIC_DEBUG is enabled, the operation is a no-op if not
+enabled dynamically (if (dynamic_checl) { ... }).
+If DEBUG (CONFIG_DEBUG_GPIO) is enabled, the output is wanted.
 
-> I guess we also need to fence off any
-> accesses respectively error out the device if the driver tries any
-> read/write operations that would depend on that knowledge?
-> 
-> And using a field in VirtIODevice would probably need some care when
-> migrating. Hm...
+(yes, I've just checked the preprocessor and assembler output ;-).
 
-It's just a shorthand to minimize changes. No need to migrate I think.
+> even if we don't use it. Correct?
 
--- 
-MST
+It calls .to_irq() of the parent GPIO controller, which is usually
+just doing some offset addition.  But that's driver-dependent.
 
+> If so, I don't like this.
+
+No worries, desc_to_gpio() and gpiod_to_irq() are only evaluated when
+the debug output is wanted.
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
