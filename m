@@ -2,198 +2,114 @@ Return-Path: <SRS0=LBOH=OZ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 026D0C433F5
-	for <virtualization@archiver.kernel.org>; Tue,  5 Oct 2021 19:31:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C229FC4332F
+	for <virtualization@archiver.kernel.org>; Tue,  5 Oct 2021 22:33:46 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A0F4461181
-	for <virtualization@archiver.kernel.org>; Tue,  5 Oct 2021 19:31:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A0F4461181
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
+	by mail.kernel.org (Postfix) with ESMTPS id 5BA7D6120D
+	for <virtualization@archiver.kernel.org>; Tue,  5 Oct 2021 22:33:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 5BA7D6120D
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 65DEF408AD;
-	Tue,  5 Oct 2021 19:31:02 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1EAA140424;
+	Tue,  5 Oct 2021 22:33:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DdY2E4KRmdcq; Tue,  5 Oct 2021 19:31:01 +0000 (UTC)
+	with ESMTP id DfcalfY5h00k; Tue,  5 Oct 2021 22:33:45 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 160004080B;
-	Tue,  5 Oct 2021 19:31:01 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 9925540406;
+	Tue,  5 Oct 2021 22:33:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EE237C000F;
-	Tue,  5 Oct 2021 19:31:00 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7A0BAC0011;
+	Tue,  5 Oct 2021 22:33:44 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E24FEC000D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E0DE9C000D
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Oct 2021 19:30:58 +0000 (UTC)
+ Tue,  5 Oct 2021 22:33:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id CFA53407C1
+ by smtp2.osuosl.org (Postfix) with ESMTP id AEF6840288
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Oct 2021 19:30:58 +0000 (UTC)
+ Tue,  5 Oct 2021 22:33:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="ZvTdKpCC";
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="qPylVRxO"
+ dkim=pass (2048-bit key) header.d=intel-com.20210112.gappssmtp.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bWC7npqhp-hl
+ with ESMTP id FfIiVQ-Rfea8
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Oct 2021 19:30:57 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
- [205.220.177.32])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 9198B4024E
+ Tue,  5 Oct 2021 22:33:42 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com
+ [IPv6:2607:f8b0:4864:20::102f])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 6C41D400C6
  for <virtualization@lists.linux-foundation.org>;
- Tue,  5 Oct 2021 19:30:57 +0000 (UTC)
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 195IlY6R029400; 
- Tue, 5 Oct 2021 19:30:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=subject : to : cc :
- references : from : message-id : date : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=hagq3upWVQMX0uoE2qylRWfS6OLtiOzrGNSqBcp1/dM=;
- b=ZvTdKpCCNg1zH0jX5r5B14HnxSm/EIgN0GwaSLpVWZSzeEB+VCVihtWCxg7mmD8NsCFZ
- gtOkwBg5OrSo2KYxSEH+bvaZ37NuxDO113LJeSQVT24uxOsWbbI4vsN+amw34POVsBhm
- XD+u3Ei0zyGHDlwjf+CGfTDmkR/YgoV6MNq8hZhxje+kZhTPA0X8nOnrvFnSI2gSIuFQ
- nFTE9ow8H0WsuOZ/Uv+DKM0GScB/NsmEAOdGtx+p5QSGUsVhVa3FyHwn6Lw+R9MM6fkw
- UzOdh/7K9btZ/QvhQTbzLYhuvkd0SAbOR5uAJA7bD5+0Iwu7xizAtoqdxYUqnd3f35pu LQ== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
- by mx0b-00069f02.pphosted.com with ESMTP id 3bg42ktgy5-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 05 Oct 2021 19:30:38 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
- by userp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 195JEhGH090684;
- Tue, 5 Oct 2021 19:30:37 GMT
-Received: from nam02-sn1-obe.outbound.protection.outlook.com
- (mail-sn1anam02lp2046.outbound.protection.outlook.com [104.47.57.46])
- by userp3020.oracle.com with ESMTP id 3bf16tkrh9-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Tue, 05 Oct 2021 19:30:37 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=GhG+CHmJv+g13mSyIzn+Q/QOfO3dtXQO6YwGC4re9MHNraMS68qvxKK9wNr7mRkjR+ObY+cHxU0L8QeazjVcZ68XKYrzxkGyFU+/8/WmFDuA/i0C026gpMh3j3kefZY/zTbCwsSTQbTSlkY/10mMqo8UHfHTwcsl3aiCM4sqoEcf1864TlS060yeWs91LJbTlljO3NjJn76AIWl2td7fjOySkVkMuWsfs3Dj5fk8UM/qwGVZmEJ8RizLgqUd3jFwqe4DG3nqtdjwsglnoW9M6ltJuokBRi7LEa3OVkfpLlMgi8dzROX+FZK2U0/cuR7JniEetBH/cC/fJLaDVs4JrA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=hagq3upWVQMX0uoE2qylRWfS6OLtiOzrGNSqBcp1/dM=;
- b=ZwP2jGr4NSEyEL6oMUcxm9QrVokbwf6aD9Kp+jK+X5Vi17PaCnGuo0UHF8m8yGbsS3DPdH54GWvI8yIFXknL/1yw0YrQnea0q1hnJlqJ3WCA3D3OEpNnhev/WatLpmStAaifoUp7ntvceV2j+aEJFy5hNq+WtwgX0LwqwgotxQnf9gW+PpSJcGoFrC1KFUdCOy9o4xkZmIO9TjIRYMt7FXnSqjWp9gDE8kRf3KHLgasG4koQPLAjjE1epz4u1ebHZ8qQFKx9iaO4vT7dgYEORMYrWDWV80OvJFEFP2Af0aC5M5FvtDfBLrsl8r0Qr+ebPrcDIqy+2gfbY7wNNqBpEQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
+ Tue,  5 Oct 2021 22:33:42 +0000 (UTC)
+Received: by mail-pj1-x102f.google.com with SMTP id
+ ls14-20020a17090b350e00b001a00e2251c8so800270pjb.4
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 05 Oct 2021 15:33:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hagq3upWVQMX0uoE2qylRWfS6OLtiOzrGNSqBcp1/dM=;
- b=qPylVRxOIlxXKgnIG2P85vz2WJt3m5TZYJT5cb9MBflJ0HUEb4SVajybyGXn4SEFKC5PUa6ciiaYjYnPKRStmBHxoU48B0wtSA5mtnLRwmeWBwCCKMmy8/UCoBPRHq6/ea2Exp5qd5S5ewLhoE8jqIKr6/LjiOdT5mTUVlSSsSU=
-Authentication-Results: kvack.org; dkim=none (message not signed)
- header.d=none;kvack.org; dmarc=none action=none header.from=oracle.com;
-Received: from BLAPR10MB5009.namprd10.prod.outlook.com (2603:10b6:208:321::10)
- by MN2PR10MB4288.namprd10.prod.outlook.com (2603:10b6:208:1dc::7)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.17; Tue, 5 Oct
- 2021 19:30:34 +0000
-Received: from BLAPR10MB5009.namprd10.prod.outlook.com
- ([fe80::3c49:46aa:83e1:a329]) by BLAPR10MB5009.namprd10.prod.outlook.com
- ([fe80::3c49:46aa:83e1:a329%5]) with mapi id 15.20.4566.022; Tue, 5 Oct 2021
- 19:30:34 +0000
-Subject: Re: [PATCH v2 3/9] x86/xen: print a warning when HVMOP_get_mem_type
- fails
-To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
-References: <20211005121430.30136-1-david@redhat.com>
- <20211005121430.30136-4-david@redhat.com>
-From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Message-ID: <4814ff2e-dc1f-71d5-9082-19f8ede9aeaa@oracle.com>
-Date: Tue, 5 Oct 2021 15:30:25 -0400
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.14.0
-In-Reply-To: <20211005121430.30136-4-david@redhat.com>
-Content-Language: en-US
-X-ClientProxiedBy: BYAPR08CA0064.namprd08.prod.outlook.com
- (2603:10b6:a03:117::41) To BLAPR10MB5009.namprd10.prod.outlook.com
- (2603:10b6:208:321::10)
+ d=intel-com.20210112.gappssmtp.com; s=20210112;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=NVaNuqsh2cbkaLybruNHatXvA5elgWSJDPvzOcbacUE=;
+ b=EVm/hrha1IfLe4BiCQirvgf7RAapRUWd5OY2P/INgYjGkVj8hc9n6QLCp874tJH4B8
+ c59PijgCMCeR1ww75e7BgxIoTbMuTYzR9/moG5aTuzHYfPG7MAW0gYXmAVqBIaYxB6u3
+ pGT84S6wLaVtEx10zHX31KymEwCtGRBIM7nGxaEsjYxCLvHTfzY6xa7y7SldE/mqIVvK
+ oPnKGRn3Lv3ooPEL9qBqRzUnM8cnjxO5Piw2uYrVwcD14kajcyQSUHHfM8bMcuD/Rg2L
+ iTmJ3+gEulvEGrDRcURXy5eNQOactv7eOZqPRc7WNm1y+P0cIcKdewJWYVmtxJ5+4Jcu
+ GLMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=NVaNuqsh2cbkaLybruNHatXvA5elgWSJDPvzOcbacUE=;
+ b=a6ctJOFQrsAYlN5FrMSX3DoLfHHV42hp4AfNmZXYSaWa/GKNsUyHz4O2s8yEnZjx97
+ +f6u+BH+yWIKLZjUgMPTSwpnkETDDVY7dFtwpi/7CRwWTBJjs7CwwwMuP89swj7iIFIG
+ kY6t7R2Yr4k38WwMBZaybWLbJplXJgMutlxXpM2diX594zI/kI7iEZ5c1Iaub/4TtY2q
+ j0LF4IFpXQgebax9tXTD9hMp36zyCsG1p5+invElQxp7fmHvSzGzj/TRgzFg6ynUESJ7
+ jZ0VzbgEUjTYOrpYzvFBn5BU/IcA2GWt5PTTscMLZ58Jxhb4jix3gt2Z/gC3YvupaIaQ
+ 8vNA==
+X-Gm-Message-State: AOAM530dRCYayi45Mjsf3vP91+StHxW0HBiEmop9fyAPeDiUovWvj62i
+ HBRO1ICGJ9Gik1G8McZYNpd5G3zyt9kU4AQiNxlWMQ==
+X-Google-Smtp-Source: ABdhPJyNUK8tRKcu+8Dd6LTnJN+R73YCyL6OGLWiFBrQ/OXrJOoHzTAHLH3By0qn+wa4u+t5oNVbKSM82eOjyEdBbGQ=
+X-Received: by 2002:a17:90a:d686:: with SMTP id x6mr6764886pju.8.1633473221792; 
+ Tue, 05 Oct 2021 15:33:41 -0700 (PDT)
 MIME-Version: 1.0
-Received: from [10.74.102.28] (160.34.88.28) by
- BYAPR08CA0064.namprd08.prod.outlook.com (2603:10b6:a03:117::41) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4566.20 via Frontend
- Transport; Tue, 5 Oct 2021 19:30:29 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 312199c2-60a4-41e4-a46e-08d988369a15
-X-MS-TrafficTypeDiagnostic: MN2PR10MB4288:
-X-Microsoft-Antispam-PRVS: <MN2PR10MB42885A0738B3963CE55D8BA28AAF9@MN2PR10MB4288.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:335;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: 23Tsd2HQlKw8tGlcFDe8AVzNBsK0PBwnfw8JYR+sbWjt1Bgqkr1A4PUt2bR3a5iZg7C9Wgfi0JmIa2ODkSiYIc8mUNuPn+yBbxFGP7V6whJyUd4a5yIB+Tt2IlJk+mQW3+ncLyBn0FgNgL21rqq0PvknpkevM89CsZeanWJnpmCH/11aUKCPQ16PT2FPBrN1p7ms9wiE34QTg9XXQL/TokW0IB4Sxez/1HknB/r0OgB8aK1SgrPiDV6UEXFBeYn/I3FO5NbUBKY2H495fqSPu9oVeVtQUc+7UGXEfWfGWjASgweQCL1d8yMqvpgyN/wrVZHYsgd+HXit68nDXoIOOHho8hceMXafgoZtrSPls4C0qTD+fPx9p1HvT3v8tskML6nKf9RW/KEx9oLRcG+0y9sGTE2Y481S25ZWDRvP3Q4cilKc5mzu1AqUuoivDvi0oRK25oJKE1CyRMgMwr9ikamnhQYfGfVBkI8zl8k19BVyXmT9zdgwcYZq/c50VZy0UaYgDeu0+CvlKXrTE2cCFOVUBF0ANw10FB9AeXFzEFNLpYbi+VXNzneHHlqb5y6q3R8LelokQU3xf6Z8HplxmZ5gieY5Mi1HYDwZxNeDofl87U7z/bFHFCg6/NBJpldiOTZCo3VUdSn0OiDDC/YMDd1+81a2CMMdjDRaxKg+cOo0u0J8Z0/AzogS1DY2K1SY5HGguyh+lp5VzZM4ShJQpmuLuxyT5pnHzPkhlXczKcm87VjY9hF+BOjsthNZFfMgBjuzpUmbk9OsWooDJqyV2zdi9jmcU+nRIXUFVjIkxzqWZuveW9g9/CLnCb5c6CPLaUGkKjcegSnd5CC1Be4Oxg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BLAPR10MB5009.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(366004)(53546011)(8676002)(8936002)(31686004)(44832011)(31696002)(316002)(2616005)(956004)(6486002)(38100700002)(6666004)(508600001)(16576012)(186003)(7416002)(4744005)(5660300002)(26005)(2906002)(966005)(4326008)(66556008)(66946007)(66476007)(86362001)(36756003)(54906003)(43740500002)(45980500001);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?d05rRVlmVmtTakJsQ0g4aUg2RTFJMk9KRi9nTTBWWjVoVDZHeWdtV2RwMEZz?=
- =?utf-8?B?T21ZNk01WS9hMHgrUmlMWnFUV3ZyYTNFZitqTDN3QXpzbGt4aUJqSG1FdlE4?=
- =?utf-8?B?RS9WaGlmWjBpYlNKcDFmVW5xVUhTWjRGZjZ6cEdMVm45Q0dYNDAxSTBMd0Ry?=
- =?utf-8?B?WndrWmJWdGw1SklxWHhiQUhTb3U3V0lNdmRzd2J2aUg2cTdGdGFhMkdleW4r?=
- =?utf-8?B?TnlIbkhDYkFnQkJVK09LRktLQ1dQV2YzTlRFNWhPbDBUblRoamhrWEdUdlYv?=
- =?utf-8?B?MFBEK2JJTk1PcmVjbEtHdTFjTEs4UHVCbjRadVpYdm02Y0FKK3JUcDg0M1Bo?=
- =?utf-8?B?Y0MwYVQ4bVcya3BKWkNodnE5QzRORE9yVnB1VTJ1ME1YQnFyREUyVWo1TC90?=
- =?utf-8?B?ZmhsbUJnSlFmN1VJRmJ6SS9KOEVrWndUVHp2MDdUblZ1b0l0UnYzQXlLMUxl?=
- =?utf-8?B?RkRBbG5Va0I3ZHpzRmZlNjcyZCtiQ1lKK0cwVytrY0dFamo4YWZnVnlrZ2tO?=
- =?utf-8?B?cWZUV0N2aE8wM2ZZZWl3NDM0c3hnb2RmRHAzSjhQSDM4MUNTbkpZbkg3dy93?=
- =?utf-8?B?WVQ5NjZ5Tys0MWEzYTFQK0F2SXNCRmtMc2JVRUlnYmpnTDBEWUg2alg3OEhB?=
- =?utf-8?B?NmhhRTg2YTV3QXJRaDhIblJ4Ni9CZ3VZYmxEVm1LcHB4ME52NUdOeWkwa0pV?=
- =?utf-8?B?RDVkdXZ0SjMzaE1vTEhIUVNVcHZnVWpVejhZbVoralkwbVhNMlpUOUU4TU43?=
- =?utf-8?B?OUhkOWpxVTdGVGNSaHpEME53Y1pjbDRNRGhqS0VydkMwN3hSNWtrNGduUVE0?=
- =?utf-8?B?aXN3L0U0SCtwYWI5eGJ4SURuZ01VOHBSaklib2daN2k3dW5zamtmd0Y2VUM1?=
- =?utf-8?B?UEdnK01ydVdEdDYzQ29sR210WEVnUHFtTFlrQkV6VmZKeW9BS0wvbnZqUDE2?=
- =?utf-8?B?dWl0Q0xQYVFyd3RPNHV2eERwLzJtc1BkU0dYcVpQTFFUMkxjeUlDV3ZjYjNw?=
- =?utf-8?B?MFYzOHJzV0xnTGQxb1JnbGpseFI1MlEvajhaTkxkRStaaUhCTzBTbkFQZjVE?=
- =?utf-8?B?ZjJnSGJpU0xUc1F1akJhWVAwL0lsVEp0SUozc3dONEtSSmtwSHRyN0pSbERi?=
- =?utf-8?B?TG90WmsrQVFhQ0VmNWZnK3ZFbEVXcStUd09UejQxOTlJU1JrcmFGWDdOMndq?=
- =?utf-8?B?RmNnK1MzTTZTd2NxUnUxWVh0WXNlMEppT0JHeG40ZXovbG51Lytsc1VlZlNs?=
- =?utf-8?B?UzYvWmt3cnZiSCtwZXkwSVZqWkhRSzE5Tlp1eXJOWlNsUWpJRDRQTWc4RHlO?=
- =?utf-8?B?UjhLc3d4VGF5Z3ZPRCtVc3I0d2Z3Y0hNQ2IxZ3NCc1lpTGpvS3VZcWx1anNs?=
- =?utf-8?B?bGpwRVpXMnk3Ui9NSDV1NVNGbmJobEtQWWtGWk5sN2tmd0ZQL2toTGQ5dlRI?=
- =?utf-8?B?SHJ2dE5HU2IvUHZrM21mSjB3anN4L2c2WCt2OE5JRVVEcEUveVc0eFR0aUMw?=
- =?utf-8?B?Zy9LVVFkSEQ1R0RieDZOWVRDZVR2QlovZll2TlgzUTREd2VLVlp5MTVITHVC?=
- =?utf-8?B?Nk9vdElWV2dxK3ZIZGdRRFFDL3YwYUxIbHdieU9remJ3cVhBU2lsTDBPQjc0?=
- =?utf-8?B?ZW9jL05HU3htMlRuM2VvTnpXckl3dHRFZVFPanEwUXprQkFaRXRKRm0xR1kr?=
- =?utf-8?B?RElFUC9PMUpFWkQxWUM1TURDcWlrY0I0R3BaVWhPeFJkL3k0bEpLZTNMTWxt?=
- =?utf-8?Q?tKw1pXOhijcX1e8+WQiuS1pBXLiB6c1LQA+P2lz?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 312199c2-60a4-41e4-a46e-08d988369a15
-X-MS-Exchange-CrossTenant-AuthSource: BLAPR10MB5009.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Oct 2021 19:30:34.6417 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: POou7n8kWBmLvWbSJ2PUsI2Mnu8eSjvULsPjJ2t3gVwTyhXivB3KASVF3npFAUQkDmispqca+JwJQklfVkHN886Vdy805nsmpi0NNXiUacw=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR10MB4288
-X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10128
- signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
- adultscore=0
- phishscore=0 malwarescore=0 bulkscore=0 mlxlogscore=999 mlxscore=0
- spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2109230001 definitions=main-2110050113
-X-Proofpoint-GUID: cswN1txcG0lsYY_KX0sYrFnNGrS2DbC2
-X-Proofpoint-ORIG-GUID: cswN1txcG0lsYY_KX0sYrFnNGrS2DbC2
-Cc: Michal Hocko <mhocko@suse.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- x86@kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- "H. Peter Anvin" <hpa@zytor.com>, Stefano Stabellini <sstabellini@kernel.org>,
- Baoquan He <bhe@redhat.com>, "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
- Ingo Molnar <mingo@redhat.com>, xen-devel@lists.xenproject.org,
- Dave Young <dyoung@redhat.com>, Vivek Goyal <vgoyal@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Thomas Gleixner <tglx@linutronix.de>,
- Oscar Salvador <osalvador@suse.de>, Juergen Gross <jgross@suse.com>,
- kexec@lists.infradead.org, linux-fsdevel@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>, Mike Rapoport <rppt@kernel.org>
+References: <CAPcyv4hP6mtzKS-CVb-aKf-kYuiLM771PMxN2zeBEfoj6NbctA@mail.gmail.com>
+ <6d1e2701-5095-d110-3b0a-2697abd0c489@linux.intel.com>
+ <YVXWaF73gcrlvpnf@kroah.com>
+ <1cfdce51-6bb4-f7af-a86b-5854b6737253@linux.intel.com>
+ <YVaywQLAboZ6b36V@kroah.com>
+ <CAPcyv4gqs=KuGyxFR61QWqF6HKrRg851roCGUqrq585+s2Cm=w@mail.gmail.com>
+ <20211001164533.GC505557@rowland.harvard.edu>
+ <CAPcyv4i__reKFRP1KjWUov_W5jBQN9_vbUbKRL_V7KMM3oPuuQ@mail.gmail.com>
+ <20211001190048.GA512418@rowland.harvard.edu>
+ <CAPcyv4hYL51DcBuSuyMRFo5Jcc=zLd=Ugo+H_2saELcZ5AJBeQ@mail.gmail.com>
+ <YVqONA0vhl0/H3QE@lahna>
+In-Reply-To: <YVqONA0vhl0/H3QE@lahna>
+From: Dan Williams <dan.j.williams@intel.com>
+Date: Tue, 5 Oct 2021 15:33:29 -0700
+Message-ID: <CAPcyv4im4Tsj1SnxSWe=cAHBP1mQ=zgO-D81n2BpD+_HkpitbQ@mail.gmail.com>
+Subject: Re: [PATCH v2 4/6] virtio: Initialize authorized attribute for
+ confidential guest
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, "Kuppuswamy,
+ Sathyanarayanan" <sathyanarayanan.kuppuswamy@linux.intel.com>,
+ Andi Kleen <ak@linux.intel.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Michael Jamet <michael.jamet@intel.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, X86 ML <x86@kernel.org>,
+ Yehezkel Bernat <YehezkelShB@gmail.com>,
+ Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Andreas Noever <andreas.noever@gmail.com>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Linux PCI <linux-pci@vger.kernel.org>,
+ Bjorn Helgaas <bhelgaas@google.com>, Alan Stern <stern@rowland.harvard.edu>,
+ Thomas Gleixner <tglx@linutronix.de>,
+ virtualization@lists.linux-foundation.org,
+ USB list <linux-usb@vger.kernel.org>, "Rafael J . Wysocki" <rafael@kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -210,22 +126,224 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-On 10/5/21 8:14 AM, David Hildenbrand wrote:
-> HVMOP_get_mem_type is not expected to fail, "This call failing is
-> indication of something going quite wrong and it would be good to know
-> about this." [1]
+On Sun, Oct 3, 2021 at 10:16 PM Mika Westerberg
+<mika.westerberg@linux.intel.com> wrote:
 >
-> Let's add a pr_warn_once().
+> Hi,
 >
-> [1] https://lkml.kernel.org/r/3b935aa0-6d85-0bcd-100e-15098add3c4c@oracle.com
+> On Fri, Oct 01, 2021 at 12:57:18PM -0700, Dan Williams wrote:
+> > > > Ah, so are you saying that it would be sufficient for USB if the
+> > > > generic authorized implementation did something like:
+> > > >
+> > > > dev->authorized = 1;
+> > > > device_attach(dev);
+> > > >
+> > > > ...for the authorize case, and:
+> > > >
+> > > > dev->authorize = 0;
+> > > > device_release_driver(dev);
+> > > >
+> > > > ...for the deauthorize case?
+> > >
+> > > Yes, I think so.  But I haven't tried making this change to test and
+> > > see what really happens.
+> >
+> > Sounds like a useful path for this effort to explore. Especially as
+> > Greg seems to want the proposed "has_probe_authorization" flag in the
+> > bus_type to disappear and make this all generic. It just seems that
+> > Thunderbolt would need deeper surgery to move what it does in the
+> > authorization toggle path into the probe and remove paths.
+> >
+> > Mika, do you see a path for Thunderbolt to align its authorization
+> > paths behind bus ->probe() ->remove() events similar to what USB might
+> > be able to support for a generic authorization path?
 >
-> Suggested-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
+> In Thunderbolt "authorization" actually means whether there is a PCIe
+> tunnel to the device or not. There is no driver bind/unbind happening
+> when authorization toggles (well on Thunderbolt bus, there can be on PCI
+> bus after the tunnel is established) so I'm not entirely sure how we
+> could use the bus ->probe() or ->remove for that to be honest.
+
+Greg, per your comment:
+
+"... which was to move the way that busses are allowed to authorize
+the devices they wish to control into a generic way instead of being
+bus-specific logic."
+
+We have USB and TB that have already diverged on the ABI here. The USB
+behavior is more in line with the "probe authorization" concept, while
+TB is about tunnel establishment and not cleanly tied to probe
+authorization. So while I see a path to a common authorization
+implementation for USB and other buses (per the insight from Alan), TB
+needs to retain the ability to record the authorization state as an
+enum rather than a bool, and emit a uevent on authorization status
+change.
+
+So how about something like the following that moves the attribute
+into the core, but still calls back to TB and USB to perform their
+legacy authorization work. This new authorized attribute only shows up
+when devices default to not authorized, i.e. when userspace owns the
+allow list past critical-boot built-in drivers, or if the bus (USB /
+TB) implements ->authorize().
 
 
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index e65dd803a453..8f8fbe2637d1 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -2414,6 +2414,58 @@ static ssize_t online_store(struct device *dev,
+struct device_attribute *attr,
+ }
+ static DEVICE_ATTR_RW(online);
 
++static ssize_t authorized_show(struct device *dev,
++                              struct device_attribute *attr, char *buf)
++{
++       return sysfs_emit(buf, "%u\n", dev->authorized);
++}
++
++static ssize_t authorized_store(struct device *dev,
++                               struct device_attribute *attr, const char *buf,
++                               size_t count)
++{
++       unsigned int val, save;
++       ssize_t rc;
++
++       rc = kstrtouint(buf, 0, &val);
++       if (rc < 0)
++               return rc;
++
++       /* some buses (Thunderbolt) support authorized values > 1 */
++       if (val > 1 && !dev->bus->authorize)
++               return -EINVAL;
++
++       device_lock(dev);
++       save = dev->authorized;
++       if (save == val) {
++               rc = count;
++               goto err;
++       }
++
++       dev->authorized = val;
++       if (dev->bus->authorize) {
++               /* notify bus about change in authorization state */
++               rc = dev->bus->authorize(dev);
++               if (rc) {
++                       dev->authorized = save;
++                       goto err;
++               }
++       }
++       device_unlock(dev);
++
++       if (dev->authorized) {
++               if (!device_attach(dev))
++                       dev_dbg(dev, "failed to probe after authorize\n");
++       } else
++               device_release_driver(dev);
++       return count;
++
++err:
++       device_unlock(dev);
++       return rc < 0 ? rc : count;
++}
++static DEVICE_ATTR_RW(authorized);
++
+ static ssize_t removable_show(struct device *dev, struct
+device_attribute *attr,
+                              char *buf)
+ {
+@@ -2616,8 +2668,16 @@ static int device_add_attrs(struct device *dev)
+                        goto err_remove_dev_waiting_for_supplier;
+        }
+
++       if (dev_needs_authorization(dev)) {
++               error = device_create_file(dev, &dev_attr_authorized);
++               if (error)
++                       goto err_remove_dev_removable;
++       }
++
+        return 0;
+
++ err_remove_dev_removable:
++       device_remove_file(dev, &dev_attr_removable);
+  err_remove_dev_waiting_for_supplier:
+        device_remove_file(dev, &dev_attr_waiting_for_supplier);
+  err_remove_dev_online:
+@@ -2639,6 +2699,7 @@ static void device_remove_attrs(struct device *dev)
+        struct class *class = dev->class;
+        const struct device_type *type = dev->type;
+
++       device_remove_file(dev, &dev_attr_authorized);
+        device_remove_file(dev, &dev_attr_removable);
+        device_remove_file(dev, &dev_attr_waiting_for_supplier);
+        device_remove_file(dev, &dev_attr_online);
+@@ -2805,6 +2866,8 @@ static void klist_children_put(struct klist_node *n)
+        put_device(dev);
+ }
+
++unsigned int dev_default_authorization;
++
+ /**
+  * device_initialize - init device structure.
+  * @dev: device.
+diff --git a/include/linux/device.h b/include/linux/device.h
+index e270cb740b9e..fbb83e46af9d 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -561,6 +561,7 @@ struct device {
+        struct dev_iommu        *iommu;
+
+        enum device_removable   removable;
++       unsigned int            authorized;
+
+        bool                    offline_disabled:1;
+        bool                    offline:1;
+@@ -814,6 +815,19 @@ static inline bool dev_removable_is_valid(struct
+device *dev)
+        return dev->removable != DEVICE_REMOVABLE_NOT_SUPPORTED;
+ }
+
++extern unsigned int dev_default_authorization;
++
++/*
++ * If the bus has custom authorization, or if devices default to not
++ * authorized, register the 'authorized' attribute for @dev.
++ */
++static inline bool dev_needs_authorization(struct device *dev)
++{
++       if (dev->bus->authorize || dev_default_authorization == 0)
++               return true;
++       return false;
++}
++
+ /*
+  * High level routines for use by the bus drivers
+  */
+diff --git a/include/linux/device/bus.h b/include/linux/device/bus.h
+index 062777a45a74..3202a2b13374 100644
+--- a/include/linux/device/bus.h
++++ b/include/linux/device/bus.h
+@@ -40,6 +40,11 @@ struct fwnode_handle;
+  *             that generate uevents to add the environment variables.
+  * @probe:     Called when a new device or driver add to this bus, and callback
+  *             the specific driver's probe to initial the matched device.
++ * @authorize: Called after authorized_store() changes the
++ *             authorization state of the device. Do not use for new
++ *             bus implementations, revalidate dev->authorized in
++ *             @probe and @remove to take any bus specific
++ *             authorization actions.
+  * @sync_state:        Called to sync device state to software state
+after all the
+  *             state tracking consumers linked to this device (present at
+  *             the time of late_initcall) have successfully bound to a
+@@ -90,6 +95,7 @@ struct bus_type {
+        int (*match)(struct device *dev, struct device_driver *drv);
+        int (*uevent)(struct device *dev, struct kobj_uevent_env *env);
+        int (*probe)(struct device *dev);
++       int (*authorize)(struct device *dev);
+        void (*sync_state)(struct device *dev);
+        void (*remove)(struct device *dev);
+        void (*shutdown)(struct device *dev);
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
