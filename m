@@ -2,84 +2,124 @@ Return-Path: <SRS0=ulPH=O2=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBF5AC433FE
-	for <virtualization@archiver.kernel.org>; Wed,  6 Oct 2021 12:27:26 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E9C4C433EF
+	for <virtualization@archiver.kernel.org>; Wed,  6 Oct 2021 14:25:52 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5515E610A0
-	for <virtualization@archiver.kernel.org>; Wed,  6 Oct 2021 12:27:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 5515E610A0
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id EAB2161184
+	for <virtualization@archiver.kernel.org>; Wed,  6 Oct 2021 14:25:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org EAB2161184
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 18A72607DC;
-	Wed,  6 Oct 2021 12:27:26 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id BC7C2406EB;
+	Wed,  6 Oct 2021 14:25:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VEYDh8bZ384n; Wed,  6 Oct 2021 12:27:25 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zQA9RDd7ffSX; Wed,  6 Oct 2021 14:25:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 9F275607D0;
-	Wed,  6 Oct 2021 12:27:24 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 76F7D406AB;
+	Wed,  6 Oct 2021 14:25:50 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 74E6DC000F;
-	Wed,  6 Oct 2021 12:27:24 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 70871C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 557DCC000F;
+	Wed,  6 Oct 2021 14:25:50 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4D4C4C000D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Oct 2021 12:27:23 +0000 (UTC)
+ Wed,  6 Oct 2021 14:25:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 60763607DC
+ by smtp1.osuosl.org (Postfix) with ESMTP id 3BE2183FA0
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Oct 2021 12:27:23 +0000 (UTC)
+ Wed,  6 Oct 2021 14:25:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aKxjxvbEvVKj
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=ibm.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 53PI5LyeLvko
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Oct 2021 12:27:22 +0000 (UTC)
+ Wed,  6 Oct 2021 14:25:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 590E1607D0
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com
+ [148.163.156.1])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 8CD8083F9B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Oct 2021 12:27:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1633523241;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding;
- bh=z94u7XbK2wF6s34vY9KUD9mohTYfAbMaUfJBt8dLs3c=;
- b=fixQBa1G7mXVWXSsox4mnMAcnSVC5s5A+dc2cTnsxMziSv3jZShi+8l+5lswppEZz05WPr
- rwKe/VmZmfP1VCnjhAg442eZzO551iqYyZCGA0aVxjAvkqsCIenqn+ovyyNsJIPOooSp9T
- 5aYkjv5lk26sicgY5sEivDSqdm2MZ6A=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-527-_bzA9wiOMvO9ETZzWd959w-1; Wed, 06 Oct 2021 08:27:20 -0400
-X-MC-Unique: _bzA9wiOMvO9ETZzWd959w-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7946579EDF;
- Wed,  6 Oct 2021 12:27:18 +0000 (UTC)
-Received: from t480s.redhat.com (unknown [10.39.194.152])
- by smtp.corp.redhat.com (Postfix) with ESMTP id A083E5F4E3;
- Wed,  6 Oct 2021 12:27:10 +0000 (UTC)
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH v2] virtio-mem: support VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE
-Date: Wed,  6 Oct 2021 14:27:09 +0200
-Message-Id: <20211006122709.27885-1-david@redhat.com>
+ Wed,  6 Oct 2021 14:25:48 +0000 (UTC)
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 196DSp9d001008; 
+ Wed, 6 Oct 2021 10:25:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
+ h=from : to : cc : subject
+ : date : message-id : mime-version : content-transfer-encoding; s=pp1;
+ bh=rzPMALKGA6XMuv435p9x/PS4RHZse9EyIaUy6qjVuL0=;
+ b=NkfdQ8sQZSmHF5RPIQ9VvK0KzNLhHdfbXxWCrbVPoPzqs4vp0/SEFdK6CuU1x+TnMojB
+ Mlq+hGZH6pCferJ+3S4aewQ73XJnwwLOr5BvMobiXcCHeKa8n9hZgk5Y7CLsMXymJivx
+ 5FDHi5vRGwaz/zPxBNX9s8J7MTJKfrfEJQQEfxHCwkWWgbP98OFTppFiY7p4Oeb+5vLy
+ zli5w0qgpHc6bKJ9FznTcUBnUBROp3SaGkWJhojdL+CJhePJ5mnDGqrWVQw358UOkV9f
+ ngXbtarz8Ryo7orsKtTDyNYHKXv8IsaF3IV3MN+mnPAUs/B4FYOSE+O3etA/6NAyre7l hA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3bhcqk9g4t-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Wed, 06 Oct 2021 10:25:46 -0400
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+ by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 196DTA6Z002572;
+ Wed, 6 Oct 2021 10:25:45 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com
+ [149.81.74.108])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3bhcqk9g3f-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Wed, 06 Oct 2021 10:25:45 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+ by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 196ECDng030410;
+ Wed, 6 Oct 2021 14:25:42 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com
+ (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+ by ppma05fra.de.ibm.com with ESMTP id 3bef2a3r8u-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Wed, 06 Oct 2021 14:25:42 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com
+ [9.149.105.61])
+ by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP
+ id 196EKJnC55312836
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Wed, 6 Oct 2021 14:20:19 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 3512311C05B;
+ Wed,  6 Oct 2021 14:25:38 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 9A4D711C052;
+ Wed,  6 Oct 2021 14:25:37 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+ by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+ Wed,  6 Oct 2021 14:25:37 +0000 (GMT)
+From: Halil Pasic <pasic@linux.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xie Yongji <xieyongji@bytedance.com>,
+ virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/1] virtio: write back F_VERSION_1 before validate
+Date: Wed,  6 Oct 2021 16:25:33 +0200
+Message-Id: <20211006142533.2735019-1-pasic@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
- Wei Yang <richard.weiyang@linux.alibaba.com>,
- Cornelia Huck <cohuck@redhat.com>, virtualization@lists.linux-foundation.org,
- Sebastien Boeuf <sebastien.boeuf@intel.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Marek Kedzierski <mkedzier@redhat.com>,
- Hui Zhu <teawater@gmail.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 6SJN1e6Wk8CcV1EJ_v0Cs0lygJFuRqfD
+X-Proofpoint-GUID: 6Ww4Q-dWxjfZ_JKOOMojtbiksYxrUCgh
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-06_03,2021-10-06_01,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 mlxscore=0
+ malwarescore=0 bulkscore=0 adultscore=0 clxscore=1015 priorityscore=1501
+ suspectscore=0 phishscore=0 lowpriorityscore=0 spamscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
+ definitions=main-2110060089
+Cc: linux-s390@vger.kernel.org, markver@us.ibm.com,
+ Cornelia Huck <cohuck@redhat.com>, qemu-devel@nongnu.org,
+ Raphael Norwitz <raphael.norwitz@nutanix.com>,
+ Halil Pasic <pasic@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@de.ibm.com>, stefanha@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -96,100 +136,59 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The initial virtio-mem spec states that while unplugged memory should not
-be read, the device still has to allow for reading unplugged memory inside
-the usable region. The primary motivation for this default handling was
-to simplify bringup of virtio-mem, because there were corner cases where
-Linux might have accidentially read unplugged memory inside added Linux
-memory blocks.
+The virtio specification virtio-v1.1-cs01 states: Transitional devices
+MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
+been acknowledged by the driver.  This is exactly what QEMU as of 6.1
+has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
 
-In the meantime, we:
-* Removed /dev/kmem
-* Disallowed access to virtio-mem device memory via /dev/mem
-* Sanitized access to virtio-mem device memory via /proc/kcore
-* Sanitized access to virtio-mem device memory via /proc/vmcore
+However, the specification also says: driver MAY read (but MUST NOT
+write) the device-specific configuration fields to check that it can
+support the device before setting FEATURES_OK.
 
-"Accidential" access to unplugged memory is no longer possible; we can
-support the new VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE feature that will be
-required by some hypervisors implementing virtio-mem in the near future.
+In that case, any transitional device relying solely on
+VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
+legacy format.  In particular, this implies that it is in big endian
+format for big endian guests. This naturally confuses the driver which
+expects little endian in the modern mode.
 
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Cornelia Huck <cohuck@redhat.com>
-Cc: Marek Kedzierski <mkedzier@redhat.com>
-Cc: Hui Zhu <teawater@gmail.com>
-Cc: Sebastien Boeuf <sebastien.boeuf@intel.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
+It is probably a good idea to amend the spec to clarify that
+VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
+is complete. However, we already have regression so let's try to address
+it.
+
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
+Fixes: fe36cbe0671e ("virtio_net: clear MTU when out of range")
+Reported-by: markver@us.ibm.com
 ---
+ drivers/virtio/virtio.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-Michael, I want this patch in v5.16 if the following two series that
-are already queued by Andrew via the -MM tree go into v5.16 (which I
-I assume but we never know :) ):
-* [PATCH v5 0/3] virtio-mem: disallow mapping virtio-mem memory via
-  /dev/mem
-  https://lkml.kernel.org/r/20210920142856.17758-1-david@redhat.com
-* [PATCH v2 0/9] proc/vmcore: sanitize access to virtio-mem memory
-  https://lkml.kernel.org/r/20211005121430.30136-1-david@redhat.com
-
-This is the follow-up of:
-  https://lkml.kernel.org/r/20210215122143.27608-1-david@redhat.com
-The spec updated was proposed in:
-  https://lists.oasis-open.org/archives/virtio-comment/202109/msg00027.html
-
-v1 -> v2:
-- Now that we handle /dev/mem and /proc/vmcore cleaner, we can get
-  simplify and just support the flag unconditionally
-
----
- drivers/virtio/virtio_mem.c     | 1 +
- include/uapi/linux/virtio_mem.h | 9 ++++++---
- 2 files changed, 7 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index bef8ad6bf466..78dfdc9c98a1 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -2758,6 +2758,7 @@ static unsigned int virtio_mem_features[] = {
- #if defined(CONFIG_NUMA) && defined(CONFIG_ACPI_NUMA)
- 	VIRTIO_MEM_F_ACPI_PXM,
- #endif
-+	VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE,
- };
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 0a5b54034d4b..494cfecd3376 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -239,6 +239,16 @@ static int virtio_dev_probe(struct device *_d)
+ 		driver_features_legacy = driver_features;
+ 	}
  
- static const struct virtio_device_id virtio_mem_id_table[] = {
-diff --git a/include/uapi/linux/virtio_mem.h b/include/uapi/linux/virtio_mem.h
-index 70e01c687d5e..e9122f1d0e0c 100644
---- a/include/uapi/linux/virtio_mem.h
-+++ b/include/uapi/linux/virtio_mem.h
-@@ -68,9 +68,10 @@
-  * explicitly triggered (VIRTIO_MEM_REQ_UNPLUG).
-  *
-  * There are no guarantees what will happen if unplugged memory is
-- * read/written. Such memory should, in general, not be touched. E.g.,
-- * even writing might succeed, but the values will simply be discarded at
-- * random points in time.
-+ * read/written. In general, unplugged memory should not be touched, because
-+ * the resulting action is undefined. There is one exception: without
-+ * VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE, unplugged memory inside the usable
-+ * region can be read, to simplify creation of memory dumps.
-  *
-  * It can happen that the device cannot process a request, because it is
-  * busy. The device driver has to retry later.
-@@ -87,6 +88,8 @@
- 
- /* node_id is an ACPI PXM and is valid */
- #define VIRTIO_MEM_F_ACPI_PXM		0
-+/* unplugged memory must not be accessed */
-+#define VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE	1
- 
- 
- /* --- virtio-mem: guest -> host requests --- */
++	/*
++	 * Some devices detect legacy solely via F_VERSION_1. Write
++	 * F_VERSION_1 to force LE for these when needed.
++	 */
++	if (drv->validate && !virtio_legacy_is_little_endian()
++			  && BIT_ULL(VIRTIO_F_VERSION_1) & device_features) {
++		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
++		dev->config->finalize_features(dev);
++	}
++
+ 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+ 		dev->features = driver_features & device_features;
+ 	else
 
-base-commit: 9e1ff307c779ce1f0f810c7ecce3d95bbae40896
+base-commit: 60a9483534ed0d99090a2ee1d4bb0b8179195f51
 -- 
-2.31.1
+2.25.1
 
 _______________________________________________
 Virtualization mailing list
