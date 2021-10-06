@@ -2,91 +2,103 @@ Return-Path: <SRS0=ulPH=O2=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA2E7C433F5
-	for <virtualization@archiver.kernel.org>; Wed,  6 Oct 2021 05:45:20 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1937DC433EF
+	for <virtualization@archiver.kernel.org>; Wed,  6 Oct 2021 09:55:44 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6E366610A8
-	for <virtualization@archiver.kernel.org>; Wed,  6 Oct 2021 05:45:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 6E366610A8
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id AC48461139
+	for <virtualization@archiver.kernel.org>; Wed,  6 Oct 2021 09:55:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org AC48461139
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 2F9E1403EF;
-	Wed,  6 Oct 2021 05:45:20 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6BBA5608D2;
+	Wed,  6 Oct 2021 09:55:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id axgSUusL0GBk; Wed,  6 Oct 2021 05:45:19 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 6A759400BE;
-	Wed,  6 Oct 2021 05:45:18 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id iMoJ_SQaZ0RV; Wed,  6 Oct 2021 09:55:42 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1802D60B8D;
+	Wed,  6 Oct 2021 09:55:42 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3A9F4C000F;
-	Wed,  6 Oct 2021 05:45:18 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3DB3EC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E0456C0011;
+	Wed,  6 Oct 2021 09:55:41 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 67172C000D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Oct 2021 05:45:17 +0000 (UTC)
+ Wed,  6 Oct 2021 09:55:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 1F1D060D78
+ by smtp3.osuosl.org (Postfix) with ESMTP id 486FB60B8D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Oct 2021 05:45:17 +0000 (UTC)
+ Wed,  6 Oct 2021 09:55:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=linuxfoundation.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id iYKpjw9wjok3
+ with ESMTP id YD5pxfknmvCa
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Oct 2021 05:45:16 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 7B9EB608D2
+ Wed,  6 Oct 2021 09:55:39 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com
+ [IPv6:2a00:1450:4864:20::430])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 723C8608D2
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Oct 2021 05:45:16 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 08C45610A8;
- Wed,  6 Oct 2021 05:45:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1633499115;
- bh=TkhOS3oV3aBi6/QsuUnIcb7Tuh/r6ed2nyWTvBNeZCE=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=Ja+ryf444x6Di/ECYJ1MMxrIt8xWGjoeayFFSxzN7eUIV+0TdxlBE0oLlQK/Z6CPA
- Mkt0M00dGomHevaZhMCpHpdn51zXqCAEv+4jonKBlHTIZ50E6rRLws7+HdzmJccBZV
- CwuhTxux4JPGErPjZnNy3G/8slESpIe3e8+O8gMs=
-Date: Wed, 6 Oct 2021 07:45:12 +0200
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [PATCH v2 4/6] virtio: Initialize authorized attribute for
- confidential guest
-Message-ID: <YV036H5iGd7FKg+E@kroah.com>
-References: <YVXWaF73gcrlvpnf@kroah.com>
- <1cfdce51-6bb4-f7af-a86b-5854b6737253@linux.intel.com>
- <YVaywQLAboZ6b36V@kroah.com>
- <CAPcyv4gqs=KuGyxFR61QWqF6HKrRg851roCGUqrq585+s2Cm=w@mail.gmail.com>
- <20211001164533.GC505557@rowland.harvard.edu>
- <CAPcyv4i__reKFRP1KjWUov_W5jBQN9_vbUbKRL_V7KMM3oPuuQ@mail.gmail.com>
- <20211001190048.GA512418@rowland.harvard.edu>
- <CAPcyv4hYL51DcBuSuyMRFo5Jcc=zLd=Ugo+H_2saELcZ5AJBeQ@mail.gmail.com>
- <YVqONA0vhl0/H3QE@lahna>
- <CAPcyv4im4Tsj1SnxSWe=cAHBP1mQ=zgO-D81n2BpD+_HkpitbQ@mail.gmail.com>
+ Wed,  6 Oct 2021 09:55:39 +0000 (UTC)
+Received: by mail-wr1-x430.google.com with SMTP id m22so7124985wrb.0
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 06 Oct 2021 02:55:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=53P0MWqxHQf69YIQTg7++jhQaclFdr/J2LBfnT7Jxag=;
+ b=SyqmL0KIwaYYoAnvxjN3cUgFEI9q0HKr8Ar/pWsMkn9kMDGzeCkwbxNr5N5Kc/UWS7
+ qniK5NqdpFiEqx+FSrnniWhRiB36WlBCYKNtzy05dCMjzUyTW9QFNaEZ/f4z9YXH30MO
+ IEn+GlPNPbZiWY/3MJ/uJXvLCXC/DyO5mBNQTIQJy/+FRS6AC8YCO7GzAia1tIaS52In
+ ZmFzmtuOnaCJYRjB58b+zDAHwub8BWctoYeAeSgPq+1yuZ1lQzB34HrNc4dGrF/+kr4F
+ r46OH/pMw/2AQQASBIOLJueH5xJxURZBBbE0SHmAeD1lDV/X9+qdhjVkuRQXODpRNfTK
+ jVWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=53P0MWqxHQf69YIQTg7++jhQaclFdr/J2LBfnT7Jxag=;
+ b=u8NF7hjS0/QfubWuLHCbmecCZGdeVOxKXmXfWplLfQxH8x2+KpkGQj3yhEV0Y+9tWE
+ B4wcmNNoOx9uYA50jSU9d0/O5Qhfazc84/DPdIZMd6EdAlvfAaxxbBZ+aWDXbJ508vDS
+ vmIPomCYZiZQtoDjCD/HsdooReF7QAS28hrUkQ/R4uVxwMEpjigbSdSt/zjIkU4NyfTV
+ F/Xntl6wKDmYIZGT5qOE7nX2jklZBWa+NE0n/j+yv3ZdtHfdTTa4iQHMvc2e8YiyaEV8
+ 6C0ndqhUKSeRvGHEzzJpos3LDpyOxT75jbkPwgGquQyJ1dPGMtnM1eZIFp5v9B74QVbG
+ 3kiw==
+X-Gm-Message-State: AOAM532AbwSTM7uoVYVvzUDnqgP/eBA/LxXpTfBS5q+4Z4UD3bfIe6/n
+ 5VnqiVIDZa6/pY2MFyCe11FpZQ==
+X-Google-Smtp-Source: ABdhPJzxdeXU89q22gyHmthoWcnGdg9zFvCS0EtqufEuzVaX6IYosj6/AmW+M3t0tXGZdbu/vTLWjg==
+X-Received: by 2002:a1c:f402:: with SMTP id z2mr8775367wma.53.1633514137346;
+ Wed, 06 Oct 2021 02:55:37 -0700 (PDT)
+Received: from myrica (cpc92880-cmbg19-2-0-cust679.5-4.cable.virginm.net.
+ [82.27.106.168])
+ by smtp.gmail.com with ESMTPSA id o6sm378418wri.49.2021.10.06.02.55.36
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 06 Oct 2021 02:55:36 -0700 (PDT)
+Date: Wed, 6 Oct 2021 10:55:14 +0100
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Vivek Kumar Gautam <vivek.gautam@arm.com>
+Subject: Re: [PATCH RFC v1 10/11] uapi/virtio-iommu: Add a new request type
+ to send page response
+Message-ID: <YV1ygu5URvuHB4qb@myrica>
+References: <20210423095147.27922-1-vivek.gautam@arm.com>
+ <20210423095147.27922-11-vivek.gautam@arm.com>
+ <YUoFSrAK2gi3GWp/@myrica>
+ <d40ea85b-3612-10b3-0add-40d07e6d9ca5@arm.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <CAPcyv4im4Tsj1SnxSWe=cAHBP1mQ=zgO-D81n2BpD+_HkpitbQ@mail.gmail.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, "Kuppuswamy,
- Sathyanarayanan" <sathyanarayanan.kuppuswamy@linux.intel.com>,
- Andi Kleen <ak@linux.intel.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Michael Jamet <michael.jamet@intel.com>, Linux PCI <linux-pci@vger.kernel.org>,
- X86 ML <x86@kernel.org>, Yehezkel Bernat <YehezkelShB@gmail.com>,
- Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- Andreas Noever <andreas.noever@gmail.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Bjorn Helgaas <bhelgaas@google.com>,
- Alan Stern <stern@rowland.harvard.edu>, Thomas Gleixner <tglx@linutronix.de>,
- virtualization@lists.linux-foundation.org,
- Mika Westerberg <mika.westerberg@linux.intel.com>,
- USB list <linux-usb@vger.kernel.org>, "Rafael J . Wysocki" <rafael@kernel.org>
+In-Reply-To: <d40ea85b-3612-10b3-0add-40d07e6d9ca5@arm.com>
+Cc: jacob.jun.pan@linux.intel.com, mst@redhat.com, joro@8bytes.org,
+ will.deacon@arm.com, linux-kernel@vger.kernel.org,
+ shameerali.kolothum.thodi@huawei.com,
+ virtualization@lists.linux-foundation.org, eric.auger@redhat.com,
+ iommu@lists.linux-foundation.org, yi.l.liu@intel.com,
+ Lorenzo.Pieralisi@arm.com, robin.murphy@arm.com,
+ linux-arm-kernel@lists.infradead.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -103,73 +115,38 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Oct 05, 2021 at 03:33:29PM -0700, Dan Williams wrote:
-> On Sun, Oct 3, 2021 at 10:16 PM Mika Westerberg
-> <mika.westerberg@linux.intel.com> wrote:
-> >
-> > Hi,
-> >
-> > On Fri, Oct 01, 2021 at 12:57:18PM -0700, Dan Williams wrote:
-> > > > > Ah, so are you saying that it would be sufficient for USB if the
-> > > > > generic authorized implementation did something like:
-> > > > >
-> > > > > dev->authorized = 1;
-> > > > > device_attach(dev);
-> > > > >
-> > > > > ...for the authorize case, and:
-> > > > >
-> > > > > dev->authorize = 0;
-> > > > > device_release_driver(dev);
-> > > > >
-> > > > > ...for the deauthorize case?
-> > > >
-> > > > Yes, I think so.  But I haven't tried making this change to test and
-> > > > see what really happens.
-> > >
-> > > Sounds like a useful path for this effort to explore. Especially as
-> > > Greg seems to want the proposed "has_probe_authorization" flag in the
-> > > bus_type to disappear and make this all generic. It just seems that
-> > > Thunderbolt would need deeper surgery to move what it does in the
-> > > authorization toggle path into the probe and remove paths.
-> > >
-> > > Mika, do you see a path for Thunderbolt to align its authorization
-> > > paths behind bus ->probe() ->remove() events similar to what USB might
-> > > be able to support for a generic authorization path?
-> >
-> > In Thunderbolt "authorization" actually means whether there is a PCIe
-> > tunnel to the device or not. There is no driver bind/unbind happening
-> > when authorization toggles (well on Thunderbolt bus, there can be on PCI
-> > bus after the tunnel is established) so I'm not entirely sure how we
-> > could use the bus ->probe() or ->remove for that to be honest.
+On Thu, Sep 30, 2021 at 02:54:05PM +0530, Vivek Kumar Gautam wrote:
+> > > +struct virtio_iommu_req_page_resp {
+> > > +	struct virtio_iommu_req_head		head;
+> > > +	__le32					domain;
+> > 
+> > I don't think we need this field, since the fault report doesn't come with
+> > a domain.
 > 
-> Greg, per your comment:
+> But here we are sending the response which would be consumed by the vfio
+> ultimately. In kvmtool, I am consuming this "virtio_iommu_req_page_resp"
+> request in the virtio/iommu driver, extracting the domain from it, and using
+> that to call the respective "page_response" ops from "vfio_iommu_ops" in the
+> vfio/core driver.
 > 
-> "... which was to move the way that busses are allowed to authorize
-> the devices they wish to control into a generic way instead of being
-> bus-specific logic."
-> 
-> We have USB and TB that have already diverged on the ABI here. The USB
-> behavior is more in line with the "probe authorization" concept, while
-> TB is about tunnel establishment and not cleanly tied to probe
-> authorization. So while I see a path to a common authorization
-> implementation for USB and other buses (per the insight from Alan), TB
-> needs to retain the ability to record the authorization state as an
-> enum rather than a bool, and emit a uevent on authorization status
-> change.
-> 
-> So how about something like the following that moves the attribute
-> into the core, but still calls back to TB and USB to perform their
-> legacy authorization work. This new authorized attribute only shows up
-> when devices default to not authorized, i.e. when userspace owns the
-> allow list past critical-boot built-in drivers, or if the bus (USB /
-> TB) implements ->authorize().
+> Is this incorrect way of passing on the page-response back to the host
+> kernel?
 
-At quick glance, this looks better, but it would be good to see someone
-test it :)
+That works for the host userspace-kernel interface because the device is
+always attached to a VFIO container.
 
-thanks,
+For virtio-iommu the domain info is redundant. The endpoint information
+needs to be kept through the whole response path in order to target the
+right endpoint in the end. In addition the guest could enable PRI without
+attaching the endpoint to a domain, or fail to disable PRI before
+detaching the endpoint. Sure it's weird, but the host can still inject the
+recoverable page fault in this case, and the guest answers with "invalid"
+status but no domain. We could mandate domains for recoverable faults but
+that forces a synchronization against attach/detach and I think it
+needlessly deviates from other IOMMUs.
 
-greg k-h
+Thanks,
+Jean
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
