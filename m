@@ -2,124 +2,71 @@ Return-Path: <SRS0=ulPH=O2=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E9C4C433EF
-	for <virtualization@archiver.kernel.org>; Wed,  6 Oct 2021 14:25:52 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 58565C43217
+	for <virtualization@archiver.kernel.org>; Wed,  6 Oct 2021 17:40:44 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EAB2161184
-	for <virtualization@archiver.kernel.org>; Wed,  6 Oct 2021 14:25:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org EAB2161184
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.ibm.com
+	by mail.kernel.org (Postfix) with ESMTPS id 0270D6113E
+	for <virtualization@archiver.kernel.org>; Wed,  6 Oct 2021 17:40:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0270D6113E
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=bitdefender.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id BC7C2406EB;
-	Wed,  6 Oct 2021 14:25:51 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id BAC5683E1E;
+	Wed,  6 Oct 2021 17:40:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zQA9RDd7ffSX; Wed,  6 Oct 2021 14:25:51 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 76F7D406AB;
-	Wed,  6 Oct 2021 14:25:50 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 557DCC000F;
-	Wed,  6 Oct 2021 14:25:50 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4D4C4C000D
- for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Oct 2021 14:25:49 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 3BE2183FA0
- for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Oct 2021 14:25:49 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=ibm.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 53PI5LyeLvko
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pVvqHwMHklbr; Wed,  6 Oct 2021 17:40:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6CD8483ABC;
+	Wed,  6 Oct 2021 17:40:42 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4D0C7C0011;
+	Wed,  6 Oct 2021 17:40:42 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A1390C000D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Oct 2021 14:25:48 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com
- [148.163.156.1])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 8CD8083F9B
+ Wed,  6 Oct 2021 17:40:41 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 9123A407DC
  for <virtualization@lists.linux-foundation.org>;
- Wed,  6 Oct 2021 14:25:48 +0000 (UTC)
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 196DSp9d001008; 
- Wed, 6 Oct 2021 10:25:46 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
- h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=rzPMALKGA6XMuv435p9x/PS4RHZse9EyIaUy6qjVuL0=;
- b=NkfdQ8sQZSmHF5RPIQ9VvK0KzNLhHdfbXxWCrbVPoPzqs4vp0/SEFdK6CuU1x+TnMojB
- Mlq+hGZH6pCferJ+3S4aewQ73XJnwwLOr5BvMobiXcCHeKa8n9hZgk5Y7CLsMXymJivx
- 5FDHi5vRGwaz/zPxBNX9s8J7MTJKfrfEJQQEfxHCwkWWgbP98OFTppFiY7p4Oeb+5vLy
- zli5w0qgpHc6bKJ9FznTcUBnUBROp3SaGkWJhojdL+CJhePJ5mnDGqrWVQw358UOkV9f
- ngXbtarz8Ryo7orsKtTDyNYHKXv8IsaF3IV3MN+mnPAUs/B4FYOSE+O3etA/6NAyre7l hA== 
-Received: from pps.reinject (localhost [127.0.0.1])
- by mx0a-001b2d01.pphosted.com with ESMTP id 3bhcqk9g4t-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 06 Oct 2021 10:25:46 -0400
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
- by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 196DTA6Z002572;
- Wed, 6 Oct 2021 10:25:45 -0400
-Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com
- [149.81.74.108])
- by mx0a-001b2d01.pphosted.com with ESMTP id 3bhcqk9g3f-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 06 Oct 2021 10:25:45 -0400
-Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
- by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 196ECDng030410;
- Wed, 6 Oct 2021 14:25:42 GMT
-Received: from b06avi18626390.portsmouth.uk.ibm.com
- (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
- by ppma05fra.de.ibm.com with ESMTP id 3bef2a3r8u-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Wed, 06 Oct 2021 14:25:42 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com
- [9.149.105.61])
- by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP
- id 196EKJnC55312836
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Wed, 6 Oct 2021 14:20:19 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 3512311C05B;
- Wed,  6 Oct 2021 14:25:38 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 9A4D711C052;
- Wed,  6 Oct 2021 14:25:37 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
- by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
- Wed,  6 Oct 2021 14:25:37 +0000 (GMT)
-From: Halil Pasic <pasic@linux.ibm.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xie Yongji <xieyongji@bytedance.com>,
- virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 1/1] virtio: write back F_VERSION_1 before validate
-Date: Wed,  6 Oct 2021 16:25:33 +0200
-Message-Id: <20211006142533.2735019-1-pasic@linux.ibm.com>
-X-Mailer: git-send-email 2.25.1
+ Wed,  6 Oct 2021 17:40:41 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id coxfIMHUdNLT
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Oct 2021 17:40:40 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from mx01.bbu.dsd.mx.bitdefender.com
+ (mx01.bbu.dsd.mx.bitdefender.com [91.199.104.161])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 85D52407D0
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  6 Oct 2021 17:40:40 +0000 (UTC)
+Received: from smtp.bitdefender.com (smtp01.buh.bitdefender.com [10.17.80.75])
+ by mx01.bbu.dsd.mx.bitdefender.com (Postfix) with ESMTPS id
+ EFBD7307CAE0; Wed,  6 Oct 2021 20:30:56 +0300 (EEST)
+Received: from localhost (unknown [91.199.104.28])
+ by smtp.bitdefender.com (Postfix) with ESMTPSA id D67773064495;
+ Wed,  6 Oct 2021 20:30:56 +0300 (EEST)
+X-Is-Junk-Enabled: fGZTSsP0qEJE2AIKtlSuFiRRwg9xyHmJ
+From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+To: kvm@vger.kernel.org
+Subject: [PATCH v12 10/77] KVM: svm: add support for descriptor-table VM-exits
+Date: Wed,  6 Oct 2021 20:30:06 +0300
+Message-Id: <20211006173113.26445-11-alazar@bitdefender.com>
+In-Reply-To: <20211006173113.26445-1-alazar@bitdefender.com>
+References: <20211006173113.26445-1-alazar@bitdefender.com>
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: 6SJN1e6Wk8CcV1EJ_v0Cs0lygJFuRqfD
-X-Proofpoint-GUID: 6Ww4Q-dWxjfZ_JKOOMojtbiksYxrUCgh
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
- definitions=2021-10-06_03,2021-10-06_01,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 mlxscore=0
- malwarescore=0 bulkscore=0 adultscore=0 clxscore=1015 priorityscore=1501
- suspectscore=0 phishscore=0 lowpriorityscore=0 spamscore=0 mlxlogscore=999
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2109230001
- definitions=main-2110060089
-Cc: linux-s390@vger.kernel.org, markver@us.ibm.com,
- Cornelia Huck <cohuck@redhat.com>, qemu-devel@nongnu.org,
- Raphael Norwitz <raphael.norwitz@nutanix.com>,
- Halil Pasic <pasic@linux.ibm.com>,
- Christian Borntraeger <borntraeger@de.ibm.com>, stefanha@redhat.com
+Cc: Tamas K Lengyel <tamas@tklengyel.com>, Wanpeng Li <wanpengli@tencent.com>,
+ =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <nicu.citu@icloud.com>,
+ Sean Christopherson <seanjc@google.com>, Joerg Roedel <joro@8bytes.org>,
+ virtualization@lists.linux-foundation.org,
+ =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>,
+ Mathieu Tarral <mathieu.tarral@protonmail.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Jim Mattson <jmattson@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,66 +78,41 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The virtio specification virtio-v1.1-cs01 states: Transitional devices
-MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
-been acknowledged by the driver.  This is exactly what QEMU as of 6.1
-has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
-
-However, the specification also says: driver MAY read (but MUST NOT
-write) the device-specific configuration fields to check that it can
-support the device before setting FEATURES_OK.
-
-In that case, any transitional device relying solely on
-VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
-legacy format.  In particular, this implies that it is in big endian
-format for big endian guests. This naturally confuses the driver which
-expects little endian in the modern mode.
-
-It is probably a good idea to amend the spec to clarify that
-VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
-is complete. However, we already have regression so let's try to address
-it.
-
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
-Fixes: fe36cbe0671e ("virtio_net: clear MTU when out of range")
-Reported-by: markver@us.ibm.com
----
- drivers/virtio/virtio.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
-
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 0a5b54034d4b..494cfecd3376 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -239,6 +239,16 @@ static int virtio_dev_probe(struct device *_d)
- 		driver_features_legacy = driver_features;
- 	}
- 
-+	/*
-+	 * Some devices detect legacy solely via F_VERSION_1. Write
-+	 * F_VERSION_1 to force LE for these when needed.
-+	 */
-+	if (drv->validate && !virtio_legacy_is_little_endian()
-+			  && BIT_ULL(VIRTIO_F_VERSION_1) & device_features) {
-+		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
-+		dev->config->finalize_features(dev);
-+	}
-+
- 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
- 		dev->features = driver_features & device_features;
- 	else
-
-base-commit: 60a9483534ed0d99090a2ee1d4bb0b8179195f51
--- 
-2.25.1
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+RnJvbTogTmljdciZb3IgQ8OuyJt1IDxuaWN1LmNpdHVAaWNsb3VkLmNvbT4KClRoaXMgZnVuY3Rp
+b24gaXMgbmVlZGVkIGZvciB0aGUgS1ZNSV9WQ1BVX0VWRU5UX0RFU0NSSVBUT1IgZXZlbnQuCgpT
+aWduZWQtb2ZmLWJ5OiBOaWN1yJlvciBDw67Im3UgPG5pY3UuY2l0dUBpY2xvdWQuY29tPgpTaWdu
+ZWQtb2ZmLWJ5OiBBZGFsYmVydCBMYXrEg3IgPGFsYXphckBiaXRkZWZlbmRlci5jb20+Ci0tLQog
+YXJjaC94ODYva3ZtL3N2bS9zdm0uYyB8IDEzICsrKysrKysrKysrKysKIDEgZmlsZSBjaGFuZ2Vk
+LCAxMyBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEvYXJjaC94ODYva3ZtL3N2bS9zdm0uYyBi
+L2FyY2gveDg2L2t2bS9zdm0vc3ZtLmMKaW5kZXggY2U0NWZlMGQzNWJjLi5lNWNkODgxM2NjYTYg
+MTAwNjQ0Ci0tLSBhL2FyY2gveDg2L2t2bS9zdm0vc3ZtLmMKKysrIGIvYXJjaC94ODYva3ZtL3N2
+bS9zdm0uYwpAQCAtMjUyNSw2ICsyNTI1LDExIEBAIHN0YXRpYyBpbnQgZW11bGF0ZV9vbl9pbnRl
+cmNlcHRpb24oc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQogCXJldHVybiBrdm1fZW11bGF0ZV9pbnN0
+cnVjdGlvbih2Y3B1LCAwKTsKIH0KIAorc3RhdGljIGludCBkZXNjcmlwdG9yX2FjY2Vzc19pbnRl
+cmNlcHRpb24oc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQoreworCXJldHVybiBrdm1fZW11bGF0ZV9p
+bnN0cnVjdGlvbih2Y3B1LCAwKTsKK30KKwogc3RhdGljIGludCByc21faW50ZXJjZXB0aW9uKHN0
+cnVjdCBrdm1fdmNwdSAqdmNwdSkKIHsKIAlyZXR1cm4ga3ZtX2VtdWxhdGVfaW5zdHJ1Y3Rpb25f
+ZnJvbV9idWZmZXIodmNwdSwgcnNtX2luc19ieXRlcywgMik7CkBAIC0zMjMxLDYgKzMyMzYsMTQg
+QEAgc3RhdGljIGludCAoKmNvbnN0IHN2bV9leGl0X2hhbmRsZXJzW10pKHN0cnVjdCBrdm1fdmNw
+dSAqdmNwdSkgPSB7CiAJW1NWTV9FWElUX0FWSUNfSU5DT01QTEVURV9JUEldCQk9IGF2aWNfaW5j
+b21wbGV0ZV9pcGlfaW50ZXJjZXB0aW9uLAogCVtTVk1fRVhJVF9BVklDX1VOQUNDRUxFUkFURURf
+QUNDRVNTXQk9IGF2aWNfdW5hY2NlbGVyYXRlZF9hY2Nlc3NfaW50ZXJjZXB0aW9uLAogCVtTVk1f
+RVhJVF9WTUdFWElUXQkJCT0gc2V2X2hhbmRsZV92bWdleGl0LAorCVtTVk1fRVhJVF9JRFRSX1JF
+QURdCQkJPSBkZXNjcmlwdG9yX2FjY2Vzc19pbnRlcmNlcHRpb24sCisJW1NWTV9FWElUX0dEVFJf
+UkVBRF0JCQk9IGRlc2NyaXB0b3JfYWNjZXNzX2ludGVyY2VwdGlvbiwKKwlbU1ZNX0VYSVRfTERU
+Ul9SRUFEXQkJCT0gZGVzY3JpcHRvcl9hY2Nlc3NfaW50ZXJjZXB0aW9uLAorCVtTVk1fRVhJVF9U
+Ul9SRUFEXQkJCT0gZGVzY3JpcHRvcl9hY2Nlc3NfaW50ZXJjZXB0aW9uLAorCVtTVk1fRVhJVF9J
+RFRSX1dSSVRFXQkJCT0gZGVzY3JpcHRvcl9hY2Nlc3NfaW50ZXJjZXB0aW9uLAorCVtTVk1fRVhJ
+VF9HRFRSX1dSSVRFXQkJCT0gZGVzY3JpcHRvcl9hY2Nlc3NfaW50ZXJjZXB0aW9uLAorCVtTVk1f
+RVhJVF9MRFRSX1dSSVRFXQkJCT0gZGVzY3JpcHRvcl9hY2Nlc3NfaW50ZXJjZXB0aW9uLAorCVtT
+Vk1fRVhJVF9UUl9XUklURV0JCQk9IGRlc2NyaXB0b3JfYWNjZXNzX2ludGVyY2VwdGlvbiwKIH07
+CiAKIHN0YXRpYyB2b2lkIGR1bXBfdm1jYihzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpCl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
+aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
+czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
+dGlvbg==
