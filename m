@@ -2,74 +2,125 @@ Return-Path: <SRS0=OSH5=O3=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7726C433EF
-	for <virtualization@archiver.kernel.org>; Thu,  7 Oct 2021 14:14:04 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2D53C433F5
+	for <virtualization@archiver.kernel.org>; Thu,  7 Oct 2021 14:33:19 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7C72B610A2
-	for <virtualization@archiver.kernel.org>; Thu,  7 Oct 2021 14:14:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 7C72B610A2
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id 7707061130
+	for <virtualization@archiver.kernel.org>; Thu,  7 Oct 2021 14:33:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 7707061130
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 45ABD841DD;
-	Thu,  7 Oct 2021 14:14:04 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3CA5E60FE7;
+	Thu,  7 Oct 2021 14:33:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Gzyeo4oSF71r; Thu,  7 Oct 2021 14:14:03 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0F130841A2;
-	Thu,  7 Oct 2021 14:14:03 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D6F22C0011;
-	Thu,  7 Oct 2021 14:14:02 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 76775C000D
- for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Oct 2021 14:14:01 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 64CC560ABA
- for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Oct 2021 14:14:01 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=linuxfoundation.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FXUnxZs3ahEK
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ihiTgDoCSmuM; Thu,  7 Oct 2021 14:33:18 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id BB21160FDF;
+	Thu,  7 Oct 2021 14:33:17 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 92D3EC0011;
+	Thu,  7 Oct 2021 14:33:17 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C3A2DC000D
  for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Oct 2021 14:13:57 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp3.osuosl.org (Postfix) with ESMTPS id DB5E8607FE
+ Thu,  7 Oct 2021 14:33:15 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id B07B54083C
  for <virtualization@lists.linux-foundation.org>;
- Thu,  7 Oct 2021 14:13:57 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10919610C7;
- Thu,  7 Oct 2021 14:13:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
- s=korg; t=1633616037;
- bh=pMU2+RK50Qv/4VNm4oFS8R4BonkUuJ2i0rz98X7NWhE=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=DpSjcM3QK3X61FROl/1mDyDtqYJ3tBxzr2t3/u4eL4dLAwK8fzYVVUi+bcaPC4Nq3
- T2u6n4P9JuB6Ehj0uaAeWHAULDpzB3OCDpfLWtaTIdxDUN12Wkt48OuytqvhvdnvKN
- HRoNCa2byULpYDcco/VmyD97jPLn77nshV3EVF2Q=
-Date: Thu, 7 Oct 2021 16:13:55 +0200
-From: Greg KH <gregkh@linuxfoundation.org>
-To: Corentin =?iso-8859-1?Q?No=EBl?= <corentin.noel@collabora.com>
-Subject: Re: virtio-net: kernel panic in virtio_net.c
-Message-ID: <YV8Ao5W4/z5sB5b9@kroah.com>
-References: <5edaa2b7c2fe4abd0347b8454b2ac032b6694e2c.camel@collabora.com>
- <20211007090601-mutt-send-email-mst@kernel.org>
- <CANn89i+-P_mS-0jOM7SD4f291+Jbc9PORYJx2+gfQbebiX3z_A@mail.gmail.com>
- <b517d143c6ec0960eedcbf8f6917776bc67c5fd4.camel@collabora.com>
+ Thu,  7 Oct 2021 14:33:15 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=ibm.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id R9zvA2WVPMbR
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  7 Oct 2021 14:33:14 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
+ [148.163.158.5])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 9DE2040831
+ for <virtualization@lists.linux-foundation.org>;
+ Thu,  7 Oct 2021 14:33:14 +0000 (UTC)
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 197E23fN020503; 
+ Thu, 7 Oct 2021 10:33:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
+ h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=NoNLb9O2Ylblm/UT4O7Gwa5G1mVfnGxhcTyqUTBS/Uc=;
+ b=Lgf+IMnky8RA4LGUUKxABDm0r25FNaEt7AwQYybt02Vw4Z0+8oDbqVCGt0c5axMiK7uM
+ YmQ80BCbIm/j9txNteL3ZywLBiNeZ++dtifGEoZviSSJsvsOlpiMs8s86X3/zn5M2m8y
+ 7YaCaH0LCXV2Gqo1mdCx4vlLlaVFbqnam3HD97fNxsujUF8K5KhC6TvvhXNNEslcjz3f
+ MUSCAWp7ykYkh9r1lNBDGmSHkpRvJW0A6KXnitVr+GTtESgbXOWToFgIg9N6uumfZU3K
+ YHR0iLIt5E945qOkWWSh26F7DjhKUoaqhesYLVHTya76WX3Wh4UruGSV5LYj6LdzT4M5 DA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3bj2a60vqh-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Thu, 07 Oct 2021 10:33:12 -0400
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+ by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 197E2EE0021020;
+ Thu, 7 Oct 2021 10:33:11 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com
+ [149.81.74.106])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3bj2a60vpr-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Thu, 07 Oct 2021 10:33:11 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+ by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 197ERxsQ029185;
+ Thu, 7 Oct 2021 14:33:09 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com
+ (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+ by ppma04fra.de.ibm.com with ESMTP id 3bef2antge-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Thu, 07 Oct 2021 14:33:09 +0000
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com
+ [9.149.105.232])
+ by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
+ 197EX3lt57999802
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Thu, 7 Oct 2021 14:33:03 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id E89E152077;
+ Thu,  7 Oct 2021 14:33:02 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.45.119])
+ by d06av21.portsmouth.uk.ibm.com (Postfix) with SMTP id 32E0B52052;
+ Thu,  7 Oct 2021 14:32:58 +0000 (GMT)
+Date: Thu, 7 Oct 2021 16:32:55 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH 1/1] virtio: write back F_VERSION_1 before validate
+Message-ID: <20211007163255.61d95513.pasic@linux.ibm.com>
+In-Reply-To: <875yu9yruv.fsf@redhat.com>
+References: <20211006142533.2735019-1-pasic@linux.ibm.com>
+ <875yu9yruv.fsf@redhat.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <b517d143c6ec0960eedcbf8f6917776bc67c5fd4.camel@collabora.com>
-Cc: regressions@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-stable <stable@vger.kernel.org>,
- virtualization@lists.linux-foundation.org, Eric Dumazet <edumazet@google.com>
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: qeK7nbZ2KeUM7JcqUzlrqeLx442UyBNv
+X-Proofpoint-GUID: QajmWxVzsbJhM8yN1H-5c34I4WM2FG8d
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.391,FMLib:17.0.607.475
+ definitions=2021-10-07_02,2021-10-07_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ malwarescore=0
+ mlxlogscore=999 adultscore=0 spamscore=0 mlxscore=0 clxscore=1015
+ bulkscore=0 suspectscore=0 phishscore=0 impostorscore=0 lowpriorityscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110070097
+Cc: linux-s390@vger.kernel.org, markver@us.ibm.com,
+ "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel@nongnu.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Halil Pasic <pasic@linux.ibm.com>, Xie Yongji <xieyongji@bytedance.com>,
+ stefanha@redhat.com, Raphael Norwitz <raphael.norwitz@nutanix.com>,
+ Christian Borntraeger <borntraeger@de.ibm.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -81,38 +132,137 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Oct 07, 2021 at 04:02:10PM +0200, Corentin No=EBl wrote:
-> Le jeudi 07 octobre 2021 =E0 06:51 -0700, Eric Dumazet a =E9crit :
-> > On Thu, Oct 7, 2021 at 6:11 AM Michael S. Tsirkin <mst@redhat.com>
-> > wrote:
-> > > On Thu, Oct 07, 2021 at 02:04:22PM +0200, Corentin No=EBl wrote:
-> > > > I've been experiencing crashes with 5.14-rc1 and above that do
-> > > > not
-> > > > occur with 5.13,
-> > =
+On Thu, 07 Oct 2021 13:52:24 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
-> > What about 5.14 ?
-> > =
+> On Wed, Oct 06 2021, Halil Pasic <pasic@linux.ibm.com> wrote:
+> 
+> > The virtio specification virtio-v1.1-cs01 states: Transitional devices
+> > MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
+> > been acknowledged by the driver.  This is exactly what QEMU as of 6.1
+> > has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
+> >
+> > However, the specification also says: driver MAY read (but MUST NOT
+> > write) the device-specific configuration fields to check that it can
+> > support the device before setting FEATURES_OK.  
+> 
+> Suggest to put the citations from the spec into quotes, so that they are
+> distinguishable from the rest of the text.
 
-> > 5.14-rc1 has many bugs we do not want to spend time rediscovering
-> > them...
-> > =
+For the record: I basically took Michael's description, the one which you
+said you prefer, with some minor changes.
 
-> =
+This is one of the changes, which renders this a paraphrase and not a
+quote. Michael didn't use quotation marks so I was not sure it is was
+a word by word quote anyway. It was. But the spec depends on "During this
+step" which does not make any sense without the context. That is why I made
+the end of step explicit.
 
-> I've tested on 5.14, 5.15-rc4 and 5.15-rc4 with latest netdev and could
-> reproduce the crash on them all.
+I think we are fine without quotation marks. Those who care can read the
+spec.
 
-Great, any chance you can use 'git bisect' to find the offending commit?
+> 
+> >
+> > In that case, any transitional device relying solely on
+> > VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
+> > legacy format.  In particular, this implies that it is in big endian
+> > format for big endian guests. This naturally confuses the driver which
+> > expects little endian in the modern mode.
+> >
+> > It is probably a good idea to amend the spec to clarify that
+> > VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
+> > is complete. However, we already have regression so let's try to address  
+> 
+> s/regression/a regression/
+> 
 
-thanks,
+Yes. Was like this in the original. Will change
 
-greg k-h
+> > it.  
+> 
+> Maybe mention what the regression is?
+
+How about the following?
+
+The regressions affect the VIRTIO_NET_F_MTU feature of virtio-net and the
+VIRTIO_BLK_F_BLK_SIZE feature of virtio-blk for BE guests when virtio
+1.0 is used on both sides. The latter renders virtio-blk unusable with
+DASD backing, because things simply don't work with the default.
+
+> 
+> Also mention that we use this workaround for modern on BE only?
+
+We have that already, don't we. The sentence that starts with "In
+particular". The regression description should reinforce that
+sufficiently IMHO.
+
+> 
+> >
+> > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> > Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
+> > Fixes: fe36cbe0671e ("virtio_net: clear MTU when out of range")
+> > Reported-by: markver@us.ibm.com
+> > ---
+> >  drivers/virtio/virtio.c | 10 ++++++++++
+> >  1 file changed, 10 insertions(+)
+> >
+> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > index 0a5b54034d4b..494cfecd3376 100644
+> > --- a/drivers/virtio/virtio.c
+> > +++ b/drivers/virtio/virtio.c
+> > @@ -239,6 +239,16 @@ static int virtio_dev_probe(struct device *_d)
+> >  		driver_features_legacy = driver_features;
+> >  	}
+> >  
+> > +	/*
+> > +	 * Some devices detect legacy solely via F_VERSION_1. Write
+> > +	 * F_VERSION_1 to force LE for these when needed.  
+> 
+> "...to force LE config space accesses before FEATURES_OK for these when
+> needed (BE)."
+> 
+> ?
+
+Can do, but I would rather omit the (BE) at the end. All the conditions
+are necessary:
+* have validate callback
+* device offered VERSION_1
+* virtio legacy is be
+
+> 
+> > +	 */
+> > +	if (drv->validate && !virtio_legacy_is_little_endian()
+> > +			  && BIT_ULL(VIRTIO_F_VERSION_1) & device_features) {  
+> 
+> Nit: putting device_features first would read more naturally to me.
+> 
+
+Can do.
+
+> > +		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
+> > +		dev->config->finalize_features(dev);
+> > +	}
+> > +
+> >  	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+> >  		dev->features = driver_features & device_features;
+> >  	else  
+> 
+> Patch LGTM.
+> 
+> 
+
+Thanks for having a look. If you are fine with the proposed solution
+please tell me, so I can send out a v2.
+
+If not let us work towards an acceptable solution.
+
+Regards,
+Halil
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
