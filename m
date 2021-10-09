@@ -1,67 +1,100 @@
-Return-Path: <SRS0=03hR=O4=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=+9Ss=O5=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D46EC433F5
-	for <virtualization@archiver.kernel.org>; Fri,  8 Oct 2021 16:41:34 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52D59C433EF
+	for <virtualization@archiver.kernel.org>; Sat,  9 Oct 2021 01:45:40 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9D0C260F9C
-	for <virtualization@archiver.kernel.org>; Fri,  8 Oct 2021 16:41:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9D0C260F9C
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id E6CDF60FE8
+	for <virtualization@archiver.kernel.org>; Sat,  9 Oct 2021 01:45:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E6CDF60FE8
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 5ACA740192;
-	Fri,  8 Oct 2021 16:41:33 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id A8A4E83A5D;
+	Sat,  9 Oct 2021 01:45:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nOdZcURwUxch; Fri,  8 Oct 2021 16:41:32 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 9B6E540482;
-	Fri,  8 Oct 2021 16:41:31 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id EZw2TB5R0_gZ; Sat,  9 Oct 2021 01:45:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id BBAFF83A5E;
+	Sat,  9 Oct 2021 01:45:37 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 70679C000F;
-	Fri,  8 Oct 2021 16:41:31 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E479FC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 92557C0011;
+	Sat,  9 Oct 2021 01:45:37 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9665FC000D
  for <virtualization@lists.linux-foundation.org>;
- Fri,  8 Oct 2021 16:41:29 +0000 (UTC)
+ Sat,  9 Oct 2021 01:45:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C51F740482
+ by smtp4.osuosl.org (Postfix) with ESMTP id 6AE7D40690
  for <virtualization@lists.linux-foundation.org>;
- Fri,  8 Oct 2021 16:41:29 +0000 (UTC)
+ Sat,  9 Oct 2021 01:45:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0TSVWb8oWwPL
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7OgarrD3Nt1T
  for <virtualization@lists.linux-foundation.org>;
- Fri,  8 Oct 2021 16:41:28 +0000 (UTC)
+ Sat,  9 Oct 2021 01:45:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-132.freemail.mail.aliyun.com
- (out30-132.freemail.mail.aliyun.com [115.124.30.132])
- by smtp2.osuosl.org (Postfix) with ESMTPS id AD51E40192
+Received: from bombadil.infradead.org (bombadil.infradead.org
+ [IPv6:2607:7c80:54:e::133])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id C4C6D4068F
  for <virtualization@lists.linux-foundation.org>;
- Fri,  8 Oct 2021 16:41:27 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R141e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=8; SR=0; TI=SMTPD_---0Ur0qMHi_1633711282; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0Ur0qMHi_1633711282) by smtp.aliyun-inc.com(127.0.0.1);
- Sat, 09 Oct 2021 00:41:23 +0800
+ Sat,  9 Oct 2021 01:45:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+ Content-Type:In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:
+ Subject:Sender:Reply-To:Content-ID:Content-Description;
+ bh=8Yhlfpn88xGUZ0D2UsU9ZR1KIwe5CGURq7DLgR1hrBY=; b=1Z6zSdy4U1cnEgkDHFifc+XY8Y
+ GlewY7KjyFBbKH64naXeI41ZeCK2wzbxmLYn8tQReOLUCKAfWokngJdgXzG2kZqfZuukHe0LzGSem
+ /fWn4TtGInc4xujKU9lhTWQmbcOyZPdRobBXzgyYqQiz2V+LCqXMtthT6T+ZQAyQo3oPf9aPdoOkJ
+ XKCfcDJy3GwQcs5wemBALdUGapmhhOQ0Ws+MHquNKSKXMDSnM/RxQhR8WlIXhEXmTBWm/wLd+hHF0
+ AGJlpBT1b3CurBjVkXBwVF3uizzCjn8R7aZLHlbBj649FMdFXEGzDXcQrpB78Kj/tCgGw8zSXNsVA
+ Vnnceg4Q==;
+Received: from [2601:1c0:6280:3f0::aa0b]
+ by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+ id 1mZ1QW-004Rhr-Nh; Sat, 09 Oct 2021 01:45:28 +0000
+Subject: Re: [PATCH v5 16/16] x86/tdx: Add cmdline option to force use of
+ ioremap_host_shared
+To: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Peter Zijlstra <peterz@infradead.org>,
+ Andy Lutomirski <luto@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
+ Richard Henderson <rth@twiddle.net>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ James E J Bottomley <James.Bottomley@HansenPartnership.com>,
+ Helge Deller <deller@gmx.de>, "David S . Miller" <davem@davemloft.net>,
+ Arnd Bergmann <arnd@arndb.de>, Jonathan Corbet <corbet@lwn.net>,
+ "Michael S . Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ David Hildenbrand <david@redhat.com>, Andrea Arcangeli
+ <aarcange@redhat.com>, Josh Poimboeuf <jpoimboe@redhat.com>
+References: <20211009003711.1390019-1-sathyanarayanan.kuppuswamy@linux.intel.com>
+ <20211009003711.1390019-17-sathyanarayanan.kuppuswamy@linux.intel.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Message-ID: <7b4c3e3e-09e4-3bf8-6e23-77892fb6df02@infradead.org>
+Date: Fri, 8 Oct 2021 18:45:26 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-message-id: <1633710428.4908655-1-xuanzhuo@linux.alibaba.com>
-subject: Re: virtio-net: kernel panic in virtio_net.c
-date: Sat, 09 Oct 2021 00:27:08 +0800
-from: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-to: Greg KH <gregkh@linuxfoundation.org>
-in-reply-to: <YV/8Ia1d9zXvMqqc@kroah.com>
-Cc: regressions@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>,
- =?utf-8?q?Corentin_No=C3=ABl?= <corentin.noel@collabora.com>,
- stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Eric Dumazet <edumazet@google.com>
+In-Reply-To: <20211009003711.1390019-17-sathyanarayanan.kuppuswamy@linux.intel.com>
+Content-Language: en-US
+Cc: linux-arch@vger.kernel.org, sparclinux@vger.kernel.org,
+ Andi Kleen <ak@linux.intel.com>, linux-parisc@vger.kernel.org,
+ linux-doc@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+ x86@kernel.org, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-mips@vger.kernel.org, Dave Hansen <dave.hansen@intel.com>,
+ linux-alpha@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
+ Peter H Anvin <hpa@zytor.com>,
+ Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
+ Dan Williams <dan.j.williams@intel.com>,
+ virtualization@lists.linux-foundation.org,
+ Kirill Shutemov <kirill.shutemov@linux.intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -73,58 +106,48 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gRnJpLCA4IE9jdCAyMDIxIDEwOjA2OjU3ICswMjAwLCBHcmVnIEtIIDxncmVna2hAbGludXhm
-b3VuZGF0aW9uLm9yZz4gd3JvdGU6Cj4gT24gRnJpLCBPY3QgMDgsIDIwMjEgYXQgMTI6MTc6MjZB
-TSArMDgwMCwgWHVhbiBaaHVvIHdyb3RlOgo+ID4gT24gVGh1LCA3IE9jdCAyMDIxIDE3OjI1OjAy
-ICswMjAwLCBHcmVnIEtIIDxncmVna2hAbGludXhmb3VuZGF0aW9uLm9yZz4gd3JvdGU6Cj4gPiA+
-IE9uIFRodSwgT2N0IDA3LCAyMDIxIGF0IDExOjA2OjEyUE0gKzA4MDAsIFh1YW4gWmh1byB3cm90
-ZToKPiA+ID4gPiBPbiBUaHUsIDA3IE9jdCAyMDIxIDE0OjA0OjIyICswMjAwLCBDb3JlbnRpbiBO
-b8OrbCA8Y29yZW50aW4ubm9lbEBjb2xsYWJvcmEuY29tPiB3cm90ZToKPiA+ID4gPiA+IEkndmUg
-YmVlbiBleHBlcmllbmNpbmcgY3Jhc2hlcyB3aXRoIDUuMTQtcmMxIGFuZCBhYm92ZSB0aGF0IGRv
-IG5vdAo+ID4gPiA+ID4gb2NjdXIgd2l0aCA1LjEzLAo+ID4gPiA+Cj4gPiA+ID4gSSBzaG91bGQg
-aGF2ZSBmaXhlZCB0aGlzIHByb2JsZW0gYmVmb3JlLiBJIGRvbid0IGtub3cgd2h5LCBJIGp1c3Qg
-bG9va2VkIGF0IHRoZQo+ID4gPiA+IGxhdGVzdCBuZXQgY29kZSwgYW5kIHRoaXMgY29tbWl0IHNl
-ZW1zIHRvIGJlIGxvc3QuCj4gPiA+ID4KPiA+ID4gPiAgICAgIDFhODAyNDIzOWRhY2Y1M2ZjZjM5
-YzBmMDdmYmYyNzEyYWYyMjg2NGYgdmlydGlvLW5ldDogZml4IGZvciBza2Jfb3Zlcl9wYW5pYyBp
-bnNpZGUgYmlnIG1vZGUKPiA+ID4gPgo+ID4gPiA+IENhbiB5b3UgdGVzdCB0aGlzIHBhdGNoIGFn
-YWluPwo+ID4gPgo+ID4gPiBUaGF0IGNvbW1pdCBzaG93ZWQgdXAgaW4gNS4xMy1yYzUsIHNvIDUu
-MTQtcmMxIGFuZCA1LjEzIHNob3VsZCBoYXZlIGhhZAo+ID4gPiBpdCBpbiBpdCwgcmlnaHQ/Cj4g
-PiA+Cj4gPgo+ID4gWWVzLCBpdCBtYXkgYmUgbG9zdCBkdWUgdG8gY29uZmxpY3RzIGR1cmluZyBh
-IGNlcnRhaW4gbWVyZ2UuCj4KPiBSZWFsbHk/ICBJIHRyaWVkIHRvIGFwcGx5IHRoYXQgYWdhaW4g
-dG8gNS4xNCBhbmQgaXQgZGlkIG5vdCB3b3JrLiAgU28gSQo+IGRvIG5vdCB1bmRlcnN0YW5kIHdo
-YXQgdG8gZG8gaGVyZSwgY2FuIHlvdSB0cnkgdG8gZXhwbGFpbiBpdCBiZXR0ZXI/CgpJIHRvb2sg
-YSBsb29rLCBhbmQgdGhlcmUgaXMgYWN0dWFsbHkgYW5vdGhlciBtaXNzaW5nIHBhdGNoOgoKQS4g
-OGZiN2RhOWU5OTA3OTMyOTljODllZDdhNDI4MWMyMzViZmRkMzFmOCB2aXJ0aW9fbmV0OiBnZXQg
-YnVpbGRfc2tiKCkgYnVmIGJ5IGRhdGEgcHRyCkIuIDFhODAyNDIzOWRhY2Y1M2ZjZjM5YzBmMDdm
-YmYyNzEyYWYyMjg2NGYgdmlydGlvLW5ldDogZml4IGZvciBza2Jfb3Zlcl9wYW5pYyBpbnNpZGUg
-YmlnIG1vZGUKCkEgaXMgcmVwbGFjZWQgYnkgYW5vdGhlciBwYXRjaDoKCgljb21taXQgYzMyMzI1
-YjhmZGYyZjk3OWJlZmI5ZmQ1NTg3OTE4YzBkNTQxMmRiMwoJQXV0aG9yOiBKYWt1YiBLaWNpbnNr
-aSA8a3ViYUBrZXJuZWwub3JnPgoJRGF0ZTogICBNb24gQXVnIDIgMTA6NTc6MjkgMjAyMSAtMDcw
-MAoKCSAgICB2aXJ0aW8tbmV0OiByZWFsaWduIHBhZ2VfdG9fc2tiKCkgYWZ0ZXIgbWVyZ2VzCgoJ
-ICAgIFdlIGVuZGVkIHVwIG1lcmdpbmcgdHdvIHZlcnNpb25zIG9mIHRoZSBzYW1lIHBhdGNoIHNl
-dDoKCgkgICAgY29tbWl0IDhmYjdkYTllOTkwNyAoInZpcnRpb19uZXQ6IGdldCBidWlsZF9za2Io
-KSBidWYgYnkgZGF0YSBwdHIiKQoJICAgIGNvbW1pdCA1YzM3NzExZDlmMjcgKCJ2aXJ0aW8tbmV0
-OiBmaXggZm9yIHVuYWJsZSB0byBoYW5kbGUgcGFnZSBmYXVsdCBmb3IgYWRkcmVzcyIpCgoJICAg
-IGludG8gbmV0LCBhbmQKCgkgICAgY29tbWl0IDdiZjY0NDYwZTNiMiAoInZpcnRpby1uZXQ6IGdl
-dCBidWlsZF9za2IoKSBidWYgYnkgZGF0YSBwdHIiKQoJICAgIGNvbW1pdCA2YzY2YzE0N2I5YTQg
-KCJ2aXJ0aW8tbmV0OiBmaXggZm9yIHVuYWJsZSB0byBoYW5kbGUgcGFnZSBmYXVsdCBmb3IgYWRk
-cmVzcyIpCgoJICAgIGludG8gbmV0LW5leHQuIFJlZG8gdGhlIG1lcmdlIGZyb20gY29tbWl0IDEy
-NjI4NTY1MWI3ZiAoIk1lcmdlCgkgICAgcmEua2VybmVsLm9yZzovcHViL3NjbS9saW51eC9rZXJu
-ZWwvZ2l0L25ldGRldi9uZXQiKSwgc28gdGhhdAoJICAgIHRoZSBtb3N0IHJlY2VudCBjb2RlIHJl
-bWFpbnMuCgoJICAgIEFja2VkLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29t
-PgoJICAgIFNpZ25lZC1vZmYtYnk6IEpha3ViIEtpY2luc2tpIDxrdWJhQGtlcm5lbC5vcmc+Cgkg
-ICAgQWNrZWQtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+CgkgICAgU2lnbmVk
-LW9mZi1ieTogRGF2aWQgUy4gTWlsbGVyIDxkYXZlbUBkYXZlbWxvZnQubmV0PgoKU28gYWZ0ZXIg
-dGhpcyBwYXRjaCwgcGF0Y2ggQiBjYW4gYmUgYXBwbGllZCBub3JtYWxseS4KClNvIG9uIHRoZSBs
-YXRlc3QgbmV0IGJyYW5jaCwgb25seSBsb3N0CgogICAgICAgICAgMWE4MDI0MjM5ZGFjZjUzZmNm
-MzljMGYwN2ZiZjI3MTJhZjIyODY0ZiB2aXJ0aW8tbmV0OiBmaXggZm9yIHNrYl9vdmVyX3Bhbmlj
-IGluc2lkZSBiaWcgbW9kZQoKVGhhbmtzLgoKPgo+IHRoYW5rcywKPgo+IGdyZWcgay1oCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
-IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
-dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
-aXphdGlvbg==
+On 10/8/21 5:37 PM, Kuppuswamy Sathyanarayanan wrote:
+> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+> index 91ba391f9b32..0af19cb1a28c 100644
+> --- a/Documentation/admin-guide/kernel-parameters.txt
+> +++ b/Documentation/admin-guide/kernel-parameters.txt
+> @@ -2076,6 +2076,18 @@
+>   			1 - Bypass the IOMMU for DMA.
+>   			unset - Use value of CONFIG_IOMMU_DEFAULT_PASSTHROUGH.
+>   
+> +	ioremap_force_shared= [X86_64, CCG]
+> +			Force the kernel to use shared memory mappings which do
+> +			not use ioremap_host_shared/pcimap_host_shared to opt-in
+> +			to shared mappings with the host. This feature is mainly
+> +			used by a confidential guest when enabling new drivers
+> +			without proper shared memory related changes. Please note
+> +			that this option might also allow other non explicitly
+> +			enabled drivers to interact with the host in confidential
+> +			guest, which could cause other security risks. This option
+> +			will also cause BIOS data structures to be shared with the
+> +			host, which might open security holes.
+
+Hi,
+This cmdline option text should have a little bit more info. Just as an
+example/template:
+
+	acpi_apic_instance=	[ACPI, IOAPIC]
+			Format: <int>
+			2: use 2nd APIC table, if available
+			1,0: use 1st APIC table
+			default: 0
+
+So what is expected after the "=" sign?...
+
+thanks.
+-- 
+~Randy
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
