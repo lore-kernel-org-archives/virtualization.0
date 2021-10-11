@@ -2,104 +2,110 @@ Return-Path: <SRS0=jkwN=O7=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8145DC433F5
-	for <virtualization@archiver.kernel.org>; Mon, 11 Oct 2021 02:05:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 482E8C433FE
+	for <virtualization@archiver.kernel.org>; Mon, 11 Oct 2021 02:07:09 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id F200460ED7
-	for <virtualization@archiver.kernel.org>; Mon, 11 Oct 2021 02:05:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org F200460ED7
+	by mail.kernel.org (Postfix) with ESMTPS id E379E60ED7
+	for <virtualization@archiver.kernel.org>; Mon, 11 Oct 2021 02:07:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E379E60ED7
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id AF1F840292;
-	Mon, 11 Oct 2021 02:05:14 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id A0B38402A2;
+	Mon, 11 Oct 2021 02:07:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kvX_sJIwLC8m; Mon, 11 Oct 2021 02:05:13 +0000 (UTC)
+	with ESMTP id 4E8mCkY2NZ3I; Mon, 11 Oct 2021 02:07:07 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 51DB64025D;
-	Mon, 11 Oct 2021 02:05:13 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3B3B840385;
+	Mon, 11 Oct 2021 02:07:07 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 26953C0011;
-	Mon, 11 Oct 2021 02:05:13 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 11888C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C2C40C0021;
+	Mon, 11 Oct 2021 02:07:06 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 08B51C0011
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Oct 2021 02:05:12 +0000 (UTC)
+ Mon, 11 Oct 2021 02:07:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id E3CB240283
+ by smtp2.osuosl.org (Postfix) with ESMTP id 00CBD401D5
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Oct 2021 02:05:11 +0000 (UTC)
+ Mon, 11 Oct 2021 02:07:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VHtzD0xmsLqH
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id YxEqaqV8rvQi
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Oct 2021 02:05:10 +0000 (UTC)
+ Mon, 11 Oct 2021 02:07:04 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id B939C4025D
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id F2E90401D1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Oct 2021 02:05:10 +0000 (UTC)
+ Mon, 11 Oct 2021 02:07:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1633917909;
+ s=mimecast20190719; t=1633918022;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=Dt3W97nn3nLieRHcwrHXkZHoe+y8SxklSbymQfso1QE=;
- b=De8W9ydjpOM6FchOpHJRXT+DP043yoGNWdJiCoRRfjW2znQU7SQs2R3CzUYBuNZWvhbcRQ
- XppcF2+Z+UwII6zWo0k6x8A+dKunhWDEO3gcg6vBn99iIVAQs3dBLNAf7wiOrSyY4Owd1t
- L6xTJIm0yF9q1Qq7MsuLrZgVxUMzfII=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-334-9nC-XmWGNBKGb-0rDRFthw-1; Sun, 10 Oct 2021 22:05:07 -0400
-X-MC-Unique: 9nC-XmWGNBKGb-0rDRFthw-1
-Received: by mail-lf1-f69.google.com with SMTP id
- bp11-20020a056512158b00b003fc7d722819so11450164lfb.7
+ bh=ENeVT4EJ4HhfdzKw1adhLhObafui60u3kBaV6BSYZzQ=;
+ b=RJ6biJLY6OL0VJZOMN5+Yt5GC/Y8BXYGm85+tGM3fGo1/jzISbYewuYayrf8KtRFEBEEKv
+ EIQHhtjTwXDfTVWZdrU0sVwQr1f8NeDB4jApwOw0sHHzNVWirnBy6k80kXnuHRU/9pQ0Sv
+ McgMAHgWZjmyLLmpo9nj9z2fmQA4dmM=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-485-wmcmYxfjPsGXeSXDi1NrWA-1; Sun, 10 Oct 2021 22:07:01 -0400
+X-MC-Unique: wmcmYxfjPsGXeSXDi1NrWA-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ bt36-20020a056512262400b003fd7e6a96e8so2878232lfb.19
  for <virtualization@lists.linux-foundation.org>;
- Sun, 10 Oct 2021 19:05:07 -0700 (PDT)
+ Sun, 10 Oct 2021 19:07:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc:content-transfer-encoding;
- bh=Dt3W97nn3nLieRHcwrHXkZHoe+y8SxklSbymQfso1QE=;
- b=kRHFNYWMfio0m0Qhi31oPdg1pDzpSBbO6jLoxpqQEOTnsMmt5goqNkX7Z+Fpc0zt+r
- fvJ7c6ZWyBTHBwWh0gU7cfYOPd8RoLl4sYMKkHu+i5oda5neyhE1SC4D1pFLzDhxjtuu
- 2R5TZt1pGSnN0kyjw5qTM3yn4Xa95zbeI+F6ulkh5Sobo7Klm2qLhIj1dVlnOIMRZ2Ro
- aVTQcSvCdfncMBU8paMGEiF6hQqhpia8OrhTtoMeXIe4r3cxWbOO+fbrNiDvYXwCZX1e
- 9iOluTFJcqLmWzgtwgw/2SsffKIINDDVJ4uJdeg8O4sLs1xHY6zlqygXvknFCwdFDPm8
- o9UQ==
-X-Gm-Message-State: AOAM532F8e/fQ3Rj5p3PhHkw0ntCw/MdzxNNmDdvS80SxKCg4p8s+i86
- MnjBAIOOnNw4o9tANLEKsZDoiubLcdcGFm316BbLG9v/UiOr+SgGpHz9QlIey8u8VJvGuFDRrZG
- peOMcvzSv8XMNOo5CC8H7KTBI1dDXZ+3chbN5qKtZxwAhNtIJZLP9yK3Q+w==
-X-Received: by 2002:a2e:8099:: with SMTP id i25mr8180060ljg.277.1633917906330; 
- Sun, 10 Oct 2021 19:05:06 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzkDiR/BGptgc+pbWgE/RLAuwXL6JyrQ0fkP5KqdZaKCoCdI7ytGhHRzptoWN+ks5B3l30AvuWSt/eeqfwAjQw=
-X-Received: by 2002:a2e:8099:: with SMTP id i25mr8180041ljg.277.1633917906102; 
- Sun, 10 Oct 2021 19:05:06 -0700 (PDT)
+ :message-id:subject:to:cc;
+ bh=ENeVT4EJ4HhfdzKw1adhLhObafui60u3kBaV6BSYZzQ=;
+ b=iSBakFiDLESJBX4yC0hE2Ch68eztgSothYSOKgKehf1yGcKRN3NO0GspPMiSlyFYCg
+ Ew2AL6U/KMzsVtshIJV8WVqQOPde4jCmQe6KQi1Im1EG+aW3Oq2TY4cZrLQ9w9i1P2m+
+ xL2rEvicfnOeMxoIYCMZgQigygvjUWDcxJPJqBxGg/Q2dsICrxqUQBjJIL2L8Lp+r/Cv
+ RfnqGdL/SmHLTObgQuXO9kLfhR7qRl0VhofBj3ypEwzVJt3OuGnmHGjc2iRIquutUsTx
+ UNkCyyzx390AuYc6NnTpwuJgnFi1a7fAYCEaqVJEe3bgFDJpTm/wJ9cbRuC+LFmQga6u
+ B5HA==
+X-Gm-Message-State: AOAM530/MU7i9zm1un0+xnAhqU3r4Yj8SFUiYl2HbFCiAkNqjV6wmkBH
+ DNakATlJw/2TLPwW7vxdAMpqhpRRwTgyBNryiez+14mLrgMiQkj8Gl1yBfe5lm/Yn0DVHEZ5BaM
+ ljOUeOl/CcV3AJUGUV2qbHQEAV2KTfOW8O1kpWQfMGg0kVph9TTLtyNDfjA==
+X-Received: by 2002:a05:6512:3d29:: with SMTP id
+ d41mr12508869lfv.481.1633918019933; 
+ Sun, 10 Oct 2021 19:06:59 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz14BTo20ifNpNLBzaLU+yNKHq7V7P/zv03+clH5xHZcu/iFJWoObufgdo9Yiy21rVk+IBUQO3NHQ409rBQPsA=
+X-Received: by 2002:a05:6512:3d29:: with SMTP id
+ d41mr12508845lfv.481.1633918019761; 
+ Sun, 10 Oct 2021 19:06:59 -0700 (PDT)
 MIME-Version: 1.0
-References: <20211009091604.84141-1-mst@redhat.com>
-In-Reply-To: <20211009091604.84141-1-mst@redhat.com>
+References: <1632477717-5254-1-git-send-email-john.garry@huawei.com>
+ <1632477717-5254-2-git-send-email-john.garry@huawei.com>
+In-Reply-To: <1632477717-5254-2-git-send-email-john.garry@huawei.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 11 Oct 2021 10:04:55 +0800
-Message-ID: <CACGkMEsjxm9u8QvQ9c9f34v1WWhGkbwPE-2BgAkRjd+zB6V-AQ@mail.gmail.com>
-Subject: Re: [PATCH net] virtio-net: fix for skb_over_panic inside big mode
-To: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Mon, 11 Oct 2021 10:06:48 +0800
+Message-ID: <CACGkMEt8FcoJ4zMXFZzmrFjm=ynWfr5yLfvSHCckawpa3FvhkA@mail.gmail.com>
+Subject: Re: [PATCH 1/5] iova: Move fast alloc size roundup into
+ alloc_iova_fast()
+To: John Garry <john.garry@huawei.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Greg KH <gregkh@linuxfoundation.org>,
+Cc: mst <mst@redhat.com>, Will Deacon <will@kernel.org>,
+ Joerg Roedel <joro@8bytes.org>, linuxarm@huawei.com,
  linux-kernel <linux-kernel@vger.kernel.org>,
- =?UTF-8?Q?Corentin_No=C3=ABl?= <corentin.noel@collabora.com>,
- netdev <netdev@vger.kernel.org>, Jakub Kicinski <kuba@kernel.org>,
  virtualization <virtualization@lists.linux-foundation.org>,
- "David S. Miller" <davem@davemloft.net>
+ Yongji Xie <xieyongji@bytedance.com>, iommu@lists.linux-foundation.org,
+ thunder.leizhen@huawei.com, Robin Murphy <robin.murphy@arm.com>,
+ Lu Baolu <baolu.lu@linux.intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,68 +117,90 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gU2F0LCBPY3QgOSwgMjAyMSBhdCA1OjE4IFBNIE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJl
-ZGhhdC5jb20+IHdyb3RlOgo+Cj4gRnJvbTogWHVhbiBaaHVvIDx4dWFuemh1b0BsaW51eC5hbGli
-YWJhLmNvbT4KPgo+IGNvbW1pdCAxMjYyODU2NTFiN2YgKCJNZXJnZSByYS5rZXJuZWwub3JnOi9w
-dWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvbmV0ZGV2L25ldCIpCj4gYWNjaWRlbnRhbGx5IHJldmVy
-dGVkIHRoZSBlZmZlY3Qgb2YKPiBjb21taXQgMWE4MDI0MjM5ZGEgKCJ2aXJ0aW8tbmV0OiBmaXgg
-Zm9yIHNrYl9vdmVyX3BhbmljIGluc2lkZSBiaWcgbW9kZSIpCj4gb24gZHJpdmVycy9uZXQvdmly
-dGlvX25ldC5jCj4KPiBBcyBhIHJlc3VsdCwgdXNlcnMgb2YgY3Jvc3ZtICh3aGljaCBpcyB1c2lu
-ZyBsYXJnZSBwYWNrZXQgbW9kZSkKPiBhcmUgZXhwZXJpZW5jaW5nIGNyYXNoZXMgd2l0aCA1LjE0
-LXJjMSBhbmQgYWJvdmUgdGhhdCBkbyBub3QKPiBvY2N1ciB3aXRoIDUuMTMuCj4KPiBDcmFzaCB0
-cmFjZToKPgo+IFsgICA2MS4zNDY2NzddIHNrYnVmZjogc2tiX292ZXJfcGFuaWM6IHRleHQ6ZmZm
-ZmZmZmY4ODFhZTJjNyBsZW46Mzc2MiBwdXQ6Mzc2MiBoZWFkOmZmZmY4YTVlYzhjMjIwMDAgZGF0
-YTpmZmZmOGE1ZWM4YzIyMDEwIHRhaWw6MHhlYzIgZW5kOjB4ZWMwIGRldjo8TlVMTD4KPiBbICAg
-NjEuMzY5MTkyXSBrZXJuZWwgQlVHIGF0IG5ldC9jb3JlL3NrYnVmZi5jOjExMSEKPiBbICAgNjEu
-MzcyODQwXSBpbnZhbGlkIG9wY29kZTogMDAwMCBbIzFdIFNNUCBQVEkKPiBbICAgNjEuMzc0ODky
-XSBDUFU6IDUgUElEOiAwIENvbW06IHN3YXBwZXIvNSBOb3QgdGFpbnRlZCA1LjE0LjAtcmMxIGxp
-bnV4LXY1LjE0LXJjMS1mb3ItbWVzYS1jaS50YXIuYnoyICMxCj4gWyAgIDYxLjM3NjQ1MF0gSGFy
-ZHdhcmUgbmFtZTogQ2hyb21pdW1PUyBjcm9zdm0sIEJJT1MgMAo+Cj4gLi4KPgo+IFsgICA2MS4z
-OTM2MzVdIENhbGwgVHJhY2U6Cj4gWyAgIDYxLjM5NDEyN10gIDxJUlE+Cj4gWyAgIDYxLjM5NDQ4
-OF0gIHNrYl9wdXQuY29sZCsweDEwLzB4MTAKPiBbICAgNjEuMzk1MDk1XSAgcGFnZV90b19za2Ir
-MHhmNy8weDQxMAo+IFsgICA2MS4zOTU2ODldICByZWNlaXZlX2J1ZisweDgxLzB4MTY2MAo+IFsg
-ICA2MS4zOTYyMjhdICA/IG5ldGlmX3JlY2VpdmVfc2tiX2xpc3RfaW50ZXJuYWwrMHgxYWQvMHgy
-YjAKPiBbICAgNjEuMzk3MTgwXSAgPyBuYXBpX2dyb19mbHVzaCsweDk3LzB4ZTAKPiBbICAgNjEu
-Mzk3ODk2XSAgPyBkZXRhY2hfYnVmX3NwbGl0KzB4NjcvMHgxMjAKPiBbICAgNjEuMzk4NTczXSAg
-dmlydG5ldF9wb2xsKzB4MmNmLzB4NDIwCj4gWyAgIDYxLjM5OTE5N10gIF9fbmFwaV9wb2xsKzB4
-MjUvMHgxNTAKPiBbICAgNjEuMzk5NzY0XSAgbmV0X3J4X2FjdGlvbisweDIyZi8weDI4MAo+IFsg
-ICA2MS40MDAzOTRdICBfX2RvX3NvZnRpcnErMHhiYS8weDI1Nwo+IFsgICA2MS40MDEwMTJdICBp
-cnFfZXhpdF9yY3UrMHg4ZS8weGIwCj4gWyAgIDYxLjQwMTYxOF0gIGNvbW1vbl9pbnRlcnJ1cHQr
-MHg3Yi8weGEwCj4gWyAgIDYxLjQwMjI3MF0gIDwvSVJRPgo+Cj4gU2VlCj4gaHR0cHM6Ly9sb3Jl
-Lmtlcm5lbC5vcmcvci81ZWRhYTJiN2MyZmU0YWJkMDM0N2I4NDU0YjJhYzAzMmI2Njk0ZTJjLmNh
-bWVsJTQwY29sbGFib3JhLmNvbQo+IGZvciB0aGUgcmVwb3J0Lgo+Cj4gQXBwbHkgdGhlIG9yaWdp
-bmFsIDFhODAyNDIzOWRhICgidmlydGlvLW5ldDogZml4IGZvciBza2Jfb3Zlcl9wYW5pYyBpbnNp
-ZGUgYmlnIG1vZGUiKQo+IGFnYWluLCB0aGUgb3JpZ2luYWwgbG9naWMgc3RpbGwgaG9sZHM6Cj4K
-PiBJbiB2aXJ0aW8tbmV0J3MgbGFyZ2UgcGFja2V0IG1vZGUsIHRoZXJlIGlzIGEgaG9sZSBpbiB0
-aGUgc3BhY2UgYmVoaW5kCj4gYnVmLgo+Cj4gICAgIGhkcl9wYWRkZWRfbGVuIC0gaGRyX2xlbgo+
-Cj4gV2UgbXVzdCB0YWtlIHRoaXMgaW50byBhY2NvdW50IHdoZW4gY2FsY3VsYXRpbmcgdGFpbHJv
-b20uCj4KPiBDYzogR3JlZyBLSCA8Z3JlZ2toQGxpbnV4Zm91bmRhdGlvbi5vcmc+Cj4gRml4ZXM6
-IGZiMzI4NTZiMTZhZCAoInZpcnRpby1uZXQ6IHBhZ2VfdG9fc2tiKCkgdXNlIGJ1aWxkX3NrYiB3
-aGVuIHRoZXJlJ3Mgc3VmZmljaWVudCB0YWlscm9vbSIpCj4gRml4ZXM6IDEyNjI4NTY1MWI3ZiAo
-Ik1lcmdlIHJhLmtlcm5lbC5vcmc6L3B1Yi9zY20vbGludXgva2VybmVsL2dpdC9uZXRkZXYvbmV0
-IikKPiBTaWduZWQtb2ZmLWJ5OiBYdWFuIFpodW8gPHh1YW56aHVvQGxpbnV4LmFsaWJhYmEuY29t
-Pgo+IFJlcG9ydGVkLWJ5OiBDb3JlbnRpbiBOb8OrbCA8Y29yZW50aW4ubm9lbEBjb2xsYWJvcmEu
-Y29tPgo+IFRlc3RlZC1ieTogQ29yZW50aW4gTm/Dq2wgPGNvcmVudGluLm5vZWxAY29sbGFib3Jh
-LmNvbT4KPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29t
-Pgo+IC0tLQoKQWNrZWQtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+Cgo+Cj4g
-RGF2aWQsIEkgdGhpbmsgd2UgbmVlZCB0aGlzIGluIHN0YWJsZSwgdG9vLgo+Cj4gIGRyaXZlcnMv
-bmV0L3ZpcnRpb19uZXQuYyB8IDIgKy0KPiAgMSBmaWxlIGNoYW5nZWQsIDEgaW5zZXJ0aW9uKCsp
-LCAxIGRlbGV0aW9uKC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5j
-IGIvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gaW5kZXggMDk2YzJhYzZiN2E2Li42YjA4MTJm
-NDRiYmYgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5jCj4gKysrIGIvZHJp
-dmVycy9uZXQvdmlydGlvX25ldC5jCj4gQEAgLTQwNiw3ICs0MDYsNyBAQCBzdGF0aWMgc3RydWN0
-IHNrX2J1ZmYgKnBhZ2VfdG9fc2tiKHN0cnVjdCB2aXJ0bmV0X2luZm8gKnZpLAo+ICAgICAgICAg
-ICogYWRkX3JlY3ZidWZfbWVyZ2VhYmxlKCkgKyBnZXRfbWVyZ2VhYmxlX2J1Zl9sZW4oKQo+ICAg
-ICAgICAgICovCj4gICAgICAgICB0cnVlc2l6ZSA9IGhlYWRyb29tID8gUEFHRV9TSVpFIDogdHJ1
-ZXNpemU7Cj4gLSAgICAgICB0YWlscm9vbSA9IHRydWVzaXplIC0gbGVuIC0gaGVhZHJvb207Cj4g
-KyAgICAgICB0YWlscm9vbSA9IHRydWVzaXplIC0gbGVuIC0gaGVhZHJvb20gLSAoaGRyX3BhZGRl
-ZF9sZW4gLSBoZHJfbGVuKTsKPiAgICAgICAgIGJ1ZiA9IHAgLSBoZWFkcm9vbTsKPgo+ICAgICAg
-ICAgbGVuIC09IGhkcl9sZW47Cj4gLS0KPiBNU1QKPgoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Fri, Sep 24, 2021 at 6:07 PM John Garry <john.garry@huawei.com> wrote:
+>
+> It really is a property of the IOVA rcache code that we need to alloc a
+> power-of-2 size, so relocate the functionality to resize into
+> alloc_iova_fast(), rather than the callsites.
+>
+> Signed-off-by: John Garry <john.garry@huawei.com>
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+> ---
+>  drivers/iommu/dma-iommu.c            | 8 --------
+>  drivers/iommu/iova.c                 | 9 +++++++++
+>  drivers/vdpa/vdpa_user/iova_domain.c | 8 --------
+>  3 files changed, 9 insertions(+), 16 deletions(-)
+>
+> diff --git a/drivers/iommu/dma-iommu.c b/drivers/iommu/dma-iommu.c
+> index 896bea04c347..a99b3445fef8 100644
+> --- a/drivers/iommu/dma-iommu.c
+> +++ b/drivers/iommu/dma-iommu.c
+> @@ -444,14 +444,6 @@ static dma_addr_t iommu_dma_alloc_iova(struct iommu_domain *domain,
+>
+>         shift = iova_shift(iovad);
+>         iova_len = size >> shift;
+> -       /*
+> -        * Freeing non-power-of-two-sized allocations back into the IOVA caches
+> -        * will come back to bite us badly, so we have to waste a bit of space
+> -        * rounding up anything cacheable to make sure that can't happen. The
+> -        * order of the unadjusted size will still match upon freeing.
+> -        */
+> -       if (iova_len < (1 << (IOVA_RANGE_CACHE_MAX_SIZE - 1)))
+> -               iova_len = roundup_pow_of_two(iova_len);
+>
+>         dma_limit = min_not_zero(dma_limit, dev->bus_dma_limit);
+>
+> diff --git a/drivers/iommu/iova.c b/drivers/iommu/iova.c
+> index 9e8bc802ac05..ff567cbc42f7 100644
+> --- a/drivers/iommu/iova.c
+> +++ b/drivers/iommu/iova.c
+> @@ -497,6 +497,15 @@ alloc_iova_fast(struct iova_domain *iovad, unsigned long size,
+>         unsigned long iova_pfn;
+>         struct iova *new_iova;
+>
+> +       /*
+> +        * Freeing non-power-of-two-sized allocations back into the IOVA caches
+> +        * will come back to bite us badly, so we have to waste a bit of space
+> +        * rounding up anything cacheable to make sure that can't happen. The
+> +        * order of the unadjusted size will still match upon freeing.
+> +        */
+> +       if (size < (1 << (IOVA_RANGE_CACHE_MAX_SIZE - 1)))
+> +               size = roundup_pow_of_two(size);
+> +
+>         iova_pfn = iova_rcache_get(iovad, size, limit_pfn + 1);
+>         if (iova_pfn)
+>                 return iova_pfn;
+> diff --git a/drivers/vdpa/vdpa_user/iova_domain.c b/drivers/vdpa/vdpa_user/iova_domain.c
+> index 1daae2608860..2b1143f11d8f 100644
+> --- a/drivers/vdpa/vdpa_user/iova_domain.c
+> +++ b/drivers/vdpa/vdpa_user/iova_domain.c
+> @@ -292,14 +292,6 @@ vduse_domain_alloc_iova(struct iova_domain *iovad,
+>         unsigned long iova_len = iova_align(iovad, size) >> shift;
+>         unsigned long iova_pfn;
+>
+> -       /*
+> -        * Freeing non-power-of-two-sized allocations back into the IOVA caches
+> -        * will come back to bite us badly, so we have to waste a bit of space
+> -        * rounding up anything cacheable to make sure that can't happen. The
+> -        * order of the unadjusted size will still match upon freeing.
+> -        */
+> -       if (iova_len < (1 << (IOVA_RANGE_CACHE_MAX_SIZE - 1)))
+> -               iova_len = roundup_pow_of_two(iova_len);
+>         iova_pfn = alloc_iova_fast(iovad, iova_len, limit >> shift, true);
+>
+>         return iova_pfn << shift;
+> --
+> 2.26.2
+>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
