@@ -2,113 +2,73 @@ Return-Path: <SRS0=TY3O=PA=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4476EC433F5
-	for <virtualization@archiver.kernel.org>; Tue, 12 Oct 2021 08:46:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 21AF8C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 12 Oct 2021 10:26:46 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E268A61056
-	for <virtualization@archiver.kernel.org>; Tue, 12 Oct 2021 08:46:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E268A61056
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id C36D9610C7
+	for <virtualization@archiver.kernel.org>; Tue, 12 Oct 2021 10:26:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org C36D9610C7
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9F3D940688;
-	Tue, 12 Oct 2021 08:46:22 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8F3D8404B1;
+	Tue, 12 Oct 2021 10:26:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id m6jPFzRU-74k; Tue, 12 Oct 2021 08:46:21 +0000 (UTC)
+	with ESMTP id 5v7Iv4N6pplf; Tue, 12 Oct 2021 10:26:44 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 03B5C4065E;
-	Tue, 12 Oct 2021 08:46:20 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 30251405DA;
+	Tue, 12 Oct 2021 10:26:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D56AAC000F;
-	Tue, 12 Oct 2021 08:46:20 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EC33CC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 077A0C000F;
+	Tue, 12 Oct 2021 10:26:44 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1CBF2C000D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Oct 2021 08:46:18 +0000 (UTC)
+ Tue, 12 Oct 2021 10:26:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id CEFD9607B3
+ by smtp4.osuosl.org (Postfix) with ESMTP id 008CD405DA
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Oct 2021 08:46:18 +0000 (UTC)
+ Tue, 12 Oct 2021 10:26:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aXobeSvAl-U1
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id snqAgTltW32P
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Oct 2021 08:46:17 +0000 (UTC)
+ Tue, 12 Oct 2021 10:26:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 6EF7E6078E
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id E4048404B1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Oct 2021 08:46:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1634028376;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=8jbtmrvdydVcbKtmwH0mVqKY5lC9q0zSEeq9Jm8aa9s=;
- b=Ewo3xpeiDZ1moTIsdsSNa6Lg3iyjfn9IuJl4R7rhkBj0sRvl1fjrwNvbKps8jFkyIPS7FF
- Nfe/Hxh8pjaEPvu9PqZsCs4Ug/kQJhKpCfxDYhkDUAGyPtKOyshXmF7IC4Xvl9ZYIoBzhP
- k2zcmvMe9EvtfA5k/CM/fwkC8HyFcD0=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-442-KcPEGhxWPzm6WBLELXCrUA-1; Tue, 12 Oct 2021 04:46:13 -0400
-X-MC-Unique: KcPEGhxWPzm6WBLELXCrUA-1
-Received: by mail-lf1-f70.google.com with SMTP id
- k8-20020a0565123d8800b003fd6e160c77so9747604lfv.17
- for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Oct 2021 01:46:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=8jbtmrvdydVcbKtmwH0mVqKY5lC9q0zSEeq9Jm8aa9s=;
- b=xLWLKOS0FS54N1r95cVTPzJsc3MC3tEiirBZtJGzE3EV9qoo3XUqygHvuwBcWGhDUH
- OtU8Scqpa7GSMpXq2ozSCmBmblVitAIEqT9H7uYIffpbKHtQFFsn3DEebbSjq+FaqWGk
- ztYPhv4hk8BSKkask/mA+MJAHjgk6bhsUbKJdz1gl5A97m0rSQAa6ClrpHW2bblalmb3
- QrSV54lsKUy0uBZvbhQOd9NvEWrou5+urgvaT5XXTTf0l1XnMgf2lUT1v55Bk7Dq7Zfe
- BrEQGQU30HNimcz0CfBlj/4mlw3/0VCRh3+pSN9MU8VfQC/+u49ySqg9TJ5FJfkqZaKp
- OwkA==
-X-Gm-Message-State: AOAM5319W5BXHE3Zw3ZIGnQ2e7MM5GbBAnFtyDB0Qf+EcA/bqQBq5PVK
- NxubRS1iBGHKpF0IAIq4yVZi6TugVaAwSI6xBPIqZBUYe7m05ZdGQQVBFKzGv68YtwYYMeWPKpY
- M2HlVsEZKnpEIBoiK0RA16RA+vYc6NT3qJxtsaeBTouImHlII4ldZcrqwzg==
-X-Received: by 2002:ac2:43d1:: with SMTP id u17mr12793475lfl.348.1634028371643; 
- Tue, 12 Oct 2021 01:46:11 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzbfo+wRlZQ4toG3xfT67w0misrN1XCgXks2u7IG1JuYC3sMCHZSrIKtMdp5Aamvp7Pxwzc53Wod5ofiphwDE8=
-X-Received: by 2002:ac2:43d1:: with SMTP id u17mr12793452lfl.348.1634028371392; 
- Tue, 12 Oct 2021 01:46:11 -0700 (PDT)
+ Tue, 12 Oct 2021 10:26:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B41456101D;
+ Tue, 12 Oct 2021 10:26:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1634034400;
+ bh=x150KESnW9y0NudUm0jVtADK6sh5MfPdAVLfbM/aWiY=;
+ h=From:To:Cc:Subject:Date:From;
+ b=LiGUI+8YNYfkLbwdBY8u/p79Jm/iQPdqUK5IhZv7LExcrQ6ATXfHT5iAAtYSGWynz
+ kr5ND/0mGrvuK7ubilEw7i7aWoIVqsi7o4xaIrdCU77mwUCR+oVk55gGD5bpoX8l9Y
+ PZqg3hvu0olFH0tKpScGwY9n7t1Fqn79fnOrK4He4wVzv+4ufyKy41khjlRq0SfhkA
+ kv+PDlLFYDBOHqHT3XXL41SpY8S43G6B64yNy9uHy011iqU3YGD847SqJfaLHTbazb
+ GKWW3k/5YOiTrGg3qK9ceGiJ77L0BTkrr2T4xXJnaPz3IsbjHrJANZZbIyzgoOcIqv
+ 5wIz1HDYSIOQA==
+From: Leon Romanovsky <leon@kernel.org>
+To: Doug Ledford <dledford@redhat.com>,
+	Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH mlx5-next 0/7] Clean MR key use across mlx5_* modules
+Date: Tue, 12 Oct 2021 13:26:28 +0300
+Message-Id: <cover.1634033956.git.leonro@nvidia.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-References: <20210913055353.35219-1-jasowang@redhat.com>
- <20211005032924-mutt-send-email-mst@kernel.org>
- <CACGkMEuQU6jXV_D5QvE29mX9spF6KcyrCDuvVwX99_jSf-x7fQ@mail.gmail.com>
- <20211011082640-mutt-send-email-mst@kernel.org>
- <CACGkMEtwAFy=bm62X+rjPMJEwChAhZkZ2bBwDJPULdzhWdzagA@mail.gmail.com>
- <20211012012617-mutt-send-email-mst@kernel.org>
- <CACGkMEu5oP=vix8gZgQi0Y==VBvxqoTg+yG-cu1FenZH6csepw@mail.gmail.com>
- <20211012022024-mutt-send-email-mst@kernel.org>
- <CACGkMEvtobDX-bvjhFtDGa8N6PFrvcwnM_5EXGOEgEAVY517=A@mail.gmail.com>
- <20211012030143-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20211012030143-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 12 Oct 2021 16:46:00 +0800
-Message-ID: <CACGkMEv9hFk6efhikY+CtpiCTAT3_at+ww7rPQ9tWP5qC+JWsw@mail.gmail.com>
-Subject: Re: [PATCH 0/9] More virtio hardening
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Hetzelt,
- Felicitas" <f.hetzelt@tu-berlin.de>,
- linux-kernel <linux-kernel@vger.kernel.org>, "kaplan,
- david" <david.kaplan@amd.com>,
- virtualization <virtualization@lists.linux-foundation.org>
+Cc: Aharon Landau <aharonl@nvidia.com>, linux-rdma@vger.kernel.org,
+ Maor Gottlieb <maorg@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux-foundation.org, Shay Drory <shayd@nvidia.com>,
+ netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+ Leon Romanovsky <leonro@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -125,225 +85,52 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Oct 12, 2021 at 3:03 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Tue, Oct 12, 2021 at 02:43:13PM +0800, Jason Wang wrote:
-> > On Tue, Oct 12, 2021 at 2:35 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > On Tue, Oct 12, 2021 at 02:11:10PM +0800, Jason Wang wrote:
-> > > > On Tue, Oct 12, 2021 at 1:44 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > >
-> > > > > On Tue, Oct 12, 2021 at 10:43:57AM +0800, Jason Wang wrote:
-> > > > > > On Mon, Oct 11, 2021 at 8:36 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > > >
-> > > > > > > On Mon, Oct 11, 2021 at 03:36:51PM +0800, Jason Wang wrote:
-> > > > > > > > On Tue, Oct 5, 2021 at 3:42 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > > > > > > >
-> > > > > > > > > On Mon, Sep 13, 2021 at 01:53:44PM +0800, Jason Wang wrote:
-> > > > > > > > > > Hi All:
-> > > > > > > > > >
-> > > > > > > > > > This series treis to do more hardening for virito.
-> > > > > > > > > >
-> > > > > > > > > > patch 1 validates the num_queues for virio-blk device.
-> > > > > > > > > > patch 2-4 validates max_nr_ports for virito-console device.
-> > > > > > > > > > patch 5-7 harden virtio-pci interrupts to make sure no exepcted
-> > > > > > > > > > interrupt handler is tiggered. If this makes sense we can do similar
-> > > > > > > > > > things in other transport drivers.
-> > > > > > > > > > patch 8-9 validate used ring length.
-> > > > > > > > > >
-> > > > > > > > > > Smoking test on blk/net with packed=on/off and iommu_platform=on/off.
-> > > > > > > > > >
-> > > > > > > > > > Please review.
-> > > > > > > > > >
-> > > > > > > > > > Thanks
-> > > > > > > > >
-> > > > > > > > > So I poked at console at least, and I think I see
-> > > > > > > > > an issue: if interrupt handler queues a work/bh,
-> > > > > > > > > then it can still run while reset is in progress.
-> > > > > > > >
-> > > > > > > > Looks like a bug which is unrelated to the hardening?
-> > > > > > >
-> > > > > > > Won't preventing use after free be relevant?
-> > > > > >
-> > > > > > Oh right.
-> > > > > >
-> > > > > > > I frankly don't know what does hardening means then.
-> > > > > > > > E.g the driver
-> > > > > > > > should sync with work/bh before reset.
-> > > > > > >
-> > > > > > > No, there's no way to fix it ATM without extra locks and state which I
-> > > > > > > think we should strive to avoid or make it generic, not per-driver,
-> > > > > > > since sync before reset is useless, new interrupts will just arrive and
-> > > > > > > queue more work. And a sync after reset is too late since driver will
-> > > > > > > try to add buffers.
-> > > > > >
-> > > > > > Can we do something like
-> > > > > >
-> > > > > > 1) disable interrupt
-> > > > > > 2) sync bh
-> > > > > >
-> > > > > > Or I guess this is somehow you meant in the following steps.
-> > > > >
-> > > > > So that would mean a new API to disable vq interrupts.
-> > > > > reset will re-enable.
-> > > > > E.g. virtqueue_cancel_cb_before_reset()?
-> > > > >
-> > > > > Then drivers can sync, then reset.
-> > > > > This means maintaining more state though, which I don't like.
-> > > > >
-> > > > > An alternative is something like this:
-> > > > >
-> > > > > static void (*virtio_flush_device)(struct virtio_device *dev);
-> > > > >
-> > > > > void virtio_reset_device(struct virtio_device *dev, virtio_flush_device flush)
-> > > > > {
-> > > > >         might_sleep();
-> > > > >         if (flush) {
-> > > > >                 dev->config->disable_interrupts(dev);
-> > > > >                 flush(dev);
-> > > > >                 dev->config->reset(dev);
-> > > > >                 dev->config->enable_interrupts(dev);
-> > > >
-> > > > I wonder whether this is needed. As done in this series,
-> > > > enable_interrupt should be done in virtio_device_ready().
-> > > >
-> > > > Others should work.
-> > > >
-> > > > >         } else {
-> > > > >                 dev->config->reset(dev);
-> > > > >         }
-> > > > > }
-> > > > >
-> > > > > I have patches wrapping all reset calls in virtio_reset_device
-> > > > > (without the flush parameter but that's easy to tweak).
-> > > >
-> > > > Does it work if I post V2 and you post those patches on top?
-> > >
-> > > The reset things? Sure.
-> >
-> > Ok.
-> >
-> > >
-> > > > >
-> > > > >
-> > > > > > >
-> > > > > > > Maybe we can break device. Two issues with that
-> > > > > > > - drivers might not be ready to handle add_buf failures
-> > > > > > > - restore needs to unbreak then and we don't have a way to do that yet
-> > > > > > >
-> > > > > > > So .. careful reading of all device drivers and hoping we don't mess
-> > > > > > > things up even more ... here we come.
-> > > > > >
-> > > > > > Yes.
-> > > > >
-> > > > > The biggest issue with this trick is drivers not handling add_buf
-> > > > > errors, adding a failure path here risks creating memory leaks.
-> > > > > OTOH with e.g. bounce buffers maybe it's possible for add buf to
-> > > > > fail anyway?
-> > > >
-> > > > I'm not sure I get this, a simple git grep told me at least the return
-> > > > value of add_inbuf() were all checked.
-> > > >
-> > > > Thanks
-> > >
-> > > Checked locally, but not always error is handled all the way
-> > > to the top. E.g. add_port in console returns an error code
-> > > but that is never checked. Well, console is a mess generally.
-> >
-> > I see. I can try to audit all virtio drivers for the add_inbuf() case.
-> >
-> > Thanks
->
-> Why inbuf specifically?
+From: Leon Romanovsky <leonro@nvidia.com>
 
-Typo :(
+Hi,
 
-> I mean, re-reading code often finds bugs, sure ;)
-
-Yes.
-
->
-> But I don't think just to fix remove we need to audit them all
-> as such, as long as we are not modifying core, whatever
-> driver remove we are poking for, that driver needs to be
-> audited.
-
-Right.
+This is cleanup series of mlx5_* MR mkey management.
 
 Thanks
 
->
->
-> > >
-> > > > >
-> > > > > > >
-> > > > > > > > >
-> > > > > > > > > I sent a patch to fix it for console removal specifically,
-> > > > > > > > > but I suspect it's not enough e.g. freeze is still broken.
-> > > > > > > > > And note this has been reported without any TDX things -
-> > > > > > > > > it's not a malicious device issue, can be triggered just
-> > > > > > > > > by module unload.
-> > > > > > > > >
-> > > > > > > > > I am vaguely thinking about new APIs to disable/enable callbacks.
-> > > > > > > > > An alternative:
-> > > > > > > > >
-> > > > > > > > > 1. adding new remove_nocb/freeze_nocb calls
-> > > > > > > > > 2. disabling/enabling interrupts automatically around these
-> > > > > > > > > 3. gradually moving devices to using these
-> > > > > > > > > 4. once/if all device move, removing the old callbacks
-> > > > > > > > >
-> > > > > > > > > the advantage here is that we'll be sure calls are always
-> > > > > > > > > paired correctly.
-> > > > > > > >
-> > > > > > > > I'm not sure I get the idea, but my feeling is that it doesn't
-> > > > > > > > conflict with the interrupt hardening here (or at least the same
-> > > > > > > > method is required e.g NO_AUTO_EN).
-> > > > > > > >
-> > > > > > > > Thanks
-> > > > > > >
-> > > > > > > Right.  It's not that it conflicts, it's that I was hoping that
-> > > > > > > since you are working on hardening you can take up fixing that.
-> > > > > > > Let me know whether you have the time. Thanks!
-> > > > > >
-> > > > > > I can do that.
-> > > > > >
-> > > > > > Thanks
-> > > > > >
-> > > > > > >
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > >
-> > > > > > > > > > Jason Wang (9):
-> > > > > > > > > >   virtio-blk: validate num_queues during probe
-> > > > > > > > > >   virtio: add doc for validate() method
-> > > > > > > > > >   virtio-console: switch to use .validate()
-> > > > > > > > > >   virtio_console: validate max_nr_ports before trying to use it
-> > > > > > > > > >   virtio_config: introduce a new ready method
-> > > > > > > > > >   virtio_pci: harden MSI-X interrupts
-> > > > > > > > > >   virtio-pci: harden INTX interrupts
-> > > > > > > > > >   virtio_ring: fix typos in vring_desc_extra
-> > > > > > > > > >   virtio_ring: validate used buffer length
-> > > > > > > > > >
-> > > > > > > > > >  drivers/block/virtio_blk.c         |  3 +-
-> > > > > > > > > >  drivers/char/virtio_console.c      | 51 +++++++++++++++++++++---------
-> > > > > > > > > >  drivers/virtio/virtio_pci_common.c | 43 +++++++++++++++++++++----
-> > > > > > > > > >  drivers/virtio/virtio_pci_common.h |  7 ++--
-> > > > > > > > > >  drivers/virtio/virtio_pci_legacy.c |  5 +--
-> > > > > > > > > >  drivers/virtio/virtio_pci_modern.c |  6 ++--
-> > > > > > > > > >  drivers/virtio/virtio_ring.c       | 27 ++++++++++++++--
-> > > > > > > > > >  include/linux/virtio.h             |  1 +
-> > > > > > > > > >  include/linux/virtio_config.h      |  6 ++++
-> > > > > > > > > >  9 files changed, 118 insertions(+), 31 deletions(-)
-> > > > > > > > > >
-> > > > > > > > > > --
-> > > > > > > > > > 2.25.1
-> > > > > > > > >
-> > > > > > >
-> > > > >
-> > >
->
+Aharon Landau (7):
+  RDMA/mlx5: Don't set esc_size in user mr
+  RDMA/mlx5: Remove iova from struct mlx5_core_mkey
+  RDMA/mlx5: Remove size from struct mlx5_core_mkey
+  RDMA/mlx5: Remove pd from struct mlx5_core_mkey
+  RDMA/mlx5: Replace struct mlx5_core_mkey by u32 key
+  RDMA/mlx5: Move struct mlx5_core_mkey to mlx5_ib
+  RDMA/mlx5: Attach ndescs to mlx5_ib_mkey
+
+ drivers/infiniband/hw/mlx5/devx.c             | 13 +--
+ drivers/infiniband/hw/mlx5/devx.h             |  2 +-
+ drivers/infiniband/hw/mlx5/mlx5_ib.h          | 31 ++++---
+ drivers/infiniband/hw/mlx5/mr.c               | 82 +++++++++----------
+ drivers/infiniband/hw/mlx5/odp.c              | 38 +++------
+ drivers/infiniband/hw/mlx5/wr.c               | 10 +--
+ .../mellanox/mlx5/core/diag/fw_tracer.c       |  6 +-
+ .../mellanox/mlx5/core/diag/fw_tracer.h       |  2 +-
+ .../mellanox/mlx5/core/diag/rsc_dump.c        | 10 +--
+ drivers/net/ethernet/mellanox/mlx5/core/en.h  |  2 +-
+ .../net/ethernet/mellanox/mlx5/core/en/ptp.c  |  2 +-
+ .../net/ethernet/mellanox/mlx5/core/en/trap.c |  2 +-
+ .../ethernet/mellanox/mlx5/core/en_common.c   |  6 +-
+ .../net/ethernet/mellanox/mlx5/core/en_main.c | 13 ++-
+ .../ethernet/mellanox/mlx5/core/fpga/conn.c   | 10 +--
+ .../ethernet/mellanox/mlx5/core/fpga/core.h   |  2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/mr.c  | 27 +++---
+ .../mellanox/mlx5/core/steering/dr_icm_pool.c | 10 +--
+ .../mellanox/mlx5/core/steering/dr_send.c     | 11 ++-
+ .../mellanox/mlx5/core/steering/dr_types.h    |  2 +-
+ drivers/vdpa/mlx5/core/mlx5_vdpa.h            |  8 +-
+ drivers/vdpa/mlx5/core/mr.c                   |  8 +-
+ drivers/vdpa/mlx5/core/resources.c            | 13 +--
+ drivers/vdpa/mlx5/net/mlx5_vnet.c             |  2 +-
+ include/linux/mlx5/driver.h                   | 30 ++-----
+ 25 files changed, 147 insertions(+), 195 deletions(-)
+
+-- 
+2.31.1
 
 _______________________________________________
 Virtualization mailing list
