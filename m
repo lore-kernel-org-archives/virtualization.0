@@ -2,108 +2,97 @@ Return-Path: <SRS0=TY3O=PA=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27FCEC433F5
-	for <virtualization@archiver.kernel.org>; Tue, 12 Oct 2021 04:06:55 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4134FC433EF
+	for <virtualization@archiver.kernel.org>; Tue, 12 Oct 2021 05:36:05 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C5A5F61039
-	for <virtualization@archiver.kernel.org>; Tue, 12 Oct 2021 04:06:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org C5A5F61039
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id D1CD660F38
+	for <virtualization@archiver.kernel.org>; Tue, 12 Oct 2021 05:36:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D1CD660F38
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 787824020E;
-	Tue, 12 Oct 2021 04:06:54 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8CBE66077C;
+	Tue, 12 Oct 2021 05:36:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dOljkRdWH1dN; Tue, 12 Oct 2021 04:06:53 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zk63Vsr-FxlN; Tue, 12 Oct 2021 05:36:03 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D2EC8401B0;
-	Tue, 12 Oct 2021 04:06:52 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 8A34960718;
+	Tue, 12 Oct 2021 05:36:02 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B30CAC000F;
-	Tue, 12 Oct 2021 04:06:52 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C004EC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 504D2C000F;
+	Tue, 12 Oct 2021 05:36:02 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4380EC000D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Oct 2021 04:06:51 +0000 (UTC)
+ Tue, 12 Oct 2021 05:35:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id AF35280EFF
+ by smtp3.osuosl.org (Postfix) with ESMTP id 174586071D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Oct 2021 04:06:51 +0000 (UTC)
+ Tue, 12 Oct 2021 05:35:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MKiD5ufIAFTa
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id LDPRSwZIilHF
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Oct 2021 04:06:50 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id C46D880EFE
+ Tue, 12 Oct 2021 05:35:57 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from casper.infradead.org (casper.infradead.org
+ [IPv6:2001:8b0:10b:1236::1])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 89F3160718
  for <virtualization@lists.linux-foundation.org>;
- Tue, 12 Oct 2021 04:06:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1634011609;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=FEEfo6/fO7vnWVX0k3aMZCS0u4yEik1OBiwvcb73+bY=;
- b=FPbU+P6tSKHSY4qjkj0aQ/7vc9+JDuSk/msl8vGsZLE28nKjkyNRFqSGcuv3eYFHbgnqii
- HFx3MiEwr+QGmJqjgAl0zp/BvUjJ2IpiK47PuZNTCvVGWP6itbSVQWp8PENRZc08w+RDSa
- 7wC+wzqpb5/6L+RO/QUql7qvKzxb/qc=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-421-4qCEWfWfPYS5pYK11jRJkw-1; Tue, 12 Oct 2021 00:06:35 -0400
-X-MC-Unique: 4qCEWfWfPYS5pYK11jRJkw-1
-Received: by mail-lf1-f72.google.com with SMTP id
- g9-20020a0565123b8900b003f33a027130so14183463lfv.18
- for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Oct 2021 21:06:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc:content-transfer-encoding;
- bh=FEEfo6/fO7vnWVX0k3aMZCS0u4yEik1OBiwvcb73+bY=;
- b=yXVo1sCfVHkfEArP53DMqtHQTFqOniUhmmZbls/OlIHVHMILSIQWJiUB3n3/iNCFs6
- Z2E5aHv37poViT3e4uQTg2Tp3LOoRayXKcS6Ja9IgVa5zqM9gkMIGTuPeNWuTPQ/H78r
- Do9vrZMgQJUOgblhf5XLWiIrkX3yLEAqpqNhy7UJa2kFhp8ZcKhgmNWeA5p/xnKb222R
- Dab9jDivXq7VeU73r15YWQ9j6BSq09qmIIg3UUB6usWb476DJEjwMJUVhYAZE069oIqP
- 1q404inUHibLUwK1ltL0CEfqVuGSG76WARewwWDTtOCx7I6OOpgOiEGIJNV2ENObObfC
- n85Q==
-X-Gm-Message-State: AOAM530ke6B8Yvk3c3XzVwV+t4nIj5PVLqg1o2lXC5fU+VVHnxv2p/SP
- fj5VgBxn5q9xALlcTlgpa5q7CBfDRpusV9epxtxMpN0FrGzpo1Sg20+9Mk+mzmY/gqDKqvEjP1r
- igYQfogrPDgAmxR3lGgy2Mg5+aAK4iCgDduKMJRRLtz39O34zbuuDzrZptA==
-X-Received: by 2002:a2e:5c8:: with SMTP id 191mr7851180ljf.107.1634011593799; 
- Mon, 11 Oct 2021 21:06:33 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzT2mncpArnx1I4VGQ2+qfICD/ll4RDk/14xrqiwVrrF92XtuUcahJCyNw/3aVVN3pnra8I4t/Lc6MRY/KUQOA=
-X-Received: by 2002:a2e:5c8:: with SMTP id 191mr7851162ljf.107.1634011593595; 
- Mon, 11 Oct 2021 21:06:33 -0700 (PDT)
+ Tue, 12 Oct 2021 05:35:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=BSSAC90BiE8gg+UZzsBqoP8nG2ttujvFSkUF5owSkxY=; b=MzXQA4NAznHV2pOmBegGNgm87K
+ oVvwG/zN+yRPIuuYShlDqNtJYhMRNhkmqMZWNbAGWU49/Nv/2aW0znA9f/78BPDOtCjiwwQ83WulP
+ TkiMflpjzdtJOgE6ux0vY80O5LkHY9rVp+YfZ6ERYdw9pl5b/phfUwwQuVO1nW524yrgR9bXDK52v
+ iQtcN1C4SwI2Vszu9JjLlNiMm+aYLX8nchJCdIvnJjMHdYZXD6DxxaeOfocpJDQv2kd3vaGZaz7xA
+ GdpMpGjxJoO6YOsVq7aZSRDvbAsE3E77p4d3rWhsorSBG3Ni1XElTYbf6rNlFf7ZzoRSfhDeAHUYF
+ e3s2gKcw==;
+Received: from hch by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat
+ Linux)) id 1maANi-006Ezp-GU; Tue, 12 Oct 2021 05:31:43 +0000
+Date: Tue, 12 Oct 2021 06:31:18 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v5 12/16] PCI: Add pci_iomap_host_shared(),
+ pci_iomap_host_shared_range()
+Message-ID: <YWUdpik4SP/7QlbN@infradead.org>
+References: <20211009003711.1390019-1-sathyanarayanan.kuppuswamy@linux.intel.com>
+ <20211009003711.1390019-13-sathyanarayanan.kuppuswamy@linux.intel.com>
+ <YWPunfa+WK86Cgnv@infradead.org>
+ <a070274e-6a3a-fb0a-68ff-d320d0729377@linux.intel.com>
+ <20211011142956-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-References: <20211001070603.307037-1-eperezma@redhat.com>
- <9f438a35-a5ff-1891-24e6-dd11d1a3bba6@redhat.com>
-In-Reply-To: <9f438a35-a5ff-1891-24e6-dd11d1a3bba6@redhat.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 12 Oct 2021 12:06:17 +0800
-Message-ID: <CACGkMEvQrJKYZ_xm+f5saZwd7jkYcDOdhNQXwHPU1PvGjGCFLA@mail.gmail.com>
-Subject: Re: [RFC PATCH v4 00/20] vDPA shadow virtqueue
-To: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- qemu-devel <qemu-devel@nongnu.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: Parav Pandit <parav@mellanox.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Markus Armbruster <armbru@redhat.com>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Harpreet Singh Anand <hanand@xilinx.com>, Xiao W Wang <xiao.w.wang@intel.com>,
- Stefan Hajnoczi <stefanha@redhat.com>, Eli Cohen <eli@mellanox.com>,
- Eric Blake <eblake@redhat.com>, Michael Lilja <ml@napatech.com>
+Content-Disposition: inline
+In-Reply-To: <20211011142956-mutt-send-email-mst@kernel.org>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
+ casper.infradead.org. See http://www.infradead.org/rpr.html
+Cc: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>,
+ Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, linux-pci@vger.kernel.org,
+ linux-mips@vger.kernel.org,
+ James E J Bottomley <James.Bottomley@hansenpartnership.com>,
+ Dave Hansen <dave.hansen@intel.com>, Peter H Anvin <hpa@zytor.com>,
+ sparclinux@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+ Andrea Arcangeli <aarcange@redhat.com>, Andi Kleen <ak@linux.intel.com>,
+ Jonathan Corbet <corbet@lwn.net>, Helge Deller <deller@gmx.de>, x86@kernel.org,
+ Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+ linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+ Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@alien8.de>,
+ Andy Lutomirski <luto@kernel.org>, Josh Poimboeuf <jpoimboe@redhat.com>,
+ Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>,
+ virtualization@lists.linux-foundation.org, Richard Henderson <rth@twiddle.net>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-parisc@vger.kernel.org,
+ Sean Christopherson <seanjc@google.com>, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
+ Paolo Bonzini <pbonzini@redhat.com>, "David S . Miller" <davem@davemloft.net>,
+ Kirill Shutemov <kirill.shutemov@linux.intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,56 +104,20 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVHVlLCBPY3QgMTIsIDIwMjEgYXQgMTE6NTkgQU0gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVk
-aGF0LmNvbT4gd3JvdGU6Cj4KPgo+IOWcqCAyMDIxLzEwLzEg5LiL5Y2IMzowNSwgRXVnZW5pbyBQ
-w6lyZXog5YaZ6YGTOgo+ID4gVGhpcyBzZXJpZXMgZW5hYmxlIHNoYWRvdyB2aXJ0cXVldWUgKFNW
-USkgZm9yIHZob3N0LXZkcGEgZGV2aWNlcy4gVGhpcwo+ID4gaXMgaW50ZW5kZWQgYXMgYSBuZXcg
-bWV0aG9kIG9mIHRyYWNraW5nIHRoZSBtZW1vcnkgdGhlIGRldmljZXMgdG91Y2gKPiA+IGR1cmlu
-ZyBhIG1pZ3JhdGlvbiBwcm9jZXNzOiBJbnN0ZWFkIG9mIHJlbGF5IG9uIHZob3N0IGRldmljZSdz
-IGRpcnR5Cj4gPiBsb2dnaW5nIGNhcGFiaWxpdHksIFNWUSBpbnRlcmNlcHRzIHRoZSBWUSBkYXRh
-cGxhbmUgZm9yd2FyZGluZyB0aGUKPiA+IGRlc2NyaXB0b3JzIGJldHdlZW4gVk0gYW5kIGRldmlj
-ZS4gVGhpcyB3YXkgcWVtdSBpcyB0aGUgZWZmZWN0aXZlCj4gPiB3cml0ZXIgb2YgZ3Vlc3RzIG1l
-bW9yeSwgbGlrZSBpbiBxZW11J3MgdmlydGlvIGRldmljZSBvcGVyYXRpb24uCj4gPgo+ID4gV2hl
-biBTVlEgaXMgZW5hYmxlZCBxZW11IG9mZmVycyBhIG5ldyB2cmluZyB0byB0aGUgZGV2aWNlIHRv
-IHJlYWQKPiA+IGFuZCB3cml0ZSBpbnRvLCBhbmQgYWxzbyBpbnRlcmNlcHRzIGtpY2tzIGFuZCBj
-YWxscyBiZXR3ZWVuIHRoZSBkZXZpY2UKPiA+IGFuZCB0aGUgZ3Vlc3QuIFVzZWQgYnVmZmVycyBy
-ZWxheSB3b3VsZCBjYXVzZSBkaXJ0eSBtZW1vcnkgYmVpbmcKPiA+IHRyYWNrZWQsIGJ1dCBhdCB0
-aGlzIFJGQyBTVlEgaXMgbm90IGVuYWJsZWQgb24gbWlncmF0aW9uIGF1dG9tYXRpY2FsbHkuCj4g
-Pgo+ID4gSXQgaXMgYmFzZWQgb24gdGhlIGlkZWFzIG9mIERQREsgU1cgYXNzaXN0ZWQgTE0sIGlu
-IHRoZSBzZXJpZXMgb2YKPiA+IERQREsncyBodHRwczovL3BhdGNod29yay5kcGRrLm9yZy9jb3Zl
-ci80ODM3MC8gLiBIb3dldmVyLCB0aGVzZSBkb2VzCj4gPiBub3QgbWFwIHRoZSBzaGFkb3cgdnEg
-aW4gZ3Vlc3QncyBWQSwgYnV0IGluIHFlbXUncy4KPiA+Cj4gPiBGb3IgcWVtdSB0byB1c2Ugc2hh
-ZG93IHZpcnRxdWV1ZXMgdGhlIGd1ZXN0IHZpcnRpbyBkcml2ZXIgbXVzdCBub3QgdXNlCj4gPiBm
-ZWF0dXJlcyBsaWtlIGV2ZW50X2lkeCBvciBpbmRpcmVjdCBkZXNjcmlwdG9ycy4gVGhlc2UgbGlt
-aXRhdGlvbnMgd2lsbAo+ID4gYmUgYWRkcmVzc2VkIGluIGxhdGVyIHNlcmllcywgYnV0IHRoZXkg
-YXJlIGxlZnQgb3V0IGZvciBzaW1wbGljaXR5IGF0Cj4gPiB0aGUgbW9tZW50Lgo+ID4KPiA+IFNW
-USBuZWVkcyB0byBiZSBlbmFibGVkIHdpdGggUU1QIGNvbW1hbmQ6Cj4gPgo+ID4geyAiZXhlY3V0
-ZSI6ICJ4LXZob3N0LWVuYWJsZS1zaGFkb3ctdnEiLAo+ID4gICAgICAgICJhcmd1bWVudHMiOiB7
-ICJuYW1lIjogImRldjAiLCAiZW5hYmxlIjogdHJ1ZSB9IH0KPiA+Cj4gPiBUaGlzIHNlcmllcyBp
-bmNsdWRlcyBzb21lIHBhdGNoZXMgdG8gZGVsZXRlIGluIHRoZSBmaW5hbCB2ZXJzaW9uIHRoYXQK
-PiA+IGhlbHBzIHdpdGggaXRzIHRlc3RpbmcuIFRoZSBmaXJzdCB0d28gb2YgdGhlIHNlcmllcyBm
-cmVlbHkgaW1wbGVtZW50cwo+ID4gdGhlIGZlYXR1cmUgdG8gc3RvcCB0aGUgZGV2aWNlIGFuZCBi
-ZSBhYmxlIHRvIHJldHJpZXZlIGl0cyBzdGF0dXMuIEl0J3MKPiA+IGludGVuZGVkIHRvIGJlIHVz
-ZWQgd2l0aCB2cF92cGRhIGRyaXZlciBpbiBhIG5lc3RlZCBlbnZpcm9ubWVudC4gVGhpcwo+ID4g
-ZHJpdmVyIGFsc28gbmVlZCBtb2RpZmljYXRpb25zIHRvIGZvcndhcmQgdGhlIG5ldyBzdGF0dXMg
-Yml0Lgo+ID4KPiA+IFBhdGNoZXMgMi04IHByZXBhcmVzIHRoZSBTVlEgYW5kIFFNUCBjb21tYW5k
-IHRvIHN1cHBvcnQgZ3Vlc3QgdG8gaG9zdAo+ID4gbm90aWZpY2F0aW9ucyBmb3J3YXJkaW5nLiBJ
-ZiB0aGUgU1ZRIGlzIGVuYWJsZWQgd2l0aCB0aGVzZSBvbmVzCj4gPiBhcHBsaWVkIGFuZCB0aGUg
-ZGV2aWNlIHN1cHBvcnRzIGl0LCB0aGF0IHBhcnQgY2FuIGJlIHRlc3RlZCBpbgo+ID4gaXNvbGF0
-aW9uIChmb3IgZXhhbXBsZSwgd2l0aCBuZXR3b3JraW5nKSwgaG9wcGluZyB0aHJvdWdoIFNWUS4K
-PiA+Cj4gPiBTYW1lIHRoaW5nIGlzIHRydWUgd2l0aCBwYXRjaGVzIDktMTMsIGJ1dCB3aXRoIGRl
-dmljZSB0byBndWVzdAo+ID4gbm90aWZpY2F0aW9ucy4KPiA+Cj4gPiBUaGUgcmVzdCBvZiB0aGUg
-cGF0Y2hlcyBpbXBsZW1lbnRzIHRoZSBhY3R1YWwgYnVmZmVyIGZvcndhcmRpbmcuCj4gPgo+ID4g
-Q29tbWVudHMgYXJlIHdlbGNvbWUuCj4KPgo+IEhpIEV1Z2VuaW86Cj4KPgo+IEl0IHdvdWxkIGJl
-IGhlbHBmdWwgdG8gaGF2ZSBhIHB1YmxpYyBnaXQgcmVwbyBmb3IgdXMgdG8gZWFzZSB0aGUgcmV2
-aWV3Lgo+Cj4gVGhhbmtzCj4KCkJ0dywgd2UgYWxzbyBuZWVkIHRvIG1lYXN1cmUgdGhlIHBlcmZv
-cm1hbmNlIGltcGFjdCBvZiB0aGUgc2hhZG93IHZpcnRxdWV1ZS4KClRoYW5rcwoKX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFp
-bGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBz
-Oi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0
-aW9u
+On Mon, Oct 11, 2021 at 03:09:09PM -0400, Michael S. Tsirkin wrote:
+> The reason we have trouble is that it's not clear what does the API mean
+> outside the realm of TDX.
+> If we really, truly want an API that says "ioremap and it's a hardened
+> driver" then I guess ioremap_hardened_driver is what you want.
+
+Yes.  And why would be we ioremap the BIOS anyway?  It is not I/O memory
+in any of the senses we generally use ioremap for.
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
