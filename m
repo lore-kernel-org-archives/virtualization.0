@@ -1,129 +1,110 @@
-Return-Path: <SRS0=jkwN=O7=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=TY3O=PA=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77D14C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 11 Oct 2021 19:09:24 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C395FC433F5
+	for <virtualization@archiver.kernel.org>; Tue, 12 Oct 2021 02:44:20 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2C8A66103C
-	for <virtualization@archiver.kernel.org>; Mon, 11 Oct 2021 19:09:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 2C8A66103C
+	by mail.kernel.org (Postfix) with ESMTPS id 6C12A60296
+	for <virtualization@archiver.kernel.org>; Tue, 12 Oct 2021 02:44:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 6C12A60296
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id EE6C1608DB;
-	Mon, 11 Oct 2021 19:09:23 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1C5FF40332;
+	Tue, 12 Oct 2021 02:44:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sQubz6mygTKW; Mon, 11 Oct 2021 19:09:23 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7D679608B3;
-	Mon, 11 Oct 2021 19:09:22 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 53D34C000F;
-	Mon, 11 Oct 2021 19:09:22 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DC420C000D
- for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Oct 2021 19:09:20 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id CB080404A2
- for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Oct 2021 19:09:20 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id W4CzkAut1tmp
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id KQ6PZ1leQjuT; Tue, 12 Oct 2021 02:44:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A713F402E7;
+	Tue, 12 Oct 2021 02:44:18 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7AA62C0011;
+	Tue, 12 Oct 2021 02:44:18 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 60088C000D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Oct 2021 19:09:20 +0000 (UTC)
+ Tue, 12 Oct 2021 02:44:17 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 328E8401A3
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 12 Oct 2021 02:44:17 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id oPGlAOugOU9l
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 12 Oct 2021 02:44:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 1E39740322
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id EED08401A2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Oct 2021 19:09:19 +0000 (UTC)
+ Tue, 12 Oct 2021 02:44:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1633979359;
+ s=mimecast20190719; t=1634006653;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=oZEQAOmKk6R+KRX2BzvVHC2H3CodKlCG/yzYUUC2zJA=;
- b=KwudnqNUzol5PC2894sI4uG23yAdPLAGs9D71BmLU2f1sO67SCq5ezRs0ddtPX9/roDXEF
- vt9nC3FQ5vwzV7E6nGWRVu2CNYq4TnGDtZMJE4zgfTsYOl7q+k/xB7cgf8kFOLjHHqYvk1
- g2bK/LrvgBfhbsZqn5BVXa5zWqitjnA=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-310-SK3z9U7vNw2uTgcb_4eXLQ-1; Mon, 11 Oct 2021 15:09:17 -0400
-X-MC-Unique: SK3z9U7vNw2uTgcb_4eXLQ-1
-Received: by mail-ed1-f69.google.com with SMTP id
- l10-20020a056402230a00b003db6977b694so8377247eda.23
+ bh=2fREGIk8jReLlGTNXAectxIpYSI3IYPQI22eSOPGC+M=;
+ b=fpwk6oEeB2i2yFqDYHc9kPm93TDefJsORNUKoQmITKTNzo6/np1cWgMMm8MdUkTiVfOGzm
+ h31zpHAX6LoRBaRazCZkRq3/dNFgAX7aY9FhA2p7/mMFB1q6gPkhLptQFxJN9O3TSLgg5G
+ v5vK4rv6MLHWWQayiNCdFPCUA3TvvVg=
+Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
+ [209.85.167.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-27-YA7UwJTQN0iIgvnJgVT3eA-1; Mon, 11 Oct 2021 22:44:10 -0400
+X-MC-Unique: YA7UwJTQN0iIgvnJgVT3eA-1
+Received: by mail-lf1-f69.google.com with SMTP id
+ bt36-20020a056512262400b003fd7e6a96e8so5517319lfb.19
  for <virtualization@lists.linux-foundation.org>;
- Mon, 11 Oct 2021 12:09:17 -0700 (PDT)
+ Mon, 11 Oct 2021 19:44:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=oZEQAOmKk6R+KRX2BzvVHC2H3CodKlCG/yzYUUC2zJA=;
- b=2I/lJMbjSx6bDLGhOmtQiUhbFx/mhEwEn+IvENC4veI2so1Nfo1wsCRrqNUiciVMqU
- FW8vDf8tLpDltIboWBIq01Sy+sySoivmMOv+yfCPcM5p5cg1kaUOuxgT97VjWsqgiCcC
- E+DjhUA/RA6Y61Kvn6K74eiCQzIPvDqnzBsVfdjvEkDJYNlOHFe3G7jVpH7txJqG5Ti4
- ugXXccpa0wnEhhu+nPFadNmXflddJ3X5dPEtRMqx16QY9TGc0gZkqlkYJCAuy5rnkXuL
- S3XhHigUpp/f2NNGNhRy2m3JEVGYB/XnTR3ZEoKWFIiG8Yvu/xTkgbR6YgkQ9kmL2i2n
- R9bg==
-X-Gm-Message-State: AOAM531ScXTrYaOMMVBEN8gjCsRdXt62iDsqHfB/wc79KJB2PUIhKl1K
- tQGEgxOBxgpfgRNHqWUX6iyHKST9eg+jQstFAiqUE+A+jylAg/jqz0yMXjpThWGOxuSIp/By2hN
- xCUwjCsSlME+/w8cwetGK3GqLu0TLyWksjC6VIitndg==
-X-Received: by 2002:aa7:c38b:: with SMTP id k11mr4113148edq.79.1633979356728; 
- Mon, 11 Oct 2021 12:09:16 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwGboOz6J9azwkeciPdL9sKClCOiUS/XGJc/PjIe5OTL3dASYPSk/hflbIEKyA9zwBTklJK0A==
-X-Received: by 2002:aa7:c38b:: with SMTP id k11mr4113103edq.79.1633979356541; 
- Mon, 11 Oct 2021 12:09:16 -0700 (PDT)
-Received: from redhat.com ([2.55.159.57])
- by smtp.gmail.com with ESMTPSA id z4sm5250327edd.46.2021.10.11.12.09.11
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 11 Oct 2021 12:09:15 -0700 (PDT)
-Date: Mon, 11 Oct 2021 15:09:09 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Andi Kleen <ak@linux.intel.com>
-Subject: Re: [PATCH v5 12/16] PCI: Add pci_iomap_host_shared(),
- pci_iomap_host_shared_range()
-Message-ID: <20211011142956-mutt-send-email-mst@kernel.org>
-References: <20211009003711.1390019-1-sathyanarayanan.kuppuswamy@linux.intel.com>
- <20211009003711.1390019-13-sathyanarayanan.kuppuswamy@linux.intel.com>
- <YWPunfa+WK86Cgnv@infradead.org>
- <a070274e-6a3a-fb0a-68ff-d320d0729377@linux.intel.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=2fREGIk8jReLlGTNXAectxIpYSI3IYPQI22eSOPGC+M=;
+ b=TRcwQ9Hh7goddZOY+FSlNVX2/PK+7B1eCxC/lj+/AK2TK9z/RCLLFI0Y6uDexrNRRv
+ vxK5EDVvKVU8TcNvCNixzs8QSWKZLtNWKJiIXiuZ4IoSKD5SIFvWDqhCBtkCKN+QYqDU
+ lxsCYD51h+pI3xuZ12LV6bY4KnuB+8KQavdqrUh9t99LuQUQFRoxY5ECp//EhlaIExm0
+ pesLEzsYLcVRvndLG4w7XEx1ADHYNKX5u5u0LQSDyaHRJaggtY21kJlq+IpDbUgGxuGc
+ K1VYhsi8gQipW4g2jw+Pu/F3tKWjeLQcKLYQgucGeWt1psNBDWM7mfXTqO1lulklT5Im
+ T4cQ==
+X-Gm-Message-State: AOAM530hjyvk/QfMpZIE6rqB1QdtG+ZGVQXjXVaJS78wEOBgnmArwcQp
+ ZhOFLUfKc7UrefwVbzTQy7DZtrA74F5NleyI1Hs8lt/y97G1LDfDYc/GguuxAiRvUuqf3csiwew
+ Xod7ji9N4LeXS+MyI3BBpeuC+n+VTBB75zRTxq/QQUD4bH7mNJTODTqu/zw==
+X-Received: by 2002:a05:6512:3b22:: with SMTP id
+ f34mr29419442lfv.629.1634006648603; 
+ Mon, 11 Oct 2021 19:44:08 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzyx/KLlNrfkt0VZFwEzX8ZyEI7j45+2mfl4fPCObn1at2NnMfMijAQfk9/2snYOZBE/4Ph6vOTEckI0S3tYRs=
+X-Received: by 2002:a05:6512:3b22:: with SMTP id
+ f34mr29419417lfv.629.1634006648300; 
+ Mon, 11 Oct 2021 19:44:08 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <a070274e-6a3a-fb0a-68ff-d320d0729377@linux.intel.com>
+References: <20210913055353.35219-1-jasowang@redhat.com>
+ <20211005032924-mutt-send-email-mst@kernel.org>
+ <CACGkMEuQU6jXV_D5QvE29mX9spF6KcyrCDuvVwX99_jSf-x7fQ@mail.gmail.com>
+ <20211011082640-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20211011082640-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 12 Oct 2021 10:43:57 +0800
+Message-ID: <CACGkMEtwAFy=bm62X+rjPMJEwChAhZkZ2bBwDJPULdzhWdzagA@mail.gmail.com>
+Subject: Re: [PATCH 0/9] More virtio hardening
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>,
- Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, linux-pci@vger.kernel.org,
- linux-mips@vger.kernel.org,
- James E J Bottomley <James.Bottomley@hansenpartnership.com>,
- Dave Hansen <dave.hansen@intel.com>, Peter H Anvin <hpa@zytor.com>,
- sparclinux@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
- Andrea Arcangeli <aarcange@redhat.com>, Jonathan Corbet <corbet@lwn.net>,
- Helge Deller <deller@gmx.de>, x86@kernel.org,
- Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
- linux-arch@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
- Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@alien8.de>,
- Andy Lutomirski <luto@kernel.org>, Josh Poimboeuf <jpoimboe@redhat.com>,
- Bjorn Helgaas <bhelgaas@google.com>, Thomas Gleixner <tglx@linutronix.de>,
- virtualization@lists.linux-foundation.org, Richard Henderson <rth@twiddle.net>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, linux-parisc@vger.kernel.org,
- Sean Christopherson <seanjc@google.com>, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-alpha@vger.kernel.org,
- Paolo Bonzini <pbonzini@redhat.com>, "David S . Miller" <davem@davemloft.net>,
- Kirill Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Hetzelt,
+ Felicitas" <f.hetzelt@tu-berlin.de>,
+ linux-kernel <linux-kernel@vger.kernel.org>, "kaplan,
+ david" <david.kaplan@amd.com>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -140,33 +121,131 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Oct 11, 2021 at 10:23:00AM -0700, Andi Kleen wrote:
-> 
-> On 10/11/2021 12:58 AM, Christoph Hellwig wrote:
-> > Just as last time:  This does not make any sense.  ioremap is shared
-> > by definition.
-> 
-> It's not necessarily shared with the host for confidential computing: for
-> example BIOS mappings definitely should not be shared, but they're using
-> ioremap today.
+On Mon, Oct 11, 2021 at 8:36 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Mon, Oct 11, 2021 at 03:36:51PM +0800, Jason Wang wrote:
+> > On Tue, Oct 5, 2021 at 3:42 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > >
+> > > On Mon, Sep 13, 2021 at 01:53:44PM +0800, Jason Wang wrote:
+> > > > Hi All:
+> > > >
+> > > > This series treis to do more hardening for virito.
+> > > >
+> > > > patch 1 validates the num_queues for virio-blk device.
+> > > > patch 2-4 validates max_nr_ports for virito-console device.
+> > > > patch 5-7 harden virtio-pci interrupts to make sure no exepcted
+> > > > interrupt handler is tiggered. If this makes sense we can do similar
+> > > > things in other transport drivers.
+> > > > patch 8-9 validate used ring length.
+> > > >
+> > > > Smoking test on blk/net with packed=on/off and iommu_platform=on/off.
+> > > >
+> > > > Please review.
+> > > >
+> > > > Thanks
+> > >
+> > > So I poked at console at least, and I think I see
+> > > an issue: if interrupt handler queues a work/bh,
+> > > then it can still run while reset is in progress.
+> >
+> > Looks like a bug which is unrelated to the hardening?
+>
+> Won't preventing use after free be relevant?
 
-That just needs to be fixed.
+Oh right.
 
-> But if you have a better term please propose something. I tried to clarify
-> it with "shared_host", but I don't know a better term.
-> 
-> 
-> -Andi
-> 
+> I frankly don't know what does hardening means then.
+> > E.g the driver
+> > should sync with work/bh before reset.
+>
+> No, there's no way to fix it ATM without extra locks and state which I
+> think we should strive to avoid or make it generic, not per-driver,
+> since sync before reset is useless, new interrupts will just arrive and
+> queue more work. And a sync after reset is too late since driver will
+> try to add buffers.
 
+Can we do something like
 
-The reason we have trouble is that it's not clear what does the API mean
-outside the realm of TDX.
-If we really, truly want an API that says "ioremap and it's a hardened
-driver" then I guess ioremap_hardened_driver is what you want.
+1) disable interrupt
+2) sync bh
 
--- 
-MST
+Or I guess this is somehow you meant in the following steps.
+
+>
+> Maybe we can break device. Two issues with that
+> - drivers might not be ready to handle add_buf failures
+> - restore needs to unbreak then and we don't have a way to do that yet
+>
+> So .. careful reading of all device drivers and hoping we don't mess
+> things up even more ... here we come.
+
+Yes.
+
+>
+> > >
+> > > I sent a patch to fix it for console removal specifically,
+> > > but I suspect it's not enough e.g. freeze is still broken.
+> > > And note this has been reported without any TDX things -
+> > > it's not a malicious device issue, can be triggered just
+> > > by module unload.
+> > >
+> > > I am vaguely thinking about new APIs to disable/enable callbacks.
+> > > An alternative:
+> > >
+> > > 1. adding new remove_nocb/freeze_nocb calls
+> > > 2. disabling/enabling interrupts automatically around these
+> > > 3. gradually moving devices to using these
+> > > 4. once/if all device move, removing the old callbacks
+> > >
+> > > the advantage here is that we'll be sure calls are always
+> > > paired correctly.
+> >
+> > I'm not sure I get the idea, but my feeling is that it doesn't
+> > conflict with the interrupt hardening here (or at least the same
+> > method is required e.g NO_AUTO_EN).
+> >
+> > Thanks
+>
+> Right.  It's not that it conflicts, it's that I was hoping that
+> since you are working on hardening you can take up fixing that.
+> Let me know whether you have the time. Thanks!
+
+I can do that.
+
+Thanks
+
+>
+> > >
+> > >
+> > >
+> > >
+> > >
+> > > > Jason Wang (9):
+> > > >   virtio-blk: validate num_queues during probe
+> > > >   virtio: add doc for validate() method
+> > > >   virtio-console: switch to use .validate()
+> > > >   virtio_console: validate max_nr_ports before trying to use it
+> > > >   virtio_config: introduce a new ready method
+> > > >   virtio_pci: harden MSI-X interrupts
+> > > >   virtio-pci: harden INTX interrupts
+> > > >   virtio_ring: fix typos in vring_desc_extra
+> > > >   virtio_ring: validate used buffer length
+> > > >
+> > > >  drivers/block/virtio_blk.c         |  3 +-
+> > > >  drivers/char/virtio_console.c      | 51 +++++++++++++++++++++---------
+> > > >  drivers/virtio/virtio_pci_common.c | 43 +++++++++++++++++++++----
+> > > >  drivers/virtio/virtio_pci_common.h |  7 ++--
+> > > >  drivers/virtio/virtio_pci_legacy.c |  5 +--
+> > > >  drivers/virtio/virtio_pci_modern.c |  6 ++--
+> > > >  drivers/virtio/virtio_ring.c       | 27 ++++++++++++++--
+> > > >  include/linux/virtio.h             |  1 +
+> > > >  include/linux/virtio_config.h      |  6 ++++
+> > > >  9 files changed, 118 insertions(+), 31 deletions(-)
+> > > >
+> > > > --
+> > > > 2.25.1
+> > >
+>
 
 _______________________________________________
 Virtualization mailing list
