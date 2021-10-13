@@ -2,111 +2,108 @@ Return-Path: <SRS0=kx+w=PB=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC0B4C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 13 Oct 2021 12:25:05 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2FC0C433F5
+	for <virtualization@archiver.kernel.org>; Wed, 13 Oct 2021 12:34:15 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 85E6560E09
-	for <virtualization@archiver.kernel.org>; Wed, 13 Oct 2021 12:25:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 85E6560E09
+	by mail.kernel.org (Postfix) with ESMTPS id 97D9E610D0
+	for <virtualization@archiver.kernel.org>; Wed, 13 Oct 2021 12:34:15 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 97D9E610D0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 440E6404E5;
-	Wed, 13 Oct 2021 12:25:05 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6544A80CE1;
+	Wed, 13 Oct 2021 12:34:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tHgZXCpNVN0B; Wed, 13 Oct 2021 12:25:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 8E08F404D1;
-	Wed, 13 Oct 2021 12:25:03 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id B4afCYvqlRDv; Wed, 13 Oct 2021 12:34:14 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 0B0AB80CD6;
+	Wed, 13 Oct 2021 12:34:14 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 55FCDC000F;
-	Wed, 13 Oct 2021 12:25:03 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9B9FBC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D55A7C000F;
+	Wed, 13 Oct 2021 12:34:13 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5B527C000D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Oct 2021 12:25:02 +0000 (UTC)
+ Wed, 13 Oct 2021 12:34:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9760F405DA
+ by smtp4.osuosl.org (Postfix) with ESMTP id 4AE99406CF
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Oct 2021 12:25:02 +0000 (UTC)
+ Wed, 13 Oct 2021 12:34:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id P9uDTTHY2wUg
+ with ESMTP id LTG9N7P7b7fK
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Oct 2021 12:25:01 +0000 (UTC)
+ Wed, 13 Oct 2021 12:34:11 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id C4E95405D5
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 76E35406CC
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Oct 2021 12:25:01 +0000 (UTC)
+ Wed, 13 Oct 2021 12:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1634127900;
+ s=mimecast20190719; t=1634128450;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=3NtOzxvADTQDRxUqq39GhmNI5frCiu0QqcftxeM4E6Y=;
- b=SFwK9pKjAHMDjMRTHhl+c0Xr1vH2exLwb6yUmMcmAK5JdK8r2vnVz90Res9Ve2SiXRcvSh
- dZHH+MPuDKgIOmj40Rp3k8IJrTIROJ9+G0VitQXBF6Equ9QGobxGbIcLyqKDdz3VfQa9MD
- OYWufBnUKCZHFRJxg1/1xKjaVdCHB3s=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-323-qmu_-lG5O6i8Txi716F1bQ-1; Wed, 13 Oct 2021 08:24:59 -0400
-X-MC-Unique: qmu_-lG5O6i8Txi716F1bQ-1
-Received: by mail-wr1-f70.google.com with SMTP id
- r16-20020adfbb10000000b00160958ed8acso1813302wrg.16
+ bh=d84AXMduXw/8Km/NIT8YUkLd6M81nYmWKKr313pRpIo=;
+ b=YEj/7fc64EDjMrfv9AUNg/tapWeM1dsijQktvQnlxz+XVlcXcj5VuOlT7PpR8VLvCQPo1T
+ WySw3YYrlvfniNoGOFTk44yreR9l1QFlD2UVS0myxofj6b/HQ7PZdsHLbNvPR+VZMHJ096
+ 5A7YPpqjKAjcGn5MlOveiASJ+DN7Xm8=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-537-pUVNQV88M3KbglbKYGGQtw-1; Wed, 13 Oct 2021 08:34:09 -0400
+X-MC-Unique: pUVNQV88M3KbglbKYGGQtw-1
+Received: by mail-wr1-f69.google.com with SMTP id
+ r16-20020adfb1d0000000b00160bf8972ceso1845646wra.13
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Oct 2021 05:24:59 -0700 (PDT)
+ Wed, 13 Oct 2021 05:34:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=3NtOzxvADTQDRxUqq39GhmNI5frCiu0QqcftxeM4E6Y=;
- b=bFRqpQzgXaxRJWw0zGwjq4zPIC/HWblSSuJ/VGdpxmX6jcSWrnht8EMVXx1RT5u/Xf
- yMx7SD/ju3HFKJzJ9bhLaSP7GlF6aDNVMP4RUlHKxz5pa6+Y56Mcqg/fdo1HJBFv2q7S
- 6LMhug7YVaCpDO5eMnzmbuWPrVe8HysmrDt5PVnaJ/bYJ21e9lxtXaRH40g+8HPrdcEU
- xDMHoCdG8e840uECjFJpKXWMrU4tNTDBcjRC0HoqryiDNBXiJl9NWgVIOR9289GjHAYH
- sj6kgX4Ye/mbEYvEOjOzjXEMTIh7gkRZdehK9OuvQrKOzv9HzfM0UhyVXlOSho4PawQj
- Kw9A==
-X-Gm-Message-State: AOAM532G0FJnjFr6cuwLKL+1SkTWV8lpO0Tp1Q7C247+bngQ8Ilp197r
- gd9w50QlghZGhmB2LGYVvMYYyqFXE04kUanu8yCpeAI4pfmBDJwIT5cvCKsvB4DkWcxteRYMbst
- 3X1N5MEFbh2yaf0G0vfPZcslWUGJZKUySQyvShy3EhA==
-X-Received: by 2002:adf:a455:: with SMTP id e21mr39490166wra.232.1634127898286; 
- Wed, 13 Oct 2021 05:24:58 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyDSFMe16ogpHVDRTaFOz/jIPakQIZOos3qRZcdyyohISEjdGqG71pBPixTxJCG6KjC1I5tyQ==
-X-Received: by 2002:adf:a455:: with SMTP id e21mr39490144wra.232.1634127898093; 
- Wed, 13 Oct 2021 05:24:58 -0700 (PDT)
+ bh=d84AXMduXw/8Km/NIT8YUkLd6M81nYmWKKr313pRpIo=;
+ b=TqwgDfwwnjp/KPVkNcEl1hOZHWKVOLfolnxNzs9jxuRKWp5cofCs++cOsOPM38Weki
+ KlQ9R+hg4hU6ItdhQB6pPWd3m3/90Kbz4EwizcoKuZ747KccUZyFCPV1OyE5ztJrlYL8
+ 8ZMeqA6/jRbdmR7b7qpBtNweX+Vf/z4oA2UR2ze0oY91WncRxahHjUhgxXtBLNue6Zdz
+ s4MMGuCGme8q7rV4Gi5vVY9fvy1YVcUz7ys/n1FVni+6hL6GS/LkvYsghun/E2lHE78w
+ eyGqyeAAcF7/mmV0mKjC0TSH/J0NRZUIRVGVamjdtakRUBPrDSzI6vutKYwQjrKAoypu
+ 6HVw==
+X-Gm-Message-State: AOAM532Zu303REWTGrUKbV7tYVPfLA/cQHsWcx+gV6LxLgFYqKy1qnrJ
+ WSq4gu2e405t/js1ewLBBWdeKNtpvMAb9HutjRTd7uGGFnTAtBrR28h1MwaFIKfR0D6ndNA0WoA
+ /1oC0Vq0DnddqcpqwzZ8aBs8sMiP32kv1lxzNl1az+g==
+X-Received: by 2002:a1c:2904:: with SMTP id p4mr12662216wmp.49.1634128448214; 
+ Wed, 13 Oct 2021 05:34:08 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy8n9NAMz+t0x8zBkvT5LDu1f5qH1sDQrMJVOCWJVJRE/i4NTl67BMompop8PD/BnqoRi241Q==
+X-Received: by 2002:a1c:2904:: with SMTP id p4mr12662190wmp.49.1634128447989; 
+ Wed, 13 Oct 2021 05:34:07 -0700 (PDT)
 Received: from redhat.com ([2.55.30.112])
- by smtp.gmail.com with ESMTPSA id r3sm6850548wrw.55.2021.10.13.05.24.55
+ by smtp.gmail.com with ESMTPSA id z5sm6484694wmp.26.2021.10.13.05.34.06
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 13 Oct 2021 05:24:57 -0700 (PDT)
-Date: Wed, 13 Oct 2021 08:24:53 -0400
+ Wed, 13 Oct 2021 05:34:07 -0700 (PDT)
+Date: Wed, 13 Oct 2021 08:34:04 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v3 1/1] virtio: write back F_VERSION_1 before validate
-Message-ID: <20211013081836-mutt-send-email-mst@kernel.org>
-References: <20211011053921.1198936-1-pasic@linux.ibm.com>
- <20211013060923-mutt-send-email-mst@kernel.org>
- <96561e29-e0d6-9a4d-3657-999bad59914e@de.ibm.com>
+To: Yongji Xie <xieyongji@bytedance.com>
+Subject: Re: [PATCH v2] vduse: Fix race condition between resetting and irq
+ injecting
+Message-ID: <20211013083335-mutt-send-email-mst@kernel.org>
+References: <20210929083050.88-1-xieyongji@bytedance.com>
+ <20211013070657-mutt-send-email-mst@kernel.org>
+ <CACycT3tSP-Vxt_u+ow71ZzxBjKuGycZ1LqUrbjQ6Ew3ehX7kqw@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <96561e29-e0d6-9a4d-3657-999bad59914e@de.ibm.com>
+In-Reply-To: <CACycT3tSP-Vxt_u+ow71ZzxBjKuGycZ1LqUrbjQ6Ew3ehX7kqw@mail.gmail.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: linux-s390@vger.kernel.org, markver@us.ibm.com, qemu-devel@nongnu.org,
- Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Halil Pasic <pasic@linux.ibm.com>, Xie Yongji <xieyongji@bytedance.com>,
- stefanha@redhat.com, Raphael Norwitz <raphael.norwitz@nutanix.com>
+Cc: virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,105 +120,130 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Oct 13, 2021 at 01:23:50PM +0200, Christian Borntraeger wrote:
+On Wed, Oct 13, 2021 at 08:30:40PM +0800, Yongji Xie wrote:
+> On Wed, Oct 13, 2021 at 7:10 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Wed, Sep 29, 2021 at 04:30:50PM +0800, Xie Yongji wrote:
+> > > The interrupt might be triggered after a reset since there is
+> > > no synchronization between resetting and irq injecting.
+> >
+> > In fact, irq_lock is already used to synchronize with
+> > irqs. Why isn't taking and releasing it enough?
+> >
 > 
+> For example:
 > 
-> Am 13.10.21 um 12:10 schrieb Michael S. Tsirkin:
-> > On Mon, Oct 11, 2021 at 07:39:21AM +0200, Halil Pasic wrote:
-> > > The virtio specification virtio-v1.1-cs01 states: "Transitional devices
-> > > MUST detect Legacy drivers by detecting that VIRTIO_F_VERSION_1 has not
-> > > been acknowledged by the driver."  This is exactly what QEMU as of 6.1
-> > > has done relying solely on VIRTIO_F_VERSION_1 for detecting that.
-> > > 
-> > > However, the specification also says: "... the driver MAY read (but MUST
-> > > NOT write) the device-specific configuration fields to check that it can
-> > > support the device ..." before setting FEATURES_OK.
-> > > 
-> > > In that case, any transitional device relying solely on
-> > > VIRTIO_F_VERSION_1 for detecting legacy drivers will return data in
-> > > legacy format.  In particular, this implies that it is in big endian
-> > > format for big endian guests. This naturally confuses the driver which
-> > > expects little endian in the modern mode.
-> > > 
-> > > It is probably a good idea to amend the spec to clarify that
-> > > VIRTIO_F_VERSION_1 can only be relied on after the feature negotiation
-> > > is complete. Before validate callback existed, config space was only
-> > > read after FEATURES_OK. However, we already have two regressions, so
-> > > let's address this here as well.
-> > > 
-> > > The regressions affect the VIRTIO_NET_F_MTU feature of virtio-net and
-> > > the VIRTIO_BLK_F_BLK_SIZE feature of virtio-blk for BE guests when
-> > > virtio 1.0 is used on both sides. The latter renders virtio-blk unusable
-> > > with DASD backing, because things simply don't work with the default.
-> > > See Fixes tags for relevant commits.
-> > > 
-> > > For QEMU, we can work around the issue by writing out the feature bits
-> > > with VIRTIO_F_VERSION_1 bit set.  We (ab)use the finalize_features
-> > > config op for this. This isn't enough to address all vhost devices since
-> > > these do not get the features until FEATURES_OK, however it looks like
-> > > the affected devices actually never handled the endianness for legacy
-> > > mode correctly, so at least that's not a regression.
-> > > 
-> > > No devices except virtio net and virtio blk seem to be affected.
-> > > 
-> > > Long term the right thing to do is to fix the hypervisors.
-> > > 
-> > > Cc: <stable@vger.kernel.org> #v4.11
-> > > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> > > Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
-> > > Fixes: fe36cbe0671e ("virtio_net: clear MTU when out of range")
-> > > Reported-by: markver@us.ibm.com
-> > > Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> > 
-> > OK this looks good! How about a QEMU patch to make it spec compliant on
-> > BE?
+> CPU 0
+>                   CPU1
+> ---------
+>                       --------
+> vduse_dev_ioctl()
+>   check DRIVER_OK
 > 
-> Who is going to do that? Halil? you? Conny?
+>                         vduse_dev_reset()
+> 
+>                           flush_work(&vq->inject);
+>     queue_work(vduse_irq_wq, &vq->inject);
+> 
+>                         virtio_vdpa_probe()
+> 
+>                           virtio_vdpa_find_vqs()
+>    vduse_vq_irq_inject()
+>      vq->cb.callback(vq->cb.private);
+> 
+>                         set DRIVER_OK
+> 
+> In the above case, the irq callback is still triggered before DRIVER_OK is set.
+> 
+> But now I found it seems to be better to just check DRIVER_OK again in
+> vduse_vq_irq_inject().
 
-Halil said he'll do it... Right, Halil?
+And then pesumably make sure each time we set status
+it's done under the irq lock?
 
-> Can we get this kernel patch queued for 5.15 and stable without waiting for the QEMU patch
-> as we have a regression with 4.14?
-
-Probably. Still trying to decide between this and plain revert for 5.15
-and back. Maybe both?
-
-> > 
+> > > And it
+> > > might break something if the interrupt is delayed until a new
+> > > round of device initialization.
+> > >
+> > > Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
+> > > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
 > > > ---
-> > > 
-> > > @Connie: I made some more commit message changes to accommodate Michael's
-> > > requests. I just assumed these will work or you as well and kept your
-> > > r-b. Please shout at me if it needs to be dropped :)
-> > > ---
-> > >   drivers/virtio/virtio.c | 11 +++++++++++
-> > >   1 file changed, 11 insertions(+)
-> > > 
-> > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > > index 0a5b54034d4b..236081afe9a2 100644
-> > > --- a/drivers/virtio/virtio.c
-> > > +++ b/drivers/virtio/virtio.c
-> > > @@ -239,6 +239,17 @@ static int virtio_dev_probe(struct device *_d)
-> > >   		driver_features_legacy = driver_features;
-> > >   	}
-> > > +	/*
-> > > +	 * Some devices detect legacy solely via F_VERSION_1. Write
-> > > +	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
-> > > +	 * these when needed.
-> > > +	 */
-> > > +	if (drv->validate && !virtio_legacy_is_little_endian()
-> > > +			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
-> > > +		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
-> > > +		dev->config->finalize_features(dev);
-> > > +	}
+> > >  drivers/vdpa/vdpa_user/vduse_dev.c | 37 +++++++++++++++++++++++++------------
+> > >  1 file changed, 25 insertions(+), 12 deletions(-)
+> > >
+> > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > index cefb301b2ee4..841667a896dd 100644
+> > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > @@ -80,6 +80,7 @@ struct vduse_dev {
+> > >       struct vdpa_callback config_cb;
+> > >       struct work_struct inject;
+> > >       spinlock_t irq_lock;
+> > > +     struct rw_semaphore rwsem;
+> > >       int minor;
+> > >       bool broken;
+> > >       bool connected;
+> >
+> > What does this lock protect? Use a more descriptive name pls,
+> > and maybe add a comment.
+> >
+> 
+> This lock is used to ensure there is no more inflight irq kwork after reset.
+> 
+> >
+> > > @@ -410,6 +411,8 @@ static void vduse_dev_reset(struct vduse_dev *dev)
+> > >       if (domain->bounce_map)
+> > >               vduse_domain_reset_bounce_map(domain);
+> > >
+> > > +     down_write(&dev->rwsem);
 > > > +
-> > >   	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
-> > >   		dev->features = driver_features & device_features;
-> > >   	else
-> > > 
-> > > base-commit: 60a9483534ed0d99090a2ee1d4bb0b8179195f51
-> > > -- 
-> > > 2.25.1
-> > 
+> > >       dev->status = 0;
+> > >       dev->driver_features = 0;
+> > >       dev->generation++;
+> > > @@ -443,6 +446,8 @@ static void vduse_dev_reset(struct vduse_dev *dev)
+> > >               flush_work(&vq->inject);
+> > >               flush_work(&vq->kick);
+> > >       }
+> > > +
+> > > +     up_write(&dev->rwsem);
+> > >  }
+> > >
+> > >  static int vduse_vdpa_set_vq_address(struct vdpa_device *vdpa, u16 idx,
+> > > @@ -885,6 +890,23 @@ static void vduse_vq_irq_inject(struct work_struct *work)
+> > >       spin_unlock_irq(&vq->irq_lock);
+> > >  }
+> > >
+> > > +static int vduse_dev_queue_irq_work(struct vduse_dev *dev,
+> > > +                                 struct work_struct *irq_work)
+> > > +{
+> > > +     int ret = -EINVAL;
+> > > +
+> > > +     down_read(&dev->rwsem);
+> > > +     if (!(dev->status & VIRTIO_CONFIG_S_DRIVER_OK))
+> > > +             goto unlock;
+> > > +
+> > > +     ret = 0;
+> > > +     queue_work(vduse_irq_wq, irq_work);
+> > > +unlock:
+> > > +     up_read(&dev->rwsem);
+> > > +
+> > > +     return ret;
+> > > +}
+> > > +
+> > >  static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+> > >                           unsigned long arg)
+> > >  {
+> >
+> >
+> > so that's a lot of overhead for an irq.
+> > Normally the way to address races like this is to add
+> > flushing to the reset path, not locking to irq path.
+> >
+> 
+> Yes, we already call flush_work() in the reset path.
+> 
+> Thanks,
+> Yongji
 
 _______________________________________________
 Virtualization mailing list
