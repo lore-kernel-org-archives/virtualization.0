@@ -2,108 +2,131 @@ Return-Path: <SRS0=kx+w=PB=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2FC0C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 13 Oct 2021 12:34:15 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC574C433F5
+	for <virtualization@archiver.kernel.org>; Wed, 13 Oct 2021 12:44:43 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 97D9E610D0
-	for <virtualization@archiver.kernel.org>; Wed, 13 Oct 2021 12:34:15 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 97D9E610D0
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 6EF1660D07
+	for <virtualization@archiver.kernel.org>; Wed, 13 Oct 2021 12:44:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 6EF1660D07
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6544A80CE1;
-	Wed, 13 Oct 2021 12:34:15 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 417C16080F;
+	Wed, 13 Oct 2021 12:44:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id B4afCYvqlRDv; Wed, 13 Oct 2021 12:34:14 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id WTjFrq-TzZeZ; Wed, 13 Oct 2021 12:44:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0B0AB80CD6;
-	Wed, 13 Oct 2021 12:34:14 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 9687C606FA;
+	Wed, 13 Oct 2021 12:44:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D55A7C000F;
-	Wed, 13 Oct 2021 12:34:13 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5B527C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6A8DBC000F;
+	Wed, 13 Oct 2021 12:44:40 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 06CEDC000D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Oct 2021 12:34:12 +0000 (UTC)
+ Wed, 13 Oct 2021 12:44:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 4AE99406CF
+ by smtp1.osuosl.org (Postfix) with ESMTP id DE8B981A5C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Oct 2021 12:34:12 +0000 (UTC)
+ Wed, 13 Oct 2021 12:44:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id LTG9N7P7b7fK
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=ibm.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id vt_xjReqVTh6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Oct 2021 12:34:11 +0000 (UTC)
+ Wed, 13 Oct 2021 12:44:38 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 76E35406CC
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com
+ [148.163.156.1])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 51AA0819FC
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Oct 2021 12:34:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1634128450;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=d84AXMduXw/8Km/NIT8YUkLd6M81nYmWKKr313pRpIo=;
- b=YEj/7fc64EDjMrfv9AUNg/tapWeM1dsijQktvQnlxz+XVlcXcj5VuOlT7PpR8VLvCQPo1T
- WySw3YYrlvfniNoGOFTk44yreR9l1QFlD2UVS0myxofj6b/HQ7PZdsHLbNvPR+VZMHJ096
- 5A7YPpqjKAjcGn5MlOveiASJ+DN7Xm8=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-537-pUVNQV88M3KbglbKYGGQtw-1; Wed, 13 Oct 2021 08:34:09 -0400
-X-MC-Unique: pUVNQV88M3KbglbKYGGQtw-1
-Received: by mail-wr1-f69.google.com with SMTP id
- r16-20020adfb1d0000000b00160bf8972ceso1845646wra.13
- for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Oct 2021 05:34:09 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=d84AXMduXw/8Km/NIT8YUkLd6M81nYmWKKr313pRpIo=;
- b=TqwgDfwwnjp/KPVkNcEl1hOZHWKVOLfolnxNzs9jxuRKWp5cofCs++cOsOPM38Weki
- KlQ9R+hg4hU6ItdhQB6pPWd3m3/90Kbz4EwizcoKuZ747KccUZyFCPV1OyE5ztJrlYL8
- 8ZMeqA6/jRbdmR7b7qpBtNweX+Vf/z4oA2UR2ze0oY91WncRxahHjUhgxXtBLNue6Zdz
- s4MMGuCGme8q7rV4Gi5vVY9fvy1YVcUz7ys/n1FVni+6hL6GS/LkvYsghun/E2lHE78w
- eyGqyeAAcF7/mmV0mKjC0TSH/J0NRZUIRVGVamjdtakRUBPrDSzI6vutKYwQjrKAoypu
- 6HVw==
-X-Gm-Message-State: AOAM532Zu303REWTGrUKbV7tYVPfLA/cQHsWcx+gV6LxLgFYqKy1qnrJ
- WSq4gu2e405t/js1ewLBBWdeKNtpvMAb9HutjRTd7uGGFnTAtBrR28h1MwaFIKfR0D6ndNA0WoA
- /1oC0Vq0DnddqcpqwzZ8aBs8sMiP32kv1lxzNl1az+g==
-X-Received: by 2002:a1c:2904:: with SMTP id p4mr12662216wmp.49.1634128448214; 
- Wed, 13 Oct 2021 05:34:08 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy8n9NAMz+t0x8zBkvT5LDu1f5qH1sDQrMJVOCWJVJRE/i4NTl67BMompop8PD/BnqoRi241Q==
-X-Received: by 2002:a1c:2904:: with SMTP id p4mr12662190wmp.49.1634128447989; 
- Wed, 13 Oct 2021 05:34:07 -0700 (PDT)
-Received: from redhat.com ([2.55.30.112])
- by smtp.gmail.com with ESMTPSA id z5sm6484694wmp.26.2021.10.13.05.34.06
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 13 Oct 2021 05:34:07 -0700 (PDT)
-Date: Wed, 13 Oct 2021 08:34:04 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Yongji Xie <xieyongji@bytedance.com>
-Subject: Re: [PATCH v2] vduse: Fix race condition between resetting and irq
- injecting
-Message-ID: <20211013083335-mutt-send-email-mst@kernel.org>
-References: <20210929083050.88-1-xieyongji@bytedance.com>
- <20211013070657-mutt-send-email-mst@kernel.org>
- <CACycT3tSP-Vxt_u+ow71ZzxBjKuGycZ1LqUrbjQ6Ew3ehX7kqw@mail.gmail.com>
+ Wed, 13 Oct 2021 12:44:38 +0000 (UTC)
+Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19DCX8eM021026; 
+ Wed, 13 Oct 2021 08:44:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
+ h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=e4qeE39nNF63o3oTejjERAXSIzN7WFNAVqNCqaNZdS0=;
+ b=bXdKh2QI46h+HoWTks3D/B3G7row03b3rYVbT/nIgjaVQgeqX2JEEXuQUfWPRZFUUyoB
+ 55qM23TFN7JsXM9l/sPtCIDo7ycrFTvLVryj7J6PsdFITPsTcH0pd3N2j4HWSPhxMLxT
+ euwBaWLbYhVJE+9tbS3PiasNQfw3SZjVtDTVoFMfASgzvgRYyQ7QL/ICl75qsrhQAPvx
+ ZvoknCx3YXG8QvhQqnvvkofrNKgjCZWn7AFCa8Km27LzXzILVwnIHNWYRz19hM59Aasl
+ d7yuXRcAJUB3Jf3O+F80/Sojw7aJSsk/kq0ABs52Az04B0VFZec1P4qggAuOGdnWpUNx CA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3bntpwxx85-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Wed, 13 Oct 2021 08:44:36 -0400
+Received: from m0098410.ppops.net (m0098410.ppops.net [127.0.0.1])
+ by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 19DBUBAi030380;
+ Wed, 13 Oct 2021 08:44:35 -0400
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com
+ [149.81.74.108])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 3bntpwxx74-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Wed, 13 Oct 2021 08:44:35 -0400
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+ by ppma05fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 19DCfUTe016216;
+ Wed, 13 Oct 2021 12:44:33 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com
+ (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+ by ppma05fra.de.ibm.com with ESMTP id 3bk2qa0fa5-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Wed, 13 Oct 2021 12:44:32 +0000
+Received: from d06av23.portsmouth.uk.ibm.com (d06av23.portsmouth.uk.ibm.com
+ [9.149.105.59])
+ by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
+ 19DCiKMl59441428
+ (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Wed, 13 Oct 2021 12:44:20 GMT
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 6FB2BA406F;
+ Wed, 13 Oct 2021 12:44:20 +0000 (GMT)
+Received: from d06av23.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+ by IMSVA (Postfix) with ESMTP id 727F2A407B;
+ Wed, 13 Oct 2021 12:44:13 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.29.112])
+ by d06av23.portsmouth.uk.ibm.com (Postfix) with SMTP;
+ Wed, 13 Oct 2021 12:44:13 +0000 (GMT)
+Date: Wed, 13 Oct 2021 14:44:08 +0200
+From: Halil Pasic <pasic@linux.ibm.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 1/1] virtio: write back F_VERSION_1 before validate
+Message-ID: <20211013144408.2812d9bd.pasic@linux.ibm.com>
+In-Reply-To: <20211013081836-mutt-send-email-mst@kernel.org>
+References: <20211011053921.1198936-1-pasic@linux.ibm.com>
+ <20211013060923-mutt-send-email-mst@kernel.org>
+ <96561e29-e0d6-9a4d-3657-999bad59914e@de.ibm.com>
+ <20211013081836-mutt-send-email-mst@kernel.org>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-In-Reply-To: <CACycT3tSP-Vxt_u+ow71ZzxBjKuGycZ1LqUrbjQ6Ew3ehX7kqw@mail.gmail.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: virtualization <virtualization@lists.linux-foundation.org>
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: Jp0uxxHTXTE771ls4ramYMB1Oy-7C_gz
+X-Proofpoint-ORIG-GUID: AuiVxpbg965JdHptRviyaH---l1LWaGY
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.182.1,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
+ definitions=2021-10-13_05,2021-10-13_02,2020-04-07_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0
+ malwarescore=0 bulkscore=0 mlxlogscore=983 clxscore=1015 phishscore=0
+ spamscore=0 mlxscore=0 priorityscore=1501 suspectscore=0 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2109230001 definitions=main-2110130084
+Cc: linux-s390@vger.kernel.org, markver@us.ibm.com,
+ Xie Yongji <xieyongji@bytedance.com>, qemu-devel@nongnu.org,
+ Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Halil Pasic <pasic@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@de.ibm.com>, stefanha@redhat.com,
+ Raphael Norwitz <raphael.norwitz@nutanix.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,131 +143,22 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Oct 13, 2021 at 08:30:40PM +0800, Yongji Xie wrote:
-> On Wed, Oct 13, 2021 at 7:10 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Wed, Sep 29, 2021 at 04:30:50PM +0800, Xie Yongji wrote:
-> > > The interrupt might be triggered after a reset since there is
-> > > no synchronization between resetting and irq injecting.
-> >
-> > In fact, irq_lock is already used to synchronize with
-> > irqs. Why isn't taking and releasing it enough?
-> >
-> 
-> For example:
-> 
-> CPU 0
->                   CPU1
-> ---------
->                       --------
-> vduse_dev_ioctl()
->   check DRIVER_OK
-> 
->                         vduse_dev_reset()
-> 
->                           flush_work(&vq->inject);
->     queue_work(vduse_irq_wq, &vq->inject);
-> 
->                         virtio_vdpa_probe()
-> 
->                           virtio_vdpa_find_vqs()
->    vduse_vq_irq_inject()
->      vq->cb.callback(vq->cb.private);
-> 
->                         set DRIVER_OK
-> 
-> In the above case, the irq callback is still triggered before DRIVER_OK is set.
-> 
-> But now I found it seems to be better to just check DRIVER_OK again in
-> vduse_vq_irq_inject().
+On Wed, 13 Oct 2021 08:24:53 -0400
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
 
-And then pesumably make sure each time we set status
-it's done under the irq lock?
+> > > OK this looks good! How about a QEMU patch to make it spec compliant on
+> > > BE?  
+> > 
+> > Who is going to do that? Halil? you? Conny?  
+> 
+> Halil said he'll do it... Right, Halil?
 
-> > > And it
-> > > might break something if the interrupt is delayed until a new
-> > > round of device initialization.
-> > >
-> > > Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
-> > > Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> > > ---
-> > >  drivers/vdpa/vdpa_user/vduse_dev.c | 37 +++++++++++++++++++++++++------------
-> > >  1 file changed, 25 insertions(+), 12 deletions(-)
-> > >
-> > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > index cefb301b2ee4..841667a896dd 100644
-> > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > @@ -80,6 +80,7 @@ struct vduse_dev {
-> > >       struct vdpa_callback config_cb;
-> > >       struct work_struct inject;
-> > >       spinlock_t irq_lock;
-> > > +     struct rw_semaphore rwsem;
-> > >       int minor;
-> > >       bool broken;
-> > >       bool connected;
-> >
-> > What does this lock protect? Use a more descriptive name pls,
-> > and maybe add a comment.
-> >
-> 
-> This lock is used to ensure there is no more inflight irq kwork after reset.
-> 
-> >
-> > > @@ -410,6 +411,8 @@ static void vduse_dev_reset(struct vduse_dev *dev)
-> > >       if (domain->bounce_map)
-> > >               vduse_domain_reset_bounce_map(domain);
-> > >
-> > > +     down_write(&dev->rwsem);
-> > > +
-> > >       dev->status = 0;
-> > >       dev->driver_features = 0;
-> > >       dev->generation++;
-> > > @@ -443,6 +446,8 @@ static void vduse_dev_reset(struct vduse_dev *dev)
-> > >               flush_work(&vq->inject);
-> > >               flush_work(&vq->kick);
-> > >       }
-> > > +
-> > > +     up_write(&dev->rwsem);
-> > >  }
-> > >
-> > >  static int vduse_vdpa_set_vq_address(struct vdpa_device *vdpa, u16 idx,
-> > > @@ -885,6 +890,23 @@ static void vduse_vq_irq_inject(struct work_struct *work)
-> > >       spin_unlock_irq(&vq->irq_lock);
-> > >  }
-> > >
-> > > +static int vduse_dev_queue_irq_work(struct vduse_dev *dev,
-> > > +                                 struct work_struct *irq_work)
-> > > +{
-> > > +     int ret = -EINVAL;
-> > > +
-> > > +     down_read(&dev->rwsem);
-> > > +     if (!(dev->status & VIRTIO_CONFIG_S_DRIVER_OK))
-> > > +             goto unlock;
-> > > +
-> > > +     ret = 0;
-> > > +     queue_work(vduse_irq_wq, irq_work);
-> > > +unlock:
-> > > +     up_read(&dev->rwsem);
-> > > +
-> > > +     return ret;
-> > > +}
-> > > +
-> > >  static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
-> > >                           unsigned long arg)
-> > >  {
-> >
-> >
-> > so that's a lot of overhead for an irq.
-> > Normally the way to address races like this is to add
-> > flushing to the reset path, not locking to irq path.
-> >
-> 
-> Yes, we already call flush_work() in the reset path.
-> 
-> Thanks,
-> Yongji
+I can do it but not right away. Maybe in a couple of weeks. I have some
+other bugs to hunt down, before proceeding to this. If somebody else
+wants to do it, I'm fine with that as well.
 
+Regards,
+Halil
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
