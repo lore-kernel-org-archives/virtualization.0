@@ -2,112 +2,166 @@ Return-Path: <SRS0=Buhk=PC=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 617F3C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 14 Oct 2021 05:58:22 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 913D3C433EF
+	for <virtualization@archiver.kernel.org>; Thu, 14 Oct 2021 06:11:47 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 05A7A60FF2
-	for <virtualization@archiver.kernel.org>; Thu, 14 Oct 2021 05:58:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 05A7A60FF2
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 4718B61152
+	for <virtualization@archiver.kernel.org>; Thu, 14 Oct 2021 06:11:47 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4718B61152
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=opensynergy.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A78FD607E3;
-	Thu, 14 Oct 2021 05:58:21 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0CA9582FBE;
+	Thu, 14 Oct 2021 06:11:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id M1PdKH1TegYk; Thu, 14 Oct 2021 05:58:20 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id CeClIGX1wB8o; Thu, 14 Oct 2021 06:11:46 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 2F78C60788;
-	Thu, 14 Oct 2021 05:58:20 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 9B20D82F76;
+	Thu, 14 Oct 2021 06:11:45 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E723DC0011;
-	Thu, 14 Oct 2021 05:58:19 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B16B1C000D
- for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Oct 2021 05:58:18 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7C325C0011;
+	Thu, 14 Oct 2021 06:11:45 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 561B4C000D;
+ Thu, 14 Oct 2021 06:11:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9457C406BD
- for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Oct 2021 05:58:18 +0000 (UTC)
+ by smtp3.osuosl.org (Postfix) with ESMTP id 37602607E3;
+ Thu, 14 Oct 2021 06:11:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KNDfdduyMDSI
- for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Oct 2021 05:58:17 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id C25F9406B9
- for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Oct 2021 05:58:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1634191096;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=z9GNqF7oZ5ZxqDGvug1wa9zV0RT5V0MlCCCE4TEdHgM=;
- b=MfmzOsR3EKmLsXsFVq80JAVzk/wOLqTDLN1o8LoIfhzSer0BayqQA3HMUnj4uGFDMHtmDR
- p3ikiEtP6trIuNbiJTbapz89WJRePGdYd6lLPNYf4ZTLlZNvQMzZUCWFfAFtOG7sS/r8Bb
- fMS0cfRCvxIHnYhRuP6eYCyTK5v+G38=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-497-L1fMEsSkODSzUdwJ3ANNfQ-1; Thu, 14 Oct 2021 01:58:13 -0400
-X-MC-Unique: L1fMEsSkODSzUdwJ3ANNfQ-1
-Received: by mail-wr1-f69.google.com with SMTP id
- 10-20020a5d47aa000000b001610cbda93dso3648852wrb.23
- for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Oct 2021 22:58:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=z9GNqF7oZ5ZxqDGvug1wa9zV0RT5V0MlCCCE4TEdHgM=;
- b=I0iXMkvMWeF0PPuobungkTL+DZ1+VWSg8zc/6xhbK5cPFRno+VkRpv9oTU/z7rfbU7
- oMporduBmELcRKWdSeWqMestKfm1pzCTPMfTFBbESfr4luwaGNdCqD3POyW6uU3dh8cK
- pSbO6/m2UWZRTs8b9AV7uygzHpZkyTi6ojz3jZ5LZz5s63aWh0u63sMMo3XTSfH4IQmK
- 0KKv4zjfsMGJBZJTnCg1UGm8ono2wFaKxGCd4OcYFWAHc0bPKIsW2Q2O3+mDUmsqsVAI
- TnnyLKttN/LqmfBFyI5mGs6GAyWxr22x1ff4lBLGouYAfiP6TK8BuB5IqCgYlyeyXmcp
- IrBQ==
-X-Gm-Message-State: AOAM5328Ot+AZVM2kT1CkPvjUqMXUjfrD+heqIs2ADQ8HQj9+c+cazXx
- a0/x00V2MPH5ayuocYTLbLiKe6TPMu3oFqR5CHkA+S+s2Jykmvp8cJI0TiGZ3TurqEjxrB0cVXo
- WZwsagPulZWNMzem1rkfbyNxUC3kxAL8Px/lGrHZu/w==
-X-Received: by 2002:a5d:63ca:: with SMTP id c10mr4220621wrw.407.1634191092124; 
- Wed, 13 Oct 2021 22:58:12 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxRsviF6B6TIbp4oMqx9j5CJVnbpO7qhFbnNiOh8GpPukKSxvqiwcjSFJhahubkVKwwS8mdhQ==
-X-Received: by 2002:a5d:63ca:: with SMTP id c10mr4220609wrw.407.1634191091908; 
- Wed, 13 Oct 2021 22:58:11 -0700 (PDT)
-Received: from redhat.com ([2.55.16.227])
- by smtp.gmail.com with ESMTPSA id d9sm1488789wrm.96.2021.10.13.22.58.10
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 13 Oct 2021 22:58:11 -0700 (PDT)
-Date: Thu, 14 Oct 2021 01:58:08 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2 03/12] virtio-console: switch to use .validate()
-Message-ID: <20211014015616-mutt-send-email-mst@kernel.org>
-References: <20211012065227.9953-1-jasowang@redhat.com>
- <20211012065227.9953-4-jasowang@redhat.com>
- <20211013054334-mutt-send-email-mst@kernel.org>
- <CACGkMEvYu4rMnhLtQfPo-BKME+cT9Sk1b39++f3BXZm1fTQHMQ@mail.gmail.com>
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=opensynergy.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id G24xkGtwGlnA; Thu, 14 Oct 2021 06:11:41 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from EUR04-VI1-obe.outbound.protection.outlook.com
+ (mail-eopbgr80139.outbound.protection.outlook.com [40.107.8.139])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 25FA56077E;
+ Thu, 14 Oct 2021 06:11:41 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=CVLpCrg/iMBonQOUVkVYpAYGWB/fbGuDLv21wGf5C1H8wlaA/l9TGez4nw05lVGrS00RfojVKaFR8ha39Me563wXpQw4YxsXoa1ejiLhc7RBhk7bPzR0zABMYVVIfDZvHYkBRUfxT6uIflBrSrVViWBXZRGreQj/gF7qJNp0O2bdaK6JMlPZkDvQBklsO9/sFgUHY3zabxiKrty5Yms6Yewq/z+bWa3l8TxFQ/kE+YdNhFtXHRa0ipxNm348wZAJm6UTrh18lXQ45aP08zOBnHkG+Fb4N4MjNB35/iKVw1Yr2tlJ6JzOKhDz4AniGIHJL5BCRrWoNkQFUuJbLkYERw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=N5po46FltMSdOciY6xiDB8yxJJKRjyrEtyokuS09wIY=;
+ b=A43aDctrCqMSv5AlvZVNoocmQQDgv577bD3pA+iazXvg6op7vSN5FB0hSGDiz6G+O8kKqltDDkjg6HdGL1uIaarMDhM/iVYn+0aHMOzOfYui/IPA6cVjz+jlJIl2EFGpiTMzihDI+ABt/EUdO1JyUJmU0ToAbCIF96SEDIOhKN7F802Bsq+ovVuUjFnlnA04V21/pCx5LdysTt1ZYkqUfbwQTNWQVW29E4PUlPI2hd4uRFcekutag1CyoqY0IUtbtIyv/hSM4r8jXd97nNXDkXyfR+DJUk88mmXEiZu6XGhVIJWCwR251gVT++o2mdzLY7UhCuaX7z8MYIl+1IX0kQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=opensynergy.com; dmarc=pass action=none
+ header.from=opensynergy.com; dkim=pass header.d=opensynergy.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=opensynergy.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=N5po46FltMSdOciY6xiDB8yxJJKRjyrEtyokuS09wIY=;
+ b=CSJSBBHnW3baLnDRwlg2I8emKcF3J7lABXAaaMzJY2J02UF2fXZ8KIkeUWuahLhTFofrwfSZSjbKvHbSOWTAwNXvpGA2j9pXJ11l9FJ0gEzMsOSLeVQpX+OJWg87fLh5FDqClqepZMYge6xD/JRubCUTLtCYjOl0QRgcUe440/w=
+Authentication-Results: alsa-project.org; dkim=none (message not signed)
+ header.d=none;alsa-project.org; dmarc=none action=none
+ header.from=opensynergy.com;
+Subject: Re: [PATCH RFC] virtio: wrap config->reset calls
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+References: <20211013105226.20225-1-mst@redhat.com>
+From: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+Message-ID: <0b0c22fa-9002-55b9-163b-e735b8370892@opensynergy.com>
+Date: Thu, 14 Oct 2021 08:11:32 +0200
+In-Reply-To: <20211013105226.20225-1-mst@redhat.com>
+Content-Language: en-US
+X-ClientProxiedBy: AM6P195CA0068.EURP195.PROD.OUTLOOK.COM
+ (2603:10a6:209:87::45) To AM0PR04MB5891.eurprd04.prod.outlook.com
+ (2603:10a6:208:12e::28)
 MIME-Version: 1.0
-In-Reply-To: <CACGkMEvYu4rMnhLtQfPo-BKME+cT9Sk1b39++f3BXZm1fTQHMQ@mail.gmail.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: "Hetzelt, Felicitas" <f.hetzelt@tu-berlin.de>, "kaplan,
- david" <david.kaplan@amd.com>, Amit Shah <amit@kernel.org>,
- Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: bc1df71c-bda2-459b-332d-08d98ed97a8c
+X-MS-TrafficTypeDiagnostic: AM8PR04MB7986:
+X-Microsoft-Antispam-PRVS: <AM8PR04MB798610F33A2DA83B1D8AA0338DB89@AM8PR04MB7986.eurprd04.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:3044;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: jbX/pZINSH89MTyMy1D/tvhcyD0fit/sJiKJQkYGZfitVO+hGJnQ0jEux+Lbl7Xqivs6g2iM1R4BYKcXlI9AYFzdJHyresWlrHCIUrcpLdxuEmSVsHLu8+NQpZAp1b9kfUW0Rho8dbWsawT/bND8ZY4dkG3oVOStOujGLwhiRzhLIPsTJrEdKj9uhpoQtBVpmRBdl4qby4ixhYIRSteENggyMOk2ujOQybO2kh+bDbzV4iNvNi446OLMbPIZy7deWIay3zFGa9Wgfv4aSGdC2gSgryYrPWVrw/tH9BSROTTqbPCs7+tJHHZAd92moPkvX8VPRhQAZuPyRpqWc8GrW5kLS+c8HvnRH7O6XOYBe3HKDK4R+aRTDxH9YJ0k2ads2T6hnFDXUntlljgrPG+T1wRFv5cS66QrxTaMkPgIyWzuGsHUA2lbGN+B95TfGiKNTHu41P7G8G9D9JG2MZ4twxSfOlOrJHMwOblLEW25bPPoc/M1Y8x3iKsIcUMKVaiOJL2MRMfClWXM+rZLsgFdWFf80JVaKOWswrTgtlNkk94lYBWDZYtBNggadb7L9qDRQlu6imfIUEe+mgU7ZhzOlIVRCcfe6o95dABXzEDoFyB3e8LQnx46ulxhxfVgAhqk616zkVrG5doXV4UQiXPxfQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:AM0PR04MB5891.eurprd04.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(396003)(366004)(346002)(376002)(136003)(39840400004)(4326008)(66476007)(44832011)(66946007)(5660300002)(53546011)(4744005)(66556008)(8936002)(2906002)(86362001)(7416002)(38100700002)(31686004)(8676002)(54906003)(42186006)(316002)(2616005)(36756003)(7366002)(7406005)(508600001)(83380400001)(31696002)(186003)(26005);
+ DIR:OUT; SFP:1102; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?YVhWQUswYmZWbVpidm96MDN1Y2xyWk4vWlFRMTcvUk5MQm9QOVBPV0F5bndL?=
+ =?utf-8?B?SHY5KzFDT1U3Wld0dGhqdmdSb3FpbUNkWjQwRXNEZlBhRTR3Zk1jWkZjZnJS?=
+ =?utf-8?B?RDd3RTR4TTFDTzlYeGQrMVB2eFlQc3Q2QnEreHlFL09JTmdmck5YZEZIcjZY?=
+ =?utf-8?B?UTIwRVNVZEVOM3UvV3NXMGMydmFLOXNzZmxsVzdBWEhEM1JVdzlSL0FHZ2V0?=
+ =?utf-8?B?QVE1R054REVsRCtTdHVqMlpnS0JDVloyRElKV2p5dDYwSUZUMFhvVytGQkVu?=
+ =?utf-8?B?QXVSYVBpeS84N0dvM2hnWGMwZW1Qa2xYd0svNUtXRUFiMGgzeTZKZGhwZmJa?=
+ =?utf-8?B?VHVZQmNrZ3hRT3lRTEZGRU5tcEpvVWNVazhoZFg5d00rSHJ4ckU4REp0dnRh?=
+ =?utf-8?B?THh6aUJXZ294UEFTSFNyb1JnME9TV29qTTBzWksxVDVwRDM1SkxSdGpnbUgv?=
+ =?utf-8?B?UitMNVE0aFVjTUltTVFKbE54b0hGaEdOa3FPWEpkWk51YUxtK240Z0FaUFNL?=
+ =?utf-8?B?TFhZYXdxeklrUVVYd0RPUlUzeFRtakNTRXRnTVM5dTBlQlpVbUZ3Z1U0UUpS?=
+ =?utf-8?B?MWlZNXg1TlNtWFJFMWhsaC9Xei9NQndBT2QzUkpOcGZLek1BWFpZMW9tN0c5?=
+ =?utf-8?B?cnI0NXVvTWRqMTNoWllPSUQ0RGdLT1Q5cXZvK09HWldjbng1NXMydWFFWFZp?=
+ =?utf-8?B?RVl4TFNrd3A2bUVTMmZ3TVlvUHlabkpPQzNFTVhWNUtYeEhlWGk0ZW5DY3Zz?=
+ =?utf-8?B?dlR3Z2hzRytIcTFSbjdaRUw1Mk9tVmZheXVLL2ZyaFNXd0R0Uzd2Z3Zxazlj?=
+ =?utf-8?B?OFZnZG1xZmR6QUxiMjQ0ODhDYzdQQXdrU1hXTVJCeTdGc1NkZkUwK3JPendZ?=
+ =?utf-8?B?a3dadzZWYld4Z09qelQyNktubUhoVnU3K1dpdEdJZDNNUjg3OFBYeTZlSFpL?=
+ =?utf-8?B?TDBhNzJXdncrRnNxK1J4NWNLbXFCM0RWd2pxb3lwUFpOcllkd25WeDVWRnVi?=
+ =?utf-8?B?MHpZTE1sQWRmK3RJSFowb2NiUzJoM0FPNDRmOUNsbGU1ZDN6KzBpaEN0Zk9Y?=
+ =?utf-8?B?N0IwY1BHS2FtalNZQngxM0J0UHgrUEtRd0RUb3Z6SUxTVyt6UUV6QmNXT2VD?=
+ =?utf-8?B?L0xMNytDUU9PL0xsS2kxZ3VadXI3RFJ0RkcrKzhLcENVQmVKRG9EYjhpUGNU?=
+ =?utf-8?B?TkxmY1dXdnJGZ3lva01oaERlLy84VjJzQm1GSWxPTVFaamREOWxpK3ZFaEJ2?=
+ =?utf-8?B?REtPVDE3V0puTTNKQXJpS2VRUFF2Z0pwUC9TRVAzUVozcWxCbEQzVkNJeVk3?=
+ =?utf-8?B?c1ZETUdQb0FQNHNBVXRwdC9mYWNqbkk2MWtmM1RWOW1lRU8xZXVYdUVLNW9v?=
+ =?utf-8?B?bzBVYnB3SGQvaUZsdHl6d0NDaFdreXhiVnZ0dmFGK3Rvd2sxanpCWHQzNTB0?=
+ =?utf-8?B?R0hFUHBxc0REMjRGeU00OStsL09tOXRsdHRGQVc1S3JNYXc4Sk1nTFFFYTlP?=
+ =?utf-8?B?QWNvZzJGb1VRWlRtQXQrMlhnWXhPeERUUTFyWHMxWDRjU04vM1FVc0U0R2Rp?=
+ =?utf-8?B?STI3Wkl6dTQxMzdtOTQ0MUFVeFJDdGJWeXdJNWlpSDRIS0Z6djZDNHFaQ0dN?=
+ =?utf-8?B?QldKSTgrUVZYNmgzVFZJcXV2ZHVYNnJYNU9LeGI2VGVzMHdqUkdsMlZpUVZt?=
+ =?utf-8?B?bzV6Ky9Ra3lFTGdZMGMyOW5sWHpPQUJKRjVydXc2OG1vZy8vcW5na1o4ejBn?=
+ =?utf-8?Q?xz3mOvFa2ozXf9ONVb1AUXUoupX1M0/tPkdmnc3?=
+X-OriginatorOrg: opensynergy.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: bc1df71c-bda2-459b-332d-08d98ed97a8c
+X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB5891.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Oct 2021 06:11:36.7959 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 800fae25-9b1b-4edc-993d-c939c4e84a64
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: oeNH+rEXARHKuwrt6kflln1JHZ/1aagGfI/NxMnd5ZPaPSygBdpV2N0pR0aS2MooCF9MO6tV8L4jH2f5alI0Yw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM8PR04MB7986
+Cc: nvdimm@lists.linux.dev, Stefan Hajnoczi <stefanha@redhat.com>,
+ kvm@vger.kernel.org, David Airlie <airlied@linux.ie>,
+ Viresh Kumar <vireshk@kernel.org>, Linus Walleij <linus.walleij@linaro.org>,
+ linux-remoteproc@vger.kernel.org, alsa-devel@alsa-project.org,
+ dri-devel@lists.freedesktop.org, Bjorn Andersson <bjorn.andersson@linaro.org>,
+ netdev@vger.kernel.org, linux-scsi@vger.kernel.org,
+ Will Deacon <will@kernel.org>, v9fs-developer@lists.sourceforge.net,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Dave Jiang <dave.jiang@intel.com>, Herbert Xu <herbert@gondor.apana.org.au>,
+ linux-arm-kernel@lists.infradead.org, Miklos Szeredi <miklos@szeredi.hu>,
+ Richard Weinberger <richard@nod.at>, Bartosz Golaszewski <brgl@bgdev.pl>,
+ Kalle Valo <kvalo@codeaurora.org>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ "James E.J. Bottomley" <jejb@linux.ibm.com>, Jakub Kicinski <kuba@kernel.org>,
+ Ira Weiny <ira.weiny@intel.com>, virtualization@lists.linux-foundation.org,
+ Marcel Holtmann <marcel@holtmann.org>, Vivek Goyal <vgoyal@redhat.com>,
+ Ohad Ben-Cohen <ohad@wizery.com>, Johan Hedberg <johan.hedberg@gmail.com>,
+ Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>,
+ Eric Van Hensbergen <ericvh@gmail.com>, Jeff Dike <jdike@addtoit.com>,
+ linux-um@lists.infradead.org, linux-block@vger.kernel.org,
+ Vishal Verma <vishal.l.verma@intel.com>,
+ Luiz Augusto von Dentz <luiz.dentz@gmail.com>, Matt Mackall <mpm@selenic.com>,
+ Dan Williams <dan.j.williams@intel.com>, Jaroslav Kysela <perex@perex.cz>,
+ Cristian Marussi <cristian.marussi@arm.com>, Jens Axboe <axboe@kernel.dk>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>, linux-gpio@vger.kernel.org,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ linux-wireless@vger.kernel.org, Takashi Iwai <tiwai@suse.com>,
+ linux-i2c@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+ iommu@lists.linux-foundation.org, linux-crypto@vger.kernel.org,
+ Daniel Vetter <daniel@ffwll.ch>, Sudeep Holla <sudeep.holla@arm.com>,
+ linux-fsdevel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+ Johannes Berg <johannes@sipsolutions.net>, "Enrico Weigelt,
+ metux IT consult" <info@metux.net>, "David S. Miller" <davem@davemloft.net>,
+ Joerg Roedel <joro@8bytes.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,162 +173,31 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Oct 14, 2021 at 10:28:06AM +0800, Jason Wang wrote:
-> On Wed, Oct 13, 2021 at 5:51 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Tue, Oct 12, 2021 at 02:52:18PM +0800, Jason Wang wrote:
-> > > This patch switches to use validate() to filter out the features that
-> > > is not supported by the rproc.
-> >
-> > are not supported
-> >
-> > >
-> > > Cc: Amit Shah <amit@kernel.org>
-> > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> >
-> >
-> > Does this have anything to do with hardening?
-> >
-> > It seems cleaner to not negotiate features we do not use,
-> > but given we did this for many years ... should we bother
-> > at this point?
-> 
-> It looks cleaner to do all the validation in one places:
-> 
-> 1) check unsupported feature for rproc
-> 2) validate the max_nr_ports (as has been done in patch 4)
-> 
-> >
-> >
-> > > ---
-> > >  drivers/char/virtio_console.c | 41 ++++++++++++++++++++++-------------
-> > >  1 file changed, 26 insertions(+), 15 deletions(-)
-> > >
-> > > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-> > > index 7eaf303a7a86..daeed31df622 100644
-> > > --- a/drivers/char/virtio_console.c
-> > > +++ b/drivers/char/virtio_console.c
-> > > @@ -1172,9 +1172,7 @@ static void resize_console(struct port *port)
-> > >
-> > >       vdev = port->portdev->vdev;
-> > >
-> > > -     /* Don't test F_SIZE at all if we're rproc: not a valid feature! */
-> > > -     if (!is_rproc_serial(vdev) &&
-> > > -         virtio_has_feature(vdev, VIRTIO_CONSOLE_F_SIZE))
-> > > +     if (virtio_has_feature(vdev, VIRTIO_CONSOLE_F_SIZE))
-> > >               hvc_resize(port->cons.hvc, port->cons.ws);
-> > >  }
-> > >
-> > > @@ -1981,6 +1979,29 @@ static void virtcons_remove(struct virtio_device *vdev)
-> > >       kfree(portdev);
-> > >  }
-> > >
-> > > +static int virtcons_validate(struct virtio_device *vdev)
-> > > +{
-> > > +     if (is_rproc_serial(vdev)) {
-> > > +             /* Don't test F_SIZE at all if we're rproc: not a
-> > > +              * valid feature! */
-> >
-> >
-> > This comment needs to be fixed now. And the format's wrong
-> > since you made it a multi-line comment.
-> > Should be
-> >         /*
-> >          * like
-> >          * this
-> >          */
-> 
-> Ok.
-> 
-> >
-> > > +             __virtio_clear_bit(vdev, VIRTIO_CONSOLE_F_SIZE);
-> > > +             /* Don't test MULTIPORT at all if we're rproc: not a
-> > > +              * valid feature! */
-> > > +             __virtio_clear_bit(vdev, VIRTIO_CONSOLE_F_MULTIPORT);
-> > > +     }
-> > > +
-> > > +     /* We only need a config space if features are offered */
-> > > +     if (!vdev->config->get &&
-> > > +         (virtio_has_feature(vdev, VIRTIO_CONSOLE_F_SIZE)
-> > > +          || virtio_has_feature(vdev, VIRTIO_CONSOLE_F_MULTIPORT))) {
-> > > +             dev_err(&vdev->dev, "%s failure: config access disabled\n",
-> > > +                     __func__);
-> > > +             return -EINVAL;
-> > > +     }
-> > > +
-> > > +     return 0;
-> > > +}
-> > > +
-> > >  /*
-> > >   * Once we're further in boot, we get probed like any other virtio
-> > >   * device.
-> >
-> > This switches the order of tests around, so if an rproc device
-> > offers VIRTIO_CONSOLE_F_SIZE or VIRTIO_CONSOLE_F_MULTIPORT
-> > without get it will now try to work instead of failing.
-> 
-> Ok, so we can fail the validation in this case.
+On 13.10.2021 12:55, Michael S. Tsirkin wrote:
 
-We can. But if we are going to, then it's easier to just fail probe.
-Or if you want to try and work around this case,
-that's also reasonable but pls document in the commit log.
-
-
-> Thanks
+> This will enable cleanups down the road.
+> The idea is to disable cbs, then add "flush_queued_cbs" callback
+> as a parameter, this way drivers can flush any work
+> queued after callbacks have been disabled.
 > 
-> >
-> > Which is maybe a worthy goal, but given rproc does not support
-> > virtio 1.0 it also risks trying to drive something completely
-> > unreasonable.
-> >
-> > Overall does not feel like hardening which is supposed to make
-> > things more strict, not less.
-> >
-> >
-> > > @@ -1996,15 +2017,6 @@ static int virtcons_probe(struct virtio_device *vdev)
-> > >       bool multiport;
-> > >       bool early = early_put_chars != NULL;
-> > >
-> > > -     /* We only need a config space if features are offered */
-> > > -     if (!vdev->config->get &&
-> > > -         (virtio_has_feature(vdev, VIRTIO_CONSOLE_F_SIZE)
-> > > -          || virtio_has_feature(vdev, VIRTIO_CONSOLE_F_MULTIPORT))) {
-> > > -             dev_err(&vdev->dev, "%s failure: config access disabled\n",
-> > > -                     __func__);
-> > > -             return -EINVAL;
-> > > -     }
-> > > -
-> > >       /* Ensure to read early_put_chars now */
-> > >       barrier();
-> > >
-> > > @@ -2031,9 +2043,7 @@ static int virtcons_probe(struct virtio_device *vdev)
-> > >       multiport = false;
-> > >       portdev->max_nr_ports = 1;
-> > >
-> > > -     /* Don't test MULTIPORT at all if we're rproc: not a valid feature! */
-> > > -     if (!is_rproc_serial(vdev) &&
-> > > -         virtio_cread_feature(vdev, VIRTIO_CONSOLE_F_MULTIPORT,
-> > > +     if (virtio_cread_feature(vdev, VIRTIO_CONSOLE_F_MULTIPORT,
-> > >                                struct virtio_console_config, max_nr_ports,
-> > >                                &portdev->max_nr_ports) == 0) {
-> > >               multiport = true;
-> > > @@ -2210,6 +2220,7 @@ static struct virtio_driver virtio_console = {
-> > >       .driver.name =  KBUILD_MODNAME,
-> > >       .driver.owner = THIS_MODULE,
-> > >       .id_table =     id_table,
-> > > +     .validate =     virtcons_validate,
-> > >       .probe =        virtcons_probe,
-> > >       .remove =       virtcons_remove,
-> > >       .config_changed = config_intr,
-> > > --
-> > > 2.25.1
-> >
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>   sound/virtio/virtio_card.c                 | 4 ++--
+> 
 
+Reviewed-by: Anton Yakovlev <anton.yakovlev@opensynergy.com>
+
+-- 
+Anton Yakovlev
+Senior Software Engineer
+
+OpenSynergy GmbH
+Rotherstr. 20, 10245 Berlin
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
