@@ -2,140 +2,109 @@ Return-Path: <SRS0=Buhk=PC=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5029CC433F5
-	for <virtualization@archiver.kernel.org>; Thu, 14 Oct 2021 06:58:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76BFCC433F5
+	for <virtualization@archiver.kernel.org>; Thu, 14 Oct 2021 07:02:55 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E22B261053
-	for <virtualization@archiver.kernel.org>; Thu, 14 Oct 2021 06:58:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E22B261053
+	by mail.kernel.org (Postfix) with ESMTPS id 140DA610CC
+	for <virtualization@archiver.kernel.org>; Thu, 14 Oct 2021 07:02:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 140DA610CC
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id A00AB606B8;
-	Thu, 14 Oct 2021 06:58:00 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 57E0460E9C;
+	Thu, 14 Oct 2021 07:02:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yIigWytNyNN0; Thu, 14 Oct 2021 06:57:59 +0000 (UTC)
+	with ESMTP id F8HOsYiPL_au; Thu, 14 Oct 2021 07:02:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id DA662606B1;
-	Thu, 14 Oct 2021 06:57:58 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id DA95160E93;
+	Thu, 14 Oct 2021 07:02:50 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B8D6EC0011;
-	Thu, 14 Oct 2021 06:57:58 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C4D0AC000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8D7E1C0011;
+	Thu, 14 Oct 2021 07:02:50 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1273BC000D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Oct 2021 06:57:56 +0000 (UTC)
+ Thu, 14 Oct 2021 07:02:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id B39074077C
+ by smtp4.osuosl.org (Postfix) with ESMTP id 005F8407B4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Oct 2021 06:57:56 +0000 (UTC)
+ Thu, 14 Oct 2021 07:02:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id T2Jr6P6KBxD8
+ with ESMTP id yJQjlvivOF1g
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Oct 2021 06:57:55 +0000 (UTC)
+ Thu, 14 Oct 2021 07:02:49 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 3969D40775
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id F2966407B3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Oct 2021 06:57:55 +0000 (UTC)
+ Thu, 14 Oct 2021 07:02:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1634194674;
+ s=mimecast20190719; t=1634194968;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=brR+Nu52gz51xmOIV3uiryZgXbmWSUKhM3aMVpybh7g=;
- b=S++LKLLiL+eJhkD0hJiawOrYKRoB7J4kN25m+TfYcqPhi63biAAlpXQvWCKOM/FNMTBxG8
- Lp5FUP1OQmlcQoqGmtKW/Mf5t+MthC6g1x6LG5o3gcqK6G5gfPmNZNTDsdbfXbabp56WFD
- 8R5zXb95g/QhfdiIn92ValDrd4ayyzM=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-542-DPJrKC6yMwGNv4UnjweH1Q-1; Thu, 14 Oct 2021 02:57:53 -0400
-X-MC-Unique: DPJrKC6yMwGNv4UnjweH1Q-1
-Received: by mail-ed1-f69.google.com with SMTP id
- i7-20020a50d747000000b003db0225d219so4412598edj.0
+ bh=d1S01grw2ngdkEJ0YAicVY3DzsPYjPDrt6hoE0ljtY0=;
+ b=Jt3PyopLOajHq/LqTxnOzYjh55pwJOji6N4b9GeOTCZpYanr+21LlKKizdtach5ueVkBTL
+ VHUUekYZvKtDC6+AFWrqowKQAHppRwsy7XOhIJ0eBbafoHVZl1qewjAUQB4aBAWyCnRDYf
+ FAxyUTPX/mpH0RLR4z7c/WGJK0Z+hiU=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-429-0EjZ_meoPoeSO9yrQ-5Gzw-1; Thu, 14 Oct 2021 03:02:46 -0400
+X-MC-Unique: 0EjZ_meoPoeSO9yrQ-5Gzw-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ bp4-20020a056512158400b003fd96a37f3bso3670426lfb.21
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Oct 2021 23:57:52 -0700 (PDT)
+ Thu, 14 Oct 2021 00:02:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=brR+Nu52gz51xmOIV3uiryZgXbmWSUKhM3aMVpybh7g=;
- b=DBg4cnTSwtZ4JRc8cDPyf0gSMHU66kZjCFKE9F66QAxURSedSK7xNxxNV0hP1JbodD
- /Jz7+DhXS22WtOIkfGBVx61UR7+gFeTt5yEx4GuU9e5wl5BuyVCRyYhsLDTFmz4Wlh4o
- Zeh0e1W7mLUVkluu/nFZMWwYHnlzGOQtkkW+0RIjV1HmoIi3rzwtPILUQt6kRHNw0tke
- yxkI59gq7js0E1FbI3WgZZsfldY8RfNkCDlbWIHVKzHjkOP0xlbVohJuJyHMPApkYsWT
- QLE6Q3LkXxElzwaENQ4hHP70QBW3bsFWAHeu2Uk1+OyFt2hFu6KJo+FQhIddk8dd/oKT
- TVRw==
-X-Gm-Message-State: AOAM533kyFlZHrkEN69LoIb/DH1Tkqf20C7jLBEvMBtD7fiNjI9GOM6O
- InDw4c5MMnnumkLbQn7NHujVy6kVmSgrwgpLqBNZTWV7+vgA6zpNcNqahMJVnrq9HFQ9XFyCivQ
- d0WKcg7QMiq9MKun/CRZXUKYomGFCmuBGcP1ToLh3RQ==
-X-Received: by 2002:a05:6402:1914:: with SMTP id
- e20mr6174255edz.304.1634194671793; 
- Wed, 13 Oct 2021 23:57:51 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwdhRhC66j5h6JfIv4gT4rh08QxWtQdl3riq/bWkvwrpI8BhldDFz+YLp7cxUAacziNZLOOyw==
-X-Received: by 2002:a05:6402:1914:: with SMTP id
- e20mr6174217edz.304.1634194671479; 
- Wed, 13 Oct 2021 23:57:51 -0700 (PDT)
-Received: from redhat.com ([2.55.16.227])
- by smtp.gmail.com with ESMTPSA id eg42sm1358355edb.61.2021.10.13.23.57.45
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 13 Oct 2021 23:57:50 -0700 (PDT)
-Date: Thu, 14 Oct 2021 02:57:43 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "Reshetova, Elena" <elena.reshetova@intel.com>
-Subject: Re: [PATCH v5 12/16] PCI: Add pci_iomap_host_shared(),
- pci_iomap_host_shared_range()
-Message-ID: <20211014025514-mutt-send-email-mst@kernel.org>
-References: <20211009003711.1390019-1-sathyanarayanan.kuppuswamy@linux.intel.com>
- <20211009003711.1390019-13-sathyanarayanan.kuppuswamy@linux.intel.com>
- <20211009053103-mutt-send-email-mst@kernel.org>
- <CAPcyv4hDhjRXYCX_aiOboLF0eaTo6VySbZDa5NQu2ed9Ty2Ekw@mail.gmail.com>
- <0e6664ac-cbb2-96ff-0106-9301735c0836@linux.intel.com>
- <DM8PR11MB57501C8F8F5C8B315726882EE7B69@DM8PR11MB5750.namprd11.prod.outlook.com>
- <20211012171016-mutt-send-email-mst@kernel.org>
- <DM8PR11MB5750A40FAA6AFF6A29CF70DAE7B89@DM8PR11MB5750.namprd11.prod.outlook.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc:content-transfer-encoding;
+ bh=d1S01grw2ngdkEJ0YAicVY3DzsPYjPDrt6hoE0ljtY0=;
+ b=IM109biV+X0Xt4jQODJKyi6KVXX3BwyHWTKkfiTAym5LQXWbGe3EuqkePuGKUbo6tz
+ 6L3N1/qKn4VtTgLzV9Ys8M7b8x1BgEb1CY+68bku+5IGcbEIfIt4AHOAN0Nfcp/ZqrL0
+ hwtQxFhrehrYednDXKjRZPTAG4V6/L+ZX14FbgdOd/kkF7wrr7GayS8Bnk7SA/m1TTKk
+ SZgiaUOBzAEqGBPxjz1+VA2AzoxXvgHotX20gjW3nC02Mie/BX7YZB7pXQdLadUls96v
+ 7ZyOfx6dZiBGfWgPcU0GMhKq1I3oTiFX+fHnjDnojm04HLSqVRaBCBrWLVHo2cTt5HAv
+ aytA==
+X-Gm-Message-State: AOAM531ugh57g+swiWN0YRrmU2uMs5zlyaOkXh8awClqnDEBSxRINAn+
+ 0Z9Kraw8VwCB72gu2eduCFFbPwQeMnXsG2eda/Sp2Zhk8QsGxwhaLQmPLmgNufH+B/9uBN5dclK
+ WLWWRkfaQhTMnv05gpVB8/0mEb97LyKtkRplVaP3joW/i4m/0XAHisTt6tA==
+X-Received: by 2002:a05:6512:3d29:: with SMTP id
+ d41mr3684683lfv.481.1634194965180; 
+ Thu, 14 Oct 2021 00:02:45 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx2GzXJhGJxRMaWeavgK4vnAcEQnZsLm1XOr06y9iTnvnRn8g0FhszB1AEK9nWBNyaSFB6fIAgvCrq1e+0fipA=
+X-Received: by 2002:a05:6512:3d29:: with SMTP id
+ d41mr3684652lfv.481.1634194964831; 
+ Thu, 14 Oct 2021 00:02:44 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <DM8PR11MB5750A40FAA6AFF6A29CF70DAE7B89@DM8PR11MB5750.namprd11.prod.outlook.com>
+References: <20211012140710.804529-1-eperezma@redhat.com>
+ <20211012140710.804529-4-eperezma@redhat.com>
+ <CACGkMEsGDoWuE0WEq7P-S5V5XiLPCZcVAszQFHDLsLDZEAAh5A@mail.gmail.com>
+ <CAJaqyWdW+JarVW6tOfM6rYHh2fb=whGHFdwmFy0AMcLqukOrpg@mail.gmail.com>
+In-Reply-To: <CAJaqyWdW+JarVW6tOfM6rYHh2fb=whGHFdwmFy0AMcLqukOrpg@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 14 Oct 2021 15:02:33 +0800
+Message-ID: <CACGkMEv1P3MiRYENsDfx-iarEiv7Bik-qTaYUEAAmAUV1nEfWg@mail.gmail.com>
+Subject: Re: [PATCH v3 3/3] vdpa: Check for iova range at mappings changes
+To: Eugenio Perez Martin <eperezma@redhat.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>,
- Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, Linux PCI <linux-pci@vger.kernel.org>,
- "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
- James E J Bottomley <James.Bottomley@hansenpartnership.com>, "Hansen,
- Dave" <dave.hansen@intel.com>, Peter H Anvin <hpa@zytor.com>,
- "sparclinux@vger.kernel.org" <sparclinux@vger.kernel.org>,
- Thomas Gleixner <tglx@linutronix.de>, Andrea Arcangeli <aarcange@redhat.com>,
- Andi Kleen <ak@linux.intel.com>, Jonathan Corbet <corbet@lwn.net>,
- Helge Deller <deller@gmx.de>, X86 ML <x86@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, linux-arch <linux-arch@vger.kernel.org>,
- Arnd Bergmann <arnd@arndb.de>, "Luck, Tony" <tony.luck@intel.com>,
- Borislav Petkov <bp@alien8.de>, "Lutomirski, Andy" <luto@kernel.org>,
- Josh Poimboeuf <jpoimboe@redhat.com>, Bjorn Helgaas <bhelgaas@google.com>,
- "Williams, Dan J" <dan.j.williams@intel.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- Richard Henderson <rth@twiddle.net>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- "linux-parisc@vger.kernel.org" <linux-parisc@vger.kernel.org>,
- Sean Christopherson <seanjc@google.com>,
- Linux Doc Mailing List <linux-doc@vger.kernel.org>,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- "linux-alpha@vger.kernel.org" <linux-alpha@vger.kernel.org>,
- Paolo Bonzini <pbonzini@redhat.com>, "David S . Miller" <davem@davemloft.net>,
- Kirill Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Parav Pandit <parav@mellanox.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ qemu-devel <qemu-devel@nongnu.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Eli Cohen <eli@mellanox.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -147,178 +116,152 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Oct 14, 2021 at 06:32:32AM +0000, Reshetova, Elena wrote:
-> > On Tue, Oct 12, 2021 at 06:36:16PM +0000, Reshetova, Elena wrote:
-> > > > The 5.15 tree has something like ~2.4k IO accesses (including MMIO and
-> > > > others) in init functions that also register drivers (thanks Elena for
-> > > > the number)
-> > >
-> > > To provide more numbers on this. What I can see so far from a smatch-based
-> > > analysis, we have 409 __init style functions (.probe & builtin/module_
-> > > _platform_driver_probe excluded) for 5.15 with allyesconfig.
-> > 
-> > I don't think we care about allyesconfig at all though.
-> > Just don't do that.
-> > How about allmodconfig? This is closer to what distros actually do.
-> 
-> It does not make any difference really for the content of the /drivers/*:
-> gives 408 __init style functions doing IO (.probe & builtin/module_
-> > > _platform_driver_probe excluded) for 5.15 with allmodconfig:
-> 
-> ['doc200x_ident_chip',
-> 'doc_probe', 'doc2001_init', 'mtd_speedtest_init',
-> 'mtd_nandbiterrs_init', 'mtd_oobtest_init', 'mtd_pagetest_init',
-> 'tort_init', 'mtd_subpagetest_init', 'fixup_pmc551',
-> 'doc_set_driver_info', 'init_amd76xrom', 'init_l440gx',
-> 'init_sc520cdp', 'init_ichxrom', 'init_ck804xrom', 'init_esb2rom',
-> 'probe_acpi_namespace_devices', 'amd_iommu_init_pci', 'state_next',
-> 'arm_v7s_do_selftests', 'arm_lpae_run_tests', 'init_iommu_one',
-
-Um. ARM? Which architecture is this build for?
-
-
-> 'init_dmars', 'iommu_init_pci', 'early_amd_iommu_init',
-> 'late_iommu_features_init', 'detect_ivrs',
-> 'intel_prepare_irq_remapping', 'intel_enable_irq_remapping',
-> 'intel_cleanup_irq_remapping', 'detect_intel_iommu',
-> 'parse_ioapics_under_ir', 'si_domain_init', 'ubi_init',
-> 'fb_console_init', 'xenbus_probe_backend_init',
-> 'xenbus_probe_frontend_init', 'setup_vcpu_hotplug_event',
-> 'balloon_init', 'intel_iommu_init', 'intel_rng_mod_init',
-> 'check_tylersburg_isoch', 'dmar_table_init',
-> 'enable_drhd_fault_handling', 'init_acpi_pm_clocksource',
-> 'ostm_init_clksrc', 'ftm_clockevent_init', 'ftm_clocksource_init',
-> 'kona_timer_init', 'mtk_gpt_init', 'samsung_clockevent_init',
-> 'samsung_clocksource_init', 'sysctr_timer_init', 'mxs_timer_init',
-> 'sun4i_timer_init', 'at91sam926x_pit_dt_init', 'owl_timer_init',
-> 'sun5i_setup_clockevent', 'ubi_gluebi_init', 'ubiblock_init',
-> 'hv_init_tsc_clocksource', 'hv_init_clocksource', 'mt7621_clk_init',
-> 'samsung_clk_register_mux', 'samsung_clk_register_gate',
-> 'samsung_clk_register_fixed_rate', 'clk_boston_setup',
-> 'gemini_cc_init', 'aspeed_ast2400_cc', 'aspeed_ast2500_cc',
-> 'sun6i_rtc_clk_init', 'phy_init', 'ingenic_ost_register_clock',
-> 'meson6_timer_init', 'atcpit100_timer_init',
-> 'npcm7xx_clocksource_init', 'clksrc_dbx500_prcmu_init', 'skx_init',
-> 'i10nm_init', 'sbridge_init', 'i82975x_init', 'i3000_init',
-> 'x38_init', 'ie31200_init', 'i3200_init', 'amd64_edac_init',
-> 'pnd2_init', 'edac_init', 'adummy_init', 'mtd_stresstest_init',
-> 'bxt_idle_state_table_update', 'sklh_idle_state_table_update',
-> 'skx_idle_state_table_update',
-> 'acpi_gpio_handle_deferred_request_irqs', 'smc_findirq', 'ltpc_probe',
-> 'com90io_probe', 'com90xx_probe', 'pcnet32_init_module',
-> 'it87_gpio_init', 'f7188x_find', 'it8712f_wdt_find', 'f71808e_find',
-> 'it87_wdt_init', 'f71882fg_find', 'it87_find', 'f71805f_find',
-> 'parport_pc_init', 'asic3_irq_probe', 'sch311x_detect',
-> 'amd_gpio_init', 'dvb_init', 'dvb_register', 'em28xx_alsa_register',
-> 'em28xx_dvb_register', 'em28xx_rc_register', 'em28xx_video_register',
-> 'blackbird_init', 'bttv_check_chipset', 'ivtvfb_callback_init',
-> 'init_control', 'con_init', 'cr_pll_init',
-> 'clk_disable_unused_subtree', 'fmi_init', 'cadet_init', 'pcm20_init',
-> 'airo_init_module', 'bnx2i_mod_init', 'bnx2fc_mod_init',
-> 'timer_of_irq_exit', 'init', 'kempld_init', 'ivtvfb_init',
-> 'brcmf_core_init', 'comedi_test_init', 'tlan_eisa_probe',
-> 'timer_probe', 'of_clk_init', '__reserved_mem_init_node',
-> 'of_irq_init', 'mace_init', 'vortex_eisa_init', 'reset_chip',
-> 'atp_init', 'atp_probe1', 'smc_probe', 'osi_setup', 'led_init',
-> 'el3_init_module', 'clk_sp810_of_setup', 'ltpc_probe_dma',
-> 'com90io_found', 'check_mirror', 'arcrimi_found', 'com90xx_found',
-> 'intel_soc_thermal_init', 'thermal_register_governors',
-> 'thermal_unregister_governors', 'therm_lvt_init', 'tcc_cooling_init',
-> 'powerclamp_probe', 'intel_init', 'qcom_geni_serial_earlycon_setup',
-> 'kgdboc_early_init', 'lpuart_console_setup', 'speakup_init',
-> 'early_console_setup', 'init_port', 'early_serial8250_setup',
-> 'linflex_console_setup', 'register_earlycon', 'of_setup_earlycon',
-> 'slgt_init', 'moxa_init', 'parport_pc_init_superio',
-> 'parport_pc_find_ports', 'mousedev_init', 'ses_init', 'riocm_init',
-> 'efi_rci2_sysfs_init', 'blogic_probe', 'blogic_init',
-> 'blogic_init_mm_probeinfo', 'blogic_init_probeinfo_list',
-> 'blogic_checkadapter', 'blogic_rdconfig', 'blogic_inquiry',
-> 'adpt_init', 'clk_unprepare_unused_subtree', 'aspeed_socinfo_init',
-> 'rcar_sysc_pd_setup', 'r8a779a0_sysc_pd_setup', 'renesas_soc_init',
-> 'rcar_rst_init', 'rmobile_setup_pm_domain', 'mcp_write_pairing_set',
-> 'a72_b53_rac_enable_all', 'mcp_a72_b53_set',
-> 'brcmstb_soc_device_early_init', 'imx8mq_soc_revision',
-> 'imx8mm_soc_uid', 'imx8mm_soc_revision', 'qe_init',
-> 'exynos5x_clk_init', 'exynos5250_clk_init', 'exynos4_get_xom',
-> 'create_one_cmux', 'create_one_pll', 'p2041_init_periph',
-> 'p4080_init_periph', 'p5020_init_periph', 'p5040_init_periph',
-> 'r9a06g032_clocks_probe', 'r8a73a4_cpg_clocks_init',
-> 'sh73a0_cpg_clocks_init', 'cpg_div6_register',
-> 'r8a7740_cpg_clocks_init', 'cpg_mssr_register_mod_clk',
-> 'cpg_mssr_register_core_clk', 'rcar_gen3_cpg_clk_register',
-> 'cpg_sd_clk_register', 'r7s9210_update_clk_table',
-> 'rz_cpg_read_mode_pins', 'rz_cpg_clocks_init',
-> 'rcar_r8a779a0_cpg_clk_register', 'rcar_gen2_cpg_clk_register',
-> 'sun8i_a33_ccu_setup', 'sun8i_a23_ccu_setup', 'sun5i_ccu_init',
-> 'suniv_f1c100s_ccu_setup', 'sun6i_a31_ccu_setup',
-> 'sun8i_v3_v3s_ccu_init', 'sun50i_h616_ccu_setup',
-> 'sunxi_h3_h5_ccu_init', 'sun4i_ccu_init', 'kona_ccu_init',
-> 'ns2_genpll_scr_clk_init', 'ns2_genpll_sw_clk_init',
-> 'ns2_lcpll_ddr_clk_init', 'ns2_lcpll_ports_clk_init',
-> 'nsp_genpll_clk_init', 'nsp_lcpll0_clk_init',
-> 'cygnus_genpll_clk_init', 'cygnus_lcpll0_clk_init',
-> 'cygnus_mipipll_clk_init', 'cygnus_audiopll_clk_init',
-> 'of_fixed_mmio_clk_setup', 'xdbc_map_pci_mmio', 'xdbc_find_dbgp',
-> 'xdbc_bios_handoff', 'xdbc_early_setup', 'ehci_setup',
-> 'early_xdbc_parse_parameter', 'find_cap', '__find_dbgp',
-> 'nvidia_set_debug_port', 'detect_set_debug_port',
-> 'early_ehci_bios_handoff', 'early_dbgp_init', 'dbgp_init',
-> 'ulpi_init', 'hidg_init', 'xdbc_init', 'brcmstb_usb_pinmap_probe',
-> 'dell_init', 'eisa_init_device', 'mlxcpld_led_probe', 'nas_gpio_init',
-> 'asic3_mfd_probe', 'asic3_probe', 'watchdog_init', 'ssb_modinit',
-> 'pt_init', 'thinkpad_acpi_module_init', 'kbd_init', 'joydev_init',
-> 'evdev_init', 'evbug_init', 'input_leds_init', 'mk712_init',
-> 'l4_add_card', 'ns558_init', 'apanel_init', 'ct82c710_detect',
-> 'i8042_check_aux', 'i8042_check_mux', 'i8042_probe', 'i8042_init',
-> 'i8042_aux_test_irq', 'ocrdma_init_module', 'input_apanel_init',
-> 'cs5535_mfgpt_init', 'geodewdt_probe', 'duramar2150_c2port_init',
-> 'init_ohci1394_dma_on_all_controllers', 'init_ohci1394_controller',
-> 'rionet_init', 'nonstatic_sysfs_init', 'init_pcmcia_bus',
-> 'devlink_class_init', 'switchtec_ntb_init', 'mport_init',
-> 'drivetemp_init', 'omap_vout_probe', 'probe_opti_vlb',
-> 'probe_chip_type', 'legacy_check_special_cases',
-> 'qdi65_identify_port', 'probe_qdi_vlb', 'comedi_init', 'hv_acpi_init',
-> 'pcistub_init_devices_late', 'bcma_host_soc_register',
-> 'bcma_bus_early_register', 'vga_arb_device_init',
-> 'vga_arb_select_default_device', 'zf_init',
-> 'watchdog_deferred_registration', 'wb_smsc_wdt_init',
-> 'w83977f_wdt_init', 'ali_find_watchdog', 'pc87413_init',
-> 'alim7101_wdt_init', 'at91_wdt_init', 'sc1200wdt_probe',
-> 'asr_get_base_address', 'dmi_walk_early', 'dmi_sysfs_init',
-> 'dell_smbios_init', 'acer_wmi_init', 'get_thinkpad_model_data',
-> 'dmi_scan_machine', 'pci_assign_unassigned_resources',
-> 'cpcihp_generic_init', 'pnpacpi_init', 'acpi_early_processor_osc',
-> 'acpi_processor_check_duplicates', 'acpi_early_processor_set_pdc',
-> 'acpi_ec_dsdt_probe', 'cros_ec_lpc_init', 'tpacpi_acpi_handle_locate',
-> 'ks_pcie_init_id', 'ks_pcie_host_init', 'pci_apply_final_quirks',
-> 'intel_uncore_init', 'qedr_init_module', 'isapnp_peek',
-> 'isapnp_isolate', 'init_ipmi_si', 'isapnp_build_device_list',
-> 'pnpacpi_add_device', 'erst_init', 'intel_idle_acpi_cst_extract',
-> 'xen_acpi_processor_init', 'acpi_scan_init', 's3_wmi_probe',
-> 'intel_opregion_present', 'extlog_init', 'intel_pstate_init',
-> 'via_rng_mod_init', 'amd_rng_mod_init', 'ccp_init', 'init_nsc',
-> 'init_atmel', 'intel_rng_hw_init', 'intel_init_hw_struct',
-> 'tlclk_init', 'mwave_init', 'applicom_init', 'hdaps_init',
-> 'tink_board_init', 'ibm_rtl_init', 'samsung_sabi_init',
-> 'samsung_init', 'samsung_backlight_init', 'samsung_rfkill_init_swsmi',
-> 'samsung_lid_handling_init', 'samsung_leds_init', 'samsung_sabi_diag',
-> 'samsung_sabi_infos', 'isst_if_mbox_init', 'pmc_atom_init',
-> 'abituguru_detect', 'hwmon_pci_quirks', 'applesmc_init',
-> 'abituguru3_detect', 'w83627ehf_probe', 'dme1737_isa_detect',
-> 'smsc47m1_probe', 'pcc_cpufreq_init', 'cpufreq_p4_init',
-> 'centrino_init', 'acpi_cpufreq_init', 'pcc_cpufreq_probe',
-> 'intel_pstate_msrs_not_valid',
-> 'intel_pstate_platform_pwr_mgmt_exists', 'acpi_cpufreq_boost_init',
-> 'amd_freq_sensitivity_init', 'gic_fixup_resource', 'do_floppy_init',
-> 'get_fdc_version', 'pf_init', 'pg_init', 'pd_init', 'pcd_init',
-> 'rio_basic_attach']
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVGh1LCBPY3QgMTQsIDIwMjEgYXQgMTo1NyBQTSBFdWdlbmlvIFBlcmV6IE1hcnRpbgo8ZXBl
+cmV6bWFAcmVkaGF0LmNvbT4gd3JvdGU6Cj4KPiBPbiBUaHUsIE9jdCAxNCwgMjAyMSBhdCA1OjMw
+IEFNIEphc29uIFdhbmcgPGphc293YW5nQHJlZGhhdC5jb20+IHdyb3RlOgo+ID4KPiA+IE9uIFR1
+ZSwgT2N0IDEyLCAyMDIxIGF0IDEwOjA3IFBNIEV1Z2VuaW8gUMOpcmV6IDxlcGVyZXptYUByZWRo
+YXQuY29tPiB3cm90ZToKPiA+ID4KPiA+ID4gQ2hlY2sgdmRwYSBkZXZpY2UgcmFuZ2UgYmVmb3Jl
+IHVwZGF0aW5nIG1lbW9yeSByZWdpb25zIHNvIHdlIGRvbid0IGFkZAo+ID4gPiBhbnkgb3V0c2lk
+ZSBvZiBpdCwgYW5kIHJlcG9ydCB0aGUgaW52YWxpZCBjaGFuZ2UgaWYgYW55Lgo+ID4gPgo+ID4g
+PiBTaWduZWQtb2ZmLWJ5OiBFdWdlbmlvIFDDqXJleiA8ZXBlcmV6bWFAcmVkaGF0LmNvbT4KPiA+
+ID4gLS0tCj4gPiA+ICBpbmNsdWRlL2h3L3ZpcnRpby92aG9zdC12ZHBhLmggfCAgMiArKwo+ID4g
+PiAgaHcvdmlydGlvL3Zob3N0LXZkcGEuYyAgICAgICAgIHwgNjIgKysrKysrKysrKysrKysrKysr
+KysrKysrKy0tLS0tLS0tLQo+ID4gPiAgaHcvdmlydGlvL3RyYWNlLWV2ZW50cyAgICAgICAgIHwg
+IDEgKwo+ID4gPiAgMyBmaWxlcyBjaGFuZ2VkLCA0OSBpbnNlcnRpb25zKCspLCAxNiBkZWxldGlv
+bnMoLSkKPiA+ID4KPiA+ID4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvaHcvdmlydGlvL3Zob3N0LXZk
+cGEuaCBiL2luY2x1ZGUvaHcvdmlydGlvL3Zob3N0LXZkcGEuaAo+ID4gPiBpbmRleCBhODk2M2Rh
+MmQ5Li5jMjg4Y2Y3ZWNiIDEwMDY0NAo+ID4gPiAtLS0gYS9pbmNsdWRlL2h3L3ZpcnRpby92aG9z
+dC12ZHBhLmgKPiA+ID4gKysrIGIvaW5jbHVkZS9ody92aXJ0aW8vdmhvc3QtdmRwYS5oCj4gPiA+
+IEBAIC0xMyw2ICsxMyw3IEBACj4gPiA+ICAjZGVmaW5lIEhXX1ZJUlRJT19WSE9TVF9WRFBBX0gK
+PiA+ID4KPiA+ID4gICNpbmNsdWRlICJody92aXJ0aW8vdmlydGlvLmgiCj4gPiA+ICsjaW5jbHVk
+ZSAic3RhbmRhcmQtaGVhZGVycy9saW51eC92aG9zdF90eXBlcy5oIgo+ID4gPgo+ID4gPiAgdHlw
+ZWRlZiBzdHJ1Y3QgVmhvc3RWRFBBSG9zdE5vdGlmaWVyIHsKPiA+ID4gICAgICBNZW1vcnlSZWdp
+b24gbXI7Cj4gPiA+IEBAIC0yNCw2ICsyNSw3IEBAIHR5cGVkZWYgc3RydWN0IHZob3N0X3ZkcGEg
+ewo+ID4gPiAgICAgIHVpbnQzMl90IG1zZ190eXBlOwo+ID4gPiAgICAgIGJvb2wgaW90bGJfYmF0
+Y2hfYmVnaW5fc2VudDsKPiA+ID4gICAgICBNZW1vcnlMaXN0ZW5lciBsaXN0ZW5lcjsKPiA+ID4g
+KyAgICBzdHJ1Y3Qgdmhvc3RfdmRwYV9pb3ZhX3JhbmdlIGlvdmFfcmFuZ2U7Cj4gPiA+ICAgICAg
+c3RydWN0IHZob3N0X2RldiAqZGV2Owo+ID4gPiAgICAgIFZob3N0VkRQQUhvc3ROb3RpZmllciBu
+b3RpZmllcltWSVJUSU9fUVVFVUVfTUFYXTsKPiA+ID4gIH0gVmhvc3RWRFBBOwo+ID4gPiBkaWZm
+IC0tZ2l0IGEvaHcvdmlydGlvL3Zob3N0LXZkcGEuYyBiL2h3L3ZpcnRpby92aG9zdC12ZHBhLmMK
+PiA+ID4gaW5kZXggYmU3YzYzYjRiYS4uZGJmNzczZDAzMiAxMDA2NDQKPiA+ID4gLS0tIGEvaHcv
+dmlydGlvL3Zob3N0LXZkcGEuYwo+ID4gPiArKysgYi9ody92aXJ0aW8vdmhvc3QtdmRwYS5jCj4g
+PiA+IEBAIC0zNywyMCArMzcsMzQgQEAgc3RhdGljIEludDEyOCB2aG9zdF92ZHBhX3NlY3Rpb25f
+ZW5kKGNvbnN0IE1lbW9yeVJlZ2lvblNlY3Rpb24gKnNlY3Rpb24pCj4gPiA+ICAgICAgcmV0dXJu
+IGxsZW5kOwo+ID4gPiAgfQo+ID4gPgo+ID4gPiAtc3RhdGljIGJvb2wgdmhvc3RfdmRwYV9saXN0
+ZW5lcl9za2lwcGVkX3NlY3Rpb24oTWVtb3J5UmVnaW9uU2VjdGlvbiAqc2VjdGlvbikKPiA+ID4g
+LXsKPiA+ID4gLSAgICByZXR1cm4gKCFtZW1vcnlfcmVnaW9uX2lzX3JhbShzZWN0aW9uLT5tcikg
+JiYKPiA+ID4gLSAgICAgICAgICAgICFtZW1vcnlfcmVnaW9uX2lzX2lvbW11KHNlY3Rpb24tPm1y
+KSkgfHwKPiA+ID4gLSAgICAgICAgICAgIG1lbW9yeV9yZWdpb25faXNfcHJvdGVjdGVkKHNlY3Rp
+b24tPm1yKSB8fAo+ID4gPiAtICAgICAgICAgICAvKiB2aG9zdC12RFBBIGRvZXNuJ3QgYWxsb3cg
+TU1JTyB0byBiZSBtYXBwZWQgICovCj4gPiA+IC0gICAgICAgICAgICBtZW1vcnlfcmVnaW9uX2lz
+X3JhbV9kZXZpY2Uoc2VjdGlvbi0+bXIpIHx8Cj4gPiA+IC0gICAgICAgICAgIC8qCj4gPiA+IC0g
+ICAgICAgICAgICAqIFNpemluZyBhbiBlbmFibGVkIDY0LWJpdCBCQVIgY2FuIGNhdXNlIHNwdXJp
+b3VzIG1hcHBpbmdzIHRvCj4gPiA+IC0gICAgICAgICAgICAqIGFkZHJlc3NlcyBpbiB0aGUgdXBw
+ZXIgcGFydCBvZiB0aGUgNjQtYml0IGFkZHJlc3Mgc3BhY2UuICBUaGVzZQo+ID4gPiAtICAgICAg
+ICAgICAgKiBhcmUgbmV2ZXIgYWNjZXNzZWQgYnkgdGhlIENQVSBhbmQgYmV5b25kIHRoZSBhZGRy
+ZXNzIHdpZHRoIG9mCj4gPiA+IC0gICAgICAgICAgICAqIHNvbWUgSU9NTVUgaGFyZHdhcmUuICBU
+T0RPOiBWRFBBIHNob3VsZCB0ZWxsIHVzIHRoZSBJT01NVSB3aWR0aC4KPiA+ID4gLSAgICAgICAg
+ICAgICovCj4gPiA+IC0gICAgICAgICAgIHNlY3Rpb24tPm9mZnNldF93aXRoaW5fYWRkcmVzc19z
+cGFjZSAmICgxVUxMIDw8IDYzKTsKPgo+IFsxXQo+Cj4gPiA+ICtzdGF0aWMgYm9vbCB2aG9zdF92
+ZHBhX2xpc3RlbmVyX3NraXBwZWRfc2VjdGlvbihNZW1vcnlSZWdpb25TZWN0aW9uICpzZWN0aW9u
+LAo+ID4gPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+dWludDY0X3QgaW92YV9taW4sCj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICB1aW50NjRfdCBpb3ZhX21heCkKPiA+ID4gK3sKPiA+ID4gKyAgICBJ
+bnQxMjggbGxlbmQ7Cj4gPiA+ICsKPiA+ID4gKyAgICBpZiAoKCFtZW1vcnlfcmVnaW9uX2lzX3Jh
+bShzZWN0aW9uLT5tcikgJiYKPiA+ID4gKyAgICAgICAgICFtZW1vcnlfcmVnaW9uX2lzX2lvbW11
+KHNlY3Rpb24tPm1yKSkgfHwKPiA+ID4gKyAgICAgICAgbWVtb3J5X3JlZ2lvbl9pc19wcm90ZWN0
+ZWQoc2VjdGlvbi0+bXIpIHx8Cj4gPiA+ICsgICAgICAgIC8qIHZob3N0LXZEUEEgZG9lc24ndCBh
+bGxvdyBNTUlPIHRvIGJlIG1hcHBlZCAgKi8KPiA+ID4gKyAgICAgICAgbWVtb3J5X3JlZ2lvbl9p
+c19yYW1fZGV2aWNlKHNlY3Rpb24tPm1yKSkgewo+ID4gPiArICAgICAgICByZXR1cm4gdHJ1ZTsK
+PiA+ID4gKyAgICB9Cj4gPiA+ICsKPiA+ID4gKyAgICBpZiAoc2VjdGlvbi0+b2Zmc2V0X3dpdGhp
+bl9hZGRyZXNzX3NwYWNlIDwgaW92YV9taW4pIHsKPiA+ID4gKyAgICAgICAgZXJyb3JfcmVwb3J0
+KCJSQU0gc2VjdGlvbiBvdXQgb2YgZGV2aWNlIHJhbmdlIChtaW49JWx1LCBhZGRyPSVsdSkiLAo+
+ID4gPiArICAgICAgICAgICAgICAgICAgICAgaW92YV9taW4sIHNlY3Rpb24tPm9mZnNldF93aXRo
+aW5fYWRkcmVzc19zcGFjZSk7Cj4gPiA+ICsgICAgICAgIHJldHVybiB0cnVlOwo+ID4gPiArICAg
+IH0KPiA+ID4gKwo+ID4gPiArICAgIGxsZW5kID0gdmhvc3RfdmRwYV9zZWN0aW9uX2VuZChzZWN0
+aW9uKTsKPiA+ID4gKyAgICBpZiAoaW50MTI4X2d0KGxsZW5kLCBpbnQxMjhfbWFrZTY0KGlvdmFf
+bWF4KSkpIHsKPiA+ID4gKyAgICAgICAgZXJyb3JfcmVwb3J0KCJSQU0gc2VjdGlvbiBvdXQgb2Yg
+ZGV2aWNlIHJhbmdlIChtYXg9JWx1LCBlbmQgYWRkcj0lbHUpIiwKPiA+ID4gKyAgICAgICAgICAg
+ICAgICAgICAgIGlvdmFfbWF4LCBpbnQxMjhfZ2V0NjQobGxlbmQpKTsKPiA+ID4gKyAgICAgICAg
+cmV0dXJuIHRydWU7Cj4gPiA+ICsgICAgfQo+ID4gPiArCj4gPiA+ICsgICAgcmV0dXJuIGZhbHNl
+Owo+ID4gPiAgfQo+ID4gPgo+ID4gPiAgc3RhdGljIGludCB2aG9zdF92ZHBhX2RtYV9tYXAoc3Ry
+dWN0IHZob3N0X3ZkcGEgKnYsIGh3YWRkciBpb3ZhLCBod2FkZHIgc2l6ZSwKPiA+ID4gQEAgLTE2
+Miw3ICsxNzYsOCBAQCBzdGF0aWMgdm9pZCB2aG9zdF92ZHBhX2xpc3RlbmVyX3JlZ2lvbl9hZGQo
+TWVtb3J5TGlzdGVuZXIgKmxpc3RlbmVyLAo+ID4gPiAgICAgIHZvaWQgKnZhZGRyOwo+ID4gPiAg
+ICAgIGludCByZXQ7Cj4gPiA+Cj4gPiA+IC0gICAgaWYgKHZob3N0X3ZkcGFfbGlzdGVuZXJfc2tp
+cHBlZF9zZWN0aW9uKHNlY3Rpb24pKSB7Cj4gPiA+ICsgICAgaWYgKHZob3N0X3ZkcGFfbGlzdGVu
+ZXJfc2tpcHBlZF9zZWN0aW9uKHNlY3Rpb24sIHYtPmlvdmFfcmFuZ2UuZmlyc3QsCj4gPiA+ICsg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHYtPmlvdmFfcmFuZ2Uu
+bGFzdCkpIHsKPiA+ID4gICAgICAgICAgcmV0dXJuOwo+ID4gPiAgICAgIH0KPiA+ID4KPiA+ID4g
+QEAgLTIyMCw3ICsyMzUsOCBAQCBzdGF0aWMgdm9pZCB2aG9zdF92ZHBhX2xpc3RlbmVyX3JlZ2lv
+bl9kZWwoTWVtb3J5TGlzdGVuZXIgKmxpc3RlbmVyLAo+ID4gPiAgICAgIEludDEyOCBsbGVuZCwg
+bGxzaXplOwo+ID4gPiAgICAgIGludCByZXQ7Cj4gPiA+Cj4gPiA+IC0gICAgaWYgKHZob3N0X3Zk
+cGFfbGlzdGVuZXJfc2tpcHBlZF9zZWN0aW9uKHNlY3Rpb24pKSB7Cj4gPiA+ICsgICAgaWYgKHZo
+b3N0X3ZkcGFfbGlzdGVuZXJfc2tpcHBlZF9zZWN0aW9uKHNlY3Rpb24sIHYtPmlvdmFfcmFuZ2Uu
+Zmlyc3QsCj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+IHYtPmlvdmFfcmFuZ2UubGFzdCkpIHsKPiA+ID4gICAgICAgICAgcmV0dXJuOwo+ID4gPiAgICAg
+IH0KPiA+ID4KPiA+ID4gQEAgLTI4OCw2ICszMDQsMTkgQEAgc3RhdGljIHZvaWQgdmhvc3RfdmRw
+YV9hZGRfc3RhdHVzKHN0cnVjdCB2aG9zdF9kZXYgKmRldiwgdWludDhfdCBzdGF0dXMpCj4gPiA+
+ICAgICAgdmhvc3RfdmRwYV9jYWxsKGRldiwgVkhPU1RfVkRQQV9TRVRfU1RBVFVTLCAmcyk7Cj4g
+PiA+ICB9Cj4gPiA+Cj4gPiA+ICtzdGF0aWMgdm9pZCB2aG9zdF92ZHBhX2dldF9pb3ZhX3Jhbmdl
+KHN0cnVjdCB2aG9zdF92ZHBhICp2KQo+ID4gPiArewo+ID4gPiArICAgIGludCByZXQgPSB2aG9z
+dF92ZHBhX2NhbGwodi0+ZGV2LCBWSE9TVF9WRFBBX0dFVF9JT1ZBX1JBTkdFLAo+ID4gPiArICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgJnYtPmlvdmFfcmFuZ2UpOwo+ID4gPiArICAgIGlm
+IChyZXQgIT0gMCkgewo+ID4gPiArICAgICAgICB2LT5pb3ZhX3JhbmdlLmZpcnN0ID0gMDsKPiA+
+ID4gKyAgICAgICAgdi0+aW92YV9yYW5nZS5sYXN0ID0gTUFLRV82NEJJVF9NQVNLKDAsIDYzKTsK
+PiA+Cj4gPiBOaXQ6Cj4gPgo+ID4gVUxMT05HX01BWD8KPiA+Cj4KPiBJdCBzaG91bGQgYmUgVUxM
+T05HX01BWCA+PiAxIHRvIG1hdGNoIHRoZSBwcmV2aW91cyBsaW1pdCBbMV0sCgpJIHRoaW5rIHRo
+ZXkgZG9uJ3QgY29uZmxpY3QuIFdlIGp1c3Qgd2FudCB0byBwcmVzZXJ2ZSB0aGUgZGVmYXVsdCBp
+b3ZhCnJhbmdlIGFzIHdoYXQgdGhlIGtlcm5lbCBkaWQuIEtlcm5lbCB3aWxsIGdpdmUgVUxMT05H
+X01BWCBpZgpnZXRfaW92YV9yYW5nZSgpIGlzIG5vdCBpbXBsZW1lbnRlZCBieSB0aGUgZGV2aWNl
+PwoKCj4gYW5kCj4gdHJ1c3RpbmcgdGhhdCB1aW50NjRfdCBpcyBlZmZlY3RpdmVseSB1bnNpZ25l
+ZCBsb25nIGxvbmcuIEkgc2VlIGEgNjMKPiBiaXRzIG1hc2sgaW1tZWRpYXRlbHkgd2l0aCBNQUtF
+XzY0QklUX01BU0sgKG9uY2UgSSByZW1lbWJlciB0aGUKPiBwYXJhbWV0ZXIgb3JkZXIpLCBidXQg
+SSBmaW5kIGl0IGhhcmRlciB0byBzZWUgaXQgd2l0aCAoVUxMT05HX01BWCA+Pgo+IDEpLgo+Cj4g
+SWYgeW91IHByZWZlciB0aGUgX01BWCBvcHRpb25zLCBJIHdvdWxkIHNheSBpdCBpcyBiZXR0ZXIg
+dG8gc3RpY2sgd2l0aAo+IChVSU5UNjRfTUFYID4+IDEpIG9yIChIV0FERFJfTUFYID4+IDEpLCBi
+ZWNhdXNlIG9mIHRoaXMgaW4KPiBDT0RJTkdfU1RZTEUucnN0Ogo+Cj4gIklmIHlvdSdyZSB1c2lu
+ZyAiaW50IiBvciAibG9uZyIsIG9kZHMgYXJlIGdvb2QgdGhhdCB0aGVyZSdzIGEgYmV0dGVyCj4g
+dHlwZS4gLi4uIiwgIkluIHRoZSBldmVudCB0aGF0IHlvdSByZXF1aXJlIGEgc3BlY2lmaWMgd2lk
+dGgsIHVzZSBhCj4gc3RhbmRhcmQgdHlwZSBsaWtlIGludDMyX3QsIHVpbnQzMl90LCB1aW50NjRf
+dCwgZXRjIiwgIlVzZSBod2FkZHIgZm9yCj4gZ3Vlc3QgcGh5c2ljYWwgYWRkcmVzc2VzIi4KPgo+
+IERvZXMgaXQgbWFrZSBzZW5zZSB0byB5b3U/CgpJZiBJIHdhcyBub3Qgd3JvbmcsIHdlIGNhbiB1
+c2UgVUlOVDY0X01BWC4KClRoYW5rcwoKPgo+IFRoYW5rcyEKPgo+ID4gT3RoZXJzIGxvb2sgZ29v
+ZC4KPiA+Cj4gPiBUaGFua3MKPiA+Cj4gPiA+ICsgICAgfQo+ID4gPiArCj4gPiA+ICsgICAgdHJh
+Y2Vfdmhvc3RfdmRwYV9nZXRfaW92YV9yYW5nZSh2LT5kZXYsIHYtPmlvdmFfcmFuZ2UuZmlyc3Qs
+Cj4gPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB2LT5pb3ZhX3Jhbmdl
+Lmxhc3QpOwo+ID4gPiArfQo+ID4gPiArCj4gPiA+ICBzdGF0aWMgaW50IHZob3N0X3ZkcGFfaW5p
+dChzdHJ1Y3Qgdmhvc3RfZGV2ICpkZXYsIHZvaWQgKm9wYXF1ZSwgRXJyb3IgKiplcnJwKQo+ID4g
+PiAgewo+ID4gPiAgICAgIHN0cnVjdCB2aG9zdF92ZHBhICp2Owo+ID4gPiBAQCAtMzAwLDYgKzMy
+OSw3IEBAIHN0YXRpYyBpbnQgdmhvc3RfdmRwYV9pbml0KHN0cnVjdCB2aG9zdF9kZXYgKmRldiwg
+dm9pZCAqb3BhcXVlLCBFcnJvciAqKmVycnApCj4gPiA+ICAgICAgdi0+bGlzdGVuZXIgPSB2aG9z
+dF92ZHBhX21lbW9yeV9saXN0ZW5lcjsKPiA+ID4gICAgICB2LT5tc2dfdHlwZSA9IFZIT1NUX0lP
+VExCX01TR19WMjsKPiA+ID4KPiA+ID4gKyAgICB2aG9zdF92ZHBhX2dldF9pb3ZhX3JhbmdlKHYp
+Owo+ID4gPiAgICAgIHZob3N0X3ZkcGFfYWRkX3N0YXR1cyhkZXYsIFZJUlRJT19DT05GSUdfU19B
+Q0tOT1dMRURHRSB8Cj4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgVklSVElP
+X0NPTkZJR19TX0RSSVZFUik7Cj4gPiA+Cj4gPiA+IGRpZmYgLS1naXQgYS9ody92aXJ0aW8vdHJh
+Y2UtZXZlbnRzIGIvaHcvdmlydGlvL3RyYWNlLWV2ZW50cwo+ID4gPiBpbmRleCA4ZWQxOWU5ZDBj
+Li42NTBlNTIxZTM1IDEwMDY0NAo+ID4gPiAtLS0gYS9ody92aXJ0aW8vdHJhY2UtZXZlbnRzCj4g
+PiA+ICsrKyBiL2h3L3ZpcnRpby90cmFjZS1ldmVudHMKPiA+ID4gQEAgLTUyLDYgKzUyLDcgQEAg
+dmhvc3RfdmRwYV9zZXRfdnJpbmdfY2FsbCh2b2lkICpkZXYsIHVuc2lnbmVkIGludCBpbmRleCwg
+aW50IGZkKSAiZGV2OiAlcCBpbmRleDoKPiA+ID4gIHZob3N0X3ZkcGFfZ2V0X2ZlYXR1cmVzKHZv
+aWQgKmRldiwgdWludDY0X3QgZmVhdHVyZXMpICJkZXY6ICVwIGZlYXR1cmVzOiAweCUiUFJJeDY0
+Cj4gPiA+ICB2aG9zdF92ZHBhX3NldF9vd25lcih2b2lkICpkZXYpICJkZXY6ICVwIgo+ID4gPiAg
+dmhvc3RfdmRwYV92cV9nZXRfYWRkcih2b2lkICpkZXYsIHZvaWQgKnZxLCB1aW50NjRfdCBkZXNj
+X3VzZXJfYWRkciwgdWludDY0X3QgYXZhaWxfdXNlcl9hZGRyLCB1aW50NjRfdCB1c2VkX3VzZXJf
+YWRkcikgImRldjogJXAgdnE6ICVwIGRlc2NfdXNlcl9hZGRyOiAweCUiUFJJeDY0IiBhdmFpbF91
+c2VyX2FkZHI6IDB4JSJQUkl4NjQiIHVzZWRfdXNlcl9hZGRyOiAweCUiUFJJeDY0Cj4gPiA+ICt2
+aG9zdF92ZHBhX2dldF9pb3ZhX3JhbmdlKHZvaWQgKmRldiwgdWludDY0X3QgZmlyc3QsIHVpbnQ2
+NF90IGxhc3QpICJkZXY6ICVwIGZpcnN0OiAweCUiUFJJeDY0IiBsYXN0OiAweCUiUFJJeDY0Cj4g
+PiA+Cj4gPiA+ICAjIHZpcnRpby5jCj4gPiA+ICB2aXJ0cXVldWVfYWxsb2NfZWxlbWVudCh2b2lk
+ICplbGVtLCBzaXplX3Qgc3osIHVuc2lnbmVkIGluX251bSwgdW5zaWduZWQgb3V0X251bSkgImVs
+ZW0gJXAgc2l6ZSAlemQgaW5fbnVtICV1IG91dF9udW0gJXUiCj4gPiA+IC0tCj4gPiA+IDIuMjcu
+MAo+ID4gPgo+ID4KPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
