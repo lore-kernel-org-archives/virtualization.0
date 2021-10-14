@@ -2,106 +2,105 @@ Return-Path: <SRS0=Buhk=PC=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D377C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 14 Oct 2021 02:36:10 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF9C5C433EF
+	for <virtualization@archiver.kernel.org>; Thu, 14 Oct 2021 02:45:46 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id F417961151
-	for <virtualization@archiver.kernel.org>; Thu, 14 Oct 2021 02:36:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org F417961151
+	by mail.kernel.org (Postfix) with ESMTPS id 98F5861168
+	for <virtualization@archiver.kernel.org>; Thu, 14 Oct 2021 02:45:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 98F5861168
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id B1E7B401C7;
-	Thu, 14 Oct 2021 02:36:09 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5BBDA83168;
+	Thu, 14 Oct 2021 02:45:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DVMam6fgEVIP; Thu, 14 Oct 2021 02:36:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E3C96401C5;
-	Thu, 14 Oct 2021 02:36:07 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4WQb5bN3NCK6; Thu, 14 Oct 2021 02:45:45 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E515883133;
+	Thu, 14 Oct 2021 02:45:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C33C9C000F;
-	Thu, 14 Oct 2021 02:36:07 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0AD78C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C5103C000F;
+	Thu, 14 Oct 2021 02:45:44 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1DB5FC000D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Oct 2021 02:36:07 +0000 (UTC)
+ Thu, 14 Oct 2021 02:45:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D16AA401C7
+ by smtp3.osuosl.org (Postfix) with ESMTP id 088DB6077E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Oct 2021 02:36:06 +0000 (UTC)
+ Thu, 14 Oct 2021 02:45:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 13gV1tKFiK6C
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7r5cTTEtG5ax
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Oct 2021 02:36:05 +0000 (UTC)
+ Thu, 14 Oct 2021 02:45:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id C8A5F401C5
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 4558A60770
  for <virtualization@lists.linux-foundation.org>;
- Thu, 14 Oct 2021 02:36:05 +0000 (UTC)
+ Thu, 14 Oct 2021 02:45:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1634178964;
+ s=mimecast20190719; t=1634179541;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=fRcbe8WIYnw7cXDZRZpjRzCl36aRJMr9VWR6QW5LLsg=;
- b=YxP5P4t1FXacmS73RzOGPWlNdXCfDZdKUbp6kgHS0TG5f2qWVMz0987vQ4PPFieHtm0oJB
- KDKn39W0l0EuDYTY/g4Apve+OBTkJM/h0fCf/dOa5cslk0GOTuyjxDn0NVyo5m2PSKWfGP
- kvxz5gEXDddRp2ryUgxyl9hP4Yogs5w=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-261-KtyhCo8OPOm6uW1sWhZxxg-1; Wed, 13 Oct 2021 22:36:03 -0400
-X-MC-Unique: KtyhCo8OPOm6uW1sWhZxxg-1
-Received: by mail-lf1-f69.google.com with SMTP id
- s8-20020ac25c48000000b003faf62e104eso3296998lfp.22
+ bh=eXsQtbYu8ZrTVNpDyzuEjrd6+BUlfzHFpmt5fkpzD3E=;
+ b=XRU9q8FRGSz2fciD9ULj4gNC530Yr5JOydSpAc7aHZxio5lB0t4mCZiIwTml8JOS29TNKy
+ 50sYGQxLmgeL3tcPTtMojFI9UCbUmJBiVv8shtXj3KudU8IYZtKnQdSObNLIxoJ8fNl06z
+ gEgDA43RisG6iiBMv0wpwDvBQfcVbU0=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-105-Pv9qV0G6OCuPAnUM75O5cQ-1; Wed, 13 Oct 2021 22:45:40 -0400
+X-MC-Unique: Pv9qV0G6OCuPAnUM75O5cQ-1
+Received: by mail-lf1-f72.google.com with SMTP id
+ x33-20020a0565123fa100b003fcfd99073dso3374417lfa.6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 13 Oct 2021 19:36:03 -0700 (PDT)
+ Wed, 13 Oct 2021 19:45:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=fRcbe8WIYnw7cXDZRZpjRzCl36aRJMr9VWR6QW5LLsg=;
- b=FkIs8OX/fQtcwy6JkztNOFvQJN7PronWrq9aBeeYKsqWGdwBR5LKONM3+L7N29KS0j
- DBmjgEFjwTscud8ZmhiUbf7g4V5muhP1C7ty5ZOUmpkCAPkRcdBSHnd8FafksPuVtq4n
- amqmWQP9jEQBXSlkGq238h3JuHCQ0l3AtGG1TPKIXN1xqKrROQvm+BAZuDSc0ZaoCfrk
- M6UjJmllJUd9IdhYMm3BWbBj8Ru5v+cPFo0fJIg7n8jxP/1+hqnxAiKpnGHfycfP9M6y
- PNk6p9igZLLfk+tnNl5sUNsG5KCffUnhyu5Cr1SJyIPWcKGuauBiiqVpEm4SznR18tfY
- RojQ==
-X-Gm-Message-State: AOAM5325E1UJnZN9ifp8z/OrKXS2fdCS9dPBrt80bPTeROw7zuCs+3Eo
- DV9X5aTBWBGHqkTxQ+d1tRYbjqdkBQM55ayx1pDMqkwWzHqtv915Mez1yswaMDzVMYKKJmw+CZv
- WqSVgFtAQHRfvOA5m2aeiodXsaHmRALAu7ORGwEHDiYW3LASInoZc8A4pMw==
-X-Received: by 2002:a2e:8099:: with SMTP id i25mr3221909ljg.277.1634178961955; 
- Wed, 13 Oct 2021 19:36:01 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzBvr7aDWM7r6lk+wF33bxkLrS0BzM/vTPjwLcQmBvul9e4TVUkv+qhhNr0wI3WHaDebhczdB2HdDfeLmL4/FQ=
-X-Received: by 2002:a2e:8099:: with SMTP id i25mr3221883ljg.277.1634178961702; 
- Wed, 13 Oct 2021 19:36:01 -0700 (PDT)
+ bh=eXsQtbYu8ZrTVNpDyzuEjrd6+BUlfzHFpmt5fkpzD3E=;
+ b=TLNtnSjpDhvGPEJ0wJTImRXK9Fs8H+1elFd2tWH2aOECuvmBasRSltG2wfNwdxgcWA
+ J1uLgtkKJ9vQrEUmlIDwsDy+cI7G3dZOEp6i5jS64Ht7HXAvx2Uls7tgHIk0Fn2LNZ8C
+ PgMonZS8CkBXxNjq8PyFwDn0jt4iMcMqxRfOFzur+uVQGVj1HKCDictUxc4ZGVwLkIM5
+ l7AKEQIjSCuz8Q/j5oiaGBsAUg+P4kfGadZ6ny/XCCHjdbLlTV8/apvMRtdxikBIbezd
+ PrTwQigfpURNjalWAxUuEy+JEcVb6hTeYtZrVJFJzMS6imytte9KNPHwLPIDgGpLR4mC
+ 7SkA==
+X-Gm-Message-State: AOAM531BBDidIgccK+08GrLdKYk47O6/mRRwC7/Q05JuPCxc4//kwkMs
+ LcoLFpefEDXT7KnlpNfV2BvwxQCm0A3ktiB918qvdCk44eZPWzP1pUgaIFM/+TkSYXRI91AnjD/
+ KWHM/3gHpeOP5xWonXXpd/grm8DAWETAJsGIFKH2T3cGtsR7RoFNMsuVFNw==
+X-Received: by 2002:a2e:a553:: with SMTP id e19mr3434306ljn.420.1634179538480; 
+ Wed, 13 Oct 2021 19:45:38 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx+xgpkEUubYfnpn/vaAsfXQ0rhxqRYeg+wRyCTA86C+jYoPsMcxaiuymric4yv4DqVOdlgczVxxUcTpfzpW1c=
+X-Received: by 2002:a2e:a553:: with SMTP id e19mr3434279ljn.420.1634179538228; 
+ Wed, 13 Oct 2021 19:45:38 -0700 (PDT)
 MIME-Version: 1.0
-References: <20211012065227.9953-1-jasowang@redhat.com>
- <20211012065227.9953-8-jasowang@redhat.com>
- <20211013053627-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20211013053627-mutt-send-email-mst@kernel.org>
+References: <20211013124553.23803-1-mst@redhat.com>
+In-Reply-To: <20211013124553.23803-1-mst@redhat.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 14 Oct 2021 10:35:48 +0800
-Message-ID: <CACGkMEuRHKJv73oKFNetcBkPSFj034te7N_AJZdRbHe0ObU4Gw@mail.gmail.com>
-Subject: Re: [PATCH V2 07/12] virtio-pci: harden INTX interrupts
+Date: Thu, 14 Oct 2021 10:45:25 +0800
+Message-ID: <CACGkMEvoE8+FxvX_vJEqEuqHptHu1-0TyM4j1P=cnRiBD6-1vA@mail.gmail.com>
+Subject: Re: [PATCH] Revert "virtio-blk: Add validation for block size in
+ config space"
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: "Paul E . McKenney" <paulmck@kernel.org>, "kaplan,
- david" <david.kaplan@amd.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
- Peter Zijlstra <peterz@infradead.org>, Boqun Feng <boqun.feng@gmail.com>,
- "Hetzelt, Felicitas" <f.hetzelt@tu-berlin.de>,
- linux-kernel <linux-kernel@vger.kernel.org>,
+Cc: Jens Axboe <axboe@kernel.dk>, linux-kernel <linux-kernel@vger.kernel.org>,
+ stable@vger.kernel.org,
  virtualization <virtualization@lists.linux-foundation.org>,
- Thomas Gleixner <tglx@linutronix.de>
+ linux-block@vger.kernel.org, Xie Yongji <xieyongji@bytedance.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,116 +117,119 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Oct 13, 2021 at 5:42 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Wed, Oct 13, 2021 at 8:46 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 >
-> On Tue, Oct 12, 2021 at 02:52:22PM +0800, Jason Wang wrote:
-> > This patch tries to make sure the virtio interrupt handler for INTX
-> > won't be called after a reset and before virtio_device_ready(). We
-> > can't use IRQF_NO_AUTOEN since we're using shared interrupt
-> > (IRQF_SHARED). So this patch tracks the INTX enabling status in a new
-> > intx_soft_enabled variable and toggle it during in
-> > vp_disable/enable_vectors(). The INTX interrupt handler will check
-> > intx_soft_enabled before processing the actual interrupt.
-> >
-> > Cc: Boqun Feng <boqun.feng@gmail.com>
-> > Cc: Thomas Gleixner <tglx@linutronix.de>
-> > Cc: Peter Zijlstra <peterz@infradead.org>
-> > Cc: Paul E. McKenney <paulmck@kernel.org>
-> > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> >  drivers/virtio/virtio_pci_common.c | 24 ++++++++++++++++++++++--
-> >  drivers/virtio/virtio_pci_common.h |  1 +
-> >  2 files changed, 23 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-> > index 0b9523e6dd39..5ae6a2a4eb77 100644
-> > --- a/drivers/virtio/virtio_pci_common.c
-> > +++ b/drivers/virtio/virtio_pci_common.c
-> > @@ -30,8 +30,16 @@ void vp_disable_vectors(struct virtio_device *vdev)
-> >       struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> >       int i;
-> >
-> > -     if (vp_dev->intx_enabled)
-> > +     if (vp_dev->intx_enabled) {
-> > +             /*
-> > +              * The below synchronize() guarantees that any
-> > +              * interrupt for this line arriving after
-> > +              * synchronize_irq() has completed is guaranteed to see
-> > +              * intx_soft_enabled == false.
-> > +              */
-> > +             WRITE_ONCE(vp_dev->intx_soft_enabled, false);
-> >               synchronize_irq(vp_dev->pci_dev->irq);
-> > +     }
-> >
-> >       for (i = 0; i < vp_dev->msix_vectors; ++i)
-> >               disable_irq(pci_irq_vector(vp_dev->pci_dev, i));
-> > @@ -43,8 +51,16 @@ void vp_enable_vectors(struct virtio_device *vdev)
-> >       struct virtio_pci_device *vp_dev = to_vp_device(vdev);
-> >       int i;
-> >
-> > -     if (vp_dev->intx_enabled)
-> > +     if (vp_dev->intx_enabled) {
-> > +             disable_irq(vp_dev->pci_dev->irq);
-> > +             /*
-> > +              * The above disable_irq() provides TSO ordering and
-> > +              * as such promotes the below store to store-release.
-> > +              */
-> > +             WRITE_ONCE(vp_dev->intx_soft_enabled, true);
-> > +             enable_irq(vp_dev->pci_dev->irq);
-> >               return;
-> > +     }
-> >
-> >       for (i = 0; i < vp_dev->msix_vectors; ++i)
-> >               enable_irq(pci_irq_vector(vp_dev->pci_dev, i));
-> > @@ -97,6 +113,10 @@ static irqreturn_t vp_interrupt(int irq, void *opaque)
-> >       struct virtio_pci_device *vp_dev = opaque;
-> >       u8 isr;
-> >
-> > +     /* read intx_soft_enabled before read others */
-> > +     if (!smp_load_acquire(&vp_dev->intx_soft_enabled))
-> > +             return IRQ_NONE;
-> > +
-> >       /* reading the ISR has the effect of also clearing it so it's very
-> >        * important to save off the value. */
-> >       isr = ioread8(vp_dev->isr);
->
-> I don't see why we need this ordering guarantee here.
->
-> synchronize_irq above makes sure no interrupt handler
-> is in progress.
+> It turns out that access to config space before completing the feature
+> negotiation is broken for big endian guests at least with QEMU hosts up
+> to 6.1 inclusive.  This affects any device that accesses config space in
+> the validate callback: at the moment that is virtio-net with
+> VIRTIO_NET_F_MTU but since 82e89ea077b9 ("virtio-blk: Add validation for
+> block size in config space") that also started affecting virtio-blk with
+> VIRTIO_BLK_F_BLK_SIZE.
 
-Yes.
+Ok, so it looks like I need to do something similar in my series to
+validate max_nr_ports in probe() instead of validate()? (multi port is
+not enabled by default).
 
-> the handler itself thus does not need
-> any specific order, it is ok if intx_soft_enabled is read
-> after, not before the rest of it.
+I wonder if we need to document this and rename the validate to
+validate_features() (since we can do very little thing if we can't
+read config in .validate()).
 
-But the interrupt could be raised after synchronize_irq() which may
-see a false of the intx_soft_enabled. In this case we still need the
-make sure intx_soft_enbled to be read first instead of allowing other
-operations to be done first, otherwise the intx_soft_enabled is
-meaningless.
-
-Thanks
-
+> Further, unlike VIRTIO_NET_F_MTU which is off by
+> default on QEMU, VIRTIO_BLK_F_BLK_SIZE is on by default, which resulted
+> in lots of people not being able to boot VMs on BE.
 >
-> Just READ_ONCE should be enough, and we can drop the comment.
+> The spec is very clear that what we are doing is legal so QEMU needs to
+> be fixed, but given it's been broken for so many years and no one
+> noticed, we need to give QEMU a bit more time before applying this.
 >
+> Further, this patch is incomplete (does not check blk size is a power
+> of two) and it duplicates the logic from nbd.
 >
-> > diff --git a/drivers/virtio/virtio_pci_common.h b/drivers/virtio/virtio_pci_common.h
-> > index a235ce9ff6a5..3c06e0f92ee4 100644
-> > --- a/drivers/virtio/virtio_pci_common.h
-> > +++ b/drivers/virtio/virtio_pci_common.h
-> > @@ -64,6 +64,7 @@ struct virtio_pci_device {
-> >       /* MSI-X support */
-> >       int msix_enabled;
-> >       int intx_enabled;
-> > +     bool intx_soft_enabled;
-> >       cpumask_var_t *msix_affinity_masks;
-> >       /* Name strings for interrupts. This size should be enough,
-> >        * and I'm too lazy to allocate each name separately. */
-> > --
-> > 2.25.1
+> Revert for now, and we'll reapply a cleaner logic in the next release.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: 82e89ea077b9 ("virtio-blk: Add validation for block size in config space")
+> Cc: Xie Yongji <xieyongji@bytedance.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+Acked-by: jason Wang <jasowang@redhat.com>
+
+> ---
+>  drivers/block/virtio_blk.c | 37 ++++++-------------------------------
+>  1 file changed, 6 insertions(+), 31 deletions(-)
+>
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 9b3bd083b411..303caf2d17d0 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -689,28 +689,6 @@ static const struct blk_mq_ops virtio_mq_ops = {
+>  static unsigned int virtblk_queue_depth;
+>  module_param_named(queue_depth, virtblk_queue_depth, uint, 0444);
+>
+> -static int virtblk_validate(struct virtio_device *vdev)
+> -{
+> -       u32 blk_size;
+> -
+> -       if (!vdev->config->get) {
+> -               dev_err(&vdev->dev, "%s failure: config access disabled\n",
+> -                       __func__);
+> -               return -EINVAL;
+> -       }
+> -
+> -       if (!virtio_has_feature(vdev, VIRTIO_BLK_F_BLK_SIZE))
+> -               return 0;
+> -
+> -       blk_size = virtio_cread32(vdev,
+> -                       offsetof(struct virtio_blk_config, blk_size));
+> -
+> -       if (blk_size < SECTOR_SIZE || blk_size > PAGE_SIZE)
+> -               __virtio_clear_bit(vdev, VIRTIO_BLK_F_BLK_SIZE);
+> -
+> -       return 0;
+> -}
+> -
+>  static int virtblk_probe(struct virtio_device *vdev)
+>  {
+>         struct virtio_blk *vblk;
+> @@ -722,6 +700,12 @@ static int virtblk_probe(struct virtio_device *vdev)
+>         u8 physical_block_exp, alignment_offset;
+>         unsigned int queue_depth;
+>
+> +       if (!vdev->config->get) {
+> +               dev_err(&vdev->dev, "%s failure: config access disabled\n",
+> +                       __func__);
+> +               return -EINVAL;
+> +       }
+> +
+>         err = ida_simple_get(&vd_index_ida, 0, minor_to_index(1 << MINORBITS),
+>                              GFP_KERNEL);
+>         if (err < 0)
+> @@ -836,14 +820,6 @@ static int virtblk_probe(struct virtio_device *vdev)
+>         else
+>                 blk_size = queue_logical_block_size(q);
+>
+> -       if (blk_size < SECTOR_SIZE || blk_size > PAGE_SIZE) {
+> -               dev_err(&vdev->dev,
+> -                       "block size is changed unexpectedly, now is %u\n",
+> -                       blk_size);
+> -               err = -EINVAL;
+> -               goto out_cleanup_disk;
+> -       }
+> -
+>         /* Use topology information if available */
+>         err = virtio_cread_feature(vdev, VIRTIO_BLK_F_TOPOLOGY,
+>                                    struct virtio_blk_config, physical_block_exp,
+> @@ -1009,7 +985,6 @@ static struct virtio_driver virtio_blk = {
+>         .driver.name                    = KBUILD_MODNAME,
+>         .driver.owner                   = THIS_MODULE,
+>         .id_table                       = id_table,
+> -       .validate                       = virtblk_validate,
+>         .probe                          = virtblk_probe,
+>         .remove                         = virtblk_remove,
+>         .config_changed                 = virtblk_config_changed,
+> --
+> MST
 >
 
 _______________________________________________
