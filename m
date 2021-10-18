@@ -2,77 +2,84 @@ Return-Path: <SRS0=YY9U=PG=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5A6CC433F5
-	for <virtualization@archiver.kernel.org>; Mon, 18 Oct 2021 00:55:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 40A04C433F5
+	for <virtualization@archiver.kernel.org>; Mon, 18 Oct 2021 01:10:29 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 678DB6124B
-	for <virtualization@archiver.kernel.org>; Mon, 18 Oct 2021 00:55:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 678DB6124B
+	by mail.kernel.org (Postfix) with ESMTPS id DEEB561076
+	for <virtualization@archiver.kernel.org>; Mon, 18 Oct 2021 01:10:28 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org DEEB561076
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linutronix.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1EAE681CDB;
-	Mon, 18 Oct 2021 00:55:20 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id A635881CD0;
+	Mon, 18 Oct 2021 01:10:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1i4oIfAF7iL8; Mon, 18 Oct 2021 00:55:19 +0000 (UTC)
+	with ESMTP id tPnkuIGkNXFS; Mon, 18 Oct 2021 01:10:27 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 9B70381CAF;
-	Mon, 18 Oct 2021 00:55:18 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2040280DB6;
+	Mon, 18 Oct 2021 01:10:27 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 421B5C000F;
-	Mon, 18 Oct 2021 00:55:18 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 18549C000D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F3E2CC000F;
+	Mon, 18 Oct 2021 01:10:26 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7FB15C000D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Oct 2021 00:55:17 +0000 (UTC)
+ Mon, 18 Oct 2021 01:10:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id EE3D96087C
+ by smtp2.osuosl.org (Postfix) with ESMTP id 59BEA40354
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Oct 2021 00:55:16 +0000 (UTC)
+ Mon, 18 Oct 2021 01:10:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linutronix.de header.b="XHU/uT6r";
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linutronix.de header.b="NeYfFMec";
  dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
- header.d=linutronix.de header.b="bkeSQfcw"
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7DyqvyWr2x78
+ header.d=linutronix.de header.b="yTgU4qMQ"
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ue5Nq2MDpLHJ
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Oct 2021 00:55:16 +0000 (UTC)
+ Mon, 18 Oct 2021 01:10:25 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
- by smtp3.osuosl.org (Postfix) with ESMTPS id DF4D36068F
+Received: from galois.linutronix.de (Galois.linutronix.de
+ [IPv6:2a0a:51c0:0:12e:550::1])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id E8F06402B1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 18 Oct 2021 00:55:15 +0000 (UTC)
+ Mon, 18 Oct 2021 01:10:24 +0000 (UTC)
 From: Thomas Gleixner <tglx@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1634518512;
+ s=2020; t=1634519422;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to; bh=Gay8VmFyss97KfWC5visbOqdWAYqK9/j2DbvMiqFQuY=;
- b=XHU/uT6rxY83cF7h/S8R1Or7JEZysnYFiMTBcvx5KoySp5QBAdL72qHvO/eAZ44b/oq3vE
- btNorRbowan8FRVNNpXH6+aXAmG0xXy2yRXzb6ymU0722PLjY2grnFZ0xyYhFuMZt8oj34
- nVCwWohCP3WCdN+qHMYPSPAQitSOPg+8BNuqxg2PGTNKfNzy8XO1aG4MVazipjYuTM5Hfg
- rPKozNgBgpjTgQTFwURKcICK+nkcOLZyV12wAWjfISaiPSEk3dwNafUw/aNGmJrVIt60fW
- QrDeG4HB/o/g+NtgFglnBrD3XJ+VscmgTDiwoLvTPsn1H2T4v4+ErS5lir8cLg==
+ in-reply-to:in-reply-to:references:references;
+ bh=2renu8ZE8ozzoUn8doITIHK/p2oy+zqiubPlxkzvjKI=;
+ b=NeYfFMecTWNziQtQWeHQRI+pSG8mlPx6rXnTY+tqAmJzCsEnkfJdfxBPRvyYIRvcAU8kWP
+ JXOl8vAwoKGZixe/fWcIkEVur6LcilfP2x0Ax+WPMpFO3NFr9bARL3HGLg5zIGHjKA1y9c
+ q3rYu+QwEgDYmExjuGiOFYCLkBA4EzIpDVo6HZbDQqKEnzRgAYO7b3zRFgn8jpP+A800Jj
+ 2UmK35n0lwcDd6gSXItNrWDs8YtI0n7t5587yj/LuVrrNu61iqhJw5dBbpEd3Rf2pdoDV6
+ Jc98JYhX0b1wja0EWFZO/gKnYKM45illilYEq4oiOkJMu8T1dEdMpLcTGJ5lLQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1634518512;
+ s=2020e; t=1634519422;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to; bh=Gay8VmFyss97KfWC5visbOqdWAYqK9/j2DbvMiqFQuY=;
- b=bkeSQfcwuKqiSyUYQR5UJ5dUTJnV3GfJ5hn2kv4dlsE7Q5KIsp4P7VACv6mECyInrd/hXO
- 2M0zlxRqSRVXWIAA==
+ in-reply-to:in-reply-to:references:references;
+ bh=2renu8ZE8ozzoUn8doITIHK/p2oy+zqiubPlxkzvjKI=;
+ b=yTgU4qMQsJ0Prrb5VgmZPnJugZRYb/9AQNBOmEJMAHu2NeRNJyDX9XIv0KSMJ7cnVvjbMs
+ 5ijmDWqMRiGSdHAA==
 To: Andi Kleen <ak@linux.intel.com>, Dan Williams
- <dan.j.williams@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>
+ <dan.j.williams@intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Arjan
+ van de Ven <arjan@linux.intel.com>, "Schlobohm, Bruce"
+ <bruce.schlobohm@intel.com>, "Kovatch, Kathleen"
+ <kathleen.kovatch@intel.com>
 Subject: Re: [PATCH v5 12/16] PCI: Add pci_iomap_host_shared(),
  pci_iomap_host_shared_range()
-In-Reply-To: <0e6664ac-cbb2-96ff-0106-9301735c0836@linux.intel.com>
-Date: Mon, 18 Oct 2021 02:55:11 +0200
-Message-ID: <875ytv2lu8.ffs@tglx>
+In-Reply-To: <875ytv2lu8.ffs@tglx>
+References: <875ytv2lu8.ffs@tglx>
+Date: Mon, 18 Oct 2021 03:10:21 +0200
+Message-ID: <871r4j2l4y.ffs@tglx>
 MIME-Version: 1.0
 Cc: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>,
  Kuppuswamy Sathyanarayanan <knsathya@kernel.org>,
@@ -111,97 +118,113 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Andi,
-
-On Sun, Oct 10 2021 at 15:11, Andi Kleen wrote:
-> On 10/9/2021 1:39 PM, Dan Williams wrote:
->> I agree with you and Greg here. If a driver is accessing hardware
->> resources outside of the bind lifetime of one of the devices it
->> supports, and in a way that neither modrobe-policy nor
->> device-authorization -policy infrastructure can block, that sounds
->> like a bug report.
+On Mon, Oct 18 2021 at 02:55, Thomas Gleixner wrote:
+> On Sun, Oct 10 2021 at 15:11, Andi Kleen wrote:
+>> The 5.15 tree has something like ~2.4k IO accesses (including MMIO and 
+>> others) in init functions that also register drivers (thanks Elena for 
+>> the number)
 >
-> The 5.15 tree has something like ~2.4k IO accesses (including MMIO and 
-> others) in init functions that also register drivers (thanks Elena for 
-> the number)
+> These numbers are completely useless simply because they are based on
+> nonsensical criteria. See:
+>
+>   https://lore.kernel.org/r/87r1cj2uad.ffs@tglx
+>
+>> My point is just that the ecosystem of devices that Linux supports is 
+>> messy enough that there are legitimate exceptions from the "First IO 
+>> only in probe call only" rule.
+>
+> Your point is based on your outright refusal to actualy do a proper
+> analysis and your outright refusal to help fixing the real problems.
+>
+> All you have provided so far is handwaving based on a completely useless
+> analysis.
+>
+> Sure, your goal is to get this TDX problem solved, but it's not going to
+> be solved by:
+>
+>   1) Providing a nonsensical analysis
+>
+>   2) Using #1 as an argument to hack some half baken interfaces into the
+>      kernel which allow you to tick off your checkbox and then leave the
+>      resulting mess for others to clean up.
+>  
+> Try again when you have factual data to back up your claims and factual
+> arguments which prove that the problem can't be fixed otherwise.
+>
+> I might be repeating myself, but kernel development works this way:
+>
+>   1) Hack your private POC - Yay!
+>
+>   2) Sit down and think hard about the problems you identified in step
+>      #1. Do a thorough analysis.
+>   
+>   3) Come up with a sensible integration plan.
+>
+>   4) Do the necessary grump work of cleanups all over the place
+>
+>   5) Add sensible infrastructure which is understandable for the bulk
+>      of kernel/driver developers
+>
+>   6) Let your feature fall in place
+>
+> and not in the way you are insisting on:
+>
+>   1) Hack your private POC - Yay!
+>
+>   2) Define that this is the only way to do it and try to shove it down
+>      the throat of everyone.
+>
+>   3) Getting told that this is not the way it works
+>
+>   4) Insist on it forever and blame the grumpy maintainers who are just
+>      not understanding the great value of your approach.
+>
+>   5) Go back to #2
+>
+> You should know that already, but I have no problem to give that lecture
+> to you over and over again. I probably should create a form letter.
+>
+> And no, you can bitch about me as much as you want. These are not my
+> personal rules and personal pet pieves. These are rules Linus cares
+> about very much and aside of that they just reflect common sense.
+>
+>   The kernel is a common good and not the dump ground for your personal
+>   brain waste.
+>
+>   The kernel does not serve Intel. Quite the contrary Intel depends on
+>   the kernel to work nicely with it's hardware. Ergo, Intel should have
+>   a vested interest to serve the kernel and take responsibility for it
+>   as a whole. And so should you as an Intel employee.
+>
+> Just dumping your next half baken workaround does not cut it especially
+> not when it is not backed up by sensible arguments.
+>
+> Please try again, but not before you have something substantial to back
+> up your claims.
 
-These numbers are completely useless simply because they are based on
-nonsensical criteria. See:
+That said, I can't resist the urge to say a few words to the responsible
+senior and management people at Intel in this context:
 
-  https://lore.kernel.org/r/87r1cj2uad.ffs@tglx
+I surely know that a lot of Intel people claim that their lack of
+progress is _only_ because Thomas is hard to work with and Thomas wants
+unreasonable changes to their code, which I could perceive as an abuse of
+myself for the purpose of self-deception. TBH, I don't give a damn.
 
-> My point is just that the ecosystem of devices that Linux supports is 
-> messy enough that there are legitimate exceptions from the "First IO 
-> only in probe call only" rule.
+Let me ask a few questions instead:
 
-Your point is based on your outright refusal to actualy do a proper
-analysis and your outright refusal to help fixing the real problems.
+  - Is it unreasonable to expect that argumentations are based on facts
+    and proper analysis?
 
-All you have provided so far is handwaving based on a completely useless
-analysis.
+  - Is it unreasonable to expect a proper integration of a new feature?
 
-Sure, your goal is to get this TDX problem solved, but it's not going to
-be solved by:
+  - Does it take unreasonable effort to do a proper design?
 
-  1) Providing a nonsensical analysis
+  - Is it unreasonable to ask that he necessary cleanups are done
+    upfront?
 
-  2) Using #1 as an argument to hack some half baken interfaces into the
-     kernel which allow you to tick off your checkbox and then leave the
-     resulting mess for others to clean up.
- 
-Try again when you have factual data to back up your claims and factual
-arguments which prove that the problem can't be fixed otherwise.
-
-I might be repeating myself, but kernel development works this way:
-
-  1) Hack your private POC - Yay!
-
-  2) Sit down and think hard about the problems you identified in step
-     #1. Do a thorough analysis.
-  
-  3) Come up with a sensible integration plan.
-
-  4) Do the necessary grump work of cleanups all over the place
-
-  5) Add sensible infrastructure which is understandable for the bulk
-     of kernel/driver developers
-
-  6) Let your feature fall in place
-
-and not in the way you are insisting on:
-
-  1) Hack your private POC - Yay!
-
-  2) Define that this is the only way to do it and try to shove it down
-     the throat of everyone.
-
-  3) Getting told that this is not the way it works
-
-  4) Insist on it forever and blame the grumpy maintainers who are just
-     not understanding the great value of your approach.
-
-  5) Go back to #2
-
-You should know that already, but I have no problem to give that lecture
-to you over and over again. I probably should create a form letter.
-
-And no, you can bitch about me as much as you want. These are not my
-personal rules and personal pet pieves. These are rules Linus cares
-about very much and aside of that they just reflect common sense.
-
-  The kernel is a common good and not the dump ground for your personal
-  brain waste.
-
-  The kernel does not serve Intel. Quite the contrary Intel depends on
-  the kernel to work nicely with it's hardware. Ergo, Intel should have
-  a vested interest to serve the kernel and take responsibility for it
-  as a whole. And so should you as an Intel employee.
-
-Just dumping your next half baken workaround does not cut it especially
-not when it is not backed up by sensible arguments.
-
-Please try again, but not before you have something substantial to back
-up your claims.
+If anyone of the responsible people at Intel thinks so, then they should
+speak up now and tell me in public and into my face what's so
+unreasonable about that.
 
 Thanks,
 
