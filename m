@@ -2,62 +2,62 @@ Return-Path: <SRS0=Bv1r=PI=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2882C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 20 Oct 2021 11:23:32 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC71FC433FE
+	for <virtualization@archiver.kernel.org>; Wed, 20 Oct 2021 11:23:33 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 43C26611EF
-	for <virtualization@archiver.kernel.org>; Wed, 20 Oct 2021 11:23:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 43C26611EF
+	by mail.kernel.org (Postfix) with ESMTPS id 455C5611EF
+	for <virtualization@archiver.kernel.org>; Wed, 20 Oct 2021 11:23:33 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 455C5611EF
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0850160C1C;
+	by smtp2.osuosl.org (Postfix) with ESMTP id EEAEB40385;
 	Wed, 20 Oct 2021 11:23:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id X3nqc7QVHls2; Wed, 20 Oct 2021 11:23:31 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id C4B5F60780;
-	Wed, 20 Oct 2021 11:23:30 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PXQuI0QtNT7g; Wed, 20 Oct 2021 11:23:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 683AD40395;
+	Wed, 20 Oct 2021 11:23:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AA688C000F;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D96FCC0024;
 	Wed, 20 Oct 2021 11:23:30 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1C96FC000D
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5A88EC000D
  for <virtualization@lists.linux-foundation.org>;
  Wed, 20 Oct 2021 11:23:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id E9F9640385
+ by smtp3.osuosl.org (Postfix) with ESMTP id 4A13160C15
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Oct 2021 11:23:28 +0000 (UTC)
+ Wed, 20 Oct 2021 11:23:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id kKIGKsxKpfQ6
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 831OIqgMXZvy
  for <virtualization@lists.linux-foundation.org>;
  Wed, 20 Oct 2021 11:23:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-56.freemail.mail.aliyun.com
- (out30-56.freemail.mail.aliyun.com [115.124.30.56])
- by smtp2.osuosl.org (Postfix) with ESMTPS id C1035401AF
+Received: from out30-44.freemail.mail.aliyun.com
+ (out30-44.freemail.mail.aliyun.com [115.124.30.44])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5B45C60780
  for <virtualization@lists.linux-foundation.org>;
- Wed, 20 Oct 2021 11:23:27 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R581e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=5; SR=0; TI=SMTPD_---0Ut2Ot5Q_1634729003; 
+ Wed, 20 Oct 2021 11:23:28 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R151e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04423; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=5; SR=0; TI=SMTPD_---0Ut1mi4i_1634729004; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0Ut2Ot5Q_1634729003) by smtp.aliyun-inc.com(127.0.0.1);
+ fp:SMTPD_---0Ut1mi4i_1634729004) by smtp.aliyun-inc.com(127.0.0.1);
  Wed, 20 Oct 2021 19:23:24 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>,
  virtualization@lists.linux-foundation.org
-Subject: [PATCH v6 1/2] virtio_ring: make virtqueue_add_indirect_packed
- prettier
-Date: Wed, 20 Oct 2021 19:23:22 +0800
-Message-Id: <20211020112323.67466-2-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v6 2/2] virtio_ring: check desc == NULL when using indirect
+ with packed
+Date: Wed, 20 Oct 2021 19:23:23 +0800
+Message-Id: <20211020112323.67466-3-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
 In-Reply-To: <20211020112323.67466-1-xuanzhuo@linux.alibaba.com>
 References: <20211020112323.67466-1-xuanzhuo@linux.alibaba.com>
@@ -79,38 +79,54 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Align the arguments of virtqueue_add_indirect_packed() to the open ( to
-make it look prettier.
+When using indirect with packed, we don't check for allocation failures.
+This patch checks that and fall back on direct.
 
+Fixes: 1ce9e6055fa ("virtio_ring: introduce packed ring support")
 Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/virtio/virtio_ring.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index dd95dfd85e98..91a46c4da87d 100644
+index 91a46c4da87d..bc92a2faa28f 100644
 --- a/drivers/virtio/virtio_ring.c
 +++ b/drivers/virtio/virtio_ring.c
-@@ -1050,12 +1050,12 @@ static struct vring_packed_desc *alloc_indirect_packed(unsigned int total_sg,
- }
+@@ -1065,6 +1065,8 @@ static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
  
- static int virtqueue_add_indirect_packed(struct vring_virtqueue *vq,
--				       struct scatterlist *sgs[],
--				       unsigned int total_sg,
--				       unsigned int out_sgs,
--				       unsigned int in_sgs,
--				       void *data,
--				       gfp_t gfp)
-+					 struct scatterlist *sgs[],
-+					 unsigned int total_sg,
-+					 unsigned int out_sgs,
-+					 unsigned int in_sgs,
-+					 void *data,
-+					 gfp_t gfp)
- {
- 	struct vring_packed_desc *desc;
- 	struct scatterlist *sg;
+ 	head = vq->packed.next_avail_idx;
+ 	desc = alloc_indirect_packed(total_sg, gfp);
++	if (!desc)
++		return -ENOMEM;
+ 
+ 	if (unlikely(vq->vq.num_free < 1)) {
+ 		pr_debug("Can't add buf len 1 - avail = 0\n");
+@@ -1176,6 +1178,7 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
+ 	unsigned int i, n, c, descs_used, err_idx;
+ 	__le16 head_flags, flags;
+ 	u16 head, id, prev, curr, avail_used_flags;
++	int err;
+ 
+ 	START_USE(vq);
+ 
+@@ -1191,9 +1194,14 @@ static inline int virtqueue_add_packed(struct virtqueue *_vq,
+ 
+ 	BUG_ON(total_sg == 0);
+ 
+-	if (virtqueue_use_indirect(_vq, total_sg))
+-		return virtqueue_add_indirect_packed(vq, sgs, total_sg,
+-				out_sgs, in_sgs, data, gfp);
++	if (virtqueue_use_indirect(_vq, total_sg)) {
++		err = virtqueue_add_indirect_packed(vq, sgs, total_sg, out_sgs,
++						    in_sgs, data, gfp);
++		if (err != -ENOMEM)
++			return err;
++
++		/* fall back on direct */
++	}
+ 
+ 	head = vq->packed.next_avail_idx;
+ 	avail_used_flags = vq->packed.avail_used_flags;
 -- 
 2.31.0
 
