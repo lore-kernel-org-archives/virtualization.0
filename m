@@ -2,85 +2,81 @@ Return-Path: <SRS0=+kt1=PK=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78597C4332F
-	for <virtualization@archiver.kernel.org>; Fri, 22 Oct 2021 13:28:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C11C9C433FE
+	for <virtualization@archiver.kernel.org>; Fri, 22 Oct 2021 13:28:43 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 40C60611C3
-	for <virtualization@archiver.kernel.org>; Fri, 22 Oct 2021 13:28:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 40C60611C3
+	by mail.kernel.org (Postfix) with ESMTPS id 885BE611CB
+	for <virtualization@archiver.kernel.org>; Fri, 22 Oct 2021 13:28:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 885BE611CB
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 7D54C83B7C;
+	by smtp1.osuosl.org (Postfix) with ESMTP id 1075A83B2A;
 	Fri, 22 Oct 2021 13:28:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6nMIBD9NrLkZ; Fri, 22 Oct 2021 13:28:42 +0000 (UTC)
+	with ESMTP id 9V1zs8_6JdcV; Fri, 22 Oct 2021 13:28:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E936583B61;
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B4AFD83B52;
 	Fri, 22 Oct 2021 13:28:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E767EC0042;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AA5E3C003E;
 	Fri, 22 Oct 2021 13:28:39 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A4518C0040
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 61284C001E
  for <virtualization@lists.linux-foundation.org>;
  Fri, 22 Oct 2021 13:28:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 7C75D40032
+ by smtp1.osuosl.org (Postfix) with ESMTP id 4E84283B20
  for <virtualization@lists.linux-foundation.org>;
  Fri, 22 Oct 2021 13:28:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.de header.b="oingm/Sw";
- dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
- header.d=suse.de header.b="kjNhry8+"
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xGtMxlVFjAle
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id PCA8egku0uia
  for <virtualization@lists.linux-foundation.org>;
  Fri, 22 Oct 2021 13:28:35 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp4.osuosl.org (Postfix) with ESMTPS id BB4CB408D2
+ by smtp1.osuosl.org (Postfix) with ESMTPS id C223683B1B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Oct 2021 13:28:35 +0000 (UTC)
+ Fri, 22 Oct 2021 13:28:34 +0000 (UTC)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id 11FAA1FD60;
- Fri, 22 Oct 2021 13:28:34 +0000 (UTC)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id B18FD1FD5D;
+ Fri, 22 Oct 2021 13:28:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1634909314; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ t=1634909312; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=A15WdQC65kq41kCK0mYIBkfPHvThrjPCntu7z8A7dlM=;
- b=oingm/Sw3lSBkNMXOM31DaedqQeKyTN7tVHimc75URcwFxG/NY5gkHaxnJV+kkzEiRQGQi
- 1NV4vdrspCEQNoPMTJxtW0zJH5Yj7lTyfaUy4FmBnX9zPAQiZL1tZW+BJAXVYs4wAImT1b
- 5RR9HDhU/bIQXclJgDa2OfRXZrm/zQ0=
+ bh=a92FVJ6f8nwQGJQbLyhh/KJViNjnrL79JTM37pj92bM=;
+ b=HAw/0zEgXO1ziiFSP1jDmP2LoJ4z8tWAhVtJsNGIALoptHcn4x2t4Tn42ahrmceoSSunDd
+ aW5AhvjIL9JsYNkpPjmXNdyfjgBCcmW7JJKWqmosBX3DtTe0Zo0QKm4s9gwqqdNG0HQMfp
+ wNs4PX/y4e98w9F+BG8FClLImKFygzo=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1634909314;
+ s=susede2_ed25519; t=1634909312;
  h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=A15WdQC65kq41kCK0mYIBkfPHvThrjPCntu7z8A7dlM=;
- b=kjNhry8+KE/CRxyGyECTq6Wf6L2hRGdOsHOqXCr8KNcKtyuYa3J3VaZPNI+hTvs+nJFbZg
- bwm84hmAX3WaraAA==
+ bh=a92FVJ6f8nwQGJQbLyhh/KJViNjnrL79JTM37pj92bM=;
+ b=vWjLNmvsxR3L6JsfqYXGlPCeezMZKN1DvYyM99QiXcBlUV0znuaaVF/Kv4IFmjNmckGmkn
+ Pl8BRK6V/WsUsvAQ==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id A36ED13CDA;
- Fri, 22 Oct 2021 13:28:33 +0000 (UTC)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 4039813CDA;
+ Fri, 22 Oct 2021 13:28:32 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id EMrgJoG8cmEwXgAAMHmgww
- (envelope-from <tzimmermann@suse.de>); Fri, 22 Oct 2021 13:28:33 +0000
+ by imap2.suse-dmz.suse.de with ESMTPSA id mMK5DoC8cmEwXgAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Fri, 22 Oct 2021 13:28:32 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: daniel@ffwll.ch, airlied@linux.ie, mripard@kernel.org,
  maarten.lankhorst@linux.intel.com, noralf@tronnes.org,
@@ -89,9 +85,10 @@ To: daniel@ffwll.ch, airlied@linux.ie, mripard@kernel.org,
  kernel@amanoeldawod.com, dirty.ice.hu@gmail.com,
  michael+lkml@stapelberg.ch, aros@gmx.com, joshua@stroblindustries.com,
  arnd@arndb.de
-Subject: [PATCH 7/9] drm/simpledrm: Enable FB_DAMAGE_CLIPS property
-Date: Fri, 22 Oct 2021 15:28:27 +0200
-Message-Id: <20211022132829.7697-8-tzimmermann@suse.de>
+Subject: [PATCH 4/9] drm/format-helper: Rework format-helper conversion
+ functions
+Date: Fri, 22 Oct 2021 15:28:24 +0200
+Message-Id: <20211022132829.7697-5-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211022132829.7697-1-tzimmermann@suse.de>
 References: <20211022132829.7697-1-tzimmermann@suse.de>
@@ -114,93 +111,501 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Enable the FB_DAMAGE_CLIPS property to reduce display-update
-overhead. Also fixes a warning in the kernel log.
+Move destination-buffer clipping from all format-helper conversion
+functions into callers. Support destination-buffer pitch. Only
+distinguish between system and I/O memory, but use same logic
+everywhere.
 
-  simple-framebuffer simple-framebuffer.0: [drm] drm_plane_enable_fb_damage_clips() not called
-
-Fix the computation of the blit rectangle. This wasn't an issue so
-far, as simpledrm always blitted the full framebuffer. The code now
-supports damage clipping and virtual screen sizes.
+Simply harmonize the interface and semantics of the existing code.
+Not all conversion helpers support all combinations of parameters.
+We have to add additional features when we need them.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/tiny/simpledrm.c | 30 ++++++++++++++++++++++--------
- 1 file changed, 22 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/drm_format_helper.c | 131 +++++++++++++++-------------
+ drivers/gpu/drm/drm_mipi_dbi.c      |   2 +-
+ drivers/gpu/drm/gud/gud_pipe.c      |  10 +--
+ drivers/gpu/drm/tiny/cirrus.c       |  10 +--
+ drivers/gpu/drm/tiny/repaper.c      |   2 +-
+ drivers/gpu/drm/tiny/st7586.c       |   2 +-
+ include/drm/drm_format_helper.h     |  30 +++----
+ 7 files changed, 97 insertions(+), 90 deletions(-)
 
-diff --git a/drivers/gpu/drm/tiny/simpledrm.c b/drivers/gpu/drm/tiny/simpledrm.c
-index 571f716ff427..e872121e9fb0 100644
---- a/drivers/gpu/drm/tiny/simpledrm.c
-+++ b/drivers/gpu/drm/tiny/simpledrm.c
-@@ -642,7 +642,7 @@ simpledrm_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
- 	void *vmap = shadow_plane_state->data[0].vaddr; /* TODO: Use mapping abstraction */
- 	struct drm_device *dev = &sdev->dev;
- 	void __iomem *dst = sdev->screen_base;
--	struct drm_rect clip;
-+	struct drm_rect src_clip, dst_clip;
- 	int idx;
- 
- 	if (!fb)
-@@ -651,10 +651,14 @@ simpledrm_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
- 	if (!drm_dev_enter(dev, &idx))
- 		return;
- 
--	drm_rect_init(&clip, 0, 0, fb->width, fb->height);
-+	drm_rect_fp_to_int(&src_clip, &plane_state->src);
- 
--	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &clip);
--	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &clip);
-+	dst_clip = plane_state->dst;
-+	if (!drm_rect_intersect(&dst_clip, &src_clip))
-+		return;
-+
-+	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &dst_clip);
-+	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &src_clip);
- 
- 	drm_dev_exit(idx);
+diff --git a/drivers/gpu/drm/drm_format_helper.c b/drivers/gpu/drm/drm_format_helper.c
+index 79869ed553d9..260dc587c1d7 100644
+--- a/drivers/gpu/drm/drm_format_helper.c
++++ b/drivers/gpu/drm/drm_format_helper.c
+@@ -156,7 +156,7 @@ void drm_fb_swab(void *dst, unsigned int dst_pitch, const void *src,
  }
-@@ -686,20 +690,28 @@ simpledrm_simple_display_pipe_update(struct drm_simple_display_pipe *pipe,
- 	struct drm_framebuffer *fb = plane_state->fb;
- 	struct drm_device *dev = &sdev->dev;
- 	void __iomem *dst = sdev->screen_base;
--	struct drm_rect clip;
-+	struct drm_rect damage_clip, src_clip, dst_clip;
- 	int idx;
+ EXPORT_SYMBOL(drm_fb_swab);
  
- 	if (!fb)
- 		return;
+-static void drm_fb_xrgb8888_to_rgb332_line(u8 *dbuf, __le32 *sbuf, unsigned int pixels)
++static void drm_fb_xrgb8888_to_rgb332_line(u8 *dbuf, const __le32 *sbuf, unsigned int pixels)
+ {
+ 	unsigned int x;
+ 	u32 pix;
+@@ -172,23 +172,24 @@ static void drm_fb_xrgb8888_to_rgb332_line(u8 *dbuf, __le32 *sbuf, unsigned int
+ /**
+  * drm_fb_xrgb8888_to_rgb332 - Convert XRGB8888 to RGB332 clip buffer
+  * @dst: RGB332 destination buffer
++ * @dst_pitch: Number of bytes between two consecutive scanlines within dst
+  * @src: XRGB8888 source buffer
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+  *
+  * Drivers can use this function for RGB332 devices that don't natively support XRGB8888.
+- *
+- * This function does not apply clipping on dst, i.e. the destination is a small buffer
+- * containing the clip rect only.
+  */
+-void drm_fb_xrgb8888_to_rgb332(void *dst, void *src, struct drm_framebuffer *fb,
+-			       struct drm_rect *clip)
++void drm_fb_xrgb8888_to_rgb332(void *dst, unsigned int dst_pitch, const void *src,
++			       const struct drm_framebuffer *fb, const struct drm_rect *clip)
+ {
+ 	size_t width = drm_rect_width(clip);
+ 	size_t src_len = width * sizeof(u32);
+ 	unsigned int y;
+ 	void *sbuf;
  
--	if (!drm_atomic_helper_damage_merged(old_plane_state, plane_state, &clip))
-+	if (!drm_atomic_helper_damage_merged(old_plane_state, plane_state, &damage_clip))
-+		return;
++	if (!dst_pitch)
++		dst_pitch = width;
 +
-+	drm_rect_fp_to_int(&src_clip, &plane_state->src);
-+	if (!drm_rect_intersect(&src_clip, &damage_clip))
-+		return;
-+
-+	dst_clip = plane_state->dst;
-+	if (!drm_rect_intersect(&dst_clip, &src_clip))
- 		return;
+ 	/* Use a buffer to speed up access on buffers with uncached read mapping (i.e. WC) */
+ 	sbuf = kmalloc(src_len, GFP_KERNEL);
+ 	if (!sbuf)
+@@ -199,14 +200,14 @@ void drm_fb_xrgb8888_to_rgb332(void *dst, void *src, struct drm_framebuffer *fb,
+ 		memcpy(sbuf, src, src_len);
+ 		drm_fb_xrgb8888_to_rgb332_line(dst, sbuf, width);
+ 		src += fb->pitches[0];
+-		dst += width;
++		dst += dst_pitch;
+ 	}
  
- 	if (!drm_dev_enter(dev, &idx))
- 		return;
- 
--	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &clip);
--	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &clip);
-+	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &dst_clip);
-+	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &src_clip);
- 
- 	drm_dev_exit(idx);
+ 	kfree(sbuf);
  }
-@@ -794,6 +806,8 @@ static int simpledrm_device_init_modeset(struct simpledrm_device *sdev)
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb332);
+ 
+-static void drm_fb_xrgb8888_to_rgb565_line(u16 *dbuf, u32 *sbuf,
++static void drm_fb_xrgb8888_to_rgb565_line(u16 *dbuf, const u32 *sbuf,
+ 					   unsigned int pixels,
+ 					   bool swab)
+ {
+@@ -227,6 +228,7 @@ static void drm_fb_xrgb8888_to_rgb565_line(u16 *dbuf, u32 *sbuf,
+ /**
+  * drm_fb_xrgb8888_to_rgb565 - Convert XRGB8888 to RGB565 clip buffer
+  * @dst: RGB565 destination buffer
++ * @dst_pitch: Number of bytes between two consecutive scanlines within dst
+  * @vaddr: XRGB8888 source buffer
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+@@ -234,13 +236,10 @@ static void drm_fb_xrgb8888_to_rgb565_line(u16 *dbuf, u32 *sbuf,
+  *
+  * Drivers can use this function for RGB565 devices that don't natively
+  * support XRGB8888.
+- *
+- * This function does not apply clipping on dst, i.e. the destination
+- * is a small buffer containing the clip rect only.
+  */
+-void drm_fb_xrgb8888_to_rgb565(void *dst, void *vaddr,
+-			       struct drm_framebuffer *fb,
+-			       struct drm_rect *clip, bool swab)
++void drm_fb_xrgb8888_to_rgb565(void *dst, unsigned int dst_pitch, const void *vaddr,
++			       const struct drm_framebuffer *fb, const struct drm_rect *clip,
++			       bool swab)
+ {
+ 	size_t linepixels = clip->x2 - clip->x1;
+ 	size_t src_len = linepixels * sizeof(u32);
+@@ -248,6 +247,9 @@ void drm_fb_xrgb8888_to_rgb565(void *dst, void *vaddr,
+ 	unsigned y, lines = clip->y2 - clip->y1;
+ 	void *sbuf;
+ 
++	if (!dst_pitch)
++		dst_pitch = dst_len;
++
+ 	/*
+ 	 * The cma memory is write-combined so reads are uncached.
+ 	 * Speed up by fetching one line at a time.
+@@ -261,7 +263,7 @@ void drm_fb_xrgb8888_to_rgb565(void *dst, void *vaddr,
+ 		memcpy(sbuf, vaddr, src_len);
+ 		drm_fb_xrgb8888_to_rgb565_line(dst, sbuf, linepixels, swab);
+ 		vaddr += fb->pitches[0];
+-		dst += dst_len;
++		dst += dst_pitch;
+ 	}
+ 
+ 	kfree(sbuf);
+@@ -269,9 +271,9 @@ void drm_fb_xrgb8888_to_rgb565(void *dst, void *vaddr,
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb565);
+ 
+ /**
+- * drm_fb_xrgb8888_to_rgb565_dstclip - Convert XRGB8888 to RGB565 clip buffer
++ * drm_fb_xrgb8888_to_rgb565_toio - Convert XRGB8888 to RGB565 clip buffer
+  * @dst: RGB565 destination buffer (iomem)
+- * @dst_pitch: destination buffer pitch
++ * @dst_pitch: Number of bytes between two consecutive scanlines within dst
+  * @vaddr: XRGB8888 source buffer
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+@@ -279,37 +281,36 @@ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb565);
+  *
+  * Drivers can use this function for RGB565 devices that don't natively
+  * support XRGB8888.
+- *
+- * This function applies clipping on dst, i.e. the destination is a
+- * full (iomem) framebuffer but only the clip rect content is copied over.
+  */
+-void drm_fb_xrgb8888_to_rgb565_dstclip(void __iomem *dst, unsigned int dst_pitch,
+-				       void *vaddr, struct drm_framebuffer *fb,
+-				       struct drm_rect *clip, bool swab)
++void drm_fb_xrgb8888_to_rgb565_toio(void __iomem *dst, unsigned int dst_pitch,
++				    const void *vaddr, const struct drm_framebuffer *fb,
++				    const struct drm_rect *clip, bool swab)
+ {
+ 	size_t linepixels = clip->x2 - clip->x1;
+ 	size_t dst_len = linepixels * sizeof(u16);
+ 	unsigned y, lines = clip->y2 - clip->y1;
+ 	void *dbuf;
+ 
++	if (!dst_pitch)
++		dst_pitch = dst_len;
++
+ 	dbuf = kmalloc(dst_len, GFP_KERNEL);
+ 	if (!dbuf)
+ 		return;
+ 
+ 	vaddr += clip_offset(clip, fb->pitches[0], sizeof(u32));
+-	dst += clip_offset(clip, dst_pitch, sizeof(u16));
+ 	for (y = 0; y < lines; y++) {
+ 		drm_fb_xrgb8888_to_rgb565_line(dbuf, vaddr, linepixels, swab);
+ 		memcpy_toio(dst, dbuf, dst_len);
+ 		vaddr += fb->pitches[0];
+-		dst += dst_len;
++		dst += dst_pitch;
+ 	}
+ 
+ 	kfree(dbuf);
+ }
+-EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb565_dstclip);
++EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb565_toio);
+ 
+-static void drm_fb_xrgb8888_to_rgb888_line(u8 *dbuf, u32 *sbuf,
++static void drm_fb_xrgb8888_to_rgb888_line(u8 *dbuf, const u32 *sbuf,
+ 					   unsigned int pixels)
+ {
+ 	unsigned int x;
+@@ -324,24 +325,25 @@ static void drm_fb_xrgb8888_to_rgb888_line(u8 *dbuf, u32 *sbuf,
+ /**
+  * drm_fb_xrgb8888_to_rgb888 - Convert XRGB8888 to RGB888 clip buffer
+  * @dst: RGB888 destination buffer
++ * @dst_pitch: Number of bytes between two consecutive scanlines within dst
+  * @src: XRGB8888 source buffer
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+  *
+  * Drivers can use this function for RGB888 devices that don't natively
+  * support XRGB8888.
+- *
+- * This function does not apply clipping on dst, i.e. the destination
+- * is a small buffer containing the clip rect only.
+  */
+-void drm_fb_xrgb8888_to_rgb888(void *dst, void *src, struct drm_framebuffer *fb,
+-			       struct drm_rect *clip)
++void drm_fb_xrgb8888_to_rgb888(void *dst, unsigned int dst_pitch, const void *src,
++			       const struct drm_framebuffer *fb, const struct drm_rect *clip)
+ {
+ 	size_t width = drm_rect_width(clip);
+ 	size_t src_len = width * sizeof(u32);
+ 	unsigned int y;
+ 	void *sbuf;
+ 
++	if (!dst_pitch)
++		dst_pitch = width * 3;
++
+ 	/* Use a buffer to speed up access on buffers with uncached read mapping (i.e. WC) */
+ 	sbuf = kmalloc(src_len, GFP_KERNEL);
+ 	if (!sbuf)
+@@ -352,7 +354,7 @@ void drm_fb_xrgb8888_to_rgb888(void *dst, void *src, struct drm_framebuffer *fb,
+ 		memcpy(sbuf, src, src_len);
+ 		drm_fb_xrgb8888_to_rgb888_line(dst, sbuf, width);
+ 		src += fb->pitches[0];
+-		dst += width * 3;
++		dst += dst_pitch;
+ 	}
+ 
+ 	kfree(sbuf);
+@@ -360,48 +362,48 @@ void drm_fb_xrgb8888_to_rgb888(void *dst, void *src, struct drm_framebuffer *fb,
+ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb888);
+ 
+ /**
+- * drm_fb_xrgb8888_to_rgb888_dstclip - Convert XRGB8888 to RGB888 clip buffer
++ * drm_fb_xrgb8888_to_rgb888_toio - Convert XRGB8888 to RGB888 clip buffer
+  * @dst: RGB565 destination buffer (iomem)
+- * @dst_pitch: destination buffer pitch
++ * @dst_pitch: Number of bytes between two consecutive scanlines within dst
+  * @vaddr: XRGB8888 source buffer
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+  *
+  * Drivers can use this function for RGB888 devices that don't natively
+  * support XRGB8888.
+- *
+- * This function applies clipping on dst, i.e. the destination is a
+- * full (iomem) framebuffer but only the clip rect content is copied over.
+  */
+-void drm_fb_xrgb8888_to_rgb888_dstclip(void __iomem *dst, unsigned int dst_pitch,
+-				       void *vaddr, struct drm_framebuffer *fb,
+-				       struct drm_rect *clip)
++void drm_fb_xrgb8888_to_rgb888_toio(void __iomem *dst, unsigned int dst_pitch,
++				    const void *vaddr, const struct drm_framebuffer *fb,
++				    const struct drm_rect *clip)
+ {
+ 	size_t linepixels = clip->x2 - clip->x1;
+ 	size_t dst_len = linepixels * 3;
+ 	unsigned y, lines = clip->y2 - clip->y1;
+ 	void *dbuf;
+ 
++	if (!dst_pitch)
++		dst_pitch = dst_len;
++
+ 	dbuf = kmalloc(dst_len, GFP_KERNEL);
+ 	if (!dbuf)
+ 		return;
+ 
+ 	vaddr += clip_offset(clip, fb->pitches[0], sizeof(u32));
+-	dst += clip_offset(clip, dst_pitch, sizeof(u16));
+ 	for (y = 0; y < lines; y++) {
+ 		drm_fb_xrgb8888_to_rgb888_line(dbuf, vaddr, linepixels);
+ 		memcpy_toio(dst, dbuf, dst_len);
+ 		vaddr += fb->pitches[0];
+-		dst += dst_len;
++		dst += dst_pitch;
+ 	}
+ 
+ 	kfree(dbuf);
+ }
+-EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb888_dstclip);
++EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb888_toio);
+ 
+ /**
+  * drm_fb_xrgb8888_to_gray8 - Convert XRGB8888 to grayscale
+  * @dst: 8-bit grayscale destination buffer
++ * @dst_pitch: Number of bytes between two consecutive scanlines within dst
+  * @vaddr: XRGB8888 source buffer
+  * @fb: DRM framebuffer
+  * @clip: Clip rectangle area to copy
+@@ -415,16 +417,21 @@ EXPORT_SYMBOL(drm_fb_xrgb8888_to_rgb888_dstclip);
+  *
+  * ITU BT.601 is used for the RGB -> luma (brightness) conversion.
+  */
+-void drm_fb_xrgb8888_to_gray8(u8 *dst, void *vaddr, struct drm_framebuffer *fb,
+-			       struct drm_rect *clip)
++void drm_fb_xrgb8888_to_gray8(void *dst, unsigned int dst_pitch, const void *vaddr,
++			      const struct drm_framebuffer *fb, const struct drm_rect *clip)
+ {
+ 	unsigned int len = (clip->x2 - clip->x1) * sizeof(u32);
+ 	unsigned int x, y;
+ 	void *buf;
+-	u32 *src;
++	u8 *dst8;
++	u32 *src32;
+ 
+ 	if (WARN_ON(fb->format->format != DRM_FORMAT_XRGB8888))
+ 		return;
++
++	if (!dst_pitch)
++		dst_pitch = len;
++
+ 	/*
+ 	 * The cma memory is write-combined so reads are uncached.
+ 	 * Speed up by fetching one line at a time.
+@@ -433,20 +440,22 @@ void drm_fb_xrgb8888_to_gray8(u8 *dst, void *vaddr, struct drm_framebuffer *fb,
+ 	if (!buf)
+ 		return;
+ 
++	vaddr += clip_offset(clip, fb->pitches[0], sizeof(u32));
+ 	for (y = clip->y1; y < clip->y2; y++) {
+-		src = vaddr + (y * fb->pitches[0]);
+-		src += clip->x1;
+-		memcpy(buf, src, len);
+-		src = buf;
++		dst8 = dst;
++		src32 = memcpy(buf, vaddr, len);
+ 		for (x = clip->x1; x < clip->x2; x++) {
+-			u8 r = (*src & 0x00ff0000) >> 16;
+-			u8 g = (*src & 0x0000ff00) >> 8;
+-			u8 b =  *src & 0x000000ff;
++			u8 r = (*src32 & 0x00ff0000) >> 16;
++			u8 g = (*src32 & 0x0000ff00) >> 8;
++			u8 b =  *src32 & 0x000000ff;
+ 
+ 			/* ITU BT.601: Y = 0.299 R + 0.587 G + 0.114 B */
+-			*dst++ = (3 * r + 6 * g + b) / 10;
+-			src++;
++			*dst8++ = (3 * r + 6 * g + b) / 10;
++			src32++;
+ 		}
++
++		vaddr += fb->pitches[0];
++		dst += dst_pitch;
+ 	}
+ 
+ 	kfree(buf);
+@@ -493,15 +502,15 @@ int drm_fb_blit_rect_dstclip(void __iomem *dst, unsigned int dst_pitch,
+ 
+ 	} else if (dst_format == DRM_FORMAT_RGB565) {
+ 		if (fb_format == DRM_FORMAT_XRGB8888) {
+-			drm_fb_xrgb8888_to_rgb565_dstclip(dst, dst_pitch,
+-							  vmap, fb, clip,
+-							  false);
++			dst += clip_offset(clip, dst_pitch, fb->format->cpp[0]);
++			drm_fb_xrgb8888_to_rgb565_toio(dst, dst_pitch, vmap, fb, clip,
++						       false);
+ 			return 0;
+ 		}
+ 	} else if (dst_format == DRM_FORMAT_RGB888) {
+ 		if (fb_format == DRM_FORMAT_XRGB8888) {
+-			drm_fb_xrgb8888_to_rgb888_dstclip(dst, dst_pitch,
+-							  vmap, fb, clip);
++			dst += clip_offset(clip, dst_pitch, fb->format->cpp[0]);
++			drm_fb_xrgb8888_to_rgb888_toio(dst, dst_pitch, vmap, fb, clip);
+ 			return 0;
+ 		}
+ 	}
+diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
+index 7ce89917d761..b75403f3251a 100644
+--- a/drivers/gpu/drm/drm_mipi_dbi.c
++++ b/drivers/gpu/drm/drm_mipi_dbi.c
+@@ -216,7 +216,7 @@ int mipi_dbi_buf_copy(void *dst, struct drm_framebuffer *fb,
+ 			drm_fb_memcpy(dst, 0, src, fb, clip);
+ 		break;
+ 	case DRM_FORMAT_XRGB8888:
+-		drm_fb_xrgb8888_to_rgb565(dst, src, fb, clip, swap);
++		drm_fb_xrgb8888_to_rgb565(dst, 0, src, fb, clip, swap);
+ 		break;
+ 	default:
+ 		drm_err_once(fb->dev, "Format is not supported: %p4cc\n",
+diff --git a/drivers/gpu/drm/gud/gud_pipe.c b/drivers/gpu/drm/gud/gud_pipe.c
+index e0b117b2559f..a150a5a4b5d4 100644
+--- a/drivers/gpu/drm/gud/gud_pipe.c
++++ b/drivers/gpu/drm/gud/gud_pipe.c
+@@ -74,7 +74,7 @@ static size_t gud_xrgb8888_to_r124(u8 *dst, const struct drm_format_info *format
+ 	if (!buf)
+ 		return 0;
+ 
+-	drm_fb_xrgb8888_to_gray8(buf, src, fb, rect);
++	drm_fb_xrgb8888_to_gray8(buf, 0, src, fb, rect);
+ 	pix8 = buf;
+ 
+ 	for (y = 0; y < height; y++) {
+@@ -190,13 +190,13 @@ static int gud_prep_flush(struct gud_device *gdrm, struct drm_framebuffer *fb,
+ 				goto end_cpu_access;
+ 			}
+ 		} else if (format->format == DRM_FORMAT_R8) {
+-			drm_fb_xrgb8888_to_gray8(buf, vaddr, fb, rect);
++			drm_fb_xrgb8888_to_gray8(buf, 0, vaddr, fb, rect);
+ 		} else if (format->format == DRM_FORMAT_RGB332) {
+-			drm_fb_xrgb8888_to_rgb332(buf, vaddr, fb, rect);
++			drm_fb_xrgb8888_to_rgb332(buf, 0, vaddr, fb, rect);
+ 		} else if (format->format == DRM_FORMAT_RGB565) {
+-			drm_fb_xrgb8888_to_rgb565(buf, vaddr, fb, rect, gud_is_big_endian());
++			drm_fb_xrgb8888_to_rgb565(buf, 0, vaddr, fb, rect, gud_is_big_endian());
+ 		} else if (format->format == DRM_FORMAT_RGB888) {
+-			drm_fb_xrgb8888_to_rgb888(buf, vaddr, fb, rect);
++			drm_fb_xrgb8888_to_rgb888(buf, 0, vaddr, fb, rect);
+ 		} else {
+ 			len = gud_xrgb8888_to_color(buf, format, vaddr, fb, rect);
+ 		}
+diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
+index 5344e506e8a9..9327001d35dd 100644
+--- a/drivers/gpu/drm/tiny/cirrus.c
++++ b/drivers/gpu/drm/tiny/cirrus.c
+@@ -329,14 +329,12 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb, const struct dma_buf_
+ 		drm_fb_memcpy_toio(dst, fb->pitches[0], vmap, fb, rect);
+ 
+ 	} else if (fb->format->cpp[0] == 4 && cirrus->cpp == 2) {
+-		drm_fb_xrgb8888_to_rgb565_dstclip(cirrus->vram,
+-						  cirrus->pitch,
+-						  vmap, fb, rect, false);
++		dst += drm_fb_clip_offset(cirrus->pitch, fb->format, rect);
++		drm_fb_xrgb8888_to_rgb565_toio(dst, cirrus->pitch, vmap, fb, rect, false);
+ 
+ 	} else if (fb->format->cpp[0] == 4 && cirrus->cpp == 3) {
+-		drm_fb_xrgb8888_to_rgb888_dstclip(cirrus->vram,
+-						  cirrus->pitch,
+-						  vmap, fb, rect);
++		dst += drm_fb_clip_offset(cirrus->pitch, fb->format, rect);
++		drm_fb_xrgb8888_to_rgb888_toio(dst, cirrus->pitch, vmap, fb, rect);
+ 
+ 	} else {
+ 		WARN_ON_ONCE("cpp mismatch");
+diff --git a/drivers/gpu/drm/tiny/repaper.c b/drivers/gpu/drm/tiny/repaper.c
+index 4d07b21a16e6..97a775c48cea 100644
+--- a/drivers/gpu/drm/tiny/repaper.c
++++ b/drivers/gpu/drm/tiny/repaper.c
+@@ -560,7 +560,7 @@ static int repaper_fb_dirty(struct drm_framebuffer *fb)
  	if (ret)
- 		return ret;
+ 		goto out_free;
  
-+	drm_plane_enable_fb_damage_clips(&pipe->plane);
-+
- 	drm_mode_config_reset(dev);
+-	drm_fb_xrgb8888_to_gray8(buf, cma_obj->vaddr, fb, &clip);
++	drm_fb_xrgb8888_to_gray8(buf, 0, cma_obj->vaddr, fb, &clip);
  
- 	return 0;
+ 	drm_gem_fb_end_cpu_access(fb, DMA_FROM_DEVICE);
+ 
+diff --git a/drivers/gpu/drm/tiny/st7586.c b/drivers/gpu/drm/tiny/st7586.c
+index ad0faa8723c2..51b9b9fb3ead 100644
+--- a/drivers/gpu/drm/tiny/st7586.c
++++ b/drivers/gpu/drm/tiny/st7586.c
+@@ -73,7 +73,7 @@ static void st7586_xrgb8888_to_gray332(u8 *dst, void *vaddr,
+ 	if (!buf)
+ 		return;
+ 
+-	drm_fb_xrgb8888_to_gray8(buf, vaddr, fb, clip);
++	drm_fb_xrgb8888_to_gray8(buf, 0, vaddr, fb, clip);
+ 	src = buf;
+ 
+ 	for (y = clip->y1; y < clip->y2; y++) {
+diff --git a/include/drm/drm_format_helper.h b/include/drm/drm_format_helper.h
+index c4c3c845e119..8af9b8f35dd6 100644
+--- a/include/drm/drm_format_helper.h
++++ b/include/drm/drm_format_helper.h
+@@ -20,21 +20,21 @@ void drm_fb_memcpy_toio(void __iomem *dst, unsigned int dst_pitch, const void *v
+ void drm_fb_swab(void *dst, unsigned int dst_pitch, const void *src,
+ 		 const struct drm_framebuffer *fb, const struct drm_rect *clip,
+ 		 bool cached);
+-void drm_fb_xrgb8888_to_rgb332(void *dst, void *vaddr, struct drm_framebuffer *fb,
+-			       struct drm_rect *clip);
+-void drm_fb_xrgb8888_to_rgb565(void *dst, void *vaddr,
+-			       struct drm_framebuffer *fb,
+-			       struct drm_rect *clip, bool swab);
+-void drm_fb_xrgb8888_to_rgb565_dstclip(void __iomem *dst, unsigned int dst_pitch,
+-				       void *vaddr, struct drm_framebuffer *fb,
+-				       struct drm_rect *clip, bool swab);
+-void drm_fb_xrgb8888_to_rgb888(void *dst, void *src, struct drm_framebuffer *fb,
+-			       struct drm_rect *clip);
+-void drm_fb_xrgb8888_to_rgb888_dstclip(void __iomem *dst, unsigned int dst_pitch,
+-				       void *vaddr, struct drm_framebuffer *fb,
+-				       struct drm_rect *clip);
+-void drm_fb_xrgb8888_to_gray8(u8 *dst, void *vaddr, struct drm_framebuffer *fb,
+-			      struct drm_rect *clip);
++void drm_fb_xrgb8888_to_rgb332(void *dst, unsigned int dst_pitch, const void *vaddr,
++			       const struct drm_framebuffer *fb, const struct drm_rect *clip);
++void drm_fb_xrgb8888_to_rgb565(void *dst, unsigned int dst_pitch, const void *vaddr,
++			       const struct drm_framebuffer *fb, const struct drm_rect *clip,
++			       bool swab);
++void drm_fb_xrgb8888_to_rgb565_toio(void __iomem *dst, unsigned int dst_pitch,
++				    const void *vaddr, const struct drm_framebuffer *fb,
++				    const struct drm_rect *clip, bool swab);
++void drm_fb_xrgb8888_to_rgb888(void *dst, unsigned int dst_pitch, const void *src,
++			       const struct drm_framebuffer *fb, const struct drm_rect *clip);
++void drm_fb_xrgb8888_to_rgb888_toio(void __iomem *dst, unsigned int dst_pitch,
++				    const void *vaddr, const struct drm_framebuffer *fb,
++				    const struct drm_rect *clip);
++void drm_fb_xrgb8888_to_gray8(void *dst, unsigned int dst_pitch, const void *vaddr,
++			      const struct drm_framebuffer *fb, const struct drm_rect *clip);
+ 
+ int drm_fb_blit_rect_dstclip(void __iomem *dst, unsigned int dst_pitch,
+ 			     uint32_t dst_format, void *vmap,
 -- 
 2.33.0
 
