@@ -2,112 +2,116 @@ Return-Path: <SRS0=+kt1=PK=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 081B1C433EF
-	for <virtualization@archiver.kernel.org>; Fri, 22 Oct 2021 09:55:55 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7DC4C433EF
+	for <virtualization@archiver.kernel.org>; Fri, 22 Oct 2021 10:11:38 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9C5D3611F2
-	for <virtualization@archiver.kernel.org>; Fri, 22 Oct 2021 09:55:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9C5D3611F2
+	by mail.kernel.org (Postfix) with ESMTPS id 4156F610D0
+	for <virtualization@archiver.kernel.org>; Fri, 22 Oct 2021 10:11:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4156F610D0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 5080F4048C;
-	Fri, 22 Oct 2021 09:55:54 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id D9DE64020E;
+	Fri, 22 Oct 2021 10:11:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OPPoc4kEPt94; Fri, 22 Oct 2021 09:55:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 5B7AD4045B;
-	Fri, 22 Oct 2021 09:55:52 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id itbvS-gNZAc2; Fri, 22 Oct 2021 10:11:36 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 9466E40172;
+	Fri, 22 Oct 2021 10:11:35 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 26966C001F;
-	Fri, 22 Oct 2021 09:55:52 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4B14BC001E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 420DEC0020;
+	Fri, 22 Oct 2021 10:11:35 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BC7D2C001E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Oct 2021 09:55:50 +0000 (UTC)
+ Fri, 22 Oct 2021 10:11:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 33B268398E
+ by smtp4.osuosl.org (Postfix) with ESMTP id 979834053F
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Oct 2021 09:55:50 +0000 (UTC)
+ Fri, 22 Oct 2021 10:11:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id a_FiKzQQUcO9
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id NemhDjChhpoI
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Oct 2021 09:55:49 +0000 (UTC)
+ Fri, 22 Oct 2021 10:11:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id BD1F683211
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 94EC140534
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Oct 2021 09:55:48 +0000 (UTC)
+ Fri, 22 Oct 2021 10:11:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1634896547;
+ s=mimecast20190719; t=1634897488;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=oyPMC4BMvpJqw94U6eXtKiGzGpxsYuta6e19CXIzYJc=;
- b=SWBdfwyXFodzEyHZEhZ4tGKnn/wCsxaKx3qKGqtHcQAgaFLajatD6MVzawxlhkXlgOs3mr
- BHqHScbo/U5NizR93XbZcA2xsFaco7k74I80hIcnGr3dbPcYa1sebS92rNhFW00gLsNH71
- eY+HIHsjKSqpWvEE6o6ECCQ2NtB8D1Q=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-119-_UPka-0lOvmC9pyOFsj9QQ-1; Fri, 22 Oct 2021 05:55:43 -0400
-X-MC-Unique: _UPka-0lOvmC9pyOFsj9QQ-1
-Received: by mail-wm1-f72.google.com with SMTP id
- a18-20020a1cf012000000b0032ca3eb2ac3so131535wmb.0
+ bh=CT9AhMVst8Rb0tJG5wx2cbFsfJSfVLJq2inhwjhnf3I=;
+ b=fbvwsN0Vxi3fIcVKgJN2HqemE7zJ4keH2U2vthxyxO+MOgQ9JM2tcXHMhDEOpXPHnLsCRL
+ v8pCTYtJHSGjvzhKs4mhce+LELBrhJtaiyrUuApbKAfcOGUQNkZbbqStFkawAxbGV+xQ0n
+ /lppoqJiF2EmCI/GklaAbpY5ZR/hH88=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-211-rdZGvzv6Pl2oeHocs5oZ9g-1; Fri, 22 Oct 2021 06:11:27 -0400
+X-MC-Unique: rdZGvzv6Pl2oeHocs5oZ9g-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ o22-20020a1c7516000000b0030d6f9c7f5fso819696wmc.1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Oct 2021 02:55:43 -0700 (PDT)
+ Fri, 22 Oct 2021 03:11:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=oyPMC4BMvpJqw94U6eXtKiGzGpxsYuta6e19CXIzYJc=;
- b=ZRlBQEX0FRX3uFzkwtaWiGDrrexbQymk3AJ70+LHI1+FdebMxn7uLHd71/rnHidufC
- 3UiroIiy8m9CYlxrUTm4CXnS5EMy5gZNtfmo+xOCaGi2URFeMiyZf1BRL3boMNzv7D0a
- tqNVd0ewnq+hnEeie86bX2JhJEPtaeSa8yW9oe1vTz0fuUcM1BzTLaqCcPY3f6qCFSPb
- 3YYS3P+UudAciHZPmjUrbn1amJTyJ+o5OCPT5IKNfeWM9/DTifIPG7hPRki1Zh3k6m9z
- yHq7XVMKMKI2pH9riaH6U8cSgo3dV9/CMlHkGY58VUXPsU9v4DCV/v1qLIMZCBDXZlOe
- 1laQ==
-X-Gm-Message-State: AOAM530rdVyA3+7gqZttfH57joKWFJe8Y6NQ9c49C+dVpflEt+KJBnNm
- 3LnC5cdRF2RI7s6KW4urCeqobBvDnYMs0ZBO0YR4ZnUmBwHOp2bFpuQ3qJkYlB7fQWiDuAnh567
- eqJcnK4XKBpqVddf9TAO11IK53F3TWmbq7lqprx2eBw==
-X-Received: by 2002:a05:6000:1869:: with SMTP id
- d9mr14403326wri.161.1634896542312; 
- Fri, 22 Oct 2021 02:55:42 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzwIIRMmly5S+2vEgMYm1nfr2gbIxOjr1BxuUmgnL4D0uDvFMZ0WeH9ER1EUR3epP9MJyTeVA==
-X-Received: by 2002:a05:6000:1869:: with SMTP id
- d9mr14403280wri.161.1634896541986; 
- Fri, 22 Oct 2021 02:55:41 -0700 (PDT)
+ bh=CT9AhMVst8Rb0tJG5wx2cbFsfJSfVLJq2inhwjhnf3I=;
+ b=nXuUhkorzj3M6FGy6AY6Auu2/YQTMDCcnN3bzWV0fUcuLi19zBIXdY8v+l7etUdFL8
+ MlRIR+tjUEJLyA3Oono+7F8ICQ5bZqYo1hT9m8//GHOEFBcjrcNdBjFBTNhQJWD8xPi0
+ YkGKdi2zz9X6t/4NeONfeAMrNdfTA7kchY2eUqKgWRTeu6/Ex0Xr1DEzKlm2vlip5NUy
+ qqv8fQkrAlOosZYGYsdffXBEY6widlu7UYEF1XGSHF6IFWsnG0EoFpQaqfDdmotUrKPM
+ VhWX8xGBZwqgiEIvd88qwl4wnGCpRFlbGkpPLOYmFGLeFpYznF52MMIqQgXESCodOJuN
+ zuCg==
+X-Gm-Message-State: AOAM532SZKc+RRU0aD0csKxHYYz1rfuXgizi2BVAh4I7dypHsBkbpCqf
+ BlEfyNfBHRH5hfW106gwr5mbtWhS95EdqdOzZzWittRqDDblPhBV92pUDvvelK35xAcTUw/O/oN
+ ZD0HRDJzbxSX97apuEwkeGDDQYxCJSHnsf0PLbXRZgA==
+X-Received: by 2002:adf:b348:: with SMTP id k8mr14229631wrd.435.1634897486371; 
+ Fri, 22 Oct 2021 03:11:26 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJywC3K8m71GWCYmISDFdW9jxEo8hX1P48wGi2RgQXx4MCi5Aozd0ACDSuNDcf6IbJDuA97IpQ==
+X-Received: by 2002:adf:b348:: with SMTP id k8mr14229579wrd.435.1634897486096; 
+ Fri, 22 Oct 2021 03:11:26 -0700 (PDT)
 Received: from redhat.com ([2.55.24.172])
- by smtp.gmail.com with ESMTPSA id r4sm9621807wrz.58.2021.10.22.02.55.39
+ by smtp.gmail.com with ESMTPSA id a127sm10537961wme.40.2021.10.22.03.11.22
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 22 Oct 2021 02:55:41 -0700 (PDT)
-Date: Fri, 22 Oct 2021 05:55:37 -0400
+ Fri, 22 Oct 2021 03:11:25 -0700 (PDT)
+Date: Fri, 22 Oct 2021 06:11:20 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Mike Christie <michael.christie@oracle.com>
-Subject: Re: [PATCH V4 2/8] fork: move PF_IO_WORKER's kernel frame setup to
- new flag
-Message-ID: <20211022055416-mutt-send-email-mst@kernel.org>
-References: <20211007214448.6282-1-michael.christie@oracle.com>
- <20211007214448.6282-3-michael.christie@oracle.com>
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Subject: Re: [PATCH V7] gpio: virtio: Add IRQ support
+Message-ID: <20211022060746-mutt-send-email-mst@kernel.org>
+References: <ae639da42050ee0ffd9ba1fffc2c86a38d66cec4.1634813977.git.viresh.kumar@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <20211007214448.6282-3-michael.christie@oracle.com>
+In-Reply-To: <ae639da42050ee0ffd9ba1fffc2c86a38d66cec4.1634813977.git.viresh.kumar@linaro.org>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: axboe@kernel.dk, hdanton@sina.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, hch@infradead.org,
- vverma@digitalocean.com, geert@linux-m68k.org, stefanha@redhat.com,
- christian.brauner@ubuntu.com
+Cc: Arnd Bergmann <arnd@kernel.org>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Jean-Philippe Brucker <jean-philippe@linaro.org>,
+ Viresh Kumar <vireshk@kernel.org>, Linus Walleij <linus.walleij@linaro.org>,
+ Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+ Andy Shevchenko <andy.shevchenko@gmail.com>,
+ Geert Uytterhoeven <geert@linux-m68k.org>, linux-gpio@vger.kernel.org,
+ stratos-dev@op-lists.linaro.org, "Enrico Weigelt,
+ metux IT consult" <info@metux.net>, Bartosz Golaszewski <brgl@bgdev.pl>,
+ Bill Mills <bill.mills@linaro.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,408 +128,482 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Oct 07, 2021 at 04:44:42PM -0500, Mike Christie wrote:
-> The vhost worker threads need the same frame setup as io_uring's worker
-> threads, but handle signals differently and do not need the same
-> scheduling behavior. This patch separate's the frame setup parts of
-> PF_IO_WORKER into a new PF flag PF_USER_WORKER.
+On Thu, Oct 21, 2021 at 04:34:19PM +0530, Viresh Kumar wrote:
+> This patch adds IRQ support for the virtio GPIO driver. Note that this
+> uses the irq_bus_lock/unlock() callbacks, since those operations over
+> virtio may sleep.
 > 
-> Signed-off-by: Mike Christie <michael.christie@oracle.com>
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+I think this can be merged - while ballot did not close yet
+you already have a majority vote Yes. Worst case we'll revert
+but I don't expect that.
+
+
 > ---
->  arch/alpha/kernel/process.c      | 2 +-
->  arch/arc/kernel/process.c        | 2 +-
->  arch/arm/kernel/process.c        | 2 +-
->  arch/arm64/kernel/process.c      | 2 +-
->  arch/csky/kernel/process.c       | 2 +-
->  arch/h8300/kernel/process.c      | 2 +-
->  arch/hexagon/kernel/process.c    | 2 +-
->  arch/ia64/kernel/process.c       | 2 +-
->  arch/m68k/kernel/process.c       | 2 +-
->  arch/microblaze/kernel/process.c | 2 +-
->  arch/mips/kernel/process.c       | 2 +-
->  arch/nds32/kernel/process.c      | 2 +-
->  arch/nios2/kernel/process.c      | 2 +-
->  arch/openrisc/kernel/process.c   | 2 +-
->  arch/parisc/kernel/process.c     | 2 +-
->  arch/powerpc/kernel/process.c    | 2 +-
->  arch/riscv/kernel/process.c      | 2 +-
->  arch/s390/kernel/process.c       | 2 +-
->  arch/sh/kernel/process_32.c      | 2 +-
->  arch/sparc/kernel/process_32.c   | 2 +-
->  arch/sparc/kernel/process_64.c   | 2 +-
->  arch/um/kernel/process.c         | 2 +-
->  arch/x86/kernel/process.c        | 2 +-
->  arch/xtensa/kernel/process.c     | 2 +-
->  include/linux/sched.h            | 1 +
->  include/linux/sched/task.h       | 1 +
->  kernel/fork.c                    | 4 +++-
->  27 files changed, 29 insertions(+), 25 deletions(-)
-
-
-For something that's touching include/linux/sched.h
-and all arches at once, this has not been CC'd widely enough.
-
-
-> diff --git a/arch/alpha/kernel/process.c b/arch/alpha/kernel/process.c
-> index a5123ea426ce..e350fff2ea14 100644
-> --- a/arch/alpha/kernel/process.c
-> +++ b/arch/alpha/kernel/process.c
-> @@ -249,7 +249,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
->  	childti->pcb.ksp = (unsigned long) childstack;
->  	childti->pcb.flags = 1;	/* set FEN, clear everything else */
+> Bartosz,
+> 
+> The spec changes are close to merging now, I will let you know once the ballot
+> is closed and the spec changes are merged. You can then pick this patch for
+> 5.16.
+> 
+> V6->V7:
+> - Use generic_handle_domain_irq.
+> - Drop check for IRQ_TYPE_NONE, dead code.
+> - Avoid breaking line to fit into 80 columns.
+> 
+> V5->V6:
+> - Sent it separately as the other patches are already merged.
+> - Queue the buffers only after enabling the irq (as per latest spec).
+> - Migrate to raw_spinlock_t.
+> 
+>  drivers/gpio/Kconfig             |   1 +
+>  drivers/gpio/gpio-virtio.c       | 302 ++++++++++++++++++++++++++++++-
+>  include/uapi/linux/virtio_gpio.h |  25 +++
+>  3 files changed, 324 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+> index fae5141251e5..bfa723ff8e7c 100644
+> --- a/drivers/gpio/Kconfig
+> +++ b/drivers/gpio/Kconfig
+> @@ -1674,6 +1674,7 @@ config GPIO_MOCKUP
+>  config GPIO_VIRTIO
+>  	tristate "VirtIO GPIO support"
+>  	depends on VIRTIO
+> +	select GPIOLIB_IRQCHIP
+>  	help
+>  	  Say Y here to enable guest support for virtio-based GPIO controllers.
 >  
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		/* kernel thread */
->  		memset(childstack, 0,
->  			sizeof(struct switch_stack) + sizeof(struct pt_regs));
-> diff --git a/arch/arc/kernel/process.c b/arch/arc/kernel/process.c
-> index 3793876f42d9..c3f4952cce17 100644
-> --- a/arch/arc/kernel/process.c
-> +++ b/arch/arc/kernel/process.c
-> @@ -191,7 +191,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
->  	childksp[0] = 0;			/* fp */
->  	childksp[1] = (unsigned long)ret_from_fork; /* blink */
+> diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
+> index d24f1c9264bc..aeec4bf0b625 100644
+> --- a/drivers/gpio/gpio-virtio.c
+> +++ b/drivers/gpio/gpio-virtio.c
+> @@ -16,6 +16,7 @@
+>  #include <linux/kernel.h>
+>  #include <linux/module.h>
+>  #include <linux/mutex.h>
+> +#include <linux/spinlock.h>
+>  #include <linux/virtio_config.h>
+>  #include <uapi/linux/virtio_gpio.h>
+>  #include <uapi/linux/virtio_ids.h>
+> @@ -28,12 +29,30 @@ struct virtio_gpio_line {
+>  	unsigned int rxlen;
+>  };
 >  
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		memset(c_regs, 0, sizeof(struct pt_regs));
+> +struct vgpio_irq_line {
+> +	u8 type;
+> +	bool disabled;
+> +	bool masked;
+> +	bool queued;
+> +	bool update_pending;
+> +	bool queue_pending;
+> +
+> +	struct virtio_gpio_irq_request ireq ____cacheline_aligned;
+> +	struct virtio_gpio_irq_response ires ____cacheline_aligned;
+> +};
+> +
+>  struct virtio_gpio {
+>  	struct virtio_device *vdev;
+>  	struct mutex lock; /* Protects virtqueue operation */
+>  	struct gpio_chip gc;
+>  	struct virtio_gpio_line *lines;
+>  	struct virtqueue *request_vq;
+> +
+> +	/* irq support */
+> +	struct virtqueue *event_vq;
+> +	struct mutex irq_lock; /* Protects irq operation */
+> +	raw_spinlock_t eventq_lock; /* Protects queuing of the buffer */
+> +	struct vgpio_irq_line *irq_lines;
+>  };
 >  
->  		c_callee->r13 = kthread_arg;
-> diff --git a/arch/arm/kernel/process.c b/arch/arm/kernel/process.c
-> index 0e2d3051741e..449c9db3942a 100644
-> --- a/arch/arm/kernel/process.c
-> +++ b/arch/arm/kernel/process.c
-> @@ -247,7 +247,7 @@ int copy_thread(unsigned long clone_flags, unsigned long stack_start,
->  	thread->cpu_domain = get_domain();
->  #endif
+>  static int _virtio_gpio_req(struct virtio_gpio *vgpio, u16 type, u16 gpio,
+> @@ -186,6 +205,238 @@ static void virtio_gpio_set(struct gpio_chip *gc, unsigned int gpio, int value)
+>  	virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_SET_VALUE, gpio, value, NULL);
+>  }
 >  
-> -	if (likely(!(p->flags & (PF_KTHREAD | PF_IO_WORKER)))) {
-> +	if (likely(!(p->flags & (PF_KTHREAD | PF_USER_WORKER)))) {
->  		*childregs = *current_pt_regs();
->  		childregs->ARM_r0 = 0;
->  		if (stack_start)
-> diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-> index 40adb8cdbf5a..e2fe88a3ae90 100644
-> --- a/arch/arm64/kernel/process.c
-> +++ b/arch/arm64/kernel/process.c
-> @@ -333,7 +333,7 @@ int copy_thread(unsigned long clone_flags, unsigned long stack_start,
->  
->  	ptrauth_thread_init_kernel(p);
->  
-> -	if (likely(!(p->flags & (PF_KTHREAD | PF_IO_WORKER)))) {
-> +	if (likely(!(p->flags & (PF_KTHREAD | PF_USER_WORKER)))) {
->  		*childregs = *current_pt_regs();
->  		childregs->regs[0] = 0;
->  
-> diff --git a/arch/csky/kernel/process.c b/arch/csky/kernel/process.c
-> index 3d0ca22cd0e2..509f2bfe4ace 100644
-> --- a/arch/csky/kernel/process.c
-> +++ b/arch/csky/kernel/process.c
-> @@ -49,7 +49,7 @@ int copy_thread(unsigned long clone_flags,
->  	/* setup thread.sp for switch_to !!! */
->  	p->thread.sp = (unsigned long)childstack;
->  
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		memset(childregs, 0, sizeof(struct pt_regs));
->  		childstack->r15 = (unsigned long) ret_from_kernel_thread;
->  		childstack->r10 = kthread_arg;
-> diff --git a/arch/h8300/kernel/process.c b/arch/h8300/kernel/process.c
-> index 2ac27e4248a4..11baf058b6c5 100644
-> --- a/arch/h8300/kernel/process.c
-> +++ b/arch/h8300/kernel/process.c
-> @@ -112,7 +112,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
->  
->  	childregs = (struct pt_regs *) (THREAD_SIZE + task_stack_page(p)) - 1;
->  
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		memset(childregs, 0, sizeof(struct pt_regs));
->  		childregs->retpc = (unsigned long) ret_from_kernel_thread;
->  		childregs->er4 = topstk; /* arg */
-> diff --git a/arch/hexagon/kernel/process.c b/arch/hexagon/kernel/process.c
-> index 6a6835fb4242..f17573b66303 100644
-> --- a/arch/hexagon/kernel/process.c
-> +++ b/arch/hexagon/kernel/process.c
-> @@ -73,7 +73,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
->  						    sizeof(*ss));
->  	ss->lr = (unsigned long)ret_from_fork;
->  	p->thread.switch_sp = ss;
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		memset(childregs, 0, sizeof(struct pt_regs));
->  		/* r24 <- fn, r25 <- arg */
->  		ss->r24 = usp;
-> diff --git a/arch/ia64/kernel/process.c b/arch/ia64/kernel/process.c
-> index e56d63f4abf9..4a58daa56af4 100644
-> --- a/arch/ia64/kernel/process.c
-> +++ b/arch/ia64/kernel/process.c
-> @@ -338,7 +338,7 @@ copy_thread(unsigned long clone_flags, unsigned long user_stack_base,
->  
->  	ia64_drop_fpu(p);	/* don't pick up stale state from a CPU's fph */
->  
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		if (unlikely(!user_stack_base)) {
->  			/* fork_idle() called us */
->  			return 0;
-> diff --git a/arch/m68k/kernel/process.c b/arch/m68k/kernel/process.c
-> index 1ab692b952cd..e7474a118410 100644
-> --- a/arch/m68k/kernel/process.c
-> +++ b/arch/m68k/kernel/process.c
-> @@ -157,7 +157,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
->  	 */
->  	p->thread.fc = USER_DATA;
->  
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		/* kernel thread */
->  		memset(frame, 0, sizeof(struct fork_frame));
->  		frame->regs.sr = PS_S;
-> diff --git a/arch/microblaze/kernel/process.c b/arch/microblaze/kernel/process.c
-> index 62aa237180b6..5b543be324d4 100644
-> --- a/arch/microblaze/kernel/process.c
-> +++ b/arch/microblaze/kernel/process.c
-> @@ -59,7 +59,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
->  	struct pt_regs *childregs = task_pt_regs(p);
->  	struct thread_info *ti = task_thread_info(p);
->  
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		/* if we're creating a new kernel thread then just zeroing all
->  		 * the registers. That's OK for a brand new thread.*/
->  		memset(childregs, 0, sizeof(struct pt_regs));
-> diff --git a/arch/mips/kernel/process.c b/arch/mips/kernel/process.c
-> index 95aa86fa6077..d9ca11dd544f 100644
-> --- a/arch/mips/kernel/process.c
-> +++ b/arch/mips/kernel/process.c
-> @@ -120,7 +120,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
->  	/*  Put the stack after the struct pt_regs.  */
->  	childksp = (unsigned long) childregs;
->  	p->thread.cp0_status = (read_c0_status() & ~(ST0_CU2|ST0_CU1)) | ST0_KERNEL_CUMASK;
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		/* kernel thread */
->  		unsigned long status = p->thread.cp0_status;
->  		memset(childregs, 0, sizeof(struct pt_regs));
-> diff --git a/arch/nds32/kernel/process.c b/arch/nds32/kernel/process.c
-> index 391895b54d13..2dba51d1889c 100644
-> --- a/arch/nds32/kernel/process.c
-> +++ b/arch/nds32/kernel/process.c
-> @@ -156,7 +156,7 @@ int copy_thread(unsigned long clone_flags, unsigned long stack_start,
->  
->  	memset(&p->thread.cpu_context, 0, sizeof(struct cpu_context));
->  
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		memset(childregs, 0, sizeof(struct pt_regs));
->  		/* kernel thread fn */
->  		p->thread.cpu_context.r6 = stack_start;
-> diff --git a/arch/nios2/kernel/process.c b/arch/nios2/kernel/process.c
-> index 9ff37ba2bb60..ce6ad177da15 100644
-> --- a/arch/nios2/kernel/process.c
-> +++ b/arch/nios2/kernel/process.c
-> @@ -109,7 +109,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
->  	struct switch_stack *childstack =
->  		((struct switch_stack *)childregs) - 1;
->  
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		memset(childstack, 0,
->  			sizeof(struct switch_stack) + sizeof(struct pt_regs));
->  
-> diff --git a/arch/openrisc/kernel/process.c b/arch/openrisc/kernel/process.c
-> index b0698d9ce14f..d1d189c16676 100644
-> --- a/arch/openrisc/kernel/process.c
-> +++ b/arch/openrisc/kernel/process.c
-> @@ -172,7 +172,7 @@ copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
->  	sp -= sizeof(struct pt_regs);
->  	kregs = (struct pt_regs *)sp;
->  
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		memset(kregs, 0, sizeof(struct pt_regs));
->  		kregs->gpr[20] = usp; /* fn, kernel thread */
->  		kregs->gpr[22] = arg;
-> diff --git a/arch/parisc/kernel/process.c b/arch/parisc/kernel/process.c
-> index 38ec4ae81239..257bec7e67d4 100644
-> --- a/arch/parisc/kernel/process.c
-> +++ b/arch/parisc/kernel/process.c
-> @@ -197,7 +197,7 @@ copy_thread(unsigned long clone_flags, unsigned long usp,
->  	extern void * const ret_from_kernel_thread;
->  	extern void * const child_return;
->  
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		/* kernel thread */
->  		memset(cregs, 0, sizeof(struct pt_regs));
->  		if (!usp) /* idle thread */
-> diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
-> index 50436b52c213..817847723bff 100644
-> --- a/arch/powerpc/kernel/process.c
-> +++ b/arch/powerpc/kernel/process.c
-> @@ -1700,7 +1700,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp,
->  	/* Copy registers */
->  	sp -= sizeof(struct pt_regs);
->  	childregs = (struct pt_regs *) sp;
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		/* kernel thread */
->  		memset(childregs, 0, sizeof(struct pt_regs));
->  		childregs->gpr[1] = sp + sizeof(struct pt_regs);
-> diff --git a/arch/riscv/kernel/process.c b/arch/riscv/kernel/process.c
-> index 03ac3aa611f5..8deeb94eb51e 100644
-> --- a/arch/riscv/kernel/process.c
-> +++ b/arch/riscv/kernel/process.c
-> @@ -125,7 +125,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
->  	struct pt_regs *childregs = task_pt_regs(p);
->  
->  	/* p->thread holds context to be restored by __switch_to() */
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		/* Kernel thread */
->  		memset(childregs, 0, sizeof(struct pt_regs));
->  		childregs->gp = gp_in_global;
-> diff --git a/arch/s390/kernel/process.c b/arch/s390/kernel/process.c
-> index 350e94d0cac2..f596843ab55c 100644
-> --- a/arch/s390/kernel/process.c
-> +++ b/arch/s390/kernel/process.c
-> @@ -130,7 +130,7 @@ int copy_thread(unsigned long clone_flags, unsigned long new_stackp,
->  	frame->sf.gprs[9] = (unsigned long)frame;
->  
->  	/* Store access registers to kernel stack of new process. */
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		/* kernel thread */
->  		memset(&frame->childregs, 0, sizeof(struct pt_regs));
->  		frame->childregs.psw.mask = PSW_KERNEL_BITS | PSW_MASK_DAT |
-> diff --git a/arch/sh/kernel/process_32.c b/arch/sh/kernel/process_32.c
-> index 717de05c81f4..e74906f53c3e 100644
-> --- a/arch/sh/kernel/process_32.c
-> +++ b/arch/sh/kernel/process_32.c
-> @@ -114,7 +114,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp, unsigned long arg,
->  
->  	childregs = task_pt_regs(p);
->  	p->thread.sp = (unsigned long) childregs;
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		memset(childregs, 0, sizeof(struct pt_regs));
->  		p->thread.pc = (unsigned long) ret_from_kernel_thread;
->  		childregs->regs[4] = arg;
-> diff --git a/arch/sparc/kernel/process_32.c b/arch/sparc/kernel/process_32.c
-> index bbbe0cfef746..978e0bc10ad4 100644
-> --- a/arch/sparc/kernel/process_32.c
-> +++ b/arch/sparc/kernel/process_32.c
-> @@ -296,7 +296,7 @@ int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
->  	ti->ksp = (unsigned long) new_stack;
->  	p->thread.kregs = childregs;
->  
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		extern int nwindows;
->  		unsigned long psr;
->  		memset(new_stack, 0, STACKFRAME_SZ + TRACEREG_SZ);
-> diff --git a/arch/sparc/kernel/process_64.c b/arch/sparc/kernel/process_64.c
-> index d1cc410d2f64..1c45cd5089f4 100644
-> --- a/arch/sparc/kernel/process_64.c
-> +++ b/arch/sparc/kernel/process_64.c
-> @@ -594,7 +594,7 @@ int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
->  				       sizeof(struct sparc_stackf));
->  	t->fpsaved[0] = 0;
->  
-> -	if (unlikely(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (unlikely(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		memset(child_trap_frame, 0, child_stack_sz);
->  		__thread_flag_byte_ptr(t)[TI_FLAG_BYTE_CWP] = 
->  			(current_pt_regs()->tstate + 1) & TSTATE_CWP;
-> diff --git a/arch/um/kernel/process.c b/arch/um/kernel/process.c
-> index 457a38db368b..2bc3141cbf01 100644
-> --- a/arch/um/kernel/process.c
-> +++ b/arch/um/kernel/process.c
-> @@ -157,7 +157,7 @@ int copy_thread(unsigned long clone_flags, unsigned long sp,
->  		unsigned long arg, struct task_struct * p, unsigned long tls)
+> +/* Interrupt handling */
+> +static void virtio_gpio_irq_prepare(struct virtio_gpio *vgpio, u16 gpio)
+> +{
+> +	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[gpio];
+> +	struct virtio_gpio_irq_request *ireq = &irq_line->ireq;
+> +	struct virtio_gpio_irq_response *ires = &irq_line->ires;
+> +	struct scatterlist *sgs[2], req_sg, res_sg;
+> +	int ret;
+> +
+> +	if (WARN_ON(irq_line->queued || irq_line->masked || irq_line->disabled))
+> +		return;
+> +
+> +	ireq->gpio = cpu_to_le16(gpio);
+> +	sg_init_one(&req_sg, ireq, sizeof(*ireq));
+> +	sg_init_one(&res_sg, ires, sizeof(*ires));
+> +	sgs[0] = &req_sg;
+> +	sgs[1] = &res_sg;
+> +
+> +	ret = virtqueue_add_sgs(vgpio->event_vq, sgs, 1, 1, irq_line, GFP_ATOMIC);
+> +	if (ret) {
+> +		dev_err(&vgpio->vdev->dev, "failed to add request to eventq\n");
+> +		return;
+> +	}
+> +
+> +	irq_line->queued = true;
+> +	virtqueue_kick(vgpio->event_vq);
+> +}
+> +
+> +static void virtio_gpio_irq_enable(struct irq_data *d)
+> +{
+> +	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+> +	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
+> +	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
+> +
+> +	raw_spin_lock(&vgpio->eventq_lock);
+> +	irq_line->disabled = false;
+> +	irq_line->masked = false;
+> +	irq_line->queue_pending = true;
+> +	raw_spin_unlock(&vgpio->eventq_lock);
+> +
+> +	irq_line->update_pending = true;
+> +}
+> +
+> +static void virtio_gpio_irq_disable(struct irq_data *d)
+> +{
+> +	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+> +	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
+> +	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
+> +
+> +	raw_spin_lock(&vgpio->eventq_lock);
+> +	irq_line->disabled = true;
+> +	irq_line->masked = true;
+> +	irq_line->queue_pending = false;
+> +	raw_spin_unlock(&vgpio->eventq_lock);
+> +
+> +	irq_line->update_pending = true;
+> +}
+> +
+> +static void virtio_gpio_irq_mask(struct irq_data *d)
+> +{
+> +	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+> +	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
+> +	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
+> +
+> +	raw_spin_lock(&vgpio->eventq_lock);
+> +	irq_line->masked = true;
+> +	raw_spin_unlock(&vgpio->eventq_lock);
+> +}
+> +
+> +static void virtio_gpio_irq_unmask(struct irq_data *d)
+> +{
+> +	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+> +	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
+> +	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
+> +
+> +	raw_spin_lock(&vgpio->eventq_lock);
+> +	irq_line->masked = false;
+> +
+> +	/* Queue the buffer unconditionally on unmask */
+> +	virtio_gpio_irq_prepare(vgpio, d->hwirq);
+> +	raw_spin_unlock(&vgpio->eventq_lock);
+> +}
+> +
+> +static int virtio_gpio_irq_set_type(struct irq_data *d, unsigned int type)
+> +{
+> +	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+> +	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
+> +	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
+> +
+> +	switch (type) {
+> +	case IRQ_TYPE_EDGE_RISING:
+> +		type = VIRTIO_GPIO_IRQ_TYPE_EDGE_RISING;
+> +		break;
+> +	case IRQ_TYPE_EDGE_FALLING:
+> +		type = VIRTIO_GPIO_IRQ_TYPE_EDGE_FALLING;
+> +		break;
+> +	case IRQ_TYPE_EDGE_BOTH:
+> +		type = VIRTIO_GPIO_IRQ_TYPE_EDGE_BOTH;
+> +		break;
+> +	case IRQ_TYPE_LEVEL_LOW:
+> +		type = VIRTIO_GPIO_IRQ_TYPE_LEVEL_LOW;
+> +		break;
+> +	case IRQ_TYPE_LEVEL_HIGH:
+> +		type = VIRTIO_GPIO_IRQ_TYPE_LEVEL_HIGH;
+> +		break;
+> +	default:
+> +		dev_err(&vgpio->vdev->dev, "unsupported irq type: %u\n", type);
+> +		return -EINVAL;
+> +	}
+> +
+> +	irq_line->type = type;
+> +	irq_line->update_pending = true;
+> +
+> +	return 0;
+> +}
+> +
+> +static void virtio_gpio_irq_bus_lock(struct irq_data *d)
+> +{
+> +	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+> +	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
+> +
+> +	mutex_lock(&vgpio->irq_lock);
+> +}
+> +
+> +static void virtio_gpio_irq_bus_sync_unlock(struct irq_data *d)
+> +{
+> +	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
+> +	struct virtio_gpio *vgpio = gpiochip_get_data(gc);
+> +	struct vgpio_irq_line *irq_line = &vgpio->irq_lines[d->hwirq];
+> +	u8 type = irq_line->disabled ? VIRTIO_GPIO_IRQ_TYPE_NONE : irq_line->type;
+> +	unsigned long flags;
+> +
+> +	if (irq_line->update_pending) {
+> +		irq_line->update_pending = false;
+> +		virtio_gpio_req(vgpio, VIRTIO_GPIO_MSG_IRQ_TYPE, d->hwirq, type,
+> +				NULL);
+> +
+> +		/* Queue the buffer only after interrupt is enabled */
+> +		raw_spin_lock_irqsave(&vgpio->eventq_lock, flags);
+> +		if (irq_line->queue_pending) {
+> +			irq_line->queue_pending = false;
+> +			virtio_gpio_irq_prepare(vgpio, d->hwirq);
+> +		}
+> +		raw_spin_unlock_irqrestore(&vgpio->eventq_lock, flags);
+> +	}
+> +
+> +	mutex_unlock(&vgpio->irq_lock);
+> +}
+> +
+> +static struct irq_chip vgpio_irq_chip = {
+> +	.name			= "virtio-gpio",
+> +	.irq_enable		= virtio_gpio_irq_enable,
+> +	.irq_disable		= virtio_gpio_irq_disable,
+> +	.irq_mask		= virtio_gpio_irq_mask,
+> +	.irq_unmask		= virtio_gpio_irq_unmask,
+> +	.irq_set_type		= virtio_gpio_irq_set_type,
+> +
+> +	/* These are required to implement irqchip for slow busses */
+> +	.irq_bus_lock		= virtio_gpio_irq_bus_lock,
+> +	.irq_bus_sync_unlock	= virtio_gpio_irq_bus_sync_unlock,
+> +};
+> +
+> +static bool ignore_irq(struct virtio_gpio *vgpio, int gpio,
+> +		       struct vgpio_irq_line *irq_line)
+> +{
+> +	bool ignore = false;
+> +
+> +	raw_spin_lock(&vgpio->eventq_lock);
+> +	irq_line->queued = false;
+> +
+> +	/* Interrupt is disabled currently */
+> +	if (irq_line->masked || irq_line->disabled) {
+> +		ignore = true;
+> +		goto unlock;
+> +	}
+> +
+> +	/*
+> +	 * Buffer is returned as the interrupt was disabled earlier, but is
+> +	 * enabled again now. Requeue the buffers.
+> +	 */
+> +	if (irq_line->ires.status == VIRTIO_GPIO_IRQ_STATUS_INVALID) {
+> +		virtio_gpio_irq_prepare(vgpio, gpio);
+> +		ignore = true;
+> +		goto unlock;
+> +	}
+> +
+> +	if (WARN_ON(irq_line->ires.status != VIRTIO_GPIO_IRQ_STATUS_VALID))
+> +		ignore = true;
+> +
+> +unlock:
+> +	raw_spin_unlock(&vgpio->eventq_lock);
+> +
+> +	return ignore;
+> +}
+> +
+> +static void virtio_gpio_event_vq(struct virtqueue *vq)
+> +{
+> +	struct virtio_gpio *vgpio = vq->vdev->priv;
+> +	struct device *dev = &vgpio->vdev->dev;
+> +	struct vgpio_irq_line *irq_line;
+> +	int gpio, ret;
+> +	unsigned int len;
+> +
+> +	while (true) {
+> +		irq_line = virtqueue_get_buf(vgpio->event_vq, &len);
+> +		if (!irq_line)
+> +			break;
+> +
+> +		if (len != sizeof(irq_line->ires)) {
+> +			dev_err(dev, "irq with incorrect length (%u : %u)\n",
+> +				len, (unsigned int)sizeof(irq_line->ires));
+> +			continue;
+> +		}
+> +
+> +		/*
+> +		 * Find GPIO line number from the offset of irq_line within the
+> +		 * irq_lines block. We can also get GPIO number from
+> +		 * irq-request, but better not to rely on a buffer returned by
+> +		 * remote.
+> +		 */
+> +		gpio = irq_line - vgpio->irq_lines;
+> +		WARN_ON(gpio >= vgpio->gc.ngpio);
+> +
+> +		if (unlikely(ignore_irq(vgpio, gpio, irq_line)))
+> +			continue;
+> +
+> +		ret = generic_handle_domain_irq(vgpio->gc.irq.domain, gpio);
+> +		if (ret)
+> +			dev_err(dev, "failed to handle interrupt: %d\n", ret);
+> +	};
+> +}
+> +
+>  static void virtio_gpio_request_vq(struct virtqueue *vq)
 >  {
->  	void (*handler)(void);
-> -	int kthread = current->flags & (PF_KTHREAD | PF_IO_WORKER);
-> +	int kthread = current->flags & (PF_KTHREAD | PF_USER_WORKER);
->  	int ret = 0;
->  
->  	p->thread = (struct thread_struct) INIT_THREAD;
-> diff --git a/arch/x86/kernel/process.c b/arch/x86/kernel/process.c
-> index 1d9463e3096b..d88be9dd5dfd 100644
-> --- a/arch/x86/kernel/process.c
-> +++ b/arch/x86/kernel/process.c
-> @@ -178,7 +178,7 @@ int copy_thread(unsigned long clone_flags, unsigned long sp, unsigned long arg,
->  	task_user_gs(p) = get_user_gs(current_pt_regs());
->  #endif
->  
-> -	if (unlikely(p->flags & PF_IO_WORKER)) {
-> +	if (unlikely(p->flags & PF_USER_WORKER)) {
->  		/*
->  		 * An IO thread is a user space thread, but it doesn't
->  		 * return to ret_after_fork().
-> diff --git a/arch/xtensa/kernel/process.c b/arch/xtensa/kernel/process.c
-> index 060165340612..61ad0bfbd7ea 100644
-> --- a/arch/xtensa/kernel/process.c
-> +++ b/arch/xtensa/kernel/process.c
-> @@ -217,7 +217,7 @@ int copy_thread(unsigned long clone_flags, unsigned long usp_thread_fn,
->  
->  	p->thread.sp = (unsigned long)childregs;
->  
-> -	if (!(p->flags & (PF_KTHREAD | PF_IO_WORKER))) {
-> +	if (!(p->flags & (PF_KTHREAD | PF_USER_WORKER))) {
->  		struct pt_regs *regs = current_pt_regs();
->  		unsigned long usp = usp_thread_fn ?
->  			usp_thread_fn : regs->areg[1];
-> diff --git a/include/linux/sched.h b/include/linux/sched.h
-> index c1a927ddec64..b1027e916be4 100644
-> --- a/include/linux/sched.h
-> +++ b/include/linux/sched.h
-> @@ -1665,6 +1665,7 @@ extern struct pid *cad_pid;
->  #define PF_VCPU			0x00000001	/* I'm a virtual CPU */
->  #define PF_IDLE			0x00000002	/* I am an IDLE thread */
->  #define PF_EXITING		0x00000004	/* Getting shut down */
-> +#define PF_USER_WORKER		0x00000008	/* Kernel thread cloned from userspace thread */
->  #define PF_IO_WORKER		0x00000010	/* Task is an IO worker */
->  #define PF_WQ_WORKER		0x00000020	/* I'm a workqueue worker */
->  #define PF_FORKNOEXEC		0x00000040	/* Forked but didn't exec */
-> diff --git a/include/linux/sched/task.h b/include/linux/sched/task.h
-> index 48417c735438..53599a99d7e0 100644
-> --- a/include/linux/sched/task.h
-> +++ b/include/linux/sched/task.h
-> @@ -19,6 +19,7 @@ struct css_set;
->  #define CLONE_LEGACY_FLAGS 0xffffffffULL
->  
->  #define KERN_WORKER_IO		BIT(0)
-> +#define KERN_WORKER_USER	BIT(1)
->  
->  struct kernel_clone_args {
->  	u64 flags;
-> diff --git a/kernel/fork.c b/kernel/fork.c
-> index 3988106e9609..4f780424de46 100644
-> --- a/kernel/fork.c
-> +++ b/kernel/fork.c
-> @@ -2035,6 +2035,8 @@ static __latent_entropy struct task_struct *copy_process(
->  		siginitsetinv(&p->blocked, sigmask(SIGKILL)|sigmask(SIGSTOP));
->  	}
->  
-> +	if (args->worker_flags & KERN_WORKER_USER)
-> +		p->flags |= PF_USER_WORKER;
->  	/*
->  	 * This _must_ happen before we call free_task(), i.e. before we jump
->  	 * to any of the bad_fork_* labels. This is to avoid freeing
-> @@ -2526,7 +2528,7 @@ struct task_struct *create_io_thread(int (*fn)(void *), void *arg, int node)
->  		.exit_signal	= (lower_32_bits(flags) & CSIGNAL),
->  		.stack		= (unsigned long)fn,
->  		.stack_size	= (unsigned long)arg,
-> -		.worker_flags	= KERN_WORKER_IO,
-> +		.worker_flags	= KERN_WORKER_IO | KERN_WORKER_USER,
+>  	struct virtio_gpio_line *line;
+> @@ -210,14 +461,15 @@ static void virtio_gpio_free_vqs(struct virtio_device *vdev)
+>  static int virtio_gpio_alloc_vqs(struct virtio_gpio *vgpio,
+>  				 struct virtio_device *vdev)
+>  {
+> -	const char * const names[] = { "requestq" };
+> +	const char * const names[] = { "requestq", "eventq" };
+>  	vq_callback_t *cbs[] = {
+>  		virtio_gpio_request_vq,
+> +		virtio_gpio_event_vq,
 >  	};
+> -	struct virtqueue *vqs[1] = { NULL };
+> +	struct virtqueue *vqs[2] = { NULL, NULL };
+>  	int ret;
 >  
->  	return copy_process(NULL, 0, node, &args);
+> -	ret = virtio_find_vqs(vdev, 1, vqs, cbs, names, NULL);
+> +	ret = virtio_find_vqs(vdev, vgpio->irq_lines ? 2 : 1, vqs, cbs, names, NULL);
+>  	if (ret) {
+>  		dev_err(&vdev->dev, "failed to find vqs: %d\n", ret);
+>  		return ret;
+> @@ -225,11 +477,23 @@ static int virtio_gpio_alloc_vqs(struct virtio_gpio *vgpio,
+>  
+>  	if (!vqs[0]) {
+>  		dev_err(&vdev->dev, "failed to find requestq vq\n");
+> -		return -ENODEV;
+> +		goto out;
+>  	}
+>  	vgpio->request_vq = vqs[0];
+>  
+> +	if (vgpio->irq_lines && !vqs[1]) {
+> +		dev_err(&vdev->dev, "failed to find eventq vq\n");
+> +		goto out;
+> +	}
+> +	vgpio->event_vq = vqs[1];
+> +
+>  	return 0;
+> +
+> +out:
+> +	if (vqs[0] || vqs[1])
+> +		virtio_gpio_free_vqs(vdev);
+> +
+> +	return -ENODEV;
+>  }
+>  
+>  static const char **virtio_gpio_get_names(struct virtio_gpio *vgpio,
+> @@ -325,6 +589,30 @@ static int virtio_gpio_probe(struct virtio_device *vdev)
+>  	vgpio->gc.owner			= THIS_MODULE;
+>  	vgpio->gc.can_sleep		= true;
+>  
+> +	/* Interrupt support */
+> +	if (virtio_has_feature(vdev, VIRTIO_GPIO_F_IRQ)) {
+> +		vgpio->irq_lines = devm_kcalloc(dev, ngpio, sizeof(*vgpio->irq_lines), GFP_KERNEL);
+> +		if (!vgpio->irq_lines)
+> +			return -ENOMEM;
+> +
+> +		/* The event comes from the outside so no parent handler */
+> +		vgpio->gc.irq.parent_handler	= NULL;
+> +		vgpio->gc.irq.num_parents	= 0;
+> +		vgpio->gc.irq.parents		= NULL;
+> +		vgpio->gc.irq.default_type	= IRQ_TYPE_NONE;
+> +		vgpio->gc.irq.handler		= handle_level_irq;
+> +		vgpio->gc.irq.chip		= &vgpio_irq_chip;
+> +
+> +		for (i = 0; i < ngpio; i++) {
+> +			vgpio->irq_lines[i].type = VIRTIO_GPIO_IRQ_TYPE_NONE;
+> +			vgpio->irq_lines[i].disabled = true;
+> +			vgpio->irq_lines[i].masked = true;
+> +		}
+> +
+> +		mutex_init(&vgpio->irq_lock);
+> +		raw_spin_lock_init(&vgpio->eventq_lock);
+> +	}
+> +
+>  	ret = virtio_gpio_alloc_vqs(vgpio, vdev);
+>  	if (ret)
+>  		return ret;
+> @@ -357,7 +645,13 @@ static const struct virtio_device_id id_table[] = {
+>  };
+>  MODULE_DEVICE_TABLE(virtio, id_table);
+>  
+> +static const unsigned int features[] = {
+> +	VIRTIO_GPIO_F_IRQ,
+> +};
+> +
+>  static struct virtio_driver virtio_gpio_driver = {
+> +	.feature_table		= features,
+> +	.feature_table_size	= ARRAY_SIZE(features),
+>  	.id_table		= id_table,
+>  	.probe			= virtio_gpio_probe,
+>  	.remove			= virtio_gpio_remove,
+> diff --git a/include/uapi/linux/virtio_gpio.h b/include/uapi/linux/virtio_gpio.h
+> index 0445f905d8cc..d04af9c5f0de 100644
+> --- a/include/uapi/linux/virtio_gpio.h
+> +++ b/include/uapi/linux/virtio_gpio.h
+> @@ -5,12 +5,16 @@
+>  
+>  #include <linux/types.h>
+>  
+> +/* Virtio GPIO Feature bits */
+> +#define VIRTIO_GPIO_F_IRQ			0
+> +
+>  /* Virtio GPIO request types */
+>  #define VIRTIO_GPIO_MSG_GET_NAMES		0x0001
+>  #define VIRTIO_GPIO_MSG_GET_DIRECTION		0x0002
+>  #define VIRTIO_GPIO_MSG_SET_DIRECTION		0x0003
+>  #define VIRTIO_GPIO_MSG_GET_VALUE		0x0004
+>  #define VIRTIO_GPIO_MSG_SET_VALUE		0x0005
+> +#define VIRTIO_GPIO_MSG_IRQ_TYPE		0x0006
+>  
+>  /* Possible values of the status field */
+>  #define VIRTIO_GPIO_STATUS_OK			0x0
+> @@ -21,6 +25,14 @@
+>  #define VIRTIO_GPIO_DIRECTION_OUT		0x01
+>  #define VIRTIO_GPIO_DIRECTION_IN		0x02
+>  
+> +/* Virtio GPIO IRQ types */
+> +#define VIRTIO_GPIO_IRQ_TYPE_NONE		0x00
+> +#define VIRTIO_GPIO_IRQ_TYPE_EDGE_RISING	0x01
+> +#define VIRTIO_GPIO_IRQ_TYPE_EDGE_FALLING	0x02
+> +#define VIRTIO_GPIO_IRQ_TYPE_EDGE_BOTH		0x03
+> +#define VIRTIO_GPIO_IRQ_TYPE_LEVEL_HIGH		0x04
+> +#define VIRTIO_GPIO_IRQ_TYPE_LEVEL_LOW		0x08
+> +
+>  struct virtio_gpio_config {
+>  	__le16 ngpio;
+>  	__u8 padding[2];
+> @@ -44,4 +56,17 @@ struct virtio_gpio_response_get_names {
+>  	__u8 value[];
+>  };
+>  
+> +/* Virtio GPIO IRQ Request / Response */
+> +struct virtio_gpio_irq_request {
+> +	__le16 gpio;
+> +};
+> +
+> +struct virtio_gpio_irq_response {
+> +	__u8 status;
+> +};
+> +
+> +/* Possible values of the interrupt status field */
+> +#define VIRTIO_GPIO_IRQ_STATUS_INVALID		0x0
+> +#define VIRTIO_GPIO_IRQ_STATUS_VALID		0x1
+> +
+>  #endif /* _LINUX_VIRTIO_GPIO_H */
 > -- 
-> 2.25.1
+> 2.31.1.272.g89b43f80a514
 
 _______________________________________________
 Virtualization mailing list
