@@ -2,81 +2,81 @@ Return-Path: <SRS0=+kt1=PK=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E92EC433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 46B3AC433EF
 	for <virtualization@archiver.kernel.org>; Fri, 22 Oct 2021 13:28:39 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C2A06610EA
+	by mail.kernel.org (Postfix) with ESMTPS id 04F5661205
 	for <virtualization@archiver.kernel.org>; Fri, 22 Oct 2021 13:28:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org C2A06610EA
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 04F5661205
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7C33F4002A;
+	by smtp1.osuosl.org (Postfix) with ESMTP id C4E1183B20;
 	Fri, 22 Oct 2021 13:28:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id oJUxxqjgsxwu; Fri, 22 Oct 2021 13:28:37 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id D8D64400CE;
-	Fri, 22 Oct 2021 13:28:36 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id BZgwlV4lFA6y; Fri, 22 Oct 2021 13:28:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 7482883B1B;
+	Fri, 22 Oct 2021 13:28:37 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 37A26C0038;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 971DAC003E;
 	Fri, 22 Oct 2021 13:28:36 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0A26DC001E
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 209C8C001F
  for <virtualization@lists.linux-foundation.org>;
  Fri, 22 Oct 2021 13:28:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id E8750408D4
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1002B6084C
  for <virtualization@lists.linux-foundation.org>;
- Fri, 22 Oct 2021 13:28:34 +0000 (UTC)
+ Fri, 22 Oct 2021 13:28:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6VCzTMVFtuFl
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=suse.de header.b="OJLC+/bG";
+ dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
+ header.d=suse.de header.b="md0VLayZ"
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id EXQpZUpqmRap
  for <virtualization@lists.linux-foundation.org>;
  Fri, 22 Oct 2021 13:28:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 00CC5408D2
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 2489560675
  for <virtualization@lists.linux-foundation.org>;
  Fri, 22 Oct 2021 13:28:33 +0000 (UTC)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id C71671FD3D;
- Fri, 22 Oct 2021 13:28:31 +0000 (UTC)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id E639B212C2;
+ Fri, 22 Oct 2021 13:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1634909311; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=ZKFuL4ZSTLTGZvrsOyX4iqbkLnzInmAxvaaQTh/jDwg=;
- b=Hj8F7hZYTKBtsqEZrPVeWaWlF4LbNvvsEoeyBKnEVaCCnQqv0OAvC8PJhYC5BJJDNv7txe
- dLyOYlMbOtT5WHqKSoM6Qk3D1HA/3yYybwD8RVh6AL/V76VfSlwy+L1lr+UW0/xJtJd2HF
- k8Az2P9Cv1RsGCcsgvV5T2HmyYFjvk4=
+ t=1634909310; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
+ bh=8PF+NmcBhYV+PDWBiDl9gHTMkST01e3jTJPJz8m7QFU=;
+ b=OJLC+/bGT5ZFnKA8A4XtcxruHktUxXzm90cdtR1k3LcWI5EG/pLWD/a1zyY9IFkE1PfgCm
+ KVdDVamYQEnBv5QvQ6GctbV1zJusw6I6TqxiVZ4qvkyAk8FQCgg+ctvOwSXhGNL9keMzWf
+ K3fC686CfXHRWVW+y/SqOnvwWHvy75A=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1634909311;
+ s=susede2_ed25519; t=1634909310;
  h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=ZKFuL4ZSTLTGZvrsOyX4iqbkLnzInmAxvaaQTh/jDwg=;
- b=Zg48bkIHlKrR9NRyNZ6LOtG3+6wT7AQaqkpxRKEMjTXi7hrTsbg1P6+PspwkR25bJ1K+Jz
- A+2saZNXgTXWu6AA==
+ mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
+ bh=8PF+NmcBhYV+PDWBiDl9gHTMkST01e3jTJPJz8m7QFU=;
+ b=md0VLayZrw4DfHfc0aBZk5FdWDVsSFBdmUqihqqM8Ps808umtpsC6UgVHfisqCmJ19szmr
+ Xw9bnWZcGxa39DDw==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 617E213CDA;
- Fri, 22 Oct 2021 13:28:31 +0000 (UTC)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 78E4913CDA;
+ Fri, 22 Oct 2021 13:28:30 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id gNrZFn+8cmEwXgAAMHmgww
- (envelope-from <tzimmermann@suse.de>); Fri, 22 Oct 2021 13:28:31 +0000
+ by imap2.suse-dmz.suse.de with ESMTPSA id dtKHHH68cmEwXgAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Fri, 22 Oct 2021 13:28:30 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: daniel@ffwll.ch, airlied@linux.ie, mripard@kernel.org,
  maarten.lankhorst@linux.intel.com, noralf@tronnes.org,
@@ -85,12 +85,10 @@ To: daniel@ffwll.ch, airlied@linux.ie, mripard@kernel.org,
  kernel@amanoeldawod.com, dirty.ice.hu@gmail.com,
  michael+lkml@stapelberg.ch, aros@gmx.com, joshua@stroblindustries.com,
  arnd@arndb.de
-Subject: [PATCH 2/9] drm/format-helper: Rework format-helper memcpy functions
-Date: Fri, 22 Oct 2021 15:28:22 +0200
-Message-Id: <20211022132829.7697-3-tzimmermann@suse.de>
+Subject: [PATCH 0/9] drm/simpledrm: Enable damage clips and virtual screens
+Date: Fri, 22 Oct 2021 15:28:20 +0200
+Message-Id: <20211022132829.7697-1-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211022132829.7697-1-tzimmermann@suse.de>
-References: <20211022132829.7697-1-tzimmermann@suse.de>
 MIME-Version: 1.0
 Cc: linux-hyperv@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
  dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
@@ -110,240 +108,62 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Move destination-buffer clipping from all format-helper memcpy
-function into callers. Support destination-buffer pitch. Only
-distinguish between system and I/O memory, but use same logic
-everywhere.
+Enable FB_DAMAGE_CLIPS with simpledrm for improved performance and/or
+less overhead. With this in place, add support for virtual screens
+(i.e., framebuffers that are larger than the display resolution). This
+also enables fbdev panning and page flipping.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- drivers/gpu/drm/drm_format_helper.c         | 35 ++++++++++++---------
- drivers/gpu/drm/drm_mipi_dbi.c              |  2 +-
- drivers/gpu/drm/gud/gud_pipe.c              |  2 +-
- drivers/gpu/drm/hyperv/hyperv_drm_modeset.c |  5 ++-
- drivers/gpu/drm/mgag200/mgag200_mode.c      |  4 ++-
- drivers/gpu/drm/tiny/cirrus.c               | 14 +++++----
- include/drm/drm_format_helper.h             |  9 +++---
- 7 files changed, 41 insertions(+), 30 deletions(-)
+After the discussion and bug fixing wrt to fbdev overallocation, I
+decided to add full support for this to simpledrm. Patches #1 to #5
+change the format-helper functions accordingly. Destination buffers
+are now clipped by the caller and all functions support a similar
+feature set. This has some fallout in various drivers.
 
-diff --git a/drivers/gpu/drm/drm_format_helper.c b/drivers/gpu/drm/drm_format_helper.c
-index 28e9d0d89270..38c8055f6fa8 100644
---- a/drivers/gpu/drm/drm_format_helper.c
-+++ b/drivers/gpu/drm/drm_format_helper.c
-@@ -32,58 +32,62 @@ EXPORT_SYMBOL(drm_fb_clip_offset);
- /**
-  * drm_fb_memcpy - Copy clip buffer
-  * @dst: Destination buffer
-+ * @dst_pitch: Number of bytes between two consecutive scanlines within dst
-  * @vaddr: Source buffer
-  * @fb: DRM framebuffer
-  * @clip: Clip rectangle area to copy
-  *
-  * This function does not apply clipping on dst, i.e. the destination
-- * is a small buffer containing the clip rect only.
-+ * is at the top-left corner.
-  */
--void drm_fb_memcpy(void *dst, void *vaddr, struct drm_framebuffer *fb,
--		   struct drm_rect *clip)
-+void drm_fb_memcpy(void *dst, unsigned int dst_pitch, const void *vaddr,
-+		   const struct drm_framebuffer *fb, const struct drm_rect *clip)
- {
- 	unsigned int cpp = fb->format->cpp[0];
- 	size_t len = (clip->x2 - clip->x1) * cpp;
- 	unsigned int y, lines = clip->y2 - clip->y1;
- 
-+	if (!dst_pitch)
-+		dst_pitch = len;
-+
- 	vaddr += clip_offset(clip, fb->pitches[0], cpp);
- 	for (y = 0; y < lines; y++) {
- 		memcpy(dst, vaddr, len);
- 		vaddr += fb->pitches[0];
--		dst += len;
-+		dst += dst_pitch;
- 	}
- }
- EXPORT_SYMBOL(drm_fb_memcpy);
- 
- /**
-- * drm_fb_memcpy_dstclip - Copy clip buffer
-+ * drm_fb_memcpy_toio - Copy clip buffer
-  * @dst: Destination buffer (iomem)
-  * @dst_pitch: Number of bytes between two consecutive scanlines within dst
-  * @vaddr: Source buffer
-  * @fb: DRM framebuffer
-  * @clip: Clip rectangle area to copy
-  *
-- * This function applies clipping on dst, i.e. the destination is a
-- * full (iomem) framebuffer but only the clip rect content is copied over.
-+ * This function does not apply clipping on dst, i.e. the destination
-+ * is at the top-left corner.
-  */
--void drm_fb_memcpy_dstclip(void __iomem *dst, unsigned int dst_pitch,
--			   void *vaddr, struct drm_framebuffer *fb,
--			   struct drm_rect *clip)
-+void drm_fb_memcpy_toio(void __iomem *dst, unsigned int dst_pitch, const void *vaddr,
-+			const struct drm_framebuffer *fb, const struct drm_rect *clip)
- {
- 	unsigned int cpp = fb->format->cpp[0];
--	unsigned int offset = clip_offset(clip, dst_pitch, cpp);
- 	size_t len = (clip->x2 - clip->x1) * cpp;
- 	unsigned int y, lines = clip->y2 - clip->y1;
- 
--	vaddr += offset;
--	dst += offset;
-+	if (!dst_pitch)
-+		dst_pitch = len;
-+
-+	vaddr += clip_offset(clip, fb->pitches[0], cpp);
- 	for (y = 0; y < lines; y++) {
- 		memcpy_toio(dst, vaddr, len);
- 		vaddr += fb->pitches[0];
- 		dst += dst_pitch;
- 	}
- }
--EXPORT_SYMBOL(drm_fb_memcpy_dstclip);
-+EXPORT_SYMBOL(drm_fb_memcpy_toio);
- 
- /**
-  * drm_fb_swab - Swap bytes into clip buffer
-@@ -472,7 +476,8 @@ int drm_fb_blit_rect_dstclip(void __iomem *dst, unsigned int dst_pitch,
- 		dst_format = DRM_FORMAT_XRGB8888;
- 
- 	if (dst_format == fb_format) {
--		drm_fb_memcpy_dstclip(dst, dst_pitch, vmap, fb, clip);
-+		dst += clip_offset(clip, dst_pitch, fb->format->cpp[0]);
-+		drm_fb_memcpy_toio(dst, dst_pitch, vmap, fb, clip);
- 		return 0;
- 
- 	} else if (dst_format == DRM_FORMAT_RGB565) {
-diff --git a/drivers/gpu/drm/drm_mipi_dbi.c b/drivers/gpu/drm/drm_mipi_dbi.c
-index 71b646c4131f..c09df8b06c7a 100644
---- a/drivers/gpu/drm/drm_mipi_dbi.c
-+++ b/drivers/gpu/drm/drm_mipi_dbi.c
-@@ -213,7 +213,7 @@ int mipi_dbi_buf_copy(void *dst, struct drm_framebuffer *fb,
- 		if (swap)
- 			drm_fb_swab(dst, src, fb, clip, !gem->import_attach);
- 		else
--			drm_fb_memcpy(dst, src, fb, clip);
-+			drm_fb_memcpy(dst, 0, src, fb, clip);
- 		break;
- 	case DRM_FORMAT_XRGB8888:
- 		drm_fb_xrgb8888_to_rgb565(dst, src, fb, clip, swap);
-diff --git a/drivers/gpu/drm/gud/gud_pipe.c b/drivers/gpu/drm/gud/gud_pipe.c
-index daf75c178c2b..a92112ffd37a 100644
---- a/drivers/gpu/drm/gud/gud_pipe.c
-+++ b/drivers/gpu/drm/gud/gud_pipe.c
-@@ -206,7 +206,7 @@ static int gud_prep_flush(struct gud_device *gdrm, struct drm_framebuffer *fb,
- 		/* can compress directly from the framebuffer */
- 		buf = vaddr + rect->y1 * pitch;
- 	} else {
--		drm_fb_memcpy(buf, vaddr, fb, rect);
-+		drm_fb_memcpy(buf, 0, vaddr, fb, rect);
- 	}
- 
- 	memset(req, 0, sizeof(*req));
-diff --git a/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c b/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
-index 8c97a20dfe23..93f51e70a951 100644
---- a/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
-+++ b/drivers/gpu/drm/hyperv/hyperv_drm_modeset.c
-@@ -23,13 +23,16 @@ static int hyperv_blit_to_vram_rect(struct drm_framebuffer *fb,
- 				    struct drm_rect *rect)
- {
- 	struct hyperv_drm_device *hv = to_hv(fb->dev);
-+	void __iomem *dst = hv->vram;
- 	void *vmap = map->vaddr; /* TODO: Use mapping abstraction properly */
- 	int idx;
- 
- 	if (!drm_dev_enter(&hv->dev, &idx))
- 		return -ENODEV;
- 
--	drm_fb_memcpy_dstclip(hv->vram, fb->pitches[0], vmap, fb, rect);
-+	dst += drm_fb_clip_offset(fb->pitches[0], fb->format, rect);
-+	drm_fb_memcpy_toio(dst, fb->pitches[0], vmap, fb, rect);
-+
- 	drm_dev_exit(idx);
- 
- 	return 0;
-diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
-index fd98e8bbc550..b983541a4c53 100644
---- a/drivers/gpu/drm/mgag200/mgag200_mode.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
-@@ -847,9 +847,11 @@ static void
- mgag200_handle_damage(struct mga_device *mdev, struct drm_framebuffer *fb,
- 		      struct drm_rect *clip, const struct dma_buf_map *map)
- {
-+	void __iomem *dst = mdev->vram;
- 	void *vmap = map->vaddr; /* TODO: Use mapping abstraction properly */
- 
--	drm_fb_memcpy_dstclip(mdev->vram, fb->pitches[0], vmap, fb, clip);
-+	dst += drm_fb_clip_offset(fb->pitches[0], fb->format, clip);
-+	drm_fb_memcpy_toio(dst, fb->pitches[0], vmap, fb, clip);
- 
- 	/* Always scanout image at VRAM offset 0 */
- 	mgag200_set_startadd(mdev, (u32)0);
-diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
-index 4611ec408506..5344e506e8a9 100644
---- a/drivers/gpu/drm/tiny/cirrus.c
-+++ b/drivers/gpu/drm/tiny/cirrus.c
-@@ -317,28 +317,30 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb, const struct dma_buf_
- 			       struct drm_rect *rect)
- {
- 	struct cirrus_device *cirrus = to_cirrus(fb->dev);
-+	void __iomem *dst = cirrus->vram;
- 	void *vmap = map->vaddr; /* TODO: Use mapping abstraction properly */
- 	int idx;
- 
- 	if (!drm_dev_enter(&cirrus->dev, &idx))
- 		return -ENODEV;
- 
--	if (cirrus->cpp == fb->format->cpp[0])
--		drm_fb_memcpy_dstclip(cirrus->vram, fb->pitches[0],
--				      vmap, fb, rect);
-+	if (cirrus->cpp == fb->format->cpp[0]) {
-+		dst += drm_fb_clip_offset(fb->pitches[0], fb->format, rect);
-+		drm_fb_memcpy_toio(dst, fb->pitches[0], vmap, fb, rect);
- 
--	else if (fb->format->cpp[0] == 4 && cirrus->cpp == 2)
-+	} else if (fb->format->cpp[0] == 4 && cirrus->cpp == 2) {
- 		drm_fb_xrgb8888_to_rgb565_dstclip(cirrus->vram,
- 						  cirrus->pitch,
- 						  vmap, fb, rect, false);
- 
--	else if (fb->format->cpp[0] == 4 && cirrus->cpp == 3)
-+	} else if (fb->format->cpp[0] == 4 && cirrus->cpp == 3) {
- 		drm_fb_xrgb8888_to_rgb888_dstclip(cirrus->vram,
- 						  cirrus->pitch,
- 						  vmap, fb, rect);
- 
--	else
-+	} else {
- 		WARN_ON_ONCE("cpp mismatch");
-+	}
- 
- 	drm_dev_exit(idx);
- 
-diff --git a/include/drm/drm_format_helper.h b/include/drm/drm_format_helper.h
-index 90b9bd9ecb83..8d72f6fd27e9 100644
---- a/include/drm/drm_format_helper.h
-+++ b/include/drm/drm_format_helper.h
-@@ -13,11 +13,10 @@ struct drm_rect;
- unsigned long drm_fb_clip_offset(unsigned int pitch, const struct drm_format_info *format,
- 				 const struct drm_rect *clip);
- 
--void drm_fb_memcpy(void *dst, void *vaddr, struct drm_framebuffer *fb,
--		   struct drm_rect *clip);
--void drm_fb_memcpy_dstclip(void __iomem *dst, unsigned int dst_pitch, void *vaddr,
--			   struct drm_framebuffer *fb,
--			   struct drm_rect *clip);
-+void drm_fb_memcpy(void *dst, unsigned int dst_pitch, const void *vaddr,
-+		   const struct drm_framebuffer *fb, const struct drm_rect *clip);
-+void drm_fb_memcpy_toio(void __iomem *dst, unsigned int dst_pitch, const void *vaddr,
-+			const struct drm_framebuffer *fb, const struct drm_rect *clip);
- void drm_fb_swab(void *dst, void *src, struct drm_framebuffer *fb,
- 		 struct drm_rect *clip, bool cached);
- void drm_fb_xrgb8888_to_rgb332(void *dst, void *vaddr, struct drm_framebuffer *fb,
--- 
+Patch #6 change fbdev emulation to support overallocation with
+shadow buffers, even if the hardware buffer would be too small.
+
+Patch #7 and #8 update simpledrm to enable damage clipping and virtual
+screen sizes. Both feature go hand in hand, sort of. For shadow-
+buffered planes, the DRM framebuffer lives in system memory. So the
+maximum size of the virtual screen is somewhat arbitrary. We add two
+constants for resonable maximum width and height of 4096 each.
+
+Patch #9 adds documentation and a TODO item.
+
+Tested with simpledrm. I also ran the recently posted fbdev panning
+tests to make sure that the fbdev overallocation works correctly. [1]
+
+[1] https://lists.freedesktop.org/archives/igt-dev/2021-October/036642.html
+
+Thomas Zimmermann (9):
+  drm/format-helper: Export drm_fb_clip_offset()
+  drm/format-helper: Rework format-helper memcpy functions
+  drm/format-helper: Add destination-buffer pitch to drm_fb_swab()
+  drm/format-helper: Rework format-helper conversion functions
+  drm/format-helper: Streamline blit-helper interface
+  drm/fb-helper: Allocate shadow buffer of surface height
+  drm/simpledrm: Enable FB_DAMAGE_CLIPS property
+  drm/simpledrm: Support virtual screen sizes
+  drm: Clarify semantics of struct
+    drm_mode_config.{min,max}_{width,height}
+
+ Documentation/gpu/todo.rst                  |  15 ++
+ drivers/gpu/drm/drm_fb_helper.c             |   2 +-
+ drivers/gpu/drm/drm_format_helper.c         | 236 ++++++++++----------
+ drivers/gpu/drm/drm_mipi_dbi.c              |   6 +-
+ drivers/gpu/drm/gud/gud_pipe.c              |  14 +-
+ drivers/gpu/drm/hyperv/hyperv_drm_modeset.c |   5 +-
+ drivers/gpu/drm/mgag200/mgag200_mode.c      |   4 +-
+ drivers/gpu/drm/tiny/cirrus.c               |  24 +-
+ drivers/gpu/drm/tiny/repaper.c              |   2 +-
+ drivers/gpu/drm/tiny/simpledrm.c            |  41 +++-
+ drivers/gpu/drm/tiny/st7586.c               |   2 +-
+ include/drm/drm_format_helper.h             |  58 ++---
+ include/drm/drm_gem_atomic_helper.h         |  18 ++
+ include/drm/drm_mode_config.h               |  13 ++
+ 14 files changed, 254 insertions(+), 186 deletions(-)
+
+--
 2.33.0
 
 _______________________________________________
