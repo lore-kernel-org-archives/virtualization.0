@@ -1,107 +1,87 @@
-Return-Path: <SRS0=Fxu4=PL=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=Yk2c=PM=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AB11C433EF
-	for <virtualization@archiver.kernel.org>; Sat, 23 Oct 2021 21:31:37 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 183CAC433EF
+	for <virtualization@archiver.kernel.org>; Sun, 24 Oct 2021 08:31:19 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CA9A160F6F
-	for <virtualization@archiver.kernel.org>; Sat, 23 Oct 2021 21:31:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org CA9A160F6F
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id AC0B160F0F
+	for <virtualization@archiver.kernel.org>; Sun, 24 Oct 2021 08:31:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org AC0B160F0F
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=tronnes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7BC4F40187;
-	Sat, 23 Oct 2021 21:31:36 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 6DD3580DC8;
+	Sun, 24 Oct 2021 08:31:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 97BWfi6LK6zh; Sat, 23 Oct 2021 21:31:35 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id A9qR3m25GTH0; Sun, 24 Oct 2021 08:31:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id D1A1A400EF;
-	Sat, 23 Oct 2021 21:31:34 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 28A4780DDB;
+	Sun, 24 Oct 2021 08:31:17 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B0C95C0012;
-	Sat, 23 Oct 2021 21:31:34 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 221DDC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E50ACC0012;
+	Sun, 24 Oct 2021 08:31:16 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E4F99C000E
  for <virtualization@lists.linux-foundation.org>;
- Sat, 23 Oct 2021 21:31:34 +0000 (UTC)
+ Sun, 24 Oct 2021 08:31:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id EFA5460654
+ by smtp4.osuosl.org (Postfix) with ESMTP id CB32440333
  for <virtualization@lists.linux-foundation.org>;
- Sat, 23 Oct 2021 21:31:33 +0000 (UTC)
+ Sun, 24 Oct 2021 08:31:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id QFaGUocjeq7i
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=tronnes.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id AAzWc8QTh1r1
  for <virtualization@lists.linux-foundation.org>;
- Sat, 23 Oct 2021 21:31:33 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 1F0206061D
+ Sun, 24 Oct 2021 08:31:13 +0000 (UTC)
+X-Greylist: delayed 00:05:53 by SQLgrey-1.8.0
+Received: from smtp.domeneshop.no (smtp.domeneshop.no
+ [IPv6:2a01:5b40:0:3005::1])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id E26FC40326
  for <virtualization@lists.linux-foundation.org>;
- Sat, 23 Oct 2021 21:31:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1635024691;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=UvbR/cosDB5PzrAtt66M/Vg3Eshkd4GIz0r0Njwdz8U=;
- b=VuFPmF+oeQ5le9gPFdz5Ba+NCL8otqFQkAZb74+GibhI9x5SKwKeHRmLZ8aE6UO42ImJSw
- 5dVS7gFLjA/hUAhRqQxeabS9CnSUpq7YjGpVBpDZry0ppwvUKdu+uMJsiIWtVBdeM5QvwQ
- HzIzIKWdLK34zGHFSpfZDXyXAPCtxkM=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-451-MU6UajoyNwW4uOJWvnWHKw-1; Sat, 23 Oct 2021 17:31:30 -0400
-X-MC-Unique: MU6UajoyNwW4uOJWvnWHKw-1
-Received: by mail-wm1-f69.google.com with SMTP id
- b81-20020a1c8054000000b0032c9d428b7fso2443915wmd.3
- for <virtualization@lists.linux-foundation.org>;
- Sat, 23 Oct 2021 14:31:30 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=UvbR/cosDB5PzrAtt66M/Vg3Eshkd4GIz0r0Njwdz8U=;
- b=ht0Ys+Yh9JJ9vH5Aaw2lFrREhZLS3WlkJziiMqfD1pi0B3xwZ+tNTZmaTYDMiYdhvA
- Vh+LN6l4sZCeZfBKDvlQLbLWxXeE/sHSFl1+Px4h/tpvN97H/brn6ZGzd5pewtrMm2H5
- gRTV7H05s9vMKQnztpIXlWNqo/yZ19RC/JqTwC20r5ZA0XYXhWUDD8BFv7gMIfxDUDpg
- tc5tiSlib8sPgj9abO6MGXC2RkQtvx2FP0Wc8j0KpLK5foKYEPgrlouijQONhuRrivrD
- nabedNOg9MavtehqSVrPlB0U4bVsqoCLTxIX64X9UWwtBpNsEJEf5mJhw6/iX8ZtR6mS
- 8JyQ==
-X-Gm-Message-State: AOAM533TRCeIbVQrRWauXM+d8RzeFTWvOapVdKawdm/ep4vZS+U3OGQx
- MLyI7atYhwWkj0nR6NcZuMeiOPIwXx5HmgPdSMJFFRUEugYQzyeqBlZ9LxRz+pVGm6QYmtAxfcM
- KsObdCEdK5Isegc+lIpsnoZCEicDc/QshnM/GITT/Pw==
-X-Received: by 2002:a5d:64cf:: with SMTP id f15mr10114801wri.40.1635024689031; 
- Sat, 23 Oct 2021 14:31:29 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJw1y608WZP9aSEm5XfV1q3IHejO+vI46FGmfXRmW672lUt8njZVZ9QYtKy9AW221jJLoqdo5w==
-X-Received: by 2002:a5d:64cf:: with SMTP id f15mr10114785wri.40.1635024688881; 
- Sat, 23 Oct 2021 14:31:28 -0700 (PDT)
-Received: from redhat.com ([2.55.9.147])
- by smtp.gmail.com with ESMTPSA id c15sm11597358wrs.19.2021.10.23.14.31.25
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sat, 23 Oct 2021 14:31:27 -0700 (PDT)
-Date: Sat, 23 Oct 2021 17:31:23 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V3 00/10] More virtio hardening
-Message-ID: <20211023171627-mutt-send-email-mst@kernel.org>
-References: <20211019070152.8236-1-jasowang@redhat.com>
+ Sun, 24 Oct 2021 08:31:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=tronnes.org
+ ; s=ds202012;
+ h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
+ MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:
+ Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+ Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+ List-Subscribe:List-Post:List-Owner:List-Archive;
+ bh=fwJDIpeHcoTCjW6d/WqsB8/Thoo6o3AVkcfg+s98K0I=; b=qehNJuPVO9T/ZFjxGZ8o0QEU7g
+ SUqvQak6gweJzXhpOH25ANz86m7hjBj9YiBeupYHPY8ns9hKV6fkmqYlxtQotrx0MoFEwYPU0bKBM
+ oN1lzdHLNYuuPdAQnyJUaleZM4aUqb8Ef+Azn9F388Q9Eg/iZUiKOkV1HgnWa05yMfqnrHOjTX69r
+ KLhvaUxHOSzuA/S1TB7N+pqUI9nyiE0brWZC5bo0sqdGZxHfLXuYdbleH9ZVq11T8mFlb7yVvhDN0
+ h8Ktf9+/tXJoM2whsU8hFEYwMKhLCu2AKcjRK9o6EHZ7eyf/LBEjUSJxrijxXcbYKosnBoylPY0Gh
+ i5lNMmEw==;
+Received: from 211.81-166-168.customer.lyse.net ([81.166.168.211]:56181
+ helo=[192.168.10.61])
+ by smtp.domeneshop.no with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+ (Exim 4.92) (envelope-from <noralf@tronnes.org>)
+ id 1meYof-0005AL-35; Sun, 24 Oct 2021 10:25:17 +0200
+Subject: Re: [PATCH 1/9] drm/format-helper: Export drm_fb_clip_offset()
+To: Thomas Zimmermann <tzimmermann@suse.de>, daniel@ffwll.ch,
+ airlied@linux.ie, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
+ drawat.floss@gmail.com, airlied@redhat.com, kraxel@redhat.com,
+ david@lechnology.com, sam@ravnborg.org, javierm@redhat.com,
+ kernel@amanoeldawod.com, dirty.ice.hu@gmail.com, michael+lkml@stapelberg.ch,
+ aros@gmx.com, joshua@stroblindustries.com, arnd@arndb.de
+References: <20211022132829.7697-1-tzimmermann@suse.de>
+ <20211022132829.7697-2-tzimmermann@suse.de>
+From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Message-ID: <6ed5fba0-72d5-7fb8-338c-230bf69e2c03@tronnes.org>
+Date: Sun, 24 Oct 2021 10:25:11 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-In-Reply-To: <20211019070152.8236-1-jasowang@redhat.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: konrad.wilk@oracle.com, f.hetzelt@tu-berlin.de,
- linux-kernel@vger.kernel.org, david.kaplan@amd.com,
+In-Reply-To: <20211022132829.7697-2-tzimmermann@suse.de>
+Cc: linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org,
  virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -119,76 +99,46 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Oct 19, 2021 at 03:01:42PM +0800, Jason Wang wrote:
-> Hi All:
-> 
-> This series treis to do more hardening for virito.
-
-OK. So patches 7-10 caused a crash in virtio-blk.
-I'm close to sure it's patch 10 actually, and forcing
-validation seems to fix the crash.
-I also suspect it has something to do with the fact that
-blk submits requests in the middle of the probe function.
-
-picked up 1-6 for now.
 
 
-> patch 1 validates the num_queues for virio-blk device.
-> patch 2 validates max_nr_ports for virito-console device.
-> patch 3-5 harden virtio-pci interrupts to make sure no exepcted
-> interrupt handler is tiggered. If this makes sense we can do similar
-> things in other transport drivers.
-> patch 6-7 validate used ring length.
-> patch 8-10 let the driver to validate the used length instead of the
-> virtio core when possible.
+Den 22.10.2021 15.28, skrev Thomas Zimmermann:
+> Provide a function that computes the offset into a blit destination
+> buffer. This will allow to move destination-buffer clipping into the
+> format-helper callers.
 > 
-> Smoking test on blk/net with packed=on/off and iommu_platform=on/off.
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> ---
+>  drivers/gpu/drm/drm_format_helper.c | 10 ++++++++--
+>  include/drm/drm_format_helper.h     |  4 ++++
+>  2 files changed, 12 insertions(+), 2 deletions(-)
 > 
-> Please review.
-> 
-> Changes since V2:
-> - don't validate max_nr_ports in .validate()
-> - fail the probe instead of trying to work when blk/console returns
->   invalid number of queues/ports
-> - use READ_ONCE() instead of smp_load_acquire() for checking
->   intx_soft_enabled
-> - use "suppress_used_validation" instead of "validate_used"
-> 
-> Changes since V1:
-> - fix and document the memory ordering around the intx_soft_enabled
->   when enabling and disabling INTX interrupt
-> - for the driver that can validate the used length, virtio core
->   won't even try to allocate auxilary arrays and validate the used length
-> - tweak the commit log
-> - fix typos
-> 
-> Jason Wang (10):
->   virtio-blk: validate num_queues during probe
->   virtio_console: validate max_nr_ports before trying to use it
->   virtio_config: introduce a new .enable_cbs method
->   virtio_pci: harden MSI-X interrupts
->   virtio-pci: harden INTX interrupts
->   virtio_ring: fix typos in vring_desc_extra
->   virtio_ring: validate used buffer length
->   virtio-net: don't let virtio core to validate used length
->   virtio-blk: don't let virtio core to validate used length
->   virtio-scsi: don't let virtio core to validate used buffer length
-> 
->  drivers/block/virtio_blk.c         |  5 +++
->  drivers/char/virtio_console.c      |  9 +++++
->  drivers/net/virtio_net.c           |  1 +
->  drivers/scsi/virtio_scsi.c         |  1 +
->  drivers/virtio/virtio_pci_common.c | 48 ++++++++++++++++++++----
->  drivers/virtio/virtio_pci_common.h |  7 +++-
->  drivers/virtio/virtio_pci_legacy.c |  5 ++-
->  drivers/virtio/virtio_pci_modern.c |  6 ++-
->  drivers/virtio/virtio_ring.c       | 60 +++++++++++++++++++++++++++++-
->  include/linux/virtio.h             |  2 +
->  include/linux/virtio_config.h      |  6 +++
->  11 files changed, 135 insertions(+), 15 deletions(-)
-> 
-> -- 
-> 2.25.1
+> diff --git a/drivers/gpu/drm/drm_format_helper.c b/drivers/gpu/drm/drm_format_helper.c
+> index 69fde60e36b3..28e9d0d89270 100644
+> --- a/drivers/gpu/drm/drm_format_helper.c
+> +++ b/drivers/gpu/drm/drm_format_helper.c
+> @@ -17,12 +17,18 @@
+>  #include <drm/drm_fourcc.h>
+>  #include <drm/drm_rect.h>
+>  
+> -static unsigned int clip_offset(struct drm_rect *clip,
+> -				unsigned int pitch, unsigned int cpp)
+> +static unsigned int clip_offset(const struct drm_rect *clip, unsigned int pitch, unsigned int cpp)
+>  {
+>  	return clip->y1 * pitch + clip->x1 * cpp;
+>  }
+>  
+> +unsigned long drm_fb_clip_offset(unsigned int pitch, const struct drm_format_info *format,
+
+Like Sam I wonder about the unsigned long here.
+
+Noralf.
+
+> +				 const struct drm_rect *clip)
+> +{
+> +	return clip_offset(clip, pitch, format->cpp[0]);
+> +}
+> +EXPORT_SYMBOL(drm_fb_clip_offset);
+> +
 
 _______________________________________________
 Virtualization mailing list
