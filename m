@@ -2,110 +2,87 @@ Return-Path: <SRS0=Yk2c=PM=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44BDCC433EF
-	for <virtualization@archiver.kernel.org>; Sun, 24 Oct 2021 15:12:05 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CCC9C433EF
+	for <virtualization@archiver.kernel.org>; Sun, 24 Oct 2021 15:20:52 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AD733604D2
-	for <virtualization@archiver.kernel.org>; Sun, 24 Oct 2021 15:12:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org AD733604D2
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 0C9E260EFE
+	for <virtualization@archiver.kernel.org>; Sun, 24 Oct 2021 15:20:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0C9E260EFE
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=tronnes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 67B65402ED;
-	Sun, 24 Oct 2021 15:12:04 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id C094E400DD;
+	Sun, 24 Oct 2021 15:20:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OB4eylsQcxkp; Sun, 24 Oct 2021 15:12:03 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 01FB5402DF;
-	Sun, 24 Oct 2021 15:12:02 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BED15C0019;
-	Sun, 24 Oct 2021 15:12:02 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8B15BC000E
- for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Oct 2021 15:12:01 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 7E7DC400DD
- for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Oct 2021 15:12:01 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eInsyJ3RCp35
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 99x_D6MWNN3Z; Sun, 24 Oct 2021 15:20:50 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 1FED640210;
+	Sun, 24 Oct 2021 15:20:50 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EA868C0019;
+	Sun, 24 Oct 2021 15:20:49 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AA849C000E
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Oct 2021 15:12:00 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 53019400B5
+ Sun, 24 Oct 2021 15:20:48 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 8BE6380D82
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Oct 2021 15:12:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1635088319;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=Sd2F/rv0/rYPqdyLkTSI2b2h2/QE9BM0Qe4Pjpyf4UM=;
- b=hd1q1KNDbG+43Mdrfl6JMaC4POgcu6FiRsXLRAFOOXtoY3LUbUeVSr0GDw6Awgb2xKvGpg
- QuQXD3ivxlnsoM5M5xywEJ88dIWYjH66HdqyPnjhqKI/4eQk4j/9LdtEW8dcCW0+SKh/GB
- o8dsOjyKMyZE7vkp1gSZQqyWLd1e0L0=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-489-ytvc6J0HMg2kl9v718sBvw-1; Sun, 24 Oct 2021 11:11:57 -0400
-X-MC-Unique: ytvc6J0HMg2kl9v718sBvw-1
-Received: by mail-ed1-f70.google.com with SMTP id
- u17-20020a50d511000000b003daa3828c13so7661186edi.12
+ Sun, 24 Oct 2021 15:20:48 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=tronnes.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id o8mdeKtc2ieZ
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Oct 2021 08:11:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=Sd2F/rv0/rYPqdyLkTSI2b2h2/QE9BM0Qe4Pjpyf4UM=;
- b=akWbeHfUgeyCWyfmcWLBBOwnRbHxk1g6FpkCNORN2vesMOcztBuS2mSW7u5uiRDj5Q
- U+aeOp3t/It2xAWeQcNqO0eq6wX7l34caiaoaMsQ8mNJvo644D/tJ1Wq7G/kMWcXud2T
- KoGn7VeIv26bkZq9wtIlRF2Yptq3pJT8wRjNs1FbIMOCyhG9tph7VRqtLyI5wX4z/ojR
- LP/4OGKYWZpqp3JTs5SwCu6LBtvWLQh2K+IbkK9SzkOQODBjijQ1+PDN64fRSmw6XR3U
- 4irGI0MSSy1z53lBTPMk9hAmBOlMXuKzuYcfzeMb1KqkUxgRCotfFqBCXatQxRVxsPXq
- NPmA==
-X-Gm-Message-State: AOAM533CJD6ToBJMEAF/wm8Zjhjtwi9ag+rVyUx9mTC1tjr3k18IujsM
- HewBGG23yC41Vjr8zom4j3FCQEIoKf79trYBY7ZtNXa47ZVpuH3uVc7mX+G5I1TzGBDo0w/EsKk
- TN/4GyWqqExk9iqYPSI2p0usJimM7DrFRFWaMi3Vy4A==
-X-Received: by 2002:a17:906:2346:: with SMTP id
- m6mr15112447eja.512.1635088316552; 
- Sun, 24 Oct 2021 08:11:56 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxnbdd6RsZKytm29Sr1ykC3If/f4opiXGmBqrEf8/Foj95mR0OgBYQPl3pTDCqV4RSW7O4AMg==
-X-Received: by 2002:a17:906:2346:: with SMTP id
- m6mr15112407eja.512.1635088316246; 
- Sun, 24 Oct 2021 08:11:56 -0700 (PDT)
-Received: from redhat.com ([2.55.151.113])
- by smtp.gmail.com with ESMTPSA id gb3sm4479930ejc.81.2021.10.24.08.11.53
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 24 Oct 2021 08:11:55 -0700 (PDT)
-Date: Sun, 24 Oct 2021 11:11:51 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Max Gurtovoy <mgurtovoy@nvidia.com>
-Subject: Re: [PATCH] virtio_blk: allow 0 as num_request_queues
-Message-ID: <20211024105841-mutt-send-email-mst@kernel.org>
-References: <20211024135412.1516393-1-mst@redhat.com>
- <855eb993-074b-24b9-a184-d479bd0b342b@nvidia.com>
+ Sun, 24 Oct 2021 15:20:48 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from smtp.domeneshop.no (smtp.domeneshop.no
+ [IPv6:2a01:5b40:0:3005::1])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id D211C80D76
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 24 Oct 2021 15:20:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=tronnes.org
+ ; s=ds202012;
+ h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
+ MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:
+ Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+ Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+ List-Subscribe:List-Post:List-Owner:List-Archive;
+ bh=9Z+JCqRsIAZ4rGW6LUUM6/W+OopfRqSRXjgw2egWOJo=; b=wJYe6FTwloWwN01yrvYl1lf3Kl
+ STs5TC9+qdg7ZlrstbwCK8RDMZvjyU8y9XmGh5IaK/u9PrQyi6hdVm6bVC6ooN851XN/5p7+caiIN
+ 0JFN1wKyd5xhltDeTBtGkuK5zoC7ciBxPmvR6QzlU/3hXAP3GKBL2AlNU8ocS8ZwWDNn3iKpEmUoB
+ eXnsD5Pjn68AfOBmj3kT9u8GcamFlHU688Hi8njP2W3GB3eIO3ivqG3p+JdzQNXo/iOXxGXmPbMqJ
+ /AeZHNg6hf8Vw6QkobkPwLj2962B51R96/NhENJ8JShgX2w0wAjDnjl1mYVDOfQ4air9/JVfcYEsC
+ 49FFYwpw==;
+Received: from 211.81-166-168.customer.lyse.net ([81.166.168.211]:49254
+ helo=[192.168.10.61])
+ by smtp.domeneshop.no with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+ (Exim 4.92) (envelope-from <noralf@tronnes.org>)
+ id 1mefIj-00075m-IR; Sun, 24 Oct 2021 17:20:45 +0200
+Subject: Re: [PATCH 7/9] drm/simpledrm: Enable FB_DAMAGE_CLIPS property
+To: Thomas Zimmermann <tzimmermann@suse.de>, daniel@ffwll.ch,
+ airlied@linux.ie, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
+ drawat.floss@gmail.com, airlied@redhat.com, kraxel@redhat.com,
+ david@lechnology.com, sam@ravnborg.org, javierm@redhat.com,
+ kernel@amanoeldawod.com, dirty.ice.hu@gmail.com, michael+lkml@stapelberg.ch,
+ aros@gmx.com, joshua@stroblindustries.com, arnd@arndb.de
+References: <20211022132829.7697-1-tzimmermann@suse.de>
+ <20211022132829.7697-8-tzimmermann@suse.de>
+From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Message-ID: <14b1c21f-25e5-d862-40ea-dda1e076ef63@tronnes.org>
+Date: Sun, 24 Oct 2021 17:20:42 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-In-Reply-To: <855eb993-074b-24b9-a184-d479bd0b342b@nvidia.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <20211022132829.7697-8-tzimmermann@suse.de>
+Cc: linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,75 +99,103 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Oct 24, 2021 at 05:19:33PM +0300, Max Gurtovoy wrote:
+
+
+Den 22.10.2021 15.28, skrev Thomas Zimmermann:
+> Enable the FB_DAMAGE_CLIPS property to reduce display-update
+> overhead. Also fixes a warning in the kernel log.
 > 
-> On 10/24/2021 4:54 PM, Michael S. Tsirkin wrote:
-> > The default value is 0 meaning "no limit". However if 0
-> > is specified on the command line it is instead silently
-> > converted to 1. Further, the value is already validated
-> > at point of use, there's no point in duplicating code
-> > validating the value when it is set.
-> > 
-> > Simplify the code while making the behaviour more consistent
-> > by using plain module_param.
-> > 
-> > Fixes: 1a662cf6cb9a ("virtio-blk: add num_request_queues module parameter")
-> > Cc: Max Gurtovoy <mgurtovoy@nvidia.com>
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> >   drivers/block/virtio_blk.c | 14 +-------------
-> >   1 file changed, 1 insertion(+), 13 deletions(-)
-> > 
-> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > index 6318134aab76..c336d9bb9105 100644
-> > --- a/drivers/block/virtio_blk.c
-> > +++ b/drivers/block/virtio_blk.c
-> > @@ -30,20 +30,8 @@
-> >   #define VIRTIO_BLK_INLINE_SG_CNT	2
-> >   #endif
-> > -static int virtblk_queue_count_set(const char *val,
-> > -		const struct kernel_param *kp)
-> > -{
-> > -	return param_set_uint_minmax(val, kp, 1, nr_cpu_ids);
-> > -}
-> > -
-> > -static const struct kernel_param_ops queue_count_ops = {
-> > -	.set = virtblk_queue_count_set,
-> > -	.get = param_get_uint,
-> > -};
-> > -
-> >   static unsigned int num_request_queues;
-> > -module_param_cb(num_request_queues, &queue_count_ops, &num_request_queues,
-> > -		0644);
-> > +module_param(num_request_queues, uint, 0644);
+>   simple-framebuffer simple-framebuffer.0: [drm] drm_plane_enable_fb_damage_clips() not called
 > 
-> Not the best solution.
+> Fix the computation of the blit rectangle. This wasn't an issue so
+> far, as simpledrm always blitted the full framebuffer. The code now
+> supports damage clipping and virtual screen sizes.
 > 
-> You can set the param to 1024 but in practice nr_cpu_ids can be 32 for
-> example.
-
-Well your patch does make it possible to know what nr_cpu_ids is.
-But does it matter? The actual number of queues is still capped
-by the num_queues of the device. And I'm concerned that some
-userspace comes to depend on reading back nr_cpu_ids
-from there, which will cement this as part of ABI instead of
-being an implementation detail.
-Exposing the actual number of queues in sysfs might make more sense ...
-
-Generally you suggested embedded as a use-case, and I don't really
-see lots of embedded userspace poking at this parameter in sysfs.
-
-What I'd like to see, and attempted to achieve here:
-- avoid code duplication
-- consistency: some way to specify the parameter but still make it have the default value
-
-Better suggestions are welcome.
-
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> ---
+>  drivers/gpu/drm/tiny/simpledrm.c | 30 ++++++++++++++++++++++--------
+>  1 file changed, 22 insertions(+), 8 deletions(-)
 > 
-> >   MODULE_PARM_DESC(num_request_queues,
-> >   		 "Limit the number of request queues to use for blk device. "
-> >   		 "0 for no limit. "
+> diff --git a/drivers/gpu/drm/tiny/simpledrm.c b/drivers/gpu/drm/tiny/simpledrm.c
+> index 571f716ff427..e872121e9fb0 100644
+> --- a/drivers/gpu/drm/tiny/simpledrm.c
+> +++ b/drivers/gpu/drm/tiny/simpledrm.c
+> @@ -642,7 +642,7 @@ simpledrm_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
+>  	void *vmap = shadow_plane_state->data[0].vaddr; /* TODO: Use mapping abstraction */
+>  	struct drm_device *dev = &sdev->dev;
+>  	void __iomem *dst = sdev->screen_base;
+> -	struct drm_rect clip;
+> +	struct drm_rect src_clip, dst_clip;
+>  	int idx;
+>  
+>  	if (!fb)
+> @@ -651,10 +651,14 @@ simpledrm_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
+>  	if (!drm_dev_enter(dev, &idx))
+>  		return;
+>  
+> -	drm_rect_init(&clip, 0, 0, fb->width, fb->height);
+> +	drm_rect_fp_to_int(&src_clip, &plane_state->src);
+>  
+> -	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &clip);
+> -	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &clip);
+> +	dst_clip = plane_state->dst;
+> +	if (!drm_rect_intersect(&dst_clip, &src_clip))
+> +		return;
+> +
+> +	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &dst_clip);
+> +	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &src_clip);
+>  
+>  	drm_dev_exit(idx);
+>  }
+> @@ -686,20 +690,28 @@ simpledrm_simple_display_pipe_update(struct drm_simple_display_pipe *pipe,
+>  	struct drm_framebuffer *fb = plane_state->fb;
+>  	struct drm_device *dev = &sdev->dev;
+>  	void __iomem *dst = sdev->screen_base;
+> -	struct drm_rect clip;
+> +	struct drm_rect damage_clip, src_clip, dst_clip;
+>  	int idx;
+>  
+>  	if (!fb)
+>  		return;
+>  
+> -	if (!drm_atomic_helper_damage_merged(old_plane_state, plane_state, &clip))
+> +	if (!drm_atomic_helper_damage_merged(old_plane_state, plane_state, &damage_clip))
+> +		return;
+> +
 
+I'm afraid I don't understand what's going on here, but isn't it
+possible to put this logic into drm_atomic_helper_damage_merged()?
+
+Noralf.
+
+> +	drm_rect_fp_to_int(&src_clip, &plane_state->src);
+> +	if (!drm_rect_intersect(&src_clip, &damage_clip))
+> +		return;
+> +
+> +	dst_clip = plane_state->dst;
+> +	if (!drm_rect_intersect(&dst_clip, &src_clip))
+>  		return;
+>  
+>  	if (!drm_dev_enter(dev, &idx))
+>  		return;
+>  
+> -	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &clip);
+> -	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &clip);
+> +	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &dst_clip);
+> +	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &src_clip);
+>  
+>  	drm_dev_exit(idx);
+>  }
+> @@ -794,6 +806,8 @@ static int simpledrm_device_init_modeset(struct simpledrm_device *sdev)
+>  	if (ret)
+>  		return ret;
+>  
+> +	drm_plane_enable_fb_damage_clips(&pipe->plane);
+> +
+>  	drm_mode_config_reset(dev);
+>  
+>  	return 0;
+> 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
