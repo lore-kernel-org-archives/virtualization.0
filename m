@@ -2,104 +2,85 @@ Return-Path: <SRS0=Yk2c=PM=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38080C433F5
-	for <virtualization@archiver.kernel.org>; Sun, 24 Oct 2021 13:55:08 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6613EC433EF
+	for <virtualization@archiver.kernel.org>; Sun, 24 Oct 2021 14:59:20 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C165F60FBF
-	for <virtualization@archiver.kernel.org>; Sun, 24 Oct 2021 13:55:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org C165F60FBF
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id E91E060EFE
+	for <virtualization@archiver.kernel.org>; Sun, 24 Oct 2021 14:59:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E91E060EFE
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=tronnes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 4BDF340251;
-	Sun, 24 Oct 2021 13:55:07 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id A4E1A401C3;
+	Sun, 24 Oct 2021 14:59:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6RCaY8xqgLgf; Sun, 24 Oct 2021 13:55:06 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id WtXcmjZvTtQv; Sun, 24 Oct 2021 14:59:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id A7784401E3;
-	Sun, 24 Oct 2021 13:55:05 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 3F38E401BE;
+	Sun, 24 Oct 2021 14:59:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 78EA6C0019;
-	Sun, 24 Oct 2021 13:55:05 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 02F4BC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 138D6C0012;
+	Sun, 24 Oct 2021 14:59:18 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BBA69C000E
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Oct 2021 13:55:03 +0000 (UTC)
+ Sun, 24 Oct 2021 14:59:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id DE35B40124
+ by smtp4.osuosl.org (Postfix) with ESMTP id A4AF4401C3
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Oct 2021 13:55:03 +0000 (UTC)
+ Sun, 24 Oct 2021 14:59:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id RFpDSMqrmJTW
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id dSSS6fpMmRt1
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Oct 2021 13:55:02 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 29BE8400B5
+ Sun, 24 Oct 2021 14:59:15 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from smtp.domeneshop.no (smtp.domeneshop.no
+ [IPv6:2a01:5b40:0:3005::1])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 702B7401BE
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Oct 2021 13:55:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1635083700;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type;
- bh=tewEIaGWIVgpjWlRNV0G2f4scnW96h9ilayJkc4j6ck=;
- b=SHlmIvgXpoJwJ7zrtm0AeR08yz8WFr+ZztwzGzpDMcKYFTtCPBwk4lnP9a8dO0BVP4UAAo
- KCWwSEC2aeuNTU1lOQOkumVtyLtoAQWnT9wV7vTWvD1iP0JycH21vCnGdLeMJRy7CO5Wuy
- yX6kqv9+IlkaJRYtn8I1xNAStkbq/Ec=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-282-BLb3JwINNXa6psK_LSy4lA-1; Sun, 24 Oct 2021 09:54:59 -0400
-X-MC-Unique: BLb3JwINNXa6psK_LSy4lA-1
-Received: by mail-ed1-f70.google.com with SMTP id
- r25-20020a05640216d900b003dca3501ab4so7550044edx.15
- for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Oct 2021 06:54:58 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
- :content-disposition;
- bh=tewEIaGWIVgpjWlRNV0G2f4scnW96h9ilayJkc4j6ck=;
- b=RUpKusY0v1c1QOrPoBOmAZPngPwlKV0i2rwq8/mU4u4EhXIyJFBXanLBgWDoig35++
- gS68uU8tFRqL8lH0rdK5l7/S/TfG3YMig4DmZXpmRvpOR1CaejJv/kYvWLT9biZiPyEb
- 9yWaIHbozsEU+NtPw+LJVchw2kgncSD1iPfkDK4jZvjoXQhrcFa0l8riAR/oYCmZwb4j
- nAaQ6jsWxWtqjVZ/R24rGAsSqfuzVWtxDmEo7tRIJSehZKedTQrkQ13H5NGSmN4PYlgc
- 6+VwUz/eHfxGArVHDWr/YkTG8ZiU7P3wJjOi6i2e5qpLzIPwS+6odo4i/c2Ua1nTl1Ey
- +I2w==
-X-Gm-Message-State: AOAM531vDlfoO3I/r5UduPRrox6+AvjkB6lW6H08FaPOWo9Xp9HSQevM
- qO/p51XgE2wyxlYw1CO2ad2rGLtuQno9iNr163kKW7nMcv/5tsDJEtcyMCdpcaWWSe1ZLr7nQtO
- rQteckw2cEEH4F12GTslIDyxG+ml/o6pkidRgTj49Bw==
-X-Received: by 2002:aa7:de8f:: with SMTP id j15mr17998588edv.347.1635083697860; 
- Sun, 24 Oct 2021 06:54:57 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJziB449a0jkGnMyxw5Nq/yiWf48HjGMENXG4KqcvYNiRPrUcOY/ICO7KLwSoXi1Wh6vBRnxxA==
-X-Received: by 2002:aa7:de8f:: with SMTP id j15mr17998572edv.347.1635083697702; 
- Sun, 24 Oct 2021 06:54:57 -0700 (PDT)
-Received: from redhat.com ([2.55.151.113])
- by smtp.gmail.com with ESMTPSA id bx2sm1887573edb.44.2021.10.24.06.54.55
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 24 Oct 2021 06:54:57 -0700 (PDT)
-Date: Sun, 24 Oct 2021 09:54:54 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] virtio_blk: allow 0 as num_request_queues
-Message-ID: <20211024135412.1516393-1-mst@redhat.com>
+ Sun, 24 Oct 2021 14:59:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=tronnes.org
+ ; s=ds202012;
+ h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
+ MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:
+ Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+ Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+ List-Subscribe:List-Post:List-Owner:List-Archive;
+ bh=mGt45g+3Uptl4J+LwgYLyEKcGzvmwnpkpwsNy6uYnn8=; b=IHDWcrEChDmqoRiprgLGG3ChMb
+ ATYJnA4iLlvnT1xm/iqXjOK2QaCZ7etVuOCAswpATbL9HhGaHXKXtmyhyqLo+J3vIUtNw5SxK+Avm
+ 1dZhZiEYDUKGoaf/GlKG3t2VF/wSak5FqY4ydqMDnHNLWOC+J/KoWXDlWhLYS95IrkUBwQEZNTTCD
+ VMoaIPOjbLPLMJ0umoL5dWYVzFkBFj38bgpEU8DG1tryDqPYsSTr3J77T7QVaI5s5JU7KQX03FuyE
+ Ae7MRcrbyF5aK6jliY1iNH/xLh/jaOhBf7KoqWtHNJXdzv4vrvjC0s83MaLgDqrM4IrxP2fjND+tC
+ ZZA3S/9Q==;
+Received: from 211.81-166-168.customer.lyse.net ([81.166.168.211]:51803
+ helo=[192.168.10.61])
+ by smtp.domeneshop.no with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+ (Exim 4.92) (envelope-from <noralf@tronnes.org>)
+ id 1meexs-00055a-T1; Sun, 24 Oct 2021 16:59:12 +0200
+Subject: Re: [PATCH 5/9] drm/format-helper: Streamline blit-helper interface
+To: Thomas Zimmermann <tzimmermann@suse.de>, daniel@ffwll.ch,
+ airlied@linux.ie, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
+ drawat.floss@gmail.com, airlied@redhat.com, kraxel@redhat.com,
+ david@lechnology.com, sam@ravnborg.org, javierm@redhat.com,
+ kernel@amanoeldawod.com, dirty.ice.hu@gmail.com, michael+lkml@stapelberg.ch,
+ aros@gmx.com, joshua@stroblindustries.com, arnd@arndb.de
+References: <20211022132829.7697-1-tzimmermann@suse.de>
+ <20211022132829.7697-6-tzimmermann@suse.de>
+From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Message-ID: <b5e7ebab-f740-050a-27a0-ec587c95ccfb@tronnes.org>
+Date: Sun, 24 Oct 2021 16:59:08 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Max Gurtovoy <mgurtovoy@nvidia.com>, Jens Axboe <axboe@kernel.dk>,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org,
- Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <20211022132829.7697-6-tzimmermann@suse.de>
+Cc: linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,57 +92,19 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The default value is 0 meaning "no limit". However if 0
-is specified on the command line it is instead silently
-converted to 1. Further, the value is already validated
-at point of use, there's no point in duplicating code
-validating the value when it is set.
-
-Simplify the code while making the behaviour more consistent
-by using plain module_param.
-
-Fixes: 1a662cf6cb9a ("virtio-blk: add num_request_queues module parameter")
-Cc: Max Gurtovoy <mgurtovoy@nvidia.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/block/virtio_blk.c | 14 +-------------
- 1 file changed, 1 insertion(+), 13 deletions(-)
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 6318134aab76..c336d9bb9105 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -30,20 +30,8 @@
- #define VIRTIO_BLK_INLINE_SG_CNT	2
- #endif
- 
--static int virtblk_queue_count_set(const char *val,
--		const struct kernel_param *kp)
--{
--	return param_set_uint_minmax(val, kp, 1, nr_cpu_ids);
--}
--
--static const struct kernel_param_ops queue_count_ops = {
--	.set = virtblk_queue_count_set,
--	.get = param_get_uint,
--};
--
- static unsigned int num_request_queues;
--module_param_cb(num_request_queues, &queue_count_ops, &num_request_queues,
--		0644);
-+module_param(num_request_queues, uint, 0644);
- MODULE_PARM_DESC(num_request_queues,
- 		 "Limit the number of request queues to use for blk device. "
- 		 "0 for no limit. "
--- 
-MST
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CgpEZW4gMjIuMTAuMjAyMSAxNS4yOCwgc2tyZXYgVGhvbWFzIFppbW1lcm1hbm46Cj4gTW92ZSBk
+ZXN0aW5hdGlvbi1idWZmZXIgY2xpcHBpbmcgZnJvbSBmb3JtYXQtaGVscGVyIGJsaXQgZnVuY3Rp
+b24gaW50bwo+IGNhbGxlci4gUmVuYW1lIGRybV9mYl9ibGl0X3JlY3RfZHN0Y2xpcCgpIHRvIGRy
+bV9mYl9ibGl0X3RvaW8oKS4gRG9uZSBmb3IKPiBjb25zaXN0ZW5jeSB3aXRoIHRoZSByZXN0IG9m
+IHRoZSBpbnRlcmZhY2UuIFJlbW92ZSBkcm1fZmJfYmxpdF9kc3RjbGlwKCksCj4gd2hpY2ggaXNu
+J3QgcmVxdWlyZWQuCj4gCj4gU2lnbmVkLW9mZi1ieTogVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1t
+ZXJtYW5uQHN1c2UuZGU+Cj4gLS0tCgpSZXZpZXdlZC1ieTogTm9yYWxmIFRyw7hubmVzIDxub3Jh
+bGZAdHJvbm5lcy5vcmc+Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5s
+aW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFp
+bG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
