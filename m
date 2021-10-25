@@ -2,99 +2,95 @@ Return-Path: <SRS0=ZIIO=PN=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71357C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 25 Oct 2021 02:18:45 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43618C433F5
+	for <virtualization@archiver.kernel.org>; Mon, 25 Oct 2021 02:22:50 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0A40A60F0F
-	for <virtualization@archiver.kernel.org>; Mon, 25 Oct 2021 02:18:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0A40A60F0F
+	by mail.kernel.org (Postfix) with ESMTPS id BE43960EBC
+	for <virtualization@archiver.kernel.org>; Mon, 25 Oct 2021 02:22:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org BE43960EBC
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id C664780E20;
-	Mon, 25 Oct 2021 02:18:44 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 7D11140322;
+	Mon, 25 Oct 2021 02:22:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kui5lXMbKlrj; Mon, 25 Oct 2021 02:18:44 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 8024580DB1;
-	Mon, 25 Oct 2021 02:18:43 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6Zper4qChW61; Mon, 25 Oct 2021 02:22:48 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2E23C40310;
+	Mon, 25 Oct 2021 02:22:48 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 57448C0012;
-	Mon, 25 Oct 2021 02:18:43 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 703D7C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EEA7EC0012;
+	Mon, 25 Oct 2021 02:22:47 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A1F66C000E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Oct 2021 02:18:42 +0000 (UTC)
+ Mon, 25 Oct 2021 02:22:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 518A54017A
+ by smtp4.osuosl.org (Postfix) with ESMTP id 8A2D440312
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Oct 2021 02:18:42 +0000 (UTC)
+ Mon, 25 Oct 2021 02:22:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HjDK4lcge9hk
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 6BoYDxODy1ta
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Oct 2021 02:18:41 +0000 (UTC)
+ Mon, 25 Oct 2021 02:22:45 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 79C1D4010C
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 56E4340310
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Oct 2021 02:18:41 +0000 (UTC)
+ Mon, 25 Oct 2021 02:22:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1635128320;
+ s=mimecast20190719; t=1635128564;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=5Cqrji7oGYrLYL61haWXsFYkDV8/eEVTUDZfTjuclJ0=;
- b=EPXDkL/WqEjLIE24GV3gwj9z5/MMs88Vjrcs+x4BxBOK7oYtbsnAAKhI5s34yYRZ3M03xf
- 11uK57HY4ziZHDy3/0mrgGnfWjsIaEQn7UVX2Z3Ax3PzluDYWYbGbjgS76J3vF4mvG4QJX
- 2gAnUQBKPLPbmo/45XY4goPlESCAXsU=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-103-qqFvONwvMgu_ZwJb1q_cDg-1; Sun, 24 Oct 2021 22:18:38 -0400
-X-MC-Unique: qqFvONwvMgu_ZwJb1q_cDg-1
-Received: by mail-lj1-f199.google.com with SMTP id
- j8-20020a2e3c08000000b00210e2890d61so2242260lja.9
+ bh=KyuFm/8mAjQNFS23VkPEB01/D6yLisum1kkP7ofok3s=;
+ b=Kv0lQB43fLy35kR/sL0J/s64m4O50XT06yN8zt/f0pySYsF5U6FZF+PJn/32I0odkOm1zt
+ 5AbtwnHrrmkRAJHDxPth3xL0/Dst91pW611cIhGZ6UWXK8ZFcTlN31Yn+jurl0IKo42tDQ
+ XcxNmop3I1SM0Zv5rFhEDtWnu3SGOAo=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-463-QkE3fjY9PJS9iRkuvF_oIg-1; Sun, 24 Oct 2021 22:22:42 -0400
+X-MC-Unique: QkE3fjY9PJS9iRkuvF_oIg-1
+Received: by mail-lj1-f198.google.com with SMTP id
+ f13-20020a05651c02cd00b00210dee0c36eso2238285ljo.23
  for <virtualization@lists.linux-foundation.org>;
- Sun, 24 Oct 2021 19:18:38 -0700 (PDT)
+ Sun, 24 Oct 2021 19:22:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=5Cqrji7oGYrLYL61haWXsFYkDV8/eEVTUDZfTjuclJ0=;
- b=RktTJBiwnTYHgr793vJ/JJTVi6fR9KuRDGP5ezqAfrZWdum2B0SJE39OjyKUmK4Hw/
- kiRl2FuaV7nCWrAsho80QuVmbeM9kLJ13kragwy81bBKxAFwzFHltASkWxGervewF62J
- lnnUN3Fa2c5Byf6fnl+AtvvJl4VtaehH0mFrvIiacblLM07qiPmMjqL725oI4oLQhv22
- BVZKdrNBDyC2H3hJONrAWw5PoqC1xAMx6MV9CE5y5V+oDmT2XpLaQuyZ65ty+bPKqqHY
- k94sKQSZvRJBFapueWPMKf6dRop7f8VXBWhbAgEIcBMB5wqbNlv8QRVYPOo20R2bDbzS
- WBxg==
-X-Gm-Message-State: AOAM530oI29VUD+eHC51pdrYqKCDAePhpjIyHKa7msvIKeporv79MiQG
- aFW3kofPhh2i1Ol+kTmRUn1PNZsqdg5Kmv0rEiyYRvLsiljwXl1osltvs121jVsoYpcLyHQI6L/
- c5ZeW7ndEIQYbwCGWQgnfZPYN7pXOKaxn7poUA/ZVda+l3LCWRg+8RUoN1g==
-X-Received: by 2002:a05:6512:282:: with SMTP id
- j2mr874809lfp.580.1635128317442; 
- Sun, 24 Oct 2021 19:18:37 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxxeLXknnatPi0arOTANcnkg1mesXoxF5l5lOqNcw3muSYscCMQdhHCR9Ku9HT6U181ywrUyMwbjPi//3Ykhhk=
-X-Received: by 2002:a05:6512:282:: with SMTP id
- j2mr874793lfp.580.1635128317245; 
- Sun, 24 Oct 2021 19:18:37 -0700 (PDT)
+ bh=KyuFm/8mAjQNFS23VkPEB01/D6yLisum1kkP7ofok3s=;
+ b=Lk+2RT/rY42Odkqw49ddUwK0pWoyWxEDn0kNgJ2x981EiqX6h5EvZ27nYTCPrm7YWf
+ r7XbUMcPuyv12LJ5mRrQhdztvcdwAy2RIDPKf6Gb46mPWkkeG2qamI1ucy6sZv2JuFzk
+ px3nRgPETPd9o7/q0sdXDltJAXOh6ll+yWMqY6OhyWhBFu64bT3mhUFvoI5ovNykTd1N
+ IjXTukprJs1CXS6GLNLFDJ9VJUXLYQHzzjVdzAnkjohr3IvwM2wUi7l7GSE9ZHwN+G/+
+ BQ1YpU7bcwLMdI8xjBC0PkCw4SyaD1zR4qCN9Fy6bofQc6sVjNlYqNsQUugA3pEc1xjb
+ sjvQ==
+X-Gm-Message-State: AOAM5319PD29KLk3CgpKLFOLCVjrprxOzrPEVgD1WLA/vL0Q/6LWbFq9
+ UGiwW9b/5mxOSCRvCXzVe3CjQvVpEfIiP5m/Wc+LeXGXm+7D0oUZkm+t1S/h8nycZBAHadWUz3s
+ XgXU9h0HgxFPVfcYm0BQsI2sHY1M1AR/CsMNqE/dGVA3+MeE0MrdgT4qSJQ==
+X-Received: by 2002:a2e:7105:: with SMTP id m5mr16376148ljc.420.1635128561275; 
+ Sun, 24 Oct 2021 19:22:41 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz4utO5eZEoQTVrJtOjRrLjeX8X5Tdh3Qp+l8Pwh0LwpxH7OqWbDoVbH0crY/JRbeIOJQoAgUe2Ap4AeHH6X0s=
+X-Received: by 2002:a2e:7105:: with SMTP id m5mr16376134ljc.420.1635128561062; 
+ Sun, 24 Oct 2021 19:22:41 -0700 (PDT)
 MIME-Version: 1.0
 References: <cover.1634281805.git.wuzongyong@linux.alibaba.com>
  <cover.1634870456.git.wuzongyong@linux.alibaba.com>
- <41e5d4e7d9e6f46429ce45a80f81f40fdb8e11cb.1634870456.git.wuzongyong@linux.alibaba.com>
-In-Reply-To: <41e5d4e7d9e6f46429ce45a80f81f40fdb8e11cb.1634870456.git.wuzongyong@linux.alibaba.com>
+ <c75b4499f7ead922daa19bf67b32eed6f185d260.1634870456.git.wuzongyong@linux.alibaba.com>
+In-Reply-To: <c75b4499f7ead922daa19bf67b32eed6f185d260.1634870456.git.wuzongyong@linux.alibaba.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 25 Oct 2021 10:18:26 +0800
-Message-ID: <CACGkMEsXwYhwaThy=KB3NKa1zU+a5DQuWFLuTkREHMmO0TFpGw@mail.gmail.com>
-Subject: Re: [PATCH v6 5/8] vdpa: min vq num of vdpa device cannot be greater
- than max vq num
+Date: Mon, 25 Oct 2021 10:22:30 +0800
+Message-ID: <CACGkMEtNECAUtpEvLvEpTFKfbYRC7YQKnHDnjxR3k9Hap1tmig@mail.gmail.com>
+Subject: Re: [PATCH v6 6/8] virtio_vdpa: setup correct vq size with callbacks
+ get_vq_num_{max, min}
 To: Wu Zongyong <wuzongyong@linux.alibaba.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
@@ -119,42 +115,76 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Oct 22, 2021 at 10:44 AM Wu Zongyong
+On Fri, Oct 22, 2021 at 10:45 AM Wu Zongyong
 <wuzongyong@linux.alibaba.com> wrote:
 >
-> Just failed to probe the vdpa device if the min virtqueue num returned
-> by get_vq_num_min is greater than the max virtqueue num returned by
+> For the devices which implement the get_vq_num_min callback, the driver
+> should not negotiate with virtqueue size with the backend vdpa device if
+> the value returned by get_vq_num_min equals to the value returned by
 > get_vq_num_max.
+> This is useful for vdpa devices based on legacy virtio specfication.
 >
 > Signed-off-by: Wu Zongyong <wuzongyong@linux.alibaba.com>
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
 > ---
->  drivers/vdpa/vdpa.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
+>  drivers/virtio/virtio_vdpa.c | 21 ++++++++++++++++-----
+>  1 file changed, 16 insertions(+), 5 deletions(-)
 >
-> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-> index 1dc121a07a93..fd014ecec711 100644
-> --- a/drivers/vdpa/vdpa.c
-> +++ b/drivers/vdpa/vdpa.c
-> @@ -26,8 +26,16 @@ static int vdpa_dev_probe(struct device *d)
->  {
->         struct vdpa_device *vdev = dev_to_vdpa(d);
->         struct vdpa_driver *drv = drv_to_vdpa(vdev->dev.driver);
-> +       const struct vdpa_config_ops *ops = vdev->config;
-> +       u32 max_num, min_num = 0;
->         int ret = 0;
+> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+> index 72eaef2caeb1..e42ace29daa1 100644
+> --- a/drivers/virtio/virtio_vdpa.c
+> +++ b/drivers/virtio/virtio_vdpa.c
+> @@ -145,7 +145,8 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+>         /* Assume split virtqueue, switch to packed if necessary */
+>         struct vdpa_vq_state state = {0};
+>         unsigned long flags;
+> -       u32 align, num;
+> +       u32 align, max_num, min_num = 0;
+> +       bool may_reduce_num = true;
+>         int err;
 >
-> +       max_num = ops->get_vq_num_max(vdev);
+>         if (!name)
+> @@ -163,22 +164,32 @@ virtio_vdpa_setup_vq(struct virtio_device *vdev, unsigned int index,
+>         if (!info)
+>                 return ERR_PTR(-ENOMEM);
+>
+> -       num = ops->get_vq_num_max(vdpa);
+> -       if (num == 0) {
+> +       max_num = ops->get_vq_num_max(vdpa);
+> +       if (max_num == 0) {
+>                 err = -ENOENT;
+>                 goto error_new_virtqueue;
+>         }
+>
 > +       if (ops->get_vq_num_min)
-> +               min_num = ops->get_vq_num_min(vdev);
-> +       if (max_num < min_num)
-> +               return -EINVAL;
+> +               min_num = ops->get_vq_num_min(vdpa);
 > +
->         if (drv && drv->probe)
->                 ret = drv->probe(vdev);
+> +       may_reduce_num = (max_num == min_num) ? false : true;
+> +
+>         /* Create the vring */
+>         align = ops->get_vq_align(vdpa);
+> -       vq = vring_create_virtqueue(index, num, align, vdev,
+> -                                   true, true, ctx,
+> +       vq = vring_create_virtqueue(index, max_num, align, vdev,
+> +                                   true, may_reduce_num, ctx,
+>                                     virtio_vdpa_notify, callback, name);
+>         if (!vq) {
+>                 err = -ENOMEM;
+>                 goto error_new_virtqueue;
+>         }
 >
+> +       if (virtqueue_get_vring_size(vq) < min_num) {
+> +               err = -EINVAL;
+> +               goto err_vq;
+> +       }
+
+I wonder under which case can we hit this?
+
+Thanks
+
+> +
+>         /* Setup virtqueue callback */
+>         cb.callback = virtio_vdpa_virtqueue_cb;
+>         cb.private = info;
 > --
 > 2.31.1
 >
