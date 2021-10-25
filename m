@@ -2,109 +2,110 @@ Return-Path: <SRS0=ZIIO=PN=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F39EAC4167E
-	for <virtualization@archiver.kernel.org>; Mon, 25 Oct 2021 17:08:48 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BAADC433F5
+	for <virtualization@archiver.kernel.org>; Mon, 25 Oct 2021 17:14:23 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9D76260F70
-	for <virtualization@archiver.kernel.org>; Mon, 25 Oct 2021 17:08:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9D76260F70
+	by mail.kernel.org (Postfix) with ESMTPS id 2983060C49
+	for <virtualization@archiver.kernel.org>; Mon, 25 Oct 2021 17:14:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 2983060C49
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 656B440135;
-	Mon, 25 Oct 2021 17:08:48 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id E083480C28;
+	Mon, 25 Oct 2021 17:14:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2Nq5ZKJ5DP_b; Mon, 25 Oct 2021 17:08:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id ED6944011E;
-	Mon, 25 Oct 2021 17:08:46 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id LeJZRPcHm_oq; Mon, 25 Oct 2021 17:14:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 922D380C22;
+	Mon, 25 Oct 2021 17:14:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id ACCD6C0019;
-	Mon, 25 Oct 2021 17:08:46 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D92EBC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 68791C0012;
+	Mon, 25 Oct 2021 17:14:21 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7D00AC000E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Oct 2021 17:08:44 +0000 (UTC)
+ Mon, 25 Oct 2021 17:14:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id B3B19607F2
+ by smtp1.osuosl.org (Postfix) with ESMTP id 5FFEA80C22
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Oct 2021 17:08:44 +0000 (UTC)
+ Mon, 25 Oct 2021 17:14:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ApyrGMsHQfWY
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id XV6psTEo8FVQ
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Oct 2021 17:08:44 +0000 (UTC)
+ Mon, 25 Oct 2021 17:14:19 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 00CCC607F1
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 3499080C02
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Oct 2021 17:08:43 +0000 (UTC)
+ Mon, 25 Oct 2021 17:14:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1635181722;
+ s=mimecast20190719; t=1635182058;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=pIsnWAzuBFe9gHiSmJ+BSqRSt/Kzk0fPACQvjnOMXwM=;
- b=Oh6sKCxC7U0dihYbfp0SzgvakwAipNOdpAdbv9tUveIhJ9pSlkfy+HplR476ovYT5Haj3J
- weSQ61Iorxo4dtXIAk7l3/jp75Vk9x2o+XBxCwUDeE5wABZiQWXhR2IuXBZmIjFOJFwCOO
- VCskU0v5IzEUykrrFSkBbiVvh76JIHA=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-48-j4mgstErMlSWw_L7cNWqyw-1; Mon, 25 Oct 2021 13:08:41 -0400
-X-MC-Unique: j4mgstErMlSWw_L7cNWqyw-1
-Received: by mail-wr1-f69.google.com with SMTP id
- d10-20020adffd8a000000b00167f0846597so2840797wrr.16
+ bh=jDvYeZ/5yKHpS/y5o2U3cKIzexwhLSxWoPVV6kYxJY4=;
+ b=emH4Ho4/S/zFxfKvb4XNwCceSigPCEYbcHqzCIxp2lLw8pRqV4Yd7WDF0+APXivQuw70Hd
+ D4MC421YuG8VrndPGDYl298etaJthOyv3d6t5Im0WvAFhtjGnnCn0TL7R270SdO6bPBl8T
+ LovcjIzvXu6NMttuBIvyabjSIuYNyMY=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-24-CEZd5zGSMqi-zOqs-VgZrw-1; Mon, 25 Oct 2021 13:14:14 -0400
+X-MC-Unique: CEZd5zGSMqi-zOqs-VgZrw-1
+Received: by mail-wm1-f70.google.com with SMTP id
+ r205-20020a1c44d6000000b0032cb058fe13so1814209wma.7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Oct 2021 10:08:40 -0700 (PDT)
+ Mon, 25 Oct 2021 10:14:14 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=pIsnWAzuBFe9gHiSmJ+BSqRSt/Kzk0fPACQvjnOMXwM=;
- b=4Z8ZAAOc7szwY8ougtOKQYnX8TLQGOg0Yurz7bkkkSkcsXk0BFp6KT/mgiTlZFlQBX
- X8q5JKwxejlgPzs6GxcDUimJ0VlxZEJZuUcMKixhpImee5LSdzzGlP2/pKrFazgKkxtl
- lhNj83SXpn/Ga5xLnwHfWNV4WX/djNDmm795HaofQe1JMmTgYA5+4JBe9UYFZOMhls+Z
- c68FbhMS3C2wRNfRkFkKBi2gGMXjw7YMjzzAlJ5RIjyMkUsGDGt7qIfucvRHsB+ygqRJ
- JvaMF7kwzZOUGiaQU7ZcXCnHX2FaavI5dPEVKN1HteHv5k3nie+eBMPupE5yvXMufKTZ
- zePg==
-X-Gm-Message-State: AOAM532g1ESqY8y9zZNJj8XjkzU0HvaoGfj+Jyo3OD8zTCa5upP3dOUf
- m64J9Wo1ZjxtwMJRHFN+osji/dHOs97x9YXs/8kD2xkbCqpn8cEvi+hpXvUWVW76jS0yIrZCD2t
- gcwp/fMJzlT8USW7/vFb6oPIqQNKvX2xnazI19Jkhqg==
-X-Received: by 2002:a7b:c1cc:: with SMTP id a12mr21291679wmj.23.1635181719800; 
- Mon, 25 Oct 2021 10:08:39 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyyZto2WrweAcCxAfmQR9rdm2tzfsLZ7d2NbPqmOXvvnrZdmXf2381albDqxjOgnO+tqj1h8A==
-X-Received: by 2002:a7b:c1cc:: with SMTP id a12mr21291660wmj.23.1635181719596; 
- Mon, 25 Oct 2021 10:08:39 -0700 (PDT)
+ bh=jDvYeZ/5yKHpS/y5o2U3cKIzexwhLSxWoPVV6kYxJY4=;
+ b=UR8geJQ1X8gNwHwbmZYJQfJPiVp3xXYiQsQoQBBgpiX3RrKt8bCTaRpONS6LQEmkeS
+ UA962oqnNZlhlLxA+1Mlrt9btdZznC7qLRefXfrGn0MAPlqKqy9BrWKr6kkqTzK7Bceo
+ I+2mz2dcZVpiKRPbcagp8CYs954NPkUEQOi7eSDt5x64VpsWoGlaED5uhAOtOHgDiAkI
+ hOcCNdZOCdGyzOcTrVcu+4pQUqc2wGZ7TrkoY85gFjBXYI7Z/7yO5uIr5QP83jW6uOkW
+ eLVLiYFiBXcUiJcCh8AyHJuGxWx9tePNTeKSNF/dPf/OMb2gP1Za/4OJtUewtQ5goCiJ
+ AxXQ==
+X-Gm-Message-State: AOAM533yp56J7DxD/g+C0jONXTh8Wn5fPJckYYeqe1wSO2P+JX9Cuy+T
+ ir5czpGTRdkt4FpPi29AtwGksKlSseUG62KzMvKd0OT1HF8ql1KWdrlRk1+7n1zIf5swjkA81+/
+ jgw+6M5TU/LeDc4j+Vb2x/ib3LZt4nfZ1e9bm3DJ09A==
+X-Received: by 2002:adf:959a:: with SMTP id p26mr24267356wrp.342.1635182053648; 
+ Mon, 25 Oct 2021 10:14:13 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzPjAk9GD9Qq6TDEXymeEUOZOzH5s5aVdeE0O1R9NwaI5SUu899r8VU7ZL34/y115rEjiXF/w==
+X-Received: by 2002:adf:959a:: with SMTP id p26mr24267322wrp.342.1635182053416; 
+ Mon, 25 Oct 2021 10:14:13 -0700 (PDT)
 Received: from redhat.com ([2.55.12.86])
- by smtp.gmail.com with ESMTPSA id w10sm9506341wrp.25.2021.10.25.10.08.37
+ by smtp.gmail.com with ESMTPSA id n66sm16926079wmn.2.2021.10.25.10.14.11
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 25 Oct 2021 10:08:39 -0700 (PDT)
-Date: Mon, 25 Oct 2021 13:08:35 -0400
+ Mon, 25 Oct 2021 10:14:12 -0700 (PDT)
+Date: Mon, 25 Oct 2021 13:14:09 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xie Yongji <xieyongji@bytedance.com>
-Subject: Re: [PATCH v2 4/4] virtio-blk: Use blk_validate_block_size() to
- validate block size
-Message-ID: <20211025130321-mutt-send-email-mst@kernel.org>
-References: <20211025142506.167-1-xieyongji@bytedance.com>
- <20211025142506.167-5-xieyongji@bytedance.com>
+To: michael.christie@oracle.com
+Subject: Re: [PATCH V3 11/11] vhost: allow userspace to create workers
+Message-ID: <20211025131338-mutt-send-email-mst@kernel.org>
+References: <20211022051911.108383-1-michael.christie@oracle.com>
+ <20211022051911.108383-13-michael.christie@oracle.com>
+ <20211022064359-mutt-send-email-mst@kernel.org>
+ <94289c36-431a-513f-9b52-b55225f6b89d@oracle.com>
+ <28250f62-ff38-901f-6014-9e975381d523@oracle.com>
+ <20211023160838-mutt-send-email-mst@kernel.org>
+ <e2d7796f-68d7-1cca-f9ed-0f2f2f3fdeb4@oracle.com>
 MIME-Version: 1.0
-In-Reply-To: <20211025142506.167-5-xieyongji@bytedance.com>
+In-Reply-To: <e2d7796f-68d7-1cca-f9ed-0f2f2f3fdeb4@oracle.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: axboe@kernel.dk, josef@toxicpanda.com, nbd@other.debian.org,
- linux-block@vger.kernel.org, stefanha@redhat.com,
- virtualization@lists.linux-foundation.org, hch@lst.de
+Cc: linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ target-devel@vger.kernel.org, stefanha@redhat.com, pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,92 +122,71 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Oct 25, 2021 at 10:25:06PM +0800, Xie Yongji wrote:
-> The block layer can't support the block size larger than
-
-the block size -> block sizes, or a block size
-
-> page size yet.
-
-And to add to that, a block size that's too small or
-not a power of two won't work either, right?
-Mention that too.
-
-
-> If an untrusted device
-
-nothing to do with trust. A misconfigured device.
-
-> presents an invalid
-> block size in configuration space, it will result in the
-> kernel crash something like below:
+On Mon, Oct 25, 2021 at 11:04:42AM -0500, michael.christie@oracle.com wrote:
+> On 10/23/21 3:11 PM, Michael S. Tsirkin wrote:
+> > On Fri, Oct 22, 2021 at 01:17:26PM -0500, michael.christie@oracle.com wrote:
+> >> On 10/22/21 11:12 AM, michael.christie@oracle.com wrote:
+> >>> On 10/22/21 5:47 AM, Michael S. Tsirkin wrote:
+> >>>>> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+> >>>>> index c998860d7bbc..e5c0669430e5 100644
+> >>>>> --- a/include/uapi/linux/vhost.h
+> >>>>> +++ b/include/uapi/linux/vhost.h
+> >>>>> @@ -70,6 +70,17 @@
+> >>>>>  #define VHOST_VRING_BIG_ENDIAN 1
+> >>>>>  #define VHOST_SET_VRING_ENDIAN _IOW(VHOST_VIRTIO, 0x13, struct vhost_vring_state)
+> >>>>>  #define VHOST_GET_VRING_ENDIAN _IOW(VHOST_VIRTIO, 0x14, struct vhost_vring_state)
+> >>>>> +/* By default, a device gets one vhost_worker created during VHOST_SET_OWNER
+> >>>>> + * that its virtqueues share. This allows userspace to create a vhost_worker
+> >>>>> + * and map a virtqueue to it or map a virtqueue to an existing worker.
+> >>>>> + *
+> >>>>> + * If pid > 0 and it matches an existing vhost_worker thread it will be bound
+> >>>>> + * to the vq. If pid is VHOST_VRING_NEW_WORKER, then a new worker will be
+> >>>>> + * created and bound to the vq.
+> >>>>> + *
+> >>>>> + * This must be called after VHOST_SET_OWNER and before the vq is active.
+> >>>>> + */
+> >>>>
+> >>>> A couple of things here:
+> >>>> it's probably a good idea not to make it match pid exactly,
+> >>>> if for no other reason than I'm not sure we want to
+> >>>> commit this being a pid. Let's just call it an id?
+> >>>
+> >>> Ok.
+> >>>
+> >>>> And maybe byteswap it or xor with some value
+> >>>> just to make sure userspace does not begin abusing it anyway.
+> >>>>
+> >>>> Also, interaction with pid namespace is unclear to me.
+> >>>> Can you document what happens here?
+> >>>
+> >>> This current patchset only allows the vhost_dev owner to
+> >>> create/bind workers for devices it owns, so namespace don't come
+> >>
+> >> I made a mistake here. The patches do restrict VHOST_SET_VRING_WORKER
+> >> to the same owner like I wrote. However, it looks like we could have 2
+> >> threads with the same mm pointer so vhost_dev_check_owner returns true,
+> >> but they could be in different namespaces.
+> >>
+> >> Even though we are not going to pass the pid_t between user/kernel
+> >> space, should I add a pid namespace check when I repost the patches?
+> > 
+> > Um it's part of the ioctl. How you are not going to pass it around?
 > 
-> [  506.154324] BUG: kernel NULL pointer dereference, address: 0000000000000008
-> [  506.160416] RIP: 0010:create_empty_buffers+0x24/0x100
-> [  506.174302] Call Trace:
-> [  506.174651]  create_page_buffers+0x4d/0x60
-> [  506.175207]  block_read_full_page+0x50/0x380
-> [  506.175798]  ? __mod_lruvec_page_state+0x60/0xa0
-> [  506.176412]  ? __add_to_page_cache_locked+0x1b2/0x390
-> [  506.177085]  ? blkdev_direct_IO+0x4a0/0x4a0
-> [  506.177644]  ? scan_shadow_nodes+0x30/0x30
-> [  506.178206]  ? lru_cache_add+0x42/0x60
-> [  506.178716]  do_read_cache_page+0x695/0x740
-> [  506.179278]  ? read_part_sector+0xe0/0xe0
-> [  506.179821]  read_part_sector+0x36/0xe0
-> [  506.180337]  adfspart_check_ICS+0x32/0x320
-> [  506.180890]  ? snprintf+0x45/0x70
-> [  506.181350]  ? read_part_sector+0xe0/0xe0
-> [  506.181906]  bdev_disk_changed+0x229/0x5c0
-> [  506.182483]  blkdev_get_whole+0x6d/0x90
-> [  506.183013]  blkdev_get_by_dev+0x122/0x2d0
-> [  506.183562]  device_add_disk+0x39e/0x3c0
-> [  506.184472]  virtblk_probe+0x3f8/0x79b [virtio_blk]
-> [  506.185461]  virtio_dev_probe+0x15e/0x1d0 [virtio]
+> The not passing a pid around was referring to your comment about
+> obfuscating the pid. I might have misunderstood you and thought you
+> wanted to do something more like you suggested below where to userspace
+> it's just some int as far as userspace knows.
 > 
-> So this patch tries to use the block layer helper to
-> validate the block size.
-
-I know you are trying to be polite but it's misplaced here.
-Just say what it is:
-
-Use a block layer helper to validate the block size.
-
 > 
-> Signed-off-by: Xie Yongji <xieyongji@bytedance.com>
-> ---
->  drivers/block/virtio_blk.c | 11 +++++++++--
->  1 file changed, 9 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 303caf2d17d0..8b5833997f8e 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -815,9 +815,16 @@ static int virtblk_probe(struct virtio_device *vdev)
->  	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
->  				   struct virtio_blk_config, blk_size,
->  				   &blk_size);
-> -	if (!err)
-> +	if (!err) {
-> +		err = blk_validate_block_size(blk_size);
-> +		if (err) {
-> +			dev_err(&vdev->dev,
-> +				"get invalid block size: %u\n", blk_size);
+> > 
+> > So if we do worry about this, I would just make it a 64 bit integer,
+> > rename it "id" and increment each time a thread is created.
+> >  
+> Yeah, this works for me. I just used a ida to allocate the id. We can 
+> then use it's lookup functions too.
 
-Probably hex. Add virtio_blk: and drop "get" here - it's ungrammatical.
-	"virtio_blk: invalid block size: 0x%x\n", blk_size.
-
-> +			goto out_cleanup_disk;
-> +		}
-> +
->  		blk_queue_logical_block_size(q, blk_size);
-> -	else
-> +	} else
->  		blk_size = queue_logical_block_size(q);
->  
->  	/* Use topology information if available */
-> -- 
-> 2.11.0
+Probably for the best, linear lookups will make destroying lots of
+threads and O(N^2) operation.
 
 _______________________________________________
 Virtualization mailing list
