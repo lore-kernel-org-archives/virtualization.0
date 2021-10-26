@@ -1,111 +1,106 @@
-Return-Path: <SRS0=ZIIO=PN=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=tl6X=PO=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2208C433EF
-	for <virtualization@archiver.kernel.org>; Mon, 25 Oct 2021 21:15:07 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD591C433FE
+	for <virtualization@archiver.kernel.org>; Tue, 26 Oct 2021 02:29:56 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2776D60E05
-	for <virtualization@archiver.kernel.org>; Mon, 25 Oct 2021 21:15:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 2776D60E05
+	by mail.kernel.org (Postfix) with ESMTPS id 6A7F460E75
+	for <virtualization@archiver.kernel.org>; Tue, 26 Oct 2021 02:29:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 6A7F460E75
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id DD88C4048C;
-	Mon, 25 Oct 2021 21:15:06 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 24E3480D8C;
+	Tue, 26 Oct 2021 02:29:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id T09XE-FWY2my; Mon, 25 Oct 2021 21:15:06 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 816B040400;
-	Mon, 25 Oct 2021 21:15:05 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5543BC0012;
-	Mon, 25 Oct 2021 21:15:05 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 93C50C000E
- for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Oct 2021 21:15:04 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 838AA80D2D
- for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Oct 2021 21:15:04 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fJV9vrbY3zdW
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id xMWsRtUoniWJ; Tue, 26 Oct 2021 02:29:55 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id CA1A480A53;
+	Tue, 26 Oct 2021 02:29:54 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 935E9C0019;
+	Tue, 26 Oct 2021 02:29:54 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A290BC000E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Oct 2021 21:15:04 +0000 (UTC)
+ Tue, 26 Oct 2021 02:29:52 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id 82DDF4013D
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 26 Oct 2021 02:29:52 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 7O7oxDdJj1wv
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 26 Oct 2021 02:29:51 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id CEA3380D0B
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 1211E400E1
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Oct 2021 21:15:03 +0000 (UTC)
+ Tue, 26 Oct 2021 02:29:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1635196502;
+ s=mimecast20190719; t=1635215389;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=w6b7aqCPr7A0jog7Oo4JmTvCROVoKj9eReecA1fHV04=;
- b=DZ9AQgPOipl7EzSB/JpXEuk/enWhmCpuptcrYBSDZ55zn47awrAha3ZC1dfTjzkGQ4ihyr
- 9M7UUxenhb7A39yra/oMhMizoZJOPErkZzmu+3zOaz4k0qgrugt42SZFOZKLmTtH/Viwj6
- APV/XKQFHvBcjkw3L8rslsgX0pbaFIU=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-243-NSMPvdEsMiC12f8UFJmpIg-1; Mon, 25 Oct 2021 17:14:59 -0400
-X-MC-Unique: NSMPvdEsMiC12f8UFJmpIg-1
-Received: by mail-wm1-f71.google.com with SMTP id
- v10-20020a1cf70a000000b00318203a6bd1so466834wmh.6
+ bh=bK/ePsOXvnwATuPJ538FYYy/I3va7wErG+x6S0m8LPc=;
+ b=Q36tLKepzd3J0S5Q+d4NHzg4le38tLEMEgU1YPTi9fQ8HlkDJ7u1Xo6ZnBoq3sxQMMD3H2
+ Gr59T568yDfb1XdolfVGx2Cl2/aDNxNa8NvOv0MH8AUkpcdi1SNc81Y179bEbZM9ZuEiAq
+ +PKH5xsk/QiOzscpEJy/vxRjf6S0//E=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-308-BpkurupyOhO3aA2Le3_yvg-1; Mon, 25 Oct 2021 22:29:48 -0400
+X-MC-Unique: BpkurupyOhO3aA2Le3_yvg-1
+Received: by mail-lj1-f197.google.com with SMTP id
+ f6-20020a2e9e86000000b00211349f9ce3so3676600ljk.3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Oct 2021 14:14:59 -0700 (PDT)
+ Mon, 25 Oct 2021 19:29:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=w6b7aqCPr7A0jog7Oo4JmTvCROVoKj9eReecA1fHV04=;
- b=2R65W+/9rdcVgYFcxf7PxzO07+wCSEYQo80BTlf/qbUfuDyBX62EFz+OyaMlvfkLLs
- Z4lcyiDRhKsGX3uL4ijWCO1RzfQEAHF5ExPSdPC8BO6/jD7KQTg31mHCUEkBVQXYLIYB
- p73pKbPqZNrSXqUYLuMcZo8MU+O6rvgePe9EDj02PpRQPfUEBpl2iacBMiaYIyCMiu40
- SdD3Hr1criCOz3RvbRWujHTq/L/gPtMe2+/Lw1j2/nWrk5J+56nolTXaOtPU38Qv7Szd
- sHbDyk10Z1ZRO77H/5K0/VNbwBKmRwnHm6POki5tTJiXv38+Szu5WjrqE+OWndgEDG32
- c7sg==
-X-Gm-Message-State: AOAM531ItK2zhHkLCv+NagsMsO9G8NBlGS4XsqCq4L47H96xNRpXTEpN
- lV1dmmXBy4iZ9fKMlaie6b6Kap+P/I1fb7ADBpc1/Kr7IN7+E1JGMA1KPEXh6fIOFegIPAV7B4A
- JEzjmRy3KX7miq7Uv8UZiW96GbKKbkiGgKMiO+IIaiQ==
-X-Received: by 2002:a05:600c:4143:: with SMTP id
- h3mr18153609wmm.19.1635196498319; 
- Mon, 25 Oct 2021 14:14:58 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxeoj2sOl1DcD7M5L0c+WMiXce0f4QlBvY9Xx3OzcHUmEo6dA7h0au7mBRpy162jIZADgcgdw==
-X-Received: by 2002:a05:600c:4143:: with SMTP id
- h3mr18153590wmm.19.1635196498130; 
- Mon, 25 Oct 2021 14:14:58 -0700 (PDT)
-Received: from redhat.com ([2.55.12.86])
- by smtp.gmail.com with ESMTPSA id w5sm17340645wra.87.2021.10.25.14.14.56
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 25 Oct 2021 14:14:57 -0700 (PDT)
-Date: Mon, 25 Oct 2021 17:14:54 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
-Subject: Re: [PATCH linux-next v5 7/8] vdpa/mlx5: Support configuration of MAC
-Message-ID: <20211025171431-mutt-send-email-mst@kernel.org>
-References: <20211025125316.67664-1-parav@nvidia.com>
- <20211025125316.67664-8-parav@nvidia.com>
- <PH0PR12MB5481911ACF48EE43603F5EA6DC839@PH0PR12MB5481.namprd12.prod.outlook.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=bK/ePsOXvnwATuPJ538FYYy/I3va7wErG+x6S0m8LPc=;
+ b=FdRtkGo594GSADJB7vhr9Jy24JHkNT/RcxuDJyJZJt1d7NYkhbxFHYbvNJfLnWuDwO
+ F3aW1oyAiRADFvaudO//OCib69OenBA4qFI0OvfcayokJ1Rt5UmKl4AsV1DAu8+b1RkZ
+ zNPubLu49Hm49IQsNTNjid99impcQeXyCFtBsWJ/if+wEiNPSdi2MU/pyxP4OylBkisi
+ axP9vlU+LkOl0cGDfvFkK6wJZGd2dTV0VCmxrZU0pULZXv1sMdi9qDiUoWR/OFbWORyS
+ xrqwjcupM8EGBDLqRNx2TvPAlLBDMkNe58FyDm28d7FzYvpAvCymRTYSxK1WPjPW9pfX
+ safA==
+X-Gm-Message-State: AOAM533fbQbyr9JGY5qO7+baJ9rFo74Uo2W0OehmTyiu5MIyQ4bwji/9
+ RQLsBGTMo/cPeZBWUsvXQsnhUeLuxBuXsQXqRR60OHUkDpKwpn/wKzlu9ICYrOUrsqJLiJFM6VX
+ IYIB6Ojrvh5rrHnnFtgIxgUfC/xGqw/H4ncFpF73QFxrPF5ItufFj5v5smA==
+X-Received: by 2002:a2e:8846:: with SMTP id z6mr1572334ljj.277.1635215386526; 
+ Mon, 25 Oct 2021 19:29:46 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJynH2p5Q/d3q8po75eyLScuoBHurmQzxoMQYZvDuVwpXkiyjRKbg3lG4lyNps31IP9RfRnyLeR+hJ3uxAAQOeI=
+X-Received: by 2002:a2e:8846:: with SMTP id z6mr1572308ljj.277.1635215386353; 
+ Mon, 25 Oct 2021 19:29:46 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <PH0PR12MB5481911ACF48EE43603F5EA6DC839@PH0PR12MB5481.namprd12.prod.outlook.com>
+References: <20211025102240.22801-1-colin.i.king@gmail.com>
+In-Reply-To: <20211025102240.22801-1-colin.i.king@gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 26 Oct 2021 10:29:35 +0800
+Message-ID: <CACGkMEv2UOaf0phkXYsV=L3fn3BCxXUj-Vx3o1MeYQhvY_B-wg@mail.gmail.com>
+Subject: Re: [PATCH][next] virtio_blk: Fix spelling mistake: "advertisted" ->
+ "advertised"
+To: Colin Ian King <colin.i.king@googlemail.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Eli Cohen <elic@nvidia.com>, "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>
+Cc: Jens Axboe <axboe@kernel.dk>, "Michael S . Tsirkin" <mst@redhat.com>,
+ kernel-janitors@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ linux-block@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+ Paolo Bonzini <pbonzini@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,94 +117,35 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Oct 25, 2021 at 06:35:35PM +0000, Parav Pandit wrote:
-> 
-> > From: Parav Pandit <parav@nvidia.com>
-> > Sent: Monday, October 25, 2021 6:23 PM
-> > 
-> > From: Eli Cohen <elic@nvidia.com>
-> > 
-> > Add code to accept MAC configuration through vdpa tool. The MAC is written
-> > into the config struct and later can be retrieved through get_config().
-> > 
-> > Examples:
-> > 1. Configure MAC while adding a device:
-> > $ vdpa dev add mgmtdev pci/0000:06:00.2 name vdpa0 mac 00:11:22:33:44:55
-> > 
-> > 2. Show configured params:
-> > $ vdpa dev config show
-> > vdpa0: mac 00:11:22:33:44:55 link down link_announce false max_vq_pairs 8
-> > mtu 1500
-> > 
-> > Signed-off-by: Eli Cohen <elic@nvidia.com>
-> > Reviewed-by: Parav Pandit <parav@nvidia.com>
-> > Acked-by: Jason Wang <jasowang@redhat.com>
-> > ---
-> >  drivers/vdpa/mlx5/net/mlx5_vnet.c | 17 ++++++++++-------
-> >  1 file changed, 10 insertions(+), 7 deletions(-)
-> > 
-> > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > index 8d1539728a59..860d80efa5d1 100644
-> > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > @@ -6,6 +6,7 @@
-> >  #include <linux/vringh.h>
-> >  #include <uapi/linux/virtio_net.h>
-> >  #include <uapi/linux/virtio_ids.h>
-> > +#include <uapi/linux/vdpa.h>
-> >  #include <linux/virtio_config.h>
-> >  #include <linux/auxiliary_bus.h>
-> >  #include <linux/mlx5/cq.h>
-> > @@ -2523,18 +2524,19 @@ static int mlx5_vdpa_dev_add(struct
-> > vdpa_mgmt_dev *v_mdev, const char *name,
-> >  	if (err)
-> >  		goto err_mtu;
-> > 
-> > -	ndev->config.mtu = cpu_to_mlx5vdpa16(mvdev, mtu);
-> I messed up above line in the rebase conflict.
-> Let me resend the series.
+On Mon, Oct 25, 2021 at 6:22 PM Colin Ian King
+<colin.i.king@googlemail.com> wrote:
+>
+> There is a spelling mistake in a dev_err error message. Fix it.
+>
+> Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+> ---
 
-If it's happening it's better happen soon, rc7 is out.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-> > -	ndev->config.status |= cpu_to_mlx5vdpa16(mvdev,
-> > VIRTIO_NET_S_LINK_UP);
-> > -
-> > -	err = mlx5_query_nic_vport_mac_address(mdev, 0, 0, config->mac);
-> > -	if (err)
-> > -		goto err_mtu;
-> > -
-> >  	if (get_link_state(mvdev))
-> >  		ndev->config.status |= cpu_to_mlx5vdpa16(mvdev,
-> > VIRTIO_NET_S_LINK_UP);
-> >  	else
-> >  		ndev->config.status &= cpu_to_mlx5vdpa16(mvdev,
-> > ~VIRTIO_NET_S_LINK_UP);
-> > 
-> > +	if (add_config->mask & (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR))
-> > {
-> > +		memcpy(ndev->config.mac, add_config->net.mac, ETH_ALEN);
-> > +	} else {
-> > +		err = mlx5_query_nic_vport_mac_address(mdev, 0, 0, config-
-> > >mac);
-> > +		if (err)
-> > +			goto err_mtu;
-> > +	}
-> > +
-> >  	if (!is_zero_ether_addr(config->mac)) {
-> >  		pfmdev = pci_get_drvdata(pci_physfn(mdev->pdev));
-> >  		err = mlx5_mpfs_add_mac(pfmdev, config->mac); @@ -2632,6
-> > +2634,7 @@ static int mlx5v_probe(struct auxiliary_device *adev,
-> >  	mgtdev->mgtdev.ops = &mdev_ops;
-> >  	mgtdev->mgtdev.device = mdev->device;
-> >  	mgtdev->mgtdev.id_table = id_table;
-> > +	mgtdev->mgtdev.config_attr_mask = (1 <<
-> > +VDPA_ATTR_DEV_NET_CFG_MACADDR);
-> >  	mgtdev->madev = madev;
-> > 
-> >  	err = vdpa_mgmtdev_register(&mgtdev->mgtdev);
-> > --
-> > 2.25.4
+>  drivers/block/virtio_blk.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index c336d9bb9105..9dd0099d2bd2 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -560,7 +560,7 @@ static int init_vq(struct virtio_blk *vblk)
+>         if (err)
+>                 num_vqs = 1;
+>         if (!err && !num_vqs) {
+> -               dev_err(&vdev->dev, "MQ advertisted but zero queues reported\n");
+> +               dev_err(&vdev->dev, "MQ advertised but zero queues reported\n");
+>                 return -EINVAL;
+>         }
+>
+> --
+> 2.32.0
+>
 
 _______________________________________________
 Virtualization mailing list
