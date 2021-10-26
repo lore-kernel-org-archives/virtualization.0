@@ -2,109 +2,109 @@ Return-Path: <SRS0=tl6X=PO=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61CD9C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 26 Oct 2021 02:40:56 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9092DC433EF
+	for <virtualization@archiver.kernel.org>; Tue, 26 Oct 2021 02:42:34 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0886261074
-	for <virtualization@archiver.kernel.org>; Tue, 26 Oct 2021 02:40:55 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0886261074
+	by mail.kernel.org (Postfix) with ESMTPS id 23B1E61039
+	for <virtualization@archiver.kernel.org>; Tue, 26 Oct 2021 02:42:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 23B1E61039
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id BF43580F6B;
-	Tue, 26 Oct 2021 02:40:55 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id CD508403DE;
+	Tue, 26 Oct 2021 02:42:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gAScOM79WFWH; Tue, 26 Oct 2021 02:40:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0F8D480F33;
-	Tue, 26 Oct 2021 02:40:54 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DA25DC0019;
-	Tue, 26 Oct 2021 02:40:53 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 51730C000E
- for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Oct 2021 02:40:53 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 3F0D94036A
- for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Oct 2021 02:40:53 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id og2XWjcC6Co6
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id noNs9dtS3N5w; Tue, 26 Oct 2021 02:42:33 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 6A9A940368;
+	Tue, 26 Oct 2021 02:42:32 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 45009C0019;
+	Tue, 26 Oct 2021 02:42:32 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C3354C000E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Oct 2021 02:40:52 +0000 (UTC)
+ Tue, 26 Oct 2021 02:42:30 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id B10B84013D
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 26 Oct 2021 02:42:30 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id JXPwTNSyvrK0
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 26 Oct 2021 02:42:27 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 415EE40368
+ by smtp2.osuosl.org (Postfix) with ESMTPS id CA482400E1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Oct 2021 02:40:52 +0000 (UTC)
+ Tue, 26 Oct 2021 02:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1635216051;
+ s=mimecast20190719; t=1635216146;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=Q1z0ZW8UUBWhFcepwVuM97sswsfWNaHcL/LH/nOUnvI=;
- b=RkfVFxmb04OhU7uiBCBY6iFpSvPQOJGC7veryz/cuADSZqPAgd8139xmYaz0V+iEEKKsNv
- 5p62ePgmYShFFxvFTdMpSNbzR5suCatuUXGNNHgqbX2OUg8UNYTfvVhXMLHUZ8eMGcpqfp
- EfPBXZMADajWmGERiGUDZfUGQhif9lM=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-270-Cfo0jcfaOCOfrRDXmpExAA-1; Mon, 25 Oct 2021 22:40:48 -0400
-X-MC-Unique: Cfo0jcfaOCOfrRDXmpExAA-1
-Received: by mail-pj1-f69.google.com with SMTP id
- om2-20020a17090b3a8200b001a069b140ffso390705pjb.1
+ bh=FdD2jYiTLkWh1i3uVag1O1QA1CQoWpWVgh7yC5XpK20=;
+ b=LYxbU289m7gQC/qr4Nzu5GaCjIB9XBZi7czEBiYNWbL18fTRUS6i7HoKpfWQdET+Vg4i18
+ 5ZP4s5mZ9nximn7Pm0hJJXKreyHx+c+UVFO63zl9cMcqlTVHvKhFF6PTyKHiClgAZx14cH
+ XKNGpJcebryA4fvfnt2wMX3OTQbxisM=
+Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
+ [209.85.214.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-112-KcjiJ9aFPAuUkJY8eiLEoA-1; Mon, 25 Oct 2021 22:42:25 -0400
+X-MC-Unique: KcjiJ9aFPAuUkJY8eiLEoA-1
+Received: by mail-pl1-f197.google.com with SMTP id
+ m5-20020a170902bb8500b0013a2b785187so4408251pls.11
  for <virtualization@lists.linux-foundation.org>;
- Mon, 25 Oct 2021 19:40:48 -0700 (PDT)
+ Mon, 25 Oct 2021 19:42:24 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:subject:to:cc:references:from:message-id:date
  :user-agent:mime-version:in-reply-to:content-transfer-encoding
  :content-language;
- bh=Q1z0ZW8UUBWhFcepwVuM97sswsfWNaHcL/LH/nOUnvI=;
- b=y/KfMtu5v9RpAslbWczmzELZ2oxaXZ4/P7QfANLtgTGkpUwBgcvGUsIQwnzK2Ie5cx
- Mo5FrJ2nJxmfuEP+GpTda5Y6XTv7zbmYSEHUGzo06aFcxKCj04EPV+sUhh1BpRN4QZ+T
- MEGYCDZMSGqvBKvPhSmj7GPX9qZHpmJCIPJ7eEC/CmkLPcpvSxbGMr1wF9+s6iYI+ulE
- S9jNBPTgYCIlCkaA/TbNFzprcW/O7dBSFabRBMbhr+8H4x8CP4WjE8biYCgisDJfrQtq
- zw8OPoGF7mMvUBbauMxfoQHAT9xGXgbfP88rhcCWoAMP7O5jZHmjcEYmm+SxQ3iiNgcM
- tvWw==
-X-Gm-Message-State: AOAM531kp8o6lE/KPN1esPP5TDZnv6LDQuMJpRJwEjntlkustTiP/soC
- DRXkrsjYZiW8FMc8OZPsun68o0rle+pdAbRq8saYGR6InsY/CYJrKCa9/tTFQjtGyq3Ft8d++IP
- aV9fmJXdXIv6rGpzWOTx8zeOzBBlHI0IPMeG7TlE3eA==
-X-Received: by 2002:a63:b04c:: with SMTP id z12mr16691691pgo.363.1635216047358; 
- Mon, 25 Oct 2021 19:40:47 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzrXr85zKPoGrgw6i1W0AkbD1TItUmZZjE95edYtgXIb1iq1dxmZ/YZ7FHPkNht25qqzGFdpg==
-X-Received: by 2002:a63:b04c:: with SMTP id z12mr16691680pgo.363.1635216047011; 
- Mon, 25 Oct 2021 19:40:47 -0700 (PDT)
+ bh=FdD2jYiTLkWh1i3uVag1O1QA1CQoWpWVgh7yC5XpK20=;
+ b=6PEUVILsBgCi2kInM6zVwC7WFRXahkQbjSW7168g/Xv1rxRz8NmQpBINTpfjcj80EJ
+ ZwYMBoJIrK0Jlq21Avdbq6mzUsLJMBJn/z/BPBGQv+Jo2GzkyybpmZJhusuRtkXTWbz7
+ zZHAicqC7YxFGW1U5anQtzHDoS6ECRLjQTBR0GBSiT4UVqN0E37eYhT2M6TAWo/KNia3
+ YAvKp+/m4RQfgnEy5oPFSukiFbfVLLcpq5rR7+zDAb9feuV5NLf/yjdKHdVMuE/71IcZ
+ YfoYypnACYrY4tlZ5LgxzGb9HyhnyOHNX0SSbiwTsmSD/YsRdHdAzICwLO86YCZvDCOC
+ vnhA==
+X-Gm-Message-State: AOAM532wHUzMyK4myZORZ8frhOlzMYsXzJZb4PRdL4dJW0M/ujok7Xj7
+ ZR4bXUApC5NJvSNTYJS6fSQwYtQavSNpa7/ZBldOKuZTXA6UeQqPV9dMLtiiXD2p1lNFfqpTR2J
+ txMteD0QrXTfw5ZLVET+pUGztlJDCztJHkXIEPYvd1A==
+X-Received: by 2002:a63:7542:: with SMTP id f2mr16656582pgn.64.1635216144069; 
+ Mon, 25 Oct 2021 19:42:24 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxARotogAt5XGfbv2rsn7Mk9Z8bObDfXye5qxC3Gav/DaAI16nIpv03dgDiEuhkbC4H2RUbIw==
+X-Received: by 2002:a63:7542:: with SMTP id f2mr16656554pgn.64.1635216143668; 
+ Mon, 25 Oct 2021 19:42:23 -0700 (PDT)
 Received: from wangxiaodeMacBook-Air.local ([209.132.188.80])
- by smtp.gmail.com with ESMTPSA id qe7sm16999164pjb.1.2021.10.25.19.40.44
+ by smtp.gmail.com with ESMTPSA id a25sm841389pfl.115.2021.10.25.19.42.21
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Mon, 25 Oct 2021 19:40:46 -0700 (PDT)
-Subject: Re: [PATCH linux-next v4 4/8] vdpa: Enable user to set mac and mtu of
- vdpa device
+ Mon, 25 Oct 2021 19:42:23 -0700 (PDT)
+Subject: Re: [PATCH linux-next v4 6/8] vdpa/mlx5: Fix clearing of
+ VIRTIO_NET_F_MAC feature bit
 To: Parav Pandit <parav@nvidia.com>,
  "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>
 References: <20211021163509.6978-1-parav@nvidia.com>
- <20211021163509.6978-5-parav@nvidia.com>
- <b6f5c0e9-e3e0-0f7f-d3b6-d20d9c01d27d@redhat.com>
- <PH0PR12MB54817652E2E49FD6A4F58F1BDC839@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <20211021163509.6978-7-parav@nvidia.com>
+ <53c1e41b-cac2-2419-9bd9-e40163e98dad@redhat.com>
+ <PH0PR12MB5481233AF957874DF60575CEDC839@PH0PR12MB5481.namprd12.prod.outlook.com>
 From: Jason Wang <jasowang@redhat.com>
-Message-ID: <1beeedf9-9509-a58e-5c7a-98ad14a2dbb5@redhat.com>
-Date: Tue, 26 Oct 2021 10:40:39 +0800
+Message-ID: <1d2a05d5-48af-89e2-ec7d-8ae0018ffa7a@redhat.com>
+Date: Tue, 26 Oct 2021 10:42:20 +0800
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
  Gecko/20100101 Thunderbird/78.14.0
 MIME-Version: 1.0
-In-Reply-To: <PH0PR12MB54817652E2E49FD6A4F58F1BDC839@PH0PR12MB5481.namprd12.prod.outlook.com>
+In-Reply-To: <PH0PR12MB5481233AF957874DF60575CEDC839@PH0PR12MB5481.namprd12.prod.outlook.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -122,267 +122,62 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="iso-2022-jp"; Format="flowed"; DelSp="yes"
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-在 2021/10/25 下午3:06, Parav Pandit 写道:
->
->> From: Jason Wang <jasowang@redhat.com>
->> Sent: Monday, October 25, 2021 12:31 PM
->>
->> 在 2021/10/22 上午12:35, Parav Pandit 写道:
->>> $ vdpa dev add name bar mgmtdev vdpasim_net mac 00:11:22:33:44:55 mtu
->>> 9000
->>>
->>> $ vdpa dev config show
->>> bar: mac 00:11:22:33:44:55 link up link_announce false mtu 9000
->>>
->>> $ vdpa dev config show -jp
->>> {
->>>       "config": {
->>>           "bar": {
->>>               "mac": "00:11:22:33:44:55",
->>>               "link ": "up",
->>>               "link_announce ": false,
->>>               "mtu": 9000,
->>>           }
->>>       }
->>> }
->>>
->>> Signed-off-by: Parav Pandit <parav@nvidia.com>
->>> Reviewed-by: Eli Cohen <elic@nvidia.com>
->>> ---
->>> changelog:
->>> v3->v4:
->>>    - provide config attributes during device addition time
->>> ---
->>>    drivers/vdpa/ifcvf/ifcvf_main.c      |  3 ++-
->>>    drivers/vdpa/mlx5/net/mlx5_vnet.c    |  3 ++-
->>>    drivers/vdpa/vdpa.c                  | 33 ++++++++++++++++++++++++++--
->>>    drivers/vdpa/vdpa_sim/vdpa_sim_blk.c |  3 ++-
->>>    drivers/vdpa/vdpa_sim/vdpa_sim_net.c |  3 ++-
->>>    drivers/vdpa/vdpa_user/vduse_dev.c   |  3 ++-
->>>    include/linux/vdpa.h                 | 17 +++++++++++++-
->>>    7 files changed, 57 insertions(+), 8 deletions(-)
->>>
->>> diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c
->>> b/drivers/vdpa/ifcvf/ifcvf_main.c index dcd648e1f7e7..6dc75ca70b37
->>> 100644
->>> --- a/drivers/vdpa/ifcvf/ifcvf_main.c
->>> +++ b/drivers/vdpa/ifcvf/ifcvf_main.c
->>> @@ -499,7 +499,8 @@ static u32 get_dev_type(struct pci_dev *pdev)
->>>    	return dev_type;
->>>    }
->>>
->>> -static int ifcvf_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char
->>> *name)
->>> +static int ifcvf_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char
->> *name,
->>> +			      const struct vdpa_dev_set_config *config)
->>>    {
->>>    	struct ifcvf_vdpa_mgmt_dev *ifcvf_mgmt_dev;
->>>    	struct ifcvf_adapter *adapter;
->>> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c
->>> b/drivers/vdpa/mlx5/net/mlx5_vnet.c
->>> index bd56de7484dc..ca05f69054b6 100644
->>> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
->>> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
->>> @@ -2404,7 +2404,8 @@ struct mlx5_vdpa_mgmtdev {
->>>    	struct mlx5_vdpa_net *ndev;
->>>    };
->>>
->>> -static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char
->>> *name)
->>> +static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char
->> *name,
->>> +			     const struct vdpa_dev_set_config *add_config)
->>>    {
->>>    	struct mlx5_vdpa_mgmtdev *mgtdev = container_of(v_mdev, struct
->> mlx5_vdpa_mgmtdev, mgtdev);
->>>    	struct virtio_net_config *config;
->>> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c index
->>> a50a6aa1cfc4..daa34a61c898 100644
->>> --- a/drivers/vdpa/vdpa.c
->>> +++ b/drivers/vdpa/vdpa.c
->>> @@ -14,7 +14,6 @@
->>>    #include <uapi/linux/vdpa.h>
->>>    #include <net/genetlink.h>
->>>    #include <linux/mod_devicetable.h>
->>> -#include <linux/virtio_net.h>
->>>    #include <linux/virtio_ids.h>
->>>
->>>    static LIST_HEAD(mdev_head);
->>> @@ -472,9 +471,15 @@ vdpa_nl_cmd_mgmtdev_get_dumpit(struct sk_buff
->> *msg, struct netlink_callback *cb)
->>>    	return msg->len;
->>>    }
->>>
->>> +#define VDPA_DEV_NET_ATTRS_MASK ((1 <<
->> VDPA_ATTR_DEV_NET_CFG_MACADDR) | \
->>> +				 (1 << VDPA_ATTR_DEV_NET_CFG_MTU))
->>> +
->>>    static int vdpa_nl_cmd_dev_add_set_doit(struct sk_buff *skb, struct
->> genl_info *info)
->>>    {
->>> +	struct vdpa_dev_set_config config = {};
->>> +	struct nlattr **nl_attrs = info->attrs;
->>>    	struct vdpa_mgmt_dev *mdev;
->>> +	const u8 *macaddr;
->>>    	const char *name;
->>>    	int err = 0;
->>>
->>> @@ -483,6 +488,21 @@ static int vdpa_nl_cmd_dev_add_set_doit(struct
->>> sk_buff *skb, struct genl_info *i
->>>
->>>    	name = nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
->>>
->>> +	if (nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACADDR]) {
->>> +		macaddr =
->> nla_data(nl_attrs[VDPA_ATTR_DEV_NET_CFG_MACADDR]);
->>> +		memcpy(config.net.mac, macaddr, sizeof(config.net.mac));
->>> +		config.mask |= (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR);
->>> +	}
->>> +	if (nl_attrs[VDPA_ATTR_DEV_NET_CFG_MTU]) {
->>> +		config.net.mtu =
->>> +
->> 	nla_get_u16(nl_attrs[VDPA_ATTR_DEV_NET_CFG_MTU]);
->>> +		config.mask |= (1 << VDPA_ATTR_DEV_NET_CFG_MTU);
->>> +	}
->>> +
->>> +	if ((config.mask & VDPA_DEV_NET_ATTRS_MASK) &&
->>> +	    !netlink_capable(skb, CAP_NET_ADMIN))
->>> +		return -EPERM;
->>
->> This deserves a independent patch. And do we need backport it to stable?
-> This patch is adding the ability to configure mac and mtu. Hence, it is in this patch.
-> It cannot be a different patch after this.
->
->> Another question is that, do need the cap if not attrs were specified?
-> I am not sure. A user is adding the vpda device anchored on the bus.
-> We likely need different capability check than the NET_ADMIN.
-
-
-Yes, that is what I meant. It looks to me currently we allow  
-unprivileged user to add vDPA device? If not, we are probably fine.
-
-Thanks
-
-
->
->>
->>> +
->>>    	mutex_lock(&vdpa_dev_mutex);
->>>    	mdev = vdpa_mgmtdev_get_from_attr(info->attrs);
->>>    	if (IS_ERR(mdev)) {
->>> @@ -490,8 +510,14 @@ static int vdpa_nl_cmd_dev_add_set_doit(struct
->> sk_buff *skb, struct genl_info *i
->>>    		err = PTR_ERR(mdev);
->>>    		goto err;
->>>    	}
->>> +	if ((config.mask & mdev->config_attr_mask) != config.mask) {
->>> +		NL_SET_ERR_MSG_MOD(info->extack,
->>> +				   "All provided attributes are not supported");
->>> +		err = -EOPNOTSUPP;
->>> +		goto err;
->>> +	}
->>>
->>> -	err = mdev->ops->dev_add(mdev, name);
->>> +	err = mdev->ops->dev_add(mdev, name, &config);
->>>    err:
->>>    	mutex_unlock(&vdpa_dev_mutex);
->>>    	return err;
->>> @@ -822,6 +848,9 @@ static const struct nla_policy
->> vdpa_nl_policy[VDPA_ATTR_MAX + 1] = {
->>>    	[VDPA_ATTR_MGMTDEV_BUS_NAME] = { .type = NLA_NUL_STRING },
->>>    	[VDPA_ATTR_MGMTDEV_DEV_NAME] = { .type = NLA_STRING },
->>>    	[VDPA_ATTR_DEV_NAME] = { .type = NLA_STRING },
->>> +	[VDPA_ATTR_DEV_NET_CFG_MACADDR] = NLA_POLICY_ETH_ADDR,
->>> +	/* virtio spec 1.1 section 5.1.4.1 for valid MTU range */
->>> +	[VDPA_ATTR_DEV_NET_CFG_MTU] = NLA_POLICY_MIN(NLA_U16, 68),
->>>    };
->>>
->>>    static const struct genl_ops vdpa_nl_ops[] = { diff --git
->>> a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
->>> b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
->>> index a790903f243e..42d401d43911 100644
->>> --- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
->>> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
->>> @@ -248,7 +248,8 @@ static struct device vdpasim_blk_mgmtdev = {
->>>    	.release = vdpasim_blk_mgmtdev_release,
->>>    };
->>>
->>> -static int vdpasim_blk_dev_add(struct vdpa_mgmt_dev *mdev, const char
->>> *name)
->>> +static int vdpasim_blk_dev_add(struct vdpa_mgmt_dev *mdev, const char
->> *name,
->>> +			       const struct vdpa_dev_set_config *config)
->>>    {
->>>    	struct vdpasim_dev_attr dev_attr = {};
->>>    	struct vdpasim *simdev;
->>> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
->>> b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
->>> index a1ab6163f7d1..d681e423e64f 100644
->>> --- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
->>> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
->>> @@ -126,7 +126,8 @@ static struct device vdpasim_net_mgmtdev = {
->>>    	.release = vdpasim_net_mgmtdev_release,
->>>    };
->>>
->>> -static int vdpasim_net_dev_add(struct vdpa_mgmt_dev *mdev, const char
->>> *name)
->>> +static int vdpasim_net_dev_add(struct vdpa_mgmt_dev *mdev, const char
->> *name,
->>> +			       const struct vdpa_dev_set_config *config)
->>>    {
->>>    	struct vdpasim_dev_attr dev_attr = {};
->>>    	struct vdpasim *simdev;
->>> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c
->>> b/drivers/vdpa/vdpa_user/vduse_dev.c
->>> index 841667a896dd..c9204c62f339 100644
->>> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
->>> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
->>> @@ -1503,7 +1503,8 @@ static int vduse_dev_init_vdpa(struct vduse_dev
->> *dev, const char *name)
->>>    	return 0;
->>>    }
->>>
->>> -static int vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name)
->>> +static int vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
->>> +			const struct vdpa_dev_set_config *config)
->>>    {
->>>    	struct vduse_dev *dev;
->>>    	int ret;
->>> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h index
->>> 111153c9ee71..315da5f918dc 100644
->>> --- a/include/linux/vdpa.h
->>> +++ b/include/linux/vdpa.h
->>> @@ -6,6 +6,8 @@
->>>    #include <linux/device.h>
->>>    #include <linux/interrupt.h>
->>>    #include <linux/vhost_iotlb.h>
->>> +#include <linux/virtio_net.h>
->>> +#include <linux/if_ether.h>
->>>
->>>    /**
->>>     * struct vdpa_calllback - vDPA callback definition.
->>> @@ -93,6 +95,14 @@ struct vdpa_iova_range {
->>>    	u64 last;
->>>    };
->>>
->>> +struct vdpa_dev_set_config {
->>> +	struct {
->>> +		u8 mac[ETH_ALEN];
->>> +		u16 mtu;
->>> +	} net;
->>
->> If we want to add block device, I guess we need a union as a container?
-> Right. When that occurs in future, there will be union to contain both.
->
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+CuWcqCAyMDIxLzEwLzI1IOS4i+WNiDM6MDgsIFBhcmF2IFBhbmRpdCDlhpnpgZM6Cj4KPj4gRnJv
+bTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPj4gU2VudDogTW9uZGF5LCBPY3Rv
+YmVyIDI1LCAyMDIxIDEyOjM1IFBNCj4+Cj4+IOWcqCAyMDIxLzEwLzIyIOS4iuWNiDEyOjM1LCBQ
+YXJhdiBQYW5kaXQg5YaZ6YGTOgo+Pj4gQ2l0ZWQgcGF0Y2ggaW4gdGhlIGZpeGVzIHRhZyBjbGVh
+cnMgdGhlIGZlYXR1cmVzIGJpdCBkdXJpbmcgcmVzZXQuCj4+PiBtbHg1IHZkcGEgZGV2aWNlIGZl
+YXR1cmUgYml0cyBhcmUgc3RhdGljIGRlY2lkZWQgYnkgZGV2aWNlIGNhcGFiaWxpdGllcy4KPj4K
+Pj4gVGhpcyBpcyBub3Qgd2hhdCBJIHJlYWQgYXQgbGVhc3QgZnJvbSBtbHg1X3ZkcGFfZ2V0X2Zl
+YXR1cmVzOgo+Pgo+PiBzdGF0aWMgdTY0IG1seDVfdmRwYV9nZXRfZmVhdHVyZXMoc3RydWN0IHZk
+cGFfZGV2aWNlICp2ZGV2KSB7Cj4+ICAgwqDCoMKgwqDCoMKgwqAgc3RydWN0IG1seDVfdmRwYV9k
+ZXYgKm12ZGV2ID0gdG9fbXZkZXYodmRldik7Cj4+ICAgwqDCoMKgwqDCoMKgwqAgc3RydWN0IG1s
+eDVfdmRwYV9uZXQgKm5kZXYgPSB0b19tbHg1X3ZkcGFfbmRldihtdmRldik7Cj4+ICAgwqDCoMKg
+wqDCoMKgwqAgdTE2IGRldl9mZWF0dXJlczsKPj4KPj4gICDCoMKgwqDCoMKgwqDCoCBkZXZfZmVh
+dHVyZXMgPSBNTFg1X0NBUF9ERVZfVkRQQV9FTVVMQVRJT04obXZkZXYtPm1kZXYsCj4+IGRldmlj
+ZV9mZWF0dXJlc19iaXRzX21hc2spOwo+IE5vdCBzdXJlIEkgZm9sbG93LiBGZWF0dXJlIGJpdHMg
+YXJlIGRlY2lkZWQgYnkgdGhlIGRldmljZSBjYXBhYmlsaXRpZXMgZXhwb3NlZCBieSB0aGUgTUxY
+NV9DQVBfREVWX1ZEUEFfRU1VTEFUSU9OLgo+IE90aGVyIGZpZWxkcyBiZWxvdyBhcmUgcHJldHR5
+IG11Y2ggc3RhdGljLgoKCk9rLCBzbyBJIHRoaW5rIGluIHRoZSBjb21taXQgbG9nIHdlIG5lZWQg
+YWxzbyBtZW50aW9uIHRoYXQgdGhlIApWSVJUSU9fTkVUX0ZfTUFDIGlzIGRldGVybWluZWQgYW5k
+IHN0b3JlZCBpbiBkZXZpY2UgYWRkaW5nLgoKVGhhbmtzCgoKPgo+PiAgIMKgwqDCoMKgwqDCoMKg
+IG5kZXYtPm12ZGV2Lm1seF9mZWF0dXJlcyB8PSBtbHhfdG9fdnJpdGlvX2ZlYXR1cmVzKGRldl9m
+ZWF0dXJlcyk7Cj4+ICAgwqDCoMKgwqDCoMKgwqAgaWYgKE1MWDVfQ0FQX0RFVl9WRFBBX0VNVUxB
+VElPTihtdmRldi0+bWRldiwKPj4gdmlydGlvX3ZlcnNpb25fMV8wKSkKPj4gICDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqAgbmRldi0+bXZkZXYubWx4X2ZlYXR1cmVzIHw9IEJJVF9VTEwo
+VklSVElPX0ZfVkVSU0lPTl8xKTsKPj4gICDCoMKgwqDCoMKgwqDCoCBuZGV2LT5tdmRldi5tbHhf
+ZmVhdHVyZXMgfD0gQklUX1VMTChWSVJUSU9fRl9BQ0NFU1NfUExBVEZPUk0pOwo+PiAgIMKgwqDC
+oMKgwqDCoMKgIG5kZXYtPm12ZGV2Lm1seF9mZWF0dXJlcyB8PSBCSVRfVUxMKFZJUlRJT19ORVRf
+Rl9DVFJMX1ZRKTsKPj4gICDCoMKgwqDCoMKgwqDCoCBuZGV2LT5tdmRldi5tbHhfZmVhdHVyZXMg
+fD0KPj4gQklUX1VMTChWSVJUSU9fTkVUX0ZfQ1RSTF9NQUNfQUREUik7Cj4+ICAgwqDCoMKgwqDC
+oMKgwqAgbmRldi0+bXZkZXYubWx4X2ZlYXR1cmVzIHw9IEJJVF9VTEwoVklSVElPX05FVF9GX01R
+KTsKPj4KPj4gICDCoMKgwqDCoMKgwqDCoCBwcmludF9mZWF0dXJlcyhtdmRldiwgbmRldi0+bXZk
+ZXYubWx4X2ZlYXR1cmVzLCBmYWxzZSk7Cj4+ICAgwqDCoMKgwqDCoMKgwqAgcmV0dXJuIG5kZXYt
+Pm12ZGV2Lm1seF9mZWF0dXJlczsgfQo+Pgo+Pgo+PiBUaGFua3MKPj4KPj4KPj4+IENsZWFyaW5n
+IGZlYXR1cmVzIGJpdCBjbGVhcmVkIHRoZSBWSVJUSU9fTkVUX0ZfTUFDLiBEdWUgdG8gdGhpcyBN
+QUMKPj4+IGFkZHJlc3MgcHJvdmlkZWQgYnkgdGhlIGRldmljZSBpcyBub3QgaG9ub3JlZC4KPj4+
+Cj4+PiBGaXggaXQgYnkgbm90IGNsZWFyaW5nIHRoZSBzdGF0aWMgZmVhdHVyZSBiaXRzIGR1cmlu
+ZyByZXNldC4KPj4+Cj4+PiBGaXhlczogMDY4NjA4MmRiZjdhICgidmRwYTogQWRkIHJlc2V0IGNh
+bGxiYWNrIGluIHZkcGFfY29uZmlnX29wcyIpCj4+PiBTaWduZWQtb2ZmLWJ5OiBQYXJhdiBQYW5k
+aXQgPHBhcmF2QG52aWRpYS5jb20+Cj4+PiBSZXZpZXdlZC1ieTogRWxpIENvaGVuIDxlbGljQG52
+aWRpYS5jb20+Cj4+PiAtLS0KPj4+ICAgIGRyaXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQu
+YyB8IDEgLQo+Pj4gICAgMSBmaWxlIGNoYW5nZWQsIDEgZGVsZXRpb24oLSkKPj4+Cj4+PiBkaWZm
+IC0tZ2l0IGEvZHJpdmVycy92ZHBhL21seDUvbmV0L21seDVfdm5ldC5jCj4+PiBiL2RyaXZlcnMv
+dmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYwo+Pj4gaW5kZXggY2EwNWY2OTA1NGI2Li4wYTJiNzk4
+ODcwODUgMTAwNjQ0Cj4+PiAtLS0gYS9kcml2ZXJzL3ZkcGEvbWx4NS9uZXQvbWx4NV92bmV0LmMK
+Pj4+ICsrKyBiL2RyaXZlcnMvdmRwYS9tbHg1L25ldC9tbHg1X3ZuZXQuYwo+Pj4gQEAgLTIxOTIs
+NyArMjE5Miw2IEBAIHN0YXRpYyBpbnQgbWx4NV92ZHBhX3Jlc2V0KHN0cnVjdCB2ZHBhX2Rldmlj
+ZQo+PiAqdmRldikKPj4+ICAgIAljbGVhcl92cXNfcmVhZHkobmRldik7Cj4+PiAgICAJbWx4NV92
+ZHBhX2Rlc3Ryb3lfbXIoJm5kZXYtPm12ZGV2KTsKPj4+ICAgIAluZGV2LT5tdmRldi5zdGF0dXMg
+PSAwOwo+Pj4gLQluZGV2LT5tdmRldi5tbHhfZmVhdHVyZXMgPSAwOwo+Pj4gICAgCW1lbXNldChu
+ZGV2LT5ldmVudF9jYnMsIDAsIHNpemVvZihuZGV2LT5ldmVudF9jYnMpKTsKPj4+ICAgIAluZGV2
+LT5tdmRldi5hY3R1YWxfZmVhdHVyZXMgPSAwOwo+Pj4gICAgCSsrbXZkZXYtPmdlbmVyYXRpb247
+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
+aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
+bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
+dmlydHVhbGl6YXRpb24=
