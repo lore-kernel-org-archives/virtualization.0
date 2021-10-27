@@ -2,144 +2,197 @@ Return-Path: <SRS0=5D8L=PP=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EA47C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 27 Oct 2021 15:56:23 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5924C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 27 Oct 2021 16:34:03 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EEF4861039
-	for <virtualization@archiver.kernel.org>; Wed, 27 Oct 2021 15:56:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org EEF4861039
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id 952DD60FBF
+	for <virtualization@archiver.kernel.org>; Wed, 27 Oct 2021 16:34:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 952DD60FBF
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id AE9754027F;
-	Wed, 27 Oct 2021 15:56:22 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4645880E3D;
+	Wed, 27 Oct 2021 16:34:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hCOcCGvMeX5P; Wed, 27 Oct 2021 15:56:21 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id F06384010B;
-	Wed, 27 Oct 2021 15:56:20 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5ndLSI4Lx0iJ; Wed, 27 Oct 2021 16:34:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B6FE980D8E;
+	Wed, 27 Oct 2021 16:34:01 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D586AC0012;
-	Wed, 27 Oct 2021 15:56:20 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F09F1C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 86DABC0019;
+	Wed, 27 Oct 2021 16:34:01 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 47DB8C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Oct 2021 15:56:19 +0000 (UTC)
+ Wed, 27 Oct 2021 16:34:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D133040257
+ by smtp3.osuosl.org (Postfix) with ESMTP id 43EBE60750
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Oct 2021 15:56:19 +0000 (UTC)
+ Wed, 27 Oct 2021 16:34:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8wwQ9fARuKUZ
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="d4LWppFK";
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.b="HJLyJzR6"
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id MDxyJE-PSNup
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Oct 2021 15:56:18 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com
- (mail-dm6nam12on2058.outbound.protection.outlook.com [40.107.243.58])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 706FC4010B
+ Wed, 27 Oct 2021 16:33:58 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id D06546061C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Oct 2021 15:56:18 +0000 (UTC)
+ Wed, 27 Oct 2021 16:33:58 +0000 (UTC)
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 19RG5PmY023695; 
+ Wed, 27 Oct 2021 16:33:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=subject : to : cc :
+ references : from : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2021-07-09;
+ bh=ltoM15fa8DDV9i85o4BVM1M3tOQ0E/tfJeyHwWzq2RA=;
+ b=d4LWppFKcSTYrF6QS2h/OAuSYK5qQjy6LvZ5NoTxeE6Swth33Sdk4nbUm7kZNDtBevNs
+ v2smETvafLy5YLsZmHr3FNoqllumhzzTGHAaQ9kwvPXrGee3eQjt4fUHFW9LXmAuby53
+ scOF6acY8HMNsZc91pNo6hoxr9UbbmqsPk/u6IlPu1ibCKWvhDQo1HPlHlm23OIodLtX
+ 9SySSwwHdtq0gJufERZElG8GRKCiw00/MlPFiubNI8dYnzXtd8k0Z2gkI2wpGjK3oW0L
+ bBklmKU3c8G6JV1XqO3Hqk7zNFcmhWkD8seKH1c2qlSGn3k+Qfq/DxzKPDEKNERSwlOn aQ== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+ by mx0b-00069f02.pphosted.com with ESMTP id 3bx4fj4un1-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Wed, 27 Oct 2021 16:33:51 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+ by aserp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 19RGVapS074517;
+ Wed, 27 Oct 2021 16:33:50 GMT
+Received: from nam02-bn1-obe.outbound.protection.outlook.com
+ (mail-bn1nam07lp2040.outbound.protection.outlook.com [104.47.51.40])
+ by aserp3020.oracle.com with ESMTP id 3bx4gcyst3-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Wed, 27 Oct 2021 16:33:49 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=CS4syxwyAZ6laUloHggKSVxpwB0NAtyblyVbx0nm3FY8Ey2shv+tzTmHl/rQXm5gf4fDvuJjsTPPBGuKzFAxx07u/Pxh/hcahgcjDQnxENqlYn+AYKOw4B+8tyUdbxL8rAfn96VR79lPiPaBNnH0iP22xJlVSWZm79ULZHM5Q0YPVG1oh29/G0xXV9sQ++Q4ZVHYiIHWye7PGpWa8gXKSHTazPDybw5zCy8DoieE8B4pZhFdixyK+HhruuXg5grFGz4nys75iGy5dAy7hrYbPzztAnZem2xt8vPcGonukRhPj3+T7qPZPJjDCtVNlItxjjLMzobyS9Xv0DBwOT2NyA==
+ b=K7rpBSm6cV3URvifMIqsaeHYQhjVwKW0RfWyvw5KUtjDva0+QXKBBVnJkfcm+AhjRlW/dEJf3PoqHlP6Ak8mrVmWWaRpYhd9IDkmCMxxE9jrpZ2qWCXf4zsPQGatcc2bBwHpRPxxWW93N7tdwmdTrbGm79avl3to79cCDr4soJGkVN8hGeT7Dg49c4hUVii1E+2UMQWEIp8rgJRPciRExjoBqdGUtvERJGjtPdySHfSCLGneVXNbLUMeVCoqSaUo89UrS2SaIVz4RIKWpIxEDaDtrymj4xU+pOyG6h9XG9mMth/Lg/mFbnt+5SqALsjip/kK+OpnEjH8MjI/1ptPzA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=x+cGWtQnLXgsEMxRebbery8KLUHRm6aIW45dRb8mJSg=;
- b=krkAQ4ibYoMSOvPuCFlh6GA0+Edxw56J0GGbQG+5JHxAfCMfUzmYk0x85CPm/VCzKnRG0koycEJ6vjsIcZ0wrVmlxmOgFvdgHgHRhOG1GbhAadtUvpk4yfGUyGa/rQPCIE/tyfc9FMHQLPZmlZVR3r3A66mf/rs7Wn218o9qci9Q2jTz2SEfZTplkr4IVgmKOm3iAHHokhqd3YhSflgR4qqxCTVx6713jcUBC/mI3WxG75S9l++NgYEpLWAwQybZHptQ+x20XK7ywZdnj2/HzcqpF9z9KAj1c6fE9IMlWEbGfXi4V7kEdeSU5NBSYi/PL6aWP+L6U1DiU7ECaarHlQ==
+ bh=ltoM15fa8DDV9i85o4BVM1M3tOQ0E/tfJeyHwWzq2RA=;
+ b=K7EVab147S80Pc19/GGbsKPAt6/IXhWNikD7NyYc1Sn/5/eO1Dnd7HqF6l9RYvpNu+wJV7NSKM3XhbuR2eDSjYB2aFm/YVvybp8GyjafdWlGv9HdtvK9IKhsn0i6F+E3ImICGTs32GKEvZlBIxfJN3TdQpfK7M1sJ7hDKPU0K+Nnn6vdCNEnb4Xakef1RM5gJ/yq2hsj/bQyy+8RuFRtWi4g0d34o0b8sJVDXA0Ehg2zqXPg1DfnqmEyoGjz5xmCa1HQRuyi1GR7AygzO9XKqWoJIAbK9lu6K+T9TnSfr3Mo6A9cijEYnYKXzpUBSJc7P6Q1CdxoUA0cV9ozU34sUg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=x+cGWtQnLXgsEMxRebbery8KLUHRm6aIW45dRb8mJSg=;
- b=CSPMoABGB7qclkFLXDPaRbWdgqndEQh4QJfJVjDTuUdtGJoi4qTf7LHJRiCnBbpZkbfTdfyl4t07FRuY8sJCY/m6rg+JjhR0vsa/PiHT/Spdc7s7S2QIm8aiZi4HHInNiZESDlLs1sQ/3XvPlqPTIHTQxJDNTPK9yhP1z0qKCGe0gcLazBc27BkH46nvwcA+qm7g8/b9z13B2wY5gkp/8leYXLP4CGm4U4W3Zyrf1uk7EMJGMz3fdiaz0qBGXzimj8jb9eKtV33hzktWX43Ocf3d8/6CYYaa7qa+IGrMLI26Wyy4u4yaChTkIMJap3pTYiRhkRxAtIoZTGmb3TaB9g==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by PH0PR12MB5434.namprd12.prod.outlook.com (2603:10b6:510:d5::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4628.18; Wed, 27 Oct
- 2021 15:56:16 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::e061:9284:b153:e633]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::e061:9284:b153:e633%3]) with mapi id 15.20.4628.020; Wed, 27 Oct 2021
- 15:56:16 +0000
-To: Stefano Garzarella <sgarzare@redhat.com>
-Subject: RE: vDPA bus driver selection
-Thread-Topic: vDPA bus driver selection
-Thread-Index: AQHXyz+5W8bHEdMi9Ue0cOjhXwdA36vm745AgAAN1gCAAAHeEA==
-Date: Wed, 27 Oct 2021 15:56:16 +0000
-Message-ID: <PH0PR12MB548104D8BE92D2C5DC49A7A4DC859@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <CAGxU2F7r7=P8E-f1Nnm2h18S-hL8YBt7s=J81fkQcrAdpZ-KwQ@mail.gmail.com>
- <PH0PR12MB548115FD6354339B41A11CE3DC859@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20211027154728.qkrtl6jtfoqlbwfu@steredhat>
-In-Reply-To: <20211027154728.qkrtl6jtfoqlbwfu@steredhat>
-Accept-Language: en-US
+ bh=ltoM15fa8DDV9i85o4BVM1M3tOQ0E/tfJeyHwWzq2RA=;
+ b=HJLyJzR6CZ1MxuFROR6tj0FbueA7YOgnq3g3L4tGermVJrCJkcRT13n8cvENExYY/xzL8L4aiyOBsQOC8TxUP2ZKsSBS1SYURsrdF9jpyEkFIs2MpiTVHiR0yYIOki7V3x682g7IrbKTkW9NcusjAPg7q008q80zulj84oO/vUU=
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none; vger.kernel.org; dmarc=none action=none header.from=oracle.com; 
+Received: from BYAPR10MB2663.namprd10.prod.outlook.com (2603:10b6:a02:a9::20)
+ by BYAPR10MB3638.namprd10.prod.outlook.com (2603:10b6:a03:125::25)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4649.15; Wed, 27 Oct
+ 2021 16:33:48 +0000
+Received: from BYAPR10MB2663.namprd10.prod.outlook.com
+ ([fe80::2848:63dc:b87:8021]) by BYAPR10MB2663.namprd10.prod.outlook.com
+ ([fe80::2848:63dc:b87:8021%7]) with mapi id 15.20.4649.014; Wed, 27 Oct 2021
+ 16:33:48 +0000
+Subject: Re: [PATCH 1/3] virtio: cache indirect desc for split
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <20211027061913.76276-1-xuanzhuo@linux.alibaba.com>
+ <20211027061913.76276-2-xuanzhuo@linux.alibaba.com>
+From: Dongli Zhang <dongli.zhang@oracle.com>
+Message-ID: <d6a38629-cb0a-be7b-5256-30ed8b34ee76@oracle.com>
+Date: Wed, 27 Oct 2021 09:33:46 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.1
+In-Reply-To: <20211027061913.76276-2-xuanzhuo@linux.alibaba.com>
 Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: redhat.com; dkim=none (message not signed)
- header.d=none;redhat.com; dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: e71d7d97-bd30-4352-50ec-08d999624f14
-x-ms-traffictypediagnostic: PH0PR12MB5434:
-x-microsoft-antispam-prvs: <PH0PR12MB5434C51EE5282A90DC0F71D0DC859@PH0PR12MB5434.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:10000;
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 8o+1pyR+ZZN5QMfyLdGD9ZsA+StOvaicK+2/TeizJCXYMOvhOpHA2KuF/KbqXWDln/Z5BjoEVjMn0irTvKEZd2nliUU7kr07956KkdImOtLnwKgWZY3hI0Xh8mZhlxQ6YlWNTm9P7nwvE2ezK4+5/L/fvIsfKI99Hv2O+CWd115KuqcRakDgQiUNYpU7GgCLotm2sq24lzvGnDAtnUnRFci1xMdrO16h40eF6koVzpodWucXwJVDQsdDI8lZ2/m0Dt1F1tvBihsxLyAYdq3aMvro62BwXS65sMJyYsLPC36rSbdEVWJ10JcRsijNVR6mGoYv84kaKKINn/OHN7COrn1TtgCGJ3TcTGEa5Pbgo7AcEDWKEI8SrMeIhmNB0OupQfkd3j7ohO8jux/Kvof9RSM0HRpUB75glj9em1rlMyKnI+7sD6C91wznaantiqIz2BoCgsfSi+bJTst6jzoFbeUR4b5SRH2xdIZ8rNIhZKJ4YTiasxgBFgKh2wL5PTjJ3U7TeyTbBHNe7VoigW5cKKeOWIumMq0CZwV5BZ40RZKVFg8hsJkmvmC52glGW+bv7/QilrUi/8glIparm0BZvZvXOx6h7DwuRztmDP3MGEOtT4d8Uv5HDD1E9b/wxQVmMjf2khHgnznlcsHpulquMg0zqwvP7pysVnC+xHqacAGbr2SBp9WVTTqkfrNIXcgvt+dPMIfCHiHJhSPFvugbsg==
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(366004)(38100700002)(3480700007)(2906002)(66446008)(8676002)(33656002)(54906003)(66476007)(76116006)(9686003)(122000001)(8936002)(86362001)(38070700005)(64756008)(55016002)(83380400001)(316002)(186003)(5660300002)(71200400001)(6506007)(26005)(107886003)(52536014)(508600001)(4326008)(7696005)(53546011)(6916009)(66946007)(66556008);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?CE4v2K4pGDFbJs19Vk5gD2VKAzo9KhsB9l0EiKAB9D9T+kzGva0vyWN+0jNz?=
- =?us-ascii?Q?ikiM4GAdwNgbXx9mjs03DUrN11qrioyYmFy8+D3NiNwcEKlztZwr/KCVW4ie?=
- =?us-ascii?Q?WbAfrW9c6A478SBq324fMqPCsekGteXIPS/4k/HCAM5sj9Ugg3qpR8G7PeMJ?=
- =?us-ascii?Q?wErGu6AEymLewn8JCJLtDv4f2hHIlLksO2fJrcuwAPdKOuj0jj0IqiH1qgr1?=
- =?us-ascii?Q?TZmMWryleGByK3Or7KiA+8Bn3LJGvGPetu+2w9WnzR3S1Pg/olF0tDxxFMr8?=
- =?us-ascii?Q?aLbcgpDTf3pBufzZCUqEB9vJxLPLeZUgBMvC1uEQStJOl3eLmrarRIbt/pWC?=
- =?us-ascii?Q?l7L2ND4/TReub/dLGim9Kz2HX5vSRBzhR4BWWBxAlyI973OaIjDtc3u/0tMJ?=
- =?us-ascii?Q?2oQifDFUY8U+QxzuIv11cmcw+lWx2FPW4RqcRoxKhdANhwycxloSL9nv+taV?=
- =?us-ascii?Q?36rq/xsHz1g2wmjzk6XZw6ETaqPK6mcE69mhnqlUvNiisU4V6o70kyrfQDnt?=
- =?us-ascii?Q?LbQYiX5cqIxY8EIGs3mOSxOPPbLN1WXw0+Es28RblCD2CR2gUsDF1knp/FHo?=
- =?us-ascii?Q?CUgoCDlUb3TN0gae/I5lGSx7TneEC12wxv871PKK9ak1BNhWyNcPCq3diwAs?=
- =?us-ascii?Q?nl1RJVa3r5uxqicjrv/ck9dQwGdIGkiFDYNrz7QVMS5Uag55ZjXP5+LFtyf/?=
- =?us-ascii?Q?oDanXh8y+jSj29ZRKal9MkivxKFiMqsw7O1CSjPvOJw3M8ngqJ/2lL6OyY1N?=
- =?us-ascii?Q?iY8qsJ9z3whD4AGiux0AedHFaf8b3i4zmpCP3gQ9ArwigMYpLz7ypIpVUMY0?=
- =?us-ascii?Q?CusG4717OjiMABY+0IYMqDb6L1bMSbqTD4UxWPV4rZIRf3AkeiGHsdSqHnr1?=
- =?us-ascii?Q?HTjTmCthU7s2YwoWH5f4TgFwtXscnlG5gadAKQzlSVSTtXl+PXW2UNq/3FdA?=
- =?us-ascii?Q?5lqdD3XrZx0c0rZg9hgjG3PfevqPSlJq+9A2lt5EyN8t/R/KZB3moZOZ0QV0?=
- =?us-ascii?Q?v4yfp+mAvPPlxd3N+3NT2gNvgZTWDwAmFC5FZkG6diGhoc+pBE9SIoh/F0Br?=
- =?us-ascii?Q?Fhq/S45vWPnwQKm22x6LskAVJqAZpjOmMUhvNZmqfPBOxtcYhrh/U7IoZSIh?=
- =?us-ascii?Q?esDx27/zUIpih0qWsetbN7OrbnmGdPsqelmuwHvxlekn+4s75GX5mWhJxmdS?=
- =?us-ascii?Q?V/hJXslvBNeZ2QOpPyGkqnq7LCzJaaneSHz4J07gjYyGcbdR8hQqoSIiGYWF?=
- =?us-ascii?Q?YvJYMnQtD3cSFcyZFxkM3QYxGlNZS9qznHJ/pD+w0uAzJ9HQn6OM8ax6nyeD?=
- =?us-ascii?Q?t77iJyNlWEDQ1REcWjl29xHBeOLdmpz20FqeFwWQuT40FGn2DxSH/qY4TZxE?=
- =?us-ascii?Q?xUJP3nz1JuAeucJ/qlI6mce+YW4fO63+feHgnnDlbrVJYXgwJ20QHmwEkeFf?=
- =?us-ascii?Q?Dw2/41eA7gUqRusp2KbnVu6vpE1TjPAZJiAP5i/pAInu0a5WKdcCOS8tKw4u?=
- =?us-ascii?Q?bnyAMGbcTLwkb/VW09eh0CEvQEhPk/wDpAikt+XWz72CcCesH31fLXoY4JwT?=
- =?us-ascii?Q?wPX7V0JvimpIEMfCpOaFSIN/N5peXGcTzKtbHq+OBqYVPEnxQcfVKBR8vSzo?=
- =?us-ascii?Q?m2ozqE30MQNn8KFr/9f7xQ4=3D?=
+X-ClientProxiedBy: SN7PR04CA0060.namprd04.prod.outlook.com
+ (2603:10b6:806:120::35) To BYAPR10MB2663.namprd10.prod.outlook.com
+ (2603:10b6:a02:a9::20)
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
+Received: from [IPv6:2606:b400:400:7446:8000::1d4] (2606:b400:8301:1010::16aa)
+ by SN7PR04CA0060.namprd04.prod.outlook.com (2603:10b6:806:120::35) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4649.14 via Frontend
+ Transport; Wed, 27 Oct 2021 16:33:47 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 3acbeb82-3e22-4f43-1216-08d999678d2d
+X-MS-TrafficTypeDiagnostic: BYAPR10MB3638:
+X-Microsoft-Antispam-PRVS: <BYAPR10MB3638A728CC6B3046AC9C45EEF0859@BYAPR10MB3638.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 4BCaeQoS2oHmz6tdGYK/APxkMfrpuSoR5C+TvFebGspWQGS9Q8PoRv5gG6mtRzfQhXHKlna+NLfwNAB6xsSYvZfWBrd8ofrQIN4Vq9ANzL6kagDzPV/lTSfNUfp1ZWHuDyIEFrpJBgxF8NG8AOJGLgpAr6ua7wg1l5UgtUMb4OUaQIfVMrx3V5kcIe/glv5WW1lzEPYn5Qs+JN7Pv2cpKw3UHB6d/gF+WssuFQfcxOeUnuW+hfJqmccsECif2wImfXlrnauaxw2tJfIFYsjpwolTVVC/4Ibrhm8lozfPrqy/0BZnuF/SIuBTJ87ukuZa8oVm/OtEvPK0yjZJGTQfRJlWzQDJWmxig6cy/Gc9Lb+Q+xrTEiCW3kZWVSkeYxiQRJc2Y6pq5BPk/3sV1ngeO1S5wq6c6HvjlBpUJ4ojLgN5/sCMxb2eF5AWIaS8FOeSJxDW27vpQVN8BdMtmP/wes9/jied+KLh1YKZ3yJrCj1yX6LsbOncnoJo0DSxBZfao8sMKL+76Ts9TSvG0Ut+cRvyswRxegJN4qoei3Pmw5EjtjmBd92i/jEWm+e2DT+2CaLK5oVYM4H+SlQWGfl5dbfzkKfMw5eY3CrwOLYAshoPl3Jj5O4JJ75g0QBAR37cE7OBtA9yG7AC+e8InzGdQhmhgbcDSr6IPZSkaxZsiUGewC0XuGktp5DaBr1aK2JmOCsvF4OtawPS7fkAF6vMsynWer4MewzszjTga9kPYcg=
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:BYAPR10MB2663.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(366004)(66556008)(66476007)(2906002)(66946007)(31686004)(5660300002)(53546011)(8676002)(54906003)(6916009)(36756003)(316002)(508600001)(186003)(8936002)(86362001)(38100700002)(4326008)(31696002)(6486002)(83380400001)(2616005)(44832011)(45980500001)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?MVRFdjBCQ2kvQnkyck1Ja0F0a0xicDlOM2lFN05XL2JkNE1zRXdtNitLTWxy?=
+ =?utf-8?B?ZElNbGo3WEE2dmpNYS9maGErRmRIWWJobC90VHlBM0RkRXJCaTBNNWFtRElj?=
+ =?utf-8?B?UVpKdnhPa0drRG1WWGl6VmFWZFptS1lLOG9xd1dkZTR3ZnhaZk9lbm9xV0I1?=
+ =?utf-8?B?QnRrTXk3SmxCRHNFd0tLRFlON1E1T0htN2MwdUpBbHlxZWlhUU9DQUhLSlVt?=
+ =?utf-8?B?cml2cUNwZ0tCN3JrZmlMU3REY3VqRC9lbHk3dGRIRi9zL1RzajloY0gzTzVp?=
+ =?utf-8?B?UG5LTkoxbzcvZlRQM0hzUjdjMktXWmt1TGJ4RDBlNjZCNnYxemh2VERlR2tP?=
+ =?utf-8?B?SitZdTVVZlRZZmZqeFFwb3ZYcXdQeTM0TEU4bTZqTmdKVkI3eUM3dWFHdjZs?=
+ =?utf-8?B?ZlBhWXZaTDY2R29VakJmcFJXN1BLUUdFZE1Obm1vdCsxNmhKcmVmZktTOWVr?=
+ =?utf-8?B?RXBYd2dJeExzczNURU1KcDBtajFQcE1mZ3JqR21FeXJ2eUN4L1M3dmZvNGFQ?=
+ =?utf-8?B?aW9qcFRndEVGOFQ2NzRGMFpNS0lUTDFoTzIxQ1lwaHhPZEQvZDBFTzBycEkz?=
+ =?utf-8?B?QUVHbXVvNnM1NjVlZU5DaHJscUpXUVZ5VEltY3kyMmFQZGo1UWk1Z0E5bWNq?=
+ =?utf-8?B?dHd2R003eUlvL1ZmUTdMS0FlVzcxTmdkaEswcWVUamowZHV1N1cxT1ZYbTRk?=
+ =?utf-8?B?Ylcvb2NVNjNDWkhOR2FjanNQc2x3bGFtcUg2THI5anlxMXVoS2VMUWt2VmdU?=
+ =?utf-8?B?ZFFYSUZXMVAwZEJuQTMwWEJLSXF5bTRXemlIOXRmRDQwcHkxNzN6T05Fc0Yz?=
+ =?utf-8?B?M3hNaDYxOTY5YzZrZzB2VmhUUWRZMW9nc3ZWMmJKazB6VzBFc0FndllrckF3?=
+ =?utf-8?B?RzNZeFdTSktiZGViR2FzRXRIanhVcG5KLzFTMWpweGgxc1FyZFFycG1PeGNk?=
+ =?utf-8?B?S09McFZQQlp6N1F1QzE2RGpydzFmL21hUjJvV2tNR0ZsaGRZK3locmJaZTU5?=
+ =?utf-8?B?QnE4R21MR3g3czZ6VWsvcTBUcTlZaitqRkZUbDJpRWc4Q3RPcWpTV1JyZlBT?=
+ =?utf-8?B?R216Wk9FSU5WLzdsOWs4OHFSZGRtOWpJdUxJeHdydHBZYU1nOXhSV3RpcXBr?=
+ =?utf-8?B?NjBQTWQ5OGw0MXNIbFFweFg1SERBV2JUMEZ1OEdlR2gwa3JlRUg2WGxPMWtF?=
+ =?utf-8?B?c1RkdS9vSXoxWW5oN3NGNnRiT2pGVWEweDduN2hWOXJJL1hHYWd6YkFqQ1NK?=
+ =?utf-8?B?R2VMV0FLTnpXNVZpc1drbTZqSFZUZjIrTy9MMGt4YmZMc2x5amdGanV5Mzhu?=
+ =?utf-8?B?SUNvOGpOWDF0MVlRNGorUWh0cFg4MmUxTTF3R3NkMmZYRUlvaFF3VDc0MUI1?=
+ =?utf-8?B?QTkwQjlNcnhlRzhmWGRRdFBpL0ZjNEx1bTI2eVVBbFNYU01LRTlBbmFPVFJQ?=
+ =?utf-8?B?WDFmNDRxd0F5ejQ5eFpaTURUeXFORytyZ3hJMzFmZjFBTmNSaHcrR3NRakhX?=
+ =?utf-8?B?MVZxb2dWM2ZHL2JsdmYrWlNqajkyU29md0llVERJM1NFdmdKRkN2V2Z4YkdQ?=
+ =?utf-8?B?MWZGTnpqREZUZEorNU52d21BVnRZbEk2U0k5Lzg5TTVTL1VkMWNyeGJaU1JO?=
+ =?utf-8?B?d29XQ0hOd2FDK3VSc3JBSWRSVlBUQldZdzlmWXlSdUo1QytWYkRRVFlvZGMz?=
+ =?utf-8?B?SDMrZW8xTmVBVWdsVUJyZVdxbWdXcTRrdXVISVlkaXhBZTM3allHeStCT2lY?=
+ =?utf-8?B?RmllR2docDFVSzcvMjI2VDltTGRFRnRCek5UOW1EMCtBNjcrcUF2WlJIOHpK?=
+ =?utf-8?B?YnEwWjcvb0ZWM0E3Y0M3UTZHSzFBQ1kxRHAzQWp4V3NNYVVwbUIyUUtaVldj?=
+ =?utf-8?B?bm00cHNrWFlvVWNTaXNTT0trMmRXSmJhQnp5UnJyU01GY1EvUXhuMUE5TVlj?=
+ =?utf-8?B?b1V1SWJURngzZWxCUjd1Q2F5eSsrVi9sUlBQdlZrY3VIUW93c09mdFk1THZ0?=
+ =?utf-8?B?RGVXaVlDVWVaOFhzUVROVjBraVBlL0g0VStLWndSSCtYZ1Q3OU1qbDJyd012?=
+ =?utf-8?B?OGMrNWtuUm5WMFFrSWJXQU5MUjBxMW9IcmNTV0hCYWVEdXdDSkkwNUd4UFhq?=
+ =?utf-8?B?ZTk4RHlSVVNDK2ozNlZVbFBhcHg5M3drbFl6Z2IvTXZ5QjI4YVd0NFdRL2ly?=
+ =?utf-8?Q?TyX7TDDYSO1NuNwm97E8OMN0ZuAGb61SHtPX4US8Zz9F?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3acbeb82-3e22-4f43-1216-08d999678d2d
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR10MB2663.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e71d7d97-bd30-4352-50ec-08d999624f14
-X-MS-Exchange-CrossTenant-originalarrivaltime: 27 Oct 2021 15:56:16.1246 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 5uFlWFjnSQPrbPxA48Ue5sgpsvtZd8djOfYzdff2XB+vvICfYBhsD3x1NFfAraH6AWVXL3tyCewDz6rbBnON/A==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB5434
-Cc: Linux Virtualization <virtualization@lists.linux-foundation.org>,
- Eli Cohen <elic@nvidia.com>, Michael Tsirkin <mst@redhat.com>
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Oct 2021 16:33:48.1066 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: NXJ+mh6K/nxpoNsg5MX5+WEJVrq3tYrk8Z2UshpcHiZXrO4c3zkDm2w2VIu50A6u/Izs+KKM2b92SPqMOSS1bA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR10MB3638
+X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10150
+ signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
+ mlxlogscore=999
+ bulkscore=0 phishscore=0 mlxscore=0 spamscore=0 adultscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2110270096
+X-Proofpoint-ORIG-GUID: 3rRl2qN4I6qQmwYB9bFEuc6NfvAx_R3G
+X-Proofpoint-GUID: 3rRl2qN4I6qQmwYB9bFEuc6NfvAx_R3G
+Cc: Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ "David S. Miller" <davem@davemloft.net>, "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -151,80 +204,224 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Stefano,
 
-> From: Stefano Garzarella <sgarzare@redhat.com>
-> Sent: Wednesday, October 27, 2021 9:17 PM
-> To: Parav Pandit <parav@nvidia.com>
-> Cc: Jason Wang <jasowang@redhat.com>; Michael Tsirkin <mst@redhat.com>;
-> Linux Virtualization <virtualization@lists.linux-foundation.org>; Eli Cohen
-> <elic@nvidia.com>
-> Subject: Re: vDPA bus driver selection
-> 
-> Hi Parav,
-> 
-> On Wed, Oct 27, 2021 at 03:21:15PM +0000, Parav Pandit wrote:
-> >Hi Stefano,
-> >
-> >> From: Stefano Garzarella <sgarzare@redhat.com>
-> >> Sent: Wednesday, October 27, 2021 8:04 PM
-> >>
-> >> Hi folks,
-> >> I was trying to understand if we have a way to specify which vDPA bus
-> >> driver (e.g. vhost-vdpa, virtio-vdpa) a device should use.
-> >> IIUC we don't have it, and the first registered driver is used when a
-> >> new device is registered.
-> >>
-> >> I was thinking if it makes sense to extend the management API to
-> >> specify which bus driver to use for a device. A use case could be for
-> >> example a single host handling VMs and bare-metal containers, so we
-> >> would have both virtio-vdpa and vhost-vdpa loaded and we want to
-> >> attach some devices to VMs through vhost-vdpa and others to containers
-> through virtio-vdpa.
-> >>
-> >> What do you think?
-> >>
-> >One option is, user keeps the drivers_autoprobe disabled for the vdpa
-> >bus using,
-> >
-> >$ vdpa/vdpa dev add mgmtdev vdpasim_net name vdpa0 mac
-> >00:11:22:33:44:55 $ echo 0 > /sys/bus/vdpa/drivers_autoprobe
-> >
-> >And after vdpa device creation, it manually binds to the desired driver
-> >such as,
-> >
-> >$ echo vdpa0 > /sys/bus/vdpa/drivers/virtio_vdpa/bind
-> >Or
-> >$ echo vdpa0 > /sys/bus/vdpa/drivers/vhost_vdpa/bind
-> 
-> Cool, I didn't know that. This is very useful, but do you think it might be better
-> to integrate it with the netlink API and specify at creation which bus driver to
-> use?
-I think it is useful; for vduse case we need the ability to say "none" as well and when nothing specified it should be default driver.
 
-More than netlink, I think we need the ability in the core kernel to make this choice.
-I haven't explored what is already available to make that happen.
-If/once its available, I am sure it has more users than just vdpa.
+On 10/26/21 11:19 PM, Xuan Zhuo wrote:
+> In the case of using indirect, indirect desc must be allocated and
+> released each time, which increases a lot of cpu overhead.
+> 
+> Here, a cache is added for indirect. If the number of indirect desc to be
+> applied for is less than VIRT_QUEUE_CACHE_DESC_NUM, the desc array with
+> the size of VIRT_QUEUE_CACHE_DESC_NUM is fixed and cached for reuse.
+> 
+> Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> ---
+>  drivers/virtio/virtio.c      |  6 ++++
+>  drivers/virtio/virtio_ring.c | 63 ++++++++++++++++++++++++++++++------
+>  include/linux/virtio.h       | 10 ++++++
+>  3 files changed, 70 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index 0a5b54034d4b..04bcb74e5b9a 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -431,6 +431,12 @@ bool is_virtio_device(struct device *dev)
+>  }
+>  EXPORT_SYMBOL_GPL(is_virtio_device);
+>  
+> +void virtio_use_desc_cache(struct virtio_device *dev, bool val)
+> +{
+> +	dev->desc_cache = val;
+> +}
+> +EXPORT_SYMBOL_GPL(virtio_use_desc_cache);
+> +
+>  void unregister_virtio_device(struct virtio_device *dev)
+>  {
+>  	int index = dev->index; /* save for after device release */
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index dd95dfd85e98..0b9a8544b0e8 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -117,6 +117,10 @@ struct vring_virtqueue {
+>  	/* Hint for event idx: already triggered no need to disable. */
+>  	bool event_triggered;
+>  
+> +	/* Is indirect cache used? */
+> +	bool use_desc_cache;
+> +	void *desc_cache_chain;
+> +
+>  	union {
+>  		/* Available for split ring */
+>  		struct {
+> @@ -423,12 +427,47 @@ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
+>  	return extra[i].next;
+>  }
+>  
+> -static struct vring_desc *alloc_indirect_split(struct virtqueue *_vq,
+> +#define VIRT_QUEUE_CACHE_DESC_NUM 4
+> +
+> +static void desc_cache_chain_free_split(void *chain)
+> +{
+> +	struct vring_desc *desc;
+> +
+> +	while (chain) {
+> +		desc = chain;
+> +		chain = (void *)desc->addr;
+> +		kfree(desc);
+> +	}
+> +}
+> +
+> +static void desc_cache_put_split(struct vring_virtqueue *vq,
+> +				 struct vring_desc *desc, int n)
+> +{
+> +	if (vq->use_desc_cache && n <= VIRT_QUEUE_CACHE_DESC_NUM) {
+> +		desc->addr = (u64)vq->desc_cache_chain;
+> +		vq->desc_cache_chain = desc;
+> +	} else {
+> +		kfree(desc);
+> +	}
+> +}
+> +
+> +static struct vring_desc *alloc_indirect_split(struct vring_virtqueue *vq,
+>  					       unsigned int total_sg,
+>  					       gfp_t gfp)
+>  {
+>  	struct vring_desc *desc;
+> -	unsigned int i;
+> +	unsigned int i, n;
+> +
+> +	if (vq->use_desc_cache && total_sg <= VIRT_QUEUE_CACHE_DESC_NUM) {
+> +		if (vq->desc_cache_chain) {
+> +			desc = vq->desc_cache_chain;
+> +			vq->desc_cache_chain = (void *)desc->addr;
+> +			goto got;
+> +		}
+> +		n = VIRT_QUEUE_CACHE_DESC_NUM;
 
-> 
-> >
-> >In an case of VDUSE, it makes more sense to bind to the one of the
-> >above driver after user space has connected the use space backend to
-> >the kernel device.
-> 
-> Yep, make sense.
-> 
-> Thanks,
-> Stefano
+How about to make the VIRT_QUEUE_CACHE_DESC_NUM configurable (at least during
+driver probing) unless there is a reason that the default value is 4.
 
+Thank you very much!
+
+Dongli Zhang
+
+
+
+> +	} else {
+> +		n = total_sg;
+> +	}
+>  
+>  	/*
+>  	 * We require lowmem mappings for the descriptors because
+> @@ -437,12 +476,13 @@ static struct vring_desc *alloc_indirect_split(struct virtqueue *_vq,
+>  	 */
+>  	gfp &= ~__GFP_HIGHMEM;
+>  
+> -	desc = kmalloc_array(total_sg, sizeof(struct vring_desc), gfp);
+> +	desc = kmalloc_array(n, sizeof(struct vring_desc), gfp);
+>  	if (!desc)
+>  		return NULL;
+>  
+> +got:
+>  	for (i = 0; i < total_sg; i++)
+> -		desc[i].next = cpu_to_virtio16(_vq->vdev, i + 1);
+> +		desc[i].next = cpu_to_virtio16(vq->vq.vdev, i + 1);
+>  	return desc;
+>  }
+>  
+> @@ -508,7 +548,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+>  	head = vq->free_head;
+>  
+>  	if (virtqueue_use_indirect(_vq, total_sg))
+> -		desc = alloc_indirect_split(_vq, total_sg, gfp);
+> +		desc = alloc_indirect_split(vq, total_sg, gfp);
+>  	else {
+>  		desc = NULL;
+>  		WARN_ON_ONCE(total_sg > vq->split.vring.num && !vq->indirect);
+> @@ -652,7 +692,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+>  	}
+>  
+>  	if (indirect)
+> -		kfree(desc);
+> +		desc_cache_put_split(vq, desc, total_sg);
+>  
+>  	END_USE(vq);
+>  	return -ENOMEM;
+> @@ -717,7 +757,7 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+>  	if (vq->indirect) {
+>  		struct vring_desc *indir_desc =
+>  				vq->split.desc_state[head].indir_desc;
+> -		u32 len;
+> +		u32 len, n;
+>  
+>  		/* Free the indirect table, if any, now that it's unmapped. */
+>  		if (!indir_desc)
+> @@ -729,10 +769,12 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+>  				VRING_DESC_F_INDIRECT));
+>  		BUG_ON(len == 0 || len % sizeof(struct vring_desc));
+>  
+> -		for (j = 0; j < len / sizeof(struct vring_desc); j++)
+> +		n = len / sizeof(struct vring_desc);
+> +
+> +		for (j = 0; j < n; j++)
+>  			vring_unmap_one_split_indirect(vq, &indir_desc[j]);
+>  
+> -		kfree(indir_desc);
+> +		desc_cache_put_split(vq, indir_desc, n);
+>  		vq->split.desc_state[head].indir_desc = NULL;
+>  	} else if (ctx) {
+>  		*ctx = vq->split.desc_state[head].indir_desc;
+> @@ -2199,6 +2241,8 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+>  	vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
+>  		!context;
+>  	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
+> +	vq->desc_cache_chain = NULL;
+> +	vq->use_desc_cache = vdev->desc_cache;
+>  
+>  	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
+>  		vq->weak_barriers = false;
+> @@ -2329,6 +2373,7 @@ void vring_del_virtqueue(struct virtqueue *_vq)
+>  	if (!vq->packed_ring) {
+>  		kfree(vq->split.desc_state);
+>  		kfree(vq->split.desc_extra);
+> +		desc_cache_chain_free_split(vq->desc_cache_chain);
+>  	}
+>  	kfree(vq);
+>  }
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index 41edbc01ffa4..d84b7b8f4070 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -109,6 +109,7 @@ struct virtio_device {
+>  	bool failed;
+>  	bool config_enabled;
+>  	bool config_change_pending;
+> +	bool desc_cache;
+>  	spinlock_t config_lock;
+>  	spinlock_t vqs_list_lock; /* Protects VQs list access */
+>  	struct device dev;
+> @@ -130,6 +131,15 @@ int register_virtio_device(struct virtio_device *dev);
+>  void unregister_virtio_device(struct virtio_device *dev);
+>  bool is_virtio_device(struct device *dev);
+>  
+> +/**
+> + * virtio_use_desc_cache - virtio ring use desc cache
+> + *
+> + * virtio will cache the allocated indirect desc.
+> + *
+> + * This function must be called before find_vqs.
+> + */
+> +void virtio_use_desc_cache(struct virtio_device *dev, bool val);
+> +
+>  void virtio_break_device(struct virtio_device *dev);
+>  
+>  void virtio_config_changed(struct virtio_device *dev);
+> 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
