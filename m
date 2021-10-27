@@ -2,100 +2,102 @@ Return-Path: <SRS0=5D8L=PP=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BDFAC433EF
-	for <virtualization@archiver.kernel.org>; Wed, 27 Oct 2021 02:37:34 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0E66C433F5
+	for <virtualization@archiver.kernel.org>; Wed, 27 Oct 2021 02:45:38 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EFD8A60EDF
-	for <virtualization@archiver.kernel.org>; Wed, 27 Oct 2021 02:37:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org EFD8A60EDF
+	by mail.kernel.org (Postfix) with ESMTPS id 6F000610A1
+	for <virtualization@archiver.kernel.org>; Wed, 27 Oct 2021 02:45:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 6F000610A1
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id B655C404BE;
-	Wed, 27 Oct 2021 02:37:33 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 34442400E6;
+	Wed, 27 Oct 2021 02:45:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DkheIunrI-AB; Wed, 27 Oct 2021 02:37:33 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id dzS-FkZc83N5; Wed, 27 Oct 2021 02:45:37 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 6DC8A404B6;
-	Wed, 27 Oct 2021 02:37:32 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 934DE400C1;
+	Wed, 27 Oct 2021 02:45:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 41861C0012;
-	Wed, 27 Oct 2021 02:37:32 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4372CC0012;
+	Wed, 27 Oct 2021 02:45:36 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0EC6FC000E
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DA8C0C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Oct 2021 02:37:31 +0000 (UTC)
+ Wed, 27 Oct 2021 02:45:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id E4F46404BC
+ by smtp4.osuosl.org (Postfix) with ESMTP id B680C401FF
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Oct 2021 02:37:30 +0000 (UTC)
+ Wed, 27 Oct 2021 02:45:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id u40cLR0ESEWR
+ with ESMTP id 5gO47k8miuMl
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Oct 2021 02:37:30 +0000 (UTC)
+ Wed, 27 Oct 2021 02:45:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 43889404B6
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 1FA61401FD
  for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Oct 2021 02:37:29 +0000 (UTC)
+ Wed, 27 Oct 2021 02:45:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1635302249;
+ s=mimecast20190719; t=1635302732;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=a/QyiQUpgKsOG/cjdPPM0OAFVzZJ4RB+AB4nqT/l7qk=;
- b=b2mGtPTIyR8mVMW2UKICFwXCSV+OhVT7KopgY/SX7Mdu0PVZvJ63CPCPvqXNF3CNHWx44R
- WNnwCUK3g7CXTTlzIh0aF/fW6KXpV6VrHiiWYmehNgUiaDj4O86/YACLzaB4HH8F2kfdZ5
- MQUOvtu2Nsuflem4ahcmgTh7WV60lOs=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-401-EBYLasl4Oj-wmHmEYpi9_g-1; Tue, 26 Oct 2021 22:37:27 -0400
-X-MC-Unique: EBYLasl4Oj-wmHmEYpi9_g-1
-Received: by mail-lf1-f70.google.com with SMTP id
- c41-20020a05651223a900b003fdb648a156so646335lfv.15
+ bh=9muq5ZSeJhvEW0ZLoiZHIrlbDuVWUKDsCoalzlqdM5A=;
+ b=L5qkEK3TZLw97F41TDywZJC9bqbaFenEnHow6/BWqUIkG6HBPVzoyMh8DfArpgzN0ARPD7
+ D/fg/4S1M+/GGxE3fBqmFHSlYiMNf3rswZEQmEPQb7Bl0JZj/W17Rkg7SS5UNeFGtFaBY/
+ dU9z1MmoVTfzhIpSTLpU9rjG5AKdZsw=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-558-Ks-tNr09MNGMtRUhs1PwGw-1; Tue, 26 Oct 2021 22:45:31 -0400
+X-MC-Unique: Ks-tNr09MNGMtRUhs1PwGw-1
+Received: by mail-lf1-f72.google.com with SMTP id
+ x17-20020a0565123f9100b003ff593b7c65so665357lfa.12
  for <virtualization@lists.linux-foundation.org>;
- Tue, 26 Oct 2021 19:37:27 -0700 (PDT)
+ Tue, 26 Oct 2021 19:45:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=a/QyiQUpgKsOG/cjdPPM0OAFVzZJ4RB+AB4nqT/l7qk=;
- b=mnav5YDxpXbZuUdPrmxiyBtXHUbajM9XSxQnT71ucx1h+Q9NHahpzYG0ooC/bMXaaA
- PtEx008V17wzVxMDNdrmHUaAeiLyc1OlvVTtB+85tn9syMkmqebAfJjYXfqaKCPiyXWy
- 0mJsKbDzowcZspeo6YZj4UaoVyyPbhp1KURGauhvQD596Sq+MxoVIyktbRyNddGbAjOr
- Bb2s5DBrDO7zBo9mUht/rY6xsdM7u7/3ye4MqdvddVS7BlaATHkbITFkS0t830x5K42b
- YBgaP8ELX+OupOnOHQXogDFdhPZ9NHnt20vAhHeFKvULvLV1o2Y0pw6a03o0iWKzWHLO
- JQrw==
-X-Gm-Message-State: AOAM530nou8p5G0CGRdAsyfGbdwEzGLE+OKS/2KOCCjaLaYX9FJy3uqw
- VWcU79sULrooMvUwSFVtqdeKtFx6dawee8z6UH0llGbSuutu7MTQFgHcw1hK6VWbrb1T2bNJm4A
- Y1/P2REPCPeSk9ZnlHv5efldQNFGL0s9SNx/rMTZDfkqUbqDFnUBqZPgWwg==
-X-Received: by 2002:ac2:4e68:: with SMTP id y8mr4837433lfs.348.1635302246312; 
- Tue, 26 Oct 2021 19:37:26 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwmO0YmiqgEcYfuQMIcBEjDNbuvbcTM2ziLI1KoxFqXTo8sonq9p3tYxb+D/WfdElwlmRq0nkzK598R6+coRfA=
-X-Received: by 2002:ac2:4e68:: with SMTP id y8mr4837421lfs.348.1635302246139; 
- Tue, 26 Oct 2021 19:37:26 -0700 (PDT)
+ bh=9muq5ZSeJhvEW0ZLoiZHIrlbDuVWUKDsCoalzlqdM5A=;
+ b=kk6O367JL2CPf+A0JZ/5KbjPAm0fZG6mJwkfXHFefH6jP7vFQj4KC1XSSrZXuI8cii
+ HaPMkPZFhh3GELE3xByST2+CwXYws+B11h+p/fXrKJvUNjxwIy4blFyox/pMuklHi1eb
+ 4sPULIa6k7TgBTp2s2AJV1JZOdh+BjexdUOR78odF6KX9mcxmjwuz6fW0ei5Gf9dasCP
+ 3twYZlE5N2Ym0tRF7HOVFvQhTx7lRj8clGZU7DznP52J81/YQTa7ekHb1AGmxUbsgUVS
+ BNy6D7JerouhQTtm50jrZ6CYU06H8W8Hmq9j2LE09D+yIDGGpoO0Rjl1HoC+JdCIJ9he
+ fDQQ==
+X-Gm-Message-State: AOAM530siN5lzPeTsvAlFP6PFp+x9ZMxhDOZlaAU+1cXHZLjuiecyivc
+ e8bYQq/uXfgcvJewpFWZC8YrmqeI4UtqTmfn65LXBt53xen3sut+Wqv9mzT5691PYLFyZ7+bhx3
+ wyrZBdUOGJWia+svpBvFAo+OPQSgpVWLXzXe7h/mxIzbFnHJC7vS4MAR4Yw==
+X-Received: by 2002:a2e:8846:: with SMTP id z6mr8569203ljj.277.1635302729851; 
+ Tue, 26 Oct 2021 19:45:29 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwitG53CURCkAynKzlzA1GM5af5iJeQG5F8KL26fH3RBWG/gNDMvl4rD5ruG1VHbCwlszT8J9sPX2R+YcJ0kb4=
+X-Received: by 2002:a2e:8846:: with SMTP id z6mr8569181ljj.277.1635302729680; 
+ Tue, 26 Oct 2021 19:45:29 -0700 (PDT)
 MIME-Version: 1.0
-References: <20211026134725.345020-1-yangyingliang@huawei.com>
-In-Reply-To: <20211026134725.345020-1-yangyingliang@huawei.com>
+References: <20211026175634.3198477-1-kuba@kernel.org>
+In-Reply-To: <20211026175634.3198477-1-kuba@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 27 Oct 2021 10:37:15 +0800
-Message-ID: <CACGkMEtQFSxLezBiPofS3C6bL-AZEx6VgQKQrF-JP9hCNmQojg@mail.gmail.com>
-Subject: Re: [PATCH -next] virtio-pci: fix error return code in
- vp_legacy_probe()
-To: Yang Yingliang <yangyingliang@huawei.com>
+Date: Wed, 27 Oct 2021 10:45:18 +0800
+Message-ID: <CACGkMEu6ZnyJF2nKS-GURc2Fz8BqUY6OGFEa71fNKPfGA0Wp7g@mail.gmail.com>
+Subject: Re: [PATCH net-next] net: virtio: use eth_hw_addr_set()
+To: Jakub Kicinski <kuba@kernel.org>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: mst <mst@redhat.com>, linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>
+Cc: netdev <netdev@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ davem <davem@davemloft.net>, mst <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,38 +114,56 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Oct 26, 2021 at 9:39 PM Yang Yingliang <yangyingliang@huawei.com> wrote:
+On Wed, Oct 27, 2021 at 1:56 AM Jakub Kicinski <kuba@kernel.org> wrote:
 >
-> Return error code if pci_iomap() fails in vp_legacy_probe()
+> Commit 406f42fa0d3c ("net-next: When a bond have a massive amount
+> of VLANs...") introduced a rbtree for faster Ethernet address look
+> up. To maintain netdev->dev_addr in this tree we need to make all
+> the writes to it go through appropriate helpers.
+
+I think the title should be "net: virtio: use eth_hw_addr_set()"
+
 >
-> Reported-by: Hulk Robot <hulkci@huawei.com>
-> Fixes: c3ca8a3eeb54 ("virtio-pci: introduce legacy device module")
-> Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 > ---
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
->  drivers/virtio/virtio_pci_legacy_dev.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+> CC: mst@redhat.com
+> CC: jasowang@redhat.com
+> CC: virtualization@lists.linux-foundation.org
+> ---
+>  drivers/net/virtio_net.c | 10 +++++++---
+>  1 file changed, 7 insertions(+), 3 deletions(-)
 >
-> diff --git a/drivers/virtio/virtio_pci_legacy_dev.c b/drivers/virtio/virtio_pci_legacy_dev.c
-> index 9b97680dd02b..4ca3ef38d3bf 100644
-> --- a/drivers/virtio/virtio_pci_legacy_dev.c
-> +++ b/drivers/virtio/virtio_pci_legacy_dev.c
-> @@ -45,8 +45,10 @@ int vp_legacy_probe(struct virtio_pci_legacy_device *ldev)
->                 return rc;
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index c501b5974aee..b7f35aff8e82 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3177,12 +3177,16 @@ static int virtnet_probe(struct virtio_device *vdev)
+>         dev->max_mtu = MAX_MTU;
 >
->         ldev->ioaddr = pci_iomap(pci_dev, 0, 0);
-> -       if (!ldev->ioaddr)
-> +       if (!ldev->ioaddr) {
-> +               rc = -ENOMEM;
->                 goto err_iomap;
+>         /* Configuration may specify what MAC to use.  Otherwise random. */
+> -       if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC))
+> +       if (virtio_has_feature(vdev, VIRTIO_NET_F_MAC)) {
+> +               u8 addr[MAX_ADDR_LEN];
+> +
+>                 virtio_cread_bytes(vdev,
+>                                    offsetof(struct virtio_net_config, mac),
+> -                                  dev->dev_addr, dev->addr_len);
+> -       else
+> +                                  addr, dev->addr_len);
+> +               dev_addr_set(dev, addr);
+> +       } else {
+>                 eth_hw_addr_random(dev);
 > +       }
+
+Do we need to change virtnet_set_mac_address() as well?
+
+Thanks
+
 >
->         ldev->isr = ldev->ioaddr + VIRTIO_PCI_ISR;
->
+>         /* Set up our device-specific information */
+>         vi = netdev_priv(dev);
 > --
-> 2.25.1
+> 2.31.1
 >
 
 _______________________________________________
