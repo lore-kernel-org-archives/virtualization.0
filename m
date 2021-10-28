@@ -2,101 +2,108 @@ Return-Path: <SRS0=hVMj=PQ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB008C433FE
-	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 08:58:42 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA489C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 09:35:08 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7CFC161100
-	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 08:58:42 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 7CFC161100
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 58C4860D43
+	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 09:35:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 58C4860D43
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 38F12817C0;
-	Thu, 28 Oct 2021 08:58:42 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 1CDD2405DE;
+	Thu, 28 Oct 2021 09:35:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id J0tgsXKx0H-W; Thu, 28 Oct 2021 08:58:41 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id DgCI-iwRbrCq; Thu, 28 Oct 2021 09:35:07 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id F211181D11;
-	Thu, 28 Oct 2021 08:58:40 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D1E3140540;
+	Thu, 28 Oct 2021 09:35:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5B1AAC0037;
-	Thu, 28 Oct 2021 08:58:40 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D7418C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A0160C0019;
+	Thu, 28 Oct 2021 09:35:06 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8521FC000E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Oct 2021 08:58:38 +0000 (UTC)
+ Thu, 28 Oct 2021 09:35:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id C6CCA60B4F
+ by smtp4.osuosl.org (Postfix) with ESMTP id 7B411405D3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Oct 2021 08:58:38 +0000 (UTC)
+ Thu, 28 Oct 2021 09:35:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=gmail.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yu19VdCI62BI
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Nbb3jSHppDNS
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Oct 2021 08:58:36 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com
- [IPv6:2a00:1450:4864:20::32c])
- by smtp3.osuosl.org (Postfix) with ESMTPS id DA01760725
+ Thu, 28 Oct 2021 09:35:03 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id E661840540
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Oct 2021 08:58:35 +0000 (UTC)
-Received: by mail-wm1-x32c.google.com with SMTP id
- j128-20020a1c2386000000b003301a98dd62so285612wmj.5
+ Thu, 28 Oct 2021 09:35:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1635413701;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=uZ3+dxwtSd9cGZVljUAFZH9J8qIJeNjfIGAM6Y3t+mY=;
+ b=AzrBATWritOJgRRz4INtCQxjwhE+OlBpI/x3RRdfY8ssDP0XyIEkY73zNjG2VQVhV4NsZp
+ /iC+5GjIYOK4BOoS0a7d+mieKCd7pCsmbPsATn6sGcQ70MVhqOLp7Y1CbI4FIun/Ys9nmg
+ HDVuZe+BHay/yyLXIgaGRRsqmg9VGXI=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-244-JAIvHz9FOQ6OVsYZjXivbg-1; Thu, 28 Oct 2021 05:35:00 -0400
+X-MC-Unique: JAIvHz9FOQ6OVsYZjXivbg-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ d11-20020a50cd4b000000b003da63711a8aso4972082edj.20
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Oct 2021 01:58:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=4CDt1ISjRTMYLH7FxvvLqp3He8TQZQtgj+2GfXtaN90=;
- b=a49w+C/y2sbZAU5tKWLTRIp351EX7VpCOI6BKaM8KxWJvC5HzCpafogg+jEZ2O+f5a
- Nm/7cC3SJ2uXEmJ5bCkyV63be86lADCvdtC8euPvITGkeSRYZyQw7Sa1680UshZFXQz/
- 9UlHdHthOhGAcl73+AG83bWY/CJaTpkPfDA8/GzGX6HalbIti0y/6sjgY6/P/BSNDBiA
- 6GbgPHZ0q87VEgCbsxXdTsCQsRmlq0C4KnFUbX8xR46d4POBvvUr9nkVwcviOHxCqcg4
- kXZB1y8qbCNJRdsRMQ3DMbG2/5NN1hkF5HeNQMo34c5Uwz++WzYb5AX+49xiwcLK3kJX
- 90hg==
+ Thu, 28 Oct 2021 02:35:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=4CDt1ISjRTMYLH7FxvvLqp3He8TQZQtgj+2GfXtaN90=;
- b=516GOw8K1zEVwR6OrVfSWT3eO8bXJ0P2E/Rv43mq6T/1ARmuEAyytqss+CbQFup24j
- 204X/6I8sG/LjX9h0q8nXE2I7RGhoR0Jqtc6mD0s8yWSzohcRJChYHsdsSGMnqIH5Nxo
- OCG+Y5JN4bnP5557TS1lsFJVa/c+mlgjbiW/Ix2axTYMlQuXtDlYEEVv6han2E6e11+p
- btshaeCZC7tJQ3ZhQuEL9OJ/RbBYCOw1sJlo7Pk3n5rh/dZowBt/gqR5iC9BPIJZBvjO
- MAZhBekN9HKIE3pvgFVsPpuedBdmlYs+K+jSwAZOHlDUzNLnA6j1nU1iDdnxN1ihncYu
- PYzA==
-X-Gm-Message-State: AOAM531D52iPX8lQ6HQ7um6kPhm5ztr/IbcDX9T6+iZfFbOny0EYi2dB
- qeSBduU/qFhWXD0pwgYPlBc=
-X-Google-Smtp-Source: ABdhPJwOvkH0PJNa8GaEqN3ST8vn3EFPokaEJKjsSgERJyLOcZWZ1yA+NuGzCaCXn2rkSVmKVfClTA==
-X-Received: by 2002:a1c:540c:: with SMTP id i12mr3048967wmb.6.1635411513954;
- Thu, 28 Oct 2021 01:58:33 -0700 (PDT)
-Received: from abel.fritz.box (p5b0ea1b5.dip0.t-ipconnect.de. [91.14.161.181])
- by smtp.gmail.com with ESMTPSA id
- k22sm2412143wrd.59.2021.10.28.01.58.33
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=uZ3+dxwtSd9cGZVljUAFZH9J8qIJeNjfIGAM6Y3t+mY=;
+ b=7wIZxSWViPo/wUdsA8f69QEaJTV/K2ea8zBR/hXuHEicjv2yPhB07R/bvLZjJz8lbB
+ fRVKduYgLrTUuNtcVq3cMQgbw1bUzpA8Vw6aO8jlTZ/1+mrDIbxpDMyNkCofhV84nM8f
+ NQgUPi/fnILAcBmB8hQIIuM6jODuxkpSPfGS2IU/AlmkVrry8a18UZvj3h2xl6O0dee6
+ //Zc7JF3uaug7Hh+zOp/RxH7y7SBDibfkFbKlUzeZm+0DIrw7xcroXnDfEOfW/onklKL
+ NEp7mZ/sEZpiE6vv54b1f9iid6/ZUwqshGpuulKq84ySUPaDSdLaaorf2j4+mjMqlYuz
+ tvbA==
+X-Gm-Message-State: AOAM531qdBoqQhADResdg+uVvZJERqGYTlF5wmhL3EKrwv766XBNT4uI
+ ld7alKVEu1zW9R4bO6vYrtBDRJux8a5aDtTuXgElokr3179mQHF2UHf6KwM+YliJb/+7ePg42ab
+ ynhSpNkqtVu21HIIcn+uuLLh+T/fZ9SpsDjVMw6J7mQ==
+X-Received: by 2002:a17:907:7e9d:: with SMTP id
+ qb29mr3987541ejc.469.1635413699099; 
+ Thu, 28 Oct 2021 02:34:59 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzbIQl4Don6iIxbD6tjdXD1/53f4UKFzjoMtazIr/TqTKGZIsxJACpFDCS2Ztk9cEhXcVp6jg==
+X-Received: by 2002:a17:907:7e9d:: with SMTP id
+ qb29mr3987513ejc.469.1635413698880; 
+ Thu, 28 Oct 2021 02:34:58 -0700 (PDT)
+Received: from steredhat (host-79-30-88-77.retail.telecomitalia.it.
+ [79.30.88.77])
+ by smtp.gmail.com with ESMTPSA id hc15sm1054742ejc.73.2021.10.28.02.34.58
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 28 Oct 2021 01:58:33 -0700 (PDT)
-From: "=?UTF-8?q?Christian=20K=C3=B6nig?=" <ckoenig.leichtzumerken@gmail.com>
-X-Google-Original-From: =?UTF-8?q?Christian=20K=C3=B6nig?=
- <christian.koenig@amd.com>
-To: dri-devel@lists.freedesktop.org,
-	linux-media@vger.kernel.org
-Subject: [PATCH 4/4] drm/qxl: use iterator instead of dma_resv_shared_list
-Date: Thu, 28 Oct 2021 10:58:29 +0200
-Message-Id: <20211028085829.1726-4-christian.koenig@amd.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211028085829.1726-1-christian.koenig@amd.com>
-References: <20211028085829.1726-1-christian.koenig@amd.com>
+ Thu, 28 Oct 2021 02:34:58 -0700 (PDT)
+Date: Thu, 28 Oct 2021 11:34:56 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: vDPA bus driver selection
+Message-ID: <20211028093456.4vqurdmb2vw2kdhq@steredhat>
+References: <CAGxU2F7r7=P8E-f1Nnm2h18S-hL8YBt7s=J81fkQcrAdpZ-KwQ@mail.gmail.com>
+ <20211027144048-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-Cc: spice-devel@lists.freedesktop.org, linux-arm-msm@vger.kernel.org,
- freedreno@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org
+In-Reply-To: <20211027144048-mutt-send-email-mst@kernel.org>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Eli Cohen <elic@nvidia.com>,
+ Linux Virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -108,35 +115,53 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-SSdtIG5vdCBzdXJlIHdoeSBpdCBpcyB1c2VmdWwgdG8ga25vdyB0aGUgbnVtYmVyIG9mIGZlbmNl
-cwppbiB0aGUgcmVzZXJ2YXRpb24gb2JqZWN0LCBidXQgd2UgdHJ5IHRvIGF2b2lkIGV4cG9zaW5n
-IHRoZQpkbWFfcmVzdl9zaGFyZWRfbGlzdCgpIGZ1bmN0aW9uLgoKU28gdXNlIHRoZSBpdGVyYXRv
-ciBpbnN0ZWFkLiBJZiBtb3JlIGluZm9ybWF0aW9uIGlzIGRlc2lyZWQKd2UgY291bGQgdXNlIGRt
-YV9yZXN2X2Rlc2NyaWJlKCkgYXMgd2VsbC4KClNpZ25lZC1vZmYtYnk6IENocmlzdGlhbiBLw7Zu
-aWcgPGNocmlzdGlhbi5rb2VuaWdAYW1kLmNvbT4KLS0tCiBkcml2ZXJzL2dwdS9kcm0vcXhsL3F4
-bF9kZWJ1Z2ZzLmMgfCAxNyArKysrKysrKysrLS0tLS0tLQogMSBmaWxlIGNoYW5nZWQsIDEwIGlu
-c2VydGlvbnMoKyksIDcgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJt
-L3F4bC9xeGxfZGVidWdmcy5jIGIvZHJpdmVycy9ncHUvZHJtL3F4bC9xeGxfZGVidWdmcy5jCmlu
-ZGV4IDFmOWE1OTYwMWJiMS4uNmEzNmIwZmQ4NDVjIDEwMDY0NAotLS0gYS9kcml2ZXJzL2dwdS9k
-cm0vcXhsL3F4bF9kZWJ1Z2ZzLmMKKysrIGIvZHJpdmVycy9ncHUvZHJtL3F4bC9xeGxfZGVidWdm
-cy5jCkBAIC01NywxMyArNTcsMTYgQEAgcXhsX2RlYnVnZnNfYnVmZmVyc19pbmZvKHN0cnVjdCBz
-ZXFfZmlsZSAqbSwgdm9pZCAqZGF0YSkKIAlzdHJ1Y3QgcXhsX2JvICpibzsKIAogCWxpc3RfZm9y
-X2VhY2hfZW50cnkoYm8sICZxZGV2LT5nZW0ub2JqZWN0cywgbGlzdCkgewotCQlzdHJ1Y3QgZG1h
-X3Jlc3ZfbGlzdCAqZm9iajsKLQkJaW50IHJlbDsKLQotCQlyY3VfcmVhZF9sb2NrKCk7Ci0JCWZv
-YmogPSBkbWFfcmVzdl9zaGFyZWRfbGlzdChiby0+dGJvLmJhc2UucmVzdik7Ci0JCXJlbCA9IGZv
-YmogPyBmb2JqLT5zaGFyZWRfY291bnQgOiAwOwotCQlyY3VfcmVhZF91bmxvY2soKTsKKwkJc3Ry
-dWN0IGRtYV9yZXN2X2l0ZXIgY3Vyc29yOworCQlzdHJ1Y3QgZG1hX2ZlbmNlICpmZW5jZTsKKwkJ
-aW50IHJlbCA9IDA7CisKKwkJZG1hX3Jlc3ZfaXRlcl9iZWdpbigmY3Vyc29yLCBiby0+dGJvLmJh
-c2UucmVzdiwgdHJ1ZSk7CisJCWRtYV9yZXN2X2Zvcl9lYWNoX2ZlbmNlX3VubG9ja2VkKCZjdXJz
-b3IsIGZlbmNlKSB7CisJCQlpZiAoZG1hX3Jlc3ZfaXRlcl9pc19yZXN0YXJ0ZWQoJmN1cnNvcikp
-CisJCQkJcmVsID0gMDsKKwkJCSsrcmVsOworCQl9CiAKIAkJc2VxX3ByaW50ZihtLCAic2l6ZSAl
-bGQsIHBjICVkLCBudW0gcmVsZWFzZXMgJWRcbiIsCiAJCQkgICAodW5zaWduZWQgbG9uZyliby0+
-dGJvLmJhc2Uuc2l6ZSwKLS0gCjIuMjUuMQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Oct 27, 2021 at 02:45:15PM -0400, Michael S. Tsirkin wrote:
+>On Wed, Oct 27, 2021 at 04:33:50PM +0200, Stefano Garzarella wrote:
+>> Hi folks,
+>> I was trying to understand if we have a way to specify which vDPA bus
+>> driver (e.g. vhost-vdpa, virtio-vdpa) a device should use.
+>> IIUC we don't have it, and the first registered driver is used when a
+>> new device is registered.
+>>
+>> I was thinking if it makes sense to extend the management API to
+>> specify which bus driver to use for a device. A use case could be for
+>> example a single host handling VMs and bare-metal containers, so we
+>> would have both virtio-vdpa and vhost-vdpa loaded and we want to
+>> attach some devices to VMs through vhost-vdpa and others to containers
+>> through virtio-vdpa.
+>>
+>> What do you think?
+>>
+>> I can prepare an RFC with some code, the idea is to use the .match
+>> callback of "struct bus_type" to use a driver instead of the other,
+>> and extend netlink API to specify the vDPA bus driver name to use.
+>>
+>> Thanks,
+>> Stefano
+>
+>So I think that doing this at create time is somewhat limited.
+>For example a great way to do migration could be to unbind
+>device from VM then bind virtio on the host to it, then
+>bind macvtap to that.
+
+Yep, make sense!
+
+>
+>Ideas on how to allow that?
+
+Maybe we can split the device creation and the attach (probe) in two 
+APIs, then we can add a detach API to allow changing bus.
+
+Anyway I need to check the code better, but I think it's doable.
+
+Stefano
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
