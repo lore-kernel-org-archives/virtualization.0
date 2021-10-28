@@ -2,79 +2,79 @@ Return-Path: <SRS0=hVMj=PQ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFC88C4332F
-	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 10:12:11 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB494C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 10:12:13 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B38B96023D
-	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 10:12:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B38B96023D
+	by mail.kernel.org (Postfix) with ESMTPS id 6FC466023D
+	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 10:12:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 6FC466023D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 6FA2B40334;
-	Thu, 28 Oct 2021 10:12:11 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 3C5048239A;
+	Thu, 28 Oct 2021 10:12:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id GUhAiq4PYtug; Thu, 28 Oct 2021 10:12:10 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Dlb54F2QKxjv; Thu, 28 Oct 2021 10:12:12 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id BE23240320;
-	Thu, 28 Oct 2021 10:12:09 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id E40B381AD1;
+	Thu, 28 Oct 2021 10:12:11 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 98289C0012;
-	Thu, 28 Oct 2021 10:12:09 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 187E4C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C6788C0012;
+	Thu, 28 Oct 2021 10:12:11 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 35315C000E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Oct 2021 10:12:08 +0000 (UTC)
+ Thu, 28 Oct 2021 10:12:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 14C1B6062F
+ by smtp2.osuosl.org (Postfix) with ESMTP id 151CD40327
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 28 Oct 2021 10:12:09 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id KBNu58Qtej1S
  for <virtualization@lists.linux-foundation.org>;
  Thu, 28 Oct 2021 10:12:08 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bI8cBBi4Nq0S
- for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Oct 2021 10:12:07 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 5F1B3607A7
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 1EB8E40320
  for <virtualization@lists.linux-foundation.org>;
  Thu, 28 Oct 2021 10:12:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1635415926;
+ s=mimecast20190719; t=1635415927;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=x2sevkXopPa/npZcOtqrWwrkEQ1OQe4Rd6KhlqcskKY=;
- b=S86rmGTmUmatmY5lRkXqnNVA1hqkvlbo94ZNNTBo4YBTjJrZRetl/YQt3hMEqIvTMUE9wj
- RMJCYSH1rThocZqeRUGmrWbnkjq1O2lecV1DgxvuwmLUo5PmTOp3KcMy2gisEi7G7YTLIn
- 961OLy2YWh2UAj6g36xKLErqnCXu+8I=
+ bh=niNxNs+708zjm3j3rRaODc+lHl5+1aQR820Stcz2CGo=;
+ b=i9XnrTTIOm4XpU/QU+Bya+slzwpO6aI1gB/hFuKtCNgQ+O5dXSPSIWvncqUKsduJ7Yk+TW
+ gJ23rkAubZOpfAtVigb521A9RkItYHwNNCWF5O3JUk1oILPF8Wx7/gUcQVCypnj9ooXlwH
+ gIR/0080SgsEJTHxkvD8Z6KEOoQsDlc=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-321-jQeU5JeWNrGSDkOfpfp7dg-1; Thu, 28 Oct 2021 06:12:01 -0400
-X-MC-Unique: jQeU5JeWNrGSDkOfpfp7dg-1
+ us-mta-388-EH0ScqUPMOiHbfZG9hSlSA-1; Thu, 28 Oct 2021 06:12:04 -0400
+X-MC-Unique: EH0ScqUPMOiHbfZG9hSlSA-1
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
  [10.5.11.12])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9128F1966323;
- Thu, 28 Oct 2021 10:11:59 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9BDFB10A8E02;
+ Thu, 28 Oct 2021 10:12:02 +0000 (UTC)
 Received: from thinkpad.redhat.com (unknown [10.39.194.156])
- by smtp.corp.redhat.com (Postfix) with ESMTP id E7FEA60C04;
- Thu, 28 Oct 2021 10:11:56 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id E90C060C04;
+ Thu, 28 Oct 2021 10:11:59 +0000 (UTC)
 From: Laurent Vivier <lvivier@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v2 3/4] hwrng: virtio - don't waste entropy
-Date: Thu, 28 Oct 2021 12:11:10 +0200
-Message-Id: <20211028101111.128049-4-lvivier@redhat.com>
+Subject: [PATCH v2 4/4] hwrng: virtio - always add a pending request
+Date: Thu, 28 Oct 2021 12:11:11 +0200
+Message-Id: <20211028101111.128049-5-lvivier@redhat.com>
 In-Reply-To: <20211028101111.128049-1-lvivier@redhat.com>
 References: <20211028101111.128049-1-lvivier@redhat.com>
 MIME-Version: 1.0
@@ -102,120 +102,101 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-if we don't use all the entropy available in the buffer, keep it
-and use it later.
+If we ensure we have already some data available by enqueuing
+again the buffer once data are exhausted, we can return what we
+have without waiting for the device answer.
 
 Signed-off-by: Laurent Vivier <lvivier@redhat.com>
 ---
- drivers/char/hw_random/virtio-rng.c | 52 +++++++++++++++++++----------
- 1 file changed, 35 insertions(+), 17 deletions(-)
+ drivers/char/hw_random/virtio-rng.c | 26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
-index 173aeea835bb..8ba97cf4ca8f 100644
+index 8ba97cf4ca8f..0a7dde135db1 100644
 --- a/drivers/char/hw_random/virtio-rng.c
 +++ b/drivers/char/hw_random/virtio-rng.c
-@@ -26,6 +26,7 @@ struct virtrng_info {
+@@ -20,7 +20,6 @@ struct virtrng_info {
+ 	struct virtqueue *vq;
+ 	char name[25];
+ 	int index;
+-	bool busy;
+ 	bool hwrng_register_done;
+ 	bool hwrng_removed;
  	/* data transfer */
- 	struct completion have_data;
- 	unsigned int data_avail;
-+	unsigned int data_idx;
- 	/* minimal size returned by rng_buffer_size() */
- #if SMP_CACHE_BYTES < 32
- 	u8 data[32];
-@@ -42,6 +43,9 @@ static void random_recv_done(struct virtqueue *vq)
- 	if (!virtqueue_get_buf(vi->vq, &vi->data_avail))
+@@ -44,16 +43,18 @@ static void random_recv_done(struct virtqueue *vq)
  		return;
  
-+	vi->data_idx = 0;
-+	vi->busy = false;
-+
+ 	vi->data_idx = 0;
+-	vi->busy = false;
+ 
  	complete(&vi->have_data);
  }
  
-@@ -58,6 +62,16 @@ static void register_buffer(struct virtrng_info *vi)
- 	virtqueue_kick(vi->vq);
+-/* The host will fill any buffer we give it with sweet, sweet randomness. */
+-static void register_buffer(struct virtrng_info *vi)
++static void request_entropy(struct virtrng_info *vi)
+ {
+ 	struct scatterlist sg;
+ 
++	reinit_completion(&vi->have_data);
++	vi->data_avail = 0;
++	vi->data_idx = 0;
++
+ 	sg_init_one(&sg, vi->data, sizeof(vi->data));
+ 
+ 	/* There should always be room for one buffer. */
+@@ -69,6 +70,8 @@ static unsigned int copy_data(struct virtrng_info *vi, void *buf,
+ 	memcpy(buf, vi->data + vi->data_idx, size);
+ 	vi->data_idx += size;
+ 	vi->data_avail -= size;
++	if (vi->data_avail == 0)
++		request_entropy(vi);
+ 	return size;
  }
  
-+static unsigned int copy_data(struct virtrng_info *vi, void *buf,
-+			      unsigned int size)
-+{
-+	size = min_t(unsigned int, size, vi->data_avail);
-+	memcpy(buf, vi->data + vi->data_idx, size);
-+	vi->data_idx += size;
-+	vi->data_avail -= size;
-+	return size;
-+}
-+
- static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
- {
- 	int ret;
-@@ -68,17 +82,29 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
- 	if (vi->hwrng_removed)
- 		return -ENODEV;
- 
--	if (!vi->busy) {
--		vi->busy = true;
--		reinit_completion(&vi->have_data);
--		register_buffer(vi);
-+	read = 0;
-+
-+	/* copy available data */
-+	if (vi->data_avail) {
-+		chunk = copy_data(vi, buf, size);
-+		size -= chunk;
-+		read += chunk;
- 	}
- 
- 	if (!wait)
--		return 0;
-+		return read;
- 
--	read = 0;
-+	/* We have already copied available entropy,
-+	 * so either size is 0 or data_avail is 0
-+	 */
+@@ -98,13 +101,7 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
+ 	 * so either size is 0 or data_avail is 0
+ 	 */
  	while (size != 0) {
-+		/* data_avail is 0 */
-+		if (!vi->busy) {
-+			/* no pending request, ask for more */
-+			vi->busy = true;
-+			reinit_completion(&vi->have_data);
-+			register_buffer(vi);
-+		}
- 		ret = wait_for_completion_killable(&vi->have_data);
- 		if (ret < 0)
- 			return ret;
-@@ -88,20 +114,11 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
- 		if (vi->data_avail == 0)
- 			return read;
- 
--		chunk = min_t(unsigned int, size, vi->data_avail);
--		memcpy(buf + read, vi->data, chunk);
--		read += chunk;
-+		chunk = copy_data(vi, buf + read, size);
- 		size -= chunk;
--		vi->data_avail = 0;
--
--		if (size != 0) {
+-		/* data_avail is 0 */
+-		if (!vi->busy) {
+-			/* no pending request, ask for more */
+-			vi->busy = true;
 -			reinit_completion(&vi->have_data);
 -			register_buffer(vi);
 -		}
-+		read += chunk;
- 	}
++		/* data_avail is 0 but a request is pending */
+ 		ret = wait_for_completion_killable(&vi->have_data);
+ 		if (ret < 0)
+ 			return ret;
+@@ -126,8 +123,7 @@ static void virtio_cleanup(struct hwrng *rng)
+ {
+ 	struct virtrng_info *vi = (struct virtrng_info *)rng->priv;
  
--	vi->busy = false;
--
- 	return read;
+-	if (vi->busy)
+-		complete(&vi->have_data);
++	complete(&vi->have_data);
  }
  
-@@ -161,6 +178,7 @@ static void remove_common(struct virtio_device *vdev)
+ static int probe_common(struct virtio_device *vdev)
+@@ -163,6 +159,9 @@ static int probe_common(struct virtio_device *vdev)
+ 		goto err_find;
+ 	}
  
- 	vi->hwrng_removed = true;
- 	vi->data_avail = 0;
-+	vi->data_idx = 0;
++	/* we always have a pending entropy request */
++	request_entropy(vi);
++
+ 	return 0;
+ 
+ err_find:
+@@ -181,7 +180,6 @@ static void remove_common(struct virtio_device *vdev)
+ 	vi->data_idx = 0;
  	complete(&vi->have_data);
  	vdev->config->reset(vdev);
- 	vi->busy = false;
+-	vi->busy = false;
+ 	if (vi->hwrng_register_done)
+ 		hwrng_unregister(&vi->hwrng);
+ 	vdev->config->del_vqs(vdev);
 -- 
 2.31.1
 
