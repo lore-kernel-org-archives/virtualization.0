@@ -2,62 +2,64 @@ Return-Path: <SRS0=hVMj=PQ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B100C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 10:49:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC261C433FE
+	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 10:49:31 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1B00160EFF
-	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 10:49:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 1B00160EFF
+	by mail.kernel.org (Postfix) with ESMTPS id 8963D60F58
+	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 10:49:31 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 8963D60F58
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C52FE60B4E;
-	Thu, 28 Oct 2021 10:49:29 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 6628760B57;
+	Thu, 28 Oct 2021 10:49:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id s-lREpCblbjc; Thu, 28 Oct 2021 10:49:29 +0000 (UTC)
+	with ESMTP id 0kyo84GwdN4c; Thu, 28 Oct 2021 10:49:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6120E605E8;
-	Thu, 28 Oct 2021 10:49:28 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id CD92260B4F;
+	Thu, 28 Oct 2021 10:49:29 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2D430C0012;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C4539C003E;
 	Thu, 28 Oct 2021 10:49:28 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1224BC000E
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 35265C000E
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 28 Oct 2021 10:49:27 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id 24C37823AB
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 28 Oct 2021 10:49:27 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id WCSspVWDeuze
  for <virtualization@lists.linux-foundation.org>;
  Thu, 28 Oct 2021 10:49:26 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id E14FE607C2
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from out30-132.freemail.mail.aliyun.com
+ (out30-132.freemail.mail.aliyun.com [115.124.30.132])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id B1CF080D26
  for <virtualization@lists.linux-foundation.org>;
  Thu, 28 Oct 2021 10:49:25 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xwat6halOwyD
- for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Oct 2021 10:49:24 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-42.freemail.mail.aliyun.com
- (out30-42.freemail.mail.aliyun.com [115.124.30.42])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 6C159605E8
- for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Oct 2021 10:49:23 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R521e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04394; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=6; SR=0; TI=SMTPD_---0Uu.SeFI_1635418159; 
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R181e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=6; SR=0; TI=SMTPD_---0Uu-eygn_1635418160; 
 Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0Uu.SeFI_1635418159) by smtp.aliyun-inc.com(127.0.0.1);
- Thu, 28 Oct 2021 18:49:19 +0800
+ fp:SMTPD_---0Uu-eygn_1635418160) by smtp.aliyun-inc.com(127.0.0.1);
+ Thu, 28 Oct 2021 18:49:21 +0800
 From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 To: virtualization@lists.linux-foundation.org,
 	netdev@vger.kernel.org
-Subject: [PATCH v2 0/3] virtio support cache indirect desc
-Date: Thu, 28 Oct 2021 18:49:16 +0800
-Message-Id: <20211028104919.3393-1-xuanzhuo@linux.alibaba.com>
+Subject: [PATCH v2 3/3] virtio-net: enable virtio indirect cache
+Date: Thu, 28 Oct 2021 18:49:19 +0800
+Message-Id: <20211028104919.3393-4-xuanzhuo@linux.alibaba.com>
 X-Mailer: git-send-email 2.31.0
+In-Reply-To: <20211028104919.3393-1-xuanzhuo@linux.alibaba.com>
+References: <20211028104919.3393-1-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
 Cc: Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>,
  "Michael S. Tsirkin" <mst@redhat.com>
@@ -102,24 +104,70 @@ ignored:
    0.43%  [kernel]  [k] sg_init_table
    0.41%  [kernel]  [k] kmalloc_slab
 
-This patch adds a cache function to virtio to cache these allocated indirect
-desc instead of constantly allocating and releasing desc.
+Compared to not using virtio indirect cache, virtio-net can get a 16%
+performance improvement when using indirect desc cache.
 
-v2:
-  use struct list_head to cache the desc
+In the test case, the CPU where the package is sent has reached 100%.
+The following are the PPS in two cases:
 
-Xuan Zhuo (3):
-  virtio: cache indirect desc for split
-  virtio: cache indirect desc for packed
-  virtio-net: enable virtio indirect cache
+    indirect desc cache  | no cache
+    3074658              | 2685132
+    3111866              | 2666118
+    3152527              | 2653632
+    3125867              | 2669820
+    3027147              | 2644464
+    3069211              | 2669777
+    3038522              | 2675645
+    3034507              | 2671302
+    3102257              | 2685504
+    3083712              | 2692800
+    3051771              | 2676928
+    3080684              | 2695040
+    3147816              | 2720876
+    3123887              | 2705492
+    3180963              | 2699520
+    3191579              | 2676480
+    3161670              | 2686272
+    3189768              | 2692588
+    3174272              | 2686692
+    3143434              | 2682416
 
- drivers/net/virtio_net.c     |  12 ++++
- drivers/virtio/virtio.c      |   6 ++
- drivers/virtio/virtio_ring.c | 104 +++++++++++++++++++++++++++++------
- include/linux/virtio.h       |  14 +++++
- 4 files changed, 119 insertions(+), 17 deletions(-)
+Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+---
+ drivers/net/virtio_net.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 4ad25a8b0870..e1ade176ab46 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -31,6 +31,13 @@ module_param(csum, bool, 0444);
+ module_param(gso, bool, 0444);
+ module_param(napi_tx, bool, 0644);
+ 
++/**
++ * Because virtio desc cache will increase memory overhead, users can turn it
++ * off or select an acceptable value. The maximum value is 2 + MAX_SKB_FRAGS.
++ */
++static u32 virtio_desc_cache_thr = 4;
++module_param(virtio_desc_cache_thr, uint, 0644);
++
+ /* FIXME: MTU in config. */
+ #define GOOD_PACKET_LEN (ETH_HLEN + VLAN_HLEN + ETH_DATA_LEN)
+ #define GOOD_COPY_LEN	128
+@@ -3214,6 +3221,11 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 		vi->curr_queue_pairs = num_online_cpus();
+ 	vi->max_queue_pairs = max_queue_pairs;
+ 
++	if (virtio_desc_cache_thr > 2 + MAX_SKB_FRAGS)
++		virtio_set_desc_cache(vdev, 2 + MAX_SKB_FRAGS);
++	else
++		virtio_set_desc_cache(vdev, virtio_desc_cache_thr);
++
+ 	/* Allocate/initialize the rx/tx queues, and invoke find_vqs */
+ 	err = init_vqs(vi);
+ 	if (err)
+-- 
 2.31.0
 
 _______________________________________________
