@@ -2,108 +2,65 @@ Return-Path: <SRS0=hVMj=PQ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8532C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 05:40:30 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0E6EC433F5
+	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 06:28:16 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4CF6460F9D
-	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 05:40:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4CF6460F9D
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 5DC3F61040
+	for <virtualization@archiver.kernel.org>; Thu, 28 Oct 2021 06:28:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 5DC3F61040
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0322382542;
-	Thu, 28 Oct 2021 05:40:30 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 23E4F40135;
+	Thu, 28 Oct 2021 06:28:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LDdRyx8v_gwn; Thu, 28 Oct 2021 05:40:29 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JfgpmXx9V6PJ; Thu, 28 Oct 2021 06:28:15 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id A5F7C82400;
-	Thu, 28 Oct 2021 05:40:28 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id B303E40162;
+	Thu, 28 Oct 2021 06:28:14 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 734D8C0012;
-	Thu, 28 Oct 2021 05:40:28 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0BEB0C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7EC75C0019;
+	Thu, 28 Oct 2021 06:28:14 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B84CAC000E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Oct 2021 05:40:27 +0000 (UTC)
+ Thu, 28 Oct 2021 06:28:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id DB4A060627
+ by smtp4.osuosl.org (Postfix) with ESMTP id A0E3540162
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Oct 2021 05:40:26 +0000 (UTC)
+ Thu, 28 Oct 2021 06:28:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KLaFTljcFl-V
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id rwx4nacQa4YF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Oct 2021 05:40:25 +0000 (UTC)
+ Thu, 28 Oct 2021 06:28:11 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 50637605E7
+Received: from out30-45.freemail.mail.aliyun.com
+ (out30-45.freemail.mail.aliyun.com [115.124.30.45])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 0A33640135
  for <virtualization@lists.linux-foundation.org>;
- Thu, 28 Oct 2021 05:40:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1635399623;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=anF7BPmbH7+9aDUvnziYE4TDy5s8dDRfTV6pgnlOgB8=;
- b=d6qXdqVEYQfqk578iPMGav8ECdHC91nJvquQpAeAzOWxElO1rMjGKbLP1iZh9ZclQQSWkl
- ZgIer3wEjCE82E4RU+Jml/ExEqJs1878PPM+8L/BXSRXGA4LHSoieqsP4OxGhKFtywTqkv
- BNMTtrsDwmEWqfcw9Q+1jacKZRb2d4U=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-294-Jo0cZuMZNCeRukpxDyEzYA-1; Thu, 28 Oct 2021 01:40:21 -0400
-X-MC-Unique: Jo0cZuMZNCeRukpxDyEzYA-1
-Received: by mail-ed1-f71.google.com with SMTP id
- s12-20020a50dacc000000b003dbf7a78e88so4512338edj.2
- for <virtualization@lists.linux-foundation.org>;
- Wed, 27 Oct 2021 22:40:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=anF7BPmbH7+9aDUvnziYE4TDy5s8dDRfTV6pgnlOgB8=;
- b=fRbf+2KixtNMNG0ozrai/KDKnyTm/Saus7tT5mwNVisdrdR4VxHEELPzegC2s2Rlxa
- Cl/s8iA/e3QXzo9OMtwnq20vFxTD8JnPTy3aoG51y6w+bvfvnRjLR1JuaeWzqESbqD3p
- QL06+OeDaxFhlZQMB/AbRVK2EdTCTjS/YLfTRqrulPvd22+GfUAMT2u+LGoU7lYJunRA
- dxPx5ydQJpPjRSpK0I4PrRIFqour5O2RLWb9G1h+EA+fxz+VsEL+MYXOLNoNaIy9ckt4
- +Le/AP10eHoEC/bzTnhtCs/6Jm3KA7BMJoMrI/JaRjduBHY+25qsHse02GE7pjLyMSB7
- zTiQ==
-X-Gm-Message-State: AOAM533sSd25LF1vqtHF5z3oQf7ouH9LNEGurRxeyBA5XSuwKiWgKWGw
- 9XPYxP8Y+GO32SDCJZsxEL+j8880aAB2F2cBPdSrpOcXsm0mwoSd3iywhux+S1cRj6JqZ78sGIZ
- uU9Kd/j5rdlbLbEfnzL1N9RXiU9TyGDce1QtbA29TuQ==
-X-Received: by 2002:a17:907:1caa:: with SMTP id
- nb42mr2599411ejc.333.1635399620608; 
- Wed, 27 Oct 2021 22:40:20 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyQhd1vOTP7CLD/BJ5RCWNsTIMoyg9pY3KHXHXK3KvUR6nZvmqchxP6Ys9Sd0YzoBlY6gk8EA==
-X-Received: by 2002:a17:907:1caa:: with SMTP id
- nb42mr2599392ejc.333.1635399620384; 
- Wed, 27 Oct 2021 22:40:20 -0700 (PDT)
-Received: from redhat.com ([2.55.137.59])
- by smtp.gmail.com with ESMTPSA id n2sm657001ejl.92.2021.10.27.22.40.18
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 27 Oct 2021 22:40:19 -0700 (PDT)
-Date: Thu, 28 Oct 2021 01:40:16 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Erdem Aktas <erdemaktas@google.com>
-Subject: Re: [RFC] Add DMA_API support for Virtio devices earlier than VirtIO
- 1.0
-Message-ID: <20211028013901-mutt-send-email-mst@kernel.org>
-References: <20211027232828.2043569-1-erdemaktas@google.com>
+ Thu, 28 Oct 2021 06:28:10 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R141e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04357; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=6; SR=0; TI=SMTPD_---0Utz59Qb_1635402485; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0Utz59Qb_1635402485) by smtp.aliyun-inc.com(127.0.0.1);
+ Thu, 28 Oct 2021 14:28:06 +0800
 MIME-Version: 1.0
-In-Reply-To: <20211027232828.2043569-1-erdemaktas@google.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+message-id: <1635401763.7680635-3-xuanzhuo@linux.alibaba.com>
+subject: Re: [PATCH 1/3] virtio: cache indirect desc for split
+date: Thu, 28 Oct 2021 14:16:03 +0800
+from: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+to: Jason Wang <jasowang@redhat.com>
+in-reply-to: <CACGkMEssaFCNgmRL4b5P5Dpm3WBhpQX37t-_j9Bc6wndTh4UHw@mail.gmail.com>
+Cc: netdev <netdev@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,106 +77,163 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Oct 27, 2021 at 04:28:28PM -0700, Erdem Aktas wrote:
-> Enable DMA_API for any VirtIO device earlier than Virtio 1.0 which
-> is the only way for those devices to be configured correctly when
-> memory access is retricted.
-> 
-> Virtio devices can use DMA_API to translate guest phsical addresses to
-> device physical addresses if VIRTIO_F_ACCESS_PLATFORM feature is set
-> while the device is being initialized. VIRTIO_F_ACCESS_PLATFORM
-> feature is only supported in VirtIO 1.0 and later devices. This prevents
-> any device using an earlier VirtIO version than Virtio 1.0 to be
-> attached when memory access is restricted ie memory encryption features
-> (AMD SEV [ES/SNP], Intel TDX, etc..) are enabled.
-> 
-> Signed-off-by: Erdem Aktas <erdemaktas@google.com>
+On Thu, 28 Oct 2021 10:16:10 +0800, Jason Wang <jasowang@redhat.com> wrote:
+> On Thu, Oct 28, 2021 at 1:07 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Wed, Oct 27, 2021 at 02:19:11PM +0800, Xuan Zhuo wrote:
+> > > In the case of using indirect, indirect desc must be allocated and
+> > > released each time, which increases a lot of cpu overhead.
+> > >
+> > > Here, a cache is added for indirect. If the number of indirect desc to be
+> > > applied for is less than VIRT_QUEUE_CACHE_DESC_NUM, the desc array with
+> > > the size of VIRT_QUEUE_CACHE_DESC_NUM is fixed and cached for reuse.
+> > >
+> > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > > ---
+> > >  drivers/virtio/virtio.c      |  6 ++++
+> > >  drivers/virtio/virtio_ring.c | 63 ++++++++++++++++++++++++++++++------
+> > >  include/linux/virtio.h       | 10 ++++++
+> > >  3 files changed, 70 insertions(+), 9 deletions(-)
+> > >
+> > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > > index 0a5b54034d4b..04bcb74e5b9a 100644
+> > > --- a/drivers/virtio/virtio.c
+> > > +++ b/drivers/virtio/virtio.c
+> > > @@ -431,6 +431,12 @@ bool is_virtio_device(struct device *dev)
+> > >  }
+> > >  EXPORT_SYMBOL_GPL(is_virtio_device);
+> > >
+> > > +void virtio_use_desc_cache(struct virtio_device *dev, bool val)
+> > > +{
+> > > +     dev->desc_cache = val;
+> > > +}
+> > > +EXPORT_SYMBOL_GPL(virtio_use_desc_cache);
+> > > +
+> > >  void unregister_virtio_device(struct virtio_device *dev)
+> > >  {
+> > >       int index = dev->index; /* save for after device release */
+> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > > index dd95dfd85e98..0b9a8544b0e8 100644
+> > > --- a/drivers/virtio/virtio_ring.c
+> > > +++ b/drivers/virtio/virtio_ring.c
+> > > @@ -117,6 +117,10 @@ struct vring_virtqueue {
+> > >       /* Hint for event idx: already triggered no need to disable. */
+> > >       bool event_triggered;
+> > >
+> > > +     /* Is indirect cache used? */
+> > > +     bool use_desc_cache;
+> > > +     void *desc_cache_chain;
+> > > +
+> > >       union {
+> > >               /* Available for split ring */
+> > >               struct {
+> > > @@ -423,12 +427,47 @@ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
+> > >       return extra[i].next;
+> > >  }
+> > >
+> > > -static struct vring_desc *alloc_indirect_split(struct virtqueue *_vq,
+> > > +#define VIRT_QUEUE_CACHE_DESC_NUM 4
+> > > +
+> > > +static void desc_cache_chain_free_split(void *chain)
+> > > +{
+> > > +     struct vring_desc *desc;
+> > > +
+> > > +     while (chain) {
+> > > +             desc = chain;
+> > > +             chain = (void *)desc->addr;
+> > > +             kfree(desc);
+> > > +     }
+> > > +}
+> > > +
+> > > +static void desc_cache_put_split(struct vring_virtqueue *vq,
+> > > +                              struct vring_desc *desc, int n)
+> > > +{
+> > > +     if (vq->use_desc_cache && n <= VIRT_QUEUE_CACHE_DESC_NUM) {
+> > > +             desc->addr = (u64)vq->desc_cache_chain;
+> > > +             vq->desc_cache_chain = desc;
+> > > +     } else {
+> > > +             kfree(desc);
+> > > +     }
+> > > +}
+> > > +
+> >
+> >
+> > So I have a question here. What happens if we just do:
+> >
+> > if (n <= VIRT_QUEUE_CACHE_DESC_NUM) {
+> >         return kmem_cache_alloc(VIRT_QUEUE_CACHE_DESC_NUM * sizeof desc, gfp)
+> > } else {
+> >         return kmalloc_arrat(n, sizeof desc, gfp)
+> > }
+> >
+> > A small change and won't we reap most performance benefits?
+>
+> Yes, I think we need a benchmark to use private cache to see how much
+> it can help.
+
+I did a test, the code is as follows:
+
++static void desc_cache_put_packed(struct vring_virtqueue *vq,
++                                  struct vring_packed_desc *desc, int n)
++ {
++       if (n <= VIRT_QUEUE_CACHE_DESC_NUM) {
++               kmem_cache_free(vq->desc_cache, desc);
++       } else {
++               kfree(desc);
++       }
 
 
-Sorry .. NACK.
+@@ -476,11 +452,14 @@ static struct vring_desc *alloc_indirect_split(struct vring_virtqueue *vq,
+         */
+        gfp &= ~__GFP_HIGHMEM;
 
-Virtio before 1.0 is on life support. No new features. Just use 1.0
-please.
+-       desc = kmalloc_array(n, sizeof(struct vring_desc), gfp);
++       if (total_sg <= VIRT_QUEUE_CACHE_DESC_NUM)
++               desc = kmem_cache_alloc(vq->desc_cache, gfp);
++       else
++               desc = kmalloc_array(total_sg, sizeof(struct vring_desc), gfp);
++
 
+	.......
 
-> ---
-> I have tested the this patch using linux-stable.git head, 5.15.0-rc6
-> kernel and scsi disk with virtio 0.95 version with legacy VM and
-> Confidential VM (AMD SEV). I want to get feedback if
-> there is any risk or downside of enabling DMA_API on older virtio
-> drivers when memory encrytion is enabled.
-> 
->  drivers/virtio/virtio.c       |  7 ++-----
->  include/linux/virtio_config.h | 22 ++++++++++++++--------
->  2 files changed, 16 insertions(+), 13 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index 236081afe9a2..71115ba85d07 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -179,11 +179,8 @@ int virtio_finalize_features(struct virtio_device *dev)
->  	if (ret) {
->  		if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
->  			dev_warn(&dev->dev,
-> -				 "device must provide VIRTIO_F_VERSION_1\n");
-> -			return -ENODEV;
-> -		}
-> -
-> -		if (!virtio_has_feature(dev, VIRTIO_F_ACCESS_PLATFORM)) {
-> +				 "device does not provide VIRTIO_F_VERSION_1 while restricted memory access is enabled!.\n");
-> +		} else if (!virtio_has_feature(dev, VIRTIO_F_ACCESS_PLATFORM)) {
->  			dev_warn(&dev->dev,
->  				 "device must provide VIRTIO_F_ACCESS_PLATFORM\n");
->  			return -ENODEV;
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index 8519b3ae5d52..6eacb4d43318 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -170,6 +170,15 @@ static inline bool virtio_has_feature(const struct virtio_device *vdev,
->  	return __virtio_test_bit(vdev, fbit);
->  }
->  
-> +#ifdef CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
-> +int arch_has_restricted_virtio_memory_access(void);
-> +#else
-> +static inline int arch_has_restricted_virtio_memory_access(void)
-> +{
-> +	return 0;
-> +}
-> +#endif /* CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS */
-> +
->  /**
->   * virtio_has_dma_quirk - determine whether this device has the DMA quirk
->   * @vdev: the device
-> @@ -180,6 +189,11 @@ static inline bool virtio_has_dma_quirk(const struct virtio_device *vdev)
->  	 * Note the reverse polarity of the quirk feature (compared to most
->  	 * other features), this is for compatibility with legacy systems.
->  	 */
-> +	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1) &&
-> +	   arch_has_restricted_virtio_memory_access())
-> +		return false;
-> +
-> +
->  	return !virtio_has_feature(vdev, VIRTIO_F_ACCESS_PLATFORM);
->  }
->  
-> @@ -558,13 +572,5 @@ static inline void virtio_cwrite64(struct virtio_device *vdev,
->  		_r;							\
->  	})
->  
-> -#ifdef CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
-> -int arch_has_restricted_virtio_memory_access(void);
-> -#else
-> -static inline int arch_has_restricted_virtio_memory_access(void)
-> -{
-> -	return 0;
-> -}
-> -#endif /* CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS */
->  
->  #endif /* _LINUX_VIRTIO_CONFIG_H */
-> -- 
-> 2.30.2
++       vq->desc_cache = kmem_cache_create("virio_desc",
++                                          4 * sizeof(struct vring_desc),
++                                          0, 0, NULL);
 
+The effect is not good, basically there is no improvement, using perf top can
+see that the overhead of kmem_cache_alloc/kmem_cache_free is also relatively
+large:
+
+         26.91%  [kernel]  [k] virtqueue_add
+         15.35%  [kernel]  [k] detach_buf_split
+         14.15%  [kernel]  [k] virtnet_xsk_xmit
+         13.24%  [kernel]  [k] virtqueue_add_outbuf
+       >  9.30%  [kernel]  [k] __slab_free
+       >  3.91%  [kernel]  [k] kmem_cache_alloc
+          2.85%  [kernel]  [k] virtqueue_get_buf_ctx
+       >  2.82%  [kernel]  [k] kmem_cache_free
+          2.54%  [kernel]  [k] memset_erms
+          2.37%  [kernel]  [k] xsk_tx_peek_desc
+          1.20%  [kernel]  [k] virtnet_xsk_run
+          0.81%  [kernel]  [k] vring_map_one_sg
+          0.69%  [kernel]  [k] __free_old_xmit_ptr
+          0.69%  [kernel]  [k] virtqueue_kick_prepare
+          0.43%  [kernel]  [k] sg_init_table
+          0.41%  [kernel]  [k] sg_next
+          0.28%  [kernel]  [k] vring_unmap_one_split
+          0.25%  [kernel]  [k] vring_map_single.constprop.34
+          0.24%  [kernel]  [k] net_rx_action
+
+Thanks.
+
+>
+> Thanks
+>
+> >
+> > --
+> > MST
+> >
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
