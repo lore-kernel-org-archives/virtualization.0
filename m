@@ -2,65 +2,104 @@ Return-Path: <SRS0=mz8r=PR=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C03EC433F5
-	for <virtualization@archiver.kernel.org>; Fri, 29 Oct 2021 02:28:44 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CEB9C433EF
+	for <virtualization@archiver.kernel.org>; Fri, 29 Oct 2021 02:31:42 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 89B2360041
-	for <virtualization@archiver.kernel.org>; Fri, 29 Oct 2021 02:28:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 89B2360041
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id E1E4760041
+	for <virtualization@archiver.kernel.org>; Fri, 29 Oct 2021 02:31:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E1E4760041
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4ACC581DB2;
-	Fri, 29 Oct 2021 02:28:43 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 8A0F340607;
+	Fri, 29 Oct 2021 02:31:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id NqNGTt4d_3WH; Fri, 29 Oct 2021 02:28:42 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id La5ChsnJFLDG; Fri, 29 Oct 2021 02:31:40 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 9E1A78196A;
-	Fri, 29 Oct 2021 02:28:41 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 30F6C4055D;
+	Fri, 29 Oct 2021 02:31:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6E1F7C0012;
-	Fri, 29 Oct 2021 02:28:41 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CB5DAC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E3F5FC0012;
+	Fri, 29 Oct 2021 02:31:39 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B38EFC000E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Oct 2021 02:28:40 +0000 (UTC)
+ Fri, 29 Oct 2021 02:31:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id B8F53400C5
+ by smtp4.osuosl.org (Postfix) with ESMTP id 9BF304055D
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Oct 2021 02:28:40 +0000 (UTC)
+ Fri, 29 Oct 2021 02:31:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uTIQBXCk92Od
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id UazYg39aWSX4
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Oct 2021 02:28:38 +0000 (UTC)
+ Fri, 29 Oct 2021 02:31:38 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-133.freemail.mail.aliyun.com
- (out30-133.freemail.mail.aliyun.com [115.124.30.133])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 83F5F40003
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id F14C640550
  for <virtualization@lists.linux-foundation.org>;
- Fri, 29 Oct 2021 02:28:38 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R141e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04395; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=6; SR=0; TI=SMTPD_---0Uu42BGs_1635474514; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0Uu42BGs_1635474514) by smtp.aliyun-inc.com(127.0.0.1);
- Fri, 29 Oct 2021 10:28:34 +0800
+ Fri, 29 Oct 2021 02:31:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1635474696;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=KS9YsHERCSqszVKcWnqYLg+VRwD70ond/dLlufrGvBU=;
+ b=PKaqUyRS0TLejum8u6cnjKJZzTrvWKhc3IzzhE75y3noizxnysReQiA8BsT+f/u1dJyGn1
+ yDowSVidQVeFaA4LGBRF/f5CuB3b1wOtvbNG0Wt+7tKA9MUbkTAUStBuct/hdI4i3cHkSM
+ y82XqK9fJ/QyyBVURcjFVP4S1utvWw0=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-34-EUCtfiL2ONKgagJOL0tDpA-1; Thu, 28 Oct 2021 22:31:35 -0400
+X-MC-Unique: EUCtfiL2ONKgagJOL0tDpA-1
+Received: by mail-lj1-f198.google.com with SMTP id
+ v17-20020a2e7a11000000b002118bb7d585so2498945ljc.4
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 28 Oct 2021 19:31:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=KS9YsHERCSqszVKcWnqYLg+VRwD70ond/dLlufrGvBU=;
+ b=eApOC7PJbRZRS/DLUx5BoHMo9sUUMyLNy/vGnd8DlCjOtvRuqR04w9AXhrzdPyMUtB
+ 34f8tOKZ5rrlHO9+wTENmFPwu7EGJE0YkQs3nRmhm/9LlBIiPh4/zQOoqI8eNEvGbU3I
+ vUYeML78wBSKEpkVULVz6eydNt8CjUAO+PyOPkSYMdSiY4JpCAy2ctbULA4MRiGDq61A
+ ITDrSj7cqhnBmfj7JAny8LyY7cDKi3YyFuZfVVKikdewVN38qJ9TX2mis+Xo3Rd4zd3M
+ isi93P6VaIP2grUSWqdE18koHDXE646z2zt1ZOZwEQ3zHd5q0AoT1lQkXShwzNSkqHwz
+ BQaQ==
+X-Gm-Message-State: AOAM530Mt7RqUmhi02oo9gHQQTDaSqiyVTEV9s2bkeVD21X3Ek5q9gLA
+ NhKKGvbO5eW3wxSjKo+c8OZpV84vaJg/41ES4H8JjZA0FqGIFYW/9sTWFcty/1y3/qRR3zlaweo
+ fx8Cad7ewj/lkkZGXbhlYYaujNZN7/VYbd0mvVrqCiB9FbgwroAF5b3/VEA==
+X-Received: by 2002:a2e:5344:: with SMTP id t4mr8583496ljd.362.1635474694058; 
+ Thu, 28 Oct 2021 19:31:34 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwkE6KGADBf/EsFrsqvu7IeTg6jQ9kItE5rCj04rJbg+BM0HFLCKAa92csc+yItQEVORKrUCSwnyviVnT62lC4=
+X-Received: by 2002:a2e:5344:: with SMTP id t4mr8583479ljd.362.1635474693879; 
+ Thu, 28 Oct 2021 19:31:33 -0700 (PDT)
 MIME-Version: 1.0
-message-id: <1635474434.7889311-1-xuanzhuo@linux.alibaba.com>
-subject: Re: [PATCH v2 1/3] virtio: cache indirect desc for split
-date: Fri, 29 Oct 2021 10:27:14 +0800
-from: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-to: Jason Wang <jasowang@redhat.com>
-in-reply-to: <CACGkMEsOjyApzodhJcDdFfzo1kJKhspQhRD2wqzWiswRM_40XA@mail.gmail.com>
-Cc: netdev <netdev@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>
+References: <CAGxU2F7r7=P8E-f1Nnm2h18S-hL8YBt7s=J81fkQcrAdpZ-KwQ@mail.gmail.com>
+ <PH0PR12MB548115FD6354339B41A11CE3DC859@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <20211027161446-mutt-send-email-mst@kernel.org>
+ <CACGkMEuh_1Z39J2C220Ra6u3y=oZqsGgnmoCrtUpAGLkcD_0jQ@mail.gmail.com>
+ <20211028094711.e6mm7ump5mrl7jpf@steredhat>
+In-Reply-To: <20211028094711.e6mm7ump5mrl7jpf@steredhat>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 29 Oct 2021 10:31:22 +0800
+Message-ID: <CACGkMEtNAQDg9b03Xv3JRUX0EGXAv9JFogHGkpRbfgVghOiuuQ@mail.gmail.com>
+Subject: Re: vDPA bus driver selection
+To: Stefano Garzarella <sgarzare@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Eli Cohen <elic@nvidia.com>,
+ Linux Virtualization <virtualization@lists.linux-foundation.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -77,249 +116,62 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, 29 Oct 2021 10:20:04 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> On Thu, Oct 28, 2021 at 6:49 PM Xuan Zhuo <xuanzhuo@linux.alibaba.com> wrote:
-> >
-> > In the case of using indirect, indirect desc must be allocated and
-> > released each time, which increases a lot of cpu overhead.
-> >
-> > Here, a cache is added for indirect. If the number of indirect desc to be
-> > applied for is less than VIRT_QUEUE_CACHE_DESC_NUM, the desc array with
-> > the size of VIRT_QUEUE_CACHE_DESC_NUM is fixed and cached for reuse.
+On Thu, Oct 28, 2021 at 5:47 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
 >
-> The commit log looks out of date? It's actually desc_cache_thr now.
+> On Thu, Oct 28, 2021 at 10:24:47AM +0800, Jason Wang wrote:
+> >On Thu, Oct 28, 2021 at 4:16 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >>
+> >> On Wed, Oct 27, 2021 at 03:21:15PM +0000, Parav Pandit wrote:
+> >> > Hi Stefano,
+> >> >
+> >> > > From: Stefano Garzarella <sgarzare@redhat.com>
+> >> > > Sent: Wednesday, October 27, 2021 8:04 PM
+> >> > >
+> >> > > Hi folks,
+> >> > > I was trying to understand if we have a way to specify which vDPA bus driver
+> >> > > (e.g. vhost-vdpa, virtio-vdpa) a device should use.
+> >> > > IIUC we don't have it, and the first registered driver is used when a new device
+> >> > > is registered.
+> >> > >
+> >> > > I was thinking if it makes sense to extend the management API to specify which
+> >> > > bus driver to use for a device.
+> >
+> >Actually, we want to support this in the first version of vDPA bus.
+> >But for some reason it was dropped. The idea is to specify the device
+> >type 'virtio' or 'vhost'. But a concern is that, it may encourage
+> >vendor to implement e.g virtio specific device (without DMA
+> >isolation).
+>
+> Yep, I see the issue about device type, so I think make sense to require
+> the support of both, how it is now basically.
+>
+> So instead of defining the type of the device, we could provide the
+> possibility to choose which bus to connect it to,
 
-Yes, I will fix it in next version.
+I think you meant the "bus driver" here?
 
+> in this way we
+> continue to require that both are supported.
 >
-> >
-> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > ---
-> >  drivers/virtio/virtio.c      |  6 +++
-> >  drivers/virtio/virtio_ring.c | 77 ++++++++++++++++++++++++++++++++----
-> >  include/linux/virtio.h       | 14 +++++++
-> >  3 files changed, 89 insertions(+), 8 deletions(-)
-> >
-> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > index 0a5b54034d4b..1047149ac2a4 100644
-> > --- a/drivers/virtio/virtio.c
-> > +++ b/drivers/virtio/virtio.c
-> > @@ -431,6 +431,12 @@ bool is_virtio_device(struct device *dev)
-> >  }
-> >  EXPORT_SYMBOL_GPL(is_virtio_device);
-> >
-> > +void virtio_set_desc_cache(struct virtio_device *dev, u32 thr)
-> > +{
-> > +       dev->desc_cache_thr = thr;
-> > +}
-> > +EXPORT_SYMBOL_GPL(virtio_set_desc_cache);
-> > +
-> >  void unregister_virtio_device(struct virtio_device *dev)
-> >  {
-> >         int index = dev->index; /* save for after device release */
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index dd95dfd85e98..0ebcd4f12d3b 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -117,6 +117,15 @@ struct vring_virtqueue {
-> >         /* Hint for event idx: already triggered no need to disable. */
-> >         bool event_triggered;
-> >
-> > +       /* desc cache threshold
-> > +        *    0   - disable desc cache
-> > +        *    > 0 - enable desc cache. As the threshold of the desc cache.
-> > +        */
-> > +       u32 desc_cache_thr;
-> > +
-> > +       /* desc cache chain */
-> > +       struct list_head desc_cache;
-> > +
-> >         union {
-> >                 /* Available for split ring */
-> >                 struct {
-> > @@ -423,7 +432,53 @@ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
-> >         return extra[i].next;
-> >  }
-> >
-> > -static struct vring_desc *alloc_indirect_split(struct virtqueue *_vq,
-> > +static void desc_cache_free(struct list_head *head)
-> > +{
-> > +       struct list_head *n, *pos;
-> > +
-> > +       BUILD_BUG_ON(sizeof(struct list_head) > sizeof(struct vring_desc));
-> > +       BUILD_BUG_ON(sizeof(struct list_head) > sizeof(struct vring_packed_desc));
-> > +
-> > +       list_for_each_prev_safe(pos, n, head)
-> > +               kfree(pos);
-> > +}
-> > +
-> > +static void __desc_cache_put(struct vring_virtqueue *vq,
-> > +                            struct list_head *node, int n)
-> > +{
-> > +       if (n <= vq->desc_cache_thr)
-> > +               list_add(node, &vq->desc_cache);
-> > +       else
-> > +               kfree(node);
-> > +}
-> > +
-> > +#define desc_cache_put(vq, desc, n) \
-> > +       __desc_cache_put(vq, (struct list_head *)desc, n)
-> > +
-> > +static void *desc_cache_get(struct vring_virtqueue *vq,
-> > +                           int size, int n, gfp_t gfp)
-> > +{
-> > +       struct list_head *node;
-> > +
-> > +       if (n > vq->desc_cache_thr)
-> > +               return kmalloc_array(n, size, gfp);
-> > +
-> > +       if (!list_empty(&vq->desc_cache)) {
-> > +               node = vq->desc_cache.next;
-> > +               list_del(node);
-> > +               return node;
-> > +       }
-> > +
-> > +       return kmalloc_array(vq->desc_cache_thr, size, gfp);
->
-> Instead of doing the if .. kmalloc_array here. I wonder if we can
-> simply pre-allocate per buffer indirect descriptors array.
->
-> E.g if we use MAX_SKB_FRAGS + 1, it will be ~64KB for 256 queue size
-> and ~272KB for 1024 queue size.
->
-> Then we avoid list manipulation and kmalloc in datapath with much more
-> simpler codes.
+> As Michael suggested, instead of specify it at the creation time as was
+> in my original idea, we can provide an API to attach/detach a device to
+> a specific vDPA bus.
 
-Yes, this is a good idea.
-
-Thanks.
+Does such an API exist in driver core?
 
 >
-> Thanks
+> Of course, providing a default behaviour like now, which connects to the
+> first registered.
+
+If we want to change this, we can introduce "driver_override".
+
+Thanks
+
 >
-> > +}
-> > +
-> > +#define _desc_cache_get(vq, n, gfp, tp) \
-> > +       ((tp *)desc_cache_get(vq, (sizeof(tp)), n, gfp))
-> > +
-> > +#define desc_cache_get_split(vq, n, gfp) \
-> > +       _desc_cache_get(vq, n, gfp, struct vring_desc)
-> > +
-> > +static struct vring_desc *alloc_indirect_split(struct vring_virtqueue *vq,
-> >                                                unsigned int total_sg,
-> >                                                gfp_t gfp)
-> >  {
-> > @@ -437,12 +492,12 @@ static struct vring_desc *alloc_indirect_split(struct virtqueue *_vq,
-> >          */
-> >         gfp &= ~__GFP_HIGHMEM;
-> >
-> > -       desc = kmalloc_array(total_sg, sizeof(struct vring_desc), gfp);
-> > +       desc = desc_cache_get_split(vq, total_sg, gfp);
-> >         if (!desc)
-> >                 return NULL;
-> >
-> >         for (i = 0; i < total_sg; i++)
-> > -               desc[i].next = cpu_to_virtio16(_vq->vdev, i + 1);
-> > +               desc[i].next = cpu_to_virtio16(vq->vq.vdev, i + 1);
-> >         return desc;
-> >  }
-> >
-> > @@ -508,7 +563,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
-> >         head = vq->free_head;
-> >
-> >         if (virtqueue_use_indirect(_vq, total_sg))
-> > -               desc = alloc_indirect_split(_vq, total_sg, gfp);
-> > +               desc = alloc_indirect_split(vq, total_sg, gfp);
-> >         else {
-> >                 desc = NULL;
-> >                 WARN_ON_ONCE(total_sg > vq->split.vring.num && !vq->indirect);
-> > @@ -652,7 +707,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
-> >         }
-> >
-> >         if (indirect)
-> > -               kfree(desc);
-> > +               desc_cache_put(vq, desc, total_sg);
-> >
-> >         END_USE(vq);
-> >         return -ENOMEM;
-> > @@ -717,7 +772,7 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
-> >         if (vq->indirect) {
-> >                 struct vring_desc *indir_desc =
-> >                                 vq->split.desc_state[head].indir_desc;
-> > -               u32 len;
-> > +               u32 len, n;
-> >
-> >                 /* Free the indirect table, if any, now that it's unmapped. */
-> >                 if (!indir_desc)
-> > @@ -729,10 +784,12 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
-> >                                 VRING_DESC_F_INDIRECT));
-> >                 BUG_ON(len == 0 || len % sizeof(struct vring_desc));
-> >
-> > -               for (j = 0; j < len / sizeof(struct vring_desc); j++)
-> > +               n = len / sizeof(struct vring_desc);
-> > +
-> > +               for (j = 0; j < n; j++)
-> >                         vring_unmap_one_split_indirect(vq, &indir_desc[j]);
-> >
-> > -               kfree(indir_desc);
-> > +               desc_cache_put(vq, indir_desc, n);
-> >                 vq->split.desc_state[head].indir_desc = NULL;
-> >         } else if (ctx) {
-> >                 *ctx = vq->split.desc_state[head].indir_desc;
-> > @@ -2199,6 +2256,9 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
-> >         vq->indirect = virtio_has_feature(vdev, VIRTIO_RING_F_INDIRECT_DESC) &&
-> >                 !context;
-> >         vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
-> > +       vq->desc_cache_thr = vdev->desc_cache_thr;
-> > +
-> > +       INIT_LIST_HEAD(&vq->desc_cache);
-> >
-> >         if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
-> >                 vq->weak_barriers = false;
-> > @@ -2329,6 +2389,7 @@ void vring_del_virtqueue(struct virtqueue *_vq)
-> >         if (!vq->packed_ring) {
-> >                 kfree(vq->split.desc_state);
-> >                 kfree(vq->split.desc_extra);
-> > +               desc_cache_free(&vq->desc_cache);
-> >         }
-> >         kfree(vq);
-> >  }
-> > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> > index 41edbc01ffa4..bda6f9853e97 100644
-> > --- a/include/linux/virtio.h
-> > +++ b/include/linux/virtio.h
-> > @@ -118,6 +118,7 @@ struct virtio_device {
-> >         struct list_head vqs;
-> >         u64 features;
-> >         void *priv;
-> > +       u32 desc_cache_thr;
-> >  };
-> >
-> >  static inline struct virtio_device *dev_to_virtio(struct device *_dev)
-> > @@ -130,6 +131,19 @@ int register_virtio_device(struct virtio_device *dev);
-> >  void unregister_virtio_device(struct virtio_device *dev);
-> >  bool is_virtio_device(struct device *dev);
-> >
-> > +/**
-> > + * virtio_set_desc_cache - set virtio ring desc cache threshold
-> > + *
-> > + * virtio will cache the allocated indirect desc.
-> > + *
-> > + * This function must be called before find_vqs.
-> > + *
-> > + * @thr:
-> > + *    0   - disable desc cache
-> > + *    > 0 - enable desc cache. As the threshold of the desc cache.
-> > + */
-> > +void virtio_set_desc_cache(struct virtio_device *dev, u32 thr);
-> > +
-> >  void virtio_break_device(struct virtio_device *dev);
-> >
-> >  void virtio_config_changed(struct virtio_device *dev);
-> > --
-> > 2.31.0
-> >
+> Thanks,
+> Stefano
 >
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
