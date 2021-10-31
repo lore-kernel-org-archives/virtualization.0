@@ -2,110 +2,102 @@ Return-Path: <SRS0=Mk6X=PT=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 385E9C433EF
-	for <virtualization@archiver.kernel.org>; Sun, 31 Oct 2021 14:47:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65829C4332F
+	for <virtualization@archiver.kernel.org>; Sun, 31 Oct 2021 15:33:19 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CA1F060E9B
-	for <virtualization@archiver.kernel.org>; Sun, 31 Oct 2021 14:47:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org CA1F060E9B
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 057F860F46
+	for <virtualization@archiver.kernel.org>; Sun, 31 Oct 2021 15:33:18 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 057F860F46
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 88F07401F0;
-	Sun, 31 Oct 2021 14:47:46 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id B366F401F0;
+	Sun, 31 Oct 2021 15:33:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Mc0Bfo3VntpH; Sun, 31 Oct 2021 14:47:45 +0000 (UTC)
+	with ESMTP id zq5q2F-D7ajb; Sun, 31 Oct 2021 15:33:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 90B1540182;
-	Sun, 31 Oct 2021 14:47:44 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B81074013C;
+	Sun, 31 Oct 2021 15:33:16 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 651C0C0012;
-	Sun, 31 Oct 2021 14:47:44 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 86E20C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8C7A3C0019;
+	Sun, 31 Oct 2021 15:33:16 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 875FFC000E
  for <virtualization@lists.linux-foundation.org>;
- Sun, 31 Oct 2021 14:47:43 +0000 (UTC)
+ Sun, 31 Oct 2021 15:33:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 8221A4018E
+ by smtp2.osuosl.org (Postfix) with ESMTP id 6D80640182
  for <virtualization@lists.linux-foundation.org>;
- Sun, 31 Oct 2021 14:47:43 +0000 (UTC)
+ Sun, 31 Oct 2021 15:33:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id cbErH2WClSWQ
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id hKG1h7k83f6k
  for <virtualization@lists.linux-foundation.org>;
- Sun, 31 Oct 2021 14:47:42 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 39FCE40183
+ Sun, 31 Oct 2021 15:33:14 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ua1-x936.google.com (mail-ua1-x936.google.com
+ [IPv6:2607:f8b0:4864:20::936])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 047434013C
  for <virtualization@lists.linux-foundation.org>;
- Sun, 31 Oct 2021 14:47:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1635691661;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=+aTdpPdt+qZTV2K6qn3P6EMiUdaOOm0O4jEIWwm0LEA=;
- b=QizHSPNAPKPjbWvcwUHZcy6G4yJ+QRWDc6JZ2QQyskE/viMF5Tn6WQp0ljdBadFMyiCInI
- M3U5TS5A3k0M6Jlb3glW3AM0Zgug2M84F4XcmO126MNwKqCvwz+CsagLf3qIoy6tre66Fa
- y08EyKaThqS0FlXHVFKXaqSSwHdlHFo=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-395-7GZuREV3M8ClUaJTJEsZbQ-1; Sun, 31 Oct 2021 10:47:39 -0400
-X-MC-Unique: 7GZuREV3M8ClUaJTJEsZbQ-1
-Received: by mail-wr1-f71.google.com with SMTP id
- q5-20020a5d5745000000b00178abb72486so3301229wrw.9
+ Sun, 31 Oct 2021 15:33:13 +0000 (UTC)
+Received: by mail-ua1-x936.google.com with SMTP id o26so27545036uab.5
  for <virtualization@lists.linux-foundation.org>;
- Sun, 31 Oct 2021 07:47:39 -0700 (PDT)
+ Sun, 31 Oct 2021 08:33:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=UFXHWgn5NX8k2uAggLB/jsPmLTiVwXt9Q0uUa1tTAaQ=;
+ b=g2sNvEszvPCsBvG15TRB2oB2U4YjBBbt7Y7iWHnTt5H4dE4k8TwzG5hdpEZ1j5OpgU
+ TialgZxbCDT8B7kOyM0CumG1ucl8ksfn4TDI8yhjKZBzA4gYrPiYaUl8Gt2pE4fZAdzK
+ A1Vi5G3jr3rPj8VeWz8cuAu5MuDmyxG2BwQp5A+F2HNaNvjEPO2ZIXb1aTcDi/dDGzW1
+ k7T9IJTxjt3RLmmWPtLVCuQtQEKlDA+sQuQ3clrt1Iueg+qXrlsCM0jGWrfxkLQaJIBs
+ SC9PGiAzuWNUvatrfQluYixCGniZeoyOoaohwS8B/UgTf2bQc7iDyqxydyvbjHVUMLIt
+ MMlQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=+aTdpPdt+qZTV2K6qn3P6EMiUdaOOm0O4jEIWwm0LEA=;
- b=Bgn+NQW+H/rbwG1yYKRQEgb99LFQ9m5lXQc3W4gxfbobLVy5x5k91WOsEztuwVB7HH
- OtsW+TtxHy5L7Y54tCyomRKLAbXquNj2woMOedVEBa8bp05HyZaYL5tQ4/v7oYg9wqqC
- tw6B7wLz06IiqjFapbOjQbsTaLxxTyoeKT7ZgOrhXO0u49yuNVHFdHiHwgaYjBOClUPM
- apueGpQeX3slzsDZSQLoFZesvlYzif9h3cavSSdI2MR15pwo6fTXQN44gckCUzDlUe1N
- 6rrBuwcgIz4Ui8ulqBUZLYViGEXpHBJVFpXCqxau5mHWw+c7SjUvB0XKaF1NK0uKkEVz
- jmvw==
-X-Gm-Message-State: AOAM530jWb9+xLUafo/P0pCKGYaTABO0C4lybcPr2e6ggC9RGf7kt5Ku
- XVcJ+edr24NKpJBJcU5LMQC0fg9l02v2AVdbem2mKDOitCgv+aikx3etLmMOwn60he+8Np9aWuQ
- Apu5L/WFSk7lMDLMW5u+z3avE/bcBZeJ7FRbCRFxi9w==
-X-Received: by 2002:a05:6000:1449:: with SMTP id
- v9mr30725269wrx.433.1635691658635; 
- Sun, 31 Oct 2021 07:47:38 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwCdYhrCMgEA3FxNjT1vRIEDtuD9fGTQ6F9UBBTnt0VWzkNiycCuVboJgIgZTe0mpPwyjMrAw==
-X-Received: by 2002:a05:6000:1449:: with SMTP id
- v9mr30725248wrx.433.1635691658451; 
- Sun, 31 Oct 2021 07:47:38 -0700 (PDT)
-Received: from redhat.com ([2a03:c5c0:207e:6500:1024:cbd2:401c:e583])
- by smtp.gmail.com with ESMTPSA id g2sm10905799wrq.62.2021.10.31.07.47.36
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 31 Oct 2021 07:47:37 -0700 (PDT)
-Date: Sun, 31 Oct 2021 10:47:34 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH 1/3] virtio: cache indirect desc for split
-Message-ID: <20211031104700-mutt-send-email-mst@kernel.org>
-References: <CACGkMEssaFCNgmRL4b5P5Dpm3WBhpQX37t-_j9Bc6wndTh4UHw@mail.gmail.com>
- <1635401763.7680635-3-xuanzhuo@linux.alibaba.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=UFXHWgn5NX8k2uAggLB/jsPmLTiVwXt9Q0uUa1tTAaQ=;
+ b=6WxOhJRW6MbDpx/VwsXKauve9dZz9vxQ/4fCnu4urYmXbCqi/6xM1h+DrNwfjr4Pb9
+ nLN0DVCshBb1RXZDKBGs0UHtdCwpZenyrklbmISVYuUv7T+75UTW42E0CzVUSyypiwQ9
+ DyUurLvVvnLnWVG6B1GtpBPWryIcHxUX28qxC+g64es7BQOQkH1azDpHJaMZ+R8w4h6h
+ mRE9n+PrrJ2qPZfLklv/O7sKm53eF2DIMYZDZuHoxQjlz85RhgY//INyfXQdPeq0XeXE
+ SBhGID9Ruis0jiM0jz17kXb5XVgZRwVrejxKUc//PGr7D0zBChB7AhoRYpPLBBUzGZzm
+ LV1g==
+X-Gm-Message-State: AOAM533lkuD+1B32Y2pJWz5JHbiPCWepaQEpz35hunEgYORaFsBULD8L
+ G/hiur1sUIDDiyZ845ypdjI8m8gcMZY=
+X-Google-Smtp-Source: ABdhPJxqBtmNPe64XF7Ei//F0GRG8j7UZvR54jujGaLhKWgB7wiFIoVOmeGC1PwANNHkCO+kthnvrw==
+X-Received: by 2002:ab0:6e91:: with SMTP id b17mr3439978uav.7.1635694392755;
+ Sun, 31 Oct 2021 08:33:12 -0700 (PDT)
+Received: from mail-ua1-f42.google.com (mail-ua1-f42.google.com.
+ [209.85.222.42])
+ by smtp.gmail.com with ESMTPSA id k28sm1464532vkn.2.2021.10.31.08.33.11
+ for <virtualization@lists.linux-foundation.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Sun, 31 Oct 2021 08:33:12 -0700 (PDT)
+Received: by mail-ua1-f42.google.com with SMTP id e10so27594277uab.3
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 31 Oct 2021 08:33:11 -0700 (PDT)
+X-Received: by 2002:a05:6102:358e:: with SMTP id
+ h14mr24462512vsu.13.1635694391241; 
+ Sun, 31 Oct 2021 08:33:11 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1635401763.7680635-3-xuanzhuo@linux.alibaba.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: netdev <netdev@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>,
- Jakub Kicinski <kuba@kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>
+References: <20211031045959.143001-1-andrew@daynix.com>
+ <20211031045959.143001-4-andrew@daynix.com>
+In-Reply-To: <20211031045959.143001-4-andrew@daynix.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date: Sun, 31 Oct 2021 11:32:34 -0400
+X-Gmail-Original-Message-ID: <CA+FuTScq-B9tXjV8qO5oBpFGObhGGZDSXC+iRMxwH89TvEhexw@mail.gmail.com>
+Message-ID: <CA+FuTScq-B9tXjV8qO5oBpFGObhGGZDSXC+iRMxwH89TvEhexw@mail.gmail.com>
+Subject: Re: [RFC PATCH 3/4] drivers/net/virtio_net: Added basic RSS support.
+To: Andrew Melnychenko <andrew@daynix.com>
+Cc: mst@redhat.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, yuri.benditovich@daynix.com,
+ yan@daynix.com, kuba@kernel.org, davem@davemloft.net
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,169 +114,333 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Oct 28, 2021 at 02:16:03PM +0800, Xuan Zhuo wrote:
-> On Thu, 28 Oct 2021 10:16:10 +0800, Jason Wang <jasowang@redhat.com> wrote:
-> > On Thu, Oct 28, 2021 at 1:07 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > On Wed, Oct 27, 2021 at 02:19:11PM +0800, Xuan Zhuo wrote:
-> > > > In the case of using indirect, indirect desc must be allocated and
-> > > > released each time, which increases a lot of cpu overhead.
-> > > >
-> > > > Here, a cache is added for indirect. If the number of indirect desc to be
-> > > > applied for is less than VIRT_QUEUE_CACHE_DESC_NUM, the desc array with
-> > > > the size of VIRT_QUEUE_CACHE_DESC_NUM is fixed and cached for reuse.
-> > > >
-> > > > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > > > ---
-> > > >  drivers/virtio/virtio.c      |  6 ++++
-> > > >  drivers/virtio/virtio_ring.c | 63 ++++++++++++++++++++++++++++++------
-> > > >  include/linux/virtio.h       | 10 ++++++
-> > > >  3 files changed, 70 insertions(+), 9 deletions(-)
-> > > >
-> > > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > > > index 0a5b54034d4b..04bcb74e5b9a 100644
-> > > > --- a/drivers/virtio/virtio.c
-> > > > +++ b/drivers/virtio/virtio.c
-> > > > @@ -431,6 +431,12 @@ bool is_virtio_device(struct device *dev)
-> > > >  }
-> > > >  EXPORT_SYMBOL_GPL(is_virtio_device);
-> > > >
-> > > > +void virtio_use_desc_cache(struct virtio_device *dev, bool val)
-> > > > +{
-> > > > +     dev->desc_cache = val;
-> > > > +}
-> > > > +EXPORT_SYMBOL_GPL(virtio_use_desc_cache);
-> > > > +
-> > > >  void unregister_virtio_device(struct virtio_device *dev)
-> > > >  {
-> > > >       int index = dev->index; /* save for after device release */
-> > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > > index dd95dfd85e98..0b9a8544b0e8 100644
-> > > > --- a/drivers/virtio/virtio_ring.c
-> > > > +++ b/drivers/virtio/virtio_ring.c
-> > > > @@ -117,6 +117,10 @@ struct vring_virtqueue {
-> > > >       /* Hint for event idx: already triggered no need to disable. */
-> > > >       bool event_triggered;
-> > > >
-> > > > +     /* Is indirect cache used? */
-> > > > +     bool use_desc_cache;
-> > > > +     void *desc_cache_chain;
-> > > > +
-> > > >       union {
-> > > >               /* Available for split ring */
-> > > >               struct {
-> > > > @@ -423,12 +427,47 @@ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
-> > > >       return extra[i].next;
-> > > >  }
-> > > >
-> > > > -static struct vring_desc *alloc_indirect_split(struct virtqueue *_vq,
-> > > > +#define VIRT_QUEUE_CACHE_DESC_NUM 4
-> > > > +
-> > > > +static void desc_cache_chain_free_split(void *chain)
-> > > > +{
-> > > > +     struct vring_desc *desc;
-> > > > +
-> > > > +     while (chain) {
-> > > > +             desc = chain;
-> > > > +             chain = (void *)desc->addr;
-> > > > +             kfree(desc);
-> > > > +     }
-> > > > +}
-> > > > +
-> > > > +static void desc_cache_put_split(struct vring_virtqueue *vq,
-> > > > +                              struct vring_desc *desc, int n)
-> > > > +{
-> > > > +     if (vq->use_desc_cache && n <= VIRT_QUEUE_CACHE_DESC_NUM) {
-> > > > +             desc->addr = (u64)vq->desc_cache_chain;
-> > > > +             vq->desc_cache_chain = desc;
-> > > > +     } else {
-> > > > +             kfree(desc);
-> > > > +     }
-> > > > +}
-> > > > +
-> > >
-> > >
-> > > So I have a question here. What happens if we just do:
-> > >
-> > > if (n <= VIRT_QUEUE_CACHE_DESC_NUM) {
-> > >         return kmem_cache_alloc(VIRT_QUEUE_CACHE_DESC_NUM * sizeof desc, gfp)
-> > > } else {
-> > >         return kmalloc_arrat(n, sizeof desc, gfp)
-> > > }
-> > >
-> > > A small change and won't we reap most performance benefits?
-> >
-> > Yes, I think we need a benchmark to use private cache to see how much
-> > it can help.
-> 
-> I did a test, the code is as follows:
-> 
-> +static void desc_cache_put_packed(struct vring_virtqueue *vq,
-> +                                  struct vring_packed_desc *desc, int n)
-> + {
-> +       if (n <= VIRT_QUEUE_CACHE_DESC_NUM) {
-> +               kmem_cache_free(vq->desc_cache, desc);
-> +       } else {
-> +               kfree(desc);
-> +       }
-> 
-> 
-> @@ -476,11 +452,14 @@ static struct vring_desc *alloc_indirect_split(struct vring_virtqueue *vq,
->          */
->         gfp &= ~__GFP_HIGHMEM;
-> 
-> -       desc = kmalloc_array(n, sizeof(struct vring_desc), gfp);
-> +       if (total_sg <= VIRT_QUEUE_CACHE_DESC_NUM)
-> +               desc = kmem_cache_alloc(vq->desc_cache, gfp);
-> +       else
-> +               desc = kmalloc_array(total_sg, sizeof(struct vring_desc), gfp);
+On Sun, Oct 31, 2021 at 1:00 AM Andrew Melnychenko <andrew@daynix.com> wrote:
+>
+> Added features for RSS and RSS hash report.
+> Added initialization, RXHASH feature and ethtool ops.
+> By default RSS/RXHASH is disabled.
+> Added ethtools ops to set key and indirection table.
+>
+> Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
+> ---
+>  drivers/net/virtio_net.c | 232 +++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 223 insertions(+), 9 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index abca2e93355d..cff7340f40bb 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -167,6 +167,28 @@ struct receive_queue {
+>         struct xdp_rxq_info xdp_rxq;
+>  };
+>
+> +/* This structure can contain rss message with maximum settings for indirection table and keysize
+> + * Note, that default structure that describes RSS configuration virtio_net_rss_config
+> + * contains same info but can't handle table values.
+> + * In any case, structure would be passed to virtio hw through sg_buf split by parts
+> + * because table sizes may be differ according to the device configuration.
+> + */
+> +#define VIRTIO_NET_RSS_MAX_KEY_SIZE     40
+
+Unless there is a technical reason, this probably should be no shorter
+than TOEPLITZ_KEY_LEN
+
+> +#define VIRTIO_NET_RSS_MAX_TABLE_LEN    128
+> +struct virtio_net_ctrl_rss {
+> +       struct {
+> +               __le32 hash_types;
+> +               __le16 indirection_table_mask;
+> +               __le16 unclassified_queue;
+
+Is this explicit variable needed?
+
+> +       } __packed table_info;
+> +       u16 indirection_table[VIRTIO_NET_RSS_MAX_TABLE_LEN];
+> +       struct {
+> +               u16 max_tx_vq; /* queues */
+> +               u8 hash_key_length;
+> +       } __packed key_info;
+> +       u8 key[VIRTIO_NET_RSS_MAX_KEY_SIZE];
+> +};
 > +
-> 
-> 	.......
-> 
-> +       vq->desc_cache = kmem_cache_create("virio_desc",
-> +                                          4 * sizeof(struct vring_desc),
-> +                                          0, 0, NULL);
-> 
-> The effect is not good, basically there is no improvement, using perf top can
-> see that the overhead of kmem_cache_alloc/kmem_cache_free is also relatively
-> large:
-> 
->          26.91%  [kernel]  [k] virtqueue_add
->          15.35%  [kernel]  [k] detach_buf_split
->          14.15%  [kernel]  [k] virtnet_xsk_xmit
->          13.24%  [kernel]  [k] virtqueue_add_outbuf
->        >  9.30%  [kernel]  [k] __slab_free
->        >  3.91%  [kernel]  [k] kmem_cache_alloc
->           2.85%  [kernel]  [k] virtqueue_get_buf_ctx
->        >  2.82%  [kernel]  [k] kmem_cache_free
->           2.54%  [kernel]  [k] memset_erms
->           2.37%  [kernel]  [k] xsk_tx_peek_desc
->           1.20%  [kernel]  [k] virtnet_xsk_run
->           0.81%  [kernel]  [k] vring_map_one_sg
->           0.69%  [kernel]  [k] __free_old_xmit_ptr
->           0.69%  [kernel]  [k] virtqueue_kick_prepare
->           0.43%  [kernel]  [k] sg_init_table
->           0.41%  [kernel]  [k] sg_next
->           0.28%  [kernel]  [k] vring_unmap_one_split
->           0.25%  [kernel]  [k] vring_map_single.constprop.34
->           0.24%  [kernel]  [k] net_rx_action
-> 
-> Thanks.
+>  /* Control VQ buffers: protected by the rtnl lock */
+>  struct control_buf {
+>         struct virtio_net_ctrl_hdr hdr;
+> @@ -176,6 +198,7 @@ struct control_buf {
+>         u8 allmulti;
+>         __virtio16 vid;
+>         __virtio64 offloads;
+> +       struct virtio_net_ctrl_rss rss;
+>  };
+>
+>  struct virtnet_info {
+> @@ -204,6 +227,12 @@ struct virtnet_info {
+>         /* Host will merge rx buffers for big packets (shake it! shake it!) */
+>         bool mergeable_rx_bufs;
+>
+> +       /* Host supports rss and/or hash report */
+> +       bool has_rss;
 
+Superfluous, can be derived form non-zero rss_key_size?
 
-How about batching these?  E.g. kmem_cache_alloc_bulk/kmem_cache_free_bulk?
+> +       bool has_rss_hash_report;
+> +       u8 rss_key_size;
+> +       u16 rss_indir_table_size;
+> +
+>         /* Has control virtqueue */
+>         bool has_cvq;
+>
+> @@ -1119,6 +1148,8 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+>         struct net_device *dev = vi->dev;
+>         struct sk_buff *skb;
+>         struct virtio_net_hdr_mrg_rxbuf *hdr;
+> +       struct virtio_net_hdr_v1_hash *hdr_hash;
+> +       enum pkt_hash_types rss_hash_type;
+>
+>         if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
+>                 pr_debug("%s: short packet %i\n", dev->name, len);
+> @@ -1145,6 +1176,29 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+>                 return;
+>
+>         hdr = skb_vnet_hdr(skb);
+> +       if (vi->has_rss_hash_report && (dev->features & NETIF_F_RXHASH)) {
 
+Only the second test is needed? It should be impossible to configure
+the feature unless the device advertises has_rss_hash_report
 
-> >
-> > Thanks
-> >
-> > >
-> > > --
-> > > MST
-> > >
-> >
+> +               hdr_hash = (struct virtio_net_hdr_v1_hash *)(hdr);
+> +
+> +               switch (hdr_hash->hash_report) {
+> +               case VIRTIO_NET_HASH_REPORT_TCPv4:
+> +               case VIRTIO_NET_HASH_REPORT_UDPv4:
+> +               case VIRTIO_NET_HASH_REPORT_TCPv6:
+> +               case VIRTIO_NET_HASH_REPORT_UDPv6:
+> +               case VIRTIO_NET_HASH_REPORT_TCPv6_EX:
+> +               case VIRTIO_NET_HASH_REPORT_UDPv6_EX:
+> +                       rss_hash_type = PKT_HASH_TYPE_L4;
+> +                       break;
+> +               case VIRTIO_NET_HASH_REPORT_IPv4:
+> +               case VIRTIO_NET_HASH_REPORT_IPv6:
+> +               case VIRTIO_NET_HASH_REPORT_IPv6_EX:
+> +                       rss_hash_type = PKT_HASH_TYPE_L3;
+> +                       break;
+> +               case VIRTIO_NET_HASH_REPORT_NONE:
+> +               default:
+> +                       rss_hash_type = PKT_HASH_TYPE_NONE;
+> +               }
 
+Is this detailed protocol typing necessary? Most devices only pass a bit is_l4.
+
+> +               skb_set_hash(skb, hdr_hash->hash_value, rss_hash_type);
+> +       }
+>
+>         if (hdr->hdr.flags & VIRTIO_NET_HDR_F_DATA_VALID)
+>                 skb->ip_summed = CHECKSUM_UNNECESSARY;
+> @@ -2167,6 +2221,57 @@ static void virtnet_get_ringparam(struct net_device *dev,
+>         ring->tx_pending = ring->tx_max_pending;
+>  }
+>
+> +static bool virtnet_commit_rss_command(struct virtnet_info *vi)
+> +{
+> +       struct net_device *dev = vi->dev;
+> +       struct scatterlist sgs[4];
+> +       unsigned int sg_buf_size;
+> +
+> +       /* prepare sgs */
+> +       sg_init_table(sgs, 4);
+> +
+> +       sg_buf_size = sizeof(vi->ctrl->rss.table_info);
+> +       sg_set_buf(&sgs[0], &vi->ctrl->rss.table_info, sg_buf_size);
+> +
+> +       sg_buf_size = sizeof(uint16_t) * vi->rss_indir_table_size;
+> +       sg_set_buf(&sgs[1], vi->ctrl->rss.indirection_table, sg_buf_size);
+> +
+> +       sg_buf_size = sizeof(vi->ctrl->rss.key_info);
+> +       sg_set_buf(&sgs[2], &vi->ctrl->rss.key_info, sg_buf_size);
+> +
+> +       sg_buf_size = vi->rss_key_size;
+> +       sg_set_buf(&sgs[3], vi->ctrl->rss.key, sg_buf_size);
+> +
+> +       if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_MQ,
+> +                                 vi->has_rss ? VIRTIO_NET_CTRL_MQ_RSS_CONFIG
+> +                                 : VIRTIO_NET_CTRL_MQ_HASH_CONFIG, sgs)) {
+> +               dev_warn(&dev->dev, "VIRTIONET issue with committing RSS sgs\n");
+> +               return false;
+> +       }
+> +       return true;
+> +}
+> +
+> +static void virtnet_init_default_rss(struct virtnet_info *vi)
+> +{
+> +       u32 indir_val = 0;
+> +       int i = 0;
+> +
+> +       vi->ctrl->rss.table_info.hash_types = vi->rss_hash_types_supported;
+
+Similar to above, and related to the next patch: is this very detailed
+specification of supported hash types needed? When is this useful? It
+is not customary to specify RSS to that degree.
+
+> +       vi->rss_hash_types_saved = vi->rss_hash_types_supported;
+> +       vi->ctrl->rss.table_info.indirection_table_mask = vi->rss_indir_table_size - 1;
+> +       vi->ctrl->rss.table_info.unclassified_queue = 0;
+> +
+> +       for (; i < vi->rss_indir_table_size; ++i) {
+> +               indir_val = ethtool_rxfh_indir_default(i, vi->max_queue_pairs);
+> +               vi->ctrl->rss.indirection_table[i] = indir_val;
+> +       }
+> +
+> +       vi->ctrl->rss.key_info.max_tx_vq = vi->curr_queue_pairs;
+> +       vi->ctrl->rss.key_info.hash_key_length = vi->rss_key_size;
+> +
+> +       netdev_rss_key_fill(vi->ctrl->rss.key, vi->rss_key_size);
+> +}
+> +
+>
+>  static void virtnet_get_drvinfo(struct net_device *dev,
+>                                 struct ethtool_drvinfo *info)
+> @@ -2395,6 +2500,71 @@ static void virtnet_update_settings(struct virtnet_info *vi)
+>                 vi->duplex = duplex;
+>  }
+>
+> +static u32 virtnet_get_rxfh_key_size(struct net_device *dev)
+> +{
+> +       return ((struct virtnet_info *)netdev_priv(dev))->rss_key_size;
+> +}
+> +
+> +static u32 virtnet_get_rxfh_indir_size(struct net_device *dev)
+> +{
+> +       return ((struct virtnet_info *)netdev_priv(dev))->rss_indir_table_size;
+> +}
+> +
+> +static int virtnet_get_rxfh(struct net_device *dev, u32 *indir, u8 *key, u8 *hfunc)
+> +{
+> +       struct virtnet_info *vi = netdev_priv(dev);
+> +       int i;
+> +
+> +       if (indir) {
+> +               for (i = 0; i < vi->rss_indir_table_size; ++i)
+> +                       indir[i] = vi->ctrl->rss.indirection_table[i];
+> +       }
+> +
+> +       if (key)
+> +               memcpy(key, vi->ctrl->rss.key, vi->rss_key_size);
+> +
+> +       if (hfunc)
+> +               *hfunc = ETH_RSS_HASH_TOP;
+> +
+> +       return 0;
+> +}
+> +
+> +static int virtnet_set_rxfh(struct net_device *dev, const u32 *indir, const u8 *key, const u8 hfunc)
+> +{
+> +       struct virtnet_info *vi = netdev_priv(dev);
+> +       int i;
+> +
+> +       if (hfunc != ETH_RSS_HASH_NO_CHANGE && hfunc != ETH_RSS_HASH_TOP)
+> +               return -EOPNOTSUPP;
+> +
+> +       if (indir) {
+> +               for (i = 0; i < vi->rss_indir_table_size; ++i)
+> +                       vi->ctrl->rss.indirection_table[i] = indir[i];
+> +       }
+> +       if (key)
+> +               memcpy(vi->ctrl->rss.key, key, vi->rss_key_size);
+> +
+> +       virtnet_commit_rss_command(vi);
+> +
+> +       return 0;
+> +}
+> +
+> +static int virtnet_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info, u32 *rule_locs)
+> +{
+> +       struct virtnet_info *vi = netdev_priv(dev);
+> +       int rc = 0;
+> +
+> +       switch (info->cmd) {
+> +       case ETHTOOL_GRXRINGS:
+> +               info->data = vi->curr_queue_pairs;
+> +               break;
+> +       default:
+> +               rc = -EOPNOTSUPP;
+> +       }
+> +
+> +       return rc;
+> +}
+> +
+>  static const struct ethtool_ops virtnet_ethtool_ops = {
+>         .supported_coalesce_params = ETHTOOL_COALESCE_MAX_FRAMES,
+>         .get_drvinfo = virtnet_get_drvinfo,
+> @@ -2410,6 +2580,11 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
+>         .set_link_ksettings = virtnet_set_link_ksettings,
+>         .set_coalesce = virtnet_set_coalesce,
+>         .get_coalesce = virtnet_get_coalesce,
+> +       .get_rxfh_key_size = virtnet_get_rxfh_key_size,
+> +       .get_rxfh_indir_size = virtnet_get_rxfh_indir_size,
+> +       .get_rxfh = virtnet_get_rxfh,
+> +       .set_rxfh = virtnet_set_rxfh,
+> +       .get_rxnfc = virtnet_get_rxnfc,
+>  };
+>
+>  static void virtnet_freeze_down(struct virtio_device *vdev)
+> @@ -3040,7 +3215,10 @@ static bool virtnet_validate_features(struct virtio_device *vdev)
+>                              "VIRTIO_NET_F_CTRL_VQ") ||
+>              VIRTNET_FAIL_ON(vdev, VIRTIO_NET_F_MQ, "VIRTIO_NET_F_CTRL_VQ") ||
+>              VIRTNET_FAIL_ON(vdev, VIRTIO_NET_F_CTRL_MAC_ADDR,
+> -                            "VIRTIO_NET_F_CTRL_VQ"))) {
+> +                            "VIRTIO_NET_F_CTRL_VQ") ||
+> +            VIRTNET_FAIL_ON(vdev, VIRTIO_NET_F_RSS, "VIRTIO_NET_F_RSS") ||
+> +            VIRTNET_FAIL_ON(vdev, VIRTIO_NET_F_HASH_REPORT,
+> +                            "VIRTIO_NET_F_HASH_REPORT"))) {
+>                 return false;
+>         }
+>
+> @@ -3080,13 +3258,14 @@ static int virtnet_probe(struct virtio_device *vdev)
+>         u16 max_queue_pairs;
+>         int mtu;
+>
+> -       /* Find if host supports multiqueue virtio_net device */
+> -       err = virtio_cread_feature(vdev, VIRTIO_NET_F_MQ,
+> -                                  struct virtio_net_config,
+> -                                  max_virtqueue_pairs, &max_queue_pairs);
+> +       /* Find if host supports multiqueue/rss virtio_net device */
+> +       max_queue_pairs = 0;
+> +       if (virtio_has_feature(vdev, VIRTIO_NET_F_MQ) || virtio_has_feature(vdev, VIRTIO_NET_F_RSS))
+
+Is VIRTIO_NET_F_RSS implied by VIRTIO_NET_F_MQ?
+
+> +               max_queue_pairs =
+> +                    virtio_cread16(vdev, offsetof(struct virtio_net_config, max_virtqueue_pairs));
+>
+>         /* We need at least 2 queue's */
+> -       if (err || max_queue_pairs < VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN ||
+> +       if (max_queue_pairs < VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN ||
+>             max_queue_pairs > VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MAX ||
+>             !virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_VQ))
+>                 max_queue_pairs = 1;
+> @@ -3170,8 +3349,36 @@ static int virtnet_probe(struct virtio_device *vdev)
+>         if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF))
+>                 vi->mergeable_rx_bufs = true;
+>
+> -       if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF) ||
+> -           virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
+> +       if (virtio_has_feature(vdev, VIRTIO_NET_F_HASH_REPORT)) {
+> +               vi->has_rss_hash_report = true;
+> +               vi->rss_indir_table_size = 1;
+> +               vi->rss_key_size = VIRTIO_NET_RSS_MAX_KEY_SIZE;
+> +       }
+> +
+> +       if (virtio_has_feature(vdev, VIRTIO_NET_F_RSS)) {
+> +               vi->has_rss = true;
+> +               vi->rss_indir_table_size =
+> +                       virtio_cread16(vdev, offsetof(struct virtio_net_config,
+> +                                                     rss_max_indirection_table_length));
+> +               vi->rss_key_size =
+> +                       virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
+> +       }
+
+Please split adding the two features, hash report and rss, into two
+separate patches.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
