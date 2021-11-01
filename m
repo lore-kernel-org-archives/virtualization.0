@@ -2,111 +2,99 @@ Return-Path: <SRS0=TJKJ=PU=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1C91C433EF
-	for <virtualization@archiver.kernel.org>; Mon,  1 Nov 2021 08:44:30 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69141C433EF
+	for <virtualization@archiver.kernel.org>; Mon,  1 Nov 2021 08:56:27 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9593860551
-	for <virtualization@archiver.kernel.org>; Mon,  1 Nov 2021 08:44:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9593860551
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 1A47060F58
+	for <virtualization@archiver.kernel.org>; Mon,  1 Nov 2021 08:56:27 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 1A47060F58
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 5CA496067E;
-	Mon,  1 Nov 2021 08:44:30 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id D090D4021C;
+	Mon,  1 Nov 2021 08:56:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ej3Wn459R301; Mon,  1 Nov 2021 08:44:25 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 70C2A605AD;
-	Mon,  1 Nov 2021 08:44:24 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 8-jQL0f950bk; Mon,  1 Nov 2021 08:56:26 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5D20240200;
+	Mon,  1 Nov 2021 08:56:25 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 57FF0C0019;
-	Mon,  1 Nov 2021 08:44:24 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 05423C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3FF02C0019;
+	Mon,  1 Nov 2021 08:56:25 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 790C4C000E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Nov 2021 08:44:24 +0000 (UTC)
+ Mon,  1 Nov 2021 08:56:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id DB1F780CB3
+ by smtp4.osuosl.org (Postfix) with ESMTP id 597AD4021C
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Nov 2021 08:44:23 +0000 (UTC)
+ Mon,  1 Nov 2021 08:56:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id si3HEPuaY4ad
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id JA6VqxWpC_-H
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Nov 2021 08:44:17 +0000 (UTC)
+ Mon,  1 Nov 2021 08:56:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 60ED580CC7
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 62F4040200
  for <virtualization@lists.linux-foundation.org>;
- Mon,  1 Nov 2021 08:44:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1635756248;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ Mon,  1 Nov 2021 08:56:22 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id 68575218EE;
+ Mon,  1 Nov 2021 08:56:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1635756980; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=2Ad4v/ujl0t03/UsIys5jLvOTiR3MOz3oTeEO3GUsRw=;
- b=UdxHmithQu3Z860J0B8MI1vr1m86BAPBmp43ufKVyqUVGkICbWxGZlwLsin8SKjYD9/Sku
- XFf0QJpRk81zhLDw/2XM6AmkpFX8RfZdSMgMd2u9Magq2o3/pTSboijJZGZmsxpD6Vynw0
- pN2JdQDPQtGgP5CBl9FEvJ1U5qUWDNs=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-578-tNQgTR5sNIudob5yiD78ww-1; Mon, 01 Nov 2021 04:44:07 -0400
-X-MC-Unique: tNQgTR5sNIudob5yiD78ww-1
-Received: by mail-ed1-f69.google.com with SMTP id
- w26-20020a056402071a00b003e28a389d04so2615340edx.4
- for <virtualization@lists.linux-foundation.org>;
- Mon, 01 Nov 2021 01:44:07 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=2Ad4v/ujl0t03/UsIys5jLvOTiR3MOz3oTeEO3GUsRw=;
- b=4olqNcPLaIbf1XOHZkjuKJWiyh711yZuT+6xfiiZL8HUab3fTPp6yG0RM5dUQVCuC+
- eQ1yRkcsgxEnYgtGBOSn6mz5kqW2sZTp7UuSi0cEnAD99FsNysUzB0jJDtgcTGL0hqzo
- 2Vnqe1c+1M4emxYRhGs2ShAfdN3o62BuCXT7m7Gysm4mzY1ghETCHZ7RCAFGIiaq3gzD
- RI3wWscmM2guJKaASa/iOk07GH8fJWZqKs7ytdauukhqPJHgHvTA1oNlrxMnKSqdDNhr
- VnIuvTY2u1gA3bYoM/QwtM+cAfOVK58LZ1kEp6zkm4BhTNOzWsO41orEwYJ0nwe8ptgy
- wyBQ==
-X-Gm-Message-State: AOAM533K9n0PtPfg1Pvs4/BnAdJZt9X4bZ2puedoC60NRDXh79ocHqWF
- Uut9kx5mnnNed55VaiN6Aw/yQS9zcRPhxkcC3C69q1AsGyoUZIr4shPGCnB/2Qw4TdKbcVagTJ7
- RSrx+8ec5rP/HJpNUGNsoR3qPmFgPmPiSLy2yrswfEQ==
-X-Received: by 2002:a17:906:6a08:: with SMTP id
- qw8mr16861437ejc.200.1635756246077; 
- Mon, 01 Nov 2021 01:44:06 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyd49MFk73UCNOr557C1b0YMN2BJsE8P1scufrL9YzNQZV1E2Ocll2Ydrc/TjafnpwIacvjTA==
-X-Received: by 2002:a17:906:6a08:: with SMTP id
- qw8mr16861416ejc.200.1635756245941; 
- Mon, 01 Nov 2021 01:44:05 -0700 (PDT)
-Received: from redhat.com ([176.12.204.186])
- by smtp.gmail.com with ESMTPSA id ho17sm1128483ejc.111.2021.11.01.01.44.03
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 01 Nov 2021 01:44:05 -0700 (PDT)
-Date: Mon, 1 Nov 2021 04:44:00 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Andrew Melnychenko <andrew@daynix.com>
-Subject: Re: [RFC PATCH 2/4] drivers/net/virtio_net: Changed mergeable buffer
- length calculation.
-Message-ID: <20211101044051-mutt-send-email-mst@kernel.org>
-References: <20211031045959.143001-1-andrew@daynix.com>
- <20211031045959.143001-3-andrew@daynix.com>
+ bh=/gAoh/M3xLamXnKRhZQpP6ElE8tO8QH5H+3FlrM2DoM=;
+ b=dIvPJNB2B8kKTYs/HXQPbI6k6cQku+49UsUI/qYJRZcb23bto18gBtiHIBAPUuw8hhWVFY
+ CdK/TKsD24NBrvH/a+KSB+iaNgzVhHd1TNJCxBP06FZxQsrOwFOmgOiTq2rPqXdc8BAza0
+ XMeDdPgA7pYpzxNoGl26XZgA6RzqK+U=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1635756980;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=/gAoh/M3xLamXnKRhZQpP6ElE8tO8QH5H+3FlrM2DoM=;
+ b=ST/Scq4z/Uaz/QZarqC5mq6FThKVpKypfmuS2LVL1lMjfvx+MLXrePf57GXp1DMDpiPrvd
+ fU6scMF0nhD+NeAQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id F244413A6F;
+ Mon,  1 Nov 2021 08:56:19 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id Fr/rObOrf2EILQAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Mon, 01 Nov 2021 08:56:19 +0000
+Message-ID: <a9da0350-9bfb-7c03-6689-2aec2d81b9df@suse.de>
+Date: Mon, 1 Nov 2021 09:56:19 +0100
 MIME-Version: 1.0
-In-Reply-To: <20211031045959.143001-3-andrew@daynix.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, yuri.benditovich@daynix.com,
- yan@daynix.com, kuba@kernel.org, davem@davemloft.net
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.1
+Subject: Re: [PATCH 7/9] drm/simpledrm: Enable FB_DAMAGE_CLIPS property
+Content-Language: en-US
+To: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>, daniel@ffwll.ch,
+ airlied@linux.ie, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
+ drawat.floss@gmail.com, airlied@redhat.com, kraxel@redhat.com,
+ david@lechnology.com, sam@ravnborg.org, javierm@redhat.com,
+ kernel@amanoeldawod.com, dirty.ice.hu@gmail.com, michael+lkml@stapelberg.ch,
+ aros@gmx.com, joshua@stroblindustries.com, arnd@arndb.de
+References: <20211022132829.7697-1-tzimmermann@suse.de>
+ <20211022132829.7697-8-tzimmermann@suse.de>
+ <14b1c21f-25e5-d862-40ea-dda1e076ef63@tronnes.org>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+In-Reply-To: <14b1c21f-25e5-d862-40ea-dda1e076ef63@tronnes.org>
+Cc: linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,65 +106,163 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============9095857100966582453=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Oct 31, 2021 at 06:59:57AM +0200, Andrew Melnychenko wrote:
-> Now minimal virtual header length is may include the entire v1 header
-> if the hash report were populated.
-> 
-> Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============9095857100966582453==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------RJd1tUifW0hS6OGaGXfRBZ69"
 
-subject isn't really descriptive. changed it how?
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------RJd1tUifW0hS6OGaGXfRBZ69
+Content-Type: multipart/mixed; boundary="------------0tHjtdziKhVLCIdQFX1aXOL1";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>, daniel@ffwll.ch,
+ airlied@linux.ie, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
+ drawat.floss@gmail.com, airlied@redhat.com, kraxel@redhat.com,
+ david@lechnology.com, sam@ravnborg.org, javierm@redhat.com,
+ kernel@amanoeldawod.com, dirty.ice.hu@gmail.com, michael+lkml@stapelberg.ch,
+ aros@gmx.com, joshua@stroblindustries.com, arnd@arndb.de
+Cc: dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
+Message-ID: <a9da0350-9bfb-7c03-6689-2aec2d81b9df@suse.de>
+Subject: Re: [PATCH 7/9] drm/simpledrm: Enable FB_DAMAGE_CLIPS property
+References: <20211022132829.7697-1-tzimmermann@suse.de>
+ <20211022132829.7697-8-tzimmermann@suse.de>
+ <14b1c21f-25e5-d862-40ea-dda1e076ef63@tronnes.org>
+In-Reply-To: <14b1c21f-25e5-d862-40ea-dda1e076ef63@tronnes.org>
 
-And I couldn't really decypher what this log entry means either.
+--------------0tHjtdziKhVLCIdQFX1aXOL1
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-> ---
->  drivers/net/virtio_net.c | 8 +++++---
->  1 file changed, 5 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index b72b21ac8ebd..abca2e93355d 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -393,7 +393,9 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
->  	hdr_p = p;
->  
->  	hdr_len = vi->hdr_len;
-> -	if (vi->mergeable_rx_bufs)
-> +	if (vi->has_rss_hash_report)
-> +		hdr_padded_len = sizeof(struct virtio_net_hdr_v1_hash);
-> +	else if (vi->mergeable_rx_bufs)
->  		hdr_padded_len = sizeof(*hdr);
->  	else
->  		hdr_padded_len = sizeof(struct padded_vnet_hdr);
-> @@ -1252,7 +1254,7 @@ static unsigned int get_mergeable_buf_len(struct receive_queue *rq,
->  					  struct ewma_pkt_len *avg_pkt_len,
->  					  unsigned int room)
->  {
-> -	const size_t hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
-> +	const size_t hdr_len = ((struct virtnet_info *)(rq->vq->vdev->priv))->hdr_len;
->  	unsigned int len;
->  
->  	if (room)
+SGkNCg0KQW0gMjQuMTAuMjEgdW0gMTc6MjAgc2NocmllYiBOb3JhbGYgVHLDuG5uZXM6DQo+
+IA0KPiANCj4gRGVuIDIyLjEwLjIwMjEgMTUuMjgsIHNrcmV2IFRob21hcyBaaW1tZXJtYW5u
+Og0KPj4gRW5hYmxlIHRoZSBGQl9EQU1BR0VfQ0xJUFMgcHJvcGVydHkgdG8gcmVkdWNlIGRp
+c3BsYXktdXBkYXRlDQo+PiBvdmVyaGVhZC4gQWxzbyBmaXhlcyBhIHdhcm5pbmcgaW4gdGhl
+IGtlcm5lbCBsb2cuDQo+Pg0KPj4gICAgc2ltcGxlLWZyYW1lYnVmZmVyIHNpbXBsZS1mcmFt
+ZWJ1ZmZlci4wOiBbZHJtXSBkcm1fcGxhbmVfZW5hYmxlX2ZiX2RhbWFnZV9jbGlwcygpIG5v
+dCBjYWxsZWQNCj4+DQo+PiBGaXggdGhlIGNvbXB1dGF0aW9uIG9mIHRoZSBibGl0IHJlY3Rh
+bmdsZS4gVGhpcyB3YXNuJ3QgYW4gaXNzdWUgc28NCj4+IGZhciwgYXMgc2ltcGxlZHJtIGFs
+d2F5cyBibGl0dGVkIHRoZSBmdWxsIGZyYW1lYnVmZmVyLiBUaGUgY29kZSBub3cNCj4+IHN1
+cHBvcnRzIGRhbWFnZSBjbGlwcGluZyBhbmQgdmlydHVhbCBzY3JlZW4gc2l6ZXMuDQo+Pg0K
+Pj4gU2lnbmVkLW9mZi1ieTogVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2Uu
+ZGU+DQo+PiAtLS0NCj4+ICAgZHJpdmVycy9ncHUvZHJtL3Rpbnkvc2ltcGxlZHJtLmMgfCAz
+MCArKysrKysrKysrKysrKysrKysrKysrLS0tLS0tLS0NCj4+ICAgMSBmaWxlIGNoYW5nZWQs
+IDIyIGluc2VydGlvbnMoKyksIDggZGVsZXRpb25zKC0pDQo+Pg0KPj4gZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvZ3B1L2RybS90aW55L3NpbXBsZWRybS5jIGIvZHJpdmVycy9ncHUvZHJtL3Rp
+bnkvc2ltcGxlZHJtLmMNCj4+IGluZGV4IDU3MWY3MTZmZjQyNy4uZTg3MjEyMWU5ZmIwIDEw
+MDY0NA0KPj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL3Rpbnkvc2ltcGxlZHJtLmMNCj4+ICsr
+KyBiL2RyaXZlcnMvZ3B1L2RybS90aW55L3NpbXBsZWRybS5jDQo+PiBAQCAtNjQyLDcgKzY0
+Miw3IEBAIHNpbXBsZWRybV9zaW1wbGVfZGlzcGxheV9waXBlX2VuYWJsZShzdHJ1Y3QgZHJt
+X3NpbXBsZV9kaXNwbGF5X3BpcGUgKnBpcGUsDQo+PiAgIAl2b2lkICp2bWFwID0gc2hhZG93
+X3BsYW5lX3N0YXRlLT5kYXRhWzBdLnZhZGRyOyAvKiBUT0RPOiBVc2UgbWFwcGluZyBhYnN0
+cmFjdGlvbiAqLw0KPj4gICAJc3RydWN0IGRybV9kZXZpY2UgKmRldiA9ICZzZGV2LT5kZXY7
+DQo+PiAgIAl2b2lkIF9faW9tZW0gKmRzdCA9IHNkZXYtPnNjcmVlbl9iYXNlOw0KPj4gLQlz
+dHJ1Y3QgZHJtX3JlY3QgY2xpcDsNCj4+ICsJc3RydWN0IGRybV9yZWN0IHNyY19jbGlwLCBk
+c3RfY2xpcDsNCj4+ICAgCWludCBpZHg7DQo+PiAgIA0KPj4gICAJaWYgKCFmYikNCj4+IEBA
+IC02NTEsMTAgKzY1MSwxNCBAQCBzaW1wbGVkcm1fc2ltcGxlX2Rpc3BsYXlfcGlwZV9lbmFi
+bGUoc3RydWN0IGRybV9zaW1wbGVfZGlzcGxheV9waXBlICpwaXBlLA0KPj4gICAJaWYgKCFk
+cm1fZGV2X2VudGVyKGRldiwgJmlkeCkpDQo+PiAgIAkJcmV0dXJuOw0KPj4gICANCj4+IC0J
+ZHJtX3JlY3RfaW5pdCgmY2xpcCwgMCwgMCwgZmItPndpZHRoLCBmYi0+aGVpZ2h0KTsNCj4+
+ICsJZHJtX3JlY3RfZnBfdG9faW50KCZzcmNfY2xpcCwgJnBsYW5lX3N0YXRlLT5zcmMpOw0K
+Pj4gICANCj4+IC0JZHN0ICs9IGRybV9mYl9jbGlwX29mZnNldChzZGV2LT5waXRjaCwgc2Rl
+di0+Zm9ybWF0LCAmY2xpcCk7DQo+PiAtCWRybV9mYl9ibGl0X3RvaW8oZHN0LCBzZGV2LT5w
+aXRjaCwgc2Rldi0+Zm9ybWF0LT5mb3JtYXQsIHZtYXAsIGZiLCAmY2xpcCk7DQo+PiArCWRz
+dF9jbGlwID0gcGxhbmVfc3RhdGUtPmRzdDsNCj4+ICsJaWYgKCFkcm1fcmVjdF9pbnRlcnNl
+Y3QoJmRzdF9jbGlwLCAmc3JjX2NsaXApKQ0KPj4gKwkJcmV0dXJuOw0KPj4gKw0KPj4gKwlk
+c3QgKz0gZHJtX2ZiX2NsaXBfb2Zmc2V0KHNkZXYtPnBpdGNoLCBzZGV2LT5mb3JtYXQsICZk
+c3RfY2xpcCk7DQo+PiArCWRybV9mYl9ibGl0X3RvaW8oZHN0LCBzZGV2LT5waXRjaCwgc2Rl
+di0+Zm9ybWF0LT5mb3JtYXQsIHZtYXAsIGZiLCAmc3JjX2NsaXApOw0KPj4gICANCj4+ICAg
+CWRybV9kZXZfZXhpdChpZHgpOw0KPj4gICB9DQo+PiBAQCAtNjg2LDIwICs2OTAsMjggQEAg
+c2ltcGxlZHJtX3NpbXBsZV9kaXNwbGF5X3BpcGVfdXBkYXRlKHN0cnVjdCBkcm1fc2ltcGxl
+X2Rpc3BsYXlfcGlwZSAqcGlwZSwNCj4+ICAgCXN0cnVjdCBkcm1fZnJhbWVidWZmZXIgKmZi
+ID0gcGxhbmVfc3RhdGUtPmZiOw0KPj4gICAJc3RydWN0IGRybV9kZXZpY2UgKmRldiA9ICZz
+ZGV2LT5kZXY7DQo+PiAgIAl2b2lkIF9faW9tZW0gKmRzdCA9IHNkZXYtPnNjcmVlbl9iYXNl
+Ow0KPj4gLQlzdHJ1Y3QgZHJtX3JlY3QgY2xpcDsNCj4+ICsJc3RydWN0IGRybV9yZWN0IGRh
+bWFnZV9jbGlwLCBzcmNfY2xpcCwgZHN0X2NsaXA7DQo+PiAgIAlpbnQgaWR4Ow0KPj4gICAN
+Cj4+ICAgCWlmICghZmIpDQo+PiAgIAkJcmV0dXJuOw0KPj4gICANCj4+IC0JaWYgKCFkcm1f
+YXRvbWljX2hlbHBlcl9kYW1hZ2VfbWVyZ2VkKG9sZF9wbGFuZV9zdGF0ZSwgcGxhbmVfc3Rh
+dGUsICZjbGlwKSkNCj4+ICsJaWYgKCFkcm1fYXRvbWljX2hlbHBlcl9kYW1hZ2VfbWVyZ2Vk
+KG9sZF9wbGFuZV9zdGF0ZSwgcGxhbmVfc3RhdGUsICZkYW1hZ2VfY2xpcCkpDQo+PiArCQly
+ZXR1cm47DQo+PiArDQo+IA0KPiBJJ20gYWZyYWlkIEkgZG9uJ3QgdW5kZXJzdGFuZCB3aGF0
+J3MgZ29pbmcgb24gaGVyZSwgYnV0IGlzbid0IGl0DQo+IHBvc3NpYmxlIHRvIHB1dCB0aGlz
+IGxvZ2ljIGludG8gZHJtX2F0b21pY19oZWxwZXJfZGFtYWdlX21lcmdlZCgpPw0KDQpUaGUg
+Y29kZSBhYm92ZSBnZXRzIHRoZSBkYW1hZ2UgcmVjdGFuZ2xlIChpLmUuLCB0aGUgcGxhbmUn
+cyBhcmVhIHRoYXQgDQpuZWVkcyB0byBiZSB1cGRhdGVkKS4gVGhlIGNvZGUgYmVsb3cgZ2V0
+J3MgdGhlIGZyYW1lYnVmZmVyIGFyZWEuIElmIHRoZXkgDQpkb24ndCBvdmVybGFwLCByZXR1
+cm4uIChJIHRoaW5rIHRoaXMgY2FuIHJlYWxseSBvbmx5IGZhaWwgd2l0aCB0aGUgbmV4dCAN
+CnBhdGNoIGluIHRoZSBzZXJpZXMsIHdoaWNoIGFkZHMgdmlydHVhbCBzY3JlZW5zLikNCg0K
+PiANCj4gTm9yYWxmLg0KPiANCj4+ICsJZHJtX3JlY3RfZnBfdG9faW50KCZzcmNfY2xpcCwg
+JnBsYW5lX3N0YXRlLT5zcmMpOw0KPj4gKwlpZiAoIWRybV9yZWN0X2ludGVyc2VjdCgmc3Jj
+X2NsaXAsICZkYW1hZ2VfY2xpcCkpDQo+PiArCQlyZXR1cm47DQo+PiArDQo+PiArCWRzdF9j
+bGlwID0gcGxhbmVfc3RhdGUtPmRzdDsNCj4+ICsJaWYgKCFkcm1fcmVjdF9pbnRlcnNlY3Qo
+JmRzdF9jbGlwLCAmc3JjX2NsaXApKQ0KPj4gICAJCXJldHVybjsNCg0KQW5kIGhlcmUgd2Ug
+Y2hlY2sgaWYgdGhlIHVwZGF0ZWQgcGxhbmUvZnJhbWVidWZmZXIgYXJlYSBpcyBhY3R1YWxs
+eSANCnZpc2libGUgb24gc2NyZWVuOyBvdGhlcndpc2UgcmV0dXJuLiBJdCBjb3VsZCBiZSBp
+biBhbiBhcmVhIHRoYXQgaXMgDQpvZmYtc2NyZWVuLiAoQWdhaW4sIHRoaXMgcHJvYmFibHkg
+b25seSBmYWlscyB3aXRoIHRoZSB2aXJ0dWFsLXNjcmVlbiBwYXRjaC4pDQoNCkkgZG9uJ3Qg
+dGhpbmsgdGhpcyBpcyBhbGwgZ2VuZXJpYyBlbm91Z2ggdG8gYmUgd2l0aGluIA0KZHJtX2F0
+b21pY19oZWxwZXJfZGFtYWdlX21lcmdlZCgpLiBCdXQgb25jZSB3ZSBoYXZlIG11bHRpcGxl
+IFNITUVNLWJhc2VkIA0KZHJpdmVycyB3aXRoIHZpcnR1YWwgc2NyZWVucywgd2UgY2FuIG1v
+dmUgaXQgaW50byBhIGhlbHBlciBmb3IgDQpzaGFkb3ctYnVmZmVyZWQgcGxhbmVzLiBZb3Vy
+IGd1ZCBkcml2ZXIgd291bGQgYmUgYSBjYW5kaWRhdGUgZm9yIHRoaXMgDQpmZWF0dXJlIGFz
+IHdlbGwuDQoNCkJlc3QgcmVnYXJkcw0KVGhvbWFzDQoNCj4+ICAgDQo+PiAgIAlpZiAoIWRy
+bV9kZXZfZW50ZXIoZGV2LCAmaWR4KSkNCj4+ICAgCQlyZXR1cm47DQo+PiAgIA0KPj4gLQlk
+c3QgKz0gZHJtX2ZiX2NsaXBfb2Zmc2V0KHNkZXYtPnBpdGNoLCBzZGV2LT5mb3JtYXQsICZj
+bGlwKTsNCj4+IC0JZHJtX2ZiX2JsaXRfdG9pbyhkc3QsIHNkZXYtPnBpdGNoLCBzZGV2LT5m
+b3JtYXQtPmZvcm1hdCwgdm1hcCwgZmIsICZjbGlwKTsNCj4+ICsJZHN0ICs9IGRybV9mYl9j
+bGlwX29mZnNldChzZGV2LT5waXRjaCwgc2Rldi0+Zm9ybWF0LCAmZHN0X2NsaXApOw0KPj4g
+Kwlkcm1fZmJfYmxpdF90b2lvKGRzdCwgc2Rldi0+cGl0Y2gsIHNkZXYtPmZvcm1hdC0+Zm9y
+bWF0LCB2bWFwLCBmYiwgJnNyY19jbGlwKTsNCj4+ICAgDQo+PiAgIAlkcm1fZGV2X2V4aXQo
+aWR4KTsNCj4+ICAgfQ0KPj4gQEAgLTc5NCw2ICs4MDYsOCBAQCBzdGF0aWMgaW50IHNpbXBs
+ZWRybV9kZXZpY2VfaW5pdF9tb2Rlc2V0KHN0cnVjdCBzaW1wbGVkcm1fZGV2aWNlICpzZGV2
+KQ0KPj4gICAJaWYgKHJldCkNCj4+ICAgCQlyZXR1cm4gcmV0Ow0KPj4gICANCj4+ICsJZHJt
+X3BsYW5lX2VuYWJsZV9mYl9kYW1hZ2VfY2xpcHMoJnBpcGUtPnBsYW5lKTsNCj4+ICsNCj4+
+ICAgCWRybV9tb2RlX2NvbmZpZ19yZXNldChkZXYpOw0KPj4gICANCj4+ICAgCXJldHVybiAw
+Ow0KPj4NCg0KLS0gDQpUaG9tYXMgWmltbWVybWFubg0KR3JhcGhpY3MgRHJpdmVyIERldmVs
+b3Blcg0KU1VTRSBTb2Z0d2FyZSBTb2x1dGlvbnMgR2VybWFueSBHbWJIDQpNYXhmZWxkc3Ry
+LiA1LCA5MDQwOSBOw7xybmJlcmcsIEdlcm1hbnkNCihIUkIgMzY4MDksIEFHIE7DvHJuYmVy
+ZykNCkdlc2Now6RmdHNmw7xocmVyOiBJdm8gVG90ZXYNCg==
 
-Is this pointer chasing the best we can do?
+--------------0tHjtdziKhVLCIdQFX1aXOL1--
 
-> @@ -2817,7 +2819,7 @@ static void virtnet_del_vqs(struct virtnet_info *vi)
->   */
->  static unsigned int mergeable_min_buf_len(struct virtnet_info *vi, struct virtqueue *vq)
->  {
-> -	const unsigned int hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
-> +	const unsigned int hdr_len = vi->hdr_len;
->  	unsigned int rq_size = virtqueue_get_vring_size(vq);
->  	unsigned int packet_len = vi->big_packets ? IP_MAX_MTU : vi->dev->max_mtu;
->  	unsigned int buf_len = hdr_len + ETH_HLEN + VLAN_HLEN + packet_len;
-> -- 
-> 2.33.1
+--------------RJd1tUifW0hS6OGaGXfRBZ69
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmF/q7MFAwAAAAAACgkQlh/E3EQov+A9
+Fw//eUaWX6UrCpWmYeWgM2MeR9wFjwTIkIa08QW9KG/n0MHtwY/Ifp5NBgXe4thSPZQ6TF4sCQXp
+ragNvD3qLPf/9dyRHu+mgnGdnZywsabjXe8Q7pHdrd6V+AhWsTl0zTg/2cZIMKyM5fE+39pRbAhY
+4wo8mDASZqdIvfJUnzrb7Y0gzNyl3nXWiFgrbsNKclCBf3llxWCPweKnT5XbqPmhRb71/CcyTIWZ
+QuvttfHy9XdRe3E+hvLPtBvQEL0rco2jVNBUjVbdkggzoeARdci/VmmsOy9b4S19gCqj3AU92Ulb
+WU1mEL9eGCtHUM5qFkukHcLWR0XYtVdMxqh3oyLyN2V8aZoELCof8gxQo90cymNvXMYjV8uFxAR9
+p1TWjNqa6QJ5IiTs+bpdJI7HLKe3fii+G6aihXkr0or5MsH5Ne3XGKBWSldyzVAEZCxQWhCCLfQh
+3gI0B4ocaAtUg81KImn/hcbdg76TwJ5dVA2f4bKuWsimb94Q0ENI6vHo7M4HJZvRM2J3DcCnvHd3
+E49Qd6OCFQ/vmZVAN1djQHV8iNiQmRSSY52hjzUpZ0k8bJQkBiaP23pm48t6vD2/ZUl59dGOoThE
+9jyuqRV8PKfZl8r9XAaY8v7cPxiMwebQigfF6xInTw6fOvQ2pL82RbNBKF+DwejIu98Y+tY6YOwC
+l9k=
+=iyqV
+-----END PGP SIGNATURE-----
+
+--------------RJd1tUifW0hS6OGaGXfRBZ69--
+
+--===============9095857100966582453==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============9095857100966582453==--
