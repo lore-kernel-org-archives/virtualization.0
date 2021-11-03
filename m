@@ -2,109 +2,94 @@ Return-Path: <SRS0=Oeu7=PW=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19DB2C433F5
-	for <virtualization@archiver.kernel.org>; Wed,  3 Nov 2021 06:37:54 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBF4CC433F5
+	for <virtualization@archiver.kernel.org>; Wed,  3 Nov 2021 07:30:56 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A1B2560F02
-	for <virtualization@archiver.kernel.org>; Wed,  3 Nov 2021 06:37:53 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org A1B2560F02
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 6A7E4610FC
+	for <virtualization@archiver.kernel.org>; Wed,  3 Nov 2021 07:30:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 6A7E4610FC
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 545F040293;
-	Wed,  3 Nov 2021 06:37:53 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2051F608ED;
+	Wed,  3 Nov 2021 07:30:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ExbHfWDVx3j6; Wed,  3 Nov 2021 06:37:51 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 2D94640001;
-	Wed,  3 Nov 2021 06:37:51 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TbLPXLQE5xSC; Wed,  3 Nov 2021 07:30:55 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id C6BE56080C;
+	Wed,  3 Nov 2021 07:30:54 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E006FC0012;
-	Wed,  3 Nov 2021 06:37:50 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 55CD6C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8D373C0019;
+	Wed,  3 Nov 2021 07:30:54 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 50BF6C000E
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Nov 2021 06:37:49 +0000 (UTC)
+ Wed,  3 Nov 2021 07:30:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 3E7564043E
+ by smtp2.osuosl.org (Postfix) with ESMTP id 44CE240101
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Nov 2021 06:37:49 +0000 (UTC)
+ Wed,  3 Nov 2021 07:30:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nbby93F20REH
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id p4j1s4EV-sUA
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Nov 2021 06:37:48 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com
- [IPv6:2607:f8b0:4864:20::62f])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 491444043D
+ Wed,  3 Nov 2021 07:30:52 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 2F764400F2
  for <virtualization@lists.linux-foundation.org>;
- Wed,  3 Nov 2021 06:37:48 +0000 (UTC)
-Received: by mail-pl1-x62f.google.com with SMTP id r5so1852431pls.1
- for <virtualization@lists.linux-foundation.org>;
- Tue, 02 Nov 2021 23:37:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=KvV07TGoZaoGw8L0LWYKUbxKaPDqvzThxG6WFrFLoZE=;
- b=qV6o2DHzNyXcnTFQQPyEAH5HGAgqErf+nLausmvme7o+/HaH5BSY6GgQgYvm3NkDV1
- OR0M6iMn7ErGmFwBNJwqGcnzu3l2AYFln/0aOue4QU9nVvw9ay2ysnUE2cF7dZWoUOYH
- zLARG2g2WK8ganoyxRfEwndQ4J/4Irml4yeScRNO3KiamTkfwqbjH+IAAIoL15ZP5V26
- 1v5s1K+xO1a1+PH3LDRkuvG2tCjW+/AJpoOYNzC9a4nhJRD9Sr7QgBzIa9O7SeyT2KwP
- 3Ddois9E1aWdVaOecGfUI/sREvr3AoThqfVKlOv1mH9c7izxYcqWyPDhvnLUSt8A5x8+
- O9+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=KvV07TGoZaoGw8L0LWYKUbxKaPDqvzThxG6WFrFLoZE=;
- b=l9I0Dov1XGyUtjTQmiTLSUSvt6tHL1NJZ+BKIg39v/dfHtH2R6cREApTbPhaGDDkXo
- K0OZoRrzDeZUn284ViWmx48pNKJbikZ3gRkyVLmXSgTxPAkqNUTB/x12JwblYtlQmGMA
- VDFHYG3GDuOMTNzKxVAfxiifX8qIoI/ycLXEgbjilCZ/qqQHi2m3J+cMnouXvkE/Xy4t
- kMzdcHblxar+Nc4zObLiHVYobArbJsEgtzc+7plCjJSbJOO+BJegBYCFcAtdpAlqL65L
- G8VlmP7W0adEqBaFuBbYapdpl3YC+52QaKFxp49aSNtVJHZwFkORefbJ5luXGxWxPn+n
- kH9A==
-X-Gm-Message-State: AOAM531z2HMm3tNQGR7CeXO6Zh0UHogPlE4uxmrWwvNedL2yr+wfP/Oj
- /GwUR/pd52wV+ufr7c0eHr48Aw==
-X-Google-Smtp-Source: ABdhPJzCmOo15jlPdgZPi4SyQjZk/5+4lEfnC9j8LuN0Fw6C+DU4a7f23C24EyvWV1cMUmhMJaL6/A==
-X-Received: by 2002:a17:90a:928a:: with SMTP id
- n10mr12308079pjo.128.1635921467640; 
- Tue, 02 Nov 2021 23:37:47 -0700 (PDT)
-Received: from localhost ([106.201.113.61])
- by smtp.gmail.com with ESMTPSA id oa4sm930068pjb.13.2021.11.02.23.37.46
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 02 Nov 2021 23:37:47 -0700 (PDT)
-Date: Wed, 3 Nov 2021 12:07:45 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: "Chen, Conghui" <conghui.chen@intel.com>
-Subject: Re: [PATCH 1/2] i2c: virtio: disable timeout handling
-Message-ID: <20211103063745.utpphthou4angs4s@vireshk-i7>
-References: <YW+q1yQ8MuhHINAs@kroah.com>
- <8e182ea8-5016-fa78-3d77-eefba7d58612@intel.com>
- <20211020064128.y2bjsbdmpojn7pjo@vireshk-i7>
- <01d9c992-28cc-6644-1e82-929fc46f91b4@intel.com>
- <20211020105554.GB9985@axis.com>
- <20211020110316.4x7tnxonswjuuoiw@vireshk-i7>
- <df7e6127-05fb-6aad-3896-fc810f213a54@intel.com>
- <20211029122450.GB24060@axis.com>
- <8592a48d-0131-86bf-586a-d33e7989e523@intel.com>
- <MWHPR11MB0030C3489F38FF2AAF7C3D0A908C9@MWHPR11MB0030.namprd11.prod.outlook.com>
+ Wed,  3 Nov 2021 07:30:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1635924651;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=0xpja8WAihX9QgetoK4QXWHOWWctjoZyW/XmFOQd8n4=;
+ b=WCwF36Vhsr6AhYP//HwDPAVNS5AwjPZv8wDtCGws+v33EprWNfSsa7Q7SKSFPETdVb6mao
+ ZaGF01EfsY6dlm4S7S38OsW3G0wmlh/WwiJLuc5C7owkpDumxn6noNv1fv9PjP6rotED48
+ bWCUGQrjClSY0XFl/N1UU+9u/M+egIQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-100-3wlqcyNwORaF132aqw5eUQ-1; Wed, 03 Nov 2021 03:30:47 -0400
+X-MC-Unique: 3wlqcyNwORaF132aqw5eUQ-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
+ [10.5.11.23])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A05A710B3947;
+ Wed,  3 Nov 2021 07:30:45 +0000 (UTC)
+Received: from sirius.home.kraxel.org (unknown [10.39.194.99])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id E65C319723;
+ Wed,  3 Nov 2021 07:30:44 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+ id 147151800924; Wed,  3 Nov 2021 08:30:43 +0100 (CET)
+Date: Wed, 3 Nov 2021 08:30:43 +0100
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Chia-I Wu <olvaffe@gmail.com>
+Subject: Re: [PATCH] drm/virtio: delay pinning the pages till first use
+Message-ID: <20211103073043.x7hdnm43zrw7u6j3@sirius.home.kraxel.org>
+References: <20211102113139.154140-1-maksym.wezdecki@collabora.com>
+ <20211102130308.2s64ghmic5nhj6vu@sirius.home.kraxel.org>
+ <CAPaKu7T9-KmmDwNRFzQWM3jH4h-xUwjtfWays20z24dVvROoHw@mail.gmail.com>
 MIME-Version: 1.0
+In-Reply-To: <CAPaKu7T9-KmmDwNRFzQWM3jH4h-xUwjtfWays20z24dVvROoHw@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=kraxel@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <MWHPR11MB0030C3489F38FF2AAF7C3D0A908C9@MWHPR11MB0030.namprd11.prod.outlook.com>
-User-Agent: NeoMutt/20180716-391-311a52
-Cc: Greg KH <gregkh@linuxfoundation.org>,
- Vincent Whitchurch <vincent.whitchurch@axis.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Wolfram Sang <wsa@kernel.org>,
- kernel <kernel@axis.com>,
- "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Cc: David Airlie <airlied@linux.ie>, mwezdeck <maksym.wezdecki@collabora.co.uk>,
+ ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE,
+ NET AND BLOCK DRIVERS" <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,34 +106,42 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 03-11-21, 06:18, Chen, Conghui wrote:
-> >>> Over the long term, I think the backend should provide that timeout
-> >>> value and guarantee that its processing time should not exceed that
-> >>> value.
-> >> If you mean that the spec should be changed to allow the virtio driver
-> >> to be able to program a certain timeout for I2C transactions in the
-> >> virtio device, yes, that does sound reasonable.
+On Tue, Nov 02, 2021 at 08:58:55AM -0700, Chia-I Wu wrote:
+> On Tue, Nov 2, 2021 at 6:07 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
 > >
+> > On Tue, Nov 02, 2021 at 12:31:39PM +0100, Maksym Wezdecki wrote:
+> > > From: mwezdeck <maksym.wezdecki@collabora.co.uk>
+> > >
+> > > The idea behind the commit:
+> > >   1. not pin the pages during resource_create ioctl
+> > >   2. pin the pages on the first use during:
+> > >       - transfer_*_host ioctl
+> > >         - map ioctl
 > >
-> >Due to changes in my work, I will pass my virtio-i2c maintenance to Conghui.
+> > i.e. basically lazy pinning.  Approach looks sane to me.
 > >
-> >She may work on this in the future.
+> > >   3. introduce new ioctl for pinning pages on demand
 > >
+> > What is the use case for this ioctl?
+> > In any case this should be a separate patch.
 > 
-> I'll try to update the spec first.
+> Lazy pinning can be a nice optimization that userspace does not
+> necessarily need to know about.  This patch however skips pinning for
+> execbuffer ioctl and introduces a new pin ioctl instead.  That is a
+> red flag.
 
-I don't think the spec should be changed for timeout. Timeout-interval
-here isn't the property of just the host firmware/kernel, but the
-entire setup plays a role here.
+Ah, so the pin ioctl is for buffers which need a pin for execbuffer.
 
-Host have its own timeframe to take care of things (I think HZ should
-really be enough for that, since kernel can manage it for busses
-normally with just that). Then comes the virtualization, context
-switches, guest OS, backend, etc, which add to this delay. All this is
-not part of the virtio protocol and so shouldn't be made part of it.
+Yep, that isn't going to fly that way, it'll break old userspace.
 
--- 
-viresh
+Lazy pinning must be opt-in, so new userspace which knows about
+the pin ioctl can enable lazy pinning.  One possible way would
+be to add a flag for the VIRTGPU_RESOURCE_CREATE ioctl, so lazy
+pinning can be enabled per resource.
+
+take care,
+  Gerd
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
