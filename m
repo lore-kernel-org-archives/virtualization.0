@@ -2,79 +2,88 @@ Return-Path: <SRS0=bIcn=PX=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A834C433EF
-	for <virtualization@archiver.kernel.org>; Thu,  4 Nov 2021 16:17:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C35DC433FE
+	for <virtualization@archiver.kernel.org>; Thu,  4 Nov 2021 16:24:17 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9A83B6120D
-	for <virtualization@archiver.kernel.org>; Thu,  4 Nov 2021 16:17:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 9A83B6120D
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 1410B61213
+	for <virtualization@archiver.kernel.org>; Thu,  4 Nov 2021 16:24:17 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 1410B61213
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5B55C81763;
-	Thu,  4 Nov 2021 16:17:41 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id C5A0480DB0;
+	Thu,  4 Nov 2021 16:24:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dh-b1_OXSk01; Thu,  4 Nov 2021 16:17:40 +0000 (UTC)
+	with ESMTP id HmI14tgfHug6; Thu,  4 Nov 2021 16:24:15 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id F0BE381024;
-	Thu,  4 Nov 2021 16:17:39 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 23E2A80D9F;
+	Thu,  4 Nov 2021 16:24:15 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D1C83C0019;
-	Thu,  4 Nov 2021 16:17:39 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 06479C0019;
+	Thu,  4 Nov 2021 16:24:15 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C734EC000E
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 24C1AC000E
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Nov 2021 16:17:38 +0000 (UTC)
+ Thu,  4 Nov 2021 16:24:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id B622681763
+ by smtp1.osuosl.org (Postfix) with ESMTP id 1362680DB0
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Nov 2021 16:17:38 +0000 (UTC)
+ Thu,  4 Nov 2021 16:24:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id p8gVx7uaqK1I
+ with ESMTP id vLY3wZviJeRc
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Nov 2021 16:17:38 +0000 (UTC)
+ Thu,  4 Nov 2021 16:24:13 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id E479F81024
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id DB49480D9F
  for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Nov 2021 16:17:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1636042656;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding;
- bh=58SrHNIIdlgF7MCvqRHT0amuy7+SSMib9RGeKXb0aIU=;
- b=AnXSD9VJlaJwL+M7nrPjLEYlPmKV0u9bo9Bo5rLrX4A904+0w3dC9LKAg9pGpTBiPw7qPv
- 788SrUN39US+3cG29T9/URKwvcg6oXx6cLXckoBupcS9dAFJaQyhPNKaDLlsiw2Z3cdQxy
- FEHwcSeQuWBVjybM8bDFGHooDmFo9qc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-313-ijKeRPLMMYiD6fo1jNpPEQ-1; Thu, 04 Nov 2021 12:17:33 -0400
-X-MC-Unique: ijKeRPLMMYiD6fo1jNpPEQ-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0C8DF87D571;
- Thu,  4 Nov 2021 16:17:32 +0000 (UTC)
-Received: from steredhat.redhat.com (unknown [10.39.193.176])
- by smtp.corp.redhat.com (Postfix) with ESMTP id ADDE678C01;
- Thu,  4 Nov 2021 16:17:30 +0000 (UTC)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: virtualization@lists.linux-foundation.org
-Subject: [PATCH] vdpa: add driver_override support
-Date: Thu,  4 Nov 2021 17:17:29 +0100
-Message-Id: <20211104161729.258294-1-sgarzare@redhat.com>
+ Thu,  4 Nov 2021 16:24:12 +0000 (UTC)
+X-IronPort-AV: E=McAfee;i="6200,9189,10157"; a="218934449"
+X-IronPort-AV: E=Sophos;i="5.87,209,1631602800"; d="scan'208";a="218934449"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+ by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 04 Nov 2021 09:24:11 -0700
+X-IronPort-AV: E=Sophos;i="5.87,209,1631602800"; d="scan'208";a="501602671"
+Received: from mihaelac-mobl.ger.corp.intel.com (HELO localhost)
+ ([10.249.32.21])
+ by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 04 Nov 2021 09:24:03 -0700
+From: Jani Nikula <jani.nikula@linux.intel.com>
+To: Javier Martinez Canillas <javierm@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] drm: Add a drm_drv_enabled() to check if drivers
+ should be enabled
+In-Reply-To: <20211104160707.1407052-2-javierm@redhat.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+References: <20211104160707.1407052-1-javierm@redhat.com>
+ <20211104160707.1407052-2-javierm@redhat.com>
+Date: Thu, 04 Nov 2021 18:24:01 +0200
+Message-ID: <87zgqjanz2.fsf@intel.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-Cc: linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>,
+ Javier Martinez Canillas <javierm@redhat.com>, amd-gfx@lists.freedesktop.org,
+ VMware Graphics <linux-graphics-maintainer@vmware.com>,
+ Peter Robinson <pbrobinson@gmail.com>, nouveau@lists.freedesktop.org,
+ Dave Airlie <airlied@redhat.com>, Chia-I Wu <olvaffe@gmail.com>,
+ Ben Skeggs <bskeggs@redhat.com>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Michel =?utf-8?Q?D=C3=A4nzer?= <michel@daenzer.net>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Hans de Goede <hdegoede@redhat.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ virtualization@lists.linux-foundation.org,
+ Pekka Paalanen <pekka.paalanen@collabora.com>, "Pan,
+ Xinhui" <Xinhui.Pan@amd.com>, spice-devel@lists.freedesktop.org,
+ Daniel Vetter <daniel@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>,
+ intel-gfx@lists.freedesktop.org,
+ Christian =?utf-8?Q?K=C3=B6nig?= <christian.koenig@amd.com>,
+ Zack Rusin <zackr@vmware.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -91,156 +100,325 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-`driver_override` allows to control which of the vDPA bus drivers
-binds to a vDPA device.
+On Thu, 04 Nov 2021, Javier Martinez Canillas <javierm@redhat.com> wrote:
+> Some DRM drivers check the vgacon_text_force() function return value as an
+> indication on whether they should be allowed to be enabled or not.
+>
+> This function returns true if the nomodeset kernel command line parameter
+> was set. But there may be other conditions besides this to determine if a
+> driver should be enabled.
+>
+> Let's add a drm_drv_enabled() helper function to encapsulate that logic so
+> can be later extended if needed, without having to modify all the drivers.
+>
+> Also, while being there do some cleanup. The vgacon_text_force() function
+> is guarded by CONFIG_VGA_CONSOLE and there's no need for callers to do it.
+>
+> Suggested-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+> ---
+>
+> Changes in v2:
+> - Squash patch to add drm_drv_enabled() and make drivers use it.
+> - Make the drivers changes before moving nomodeset logic to DRM.
+> - Make drm_drv_enabled() return an errno and -ENODEV if nomodeset.
+> - Remove debug and error messages in drivers.
+>
+>  drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |  7 +++----
+>  drivers/gpu/drm/ast/ast_drv.c           |  7 +++++--
+>  drivers/gpu/drm/drm_drv.c               | 20 ++++++++++++++++++++
+>  drivers/gpu/drm/i915/i915_module.c      |  6 +++++-
+>  drivers/gpu/drm/mgag200/mgag200_drv.c   |  7 +++++--
+>  drivers/gpu/drm/nouveau/nouveau_drm.c   |  5 ++++-
+>  drivers/gpu/drm/qxl/qxl_drv.c           |  7 +++++--
+>  drivers/gpu/drm/radeon/radeon_drv.c     |  6 ++++--
+>  drivers/gpu/drm/tiny/bochs.c            |  7 +++++--
+>  drivers/gpu/drm/tiny/cirrus.c           |  8 ++++++--
+>  drivers/gpu/drm/vboxvideo/vbox_drv.c    |  9 +++++----
+>  drivers/gpu/drm/virtio/virtgpu_drv.c    |  5 +++--
+>  drivers/gpu/drm/vmwgfx/vmwgfx_drv.c     |  5 +++--
+>  include/drm/drm_drv.h                   |  1 +
+>  14 files changed, 74 insertions(+), 26 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+> index c718fb5f3f8a..7fde40d06181 100644
+> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+> @@ -2514,10 +2514,9 @@ static int __init amdgpu_init(void)
+>  {
+>  	int r;
+>  
+> -	if (vgacon_text_force()) {
+> -		DRM_ERROR("VGACON disables amdgpu kernel modesetting.\n");
+> -		return -EINVAL;
+> -	}
+> +	r = drm_drv_enabled(&amdgpu_kms_driver)
+> +	if (r)
+> +		return r;
+>  
+>  	r = amdgpu_sync_init();
+>  	if (r)
+> diff --git a/drivers/gpu/drm/ast/ast_drv.c b/drivers/gpu/drm/ast/ast_drv.c
+> index 86d5cd7b6318..802063279b86 100644
+> --- a/drivers/gpu/drm/ast/ast_drv.c
+> +++ b/drivers/gpu/drm/ast/ast_drv.c
+> @@ -233,8 +233,11 @@ static struct pci_driver ast_pci_driver = {
+>  
+>  static int __init ast_init(void)
+>  {
+> -	if (vgacon_text_force() && ast_modeset == -1)
+> -		return -EINVAL;
+> +	int ret;
+> +
+> +	ret = drm_drv_enabled(&ast_driver);
+> +	if (ret && ast_modeset == -1)
+> +		return ret;
+>  
+>  	if (ast_modeset == 0)
+>  		return -EINVAL;
+> diff --git a/drivers/gpu/drm/drm_drv.c b/drivers/gpu/drm/drm_drv.c
+> index 8214a0b1ab7f..3fb567d62881 100644
+> --- a/drivers/gpu/drm/drm_drv.c
+> +++ b/drivers/gpu/drm/drm_drv.c
+> @@ -975,6 +975,26 @@ int drm_dev_set_unique(struct drm_device *dev, const char *name)
+>  }
+>  EXPORT_SYMBOL(drm_dev_set_unique);
+>  
+> +/**
+> + * drm_drv_enabled - Checks if a DRM driver can be enabled
+> + * @driver: DRM driver to check
+> + *
+> + * Checks whether a DRM driver can be enabled or not. This may be the case
+> + * if the "nomodeset" kernel command line parameter is used.
+> + *
+> + * Return: 0 on success or a negative error code on failure.
+> + */
+> +int drm_drv_enabled(const struct drm_driver *driver)
+> +{
+> +	if (vgacon_text_force()) {
+> +		DRM_INFO("%s driver is disabled\n", driver->name);
+> +		return -ENODEV;
+> +	}
+> +
+> +	return 0;
+> +}
+> +EXPORT_SYMBOL(drm_drv_enabled);
+> +
+>  /*
+>   * DRM Core
+>   * The DRM core module initializes all global DRM objects and makes them
+> diff --git a/drivers/gpu/drm/i915/i915_module.c b/drivers/gpu/drm/i915/i915_module.c
+> index ab2295dd4500..45cb3e540eff 100644
+> --- a/drivers/gpu/drm/i915/i915_module.c
+> +++ b/drivers/gpu/drm/i915/i915_module.c
+> @@ -18,9 +18,12 @@
+>  #include "i915_selftest.h"
+>  #include "i915_vma.h"
+>  
+> +static const struct drm_driver driver;
+> +
 
-If `driver_override` is not set, the previous behaviour is followed:
-devices use the first vDPA bus driver loaded (unless auto binding
-is disabled).
+No, this makes absolutely no sense, and will also oops on nomodeset.
 
-Tested on Fedora 34 with driverctl(8):
-  $ modprobe virtio-vdpa
-  $ modprobe vhost-vdpa
-  $ modprobe vdpa-sim-net
+BR,
+Jani.
 
-  $ vdpa dev add mgmtdev vdpasim_net name dev1
 
-  # dev1 is attached to the first vDPA bus driver loaded
-  $ driverctl -b vdpa list-devices
-    dev1 virtio_vdpa
+>  static int i915_check_nomodeset(void)
+>  {
+>  	bool use_kms = true;
+> +	int ret;
+>  
+>  	/*
+>  	 * Enable KMS by default, unless explicitly overriden by
+> @@ -31,7 +34,8 @@ static int i915_check_nomodeset(void)
+>  	if (i915_modparams.modeset == 0)
+>  		use_kms = false;
+>  
+> -	if (vgacon_text_force() && i915_modparams.modeset == -1)
+> +	ret = drm_drv_enabled(&driver);
+> +	if (ret && i915_modparams.modeset == -1)
+>  		use_kms = false;
+>  
+>  	if (!use_kms) {
+> diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.c b/drivers/gpu/drm/mgag200/mgag200_drv.c
+> index 6b9243713b3c..2a581094ba2b 100644
+> --- a/drivers/gpu/drm/mgag200/mgag200_drv.c
+> +++ b/drivers/gpu/drm/mgag200/mgag200_drv.c
+> @@ -378,8 +378,11 @@ static struct pci_driver mgag200_pci_driver = {
+>  
+>  static int __init mgag200_init(void)
+>  {
+> -	if (vgacon_text_force() && mgag200_modeset == -1)
+> -		return -EINVAL;
+> +	int ret;
+> +
+> +	ret = drm_drv_enabled(&mgag200_driver);
+> +	if (ret && mgag200_modeset == -1)
+> +		return ret;
+>  
+>  	if (mgag200_modeset == 0)
+>  		return -EINVAL;
+> diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
+> index 1f828c9f691c..8844d3602d87 100644
+> --- a/drivers/gpu/drm/nouveau/nouveau_drm.c
+> +++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+> @@ -1316,13 +1316,16 @@ nouveau_platform_device_create(const struct nvkm_device_tegra_func *func,
+>  static int __init
+>  nouveau_drm_init(void)
+>  {
+> +	int ret;
+> +
+>  	driver_pci = driver_stub;
+>  	driver_platform = driver_stub;
+>  
+>  	nouveau_display_options();
+>  
+>  	if (nouveau_modeset == -1) {
+> -		if (vgacon_text_force())
+> +		ret = drm_drv_enabled(&driver_stub);
+> +		if (ret)
+>  			nouveau_modeset = 0;
+>  	}
+>  
+> diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+> index fc47b0deb021..3ac2ef2bf545 100644
+> --- a/drivers/gpu/drm/qxl/qxl_drv.c
+> +++ b/drivers/gpu/drm/qxl/qxl_drv.c
+> @@ -295,8 +295,11 @@ static struct drm_driver qxl_driver = {
+>  
+>  static int __init qxl_init(void)
+>  {
+> -	if (vgacon_text_force() && qxl_modeset == -1)
+> -		return -EINVAL;
+> +	int ret;
+> +
+> +	ret = drm_drv_enabled(&qxl_driver);
+> +	if (ret && qxl_modeset == -1)
+> +		return ret;
+>  
+>  	if (qxl_modeset == 0)
+>  		return -EINVAL;
+> diff --git a/drivers/gpu/drm/radeon/radeon_drv.c b/drivers/gpu/drm/radeon/radeon_drv.c
+> index b74cebca1f89..56d688c04346 100644
+> --- a/drivers/gpu/drm/radeon/radeon_drv.c
+> +++ b/drivers/gpu/drm/radeon/radeon_drv.c
+> @@ -637,8 +637,10 @@ static struct pci_driver radeon_kms_pci_driver = {
+>  
+>  static int __init radeon_module_init(void)
+>  {
+> -	if (vgacon_text_force() && radeon_modeset == -1) {
+> -		DRM_INFO("VGACON disable radeon kernel modesetting.\n");
+> +	int ret;
+> +
+> +	ret = drm_drv_enabled(&kms_driver)
+> +	if (ret && radeon_modeset == -1) {
+>  		radeon_modeset = 0;
+>  	}
+>  
+> diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+> index 2ce3bd903b70..ee6b1ff9128b 100644
+> --- a/drivers/gpu/drm/tiny/bochs.c
+> +++ b/drivers/gpu/drm/tiny/bochs.c
+> @@ -719,8 +719,11 @@ static struct pci_driver bochs_pci_driver = {
+>  
+>  static int __init bochs_init(void)
+>  {
+> -	if (vgacon_text_force() && bochs_modeset == -1)
+> -		return -EINVAL;
+> +	int ret;
+> +
+> +	ret = drm_drv_enabled(&bochs_driver);
+> +	if (ret && bochs_modeset == -1)
+> +		return ret;
+>  
+>  	if (bochs_modeset == 0)
+>  		return -EINVAL;
+> diff --git a/drivers/gpu/drm/tiny/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
+> index 4611ec408506..4706c5bc3067 100644
+> --- a/drivers/gpu/drm/tiny/cirrus.c
+> +++ b/drivers/gpu/drm/tiny/cirrus.c
+> @@ -636,8 +636,12 @@ static struct pci_driver cirrus_pci_driver = {
+>  
+>  static int __init cirrus_init(void)
+>  {
+> -	if (vgacon_text_force())
+> -		return -EINVAL;
+> +	int ret;
+> +
+> +	ret = drm_drv_enabled(&cirrus_driver);
+> +	if (ret)
+> +		return ret;
+> +
+>  	return pci_register_driver(&cirrus_pci_driver);
+>  }
+>  
+> diff --git a/drivers/gpu/drm/vboxvideo/vbox_drv.c b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+> index a6c81af37345..e4377c37cf33 100644
+> --- a/drivers/gpu/drm/vboxvideo/vbox_drv.c
+> +++ b/drivers/gpu/drm/vboxvideo/vbox_drv.c
+> @@ -193,10 +193,11 @@ static const struct drm_driver driver = {
+>  
+>  static int __init vbox_init(void)
+>  {
+> -#ifdef CONFIG_VGA_CONSOLE
+> -	if (vgacon_text_force() && vbox_modeset == -1)
+> -		return -EINVAL;
+> -#endif
+> +	int ret;
+> +
+> +	ret = drm_drv_enabled(&driver);
+> +	if (ret && vbox_modeset == -1)
+> +		return ret;
+>  
+>  	if (vbox_modeset == 0)
+>  		return -EINVAL;
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> index 749db18dcfa2..28200dfba2d1 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> @@ -104,8 +104,9 @@ static int virtio_gpu_probe(struct virtio_device *vdev)
+>  	struct drm_device *dev;
+>  	int ret;
+>  
+> -	if (vgacon_text_force() && virtio_gpu_modeset == -1)
+> -		return -EINVAL;
+> +	ret = drm_drv_enabled(&driver);
+> +	if (ret && virtio_gpu_modeset == -1)
+> +		return ret;
+>  
+>  	if (virtio_gpu_modeset == 0)
+>  		return -EINVAL;
+> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
+> index ab9a1750e1df..05e9949293d5 100644
+> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
+> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
+> @@ -1651,8 +1651,9 @@ static int __init vmwgfx_init(void)
+>  {
+>  	int ret;
+>  
+> -	if (vgacon_text_force())
+> -		return -EINVAL;
+> +	ret = drm_drv_enabled(&driver);
+> +	if (ret)
+> +		return ret;
+>  
+>  	ret = pci_register_driver(&vmw_pci_driver);
+>  	if (ret)
+> diff --git a/include/drm/drm_drv.h b/include/drm/drm_drv.h
+> index 0cd95953cdf5..77abfc7e078b 100644
+> --- a/include/drm/drm_drv.h
+> +++ b/include/drm/drm_drv.h
+> @@ -598,5 +598,6 @@ static inline bool drm_drv_uses_atomic_modeset(struct drm_device *dev)
+>  
+>  int drm_dev_set_unique(struct drm_device *dev, const char *name);
+>  
+> +int drm_drv_enabled(const struct drm_driver *driver);
+>  
+>  #endif
 
-  $ driverctl -b vdpa set-override dev1 vhost_vdpa
-
-  $ driverctl -b vdpa list-devices
-    dev1 vhost_vdpa [*]
-
-  Note: driverctl(8) integrates with udev so the binding is
-  preserved.
-
-Suggested-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- include/linux/vdpa.h |  2 ++
- drivers/vdpa/vdpa.c  | 74 ++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 76 insertions(+)
-
-diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-index c3011ccda430..ae34015b37b7 100644
---- a/include/linux/vdpa.h
-+++ b/include/linux/vdpa.h
-@@ -64,6 +64,7 @@ struct vdpa_mgmt_dev;
-  * struct vdpa_device - representation of a vDPA device
-  * @dev: underlying device
-  * @dma_dev: the actual device that is performing DMA
-+ * @driver_override: driver name to force a match
-  * @config: the configuration ops for this device.
-  * @cf_mutex: Protects get and set access to configuration layout.
-  * @index: device index
-@@ -76,6 +77,7 @@ struct vdpa_mgmt_dev;
- struct vdpa_device {
- 	struct device dev;
- 	struct device *dma_dev;
-+	const char *driver_override;
- 	const struct vdpa_config_ops *config;
- 	struct mutex cf_mutex; /* Protects get/set config */
- 	unsigned int index;
-diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-index 7332a74a4b00..659231bbfee8 100644
---- a/drivers/vdpa/vdpa.c
-+++ b/drivers/vdpa/vdpa.c
-@@ -52,8 +52,81 @@ static void vdpa_dev_remove(struct device *d)
- 		drv->remove(vdev);
- }
- 
-+static int vdpa_dev_match(struct device *dev, struct device_driver *drv)
-+{
-+	struct vdpa_device *vdev = dev_to_vdpa(dev);
-+
-+	/* Check override first, and if set, only use the named driver */
-+	if (vdev->driver_override)
-+		return strcmp(vdev->driver_override, drv->name) == 0;
-+
-+	/* Currently devices must be supported by all vDPA bus drivers */
-+	return 1;
-+}
-+
-+static ssize_t driver_override_store(struct device *dev,
-+				     struct device_attribute *attr,
-+				     const char *buf, size_t count)
-+{
-+	struct vdpa_device *vdev = dev_to_vdpa(dev);
-+	const char *driver_override, *old;
-+	char *cp;
-+
-+	/* We need to keep extra room for a newline */
-+	if (count >= (PAGE_SIZE - 1))
-+		return -EINVAL;
-+
-+	driver_override = kstrndup(buf, count, GFP_KERNEL);
-+	if (!driver_override)
-+		return -ENOMEM;
-+
-+	cp = strchr(driver_override, '\n');
-+	if (cp)
-+		*cp = '\0';
-+
-+	device_lock(dev);
-+	old = vdev->driver_override;
-+	if (strlen(driver_override)) {
-+		vdev->driver_override = driver_override;
-+	} else {
-+		kfree(driver_override);
-+		vdev->driver_override = NULL;
-+	}
-+	device_unlock(dev);
-+
-+	kfree(old);
-+
-+	return count;
-+}
-+
-+static ssize_t driver_override_show(struct device *dev,
-+				    struct device_attribute *attr, char *buf)
-+{
-+	struct vdpa_device *vdev = dev_to_vdpa(dev);
-+	ssize_t len;
-+
-+	device_lock(dev);
-+	len = snprintf(buf, PAGE_SIZE, "%s\n", vdev->driver_override);
-+	device_unlock(dev);
-+
-+	return len;
-+}
-+static DEVICE_ATTR_RW(driver_override);
-+
-+static struct attribute *vdpa_dev_attrs[] = {
-+	&dev_attr_driver_override.attr,
-+	NULL,
-+};
-+
-+static const struct attribute_group vdpa_dev_group = {
-+	.attrs  = vdpa_dev_attrs,
-+};
-+__ATTRIBUTE_GROUPS(vdpa_dev);
-+
- static struct bus_type vdpa_bus = {
- 	.name  = "vdpa",
-+	.dev_groups = vdpa_dev_groups,
-+	.match = vdpa_dev_match,
- 	.probe = vdpa_dev_probe,
- 	.remove = vdpa_dev_remove,
- };
-@@ -68,6 +141,7 @@ static void vdpa_release_dev(struct device *d)
- 
- 	ida_simple_remove(&vdpa_index_ida, vdev->index);
- 	mutex_destroy(&vdev->cf_mutex);
-+	kfree(vdev->driver_override);
- 	kfree(vdev);
- }
- 
 -- 
-2.31.1
-
+Jani Nikula, Intel Open Source Graphics Center
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
