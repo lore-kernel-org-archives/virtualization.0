@@ -2,92 +2,92 @@ Return-Path: <SRS0=YXi0=PY=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1282DC433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F4EAC433FE
 	for <virtualization@archiver.kernel.org>; Fri,  5 Nov 2021 09:36:13 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id BD99B61265
-	for <virtualization@archiver.kernel.org>; Fri,  5 Nov 2021 09:36:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org BD99B61265
+	by mail.kernel.org (Postfix) with ESMTPS id 4F1EA61265
+	for <virtualization@archiver.kernel.org>; Fri,  5 Nov 2021 09:36:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4F1EA61265
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 84D4361515;
-	Fri,  5 Nov 2021 09:36:12 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 1748D4045C;
+	Fri,  5 Nov 2021 09:36:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VCAu8GuWDpmR; Fri,  5 Nov 2021 09:36:09 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 991A36150E;
-	Fri,  5 Nov 2021 09:36:08 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id z2o_C4I9XuVx; Fri,  5 Nov 2021 09:36:11 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 067C840442;
+	Fri,  5 Nov 2021 09:36:11 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 88732C003E;
-	Fri,  5 Nov 2021 09:36:07 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A9ADAC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DFC48C0012;
+	Fri,  5 Nov 2021 09:36:10 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 30D37C0012
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Nov 2021 09:36:06 +0000 (UTC)
+ Fri,  5 Nov 2021 09:36:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 99CC781CFE
+ by smtp1.osuosl.org (Postfix) with ESMTP id 0CE7481D2D
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Nov 2021 09:36:06 +0000 (UTC)
+ Fri,  5 Nov 2021 09:36:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.de header.b="B3eVd5HR";
+ dkim=pass (1024-bit key) header.d=suse.de header.b="LQlzdPVS";
  dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
- header.d=suse.de header.b="+hpngLOt"
+ header.d=suse.de header.b="azNCD1jo"
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KYFCkZZzZYUl
+ with ESMTP id s0kq2SjKT8mD
  for <virtualization@lists.linux-foundation.org>;
  Fri,  5 Nov 2021 09:36:03 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 7352881CE7
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 5841081CDC
  for <virtualization@lists.linux-foundation.org>;
  Fri,  5 Nov 2021 09:36:03 +0000 (UTC)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id 99BA01FD43;
+ by smtp-out1.suse.de (Postfix) with ESMTPS id 4E1E5218A4;
  Fri,  5 Nov 2021 09:36:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
  t=1636104961; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=eILFFGjLT9iaZW85lu+77O/nxgQWyvngQ0+3NqL7z4I=;
- b=B3eVd5HRclOZAg0ts0781GR/vXu9ZQKCfgAnzrqlngaUEj5yoeQeIgc+03umIdSZ7qi4cD
- NnuetIHf7ttCq2yMDStiHsEcpyW/r80N8yqVfbFuTOEqAjS57dA0bXtARuODNBgF8zIZWo
- q/XWA502OYl7VQkMPHWglCmkgoM643Y=
+ bh=FBpZiKTO8juIKTgHtk9Ii4DW6k3Fw2vpew+rYPZsleo=;
+ b=LQlzdPVS5u49FBIpfGepfJd20mQRZWzBXcg0ZsodkcOyFaD22oONpv8zPjfHKisFxvnO1h
+ SOlX7Gs+sud/X/aP6YT8SPRp4qaC25ygcqgSh2hSJRZlR7v4TOBPuDT1Xmtvu/sR6Xoz+U
+ ryLU3DnrECaRrVZaiXih+pogTz/pGlY=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
  s=susede2_ed25519; t=1636104961;
  h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=eILFFGjLT9iaZW85lu+77O/nxgQWyvngQ0+3NqL7z4I=;
- b=+hpngLOti9MMZC6iblC6mwfsk9wuFhgqCTKe7HcTbnKNCYz1XtQiMA+onsulFBY+93DV/h
- roqvNEXWDHl6AVCQ==
+ bh=FBpZiKTO8juIKTgHtk9Ii4DW6k3Fw2vpew+rYPZsleo=;
+ b=azNCD1johrnti6BDwh/fOrdasWXc/SgTORKVkKdvKnhS60k1wB9sTeB+H5arQs+gTFGb+x
+ vRqairUWxhM+eoAw==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 54A5313FDB;
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 0EAC713B97;
  Fri,  5 Nov 2021 09:36:01 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id QO25EwH7hGFTaQAAMHmgww
+ by imap2.suse-dmz.suse.de with ESMTPSA id ONGZAgH7hGFTaQAAMHmgww
  (envelope-from <tzimmermann@suse.de>); Fri, 05 Nov 2021 09:36:01 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: daniel@ffwll.ch, airlied@linux.ie, mripard@kernel.org,
  maarten.lankhorst@linux.intel.com
-Subject: [PATCH 3/3] drm/shmem-helper: Pass GEM shmem object in public
- interfaces
-Date: Fri,  5 Nov 2021 10:35:58 +0100
-Message-Id: <20211105093558.5084-4-tzimmermann@suse.de>
+Subject: [PATCH 2/3] drm/shmem-helper: Export dedicated wrappers for GEM
+ object functions
+Date: Fri,  5 Nov 2021 10:35:57 +0100
+Message-Id: <20211105093558.5084-3-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <20211105093558.5084-1-tzimmermann@suse.de>
 References: <20211105093558.5084-1-tzimmermann@suse.de>
@@ -110,698 +110,360 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Change all GEM SHMEM object functions that receive a GEM object
-of type struct drm_gem_object to expect an object of type
-struct drm_gem_shmem_object instead.
-
-This change reduces the number of upcasts from struct drm_gem_object
-by moving them into callers. The C compiler can now verify that the
-GEM SHMEM functions are called with the correct type.
-
-For consistency, the patch also renames drm_gem_shmem_free_object to
-drm_gem_shmem_free. It further updates documentation for a number of
-functions.
+Wrap GEM SHMEM functions for struct drm_gem_object_funcs and update
+all callers. This will allow for an update of the public interfaces
+of the GEM SHMEM helper library.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/drm_gem_shmem_helper.c        | 78 ++++++++-----------
- drivers/gpu/drm/lima/lima_gem.c               | 10 +--
- drivers/gpu/drm/lima/lima_sched.c             |  4 +-
- drivers/gpu/drm/panfrost/panfrost_drv.c       |  2 +-
- drivers/gpu/drm/panfrost/panfrost_gem.c       |  8 +-
- .../gpu/drm/panfrost/panfrost_gem_shrinker.c  |  2 +-
- drivers/gpu/drm/panfrost/panfrost_mmu.c       |  5 +-
- drivers/gpu/drm/panfrost/panfrost_perfcnt.c   |  6 +-
- drivers/gpu/drm/v3d/v3d_bo.c                  |  8 +-
- drivers/gpu/drm/virtio/virtgpu_object.c       | 12 +--
- include/drm/drm_gem_shmem_helper.h            | 65 +++++++++-------
- 11 files changed, 100 insertions(+), 100 deletions(-)
+ drivers/gpu/drm/drm_gem_shmem_helper.c  |  45 ++++-----
+ drivers/gpu/drm/lima/lima_gem.c         |   8 +-
+ drivers/gpu/drm/panfrost/panfrost_gem.c |  12 +--
+ drivers/gpu/drm/v3d/v3d_bo.c            |  14 +--
+ drivers/gpu/drm/virtio/virtgpu_object.c |  15 ++-
+ include/drm/drm_gem_shmem_helper.h      | 120 ++++++++++++++++++++++++
+ 6 files changed, 161 insertions(+), 53 deletions(-)
 
 diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-index 72ac263f20be..6521b0604a0f 100644
+index cd93e91b3487..72ac263f20be 100644
 --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
 +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -117,15 +117,15 @@ struct drm_gem_shmem_object *drm_gem_shmem_create(struct drm_device *dev, size_t
- EXPORT_SYMBOL_GPL(drm_gem_shmem_create);
+@@ -30,14 +30,14 @@
+  */
  
- /**
-- * drm_gem_shmem_free_object - Free resources associated with a shmem GEM object
-- * @obj: GEM object to free
-+ * drm_gem_shmem_free - Free resources associated with a shmem GEM object
-+ * @shmem: shmem GEM object to free
+ static const struct drm_gem_object_funcs drm_gem_shmem_funcs = {
+-	.free = drm_gem_shmem_free_object,
+-	.print_info = drm_gem_shmem_print_info,
+-	.pin = drm_gem_shmem_pin,
+-	.unpin = drm_gem_shmem_unpin,
+-	.get_sg_table = drm_gem_shmem_get_sg_table,
+-	.vmap = drm_gem_shmem_vmap,
+-	.vunmap = drm_gem_shmem_vunmap,
+-	.mmap = drm_gem_shmem_mmap,
++	.free = drm_gem_shmem_object_free,
++	.print_info = drm_gem_shmem_object_print_info,
++	.pin = drm_gem_shmem_object_pin,
++	.unpin = drm_gem_shmem_object_unpin,
++	.get_sg_table = drm_gem_shmem_object_get_sg_table,
++	.vmap = drm_gem_shmem_object_vmap,
++	.vunmap = drm_gem_shmem_object_vunmap,
++	.mmap = drm_gem_shmem_object_mmap,
+ };
+ 
+ static struct drm_gem_shmem_object *
+@@ -121,8 +121,7 @@ EXPORT_SYMBOL_GPL(drm_gem_shmem_create);
+  * @obj: GEM object to free
   *
   * This function cleans up the GEM object state and frees the memory used to
-  * store the object itself.
+- * store the object itself. It should be used to implement
+- * &drm_gem_object_funcs.free.
++ * store the object itself.
   */
--void drm_gem_shmem_free_object(struct drm_gem_object *obj)
-+void drm_gem_shmem_free(struct drm_gem_shmem_object *shmem)
+ void drm_gem_shmem_free_object(struct drm_gem_object *obj)
  {
--	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
-+	struct drm_gem_object *obj = &shmem->base;
- 
- 	WARN_ON(shmem->vmap_use_count);
- 
-@@ -149,7 +149,7 @@ void drm_gem_shmem_free_object(struct drm_gem_object *obj)
- 	mutex_destroy(&shmem->vmap_lock);
- 	kfree(shmem);
- }
--EXPORT_SYMBOL_GPL(drm_gem_shmem_free_object);
-+EXPORT_SYMBOL_GPL(drm_gem_shmem_free);
- 
- static int drm_gem_shmem_get_pages_locked(struct drm_gem_shmem_object *shmem)
- {
-@@ -244,7 +244,7 @@ EXPORT_SYMBOL(drm_gem_shmem_put_pages);
- 
- /**
-  * drm_gem_shmem_pin - Pin backing pages for a shmem GEM object
-- * @obj: GEM object
-+ * @shmem: shmem GEM object
+@@ -248,8 +247,7 @@ EXPORT_SYMBOL(drm_gem_shmem_put_pages);
+  * @obj: GEM object
   *
   * This function makes sure the backing pages are pinned in memory while the
-  * buffer is exported.
-@@ -252,10 +252,8 @@ EXPORT_SYMBOL(drm_gem_shmem_put_pages);
+- * buffer is exported. It should only be used to implement
+- * &drm_gem_object_funcs.pin.
++ * buffer is exported.
+  *
   * Returns:
   * 0 on success or a negative error code on failure.
-  */
--int drm_gem_shmem_pin(struct drm_gem_object *obj)
-+int drm_gem_shmem_pin(struct drm_gem_shmem_object *shmem)
- {
--	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
--
- 	WARN_ON(shmem->base.import_attach);
- 
- 	return drm_gem_shmem_get_pages(shmem);
-@@ -264,15 +262,13 @@ EXPORT_SYMBOL(drm_gem_shmem_pin);
- 
- /**
-  * drm_gem_shmem_unpin - Unpin backing pages for a shmem GEM object
-- * @obj: GEM object
-+ * @shmem: shmem GEM object
+@@ -269,7 +267,7 @@ EXPORT_SYMBOL(drm_gem_shmem_pin);
+  * @obj: GEM object
   *
   * This function removes the requirement that the backing pages are pinned in
-  * memory.
+- * memory. It should only be used to implement &drm_gem_object_funcs.unpin.
++ * memory.
   */
--void drm_gem_shmem_unpin(struct drm_gem_object *obj)
-+void drm_gem_shmem_unpin(struct drm_gem_shmem_object *shmem)
+ void drm_gem_shmem_unpin(struct drm_gem_object *obj)
  {
--	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
--
- 	WARN_ON(shmem->base.import_attach);
- 
- 	drm_gem_shmem_put_pages(shmem);
-@@ -346,9 +342,8 @@ static int drm_gem_shmem_vmap_locked(struct drm_gem_shmem_object *shmem, struct
-  * Returns:
-  * 0 on success or a negative error code on failure.
+@@ -340,11 +338,8 @@ static int drm_gem_shmem_vmap_locked(struct drm_gem_shmem_object *shmem, struct
+  *       store.
+  *
+  * This function makes sure that a contiguous kernel virtual address mapping
+- * exists for the buffer backing the shmem GEM object.
+- *
+- * This function can be used to implement &drm_gem_object_funcs.vmap. But it can
+- * also be called by drivers directly, in which case it will hide the
+- * differences between dma-buf imported and natively allocated objects.
++ * exists for the buffer backing the shmem GEM object. It hides the differences
++ * between dma-buf imported and natively allocated objects.
+  *
+  * Acquired mappings should be cleaned up by calling drm_gem_shmem_vunmap().
+  *
+@@ -396,9 +391,8 @@ static void drm_gem_shmem_vunmap_locked(struct drm_gem_shmem_object *shmem,
+  * drm_gem_shmem_vmap(). The mapping is only removed when the use count drops to
+  * zero.
+  *
+- * This function can be used to implement &drm_gem_object_funcs.vmap. But it can
+- * also be called by drivers directly, in which case it will hide the
+- * differences between dma-buf imported and natively allocated objects.
++ * This function hides the differences between dma-buf imported and natively
++ * allocated objects.
   */
--int drm_gem_shmem_vmap(struct drm_gem_object *obj, struct dma_buf_map *map)
-+int drm_gem_shmem_vmap(struct drm_gem_shmem_object *shmem, struct dma_buf_map *map)
+ void drm_gem_shmem_vunmap(struct drm_gem_object *obj, struct dma_buf_map *map)
  {
--	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
- 	int ret;
- 
- 	ret = mutex_lock_interruptible(&shmem->vmap_lock);
-@@ -394,10 +389,8 @@ static void drm_gem_shmem_vunmap_locked(struct drm_gem_shmem_object *shmem,
-  * This function hides the differences between dma-buf imported and natively
-  * allocated objects.
-  */
--void drm_gem_shmem_vunmap(struct drm_gem_object *obj, struct dma_buf_map *map)
-+void drm_gem_shmem_vunmap(struct drm_gem_shmem_object *shmem, struct dma_buf_map *map)
- {
--	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
--
- 	mutex_lock(&shmem->vmap_lock);
- 	drm_gem_shmem_vunmap_locked(shmem, map);
- 	mutex_unlock(&shmem->vmap_lock);
-@@ -432,10 +425,8 @@ drm_gem_shmem_create_with_handle(struct drm_file *file_priv,
- /* Update madvise status, returns true if not purged, else
-  * false or -errno.
-  */
--int drm_gem_shmem_madvise(struct drm_gem_object *obj, int madv)
-+int drm_gem_shmem_madvise(struct drm_gem_shmem_object *shmem, int madv)
- {
--	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
--
- 	mutex_lock(&shmem->pages_lock);
- 
- 	if (shmem->madv >= 0)
-@@ -449,14 +440,14 @@ int drm_gem_shmem_madvise(struct drm_gem_object *obj, int madv)
- }
- EXPORT_SYMBOL(drm_gem_shmem_madvise);
- 
--void drm_gem_shmem_purge_locked(struct drm_gem_object *obj)
-+void drm_gem_shmem_purge_locked(struct drm_gem_shmem_object *shmem)
- {
-+	struct drm_gem_object *obj = &shmem->base;
- 	struct drm_device *dev = obj->dev;
--	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
- 
- 	WARN_ON(!drm_gem_shmem_is_purgeable(shmem));
- 
--	dma_unmap_sgtable(obj->dev->dev, shmem->sgt, DMA_BIDIRECTIONAL, 0);
-+	dma_unmap_sgtable(dev->dev, shmem->sgt, DMA_BIDIRECTIONAL, 0);
- 	sg_free_table(shmem->sgt);
- 	kfree(shmem->sgt);
- 	shmem->sgt = NULL;
-@@ -475,18 +466,15 @@ void drm_gem_shmem_purge_locked(struct drm_gem_object *obj)
- 	 */
- 	shmem_truncate_range(file_inode(obj->filp), 0, (loff_t)-1);
- 
--	invalidate_mapping_pages(file_inode(obj->filp)->i_mapping,
--			0, (loff_t)-1);
-+	invalidate_mapping_pages(file_inode(obj->filp)->i_mapping, 0, (loff_t)-1);
- }
- EXPORT_SYMBOL(drm_gem_shmem_purge_locked);
- 
--bool drm_gem_shmem_purge(struct drm_gem_object *obj)
-+bool drm_gem_shmem_purge(struct drm_gem_shmem_object *shmem)
- {
--	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
--
- 	if (!mutex_trylock(&shmem->pages_lock))
- 		return false;
--	drm_gem_shmem_purge_locked(obj);
-+	drm_gem_shmem_purge_locked(shmem);
- 	mutex_unlock(&shmem->pages_lock);
- 
- 	return true;
-@@ -594,7 +582,7 @@ static const struct vm_operations_struct drm_gem_shmem_vm_ops = {
- 
- /**
-  * drm_gem_shmem_mmap - Memory-map a shmem GEM object
-- * @obj: gem object
-+ * @shmem: shmem GEM object
+@@ -604,8 +598,7 @@ static const struct vm_operations_struct drm_gem_shmem_vm_ops = {
   * @vma: VMA for the area to be mapped
   *
   * This function implements an augmented version of the GEM DRM file mmap
-@@ -603,9 +591,9 @@ static const struct vm_operations_struct drm_gem_shmem_vm_ops = {
+- * operation for shmem objects. Drivers which employ the shmem helpers should
+- * use this function as their &drm_gem_object_funcs.mmap handler.
++ * operation for shmem objects.
+  *
   * Returns:
   * 0 on success or a negative error code on failure.
-  */
--int drm_gem_shmem_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
-+int drm_gem_shmem_mmap(struct drm_gem_shmem_object *shmem, struct vm_area_struct *vma)
- {
--	struct drm_gem_shmem_object *shmem;
-+	struct drm_gem_object *obj = &shmem->base;
- 	int ret;
- 
- 	if (obj->import_attach) {
-@@ -616,8 +604,6 @@ int drm_gem_shmem_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
- 		return dma_buf_mmap(obj->dma_buf, vma, 0);
- 	}
- 
--	shmem = to_drm_gem_shmem_obj(obj);
--
- 	ret = drm_gem_shmem_get_pages(shmem);
- 	if (ret) {
- 		drm_gem_vm_close(vma);
-@@ -636,15 +622,13 @@ EXPORT_SYMBOL_GPL(drm_gem_shmem_mmap);
- 
- /**
-  * drm_gem_shmem_print_info() - Print &drm_gem_shmem_object info for debugfs
-+ * @shmem: shmem GEM object
+@@ -646,8 +639,6 @@ EXPORT_SYMBOL_GPL(drm_gem_shmem_mmap);
   * @p: DRM printer
   * @indent: Tab indentation level
-- * @obj: GEM object
+  * @obj: GEM object
+- *
+- * This implements the &drm_gem_object_funcs.info callback.
   */
--void drm_gem_shmem_print_info(struct drm_printer *p, unsigned int indent,
--			      const struct drm_gem_object *obj)
-+void drm_gem_shmem_print_info(const struct drm_gem_shmem_object *shmem,
-+			      struct drm_printer *p, unsigned int indent)
- {
--	const struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
--
- 	drm_printf_indent(p, indent, "pages_use_count=%u\n", shmem->pages_use_count);
- 	drm_printf_indent(p, indent, "vmap_use_count=%u\n", shmem->vmap_use_count);
- 	drm_printf_indent(p, indent, "vaddr=%p\n", shmem->vaddr);
-@@ -654,7 +638,7 @@ EXPORT_SYMBOL(drm_gem_shmem_print_info);
- /**
-  * drm_gem_shmem_get_sg_table - Provide a scatter/gather table of pinned
-  *                              pages for a shmem GEM object
-- * @obj: GEM object
-+ * @shmem: shmem GEM object
+ void drm_gem_shmem_print_info(struct drm_printer *p, unsigned int indent,
+ 			      const struct drm_gem_object *obj)
+@@ -666,9 +657,7 @@ EXPORT_SYMBOL(drm_gem_shmem_print_info);
+  * @obj: GEM object
   *
   * This function exports a scatter/gather table suitable for PRIME usage by
-  * calling the standard DMA mapping API.
-@@ -665,9 +649,9 @@ EXPORT_SYMBOL(drm_gem_shmem_print_info);
-  * Returns:
-  * A pointer to the scatter/gather table of pinned pages or NULL on failure.
-  */
--struct sg_table *drm_gem_shmem_get_sg_table(struct drm_gem_object *obj)
-+struct sg_table *drm_gem_shmem_get_sg_table(struct drm_gem_shmem_object *shmem)
- {
--	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
-+	struct drm_gem_object *obj = &shmem->base;
- 
- 	WARN_ON(shmem->base.import_attach);
- 
-@@ -678,7 +662,7 @@ EXPORT_SYMBOL_GPL(drm_gem_shmem_get_sg_table);
- /**
-  * drm_gem_shmem_get_pages_sgt - Pin pages, dma map them, and return a
-  *				 scatter/gather table for a shmem GEM object.
-- * @obj: GEM object
-+ * @shmem: shmem GEM object
+- * calling the standard DMA mapping API. Drivers should not call this function
+- * directly, instead it should only be used as an implementation for
+- * &drm_gem_object_funcs.get_sg_table.
++ * calling the standard DMA mapping API.
   *
-  * This function returns a scatter/gather table suitable for driver usage. If
-  * the sg table doesn't exist, the pages are pinned, dma-mapped, and a sg
-@@ -691,10 +675,10 @@ EXPORT_SYMBOL_GPL(drm_gem_shmem_get_sg_table);
-  * Returns:
-  * A pointer to the scatter/gather table of pinned pages or errno on failure.
-  */
--struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_object *obj)
-+struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem)
- {
-+	struct drm_gem_object *obj = &shmem->base;
- 	int ret;
--	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
- 	struct sg_table *sgt;
- 
- 	if (shmem->sgt)
-@@ -706,7 +690,7 @@ struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_object *obj)
- 	if (ret)
- 		return ERR_PTR(ret);
- 
--	sgt = drm_gem_shmem_get_sg_table(&shmem->base);
-+	sgt = drm_gem_shmem_get_sg_table(shmem);
- 	if (IS_ERR(sgt)) {
- 		ret = PTR_ERR(sgt);
- 		goto err_put_pages;
+  * Drivers who need to acquire an scatter/gather table for objects need to call
+  * drm_gem_shmem_get_pages_sgt() instead.
 diff --git a/drivers/gpu/drm/lima/lima_gem.c b/drivers/gpu/drm/lima/lima_gem.c
-index a5580bd6522c..2723d333c608 100644
+index 640acc060467..a5580bd6522c 100644
 --- a/drivers/gpu/drm/lima/lima_gem.c
 +++ b/drivers/gpu/drm/lima/lima_gem.c
-@@ -127,7 +127,7 @@ int lima_gem_create_handle(struct drm_device *dev, struct drm_file *file,
- 		if (err)
- 			goto out;
- 	} else {
--		struct sg_table *sgt = drm_gem_shmem_get_pages_sgt(obj);
-+		struct sg_table *sgt = drm_gem_shmem_get_pages_sgt(shmem);
+@@ -206,12 +206,12 @@ static const struct drm_gem_object_funcs lima_gem_funcs = {
+ 	.free = lima_gem_free_object,
+ 	.open = lima_gem_object_open,
+ 	.close = lima_gem_object_close,
+-	.print_info = drm_gem_shmem_print_info,
++	.print_info = drm_gem_shmem_object_print_info,
+ 	.pin = lima_gem_pin,
+-	.unpin = drm_gem_shmem_unpin,
+-	.get_sg_table = drm_gem_shmem_get_sg_table,
++	.unpin = drm_gem_shmem_object_unpin,
++	.get_sg_table = drm_gem_shmem_object_get_sg_table,
+ 	.vmap = lima_gem_vmap,
+-	.vunmap = drm_gem_shmem_vunmap,
++	.vunmap = drm_gem_shmem_object_vunmap,
+ 	.mmap = lima_gem_mmap,
+ };
  
- 		if (IS_ERR(sgt)) {
- 			err = PTR_ERR(sgt);
-@@ -151,7 +151,7 @@ static void lima_gem_free_object(struct drm_gem_object *obj)
- 	if (!list_empty(&bo->va))
- 		dev_err(obj->dev->dev, "lima gem free bo still has va\n");
- 
--	drm_gem_shmem_free_object(obj);
-+	drm_gem_shmem_free(&bo->base);
- }
- 
- static int lima_gem_object_open(struct drm_gem_object *obj, struct drm_file *file)
-@@ -179,7 +179,7 @@ static int lima_gem_pin(struct drm_gem_object *obj)
- 	if (bo->heap_size)
- 		return -EINVAL;
- 
--	return drm_gem_shmem_pin(obj);
-+	return drm_gem_shmem_pin(&bo->base);
- }
- 
- static int lima_gem_vmap(struct drm_gem_object *obj, struct dma_buf_map *map)
-@@ -189,7 +189,7 @@ static int lima_gem_vmap(struct drm_gem_object *obj, struct dma_buf_map *map)
- 	if (bo->heap_size)
- 		return -EINVAL;
- 
--	return drm_gem_shmem_vmap(obj, map);
-+	return drm_gem_shmem_vmap(&bo->base, map);
- }
- 
- static int lima_gem_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
-@@ -199,7 +199,7 @@ static int lima_gem_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
- 	if (bo->heap_size)
- 		return -EINVAL;
- 
--	return drm_gem_shmem_mmap(obj, vma);
-+	return drm_gem_shmem_mmap(&bo->base, vma);
- }
- 
- static const struct drm_gem_object_funcs lima_gem_funcs = {
-diff --git a/drivers/gpu/drm/lima/lima_sched.c b/drivers/gpu/drm/lima/lima_sched.c
-index 99d5f6f1a882..5612d73f238f 100644
---- a/drivers/gpu/drm/lima/lima_sched.c
-+++ b/drivers/gpu/drm/lima/lima_sched.c
-@@ -371,7 +371,7 @@ static void lima_sched_build_error_task_list(struct lima_sched_task *task)
- 		} else {
- 			buffer_chunk->size = lima_bo_size(bo);
- 
--			ret = drm_gem_shmem_vmap(&bo->base.base, &map);
-+			ret = drm_gem_shmem_vmap(&bo->base, &map);
- 			if (ret) {
- 				kvfree(et);
- 				goto out;
-@@ -379,7 +379,7 @@ static void lima_sched_build_error_task_list(struct lima_sched_task *task)
- 
- 			memcpy(buffer_chunk + 1, map.vaddr, buffer_chunk->size);
- 
--			drm_gem_shmem_vunmap(&bo->base.base, &map);
-+			drm_gem_shmem_vunmap(&bo->base, &map);
- 		}
- 
- 		buffer_chunk = (void *)(buffer_chunk + 1) + buffer_chunk->size;
-diff --git a/drivers/gpu/drm/panfrost/panfrost_drv.c b/drivers/gpu/drm/panfrost/panfrost_drv.c
-index 82ad9a67f251..96bb5a465627 100644
---- a/drivers/gpu/drm/panfrost/panfrost_drv.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_drv.c
-@@ -427,7 +427,7 @@ static int panfrost_ioctl_madvise(struct drm_device *dev, void *data,
- 		}
- 	}
- 
--	args->retained = drm_gem_shmem_madvise(gem_obj, args->madv);
-+	args->retained = drm_gem_shmem_madvise(&bo->base, args->madv);
- 
- 	if (args->retained) {
- 		if (args->madv == PANFROST_MADV_DONTNEED)
 diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
-index be1cc6579a71..6d9bdb9180cb 100644
+index 23377481f4e3..be1cc6579a71 100644
 --- a/drivers/gpu/drm/panfrost/panfrost_gem.c
 +++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
-@@ -49,7 +49,7 @@ static void panfrost_gem_free_object(struct drm_gem_object *obj)
- 		kvfree(bo->sgts);
- 	}
+@@ -197,13 +197,13 @@ static const struct drm_gem_object_funcs panfrost_gem_funcs = {
+ 	.free = panfrost_gem_free_object,
+ 	.open = panfrost_gem_open,
+ 	.close = panfrost_gem_close,
+-	.print_info = drm_gem_shmem_print_info,
++	.print_info = drm_gem_shmem_object_print_info,
+ 	.pin = panfrost_gem_pin,
+-	.unpin = drm_gem_shmem_unpin,
+-	.get_sg_table = drm_gem_shmem_get_sg_table,
+-	.vmap = drm_gem_shmem_vmap,
+-	.vunmap = drm_gem_shmem_vunmap,
+-	.mmap = drm_gem_shmem_mmap,
++	.unpin = drm_gem_shmem_object_unpin,
++	.get_sg_table = drm_gem_shmem_object_get_sg_table,
++	.vmap = drm_gem_shmem_object_vmap,
++	.vunmap = drm_gem_shmem_object_vunmap,
++	.mmap = drm_gem_shmem_object_mmap,
+ };
  
--	drm_gem_shmem_free_object(obj);
-+	drm_gem_shmem_free(&bo->base);
- }
- 
- struct panfrost_gem_mapping *
-@@ -187,10 +187,12 @@ void panfrost_gem_close(struct drm_gem_object *obj, struct drm_file *file_priv)
- 
- static int panfrost_gem_pin(struct drm_gem_object *obj)
- {
--	if (to_panfrost_bo(obj)->is_heap)
-+	struct panfrost_gem_object *bo = to_panfrost_bo(obj);
-+
-+	if (bo->is_heap)
- 		return -EINVAL;
- 
--	return drm_gem_shmem_pin(obj);
-+	return drm_gem_shmem_pin(&bo->base);
- }
- 
- static const struct drm_gem_object_funcs panfrost_gem_funcs = {
-diff --git a/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c b/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
-index 1b9f68d8e9aa..b0142341e223 100644
---- a/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_gem_shrinker.c
-@@ -52,7 +52,7 @@ static bool panfrost_gem_purge(struct drm_gem_object *obj)
- 		goto unlock_mappings;
- 
- 	panfrost_gem_teardown_mappings_locked(bo);
--	drm_gem_shmem_purge_locked(obj);
-+	drm_gem_shmem_purge_locked(&bo->base);
- 	ret = true;
- 
- 	mutex_unlock(&shmem->pages_lock);
-diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-index f51d3f791a17..39562f2d11a4 100644
---- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-@@ -304,7 +304,8 @@ static int mmu_map_sg(struct panfrost_device *pfdev, struct panfrost_mmu *mmu,
- int panfrost_mmu_map(struct panfrost_gem_mapping *mapping)
- {
- 	struct panfrost_gem_object *bo = mapping->obj;
--	struct drm_gem_object *obj = &bo->base.base;
-+	struct drm_gem_shmem_object *shmem = &bo->base;
-+	struct drm_gem_object *obj = &shmem->base;
- 	struct panfrost_device *pfdev = to_panfrost_device(obj->dev);
- 	struct sg_table *sgt;
- 	int prot = IOMMU_READ | IOMMU_WRITE;
-@@ -315,7 +316,7 @@ int panfrost_mmu_map(struct panfrost_gem_mapping *mapping)
- 	if (bo->noexec)
- 		prot |= IOMMU_NOEXEC;
- 
--	sgt = drm_gem_shmem_get_pages_sgt(obj);
-+	sgt = drm_gem_shmem_get_pages_sgt(shmem);
- 	if (WARN_ON(IS_ERR(sgt)))
- 		return PTR_ERR(sgt);
- 
-diff --git a/drivers/gpu/drm/panfrost/panfrost_perfcnt.c b/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
-index e116a4d9b8e5..1d36df5af98d 100644
---- a/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_perfcnt.c
-@@ -105,7 +105,7 @@ static int panfrost_perfcnt_enable_locked(struct panfrost_device *pfdev,
- 		goto err_close_bo;
- 	}
- 
--	ret = drm_gem_shmem_vmap(&bo->base, &map);
-+	ret = drm_gem_shmem_vmap(bo, &map);
- 	if (ret)
- 		goto err_put_mapping;
- 	perfcnt->buf = map.vaddr;
-@@ -164,7 +164,7 @@ static int panfrost_perfcnt_enable_locked(struct panfrost_device *pfdev,
- 	return 0;
- 
- err_vunmap:
--	drm_gem_shmem_vunmap(&bo->base, &map);
-+	drm_gem_shmem_vunmap(bo, &map);
- err_put_mapping:
- 	panfrost_gem_mapping_put(perfcnt->mapping);
- err_close_bo:
-@@ -194,7 +194,7 @@ static int panfrost_perfcnt_disable_locked(struct panfrost_device *pfdev,
- 		  GPU_PERFCNT_CFG_MODE(GPU_PERFCNT_CFG_MODE_OFF));
- 
- 	perfcnt->user = NULL;
--	drm_gem_shmem_vunmap(&perfcnt->mapping->obj->base.base, &map);
-+	drm_gem_shmem_vunmap(&perfcnt->mapping->obj->base, &map);
- 	perfcnt->buf = NULL;
- 	panfrost_gem_close(&perfcnt->mapping->obj->base.base, file_priv);
- 	panfrost_mmu_as_put(pfdev, perfcnt->mapping->mmu);
+ /**
 diff --git a/drivers/gpu/drm/v3d/v3d_bo.c b/drivers/gpu/drm/v3d/v3d_bo.c
-index b50677beb6ac..0d9af62f69ad 100644
+index 6a8731ab9d7d..b50677beb6ac 100644
 --- a/drivers/gpu/drm/v3d/v3d_bo.c
 +++ b/drivers/gpu/drm/v3d/v3d_bo.c
-@@ -47,7 +47,7 @@ void v3d_free_object(struct drm_gem_object *obj)
- 	/* GPU execution may have dirtied any pages in the BO. */
- 	bo->base.pages_mark_dirty_on_put = true;
- 
--	drm_gem_shmem_free_object(obj);
-+	drm_gem_shmem_free(&bo->base);
- }
+@@ -52,13 +52,13 @@ void v3d_free_object(struct drm_gem_object *obj)
  
  static const struct drm_gem_object_funcs v3d_gem_funcs = {
-@@ -95,7 +95,7 @@ v3d_bo_create_finish(struct drm_gem_object *obj)
- 	/* So far we pin the BO in the MMU for its lifetime, so use
- 	 * shmem's helper for getting a lifetime sgt.
- 	 */
--	sgt = drm_gem_shmem_get_pages_sgt(&bo->base.base);
-+	sgt = drm_gem_shmem_get_pages_sgt(&bo->base);
- 	if (IS_ERR(sgt))
- 		return PTR_ERR(sgt);
+ 	.free = v3d_free_object,
+-	.print_info = drm_gem_shmem_print_info,
+-	.pin = drm_gem_shmem_pin,
+-	.unpin = drm_gem_shmem_unpin,
+-	.get_sg_table = drm_gem_shmem_get_sg_table,
+-	.vmap = drm_gem_shmem_vmap,
+-	.vunmap = drm_gem_shmem_vunmap,
+-	.mmap = drm_gem_shmem_mmap,
++	.print_info = drm_gem_shmem_object_print_info,
++	.pin = drm_gem_shmem_object_pin,
++	.unpin = drm_gem_shmem_object_unpin,
++	.get_sg_table = drm_gem_shmem_object_get_sg_table,
++	.vmap = drm_gem_shmem_object_vmap,
++	.vunmap = drm_gem_shmem_object_vunmap,
++	.mmap = drm_gem_shmem_object_mmap,
+ };
  
-@@ -141,7 +141,7 @@ struct v3d_bo *v3d_bo_create(struct drm_device *dev, struct drm_file *file_priv,
- 	return bo;
- 
- free_obj:
--	drm_gem_shmem_free_object(&shmem_obj->base);
-+	drm_gem_shmem_free(shmem_obj);
- 	return ERR_PTR(ret);
- }
- 
-@@ -159,7 +159,7 @@ v3d_prime_import_sg_table(struct drm_device *dev,
- 
- 	ret = v3d_bo_create_finish(obj);
- 	if (ret) {
--		drm_gem_shmem_free_object(obj);
-+		drm_gem_shmem_free(&to_v3d_bo(obj)->base);
- 		return ERR_PTR(ret);
- 	}
- 
+ /* gem_create_object function for allocating a BO struct and doing
 diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 698431d233b8..187e10da2f17 100644
+index f648b0e24447..698431d233b8 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_object.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -79,10 +79,10 @@ void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo)
- 			sg_free_table(shmem->pages);
- 			kfree(shmem->pages);
- 			shmem->pages = NULL;
--			drm_gem_shmem_unpin(&bo->base.base);
-+			drm_gem_shmem_unpin(&bo->base);
- 		}
+@@ -116,15 +116,14 @@ static const struct drm_gem_object_funcs virtio_gpu_shmem_funcs = {
+ 	.free = virtio_gpu_free_object,
+ 	.open = virtio_gpu_gem_object_open,
+ 	.close = virtio_gpu_gem_object_close,
+-
+-	.print_info = drm_gem_shmem_print_info,
++	.print_info = drm_gem_shmem_object_print_info,
+ 	.export = virtgpu_gem_prime_export,
+-	.pin = drm_gem_shmem_pin,
+-	.unpin = drm_gem_shmem_unpin,
+-	.get_sg_table = drm_gem_shmem_get_sg_table,
+-	.vmap = drm_gem_shmem_vmap,
+-	.vunmap = drm_gem_shmem_vunmap,
+-	.mmap = drm_gem_shmem_mmap,
++	.pin = drm_gem_shmem_object_pin,
++	.unpin = drm_gem_shmem_object_unpin,
++	.get_sg_table = drm_gem_shmem_object_get_sg_table,
++	.vmap = drm_gem_shmem_object_vmap,
++	.vunmap = drm_gem_shmem_object_vunmap,
++	.mmap = drm_gem_shmem_object_mmap,
+ };
  
--		drm_gem_shmem_free_object(&bo->base.base);
-+		drm_gem_shmem_free(&bo->base);
- 	} else if (virtio_gpu_is_vram(bo)) {
- 		struct virtio_gpu_object_vram *vram = to_virtio_gpu_vram(bo);
- 
-@@ -156,7 +156,7 @@ static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
- 	struct scatterlist *sg;
- 	int si, ret;
- 
--	ret = drm_gem_shmem_pin(&bo->base.base);
-+	ret = drm_gem_shmem_pin(&bo->base);
- 	if (ret < 0)
- 		return -EINVAL;
- 
-@@ -166,9 +166,9 @@ static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
- 	 * dma-ops. This is discouraged for other drivers, but should be fine
- 	 * since virtio_gpu doesn't support dma-buf import from other devices.
- 	 */
--	shmem->pages = drm_gem_shmem_get_sg_table(&bo->base.base);
-+	shmem->pages = drm_gem_shmem_get_sg_table(&bo->base);
- 	if (!shmem->pages) {
--		drm_gem_shmem_unpin(&bo->base.base);
-+		drm_gem_shmem_unpin(&bo->base);
- 		return -EINVAL;
- 	}
- 
-@@ -276,6 +276,6 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- err_put_id:
- 	virtio_gpu_resource_id_put(vgdev, bo->hw_res_handle);
- err_free_gem:
--	drm_gem_shmem_free_object(&shmem_obj->base);
-+	drm_gem_shmem_free(shmem_obj);
- 	return ret;
- }
+ bool virtio_gpu_is_shmem(struct virtio_gpu_object *bo)
 diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_shmem_helper.h
-index efc59dd4aeeb..d829cb3e0b98 100644
+index 6b47eb7d9f76..efc59dd4aeeb 100644
 --- a/include/drm/drm_gem_shmem_helper.h
 +++ b/include/drm/drm_gem_shmem_helper.h
-@@ -107,16 +107,17 @@ struct drm_gem_shmem_object {
- 	container_of(obj, struct drm_gem_shmem_object, base)
+@@ -137,6 +137,126 @@ void drm_gem_shmem_print_info(struct drm_printer *p, unsigned int indent,
+ 			      const struct drm_gem_object *obj);
  
- struct drm_gem_shmem_object *drm_gem_shmem_create(struct drm_device *dev, size_t size);
--void drm_gem_shmem_free_object(struct drm_gem_object *obj);
-+void drm_gem_shmem_free(struct drm_gem_shmem_object *shmem);
- 
- int drm_gem_shmem_get_pages(struct drm_gem_shmem_object *shmem);
- void drm_gem_shmem_put_pages(struct drm_gem_shmem_object *shmem);
--int drm_gem_shmem_pin(struct drm_gem_object *obj);
--void drm_gem_shmem_unpin(struct drm_gem_object *obj);
--int drm_gem_shmem_vmap(struct drm_gem_object *obj, struct dma_buf_map *map);
--void drm_gem_shmem_vunmap(struct drm_gem_object *obj, struct dma_buf_map *map);
-+int drm_gem_shmem_pin(struct drm_gem_shmem_object *shmem);
-+void drm_gem_shmem_unpin(struct drm_gem_shmem_object *shmem);
-+int drm_gem_shmem_vmap(struct drm_gem_shmem_object *shmem, struct dma_buf_map *map);
-+void drm_gem_shmem_vunmap(struct drm_gem_shmem_object *shmem, struct dma_buf_map *map);
-+int drm_gem_shmem_mmap(struct drm_gem_shmem_object *shmem, struct vm_area_struct *vma);
- 
--int drm_gem_shmem_madvise(struct drm_gem_object *obj, int madv);
-+int drm_gem_shmem_madvise(struct drm_gem_shmem_object *shmem, int madv);
- 
- static inline bool drm_gem_shmem_is_purgeable(struct drm_gem_shmem_object *shmem)
- {
-@@ -125,18 +126,14 @@ static inline bool drm_gem_shmem_is_purgeable(struct drm_gem_shmem_object *shmem
- 		!shmem->base.dma_buf && !shmem->base.import_attach;
- }
- 
--void drm_gem_shmem_purge_locked(struct drm_gem_object *obj);
--bool drm_gem_shmem_purge(struct drm_gem_object *obj);
-+void drm_gem_shmem_purge_locked(struct drm_gem_shmem_object *shmem);
-+bool drm_gem_shmem_purge(struct drm_gem_shmem_object *shmem);
- 
--int drm_gem_shmem_dumb_create(struct drm_file *file, struct drm_device *dev,
--			      struct drm_mode_create_dumb *args);
--
--int drm_gem_shmem_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma);
--
--void drm_gem_shmem_print_info(struct drm_printer *p, unsigned int indent,
--			      const struct drm_gem_object *obj);
-+struct sg_table *drm_gem_shmem_get_sg_table(struct drm_gem_shmem_object *shmem);
-+struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_shmem_object *shmem);
- 
--struct sg_table *drm_gem_shmem_get_sg_table(struct drm_gem_object *obj);
-+void drm_gem_shmem_print_info(const struct drm_gem_shmem_object *shmem,
-+			      struct drm_printer *p, unsigned int indent);
- 
- /*
-  * GEM object functions
-@@ -151,7 +148,9 @@ struct sg_table *drm_gem_shmem_get_sg_table(struct drm_gem_object *obj);
-  */
- static inline void drm_gem_shmem_object_free(struct drm_gem_object *obj)
- {
--	drm_gem_shmem_free_object(obj);
-+	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
+ struct sg_table *drm_gem_shmem_get_sg_table(struct drm_gem_object *obj);
 +
-+	drm_gem_shmem_free(shmem);
- }
- 
- /**
-@@ -166,7 +165,9 @@ static inline void drm_gem_shmem_object_free(struct drm_gem_object *obj)
- static inline void drm_gem_shmem_object_print_info(struct drm_printer *p, unsigned int indent,
- 						   const struct drm_gem_object *obj)
- {
--	drm_gem_shmem_print_info(p, indent, obj);
-+	const struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
++/*
++ * GEM object functions
++ */
 +
-+	drm_gem_shmem_print_info(shmem, p, indent);
- }
- 
- /**
-@@ -178,7 +179,9 @@ static inline void drm_gem_shmem_object_print_info(struct drm_printer *p, unsign
-  */
- static inline int drm_gem_shmem_object_pin(struct drm_gem_object *obj)
- {
--	return drm_gem_shmem_pin(obj);
-+	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
++/**
++ * drm_gem_shmem_object_free - GEM object function for drm_gem_shmem_free_object()
++ * @obj: GEM object to free
++ *
++ * This function wraps drm_gem_shmem_free_object(). Drivers that employ the shmem helpers
++ * should use it as their &drm_gem_object_funcs.free handler.
++ */
++static inline void drm_gem_shmem_object_free(struct drm_gem_object *obj)
++{
++	drm_gem_shmem_free_object(obj);
++}
 +
-+	return drm_gem_shmem_pin(shmem);
- }
- 
- /**
-@@ -190,7 +193,9 @@ static inline int drm_gem_shmem_object_pin(struct drm_gem_object *obj)
-  */
- static inline void drm_gem_shmem_object_unpin(struct drm_gem_object *obj)
- {
--	drm_gem_shmem_unpin(obj);
-+	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
++/**
++ * drm_gem_shmem_print_info() - Print &drm_gem_shmem_object info for debugfs
++ * @p: DRM printer
++ * @indent: Tab indentation level
++ * @obj: GEM object
++ *
++ * This function wraps drm_gem_shmem_mmap(). Drivers that employ the shmem helpers should
++ * use this function as their &drm_gem_object_funcs.mmap handler.
++ */
++static inline void drm_gem_shmem_object_print_info(struct drm_printer *p, unsigned int indent,
++						   const struct drm_gem_object *obj)
++{
++	drm_gem_shmem_print_info(p, indent, obj);
++}
 +
-+	drm_gem_shmem_unpin(shmem);
- }
- 
- /**
-@@ -205,7 +210,9 @@ static inline void drm_gem_shmem_object_unpin(struct drm_gem_object *obj)
-  */
- static inline struct sg_table *drm_gem_shmem_object_get_sg_table(struct drm_gem_object *obj)
- {
--	return drm_gem_shmem_get_sg_table(obj);
-+	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
++/**
++ * drm_gem_shmem_object_pin - GEM object function for drm_gem_shmem_pin()
++ * @obj: GEM object
++ *
++ * This function wraps drm_gem_shmem_pin(). Drivers that employ the shmem helpers should
++ * use it as their &drm_gem_object_funcs.pin handler.
++ */
++static inline int drm_gem_shmem_object_pin(struct drm_gem_object *obj)
++{
++	return drm_gem_shmem_pin(obj);
++}
 +
-+	return drm_gem_shmem_get_sg_table(shmem);
- }
- 
- /*
-@@ -221,7 +228,9 @@ static inline struct sg_table *drm_gem_shmem_object_get_sg_table(struct drm_gem_
-  */
- static inline int drm_gem_shmem_object_vmap(struct drm_gem_object *obj, struct dma_buf_map *map)
- {
--	return drm_gem_shmem_vmap(obj, map);
-+	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
++/**
++ * drm_gem_shmem_object_unpin - GEM object function for drm_gem_shmem_unpin()
++ * @obj: GEM object
++ *
++ * This function wraps drm_gem_shmem_unpin(). Drivers that employ the shmem helpers should
++ * use it as their &drm_gem_object_funcs.unpin handler.
++ */
++static inline void drm_gem_shmem_object_unpin(struct drm_gem_object *obj)
++{
++	drm_gem_shmem_unpin(obj);
++}
 +
-+	return drm_gem_shmem_vmap(shmem, map);
- }
- 
- /*
-@@ -234,7 +243,9 @@ static inline int drm_gem_shmem_object_vmap(struct drm_gem_object *obj, struct d
-  */
- static inline void drm_gem_shmem_object_vunmap(struct drm_gem_object *obj, struct dma_buf_map *map)
- {
--	drm_gem_shmem_vunmap(obj, map);
-+	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
++/**
++ * drm_gem_shmem_object_get_sg_table - GEM object function for drm_gem_shmem_get_sg_table()
++ * @obj: GEM object
++ *
++ * This function wraps drm_gem_shmem_get_sg_table(). Drivers that employ the shmem helpers should
++ * use it as their &drm_gem_object_funcs.get_sg_table handler.
++ *
++ * Returns:
++ * A pointer to the scatter/gather table of pinned pages or NULL on failure.
++ */
++static inline struct sg_table *drm_gem_shmem_object_get_sg_table(struct drm_gem_object *obj)
++{
++	return drm_gem_shmem_get_sg_table(obj);
++}
 +
-+	drm_gem_shmem_vunmap(shmem, map);
- }
- 
- /**
-@@ -250,7 +261,9 @@ static inline void drm_gem_shmem_object_vunmap(struct drm_gem_object *obj, struc
-  */
- static inline int drm_gem_shmem_object_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
- {
--	return drm_gem_shmem_mmap(obj, vma);
-+	struct drm_gem_shmem_object *shmem = to_drm_gem_shmem_obj(obj);
++/*
++ * drm_gem_shmem_object_vmap - GEM object function for drm_gem_shmem_vmap()
++ * @obj: GEM object
++ * @map: Returns the kernel virtual address of the SHMEM GEM object's backing store.
++ *
++ * This function wraps drm_gem_shmem_vmap(). Drivers that employ the shmem helpers should
++ * use it as their &drm_gem_object_funcs.vmap handler.
++ *
++ * Returns:
++ * 0 on success or a negative error code on failure.
++ */
++static inline int drm_gem_shmem_object_vmap(struct drm_gem_object *obj, struct dma_buf_map *map)
++{
++	return drm_gem_shmem_vmap(obj, map);
++}
 +
-+	return drm_gem_shmem_mmap(shmem, vma);
- }
- 
- /*
-@@ -261,8 +274,8 @@ struct drm_gem_object *
++/*
++ * drm_gem_shmem_object_vunmap - GEM object function for drm_gem_shmem_vunmap()
++ * @obj: GEM object
++ * @map: Kernel virtual address where the SHMEM GEM object was mapped
++ *
++ * This function wraps drm_gem_shmem_vunmap(). Drivers that employ the shmem helpers should
++ * use it as their &drm_gem_object_funcs.vunmap handler.
++ */
++static inline void drm_gem_shmem_object_vunmap(struct drm_gem_object *obj, struct dma_buf_map *map)
++{
++	drm_gem_shmem_vunmap(obj, map);
++}
++
++/**
++ * drm_gem_shmem_object_mmap - GEM object function for drm_gem_shmem_mmap()
++ * @obj: GEM object
++ * @vma: VMA for the area to be mapped
++ *
++ * This function wraps drm_gem_shmem_mmap(). Drivers that employ the shmem helpers should
++ * use it as their &drm_gem_object_funcs.mmap handler.
++ *
++ * Returns:
++ * 0 on success or a negative error code on failure.
++ */
++static inline int drm_gem_shmem_object_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
++{
++	return drm_gem_shmem_mmap(obj, vma);
++}
++
++/*
++ * Driver ops
++ */
++
+ struct drm_gem_object *
  drm_gem_shmem_prime_import_sg_table(struct drm_device *dev,
  				    struct dma_buf_attachment *attach,
- 				    struct sg_table *sgt);
--
--struct sg_table *drm_gem_shmem_get_pages_sgt(struct drm_gem_object *obj);
-+int drm_gem_shmem_dumb_create(struct drm_file *file, struct drm_device *dev,
-+			      struct drm_mode_create_dumb *args);
- 
- /**
-  * DRM_GEM_SHMEM_DRIVER_OPS - Default shmem GEM operations
 -- 
 2.33.1
 
