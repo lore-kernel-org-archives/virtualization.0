@@ -2,111 +2,96 @@ Return-Path: <SRS0=YXi0=PY=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 354ECC433EF
-	for <virtualization@archiver.kernel.org>; Fri,  5 Nov 2021 13:00:32 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9ACA9C433F5
+	for <virtualization@archiver.kernel.org>; Fri,  5 Nov 2021 18:18:39 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C96D661252
-	for <virtualization@archiver.kernel.org>; Fri,  5 Nov 2021 13:00:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org C96D661252
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id 07D3261131
+	for <virtualization@archiver.kernel.org>; Fri,  5 Nov 2021 18:18:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 07D3261131
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 7642C403C3;
-	Fri,  5 Nov 2021 13:00:31 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id BE9C981852;
+	Fri,  5 Nov 2021 18:18:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8WmqyL_OmNa0; Fri,  5 Nov 2021 13:00:30 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 1FC90401B3;
-	Fri,  5 Nov 2021 13:00:30 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Wo5x2xUOLT8d; Fri,  5 Nov 2021 18:18:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id D21DC80F8C;
+	Fri,  5 Nov 2021 18:18:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E0586C0012;
-	Fri,  5 Nov 2021 13:00:29 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B88B6C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8CE26C0012;
+	Fri,  5 Nov 2021 18:18:36 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 81C2FC000E
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Nov 2021 13:00:27 +0000 (UTC)
+ Fri,  5 Nov 2021 18:18:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id AFA3C403C3
+ by smtp3.osuosl.org (Postfix) with ESMTP id 5C76660710
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Nov 2021 13:00:27 +0000 (UTC)
+ Fri,  5 Nov 2021 18:18:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Gws8d4XiYf7J
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=ffwll.ch
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id dOANCoCGwx9k
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Nov 2021 13:00:26 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp4.osuosl.org (Postfix) with ESMTPS id C60B4401B3
+ Fri,  5 Nov 2021 18:18:33 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com
+ [IPv6:2a00:1450:4864:20::32a])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 8201560625
  for <virtualization@lists.linux-foundation.org>;
- Fri,  5 Nov 2021 13:00:26 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id 3B7DA1FD37;
- Fri,  5 Nov 2021 13:00:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1636117224; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=tjnWxrfIUbkoahv7XQ0mkb34rkKEwu9iva4UCkL/Uzg=;
- b=bPiprZL7ZmOGy19QX38+b3CTSqukbvtVs7Vm/0Nri2gFsnOe7o3J1Fm5G0ZxkoWXWnUTWg
- IhzcWTycRQuQUd0P6DORk4mL9rUqPZrEplLxKBsgiGVNco+WljjyXrf0iUoA9YvZ9fDFrY
- iS7hYeOotlWPV9Ci6pdRs3fSdRO/QPY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1636117224;
- h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=tjnWxrfIUbkoahv7XQ0mkb34rkKEwu9iva4UCkL/Uzg=;
- b=IfMsFqCr6sUCPSpglCxZkkSTgHKZvB1Ud/VZGbn0cgD9RbqCNc+1ibpn5U3rQtcn3n2apN
- z++YZEXDZCUBU+Dw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id AEE0914004;
- Fri,  5 Nov 2021 13:00:23 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id 6AK1KecqhWF4WAAAMHmgww
- (envelope-from <tzimmermann@suse.de>); Fri, 05 Nov 2021 13:00:23 +0000
-Message-ID: <7de8c495-7e01-98f9-71c7-9168d51733c3@suse.de>
-Date: Fri, 5 Nov 2021 14:00:23 +0100
+ Fri,  5 Nov 2021 18:18:33 +0000 (UTC)
+Received: by mail-wm1-x32a.google.com with SMTP id y196so7754948wmc.3
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 05 Nov 2021 11:18:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=1F7ZrS2qx6hcjbKFW18wbdX1dO7EVFjIOVbkgOQQu1M=;
+ b=GTVlhhl2oRskd2ZQ+28qxi89au5z95PR6drciKUNxajnZkvK4HLW4viJ+xh8AcTDu3
+ hh2VaSCcj+8IgJA10FIUlgghh7ilUUtbUiI7xolREJI5G3NV9zVnbzW76v/bwSokt4CG
+ 4LRc4gVCVSbvkTiZqgsONuotdXQJFsN4aSt6g=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=1F7ZrS2qx6hcjbKFW18wbdX1dO7EVFjIOVbkgOQQu1M=;
+ b=P2Lyrv7JJKevRDpv8I0lDtlAH8tUesuOJ7yi2I7HhL7yDj5iY+rKTs3Iz5bFZXCWgJ
+ i9E5bigYoC9GtkjQ8Aq87OKxlnPL8OdrR1lJBBZjUGfbyXjSpgcIVqXsOHW8m7bvObGU
+ 1ZzlxZjGjXrvchXwS/55jOnug/OLiqcbGAwH7Q6Ym1hQyPcfLpATTUDDQ8eXRUOrzPO+
+ qtDI1j4Ru6Dip1Xg6NsixVpN50Prm5dWTmpXsge5cE7tEOGqJXz8Fd+gy9gHU4gBtuYq
+ StbwV6ArmVU5xYeijXp/anUsKah/z2ddBPdkThTmbO8Z2jObm1Oo7mr2tpfR6DAsQ3Ag
+ lmNQ==
+X-Gm-Message-State: AOAM533+DS0y3Mx2lIdVZ5yyfwLoVbmSPQnEbHPYe91HJRl8ElaXpSKD
+ WGBwRzQuu7qjZliD07gTmJ/Vug==
+X-Google-Smtp-Source: ABdhPJwOOFxSie1d0wDtLy78QTbpGK3osp7QilTcBMlbw7teq6m3xwiroqIHHXhp4pQ5Hn3MKRNzLA==
+X-Received: by 2002:a1c:7e41:: with SMTP id z62mr32414284wmc.9.1636136311481; 
+ Fri, 05 Nov 2021 11:18:31 -0700 (PDT)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+ by smtp.gmail.com with ESMTPSA id m20sm5631911wmq.11.2021.11.05.11.18.30
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 05 Nov 2021 11:18:31 -0700 (PDT)
+Date: Fri, 5 Nov 2021 19:18:29 +0100
+From: Daniel Vetter <daniel@ffwll.ch>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: [PATCH 2/3] drm/shmem-helper: Export dedicated wrappers for GEM
+ object functions
+Message-ID: <YYV1dbE2/cyPL1ZU@phenom.ffwll.local>
+References: <20211105093558.5084-1-tzimmermann@suse.de>
+ <20211105093558.5084-3-tzimmermann@suse.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.1
-Subject: Re: [PATCH v2 1/2] drm: Add a drm_drv_enabled() to check if drivers
- should be enabled
-Content-Language: en-US
-To: Javier Martinez Canillas <javierm@redhat.com>,
- Jani Nikula <jani.nikula@linux.intel.com>, linux-kernel@vger.kernel.org
-References: <20211104160707.1407052-1-javierm@redhat.com>
- <20211104160707.1407052-2-javierm@redhat.com> <87ilx7ae3v.fsf@intel.com>
- <0c07f121-42d3-9f37-1e14-842fb685b501@redhat.com>
- <d4a64906-69e5-3250-2362-79f2afac0a23@suse.de>
- <38dbcc8f-2f95-6846-537f-9b85468bfa87@redhat.com> <877ddmapfj.fsf@intel.com>
- <335a9e0f-cce9-480b-10e0-bd312b81e587@redhat.com>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-In-Reply-To: <335a9e0f-cce9-480b-10e0-bd312b81e587@redhat.com>
-Cc: Pekka Paalanen <pekka.paalanen@collabora.com>,
- Dave Airlie <airlied@redhat.com>, Peter Robinson <pbrobinson@gmail.com>,
- David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@ffwll.ch>,
- intel-gfx@lists.freedesktop.org, "Pan, Xinhui" <Xinhui.Pan@amd.com>,
- Alex Deucher <alexander.deucher@amd.com>, dri-devel@lists.freedesktop.org,
- Gurchetan Singh <gurchetansingh@chromium.org>,
- =?UTF-8?Q?Michel_D=c3=a4nzer?= <michel@daenzer.net>,
- Hans de Goede <hdegoede@redhat.com>,
- VMware Graphics <linux-graphics-maintainer@vmware.com>,
- amd-gfx@lists.freedesktop.org, Rodrigo Vivi <rodrigo.vivi@intel.com>,
- nouveau@lists.freedesktop.org, spice-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org,
- =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>,
- Ben Skeggs <bskeggs@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20211105093558.5084-3-tzimmermann@suse.de>
+X-Operating-System: Linux phenom 5.10.0-8-amd64
+Cc: lima@lists.freedesktop.org, airlied@linux.ie,
+ maarten.lankhorst@linux.intel.com, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, mripard@kernel.org, daniel@ffwll.ch
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,113 +103,391 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============7241332361024075457=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============7241332361024075457==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------amYHNBfM0Vfmgj2bbPw0MP1t"
+On Fri, Nov 05, 2021 at 10:35:57AM +0100, Thomas Zimmermann wrote:
+> Wrap GEM SHMEM functions for struct drm_gem_object_funcs and update
+> all callers. This will allow for an update of the public interfaces
+> of the GEM SHMEM helper library.
+> 
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> ---
+>  drivers/gpu/drm/drm_gem_shmem_helper.c  |  45 ++++-----
+>  drivers/gpu/drm/lima/lima_gem.c         |   8 +-
+>  drivers/gpu/drm/panfrost/panfrost_gem.c |  12 +--
+>  drivers/gpu/drm/v3d/v3d_bo.c            |  14 +--
+>  drivers/gpu/drm/virtio/virtgpu_object.c |  15 ++-
+>  include/drm/drm_gem_shmem_helper.h      | 120 ++++++++++++++++++++++++
+>  6 files changed, 161 insertions(+), 53 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> index cd93e91b3487..72ac263f20be 100644
+> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
+> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
+> @@ -30,14 +30,14 @@
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------amYHNBfM0Vfmgj2bbPw0MP1t
-Content-Type: multipart/mixed; boundary="------------NVDuFp0u3pp2xWcJiJ7yN6Es";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Javier Martinez Canillas <javierm@redhat.com>,
- Jani Nikula <jani.nikula@linux.intel.com>, linux-kernel@vger.kernel.org
-Cc: "Pan, Xinhui" <Xinhui.Pan@amd.com>,
- Pekka Paalanen <pekka.paalanen@collabora.com>,
- Hans de Goede <hdegoede@redhat.com>, David Airlie <airlied@linux.ie>,
- Daniel Vetter <daniel.vetter@ffwll.ch>, dri-devel@lists.freedesktop.org,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, amd-gfx@lists.freedesktop.org,
- Gurchetan Singh <gurchetansingh@chromium.org>,
- Ben Skeggs <bskeggs@redhat.com>,
- VMware Graphics <linux-graphics-maintainer@vmware.com>,
- Gerd Hoffmann <kraxel@redhat.com>, spice-devel@lists.freedesktop.org,
- nouveau@lists.freedesktop.org, Alex Deucher <alexander.deucher@amd.com>,
- Dave Airlie <airlied@redhat.com>, =?UTF-8?Q?Christian_K=c3=b6nig?=
- <christian.koenig@amd.com>, virtualization@lists.linux-foundation.org,
- intel-gfx@lists.freedesktop.org, =?UTF-8?Q?Michel_D=c3=a4nzer?=
- <michel@daenzer.net>, Peter Robinson <pbrobinson@gmail.com>
-Message-ID: <7de8c495-7e01-98f9-71c7-9168d51733c3@suse.de>
-Subject: Re: [PATCH v2 1/2] drm: Add a drm_drv_enabled() to check if drivers
- should be enabled
-References: <20211104160707.1407052-1-javierm@redhat.com>
- <20211104160707.1407052-2-javierm@redhat.com> <87ilx7ae3v.fsf@intel.com>
- <0c07f121-42d3-9f37-1e14-842fb685b501@redhat.com>
- <d4a64906-69e5-3250-2362-79f2afac0a23@suse.de>
- <38dbcc8f-2f95-6846-537f-9b85468bfa87@redhat.com> <877ddmapfj.fsf@intel.com>
- <335a9e0f-cce9-480b-10e0-bd312b81e587@redhat.com>
-In-Reply-To: <335a9e0f-cce9-480b-10e0-bd312b81e587@redhat.com>
+Maybe add a few lines to the intro DOC: section about which functions
+should be used where? Just so drivers don't make a mess out of this again
+now that you cleaned it up.
 
---------------NVDuFp0u3pp2xWcJiJ7yN6Es
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+It's ofc not going to be perfect, but better than nothing.
 
-SGkNCg0KQW0gMDUuMTEuMjEgdW0gMTM6MDAgc2NocmllYiBKYXZpZXIgTWFydGluZXogQ2Fu
-aWxsYXM6DQo+IE9uIDExLzUvMjEgMTE6MDQsIEphbmkgTmlrdWxhIHdyb3RlOg0KPj4gT24g
-RnJpLCAwNSBOb3YgMjAyMSwgSmF2aWVyIE1hcnRpbmV6IENhbmlsbGFzIDxqYXZpZXJtQHJl
-ZGhhdC5jb20+IHdyb3RlOg0KPiANCj4gW3NuaXBdDQo+IA0KPj4+DQo+Pj4gRG8geW91IGVu
-dmlzaW9uIG90aGVyIGNvbmRpdGlvbiB0aGF0IGNvdWxkIGJlIGFkZGVkIGxhdGVyIHRvIGRp
-c2FibGUgYQ0KPj4+IERSTSBkcml2ZXIgPyBPciBkbyB5b3UgdGhpbmsgdGhhdCBqdXN0IGZy
-b20gYSBjb2RlIHJlYWRhYmlsaXR5IHBvaW50IG9mDQo+Pj4gdmlldyBtYWtlcyB3b3J0aCBp
-dCA/DQo+Pg0KPj4gVGFraW5nIGEgc3RlcCBiYWNrIGZvciBwZXJzcGVjdGl2ZS4NCj4+DQo+
-PiBJIHRoaW5rIHRoZXJlJ3MgYnJvYWQgY29uc2Vuc3VzIGluIG1vdmluZyB0aGUgcGFyYW1l
-dGVyIHRvIGRybSwgbmFtaW5nDQo+PiB0aGUgY2hlY2sgZnVuY3Rpb24gdG8gZHJtX3NvbWV0
-aGluZ19zb21ldGhpbmcoKSwgYW5kIGJyZWFraW5nIHRoZSB0aWVzDQo+PiB0byBDT05GSUdf
-VkdBX0NPTlNPTEUuIEkgYXBwcmVjaWF0ZSB0aGUgd29yayB5b3UncmUgZG9pbmcgdG8gdGhh
-dA0KPj4gZWZmZWN0Lg0KPj4NCj4gDQo+IFRoYW5rcywgSSBhcHByZWNpYXRlIHlvdXIgZmVl
-ZGJhY2sgYW5kIGNvbW1lbnRzLg0KPiAgIA0KPj4gSSB0aGluayBldmVyeXRoaW5nIGJleW9u
-ZCB0aGF0IGlzIHN0aWxsIGEgYml0IHZhZ3VlIGFuZC9vcg0KPj4gY29udGVudGlvdXMuIFNv
-IGhvdyBhYm91dCBtYWtpbmcgdGhlIGZpcnN0IDItMyBwYXRjaGVzIGp1c3QgdGhhdD8NCj4+
-IFNvbWV0aGluZyB3ZSBjYW4gYWxsIGFncmVlIG9uLCBtYWtlcyBnb29kIHByb2dyZXNzLCBp
-bXByb3ZlcyB0aGUga2VybmVsLA0KPj4gYW5kIGdpdmVzIHVzIHNvbWV0aGluZyB0byBidWls
-ZCBvbj8NCj4+DQo+IA0KPiBUaGF0IHdvcmtzIGZvciBtZS4gVGhvbWFzLCBkbyB5b3UgYWdy
-ZWUgd2l0aCB0aGF0IGFwcHJvYWNoID8NCg0KU3VyZS4gSSB0aGluayB0aGF0J3MgbW9yZSBv
-ciBsZXNzIHdoYXQgSSBwcm9wb3NlZCBpbiBteSByZXBseSB0byB0aGF0IG1haWwuDQoNCkJl
-c3QgcmVnYXJkcw0KVGhvbWFzDQoNCj4gICANCj4gQmVzdCByZWdhcmRzLA0KPiANCg0KLS0g
-DQpUaG9tYXMgWmltbWVybWFubg0KR3JhcGhpY3MgRHJpdmVyIERldmVsb3Blcg0KU1VTRSBT
-b2Z0d2FyZSBTb2x1dGlvbnMgR2VybWFueSBHbWJIDQpNYXhmZWxkc3RyLiA1LCA5MDQwOSBO
-w7xybmJlcmcsIEdlcm1hbnkNCihIUkIgMzY4MDksIEFHIE7DvHJuYmVyZykNCkdlc2Now6Rm
-dHNmw7xocmVyOiBJdm8gVG90ZXYNCg==
+With that, on the series:
 
---------------NVDuFp0u3pp2xWcJiJ7yN6Es--
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 
---------------amYHNBfM0Vfmgj2bbPw0MP1t
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+But maybe wait for some more acks/reviews from driver folks.
+-Daniel
 
------BEGIN PGP SIGNATURE-----
 
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmGFKucFAwAAAAAACgkQlh/E3EQov+D0
-uhAA0c8ZNQjbRr9n35QT+n1kfE+lZxXxUOp1XdNRH0W7s0yH8txdHGLC53BqYEf4ZZ6cM8gKXu3X
-KRnWqhQ88nbFRkEuoC0oHXbzl4er1Y5Fnu/4HsxVBLHTNqAEIFnaN/K0xc2WFRFju9IvyQtiVkq4
-gW327uTSQVJ8Fuhy9Ry5Uf4+qSGFhYtb0+W0WvQvejYpyZT7BaXiQdxIk5avSLFF6imFGdS5RRgA
-rUUE0xCBday57ZrDMviBfayQybH0ErVyKDE21EgFmSp7ny2I+Ra5XNkKjPrn0BR+SCGmlV8bKfeC
-WfUJCOhiDPC2Z2sPnDGoh5ItyCaEO4NtCpTRAh+yoS8BdpTLyTd3wp1NqdA9jc9xPRAAE5ghfbkQ
-Z4OvLJYlezxwzTR/FC5gPL1YJQsEolhVW4iOGGspCWx1VzJAkY6PQV47s8GHuH/f/oedcuyDQzNn
-GJbk9ZPNuJfw09KGl0BtpAVALVV0xYsnkxUr8RFW8qsJv5RJfZHwLwWrS/+3un8UEsgjL91bXJ8q
-zyCTj79SFduvJyIHyihlZFa5NWPwsY+qSb0yic9968LvKlY7OI1JnLZ5/UokVtbXPizSFJGS1tsz
-sFk1ZB+FP63bCOxw+wgoOij6E486p90t9BMHSI0V/RMjT6eqG1/nbyDPqGXZNg95xodHrqH/dS5+
-tlA=
-=R/av
------END PGP SIGNATURE-----
 
---------------amYHNBfM0Vfmgj2bbPw0MP1t--
+>   */
+>  
+>  static const struct drm_gem_object_funcs drm_gem_shmem_funcs = {
+> -	.free = drm_gem_shmem_free_object,
+> -	.print_info = drm_gem_shmem_print_info,
+> -	.pin = drm_gem_shmem_pin,
+> -	.unpin = drm_gem_shmem_unpin,
+> -	.get_sg_table = drm_gem_shmem_get_sg_table,
+> -	.vmap = drm_gem_shmem_vmap,
+> -	.vunmap = drm_gem_shmem_vunmap,
+> -	.mmap = drm_gem_shmem_mmap,
+> +	.free = drm_gem_shmem_object_free,
+> +	.print_info = drm_gem_shmem_object_print_info,
+> +	.pin = drm_gem_shmem_object_pin,
+> +	.unpin = drm_gem_shmem_object_unpin,
+> +	.get_sg_table = drm_gem_shmem_object_get_sg_table,
+> +	.vmap = drm_gem_shmem_object_vmap,
+> +	.vunmap = drm_gem_shmem_object_vunmap,
+> +	.mmap = drm_gem_shmem_object_mmap,
+>  };
+>  
+>  static struct drm_gem_shmem_object *
+> @@ -121,8 +121,7 @@ EXPORT_SYMBOL_GPL(drm_gem_shmem_create);
+>   * @obj: GEM object to free
+>   *
+>   * This function cleans up the GEM object state and frees the memory used to
+> - * store the object itself. It should be used to implement
+> - * &drm_gem_object_funcs.free.
+> + * store the object itself.
+>   */
+>  void drm_gem_shmem_free_object(struct drm_gem_object *obj)
+>  {
+> @@ -248,8 +247,7 @@ EXPORT_SYMBOL(drm_gem_shmem_put_pages);
+>   * @obj: GEM object
+>   *
+>   * This function makes sure the backing pages are pinned in memory while the
+> - * buffer is exported. It should only be used to implement
+> - * &drm_gem_object_funcs.pin.
+> + * buffer is exported.
+>   *
+>   * Returns:
+>   * 0 on success or a negative error code on failure.
+> @@ -269,7 +267,7 @@ EXPORT_SYMBOL(drm_gem_shmem_pin);
+>   * @obj: GEM object
+>   *
+>   * This function removes the requirement that the backing pages are pinned in
+> - * memory. It should only be used to implement &drm_gem_object_funcs.unpin.
+> + * memory.
+>   */
+>  void drm_gem_shmem_unpin(struct drm_gem_object *obj)
+>  {
+> @@ -340,11 +338,8 @@ static int drm_gem_shmem_vmap_locked(struct drm_gem_shmem_object *shmem, struct
+>   *       store.
+>   *
+>   * This function makes sure that a contiguous kernel virtual address mapping
+> - * exists for the buffer backing the shmem GEM object.
+> - *
+> - * This function can be used to implement &drm_gem_object_funcs.vmap. But it can
+> - * also be called by drivers directly, in which case it will hide the
+> - * differences between dma-buf imported and natively allocated objects.
+> + * exists for the buffer backing the shmem GEM object. It hides the differences
+> + * between dma-buf imported and natively allocated objects.
+>   *
+>   * Acquired mappings should be cleaned up by calling drm_gem_shmem_vunmap().
+>   *
+> @@ -396,9 +391,8 @@ static void drm_gem_shmem_vunmap_locked(struct drm_gem_shmem_object *shmem,
+>   * drm_gem_shmem_vmap(). The mapping is only removed when the use count drops to
+>   * zero.
+>   *
+> - * This function can be used to implement &drm_gem_object_funcs.vmap. But it can
+> - * also be called by drivers directly, in which case it will hide the
+> - * differences between dma-buf imported and natively allocated objects.
+> + * This function hides the differences between dma-buf imported and natively
+> + * allocated objects.
+>   */
+>  void drm_gem_shmem_vunmap(struct drm_gem_object *obj, struct dma_buf_map *map)
+>  {
+> @@ -604,8 +598,7 @@ static const struct vm_operations_struct drm_gem_shmem_vm_ops = {
+>   * @vma: VMA for the area to be mapped
+>   *
+>   * This function implements an augmented version of the GEM DRM file mmap
+> - * operation for shmem objects. Drivers which employ the shmem helpers should
+> - * use this function as their &drm_gem_object_funcs.mmap handler.
+> + * operation for shmem objects.
+>   *
+>   * Returns:
+>   * 0 on success or a negative error code on failure.
+> @@ -646,8 +639,6 @@ EXPORT_SYMBOL_GPL(drm_gem_shmem_mmap);
+>   * @p: DRM printer
+>   * @indent: Tab indentation level
+>   * @obj: GEM object
+> - *
+> - * This implements the &drm_gem_object_funcs.info callback.
+>   */
+>  void drm_gem_shmem_print_info(struct drm_printer *p, unsigned int indent,
+>  			      const struct drm_gem_object *obj)
+> @@ -666,9 +657,7 @@ EXPORT_SYMBOL(drm_gem_shmem_print_info);
+>   * @obj: GEM object
+>   *
+>   * This function exports a scatter/gather table suitable for PRIME usage by
+> - * calling the standard DMA mapping API. Drivers should not call this function
+> - * directly, instead it should only be used as an implementation for
+> - * &drm_gem_object_funcs.get_sg_table.
+> + * calling the standard DMA mapping API.
+>   *
+>   * Drivers who need to acquire an scatter/gather table for objects need to call
+>   * drm_gem_shmem_get_pages_sgt() instead.
+> diff --git a/drivers/gpu/drm/lima/lima_gem.c b/drivers/gpu/drm/lima/lima_gem.c
+> index 640acc060467..a5580bd6522c 100644
+> --- a/drivers/gpu/drm/lima/lima_gem.c
+> +++ b/drivers/gpu/drm/lima/lima_gem.c
+> @@ -206,12 +206,12 @@ static const struct drm_gem_object_funcs lima_gem_funcs = {
+>  	.free = lima_gem_free_object,
+>  	.open = lima_gem_object_open,
+>  	.close = lima_gem_object_close,
+> -	.print_info = drm_gem_shmem_print_info,
+> +	.print_info = drm_gem_shmem_object_print_info,
+>  	.pin = lima_gem_pin,
+> -	.unpin = drm_gem_shmem_unpin,
+> -	.get_sg_table = drm_gem_shmem_get_sg_table,
+> +	.unpin = drm_gem_shmem_object_unpin,
+> +	.get_sg_table = drm_gem_shmem_object_get_sg_table,
+>  	.vmap = lima_gem_vmap,
+> -	.vunmap = drm_gem_shmem_vunmap,
+> +	.vunmap = drm_gem_shmem_object_vunmap,
+>  	.mmap = lima_gem_mmap,
+>  };
+>  
+> diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
+> index 23377481f4e3..be1cc6579a71 100644
+> --- a/drivers/gpu/drm/panfrost/panfrost_gem.c
+> +++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
+> @@ -197,13 +197,13 @@ static const struct drm_gem_object_funcs panfrost_gem_funcs = {
+>  	.free = panfrost_gem_free_object,
+>  	.open = panfrost_gem_open,
+>  	.close = panfrost_gem_close,
+> -	.print_info = drm_gem_shmem_print_info,
+> +	.print_info = drm_gem_shmem_object_print_info,
+>  	.pin = panfrost_gem_pin,
+> -	.unpin = drm_gem_shmem_unpin,
+> -	.get_sg_table = drm_gem_shmem_get_sg_table,
+> -	.vmap = drm_gem_shmem_vmap,
+> -	.vunmap = drm_gem_shmem_vunmap,
+> -	.mmap = drm_gem_shmem_mmap,
+> +	.unpin = drm_gem_shmem_object_unpin,
+> +	.get_sg_table = drm_gem_shmem_object_get_sg_table,
+> +	.vmap = drm_gem_shmem_object_vmap,
+> +	.vunmap = drm_gem_shmem_object_vunmap,
+> +	.mmap = drm_gem_shmem_object_mmap,
+>  };
+>  
+>  /**
+> diff --git a/drivers/gpu/drm/v3d/v3d_bo.c b/drivers/gpu/drm/v3d/v3d_bo.c
+> index 6a8731ab9d7d..b50677beb6ac 100644
+> --- a/drivers/gpu/drm/v3d/v3d_bo.c
+> +++ b/drivers/gpu/drm/v3d/v3d_bo.c
+> @@ -52,13 +52,13 @@ void v3d_free_object(struct drm_gem_object *obj)
+>  
+>  static const struct drm_gem_object_funcs v3d_gem_funcs = {
+>  	.free = v3d_free_object,
+> -	.print_info = drm_gem_shmem_print_info,
+> -	.pin = drm_gem_shmem_pin,
+> -	.unpin = drm_gem_shmem_unpin,
+> -	.get_sg_table = drm_gem_shmem_get_sg_table,
+> -	.vmap = drm_gem_shmem_vmap,
+> -	.vunmap = drm_gem_shmem_vunmap,
+> -	.mmap = drm_gem_shmem_mmap,
+> +	.print_info = drm_gem_shmem_object_print_info,
+> +	.pin = drm_gem_shmem_object_pin,
+> +	.unpin = drm_gem_shmem_object_unpin,
+> +	.get_sg_table = drm_gem_shmem_object_get_sg_table,
+> +	.vmap = drm_gem_shmem_object_vmap,
+> +	.vunmap = drm_gem_shmem_object_vunmap,
+> +	.mmap = drm_gem_shmem_object_mmap,
+>  };
+>  
+>  /* gem_create_object function for allocating a BO struct and doing
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+> index f648b0e24447..698431d233b8 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_object.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+> @@ -116,15 +116,14 @@ static const struct drm_gem_object_funcs virtio_gpu_shmem_funcs = {
+>  	.free = virtio_gpu_free_object,
+>  	.open = virtio_gpu_gem_object_open,
+>  	.close = virtio_gpu_gem_object_close,
+> -
+> -	.print_info = drm_gem_shmem_print_info,
+> +	.print_info = drm_gem_shmem_object_print_info,
+>  	.export = virtgpu_gem_prime_export,
+> -	.pin = drm_gem_shmem_pin,
+> -	.unpin = drm_gem_shmem_unpin,
+> -	.get_sg_table = drm_gem_shmem_get_sg_table,
+> -	.vmap = drm_gem_shmem_vmap,
+> -	.vunmap = drm_gem_shmem_vunmap,
+> -	.mmap = drm_gem_shmem_mmap,
+> +	.pin = drm_gem_shmem_object_pin,
+> +	.unpin = drm_gem_shmem_object_unpin,
+> +	.get_sg_table = drm_gem_shmem_object_get_sg_table,
+> +	.vmap = drm_gem_shmem_object_vmap,
+> +	.vunmap = drm_gem_shmem_object_vunmap,
+> +	.mmap = drm_gem_shmem_object_mmap,
+>  };
+>  
+>  bool virtio_gpu_is_shmem(struct virtio_gpu_object *bo)
+> diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_shmem_helper.h
+> index 6b47eb7d9f76..efc59dd4aeeb 100644
+> --- a/include/drm/drm_gem_shmem_helper.h
+> +++ b/include/drm/drm_gem_shmem_helper.h
+> @@ -137,6 +137,126 @@ void drm_gem_shmem_print_info(struct drm_printer *p, unsigned int indent,
+>  			      const struct drm_gem_object *obj);
+>  
+>  struct sg_table *drm_gem_shmem_get_sg_table(struct drm_gem_object *obj);
+> +
+> +/*
+> + * GEM object functions
+> + */
+> +
+> +/**
+> + * drm_gem_shmem_object_free - GEM object function for drm_gem_shmem_free_object()
+> + * @obj: GEM object to free
+> + *
+> + * This function wraps drm_gem_shmem_free_object(). Drivers that employ the shmem helpers
+> + * should use it as their &drm_gem_object_funcs.free handler.
+> + */
+> +static inline void drm_gem_shmem_object_free(struct drm_gem_object *obj)
+> +{
+> +	drm_gem_shmem_free_object(obj);
+> +}
+> +
+> +/**
+> + * drm_gem_shmem_print_info() - Print &drm_gem_shmem_object info for debugfs
+> + * @p: DRM printer
+> + * @indent: Tab indentation level
+> + * @obj: GEM object
+> + *
+> + * This function wraps drm_gem_shmem_mmap(). Drivers that employ the shmem helpers should
+> + * use this function as their &drm_gem_object_funcs.mmap handler.
+> + */
+> +static inline void drm_gem_shmem_object_print_info(struct drm_printer *p, unsigned int indent,
+> +						   const struct drm_gem_object *obj)
+> +{
+> +	drm_gem_shmem_print_info(p, indent, obj);
+> +}
+> +
+> +/**
+> + * drm_gem_shmem_object_pin - GEM object function for drm_gem_shmem_pin()
+> + * @obj: GEM object
+> + *
+> + * This function wraps drm_gem_shmem_pin(). Drivers that employ the shmem helpers should
+> + * use it as their &drm_gem_object_funcs.pin handler.
+> + */
+> +static inline int drm_gem_shmem_object_pin(struct drm_gem_object *obj)
+> +{
+> +	return drm_gem_shmem_pin(obj);
+> +}
+> +
+> +/**
+> + * drm_gem_shmem_object_unpin - GEM object function for drm_gem_shmem_unpin()
+> + * @obj: GEM object
+> + *
+> + * This function wraps drm_gem_shmem_unpin(). Drivers that employ the shmem helpers should
+> + * use it as their &drm_gem_object_funcs.unpin handler.
+> + */
+> +static inline void drm_gem_shmem_object_unpin(struct drm_gem_object *obj)
+> +{
+> +	drm_gem_shmem_unpin(obj);
+> +}
+> +
+> +/**
+> + * drm_gem_shmem_object_get_sg_table - GEM object function for drm_gem_shmem_get_sg_table()
+> + * @obj: GEM object
+> + *
+> + * This function wraps drm_gem_shmem_get_sg_table(). Drivers that employ the shmem helpers should
+> + * use it as their &drm_gem_object_funcs.get_sg_table handler.
+> + *
+> + * Returns:
+> + * A pointer to the scatter/gather table of pinned pages or NULL on failure.
+> + */
+> +static inline struct sg_table *drm_gem_shmem_object_get_sg_table(struct drm_gem_object *obj)
+> +{
+> +	return drm_gem_shmem_get_sg_table(obj);
+> +}
+> +
+> +/*
+> + * drm_gem_shmem_object_vmap - GEM object function for drm_gem_shmem_vmap()
+> + * @obj: GEM object
+> + * @map: Returns the kernel virtual address of the SHMEM GEM object's backing store.
+> + *
+> + * This function wraps drm_gem_shmem_vmap(). Drivers that employ the shmem helpers should
+> + * use it as their &drm_gem_object_funcs.vmap handler.
+> + *
+> + * Returns:
+> + * 0 on success or a negative error code on failure.
+> + */
+> +static inline int drm_gem_shmem_object_vmap(struct drm_gem_object *obj, struct dma_buf_map *map)
+> +{
+> +	return drm_gem_shmem_vmap(obj, map);
+> +}
+> +
+> +/*
+> + * drm_gem_shmem_object_vunmap - GEM object function for drm_gem_shmem_vunmap()
+> + * @obj: GEM object
+> + * @map: Kernel virtual address where the SHMEM GEM object was mapped
+> + *
+> + * This function wraps drm_gem_shmem_vunmap(). Drivers that employ the shmem helpers should
+> + * use it as their &drm_gem_object_funcs.vunmap handler.
+> + */
+> +static inline void drm_gem_shmem_object_vunmap(struct drm_gem_object *obj, struct dma_buf_map *map)
+> +{
+> +	drm_gem_shmem_vunmap(obj, map);
+> +}
+> +
+> +/**
+> + * drm_gem_shmem_object_mmap - GEM object function for drm_gem_shmem_mmap()
+> + * @obj: GEM object
+> + * @vma: VMA for the area to be mapped
+> + *
+> + * This function wraps drm_gem_shmem_mmap(). Drivers that employ the shmem helpers should
+> + * use it as their &drm_gem_object_funcs.mmap handler.
+> + *
+> + * Returns:
+> + * 0 on success or a negative error code on failure.
+> + */
+> +static inline int drm_gem_shmem_object_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
+> +{
+> +	return drm_gem_shmem_mmap(obj, vma);
+> +}
+> +
+> +/*
+> + * Driver ops
+> + */
+> +
+>  struct drm_gem_object *
+>  drm_gem_shmem_prime_import_sg_table(struct drm_device *dev,
+>  				    struct dma_buf_attachment *attach,
+> -- 
+> 2.33.1
+> 
 
---===============7241332361024075457==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7241332361024075457==--
