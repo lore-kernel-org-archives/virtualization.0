@@ -2,63 +2,95 @@ Return-Path: <SRS0=ERs7=PZ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5586CC433F5
-	for <virtualization@archiver.kernel.org>; Sat,  6 Nov 2021 12:39:58 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 935C6C433F5
+	for <virtualization@archiver.kernel.org>; Sat,  6 Nov 2021 19:54:11 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E8BE26124F
-	for <virtualization@archiver.kernel.org>; Sat,  6 Nov 2021 12:39:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org E8BE26124F
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id 2023261054
+	for <virtualization@archiver.kernel.org>; Sat,  6 Nov 2021 19:54:11 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 2023261054
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9F2A240203;
-	Sat,  6 Nov 2021 12:39:57 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id BB86E6066B;
+	Sat,  6 Nov 2021 19:54:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6kyMsdKS7dEp; Sat,  6 Nov 2021 12:39:56 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zAvFuJyMPYol; Sat,  6 Nov 2021 19:54:09 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id AC9054045D;
-	Sat,  6 Nov 2021 12:39:55 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E1695605CF;
+	Sat,  6 Nov 2021 19:54:08 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 857C0C0019;
-	Sat,  6 Nov 2021 12:39:55 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 22A3EC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C226FC0012;
+	Sat,  6 Nov 2021 19:54:08 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E9DE0C000E
  for <virtualization@lists.linux-foundation.org>;
- Sat,  6 Nov 2021 12:39:54 +0000 (UTC)
+ Sat,  6 Nov 2021 19:54:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 03DE04045D
+ by smtp3.osuosl.org (Postfix) with ESMTP id CBD0660628
  for <virtualization@lists.linux-foundation.org>;
- Sat,  6 Nov 2021 12:39:54 +0000 (UTC)
+ Sat,  6 Nov 2021 19:54:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rFIF_bMQ6HQy
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id K38ox3arG5RA
  for <virtualization@lists.linux-foundation.org>;
- Sat,  6 Nov 2021 12:39:51 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
- [IPv6:2a03:f480:1:14::7d])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 5B4EF40203
+ Sat,  6 Nov 2021 19:54:05 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id A82EA605CF
  for <virtualization@lists.linux-foundation.org>;
- Sat,  6 Nov 2021 12:39:51 +0000 (UTC)
-Received: from b612.uc.pt ([193.137.201.233] helo=LAPTOP-EPOV2LRR)
- by s052d7dde.fastvps-server.com with esmtpsa
- (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
- (envelope-from <marle@saisti.eu>) id 1mjKW8-0000qp-VR
- for virtualization@lists.linux-foundation.org; Sat, 06 Nov 2021 15:09:53 +0300
-From: "WorldCIST" <marialemos72@gmail.com>
-Subject: WorldCist'22 - 10th World Conference on IST | Montenegro | Deadline:
- November 24
-To: virtualization@lists.linux-foundation.org
+ Sat,  6 Nov 2021 19:54:04 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id D9C3F1FD3C;
+ Sat,  6 Nov 2021 19:54:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1636228441; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=fTSLl9voLs/tq4C2+l1hNODjIj2egcIjNCNPs+C/4wk=;
+ b=RMv+0ev/D9K4faQpMWAnDSEcdQbGlpD9oxjboCYGNJeiMpsKGq5cAgvVrBqqyL0r0MwiGs
+ ehtZfBw4nj7zy8MoIja4+VXzS8XRYzV8es28YwOyVsSz9VwTd0KCXLYfaXmNUeO6E27b5a
+ 2kCMJOPi16BUmVRzA4moBeREPs3MDT8=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1636228441;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=fTSLl9voLs/tq4C2+l1hNODjIj2egcIjNCNPs+C/4wk=;
+ b=pZ22eM/BmIQjWIfVMU3crcknVBDp+C0Qt7Yef02FgKAXOZhW+3BIDqUJ0caadyFzc4IW/e
+ pQ6qPEQxWTajtdCg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id ABA5913A1D;
+ Sat,  6 Nov 2021 19:54:01 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id 1ltdKFndhmGpMQAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Sat, 06 Nov 2021 19:54:01 +0000
+Message-ID: <c359da93-1c27-fbcd-4ad3-1da7157bc80e@suse.de>
+Date: Sat, 6 Nov 2021 20:54:01 +0100
 MIME-Version: 1.0
-Date: Sat, 6 Nov 2021 12:09:53 +0000
-Message-ID: <50325586765@gmail-com>
-X-Antivirus: AVG (VPS 211105-6, 5/11/2021), Outbound message
-X-Antivirus-Status: Clean
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.1
+Subject: Re: [PATCH 2/3] drm/shmem-helper: Export dedicated wrappers for GEM
+ object functions
+Content-Language: en-US
+To: Daniel Vetter <daniel@ffwll.ch>
+References: <20211105093558.5084-1-tzimmermann@suse.de>
+ <20211105093558.5084-3-tzimmermann@suse.de>
+ <YYV1dbE2/cyPL1ZU@phenom.ffwll.local>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+In-Reply-To: <YYV1dbE2/cyPL1ZU@phenom.ffwll.local>
+Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org,
+ lima@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -70,509 +102,356 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: worldcist@gmail.com
-Content-Type: multipart/mixed; boundary="===============5623117045572213512=="
+Content-Type: multipart/mixed; boundary="===============4743991583565679430=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is a multi-part message in MIME format
-
---===============5623117045572213512==
-Content-Type: multipart/alternative; charset=utf-8; boundary="HeFtNU3vWpqaanZDUc1W=_rgviP2YkVB8O"
-
-This is a multi-part message in MIME format
-
---HeFtNU3vWpqaanZDUc1W=_rgviP2YkVB8O
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-* Conference listed in CORE Ranking
-
-** Google Scholar H5-Index =3D 23
-
-*** Best papers selected for SCI/SSCI journals
-
- 
-
----------------------------------------------------------------------------=
--------------------------------
-
-WorldCIST'22 - 10th World Conference on Information Systems and Technologie=
-s
-
-12-14 April 2022, Budva, Montenegro
-
-http://worldcist.org <http://worldcist.org/>
-
----------------------------------------------------------------------------=
---------------------------------
-
-
-The WorldCist'22 - 10th World Conference on Information Systems and Technol=
-ogies, to be held in Budva, Montenegro, 12-14 April 2022, is a global forum=
- for researchers and practitioners to present and discuss the most recent i=
-nnovations, trends, results, experiences and concerns in the several perspe=
-ctives of Information Systems and Technologies.
-
-We are pleased to invite you to submit your papers to WorldCist'22. All sub=
-missions will be reviewed on the basis of relevance, originality, importanc=
-e and clarity.
-
- 
-
-TOPICS
-
-Submitted papers should be related with one or more of the main themes prop=
-osed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-
-B) Organizational Models and Information Systems (OMIS);
-
-C) Software and Systems Modeling (SSM);
-
-D) Software Systems, Architectures, Applications and Tools (SSAAT);
-
-E) Multimedia Systems and Applications (MSA);
-
-F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-
-G) Intelligent and Decision Support Systems (IDSS);
-
-H) Big Data Analytics and Applications (BDAA);
-
-I) Human-Computer Interaction (HCI);
-
-J) Ethics, Computers and Security (ECS)
-
-K) Health Informatics (HIS);
-
-L) Information Technologies in Education (ITE);
-
-M) Technologies for Biomedical Applications (TBA)
-
-N) Information Technologies in Radiocommunications (ITR);
-
- 
-
-TYPES of SUBMISSIONS and DECISIONS
-
-Four types of papers can be submitted:
-
-Full paper: Finished or consolidated R&D works, to be included in one of th=
-e Conference themes. These papers are assigned a 10-page limit.
-
-Short paper: Ongoing works with relevant preliminary results, open to discu=
-ssion. These papers are assigned a 7-page limit.
-
-Poster paper: Initial work with relevant ideas, open to discussion. These p=
-apers are assigned to a 4-page limit.
-
-Company paper: Companies' papers that show practical experience, R & D, too=
-ls, etc., focused on some topics of the conference. These papers are assign=
-ed to a 4-page limit.
-
-Submitted papers must comply with the format of Advances in Intelligent Sys=
-tems and Computing Series (see Instructions for Authors at Springer Website=
-), be written in English, must not have been published before, not be under=
- review for any other conference or publication and not include any informa=
-tion leading to the authors=E2=80=99 identification. Therefore, the authors=
-=E2=80=99 names, affiliations and bibliographic references should not be in=
-cluded in the version for evaluation by the Program Committee. This informa=
-tion should only be included in the camera-ready version, saved in Word or =
-Latex format and also in PDF format. These files must be accompanied by the=
- Consent to Publish form filled out, in a ZIP file, and uploaded at the con=
-ference management system.
-
-All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D by =
-at least two members of the Program Committee.
-
-Based on Program Committee evaluation, a paper can be rejected or accepted =
-by the Conference Chairs. In the later case, it can be accepted as the type=
- originally submitted or as another type. Thus, full papers can be accepted=
- as short papers or poster papers only. Similarly, short papers can be acce=
-pted as poster papers only.
-
-Poster papers and Company papers are not published in the Conference Procee=
-dings, being only presented and discussed. The authors of accepted poster p=
-apers should build and print a poster to be exhibited during the Conference=
-=2E This poster must follow an A1 or A2 vertical format. The Conference inc=
-ludes Work Sessions where these posters are presented and orally discussed,=
- with a 7 minute limit per poster.
-
-The authors of accepted Full papers will have 15 minutes to present their w=
-ork in a Conference Work Session; approximately 5 minutes of discussion wil=
-l follow each presentation. The authors of accepted Short papers and Compan=
-y papers will have 11 minutes to present their work in a Conference Work Se=
-ssion; approximately 4 minutes of discussion will follow each presentation.=
-
-
- 
-
-PUBLICATION & INDEXING
-
-To ensure that a full paper or short paper is published, poster paper or co=
-mpany paper is presented, at least one of the authors must be fully registe=
-red by the 8nd of January 2022, and the paper must comply with the suggeste=
-d layout and page-limit. Additionally, all recommended changes must be addr=
-essed by the authors before they submit the camera-ready version.
-
-No more than one paper per registration will be published. An extra fee mus=
-t be paid for publication of additional papers, with a maximum of one addit=
-ional paper per registration. One registration permits only the participati=
-on of one author in the conference.
-
-Full and Short papers will be published in Proceedings by Springer, in a bo=
-ok of the Lecture Notes in Networks and Systems series, will  be submitted =
-for indexation by SCOPUS, WoS, Google Scholar, SCImago, among others, and w=
-ill be available in the SpringerLink Digital Library. Poster and company pa=
-pers will not be published, just presented in the conference.
-
-The authors of the best selected papers will be invited to extend them for =
-publication in international journals indexed by WoS/SCI, SCOPUS and DBLP, =
-among others, such as:
-
-Computers in Industry <https://mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396=
-ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5s3> (IF: 7.635 / Q1)
-
-International Journal of Neural Systems <https://mkt.saisti.eu/go/3d1d194be=
-2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5s5> (IF: 5.866 =
-/ Q1)
-
-Neural Computing and Applications <https://mkt.saisti.eu/go/3d1d194be2aacad=
-46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sR> (IF: 5.606 / Q1)
-
-Integrated Computer-Aided Engineering <https://mkt.saisti.eu/go/3d1d194be2a=
-acad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5s7> (IF: 4.827 / =
-Q1)
-
-Electronic Markets <https://mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff-=
--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sS> (IF: 4.765 / Q1)
-
-Informatica - An International Journal <https://mkt.saisti.eu/go/3d1d194be2=
-aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5s9> (IF: 2.88 / =
-Q1)
-
-Expert Systems - Journal of Knowledge Engineering <https://mkt.saisti.eu/go=
-/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sz> (=
-IF: 2.587 / Q2)
-
-International Journal of Applied Mathematics and Computer Science <https://=
-mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OO=
-TeMxl3e1Ne5sb> (IF: 1.417 / Q2)
-
-Computational and Mathematical Organization Theory <https://mkt.saisti.eu/g=
-o/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sd> =
-(IF: 2.023 / Q3)
-
-Computer Methods In Biomechanics And Biomedical Engineering <https://mkt.sa=
-isti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3=
-e1Ne5sf> (IF: 1.763 / Q4)
-
-Data Technologies and Applications <https://mkt.saisti.eu/go/3d1d194be2aaca=
-d46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sh> (IF: 1.667 / Q4)=
-
-
-Computer Science and Information Systems <https://mkt.saisti.eu/go/3d1d194b=
-e2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sj> (IF: 1.167=
- / Q4)
-
-Journal of Information Science and Engineering <https://mkt.saisti.eu/go/3d=
-1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sl> (IF:=
- 0.541 / Q4): Special Issue on Current Topics in Information Science for a =
-Digital Society
-
-Computer Methods in Biomechanics and Biomedical Engineering - Imaging & Vis=
-ualization <https://mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233=
-765e52f21c3427ede2OOTeMxl3e1Ne5sn> (ESCI & SJR: 0.35 / Q2)
-
-Journal of Information Systems Engineering & Management  <https://mkt.saist=
-i.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1N=
-e5sp>(DOAJ & ProQuest)
-
- 
-
-IMPORTANT DATES
-
-Paper Submission: November 24, 2021
-
-Notification of Acceptance: December 25, 2021
-
-Payment of Registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: January 8, 2022.
-
-Camera-ready Submission: January 8, 2022
-
-
-WorldCIST'22: http://worldcist.org <http://worldcist.org/>
-
- 
-
-WorldCIST Team
-
-http://worldcist.org <http://worldcist.org/>
-
-
--- 
-This email has been checked for viruses by AVG.
-https://www.avg.com
-
---HeFtNU3vWpqaanZDUc1W=_rgviP2YkVB8O
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <p>* Conference listed in CORE Ranking</p>
-    <p>** Google Scholar H5-Index =3D 23</p>
-    <p>*** Best papers selected for SCI/SSCI journals</p>
-    <p>&nbsp;</p>
-    <p>--------------------------------------------------------------------=
---------------------------------------</p>
-    <p>WorldCIST'22 - 10th World Conference on Information Systems and Tech=
-nologies</p>
-    <p>12-14 April 2022, Budva, Montenegro</p>
-    <p><a href=3D"http://worldcist.org/">http://worldcist.org</a></p>
-    <p>--------------------------------------------------------------------=
----------------------------------------</p>
-    <p><br />The WorldCist'22 - 10th World Conference on Information System=
-s and Technologies, to be held in Budva, Montenegro, 12-14 April 2022, is a=
- global forum for researchers and practitioners to present and discuss the =
-most recent innovations, trends, results, experiences and concerns in the s=
-everal perspectives of Information Systems and Technologies.</p>
-    <p>We are pleased to invite you to submit your papers to WorldCist'22. =
-All submissions will be reviewed on the basis of relevance, originality, im=
-portance and clarity.</p>
-    <p>&nbsp;</p>
-    <p>TOPICS</p>
-    <p>Submitted papers should be related with one or more of the main them=
-es proposed for the Conference:</p>
-    <p>A) Information and Knowledge Management (IKM);</p>
-    <p>B) Organizational Models and Information Systems (OMIS);</p>
-    <p>C) Software and Systems Modeling (SSM);</p>
-    <p>D) Software Systems, Architectures, Applications and Tools (SSAAT);<=
-/p>
-    <p>E) Multimedia Systems and Applications (MSA);</p>
-    <p>F) Computer Networks, Mobility and Pervasive Systems (CNMPS);</p>
-    <p>G) Intelligent and Decision Support Systems (IDSS);</p>
-    <p>H) Big Data Analytics and Applications (BDAA);</p>
-    <p>I) Human-Computer Interaction (HCI);</p>
-    <p>J) Ethics, Computers and Security (ECS)</p>
-    <p>K) Health Informatics (HIS);</p>
-    <p>L) Information Technologies in Education (ITE);</p>
-    <p>M) Technologies for Biomedical Applications (TBA)</p>
-    <p>N) Information Technologies in Radiocommunications (ITR);</p>
-    <p>&nbsp;</p>
-    <p>TYPES of SUBMISSIONS and DECISIONS</p>
-    <p>Four types of papers can be submitted:</p>
-    <p>Full paper: Finished or consolidated R&amp;D works, to be included i=
-n one of the Conference themes. These papers are assigned a 10-page limit.<=
-/p>
-    <p>Short paper: Ongoing works with relevant preliminary results, open t=
-o discussion. These papers are assigned a 7-page limit.</p>
-    <p>Poster paper: Initial work with relevant ideas, open to discussion. =
-These papers are assigned to a 4-page limit.</p>
-    <p>Company paper: Companies' papers that show practical experience, R &=
-amp; D, tools, etc., focused on some topics of the conference. These papers=
- are assigned to a 4-page limit.</p>
-    <p>Submitted papers must comply with the format of Advances in Intellig=
-ent Systems and Computing Series (see Instructions for Authors at Springer =
-Website), be written in English, must not have been published before, not b=
-e under review for any other conference or publication and not include any =
-information leading to the authors&rsquo; identification. Therefore, the au=
-thors&rsquo; names, affiliations and bibliographic references should not be=
- included in the version for evaluation by the Program Committee. This info=
-rmation should only be included in the camera-ready version, saved in Word =
-or Latex format and also in PDF format. These files must be accompanied by =
-the Consent to Publish form filled out, in a ZIP file, and uploaded at the =
-conference management system.</p>
-    <p>All papers will be subjected to a &ldquo;double-blind review&rdquo; =
-by at least two members of the Program Committee.</p>
-    <p>Based on Program Committee evaluation, a paper can be rejected or ac=
-cepted by the Conference Chairs. In the later case, it can be accepted as t=
-he type originally submitted or as another type. Thus, full papers can be a=
-ccepted as short papers or poster papers only. Similarly, short papers can =
-be accepted as poster papers only.</p>
-    <p>Poster papers and Company papers are not published in the Conference=
- Proceedings, being only presented and discussed. The authors of accepted p=
-oster papers should build and print a poster to be exhibited during the Con=
-ference. This poster must follow an A1 or A2 vertical format. The Conferenc=
-e includes Work Sessions where these posters are presented and orally discu=
-ssed, with a 7 minute limit per poster.</p>
-    <p>The authors of accepted Full papers will have 15 minutes to present =
-their work in a Conference Work Session; approximately 5 minutes of discuss=
-ion will follow each presentation. The authors of accepted Short papers and=
- Company papers will have 11 minutes to present their work in a Conference =
-Work Session; approximately 4 minutes of discussion will follow each presen=
-tation.</p>
-    <p>&nbsp;</p>
-    <p>PUBLICATION &amp; INDEXING</p>
-    <p>To ensure that a full paper or short paper is published, poster pape=
-r or company paper is presented, at least one of the authors must be fully =
-registered by the 8nd of January 2022, and the paper must comply with the s=
-uggested layout and page-limit. Additionally, all recommended changes must =
-be addressed by the authors before they submit the camera-ready version.</p=
->
-    <p>No more than one paper per registration will be published. An extra =
-fee must be paid for publication of additional papers, with a maximum of on=
-e additional paper per registration. One registration permits only the part=
-icipation of one author in the conference.</p>
-    <p>Full and Short papers will be published in Proceedings by Springer, =
-in a book of the Lecture Notes in Networks and Systems series, will&nbsp; b=
-e submitted for indexation by SCOPUS, WoS, Google Scholar, SCImago, among o=
-thers, and will be available in the SpringerLink Digital Library. Poster an=
-d company papers will not be published, just presented in the conference.</=
-p>
-    <p>The authors of the best selected papers will be invited to extend th=
-em for publication in international journals indexed by WoS/SCI, SCOPUS and=
- DBLP, among others, such as:</p>
-    <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/3d1=
-d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5s3" targe=
-t=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:/=
-/mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2O=
-OTeMxl3e1Ne5s3&source=3Dgmail&ust=3D1635503008123000&usg=3DAFQjCNEPdPYMar-V=
-3SBizpDpLsTPA-E33w">Computers in Industry</a> (IF: 7.635 / Q1)</p>
-    <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/3d1=
-d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5s5" targe=
-t=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:/=
-/mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2O=
-OTeMxl3e1Ne5s5&source=3Dgmail&ust=3D1635503008123000&usg=3DAFQjCNE9aQpRh3Vh=
-h_ZF54tWZrMnMMc--Q">International Journal of Neural Systems</a> (IF: 5.866 =
-/ Q1)</p>
-    <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/3d1=
-d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sR" targe=
-t=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:/=
-/mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2O=
-OTeMxl3e1Ne5sR&source=3Dgmail&ust=3D1635503008123000&usg=3DAFQjCNFnMol3XPnE=
-tx_fRK74oaJe6NEPgg">Neural Computing and Applications</a> (IF: 5.606 / Q1)<=
-/p>
-    <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/3d1=
-d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5s7" targe=
-t=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:/=
-/mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2O=
-OTeMxl3e1Ne5s7&source=3Dgmail&ust=3D1635503008123000&usg=3DAFQjCNHeyBIRBauI=
-2L_qYdTH8Prxd_V6uQ">Integrated Computer-Aided Engineering</a> (IF: 4.827 / =
-Q1)</p>
-    <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/3d1=
-d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sS" targe=
-t=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:/=
-/mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2O=
-OTeMxl3e1Ne5sS&source=3Dgmail&ust=3D1635503008123000&usg=3DAFQjCNFh4UoFDAbR=
-zAvpPZoRNMSNM7IcZg">Electronic Markets</a> (IF: 4.765 / Q1)</p>
-    <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/3d1=
-d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5s9" targe=
-t=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:/=
-/mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2O=
-OTeMxl3e1Ne5s9&source=3Dgmail&ust=3D1635503008123000&usg=3DAFQjCNE4cneV3UwS=
-CvU9Kjd4SGTvDBIepA">Informatica - An International Journal</a> (IF: 2.88 / =
-Q1)</p>
-    <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/3d1=
-d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sz" targe=
-t=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:/=
-/mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2O=
-OTeMxl3e1Ne5sz&source=3Dgmail&ust=3D1635503008123000&usg=3DAFQjCNEXGrWnh_ZH=
-GI27wLXcX06m9Q3voQ">Expert Systems - Journal of Knowledge Engineering</a> (=
-IF: 2.587 / Q2)</p>
-    <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/3d1=
-d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sb" targe=
-t=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:/=
-/mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2O=
-OTeMxl3e1Ne5sb&source=3Dgmail&ust=3D1635503008123000&usg=3DAFQjCNGKNT5fCt_s=
-KmILmlmnFAA59Olkcw">International Journal of Applied Mathematics and Comput=
-er Science</a> (IF: 1.417 / Q2)</p>
-    <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/3d1=
-d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sd" targe=
-t=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:/=
-/mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2O=
-OTeMxl3e1Ne5sd&source=3Dgmail&ust=3D1635503008123000&usg=3DAFQjCNEPk2WwQNkY=
-g_r0lkCKafahhRMF7g">Computational and Mathematical Organization Theory</a> =
-(IF: 2.023 / Q3)</p>
-    <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/3d1=
-d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sf" targe=
-t=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:/=
-/mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2O=
-OTeMxl3e1Ne5sf&source=3Dgmail&ust=3D1635503008123000&usg=3DAFQjCNFrEtk0WkRW=
-HVAKpviJoUqNJ8sLQg">Computer Methods In Biomechanics And Biomedical Enginee=
-ring</a> (IF: 1.763 / Q4)</p>
-    <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/3d1=
-d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sh" targe=
-t=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:/=
-/mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2O=
-OTeMxl3e1Ne5sh&source=3Dgmail&ust=3D1635503008123000&usg=3DAFQjCNGzMPKn4boW=
--8ivQiKPx2G37z-ljQ">Data Technologies and Applications</a> (IF: 1.667 / Q4)=
-</p>
-    <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/3d1=
-d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sj" targe=
-t=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:/=
-/mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2O=
-OTeMxl3e1Ne5sj&source=3Dgmail&ust=3D1635503008123000&usg=3DAFQjCNGfntC3s8Uh=
-Ij1PRcg5Vw5t68pAUg">Computer Science and Information Systems</a> (IF: 1.167=
- / Q4)</p>
-    <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/3d1=
-d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sl" targe=
-t=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:/=
-/mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2O=
-OTeMxl3e1Ne5sl&source=3Dgmail&ust=3D1635503008123000&usg=3DAFQjCNG-tD6YoPRS=
-t2LZBnGr4XwPjWWFYw">Journal of Information Science and Engineering</a> (IF:=
- 0.541 / Q4): Special Issue on Current Topics in Information Science for a =
-Digital Society</p>
-    <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/3d1=
-d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sn" targe=
-t=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:/=
-/mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2O=
-OTeMxl3e1Ne5sn&source=3Dgmail&ust=3D1635503008123000&usg=3DAFQjCNEZ1QZaYdfP=
-CF7upfJf3rKJcY2kqA">Computer Methods in Biomechanics and Biomedical Enginee=
-ring - Imaging &amp; Visualization</a> (ESCI &amp; SJR: 0.35 / Q2)</p>
-    <p style=3D"padding-left: 30px"><a href=3D"https://mkt.saisti.eu/go/3d1=
-d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2OOTeMxl3e1Ne5sp" targe=
-t=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttps:/=
-/mkt.saisti.eu/go/3d1d194be2aacad46ad8bfd7396ff--ddba233765e52f21c3427ede2O=
-OTeMxl3e1Ne5sp&source=3Dgmail&ust=3D1635503008124000&usg=3DAFQjCNHN4Foq1O42=
-f6F6GlKIS3pfVajstw">Journal of Information Systems Engineering &amp; Manage=
-ment&nbsp;</a><span lang=3D"EN-US">(DOAJ &amp; ProQuest)</span></p>
-    <p>&nbsp;</p>
-    <p>IMPORTANT DATES</p>
-    <p>Paper Submission: November 24, 2021</p>
-    <p>Notification of Acceptance: December 25, 2021</p>
-    <p>Payment of Registration, to ensure the inclusion of an accepted pape=
-r in the conference proceedings: January 8, 2022.</p>
-    <p>Camera-ready Submission: January 8, 2022</p>
-    <p><br />WorldCIST'22: <a href=3D"http://worldcist.org/">http://worldci=
-st.org</a></p>
-    <p>&nbsp;</p>
-    <p>WorldCIST Team</p>
-    <p><a href=3D"http://worldcist.org/">http://worldcist.org</a></p>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
-<table style=3D"border-top: 1px solid #D3D4DE;">
-	<tr>
-        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
-=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
-n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
-s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
-=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
-a></td>
-		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
-13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
-free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
-source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
-"_blank" style=3D"color: #4453ea;">www.avg.com</a>
-		</td>
-	</tr>
-</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
-t=3D"1"> </a></div></body>
-</html>
-
---HeFtNU3vWpqaanZDUc1W=_rgviP2YkVB8O--
-
-
---===============5623117045572213512==
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============4743991583565679430==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------Y0tbMH6o50dzJW05O6rrji39"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------Y0tbMH6o50dzJW05O6rrji39
+Content-Type: multipart/mixed; boundary="------------QCb50qmSQB44eCRP1E0ngzmZ";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Daniel Vetter <daniel@ffwll.ch>
+Cc: lima@lists.freedesktop.org, airlied@linux.ie,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+Message-ID: <c359da93-1c27-fbcd-4ad3-1da7157bc80e@suse.de>
+Subject: Re: [PATCH 2/3] drm/shmem-helper: Export dedicated wrappers for GEM
+ object functions
+References: <20211105093558.5084-1-tzimmermann@suse.de>
+ <20211105093558.5084-3-tzimmermann@suse.de>
+ <YYV1dbE2/cyPL1ZU@phenom.ffwll.local>
+In-Reply-To: <YYV1dbE2/cyPL1ZU@phenom.ffwll.local>
+
+--------------QCb50qmSQB44eCRP1E0ngzmZ
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
+
+SGkNCg0KQW0gMDUuMTEuMjEgdW0gMTk6MTggc2NocmllYiBEYW5pZWwgVmV0dGVyOg0KPiBP
+biBGcmksIE5vdiAwNSwgMjAyMSBhdCAxMDozNTo1N0FNICswMTAwLCBUaG9tYXMgWmltbWVy
+bWFubiB3cm90ZToNCj4+IFdyYXAgR0VNIFNITUVNIGZ1bmN0aW9ucyBmb3Igc3RydWN0IGRy
+bV9nZW1fb2JqZWN0X2Z1bmNzIGFuZCB1cGRhdGUNCj4+IGFsbCBjYWxsZXJzLiBUaGlzIHdp
+bGwgYWxsb3cgZm9yIGFuIHVwZGF0ZSBvZiB0aGUgcHVibGljIGludGVyZmFjZXMNCj4+IG9m
+IHRoZSBHRU0gU0hNRU0gaGVscGVyIGxpYnJhcnkuDQo+Pg0KPj4gU2lnbmVkLW9mZi1ieTog
+VGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+DQo+PiAtLS0NCj4+ICAg
+ZHJpdmVycy9ncHUvZHJtL2RybV9nZW1fc2htZW1faGVscGVyLmMgIHwgIDQ1ICsrKystLS0t
+LQ0KPj4gICBkcml2ZXJzL2dwdS9kcm0vbGltYS9saW1hX2dlbS5jICAgICAgICAgfCAgIDgg
+Ky0NCj4+ICAgZHJpdmVycy9ncHUvZHJtL3BhbmZyb3N0L3BhbmZyb3N0X2dlbS5jIHwgIDEy
+ICstLQ0KPj4gICBkcml2ZXJzL2dwdS9kcm0vdjNkL3YzZF9iby5jICAgICAgICAgICAgfCAg
+MTQgKy0tDQo+PiAgIGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9vYmplY3QuYyB8
+ICAxNSArKy0NCj4+ICAgaW5jbHVkZS9kcm0vZHJtX2dlbV9zaG1lbV9oZWxwZXIuaCAgICAg
+IHwgMTIwICsrKysrKysrKysrKysrKysrKysrKysrKw0KPj4gICA2IGZpbGVzIGNoYW5nZWQs
+IDE2MSBpbnNlcnRpb25zKCspLCA1MyBkZWxldGlvbnMoLSkNCj4+DQo+PiBkaWZmIC0tZ2l0
+IGEvZHJpdmVycy9ncHUvZHJtL2RybV9nZW1fc2htZW1faGVscGVyLmMgYi9kcml2ZXJzL2dw
+dS9kcm0vZHJtX2dlbV9zaG1lbV9oZWxwZXIuYw0KPj4gaW5kZXggY2Q5M2U5MWIzNDg3Li43
+MmFjMjYzZjIwYmUgMTAwNjQ0DQo+PiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vZHJtX2dlbV9z
+aG1lbV9oZWxwZXIuYw0KPj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2RybV9nZW1fc2htZW1f
+aGVscGVyLmMNCj4+IEBAIC0zMCwxNCArMzAsMTQgQEANCj4gDQo+IE1heWJlIGFkZCBhIGZl
+dyBsaW5lcyB0byB0aGUgaW50cm8gRE9DOiBzZWN0aW9uIGFib3V0IHdoaWNoIGZ1bmN0aW9u
+cw0KPiBzaG91bGQgYmUgdXNlZCB3aGVyZT8gSnVzdCBzbyBkcml2ZXJzIGRvbid0IG1ha2Ug
+YSBtZXNzIG91dCBvZiB0aGlzIGFnYWluDQo+IG5vdyB0aGF0IHlvdSBjbGVhbmVkIGl0IHVw
+Lg0KPiANCj4gSXQncyBvZmMgbm90IGdvaW5nIHRvIGJlIHBlcmZlY3QsIGJ1dCBiZXR0ZXIg
+dGhhbiBub3RoaW5nLg0KPiANCj4gV2l0aCB0aGF0LCBvbiB0aGUgc2VyaWVzOg0KPiANCj4g
+QWNrZWQtYnk6IERhbmllbCBWZXR0ZXIgPGRhbmllbC52ZXR0ZXJAZmZ3bGwuY2g+DQo+IA0K
+PiBCdXQgbWF5YmUgd2FpdCBmb3Igc29tZSBtb3JlIGFja3MvcmV2aWV3cyBmcm9tIGRyaXZl
+ciBmb2xrcy4NCg0KU3VyZS4NCg0KU0hNRU0gaGVscGVycyBub3cgZm9sbG93IHRoZSBwYXR0
+ZXJuIHRoYXQgaXMgYWxyZWFkeSB1c2VkIGJ5IFZSQU0gDQpoZWxwZXJzLiBJIHRoaW5rIENN
+QSBjb3VsZCBiZW5lZml0IGZyb20gYSBzaW1pbGFyIGNoYW5nZS4NCg0KQmVzdCByZWdhcmRz
+DQpUaG9tYXMNCg0KPiAtRGFuaWVsDQo+IA0KPiANCj4gDQo+PiAgICAqLw0KPj4gICANCj4+
+ICAgc3RhdGljIGNvbnN0IHN0cnVjdCBkcm1fZ2VtX29iamVjdF9mdW5jcyBkcm1fZ2VtX3No
+bWVtX2Z1bmNzID0gew0KPj4gLQkuZnJlZSA9IGRybV9nZW1fc2htZW1fZnJlZV9vYmplY3Qs
+DQo+PiAtCS5wcmludF9pbmZvID0gZHJtX2dlbV9zaG1lbV9wcmludF9pbmZvLA0KPj4gLQku
+cGluID0gZHJtX2dlbV9zaG1lbV9waW4sDQo+PiAtCS51bnBpbiA9IGRybV9nZW1fc2htZW1f
+dW5waW4sDQo+PiAtCS5nZXRfc2dfdGFibGUgPSBkcm1fZ2VtX3NobWVtX2dldF9zZ190YWJs
+ZSwNCj4+IC0JLnZtYXAgPSBkcm1fZ2VtX3NobWVtX3ZtYXAsDQo+PiAtCS52dW5tYXAgPSBk
+cm1fZ2VtX3NobWVtX3Z1bm1hcCwNCj4+IC0JLm1tYXAgPSBkcm1fZ2VtX3NobWVtX21tYXAs
+DQo+PiArCS5mcmVlID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfZnJlZSwNCj4+ICsJLnByaW50
+X2luZm8gPSBkcm1fZ2VtX3NobWVtX29iamVjdF9wcmludF9pbmZvLA0KPj4gKwkucGluID0g
+ZHJtX2dlbV9zaG1lbV9vYmplY3RfcGluLA0KPj4gKwkudW5waW4gPSBkcm1fZ2VtX3NobWVt
+X29iamVjdF91bnBpbiwNCj4+ICsJLmdldF9zZ190YWJsZSA9IGRybV9nZW1fc2htZW1fb2Jq
+ZWN0X2dldF9zZ190YWJsZSwNCj4+ICsJLnZtYXAgPSBkcm1fZ2VtX3NobWVtX29iamVjdF92
+bWFwLA0KPj4gKwkudnVubWFwID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfdnVubWFwLA0KPj4g
+KwkubW1hcCA9IGRybV9nZW1fc2htZW1fb2JqZWN0X21tYXAsDQo+PiAgIH07DQo+PiAgIA0K
+Pj4gICBzdGF0aWMgc3RydWN0IGRybV9nZW1fc2htZW1fb2JqZWN0ICoNCj4+IEBAIC0xMjEs
+OCArMTIxLDcgQEAgRVhQT1JUX1NZTUJPTF9HUEwoZHJtX2dlbV9zaG1lbV9jcmVhdGUpOw0K
+Pj4gICAgKiBAb2JqOiBHRU0gb2JqZWN0IHRvIGZyZWUNCj4+ICAgICoNCj4+ICAgICogVGhp
+cyBmdW5jdGlvbiBjbGVhbnMgdXAgdGhlIEdFTSBvYmplY3Qgc3RhdGUgYW5kIGZyZWVzIHRo
+ZSBtZW1vcnkgdXNlZCB0bw0KPj4gLSAqIHN0b3JlIHRoZSBvYmplY3QgaXRzZWxmLiBJdCBz
+aG91bGQgYmUgdXNlZCB0byBpbXBsZW1lbnQNCj4+IC0gKiAmZHJtX2dlbV9vYmplY3RfZnVu
+Y3MuZnJlZS4NCj4+ICsgKiBzdG9yZSB0aGUgb2JqZWN0IGl0c2VsZi4NCj4+ICAgICovDQo+
+PiAgIHZvaWQgZHJtX2dlbV9zaG1lbV9mcmVlX29iamVjdChzdHJ1Y3QgZHJtX2dlbV9vYmpl
+Y3QgKm9iaikNCj4+ICAgew0KPj4gQEAgLTI0OCw4ICsyNDcsNyBAQCBFWFBPUlRfU1lNQk9M
+KGRybV9nZW1fc2htZW1fcHV0X3BhZ2VzKTsNCj4+ICAgICogQG9iajogR0VNIG9iamVjdA0K
+Pj4gICAgKg0KPj4gICAgKiBUaGlzIGZ1bmN0aW9uIG1ha2VzIHN1cmUgdGhlIGJhY2tpbmcg
+cGFnZXMgYXJlIHBpbm5lZCBpbiBtZW1vcnkgd2hpbGUgdGhlDQo+PiAtICogYnVmZmVyIGlz
+IGV4cG9ydGVkLiBJdCBzaG91bGQgb25seSBiZSB1c2VkIHRvIGltcGxlbWVudA0KPj4gLSAq
+ICZkcm1fZ2VtX29iamVjdF9mdW5jcy5waW4uDQo+PiArICogYnVmZmVyIGlzIGV4cG9ydGVk
+Lg0KPj4gICAgKg0KPj4gICAgKiBSZXR1cm5zOg0KPj4gICAgKiAwIG9uIHN1Y2Nlc3Mgb3Ig
+YSBuZWdhdGl2ZSBlcnJvciBjb2RlIG9uIGZhaWx1cmUuDQo+PiBAQCAtMjY5LDcgKzI2Nyw3
+IEBAIEVYUE9SVF9TWU1CT0woZHJtX2dlbV9zaG1lbV9waW4pOw0KPj4gICAgKiBAb2JqOiBH
+RU0gb2JqZWN0DQo+PiAgICAqDQo+PiAgICAqIFRoaXMgZnVuY3Rpb24gcmVtb3ZlcyB0aGUg
+cmVxdWlyZW1lbnQgdGhhdCB0aGUgYmFja2luZyBwYWdlcyBhcmUgcGlubmVkIGluDQo+PiAt
+ICogbWVtb3J5LiBJdCBzaG91bGQgb25seSBiZSB1c2VkIHRvIGltcGxlbWVudCAmZHJtX2dl
+bV9vYmplY3RfZnVuY3MudW5waW4uDQo+PiArICogbWVtb3J5Lg0KPj4gICAgKi8NCj4+ICAg
+dm9pZCBkcm1fZ2VtX3NobWVtX3VucGluKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqKQ0K
+Pj4gICB7DQo+PiBAQCAtMzQwLDExICszMzgsOCBAQCBzdGF0aWMgaW50IGRybV9nZW1fc2ht
+ZW1fdm1hcF9sb2NrZWQoc3RydWN0IGRybV9nZW1fc2htZW1fb2JqZWN0ICpzaG1lbSwgc3Ry
+dWN0DQo+PiAgICAqICAgICAgIHN0b3JlLg0KPj4gICAgKg0KPj4gICAgKiBUaGlzIGZ1bmN0
+aW9uIG1ha2VzIHN1cmUgdGhhdCBhIGNvbnRpZ3VvdXMga2VybmVsIHZpcnR1YWwgYWRkcmVz
+cyBtYXBwaW5nDQo+PiAtICogZXhpc3RzIGZvciB0aGUgYnVmZmVyIGJhY2tpbmcgdGhlIHNo
+bWVtIEdFTSBvYmplY3QuDQo+PiAtICoNCj4+IC0gKiBUaGlzIGZ1bmN0aW9uIGNhbiBiZSB1
+c2VkIHRvIGltcGxlbWVudCAmZHJtX2dlbV9vYmplY3RfZnVuY3Mudm1hcC4gQnV0IGl0IGNh
+bg0KPj4gLSAqIGFsc28gYmUgY2FsbGVkIGJ5IGRyaXZlcnMgZGlyZWN0bHksIGluIHdoaWNo
+IGNhc2UgaXQgd2lsbCBoaWRlIHRoZQ0KPj4gLSAqIGRpZmZlcmVuY2VzIGJldHdlZW4gZG1h
+LWJ1ZiBpbXBvcnRlZCBhbmQgbmF0aXZlbHkgYWxsb2NhdGVkIG9iamVjdHMuDQo+PiArICog
+ZXhpc3RzIGZvciB0aGUgYnVmZmVyIGJhY2tpbmcgdGhlIHNobWVtIEdFTSBvYmplY3QuIEl0
+IGhpZGVzIHRoZSBkaWZmZXJlbmNlcw0KPj4gKyAqIGJldHdlZW4gZG1hLWJ1ZiBpbXBvcnRl
+ZCBhbmQgbmF0aXZlbHkgYWxsb2NhdGVkIG9iamVjdHMuDQo+PiAgICAqDQo+PiAgICAqIEFj
+cXVpcmVkIG1hcHBpbmdzIHNob3VsZCBiZSBjbGVhbmVkIHVwIGJ5IGNhbGxpbmcgZHJtX2dl
+bV9zaG1lbV92dW5tYXAoKS4NCj4+ICAgICoNCj4+IEBAIC0zOTYsOSArMzkxLDggQEAgc3Rh
+dGljIHZvaWQgZHJtX2dlbV9zaG1lbV92dW5tYXBfbG9ja2VkKHN0cnVjdCBkcm1fZ2VtX3No
+bWVtX29iamVjdCAqc2htZW0sDQo+PiAgICAqIGRybV9nZW1fc2htZW1fdm1hcCgpLiBUaGUg
+bWFwcGluZyBpcyBvbmx5IHJlbW92ZWQgd2hlbiB0aGUgdXNlIGNvdW50IGRyb3BzIHRvDQo+
+PiAgICAqIHplcm8uDQo+PiAgICAqDQo+PiAtICogVGhpcyBmdW5jdGlvbiBjYW4gYmUgdXNl
+ZCB0byBpbXBsZW1lbnQgJmRybV9nZW1fb2JqZWN0X2Z1bmNzLnZtYXAuIEJ1dCBpdCBjYW4N
+Cj4+IC0gKiBhbHNvIGJlIGNhbGxlZCBieSBkcml2ZXJzIGRpcmVjdGx5LCBpbiB3aGljaCBj
+YXNlIGl0IHdpbGwgaGlkZSB0aGUNCj4+IC0gKiBkaWZmZXJlbmNlcyBiZXR3ZWVuIGRtYS1i
+dWYgaW1wb3J0ZWQgYW5kIG5hdGl2ZWx5IGFsbG9jYXRlZCBvYmplY3RzLg0KPj4gKyAqIFRo
+aXMgZnVuY3Rpb24gaGlkZXMgdGhlIGRpZmZlcmVuY2VzIGJldHdlZW4gZG1hLWJ1ZiBpbXBv
+cnRlZCBhbmQgbmF0aXZlbHkNCj4+ICsgKiBhbGxvY2F0ZWQgb2JqZWN0cy4NCj4+ICAgICov
+DQo+PiAgIHZvaWQgZHJtX2dlbV9zaG1lbV92dW5tYXAoc3RydWN0IGRybV9nZW1fb2JqZWN0
+ICpvYmosIHN0cnVjdCBkbWFfYnVmX21hcCAqbWFwKQ0KPj4gICB7DQo+PiBAQCAtNjA0LDgg
+KzU5OCw3IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3Qgdm1fb3BlcmF0aW9uc19zdHJ1Y3QgZHJt
+X2dlbV9zaG1lbV92bV9vcHMgPSB7DQo+PiAgICAqIEB2bWE6IFZNQSBmb3IgdGhlIGFyZWEg
+dG8gYmUgbWFwcGVkDQo+PiAgICAqDQo+PiAgICAqIFRoaXMgZnVuY3Rpb24gaW1wbGVtZW50
+cyBhbiBhdWdtZW50ZWQgdmVyc2lvbiBvZiB0aGUgR0VNIERSTSBmaWxlIG1tYXANCj4+IC0g
+KiBvcGVyYXRpb24gZm9yIHNobWVtIG9iamVjdHMuIERyaXZlcnMgd2hpY2ggZW1wbG95IHRo
+ZSBzaG1lbSBoZWxwZXJzIHNob3VsZA0KPj4gLSAqIHVzZSB0aGlzIGZ1bmN0aW9uIGFzIHRo
+ZWlyICZkcm1fZ2VtX29iamVjdF9mdW5jcy5tbWFwIGhhbmRsZXIuDQo+PiArICogb3BlcmF0
+aW9uIGZvciBzaG1lbSBvYmplY3RzLg0KPj4gICAgKg0KPj4gICAgKiBSZXR1cm5zOg0KPj4g
+ICAgKiAwIG9uIHN1Y2Nlc3Mgb3IgYSBuZWdhdGl2ZSBlcnJvciBjb2RlIG9uIGZhaWx1cmUu
+DQo+PiBAQCAtNjQ2LDggKzYzOSw2IEBAIEVYUE9SVF9TWU1CT0xfR1BMKGRybV9nZW1fc2ht
+ZW1fbW1hcCk7DQo+PiAgICAqIEBwOiBEUk0gcHJpbnRlcg0KPj4gICAgKiBAaW5kZW50OiBU
+YWIgaW5kZW50YXRpb24gbGV2ZWwNCj4+ICAgICogQG9iajogR0VNIG9iamVjdA0KPj4gLSAq
+DQo+PiAtICogVGhpcyBpbXBsZW1lbnRzIHRoZSAmZHJtX2dlbV9vYmplY3RfZnVuY3MuaW5m
+byBjYWxsYmFjay4NCj4+ICAgICovDQo+PiAgIHZvaWQgZHJtX2dlbV9zaG1lbV9wcmludF9p
+bmZvKHN0cnVjdCBkcm1fcHJpbnRlciAqcCwgdW5zaWduZWQgaW50IGluZGVudCwNCj4+ICAg
+CQkJICAgICAgY29uc3Qgc3RydWN0IGRybV9nZW1fb2JqZWN0ICpvYmopDQo+PiBAQCAtNjY2
+LDkgKzY1Nyw3IEBAIEVYUE9SVF9TWU1CT0woZHJtX2dlbV9zaG1lbV9wcmludF9pbmZvKTsN
+Cj4+ICAgICogQG9iajogR0VNIG9iamVjdA0KPj4gICAgKg0KPj4gICAgKiBUaGlzIGZ1bmN0
+aW9uIGV4cG9ydHMgYSBzY2F0dGVyL2dhdGhlciB0YWJsZSBzdWl0YWJsZSBmb3IgUFJJTUUg
+dXNhZ2UgYnkNCj4+IC0gKiBjYWxsaW5nIHRoZSBzdGFuZGFyZCBETUEgbWFwcGluZyBBUEku
+IERyaXZlcnMgc2hvdWxkIG5vdCBjYWxsIHRoaXMgZnVuY3Rpb24NCj4+IC0gKiBkaXJlY3Rs
+eSwgaW5zdGVhZCBpdCBzaG91bGQgb25seSBiZSB1c2VkIGFzIGFuIGltcGxlbWVudGF0aW9u
+IGZvcg0KPj4gLSAqICZkcm1fZ2VtX29iamVjdF9mdW5jcy5nZXRfc2dfdGFibGUuDQo+PiAr
+ICogY2FsbGluZyB0aGUgc3RhbmRhcmQgRE1BIG1hcHBpbmcgQVBJLg0KPj4gICAgKg0KPj4g
+ICAgKiBEcml2ZXJzIHdobyBuZWVkIHRvIGFjcXVpcmUgYW4gc2NhdHRlci9nYXRoZXIgdGFi
+bGUgZm9yIG9iamVjdHMgbmVlZCB0byBjYWxsDQo+PiAgICAqIGRybV9nZW1fc2htZW1fZ2V0
+X3BhZ2VzX3NndCgpIGluc3RlYWQuDQo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJt
+L2xpbWEvbGltYV9nZW0uYyBiL2RyaXZlcnMvZ3B1L2RybS9saW1hL2xpbWFfZ2VtLmMNCj4+
+IGluZGV4IDY0MGFjYzA2MDQ2Ny4uYTU1ODBiZDY1MjJjIDEwMDY0NA0KPj4gLS0tIGEvZHJp
+dmVycy9ncHUvZHJtL2xpbWEvbGltYV9nZW0uYw0KPj4gKysrIGIvZHJpdmVycy9ncHUvZHJt
+L2xpbWEvbGltYV9nZW0uYw0KPj4gQEAgLTIwNiwxMiArMjA2LDEyIEBAIHN0YXRpYyBjb25z
+dCBzdHJ1Y3QgZHJtX2dlbV9vYmplY3RfZnVuY3MgbGltYV9nZW1fZnVuY3MgPSB7DQo+PiAg
+IAkuZnJlZSA9IGxpbWFfZ2VtX2ZyZWVfb2JqZWN0LA0KPj4gICAJLm9wZW4gPSBsaW1hX2dl
+bV9vYmplY3Rfb3BlbiwNCj4+ICAgCS5jbG9zZSA9IGxpbWFfZ2VtX29iamVjdF9jbG9zZSwN
+Cj4+IC0JLnByaW50X2luZm8gPSBkcm1fZ2VtX3NobWVtX3ByaW50X2luZm8sDQo+PiArCS5w
+cmludF9pbmZvID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfcHJpbnRfaW5mbywNCj4+ICAgCS5w
+aW4gPSBsaW1hX2dlbV9waW4sDQo+PiAtCS51bnBpbiA9IGRybV9nZW1fc2htZW1fdW5waW4s
+DQo+PiAtCS5nZXRfc2dfdGFibGUgPSBkcm1fZ2VtX3NobWVtX2dldF9zZ190YWJsZSwNCj4+
+ICsJLnVucGluID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfdW5waW4sDQo+PiArCS5nZXRfc2df
+dGFibGUgPSBkcm1fZ2VtX3NobWVtX29iamVjdF9nZXRfc2dfdGFibGUsDQo+PiAgIAkudm1h
+cCA9IGxpbWFfZ2VtX3ZtYXAsDQo+PiAtCS52dW5tYXAgPSBkcm1fZ2VtX3NobWVtX3Z1bm1h
+cCwNCj4+ICsJLnZ1bm1hcCA9IGRybV9nZW1fc2htZW1fb2JqZWN0X3Z1bm1hcCwNCj4+ICAg
+CS5tbWFwID0gbGltYV9nZW1fbW1hcCwNCj4+ICAgfTsNCj4+ICAgDQo+PiBkaWZmIC0tZ2l0
+IGEvZHJpdmVycy9ncHUvZHJtL3BhbmZyb3N0L3BhbmZyb3N0X2dlbS5jIGIvZHJpdmVycy9n
+cHUvZHJtL3BhbmZyb3N0L3BhbmZyb3N0X2dlbS5jDQo+PiBpbmRleCAyMzM3NzQ4MWY0ZTMu
+LmJlMWNjNjU3OWE3MSAxMDA2NDQNCj4+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9wYW5mcm9z
+dC9wYW5mcm9zdF9nZW0uYw0KPj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL3BhbmZyb3N0L3Bh
+bmZyb3N0X2dlbS5jDQo+PiBAQCAtMTk3LDEzICsxOTcsMTMgQEAgc3RhdGljIGNvbnN0IHN0
+cnVjdCBkcm1fZ2VtX29iamVjdF9mdW5jcyBwYW5mcm9zdF9nZW1fZnVuY3MgPSB7DQo+PiAg
+IAkuZnJlZSA9IHBhbmZyb3N0X2dlbV9mcmVlX29iamVjdCwNCj4+ICAgCS5vcGVuID0gcGFu
+ZnJvc3RfZ2VtX29wZW4sDQo+PiAgIAkuY2xvc2UgPSBwYW5mcm9zdF9nZW1fY2xvc2UsDQo+
+PiAtCS5wcmludF9pbmZvID0gZHJtX2dlbV9zaG1lbV9wcmludF9pbmZvLA0KPj4gKwkucHJp
+bnRfaW5mbyA9IGRybV9nZW1fc2htZW1fb2JqZWN0X3ByaW50X2luZm8sDQo+PiAgIAkucGlu
+ID0gcGFuZnJvc3RfZ2VtX3BpbiwNCj4+IC0JLnVucGluID0gZHJtX2dlbV9zaG1lbV91bnBp
+biwNCj4+IC0JLmdldF9zZ190YWJsZSA9IGRybV9nZW1fc2htZW1fZ2V0X3NnX3RhYmxlLA0K
+Pj4gLQkudm1hcCA9IGRybV9nZW1fc2htZW1fdm1hcCwNCj4+IC0JLnZ1bm1hcCA9IGRybV9n
+ZW1fc2htZW1fdnVubWFwLA0KPj4gLQkubW1hcCA9IGRybV9nZW1fc2htZW1fbW1hcCwNCj4+
+ICsJLnVucGluID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfdW5waW4sDQo+PiArCS5nZXRfc2df
+dGFibGUgPSBkcm1fZ2VtX3NobWVtX29iamVjdF9nZXRfc2dfdGFibGUsDQo+PiArCS52bWFw
+ID0gZHJtX2dlbV9zaG1lbV9vYmplY3Rfdm1hcCwNCj4+ICsJLnZ1bm1hcCA9IGRybV9nZW1f
+c2htZW1fb2JqZWN0X3Z1bm1hcCwNCj4+ICsJLm1tYXAgPSBkcm1fZ2VtX3NobWVtX29iamVj
+dF9tbWFwLA0KPj4gICB9Ow0KPj4gICANCj4+ICAgLyoqDQo+PiBkaWZmIC0tZ2l0IGEvZHJp
+dmVycy9ncHUvZHJtL3YzZC92M2RfYm8uYyBiL2RyaXZlcnMvZ3B1L2RybS92M2QvdjNkX2Jv
+LmMNCj4+IGluZGV4IDZhODczMWFiOWQ3ZC4uYjUwNjc3YmViNmFjIDEwMDY0NA0KPj4gLS0t
+IGEvZHJpdmVycy9ncHUvZHJtL3YzZC92M2RfYm8uYw0KPj4gKysrIGIvZHJpdmVycy9ncHUv
+ZHJtL3YzZC92M2RfYm8uYw0KPj4gQEAgLTUyLDEzICs1MiwxMyBAQCB2b2lkIHYzZF9mcmVl
+X29iamVjdChzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaikNCj4+ICAgDQo+PiAgIHN0YXRp
+YyBjb25zdCBzdHJ1Y3QgZHJtX2dlbV9vYmplY3RfZnVuY3MgdjNkX2dlbV9mdW5jcyA9IHsN
+Cj4+ICAgCS5mcmVlID0gdjNkX2ZyZWVfb2JqZWN0LA0KPj4gLQkucHJpbnRfaW5mbyA9IGRy
+bV9nZW1fc2htZW1fcHJpbnRfaW5mbywNCj4+IC0JLnBpbiA9IGRybV9nZW1fc2htZW1fcGlu
+LA0KPj4gLQkudW5waW4gPSBkcm1fZ2VtX3NobWVtX3VucGluLA0KPj4gLQkuZ2V0X3NnX3Rh
+YmxlID0gZHJtX2dlbV9zaG1lbV9nZXRfc2dfdGFibGUsDQo+PiAtCS52bWFwID0gZHJtX2dl
+bV9zaG1lbV92bWFwLA0KPj4gLQkudnVubWFwID0gZHJtX2dlbV9zaG1lbV92dW5tYXAsDQo+
+PiAtCS5tbWFwID0gZHJtX2dlbV9zaG1lbV9tbWFwLA0KPj4gKwkucHJpbnRfaW5mbyA9IGRy
+bV9nZW1fc2htZW1fb2JqZWN0X3ByaW50X2luZm8sDQo+PiArCS5waW4gPSBkcm1fZ2VtX3No
+bWVtX29iamVjdF9waW4sDQo+PiArCS51bnBpbiA9IGRybV9nZW1fc2htZW1fb2JqZWN0X3Vu
+cGluLA0KPj4gKwkuZ2V0X3NnX3RhYmxlID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfZ2V0X3Nn
+X3RhYmxlLA0KPj4gKwkudm1hcCA9IGRybV9nZW1fc2htZW1fb2JqZWN0X3ZtYXAsDQo+PiAr
+CS52dW5tYXAgPSBkcm1fZ2VtX3NobWVtX29iamVjdF92dW5tYXAsDQo+PiArCS5tbWFwID0g
+ZHJtX2dlbV9zaG1lbV9vYmplY3RfbW1hcCwNCj4+ICAgfTsNCj4+ICAgDQo+PiAgIC8qIGdl
+bV9jcmVhdGVfb2JqZWN0IGZ1bmN0aW9uIGZvciBhbGxvY2F0aW5nIGEgQk8gc3RydWN0IGFu
+ZCBkb2luZw0KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdw
+dV9vYmplY3QuYyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9vYmplY3QuYw0K
+Pj4gaW5kZXggZjY0OGIwZTI0NDQ3Li42OTg0MzFkMjMzYjggMTAwNjQ0DQo+PiAtLS0gYS9k
+cml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfb2JqZWN0LmMNCj4+ICsrKyBiL2RyaXZl
+cnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9vYmplY3QuYw0KPj4gQEAgLTExNiwxNSArMTE2
+LDE0IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgZHJtX2dlbV9vYmplY3RfZnVuY3MgdmlydGlv
+X2dwdV9zaG1lbV9mdW5jcyA9IHsNCj4+ICAgCS5mcmVlID0gdmlydGlvX2dwdV9mcmVlX29i
+amVjdCwNCj4+ICAgCS5vcGVuID0gdmlydGlvX2dwdV9nZW1fb2JqZWN0X29wZW4sDQo+PiAg
+IAkuY2xvc2UgPSB2aXJ0aW9fZ3B1X2dlbV9vYmplY3RfY2xvc2UsDQo+PiAtDQo+PiAtCS5w
+cmludF9pbmZvID0gZHJtX2dlbV9zaG1lbV9wcmludF9pbmZvLA0KPj4gKwkucHJpbnRfaW5m
+byA9IGRybV9nZW1fc2htZW1fb2JqZWN0X3ByaW50X2luZm8sDQo+PiAgIAkuZXhwb3J0ID0g
+dmlydGdwdV9nZW1fcHJpbWVfZXhwb3J0LA0KPj4gLQkucGluID0gZHJtX2dlbV9zaG1lbV9w
+aW4sDQo+PiAtCS51bnBpbiA9IGRybV9nZW1fc2htZW1fdW5waW4sDQo+PiAtCS5nZXRfc2df
+dGFibGUgPSBkcm1fZ2VtX3NobWVtX2dldF9zZ190YWJsZSwNCj4+IC0JLnZtYXAgPSBkcm1f
+Z2VtX3NobWVtX3ZtYXAsDQo+PiAtCS52dW5tYXAgPSBkcm1fZ2VtX3NobWVtX3Z1bm1hcCwN
+Cj4+IC0JLm1tYXAgPSBkcm1fZ2VtX3NobWVtX21tYXAsDQo+PiArCS5waW4gPSBkcm1fZ2Vt
+X3NobWVtX29iamVjdF9waW4sDQo+PiArCS51bnBpbiA9IGRybV9nZW1fc2htZW1fb2JqZWN0
+X3VucGluLA0KPj4gKwkuZ2V0X3NnX3RhYmxlID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfZ2V0
+X3NnX3RhYmxlLA0KPj4gKwkudm1hcCA9IGRybV9nZW1fc2htZW1fb2JqZWN0X3ZtYXAsDQo+
+PiArCS52dW5tYXAgPSBkcm1fZ2VtX3NobWVtX29iamVjdF92dW5tYXAsDQo+PiArCS5tbWFw
+ID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfbW1hcCwNCj4+ICAgfTsNCj4+ICAgDQo+PiAgIGJv
+b2wgdmlydGlvX2dwdV9pc19zaG1lbShzdHJ1Y3QgdmlydGlvX2dwdV9vYmplY3QgKmJvKQ0K
+Pj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvZHJtL2RybV9nZW1fc2htZW1faGVscGVyLmggYi9p
+bmNsdWRlL2RybS9kcm1fZ2VtX3NobWVtX2hlbHBlci5oDQo+PiBpbmRleCA2YjQ3ZWI3ZDlm
+NzYuLmVmYzU5ZGQ0YWVlYiAxMDA2NDQNCj4+IC0tLSBhL2luY2x1ZGUvZHJtL2RybV9nZW1f
+c2htZW1faGVscGVyLmgNCj4+ICsrKyBiL2luY2x1ZGUvZHJtL2RybV9nZW1fc2htZW1faGVs
+cGVyLmgNCj4+IEBAIC0xMzcsNiArMTM3LDEyNiBAQCB2b2lkIGRybV9nZW1fc2htZW1fcHJp
+bnRfaW5mbyhzdHJ1Y3QgZHJtX3ByaW50ZXIgKnAsIHVuc2lnbmVkIGludCBpbmRlbnQsDQo+
+PiAgIAkJCSAgICAgIGNvbnN0IHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqKTsNCj4+ICAg
+DQo+PiAgIHN0cnVjdCBzZ190YWJsZSAqZHJtX2dlbV9zaG1lbV9nZXRfc2dfdGFibGUoc3Ry
+dWN0IGRybV9nZW1fb2JqZWN0ICpvYmopOw0KPj4gKw0KPj4gKy8qDQo+PiArICogR0VNIG9i
+amVjdCBmdW5jdGlvbnMNCj4+ICsgKi8NCj4+ICsNCj4+ICsvKioNCj4+ICsgKiBkcm1fZ2Vt
+X3NobWVtX29iamVjdF9mcmVlIC0gR0VNIG9iamVjdCBmdW5jdGlvbiBmb3IgZHJtX2dlbV9z
+aG1lbV9mcmVlX29iamVjdCgpDQo+PiArICogQG9iajogR0VNIG9iamVjdCB0byBmcmVlDQo+
+PiArICoNCj4+ICsgKiBUaGlzIGZ1bmN0aW9uIHdyYXBzIGRybV9nZW1fc2htZW1fZnJlZV9v
+YmplY3QoKS4gRHJpdmVycyB0aGF0IGVtcGxveSB0aGUgc2htZW0gaGVscGVycw0KPj4gKyAq
+IHNob3VsZCB1c2UgaXQgYXMgdGhlaXIgJmRybV9nZW1fb2JqZWN0X2Z1bmNzLmZyZWUgaGFu
+ZGxlci4NCj4+ICsgKi8NCj4+ICtzdGF0aWMgaW5saW5lIHZvaWQgZHJtX2dlbV9zaG1lbV9v
+YmplY3RfZnJlZShzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaikNCj4+ICt7DQo+PiArCWRy
+bV9nZW1fc2htZW1fZnJlZV9vYmplY3Qob2JqKTsNCj4+ICt9DQo+PiArDQo+PiArLyoqDQo+
+PiArICogZHJtX2dlbV9zaG1lbV9wcmludF9pbmZvKCkgLSBQcmludCAmZHJtX2dlbV9zaG1l
+bV9vYmplY3QgaW5mbyBmb3IgZGVidWdmcw0KPj4gKyAqIEBwOiBEUk0gcHJpbnRlcg0KPj4g
+KyAqIEBpbmRlbnQ6IFRhYiBpbmRlbnRhdGlvbiBsZXZlbA0KPj4gKyAqIEBvYmo6IEdFTSBv
+YmplY3QNCj4+ICsgKg0KPj4gKyAqIFRoaXMgZnVuY3Rpb24gd3JhcHMgZHJtX2dlbV9zaG1l
+bV9tbWFwKCkuIERyaXZlcnMgdGhhdCBlbXBsb3kgdGhlIHNobWVtIGhlbHBlcnMgc2hvdWxk
+DQo+PiArICogdXNlIHRoaXMgZnVuY3Rpb24gYXMgdGhlaXIgJmRybV9nZW1fb2JqZWN0X2Z1
+bmNzLm1tYXAgaGFuZGxlci4NCj4+ICsgKi8NCj4+ICtzdGF0aWMgaW5saW5lIHZvaWQgZHJt
+X2dlbV9zaG1lbV9vYmplY3RfcHJpbnRfaW5mbyhzdHJ1Y3QgZHJtX3ByaW50ZXIgKnAsIHVu
+c2lnbmVkIGludCBpbmRlbnQsDQo+PiArCQkJCQkJICAgY29uc3Qgc3RydWN0IGRybV9nZW1f
+b2JqZWN0ICpvYmopDQo+PiArew0KPj4gKwlkcm1fZ2VtX3NobWVtX3ByaW50X2luZm8ocCwg
+aW5kZW50LCBvYmopOw0KPj4gK30NCj4+ICsNCj4+ICsvKioNCj4+ICsgKiBkcm1fZ2VtX3No
+bWVtX29iamVjdF9waW4gLSBHRU0gb2JqZWN0IGZ1bmN0aW9uIGZvciBkcm1fZ2VtX3NobWVt
+X3BpbigpDQo+PiArICogQG9iajogR0VNIG9iamVjdA0KPj4gKyAqDQo+PiArICogVGhpcyBm
+dW5jdGlvbiB3cmFwcyBkcm1fZ2VtX3NobWVtX3BpbigpLiBEcml2ZXJzIHRoYXQgZW1wbG95
+IHRoZSBzaG1lbSBoZWxwZXJzIHNob3VsZA0KPj4gKyAqIHVzZSBpdCBhcyB0aGVpciAmZHJt
+X2dlbV9vYmplY3RfZnVuY3MucGluIGhhbmRsZXIuDQo+PiArICovDQo+PiArc3RhdGljIGlu
+bGluZSBpbnQgZHJtX2dlbV9zaG1lbV9vYmplY3RfcGluKHN0cnVjdCBkcm1fZ2VtX29iamVj
+dCAqb2JqKQ0KPj4gK3sNCj4+ICsJcmV0dXJuIGRybV9nZW1fc2htZW1fcGluKG9iaik7DQo+
+PiArfQ0KPj4gKw0KPj4gKy8qKg0KPj4gKyAqIGRybV9nZW1fc2htZW1fb2JqZWN0X3VucGlu
+IC0gR0VNIG9iamVjdCBmdW5jdGlvbiBmb3IgZHJtX2dlbV9zaG1lbV91bnBpbigpDQo+PiAr
+ICogQG9iajogR0VNIG9iamVjdA0KPj4gKyAqDQo+PiArICogVGhpcyBmdW5jdGlvbiB3cmFw
+cyBkcm1fZ2VtX3NobWVtX3VucGluKCkuIERyaXZlcnMgdGhhdCBlbXBsb3kgdGhlIHNobWVt
+IGhlbHBlcnMgc2hvdWxkDQo+PiArICogdXNlIGl0IGFzIHRoZWlyICZkcm1fZ2VtX29iamVj
+dF9mdW5jcy51bnBpbiBoYW5kbGVyLg0KPj4gKyAqLw0KPj4gK3N0YXRpYyBpbmxpbmUgdm9p
+ZCBkcm1fZ2VtX3NobWVtX29iamVjdF91bnBpbihzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9i
+aikNCj4+ICt7DQo+PiArCWRybV9nZW1fc2htZW1fdW5waW4ob2JqKTsNCj4+ICt9DQo+PiAr
+DQo+PiArLyoqDQo+PiArICogZHJtX2dlbV9zaG1lbV9vYmplY3RfZ2V0X3NnX3RhYmxlIC0g
+R0VNIG9iamVjdCBmdW5jdGlvbiBmb3IgZHJtX2dlbV9zaG1lbV9nZXRfc2dfdGFibGUoKQ0K
+Pj4gKyAqIEBvYmo6IEdFTSBvYmplY3QNCj4+ICsgKg0KPj4gKyAqIFRoaXMgZnVuY3Rpb24g
+d3JhcHMgZHJtX2dlbV9zaG1lbV9nZXRfc2dfdGFibGUoKS4gRHJpdmVycyB0aGF0IGVtcGxv
+eSB0aGUgc2htZW0gaGVscGVycyBzaG91bGQNCj4+ICsgKiB1c2UgaXQgYXMgdGhlaXIgJmRy
+bV9nZW1fb2JqZWN0X2Z1bmNzLmdldF9zZ190YWJsZSBoYW5kbGVyLg0KPj4gKyAqDQo+PiAr
+ICogUmV0dXJuczoNCj4+ICsgKiBBIHBvaW50ZXIgdG8gdGhlIHNjYXR0ZXIvZ2F0aGVyIHRh
+YmxlIG9mIHBpbm5lZCBwYWdlcyBvciBOVUxMIG9uIGZhaWx1cmUuDQo+PiArICovDQo+PiAr
+c3RhdGljIGlubGluZSBzdHJ1Y3Qgc2dfdGFibGUgKmRybV9nZW1fc2htZW1fb2JqZWN0X2dl
+dF9zZ190YWJsZShzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaikNCj4+ICt7DQo+PiArCXJl
+dHVybiBkcm1fZ2VtX3NobWVtX2dldF9zZ190YWJsZShvYmopOw0KPj4gK30NCj4+ICsNCj4+
+ICsvKg0KPj4gKyAqIGRybV9nZW1fc2htZW1fb2JqZWN0X3ZtYXAgLSBHRU0gb2JqZWN0IGZ1
+bmN0aW9uIGZvciBkcm1fZ2VtX3NobWVtX3ZtYXAoKQ0KPj4gKyAqIEBvYmo6IEdFTSBvYmpl
+Y3QNCj4+ICsgKiBAbWFwOiBSZXR1cm5zIHRoZSBrZXJuZWwgdmlydHVhbCBhZGRyZXNzIG9m
+IHRoZSBTSE1FTSBHRU0gb2JqZWN0J3MgYmFja2luZyBzdG9yZS4NCj4+ICsgKg0KPj4gKyAq
+IFRoaXMgZnVuY3Rpb24gd3JhcHMgZHJtX2dlbV9zaG1lbV92bWFwKCkuIERyaXZlcnMgdGhh
+dCBlbXBsb3kgdGhlIHNobWVtIGhlbHBlcnMgc2hvdWxkDQo+PiArICogdXNlIGl0IGFzIHRo
+ZWlyICZkcm1fZ2VtX29iamVjdF9mdW5jcy52bWFwIGhhbmRsZXIuDQo+PiArICoNCj4+ICsg
+KiBSZXR1cm5zOg0KPj4gKyAqIDAgb24gc3VjY2VzcyBvciBhIG5lZ2F0aXZlIGVycm9yIGNv
+ZGUgb24gZmFpbHVyZS4NCj4+ICsgKi8NCj4+ICtzdGF0aWMgaW5saW5lIGludCBkcm1fZ2Vt
+X3NobWVtX29iamVjdF92bWFwKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqLCBzdHJ1Y3Qg
+ZG1hX2J1Zl9tYXAgKm1hcCkNCj4+ICt7DQo+PiArCXJldHVybiBkcm1fZ2VtX3NobWVtX3Zt
+YXAob2JqLCBtYXApOw0KPj4gK30NCj4+ICsNCj4+ICsvKg0KPj4gKyAqIGRybV9nZW1fc2ht
+ZW1fb2JqZWN0X3Z1bm1hcCAtIEdFTSBvYmplY3QgZnVuY3Rpb24gZm9yIGRybV9nZW1fc2ht
+ZW1fdnVubWFwKCkNCj4+ICsgKiBAb2JqOiBHRU0gb2JqZWN0DQo+PiArICogQG1hcDogS2Vy
+bmVsIHZpcnR1YWwgYWRkcmVzcyB3aGVyZSB0aGUgU0hNRU0gR0VNIG9iamVjdCB3YXMgbWFw
+cGVkDQo+PiArICoNCj4+ICsgKiBUaGlzIGZ1bmN0aW9uIHdyYXBzIGRybV9nZW1fc2htZW1f
+dnVubWFwKCkuIERyaXZlcnMgdGhhdCBlbXBsb3kgdGhlIHNobWVtIGhlbHBlcnMgc2hvdWxk
+DQo+PiArICogdXNlIGl0IGFzIHRoZWlyICZkcm1fZ2VtX29iamVjdF9mdW5jcy52dW5tYXAg
+aGFuZGxlci4NCj4+ICsgKi8NCj4+ICtzdGF0aWMgaW5saW5lIHZvaWQgZHJtX2dlbV9zaG1l
+bV9vYmplY3RfdnVubWFwKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqLCBzdHJ1Y3QgZG1h
+X2J1Zl9tYXAgKm1hcCkNCj4+ICt7DQo+PiArCWRybV9nZW1fc2htZW1fdnVubWFwKG9iaiwg
+bWFwKTsNCj4+ICt9DQo+PiArDQo+PiArLyoqDQo+PiArICogZHJtX2dlbV9zaG1lbV9vYmpl
+Y3RfbW1hcCAtIEdFTSBvYmplY3QgZnVuY3Rpb24gZm9yIGRybV9nZW1fc2htZW1fbW1hcCgp
+DQo+PiArICogQG9iajogR0VNIG9iamVjdA0KPj4gKyAqIEB2bWE6IFZNQSBmb3IgdGhlIGFy
+ZWEgdG8gYmUgbWFwcGVkDQo+PiArICoNCj4+ICsgKiBUaGlzIGZ1bmN0aW9uIHdyYXBzIGRy
+bV9nZW1fc2htZW1fbW1hcCgpLiBEcml2ZXJzIHRoYXQgZW1wbG95IHRoZSBzaG1lbSBoZWxw
+ZXJzIHNob3VsZA0KPj4gKyAqIHVzZSBpdCBhcyB0aGVpciAmZHJtX2dlbV9vYmplY3RfZnVu
+Y3MubW1hcCBoYW5kbGVyLg0KPj4gKyAqDQo+PiArICogUmV0dXJuczoNCj4+ICsgKiAwIG9u
+IHN1Y2Nlc3Mgb3IgYSBuZWdhdGl2ZSBlcnJvciBjb2RlIG9uIGZhaWx1cmUuDQo+PiArICov
+DQo+PiArc3RhdGljIGlubGluZSBpbnQgZHJtX2dlbV9zaG1lbV9vYmplY3RfbW1hcChzdHJ1
+Y3QgZHJtX2dlbV9vYmplY3QgKm9iaiwgc3RydWN0IHZtX2FyZWFfc3RydWN0ICp2bWEpDQo+
+PiArew0KPj4gKwlyZXR1cm4gZHJtX2dlbV9zaG1lbV9tbWFwKG9iaiwgdm1hKTsNCj4+ICt9
+DQo+PiArDQo+PiArLyoNCj4+ICsgKiBEcml2ZXIgb3BzDQo+PiArICovDQo+PiArDQo+PiAg
+IHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqDQo+PiAgIGRybV9nZW1fc2htZW1fcHJpbWVfaW1w
+b3J0X3NnX3RhYmxlKHN0cnVjdCBkcm1fZGV2aWNlICpkZXYsDQo+PiAgIAkJCQkgICAgc3Ry
+dWN0IGRtYV9idWZfYXR0YWNobWVudCAqYXR0YWNoLA0KPj4gLS0gDQo+PiAyLjMzLjENCj4+
+DQo+IA0KDQotLSANClRob21hcyBaaW1tZXJtYW5uDQpHcmFwaGljcyBEcml2ZXIgRGV2ZWxv
+cGVyDQpTVVNFIFNvZnR3YXJlIFNvbHV0aW9ucyBHZXJtYW55IEdtYkgNCk1heGZlbGRzdHIu
+IDUsIDkwNDA5IE7DvHJuYmVyZywgR2VybWFueQ0KKEhSQiAzNjgwOSwgQUcgTsO8cm5iZXJn
+KQ0KR2VzY2jDpGZ0c2bDvGhyZXI6IEl2byBUb3Rldg0K
+
+--------------QCb50qmSQB44eCRP1E0ngzmZ--
+
+--------------Y0tbMH6o50dzJW05O6rrji39
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmGG3VkFAwAAAAAACgkQlh/E3EQov+C5
+ChAArx7OgXwNIZeStv7ALifrHSmDzESQC3sdXgP4jLVTiRXiHeHvSNDB00TSdMzXf/lwD2FuZ5Lt
+ISOlU8NdDnCgW4nCQFsF4uqOOEuexQoOBNpR30w/0FvzXQZ5D8iVs8cq67BFpPkjaUSAXsnqoeCd
+WDTn1/PCypVdkgskE2C5pczu6gB13bfX+fdH+tTJg8ddR1N/r+4KqaxVYmvIL8yjSv5dBcKhLzSb
+oLwwjPnl09wCEMqy8RFEGcwx/u6ZDvO3mld5cnVVFjnTrRzcBLV5WnN9gYl9tTmMPN1zAljD2w7M
+mZZ5oe7CiL8RME3KpfP+6gwWvZKRTkiH+qeuqvNOlSGUaHUQQBLePp9R2Nau1tD+ekTelWp1J+Eg
+sUsSaegVrX6aKM5m5/sdP8h6A4rhJ7icJznXLxQv10KoGTs4b9nPzVwVQF4DpfA8LiyDrP0+cf8g
+hlJeJ47fSj6Ay2LVOv7ouD2WWqru2orpKhP4QUdvkmWhDyfk0jKIx88gncAt66clzli6acc97ko/
+Puox8H5ZvzWQR3r+Q1tjlTE+Ygu8b2nhZOUQeNrs+3JDjSG8/sM+6WtJe2XwlUQ5ofDwiYqrQjhZ
+WH0YJa8DJjDm8I36DcvfGBUrZl6D7bmBQDKaRYnZfMCzs2Y842yeL0lF1dfvhuWK0m2KczA+gyEV
+LVQ=
+=gf+Y
+-----END PGP SIGNATURE-----
+
+--------------Y0tbMH6o50dzJW05O6rrji39--
+
+--===============4743991583565679430==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -582,5 +461,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============5623117045572213512==--
-
+--===============4743991583565679430==--
