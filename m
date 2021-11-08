@@ -2,64 +2,108 @@ Return-Path: <SRS0=GFjK=P3=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DBD3FC433EF
-	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 15:04:07 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C241AC433EF
+	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 17:05:42 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8580D61101
-	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 15:04:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 8580D61101
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
+	by mail.kernel.org (Postfix) with ESMTPS id 63F6B61406
+	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 17:05:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 63F6B61406
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5785C80C56;
-	Mon,  8 Nov 2021 15:04:07 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 1373240157;
+	Mon,  8 Nov 2021 17:05:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id P__o8AzwQMr7; Mon,  8 Nov 2021 15:04:06 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id oWI2oV2qsA_R; Mon,  8 Nov 2021 17:05:40 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 134D180C8E;
-	Mon,  8 Nov 2021 15:04:06 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 47761400BF;
+	Mon,  8 Nov 2021 17:05:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E1C7EC0012;
-	Mon,  8 Nov 2021 15:04:05 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0837EC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1D9EAC0012;
+	Mon,  8 Nov 2021 17:05:40 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0DA42C000E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 15:04:05 +0000 (UTC)
+ Mon,  8 Nov 2021 17:05:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 0048760800
+ by smtp3.osuosl.org (Postfix) with ESMTP id E1A06606E7
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 15:04:05 +0000 (UTC)
+ Mon,  8 Nov 2021 17:05:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rd0-bchx2blv
+ with ESMTP id mx9DCAYWgw_Y
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 15:04:03 +0000 (UTC)
+ Mon,  8 Nov 2021 17:05:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from out30-56.freemail.mail.aliyun.com
- (out30-56.freemail.mail.aliyun.com [115.124.30.56])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 2628B607EC
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id D00466064C
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 15:04:02 +0000 (UTC)
-X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R101e4; CH=green; DM=||false|;
- DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e01424; MF=xuanzhuo@linux.alibaba.com;
- NM=1; PH=DS; RN=6; SR=0; TI=SMTPD_---0UveXr6p_1636383838; 
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
- fp:SMTPD_---0UveXr6p_1636383838) by smtp.aliyun-inc.com(127.0.0.1);
- Mon, 08 Nov 2021 23:03:58 +0800
+ Mon,  8 Nov 2021 17:05:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1636391135;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=NPqsXHRTDDOKAO8W4fUMxrj4GjcH6LfmhyAuBTyX3XQ=;
+ b=T5aDw8+xNgUWy0lDMrRmwpy0kN/w7AD9dofy2zRgkS0t4vJ2g+olpOzbr8LaiSrRbtBVc6
+ DIwyNKrX2T1PyXqMfosSe/9EaEGGVcPIAfUR+jbANpUX82LCxTBFFT8bzbFnpT65aqLii2
+ xUoKi7uQlf8FZ5Y56jl4N0q6j2iA+qs=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-307-zy-2JeN4N5OW-1Ypm2I7yQ-1; Mon, 08 Nov 2021 12:05:34 -0500
+X-MC-Unique: zy-2JeN4N5OW-1Ypm2I7yQ-1
+Received: by mail-ed1-f69.google.com with SMTP id
+ q6-20020a056402518600b003e28d92bb85so15415566edd.7
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 08 Nov 2021 09:05:34 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=NPqsXHRTDDOKAO8W4fUMxrj4GjcH6LfmhyAuBTyX3XQ=;
+ b=EZBks7FColAeAc3Ukc2G7CQsSfP3rRyraFLhElGbPXn6GVlAE8nwPunIJ2R9XsP1QK
+ 07QslhLdMJP9tjkZDe07xJv+T/H9WdeOGFSWLTjiuvKLdngV5Oq7bRJh/VzE3JqoLRfW
+ gV7H2KRsTYiEf1ot9nwMbaaB0SnsDGthK1Qzj+TNbaAmCcmw5iNV7oaMyoFuZ0A8Fyei
+ +m5GFev1oNKeaxU7hTPncxrZE7QPI9msbugRJLFr9+eZFsehbySxMoYruhAPpNLDnPmn
+ pcKKlrp3NI9RungIhKQJH3ekF6kVDNSHevOLgbzsXwdyiWEysvaO9kkQkBxUwlOVwR/+
+ +FwQ==
+X-Gm-Message-State: AOAM533IhcCEkpXd4kS9kUhwEA22vuofZ/nm08aQvA6xYr4TAiFEWvd1
+ Hl47X3wXBACqgTPIyAUJnip+CDyVXkr83qGytFAkfueKJNBOJutZ4FCLZXWxfpWgi9I9aL2P8pX
+ 8d2G9U/ntmK2hMfsuYUfavRu8Nb8jDUZs6W+XYYKc9A==
+X-Received: by 2002:aa7:c158:: with SMTP id r24mr773678edp.65.1636391133519;
+ Mon, 08 Nov 2021 09:05:33 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxdw4FnpJrfj9fDfoGHK7Ece1hu0YLzV6RUjD3WLZnwwX1Kp9CmaEpRsJ1TBVXOx89iy94Nng==
+X-Received: by 2002:aa7:c158:: with SMTP id r24mr773644edp.65.1636391133325;
+ Mon, 08 Nov 2021 09:05:33 -0800 (PST)
+Received: from steredhat (host-87-10-72-39.retail.telecomitalia.it.
+ [87.10.72.39])
+ by smtp.gmail.com with ESMTPSA id h10sm9883575edk.41.2021.11.08.09.05.32
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 08 Nov 2021 09:05:32 -0800 (PST)
+Date: Mon, 8 Nov 2021 18:05:29 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] vdpa: add driver_override support
+Message-ID: <CAGxU2F4NQz74f8sw51Ownm-25Jd7K=B_gK_-nRDKmmYvPx=+=w@mail.gmail.com>
+References: <20211104161729.258294-1-sgarzare@redhat.com>
+ <CACGkMEsTxO0-pASV_4MohEs0dkP+7eahVuWiSZSOcffuG5ZV3A@mail.gmail.com>
 MIME-Version: 1.0
-message-id: <1636382860.765897-1-xuanzhuo@linux.alibaba.com>
-subject: Re: [PATCH v4 0/3] virtio support cache indirect desc
-date: Mon, 08 Nov 2021 22:47:40 +0800
-from: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-to: Michael S. Tsirkin <mst@redhat.com>
-in-reply-to: <20211108084732-mutt-send-email-mst@kernel.org>
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
- Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org
+In-Reply-To: <CACGkMEsTxO0-pASV_4MohEs0dkP+7eahVuWiSZSOcffuG5ZV3A@mail.gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -76,83 +120,162 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, 8 Nov 2021 08:49:27 -0500, Michael S. Tsirkin <mst@redhat.com> wrote:
+On Fri, Nov 5, 2021 at 4:01 AM Jason Wang <jasowang@redhat.com> wrote:
 >
-> Hmm a bunch of comments got ignored. See e.g.
-> https://lore.kernel.org/r/20211027043851-mutt-send-email-mst%40kernel.org
-> if they aren't relevant add code comments or commit log text explaining the
-> design choice please.
-
-I should have responded to related questions, I am guessing whether some emails
-have been lost.
-
-I have sorted out the following 6 questions, if there are any missing questions,
-please let me know.
-
-1. use list_head
-  In the earliest version, I used pointers directly. You suggest that I use
-  llist_head, but considering that llist_head has atomic operations. There is no
-  competition problem here, so I used list_head.
-
-  In fact, I did not increase the allocated space for list_head.
-
-  use as desc array: | vring_desc | vring_desc | vring_desc | vring_desc |
-  use as queue item: | list_head ........................................|
-
-2.
-> > +	if (vq->use_desc_cache && total_sg <= VIRT_QUEUE_CACHE_DESC_NUM) {
-> > +		if (vq->desc_cache_chain) {
-> > +			desc = vq->desc_cache_chain;
-> > +			vq->desc_cache_chain = (void *)desc->addr;
-> > +			goto got;
-> > +		}
-> > +		n = VIRT_QUEUE_CACHE_DESC_NUM;
+> On Fri, Nov 5, 2021 at 12:17 AM Stefano Garzarella <sgarzare@redhat.com> wrote:
+> >
+> > `driver_override` allows to control which of the vDPA bus drivers
+> > binds to a vDPA device.
+> >
+> > If `driver_override` is not set, the previous behaviour is followed:
+> > devices use the first vDPA bus driver loaded (unless auto binding
+> > is disabled).
+> >
+> > Tested on Fedora 34 with driverctl(8):
+> >   $ modprobe virtio-vdpa
+> >   $ modprobe vhost-vdpa
+> >   $ modprobe vdpa-sim-net
+> >
+> >   $ vdpa dev add mgmtdev vdpasim_net name dev1
+> >
+> >   # dev1 is attached to the first vDPA bus driver loaded
+> >   $ driverctl -b vdpa list-devices
+> >     dev1 virtio_vdpa
+> >
+> >   $ driverctl -b vdpa set-override dev1 vhost_vdpa
+> >
+> >   $ driverctl -b vdpa list-devices
+> >     dev1 vhost_vdpa [*]
+> >
+> >   Note: driverctl(8) integrates with udev so the binding is
+> >   preserved.
+> >
+> > Suggested-by: Jason Wang <jasowang@redhat.com>
+> > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> > ---
+> >  include/linux/vdpa.h |  2 ++
+> >  drivers/vdpa/vdpa.c  | 74 ++++++++++++++++++++++++++++++++++++++++++++
+> >  2 files changed, 76 insertions(+)
+> >
+> > diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+> > index c3011ccda430..ae34015b37b7 100644
+> > --- a/include/linux/vdpa.h
+> > +++ b/include/linux/vdpa.h
+> > @@ -64,6 +64,7 @@ struct vdpa_mgmt_dev;
+> >   * struct vdpa_device - representation of a vDPA device
+> >   * @dev: underlying device
+> >   * @dma_dev: the actual device that is performing DMA
+> > + * @driver_override: driver name to force a match
 >
-> Hmm. This will allocate more entries than actually used. Why do it?
+> This seems useless?
+>
+> >   * @config: the configuration ops for this device.
+> >   * @cf_mutex: Protects get and set access to configuration layout.
+> >   * @index: device index
+> > @@ -76,6 +77,7 @@ struct vdpa_mgmt_dev;
+> >  struct vdpa_device {
+> >         struct device dev;
+> >         struct device *dma_dev;
+> > +       const char *driver_override;
+> >         const struct vdpa_config_ops *config;
+> >         struct mutex cf_mutex; /* Protects get/set config */
+> >         unsigned int index;
+> > diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> > index 7332a74a4b00..659231bbfee8 100644
+> > --- a/drivers/vdpa/vdpa.c
+> > +++ b/drivers/vdpa/vdpa.c
+> > @@ -52,8 +52,81 @@ static void vdpa_dev_remove(struct device *d)
+> >                 drv->remove(vdev);
+> >  }
+> >
+> > +static int vdpa_dev_match(struct device *dev, struct device_driver *drv)
+> > +{
+> > +       struct vdpa_device *vdev = dev_to_vdpa(dev);
+> > +
+> > +       /* Check override first, and if set, only use the named driver */
+> > +       if (vdev->driver_override)
+> > +               return strcmp(vdev->driver_override, drv->name) == 0;
+> > +
+> > +       /* Currently devices must be supported by all vDPA bus drivers */
+> > +       return 1;
+> > +}
+> > +
+> > +static ssize_t driver_override_store(struct device *dev,
+> > +                                    struct device_attribute *attr,
+> > +                                    const char *buf, size_t count)
+> > +{
+> > +       struct vdpa_device *vdev = dev_to_vdpa(dev);
+> > +       const char *driver_override, *old;
+> > +       char *cp;
+> > +
+> > +       /* We need to keep extra room for a newline */
+> > +       if (count >= (PAGE_SIZE - 1))
+> > +               return -EINVAL;
+> > +
+> > +       driver_override = kstrndup(buf, count, GFP_KERNEL);
+> > +       if (!driver_override)
+> > +               return -ENOMEM;
+> > +
+> > +       cp = strchr(driver_override, '\n');
+> > +       if (cp)
+> > +               *cp = '\0';
+> > +
+> > +       device_lock(dev);
+> > +       old = vdev->driver_override;
+> > +       if (strlen(driver_override)) {
+> > +               vdev->driver_override = driver_override;
+> > +       } else {
+> > +               kfree(driver_override);
+> > +               vdev->driver_override = NULL;
+> > +       }
+> > +       device_unlock(dev);
+> > +
+> > +       kfree(old);
+> > +
+> > +       return count;
+> > +}
+> > +
+> > +static ssize_t driver_override_show(struct device *dev,
+> > +                                   struct device_attribute *attr, char *buf)
+> > +{
+> > +       struct vdpa_device *vdev = dev_to_vdpa(dev);
+> > +       ssize_t len;
+> > +
+> > +       device_lock(dev);
+> > +       len = snprintf(buf, PAGE_SIZE, "%s\n", vdev->driver_override);
+> > +       device_unlock(dev);
+> > +
+> > +       return len;
+> > +}
+> > +static DEVICE_ATTR_RW(driver_override);
+> > +
+> > +static struct attribute *vdpa_dev_attrs[] = {
+> > +       &dev_attr_driver_override.attr,
+> > +       NULL,
+> > +};
+> > +
+> > +static const struct attribute_group vdpa_dev_group = {
+> > +       .attrs  = vdpa_dev_attrs,
+> > +};
+> > +__ATTRIBUTE_GROUPS(vdpa_dev);
+> > +
+> >  static struct bus_type vdpa_bus = {
+> >         .name  = "vdpa",
+> > +       .dev_groups = vdpa_dev_groups,
+>
+> This reminds me that we probably need to document the sysfs interface
+> in Documentation/ABI/testing/sysfs-bus-vdpa.
+>
+> But it's not the fault of this patch which look good.
 
+Michael, Jason, about Documentation/ABI/testing/sysfs-bus-vdpa, do you 
+think is better to send a follow up patch/series, maybe including also 
+others entries (e.g. bind, unbind) or a v2 including the documentation 
+of `driver_ovveride`?
 
-This is because the size of each cache item is fixed, and the logic has been
-modified in the latest code. I think this problem no longer exists.
+Thanks,
+Stefano
 
-
-3.
-> What bothers me here is what happens if cache gets
-> filled on one numa node, then used on another?
-
-I'm thinking about another question, how did the cross-numa appear here, and
-virtio desc queue also has the problem of cross-numa. So is it necessary for us
-to deal with the cross-numa scene?
-
-Indirect desc is used as virtio desc, so as long as it is in the same numa as
-virito desc. So we can allocate indirect desc cache at the same time when
-allocating virtio desc queue.
-
-4.
-> So e.g. for rx, we are wasting memory since indirect isn't used.
-
-In the current version, desc cache is set up based on pre-queue.
-
-So if the desc cache is not used, we don't need to set the desc cache.
-
-For example, virtio-net, as long as the tx queue and the rx queue in big packet
-mode enable desc cache.
-
-5.
-> Would a better API be a cache size in bytes? This controls how much
-> memory is spent after all.
-
-My design is to set a threshold. When total_sg is greater than this threshold,
-it will fall back to kmalloc/kfree. When total_sg is less than or equal to
-this threshold, use the allocated cache.
-
-
-6. kmem_cache_*
-
-I have tested these, the performance is not as good as the method used in this
-patch.
-
-
-Thanks.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
