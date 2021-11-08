@@ -1,96 +1,86 @@
-Return-Path: <SRS0=ERs7=PZ=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=GFjK=P3=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 935C6C433F5
-	for <virtualization@archiver.kernel.org>; Sat,  6 Nov 2021 19:54:11 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3580C433EF
+	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 02:12:02 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2023261054
-	for <virtualization@archiver.kernel.org>; Sat,  6 Nov 2021 19:54:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 2023261054
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id 5E6F561351
+	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 02:12:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 5E6F561351
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=vt.edu
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id BB86E6066B;
-	Sat,  6 Nov 2021 19:54:10 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id C4D7540113;
+	Mon,  8 Nov 2021 02:12:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zAvFuJyMPYol; Sat,  6 Nov 2021 19:54:09 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id E1695605CF;
-	Sat,  6 Nov 2021 19:54:08 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id skcaHJx_zggI; Mon,  8 Nov 2021 02:11:59 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id B76BD400CD;
+	Mon,  8 Nov 2021 02:11:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C226FC0012;
-	Sat,  6 Nov 2021 19:54:08 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E9DE0C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8B424C0012;
+	Mon,  8 Nov 2021 02:11:58 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D9343C000E
  for <virtualization@lists.linux-foundation.org>;
- Sat,  6 Nov 2021 19:54:07 +0000 (UTC)
+ Mon,  8 Nov 2021 02:11:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id CBD0660628
+ by smtp2.osuosl.org (Postfix) with ESMTP id BD61840113
  for <virtualization@lists.linux-foundation.org>;
- Sat,  6 Nov 2021 19:54:07 +0000 (UTC)
+ Mon,  8 Nov 2021 02:11:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id K38ox3arG5RA
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id PGeuHLGTLO_n
  for <virtualization@lists.linux-foundation.org>;
- Sat,  6 Nov 2021 19:54:05 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp3.osuosl.org (Postfix) with ESMTPS id A82EA605CF
+ Mon,  8 Nov 2021 02:11:55 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com
+ [IPv6:2607:f8b0:4864:20::b2d])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 6D453400CD
  for <virtualization@lists.linux-foundation.org>;
- Sat,  6 Nov 2021 19:54:04 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id D9C3F1FD3C;
- Sat,  6 Nov 2021 19:54:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1636228441; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=fTSLl9voLs/tq4C2+l1hNODjIj2egcIjNCNPs+C/4wk=;
- b=RMv+0ev/D9K4faQpMWAnDSEcdQbGlpD9oxjboCYGNJeiMpsKGq5cAgvVrBqqyL0r0MwiGs
- ehtZfBw4nj7zy8MoIja4+VXzS8XRYzV8es28YwOyVsSz9VwTd0KCXLYfaXmNUeO6E27b5a
- 2kCMJOPi16BUmVRzA4moBeREPs3MDT8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1636228441;
- h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=fTSLl9voLs/tq4C2+l1hNODjIj2egcIjNCNPs+C/4wk=;
- b=pZ22eM/BmIQjWIfVMU3crcknVBDp+C0Qt7Yef02FgKAXOZhW+3BIDqUJ0caadyFzc4IW/e
- pQ6qPEQxWTajtdCg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id ABA5913A1D;
- Sat,  6 Nov 2021 19:54:01 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id 1ltdKFndhmGpMQAAMHmgww
- (envelope-from <tzimmermann@suse.de>); Sat, 06 Nov 2021 19:54:01 +0000
-Message-ID: <c359da93-1c27-fbcd-4ad3-1da7157bc80e@suse.de>
-Date: Sat, 6 Nov 2021 20:54:01 +0100
+ Mon,  8 Nov 2021 02:11:55 +0000 (UTC)
+Received: by mail-yb1-xb2d.google.com with SMTP id g17so15245736ybe.13
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 07 Nov 2021 18:11:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=vt-edu.20210112.gappssmtp.com; s=20210112;
+ h=mime-version:from:date:message-id:subject:to;
+ bh=ORB2cSDwezqKe1PrhD+c9aUc0ElJ69wrLsDudg3rCPw=;
+ b=Hr7fhuqs4g9vJck+8VG83tVONMue6J1FgJ8GQQdORb16++B7lfaKz/vCszdfBD1B0D
+ VFYDiIzMSlu6rTnZxUeZOBpzdHXyP59l9ndS9zR/DbexKvFoEKHtR/h/mECTxKPvXFgz
+ ewI3JDVbXZkIxzFMmTV85pQttOLO7xRBlUTFtivwbY6zgvLdDrbMxWKgbUog2XloL1Eu
+ dDLg/WM3upOPrl/KMsrxGIxSzXpncrcmrv0dyQMI21cxxX2s1psdKus+ESUKOk/OLlOU
+ sNqL0vj7AfxwMSAKSNNgK39XhOwT0bVvMHZrLgdu7bXVyY9oMB7vJhfTFgNuwNeDLVwH
+ RrWQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+ bh=ORB2cSDwezqKe1PrhD+c9aUc0ElJ69wrLsDudg3rCPw=;
+ b=UrsxCv5KfFgWfAchAD6Z2ANX3nZOHZEIF/UJDQM91OxH5lX1gcrVrwhZkUmG2XdvN0
+ bUHhQgtx4Zp8bSSb2VFiwasg5nfvbIVr8xSpeYpCPN99PhQJ5l+NOhRSuVzQjskAvtw+
+ XS3c34fqDt5HkSsAokdwY+IuGWJfED9px7iThY/GZNZaSJzY4WwmSvkXdqkC5IyDl6Ch
+ ItmMs/oU+zmkGWpIrpItp55yuYFluOqDmyRMmHAkr/81YFNm3KZwU88ClJJWq7+hygIW
+ /XLrEhM4CE6i10KUPbLosE6dqrX1LsICb0wDkFPw+F+RnxOC2aaiMsFfAfS3ql24SFtg
+ Gr3Q==
+X-Gm-Message-State: AOAM53391yaRVyRWjIj4gSc4Ancrp/e9I7GqeGybW1VleG7YIe1BFYB/
+ QHYqDvnBOdLu3biNgv0xEzKtP5pXpqDHIWa5rQmO1uAHBaCbww==
+X-Google-Smtp-Source: ABdhPJznmgmv8AjmrzAzoOereFuHFf7R2E+OSlcEzUclh7Lcq2w5UW6mBpjc7IiKOWErM0Aabj00WyTGsPDCUi4ni2Y=
+X-Received: by 2002:a05:6902:1025:: with SMTP id
+ x5mr45972016ybt.152.1636337513922; 
+ Sun, 07 Nov 2021 18:11:53 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.1
-Subject: Re: [PATCH 2/3] drm/shmem-helper: Export dedicated wrappers for GEM
- object functions
-Content-Language: en-US
-To: Daniel Vetter <daniel@ffwll.ch>
-References: <20211105093558.5084-1-tzimmermann@suse.de>
- <20211105093558.5084-3-tzimmermann@suse.de>
- <YYV1dbE2/cyPL1ZU@phenom.ffwll.local>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-In-Reply-To: <YYV1dbE2/cyPL1ZU@phenom.ffwll.local>
-Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org,
- lima@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+From: Ali Anwar <ali@vt.edu>
+Date: Mon, 8 Nov 2021 07:11:42 +0500
+Message-ID: <CA+Vr5cvh5qj5_zE8FYab4N7sfEXYZT-i94ZX3E5Uk6YY4KkMpg@mail.gmail.com>
+Subject: Call for Papers: ACM HPDC 2022 (The 31th International Symposium on
+ High-Performance Parallel and Distributed Computing)
+To: virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,356 +92,695 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============4743991583565679430=="
+Content-Type: multipart/mixed; boundary="===============1890128671122847113=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============4743991583565679430==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------Y0tbMH6o50dzJW05O6rrji39"
+--===============1890128671122847113==
+Content-Type: multipart/alternative; boundary="000000000000401f6e05d03d84ef"
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------Y0tbMH6o50dzJW05O6rrji39
-Content-Type: multipart/mixed; boundary="------------QCb50qmSQB44eCRP1E0ngzmZ";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Daniel Vetter <daniel@ffwll.ch>
-Cc: lima@lists.freedesktop.org, airlied@linux.ie,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
-Message-ID: <c359da93-1c27-fbcd-4ad3-1da7157bc80e@suse.de>
-Subject: Re: [PATCH 2/3] drm/shmem-helper: Export dedicated wrappers for GEM
- object functions
-References: <20211105093558.5084-1-tzimmermann@suse.de>
- <20211105093558.5084-3-tzimmermann@suse.de>
- <YYV1dbE2/cyPL1ZU@phenom.ffwll.local>
-In-Reply-To: <YYV1dbE2/cyPL1ZU@phenom.ffwll.local>
+--000000000000401f6e05d03d84ef
+Content-Type: text/plain; charset="UTF-8"
 
---------------QCb50qmSQB44eCRP1E0ngzmZ
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+The ACM International Symposium on High-Performance Parallel and
+Distributed Computing (HPDC) is the premier annual conference for
+presenting the latest research on the design, implementation, evaluation,
+and use of parallel and distributed systems for high-end computing. The
+31st HPDC will take place in Minneapolis, Minnesota, June 27-July 1, 2022.
 
-SGkNCg0KQW0gMDUuMTEuMjEgdW0gMTk6MTggc2NocmllYiBEYW5pZWwgVmV0dGVyOg0KPiBP
-biBGcmksIE5vdiAwNSwgMjAyMSBhdCAxMDozNTo1N0FNICswMTAwLCBUaG9tYXMgWmltbWVy
-bWFubiB3cm90ZToNCj4+IFdyYXAgR0VNIFNITUVNIGZ1bmN0aW9ucyBmb3Igc3RydWN0IGRy
-bV9nZW1fb2JqZWN0X2Z1bmNzIGFuZCB1cGRhdGUNCj4+IGFsbCBjYWxsZXJzLiBUaGlzIHdp
-bGwgYWxsb3cgZm9yIGFuIHVwZGF0ZSBvZiB0aGUgcHVibGljIGludGVyZmFjZXMNCj4+IG9m
-IHRoZSBHRU0gU0hNRU0gaGVscGVyIGxpYnJhcnkuDQo+Pg0KPj4gU2lnbmVkLW9mZi1ieTog
-VGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+DQo+PiAtLS0NCj4+ICAg
-ZHJpdmVycy9ncHUvZHJtL2RybV9nZW1fc2htZW1faGVscGVyLmMgIHwgIDQ1ICsrKystLS0t
-LQ0KPj4gICBkcml2ZXJzL2dwdS9kcm0vbGltYS9saW1hX2dlbS5jICAgICAgICAgfCAgIDgg
-Ky0NCj4+ICAgZHJpdmVycy9ncHUvZHJtL3BhbmZyb3N0L3BhbmZyb3N0X2dlbS5jIHwgIDEy
-ICstLQ0KPj4gICBkcml2ZXJzL2dwdS9kcm0vdjNkL3YzZF9iby5jICAgICAgICAgICAgfCAg
-MTQgKy0tDQo+PiAgIGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9vYmplY3QuYyB8
-ICAxNSArKy0NCj4+ICAgaW5jbHVkZS9kcm0vZHJtX2dlbV9zaG1lbV9oZWxwZXIuaCAgICAg
-IHwgMTIwICsrKysrKysrKysrKysrKysrKysrKysrKw0KPj4gICA2IGZpbGVzIGNoYW5nZWQs
-IDE2MSBpbnNlcnRpb25zKCspLCA1MyBkZWxldGlvbnMoLSkNCj4+DQo+PiBkaWZmIC0tZ2l0
-IGEvZHJpdmVycy9ncHUvZHJtL2RybV9nZW1fc2htZW1faGVscGVyLmMgYi9kcml2ZXJzL2dw
-dS9kcm0vZHJtX2dlbV9zaG1lbV9oZWxwZXIuYw0KPj4gaW5kZXggY2Q5M2U5MWIzNDg3Li43
-MmFjMjYzZjIwYmUgMTAwNjQ0DQo+PiAtLS0gYS9kcml2ZXJzL2dwdS9kcm0vZHJtX2dlbV9z
-aG1lbV9oZWxwZXIuYw0KPj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2RybV9nZW1fc2htZW1f
-aGVscGVyLmMNCj4+IEBAIC0zMCwxNCArMzAsMTQgQEANCj4gDQo+IE1heWJlIGFkZCBhIGZl
-dyBsaW5lcyB0byB0aGUgaW50cm8gRE9DOiBzZWN0aW9uIGFib3V0IHdoaWNoIGZ1bmN0aW9u
-cw0KPiBzaG91bGQgYmUgdXNlZCB3aGVyZT8gSnVzdCBzbyBkcml2ZXJzIGRvbid0IG1ha2Ug
-YSBtZXNzIG91dCBvZiB0aGlzIGFnYWluDQo+IG5vdyB0aGF0IHlvdSBjbGVhbmVkIGl0IHVw
-Lg0KPiANCj4gSXQncyBvZmMgbm90IGdvaW5nIHRvIGJlIHBlcmZlY3QsIGJ1dCBiZXR0ZXIg
-dGhhbiBub3RoaW5nLg0KPiANCj4gV2l0aCB0aGF0LCBvbiB0aGUgc2VyaWVzOg0KPiANCj4g
-QWNrZWQtYnk6IERhbmllbCBWZXR0ZXIgPGRhbmllbC52ZXR0ZXJAZmZ3bGwuY2g+DQo+IA0K
-PiBCdXQgbWF5YmUgd2FpdCBmb3Igc29tZSBtb3JlIGFja3MvcmV2aWV3cyBmcm9tIGRyaXZl
-ciBmb2xrcy4NCg0KU3VyZS4NCg0KU0hNRU0gaGVscGVycyBub3cgZm9sbG93IHRoZSBwYXR0
-ZXJuIHRoYXQgaXMgYWxyZWFkeSB1c2VkIGJ5IFZSQU0gDQpoZWxwZXJzLiBJIHRoaW5rIENN
-QSBjb3VsZCBiZW5lZml0IGZyb20gYSBzaW1pbGFyIGNoYW5nZS4NCg0KQmVzdCByZWdhcmRz
-DQpUaG9tYXMNCg0KPiAtRGFuaWVsDQo+IA0KPiANCj4gDQo+PiAgICAqLw0KPj4gICANCj4+
-ICAgc3RhdGljIGNvbnN0IHN0cnVjdCBkcm1fZ2VtX29iamVjdF9mdW5jcyBkcm1fZ2VtX3No
-bWVtX2Z1bmNzID0gew0KPj4gLQkuZnJlZSA9IGRybV9nZW1fc2htZW1fZnJlZV9vYmplY3Qs
-DQo+PiAtCS5wcmludF9pbmZvID0gZHJtX2dlbV9zaG1lbV9wcmludF9pbmZvLA0KPj4gLQku
-cGluID0gZHJtX2dlbV9zaG1lbV9waW4sDQo+PiAtCS51bnBpbiA9IGRybV9nZW1fc2htZW1f
-dW5waW4sDQo+PiAtCS5nZXRfc2dfdGFibGUgPSBkcm1fZ2VtX3NobWVtX2dldF9zZ190YWJs
-ZSwNCj4+IC0JLnZtYXAgPSBkcm1fZ2VtX3NobWVtX3ZtYXAsDQo+PiAtCS52dW5tYXAgPSBk
-cm1fZ2VtX3NobWVtX3Z1bm1hcCwNCj4+IC0JLm1tYXAgPSBkcm1fZ2VtX3NobWVtX21tYXAs
-DQo+PiArCS5mcmVlID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfZnJlZSwNCj4+ICsJLnByaW50
-X2luZm8gPSBkcm1fZ2VtX3NobWVtX29iamVjdF9wcmludF9pbmZvLA0KPj4gKwkucGluID0g
-ZHJtX2dlbV9zaG1lbV9vYmplY3RfcGluLA0KPj4gKwkudW5waW4gPSBkcm1fZ2VtX3NobWVt
-X29iamVjdF91bnBpbiwNCj4+ICsJLmdldF9zZ190YWJsZSA9IGRybV9nZW1fc2htZW1fb2Jq
-ZWN0X2dldF9zZ190YWJsZSwNCj4+ICsJLnZtYXAgPSBkcm1fZ2VtX3NobWVtX29iamVjdF92
-bWFwLA0KPj4gKwkudnVubWFwID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfdnVubWFwLA0KPj4g
-KwkubW1hcCA9IGRybV9nZW1fc2htZW1fb2JqZWN0X21tYXAsDQo+PiAgIH07DQo+PiAgIA0K
-Pj4gICBzdGF0aWMgc3RydWN0IGRybV9nZW1fc2htZW1fb2JqZWN0ICoNCj4+IEBAIC0xMjEs
-OCArMTIxLDcgQEAgRVhQT1JUX1NZTUJPTF9HUEwoZHJtX2dlbV9zaG1lbV9jcmVhdGUpOw0K
-Pj4gICAgKiBAb2JqOiBHRU0gb2JqZWN0IHRvIGZyZWUNCj4+ICAgICoNCj4+ICAgICogVGhp
-cyBmdW5jdGlvbiBjbGVhbnMgdXAgdGhlIEdFTSBvYmplY3Qgc3RhdGUgYW5kIGZyZWVzIHRo
-ZSBtZW1vcnkgdXNlZCB0bw0KPj4gLSAqIHN0b3JlIHRoZSBvYmplY3QgaXRzZWxmLiBJdCBz
-aG91bGQgYmUgdXNlZCB0byBpbXBsZW1lbnQNCj4+IC0gKiAmZHJtX2dlbV9vYmplY3RfZnVu
-Y3MuZnJlZS4NCj4+ICsgKiBzdG9yZSB0aGUgb2JqZWN0IGl0c2VsZi4NCj4+ICAgICovDQo+
-PiAgIHZvaWQgZHJtX2dlbV9zaG1lbV9mcmVlX29iamVjdChzdHJ1Y3QgZHJtX2dlbV9vYmpl
-Y3QgKm9iaikNCj4+ICAgew0KPj4gQEAgLTI0OCw4ICsyNDcsNyBAQCBFWFBPUlRfU1lNQk9M
-KGRybV9nZW1fc2htZW1fcHV0X3BhZ2VzKTsNCj4+ICAgICogQG9iajogR0VNIG9iamVjdA0K
-Pj4gICAgKg0KPj4gICAgKiBUaGlzIGZ1bmN0aW9uIG1ha2VzIHN1cmUgdGhlIGJhY2tpbmcg
-cGFnZXMgYXJlIHBpbm5lZCBpbiBtZW1vcnkgd2hpbGUgdGhlDQo+PiAtICogYnVmZmVyIGlz
-IGV4cG9ydGVkLiBJdCBzaG91bGQgb25seSBiZSB1c2VkIHRvIGltcGxlbWVudA0KPj4gLSAq
-ICZkcm1fZ2VtX29iamVjdF9mdW5jcy5waW4uDQo+PiArICogYnVmZmVyIGlzIGV4cG9ydGVk
-Lg0KPj4gICAgKg0KPj4gICAgKiBSZXR1cm5zOg0KPj4gICAgKiAwIG9uIHN1Y2Nlc3Mgb3Ig
-YSBuZWdhdGl2ZSBlcnJvciBjb2RlIG9uIGZhaWx1cmUuDQo+PiBAQCAtMjY5LDcgKzI2Nyw3
-IEBAIEVYUE9SVF9TWU1CT0woZHJtX2dlbV9zaG1lbV9waW4pOw0KPj4gICAgKiBAb2JqOiBH
-RU0gb2JqZWN0DQo+PiAgICAqDQo+PiAgICAqIFRoaXMgZnVuY3Rpb24gcmVtb3ZlcyB0aGUg
-cmVxdWlyZW1lbnQgdGhhdCB0aGUgYmFja2luZyBwYWdlcyBhcmUgcGlubmVkIGluDQo+PiAt
-ICogbWVtb3J5LiBJdCBzaG91bGQgb25seSBiZSB1c2VkIHRvIGltcGxlbWVudCAmZHJtX2dl
-bV9vYmplY3RfZnVuY3MudW5waW4uDQo+PiArICogbWVtb3J5Lg0KPj4gICAgKi8NCj4+ICAg
-dm9pZCBkcm1fZ2VtX3NobWVtX3VucGluKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqKQ0K
-Pj4gICB7DQo+PiBAQCAtMzQwLDExICszMzgsOCBAQCBzdGF0aWMgaW50IGRybV9nZW1fc2ht
-ZW1fdm1hcF9sb2NrZWQoc3RydWN0IGRybV9nZW1fc2htZW1fb2JqZWN0ICpzaG1lbSwgc3Ry
-dWN0DQo+PiAgICAqICAgICAgIHN0b3JlLg0KPj4gICAgKg0KPj4gICAgKiBUaGlzIGZ1bmN0
-aW9uIG1ha2VzIHN1cmUgdGhhdCBhIGNvbnRpZ3VvdXMga2VybmVsIHZpcnR1YWwgYWRkcmVz
-cyBtYXBwaW5nDQo+PiAtICogZXhpc3RzIGZvciB0aGUgYnVmZmVyIGJhY2tpbmcgdGhlIHNo
-bWVtIEdFTSBvYmplY3QuDQo+PiAtICoNCj4+IC0gKiBUaGlzIGZ1bmN0aW9uIGNhbiBiZSB1
-c2VkIHRvIGltcGxlbWVudCAmZHJtX2dlbV9vYmplY3RfZnVuY3Mudm1hcC4gQnV0IGl0IGNh
-bg0KPj4gLSAqIGFsc28gYmUgY2FsbGVkIGJ5IGRyaXZlcnMgZGlyZWN0bHksIGluIHdoaWNo
-IGNhc2UgaXQgd2lsbCBoaWRlIHRoZQ0KPj4gLSAqIGRpZmZlcmVuY2VzIGJldHdlZW4gZG1h
-LWJ1ZiBpbXBvcnRlZCBhbmQgbmF0aXZlbHkgYWxsb2NhdGVkIG9iamVjdHMuDQo+PiArICog
-ZXhpc3RzIGZvciB0aGUgYnVmZmVyIGJhY2tpbmcgdGhlIHNobWVtIEdFTSBvYmplY3QuIEl0
-IGhpZGVzIHRoZSBkaWZmZXJlbmNlcw0KPj4gKyAqIGJldHdlZW4gZG1hLWJ1ZiBpbXBvcnRl
-ZCBhbmQgbmF0aXZlbHkgYWxsb2NhdGVkIG9iamVjdHMuDQo+PiAgICAqDQo+PiAgICAqIEFj
-cXVpcmVkIG1hcHBpbmdzIHNob3VsZCBiZSBjbGVhbmVkIHVwIGJ5IGNhbGxpbmcgZHJtX2dl
-bV9zaG1lbV92dW5tYXAoKS4NCj4+ICAgICoNCj4+IEBAIC0zOTYsOSArMzkxLDggQEAgc3Rh
-dGljIHZvaWQgZHJtX2dlbV9zaG1lbV92dW5tYXBfbG9ja2VkKHN0cnVjdCBkcm1fZ2VtX3No
-bWVtX29iamVjdCAqc2htZW0sDQo+PiAgICAqIGRybV9nZW1fc2htZW1fdm1hcCgpLiBUaGUg
-bWFwcGluZyBpcyBvbmx5IHJlbW92ZWQgd2hlbiB0aGUgdXNlIGNvdW50IGRyb3BzIHRvDQo+
-PiAgICAqIHplcm8uDQo+PiAgICAqDQo+PiAtICogVGhpcyBmdW5jdGlvbiBjYW4gYmUgdXNl
-ZCB0byBpbXBsZW1lbnQgJmRybV9nZW1fb2JqZWN0X2Z1bmNzLnZtYXAuIEJ1dCBpdCBjYW4N
-Cj4+IC0gKiBhbHNvIGJlIGNhbGxlZCBieSBkcml2ZXJzIGRpcmVjdGx5LCBpbiB3aGljaCBj
-YXNlIGl0IHdpbGwgaGlkZSB0aGUNCj4+IC0gKiBkaWZmZXJlbmNlcyBiZXR3ZWVuIGRtYS1i
-dWYgaW1wb3J0ZWQgYW5kIG5hdGl2ZWx5IGFsbG9jYXRlZCBvYmplY3RzLg0KPj4gKyAqIFRo
-aXMgZnVuY3Rpb24gaGlkZXMgdGhlIGRpZmZlcmVuY2VzIGJldHdlZW4gZG1hLWJ1ZiBpbXBv
-cnRlZCBhbmQgbmF0aXZlbHkNCj4+ICsgKiBhbGxvY2F0ZWQgb2JqZWN0cy4NCj4+ICAgICov
-DQo+PiAgIHZvaWQgZHJtX2dlbV9zaG1lbV92dW5tYXAoc3RydWN0IGRybV9nZW1fb2JqZWN0
-ICpvYmosIHN0cnVjdCBkbWFfYnVmX21hcCAqbWFwKQ0KPj4gICB7DQo+PiBAQCAtNjA0LDgg
-KzU5OCw3IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3Qgdm1fb3BlcmF0aW9uc19zdHJ1Y3QgZHJt
-X2dlbV9zaG1lbV92bV9vcHMgPSB7DQo+PiAgICAqIEB2bWE6IFZNQSBmb3IgdGhlIGFyZWEg
-dG8gYmUgbWFwcGVkDQo+PiAgICAqDQo+PiAgICAqIFRoaXMgZnVuY3Rpb24gaW1wbGVtZW50
-cyBhbiBhdWdtZW50ZWQgdmVyc2lvbiBvZiB0aGUgR0VNIERSTSBmaWxlIG1tYXANCj4+IC0g
-KiBvcGVyYXRpb24gZm9yIHNobWVtIG9iamVjdHMuIERyaXZlcnMgd2hpY2ggZW1wbG95IHRo
-ZSBzaG1lbSBoZWxwZXJzIHNob3VsZA0KPj4gLSAqIHVzZSB0aGlzIGZ1bmN0aW9uIGFzIHRo
-ZWlyICZkcm1fZ2VtX29iamVjdF9mdW5jcy5tbWFwIGhhbmRsZXIuDQo+PiArICogb3BlcmF0
-aW9uIGZvciBzaG1lbSBvYmplY3RzLg0KPj4gICAgKg0KPj4gICAgKiBSZXR1cm5zOg0KPj4g
-ICAgKiAwIG9uIHN1Y2Nlc3Mgb3IgYSBuZWdhdGl2ZSBlcnJvciBjb2RlIG9uIGZhaWx1cmUu
-DQo+PiBAQCAtNjQ2LDggKzYzOSw2IEBAIEVYUE9SVF9TWU1CT0xfR1BMKGRybV9nZW1fc2ht
-ZW1fbW1hcCk7DQo+PiAgICAqIEBwOiBEUk0gcHJpbnRlcg0KPj4gICAgKiBAaW5kZW50OiBU
-YWIgaW5kZW50YXRpb24gbGV2ZWwNCj4+ICAgICogQG9iajogR0VNIG9iamVjdA0KPj4gLSAq
-DQo+PiAtICogVGhpcyBpbXBsZW1lbnRzIHRoZSAmZHJtX2dlbV9vYmplY3RfZnVuY3MuaW5m
-byBjYWxsYmFjay4NCj4+ICAgICovDQo+PiAgIHZvaWQgZHJtX2dlbV9zaG1lbV9wcmludF9p
-bmZvKHN0cnVjdCBkcm1fcHJpbnRlciAqcCwgdW5zaWduZWQgaW50IGluZGVudCwNCj4+ICAg
-CQkJICAgICAgY29uc3Qgc3RydWN0IGRybV9nZW1fb2JqZWN0ICpvYmopDQo+PiBAQCAtNjY2
-LDkgKzY1Nyw3IEBAIEVYUE9SVF9TWU1CT0woZHJtX2dlbV9zaG1lbV9wcmludF9pbmZvKTsN
-Cj4+ICAgICogQG9iajogR0VNIG9iamVjdA0KPj4gICAgKg0KPj4gICAgKiBUaGlzIGZ1bmN0
-aW9uIGV4cG9ydHMgYSBzY2F0dGVyL2dhdGhlciB0YWJsZSBzdWl0YWJsZSBmb3IgUFJJTUUg
-dXNhZ2UgYnkNCj4+IC0gKiBjYWxsaW5nIHRoZSBzdGFuZGFyZCBETUEgbWFwcGluZyBBUEku
-IERyaXZlcnMgc2hvdWxkIG5vdCBjYWxsIHRoaXMgZnVuY3Rpb24NCj4+IC0gKiBkaXJlY3Rs
-eSwgaW5zdGVhZCBpdCBzaG91bGQgb25seSBiZSB1c2VkIGFzIGFuIGltcGxlbWVudGF0aW9u
-IGZvcg0KPj4gLSAqICZkcm1fZ2VtX29iamVjdF9mdW5jcy5nZXRfc2dfdGFibGUuDQo+PiAr
-ICogY2FsbGluZyB0aGUgc3RhbmRhcmQgRE1BIG1hcHBpbmcgQVBJLg0KPj4gICAgKg0KPj4g
-ICAgKiBEcml2ZXJzIHdobyBuZWVkIHRvIGFjcXVpcmUgYW4gc2NhdHRlci9nYXRoZXIgdGFi
-bGUgZm9yIG9iamVjdHMgbmVlZCB0byBjYWxsDQo+PiAgICAqIGRybV9nZW1fc2htZW1fZ2V0
-X3BhZ2VzX3NndCgpIGluc3RlYWQuDQo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJt
-L2xpbWEvbGltYV9nZW0uYyBiL2RyaXZlcnMvZ3B1L2RybS9saW1hL2xpbWFfZ2VtLmMNCj4+
-IGluZGV4IDY0MGFjYzA2MDQ2Ny4uYTU1ODBiZDY1MjJjIDEwMDY0NA0KPj4gLS0tIGEvZHJp
-dmVycy9ncHUvZHJtL2xpbWEvbGltYV9nZW0uYw0KPj4gKysrIGIvZHJpdmVycy9ncHUvZHJt
-L2xpbWEvbGltYV9nZW0uYw0KPj4gQEAgLTIwNiwxMiArMjA2LDEyIEBAIHN0YXRpYyBjb25z
-dCBzdHJ1Y3QgZHJtX2dlbV9vYmplY3RfZnVuY3MgbGltYV9nZW1fZnVuY3MgPSB7DQo+PiAg
-IAkuZnJlZSA9IGxpbWFfZ2VtX2ZyZWVfb2JqZWN0LA0KPj4gICAJLm9wZW4gPSBsaW1hX2dl
-bV9vYmplY3Rfb3BlbiwNCj4+ICAgCS5jbG9zZSA9IGxpbWFfZ2VtX29iamVjdF9jbG9zZSwN
-Cj4+IC0JLnByaW50X2luZm8gPSBkcm1fZ2VtX3NobWVtX3ByaW50X2luZm8sDQo+PiArCS5w
-cmludF9pbmZvID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfcHJpbnRfaW5mbywNCj4+ICAgCS5w
-aW4gPSBsaW1hX2dlbV9waW4sDQo+PiAtCS51bnBpbiA9IGRybV9nZW1fc2htZW1fdW5waW4s
-DQo+PiAtCS5nZXRfc2dfdGFibGUgPSBkcm1fZ2VtX3NobWVtX2dldF9zZ190YWJsZSwNCj4+
-ICsJLnVucGluID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfdW5waW4sDQo+PiArCS5nZXRfc2df
-dGFibGUgPSBkcm1fZ2VtX3NobWVtX29iamVjdF9nZXRfc2dfdGFibGUsDQo+PiAgIAkudm1h
-cCA9IGxpbWFfZ2VtX3ZtYXAsDQo+PiAtCS52dW5tYXAgPSBkcm1fZ2VtX3NobWVtX3Z1bm1h
-cCwNCj4+ICsJLnZ1bm1hcCA9IGRybV9nZW1fc2htZW1fb2JqZWN0X3Z1bm1hcCwNCj4+ICAg
-CS5tbWFwID0gbGltYV9nZW1fbW1hcCwNCj4+ICAgfTsNCj4+ICAgDQo+PiBkaWZmIC0tZ2l0
-IGEvZHJpdmVycy9ncHUvZHJtL3BhbmZyb3N0L3BhbmZyb3N0X2dlbS5jIGIvZHJpdmVycy9n
-cHUvZHJtL3BhbmZyb3N0L3BhbmZyb3N0X2dlbS5jDQo+PiBpbmRleCAyMzM3NzQ4MWY0ZTMu
-LmJlMWNjNjU3OWE3MSAxMDA2NDQNCj4+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9wYW5mcm9z
-dC9wYW5mcm9zdF9nZW0uYw0KPj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL3BhbmZyb3N0L3Bh
-bmZyb3N0X2dlbS5jDQo+PiBAQCAtMTk3LDEzICsxOTcsMTMgQEAgc3RhdGljIGNvbnN0IHN0
-cnVjdCBkcm1fZ2VtX29iamVjdF9mdW5jcyBwYW5mcm9zdF9nZW1fZnVuY3MgPSB7DQo+PiAg
-IAkuZnJlZSA9IHBhbmZyb3N0X2dlbV9mcmVlX29iamVjdCwNCj4+ICAgCS5vcGVuID0gcGFu
-ZnJvc3RfZ2VtX29wZW4sDQo+PiAgIAkuY2xvc2UgPSBwYW5mcm9zdF9nZW1fY2xvc2UsDQo+
-PiAtCS5wcmludF9pbmZvID0gZHJtX2dlbV9zaG1lbV9wcmludF9pbmZvLA0KPj4gKwkucHJp
-bnRfaW5mbyA9IGRybV9nZW1fc2htZW1fb2JqZWN0X3ByaW50X2luZm8sDQo+PiAgIAkucGlu
-ID0gcGFuZnJvc3RfZ2VtX3BpbiwNCj4+IC0JLnVucGluID0gZHJtX2dlbV9zaG1lbV91bnBp
-biwNCj4+IC0JLmdldF9zZ190YWJsZSA9IGRybV9nZW1fc2htZW1fZ2V0X3NnX3RhYmxlLA0K
-Pj4gLQkudm1hcCA9IGRybV9nZW1fc2htZW1fdm1hcCwNCj4+IC0JLnZ1bm1hcCA9IGRybV9n
-ZW1fc2htZW1fdnVubWFwLA0KPj4gLQkubW1hcCA9IGRybV9nZW1fc2htZW1fbW1hcCwNCj4+
-ICsJLnVucGluID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfdW5waW4sDQo+PiArCS5nZXRfc2df
-dGFibGUgPSBkcm1fZ2VtX3NobWVtX29iamVjdF9nZXRfc2dfdGFibGUsDQo+PiArCS52bWFw
-ID0gZHJtX2dlbV9zaG1lbV9vYmplY3Rfdm1hcCwNCj4+ICsJLnZ1bm1hcCA9IGRybV9nZW1f
-c2htZW1fb2JqZWN0X3Z1bm1hcCwNCj4+ICsJLm1tYXAgPSBkcm1fZ2VtX3NobWVtX29iamVj
-dF9tbWFwLA0KPj4gICB9Ow0KPj4gICANCj4+ICAgLyoqDQo+PiBkaWZmIC0tZ2l0IGEvZHJp
-dmVycy9ncHUvZHJtL3YzZC92M2RfYm8uYyBiL2RyaXZlcnMvZ3B1L2RybS92M2QvdjNkX2Jv
-LmMNCj4+IGluZGV4IDZhODczMWFiOWQ3ZC4uYjUwNjc3YmViNmFjIDEwMDY0NA0KPj4gLS0t
-IGEvZHJpdmVycy9ncHUvZHJtL3YzZC92M2RfYm8uYw0KPj4gKysrIGIvZHJpdmVycy9ncHUv
-ZHJtL3YzZC92M2RfYm8uYw0KPj4gQEAgLTUyLDEzICs1MiwxMyBAQCB2b2lkIHYzZF9mcmVl
-X29iamVjdChzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaikNCj4+ICAgDQo+PiAgIHN0YXRp
-YyBjb25zdCBzdHJ1Y3QgZHJtX2dlbV9vYmplY3RfZnVuY3MgdjNkX2dlbV9mdW5jcyA9IHsN
-Cj4+ICAgCS5mcmVlID0gdjNkX2ZyZWVfb2JqZWN0LA0KPj4gLQkucHJpbnRfaW5mbyA9IGRy
-bV9nZW1fc2htZW1fcHJpbnRfaW5mbywNCj4+IC0JLnBpbiA9IGRybV9nZW1fc2htZW1fcGlu
-LA0KPj4gLQkudW5waW4gPSBkcm1fZ2VtX3NobWVtX3VucGluLA0KPj4gLQkuZ2V0X3NnX3Rh
-YmxlID0gZHJtX2dlbV9zaG1lbV9nZXRfc2dfdGFibGUsDQo+PiAtCS52bWFwID0gZHJtX2dl
-bV9zaG1lbV92bWFwLA0KPj4gLQkudnVubWFwID0gZHJtX2dlbV9zaG1lbV92dW5tYXAsDQo+
-PiAtCS5tbWFwID0gZHJtX2dlbV9zaG1lbV9tbWFwLA0KPj4gKwkucHJpbnRfaW5mbyA9IGRy
-bV9nZW1fc2htZW1fb2JqZWN0X3ByaW50X2luZm8sDQo+PiArCS5waW4gPSBkcm1fZ2VtX3No
-bWVtX29iamVjdF9waW4sDQo+PiArCS51bnBpbiA9IGRybV9nZW1fc2htZW1fb2JqZWN0X3Vu
-cGluLA0KPj4gKwkuZ2V0X3NnX3RhYmxlID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfZ2V0X3Nn
-X3RhYmxlLA0KPj4gKwkudm1hcCA9IGRybV9nZW1fc2htZW1fb2JqZWN0X3ZtYXAsDQo+PiAr
-CS52dW5tYXAgPSBkcm1fZ2VtX3NobWVtX29iamVjdF92dW5tYXAsDQo+PiArCS5tbWFwID0g
-ZHJtX2dlbV9zaG1lbV9vYmplY3RfbW1hcCwNCj4+ICAgfTsNCj4+ICAgDQo+PiAgIC8qIGdl
-bV9jcmVhdGVfb2JqZWN0IGZ1bmN0aW9uIGZvciBhbGxvY2F0aW5nIGEgQk8gc3RydWN0IGFu
-ZCBkb2luZw0KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdw
-dV9vYmplY3QuYyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9vYmplY3QuYw0K
-Pj4gaW5kZXggZjY0OGIwZTI0NDQ3Li42OTg0MzFkMjMzYjggMTAwNjQ0DQo+PiAtLS0gYS9k
-cml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfb2JqZWN0LmMNCj4+ICsrKyBiL2RyaXZl
-cnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9vYmplY3QuYw0KPj4gQEAgLTExNiwxNSArMTE2
-LDE0IEBAIHN0YXRpYyBjb25zdCBzdHJ1Y3QgZHJtX2dlbV9vYmplY3RfZnVuY3MgdmlydGlv
-X2dwdV9zaG1lbV9mdW5jcyA9IHsNCj4+ICAgCS5mcmVlID0gdmlydGlvX2dwdV9mcmVlX29i
-amVjdCwNCj4+ICAgCS5vcGVuID0gdmlydGlvX2dwdV9nZW1fb2JqZWN0X29wZW4sDQo+PiAg
-IAkuY2xvc2UgPSB2aXJ0aW9fZ3B1X2dlbV9vYmplY3RfY2xvc2UsDQo+PiAtDQo+PiAtCS5w
-cmludF9pbmZvID0gZHJtX2dlbV9zaG1lbV9wcmludF9pbmZvLA0KPj4gKwkucHJpbnRfaW5m
-byA9IGRybV9nZW1fc2htZW1fb2JqZWN0X3ByaW50X2luZm8sDQo+PiAgIAkuZXhwb3J0ID0g
-dmlydGdwdV9nZW1fcHJpbWVfZXhwb3J0LA0KPj4gLQkucGluID0gZHJtX2dlbV9zaG1lbV9w
-aW4sDQo+PiAtCS51bnBpbiA9IGRybV9nZW1fc2htZW1fdW5waW4sDQo+PiAtCS5nZXRfc2df
-dGFibGUgPSBkcm1fZ2VtX3NobWVtX2dldF9zZ190YWJsZSwNCj4+IC0JLnZtYXAgPSBkcm1f
-Z2VtX3NobWVtX3ZtYXAsDQo+PiAtCS52dW5tYXAgPSBkcm1fZ2VtX3NobWVtX3Z1bm1hcCwN
-Cj4+IC0JLm1tYXAgPSBkcm1fZ2VtX3NobWVtX21tYXAsDQo+PiArCS5waW4gPSBkcm1fZ2Vt
-X3NobWVtX29iamVjdF9waW4sDQo+PiArCS51bnBpbiA9IGRybV9nZW1fc2htZW1fb2JqZWN0
-X3VucGluLA0KPj4gKwkuZ2V0X3NnX3RhYmxlID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfZ2V0
-X3NnX3RhYmxlLA0KPj4gKwkudm1hcCA9IGRybV9nZW1fc2htZW1fb2JqZWN0X3ZtYXAsDQo+
-PiArCS52dW5tYXAgPSBkcm1fZ2VtX3NobWVtX29iamVjdF92dW5tYXAsDQo+PiArCS5tbWFw
-ID0gZHJtX2dlbV9zaG1lbV9vYmplY3RfbW1hcCwNCj4+ICAgfTsNCj4+ICAgDQo+PiAgIGJv
-b2wgdmlydGlvX2dwdV9pc19zaG1lbShzdHJ1Y3QgdmlydGlvX2dwdV9vYmplY3QgKmJvKQ0K
-Pj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvZHJtL2RybV9nZW1fc2htZW1faGVscGVyLmggYi9p
-bmNsdWRlL2RybS9kcm1fZ2VtX3NobWVtX2hlbHBlci5oDQo+PiBpbmRleCA2YjQ3ZWI3ZDlm
-NzYuLmVmYzU5ZGQ0YWVlYiAxMDA2NDQNCj4+IC0tLSBhL2luY2x1ZGUvZHJtL2RybV9nZW1f
-c2htZW1faGVscGVyLmgNCj4+ICsrKyBiL2luY2x1ZGUvZHJtL2RybV9nZW1fc2htZW1faGVs
-cGVyLmgNCj4+IEBAIC0xMzcsNiArMTM3LDEyNiBAQCB2b2lkIGRybV9nZW1fc2htZW1fcHJp
-bnRfaW5mbyhzdHJ1Y3QgZHJtX3ByaW50ZXIgKnAsIHVuc2lnbmVkIGludCBpbmRlbnQsDQo+
-PiAgIAkJCSAgICAgIGNvbnN0IHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqKTsNCj4+ICAg
-DQo+PiAgIHN0cnVjdCBzZ190YWJsZSAqZHJtX2dlbV9zaG1lbV9nZXRfc2dfdGFibGUoc3Ry
-dWN0IGRybV9nZW1fb2JqZWN0ICpvYmopOw0KPj4gKw0KPj4gKy8qDQo+PiArICogR0VNIG9i
-amVjdCBmdW5jdGlvbnMNCj4+ICsgKi8NCj4+ICsNCj4+ICsvKioNCj4+ICsgKiBkcm1fZ2Vt
-X3NobWVtX29iamVjdF9mcmVlIC0gR0VNIG9iamVjdCBmdW5jdGlvbiBmb3IgZHJtX2dlbV9z
-aG1lbV9mcmVlX29iamVjdCgpDQo+PiArICogQG9iajogR0VNIG9iamVjdCB0byBmcmVlDQo+
-PiArICoNCj4+ICsgKiBUaGlzIGZ1bmN0aW9uIHdyYXBzIGRybV9nZW1fc2htZW1fZnJlZV9v
-YmplY3QoKS4gRHJpdmVycyB0aGF0IGVtcGxveSB0aGUgc2htZW0gaGVscGVycw0KPj4gKyAq
-IHNob3VsZCB1c2UgaXQgYXMgdGhlaXIgJmRybV9nZW1fb2JqZWN0X2Z1bmNzLmZyZWUgaGFu
-ZGxlci4NCj4+ICsgKi8NCj4+ICtzdGF0aWMgaW5saW5lIHZvaWQgZHJtX2dlbV9zaG1lbV9v
-YmplY3RfZnJlZShzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaikNCj4+ICt7DQo+PiArCWRy
-bV9nZW1fc2htZW1fZnJlZV9vYmplY3Qob2JqKTsNCj4+ICt9DQo+PiArDQo+PiArLyoqDQo+
-PiArICogZHJtX2dlbV9zaG1lbV9wcmludF9pbmZvKCkgLSBQcmludCAmZHJtX2dlbV9zaG1l
-bV9vYmplY3QgaW5mbyBmb3IgZGVidWdmcw0KPj4gKyAqIEBwOiBEUk0gcHJpbnRlcg0KPj4g
-KyAqIEBpbmRlbnQ6IFRhYiBpbmRlbnRhdGlvbiBsZXZlbA0KPj4gKyAqIEBvYmo6IEdFTSBv
-YmplY3QNCj4+ICsgKg0KPj4gKyAqIFRoaXMgZnVuY3Rpb24gd3JhcHMgZHJtX2dlbV9zaG1l
-bV9tbWFwKCkuIERyaXZlcnMgdGhhdCBlbXBsb3kgdGhlIHNobWVtIGhlbHBlcnMgc2hvdWxk
-DQo+PiArICogdXNlIHRoaXMgZnVuY3Rpb24gYXMgdGhlaXIgJmRybV9nZW1fb2JqZWN0X2Z1
-bmNzLm1tYXAgaGFuZGxlci4NCj4+ICsgKi8NCj4+ICtzdGF0aWMgaW5saW5lIHZvaWQgZHJt
-X2dlbV9zaG1lbV9vYmplY3RfcHJpbnRfaW5mbyhzdHJ1Y3QgZHJtX3ByaW50ZXIgKnAsIHVu
-c2lnbmVkIGludCBpbmRlbnQsDQo+PiArCQkJCQkJICAgY29uc3Qgc3RydWN0IGRybV9nZW1f
-b2JqZWN0ICpvYmopDQo+PiArew0KPj4gKwlkcm1fZ2VtX3NobWVtX3ByaW50X2luZm8ocCwg
-aW5kZW50LCBvYmopOw0KPj4gK30NCj4+ICsNCj4+ICsvKioNCj4+ICsgKiBkcm1fZ2VtX3No
-bWVtX29iamVjdF9waW4gLSBHRU0gb2JqZWN0IGZ1bmN0aW9uIGZvciBkcm1fZ2VtX3NobWVt
-X3BpbigpDQo+PiArICogQG9iajogR0VNIG9iamVjdA0KPj4gKyAqDQo+PiArICogVGhpcyBm
-dW5jdGlvbiB3cmFwcyBkcm1fZ2VtX3NobWVtX3BpbigpLiBEcml2ZXJzIHRoYXQgZW1wbG95
-IHRoZSBzaG1lbSBoZWxwZXJzIHNob3VsZA0KPj4gKyAqIHVzZSBpdCBhcyB0aGVpciAmZHJt
-X2dlbV9vYmplY3RfZnVuY3MucGluIGhhbmRsZXIuDQo+PiArICovDQo+PiArc3RhdGljIGlu
-bGluZSBpbnQgZHJtX2dlbV9zaG1lbV9vYmplY3RfcGluKHN0cnVjdCBkcm1fZ2VtX29iamVj
-dCAqb2JqKQ0KPj4gK3sNCj4+ICsJcmV0dXJuIGRybV9nZW1fc2htZW1fcGluKG9iaik7DQo+
-PiArfQ0KPj4gKw0KPj4gKy8qKg0KPj4gKyAqIGRybV9nZW1fc2htZW1fb2JqZWN0X3VucGlu
-IC0gR0VNIG9iamVjdCBmdW5jdGlvbiBmb3IgZHJtX2dlbV9zaG1lbV91bnBpbigpDQo+PiAr
-ICogQG9iajogR0VNIG9iamVjdA0KPj4gKyAqDQo+PiArICogVGhpcyBmdW5jdGlvbiB3cmFw
-cyBkcm1fZ2VtX3NobWVtX3VucGluKCkuIERyaXZlcnMgdGhhdCBlbXBsb3kgdGhlIHNobWVt
-IGhlbHBlcnMgc2hvdWxkDQo+PiArICogdXNlIGl0IGFzIHRoZWlyICZkcm1fZ2VtX29iamVj
-dF9mdW5jcy51bnBpbiBoYW5kbGVyLg0KPj4gKyAqLw0KPj4gK3N0YXRpYyBpbmxpbmUgdm9p
-ZCBkcm1fZ2VtX3NobWVtX29iamVjdF91bnBpbihzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9i
-aikNCj4+ICt7DQo+PiArCWRybV9nZW1fc2htZW1fdW5waW4ob2JqKTsNCj4+ICt9DQo+PiAr
-DQo+PiArLyoqDQo+PiArICogZHJtX2dlbV9zaG1lbV9vYmplY3RfZ2V0X3NnX3RhYmxlIC0g
-R0VNIG9iamVjdCBmdW5jdGlvbiBmb3IgZHJtX2dlbV9zaG1lbV9nZXRfc2dfdGFibGUoKQ0K
-Pj4gKyAqIEBvYmo6IEdFTSBvYmplY3QNCj4+ICsgKg0KPj4gKyAqIFRoaXMgZnVuY3Rpb24g
-d3JhcHMgZHJtX2dlbV9zaG1lbV9nZXRfc2dfdGFibGUoKS4gRHJpdmVycyB0aGF0IGVtcGxv
-eSB0aGUgc2htZW0gaGVscGVycyBzaG91bGQNCj4+ICsgKiB1c2UgaXQgYXMgdGhlaXIgJmRy
-bV9nZW1fb2JqZWN0X2Z1bmNzLmdldF9zZ190YWJsZSBoYW5kbGVyLg0KPj4gKyAqDQo+PiAr
-ICogUmV0dXJuczoNCj4+ICsgKiBBIHBvaW50ZXIgdG8gdGhlIHNjYXR0ZXIvZ2F0aGVyIHRh
-YmxlIG9mIHBpbm5lZCBwYWdlcyBvciBOVUxMIG9uIGZhaWx1cmUuDQo+PiArICovDQo+PiAr
-c3RhdGljIGlubGluZSBzdHJ1Y3Qgc2dfdGFibGUgKmRybV9nZW1fc2htZW1fb2JqZWN0X2dl
-dF9zZ190YWJsZShzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaikNCj4+ICt7DQo+PiArCXJl
-dHVybiBkcm1fZ2VtX3NobWVtX2dldF9zZ190YWJsZShvYmopOw0KPj4gK30NCj4+ICsNCj4+
-ICsvKg0KPj4gKyAqIGRybV9nZW1fc2htZW1fb2JqZWN0X3ZtYXAgLSBHRU0gb2JqZWN0IGZ1
-bmN0aW9uIGZvciBkcm1fZ2VtX3NobWVtX3ZtYXAoKQ0KPj4gKyAqIEBvYmo6IEdFTSBvYmpl
-Y3QNCj4+ICsgKiBAbWFwOiBSZXR1cm5zIHRoZSBrZXJuZWwgdmlydHVhbCBhZGRyZXNzIG9m
-IHRoZSBTSE1FTSBHRU0gb2JqZWN0J3MgYmFja2luZyBzdG9yZS4NCj4+ICsgKg0KPj4gKyAq
-IFRoaXMgZnVuY3Rpb24gd3JhcHMgZHJtX2dlbV9zaG1lbV92bWFwKCkuIERyaXZlcnMgdGhh
-dCBlbXBsb3kgdGhlIHNobWVtIGhlbHBlcnMgc2hvdWxkDQo+PiArICogdXNlIGl0IGFzIHRo
-ZWlyICZkcm1fZ2VtX29iamVjdF9mdW5jcy52bWFwIGhhbmRsZXIuDQo+PiArICoNCj4+ICsg
-KiBSZXR1cm5zOg0KPj4gKyAqIDAgb24gc3VjY2VzcyBvciBhIG5lZ2F0aXZlIGVycm9yIGNv
-ZGUgb24gZmFpbHVyZS4NCj4+ICsgKi8NCj4+ICtzdGF0aWMgaW5saW5lIGludCBkcm1fZ2Vt
-X3NobWVtX29iamVjdF92bWFwKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqLCBzdHJ1Y3Qg
-ZG1hX2J1Zl9tYXAgKm1hcCkNCj4+ICt7DQo+PiArCXJldHVybiBkcm1fZ2VtX3NobWVtX3Zt
-YXAob2JqLCBtYXApOw0KPj4gK30NCj4+ICsNCj4+ICsvKg0KPj4gKyAqIGRybV9nZW1fc2ht
-ZW1fb2JqZWN0X3Z1bm1hcCAtIEdFTSBvYmplY3QgZnVuY3Rpb24gZm9yIGRybV9nZW1fc2ht
-ZW1fdnVubWFwKCkNCj4+ICsgKiBAb2JqOiBHRU0gb2JqZWN0DQo+PiArICogQG1hcDogS2Vy
-bmVsIHZpcnR1YWwgYWRkcmVzcyB3aGVyZSB0aGUgU0hNRU0gR0VNIG9iamVjdCB3YXMgbWFw
-cGVkDQo+PiArICoNCj4+ICsgKiBUaGlzIGZ1bmN0aW9uIHdyYXBzIGRybV9nZW1fc2htZW1f
-dnVubWFwKCkuIERyaXZlcnMgdGhhdCBlbXBsb3kgdGhlIHNobWVtIGhlbHBlcnMgc2hvdWxk
-DQo+PiArICogdXNlIGl0IGFzIHRoZWlyICZkcm1fZ2VtX29iamVjdF9mdW5jcy52dW5tYXAg
-aGFuZGxlci4NCj4+ICsgKi8NCj4+ICtzdGF0aWMgaW5saW5lIHZvaWQgZHJtX2dlbV9zaG1l
-bV9vYmplY3RfdnVubWFwKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqLCBzdHJ1Y3QgZG1h
-X2J1Zl9tYXAgKm1hcCkNCj4+ICt7DQo+PiArCWRybV9nZW1fc2htZW1fdnVubWFwKG9iaiwg
-bWFwKTsNCj4+ICt9DQo+PiArDQo+PiArLyoqDQo+PiArICogZHJtX2dlbV9zaG1lbV9vYmpl
-Y3RfbW1hcCAtIEdFTSBvYmplY3QgZnVuY3Rpb24gZm9yIGRybV9nZW1fc2htZW1fbW1hcCgp
-DQo+PiArICogQG9iajogR0VNIG9iamVjdA0KPj4gKyAqIEB2bWE6IFZNQSBmb3IgdGhlIGFy
-ZWEgdG8gYmUgbWFwcGVkDQo+PiArICoNCj4+ICsgKiBUaGlzIGZ1bmN0aW9uIHdyYXBzIGRy
-bV9nZW1fc2htZW1fbW1hcCgpLiBEcml2ZXJzIHRoYXQgZW1wbG95IHRoZSBzaG1lbSBoZWxw
-ZXJzIHNob3VsZA0KPj4gKyAqIHVzZSBpdCBhcyB0aGVpciAmZHJtX2dlbV9vYmplY3RfZnVu
-Y3MubW1hcCBoYW5kbGVyLg0KPj4gKyAqDQo+PiArICogUmV0dXJuczoNCj4+ICsgKiAwIG9u
-IHN1Y2Nlc3Mgb3IgYSBuZWdhdGl2ZSBlcnJvciBjb2RlIG9uIGZhaWx1cmUuDQo+PiArICov
-DQo+PiArc3RhdGljIGlubGluZSBpbnQgZHJtX2dlbV9zaG1lbV9vYmplY3RfbW1hcChzdHJ1
-Y3QgZHJtX2dlbV9vYmplY3QgKm9iaiwgc3RydWN0IHZtX2FyZWFfc3RydWN0ICp2bWEpDQo+
-PiArew0KPj4gKwlyZXR1cm4gZHJtX2dlbV9zaG1lbV9tbWFwKG9iaiwgdm1hKTsNCj4+ICt9
-DQo+PiArDQo+PiArLyoNCj4+ICsgKiBEcml2ZXIgb3BzDQo+PiArICovDQo+PiArDQo+PiAg
-IHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqDQo+PiAgIGRybV9nZW1fc2htZW1fcHJpbWVfaW1w
-b3J0X3NnX3RhYmxlKHN0cnVjdCBkcm1fZGV2aWNlICpkZXYsDQo+PiAgIAkJCQkgICAgc3Ry
-dWN0IGRtYV9idWZfYXR0YWNobWVudCAqYXR0YWNoLA0KPj4gLS0gDQo+PiAyLjMzLjENCj4+
-DQo+IA0KDQotLSANClRob21hcyBaaW1tZXJtYW5uDQpHcmFwaGljcyBEcml2ZXIgRGV2ZWxv
-cGVyDQpTVVNFIFNvZnR3YXJlIFNvbHV0aW9ucyBHZXJtYW55IEdtYkgNCk1heGZlbGRzdHIu
-IDUsIDkwNDA5IE7DvHJuYmVyZywgR2VybWFueQ0KKEhSQiAzNjgwOSwgQUcgTsO8cm5iZXJn
-KQ0KR2VzY2jDpGZ0c2bDvGhyZXI6IEl2byBUb3Rldg0K
+Submissions
 
---------------QCb50qmSQB44eCRP1E0ngzmZ--
+Submissions are now open here (hpdc22.hotcrp.com).
 
---------------Y0tbMH6o50dzJW05O6rrji39
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
+Deadlines
 
------BEGIN PGP SIGNATURE-----
+Abstracts due: January 20th 11:59pm Anywhere on Earth (AoE), 2022
 
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmGG3VkFAwAAAAAACgkQlh/E3EQov+C5
-ChAArx7OgXwNIZeStv7ALifrHSmDzESQC3sdXgP4jLVTiRXiHeHvSNDB00TSdMzXf/lwD2FuZ5Lt
-ISOlU8NdDnCgW4nCQFsF4uqOOEuexQoOBNpR30w/0FvzXQZ5D8iVs8cq67BFpPkjaUSAXsnqoeCd
-WDTn1/PCypVdkgskE2C5pczu6gB13bfX+fdH+tTJg8ddR1N/r+4KqaxVYmvIL8yjSv5dBcKhLzSb
-oLwwjPnl09wCEMqy8RFEGcwx/u6ZDvO3mld5cnVVFjnTrRzcBLV5WnN9gYl9tTmMPN1zAljD2w7M
-mZZ5oe7CiL8RME3KpfP+6gwWvZKRTkiH+qeuqvNOlSGUaHUQQBLePp9R2Nau1tD+ekTelWp1J+Eg
-sUsSaegVrX6aKM5m5/sdP8h6A4rhJ7icJznXLxQv10KoGTs4b9nPzVwVQF4DpfA8LiyDrP0+cf8g
-hlJeJ47fSj6Ay2LVOv7ouD2WWqru2orpKhP4QUdvkmWhDyfk0jKIx88gncAt66clzli6acc97ko/
-Puox8H5ZvzWQR3r+Q1tjlTE+Ygu8b2nhZOUQeNrs+3JDjSG8/sM+6WtJe2XwlUQ5ofDwiYqrQjhZ
-WH0YJa8DJjDm8I36DcvfGBUrZl6D7bmBQDKaRYnZfMCzs2Y842yeL0lF1dfvhuWK0m2KczA+gyEV
-LVQ=
-=gf+Y
------END PGP SIGNATURE-----
+Papers due: January 27th 11:59pm Anywhere on Earth (AoE), 2022
 
---------------Y0tbMH6o50dzJW05O6rrji39--
+Author notifications: March 31st, 2022
 
---===============4743991583565679430==
+Camera-ready version: April 21, 2022
+
+Conference dates: June 27 - July 1, 2022
+
+Scope and Topics
+
+Submissions are welcomed on high-performance parallel and distributed
+computing (HPDC) topics including but not limited to: clouds, clusters,
+grids, big data, massively multicore, and extreme-scale computing systems.
+Experience reports of operational deployments that provide significantly
+novel insights for future research on HPDC applications and systems are
+also welcome.
+
+In the context of high-performance parallel and distributed computing, the
+topics of interest include, but are not limited to:
+
+Datacenter, HPC, cloud, serverless, and edge/IoT computing platforms
+
+Heterogeneous computing accelerators and non-volatile memory systems
+
+File and storage systems, I/O, and data management
+
+Operating systems and networks
+
+System software and middleware for parallel and distributed systems
+
+Programming languages and runtime systems
+
+Big data stacks and big data ecosystems
+
+Scientific applications, algorithms, and workflows
+
+Resource management and scheduling
+
+Performance modeling, benchmarking, and engineering
+
+Fault tolerance, reliability, and availability
+
+Operational guarantees, risk assessment, and management
+
+Novel post-Moore computing technologies including neuromorphic,
+brain-inspired computing, and quantum computing.
+
+New at HPDC 2022
+
+New paper submission categories:
+
+This year, submissions to HPDC can be made in one of the following two
+categories: (1) regular papers, or (2) open-source tools and data papers.
+The primary focus of "regular papers" should be to describe new research
+ideas supported by experimental implementation and evaluation of the
+proposed research ideas. The primary focus of "open-source tools and data"
+should be to describe the design, development, and evaluation of new
+open-source tools or novel data sources. Submissions in the "regular
+papers" category are also encouraged to open-source their software or
+hardware artifacts.
+
+The authors are required to indicate the category of the paper as a part of
+the submitted manuscript's title. The last line of the title should
+indicate the paper type by using one of the two phrases (1) Paper Type:
+Regular, or (2) Paper Type: Open-source tools and data paper.
+
+Papers in the open-source tools and data papers category with relatively
+shorter length (e.g., 6 pages) are welcome, if the contributions can be
+well articulated and substantiated in 6 pages. However, all submissions in
+the tool and data category have the flexibility of using the maximum
+allowed number of pages, similar to the regular category papers.
+
+The submissions in both categories will be evaluated to the same standards
+in terms of novelty, scientific value, demonstrated usefulness, and
+potential impact on the field. The nature of the contribution differs
+between the two categories (new research idea vs. new open-source
+tool/data) and papers will be evaluated based on the intended nature of the
+contribution, as declared by the chosen paper category at the time of the
+submission. The chosen category at the time of the submission can not be
+changed after the submission deadline.
+
+Suggested formatting for Introduction section of the paper
+
+This year, HPDC authors are encouraged to structure their introduction
+section of the paper in the following format (as subsections or headings).
+The suggested length is two pages at maximum for this format.
+
+[A] Motivation: Clearly state the objective of the paper and provide
+(quantitative) support to motivate the specific problem your submission is
+solving.
+
+[B] Limitation of state-of-art approaches: Briefly review the most relevant
+and most recent prior works. Clearly articulate the limitations of prior
+works and how your approach breaks away from those limitations. A more
+detailed discussion should be reserved for the related work section. But,
+this section should be sufficient to help readers recognize the novelty of
+your approach.
+
+[C] Key insights and contributions: Briefly articulate the major insights
+that enable your approach or make it effective. Clearly specify the novelty
+of these insights and how they advance state-of-the-art. Describe the key
+ideas of your approach and design. List the key contributions including
+flagship empirical results and improvement over the prior art as applicable.
+
+[D] Experimental methodology and artifact availability: Clearly specify the
+key experimental / simulation infrastructure and methodological details.
+Support the experimental methodology choices (e.g., cite that most relevant
+and most recent prior works have evaluated their ideas using similar
+methodology). Include a line to indicate whether the software/hardware
+artifact will be available upon acceptance.
+
+[E] Limitations of the proposed approach: Almost all scientific
+contributions have limitations and scope for improvement. Clearly
+articulate all the major limitations of the proposed approach and identify
+conclusions that are sensitive to specific assumptions made in the paper.
+
+Please note this suggested format is not a requirement for submission and
+authors have the flexibility to choose what they see fit to articulate
+their contributions. We hope that this structured format achieves two
+purposes: (1) helps authors state their contributions clearly and
+concisely, and (2) allows reviewers to judge the contributions more
+objectively. While this structure is encouraged, the authors will not be
+penalized for not following this format.
+
+Submission Guidelines
+
+Authors are invited to submit technical papers of at most 11 pages in PDF
+format, excluding references. Accepted papers will have the flexibility to
+use an additional page in the camera-ready to incorporate feedback from the
+reviewers. Papers should be formatted in the ACM Proceedings Style and
+submitted via the conference submission website. Submitted papers must be
+original work that has not appeared in and is not under consideration for
+another conference or a journal.
+
+Reviewing for HPDC 2022 will be double-blind.
+
+Anonymizing Submissions
+
+HPDC will use double-blind reviewing this year. Please make a good faith
+attempt to anonymize your submission. Avoid identifying yourself or your
+institution explicitly or by implication (e.g., through the references or
+acknowledgments). The first page should use the paper ID assigned during
+registration in place of the author names.
+
+Use care in referring to your own related work. Do not omit references to
+your prior work, as this would make it difficult for reviewers to place
+your submission in its proper context. Instead, reference your past work in
+the third person, just as you would any other piece of related work. In
+some cases, it is not credible to refer to your related work in the third
+person. For example, your submission may extend a previous workshop paper,
+or it may relate to a submission currently under review at HPDC or another
+venue. In these cases, you must still explain the differences between your
+HPDC submission and the other work, but you should cite the other work
+anonymously and e-mail the deanonymized work to the PC chairs.
+
+If your submission reports on experiences with a system at your
+institution, you should refer to the system anonymously but describe the
+properties of the system that are needed to evaluate the work (e.g., size
+of the user base, volume of requests, etc.). We recognize that, in some
+cases, these properties may allow a reviewer to identify your institution.
+
+All tool/data papers should also adhere to the double-blind submission
+policy. If the described tool/dataset framework is already widely used by
+the research community, consider describing the framework using a different
+name and not sharing the open-source code repository in the paper.
+
+Optional Supplemental Information about Revisions
+
+Authors can upload a document listing the improvements made in response to
+the reviews received from a previously submitted version. Authors have
+three options: (1) not provide this information, (2) provide this
+information but the visibility is set to the PC chairs only, and (3)
+provide this information and the visibility is set to all the reviewers.
+The intent is to improve the efficiency of the over-burdened review process
+and benefit the authors who faithfully revise the paper to incorporate
+feedback from previous reviewers. Additional implementation details related
+to this policy are available on the submission website.
+
+Confidential Information
+
+Papers containing information that is subject to a non-disclosure agreement
+(NDA) will not be considered for review.
+
+arXiv Submission Policy
+
+Please note that having an arXiv paper does not prohibit authors from
+submitting a paper to HPDC 2022. arXiv papers are not peer-reviewed and not
+considered as formal publications, hence do not count as prior work.
+Authors are not expected to compare against arXiv papers that have not
+formally appeared in previous conference or journal proceedings. If a
+submitted paper is already on arXiv, please continue to follow the
+double-blind submission guidelines. Authors are encouraged to use
+preventive measures to reduce the chances of accidental breach of anonymity
+(e.g., use a different title in the submission, not upload/revise the arXiv
+version during the review period after the submission deadline).
+
+Author list after acceptance
+
+Please note that the author list cannot be changed after acceptance.
+
+Conflict of Interest Declaration
+
+At the time of submission, all authors must indicate their conflict of
+interest with the PC members. A conflict of interest may be institutional,
+collaborative, or personal. Please see detailed guidelines about how to
+accurately declare a conflict of interest on the submission website.
+
+Ethical Guidelines
+
+If your research describes a new security-related attack, please consider
+adding information about the responsible disclosure. Overall, as
+appropriate and relevant, the paper should follow the ethical principles
+and not alter the security/privacy/equality expectations of the associated
+human users.
+
+Inclusive Description of Research Contributions
+
+Please consider making your research contribution description inclusive in
+nature. For example, consider using gender-neutral pronouns, consider using
+examples that are ethnicity/culture-rich, consider engaging users from
+diverse backgrounds if your research involves a survey, etc. Best efforts
+should be made to make the paper accessible to visually impaired or
+color-blind readers.
+
+--000000000000401f6e05d03d84ef
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr"><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;ma=
+rgin-bottom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&=
+quot;,sans-serif;color:rgb(0,0,0);background-color:transparent;font-variant=
+-numeric:normal;font-variant-east-asian:normal;vertical-align:baseline;whit=
+e-space:pre-wrap">The ACM International Symposium on High-Performance Paral=
+lel and Distributed Computing (HPDC) is the premier annual conference for p=
+resenting the latest research on the design, implementation, evaluation, an=
+d use of parallel and distributed systems for high-end computing. The 31st =
+HPDC will take place in Minneapolis, Minnesota, June 27-July 1, 2022.</span=
+></p><div><br></div><div><p dir=3D"ltr" style=3D"line-height:1.38;margin-to=
+p:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Op=
+en Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transparent;font=
+-weight:700;font-variant-numeric:normal;font-variant-east-asian:normal;vert=
+ical-align:baseline;white-space:pre-wrap">Submissions</span></p><p dir=3D"l=
+tr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=
+=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0=
+,0,0);background-color:transparent;font-variant-numeric:normal;font-variant=
+-east-asian:normal;vertical-align:baseline;white-space:pre-wrap">Submission=
+s are now open here (<a href=3D"http://hpdc22.hotcrp.com/" target=3D"_blank=
+">hpdc22.hotcrp.com</a>).</span></p><br><p dir=3D"ltr" style=3D"line-height=
+:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-=
+family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:t=
+ransparent;font-weight:700;font-variant-numeric:normal;font-variant-east-as=
+ian:normal;vertical-align:baseline;white-space:pre-wrap">Deadlines</span></=
+p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt=
+"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-seri=
+f;color:rgb(0,0,0);background-color:transparent;font-variant-numeric:normal=
+;font-variant-east-asian:normal;vertical-align:baseline;white-space:pre-wra=
+p">Abstracts due: January 20th 11:59pm Anywhere on Earth (AoE), 2022</span>=
+</p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0=
+pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-se=
+rif;color:rgb(0,0,0);background-color:transparent;font-variant-numeric:norm=
+al;font-variant-east-asian:normal;vertical-align:baseline;white-space:pre-w=
+rap">Papers due: January 27th 11:59pm Anywhere on Earth (AoE), 2022</span><=
+/p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0p=
+t"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-ser=
+if;color:rgb(0,0,0);background-color:transparent;font-variant-numeric:norma=
+l;font-variant-east-asian:normal;vertical-align:baseline;white-space:pre-wr=
+ap">Author notifications: March 31st, 2022</span></p><p dir=3D"ltr" style=
+=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-=
+size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);bac=
+kground-color:transparent;font-variant-numeric:normal;font-variant-east-asi=
+an:normal;vertical-align:baseline;white-space:pre-wrap">Camera-ready versio=
+n: </span><span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,s=
+ans-serif;color:rgb(0,0,0);font-variant-numeric:normal;font-variant-east-as=
+ian:normal;vertical-align:baseline;white-space:pre-wrap">April 21, 2022</sp=
+an></p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-botto=
+m:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans=
+-serif;color:rgb(0,0,0);background-color:transparent;font-variant-numeric:n=
+ormal;font-variant-east-asian:normal;vertical-align:baseline;white-space:pr=
+e-wrap">Conference dates: </span><span style=3D"font-size:11pt;font-family:=
+&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);font-variant-numeric:norm=
+al;font-variant-east-asian:normal;vertical-align:baseline;white-space:pre-w=
+rap">June 27 - July 1, 2022</span></p></div><br><p dir=3D"ltr" style=3D"lin=
+e-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11=
+pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background=
+-color:transparent;font-weight:700;font-variant-numeric:normal;font-variant=
+-east-asian:normal;vertical-align:baseline;white-space:pre-wrap">Scope and =
+Topics</span></p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;ma=
+rgin-bottom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&=
+quot;,sans-serif;color:rgb(0,0,0);background-color:transparent;font-variant=
+-numeric:normal;font-variant-east-asian:normal;vertical-align:baseline;whit=
+e-space:pre-wrap">Submissions are welcomed on high-performance parallel and=
+ distributed computing (HPDC) topics including but not limited to: clouds, =
+clusters, grids, big data, massively multicore, and extreme-scale computing=
+ systems. Experience reports of operational deployments that provide signif=
+icantly novel insights for future research on HPDC applications and systems=
+ are also welcome.</span></p><br><p dir=3D"ltr" style=3D"line-height:1.38;m=
+argin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-family:=
+&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transpar=
+ent;font-variant-numeric:normal;font-variant-east-asian:normal;vertical-ali=
+gn:baseline;white-space:pre-wrap">In the context of high-performance parall=
+el and distributed computing, the topics of interest include, but are not l=
+imited to:</span></p><br><p dir=3D"ltr" style=3D"line-height:1.38;margin-to=
+p:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Op=
+en Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transparent;font=
+-variant-numeric:normal;font-variant-east-asian:normal;vertical-align:basel=
+ine;white-space:pre-wrap">Datacenter, HPC, cloud, serverless, and edge/IoT =
+computing platforms</span></p><p dir=3D"ltr" style=3D"line-height:1.38;marg=
+in-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-family:&qu=
+ot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transparent=
+;font-variant-numeric:normal;font-variant-east-asian:normal;vertical-align:=
+baseline;white-space:pre-wrap">Heterogeneous computing accelerators and non=
+-volatile memory systems</span></p><p dir=3D"ltr" style=3D"line-height:1.38=
+;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-famil=
+y:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transp=
+arent;font-variant-numeric:normal;font-variant-east-asian:normal;vertical-a=
+lign:baseline;white-space:pre-wrap">File and storage systems, I/O, and data=
+ management</span></p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0=
+pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open =
+Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transparent;font-va=
+riant-numeric:normal;font-variant-east-asian:normal;vertical-align:baseline=
+;white-space:pre-wrap">Operating systems and networks=C2=A0</span></p><p di=
+r=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span=
+ style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color=
+:rgb(0,0,0);background-color:transparent;font-variant-numeric:normal;font-v=
+ariant-east-asian:normal;vertical-align:baseline;white-space:pre-wrap">Syst=
+em software and middleware for parallel and distributed systems</span></p><=
+p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><=
+span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;c=
+olor:rgb(0,0,0);background-color:transparent;font-variant-numeric:normal;fo=
+nt-variant-east-asian:normal;vertical-align:baseline;white-space:pre-wrap">=
+Programming languages and runtime systems</span></p><p dir=3D"ltr" style=3D=
+"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-siz=
+e:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);backgr=
+ound-color:transparent;font-variant-numeric:normal;font-variant-east-asian:=
+normal;vertical-align:baseline;white-space:pre-wrap">Big data stacks and bi=
+g data ecosystems</span></p><p dir=3D"ltr" style=3D"line-height:1.38;margin=
+-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-family:&quot=
+;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transparent;f=
+ont-variant-numeric:normal;font-variant-east-asian:normal;vertical-align:ba=
+seline;white-space:pre-wrap">Scientific applications, algorithms, and workf=
+lows</span></p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;marg=
+in-bottom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&qu=
+ot;,sans-serif;color:rgb(0,0,0);background-color:transparent;font-variant-n=
+umeric:normal;font-variant-east-asian:normal;vertical-align:baseline;white-=
+space:pre-wrap">Resource management and scheduling</span></p><p dir=3D"ltr"=
+ style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D=
+"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,=
+0);background-color:transparent;font-variant-numeric:normal;font-variant-ea=
+st-asian:normal;vertical-align:baseline;white-space:pre-wrap">Performance m=
+odeling, benchmarking, and engineering</span></p><p dir=3D"ltr" style=3D"li=
+ne-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:1=
+1pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);backgroun=
+d-color:transparent;font-variant-numeric:normal;font-variant-east-asian:nor=
+mal;vertical-align:baseline;white-space:pre-wrap">Fault tolerance, reliabil=
+ity, and availability</span></p><p dir=3D"ltr" style=3D"line-height:1.38;ma=
+rgin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-family:&=
+quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transpare=
+nt;font-variant-numeric:normal;font-variant-east-asian:normal;vertical-alig=
+n:baseline;white-space:pre-wrap">Operational guarantees, risk assessment, a=
+nd management</span></p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top=
+:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Ope=
+n Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transparent;font-=
+variant-numeric:normal;font-variant-east-asian:normal;vertical-align:baseli=
+ne;white-space:pre-wrap">Novel post-Moore computing technologies including =
+neuromorphic, brain-inspired computing, and quantum computing.=C2=A0</span>=
+</p><br><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bott=
+om:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,san=
+s-serif;color:rgb(0,0,0);background-color:transparent;font-weight:700;font-=
+variant-numeric:normal;font-variant-east-asian:normal;vertical-align:baseli=
+ne;white-space:pre-wrap">New at HPDC 2022
+</span></p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-b=
+ottom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,=
+sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:700;fo=
+nt-variant-numeric:normal;font-variant-east-asian:normal;text-decoration-li=
+ne:underline;vertical-align:baseline;white-space:pre-wrap">New paper submis=
+sion categories:=C2=A0</span></p><p dir=3D"ltr" style=3D"line-height:1.38;m=
+argin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-family:=
+&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transpar=
+ent;font-variant-numeric:normal;font-variant-east-asian:normal;vertical-ali=
+gn:baseline;white-space:pre-wrap">This year, submissions to HPDC can be mad=
+e in one of the following two categories: (1) regular papers, or (2) open-s=
+ource tools and data papers. The primary focus of &quot;regular papers&quot=
+; should be to describe new research ideas supported by experimental implem=
+entation and evaluation of the proposed research ideas. The primary focus o=
+f &quot;open-source tools and data&quot; should be to describe the design, =
+development, and evaluation of new open-source tools or novel data sources.=
+ Submissions in the &quot;regular papers&quot; category are also encouraged=
+ to open-source their software or hardware artifacts.</span></p><br><p dir=
+=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span =
+style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:=
+rgb(0,0,0);background-color:transparent;font-variant-numeric:normal;font-va=
+riant-east-asian:normal;vertical-align:baseline;white-space:pre-wrap">The a=
+uthors are required to indicate the category of the paper as a part of the =
+submitted manuscript&#39;s title. The last line of the title should indicat=
+e the paper type by using one of the two phrases (1) Paper Type: Regular, o=
+r (2) Paper Type: Open-source tools and data paper.</span></p><br><p dir=3D=
+"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span sty=
+le=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb=
+(0,0,0);background-color:transparent;font-variant-numeric:normal;font-varia=
+nt-east-asian:normal;vertical-align:baseline;white-space:pre-wrap">Papers i=
+n the open-source tools and data papers category with relatively shorter le=
+ngth (e.g., 6 pages) are welcome, if the contributions can be well articula=
+ted and substantiated in 6 pages. However, all submissions in the tool and =
+data category have the flexibility of using the maximum allowed number of p=
+ages, similar to the regular category papers.</span></p><br><p dir=3D"ltr" =
+style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"=
+font-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0=
+);background-color:transparent;font-variant-numeric:normal;font-variant-eas=
+t-asian:normal;vertical-align:baseline;white-space:pre-wrap">The submission=
+s in both categories will be evaluated to the same standards in terms of no=
+velty, scientific value, demonstrated usefulness, and potential impact on t=
+he field. The nature of the contribution differs between the two categories=
+ (new research idea vs. new open-source tool/data) and papers will be evalu=
+ated based on the intended nature of the contribution, as declared by the c=
+hosen paper category at the time of the submission. The chosen category at =
+the time of the submission can not be changed after the submission deadline=
+.</span></p><br><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;mar=
+gin-bottom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&q=
+uot;,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:7=
+00;font-variant-numeric:normal;font-variant-east-asian:normal;text-decorati=
+on-line:underline;vertical-align:baseline;white-space:pre-wrap">Suggested f=
+ormatting for Introduction section of the paper</span></p><p dir=3D"ltr" st=
+yle=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"fo=
+nt-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);=
+background-color:transparent;font-variant-numeric:normal;font-variant-east-=
+asian:normal;vertical-align:baseline;white-space:pre-wrap">This year, HPDC =
+authors are encouraged to structure their introduction section of the paper=
+ in the following format (as subsections or headings). The suggested length=
+ is two pages at maximum for this format.=C2=A0</span></p><br><p dir=3D"ltr=
+" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=
+=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0=
+,0,0);background-color:transparent;font-weight:700;font-variant-numeric:nor=
+mal;font-variant-east-asian:normal;vertical-align:baseline;white-space:pre-=
+wrap">[A] Motivation:</span><span style=3D"font-size:11pt;font-family:&quot=
+;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transparent;f=
+ont-variant-numeric:normal;font-variant-east-asian:normal;vertical-align:ba=
+seline;white-space:pre-wrap"> Clearly state the objective of the paper and =
+provide (quantitative) support to motivate the specific problem your submis=
+sion is solving.</span></p><br><p dir=3D"ltr" style=3D"line-height:1.38;mar=
+gin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-family:&q=
+uot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transparen=
+t;font-weight:700;font-variant-numeric:normal;font-variant-east-asian:norma=
+l;vertical-align:baseline;white-space:pre-wrap">[B] Limitation of state-of-=
+art approaches: </span><span style=3D"font-size:11pt;font-family:&quot;Open=
+ Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transparent;font-v=
+ariant-numeric:normal;font-variant-east-asian:normal;vertical-align:baselin=
+e;white-space:pre-wrap">Briefly review the most relevant and most recent pr=
+ior works. Clearly articulate the limitations of prior works and how your a=
+pproach breaks away from those limitations. A more detailed discussion shou=
+ld be reserved for the related work section. But, this section should be su=
+fficient to help readers recognize the novelty of your approach.</span></p>=
+<br><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0=
+pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-se=
+rif;color:rgb(0,0,0);background-color:transparent;font-weight:700;font-vari=
+ant-numeric:normal;font-variant-east-asian:normal;vertical-align:baseline;w=
+hite-space:pre-wrap">[C] Key insights and contributions:</span><span style=
+=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0=
+,0,0);background-color:transparent;font-variant-numeric:normal;font-variant=
+-east-asian:normal;vertical-align:baseline;white-space:pre-wrap"> Briefly a=
+rticulate the major insights that enable your approach or make it effective=
+. Clearly specify the novelty of these insights and how they advance state-=
+of-the-art. Describe the key ideas of your approach and design. List the ke=
+y contributions including flagship empirical results and improvement over t=
+he prior art as applicable.</span></p><br><p dir=3D"ltr" style=3D"line-heig=
+ht:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;fon=
+t-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-color=
+:transparent;font-weight:700;font-variant-numeric:normal;font-variant-east-=
+asian:normal;vertical-align:baseline;white-space:pre-wrap">[D] Experimental=
+ methodology and artifact availability:</span><span style=3D"font-size:11pt=
+;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-c=
+olor:transparent;font-variant-numeric:normal;font-variant-east-asian:normal=
+;vertical-align:baseline;white-space:pre-wrap"> Clearly specify the key exp=
+erimental / simulation infrastructure and methodological details. Support t=
+he experimental methodology choices (e.g., cite that most relevant and most=
+ recent prior works have evaluated their ideas using similar methodology). =
+Include a line to indicate whether the software/hardware artifact will be a=
+vailable upon acceptance.</span></p><br><p dir=3D"ltr" style=3D"line-height=
+:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-=
+family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:t=
+ransparent;font-weight:700;font-variant-numeric:normal;font-variant-east-as=
+ian:normal;vertical-align:baseline;white-space:pre-wrap">[E] Limitations of=
+ the proposed approach:</span><span style=3D"font-size:11pt;font-family:&qu=
+ot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transparent=
+;font-variant-numeric:normal;font-variant-east-asian:normal;vertical-align:=
+baseline;white-space:pre-wrap"> Almost all scientific contributions have li=
+mitations and scope for improvement. Clearly articulate all the major limit=
+ations of the proposed approach and identify conclusions that are sensitive=
+ to specific assumptions made in the paper.=C2=A0</span></p><br><p dir=3D"l=
+tr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=
+=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0=
+,0,0);background-color:transparent;font-variant-numeric:normal;font-variant=
+-east-asian:normal;vertical-align:baseline;white-space:pre-wrap">Please not=
+e this suggested format is not a requirement for submission and authors hav=
+e the flexibility to choose what they see fit to articulate their contribut=
+ions. We hope that this structured format achieves two purposes: (1) helps =
+authors state their contributions clearly and concisely, and (2) allows rev=
+iewers to judge the contributions more objectively. While this structure is=
+ encouraged, the authors will not be penalized for not following this forma=
+t.=C2=A0</span></p><br><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:=
+0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open=
+ Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transparent;font-w=
+eight:700;font-variant-numeric:normal;font-variant-east-asian:normal;vertic=
+al-align:baseline;white-space:pre-wrap">Submission Guidelines</span></p><p =
+dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><sp=
+an style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;col=
+or:rgb(0,0,0);background-color:transparent;font-variant-numeric:normal;font=
+-variant-east-asian:normal;vertical-align:baseline;white-space:pre-wrap">Au=
+thors are invited to submit technical papers of at most 11 pages in PDF for=
+mat, excluding references. Accepted papers will have the flexibility to use=
+ an additional page in the camera-ready to incorporate feedback from the re=
+viewers. Papers should be formatted in the ACM Proceedings Style and submit=
+ted via the conference submission website. Submitted papers must be origina=
+l work that has not appeared in and is not under consideration for another =
+conference or a journal.</span></p><br><p dir=3D"ltr" style=3D"line-height:=
+1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-f=
+amily:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:tr=
+ansparent;font-variant-numeric:normal;font-variant-east-asian:normal;vertic=
+al-align:baseline;white-space:pre-wrap">Reviewing for HPDC 2022 will be dou=
+ble-blind.</span></p><br><p dir=3D"ltr" style=3D"line-height:1.38;margin-to=
+p:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Op=
+en Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transparent;font=
+-weight:700;font-variant-numeric:normal;font-variant-east-asian:normal;vert=
+ical-align:baseline;white-space:pre-wrap">Anonymizing Submissions</span></p=
+><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"=
+><span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif=
+;color:rgb(0,0,0);background-color:transparent;font-variant-numeric:normal;=
+font-variant-east-asian:normal;vertical-align:baseline;white-space:pre-wrap=
+">HPDC will use double-blind reviewing this year. Please make a good faith =
+attempt to anonymize your submission. Avoid identifying yourself or your in=
+stitution explicitly or by implication (e.g., through the references or ack=
+nowledgments). The first page should use the paper ID assigned during regis=
+tration in place of the author names.</span></p><br><p dir=3D"ltr" style=3D=
+"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-siz=
+e:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);backgr=
+ound-color:transparent;font-variant-numeric:normal;font-variant-east-asian:=
+normal;vertical-align:baseline;white-space:pre-wrap">Use care in referring =
+to your own related work. Do not omit references to your prior work, as thi=
+s would make it difficult for reviewers to place your submission in its pro=
+per context. Instead, reference your past work in the third person, just as=
+ you would any other piece of related work. In some cases, it is not credib=
+le to refer to your related work in the third person. For example, your sub=
+mission may extend a previous workshop paper, or it may relate to a submiss=
+ion currently under review at HPDC or another venue. In these cases, you mu=
+st still explain the differences between your HPDC submission and the other=
+ work, but you should cite the other work anonymously and e-mail the deanon=
+ymized work to the PC chairs.</span></p><br><p dir=3D"ltr" style=3D"line-he=
+ight:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;f=
+ont-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-col=
+or:transparent;font-variant-numeric:normal;font-variant-east-asian:normal;v=
+ertical-align:baseline;white-space:pre-wrap">If your submission reports on =
+experiences with a system at your institution, you should refer to the syst=
+em anonymously but describe the properties of the system that are needed to=
+ evaluate the work (e.g., size of the user base, volume of requests, etc.).=
+ We recognize that, in some cases, these properties may allow a reviewer to=
+ identify your institution.=C2=A0=C2=A0</span></p><br><p dir=3D"ltr" style=
+=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-=
+size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);bac=
+kground-color:transparent;font-variant-numeric:normal;font-variant-east-asi=
+an:normal;vertical-align:baseline;white-space:pre-wrap">All tool/data paper=
+s should also adhere to the double-blind submission policy. If the describe=
+d tool/dataset framework is already widely used by the research community, =
+consider describing the framework using a different name and not sharing th=
+e open-source code repository in the paper.</span></p><br><p dir=3D"ltr" st=
+yle=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"fo=
+nt-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);=
+background-color:transparent;font-weight:700;font-variant-numeric:normal;fo=
+nt-variant-east-asian:normal;vertical-align:baseline;white-space:pre-wrap">=
+Optional Supplemental Information about Revisions</span></p><p dir=3D"ltr" =
+style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"=
+font-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0=
+);background-color:transparent;font-variant-numeric:normal;font-variant-eas=
+t-asian:normal;vertical-align:baseline;white-space:pre-wrap">Authors can up=
+load a document listing the improvements made in response to the reviews re=
+ceived from a previously submitted version. Authors have three options: (1)=
+ not provide this information, (2) provide this information but the visibil=
+ity is set to the PC chairs only, and (3) provide this information and the =
+visibility is set to all the reviewers. The intent is to improve the effici=
+ency of the over-burdened review process and benefit the authors who faithf=
+ully revise the paper to incorporate feedback from previous reviewers. Addi=
+tional implementation details related to this policy are available on the s=
+ubmission website.</span></p><br><p dir=3D"ltr" style=3D"line-height:1.38;m=
+argin-top:0pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-family:=
+&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transpar=
+ent;font-weight:700;font-variant-numeric:normal;font-variant-east-asian:nor=
+mal;vertical-align:baseline;white-space:pre-wrap">Confidential Information<=
+/span></p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bo=
+ttom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,s=
+ans-serif;color:rgb(0,0,0);background-color:transparent;font-variant-numeri=
+c:normal;font-variant-east-asian:normal;vertical-align:baseline;white-space=
+:pre-wrap">Papers containing information that is subject to a non-disclosur=
+e agreement (NDA) will not be considered for review.</span></p><br><p dir=
+=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span =
+style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:=
+rgb(0,0,0);background-color:transparent;font-weight:700;font-variant-numeri=
+c:normal;font-variant-east-asian:normal;vertical-align:baseline;white-space=
+:pre-wrap">arXiv Submission Policy=C2=A0</span></p><p dir=3D"ltr" style=3D"=
+line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=3D"font-size=
+:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0,0,0);backgro=
+und-color:transparent;font-variant-numeric:normal;font-variant-east-asian:n=
+ormal;vertical-align:baseline;white-space:pre-wrap">Please note that having=
+ an arXiv paper does not prohibit authors from submitting a paper to HPDC 2=
+022. arXiv papers are not peer-reviewed and not considered as formal public=
+ations, hence do not count as prior work. Authors are not expected to compa=
+re against arXiv papers that have not formally appeared in previous confere=
+nce or journal proceedings. If a submitted paper is already on arXiv, pleas=
+e continue to follow the double-blind submission guidelines. Authors are en=
+couraged to use preventive measures to reduce the chances of accidental bre=
+ach of anonymity (e.g., use a different title in the submission, not upload=
+/revise the arXiv version during the review period after the submission dea=
+dline).</span></p><br><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0=
+pt;margin-bottom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open =
+Sans&quot;,sans-serif;color:rgb(0,0,0);background-color:transparent;font-we=
+ight:700;font-variant-numeric:normal;font-variant-east-asian:normal;vertica=
+l-align:baseline;white-space:pre-wrap">Author list after acceptance=C2=A0</=
+span></p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bot=
+tom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sa=
+ns-serif;color:rgb(0,0,0);background-color:transparent;font-variant-numeric=
+:normal;font-variant-east-asian:normal;vertical-align:baseline;white-space:=
+pre-wrap">Please note that the author list cannot be changed after acceptan=
+ce.</span></p><br><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;m=
+argin-bottom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans=
+&quot;,sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight=
+:700;font-variant-numeric:normal;font-variant-east-asian:normal;vertical-al=
+ign:baseline;white-space:pre-wrap">Conflict of Interest Declaration=C2=A0</=
+span></p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bot=
+tom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sa=
+ns-serif;color:rgb(0,0,0);background-color:transparent;font-variant-numeric=
+:normal;font-variant-east-asian:normal;vertical-align:baseline;white-space:=
+pre-wrap">At the time of submission, all authors must indicate their confli=
+ct of interest with the PC members. A conflict of interest may be instituti=
+onal, collaborative, or personal. Please see detailed guidelines about how =
+to accurately declare a conflict of interest on the submission website.</sp=
+an></p><br><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-b=
+ottom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,=
+sans-serif;color:rgb(0,0,0);background-color:transparent;font-weight:700;fo=
+nt-variant-numeric:normal;font-variant-east-asian:normal;vertical-align:bas=
+eline;white-space:pre-wrap">Ethical Guidelines=C2=A0</span></p><p dir=3D"lt=
+r" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0pt"><span style=
+=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-serif;color:rgb(0=
+,0,0);background-color:transparent;font-variant-numeric:normal;font-variant=
+-east-asian:normal;vertical-align:baseline;white-space:pre-wrap">If your re=
+search describes a new security-related attack, please consider adding info=
+rmation about the responsible disclosure. Overall, as appropriate and relev=
+ant, the paper should follow the ethical principles and not alter the secur=
+ity/privacy/equality expectations of the associated human users.</span></p>=
+<br><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bottom:0=
+pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,sans-se=
+rif;color:rgb(0,0,0);background-color:transparent;font-weight:700;font-vari=
+ant-numeric:normal;font-variant-east-asian:normal;vertical-align:baseline;w=
+hite-space:pre-wrap">Inclusive Description of Research Contributions=C2=A0<=
+/span></p><p dir=3D"ltr" style=3D"line-height:1.38;margin-top:0pt;margin-bo=
+ttom:0pt"><span style=3D"font-size:11pt;font-family:&quot;Open Sans&quot;,s=
+ans-serif;color:rgb(0,0,0);background-color:transparent;font-variant-numeri=
+c:normal;font-variant-east-asian:normal;vertical-align:baseline;white-space=
+:pre-wrap">Please consider making your research contribution description in=
+clusive in nature. For example, consider using gender-neutral pronouns, con=
+sider using examples that are ethnicity/culture-rich, consider engaging use=
+rs from diverse backgrounds if your research involves a survey, etc. Best e=
+fforts should be made to make the paper accessible to visually impaired or =
+color-blind readers.</span></p></div>
+
+--000000000000401f6e05d03d84ef--
+
+
+--===============1890128671122847113==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -461,4 +790,6 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4743991583565679430==--
+--===============1890128671122847113==--
+
+
