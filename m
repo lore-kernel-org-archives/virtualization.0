@@ -2,98 +2,104 @@ Return-Path: <SRS0=GFjK=P3=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A2D8C433F5
-	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 04:15:51 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74FDDC433F5
+	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 05:55:55 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 974BB610E9
-	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 04:15:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 974BB610E9
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 18BB2610A5
+	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 05:55:55 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 18BB2610A5
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 4F7EB6077D;
-	Mon,  8 Nov 2021 04:15:50 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id CA93D40231;
+	Mon,  8 Nov 2021 05:55:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mpzkJ1NzImvr; Mon,  8 Nov 2021 04:15:49 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 0F3BA605CC;
-	Mon,  8 Nov 2021 04:15:49 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D285FC0012;
-	Mon,  8 Nov 2021 04:15:48 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8E83BC000E
- for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 04:15:47 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 65CB540226
- for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 04:15:47 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XqvRtzIh2xhp
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qfSb2xVwQ8ZE; Mon,  8 Nov 2021 05:55:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 5BE464022D;
+	Mon,  8 Nov 2021 05:55:50 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3DF1EC0012;
+	Mon,  8 Nov 2021 05:55:50 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E98B1C000E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 04:15:45 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com
- [IPv6:2607:f8b0:4864:20::533])
- by smtp4.osuosl.org (Postfix) with ESMTPS id D9A6040224
+ Mon,  8 Nov 2021 05:55:48 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id BAB1280DE6
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 04:15:45 +0000 (UTC)
-Received: by mail-pg1-x533.google.com with SMTP id r28so14033201pga.0
+ Mon,  8 Nov 2021 05:55:48 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id kpBzySudpj9W
  for <virtualization@lists.linux-foundation.org>;
- Sun, 07 Nov 2021 20:15:45 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=Ow3kGxYLNyC9HLIHc8ZxwibYPx3dM7u/6WgOPxoycOY=;
- b=hHMIXEwywC4KIIcQTyM84LrwKvo0ZqVFVCZyZ3zsYzUh8HbqDoMcVOpiienrfq12D8
- xi0CV1k9a4sv5Q5WEj3X8+uC2l0CdHdSipai3N4MZ04/hGZKDyuIXNzCIciAOnJH17GP
- wWUqQrLxozORex1MMIfW4QO9UL4Wj2vRuSWb7jQ1OkcOwMC2YKZFg6deH2OALV1Jcmvv
- NktFVMtu6Ag4ALAeGCqLhZgl+b8yytLE8FfIfaKYbN7ham6klAxxbVDVF8Jic+75yHbM
- c4A92SQLr6n749h08SAh91JLDGPwTi8gIf7rpf65FwTM1tUK6nxS4tRP+LYsE09ZGIT+
- 1LOQ==
+ Mon,  8 Nov 2021 05:55:46 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 9686B80DE4
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  8 Nov 2021 05:55:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1636350944;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=fzvPwnGXA3h5EZi2ibTfew9w6/2FA8/r0v3M/EP4Gh0=;
+ b=U6Ok4z9IvHNPloMn7VLrQt80RiVskQpUTD0gl7dA+6GA8Zdp182ozYkz3PcJWHDm++s3xV
+ 8pOMGhz+0XlVQtx1KuPrF/cTp9AgVYQjJCihTgHQ8nlBOYsAyqwmXNmJN8mbKPlfPmpGNG
+ qcwxbvMMo8RhPDG3zgz8HDbrUh8maIo=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-82-bVsaiUHxNu-lLIVlG-8JUQ-1; Mon, 08 Nov 2021 00:55:42 -0500
+X-MC-Unique: bVsaiUHxNu-lLIVlG-8JUQ-1
+Received: by mail-lj1-f197.google.com with SMTP id
+ d20-20020a05651c111400b00218c6372b7eso1051097ljo.16
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 07 Nov 2021 21:55:42 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=Ow3kGxYLNyC9HLIHc8ZxwibYPx3dM7u/6WgOPxoycOY=;
- b=4MWJ9VCZmfW7VSsndWQCiu6l/k0AwYjUStCt7rFlYBVslaBBBk9kXDJ2cINYI96uyP
- 6WYgYeZDeFBNaWtDy0tzwfN/ytdDIXXV1C1wmPPLA2NKds8rZjmBOnidp2elmCzm+KV4
- MuP/TWjmf8ln/w0SynS9pcZYgnhq8spYUTAylLk0XRWZkO9IsyNpEj28EsCETvqichVt
- aCj6Mx3jBMuVMKCUeuQql49dKgMU5oLPj33qbfISxneK2Th9OmTwSfYrGMI+9mDvGa9i
- 5XyHC9w+LJkIeJQsnftFHky9u9Nc2aX5if1Rh+9cnB4lroTdJb9uIJewfC7jmeX+2DtK
- OyvQ==
-X-Gm-Message-State: AOAM530+lxLe1GhaV/M98AB+xpG4QrUPTrskk/xHvUFvlhACWgJGeEgM
- BepVKqsbYsaeRzdzK6HB1PvMaQ==
-X-Google-Smtp-Source: ABdhPJw03Vh40n48feQuJ7VhZZRb8hZlAw4Q421T71CKIYSr2dlumNMItyAlVZWpDNqfvuu93XJpTQ==
-X-Received: by 2002:aa7:80c5:0:b0:480:4fc5:a531 with SMTP id
- a5-20020aa780c5000000b004804fc5a531mr64855837pfn.52.1636344945089; 
- Sun, 07 Nov 2021 20:15:45 -0800 (PST)
-Received: from localhost ([223.226.77.81])
- by smtp.gmail.com with ESMTPSA id e14sm4521443pfv.18.2021.11.07.20.15.43
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Sun, 07 Nov 2021 20:15:44 -0800 (PST)
-Date: Mon, 8 Nov 2021 09:45:42 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Yang Li <yang.lee@linux.alibaba.com>
-Subject: Re: [PATCH -next] gpio: virtio: remove unneeded semicolon
-Message-ID: <20211108041542.vhznujep4qgm7hv3@vireshk-i7>
-References: <1636344232-56537-1-git-send-email-yang.lee@linux.alibaba.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=fzvPwnGXA3h5EZi2ibTfew9w6/2FA8/r0v3M/EP4Gh0=;
+ b=KU2qi5Fwjp9PM0amV7fk7bNF0Hr0RQPOTiHk+1fmMJWK8pVqbmGrVD8+UIKlxQq5bs
+ wsIzByaKxc798U9rFa0Cw9/+phtbeN3Zlz7biPHd1/L0G9THh7VFWsBwIiA0pnxotN8a
+ Fjj//wGdhoMQqREDqqn0I1q0OhwYlVQgpSdVq0I17w6aSN8zVb4gyALQitK0W646ZuIC
+ WRs46I7pn0AUZbTlhzWiFgATltoUmkaa5y5pLpEm3BbT48a+ySl9D/8NL9irWwxFFKNt
+ War9AY770pHBeuOSNCmnxt0siEx/Pn9HeFVEJqYcnspVgVpvTa0iMaf1Bj1Y9GWIEhrO
+ jdMw==
+X-Gm-Message-State: AOAM530fNu4scJ3Vb+/Qdwx+qTqAwrMVOeIs3I54e3LFhclM967/KxZd
+ kmo8rpGKpnj4MLhqdBWNZSQ1ArGgyRXpa7TD1UdLQeKX2I8lZezUANuUivddg/cbJlsIxrcFdRh
+ XGXSwq2LHmgWh289BXYigALSGe7MciFmLMdMQXo4xMif7dRCRqqFZt96KFQ==
+X-Received: by 2002:a2e:3012:: with SMTP id w18mr6836792ljw.217.1636350941043; 
+ Sun, 07 Nov 2021 21:55:41 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy3lSpSSMCv7dMxS5lq0/3OAj+jWYK7U1ch54eUhXxUZl6MgULvuouLWNTS6gkZZ90PPE2R4k32ct3AcZUdXTU=
+X-Received: by 2002:a2e:3012:: with SMTP id w18mr6836770ljw.217.1636350940870; 
+ Sun, 07 Nov 2021 21:55:40 -0800 (PST)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <1636344232-56537-1-git-send-email-yang.lee@linux.alibaba.com>
-User-Agent: NeoMutt/20180716-391-311a52
-Cc: vireshk@kernel.org, linus.walleij@linaro.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-gpio@vger.kernel.org,
- info@metux.net, brgl@bgdev.pl
+References: <f6b2d087ca3840604b4e711a208d35b5d6285cb4.1636301587.git.christophe.jaillet@wanadoo.fr>
+In-Reply-To: <f6b2d087ca3840604b4e711a208d35b5d6285cb4.1636301587.git.christophe.jaillet@wanadoo.fr>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 8 Nov 2021 13:55:30 +0800
+Message-ID: <CACGkMEvN0cgFQhJmLF3xDXHt_EyZ-TnfBM8CnpNwA9sKcwpzBg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] eni_vdpa: Fix an error handling path in
+ 'eni_vdpa_probe()'
+To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Arnd Bergmann <arnd@arndb.de>, mst <mst@redhat.com>,
+ kernel-janitors@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Wu Zongyong <wuzongyong@linux.alibaba.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,34 +116,58 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 08-11-21, 12:03, Yang Li wrote:
-> Eliminate the following coccicheck warning:
-> ./drivers/gpio/gpio-virtio.c:437:2-3: Unneeded semicolon
-> 
-> Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-> Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
+On Mon, Nov 8, 2021 at 12:15 AM Christophe JAILLET
+<christophe.jaillet@wanadoo.fr> wrote:
+>
+> In the error handling path, a successful 'vp_legacy_probe()' should be
+> balanced by a corresponding 'vp_legacy_remove()' call, as already done in
+> the remove function.
+>
+> Add the missing call and update gotos accordingly.
+>
+> Fixes: e85087beedca ("eni_vdpa: add vDPA driver for Alibaba ENI")
+> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 > ---
->  drivers/gpio/gpio-virtio.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpio/gpio-virtio.c b/drivers/gpio/gpio-virtio.c
-> index aeec4bf..84f96b7 100644
-> --- a/drivers/gpio/gpio-virtio.c
-> +++ b/drivers/gpio/gpio-virtio.c
-> @@ -434,7 +434,7 @@ static void virtio_gpio_event_vq(struct virtqueue *vq)
->  		ret = generic_handle_domain_irq(vgpio->gc.irq.domain, gpio);
->  		if (ret)
->  			dev_err(dev, "failed to handle interrupt: %d\n", ret);
-> -	};
-> +	}
->  }
->  
->  static void virtio_gpio_request_vq(struct virtqueue *vq)
+>  drivers/vdpa/alibaba/eni_vdpa.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/vdpa/alibaba/eni_vdpa.c b/drivers/vdpa/alibaba/eni_vdpa.c
+> index 3f788794571a..12b3db6b4517 100644
+> --- a/drivers/vdpa/alibaba/eni_vdpa.c
+> +++ b/drivers/vdpa/alibaba/eni_vdpa.c
+> @@ -501,7 +501,7 @@ static int eni_vdpa_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+>         if (!eni_vdpa->vring) {
+>                 ret = -ENOMEM;
+>                 ENI_ERR(pdev, "failed to allocate virtqueues\n");
+> -               goto err;
+> +               goto err_remove_vp_legacy;
+>         }
+>
+>         for (i = 0; i < eni_vdpa->queues; i++) {
+> @@ -513,11 +513,13 @@ static int eni_vdpa_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+>         ret = vdpa_register_device(&eni_vdpa->vdpa, eni_vdpa->queues);
+>         if (ret) {
+>                 ENI_ERR(pdev, "failed to register to vdpa bus\n");
+> -               goto err;
+> +               goto err_remove_vp_legacy;
+>         }
+>
+>         return 0;
+>
+> +err_remove_vp_legacy:
+> +       vp_legacy_remove(&eni_vdpa->ldev);
 
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Won't vp_legacy_remove() be triggered by the put_devic() below?
 
--- 
-viresh
+Thanks
+
+>  err:
+>         put_device(&eni_vdpa->vdpa.dev);
+>         return ret;
+> --
+> 2.30.2
+>
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
