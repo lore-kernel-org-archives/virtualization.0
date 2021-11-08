@@ -2,51 +2,51 @@ Return-Path: <SRS0=GFjK=P3=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E41BAC433F5
-	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 20:55:57 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AB82C433F5
+	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 21:02:07 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8EBA8619E0
-	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 20:55:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 8EBA8619E0
+	by mail.kernel.org (Postfix) with ESMTPS id 28706619E2
+	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 21:02:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 28706619E2
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=tronnes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 576DF80E4F;
-	Mon,  8 Nov 2021 20:55:57 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id AED1840202;
+	Mon,  8 Nov 2021 21:02:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pNIOyMSN3Ljg; Mon,  8 Nov 2021 20:55:56 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id weuzixjCX60c; Mon,  8 Nov 2021 21:02:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id E3DBF80E04;
-	Mon,  8 Nov 2021 20:55:55 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id BB217400C8;
+	Mon,  8 Nov 2021 21:02:04 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BC751C0019;
-	Mon,  8 Nov 2021 20:55:55 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EB9EAC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 915A0C0019;
+	Mon,  8 Nov 2021 21:02:04 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0F461C000E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 20:55:54 +0000 (UTC)
+ Mon,  8 Nov 2021 21:02:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id D94A4402BA
+ by smtp1.osuosl.org (Postfix) with ESMTP id DD20880E65
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 20:55:54 +0000 (UTC)
+ Mon,  8 Nov 2021 21:02:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=tronnes.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id oM5aKr2YulvV
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id uRI0ueSyA2pu
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 20:55:54 +0000 (UTC)
+ Mon,  8 Nov 2021 21:02:02 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from smtp.domeneshop.no (smtp.domeneshop.no
  [IPv6:2a01:5b40:0:3005::1])
- by smtp4.osuosl.org (Postfix) with ESMTPS id D7A6D402AD
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 2527A80E64
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 20:55:53 +0000 (UTC)
+ Mon,  8 Nov 2021 21:02:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=tronnes.org
  ; s=ds202012;
  h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
@@ -54,18 +54,18 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=tronnes.org
  Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
  Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
  List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=Y8rIO5kDLiYYNdoUIRDD+j4k4YWMUxX5tNev7MxjleU=; b=M2m9a6idT9lFytz/OtUyN7hIR9
- eDR9I31bIP0xo3DWKBKsnb6ruY7QFjLF4GTmbtDY5NXOESXAFkzM6bNKrYHZ4TVeQUAGFHP2C5kTW
- MJopUwxQ9Nc7tkahv3gmBjPdPTPoVZbUuP87fIHX8kemrSCA7KlYSYHabsRFmzzm7YQ/0fILVEvRF
- kUroV1JSeK+G0uOrlTGgSU3ixcRi2k85mzIFQhqZufr+PLw46x3WYNZOJRKRrZ7B1E7Tjuk5AC5pD
- Ub733xEn5/juaebnLnS5DSzdRKQFhgi6NgeZRCWMCHgjz2z4F5X+004ATYySpFOrKczmu16cox9yN
- kBmkJeRg==;
-Received: from 211.81-166-168.customer.lyse.net ([81.166.168.211]:54997
+ bh=OKeFXAV+WjakbyqOjhDvQAu/6xFF+rgo1c/NR+k78Gg=; b=NzEzShv6UZFAhtlssu6JOCX/Gz
+ qjYHpRQhawCDC2N1+AnyOcTbK15uBJl1Uiqh5qN+fxcsRaoLmO2q7gbeyj+VHiZIA9kAH5c+su/S2
+ MmrExq3NRtRJ0faBBvD1XIp7gL736+Q8MCt5PcuG+89aU8C3H2fDxaW0F55nuIouz90DBgSEIVg9/
+ FGqs3TY9RcLLAFKPb2yE+YxKPWbt+xFVB4k7228jnz/0rj82Qb6oqhMgsFIl1w5Bdw7Ht55DisrNQ
+ gi3G1Gw5CwCX9p63JYzfTgZKgz4vptVnFsrqftDeVRbKbxrzP7htzM4lWzJcmJs33nehFiW+XdYHh
+ KW/V+cVQ==;
+Received: from 211.81-166-168.customer.lyse.net ([81.166.168.211]:55154
  helo=[192.168.10.61])
  by smtp.domeneshop.no with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
  (Exim 4.92) (envelope-from <noralf@tronnes.org>)
- id 1mkBgF-0000Kl-B8; Mon, 08 Nov 2021 21:55:51 +0100
-Subject: Re: [PATCH v2 7/9] drm/simpledrm: Enable FB_DAMAGE_CLIPS property
+ id 1mkBmB-0002wM-HN; Mon, 08 Nov 2021 22:01:59 +0100
+Subject: Re: [PATCH v2 8/9] drm/simpledrm: Support virtual screen sizes
 To: Thomas Zimmermann <tzimmermann@suse.de>, daniel@ffwll.ch,
  airlied@linux.ie, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
  drawat.floss@gmail.com, airlied@redhat.com, kraxel@redhat.com,
@@ -73,14 +73,14 @@ To: Thomas Zimmermann <tzimmermann@suse.de>, daniel@ffwll.ch,
  kernel@amanoeldawod.com, dirty.ice.hu@gmail.com, michael+lkml@stapelberg.ch,
  aros@gmx.com, joshua@stroblindustries.com, arnd@arndb.de
 References: <20211101141532.26655-1-tzimmermann@suse.de>
- <20211101141532.26655-8-tzimmermann@suse.de>
+ <20211101141532.26655-9-tzimmermann@suse.de>
 From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
-Message-ID: <974e10bb-ae58-d1c1-a89e-881b39da4930@tronnes.org>
-Date: Mon, 8 Nov 2021 21:55:46 +0100
+Message-ID: <597cc1b8-30c1-bdf0-68ad-3ad0fd53fb5f@tronnes.org>
+Date: Mon, 8 Nov 2021 22:01:56 +0100
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
  Thunderbird/78.14.0
 MIME-Version: 1.0
-In-Reply-To: <20211101141532.26655-8-tzimmermann@suse.de>
+In-Reply-To: <20211101141532.26655-9-tzimmermann@suse.de>
 Cc: linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org,
  virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -102,100 +102,97 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
 Den 01.11.2021 15.15, skrev Thomas Zimmermann:
-> Enable the FB_DAMAGE_CLIPS property to reduce display-update
-> overhead. Also fixes a warning in the kernel log.
+> Add constants for the maximum size of the shadow-plane surface
+> size. Useful for shadow planes with virtual screen sizes. The
+> current sizes are 4096 scanlines with 4096 pixels each. This
+> seems reasonable for current hardware, but can be increased as
+> necessary.
 > 
->   simple-framebuffer simple-framebuffer.0: [drm] drm_plane_enable_fb_damage_clips() not called
-> 
-> Fix the computation of the blit rectangle. This wasn't an issue so
-> far, as simpledrm always blitted the full framebuffer. The code now
-> supports damage clipping and virtual screen sizes.
+> In simpledrm, set the maximum framebuffer size from the constants
+> for shadow planes. Implements support for virtual screen sizes and
+> page flipping on the fbdev console.
 > 
 > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 > ---
->  drivers/gpu/drm/tiny/simpledrm.c | 30 ++++++++++++++++++++++--------
->  1 file changed, 22 insertions(+), 8 deletions(-)
+>  drivers/gpu/drm/tiny/simpledrm.c    |  9 +++++++--
+>  include/drm/drm_gem_atomic_helper.h | 18 ++++++++++++++++++
+>  2 files changed, 25 insertions(+), 2 deletions(-)
 > 
 > diff --git a/drivers/gpu/drm/tiny/simpledrm.c b/drivers/gpu/drm/tiny/simpledrm.c
-> index 571f716ff427..e872121e9fb0 100644
+> index e872121e9fb0..e42ae1c6ebcd 100644
 > --- a/drivers/gpu/drm/tiny/simpledrm.c
 > +++ b/drivers/gpu/drm/tiny/simpledrm.c
-> @@ -642,7 +642,7 @@ simpledrm_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
->  	void *vmap = shadow_plane_state->data[0].vaddr; /* TODO: Use mapping abstraction */
->  	struct drm_device *dev = &sdev->dev;
->  	void __iomem *dst = sdev->screen_base;
-> -	struct drm_rect clip;
-> +	struct drm_rect src_clip, dst_clip;
->  	int idx;
+> @@ -2,6 +2,7 @@
 >  
->  	if (!fb)
-> @@ -651,10 +651,14 @@ simpledrm_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
->  	if (!drm_dev_enter(dev, &idx))
->  		return;
->  
-> -	drm_rect_init(&clip, 0, 0, fb->width, fb->height);
-> +	drm_rect_fp_to_int(&src_clip, &plane_state->src);
->  
-> -	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &clip);
-> -	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &clip);
-> +	dst_clip = plane_state->dst;
-
-I assume that src_clip and dst_clip are of the same size, since scaling
-is not supported. What prevents dst_clip from being bigger than the
-buffer that's being blitted into? Where is that bounds checking done?
-
-Noralf.
-
-> +	if (!drm_rect_intersect(&dst_clip, &src_clip))
-> +		return;
-> +
-> +	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &dst_clip);
-> +	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &src_clip);
->  
->  	drm_dev_exit(idx);
->  }
-> @@ -686,20 +690,28 @@ simpledrm_simple_display_pipe_update(struct drm_simple_display_pipe *pipe,
->  	struct drm_framebuffer *fb = plane_state->fb;
->  	struct drm_device *dev = &sdev->dev;
->  	void __iomem *dst = sdev->screen_base;
-> -	struct drm_rect clip;
-> +	struct drm_rect damage_clip, src_clip, dst_clip;
->  	int idx;
->  
->  	if (!fb)
->  		return;
->  
-> -	if (!drm_atomic_helper_damage_merged(old_plane_state, plane_state, &clip))
-> +	if (!drm_atomic_helper_damage_merged(old_plane_state, plane_state, &damage_clip))
-> +		return;
-> +
-> +	drm_rect_fp_to_int(&src_clip, &plane_state->src);
-> +	if (!drm_rect_intersect(&src_clip, &damage_clip))
-> +		return;
-> +
-> +	dst_clip = plane_state->dst;
-> +	if (!drm_rect_intersect(&dst_clip, &src_clip))
->  		return;
->  
->  	if (!drm_dev_enter(dev, &idx))
->  		return;
->  
-> -	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &clip);
-> -	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &clip);
-> +	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &dst_clip);
-> +	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &src_clip);
->  
->  	drm_dev_exit(idx);
->  }
-> @@ -794,6 +806,8 @@ static int simpledrm_device_init_modeset(struct simpledrm_device *sdev)
+>  #include <linux/clk.h>
+>  #include <linux/of_clk.h>
+> +#include <linux/minmax.h>
+>  #include <linux/platform_data/simplefb.h>
+>  #include <linux/platform_device.h>
+>  #include <linux/regulator/consumer.h>
+> @@ -776,6 +777,7 @@ static int simpledrm_device_init_modeset(struct simpledrm_device *sdev)
+>  	struct drm_display_mode *mode = &sdev->mode;
+>  	struct drm_connector *connector = &sdev->connector;
+>  	struct drm_simple_display_pipe *pipe = &sdev->pipe;
+> +	unsigned long max_width, max_height;
+>  	const uint32_t *formats;
+>  	size_t nformats;
+>  	int ret;
+> @@ -784,10 +786,13 @@ static int simpledrm_device_init_modeset(struct simpledrm_device *sdev)
 >  	if (ret)
 >  		return ret;
 >  
-> +	drm_plane_enable_fb_damage_clips(&pipe->plane);
+> +	max_width = max_t(unsigned long, mode->hdisplay, DRM_SHADOW_PLANE_MAX_WIDTH);
+> +	max_height = max_t(unsigned long, mode->vdisplay, DRM_SHADOW_PLANE_MAX_HEIGHT);
 > +
->  	drm_mode_config_reset(dev);
+>  	dev->mode_config.min_width = mode->hdisplay;
+> -	dev->mode_config.max_width = mode->hdisplay;
+> +	dev->mode_config.max_width = max_width;
+>  	dev->mode_config.min_height = mode->vdisplay;
+> -	dev->mode_config.max_height = mode->vdisplay;
+> +	dev->mode_config.max_height = max_height;
+>  	dev->mode_config.prefer_shadow_fbdev = true;
+>  	dev->mode_config.preferred_depth = sdev->format->cpp[0] * 8;
+>  	dev->mode_config.funcs = &simpledrm_mode_config_funcs;
+> diff --git a/include/drm/drm_gem_atomic_helper.h b/include/drm/drm_gem_atomic_helper.h
+> index 48222a107873..54983ecf641a 100644
+> --- a/include/drm/drm_gem_atomic_helper.h
+> +++ b/include/drm/drm_gem_atomic_helper.h
+> @@ -22,6 +22,24 @@ int drm_gem_simple_display_pipe_prepare_fb(struct drm_simple_display_pipe *pipe,
+>   * Helpers for planes with shadow buffers
+>   */
 >  
->  	return 0;
+> +/**
+> + * DRM_SHADOW_PLANE_MAX_WIDTH - Maximum width of a plane's shadow buffer in pixels
+> + *
+> + * For drivers with shadow planes, the maximum width of the framebuffer is
+> + * usually independent from hardware limitations. Drivers can initialize struct
+> + * drm_mode_config.max_width from DRM_SHADOW_PLANE_MAX_WIDTH.
+
+Why would a driver do that instead of using a value of its own? Is it
+some kind of standardization?
+
+> + */
+> +#define DRM_SHADOW_PLANE_MAX_WIDTH	(1ul << 12)
+
+Please use a decimal number, I'm so slow at doing this in my head that I
+use bash to calculate it for me, which really slows down parsing the code.
+
+Noralf.
+
+> +
+> +/**
+> + * DRM_SHADOW_PLANE_MAX_HEIGHT - Maximum height of a plane's shadow buffer in scanlines
+> + *
+> + * For drivers with shadow planes, the maximum height of the framebuffer is
+> + * usually independent from hardware limitations. Drivers can initialize struct
+> + * drm_mode_config.max_height from DRM_SHADOW_PLANE_MAX_HEIGHT.
+> + */
+> +#define DRM_SHADOW_PLANE_MAX_HEIGHT	(1ul << 12)
+> +
+>  /**
+>   * struct drm_shadow_plane_state - plane state for planes with shadow buffers
+>   *
 > 
 _______________________________________________
 Virtualization mailing list
