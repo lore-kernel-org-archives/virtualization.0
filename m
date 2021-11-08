@@ -2,89 +2,85 @@ Return-Path: <SRS0=GFjK=P3=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B849EC433F5
-	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 18:14:28 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7020C4332F
+	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 18:57:25 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 635D8613B3
-	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 18:14:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 635D8613B3
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=alien8.de
+	by mail.kernel.org (Postfix) with ESMTPS id 700AE610A5
+	for <virtualization@archiver.kernel.org>; Mon,  8 Nov 2021 18:57:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 700AE610A5
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=tronnes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id C9F1E401B8;
-	Mon,  8 Nov 2021 18:14:27 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 40E6880E25;
+	Mon,  8 Nov 2021 18:57:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id CCsazanMNDUm; Mon,  8 Nov 2021 18:14:26 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id NK2Py8NPI7mV; Mon,  8 Nov 2021 18:57:24 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 4ECB640003;
-	Mon,  8 Nov 2021 18:14:26 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id EB00280E1E;
+	Mon,  8 Nov 2021 18:57:23 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 240A5C0019;
-	Mon,  8 Nov 2021 18:14:26 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 84659C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BBA4AC0019;
+	Mon,  8 Nov 2021 18:57:23 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 46715C000E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 18:14:25 +0000 (UTC)
+ Mon,  8 Nov 2021 18:57:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 665756061D
+ by smtp1.osuosl.org (Postfix) with ESMTP id 350FE80E24
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 18:14:25 +0000 (UTC)
+ Mon,  8 Nov 2021 18:57:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=alien8.de
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HAhPlkZfsTVU
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id LvvbInjf9uud
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 18:14:22 +0000 (UTC)
+ Mon,  8 Nov 2021 18:57:22 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 79E346060E
+Received: from smtp.domeneshop.no (smtp.domeneshop.no
+ [IPv6:2a01:5b40:0:3005::1])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 16EB380E1E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  8 Nov 2021 18:14:21 +0000 (UTC)
-Received: from zn.tnic (p200300ec2f3311008f2ddbd2a2570897.dip0.t-ipconnect.de
- [IPv6:2003:ec:2f33:1100:8f2d:dbd2:a257:897])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 3AAEC1EC03F0;
- Mon,  8 Nov 2021 19:14:18 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
- t=1636395258;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
- bh=+HGdXgtqs75JzplHr1fw8l9R7E0Ax8B0+CMXZj7tYjw=;
- b=JOTcUpAORtYs0vDLl0qwwB7gRevj19RPVQHhG0QnjV5H/+dFLUvZBr9eW8eD4MBeAbTe8q
- N1UJwyZcsZojb6gTtwokrIVzEF5ZNpa4bsRYBo2kogWFnFZ3eJK+CGqccZzTKdVImeb73m
- cRq530yqjggDJ4iaaeEGU22Nz6iYaRk=
-Date: Mon, 8 Nov 2021 19:14:12 +0100
-From: Borislav Petkov <bp@alien8.de>
-To: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH v2 06/12] x86/sev: Cache AP Jump Table Address
-Message-ID: <YYlo9IhvDNr2FvK4@zn.tnic>
-References: <20210913155603.28383-1-joro@8bytes.org>
- <20210913155603.28383-7-joro@8bytes.org>
+ Mon,  8 Nov 2021 18:57:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=tronnes.org
+ ; s=ds202012;
+ h=Content-Transfer-Encoding:Content-Type:In-Reply-To:
+ MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender:Reply-To:
+ Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+ Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+ List-Subscribe:List-Post:List-Owner:List-Archive;
+ bh=3ZEIejB1KmN7Tvumn+Q8xoy05D91sldAVAMCnu3bH2A=; b=oWnPxKGfEP7c8zwds8Q5X/hmgF
+ 3MaxLCux8b3gq5oGzQBU8QsQVs7f5xVvIV9sm0Xin32uoqFZgnPhPK8cnoD3U3Y8+JEpuD4ufOWNt
+ dATmecMG13tdMtaREfpAW3NZ9lau2LLpe3+1BNKUBloEM6DWem7YYyCbrILbzLTSRZUnDKuX9nhNn
+ 6e2+vSVWeiONZ3jB/G5dKDmmAjxwMOB0dwZ4Jo5hxoHwZsvYr2OP9yUagDiu4Oidg3WzZgF1lAzYp
+ hq5j1WH0wXCX3hGYD4g9grUopc+IdAyIeWicGT8LfZ0WIrfR41qmPMDnY7rhMEQs3wDP6K5a0yojX
+ 2IfiAJMg==;
+Received: from 211.81-166-168.customer.lyse.net ([81.166.168.211]:52048
+ helo=[192.168.10.61])
+ by smtp.domeneshop.no with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+ (Exim 4.92) (envelope-from <noralf@tronnes.org>)
+ id 1mk9pX-0000LX-GN; Mon, 08 Nov 2021 19:57:19 +0100
+Subject: Re: [PATCH v2 7/9] drm/simpledrm: Enable FB_DAMAGE_CLIPS property
+To: Thomas Zimmermann <tzimmermann@suse.de>, daniel@ffwll.ch,
+ airlied@linux.ie, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
+ drawat.floss@gmail.com, airlied@redhat.com, kraxel@redhat.com,
+ david@lechnology.com, sam@ravnborg.org, javierm@redhat.com,
+ kernel@amanoeldawod.com, dirty.ice.hu@gmail.com, michael+lkml@stapelberg.ch,
+ aros@gmx.com, joshua@stroblindustries.com, arnd@arndb.de
+References: <20211101141532.26655-1-tzimmermann@suse.de>
+ <20211101141532.26655-8-tzimmermann@suse.de>
+From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Message-ID: <6cf78eae-796d-f5a2-e93f-624599af4944@tronnes.org>
+Date: Mon, 8 Nov 2021 19:57:14 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20210913155603.28383-7-joro@8bytes.org>
-Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- virtualization@lists.linux-foundation.org,
- Arvind Sankar <nivedita@alum.mit.edu>, hpa@zytor.com,
- Jiri Slaby <jslaby@suse.cz>, x86@kernel.org,
- David Rientjes <rientjes@google.com>, Masami Hiramatsu <mhiramat@kernel.org>,
- Martin Radev <martin.b.radev@gmail.com>,
- Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>,
- Kees Cook <keescook@chromium.org>, Cfir Cohen <cfir@google.com>,
- linux-coco@lists.linux.dev, Andy Lutomirski <luto@kernel.org>,
- Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>,
- Mike Stunes <mstunes@vmware.com>, Sean Christopherson <seanjc@google.com>,
- kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
- Eric Biederman <ebiederm@xmission.com>, Erdem Aktas <erdemaktas@google.com>
+In-Reply-To: <20211101141532.26655-8-tzimmermann@suse.de>
+Cc: linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,40 +97,107 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 13, 2021 at 05:55:57PM +0200, Joerg Roedel wrote:
-> From: Joerg Roedel <jroedel@suse.de>
+
+
+Den 01.11.2021 15.15, skrev Thomas Zimmermann:
+> Enable the FB_DAMAGE_CLIPS property to reduce display-update
+> overhead. Also fixes a warning in the kernel log.
 > 
-> Store the physical address of the AP Jump Table in kernel memory so
-> that it does not need to be fetched from the Hypervisor again.
+>   simple-framebuffer simple-framebuffer.0: [drm] drm_plane_enable_fb_damage_clips() not called
 > 
-> Signed-off-by: Joerg Roedel <jroedel@suse.de>
+> Fix the computation of the blit rectangle. This wasn't an issue so
+> far, as simpledrm always blitted the full framebuffer. The code now
+> supports damage clipping and virtual screen sizes.
+> 
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 > ---
->  arch/x86/kernel/sev.c | 26 ++++++++++++++------------
->  1 file changed, 14 insertions(+), 12 deletions(-)
+>  drivers/gpu/drm/tiny/simpledrm.c | 30 ++++++++++++++++++++++--------
+>  1 file changed, 22 insertions(+), 8 deletions(-)
 > 
-> diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-> index 5d3422e8b25e..eedba56b6bac 100644
-> --- a/arch/x86/kernel/sev.c
-> +++ b/arch/x86/kernel/sev.c
-> @@ -42,6 +42,9 @@ static struct ghcb boot_ghcb_page __bss_decrypted __aligned(PAGE_SIZE);
->   */
->  static struct ghcb __initdata *boot_ghcb;
+> diff --git a/drivers/gpu/drm/tiny/simpledrm.c b/drivers/gpu/drm/tiny/simpledrm.c
+> index 571f716ff427..e872121e9fb0 100644
+> --- a/drivers/gpu/drm/tiny/simpledrm.c
+> +++ b/drivers/gpu/drm/tiny/simpledrm.c
+> @@ -642,7 +642,7 @@ simpledrm_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
+>  	void *vmap = shadow_plane_state->data[0].vaddr; /* TODO: Use mapping abstraction */
+>  	struct drm_device *dev = &sdev->dev;
+>  	void __iomem *dst = sdev->screen_base;
+> -	struct drm_rect clip;
+> +	struct drm_rect src_clip, dst_clip;
+>  	int idx;
 >  
-> +/* Cached AP Jump Table Address */
-> +static phys_addr_t sev_es_jump_table_pa;
+>  	if (!fb)
+> @@ -651,10 +651,14 @@ simpledrm_simple_display_pipe_enable(struct drm_simple_display_pipe *pipe,
+>  	if (!drm_dev_enter(dev, &idx))
+>  		return;
+>  
+> -	drm_rect_init(&clip, 0, 0, fb->width, fb->height);
+> +	drm_rect_fp_to_int(&src_clip, &plane_state->src);
+>  
+> -	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &clip);
+> -	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &clip);
+> +	dst_clip = plane_state->dst;
+> +	if (!drm_rect_intersect(&dst_clip, &src_clip))
+> +		return;
 
-This is static, so "jump_table_pa" should be enough.
+You're inside drm_dev_enter here so can't just return. Move
+drm_dev_enter after this like you do in update().
 
-Also, to the prefixes, everything which is not SEV-ES only, should be
-simply prefixed with "sev_" if externally visible.
+> +
+> +	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &dst_clip);
+> +	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &src_clip);
+>  
+>  	drm_dev_exit(idx);
+>  }
+> @@ -686,20 +690,28 @@ simpledrm_simple_display_pipe_update(struct drm_simple_display_pipe *pipe,
+>  	struct drm_framebuffer *fb = plane_state->fb;
+>  	struct drm_device *dev = &sdev->dev;
+>  	void __iomem *dst = sdev->screen_base;
+> -	struct drm_rect clip;
+> +	struct drm_rect damage_clip, src_clip, dst_clip;
+>  	int idx;
+>  
+>  	if (!fb)
+>  		return;
+>  
+> -	if (!drm_atomic_helper_damage_merged(old_plane_state, plane_state, &clip))
+> +	if (!drm_atomic_helper_damage_merged(old_plane_state, plane_state, &damage_clip))
+> +		return;
+> +
 
-Thx.
+The following check, isn't that the same check that has just happened in
+drm_atomic_helper_damage_iter_next()?
 
--- 
-Regards/Gruss,
-    Boris.
+Noralf.
 
-https://people.kernel.org/tglx/notes-about-netiquette
+> +	drm_rect_fp_to_int(&src_clip, &plane_state->src);
+> +	if (!drm_rect_intersect(&src_clip, &damage_clip))
+> +		return;
+> +
+> +	dst_clip = plane_state->dst;
+> +	if (!drm_rect_intersect(&dst_clip, &src_clip))
+>  		return;
+>  
+>  	if (!drm_dev_enter(dev, &idx))
+>  		return;
+>  
+> -	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &clip);
+> -	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &clip);
+> +	dst += drm_fb_clip_offset(sdev->pitch, sdev->format, &dst_clip);
+> +	drm_fb_blit_toio(dst, sdev->pitch, sdev->format->format, vmap, fb, &src_clip);
+>  
+>  	drm_dev_exit(idx);
+>  }
+> @@ -794,6 +806,8 @@ static int simpledrm_device_init_modeset(struct simpledrm_device *sdev)
+>  	if (ret)
+>  		return ret;
+>  
+> +	drm_plane_enable_fb_damage_clips(&pipe->plane);
+> +
+>  	drm_mode_config_reset(dev);
+>  
+>  	return 0;
+> 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
