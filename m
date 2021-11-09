@@ -2,101 +2,65 @@ Return-Path: <SRS0=KS98=P4=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7A1DC433F5
-	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 14:56:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72D99C433F5
+	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 15:14:49 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 506BA6108D
-	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 14:56:20 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 506BA6108D
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id EBDA5611BD
+	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 15:14:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org EBDA5611BD
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.alibaba.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 0F64740398;
-	Tue,  9 Nov 2021 14:56:20 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id ADC09403B9;
+	Tue,  9 Nov 2021 15:14:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id etI4KJJaCJBa; Tue,  9 Nov 2021 14:56:19 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 7DF3040236;
-	Tue,  9 Nov 2021 14:56:18 +0000 (UTC)
+	with ESMTP id svjT_JE1SvUM; Tue,  9 Nov 2021 15:14:47 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0AC9B402D4;
+	Tue,  9 Nov 2021 15:14:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 60A3AC0012;
-	Tue,  9 Nov 2021 14:56:18 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 79C34C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D2A13C0019;
+	Tue,  9 Nov 2021 15:14:46 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 14EF0C000E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 14:56:17 +0000 (UTC)
+ Tue,  9 Nov 2021 15:14:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 6293740236
+ by smtp2.osuosl.org (Postfix) with ESMTP id 03A2040156
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 14:56:17 +0000 (UTC)
+ Tue,  9 Nov 2021 15:14:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id K-xe23afPjN4
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 0md7zRdJCRzC
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 14:56:16 +0000 (UTC)
+ Tue,  9 Nov 2021 15:14:44 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 095A340391
+Received: from out30-42.freemail.mail.aliyun.com
+ (out30-42.freemail.mail.aliyun.com [115.124.30.42])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 28FEF400E9
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 14:56:15 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id CDDA7218B0;
- Tue,  9 Nov 2021 14:56:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1636469772; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=NZ9Do1G+3tw9PsSxvwSDbSSiPA4iP9V7vXEVrAAFg/U=;
- b=U5JIN7W9wYch9KWV9YEyt3HrwSsvMwiB+KmVDZEjfiTWS4aZqjCj66syhEBl2EpGZkRdMf
- F/wT4iiOMvFsYD5Fa3HxPNkpXHwFOSB4rAyscXP4abD9ettuxyKppjYnhAaio4dJ9s9A0E
- DCkiHfnkSQ2M+BtyODYMw9dwS3MQeIY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1636469772;
- h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=NZ9Do1G+3tw9PsSxvwSDbSSiPA4iP9V7vXEVrAAFg/U=;
- b=4+5SykHmlHjJumeqIV+TIIm7XoiMpgCTvcApDKKlq+Dx1U1y9u+zEn57uRmzcq7w+k4K2C
- qbcPyONxNvJY2BBA==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 6AFFA13A6A;
- Tue,  9 Nov 2021 14:56:12 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id sVMfGQyMimGQBQAAMHmgww
- (envelope-from <tzimmermann@suse.de>); Tue, 09 Nov 2021 14:56:12 +0000
-Message-ID: <bb71f9a7-9fd0-ac91-749d-b9241290c45d@suse.de>
-Date: Tue, 9 Nov 2021 15:56:11 +0100
+ Tue,  9 Nov 2021 15:14:38 +0000 (UTC)
+X-Alimail-AntiSpam: AC=PASS; BC=-1|-1; BR=01201311R251e4; CH=green; DM=||false|;
+ DS=||; FP=0|-1|-1|-1|0|-1|-1|-1; HT=e01e04426; MF=xuanzhuo@linux.alibaba.com;
+ NM=1; PH=DS; RN=6; SR=0; TI=SMTPD_---0Uvo04sC_1636470858; 
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com
+ fp:SMTPD_---0Uvo04sC_1636470858) by smtp.aliyun-inc.com(127.0.0.1);
+ Tue, 09 Nov 2021 23:14:18 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.1
-Subject: Re: [PATCH v2 7/9] drm/simpledrm: Enable FB_DAMAGE_CLIPS property
-Content-Language: en-US
-To: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>, daniel@ffwll.ch,
- airlied@linux.ie, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
- drawat.floss@gmail.com, airlied@redhat.com, kraxel@redhat.com,
- david@lechnology.com, sam@ravnborg.org, javierm@redhat.com,
- kernel@amanoeldawod.com, dirty.ice.hu@gmail.com, michael+lkml@stapelberg.ch,
- aros@gmx.com, joshua@stroblindustries.com, arnd@arndb.de
-References: <20211101141532.26655-1-tzimmermann@suse.de>
- <20211101141532.26655-8-tzimmermann@suse.de>
- <974e10bb-ae58-d1c1-a89e-881b39da4930@tronnes.org>
- <b5e514a7-74f3-d072-cfba-80ff05c2669c@suse.de>
- <1b1e8a38-2ad6-406e-0d07-bd28dcba08a3@tronnes.org>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-In-Reply-To: <1b1e8a38-2ad6-406e-0d07-bd28dcba08a3@tronnes.org>
-Cc: linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org
+message-id: <1636470022.9887552-1-xuanzhuo@linux.alibaba.com>
+subject: Re: [PATCH v4 1/3] virtio: cache indirect desc for split
+date: Tue, 09 Nov 2021 23:00:22 +0800
+from: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+to: Michael S. Tsirkin <mst@redhat.com>
+in-reply-to: <20211109080333-mutt-send-email-mst@kernel.org>
+x-mailing-list: netdev@vger.kernel.org
+Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+ Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -108,215 +72,334 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============3959870619988930681=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============3959870619988930681==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------JaHCOaiGH8iuk38ggeJc024l"
+On Tue, 9 Nov 2021 08:09:42 -0500, Michael S. Tsirkin <mst@redhat.com> wrote:
+> On Mon, Nov 08, 2021 at 07:49:49PM +0800, Xuan Zhuo wrote:
+> > In the case of using indirect, indirect desc must be allocated and
+> > released each time, which increases a lot of cpu overhead.
+> >
+> > Here, a cache is added for indirect. If the number of indirect desc to be
+> > applied for is less than desc_cache_thr, the desc array with
+> > the size of desc_cache_thr is fixed and cached for reuse.
+> >
+> > Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+> > ---
+> >  drivers/virtio/virtio_ring.c | 126 ++++++++++++++++++++++++++++++++---
+> >  include/linux/virtio.h       |  17 +++++
+> >  2 files changed, 135 insertions(+), 8 deletions(-)
+> >
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > index dd95dfd85e98..a4a91c497a83 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -85,6 +85,19 @@ struct vring_desc_extra {
+> >  	u16 next;			/* The next desc state in a list. */
+> >  };
+> >
+> > +struct vring_desc_cache {
+> > +	/* desc cache chain */
+> > +	struct list_head list;
+> > +
+> > +	void *array;
+> > +
+> > +	/* desc cache threshold
+> > +	 *    0   - disable desc cache
+> > +	 *    > 0 - enable desc cache. As the threshold of the desc cache.
+> > +	 */
+> > +	u32 threshold;
+> > +};
+> > +
+> >  struct vring_virtqueue {
+> >  	struct virtqueue vq;
+> >
+> > @@ -117,6 +130,8 @@ struct vring_virtqueue {
+> >  	/* Hint for event idx: already triggered no need to disable. */
+> >  	bool event_triggered;
+> >
+> > +	struct vring_desc_cache desc_cache;
+> > +
+> >  	union {
+> >  		/* Available for split ring */
+> >  		struct {
+> > @@ -423,7 +438,50 @@ static unsigned int vring_unmap_one_split(const struct vring_virtqueue *vq,
+> >  	return extra[i].next;
+> >  }
+> >
+> > -static struct vring_desc *alloc_indirect_split(struct virtqueue *_vq,
+> > +static void desc_cache_init(struct vring_virtqueue *vq)
+> > +{
+> > +	vq->desc_cache.array = NULL;
+> > +	vq->desc_cache.threshold = 0;
+> > +	INIT_LIST_HEAD(&vq->desc_cache.list);
+> > +}
+> > +
+> > +static void desc_cache_free(struct vring_virtqueue *vq)
+> > +{
+> > +	kfree(vq->desc_cache.array);
+> > +}
+> > +
+> > +static void __desc_cache_put(struct vring_virtqueue *vq,
+> > +			     struct list_head *node, int n)
+> > +{
+> > +	if (n <= vq->desc_cache.threshold)
+> > +		list_add(node, &vq->desc_cache.list);
+> > +	else
+> > +		kfree(node);
+> > +}
+> > +
+> > +#define desc_cache_put(vq, desc, n) \
+> > +	__desc_cache_put(vq, (struct list_head *)desc, n)
+> > +
+> > +static void *desc_cache_get(struct vring_virtqueue *vq,
+> > +			    int size, int n, gfp_t gfp)
+> > +{
+> > +	struct list_head *node;
+> > +
+> > +	if (n > vq->desc_cache.threshold)
+> > +		return kmalloc_array(n, size, gfp);
+> > +
+> > +	node = vq->desc_cache.list.next;
+> > +	list_del(node);
+> > +	return node;
+> > +}
+> > +
+> > +#define _desc_cache_get(vq, n, gfp, tp) \
+> > +	((tp *)desc_cache_get(vq, (sizeof(tp)), n, gfp))
+> > +
+> > +#define desc_cache_get_split(vq, n, gfp) \
+> > +	_desc_cache_get(vq, n, gfp, struct vring_desc)
+> > +
+> > +static struct vring_desc *alloc_indirect_split(struct vring_virtqueue *vq,
+> >  					       unsigned int total_sg,
+> >  					       gfp_t gfp)
+> >  {
+> > @@ -437,12 +495,12 @@ static struct vring_desc *alloc_indirect_split(struct virtqueue *_vq,
+> >  	 */
+> >  	gfp &= ~__GFP_HIGHMEM;
+> >
+> > -	desc = kmalloc_array(total_sg, sizeof(struct vring_desc), gfp);
+> > +	desc = desc_cache_get_split(vq, total_sg, gfp);
+> >  	if (!desc)
+> >  		return NULL;
+> >
+> >  	for (i = 0; i < total_sg; i++)
+> > -		desc[i].next = cpu_to_virtio16(_vq->vdev, i + 1);
+> > +		desc[i].next = cpu_to_virtio16(vq->vq.vdev, i + 1);
+> >  	return desc;
+> >  }
+> >
+> > @@ -508,7 +566,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+> >  	head = vq->free_head;
+> >
+> >  	if (virtqueue_use_indirect(_vq, total_sg))
+> > -		desc = alloc_indirect_split(_vq, total_sg, gfp);
+> > +		desc = alloc_indirect_split(vq, total_sg, gfp);
+> >  	else {
+> >  		desc = NULL;
+> >  		WARN_ON_ONCE(total_sg > vq->split.vring.num && !vq->indirect);
+> > @@ -652,7 +710,7 @@ static inline int virtqueue_add_split(struct virtqueue *_vq,
+> >  	}
+> >
+> >  	if (indirect)
+> > -		kfree(desc);
+> > +		desc_cache_put(vq, desc, total_sg);
+> >
+> >  	END_USE(vq);
+> >  	return -ENOMEM;
+> > @@ -717,7 +775,7 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+> >  	if (vq->indirect) {
+> >  		struct vring_desc *indir_desc =
+> >  				vq->split.desc_state[head].indir_desc;
+> > -		u32 len;
+> > +		u32 len, n;
+> >
+> >  		/* Free the indirect table, if any, now that it's unmapped. */
+> >  		if (!indir_desc)
+> > @@ -729,10 +787,12 @@ static void detach_buf_split(struct vring_virtqueue *vq, unsigned int head,
+> >  				VRING_DESC_F_INDIRECT));
+> >  		BUG_ON(len == 0 || len % sizeof(struct vring_desc));
+> >
+> > -		for (j = 0; j < len / sizeof(struct vring_desc); j++)
+> > +		n = len / sizeof(struct vring_desc);
+> > +
+> > +		for (j = 0; j < n; j++)
+> >  			vring_unmap_one_split_indirect(vq, &indir_desc[j]);
+> >
+> > -		kfree(indir_desc);
+> > +		desc_cache_put(vq, indir_desc, n);
+> >  		vq->split.desc_state[head].indir_desc = NULL;
+> >  	} else if (ctx) {
+> >  		*ctx = vq->split.desc_state[head].indir_desc;
+> > @@ -2200,6 +2260,8 @@ struct virtqueue *__vring_new_virtqueue(unsigned int index,
+> >  		!context;
+> >  	vq->event = virtio_has_feature(vdev, VIRTIO_RING_F_EVENT_IDX);
+> >
+> > +	desc_cache_init(vq);
+> > +
+> >  	if (virtio_has_feature(vdev, VIRTIO_F_ORDER_PLATFORM))
+> >  		vq->weak_barriers = false;
+> >
+> > @@ -2329,6 +2391,7 @@ void vring_del_virtqueue(struct virtqueue *_vq)
+> >  	if (!vq->packed_ring) {
+> >  		kfree(vq->split.desc_state);
+> >  		kfree(vq->split.desc_extra);
+> > +		desc_cache_free(vq);
+> >  	}
+> >  	kfree(vq);
+> >  }
+> > @@ -2445,6 +2508,53 @@ dma_addr_t virtqueue_get_used_addr(struct virtqueue *_vq)
+> >  }
+> >  EXPORT_SYMBOL_GPL(virtqueue_get_used_addr);
+> >
+> > +int virtqueue_set_desc_cache(struct virtqueue *_vq, u32 threshold)
+> > +{
+> > +	struct vring_virtqueue *vq = to_vvq(_vq);
+> > +	struct list_head *node;
+> > +	int size, num, i;
+> > +
+> > +	BUILD_BUG_ON(sizeof(struct list_head) > sizeof(struct vring_desc));
+> > +	BUILD_BUG_ON(sizeof(struct list_head) > sizeof(struct vring_packed_desc));
+> > +
+> > +	BUG_ON(!vq->we_own_ring);
+> > +
+> > +	if (!vq->indirect)
+> > +		return 0;
+> > +
+> > +	vq->desc_cache.threshold = threshold;
+> > +
+> > +	if (!threshold)
+> > +		return 0;
+> > +
+> > +	if (vq->packed_ring) {
+> > +		size = sizeof(struct vring_packed_desc);
+> > +		num = vq->packed.vring.num;
+> > +	} else {
+> > +		size = sizeof(struct vring_desc);
+> > +		num = vq->split.vring.num;
+> > +	}
+> > +
+> > +	size = size * vq->desc_cache.threshold;
+>
+> just use two variables pls so it's clear which size is where.
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------JaHCOaiGH8iuk38ggeJc024l
-Content-Type: multipart/mixed; boundary="------------AjIZl1YNSZ8cY3RWhIVPfZFd";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>, daniel@ffwll.ch,
- airlied@linux.ie, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
- drawat.floss@gmail.com, airlied@redhat.com, kraxel@redhat.com,
- david@lechnology.com, sam@ravnborg.org, javierm@redhat.com,
- kernel@amanoeldawod.com, dirty.ice.hu@gmail.com, michael+lkml@stapelberg.ch,
- aros@gmx.com, joshua@stroblindustries.com, arnd@arndb.de
-Cc: linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org
-Message-ID: <bb71f9a7-9fd0-ac91-749d-b9241290c45d@suse.de>
-Subject: Re: [PATCH v2 7/9] drm/simpledrm: Enable FB_DAMAGE_CLIPS property
-References: <20211101141532.26655-1-tzimmermann@suse.de>
- <20211101141532.26655-8-tzimmermann@suse.de>
- <974e10bb-ae58-d1c1-a89e-881b39da4930@tronnes.org>
- <b5e514a7-74f3-d072-cfba-80ff05c2669c@suse.de>
- <1b1e8a38-2ad6-406e-0d07-bd28dcba08a3@tronnes.org>
-In-Reply-To: <1b1e8a38-2ad6-406e-0d07-bd28dcba08a3@tronnes.org>
+OK.
 
---------------AjIZl1YNSZ8cY3RWhIVPfZFd
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+>
+> > +
+> > +	vq->desc_cache.array = kmalloc_array(num, size, GFP_KERNEL);
+>
+> might be quite big. the point of indirect is so it can be
+> allocated in chunks...
+>
+> also this allocates from numa node on which driver is loaded,
+> likely not the correct one to use for the VQ.
+> how about addressing this e.g. by dropping the cache
+> if we cross numa nodes?
+>
 
-SGksDQoNCnRoYW5rcyBmb3IgbG9va2luZyB0aHJvdWdoIGFsbCB0aGlzIGNvZGUuDQoNCkFt
-IDA5LjExLjIxIHVtIDE0OjA0IHNjaHJpZWIgTm9yYWxmIFRyw7hubmVzOg0KPiANCj4gDQo+
-IERlbiAwOS4xMS4yMDIxIDEzLjM4LCBza3JldiBUaG9tYXMgWmltbWVybWFubjoNCj4+DQo+
-Pg0KPj4gQW0gMDguMTEuMjEgdW0gMjE6NTUgc2NocmllYiBOb3JhbGYgVHLDuG5uZXM6DQo+
-Pj4NCj4+Pg0KPj4+IERlbiAwMS4xMS4yMDIxIDE1LjE1LCBza3JldiBUaG9tYXMgWmltbWVy
-bWFubjoNCj4+Pj4gRW5hYmxlIHRoZSBGQl9EQU1BR0VfQ0xJUFMgcHJvcGVydHkgdG8gcmVk
-dWNlIGRpc3BsYXktdXBkYXRlDQo+Pj4+IG92ZXJoZWFkLiBBbHNvIGZpeGVzIGEgd2Fybmlu
-ZyBpbiB0aGUga2VybmVsIGxvZy4NCj4+Pj4NCj4+Pj4gIMKgwqAgc2ltcGxlLWZyYW1lYnVm
-ZmVyIHNpbXBsZS1mcmFtZWJ1ZmZlci4wOiBbZHJtXQ0KPj4+PiBkcm1fcGxhbmVfZW5hYmxl
-X2ZiX2RhbWFnZV9jbGlwcygpIG5vdCBjYWxsZWQNCj4+Pj4NCj4+Pj4gRml4IHRoZSBjb21w
-dXRhdGlvbiBvZiB0aGUgYmxpdCByZWN0YW5nbGUuIFRoaXMgd2Fzbid0IGFuIGlzc3VlIHNv
-DQo+Pj4+IGZhciwgYXMgc2ltcGxlZHJtIGFsd2F5cyBibGl0dGVkIHRoZSBmdWxsIGZyYW1l
-YnVmZmVyLiBUaGUgY29kZSBub3cNCj4+Pj4gc3VwcG9ydHMgZGFtYWdlIGNsaXBwaW5nIGFu
-ZCB2aXJ0dWFsIHNjcmVlbiBzaXplcy4NCj4+Pj4NCj4+Pj4gU2lnbmVkLW9mZi1ieTogVGhv
-bWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+DQo+Pj4+IC0tLQ0KPj4+PiAg
-wqAgZHJpdmVycy9ncHUvZHJtL3Rpbnkvc2ltcGxlZHJtLmMgfCAzMCArKysrKysrKysrKysr
-KysrKysrKysrLS0tLS0tLS0NCj4+Pj4gIMKgIDEgZmlsZSBjaGFuZ2VkLCAyMiBpbnNlcnRp
-b25zKCspLCA4IGRlbGV0aW9ucygtKQ0KPj4+Pg0KPj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVy
-cy9ncHUvZHJtL3Rpbnkvc2ltcGxlZHJtLmMNCj4+Pj4gYi9kcml2ZXJzL2dwdS9kcm0vdGlu
-eS9zaW1wbGVkcm0uYw0KPj4+PiBpbmRleCA1NzFmNzE2ZmY0MjcuLmU4NzIxMjFlOWZiMCAx
-MDA2NDQNCj4+Pj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL3Rpbnkvc2ltcGxlZHJtLmMNCj4+
-Pj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL3Rpbnkvc2ltcGxlZHJtLmMNCj4+Pj4gQEAgLTY0
-Miw3ICs2NDIsNyBAQCBzaW1wbGVkcm1fc2ltcGxlX2Rpc3BsYXlfcGlwZV9lbmFibGUoc3Ry
-dWN0DQo+Pj4+IGRybV9zaW1wbGVfZGlzcGxheV9waXBlICpwaXBlLA0KPj4+PiAgwqDCoMKg
-wqDCoCB2b2lkICp2bWFwID0gc2hhZG93X3BsYW5lX3N0YXRlLT5kYXRhWzBdLnZhZGRyOyAv
-KiBUT0RPOiBVc2UNCj4+Pj4gbWFwcGluZyBhYnN0cmFjdGlvbiAqLw0KPj4+PiAgwqDCoMKg
-wqDCoCBzdHJ1Y3QgZHJtX2RldmljZSAqZGV2ID0gJnNkZXYtPmRldjsNCj4+Pj4gIMKgwqDC
-oMKgwqAgdm9pZCBfX2lvbWVtICpkc3QgPSBzZGV2LT5zY3JlZW5fYmFzZTsNCj4+Pj4gLcKg
-wqDCoCBzdHJ1Y3QgZHJtX3JlY3QgY2xpcDsNCj4+Pj4gK8KgwqDCoCBzdHJ1Y3QgZHJtX3Jl
-Y3Qgc3JjX2NsaXAsIGRzdF9jbGlwOw0KPj4+PiAgwqDCoMKgwqDCoCBpbnQgaWR4Ow0KPj4+
-PiAgwqAgwqDCoMKgwqDCoCBpZiAoIWZiKQ0KPj4+PiBAQCAtNjUxLDEwICs2NTEsMTQgQEAg
-c2ltcGxlZHJtX3NpbXBsZV9kaXNwbGF5X3BpcGVfZW5hYmxlKHN0cnVjdA0KPj4+PiBkcm1f
-c2ltcGxlX2Rpc3BsYXlfcGlwZSAqcGlwZSwNCj4+Pj4gIMKgwqDCoMKgwqAgaWYgKCFkcm1f
-ZGV2X2VudGVyKGRldiwgJmlkeCkpDQo+Pj4+ICDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0dXJu
-Ow0KPj4+PiAgwqAgLcKgwqDCoCBkcm1fcmVjdF9pbml0KCZjbGlwLCAwLCAwLCBmYi0+d2lk
-dGgsIGZiLT5oZWlnaHQpOw0KPj4+PiArwqDCoMKgIGRybV9yZWN0X2ZwX3RvX2ludCgmc3Jj
-X2NsaXAsICZwbGFuZV9zdGF0ZS0+c3JjKTsNCj4+Pj4gIMKgIC3CoMKgwqAgZHN0ICs9IGRy
-bV9mYl9jbGlwX29mZnNldChzZGV2LT5waXRjaCwgc2Rldi0+Zm9ybWF0LCAmY2xpcCk7DQo+
-Pj4+IC3CoMKgwqAgZHJtX2ZiX2JsaXRfdG9pbyhkc3QsIHNkZXYtPnBpdGNoLCBzZGV2LT5m
-b3JtYXQtPmZvcm1hdCwgdm1hcCwNCj4+Pj4gZmIsICZjbGlwKTsNCj4+Pj4gK8KgwqDCoCBk
-c3RfY2xpcCA9IHBsYW5lX3N0YXRlLT5kc3Q7DQo+Pj4NCj4+PiBJIGFzc3VtZSB0aGF0IHNy
-Y19jbGlwIGFuZCBkc3RfY2xpcCBhcmUgb2YgdGhlIHNhbWUgc2l6ZSwgc2luY2Ugc2NhbGlu
-Zw0KPj4+IGlzIG5vdCBzdXBwb3J0ZWQuIFdoYXQgcHJldmVudHMgZHN0X2NsaXAgZnJvbSBi
-ZWluZyBiaWdnZXIgdGhhbiB0aGUNCj4+PiBidWZmZXIgdGhhdCdzIGJlaW5nIGJsaXR0ZWQg
-aW50bz8gV2hlcmUgaXMgdGhhdCBib3VuZHMgY2hlY2tpbmcgZG9uZT8NCj4+DQo+PiBUaGUg
-dmFsdWUgb2YgZHN0X2NsaXAgY29tZXMgZnJvbSBwbGFuZV9zdGF0ZS0+ZHN0LCB3aGljaCBn
-ZXRzDQo+PiBpbml0aWFsaXplZCBpbiBkcm1fYXRvbWljX2hlbHBlcl9jaGVja19wbGFuZV9z
-dGF0ZSgpLiBbMV0gVGhlIGZpZWxkcyBhcmUNCj4+IHRha2VuIGZyb20gdGhlIGNydGNfe3gs
-eSx3LGh9IHZhbHVlcyBieSBkcm1fcGxhbmVfZ2V0X2Rlc3QoKS4gWzJdIEZvcg0KPj4gcHJp
-bWFyeSBwbGFuZXMsIHRoZSBjcnRjX3t4LHksdyxofSB2YWx1ZXMgYXJlIGluaXRpYWxpemVk
-IGluDQo+PiBfX2RybV9hdG9taWNfaGVscGVyX3NldF9jb25maWcoKSB0byB0aGUgc2l6ZSBv
-ZiB0aGUgZGlzcGxheS4gWzNdIFRoYXQNCj4+IHNpemUgY29tZXMgZGlyZWN0bHkgZnJvbSB0
-aGUgY3VycmVudCB2aWRlbyBtb2RlLiBbNF0gRnJvbSBhbGwgSSBjYW4gc2VlDQo+PiB0aGlz
-IGNhbm5vdCBvdmVyZmxvdy4NCj4+DQo+IA0KPiBPaywgdGhhdCB0YWtlcyBjYXJlIG9mIHRo
-ZSB1cHBlciBib3VuZC4NCj4gDQo+IFRoZXJlJ3MgdGhpcyBpbiBkcm1fYXRvbWljX2hlbHBl
-cl9jaGVja19wbGFuZV9zdGF0ZSgpOg0KPiANCj4gCXBsYW5lX3N0YXRlLT52aXNpYmxlID0g
-ZHJtX3JlY3RfY2xpcF9zY2FsZWQoc3JjLCBkc3QsICZjbGlwKTsNCj4gDQo+IAlpZiAoIXBs
-YW5lX3N0YXRlLT52aXNpYmxlKQ0KPiAJCS8qDQo+IAkJICogUGxhbmUgaXNuJ3QgdmlzaWJs
-ZTsgc29tZSBkcml2ZXJzIGNhbiBoYW5kbGUgdGhpcw0KPiAJCSAqIHNvIHdlIGp1c3QgcmV0
-dXJuIHN1Y2Nlc3MgaGVyZS4gIERyaXZlcnMgdGhhdCBjYW4ndA0KPiAJCSAqIChpbmNsdWRp
-bmcgdGhvc2UgdGhhdCB1c2UgdGhlIHByaW1hcnkgcGxhbmUgaGVscGVyJ3MNCj4gCQkgKiB1
-cGRhdGUgZnVuY3Rpb24pIHdpbGwgcmV0dXJuIGFuIGVycm9yIGZyb20gdGhlaXINCj4gCQkg
-KiB1cGRhdGVfcGxhbmUgaGFuZGxlci4NCj4gCQkgKi8NCj4gCQlyZXR1cm4gMDsNCj4gDQo+
-IGRybV9hdG9taWNfaGVscGVyX2RhbWFnZV9tZXJnZWQoKSBjaGVja3MgLT52aXNpYmxlIGFu
-ZCByZXR1cm5zIGZhbHNlIGlmDQo+IGl0IGlzIG5vdCBzZXQgc28gdXBkYXRlKCkgaXMgZ29v
-ZCBvbiB0aGUgbG93ZXIgYm91bmQuDQo+IA0KPiBNYXliZSBpdCdzIG5lY2Vzc2FyeSB0byBj
-aGVjayAtPnZpc2libGUgaGVyZSBpbiBlbmFibGUoKSBiZWZvcmUgZG9pbmcNCj4gdGhlIGJs
-aXQ/DQoNCklzIGl0IGV2ZW4gcG9zc2libGUgdG8gY3JlYXRlIGFuIGludmlzaWJsZSBwcmlt
-YXJ5IHBsYW5lIGhlcmU/IFdlIGNhbm5vdCANCnNjYWxlIFsxXSBhbmQgaWYgdGhlIHByaW1h
-cnkgcGxhbmUgaXMgc21hbGxlciB0aGFuIHRoZSBmcmFtZWJ1ZmZlciwgd2UgDQpoaXQgdGhl
-IGNhc2UgYXQgWzJdLiBUaGUgb25seSB3YXkgSSBjYW4gc2VlIHRoaXMgaXMgdGhhdCB0aGUg
-dmlzaWJpbGl0eSANCnRlc3QgYXQgWzNdIHN1Y2NlZWRzLiBUaGF0IHdvdWxkIHJlcXVpcmUg
-YSBmcmFtZWJ1ZmZlciBvZiBzaXplIDAuIFRoYXQncyANCmltcG9zc2libGUgZnJvbSB0aGUg
-Y29kZSBpbiBmcmFtYnVmZmVyX2NoZWNrKCkuIFs0XSBVbmxlc3MgdGhlcmUncyBzb21lIA0K
-Y29ybmVyIGNhc2UsIHdlJ3JlIGdvb2QgaGVyZS4NCg0KSG93ZXZlciwgSSB0aGluayB0aGF0
-IGRybV9hdG9taWNfY2hlY2tfcGxhbmVfc3RhdGUoKSBjb3VsZCBsYXRlciBiZSANCmltcHJv
-dmVkIHRvIGhhbmRsZSB0aGUgJ3Zpc2libGUnIGZpZWxkIGluIGEgbW9yZSBzb3BoaXN0aWNh
-dGVkIHdheS4NCg0KQmVzdCByZWdhcmRzDQpUaG9tYXMNCg0KWzFdIA0KaHR0cHM6Ly9lbGl4
-aXIuYm9vdGxpbi5jb20vbGludXgvbGF0ZXN0L3NvdXJjZS9kcml2ZXJzL2dwdS9kcm0vZHJt
-X3NpbXBsZV9rbXNfaGVscGVyLmMjTDIyNw0KWzJdIA0KaHR0cHM6Ly9lbGl4aXIuYm9vdGxp
-bi5jb20vbGludXgvbGF0ZXN0L3NvdXJjZS9kcml2ZXJzL2dwdS9kcm0vZHJtX2F0b21pY19o
-ZWxwZXIuYyNMODU0DQpbM10gDQpodHRwczovL2VsaXhpci5ib290bGluLmNvbS9saW51eC9s
-YXRlc3Qvc291cmNlL2RyaXZlcnMvZ3B1L2RybS9kcm1fYXRvbWljX2hlbHBlci5jI0w4NDQN
-Cls0XSANCmh0dHBzOi8vZWxpeGlyLmJvb3RsaW4uY29tL2xpbnV4L2xhdGVzdC9zb3VyY2Uv
-ZHJpdmVycy9ncHUvZHJtL2RybV9mcmFtZWJ1ZmZlci5jI0wxODUNCg0KPiANCj4gTm9yYWxm
-Lg0KPiANCj4+IEJlc3QgcmVnYXJkcw0KPj4gVGhvbWFzDQo+Pg0KPj4gWzFdDQo+PiBodHRw
-czovL2VsaXhpci5ib290bGluLmNvbS9saW51eC9sYXRlc3Qvc291cmNlL2RyaXZlcnMvZ3B1
-L2RybS9kcm1fYXRvbWljX2hlbHBlci5jI0w4MDcNCj4+DQo+PiBbMl0NCj4+IGh0dHBzOi8v
-ZWxpeGlyLmJvb3RsaW4uY29tL2xpbnV4L2xhdGVzdC9zb3VyY2UvaW5jbHVkZS9kcm0vZHJt
-X3BsYW5lLmgjTDI1Nw0KPj4gWzNdDQo+PiBodHRwczovL2VsaXhpci5ib290bGluLmNvbS9s
-aW51eC9sYXRlc3Qvc291cmNlL2RyaXZlcnMvZ3B1L2RybS9kcm1fYXRvbWljLmMjTDE1OTAN
-Cj4+DQo+PiBbNF0NCj4+IGh0dHBzOi8vZWxpeGlyLmJvb3RsaW4uY29tL2xpbnV4L2xhdGVz
-dC9zb3VyY2UvZHJpdmVycy9ncHUvZHJtL2RybV9tb2Rlcy5jI0w3ODgNCj4+DQo+Pg0KPj4+
-DQo+Pj4gTm9yYWxmLg0KPj4+DQo+Pj4+ICvCoMKgwqAgaWYgKCFkcm1fcmVjdF9pbnRlcnNl
-Y3QoJmRzdF9jbGlwLCAmc3JjX2NsaXApKQ0KPj4+PiArwqDCoMKgwqDCoMKgwqAgcmV0dXJu
-Ow0KPj4+PiArDQo+Pj4+ICvCoMKgwqAgZHN0ICs9IGRybV9mYl9jbGlwX29mZnNldChzZGV2
-LT5waXRjaCwgc2Rldi0+Zm9ybWF0LCAmZHN0X2NsaXApOw0KPj4+PiArwqDCoMKgIGRybV9m
-Yl9ibGl0X3RvaW8oZHN0LCBzZGV2LT5waXRjaCwgc2Rldi0+Zm9ybWF0LT5mb3JtYXQsIHZt
-YXAsDQo+Pj4+IGZiLCAmc3JjX2NsaXApOw0KPj4+PiAgwqAgwqDCoMKgwqDCoCBkcm1fZGV2
-X2V4aXQoaWR4KTsNCj4+Pj4gIMKgIH0NCj4+Pj4gQEAgLTY4NiwyMCArNjkwLDI4IEBAIHNp
-bXBsZWRybV9zaW1wbGVfZGlzcGxheV9waXBlX3VwZGF0ZShzdHJ1Y3QNCj4+Pj4gZHJtX3Np
-bXBsZV9kaXNwbGF5X3BpcGUgKnBpcGUsDQo+Pj4+ICDCoMKgwqDCoMKgIHN0cnVjdCBkcm1f
-ZnJhbWVidWZmZXIgKmZiID0gcGxhbmVfc3RhdGUtPmZiOw0KPj4+PiAgwqDCoMKgwqDCoCBz
-dHJ1Y3QgZHJtX2RldmljZSAqZGV2ID0gJnNkZXYtPmRldjsNCj4+Pj4gIMKgwqDCoMKgwqAg
-dm9pZCBfX2lvbWVtICpkc3QgPSBzZGV2LT5zY3JlZW5fYmFzZTsNCj4+Pj4gLcKgwqDCoCBz
-dHJ1Y3QgZHJtX3JlY3QgY2xpcDsNCj4+Pj4gK8KgwqDCoCBzdHJ1Y3QgZHJtX3JlY3QgZGFt
-YWdlX2NsaXAsIHNyY19jbGlwLCBkc3RfY2xpcDsNCj4+Pj4gIMKgwqDCoMKgwqAgaW50IGlk
-eDsNCj4+Pj4gIMKgIMKgwqDCoMKgwqAgaWYgKCFmYikNCj4+Pj4gIMKgwqDCoMKgwqDCoMKg
-wqDCoCByZXR1cm47DQo+Pj4+ICDCoCAtwqDCoMKgIGlmICghZHJtX2F0b21pY19oZWxwZXJf
-ZGFtYWdlX21lcmdlZChvbGRfcGxhbmVfc3RhdGUsDQo+Pj4+IHBsYW5lX3N0YXRlLCAmY2xp
-cCkpDQo+Pj4+ICvCoMKgwqAgaWYgKCFkcm1fYXRvbWljX2hlbHBlcl9kYW1hZ2VfbWVyZ2Vk
-KG9sZF9wbGFuZV9zdGF0ZSwNCj4+Pj4gcGxhbmVfc3RhdGUsICZkYW1hZ2VfY2xpcCkpDQo+
-Pj4+ICvCoMKgwqDCoMKgwqDCoCByZXR1cm47DQo+Pj4+ICsNCj4+Pj4gK8KgwqDCoCBkcm1f
-cmVjdF9mcF90b19pbnQoJnNyY19jbGlwLCAmcGxhbmVfc3RhdGUtPnNyYyk7DQo+Pj4+ICvC
-oMKgwqAgaWYgKCFkcm1fcmVjdF9pbnRlcnNlY3QoJnNyY19jbGlwLCAmZGFtYWdlX2NsaXAp
-KQ0KPj4+PiArwqDCoMKgwqDCoMKgwqAgcmV0dXJuOw0KPj4+PiArDQo+Pj4+ICvCoMKgwqAg
-ZHN0X2NsaXAgPSBwbGFuZV9zdGF0ZS0+ZHN0Ow0KPj4+PiArwqDCoMKgIGlmICghZHJtX3Jl
-Y3RfaW50ZXJzZWN0KCZkc3RfY2xpcCwgJnNyY19jbGlwKSkNCj4+Pj4gIMKgwqDCoMKgwqDC
-oMKgwqDCoCByZXR1cm47DQo+Pj4+ICDCoCDCoMKgwqDCoMKgIGlmICghZHJtX2Rldl9lbnRl
-cihkZXYsICZpZHgpKQ0KPj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgIHJldHVybjsNCj4+Pj4g
-IMKgIC3CoMKgwqAgZHN0ICs9IGRybV9mYl9jbGlwX29mZnNldChzZGV2LT5waXRjaCwgc2Rl
-di0+Zm9ybWF0LCAmY2xpcCk7DQo+Pj4+IC3CoMKgwqAgZHJtX2ZiX2JsaXRfdG9pbyhkc3Qs
-IHNkZXYtPnBpdGNoLCBzZGV2LT5mb3JtYXQtPmZvcm1hdCwgdm1hcCwNCj4+Pj4gZmIsICZj
-bGlwKTsNCj4+Pj4gK8KgwqDCoCBkc3QgKz0gZHJtX2ZiX2NsaXBfb2Zmc2V0KHNkZXYtPnBp
-dGNoLCBzZGV2LT5mb3JtYXQsICZkc3RfY2xpcCk7DQo+Pj4+ICvCoMKgwqAgZHJtX2ZiX2Js
-aXRfdG9pbyhkc3QsIHNkZXYtPnBpdGNoLCBzZGV2LT5mb3JtYXQtPmZvcm1hdCwgdm1hcCwN
-Cj4+Pj4gZmIsICZzcmNfY2xpcCk7DQo+Pj4+ICDCoCDCoMKgwqDCoMKgIGRybV9kZXZfZXhp
-dChpZHgpOw0KPj4+PiAgwqAgfQ0KPj4+PiBAQCAtNzk0LDYgKzgwNiw4IEBAIHN0YXRpYyBp
-bnQgc2ltcGxlZHJtX2RldmljZV9pbml0X21vZGVzZXQoc3RydWN0DQo+Pj4+IHNpbXBsZWRy
-bV9kZXZpY2UgKnNkZXYpDQo+Pj4+ICDCoMKgwqDCoMKgIGlmIChyZXQpDQo+Pj4+ICDCoMKg
-wqDCoMKgwqDCoMKgwqAgcmV0dXJuIHJldDsNCj4+Pj4gIMKgICvCoMKgwqAgZHJtX3BsYW5l
-X2VuYWJsZV9mYl9kYW1hZ2VfY2xpcHMoJnBpcGUtPnBsYW5lKTsNCj4+Pj4gKw0KPj4+PiAg
-wqDCoMKgwqDCoCBkcm1fbW9kZV9jb25maWdfcmVzZXQoZGV2KTsNCj4+Pj4gIMKgIMKgwqDC
-oMKgwqAgcmV0dXJuIDA7DQo+Pj4+DQo+Pg0KDQotLSANClRob21hcyBaaW1tZXJtYW5uDQpH
-cmFwaGljcyBEcml2ZXIgRGV2ZWxvcGVyDQpTVVNFIFNvZnR3YXJlIFNvbHV0aW9ucyBHZXJt
-YW55IEdtYkgNCk1heGZlbGRzdHIuIDUsIDkwNDA5IE7DvHJuYmVyZywgR2VybWFueQ0KKEhS
-QiAzNjgwOSwgQUcgTsO8cm5iZXJnKQ0KR2VzY2jDpGZ0c2bDvGhyZXI6IEl2byBUb3Rldg0K
+I think as long as it is guaranteed to allocate indirect desc cache and vq desc,
+vq used queue, vq avail queue on the same numa.
+
+If there is a problem of using indirect desc cache across numa, there is also a
+problem of using vq desc across numa.
+
+So the cross-numa problem is another problem to be solved.
+
+Of course, it is also a feasible way to check the numa id every time when using the
+indirect desc cache item.
 
 
---------------AjIZl1YNSZ8cY3RWhIVPfZFd--
+>
+> > +	if (!vq->desc_cache.array) {
+> > +		vq->desc_cache.threshold = 0;
+> > +		dev_warn(&vq->vq.vdev->dev,
+> > +			 "queue[%d] alloc desc cache fail. turn off it.\n",
+> > +			 vq->vq.index);
+> > +		return -1;
+>
+> should be some errno, don't come up with your own return codes.
+>
 
---------------JaHCOaiGH8iuk38ggeJc024l
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
 
------BEGIN PGP SIGNATURE-----
+Yes
 
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmGKjAsFAwAAAAAACgkQlh/E3EQov+AK
-GQ/7BqaWJq7HvS6nuB25+7VRwXtQsbsJKPhDbOArL8NitXTjz5KZyaxwslx3ADoe8RVnFb3LJsQ2
-nksCuBnodqQk8f0sl3uX32R/26MO+FT9er4vdJdICJY8yjd0e6Qu6pKQvNzHKMJUz6ObUrlVLoHl
-ftYmg4BFqNriy2K8pj3dTsPekY51v5fuYRQRSon8jTvKLHz5Bf31VLluAM0CrFHaIu8TslIjwTb0
-oQyX7HXiGjyaNywLMxyxB/FXCIG0YTarSD7oY/FYtDHZCCcpNJoTi7gMuEvva9/X2wBfasH6AMSR
-OXV2kFG5ZS0OwoPhncmq0AmoRL+SOwYbvwh4wfhbllm78YaKtYWeb9Zh6OeJp8R4MPiMCcZ+DHXc
-KRkD6LQf0rHYkX1gsWzUdGarc5CGlH8c3/qqtRGHZCqZxtikcznwlU4Zb/2jFKEpEmn3flZl9lED
-Z18dRxKi+T9xP2wOrKHftpvSY2Bdsh+P+L4RWFF/Du6q79cLbhpxLzEhKRdThAW317ca1La5EsFK
-T8Bqj5Ntg2sSS+sRFVa5FzNPpAec4WdXNJew9MBuk+jefGZKA+RBZcOvPLvqqW/DAX7Sz/gah5Vq
-epikPIfCwQE7y3u9lNaXrYTrJM0xzeThdzb9nkFSSo+4jIgO6DsBwa4wP+GmtE7LC98kcRji0qSs
-Yz8=
-=ZQYS
------END PGP SIGNATURE-----
+> > +	}
+> > +
+> > +	for (i = 0; i < num; ++i) {
+> > +		node = vq->desc_cache.array + (i * size);
+> > +		list_add(node, &vq->desc_cache.list);
+> > +	}
+> > +
+> > +	return 0;
+> > +}
+> > +EXPORT_SYMBOL_GPL(virtqueue_set_desc_cache);
+> > +
+> >  /* Only available for split ring */
+> >  const struct vring *virtqueue_get_vring(struct virtqueue *vq)
+> >  {
+> > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> > index 41edbc01ffa4..e24b2e90dd42 100644
+> > --- a/include/linux/virtio.h
+> > +++ b/include/linux/virtio.h
+> > @@ -89,6 +89,23 @@ dma_addr_t virtqueue_get_desc_addr(struct virtqueue *vq);
+> >  dma_addr_t virtqueue_get_avail_addr(struct virtqueue *vq);
+> >  dma_addr_t virtqueue_get_used_addr(struct virtqueue *vq);
+> >
+> > +/**
+> > + * virtqueue_set_desc_cache - set virtio ring desc cache threshold
+> > + *
+> > + * virtio will allocate ring.num desc arrays of size threshold in advance. If
+> > + * total_sg exceeds the threshold, use kmalloc/kfree allocation indirect desc,
+> > + * if total_sg is less than or equal to the threshold, use these pre-allocated
+> > + * desc arrays.
+> > + *
+> > + * This function must be called immediately after find_vqs and before device
+> > + * ready.
+> > + *
+> > + * @threshold:
+> > + *    0   - disable desc cache
+> > + *    > 0 - enable desc cache. As the threshold of the desc cache.
+>
+> still not descriptive at all.
+>
+> why do devices even care? is not the issue with a large
+> threshold its memory consumption?
 
---------------JaHCOaiGH8iuk38ggeJc024l--
 
---===============3959870619988930681==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On the one hand, the threshold limits which requests will use the cache. On the
+other hand, it also specifies the size of the cache item.
 
+The common total_sg of different devices is different. For example, the total_sg
+of the network card device will not exceed MAX_SKB_FRAGS + 2.
+
+Different devices can set different cache item sizes based on their own
+characteristics. This helps to save memory.
+
+
+>
+>
+> > + */
+> > +int virtqueue_set_desc_cache(struct virtqueue *_vq, u32 threshold);
+>
+> document return code too.
+
+OK.
+
+Thanks
+
+>
+> > +
+> >  /**
+> >   * virtio_device - representation of a device using virtio
+> >   * @index: unique position on the virtio bus
+> > --
+> > 2.31.0
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3959870619988930681==--
