@@ -2,165 +2,109 @@ Return-Path: <SRS0=KS98=P4=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D382C433F5
-	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 00:59:00 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E213C433EF
+	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 02:55:17 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1BA5761207
-	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 00:59:00 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 1BA5761207
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=vmware.com
+	by mail.kernel.org (Postfix) with ESMTPS id 960C561279
+	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 02:55:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 960C561279
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D881860603;
-	Tue,  9 Nov 2021 00:58:59 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 3A0004035B;
+	Tue,  9 Nov 2021 02:55:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id q18NnGREm7qF; Tue,  9 Nov 2021 00:58:59 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6B5EA605F9;
-	Tue,  9 Nov 2021 00:58:58 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id i6uCkGsmSX0a; Tue,  9 Nov 2021 02:55:15 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id E874140272;
+	Tue,  9 Nov 2021 02:55:14 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 50309C0019;
-	Tue,  9 Nov 2021 00:58:58 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4E833C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CABE0C0019;
+	Tue,  9 Nov 2021 02:55:14 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 45712C000E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 00:58:56 +0000 (UTC)
+ Tue,  9 Nov 2021 02:55:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 372E4605FA
+ by smtp1.osuosl.org (Postfix) with ESMTP id 21F1F80DFD
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 00:58:56 +0000 (UTC)
+ Tue,  9 Nov 2021 02:55:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 78uWFdcpqbig
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id TfDvGqPqOLr2
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 00:58:55 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com
- (mail-bn8nam11on2067.outbound.protection.outlook.com [40.107.236.67])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 08F09605F9
+ Tue,  9 Nov 2021 02:55:13 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id D31BC80D08
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 00:58:54 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=c3hOF5cdid+ZoePQIQGbbgonWVljoLtrMU05BafKmeOsLTNKGAyqRZ79eWrGDLtHNlYq+2JZay5rdlT1oO9FDJR9ubL7geH1uIATT7SmmcuDp+HSw85vMe48BraXnsIXyYrcy/3oqr5hIXVWB6fB2//CU1AQbLoeWDw4Ky44K0fRxxfX028Wl/IsnsRHjYIi/aFFANZ2nPh8WTT7eL4rNUn8MgEm68km2Ernf6uJSoBpUm0qZaePZ4/I8zLLptGsjmVn2c42KH9VFachMRI4uSySrPUw59cQM8wR0pxabG0JzIYZzA9rdAgHjj+lORpEJlCeVhBFUVIc/RoBLJe8GA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=idwKaK48VWfqqWEmZ58R4Hopw9MowLgqInf3O86+57c=;
- b=GTd93PU9eMZYGr0TQWAJ1IW0t1nuGWdbByAigji58C4hO+TGJv1zoz49Ng61CJOrME+7YtWJiaYNw7lkwR2LF2kSQ74sFuOxHGLo7cQONqrdCst+X5I75u+g/BHwupNOah4Wa95V2Z6Km1cN9wvR3SkOPCGrJjnRg7+/QuzvFPYR8S8vZyEYmnFKwa/lDmOSEvFTV7JUcAex485z1M4aZu6Pa6swCDVMT+4oswZoHHYRjrmIw/EDtg0xRNNm1bwSjlXX04GjP7EvD9kOTnCxJWTo6l1xQnDQmAxd9G+/uFpjv33h7fI3sn9/F/XfHOCehKyK38GEncdVP+x6/jotAw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
- dkim=pass header.d=vmware.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=idwKaK48VWfqqWEmZ58R4Hopw9MowLgqInf3O86+57c=;
- b=HgxqK3j4DDKVhvsOZnbkl/1ORNhTos9et8dBHHRywR6KEqcqAvSVv1qwgd/esyIo6360bP9Pm+Z1KNo4SFpP2cdb+g09uvjnik6DA8ZJIh77Hi0D4Bwt3nehm0gU+gad/Md1/RxtXjjyFYMKcf6vH3SM5avHiSaXW7TGVq66dZM=
-Received: from BY3PR05MB8531.namprd05.prod.outlook.com (2603:10b6:a03:3ce::6)
- by BYAPR05MB4135.namprd05.prod.outlook.com (2603:10b6:a02:84::30)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4690.8; Tue, 9 Nov
- 2021 00:58:48 +0000
-Received: from BY3PR05MB8531.namprd05.prod.outlook.com
- ([fe80::fd9a:e92c:5d9e:9f6d]) by BY3PR05MB8531.namprd05.prod.outlook.com
- ([fe80::fd9a:e92c:5d9e:9f6d%9]) with mapi id 15.20.4690.010; Tue, 9 Nov 2021
- 00:58:48 +0000
-From: Nadav Amit <namit@vmware.com>
-To: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 2/2] MAINTAINERS: Mark VMware mailing list entries as
- private
-Thread-Topic: [PATCH 2/2] MAINTAINERS: Mark VMware mailing list entries as
- private
-Thread-Index: AQHX1N78hdP2HY1w7EKJ7QP4MiAOaqv6SY6AgAAMZACAAARXAIAABd+A
-Date: Tue, 9 Nov 2021 00:58:48 +0000
-Message-ID: <5C24FB2A-D2C0-4D95-A0C0-B48C4B8D5AF4@vmware.com>
-References: <163640336232.62866.489924062999332446.stgit@srivatsa-dev>
- <163640339370.62866.3435211389009241865.stgit@srivatsa-dev>
- <5179a7c097e0bb88f95642a394f53c53e64b66b1.camel@perches.com>
- <cb03ca42-b777-3d1a-5aba-b01cd19efa9a@csail.mit.edu>
- <dcbd19fcd1625146f4db267f84abd7412513d20e.camel@perches.com>
-In-Reply-To: <dcbd19fcd1625146f4db267f84abd7412513d20e.camel@perches.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: Apple Mail (2.3654.120.0.1.13)
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=vmware.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: f681ab27-68ec-4ec0-cbed-08d9a31c169a
-x-ms-traffictypediagnostic: BYAPR05MB4135:
-x-ld-processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
-x-microsoft-antispam-prvs: <BYAPR05MB41352394B811717592C965FDD0929@BYAPR05MB4135.namprd05.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:9508;
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: jiNvar6PPnnrLoIuN62K+V7IEQi7r+dnS1+H82xhg2SIbGkfRMYZCTXkXC2vCwqfNRpCs+qy6GIkatzTQ0s9OifCcDD7tSNEXE0HWUUrg//A664RegswdcfAD97CQ5z8646dFp6Gxiu3U1rpx1ufjql8QZLfnGecHoXLYZ5RQyIb5C+gYZpF1WP3D+nRmK4Ea4h+kufUCoyqugXiOLhg8ErfePaU8MuhkxGKP+hHq8U466i5P6YMcYxYxOOgUX1TDXr17U+fQ4TIxX/nNS5UCV24qMKNqrt+74H5ND9kAU6LHVdnRgpDkePy4u+rU0htjYFxlKHJGDgUep++tGJ1dGN3LHuTZUrMwTsYAhUfiC/PIUFQpZtbgHMRkaJjIPjONeP7RNsyO0sSRituUFHBwg75c+FVxK6X4vi4SIaEMSiolBmod08zDNRYitMqZuUi3k4AI259KTFPiaEoI5DSUkL7md/q9F7jsGq77XzzgpLfOOOeS4pfCjotUvtC9wQnZfOtaCi4B5WzvXJt2MNzhqTD5DXd1O0c80nKeJHDProG6ttvIbwvxs4VRkWB0ehPmdm6u59CAwP35YeTv4HkbT7H8mZs0J7ziZU6Z9EZTMGJflG+8myWgb86VYEpwxbzV5OtjwhvkPqA74agYE163MoSirhvJcWNlJhI2XgDi+mwfp5QsgQqvv42hMyYUZVHLNsSBcTCRN8YhRouwxGv8e1BxfR2AfDkqF7EavW9bHX/lxaoBi9R0Fpyb5GQ3alqS+e5t3nffjulAg/dG76IPgliCWo31tMexIyXi5anM9KpG3WLhHjv++Qd3KzYuvUC
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:BY3PR05MB8531.namprd05.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(366004)(122000001)(26005)(2616005)(186003)(38070700005)(83380400001)(8676002)(66476007)(66446008)(66556008)(6506007)(64756008)(76116006)(66946007)(38100700002)(5660300002)(4326008)(508600001)(6916009)(33656002)(8936002)(6512007)(86362001)(2906002)(36756003)(316002)(54906003)(6486002)(7416002)(71200400001)(53546011)(130980200001)(223123001)(45980500001);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?iA7HQWkoaUfxP7vnv3qEDfLK1XgtrXBXRiuj2W9SStUFF16pbGAqdFx2dDJT?=
- =?us-ascii?Q?TTscTpkDPRWmhiwCalGwJW4i6d7BV2mwU/nUAhqXJqtDOVtDJFBcGj57QdQU?=
- =?us-ascii?Q?57yi9xISFxpQh8C6vP4QLjUb0QSYWG7Y7We0schRHtToL5qUVQWnPxjK1wBY?=
- =?us-ascii?Q?cWwi7/VyEUM5MlZdJqNnn2nWFOq0EctSoqc/HyTdoIbOisY7CoYHNmrQNI/C?=
- =?us-ascii?Q?TIlFWxc8ohIj4hYWjMkI3AfBOCR55wD5EOhSwxhcMibsKf9l5Jbb90DPwzcH?=
- =?us-ascii?Q?SCjctkgrVCCi5h8dqqM3jO/QDLLjNzXyk/PIzkh5pKNxaByx6ct6J1lhGDiB?=
- =?us-ascii?Q?b40Ut8DK3eKAKmNIGafxrvNPM/AKIokMoOqH9jxZ+pMaunnQVAnOEiIUizSq?=
- =?us-ascii?Q?A/63USZpgdL6OTTIKX0VClp4AOLlhqBrDPdIRLGtcrnzeeSGnQScKyVrQbNE?=
- =?us-ascii?Q?Z4tuSL0BJVT8a7y3FrTi1c+8HyuvJwvOe7Qnk0et46pahzD6zQvW5I71YQAc?=
- =?us-ascii?Q?ouE5BaSKCikaNf5e/YHhPeBJabTIyPqdJSwJp2frlMziZF0Zz2983z37ta2R?=
- =?us-ascii?Q?cK6p6G/74lImprxtswlUEnys6VdlXTK3An4mAtIt8rHo8DueAU/hxPE4gCOP?=
- =?us-ascii?Q?e3nd74XIKucQW6nhGvr9cDh/olFybGdk8U5ieHpzdSkpUSgVyp/ZbBN02aVp?=
- =?us-ascii?Q?MX8MFVkk2GdS4Cq8bRNA0V0LFz/OJjdMB59fqwX/qdNj9B07beOjpiSo5iOr?=
- =?us-ascii?Q?gkJZb4WyhNxaOqF2jQDYs9Igj6O0ppd2vYhUeXuJjfKEchBEaln3z2cTqR/Q?=
- =?us-ascii?Q?Uh6X66RDGT+k/14E/Glu22iVihNSBeB+vR/BEhlHL1YRcUfPN32B6xofs3Mb?=
- =?us-ascii?Q?lK+5FHsIX6GM0hz/QuP8cCTfF0qyVuf2++s42zG/OigDZqf9td4vx8NlOuQY?=
- =?us-ascii?Q?TodAkJ4oqhSN5xPj48x6kNTlLTQxjRxDnGYszc/hNI/qiqOxgmwuicjOcQZG?=
- =?us-ascii?Q?dAjyLWudsTlJv3yWXEkIb90RA52/AH7gqwWbJwFTm8EpIK3GO2zA75rZ5grq?=
- =?us-ascii?Q?NVYxK00+r8RMb0/tIOuiPA/2KQwaxh1JTgNCN17PD/DGawN3GEGAW4pB82z2?=
- =?us-ascii?Q?T37ephnekw/Cbn5PBObKo5IelZzIHd1X1Msmlu8Jc9x0aiwmAvKycRgPJPIE?=
- =?us-ascii?Q?YJT/6v2W5OASEG8aGElu07igkRiP8jRdxx9sii+WSZ2NOyd7mwhxJlp7G9Ka?=
- =?us-ascii?Q?Eql4UtgcoQqMHIgqx7Ce4TZco0Yzlv0yUwrIpOzIbQ3YOBcp/O5JT9FumMbs?=
- =?us-ascii?Q?9YISLTXjbxFyrBjqKhZxsUa5I6YYyEp3/bdhpxcj1kDuNZsPUshmg+l8UsvE?=
- =?us-ascii?Q?ufYQBE1HYHnwAEvlVC00kGZOcN+AFyLO9rt3bDeRfF7m1IOETgiLpg53GTpm?=
- =?us-ascii?Q?x7R10pPN7SKzj9krNt11PVVXeOHLVwC5w6w79EDk3ySoFa2im3MwWLM6fJuj?=
- =?us-ascii?Q?7xWtfkrKcVqDK5qvChbtjcyGvw/eOKfAH51Lzdn9obly7xuISgURm/ZwQnNG?=
- =?us-ascii?Q?u5PwHdke9sVrZdEWQKk/SIWX99/Ny1ljhl4214Jkc2fnzOOltrTprwITH0P6?=
- =?us-ascii?Q?MzAfi5eHQmHW5YXu2dqfjI8=3D?=
-Content-ID: <16B8E008CE2765409961D5B2A5D9FE10@namprd05.prod.outlook.com>
+ Tue,  9 Nov 2021 02:55:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1636426510;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=AcTad0s1zvICS8LxeQTrtyxxid2izF1mjCXQxAurXKY=;
+ b=C91HZ2ZX4BsaB0N6v2sW+Rwk49icfnfB4ZkSG9/SEgz3IPY/TMaumYr+nS2v6EKKdhg39F
+ 6/hzKZnLRBM8H4igQp/MEl3kepMukgNDnG12WCBrR0mUadK2gUNGF/k/K7pqp2LgBMit45
+ vEHTXaCDmpPyTtqBPQFb28lweyaI5n8=
+Received: from mail-lj1-f198.google.com (mail-lj1-f198.google.com
+ [209.85.208.198]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-511-nam47doHOK-U6ybEwfpkJQ-1; Mon, 08 Nov 2021 21:55:09 -0500
+X-MC-Unique: nam47doHOK-U6ybEwfpkJQ-1
+Received: by mail-lj1-f198.google.com with SMTP id
+ w16-20020a05651c103000b00218c9d46faeso1315004ljm.2
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 08 Nov 2021 18:55:08 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc:content-transfer-encoding;
+ bh=AcTad0s1zvICS8LxeQTrtyxxid2izF1mjCXQxAurXKY=;
+ b=m12HMAeOShBHkFSkzGE4M9kL/m+eFtAcWU1Mj0Yfv993GjGleghKO+q0qvfzS5E1/i
+ rda4s6r1teKy39Ud85rJ0lsOEKAL9cp+ZpxAOg8dKUVxooZzsHqAvRztlDKm1ouwbk78
+ InO5Hxa5cGp02HJkwgt1fHBAwha9oEOzpW8fR8wVBJFCA7cYYAFZopxipL3luGvVZ2gV
+ ZVWZ4LvBhJ4qJWBb9LDSiROBD9DF/5M4KEJl5bDT1xybMflQyB2r6AjCfqtn3JtvNxoJ
+ YdnLkGc7Y3XpfSignwpDZcxq4nUxV7jbLOdEsr1XnRA1dm7dseJ031mQmHJSl7t9l2kU
+ h+Fg==
+X-Gm-Message-State: AOAM531LVqKofqUAjI3RvTWlovgiXmpT/SNzBHp6XTfYpiocPYfQaDPT
+ paIsLFk2j0ztb+GFtqqJyNlHsLpxejAMkLSRoUIOz5A33Mz9euJ9yYhH7JvNihUcU3GtcQb5DXR
+ tXlV/i+kZAPkT0I38MzNOVN2uj5vEJtHedAboduub2GJXMhsF1Yg3SPXLlw==
+X-Received: by 2002:a05:6512:32c1:: with SMTP id
+ f1mr3929567lfg.498.1636426507723; 
+ Mon, 08 Nov 2021 18:55:07 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwzoTxL0Mk4o67I/bfxIlxvjzL7/EGLPXyM6pWuABUduS0GHa/cGuGMSr7Ifk1yQh3rc/WK2uaYSsPUZAeDPfE=
+X-Received: by 2002:a05:6512:32c1:: with SMTP id
+ f1mr3929546lfg.498.1636426507506; 
+ Mon, 08 Nov 2021 18:55:07 -0800 (PST)
 MIME-Version: 1.0
-X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BY3PR05MB8531.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f681ab27-68ec-4ec0-cbed-08d9a31c169a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 09 Nov 2021 00:58:48.1558 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: V55+QxNM+Ihx9kPI4L0w/7OTJt0rFh12Zenss4eegKltcZ9RYe1uZ5/fpAgR8xYK7TNzRzQlJqHkTigINUkp5Q==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR05MB4135
-Cc: Ronak Doshi <doshir@vmware.com>, Pv-drivers <Pv-drivers@vmware.com>,
- "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>,
- Alexey Makhalov <amakhalov@vmware.com>,
- "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
- Vishal Bhakta <vbhakta@vmware.com>, X86 ML <x86@kernel.org>,
- Linux-graphics-maintainer <Linux-graphics-maintainer@vmware.com>,
- "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
- Keerthana Kalyanasundaram <keerthanak@vmware.com>,
- Thomas Gleixner <tglx@linutronix.de>, Juergen Gross <jgross@suse.com>,
- Anish Swaminathan <anishs@vmware.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Zack Rusin <zackr@vmware.com>
+References: <f6b2d087ca3840604b4e711a208d35b5d6285cb4.1636301587.git.christophe.jaillet@wanadoo.fr>
+ <CACGkMEvN0cgFQhJmLF3xDXHt_EyZ-TnfBM8CnpNwA9sKcwpzBg@mail.gmail.com>
+ <393fb7b7-653b-eae6-16bd-5ffc7d600619@wanadoo.fr>
+In-Reply-To: <393fb7b7-653b-eae6-16bd-5ffc7d600619@wanadoo.fr>
+From: Jason Wang <jasowang@redhat.com>
+Date: Tue, 9 Nov 2021 10:54:56 +0800
+Message-ID: <CACGkMEt3yA+fkFJxKfrXyui-rYVSk78=1AqrT0TYQqzcqTJVyg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] eni_vdpa: Fix an error handling path in
+ 'eni_vdpa_probe()'
+To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Arnd Bergmann <arnd@arndb.de>, mst <mst@redhat.com>,
+ kernel-janitors@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Wu Zongyong <wuzongyong@linux.alibaba.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -172,51 +116,60 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-
-> On Nov 8, 2021, at 4:37 PM, Joe Perches <joe@perches.com> wrote:
-> 
-> On Mon, 2021-11-08 at 16:22 -0800, Srivatsa S. Bhat wrote:
-> 
-> So it's an exploder not an actual maintainer and it likely isn't
-> publically archived with any normal list mechanism.
-> 
-> So IMO "private" isn't appropriate.  Neither is "L:"
-> Perhaps just mark it as what it is as an "exploder".
-> 
-> Or maybe these blocks should be similar to:
-> 
-> M:	Name of Lead Developer <somebody@vmware.com>
-> M:	VMware <foo> maintainers <linux-<foo>-maintainers@vmlinux.com>
-> 
-> Maybe something like a comment mechanism should be added to the
-> MAINTAINERS file.
-> 
-> Maybe #
-> 
-> so this entry could be something like:
-> 
-> M:	VMware <foo> maintainers <linux-<foo>-maintainers@vmlinux.com> # VMware's ever changing internal maintainers list
-
-Admittedly, I do not care much about how it turns to be.
-
-But if it is modified, it should be very clear who the maintainer
-is, and not to entangle the mailing list and the maintainer.
-
-I am personally not subscribed to the internal pv-drivers mailing
-list, which is not just for memory ballooning, and is also listed
-as a maintainer for vmmouse, pvscsi, vmxnet3 and others.
-
-As I am the only maintainer of VMware balloon, if someone is
-mistaken and sends an email only to the mailing list and not me,
-he might be disappointed.
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVHVlLCBOb3YgOSwgMjAyMSBhdCAzOjMyIEFNIENocmlzdG9waGUgSkFJTExFVAo8Y2hyaXN0
+b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI+IHdyb3RlOgo+Cj4gTGUgMDgvMTEvMjAyMSDDoCAwNjo1
+NSwgSmFzb24gV2FuZyBhIMOpY3JpdCA6Cj4gPiBPbiBNb24sIE5vdiA4LCAyMDIxIGF0IDEyOjE1
+IEFNIENocmlzdG9waGUgSkFJTExFVAo+ID4gPGNocmlzdG9waGUuamFpbGxldEB3YW5hZG9vLmZy
+PiB3cm90ZToKPiA+Pgo+ID4+IEluIHRoZSBlcnJvciBoYW5kbGluZyBwYXRoLCBhIHN1Y2Nlc3Nm
+dWwgJ3ZwX2xlZ2FjeV9wcm9iZSgpJyBzaG91bGQgYmUKPiA+PiBiYWxhbmNlZCBieSBhIGNvcnJl
+c3BvbmRpbmcgJ3ZwX2xlZ2FjeV9yZW1vdmUoKScgY2FsbCwgYXMgYWxyZWFkeSBkb25lIGluCj4g
+Pj4gdGhlIHJlbW92ZSBmdW5jdGlvbi4KPiA+Pgo+ID4+IEFkZCB0aGUgbWlzc2luZyBjYWxsIGFu
+ZCB1cGRhdGUgZ290b3MgYWNjb3JkaW5nbHkuCj4gPj4KPiA+PiBGaXhlczogZTg1MDg3YmVlZGNh
+ICgiZW5pX3ZkcGE6IGFkZCB2RFBBIGRyaXZlciBmb3IgQWxpYmFiYSBFTkkiKQo+ID4+IFNpZ25l
+ZC1vZmYtYnk6IENocmlzdG9waGUgSkFJTExFVCA8Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28u
+ZnI+Cj4gPj4gLS0tCj4gPj4gICBkcml2ZXJzL3ZkcGEvYWxpYmFiYS9lbmlfdmRwYS5jIHwgNiAr
+KysrLS0KPiA+PiAgIDEgZmlsZSBjaGFuZ2VkLCA0IGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25z
+KC0pCj4gPj4KPiA+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBhL2FsaWJhYmEvZW5pX3ZkcGEu
+YyBiL2RyaXZlcnMvdmRwYS9hbGliYWJhL2VuaV92ZHBhLmMKPiA+PiBpbmRleCAzZjc4ODc5NDU3
+MWEuLjEyYjNkYjZiNDUxNyAxMDA2NDQKPiA+PiAtLS0gYS9kcml2ZXJzL3ZkcGEvYWxpYmFiYS9l
+bmlfdmRwYS5jCj4gPj4gKysrIGIvZHJpdmVycy92ZHBhL2FsaWJhYmEvZW5pX3ZkcGEuYwo+ID4+
+IEBAIC01MDEsNyArNTAxLDcgQEAgc3RhdGljIGludCBlbmlfdmRwYV9wcm9iZShzdHJ1Y3QgcGNp
+X2RldiAqcGRldiwgY29uc3Qgc3RydWN0IHBjaV9kZXZpY2VfaWQgKmlkKQo+ID4+ICAgICAgICAg
+IGlmICghZW5pX3ZkcGEtPnZyaW5nKSB7Cj4gPj4gICAgICAgICAgICAgICAgICByZXQgPSAtRU5P
+TUVNOwo+ID4+ICAgICAgICAgICAgICAgICAgRU5JX0VSUihwZGV2LCAiZmFpbGVkIHRvIGFsbG9j
+YXRlIHZpcnRxdWV1ZXNcbiIpOwo+ID4+IC0gICAgICAgICAgICAgICBnb3RvIGVycjsKPiA+PiAr
+ICAgICAgICAgICAgICAgZ290byBlcnJfcmVtb3ZlX3ZwX2xlZ2FjeTsKPiA+PiAgICAgICAgICB9
+Cj4gPj4KPiA+PiAgICAgICAgICBmb3IgKGkgPSAwOyBpIDwgZW5pX3ZkcGEtPnF1ZXVlczsgaSsr
+KSB7Cj4gPj4gQEAgLTUxMywxMSArNTEzLDEzIEBAIHN0YXRpYyBpbnQgZW5pX3ZkcGFfcHJvYmUo
+c3RydWN0IHBjaV9kZXYgKnBkZXYsIGNvbnN0IHN0cnVjdCBwY2lfZGV2aWNlX2lkICppZCkKPiA+
+PiAgICAgICAgICByZXQgPSB2ZHBhX3JlZ2lzdGVyX2RldmljZSgmZW5pX3ZkcGEtPnZkcGEsIGVu
+aV92ZHBhLT5xdWV1ZXMpOwo+ID4+ICAgICAgICAgIGlmIChyZXQpIHsKPiA+PiAgICAgICAgICAg
+ICAgICAgIEVOSV9FUlIocGRldiwgImZhaWxlZCB0byByZWdpc3RlciB0byB2ZHBhIGJ1c1xuIik7
+Cj4gPj4gLSAgICAgICAgICAgICAgIGdvdG8gZXJyOwo+ID4+ICsgICAgICAgICAgICAgICBnb3Rv
+IGVycl9yZW1vdmVfdnBfbGVnYWN5Owo+ID4+ICAgICAgICAgIH0KPiA+Pgo+ID4+ICAgICAgICAg
+IHJldHVybiAwOwo+ID4+Cj4gPj4gK2Vycl9yZW1vdmVfdnBfbGVnYWN5Ogo+ID4+ICsgICAgICAg
+dnBfbGVnYWN5X3JlbW92ZSgmZW5pX3ZkcGEtPmxkZXYpOwo+ID4KPiA+IFdvbid0IHZwX2xlZ2Fj
+eV9yZW1vdmUoKSBiZSB0cmlnZ2VyZWQgYnkgdGhlIHB1dF9kZXZpYygpIGJlbG93Pwo+Cj4gSGks
+IEknbSBzb3JyeSBidXQgaSBkb24ndCBzZWUgaG93Lgo+Cj4gTXkgdW5kZXJzdGFuZGluZyBpcyB0
+aGF0Ogo+ICAgIC0gb24gInB1dF9kZXZpY2UoJmVuaV92ZHBhLT52ZHBhLmRldik7IiwgdGhlIGNv
+cnJlc3BvbmRpbmcgcmVsZWFzZQo+IGZ1bmN0aW9uIHdpbGwgYmUgY2FsbGVkLgo+Cj4gICAgLSBU
+aGlzIHJlbGVhc2UgZnVuY3Rpb24gaXMgdGhlIG9uZSByZWNvcmRlZCBpbiB0aGUKPiAnX192ZHBh
+X2FsbG9jX2RldmljZSgpJyBmdW5jdGlvbi4KPgo+ICAgIC0gU28gaXQgc2hvdWxkIGJlICd2ZHBh
+X3JlbGVhc2VfZGV2KCknLgo+Cj4gICAgLSBUaGlzIGZ1bmN0aW9uLCBBRkFJVSwgaGFzIG5vIGtu
+b3dsZWRnZSBvZiAndnBfbGVnYWN5X3JlbW92ZSgpJyBvcgo+IGFueXRoaW5nIHRoYXQgY291bGQg
+Y2FsbCBpdC4KPgo+Cj4gVW5sZXNzIEkgbWlzcmVhZCBzb21ldGhpbmcgb3IgbWlzcyBzb21ldGhp
+bmcgb2J2aW91cywgSSBkb24ndCBzZWUgaG93Cj4gJ3ZwX2xlZ2FjeV9yZW1vdmUoKSB3b3VsZCBi
+ZSBjYWxsZWQuCj4KPgo+IENvdWxkIHlvdSBlbGFib3JhdGU/CgpJIHRoaW5rIHRoZSBkZXZpY2Ug
+c2hvdWxkIHJlbGVhc2UgdGhlIGRyaXZlciAoc2VlCmRldmljZV9yZWxlYXNlX2RyaXZlcigpKSBk
+dXJpbmcgZHVyaW5nIGl0cyBkZWxldGluZy4KClRoYW5rcwoKPgo+IENKCj4KPiA+Cj4gPiBUaGFu
+a3MKPiA+Cj4gPj4gICBlcnI6Cj4gPj4gICAgICAgICAgcHV0X2RldmljZSgmZW5pX3ZkcGEtPnZk
+cGEuZGV2KTsKPiA+PiAgICAgICAgICByZXR1cm4gcmV0Owo+ID4+IC0tCj4gPj4gMi4zMC4yCj4g
+Pj4KPiA+Cj4gPgo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
+dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
+YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
