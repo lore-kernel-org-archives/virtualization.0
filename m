@@ -2,99 +2,106 @@ Return-Path: <SRS0=KS98=P4=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07235C433EF
-	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 12:38:12 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 431C9C433F5
+	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 13:03:38 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B0D3361075
-	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 12:38:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B0D3361075
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id CF46061178
+	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 13:03:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org CF46061178
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 713F780F05;
-	Tue,  9 Nov 2021 12:38:11 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7B7654013A;
+	Tue,  9 Nov 2021 13:03:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id j757DgG9c0vW; Tue,  9 Nov 2021 12:38:10 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id sxYiKMvsf8bs; Tue,  9 Nov 2021 13:03:36 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id EF61D80EC8;
-	Tue,  9 Nov 2021 12:38:09 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id EDD4C400DA;
+	Tue,  9 Nov 2021 13:03:35 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BAAA4C0012;
-	Tue,  9 Nov 2021 12:38:09 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1678CC000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AA98FC0012;
+	Tue,  9 Nov 2021 13:03:35 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5D9F2C000E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 12:38:09 +0000 (UTC)
+ Tue,  9 Nov 2021 13:03:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 1309480F05
+ by smtp3.osuosl.org (Postfix) with ESMTP id 4C2B5605C7
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 12:38:09 +0000 (UTC)
+ Tue,  9 Nov 2021 13:03:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gzXLTUdqGqzL
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VSw7GSq_jEJD
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 12:38:07 +0000 (UTC)
+ Tue,  9 Nov 2021 13:03:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 8CCB280EC8
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 0DF34605C3
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 12:38:07 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id C435B21B08;
- Tue,  9 Nov 2021 12:38:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1636461484; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
+ Tue,  9 Nov 2021 13:03:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1636463011;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Pr/msufIEfNhH9LdDdBIkoAqy+mIPBluRaSOI5NcWzQ=;
- b=CjWQIkbfxqKJWP7BJX1cfkv6oxyIc0YFq+rsBMby+qHgWNN19wxKz5iP562oaj9si0N+MN
- FW/0/TpimTSLiRgK+24Yn61vxqYCUa+FD8i18QE3WfwEG/yInZtfeP8KVsZwBRPDkUuzGe
- 0ONiO7v/GT6vLa1pL9xR5TgzJ/z5sPw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1636461484;
- h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=Pr/msufIEfNhH9LdDdBIkoAqy+mIPBluRaSOI5NcWzQ=;
- b=vczv6oEwQcrgYV23UUbO8DUdtsh5wHPl6zjuL+QzkROeIPyCBXRNsHyfVt2SGbyVXjkhHw
- K/UBISnmUPZaOqBg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 5F71F13467;
- Tue,  9 Nov 2021 12:38:04 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id +K1AFaxrimEYOwAAMHmgww
- (envelope-from <tzimmermann@suse.de>); Tue, 09 Nov 2021 12:38:04 +0000
-Message-ID: <b5e514a7-74f3-d072-cfba-80ff05c2669c@suse.de>
-Date: Tue, 9 Nov 2021 13:38:03 +0100
+ bh=Cf4/5CFtCfqfKTzk28jN6LSZwSFGEQhCnZssU3UH2zk=;
+ b=ZfSBQfMbsEmoeVEbx94zAUdkALq/+ofCkHYoA3eoxBZpvaHVGGV2Ep8pW0ndGVXewjwPXK
+ 6yIFsJ5efrXRjfprfoUvjaUdAROwFyZHkBUmQpdtd3XRLPGvTMpuOdJlSAnNfMQsDF6TZT
+ tukwEDaDi4zIR8GTy34OWpnoX6mrScA=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-397-voTp5bhyPJ-ssWMTIGwGtg-1; Tue, 09 Nov 2021 08:03:30 -0500
+X-MC-Unique: voTp5bhyPJ-ssWMTIGwGtg-1
+Received: by mail-ed1-f70.google.com with SMTP id
+ q6-20020a056402518600b003e28d92bb85so17807326edd.7
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 09 Nov 2021 05:03:30 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=Cf4/5CFtCfqfKTzk28jN6LSZwSFGEQhCnZssU3UH2zk=;
+ b=KkJKUcF2Az6mP+k7WgMR47Bxij6JBzMcKil0G5SrubhVZh6thCVL1xen1zb0i4yiKI
+ Ys/JKZHfDIDeD6e2XHz4aUbsR8WMZeFW41TTxTcxQYEYg1b3jv1OM8k6Vr0T711csklm
+ UWZCtp/nkZrCe6czUWp+Ok+rM0f8gfdEBtn6JD2k3zuKKtMSZa2JmDI9tCTGffueGFKR
+ y3Hv2HIIqbhNSYCLINiCU6mk5MwqP7LMsRaTF+XcVcWLk3UgMICbKNdfdwL4qca5IYdd
+ ONuBsPvjWvcw7J9cCWiCzF5f15hfiFTQzBE4Tk2hopYXIrg+aQR2EoU2qCCR8Y2TqJ+x
+ /g/Q==
+X-Gm-Message-State: AOAM530RfTRIgZpUA/Tims/CW1Az4lq/V906A77540UxudqSk1bA4bVs
+ AjTCXHHiEgF/2F59A3ZZg1D55Karu+pDAz0tuf1Wr+GGc5x1jn4X2STwwD6FXH8fw9Dg6YtXU4B
+ zE5vWO+LznPMGAzvD08Eoc4d177XVJgIzEvpdyBQ28A==
+X-Received: by 2002:a50:e707:: with SMTP id a7mr10237695edn.352.1636463009291; 
+ Tue, 09 Nov 2021 05:03:29 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwswjgU9vYPdPQiIhqFtYWaC+jd0TG7EGgxo84FE6Db2sxhysQD3zCTHscC1w7Sr0OCCaAKGw==
+X-Received: by 2002:a50:e707:: with SMTP id a7mr10237660edn.352.1636463009146; 
+ Tue, 09 Nov 2021 05:03:29 -0800 (PST)
+Received: from redhat.com ([2.55.133.41])
+ by smtp.gmail.com with ESMTPSA id de15sm211006ejc.70.2021.11.09.05.03.22
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 09 Nov 2021 05:03:27 -0800 (PST)
+Date: Tue, 9 Nov 2021 08:03:18 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH v4 0/3] virtio support cache indirect desc
+Message-ID: <20211109080023-mutt-send-email-mst@kernel.org>
+References: <20211108114951.92862-1-xuanzhuo@linux.alibaba.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.1
-Subject: Re: [PATCH v2 7/9] drm/simpledrm: Enable FB_DAMAGE_CLIPS property
-Content-Language: en-US
-To: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>, daniel@ffwll.ch,
- airlied@linux.ie, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
- drawat.floss@gmail.com, airlied@redhat.com, kraxel@redhat.com,
- david@lechnology.com, sam@ravnborg.org, javierm@redhat.com,
- kernel@amanoeldawod.com, dirty.ice.hu@gmail.com, michael+lkml@stapelberg.ch,
- aros@gmx.com, joshua@stroblindustries.com, arnd@arndb.de
-References: <20211101141532.26655-1-tzimmermann@suse.de>
- <20211101141532.26655-8-tzimmermann@suse.de>
- <974e10bb-ae58-d1c1-a89e-881b39da4930@tronnes.org>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-In-Reply-To: <974e10bb-ae58-d1c1-a89e-881b39da4930@tronnes.org>
-Cc: linux-hyperv@vger.kernel.org, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org
+In-Reply-To: <20211108114951.92862-1-xuanzhuo@linux.alibaba.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+ Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,165 +113,67 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============4455884619161372173=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============4455884619161372173==
-Content-Language: en-US
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------wK7tSr06me0FXGvFt0X5U1mm"
+On Mon, Nov 08, 2021 at 07:49:48PM +0800, Xuan Zhuo wrote:
+> If the VIRTIO_RING_F_INDIRECT_DESC negotiation succeeds, and the number
+> of sgs used for sending packets is greater than 1. We must constantly
+> call __kmalloc/kfree to allocate/release desc.
+> 
+> In the case of extremely fast package delivery, the overhead cannot be
+> ignored:
+> 
+>   27.46%  [kernel]  [k] virtqueue_add
+>   16.66%  [kernel]  [k] detach_buf_split
+>   16.51%  [kernel]  [k] virtnet_xsk_xmit
+>   14.04%  [kernel]  [k] virtqueue_add_outbuf
+>    5.18%  [kernel]  [k] __kmalloc
+>    4.08%  [kernel]  [k] kfree
+>    2.80%  [kernel]  [k] virtqueue_get_buf_ctx
+>    2.22%  [kernel]  [k] xsk_tx_peek_desc
+>    2.08%  [kernel]  [k] memset_erms
+>    0.83%  [kernel]  [k] virtqueue_kick_prepare
+>    0.76%  [kernel]  [k] virtnet_xsk_run
+>    0.62%  [kernel]  [k] __free_old_xmit_ptr
+>    0.60%  [kernel]  [k] vring_map_one_sg
+>    0.53%  [kernel]  [k] native_apic_mem_write
+>    0.46%  [kernel]  [k] sg_next
+>    0.43%  [kernel]  [k] sg_init_table
+>    0.41%  [kernel]  [k] kmalloc_slab
+> 
+> This patch adds a cache function to virtio to cache these allocated indirect
+> desc instead of constantly allocating and releasing desc.
+> 
+> v4:
+>     1. Only allow desc cache when VIRTIO_RING_F_INDIRECT_DESC negotiation is successful
+>     2. The desc cache threshold can be set for each virtqueue
+> 
+> v3:
+>   pre-allocate per buffer indirect descriptors array
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------wK7tSr06me0FXGvFt0X5U1mm
-Content-Type: multipart/mixed; boundary="------------eVIgUgLMxW5e0kqYjoQAsoG2";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>, daniel@ffwll.ch,
- airlied@linux.ie, mripard@kernel.org, maarten.lankhorst@linux.intel.com,
- drawat.floss@gmail.com, airlied@redhat.com, kraxel@redhat.com,
- david@lechnology.com, sam@ravnborg.org, javierm@redhat.com,
- kernel@amanoeldawod.com, dirty.ice.hu@gmail.com, michael+lkml@stapelberg.ch,
- aros@gmx.com, joshua@stroblindustries.com, arnd@arndb.de
-Cc: dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org,
- virtualization@lists.linux-foundation.org
-Message-ID: <b5e514a7-74f3-d072-cfba-80ff05c2669c@suse.de>
-Subject: Re: [PATCH v2 7/9] drm/simpledrm: Enable FB_DAMAGE_CLIPS property
-References: <20211101141532.26655-1-tzimmermann@suse.de>
- <20211101141532.26655-8-tzimmermann@suse.de>
- <974e10bb-ae58-d1c1-a89e-881b39da4930@tronnes.org>
-In-Reply-To: <974e10bb-ae58-d1c1-a89e-881b39da4930@tronnes.org>
+So I'm not sure why we are doing that. Did it improve anything?
 
---------------eVIgUgLMxW5e0kqYjoQAsoG2
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
 
-DQoNCkFtIDA4LjExLjIxIHVtIDIxOjU1IHNjaHJpZWIgTm9yYWxmIFRyw7hubmVzOg0KPiAN
-Cj4gDQo+IERlbiAwMS4xMS4yMDIxIDE1LjE1LCBza3JldiBUaG9tYXMgWmltbWVybWFubjoN
-Cj4+IEVuYWJsZSB0aGUgRkJfREFNQUdFX0NMSVBTIHByb3BlcnR5IHRvIHJlZHVjZSBkaXNw
-bGF5LXVwZGF0ZQ0KPj4gb3ZlcmhlYWQuIEFsc28gZml4ZXMgYSB3YXJuaW5nIGluIHRoZSBr
-ZXJuZWwgbG9nLg0KPj4NCj4+ICAgIHNpbXBsZS1mcmFtZWJ1ZmZlciBzaW1wbGUtZnJhbWVi
-dWZmZXIuMDogW2RybV0gZHJtX3BsYW5lX2VuYWJsZV9mYl9kYW1hZ2VfY2xpcHMoKSBub3Qg
-Y2FsbGVkDQo+Pg0KPj4gRml4IHRoZSBjb21wdXRhdGlvbiBvZiB0aGUgYmxpdCByZWN0YW5n
-bGUuIFRoaXMgd2Fzbid0IGFuIGlzc3VlIHNvDQo+PiBmYXIsIGFzIHNpbXBsZWRybSBhbHdh
-eXMgYmxpdHRlZCB0aGUgZnVsbCBmcmFtZWJ1ZmZlci4gVGhlIGNvZGUgbm93DQo+PiBzdXBw
-b3J0cyBkYW1hZ2UgY2xpcHBpbmcgYW5kIHZpcnR1YWwgc2NyZWVuIHNpemVzLg0KPj4NCj4+
-IFNpZ25lZC1vZmYtYnk6IFRob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRl
-Pg0KPj4gLS0tDQo+PiAgIGRyaXZlcnMvZ3B1L2RybS90aW55L3NpbXBsZWRybS5jIHwgMzAg
-KysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tDQo+PiAgIDEgZmlsZSBjaGFuZ2VkLCAy
-MiBpbnNlcnRpb25zKCspLCA4IGRlbGV0aW9ucygtKQ0KPj4NCj4+IGRpZmYgLS1naXQgYS9k
-cml2ZXJzL2dwdS9kcm0vdGlueS9zaW1wbGVkcm0uYyBiL2RyaXZlcnMvZ3B1L2RybS90aW55
-L3NpbXBsZWRybS5jDQo+PiBpbmRleCA1NzFmNzE2ZmY0MjcuLmU4NzIxMjFlOWZiMCAxMDA2
-NDQNCj4+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS90aW55L3NpbXBsZWRybS5jDQo+PiArKysg
-Yi9kcml2ZXJzL2dwdS9kcm0vdGlueS9zaW1wbGVkcm0uYw0KPj4gQEAgLTY0Miw3ICs2NDIs
-NyBAQCBzaW1wbGVkcm1fc2ltcGxlX2Rpc3BsYXlfcGlwZV9lbmFibGUoc3RydWN0IGRybV9z
-aW1wbGVfZGlzcGxheV9waXBlICpwaXBlLA0KPj4gICAJdm9pZCAqdm1hcCA9IHNoYWRvd19w
-bGFuZV9zdGF0ZS0+ZGF0YVswXS52YWRkcjsgLyogVE9ETzogVXNlIG1hcHBpbmcgYWJzdHJh
-Y3Rpb24gKi8NCj4+ICAgCXN0cnVjdCBkcm1fZGV2aWNlICpkZXYgPSAmc2Rldi0+ZGV2Ow0K
-Pj4gICAJdm9pZCBfX2lvbWVtICpkc3QgPSBzZGV2LT5zY3JlZW5fYmFzZTsNCj4+IC0Jc3Ry
-dWN0IGRybV9yZWN0IGNsaXA7DQo+PiArCXN0cnVjdCBkcm1fcmVjdCBzcmNfY2xpcCwgZHN0
-X2NsaXA7DQo+PiAgIAlpbnQgaWR4Ow0KPj4gICANCj4+ICAgCWlmICghZmIpDQo+PiBAQCAt
-NjUxLDEwICs2NTEsMTQgQEAgc2ltcGxlZHJtX3NpbXBsZV9kaXNwbGF5X3BpcGVfZW5hYmxl
-KHN0cnVjdCBkcm1fc2ltcGxlX2Rpc3BsYXlfcGlwZSAqcGlwZSwNCj4+ICAgCWlmICghZHJt
-X2Rldl9lbnRlcihkZXYsICZpZHgpKQ0KPj4gICAJCXJldHVybjsNCj4+ICAgDQo+PiAtCWRy
-bV9yZWN0X2luaXQoJmNsaXAsIDAsIDAsIGZiLT53aWR0aCwgZmItPmhlaWdodCk7DQo+PiAr
-CWRybV9yZWN0X2ZwX3RvX2ludCgmc3JjX2NsaXAsICZwbGFuZV9zdGF0ZS0+c3JjKTsNCj4+
-ICAgDQo+PiAtCWRzdCArPSBkcm1fZmJfY2xpcF9vZmZzZXQoc2Rldi0+cGl0Y2gsIHNkZXYt
-PmZvcm1hdCwgJmNsaXApOw0KPj4gLQlkcm1fZmJfYmxpdF90b2lvKGRzdCwgc2Rldi0+cGl0
-Y2gsIHNkZXYtPmZvcm1hdC0+Zm9ybWF0LCB2bWFwLCBmYiwgJmNsaXApOw0KPj4gKwlkc3Rf
-Y2xpcCA9IHBsYW5lX3N0YXRlLT5kc3Q7DQo+IA0KPiBJIGFzc3VtZSB0aGF0IHNyY19jbGlw
-IGFuZCBkc3RfY2xpcCBhcmUgb2YgdGhlIHNhbWUgc2l6ZSwgc2luY2Ugc2NhbGluZw0KPiBp
-cyBub3Qgc3VwcG9ydGVkLiBXaGF0IHByZXZlbnRzIGRzdF9jbGlwIGZyb20gYmVpbmcgYmln
-Z2VyIHRoYW4gdGhlDQo+IGJ1ZmZlciB0aGF0J3MgYmVpbmcgYmxpdHRlZCBpbnRvPyBXaGVy
-ZSBpcyB0aGF0IGJvdW5kcyBjaGVja2luZyBkb25lPw0KDQpUaGUgdmFsdWUgb2YgZHN0X2Ns
-aXAgY29tZXMgZnJvbSBwbGFuZV9zdGF0ZS0+ZHN0LCB3aGljaCBnZXRzIA0KaW5pdGlhbGl6
-ZWQgaW4gZHJtX2F0b21pY19oZWxwZXJfY2hlY2tfcGxhbmVfc3RhdGUoKS4gWzFdIFRoZSBm
-aWVsZHMgYXJlIA0KdGFrZW4gZnJvbSB0aGUgY3J0Y197eCx5LHcsaH0gdmFsdWVzIGJ5IGRy
-bV9wbGFuZV9nZXRfZGVzdCgpLiBbMl0gRm9yIA0KcHJpbWFyeSBwbGFuZXMsIHRoZSBjcnRj
-X3t4LHksdyxofSB2YWx1ZXMgYXJlIGluaXRpYWxpemVkIGluIA0KX19kcm1fYXRvbWljX2hl
-bHBlcl9zZXRfY29uZmlnKCkgdG8gdGhlIHNpemUgb2YgdGhlIGRpc3BsYXkuIFszXSBUaGF0
-IA0Kc2l6ZSBjb21lcyBkaXJlY3RseSBmcm9tIHRoZSBjdXJyZW50IHZpZGVvIG1vZGUuIFs0
-XSBGcm9tIGFsbCBJIGNhbiBzZWUgDQp0aGlzIGNhbm5vdCBvdmVyZmxvdy4NCg0KQmVzdCBy
-ZWdhcmRzDQpUaG9tYXMNCg0KWzFdIA0KaHR0cHM6Ly9lbGl4aXIuYm9vdGxpbi5jb20vbGlu
-dXgvbGF0ZXN0L3NvdXJjZS9kcml2ZXJzL2dwdS9kcm0vZHJtX2F0b21pY19oZWxwZXIuYyNM
-ODA3DQpbMl0gDQpodHRwczovL2VsaXhpci5ib290bGluLmNvbS9saW51eC9sYXRlc3Qvc291
-cmNlL2luY2x1ZGUvZHJtL2RybV9wbGFuZS5oI0wyNTcNClszXSANCmh0dHBzOi8vZWxpeGly
-LmJvb3RsaW4uY29tL2xpbnV4L2xhdGVzdC9zb3VyY2UvZHJpdmVycy9ncHUvZHJtL2RybV9h
-dG9taWMuYyNMMTU5MA0KWzRdIA0KaHR0cHM6Ly9lbGl4aXIuYm9vdGxpbi5jb20vbGludXgv
-bGF0ZXN0L3NvdXJjZS9kcml2ZXJzL2dwdS9kcm0vZHJtX21vZGVzLmMjTDc4OA0KDQo+IA0K
-PiBOb3JhbGYuDQo+IA0KPj4gKwlpZiAoIWRybV9yZWN0X2ludGVyc2VjdCgmZHN0X2NsaXAs
-ICZzcmNfY2xpcCkpDQo+PiArCQlyZXR1cm47DQo+PiArDQo+PiArCWRzdCArPSBkcm1fZmJf
-Y2xpcF9vZmZzZXQoc2Rldi0+cGl0Y2gsIHNkZXYtPmZvcm1hdCwgJmRzdF9jbGlwKTsNCj4+
-ICsJZHJtX2ZiX2JsaXRfdG9pbyhkc3QsIHNkZXYtPnBpdGNoLCBzZGV2LT5mb3JtYXQtPmZv
-cm1hdCwgdm1hcCwgZmIsICZzcmNfY2xpcCk7DQo+PiAgIA0KPj4gICAJZHJtX2Rldl9leGl0
-KGlkeCk7DQo+PiAgIH0NCj4+IEBAIC02ODYsMjAgKzY5MCwyOCBAQCBzaW1wbGVkcm1fc2lt
-cGxlX2Rpc3BsYXlfcGlwZV91cGRhdGUoc3RydWN0IGRybV9zaW1wbGVfZGlzcGxheV9waXBl
-ICpwaXBlLA0KPj4gICAJc3RydWN0IGRybV9mcmFtZWJ1ZmZlciAqZmIgPSBwbGFuZV9zdGF0
-ZS0+ZmI7DQo+PiAgIAlzdHJ1Y3QgZHJtX2RldmljZSAqZGV2ID0gJnNkZXYtPmRldjsNCj4+
-ICAgCXZvaWQgX19pb21lbSAqZHN0ID0gc2Rldi0+c2NyZWVuX2Jhc2U7DQo+PiAtCXN0cnVj
-dCBkcm1fcmVjdCBjbGlwOw0KPj4gKwlzdHJ1Y3QgZHJtX3JlY3QgZGFtYWdlX2NsaXAsIHNy
-Y19jbGlwLCBkc3RfY2xpcDsNCj4+ICAgCWludCBpZHg7DQo+PiAgIA0KPj4gICAJaWYgKCFm
-YikNCj4+ICAgCQlyZXR1cm47DQo+PiAgIA0KPj4gLQlpZiAoIWRybV9hdG9taWNfaGVscGVy
-X2RhbWFnZV9tZXJnZWQob2xkX3BsYW5lX3N0YXRlLCBwbGFuZV9zdGF0ZSwgJmNsaXApKQ0K
-Pj4gKwlpZiAoIWRybV9hdG9taWNfaGVscGVyX2RhbWFnZV9tZXJnZWQob2xkX3BsYW5lX3N0
-YXRlLCBwbGFuZV9zdGF0ZSwgJmRhbWFnZV9jbGlwKSkNCj4+ICsJCXJldHVybjsNCj4+ICsN
-Cj4+ICsJZHJtX3JlY3RfZnBfdG9faW50KCZzcmNfY2xpcCwgJnBsYW5lX3N0YXRlLT5zcmMp
-Ow0KPj4gKwlpZiAoIWRybV9yZWN0X2ludGVyc2VjdCgmc3JjX2NsaXAsICZkYW1hZ2VfY2xp
-cCkpDQo+PiArCQlyZXR1cm47DQo+PiArDQo+PiArCWRzdF9jbGlwID0gcGxhbmVfc3RhdGUt
-PmRzdDsNCj4+ICsJaWYgKCFkcm1fcmVjdF9pbnRlcnNlY3QoJmRzdF9jbGlwLCAmc3JjX2Ns
-aXApKQ0KPj4gICAJCXJldHVybjsNCj4+ICAgDQo+PiAgIAlpZiAoIWRybV9kZXZfZW50ZXIo
-ZGV2LCAmaWR4KSkNCj4+ICAgCQlyZXR1cm47DQo+PiAgIA0KPj4gLQlkc3QgKz0gZHJtX2Zi
-X2NsaXBfb2Zmc2V0KHNkZXYtPnBpdGNoLCBzZGV2LT5mb3JtYXQsICZjbGlwKTsNCj4+IC0J
-ZHJtX2ZiX2JsaXRfdG9pbyhkc3QsIHNkZXYtPnBpdGNoLCBzZGV2LT5mb3JtYXQtPmZvcm1h
-dCwgdm1hcCwgZmIsICZjbGlwKTsNCj4+ICsJZHN0ICs9IGRybV9mYl9jbGlwX29mZnNldChz
-ZGV2LT5waXRjaCwgc2Rldi0+Zm9ybWF0LCAmZHN0X2NsaXApOw0KPj4gKwlkcm1fZmJfYmxp
-dF90b2lvKGRzdCwgc2Rldi0+cGl0Y2gsIHNkZXYtPmZvcm1hdC0+Zm9ybWF0LCB2bWFwLCBm
-YiwgJnNyY19jbGlwKTsNCj4+ICAgDQo+PiAgIAlkcm1fZGV2X2V4aXQoaWR4KTsNCj4+ICAg
-fQ0KPj4gQEAgLTc5NCw2ICs4MDYsOCBAQCBzdGF0aWMgaW50IHNpbXBsZWRybV9kZXZpY2Vf
-aW5pdF9tb2Rlc2V0KHN0cnVjdCBzaW1wbGVkcm1fZGV2aWNlICpzZGV2KQ0KPj4gICAJaWYg
-KHJldCkNCj4+ICAgCQlyZXR1cm4gcmV0Ow0KPj4gICANCj4+ICsJZHJtX3BsYW5lX2VuYWJs
-ZV9mYl9kYW1hZ2VfY2xpcHMoJnBpcGUtPnBsYW5lKTsNCj4+ICsNCj4+ICAgCWRybV9tb2Rl
-X2NvbmZpZ19yZXNldChkZXYpOw0KPj4gICANCj4+ICAgCXJldHVybiAwOw0KPj4NCg0KLS0g
-DQpUaG9tYXMgWmltbWVybWFubg0KR3JhcGhpY3MgRHJpdmVyIERldmVsb3Blcg0KU1VTRSBT
-b2Z0d2FyZSBTb2x1dGlvbnMgR2VybWFueSBHbWJIDQpNYXhmZWxkc3RyLiA1LCA5MDQwOSBO
-w7xybmJlcmcsIEdlcm1hbnkNCihIUkIgMzY4MDksIEFHIE7DvHJuYmVyZykNCkdlc2Now6Rm
-dHNmw7xocmVyOiBJdm8gVG90ZXYNCg==
-
---------------eVIgUgLMxW5e0kqYjoQAsoG2--
-
---------------wK7tSr06me0FXGvFt0X5U1mm
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmGKa6sFAwAAAAAACgkQlh/E3EQov+C0
-9g/9HmKQqgtp+uesWq78WcBv4X41VxGx6Yz3HBBzK/4950CL14YiLR9WfX713flilGbxJNfCQ8ao
-xPcFS1wPMprxrGF7DOoXPz0iV7SqUVx8l8IEOpv+vamNCwL2Fk2mSw3qLADZxB3he/9F7DeXPcxe
-berTUWb55LvLruL4g8eRh4T/a3x2goBZnOgxZT4UFg9uaxqX74waSWOGdcGrig/jUmCogBpmNkCx
-AdAaD/SO5EughdjmWkZG3mTpOIaat5/fz0hMDjQSsRJivHjKxu9ledHyqv13yKhLUJ2h9035BXp1
-XrdrK36yVMXmqnJZUCinqJaI6nqOCDL26u5DygIeGITe2wsCtRIpmqX/zTV7JeCUpiCcxce/HUSA
-WMNzFmN2t34DRlEm2K+oGnAN3Hq824QZptylz6VtqxAyD5r8CaldPWwaQrZkhAz3Flm2tIdJb4ag
-Niu8fx2ULTkyBKdWuIFPP94zSpqP63pvMarkY5mYfGVS1nwH09Nqi3mx6uLgFrg0q4MZ9hz1PwoP
-UjjMon7ZdWzqan1rk1hwGU1IPt3EyCUYyM63M3rzbhtbdUhlRboV/oDBjk8Xj1ZwyLrD5geFS3zJ
-aB+xYhLZG86uoOxEES71aNbQTsF9LlvBQQukMkg9/s2KibTLBkWtV8RzIHs4mhrp1EVZhSsw6RUc
-wJ0=
-=5oUY
------END PGP SIGNATURE-----
-
---------------wK7tSr06me0FXGvFt0X5U1mm--
-
---===============4455884619161372173==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> v2:
+>   use struct list_head to cache the desc
+> 
+> Xuan Zhuo (3):
+>   virtio: cache indirect desc for split
+>   virtio: cache indirect desc for packed
+>   virtio-net: enable virtio desc cache
+> 
+>  drivers/net/virtio_net.c     |  12 ++-
+>  drivers/virtio/virtio_ring.c | 152 +++++++++++++++++++++++++++++++----
+>  include/linux/virtio.h       |  17 ++++
+>  3 files changed, 163 insertions(+), 18 deletions(-)
+> 
+> --
+> 2.31.0
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4455884619161372173==--
