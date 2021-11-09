@@ -2,69 +2,67 @@ Return-Path: <SRS0=KS98=P4=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADED4C2BBC7
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88754C41535
 	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 08:34:02 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7B6B9610E9
+	by mail.kernel.org (Postfix) with ESMTPS id 5559A611AF
 	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 08:34:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 7B6B9610E9
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 5559A611AF
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 5C568403AC;
+	by smtp1.osuosl.org (Postfix) with ESMTP id 29C8880ED0;
 	Tue,  9 Nov 2021 08:34:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id aA_U3zm3Q8M7; Tue,  9 Nov 2021 08:34:01 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id GZ4Lnj2A2dtY; Tue,  9 Nov 2021 08:34:01 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id EF33A403A2;
+	by smtp1.osuosl.org (Postfix) with ESMTPS id AEE2480ED7;
 	Tue,  9 Nov 2021 08:34:00 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C729FC0023;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 865E1C0012;
 	Tue,  9 Nov 2021 08:34:00 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EF793C001F
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4DAAAC001F
  for <virtualization@lists.linux-foundation.org>;
  Tue,  9 Nov 2021 08:33:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id DC895402FE
+ by smtp1.osuosl.org (Postfix) with ESMTP id 3774F80ECD
  for <virtualization@lists.linux-foundation.org>;
  Tue,  9 Nov 2021 08:33:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id I8TJL9v9m9Se
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id mppOADUugF1y
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 08:33:59 +0000 (UTC)
+ Tue,  9 Nov 2021 08:33:58 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp2.osuosl.org (Postfix) with ESMTPS id EBFE74031E
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 72F8C80ED2
  for <virtualization@lists.linux-foundation.org>;
  Tue,  9 Nov 2021 08:33:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=w7OlGcun90+irmAPYzmTcZBOPYBcRc9XENfZ6+Mb9vU=; b=jWJH7gRabA1nTyzMlvOyrMmL6A
- d1snCm4OAtdG9l96Fl8SdKPajWndw2wLlbGdJcqzIZuESJlOdHsiUq58YLz9LH9Mlp11mSyTq/37f
- Gi5Fa9czKxgBGgLurjuhXBCqhQIk4HYDrJnbGc3S00AjlhI2SdXjzPkKbqK8qebbUvMI1X9wwVq1t
- f0JNoiiUP0y6wny2CDC5c6gmSjssHyPwLn85K617F9BzrxUekruJ3zUtV7YSU7uoqQs4ZIlHoyAFH
- JXb42BtJPPQnrHsObmA6aGnKjFyz7ZK36uY2Eok7JXO3qbtMsmSl0/btVmQrUctSho4PyptJVK4HM
- KAEOcvJw==;
+ bh=SW8Zo8xNPpf5PRQj/yoxD2eK+vSZCdgKjxBBcNAut5E=; b=IAd2z0n4+rSaZjOAQAcHkUiG7e
+ AHKwIW3QT0BU34bqCQuvoimP884y7lMTrSi4ev67fFNWoK1dDvk5amFAb1n/57yJ+Cb+3n1zj4Gbe
+ YQPgAi5L5rz7YsX4eE0j3hCuAMWPdWSq6kU6krKBw+bSRtv/zYPnHKCRNminIPWP6laGvD1ySu1/T
+ onyeNMCfFyCWBxzeP2yuXUxNRqQg/kDKSkylEst+HmEWCXAPXsfje13JJ/FKQNbF/0EmnJ+G2P9v1
+ SSDU4goh3tuk4pjnxSDpwGrNlqzT2hYG7o05V7aC4jrXohtehEvjw1MAGEkXVzVVTQXeoF3k/MQXg
+ T5uHRctQ==;
 Received: from [2001:4bb8:19a:7ee7:fb46:2fe1:8652:d9d4] (helo=localhost)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1mkMZe-000s6P-H3; Tue, 09 Nov 2021 08:33:47 +0000
+ id 1mkMZb-000s5r-P1; Tue, 09 Nov 2021 08:33:44 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 19/29] ext2: cleanup the dax handling in ext2_fill_super
-Date: Tue,  9 Nov 2021 09:32:59 +0100
-Message-Id: <20211109083309.584081-20-hch@lst.de>
+Subject: [PATCH 17/29] fsdax: factor out a dax_memzero helper
+Date: Tue,  9 Nov 2021 09:32:57 +0100
+Message-Id: <20211109083309.584081-18-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211109083309.584081-1-hch@lst.de>
 References: <20211109083309.584081-1-hch@lst.de>
@@ -92,67 +90,70 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Only call fs_dax_get_by_bdev once the sbi has been allocated and remove
-the need for the dax_dev local variable.
+Factor out a helper for the "manual" zeroing of a DAX range to clean
+up dax_iomap_zero a lot.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 ---
- fs/ext2/super.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ fs/dax.c | 36 +++++++++++++++++++-----------------
+ 1 file changed, 19 insertions(+), 17 deletions(-)
 
-diff --git a/fs/ext2/super.c b/fs/ext2/super.c
-index a964066a80aa7..7e23482862e69 100644
---- a/fs/ext2/super.c
-+++ b/fs/ext2/super.c
-@@ -802,7 +802,6 @@ static unsigned long descriptor_loc(struct super_block *sb,
+diff --git a/fs/dax.c b/fs/dax.c
+index d7a923d152240..dc9ebeff850ab 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -1121,34 +1121,36 @@ static vm_fault_t dax_pmd_load_hole(struct xa_state *xas, struct vm_fault *vmf,
+ }
+ #endif /* CONFIG_FS_DAX_PMD */
  
- static int ext2_fill_super(struct super_block *sb, void *data, int silent)
++static int dax_memzero(struct dax_device *dax_dev, pgoff_t pgoff,
++		unsigned int offset, size_t size)
++{
++	void *kaddr;
++	long rc;
++
++	rc = dax_direct_access(dax_dev, pgoff, 1, &kaddr, NULL);
++	if (rc >= 0) {
++		memset(kaddr + offset, 0, size);
++		dax_flush(dax_dev, kaddr + offset, size);
++	}
++	return rc;
++}
++
+ s64 dax_iomap_zero(loff_t pos, u64 length, struct iomap *iomap)
  {
--	struct dax_device *dax_dev = fs_dax_get_by_bdev(sb->s_bdev);
- 	struct buffer_head * bh;
- 	struct ext2_sb_info * sbi;
- 	struct ext2_super_block * es;
-@@ -822,17 +821,17 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
+ 	pgoff_t pgoff = dax_iomap_pgoff(iomap, pos);
+ 	long rc, id;
+-	void *kaddr;
+-	bool page_aligned = false;
+ 	unsigned offset = offset_in_page(pos);
+ 	unsigned size = min_t(u64, PAGE_SIZE - offset, length);
  
- 	sbi = kzalloc(sizeof(*sbi), GFP_KERNEL);
- 	if (!sbi)
--		goto failed;
-+		return -ENOMEM;
- 
- 	sbi->s_blockgroup_lock =
- 		kzalloc(sizeof(struct blockgroup_lock), GFP_KERNEL);
- 	if (!sbi->s_blockgroup_lock) {
- 		kfree(sbi);
--		goto failed;
-+		return -ENOMEM;
- 	}
- 	sb->s_fs_info = sbi;
- 	sbi->s_sb_block = sb_block;
--	sbi->s_daxdev = dax_dev;
-+	sbi->s_daxdev = fs_dax_get_by_bdev(sb->s_bdev);
- 
- 	spin_lock_init(&sbi->s_lock);
- 	ret = -EINVAL;
-@@ -946,7 +945,7 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
- 	blocksize = BLOCK_SIZE << le32_to_cpu(sbi->s_es->s_log_block_size);
- 
- 	if (test_opt(sb, DAX)) {
--		if (!dax_dev) {
-+		if (!sbi->s_daxdev) {
- 			ext2_msg(sb, KERN_ERR,
- 				"DAX unsupported by block device. Turning off DAX.");
- 			clear_opt(sbi->s_mount_opt, DAX);
-@@ -1201,11 +1200,10 @@ static int ext2_fill_super(struct super_block *sb, void *data, int silent)
- failed_mount:
- 	brelse(bh);
- failed_sbi:
-+	fs_put_dax(sbi->s_daxdev);
- 	sb->s_fs_info = NULL;
- 	kfree(sbi->s_blockgroup_lock);
- 	kfree(sbi);
--failed:
--	fs_put_dax(dax_dev);
- 	return ret;
+-	if (IS_ALIGNED(pos, PAGE_SIZE) && size == PAGE_SIZE)
+-		page_aligned = true;
+-
+ 	id = dax_read_lock();
+-
+-	if (page_aligned)
++	if (IS_ALIGNED(pos, PAGE_SIZE) && size == PAGE_SIZE)
+ 		rc = dax_zero_page_range(iomap->dax_dev, pgoff, 1);
+ 	else
+-		rc = dax_direct_access(iomap->dax_dev, pgoff, 1, &kaddr, NULL);
+-	if (rc < 0) {
+-		dax_read_unlock(id);
+-		return rc;
+-	}
+-
+-	if (!page_aligned) {
+-		memset(kaddr + offset, 0, size);
+-		dax_flush(iomap->dax_dev, kaddr + offset, size);
+-	}
++		rc = dax_memzero(iomap->dax_dev, pgoff, offset, size);
+ 	dax_read_unlock(id);
++
++	if (rc < 0)
++		return rc;
+ 	return size;
  }
  
 -- 
