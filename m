@@ -2,85 +2,91 @@ Return-Path: <SRS0=KS98=P4=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1BA5C433EF
-	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 05:25:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39BDBC433EF
+	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 05:34:40 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 626036112F
-	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 05:25:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 626036112F
+	by mail.kernel.org (Postfix) with ESMTPS id D3F7F6113D
+	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 05:34:39 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D3F7F6113D
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 11BC1402DF;
-	Tue,  9 Nov 2021 05:25:08 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 81345400D9;
+	Tue,  9 Nov 2021 05:34:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id AlYkU2lkgICr; Tue,  9 Nov 2021 05:25:07 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 89E9B400D9;
-	Tue,  9 Nov 2021 05:25:06 +0000 (UTC)
+	with ESMTP id IJShFNGz3owZ; Tue,  9 Nov 2021 05:34:38 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C01C3401FB;
+	Tue,  9 Nov 2021 05:34:37 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5F88DC0012;
-	Tue,  9 Nov 2021 05:25:06 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9463FC0012;
+	Tue,  9 Nov 2021 05:34:37 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 62367C000E
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 58028C000E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 05:25:05 +0000 (UTC)
+ Tue,  9 Nov 2021 05:34:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 4752C401FB
+ by smtp2.osuosl.org (Postfix) with ESMTP id 31D17401FB
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 05:25:05 +0000 (UTC)
+ Tue,  9 Nov 2021 05:34:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id DU6700pi6H35
+ with ESMTP id Mx0ZLN6AnyJB
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 05:25:04 +0000 (UTC)
+ Tue,  9 Nov 2021 05:34:35 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 4F5BF400D9
+ by smtp2.osuosl.org (Postfix) with ESMTPS id DDD82400D9
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 05:25:04 +0000 (UTC)
+ Tue,  9 Nov 2021 05:34:34 +0000 (UTC)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id 501BA21B00;
- Tue,  9 Nov 2021 05:25:01 +0000 (UTC)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id 1B1F921B06;
+ Tue,  9 Nov 2021 05:34:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1636435501; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ t=1636436073; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=6qZ2ecLipwkjea22RjvngCag5b7N6mh9K6o75bhKVAQ=;
- b=ZmAHsnxetzDVEILFPVQSus1SPBiL8uqgSJNoqvP1LRUTCk1uMo0V0klSofaXkEsl0wYtak
- L2Wo0SxJGqZLigMP7dYkWZ5QfgZ8bGZc40dCQPfkJScIay0mPM6bIDg6nCMVkkVQ9A+Mt0
- 54rJBtFU8GvGmIcrzN5OHKV4obJ1E88=
+ bh=25xyWJJliRTmh2VW41Gr038sYdV14J8Jet0MH+0nmRc=;
+ b=YFtzPnXqG67rjcdQsp5lPWm1fNyQb9weZabWSAy9opVyfNCeSNE9TQrEJI67FA5fFtvYSk
+ UjUHjg4l1zda4NZshFvs2ysrDGpnMKdhHQ/BqcBOV8MMnX1dShLwur4h16FgvC1WyeeniV
+ ireRCYpnLH0OrmtKH2jjH0KtmgSwyJ0=
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
  key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
  (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id F0C2213A9D;
- Tue,  9 Nov 2021 05:25:00 +0000 (UTC)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 7D1F813A9D;
+ Tue,  9 Nov 2021 05:34:32 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id 5uwbOSwGimHEcAAAMHmgww
- (envelope-from <jgross@suse.com>); Tue, 09 Nov 2021 05:25:00 +0000
-Subject: Re: [PATCH 1/2] MAINTAINERS: Update maintainers for paravirt ops and
- VMware hypervisor interface
+ by imap2.suse-dmz.suse.de with ESMTPSA id spzKHGgIimGncwAAMHmgww
+ (envelope-from <jgross@suse.com>); Tue, 09 Nov 2021 05:34:32 +0000
 To: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>, x86@kernel.org,
  pv-drivers@vmware.com
 References: <163640336232.62866.489924062999332446.stgit@srivatsa-dev>
-Message-ID: <50de7150-2f5f-302e-6181-a542e5df9deb@suse.com>
-Date: Tue, 9 Nov 2021 06:25:00 +0100
+ <163640339370.62866.3435211389009241865.stgit@srivatsa-dev>
+Subject: Re: [PATCH 2/2] MAINTAINERS: Mark VMware mailing list entries as
+ private
+Message-ID: <05804bc2-60fb-b1f8-c0c4-ad7b1c45462a@suse.com>
+Date: Tue, 9 Nov 2021 06:34:31 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.12.0
 MIME-Version: 1.0
-In-Reply-To: <163640336232.62866.489924062999332446.stgit@srivatsa-dev>
-Cc: anishs@vmware.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+In-Reply-To: <163640339370.62866.3435211389009241865.stgit@srivatsa-dev>
+Cc: amakhalov@vmware.com, Ronak Doshi <doshir@vmware.com>,
+ linux-scsi@vger.kernel.org, anishs@vmware.com,
+ Vishal Bhakta <vbhakta@vmware.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org,
  virtualization@lists.linux-foundation.org, keerthanak@vmware.com,
- Alexey Makhalov <amakhalov@vmware.com>
+ linux-rdma@vger.kernel.org, linux-graphics-maintainer@vmware.com,
+ linux-input@vger.kernel.org, Nadav Amit <namit@vmware.com>,
+ Zack Rusin <zackr@vmware.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,62 +101,136 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 From: Juergen Gross via Virtualization
  <virtualization@lists.linux-foundation.org>
 Reply-To: Juergen Gross <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============7962893220502143665=="
+Content-Type: multipart/mixed; boundary="===============4795207355738487257=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============7962893220502143665==
+--===============4795207355738487257==
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="9dqCZhv4Xu8LCUrKXl5rinN1qWdhqtoPh"
+ boundary="al1MqEmNzTaRWgbdIcvBJCOhrC2hGsWXq"
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---9dqCZhv4Xu8LCUrKXl5rinN1qWdhqtoPh
-Content-Type: multipart/mixed; boundary="fxtyyotnuEemsZMYf6iU1sZZXS8Caq110";
+--al1MqEmNzTaRWgbdIcvBJCOhrC2hGsWXq
+Content-Type: multipart/mixed; boundary="W6JL2G1FAlQS9hzWi03hu2aIhExlEcuAp";
  protected-headers="v1"
 From: Juergen Gross <jgross@suse.com>
 To: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>, x86@kernel.org,
  pv-drivers@vmware.com
-Cc: Alexey Makhalov <amakhalov@vmware.com>, Deep Shah <sdeep@vmware.com>,
- stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
- keerthanak@vmware.com, srivatsab@vmware.com, anishs@vmware.com,
- vithampi@vmware.com, linux-kernel@vger.kernel.org
-Message-ID: <50de7150-2f5f-302e-6181-a542e5df9deb@suse.com>
-Subject: Re: [PATCH 1/2] MAINTAINERS: Update maintainers for paravirt ops and
- VMware hypervisor interface
+Cc: Nadav Amit <namit@vmware.com>, Vivek Thampi <vithampi@vmware.com>,
+ Vishal Bhakta <vbhakta@vmware.com>, Ronak Doshi <doshir@vmware.com>,
+ linux-graphics-maintainer@vmware.com, dri-devel@lists.freedesktop.org,
+ linux-rdma@vger.kernel.org, linux-scsi@vger.kernel.org,
+ netdev@vger.kernel.org, linux-input@vger.kernel.org,
+ Zack Rusin <zackr@vmware.com>, sdeep@vmware.com, amakhalov@vmware.com,
+ virtualization@lists.linux-foundation.org, keerthanak@vmware.com,
+ srivatsab@vmware.com, anishs@vmware.com, linux-kernel@vger.kernel.org
+Message-ID: <05804bc2-60fb-b1f8-c0c4-ad7b1c45462a@suse.com>
+Subject: Re: [PATCH 2/2] MAINTAINERS: Mark VMware mailing list entries as
+ private
 References: <163640336232.62866.489924062999332446.stgit@srivatsa-dev>
-In-Reply-To: <163640336232.62866.489924062999332446.stgit@srivatsa-dev>
+ <163640339370.62866.3435211389009241865.stgit@srivatsa-dev>
+In-Reply-To: <163640339370.62866.3435211389009241865.stgit@srivatsa-dev>
 
---fxtyyotnuEemsZMYf6iU1sZZXS8Caq110
+--W6JL2G1FAlQS9hzWi03hu2aIhExlEcuAp
 Content-Type: multipart/mixed;
- boundary="------------0E16175F2C2C8FD9C19D3F29"
+ boundary="------------641FCF0DF0F5BF271A32D69F"
 Content-Language: en-US
 
 This is a multi-part message in MIME format.
---------------0E16175F2C2C8FD9C19D3F29
+--------------641FCF0DF0F5BF271A32D69F
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
 
-On 08.11.21 21:29, Srivatsa S. Bhat wrote:
+On 08.11.21 21:30, Srivatsa S. Bhat wrote:
 > From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
 >=20
-> Deep has decided to transfer maintainership of the VMware hypervisor
-> interface to Srivatsa, and the joint-maintainership of paravirt ops in
-> the Linux kernel to Srivatsa and Alexey. Update the MAINTAINERS file
-> to reflect this change.
+> VMware mailing lists in the MAINTAINERS file are private lists meant
+> for VMware-internal review/notification for patches to the respective
+> subsystems. So, in an earlier discussion [1][2], it was recommended to
+> mark them as such. Update all the remaining VMware mailing list
+> references to use that format -- "L: list@address (private)".
+>=20
+> [1]. https://lore.kernel.org/r/YPfp0Ff6KuyPlyrc@kroah.com
+> [2]. https://lore.kernel.org/r/1626861766-11115-1-git-send-email-jhanse=
+n@vmware.com
 >=20
 > Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
-> Acked-by: Alexey Makhalov <amakhalov@vmware.com>
-> Acked-by: Deep Shah <sdeep@vmware.com>
-> Cc: stable@vger.kernel.org
+> Cc: Nadav Amit <namit@vmware.com>
+> Cc: Vivek Thampi <vithampi@vmware.com>
+> Cc: Vishal Bhakta <vbhakta@vmware.com>
+> Cc: Ronak Doshi <doshir@vmware.com>
+> Cc: pv-drivers@vmware.com
+> Cc: linux-graphics-maintainer@vmware.com
+> Cc: dri-devel@lists.freedesktop.org
+> Cc: linux-rdma@vger.kernel.org
+> Cc: linux-scsi@vger.kernel.org
+> Cc: netdev@vger.kernel.org
+> Cc: linux-input@vger.kernel.org
+> Acked-by: Zack Rusin <zackr@vmware.com>
+> ---
+>=20
+>   MAINTAINERS |   16 ++++++++--------
+>   1 file changed, 8 insertions(+), 8 deletions(-)
+>=20
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 118cf8170d02..3e92176e68fb 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -6134,8 +6134,8 @@ T:	git git://anongit.freedesktop.org/drm/drm-misc=
 
-Acked-by: Juergen Gross <jgross@suse.com>
+>   F:	drivers/gpu/drm/vboxvideo/
+>  =20
+>   DRM DRIVER FOR VMWARE VIRTUAL GPU
+> -M:	"VMware Graphics" <linux-graphics-maintainer@vmware.com>
+>   M:	Zack Rusin <zackr@vmware.com>
+> +L:	linux-graphics-maintainer@vmware.com (private)
+>   L:	dri-devel@lists.freedesktop.org
+>   S:	Supported
+>   T:	git git://anongit.freedesktop.org/drm/drm-misc
+> @@ -20032,7 +20032,7 @@ F:	tools/testing/vsock/
+>  =20
+>   VMWARE BALLOON DRIVER
+>   M:	Nadav Amit <namit@vmware.com>
+> -M:	"VMware, Inc." <pv-drivers@vmware.com>
+> +L:	pv-drivers@vmware.com (private)
+>   L:	linux-kernel@vger.kernel.org
+>   S:	Maintained
+>   F:	drivers/misc/vmw_balloon.c
+> @@ -20050,14 +20050,14 @@ F:	arch/x86/kernel/cpu/vmware.c
+>  =20
+>   VMWARE PVRDMA DRIVER
+>   M:	Adit Ranadive <aditr@vmware.com>
+> -M:	VMware PV-Drivers <pv-drivers@vmware.com>
+> +L:	pv-drivers@vmware.com (private)
+>   L:	linux-rdma@vger.kernel.org
+>   S:	Maintained
+>   F:	drivers/infiniband/hw/vmw_pvrdma/
+>  =20
+>   VMware PVSCSI driver
+>   M:	Vishal Bhakta <vbhakta@vmware.com>
+> -M:	VMware PV-Drivers <pv-drivers@vmware.com>
+> +L:	pv-drivers@vmware.com (private)
+>   L:	linux-scsi@vger.kernel.org
+>   S:	Maintained
+>   F:	drivers/scsi/vmw_pvscsi.c
+> @@ -20065,7 +20065,7 @@ F:	drivers/scsi/vmw_pvscsi.h
+>  =20
+>   VMWARE VIRTUAL PTP CLOCK DRIVER
+>   M:	Vivek Thampi <vithampi@vmware.com>
+> -M:	"VMware, Inc." <pv-drivers@vmware.com>
+> +L:	pv-drivers@vmware.com (private)
+
+Maybe replace "(private)" with "(mail alias)"?
+
+This makes it rather clear that it is a valid address to send patches
+to, but there isn't public read access like to a ML.
 
 
 Juergen
 
---------------0E16175F2C2C8FD9C19D3F29
+--------------641FCF0DF0F5BF271A32D69F
 Content-Type: application/pgp-keys;
  name="OpenPGP_0xB0DE9DD628BF132F.asc"
 Content-Transfer-Encoding: quoted-printable
@@ -242,29 +322,29 @@ ZDn8R38=3D
 =3D2wuH
 -----END PGP PUBLIC KEY BLOCK-----
 
---------------0E16175F2C2C8FD9C19D3F29--
+--------------641FCF0DF0F5BF271A32D69F--
 
---fxtyyotnuEemsZMYf6iU1sZZXS8Caq110--
+--W6JL2G1FAlQS9hzWi03hu2aIhExlEcuAp--
 
---9dqCZhv4Xu8LCUrKXl5rinN1qWdhqtoPh
+--al1MqEmNzTaRWgbdIcvBJCOhrC2hGsWXq
 Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="OpenPGP_signature"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmGKBiwFAwAAAAAACgkQsN6d1ii/Ey9H
-dgf+IB8im0PQ++8RG9WQQ7qwygQQ+9S/EIhbCs3Bwv1b2oYvF13+YuBOYzdwmqgiubww1RR7Ugjg
-DIka5n+NWsGQSyG875SY8VK0VsfBJVh5mHV6896Fvbmy9hEjgV2kypvxz6WZiUZTQfkJAGATR10y
-KHZMFt0VZCjhwFs5W/kWHfx0tv1Pv/1kXVstBMWTlRUOm17I407QMwvzHI/05aqu0smJpI7FORKi
-jDoztJeVrTOtsc61vtisz9ahZvet/VMEswLuHdRLzZcZEU2JjufmvbSp+1rLqMZtjvAsVJLnrVTB
-x/Srjc0AI3p0mH3xjjsfB/o+LDuqvlek3f+B59Ru7Q==
-=4Jzb
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmGKCGcFAwAAAAAACgkQsN6d1ii/Ey8u
+mAf9Eohn0vhRkZfBHW2PFyfa0gZy/DBnsmYZqD0AlEU0pdjXa8N6Tb/wi3M5766KlH/8jeYwhAgt
+ufbWa0xahKxCM2me8vcPYnTOBnDAgQbYy2FX2wvwIeEI4+VGOFg5N6V01t0wil/Ir+PanX8qpVsk
+dFszyJmdghQS1CI0gmJuPpWclILZ/Z0PqS/L0IhNj+aS/6Z7VdghUOiszYdyxQg83zTNQaJQL0eH
+5CHayDfrVrHtyhkGOB2wOntPfn2mHdk/baAARc7D1cPq8jxnUBWbiIrXha1WLaQE07/yM7jjItaF
+ei6KlBukKfmo5aoDnH9X1wOzB43CsDDVCAysHkGPoQ==
+=Y9rQ
 -----END PGP SIGNATURE-----
 
---9dqCZhv4Xu8LCUrKXl5rinN1qWdhqtoPh--
+--al1MqEmNzTaRWgbdIcvBJCOhrC2hGsWXq--
 
---===============7962893220502143665==
+--===============4795207355738487257==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -274,4 +354,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============7962893220502143665==--
+--===============4795207355738487257==--
