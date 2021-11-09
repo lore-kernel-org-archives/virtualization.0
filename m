@@ -2,111 +2,85 @@ Return-Path: <SRS0=KS98=P4=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ACDBDC433EF
-	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 04:52:30 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1BA5C433EF
+	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 05:25:08 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EE00461151
-	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 04:52:29 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org EE00461151
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 626036112F
+	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 05:25:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 626036112F
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 92A35605FA;
-	Tue,  9 Nov 2021 04:52:29 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 11BC1402DF;
+	Tue,  9 Nov 2021 05:25:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id S8jWDJSgHELe; Tue,  9 Nov 2021 04:52:28 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 43C40605FB;
-	Tue,  9 Nov 2021 04:52:28 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id AlYkU2lkgICr; Tue,  9 Nov 2021 05:25:07 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 89E9B400D9;
+	Tue,  9 Nov 2021 05:25:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1519BC0019;
-	Tue,  9 Nov 2021 04:52:28 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5F88DC0012;
+	Tue,  9 Nov 2021 05:25:06 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1A4C8C000E
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 62367C000E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 04:52:26 +0000 (UTC)
+ Tue,  9 Nov 2021 05:25:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id E6050401E3
+ by smtp2.osuosl.org (Postfix) with ESMTP id 4752C401FB
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 04:52:25 +0000 (UTC)
+ Tue,  9 Nov 2021 05:25:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id i_5TBHTykgQ3
+ with ESMTP id DU6700pi6H35
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 04:52:24 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com
- [IPv6:2607:f8b0:4864:20::42d])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 9EA97400D9
+ Tue,  9 Nov 2021 05:25:04 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 4F5BF400D9
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 04:52:24 +0000 (UTC)
-Received: by mail-pf1-x42d.google.com with SMTP id c126so9841370pfb.0
- for <virtualization@lists.linux-foundation.org>;
- Mon, 08 Nov 2021 20:52:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=JkapuSwOnwxCbVYO9bfegcqw8wgDzralipX1H1BuD5E=;
- b=Oq8Hop7UfqF6odaW6RoWQK/Dre2F5iWQRWQwE0ryorhq4KCyAzFVrKhpsKLelcCOLT
- eLaYcntMkP6D9l28kM3sfnjAoF0i4Dvr9OmjjZOTULC8HzEQysGVQnjrb3i+Q98U2OAk
- l5M4aVtDq7IlqDrbuwHzqPEsEQwrt5EMFmspVurem58kicyZcN4ZnLTNTy7G1Hsil7FD
- Zt60JANYdAcZ6/mS6y4fb+NsObX+3f0QIYGPkDzjNbPIOwh0TVqaIuEkaBIwYR6M5QpF
- cdmJ0JaW8GIpsnOkUlIIm2RItYNV/lYlysK6ElrG0MLDNtWOU603v7S6lGADLyH/FYYR
- kfgA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=JkapuSwOnwxCbVYO9bfegcqw8wgDzralipX1H1BuD5E=;
- b=XttoTb2nscXF6q8MYl7hoOjSFTHqeKYlGUtqsP+ye1xRygg6cUDQq0C4sAkAyoLyTs
- yxc5k8hc8hSxjfmTK33wifWfOxaoL+A2VX146uDqGL3HqZyDg9maoP1RDcI4O1V0DHUD
- D/lGrjXlug0LuTArtm9/iF3TrNzwKItuGZNwpEwvrn1wFDB8f2ZnYnCdVZnJTZnzbAyd
- BOmu0K//F6JU89wT7jFVeJ/b+Tj/cqIb8am3B6NX7Hvy+1ThwKqsbtOYFrCfSjrmRhTV
- N9basymTOcLBplIncY1OGm6bniVhvpN8RiU8s+k/iQrEygv0ifc3E0ZWAD/kGp88EVAl
- 9UFA==
-X-Gm-Message-State: AOAM533/nWwkffpq3XXGMW72/PA5QQSnnxdXg/EhFHdiN1BRMRyYkbqQ
- Vr6VbvEa0EZxQZP1mbDjCHWvqw==
-X-Google-Smtp-Source: ABdhPJzo3mMOKUdZsnUntoCNQmDl0+nv890fatGtqLtt0zBDXxYrbya9x8UXloTwjlz15zmjWW8Z9A==
-X-Received: by 2002:a05:6a00:230d:b0:49f:b8ad:ae23 with SMTP id
- h13-20020a056a00230d00b0049fb8adae23mr5043480pfh.80.1636433543998; 
- Mon, 08 Nov 2021 20:52:23 -0800 (PST)
-Received: from localhost ([223.226.77.81])
- by smtp.gmail.com with ESMTPSA id na13sm976263pjb.11.2021.11.08.20.52.23
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 08 Nov 2021 20:52:23 -0800 (PST)
-Date: Tue, 9 Nov 2021 10:22:21 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Subject: Re: [PATCH 1/2] i2c: virtio: disable timeout handling
-Message-ID: <20211109045221.xd6apt473jannag2@vireshk-i7>
-References: <20211020064128.y2bjsbdmpojn7pjo@vireshk-i7>
- <01d9c992-28cc-6644-1e82-929fc46f91b4@intel.com>
- <20211020105554.GB9985@axis.com>
- <20211020110316.4x7tnxonswjuuoiw@vireshk-i7>
- <df7e6127-05fb-6aad-3896-fc810f213a54@intel.com>
- <20211029122450.GB24060@axis.com>
- <8592a48d-0131-86bf-586a-d33e7989e523@intel.com>
- <MWHPR11MB0030C3489F38FF2AAF7C3D0A908C9@MWHPR11MB0030.namprd11.prod.outlook.com>
- <20211103063745.utpphthou4angs4s@vireshk-i7>
- <20211103144241.GA27285@axis.com>
+ Tue,  9 Nov 2021 05:25:04 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out1.suse.de (Postfix) with ESMTPS id 501BA21B00;
+ Tue,  9 Nov 2021 05:25:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1636435501; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=6qZ2ecLipwkjea22RjvngCag5b7N6mh9K6o75bhKVAQ=;
+ b=ZmAHsnxetzDVEILFPVQSus1SPBiL8uqgSJNoqvP1LRUTCk1uMo0V0klSofaXkEsl0wYtak
+ L2Wo0SxJGqZLigMP7dYkWZ5QfgZ8bGZc40dCQPfkJScIay0mPM6bIDg6nCMVkkVQ9A+Mt0
+ 54rJBtFU8GvGmIcrzN5OHKV4obJ1E88=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id F0C2213A9D;
+ Tue,  9 Nov 2021 05:25:00 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id 5uwbOSwGimHEcAAAMHmgww
+ (envelope-from <jgross@suse.com>); Tue, 09 Nov 2021 05:25:00 +0000
+Subject: Re: [PATCH 1/2] MAINTAINERS: Update maintainers for paravirt ops and
+ VMware hypervisor interface
+To: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>, x86@kernel.org,
+ pv-drivers@vmware.com
+References: <163640336232.62866.489924062999332446.stgit@srivatsa-dev>
+Message-ID: <50de7150-2f5f-302e-6181-a542e5df9deb@suse.com>
+Date: Tue, 9 Nov 2021 06:25:00 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.12.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20211103144241.GA27285@axis.com>
-User-Agent: NeoMutt/20180716-391-311a52
-Cc: Greg KH <gregkh@linuxfoundation.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Wolfram Sang <wsa@kernel.org>,
- kernel <kernel@axis.com>,
- "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, "Chen,
- Conghui" <conghui.chen@intel.com>
+In-Reply-To: <163640336232.62866.489924062999332446.stgit@srivatsa-dev>
+Cc: anishs@vmware.com, linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, keerthanak@vmware.com,
+ Alexey Makhalov <amakhalov@vmware.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,42 +92,186 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: Juergen Gross via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Juergen Gross <jgross@suse.com>
+Content-Type: multipart/mixed; boundary="===============7962893220502143665=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 03-11-21, 15:42, Vincent Whitchurch wrote:
-> The suggested timeout is not meant to take into account the overhead of
-> virtualization, but to be used by the virtio device as a timeout for the
-> transaction on the I2C bus (presumably by programming this value to the
-> physical I2C controller, if one exists).
-> 
-> Assume that userspace (or an I2C client driver) asks for a timeout of 20
-> ms for a particular transfer because it, say, knows that the particular
-> connected I2C peripheral either responds within 10 ms to a particular
-> register read or never responds, so it doesn't want to waste time
-> waiting unnecessarily long for the transfer to complete.
-> 
-> If the virtio device end does not have any information on what timeout
-> is required (as in the current spec), it must assume some high value
-> which will never cause I2C transactions to spuriously timeout, say 10
-> seconds.  
->
-> Even if the virtio driver is fixed to copy and hold all buffers to avoid
-> memory corruption and to time out and return to the caller after the
-> requested 20 ms, the next I2C transfer can not be issued until 10
-> seconds have passed, since the virtio device end will still be waiting
-> for the hardcoded 10 second timeout and may not respond to new requests
-> until that transfer has timed out.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============7962893220502143665==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="9dqCZhv4Xu8LCUrKXl5rinN1qWdhqtoPh"
 
-Okay, so this is more about making sure the device times-out before
-the driver or lets say in an expected time-frame. That should be okay
-I guess.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--9dqCZhv4Xu8LCUrKXl5rinN1qWdhqtoPh
+Content-Type: multipart/mixed; boundary="fxtyyotnuEemsZMYf6iU1sZZXS8Caq110";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>, x86@kernel.org,
+ pv-drivers@vmware.com
+Cc: Alexey Makhalov <amakhalov@vmware.com>, Deep Shah <sdeep@vmware.com>,
+ stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ keerthanak@vmware.com, srivatsab@vmware.com, anishs@vmware.com,
+ vithampi@vmware.com, linux-kernel@vger.kernel.org
+Message-ID: <50de7150-2f5f-302e-6181-a542e5df9deb@suse.com>
+Subject: Re: [PATCH 1/2] MAINTAINERS: Update maintainers for paravirt ops and
+ VMware hypervisor interface
+References: <163640336232.62866.489924062999332446.stgit@srivatsa-dev>
+In-Reply-To: <163640336232.62866.489924062999332446.stgit@srivatsa-dev>
 
--- 
-viresh
+--fxtyyotnuEemsZMYf6iU1sZZXS8Caq110
+Content-Type: multipart/mixed;
+ boundary="------------0E16175F2C2C8FD9C19D3F29"
+Content-Language: en-US
+
+This is a multi-part message in MIME format.
+--------------0E16175F2C2C8FD9C19D3F29
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+
+On 08.11.21 21:29, Srivatsa S. Bhat wrote:
+> From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+>=20
+> Deep has decided to transfer maintainership of the VMware hypervisor
+> interface to Srivatsa, and the joint-maintainership of paravirt ops in
+> the Linux kernel to Srivatsa and Alexey. Update the MAINTAINERS file
+> to reflect this change.
+>=20
+> Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+> Acked-by: Alexey Makhalov <amakhalov@vmware.com>
+> Acked-by: Deep Shah <sdeep@vmware.com>
+> Cc: stable@vger.kernel.org
+
+Acked-by: Juergen Gross <jgross@suse.com>
+
+
+Juergen
+
+--------------0E16175F2C2C8FD9C19D3F29
+Content-Type: application/pgp-keys;
+ name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: OpenPGP public key
+Content-Disposition: attachment;
+ filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
+cWx
+w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
+f8Z
+d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
+9bf
+IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
+G7/
+377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
+3Jv
+c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
+QIe
+AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
+hpw
+dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
+MbD
+1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
+oPH
+Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
+5QL
++qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
+2Vu
+IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
+QoL
+BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
+Wf0
+teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
+/nu
+AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
+ITT
+d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
+XBK
+7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
+80h
+SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
+AcD
+AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
+FOX
+gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
+jnD
+kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
+N51
+N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
+otu
+fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
+tqS
+EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
+hsD
+BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
+g3O
+ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
+dM7
+wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
+D+j
+LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
+V2x
+AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
+Eaw
+QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
+nHI
+s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
+wgn
+BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
+bVF
+LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
+pEd
+IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
+QAB
+wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
+Tbe
+8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
+vJz
+Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
+VGi
+wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
+svi
+uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
+zXs
+ZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------0E16175F2C2C8FD9C19D3F29--
+
+--fxtyyotnuEemsZMYf6iU1sZZXS8Caq110--
+
+--9dqCZhv4Xu8LCUrKXl5rinN1qWdhqtoPh
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmGKBiwFAwAAAAAACgkQsN6d1ii/Ey9H
+dgf+IB8im0PQ++8RG9WQQ7qwygQQ+9S/EIhbCs3Bwv1b2oYvF13+YuBOYzdwmqgiubww1RR7Ugjg
+DIka5n+NWsGQSyG875SY8VK0VsfBJVh5mHV6896Fvbmy9hEjgV2kypvxz6WZiUZTQfkJAGATR10y
+KHZMFt0VZCjhwFs5W/kWHfx0tv1Pv/1kXVstBMWTlRUOm17I407QMwvzHI/05aqu0smJpI7FORKi
+jDoztJeVrTOtsc61vtisz9ahZvet/VMEswLuHdRLzZcZEU2JjufmvbSp+1rLqMZtjvAsVJLnrVTB
+x/Srjc0AI3p0mH3xjjsfB/o+LDuqvlek3f+B59Ru7Q==
+=4Jzb
+-----END PGP SIGNATURE-----
+
+--9dqCZhv4Xu8LCUrKXl5rinN1qWdhqtoPh--
+
+--===============7962893220502143665==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============7962893220502143665==--
