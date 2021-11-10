@@ -1,97 +1,95 @@
-Return-Path: <SRS0=KS98=P4=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=RKVt=P5=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C16DCC433F5
-	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 22:06:28 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5150C433F5
+	for <virtualization@archiver.kernel.org>; Wed, 10 Nov 2021 07:12:49 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 69D7D611AF
-	for <virtualization@archiver.kernel.org>; Tue,  9 Nov 2021 22:06:28 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 69D7D611AF
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=perches.com
+	by mail.kernel.org (Postfix) with ESMTPS id 5089A60724
+	for <virtualization@archiver.kernel.org>; Wed, 10 Nov 2021 07:12:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 5089A60724
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 3924E81764;
-	Tue,  9 Nov 2021 22:06:28 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 05108608FE;
+	Wed, 10 Nov 2021 07:12:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sxZA5gF6wFvV; Tue,  9 Nov 2021 22:06:27 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id CLwlZktZT-o2; Wed, 10 Nov 2021 07:12:48 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id F3B93814B4;
-	Tue,  9 Nov 2021 22:06:26 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 9215D608D4;
+	Wed, 10 Nov 2021 07:12:47 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CD046C0019;
-	Tue,  9 Nov 2021 22:06:26 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A5FA8C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6904FC0012;
+	Wed, 10 Nov 2021 07:12:47 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8BFCEC000E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 22:06:25 +0000 (UTC)
+ Wed, 10 Nov 2021 07:12:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id DD68F403C5
+ by smtp2.osuosl.org (Postfix) with ESMTP id 62B4140259
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 22:06:24 +0000 (UTC)
+ Wed, 10 Nov 2021 07:12:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9E5L9FOBtnRw
+ with ESMTP id u58PfINqsH_j
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 22:06:24 +0000 (UTC)
-X-Greylist: delayed 20:02:45 by SQLgrey-1.8.0
-Received: from smtprelay.hostedemail.com (smtprelay0058.hostedemail.com
- [216.40.44.58])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 105FB403A3
+ Wed, 10 Nov 2021 07:12:45 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 3952D400DE
  for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 22:06:23 +0000 (UTC)
-Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com
- [10.5.19.251])
- by smtpgrave08.hostedemail.com (Postfix) with ESMTP id 48DB6182D4AC4
- for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Nov 2021 21:57:41 +0000 (UTC)
-Received: from omf09.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
- by smtprelay07.hostedemail.com (Postfix) with ESMTP id B72C8184C6E43;
- Tue,  9 Nov 2021 21:57:38 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by
- omf09.hostedemail.com (Postfix) with ESMTPA id CE6C81E04D4; 
- Tue,  9 Nov 2021 21:57:32 +0000 (UTC)
-Message-ID: <1875b0458294d23d8e3260d2824894b095d6a62d.camel@perches.com>
-Subject: Re: [PATCH 2/2] MAINTAINERS: Mark VMware mailing list entries as
- private
-From: Joe Perches <joe@perches.com>
-To: Nadav Amit <namit@vmware.com>
-Date: Tue, 09 Nov 2021 13:57:31 -0800
-In-Reply-To: <5C24FB2A-D2C0-4D95-A0C0-B48C4B8D5AF4@vmware.com>
-References: <163640336232.62866.489924062999332446.stgit@srivatsa-dev>
- <163640339370.62866.3435211389009241865.stgit@srivatsa-dev>
- <5179a7c097e0bb88f95642a394f53c53e64b66b1.camel@perches.com>
- <cb03ca42-b777-3d1a-5aba-b01cd19efa9a@csail.mit.edu>
- <dcbd19fcd1625146f4db267f84abd7412513d20e.camel@perches.com>
- <5C24FB2A-D2C0-4D95-A0C0-B48C4B8D5AF4@vmware.com>
-User-Agent: Evolution 3.40.4-1 
+ Wed, 10 Nov 2021 07:12:44 +0000 (UTC)
+X-IronPort-AV: E=McAfee;i="6200,9189,10163"; a="230081715"
+X-IronPort-AV: E=Sophos;i="5.87,223,1631602800"; 
+ d="scan'208,217";a="230081715"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+ by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 09 Nov 2021 23:12:41 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.87,223,1631602800"; 
+ d="scan'208,217";a="669693531"
+Received: from orsmsx603.amr.corp.intel.com ([10.22.229.16])
+ by orsmga005.jf.intel.com with ESMTP; 09 Nov 2021 23:12:40 -0800
+Received: from orsmsx612.amr.corp.intel.com (10.22.229.25) by
+ ORSMSX603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2242.12; Tue, 9 Nov 2021 23:12:40 -0800
+Received: from shsmsx601.ccr.corp.intel.com (10.109.6.141) by
+ ORSMSX612.amr.corp.intel.com (10.22.229.25) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2242.12; Tue, 9 Nov 2021 23:12:39 -0800
+Received: from shsmsx601.ccr.corp.intel.com ([10.109.6.141]) by
+ SHSMSX601.ccr.corp.intel.com ([10.109.6.141]) with mapi id 15.01.2242.012;
+ Wed, 10 Nov 2021 15:12:36 +0800
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+To: "sgarzare@redhat.com" <sgarzare@redhat.com>, "davem@davemloft.net"
+ <davem@davemloft.net>, "kuba@kernel.org" <kuba@kernel.org>, Stefan Hajnoczi
+ <stefanha@redhat.com>, "mst@redhat.com" <mst@redhat.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, "kys@microsoft.com" <kys@microsoft.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
+Subject: [RFC] hypercall-vsock: add a new vsock transport
+Thread-Topic: [RFC] hypercall-vsock: add a new vsock transport
+Thread-Index: AdfR7PQwhDKKIu84SJaS6/iA/MsV5g==
+Date: Wed, 10 Nov 2021 07:12:36 +0000
+Message-ID: <71d7b0463629471e9d4887d7fcef1d8d@intel.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-product: dlpe-windows
+dlp-reaction: no-action
+dlp-version: 11.6.200.16
+x-originating-ip: [10.239.127.36]
 MIME-Version: 1.0
-X-Rspamd-Server: rspamout04
-X-Rspamd-Queue-Id: CE6C81E04D4
-X-Stat-Signature: xphw7gem3ckanztarthni3x91po8eitn
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Session-ID: U2FsdGVkX18k+m4zQxO7Jw0A5AU3JcKPJ/10qFxleFI=
-X-HE-Tag: 1636495052-266614
-Cc: Ronak Doshi <doshir@vmware.com>, Pv-drivers <Pv-drivers@vmware.com>,
- "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>,
- Alexey Makhalov <amakhalov@vmware.com>,
- "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
- Vishal Bhakta <vbhakta@vmware.com>, X86 ML <x86@kernel.org>,
- Linux-graphics-maintainer <Linux-graphics-maintainer@vmware.com>,
- "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
- Keerthana Kalyanasundaram <keerthanak@vmware.com>,
- Thomas Gleixner <tglx@linutronix.de>, Juergen Gross <jgross@suse.com>,
- Anish Swaminathan <anishs@vmware.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Zack Rusin <zackr@vmware.com>
+Cc: "Yamahata, Isaku" <isaku.yamahata@intel.com>, "Kleen,
+ Andi" <andi.kleen@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -103,35 +101,267 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============1182963909694896001=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, 2021-11-09 at 00:58 +0000, Nadav Amit wrote:
-> > On Nov 8, 2021, at 4:37 PM, Joe Perches <joe@perches.com> wrote:
-> > On Mon, 2021-11-08 at 16:22 -0800, Srivatsa S. Bhat wrote:
-> > 
-> > So it's an exploder not an actual maintainer and it likely isn't
-> > publically archived with any normal list mechanism.
-> > 
-> > So IMO "private" isn't appropriate.  Neither is "L:"
-> > Perhaps just mark it as what it is as an "exploder".
-> > 
-> > Or maybe these blocks should be similar to:
-> > 
-> > M:	Name of Lead Developer <somebody@vmware.com>
-> > M:	VMware <foo> maintainers <linux-<foo>-maintainers@vmlinux.com>
+--===============1182963909694896001==
+Content-Language: en-US
+Content-Type: multipart/alternative;
+	boundary="_000_71d7b0463629471e9d4887d7fcef1d8dintelcom_"
 
-Maybe adding entries like
+--_000_71d7b0463629471e9d4887d7fcef1d8dintelcom_
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 
-M:	Named maintainer <whoever@vmware.com>
-R:	VMware <foo> reviewers <linux-<foo>-maintainers@vmware.com>
+Hi,
 
-would be best/simplest.
+We plan to add a new vsock transport based on hypercall (e.g. vmcall on Int=
+el CPUs).
+It transports AF_VSOCK packets between the guest and host, which is similar=
+ to
+virtio-vsock, vmci-vsock and hyperv-vsock.
 
+Compared to the above listed vsock transports which are designed for high p=
+erformance,
+the main advantages of hypercall-vsock are:
+
+1)       It is VMM agnostic. For example, one guest working on hypercall-vs=
+ock can run on
+
+either KVM, Hyperv, or VMware.
+
+2)       It is simpler. It doesn't rely on any complex bus enumeration
+
+(e.g. virtio-pci based vsock device may need the whole implementation of PC=
+I).
+
+An example usage is the communication between MigTD and host (Page 8 at
+https://static.sched.com/hosted_files/kvmforum2021/ef/TDX%20Live%20Migratio=
+n_Wei%20Wang.pdf).
+MigTD communicates to host to assist the migration of the target (user) TD.
+MigTD is part of the TCB, so its implementation is expected to be as simple=
+ as possible
+(e.g. bare mental implementation without OS, no PCI driver support).
+
+Looking forward to your feedbacks.
+
+Thanks,
+Wei
+
+--_000_71d7b0463629471e9d4887d7fcef1d8dintelcom_
+Content-Type: text/html; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+
+<html xmlns:v=3D"urn:schemas-microsoft-com:vml" xmlns:o=3D"urn:schemas-micr=
+osoft-com:office:office" xmlns:w=3D"urn:schemas-microsoft-com:office:word" =
+xmlns:m=3D"http://schemas.microsoft.com/office/2004/12/omml" xmlns=3D"http:=
+//www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dus-ascii"=
+>
+<meta name=3D"Generator" content=3D"Microsoft Word 15 (filtered medium)">
+<style><!--
+/* Font Definitions */
+@font-face
+	{font-family:SimSun;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:"\@SimSun";
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:#0563C1;
+	text-decoration:underline;}
+p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
+	{mso-style-priority:34;
+	margin:0cm;
+	text-indent:21.0pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+span.EmailStyle19
+	{mso-style-type:personal-compose;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+/* Page Definitions */
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+/* List Definitions */
+@list l0
+	{mso-list-id:2105375921;
+	mso-list-type:hybrid;
+	mso-list-template-ids:-1529155444 -278093444 67698713 67698715 67698703 67=
+698713 67698715 67698703 67698713 67698715;}
+@list l0:level1
+	{mso-level-text:"%1\)";
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:18.0pt;
+	text-indent:-18.0pt;}
+@list l0:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-text:"%2\)";
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:42.0pt;
+	text-indent:-21.0pt;}
+@list l0:level3
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	margin-left:63.0pt;
+	text-indent:-21.0pt;}
+@list l0:level4
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:84.0pt;
+	text-indent:-21.0pt;}
+@list l0:level5
+	{mso-level-number-format:alpha-lower;
+	mso-level-text:"%5\)";
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:105.0pt;
+	text-indent:-21.0pt;}
+@list l0:level6
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	margin-left:126.0pt;
+	text-indent:-21.0pt;}
+@list l0:level7
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:147.0pt;
+	text-indent:-21.0pt;}
+@list l0:level8
+	{mso-level-number-format:alpha-lower;
+	mso-level-text:"%8\)";
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	margin-left:168.0pt;
+	text-indent:-21.0pt;}
+@list l0:level9
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	margin-left:189.0pt;
+	text-indent:-21.0pt;}
+ol
+	{margin-bottom:0cm;}
+ul
+	{margin-bottom:0cm;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext=3D"edit" spidmax=3D"1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext=3D"edit">
+<o:idmap v:ext=3D"edit" data=3D"1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang=3D"ZH-CN" link=3D"#0563C1" vlink=3D"#954F72" style=3D"word-wrap:=
+break-word;text-justify-trim:punctuation">
+<div class=3D"WordSection1">
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt">Hi,<=
+o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt"><o:p=
+>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt">We p=
+lan to add a new vsock transport based on hypercall (e.g. vmcall on Intel C=
+PUs).<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt">It t=
+ransports AF_VSOCK packets between the guest and host, which is similar to<=
+o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt">virt=
+io-vsock, vmci-vsock and hyperv-vsock.<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt"><o:p=
+>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt">Comp=
+ared to the above listed vsock transports which are designed for high perfo=
+rmance,<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt">the =
+main advantages of hypercall-vsock are:<o:p></o:p></span></p>
+<p class=3D"MsoListParagraph" style=3D"margin-left:18.0pt;text-indent:-18.0=
+pt;mso-list:l0 level1 lfo2">
+<![if !supportLists]><span lang=3D"EN-US" style=3D"font-size:10.5pt"><span =
+style=3D"mso-list:Ignore">1)<span style=3D"font:7.0pt &quot;Times New Roman=
+&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3D"EN-US" style=3D"font-size:10.5=
+pt">It is VMM agnostic. For example, one guest working on hypercall-vsock c=
+an run on<o:p></o:p></span></p>
+<p class=3D"MsoListParagraph" style=3D"margin-left:18.0pt;text-indent:0cm">=
+<span lang=3D"EN-US" style=3D"font-size:10.5pt">either KVM, Hyperv, or VMwa=
+re.<o:p></o:p></span></p>
+<p class=3D"MsoListParagraph" style=3D"margin-left:18.0pt;text-indent:-18.0=
+pt;mso-list:l0 level1 lfo2">
+<![if !supportLists]><span lang=3D"EN-US" style=3D"font-size:10.5pt"><span =
+style=3D"mso-list:Ignore">2)<span style=3D"font:7.0pt &quot;Times New Roman=
+&quot;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</span></span></span><![endif]><span lang=3D"EN-US" style=3D"font-size:10.5=
+pt">It is simpler. It doesn&#8217;t rely on any complex bus enumeration<o:p=
+></o:p></span></p>
+<p class=3D"MsoListParagraph" style=3D"margin-left:18.0pt;text-indent:0cm">=
+<span lang=3D"EN-US" style=3D"font-size:10.5pt">(e.g. virtio-pci based vsoc=
+k device may need the whole implementation of PCI).<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt"><o:p=
+>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt">An e=
+xample usage is the communication between MigTD and host (Page 8 at<o:p></o=
+:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt"><a h=
+ref=3D"https://static.sched.com/hosted_files/kvmforum2021/ef/TDX%20Live%20M=
+igration_Wei%20Wang.pdf">https://static.sched.com/hosted_files/kvmforum2021=
+/ef/TDX%20Live%20Migration_Wei%20Wang.pdf</a>).<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt">MigT=
+D communicates to host to assist the migration of the target (user) TD.<o:p=
+></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt">MigT=
+D is part of the TCB, so its implementation is expected to be as simple as =
+possible<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt">(e.g=
+. bare mental implementation without OS, no PCI driver support).<o:p></o:p>=
+</span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt"><o:p=
+>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt">Look=
+ing forward to your feedbacks.<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt"><o:p=
+>&nbsp;</o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt">Than=
+ks,<o:p></o:p></span></p>
+<p class=3D"MsoNormal"><span lang=3D"EN-US" style=3D"font-size:10.5pt">Wei<=
+o:p></o:p></span></p>
+</div>
+</body>
+</html>
+
+--_000_71d7b0463629471e9d4887d7fcef1d8dintelcom_--
+
+--===============1182963909694896001==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============1182963909694896001==--
