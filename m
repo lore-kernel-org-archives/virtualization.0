@@ -2,107 +2,119 @@ Return-Path: <SRS0=fJjx=P6=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4048EC433F5
-	for <virtualization@archiver.kernel.org>; Thu, 11 Nov 2021 15:02:17 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FEE8C433EF
+	for <virtualization@archiver.kernel.org>; Thu, 11 Nov 2021 15:20:04 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D248360E73
-	for <virtualization@archiver.kernel.org>; Thu, 11 Nov 2021 15:02:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D248360E73
+	by mail.kernel.org (Postfix) with ESMTPS id D32CF610C8
+	for <virtualization@archiver.kernel.org>; Thu, 11 Nov 2021 15:20:03 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org D32CF610C8
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7CA74403AF;
-	Thu, 11 Nov 2021 15:02:16 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 97E5F80F73;
+	Thu, 11 Nov 2021 15:20:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dq1GS_KqAxVL; Thu, 11 Nov 2021 15:02:14 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id KTfyzbPb3yfH; Thu, 11 Nov 2021 15:20:02 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 1D2DC40224;
-	Thu, 11 Nov 2021 15:02:14 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 34B5180ED2;
+	Thu, 11 Nov 2021 15:20:02 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E5FF3C001F;
-	Thu, 11 Nov 2021 15:02:13 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BA35BC001E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0AD7FC0020;
+	Thu, 11 Nov 2021 15:20:02 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7D353C001E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Nov 2021 15:02:12 +0000 (UTC)
+ Thu, 11 Nov 2021 15:20:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 9304740224
+ by smtp4.osuosl.org (Postfix) with ESMTP id 725FD404E3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Nov 2021 15:02:12 +0000 (UTC)
+ Thu, 11 Nov 2021 15:20:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZI9wvxWtuZRd
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 0auHtvF_QeSA
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Nov 2021 15:02:11 +0000 (UTC)
+ Thu, 11 Nov 2021 15:19:59 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id E806E40172
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 37EDB404D9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Nov 2021 15:02:10 +0000 (UTC)
+ Thu, 11 Nov 2021 15:19:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1636642929;
+ s=mimecast20190719; t=1636643997;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=P8p6CBi9GhyAybomTT9aK06QsN9Co1Vcux5yo3BY17U=;
- b=gBHZvyledWPFubuyWPdHJ9NCx3/EQR78gUy0cWUJMn/p03jJfE7072uD13TF9cKyS6t9nH
- SfqLbOi8iqd0TRfx459nrW3cjOItqSpwuAQu2mucSNnzPeuRbKHfXYJDQyVQ4nVN04YUgB
- iJuh2mxz7D7dvy17BldVJjUEUERaAmY=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-551-_h-AzvFpOSiPDqYI7GPuTw-1; Thu, 11 Nov 2021 10:02:06 -0500
-X-MC-Unique: _h-AzvFpOSiPDqYI7GPuTw-1
-Received: by mail-wm1-f71.google.com with SMTP id
- l4-20020a05600c1d0400b00332f47a0fa3so2809444wms.8
+ bh=j2K10Q3RYJAYLzZSO7lPYSVevInAJlNcm48b9LQMpGM=;
+ b=g3Sgyui6LVkYhoHH1EUHwrdgkSPgIhvZzZXoUAKviDGrBA76yqVj3ypB747G2p4bXYVi5B
+ Tu0pRp8W+ArOhhXJ3wyr6ohIMEGFzQEpGj3wJjlFYsLEO+nSyux1U03UBQq83+evZXleGk
+ 9cfO8aqm6JO1UxrLO+9v3928Dh6Ax/4=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-400-IT9Y75BKP_GeE-WmVgAjIA-1; Thu, 11 Nov 2021 10:19:55 -0500
+X-MC-Unique: IT9Y75BKP_GeE-WmVgAjIA-1
+Received: by mail-ed1-f70.google.com with SMTP id
+ y20-20020a056402359400b003e28c9bc02cso5694868edc.9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Nov 2021 07:02:06 -0800 (PST)
+ Thu, 11 Nov 2021 07:19:55 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=P8p6CBi9GhyAybomTT9aK06QsN9Co1Vcux5yo3BY17U=;
- b=ZB2onIeFeX7WjCQvNKAmGXIpqxXMlLdN8hvGo7T+oh8JN9Z6uXVXJlJ30if+2NVDr0
- DHrpTbB3wb4F5+7zlItW/fRfv5FyyhpQGgBTxLoEOm3Zx76iDUC9Q017fThGy2cv1eL6
- wihhlzhammcUIDwt+GanFoYcHDG5GV280fkk4OxxAdqsh5Xqmn228kBMaoI0qjBJ2tn5
- E43Bdu0bUxVT7Jz6KPGwApgeY9TwC/smRqS7U8o57Tqt1sbpWVEbdxqckg3MbCdpscsq
- 1JptTHNvZvLgtSietjChQVVDRBEWEq1BsuSTp36VNFEnBENwuDEXPMd1jPl9xfbO7rU8
- ZsaA==
-X-Gm-Message-State: AOAM533L+wtEejkMxQ/7iU+9fCubkwAXyyEBnVmsIpDiWapa3izSkNqs
- S3qnR1VWxvUBqq/EXD7cRtDNtM9WhidmateQSGlDBpHJf9te2EX88e1gdDsUxQvsIVuxEfBGvwL
- 8vo3WRthlcrEncISEo81OLTNls/KSm7isCRZ9CYdOCQ==
-X-Received: by 2002:a05:600c:1d28:: with SMTP id
- l40mr9002729wms.192.1636642925500; 
- Thu, 11 Nov 2021 07:02:05 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwkrb/NNFzG3uc3s+Qn7RLDKcEGHeP1u7uOqyhEqqTl55Guko20m8LN6N3y0i9Lb0+EXDrBAA==
-X-Received: by 2002:a05:600c:1d28:: with SMTP id
- l40mr9002687wms.192.1636642925242; 
- Thu, 11 Nov 2021 07:02:05 -0800 (PST)
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=j2K10Q3RYJAYLzZSO7lPYSVevInAJlNcm48b9LQMpGM=;
+ b=6SxJVkf8FM8UQJFqYQZk5PNUiEsxrmj/N/d9d/tuDOXX/yzJlFI5n/UdSSr5WacSrL
+ y5otcyz+eNixBnqhsfo0+ecPbd1Hrskycv1QYschuzI+a+FM0TT/SzQjKAkSgKinQOWM
+ uRQVNBkDsZcVJ/s/+ygwLX21DZUngqeUUn1CC1b3gfxj4GfeHywlihPC/mmofqnfkMzw
+ qCF/8ESBu4cwbzC4c6Oxn03MGPZTUn8w8Hv9HV05SiykdqLwX2+LuIKTPcJite086ZVd
+ tM/d+dxCh6uUXWVH6HMV6LNGm3rHypKFBKx8M5hVsfCEgp21WGTwEevKmD8oj78mciLd
+ ewxA==
+X-Gm-Message-State: AOAM530e/1bnkCmrgiubdZRRk5atFOGXcXJmN1l4DGOSTwpVvm9dEdqM
+ KIBP2fVMCUpC5wRuvApIPBKbVu5jBprMDwCYN+PqwMZudGRIKEDcn4LZFjOt4sQZ1Xheg+PSspk
+ G9wQ6+P09qGjlKjXZXCC5irhWSMvRLFg4u9nJz7WSWQ==
+X-Received: by 2002:a17:907:3daa:: with SMTP id
+ he42mr10526827ejc.160.1636643993884; 
+ Thu, 11 Nov 2021 07:19:53 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyX+KFReiwpzw5VrVHE+1osuTAa+gMpiHonwGnKiRCl72CA5QaAceNd1oRYUsyAX6jJQJbX+Q==
+X-Received: by 2002:a17:907:3daa:: with SMTP id
+ he42mr10526785ejc.160.1636643993635; 
+ Thu, 11 Nov 2021 07:19:53 -0800 (PST)
 Received: from redhat.com ([2.55.135.246])
- by smtp.gmail.com with ESMTPSA id h1sm3116622wmb.7.2021.11.11.07.02.03
+ by smtp.gmail.com with ESMTPSA id d13sm1682608edv.29.2021.11.11.07.19.49
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 11 Nov 2021 07:02:04 -0800 (PST)
-Date: Thu, 11 Nov 2021 10:02:01 -0500
+ Thu, 11 Nov 2021 07:19:52 -0800 (PST)
+Date: Thu, 11 Nov 2021 10:19:47 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH v4 0/3] virtio support cache indirect desc
-Message-ID: <20211111100044-mutt-send-email-mst@kernel.org>
-References: <20211110074326-mutt-send-email-mst@kernel.org>
- <1636613527.8447719-1-xuanzhuo@linux.alibaba.com>
+To: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: Re: [RFC] hypercall-vsock: add a new vsock transport
+Message-ID: <20211111100414-mutt-send-email-mst@kernel.org>
+References: <71d7b0463629471e9d4887d7fcef1d8d@intel.com>
+ <20211110054121-mutt-send-email-mst@kernel.org>
+ <dcaf10bed215456ab689956275d4b998@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <1636613527.8447719-1-xuanzhuo@linux.alibaba.com>
+In-Reply-To: <dcaf10bed215456ab689956275d4b998@intel.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
- Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux-foundation.org
+Cc: "Yamahata, Isaku" <isaku.yamahata@intel.com>,
+ "srutherford@google.com" <srutherford@google.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "erdemaktas@google.com" <erdemaktas@google.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ "Kleen, Andi" <andi.kleen@intel.com>, "kuba@kernel.org" <kuba@kernel.org>,
+ "davem@davemloft.net" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,174 +126,91 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Nov 11, 2021 at 02:52:07PM +0800, Xuan Zhuo wrote:
-> On Wed, 10 Nov 2021 07:53:44 -0500, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > On Mon, Nov 08, 2021 at 10:47:40PM +0800, Xuan Zhuo wrote:
-> > > On Mon, 8 Nov 2021 08:49:27 -0500, Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > >
-> > > > Hmm a bunch of comments got ignored. See e.g.
-> > > > https://lore.kernel.org/r/20211027043851-mutt-send-email-mst%40kernel.org
-> > > > if they aren't relevant add code comments or commit log text explaining the
-> > > > design choice please.
-> > >
-> > > I should have responded to related questions, I am guessing whether some emails
-> > > have been lost.
-> > >
-> > > I have sorted out the following 6 questions, if there are any missing questions,
-> > > please let me know.
-> > >
-> > > 1. use list_head
-> > >   In the earliest version, I used pointers directly. You suggest that I use
-> > >   llist_head, but considering that llist_head has atomic operations. There is no
-> > >   competition problem here, so I used list_head.
-> > >
-> > >   In fact, I did not increase the allocated space for list_head.
-> > >
-> > >   use as desc array: | vring_desc | vring_desc | vring_desc | vring_desc |
-> > >   use as queue item: | list_head ........................................|
-> >
-> > the concern is that you touch many cache lines when removing an entry.
-> >
-> > I suggest something like:
-> >
-> > llist: add a non-atomic list_del_first
-> >
-> > One has to know what one's doing, but if one has locked the list
-> > preventing all accesses, then it's ok to just pop off an entry without
-> > atomics.
-> >
-> 
-> Oh, great, but my way of solving the problem is too conservative.
-> 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> >
-> > ---
-> >
-> > diff --git a/include/linux/llist.h b/include/linux/llist.h
-> > index 24f207b0190b..13a47dddb12b 100644
-> > --- a/include/linux/llist.h
-> > +++ b/include/linux/llist.h
-> > @@ -247,6 +247,17 @@ static inline struct llist_node *__llist_del_all(struct llist_head *head)
-> >
-> >  extern struct llist_node *llist_del_first(struct llist_head *head);
-> >
-> > +static inline struct llist_node *__llist_del_first(struct llist_head *head)
-> > +{
-> > +	struct llist_node *first = head->first;
-> > +
-> > +	if (!first)
-> > +		return NULL;
-> > +
-> > +	head->first = first->next;
-> > +	return first;
-> > +}
-> > +
-> >  struct llist_node *llist_reverse_order(struct llist_node *head);
-> >
-> >  #endif /* LLIST_H */
-> >
-> >
-> > -----
-> >
-> >
-> > > 2.
-> > > > > +	if (vq->use_desc_cache && total_sg <= VIRT_QUEUE_CACHE_DESC_NUM) {
-> > > > > +		if (vq->desc_cache_chain) {
-> > > > > +			desc = vq->desc_cache_chain;
-> > > > > +			vq->desc_cache_chain = (void *)desc->addr;
-> > > > > +			goto got;
-> > > > > +		}
-> > > > > +		n = VIRT_QUEUE_CACHE_DESC_NUM;
-> > > >
-> > > > Hmm. This will allocate more entries than actually used. Why do it?
-> > >
-> > >
-> > > This is because the size of each cache item is fixed, and the logic has been
-> > > modified in the latest code. I think this problem no longer exists.
-> > >
-> > >
-> > > 3.
-> > > > What bothers me here is what happens if cache gets
-> > > > filled on one numa node, then used on another?
-> > >
-> > > I'm thinking about another question, how did the cross-numa appear here, and
-> > > virtio desc queue also has the problem of cross-numa. So is it necessary for us
-> > > to deal with the cross-numa scene?
-> >
-> > It's true that desc queue might be cross numa, and people are looking
-> > for ways to improve that. Not a reason to make things worse ...
-> >
-> 
-> I will test for it.
-> 
-> >
-> > > Indirect desc is used as virtio desc, so as long as it is in the same numa as
-> > > virito desc. So we can allocate indirect desc cache at the same time when
-> > > allocating virtio desc queue.
-> >
-> > Using it from current node like we do now seems better.
-> >
-> > > 4.
-> > > > So e.g. for rx, we are wasting memory since indirect isn't used.
-> > >
-> > > In the current version, desc cache is set up based on pre-queue.
-> > >
-> > > So if the desc cache is not used, we don't need to set the desc cache.
-> > >
-> > > For example, virtio-net, as long as the tx queue and the rx queue in big packet
-> > > mode enable desc cache.
-> >
-> >
-> > I liked how in older versions adding indrect enabled it implicitly
-> > though without need to hack drivers.
-> 
-> I see.
-> 
-> >
-> > > 5.
-> > > > Would a better API be a cache size in bytes? This controls how much
-> > > > memory is spent after all.
-> > >
-> > > My design is to set a threshold. When total_sg is greater than this threshold,
-> > > it will fall back to kmalloc/kfree. When total_sg is less than or equal to
-> > > this threshold, use the allocated cache.
-> > >
-> >
-> > I know. My question is this, do devices know what a good threshold is?
-> > If yes how do they know?
-> 
-> I think the driver knows the threshold, for example, MAX_SKB_FRAG + 2 is a
-> suitable threshold for virtio-net.
-> 
-
-I guess... in that case I assume it's a good idea to have
-virtio core round the size up to whole cache lines, right?
-
-> >
-> > > 6. kmem_cache_*
-> > >
-> > > I have tested these, the performance is not as good as the method used in this
-> > > patch.
-> >
-> > Do you mean kmem_cache_alloc_bulk/kmem_cache_free_bulk?
-> > You mentioned just kmem_cache_alloc previously.
-> 
-> 
-> I will test for kmem_cache_alloc_bulk.
-> 
-> Thanks.
-> 
-> >
-> > >
-> > > Thanks.
-> >
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVGh1LCBOb3YgMTEsIDIwMjEgYXQgMDc6NTg6MjlBTSArMDAwMCwgV2FuZywgV2VpIFcgd3Jv
+dGU6Cj4gT24gV2VkbmVzZGF5LCBOb3ZlbWJlciAxMCwgMjAyMSA2OjUwIFBNLCBNaWNoYWVsIFMu
+IFRzaXJraW4gd3JvdGU6Cj4gPiBPbiBXZWQsIE5vdiAxMCwgMjAyMSBhdCAwNzoxMjozNkFNICsw
+MDAwLCBXYW5nLCBXZWkgVyB3cm90ZToKPiA+Cj4gPiBoeXBlcmNhbGxzIGFyZSBmdW5kYW1lbnRh
+bGx5IGh5cGVydmlzb3IgZGVwZW5kZW50IHRob3VnaC4KPiAKPiBZZXMsIGVhY2ggaHlwZXJ2aXNv
+ciBuZWVkcyB0byBzdXBwb3J0IGl0Lgo+IFdlIGNvdWxkIHNpbXBsaWZ5IHRoZSBkZXNpZ24gYW5k
+IGltcGxlbWVudGF0aW9uIHRvIHRoZSBtaW5pbWFsLCBzbyB0aGF0IGVhY2ggaHlwZXJ2aXNvciBj
+YW4gZWFzaWx5IHN1cHBvcnQgaXQuCj4gT25jZSBldmVyeSBoeXBlcnZpc29yIGhhcyB0aGUgc3Vw
+cG9ydCwgdGhlIGd1ZXN0IChNaWdURCkgY291bGQgYmUgYSB1bmlmaWVkIHZlcnNpb24uCj4gKGUu
+Zy4gbm8gbmVlZCBmb3IgZWFjaCBoeXBlcnZpc29yIHVzZXIgdG8gZGV2ZWxvcCB0aGVpciBvd24g
+TWlnVEQgdXNpbmcgdGhlaXIgb3duIHZzb2NrIHRyYW5zcG9ydCkKPiAKPiA+IEFzc3VtaW5nIHlv
+dSBjYW4gY2FydmUgdXAgYSBoeXBlcnZpc29yIGluZGVwZW5kZW50IGh5cGVyY2FsbCwgdXNpbmcg
+aXQgZm9yCj4gPiBzb21ldGhpbmcgYXMgbXVuZGFuZSBhbmQgc3BlY2lmaWMgYXMgdnNvY2sgZm9y
+IFREWCBzZWVtcyBsaWtlIGEgaHVnZSBvdmVya2lsbC4KPiA+IEZvciBleGFtcGxlLCB2aXJ0aW8g
+Y291bGQgYmVuZWZpdCBmcm9tIGZhc3RlciB2bWV4aXRzIHRoYXQgaHlwZXJjYWxscyBnaXZlIHlv
+dQo+ID4gZm9yIHNpZ25hbGxpbmcuCj4gPiBIb3cgYWJvdXQgYSBjb21iaW5hdGlvbiBvZiB2aXJ0
+aW8tbW1pbyBhbmQgaHlwZXJjYWxscyBmb3IgZmFzdC1wYXRoIHNpZ25hbGxpbmcKPiA+IHRoZW4/
+Cj4gCj4gV2UgdGhvdWdodCBhYm91dCB2aXJ0aW8tbW1pby4gVGhlcmUgYXJlIHNvbWUgYmFycmll
+cnM6Cj4gMSkgSXQgd2Fzbid0IG9yaWdpbmFsbHkgaW50ZW5kZWQgZm9yIHg4NiBtYWNoaW5lcy4g
+VGhlIG9ubHkgbWFjaGluZSB0eXBlIGluIFFFTVUKPiB0aGF0IHN1cHBvcnRzIGl0ICh0byBydW4g
+b24geDg2KSBpcyBtaWNyb3ZtLiBCdXQgIm1pY3Jvdm0iIGRvZXNu4oCZdCBzdXBwb3J0IFREWCBj
+dXJyZW50bHksCj4gYW5kIGFkZGluZyB0aGlzIHN1cHBvcnQgbWlnaHQgbmVlZCBsYXJnZXIgZWZm
+b3J0Lgo+IDIpIEl0J3Mgc2ltcGxlciB0aGFuIHZpcnRpby1wY2ksIGJ1dCBzdGlsbCBtb3JlIGNv
+bXBsZXggdGhhbiBoeXBlcmNhbGwuCj4gMykgU29tZSBDU1BzIGRvbid0IGhhdmUgdmlydGlvIHN1
+cHBvcnQgaW4gdGhlaXIgc29mdHdhcmUsIHNvIHRoaXMgbWlnaHQgYWRkIHRvbyBtdWNoIGRldmVs
+b3BtZW50IGVmZm9ydCBmb3IgdGhlbS4KPiAKPiBUaGlzIHVzYWdlIGRvZXNu4oCZdCBuZWVkIGhp
+Z2ggcGVyZm9ybWFuY2UsIHNvIGZhc3RlciBoeXBlcmNhbGwgZm9yIHNpZ25hbGxpbmcgaXNuJ3Qg
+cmVxdWlyZWQsIEkgdGhpbmsuCj4gKGJ1dCBpZiBoeXBlcmNhbGwgaGFzIGJlZW4gdmVyaWZpZWQg
+dG8gYmUgbXVjaCBmYXN0ZXIgdGhhbiB0aGUgY3VycmVudCBFUFQgbWlzY29uZmlnIGJhc2VkIG5v
+dGlmaWNhdGlvbiwKPiBpdCBjb3VsZCBiZSBhZGRlZCBmb3IgdGhlIGdlbmVyYWwgdmlydGlvIHVz
+YWdlcykKPiAKPiA+IAo+ID4gPiAyKSAgICAgICBJdCBpcyBzaW1wbGVyLiBJdCBkb2VzbuKAmXQg
+cmVseSBvbiBhbnkgY29tcGxleCBidXMgZW51bWVyYXRpb24KPiA+ID4KPiA+ID4gKGUuZy4gdmly
+dGlvLXBjaSBiYXNlZCB2c29jayBkZXZpY2UgbWF5IG5lZWQgdGhlIHdob2xlIGltcGxlbWVudGF0
+aW9uIG9mCj4gPiBQQ0kpLgo+ID4gPgo+ID4gCj4gPiBOZXh0IHRoaW5nIHBlb3BsZSB3aWxsIHRy
+eSB0byBkbyBpcyBpbXBsZW1lbnQgYSBidW5jaCBvZiBvdGhlciBkZXZpY2Ugb24gdG9wIG9mCj4g
+PiBpdC4gIHZpcnRpbyB1c2VkIHBjaSBzaW1wbHkgYmVjYXVzZSBldmVyeW9uZSBpbXBsZW1lbnRz
+IHBjaS4gIEFuZCB0aGUgcmVhc29uCj4gPiBmb3IgKnRoYXQqIGlzIGJlY2F1c2UgaW1wbGVtZW50
+aW5nIGEgYmFzaWMgcGNpIGJ1cyBpcyBkZWFkIHNpbXBsZSwgd2hvbGUgb2YKPiA+IHBjaS5jIGlu
+IHFlbXUgaXMgPDMwMDAgTE9DLgo+IAo+IFRoaXMgZG9lc27igJl0IGluY2x1ZGUgdGhlIFBDSSBl
+bnVtZXJhdGlvbiBpbiBzZWFCSU9TIGFuZCB0aGUgUENJIGRyaXZlciBpbiB0aGUgZ3Vlc3QgdGhv
+dWdoLgoKRG8gd2UgcmVhbGx5IG5lZWQgdG8gd29ycnkgYWJvdXQgbWlncmF0aW5nIGd1ZXN0cyB0
+aGF0IGRpZCBub3QgY29tcGxldGUKUENJIGVudW1lcmF0aW9uIHlldD8KCkFueXdheSwga3ZtIHVu
+aXQgdGVzdCBoYXMgYSB+NTAwIExPQyBwY2kgZHJpdmVyLiAgSXQgZG9lcyBub3Qgc3VwcG9ydCBw
+Y2kgYnJpZGdlcwpvciBpbnRlcnJ1cHRzIHRob3VnaCAtIGlmIHlvdSB3YW50IHRvIGRvIHRoYXQg
+dGhlbiByZXF1aXJpbmcgdGhhdCB0aGUgZGV2aWNlIGluCnF1ZXN0aW9uIGlzIG9uIGJ1cyAwIGFu
+ZCB1c2luZyBwb2xsaW5nIHNlZW1zIGxpa2UgYSByZWFzb25hYmxlIGxpbWl0YXRpb24/Cgo+IFZp
+cnRpbyBoYXMgaGlnaCBwZXJmb3JtYW5jZSwgSSB0aGluayB0aGF0J3MgYW4gaW1wb3J0YW50IHJl
+YXNvbiB0aGF0IG1vcmUgZGV2aWNlcyBhcmUgY29udGludWFsbHkgYWRkZWQuCj4gRm9yIHRoaXMg
+dHJhbnNwb3J0LCBJIGNvdWxkbuKAmXQgZW52aXNpb24gdGhhdCBhIGJ1bmNoIG9mIGRldmljZXMg
+d291bGQgYmUgYWRkZWQuIEl0J3MgYSBzaW1wbGUgUFYgbWV0aG9kLgoKRmFtb3VzIGxhc3Qgd29y
+ZHMuIE15IHBvaW50IGlzIGFkZGluZyBhIHZlbmRvciBhZ25vc3RpYyBoeXBlcmNhbGwgbmVlZHMK
+YSBidW5jaCBvZiBuZWdvdGlhdGlvbiBhbmQgYWdyZWVtZW50IGJldHdlZW4gdmVuZG9ycy4gSWYg
+eW91IGFyZSBnb2luZwp0byBhbGwgdGhlIHRyb3VibGUsIGl0IHNlZW1zIGxpa2UgYSB3YXN0ZSB0
+byBtYWtlIGl0IHNpbmdsZSB1c2UuCgo+IAo+ID4gCj4gPiA+Cj4gPiA+IEFuIGV4YW1wbGUgdXNh
+Z2UgaXMgdGhlIGNvbW11bmljYXRpb24gYmV0d2VlbiBNaWdURCBhbmQgaG9zdCAoUGFnZSA4Cj4g
+PiA+IGF0Cj4gPiA+Cj4gPiA+IGh0dHBzOi8vc3RhdGljLnNjaGVkLmNvbS9ob3N0ZWRfZmlsZXMv
+a3ZtZm9ydW0yMDIxL2VmLwo+ID4gPiBURFglMjBMaXZlJTIwTWlncmF0aW9uX1dlaSUyMFdhbmcu
+cGRmKS4KPiA+ID4KPiA+ID4gTWlnVEQgY29tbXVuaWNhdGVzIHRvIGhvc3QgdG8gYXNzaXN0IHRo
+ZSBtaWdyYXRpb24gb2YgdGhlIHRhcmdldCAodXNlcikgVEQuCj4gPiA+Cj4gPiA+IE1pZ1REIGlz
+IHBhcnQgb2YgdGhlIFRDQiwgc28gaXRzIGltcGxlbWVudGF0aW9uIGlzIGV4cGVjdGVkIHRvIGJl
+IGFzCj4gPiA+IHNpbXBsZSBhcyBwb3NzaWJsZQo+ID4gPgo+ID4gPiAoZS5nLiBiYXJlIG1lbnRh
+bCBpbXBsZW1lbnRhdGlvbiB3aXRob3V0IE9TLCBubyBQQ0kgZHJpdmVyIHN1cHBvcnQpLgo+ID4g
+Pgo+ID4gPgo+ID4gCj4gPiBUcnkgdG8gbGlzdCBkcmF3YmFja3M/IEZvciBleGFtcGxlLCBwYXNz
+dGhyb3VnaCBmb3IgbmVzdGVkIHZpcnQgaXNuJ3QgcG9zc2libGUKPiA+IHVubGlrZSBwY2ksIG5l
+aXRoZXIgYXJlIGhhcmR3YXJlIGltcGxlbWVudGF0aW9ucy4KPiA+IAo+IAo+IFdoeSBoeXBlcmNh
+bGwgd291bGRuJ3QgYmUgcG9zc2libGUgZm9yIG5lc3RlZCB2aXJ0Pwo+IEwyIGh5cGVyY2FsbCBn
+b2VzIHRvIEwwIGRpcmVjdGx5IGFuZCBMMCBjYW4gZGVjaWRlIHdoZXRoZXIgdG8gZm9yd2FyZCB0
+aGUgY2FsbCB0aGUgTDEgKGluIG91ciBjYXNlLCBJIHRoaW5rIG5vIG5lZWQgYXMgdGhlIHBhY2tl
+dCB3aWxsIGdvIG91dCksIHJpZ2h0Pwo+IAo+IEl0cyBkcmF3YmFja3MgYXJlIG9idmlvdXMgKGUu
+Zy4gbG93IHBlcmZvcm1hbmNlKS4gCgpFeGFjdGx5LgoKPiBJbiBnZW5lcmFsLCBJIHRoaW5rIGl0
+IGNvdWxkIGJlIGNvbnNpZGVyZWQgYXMgYSBjb21wbGVtZW50IHRvIHZpcnRpby4KPiBJIHRoaW5r
+IG1vc3QgdXNhZ2VzIHdvdWxkIGNob29zZSB2aXJ0aW8gYXMgdGhleSBkb27igJl0IHdvcnJ5IGFi
+b3V0IHRoZSBjb21wbGV4aXR5IGFuZCB0aGV5IHB1cnNlIGhpZ2ggcGVyZm9ybWFuY2UuCj4gRm9y
+IHNvbWUgc3BlY2lhbCB1c2FnZXMgdGhhdCB0aGluayB2aXJ0aW8gaXMgdG9vIGNvbXBsZXggdG8g
+c3VmZmljZSBhbmQgdGhleSB3YW50IHNvbWV0aGluZyBzaW1wbGVyLCB0aGV5IHdvdWxkIGNvbnNp
+ZGVyIHRvIHVzZSB0aGlzIHRyYW5zcG9ydOOAggo+IAo+IFRoYW5rcywKPiBXZWkKClNvIGltcGxl
+bWVudCBhIHNtYWxsIHN1YnNldCBvZiB2aXJ0aW8gdGhlbiwgbm8gb25lIGZvcmNlcyB5b3UgdG8g
+dXNlIGFsbAppdHMgZmVhdHVyZXMuIHZpcnRpbyBtbWlvIGlzIGFib3V0IDMwIHJlZ2lzdGVycywg
+bW9zdCBjYW4gYmUgc3R1YmJlZCB0bwpjb25zdGFudHMuIHBhY2tlZCByaW5nIGlzIG11Y2ggc2lt
+cGxlciB0aGFuIHNwbGl0IG9uZS4KCi0tIApNU1QKCl9fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
+aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
+bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
