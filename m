@@ -2,71 +2,90 @@ Return-Path: <SRS0=fJjx=P6=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1F85C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 11 Nov 2021 19:37:03 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6B5CC433F5
+	for <virtualization@archiver.kernel.org>; Thu, 11 Nov 2021 20:52:13 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3542B61269
-	for <virtualization@archiver.kernel.org>; Thu, 11 Nov 2021 19:37:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 3542B61269
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=csail.mit.edu
+	by mail.kernel.org (Postfix) with ESMTPS id 82C9F60C40
+	for <virtualization@archiver.kernel.org>; Thu, 11 Nov 2021 20:52:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 82C9F60C40
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E0CDA4057F;
-	Thu, 11 Nov 2021 19:37:02 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id E81FD40476;
+	Thu, 11 Nov 2021 20:52:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3oi74wWyO6ok; Thu, 11 Nov 2021 19:37:02 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id XNqfzmKDGQMs; Thu, 11 Nov 2021 20:52:11 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 7A5DF4057B;
-	Thu, 11 Nov 2021 19:37:01 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A4A5F4037A;
+	Thu, 11 Nov 2021 20:52:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 45019C0019;
-	Thu, 11 Nov 2021 19:37:01 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 02A81C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 64550C0012;
+	Thu, 11 Nov 2021 20:52:10 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 05C5BC000E
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Nov 2021 19:37:00 +0000 (UTC)
+ Thu, 11 Nov 2021 20:52:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id D7F6F60600
+ by smtp2.osuosl.org (Postfix) with ESMTP id F3CF64037A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Nov 2021 19:36:59 +0000 (UTC)
+ Thu, 11 Nov 2021 20:52:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KqkRdLuPigKr
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id A8hTfSG1fUyz
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Nov 2021 19:36:58 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from outgoing-stata.csail.mit.edu (outgoing-stata.csail.mit.edu
- [128.30.2.210])
- by smtp3.osuosl.org (Postfix) with ESMTP id A9829605F8
+ Thu, 11 Nov 2021 20:52:07 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com
+ [IPv6:2607:f8b0:4864:20::b36])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 97451400C1
  for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Nov 2021 19:36:58 +0000 (UTC)
-Received: from [128.177.79.46] (helo=csail.mit.edu)
- by outgoing-stata.csail.mit.edu with esmtpsa (TLS1.2:RSA_AES_256_CBC_SHA1:256)
- (Exim 4.82) (envelope-from <srivatsa@csail.mit.edu>)
- id 1mlFsU-0003Le-47; Thu, 11 Nov 2021 14:36:54 -0500
-Date: Thu, 11 Nov 2021 11:40:02 -0800
-From: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
-To: Greg KH <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH v3 1/3] MAINTAINERS: Update maintainers for paravirt ops
- and VMware hypervisor interface
-Message-ID: <20211111194002.GA8739@csail.mit.edu>
-References: <163657479269.84207.13658789048079672839.stgit@srivatsa-dev>
- <163657487268.84207.5604596767569015608.stgit@srivatsa-dev>
- <YYy9P7Rjg9hntmm3@kroah.com> <20211111153916.GA7966@csail.mit.edu>
- <YY1krlfM5R7uEzJF@kroah.com>
+ Thu, 11 Nov 2021 20:52:07 +0000 (UTC)
+Received: by mail-yb1-xb36.google.com with SMTP id s186so18131588yba.12
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 11 Nov 2021 12:52:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=kyN9KPpJEiqasVoovUD2ShkSHxsg8GDQXZqCB7xqQao=;
+ b=IEz3lhjwgibwspCVdh1v93npJ4/qkmXS3x+aNpifYgVqhND7dLTN9eIWI5dB+O0QfE
+ c0xSfdbR+dWF4mueSUJiErO+4tDo9APKnLAaHUym/j+c4NIshuIx6qeIC649U1E9hitR
+ PAsJe+0VRykwgoHmpEvg6svA0Hk3qJ/PAvPZlq6zOFRvLiXbmZfEcbsrDkseT8UmP7+I
+ V3LL5/7Yjtqainyv8Okab9P8HHBWiDRTJTnfVsb1pyZRWgaMrplTHKVQ3z7g//thmlRC
+ YT1zQla1i73Hn25e3zTCXUUcyJSwlpFcuTWNT+5FC6I9kuFtgNz7G/6PLYQFyL5ctt9B
+ lWoA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=kyN9KPpJEiqasVoovUD2ShkSHxsg8GDQXZqCB7xqQao=;
+ b=TaxtwNilEKWGdiptiz7Q3M1wW5sgmx4yKE/TGdX3lr26GVk+ESLshwkaRGOgmwnTJ+
+ NFbwfXedGZfmclABEHgN0L1ob1c0OIyBAXYlufBeKuHjF6dk9Z+w0j1B7uGt0S5ncWFd
+ aLTn/bZhyPKWXqnFoC0WcNnJ6pCOm10qN7fhqLo+6bYUVkOQiW7kUcS9td1puubGeOGz
+ kDtHVF3gHHgyixkVZoi7gxS2zs8uRUkYMBp9cJI+olbmxt8VZz/CNp/0DRVop1yovN4c
+ 40iimCrI2yowY15IPdrfa5vWinD4DN2VJJDs+x7A9kO1xtMkPn1bEHF4FD3Ap9MgZH1m
+ A90g==
+X-Gm-Message-State: AOAM531Rc0Ei2eimJ5/JD/UjtinGaCw0amXqJLFJl98lV3k62W6mUmJG
+ OS1ZS55l1xVflrkErAU1eh9RKSU27cMhRNQZgUI=
+X-Google-Smtp-Source: ABdhPJwBytVtWwVGDTLmrrLfoxxM3A2+VqmPf4lQGtZ4h23e0LlCj+4GenH3Hsb1R+qFOlorixMzitEgzrKFh6o1SR4=
+X-Received: by 2002:a25:bb52:: with SMTP id b18mr12085046ybk.506.1636663926521; 
+ Thu, 11 Nov 2021 12:52:06 -0800 (PST)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <YY1krlfM5R7uEzJF@kroah.com>
-Cc: jgross@suse.com, anishs@vmware.com, pv-drivers@vmware.com, x86@kernel.org,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org,
- virtualization@lists.linux-foundation.org, keerthanak@vmware.com,
- namit@vmware.com, rostedt@goodmis.org, Alexey Makhalov <amakhalov@vmware.com>,
- joe@perches.com, kuba@kernel.org
+References: <CADVatmOuOk6RoZF=M9sZm2L=9NuDDsSNNCJJbAtkgScG0og1Ww@mail.gmail.com>
+In-Reply-To: <CADVatmOuOk6RoZF=M9sZm2L=9NuDDsSNNCJJbAtkgScG0og1Ww@mail.gmail.com>
+From: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Date: Thu, 11 Nov 2021 20:51:30 +0000
+Message-ID: <CADVatmP_Sn+SS5Yu5+7sJJ5SVpcaZcW8Z_Bj5vmYz9g3kJD86g@mail.gmail.com>
+Subject: Re: regression with mainline kernel
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+ Nicholas Verne <nverne@chromium.org>,
+ dri-devel <dri-devel@lists.freedesktop.org>,
+ "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
+ Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -83,57 +102,89 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Nov 11, 2021 at 07:45:02PM +0100, Greg KH wrote:
-> On Thu, Nov 11, 2021 at 07:39:16AM -0800, Srivatsa S. Bhat wrote:
-> > On Thu, Nov 11, 2021 at 07:50:39AM +0100, Greg KH wrote:
-> > > On Wed, Nov 10, 2021 at 12:08:16PM -0800, Srivatsa S. Bhat wrote:
-> > > > From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
-> > > > 
-> > > > Deep has decided to transfer maintainership of the VMware hypervisor
-> > > > interface to Srivatsa, and the joint-maintainership of paravirt ops in
-> > > > the Linux kernel to Srivatsa and Alexey. Update the MAINTAINERS file
-> > > > to reflect this change.
-> > > > 
-> > > > Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
-> > > > Acked-by: Alexey Makhalov <amakhalov@vmware.com>
-> > > > Acked-by: Deep Shah <sdeep@vmware.com>
-> > > > Acked-by: Juergen Gross <jgross@suse.com>
-> > > > Cc: stable@vger.kernel.org
-> > > 
-> > > Why are MAINTAINERS updates needed for stable?  That's not normal :(
-> > 
-> > So that people posting bug-fixes / backports to these subsystems for
-> > older kernels (stable and LTS releases) will CC the new subsystem
-> > maintainers.
-> 
-> That's not how stable releases work at all.
-> 
-> > That's why I added CC stable tag only to the first two
-> > patches which add/replace maintainers and not the third patch which is
-> > just a cleanup.
-> 
-> Patches for stable kernels need to go into Linus's tree first, and if
-> you have the MAINTAINERS file updated properly there, then you will be
-> properly cc:ed.  We do not look at the MAINTAINERS file for the older
-> kernel when sending patches out, it's totally ignored as that was the
-> snapshot at a point in time, which is usually no longer the true state.
-> 
+Hi Linus,
 
-Sure, but that's the case for patches that get mainlined (and
-subsequently backported to -stable) /after/ this update to the
-MAINTAINERS file gets merged into mainline.
+On Thu, Nov 11, 2021 at 2:03 PM Sudip Mukherjee
+<sudipm.mukherjee@gmail.com> wrote:
+>
+> Hi Linus,
+>
+> My testing has been failing for the last few days. Last good test was
+> with 6f2b76a4a384 and I started seeing the failure with ce840177930f5
+> where boot timeout.
+>
+> Last good test - https://openqa.qa.codethink.co.uk/tests/323
+> Failing test - https://openqa.qa.codethink.co.uk/tests/335
+>
+> Saw a similar issue with 5.10.79-rc1 today and bisect showed the
+> problem with 8615ff6dd1ac but that was already in the last good test I
+> had.
 
-When adding the CC stable tag, the case I was trying to address was
-for patches that are already in mainline but weren't CC'ed to stable,
-and at some later point, somebody decides to backport them to older
-stable kernels. In that case, there is a chance that the contributor
-might run ./get_maintainer.pl against the stable tree (as that's the
-tree they are backporting the upstream commit against) and end up not
-CC'ing the new maintainers. So, I thought it would be good to keep the
-maintainer info updated in the older stable kernels too.
+Did a bisect and this is a separate issue than the one we saw in 5.10.79-rc1.
 
-Regards,
-Srivatsa
+The bisect log:
+# bad: [ce840177930f591a181f55515fc6ac9e1f56b84a] Merge tag
+'defconfig-5.16' of
+git://git.kernel.org/pub/scm/linux/kernel/git/soc/soc
+# good: [6f2b76a4a384e05ac8d3349831f29dff5de1e1e2] Merge tag
+'Smack-for-5.16' of https://github.com/cschaufler/smack-next
+git bisect start 'ce840177930f5' '6f2b76a4a384e05ac8d3349831f29dff5de1e1e2'
+# good: [a64a325bf6313aa5cde7ecd691927e92892d1b7f] Merge tag
+'afs-next-20211102' of
+git://git.kernel.org/pub/scm/linux/kernel/git/dhowells/linux-fs
+git bisect good a64a325bf6313aa5cde7ecd691927e92892d1b7f
+# bad: [dcd68326d29b62f3039e4f4d23d3e38f24d37360] Merge tag
+'devicetree-for-5.16' of
+git://git.kernel.org/pub/scm/linux/kernel/git/robh/linux
+git bisect bad dcd68326d29b62f3039e4f4d23d3e38f24d37360
+# bad: [c7c774fe09389fc806bbe4b487c18e45f576c1ae] Merge tag
+'drm-intel-next-2021-10-04' of
+git://anongit.freedesktop.org/drm/drm-intel into drm-next
+git bisect bad c7c774fe09389fc806bbe4b487c18e45f576c1ae
+# good: [8017ecb11ebbcdfcbdff14c5edbdf1efc14991f4] drm/amd/display:
+Added root clock optimization flags
+git bisect good 8017ecb11ebbcdfcbdff14c5edbdf1efc14991f4
+# good: [8a1ec3f3275479292613273a7be2ac87f2a7f6e6] drm/i915: Remove
+DP_PORT_EN stuff from link training code
+git bisect good 8a1ec3f3275479292613273a7be2ac87f2a7f6e6
+# bad: [9962601ca5719050906915c3c33a63744ac7b15c] drm/bridge:
+dw-hdmi-cec: Make use of the helper function
+devm_add_action_or_reset()
+git bisect bad 9962601ca5719050906915c3c33a63744ac7b15c
+# bad: [606b102876e3741851dfb09d53f3ee57f650a52c] drm: fb_helper: fix
+CONFIG_FB dependency
+git bisect bad 606b102876e3741851dfb09d53f3ee57f650a52c
+# good: [c43da06c24a485308e80d709737b446e8cad175d] dt-bindings:
+drm/panel: boe-tv101wum-nl6: Support enabling a 3.3V rail
+git bisect good c43da06c24a485308e80d709737b446e8cad175d
+# good: [8d6b006e1f51c99016aa39ca9e03947cbdd024e3] drm/virtio:
+implement context init: handle VIRTGPU_CONTEXT_PARAM_POLL_RINGS_MASK
+git bisect good 8d6b006e1f51c99016aa39ca9e03947cbdd024e3
+# bad: [d0f5d790ae863079025398015eb59347b01db455] drm/ttm: remove
+TTM_PAGE_FLAG_NO_RETRY
+git bisect bad d0f5d790ae863079025398015eb59347b01db455
+# bad: [f5d28856b89baab4232a9f841e565763fcebcdf9] drm/ttm: stop
+calling tt_swapin in vm_access
+git bisect bad f5d28856b89baab4232a9f841e565763fcebcdf9
+# bad: [78aa20fa4381623cf59a85d053486f98784ca3a0] drm/virtio:
+implement context init: advertise feature to userspace
+git bisect bad 78aa20fa4381623cf59a85d053486f98784ca3a0
+# bad: [cd7f5ca33585918febe5e2f6dc090a21cfa775b0] drm/virtio:
+implement context init: add virtio_gpu_fence_event
+git bisect bad cd7f5ca33585918febe5e2f6dc090a21cfa775b0
+# first bad commit: [cd7f5ca33585918febe5e2f6dc090a21cfa775b0]
+drm/virtio: implement context init: add virtio_gpu_fence_event
+
+And, indeed reverting cd7f5ca33585 on top of debe436e77c7 has fixed
+the problem I was seeing on my qemu test of x86_64. The qemu image is
+based on Ubuntu.
+
+Will be happy to test any fix or more debugging if needed.
+
+
+-- 
+Regards
+Sudip
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
