@@ -2,98 +2,75 @@ Return-Path: <SRS0=b7zo=P7=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08921C433F5
-	for <virtualization@archiver.kernel.org>; Fri, 12 Nov 2021 02:35:37 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6E07C433F5
+	for <virtualization@archiver.kernel.org>; Fri, 12 Nov 2021 06:55:23 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8EEE360F36
-	for <virtualization@archiver.kernel.org>; Fri, 12 Nov 2021 02:35:36 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 8EEE360F36
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	by mail.kernel.org (Postfix) with ESMTPS id 615AE60FF2
+	for <virtualization@archiver.kernel.org>; Fri, 12 Nov 2021 06:55:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 615AE60FF2
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3B7126064E;
-	Fri, 12 Nov 2021 02:35:36 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 25F1040543;
+	Fri, 12 Nov 2021 06:55:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3gXVRkNu4_BJ; Fri, 12 Nov 2021 02:35:35 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9z8Seum_7iGv; Fri, 12 Nov 2021 06:55:22 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id A046A6064D;
-	Fri, 12 Nov 2021 02:35:34 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D018140540;
+	Fri, 12 Nov 2021 06:55:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 796ECC0012;
-	Fri, 12 Nov 2021 02:35:34 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BBF17C000E
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8EC18C002E;
+	Fri, 12 Nov 2021 06:55:21 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1B9BBC0012
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Nov 2021 02:35:33 +0000 (UTC)
+ Fri, 12 Nov 2021 06:55:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 9DD3A4054B
+ by smtp4.osuosl.org (Postfix) with ESMTP id EA22440543
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Nov 2021 02:35:33 +0000 (UTC)
+ Fri, 12 Nov 2021 06:55:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aQ19_ypLvGCh
+ with ESMTP id rcm1_wGYaX7V
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Nov 2021 02:35:32 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com
- [IPv6:2607:f8b0:4864:20::531])
- by smtp4.osuosl.org (Postfix) with ESMTPS id B56764054A
+ Fri, 12 Nov 2021 06:55:19 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 5D95140540
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Nov 2021 02:35:32 +0000 (UTC)
-Received: by mail-pg1-x531.google.com with SMTP id m15so2895145pgu.11
- for <virtualization@lists.linux-foundation.org>;
- Thu, 11 Nov 2021 18:35:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=RNXnFaFa6OypiY8cUDEXU0f6wOrYgTchSCvRvlsTQj8=;
- b=CnEygtn/QYnOuEWrZ0Wl5Dq0XzaDKRMuFrim3itrSjv7xN6Md8/Q8/GeNreaH2Ukx/
- ur0hfbc3FsY/A8ZfQxcgY4WuJroVKRGVeIhKy+mXt5/Op4g1sOk2uhHrBQOROoMSL3B/
- tTygpiM+ZPkd1EWmCL9GAkH5P/yIq8cRWQUEjh9AoMopyvZQqZv6bmacTPJqvRPgwFTl
- ibh6AgT+dUIAhN2acEIbLXW9wvYQdkVoZ6c27bOcjA+ZiGl6fgvZ7szAzkjlgKV3f5rP
- 7P5VvViXMiQpnSfugdpuKo8RKeQLhodgOogeuPcDgcV2MORcYusqtKDGV5i7WCyAseCn
- jgoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=RNXnFaFa6OypiY8cUDEXU0f6wOrYgTchSCvRvlsTQj8=;
- b=PSTUD1pQjYOJRTkAJr7DVIO4pnZCRoeROL6dFn1y69ZOEaGUYTYtlDUBXygcwfDfDz
- lmsa3ZKAUKx0KBar8JDCfd0acPYkQhyivRTz2CCWA9cZVx9pnlDA6kSC09SoVj4JPRkV
- J3V4p2lk+y07FJczwFlysQOlLxY02e+mKmnNc3Pb+guOBq2+t1/qkVZKGhLtaKYZqPCJ
- 4172ViiEQq1+XopCEypCpc0+BpCifby9uA0E6EIhJHu/T6Lp2Qg2An0TTG2pyJqSliCq
- 5WHrLqBpGRUW3MEUVPVm2gXRxL5CRl6K3x+rmmsz7me9MdyiwARH7oGewggo4qryoNHD
- qE6Q==
-X-Gm-Message-State: AOAM533Le+txaA3RM7hKDW7qgwEFE43fLVAGA+jN8zzTxKybB27cqhEJ
- KfNYbjgUBAAK6QT+cXFC2pMdUg==
-X-Google-Smtp-Source: ABdhPJyRkgNSq1OMU0V6NixxdtfxUcHIEtVk0YRczILs2+A+RXr19abyAyxkFmUenAaIGjShRy9EAw==
-X-Received: by 2002:a63:8ac3:: with SMTP id y186mr7927614pgd.444.1636684532167; 
- Thu, 11 Nov 2021 18:35:32 -0800 (PST)
-Received: from localhost ([223.226.77.81])
- by smtp.gmail.com with ESMTPSA id a8sm3347968pgh.84.2021.11.11.18.35.31
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 11 Nov 2021 18:35:31 -0800 (PST)
-Date: Fri, 12 Nov 2021 08:05:29 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Subject: Re: [PATCH v2 1/2] i2c: virtio: disable timeout handling
-Message-ID: <20211112023529.2nypmrnm6mufcpjt@vireshk-i7>
-References: <20211111160412.11980-1-vincent.whitchurch@axis.com>
- <20211111160412.11980-2-vincent.whitchurch@axis.com>
+ Fri, 12 Nov 2021 06:55:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C48EB60D07;
+ Fri, 12 Nov 2021 06:55:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+ s=korg; t=1636700118;
+ bh=eKgbIr6v2hTDS8LGApufL8VIw5w5BJxQjErzz4tGI8c=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=SiDt4AXWWQSMmI3VY+zRNJbzODAoqKfYsDj1EG8Fmc1ioBOQONgO4joEJp0CpHfRf
+ FHHrfUI+4Q77XNZ5Xuaog7JKgdYHmYTN+3IsHCFCR5ORJV+/N2SN8Gxxx6OA0/0SB2
+ 0ceHDVjygdZUF+VHc3M7tKhy1a9BVAC8RKCRuHBM=
+Date: Fri, 12 Nov 2021 07:55:14 +0100
+From: Greg KH <gregkh@linuxfoundation.org>
+To: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+Subject: Re: [PATCH v3 1/3] MAINTAINERS: Update maintainers for paravirt ops
+ and VMware hypervisor interface
+Message-ID: <YY4P0lxIDNcOlc+2@kroah.com>
+References: <163657479269.84207.13658789048079672839.stgit@srivatsa-dev>
+ <163657487268.84207.5604596767569015608.stgit@srivatsa-dev>
+ <YYy9P7Rjg9hntmm3@kroah.com> <20211111153916.GA7966@csail.mit.edu>
+ <YY1krlfM5R7uEzJF@kroah.com> <20211111194002.GA8739@csail.mit.edu>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20211111160412.11980-2-vincent.whitchurch@axis.com>
-User-Agent: NeoMutt/20180716-391-311a52
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, wsa@kernel.org, kernel@axis.com,
- linux-i2c@vger.kernel.org, conghui.chen@intel.com
+In-Reply-To: <20211111194002.GA8739@csail.mit.edu>
+Cc: jgross@suse.com, anishs@vmware.com, pv-drivers@vmware.com, x86@kernel.org,
+ linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, keerthanak@vmware.com,
+ namit@vmware.com, rostedt@goodmis.org, Alexey Makhalov <amakhalov@vmware.com>,
+ joe@perches.com, kuba@kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,95 +87,71 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 11-11-21, 17:04, Vincent Whitchurch wrote:
-> If a timeout is hit, it can result is incorrect data on the I2C bus
-> and/or memory corruptions in the guest since the device can still be
-> operating on the buffers it was given while the guest has freed them.
+On Thu, Nov 11, 2021 at 11:40:02AM -0800, Srivatsa S. Bhat wrote:
+> On Thu, Nov 11, 2021 at 07:45:02PM +0100, Greg KH wrote:
+> > On Thu, Nov 11, 2021 at 07:39:16AM -0800, Srivatsa S. Bhat wrote:
+> > > On Thu, Nov 11, 2021 at 07:50:39AM +0100, Greg KH wrote:
+> > > > On Wed, Nov 10, 2021 at 12:08:16PM -0800, Srivatsa S. Bhat wrote:
+> > > > > From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+> > > > > 
+> > > > > Deep has decided to transfer maintainership of the VMware hypervisor
+> > > > > interface to Srivatsa, and the joint-maintainership of paravirt ops in
+> > > > > the Linux kernel to Srivatsa and Alexey. Update the MAINTAINERS file
+> > > > > to reflect this change.
+> > > > > 
+> > > > > Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+> > > > > Acked-by: Alexey Makhalov <amakhalov@vmware.com>
+> > > > > Acked-by: Deep Shah <sdeep@vmware.com>
+> > > > > Acked-by: Juergen Gross <jgross@suse.com>
+> > > > > Cc: stable@vger.kernel.org
+> > > > 
+> > > > Why are MAINTAINERS updates needed for stable?  That's not normal :(
+> > > 
+> > > So that people posting bug-fixes / backports to these subsystems for
+> > > older kernels (stable and LTS releases) will CC the new subsystem
+> > > maintainers.
+> > 
+> > That's not how stable releases work at all.
+> > 
+> > > That's why I added CC stable tag only to the first two
+> > > patches which add/replace maintainers and not the third patch which is
+> > > just a cleanup.
+> > 
+> > Patches for stable kernels need to go into Linus's tree first, and if
+> > you have the MAINTAINERS file updated properly there, then you will be
+> > properly cc:ed.  We do not look at the MAINTAINERS file for the older
+> > kernel when sending patches out, it's totally ignored as that was the
+> > snapshot at a point in time, which is usually no longer the true state.
+> > 
 > 
-> Here is, for example, the start of a slub_debug splat which was
-> triggered on the next transfer after one transfer was forced to timeout
-> by setting a breakpoint in the backend (rust-vmm/vhost-device):
+> Sure, but that's the case for patches that get mainlined (and
+> subsequently backported to -stable) /after/ this update to the
+> MAINTAINERS file gets merged into mainline.
 > 
->  BUG kmalloc-1k (Not tainted): Poison overwritten
->  First byte 0x1 instead of 0x6b
->  Allocated in virtio_i2c_xfer+0x65/0x35c age=350 cpu=0 pid=29
->  	__kmalloc+0xc2/0x1c9
->  	virtio_i2c_xfer+0x65/0x35c
->  	__i2c_transfer+0x429/0x57d
->  	i2c_transfer+0x115/0x134
->  	i2cdev_ioctl_rdwr+0x16a/0x1de
->  	i2cdev_ioctl+0x247/0x2ed
->  	vfs_ioctl+0x21/0x30
->  	sys_ioctl+0xb18/0xb41
->  Freed in virtio_i2c_xfer+0x32e/0x35c age=244 cpu=0 pid=29
->  	kfree+0x1bd/0x1cc
->  	virtio_i2c_xfer+0x32e/0x35c
->  	__i2c_transfer+0x429/0x57d
->  	i2c_transfer+0x115/0x134
->  	i2cdev_ioctl_rdwr+0x16a/0x1de
->  	i2cdev_ioctl+0x247/0x2ed
->  	vfs_ioctl+0x21/0x30
->  	sys_ioctl+0xb18/0xb41
-> 
-> There is no simple fix for this (the driver would have to always create
-> bounce buffers and hold on to them until the device eventually returns
-> the buffers), so just disable the timeout support for now.
-> 
-> Fixes: 3cfc88380413d20f ("i2c: virtio: add a virtio i2c frontend driver")
-> Acked-by: Jie Deng <jie.deng@intel.com>
-> Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-> ---
->  drivers/i2c/busses/i2c-virtio.c | 14 +++++---------
->  1 file changed, 5 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-> index f10a603b13fb..7b2474e6876f 100644
-> --- a/drivers/i2c/busses/i2c-virtio.c
-> +++ b/drivers/i2c/busses/i2c-virtio.c
-> @@ -106,11 +106,10 @@ static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
->  
->  static int virtio_i2c_complete_reqs(struct virtqueue *vq,
->  				    struct virtio_i2c_req *reqs,
-> -				    struct i2c_msg *msgs, int num,
-> -				    bool timedout)
-> +				    struct i2c_msg *msgs, int num)
->  {
->  	struct virtio_i2c_req *req;
-> -	bool failed = timedout;
-> +	bool failed = false;
->  	unsigned int len;
->  	int i, j = 0;
->  
-> @@ -132,7 +131,7 @@ static int virtio_i2c_complete_reqs(struct virtqueue *vq,
->  			j++;
->  	}
->  
-> -	return timedout ? -ETIMEDOUT : j;
-> +	return j;
->  }
->  
->  static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-> @@ -141,7 +140,6 @@ static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->  	struct virtio_i2c *vi = i2c_get_adapdata(adap);
->  	struct virtqueue *vq = vi->vq;
->  	struct virtio_i2c_req *reqs;
-> -	unsigned long time_left;
->  	int count;
->  
->  	reqs = kcalloc(num, sizeof(*reqs), GFP_KERNEL);
-> @@ -164,11 +162,9 @@ static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->  	reinit_completion(&vi->completion);
->  	virtqueue_kick(vq);
->  
-> -	time_left = wait_for_completion_timeout(&vi->completion, adap->timeout);
-> -	if (!time_left)
-> -		dev_err(&adap->dev, "virtio i2c backend timeout.\n");
-> +	wait_for_completion(&vi->completion);
+> When adding the CC stable tag, the case I was trying to address was
+> for patches that are already in mainline but weren't CC'ed to stable,
+> and at some later point, somebody decides to backport them to older
+> stable kernels. In that case, there is a chance that the contributor
+> might run ./get_maintainer.pl against the stable tree (as that's the
+> tree they are backporting the upstream commit against) and end up not
+> CC'ing the new maintainers. So, I thought it would be good to keep the
+> maintainer info updated in the older stable kernels too.
 
-I thought we decided on making this in insanely high value instead ?
+I always ask that the current maintainers of the code be cc:ed when
+asking for commits to be backported to the stable tree, so I think this
+is not something you need to worry about.  I don't want to have to deal
+with hundreds of patches to try to keep the MAINTAINERS file "up to
+date" for this very very rare event.
 
--- 
-viresh
+You can prove me wrong by looking at our email archives and see where I
+have missed ever doing this in the past 18 years and what the frequency
+of it is...
+
+But for now, no, this is not stable kernel material.
+
+thanks,
+
+greg k-h
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
