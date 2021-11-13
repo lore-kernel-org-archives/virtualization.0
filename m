@@ -1,79 +1,111 @@
-Return-Path: <SRS0=b7zo=P7=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=Fazc=QA=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18BF8C433FE
-	for <virtualization@archiver.kernel.org>; Fri, 12 Nov 2021 17:50:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFB66C433F5
+	for <virtualization@archiver.kernel.org>; Sat, 13 Nov 2021 08:54:48 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AF14361029
-	for <virtualization@archiver.kernel.org>; Fri, 12 Nov 2021 17:50:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org AF14361029
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=csail.mit.edu
+	by mail.kernel.org (Postfix) with ESMTPS id 2C947610A1
+	for <virtualization@archiver.kernel.org>; Sat, 13 Nov 2021 08:54:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 2C947610A1
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 758CE405F3;
-	Fri, 12 Nov 2021 17:50:56 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 73D8340625;
+	Sat, 13 Nov 2021 08:54:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dIfO6rAcmDsz; Fri, 12 Nov 2021 17:50:55 +0000 (UTC)
+	with ESMTP id mWBpkMcDuuEi; Sat, 13 Nov 2021 08:54:45 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 314A1405EB;
-	Fri, 12 Nov 2021 17:50:55 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A21FB405E9;
+	Sat, 13 Nov 2021 08:54:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 035E7C001E;
-	Fri, 12 Nov 2021 17:50:55 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 52142C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 79F3EC001E;
+	Sat, 13 Nov 2021 08:54:44 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 35879C0012
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Nov 2021 17:50:53 +0000 (UTC)
+ Sat, 13 Nov 2021 08:54:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 4DCC1826B4
+ by smtp4.osuosl.org (Postfix) with ESMTP id 105CF405E9
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Nov 2021 17:50:53 +0000 (UTC)
+ Sat, 13 Nov 2021 08:54:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id LhyFirk4R55t
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id tCftGGrgrCi2
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Nov 2021 17:50:51 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from outgoing-stata.csail.mit.edu (outgoing-stata.csail.mit.edu
- [128.30.2.210])
- by smtp1.osuosl.org (Postfix) with ESMTP id 68D8F82553
+ Sat, 13 Nov 2021 08:54:42 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id D5D5F405E5
  for <virtualization@lists.linux-foundation.org>;
- Fri, 12 Nov 2021 17:50:51 +0000 (UTC)
-Received: from c-24-16-8-193.hsd1.wa.comcast.net ([24.16.8.193]
- helo=srivatsab-a02.vmware.com)
- by outgoing-stata.csail.mit.edu with esmtpsa (TLS1.2:RSA_AES_128_CBC_SHA1:128)
- (Exim 4.82) (envelope-from <srivatsa@csail.mit.edu>)
- id 1mlahI-0006py-1E; Fri, 12 Nov 2021 12:50:44 -0500
-Subject: Re: [PATCH v3 3/3] MAINTAINERS: Mark VMware mailing list entries as
- email aliases
-To: Jakub Kicinski <kuba@kernel.org>, Joe Perches <joe@perches.com>
-References: <163657479269.84207.13658789048079672839.stgit@srivatsa-dev>
- <163657493334.84207.11063282485812745766.stgit@srivatsa-dev>
- <20211110173935.45a9f495@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <d7f3fec79287a149d6edc828583a771c84646b42.camel@perches.com>
- <20211111055554.4f257fd2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-From: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
-Message-ID: <fd9df647-4c1a-b4fb-159b-4876bc5cd0b6@csail.mit.edu>
-Date: Fri, 12 Nov 2021 09:50:33 -0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.12.0
+ Sat, 13 Nov 2021 08:54:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1636793680;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=d+z8rYoU9QD9VNjpmLDDx7zDmor9Ob3HEVQtqnctyQ0=;
+ b=R2TUxULAUkahvbplfLgQrhoTxKS0gjx4/Hz/KVspMzcGWKcSRxJN3HT5Vu7lfq5/JT2B/P
+ 2iYk1U7DUWMHaqtQ4s9IGs6sRD55ne2ZMriFLVeATh6TSJnX0JlnzdYb5t/+nhLAs4iYn9
+ iUMAbrJ9sI38a0nygoZkQcn+2kPA+kk=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-131-15BvNm7GMlKfLGI-QBwgdA-1; Sat, 13 Nov 2021 03:54:39 -0500
+X-MC-Unique: 15BvNm7GMlKfLGI-QBwgdA-1
+Received: by mail-wr1-f70.google.com with SMTP id
+ q7-20020adff507000000b0017d160d35a8so1882921wro.4
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 13 Nov 2021 00:54:38 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:organization:in-reply-to
+ :content-transfer-encoding;
+ bh=d+z8rYoU9QD9VNjpmLDDx7zDmor9Ob3HEVQtqnctyQ0=;
+ b=vsmBs9AP3ZI8BoOatpLbVP+vbg73/Sq9RLXJHNh1cZmGyc6agAbLhv6pSAzxsjUYEv
+ UQS2j51U0CZ+Jbekj0oby/AxVhOFdn0NOPrpaeb+SEca3PMM9RSoJEXwTtrjdiYjxTdB
+ W9o5sfSFYKzJ/QgXa/A8N/fJYNqXlxnrKKleHC3TKqr82eSXOlqAhI/qYrw+45T/eE4T
+ 3GiLdXZlTExgLo8hBGrhLlwIc0vkCrWsgWYc1fz+1DYb3V6GH7uQP89hsPs4NDK1NwIH
+ 3asBrYSP6OLEJ4ABoEZCvxdJxOhiH3jrnaBZewkdXjhVOjw28VSvtPqw2+1e1ebvvbJb
+ bepQ==
+X-Gm-Message-State: AOAM530Inuwee7s1OBW1RIaKzDSNeQkvzwjrIaqAI+n4qI+6/hYqHW8R
+ RtO1mLrnFzZb8sr8Wf4dU/4IKNAWqZJS0ZkxD+3d/6R80TjfyOurEscBGUGzSJ/9kYjqV4dV68J
+ dgEN7XwYOEdSxwECqMY4paxX9aubARVMU4WE7XCCTMQ==
+X-Received: by 2002:a7b:ce0f:: with SMTP id m15mr23578911wmc.149.1636793677178; 
+ Sat, 13 Nov 2021 00:54:37 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJykr6DLfv2aEzX3pfP8GsAedXQIQu2gXW2KdaV5PSZIQXS0yxFm3EOuj5Mw74jyDyTlm5cfeA==
+X-Received: by 2002:a7b:ce0f:: with SMTP id m15mr23578895wmc.149.1636793677003; 
+ Sat, 13 Nov 2021 00:54:37 -0800 (PST)
+Received: from [192.168.3.132] (p5b0c6cef.dip0.t-ipconnect.de. [91.12.108.239])
+ by smtp.gmail.com with ESMTPSA id j40sm8990732wms.16.2021.11.13.00.54.36
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Sat, 13 Nov 2021 00:54:36 -0800 (PST)
+Message-ID: <6f677edc-6c81-199a-0bc6-25117fa4b34e@redhat.com>
+Date: Sat, 13 Nov 2021 09:54:36 +0100
 MIME-Version: 1.0
-In-Reply-To: <20211111055554.4f257fd2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+Subject: Re: [GIT PULL] virtio-mem changes for v5.16
+To: linux-kernel@vger.kernel.org
+References: <20211110163754.27528-1-david@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+In-Reply-To: <20211110163754.27528-1-david@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Language: en-US
-Cc: Ronak Doshi <doshir@vmware.com>, pv-drivers@vmware.com,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- Nadav Amit <namit@vmware.com>, amakhalov@vmware.com,
- linux-scsi@vger.kernel.org, Vishal Bhakta <vbhakta@vmware.com>, x86@kernel.org,
- linux-graphics-maintainer@vmware.com, linux-input@vger.kernel.org,
- rostedt@goodmis.org, keerthanak@vmware.com, jgross@suse.com, anishs@vmware.com,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-rdma@vger.kernel.org, Zack Rusin <zackr@vmware.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+ Linus Torvalds <torvalds@linux-foundation.org>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -90,63 +122,25 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-[ Resending since my previous reply didn't reach the mailing lists. ]
-
-On 11/11/21 5:55 AM, Jakub Kicinski wrote:
-> On Wed, 10 Nov 2021 21:19:53 -0800 Joe Perches wrote:
->> On Wed, 2021-11-10 at 17:39 -0800, Jakub Kicinski wrote:
->>> On Wed, 10 Nov 2021 12:09:06 -0800 Srivatsa S. Bhat wrote:  
->>>>  DRM DRIVER FOR VMWARE VIRTUAL GPU
->>>> -M:	"VMware Graphics" <linux-graphics-maintainer@vmware.com>
->>>>  M:	Zack Rusin <zackr@vmware.com>
->>>> +R:	VMware Graphics Reviewers <linux-graphics-maintainer@vmware.com>
->>>>  L:	dri-devel@lists.freedesktop.org
->>>>  S:	Supported
->>>>  T:	git git://anongit.freedesktop.org/drm/drm-misc  
->>>
->>> It'd be preferable for these corporate entries to be marked or
->>> otherwise distinguishable so that we can ignore them when we try 
->>> to purge MAINTAINERS from developers who stopped participating.
->>>
->>> These addresses will never show up in a commit tag which is normally
->>> sign of inactivity.  
->>
->> Funny.
->>
->> The link below is from over 5 years ago.
->>
->> https://lore.kernel.org/lkml/1472081625.3746.217.camel@perches.com/
->>
->> Almost all of those entries are still in MAINTAINERS.
->>
->> I think the concept of purging is a non-issue.
+On 10.11.21 17:37, David Hildenbrand wrote:
+> Hi Linus,
 > 
-> I cleaned networking in January and intend to do it again in 2 months.
-> See:
+> usually this would have went via the vhost tree, but as this patch depends
+> on some patches that just went in via Andrews tree and MST doesn't have
+> any other patches for this merge window, I'm sending it myself
+> and base it on current mainline that contains the relevant commits
+> already. Thanks!
 > 
-> 054c4610bd05 MAINTAINERS: dccp: move Gerrit Renker to CREDITS
-> 4f3786e01194 MAINTAINERS: ipvs: move Wensong Zhang to CREDITS
-> 0e4ed0b62b5a MAINTAINERS: tls: move Aviad to CREDITS
-> c41efbf2ad56 MAINTAINERS: ena: remove Zorik Machulsky from reviewers
-> 5e62d124f75a MAINTAINERS: vrf: move Shrijeet to CREDITS
-> 09cd3f4683a9 MAINTAINERS: net: move Alexey Kuznetsov to CREDITS
-> 93089de91e85 MAINTAINERS: altx: move Jay Cliburn to CREDITS
-> 8b0f64b113d6 MAINTAINERS: remove names from mailing list maintainers
-> 
-I'm assuming the purging is not totally automated, is it? As long as
-the entries are informative to a human reader, it should be possible
-to skip the relevant ones when purging inactive entries.
 
-I believe this patch makes the situation better than it is currently
-(at least for the human reader), by marking lists without public
-read-access in a format that is more appropriate. In the future, we
-could perhaps improve on it to ease automation too, but for now I
-think it is worthwhile to merge this change (unless there are strong
-objections or better alternatives that everyone agrees on).
+This is most probably at the end of the PULL queue, just a heads up that
+it would be really nice to have this in v5.16. Thanks!
 
-Regards,
-Srivatsa
+
+-- 
+Thanks,
+
+David / dhildenb
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
