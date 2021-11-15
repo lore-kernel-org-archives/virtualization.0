@@ -2,107 +2,107 @@ Return-Path: <SRS0=Lrx6=QC=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C1B1C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 15 Nov 2021 14:25:00 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5093EC433F5
+	for <virtualization@archiver.kernel.org>; Mon, 15 Nov 2021 16:35:02 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B145161B97
-	for <virtualization@archiver.kernel.org>; Mon, 15 Nov 2021 14:24:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org B145161B97
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
+	by mail.kernel.org (Postfix) with ESMTPS id F29D66121F
+	for <virtualization@archiver.kernel.org>; Mon, 15 Nov 2021 16:35:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org F29D66121F
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 71D57605FC;
-	Mon, 15 Nov 2021 14:24:59 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id AA42880CE0;
+	Mon, 15 Nov 2021 16:35:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RMNKmo8XVUsn; Mon, 15 Nov 2021 14:24:58 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id EAFFE60633;
-	Mon, 15 Nov 2021 14:24:57 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TXlJn2-v7iXJ; Mon, 15 Nov 2021 16:35:00 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 4645080A89;
+	Mon, 15 Nov 2021 16:35:00 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 951C7C001E;
-	Mon, 15 Nov 2021 14:24:57 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6737EC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1593FC001E;
+	Mon, 15 Nov 2021 16:35:00 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6DE33C0012
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Nov 2021 14:24:55 +0000 (UTC)
+ Mon, 15 Nov 2021 16:34:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 4E843606BE
+ by smtp3.osuosl.org (Postfix) with ESMTP id 691B7605FC
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Nov 2021 14:24:55 +0000 (UTC)
+ Mon, 15 Nov 2021 16:34:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=gmail.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Q38Ed-U80dW0
+ with ESMTP id B7rolTYUm1lH
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Nov 2021 14:24:54 +0000 (UTC)
+ Mon, 15 Nov 2021 16:34:56 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com
- [IPv6:2a00:1450:4864:20::534])
- by smtp3.osuosl.org (Postfix) with ESMTPS id ED2F3605FC
+Received: from mail-ua1-x935.google.com (mail-ua1-x935.google.com
+ [IPv6:2607:f8b0:4864:20::935])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 5E760605F2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Nov 2021 14:24:53 +0000 (UTC)
-Received: by mail-ed1-x534.google.com with SMTP id b15so72406556edd.7
+ Mon, 15 Nov 2021 16:34:56 +0000 (UTC)
+Received: by mail-ua1-x935.google.com with SMTP id b17so36251702uas.0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Nov 2021 06:24:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
- h=date:from:to:cc:subject:message-id:mail-followup-to:references
- :mime-version:content-disposition:in-reply-to;
- bh=XzW2ROAlPRz9ydv9L/AshSNhxbtWQbbcjLTS7Atescc=;
- b=jqY7XD2SmwV3T9FBCXsO0foOKIJt8O1+RCuaDdyjfa0As1sIs2dZbe7iyhw2GZXnNX
- eTdf11/29Tly1vIeVz9wOAo82uVZaUcTq59iK9BDv9EaQSfmSPqd2D2sW9xIJatoMnkf
- 5eZqw7jyTM8ju/xQp+bpGviSfGYQzviLspbrs=
+ Mon, 15 Nov 2021 08:34:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=VZxSbYl5jQSt8wP2WiEBDzWy0O0u/xAxqhCPrf7Lr/o=;
+ b=iCS17978TSzIQAa0BVPeYfWl+7UloyD5JoRTt4zIwhZyL0g4q+bymce0OmcdgeAXMV
+ 9kIvfKFWP/yGmqmUAwMpCL1AFf61uZj8A+jvP6wsbTn0vRYmF2VjYJTwZuDRxndPVsAP
+ +nKR4RRTl13Sx9d1IrG571PkZQL/t2SbMzYzzX+5JvJjiS1CUMHBew5CV2sFXmL6nXNH
+ 0WLmM0LpUg/iD/brXqL1glozQ0dUoZMoCsWLx/dvUd+JbnmE6Fxipcz4Gzy8TOHMGcvJ
+ 4vh98FTvHaKNA9HQ998z9vyeMSXc3/JeyuoAC1UKYUKBmm6KJCJF+nUu0Ztpm4ta97T6
+ UKmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id
- :mail-followup-to:references:mime-version:content-disposition
- :in-reply-to;
- bh=XzW2ROAlPRz9ydv9L/AshSNhxbtWQbbcjLTS7Atescc=;
- b=fJPAlrDG+4RzC+2ck5K8IJoRrxNJ/mzudPLXrfV7+rBa7+rIt5Ej3ktZ8+JfmdM6JH
- Ew6rfBIHVYN/Xc4dEzTW5rxvc/FkO+4l+OTlP6yTG+uEXGHCi72bbci23ryOY15ZJHs+
- BoUqGDgGJiE+uPyToiUFLQ6663UJOr4b3zhM8B3k2IIQTZ59rhLzKyqj2oaESy1rgGxp
- 22u6nczuYb2Nyzw6egNVHAWl3ZIh344xozNRml5cVLGCgaEyof2Tb9RV0S0RCgTR+Xtv
- qIWCxYlkzRfD2rTFUX3tsEAmPU/inSO2lomfLunIXhZQngwhKrnQbPmfK02s358zq+q4
- 7vHw==
-X-Gm-Message-State: AOAM532gkMzq/jRiXmwAGeh/8q2WFmodYde4NmGkuENqY2mj085seifL
- vmN3emNH/BjkPmttdaxZvfViQQ==
-X-Google-Smtp-Source: ABdhPJw5ZxU4iCIzOsNPKcXBw6KrI77E95CzPk/ozBQVETPduv7gf3e6d9dDX1FVXIzpayyJ7jBTzg==
-X-Received: by 2002:a05:6402:5158:: with SMTP id
- n24mr19430190edd.230.1636986292018; 
- Mon, 15 Nov 2021 06:24:52 -0800 (PST)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
- by smtp.gmail.com with ESMTPSA id l11sm7651319edb.28.2021.11.15.06.24.51
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 15 Nov 2021 06:24:51 -0800 (PST)
-Date: Mon, 15 Nov 2021 15:24:49 +0100
-From: Daniel Vetter <daniel@ffwll.ch>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: regression with mainline kernel
-Message-ID: <YZJtsV15k6mrBt1f@phenom.ffwll.local>
-Mail-Followup-To: Linus Torvalds <torvalds@linux-foundation.org>,
- Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- Gurchetan Singh <gurchetansingh@chromium.org>,
- Nicholas Verne <nverne@chromium.org>,
- Gerd Hoffmann <kraxel@redhat.com>,
- dri-devel <dri-devel@lists.freedesktop.org>,
- "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>
-References: <CADVatmOuOk6RoZF=M9sZm2L=9NuDDsSNNCJJbAtkgScG0og1Ww@mail.gmail.com>
- <CADVatmP_Sn+SS5Yu5+7sJJ5SVpcaZcW8Z_Bj5vmYz9g3kJD86g@mail.gmail.com>
- <CAADWXX80QGk7MwZ7A-n+1+GHv=yrA0qrw-70Z=pFSEsc3UXfgQ@mail.gmail.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=VZxSbYl5jQSt8wP2WiEBDzWy0O0u/xAxqhCPrf7Lr/o=;
+ b=gpqxxWoWBB/EnTkW97j6bfPOkkhhIihB9u0yZHp8lLOqCD8akNpf/64tSzq3eZfN80
+ uTlcok0lyjUDnzUvubgStjuaa0z4yOluc0r8krtdP1o17It7aRhDXw4AkbJTeK9t7mv+
+ e3Xoo2Occ3q6iUSl1jKabauifA71Lhsa7D8q42m/h4J+ToLLcVulPr7X32c5oF2GLxsD
+ 4e/fX7pLmXobFrmYI6WKW87hapxObR+caxoJn6MhfZYnfsB41acb7Oft9nlPJkeLwzni
+ t21DArkAwpnofFUwYFUl0byJB8HpmKpHMcFEJcqnUmCP5irTDTRWrdymAHQlZKu+p3KE
+ OnEA==
+X-Gm-Message-State: AOAM530j/HLGx5EHPBrmNsFz62zyF5nrY4fEzlUb1czKdfyiqEmBopUM
+ bG0kNVdgkzDnmOcAwC7jUKtx37tCI6VS9g==
+X-Google-Smtp-Source: ABdhPJwfNGmLNr+TRtf0+UkWy7PKvYAuahkAXwGhqlaMEE8zW5wzYRuTYhHQ5+mw9QJJqqaIRA2SNw==
+X-Received: by 2002:a05:6102:316c:: with SMTP id
+ l12mr44339958vsm.1.1636994095288; 
+ Mon, 15 Nov 2021 08:34:55 -0800 (PST)
+Received: from mail-ua1-f44.google.com (mail-ua1-f44.google.com.
+ [209.85.222.44])
+ by smtp.gmail.com with ESMTPSA id i27sm11093662uab.8.2021.11.15.08.34.54
+ for <virtualization@lists.linux-foundation.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 15 Nov 2021 08:34:54 -0800 (PST)
+Received: by mail-ua1-f44.google.com with SMTP id ay21so36091327uab.12
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 15 Nov 2021 08:34:54 -0800 (PST)
+X-Received: by 2002:a05:6102:38d4:: with SMTP id
+ k20mr45378060vst.42.1636994094206; 
+ Mon, 15 Nov 2021 08:34:54 -0800 (PST)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <CAADWXX80QGk7MwZ7A-n+1+GHv=yrA0qrw-70Z=pFSEsc3UXfgQ@mail.gmail.com>
-X-Operating-System: Linux phenom 5.10.0-8-amd64 
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
- Nicholas Verne <nverne@chromium.org>,
- dri-devel <dri-devel@lists.freedesktop.org>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Daniel Vetter <daniel@ffwll.ch>,
- "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
- Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+References: <20211115151618.126875-1-jonathan.davies@nutanix.com>
+In-Reply-To: <20211115151618.126875-1-jonathan.davies@nutanix.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date: Mon, 15 Nov 2021 17:34:17 +0100
+X-Gmail-Original-Message-ID: <CA+FuTScqWToamoOqAWkf1VbzYnjoM-y+-rQe_wEkPmBsOZbsLA@mail.gmail.com>
+Message-ID: <CA+FuTScqWToamoOqAWkf1VbzYnjoM-y+-rQe_wEkPmBsOZbsLA@mail.gmail.com>
+Subject: Re: [PATCH net] net: virtio_net_hdr_to_skb: count transport header in
+ UFO
+To: Jonathan Davies <jonathan.davies@nutanix.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Florian Schmidt <flosch@nutanix.com>,
+ Thilak Raj Surendra Babu <thilakraj.sb@nutanix.com>,
+ virtualization@lists.linux-foundation.org,
+ "David S. Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,88 +119,85 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sat, Nov 13, 2021 at 09:06:57AM -0800, Linus Torvalds wrote:
-> [ Hmm. This email was marked as spam for me. I see no obvious reason
-> for it being marked as spam, but it happens.. ]
-> 
-> On Thu, Nov 11, 2021 at 12:52 PM Sudip Mukherjee
-> <sudipm.mukherjee@gmail.com> wrote:
-> >
-> > # first bad commit: [cd7f5ca33585918febe5e2f6dc090a21cfa775b0]
-> > drm/virtio: implement context init: add virtio_gpu_fence_event
-> 
-> Hmm. Judging from your automated screenshots, the login never appears.
+On Mon, Nov 15, 2021 at 4:16 PM Jonathan Davies
+<jonathan.davies@nutanix.com> wrote:
+>
+> virtio_net_hdr_to_skb does not set the skb's gso_size and gso_type
+> correctly for UFO packets received via virtio-net that are a little over
+> the GSO size. This can lead to problems elsewhere in the networking
+> stack, e.g. ovs_vport_send dropping over-sized packets if gso_size is
+> not set.
+>
+> This is due to the comparison
+>
+>   if (skb->len - p_off > gso_size)
+>
+> not properly accounting for the transport layer header.
+>
+> p_off includes the size of the transport layer header (thlen), so
+> skb->len - p_off is the size of the TCP/UDP payload.
+>
+> gso_size is read from the virtio-net header. For UFO, fragmentation
+> happens at the IP level so does not need to include the UDP header.
+>
+> Hence the calculation could be comparing a TCP/UDP payload length with
+> an IP payload length, causing legitimate virtio-net packets to have
+> lack gso_type/gso_size information.
+>
+> Example: a UDP packet with payload size 1473 has IP payload size 1481.
+> If the guest used UFO, it is not fragmented and the virtio-net header's
+> flags indicate that it is a GSO frame (VIRTIO_NET_HDR_GSO_UDP), with
+> gso_size = 1480 for an MTU of 1500.  skb->len will be 1515 and p_off
+> will be 42, so skb->len - p_off = 1473.  Hence the comparison fails, and
+> shinfo->gso_size and gso_type are not set as they should be.
+>
+> Instead, add the UDP header length before comparing to gso_size when
+> using UFO. In this way, it is the size of the IP payload that is
+> compared to gso_size.
+>
+> Fixes: 6dd912f8 ("net: check untrusted gso_size at kernel entry")
+> Signed-off-by: Jonathan Davies <jonathan.davies@nutanix.com>
 
-Greg also reported a regression, plus I looked at the commit and had
-questions too.
+Thanks for the fix, and the detailed explanation of the bug.
 
-> > And, indeed reverting cd7f5ca33585 on top of debe436e77c7 has fixed
-> > the problem I was seeing on my qemu test of x86_64. The qemu image is
-> > based on Ubuntu.
-> 
-> Presumably either that commit is somehow buggy in itself - or it does
-> exactly what it means to do, and the new poll() semantics just
-> confuses the heck out of the X server (or wayland or whatever).
-> 
-> And honestly, if I read that thing correctly, the patch is entirely
-> broken. The new poll function (virtio_gpu_poll()) will unconditionally
-> remove the first event from the event list, and then report "Yeah, I
-> had events".
-> 
-> This is completely bogus for a few reasons:
-> 
->  - poll() really should be idempotent, because the poll function gets
-> called multiple times
-> 
->  - it doesn't even seem to check that the event that it removes is the
-> new VIRTGPU_EVENT_FENCE_SIGNALED_INTERNAL kind of event, so it will
-> unconditionally just remove random events.
-> 
->  - it does seem to check the "vfpriv->ring_idx_mask" and do the old
-> thing if that is zero, but I see absolutely no reason for that (and
-> that check itself has caused problems, see below)
-> 
-> Honestly, my reaction to this all is that that commit is fundamentally
-> broken and probably should be reverted regardless as "this commit does
-> bad things".
-> 
-> HOWEVER - it has had a fix for a NULL pointer dereference in the
-> meantime - can you check whether the current top of tree happens to
-> work for you? Maybe your problem isn't due to "that commit does
-> unnatural things", but simply due to the bug fixed in d89c0c8322ec
-> ("drm/virtio: Fix NULL dereference error in virtio_gpu_poll").
-> 
-> And if it's still broken with that commit, I'll happily revert it and
-> people need to go back to the drawing board.
-> 
-> In fact, I would really suggest that people look at that
-> virtio_gpu_poll() function regardless. That odd "let's unconditionally
-> just drop events in the poll function is really REALLY broken
-> behavior.
+Reviewed-by: Willem de Bruijn <willemb@google.com>
 
-Tbh I haven't looked at the poll implementation, but it's fishy on
-principles as in drm drivers shouldn't reinvent them. The commit message
-cites vmwgfx as example for a private driver drm_event, but that works
-perfectly fine with standard drm_poll (and is meant to work perfectly fine
-with standard drm_poll).
+> ---
+>  include/linux/virtio_net.h | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+>
+> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> index b465f8f..bea56af 100644
+> --- a/include/linux/virtio_net.h
+> +++ b/include/linux/virtio_net.h
+> @@ -122,8 +122,11 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
+>                 u16 gso_size = __virtio16_to_cpu(little_endian, hdr->gso_size);
+>                 struct skb_shared_info *shinfo = skb_shinfo(skb);
+>
+> -               /* Too small packets are not really GSO ones. */
+> -               if (skb->len - p_off > gso_size) {
+> +               /* Too small packets are not really GSO ones.
+> +                * UFO may not include transport header in gso_size.
+> +                */
+> +               if (gso_type & SKB_GSO_UDP && skb->len - p_off + thlen > gso_size ||
+> +                   skb->len - p_off > gso_size) {
 
-So if it's buggy on top of questionable I think revert might be the right
-choice irrespective of whether there's some fixes in-flight.
+Perhaps for readability instead something like
 
-So if you end up pushing that revert:
+  unsigned int nh_off = p_off;
 
-References: https://lore.kernel.org/dri-devel/YZJrutLaiwozLfSw@phenom.ffwll.local/
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+  if (gso_type & SKB_GSO_UDP)
+    nh_off -= thlen;
 
-Plus credit Greg too and all that ofc.
 
-But lets wait a bit for virtio folks to chime in, it's only Monday :-)
 
-Cheers, Daniel
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+
+>                         shinfo->gso_size = gso_size;
+>                         shinfo->gso_type = gso_type;
+>
+> --
+> 2.9.3
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
