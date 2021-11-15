@@ -2,89 +2,73 @@ Return-Path: <SRS0=Lrx6=QC=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54F40C433EF
-	for <virtualization@archiver.kernel.org>; Mon, 15 Nov 2021 18:44:35 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65244C433EF
+	for <virtualization@archiver.kernel.org>; Mon, 15 Nov 2021 22:35:59 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DD7B1635CA
-	for <virtualization@archiver.kernel.org>; Mon, 15 Nov 2021 18:44:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org DD7B1635CA
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=alien8.de
+	by mail.kernel.org (Postfix) with ESMTPS id 0DC2261B6F
+	for <virtualization@archiver.kernel.org>; Mon, 15 Nov 2021 22:35:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0DC2261B6F
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=csail.mit.edu
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id A39FB80CB0;
-	Mon, 15 Nov 2021 18:44:31 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id C33D7403B9;
+	Mon, 15 Nov 2021 22:35:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LHQi7UMnsgjJ; Mon, 15 Nov 2021 18:44:30 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 87A0180C87;
-	Mon, 15 Nov 2021 18:44:29 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5E3CAC001E;
-	Mon, 15 Nov 2021 18:44:29 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 18B25C0012
- for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Nov 2021 18:44:27 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id F2BED40223
- for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Nov 2021 18:44:26 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=alien8.de
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dgBG5w-CUzCT
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id hhveKGw8IGgO; Mon, 15 Nov 2021 22:35:57 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E3A7340012;
+	Mon, 15 Nov 2021 22:35:56 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9A158C001E;
+	Mon, 15 Nov 2021 22:35:56 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5316BC0012
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Nov 2021 18:44:21 +0000 (UTC)
+ Mon, 15 Nov 2021 22:35:55 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 2D9796078A
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 15 Nov 2021 22:35:55 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id G2kwCO8Ov-6M
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 15 Nov 2021 22:35:54 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
- by smtp2.osuosl.org (Postfix) with ESMTPS id BB677401DC
+Received: from outgoing-stata.csail.mit.edu (outgoing-stata.csail.mit.edu
+ [128.30.2.210])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 582F460763
  for <virtualization@lists.linux-foundation.org>;
- Mon, 15 Nov 2021 18:44:21 +0000 (UTC)
-Received: from zn.tnic (p200300ec2f0b5600329c23fffea6a903.dip0.t-ipconnect.de
- [IPv6:2003:ec:2f0b:5600:329c:23ff:fea6:a903])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 786911EC0298;
- Mon, 15 Nov 2021 19:44:17 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
- t=1637001857;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
- bh=dw18rrJWiFMio+f81TkozWlG8A/iKVxyS5zqokyoOIY=;
- b=Dd/Fwrtnl1uGZiaWkMGZr+MuIA+r4cXwdAOsGb4gW5L9WCr54FaUiBJ6ijdhzKVchrkwr7
- H2euF1CH6Z7Kw63ePiaRIve/VdIpKgUibVEL+06FxH1ktfvFsacTnl/2rzuuM9NPWXUv9f
- gHdYxW8TqNvuMpNY3T7pHtvAcVRdXpY=
-Date: Mon, 15 Nov 2021 19:44:14 +0100
-From: Borislav Petkov <bp@alien8.de>
-To: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH v2 09/12] x86/sev: Use AP Jump Table blob to stop CPU
-Message-ID: <YZKqfsZCxCQCyyeb@zn.tnic>
-References: <20210913155603.28383-1-joro@8bytes.org>
- <20210913155603.28383-10-joro@8bytes.org>
+ Mon, 15 Nov 2021 22:35:54 +0000 (UTC)
+Received: from [128.177.79.46] (helo=csail.mit.edu)
+ by outgoing-stata.csail.mit.edu with esmtpsa (TLS1.2:RSA_AES_256_CBC_SHA1:256)
+ (Exim 4.82) (envelope-from <srivatsa@csail.mit.edu>)
+ id 1mmkZp-0005ex-25; Mon, 15 Nov 2021 17:35:49 -0500
+Date: Mon, 15 Nov 2021 14:39:00 -0800
+From: "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+To: Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH v3 1/3] MAINTAINERS: Update maintainers for paravirt ops
+ and VMware hypervisor interface
+Message-ID: <20211115223900.GA22267@csail.mit.edu>
+References: <163657479269.84207.13658789048079672839.stgit@srivatsa-dev>
+ <163657487268.84207.5604596767569015608.stgit@srivatsa-dev>
+ <YYy9P7Rjg9hntmm3@kroah.com> <20211111153916.GA7966@csail.mit.edu>
+ <YY1krlfM5R7uEzJF@kroah.com> <20211111194002.GA8739@csail.mit.edu>
+ <YY6hhWtvh+OvOqAl@sashalap>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20210913155603.28383-10-joro@8bytes.org>
-Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
- Dave Hansen <dave.hansen@linux.intel.com>,
- virtualization@lists.linux-foundation.org,
- Arvind Sankar <nivedita@alum.mit.edu>, hpa@zytor.com,
- Jiri Slaby <jslaby@suse.cz>, x86@kernel.org,
- David Rientjes <rientjes@google.com>, Masami Hiramatsu <mhiramat@kernel.org>,
- Martin Radev <martin.b.radev@gmail.com>,
- Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>,
- Kees Cook <keescook@chromium.org>, Cfir Cohen <cfir@google.com>,
- linux-coco@lists.linux.dev, Andy Lutomirski <luto@kernel.org>,
- Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>,
- Mike Stunes <mstunes@vmware.com>, Sean Christopherson <seanjc@google.com>,
- kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
- Eric Biederman <ebiederm@xmission.com>, Erdem Aktas <erdemaktas@google.com>
+In-Reply-To: <YY6hhWtvh+OvOqAl@sashalap>
+Cc: jgross@suse.com, anishs@vmware.com, pv-drivers@vmware.com,
+ Greg KH <gregkh@linuxfoundation.org>, x86@kernel.org,
+ linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, keerthanak@vmware.com,
+ namit@vmware.com, rostedt@goodmis.org, Alexey Makhalov <amakhalov@vmware.com>,
+ joe@perches.com, kuba@kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,69 +85,86 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 13, 2021 at 05:56:00PM +0200, Joerg Roedel wrote:
-> diff --git a/arch/x86/include/asm/sev.h b/arch/x86/include/asm/sev.h
-> index 134a7c9d91b6..cd14b6e10f12 100644
-> --- a/arch/x86/include/asm/sev.h
-> +++ b/arch/x86/include/asm/sev.h
-> @@ -81,12 +81,19 @@ static __always_inline void sev_es_nmi_complete(void)
->  		__sev_es_nmi_complete();
->  }
->  extern int __init sev_es_efi_map_ghcbs(pgd_t *pgd);
-> +void __sev_es_stop_this_cpu(void);
-> +static __always_inline void sev_es_stop_this_cpu(void)
+On Fri, Nov 12, 2021 at 12:16:53PM -0500, Sasha Levin wrote:
+> On Thu, Nov 11, 2021 at 11:40:02AM -0800, Srivatsa S. Bhat wrote:
+> > On Thu, Nov 11, 2021 at 07:45:02PM +0100, Greg KH wrote:
+> > > On Thu, Nov 11, 2021 at 07:39:16AM -0800, Srivatsa S. Bhat wrote:
+> > > > On Thu, Nov 11, 2021 at 07:50:39AM +0100, Greg KH wrote:
+> > > > > On Wed, Nov 10, 2021 at 12:08:16PM -0800, Srivatsa S. Bhat wrote:
+> > > > > > From: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+> > > > > >
+> > > > > > Deep has decided to transfer maintainership of the VMware hypervisor
+> > > > > > interface to Srivatsa, and the joint-maintainership of paravirt ops in
+> > > > > > the Linux kernel to Srivatsa and Alexey. Update the MAINTAINERS file
+> > > > > > to reflect this change.
+> > > > > >
+> > > > > > Signed-off-by: Srivatsa S. Bhat (VMware) <srivatsa@csail.mit.edu>
+> > > > > > Acked-by: Alexey Makhalov <amakhalov@vmware.com>
+> > > > > > Acked-by: Deep Shah <sdeep@vmware.com>
+> > > > > > Acked-by: Juergen Gross <jgross@suse.com>
+> > > > > > Cc: stable@vger.kernel.org
+> > > > >
+> > > > > Why are MAINTAINERS updates needed for stable?  That's not normal :(
+> > > >
+> > > > So that people posting bug-fixes / backports to these subsystems for
+> > > > older kernels (stable and LTS releases) will CC the new subsystem
+> > > > maintainers.
+> > > 
+> > > That's not how stable releases work at all.
+> > > 
+> > > > That's why I added CC stable tag only to the first two
+> > > > patches which add/replace maintainers and not the third patch which is
+> > > > just a cleanup.
+> > > 
+> > > Patches for stable kernels need to go into Linus's tree first, and if
+> > > you have the MAINTAINERS file updated properly there, then you will be
+> > > properly cc:ed.  We do not look at the MAINTAINERS file for the older
+> > > kernel when sending patches out, it's totally ignored as that was the
+> > > snapshot at a point in time, which is usually no longer the true state.
+> > > 
+> > 
+> > Sure, but that's the case for patches that get mainlined (and
+> > subsequently backported to -stable) /after/ this update to the
+> > MAINTAINERS file gets merged into mainline.
+> > 
+> > When adding the CC stable tag, the case I was trying to address was
+> > for patches that are already in mainline but weren't CC'ed to stable,
+> > and at some later point, somebody decides to backport them to older
+> > stable kernels. In that case, there is a chance that the contributor
+> > might run ./get_maintainer.pl against the stable tree (as that's the
+> > tree they are backporting the upstream commit against) and end up not
+> > CC'ing the new maintainers. So, I thought it would be good to keep the
+> > maintainer info updated in the older stable kernels too.
+> 
+> If you look at cases like these, I can see an argument around bringing
+> it back to -stable. However, changes in the upstream MAINTAINERS file
+> aren't limited to just change in maintainers.
+> 
+> How would we handle addition of maintainers of a new code upstream? Or
+> removal of maintainers due to code deletion? Or code movement upstream
+> that isn't reflected in the stable tree (think a driver graduating from
+> staging).
+> 
 
-What's that for?
+Good point!
 
-IOW, the below seems to build too:
+> It becomes a mess quite quickly and the easiest solution here is to just
+> use upstream's MAINTAINERS file.
+> 
 
----
-diff --git a/arch/x86/include/asm/sev.h b/arch/x86/include/asm/sev.h
-index 1f16fc907636..398105580862 100644
---- a/arch/x86/include/asm/sev.h
-+++ b/arch/x86/include/asm/sev.h
-@@ -87,12 +87,7 @@ extern enum es_result sev_es_ghcb_hv_call(struct ghcb *ghcb,
- 					  struct es_em_ctxt *ctxt,
- 					  u64 exit_code, u64 exit_info_1,
- 					  u64 exit_info_2);
--void __sev_es_stop_this_cpu(void);
--static __always_inline void sev_es_stop_this_cpu(void)
--{
--	if (static_branch_unlikely(&sev_es_enable_key))
--		__sev_es_stop_this_cpu();
--}
-+void sev_es_stop_this_cpu(void);
- #else
- static inline void sev_es_ist_enter(struct pt_regs *regs) { }
- static inline void sev_es_ist_exit(void) { }
-diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index 39378357dc5a..7a74b3273f1a 100644
---- a/arch/x86/kernel/sev.c
-+++ b/arch/x86/kernel/sev.c
-@@ -694,8 +694,11 @@ void __noreturn sev_jumptable_ap_park(void)
- }
- STACK_FRAME_NON_STANDARD(sev_jumptable_ap_park);
- 
--void __sev_es_stop_this_cpu(void)
-+void sev_es_stop_this_cpu(void)
- {
-+	if (!static_branch_unlikely(&sev_es_enable_key))
-+		return;
-+
- 	/* Only park in the AP Jump Table when the code has been installed */
- 	if (!sev_ap_jumptable_blob_installed)
- 		return;
+Agreed.
 
----
+> Maybe we should just remove MAINTAINERS from stable trees to make it
+> obvious.
+> 
 
-And as previously mentioned s/sev_es/sev/ if those are going to be used
-on SNP guests too.
+I don't think we should go quite that far. Instead, perhaps we can
+modify get_maintainer.pl (if needed) such that it prints out a warning
+or reminder to consult the upstream MAINTAINERS file if the script is
+invoked on an older stable kernel.
 
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+Regards,
+Srivatsa
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
