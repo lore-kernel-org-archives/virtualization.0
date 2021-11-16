@@ -2,67 +2,112 @@ Return-Path: <SRS0=Mct1=QD=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E89E4C43217
-	for <virtualization@archiver.kernel.org>; Tue, 16 Nov 2021 14:26:02 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5637C433F5
+	for <virtualization@archiver.kernel.org>; Tue, 16 Nov 2021 14:33:36 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8160963212
-	for <virtualization@archiver.kernel.org>; Tue, 16 Nov 2021 14:26:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 8160963212
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=arm.com
+	by mail.kernel.org (Postfix) with ESMTPS id 7323A61BF5
+	for <virtualization@archiver.kernel.org>; Tue, 16 Nov 2021 14:33:36 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 7323A61BF5
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 4D03140497;
-	Tue, 16 Nov 2021 14:26:02 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 2CA80607F0;
+	Tue, 16 Nov 2021 14:33:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 31tn7usUaJMS; Tue, 16 Nov 2021 14:26:01 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id C8jQrxyTLJqX; Tue, 16 Nov 2021 14:33:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0420340499;
-	Tue, 16 Nov 2021 14:26:01 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id BA72E605EB;
+	Tue, 16 Nov 2021 14:33:34 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 91DB6C0033;
-	Tue, 16 Nov 2021 14:26:00 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 89ED6C002E;
+	Tue, 16 Nov 2021 14:33:34 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AEB3DC0012;
- Tue, 16 Nov 2021 14:25:59 +0000 (UTC)
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 21F4FC0012
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Nov 2021 14:33:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 8E92040412;
- Tue, 16 Nov 2021 14:25:59 +0000 (UTC)
+ by smtp2.osuosl.org (Postfix) with ESMTP id 0106C40412
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Nov 2021 14:33:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id IirDvKBREoe2; Tue, 16 Nov 2021 14:25:58 +0000 (UTC)
+ with ESMTP id 8Z81RVbHvh76
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Nov 2021 14:33:32 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
- by smtp2.osuosl.org (Postfix) with ESMTP id 47407401B2;
- Tue, 16 Nov 2021 14:25:58 +0000 (UTC)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
- by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 88B4A6D;
- Tue, 16 Nov 2021 06:25:57 -0800 (PST)
-Received: from [10.57.82.45] (unknown [10.57.82.45])
- by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id BA8BF3F766;
- Tue, 16 Nov 2021 06:25:55 -0800 (PST)
-Message-ID: <cf539ded-5c9b-38b9-ad8f-a2ea4b28ec37@arm.com>
-Date: Tue, 16 Nov 2021 14:25:50 +0000
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id D2603401B2
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Nov 2021 14:33:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1637073210;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=e5bI5miZtE31XzDT/uNmoUa6s8KHDiRkZC5V/D8t8c4=;
+ b=UOYRE8exzC2Dbx6acKkzgOvYsnzDcRN2RBqllD0V7i/svsQ36DT6kPnDtuuesk6+5GMaRJ
+ DjoG1FXPfUc4bnl+dP+1Mmp/J/Uo0JAoPzp7q5vJhA1pNoyyDNm4O0wxiC6HZAGIgKR92u
+ AHTGxg4wx/jOnI3fiaM0BeXQXbWKp6U=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-371-WetUyzD4PJS7PQvgLhXWtA-1; Tue, 16 Nov 2021 09:33:28 -0500
+X-MC-Unique: WetUyzD4PJS7PQvgLhXWtA-1
+Received: by mail-ed1-f69.google.com with SMTP id
+ v22-20020a50a456000000b003e7cbfe3dfeso5199672edb.11
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Nov 2021 06:33:28 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=e5bI5miZtE31XzDT/uNmoUa6s8KHDiRkZC5V/D8t8c4=;
+ b=AeXMDuYsjW0n7ilRWJ5S90vjmkLxedmpnoYV4tVuAkYvx6stloQcFZ4lVCGdnOAony
+ bB/0JBMfPj+gU0qc4n7RgKBFRnjlMndMAQgUZJZ+rWgeMrtZjdsvUtWH1qC6//hBBiJR
+ ontAZbus3O5fWiV8tqBYrJc1V31YPF/0g38XAPIjV9wKkN1v39m3g7TmYysqfbjkdea4
+ wqk4ccX7qB4N+goo2on3CWwWsE6pwBTGUVTA/tPiKYS06hMRWAdtvFEdzpx+wbUU/G+3
+ +y+6uq7OJFXvWJ6GDbXmsKl92Ejh7dU4KDRtWpEmrTLXvKYtBv4ldLSe7qO/icrSf5AK
+ ZH8w==
+X-Gm-Message-State: AOAM533TXBmZAmm16oAz5+tpxCWAUi74BrMlHd6XVh7avfgJxtwtLgOO
+ 8eZ1E8rvHEstTbmkZ+7pk4c2/M5XU6mOwmLaig/3sOp1rZ1bVIzL+WXKbZktPpYLIo2P8huGtGR
+ Rrh+3qmr5o7V6kQHo3N1PNreyuML3za+QgtpT/goPog==
+X-Received: by 2002:a05:6402:4255:: with SMTP id
+ g21mr10631422edb.256.1637073207831; 
+ Tue, 16 Nov 2021 06:33:27 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwc5owemSfBUpNeotKB3UAbjc+AN7gGsaiauGNpfHdqICsObV5qFX6XIBKC3Eh9ctsxyL6amg==
+X-Received: by 2002:a05:6402:4255:: with SMTP id
+ g21mr10631390edb.256.1637073207612; 
+ Tue, 16 Nov 2021 06:33:27 -0800 (PST)
+Received: from steredhat (host-87-10-72-39.retail.telecomitalia.it.
+ [87.10.72.39])
+ by smtp.gmail.com with ESMTPSA id jx10sm4918812ejc.102.2021.11.16.06.33.26
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 16 Nov 2021 06:33:27 -0800 (PST)
+Date: Tue, 16 Nov 2021 15:33:23 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Andrey Ryabinin <arbn@yandex-team.com>,
+ Mike Christie <michael.christie@oracle.com>
+Subject: Re: [PATCH 1/6] vhost: get rid of vhost_poll_flush() wrapper
+Message-ID: <20211116143323.g7c27u2ho4vpp4cp@steredhat>
+References: <20211115153003.9140-1-arbn@yandex-team.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH 0/5] iommu: Some IOVA code reorganisation
-Content-Language: en-GB
-To: John Garry <john.garry@huawei.com>, Will Deacon <will@kernel.org>
-References: <1632477717-5254-1-git-send-email-john.garry@huawei.com>
- <20211004114418.GC27373@willie-the-truck>
- <cdb502c5-4896-385b-8872-f4f20e9c7e34@huawei.com>
-From: Robin Murphy <robin.murphy@arm.com>
-In-Reply-To: <cdb502c5-4896-385b-8872-f4f20e9c7e34@huawei.com>
-Cc: mst@redhat.com, joro@8bytes.org, linuxarm@huawei.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- xieyongji@bytedance.com, iommu@lists.linux-foundation.org,
- thunder.leizhen@huawei.com, baolu.lu@linux.intel.com
+In-Reply-To: <20211115153003.9140-1-arbn@yandex-team.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Stefan Hajnoczi <stefanha@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -79,50 +124,131 @@ Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 2021-11-16 14:21, John Garry wrote:
-> On 04/10/2021 12:44, Will Deacon wrote:
->> On Fri, Sep 24, 2021 at 06:01:52PM +0800, John Garry wrote:
->>> The IOVA domain structure is a bit overloaded, holding:
->>> - IOVA tree management
->>> - FQ control
->>> - IOVA rcache memories
->>>
->>> Indeed only a couple of IOVA users use the rcache, and only dma-iommu.c
->>> uses the FQ feature.
->>>
->>> This series separates out that structure. In addition, it moves the FQ
->>> code into dma-iommu.c . This is not strictly necessary, but it does make
->>> it easier for the FQ domain lookup the rcache domain.
->>>
->>> The rcache code stays where it is, as it may be reworked in future, so
->>> there is not much point in relocating and then discarding.
->>>
->>> This topic was initially discussed and suggested (I think) by Robin 
->>> here:
->>> https://lore.kernel.org/linux-iommu/1d06eda1-9961-d023-f5e7-fe87e768f067@arm.com/ 
->>>
->> It would be useful to have Robin's Ack on patches 2-4. The implementation
->> looks straightforward to me, but the thread above isn't very clear about
->> what is being suggested.
-> 
-> Hi Robin,
-> 
-> Just wondering if you had made any progress on your FQ code rework or 
-> your own re-org?
+On Mon, Nov 15, 2021 at 06:29:58PM +0300, Andrey Ryabinin wrote:
+>vhost_poll_flush() is a simple wrapper around vhost_work_dev_flush().
+>It gives wrong impression that we are doing some work over vhost_poll,
+>while in fact it flushes vhost_poll->dev.
+>It only complicate understanding of the code and leads to mistakes
+>like flushing the same vhost_dev several times in a row.
+>
+>Just remove vhost_poll_flush() and call vhost_work_dev_flush() directly.
+>
+>Signed-off-by: Andrey Ryabinin <arbn@yandex-team.com>
+>---
+> drivers/vhost/net.c   |  4 ++--
+> drivers/vhost/test.c  |  2 +-
+> drivers/vhost/vhost.c | 12 ++----------
+> drivers/vhost/vsock.c |  2 +-
+> 4 files changed, 6 insertions(+), 14 deletions(-)
 
-Hey John - as it happens I started hacking on that in earnest about half 
-an hour ago, aiming to get something out later this week.
+Adding Mike since these changes could be relevant for "[PATCH V4 00/12] 
+vhost: multiple worker support" [1] series.
 
-Cheers,
-Robin.
+>
+>diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+>index 28ef323882fb..11221f6d11b8 100644
+>--- a/drivers/vhost/net.c
+>+++ b/drivers/vhost/net.c
+>@@ -1375,8 +1375,8 @@ static void vhost_net_stop(struct vhost_net *n, struct socket **tx_sock,
+>
+> static void vhost_net_flush_vq(struct vhost_net *n, int index)
+> {
+>-	vhost_poll_flush(n->poll + index);
+>-	vhost_poll_flush(&n->vqs[index].vq.poll);
+>+	vhost_work_dev_flush(n->poll[index].dev);
+>+	vhost_work_dev_flush(n->vqs[index].vq.poll.dev);
+> }
+>
+> static void vhost_net_flush(struct vhost_net *n)
+>diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+>index a09dedc79f68..1a8ab1d8cb1c 100644
+>--- a/drivers/vhost/test.c
+>+++ b/drivers/vhost/test.c
+>@@ -146,7 +146,7 @@ static void vhost_test_stop(struct vhost_test *n, void **privatep)
+>
+> static void vhost_test_flush_vq(struct vhost_test *n, int index)
+> {
+>-	vhost_poll_flush(&n->vqs[index].poll);
+>+	vhost_work_dev_flush(n->vqs[index].poll.dev);
+> }
+>
+> static void vhost_test_flush(struct vhost_test *n)
+>diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+>index 59edb5a1ffe2..ca088481da0e 100644
+>--- a/drivers/vhost/vhost.c
+>+++ b/drivers/vhost/vhost.c
+>@@ -245,14 +245,6 @@ void vhost_work_dev_flush(struct vhost_dev *dev)
+> }
+> EXPORT_SYMBOL_GPL(vhost_work_dev_flush);
+>
+>-/* Flush any work that has been scheduled. When calling this, don't hold any
+>- * locks that are also used by the callback. */
+>-void vhost_poll_flush(struct vhost_poll *poll)
+>-{
+>-	vhost_work_dev_flush(poll->dev);
+>-}
+>-EXPORT_SYMBOL_GPL(vhost_poll_flush);
+>-
 
-> I wasn't planning on progressing 
-> https://lore.kernel.org/linux-iommu/1626259003-201303-1-git-send-email-john.garry@huawei.com/ 
-> until this is done first (and that is still a big issue), even though 
-> not strictly necessary.
-> 
-> Thanks,
-> John
+We should remove also the declaration in vhost.h:
+
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -45,7 +44,6 @@ void vhost_poll_init(struct vhost_poll *poll, vhost_work_fn_t fn,
+                      __poll_t mask, struct vhost_dev *dev);
+  int vhost_poll_start(struct vhost_poll *poll, struct file *file);
+  void vhost_poll_stop(struct vhost_poll *poll);
+-void vhost_poll_flush(struct vhost_poll *poll);
+  void vhost_poll_queue(struct vhost_poll *poll);
+  void vhost_work_dev_flush(struct vhost_dev *dev);
+
+
+> void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work)
+> {
+> 	if (!dev->worker)
+>@@ -663,7 +655,7 @@ void vhost_dev_stop(struct vhost_dev *dev)
+> 	for (i = 0; i < dev->nvqs; ++i) {
+> 		if (dev->vqs[i]->kick && dev->vqs[i]->handle_kick) {
+> 			vhost_poll_stop(&dev->vqs[i]->poll);
+>-			vhost_poll_flush(&dev->vqs[i]->poll);
+>+			vhost_work_dev_flush(dev->vqs[i]->poll.dev);
+> 		}
+> 	}
+> }
+>@@ -1712,7 +1704,7 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
+> 	mutex_unlock(&vq->mutex);
+>
+> 	if (pollstop && vq->handle_kick)
+>-		vhost_poll_flush(&vq->poll);
+>+		vhost_work_dev_flush(vq->poll.dev);
+> 	return r;
+> }
+> EXPORT_SYMBOL_GPL(vhost_vring_ioctl);
+>diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+>index 938aefbc75ec..b0361ebbd695 100644
+>--- a/drivers/vhost/vsock.c
+>+++ b/drivers/vhost/vsock.c
+>@@ -711,7 +711,7 @@ static void vhost_vsock_flush(struct vhost_vsock *vsock)
+>
+> 	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++)
+> 		if (vsock->vqs[i].handle_kick)
+>-			vhost_poll_flush(&vsock->vqs[i].poll);
+>+			vhost_work_dev_flush(vsock->vqs[i].poll.dev);
+> 	vhost_work_dev_flush(&vsock->dev);
+> }
+>
+>-- 
+>2.32.0
+>
+
+The rest LGTM.
+
+Thanks,
+Stefano
+
+[1] 
+https://lore.kernel.org/virtualization/20211104190502.7053-1-michael.christie@oracle.com/
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
