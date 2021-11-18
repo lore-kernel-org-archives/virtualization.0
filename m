@@ -2,107 +2,183 @@ Return-Path: <SRS0=Mnfs=QF=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71469C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 18 Nov 2021 06:25:22 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7FE4C433EF
+	for <virtualization@archiver.kernel.org>; Thu, 18 Nov 2021 11:16:58 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0C75C61B54
-	for <virtualization@archiver.kernel.org>; Thu, 18 Nov 2021 06:25:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0C75C61B54
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 53CC2617E3
+	for <virtualization@archiver.kernel.org>; Thu, 18 Nov 2021 11:16:58 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 53CC2617E3
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id ACCF360683;
-	Thu, 18 Nov 2021 06:25:21 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 05CE14026B;
+	Thu, 18 Nov 2021 11:16:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id cfR3re5d89cM; Thu, 18 Nov 2021 06:25:20 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Mn1dQ4GHouk9; Thu, 18 Nov 2021 11:16:57 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 3235960632;
-	Thu, 18 Nov 2021 06:25:20 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 6CC614015C;
+	Thu, 18 Nov 2021 11:16:56 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EC39BC002E;
-	Thu, 18 Nov 2021 06:25:19 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DACB2C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3516CC001E;
+	Thu, 18 Nov 2021 11:16:56 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2A2C3C0012
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 Nov 2021 06:25:18 +0000 (UTC)
+ Thu, 18 Nov 2021 11:16:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id BC16780C4C
+ by smtp1.osuosl.org (Postfix) with ESMTP id 04B7E81069
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 Nov 2021 06:25:18 +0000 (UTC)
+ Thu, 18 Nov 2021 11:16:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="gh50W0tY";
+ dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
+ header.b="cKTQgEsk"
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id F_L_C90_awyJ
+ with ESMTP id wt_IDqtvoZzx
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 Nov 2021 06:25:17 +0000 (UTC)
+ Thu, 18 Nov 2021 11:16:54 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 2CE2280C40
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 2208D81066
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 Nov 2021 06:25:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1637216715;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=VHG3E6g6Gn453Pipj5WV6I5KFDe72W4stMc7qVXn88Q=;
- b=N2S6vyCT1xl6ddqBx9ffu83+QFzNPCTD9SFfmzz7CuhNAmilM4jwDlGpYJyNNiJiLHG7qc
- kIJQ0Kq5pft8zDQouyFDeoUO3TeGpPVhVE0vapmzT4BMMtGT9uXjD6ONbKNCUVd/dq9kPj
- iuuiBGe2XD5D7qS9//Nyex3Tb6lgeVE=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-543-GurN5ItGMPGUuUKd0Rq5Ng-1; Thu, 18 Nov 2021 01:25:14 -0500
-X-MC-Unique: GurN5ItGMPGUuUKd0Rq5Ng-1
-Received: by mail-wr1-f72.google.com with SMTP id
- h7-20020adfaa87000000b001885269a937so840957wrc.17
- for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Nov 2021 22:25:14 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=VHG3E6g6Gn453Pipj5WV6I5KFDe72W4stMc7qVXn88Q=;
- b=ylNLXhw54Hn5A1FXXEqhzoIle1+Qct0pVQtYbq8p7I4PD4APN5QeRm1c4Bt7LHu8zZ
- OXIiJgH+DYLvE5ANUrj/L6OLKdMthmfP3V0kN6Gti1NNqRB0BgjgjaIdDD+2AjgoNk+h
- zmxvK8taxTlyyZ2WRURnnShMyK+Fqh8o4sL9Z2wGIVV3HVuQFWovY6upRZWpf/HAStcq
- AOmtpCsg6/dUVoMOu0AnjU1AqavFmefoeKxzqd4UoawSSYRJ8enQZZkVY53idIrrGicj
- 0SVtWuqgJeNzVDdxua0MbKKvf1K1dxTOGZGHWbJzExCOrkXgMQJbpnRnp9d0VCFQnPfl
- 55jQ==
-X-Gm-Message-State: AOAM530YYXCFEucMgxkL2weVCa4Z46CT9DnKm59ePGAHhUqeK0F1Lsc3
- 4t/KNu3NIytLDl373QDvk/XzepQe7+rXIcOIbMVXud+LkLaI6TaEOQKwdhPv3jY8hlhXqtR9RGG
- T3NTplWWOW5J6aIVXXOTwIbOcVEBfGsStkTHZMPNgtA==
-X-Received: by 2002:a1c:90:: with SMTP id 138mr7051957wma.27.1637216713143;
- Wed, 17 Nov 2021 22:25:13 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwPfFJ+kLA7lAZGrRSBcZAnGZJ8sBWMVU/RnfDU42t249eeTsZRI4Qlsxa+EXoSsRzlWS48uA==
-X-Received: by 2002:a1c:90:: with SMTP id 138mr7051916wma.27.1637216712722;
- Wed, 17 Nov 2021 22:25:12 -0800 (PST)
-Received: from redhat.com ([2.55.10.254])
- by smtp.gmail.com with ESMTPSA id e7sm2665047wrg.31.2021.11.17.22.25.11
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 17 Nov 2021 22:25:12 -0800 (PST)
-Date: Thu, 18 Nov 2021 01:25:09 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: David Stevens <stevensd@chromium.org>
-Subject: Re: [RFC PATCH] virtio_balloon: add param to skip adjusting pages
-Message-ID: <20211118012455-mutt-send-email-mst@kernel.org>
-References: <20211117100634.3012869-1-stevensd@google.com>
- <20211117082747-mutt-send-email-mst@kernel.org>
- <CAD=HUj6t6jqzQAP++wRgqmteLHkOimE6YzSygq4Z6Qg0dBmcPA@mail.gmail.com>
-MIME-Version: 1.0
-In-Reply-To: <CAD=HUj6t6jqzQAP++wRgqmteLHkOimE6YzSygq4Z6Qg0dBmcPA@mail.gmail.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+ Thu, 18 Nov 2021 11:16:53 +0000 (UTC)
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AIAx2QL032131; 
+ Thu, 18 Nov 2021 11:16:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=date : from : to : cc
+ : subject : message-id : content-type : mime-version; s=corp-2021-07-09;
+ bh=Pjt/EqUZryZ8jD4agIaUvN2fp6L8rXV/s2HLc5iKUi8=;
+ b=gh50W0tYu14lZ0WOtsJN+Vh90EKqb9zwcQGk87LmLCiDcrnrtUbRte/3i5Oix3X4N3J8
+ /QIpurdR7SDXkH29bN7d3szVXytjbu8VtLYURKPQZ10g4YkckfpPHbcxD7HGBApIPAtK
+ wilirzSJemIpmFVz7Dxl+kcT5oIBwPkJYWDG65BxgxP0Ot1owwFpevVk/fa/FzKFGDlA
+ dk/fcAHLvyeqCF2v94YT301ZlaesDn1WULIvDFHdqQBNEPStvWX6+kmbAH3Wo8s4K+hE
+ t2TPycUhqvwEGw3i7K+GFRjiVT6k4qOoE4aZlUm0oQoaf/H2SCgBZVp60COG2QuJ+vEz og== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+ by mx0b-00069f02.pphosted.com with ESMTP id 3cd2ajpcc8-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Thu, 18 Nov 2021 11:16:49 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+ by aserp3020.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 1AIBAj5E160654;
+ Thu, 18 Nov 2021 11:16:48 GMT
+Received: from nam11-co1-obe.outbound.protection.outlook.com
+ (mail-co1nam11lp2171.outbound.protection.outlook.com [104.47.56.171])
+ by aserp3020.oracle.com with ESMTP id 3ca568dwm4-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Thu, 18 Nov 2021 11:16:48 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=cupVxiDjd9ywNcJ/yrig3KrY9MAdr6JhzZBJhznlY/lZOJFX5TDn9bwV469zlWrIziwicHvCsgURMrBFAS/zVpHPCDiCo6lAuEKODZDPgpc8WI4fyF5hav1f130gTzISn6IurFH3L/LZx1pZ0TjSWuxaH5cWrnXT/pEZqCeU+JKz0fSaER9RlHH4GTPKe2nJ9nDJQ+/goAvX70+366vXt5F/a+TV3r7pNI80wv9mLNA2DRKzMToH0qpDPLIOWwmdXmLdiPxW+rczBqyXmxE5SpGr6jatION2e+G1p02tYxCELrcES0v4EubzKGTxLtFe/7gl4QV7ek6H5oXMYViI7g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Pjt/EqUZryZ8jD4agIaUvN2fp6L8rXV/s2HLc5iKUi8=;
+ b=FhZffgiVsc7z6Vq3ho97BFGqZHTql41LgeuZcGIDCpjin+w1t3Tlmr4JDe2ssBFh/wiQVwa9b5JqQzjpKLlEl5tQKBxBfeOOSabqy8Wh78MyeVegt1TlYNgPPWpqljV8AtKBAX6CCwoVbbkkBJCWSYxY8k8KcFwwv0ONWjGkg6RVr0dhmk0SYxdA029am68D/3H0PlWZQPNviZXntSsRUOJdFLbHOBjdJmpAt/KwMabqpFQdClVnjX32XMFYC3PmJ2eK//Dv0eNwrtohcmP3P+OXm0uysSGBUIFjPBwB6jj1lSrOJRycQHJqRd56RboJ02wWptnKiPyW3scKktPX3Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Pjt/EqUZryZ8jD4agIaUvN2fp6L8rXV/s2HLc5iKUi8=;
+ b=cKTQgEsksg5tFvYXyetFCqgIPXOGYcMfQgV+DUYkFNkFOkuT3IQ/d17S7rqYNwMy6jXc58urltXd56edeys0hc4JpeLHdAw5DXn7Kgt5lOxsXctrzcTCP0MLrpFDYpixw3JvMTVT23Hr7FTSJ521zrPPJyr+lgQl1yDxusmRCWw=
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28) by CO1PR10MB4402.namprd10.prod.outlook.com
+ (2603:10b6:303:99::15) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.19; Thu, 18 Nov
+ 2021 11:16:45 +0000
+Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::d409:11b5:5eb2:6be9]) by MWHPR1001MB2365.namprd10.prod.outlook.com
+ ([fe80::d409:11b5:5eb2:6be9%5]) with mapi id 15.20.4690.016; Thu, 18 Nov 2021
+ 11:16:45 +0000
+Date: Thu, 18 Nov 2021 14:16:32 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v2] drm/virtio: Fix an NULL vs IS_ERR() bug in
+ virtio_gpu_object_shmem_init()
+Message-ID: <20211118111632.GE1147@kili>
 Content-Disposition: inline
-Cc: virtualization@lists.linux-foundation.org
+X-Mailer: git-send-email haha only kidding
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-ClientProxiedBy: ZR0P278CA0013.CHEP278.PROD.OUTLOOK.COM
+ (2603:10a6:910:16::23) To MWHPR1001MB2365.namprd10.prod.outlook.com
+ (2603:10b6:301:2d::28)
+MIME-Version: 1.0
+Received: from kili (102.222.70.114) by ZR0P278CA0013.CHEP278.PROD.OUTLOOK.COM
+ (2603:10a6:910:16::23) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.19 via Frontend
+ Transport; Thu, 18 Nov 2021 11:16:42 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 64aae6d2-588a-492f-64a8-08d9aa84e7fb
+X-MS-TrafficTypeDiagnostic: CO1PR10MB4402:
+X-Microsoft-Antispam-PRVS: <CO1PR10MB44027AAA37395C26E5F508C28E9B9@CO1PR10MB4402.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:3513;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: eYW8E+5p3JR4eOj0mwUpTSUUDShxbF6xMyogpo1Ay4N+jt9UODsRIvjXlnp2yjhDX7TX8m/b0+K3X3NkCGr23rKj730+Z/6crpaaa4S1CftVIzhNXhoE5qiFuTAehVA8tS+S93OjjhFns/ayB6bD2F69EN5i8xMwtbrbczT+Agv7uPFntaCWxL0A4PZEFX2Zt/6r7JHbkCgM4+OELEGCsIGFyjCQDmQGJsUrRJCDvXlylRzd/vrUz2jjB6L3f5qmGq6T0yH+frYVQ11yIRWZpTMxzVOdoWUThQFs9b194C84uGNqJgvRB+wq5OYclpKoxojXmcUPv9d6ddsXrVOQIKlGV0yk9DJlUecaU/7pei3tGYBhGWjbL0Ip4fmVY7yOQJ6VFo4o31ArfX0s13NIjwUXWLeESMQLoKYI/CepmUcaJnOaBbyH8fSnQdzcJFHoqd7xp90Kda28+pGJ+cDocAkx4Cvkbe9T0R++Vk4sMA50kQsdi84t3YL/5F9apXWJWtq7lQa5tjvtF/Z1zcFSRBrV8GpShZUfY8iunWuQbGZPmZGbpZGrVP7E3ZttD/7UjsWa0IEvYCWwyaNMiDhVDIo6+5qMSNiU7wB2G01juJ58RYDp27/NwJ4UTQDLKnszcOyUcxbY9vk3cPoNzyMRwUawh4n/bObQbNhkZ0zKwTDoP0SY6TNmkJjjjPVZWYDc8ADuFkujj6HK7MoZarn7ZQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:MWHPR1001MB2365.namprd10.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(366004)(4326008)(8936002)(33716001)(1076003)(186003)(8676002)(508600001)(52116002)(44832011)(86362001)(316002)(6496006)(66556008)(66946007)(66476007)(38100700002)(956004)(55016002)(9686003)(54906003)(5660300002)(6666004)(33656002)(38350700002)(9576002)(83380400001)(110136005)(26005)(2906002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?fgidpFxbetZOLKjP5OLsRouz74iy5dFDzbBSxLbSHk5ZmUYg9B0jJWKihyci?=
+ =?us-ascii?Q?RIe6zEn08IyPa/cvbJ7C9efvPkT1TwLdgD4QP0SkNC+eaCE7Gt2j3X77kOGd?=
+ =?us-ascii?Q?sHv2Gu9oXtVVErPbffY0BauefiHOPgFJVfIgBnC3FR3pLlaI6iqGK72lft7v?=
+ =?us-ascii?Q?T6MQo5xoMQIGa7SrkM0GhxG/UF+xNtQoszYNwUe6xodXpEEykiKZaTULw0FL?=
+ =?us-ascii?Q?YCGw6nuO8l9YayXSuzi//PkKu1pIJ6i6BqueT7NrKBKVk0v8Xf7F45dpGZBR?=
+ =?us-ascii?Q?2U3n2wUbynGthIuJMUMyCde9HH7Ucx5S9580dsxoxDI2d+H4T0mS8hqqg1Vm?=
+ =?us-ascii?Q?QIBTXVKJgwYz2oYFUm5IPX5I+i+idnUoScqyN/l0yXZ6S6ykN+HyQUQhpqwu?=
+ =?us-ascii?Q?F3wgv2RQSbQS6gZVoyp6JnGriu+/yivqnXsg96bAMySeYm70BHmvMOmagvIa?=
+ =?us-ascii?Q?MSUDepdZizsyX3Ra/PFS2jBPjhl0Ie1EsEz/uSH6FYHkioF9sWpod9tOkS72?=
+ =?us-ascii?Q?IpYUJfPf7ZfXMZlZu/bZDzGvdB+hwaNei+nTQCrBHUHyJjbStAKATUq+hWmP?=
+ =?us-ascii?Q?usAg+JwNpfyTTfuHULDigOUyduKfqqnYKJLW8HY2KYfeYg4XmRoo/uDepPOZ?=
+ =?us-ascii?Q?xpfFz6rByDqE1+8yroCMtOCla+0mXd7a9TC6Gd+VtDl63xWDpRlT6nQ/ifls?=
+ =?us-ascii?Q?P9sxsDoQw2QqbvZ5oWyJEz3CybiC2HMx3e4sfskA3L3dJiZggsRNrpsGGmPN?=
+ =?us-ascii?Q?IT94PJuaJk2vkWB+g389oNRXw4kOXbGT1WHdhsspQfU1G1EIUthynjZwgFWN?=
+ =?us-ascii?Q?NsFWUKxKh89H17upT2pezTStR78bWLoF9ftyzsOJKjAyqGebbWxXGCyRHvIP?=
+ =?us-ascii?Q?RH+X8uzPwbqEWTTTXnK9ezHgQzteWtwmLmsBVJU1iRuBl4R/Fo9Q5bfDR9ho?=
+ =?us-ascii?Q?WKxT/cvwgmeBYlWgRr2GFIkIWWL4VUxp3TWkfX17kWKcdSusQoarRpdui3l/?=
+ =?us-ascii?Q?ysOAyVxMqVEl09DZpQ5dMu5aDh2HIncApT5pKJ7Fx56NZVsjrTH/07GJP3Bh?=
+ =?us-ascii?Q?R9O2jAY0DET9jg+8FBb6GgfGoGc0Md+7E17khsQ29Ug3GQjkVW5TNkJtoDHS?=
+ =?us-ascii?Q?0QK3409FfAFxE1EM8igQj6NUrXflBUGE4HNtraRxabVp7nxD+4k9nBxMle6O?=
+ =?us-ascii?Q?td+82eDcp8kfLpMhWyGq2suJRuMeNPij4bMZnR6QEN7IP+L9+ABHHgtMFbPU?=
+ =?us-ascii?Q?TPInMgwsVewAfxLA9RuwQE37LwyWw218JL9DjtrWIBvNJt2GDP76HJk0Blpm?=
+ =?us-ascii?Q?rYrWB1DMWkxv0RJ0GFSLmsgSviGCaYG+yAbccdaGB7mjjVIpdSTsiHU0UnTN?=
+ =?us-ascii?Q?EP6IXi9ujS7J6OV9l1B7wfPJDEKKDmnuO+fJ0MWKpiz+nuwbzLMYS24ERMOT?=
+ =?us-ascii?Q?/GGzvB0GZQ7tVD7GvBc78qzp8GesCT4GK5GhuhnACosmEUe+swtPYtmjxs3g?=
+ =?us-ascii?Q?x8vG0+s+RNndzAl6TmhLwAaApQFJvcJ2w9YAo/rDGsepT7DEbawJl6LyoKGq?=
+ =?us-ascii?Q?1NxJTUQVnRY04Xrkwv7LbYrlRxbMtDVRyqwtatY7a6GpMdsZIkjsdhQBJV3C?=
+ =?us-ascii?Q?T2Yy1fzwr8e4PkCyGRwV5JdcFg9GCWmBHBADflQ6w/HXgQ7b/sgFc/TYLmpf?=
+ =?us-ascii?Q?Nt26BRW9bqhbs+CIi6RBakE3Lpk=3D?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 64aae6d2-588a-492f-64a8-08d9aa84e7fb
+X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2365.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Nov 2021 11:16:45.6881 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: MKTjgXC4y6wVg3XFkyQWb6e7O27j8mZA0hjJomwrllSkvHxoPHICkqY30gvoGudECS3ukPae+cmrOlg3Lid+GMza2f2F3BThYih2BJ5Y0Fk=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1PR10MB4402
+X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10171
+ signatures=668683
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999
+ adultscore=0 mlxscore=0
+ spamscore=0 malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
+ definitions=main-2111180066
+X-Proofpoint-GUID: FmLsABOXcOhWT61UAb3s0wF-jc9I0Eyo
+X-Proofpoint-ORIG-GUID: FmLsABOXcOhWT61UAb3s0wF-jc9I0Eyo
+Cc: dri-devel@lists.freedesktop.org, kernel-janitors@vger.kernel.org,
+ Chia-I Wu <olvaffe@gmail.com>, Daniel Vetter <daniel@ffwll.ch>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,131 +195,38 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Nov 18, 2021 at 10:25:45AM +0900, David Stevens wrote:
-> On Wed, Nov 17, 2021 at 10:32 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Wed, Nov 17, 2021 at 07:06:34PM +0900, David Stevens wrote:
-> > > From: David Stevens <stevensd@chromium.org>
-> > >
-> > > Add a module parameters to virtio_balloon to allow specifying whether or
-> > > not the driver should call adjust_managed_page_count. If the parameter
-> > > is set, it overrides the default behavior inferred from the deflate on
-> > > OOM flag. This allows the balloon to operate without changing the amount
-> > > of memory visible to userspace via /proc/meminfo or sysinfo, even on a
-> > > system that cannot set the default on OOM flag.
-> > >
-> > > The motivation for this patch is to allow userspace to more accurately
-> > > take advantage of virtio_balloon's cooperative memory control on a
-> > > system without the ability to use deflate on OOM. As it stands,
-> > > userspace has no way to know how much memory may be available on such a
-> > > system, which makes tasks such as sizing caches impossible.
-> > >
-> > > When deflate on OOM is not enabled, the current behavior of the
-> > > virtio_balloon more or less resembles hotplugging individual pages, at
-> > > least from an accounting perspective. This is basically hardcoding the
-> > > requirement that totalram_pages must be available to the guest
-> > > immediately, regardless of what the host does. While that is a valid
-> > > policy, on Linux (which supports memory overcommit) with virtio_balloon
-> > > (which is designed to facilitate overcommit in the host), it is not the
-> > > only possible policy.
-> > >
-> > > The param added by this patch allows the guest to operate under the
-> > > assumption that pages in the virtio_balloon will generally be made
-> > > available when needed. This assumption may not always hold, but when it
-> > > is violated, the guest will just fall back to the normal mechanisms for
-> > > dealing with overcommitted memory.
-> > >
-> > > Signed-off-by: David Stevens <stevensd@chromium.org>
-> > > ---
-> > >
-> > > Another option to achieve similar behavior would be to add a new feature
-> > > flag that would be used in conjunction with DEFLATE_ON_OOM to determine
-> > > whether or not adjust_managed_page_count should be called. However, I
-> > > feel that this sort of policy decision is a little outside the scope of
-> > > what the virtio_balloon API deals with.
-> > >
-> > > ---
-> > >  drivers/virtio/virtio_balloon.c | 23 ++++++++++++++++++-----
-> > >  1 file changed, 18 insertions(+), 5 deletions(-)
-> > >
-> > > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> > > index c22ff0117b46..17dac286899c 100644
-> > > --- a/drivers/virtio/virtio_balloon.c
-> > > +++ b/drivers/virtio/virtio_balloon.c
-> > > @@ -133,6 +133,21 @@ static const struct virtio_device_id id_table[] = {
-> > >       { 0 },
-> > >  };
-> > >
-> > > +static char *adjust_pages = "";
-> > > +module_param(adjust_pages, charp, 0);
-> > > +MODULE_PARM_DESC(adjust_pages, "Whether or not pages in the balloon should be removed from the managed page count");
-> > > +
-> > > +static bool should_adjust_pages(struct virtio_balloon *vb)
-> > > +{
-> > > +     if (!strcmp(adjust_pages, "always"))
-> > > +             return true;
-> > > +     else if (!strcmp(adjust_pages, "never"))
-> > > +             return false;
-> > > +
-> > > +     return !virtio_has_feature(vb->vdev,
-> > > +                                VIRTIO_BALLOON_F_DEFLATE_ON_OOM);
-> > > +}
-> > > +
-> > >  static u32 page_to_balloon_pfn(struct page *page)
-> > >  {
-> > >       unsigned long pfn = page_to_pfn(page);
-> > > @@ -243,8 +258,7 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
-> > >
-> > >               set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
-> > >               vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
-> > > -             if (!virtio_has_feature(vb->vdev,
-> > > -                                     VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-> > > +             if (should_adjust_pages(vb))
-> > >                       adjust_managed_page_count(page, -1);
-> > >               vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;
-> > >       }
-> > > @@ -264,8 +278,7 @@ static void release_pages_balloon(struct virtio_balloon *vb,
-> > >       struct page *page, *next;
-> > >
-> > >       list_for_each_entry_safe(page, next, pages, lru) {
-> > > -             if (!virtio_has_feature(vb->vdev,
-> > > -                                     VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
-> > > +             if (should_adjust_pages(vb))
-> > >                       adjust_managed_page_count(page, 1);
-> > >               list_del(&page->lru);
-> > >               put_page(page); /* balloon reference */
-> > > @@ -775,7 +788,7 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
-> > >         * managed page count when inflating, we have to fixup the count of
-> > >         * both involved zones.
-> > >         */
-> > > -     if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM) &&
-> > > +     if (should_adjust_pages(vb) &&
-> > >           page_zone(page) != page_zone(newpage)) {
-> > >               adjust_managed_page_count(page, 1);
-> > >               adjust_managed_page_count(newpage, -1);
-> >
-> > A problem here is that the host also cares: IIUC
-> > with VIRTIO_BALLOON_F_STATS_VQ we are sending the info
-> > about page counts to host, changing what the stats
-> > mean.
-> >
-> > So I suspect we need a device feature for this at least
-> > to control this aspect.
-> >
-> 
-> The only stat this would affect is VIRTIO_BALLOON_S_MEMTOT, I think.
-> If that's not supposed to include memory held by the balloon, then we
-> can just subtract the balloon's size from i.totalram in
-> update_balloon_stats if should_adjust_pages() is true but
-> VIRTIO_BALLOON_F_DEFLATE_ON_OOM is not set. That should preserve the
-> current behavior.
+The drm_gem_shmem_get_sg_table() function never returns NULL.  It returns
+error pointers on error.
 
-OK, that sounds reasonable.
+Fixes: c66df701e783 ("drm/virtio: switch from ttm to gem shmem helpers")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+---
+v2: I originally sent this patch on 19 Jun 2020 but it was somehow
+    not applied.  As I review it now, I see that the bug is actually
+    older than I originally thought and so I have updated the Fixes
+    tag.
 
-> >
-> > > --
-> > > 2.34.0.rc2.393.gf8c9666880-goog
-> >
+ drivers/gpu/drm/virtio/virtgpu_object.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index f648b0e24447..8bb80289672c 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -168,9 +168,9 @@ static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
+ 	 * since virtio_gpu doesn't support dma-buf import from other devices.
+ 	 */
+ 	shmem->pages = drm_gem_shmem_get_sg_table(&bo->base.base);
+-	if (!shmem->pages) {
++	if (IS_ERR(shmem->pages)) {
+ 		drm_gem_shmem_unpin(&bo->base.base);
+-		return -EINVAL;
++		return PTR_ERR(shmem->pages);
+ 	}
+ 
+ 	if (use_dma_api) {
+-- 
+2.20.1
 
 _______________________________________________
 Virtualization mailing list
