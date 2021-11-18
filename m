@@ -2,113 +2,96 @@ Return-Path: <SRS0=Mnfs=QF=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4825C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 18 Nov 2021 11:17:09 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A1CAC433F5
+	for <virtualization@archiver.kernel.org>; Thu, 18 Nov 2021 11:48:47 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 597B161AD2
-	for <virtualization@archiver.kernel.org>; Thu, 18 Nov 2021 11:17:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 597B161AD2
+	by mail.kernel.org (Postfix) with ESMTPS id 969CA60174
+	for <virtualization@archiver.kernel.org>; Thu, 18 Nov 2021 11:48:46 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 969CA60174
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 22EC0814B4;
-	Thu, 18 Nov 2021 11:17:09 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2352E4025F;
+	Thu, 18 Nov 2021 11:48:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id WTUU2eLG6psN; Thu, 18 Nov 2021 11:17:08 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6t97LMsZXbSN; Thu, 18 Nov 2021 11:48:45 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 9489781066;
-	Thu, 18 Nov 2021 11:17:07 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5D4824019E;
+	Thu, 18 Nov 2021 11:48:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6F443C001E;
-	Thu, 18 Nov 2021 11:17:07 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 240D9C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1E024C001E;
+	Thu, 18 Nov 2021 11:48:44 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D6214C0012
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 Nov 2021 11:17:06 +0000 (UTC)
+ Thu, 18 Nov 2021 11:48:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 1E19040367
+ by smtp1.osuosl.org (Postfix) with ESMTP id B84B880C19
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 Nov 2021 11:17:06 +0000 (UTC)
+ Thu, 18 Nov 2021 11:48:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id N8Nln4mWO3z1
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 4qfHa3EugFgh
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 Nov 2021 11:17:05 +0000 (UTC)
+ Thu, 18 Nov 2021 11:48:41 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id DA80740366
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 975C880C12
  for <virtualization@lists.linux-foundation.org>;
- Thu, 18 Nov 2021 11:17:04 +0000 (UTC)
+ Thu, 18 Nov 2021 11:48:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1637234223;
+ s=mimecast20190719; t=1637236120;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=KT6c1tJXluW5btxlZn/cO0YpWcPPW+F/zKrmnhCsxh0=;
- b=RWiw8w+f5/r6PfWAucoc5bqoicM3qeFGdBfaDGw5hXmWXRh+Fm018d02caUH8CD0bSWH3+
- Loj5BtAaTLZeCyPqsLxMYaALrth6rSbl95FV67BusCwn1b+u6goCE6ZBSw4W+NsCXBbdID
- 8D+TB5hmCW8lZ0NJz9X3ncGUDbAk9vM=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=NVvMJWrJ9UKr+oYWnQ3asuZNYNYkBhWlbJlX4He2Ums=;
+ b=XjARhUPm2jFqQOjINRKC71qVPnYXEcjXg9m2CAIakvOMRtkc3z3y4Sz0SZNAaQU8eaqrR8
+ WL47LIkuujV2Rv1sU6bVj4wdQXjS9pWyyRJQ8WC0Cdzpa4nN2ZC2upVr0hZHmPL3Fe1M8H
+ Ixs/pRSiw2uqtphc8uxsHn47NGgGFEc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-363-w8U3DdE8ODGykh87MB57yg-1; Thu, 18 Nov 2021 06:17:02 -0500
-X-MC-Unique: w8U3DdE8ODGykh87MB57yg-1
-Received: by mail-wr1-f71.google.com with SMTP id
- u4-20020a5d4684000000b0017c8c1de97dso986519wrq.16
- for <virtualization@lists.linux-foundation.org>;
- Thu, 18 Nov 2021 03:17:02 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
- :content-language:to:cc:references:from:organization:in-reply-to
- :content-transfer-encoding;
- bh=KT6c1tJXluW5btxlZn/cO0YpWcPPW+F/zKrmnhCsxh0=;
- b=PMtHYxGPq1Ekvv8LmK0Hf/B8iawt7OQNa6D806ffgSyzCgXEnHZWiCinYpRmDstJwp
- kwWljtw6rR2qqFBdUspFl718JKzHN98B6kp9ntJrN/c8dXpspkKivlhVz5i7m6T6Tr1m
- BV2QPDVYvkvjy6VV8GLmtxeQO4G9eEKvyhsuPNz31hQQ8gI9nWF/b9pmV/WGTS3x+3+Y
- /vmMr36HVG/IMQRUbzKDihc0zGY1EDbAMFlHseYq2Oeb398nBH7o7TEksCa2X5geZTpe
- kPSVHCYP9q5wrHmcVMuFACVocolpBx5WJM7emQMoe1uFcppioVyE7Qn+6SepHQ1ejwub
- 4pjg==
-X-Gm-Message-State: AOAM5300GNh12nx3yCnhrSM9IngjMEUT4oHpsWHWX1jO/INv/UIimYy5
- GmPtjqHAtXTZm9C+WNPG6foP/THDf/qNNO9UYQHxGRorhtklBiWyo+24yZoRnT+ApvIjFSDmb1g
- 23vodAHSoZDPKhHSZwJEgcjtkWQwTzy1/iI+j1bLM7g==
-X-Received: by 2002:a5d:65c7:: with SMTP id e7mr29801983wrw.319.1637234221492; 
- Thu, 18 Nov 2021 03:17:01 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwihzicgomqh1ZJevPG4aRp5RwGlQcjHwAz55lTvvqMBxsEw1So37gpL3p1ZSiwnhdgrIzWAA==
-X-Received: by 2002:a5d:65c7:: with SMTP id e7mr29801956wrw.319.1637234221312; 
- Thu, 18 Nov 2021 03:17:01 -0800 (PST)
-Received: from [192.168.3.132] (p5b0c62b7.dip0.t-ipconnect.de. [91.12.98.183])
- by smtp.gmail.com with ESMTPSA id
- g198sm2969144wme.23.2021.11.18.03.17.00
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 18 Nov 2021 03:17:00 -0800 (PST)
-Message-ID: <290e140c-abc1-76b8-e036-5b550b8b99c4@redhat.com>
-Date: Thu, 18 Nov 2021 12:17:00 +0100
+ us-mta-580-zvgDP5ZjNYa2lSvL9U8ZAg-1; Thu, 18 Nov 2021 06:48:37 -0500
+X-MC-Unique: zvgDP5ZjNYa2lSvL9U8ZAg-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
+ [10.5.11.22])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 09A9B804141;
+ Thu, 18 Nov 2021 11:48:35 +0000 (UTC)
+Received: from [10.39.192.245] (unknown [10.39.192.245])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 1452A10246F8;
+ Thu, 18 Nov 2021 11:48:30 +0000 (UTC)
+Message-ID: <a130e317-58b9-dae8-2d87-98695cdc4f22@redhat.com>
+Date: Thu, 18 Nov 2021 12:48:29 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.2.0
-Subject: Re: [PATCH v2] virtio_balloon: add param to skip adjusting pages
-To: David Stevens <stevensd@chromium.org>,
- virtualization@lists.linux-foundation.org
-References: <20211118091130.3817665-1-stevensd@google.com>
-From: David Hildenbrand <david@redhat.com>
-Organization: Red Hat
-In-Reply-To: <20211118091130.3817665-1-stevensd@google.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
+Subject: Re: [PATCH] Fix SEV-ES INS/OUTS instructions for word, dword, and
+ qword.
 Content-Language: en-US
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
+To: Michael Sterritt <sterritt@google.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+ Joerg Roedel <jroedel@suse.de>, Peter Zijlstra <peterz@infradead.org>,
+ Tom Lendacky <thomas.lendacky@amd.com>, linux-kernel@vger.kernel.org,
+ kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-coco@lists.linux.dev
+References: <20211118021326.4134850-1-sterritt@google.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <20211118021326.4134850-1-sterritt@google.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+Cc: marcorr@google.com, pgonda@google.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,71 +103,153 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 18.11.21 10:11, David Stevens wrote:
-> From: David Stevens <stevensd@chromium.org>
-
-Hi David,
-
+On 11/18/21 03:13, Michael Sterritt wrote:
+> Properly type the operands being passed to __put_user()/__get_user().
+> Otherwise, these routines truncate data for dependent instructions
+> (e.g., INSW) and only read/write one byte.
 > 
-> Add a module parameters to virtio_balloon to allow specifying whether or
-> not the driver should call adjust_managed_page_count. If the parameter
-> is set, it overrides the default behavior inferred from the deflate on
-> OOM flag. This allows the balloon to operate without changing the amount
-> of memory visible to userspace via /proc/meminfo or sysinfo, even on a
-> system that cannot set the default on OOM flag.
+> Tested: Tested by sending a string with `REP OUTSW` to a port and then
+> reading it back in with `REP INSW` on the same port. Previous behavior
+> was to only send and receive the first char of the size. For example,
+> word operations for "abcd" would only read/write "ac". With change, the
+> full string is now written and read back.
 > 
-> The motivation for this patch is to allow userspace to more accurately
-> take advantage of virtio_balloon's cooperative memory control on a
-> system without the ability to use deflate on OOM. As it stands,
-> userspace has no way to know how much memory may be available on such a
-> system, which makes tasks such as sizing caches impossible.
-
-But that user space also has no idea "when" that memory will become
-available, it could be never. This problem is similar to memory hotplug,
-where we don't know "when" more memory might get hotplugged.
-
-With deflate-on-OOM this behavior makes sense, because the guest can use
-that memory whenever it wants -- it's actually available as soon as we
-need it.
-
+> Signed-off-by: Michael Sterritt <sterritt@google.com>
+> Reviewed-by: Marc Orr <marcorr@google.com>
+> Reviewed-by: Peter Gonda <pgonda@google.com>
+> ---
+>   arch/x86/kernel/sev.c | 57 +++++++++++++++++++++++++++++--------------
+>   1 file changed, 39 insertions(+), 18 deletions(-)
 > 
-> When deflate on OOM is not enabled, the current behavior of the
-> virtio_balloon more or less resembles hotplugging individual pages, at
-> least from an accounting perspective. This is basically hardcoding the
-> requirement that totalram_pages must be available to the guest
-> immediately, regardless of what the host does. While that is a valid
-> policy, on Linux (which supports memory overcommit) with virtio_balloon
-> (which is designed to facilitate overcommit in the host), it is not the
-> only possible policy.
+> diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
+> index 74f0ec955384..a9fc2ac7a8bd 100644
+> --- a/arch/x86/kernel/sev.c
+> +++ b/arch/x86/kernel/sev.c
+> @@ -294,11 +294,6 @@ static enum es_result vc_write_mem(struct es_em_ctxt *ctxt,
+>   				   char *dst, char *buf, size_t size)
+>   {
+>   	unsigned long error_code = X86_PF_PROT | X86_PF_WRITE;
+> -	char __user *target = (char __user *)dst;
+> -	u64 d8;
+> -	u32 d4;
+> -	u16 d2;
+> -	u8  d1;
+>   
+>   	/*
+>   	 * This function uses __put_user() independent of whether kernel or user
+> @@ -320,26 +315,42 @@ static enum es_result vc_write_mem(struct es_em_ctxt *ctxt,
+>   	 * instructions here would cause infinite nesting.
+>   	 */
+>   	switch (size) {
+> -	case 1:
+> +	case 1: {
+> +		u8 d1;
+> +		u8 __user *target = (u8 __user *)dst;
+> +
+>   		memcpy(&d1, buf, 1);
+>   		if (__put_user(d1, target))
+>   			goto fault;
+>   		break;
+> -	case 2:
+> +	}
+> +	case 2: {
+> +		u16 d2;
+> +		u16 __user *target = (u16 __user *)dst;
+> +
+>   		memcpy(&d2, buf, 2);
+>   		if (__put_user(d2, target))
+>   			goto fault;
+>   		break;
+> -	case 4:
+> +	}
+> +	case 4: {
+> +		u32 d4;
+> +		u32 __user *target = (u32 __user *)dst;
+> +
+>   		memcpy(&d4, buf, 4);
+>   		if (__put_user(d4, target))
+>   			goto fault;
+>   		break;
+> -	case 8:
+> +	}
+> +	case 8: {
+> +		u64 d8;
+> +		u64 __user *target = (u64 __user *)dst;
+> +
+>   		memcpy(&d8, buf, 8);
+>   		if (__put_user(d8, target))
+>   			goto fault;
+>   		break;
+> +	}
+>   	default:
+>   		WARN_ONCE(1, "%s: Invalid size: %zu\n", __func__, size);
+>   		return ES_UNSUPPORTED;
+> @@ -362,11 +373,6 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
+>   				  char *src, char *buf, size_t size)
+>   {
+>   	unsigned long error_code = X86_PF_PROT;
+> -	char __user *s = (char __user *)src;
+> -	u64 d8;
+> -	u32 d4;
+> -	u16 d2;
+> -	u8  d1;
+>   
+>   	/*
+>   	 * This function uses __get_user() independent of whether kernel or user
+> @@ -388,26 +394,41 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
+>   	 * instructions here would cause infinite nesting.
+>   	 */
+>   	switch (size) {
+> -	case 1:
+> +	case 1: {
+> +		u8 d1;
+> +		u8 __user *s = (u8 __user *)src;
+> +
+>   		if (__get_user(d1, s))
+>   			goto fault;
+>   		memcpy(buf, &d1, 1);
+>   		break;
+> -	case 2:
+> +	}
+> +	case 2: {
+> +		u16 d2;
+> +		u16 __user *s = (u16 __user *)src;
+> +
+>   		if (__get_user(d2, s))
+>   			goto fault;
+>   		memcpy(buf, &d2, 2);
+>   		break;
+> -	case 4:
+> +	}
+> +	case 4: {
+> +		u32 d4;
+> +		u32 __user *s = (u32 __user *)src;
+> +
+>   		if (__get_user(d4, s))
+>   			goto fault;
+>   		memcpy(buf, &d4, 4);
+>   		break;
+> -	case 8:
+> +	}
+> +	case 8: {
+> +		u64 d8;
+> +		u64 __user *s = (u64 __user *)src;
+>   		if (__get_user(d8, s))
+>   			goto fault;
+>   		memcpy(buf, &d8, 8);
+>   		break;
+> +	}
+>   	default:
+>   		WARN_ONCE(1, "%s: Invalid size: %zu\n", __func__, size);
+>   		return ES_UNSUPPORTED;
 > 
-> The param added by this patch allows the guest to operate under the
-> assumption that pages in the virtio_balloon will generally be made
-> available when needed. This assumption may not always hold, but when it
-> is violated, the guest will just fall back to the normal mechanisms for
-> dealing with overcommitted memory.
-> 
-> Independent of what policy the guest wants, the virtio_balloon device
-> does not consider pages in the balloon as contributing to the guest's
-> total amount of memory if deflate on OOM is not enabled. Ensure that the
-> reported stats are consistent with this by adjusting totalram if a
-> guest without deflate on OOM is skipping the calls to
-> adjust_managed_page_count.
 
-What about simply exposing the number of inflated balloon pages
-("logically offline pages") e.g., via /proc/meminfo to user space? It's
-then up to smart user space trying to be smart about memory that's not
-available right now and might never become available eventually in the
-future -- but still that user space wants to optimize for some eventuality.
-
--- 
-Thanks,
-
-David / dhildenb
+Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
 
 _______________________________________________
 Virtualization mailing list
