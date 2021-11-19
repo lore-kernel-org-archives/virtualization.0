@@ -2,73 +2,90 @@ Return-Path: <SRS0=gSim=QG=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 98941C433FE
-	for <virtualization@archiver.kernel.org>; Fri, 19 Nov 2021 15:35:16 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F77EC433F5
+	for <virtualization@archiver.kernel.org>; Fri, 19 Nov 2021 15:58:20 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 409CE61B1E
-	for <virtualization@archiver.kernel.org>; Fri, 19 Nov 2021 15:35:16 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 409CE61B1E
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 0E9AE61549
+	for <virtualization@archiver.kernel.org>; Fri, 19 Nov 2021 15:58:20 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 0E9AE61549
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=arndb.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id CDCFA410BB;
-	Fri, 19 Nov 2021 15:35:15 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id C785E827AF;
+	Fri, 19 Nov 2021 15:58:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YpsVGR97E5o1; Fri, 19 Nov 2021 15:35:15 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 782FA410AD;
-	Fri, 19 Nov 2021 15:35:14 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7vYNuC5Ts8Jb; Fri, 19 Nov 2021 15:58:18 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1D4838275C;
+	Fri, 19 Nov 2021 15:58:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E1F83C002E;
-	Fri, 19 Nov 2021 15:35:13 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 20B11C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E35BCC002E;
+	Fri, 19 Nov 2021 15:58:17 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6491DC0012
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Nov 2021 15:35:12 +0000 (UTC)
+ Fri, 19 Nov 2021 15:58:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id EDE0F40116
+ by smtp1.osuosl.org (Postfix) with ESMTP id 45C608275C
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Nov 2021 15:35:11 +0000 (UTC)
+ Fri, 19 Nov 2021 15:58:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id K-5cqfqXzx-o
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id xFeiDmSGnyxq
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Nov 2021 15:35:11 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 120C6400F3
+ Fri, 19 Nov 2021 15:58:16 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.126.131])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id CCDFE8274E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Nov 2021 15:35:10 +0000 (UTC)
-X-IronPort-AV: E=McAfee;i="6200,9189,10172"; a="258224766"
-X-IronPort-AV: E=Sophos;i="5.87,248,1631602800"; d="scan'208";a="258224766"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
- by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 19 Nov 2021 07:35:10 -0800
-X-IronPort-AV: E=Sophos;i="5.87,248,1631602800"; d="scan'208";a="506474100"
-Received: from smile.fi.intel.com ([10.237.72.184])
- by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 19 Nov 2021 07:35:01 -0800
-Received: from andy by smile.fi.intel.com with local (Exim 4.95)
- (envelope-from <andriy.shevchenko@linux.intel.com>)
- id 1mo5uf-008a3l-IP; Fri, 19 Nov 2021 17:34:53 +0200
-Date: Fri, 19 Nov 2021 17:34:53 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: "Alejandro Colomar (man-pages)" <alx.manpages@gmail.com>
-Subject: Re: [PATCH 00/17] Add memberof(), split some headers, and slightly
- simplify code
-Message-ID: <YZfEHZa3f5MXeqoH@smile.fi.intel.com>
+ Fri, 19 Nov 2021 15:58:15 +0000 (UTC)
+Received: from mail-ed1-f52.google.com ([209.85.208.52]) by
+ mrelayeu.kundenserver.de (mreue010 [213.165.67.97]) with ESMTPSA (Nemesis) id
+ 1MIMKq-1mrSKX37bw-00ELkg for <virtualization@lists.linux-foundation.org>;
+ Fri, 19 Nov 2021 16:58:13 +0100
+Received: by mail-ed1-f52.google.com with SMTP id z5so44635660edd.3
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 19 Nov 2021 07:58:13 -0800 (PST)
+X-Gm-Message-State: AOAM531BJleLX90dlXq3l6vZYHio8XV9MpwBqn9Xl6vJQSz369ygBu66
+ 02V0QmfvXC1CJO3hw0QjcPlRat5RihRrres79ik=
+X-Google-Smtp-Source: ABdhPJwnsTso3SJsyzelpHMk45ZnrIpUGUkP3Z97jucoO4GjyflpBdZvuKfoRBo685VC8w89e5cIDe6TdYLQkVPBgCM=
+X-Received: by 2002:adf:efc6:: with SMTP id i6mr8808061wrp.428.1637337483020; 
+ Fri, 19 Nov 2021 07:58:03 -0800 (PST)
+MIME-Version: 1.0
 References: <20211119113644.1600-1-alx.manpages@gmail.com>
  <CAK8P3a0qT9tAxFkLN_vJYRcocDW2TcBq79WcYKZFyAG0udZx5Q@mail.gmail.com>
  <434296d3-8fe1-f1d2-ee9d-ea25d6c4e43e@gmail.com>
-MIME-Version: 1.0
-Content-Disposition: inline
 In-Reply-To: <434296d3-8fe1-f1d2-ee9d-ea25d6c4e43e@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+From: Arnd Bergmann <arnd@arndb.de>
+Date: Fri, 19 Nov 2021 16:57:46 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a2yVXw9gf8-BNvX_rzectNoiy0MqGKvBcXydiUSrc_fCA@mail.gmail.com>
+Message-ID: <CAK8P3a2yVXw9gf8-BNvX_rzectNoiy0MqGKvBcXydiUSrc_fCA@mail.gmail.com>
+Subject: Re: [PATCH 00/17] Add memberof(), split some headers, and slightly
+ simplify code
+To: "Alejandro Colomar (man-pages)" <alx.manpages@gmail.com>
+X-Provags-ID: V03:K1:GcO7cxvBy+K9Dr4yVKG5ZVRHZAvRP+uxsaZTQgSVRAfDCrh6s9M
+ FgSbKlyFCdWSCdbt4eiDK5XNLInaqvns/CkyI9wkaNthYVTTd4bP4tA03a8xrE6FtIUP57g
+ 0i18yvbJZaOt7FQxeuxEuGxSDvWB4fWpDKjRu6+LOyqxomffwQnIeF+LlEFQ0YTD43to9hf
+ kycK41z7xhxPNK2uoDeRQ==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:895NfZToKUM=:90Ymi5Os+WOYPoG8dwXNTd
+ RW7CCgW7qcMMM8xxXNgEANtXhYVidvy9FKq69J07/l6qBw+h1TUl5Lxkd91qMvOuDqYxxHTHa
+ hG/72mrG86CmAU6ypSDQ4S3rbJLeKmoMi+yPDyKTkPaZEwRRN5i2Nht8El+/RtCp9p4qRy6cC
+ V9HiLxnjn/QmHFHNLjRAQcC5HbK/kdgr4DgCvN+0Q5DcsnWkFhx2Eojwgn09u5ZZZnRjFZvFq
+ E4wfm4Qk9QazVVbMLxaccMzl6XhVKf/BgJz5/NLtvZdpnf5T/4Cnreg2TaVM0fNs5MwqP8LL7
+ n1R/DKYmWsrLnTAZY8vZApQFzntiakzM7p2TtHYWvCzFn9OXvIPGWsLhw93eMECvboU4bAnbn
+ MCRKoN84eTn4VLKpskCOw4Fz+AkbhYItiZwGM/tyaevIx9F3NhXNIr00zjwzRuvcXc2Cn4gL3
+ CFBqINA1U6tFfs7RM5M6d+iuq9JoHAXScPAa9jc6sbdT6jopd3YWX11836rbRXpTi2RcK5fKt
+ yblUoO9QOlQbR4mxCfftNtzfKGg600OJsM/qnSfcaNyBUM5DgmV08zifnKpnpvawcXc3a/1Li
+ XOYjEz4KEtCmnr6qQLs1B8vEd+mXhUyW6aFR/VjjX83wZn612fBAbT5Mq5oO7xFTq/azGjaMW
+ ZYZFYzKkKjGS/tRi/A3prBBt3KzAxViYlEhZu9E8GPIzPwO0G2mfMeSJt2BLqMXoF+dJd7e5e
+ 56VI0EVVWK+1BUI9FVeqT00WQ8El/fKKlR/PVKrDkHj9/bJANVGByX3htBBcfjqhEjGjaFGF9
+ KArm6TDMv2vGBGsrv5I8IpGPYTs6wg8rorLF2e5dBLadM2io3xHi4QJmVPRdD2BnUazH+9WI0
+ 7PIAhAq9PihM/awnvL9A==
 Cc: Corey Minyard <cminyard@mvista.com>,
  Ajit Khaparde <ajit.khaparde@broadcom.com>,
  "Michael S. Tsirkin" <mst@redhat.com>,
@@ -76,24 +93,32 @@ Cc: Corey Minyard <cminyard@mvista.com>,
  Rasmus Villemoes <linux@rasmusvillemoes.dk>,
  Bjorn Andersson <bjorn.andersson@linaro.org>, Chris Mason <clm@fb.com>,
  Christian Brauner <christian.brauner@ubuntu.com>,
- Ketan Mukadam <ketan.mukadam@broadcom.com>, linux-scsi@vger.kernel.org,
+ Ketan Mukadam <ketan.mukadam@broadcom.com>,
+ Somnath Kotur <somnath.kotur@broadcom.com>,
+ linux-scsi <linux-scsi@vger.kernel.org>,
  Subbu Seetharaman <subbu.seetharaman@broadcom.com>,
  "Rafael J. Wysocki" <rafael@kernel.org>, Russell King <linux@armlinux.org.uk>,
- Mike Rapoport <rppt@linux.ibm.com>, linux-acpi@vger.kernel.org,
+ Mike Rapoport <rppt@linux.ibm.com>,
+ ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
  Miguel Ojeda <ojeda@kernel.org>, Borislav Petkov <bp@suse.de>,
- virtualization@lists.linux-foundation.org, Len Brown <lenb@kernel.org>,
+ "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE"
+ <virtualization@lists.linux-foundation.org>, Len Brown <lenb@kernel.org>,
  Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>,
- John Hubbard <jhubbard@nvidia.com>, intel-gfx@lists.freedesktop.org,
+ John Hubbard <jhubbard@nvidia.com>,
+ Intel Graphics <intel-gfx@lists.freedesktop.org>,
  Josef Bacik <josef@toxicpanda.com>, Jani Nikula <jani.nikula@linux.intel.com>,
  Jitendra Bhivare <jitendra.bhivare@broadcom.com>,
  Rodrigo Vivi <rodrigo.vivi@intel.com>,
  Jonathan Cameron <Jonathan.Cameron@huawei.com>,
- David Sterba <dsterba@suse.com>, Somnath Kotur <somnath.kotur@broadcom.com>,
- linux-arm-kernel@lists.infradead.org,
+ David Sterba <dsterba@suse.com>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ Linux ARM <linux-arm-kernel@lists.infradead.org>,
  Sriharsha Basavapatna <sriharsha.basavapatna@broadcom.com>,
- netdev@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+ Networking <netdev@vger.kernel.org>,
+ Nick Desaulniers <ndesaulniers@google.com>,
  LKML <linux-kernel@vger.kernel.org>, "John S . Gruber" <JohnSGruber@gmail.com>,
- Andrew Morton <akpm@linux-foundation.org>, linux-btrfs@vger.kernel.org
+ Andrew Morton <akpm@linux-foundation.org>,
+ linux-btrfs <linux-btrfs@vger.kernel.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,62 +135,98 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Nov 19, 2021 at 04:06:27PM +0100, Alejandro Colomar (man-pages) wrote:
-> Hi Arnd,
-> 
+On Fri, Nov 19, 2021 at 4:06 PM Alejandro Colomar (man-pages)
+<alx.manpages@gmail.com> wrote:
 > On 11/19/21 15:47, Arnd Bergmann wrote:
 > > On Fri, Nov 19, 2021 at 12:36 PM Alejandro Colomar
-> > <alx.manpages@gmail.com> wrote:
-> >>
-> >> Alejandro Colomar (17):
-> >>   linux/container_of.h: Add memberof(T, m)
-> >>   Use memberof(T, m) instead of explicit NULL dereference
-> >>   Replace some uses of memberof() by its wrappers
-> >>   linux/memberof.h: Move memberof() to separate header
-> >>   linux/typeof_member.h: Move typeof_member() to a separate header
-> >>   Simplify sizeof(typeof_member()) to sizeof_field()
-> >>   linux/NULL.h: Move NULL to a separate header
-> >>   linux/offsetof.h: Move offsetof(T, m) to a separate header
-> >>   linux/offsetof.h: Implement offsetof() in terms of memberof()
-> >>   linux/container_of.h: Implement container_of_safe() in terms of
-> >>     container_of()
-> >>   linux/container_of.h: Cosmetic
-> >>   linux/container_of.h: Remove unnecessary cast to (void *)
-> > 
-> > My feeling is that this takes the separation too far: by having this many header
-> > files that end up being included from practically every single .c file
-> > in the kernel,
-> > I think you end up making compile speed worse overall.
-> > 
-> > If your goal is to avoid having to recompile as much of the kernel
-> > after touching
-> > a header, I think a better approach is to help untangle the dependencies, e.g.
-> > by splitting out type definitions from headers with inline functions (most
-> > indirect header dependencies are on type definitions) and by focusing on
-> > linux/fs.h, linux/sched.h, linux/mm.h and how they interact with the rest of the
-> > headers. At the moment, these are included in most .c files and they in turn
-> > include a ton of other headers.
-> 
+>
 > Yes, I would like to untangle the dependencies.
-> 
+>
 > The main reason I started doing this splitting
 > is because I wouldn't be able to include
 > <linux/stddef.h> in some headers,
 > because it pulled too much stuff that broke unrelated things.
-> 
+>
 > So that's why I started from there.
-> 
+>
 > I for example would like to get NULL in memberof()
 > without puling anything else,
 > so <linux/NULL.h> makes sense for that.
+>
+> It's clear that every .c wants NULL,
+> but it's not so clear that every .c wants
+> everything that <linux/stddef.h> pulls indirectly.
 
-I don't believe that the code that uses NULL won't include types.h.
+From what I can tell, linux/stddef.h is tiny, I don't think it's really
+worth optimizing this part. I have spent some time last year
+trying to untangle some of the more interesting headers, but ended
+up not completing this as there are some really hard problems
+once you start getting to the interesting bits.
 
--- 
-With Best Regards,
-Andy Shevchenko
+The approach I tried was roughly:
 
+- For each header in the kernel, create a preprocessed version
+  that includes all the indirect includes, from that start a set
+  of lookup tables that record which header is eventually included
+  by which ones, and the size of each preprocessed header in
+  bytes
 
+- For a given kernel configuration (e.g. defconfig or allmodconfig)
+  that I'm most interested in, look at which files are built, and what
+  the direct includes are in the source files.
+
+- Sort the headers by the product of the number of direct includes
+  and the preprocessed size: the largest ones are those that are
+  worth looking at first.
+
+- use graphviz to visualize the directed graph showing the includes
+  between the top 100 headers in that list. You get something like
+  I had in [1], or the version afterwards at [2].
+
+- split out unneeded indirect includes from the headers in the center
+  of that graph, typically by splitting out struct definitions.
+
+- repeat.
+
+The main problem with this approach is that as soon as you start
+actually reducing the unneeded indirect includes, you end up with
+countless .c files that no longer build because they are missing a
+direct include for something that was always included somewhere
+deep underneath, so I needed a second set of scripts to add
+direct includes to every .c file.
+
+On the plus side, I did see something on the order of a 30%
+compile speed improvement with clang, which is insane
+given that this only removed dead definitions.
+
+> But I'll note that linux/fs.h, linux/sched.h, linux/mm.h are
+> interesting headers for further splitting.
+>
+>
+> BTW, I also have a longstanding doubt about
+> how header files are organized in the kernel,
+> and which headers can and cannot be included
+> from which other files.
+>
+> For example I see that files in samples or scripts or tools,
+> that redefine many things such as offsetof() or ARRAY_SIZE(),
+> and I don't know if there's a good reason for that,
+> or if I should simply remove all that stuff and
+> include <linux/offsetof.h> everywhere I see offsetof() being used.
+
+The main issue here is that user space code should not
+include anything outside of include/uapi/ and arch/*/include/uapi/
+
+offsetof() is defined in include/linux/stddef.h, so this is by
+definition not accessible here. It appears that there is also
+an include/uapi/linux/stddef.h that is really strange because
+it includes linux/compiler_types.h, which in turn is outside
+of uapi/. This should probably be fixed.
+
+      Arnd
+
+[1] https://drive.google.com/file/d/14IKifYDadg2W5fMsefxr4373jizo9bLl/view?usp=sharing
+[2] https://drive.google.com/file/d/1pWQcv3_ZXGqZB8ogV-JOfoV-WJN2UNnd/view?usp=sharing
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
