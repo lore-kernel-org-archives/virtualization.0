@@ -2,76 +2,74 @@ Return-Path: <SRS0=gSim=QG=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4132C433F5
-	for <virtualization@archiver.kernel.org>; Fri, 19 Nov 2021 16:35:50 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3C7FC433F5
+	for <virtualization@archiver.kernel.org>; Fri, 19 Nov 2021 16:38:16 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4497361B1E
-	for <virtualization@archiver.kernel.org>; Fri, 19 Nov 2021 16:35:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 4497361B1E
+	by mail.kernel.org (Postfix) with ESMTPS id 870BC61B43
+	for <virtualization@archiver.kernel.org>; Fri, 19 Nov 2021 16:38:16 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 870BC61B43
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E7AB6409E2;
-	Fri, 19 Nov 2021 16:35:49 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 4178861BEB;
+	Fri, 19 Nov 2021 16:38:16 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 57gKyyaoO2Pf; Fri, 19 Nov 2021 16:38:15 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id F3746605F6;
+	Fri, 19 Nov 2021 16:38:14 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C7501C001E;
+	Fri, 19 Nov 2021 16:38:14 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0FF5AC0012
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 19 Nov 2021 16:38:13 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp4.osuosl.org (Postfix) with ESMTP id F0E8240415
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 19 Nov 2021 16:38:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id MJ7UggaQua2t; Fri, 19 Nov 2021 16:35:49 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 78F50409D8;
-	Fri, 19 Nov 2021 16:35:48 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5BDEDC001E;
-	Fri, 19 Nov 2021 16:35:48 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C06C9C0012
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 1hUacoCmyda2
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Nov 2021 16:35:46 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id BA0C040554
- for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Nov 2021 16:35:46 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BFeJV2lrvRNI
- for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Nov 2021 16:35:45 +0000 (UTC)
+ Fri, 19 Nov 2021 16:38:12 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 7AB2B400DA
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 70B4240383
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Nov 2021 16:35:45 +0000 (UTC)
-X-IronPort-AV: E=McAfee;i="6200,9189,10172"; a="234391725"
-X-IronPort-AV: E=Sophos;i="5.87,248,1631602800"; d="scan'208";a="234391725"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
- by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 19 Nov 2021 08:35:44 -0800
-X-IronPort-AV: E=Sophos;i="5.87,248,1631602800"; d="scan'208";a="737108569"
+ Fri, 19 Nov 2021 16:38:12 +0000 (UTC)
+X-IronPort-AV: E=McAfee;i="6200,9189,10172"; a="215158501"
+X-IronPort-AV: E=Sophos;i="5.87,248,1631602800"; d="scan'208";a="215158501"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+ by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 19 Nov 2021 08:38:11 -0800
+X-IronPort-AV: E=Sophos;i="5.87,248,1631602800"; d="scan'208";a="537156505"
 Received: from smile.fi.intel.com ([10.237.72.184])
- by fmsmga006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 19 Nov 2021 08:35:35 -0800
+ by orsmga001-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 19 Nov 2021 08:38:02 -0800
 Received: from andy by smile.fi.intel.com with local (Exim 4.95)
  (envelope-from <andriy.shevchenko@linux.intel.com>)
- id 1mo6rG-008arp-NU; Fri, 19 Nov 2021 18:35:26 +0200
-Date: Fri, 19 Nov 2021 18:35:26 +0200
+ id 1mo6te-008atg-H8; Fri, 19 Nov 2021 18:37:54 +0200
+Date: Fri, 19 Nov 2021 18:37:54 +0200
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: "Alejandro Colomar (man-pages)" <alx.manpages@gmail.com>
 Subject: Re: [PATCH 00/17] Add memberof(), split some headers, and slightly
  simplify code
-Message-ID: <YZfSTrbAr3d2xORr@smile.fi.intel.com>
+Message-ID: <YZfS4lCt8rMZ7UlS@smile.fi.intel.com>
 References: <20211119113644.1600-1-alx.manpages@gmail.com>
  <CAK8P3a0qT9tAxFkLN_vJYRcocDW2TcBq79WcYKZFyAG0udZx5Q@mail.gmail.com>
  <434296d3-8fe1-f1d2-ee9d-ea25d6c4e43e@gmail.com>
  <CAK8P3a2yVXw9gf8-BNvX_rzectNoiy0MqGKvBcXydiUSrc_fCA@mail.gmail.com>
- <YZfMXlqvG52ls2TE@smile.fi.intel.com>
- <CAK8P3a06CMzWVj2C3P5v0u8ZVPumXJKrq=TdjSq1NugmeT7-RQ@mail.gmail.com>
- <2d790206-124b-f850-895f-a57a74c55f79@gmail.com>
+ <f751fb48-d19c-88af-452e-680994a586b4@gmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <2d790206-124b-f850-895f-a57a74c55f79@gmail.com>
+In-Reply-To: <f751fb48-d19c-88af-452e-680994a586b4@gmail.com>
 Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Cc: Corey Minyard <cminyard@mvista.com>,
  Ajit Khaparde <ajit.khaparde@broadcom.com>,
@@ -120,48 +118,25 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Nov 19, 2021 at 05:22:48PM +0100, Alejandro Colomar (man-pages) wrote:
-> 
-> 
-> On 11/19/21 17:18, Arnd Bergmann wrote:
-> > On Fri, Nov 19, 2021 at 5:10 PM Andy Shevchenko
-> > <andriy.shevchenko@linux.intel.com> wrote:
-> >> On Fri, Nov 19, 2021 at 04:57:46PM +0100, Arnd Bergmann wrote:
-> > 
-> >>> The main problem with this approach is that as soon as you start
-> >>> actually reducing the unneeded indirect includes, you end up with
-> >>> countless .c files that no longer build because they are missing a
-> >>> direct include for something that was always included somewhere
-> >>> deep underneath, so I needed a second set of scripts to add
-> >>> direct includes to every .c file.
-> >>
-> >> Can't it be done with cocci support?
-> > 
-> > There are many ways of doing it, but they all tend to suffer from the
-> > problem of identifying which headers are actually needed based on
-> > the contents of a file, and also figuring out where to put the extra
-> > #include if there are complex #ifdefs.
-> > 
-> > For reference, see below for the naive pattern matching I tried.
-> > This is obviously incomplete and partially wrong.
-> 
-> FYI, if you may not know the tool,
-> theres include-what-you-use(1) (a.k.a. iwyu(1))[1],
-> although it is still not mature,
-> and I'm helping improve it a bit.
+On Fri, Nov 19, 2021 at 05:12:19PM +0100, Alejandro Colomar (man-pages) wrote:
+> On 11/19/21 16:57, Arnd Bergmann wrote:
 
-Yes, I know the tool, but it produces insanity. Jonathan (maintainer
-of IIO subsystem) actually found it useful after manual work applied.
-Perhaps you can chat with him about usage of it in the Linux kernel.
+...
 
-> If I understood better the kernel Makefiles,
-> I'd try it.
+> > On the plus side, I did see something on the order of a 30%
+> > compile speed improvement with clang, which is insane
+> > given that this only removed dead definitions.
 > 
-> You can try it yourselves.
-> I still can't use it for my own code,
-> since it has a lot of false positives.
+> Huh!
+> 
+> I'd like to see the kernel some day
+> not having _any_ hidden dependencies.
 
-> [1]: <https://include-what-you-use.org/>
+It's neither feasible nor practical. If we know the hard dependencies between
+headers, why should we not use implicit inclusion?
+
+We all know that bitmap.h includes bitops.h and this is good and a must, why
+to avoid this?
 
 -- 
 With Best Regards,
