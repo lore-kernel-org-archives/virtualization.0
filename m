@@ -2,71 +2,102 @@ Return-Path: <SRS0=gSim=QG=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 106CFC433F5
-	for <virtualization@archiver.kernel.org>; Fri, 19 Nov 2021 06:56:55 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0286C433F5
+	for <virtualization@archiver.kernel.org>; Fri, 19 Nov 2021 08:37:01 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AEA2261AA7
-	for <virtualization@archiver.kernel.org>; Fri, 19 Nov 2021 06:56:54 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org AEA2261AA7
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lst.de
+	by mail.kernel.org (Postfix) with ESMTPS id 7BB5561AED
+	for <virtualization@archiver.kernel.org>; Fri, 19 Nov 2021 08:37:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.4.1 mail.kernel.org 7BB5561AED
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 5EFD081CE1;
-	Fri, 19 Nov 2021 06:56:54 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3735061BDE;
+	Fri, 19 Nov 2021 08:37:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id B1YJbC5xU1vS; Fri, 19 Nov 2021 06:56:53 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id bApSH-GwQJIL; Fri, 19 Nov 2021 08:37:00 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 043C481CD0;
-	Fri, 19 Nov 2021 06:56:53 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E984960A6E;
+	Fri, 19 Nov 2021 08:36:59 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D82E4C002E;
-	Fri, 19 Nov 2021 06:56:52 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A2AB3C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B23B8C001E;
+	Fri, 19 Nov 2021 08:36:59 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B0953C0012
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Nov 2021 06:56:51 +0000 (UTC)
+ Fri, 19 Nov 2021 08:36:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 7F9BF4096F
+ by smtp2.osuosl.org (Postfix) with ESMTP id 882A9404C4
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Nov 2021 06:56:51 +0000 (UTC)
+ Fri, 19 Nov 2021 08:36:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9fY_gfEW6J2I
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=suse.de header.b="JRNnkaQG";
+ dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
+ header.d=suse.de header.b="/XMlDqKR"
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ipMtIKEV4NbP
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Nov 2021 06:56:50 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
-Received: from verein.lst.de (verein.lst.de [213.95.11.211])
- by smtp4.osuosl.org (Postfix) with ESMTPS id B276E4095F
+ Fri, 19 Nov 2021 08:36:56 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 6E7AE400DF
  for <virtualization@lists.linux-foundation.org>;
- Fri, 19 Nov 2021 06:56:50 +0000 (UTC)
-Received: by verein.lst.de (Postfix, from userid 2407)
- id F18E168AFE; Fri, 19 Nov 2021 07:56:45 +0100 (CET)
-Date: Fri, 19 Nov 2021 07:56:45 +0100
-From: Christoph Hellwig <hch@lst.de>
-To: Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [PATCH 01/29] nvdimm/pmem: move dax_attribute_group from dax
- to pmem
-Message-ID: <20211119065645.GB15524@lst.de>
-References: <20211109083309.584081-1-hch@lst.de>
- <20211109083309.584081-2-hch@lst.de>
- <CAPcyv4ijKTcABMs2tZEuPWo1WDOux+4XWN=DNF5v8SrQRSbfDg@mail.gmail.com>
+ Fri, 19 Nov 2021 08:36:56 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id 9C6FD1FD39;
+ Fri, 19 Nov 2021 08:36:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1637311013; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=ks9COcNFxKQzgqXBap70A20Sb9cIEMl/0mhoBpeYJoo=;
+ b=JRNnkaQGN5QYi0vFk1Ex6ce2Dkdg3gwiEMIlHJwoDzJUtisX9oYdNI9KqJ14TrUbdvgKSv
+ kwjsN76l49WoRyTAOmyoBy84x0cNI1dVX4HwnbVMisoY0dbfYeqoXKwOwQD+bU/rw+Vtsy
+ 0fyDO2jQcA/SbTKpZB9QR4d+vEN83sI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1637311013;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=ks9COcNFxKQzgqXBap70A20Sb9cIEMl/0mhoBpeYJoo=;
+ b=/XMlDqKR6OdLGXBTh+U2C1baAjQSEVpEoFuGEcdQ/aFa/BnAI2CMphO28C/mJDT4XjkAEo
+ yiICY0cb4vwwTQAQ==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 105D813DD5;
+ Fri, 19 Nov 2021 08:36:53 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id K3v8ASVil2ESXgAAMHmgww
+ (envelope-from <jroedel@suse.de>); Fri, 19 Nov 2021 08:36:53 +0000
+Date: Fri, 19 Nov 2021 09:36:51 +0100
+From: Joerg Roedel <jroedel@suse.de>
+To: Michael Sterritt <sterritt@google.com>
+Subject: Re: [PATCH] Fix SEV-ES INS/OUTS instructions for word, dword, and
+ qword.
+Message-ID: <YZdiI8N4+6Xt5b++@suse.de>
+References: <20211118021326.4134850-1-sterritt@google.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <CAPcyv4ijKTcABMs2tZEuPWo1WDOux+4XWN=DNF5v8SrQRSbfDg@mail.gmail.com>
-User-Agent: Mutt/1.5.17 (2007-11-01)
-Cc: Linux NVDIMM <nvdimm@lists.linux.dev>, Mike Snitzer <snitzer@redhat.com>,
- linux-s390 <linux-s390@vger.kernel.org>, linux-erofs@lists.ozlabs.org,
- virtualization@lists.linux-foundation.org,
- linux-xfs <linux-xfs@vger.kernel.org>,
- device-mapper development <dm-devel@redhat.com>,
- linux-fsdevel <linux-fsdevel@vger.kernel.org>,
- linux-ext4 <linux-ext4@vger.kernel.org>, Ira Weiny <ira.weiny@intel.com>,
- Christoph Hellwig <hch@lst.de>
+In-Reply-To: <20211118021326.4134850-1-sterritt@google.com>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>, x86@kernel.org, kvm@vger.kernel.org,
+ Peter Zijlstra <peterz@infradead.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, marcorr@google.com,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ linux-coco@lists.linux.dev, pgonda@google.com,
+ "H. Peter Anvin" <hpa@zytor.com>, Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -78,38 +109,45 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Nov 17, 2021 at 09:44:25AM -0800, Dan Williams wrote:
-> On Tue, Nov 9, 2021 at 12:33 AM Christoph Hellwig <hch@lst.de> wrote:
-> >
-> > dax_attribute_group is only used by the pmem driver, and can avoid the
-> > completely pointless lookup by the disk name if moved there.  This
-> > leaves just a single caller of dax_get_by_host, so move dax_get_by_host
-> > into the same ifdef block as that caller.
-> >
-> > Signed-off-by: Christoph Hellwig <hch@lst.de>
-> > Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-> > Link: https://lore.kernel.org/r/20210922173431.2454024-3-hch@lst.de
-> > Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-> 
-> This one already made v5.16-rc1.
+Hi Michael,
 
-Yes, but 5.16-rc1 did not exist yet when I pointed the series.
+On Wed, Nov 17, 2021 at 06:13:26PM -0800, Michael Sterritt wrote:
+> Properly type the operands being passed to __put_user()/__get_user().
+> Otherwise, these routines truncate data for dependent instructions
+> (e.g., INSW) and only read/write one byte.
+> =
 
-Note that the series also has a conflict against 5.16-rc1 in pmem.c,
-and buildbot pointed out the file systems need explicit dax.h
-includes in a few files for some configurations.
+> Tested: Tested by sending a string with `REP OUTSW` to a port and then
+> reading it back in with `REP INSW` on the same port. Previous behavior
+> was to only send and receive the first char of the size. For example,
+> word operations for "abcd" would only read/write "ac". With change, the
+> full string is now written and read back.
 
-The current branch is here, I just did not bother to repost without
-any comments:
+Thanks for fixing this! When you re-send, please change the subject to
 
-   http://git.infradead.org/users/hch/misc.git/shortlog/refs/heads/dax-block-cleanup
+	x86/sev-es: Fix SEV-ES INS/OUTS instructions for word, dword, and qword
 
-no functional changes.
+Regards,
+
+-- =
+
+J=F6rg R=F6del
+jroedel@suse.de
+
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5
+90409 N=FCrnberg
+Germany
+ =
+
+(HRB 36809, AG N=FCrnberg)
+Gesch=E4ftsf=FChrer: Ivo Totev
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
