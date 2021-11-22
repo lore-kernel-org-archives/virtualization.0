@@ -4,122 +4,145 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 08314C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 22 Nov 2021 14:24:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DD562C433EF
+	for <virtualization@archiver.kernel.org>; Mon, 22 Nov 2021 15:56:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 67D4780DF0;
-	Mon, 22 Nov 2021 14:24:47 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 722678100C;
+	Mon, 22 Nov 2021 15:56:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
 	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Bmj9e30ht09E; Mon, 22 Nov 2021 14:24:46 +0000 (UTC)
+	with ESMTP id ohNFXtaNAXwM; Mon, 22 Nov 2021 15:56:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id D924180DE1;
-	Mon, 22 Nov 2021 14:24:45 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 2E2638104C;
+	Mon, 22 Nov 2021 15:56:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9A9C0C002E;
-	Mon, 22 Nov 2021 14:24:45 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F3BECC001E;
+	Mon, 22 Nov 2021 15:56:30 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F3CEEC0012
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AD8D4C0012
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Nov 2021 14:24:43 +0000 (UTC)
+ Mon, 22 Nov 2021 15:56:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E238580DE3
+ by smtp1.osuosl.org (Postfix) with ESMTP id 9B43B8104C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Nov 2021 14:24:43 +0000 (UTC)
+ Mon, 22 Nov 2021 15:56:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id mhV9APHtvtOD
+ with ESMTP id d_D5x2y4Gy6b
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Nov 2021 14:24:43 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
- [148.163.158.5])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 02D2980DE1
+ Mon, 22 Nov 2021 15:56:28 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from NAM04-MW2-obe.outbound.protection.outlook.com
+ (mail-mw2nam08on2064.outbound.protection.outlook.com [40.107.101.64])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id B420D8100C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Nov 2021 14:24:42 +0000 (UTC)
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
- by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1AMDqOQJ030848; 
- Mon, 22 Nov 2021 14:24:40 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
- h=date : from : to : cc :
- subject : message-id : in-reply-to : references : mime-version :
- content-type : content-transfer-encoding; s=pp1;
- bh=kiHfvmznB+MewPOaXImBWXvixAZkbmkFRSdb7g/Ixzk=;
- b=ayAL8zUuHmybP318bj5CUQ/R/x4Rrb1ANgo5eFQRW+3eKH6cJh5rAB4a24Lf1j4iP+BA
- dVDkqclSHk8Nyq7PC/ph811jSWDR9h8xKmaxEsazrGCzf2Hl3OldK1S6HQeZ/yYkTiNq
- ShTaeB4k15hrwEO2BeEg70wO441CwS7DLw+eDKAQzVv1m4zW3SfyJKtq9f1o5mwpvlbg
- Idps+BJqwkrSY9wOkP/9uylz0opSw04UBlEJqu5nLFRx/lYrdqV/1RB86P8ZFjBxQb1i
- I8B63J+0aMsCr4hV0q1BbPewmt4rQ2twNtruVOG6ah3hpOTRffekPNsMfWCU94bWUxV3 Bg== 
-Received: from pps.reinject (localhost [127.0.0.1])
- by mx0b-001b2d01.pphosted.com with ESMTP id 3cgcfngpfa-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Mon, 22 Nov 2021 14:24:39 +0000
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
- by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1AMEIYuV018430;
- Mon, 22 Nov 2021 14:24:39 GMT
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com
- [169.51.49.98])
- by mx0b-001b2d01.pphosted.com with ESMTP id 3cgcfngpex-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Mon, 22 Nov 2021 14:24:39 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
- by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1AMEErG0015551;
- Mon, 22 Nov 2021 14:24:37 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com
- (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
- by ppma03ams.nl.ibm.com with ESMTP id 3cern9q8pf-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Mon, 22 Nov 2021 14:24:37 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com
- [9.149.105.232])
- by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
- 1AMEOZAT63504860
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 22 Nov 2021 14:24:35 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 6D1D75208E;
- Mon, 22 Nov 2021 14:24:35 +0000 (GMT)
-Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.37.164])
- by d06av21.portsmouth.uk.ibm.com (Postfix) with SMTP id E0E895208A;
- Mon, 22 Nov 2021 14:24:34 +0000 (GMT)
-Date: Mon, 22 Nov 2021 15:24:32 +0100
-From: Halil Pasic <pasic@linux.ibm.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH V5 1/4] virtio_ring: validate used buffer length
-Message-ID: <20211122152432.23a70a12.pasic@linux.ibm.com>
-In-Reply-To: <20211122110822.3xqcdluezrcapkyp@steredhat>
-References: <20211027022107.14357-1-jasowang@redhat.com>
- <20211027022107.14357-2-jasowang@redhat.com>
- <20211119160951.5f2294c8.pasic@linux.ibm.com>
- <CACGkMEtja2TPC=ujgMrpaPmdsy+zHowbBTvPj8k7nm_+zB8vig@mail.gmail.com>
- <20211122063518.37929c01.pasic@linux.ibm.com>
- <20211122064922.51b3678e.pasic@linux.ibm.com>
- <CACGkMEu+9FvMsghyi55Ee5BxetP-YK9wh2oaT8OgLiY5+tV0QQ@mail.gmail.com>
- <20211122075524.lzojug4hspzglzhl@steredhat>
- <20211122110822.3xqcdluezrcapkyp@steredhat>
-Organization: IBM
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+ Mon, 22 Nov 2021 15:56:28 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=TMxIsL74bwZmN6Valuz5brLXzFj6feL8Wlu2q2sSbWd2x6dRQvGW595iuGzFMT53hOoDH1xjKk8GPcW+RQDMRGZhMCrsiq5soQCPXl606GdAX7hKy7UTM28pDz/OOx+JnTX0Kv4iwmbcZgzJ7k8stSUDTi35iV2D6bLy9ScPtG/KM7DFPBRbUPWoLisvNkObBicFowkcjNEZMMhLC/DTirIHgF+WYRdZ7/G9wcg/tZEqTTWgF//St+47SzkfmuTvwUaP8sm9kw+O/oUUgYklAVQkw89qDi1PhiIsmrLM7pkbsGUsgT6K/OHUcI/ds7i69SpTo9aTN6vLChhAubQaRw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=hxq1JkPf4ogcyOT6QB2G4m9aa3raf0yIZL9iAvY788M=;
+ b=jxoCncwcl7Jf3HSoUf5BzVlD3ihof5G0yx11yMXXPemFWs2kmbmudEPw61sTL8M7kWXuzWTpqu2m9Ikh/isLtfJHteG7w1K8zLI/iH28h/AIyGi8ZEbEYQEEJW9yvMBRuFeeA1JCzWtfqJRFWHUf/Gfp5J/nO3H2Z6Zvu6/HA53N7qi7rkz8X5LlgoYEqnV1EMHoy8SEbcDYYAwEZrQXJWm4taLzlGDQ1u4kASWhn4XH5nxZ+BXpO7icheAFNsnrYlbuBREQ8DR3vsstLdEIxgFjJnynp3bF6APB7MvT1D0ot82jYsb9z2T+28+eg5wulizw741DhqSl6Wcpk7zd5A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=hxq1JkPf4ogcyOT6QB2G4m9aa3raf0yIZL9iAvY788M=;
+ b=Od7bBlz8vTkts/2tc2Th89mG0g2YkS9mae1XYRWoZNbw3NLjxf+SpX3EQW355Sq/zUFR+wGHAq0Lo11IFBFWlQHKxVZResgqhbyazD9XDtFJJMkaCGQQCrAh3xMy1p2f1F/flboA2o0HH21VoaDg4K71VJLlbvFmgDUMgTXHrqR6oRHZOx++fgd0OuldKY4PKFCJuledf7KW1BaiVgSHMvR7BflfXR0WEocotdkO+6um+oDMP8G1hqpR+OdEGOlu1H+rdF3e8+tRm+9+b0l9wOu9HFtxVMU0FgjKX4tEJqHX6EWeAwWUnuBU0IQf/UTRcy0+OuuRtyl66iWUpVftaw==
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
+ by PH0PR12MB5419.namprd12.prod.outlook.com (2603:10b6:510:e9::24)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.22; Mon, 22 Nov
+ 2021 15:56:26 +0000
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::5515:f45e:56f5:b35a]) by PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::5515:f45e:56f5:b35a%3]) with mapi id 15.20.4713.022; Mon, 22 Nov 2021
+ 15:56:26 +0000
+To: Eli Cohen <elic@nvidia.com>
+Subject: RE: [PATCH 1/2] vdpa: Add support for querying statistics
+Thread-Topic: [PATCH 1/2] vdpa: Add support for querying statistics
+Thread-Index: AQHX3EFM7M5U7I8roEu6kosjxQg7cKwKJX8AgAAE5hCABK7YAIAAWxmAgAADHQCAABDpgIAABq2AgAALlDCAAFIXAIAADOmA
+Date: Mon, 22 Nov 2021 15:56:26 +0000
+Message-ID: <PH0PR12MB548193CA4DE7965673AAC3F7DC9F9@PH0PR12MB5481.namprd12.prod.outlook.com>
+References: <20211118055741.239639-1-elic@nvidia.com>
+ <20211118055741.239639-2-elic@nvidia.com>
+ <CACGkMEsDHKCTSHtLBp3Pr0wntgYzsSBNjCNjQjGkmk2iap80rg@mail.gmail.com>
+ <PH0PR12MB548187F4DE8C789908839F9DDC9C9@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <CACGkMEssVx-quDa+c7wYAyB6a3j88EBAYTW+y8e_FcxW2mA1nQ@mail.gmail.com>
+ <20211122075615.GB74340@mtl-vdi-166.wap.labs.mlnx>
+ <CACGkMEs0mCKV4iF=O7Psxip38tL5iiu92Kzj_LqLgTqXV-M+NA@mail.gmail.com>
+ <20211122090755.GA75489@mtl-vdi-166.wap.labs.mlnx>
+ <CACGkMEtMB78O7K5E+dV6M7_K3U1fOV_8Q7pArD05THVWszjZKg@mail.gmail.com>
+ <PH0PR12MB548147E2266D0A8D7B1951F1DC9F9@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <20211122150704.GA88466@mtl-vdi-166.wap.labs.mlnx>
+In-Reply-To: <20211122150704.GA88466@mtl-vdi-166.wap.labs.mlnx>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 6296f16d-5aec-4705-087b-08d9add0a3f2
+x-ms-traffictypediagnostic: PH0PR12MB5419:
+x-microsoft-antispam-prvs: <PH0PR12MB5419B1493FC865D1CA59A035DC9F9@PH0PR12MB5419.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:10000;
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: IkNpebOMFfeAcMNIHMuPYqKFhN/aKMi45ULxaJa8pfcaYLT1Uk3M//Fc1qk3hacByeE5LuEzNqHZ2UyjO1kVgI5aHqywmDL+A+GL9aVB+UYBrkI3e/5WiRm8cttynOrsSfEahYg0Ei8reKCWIeO3KTv7z+lQELQSqVPrDpdTE7Ef6oe16lIgc09SKUdKDAGPThKMJol08STE/J2NCpSlw7AAKFGolWS+HiHV4OihI8uaozyPnachfBl5LNsTdzGHpIEE8gD8Yw7Z6mRMB7b2ccsTJe+XvIPxGhNnTKOy46sRRk2XcdOEOxF+73prkKRxHSWbeocN7E3hsx6VH1KdUC96afBE926D5MbI4q3Wy47c7oUqFkGqgoZE1F+8KwwS5DWl4xO+bx0TZU33fB2/awN67KVXok3QQGV6ug14oVRHB0V83/4rAPov/TWARz+NQGe2VjuxgWUgQVoUbjXqa1RN6NPgog9mfHZeNCVA4vOv7VQhFAjJ8YsG5bHcSr7hHI6EzX/j3pa6xDcdEO/pxBskFDtx3GwnCG65dFrdfgntwVoX1sH17mU6p8IaCJibHyt0ojIbx8oFG4vbBmqX3SS3/GEvFny42vV4X7AHqcdtB3uAQB8WaP5aPExJ8eAIii109qMl5ZdAOcFoJE5wZA/e7CorrhcW4q6vEbjbW3TxrKBMnsG9Yo47tcVnLztH8UCZQT9RYXJGtKmgZgFcjQ==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(4636009)(366004)(8676002)(7696005)(71200400001)(8936002)(6506007)(55236004)(186003)(86362001)(52536014)(26005)(508600001)(38070700005)(5660300002)(6636002)(38100700002)(66476007)(4326008)(66946007)(76116006)(64756008)(66446008)(122000001)(66556008)(6862004)(54906003)(9686003)(33656002)(55016002)(2906002)(316002);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?JdQrXJzWOYWOSP7PVnAC1jvzo6Qo2L2et4J7ECLE/OW6CNNnX3Fsv7CWy0Um?=
+ =?us-ascii?Q?kPUHCunb/75GdfJiGEO+qehhqUEmRmBdSCROWMKYZ1aOm8hfbzdHKV80DfoW?=
+ =?us-ascii?Q?rf2uzNSIht3j9/3/7j3UL11qZJIZ/xvxeE9vbTskMeTgbA9Ww1ynYWSxlZ4N?=
+ =?us-ascii?Q?k68om79m25Jx47n4ok2B9CAoD6nD8XZS85r9QN4CP3hA/qMAgDO332xCsCsB?=
+ =?us-ascii?Q?JhlnziNW/0P4mwxbNKziXKwf8GQSmI12ST8KymevlaOjM3c4lQdZCqWFdzcm?=
+ =?us-ascii?Q?ogeBax3JRnNj0AJL04YlshrjrcFCI0icW1JDYKUU5/pHbtUuxR4vsdiOxqRU?=
+ =?us-ascii?Q?+gJGN5T7jfoSmb2RhMyh5vxC5FoVDcO76siwRjGkY4Hse1NSHRItFJkaHaMF?=
+ =?us-ascii?Q?7pd6XQmiMCAhaLF1JgGGkM7NZTGyiYNc8W5OMNKuASuFCJBe7EDDmzroaUs1?=
+ =?us-ascii?Q?L98384ELQO3Ee7pKxhjl3vOjI5PwI2UD16FV5munD2qRoe86ahCfVCwrqW3h?=
+ =?us-ascii?Q?f0L7lNdSoWsIngeO5NCdbfnAzIyrnlUt7hDf/KXyTju8laZfMJU2cZUe/Hey?=
+ =?us-ascii?Q?IFf55p5l2Qb3P/PXLPcjFzjIlOr7duAXmQcgY9cVNkJ6J1/WeoYKQD+5k9fb?=
+ =?us-ascii?Q?/dTgXjALAZsHcYI9eV4tUqWxoVsgUiNPSQhDspnX4Q/fQ7XIk1JyE43BwGOF?=
+ =?us-ascii?Q?FXVMyYRXi9vPyAy+b5GEvW8V+XeVWm1D211jvUjE2ZIEyaNOm4LO592QU6gV?=
+ =?us-ascii?Q?UAQjwr5GRkAtvFygokWkCGWr/I9cn0efEuocjdLwjqOBfbH3M/yiY++3PTNV?=
+ =?us-ascii?Q?TclyZesyDdLF5ZGEipZknXPafRe/opkBJXU4CkIAnLKJG9Fy2ZRsjXc4Qt/m?=
+ =?us-ascii?Q?TlpEcudJ+7cu/hi8tjqpCBkCNEDThJ7+Is6zDx0Ep+QtQb4PSr6kJfA+PLPk?=
+ =?us-ascii?Q?zQwbCNfML5ZmcPgbmeRtoyISi9jAfrY8yzTXwsJIkXBK9HoVQCwKNmBKBpuS?=
+ =?us-ascii?Q?vmLYhMmh5c7yf/HjT/0Wew9v5Mxa7fwsTAIs57ZTOoU18Un7DWUTPgSeCNrv?=
+ =?us-ascii?Q?AN1/1nIwQdYMM0dcVleC9p0r6k1uu9jIX6iUZVrOFJYMwjFrZDLPL0uVmE7N?=
+ =?us-ascii?Q?6wWOsg8FMk/7GYvvns+zlj9fgMPQKypa3lrCBzblKqcD9F6jrZM3Otjfvr/7?=
+ =?us-ascii?Q?zanS8/dE5pLmsDr5fipv+Tb0DB9DEBveTsKB/sQ6iUmLyncaKZF99lf63Svk?=
+ =?us-ascii?Q?GLe7ffXOmaipq2tTszK7DhEF9NJjveK6Q09AZcoLO62TpeK+A3XA7ctT+9wQ?=
+ =?us-ascii?Q?Y7BH3hG5+LiduUJIV/Sv3smDduwJ2+vqL0ti3Hp92snlmewg/mP/I95Ltecl?=
+ =?us-ascii?Q?1jz1f0EYNB620SjF0IbAHouDs7oVKwTzelImLhVChf2DFEu3CI+WfKlIaS/a?=
+ =?us-ascii?Q?PMmjm5p2zcnTDZDRp1l+FZjzmuoQvz2bkeGTG9uWZqjUDTFuCCb2zHicNGVs?=
+ =?us-ascii?Q?8A39/iwTqQIh260HNBjahoQmla2nzu6+mMfZ265fYK/CkQ7QmKVhUz8l83Y1?=
+ =?us-ascii?Q?oh6eR5+8OyvIkVn4xVC6xKcxerr7s3v3PpomAWLfG/ig3D+5Q7e1Yz4Bxxau?=
+ =?us-ascii?Q?Z/FNx8svhtwO4Ad+KiZV5dU=3D?=
 MIME-Version: 1.0
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: xkVgc1HaxBlsn9QQlswKhDBbxeKwhMNb
-X-Proofpoint-ORIG-GUID: MK1Sk8W_6val3gSS3__ai93gjTpVd4uc
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.0.607.475
- definitions=2021-11-22_07,2021-11-22_02,2020-04-07_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0
- priorityscore=1501 phishscore=0 adultscore=0 spamscore=0 impostorscore=0
- clxscore=1015 mlxlogscore=999 bulkscore=0 malwarescore=0 mlxscore=0
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2111220075
-Cc: "kaplan, david" <david.kaplan@amd.com>, mst <mst@redhat.com>, "Hetzelt,
- Felicitas" <f.hetzelt@tu-berlin.de>,
- linux-kernel <linux-kernel@vger.kernel.org>,
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6296f16d-5aec-4705-087b-08d9add0a3f2
+X-MS-Exchange-CrossTenant-originalarrivaltime: 22 Nov 2021 15:56:26.4488 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 6pUMMeC2VTpybvxFfWko9oUmCVONw8JmPT6s73y7jZcPfSJWJGxmEGptJ53WF0eOeEmXbHsCVMgWAvDQGvY89g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB5419
+Cc: Laurent Vivier <lvivier@redhat.com>, mst <mst@redhat.com>,
  virtualization <virtualization@lists.linux-foundation.org>,
- Halil Pasic <pasic@linux.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+ eperezma <eperezma@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,158 +154,55 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Parav Pandit via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, 22 Nov 2021 12:08:22 +0100
-Stefano Garzarella <sgarzare@redhat.com> wrote:
 
-> On Mon, Nov 22, 2021 at 08:55:24AM +0100, Stefano Garzarella wrote:
-> >On Mon, Nov 22, 2021 at 02:25:26PM +0800, Jason Wang wrote:  
-> >>On Mon, Nov 22, 2021 at 1:49 PM Halil Pasic <pasic@linux.ibm.com> wrote:  
-> >>>
-> >>>On Mon, 22 Nov 2021 06:35:18 +0100
-> >>>Halil Pasic <pasic@linux.ibm.com> wrote:
-> >>>  
-> >>>> > I think it should be a common issue, looking at
-> >>>> > vhost_vsock_handle_tx_kick(), it did:
-> >>>> >
-> >>>> > len += sizeof(pkt->hdr);
-> >>>> > vhost_add_used(vq, head, len);
-> >>>> >
-> >>>> > which looks like a violation of the spec since it's TX.  
-> >>>>
-> >>>> I'm not sure the lines above look like a violation of the spec. If you
-> >>>> examine vhost_vsock_alloc_pkt() I believe that you will agree that:
-> >>>> len == pkt->len == pkt->hdr.len
-> >>>> which makes sense since according to the spec both tx and rx messages
-> >>>> are hdr+payload. And I believe hdr.len is the size of the payload,
-> >>>> although that does not seem to be properly documented by the spec.  
-> >>
-> >>Sorry for being unclear, what I meant is that we probably should use
-> >>zero here. TX doesn't use in buffer actually.
-> >>
-> >>According to the spec, 0 should be the used length:
-> >>
-> >>"and len the total of bytes written into the buffer."
-> >>  
-> >>>>
-> >>>> On the other hand tx messages are stated to be device read-only (in the
-> >>>> spec) so if the device writes stuff, that is certainly wrong.
-> >>>>  
-> >>
-> >>Yes.
-> >>  
-> >>>> If that is what happens.
-> >>>>
-> >>>> Looking at virtqueue_get_buf_ctx_split() I'm not sure that is what
-> >>>> happens. My hypothesis is that we just a last descriptor is an 'in'
-> >>>> type descriptor (i.e. a device writable one). For tx that assumption
-> >>>> would be wrong.
-> >>>>
-> >>>> I will have another look at this today and send a fix patch if my
-> >>>> suspicion is confirmed.  
-> >>>
-> >>>If my suspicion is right something like:
-> >>>
-> >>>diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> >>>index 00f64f2f8b72..efb57898920b 100644
-> >>>--- a/drivers/virtio/virtio_ring.c
-> >>>+++ b/drivers/virtio/virtio_ring.c
-> >>>@@ -764,6 +764,7 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
-> >>>        struct vring_virtqueue *vq = to_vvq(_vq);
-> >>>        void *ret;
-> >>>        unsigned int i;
-> >>>+       bool has_in;
-> >>>        u16 last_used;
-> >>>
-> >>>        START_USE(vq);
-> >>>@@ -787,6 +788,9 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
-> >>>                        vq->split.vring.used->ring[last_used].id);
-> >>>        *len = virtio32_to_cpu(_vq->vdev,
-> >>>                        vq->split.vring.used->ring[last_used].len);
-> >>>+       has_in = virtio16_to_cpu(_vq->vdev,
-> >>>+                       vq->split.vring.used->ring[last_used].flags)
-> >>>+                               & VRING_DESC_F_WRITE;  
-> >>
-> >>Did you mean vring.desc actually? If yes, it's better not depend on
-> >>the descriptor ring which can be modified by the device. We've stored
-> >>the flags in desc_extra[].
-> >>  
-> >>>
-> >>>        if (unlikely(i >= vq->split.vring.num)) {
-> >>>                BAD_RING(vq, "id %u out of range\n", i);
-> >>>@@ -796,7 +800,7 @@ static void *virtqueue_get_buf_ctx_split(struct virtqueue *_vq,
-> >>>                BAD_RING(vq, "id %u is not a head!\n", i);
-> >>>                return NULL;
-> >>>        }
-> >>>-       if (vq->buflen && unlikely(*len > vq->buflen[i])) {
-> >>>+       if (has_in && q->buflen && unlikely(*len > vq->buflen[i])) {
-> >>>                BAD_RING(vq, "used len %d is larger than in buflen %u\n",
-> >>>                        *len, vq->buflen[i]);
-> >>>                return NULL;
-> >>>
-> >>>would fix the problem for split. I will try that out and let you know
-> >>>later.  
-> >>
-> >>I'm not sure I get this, in virtqueue_add_split, the buflen[i] only
-> >>contains the in buffer length.
-> >>
-> >>I think the fixes are:
-> >>
-> >>1) fixing the vhost vsock  
+
+> From: Eli Cohen <elic@nvidia.com>
+> Sent: Monday, November 22, 2021 8:37 PM
+> 
+> On Mon, Nov 22, 2021 at 12:15:36PM +0200, Parav Pandit wrote:
 > >
-> >Yep, in vhost_vsock_handle_tx_kick() we should have vhost_add_used(vq, 
-> >head, 0) since the device doesn't write anything.
-> >  
-> >>2) use suppress_used_validation=true to let vsock driver to validate
-> >>the in buffer length
-> >>3) probably a new feature so the driver can only enable the validation
-> >>when the feature is enabled.  
 > >
-> >I fully agree with these steps.  
+> > > From: Jason Wang <jasowang@redhat.com>
+> > > Sent: Monday, November 22, 2021 3:02 PM
+> > >
+> > > > If we go with vendor stats, how can we communicate the information
+> > > > to userspace? Currenlty we use netlink attributes defined to pass
+> > > > this information.
+> > >
+> > > It can be done exactly as what have been done in the patch, we can
+> > > document it as vendor stats.
+> > >
+> > Yes, attribute to have VENDOR_ prefix in it.
+> > >
+> > > Ok, I think I get you. So I wonder if it's more useful to use device
+> > > specific counters. For networking, it could be packets send/received etc.
+> >
+> > Yes, I equally discussed this previously with Eli as its more meaningful for end
+> users.
+> > We just return the device id of it along with queue number that helps to show
+> tx and rx.
+> > For ctrl q, it is just ctrl commands and ctrl completions.
 > 
-> Michael sent a patch to suppress the validation, so I think we should 
-> just fix vhost-vsock. I mean something like this:
+> I don't think we should mix send/receive packets for descriptors statistics. The
+> hardware could process a descriptor and still not transmit any packet.
 > 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index 938aefbc75ec..4e3b95af7ee4 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -554,7 +554,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
->                          virtio_transport_free_pkt(pkt);
+> We can add packets send/recv but descriptor statistics have their own value.
 > 
->                  len += sizeof(pkt->hdr);
-> -               vhost_add_used(vq, head, len);
-> +               vhost_add_used(vq, head, 0);
->                  total_len += len;
->                  added = true;
->          } while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
-> 
-> I checked and the problem is there from the first commit, so we should 
-> add:
-> 
-> Fixes: 433fc58e6bf2 ("VSOCK: Introduce vhost_vsock.ko")
-> 
-> I tested this patch and it works even without suppressing validation in 
-> the virtio core.  But for backwards compatibility we have to suppress it 
-> for sure as Michael did.
-> 
-> Maybe we can have a patch just with this change to backport it easily 
-> and one after to clean up a bit the code that was added after (len, 
-> total_len).
-> 
-> @Halil Let me know if you want to do it, otherwise I can do it.
-> 
+Oh right. I read Jason's comment of _packets_ to fast. I meant to say send/receive descriptors.
+I guess you already named them as tx and rx. Didn't review the patches in this series yet.
 
-It is fine, it was you guys who figured out the solution so I think
-it should either be Jason or you who take credit for the patch. Thanks
-for addressing the issue this quickly!
+> To summarize, I can add the VENDOR_ preifx to the attibutes and re-send or is
+> there anything else you think should change?
+VENDOR_ prefix and command as iproute2 command as "vstats" looks fine to me.
 
-Regards,
-Halil
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
