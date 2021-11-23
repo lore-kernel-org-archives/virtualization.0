@@ -1,83 +1,84 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2FF58C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 21:17:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 82063C433F5
+	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 21:22:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id BA3EE4056E;
-	Tue, 23 Nov 2021 21:17:12 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id B0F13400BF;
+	Tue, 23 Nov 2021 21:22:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id tKOEjeIFBiJz; Tue, 23 Nov 2021 21:17:12 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id uAwv0Hk9xlRu; Tue, 23 Nov 2021 21:22:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 764CB40273;
-	Tue, 23 Nov 2021 21:17:11 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 263CC40374;
+	Tue, 23 Nov 2021 21:22:28 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 495A1C002E;
-	Tue, 23 Nov 2021 21:17:11 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0FE0AC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 01EF0C002E;
+	Tue, 23 Nov 2021 21:22:28 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9EB4FC0012
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 21:17:10 +0000 (UTC)
+ Tue, 23 Nov 2021 21:22:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id F2935817A8
+ by smtp4.osuosl.org (Postfix) with ESMTP id 790BF40221
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 21:17:09 +0000 (UTC)
+ Tue, 23 Nov 2021 21:22:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=intel-com.20210112.gappssmtp.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JeBUUNrHegd6
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id j3Tz4R7NHvPS
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 21:17:09 +0000 (UTC)
+ Tue, 23 Nov 2021 21:22:25 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com
- [IPv6:2607:f8b0:4864:20::52f])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 792BC80D3B
+Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com
+ [IPv6:2607:f8b0:4864:20::433])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 50D0C401F5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 21:17:09 +0000 (UTC)
-Received: by mail-pg1-x52f.google.com with SMTP id p17so235289pgj.2
+ Tue, 23 Nov 2021 21:22:24 +0000 (UTC)
+Received: by mail-pf1-x433.google.com with SMTP id n26so567155pff.3
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 13:17:09 -0800 (PST)
+ Tue, 23 Nov 2021 13:22:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=intel-com.20210112.gappssmtp.com; s=20210112;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=PQeh1LIqbqFtSovgn5WZ7VLYBwfefd3KuHYAxcJ6bdE=;
- b=z/Kv5aF3II2Q1LX6Aazu4oeYGV1DsHDm6VPftSCm/GsXUqcvpUYlHGhNQfvcAEzM+t
- KHEErzvzy9AE7efI2veDZidjjq+fK6s2UJs7fEhnYmQiPFx9rvXEwel822roodlc/FcK
- DEv5SfZdo4Mf/qMs7Jb75ZFTHTDu0awILjq9sqTvXs+VIsFn7y/1XB/C+/lY4NwLFtHP
- cHAfa2a7eS26AcezybSCXTWBbxiGPri9iUr8Wx/IV+DiOD4YHSNiMvTZGqn4/3tFE8gU
- fEqZVpI1Dt83hXy63DNbfv4vosQWDr6RKn8ZmI1PKEqbMIgBEyzoH/HXIZQqJ3XqzuZq
- V9lQ==
+ :cc; bh=bLSToY/Rn4QaplrUteOdrUS7Uug3uZWr/TlOz9Y1nF0=;
+ b=b/hUI3hQLxDR2Xk9r7lQxFzBrg/2/5tGZW+JSVwNYrq8dmNWS3P9ynBIU8RZmfFHUI
+ Xgm0552sZFP2+qPF3soghwDd7XxX6FGNBFe395T6bvF+N1dr29Lop15wmWK8lt8m87yV
+ 9vAVuWAMC6kkIO1VclhYl3oilFONamQuNci0i1jGGdKo0v4NlKYSPdpcWln2MSBf1py8
+ eotcm4rw3pNPGNJSmy6HW2en9pvx0GUA8KH3ho166JTJ5FG5ph7IQpvk6v1nkInbqZW5
+ YGsf77VgzBkZO6x5IA8KcT5QTl5SnWc54c+GTeaTywwpW3otwTRaZbbIpfY5ylF9vOkP
+ iFPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=PQeh1LIqbqFtSovgn5WZ7VLYBwfefd3KuHYAxcJ6bdE=;
- b=xfXXgIW1VZ6FB3kTFsTqL3Dws+mU2aj3DDygJ9tPJDdd6EsBH0Lgqz77BKitgsVu0W
- MlYGwSI6HHSKtaU9DwLY2ExRr4M8TydoRVYXalGKCx9id6BsZN2Zwa6XB3pCJpDhbpwZ
- mCczr87aYjNEeNy3t1HwY14hH8MH8e5Y4aVvaHmrfQBjaSBLchj+StJJRBikjusYaDJt
- +Jq6avLdZtA6Sh9QqkVBeBRgTs0ULTfo9IDPNXRt8ghE+3T67Y8ZwuBuHBdCaZ8wOgSR
- fVqT0NECzWmUaEpzk52+z7BUjudt+URO/g5AU+p92v4QlWrCgAqcC5M/arfpU4G5uRRK
- NPaw==
-X-Gm-Message-State: AOAM530gHfRnE9kTdoGipPWGGnoOcT1hJgqCucYV9LO181c/iA1YqL2q
- 0Zk4EOiX/3S8bElIkJ99NIrHvibafBhC00lAOGBqQA==
-X-Google-Smtp-Source: ABdhPJxo6xmNJWXyaaVPBEUy4anrM6xGk5zJ5S54bOFTPTbJYWg88+GG8ODe3guk693xmG8x/Zkzy+Ul3gB1uuDCJIA=
-X-Received: by 2002:a63:5401:: with SMTP id i1mr6112849pgb.356.1637702228750; 
- Tue, 23 Nov 2021 13:17:08 -0800 (PST)
+ bh=bLSToY/Rn4QaplrUteOdrUS7Uug3uZWr/TlOz9Y1nF0=;
+ b=mA3TfHHZfOFJrPYOi2QtUTaAxKAtacWqMVTTsnXpd0YhS5EWuruLnHlO1rjEfOoSRM
+ hOTfO5umMwe03MeLIgAfVt/7eEl69dPMq4B90TYwu+TIj4/oG/i/r/vUMwNuV8B2Cn9B
+ osIifR9NBg+X0bdVKy85qHdvEMHAIe5rCsbLzuR4ohW1OYGNLG82om/YlkJLqKQot0nX
+ YrbFtThcQhQ35CQR4Wg8PuIXESwfqACwsvPSWiey1oXHLmKN6zamDrhX5gsLFQ52W7DV
+ mp+rnfFnZ4a9CGEGMy0TkcSRP0SSB60xyBQRObCRUGqQsUVHcir5qGfRnhGd0VaM6mo9
+ 4ffQ==
+X-Gm-Message-State: AOAM533Rf0bgsroJ5SREmQVVCcBSjCf9h4Pol0dPJGnuP1glRRd1vVLR
+ Bn7mV1j2osObEAdNbIn4hVFZnpB+H23CX+Ri1znRZQ==
+X-Google-Smtp-Source: ABdhPJynvi8g71RwjaWWgFjo9LaoTAJgYi1+7huNhjnlJVCNZL4JsPbOJLOogDISiszVaR5xm5B316tq/pqSlm2ohsA=
+X-Received: by 2002:a05:6a00:140e:b0:444:b077:51ef with SMTP id
+ l14-20020a056a00140e00b00444b07751efmr476612pfu.61.1637702544283; Tue, 23 Nov
+ 2021 13:22:24 -0800 (PST)
 MIME-Version: 1.0
 References: <20211109083309.584081-1-hch@lst.de>
- <20211109083309.584081-17-hch@lst.de>
-In-Reply-To: <20211109083309.584081-17-hch@lst.de>
+ <20211109083309.584081-18-hch@lst.de>
+In-Reply-To: <20211109083309.584081-18-hch@lst.de>
 From: Dan Williams <dan.j.williams@intel.com>
-Date: Tue, 23 Nov 2021 13:16:58 -0800
-Message-ID: <CAPcyv4jjvoT=aW+_Ks+8L60HG0ypesSi8A+a5F2JXu1dEWHVCw@mail.gmail.com>
-Subject: Re: [PATCH 16/29] fsdax: simplify the offset check in dax_iomap_zero
+Date: Tue, 23 Nov 2021 13:22:13 -0800
+Message-ID: <CAPcyv4imPgBEbhDCQpDwCQUTxOQy=RT9ZkAueBQdPKXOLNmrAQ@mail.gmail.com>
+Subject: Re: [PATCH 17/29] fsdax: factor out a dax_memzero helper
 To: Christoph Hellwig <hch@lst.de>
 Cc: Linux NVDIMM <nvdimm@lists.linux.dev>, Mike Snitzer <snitzer@redhat.com>,
  linux-s390 <linux-s390@vger.kernel.org>, linux-erofs@lists.ozlabs.org,
@@ -104,12 +105,86 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Tue, Nov 9, 2021 at 12:34 AM Christoph Hellwig <hch@lst.de> wrote:
 >
-> The file relative offset must have the same alignment as the storage
-> offset, so use that and get rid of the call to iomap_sector.
+> Factor out a helper for the "manual" zeroing of a DAX range to clean
+> up dax_iomap_zero a lot.
+>
 
-Agree.
+Small / optional fixup below:
 
 Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> ---
+>  fs/dax.c | 36 +++++++++++++++++++-----------------
+>  1 file changed, 19 insertions(+), 17 deletions(-)
+>
+> diff --git a/fs/dax.c b/fs/dax.c
+> index d7a923d152240..dc9ebeff850ab 100644
+> --- a/fs/dax.c
+> +++ b/fs/dax.c
+> @@ -1121,34 +1121,36 @@ static vm_fault_t dax_pmd_load_hole(struct xa_state *xas, struct vm_fault *vmf,
+>  }
+>  #endif /* CONFIG_FS_DAX_PMD */
+>
+> +static int dax_memzero(struct dax_device *dax_dev, pgoff_t pgoff,
+> +               unsigned int offset, size_t size)
+> +{
+> +       void *kaddr;
+> +       long rc;
+> +
+> +       rc = dax_direct_access(dax_dev, pgoff, 1, &kaddr, NULL);
+> +       if (rc >= 0) {
+
+Technically this should be "> 0" because dax_direct_access() returns
+nr_available_pages @pgoff, but this isn't broken because
+dax_direct_access() converts the "zero pages available" case into
+-ERANGE.
+
+> +               memset(kaddr + offset, 0, size);
+> +               dax_flush(dax_dev, kaddr + offset, size);
+> +       }
+> +       return rc;
+> +}
+> +
+>  s64 dax_iomap_zero(loff_t pos, u64 length, struct iomap *iomap)
+>  {
+>         pgoff_t pgoff = dax_iomap_pgoff(iomap, pos);
+>         long rc, id;
+> -       void *kaddr;
+> -       bool page_aligned = false;
+>         unsigned offset = offset_in_page(pos);
+>         unsigned size = min_t(u64, PAGE_SIZE - offset, length);
+>
+> -       if (IS_ALIGNED(pos, PAGE_SIZE) && size == PAGE_SIZE)
+> -               page_aligned = true;
+> -
+>         id = dax_read_lock();
+> -
+> -       if (page_aligned)
+> +       if (IS_ALIGNED(pos, PAGE_SIZE) && size == PAGE_SIZE)
+>                 rc = dax_zero_page_range(iomap->dax_dev, pgoff, 1);
+>         else
+> -               rc = dax_direct_access(iomap->dax_dev, pgoff, 1, &kaddr, NULL);
+> -       if (rc < 0) {
+> -               dax_read_unlock(id);
+> -               return rc;
+> -       }
+> -
+> -       if (!page_aligned) {
+> -               memset(kaddr + offset, 0, size);
+> -               dax_flush(iomap->dax_dev, kaddr + offset, size);
+> -       }
+> +               rc = dax_memzero(iomap->dax_dev, pgoff, offset, size);
+>         dax_read_unlock(id);
+> +
+> +       if (rc < 0)
+> +               return rc;
+>         return size;
+>  }
+>
+> --
+> 2.30.2
+>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
