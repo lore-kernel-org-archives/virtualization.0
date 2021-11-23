@@ -1,96 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 10E39C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 17:32:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7CFEAC433EF
+	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 18:07:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 9C0DD8186A;
-	Tue, 23 Nov 2021 17:32:46 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id C0A4460A43;
+	Tue, 23 Nov 2021 18:07:23 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QAEWNYlsjE5j; Tue, 23 Nov 2021 18:07:23 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 37A1460A48;
+	Tue, 23 Nov 2021 18:07:22 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 00D50C001E;
+	Tue, 23 Nov 2021 18:07:22 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D70FCC0012
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Nov 2021 18:07:20 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp1.osuosl.org (Postfix) with ESMTP id B7E6581011
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Nov 2021 18:07:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id GKUT00XyLwbg; Tue, 23 Nov 2021 17:32:45 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 2960580C76;
-	Tue, 23 Nov 2021 17:32:45 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 90E37C0037;
-	Tue, 23 Nov 2021 17:32:44 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 887A4C0012;
- Tue, 23 Nov 2021 17:32:42 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 5F2C260A8B;
- Tue, 23 Nov 2021 17:32:42 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.cz header.b="r66JtRer";
- dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
- header.d=suse.cz header.b="am4OCcex"
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zlZQVBF_aCLL; Tue, 23 Nov 2021 17:32:41 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
- by smtp3.osuosl.org (Postfix) with ESMTPS id EE02E60A6F;
- Tue, 23 Nov 2021 17:32:40 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out1.suse.de (Postfix) with ESMTPS id D89BE212BC;
- Tue, 23 Nov 2021 17:32:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
- t=1637688757; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=6JdPmib3v3gvcHABOETzZ3g4yrxlrjaBoIvxgUisgUk=;
- b=r66JtRer23NJRk+k29auveGw9fDYYnj0ZMA02hzpnaNq9sbA2d2i9wNaNeUo+j2IJ+Q+S3
- uZerhJbz8BNYQq0PXN0sjeLAHJ/BQxGW+GlZPuTTa6dU/wQemLh4eMQlVi3PXr5f4INu5y
- KMzb0hwlvKwk2q6GiaAjfIfmzPpQnng=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
- s=susede2_ed25519; t=1637688757;
- h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=6JdPmib3v3gvcHABOETzZ3g4yrxlrjaBoIvxgUisgUk=;
- b=am4OCcexfMnSxTwGto3ZBFdx8gLwbJTA6JYc4MlBNIz2Levx3vwYlKj26iSJoKTHit3rsa
- GhHA2+pzc6oSP7Aw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id A564313E41;
- Tue, 23 Nov 2021 17:32:37 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id ZCVIJ7UlnWGZfgAAMHmgww
- (envelope-from <vbabka@suse.cz>); Tue, 23 Nov 2021 17:32:37 +0000
-Message-ID: <52dbf824-76be-cc34-3983-d45510b1b618@suse.cz>
-Date: Tue, 23 Nov 2021 18:32:37 +0100
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id k1J5lGDyAC-v
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Nov 2021 18:07:20 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ot1-f51.google.com (mail-ot1-f51.google.com
+ [209.85.210.51])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id DCEC58100C
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Nov 2021 18:07:19 +0000 (UTC)
+Received: by mail-ot1-f51.google.com with SMTP id
+ w6-20020a9d77c6000000b0055e804fa524so160746otl.3
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 23 Nov 2021 10:07:19 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=zISZonE+jfcuqih+VqZkba/z0VBN8Lm0GEq4vywk61c=;
+ b=WnxEZykv6BEYRNelON5+FyygL99DZdDcnjUXR+kg0XhYzXfQqaGYf6gRiiDEh6LXNG
+ 7T7mcFBOg15XbAwjPl2LGY2CMY7KrwH2mD3cNs0n44ccI0Ij0xDFN4FX9rkSlxbpCI+/
+ 6TmpBOJjTh7SRuJOrUyBFMHTVibrJHB6K5NS/eoGp+DT41QOfJhlJ1y1LWgyQGKzSgjF
+ 7UQfPn6ubz1ehv2SZhpJsdxdXgWCAXXcIRJ9ddedE+0pYp+tJX4lX1ogi0DqWMpg8VFM
+ zeZjP8YYW0P9aFdNP69Sz5sa2ZBB/G7AoljmLmngAQQAbHTeXTivn/Rq+t+x61PwLyBz
+ CqKA==
+X-Gm-Message-State: AOAM532LXD1qcIdb8G43QUf8CE4CN7HQTJ/rcpVx82I3WutW622ZftKJ
+ 7OVCVlAjYpM8/MvokgggCetYu1p3ks0v9DLyg7Y=
+X-Google-Smtp-Source: ABdhPJwF2ep52rxDLG6UpRp3xdWO1LK2aeGUp8ki3Y6ep8Od1B4KnhnGqvqMfV3sQKXaxIByEQB9U2fm2A3fPfoMQds=
+X-Received: by 2002:a05:6830:1e57:: with SMTP id
+ e23mr6327907otj.16.1637690838752; 
+ Tue, 23 Nov 2021 10:07:18 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.2
-Content-Language: en-US
-To: Zi Yan <ziy@nvidia.com>
-References: <20211115193725.737539-1-zi.yan@sent.com>
- <3083463d-978b-fbe6-dadf-670d400ed437@suse.cz>
- <AEFF28CF-0ED8-450F-96A4-A6CD59CB1F3D@nvidia.com>
- <BF8FB68A-6E1D-4465-8A2B-884FC034660B@nvidia.com>
-From: Vlastimil Babka <vbabka@suse.cz>
-Subject: Re: [RFC PATCH 0/3] Use pageblock_order for cma and
- alloc_contig_range alignment.
-In-Reply-To: <BF8FB68A-6E1D-4465-8A2B-884FC034660B@nvidia.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-mm@kvack.org, iommu@lists.linux-foundation.org,
- Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>,
- Marek Szyprowski <m.szyprowski@samsung.com>
+References: <20211119113644.1600-1-alx.manpages@gmail.com>
+ <20211119113644.1600-3-alx.manpages@gmail.com>
+In-Reply-To: <20211119113644.1600-3-alx.manpages@gmail.com>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Date: Tue, 23 Nov 2021 19:07:07 +0100
+Message-ID: <CAJZ5v0jGgxgTWQ-DLehRE_GPoRMz2TnT469uNE8k6TX7NxQdEA@mail.gmail.com>
+Subject: Re: [PATCH 02/17] Use memberof(T,
+ m) instead of explicit NULL dereference
+To: Alejandro Colomar <alx.manpages@gmail.com>
+Cc: Corey Minyard <cminyard@mvista.com>,
+ Ajit Khaparde <ajit.khaparde@broadcom.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>, Chris Mason <clm@fb.com>,
+ Christian Brauner <christian.brauner@ubuntu.com>,
+ Ketan Mukadam <ketan.mukadam@broadcom.com>,
+ Somnath Kotur <somnath.kotur@broadcom.com>,
+ "open list:TARGET SUBSYSTEM" <linux-scsi@vger.kernel.org>,
+ Subbu Seetharaman <subbu.seetharaman@broadcom.com>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, Russell King <linux@armlinux.org.uk>,
+ Mike Rapoport <rppt@linux.ibm.com>,
+ ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
+ Miguel Ojeda <ojeda@kernel.org>, Borislav Petkov <bp@suse.de>,
+ virtualization@lists.linux-foundation.org, Len Brown <lenb@kernel.org>,
+ Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>,
+ John Hubbard <jhubbard@nvidia.com>,
+ intel-gfx <intel-gfx@lists.freedesktop.org>,
+ Josef Bacik <josef@toxicpanda.com>, Jani Nikula <jani.nikula@linux.intel.com>,
+ Jitendra Bhivare <jitendra.bhivare@broadcom.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>,
+ Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+ David Sterba <dsterba@suse.com>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ Linux ARM <linux-arm-kernel@lists.infradead.org>,
+ Sriharsha Basavapatna <sriharsha.basavapatna@broadcom.com>,
+ netdev <netdev@vger.kernel.org>, Nick Desaulniers <ndesaulniers@google.com>,
+ LKML <linux-kernel@vger.kernel.org>, "John S . Gruber" <JohnSGruber@gmail.com>,
+ Andrew Morton <akpm@linux-foundation.org>, linux-btrfs@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,40 +116,69 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 11/23/21 17:35, Zi Yan wrote:
-> On 19 Nov 2021, at 10:15, Zi Yan wrote:
->>>> From what my understanding, cma required alignment of
->>>> max(MAX_ORDER - 1, pageblock_order), because when MIGRATE_CMA was introduced,
->>>> __free_one_page() does not prevent merging two different pageblocks, when
->>>> MAX_ORDER - 1 > pageblock_order. But current __free_one_page() implementation
->>>> does prevent that.
->>>
->>> But it does prevent that only for isolated pageblock, not CMA, and yout
->>> patchset doesn't seem to expand that to CMA? Or am I missing something.
->>
->> Yeah, you are right. Originally, I thought preventing merging isolated pageblock
->> with other types of pageblocks is sufficient, since MIGRATE_CMA is always
->> converted from MIGRATE_ISOLATE. But that is not true. I will rework the code.
->> Thanks for pointing this out.
->>
-> 
-> I find that two pageblocks with different migratetypes, like MIGRATE_RECLAIMABLE
-> and MIGRATE_MOVABLE can be merged into a single free page after I checked
-> __free_one_page() in detail and printed pageblock information during buddy page
-> merging.
+On Fri, Nov 19, 2021 at 12:37 PM Alejandro Colomar
+<alx.manpages@gmail.com> wrote:
+>
+> Signed-off-by: Alejandro Colomar <alx.manpages@gmail.com>
+> Cc: Ajit Khaparde <ajit.khaparde@broadcom.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Cc: Arnd Bergmann <arnd@arndb.de>
+> Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+> Cc: Borislav Petkov <bp@suse.de>
+> Cc: Corey Minyard <cminyard@mvista.com>
+> Cc: Chris Mason <clm@fb.com>
+> Cc: Christian Brauner <christian.brauner@ubuntu.com>
+> Cc: David Sterba <dsterba@suse.com>
+> Cc: Jani Nikula <jani.nikula@linux.intel.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: Jitendra Bhivare <jitendra.bhivare@broadcom.com>
+> Cc: John Hubbard <jhubbard@nvidia.com>
+> Cc: John S. Gruber <JohnSGruber@gmail.com>
+> Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+> Cc: Josef Bacik <josef@toxicpanda.com>
+> Cc: Kees Cook <keescook@chromium.org>
+> Cc: Ketan Mukadam <ketan.mukadam@broadcom.com>
+> Cc: Len Brown <lenb@kernel.org>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Miguel Ojeda <ojeda@kernel.org>
+> Cc: Mike Rapoport <rppt@linux.ibm.com>
+> Cc: Nick Desaulniers <ndesaulniers@google.com>
+> Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+> Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+> Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+> Cc: Russell King <linux@armlinux.org.uk>
+> Cc: Somnath Kotur <somnath.kotur@broadcom.com>
+> Cc: Sriharsha Basavapatna <sriharsha.basavapatna@broadcom.com>
+> Cc: Subbu Seetharaman <subbu.seetharaman@broadcom.com>
+> Cc: <intel-gfx@lists.freedesktop.org>
+> Cc: <linux-acpi@vger.kernel.org>
+> Cc: <linux-arm-kernel@lists.infradead.org>
+> Cc: <linux-btrfs@vger.kernel.org>
+> Cc: <linux-scsi@vger.kernel.org>
+> Cc: <netdev@vger.kernel.org>
+> Cc: <virtualization@lists.linux-foundation.org>
+> ---
+>  arch/x86/include/asm/bootparam_utils.h  |  3 ++-
+>  arch/x86/kernel/signal_compat.c         |  5 +++--
+>  drivers/gpu/drm/i915/i915_utils.h       |  5 ++---
+>  drivers/gpu/drm/i915/intel_runtime_pm.h |  2 +-
+>  drivers/net/ethernet/emulex/benet/be.h  |  7 ++++---
+>  drivers/net/ethernet/i825xx/ether1.c    |  7 +++++--
+>  drivers/scsi/be2iscsi/be.h              |  7 ++++---
+>  drivers/scsi/be2iscsi/be_cmds.h         |  5 ++++-
+>  fs/btrfs/ctree.h                        |  5 +++--
+>  include/acpi/actypes.h                  |  4 +++-
 
-Yes, that can happen.
+The change in actypes.h would need to be submitted to the upstream
+ACPICA project via https://github.com/acpica/acpica/
 
-I am not sure what consequence it will cause. Do you have any idea?
+Thanks!
 
-For MIGRATE_RECLAIMABLE or MIGRATE_MOVABLE or even MIGRATE_UNMOVABLE it's
-absolutely fine. As long as these pageblocks are fully free (and they are if
-it's a single free page spanning 2 pageblocks), they can be of any of these
-type, as they can be reused as needed without causing fragmentation.
-
-But in case of MIGRATE_CMA and MIGRATE_ISOLATE, uncontrolled merging would
-break the specifics of those types. That's why the code is careful for
-MIGRATE_ISOLATE, and MIGRATE_CMA was until now done in MAX_ORDER granularity.
+>  include/linux/container_of.h            |  6 +++---
+>  include/linux/virtio_config.h           | 14 +++++++-------
+>  12 files changed, 41 insertions(+), 29 deletions(-)
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
