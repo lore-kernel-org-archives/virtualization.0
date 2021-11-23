@@ -1,81 +1,84 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id C8334C4332F
-	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 03:59:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 89640C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 04:02:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 6942880DAF;
-	Tue, 23 Nov 2021 03:59:40 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 1B93460600;
+	Tue, 23 Nov 2021 04:02:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9gfomwJLKVMN; Tue, 23 Nov 2021 03:59:39 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 220B780D63;
-	Tue, 23 Nov 2021 03:59:39 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id sUmQ6GwsYdjA; Tue, 23 Nov 2021 04:02:56 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id C877160605;
+	Tue, 23 Nov 2021 04:02:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F03C7C001E;
-	Tue, 23 Nov 2021 03:59:38 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7C82DC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9878CC001E;
+	Tue, 23 Nov 2021 04:02:55 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AF448C0012
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 03:59:37 +0000 (UTC)
+ Tue, 23 Nov 2021 04:02:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 5BDA980D72
+ by smtp4.osuosl.org (Postfix) with ESMTP id 9DE664018E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 03:59:37 +0000 (UTC)
+ Tue, 23 Nov 2021 04:02:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sk6Oj0AcG8PZ
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=intel-com.20210112.gappssmtp.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id QTpt0SgSBDAh
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 03:59:36 +0000 (UTC)
+ Tue, 23 Nov 2021 04:02:54 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com
- [IPv6:2607:f8b0:4864:20::435])
- by smtp1.osuosl.org (Postfix) with ESMTPS id DAE5F80D63
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com
+ [IPv6:2607:f8b0:4864:20::635])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 1366E4017B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 03:59:36 +0000 (UTC)
-Received: by mail-pf1-x435.google.com with SMTP id b68so18066945pfg.11
+ Tue, 23 Nov 2021 04:02:53 +0000 (UTC)
+Received: by mail-pl1-x635.google.com with SMTP id p18so15886975plf.13
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Nov 2021 19:59:36 -0800 (PST)
+ Mon, 22 Nov 2021 20:02:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=intel-com.20210112.gappssmtp.com; s=20210112;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
  :cc; bh=g/ky7DkMfynxz93Jg1Thyokk1eZpzUf1Xl2rDhRoyWA=;
- b=gwTsNrCEoSododJW02pXoG5va8bW6OECitQWc09+sfRQX7sjnk65lMa71jflZhqZ1Z
- 86aeuya1xffrx25hqOEdYvOiHJs5SgCPT9ynh1h37Y6R+YK22M+VCRKtE4fEa7B4vmJj
- FgIl1EAn3HVhHAskqaElmROImyfgrhseCNECcArK+N8mGcWyaNrHQ2uUa5SryedQ51xK
- EFHOUqysfj0ZP5ewN50SJI8X536nWAnVKZXIvFxFdkrKxXPVOOjm85CFAu2VFaD2Y1/c
- IkmhJjqPuO4/my+NrNDZVrBhbYZL7tBr4KB5P4Dw+Kdi1tW3eMcLXRLw1g/M1n7CsTvT
- 3cxQ==
+ b=sflh6j00R53ITli5bO2IoAwQaIa8VR/tllaujepF7nQ0McJ6iT2CSZUK7BuB1zU6If
+ 9CwhHY4WZipWFFT6wSgL9NXJHKzpWx4dzREV1QewVHPXAfe3nZ2ge9ayabqAClcoOtMT
+ 6CWsvm27gk7VLVryyb3GQ4RxleOrmnBmuKNS+T6GLom6VfHHQqPk8G9iMZiGpJfXA6jD
+ WtPXA13msMgztdGrXOYIM1Tv6bLvkl2kjxHbaH2u8afmQwOPoz4TylpBWUlzjs7RiwZQ
+ Q7dRhRXUS7ma5L6pdFg1NOadjevEswoXcEKlTQmOlLvpZ8ukBNqCZ65Zu45i5yf8msAV
+ Rrgg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
  bh=g/ky7DkMfynxz93Jg1Thyokk1eZpzUf1Xl2rDhRoyWA=;
- b=DgClABtuebXIza7BBp6Oz7tshZh6VuTnRfzE60YkkwwStpXLuhfEC35my1LBc1yxLX
- pkJHOviOH6A1ygqLDvYS6S8oAIlQv96FY3ebEULk8zZQkRrQ2OGbStwFPBbaDI+en7ly
- s2NzcvU8lZ+NKJEmTN5KekSHB5j1Ja1aQkGPkohY2m4IHojvBFZ8TtFMYZB/mwoMJvrt
- Kvpo7pkRP4GYmd8zoL2UfgNfc3WaYG9RgaSBM43MPITBHvhKFqvMCYODTCIvjOTbk9et
- YGP76/WmWQg4/eq855lfMOufSm1ztfV9clFZH9B/qZUl/9E/b0j38ZUu3H9El9i6nwP3
- VPUw==
-X-Gm-Message-State: AOAM530nhLCtdoHDN8+jYMezKwVRZSHjj6yfsUdmIShLl6pvLRu04miJ
- MEXFsBE64KS2lqO09XI32J3NBKoaBfJCWZE/EFA0YQ==
-X-Google-Smtp-Source: ABdhPJwGHnABHnUK3lJPgD02NSEK0H2EfeyLizUEIRr93I6wp+H8p3N47d3IhUfBHGyYAjrqraEpCA3HamH0r9lHbyI=
-X-Received: by 2002:a63:85c6:: with SMTP id u189mr1546658pgd.377.1637639976375; 
- Mon, 22 Nov 2021 19:59:36 -0800 (PST)
+ b=uRy/PTVEV4iwjG6RWBttfiVWPHYIECXoyD6mrRQhJY9V3ih+l01xObojeRuh5S4c2w
+ kzhlbyE3nnLJ8/22iaNIV+uuc7gO6BPDPuqjUjN42Du2HmHAr4km3KEF0CGICetmI6Kf
+ UGqqsRcW0FUHBXtqLfldK80vVIZEk0Ln+2y1YkZHBr6XWoqsIIQraKPfblZwTcJ1Cn/P
+ xy/tKWa1jm6VornHJKKeS9+vWhRIHWxh8EgrX90xf85q23EB95pw1ANpixWYGJ+yzfdq
+ 3Z0yN3Rziif1ypa5YrJeyl2BBSCccPXTiOQYb3IKvXbGtLjds3qkBUrWZwEGO9T8RaXm
+ pYqQ==
+X-Gm-Message-State: AOAM531DqocLadFEdlCAueo8EJU89kAl9xFff1JgPhss8V43nZO356xD
+ AH8Rn85CPIGYlVg/ek0em0ZfGikxFRYV5MF7mxQ/0g==
+X-Google-Smtp-Source: ABdhPJxvSLmX3xye88c668D00uWDdnnCeZiY99i/tpK8E6hWm4PH0+Kg/6cCj46QhqqZS8+/hIjz2nKulq2NhEFbIuM=
+X-Received: by 2002:a17:90b:1e07:: with SMTP id
+ pg7mr2663610pjb.93.1637640173575; 
+ Mon, 22 Nov 2021 20:02:53 -0800 (PST)
 MIME-Version: 1.0
 References: <20211109083309.584081-1-hch@lst.de>
- <20211109083309.584081-10-hch@lst.de>
-In-Reply-To: <20211109083309.584081-10-hch@lst.de>
+ <20211109083309.584081-11-hch@lst.de>
+In-Reply-To: <20211109083309.584081-11-hch@lst.de>
 From: Dan Williams <dan.j.williams@intel.com>
-Date: Mon, 22 Nov 2021 19:59:25 -0800
-Message-ID: <CAPcyv4igxMdMA0XpjZt0aXahef5Worvz663ynd5i4=HeKJAqKw@mail.gmail.com>
-Subject: Re: [PATCH 09/29] dm-linear: add a linear_dax_pgoff helper
+Date: Mon, 22 Nov 2021 20:02:42 -0800
+Message-ID: <CAPcyv4hUSRSVBP_G6z7fPUwvb=3F2q4mrGhmD9A4nez=DrEdWQ@mail.gmail.com>
+Subject: Re: [PATCH 10/29] dm-log-writes: add a log_writes_dax_pgoff helper
 To: Christoph Hellwig <hch@lst.de>
 Cc: Linux NVDIMM <nvdimm@lists.linux.dev>, Mike Snitzer <snitzer@redhat.com>,
  linux-s390 <linux-s390@vger.kernel.org>, linux-erofs@lists.ozlabs.org,
