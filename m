@@ -4,82 +4,80 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id BF3E5C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 21:16:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2FF58C433F5
+	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 21:17:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 4649840561;
-	Tue, 23 Nov 2021 21:16:12 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id BA3EE4056E;
+	Tue, 23 Nov 2021 21:17:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id i5snV2KtYk9T; Tue, 23 Nov 2021 21:16:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 0D25D40273;
-	Tue, 23 Nov 2021 21:16:10 +0000 (UTC)
+	with ESMTP id tKOEjeIFBiJz; Tue, 23 Nov 2021 21:17:12 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 764CB40273;
+	Tue, 23 Nov 2021 21:17:11 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E4FB5C002E;
-	Tue, 23 Nov 2021 21:16:10 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B9501C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 495A1C002E;
+	Tue, 23 Nov 2021 21:17:11 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0FE0AC0012
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 21:16:09 +0000 (UTC)
+ Tue, 23 Nov 2021 21:17:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id AF44160754
+ by smtp1.osuosl.org (Postfix) with ESMTP id F2935817A8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 21:16:09 +0000 (UTC)
+ Tue, 23 Nov 2021 21:17:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=intel-com.20210112.gappssmtp.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id myvOoXViFVsB
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id JeBUUNrHegd6
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 21:16:03 +0000 (UTC)
+ Tue, 23 Nov 2021 21:17:09 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com
- [IPv6:2607:f8b0:4864:20::102b])
- by smtp3.osuosl.org (Postfix) with ESMTPS id C04E160747
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com
+ [IPv6:2607:f8b0:4864:20::52f])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 792BC80D3B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 21:16:03 +0000 (UTC)
-Received: by mail-pj1-x102b.google.com with SMTP id x7so581985pjn.0
+ Tue, 23 Nov 2021 21:17:09 +0000 (UTC)
+Received: by mail-pg1-x52f.google.com with SMTP id p17so235289pgj.2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 13:16:03 -0800 (PST)
+ Tue, 23 Nov 2021 13:17:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=intel-com.20210112.gappssmtp.com; s=20210112;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=l+zpQrvL4Qxe/qyBBz6nO1x+ZudVJHE22cDmvcF/TOE=;
- b=3UTjzt/B58bzUMuj7IqqMnaCu5WYQAV5rK+fs5kaCfP78gUwTgy5Zlf3Be+wmIjr56
- TnFB+KlAOrzucg0BEhVOP/JXfiAUD2ftEQJXj4AikeXTgWe03Spusb/0TUld0hhFX8v6
- hoRoYhcMIe1fJGrizIl0u8fu7pfvZl0yQ6G/HZ/XblMR0kOZLIsIbaNzfqww2OtwK0QY
- M2kpeuFwFxk8ZGruQVPxMGdqTXvMTUs/jjMoa2NVuNjPrbZJxiRI6LrTQ3lIM/koJIif
- rP8I79qIKGLZ1fswpluH9sZNHRVBAzv8KTrCcmchw/ruDBCNrZVPKtgfRhQ9/KytnoiJ
- mPYg==
+ :cc; bh=PQeh1LIqbqFtSovgn5WZ7VLYBwfefd3KuHYAxcJ6bdE=;
+ b=z/Kv5aF3II2Q1LX6Aazu4oeYGV1DsHDm6VPftSCm/GsXUqcvpUYlHGhNQfvcAEzM+t
+ KHEErzvzy9AE7efI2veDZidjjq+fK6s2UJs7fEhnYmQiPFx9rvXEwel822roodlc/FcK
+ DEv5SfZdo4Mf/qMs7Jb75ZFTHTDu0awILjq9sqTvXs+VIsFn7y/1XB/C+/lY4NwLFtHP
+ cHAfa2a7eS26AcezybSCXTWBbxiGPri9iUr8Wx/IV+DiOD4YHSNiMvTZGqn4/3tFE8gU
+ fEqZVpI1Dt83hXy63DNbfv4vosQWDr6RKn8ZmI1PKEqbMIgBEyzoH/HXIZQqJ3XqzuZq
+ V9lQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=l+zpQrvL4Qxe/qyBBz6nO1x+ZudVJHE22cDmvcF/TOE=;
- b=nbt/EAxDO83gmqczzYWRBqDsDcDxJ9cr4/1ZSvH+Tfw3xTBdQhekkAiAcrDsH0Dl9r
- UGmU8woA4nS4kgARA6VzD9e6or5bbBadCIcv1PEtssL6HJV/dDQQO5LFKMiV6eoxs7Hr
- BkiMyLkmBAjRVxu6VLYlZAvtMNGt87uOJWA+tN2YVAzpR5sAIM6nk9JiEYvyC6wbQ3dz
- Mo/q17BvmzSmy5WrwNsmXWVpD/n+7n12oBfCGXEgqF7Sa8cuGPxcC2vxuQZ+p1lt4AcR
- Zz7P15rSUTY1O76v5fRBNrPXz60i/E7+HdgNEooeH2eElXS/NWe7UEA863vFf+nJGTOO
- SvLg==
-X-Gm-Message-State: AOAM533wyTdQIDHqAxl2tAdVF8Q1o9vMrMGL348gVuVvqjvV66kk3uiZ
- nJqKi5Vf63QxutA0NsmWOOxcd/ltwToeJilJbeab8A==
-X-Google-Smtp-Source: ABdhPJxRRlv0NZQorv0M5t2wTRvBAaxVZY2wmbRu89506wlORAkd8KhXvCTyC5EAm4rzXSOWToX/mEdJ14fdPpKfw3k=
-X-Received: by 2002:a17:90b:1e07:: with SMTP id
- pg7mr494044pjb.93.1637702163126; 
- Tue, 23 Nov 2021 13:16:03 -0800 (PST)
+ bh=PQeh1LIqbqFtSovgn5WZ7VLYBwfefd3KuHYAxcJ6bdE=;
+ b=xfXXgIW1VZ6FB3kTFsTqL3Dws+mU2aj3DDygJ9tPJDdd6EsBH0Lgqz77BKitgsVu0W
+ MlYGwSI6HHSKtaU9DwLY2ExRr4M8TydoRVYXalGKCx9id6BsZN2Zwa6XB3pCJpDhbpwZ
+ mCczr87aYjNEeNy3t1HwY14hH8MH8e5Y4aVvaHmrfQBjaSBLchj+StJJRBikjusYaDJt
+ +Jq6avLdZtA6Sh9QqkVBeBRgTs0ULTfo9IDPNXRt8ghE+3T67Y8ZwuBuHBdCaZ8wOgSR
+ fVqT0NECzWmUaEpzk52+z7BUjudt+URO/g5AU+p92v4QlWrCgAqcC5M/arfpU4G5uRRK
+ NPaw==
+X-Gm-Message-State: AOAM530gHfRnE9kTdoGipPWGGnoOcT1hJgqCucYV9LO181c/iA1YqL2q
+ 0Zk4EOiX/3S8bElIkJ99NIrHvibafBhC00lAOGBqQA==
+X-Google-Smtp-Source: ABdhPJxo6xmNJWXyaaVPBEUy4anrM6xGk5zJ5S54bOFTPTbJYWg88+GG8ODe3guk693xmG8x/Zkzy+Ul3gB1uuDCJIA=
+X-Received: by 2002:a63:5401:: with SMTP id i1mr6112849pgb.356.1637702228750; 
+ Tue, 23 Nov 2021 13:17:08 -0800 (PST)
 MIME-Version: 1.0
 References: <20211109083309.584081-1-hch@lst.de>
- <20211109083309.584081-16-hch@lst.de>
-In-Reply-To: <20211109083309.584081-16-hch@lst.de>
+ <20211109083309.584081-17-hch@lst.de>
+In-Reply-To: <20211109083309.584081-17-hch@lst.de>
 From: Dan Williams <dan.j.williams@intel.com>
-Date: Tue, 23 Nov 2021 13:15:52 -0800
-Message-ID: <CAPcyv4jDqfNj4iAYoewj53QEZjXR41UuE0LN49CtC_2qjrbazg@mail.gmail.com>
-Subject: Re: [PATCH 15/29] xfs: add xfs_zero_range and xfs_truncate_page
- helpers
+Date: Tue, 23 Nov 2021 13:16:58 -0800
+Message-ID: <CAPcyv4jjvoT=aW+_Ks+8L60HG0ypesSi8A+a5F2JXu1dEWHVCw@mail.gmail.com>
+Subject: Re: [PATCH 16/29] fsdax: simplify the offset check in dax_iomap_zero
 To: Christoph Hellwig <hch@lst.de>
 Cc: Linux NVDIMM <nvdimm@lists.linux.dev>, Mike Snitzer <snitzer@redhat.com>,
  linux-s390 <linux-s390@vger.kernel.org>, linux-erofs@lists.ozlabs.org,
@@ -87,8 +85,7 @@ Cc: Linux NVDIMM <nvdimm@lists.linux.dev>, Mike Snitzer <snitzer@redhat.com>,
  linux-xfs <linux-xfs@vger.kernel.org>,
  device-mapper development <dm-devel@redhat.com>,
  linux-fsdevel <linux-fsdevel@vger.kernel.org>,
- linux-ext4 <linux-ext4@vger.kernel.org>, Ira Weiny <ira.weiny@intel.com>,
- Shiyang Ruan <ruansy.fnst@fujitsu.com>
+ linux-ext4 <linux-ext4@vger.kernel.org>, Ira Weiny <ira.weiny@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,15 +104,10 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Tue, Nov 9, 2021 at 12:34 AM Christoph Hellwig <hch@lst.de> wrote:
 >
-> From: Shiyang Ruan <ruansy.fnst@fujitsu.com>
->
-> Add helpers to prepare for using different DAX operations.
->
-> Signed-off-by: Shiyang Ruan <ruansy.fnst@fujitsu.com>
-> [hch: split from a larger patch + slight cleanups]
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> The file relative offset must have the same alignment as the storage
+> offset, so use that and get rid of the call to iomap_sector.
 
-Looks good to me.
+Agree.
 
 Reviewed-by: Dan Williams <dan.j.williams@intel.com>
 _______________________________________________
