@@ -1,96 +1,108 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1B111C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 02:10:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F2A3FC433EF
+	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 02:25:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9CCBB607B5;
-	Tue, 23 Nov 2021 02:10:36 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 94B5A80E26;
+	Tue, 23 Nov 2021 02:25:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id GaZVdj5h-cp8; Tue, 23 Nov 2021 02:10:35 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 47731607A3;
-	Tue, 23 Nov 2021 02:10:35 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id aV5bpwadkVLJ; Tue, 23 Nov 2021 02:25:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 323CE80E1C;
+	Tue, 23 Nov 2021 02:25:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1A037C002E;
-	Tue, 23 Nov 2021 02:10:35 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DCC39C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 00EA5C002E;
+	Tue, 23 Nov 2021 02:25:40 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 90A4FC0012
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 02:10:33 +0000 (UTC)
+ Tue, 23 Nov 2021 02:25:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id BD7936078A
+ by smtp1.osuosl.org (Postfix) with ESMTP id 6A10680E26
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 02:10:33 +0000 (UTC)
+ Tue, 23 Nov 2021 02:25:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id CtyoFQvf5tbi
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id ifqOGt6-7x5M
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 02:10:32 +0000 (UTC)
+ Tue, 23 Nov 2021 02:25:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id BBFE460600
+ by smtp1.osuosl.org (Postfix) with ESMTPS id A823480E1C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 02:10:32 +0000 (UTC)
+ Tue, 23 Nov 2021 02:25:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1637633431;
+ s=mimecast20190719; t=1637634336;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=1sOzKcfc1mb/QfFCcqk6Ete8PuEFAKr8bz+8/GvBKxk=;
- b=EC1coBgr2dFAPetxPu0EloOYJP0FPTYm3uMoLG2sbmN91vdOjm/w1jlheE632i4xHr9d5Y
- r7m08wUtwAXPejqJVq7/Uh4mQkIuxcMXLOyMTCkZXcjIyXJgx0xg9yWxvww1eVmyIEIxjl
- MKiLkLCw28AD8FYvKxAEg0hmr2s39/g=
-Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
- [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=DJKXXo5huA3qTYjotBCmHop1H83ADBgZQCZurCS2VDU=;
+ b=iYqNtm5+27yKbWeOknChBh5NOCWKHrm3MZ4sQ85MZLt5LnaGAuS9s0FTTKcFt7y8fxDfQz
+ 7BANAmGiz1g8uQzzhuGsFHbTqzdOLoC30xlwohhvyOPttc0kHFFBfCvy+ZzX2zt7IdkJk0
+ nQrNjIPEhLsZviHHskjIx4Rly2zCZo4=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-144-vSvySpbzPzm79HCBJnaiHw-1; Mon, 22 Nov 2021 21:10:30 -0500
-X-MC-Unique: vSvySpbzPzm79HCBJnaiHw-1
-Received: by mail-lf1-f71.google.com with SMTP id
- u20-20020a056512129400b0040373ffc60bso13325912lfs.15
+ us-mta-296-R6jgBTkkMoSC95vOhBgzzQ-1; Mon, 22 Nov 2021 21:25:33 -0500
+X-MC-Unique: R6jgBTkkMoSC95vOhBgzzQ-1
+Received: by mail-lf1-f70.google.com with SMTP id
+ y40-20020a0565123f2800b003fded085638so13374593lfa.0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Nov 2021 18:10:29 -0800 (PST)
+ Mon, 22 Nov 2021 18:25:33 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=1sOzKcfc1mb/QfFCcqk6Ete8PuEFAKr8bz+8/GvBKxk=;
- b=oCq3TvVO3UXzuo+Kc7/yXB9ONh+WMwiBE6CYq8szSGE7B+KlHZsvgnTRC3Q9STKwcF
- 1w5VF9V0HwjPbac0C+06xVqoTGQHGJss8tPmYx8KkW0S/epK0/F9DQIN8YW9R9n4NuLe
- YN8XqP+bJQkd9qrfC0s1zQHRyF3TTPJQgGuLEa66Kl2MJnd0dnKgw9itWr+D9NBF+zVV
- j8QL0IxDlvtZtqOZSfSOQO9K8emI+3x7UaxHRtBuSbHvrCwVRXwAgRvzZbWv4C+FYHDH
- GiQLUVcnDK5SciaWvSJZPOgHTiyhcWPsM6IKtUo8febfb4WKXeQfc0o1NHWaMhJjNDKU
- 9hUg==
-X-Gm-Message-State: AOAM532ImGAZ6Jh+yvIE3oz0jzGq8R03lorjekTj7T2DJf1Ns0bVkua/
- yVgKhtR/FesNOiFDhbIPbGzFdcaY0Lia6Xp3mnwpYxzMDUOLV7oYULScdhhGsyrexIPanFe2hJS
- xffnwOx4+eoxMzh3BkI8nU5Q7nP4ViXm/VEhmYg+NoTJi5BwkBk4/BfVtFA==
-X-Received: by 2002:a2e:915a:: with SMTP id q26mr1082233ljg.277.1637633428632; 
- Mon, 22 Nov 2021 18:10:28 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyIxxkaUjeVw+D8UMGoyZ19ATnr7cJFS0YGB7JG9SltIKNzY6nQ7dCY65IYPG0XZgJFRYEMQQdmQj4SV8bnDbY=
-X-Received: by 2002:a2e:915a:: with SMTP id q26mr1082206ljg.277.1637633428448; 
- Mon, 22 Nov 2021 18:10:28 -0800 (PST)
+ bh=DJKXXo5huA3qTYjotBCmHop1H83ADBgZQCZurCS2VDU=;
+ b=u14saZrRR4+QqtAaW1YFJk6SjVFwgB1/NcdbMdUAeBUVpsrqx1rdaOh8GD6ntoHsDn
+ z62iZ4BAkVJMP10NRefk8L6D0NbGBt9WEarxb/748h5zjWqzcQMoNPw40jterIKTU6Od
+ ifCkN7q6xULij5AucmYb4dE0sn2AsdK+JyPAt3mWGm/RdOA0wMRtAv4m8dPmmqhGB5E8
+ jVdgMmO+Jwv+4/8t3/o/r3jBjIrbBIOOzIIme/9u+kMMm45vME83Wt7EmVniM/7U89pF
+ anRq9omf0/FB4IGWk7gsBdz96iOWsMVHFr1oarvcWxPo8DCqs4fp2uZJgRoHP5riWhEw
+ yzig==
+X-Gm-Message-State: AOAM532ZRCQE/MEZy0ehQ9VrDw1U8vDEyFYcP2ugV/awpcqbTX4PJb0i
+ 5EdFDiMHNuE/i0v56gk5HiPTxAZn0LNOWPlziQkPxRodu20NGI+5otDGBecXj9+l/I7jEwxuDEv
+ TS3q7+X35ev5ezfXwrfv/Fcqn59qlKe27dKXVC4xOvHATAZ8wArGtrAFUzg==
+X-Received: by 2002:a05:6512:2081:: with SMTP id
+ t1mr1184067lfr.348.1637634331797; 
+ Mon, 22 Nov 2021 18:25:31 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyhbzfSpkWV2xGy6ErJZl4ZYscE/G0X2n8DtA51zeavG44zfVZ65TNtG3E6AVCF6h+nqefVVGDXVmsuTXxrt4w=
+X-Received: by 2002:a05:6512:2081:: with SMTP id
+ t1mr1184043lfr.348.1637634331603; 
+ Mon, 22 Nov 2021 18:25:31 -0800 (PST)
 MIME-Version: 1.0
-References: <20211122122221.56-1-longpeng2@huawei.com>
-In-Reply-To: <20211122122221.56-1-longpeng2@huawei.com>
+References: <20211027022107.14357-1-jasowang@redhat.com>
+ <20211027022107.14357-2-jasowang@redhat.com>
+ <20211119160951.5f2294c8.pasic@linux.ibm.com>
+ <CACGkMEtja2TPC=ujgMrpaPmdsy+zHowbBTvPj8k7nm_+zB8vig@mail.gmail.com>
+ <20211122063518.37929c01.pasic@linux.ibm.com>
+ <20211122064922.51b3678e.pasic@linux.ibm.com>
+ <CACGkMEu+9FvMsghyi55Ee5BxetP-YK9wh2oaT8OgLiY5+tV0QQ@mail.gmail.com>
+ <20211122212352.4a76232d.pasic@linux.ibm.com>
+In-Reply-To: <20211122212352.4a76232d.pasic@linux.ibm.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 23 Nov 2021 10:10:17 +0800
-Message-ID: <CACGkMEsYEg06vaLJnYeCzcUXneTxWM7kR1Y-DqXicc4WG3z7ew@mail.gmail.com>
-Subject: Re: [PATCH] vdpa_sim: avoid putting an uninitialized iova_domain
-To: "Longpeng(Mike)" <longpeng2@huawei.com>
+Date: Tue, 23 Nov 2021 10:25:20 +0800
+Message-ID: <CACGkMEtmhwDEAvMuMhQEUB-b+=n713pVvjyct8QAqMUk1H-A-g@mail.gmail.com>
+Subject: Re: [PATCH V5 1/4] virtio_ring: validate used buffer length
+To: Halil Pasic <pasic@linux.ibm.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Max Gurtovoy <mgurtovoy@nvidia.com>, mst <mst@redhat.com>,
+Cc: "kaplan, david" <david.kaplan@amd.com>,
+ Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Hetzelt,
+ Felicitas" <f.hetzelt@tu-berlin.de>,
  linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>
+ virtualization <virtualization@lists.linux-foundation.org>,
+ mst <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,69 +119,62 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Nov 22, 2021 at 8:22 PM Longpeng(Mike) <longpeng2@huawei.com> wrote:
+On Tue, Nov 23, 2021 at 4:24 AM Halil Pasic <pasic@linux.ibm.com> wrote:
 >
-> From: Longpeng <longpeng2@huawei.com>
+> On Mon, 22 Nov 2021 14:25:26 +0800
+> Jason Wang <jasowang@redhat.com> wrote:
 >
-> The system will crash if we put an uninitialized iova_domain, this
-> could happen when an error occurs before initializing the iova_domain
-> in vdpasim_create().
+> > I think the fixes are:
+> >
+> > 1) fixing the vhost vsock
+> > 2) use suppress_used_validation=true to let vsock driver to validate
+> > the in buffer length
+> > 3) probably a new feature so the driver can only enable the validation
+> > when the feature is enabled.
 >
-> BUG: kernel NULL pointer dereference, address: 0000000000000000
-> ...
-> RIP: 0010:__cpuhp_state_remove_instance+0x96/0x1c0
-> ...
-> Call Trace:
->  <TASK>
->  put_iova_domain+0x29/0x220
->  vdpasim_free+0xd1/0x120 [vdpa_sim]
->  vdpa_release_dev+0x21/0x40 [vdpa]
->  device_release+0x33/0x90
->  kobject_release+0x63/0x160
->  vdpasim_create+0x127/0x2a0 [vdpa_sim]
->  vdpasim_net_dev_add+0x7d/0xfe [vdpa_sim_net]
->  vdpa_nl_cmd_dev_add_set_doit+0xe1/0x1a0 [vdpa]
->  genl_family_rcv_msg_doit+0x112/0x140
->  genl_rcv_msg+0xdf/0x1d0
->  ...
->
-> So we must make sure the iova_domain is already initialized before
-> put it.
->
-> In addition, we may get the following warning in this case:
-> WARNING: ... drivers/iommu/iova.c:344 iova_cache_put+0x58/0x70
->
-> So we must make sure the iova_cache_put() is invoked only if the
-> iova_cache_get() is already invoked. Let's fix it together.
->
-> Signed-off-by: Longpeng <longpeng2@huawei.com>
+> I'm not sure, I would consider a F_DEV_Y_FIXED_BUG_X a perfectly good
+> feature. Frankly the set of such bugs is device implementation
+> specific and it makes little sense to specify a feature bit
+> that says the device implementation claims to adhere to some
+> aspect of the specification. Also what would be the semantic
+> of not negotiating F_DEV_Y_FIXED_BUG_X?
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+Yes, I agree. Rethink of the feature bit, it seems unnecessary,
+especially considering the driver should not care about the used
+length for tx.
 
-> ---
->  drivers/vdpa/vdpa_sim/vdpa_sim.c | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
 >
-> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> index 5f484fff8dbe..41b0cd17fcba 100644
-> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> @@ -591,8 +591,11 @@ static void vdpasim_free(struct vdpa_device *vdpa)
->                 vringh_kiov_cleanup(&vdpasim->vqs[i].in_iov);
->         }
+> On the other hand I see no other way to keep the validation
+> permanently enabled for fixed implementations, and get around the problem
+> with broken implementations. So we could have something like
+> VHOST_USED_LEN_STRICT.
+
+It's more about a choice of the driver's knowledge. For vsock TX it
+should be fine. If we introduce a parameter and disable it by default,
+it won't be very useful.
+
 >
-> -       put_iova_domain(&vdpasim->iova);
-> -       iova_cache_put();
-> +       if (vdpa_get_dma_dev(vdpa)) {
-> +               put_iova_domain(&vdpasim->iova);
-> +               iova_cache_put();
-> +       }
-> +
->         kvfree(vdpasim->buffer);
->         if (vdpasim->iommu)
->                 vhost_iotlb_free(vdpasim->iommu);
-> --
-> 2.27.0
+> Maybe, we can also think of 'warn and don't alter behavior' instead of
+> 'warn' and alter behavior. Or maybe even not having such checks on in
+> production, but only when testing.
+
+I think there's an agreement that virtio drivers need more hardening,
+that's why a lot of patches were merged. Especially considering the
+new requirements came from confidential computing, smart NIC and
+VDUSE. For virtio drivers, enabling the validation may help to
+
+1) protect the driver from the buggy and malicious device
+2) uncover the bugs of the devices (as vsock did, and probably rpmsg)
+3) force the have a smart driver that can do the validation itself
+then we can finally remove the validation in the core
+
+So I'd like to keep it enabled.
+
+Thanks
+
+>
+> Regards,
+> Halil
 >
 
 _______________________________________________
