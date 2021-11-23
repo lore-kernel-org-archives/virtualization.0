@@ -1,58 +1,56 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 775DAC433F5
-	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 05:56:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 028CAC433FE
+	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 05:57:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id E1B1660610;
-	Tue, 23 Nov 2021 05:56:26 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 6CB2F4001F;
+	Tue, 23 Nov 2021 05:57:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gtTqdgGN-c3r; Tue, 23 Nov 2021 05:56:26 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id KSqCnEi09mCJ; Tue, 23 Nov 2021 05:57:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id A5BF3605D7;
-	Tue, 23 Nov 2021 05:56:25 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 18C30403BF;
+	Tue, 23 Nov 2021 05:57:51 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6DD66C002E;
-	Tue, 23 Nov 2021 05:56:25 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 797C9C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DC2B1C002E;
+	Tue, 23 Nov 2021 05:57:50 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7BD37C0012
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 05:56:24 +0000 (UTC)
+ Tue, 23 Nov 2021 05:57:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 5312740103
+ by smtp1.osuosl.org (Postfix) with ESMTP id 6A67A80DFD
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 05:56:24 +0000 (UTC)
+ Tue, 23 Nov 2021 05:57:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Of2lUC9jgD4a
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id AryzkapAvOt2
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 05:56:22 +0000 (UTC)
+ Tue, 23 Nov 2021 05:57:49 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 8067D400F5
+ by smtp1.osuosl.org (Postfix) with ESMTPS id E19FE80D89
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 05:56:21 +0000 (UTC)
+ Tue, 23 Nov 2021 05:57:48 +0000 (UTC)
 Received: by verein.lst.de (Postfix, from userid 2407)
- id 97B5168AFE; Tue, 23 Nov 2021 06:56:16 +0100 (CET)
-Date: Tue, 23 Nov 2021 06:56:16 +0100
+ id BF5ED68B05; Tue, 23 Nov 2021 06:57:44 +0100 (CET)
+Date: Tue, 23 Nov 2021 06:57:42 +0100
 From: Christoph Hellwig <hch@lst.de>
 To: Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [PATCH 02/29] dm: make the DAX support dependend on CONFIG_FS_DAX
-Message-ID: <20211123055616.GA13711@lst.de>
+Subject: Re: [PATCH 04/29] dax: simplify the dax_device <-> gendisk association
+Message-ID: <20211123055742.GB13711@lst.de>
 References: <20211109083309.584081-1-hch@lst.de>
- <20211109083309.584081-3-hch@lst.de>
- <CAPcyv4iPOcD8OsimpSZMnbTEsGZKj-GqSY=cWC0tPvoVs6DE1Q@mail.gmail.com>
- <20211119065457.GA15524@lst.de>
- <CAPcyv4iDujo8ZZp=8xNEhB3u6Vyc6nzq_THGiGRON7x3oi9enw@mail.gmail.com>
+ <20211109083309.584081-5-hch@lst.de>
+ <CAPcyv4ic=Mz_nr5biEoBikTBySJA947ZK3QQ9Mn=KhVb_HiwAA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <CAPcyv4iDujo8ZZp=8xNEhB3u6Vyc6nzq_THGiGRON7x3oi9enw@mail.gmail.com>
+In-Reply-To: <CAPcyv4ic=Mz_nr5biEoBikTBySJA947ZK3QQ9Mn=KhVb_HiwAA@mail.gmail.com>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Cc: Linux NVDIMM <nvdimm@lists.linux.dev>, Mike Snitzer <snitzer@redhat.com>,
  linux-s390 <linux-s390@vger.kernel.org>, linux-erofs@lists.ozlabs.org,
@@ -78,25 +76,10 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Nov 22, 2021 at 06:54:09PM -0800, Dan Williams wrote:
-> On Thu, Nov 18, 2021 at 10:55 PM Christoph Hellwig <hch@lst.de> wrote:
-> >
-> > On Wed, Nov 17, 2021 at 09:23:44AM -0800, Dan Williams wrote:
-> > > Applied, fixed the spelling of 'dependent' in the subject and picked
-> > > up Mike's Ack from the previous send:
-> > >
-> > > https://lore.kernel.org/r/YYASBVuorCedsnRL@redhat.com
-> > >
-> > > Christoph, any particular reason you did not pick up the tags from the
-> > > last posting?
-> >
-> > I thought I did, but apparently I've missed some.
-> 
-> I'll reply with the ones I see missing that need carrying over and add
-> my own reviewed-by then you can send me a pull request when ready,
-> deal?
+On Mon, Nov 22, 2021 at 07:33:06PM -0800, Dan Williams wrote:
+> Is it time to add a "DAX" symbol namespace?
 
-Ok.
+What would be the benefit?
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
