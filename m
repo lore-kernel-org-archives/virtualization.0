@@ -1,97 +1,111 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9799CC43217
-	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 15:56:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0EE33C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 16:54:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3D41B4040D;
-	Tue, 23 Nov 2021 15:56:52 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id AD8C060810;
+	Tue, 23 Nov 2021 16:54:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wQrnVCCLffXn; Tue, 23 Nov 2021 15:56:51 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Nzyi7BUIYhNk; Tue, 23 Nov 2021 16:54:40 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id C38E040416;
-	Tue, 23 Nov 2021 15:56:50 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E527160638;
+	Tue, 23 Nov 2021 16:54:39 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8E36BC0049;
-	Tue, 23 Nov 2021 15:56:49 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 52746C0031
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C00F2C001E;
+	Tue, 23 Nov 2021 16:54:39 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 49B83C0012
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 15:56:45 +0000 (UTC)
+ Tue, 23 Nov 2021 16:54:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 8070D4036A
+ by smtp3.osuosl.org (Postfix) with ESMTP id 391936080B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 15:56:44 +0000 (UTC)
+ Tue, 23 Nov 2021 16:54:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id IZ77s2fCa5uJ
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id AYL4AkdIX1cD
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 15:56:43 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com
- [IPv6:2a00:1450:4864:20::32c])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 5F499400E1
+ Tue, 23 Nov 2021 16:54:37 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id EB14560638
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 15:56:43 +0000 (UTC)
-Received: by mail-wm1-x32c.google.com with SMTP id
- p27-20020a05600c1d9b00b0033bf8532855so2394274wms.3
+ Tue, 23 Nov 2021 16:54:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1637686475;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=aciHBgOPYUjXvQ93eMaFUYSRPYuVBl2T8inUXnPM1DI=;
+ b=HK/jZRZnEU9sQCy7kNZWjDJdkB8yxLYkJE55DxKGZgLV1YKUHC714E62uT+TK4XNEDRSak
+ XPygU2KB9AxxFVPDA22q3NMLtyawxnAZpLnWoIyxipozdOzeWMz6h4+VZK2U99X1toTXh7
+ Fx7jLkZyeGL6DuGfAvFDjdAGZdbKF6s=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-564-JKgtUYC4NZCXDHC9Fh_0Lg-1; Tue, 23 Nov 2021 11:54:34 -0500
+X-MC-Unique: JKgtUYC4NZCXDHC9Fh_0Lg-1
+Received: by mail-wm1-f69.google.com with SMTP id
+ z138-20020a1c7e90000000b003319c5f9164so1489863wmc.7
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 07:56:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=YTNjqGpE3VcD9ViHGW/d2oZFLfgGV6uZyRdtocoRURc=;
- b=RA9304xNns63IlLjRuNm+T8Rp3eWxRbdJ/hHmQG3UhgcRlcOk2VlXLlDBnqlRv9MpM
- PdxsnIuO8ClAT20SfREl5kipXcbOqbloB6e1kt7e214jRC3KCdxvee5DEySscSMBNeOa
- 41GERuNUateIwHRENsHic7PPCW5Dq2n0Ym9H64VH9rLiJknE+KRn6+8ZpVi+hL+aES1s
- J17vSVImd6uxf/QnAmae//Z8obQ43MWeUTwXhX5Ld1mPF//iOGx2m+DIdS723TAfG/D8
- WNZDRpcVLUEUkbU/yX4tqQki0ld32E4CGaSjsq0ZfSu7HlOOGx9kFmuucgYMIBzJtXcQ
- 5C1Q==
+ Tue, 23 Nov 2021 08:54:34 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=YTNjqGpE3VcD9ViHGW/d2oZFLfgGV6uZyRdtocoRURc=;
- b=nZYudjktnxC7Z+qICv3az0kDPkoNYY8EmNzPebpdHfUd6AwCMsbCy+JmEclJdZU/tY
- g5da88LWvIexm2xFboxjK3XTrUOF+Ju3pfjonZafl4YpFR0KM4uX4bmr10ZHWW0MdWtl
- PKSZild03S88+tN865vrVb/LdznmVhmOq5crZR+dUNsoxwraFnAHzKQna9Cvw92Q8n++
- VSSAzGnWyn2OtR9wWpNvy+RUcfr0jlt2I69uTuaekk/HxSHnCixOFS0SrKmDJpbpzZO2
- h5NOHCkOCaAjNeKMHYlhlXMGzctGHH4HqrKlHGB0rGZP7cSK8TdRiTTYcFwyzIyVM9ey
- X2Vg==
-X-Gm-Message-State: AOAM532NfS4v+KAk0fGuTi0geqaD8NQN09CZdAfsBfrFgbQoAbwTBp+n
- 8xTdgav3PVdjRU6TWp9CDbwvHw==
-X-Google-Smtp-Source: ABdhPJyXbikfTn7PtUh68WnDjY38u0Aw8ibNTeoa5UYjoRdL57FuzLwnZVG0aXh8MXyP/eLTk64Brg==
-X-Received: by 2002:a7b:c119:: with SMTP id w25mr4378312wmi.70.1637683001305; 
- Tue, 23 Nov 2021 07:56:41 -0800 (PST)
-Received: from localhost.localdomain
- (cpc92880-cmbg19-2-0-cust679.5-4.cable.virginm.net. [82.27.106.168])
- by smtp.gmail.com with ESMTPSA id r15sm1532572wmh.13.2021.11.23.07.56.40
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 23 Nov 2021 07:56:40 -0800 (PST)
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-To: joro@8bytes.org,
-	will@kernel.org,
-	mst@redhat.com,
-	jasowang@redhat.com
-Subject: [PATCH v2 4/5] iommu/virtio: Pass end address to viommu_add_mapping()
-Date: Tue, 23 Nov 2021 15:53:01 +0000
-Message-Id: <20211123155301.1047943-5-jean-philippe@linaro.org>
-X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20211123155301.1047943-1-jean-philippe@linaro.org>
-References: <20211123155301.1047943-1-jean-philippe@linaro.org>
+ h=x-gm-message-state:message-id:date:mime-version:user-agent
+ :content-language:to:cc:references:from:organization:subject
+ :in-reply-to:content-transfer-encoding;
+ bh=aciHBgOPYUjXvQ93eMaFUYSRPYuVBl2T8inUXnPM1DI=;
+ b=zLMCh1JJ2sn/0ytcRPrcA4chnT5ksY2ndjHCk6XsSMgom/P477FEAWh06orlecS1G0
+ Ja4xG26l8z+OXlBABR+j07L4BvcJelsgkH47ivwUwbJL7N5pVBKA4dexkPYyp3G4J930
+ Avst6jdlJyCXZcmfMNpUfp/75gkmunS+XMzEF/3yl1psVhOHT1iDBstQIRbEZ+fuqsT+
+ jVaGjvR2PSqK+i0tWLZgZ2qqQjfI6VMNAKIWjAQmjwB+uZl7jZKnfWpwX+5XRsjArDkU
+ pPvMaP8MZFLIEOFTdZrci6cfjcFEeqm3QN4UUAQZ7DFHxKKvBX8ZUjx7kM2phFw9cW8k
+ FlRw==
+X-Gm-Message-State: AOAM5309dXqfiHi5sM4dbsEGaEV9BqvHn7nHVYMcDJ+03fjPLYNtD5Su
+ 5BwJ85o3Ak8vt/2/72ZUUsZxWFfOOVACdODQ/34tb7kyf1rA5a+LbyQOEcsKPaqz3qjoNTLl2OE
+ EkkkvPDJG4RDuo9EDIjCYISJOAeIKm/dnfxHzjFyrxw==
+X-Received: by 2002:a1c:2d5:: with SMTP id 204mr4949210wmc.47.1637686473396;
+ Tue, 23 Nov 2021 08:54:33 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzwCJ9kqIZ1afGl9dtKnbyb539MClO63tVvd/xZetuV1ttuaLkE63sS63XqpG4w9XhQeDN2Gg==
+X-Received: by 2002:a1c:2d5:: with SMTP id 204mr4949133wmc.47.1637686472942;
+ Tue, 23 Nov 2021 08:54:32 -0800 (PST)
+Received: from [192.168.3.132] (p5b0c6765.dip0.t-ipconnect.de. [91.12.103.101])
+ by smtp.gmail.com with ESMTPSA id m20sm2100400wmq.11.2021.11.23.08.54.31
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Tue, 23 Nov 2021 08:54:32 -0800 (PST)
+Message-ID: <4c5311c7-bae4-4e48-7006-787f2ee19fb3@redhat.com>
+Date: Tue, 23 Nov 2021 17:54:31 +0100
 MIME-Version: 1.0
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.2.0
+To: Zi Yan <ziy@nvidia.com>
+References: <20211115193725.737539-1-zi.yan@sent.com>
+ <d19fb078-cb9b-f60f-e310-fdeea1b947d2@redhat.com>
+ <C99EE864-DF71-469D-A047-4446400B2AE8@nvidia.com>
+From: David Hildenbrand <david@redhat.com>
+Organization: Red Hat
+Subject: Re: [RFC PATCH 0/3] Use pageblock_order for cma and
+ alloc_contig_range alignment.
+In-Reply-To: <C99EE864-DF71-469D-A047-4446400B2AE8@nvidia.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- pasic@linux.ibm.com, eric.auger@redhat.com, iommu@lists.linux-foundation.org,
- sebastien.boeuf@intel.com
+ linux-mm@kvack.org, iommu@lists.linux-foundation.org,
+ Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>,
+ Marek Szyprowski <m.szyprowski@samsung.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -108,133 +122,327 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-To support identity mappings, the virtio-iommu driver must be able to
-represent full 64-bit ranges internally. Pass (start, end) instead of
-(start, size) to viommu_add/del_mapping().
+On 17.11.21 04:04, Zi Yan wrote:
+> On 16 Nov 2021, at 3:58, David Hildenbrand wrote:
+> 
+>> On 15.11.21 20:37, Zi Yan wrote:
+>>> From: Zi Yan <ziy@nvidia.com>
+>>>
+>>> Hi David,
+>>
+>> Hi,
+>>
+>> thanks for looking into this.
+>>
 
-Clean comments. The one about the returned size was never true: when
-sweeping the whole address space the returned size will most certainly
-be smaller than 2^64.
+Hi,
 
-Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
----
- drivers/iommu/virtio-iommu.c | 31 +++++++++++++++----------------
- 1 file changed, 15 insertions(+), 16 deletions(-)
+sorry for the delay, I wasn't "actually working" last week, so now I'm
+back from holiday :)
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index d63ec4d11b00..eceb9281c8c1 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -311,8 +311,8 @@ static int viommu_send_req_sync(struct viommu_dev *viommu, void *buf,
-  *
-  * On success, return the new mapping. Otherwise return NULL.
-  */
--static int viommu_add_mapping(struct viommu_domain *vdomain, unsigned long iova,
--			      phys_addr_t paddr, size_t size, u32 flags)
-+static int viommu_add_mapping(struct viommu_domain *vdomain, u64 iova, u64 end,
-+			      phys_addr_t paddr, u32 flags)
- {
- 	unsigned long irqflags;
- 	struct viommu_mapping *mapping;
-@@ -323,7 +323,7 @@ static int viommu_add_mapping(struct viommu_domain *vdomain, unsigned long iova,
- 
- 	mapping->paddr		= paddr;
- 	mapping->iova.start	= iova;
--	mapping->iova.last	= iova + size - 1;
-+	mapping->iova.last	= end;
- 	mapping->flags		= flags;
- 
- 	spin_lock_irqsave(&vdomain->mappings_lock, irqflags);
-@@ -338,26 +338,24 @@ static int viommu_add_mapping(struct viommu_domain *vdomain, unsigned long iova,
-  *
-  * @vdomain: the domain
-  * @iova: start of the range
-- * @size: size of the range. A size of 0 corresponds to the entire address
-- *	space.
-+ * @end: end of the range
-  *
-- * On success, returns the number of unmapped bytes (>= size)
-+ * On success, returns the number of unmapped bytes
-  */
- static size_t viommu_del_mappings(struct viommu_domain *vdomain,
--				  unsigned long iova, size_t size)
-+				  u64 iova, u64 end)
- {
- 	size_t unmapped = 0;
- 	unsigned long flags;
--	unsigned long last = iova + size - 1;
- 	struct viommu_mapping *mapping = NULL;
- 	struct interval_tree_node *node, *next;
- 
- 	spin_lock_irqsave(&vdomain->mappings_lock, flags);
--	next = interval_tree_iter_first(&vdomain->mappings, iova, last);
-+	next = interval_tree_iter_first(&vdomain->mappings, iova, end);
- 	while (next) {
- 		node = next;
- 		mapping = container_of(node, struct viommu_mapping, iova);
--		next = interval_tree_iter_next(node, iova, last);
-+		next = interval_tree_iter_next(node, iova, end);
- 
- 		/* Trying to split a mapping? */
- 		if (mapping->iova.start < iova)
-@@ -656,8 +654,8 @@ static void viommu_domain_free(struct iommu_domain *domain)
- {
- 	struct viommu_domain *vdomain = to_viommu_domain(domain);
- 
--	/* Free all remaining mappings (size 2^64) */
--	viommu_del_mappings(vdomain, 0, 0);
-+	/* Free all remaining mappings */
-+	viommu_del_mappings(vdomain, 0, ULLONG_MAX);
- 
- 	if (vdomain->viommu)
- 		ida_free(&vdomain->viommu->domain_ids, vdomain->id);
-@@ -742,6 +740,7 @@ static int viommu_map(struct iommu_domain *domain, unsigned long iova,
- {
- 	int ret;
- 	u32 flags;
-+	u64 end = iova + size - 1;
- 	struct virtio_iommu_req_map map;
- 	struct viommu_domain *vdomain = to_viommu_domain(domain);
- 
-@@ -752,7 +751,7 @@ static int viommu_map(struct iommu_domain *domain, unsigned long iova,
- 	if (flags & ~vdomain->map_flags)
- 		return -EINVAL;
- 
--	ret = viommu_add_mapping(vdomain, iova, paddr, size, flags);
-+	ret = viommu_add_mapping(vdomain, iova, end, paddr, flags);
- 	if (ret)
- 		return ret;
- 
-@@ -761,7 +760,7 @@ static int viommu_map(struct iommu_domain *domain, unsigned long iova,
- 		.domain		= cpu_to_le32(vdomain->id),
- 		.virt_start	= cpu_to_le64(iova),
- 		.phys_start	= cpu_to_le64(paddr),
--		.virt_end	= cpu_to_le64(iova + size - 1),
-+		.virt_end	= cpu_to_le64(end),
- 		.flags		= cpu_to_le32(flags),
- 	};
- 
-@@ -770,7 +769,7 @@ static int viommu_map(struct iommu_domain *domain, unsigned long iova,
- 
- 	ret = viommu_send_req_sync(vdomain->viommu, &map, sizeof(map));
- 	if (ret)
--		viommu_del_mappings(vdomain, iova, size);
-+		viommu_del_mappings(vdomain, iova, end);
- 
- 	return ret;
- }
-@@ -783,7 +782,7 @@ static size_t viommu_unmap(struct iommu_domain *domain, unsigned long iova,
- 	struct virtio_iommu_req_unmap unmap;
- 	struct viommu_domain *vdomain = to_viommu_domain(domain);
- 
--	unmapped = viommu_del_mappings(vdomain, iova, size);
-+	unmapped = viommu_del_mappings(vdomain, iova, iova + size - 1);
- 	if (unmapped < size)
- 		return 0;
- 
+>>>
+>>> You suggested to make alloc_contig_range() deal with pageblock_order instead of
+>>> MAX_ORDER - 1 and get rid of MAX_ORDER - 1 dependency in virtio_mem[1]. This
+>>> patchset is my attempt to achieve that. Please take a look and let me know if
+>>> I am doing it correctly or not.
+>>>
+>>> From what my understanding, cma required alignment of
+>>> max(MAX_ORDER - 1, pageblock_order), because when MIGRATE_CMA was introduced,
+>>> __free_one_page() does not prevent merging two different pageblocks, when
+>>> MAX_ORDER - 1 > pageblock_order. But current __free_one_page() implementation
+>>> does prevent that. It should be OK to just align cma to pageblock_order.
+>>> alloc_contig_range() relies on MIGRATE_CMA to get free pages, so it can use
+>>> pageblock_order as alignment too.
+>>
+>> I wonder if that's sufficient. Especially the outer_start logic in
+>> alloc_contig_range() might be problematic. There are some ugly corner
+>> cases with free pages/allocations spanning multiple pageblocks and we
+>> only isolated a single pageblock.
+> 
+> Thank you a lot for writing the list of these corner cases. They are
+> very helpful!
+> 
+>>
+>>
+>> Regarding CMA, we have to keep the following cases working:
+>>
+>> a) Different pageblock types (MIGRATE_CMA and !MIGRATE_CMA) in MAX_ORDER
+>>    - 1 page:
+>>    [       MAX_ ORDER - 1     ]
+>>    [ pageblock 0 | pageblock 1]
+>>
+>> Assume either pageblock 0 is MIGRATE_CMA or pageblock 1 is MIGRATE_CMA,
+>> but not both. We have to make sure alloc_contig_range() keeps working
+>> correctly. This should be the case even with your change, as we won't
+>> merging pages accross differing migratetypes.
+> 
+> Yes.
+> 
+>>
+>> b) Migrating/freeing a MAX_ ORDER - 1 page while partially isolated:
+>>    [       MAX_ ORDER - 1     ]
+>>    [ pageblock 0 | pageblock 1]
+>>
+>> Assume both are MIGRATE_CMA. Assume we want to either allocate from
+>> pageblock 0 or pageblock 1. Especially, assume we want to allocate from
+>> pageblock 1. While we would isolate pageblock 1, we wouldn't isolate
+>> pageblock 0.
+>>
+>> What happens if we either have a free page spanning the MAX_ORDER - 1
+>> range already OR if we have to migrate a MAX_ORDER - 1 page, resulting
+>> in a free MAX_ORDER - 1 page of which only the second pageblock is
+>> isolated? We would end up essentially freeing a page that has mixed
+>> pageblocks, essentially placing it in !MIGRATE_ISOLATE free lists ... I
+>> might be wrong but I have the feeling that this would be problematic.
+>>
+> 
+> This could happen when start_isolate_page_range() stumbles upon a compound
+> page with order >= pageblock_order or a free page with order >=
+> pageblock_order, but should not. start_isolate_page_range() should check
+> the actual page size, either compound page size or free page size, and set
+> the migratetype across pageblocks if the page is bigger than pageblock size.
+> More precisely set_migratetype_isolate() should do that.
+
+Right -- but then we have to extend the isolation range from within
+set_migratetype_isolate() :/ E.g., how should we know what we have to
+unisolate later ..
+
+> 
+> 
+>> c) Concurrent allocations:
+>>     [       MAX_ ORDER - 1     ]
+>>     [ pageblock 0 | pageblock 1]
+>>
+>> Assume b) but we have two concurrent CMA allocations to pageblock 0 and
+>> pageblock 1, which would now be possible as start_isolate_page_range()
+>> isolate would succeed on both.
+> 
+> Two isolations will be serialized by the zone lock taken by
+> set_migratetype_isolate(), so the concurrent allocation would not be a problem.
+> If it is a MAX_ORDER-1 free page, the first comer should split it and only
+> isolate one of the pageblock then second one can isolate the other pageblock.
+
+Right, the issue is essentially b) above.
+
+> If it is a MAX_ORDER-1 compound page, the first comer should isolate both
+> pageblocks, then the second one would fail. WDYT?
+
+Possibly we could even have two independent CMA areas "colliding" within
+a MAX_ ORDER - 1 page. I guess the surprise would be getting an
+"-EAGAIN" from isolation, but the caller should properly handle that.
+
+Maybe it's really easier to do something along the lines I proposed
+below and always isolate the complete MAX_ORDER-1 range in
+alloc_contig_range(). We just have to "fix" isolation as I drafted.
+
+> 
+> 
+> In sum, it seems to me that the issue is page isolation code only sees
+> pageblock without check the actual page. When there are multiple pageblocks
+> belonging to one page, the problem appears. This should be fixed.
+> 
+>>
+>>
+>> Regarding virtio-mem, we care about the following cases:
+>>
+>> a) Allocating parts from completely movable MAX_ ORDER - 1 page:
+>>    [       MAX_ ORDER - 1     ]
+>>    [ pageblock 0 | pageblock 1]
+>>
+>> Assume pageblock 0 and pageblock 1 are either free or contain only
+>> movable pages. Assume we allocated pageblock 0. We have to make sure we
+>> can allocate pageblock 1. The other way around, assume we allocated
+>> pageblock 1, we have to make sure we can allocate pageblock 0.
+>>
+>> Free pages spanning both pageblocks might be problematic.
+> 
+> Can you elaborate a bit? If either of pageblock 0 and 1 is used by
+> virtio-mem, why do we care the other? If pageblock 0 and 1 belong to
+> the same page (either free or compound), they should have the same
+> migratetype. If we want to just allocate one of them, we can split
+> the free page or migrate the compound page then split the remaining
+> free page.
+
+The thing is: it has to work on ZONE_NORMAL and ZONE_MOVABLE as well.
+It's essentially the same issue as a) and b) in the CMA case, so it
+should be covered by these.
+
+> 
+>>
+>> b) Allocate parts of partially movable MAX_ ORDER - 1 page:
+>>    [       MAX_ ORDER - 1     ]
+>>    [ pageblock 0 | pageblock 1]
+>>
+>> Assume pageblock 0 contains unmovable data but pageblock 1 not: we have
+>> to make sure we can allocate pageblock 1. Similarly, assume pageblock 1
+>> contains unmovable data but pageblock 0 no: we have to make sure we can
+>> allocate pageblock 1. has_unmovable_pages() might allow for that.
+>>
+>> But, we want to fail early in case we want to allocate a single
+>> pageblock but it contains unmovable data. This could be either directly
+>> or indirectly.
+>>
+>> If we have an unmovable (compound) MAX_ ORDER - 1 and we'd try isolating
+>> pageblock 1, has_unmovable_pages() would always return "false" because
+>> we'd simply be skiping over any tail pages, and not detect the
+>> un-movability.
+> 
+> OK. It seems to me that has_unmovable_pages() needs to be fixed to handle
+> such a situation.
+
+Right.
+
+> 
+>>
+>> c) Migrating/freeing a MAX_ ORDER - 1 page while partially isolated:
+>>
+>> Same concern as for CMA b)
+>>
+>>
+>> So the biggest concern I have is dealing with migrating/freeing >
+>> pageblock_order pages while only having isolated a single pageblock.
+> 
+> I agree. I think isolation code needs to be aware of >pageblock_order
+> pages and act accordingly. If it is a free page, split the page to
+> avoid isolating a subset of the page. If it is a compound page, either
+> fail the isolation or isolate the entire compound page instead.
+> 
+>>
+>>>
+>>> In terms of virtio_mem, if I understand correctly, it relies on
+>>> alloc_contig_range() to obtain contiguous free pages and offlines them to reduce
+>>> guest memory size. As the result of alloc_contig_range() alignment change,
+>>> virtio_mem should be able to just align PFNs to pageblock_order.
+>>
+>> For virtio-mem it will most probably be desirable to first try
+>> allocating the MAX_ORDER -1 range if possible and then fallback to
+>> pageblock_order. But that's an additional change on top in virtio-mem code.
+>>
+> 
+> Just to understand the motivation, is this because MAX_ORDER-1 range
+> would be faster than pageblock_order? What if MAX_ORDER-1 goes beyond
+> a memory section size (like my WIP patchset to increase MAX_ORDER
+> beyond the memory section size)? virtio-mem could first try PAGES_PER_SECTION,
+> then fall back to pageblock_order, right?
+
+My comment is only in the context of this patch series, not in context
+of eventually raising MAX_ORDER to exceed eventually a single memory
+section or even a memory block.
+
+Yes, it would be faster. What we do right now (if the complete memory
+block is used by Linux and thus not allocated by virtio-mem yet):
+
+a) Try allocating the the complete memory block.
+b) If it fails, fallback to essentially MAX_ORDER - 1 chunks
+
+In the context of this patch it would be reasonable to
+
+a) Try allocating the the complete memory block.
+b) If it fails, fallback to essentially MAX_ORDER - 1 chunks
+c) If it fails, fallback to essentially pageblock order chunks
+
+Things will be different if we change MAX_ORDER - 1.
+
+>>
+>>
+>> My take to teach alloc_contig_range() to properly handle would be the
+>> following:
+>>
+>> a) Convert MIGRATE_ISOLATE into a separate pageblock flag
+>>
+>> We would want to convert MIGRATE_ISOLATE into a separate pageblock
+>> flags, such that when we isolate a page block we preserve the original
+>> migratetype. While start_isolate_page_range() would set that bit,
+>> undo_isolate_page_range() would simply clear that bit. The buddy would
+>> use a single MIGRATE_ISOLATE queue as is: the original migratetype is
+>> only used for restoring the correct migratetype. This would allow for
+>> restoring e.g., MIGRATE_UNMOVABLE after isolating an unmovable pageblock
+>> (below) and not simply setting all such pageblocks to MIGRATE_MOVABLE
+>> when un-isolating.
+>>
+>> Ideally, we'd get rid of the "migratetype" parameter for
+>> alloc_contig_range(). However, even with the above change we have to
+>> make sure that memory offlining and ordinary alloc_contig_range() users
+>> will fail on MIGRATE_CMA pageblocks (has_unmovable_page() checks that as
+>> of today). We could achieve that differently, though (e.g., bool
+>> cma_alloc parameter instead).
+> 
+> This might need to be done in a separate patch, since pageblock bits require
+> to be word aligned and it is 4 now. To convert MIGRATE_ISOLATE to a separate
+> bit, either NR_PAGEBLOCK_BITS needs to be increased to 8 or a separate
+> isolation bitmap array needs to be allocated. Or the migratetype information
+> can be stored temporarily during isolation process. I can look into it later.
+
+Right, we'd need 8 instead of 4 bits. But we could preserve the previous
+migratettype (MOVABLE, UNMOVABLE, CMA) ... when isolating and wouldn't
+have to magically punch in whatever someone told us.
+
+> 
+> 
+>>
+>>
+>> b) Allow isolating pageblocks with unmovable pages
+>>
+>> We'd pass the actual range of interest to start_isolate_page_range() and
+>> rework the code to check has_unmovable_pages() only on the range of
+>> interest, but considering overlapping larger allocations. E.g., if we
+>> stumble over a compound page, lookup the head an test if that page is
+>> movable/unmovable.
+> 
+> This is an optimization to reduce isolation failure rate, right? This only
+> applies to the pageblocks at the beginning and the end of a range of interest.
+
+Right. And with a) we can simply isolate+unisolate without always
+changing the migratetype e.g., to MIGRATE_MOVABLE in case of virtio-mem.
+
+> 
+>>
+>> c) Change alloc_contig_range() to not "extend" the range of interest to
+>> include pageblock of different type. Assume we're isolating a
+>> MIGRATE_CMA pageblock, only isolate a neighboring MIGRATE_CMA pageblock,
+>> not other pageblocks.
+> 
+> But alloc_contig_range() would return these extended pageblocks at the end.
+> And if pageblock migratetype can be preserved during isolation (item (a) above),
+> this would not be a problem, right?
+
+We have to make sure that ordinary alloc_contig_range() and memory
+offlining don't allocate MIGRATE_CMA ranges. So when actually isolating
+we have to refuse isolating MIGRATE_CMA pageblocks. Handling that in the
+caller when adjusting the range keeps the logic in the actual isolation
+code is one option (cma=false - bail out when wanting to isolate
+MIGRATE_CMA).
+
+But there might be alternatives. Most probably we'd just have to check
+for the "range of interest". If cma=false we just have to make sure to
+not isolate MIGRATE_CMA inside the "range of interest". Yes that should
+work as well.
+
+> 
+>>
+>>
+>> So we'd keep isolating complete MAX_ORDER - 1 pages unless c) prevents
+>> it. We'd allow isolating even pageblocks that contain unmovable pages on
+>> ZONE_NORMAL, and check via has_unmovable_pages() only if the range of
+>> interest contains unmovable pages, not the whole MAX_ORDER -1 range or
+>> even the whole pageblock. We'd not silently overwrite the pageblock type
+>> when restoring but instead restore the old migratetype.
+>>
+> I assume MAX_ORDER - 1 is an optimization for faster isolation speed.
+> If MAX_ORDER goes beyond a memory section size, I guess PAGES_PER_SECTION
+> is what you want, right? FYI, I am preparing a follow-up patch to replace
+> any MAX_ORDER use that is intended to indicate maximum physically contiguous
+> size with a new variable, MAX_PHYS_CONTIG_ORDER, which is PFN_SECTION_SHIFT
+> when SPARSEMEM and MAX_ORDER when FLATMEM. I would replace MAX_ORDER here
+> with the new variable.
+
+Yes, with MAX_ORDER changes it will be a different story. We could
+detect at runtime what actually makes sense.
+
 -- 
-2.33.1
+Thanks,
+
+David / dhildenb
 
 _______________________________________________
 Virtualization mailing list
