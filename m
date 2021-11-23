@@ -4,83 +4,81 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 60478C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 03:41:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id A87D4C433EF
+	for <virtualization@archiver.kernel.org>; Tue, 23 Nov 2021 03:51:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E7579404A5;
-	Tue, 23 Nov 2021 03:41:16 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id F0FF140474;
+	Tue, 23 Nov 2021 03:51:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id R4wMM1bCYhBb; Tue, 23 Nov 2021 03:41:16 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 90C104047F;
-	Tue, 23 Nov 2021 03:41:15 +0000 (UTC)
+	with ESMTP id dnGLXUBMUGED; Tue, 23 Nov 2021 03:51:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id CA990402B2;
+	Tue, 23 Nov 2021 03:51:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 67571C001E;
-	Tue, 23 Nov 2021 03:41:15 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D6C62C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 92B6EC001E;
+	Tue, 23 Nov 2021 03:51:31 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7A47DC0012
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 03:41:13 +0000 (UTC)
+ Tue, 23 Nov 2021 03:51:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id C0D9960605
+ by smtp1.osuosl.org (Postfix) with ESMTP id 555FF80D43
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 03:41:13 +0000 (UTC)
+ Tue, 23 Nov 2021 03:51:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=intel-com.20210112.gappssmtp.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id T47osv-6ylGE
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id rdZuawsmuuif
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 03:41:13 +0000 (UTC)
+ Tue, 23 Nov 2021 03:51:27 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com
- [IPv6:2607:f8b0:4864:20::102f])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 42C48605F5
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com
+ [IPv6:2607:f8b0:4864:20::633])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 6706780D40
  for <virtualization@lists.linux-foundation.org>;
- Tue, 23 Nov 2021 03:41:13 +0000 (UTC)
-Received: by mail-pj1-x102f.google.com with SMTP id
- w33-20020a17090a6ba400b001a722a06212so1231829pjj.0
+ Tue, 23 Nov 2021 03:51:27 +0000 (UTC)
+Received: by mail-pl1-x633.google.com with SMTP id u17so15892050plg.9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 22 Nov 2021 19:41:13 -0800 (PST)
+ Mon, 22 Nov 2021 19:51:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=intel-com.20210112.gappssmtp.com; s=20210112;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=yuisy9zT1caIpoCJEL+LfomruK38WXIi70xmI7lYDdI=;
- b=Y08/be2uy1a6FHo2yuq5V6dIERIFe+eeTyXLXTKFjFxfAYARUBwDdqRv9XulygxcF5
- 4zZfKtYGqV6eckQSPyIqI+Gn3GMQFWIP9FXR6DHHwN+9GDnZm18bVZGFa88rvhT3Zhp8
- eBxG8SJu0LWqmuhUvXdN5Q8E0N7Fv2c7+1ZOSnPpTxrI3q5JIXNMGFvAj0k+TWuhQgQG
- tLoyO8DVm7L0ndxV5dBnp+whJ587dE90ANm0vqzPKJbxSHtsEtd3ERFpgMcAPItk+09G
- dbm69RRAjzWoV6a6vlvEHV0tkZfEJqiOGj5p0uoKbINk6WBGJnIFfCSAm3gIT8TG78mL
- kVoQ==
+ :cc; bh=set6lIbZWt1UwkjEncJQUmHWp82483Zo0VHgKUnBt0w=;
+ b=jaUppntJAg9/mAuYY2fdr9gBd/oPSVvQjQU9MV63keKS4G12JP+nEpEbf/XFgQhTnX
+ lYhroHBz4A/n/ueNjXRdi4PGz3IaMMWx7LGsyQ+k3PmsLBwgA59MgQmr1YDS9DWkwjiz
+ h84Lz9nQApqhFCv5vhWhKtFCwv3whkuknXHpmp6xY5puSg20rPurJJzE+22u3JyTEE6e
+ V2urCXYlCDQCwVaaqgneBsM+4H995+ijZVTqf+fHfdEatR6QlNecFf1J/UGHfHqEPUgZ
+ uA/eGzna5QhHm2jHR+WAFoVlyr/aaF9uDy12SjgTOzdukRcbvTwMgK4DzpeCeqXvlNDK
+ as+w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=yuisy9zT1caIpoCJEL+LfomruK38WXIi70xmI7lYDdI=;
- b=7sw8z5+AqWZyk16aOgO/2k823yjE1kr+EizZDyslnRbn4Y23+zWlWzsZXdCUufuiiO
- yFL1YlIENicVrnmOqyN6Mbo4ijwqVoRifgeAygFypyRIyIMOTTFar5VWuhROsFyoZLoW
- DXTRwp5jpwikYIGBPzL0pXLmOB+W4/WqbA57Nu8IPP8WXoPMwyKAgK1DyaF3ShI0a6FV
- kivOZk39RfsNA/JCYdL5HDaIhGvaJEo1J67CkF2Fpu8fwQRUxl4HS7KXI+xfZnHJx1hl
- c850TlQHqvfGzFDFa+ttJcg0tQaMeoQOM0yrtqMZbO3JZLZ2oA2YZM9y25Aa9Q4/vs6C
- VMsg==
-X-Gm-Message-State: AOAM530DdmS2Z1OvIx2njhmBPUJCXBp7UkyOEy1nffcsBhXFDPa/10jg
- wExCVC6pTRA5DjiSQOH7xfUtP9TG8w3HbF7N2k2eYg==
-X-Google-Smtp-Source: ABdhPJwgBzEQtBEEt5JgwawqvX/CZbZsaXh/qAQWeeflxeagBI6MsJ+fyqKdfOXHrkiL5G4d5gMRZlq/mNM2Mj9gTds=
-X-Received: by 2002:a17:90b:1e07:: with SMTP id
- pg7mr2525502pjb.93.1637638872640; 
- Mon, 22 Nov 2021 19:41:12 -0800 (PST)
+ bh=set6lIbZWt1UwkjEncJQUmHWp82483Zo0VHgKUnBt0w=;
+ b=V/miO1N08Lz/gZ7VCihWyzJ4xTBjn7LCaUXIcYAzjJ6URkS3ZFkvOHTZc2WajFyoE6
+ mXKRIkPOGQX1IdlZUKb7+RbGf4Y5EhLfh5TPY/zuh/iH75OpLN6R4UJSCdlfkgs5i5Tn
+ 1iIspMmaovdd7aSe0pnYQ1DcbqntoE6YzHKUfuPlmeXBDgsyDOLkJ4N4eITEuM57nlqv
+ NcREBSNlM0knsbUZ1zTGlyKoLq6gfZOlLvL3CAFGW1YJ6bialuVYXMOixglXbDZwp+pW
+ NGHhK2/5jHluh8XvenDiBtKkTSkfk2ABrcH0bJF86owfzfKb1sb6oQzAl4VsuSzhwCAS
+ 6nlA==
+X-Gm-Message-State: AOAM532kYCW51qWUiSSV3WEpnVvOjAz+khClN6t1DPiFyJ98ZVDR41Ox
+ /BlyWfFyQEUq1T2Yi9LWCObnkgboofcYhRVvIwQ7LA==
+X-Google-Smtp-Source: ABdhPJwgdeM7vJZ2DKKwalEr7KeonINU2K18nZr67CpB7ixzXQKpSb7Eol7dgHhzUPEgLb+CGDYy92xBtwbeaxDZs1M=
+X-Received: by 2002:a17:902:6acb:b0:142:76c3:d35f with SMTP id
+ i11-20020a1709026acb00b0014276c3d35fmr2967201plt.89.1637639486743; Mon, 22
+ Nov 2021 19:51:26 -0800 (PST)
 MIME-Version: 1.0
 References: <20211109083309.584081-1-hch@lst.de>
- <20211109083309.584081-7-hch@lst.de>
-In-Reply-To: <20211109083309.584081-7-hch@lst.de>
+ <20211109083309.584081-8-hch@lst.de>
+In-Reply-To: <20211109083309.584081-8-hch@lst.de>
 From: Dan Williams <dan.j.williams@intel.com>
-Date: Mon, 22 Nov 2021 19:41:01 -0800
-Message-ID: <CAPcyv4imYR=NLizABpZA+gKH+amNQ6jcVNQhtF+1jyevdWzmBw@mail.gmail.com>
-Subject: Re: [PATCH 06/29] dax: move the partition alignment check into
- fs_dax_get_by_bdev
+Date: Mon, 22 Nov 2021 19:51:15 -0800
+Message-ID: <CAPcyv4jnLdFaDwLTeRhJcTzyjd-psZRgWqVDqzOAZr3EGLbF2w@mail.gmail.com>
+Subject: Re: [PATCH 07/29] xfs: factor out a xfs_setup_dax_always helper
 To: Christoph Hellwig <hch@lst.de>
 Cc: Linux NVDIMM <nvdimm@lists.linux.dev>, Mike Snitzer <snitzer@redhat.com>,
  linux-s390 <linux-s390@vger.kernel.org>, linux-erofs@lists.ozlabs.org,
@@ -107,10 +105,11 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Tue, Nov 9, 2021 at 12:33 AM Christoph Hellwig <hch@lst.de> wrote:
 >
-> fs_dax_get_by_bdev is the primary interface to find a dax device for a
-> block device, so move the partition alignment check there instead of
-> wiring it up through ->dax_supported.
+> Factor out another DAX setup helper to simplify future changes.  Also
+> move the experimental warning after the checks to not clutter the log
+> too much if the setup failed.
 >
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
 
 Reviewed-by: Dan Williams <dan.j.williams@intel.com>
 _______________________________________________
