@@ -1,57 +1,57 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7D2D8C4332F
-	for <virtualization@archiver.kernel.org>; Wed, 24 Nov 2021 06:55:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2E5BCC433EF
+	for <virtualization@archiver.kernel.org>; Wed, 24 Nov 2021 06:59:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 17D2160B78;
-	Wed, 24 Nov 2021 06:55:08 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id CB2FA80CDA;
+	Wed, 24 Nov 2021 06:59:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 7DSWMHBYRoSJ; Wed, 24 Nov 2021 06:55:07 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JevnHgG533ij; Wed, 24 Nov 2021 06:59:45 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id D942160B75;
-	Wed, 24 Nov 2021 06:55:06 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8D76880C8F;
+	Wed, 24 Nov 2021 06:59:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A86D1C001E;
-	Wed, 24 Nov 2021 06:55:06 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3657AC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 60A20C001E;
+	Wed, 24 Nov 2021 06:59:44 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 47C5CC0012
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 06:55:05 +0000 (UTC)
+ Wed, 24 Nov 2021 06:59:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2461D4024A
+ by smtp4.osuosl.org (Postfix) with ESMTP id 2F4EC4023B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 06:55:05 +0000 (UTC)
+ Wed, 24 Nov 2021 06:59:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NwdH8-00Qqv9
+ with ESMTP id 1jlhg1ViPL18
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 06:55:04 +0000 (UTC)
+ Wed, 24 Nov 2021 06:59:41 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 918C8401C1
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 9C55D40233
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 06:55:04 +0000 (UTC)
+ Wed, 24 Nov 2021 06:59:41 +0000 (UTC)
 Received: by verein.lst.de (Postfix, from userid 2407)
- id 70B4A68AFE; Wed, 24 Nov 2021 07:55:01 +0100 (CET)
-Date: Wed, 24 Nov 2021 07:55:01 +0100
+ id 2A62068AFE; Wed, 24 Nov 2021 07:59:38 +0100 (CET)
+Date: Wed, 24 Nov 2021 07:59:38 +0100
 From: Christoph Hellwig <hch@lst.de>
 To: Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [PATCH 21/29] xfs: move dax device handling into
- xfs_{alloc,free}_buftarg
-Message-ID: <20211124065501.GA7229@lst.de>
+Subject: Re: [PATCH 25/29] dax: return the partition offset from
+ fs_dax_get_by_bdev
+Message-ID: <20211124065938.GB7229@lst.de>
 References: <20211109083309.584081-1-hch@lst.de>
- <20211109083309.584081-22-hch@lst.de>
- <CAPcyv4hY4g82PrjMPO=1kiM5sL=3=yR66r6LeG8RS3Ha2k1eUw@mail.gmail.com>
+ <20211109083309.584081-26-hch@lst.de>
+ <CAPcyv4jtWzd3c_S1_4fYA1SXTJZfBzP_1xk_OwYkeNp0UhxwSg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <CAPcyv4hY4g82PrjMPO=1kiM5sL=3=yR66r6LeG8RS3Ha2k1eUw@mail.gmail.com>
+In-Reply-To: <CAPcyv4jtWzd3c_S1_4fYA1SXTJZfBzP_1xk_OwYkeNp0UhxwSg@mail.gmail.com>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Cc: Linux NVDIMM <nvdimm@lists.linux.dev>, Mike Snitzer <snitzer@redhat.com>,
  linux-s390 <linux-s390@vger.kernel.org>, linux-erofs@lists.ozlabs.org,
@@ -77,18 +77,25 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Nov 23, 2021 at 06:40:47PM -0800, Dan Williams wrote:
+On Tue, Nov 23, 2021 at 06:56:29PM -0800, Dan Williams wrote:
 > On Tue, Nov 9, 2021 at 12:34 AM Christoph Hellwig <hch@lst.de> wrote:
 > >
-> > Hide the DAX device lookup from the xfs_super.c code.
-> >
-> > Reviewed-by: Christoph Hellwig <hch@lst.de>
+> > Prepare from removing the block_device from the DAX I/O path by returning
 > 
-> That's an interesting spelling of "Signed-off-by", but patch looks
-> good to me too. I would have expected a robot to complain about
-> missing sign-off?
+> s/from removing/for the removal of/
 
-Hah.  I'll fix it up.
+Fixed.
+
+> >         td->dm_dev.bdev = bdev;
+> > -       td->dm_dev.dax_dev = fs_dax_get_by_bdev(bdev);
+> > +       td->dm_dev.dax_dev = fs_dax_get_by_bdev(bdev, &part_off);
+> 
+> Perhaps allow NULL as an argument for callers that do not care about
+> the start offset?
+
+All callers currently care, dm just has another way to get at the
+information.  So for now I'd like to not add the NULL special case,
+but we can reconsider that as needed if/when more callers show up.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
