@@ -1,30 +1,30 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D4860C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 24 Nov 2021 11:44:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 6AAC5C433EF
+	for <virtualization@archiver.kernel.org>; Wed, 24 Nov 2021 11:44:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 640CE80CE7;
-	Wed, 24 Nov 2021 11:44:32 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id D9AB3403E5;
+	Wed, 24 Nov 2021 11:44:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dPbEux1k7cJh; Wed, 24 Nov 2021 11:44:31 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id S7Uu6VgQgxLa; Wed, 24 Nov 2021 11:44:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0888280CC2;
-	Wed, 24 Nov 2021 11:44:31 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 4487C40371;
+	Wed, 24 Nov 2021 11:44:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CCAE0C001E;
-	Wed, 24 Nov 2021 11:44:30 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1746CC001E;
+	Wed, 24 Nov 2021 11:44:32 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7F113C0012
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DD975C0036
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 11:44:29 +0000 (UTC)
+ Wed, 24 Nov 2021 11:44:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 668AF60C30
+ by smtp3.osuosl.org (Postfix) with ESMTP id C9C0B60619
  for <virtualization@lists.linux-foundation.org>;
  Wed, 24 Nov 2021 11:44:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
@@ -32,13 +32,13 @@ Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=armlinux.org.uk
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uyDV7rHU8w6X
+ with ESMTP id rSVPnO7XZ93v
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 11:44:28 +0000 (UTC)
+ Wed, 24 Nov 2021 11:44:29 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk
  [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 861DB60619
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 01C4E60BFE
  for <virtualization@lists.linux-foundation.org>;
  Wed, 24 Nov 2021 11:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
@@ -47,27 +47,27 @@ DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
  Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
  List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=G9r7x0IMWPmEtkjUXiisRloX817MmWgYVCedn25iGv8=; b=w/wR+72JeuJ57uMWc+lEqLMRIN
- QqwfVuwY9Q2LY/2s/5Q34+re64hnCOaW7M7+7kgu0rkRM1Hy6eMyeIo801dnOunA5LH/f0jXpMPAQ
- dE5JOy5oGnVGLU4JzTxkBbkMY20uqu4ITG1UDhKkz4izGMecdwP6hjT3JAg71aZNVAQZ7y+Ve6ZJp
- i7VVrGTfz7W64gZ/Ywth3o/9VV+6vio3gXON/V8GmJxalH5+rOp2YHKJHFixiovh6KkPPbSbr5ZG9
- ++LhT0b9FxGioRWnvIPQnLTejOTvQ4E6mHQgmZ81LbPBrcVaszP5U6YoytWP+damJDcQs4pYGckJj
- dQps1lFA==;
+ bh=LNu4AykOPGTGRWShRdT+QGUAXF7U4RU104garBUKgaA=; b=Kl6Wq5os68RBQahJ224rY3eb68
+ RGwfznLW2AcUbJFhcDKyzFfbeuU27I+4y77xbyQTOTxwoXAvP2JZbcksotMqRoCL7q/yLFZTYSZeF
+ vd43e986TTXq6aliGAX9sgXpqa6GqbsVLXF037rG1goY2zT/19AuX+Et/IPgflPCfUl0mEsu5rzZz
+ KWVD1uT/X5GsN5a5lPU6O+E0/lFpg+WKmQoehD61Gs3n5vgzc1S/BxnqMNYcbmWne17sydJ6liEwb
+ J1WVC/95J/EgYKsIHjfYUrrejtSlkiMjKDh5oEH6Zqy+pEGM4umUaUtgOhbFrbAryjrdVkXcXYcPj
+ Bw/C31Kg==;
 Received: from shell.armlinux.org.uk
- ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:55844)
+ ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:55842)
  by pandora.armlinux.org.uk with esmtpsa (TLS1.3) tls
  TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.94.2)
  (envelope-from <linux@armlinux.org.uk>)
- id 1mpqZa-0000Xd-4o; Wed, 24 Nov 2021 11:36:22 +0000
+ id 1mpqWZ-0000Wd-20; Wed, 24 Nov 2021 11:33:15 +0000
 Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
  (envelope-from <linux@shell.armlinux.org.uk>)
- id 1mpqZY-00019p-3W; Wed, 24 Nov 2021 11:36:20 +0000
-Date: Wed, 24 Nov 2021 11:36:20 +0000
+ id 1mpqWP-00019h-7L; Wed, 24 Nov 2021 11:33:05 +0000
+Date: Wed, 24 Nov 2021 11:33:05 +0000
 From: "Russell King (Oracle)" <linux@armlinux.org.uk>
 To: Alexander Lobakin <alexandr.lobakin@intel.com>
 Subject: Re: [PATCH v2 net-next 08/26] mvpp2: provide .ndo_get_xdp_stats()
  callback
-Message-ID: <YZ4jtImZvOVihtv1@shell.armlinux.org.uk>
+Message-ID: <YZ4i8fQcM47wDbeS@shell.armlinux.org.uk>
 References: <20211123163955.154512-1-alexandr.lobakin@intel.com>
  <20211123163955.154512-9-alexandr.lobakin@intel.com>
 MIME-Version: 1.0
@@ -120,69 +120,10 @@ On Tue, Nov 23, 2021 at 05:39:37PM +0100, Alexander Lobakin wrote:
 > 
 > Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
 > Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-> ---
->  .../net/ethernet/marvell/mvpp2/mvpp2_main.c   | 51 +++++++++++++++++++
->  1 file changed, 51 insertions(+)
-> 
-> diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-> index 97bd2ee8a010..58203cde3b60 100644
-> --- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-> +++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-> @@ -5131,6 +5131,56 @@ mvpp2_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
->  	stats->tx_dropped	= dev->stats.tx_dropped;
->  }
-> 
-> +static int mvpp2_get_xdp_stats_ndo(const struct net_device *dev, u32 attr_id,
-> +				   void *attr_data)
-> +{
-> +	const struct mvpp2_port *port = netdev_priv(dev);
-> +	struct ifla_xdp_stats *xdp_stats = attr_data;
-> +	u32 cpu, start;
-> +
-> +	switch (attr_id) {
-> +	case IFLA_XDP_XSTATS_TYPE_XDP:
-> +		break;
-> +	default:
-> +		return -EOPNOTSUPP;
-> +	}
-> +
-> +	for_each_possible_cpu(cpu) {
-> +		const struct mvpp2_pcpu_stats *ps;
-> +		u64 xdp_xmit_err;
-> +		u64 xdp_redirect;
-> +		u64 xdp_tx_err;
-> +		u64 xdp_pass;
-> +		u64 xdp_drop;
-> +		u64 xdp_xmit;
-> +		u64 xdp_tx;
-> +
-> +		ps = per_cpu_ptr(port->stats, cpu);
-> +
-> +		do {
-> +			start = u64_stats_fetch_begin_irq(&ps->syncp);
-> +
-> +			xdp_redirect = ps->xdp_redirect;
-> +			xdp_pass = ps->xdp_pass;
-> +			xdp_drop = ps->xdp_drop;
-> +			xdp_xmit = ps->xdp_xmit;
-> +			xdp_xmit_err = ps->xdp_xmit_err;
-> +			xdp_tx = ps->xdp_tx;
-> +			xdp_tx_err = ps->xdp_tx_err;
-> +		} while (u64_stats_fetch_retry_irq(&ps->syncp, start));
-> +
-> +		xdp_stats->redirect += xdp_redirect;
-> +		xdp_stats->pass += xdp_pass;
-> +		xdp_stats->drop += xdp_drop;
-> +		xdp_stats->xmit_packets += xdp_xmit;
-> +		xdp_stats->xmit_errors += xdp_xmit_err;
-> +		xdp_stats->tx += xdp_tx;
-> +		xdp_stats->tx_errors  += xdp_tx_err;
-> +	}
 
-Actually, the only concern I have here is the duplication between this
-function and mvpp2_get_xdp_stats(). It looks to me like these two
-functions could share a lot of their code. Please submit a patch to
-make that happen. Thanks.
+Reviewed-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+
+Thanks!
 
 -- 
 RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
