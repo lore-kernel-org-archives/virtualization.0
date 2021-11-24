@@ -1,56 +1,55 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F1C1DC433FE
-	for <virtualization@archiver.kernel.org>; Wed, 24 Nov 2021 06:52:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 17488C433FE
+	for <virtualization@archiver.kernel.org>; Wed, 24 Nov 2021 06:54:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 7B5C540126;
-	Wed, 24 Nov 2021 06:52:35 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id AE5E460B61;
+	Wed, 24 Nov 2021 06:53:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SrlgdSF0Rojx; Wed, 24 Nov 2021 06:52:34 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id QmbtSCuqrHht; Wed, 24 Nov 2021 06:53:59 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id F0CF5400D6;
-	Wed, 24 Nov 2021 06:52:33 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 6039D60B00;
+	Wed, 24 Nov 2021 06:53:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CFA56C001E;
-	Wed, 24 Nov 2021 06:52:33 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 45228C001E;
+	Wed, 24 Nov 2021 06:53:58 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 651E9C0012
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 127D2C0012
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 06:52:32 +0000 (UTC)
+ Wed, 24 Nov 2021 06:53:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 48D3640117
+ by smtp2.osuosl.org (Postfix) with ESMTP id 0AC9140117
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 06:52:32 +0000 (UTC)
+ Wed, 24 Nov 2021 06:53:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id R8hK3fmTsc9D
+ with ESMTP id p1eMs1FQe7ka
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 06:52:31 +0000 (UTC)
+ Wed, 24 Nov 2021 06:53:56 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 91CD5400D6
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 68B39400D6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 06:52:31 +0000 (UTC)
+ Wed, 24 Nov 2021 06:53:56 +0000 (UTC)
 Received: by verein.lst.de (Postfix, from userid 2407)
- id 5343868AFE; Wed, 24 Nov 2021 07:52:28 +0100 (CET)
-Date: Wed, 24 Nov 2021 07:52:28 +0100
+ id 62F3868AFE; Wed, 24 Nov 2021 07:53:53 +0100 (CET)
+Date: Wed, 24 Nov 2021 07:53:53 +0100
 From: Christoph Hellwig <hch@lst.de>
 To: "Darrick J. Wong" <djwong@kernel.org>
-Subject: Re: [PATCH 18/29] fsdax: decouple zeroing from the iomap buffered
- I/O code
-Message-ID: <20211124065228.GC7075@lst.de>
+Subject: Re: [PATCH 20/29] ext4: cleanup the dax handling in ext4_fill_super
+Message-ID: <20211124065353.GD7075@lst.de>
 References: <20211109083309.584081-1-hch@lst.de>
- <20211109083309.584081-19-hch@lst.de> <20211123225315.GM266024@magnolia>
+ <20211109083309.584081-21-hch@lst.de> <20211123225430.GN266024@magnolia>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20211123225315.GM266024@magnolia>
+In-Reply-To: <20211123225430.GN266024@magnolia>
 User-Agent: Mutt/1.5.17 (2007-11-01)
 Cc: nvdimm@lists.linux.dev, Mike Snitzer <snitzer@redhat.com>,
  linux-s390@vger.kernel.org, linux-erofs@lists.ozlabs.org,
@@ -74,16 +73,10 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Nov 23, 2021 at 02:53:15PM -0800, Darrick J. Wong wrote:
-> > -s64 dax_iomap_zero(loff_t pos, u64 length, struct iomap *iomap)
-> > +static loff_t dax_zero_iter(struct iomap_iter *iter, bool *did_zero)
-> 
-> Shouldn't this return value remain s64 to match iomap_iter.processed?
+On Tue, Nov 23, 2021 at 02:54:30PM -0800, Darrick J. Wong wrote:
+> Nit: no space before the paren  ^ here.
 
-I'll switch it over.  Given that loff_t is always the same as s64
-it shouldn't really matter.
-
-(same for the others)
+Fixed.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
