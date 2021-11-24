@@ -1,66 +1,63 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 54926C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 24 Nov 2021 06:50:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F1C1DC433FE
+	for <virtualization@archiver.kernel.org>; Wed, 24 Nov 2021 06:52:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id DD00A80DCA;
-	Wed, 24 Nov 2021 06:50:57 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 7B5C540126;
+	Wed, 24 Nov 2021 06:52:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id J3ANzNOvuskt; Wed, 24 Nov 2021 06:50:57 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 94E2B80D09;
-	Wed, 24 Nov 2021 06:50:56 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id SrlgdSF0Rojx; Wed, 24 Nov 2021 06:52:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id F0CF5400D6;
+	Wed, 24 Nov 2021 06:52:33 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 513D7C001E;
-	Wed, 24 Nov 2021 06:50:56 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2163EC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CFA56C001E;
+	Wed, 24 Nov 2021 06:52:33 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 651E9C0012
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 06:50:55 +0000 (UTC)
+ Wed, 24 Nov 2021 06:52:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id F08754025B
+ by smtp2.osuosl.org (Postfix) with ESMTP id 48D3640117
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 06:50:54 +0000 (UTC)
+ Wed, 24 Nov 2021 06:52:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hrdb5F9StSTX
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id R8hK3fmTsc9D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 06:50:54 +0000 (UTC)
+ Wed, 24 Nov 2021 06:52:31 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from verein.lst.de (verein.lst.de [213.95.11.211])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 61AB14024A
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 91CD5400D6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 06:50:54 +0000 (UTC)
+ Wed, 24 Nov 2021 06:52:31 +0000 (UTC)
 Received: by verein.lst.de (Postfix, from userid 2407)
- id E12D568AFE; Wed, 24 Nov 2021 07:50:50 +0100 (CET)
-Date: Wed, 24 Nov 2021 07:50:50 +0100
+ id 5343868AFE; Wed, 24 Nov 2021 07:52:28 +0100 (CET)
+Date: Wed, 24 Nov 2021 07:52:28 +0100
 From: Christoph Hellwig <hch@lst.de>
-To: Dan Williams <dan.j.williams@intel.com>
+To: "Darrick J. Wong" <djwong@kernel.org>
 Subject: Re: [PATCH 18/29] fsdax: decouple zeroing from the iomap buffered
  I/O code
-Message-ID: <20211124065050.GB7075@lst.de>
+Message-ID: <20211124065228.GC7075@lst.de>
 References: <20211109083309.584081-1-hch@lst.de>
- <20211109083309.584081-19-hch@lst.de>
- <CAPcyv4hDG9-BQHjuJnQUQLJhq=xmrNi+w-uiu6TnV4Rcf0VDfQ@mail.gmail.com>
+ <20211109083309.584081-19-hch@lst.de> <20211123225315.GM266024@magnolia>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <CAPcyv4hDG9-BQHjuJnQUQLJhq=xmrNi+w-uiu6TnV4Rcf0VDfQ@mail.gmail.com>
+In-Reply-To: <20211123225315.GM266024@magnolia>
 User-Agent: Mutt/1.5.17 (2007-11-01)
-Cc: Linux NVDIMM <nvdimm@lists.linux.dev>, Mike Snitzer <snitzer@redhat.com>,
- linux-s390 <linux-s390@vger.kernel.org>, linux-erofs@lists.ozlabs.org,
- virtualization@lists.linux-foundation.org,
- linux-xfs <linux-xfs@vger.kernel.org>,
- device-mapper development <dm-devel@redhat.com>,
- linux-fsdevel <linux-fsdevel@vger.kernel.org>,
- linux-ext4 <linux-ext4@vger.kernel.org>, Ira Weiny <ira.weiny@intel.com>,
- Christoph Hellwig <hch@lst.de>
+Cc: nvdimm@lists.linux.dev, Mike Snitzer <snitzer@redhat.com>,
+ linux-s390@vger.kernel.org, linux-erofs@lists.ozlabs.org,
+ virtualization@lists.linux-foundation.org, linux-xfs@vger.kernel.org,
+ dm-devel@redhat.com, linux-fsdevel@vger.kernel.org,
+ Dan Williams <dan.j.williams@intel.com>, linux-ext4@vger.kernel.org,
+ Ira Weiny <ira.weiny@intel.com>, Christoph Hellwig <hch@lst.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -77,27 +74,16 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Nov 23, 2021 at 01:46:35PM -0800, Dan Williams wrote:
-> > +               const struct iomap_ops *ops)
-> > +{
-> > +       unsigned int blocksize = i_blocksize(inode);
-> > +       unsigned int off = pos & (blocksize - 1);
-> > +
-> > +       /* Block boundary? Nothing to do */
-> > +       if (!off)
-> > +               return 0;
+On Tue, Nov 23, 2021 at 02:53:15PM -0800, Darrick J. Wong wrote:
+> > -s64 dax_iomap_zero(loff_t pos, u64 length, struct iomap *iomap)
+> > +static loff_t dax_zero_iter(struct iomap_iter *iter, bool *did_zero)
 > 
-> It took me a moment to figure out why this was correct. I see it was
-> also copied from iomap_truncate_page(). It makes sense for DAX where
-> blocksize >= PAGE_SIZE so it's always the case that the amount of
-> capacity to zero relative to a page is from @pos to the end of the
-> block. Is there something else that protects the blocksize < PAGE_SIZE
-> case outside of DAX?
-> 
-> Nothing to change for this patch, just a question I had while reviewing.
+> Shouldn't this return value remain s64 to match iomap_iter.processed?
 
-This is a helper for truncate ->setattr, where everything outside the
-block is deallocated.  So zeroing is only needed inside the block.
+I'll switch it over.  Given that loff_t is always the same as s64
+it shouldn't really matter.
+
+(same for the others)
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
