@@ -1,78 +1,78 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E3B90C433EF
-	for <virtualization@archiver.kernel.org>; Wed, 24 Nov 2021 11:39:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D4860C433F5
+	for <virtualization@archiver.kernel.org>; Wed, 24 Nov 2021 11:44:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 692BD60638;
-	Wed, 24 Nov 2021 11:39:39 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 640CE80CE7;
+	Wed, 24 Nov 2021 11:44:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uhi3xB77VrBT; Wed, 24 Nov 2021 11:39:38 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id dPbEux1k7cJh; Wed, 24 Nov 2021 11:44:31 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 23F1560BEA;
-	Wed, 24 Nov 2021 11:39:38 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 0888280CC2;
+	Wed, 24 Nov 2021 11:44:31 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0B989C001E;
-	Wed, 24 Nov 2021 11:39:38 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C6781C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CCAE0C001E;
+	Wed, 24 Nov 2021 11:44:30 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7F113C0012
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 11:39:36 +0000 (UTC)
+ Wed, 24 Nov 2021 11:44:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id A62E040197
+ by smtp3.osuosl.org (Postfix) with ESMTP id 668AF60C30
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 11:39:36 +0000 (UTC)
+ Wed, 24 Nov 2021 11:44:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=armlinux.org.uk
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3wWOyTlNGSQJ
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id uyDV7rHU8w6X
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 11:39:35 +0000 (UTC)
-X-Greylist: delayed 00:05:08 by SQLgrey-1.8.0
+ Wed, 24 Nov 2021 11:44:28 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk
  [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 0A5544019D
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 861DB60619
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 11:39:34 +0000 (UTC)
+ Wed, 24 Nov 2021 11:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
  MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
  Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
  List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
- bh=vQDl3mdmA1En5CvP0uWx5PMM4Duf3hQWi+uoJkI1zBo=; b=gDBlttai/MvnO2Jnc8JXk3q8LQ
- rMO0EWrsuGJEhyWFh5BXTWwmCWoOddFvvXm/uA/gQq9hSsOZ1o9D+VPqSXvEAV9jEOeeK6xOQoAfx
- tjfKXRUCykdrVvQQOebb36UhhDBYbcR8GTzFWcOIwXnv56/7hCrLbe4ahkw03/fU/vp1NS94IDB8L
- 9xTMR6VRrUC76UcPFITy0RureR/fRfYGDWGiSXDL3f/b0al0+xtoCK+Kslp3o0A1xc55vkSBV2TTs
- 7tYaSdyUq+Qtf3tCvsLcPvb7bHQ/QleMz8BihlcLg5ntxmbTrf8H+huZ+XlO1zgQsHJGqfEvu71Rw
- a6VGqrLw==;
+ bh=G9r7x0IMWPmEtkjUXiisRloX817MmWgYVCedn25iGv8=; b=w/wR+72JeuJ57uMWc+lEqLMRIN
+ QqwfVuwY9Q2LY/2s/5Q34+re64hnCOaW7M7+7kgu0rkRM1Hy6eMyeIo801dnOunA5LH/f0jXpMPAQ
+ dE5JOy5oGnVGLU4JzTxkBbkMY20uqu4ITG1UDhKkz4izGMecdwP6hjT3JAg71aZNVAQZ7y+Ve6ZJp
+ i7VVrGTfz7W64gZ/Ywth3o/9VV+6vio3gXON/V8GmJxalH5+rOp2YHKJHFixiovh6KkPPbSbr5ZG9
+ ++LhT0b9FxGioRWnvIPQnLTejOTvQ4E6mHQgmZ81LbPBrcVaszP5U6YoytWP+damJDcQs4pYGckJj
+ dQps1lFA==;
 Received: from shell.armlinux.org.uk
- ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:55846)
+ ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:55844)
  by pandora.armlinux.org.uk with esmtpsa (TLS1.3) tls
  TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.94.2)
  (envelope-from <linux@armlinux.org.uk>)
- id 1mpqcF-0000YR-B8; Wed, 24 Nov 2021 11:39:07 +0000
+ id 1mpqZa-0000Xd-4o; Wed, 24 Nov 2021 11:36:22 +0000
 Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
  (envelope-from <linux@shell.armlinux.org.uk>)
- id 1mpqcD-00019y-KO; Wed, 24 Nov 2021 11:39:05 +0000
-Date: Wed, 24 Nov 2021 11:39:05 +0000
+ id 1mpqZY-00019p-3W; Wed, 24 Nov 2021 11:36:20 +0000
+Date: Wed, 24 Nov 2021 11:36:20 +0000
 From: "Russell King (Oracle)" <linux@armlinux.org.uk>
 To: Alexander Lobakin <alexandr.lobakin@intel.com>
-Subject: Re: [PATCH v2 net-next 07/26] mvneta: add .ndo_get_xdp_stats()
+Subject: Re: [PATCH v2 net-next 08/26] mvpp2: provide .ndo_get_xdp_stats()
  callback
-Message-ID: <YZ4kWXnqZQhSu+mw@shell.armlinux.org.uk>
+Message-ID: <YZ4jtImZvOVihtv1@shell.armlinux.org.uk>
 References: <20211123163955.154512-1-alexandr.lobakin@intel.com>
- <20211123163955.154512-8-alexandr.lobakin@intel.com>
+ <20211123163955.154512-9-alexandr.lobakin@intel.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20211123163955.154512-8-alexandr.lobakin@intel.com>
+In-Reply-To: <20211123163955.154512-9-alexandr.lobakin@intel.com>
 Cc: Song Liu <songliubraving@fb.com>, Sergey Ryazanov <ryazanov.s.a@gmail.com>,
  "Michael S. Tsirkin" <mst@redhat.com>, Yonghong Song <yhs@fb.com>,
  Alexei Starovoitov <ast@kernel.org>, Andrii Nakryiko <andrii@kernel.org>,
@@ -114,10 +114,40 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Nov 23, 2021 at 05:39:36PM +0100, Alexander Lobakin wrote:
+On Tue, Nov 23, 2021 at 05:39:37PM +0100, Alexander Lobakin wrote:
+> Same as mvneta, mvpp2 stores 7 XDP counters in per-cpu containers.
+> Expose them via generic XDP stats infra.
+> 
+> Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
+> Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+> ---
+>  .../net/ethernet/marvell/mvpp2/mvpp2_main.c   | 51 +++++++++++++++++++
+>  1 file changed, 51 insertions(+)
+> 
+> diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+> index 97bd2ee8a010..58203cde3b60 100644
+> --- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+> +++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+> @@ -5131,6 +5131,56 @@ mvpp2_get_stats64(struct net_device *dev, struct rtnl_link_stats64 *stats)
+>  	stats->tx_dropped	= dev->stats.tx_dropped;
+>  }
+> 
+> +static int mvpp2_get_xdp_stats_ndo(const struct net_device *dev, u32 attr_id,
+> +				   void *attr_data)
+> +{
+> +	const struct mvpp2_port *port = netdev_priv(dev);
+> +	struct ifla_xdp_stats *xdp_stats = attr_data;
+> +	u32 cpu, start;
+> +
+> +	switch (attr_id) {
+> +	case IFLA_XDP_XSTATS_TYPE_XDP:
+> +		break;
+> +	default:
+> +		return -EOPNOTSUPP;
+> +	}
+> +
 > +	for_each_possible_cpu(cpu) {
-> +		const struct mvneta_pcpu_stats *stats;
-> +		const struct mvneta_stats *ps;
+> +		const struct mvpp2_pcpu_stats *ps;
 > +		u64 xdp_xmit_err;
 > +		u64 xdp_redirect;
 > +		u64 xdp_tx_err;
@@ -125,36 +155,34 @@ On Tue, Nov 23, 2021 at 05:39:36PM +0100, Alexander Lobakin wrote:
 > +		u64 xdp_drop;
 > +		u64 xdp_xmit;
 > +		u64 xdp_tx;
-> +		u32 start;
 > +
-> +		stats = per_cpu_ptr(pp->stats, cpu);
-> +		ps = &stats->es.ps;
+> +		ps = per_cpu_ptr(port->stats, cpu);
 > +
 > +		do {
-> +			start = u64_stats_fetch_begin_irq(&stats->syncp);
+> +			start = u64_stats_fetch_begin_irq(&ps->syncp);
 > +
-> +			xdp_drop = ps->xdp_drop;
-> +			xdp_pass = ps->xdp_pass;
 > +			xdp_redirect = ps->xdp_redirect;
-> +			xdp_tx = ps->xdp_tx;
-> +			xdp_tx_err = ps->xdp_tx_err;
+> +			xdp_pass = ps->xdp_pass;
+> +			xdp_drop = ps->xdp_drop;
 > +			xdp_xmit = ps->xdp_xmit;
 > +			xdp_xmit_err = ps->xdp_xmit_err;
-> +		} while (u64_stats_fetch_retry_irq(&stats->syncp, start));
+> +			xdp_tx = ps->xdp_tx;
+> +			xdp_tx_err = ps->xdp_tx_err;
+> +		} while (u64_stats_fetch_retry_irq(&ps->syncp, start));
 > +
-> +		xdp_stats->drop += xdp_drop;
-> +		xdp_stats->pass += xdp_pass;
 > +		xdp_stats->redirect += xdp_redirect;
-> +		xdp_stats->tx += xdp_tx;
-> +		xdp_stats->tx_errors += xdp_tx_err;
+> +		xdp_stats->pass += xdp_pass;
+> +		xdp_stats->drop += xdp_drop;
 > +		xdp_stats->xmit_packets += xdp_xmit;
 > +		xdp_stats->xmit_errors += xdp_xmit_err;
+> +		xdp_stats->tx += xdp_tx;
+> +		xdp_stats->tx_errors  += xdp_tx_err;
+> +	}
 
-Same comment as for mvpp2 - this could share a lot of code from
-mvneta_ethtool_update_pcpu_stats() (although it means we end up
-calculating a little more for the alloc error and refill error
-that this API doesn't need) but I think sharing that code would be
-a good idea.
+Actually, the only concern I have here is the duplication between this
+function and mvpp2_get_xdp_stats(). It looks to me like these two
+functions could share a lot of their code. Please submit a patch to
+make that happen. Thanks.
 
 -- 
 RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
