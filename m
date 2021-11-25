@@ -1,101 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4FA90C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 25 Nov 2021 07:20:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id BBF41C433EF
+	for <virtualization@archiver.kernel.org>; Thu, 25 Nov 2021 07:21:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id D48B4606CA;
-	Thu, 25 Nov 2021 07:20:26 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 49E2540673;
+	Thu, 25 Nov 2021 07:21:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nUCPEaFdzKRL; Thu, 25 Nov 2021 07:20:26 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id xnTCitgZKXnd; Thu, 25 Nov 2021 07:21:56 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 886F7607B2;
-	Thu, 25 Nov 2021 07:20:25 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id EDD96405EE;
+	Thu, 25 Nov 2021 07:21:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 65A16C002F;
-	Thu, 25 Nov 2021 07:20:25 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0FF0EC000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CD8AFC002F;
+	Thu, 25 Nov 2021 07:21:55 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1D918C000A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 07:20:24 +0000 (UTC)
+ Thu, 25 Nov 2021 07:21:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id E4BCF405F3
+ by smtp4.osuosl.org (Postfix) with ESMTP id F209F405F3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 07:20:23 +0000 (UTC)
+ Thu, 25 Nov 2021 07:21:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uKgFha07j_dY
+ with ESMTP id y6Kk_Q6hF0Qd
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 07:20:22 +0000 (UTC)
+ Thu, 25 Nov 2021 07:21:54 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id A23FC405EE
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 4E4FC405EE
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 07:20:22 +0000 (UTC)
+ Thu, 25 Nov 2021 07:21:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1637824821;
+ s=mimecast20190719; t=1637824913;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=0288K9+4rtmWXrgpEnbVI8eRZ9+61SJ6uREF4cND0rE=;
- b=dzRVt3kzMncFQX7rSortv+IDvY2sZ0gVDNqj0R3MLda35m5yOWwlW9ZxRTZin7dMeT2WGP
- 9dkf/lP6Qw7nCrhotkB51T3wEL6r6+Im3dgw6GlJifXdFirIZrR8TOvTkCW8DYcQW+nL6R
- nMcbkfqYIQZ0V6W3BtA1dWqfb5i2pVQ=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=8/9xPcC6DeKRL8lq91e0Lj3sO56CjCUpsQya2Bns/lE=;
+ b=SpsEjQyDduw+pmyO+h2w9kSOO7R5YAgN6FY5cdR1kuG+l5VOOYsA4SJIO9ZUbSr7x6VYhH
+ N8SqIFmFe+8lgIbbwDsuloMqd6x753rbqz8Kf6QEHttNNELik0cXjCuNg+j0lnF0kMBnij
+ hrfCk/F3XY+fJDm255pCcD7GP9MfmUM=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-539-p_MYllhkNciuTMbecy6QZw-1; Thu, 25 Nov 2021 02:20:20 -0500
-X-MC-Unique: p_MYllhkNciuTMbecy6QZw-1
-Received: by mail-lf1-f69.google.com with SMTP id
- x17-20020a0565123f9100b003ff593b7c65so2768252lfa.12
+ us-mta-394-evOXAeriNO2olOFAQkwDeQ-1; Thu, 25 Nov 2021 02:21:52 -0500
+X-MC-Unique: evOXAeriNO2olOFAQkwDeQ-1
+Received: by mail-ed1-f69.google.com with SMTP id
+ w18-20020a056402071200b003e61cbafdb4so4672714edx.4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 23:20:19 -0800 (PST)
+ Wed, 24 Nov 2021 23:21:52 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=0288K9+4rtmWXrgpEnbVI8eRZ9+61SJ6uREF4cND0rE=;
- b=PDUXWOcDPq9xM37A/SFVA/WHvsp9QAKuSO35cjjsaIU/qKiZncNIyN2hKOcwgYxwWt
- 1Cq+CLF63m2oCtD32NnyFxP2m8rNJXJlCEVi6Yt9BtXuHoR3fQyxF7pNLLrXBu6E97ug
- RdnxJDWJo7cmLvA9azRUo+K97llEdtQHBtYngDDXGwXME9/ew8TmWlWVYs+nq6Nl1WnP
- oDEdbEuZ9txAxy7EKYMuLk1hdXpyjnBvtFY8FJJg9KgQtE/8EarWVDuaeFXKDUOdweYv
- i7hW2k0wUuCgvRSo0bij9cuckMXYdCFHS8IXIiV1A8EPq0Ez8vcYfwpmkNrQzOwayT8E
- u4sw==
-X-Gm-Message-State: AOAM531F3+HT+62bh44S2o7MBn4juaBawtAabv8SXvycGsnfLCq4K15K
- FULXg3c+m6tuK5UFebIg6dt2cUtis6giyLlP7wC5lJErhJfJTjpJuW9wqX/tG7GyA9jvyIGFuhR
- pUcsYzE28BytFfkgeYlAu3p8sR7TeOOxa01trQLriS7R1PVtinnuIIZR7kg==
-X-Received: by 2002:a2e:915a:: with SMTP id q26mr22460229ljg.277.1637824818463; 
- Wed, 24 Nov 2021 23:20:18 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzAc9aUOa9FeX5ZE296oiarTKJZL/BX1S6IHbR96hL/NWmFeWIrJHNjgfGJIWjO7GYJFqI2Mgg4l7eT+hT8wmY=
-X-Received: by 2002:a2e:915a:: with SMTP id q26mr22460215ljg.277.1637824818275; 
- Wed, 24 Nov 2021 23:20:18 -0800 (PST)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=8/9xPcC6DeKRL8lq91e0Lj3sO56CjCUpsQya2Bns/lE=;
+ b=USvUG474/CSHVcp0WydVm9wiWRtpuJtawsawewuPrJCwWbkcWj2ypTq1z5a6Mb4tzZ
+ uMiIN5+o82OdxbJeMcZ+2ukjPGSZDmdScQrrpGbbc8DhDgvWKbOKbCjPiLIIcPgc4C3T
+ EXNZrgPWzhf9d/KqgUDhGxcP3SsgjwulMB4dDdsYhm9vhrKkewqp+0CoF9kmjIKKVrRi
+ rkEltngvE1sVhaBeR7RPIJeoP1kX3oZFQqLbuP1EFzmWogaeavOCT/aVmV5pzF+77GIm
+ xfm0+CKR87nnFjKKnBzdFWwct3OfTfddt8TPGLbmejQy6U1INhSZrs1iVYOtvzBSFR4d
+ h4xg==
+X-Gm-Message-State: AOAM530t7xcWx74/8XgSrorI4CQGdkEFNhMaN06f2nVkpSb7GwW/2Uco
+ 9hDEnXYdpGLMvkLFrozuaSaQKJqMaXRcu1uTzUWE509sFsR4Qn2Qj0d4jO2QqibOLSC/w3r3aOR
+ 37sdadYvkfczEIQ6qIgh0zVrVAiT+0/4PxfxJOGAZuQ==
+X-Received: by 2002:a50:c3c8:: with SMTP id i8mr36170722edf.317.1637824911122; 
+ Wed, 24 Nov 2021 23:21:51 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyBTXcMdmvh1F7B5V4no2HywR+kq/bVF3X5Bl0RbCz9hIQs9c3i83fl7F2nESM2+4BuElNa/Q==
+X-Received: by 2002:a50:c3c8:: with SMTP id i8mr36170700edf.317.1637824910924; 
+ Wed, 24 Nov 2021 23:21:50 -0800 (PST)
+Received: from redhat.com ([45.15.18.67])
+ by smtp.gmail.com with ESMTPSA id hb10sm999563ejc.9.2021.11.24.23.21.47
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 24 Nov 2021 23:21:50 -0800 (PST)
+Date: Thu, 25 Nov 2021 02:21:43 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Eli Cohen <elic@nvidia.com>
+Subject: Re: [PATCH] net/mlx5_vdpa: Increase the limit on the number of
+ virtuques
+Message-ID: <20211125022011-mutt-send-email-mst@kernel.org>
+References: <20211124171953.57858-1-elic@nvidia.com>
 MIME-Version: 1.0
-References: <20211125060547.11961-1-jasowang@redhat.com>
- <20211125015532-mutt-send-email-mst@kernel.org>
- <CACGkMEv+hehZazXRG9mavv=KZ76XfCrkeNqB8CPOnkwRF9cdHA@mail.gmail.com>
- <20211125021308-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20211125021308-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 25 Nov 2021 15:20:07 +0800
-Message-ID: <CACGkMEscBZw+PjX2fP5yN03SDVYc12tsQLXL=woAXdYWnC2q9w@mail.gmail.com>
-Subject: Re: [PATCH net] virtio-net: enable big mode correctly
-To: "Michael S. Tsirkin" <mst@redhat.com>
+In-Reply-To: <20211124171953.57858-1-elic@nvidia.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: netdev <netdev@vger.kernel.org>, Eli Cohen <elic@nvidia.com>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>
+Content-Disposition: inline
+Cc: lvivier@redhat.com, virtualization@lists.linux-foundation.org,
+ eperezma@redhat.com, si-wei.liu@oracle.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,91 +112,38 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Nov 25, 2021 at 3:15 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Thu, Nov 25, 2021 at 03:11:58PM +0800, Jason Wang wrote:
-> > On Thu, Nov 25, 2021 at 3:00 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > >
-> > > On Thu, Nov 25, 2021 at 02:05:47PM +0800, Jason Wang wrote:
-> > > > When VIRTIO_NET_F_MTU feature is not negotiated, we assume a very
-> > > > large max_mtu. In this case, using small packet mode is not correct
-> > > > since it may breaks the networking when MTU is grater than
-> > > > ETH_DATA_LEN.
-> > > >
-> > > > To have a quick fix, simply enable the big packet mode when
-> > > > VIRTIO_NET_F_MTU is not negotiated.
-> > >
-> > > This will slow down dpdk hosts which disable mergeable buffers
-> > > and send standard MTU sized packets.
-> > >
-> > > > We can do optimization on top.
-> > >
-> > > I don't think it works like this, increasing mtu
-> > > from guest >4k never worked,
-> >
-> > Looking at add_recvbuf_small() it's actually GOOD_PACKET_LEN if I was not wrong.
->
-> OK, even more so then.
->
-> > > we can't regress everyone's
-> > > performance with a promise to maybe sometime bring it back.
-> >
-> > So consider it never work before I wonder if we can assume a 1500 as
-> > max_mtu value instead of simply using MAX_MTU?
-> >
-> > Thanks
->
-> You want to block guests from setting MTU to a value >GOOD_PACKET_LEN?
+On Wed, Nov 24, 2021 at 07:19:53PM +0200, Eli Cohen wrote:
+> Increase the limit on the maximum number of supported virtqueues to 256
+> to match hardware capabilities.
 
-Yes, or fix the issue to let large packets on RX work (e.g as the TODO
-said, size the buffer: for <=4K mtu continue to work as
-add_recvbuf_small(), for >= 4K switch to use big).
+Hmm and are we going to have to tweak it each time new hardware/firmware
+is out? Can't this be queried in some way?
+In fact there's a suggestion in code to remove the limitation -
+any plans to do this?
 
-> Maybe ... it will prevent sending large packets which did work ...
+> Signed-off-by: Eli Cohen <elic@nvidia.com>
 
-Yes, but it's strange to allow TX but not RX
+typo in subject
 
-> I'd tread carefully here, and I don't think this kind of thing is net
-> material.
-
-I agree consider it can't be fixed easily.
-
-Thanks
-
->
-> > >
-> > > > Reported-by: Eli Cohen <elic@nvidia.com>
-> > > > Cc: Eli Cohen <elic@nvidia.com>
-> > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > >
-> > > > ---
-> > > >  drivers/net/virtio_net.c | 7 ++++---
-> > > >  1 file changed, 4 insertions(+), 3 deletions(-)
-> > > >
-> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > index 7c43bfc1ce44..83ae3ef5eb11 100644
-> > > > --- a/drivers/net/virtio_net.c
-> > > > +++ b/drivers/net/virtio_net.c
-> > > > @@ -3200,11 +3200,12 @@ static int virtnet_probe(struct virtio_device *vdev)
-> > > >               dev->mtu = mtu;
-> > > >               dev->max_mtu = mtu;
-> > > >
-> > > > -             /* TODO: size buffers correctly in this case. */
-> > > > -             if (dev->mtu > ETH_DATA_LEN)
-> > > > -                     vi->big_packets = true;
-> > > >       }
-> > > >
-> > > > +     /* TODO: size buffers correctly in this case. */
-> > > > +     if (dev->max_mtu > ETH_DATA_LEN)
-> > > > +             vi->big_packets = true;
-> > > > +
-> > > >       if (vi->any_header_sg)
-> > > >               dev->needed_headroom = vi->hdr_len;
-> > > >
-> > > > --
-> > > > 2.25.1
-> > >
->
+> ---
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index ed7a63e48335..8f2918a8efc6 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -135,7 +135,7 @@ struct mlx5_vdpa_virtqueue {
+>  /* We will remove this limitation once mlx5_vdpa_alloc_resources()
+>   * provides for driver space allocation
+>   */
+> -#define MLX5_MAX_SUPPORTED_VQS 16
+> +#define MLX5_MAX_SUPPORTED_VQS 256
+>  
+>  static bool is_index_valid(struct mlx5_vdpa_dev *mvdev, u16 idx)
+>  {
+> -- 
+> 2.33.1
 
 _______________________________________________
 Virtualization mailing list
