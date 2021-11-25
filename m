@@ -1,96 +1,98 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5F957C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 25 Nov 2021 03:21:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 20441C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 25 Nov 2021 04:38:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 068A982605;
-	Thu, 25 Nov 2021 03:21:28 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 88FB8608C3;
+	Thu, 25 Nov 2021 04:38:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6eF3J9zfI7J8; Thu, 25 Nov 2021 03:21:27 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 980D381D73;
-	Thu, 25 Nov 2021 03:21:26 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Kw3dcFugR_or; Thu, 25 Nov 2021 04:38:17 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 12F08607FB;
+	Thu, 25 Nov 2021 04:38:17 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5754FC002F;
-	Thu, 25 Nov 2021 03:21:26 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A1908C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D6B1AC0038;
+	Thu, 25 Nov 2021 04:38:16 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 51258C000A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 03:21:24 +0000 (UTC)
+ Thu, 25 Nov 2021 04:38:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 7CC86405E8
+ by smtp1.osuosl.org (Postfix) with ESMTP id 27CF582668
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 03:21:24 +0000 (UTC)
+ Thu, 25 Nov 2021 04:38:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=linaro.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id A-y9Av-lPVjg
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Q73JbhcMW8cp
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 03:21:23 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com
- [IPv6:2607:f8b0:4864:20::1033])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 2AE3540526
+ Thu, 25 Nov 2021 04:38:14 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id EDBF681D9F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 03:21:23 +0000 (UTC)
-Received: by mail-pj1-x1033.google.com with SMTP id
- cq22-20020a17090af99600b001a9550a17a5so6653680pjb.2
+ Thu, 25 Nov 2021 04:38:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1637815092;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=aqSE9nhJNuZGY0LOL67oniaVihqUg/fpSOJs+CA1BWM=;
+ b=XBTf2/qRg9BNdXUq0END8Le9feT7Cxejsre9LcUZxziOQMoJ0KNHoym+jhWYfWm/y/SumJ
+ 4s2IW1Uy+Sz0DnmGk/O/9UlpvFdThDodzJ/ww6eOW0u5mEcvzjXMAtLxfbMov0M7+lMsdD
+ mzWJiaPllN1vJZfiRfha0SU7S3eOpLs=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-25-k9sr3yqxPr6AciPbttYo5A-1; Wed, 24 Nov 2021 23:38:11 -0500
+X-MC-Unique: k9sr3yqxPr6AciPbttYo5A-1
+Received: by mail-lf1-f72.google.com with SMTP id
+ m2-20020a056512014200b0041042b64791so2564458lfo.6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 19:21:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to:user-agent;
- bh=kl9QFdxeQT+ZdNe5xXwILBYCvxJMvl+e0+hxIPhlJP4=;
- b=pY9LGPHk4GsETow/BIfhAVy1fXTYs03/BfFNQaCwQ1SISuth9VjsALMfDtZq9D9j9S
- 57q+uDA5rg1jEJjrkHxKmjQNYOMln5BNr7w3l7J7ZALuGNHEOPgK2YpIFE2/DWh7ZS7I
- RXy+NTExlJBl8cwxLmBLHwH422jONNq4CUGBQm/TaQbto5AIH8l0a6kOrB6oE4ldrFFB
- c+UcJtGRmAhOmJJ+UYvchNkXNSgsazkwJFMZN9WTdQrJQSAlELG6x240gIc7Oz17nn6X
- S4PjitXePvbskGDuaqeTzEtXK3djDgrM9IND2Rc+E5/kGEjuEK/4WRISisYpuOyAmBin
- cEAw==
+ Wed, 24 Nov 2021 20:38:11 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to:user-agent;
- bh=kl9QFdxeQT+ZdNe5xXwILBYCvxJMvl+e0+hxIPhlJP4=;
- b=MEdXcfQyBEJhedXUDRAAr6D7TX7IjRKH3hDXoPKeI5rnZy9ve1OMXZA+UMqAC1HKEx
- mI2GE3akr47L5V0JbfNttVSzZjNcJeOcAXceqRyME4+7YHPprvSVSFk026CR04+OdZVV
- b6GEZ2bSQD2MpAsJ3LObNwJXYom12TK+sT27ix+PMm93sydLd08Tmk4oFM06rmXJJ3JG
- Y0JdvKPqPsU3XbRCYIb2zgdZOoO3tHuiSufsouELonvGD8EilwUtPrWiv7hethwUjCOS
- 0dSzzMUhQxsuzZOi6ngnWRPu0vcbxOsT6FFZ/OgYy72lH6QNp+/qKs3pcQfmyo6fiwdF
- gz3w==
-X-Gm-Message-State: AOAM531qtv2ule/nQy2YA/cw0ChZLj8/nmX6ieb8eJ+gNsLs3CdhWOD4
- B4Crz7oK31iS4d4R9eDKnaqQQg==
-X-Google-Smtp-Source: ABdhPJxO6BHDZemocrThhO4FCIcZqEhKUZzepBue7p+e37VnZ16tNLPHS1GtahtspFNrmOnik+J2xA==
-X-Received: by 2002:a17:90a:df88:: with SMTP id
- p8mr3090793pjv.32.1637810482599; 
- Wed, 24 Nov 2021 19:21:22 -0800 (PST)
-Received: from localhost ([122.181.57.99])
- by smtp.gmail.com with ESMTPSA id h13sm824811pgg.16.2021.11.24.19.21.21
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 24 Nov 2021 19:21:21 -0800 (PST)
-Date: Thu, 25 Nov 2021 08:51:19 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 0/2] virtio-i2c: Fix buffer handling
-Message-ID: <20211125032119.vklsh4yymwnalh5b@vireshk-i7>
-References: <20211111160412.11980-1-vincent.whitchurch@axis.com>
- <20211124185546-mutt-send-email-mst@kernel.org>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=aqSE9nhJNuZGY0LOL67oniaVihqUg/fpSOJs+CA1BWM=;
+ b=0JKhoGm1ZHpASrYdPm56rrA1S3PDyC8nGSrNsLgI7kzUrJXtmxipicgaG2pqS3vTDd
+ aK1hvLYiLeehwaWsfSAJjbku90RpkgF93WaI3kd4l5NSyQokiTn4hEUJ2lsj6eciWSbz
+ cIWwxf/0kdVpJqNSvt5S+jYnLM/DZE5MQBBSSMiiVimv4VEuQA7ndp3Zb93BuN+gj1zE
+ rrgeRpg6ssOq9mL7FFnotQC5lGjQ0Id0DHqU1RzgK19Uk6K2X/Lt+lfeG1JyYeSLq1GI
+ GTF2FKqdPUhS4mXlhSDyDa+pQmHr4GBIf20T+Og/b/tuHbSzsIVKYE1UGTSNSTbieGu3
+ cWLg==
+X-Gm-Message-State: AOAM53126LTmSE7qTMWGo4YRWVdzOcIkNRuzNXQfAg/NXJK4etcxiuPd
+ AL8QQc8DgBNU3Ei1D/FVWxFsUPlm1DfjMiU0+NDrMAX1bxMcuVgye8yEupeI56pIMmWWyUZzvn3
+ ZOmlxkg3iD5HGV4f0YhBcZsHcVMjWkSpqdhxU+zsvtEuhUabbJg0DJjxUbQ==
+X-Received: by 2002:ac2:5310:: with SMTP id c16mr21611642lfh.580.1637815089850; 
+ Wed, 24 Nov 2021 20:38:09 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy23X/azL7eyiu7uaJGVOrujEZ2u3SLZJTm0qVf3aPkjM/w/AJVArYKYYset/ZNlW9hNhMPHhodLCo0m8DiLgY=
+X-Received: by 2002:ac2:5310:: with SMTP id c16mr21611628lfh.580.1637815089683; 
+ Wed, 24 Nov 2021 20:38:09 -0800 (PST)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20211124185546-mutt-send-email-mst@kernel.org>
-User-Agent: NeoMutt/20180716-391-311a52
-Cc: Vincent Whitchurch <vincent.whitchurch@axis.com>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- wsa@kernel.org, kernel@axis.com, linux-i2c@vger.kernel.org,
- conghui.chen@intel.com
+References: <20211124170949.51725-1-elic@nvidia.com>
+In-Reply-To: <20211124170949.51725-1-elic@nvidia.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 25 Nov 2021 12:37:58 +0800
+Message-ID: <CACGkMEvxW0p7=r7vvOUiOYp3sEEp5dMP5YfU54x2yeRCmvQzww@mail.gmail.com>
+Subject: Re: [PATCH] net/mlx5_vdpa: Offer VIRTIO_NET_F_MTU when setting MTU
+To: Eli Cohen <elic@nvidia.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Laurent Vivier <lvivier@redhat.com>, mst <mst@redhat.com>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ eperezma <eperezma@redhat.com>, si-wei.liu@oracle.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,26 +109,38 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 24-11-21, 18:55, Michael S. Tsirkin wrote:
-> On Thu, Nov 11, 2021 at 05:04:10PM +0100, Vincent Whitchurch wrote:
-> > This fixes a couple of bugs in the buffer handling in virtio-i2c which can
-> > result in incorrect data on the I2C bus or memory corruption in the guest.
-> > 
-> > I tested this on UML (virtio-uml needs a bug fix too, I will sent that out
-> > later) with the device implementation in rust-vmm/vhost-device.
-> > 
-> > Changes in v2:
-> > - Added Acked-by and Fixes tags
-> 
-> 
-> What are the plans for this patchset?
+On Thu, Nov 25, 2021 at 1:10 AM Eli Cohen <elic@nvidia.com> wrote:
+>
+> Make sure to offer VIRTIO_NET_F_MTU since we configure the MTU based on
+> what was queried from the device.
+>
+> This allows the virtio driver to allocate large enough buffers based on
+> the reported MTU.
+>
+> Signed-off-by: Eli Cohen <elic@nvidia.com>
 
-Wolfram applied the first patch, but not the second.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-Wolfram, you can apply that one as well, it looks okay.
+> ---
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index 465e832f2ad1..ed7a63e48335 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -1956,6 +1956,7 @@ static u64 mlx5_vdpa_get_features(struct vdpa_device *vdev)
+>         ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_CTRL_MAC_ADDR);
+>         ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_MQ);
+>         ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_STATUS);
+> +       ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_MTU);
+>
+>         print_features(mvdev, ndev->mvdev.mlx_features, false);
+>         return ndev->mvdev.mlx_features;
+> --
+> 2.33.1
+>
 
--- 
-viresh
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
