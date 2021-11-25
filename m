@@ -1,115 +1,96 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2066CC433EF
-	for <virtualization@archiver.kernel.org>; Thu, 25 Nov 2021 02:28:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 5F957C433F5
+	for <virtualization@archiver.kernel.org>; Thu, 25 Nov 2021 03:21:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 8CA6F607DD;
-	Thu, 25 Nov 2021 02:28:14 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 068A982605;
+	Thu, 25 Nov 2021 03:21:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id AnHQ2ncazUvQ; Thu, 25 Nov 2021 02:28:13 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 6eF3J9zfI7J8; Thu, 25 Nov 2021 03:21:27 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 1CD82607D6;
-	Thu, 25 Nov 2021 02:28:13 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 980D381D73;
+	Thu, 25 Nov 2021 03:21:26 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E8A7BC0038;
-	Thu, 25 Nov 2021 02:28:12 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 420CCC000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5754FC002F;
+	Thu, 25 Nov 2021 03:21:26 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A1908C000A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 02:28:11 +0000 (UTC)
+ Thu, 25 Nov 2021 03:21:24 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 1C5CD607DD
+ by smtp4.osuosl.org (Postfix) with ESMTP id 7CC86405E8
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 02:28:11 +0000 (UTC)
+ Thu, 25 Nov 2021 03:21:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HF9aelOFL9b1
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linaro.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id A-y9Av-lPVjg
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 02:28:10 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 48151607D6
+ Thu, 25 Nov 2021 03:21:23 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com
+ [IPv6:2607:f8b0:4864:20::1033])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2AE3540526
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 02:28:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1637807289;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=u113tr+XHgf/tPsn5GKDgoAmZjL+yOW8H+2x+NeaHKE=;
- b=IgJzVhOTDBQOgQuWrnIsmpAwpIeh7ETXO4Oc2vitNjbk+Ix3Aw0hAff5DAT9CV/5MLPmBO
- 9BO3nNiUSzo8T/pgv6+AaX3pE8fwvCLLmve4u80hMkw/tBsfYxf1FDfXFgshmuER7/gVzO
- giA433S1wXhmSxSHScnPlJ8E6OnCzdg=
-Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
- [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-299-ItOHr6gtOh6igcsiXaTIOQ-1; Wed, 24 Nov 2021 21:28:07 -0500
-X-MC-Unique: ItOHr6gtOh6igcsiXaTIOQ-1
-Received: by mail-lf1-f70.google.com with SMTP id
- bi30-20020a0565120e9e00b00415d0e471e0so2357831lfb.19
+ Thu, 25 Nov 2021 03:21:23 +0000 (UTC)
+Received: by mail-pj1-x1033.google.com with SMTP id
+ cq22-20020a17090af99600b001a9550a17a5so6653680pjb.2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 18:28:07 -0800 (PST)
+ Wed, 24 Nov 2021 19:21:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to:user-agent;
+ bh=kl9QFdxeQT+ZdNe5xXwILBYCvxJMvl+e0+hxIPhlJP4=;
+ b=pY9LGPHk4GsETow/BIfhAVy1fXTYs03/BfFNQaCwQ1SISuth9VjsALMfDtZq9D9j9S
+ 57q+uDA5rg1jEJjrkHxKmjQNYOMln5BNr7w3l7J7ZALuGNHEOPgK2YpIFE2/DWh7ZS7I
+ RXy+NTExlJBl8cwxLmBLHwH422jONNq4CUGBQm/TaQbto5AIH8l0a6kOrB6oE4ldrFFB
+ c+UcJtGRmAhOmJJ+UYvchNkXNSgsazkwJFMZN9WTdQrJQSAlELG6x240gIc7Oz17nn6X
+ S4PjitXePvbskGDuaqeTzEtXK3djDgrM9IND2Rc+E5/kGEjuEK/4WRISisYpuOyAmBin
+ cEAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=u113tr+XHgf/tPsn5GKDgoAmZjL+yOW8H+2x+NeaHKE=;
- b=DBH4sa+zV02eBuB48Nz8uwPFCGtLYDVpiift69Y8tNM+RMf1Y+JgfXVvtHJad0u54n
- TG8IpQkaKuyGyMdYyKVhwA92sJEvl7J9Cd/lrAXzrWktWh5CuUgfMEBm0LZj5NRZX7ns
- gN0o0mbX+lmiOMQIMItaz7JFoyX2I/rpJdz9uHvQLKz4VH2wFTNXLKlfqmtky5FPJJ1A
- lEd1UdOXjA/Rcw+aV5NJTMOwzGMVQN9fN0qI0HwxEoJON1v2WVxsPjN6n91n2PqAdFdI
- 7bV7gNgoQl005HfnTV9oYf++0lSvA6nDfrJMZ43TFFP+Ea4uLd7iEJNjlEf6noNs/Bwb
- S6jA==
-X-Gm-Message-State: AOAM530f9J7hyKberTV3SQYMG2ZW4V+4nC2eSgtqzPUXD7Nw6TngmUhT
- zJQiUurKaCpS1XyY4AIpiRaM0PlhF6FUKEkSveIAKaAKl/5Ckv9rfylSqw7yDJ08i3XzXJEbpyH
- kHIkp27X0iEMCcD9XEFV4vAGO+bSdzH+W+tKUfKiJnmaklpx1OVUsiGhe6w==
-X-Received: by 2002:a05:6512:3b2b:: with SMTP id
- f43mr20862648lfv.629.1637807286056; 
- Wed, 24 Nov 2021 18:28:06 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzK6BuAse/hOVXKz3JLz0KL4b+eODJeYiAN6J8Ec/Tf+RixyxmjYUlG288A643B1Puvy2YR2z6eJwsu+kIw4bA=
-X-Received: by 2002:a05:6512:3b2b:: with SMTP id
- f43mr20862602lfv.629.1637807285742; 
- Wed, 24 Nov 2021 18:28:05 -0800 (PST)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to:user-agent;
+ bh=kl9QFdxeQT+ZdNe5xXwILBYCvxJMvl+e0+hxIPhlJP4=;
+ b=MEdXcfQyBEJhedXUDRAAr6D7TX7IjRKH3hDXoPKeI5rnZy9ve1OMXZA+UMqAC1HKEx
+ mI2GE3akr47L5V0JbfNttVSzZjNcJeOcAXceqRyME4+7YHPprvSVSFk026CR04+OdZVV
+ b6GEZ2bSQD2MpAsJ3LObNwJXYom12TK+sT27ix+PMm93sydLd08Tmk4oFM06rmXJJ3JG
+ Y0JdvKPqPsU3XbRCYIb2zgdZOoO3tHuiSufsouELonvGD8EilwUtPrWiv7hethwUjCOS
+ 0dSzzMUhQxsuzZOi6ngnWRPu0vcbxOsT6FFZ/OgYy72lH6QNp+/qKs3pcQfmyo6fiwdF
+ gz3w==
+X-Gm-Message-State: AOAM531qtv2ule/nQy2YA/cw0ChZLj8/nmX6ieb8eJ+gNsLs3CdhWOD4
+ B4Crz7oK31iS4d4R9eDKnaqQQg==
+X-Google-Smtp-Source: ABdhPJxO6BHDZemocrThhO4FCIcZqEhKUZzepBue7p+e37VnZ16tNLPHS1GtahtspFNrmOnik+J2xA==
+X-Received: by 2002:a17:90a:df88:: with SMTP id
+ p8mr3090793pjv.32.1637810482599; 
+ Wed, 24 Nov 2021 19:21:22 -0800 (PST)
+Received: from localhost ([122.181.57.99])
+ by smtp.gmail.com with ESMTPSA id h13sm824811pgg.16.2021.11.24.19.21.21
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 24 Nov 2021 19:21:21 -0800 (PST)
+Date: Thu, 25 Nov 2021 08:51:19 +0530
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 0/2] virtio-i2c: Fix buffer handling
+Message-ID: <20211125032119.vklsh4yymwnalh5b@vireshk-i7>
+References: <20211111160412.11980-1-vincent.whitchurch@axis.com>
+ <20211124185546-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-References: <20211027022107.14357-1-jasowang@redhat.com>
- <20211027022107.14357-2-jasowang@redhat.com>
- <20211119160951.5f2294c8.pasic@linux.ibm.com>
- <CACGkMEtja2TPC=ujgMrpaPmdsy+zHowbBTvPj8k7nm_+zB8vig@mail.gmail.com>
- <20211122063518.37929c01.pasic@linux.ibm.com>
- <20211122064922.51b3678e.pasic@linux.ibm.com>
- <CACGkMEu+9FvMsghyi55Ee5BxetP-YK9wh2oaT8OgLiY5+tV0QQ@mail.gmail.com>
- <20211122212352.4a76232d.pasic@linux.ibm.com>
- <CACGkMEtmhwDEAvMuMhQEUB-b+=n713pVvjyct8QAqMUk1H-A-g@mail.gmail.com>
- <20211123055906-mutt-send-email-mst@kernel.org>
- <87zgpupcga.fsf@mpe.ellerman.id.au>
- <CACGkMEteDZJVM8j5pir7_Hcn6Oq=tKbcg4DUiEQBGm5Kg9w30w@mail.gmail.com>
- <CACGkMEs086P=qfMieMQ3wPhcarsdO++iRTwVHtN-4cgKLm8opA@mail.gmail.com>
- <20211124123328.5ed9ce78.pasic@linux.ibm.com>
-In-Reply-To: <20211124123328.5ed9ce78.pasic@linux.ibm.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 25 Nov 2021 10:27:54 +0800
-Message-ID: <CACGkMEu1ZsUFt4_-R74+6JtqCr+swBzYVnQU3E+XympEcTv_CA@mail.gmail.com>
-Subject: Re: [PATCH V5 1/4] virtio_ring: validate used buffer length
-To: Halil Pasic <pasic@linux.ibm.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: "kaplan, david" <david.kaplan@amd.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>,
- "Hetzelt, Felicitas" <f.hetzelt@tu-berlin.de>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>, mcgrof@kernel.org,
- Stefan Hajnoczi <stefanha@redhat.com>,
- Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Content-Disposition: inline
+In-Reply-To: <20211124185546-mutt-send-email-mst@kernel.org>
+User-Agent: NeoMutt/20180716-391-311a52
+Cc: Vincent Whitchurch <vincent.whitchurch@axis.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ wsa@kernel.org, kernel@axis.com, linux-i2c@vger.kernel.org,
+ conghui.chen@intel.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,71 +107,26 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Nov 24, 2021 at 7:33 PM Halil Pasic <pasic@linux.ibm.com> wrote:
->
-> On Wed, 24 Nov 2021 10:33:28 +0800
-> Jason Wang <jasowang@redhat.com> wrote:
->
-> > > > > Let's see how far we can get. But yes, maybe we were too aggressive in
-> > > > > breaking things by default, a warning might be a better choice for a
-> > > > > couple of cycles.
-> > >
-> > > Ok, considering we saw the issues with balloons I think I can post a
-> > > patch to use warn instead. I wonder if we need to taint the kernel in
-> > > this case.
-> >
-> > Rethink this, consider we still have some time, I tend to convert the
-> > drivers to validate the length by themselves. Does this make sense?
->
-> I do find value in doing the validation in a single place for every
-> driver. This is really a common concern. But I think, not breaking
-> what used to work before is a good idea. So I would opt for producing
-> a warning, but otherwise preserving old behavior unless there is an
-> explicit opt-in for something more strict.
+On 24-11-21, 18:55, Michael S. Tsirkin wrote:
+> On Thu, Nov 11, 2021 at 05:04:10PM +0100, Vincent Whitchurch wrote:
+> > This fixes a couple of bugs in the buffer handling in virtio-i2c which can
+> > result in incorrect data on the I2C bus or memory corruption in the guest.
+> > 
+> > I tested this on UML (virtio-uml needs a bug fix too, I will sent that out
+> > later) with the device implementation in rust-vmm/vhost-device.
+> > 
+> > Changes in v2:
+> > - Added Acked-by and Fixes tags
+> 
+> 
+> What are the plans for this patchset?
 
-Yes, I totally agree with you after more thought and discussion.
+Wolfram applied the first patch, but not the second.
 
->
-> BTW AFAIU if we detect a problem here, there are basically two
-> cases:
-> (1) Either the device is over-reporting what it has written, or
-> (2) we have a memory corruption in the guest because the device has
-> written beyond the end of the provided buffer. This can be because
->   (2.1) the driver provided a smaller buffer than mandated by the spec,
->   or
->   (2.2) the device is broken.
->
-> Case (1) is relatively harmless, and I believe a warning for it is more
-> than appropriate. Whoever sees the warning should push for a fixed device
-> if possible.
+Wolfram, you can apply that one as well, it looks okay.
 
-Yes.
-
->
-> Case (2) is nasty. What would be the sanest course of action if we were
-> reasonably sure we have have case (2.2)?
-
-I think that's why a per driver validation is more preferable. The
-driver can choose the comfortable action, e.g for networking it may
-just drop the packets.
-
->
-> Maybe we can detect case (2) with a canary. I.e. artificially extend
-> the buffer with an extra descriptor that has a poisoned buffer, and
-> check if the value of that poisoned buffer is different than poison. I'm
-> not sure it is worth the effort though in production.
-
-This might work but it might cause performance overhead. I still think
-doing the validation per driver is better, the driver can choose to
-fix the used length and taint the kernel anyway.
-
-Thanks
-
->
-> Regards,
-> Halil
->
-
+-- 
+viresh
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
