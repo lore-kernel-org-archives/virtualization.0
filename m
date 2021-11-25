@@ -1,107 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 10E42C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 25 Nov 2021 16:22:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 56411C433EF
+	for <virtualization@archiver.kernel.org>; Thu, 25 Nov 2021 17:45:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8439D82779;
-	Thu, 25 Nov 2021 16:22:15 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id BC40E4016A;
+	Thu, 25 Nov 2021 17:44:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EG9oFxgFPm6G; Thu, 25 Nov 2021 16:22:14 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id BA56A82730;
-	Thu, 25 Nov 2021 16:22:13 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id zw1Kpue2yexU; Thu, 25 Nov 2021 17:44:58 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 5181F400A4;
+	Thu, 25 Nov 2021 17:44:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 815DFC001C;
-	Thu, 25 Nov 2021 16:22:13 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 94947C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2A0F0C0012;
+	Thu, 25 Nov 2021 17:44:58 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F18E8C000A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 16:22:12 +0000 (UTC)
+ Thu, 25 Nov 2021 17:44:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 7DCC9408FC
+ by smtp3.osuosl.org (Postfix) with ESMTP id DFE236070F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 16:22:12 +0000 (UTC)
+ Thu, 25 Nov 2021 17:44:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0KAFgYgbjyTr
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id c5_9SH1ieHkj
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 16:22:11 +0000 (UTC)
+ Thu, 25 Nov 2021 17:44:55 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id B2F62408FB
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 06ABD605E5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 16:22:11 +0000 (UTC)
+ Thu, 25 Nov 2021 17:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1637857330;
+ s=mimecast20190719; t=1637862293;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=YTzp3Im+u9TWe7xoUSb1kOKhGSmltgh2ZdfYzHshjlo=;
- b=dW0CLEtBhZOVvIb7yV07GNdsF+SXYrw01uUY6shL6cuSug/SP27i6AHX74McD8YhM2lZTU
- Hsna78CDaH/hVLdUo/q++E3mtA17t+L5WsiDvnM6yyCLpCsan7wi2HJalR1pUw8FxaCJVL
- tgFgAY9OoLm7Jqr6zUXXiImjeBxgilc=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+ bh=e7BvKG8FTSCUywCGOxNtwP0noXjOs1TD9Frr4bEkwQo=;
+ b=LGOR/aRJGcINTJtnI3WCI/stW2mGLxtDtzduwy+Wu14uREu8LHB7hjx94QfxW41ge7DYTf
+ fVx2S845KmNd2A+BxuPBGsTn7xvNSkxnqVJpYztFt69wLSanuUj2OmBDYAYJfquHH2l+E2
+ 4CvRfm2VjCMARsvkshLWqE3j0fQejvk=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-586-avTmOwkbNPeMpKG2jWJAoQ-1; Thu, 25 Nov 2021 11:22:07 -0500
-X-MC-Unique: avTmOwkbNPeMpKG2jWJAoQ-1
-Received: by mail-ed1-f71.google.com with SMTP id
- v22-20020a50a456000000b003e7cbfe3dfeso5845636edb.11
+ us-mta-300-qaxGFY21OtW9TIkl7HYipg-1; Thu, 25 Nov 2021 12:44:52 -0500
+X-MC-Unique: qaxGFY21OtW9TIkl7HYipg-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ v9-20020a50d849000000b003dcb31eabaaso6012486edj.13
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 08:22:06 -0800 (PST)
+ Thu, 25 Nov 2021 09:44:52 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=YTzp3Im+u9TWe7xoUSb1kOKhGSmltgh2ZdfYzHshjlo=;
- b=qlYm7vezUzghQPIb2xcULb9QENV1R4SuGZMqReHkmhcydn599gIHbuDilo6BFTdMPi
- RPaZSMqduaV5G1F5Wgq7jWqVZ5keUMpPCHPw+4IFtCH+NuGETySRTl5lJGCmrLsPU05b
- OUG/5449AEGIl/OJoIaKRAYkDlynRVu8UbZ9TouXcCixuqdpolNZ61WWOmi++fEriXaX
- SQM9XOTsnpi22Yhdakqp8vX5A3A/c8A602BfaiHL+qg3ycu5e2hO1sE1dXXTZ5Rq12/L
- 4HTpXVtx6MGtxfvoSYV2GOiSRMGcgvvZ+CJE3tEtgkKKkpQZim/uT2xED0YGdHdP4GLh
- u1Pg==
-X-Gm-Message-State: AOAM530Qd5vdWHtNq0lDTXvKych/iCLDBDjBjLX2X6/x8B8XtvjhwDOv
- 6LWQi+onoCQxmrxYKo1KLTf6LTlIl4ij0SCpAfI3wlWE7n81Y8hOGBKcJO4+5dxLt0IBDN3ho+Y
- 0x2bmiMysImMOn/xiwLuGF+P6XBcrKKXhDNxQrWxG+w==
-X-Received: by 2002:a17:906:dc8d:: with SMTP id
- cs13mr32249053ejc.109.1637857326004; 
- Thu, 25 Nov 2021 08:22:06 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJydbU5h+y0REbEoizdTuPyMjAfEKg6p4uEzWYWZvaNZU48JRl2Yw5f3/n++KiFekhNjLy0hsg==
-X-Received: by 2002:a17:906:dc8d:: with SMTP id
- cs13mr32249020ejc.109.1637857325837; 
- Thu, 25 Nov 2021 08:22:05 -0800 (PST)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+ :content-disposition;
+ bh=e7BvKG8FTSCUywCGOxNtwP0noXjOs1TD9Frr4bEkwQo=;
+ b=xwzd+ZgYOmqhEckWU5lJ7cM1JKeEWM5tjn9/hXf535as3c8heOtEVRX5POSOhXPVB/
+ IMh6p/e+6cNra1hFvl4g/gDXYZ9O8VjZmOeNnL+eJ5Xj4wX97yObnbXHyi3xSXYw4K4/
+ crlee4Zu4hq0mLAAYwpovEFEW34kzmwOOsoBpI00EFJ3/89dxQbr08oKCcPBnQ88CPi3
+ kp9psmvOjitn25tzpwJ49nQdFHEXukTxr3pjHsOCtVIXJ08We3pUmsocxr4/K99drW/N
+ Kks4ssaPEkWl0U6zakLLyXwI/Lwi4rVTWQS96ntsAaNyl1n65MbwqIkBiVe7wA7BNh7C
+ zysA==
+X-Gm-Message-State: AOAM531k/+hJQnRGBDuMnqQKcnGNWOE072HFL3hctuWcsW7F8Qx9kCNp
+ IpOwAV9pM+PAhw8Xo8VkBLDupPNHL7ZEBHPmTPkmNbOqUKydiB9Z/8ciCb1fhvh1CAHaa3s8aEG
+ XvYpxz0j+ByPmThjQ+bOfXf/Zap6qo+UFjlJHAZ0yaA==
+X-Received: by 2002:a05:6402:26c5:: with SMTP id
+ x5mr41644306edd.198.1637862291202; 
+ Thu, 25 Nov 2021 09:44:51 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwpwEn3VYvVMPaGoZd0qGJp74+cDdsbX2UWjVLjI4yEEPSqkH08d/TIHMG/MWFEShL7tUlQ4g==
+X-Received: by 2002:a05:6402:26c5:: with SMTP id
+ x5mr41644274edd.198.1637862291043; 
+ Thu, 25 Nov 2021 09:44:51 -0800 (PST)
 Received: from redhat.com ([176.12.197.47])
- by smtp.gmail.com with ESMTPSA id r11sm2484191edd.70.2021.11.25.08.22.03
+ by smtp.gmail.com with ESMTPSA id og14sm1925383ejc.107.2021.11.25.09.44.49
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 25 Nov 2021 08:22:05 -0800 (PST)
-Date: Thu, 25 Nov 2021 11:22:01 -0500
+ Thu, 25 Nov 2021 09:44:50 -0800 (PST)
+Date: Thu, 25 Nov 2021 12:44:48 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eli Cohen <elic@nvidia.com>
-Subject: Re: [PATCH] net/mlx5_vdpa: Increase the limit on the number of
- virtuques
-Message-ID: <20211125111936-mutt-send-email-mst@kernel.org>
-References: <20211124171953.57858-1-elic@nvidia.com>
- <20211125022011-mutt-send-email-mst@kernel.org>
- <20211125072953.GA213638@mtl-vdi-166.wap.labs.mlnx>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Bluetooth: virtio_bt: fix device removal
+Message-ID: <20211125174200.133230-1-mst@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20211125072953.GA213638@mtl-vdi-166.wap.labs.mlnx>
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: lvivier@redhat.com, virtualization@lists.linux-foundation.org,
- eperezma@redhat.com, si-wei.liu@oracle.com
+Cc: linux-bluetooth@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
+ Johan Hedberg <johan.hedberg@gmail.com>,
+ Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,64 +116,84 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Nov 25, 2021 at 09:29:53AM +0200, Eli Cohen wrote:
-> On Thu, Nov 25, 2021 at 02:21:43AM -0500, Michael S. Tsirkin wrote:
-> > On Wed, Nov 24, 2021 at 07:19:53PM +0200, Eli Cohen wrote:
-> > > Increase the limit on the maximum number of supported virtqueues to 256
-> > > to match hardware capabilities.
-> > 
-> > Hmm and are we going to have to tweak it each time new hardware/firmware
-> > is out? Can't this be queried in some way?
-> 
-> I thought to make the allocation dynamic once we have support for
-> setting max queues through vdpa tool.
+Device removal is clearly out of virtio spec: it attempts to remove
+unused buffers from a VQ before invoking device reset. To fix, make
+open/close NOPs and do all cleanup/setup in probe/remove.
+
+The cost here is a single skb wasted on an unused bt device - which
+seems modest.
+
+NB: with this fix in place driver still suffers from a race condition if
+an interrupt triggers while device is being reset. Work on a fix for
+that issue is in progress.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+Note: completely untested, in particular the device isn't supported in QEMU.
+Please do not queue directly - please help review and test and ack,
+and I will queue this together with reset fixes.
+Thanks!
 
 
-Well this will make things a bit harder to figure out then,
-right now you can assume no vdpa tool support -> max 16 VQs.
-The patch breaks this. Is there a motivation to up this right now,
-or should we just wait a bit for vdpa tool support?
+ drivers/bluetooth/virtio_bt.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-> > In fact there's a suggestion in code to remove the limitation -
-> > any plans to do this?
-> 
-> Can you be more speicifc, where?
-
-It's right there in the patch:
-
-  /* We will remove this limitation once mlx5_vdpa_alloc_resources()
-   * provides for driver space allocation
-   */
-> 
-> > 
-> > > Signed-off-by: Eli Cohen <elic@nvidia.com>
-> > 
-> > typo in subject
-> What typo?
-
-virtuques. ispell is your friend.
-
-> > 
-> > > ---
-> > >  drivers/vdpa/mlx5/net/mlx5_vnet.c | 2 +-
-> > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > 
-> > > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > index ed7a63e48335..8f2918a8efc6 100644
-> > > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > @@ -135,7 +135,7 @@ struct mlx5_vdpa_virtqueue {
-> > >  /* We will remove this limitation once mlx5_vdpa_alloc_resources()
-> > >   * provides for driver space allocation
-> > >   */
-> > > -#define MLX5_MAX_SUPPORTED_VQS 16
-> > > +#define MLX5_MAX_SUPPORTED_VQS 256
-> > >  
-> > >  static bool is_index_valid(struct mlx5_vdpa_dev *mvdev, u16 idx)
-> > >  {
-> > > -- 
-> > > 2.33.1
-> > 
+diff --git a/drivers/bluetooth/virtio_bt.c b/drivers/bluetooth/virtio_bt.c
+index 24a9258962fa..aea33ba9522c 100644
+--- a/drivers/bluetooth/virtio_bt.c
++++ b/drivers/bluetooth/virtio_bt.c
+@@ -50,8 +50,11 @@ static int virtbt_add_inbuf(struct virtio_bluetooth *vbt)
+ 
+ static int virtbt_open(struct hci_dev *hdev)
+ {
+-	struct virtio_bluetooth *vbt = hci_get_drvdata(hdev);
++	return 0;
++}
+ 
++static int virtbt_open_vdev(struct virtio_bluetooth *vbt)
++{
+ 	if (virtbt_add_inbuf(vbt) < 0)
+ 		return -EIO;
+ 
+@@ -61,7 +64,11 @@ static int virtbt_open(struct hci_dev *hdev)
+ 
+ static int virtbt_close(struct hci_dev *hdev)
+ {
+-	struct virtio_bluetooth *vbt = hci_get_drvdata(hdev);
++	return 0;
++}
++
++static int virtbt_close_vdev(struct virtio_bluetooth *vbt)
++{
+ 	int i;
+ 
+ 	cancel_work_sync(&vbt->rx);
+@@ -351,8 +358,14 @@ static int virtbt_probe(struct virtio_device *vdev)
+ 		goto failed;
+ 	}
+ 
++	virtio_device_ready(vdev);
++	if (virtbt_open_vdev(vbt))
++		goto open_failed;
++
+ 	return 0;
+ 
++open_failed:
++	hci_free_dev(hdev);
+ failed:
+ 	vdev->config->del_vqs(vdev);
+ 	return err;
+@@ -365,6 +378,7 @@ static void virtbt_remove(struct virtio_device *vdev)
+ 
+ 	hci_unregister_dev(hdev);
+ 	vdev->config->reset(vdev);
++	virtbt_close_vdev(vbt);
+ 
+ 	hci_free_dev(hdev);
+ 	vbt->hdev = NULL;
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
