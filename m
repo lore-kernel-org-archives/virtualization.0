@@ -1,110 +1,107 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 63662C433EF
-	for <virtualization@archiver.kernel.org>; Thu, 25 Nov 2021 20:42:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C708AC433EF
+	for <virtualization@archiver.kernel.org>; Thu, 25 Nov 2021 20:45:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id C12D360764;
-	Thu, 25 Nov 2021 20:42:57 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 5CE0A81C71;
+	Thu, 25 Nov 2021 20:45:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id x1gL8oVtqcHG; Thu, 25 Nov 2021 20:42:56 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id A8A6660737;
-	Thu, 25 Nov 2021 20:42:55 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VveNgzxBy7Sn; Thu, 25 Nov 2021 20:45:06 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 1854080EDF;
+	Thu, 25 Nov 2021 20:45:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 76136C001C;
-	Thu, 25 Nov 2021 20:42:55 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 545E8C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D14FFC001C;
+	Thu, 25 Nov 2021 20:45:05 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 30A83C000A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 20:42:53 +0000 (UTC)
+ Thu, 25 Nov 2021 20:45:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 4FE5F400AE
+ by smtp2.osuosl.org (Postfix) with ESMTP id 0EB22401D2
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 20:42:53 +0000 (UTC)
+ Thu, 25 Nov 2021 20:45:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id t42v3K0Qp_XI
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id DEev63GWfnL7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 20:42:52 +0000 (UTC)
+ Thu, 25 Nov 2021 20:45:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id DEF98408D3
+ by smtp2.osuosl.org (Postfix) with ESMTPS id BF4684013C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 20:42:51 +0000 (UTC)
+ Thu, 25 Nov 2021 20:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1637872970;
+ s=mimecast20190719; t=1637873101;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=dwq6xAkeXeoZO2nAF0/4CjnkcrMErmAxSF0eFHxlv2o=;
- b=YPPvw4/YzYtEbzSt1NynLN7shC0u6LcBKslnerH4QlnXJwaD9jKmBXeVpNa6JoyhkZX+9z
- Dl9lEMhA1WhfAYSD7PgRrEiH8wAkANi593nsgCqT/AYdNBtDlmicRkzBUTDSIW6xpyGcGz
- ySIpu+fDWbV11BMHZz8dq4rzFrv6D4Y=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=a8msmL+dSCBGccxnAPs58z4VsuX8uw6fgQ0C8pTfMp8=;
+ b=WNmVd8s8H0BlN0W9C3x1zBn0q+U3m1o7E+wWJR9OAuiCmBPrFBQvn2lKB7FIwUASGDYIxh
+ bk6zsvPAYpmGrl/hGkxoN6Wpwv8uE3SIN28XmPAm3c6mKnmMcbyYpP+VUjDtFWp9Di7ACH
+ kypDnMl7r6HlrUVP8lbWBK8FjqrqAW8=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-481-i00Pa4TANmqQGSx5Ykyxmw-1; Thu, 25 Nov 2021 15:42:47 -0500
-X-MC-Unique: i00Pa4TANmqQGSx5Ykyxmw-1
-Received: by mail-ed1-f69.google.com with SMTP id
- bx28-20020a0564020b5c00b003e7c42443dbso6219428edb.15
+ us-mta-523-IxetfPXwPv6PEc_uh4SW2w-1; Thu, 25 Nov 2021 15:45:00 -0500
+X-MC-Unique: IxetfPXwPv6PEc_uh4SW2w-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ f4-20020a50e084000000b003db585bc274so6193831edl.17
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 12:42:47 -0800 (PST)
+ Thu, 25 Nov 2021 12:45:00 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=dwq6xAkeXeoZO2nAF0/4CjnkcrMErmAxSF0eFHxlv2o=;
- b=p4R4RFa6qk9cs/UIb9bpZ/8yPHWiLaFO/XebGMu8eJQshJZgjRKuUfyq0ELbGGYpN0
- sRUROklRBcKv/VkC+bv2TxKMdYdOGHRIBkdTx2NbZsQ7T66cE65XNLhc/C12qvLbl6Ec
- WDPEgVaMpABU0o6tjlZzsi9BveEiMYBzbIstNXOZAqR0BE/Dfo9bsz5crtuUgIYRm1mR
- CS5dVodVIKsBvjIYCxgpUn2llOIfS0uPvefogoUOIk0UmzTJjleJtF84vACRbbdqwjSF
- YPYtAnJqMIQm0COFjrc18ykl4pnYDowqQS/FtbIkG0SLBc/o7PPGGyMLR8zj82Ymyr0s
- ILSA==
-X-Gm-Message-State: AOAM530AbQk+s8ScdGhkgSMRm1WYu+wMfkULul30+obDsWvK7MbKEu7z
- RrfG3LNdTJEmVtQn7vdKEJwfFSsI26rp5t3fGhAvn3ykTKnyfIEzBzljUB6YIMed4JMTs0/YpKZ
- o7G6RUX7hJxWMGldc+FOqQ43Bobe1PLvEdFiTXj9FdQ==
-X-Received: by 2002:a05:6402:84b:: with SMTP id
- b11mr43326797edz.69.1637872966283; 
- Thu, 25 Nov 2021 12:42:46 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwV1mE6GGlp0m4RJQ4ctf/kluGWw+ZKhP02LcBk5b036FR8ekAzctmtQnt+ZPE8o34dIwamaw==
-X-Received: by 2002:a05:6402:84b:: with SMTP id
- b11mr43326764edz.69.1637872966057; 
- Thu, 25 Nov 2021 12:42:46 -0800 (PST)
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=a8msmL+dSCBGccxnAPs58z4VsuX8uw6fgQ0C8pTfMp8=;
+ b=j+bacZ5q4rFFfKnGsldsD8qS2OUOhcN1xRJKrLjpOBKIp5TEAkLlElK8E59TU+HTfj
+ s5X+JWyZH9eyC++smirKkq0oV4mifwnGVSYUEG6r7MjH2ksCUKFmgLF4CA1cT2LD/WF4
+ lFDn468IYIR/CrS3jUQfAbctgQ+oMLA/PXLUKEy2m+ykXrmaPfxzKJxWsjwuWfJHXksd
+ FwRfuSxvXxBAK9SdXukQScwyC45tRxNgio+1LIWEWYBpUq0EtzEm9o1XU8Wi59iXoPeY
+ Z4KZX8NmpM+thLgM1/UGJabMEur2AUBwaC+QC4+58nbKlXz1ewMB1xgGpFbNWhvixk77
+ 1uPQ==
+X-Gm-Message-State: AOAM533OdJT9ahjIXVGDuTFCMImQSQ2gONpbeImnC5JSEr6RGEJThQ/L
+ CowO4U2YbDvXP5VLTZxVwqqv+ZyViDEPKUfACYwP+UPeZoZ0efsUnmag60PIvpPstxPA92TZEMW
+ 5BDw/fbZeFcOLRpKoQ2PD5+K4f5bHBau2loziOQZNEg==
+X-Received: by 2002:aa7:d495:: with SMTP id b21mr42133447edr.363.1637873099230; 
+ Thu, 25 Nov 2021 12:44:59 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwTPqNf4VUuW6BEDfui/hzHRpzYVp59pV4nohAawMz1FPQT58MahY5ZHh9BtXtttz+cGKXN+w==
+X-Received: by 2002:aa7:d495:: with SMTP id b21mr42133412edr.363.1637873099013; 
+ Thu, 25 Nov 2021 12:44:59 -0800 (PST)
 Received: from redhat.com ([2a03:c5c0:207e:e87:2d40:4ed4:5676:5c1a])
- by smtp.gmail.com with ESMTPSA id ht7sm2186457ejc.27.2021.11.25.12.42.43
+ by smtp.gmail.com with ESMTPSA id x22sm2015527ejc.97.2021.11.25.12.44.56
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 25 Nov 2021 12:42:45 -0800 (PST)
-Date: Thu, 25 Nov 2021 15:42:41 -0500
+ Thu, 25 Nov 2021 12:44:58 -0800 (PST)
+Date: Thu, 25 Nov 2021 15:44:54 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Parav Pandit <parav@nvidia.com>
-Subject: Re: [PATCH] net/mlx5_vdpa: Offer VIRTIO_NET_F_MTU when setting MTU
-Message-ID: <20211125154011-mutt-send-email-mst@kernel.org>
-References: <20211124170949.51725-1-elic@nvidia.com>
- <PH0PR12MB5481CD17327097D7E7865B8DDC629@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20211125080227.GE214101@mtl-vdi-166.wap.labs.mlnx>
- <PH0PR12MB548163DC0306DB2EF50B76F3DC629@PH0PR12MB5481.namprd12.prod.outlook.com>
+To: Marcel Holtmann <marcel@holtmann.org>
+Subject: Re: [PATCH] Bluetooth: virtio_bt: fix device removal
+Message-ID: <20211125154314-mutt-send-email-mst@kernel.org>
+References: <20211125174200.133230-1-mst@redhat.com>
+ <F52F65FE-6A07-486B-8E84-684ED85709E9@holtmann.org>
 MIME-Version: 1.0
-In-Reply-To: <PH0PR12MB548163DC0306DB2EF50B76F3DC629@PH0PR12MB5481.namprd12.prod.outlook.com>
+In-Reply-To: <F52F65FE-6A07-486B-8E84-684ED85709E9@holtmann.org>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: "lvivier@redhat.com" <lvivier@redhat.com>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "eperezma@redhat.com" <eperezma@redhat.com>,
- "si-wei.liu@oracle.com" <si-wei.liu@oracle.com>, Eli Cohen <elic@nvidia.com>
+Cc: linux-bluetooth@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+ Johan Hedberg <johan.hedberg@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,106 +113,39 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Nov 25, 2021 at 06:27:15PM +0000, Parav Pandit wrote:
-> 
-> 
-> > From: Eli Cohen <elic@nvidia.com>
-> > Sent: Thursday, November 25, 2021 1:32 PM
-> > 
-> > On Thu, Nov 25, 2021 at 07:29:18AM +0200, Parav Pandit wrote:
-> > >
-> > >
-> > > > From: Eli Cohen <elic@nvidia.com>
-> > > > Sent: Wednesday, November 24, 2021 10:40 PM
-> > > >
-> > > > Make sure to offer VIRTIO_NET_F_MTU since we configure the MTU based
-> > > > on what was queried from the device.
-> > > >
-> > > > This allows the virtio driver to allocate large enough buffers based
-> > > > on the reported MTU.
-> > > >
-> > > > Signed-off-by: Eli Cohen <elic@nvidia.com>
-> > > > ---
-> > > >  drivers/vdpa/mlx5/net/mlx5_vnet.c | 1 +
-> > > >  1 file changed, 1 insertion(+)
-> > > >
-> > > > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > > b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > > index 465e832f2ad1..ed7a63e48335 100644
-> > > > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > > @@ -1956,6 +1956,7 @@ static u64 mlx5_vdpa_get_features(struct
-> > > > vdpa_device *vdev)
-> > > >  	ndev->mvdev.mlx_features |=
-> > > > BIT_ULL(VIRTIO_NET_F_CTRL_MAC_ADDR);
-> > > >  	ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_MQ);
-> > > >  	ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_STATUS);
-> > > > +	ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_MTU);
-> > > It is better to set this feature bit along with the writing the RO config.mtu
-> > area, adjacent to query_mtu() call.
-> > 
-> > Why is that so important? We always query the mtu and if the query fails, we
-> > fail the initialization so it does not look critical.
-> It is not so important. But it is more appropriate to set read only field and its associated feature bit at one place, which never changes.
-> There is no need to perform OR operation for those many feature bits on every get_features() callback when they are immutable.
-> 
-> So I wanted to move setting other 5 feature bits assignment at one place in device initialization time similar to how you have done VALID_FEATURES_MASK.
-> Something like below.
-> But again, its minor.
-> If you happen to revise the series (I think you should for the supporting dumpit in future), please consider one time assignment like below.
-> 
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index 63813fbb5f62..21802b25b0f5 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -1890,11 +1890,6 @@ static u64 mlx5_vdpa_get_features(struct vdpa_device *vdev)
->         ndev->mvdev.mlx_features |= mlx_to_vritio_features(dev_features);
->         if (MLX5_CAP_DEV_VDPA_EMULATION(mvdev->mdev, virtio_version_1_0))
->                 ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_F_VERSION_1);
-> -       ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_F_ACCESS_PLATFORM);
-> -       ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_CTRL_VQ);
-> -       ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_CTRL_MAC_ADDR);
-> -       ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_MQ);
-> -       ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_STATUS);
-> 
->         print_features(mvdev, ndev->mvdev.mlx_features, false);
->         return ndev->mvdev.mlx_features;
-> @@ -2522,6 +2517,14 @@ static int event_handler(struct notifier_block *nb, unsigned long event, void *p
->         return ret;
->  }
-> 
-> +#define DEFAULT_FEATURES \
-> +       BIT_ULL(VIRTIO_F_ACCESS_PLATFORM) | \
-> +       BIT_ULL(VIRTIO_NET_F_CTRL_VQ) | \
-> +       BIT_ULL(VIRTIO_NET_F_CTRL_MAC_ADDR) \
-> +       BIT_ULL(VIRTIO_NET_F_MQ) \
-> +       BIT_ULL(VIRTIO_NET_F_STATUS) \
-> +       BIT_ULL(VIRTIO_NET_F_MTU)
-> +
-
-I would just open-code it, don't see what good does the macro do.
-A single assignment is a bit clearer I think I agree,
-there's not much of a difference.
-
-
->  static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
->                              const struct vdpa_dev_set_config *add_config)
->  {
-> @@ -2565,6 +2568,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
->                 goto err_mtu;
-> 
->         ndev->config.mtu = cpu_to_mlx5vdpa16(mvdev, mtu);
-> +       ndev->mvdev.mlx_features = DEFAULT_FEATURES;
-> 
->         if (get_link_state(mvdev))
->                 ndev->config.status |= cpu_to_mlx5vdpa16(mvdev, VIRTIO_NET_S_LINK_UP);
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVGh1LCBOb3YgMjUsIDIwMjEgYXQgMDk6MDI6MDFQTSArMDEwMCwgTWFyY2VsIEhvbHRtYW5u
+IHdyb3RlOgo+IEhpIE1pY2hhZWwsCj4gCj4gPiBEZXZpY2UgcmVtb3ZhbCBpcyBjbGVhcmx5IG91
+dCBvZiB2aXJ0aW8gc3BlYzogaXQgYXR0ZW1wdHMgdG8gcmVtb3ZlCj4gPiB1bnVzZWQgYnVmZmVy
+cyBmcm9tIGEgVlEgYmVmb3JlIGludm9raW5nIGRldmljZSByZXNldC4gVG8gZml4LCBtYWtlCj4g
+PiBvcGVuL2Nsb3NlIE5PUHMgYW5kIGRvIGFsbCBjbGVhbnVwL3NldHVwIGluIHByb2JlL3JlbW92
+ZS4KPiAKPiBzbyB0aGUgdmlydGJ0X3tvcGVuLGNsb3NlfSBhcyBOT1AgaXMgbm90IHJlYWxseSB3
+aGF0IGEgZHJpdmVyIGlzIHN1cHBvc2UKPiB0byBiZSBkb2luZy4gVGhlc2UgYXJlIHRyYW5zcG9y
+dCBlbmFibGUvZGlzYWJsZSBjYWxsYmFja3MgZnJvbSB0aGUgQlQKPiBDb3JlIHRvd2FyZHMgdGhl
+IGRyaXZlci4gSXQgbWFwcyB0byBhIGRldmljZSBiZWluZyBlbmFibGVkL2Rpc2FibGVkIGJ5Cj4g
+c29tZXRoaW5nIGxpa2UgYmx1ZXRvb3RoZCBmb3IgZXhhbXBsZS4gU28gaWYgZGlzYWJsZWQsIEkg
+ZXhwZWN0IHRoYXQgbm8KPiByZXNvdXJjZXMvcXVldWVzIGFyZSBpbiB1c2UuCj4gCj4gTWF5YmUg
+SSBtaXN1bmRlcnN0YW5kIHRoZSB2aXJ0aW8gc3BlYyBpbiB0aGF0IHJlZ2FyZCwgYnV0IEkgd291
+bGQgbGlrZQo+IHRvIGtlZXAgdGhpcyBmdW5kYW1lbnRhbCBjb25jZXB0IG9mIGEgQmx1ZXRvb3Ro
+IGRyaXZlci4gSXQgZG9lcyB3b3JrCj4gd2l0aCBhbGwgb3RoZXIgdHJhbnNwb3J0cyBsaWtlIFVT
+QiwgU0RJTywgVUFSVCBldGMuCj4gCj4gPiBUaGUgY29zdCBoZXJlIGlzIGEgc2luZ2xlIHNrYiB3
+YXN0ZWQgb24gYW4gdW51c2VkIGJ0IGRldmljZSAtIHdoaWNoCj4gPiBzZWVtcyBtb2Rlc3QuCj4g
+Cj4gVGhlcmUgc2hvdWxkIGJlIG5vIGJ1ZmZlciB1c2VkIGlmIHRoZSBkZXZpY2UgaXMgcG93ZXJl
+ZCBvZmYuIFdlIGFsc28gZG9u4oCZdAo+IGhhdmUgYW55IFVTQiBVUkJzIGluLWZsaWdodCBpZiB0
+aGUgdHJhbnNwb3J0IGlzIG5vdCBhY3RpdmUuCj4gCj4gPiBOQjogd2l0aCB0aGlzIGZpeCBpbiBw
+bGFjZSBkcml2ZXIgc3RpbGwgc3VmZmVycyBmcm9tIGEgcmFjZSBjb25kaXRpb24gaWYKPiA+IGFu
+IGludGVycnVwdCB0cmlnZ2VycyB3aGlsZSBkZXZpY2UgaXMgYmVpbmcgcmVzZXQuIFdvcmsgb24g
+YSBmaXggZm9yCj4gPiB0aGF0IGlzc3VlIGlzIGluIHByb2dyZXNzLgo+IAo+IEluIHRoZSB2aXJ0
+YnRfY2xvc2UoKSBjYWxsYmFjayB3ZSBzaG91bGQgZGVhY3RpdmF0ZSBhbGwgaW50ZXJydXB0cy4K
+PiAKPiBSZWdhcmRzCj4gCj4gTWFyY2VsCgpJZiB5b3Ugd2FudCB0byBkbyB0aGF0IHRoZW4gZGV2
+aWNlIGhhcyB0byBiZSByZXNldCBvbiBjbG9zZSwKYW5kIGZ1bGx5IHJlaW5pdGlhbGl6ZWQgb24g
+b3Blbi4KQ2FuIHlvdSB3b3JrIG9uIGEgcGF0Y2ggbGlrZSB0aGF0PwpHaXZlbiBJIGRvbid0IGhh
+dmUgdGhlIGRldmljZSBzdWNoIGEgcmV3b3JrIGlzIHByb2JhYmx5IG1vcmUKdGhhbiBJIGNhbiB1
+bmRlcnRha2UuCgotLSAKTVNUCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
