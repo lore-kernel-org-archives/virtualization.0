@@ -1,146 +1,110 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3298DC433F5
-	for <virtualization@archiver.kernel.org>; Thu, 25 Nov 2021 18:31:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 63662C433EF
+	for <virtualization@archiver.kernel.org>; Thu, 25 Nov 2021 20:42:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id A8DCD401D4;
-	Thu, 25 Nov 2021 18:31:46 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id C12D360764;
+	Thu, 25 Nov 2021 20:42:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Q8CTf3HrPmKl; Thu, 25 Nov 2021 18:31:43 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 72841400A4;
-	Thu, 25 Nov 2021 18:31:42 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id x1gL8oVtqcHG; Thu, 25 Nov 2021 20:42:56 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id A8A6660737;
+	Thu, 25 Nov 2021 20:42:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 46301C001C;
-	Thu, 25 Nov 2021 18:31:42 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 76136C001C;
+	Thu, 25 Nov 2021 20:42:55 +0000 (UTC)
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8240BC000A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 545E8C000A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 18:31:40 +0000 (UTC)
+ Thu, 25 Nov 2021 20:42:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 5A79A408FB
+ by smtp4.osuosl.org (Postfix) with ESMTP id 4FE5F400AE
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 18:31:40 +0000 (UTC)
+ Thu, 25 Nov 2021 20:42:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=nvidia.com
+ dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
  by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id hdbX-B8xBSiM
+ with ESMTP id t42v3K0Qp_XI
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 18:31:39 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com
- (mail-mw2nam10on2049.outbound.protection.outlook.com [40.107.94.49])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 3AFCA408FA
+ Thu, 25 Nov 2021 20:42:52 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id DEF98408D3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 18:31:39 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lVqNvkneEzUPE999MR6XVjGJ0MTdSFHOT1oHLPzSO4XCyYcX39T+xeTiPhEKG8z9sOTQw4yYISCnDVAHyrH8NKI085Gi38CD6U10x0FW5hNkfz8wDfkTwn2ga0B9CYXeEH4nkQuALIHOhlkkck6GFsUmYsOkJy+EE2iZ6SqIl5ew51F71WBc++9FwcL6G6bKXr2VaSF3zIoEDKzDIJLfetN/kFCNeCkfUKY+6cHC/O7uRDBldaiy05LQSi7Oq5pV0ch332QgA9hi2sw9zH5PfgUoouPLg0T+Gj49jZ7hIzZlJC1omSxsTONvyslVTrg69/IbY0y2nOnjJ3tlbMyn8g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=GDwiRk2Il8D1kh5ezleLuejshnlE1V46HQxdXlJU9JI=;
- b=lWkvkY8asDPpFthGroPw0cxiCCs1wwprJ5uxUSTTCcf3qTqsTUSWMUXM99XWJkTOCFxUh/hpn4gq5E+y6OpCac4QHznIxUMDHwWqkXquqwoYYP+7IPN1sTQMQPbk0lZz+QbcjGuDoHqLvgtI9E67PNCxYqEsRwWI814Hay0Chy5IttZu4g7kTGhFraOFkkrtot9AjLohFnrGtcmXlonx0XhtDRjCpPFhzyMPgr9aIgbgnE8j9rurYaddM7ek2FpsxqUC+JDsrfIqddOLErFzte1eGoqFLERwtjAvAYE6BZWzoJKF2/Unw03MeWVh83T9kn7XSMod145N0ocXf9aQkw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=GDwiRk2Il8D1kh5ezleLuejshnlE1V46HQxdXlJU9JI=;
- b=un3642K7L5SXJxo81gaZRJJ9fSc4EJQGC6OsYVylEm5QuQUiIquHAEtOpt1exVjOcXML2Ry9a/s3Q4vOfi7+LUT74RBZkioWCvUdycbJ53tZtEl5JVMA6J9sfldgS1R80EB799XQlL/fXYcDamr/Iy+nN3CnzOWU7EXm+PcsHmsYXrT4D/2ikfzt4122g8HYaM1PSAuJw4xnpXJuZEUL/j1bEUfP6ee2jtPbrOFBvwv8Y5EJ8QDEo51epZcAASeLP/Tnjkbvi6SIH6PckBeaGY4FfVzGPrDi7Xpe+j3ORBZFFWu51cohqLsujKgicV9oOYDoqWTldqXUerTCamKd0Q==
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
- by PH0PR12MB5482.namprd12.prod.outlook.com (2603:10b6:510:ea::18)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.19; Thu, 25 Nov
- 2021 18:31:37 +0000
-Received: from PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::5515:f45e:56f5:b35a]) by PH0PR12MB5481.namprd12.prod.outlook.com
- ([fe80::5515:f45e:56f5:b35a%3]) with mapi id 15.20.4713.027; Thu, 25 Nov 2021
- 18:31:36 +0000
-To: Eli Cohen <elic@nvidia.com>
-Subject: RE: [PATH v1 1/2] vdpa: Add support for querying vendor statistics
-Thread-Topic: [PATH v1 1/2] vdpa: Add support for querying vendor statistics
-Thread-Index: AQHX4VQrJsRhfsS90kGFJYDRg8aaW6wTuC2ggAAsBICAAK2QsA==
-Date: Thu, 25 Nov 2021 18:31:36 +0000
-Message-ID: <PH0PR12MB548197999B38399048A1406EDC629@PH0PR12MB5481.namprd12.prod.outlook.com>
-References: <20211124165531.42624-1-elic@nvidia.com>
- <20211124165531.42624-2-elic@nvidia.com>
- <PH0PR12MB54818A0D2D4B3ABE5DD081B5DC629@PH0PR12MB5481.namprd12.prod.outlook.com>
- <20211125080701.GF214101@mtl-vdi-166.wap.labs.mlnx>
-In-Reply-To: <20211125080701.GF214101@mtl-vdi-166.wap.labs.mlnx>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: f817ed42-64df-484d-7d7b-08d9b041d0a5
-x-ms-traffictypediagnostic: PH0PR12MB5482:
-x-microsoft-antispam-prvs: <PH0PR12MB548228D15E529856389CC64ADC629@PH0PR12MB5482.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:7219;
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: d4QUsetYWLO72GeKRxJ5nx/DY1DbJPpokJ0enaup0pA+mMsb89+fTQ7MCVDTB4J11PSyH8RUTH7vkVp/aTCo57xDK3HdmQpCE4dnd0/9yc240fg+xEHeWj3VPjfw6+sLYt8Q2Z68uPKGiiOZU6mRbh8wnCllkl766lHQRbAWySjxiD3tAt37aA5nYy2RTqiXd2DO+nRusXAhyNbTKlLl19oU+nkRh5yhps7oQs5DAi12J2Qy9etL9wXFXAKdHJTfbLZmKuqlskUuyTsTKMCgcmYIdensZWY9KY83KjwIKMTiu4ksaqFJ+S7HfkHmYmxPjY8Qu0XJD/I9EbF5TDqHriuZdptRK4csYoD7wnZp5dQTuSgdeR/2YjyMfBj2ZQ/X6R5GhnspNze60LpDEvd8HnGyNMr1MeCglFKHJjLKfy8o0xkhT/PiTCOr8SPUva4AACZG1i3bVfXHB/jktexdvcMWhLUiaG+dD9hsOmvQKH9EHUbj+7oLGWbEhmLJ7nUhN4DMB3pk49tPMvNEWHe7zruK/Dw4iu5DrV2faR4VzoQULHN5ZPiwMP/Tf2xTueiHaXBe08H3X4FHa6d4c019l/Bx6W4M3vhcVvXYGvNTU4gRlvH2rF6xJKW+P0l7x7lH+OvtdAAUyYGv2SiqpkZpEg0zKUkMUT11dSpaKJILAhUz1LCA4l9XLLPMlCYyEuZ4lPaXWTUnSWza+4JdVFyz6w==
-x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(4636009)(366004)(186003)(8936002)(66446008)(86362001)(52536014)(64756008)(2906002)(508600001)(316002)(71200400001)(54906003)(66556008)(6862004)(26005)(4326008)(55016003)(122000001)(76116006)(38100700002)(5660300002)(83380400001)(33656002)(66946007)(66476007)(8676002)(7696005)(9686003)(38070700005)(6506007)(6636002);
- DIR:OUT; SFP:1101; 
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?dEXUVUbcCss/kFj7uKWRqWR+CwnddQ+UIbzxCyhTAtEiFw8eKr9G2BYgRAnu?=
- =?us-ascii?Q?5BgCg0tr9yVwFpZUTtLFCafoA54PsQKznREyGWYDUmVibk9IYJhCUTlmrL5i?=
- =?us-ascii?Q?7v92JH+F2pU9ul13mB/w6VKOvZk3NGoinWcCm9p8cF61clmr1UJNipbl8bFH?=
- =?us-ascii?Q?y4U12cqy4kBQVjdCqeUBFki6kTLXvcXqPw8+Kf6ANn6R3yWSV5Kgu0zvMX0x?=
- =?us-ascii?Q?ZRqeIRT3IIqfFKbxdzwH0uZr+5V8zUO6cV1MmYHukAyi0I37X6L/RflP+zbb?=
- =?us-ascii?Q?hESoFUHp+OhSmhJ47ZVGAtZKnCtXdFSI5rEidGcmTAe0d3Piqi5DEpNznPkx?=
- =?us-ascii?Q?Sl4Fes7PHhmeagCICWeRnExGAADiYpTYbliADkIdjAn381CToTQFkBGzmu0O?=
- =?us-ascii?Q?bGGK6o2j4m8R7GP4c8w0GSV+dk4nNwN6TpMFlgbJfuKoy7J5hd/D5p3ooWXV?=
- =?us-ascii?Q?to2P2K0LQRvn/7E1SpGTg4aCtaQJyuO6GYhGl3JEXPkbbkA5QsGPTXWKdx4h?=
- =?us-ascii?Q?w7Yb6j+dkkczYCJMgFGM5l3X/m1fQC9cf7LJ53sSAoFVQ2Za0pPyLB3LdpDP?=
- =?us-ascii?Q?eidCUZIlOn7ZI1iqZ+5DngReQ9KNdtIJ7CydUziJ/cfIxAUgVTqhatozWDhJ?=
- =?us-ascii?Q?kuUlEQ6blP7WTzQXk5svvIpyiru3wJIfojW89e9zffQLn22DMkEZTKtZBFix?=
- =?us-ascii?Q?s1OXFl1PZtMwa2U+t+3g4a/7iSPTsYRx3c/ca17SvQW8mxDi2j0jP+qwUHBz?=
- =?us-ascii?Q?eiOIGreyqVAgyXmfwQABzRG1GTr1FRlxvjNA1+W2NEyGpqnGsoFvD80jlTxc?=
- =?us-ascii?Q?9Og4baQzqphpjmGz+OKnWP5VvnU28Kk/3knvdxIIcKiddIoocsSGUOxZhHLK?=
- =?us-ascii?Q?VWF0J8SQiMbb5V49hopIIGXX9HRJggXmw4XntNwdopZuPDaR8xxeOqBKoAtt?=
- =?us-ascii?Q?vok3pDXGYMR9azN2tW5YphZllmSzCd8mS1HsUEQhjWKm9Gg4GcAMMi+Wk3z5?=
- =?us-ascii?Q?L+UrENDYgoQPy6Qk5ezcGW+a4AUw8+g0eC/sMHb0uvNy71n20jIfKuVU78UH?=
- =?us-ascii?Q?96ebUN5mYZcoXmkRKfrzxkTqMrjLZSZQEoF18p/dx5P4gMsR8NRqAd2YJDN1?=
- =?us-ascii?Q?j5VS8E6Z+Qh3AhIpYgf27H3T6m4sJXJB3l6LMKu6Ng8Fa4B0Z6oxqCepNo76?=
- =?us-ascii?Q?RnuffSw8chaHo1r/c3/5dKZ+DSTWlWF1u4Idj6DJN8kMacTQ2MPqwVTHz1CZ?=
- =?us-ascii?Q?vXrUlYXpeEVHQTQj8hHSpimkXMr3up1+iakFW+ruUlulC+GcXQ6RlOu8qEtW?=
- =?us-ascii?Q?gRyZtQTm7ldatzkFO2DbQbxJ3c7R/Oc6cMQIocaflCD4/5sS1iW1ppBi75JY?=
- =?us-ascii?Q?ydjH4L36Yc+XiTEhJI9nFaJ9hLkljvgDQ/9f3ZQLUHtWTL4zCiKWG2s94HWT?=
- =?us-ascii?Q?79V20oNWn3MYsBEMf/q+hZtv2Kj1R8m8qVcUSGcpUEpi3/yUUY/h6kpAsCp2?=
- =?us-ascii?Q?Nm7apBEx9aoF+1BOcMg2JGgvTjB3up/wyHXk8BAxGWWnMafurC2vH4uN+LmF?=
- =?us-ascii?Q?18y8lfbcck+DQQMvyII+jOT46gIUyOKZuxaZoS9g3EqOxSGIAjTVr92XgzPn?=
- =?us-ascii?Q?xw=3D=3D?=
+ Thu, 25 Nov 2021 20:42:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1637872970;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=dwq6xAkeXeoZO2nAF0/4CjnkcrMErmAxSF0eFHxlv2o=;
+ b=YPPvw4/YzYtEbzSt1NynLN7shC0u6LcBKslnerH4QlnXJwaD9jKmBXeVpNa6JoyhkZX+9z
+ Dl9lEMhA1WhfAYSD7PgRrEiH8wAkANi593nsgCqT/AYdNBtDlmicRkzBUTDSIW6xpyGcGz
+ ySIpu+fDWbV11BMHZz8dq4rzFrv6D4Y=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-481-i00Pa4TANmqQGSx5Ykyxmw-1; Thu, 25 Nov 2021 15:42:47 -0500
+X-MC-Unique: i00Pa4TANmqQGSx5Ykyxmw-1
+Received: by mail-ed1-f69.google.com with SMTP id
+ bx28-20020a0564020b5c00b003e7c42443dbso6219428edb.15
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 25 Nov 2021 12:42:47 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=dwq6xAkeXeoZO2nAF0/4CjnkcrMErmAxSF0eFHxlv2o=;
+ b=p4R4RFa6qk9cs/UIb9bpZ/8yPHWiLaFO/XebGMu8eJQshJZgjRKuUfyq0ELbGGYpN0
+ sRUROklRBcKv/VkC+bv2TxKMdYdOGHRIBkdTx2NbZsQ7T66cE65XNLhc/C12qvLbl6Ec
+ WDPEgVaMpABU0o6tjlZzsi9BveEiMYBzbIstNXOZAqR0BE/Dfo9bsz5crtuUgIYRm1mR
+ CS5dVodVIKsBvjIYCxgpUn2llOIfS0uPvefogoUOIk0UmzTJjleJtF84vACRbbdqwjSF
+ YPYtAnJqMIQm0COFjrc18ykl4pnYDowqQS/FtbIkG0SLBc/o7PPGGyMLR8zj82Ymyr0s
+ ILSA==
+X-Gm-Message-State: AOAM530AbQk+s8ScdGhkgSMRm1WYu+wMfkULul30+obDsWvK7MbKEu7z
+ RrfG3LNdTJEmVtQn7vdKEJwfFSsI26rp5t3fGhAvn3ykTKnyfIEzBzljUB6YIMed4JMTs0/YpKZ
+ o7G6RUX7hJxWMGldc+FOqQ43Bobe1PLvEdFiTXj9FdQ==
+X-Received: by 2002:a05:6402:84b:: with SMTP id
+ b11mr43326797edz.69.1637872966283; 
+ Thu, 25 Nov 2021 12:42:46 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwV1mE6GGlp0m4RJQ4ctf/kluGWw+ZKhP02LcBk5b036FR8ekAzctmtQnt+ZPE8o34dIwamaw==
+X-Received: by 2002:a05:6402:84b:: with SMTP id
+ b11mr43326764edz.69.1637872966057; 
+ Thu, 25 Nov 2021 12:42:46 -0800 (PST)
+Received: from redhat.com ([2a03:c5c0:207e:e87:2d40:4ed4:5676:5c1a])
+ by smtp.gmail.com with ESMTPSA id ht7sm2186457ejc.27.2021.11.25.12.42.43
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 25 Nov 2021 12:42:45 -0800 (PST)
+Date: Thu, 25 Nov 2021 15:42:41 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Parav Pandit <parav@nvidia.com>
+Subject: Re: [PATCH] net/mlx5_vdpa: Offer VIRTIO_NET_F_MTU when setting MTU
+Message-ID: <20211125154011-mutt-send-email-mst@kernel.org>
+References: <20211124170949.51725-1-elic@nvidia.com>
+ <PH0PR12MB5481CD17327097D7E7865B8DDC629@PH0PR12MB5481.namprd12.prod.outlook.com>
+ <20211125080227.GE214101@mtl-vdi-166.wap.labs.mlnx>
+ <PH0PR12MB548163DC0306DB2EF50B76F3DC629@PH0PR12MB5481.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f817ed42-64df-484d-7d7b-08d9b041d0a5
-X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Nov 2021 18:31:36.8469 (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: bSfPQspzLP19q1Y9pJntuaok5HMXsoYQIsytEQgbh02ejjFxBY1YBKAQtlfcyU1ZNi7GTzVV4cm5xBaISTCgHw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB5482
+In-Reply-To: <PH0PR12MB548163DC0306DB2EF50B76F3DC629@PH0PR12MB5481.namprd12.prod.outlook.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
 Cc: "lvivier@redhat.com" <lvivier@redhat.com>,
- "mst@redhat.com" <mst@redhat.com>,
  "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>,
  "eperezma@redhat.com" <eperezma@redhat.com>,
- "si-wei.liu@oracle.com" <si-wei.liu@oracle.com>
+ "si-wei.liu@oracle.com" <si-wei.liu@oracle.com>, Eli Cohen <elic@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -152,206 +116,105 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-
-> From: Eli Cohen <elic@nvidia.com>
-> Sent: Thursday, November 25, 2021 1:37 PM
+On Thu, Nov 25, 2021 at 06:27:15PM +0000, Parav Pandit wrote:
 > 
-> On Thu, Nov 25, 2021 at 07:34:21AM +0200, Parav Pandit wrote:
-> >
-> >
-> > > From: Eli Cohen <elic@nvidia.com>
-> > > Sent: Wednesday, November 24, 2021 10:26 PM
-> > >
-> > > Add support for querying virtqueue statistics. Supported statistics are:
-> > >
-> > > received_desc - number of descriptors received for the virtqueue
-> > > completed_desc - number of descriptors completed for the virtqueue
-> > >
-> > > A descriptors using indirect buffers is still counted as 1. In
-> > > addition, N chained descriptors are counted correctly N times as one would
-> expect.
-> > >
-> > > A new callback was added to vdpa_config_ops which provides the means
-> > > for the vdpa driver to return statistics results.
-> > >
-> > > The interface allows for reading all the supported virtqueues,
-> > > including the control virtqueue if it exists, by returning the next queue
-> index to query.
-> > >
-> > > Examples:
-> > > 1. Read statisitics for the virtqueue at index 1 $ vdpa dev vstats
-> > > show vdpa-a qidx 0
-> > > vdpa-a:
-> > > qidx 0 rx received_desc 256 completed_desc 9
-> > >
-> > > 2. Read statisitics for all the virtqueues $ vdpa dev vstats show
-> > > vdpa-a
-> > > vdpa-a:
-> > > qidx 0 rx received_desc 256 completed_desc 9 qidx 1 tx received_desc
-> > > 21 completed_desc 21 qidx 2 ctrl received_desc 0 completed_desc 0
-> > >
-> > > Signed-off-by: Eli Cohen <elic@nvidia.com>
-> > > ---
-> > > v0 -> v1:
-> > > Emphasize that we're dealing with vendor specific counters.
-> > > Terminate query loop on error
-> > >
-> > >  drivers/vdpa/vdpa.c       | 144
-> ++++++++++++++++++++++++++++++++++++++
-> > >  include/linux/vdpa.h      |  10 +++
-> > >  include/uapi/linux/vdpa.h |   9 +++
-> > >  3 files changed, 163 insertions(+)
-> > >
-> > > diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c index
-> > > 7332a74a4b00..da658c80ff2a 100644
-> > > --- a/drivers/vdpa/vdpa.c
-> > > +++ b/drivers/vdpa/vdpa.c
-> > > @@ -781,6 +781,90 @@ vdpa_dev_config_fill(struct vdpa_device *vdev,
-> > > struct sk_buff *msg, u32 portid,
-> > >  	return err;
-> > >  }
-> > >
-> > > +static int vdpa_fill_stats_rec(struct vdpa_device *vdev, struct
-> > > +sk_buff *msg, u16 *index) {
-> > > +	struct vdpa_vq_stats stats;
-> > Better to name it vdpa_vq_vstats as this is reflecting vendor stats.
-> ok
-> > > +
-> > > +static int vdpa_dev_net_stats_fill(struct vdpa_device *vdev, struct
-> > vdpa_dev_net_vstats_fill
-> ok
-> >
-> > > +sk_buff *msg, u16 index) {
-> > > +	int err;
-> > > +
-> > > +	if (!vdev->config->get_vq_stats)
-> > > +		return -EOPNOTSUPP;
-> > > +
-> > > +	if (index != VDPA_INVAL_QUEUE_INDEX) {
-> > > +		err = vdpa_fill_stats_rec(vdev, msg, &index);
-> > > +		if (err)
-> > > +			return err;
-> > > +	} else {
-> > > +		index = 0;
-> > > +		do {
-> > > +			err = vdpa_fill_stats_rec(vdev, msg, &index);
-> > > +			if (err)
-> > > +				return err;
-> > > +		} while (index != VDPA_INVAL_QUEUE_INDEX);
-> > > +	}
-> > > +
-> > > +	return 0;
-> > > +}
-> > > +
-> > > +static int vdpa_dev_stats_fill(struct vdpa_device *vdev, struct
-> > > +sk_buff *msg,
-> > > u32 portid,
-> > > +			       u32 seq, int flags, u16 index) {
-> > > +	u32 device_id;
-> > > +	void *hdr;
-> > > +	int err;
-> > > +
-> > > +	hdr = genlmsg_put(msg, portid, seq, &vdpa_nl_family, flags,
-> > > +			  VDPA_CMD_DEV_VSTATS_GET);
-> > > +	if (!hdr)
-> > > +		return -EMSGSIZE;
-> > > +
-> > > +	if (nla_put_string(msg, VDPA_ATTR_DEV_NAME, dev_name(&vdev-
-> > > >dev))) {
-> > > +		err = -EMSGSIZE;
-> > > +		goto undo_msg;
-> > > +	}
-> > > +
-> > > +	device_id = vdev->config->get_device_id(vdev);
-> > > +	if (nla_put_u32(msg, VDPA_ATTR_DEV_ID, device_id)) {
-> > > +		err = -EMSGSIZE;
-> > > +		goto undo_msg;
-> > > +	}
-> > > +
-> > > +	err = vdpa_dev_net_stats_fill(vdev, msg, index);
-> > > +
-> > > +	genlmsg_end(msg, hdr);
-> > > +
-> > > +	return err;
-> > > +
-> > > +undo_msg:
-> > > +	genlmsg_cancel(msg, hdr);
-> > > +	return err;
-> > > +}
-> > > +
-> > >  static int vdpa_nl_cmd_dev_config_get_doit(struct sk_buff *skb,
-> > > struct genl_info *info)  {
-> > >  	struct vdpa_device *vdev;
-> > > @@ -862,6 +946,59 @@ vdpa_nl_cmd_dev_config_get_dumpit(struct
-> > > sk_buff *msg, struct netlink_callback *
-> > >  	return msg->len;
-> > >  }
-> > >
-> > > +static int vdpa_nl_cmd_dev_stats_get_doit(struct sk_buff *skb,
-> > > +					  struct genl_info *info)
-> > > +{
-> > > +	struct vdpa_device *vdev;
-> > > +	struct sk_buff *msg;
-> > > +	const char *devname;
-> > > +	struct device *dev;
-> > > +	u16 index = -1;
-> > > +	int err;
-> > > +
-> > > +	if (!info->attrs[VDPA_ATTR_DEV_NAME])
-> > > +		return -EINVAL;
-> > > +
-> > > +	if (info->attrs[VDPA_ATTR_DEV_QUEUE_INDEX])
-> > > +		index = nla_get_u16(info-
-> > > >attrs[VDPA_ATTR_DEV_QUEUE_INDEX]);
-> > > +
-> > > +	devname = nla_data(info->attrs[VDPA_ATTR_DEV_NAME]);
-> > > +	msg = nlmsg_new(NLMSG_DEFAULT_SIZE, GFP_KERNEL);
-> > > +	if (!msg)
-> > > +		return -ENOMEM;
-> > > +
-> > > +	mutex_lock(&vdpa_dev_mutex);
-> > > +	dev = bus_find_device(&vdpa_bus, NULL, devname,
-> > > vdpa_name_match);
-> > > +	if (!dev) {
-> > > +		NL_SET_ERR_MSG_MOD(info->extack, "device not found");
-> > > +		err = -ENODEV;
-> > > +		goto dev_err;
-> > > +	}
-> > > +	vdev = container_of(dev, struct vdpa_device, dev);
-> > > +	if (!vdev->mdev) {
-> > > +		NL_SET_ERR_MSG_MOD(info->extack, "unmanaged vdpa
-> > > device");
-> > > +		err = -EINVAL;
-> > > +		goto mdev_err;
-> > > +	}
-> > > +	err = vdpa_dev_stats_fill(vdev, msg, info->snd_portid,
-> > > +info->snd_seq,
-> > > 0, index);
-> > We should be really dumping all queue stats of the device in the dumpit()
-> routine.
-> > But there are some limitation from netlink core to enable it.
-> > Given that, I prefer we limit current vstats dump to single q whose index is
-> specified by the user.
 > 
-> I can live with this. If no one objects, we can simplify the code to return stats
-> for a single VQ.
-Yeah.
+> > From: Eli Cohen <elic@nvidia.com>
+> > Sent: Thursday, November 25, 2021 1:32 PM
+> > 
+> > On Thu, Nov 25, 2021 at 07:29:18AM +0200, Parav Pandit wrote:
+> > >
+> > >
+> > > > From: Eli Cohen <elic@nvidia.com>
+> > > > Sent: Wednesday, November 24, 2021 10:40 PM
+> > > >
+> > > > Make sure to offer VIRTIO_NET_F_MTU since we configure the MTU based
+> > > > on what was queried from the device.
+> > > >
+> > > > This allows the virtio driver to allocate large enough buffers based
+> > > > on the reported MTU.
+> > > >
+> > > > Signed-off-by: Eli Cohen <elic@nvidia.com>
+> > > > ---
+> > > >  drivers/vdpa/mlx5/net/mlx5_vnet.c | 1 +
+> > > >  1 file changed, 1 insertion(+)
+> > > >
+> > > > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > > > b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > > > index 465e832f2ad1..ed7a63e48335 100644
+> > > > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > > > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> > > > @@ -1956,6 +1956,7 @@ static u64 mlx5_vdpa_get_features(struct
+> > > > vdpa_device *vdev)
+> > > >  	ndev->mvdev.mlx_features |=
+> > > > BIT_ULL(VIRTIO_NET_F_CTRL_MAC_ADDR);
+> > > >  	ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_MQ);
+> > > >  	ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_STATUS);
+> > > > +	ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_MTU);
+> > > It is better to set this feature bit along with the writing the RO config.mtu
+> > area, adjacent to query_mtu() call.
+> > 
+> > Why is that so important? We always query the mtu and if the query fails, we
+> > fail the initialization so it does not look critical.
+> It is not so important. But it is more appropriate to set read only field and its associated feature bit at one place, which never changes.
+> There is no need to perform OR operation for those many feature bits on every get_features() callback when they are immutable.
+> 
+> So I wanted to move setting other 5 feature bits assignment at one place in device initialization time similar to how you have done VALID_FEATURES_MASK.
+> Something like below.
+> But again, its minor.
+> If you happen to revise the series (I think you should for the supporting dumpit in future), please consider one time assignment like below.
+> 
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index 63813fbb5f62..21802b25b0f5 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -1890,11 +1890,6 @@ static u64 mlx5_vdpa_get_features(struct vdpa_device *vdev)
+>         ndev->mvdev.mlx_features |= mlx_to_vritio_features(dev_features);
+>         if (MLX5_CAP_DEV_VDPA_EMULATION(mvdev->mdev, virtio_version_1_0))
+>                 ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_F_VERSION_1);
+> -       ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_F_ACCESS_PLATFORM);
+> -       ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_CTRL_VQ);
+> -       ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_CTRL_MAC_ADDR);
+> -       ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_MQ);
+> -       ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_STATUS);
+> 
+>         print_features(mvdev, ndev->mvdev.mlx_features, false);
+>         return ndev->mvdev.mlx_features;
+> @@ -2522,6 +2517,14 @@ static int event_handler(struct notifier_block *nb, unsigned long event, void *p
+>         return ret;
+>  }
+> 
+> +#define DEFAULT_FEATURES \
+> +       BIT_ULL(VIRTIO_F_ACCESS_PLATFORM) | \
+> +       BIT_ULL(VIRTIO_NET_F_CTRL_VQ) | \
+> +       BIT_ULL(VIRTIO_NET_F_CTRL_MAC_ADDR) \
+> +       BIT_ULL(VIRTIO_NET_F_MQ) \
+> +       BIT_ULL(VIRTIO_NET_F_STATUS) \
+> +       BIT_ULL(VIRTIO_NET_F_MTU)
+> +
 
-> In that case we can also adopt Jason's suggestion to let the parent driver fill it
-> with pairs of field/data for each vendor.
->
-Yes, for now, there is single vendor reporting it and stats are generic enough with only two fields.
-So it is not really a burden. We should wait for other drivers to grow and actually diverge from current defined stats.
-At that point it will be more natural to move in specific drivers.
+I would just open-code it, don't see what good does the macro do.
+A single assignment is a bit clearer I think I agree,
+there's not much of a difference.
+
+
+>  static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+>                              const struct vdpa_dev_set_config *add_config)
+>  {
+> @@ -2565,6 +2568,7 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+>                 goto err_mtu;
+> 
+>         ndev->config.mtu = cpu_to_mlx5vdpa16(mvdev, mtu);
+> +       ndev->mvdev.mlx_features = DEFAULT_FEATURES;
+> 
+>         if (get_link_state(mvdev))
+>                 ndev->config.status |= cpu_to_mlx5vdpa16(mvdev, VIRTIO_NET_S_LINK_UP);
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
