@@ -1,113 +1,115 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E86A2C433F5
-	for <virtualization@archiver.kernel.org>; Wed, 24 Nov 2021 23:58:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2066CC433EF
+	for <virtualization@archiver.kernel.org>; Thu, 25 Nov 2021 02:28:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9113640222;
-	Wed, 24 Nov 2021 23:58:59 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 8CA6F607DD;
+	Thu, 25 Nov 2021 02:28:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Uz3Jq328-Wme; Wed, 24 Nov 2021 23:58:58 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 30BED4023B;
-	Wed, 24 Nov 2021 23:58:58 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id AnHQ2ncazUvQ; Thu, 25 Nov 2021 02:28:13 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 1CD82607D6;
+	Thu, 25 Nov 2021 02:28:13 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E0853C002F;
-	Wed, 24 Nov 2021 23:58:57 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A98A9C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E8A7BC0038;
+	Thu, 25 Nov 2021 02:28:12 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 420CCC000A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 23:58:56 +0000 (UTC)
+ Thu, 25 Nov 2021 02:28:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 80D8340133
+ by smtp3.osuosl.org (Postfix) with ESMTP id 1C5CD607DD
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 23:58:56 +0000 (UTC)
+ Thu, 25 Nov 2021 02:28:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uF_Id_zj4OiC
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id HF9aelOFL9b1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 23:58:55 +0000 (UTC)
+ Thu, 25 Nov 2021 02:28:10 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 4F060400BA
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 48151607D6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 23:58:55 +0000 (UTC)
+ Thu, 25 Nov 2021 02:28:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1637798334;
+ s=mimecast20190719; t=1637807289;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=sm4004y9B1V+tnHfPgzjYss0IWvCFu8ljdIxWHi+//4=;
- b=Yo055GzP2frrxgN+fCDSeC80y7+fHRVXsJ0sGG9OaX+jenlSQoU8BVtTOCicyDQ0Q1D4HH
- O6ssekd4OtYp9R683rWH3LinWTxqis0pOuBghYwfsWPyi2P7ZcrdvbYMaUaZQN8ws21GAd
- bSC8synVHpNMms5FdF8OK0aH/b/1Z0U=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=u113tr+XHgf/tPsn5GKDgoAmZjL+yOW8H+2x+NeaHKE=;
+ b=IgJzVhOTDBQOgQuWrnIsmpAwpIeh7ETXO4Oc2vitNjbk+Ix3Aw0hAff5DAT9CV/5MLPmBO
+ 9BO3nNiUSzo8T/pgv6+AaX3pE8fwvCLLmve4u80hMkw/tBsfYxf1FDfXFgshmuER7/gVzO
+ giA433S1wXhmSxSHScnPlJ8E6OnCzdg=
+Received: from mail-lf1-f70.google.com (mail-lf1-f70.google.com
+ [209.85.167.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-30-d2Y8W8wwNVab7v2zVyR7Dg-1; Wed, 24 Nov 2021 18:58:51 -0500
-X-MC-Unique: d2Y8W8wwNVab7v2zVyR7Dg-1
-Received: by mail-ed1-f70.google.com with SMTP id
- q17-20020aa7da91000000b003e7c0641b9cso3804319eds.12
+ us-mta-299-ItOHr6gtOh6igcsiXaTIOQ-1; Wed, 24 Nov 2021 21:28:07 -0500
+X-MC-Unique: ItOHr6gtOh6igcsiXaTIOQ-1
+Received: by mail-lf1-f70.google.com with SMTP id
+ bi30-20020a0565120e9e00b00415d0e471e0so2357831lfb.19
  for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Nov 2021 15:58:51 -0800 (PST)
+ Wed, 24 Nov 2021 18:28:07 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=sm4004y9B1V+tnHfPgzjYss0IWvCFu8ljdIxWHi+//4=;
- b=uLtcWNjL9I/ZVj5sy1SMU83Sr3Df5rKHAS8brXIVnkjQ0X2DQxo57LUg/8p0YrNN3L
- 8b6dfKH394sswa5oGyLuUJty45kSMUZn/MUf5MxBTYgkcJJzuUWaia7uOI7VkZiIzxj7
- YCw7nP2fVn6Bjhb7+WMNH4WL0xOuOIWkGPkBy33X4t5ZFtEZwmaqmXlT7WSZ46Tv+B3m
- Qj07lUqcqhB2tgBMtVuMzPESTR7Z34qnbUX/yGJGfZvK6oV87AX+oRZ97JTN4IxrRXrg
- TWuHrXajOSeqIBg96riF9j++1NYS4K8X3OHCdau2IHIL6w1nTXJhefG1/hXtleyOhZNY
- 8GWA==
-X-Gm-Message-State: AOAM532dbrCkPQm/Hc4ttTq1tz3vtCkAQQQJQlvysc/STNCsTcrQANRw
- 6jCbSjwD6BVt02rVVnrbP8MHwl1S3OhbSe0dQ5NoiS6AjLQuTtKBynqiKTPZIfi8WfuL+DSdnSV
- ix9/R2uRird2LNV7sVM0iPD+FzA6oIZjxRwr/Xq32cg==
-X-Received: by 2002:a17:906:8c3:: with SMTP id
- o3mr26240448eje.10.1637798330716; 
- Wed, 24 Nov 2021 15:58:50 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJysCDZ92JnLx5p8B8EgDT3JbOAJxcL7cO996KXojwt2y2dxDKYm/THtO3luW2U+EJQ7p/PYcw==
-X-Received: by 2002:a17:906:8c3:: with SMTP id
- o3mr26240417eje.10.1637798330482; 
- Wed, 24 Nov 2021 15:58:50 -0800 (PST)
-Received: from redhat.com ([2a0e:1c80:14::66])
- by smtp.gmail.com with ESMTPSA id hc16sm593664ejc.12.2021.11.24.15.58.46
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 24 Nov 2021 15:58:49 -0800 (PST)
-Date: Wed, 24 Nov 2021 18:58:43 -0500
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Subject: Re: [PATCH 1/2] eni_vdpa: Fix an error handling path in
- 'eni_vdpa_probe()'
-Message-ID: <20211124185834-mutt-send-email-mst@kernel.org>
-References: <f6b2d087ca3840604b4e711a208d35b5d6285cb4.1636301587.git.christophe.jaillet@wanadoo.fr>
- <CACGkMEvN0cgFQhJmLF3xDXHt_EyZ-TnfBM8CnpNwA9sKcwpzBg@mail.gmail.com>
- <393fb7b7-653b-eae6-16bd-5ffc7d600619@wanadoo.fr>
- <CACGkMEt3yA+fkFJxKfrXyui-rYVSk78=1AqrT0TYQqzcqTJVyg@mail.gmail.com>
- <069ed3fb-ef99-ff36-136d-a0221ba85a96@wanadoo.fr>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=u113tr+XHgf/tPsn5GKDgoAmZjL+yOW8H+2x+NeaHKE=;
+ b=DBH4sa+zV02eBuB48Nz8uwPFCGtLYDVpiift69Y8tNM+RMf1Y+JgfXVvtHJad0u54n
+ TG8IpQkaKuyGyMdYyKVhwA92sJEvl7J9Cd/lrAXzrWktWh5CuUgfMEBm0LZj5NRZX7ns
+ gN0o0mbX+lmiOMQIMItaz7JFoyX2I/rpJdz9uHvQLKz4VH2wFTNXLKlfqmtky5FPJJ1A
+ lEd1UdOXjA/Rcw+aV5NJTMOwzGMVQN9fN0qI0HwxEoJON1v2WVxsPjN6n91n2PqAdFdI
+ 7bV7gNgoQl005HfnTV9oYf++0lSvA6nDfrJMZ43TFFP+Ea4uLd7iEJNjlEf6noNs/Bwb
+ S6jA==
+X-Gm-Message-State: AOAM530f9J7hyKberTV3SQYMG2ZW4V+4nC2eSgtqzPUXD7Nw6TngmUhT
+ zJQiUurKaCpS1XyY4AIpiRaM0PlhF6FUKEkSveIAKaAKl/5Ckv9rfylSqw7yDJ08i3XzXJEbpyH
+ kHIkp27X0iEMCcD9XEFV4vAGO+bSdzH+W+tKUfKiJnmaklpx1OVUsiGhe6w==
+X-Received: by 2002:a05:6512:3b2b:: with SMTP id
+ f43mr20862648lfv.629.1637807286056; 
+ Wed, 24 Nov 2021 18:28:06 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzK6BuAse/hOVXKz3JLz0KL4b+eODJeYiAN6J8Ec/Tf+RixyxmjYUlG288A643B1Puvy2YR2z6eJwsu+kIw4bA=
+X-Received: by 2002:a05:6512:3b2b:: with SMTP id
+ f43mr20862602lfv.629.1637807285742; 
+ Wed, 24 Nov 2021 18:28:05 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <069ed3fb-ef99-ff36-136d-a0221ba85a96@wanadoo.fr>
+References: <20211027022107.14357-1-jasowang@redhat.com>
+ <20211027022107.14357-2-jasowang@redhat.com>
+ <20211119160951.5f2294c8.pasic@linux.ibm.com>
+ <CACGkMEtja2TPC=ujgMrpaPmdsy+zHowbBTvPj8k7nm_+zB8vig@mail.gmail.com>
+ <20211122063518.37929c01.pasic@linux.ibm.com>
+ <20211122064922.51b3678e.pasic@linux.ibm.com>
+ <CACGkMEu+9FvMsghyi55Ee5BxetP-YK9wh2oaT8OgLiY5+tV0QQ@mail.gmail.com>
+ <20211122212352.4a76232d.pasic@linux.ibm.com>
+ <CACGkMEtmhwDEAvMuMhQEUB-b+=n713pVvjyct8QAqMUk1H-A-g@mail.gmail.com>
+ <20211123055906-mutt-send-email-mst@kernel.org>
+ <87zgpupcga.fsf@mpe.ellerman.id.au>
+ <CACGkMEteDZJVM8j5pir7_Hcn6Oq=tKbcg4DUiEQBGm5Kg9w30w@mail.gmail.com>
+ <CACGkMEs086P=qfMieMQ3wPhcarsdO++iRTwVHtN-4cgKLm8opA@mail.gmail.com>
+ <20211124123328.5ed9ce78.pasic@linux.ibm.com>
+In-Reply-To: <20211124123328.5ed9ce78.pasic@linux.ibm.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 25 Nov 2021 10:27:54 +0800
+Message-ID: <CACGkMEu1ZsUFt4_-R74+6JtqCr+swBzYVnQU3E+XympEcTv_CA@mail.gmail.com>
+Subject: Re: [PATCH V5 1/4] virtio_ring: validate used buffer length
+To: Halil Pasic <pasic@linux.ibm.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Arnd Bergmann <arnd@arndb.de>, kernel-janitors@vger.kernel.org,
+Cc: "kaplan, david" <david.kaplan@amd.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>,
+ "Hetzelt, Felicitas" <f.hetzelt@tu-berlin.de>,
  linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>,
- Wu Zongyong <wuzongyong@linux.alibaba.com>
+ virtualization <virtualization@lists.linux-foundation.org>, mcgrof@kernel.org,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,160 +121,75 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Nov 09, 2021 at 10:21:44PM +0100, Christophe JAILLET wrote:
-> Le 09/11/2021 =E0 03:54, Jason Wang a =E9crit=A0:
-> > On Tue, Nov 9, 2021 at 3:32 AM Christophe JAILLET
-> > <christophe.jaillet@wanadoo.fr> wrote:
-> > > =
+On Wed, Nov 24, 2021 at 7:33 PM Halil Pasic <pasic@linux.ibm.com> wrote:
+>
+> On Wed, 24 Nov 2021 10:33:28 +0800
+> Jason Wang <jasowang@redhat.com> wrote:
+>
+> > > > > Let's see how far we can get. But yes, maybe we were too aggressive in
+> > > > > breaking things by default, a warning might be a better choice for a
+> > > > > couple of cycles.
+> > >
+> > > Ok, considering we saw the issues with balloons I think I can post a
+> > > patch to use warn instead. I wonder if we need to taint the kernel in
+> > > this case.
+> >
+> > Rethink this, consider we still have some time, I tend to convert the
+> > drivers to validate the length by themselves. Does this make sense?
+>
+> I do find value in doing the validation in a single place for every
+> driver. This is really a common concern. But I think, not breaking
+> what used to work before is a good idea. So I would opt for producing
+> a warning, but otherwise preserving old behavior unless there is an
+> explicit opt-in for something more strict.
 
-> > > Le 08/11/2021 =E0 06:55, Jason Wang a =E9crit :
-> > > > On Mon, Nov 8, 2021 at 12:15 AM Christophe JAILLET
-> > > > <christophe.jaillet@wanadoo.fr> wrote:
-> > > > > =
+Yes, I totally agree with you after more thought and discussion.
 
-> > > > > In the error handling path, a successful 'vp_legacy_probe()' shou=
-ld be
-> > > > > balanced by a corresponding 'vp_legacy_remove()' call, as already=
- done in
-> > > > > the remove function.
-> > > > > =
+>
+> BTW AFAIU if we detect a problem here, there are basically two
+> cases:
+> (1) Either the device is over-reporting what it has written, or
+> (2) we have a memory corruption in the guest because the device has
+> written beyond the end of the provided buffer. This can be because
+>   (2.1) the driver provided a smaller buffer than mandated by the spec,
+>   or
+>   (2.2) the device is broken.
+>
+> Case (1) is relatively harmless, and I believe a warning for it is more
+> than appropriate. Whoever sees the warning should push for a fixed device
+> if possible.
 
-> > > > > Add the missing call and update gotos accordingly.
-> > > > > =
+Yes.
 
-> > > > > Fixes: e85087beedca ("eni_vdpa: add vDPA driver for Alibaba ENI")
-> > > > > Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> > > > > ---
-> > > > >    drivers/vdpa/alibaba/eni_vdpa.c | 6 ++++--
-> > > > >    1 file changed, 4 insertions(+), 2 deletions(-)
-> > > > > =
+>
+> Case (2) is nasty. What would be the sanest course of action if we were
+> reasonably sure we have have case (2.2)?
 
-> > > > > diff --git a/drivers/vdpa/alibaba/eni_vdpa.c b/drivers/vdpa/aliba=
-ba/eni_vdpa.c
-> > > > > index 3f788794571a..12b3db6b4517 100644
-> > > > > --- a/drivers/vdpa/alibaba/eni_vdpa.c
-> > > > > +++ b/drivers/vdpa/alibaba/eni_vdpa.c
-> > > > > @@ -501,7 +501,7 @@ static int eni_vdpa_probe(struct pci_dev *pde=
-v, const struct pci_device_id *id)
-> > > > >           if (!eni_vdpa->vring) {
-> > > > >                   ret =3D -ENOMEM;
-> > > > >                   ENI_ERR(pdev, "failed to allocate virtqueues\n"=
-);
-> > > > > -               goto err;
-> > > > > +               goto err_remove_vp_legacy;
-> > > > >           }
-> > > > > =
+I think that's why a per driver validation is more preferable. The
+driver can choose the comfortable action, e.g for networking it may
+just drop the packets.
 
-> > > > >           for (i =3D 0; i < eni_vdpa->queues; i++) {
-> > > > > @@ -513,11 +513,13 @@ static int eni_vdpa_probe(struct pci_dev *p=
-dev, const struct pci_device_id *id)
-> > > > >           ret =3D vdpa_register_device(&eni_vdpa->vdpa, eni_vdpa-=
->queues);
-> > > > >           if (ret) {
-> > > > >                   ENI_ERR(pdev, "failed to register to vdpa bus\n=
-");
-> > > > > -               goto err;
-> > > > > +               goto err_remove_vp_legacy;
-> > > > >           }
-> > > > > =
+>
+> Maybe we can detect case (2) with a canary. I.e. artificially extend
+> the buffer with an extra descriptor that has a poisoned buffer, and
+> check if the value of that poisoned buffer is different than poison. I'm
+> not sure it is worth the effort though in production.
 
-> > > > >           return 0;
-> > > > > =
+This might work but it might cause performance overhead. I still think
+doing the validation per driver is better, the driver can choose to
+fix the used length and taint the kernel anyway.
 
-> > > > > +err_remove_vp_legacy:
-> > > > > +       vp_legacy_remove(&eni_vdpa->ldev);
-> > > > =
+Thanks
 
-> > > > Won't vp_legacy_remove() be triggered by the put_devic() below?
-> > > =
-
-> > > Hi, I'm sorry but i don't see how.
-> > > =
-
-> > > My understanding is that:
-> > >     - on "put_device(&eni_vdpa->vdpa.dev);", the corresponding release
-> > > function will be called.
-> > > =
-
-> > >     - This release function is the one recorded in the
-> > > '__vdpa_alloc_device()' function.
-> > > =
-
-> > >     - So it should be 'vdpa_release_dev()'.
-> > > =
-
-> > >     - This function, AFAIU, has no knowledge of 'vp_legacy_remove()' =
-or
-> > > anything that could call it.
-> > > =
-
-> > > =
-
-> > > Unless I misread something or miss something obvious, I don't see how
-> > > 'vp_legacy_remove() would be called.
-> > > =
-
-> > > =
-
-> > > Could you elaborate?
-> > =
-
-> > I think the device should release the driver (see
-> > device_release_driver()) during during its deleting.
-> =
-
-> Hi, I still don't follow the logic and I don't understand how
-> 'vp_legacy_remove()' will finely be called, but it is not that important.
-> =
-
-> If it's fine for you, it's fine for me :)
-> =
-
-> CJ
-
-So pls post just patch 2?
-
-> > =
-
-> > Thanks
-> > =
-
-> > > =
-
-> > > CJ
-> > > =
-
-> > > > =
-
-> > > > Thanks
-> > > > =
-
-> > > > >    err:
-> > > > >           put_device(&eni_vdpa->vdpa.dev);
-> > > > >           return ret;
-> > > > > --
-> > > > > 2.30.2
-> > > > > =
-
-> > > > =
-
-> > > > =
-
-> > > =
-
-> > =
-
-> > _______________________________________________
-> > Virtualization mailing list
-> > Virtualization@lists.linux-foundation.org
-> > https://lists.linuxfoundation.org/mailman/listinfo/virtualization
-> > =
-
+>
+> Regards,
+> Halil
+>
 
 _______________________________________________
 Virtualization mailing list
