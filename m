@@ -1,65 +1,67 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 67CD4C433EF
-	for <virtualization@archiver.kernel.org>; Fri, 26 Nov 2021 02:30:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 77FBEC433FE
+	for <virtualization@archiver.kernel.org>; Fri, 26 Nov 2021 02:30:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id E96DF40338;
+	by smtp4.osuosl.org (Postfix) with ESMTP id 14A96403E0;
+	Fri, 26 Nov 2021 02:30:43 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id HiuqIRCSXf3Y; Fri, 26 Nov 2021 02:30:42 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A6FA1403BB;
 	Fri, 26 Nov 2021 02:30:41 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TLlqhsJjV-pR; Fri, 26 Nov 2021 02:30:39 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 78BB840335;
-	Fri, 26 Nov 2021 02:30:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F847C001C;
-	Fri, 26 Nov 2021 02:30:38 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EDAEFC000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 835E0C001C;
+	Fri, 26 Nov 2021 02:30:41 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2F3CBC000A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Nov 2021 02:30:37 +0000 (UTC)
+ Fri, 26 Nov 2021 02:30:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id C6A6640335
+ by smtp1.osuosl.org (Postfix) with ESMTP id 1EC00827A5
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Nov 2021 02:30:37 +0000 (UTC)
+ Fri, 26 Nov 2021 02:30:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZbxLE4OyovO0
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=kernel.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id SGOxFjyA1g0t
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Nov 2021 02:30:34 +0000 (UTC)
+ Fri, 26 Nov 2021 02:30:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by smtp2.osuosl.org (Postfix) with ESMTPS id B83B240012
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 74C9082779
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Nov 2021 02:30:34 +0000 (UTC)
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFCD66115A;
- Fri, 26 Nov 2021 02:30:32 +0000 (UTC)
+ Fri, 26 Nov 2021 02:30:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01FDE6115C;
+ Fri, 26 Nov 2021 02:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1637893834;
- bh=QyAq05J8aKMtBpI2NIGtCz40YL2JvQEqxHMmH+5i4GM=;
+ s=k20201202; t=1637893840;
+ bh=XJ13SsNbvf1d8FdpbFQKVrFqK8TxFEvAgwIr4woQDBo=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=E07MRrrNFidrydWyc5d2+ipFjPmnkjVvNgaTLAbz16jtymhbsEZzIW7vpMoU7S+5X
- A0dQTjndSvevi7xUHYAPJoG8WbUTikDhlNwAbYVDb6k7mMx1hZ0LmRsfQBFQd/gl5X
- +D/wvJOQZBfItX8SQJTxh5fETHXitp+CBmfTanjNnBB3yTrW5W78mOSJhvtxmK7e+G
- bpdEMmP47tgQ3DMGF0PX0MgiZVQmsCw7F56+r+eJWxLGHLpS/qGv+oHUn+gPmf74Kk
- 0ZOgWmEgaFnP5LsZOS7+JVKqfUpXUgGT+/BuZnjy7Jgscg1U4Pla4Y3OYCjvcWS1AS
- 2Y4Y7Zbyhu79w==
+ b=WywilHjNtDhNCWvpZukiV5SM/1uc2gRhkd1g1HuhamFXhJgoxaMyFhUwV2k1WIr/Z
+ O+pQHM7CJVL5xUiAzV9Egn4kktqW62Ct+wLX0QjH19xJCVE/RYTXzmwZsGLkyF6Uny
+ y8CbmWQo+0TbfA5yX7mAqxlFrWGD21MnKckQWNr6aJPJTSXPezXaSYZeUjN/R/CEwO
+ ANSSqriHUnKi4rm0RB6NVwru3cAPJruAse7OxWfAjcyXpCJ/RzSRA9gBtNzc3vP7Ud
+ z7PpUV/nOPjxnifDLGCxANC1reKTaEI5U/xLYDp4/b+fHVuY+9HOgUpmOtU4b69QKz
+ LBXAjEfTuSDNQ==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 7/7] virtio-mem: support
+Subject: [PATCH AUTOSEL 5.10 3/4] virtio-mem: support
  VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE
-Date: Thu, 25 Nov 2021 21:30:06 -0500
-Message-Id: <20211126023006.440839-7-sashal@kernel.org>
+Date: Thu, 25 Nov 2021 21:30:33 -0500
+Message-Id: <20211126023034.440961-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211126023006.440839-1-sashal@kernel.org>
-References: <20211126023006.440839-1-sashal@kernel.org>
+In-Reply-To: <20211126023034.440961-1-sashal@kernel.org>
+References: <20211126023034.440961-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -130,10 +132,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 7 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index bef8ad6bf4661..78dfdc9c98a1c 100644
+index 181e2f18beae5..1afdd8ca00bbb 100644
 --- a/drivers/virtio/virtio_mem.c
 +++ b/drivers/virtio/virtio_mem.c
-@@ -2758,6 +2758,7 @@ static unsigned int virtio_mem_features[] = {
+@@ -1925,6 +1925,7 @@ static unsigned int virtio_mem_features[] = {
  #if defined(CONFIG_NUMA) && defined(CONFIG_ACPI_NUMA)
  	VIRTIO_MEM_F_ACPI_PXM,
  #endif
