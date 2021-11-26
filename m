@@ -1,69 +1,114 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8FC03C433F5
-	for <virtualization@archiver.kernel.org>; Thu, 25 Nov 2021 22:55:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 89954C433EF
+	for <virtualization@archiver.kernel.org>; Fri, 26 Nov 2021 01:02:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1F5A781CD0;
-	Thu, 25 Nov 2021 22:55:04 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id E1FB1401D1;
+	Fri, 26 Nov 2021 01:02:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id v03GtPyoOA5t; Thu, 25 Nov 2021 22:55:03 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 58435818C2;
-	Thu, 25 Nov 2021 22:55:02 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 77iJ0xvH6ks5; Fri, 26 Nov 2021 01:02:53 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 26798400A4;
+	Fri, 26 Nov 2021 01:02:53 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2DBE8C001C;
-	Thu, 25 Nov 2021 22:55:02 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0569AC000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F0511C001C;
+	Fri, 26 Nov 2021 01:02:52 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 38B4BC000A
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 22:55:00 +0000 (UTC)
+ Fri, 26 Nov 2021 01:02:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id DAF6F818D4
+ by smtp3.osuosl.org (Postfix) with ESMTP id 0C8696068D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 22:54:59 +0000 (UTC)
+ Fri, 26 Nov 2021 01:02:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Pp1fcMKv9XGK
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id peKNQ8FQ7blg
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 22:54:58 +0000 (UTC)
+ Fri, 26 Nov 2021 01:02:50 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
- by smtp1.osuosl.org (Postfix) with ESMTPS id A8943818C2
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id E6B0560683
  for <virtualization@lists.linux-foundation.org>;
- Thu, 25 Nov 2021 22:54:58 +0000 (UTC)
-X-IronPort-AV: E=McAfee;i="6200,9189,10179"; a="321810801"
-X-IronPort-AV: E=Sophos;i="5.87,263,1631602800"; d="scan'208";a="321810801"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
- by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 25 Nov 2021 14:54:58 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,263,1631602800"; d="scan'208";a="675370898"
-Received: from lkp-server02.sh.intel.com (HELO 9e1e9f9b3bcb) ([10.239.97.151])
- by orsmga005.jf.intel.com with ESMTP; 25 Nov 2021 14:54:54 -0800
-Received: from kbuild by 9e1e9f9b3bcb with local (Exim 4.92)
- (envelope-from <lkp@intel.com>)
- id 1mqNdm-00072r-8T; Thu, 25 Nov 2021 22:54:54 +0000
-Date: Fri, 26 Nov 2021 06:54:14 +0800
-From: kernel test robot <lkp@intel.com>
-To: Wei Wang <wei.w.wang@intel.com>, mst@redhat.com, stefanha@redhat.com,
- sgarzare@redhat.com, davem@davemloft.net, asias@redhat.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH] virtio/vsock: fix the transport to work with
- VMADDR_CID_ANY
-Message-ID: <202111260614.IaGWVZYm-lkp@intel.com>
-References: <20211125071554.16969-1-wei.w.wang@intel.com>
+ Fri, 26 Nov 2021 01:02:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1637888568;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=pDyFTKO2QF1JvvfmCS1Hx11I7QAIU5JI9G0dgtPx/uM=;
+ b=bdIioipoacUVCdJCYE9QVSVj715Psz18MJCG3D2Rs1paweMXgUDtH+h4izH3LJ8z1MYFCJ
+ x5BXFyi83xk+rU2piYlpiYBrIkfc7JbDRNUZFY/GP8gqoD042VecnBPuyM/+9cGCRP7vH6
+ jIaaNsBHjL8HCJdw3x205If3HIfbr+U=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-451-cB_wL--cMBGQrtiY5Qkiuw-1; Thu, 25 Nov 2021 20:02:47 -0500
+X-MC-Unique: cB_wL--cMBGQrtiY5Qkiuw-1
+Received: by mail-ed1-f72.google.com with SMTP id
+ b15-20020aa7c6cf000000b003e7cf0f73daso6536340eds.22
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 25 Nov 2021 17:02:47 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=pDyFTKO2QF1JvvfmCS1Hx11I7QAIU5JI9G0dgtPx/uM=;
+ b=xsoHHYYZzW1tsxoDIB4BijF30OaZ6p7QmRsjSN3X1vx90oOIJGfK7vZ+lNkep3Fxgw
+ nfTntK90ys9K59l8VRjVP3lpfgOSY/7lk4B6/NZPphx88NmdZ1PEqMXvqRAlepHoI9Mf
+ BSRSR0WHWBMGQug7JS2jC50oTpk2Sq/MhKttC7RxHu+A4/nzxtkV+qqi3oGZQ4J7n1Kj
+ 1MKWgZDWtl/lzZY6qEGN5H6hSHOh6uwiqlxL/bPErjo9vAVcJffW3CxO9IA3W6GiUOXc
+ VXkd3cIXIxK0iyukRoa7q55jswNiKWixN7EegdUKLsQeJkDrRXpd8bkI+fSuAQMmT4Gj
+ 8Kpg==
+X-Gm-Message-State: AOAM532FMqridFeVo3g5JNAHIOpVXmS1MTApWm6FxvhdelQScb5KorQL
+ m/DJP43FLnc0HZapTO3sutANvk/PQkBBmBuVzYYOl/7tOEmFwy2HaEfsp4SZwrZ1t12l16LRI9W
+ 61BKuODtu66Pm6RJpkV85XjqlvuTGpS28sqdInpNDjA==
+X-Received: by 2002:a17:907:3f83:: with SMTP id
+ hr3mr36287486ejc.555.1637888566162; 
+ Thu, 25 Nov 2021 17:02:46 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwMPqdXsVBsibJBeonfauIqf1MFangHN3wRhjaKDXYfs/2bZGG9BdweRbPr7wODShHNrf11lQ==
+X-Received: by 2002:a17:907:3f83:: with SMTP id
+ hr3mr36287466ejc.555.1637888565979; 
+ Thu, 25 Nov 2021 17:02:45 -0800 (PST)
+Received: from redhat.com ([2a03:c5c0:207e:e87:2d40:4ed4:5676:5c1a])
+ by smtp.gmail.com with ESMTPSA id gs15sm2097648ejc.42.2021.11.25.17.02.42
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 25 Nov 2021 17:02:44 -0800 (PST)
+Date: Thu, 25 Nov 2021 20:02:39 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Marcel Holtmann <marcel@holtmann.org>
+Subject: Re: [PATCH] Bluetooth: virtio_bt: fix device removal
+Message-ID: <20211125195924-mutt-send-email-mst@kernel.org>
+References: <20211125174200.133230-1-mst@redhat.com>
+ <F52F65FE-6A07-486B-8E84-684ED85709E9@holtmann.org>
+ <20211125154314-mutt-send-email-mst@kernel.org>
+ <C8D84EA4-E9A8-44CC-918F-57640A05C81D@holtmann.org>
+ <20211125161434-mutt-send-email-mst@kernel.org>
+ <2B9668C9-427B-4D8B-A393-AAB5E50763C5@holtmann.org>
 MIME-Version: 1.0
+In-Reply-To: <2B9668C9-427B-4D8B-A393-AAB5E50763C5@holtmann.org>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <20211125071554.16969-1-wei.w.wang@intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Cc: kbuild-all@lists.01.org
+Cc: linux-bluetooth <linux-bluetooth@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+ Johan Hedberg <johan.hedberg@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -75,154 +120,63 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Wei,
-
-Thank you for the patch! Perhaps something to improve:
-
-[auto build test WARNING on mst-vhost/linux-next]
-[also build test WARNING on net-next/master net/master linus/master v5.16-rc2 next-20211125]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
-
-url:    https://github.com/0day-ci/linux/commits/Wei-Wang/virtio-vsock-fix-the-transport-to-work-with-VMADDR_CID_ANY/20211125-163238
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
-config: riscv-allyesconfig (https://download.01.org/0day-ci/archive/20211126/202111260614.IaGWVZYm-lkp@intel.com/config)
-compiler: riscv64-linux-gcc (GCC) 11.2.0
-reproduce (this is a W=1 build):
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        # https://github.com/0day-ci/linux/commit/007dbd2e6e604bf8b17a4cec1357113a26983838
-        git remote add linux-review https://github.com/0day-ci/linux
-        git fetch --no-tags linux-review Wei-Wang/virtio-vsock-fix-the-transport-to-work-with-VMADDR_CID_ANY/20211125-163238
-        git checkout 007dbd2e6e604bf8b17a4cec1357113a26983838
-        # save the config file to linux build tree
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross ARCH=riscv 
-
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
-
-All warnings (new ones prefixed by >>):
-
-   net/vmw_vsock/virtio_transport_common.c: In function 'virtio_transport_recv_pkt':
->> net/vmw_vsock/virtio_transport_common.c:1246:28: warning: variable 'vsk' set but not used [-Wunused-but-set-variable]
-    1246 |         struct vsock_sock *vsk;
-         |                            ^~~
-
-
-vim +/vsk +1246 net/vmw_vsock/virtio_transport_common.c
-
-e4b1ef152f53d5e Arseny Krasnov     2021-06-11  1238  
-06a8fc78367d070 Asias He           2016-07-28  1239  /* We are under the virtio-vsock's vsock->rx_lock or vhost-vsock's vq->mutex
-06a8fc78367d070 Asias He           2016-07-28  1240   * lock.
-06a8fc78367d070 Asias He           2016-07-28  1241   */
-4c7246dc45e2706 Stefano Garzarella 2019-11-14  1242  void virtio_transport_recv_pkt(struct virtio_transport *t,
-4c7246dc45e2706 Stefano Garzarella 2019-11-14  1243  			       struct virtio_vsock_pkt *pkt)
-06a8fc78367d070 Asias He           2016-07-28  1244  {
-06a8fc78367d070 Asias He           2016-07-28  1245  	struct sockaddr_vm src, dst;
-06a8fc78367d070 Asias He           2016-07-28 @1246  	struct vsock_sock *vsk;
-06a8fc78367d070 Asias He           2016-07-28  1247  	struct sock *sk;
-06a8fc78367d070 Asias He           2016-07-28  1248  	bool space_available;
-06a8fc78367d070 Asias He           2016-07-28  1249  
-f83f12d660d1171 Michael S. Tsirkin 2016-12-06  1250  	vsock_addr_init(&src, le64_to_cpu(pkt->hdr.src_cid),
-06a8fc78367d070 Asias He           2016-07-28  1251  			le32_to_cpu(pkt->hdr.src_port));
-f83f12d660d1171 Michael S. Tsirkin 2016-12-06  1252  	vsock_addr_init(&dst, le64_to_cpu(pkt->hdr.dst_cid),
-06a8fc78367d070 Asias He           2016-07-28  1253  			le32_to_cpu(pkt->hdr.dst_port));
-06a8fc78367d070 Asias He           2016-07-28  1254  
-06a8fc78367d070 Asias He           2016-07-28  1255  	trace_virtio_transport_recv_pkt(src.svm_cid, src.svm_port,
-06a8fc78367d070 Asias He           2016-07-28  1256  					dst.svm_cid, dst.svm_port,
-06a8fc78367d070 Asias He           2016-07-28  1257  					le32_to_cpu(pkt->hdr.len),
-06a8fc78367d070 Asias He           2016-07-28  1258  					le16_to_cpu(pkt->hdr.type),
-06a8fc78367d070 Asias He           2016-07-28  1259  					le16_to_cpu(pkt->hdr.op),
-06a8fc78367d070 Asias He           2016-07-28  1260  					le32_to_cpu(pkt->hdr.flags),
-06a8fc78367d070 Asias He           2016-07-28  1261  					le32_to_cpu(pkt->hdr.buf_alloc),
-06a8fc78367d070 Asias He           2016-07-28  1262  					le32_to_cpu(pkt->hdr.fwd_cnt));
-06a8fc78367d070 Asias He           2016-07-28  1263  
-e4b1ef152f53d5e Arseny Krasnov     2021-06-11  1264  	if (!virtio_transport_valid_type(le16_to_cpu(pkt->hdr.type))) {
-4c7246dc45e2706 Stefano Garzarella 2019-11-14  1265  		(void)virtio_transport_reset_no_sock(t, pkt);
-06a8fc78367d070 Asias He           2016-07-28  1266  		goto free_pkt;
-06a8fc78367d070 Asias He           2016-07-28  1267  	}
-06a8fc78367d070 Asias He           2016-07-28  1268  
-06a8fc78367d070 Asias He           2016-07-28  1269  	/* The socket must be in connected or bound table
-06a8fc78367d070 Asias He           2016-07-28  1270  	 * otherwise send reset back
-06a8fc78367d070 Asias He           2016-07-28  1271  	 */
-06a8fc78367d070 Asias He           2016-07-28  1272  	sk = vsock_find_connected_socket(&src, &dst);
-06a8fc78367d070 Asias He           2016-07-28  1273  	if (!sk) {
-06a8fc78367d070 Asias He           2016-07-28  1274  		sk = vsock_find_bound_socket(&dst);
-06a8fc78367d070 Asias He           2016-07-28  1275  		if (!sk) {
-4c7246dc45e2706 Stefano Garzarella 2019-11-14  1276  			(void)virtio_transport_reset_no_sock(t, pkt);
-06a8fc78367d070 Asias He           2016-07-28  1277  			goto free_pkt;
-06a8fc78367d070 Asias He           2016-07-28  1278  		}
-06a8fc78367d070 Asias He           2016-07-28  1279  	}
-06a8fc78367d070 Asias He           2016-07-28  1280  
-e4b1ef152f53d5e Arseny Krasnov     2021-06-11  1281  	if (virtio_transport_get_type(sk) != le16_to_cpu(pkt->hdr.type)) {
-e4b1ef152f53d5e Arseny Krasnov     2021-06-11  1282  		(void)virtio_transport_reset_no_sock(t, pkt);
-e4b1ef152f53d5e Arseny Krasnov     2021-06-11  1283  		sock_put(sk);
-e4b1ef152f53d5e Arseny Krasnov     2021-06-11  1284  		goto free_pkt;
-e4b1ef152f53d5e Arseny Krasnov     2021-06-11  1285  	}
-e4b1ef152f53d5e Arseny Krasnov     2021-06-11  1286  
-06a8fc78367d070 Asias He           2016-07-28  1287  	vsk = vsock_sk(sk);
-06a8fc78367d070 Asias He           2016-07-28  1288  
-06a8fc78367d070 Asias He           2016-07-28  1289  	lock_sock(sk);
-06a8fc78367d070 Asias He           2016-07-28  1290  
-3fe356d58efae54 Stefano Garzarella 2020-11-20  1291  	/* Check if sk has been closed before lock_sock */
-3fe356d58efae54 Stefano Garzarella 2020-11-20  1292  	if (sock_flag(sk, SOCK_DONE)) {
-8692cefc433f282 Jia He             2020-05-30  1293  		(void)virtio_transport_reset_no_sock(t, pkt);
-8692cefc433f282 Jia He             2020-05-30  1294  		release_sock(sk);
-8692cefc433f282 Jia He             2020-05-30  1295  		sock_put(sk);
-8692cefc433f282 Jia He             2020-05-30  1296  		goto free_pkt;
-8692cefc433f282 Jia He             2020-05-30  1297  	}
-8692cefc433f282 Jia He             2020-05-30  1298  
-ce7536bc7398e2a Stefano Garzarella 2021-02-08  1299  	space_available = virtio_transport_space_update(sk, pkt);
-ce7536bc7398e2a Stefano Garzarella 2021-02-08  1300  
-06a8fc78367d070 Asias He           2016-07-28  1301  	if (space_available)
-06a8fc78367d070 Asias He           2016-07-28  1302  		sk->sk_write_space(sk);
-06a8fc78367d070 Asias He           2016-07-28  1303  
-06a8fc78367d070 Asias He           2016-07-28  1304  	switch (sk->sk_state) {
-3b4477d2dcf2709 Stefan Hajnoczi    2017-10-05  1305  	case TCP_LISTEN:
-c0cfa2d8a788fcf Stefano Garzarella 2019-11-14  1306  		virtio_transport_recv_listen(sk, pkt, t);
-06a8fc78367d070 Asias He           2016-07-28  1307  		virtio_transport_free_pkt(pkt);
-06a8fc78367d070 Asias He           2016-07-28  1308  		break;
-3b4477d2dcf2709 Stefan Hajnoczi    2017-10-05  1309  	case TCP_SYN_SENT:
-06a8fc78367d070 Asias He           2016-07-28  1310  		virtio_transport_recv_connecting(sk, pkt);
-06a8fc78367d070 Asias He           2016-07-28  1311  		virtio_transport_free_pkt(pkt);
-06a8fc78367d070 Asias He           2016-07-28  1312  		break;
-3b4477d2dcf2709 Stefan Hajnoczi    2017-10-05  1313  	case TCP_ESTABLISHED:
-06a8fc78367d070 Asias He           2016-07-28  1314  		virtio_transport_recv_connected(sk, pkt);
-06a8fc78367d070 Asias He           2016-07-28  1315  		break;
-3b4477d2dcf2709 Stefan Hajnoczi    2017-10-05  1316  	case TCP_CLOSING:
-06a8fc78367d070 Asias He           2016-07-28  1317  		virtio_transport_recv_disconnecting(sk, pkt);
-06a8fc78367d070 Asias He           2016-07-28  1318  		virtio_transport_free_pkt(pkt);
-06a8fc78367d070 Asias He           2016-07-28  1319  		break;
-06a8fc78367d070 Asias He           2016-07-28  1320  	default:
-df12eb6d6cd920a Sebastien Boeuf    2020-02-14  1321  		(void)virtio_transport_reset_no_sock(t, pkt);
-06a8fc78367d070 Asias He           2016-07-28  1322  		virtio_transport_free_pkt(pkt);
-06a8fc78367d070 Asias He           2016-07-28  1323  		break;
-06a8fc78367d070 Asias He           2016-07-28  1324  	}
-c0cfa2d8a788fcf Stefano Garzarella 2019-11-14  1325  
-06a8fc78367d070 Asias He           2016-07-28  1326  	release_sock(sk);
-06a8fc78367d070 Asias He           2016-07-28  1327  
-06a8fc78367d070 Asias He           2016-07-28  1328  	/* Release refcnt obtained when we fetched this socket out of the
-06a8fc78367d070 Asias He           2016-07-28  1329  	 * bound or connected list.
-06a8fc78367d070 Asias He           2016-07-28  1330  	 */
-06a8fc78367d070 Asias He           2016-07-28  1331  	sock_put(sk);
-06a8fc78367d070 Asias He           2016-07-28  1332  	return;
-06a8fc78367d070 Asias He           2016-07-28  1333  
-06a8fc78367d070 Asias He           2016-07-28  1334  free_pkt:
-06a8fc78367d070 Asias He           2016-07-28  1335  	virtio_transport_free_pkt(pkt);
-06a8fc78367d070 Asias He           2016-07-28  1336  }
-06a8fc78367d070 Asias He           2016-07-28  1337  EXPORT_SYMBOL_GPL(virtio_transport_recv_pkt);
-06a8fc78367d070 Asias He           2016-07-28  1338  
-
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVGh1LCBOb3YgMjUsIDIwMjEgYXQgMTA6NTg6NTZQTSArMDEwMCwgTWFyY2VsIEhvbHRtYW5u
+IHdyb3RlOgo+IEhpIE1pY2hhZWwsCj4gCj4gPj4+Pj4gRGV2aWNlIHJlbW92YWwgaXMgY2xlYXJs
+eSBvdXQgb2YgdmlydGlvIHNwZWM6IGl0IGF0dGVtcHRzIHRvIHJlbW92ZQo+ID4+Pj4+IHVudXNl
+ZCBidWZmZXJzIGZyb20gYSBWUSBiZWZvcmUgaW52b2tpbmcgZGV2aWNlIHJlc2V0LiBUbyBmaXgs
+IG1ha2UKPiA+Pj4+PiBvcGVuL2Nsb3NlIE5PUHMgYW5kIGRvIGFsbCBjbGVhbnVwL3NldHVwIGlu
+IHByb2JlL3JlbW92ZS4KPiA+Pj4+IAo+ID4+Pj4gc28gdGhlIHZpcnRidF97b3BlbixjbG9zZX0g
+YXMgTk9QIGlzIG5vdCByZWFsbHkgd2hhdCBhIGRyaXZlciBpcyBzdXBwb3NlCj4gPj4+PiB0byBi
+ZSBkb2luZy4gVGhlc2UgYXJlIHRyYW5zcG9ydCBlbmFibGUvZGlzYWJsZSBjYWxsYmFja3MgZnJv
+bSB0aGUgQlQKPiA+Pj4+IENvcmUgdG93YXJkcyB0aGUgZHJpdmVyLiBJdCBtYXBzIHRvIGEgZGV2
+aWNlIGJlaW5nIGVuYWJsZWQvZGlzYWJsZWQgYnkKPiA+Pj4+IHNvbWV0aGluZyBsaWtlIGJsdWV0
+b290aGQgZm9yIGV4YW1wbGUuIFNvIGlmIGRpc2FibGVkLCBJIGV4cGVjdCB0aGF0IG5vCj4gPj4+
+PiByZXNvdXJjZXMvcXVldWVzIGFyZSBpbiB1c2UuCj4gPj4+PiAKPiA+Pj4+IE1heWJlIEkgbWlz
+dW5kZXJzdGFuZCB0aGUgdmlydGlvIHNwZWMgaW4gdGhhdCByZWdhcmQsIGJ1dCBJIHdvdWxkIGxp
+a2UKPiA+Pj4+IHRvIGtlZXAgdGhpcyBmdW5kYW1lbnRhbCBjb25jZXB0IG9mIGEgQmx1ZXRvb3Ro
+IGRyaXZlci4gSXQgZG9lcyB3b3JrCj4gPj4+PiB3aXRoIGFsbCBvdGhlciB0cmFuc3BvcnRzIGxp
+a2UgVVNCLCBTRElPLCBVQVJUIGV0Yy4KPiA+Pj4+IAo+ID4+Pj4+IFRoZSBjb3N0IGhlcmUgaXMg
+YSBzaW5nbGUgc2tiIHdhc3RlZCBvbiBhbiB1bnVzZWQgYnQgZGV2aWNlIC0gd2hpY2gKPiA+Pj4+
+PiBzZWVtcyBtb2Rlc3QuCj4gPj4+PiAKPiA+Pj4+IFRoZXJlIHNob3VsZCBiZSBubyBidWZmZXIg
+dXNlZCBpZiB0aGUgZGV2aWNlIGlzIHBvd2VyZWQgb2ZmLiBXZSBhbHNvIGRvbuKAmXQKPiA+Pj4+
+IGhhdmUgYW55IFVTQiBVUkJzIGluLWZsaWdodCBpZiB0aGUgdHJhbnNwb3J0IGlzIG5vdCBhY3Rp
+dmUuCj4gPj4+PiAKPiA+Pj4+PiBOQjogd2l0aCB0aGlzIGZpeCBpbiBwbGFjZSBkcml2ZXIgc3Rp
+bGwgc3VmZmVycyBmcm9tIGEgcmFjZSBjb25kaXRpb24gaWYKPiA+Pj4+PiBhbiBpbnRlcnJ1cHQg
+dHJpZ2dlcnMgd2hpbGUgZGV2aWNlIGlzIGJlaW5nIHJlc2V0LiBXb3JrIG9uIGEgZml4IGZvcgo+
+ID4+Pj4+IHRoYXQgaXNzdWUgaXMgaW4gcHJvZ3Jlc3MuCj4gPj4+PiAKPiA+Pj4+IEluIHRoZSB2
+aXJ0YnRfY2xvc2UoKSBjYWxsYmFjayB3ZSBzaG91bGQgZGVhY3RpdmF0ZSBhbGwgaW50ZXJydXB0
+cy4KPiA+Pj4+IAo+ID4+PiAKPiA+Pj4gSWYgeW91IHdhbnQgdG8gZG8gdGhhdCB0aGVuIGRldmlj
+ZSBoYXMgdG8gYmUgcmVzZXQgb24gY2xvc2UsCj4gPj4+IGFuZCBmdWxseSByZWluaXRpYWxpemVk
+IG9uIG9wZW4uCj4gPj4+IENhbiB5b3Ugd29yayBvbiBhIHBhdGNoIGxpa2UgdGhhdD8KPiA+Pj4g
+R2l2ZW4gSSBkb24ndCBoYXZlIHRoZSBkZXZpY2Ugc3VjaCBhIHJld29yayBpcyBwcm9iYWJseSBt
+b3JlCj4gPj4+IHRoYW4gSSBjYW4gdW5kZXJ0YWtlLgo+ID4+IAo+ID4+IHNvIHlvdSBtZWFuIG1v
+dmUgdmlydGlvX2ZpbmRfdnFzKCkgaW50byB2aXJ0YnRfb3BlbigpIGFuZCBkZWxfdnFzKCkgaW50
+bwo+ID4+IHZpcnRidF9jbG9zZSgpPwo+ID4gCj4gPiBBbmQgcmVzZXQgYmVmb3JlIGRlbF92cXMu
+Cj4gPiAKPiA+PiBPciBpcyB0aGVyZSBhcmUgd2F5IHRvIHNldCB1cCB0aGUgcXVldWVzIHdpdGhv
+dXQgc3RhcnRpbmcgdGhlbT8KPiA+PiAKPiA+PiBIb3dldmVyIEkgYW0gZmFpbGluZyB0byB1bmRl
+cnN0YW5kIHlvdXIgaW5pdGlhbCBjb25jZXJuLCB3ZSBkbyByZXNldCgpCj4gPj4gYmVmb3JlIGRl
+bF92cXMoKSBpbiB2aXJ0YnRfcmVtb3ZlKCkuIFNob3VsZCB3ZSBiZSBkb2luZyBzb21ldGhpbmcg
+ZGlmZmVyZW50Cj4gPj4gaW4gdmlydGJ0X2Nsb3NlKCkgb3RoZXIgdGhhbiB2aXJ0cXVldWVfZGV0
+YWNoX3VudXNlZF9idWYoKS4gV2h5IHdvdWxkIEkKPiA+PiBrZWVwIGJ1ZmZlcnMgYXR0YWNoZWQg
+aWYgdGhleSBhcmUgbm90IHVzZWQuCj4gPj4gCj4gPiAKPiA+IFRoZXkgYXJlIG5vdCB1c2VkIGF0
+IHRoYXQgcG9pbnQgYnV0IHVudGlsIGRldmljZSBpcyByZXNldCBjYW4gdXNlIHRoZW0uCj4gPiBB
+bHNvLCBpZiB5b3UgdGhlbiBwcm9jZWVkIHRvIG9wZW4gd2l0aG91dCBhIHJlc2V0LCBhbmQga2lj
+aywKPiA+IGRldmljZSB3aWxsIHN0YXJ0IGJ5IHByb2Nlc3NpbmcgdGhlIG9yaWdpbmFsIGJ1ZmZl
+cnMsIGNyYXNoaW5nCj4gPiBvciBjb3JydXB0aW5nIG1lbW9yeS4KPiAKPiBzbyB0aGUgb25seSB2
+YWxpZCB1c2FnZSBpcyBsaWtlIHRoaXM6Cj4gCj4gCXZkZXYtPmNvbmZpZy0+cmVzZXQodmRldik7
+Cj4gCj4gCXdoaWxlICgoLi4gPSB2aXJ0cXVldWVfZGV0YWNoX3VudXNlZF9idWYodnEpKSkgewo+
+IAl9Cj4gCj4gCXZkZXYtPmNvbmZpZy0+ZGVsX3Zxcyh2ZGV2KTsKPiAKPiBJZiBJIG1ha2Ugdmly
+dGJ0X3tvcGVuLGNsb3NlfSBhIE5PUCwgdGhlbiBJIGtlZXAgYWRkaW5nIGFuIGV4dHJhIFNLQiB0
+byBpbmJ1ZiBvbgo+IGV2ZXJ5IHBvd2VyIGN5Y2xlIChpZnVwL2lmZG93bikuCgpTbyBtYWtlIHN1
+cmUgeW91IGRvbid0IDopCgo+IEhvdyBkb2VzIG5ldGRldiBoYW5kbGUgdGhpcz8KPiAKPiBSZWdh
+cmRzCj4gCj4gTWFyY2VsCgpGb3IgbmV0LCBvcGVuIGFkZHMgYnVmZmVycyB0byB2cS4gY2xvc2Ug
+ZG9lcyBub3QgZnJlZSB0aGVtIHVwIC0KdGhleSBzdGF5IGluIHRoZSB2cSB1bnRpbCBkZXZpY2Ug
+aXMgcmVtb3ZlZC4KCi0tIApNU1QKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBs
+aXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5v
+cmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
