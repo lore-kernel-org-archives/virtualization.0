@@ -1,92 +1,75 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 76A96C433F5
-	for <virtualization@archiver.kernel.org>; Fri, 26 Nov 2021 02:16:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 67CD4C433EF
+	for <virtualization@archiver.kernel.org>; Fri, 26 Nov 2021 02:30:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id ED38E403E9;
-	Fri, 26 Nov 2021 02:16:00 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id E96DF40338;
+	Fri, 26 Nov 2021 02:30:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id qqj83wXB40pw; Fri, 26 Nov 2021 02:16:00 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 9B29B4034C;
-	Fri, 26 Nov 2021 02:15:59 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id TLlqhsJjV-pR; Fri, 26 Nov 2021 02:30:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 78BB840335;
+	Fri, 26 Nov 2021 02:30:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7ABBBC001C;
-	Fri, 26 Nov 2021 02:15:59 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 76817C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F847C001C;
+	Fri, 26 Nov 2021 02:30:38 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EDAEFC000A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Nov 2021 02:15:58 +0000 (UTC)
+ Fri, 26 Nov 2021 02:30:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 54DBA40106
+ by smtp2.osuosl.org (Postfix) with ESMTP id C6A6640335
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Nov 2021 02:15:58 +0000 (UTC)
+ Fri, 26 Nov 2021 02:30:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ReXQ_J8oHdp4
+ with ESMTP id ZbxLE4OyovO0
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Nov 2021 02:15:57 +0000 (UTC)
+ Fri, 26 Nov 2021 02:30:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 61C9340012
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id B83B240012
  for <virtualization@lists.linux-foundation.org>;
- Fri, 26 Nov 2021 02:15:57 +0000 (UTC)
-X-IronPort-AV: E=McAfee;i="6200,9189,10179"; a="235533375"
-X-IronPort-AV: E=Sophos;i="5.87,263,1631602800"; d="scan'208";a="235533375"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
- by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 25 Nov 2021 18:15:56 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,263,1631602800"; d="scan'208";a="650863628"
-Received: from fmsmsx604.amr.corp.intel.com ([10.18.126.84])
- by fmsmga001.fm.intel.com with ESMTP; 25 Nov 2021 18:15:53 -0800
-Received: from shsmsx603.ccr.corp.intel.com (10.109.6.143) by
- fmsmsx604.amr.corp.intel.com (10.18.126.84) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2242.12; Thu, 25 Nov 2021 18:15:50 -0800
-Received: from shsmsx601.ccr.corp.intel.com (10.109.6.141) by
- SHSMSX603.ccr.corp.intel.com (10.109.6.143) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2242.12; Fri, 26 Nov 2021 10:15:48 +0800
-Received: from shsmsx601.ccr.corp.intel.com ([10.109.6.141]) by
- SHSMSX601.ccr.corp.intel.com ([10.109.6.141]) with mapi id 15.01.2242.012;
- Fri, 26 Nov 2021 10:15:48 +0800
-From: "Wang, Wei W" <wei.w.wang@intel.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Subject: RE: [PATCH] virtio/vsock: fix the transport to work with
- VMADDR_CID_ANY
-Thread-Topic: [PATCH] virtio/vsock: fix the transport to work with
- VMADDR_CID_ANY
-Thread-Index: AQHX4daqV2Omz/OJfUqBSDdTk17B0qwT+K9Q//+PVgCAAXxRUA==
-Date: Fri, 26 Nov 2021 02:15:48 +0000
-Message-ID: <97be1440032248a29b5eb75619f8ac4d@intel.com>
-References: <20211125071554.16969-1-wei.w.wang@intel.com>
- <7992566c682b46dc9ec2502e44a2fb04@intel.com>
- <20211125104046.wxupkn6uogvohioi@steredhat>
-In-Reply-To: <20211125104046.wxupkn6uogvohioi@steredhat>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-dlp-product: dlpe-windows
-dlp-reaction: no-action
-dlp-version: 11.6.200.16
-x-originating-ip: [10.239.127.36]
+ Fri, 26 Nov 2021 02:30:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFCD66115A;
+ Fri, 26 Nov 2021 02:30:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=k20201202; t=1637893834;
+ bh=QyAq05J8aKMtBpI2NIGtCz40YL2JvQEqxHMmH+5i4GM=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=E07MRrrNFidrydWyc5d2+ipFjPmnkjVvNgaTLAbz16jtymhbsEZzIW7vpMoU7S+5X
+ A0dQTjndSvevi7xUHYAPJoG8WbUTikDhlNwAbYVDb6k7mMx1hZ0LmRsfQBFQd/gl5X
+ +D/wvJOQZBfItX8SQJTxh5fETHXitp+CBmfTanjNnBB3yTrW5W78mOSJhvtxmK7e+G
+ bpdEMmP47tgQ3DMGF0PX0MgiZVQmsCw7F56+r+eJWxLGHLpS/qGv+oHUn+gPmf74Kk
+ 0ZOgWmEgaFnP5LsZOS7+JVKqfUpXUgGT+/BuZnjy7Jgscg1U4Pla4Y3OYCjvcWS1AS
+ 2Y4Y7Zbyhu79w==
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 7/7] virtio-mem: support
+ VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE
+Date: Thu, 25 Nov 2021 21:30:06 -0500
+Message-Id: <20211126023006.440839-7-sashal@kernel.org>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211126023006.440839-1-sashal@kernel.org>
+References: <20211126023006.440839-1-sashal@kernel.org>
 MIME-Version: 1.0
-Cc: "mst@redhat.com" <mst@redhat.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>,
- "stefanha@redhat.com" <stefanha@redhat.com>,
- "asias@redhat.com" <asias@redhat.com>,
- "davem@davemloft.net" <davem@davemloft.net>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Cc: Sasha Levin <sashal@kernel.org>,
+ Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+ Wei Yang <richard.weiyang@linux.alibaba.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux-foundation.org,
+ Sebastien Boeuf <sebastien.boeuf@intel.com>,
+ Marek Kedzierski <mkedzier@redhat.com>, Hui Zhu <teawater@gmail.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -103,48 +86,91 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thursday, November 25, 2021 6:41 PM, Stefano Garzarella wrote:
-> On Thu, Nov 25, 2021 at 09:27:40AM +0000, Wang, Wei W wrote:
-> >On Thursday, November 25, 2021 3:16 PM, Wang, Wei W wrote:
-> >> -	/* Update CID in case it has changed after a transport reset event */
-> >> -	vsk->local_addr.svm_cid = dst.svm_cid;
-> >> -
-> >>  	if (space_available)
-> >>  		sk->sk_write_space(sk);
-> >>
-> >
-> >Not sure if anybody knows how this affects the transport reset.
-> 
-> I believe the primary use case is when a guest is migrated.
-> 
-> After the migration, the transport gets a reset event from the hypervisor and
-> all connected sockets are closed. The ones in listen remain open though.
-> 
-> Also the guest's CID may have changed after migration. So if an application has
-> open listening sockets, bound to the old CID, this should ensure that the socket
-> continues to be usable.
+From: David Hildenbrand <david@redhat.com>
 
-OK, thanks for sharing the background.
+[ Upstream commit 61082ad6a6e1f999eef7e7e90046486c87933b1e ]
 
-> 
-> The patch would then change this behavior.
-> 
-> So maybe to avoid problems, we could update the CID only if it is different
-> from VMADDR_CID_ANY:
-> 
-> 	if (vsk->local_addr.svm_cid != VMADDR_CID_ANY)
-> 		vsk->local_addr.svm_cid = dst.svm_cid;
-> 
-> 
-> When this code was written, a guest only supported a single transport, so it
-> could only have one CID assigned, so that wasn't a problem.
-> For that reason I'll add this Fixes tag:
-> Fixes: c0cfa2d8a788 ("vsock: add multi-transports support")
+The initial virtio-mem spec states that while unplugged memory should not
+be read, the device still has to allow for reading unplugged memory inside
+the usable region. The primary motivation for this default handling was
+to simplify bringup of virtio-mem, because there were corner cases where
+Linux might have accidentially read unplugged memory inside added Linux
+memory blocks.
 
-Sounds good to me.
+In the meantime, we:
+1. Removed /dev/kmem in commit bbcd53c96071 ("drivers/char: remove
+   /dev/kmem for good")
+2. Disallowed access to virtio-mem device memory via /dev/mem in
+   commit 2128f4e21aa2 ("virtio-mem: disallow mapping virtio-mem memory via
+   /dev/mem")
+3. Sanitized access to virtio-mem device memory via /proc/kcore in
+   commit 0daa322b8ff9 ("fs/proc/kcore: don't read offline sections,
+   logically offline pages and hwpoisoned pages")
+4. Sanitized access to virtio-mem device memory via /proc/vmcore in
+   commit ce2814622e84 ("virtio-mem: kdump mode to sanitize /proc/vmcore
+   access")
 
-Thanks,
-Wei
+"Accidential" access to unplugged memory is no longer possible; we can
+support the new VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE feature that will be
+required by some hypervisors implementing virtio-mem in the near future.
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Marek Kedzierski <mkedzier@redhat.com>
+Cc: Hui Zhu <teawater@gmail.com>
+Cc: Sebastien Boeuf <sebastien.boeuf@intel.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/virtio/virtio_mem.c     | 1 +
+ include/uapi/linux/virtio_mem.h | 9 ++++++---
+ 2 files changed, 7 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+index bef8ad6bf4661..78dfdc9c98a1c 100644
+--- a/drivers/virtio/virtio_mem.c
++++ b/drivers/virtio/virtio_mem.c
+@@ -2758,6 +2758,7 @@ static unsigned int virtio_mem_features[] = {
+ #if defined(CONFIG_NUMA) && defined(CONFIG_ACPI_NUMA)
+ 	VIRTIO_MEM_F_ACPI_PXM,
+ #endif
++	VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE,
+ };
+ 
+ static const struct virtio_device_id virtio_mem_id_table[] = {
+diff --git a/include/uapi/linux/virtio_mem.h b/include/uapi/linux/virtio_mem.h
+index 70e01c687d5eb..e9122f1d0e0cb 100644
+--- a/include/uapi/linux/virtio_mem.h
++++ b/include/uapi/linux/virtio_mem.h
+@@ -68,9 +68,10 @@
+  * explicitly triggered (VIRTIO_MEM_REQ_UNPLUG).
+  *
+  * There are no guarantees what will happen if unplugged memory is
+- * read/written. Such memory should, in general, not be touched. E.g.,
+- * even writing might succeed, but the values will simply be discarded at
+- * random points in time.
++ * read/written. In general, unplugged memory should not be touched, because
++ * the resulting action is undefined. There is one exception: without
++ * VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE, unplugged memory inside the usable
++ * region can be read, to simplify creation of memory dumps.
+  *
+  * It can happen that the device cannot process a request, because it is
+  * busy. The device driver has to retry later.
+@@ -87,6 +88,8 @@
+ 
+ /* node_id is an ACPI PXM and is valid */
+ #define VIRTIO_MEM_F_ACPI_PXM		0
++/* unplugged memory must not be accessed */
++#define VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE	1
+ 
+ 
+ /* --- virtio-mem: guest -> host requests --- */
+-- 
+2.33.0
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
