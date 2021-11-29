@@ -1,64 +1,64 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 436A4C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 29 Nov 2021 10:22:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id B5D35C4332F
+	for <virtualization@archiver.kernel.org>; Mon, 29 Nov 2021 10:22:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 93A0883077;
+	by smtp2.osuosl.org (Postfix) with ESMTP id 2B57A4042A;
 	Mon, 29 Nov 2021 10:22:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id K7lgb747e0ap; Mon, 29 Nov 2021 10:22:37 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 97F0383022;
-	Mon, 29 Nov 2021 10:22:36 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 97490C005A;
-	Mon, 29 Nov 2021 10:22:34 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1B73EC0048
- for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 10:22:33 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id D0C4E401EC
- for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 10:22:32 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=infradead.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tYeg7LdKpWED
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id HDB9c0WSkNPp; Mon, 29 Nov 2021 10:22:35 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C74A7403DF;
+	Mon, 29 Nov 2021 10:22:34 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4B8EDC0048;
+	Mon, 29 Nov 2021 10:22:33 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8C762C000A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 10:22:32 +0000 (UTC)
+ Mon, 29 Nov 2021 10:22:31 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id DDC6260A43
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 29 Nov 2021 10:22:30 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 0wGb_lL5RpxZ
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 29 Nov 2021 10:22:30 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp2.osuosl.org (Postfix) with ESMTPS id CF7C1401A1
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 33EA960A45
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 10:22:31 +0000 (UTC)
+ Mon, 29 Nov 2021 10:22:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=ym5SXKSkcY5yjLbafTLHLzk4qEufBPEYqn+LUGRKebE=; b=Qve86oEPdKU6yZByQUGE4uqGPA
- wN+dDIkYeCU7y0Cte07Z374R1rna6LpLf5af55YHgc1/QzuJcMODUy9ei8PtiyR/anY7k4yIUy4VY
- 6Iml7QYYTSm/bwwgikdJ33U7a9LiicsvPguD+abweOH0v67YEQUyJHoVh4hexAY5AJ6X2hlsL9rKx
- c0CuD33WmCK9CpPaM+Jf+eyz18qikAssrnaD9y2DhlWXeTB9N4TGD524xTtvQJESe/XzCXTM+crrj
- I/3VUu9nLh/HZQBL2BRRZ5lxYYSybfX+HuB2ZVVgEeWHNP5NrQ+lY3zfAQDpQjqwTTIrLye4VvBF5
- tataXuMQ==;
+ bh=pF7o2XZaeCSXZgokxwNptFBQJgxMldOSCvDZoV+K934=; b=Y8DZYvudjPxHVJkoQC7Cucvayq
+ FzVr6VxuTgx17YYUddKef4eiP/Scvn/LH6anQ7cDBMad/w83U+GeaRCyPWJhmOjMS9FCCkXFMlbDF
+ JDIgkE0Qg735Q8B+T3VkRI2AWaB87iNqCsi81LR0X2iwEHAD/LkpGT8vB6Is4cAwLUE7h3vvv55xR
+ NfOM7Yyv5raJ1oB8cU9cWFxxUcJLY3uQUXdAVHfVLoO2IpJwC14bIxQQI1cHAvfTgdP48X7Oyq4zQ
+ ntiKEyhSxW6uRhpGW9+ZrnwHG8DLQb9PZhoXDK2WzqHOM1KY0pZ8TXheo6HE1eFMhOp3xMAXKgmE7
+ wg2K2xZg==;
 Received: from [2001:4bb8:184:4a23:724a:c057:c7bf:4643] (helo=localhost)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1mrdnS-0073J2-IG; Mon, 29 Nov 2021 10:22:07 +0000
+ id 1mrdnc-0073MS-7i; Mon, 29 Nov 2021 10:22:17 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 02/29] dm: make the DAX support depend on CONFIG_FS_DAX
-Date: Mon, 29 Nov 2021 11:21:36 +0100
-Message-Id: <20211129102203.2243509-3-hch@lst.de>
+Subject: [PATCH 09/29] dm-linear: add a linear_dax_pgoff helper
+Date: Mon, 29 Nov 2021 11:21:43 +0100
+Message-Id: <20211129102203.2243509-10-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211129102203.2243509-1-hch@lst.de>
 References: <20211129102203.2243509-1-hch@lst.de>
@@ -86,118 +86,101 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The device mapper DAX support is all hanging off a block device and thus
-can't be used with device dax.  Make it depend on CONFIG_FS_DAX instead
-of CONFIG_DAX_DRIVER.  This also means that bdev_dax_pgoff only needs to
-be built under CONFIG_FS_DAX now.
+Add a helper to perform the entire remapping for DAX accesses.  This
+helper open codes bdev_dax_pgoff given that the alignment checks have
+already been done by the submitting file system and don't need to be
+repeated.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Acked-by: Mike Snitzer <snitzer@redhat.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
 ---
- drivers/dax/super.c        | 6 ++----
- drivers/md/dm-linear.c     | 2 +-
- drivers/md/dm-log-writes.c | 2 +-
- drivers/md/dm-stripe.c     | 2 +-
- drivers/md/dm-writecache.c | 2 +-
- drivers/md/dm.c            | 2 +-
- 6 files changed, 7 insertions(+), 9 deletions(-)
+ drivers/md/dm-linear.c | 49 +++++++++++++-----------------------------
+ 1 file changed, 15 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/dax/super.c b/drivers/dax/super.c
-index b882cf8106ea3..e20d0cef10a18 100644
---- a/drivers/dax/super.c
-+++ b/drivers/dax/super.c
-@@ -63,7 +63,7 @@ static int dax_host_hash(const char *host)
- 	return hashlen_hash(hashlen_string("DAX", host)) % DAX_HASH_SIZE;
- }
- 
--#ifdef CONFIG_BLOCK
-+#if defined(CONFIG_BLOCK) && defined(CONFIG_FS_DAX)
- #include <linux/blkdev.h>
- 
- int bdev_dax_pgoff(struct block_device *bdev, sector_t sector, size_t size,
-@@ -80,7 +80,6 @@ int bdev_dax_pgoff(struct block_device *bdev, sector_t sector, size_t size,
- }
- EXPORT_SYMBOL(bdev_dax_pgoff);
- 
--#if IS_ENABLED(CONFIG_FS_DAX)
- /**
-  * dax_get_by_host() - temporary lookup mechanism for filesystem-dax
-  * @host: alternate name for the device registered by a dax driver
-@@ -219,8 +218,7 @@ bool dax_supported(struct dax_device *dax_dev, struct block_device *bdev,
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(dax_supported);
--#endif /* CONFIG_FS_DAX */
--#endif /* CONFIG_BLOCK */
-+#endif /* CONFIG_BLOCK && CONFIG_FS_DAX */
- 
- enum dax_device_flags {
- 	/* !alive + rcu grace period == no new operations / mappings */
 diff --git a/drivers/md/dm-linear.c b/drivers/md/dm-linear.c
-index 66ba16713f696..0a260c35aeeed 100644
+index 0a260c35aeeed..90de42f6743ac 100644
 --- a/drivers/md/dm-linear.c
 +++ b/drivers/md/dm-linear.c
-@@ -162,7 +162,7 @@ static int linear_iterate_devices(struct dm_target *ti,
- 	return fn(ti, lc->dev, lc->start, ti->len, data);
+@@ -163,63 +163,44 @@ static int linear_iterate_devices(struct dm_target *ti,
  }
  
--#if IS_ENABLED(CONFIG_DAX_DRIVER)
-+#if IS_ENABLED(CONFIG_FS_DAX)
+ #if IS_ENABLED(CONFIG_FS_DAX)
++static struct dax_device *linear_dax_pgoff(struct dm_target *ti, pgoff_t *pgoff)
++{
++	struct linear_c *lc = ti->private;
++	sector_t sector = linear_map_sector(ti, *pgoff << PAGE_SECTORS_SHIFT);
++
++	*pgoff = (get_start_sect(lc->dev->bdev) + sector) >> PAGE_SECTORS_SHIFT;
++	return lc->dev->dax_dev;
++}
++
  static long linear_dax_direct_access(struct dm_target *ti, pgoff_t pgoff,
  		long nr_pages, void **kaddr, pfn_t *pfn)
  {
-diff --git a/drivers/md/dm-log-writes.c b/drivers/md/dm-log-writes.c
-index 0b3ef977ceeba..3155875d4e5b0 100644
---- a/drivers/md/dm-log-writes.c
-+++ b/drivers/md/dm-log-writes.c
-@@ -901,7 +901,7 @@ static void log_writes_io_hints(struct dm_target *ti, struct queue_limits *limit
- 	limits->io_min = limits->physical_block_size;
+-	long ret;
+-	struct linear_c *lc = ti->private;
+-	struct block_device *bdev = lc->dev->bdev;
+-	struct dax_device *dax_dev = lc->dev->dax_dev;
+-	sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
+-
+-	dev_sector = linear_map_sector(ti, sector);
+-	ret = bdev_dax_pgoff(bdev, dev_sector, nr_pages * PAGE_SIZE, &pgoff);
+-	if (ret)
+-		return ret;
++	struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
++
+ 	return dax_direct_access(dax_dev, pgoff, nr_pages, kaddr, pfn);
  }
  
--#if IS_ENABLED(CONFIG_DAX_DRIVER)
-+#if IS_ENABLED(CONFIG_FS_DAX)
- static int log_dax(struct log_writes_c *lc, sector_t sector, size_t bytes,
- 		   struct iov_iter *i)
+ static size_t linear_dax_copy_from_iter(struct dm_target *ti, pgoff_t pgoff,
+ 		void *addr, size_t bytes, struct iov_iter *i)
  {
-diff --git a/drivers/md/dm-stripe.c b/drivers/md/dm-stripe.c
-index 6660b6b53d5bf..f084607220293 100644
---- a/drivers/md/dm-stripe.c
-+++ b/drivers/md/dm-stripe.c
-@@ -300,7 +300,7 @@ static int stripe_map(struct dm_target *ti, struct bio *bio)
- 	return DM_MAPIO_REMAPPED;
+-	struct linear_c *lc = ti->private;
+-	struct block_device *bdev = lc->dev->bdev;
+-	struct dax_device *dax_dev = lc->dev->dax_dev;
+-	sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
++	struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
+ 
+-	dev_sector = linear_map_sector(ti, sector);
+-	if (bdev_dax_pgoff(bdev, dev_sector, ALIGN(bytes, PAGE_SIZE), &pgoff))
+-		return 0;
+ 	return dax_copy_from_iter(dax_dev, pgoff, addr, bytes, i);
  }
  
--#if IS_ENABLED(CONFIG_DAX_DRIVER)
-+#if IS_ENABLED(CONFIG_FS_DAX)
- static long stripe_dax_direct_access(struct dm_target *ti, pgoff_t pgoff,
- 		long nr_pages, void **kaddr, pfn_t *pfn)
+ static size_t linear_dax_copy_to_iter(struct dm_target *ti, pgoff_t pgoff,
+ 		void *addr, size_t bytes, struct iov_iter *i)
  {
-diff --git a/drivers/md/dm-writecache.c b/drivers/md/dm-writecache.c
-index 4b8991cde223d..4f31591d2d25e 100644
---- a/drivers/md/dm-writecache.c
-+++ b/drivers/md/dm-writecache.c
-@@ -38,7 +38,7 @@
- #define BITMAP_GRANULARITY	PAGE_SIZE
- #endif
+-	struct linear_c *lc = ti->private;
+-	struct block_device *bdev = lc->dev->bdev;
+-	struct dax_device *dax_dev = lc->dev->dax_dev;
+-	sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
++	struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
  
--#if IS_ENABLED(CONFIG_ARCH_HAS_PMEM_API) && IS_ENABLED(CONFIG_DAX_DRIVER)
-+#if IS_ENABLED(CONFIG_ARCH_HAS_PMEM_API) && IS_ENABLED(CONFIG_FS_DAX)
- #define DM_WRITECACHE_HAS_PMEM
- #endif
+-	dev_sector = linear_map_sector(ti, sector);
+-	if (bdev_dax_pgoff(bdev, dev_sector, ALIGN(bytes, PAGE_SIZE), &pgoff))
+-		return 0;
+ 	return dax_copy_to_iter(dax_dev, pgoff, addr, bytes, i);
+ }
  
-diff --git a/drivers/md/dm.c b/drivers/md/dm.c
-index acc84dc1bded5..b93fcc91176e5 100644
---- a/drivers/md/dm.c
-+++ b/drivers/md/dm.c
-@@ -1783,7 +1783,7 @@ static struct mapped_device *alloc_dev(int minor)
- 	md->disk->private_data = md;
- 	sprintf(md->disk->disk_name, "dm-%d", minor);
+ static int linear_dax_zero_page_range(struct dm_target *ti, pgoff_t pgoff,
+ 				      size_t nr_pages)
+ {
+-	int ret;
+-	struct linear_c *lc = ti->private;
+-	struct block_device *bdev = lc->dev->bdev;
+-	struct dax_device *dax_dev = lc->dev->dax_dev;
+-	sector_t dev_sector, sector = pgoff * PAGE_SECTORS;
+-
+-	dev_sector = linear_map_sector(ti, sector);
+-	ret = bdev_dax_pgoff(bdev, dev_sector, nr_pages << PAGE_SHIFT, &pgoff);
+-	if (ret)
+-		return ret;
++	struct dax_device *dax_dev = linear_dax_pgoff(ti, &pgoff);
++
+ 	return dax_zero_page_range(dax_dev, pgoff, nr_pages);
+ }
  
--	if (IS_ENABLED(CONFIG_DAX_DRIVER)) {
-+	if (IS_ENABLED(CONFIG_FS_DAX)) {
- 		md->dax_dev = alloc_dax(md, md->disk->disk_name,
- 					&dm_dax_ops, 0);
- 		if (IS_ERR(md->dax_dev)) {
 -- 
 2.30.2
 
