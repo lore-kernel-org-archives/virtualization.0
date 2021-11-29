@@ -1,105 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 09865C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 29 Nov 2021 19:47:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 116DDC433FE
+	for <virtualization@archiver.kernel.org>; Mon, 29 Nov 2021 19:47:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 8211281B25;
-	Mon, 29 Nov 2021 19:47:33 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 9D1CF40427;
+	Mon, 29 Nov 2021 19:47:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id I-g0ZIB-2iGu; Mon, 29 Nov 2021 19:47:32 +0000 (UTC)
+Received: from smtp2.osuosl.org ([127.0.0.1])
+	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 9zRUH4PORavg; Mon, 29 Nov 2021 19:47:33 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0E3C381AEF;
+	by smtp2.osuosl.org (Postfix) with ESMTPS id C87B840417;
 	Mon, 29 Nov 2021 19:47:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D4005C0012;
-	Mon, 29 Nov 2021 19:47:31 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B0939C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2B864C0039;
+	Mon, 29 Nov 2021 19:47:32 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B2539C0012
  for <virtualization@lists.linux-foundation.org>;
  Mon, 29 Nov 2021 19:47:30 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 8956F60A84
+ by smtp4.osuosl.org (Postfix) with ESMTP id 9815F40498
  for <virtualization@lists.linux-foundation.org>;
  Mon, 29 Nov 2021 19:47:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="Cfs+gEDX";
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="GgihwesI";
  dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="ET/E0MgA"
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MQHW6NaBJqwG
+ header.b="yURPLzjn"
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id NiOwgcjL2wMz
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 19:47:28 +0000 (UTC)
+ Mon, 29 Nov 2021 19:47:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
  [205.220.177.32])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 3AF8960A4E
+ by smtp4.osuosl.org (Postfix) with ESMTPS id D5D7A40416
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 19:47:28 +0000 (UTC)
+ Mon, 29 Nov 2021 19:47:29 +0000 (UTC)
 Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1ATJVDU4009072; 
- Mon, 29 Nov 2021 19:47:20 GMT
+ by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1ATJVED8009101; 
+ Mon, 29 Nov 2021 19:47:24 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
  h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version;
- s=corp-2021-07-09; bh=R8RBPPfhwxXBMtuh/f9DRs0awov8ZmZkUHd0ZAOhuRg=;
- b=Cfs+gEDXbV3AMrzu1kfPguq8UT3oTU6842JTBn2Q2MiC4Xy+dHwi4SHUNuvS6rBTMCPO
- EfwGVFQ6DRLmG6odZSraCsuvkW+U1OdzyPejZRBInYiVR91DOwoeeWj6yK6iLEiHiy1S
- kl2R3MclLN1H3dvNJFx+Ij99gAzK1l0SEWVA+rltqs3sRq1ZPvg8+KTo/FMLUIPsHA7w
- x5CQ9ptaJ/jQ5YBOtrq5TAM0U2QUVH/c63MrooI+N7IdY/XN6llar93IUH7tj18Y5sIG
- CjlVVxeD57w54brYkV6GWLXNrT/kkeHoSuhNlTLjZP4VEBGghzq+UekdIm7XAAMPTe8Z /A== 
+ s=corp-2021-07-09; bh=Kd0kZIm+qebPR0daitmuUgHhyt3OvaR98NXR2OYgaxM=;
+ b=GgihwesIkbJ8SrGIR/k1EmYsGieN6Ntkr7YmSGisrklGhRzcYnF72QHCCSs2Adc99aXy
+ LKyzvrTV3NSfIN6BUscqa5KTkmmTcjrtytZt++jZlVK90uCX9k2DNYkGq/dzEhgNhI9H
+ /did4qi6ADPtybS9NEGoqKsI+UpbMt9khvfPdNiHVvvULwCmID7VsLz/0NWsBbKKWRA7
+ MiHVlq253pJaKtV/evIQoinoFPS4cWxyOr1ijyWSNf7dcv2Ph78pgazgLz39o59Zl35Z
+ 1uxwklhCu7GOO2m8bR4/BTWqEvmYATVfwOlwzExttIDkIDtWhJizuTupzonL5hOLD6dZ vA== 
 Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
- by mx0b-00069f02.pphosted.com with ESMTP id 3cmuc9ksyq-1
+ by mx0b-00069f02.pphosted.com with ESMTP id 3cmuc9kt02-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 29 Nov 2021 19:47:20 +0000
+ Mon, 29 Nov 2021 19:47:23 +0000
 Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
- by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 1ATJjb8Z181733;
- Mon, 29 Nov 2021 19:47:19 GMT
+ by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 1ATJjb8c181733;
+ Mon, 29 Nov 2021 19:47:21 GMT
 Received: from nam04-mw2-obe.outbound.protection.outlook.com
  (mail-mw2nam08lp2172.outbound.protection.outlook.com [104.47.73.172])
- by aserp3030.oracle.com with ESMTP id 3ckaqdcbmb-2
+ by aserp3030.oracle.com with ESMTP id 3ckaqdcbmb-5
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 29 Nov 2021 19:47:19 +0000
+ Mon, 29 Nov 2021 19:47:21 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=B8feDG2IFOK0bkQGXazeQz6wvX54dB4WNoIl40V/qkMLgP2QUiQCdExTCvewu/4XxOgTkU+gUy5v51Vhu2jzYwuOJ1JZiINsZt/496gNTRhwT1Yjg9bRlVejbCn1iVJ/GtNkJVOxgDYZKmWMrhoNQ2WtetCaW1gfc+p9Q+DIQZE5lwld2McRCBwY2TMJJCH/6oT9SSdmWshTyUzanxrYWm2dqpCpwIDG6vp3tfFd7Zu1z7BmhoDEv9hcxs1P18//Qt2PGOOQP6XnWHhao2Sk6eRzHZ0Gf1M7LF5pPfgj2jEMuIDj7kErJAJ4XLeTVbQgHB7mwMAQ8DKmekwnZmfKNA==
+ b=kWnWBSDlcHwazskgFq90c7EffUZVhp+9ab9I5Nod7YsK+XGUkwdGMeUvS7IVpAQE67BngrxNLMhIY5mmDRYotEspku4n4HmKAqxpFrNLO88Q+vDCdwgfX5uzSmyKdtwxaarrL2BnkHZrWFDPsGO5XIGhdtGNKxIyC1gjnSkHeQP0Y9nHjtMKzLNL0tjBuqe8aYXvyBlR7N6fcuVmxeUo+KONqYO2cd1Cr5xlZePkHNuVrm3xvM1P1xfPZc+ZLdcykPl5MHBymDwDGPkwEz54rLCsQ0JWmK180yguraOCcqec4O35hMSwV40iZhWL/yijeS9C0yheBMp5EQeW5sndNQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=R8RBPPfhwxXBMtuh/f9DRs0awov8ZmZkUHd0ZAOhuRg=;
- b=Vsj3iTb2mcfs5AIkgl0SNDAwkj1VNGDnNzWPZ5Pfr/cywHQ5KvhsiEIi5EOnYnKdoN1Fv9K1cbPb69xes+TGnUGfBTwpvV3DaLBYQN1Q8nK+jJGtbjZUBmI9hu4flMScZy2zqACdLzUWwHNuTe06cmRvMZHZEfONUgrI6wUyvKYGr6l3O3TF8RkeLc8/6S5BlowmmUTnPZd9sClpKAkVoOfdHFxyEQuPunA4qEt3fddmMttn8iw5t0UB+/lkDbSXCwH5rTHrIiGC42ShbQIyPpRwQb27LiTG4OYJjkWg4YY7mmEaqDr3PJkSzsONJFRWcyoooaVsYU10VpSY8vPZsQ==
+ bh=Kd0kZIm+qebPR0daitmuUgHhyt3OvaR98NXR2OYgaxM=;
+ b=FjMAgF2Ym2GopmWKruv5gjxq8VwMWOF9JbyQCNFJE60z1jC0SBfMnKlpJ7WWbYhtfKZSrEpPX5rd4f6Je+EP22nj0yus8bwoBsrT9Ow/0liP1Vr67lwlRnp7e2hgvF80crKrwzgirrp1r64ITtIsDtbsO5UaLJtyY6ATOK/h65alqIawDRJVsJamHvNJ02M3ajjm5vvNkI29iUME5aQCQX99RSoeJv+zDLgBXA0jxHCuZRLOyckdao0yKgD8w43ii0D3zveYP+SM+pLSyRJINFha9aFwdUVOOJ2QVoxjbvx+yYOsfl2vadK+lxdTfLT9AslKpaV9beRU6483Vx9eEg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=R8RBPPfhwxXBMtuh/f9DRs0awov8ZmZkUHd0ZAOhuRg=;
- b=ET/E0MgApx4cD9Vg6JnUq6pGOfHiTX8Dkz0wKs8W06T1VfVadTj66IbOfjXGm4nYPWS5PU2QM6CNY6GrIhaUBOgYaDA6ewML/6DIFEHwqx2Rsfn3VVPOaDBlr5b6DY6ETAHda+5ADhnOvmdoaAM9LhnYFIvNLckokrgTNYJ+pxc=
+ bh=Kd0kZIm+qebPR0daitmuUgHhyt3OvaR98NXR2OYgaxM=;
+ b=yURPLzjnip1DFqCOBcHLTqI9iW17QUCxkEBE5K3X0gd1cCwvnSHdVofOJyJ+KuLdZbSwevUoT0Z1L5L/4Dh0TfIk6RpuYuH7+mQgbIS9VlWO2b/5zz97g066I80WOug0eqdASeF1E7XZA5z0k6UzEy90NwVSyMbnq0FggN++bqM=
 Received: from DM5PR10MB1466.namprd10.prod.outlook.com (2603:10b6:3:b::7) by
  DM5PR10MB1307.namprd10.prod.outlook.com (2603:10b6:3:e::9) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4734.21; Mon, 29 Nov 2021 19:47:16 +0000
+ 15.20.4734.21; Mon, 29 Nov 2021 19:47:19 +0000
 Received: from DM5PR10MB1466.namprd10.prod.outlook.com
  ([fe80::601a:d0f6:b9db:f041]) by DM5PR10MB1466.namprd10.prod.outlook.com
  ([fe80::601a:d0f6:b9db:f041%11]) with mapi id 15.20.4734.024; Mon, 29 Nov
- 2021 19:47:16 +0000
+ 2021 19:47:19 +0000
 From: Mike Christie <michael.christie@oracle.com>
 To: geert@linux-m68k.org, vverma@digitalocean.com, hdanton@sina.com,
  hch@infradead.org, stefanha@redhat.com, jasowang@redhat.com,
  mst@redhat.com, sgarzare@redhat.com,
  virtualization@lists.linux-foundation.org,
  christian.brauner@ubuntu.com, axboe@kernel.dk, linux-kernel@vger.kernel.org
-Subject: [PATCH V6 01/10] fork: Make IO worker options flag based
-Date: Mon, 29 Nov 2021 13:46:58 -0600
-Message-Id: <20211129194707.5863-2-michael.christie@oracle.com>
+Subject: [PATCH V6 04/10] fork: Add USER_WORKER flag to ignore signals
+Date: Mon, 29 Nov 2021 13:47:01 -0600
+Message-Id: <20211129194707.5863-5-michael.christie@oracle.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20211129194707.5863-1-michael.christie@oracle.com>
 References: <20211129194707.5863-1-michael.christie@oracle.com>
@@ -110,59 +110,59 @@ MIME-Version: 1.0
 Received: from localhost.localdomain (73.88.28.6) by
  CH0PR03CA0086.namprd03.prod.outlook.com (2603:10b6:610:cc::31) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4734.22 via Frontend Transport; Mon, 29 Nov 2021 19:47:15 +0000
+ 15.20.4734.22 via Frontend Transport; Mon, 29 Nov 2021 19:47:18 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 4aa25c57-90f8-4a60-e285-08d9b3710c12
+X-MS-Office365-Filtering-Correlation-Id: 3d4642dc-b0e8-4f86-3cda-08d9b3710de2
 X-MS-TrafficTypeDiagnostic: DM5PR10MB1307:
-X-Microsoft-Antispam-PRVS: <DM5PR10MB1307680018F4D5C0D1787891F1669@DM5PR10MB1307.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1201;
+X-Microsoft-Antispam-PRVS: <DM5PR10MB1307DD22AF8EC65EB1AA89B7F1669@DM5PR10MB1307.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:590;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: zbRn1dOPIoMrDZpMbO8SxDl/wIyib5/kDlH5H9OR4LgYUsaUpt72P6r8HqlJGMlKHc48aa6EaazyU7yV5rW2+H5eXauXnN5jxMutl974btvZxALJGWcS5aL7kERWEpXfyHHuBfaS40zt8tW+6Vs6p/H/lhPQeGTmyyk4YSkgwJKRRw83fBRznyBpABBaipB//IiCcRx6M9ZjjirGSg/FcwoAEfJOgr044YmQSxRbis7COIlVCeB17xAl6strg5baawTQB7ODcSwMswFByuJU1gy/U0ZO1+2VyTfojc0vHmirzbCHIKYOTekWc0F/Tsvr+4isPgqoM+c90YxaNdr9svVOgrsB3F5Vit7NOI8H4Bag9xTK4xH2d1v0bzYKywQcxdzqdnV77L0wj0ToWxrFTB9p6nTsKwucvSbrDdTLplCpvKjP4jDeg54UreKXuEe3kWtrBhSOO0uLorhsKFyK6OOGC2t9djpvdo6whsbJWDKpo3t/rKBO5hW8saLrkjyjPaVvJ/4jJICPTgIDulHgpCAS5d2osLVLjS/wsI0X04TPGobFDiB3yktcRpyM/bJu+BqD+uAvvTr3dZJ20XpCG9ERBPqbn41FFE8qxKSNymAhT307gTdlXTEBxQPy4Pi4zk238/1w+JifluTqLxA3dfvC1MY8nBKYAIJAw1FbXOph/VhZyzmfRc8Po3WwuZWLfxsRgB9FUMFiKTR7R3Kflyoq9Y32PzSNvbFU+Sih+lA=
+X-Microsoft-Antispam-Message-Info: 3dCAVeutjp2Xt8CuNbVrzn/vdOyDcijGCUIWjjcoQRVOphFPkP7Ek2gh4Uz7TOpZcxk1f7/t9kwkFBQC00ysLPcvkSDq+t2+OSJRNNEdFRSkjPhQXQ2+VkznZDlgah7Ko9GPkWXvID0JXF6BtlQi1HbBsNDi8AV4Vs9r42wbMfACBgH2jF5M1K+wTYa4QnTmWz3PDJuJAp8S4oKoZeEAgqEa6MkVC54RxOa/rYbToCeTfek/D/Sdgwvc6XqDjCPu6f3p91vz2J7Op4BZblOShbxf1YSGz+JfEX1e31HBB20EZRJEjKPCj/Gx2GFUYnD/C8r1bSEauBhAKwsiHauJIQ6r9xeUJ9CsfB1ZI7XXe0gtlL2tcNLdoEOHB+jmEHi8ZJPxrmbp+/wsC10onJ4mWVU/eqPBw9axnTsCS1TfpwRHektZbLXNiaWOnTaUMLXPkfuiWTd3rkGv5oagSrFh2tnky8zOOoY/XkaOkxyNhIAwQ8s75wEPbIbgLwwp5EkBzr6/uJcARowZhBBxj9ikf/SaiHGjbqB4l4Ok6Bbnoi4F7THFZ4P7oas3dK02KzHkedpm960VN6qvsy5pxTJMkNdzDFqLhYwf8zXfXPrtJuu53vbnxyhoRfJ2GpugG6qbDJA18Dy4w99wzdURkdilmuFjW8k9GTgXbgoeWyN+KjwrdwzcxCxpVJRSeMZQ6mzoGmd5kJVWGCSILYphf9iqJeafXkGXJFxBQNyMwrxmmS0=
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:DM5PR10MB1466.namprd10.prod.outlook.com; PTR:; CAT:NONE;
  SFS:(366004)(6506007)(36756003)(8936002)(8676002)(38350700002)(86362001)(6512007)(2906002)(54906003)(956004)(52116002)(1076003)(26005)(66556008)(66476007)(186003)(508600001)(5660300002)(921005)(6666004)(2616005)(6486002)(66946007)(38100700002)(316002)(83380400001)(4326008)(7416002);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?l3NdoDiimHIeqA6JVtLKuBSaEwIrOR+G03DSdxdIEz/6VM8njrRNKdlgPRcs?=
- =?us-ascii?Q?cMRjhKyIb+SMMO++Pkp/b215xRW6rm4Il/Vno0s9U1tfPIyLJ/cxz7NDbAnW?=
- =?us-ascii?Q?WCFR+tf3h8jrCdVsWRBI8PpjgvGq0neXLuuHg5tpV/raw2saCkDcxEiWh8AN?=
- =?us-ascii?Q?ufhJG6EddY8FukhAEGaHQjt2OpwHiFSfmm7MxdR4NlL7FMsFGTdeZhFjORlU?=
- =?us-ascii?Q?sr4rioY0WVeQYBfV4SsKdVH+tsRTHjhiAZ1uHFfNRq2wkcisop2ACk3Q7SmI?=
- =?us-ascii?Q?KuPrv1wy6RG1f2yDTGiFidW+H1JjIw7bmAsFob7ku6dDj+DKTiFQcx9Ba5Tc?=
- =?us-ascii?Q?dBWc9YPtEXCVxI2LD8ribNfuBeLFAWboTmNbVPDPvu1nZXYmm7Fl6JUvwklw?=
- =?us-ascii?Q?mIVM4tEOlMs/tdZ3eM1IjU7HMATrycTyZJqik6Mpl9A8NQ3ybEHKFq5TzQlc?=
- =?us-ascii?Q?XUb8Efkf2awIzT/DlPVrCyZgmhjtHAp5BqbdkPrJt2lYGkp3Wldn2kNYSM2b?=
- =?us-ascii?Q?cfV1oNK6YzE3RNxH+EWkFMTZ0jhWWGJ/ppC77ytLIUYF8a1/pzLehubZ/MqT?=
- =?us-ascii?Q?la4MBbEZYW51U5xpZihjxZbEuaicJzHdPPz8kxNPDT5L1p0WaFOtpm0U9Ngt?=
- =?us-ascii?Q?y2md7amDqfRVoeDmfbCzq+z3ntDY0/8qdBPqUF7/OjQkW/tEYt54INtrYjOJ?=
- =?us-ascii?Q?OWko5ER0ScTcYgQvVyWiJx+rfise/xpc6Qf/JnI+shSp0xPtUEMI7CXMujJH?=
- =?us-ascii?Q?VhfUEFoXY8NaFDofmT+MGgrAMu60RBF7t6qURDtOQOYlm844G9VAOrNcFkEE?=
- =?us-ascii?Q?fH/PSgDQTgEJMYpruk7egeZt/9EyI3ujVZVWENvhzEa5OJ3PnnERA1o2CcNL?=
- =?us-ascii?Q?1bzA34cXNKlfAp68JfJl/WBxXWrF4t+DbLroDaBMQFs88B1176/dMC9sJxxa?=
- =?us-ascii?Q?ooLAPswaxThniKvb/ggYRONdbgZGXMieAHrlMAucqALB8lgit9ULVp70PHuY?=
- =?us-ascii?Q?W4v6RCJEnn4GAXXW/zvn6Tw5HwYxaarUhwW2KQUOaGE3RsyPwP7Ebau4ZUr3?=
- =?us-ascii?Q?FkTfMpSDsKciq2nph5bgP56cKQMl5hlMdNqp3ADc+s8SxvRuBG3a6H3SSC8Q?=
- =?us-ascii?Q?fHCKS9iIqDJi3ziZgh9EPtss3ZzZSjdTbxQ0nl5/xD9DwdmTfQXYwmTizhDv?=
- =?us-ascii?Q?1Uf8/ciJYQIqE3Ro+J7lWvtmpaqdSH7x9sJTY9NpxveZToEdyq1oL/ptyl7K?=
- =?us-ascii?Q?LB8xawPuAJkmpXEbWKW88bHAiKk62r6zu55yuHERC3eQ6oDe4MNEqJ16aExA?=
- =?us-ascii?Q?RTAHJZm6USamv8tmKNartVvygxCYj1e3wmU60iSKqAL4SAtyQfO63+BBLAzQ?=
- =?us-ascii?Q?xV+9elGXDBvz7wS4GElJ6ysysXfOog4uiZdJHSDX6barWPumg8zT4RIShOEL?=
- =?us-ascii?Q?bQiEBrxIYVMYey3qLZyCBDlUP45I/my41hLRapgjO7OAXwjiz+ySNfce3uAo?=
- =?us-ascii?Q?oYGDmlSxTCEoifBRmxprPLf6wCORBfpaMnGWSLgbTNRkdczXbrESJ99pm84z?=
- =?us-ascii?Q?qGBVUr+tPpVTbZZnEhsVMclGftI1dVg6zyUjwOsb9L97878i1yk4WaR0I6tY?=
- =?us-ascii?Q?eA8d6oEHRkVL418WDvZBON2oDmkPv4RqeTWoZEhkdi79mr+iS4+KnnPrxRGE?=
- =?us-ascii?Q?is/F8w=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?3omZs57Avpnm+85sCXjFLstJgMkLqf63TlSsA4Or40X8xZ7Uz0AGBO0uCi+Z?=
+ =?us-ascii?Q?/FwRzO+FccnxKKL5UrAG62vTKpTZ0k4AoD9EcYgeFD23eRDsY3r0EDM67ahv?=
+ =?us-ascii?Q?wfQ3TbgHVfiatdKW7raa00dcz1slWfTzQl3mko6qGJKOsuRhXowNFd9XxNjM?=
+ =?us-ascii?Q?8hLNeo24NeDysZuv5E6vP0Qqd6/dWX6CPigzmU8+lrK4SCs/qRqQAuc8pSs4?=
+ =?us-ascii?Q?ipfJP2pgJHRRfwKTbK+QILLHC7I3IqDEsJXRXMeko3hMCHqilNTaSjVwL1F8?=
+ =?us-ascii?Q?7ctZDXJz+vI83SLlL6w3kwPjV89O1bfdtPD/9/gYWuJl+JSIEUyfB50hDBQX?=
+ =?us-ascii?Q?bscOTZ5S3MAlMovi1j8HVf+Z7DOS8JyEb+hqAcOD67qTbsNVtjyVCM/OzQvA?=
+ =?us-ascii?Q?r0INI9AACK6oCSOLr5t9aym3Ekb+dB10NOj+DaJEe2NPrqAegeWwTr49sn9p?=
+ =?us-ascii?Q?pA+ud5F1PaKyeK6zvR5iw3Pu8gpZvgK6jWlvzUSSdivPpofE+v2ZlydY8vSS?=
+ =?us-ascii?Q?qYsn8QzRP8igDUuiFyY5TGxYZdShnyOCESelFNJ3MsNqLwiVK6JYrTsCBer+?=
+ =?us-ascii?Q?A/MW8webbOEQnfjtqZYDpXE5V0BzJweDalxsUSP/i7/IinJC7aQkHe5hUJP+?=
+ =?us-ascii?Q?7fecKBV9/HZxB/PzH9BjzrKRozyhfqa5Zy9FpUZbMut8L5kCyDHEWy0Y/Bt+?=
+ =?us-ascii?Q?WwXShl+vVCdcUGSbBpFS3WQkIU+zlApCDB4EWGjK/zIEXlslYzjdRpRqL/Fc?=
+ =?us-ascii?Q?oU8TSJj+kbqIwDCjo5gYVYUKTYXz6B/93uYTrRFnBtapf7r8mZ3DCqRFnkeN?=
+ =?us-ascii?Q?mxDctnsK3nRUGz2LtbWxa3nKhqgPieVawUMv/NoOAx4GUsUx0fmz+avX+Gyo?=
+ =?us-ascii?Q?v+vsZ8U2DcHbjm1t8X+B6Q/8a0IuSuq3kLplveaA/oVV5lZ0f4gbFjHhHOcW?=
+ =?us-ascii?Q?InMjZ5x2LyX9fi2cqLMbohO+VAg9oZQw+M+rdMyGD1BxXqOywFxRiy2koHbB?=
+ =?us-ascii?Q?tpaldEyjiSG7aS8GBRMmbNer87HcAS4aYLsa6k6xU6CiuPkGITEGQNgeo7J0?=
+ =?us-ascii?Q?VfnfXwaJyOXtHh2jDfSUib7XtEf7NsD9Jj0siSFXWexA1HFxWyoSnl3gZBf2?=
+ =?us-ascii?Q?zjnB5krDeqsSeNfSllAbZgaiaPlaaexe2pajMIVfOOcYeGQv12iBp2AVA3G3?=
+ =?us-ascii?Q?5FcXwkNMaEQ4gluJPCFutgims+jCg/yTvkz9fOjJ++XVdSteu0Q5DdnQjQnL?=
+ =?us-ascii?Q?w1NwElWPYkdFYR2G11bKS7Wd2fONCWV74X4i14LnhlPq/b4GX+1dboAaMNmi?=
+ =?us-ascii?Q?d9XmdsrH7vEAOH/5Hdw1pdFijc6M29BGGGQ/tVRbPQjeciVctPhL50CFSKxC?=
+ =?us-ascii?Q?d1LmM9e6zT9Lni6A+SJHRZ/vWzMTvzSIFabWiJHF3aUQrS2Mz35pZJ7r6k7a?=
+ =?us-ascii?Q?WCNHty4NV0aMUnCaGRuxow+MlfWO24DkWZOuRehwbMMjr/zDZ95OY1LfVixR?=
+ =?us-ascii?Q?IZsbn4SJF/iAjdasLFqU/XIOl3IO8jc5cP4iAWclVyEGL0oa0RT1JyKdwEhF?=
+ =?us-ascii?Q?I7mnJNi6enfwwPwVDbeoQTHZ4vHlAKWNqYmpwdiiItDkMrNjeSnVslSmZAj+?=
+ =?us-ascii?Q?WwMejokZI8Jtibve3CzWn2iQuSGqGoF0nEWGtCt0R9Cr9xMdQ0/6uby3zJZV?=
+ =?us-ascii?Q?nJjpNA=3D=3D?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4aa25c57-90f8-4a60-e285-08d9b3710c12
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3d4642dc-b0e8-4f86-3cda-08d9b3710de2
 X-MS-Exchange-CrossTenant-AuthSource: DM5PR10MB1466.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Nov 2021 19:47:16.6315 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Nov 2021 19:47:19.7121 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: bfQ9gDJROhw5BqX2ONOZ+yV4GLhu0WcAlRx4/yYolmMuxrZoOLunP043sWrx4ZNUBJg6q/1UNz1kU6z0THScWQjsA9EGVbeN1Ji9pq0MEIo=
+X-MS-Exchange-CrossTenant-UserPrincipalName: BQOn3NHZ7fCZFmm612IjtEhjxKq+k3s8AO5DZznO9YfbbyVv1kKxoKRrH7rBl4j+OpStIk2iiNgGZupYB0xNyCPEp9ISrPIi0snZxZjhx0Y=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR10MB1307
 X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10183
  signatures=668683
@@ -171,8 +171,8 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0
  suspectscore=0 mlxlogscore=999 spamscore=0 phishscore=0 bulkscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
  definitions=main-2111290092
-X-Proofpoint-GUID: HCMBK9iL5YiZvYee12F0HTBoRfc8GeK7
-X-Proofpoint-ORIG-GUID: HCMBK9iL5YiZvYee12F0HTBoRfc8GeK7
+X-Proofpoint-GUID: AYVkpCwPD6VBig1QPtzEALt5Z0pUXT8W
+X-Proofpoint-ORIG-GUID: AYVkpCwPD6VBig1QPtzEALt5Z0pUXT8W
 Cc: Christoph Hellwig <hch@lst.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -190,66 +190,51 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This patchset adds a couple new options to kernel_clone_args for IO thread
-like/related users. Instead of adding new fields to kernel_clone_args for
-each option, this moves us to a flags based approach by first converting
-io_thread.
+From: Christian Brauner <christian.brauner@ubuntu.com>
 
+Since this is mirroring kthread's sig ignore api introduced in
+
+commit 10ab825bdef8 ("change kernel threads to ignore signals instead of
+blocking them")
+
+this patch adds an option flag, USER_WORKER_SIG_IGN, handled in
+copy_process() after copy_sighand() and copy_signals() to ease the
+transition from kthreads to this new api.
+
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Suggested-by: Christian Brauner <christian.brauner@ubuntu.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 ---
- include/linux/sched/task.h | 4 +++-
- kernel/fork.c              | 4 ++--
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ include/linux/sched/task.h | 1 +
+ kernel/fork.c              | 3 +++
+ 2 files changed, 4 insertions(+)
 
 diff --git a/include/linux/sched/task.h b/include/linux/sched/task.h
-index 058d7f371e25..65d5ec3a8a04 100644
+index e094502b2eea..f8a658700075 100644
 --- a/include/linux/sched/task.h
 +++ b/include/linux/sched/task.h
-@@ -18,8 +18,11 @@ struct css_set;
- /* All the bits taken by the old clone syscall. */
- #define CLONE_LEGACY_FLAGS 0xffffffffULL
+@@ -21,6 +21,7 @@ struct css_set;
+ #define USER_WORKER		BIT(0)
+ #define USER_WORKER_IO		BIT(1)
+ #define USER_WORKER_NO_FILES	BIT(2)
++#define USER_WORKER_SIG_IGN	BIT(3)
  
-+#define USER_WORKER_IO		BIT(0)
-+
  struct kernel_clone_args {
  	u64 flags;
-+	u32 worker_flags;
- 	int __user *pidfd;
- 	int __user *child_tid;
- 	int __user *parent_tid;
-@@ -31,7 +34,6 @@ struct kernel_clone_args {
- 	/* Number of elements in *set_tid */
- 	size_t set_tid_size;
- 	int cgroup;
--	int io_thread;
- 	struct cgroup *cgrp;
- 	struct css_set *cset;
- };
 diff --git a/kernel/fork.c b/kernel/fork.c
-index 3244cc56b697..6effd839d566 100644
+index a47bec00f37c..c9152596a285 100644
 --- a/kernel/fork.c
 +++ b/kernel/fork.c
-@@ -2023,7 +2023,7 @@ static __latent_entropy struct task_struct *copy_process(
- 	p = dup_task_struct(current, node);
- 	if (!p)
- 		goto fork_out;
--	if (args->io_thread) {
-+	if (args->worker_flags & USER_WORKER_IO) {
- 		/*
- 		 * Mark us an IO worker, and block any signal that isn't
- 		 * fatal or STOP
-@@ -2524,7 +2524,7 @@ struct task_struct *create_io_thread(int (*fn)(void *), void *arg, int node)
- 		.exit_signal	= (lower_32_bits(flags) & CSIGNAL),
- 		.stack		= (unsigned long)fn,
- 		.stack_size	= (unsigned long)arg,
--		.io_thread	= 1,
-+		.worker_flags	= USER_WORKER_IO,
- 	};
+@@ -2211,6 +2211,9 @@ static __latent_entropy struct task_struct *copy_process(
+ 	if (retval)
+ 		goto bad_fork_cleanup_io;
  
- 	return copy_process(NULL, 0, node, &args);
++	if (args->worker_flags & USER_WORKER_SIG_IGN)
++		ignore_signals(p);
++
+ 	stackleak_task_init(p);
+ 
+ 	if (pid != &init_struct_pid) {
 -- 
 2.25.1
 
