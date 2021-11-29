@@ -1,64 +1,64 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8CC32C43219
-	for <virtualization@archiver.kernel.org>; Mon, 29 Nov 2021 10:22:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3EF7FC43217
+	for <virtualization@archiver.kernel.org>; Mon, 29 Nov 2021 10:22:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 3ED0D60A56;
-	Mon, 29 Nov 2021 10:22:39 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 9D5C383281;
+	Mon, 29 Nov 2021 10:22:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 08sG-jS0OsHH; Mon, 29 Nov 2021 10:22:38 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kMHOtOl8ktGI; Mon, 29 Nov 2021 10:22:37 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 6433960A64;
-	Mon, 29 Nov 2021 10:22:37 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id F258E830E2;
+	Mon, 29 Nov 2021 10:22:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3518FC0044;
-	Mon, 29 Nov 2021 10:22:35 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CDEADC0055
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D2DC5C005F;
+	Mon, 29 Nov 2021 10:22:34 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4CFF1C0049
  for <virtualization@lists.linux-foundation.org>;
  Mon, 29 Nov 2021 10:22:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id C690241C1A
+ by smtp3.osuosl.org (Postfix) with ESMTP id 62B9160A48
  for <virtualization@lists.linux-foundation.org>;
  Mon, 29 Nov 2021 10:22:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=infradead.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id M-pe4OHytwPd
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id KZILp7cx1eel
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 10:22:32 +0000 (UTC)
+ Mon, 29 Nov 2021 10:22:31 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 11FFB41C16
+ by smtp3.osuosl.org (Postfix) with ESMTPS id BC7DF60A43
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 10:22:32 +0000 (UTC)
+ Mon, 29 Nov 2021 10:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=uudfL2VOAfnu+ewydEXNpXNrXSozdwtbo/7yz/6Xsyc=; b=GajxwQfnuRf8VNuHWwzpK3w2Kr
- TqdSnuptioNAUf6g2eYsDUaOY3wUSVh6WJEaaeuiIaRQdtIMtFzwXgznsr/myS1f4+p6gNtCq1PA3
- j+ngJRZXUiLF7NuiXS4EcXSUdQS1M1N4XPMQf0Jv+uaU6xYi6mSorvMUo0XDc9GwXwLixh8kk2VuU
- XNwgx/QQqXU+oU8o7DBBsRLxvPasm/bh55cCZ9HZB4Hdl27txeSkLuQ+zYL/BHZi9Sm8eaZP7AN5J
- GMFt5WgLHfNNj9gg/9v2kOoce//299JKLbvqaL5Td+Gyfcooc55mX3WgnyZO8W1NMQIf4DGTE2IJJ
- vorV2FIQ==;
+ bh=3l7FLtzAqnYh4gF+Ec/d9OSuDMjLokSs8f79jM8yBAE=; b=dFflzIo0AA/DU/9aMi6QPwtNhr
+ 5GIHF36SJArozdQryqg5utOMEdpIE+RdBiIhAzfx3HDhmEfVNpWthQvTD+P8Mj3aY3hWFt3gX1SZg
+ pXIW4nYaWd3RSBYfXpg/z1mwBi8fkeM0/s68yIZ4fKeCCnylRVMH5zyqakroauNowO+h+VS3pBzU8
+ FsKzaSOiVpS/WyyMhuRPKBzzzuM9tkW9E4i6VAjndNiqsPbPwmYtnE6lNsg7RKg0E93kzc6VMkhPM
+ l5hj4VX9PjEWCR6m32bNrlDMVJ1sBRpS+auVWQ2RReQRu8bA6qImk9rENhP/heQg6MhukJE/5leIb
+ ggNbP+yg==;
 Received: from [2001:4bb8:184:4a23:724a:c057:c7bf:4643] (helo=localhost)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1mrdnd-0073N9-Jt; Mon, 29 Nov 2021 10:22:18 +0000
+ id 1mrdnZ-0073LD-CV; Mon, 29 Nov 2021 10:22:14 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 10/29] dm-log-writes: add a log_writes_dax_pgoff helper
-Date: Mon, 29 Nov 2021 11:21:44 +0100
-Message-Id: <20211129102203.2243509-11-hch@lst.de>
+Subject: [PATCH 07/29] xfs: factor out a xfs_setup_dax_always helper
+Date: Mon, 29 Nov 2021 11:21:41 +0100
+Message-Id: <20211129102203.2243509-8-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211129102203.2243509-1-hch@lst.de>
 References: <20211129102203.2243509-1-hch@lst.de>
@@ -68,7 +68,8 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
 Cc: nvdimm@lists.linux.dev, Mike Snitzer <snitzer@redhat.com>,
  linux-s390@vger.kernel.org, linux-erofs@lists.ozlabs.org,
  virtualization@lists.linux-foundation.org, linux-xfs@vger.kernel.org,
- dm-devel@redhat.com, linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
+ dm-devel@redhat.com, "Darrick J . Wong" <djwong@kernel.org>,
+ linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
  Ira Weiny <ira.weiny@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -86,104 +87,83 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Add a helper to perform the entire remapping for DAX accesses.  This
-helper open codes bdev_dax_pgoff given that the alignment checks have
-already been done by the submitting file system and don't need to be
-repeated.
+Factor out another DAX setup helper to simplify future changes.  Also
+move the experimental warning after the checks to not clutter the log
+too much if the setup failed.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Mike Snitzer <snitzer@redhat.com>
 Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
 ---
- drivers/md/dm-log-writes.c | 42 +++++++++++++++-----------------------
- 1 file changed, 17 insertions(+), 25 deletions(-)
+ fs/xfs/xfs_super.c | 47 +++++++++++++++++++++++++++-------------------
+ 1 file changed, 28 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/md/dm-log-writes.c b/drivers/md/dm-log-writes.c
-index 3155875d4e5b0..cdb22e7a1d0da 100644
---- a/drivers/md/dm-log-writes.c
-+++ b/drivers/md/dm-log-writes.c
-@@ -947,17 +947,21 @@ static int log_dax(struct log_writes_c *lc, sector_t sector, size_t bytes,
- 	return 0;
+diff --git a/fs/xfs/xfs_super.c b/fs/xfs/xfs_super.c
+index e21459f9923a8..875fd3151d6c9 100644
+--- a/fs/xfs/xfs_super.c
++++ b/fs/xfs/xfs_super.c
+@@ -340,6 +340,32 @@ xfs_buftarg_is_dax(
+ 			bdev_nr_sectors(bt->bt_bdev));
  }
  
-+static struct dax_device *log_writes_dax_pgoff(struct dm_target *ti,
-+		pgoff_t *pgoff)
++static int
++xfs_setup_dax_always(
++	struct xfs_mount	*mp)
 +{
-+	struct log_writes_c *lc = ti->private;
++	struct super_block	*sb = mp->m_super;
 +
-+	*pgoff += (get_start_sect(lc->dev->bdev) >> PAGE_SECTORS_SHIFT);
-+	return lc->dev->dax_dev;
++	if (!xfs_buftarg_is_dax(sb, mp->m_ddev_targp) &&
++	   (!mp->m_rtdev_targp || !xfs_buftarg_is_dax(sb, mp->m_rtdev_targp))) {
++		xfs_alert(mp,
++			"DAX unsupported by block device. Turning off DAX.");
++		goto disable_dax;
++	}
++
++	if (xfs_has_reflink(mp)) {
++		xfs_alert(mp, "DAX and reflink cannot be used together!");
++		return -EINVAL;
++	}
++
++	xfs_warn(mp, "DAX enabled. Warning: EXPERIMENTAL, use at your own risk");
++	return 0;
++
++disable_dax:
++	xfs_mount_set_dax_mode(mp, XFS_DAX_NEVER);
++	return 0;
 +}
 +
- static long log_writes_dax_direct_access(struct dm_target *ti, pgoff_t pgoff,
- 					 long nr_pages, void **kaddr, pfn_t *pfn)
- {
--	struct log_writes_c *lc = ti->private;
--	sector_t sector = pgoff * PAGE_SECTORS;
--	int ret;
-+	struct dax_device *dax_dev = log_writes_dax_pgoff(ti, &pgoff);
+ STATIC int
+ xfs_blkdev_get(
+ 	xfs_mount_t		*mp,
+@@ -1593,26 +1619,9 @@ xfs_fs_fill_super(
+ 		sb->s_flags |= SB_I_VERSION;
  
--	ret = bdev_dax_pgoff(lc->dev->bdev, sector, nr_pages * PAGE_SIZE, &pgoff);
--	if (ret)
--		return ret;
--	return dax_direct_access(lc->dev->dax_dev, pgoff, nr_pages, kaddr, pfn);
-+	return dax_direct_access(dax_dev, pgoff, nr_pages, kaddr, pfn);
- }
- 
- static size_t log_writes_dax_copy_from_iter(struct dm_target *ti,
-@@ -966,11 +970,9 @@ static size_t log_writes_dax_copy_from_iter(struct dm_target *ti,
- {
- 	struct log_writes_c *lc = ti->private;
- 	sector_t sector = pgoff * PAGE_SECTORS;
-+	struct dax_device *dax_dev = log_writes_dax_pgoff(ti, &pgoff);
- 	int err;
- 
--	if (bdev_dax_pgoff(lc->dev->bdev, sector, ALIGN(bytes, PAGE_SIZE), &pgoff))
--		return 0;
+ 	if (xfs_has_dax_always(mp)) {
+-		bool rtdev_is_dax = false, datadev_is_dax;
 -
- 	/* Don't bother doing anything if logging has been disabled */
- 	if (!lc->logging_enabled)
- 		goto dax_copy;
-@@ -981,34 +983,24 @@ static size_t log_writes_dax_copy_from_iter(struct dm_target *ti,
- 		return 0;
+-		xfs_warn(mp,
+-		"DAX enabled. Warning: EXPERIMENTAL, use at your own risk");
+-
+-		datadev_is_dax = xfs_buftarg_is_dax(sb, mp->m_ddev_targp);
+-		if (mp->m_rtdev_targp)
+-			rtdev_is_dax = xfs_buftarg_is_dax(sb,
+-						mp->m_rtdev_targp);
+-		if (!rtdev_is_dax && !datadev_is_dax) {
+-			xfs_alert(mp,
+-			"DAX unsupported by block device. Turning off DAX.");
+-			xfs_mount_set_dax_mode(mp, XFS_DAX_NEVER);
+-		}
+-		if (xfs_has_reflink(mp)) {
+-			xfs_alert(mp,
+-		"DAX and reflink cannot be used together!");
+-			error = -EINVAL;
++		error = xfs_setup_dax_always(mp);
++		if (error)
+ 			goto out_filestream_unmount;
+-		}
  	}
- dax_copy:
--	return dax_copy_from_iter(lc->dev->dax_dev, pgoff, addr, bytes, i);
-+	return dax_copy_from_iter(dax_dev, pgoff, addr, bytes, i);
- }
  
- static size_t log_writes_dax_copy_to_iter(struct dm_target *ti,
- 					  pgoff_t pgoff, void *addr, size_t bytes,
- 					  struct iov_iter *i)
- {
--	struct log_writes_c *lc = ti->private;
--	sector_t sector = pgoff * PAGE_SECTORS;
-+	struct dax_device *dax_dev = log_writes_dax_pgoff(ti, &pgoff);
- 
--	if (bdev_dax_pgoff(lc->dev->bdev, sector, ALIGN(bytes, PAGE_SIZE), &pgoff))
--		return 0;
--	return dax_copy_to_iter(lc->dev->dax_dev, pgoff, addr, bytes, i);
-+	return dax_copy_to_iter(dax_dev, pgoff, addr, bytes, i);
- }
- 
- static int log_writes_dax_zero_page_range(struct dm_target *ti, pgoff_t pgoff,
- 					  size_t nr_pages)
- {
--	int ret;
--	struct log_writes_c *lc = ti->private;
--	sector_t sector = pgoff * PAGE_SECTORS;
-+	struct dax_device *dax_dev = log_writes_dax_pgoff(ti, &pgoff);
- 
--	ret = bdev_dax_pgoff(lc->dev->bdev, sector, nr_pages << PAGE_SHIFT,
--			     &pgoff);
--	if (ret)
--		return ret;
--	return dax_zero_page_range(lc->dev->dax_dev, pgoff,
--				   nr_pages << PAGE_SHIFT);
-+	return dax_zero_page_range(dax_dev, pgoff, nr_pages << PAGE_SHIFT);
- }
- 
- #else
+ 	if (xfs_has_discard(mp)) {
 -- 
 2.30.2
 
