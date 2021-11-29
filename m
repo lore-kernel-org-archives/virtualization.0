@@ -1,105 +1,105 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CEBF7C433EF
-	for <virtualization@archiver.kernel.org>; Mon, 29 Nov 2021 19:47:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id CD4A2C43219
+	for <virtualization@archiver.kernel.org>; Mon, 29 Nov 2021 19:47:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 31E8240445;
-	Mon, 29 Nov 2021 19:47:38 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id 82883404FE;
+	Mon, 29 Nov 2021 19:47:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YpufhKgkx3I7; Mon, 29 Nov 2021 19:47:36 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id i0Ecdvb32yBc; Mon, 29 Nov 2021 19:47:38 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 28A2340419;
-	Mon, 29 Nov 2021 19:47:36 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 2F0954050D;
+	Mon, 29 Nov 2021 19:47:38 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 25062C0042;
-	Mon, 29 Nov 2021 19:47:35 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0CF0DC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B7502C005F;
+	Mon, 29 Nov 2021 19:47:36 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 656A8C0012
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 19:47:33 +0000 (UTC)
+ Mon, 29 Nov 2021 19:47:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id E333F81B3E
+ by smtp3.osuosl.org (Postfix) with ESMTP id 4228360AA8
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 19:47:32 +0000 (UTC)
+ Mon, 29 Nov 2021 19:47:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="R4VMuKdh";
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=oracle.com header.b="bna/Y2Hp";
  dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="ZWC1noqx"
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nRap1Dc6ugPK
+ header.b="oWnutVFf"
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id Tjd358wa19X3
  for <virtualization@lists.linux-foundation.org>;
  Mon, 29 Nov 2021 19:47:32 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com
- [205.220.177.32])
- by smtp1.osuosl.org (Postfix) with ESMTPS id 0984F81AAC
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
+ [205.220.165.32])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 901B860A84
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 19:47:31 +0000 (UTC)
-Received: from pps.filterd (m0246630.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1ATJVDf3026597; 
- Mon, 29 Nov 2021 19:47:27 GMT
+ Mon, 29 Nov 2021 19:47:32 +0000 (UTC)
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+ by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1ATJV3JE028124; 
+ Mon, 29 Nov 2021 19:47:22 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
  h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version;
- s=corp-2021-07-09; bh=ZwRoUTCdhHp+eUdKNxuRYpvCkMuqJs+ple1/71xBtLY=;
- b=R4VMuKdhsbPfvmD/qatoLntO6Dlk4PxGRFyCQOxwMDTN940lI9nrTCP85gs3+xEFZrTU
- apk/i4KQo4y4JQuZ6le2IFJVNe+YgazW4wj0hlBw5hM/kaDVgxGy3Ci4O0C0md8xJTxN
- WblI9H0lNfGJ3aqYKDEsPiQRA3VwpyKdpdE0uBE2bfifLyMc3t3N68hNJN8SpDOgHt7O
- PRKNPc7FxQ3JKMLllK4lPBhr6xIV+a7iwSdBdxwjqJUY6hbl1Cx7IAmFh65L2tOpLkke
- fM7jZXANrdbC4WUnm+zUvqftQIbQXwpiBu+yJfb/v/n7CY5pMH3rTW54ZKINvOJQeO3n Mg== 
+ s=corp-2021-07-09; bh=qV7PqssXqUU8T+bJXqu04KrTBtYtiapct/HQox+jAEY=;
+ b=bna/Y2HpfcxbBoE/LYGhMCgSf0t0POVU0M0VVqw8hCbTy0JAz0XEnmT8EgCH/ItirZqY
+ WWQzG/V4Lgd18WWkiuOGpM2WK6y7W7ZKJBIgh446CTH4/DB05Uoleyx5tw4QdcAi8vT2
+ WSePSKx+J9zJVNA/D/CqUomO/24osveGw/fg+a0qsTJhkZng/X4fc0rGDAViYaANWG1o
+ Ct6ufAad3YaahdsglcxoV6w3Fqy1C0yNCletH6kXU3tRprjR3l4BH2p2/vx9a5vuqAUp
+ PpXOim6sYEnnAoSdCMj4u+7uFHNlBJg8nijxDkzzfaVseZ6+UKJkieQDYow9vwirDCcs kw== 
 Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
- by mx0b-00069f02.pphosted.com with ESMTP id 3cmt8c3wjj-1
+ by mx0b-00069f02.pphosted.com with ESMTP id 3cmu1wbqxs-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 29 Nov 2021 19:47:26 +0000
+ Mon, 29 Nov 2021 19:47:22 +0000
 Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
- by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 1ATJjb8i181733;
- Mon, 29 Nov 2021 19:47:26 GMT
+ by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 1ATJjb8b181733;
+ Mon, 29 Nov 2021 19:47:21 GMT
 Received: from nam04-mw2-obe.outbound.protection.outlook.com
  (mail-mw2nam08lp2172.outbound.protection.outlook.com [104.47.73.172])
- by aserp3030.oracle.com with ESMTP id 3ckaqdcbmb-10
+ by aserp3030.oracle.com with ESMTP id 3ckaqdcbmb-4
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 29 Nov 2021 19:47:26 +0000
+ Mon, 29 Nov 2021 19:47:20 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=IeO/F5Uw2YhYG47iVKxdz2vpABUDYviKBJSRnkelUkgCAszfPFcHi7RwrMFk7zP5TG9nELpjV41MsWvJjAVKKBm5IwfQd16u/AndmeOqKJfrrehTfuHZk9+7dSeP7uhWRcz4zc6qz39tGmIFGvjrGafZF5Fa4kPjva+GCM+RLlN9P/vgcjr3/BIAFNF1CvYk+VJh/rGxfvT4M9SdM3wt3FdhRSSUzBEYb1MIccnGBtUnKuLhIo+dgpQewyWR1IrkyhF+OzAmOGBuW/Dpj1gDvSAujLYQH60LaXDgDPK9lUICtMMHLCbzuIwI7+9dpaLlFCDi0SU71ANAWXWXTjo2Bw==
+ b=MpsgPHgrJNrW/fE5Zpn/R6MpfogS54i95VXRvegbkV+mnio/Zrd8aCAT7gf8aKl+hDga0kJP7V0lto5hRQUJxNCaAm4PCM8ApMb5TYAT8R0ojGPjldd8J9YIMg1s51tOJvS3/XCJF7uV6PBpqBCLqEenjPvljdJCZh0pdCYR12pvuE5/+zj0vEpcoB0MhMr7z2TEyozwae9VnSAR5VyHU6YCXFdOZCONngDyaQE0kfLtdWPkQHHwl5MQEwZ57sY+qNs19FEaWFdH5ZXa7V98mRBFtO6SWrpQamPGTGwIy8XqlEt6KSfW4BMKEV+pVmj5vjrhgJwSkG8HMImGn0H9EA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ZwRoUTCdhHp+eUdKNxuRYpvCkMuqJs+ple1/71xBtLY=;
- b=nXhRiemcAXEyg6qyZ+V0E3Vg7KruvHmOzgCFi1GcNb0eNRHDhBoQkESPI2T9VYj4aiLkJZJwocipv7QNfSvDxQFMAatG79zhAdUp6ILUk/VNDl1cTc+anANr4jM53YvDl6EKvehYwquSfVWbz+H7LCCVD9J8ZrZk2B1zwL3+Ny95z7OpHxTNE6lh0GFesiDWZPCQ8EwywK5uQh+OU9txEI88KzvuLpM1Ofa4hQKExy0m/HxN+7toYv42X6+vv50r/vC9eNsvq3e/p2YN4YqWA9HDpysXIA6SPLSplAweBtl1CUkr4636VL1GaWzcsuRQiEMEFfyFWfs9s+ix7/4oug==
+ bh=qV7PqssXqUU8T+bJXqu04KrTBtYtiapct/HQox+jAEY=;
+ b=WisAscbNXtX30D40Ozq4DDSXFlTvfEkNfHxN6u3PfD6ostQjF8FXzvjSshIixbcpjzF8Yv6oEKwPg9+KTdqpa3uO8TuB+M2XJEOEqJ7Gto3OCl0G+RuaKUAR4jx1iNzkqZE2+SlR5y4qgNR4zNGs5ujsSXn6gplqcQjXoiY8nONNhk8tfNKGWJ5ONFo5vhDb5iK8FKcZq2FMN9fUPYonCGw7FrDq8PNo2dB5Igzt+qeahtn/BJf60RMVYSafq4sVHUkTnuVvkaSf9pD5N5NWyq5aLj+PYebZjomjE6d04q3VxvdPwPfCdAeyvNM3UgVXnrH2cO5ua7DyOopZk6HncA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ZwRoUTCdhHp+eUdKNxuRYpvCkMuqJs+ple1/71xBtLY=;
- b=ZWC1noqxi1BeDoPOZEFcct6fvWtGgbccpw2AhJvSoVlQWE6ZJq1Ys9U1k6K/LkQ8WS2z5VJn2JMrrCtDaBieDaHjpybXXJpUU8yi0BvLs66rcBnj48IuqLkFDcSVuZMpmRS9lRX/4AiyyIlucl6R6ZYs0HL4WEO+rcKjkoed0sk=
+ bh=qV7PqssXqUU8T+bJXqu04KrTBtYtiapct/HQox+jAEY=;
+ b=oWnutVFf1xEsNx1nZMtxkEMdwYcJbWqt3+JGatnVgFpz5GdiF31Q1FDW3aXMU/bqWJHU2KMGWwnL6qZ3o8evu7BXENtGo9mWIZLQxMrWN97C8YAzeG8HBJWaRvHxDJBdzaCUcZmLmkUs17GOjjmr3yNmz7JdTr6+rrU6e3vozcs=
 Received: from DM5PR10MB1466.namprd10.prod.outlook.com (2603:10b6:3:b::7) by
  DM5PR10MB1307.namprd10.prod.outlook.com (2603:10b6:3:e::9) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4734.21; Mon, 29 Nov 2021 19:47:24 +0000
+ 15.20.4734.21; Mon, 29 Nov 2021 19:47:18 +0000
 Received: from DM5PR10MB1466.namprd10.prod.outlook.com
  ([fe80::601a:d0f6:b9db:f041]) by DM5PR10MB1466.namprd10.prod.outlook.com
  ([fe80::601a:d0f6:b9db:f041%11]) with mapi id 15.20.4734.024; Mon, 29 Nov
- 2021 19:47:24 +0000
+ 2021 19:47:18 +0000
 From: Mike Christie <michael.christie@oracle.com>
 To: geert@linux-m68k.org, vverma@digitalocean.com, hdanton@sina.com,
  hch@infradead.org, stefanha@redhat.com, jasowang@redhat.com,
  mst@redhat.com, sgarzare@redhat.com,
  virtualization@lists.linux-foundation.org,
  christian.brauner@ubuntu.com, axboe@kernel.dk, linux-kernel@vger.kernel.org
-Subject: [PATCH V6 09/10] vhost: move worker thread fields to new struct
-Date: Mon, 29 Nov 2021 13:47:06 -0600
-Message-Id: <20211129194707.5863-10-michael.christie@oracle.com>
+Subject: [PATCH V6 03/10] fork: add USER_WORKER flag to not dup/clone files
+Date: Mon, 29 Nov 2021 13:47:00 -0600
+Message-Id: <20211129194707.5863-4-michael.christie@oracle.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20211129194707.5863-1-michael.christie@oracle.com>
 References: <20211129194707.5863-1-michael.christie@oracle.com>
@@ -110,59 +110,59 @@ MIME-Version: 1.0
 Received: from localhost.localdomain (73.88.28.6) by
  CH0PR03CA0086.namprd03.prod.outlook.com (2603:10b6:610:cc::31) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4734.22 via Frontend Transport; Mon, 29 Nov 2021 19:47:24 +0000
+ 15.20.4734.22 via Frontend Transport; Mon, 29 Nov 2021 19:47:17 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: d567de65-9ff2-40f4-63c6-08d9b37110ec
+X-MS-Office365-Filtering-Correlation-Id: 73a33d6a-6bb9-4e65-1c86-08d9b3710d37
 X-MS-TrafficTypeDiagnostic: DM5PR10MB1307:
-X-Microsoft-Antispam-PRVS: <DM5PR10MB1307E8FFB25B068487C53D60F1669@DM5PR10MB1307.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:5797;
+X-Microsoft-Antispam-PRVS: <DM5PR10MB1307367466538E0EC0DEF0FAF1669@DM5PR10MB1307.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:6790;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: yrVY+eAYJZOEnjEdJQefCFMvJxbtbzFkFEbL3o1zu10duftqeXNY1yKuiqqAbENMKQPA37nMRXgtUtj3au3mCmmN/PWCaV14MukZQl5ykU3El9AB5br/K/coWCfZR2onohd+22dHiR0R8zVGHhxdFVG51OWMZvEdnyTN3cfYeJLoSR4t0FbnRdi2HhpKkQz6uV+LA7tQFTtu8sZSXgRlk8SQkvZ2LiadJyZUJMQHnSIinjCbL2l715bzMDbezb+k/SQgeSWBMtGD7AS29i18nLh8bT1FIy9CJk5b9OPo/TIunWkdf0vRyg01ir2aA3rOPqHCYbIwQPm703mPlWxGIRAiOV//GHLjRUkcFClS6aVVcu8VEpZPCkGMXNZiEkXpoIWBJdYZatCnnXg42tiuidILTsEuQw/0u2sCg17ZBQzi/Cd3qeFWatSeyJY6zcb1vV/vBcVUKhWfBrc1KuG92HmDYsgL5wkbOx+McYIwwRarETeIHh6lyC4+FIdsckQg7auRf8SvA6a97IeB3sVtxuB5xtR5t8z+mVMkeqVqmCkcFdgwuvnhDKnzIZNLbvE//OZE0x6dAYal/QRzeJY5tMEZRK3bwijzlD21QLjYZmj0MEXmiHspM3srCkeQCqv90Fo2ZEOaN4UDWtBg9/dbEAdAgiUqDgK+TPHg1pFnGYq7yNno7rR1Kdl19rkA2xf5vUlkgOrOwCZ9l6TqyJhdAjO8rvGq0RdIBAxL60g64rA=
+X-Microsoft-Antispam-Message-Info: GaGjGAvN+gF3tHPCamtP/le5LT+ccu9lJpCvsUDcq3SGn/JV32tTDqMuuyO3gNDHWEJOYTXkZ/vuC1ssE/7JvpkCWeYNzM3jaZUiuNb6p94d41J/3lMw5r4juXQsOeZYMu+lTpeCLiGN/O/SfNmm5aAbbCPMu9yEaoMS82ZAPntoM1V1yINHH37BW64PL/f7LjG4L0c0GeDcL4cEnhlkpYMY9KLmfPL3iXBdVwFh1fBGHEnVMC/mMglFP0UcjtKkL3BSxoVxC5g8GfpxrIdqKsFqMf0Cd5xARGYiFUkLblX7GytXuiO4U5/pNhMWvPGlZHaNkIskYVpFyNSy4miSPXacuc7Mj6Q1wbHrJbdMzIgfe0A26LX0IqPOtnL6pxWG8cvI0Ui4TCSzMSsocWkViRxlBoaKNDibee+4F5VbF1N5oftullglWfOvtMeCm8ElLaeC/h0CILrcP33tO1bNY0u9Zk6pZRNyQ4D0Ot9hOrAg1pSFTx/q/xU2E8BsVQ1qV4r+70m/Boelp57o75vN677nVMQBlyQMYvRKT1EuoI0HC6B2TstpvSn45ER3lrXXptwU0GgOZ2fj8PRhcuk8eqH6e+YKDgILyIP9WeiPPM75LcLo/oKGydQw/0u5QBdpNVBoSMr5zPTWaOosKt4+07qUYBm4LO9vT/SJVJGjwX5AFffYHszRaKtb5bP6eqWfBTzk/V+MhL549Qj67GcyS4/ooZ6Drf8wyYd2MkDouIY=
 X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
  IPV:NLI; SFV:NSPM; H:DM5PR10MB1466.namprd10.prod.outlook.com; PTR:; CAT:NONE;
  SFS:(366004)(6506007)(36756003)(8936002)(8676002)(38350700002)(86362001)(6512007)(2906002)(54906003)(956004)(52116002)(1076003)(26005)(66556008)(66476007)(186003)(508600001)(5660300002)(921005)(6666004)(2616005)(6486002)(66946007)(38100700002)(316002)(83380400001)(4326008)(7416002);
  DIR:OUT; SFP:1101; 
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?sOrbyHWpIxruh1JbzJf83l7c3ONiNYlL2a1uuZq7FiqozBFsjNj9hObyekn7?=
- =?us-ascii?Q?8SE0htrkwNwT57vxlmfLmaVrE3MLNXLIKyIOX3ByPUUUlKsKdicrWKq1s6ej?=
- =?us-ascii?Q?2GUCzKXfmW7wSgw97Inw5Tlc48jXYQAP1Q9yjje8HLiIpQVveXymZwVLWfr1?=
- =?us-ascii?Q?/91hnkZd2+zTSz95Gjmw4D+6piyPjQC7uRqD+RBlsRQChHhyMApcJgb6avjw?=
- =?us-ascii?Q?NMWGiWaHXr8+1GtCm44VVM6bO0I90bQ2US/oRvedmUKS9lO25UCz9tTdar8Y?=
- =?us-ascii?Q?TK+8JeP5abIZM2RMy9JtNrR+r14i3MRHdSlv3VYZmxZIVs0xfz5nvugqtJlW?=
- =?us-ascii?Q?hm9kbigFEcVqwI45EatefZGoQicofiLCe4wFJ1wOpxJoa0DG3nY9X7JZg1W8?=
- =?us-ascii?Q?XhIYXgQ4d8pf4mBIz4+QEE+7osRnT8aL2poFIBh61LI4YBTbo9YgW84Bxuqi?=
- =?us-ascii?Q?qb7V7cjOBD5mwd4OPRD/9485QhWNPZ5znweMM76RaURLkQAbEYNPCBxCf+wT?=
- =?us-ascii?Q?DL1V6qlvPmt8i7giQdFGq9ph3exJEYRAWkeig68WvZ+hs0cpxiLRwmya7j2Z?=
- =?us-ascii?Q?FgMjLFKpq+4tD/KG/f7p6ZEQDKz592a45MuNlRwX+TssZ3USlLfUDhtoPBse?=
- =?us-ascii?Q?+KP4R7K3TVUry1S/ri9ylJ+Exl9ApYEU/m3MX+yT7qpTu+OJ9gVrQqcU4a+J?=
- =?us-ascii?Q?H/niC+LyjZAuID+jOxsOSBzSmB9ooH3B73nSqorpLyRQ1YBgUvyVyQ4xp7D9?=
- =?us-ascii?Q?eg/e+OebY2YnLWvJPo1XAUfYEZ/Rkjj0g0Aw1mYnGu1uU9KwN0szAuOz+wTU?=
- =?us-ascii?Q?aXVNqpB4562JeG36Vb6AyW6dWiyUfOlv/phrhkuPRrhIIeVXusYZyN02A4lt?=
- =?us-ascii?Q?3LU2I/5ZfToQn4ihUmSlOlbIa4DTXNN5xJ86Ny9YQW1zODkNiGevzPU54iuB?=
- =?us-ascii?Q?rBxMDvvF/IRkPzoh9a3lJYD+2pC0woRXcMegIQlWc5ACKVoV3RKH6KxcIHL4?=
- =?us-ascii?Q?gpgMmVJtm9RzBz8R4+qC3zyDZvlJEyS3WkrByef+F3tDK0LsXdOEaQDByLFJ?=
- =?us-ascii?Q?yKdObzrrxfmSNQbKQ9sy9aUlgIVUMqkWDmOHzAoeVrxxsfFfZRYRB7hdzr8c?=
- =?us-ascii?Q?fAeAPRioQtz1NMqQkCLKHRl6UDbgYCFz6t8TU74PCpF6yDoQif862G/Gswge?=
- =?us-ascii?Q?k4AqNH2l3aMenV7PjL51NAa+vEbcmWUSC9vvoHY/bESs5SAJ4SZVqu2Ec/N4?=
- =?us-ascii?Q?QgrM4818bBLkblLHjqiXw/SIeMLwQZyIzm76dWCmRdpTANNzu2Bm+mTGCegT?=
- =?us-ascii?Q?rpsAv8QvglXoopK/JyTJnrah9CHz01O3jRY2yTa7cYOIVTGjVjXEFd6DMdH4?=
- =?us-ascii?Q?UzArliYuiZzuDxgYILVCugRnzQkWnupORqx7rSyUYNLaYQUE5Ojuo1h+TjhE?=
- =?us-ascii?Q?kr5LFFMImzWf/Lvs/haU9z7duMVxoubR/yiar9CvFmf/NMgO+ARS7jqvdogh?=
- =?us-ascii?Q?gTUlBR5QxdWIwad/ZuL8MD371vbNQ3p4oQb+lx7rZDVTuo7de+2uJHLihmYh?=
- =?us-ascii?Q?PhiRSmecutdbZMKWCON9pNbR9r85/MIAssdHxciMSw5Hw4LMBxcRc0hhzW2Q?=
- =?us-ascii?Q?ng0sHF4TT1lIakQP5P17WGHX4snbrRjmzfXA80f9xJTkCeGLIS+U273u2JZE?=
- =?us-ascii?Q?EcEr4g=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?kb+4/N0GNVVSTSxFKLjvSXNTOV9hMeWHs43u/FTLRwpWb7fKh6IpC2N1t0xZ?=
+ =?us-ascii?Q?Y1yHZBTTbKChSG9wuxsAZOn2IxTXDga6jyOjPOvHS7n643JsW02vh4fZXFL4?=
+ =?us-ascii?Q?fXj+RAbHHY3Q+kL3CmYoDLijc3PWXF0RMFL8hWhoExE2DgRiC57NsnAqM2Jc?=
+ =?us-ascii?Q?JZ28w748S0yfqh1/ruru/qgTnjnB71FVVJbVLHENe+9SLJBJSG0JtOgXYye0?=
+ =?us-ascii?Q?mss+0/p+gAolw3ymQV+xiXXIiezDWcF4QulHp+pVD15QWYxIGj2fG+x58dqn?=
+ =?us-ascii?Q?U0JOrmtQQFINeqREjWF2Benv+ycJOX/l63azAwEIzCVdm60xV1K1OCW5xeXn?=
+ =?us-ascii?Q?uAegIPtRbrKgNZFUBI2PEZKCpAnc9aE3H/NnTbyNOKZK3bqS/+JVKnHVr1WS?=
+ =?us-ascii?Q?DMVjEtvlIjomyO2HnJmO8pyQl9Cu0u+ww42jeol0uNHhQiWmR5PSW5sYIkeH?=
+ =?us-ascii?Q?nr3F627KiwgfpFj86Is5ItbFG1VBJIMwIm4k+Y4B2Ue6q46JmT/D9oFAjkUw?=
+ =?us-ascii?Q?RU/FCYxgagmMrZi5byRnF0WhOZmLfKGCRJGeboue7g+7ugfj04CXQ/t933UE?=
+ =?us-ascii?Q?Hv3rVz2QoI/J2Ff6elrPMY+V/22VVSnRLjAvvx7RbrLlfkLjB3Q+5+6P69r+?=
+ =?us-ascii?Q?S7azbwsaf6xXxIh9/G8mYrNaSRDQRvby4HKVX7gz0irVT2xFgrlaOY3qdOAE?=
+ =?us-ascii?Q?JMtGBmB9+u887hZ1NaXk7PyrqRovESjR+fMQItYaeYXu23BP+b3+d2x6NALM?=
+ =?us-ascii?Q?QgLXykeaXC0YBoMNixQz7GGIsv7385hvoiI8rINjVpcnOjkq2XoZ6dwZXTl2?=
+ =?us-ascii?Q?7/fo/CG3woXcfAeld1jzOPYrYbE8Ob0LRfpVIt6KNI0RynnEKeG3n/SPMaGu?=
+ =?us-ascii?Q?F2lc6xpMy7TSsI9pKmGNwrO0cGbUgTbI12jRPKuP6yhnDayucwm46YKDQeGy?=
+ =?us-ascii?Q?Busumfn4oWQZgq9ZBjAcgRSMizu4xRFeYTk9RvGqXhfwIKaQ+nSSEYpfYlFX?=
+ =?us-ascii?Q?kZVYzDBP160cURBuaObvMNWJxaZR3PMaFYfeN0opvfeh9q8QNhhdAi0g9ksO?=
+ =?us-ascii?Q?QWfNXDxUTR45s6eSCBKYXvX6z7E2jW87E95UgBnCcfWebHiUOJY6XJp+Ft4q?=
+ =?us-ascii?Q?KMAzFFvMFFmjarj8AKz8mAkzAlS0Gkmr7YzwvHy6/1lrXIYo6gOk5pVC6d68?=
+ =?us-ascii?Q?nsM+OIMI5u72sRZjkvYzkNhE84niM9m5KfhuqrE8PQWH+ZYrsnDYsoaEg0uL?=
+ =?us-ascii?Q?UDkvL+ZPGA2pQ6YPUV8jdsZI6ypVgqHKbzUl9Ls5S1EuVaaq/NkMpJycIw5z?=
+ =?us-ascii?Q?EVGUVacMQshMfTOVzWKRNs8ea/tccOhva814vxaK7PG14l3EFwI2PuA2Kija?=
+ =?us-ascii?Q?8+k5G4kOs4dNI7OE7jAulEaDY0gcvHBdCeYE81UpbH2VJIhMyTUW5W6doSqn?=
+ =?us-ascii?Q?cNgbo0n1Y3h8L2o4pjvjfG0zzwGdoWq2/v+FvNsna5GEN0smaFZqRu4uPSUJ?=
+ =?us-ascii?Q?VF5NNbjs5WU8N79MAgGHQoUXGO1g6DPGhqHEJKgvlDaO6PyQqLoSTvDMK3/Q?=
+ =?us-ascii?Q?1+AktUX4grzy9sqRV5ys6gRhNuonJVx/pk/2oZp/W2Okf4R47JQDLlATmp7Y?=
+ =?us-ascii?Q?JqJlLmUevjKKTAMziQ8oQdNeumU1QXmSkX5ZoMPmDV9KdUTvjDPWwFlYxPuS?=
+ =?us-ascii?Q?OYsMHA=3D=3D?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d567de65-9ff2-40f4-63c6-08d9b37110ec
+X-MS-Exchange-CrossTenant-Network-Message-Id: 73a33d6a-6bb9-4e65-1c86-08d9b3710d37
 X-MS-Exchange-CrossTenant-AuthSource: DM5PR10MB1466.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Nov 2021 19:47:24.8478 (UTC)
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Nov 2021 19:47:18.6266 (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: eN/tWFj6AOIdy1TEAD5uVNbp+/HPqV1uCu6G6HHg5SrQe910xrDEjC0l4xeeqUSdXrjIb8sW9ZmkD8MPyd+w97AU2+QSwTWbO8+jFOFKyp4=
+X-MS-Exchange-CrossTenant-UserPrincipalName: wbKtTlM2exA8JGXSjtvYs5Gvxw59E6XF2+oOkC0ZgVWIl8ET5UcaMjkWl2zfILDy8EfYpzLkkGmxl4qTqAnPQyoH4jQRFzcavcAkWNAcQbw=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR10MB1307
 X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10183
  signatures=668683
@@ -171,8 +171,8 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0
  suspectscore=0 mlxlogscore=999 spamscore=0 phishscore=0 bulkscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
  definitions=main-2111290092
-X-Proofpoint-ORIG-GUID: lGIee-3MfNxJ4nfXampXt-QXBNiX-oPm
-X-Proofpoint-GUID: lGIee-3MfNxJ4nfXampXt-QXBNiX-oPm
+X-Proofpoint-GUID: hFBxfjlbjvXoNnpIYBJxqeCZqEvuPBl1
+X-Proofpoint-ORIG-GUID: hFBxfjlbjvXoNnpIYBJxqeCZqEvuPBl1
 Cc: Christoph Hellwig <hch@lst.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -190,233 +190,79 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is just a prep patch. It moves the worker related fields to a new
-vhost_worker struct and moves the code around to create some helpers that
-will be used in the next patch.
+Each vhost device gets a thread that is used to perform IO and management
+operations. Instead of a thread that is accessing a device, the thread is
+part of the device, so when it calls the user_worker() function added in
+the next patch we can't dup or clone the parent's files/FDS because it
+would do an extra increment on ourself.
+
+Later, when we do:
+
+Qemu process exits:
+        do_exit -> exit_files -> put_files_struct -> close_files
+
+we would leak the device's resources because of that extra refcount
+on the fd or file_struct.
+
+This patch adds a no_files option so these worker threads can prevent
+taking an extra refcount on themselves.
 
 Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
 ---
- drivers/vhost/vhost.c | 98 ++++++++++++++++++++++++++++---------------
- drivers/vhost/vhost.h | 11 +++--
- 2 files changed, 72 insertions(+), 37 deletions(-)
+ include/linux/sched/task.h |  1 +
+ kernel/fork.c              | 11 +++++++++--
+ 2 files changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 59edb5a1ffe2..c9a1f706989c 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -263,8 +263,8 @@ void vhost_work_queue(struct vhost_dev *dev, struct vhost_work *work)
- 		 * sure it was not in the list.
- 		 * test_and_set_bit() implies a memory barrier.
- 		 */
--		llist_add(&work->node, &dev->work_list);
--		wake_up_process(dev->worker);
-+		llist_add(&work->node, &dev->worker->work_list);
-+		wake_up_process(dev->worker->task);
- 	}
+diff --git a/include/linux/sched/task.h b/include/linux/sched/task.h
+index b7861cb6a74b..e094502b2eea 100644
+--- a/include/linux/sched/task.h
++++ b/include/linux/sched/task.h
+@@ -20,6 +20,7 @@ struct css_set;
+ 
+ #define USER_WORKER		BIT(0)
+ #define USER_WORKER_IO		BIT(1)
++#define USER_WORKER_NO_FILES	BIT(2)
+ 
+ struct kernel_clone_args {
+ 	u64 flags;
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 0d278ac26f2f..a47bec00f37c 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -1529,7 +1529,8 @@ static int copy_fs(unsigned long clone_flags, struct task_struct *tsk)
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(vhost_work_queue);
-@@ -272,7 +272,7 @@ EXPORT_SYMBOL_GPL(vhost_work_queue);
- /* A lockless hint for busy polling code to exit the loop */
- bool vhost_has_work(struct vhost_dev *dev)
+ 
+-static int copy_files(unsigned long clone_flags, struct task_struct *tsk)
++static int copy_files(unsigned long clone_flags, struct task_struct *tsk,
++		      int no_files)
  {
--	return !llist_empty(&dev->work_list);
-+	return dev->worker && !llist_empty(&dev->worker->work_list);
- }
- EXPORT_SYMBOL_GPL(vhost_has_work);
+ 	struct files_struct *oldf, *newf;
+ 	int error = 0;
+@@ -1541,6 +1542,11 @@ static int copy_files(unsigned long clone_flags, struct task_struct *tsk)
+ 	if (!oldf)
+ 		goto out;
  
-@@ -343,7 +343,8 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 
- static int vhost_worker(void *data)
- {
--	struct vhost_dev *dev = data;
-+	struct vhost_worker *worker = data;
-+	struct vhost_dev *dev = worker->dev;
- 	struct vhost_work *work, *work_next;
- 	struct llist_node *node;
- 
-@@ -358,7 +359,7 @@ static int vhost_worker(void *data)
- 			break;
- 		}
- 
--		node = llist_del_all(&dev->work_list);
-+		node = llist_del_all(&worker->work_list);
- 		if (!node)
- 			schedule();
- 
-@@ -368,7 +369,7 @@ static int vhost_worker(void *data)
- 		llist_for_each_entry_safe(work, work_next, node, node) {
- 			clear_bit(VHOST_WORK_QUEUED, &work->flags);
- 			__set_current_state(TASK_RUNNING);
--			kcov_remote_start_common(dev->kcov_handle);
-+			kcov_remote_start_common(worker->kcov_handle);
- 			work->fn(work);
- 			kcov_remote_stop();
- 			if (need_resched())
-@@ -487,7 +488,6 @@ void vhost_dev_init(struct vhost_dev *dev,
- 	dev->byte_weight = byte_weight;
- 	dev->use_worker = use_worker;
- 	dev->msg_handler = msg_handler;
--	init_llist_head(&dev->work_list);
- 	init_waitqueue_head(&dev->wait);
- 	INIT_LIST_HEAD(&dev->read_list);
- 	INIT_LIST_HEAD(&dev->pending_list);
-@@ -579,10 +579,60 @@ static void vhost_detach_mm(struct vhost_dev *dev)
- 	dev->mm = NULL;
- }
- 
-+static void vhost_worker_free(struct vhost_dev *dev)
-+{
-+	struct vhost_worker *worker = dev->worker;
-+
-+	if (!worker)
-+		return;
-+
-+	dev->worker = NULL;
-+	WARN_ON(!llist_empty(&worker->work_list));
-+	kthread_stop(worker->task);
-+	kfree(worker);
-+}
-+
-+static int vhost_worker_create(struct vhost_dev *dev)
-+{
-+	struct vhost_worker *worker;
-+	struct task_struct *task;
-+	int ret;
-+
-+	worker = kzalloc(sizeof(*worker), GFP_KERNEL_ACCOUNT);
-+	if (!worker)
-+		return -ENOMEM;
-+
-+	dev->worker = worker;
-+	worker->dev = dev;
-+	worker->kcov_handle = kcov_common_handle();
-+	init_llist_head(&worker->work_list);
-+
-+	task = kthread_create(vhost_worker, worker, "vhost-%d", current->pid);
-+	if (IS_ERR(task)) {
-+		ret = PTR_ERR(task);
-+		goto free_worker;
++	if (no_files) {
++		tsk->files = NULL;
++		goto out;
 +	}
 +
-+	worker->task = task;
-+	wake_up_process(task); /* avoid contributing to loadavg */
-+
-+	ret = vhost_attach_cgroups(dev);
-+	if (ret)
-+		goto stop_worker;
-+
-+	return 0;
-+
-+stop_worker:
-+	kthread_stop(worker->task);
-+free_worker:
-+	kfree(worker);
-+	dev->worker = NULL;
-+	return ret;
-+}
-+
- /* Caller should have device mutex */
- long vhost_dev_set_owner(struct vhost_dev *dev)
- {
--	struct task_struct *worker;
- 	int err;
- 
- 	/* Is there an owner already? */
-@@ -593,36 +643,21 @@ long vhost_dev_set_owner(struct vhost_dev *dev)
- 
- 	vhost_attach_mm(dev);
- 
--	dev->kcov_handle = kcov_common_handle();
- 	if (dev->use_worker) {
--		worker = kthread_create(vhost_worker, dev,
--					"vhost-%d", current->pid);
--		if (IS_ERR(worker)) {
--			err = PTR_ERR(worker);
--			goto err_worker;
--		}
--
--		dev->worker = worker;
--		wake_up_process(worker); /* avoid contributing to loadavg */
--
--		err = vhost_attach_cgroups(dev);
-+		err = vhost_worker_create(dev);
- 		if (err)
--			goto err_cgroup;
-+			goto err_worker;
- 	}
- 
- 	err = vhost_dev_alloc_iovecs(dev);
- 	if (err)
--		goto err_cgroup;
-+		goto err_iovecs;
- 
- 	return 0;
--err_cgroup:
--	if (dev->worker) {
--		kthread_stop(dev->worker);
--		dev->worker = NULL;
--	}
-+err_iovecs:
-+	vhost_worker_free(dev);
- err_worker:
- 	vhost_detach_mm(dev);
--	dev->kcov_handle = 0;
- err_mm:
- 	return err;
- }
-@@ -712,12 +747,7 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
- 	dev->iotlb = NULL;
- 	vhost_clear_msg(dev);
- 	wake_up_interruptible_poll(&dev->wait, EPOLLIN | EPOLLRDNORM);
--	WARN_ON(!llist_empty(&dev->work_list));
--	if (dev->worker) {
--		kthread_stop(dev->worker);
--		dev->worker = NULL;
--		dev->kcov_handle = 0;
--	}
-+	vhost_worker_free(dev);
- 	vhost_detach_mm(dev);
- }
- EXPORT_SYMBOL_GPL(vhost_dev_cleanup);
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 638bb640d6b4..102ce25e4e13 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -25,6 +25,13 @@ struct vhost_work {
- 	unsigned long		flags;
- };
- 
-+struct vhost_worker {
-+	struct task_struct	*task;
-+	struct llist_head	work_list;
-+	struct vhost_dev	*dev;
-+	u64			kcov_handle;
-+};
-+
- /* Poll a file (eventfd or socket) */
- /* Note: there's nothing vhost specific about this structure. */
- struct vhost_poll {
-@@ -148,8 +155,7 @@ struct vhost_dev {
- 	struct vhost_virtqueue **vqs;
- 	int nvqs;
- 	struct eventfd_ctx *log_ctx;
--	struct llist_head work_list;
--	struct task_struct *worker;
-+	struct vhost_worker *worker;
- 	struct vhost_iotlb *umem;
- 	struct vhost_iotlb *iotlb;
- 	spinlock_t iotlb_lock;
-@@ -159,7 +165,6 @@ struct vhost_dev {
- 	int iov_limit;
- 	int weight;
- 	int byte_weight;
--	u64 kcov_handle;
- 	bool use_worker;
- 	int (*msg_handler)(struct vhost_dev *dev,
- 			   struct vhost_iotlb_msg *msg);
+ 	if (clone_flags & CLONE_FILES) {
+ 		atomic_inc(&oldf->count);
+ 		goto out;
+@@ -2179,7 +2185,8 @@ static __latent_entropy struct task_struct *copy_process(
+ 	retval = copy_semundo(clone_flags, p);
+ 	if (retval)
+ 		goto bad_fork_cleanup_security;
+-	retval = copy_files(clone_flags, p);
++	retval = copy_files(clone_flags, p,
++			    args->worker_flags & USER_WORKER_NO_FILES);
+ 	if (retval)
+ 		goto bad_fork_cleanup_semundo;
+ 	retval = copy_fs(clone_flags, p);
 -- 
 2.25.1
 
