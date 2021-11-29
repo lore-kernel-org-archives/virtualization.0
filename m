@@ -1,80 +1,101 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1ED08C433EF
-	for <virtualization@archiver.kernel.org>; Mon, 29 Nov 2021 01:12:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 694B1C433F5
+	for <virtualization@archiver.kernel.org>; Mon, 29 Nov 2021 03:10:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9F0E7410B1;
-	Mon, 29 Nov 2021 01:12:43 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0170881846;
+	Mon, 29 Nov 2021 03:10:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VIrEQIo88tty; Mon, 29 Nov 2021 01:12:42 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 3AAF9410AC;
-	Mon, 29 Nov 2021 01:12:42 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id o0fR8Y3ekKCi; Mon, 29 Nov 2021 03:10:56 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A69348175A;
+	Mon, 29 Nov 2021 03:10:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 09B65C001C;
-	Mon, 29 Nov 2021 01:12:42 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 92976C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6B9BCC0012;
+	Mon, 29 Nov 2021 03:10:55 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 89198C000A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 01:12:40 +0000 (UTC)
+ Mon, 29 Nov 2021 03:10:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 78D99402C6
+ by smtp4.osuosl.org (Postfix) with ESMTP id 62769409F5
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 01:12:40 +0000 (UTC)
+ Mon, 29 Nov 2021 03:10:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp2.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id AHXuM2G7JfSb
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id xwQ9D_DVw8Qg
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 01:12:39 +0000 (UTC)
+ Mon, 29 Nov 2021 03:10:53 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 588ED4018D
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2FD24409E2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 01:12:39 +0000 (UTC)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by dfw.source.kernel.org (Postfix) with ESMTPS id 1C72061038;
- Mon, 29 Nov 2021 01:12:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FA35C004E1;
- Mon, 29 Nov 2021 01:12:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1638148357;
- bh=aELK/pKqc8nJVVr6JTDLAfcoVvTYsEkVAluHXrd8hcE=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=blE2B1O9qDPRBnmqvCoHvHZyM/PO6Zhmyen321mVJeWr/4c1s5wMi3x2AyzXYM6J3
- EdW9lyHNbojTBmko3JWmAdhBPX2Y79TaaRRVfslVcSEDaHgK5hlGIY8WwzQ6XsroCQ
- 096xY4vFXFkAp38yJle0uba0XPy3XfKJOYTCKo46IOzqSLyIF5a/AiAJlFCxbpsgWS
- 04Pf2vz94BCt5DTiy3L4Tj+fkUDOaqD1fo76BZ8+hrKpxTusxxv3kUGMT9cXmQYkWH
- yW+K6QYOU0JAIVXrwN+RCzWtQaZ0WjdFwDSRSqF8s8PcwT4CSuAP3C8qmUwB2pVTyi
- KUHI0FiA4bppw==
-Date: Sun, 28 Nov 2021 20:12:36 -0500
-From: Sasha Levin <sashal@kernel.org>
-To: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH AUTOSEL 5.15 7/7] virtio-mem: support
- VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE
-Message-ID: <YaQpBKh+fUJM+p/y@sashalap>
-References: <20211126023006.440839-1-sashal@kernel.org>
- <20211126023006.440839-7-sashal@kernel.org>
- <74c1d756-3f7c-7085-0ae9-2c082dce63b2@redhat.com>
+ Mon, 29 Nov 2021 03:10:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1638155451;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=TgE2ogo+Z+orwFC+QIs4bY4xjkMdtyQ0OgT9F9nc+sU=;
+ b=SSTjdx+ROmgLXisV+b3NFVkJgmzIyRjZ92OfkCaUy9/CWEJ9bdjIa0R7zC8WglDODVIYSX
+ hpM9MVDZm6tJFvmmL16XSpFELJ3ISTkx3UeR6FISU96cI1W4HrO6LFgjFCSgA54aSR//Y6
+ LQjFNF5v+kQhUutWiCCnc7BlsTvq73M=
+Received: from mail-lf1-f71.google.com (mail-lf1-f71.google.com
+ [209.85.167.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-302-xQU-t-AaPDSJlFJ9HPu7CQ-1; Sun, 28 Nov 2021 22:10:50 -0500
+X-MC-Unique: xQU-t-AaPDSJlFJ9HPu7CQ-1
+Received: by mail-lf1-f71.google.com with SMTP id
+ u20-20020a056512129400b0040373ffc60bso5044012lfs.15
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 28 Nov 2021 19:10:50 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=TgE2ogo+Z+orwFC+QIs4bY4xjkMdtyQ0OgT9F9nc+sU=;
+ b=A6Af4xvSVJB3kd8l+U+jDSlBhh/7ixAqFGvsYogkzEmBc1KyfZLMM2ibwKGcLe6qv0
+ hnwr7Ny1J23OUKM77ex9Z2RlByN+f+yagM4Ozu3vZBSix94QwsEo8vhRzG0TaCZjAf3u
+ dmmRtHyFfQoAyl9sM261u2oTgrCH4mHGYLSAVTZsPK0b8RGFsCe/3kv4SNZFi1UmOccB
+ qJmZfENHp0zJEi2MS3aG0cbTIq5YpnXk9tUFTfDb0STzfxHtVDM9mONd6y+rNThUQz51
+ 02WaTAI+Qg5U+tS8d/uKZMydbsTa5rQLQaEojiQt+ahsIo1pOizc0qTVd4naNYNCbpYC
+ cJEg==
+X-Gm-Message-State: AOAM5335+eBRHWBcc8gcbi+i3wAoEEdfSlSzjFDn0Opxa1XBkulePkrx
+ BGyTScFhJSfogtNkAMxMGlJTAF2J2cY6kdORY9FCGiC426TsiDXkRFY9u8UM8bWtyTww0eQ12XJ
+ RY5l1PfNz4SOugdPTu23MnA49FXDVvYuBytrlZzJHs8HBufWm5cnmA7kEQw==
+X-Received: by 2002:a05:6512:3d09:: with SMTP id
+ d9mr46843134lfv.481.1638155449034; 
+ Sun, 28 Nov 2021 19:10:49 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJypRBaf690ponP3sUXlnngSW/XjF4vja4g2y2tVNfNRymYfg73oHS3yuu7G+wAYwAtnrWK3hPbzZBV08hR4QVM=
+X-Received: by 2002:a05:6512:3d09:: with SMTP id
+ d9mr46843110lfv.481.1638155448790; 
+ Sun, 28 Nov 2021 19:10:48 -0800 (PST)
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <74c1d756-3f7c-7085-0ae9-2c082dce63b2@redhat.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
- Wei Yang <richard.weiyang@linux.alibaba.com>,
- "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Sebastien Boeuf <sebastien.boeuf@intel.com>,
- Marek Kedzierski <mkedzier@redhat.com>, Hui Zhu <teawater@gmail.com>
+References: <20211126164753.181829-1-sgarzare@redhat.com>
+ <20211126164753.181829-2-sgarzare@redhat.com>
+In-Reply-To: <20211126164753.181829-2-sgarzare@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Mon, 29 Nov 2021 11:10:38 +0800
+Message-ID: <CACGkMEuEONMW3wvPULbL+9U0UkJ43zaq8__FySeZC7J4-ZPb7w@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] docs: document sysfs ABI for vDPA bus
+To: Stefano Garzarella <sgarzare@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -86,106 +107,85 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Nov 26, 2021 at 09:51:23AM +0100, David Hildenbrand wrote:
->On 26.11.21 03:30, Sasha Levin wrote:
->> From: David Hildenbrand <david@redhat.com>
->>
->> [ Upstream commit 61082ad6a6e1f999eef7e7e90046486c87933b1e ]
->>
->> The initial virtio-mem spec states that while unplugged memory should not
->> be read, the device still has to allow for reading unplugged memory inside
->> the usable region. The primary motivation for this default handling was
->> to simplify bringup of virtio-mem, because there were corner cases where
->> Linux might have accidentially read unplugged memory inside added Linux
->> memory blocks.
->>
->> In the meantime, we:
->> 1. Removed /dev/kmem in commit bbcd53c96071 ("drivers/char: remove
->>    /dev/kmem for good")
->> 2. Disallowed access to virtio-mem device memory via /dev/mem in
->>    commit 2128f4e21aa2 ("virtio-mem: disallow mapping virtio-mem memory via
->>    /dev/mem")
->> 3. Sanitized access to virtio-mem device memory via /proc/kcore in
->>    commit 0daa322b8ff9 ("fs/proc/kcore: don't read offline sections,
->>    logically offline pages and hwpoisoned pages")
->> 4. Sanitized access to virtio-mem device memory via /proc/vmcore in
->>    commit ce2814622e84 ("virtio-mem: kdump mode to sanitize /proc/vmcore
->>    access")
->>
->> "Accidential" access to unplugged memory is no longer possible; we can
->> support the new VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE feature that will be
->> required by some hypervisors implementing virtio-mem in the near future.
->>
->> Acked-by: Michael S. Tsirkin <mst@redhat.com>
->> Cc: "Michael S. Tsirkin" <mst@redhat.com>
->> Cc: Jason Wang <jasowang@redhat.com>
->> Cc: Marek Kedzierski <mkedzier@redhat.com>
->> Cc: Hui Zhu <teawater@gmail.com>
->> Cc: Sebastien Boeuf <sebastien.boeuf@intel.com>
->> Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
->> Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> ---
->>  drivers/virtio/virtio_mem.c     | 1 +
->>  include/uapi/linux/virtio_mem.h | 9 ++++++---
->>  2 files changed, 7 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
->> index bef8ad6bf4661..78dfdc9c98a1c 100644
->> --- a/drivers/virtio/virtio_mem.c
->> +++ b/drivers/virtio/virtio_mem.c
->> @@ -2758,6 +2758,7 @@ static unsigned int virtio_mem_features[] = {
->>  #if defined(CONFIG_NUMA) && defined(CONFIG_ACPI_NUMA)
->>  	VIRTIO_MEM_F_ACPI_PXM,
->>  #endif
->> +	VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE,
->>  };
->>
->>  static const struct virtio_device_id virtio_mem_id_table[] = {
->> diff --git a/include/uapi/linux/virtio_mem.h b/include/uapi/linux/virtio_mem.h
->> index 70e01c687d5eb..e9122f1d0e0cb 100644
->> --- a/include/uapi/linux/virtio_mem.h
->> +++ b/include/uapi/linux/virtio_mem.h
->> @@ -68,9 +68,10 @@
->>   * explicitly triggered (VIRTIO_MEM_REQ_UNPLUG).
->>   *
->>   * There are no guarantees what will happen if unplugged memory is
->> - * read/written. Such memory should, in general, not be touched. E.g.,
->> - * even writing might succeed, but the values will simply be discarded at
->> - * random points in time.
->> + * read/written. In general, unplugged memory should not be touched, because
->> + * the resulting action is undefined. There is one exception: without
->> + * VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE, unplugged memory inside the usable
->> + * region can be read, to simplify creation of memory dumps.
->>   *
->>   * It can happen that the device cannot process a request, because it is
->>   * busy. The device driver has to retry later.
->> @@ -87,6 +88,8 @@
->>
->>  /* node_id is an ACPI PXM and is valid */
->>  #define VIRTIO_MEM_F_ACPI_PXM		0
->> +/* unplugged memory must not be accessed */
->> +#define VIRTIO_MEM_F_UNPLUGGED_INACCESSIBLE	1
->>
->>
->>  /* --- virtio-mem: guest -> host requests --- */
->>
+On Sat, Nov 27, 2021 at 12:48 AM Stefano Garzarella <sgarzare@redhat.com> wrote:
 >
->As 2. and 4. are part of v5.16-rc1 but not v5.15-stable
+> Add missing documentation of sysfs ABI for vDPA bus in
+> the new Documentation/ABI/testing/sysfs-bus-vdpa file.
 >
->Nacked-by: David Hildenbrand <david@redhat.com>
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 
-I'll drop them, thanks!
+Acked-by: Jason Wang <jasowang@redhat.com>
 
--- 
-Thanks,
-Sasha
+> ---
+>  Documentation/ABI/testing/sysfs-bus-vdpa | 37 ++++++++++++++++++++++++
+>  MAINTAINERS                              |  1 +
+>  2 files changed, 38 insertions(+)
+>  create mode 100644 Documentation/ABI/testing/sysfs-bus-vdpa
+>
+> diff --git a/Documentation/ABI/testing/sysfs-bus-vdpa b/Documentation/ABI/testing/sysfs-bus-vdpa
+> new file mode 100644
+> index 000000000000..4e55761a39df
+> --- /dev/null
+> +++ b/Documentation/ABI/testing/sysfs-bus-vdpa
+> @@ -0,0 +1,37 @@
+> +What:          /sys/bus/vdpa/driver_autoprobe
+> +Date:          March 2020
+> +Contact:       virtualization@lists.linux-foundation.org
+> +Description:
+> +               This file determines whether new devices are immediately bound
+> +               to a driver after the creation. It initially contains 1, which
+> +               means the kernel automatically binds devices to a compatible
+> +               driver immediately after they are created.
+> +
+> +               Writing "0" to this file disable this feature, any other string
+> +               enable it.
+> +
+> +What:          /sys/bus/vdpa/driver_probe
+> +Date:          March 2020
+> +Contact:       virtualization@lists.linux-foundation.org
+> +Description:
+> +               Writing a device name to this file will cause the kernel binds
+> +               devices to a compatible driver.
+> +
+> +               This can be useful when /sys/bus/vdpa/driver_autoprobe is
+> +               disabled.
+> +
+> +What:          /sys/bus/vdpa/drivers/.../bind
+> +Date:          March 2020
+> +Contact:       virtualization@lists.linux-foundation.org
+> +Description:
+> +               Writing a device name to this file will cause the driver to
+> +               attempt to bind to the device. This is useful for overriding
+> +               default bindings.
+> +
+> +What:          /sys/bus/vdpa/drivers/.../unbind
+> +Date:          March 2020
+> +Contact:       virtualization@lists.linux-foundation.org
+> +Description:
+> +               Writing a device name to this file will cause the driver to
+> +               attempt to unbind from the device. This may be useful when
+> +               overriding default bindings.
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 5250298d2817..36ea80b4ba63 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -20104,6 +20104,7 @@ M:      "Michael S. Tsirkin" <mst@redhat.com>
+>  M:     Jason Wang <jasowang@redhat.com>
+>  L:     virtualization@lists.linux-foundation.org
+>  S:     Maintained
+> +F:     Documentation/ABI/testing/sysfs-bus-vdpa
+>  F:     Documentation/devicetree/bindings/virtio/
+>  F:     drivers/block/virtio_blk.c
+>  F:     drivers/crypto/virtio/
+> --
+> 2.31.1
+>
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
