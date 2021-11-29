@@ -1,86 +1,95 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id CB0C9C433F5
-	for <virtualization@archiver.kernel.org>; Mon, 29 Nov 2021 13:33:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 25CBBC433F5
+	for <virtualization@archiver.kernel.org>; Mon, 29 Nov 2021 15:33:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 49E1E403FF;
-	Mon, 29 Nov 2021 13:33:55 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id BAB0640439;
+	Mon, 29 Nov 2021 15:33:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VllxSDniNXhg; Mon, 29 Nov 2021 13:33:54 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 72AC0403EF;
-	Mon, 29 Nov 2021 13:33:53 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 441CCC0012;
-	Mon, 29 Nov 2021 13:33:53 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2241CC000A
- for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 13:33:52 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 0E4814055F
- for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 13:33:52 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zALMNOdQJaLQ
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id bsFyBHqsiq_F; Mon, 29 Nov 2021 15:33:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 73C8F4043F;
+	Mon, 29 Nov 2021 15:33:36 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D7062C003E;
+	Mon, 29 Nov 2021 15:33:35 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D2B59C0012
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 13:33:51 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 45BDE403CF
+ Mon, 29 Nov 2021 15:33:34 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id ADADF6058D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 13:33:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1638192830;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=p/Ma4OjV1QAHTKX0nrgFV6x1HeF1oMP1qvIIB/p5juI=;
- b=d46bxNKDPFAtAz64syUXm8k7uVfiYYO6we26EJPLu58OEFdG/R/qqRnZvH2c23Droi7MFI
- +/gytiWMvlAa4OvWSZYS3toa09b+oiTp27g9RaONgOwsHpblgs7AEyuf/zJcW3PR19NWBT
- 3aNp4+lvOO3hsh9hQaNZfot7kAqeDa8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-592-i8s6QBecPMqroT3LKu8W_w-1; Mon, 29 Nov 2021 08:33:46 -0500
-X-MC-Unique: i8s6QBecPMqroT3LKu8W_w-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
- [10.5.11.22])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 748721927800;
- Mon, 29 Nov 2021 13:33:45 +0000 (UTC)
-Received: from horse.redhat.com (unknown [10.22.8.179])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 9356A10013D6;
- Mon, 29 Nov 2021 13:33:42 +0000 (UTC)
-Received: by horse.redhat.com (Postfix, from userid 10451)
- id 1D5B1225EC1; Mon, 29 Nov 2021 08:33:42 -0500 (EST)
-Date: Mon, 29 Nov 2021 08:33:42 -0500
-From: Vivek Goyal <vgoyal@redhat.com>
-To: Tiezhu Yang <yangtiezhu@loongson.cn>
-Subject: Re: [PATCH v2] fuse: rename some files and clean up Makefile
-Message-ID: <YaTWtgSrtSDCU1ti@redhat.com>
-References: <1638008002-3037-1-git-send-email-yangtiezhu@loongson.cn>
- <YaSpRwMlMvcIIMZo@stefanha-x1.localdomain>
- <7277c1ee-6f7b-611d-180d-866db37b2bd7@loongson.cn>
+ Mon, 29 Nov 2021 15:33:34 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linaro.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id NiBMvnuPH33f
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 29 Nov 2021 15:33:33 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com
+ [IPv6:2a00:1450:4864:20::42c])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 82035600B5
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 29 Nov 2021 15:33:33 +0000 (UTC)
+Received: by mail-wr1-x42c.google.com with SMTP id d24so37766193wra.0
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 29 Nov 2021 07:33:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=NTUQ6aLhKD5jn8vygozqrLUU4s5A3V1kXbkGA/ru7lM=;
+ b=HVzF6BkeS36kyfG+xhXLEfxtbXCiiG/rILiuPP4Fm4PsRykXWuBQOq1ebLsVW5XbVC
+ 95EXaGYX2KadOC3OLsUpmCr+PV24wovvVOQp3WiFEj0qISMCqG/eEEArA3971cRC80/G
+ dwZnChO8PzFenjS6ReFCoerZwcjT+q0Iaem5AslenQ04adryZLoV+Bk24/XbqGe6rApq
+ a7ax2GcUHB2LobsfqLVVZaPPYpxF+dLCLAwVo1yGdD5SPA2++n6xpC6em3KJlK1p5+tl
+ hN6nBA1G1gTQ7+yGf6VxKTly7FI28S4I9xeo+2RtIubH2IBmQ2RSq3IetRJ4Iv+X12F5
+ OdAA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=NTUQ6aLhKD5jn8vygozqrLUU4s5A3V1kXbkGA/ru7lM=;
+ b=3H3T2eIzOFAjJNNIU2MBBEolFTbrhjLKWwtaBgQupiY1g3c6iF7K/mn/vc8jqEgHR9
+ KIdhkcRNHMrwgKa/CiKl0e1Fzu4jMyuytiVYLPhpJyR+Fx9u9+k5SU3DUgkVQ/fZjr0n
+ Xp8ERM44cAeL3wDc+LZSHwOsgfc8Cwc6GSRNB9p6ZOa5/u+BCv22V0eJeYXMTi1knz3d
+ /eyYvWL48JxWRx2KWEeot3zdmx/ge/Uxyf54JDWvjr647LRsW/oUDzZnxgKwWTfRlMKl
+ AwJeQkIc9CtoOMiBKY1CBuCaGiEFcnj8MsgoWMzIxyaRlyOEboXYVSSXDYXK2V6x0r+h
+ Yb3g==
+X-Gm-Message-State: AOAM531lOR1EqsZb4Qb1DHyiOKAqLDT7pW4G6eY9B6zGRQE49B5Pgj2k
+ xwzn+RkJPAwVzT7GUC4tm/Tm2A==
+X-Google-Smtp-Source: ABdhPJyuq3ERsFsDH/xpS1bayhStVieKQtcrUQihIbVIry9BiRsUSwe1lWVq20WEpHG3+o4ITfyuAw==
+X-Received: by 2002:a5d:4b82:: with SMTP id b2mr35021998wrt.419.1638200011561; 
+ Mon, 29 Nov 2021 07:33:31 -0800 (PST)
+Received: from myrica (cpc92880-cmbg19-2-0-cust679.5-4.cable.virginm.net.
+ [82.27.106.168])
+ by smtp.gmail.com with ESMTPSA id r8sm17738405wrz.43.2021.11.29.07.33.30
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 29 Nov 2021 07:33:31 -0800 (PST)
+Date: Mon, 29 Nov 2021 15:33:08 +0000
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: Eric Auger <eric.auger@redhat.com>
+Subject: Re: [PATCH v2 1/5] iommu/virtio: Add definitions for
+ VIRTIO_IOMMU_F_BYPASS_CONFIG
+Message-ID: <YaTytI6P3/HEwVrQ@myrica>
+References: <20211123155301.1047943-1-jean-philippe@linaro.org>
+ <20211123155301.1047943-2-jean-philippe@linaro.org>
+ <b9068111-bc1e-cc0a-155d-04585d6f4138@redhat.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <7277c1ee-6f7b-611d-180d-866db37b2bd7@loongson.cn>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-Cc: Miklos Szeredi <mszeredi@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Stefan Hajnoczi <stefanha@redhat.com>, linux-fsdevel@vger.kernel.org
+In-Reply-To: <b9068111-bc1e-cc0a-155d-04585d6f4138@redhat.com>
+Cc: mst@redhat.com, joro@8bytes.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, pasic@linux.ibm.com,
+ iommu@lists.linux-foundation.org, sebastien.boeuf@intel.com, will@kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -97,40 +106,27 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Nov 29, 2021 at 09:27:17PM +0800, Tiezhu Yang wrote:
-> On 11/29/2021 06:19 PM, Stefan Hajnoczi wrote:
-> > On Sat, Nov 27, 2021 at 06:13:22PM +0800, Tiezhu Yang wrote:
-> > > No need to generate virtio_fs.o first and then link to virtiofs.o, just
-> > > rename virtio_fs.c to virtiofs.c and remove "virtiofs-y := virtio_fs.o"
-> > > in Makefile, also update MAINTAINERS. Additionally, rename the private
-> > > header file fuse_i.h to fuse.h, like ext4.h in fs/ext4, xfs.h in fs/xfs
-> > > and f2fs.h in fs/f2fs.
-> > 
-> > There are two separate changes in this patch (virtio_fs.c -> virtiofs.c
-> > and fuse_i.h -> fuse.h). A patch series with two patches would be easier
-> > to review and cleaner to backport.
-> > 
-> > I'm happy with renaming virtio_fs.c to virtiofs.c:
-> > 
-> > Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-> > 
-> 
-> Hi Stefan and Miklos,
-> 
-> Thanks for your reply, what should I do now?
-> 
-> (1) split this patch into two separate patches to send v3;
-> (2) just ignore this patch because
-> "This will make backport of bugfixes harder for no good reason."
-> said by Miklos.
+Hi Eric,
 
-I agree with Miklos that there does not seem to be a very strong reason
-to rename. It probably falls in the category of nice to have cleanup. But
-it will also make backports harder. So I also like the idea of not making
-this change.
+On Sat, Nov 27, 2021 at 08:59:25AM +0100, Eric Auger wrote:
+> > @@ -36,6 +37,8 @@ struct virtio_iommu_config {
+> >  	struct virtio_iommu_range_32		domain_range;
+> >  	/* Probe buffer size */
+> >  	__le32					probe_size;
+> > +	__u8					bypass;
+> > +	__u8					reserved[7];
+> in [PATCH v3] virtio-iommu: Rework the bypass feature I see
+> 
+> +  u8 bypass;
+> +  u8 reserved[3];
+> 
+> What was exactly voted?
 
-Vivek
+Good catch, this should be 3. It brings the config struct to 40 bytes,
+which is the size compilers generate when there is no reserved field.
 
+Thanks,
+Jean
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
