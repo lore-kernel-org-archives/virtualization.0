@@ -1,62 +1,64 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4CFAEC43219
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 0A2A2C433FE
 	for <virtualization@archiver.kernel.org>; Mon, 29 Nov 2021 10:22:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 0B9E760A82;
-	Mon, 29 Nov 2021 10:22:45 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id B6E6D41C4D;
+	Mon, 29 Nov 2021 10:22:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pF06Ms5huy1Y; Mon, 29 Nov 2021 10:22:44 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id k8Z2eJMLNj7J; Mon, 29 Nov 2021 10:22:42 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 61EF660A4A;
-	Mon, 29 Nov 2021 10:22:43 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A03D1C0049;
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 40AD141C4B;
 	Mon, 29 Nov 2021 10:22:42 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B0B0DC001C
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 12DCCC0041;
+	Mon, 29 Nov 2021 10:22:42 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 65647C0056
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 10:22:38 +0000 (UTC)
+ Mon, 29 Nov 2021 10:22:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 8A60A60A4A
+ by smtp1.osuosl.org (Postfix) with ESMTP id 4CF22830AB
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 10:22:38 +0000 (UTC)
+ Mon, 29 Nov 2021 10:22:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nF8ohqK-KT-V
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=infradead.org
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id WGA4ASCpwMwm
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 10:22:37 +0000 (UTC)
+ Mon, 29 Nov 2021 10:22:34 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.8.0
 Received: from casper.infradead.org (casper.infradead.org
  [IPv6:2001:8b0:10b:1236::1])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 9446760A72
+ by smtp1.osuosl.org (Postfix) with ESMTPS id 6172A83104
  for <virtualization@lists.linux-foundation.org>;
- Mon, 29 Nov 2021 10:22:37 +0000 (UTC)
+ Mon, 29 Nov 2021 10:22:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
  d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
  References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
  Content-Type:Content-ID:Content-Description;
- bh=SFLYg18cvij6fU/3A8zFWrjXsu/Zx4DYVn4elv8lvPs=; b=uB944Rw+yKwWNNyIUgm2y7f92e
- nNzmWSGyjlKa1IN1nAvs4ne0Kq2Je3alGtGlu7CyfQckv73HtbRv78vo0UbB4VQ4kH0bGG/7TrSQl
- lF5vs7LCw65hs31wWSArmMuopqBCYmTmPm0Mc/4zraDKVFzFN0hShN6O+rZOWU1WVRq2kc3kT8AOb
- Kxm/r6DwhK6yetiqjs02YbQail0yT68daR+d6LLKvj8Ln9M3K/R41h23aSDikFSwt7HUJy8JzBTMC
- +gUWf24Ik0bwO/HMS9mSAmHzTn7FHgcEkqbIM0mF3ttEnHkPf0HTn6znk9hCSSPyBMxNI8m3Yfx9C
- pVDFv2AA==;
+ bh=gi1oQ1LIPOHgezY8a1Use+Ugz3X8PN4zfCP6Qk0QPHA=; b=IDHUkCDiV4mxQdGnGJMK7gbCId
+ 8NxKcIPPtukVc/tbjnDeKxQPu7ezngy7jRJ5hqJJz0ap3P7PrcaqpFE0NamzNWzr+Pc+685JdjvVR
+ ooT2KuztWlE3xfP3VUpERzRXtwf7orNLPwYvQPsYOQ8W1xQOQObWtZxCBvRq9waKgaVVY7ly1uMA3
+ u97YRVjzSImIM3S+1NtbbiW84p8H4ru9Nioqgt36ayqZ+GsrnNMVS6qgdx29cR0EpTHNIsemu1ya3
+ PsYyQjOTv9gHCqiFstjMi3m0SwPqaArDt0edT9JpT3zwqX288xRmWNHDTuziDZQx/YgbUHOzXTNws
+ 9RR5EIvA==;
 Received: from [2001:4bb8:184:4a23:724a:c057:c7bf:4643] (helo=localhost)
  by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
- id 1mrdnm-0073Qh-SZ; Mon, 29 Nov 2021 10:22:28 +0000
+ id 1mrdni-0073PG-Rw; Mon, 29 Nov 2021 10:22:23 +0000
 From: Christoph Hellwig <hch@lst.de>
 To: Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 17/29] fsdax: factor out a dax_memzero helper
-Date: Mon, 29 Nov 2021 11:21:51 +0100
-Message-Id: <20211129102203.2243509-18-hch@lst.de>
+Subject: [PATCH 14/29] fsdax: simplify the pgoff calculation
+Date: Mon, 29 Nov 2021 11:21:48 +0100
+Message-Id: <20211129102203.2243509-15-hch@lst.de>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20211129102203.2243509-1-hch@lst.de>
 References: <20211129102203.2243509-1-hch@lst.de>
@@ -85,74 +87,157 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Factor out a helper for the "manual" zeroing of a DAX range to clean
-up dax_iomap_zero a lot.
+Replace the two steps of dax_iomap_sector and bdev_dax_pgoff with a
+single dax_iomap_pgoff helper that avoids lots of cumbersome sector
+conversions.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Reviewed-by: Dan Williams <dan.j.williams@intel.com>
 Reviewed-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/dax.c | 36 +++++++++++++++++++-----------------
- 1 file changed, 19 insertions(+), 17 deletions(-)
+ drivers/dax/super.c | 14 --------------
+ fs/dax.c            | 35 ++++++++++-------------------------
+ include/linux/dax.h |  1 -
+ 3 files changed, 10 insertions(+), 40 deletions(-)
 
+diff --git a/drivers/dax/super.c b/drivers/dax/super.c
+index 90b5733f5a709..45d931aefd063 100644
+--- a/drivers/dax/super.c
++++ b/drivers/dax/super.c
+@@ -66,20 +66,6 @@ void dax_remove_host(struct gendisk *disk)
+ }
+ EXPORT_SYMBOL_GPL(dax_remove_host);
+ 
+-int bdev_dax_pgoff(struct block_device *bdev, sector_t sector, size_t size,
+-		pgoff_t *pgoff)
+-{
+-	sector_t start_sect = bdev ? get_start_sect(bdev) : 0;
+-	phys_addr_t phys_off = (start_sect + sector) * 512;
+-
+-	if (pgoff)
+-		*pgoff = PHYS_PFN(phys_off);
+-	if (phys_off % PAGE_SIZE || size % PAGE_SIZE)
+-		return -EINVAL;
+-	return 0;
+-}
+-EXPORT_SYMBOL(bdev_dax_pgoff);
+-
+ /**
+  * fs_dax_get_by_bdev() - temporary lookup mechanism for filesystem-dax
+  * @bdev: block device to find a dax_device for
 diff --git a/fs/dax.c b/fs/dax.c
-index d7a923d152240..d5db1297a0bb6 100644
+index e51b4129d1b65..5364549d67a48 100644
 --- a/fs/dax.c
 +++ b/fs/dax.c
-@@ -1121,34 +1121,36 @@ static vm_fault_t dax_pmd_load_hole(struct xa_state *xas, struct vm_fault *vmf,
+@@ -709,23 +709,22 @@ int dax_invalidate_mapping_entry_sync(struct address_space *mapping,
+ 	return __dax_invalidate_entry(mapping, index, false);
  }
- #endif /* CONFIG_FS_DAX_PMD */
  
-+static int dax_memzero(struct dax_device *dax_dev, pgoff_t pgoff,
-+		unsigned int offset, size_t size)
-+{
-+	void *kaddr;
-+	long ret;
-+
-+	ret = dax_direct_access(dax_dev, pgoff, 1, &kaddr, NULL);
-+	if (ret > 0) {
-+		memset(kaddr + offset, 0, size);
-+		dax_flush(dax_dev, kaddr + offset, size);
-+	}
-+	return ret;
-+}
-+
- s64 dax_iomap_zero(loff_t pos, u64 length, struct iomap *iomap)
+-static sector_t dax_iomap_sector(const struct iomap *iomap, loff_t pos)
++static pgoff_t dax_iomap_pgoff(const struct iomap *iomap, loff_t pos)
  {
- 	pgoff_t pgoff = dax_iomap_pgoff(iomap, pos);
- 	long rc, id;
--	void *kaddr;
--	bool page_aligned = false;
- 	unsigned offset = offset_in_page(pos);
- 	unsigned size = min_t(u64, PAGE_SIZE - offset, length);
+-	return (iomap->addr + (pos & PAGE_MASK) - iomap->offset) >> 9;
++	phys_addr_t paddr = iomap->addr + (pos & PAGE_MASK) - iomap->offset;
++
++	if (iomap->bdev)
++		paddr += (get_start_sect(iomap->bdev) << SECTOR_SHIFT);
++	return PHYS_PFN(paddr);
+ }
  
--	if (IS_ALIGNED(pos, PAGE_SIZE) && size == PAGE_SIZE)
--		page_aligned = true;
+ static int copy_cow_page_dax(struct vm_fault *vmf, const struct iomap_iter *iter)
+ {
+-	sector_t sector = dax_iomap_sector(&iter->iomap, iter->pos);
++	pgoff_t pgoff = dax_iomap_pgoff(&iter->iomap, iter->pos);
+ 	void *vto, *kaddr;
+-	pgoff_t pgoff;
+ 	long rc;
+ 	int id;
+ 
+-	rc = bdev_dax_pgoff(iter->iomap.bdev, sector, PAGE_SIZE, &pgoff);
+-	if (rc)
+-		return rc;
 -
  	id = dax_read_lock();
--
--	if (page_aligned)
-+	if (IS_ALIGNED(pos, PAGE_SIZE) && size == PAGE_SIZE)
- 		rc = dax_zero_page_range(iomap->dax_dev, pgoff, 1);
- 	else
--		rc = dax_direct_access(iomap->dax_dev, pgoff, 1, &kaddr, NULL);
--	if (rc < 0) {
--		dax_read_unlock(id);
--		return rc;
--	}
--
--	if (!page_aligned) {
--		memset(kaddr + offset, 0, size);
--		dax_flush(iomap->dax_dev, kaddr + offset, size);
--	}
-+		rc = dax_memzero(iomap->dax_dev, pgoff, offset, size);
- 	dax_read_unlock(id);
-+
-+	if (rc < 0)
-+		return rc;
- 	return size;
- }
+ 	rc = dax_direct_access(iter->iomap.dax_dev, pgoff, 1, &kaddr, NULL);
+ 	if (rc < 0) {
+@@ -1013,14 +1012,10 @@ EXPORT_SYMBOL_GPL(dax_writeback_mapping_range);
+ static int dax_iomap_pfn(const struct iomap *iomap, loff_t pos, size_t size,
+ 			 pfn_t *pfnp)
+ {
+-	const sector_t sector = dax_iomap_sector(iomap, pos);
+-	pgoff_t pgoff;
++	pgoff_t pgoff = dax_iomap_pgoff(iomap, pos);
+ 	int id, rc;
+ 	long length;
  
+-	rc = bdev_dax_pgoff(iomap->bdev, sector, size, &pgoff);
+-	if (rc)
+-		return rc;
+ 	id = dax_read_lock();
+ 	length = dax_direct_access(iomap->dax_dev, pgoff, PHYS_PFN(size),
+ 				   NULL, pfnp);
+@@ -1129,7 +1124,7 @@ static vm_fault_t dax_pmd_load_hole(struct xa_state *xas, struct vm_fault *vmf,
+ s64 dax_iomap_zero(loff_t pos, u64 length, struct iomap *iomap)
+ {
+ 	sector_t sector = iomap_sector(iomap, pos & PAGE_MASK);
+-	pgoff_t pgoff;
++	pgoff_t pgoff = dax_iomap_pgoff(iomap, pos);
+ 	long rc, id;
+ 	void *kaddr;
+ 	bool page_aligned = false;
+@@ -1140,10 +1135,6 @@ s64 dax_iomap_zero(loff_t pos, u64 length, struct iomap *iomap)
+ 	    (size == PAGE_SIZE))
+ 		page_aligned = true;
+ 
+-	rc = bdev_dax_pgoff(iomap->bdev, sector, PAGE_SIZE, &pgoff);
+-	if (rc)
+-		return rc;
+-
+ 	id = dax_read_lock();
+ 
+ 	if (page_aligned)
+@@ -1169,7 +1160,6 @@ static loff_t dax_iomap_iter(const struct iomap_iter *iomi,
+ 	const struct iomap *iomap = &iomi->iomap;
+ 	loff_t length = iomap_length(iomi);
+ 	loff_t pos = iomi->pos;
+-	struct block_device *bdev = iomap->bdev;
+ 	struct dax_device *dax_dev = iomap->dax_dev;
+ 	loff_t end = pos + length, done = 0;
+ 	ssize_t ret = 0;
+@@ -1203,9 +1193,8 @@ static loff_t dax_iomap_iter(const struct iomap_iter *iomi,
+ 	while (pos < end) {
+ 		unsigned offset = pos & (PAGE_SIZE - 1);
+ 		const size_t size = ALIGN(length + offset, PAGE_SIZE);
+-		const sector_t sector = dax_iomap_sector(iomap, pos);
++		pgoff_t pgoff = dax_iomap_pgoff(iomap, pos);
+ 		ssize_t map_len;
+-		pgoff_t pgoff;
+ 		void *kaddr;
+ 
+ 		if (fatal_signal_pending(current)) {
+@@ -1213,10 +1202,6 @@ static loff_t dax_iomap_iter(const struct iomap_iter *iomi,
+ 			break;
+ 		}
+ 
+-		ret = bdev_dax_pgoff(bdev, sector, size, &pgoff);
+-		if (ret)
+-			break;
+-
+ 		map_len = dax_direct_access(dax_dev, pgoff, PHYS_PFN(size),
+ 				&kaddr, NULL);
+ 		if (map_len < 0) {
+diff --git a/include/linux/dax.h b/include/linux/dax.h
+index 439c3c70e347b..324363b798ecd 100644
+--- a/include/linux/dax.h
++++ b/include/linux/dax.h
+@@ -107,7 +107,6 @@ static inline bool daxdev_mapping_supported(struct vm_area_struct *vma,
+ #endif
+ 
+ struct writeback_control;
+-int bdev_dax_pgoff(struct block_device *, sector_t, size_t, pgoff_t *pgoff);
+ #if IS_ENABLED(CONFIG_FS_DAX)
+ int dax_add_host(struct dax_device *dax_dev, struct gendisk *disk);
+ void dax_remove_host(struct gendisk *disk);
 -- 
 2.30.2
 
