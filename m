@@ -4,87 +4,72 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id F2902C433F5
-	for <virtualization@archiver.kernel.org>; Tue, 30 Nov 2021 09:53:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 67D0DC433F5
+	for <virtualization@archiver.kernel.org>; Tue, 30 Nov 2021 10:15:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 8FD63403D1;
-	Tue, 30 Nov 2021 09:53:06 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id EE3A340470;
+	Tue, 30 Nov 2021 10:15:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SRyAaMa7XZ1G; Tue, 30 Nov 2021 09:53:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 11DEC402F2;
-	Tue, 30 Nov 2021 09:53:05 +0000 (UTC)
+	with ESMTP id tLk4zKlxNxFJ; Tue, 30 Nov 2021 10:15:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 8412C40465;
+	Tue, 30 Nov 2021 10:15:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D6B39C001C;
-	Tue, 30 Nov 2021 09:53:04 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2E3B7C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5BADCC0012;
+	Tue, 30 Nov 2021 10:15:36 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5FCD8C000A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Nov 2021 09:53:03 +0000 (UTC)
+ Tue, 30 Nov 2021 10:15:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 0D297607B2
+ by smtp2.osuosl.org (Postfix) with ESMTP id 3BCB240114
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Nov 2021 09:53:03 +0000 (UTC)
+ Tue, 30 Nov 2021 10:15:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=suse.de header.b="QLkbib4g";
- dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
- header.d=suse.de header.b="2/16KbYs"
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GxVOSFnOLu3O
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id bXcRY1qVFhas
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Nov 2021 09:53:02 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
- by smtp3.osuosl.org (Postfix) with ESMTPS id E572C60687
+ Tue, 30 Nov 2021 10:15:32 +0000 (UTC)
+X-Greylist: delayed 00:06:34 by SQLgrey-1.8.0
+Received: from outbound-smtp38.blacknight.com (outbound-smtp38.blacknight.com
+ [46.22.139.221])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 970AA40018
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Nov 2021 09:53:01 +0000 (UTC)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by smtp-out2.suse.de (Postfix) with ESMTPS id 209E41FD54;
- Tue, 30 Nov 2021 09:52:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
- t=1638265979; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
- bh=ATdo/ghYChR2nzsUkdFUSNNSJCq5lsCTh/1wUcMk1xk=;
- b=QLkbib4gt2YyuOVnkjDmCeKlC25ouinmnnILzOCMs6rVTmOJoXMnVyAhE2+a5BQNFCejWB
- 0T1QHDLnuSKreFyNb5wew6eoPDKioah2vr1llQsWH8BOgqyOdNXBHO7Gk3fQg5cpR75nNI
- FC9FynZ/esSKl3EHuvNFL7u2Rb/njqw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
- s=susede2_ed25519; t=1638265979;
- h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
- bh=ATdo/ghYChR2nzsUkdFUSNNSJCq5lsCTh/1wUcMk1xk=;
- b=2/16KbYsKuyDJwpZjyKbCYPA/sQTTDJmX7JatNQieqZu0/OPANIp5erCtAAIwCOodojCEN
- HLXhlIJh/ffvg8Aw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
- (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
- key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
- (No client certificate requested)
- by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 9414813C98;
- Tue, 30 Nov 2021 09:52:58 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
- by imap2.suse-dmz.suse.de with ESMTPSA id Bon6Inr0pWHVJAAAMHmgww
- (envelope-from <tzimmermann@suse.de>); Tue, 30 Nov 2021 09:52:58 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@linux.ie,
- daniel@ffwll.ch, yuq825@gmail.com, robh@kernel.org,
- tomeu.vizoso@collabora.com, steven.price@arm.com,
- alyssa.rosenzweig@collabora.com, emma@anholt.net, kraxel@redhat.com,
- gurchetansingh@chromium.org, olvaffe@gmail.com, dan.carpenter@oracle.com
-Subject: [PATCH] drm: Return error codes from struct
- drm_driver.gem_create_object
-Date: Tue, 30 Nov 2021 10:52:55 +0100
-Message-Id: <20211130095255.26710-1-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.34.0
+ Tue, 30 Nov 2021 10:15:32 +0000 (UTC)
+Received: from mail.blacknight.com (pemlinmail03.blacknight.ie [81.17.254.16])
+ by outbound-smtp38.blacknight.com (Postfix) with ESMTPS id A7AA21E48
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 30 Nov 2021 10:08:55 +0000 (GMT)
+Received: (qmail 25169 invoked from network); 30 Nov 2021 10:08:55 -0000
+Received: from unknown (HELO techsingularity.net)
+ (mgorman@techsingularity.net@[84.203.17.29])
+ by 81.17.254.9 with ESMTPSA (AES256-SHA encrypted, authenticated);
+ 30 Nov 2021 10:08:55 -0000
+Date: Tue, 30 Nov 2021 10:08:53 +0000
+From: Mel Gorman <mgorman@techsingularity.net>
+To: Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [RFC PATCH 0/3] Use pageblock_order for cma and
+ alloc_contig_range alignment.
+Message-ID: <20211130100853.GP3366@techsingularity.net>
+References: <20211115193725.737539-1-zi.yan@sent.com>
+ <3083463d-978b-fbe6-dadf-670d400ed437@suse.cz>
+ <AEFF28CF-0ED8-450F-96A4-A6CD59CB1F3D@nvidia.com>
+ <BF8FB68A-6E1D-4465-8A2B-884FC034660B@nvidia.com>
+ <52dbf824-76be-cc34-3983-d45510b1b618@suse.cz>
+ <35A20739-152A-450E-8535-2236D2B28748@nvidia.com>
+ <1c67bb96-24db-f5a6-7520-3d97e54e5192@suse.cz>
 MIME-Version: 1.0
-Cc: Thomas Zimmermann <tzimmermann@suse.de>, lima@lists.freedesktop.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+Content-Disposition: inline
+In-Reply-To: <1c67bb96-24db-f5a6-7520-3d97e54e5192@suse.cz>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Cc: Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-mm@kvack.org, iommu@lists.linux-foundation.org, Zi Yan <ziy@nvidia.com>,
+ Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>,
+ Marek Szyprowski <m.szyprowski@samsung.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,215 +86,56 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-GEM helper libraries use struct drm_driver.gem_create_object to let
-drivers override GEM object allocation. On failure, the call returns
-NULL.
+On Tue, Nov 30, 2021 at 10:11:36AM +0100, Vlastimil Babka wrote:
+> >>> I find that two pageblocks with different migratetypes, like MIGRATE_RECLAIMABLE
+> >>> and MIGRATE_MOVABLE can be merged into a single free page after I checked
+> >>> __free_one_page() in detail and printed pageblock information during buddy page
+> >>> merging.
+> >>
+> >> Yes, that can happen.
+> >>
+> >> I am not sure what consequence it will cause. Do you have any idea?
+> >>
+> >> For MIGRATE_RECLAIMABLE or MIGRATE_MOVABLE or even MIGRATE_UNMOVABLE it's
+> >> absolutely fine. As long as these pageblocks are fully free (and they are if
+> >> it's a single free page spanning 2 pageblocks), they can be of any of these
+> >> type, as they can be reused as needed without causing fragmentation.
+> >>
+> >> But in case of MIGRATE_CMA and MIGRATE_ISOLATE, uncontrolled merging would
+> >> break the specifics of those types. That's why the code is careful for
+> >> MIGRATE_ISOLATE, and MIGRATE_CMA was until now done in MAX_ORDER granularity.
+> > 
+> > Thanks for the explanation. Basically migratetypes that can fall back to each
+> > other can be merged into a single free page, right?
+> 
+> Yes.
+> 
+> > How about MIGRATE_HIGHATOMIC? It should not be merged with other migratetypes
+> > from my understanding.
+> 
+> Hmm it shouldn't minimally because it has an accounting that would become
+> broken. So it should prevent merging or make sure the reservations are with
+> MAX_ORDER granularity, but seems that neither is true? CCing Mel.
+> 
 
-Change the semantics to make the calls return a pointer-encoded error.
-This aligns the callback with its callers. Fixes the ingenic driver,
-which already returns an error pointer.
+MIGRATE_HIGHATOMIC pageblocks can have pages allocated of different
+types, particularly UNMOVABLE and potentially RECLAIMABLE. The
+reserving or releasing MIGRATE_HIGHATOMIC pageblocks should be done with
+reserve_highatomic_pageblock and unreserve_highatomic_pageblock to get
+the accounting right.
 
-Also update the callers to handle the involved types more strictly.
+However, there does not appear to be any special protection against a
+page in a highatomic pageblock getting merged with a buddy of another
+pageblock type. The pageblock would still have the right setting but on
+allocation, the pages could split to the wrong free list and be lost
+until the pages belonging to MIGRATE_HIGHATOMIC were freed again.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
-There is an alternative patch at [1] that updates the value returned
-by ingenics' gem_create_object to NULL. Fixing the interface to return
-an errno code is more consistent with the rest of the GEM functions.
+Not sure how much of a problem that is in practice, it's been a while
+since I've heard of high-order atomic allocation failures.
 
-[1] https://lore.kernel.org/dri-devel/20211118111522.GD1147@kili/
----
- drivers/gpu/drm/drm_gem_cma_helper.c    | 17 ++++++++++-------
- drivers/gpu/drm/drm_gem_shmem_helper.c  | 17 ++++++++++-------
- drivers/gpu/drm/drm_gem_vram_helper.c   |  4 ++--
- drivers/gpu/drm/lima/lima_gem.c         |  2 +-
- drivers/gpu/drm/panfrost/panfrost_gem.c |  2 +-
- drivers/gpu/drm/v3d/v3d_bo.c            |  4 ++--
- drivers/gpu/drm/vc4/vc4_bo.c            |  2 +-
- drivers/gpu/drm/vgem/vgem_drv.c         |  2 +-
- drivers/gpu/drm/virtio/virtgpu_object.c |  2 +-
- include/drm/drm_drv.h                   |  5 +++--
- 10 files changed, 32 insertions(+), 25 deletions(-)
-
-diff --git a/drivers/gpu/drm/drm_gem_cma_helper.c b/drivers/gpu/drm/drm_gem_cma_helper.c
-index 7d4895de9e0d..cefd0cbf9deb 100644
---- a/drivers/gpu/drm/drm_gem_cma_helper.c
-+++ b/drivers/gpu/drm/drm_gem_cma_helper.c
-@@ -67,18 +67,21 @@ __drm_gem_cma_create(struct drm_device *drm, size_t size, bool private)
- 	struct drm_gem_object *gem_obj;
- 	int ret = 0;
-
--	if (drm->driver->gem_create_object)
-+	if (drm->driver->gem_create_object) {
- 		gem_obj = drm->driver->gem_create_object(drm, size);
--	else
--		gem_obj = kzalloc(sizeof(*cma_obj), GFP_KERNEL);
--	if (!gem_obj)
--		return ERR_PTR(-ENOMEM);
-+		if (IS_ERR(gem_obj))
-+			return ERR_CAST(gem_obj);
-+		cma_obj = to_drm_gem_cma_obj(gem_obj);
-+	} else {
-+		cma_obj = kzalloc(sizeof(*cma_obj), GFP_KERNEL);
-+		if (!cma_obj)
-+			return ERR_PTR(-ENOMEM);
-+		gem_obj = &cma_obj->base;
-+	}
-
- 	if (!gem_obj->funcs)
- 		gem_obj->funcs = &drm_gem_cma_default_funcs;
-
--	cma_obj = container_of(gem_obj, struct drm_gem_cma_object, base);
--
- 	if (private) {
- 		drm_gem_private_object_init(drm, gem_obj, size);
-
-diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-index 0eeda1012364..7915047cb041 100644
---- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-+++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -56,14 +56,17 @@ __drm_gem_shmem_create(struct drm_device *dev, size_t size, bool private)
-
- 	size = PAGE_ALIGN(size);
-
--	if (dev->driver->gem_create_object)
-+	if (dev->driver->gem_create_object) {
- 		obj = dev->driver->gem_create_object(dev, size);
--	else
--		obj = kzalloc(sizeof(*shmem), GFP_KERNEL);
--	if (!obj)
--		return ERR_PTR(-ENOMEM);
--
--	shmem = to_drm_gem_shmem_obj(obj);
-+		if (IS_ERR(obj))
-+			return ERR_CAST(obj);
-+		shmem = to_drm_gem_shmem_obj(obj);
-+	} else {
-+		shmem = kzalloc(sizeof(*shmem), GFP_KERNEL);
-+		if (!shmem)
-+			return ERR_PTR(-ENOMEM);
-+		obj = &shmem->base;
-+	}
-
- 	if (!obj->funcs)
- 		obj->funcs = &drm_gem_shmem_funcs;
-diff --git a/drivers/gpu/drm/drm_gem_vram_helper.c b/drivers/gpu/drm/drm_gem_vram_helper.c
-index bfa386b98134..3f00192215d1 100644
---- a/drivers/gpu/drm/drm_gem_vram_helper.c
-+++ b/drivers/gpu/drm/drm_gem_vram_helper.c
-@@ -197,8 +197,8 @@ struct drm_gem_vram_object *drm_gem_vram_create(struct drm_device *dev,
-
- 	if (dev->driver->gem_create_object) {
- 		gem = dev->driver->gem_create_object(dev, size);
--		if (!gem)
--			return ERR_PTR(-ENOMEM);
-+		if (IS_ERR(gem))
-+			return ERR_CAST(gem);
- 		gbo = drm_gem_vram_of_gem(gem);
- 	} else {
- 		gbo = kzalloc(sizeof(*gbo), GFP_KERNEL);
-diff --git a/drivers/gpu/drm/lima/lima_gem.c b/drivers/gpu/drm/lima/lima_gem.c
-index 2723d333c608..f9a9198ef198 100644
---- a/drivers/gpu/drm/lima/lima_gem.c
-+++ b/drivers/gpu/drm/lima/lima_gem.c
-@@ -221,7 +221,7 @@ struct drm_gem_object *lima_gem_create_object(struct drm_device *dev, size_t siz
-
- 	bo = kzalloc(sizeof(*bo), GFP_KERNEL);
- 	if (!bo)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
-
- 	mutex_init(&bo->lock);
- 	INIT_LIST_HEAD(&bo->va);
-diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
-index 6d9bdb9180cb..ead65f5fa2bc 100644
---- a/drivers/gpu/drm/panfrost/panfrost_gem.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
-@@ -223,7 +223,7 @@ struct drm_gem_object *panfrost_gem_create_object(struct drm_device *dev, size_t
-
- 	obj = kzalloc(sizeof(*obj), GFP_KERNEL);
- 	if (!obj)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
-
- 	INIT_LIST_HEAD(&obj->mappings.list);
- 	mutex_init(&obj->mappings.lock);
-diff --git a/drivers/gpu/drm/v3d/v3d_bo.c b/drivers/gpu/drm/v3d/v3d_bo.c
-index 0d9af62f69ad..6e3113f419f4 100644
---- a/drivers/gpu/drm/v3d/v3d_bo.c
-+++ b/drivers/gpu/drm/v3d/v3d_bo.c
-@@ -70,11 +70,11 @@ struct drm_gem_object *v3d_create_object(struct drm_device *dev, size_t size)
- 	struct drm_gem_object *obj;
-
- 	if (size == 0)
--		return NULL;
-+		return ERR_PTR(-EINVAL);
-
- 	bo = kzalloc(sizeof(*bo), GFP_KERNEL);
- 	if (!bo)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
- 	obj = &bo->base.base;
-
- 	obj->funcs = &v3d_gem_funcs;
-diff --git a/drivers/gpu/drm/vc4/vc4_bo.c b/drivers/gpu/drm/vc4/vc4_bo.c
-index 8520e440dbd1..6d1281a343e9 100644
---- a/drivers/gpu/drm/vc4/vc4_bo.c
-+++ b/drivers/gpu/drm/vc4/vc4_bo.c
-@@ -391,7 +391,7 @@ struct drm_gem_object *vc4_create_object(struct drm_device *dev, size_t size)
-
- 	bo = kzalloc(sizeof(*bo), GFP_KERNEL);
- 	if (!bo)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
-
- 	bo->madv = VC4_MADV_WILLNEED;
- 	refcount_set(&bo->usecnt, 0);
-diff --git a/drivers/gpu/drm/vgem/vgem_drv.c b/drivers/gpu/drm/vgem/vgem_drv.c
-index a87eafa89e9f..c5e3e5457737 100644
---- a/drivers/gpu/drm/vgem/vgem_drv.c
-+++ b/drivers/gpu/drm/vgem/vgem_drv.c
-@@ -97,7 +97,7 @@ static struct drm_gem_object *vgem_gem_create_object(struct drm_device *dev, siz
-
- 	obj = kzalloc(sizeof(*obj), GFP_KERNEL);
- 	if (!obj)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
-
- 	/*
- 	 * vgem doesn't have any begin/end cpu access ioctls, therefore must use
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 187e10da2f17..baef2c5f2aaf 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -139,7 +139,7 @@ struct drm_gem_object *virtio_gpu_create_object(struct drm_device *dev,
-
- 	shmem = kzalloc(sizeof(*shmem), GFP_KERNEL);
- 	if (!shmem)
--		return NULL;
-+		return ERR_PTR(-ENOMEM);
-
- 	dshmem = &shmem->base.base;
- 	dshmem->base.funcs = &virtio_gpu_shmem_funcs;
-diff --git a/include/drm/drm_drv.h b/include/drm/drm_drv.h
-index da0c836fe8e1..f6159acb8856 100644
---- a/include/drm/drm_drv.h
-+++ b/include/drm/drm_drv.h
-@@ -291,8 +291,9 @@ struct drm_driver {
- 	/**
- 	 * @gem_create_object: constructor for gem objects
- 	 *
--	 * Hook for allocating the GEM object struct, for use by the CMA and
--	 * SHMEM GEM helpers.
-+	 * Hook for allocating the GEM object struct, for use by the CMA
-+	 * and SHMEM GEM helpers. Returns a GEM object on success, or an
-+	 * ERR_PTR()-encoded error code otherwise.
- 	 */
- 	struct drm_gem_object *(*gem_create_object)(struct drm_device *dev,
- 						    size_t size);
---
-2.34.0
-
+-- 
+Mel Gorman
+SUSE Labs
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
