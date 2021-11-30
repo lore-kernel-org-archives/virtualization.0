@@ -1,73 +1,70 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D6E7EC433EF
-	for <virtualization@archiver.kernel.org>; Tue, 30 Nov 2021 14:52:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 3BF0BC433EF
+	for <virtualization@archiver.kernel.org>; Tue, 30 Nov 2021 14:57:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 69E10402E9;
-	Tue, 30 Nov 2021 14:52:00 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id C3E5782605;
+	Tue, 30 Nov 2021 14:57:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id K9GZ8oPMRBoX; Tue, 30 Nov 2021 14:51:59 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 69nTdWd6mSbk; Tue, 30 Nov 2021 14:57:08 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id DEA904021F;
-	Tue, 30 Nov 2021 14:51:58 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 78034817EB;
+	Tue, 30 Nov 2021 14:57:07 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C55A8C0012;
-	Tue, 30 Nov 2021 14:51:58 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8EA91C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4380BC0012;
+	Tue, 30 Nov 2021 14:57:07 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 027E4C000A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Nov 2021 14:51:57 +0000 (UTC)
+ Tue, 30 Nov 2021 14:57:07 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 70E6E40393
+ by smtp1.osuosl.org (Postfix) with ESMTP id E4A9981842
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Nov 2021 14:51:57 +0000 (UTC)
+ Tue, 30 Nov 2021 14:57:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=kernel.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qLNZy_kO_ccc
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id a5-sCDH4zu6h
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Nov 2021 14:51:56 +0000 (UTC)
+ Tue, 30 Nov 2021 14:57:05 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from sin.source.kernel.org (sin.source.kernel.org
- [IPv6:2604:1380:40e1:4800::1])
- by smtp4.osuosl.org (Postfix) with ESMTPS id 26362403A8
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id C0FAC817EB
  for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Nov 2021 14:51:56 +0000 (UTC)
+ Tue, 30 Nov 2021 14:57:05 +0000 (UTC)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by sin.source.kernel.org (Postfix) with ESMTPS id 23752CE1A5D;
- Tue, 30 Nov 2021 14:51:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7293BC53FD1;
- Tue, 30 Nov 2021 14:51:49 +0000 (UTC)
+ by ams.source.kernel.org (Postfix) with ESMTPS id 209EFB81A34;
+ Tue, 30 Nov 2021 14:50:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAD23C53FC1;
+ Tue, 30 Nov 2021 14:50:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=k20201202; t=1638283910;
- bh=rG5KoghkyfV7pz9bOTRLk+mJ5sE6VXKu+6Aw2KfwALs=;
+ s=k20201202; t=1638283807;
+ bh=HNxKbjB96XxCJFowlbjGxNOiW3Tjj8GTqWkuCBB7DGc=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=fSWbO6Wl8mkWUWZb0MZTPDpEd4fKnV21ullPuVPeHLmrWgmjuXnXFVp5n5U8iutea
- UNuPojMMcHTIM/ORAiUWk0LmF+nzqyR65orluwgdHOqGhzY27CfCpOtcBxrILYVsnB
- E7B2LdWEbdmhyYCoNrtHXEObxVZw4dEN37n0C5qUZ7fUSoCM47pPd3rgIuB+oEZFHJ
- Izi2st7ME7GGBgYNOsoRGhCaWRrtAdxZE30dSzt2lyZCgWF3GBAuB3hEGdoGpMwAvA
- 7aslSIFd+uPbsssuYTTKvv2UBJ/VFZuVfVqEDD1T+cHN8hrE35PdxLNsxfAwPz1JDE
- Jelk/vReB9nGA==
+ b=f7biZn8imblMLA8gd2rqI6G8NZEGuStcPdlox/bQ+uZ1QUE+JO52helIL67wH6Jq+
+ f28CKv7Eq8uwPP51+FGJB15/vHOX5BIFtDNGpDvZRyOtVnqHRpoUiUiOoDoAqNHRek
+ f4e7Db1IWPXIx9Q6d/NWnncSQik9THy2hRA7aP0BlYV9zWiETc5cuRc5BE4QQ5rxPl
+ 2tZGMCFtm31PeROXdyR6XqHoCk+K4VLiBIY2RXXZIeaY/mQ938Yqg1uUw8u1rc/jBA
+ 3fld6Sayg7Ux/CF0IDARBrQwjiGlVpC7xfm3qVxkhMGGcfqEx3GMunt5Zap6A+hqVt
+ 583tNCrf2P9rg==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 40/43] vhost-vdpa: clean irqs before reseting
+Subject: [PATCH AUTOSEL 5.15 61/68] vhost-vdpa: clean irqs before reseting
  vdpa device
-Date: Tue, 30 Nov 2021 09:50:17 -0500
-Message-Id: <20211130145022.945517-40-sashal@kernel.org>
+Date: Tue, 30 Nov 2021 09:46:57 -0500
+Message-Id: <20211130144707.944580-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211130145022.945517-1-sashal@kernel.org>
-References: <20211130145022.945517-1-sashal@kernel.org>
+In-Reply-To: <20211130144707.944580-1-sashal@kernel.org>
+References: <20211130144707.944580-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -111,10 +108,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index fdeb20f2f174c..dc4dccd35f59b 100644
+index 39039e0461175..e73bff6fcff98 100644
 --- a/drivers/vhost/vdpa.c
 +++ b/drivers/vhost/vdpa.c
-@@ -928,12 +928,12 @@ static int vhost_vdpa_release(struct inode *inode, struct file *filep)
+@@ -1015,12 +1015,12 @@ static int vhost_vdpa_release(struct inode *inode, struct file *filep)
  
  	mutex_lock(&d->mutex);
  	filep->private_data = NULL;
