@@ -1,126 +1,95 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 7B028C433EF
-	for <virtualization@archiver.kernel.org>; Tue, 30 Nov 2021 04:30:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4B21BC433EF
+	for <virtualization@archiver.kernel.org>; Tue, 30 Nov 2021 09:11:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 1843F40155;
-	Tue, 30 Nov 2021 04:30:12 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id E6CC7405A0;
+	Tue, 30 Nov 2021 09:11:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Z0K7AaSQk5rQ; Tue, 30 Nov 2021 04:30:11 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 610314015E;
-	Tue, 30 Nov 2021 04:30:10 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1scwK3on-BWH; Tue, 30 Nov 2021 09:11:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id A15FF40561;
+	Tue, 30 Nov 2021 09:11:43 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 33324C001C;
-	Tue, 30 Nov 2021 04:30:10 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 89651C000A
- for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Nov 2021 04:30:08 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2B88CC0038;
+	Tue, 30 Nov 2021 09:11:43 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 62F9DC000A;
+ Tue, 30 Nov 2021 09:11:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 6FB736075B
- for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Nov 2021 04:30:08 +0000 (UTC)
+ by smtp4.osuosl.org (Postfix) with ESMTP id 50B0C40536;
+ Tue, 30 Nov 2021 09:11:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=nvidia.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id UuWrfiGbIGkf
- for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Nov 2021 04:30:07 +0000 (UTC)
-X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com
- (mail-dm6nam12on2044.outbound.protection.outlook.com [40.107.243.44])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 9D9BF6060E
- for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Nov 2021 04:30:07 +0000 (UTC)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=AasB4UjBwezmxV5irvGPrzAe5nw9dK/ACNakvSX3lvzQ1ZLer3AEqb19VR1pTYGUALmPkgUDaZJmxaGHFnw9GLQJEAGcFgUEw9KVh29ErT83S3Krw8KPmQzl4rgy+yJqW6BAhNLiYGtknzd9iqeWeRbaf7Fcc5aeorTleHRBbUpvJh7TuS+sqMycGQkluhVyvQLxisBNw8OLCCbvyO/KmN9/l3bbzmeYJWzUEjruqZC+gAmLni/HPMgHA4lKtXQg6I3+w3V8dpd6aOHNptQ7Sp9hUY/F0W6JJ4VLlwiOkK0+B7GW7EWVCQV/d6C02j1Onj990OMAVOyUEdgdJoCdjg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=bVJQ9l0OXua9T/P42CXL2suYizR+TIfbJb9aA0Kgk1k=;
- b=S8WlsocYFFhjG0cecEANcTY9Vokq6c+096YwHq8VzfghBEiqGd+OTVHjzLGeCKMgGgzYyoR34T1SMWYaJSNxUH2rHNctoxS/8T8d070oOLvBkbJmiBGJhOtTXQ2qFhIIGgFtjsofLf63HJZMHPARc5HO/Gq1bXDQZ+J3TJZyKeg4eLL9WMEaODENq/38F/wM8/fRfXp5MxYXSUDAB82iVdVrB+4qL5qRQbK9J8CZvIJubHt05ohwl8KQ4HSCjhCvjcwazrXVUoOwW5xWKEA3yPAHIwTDubx/a6rMiMc/3SAn1K5sXyGm73OdfISOggPjtY3DmJZGUSLeTjLTxOs6fA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.32) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=nvidia.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=nvidia.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=bVJQ9l0OXua9T/P42CXL2suYizR+TIfbJb9aA0Kgk1k=;
- b=h/Y01iGkjtQQkqCKIkVLV80KnXjGjFWBXmD9njI0ykMTqRRgb2JeQ+B3I29e8Cs1bbsIxBhY2w1jI70C/tiYkBcvQ9Ku4WJjMbC7hwvlkQDNG2fYxzXmAmyrw02qHrFyNTSpp0sc5qCKMZb0PsxmMx2gekli2EDSDXvmhS29tH7sCOiJL30HTkOrvYcR2/hZ+OqEK4v85jOGxLcghQ2Vd73BW06kvGjFV4fJMzaCfbeyPhaISeq+5WXv/1+AM3G4Tgz3lKEFUR8l1MzgU/A7TEXKkah6yzYJU8pS85imaS44IfXAdfsAUtZMhZ/paSAUfS/4R1LVmElmnmytD4RfhQ==
-Received: from MW4P223CA0028.NAMP223.PROD.OUTLOOK.COM (2603:10b6:303:80::33)
- by BN6PR12MB1778.namprd12.prod.outlook.com (2603:10b6:404:106::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.19; Tue, 30 Nov
- 2021 04:30:04 +0000
-Received: from CO1NAM11FT010.eop-nam11.prod.protection.outlook.com
- (2603:10b6:303:80:cafe::1b) by MW4P223CA0028.outlook.office365.com
- (2603:10b6:303:80::33) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4734.23 via Frontend
- Transport; Tue, 30 Nov 2021 04:30:03 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.32)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.32 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.32; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.32) by
- CO1NAM11FT010.mail.protection.outlook.com (10.13.175.88) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4734.22 via Frontend Transport; Tue, 30 Nov 2021 04:30:03 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by HQMAIL109.nvidia.com
- (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Mon, 29 Nov
- 2021 20:30:02 -0800
-Received: from sw-mtx-036.mtx.labs.mlnx (172.20.187.5) by
- rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.986.5; 
- Mon, 29 Nov 2021 20:30:00 -0800
-To: <virtualization@lists.linux-foundation.org>, <mst@redhat.com>,
- <jasowang@redhat.com>
-Subject: [PATCH v1] vdpa: Consider device id larger than 31
-Date: Tue, 30 Nov 2021 06:29:49 +0200
-Message-ID: <20211130042949.88958-1-parav@nvidia.com>
-X-Mailer: git-send-email 2.26.2
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id K3sjE7pMpBme; Tue, 30 Nov 2021 09:11:41 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp4.osuosl.org (Postfix) with ESMTPS id 2C54740561;
+ Tue, 30 Nov 2021 09:11:40 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id 4CB341FD38;
+ Tue, 30 Nov 2021 09:11:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+ t=1638263497; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=V8fxSkdBQ2ajgsZMhQYuiid+yRFZut1IgGX00dpY3vw=;
+ b=GbGxdWqS1PKYITNOyIsjZ8f0rMM+b17I8L3kRhVKESRkn6E0ETjrVP9iYQH5OjyGCAotPj
+ VX8JPdAgH1+Bt08MkB7ShuBbHuFliZzI/XYxKsIufjKsXZzmTH4yG2SoHagH5lkYBx7YFJ
+ xQRlnWbWisJoN2wKOIuS6Lhf6qmik38=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+ s=susede2_ed25519; t=1638263497;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=V8fxSkdBQ2ajgsZMhQYuiid+yRFZut1IgGX00dpY3vw=;
+ b=O8UDBVoKu0061EyDRxTTT6iRINdMQ5VnRmzqlz2yOrUzueRjRUeOLpi9YLsImfspmpMTn8
+ mbCD40CcLeVDpoAg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 182D913C3D;
+ Tue, 30 Nov 2021 09:11:37 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id PNstBcnqpWGtEAAAMHmgww
+ (envelope-from <vbabka@suse.cz>); Tue, 30 Nov 2021 09:11:37 +0000
+Message-ID: <1c67bb96-24db-f5a6-7520-3d97e54e5192@suse.cz>
+Date: Tue, 30 Nov 2021 10:11:36 +0100
 MIME-Version: 1.0
-X-Originating-IP: [172.20.187.5]
-X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: a915042d-c290-492d-f3f5-08d9b3ba1470
-X-MS-TrafficTypeDiagnostic: BN6PR12MB1778:
-X-Microsoft-Antispam-PRVS: <BN6PR12MB1778CCA1C5064EC69C774A53DC679@BN6PR12MB1778.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1265;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: ndaXzwqfj0O/qsCKUMYUXVclSx8gilKqe4+lGvvOcCE1d2FdiJwJ6l5jQAmQJlhbHk071M8ClonLDMQW8GbXdgHuzSnyywyRadMU+XGvdwptdC29leAe3JhRtvYXrzjnB4i6OFus6g8Ft9F78ufJabxNg1Jr+4xp/LMkhvuAvtcFQRJnBlGajrAmC3eFlG9YKTMX5RyrqNpJRFnj6CnYaATRntPEthvBUxRG9Hz/C5e4dinBfL68JSPahAQvV6k5TBdlEls7ZZVn8YIUunt24W9efACxKucuQuRWonQXl1GmQChLBWb4Lp1xL/nRxkA6sVp0XJuZVnMWjFY+mKflmaWz52/tyPlOwin3zK0S3ws8oXsSnhGvsBaEP1wqVFOo9YS8HLCnyx3PnA+p0ZrpRlbxCyPjUFDLR0sUBO6OL1r1m61j09SZCSmZUkmrxN24GGbKQ+tOqI54vyxLvaAGpSO1rpifMpGiHb/hq8X4vy+QIxG862WNy6BgaRXK5UF5yxcepCWYsU4vVkP00e7QF+GMcNbzSbmcJaxaQkOeDotVx5rIf6iMfjPmCeTsrEKrzWvISrMQvEEBiBdYEzEtioxCoZBMWkJC/uEmjSIxogiiXo9rqg/idGLbYLmGW4f4JvrbYTKtQMyaVqbi9WISYITJxZ2lsWFZe6+ioAQl/aF43hjVvpa0fJ/DaLDAWdhlT0CdjyBGgxZdPRCmH+ll1WEISpLaWGMGDVuFVWOmYXCXxUyPIgaTcxUrTyhbdo3OGeRjfg3/poWqZVgk38oeJw==
-X-Forefront-Antispam-Report: CIP:216.228.112.32; CTRY:US; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:mail.nvidia.com; PTR:schybrid01.nvidia.com; CAT:NONE;
- SFS:(4636009)(36840700001)(46966006)(40470700001)(5660300002)(36860700001)(7636003)(6666004)(83380400001)(508600001)(107886003)(1076003)(26005)(82310400004)(40460700001)(36756003)(336012)(2616005)(316002)(86362001)(426003)(47076005)(2906002)(4744005)(110136005)(70206006)(16526019)(70586007)(186003)(8936002)(54906003)(4326008)(8676002)(356005);
- DIR:OUT; SFP:1101; 
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Nov 2021 04:30:03.6712 (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: a915042d-c290-492d-f3f5-08d9b3ba1470
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a; Ip=[216.228.112.32];
- Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT010.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR12MB1778
-Cc: kbuild-all@lists.01.org, lkp@intel.com, kbuild@lists.01.org,
- linux-kernel@vger.kernel.org, edumazet@google.com, elic@nvidia.com,
- dan.carpenter@oracle.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.2
+Subject: Re: [RFC PATCH 0/3] Use pageblock_order for cma and
+ alloc_contig_range alignment.
+Content-Language: en-US
+To: Zi Yan <ziy@nvidia.com>
+References: <20211115193725.737539-1-zi.yan@sent.com>
+ <3083463d-978b-fbe6-dadf-670d400ed437@suse.cz>
+ <AEFF28CF-0ED8-450F-96A4-A6CD59CB1F3D@nvidia.com>
+ <BF8FB68A-6E1D-4465-8A2B-884FC034660B@nvidia.com>
+ <52dbf824-76be-cc34-3983-d45510b1b618@suse.cz>
+ <35A20739-152A-450E-8535-2236D2B28748@nvidia.com>
+From: Vlastimil Babka <vbabka@suse.cz>
+In-Reply-To: <35A20739-152A-450E-8535-2236D2B28748@nvidia.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>,
+ Michael Ellerman <mpe@ellerman.id.au>, linuxppc-dev@lists.ozlabs.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-mm@kvack.org, iommu@lists.linux-foundation.org,
+ Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>,
+ Marek Szyprowski <m.szyprowski@samsung.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -132,46 +101,65 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: Parav Pandit via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-virtio device id value can be more than 31. Hence, use BIT_ULL in
-assignment.
+On 11/29/21 23:08, Zi Yan wrote:
+> On 23 Nov 2021, at 12:32, Vlastimil Babka wrote:
+> 
+>> On 11/23/21 17:35, Zi Yan wrote:
+>>> On 19 Nov 2021, at 10:15, Zi Yan wrote:
+>>>>>> From what my understanding, cma required alignment of
+>>>>>> max(MAX_ORDER - 1, pageblock_order), because when MIGRATE_CMA was introduced,
+>>>>>> __free_one_page() does not prevent merging two different pageblocks, when
+>>>>>> MAX_ORDER - 1 > pageblock_order. But current __free_one_page() implementation
+>>>>>> does prevent that.
+>>>>>
+>>>>> But it does prevent that only for isolated pageblock, not CMA, and yout
+>>>>> patchset doesn't seem to expand that to CMA? Or am I missing something.
+>>>>
+>>>> Yeah, you are right. Originally, I thought preventing merging isolated pageblock
+>>>> with other types of pageblocks is sufficient, since MIGRATE_CMA is always
+>>>> converted from MIGRATE_ISOLATE. But that is not true. I will rework the code.
+>>>> Thanks for pointing this out.
+>>>>
+>>>
+>>> I find that two pageblocks with different migratetypes, like MIGRATE_RECLAIMABLE
+>>> and MIGRATE_MOVABLE can be merged into a single free page after I checked
+>>> __free_one_page() in detail and printed pageblock information during buddy page
+>>> merging.
+>>
+>> Yes, that can happen.
+>>
+>> I am not sure what consequence it will cause. Do you have any idea?
+>>
+>> For MIGRATE_RECLAIMABLE or MIGRATE_MOVABLE or even MIGRATE_UNMOVABLE it's
+>> absolutely fine. As long as these pageblocks are fully free (and they are if
+>> it's a single free page spanning 2 pageblocks), they can be of any of these
+>> type, as they can be reused as needed without causing fragmentation.
+>>
+>> But in case of MIGRATE_CMA and MIGRATE_ISOLATE, uncontrolled merging would
+>> break the specifics of those types. That's why the code is careful for
+>> MIGRATE_ISOLATE, and MIGRATE_CMA was until now done in MAX_ORDER granularity.
+> 
+> Thanks for the explanation. Basically migratetypes that can fall back to each
+> other can be merged into a single free page, right?
 
-Fixes: 33b347503f01 ("vdpa: Define vdpa mgmt device, ops and a netlink interface")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
----
-changelog:
-v0->v1:
- - supporting device id up to 63
----
- drivers/vdpa/vdpa.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Yes.
 
-diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-index 7332a74a4b00..09bbe53c3ac4 100644
---- a/drivers/vdpa/vdpa.c
-+++ b/drivers/vdpa/vdpa.c
-@@ -404,7 +404,8 @@ static int vdpa_mgmtdev_fill(const struct vdpa_mgmt_dev *mdev, struct sk_buff *m
- 		goto msg_err;
- 
- 	while (mdev->id_table[i].device) {
--		supported_classes |= BIT(mdev->id_table[i].device);
-+		if (mdev->id_table[i].device <= 63)
-+			supported_classes |= BIT_ULL(mdev->id_table[i].device);
- 		i++;
- 	}
- 
--- 
-2.26.2
+> How about MIGRATE_HIGHATOMIC? It should not be merged with other migratetypes
+> from my understanding.
+
+Hmm it shouldn't minimally because it has an accounting that would become
+broken. So it should prevent merging or make sure the reservations are with
+MAX_ORDER granularity, but seems that neither is true? CCing Mel.
+
+> --
+> Best Regards,
+> Yan, Zi
+> 
 
 _______________________________________________
 Virtualization mailing list
