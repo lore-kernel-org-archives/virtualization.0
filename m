@@ -1,100 +1,145 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 66305C433F5
-	for <virtualization@archiver.kernel.org>; Thu,  2 Dec 2021 03:12:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 2AC57C433EF
+	for <virtualization@archiver.kernel.org>; Thu,  2 Dec 2021 03:32:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id CD0CD607C2;
-	Thu,  2 Dec 2021 03:12:44 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id A1D0640664;
+	Thu,  2 Dec 2021 03:32:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp3.osuosl.org ([127.0.0.1])
-	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id yUkvwLEZI2ZR; Thu,  2 Dec 2021 03:12:44 +0000 (UTC)
+Received: from smtp4.osuosl.org ([127.0.0.1])
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 17TH1ncbhvGU; Thu,  2 Dec 2021 03:32:33 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 7252760711;
-	Thu,  2 Dec 2021 03:12:43 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id EF81140641;
+	Thu,  2 Dec 2021 03:32:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3BD34C0012;
-	Thu,  2 Dec 2021 03:12:43 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B99D9C0012;
+	Thu,  2 Dec 2021 03:32:32 +0000 (UTC)
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [IPv6:2605:bc80:3010::136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C153CC000A
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3E0C5C000A
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Dec 2021 03:12:41 +0000 (UTC)
+ Thu,  2 Dec 2021 03:32:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id A798B607B7
+ by smtp3.osuosl.org (Postfix) with ESMTP id 223F7607B9
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Dec 2021 03:12:41 +0000 (UTC)
+ Thu,  2 Dec 2021 03:32:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=nvidia.com
 Received: from smtp3.osuosl.org ([127.0.0.1])
  by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yXXZWsPGMEDq
+ with ESMTP id AzwVzGAi7tCY
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Dec 2021 03:12:40 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 96CAC60711
+ Thu,  2 Dec 2021 03:32:29 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from NAM02-BN1-obe.outbound.protection.outlook.com
+ (mail-bn1nam07on2062d.outbound.protection.outlook.com
+ [IPv6:2a01:111:f400:7eb2::62d])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id C2B06607B7
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Dec 2021 03:12:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1638414759;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=xVgflJHaF1j7g8uerCAN33DYEdhX1y5Z75xZHZOUsZ0=;
- b=TSA8C+nhJ9HdmtUA0PCtu8GezPfNzBferLUmD4K0VEZaxCpS37IteoFaJQ8/98cMOsjfoA
- e1v+lDzlZtpt8SKjfirh2QxtcisFf0jwILb1RgqRBtp1dURz0NV9d1hF6YCj/KX8iWPeaW
- mtj3BehC+4wbb8JTWysXRKOD5pcrEYI=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-261-fq9NIv5BP12wmnfsHUWqVg-1; Wed, 01 Dec 2021 22:12:38 -0500
-X-MC-Unique: fq9NIv5BP12wmnfsHUWqVg-1
-Received: by mail-lf1-f69.google.com with SMTP id
- i6-20020a0565123e0600b00417d29eede4so6161461lfv.12
- for <virtualization@lists.linux-foundation.org>;
- Wed, 01 Dec 2021 19:12:37 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=xVgflJHaF1j7g8uerCAN33DYEdhX1y5Z75xZHZOUsZ0=;
- b=vjJFS58kRRZZGdSdRARRq04QgI1FJ5uiTbz+AY8m0pMjtt3xwHOszUM03fKOlslZZd
- iESJYozetl+23tDkfHPDwgATYFCrVgL+9TjyT60FRS+feL+tjYObuXE+xkq27IKFtoBM
- ratGOKaIELz5Q+y4DIOv2H/+L4D5R6bVsA3QoAHTHrI1nEERghnrKzga7kmkPtUd5ZZ2
- WEE1Imf3C/+wDAEUxA6TNY0DHSZrVKZ4ZKW2WrHxtVfP2FXsyIX7XOnKcVsa6rITdeio
- j2HBQqLppoPNN99ej6sa6qkMUSXvJtlHMbLYDnMLNwPZC6YwZFmm4Y0yX9004tP6WQ4A
- bnHw==
-X-Gm-Message-State: AOAM530D5LxeqfRUGgRyW4G7ZEB9WQV2GtjZtCuC/IkG0p2g3wPvsola
- HlpSuDeoubiLgP8NR6QT2Cv3wFkNBxigCCIAGHEd9lljDo4QLafts9tn0RKpBvj/Xz2FTMLymrT
- 0glYXyACryZWBoZr4t6MEVW0vuCuDQdlrCfACLMpq6KeGBm50IOuZdUwpIQ==
-X-Received: by 2002:a05:6512:685:: with SMTP id
- t5mr9795911lfe.84.1638414756473; 
- Wed, 01 Dec 2021 19:12:36 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyw3w5n79ljGY0VlIaSf9/IlrBtw0r+CsnB6lzMaAIT72SuPP/eOUmVRb7AsYoSC0+rAFwjT0tZSpLJXhNsoDU=
-X-Received: by 2002:a05:6512:685:: with SMTP id
- t5mr9795887lfe.84.1638414756236; 
- Wed, 01 Dec 2021 19:12:36 -0800 (PST)
+ Thu,  2 Dec 2021 03:32:29 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ni4+U5TUi/6s+/6FsWbuJdAfD9DtfMCbkpryYylGFUCpjQSiv2LDsmzQqD9QkxM0Z6DWhjOnnZf5dVc5wGnbFqysEzXUl3Ddq6KY7oYHHAlQBQYJgjzLqQSO4p/zLgnJ4244nIninDa4h46dszwXmrF4ejpEkeE7PIa3TygXYbO0g6LYL+jV5/w4C1wS0aU/oEbg/LvaLJDpHmTWtIrGzt6K48mDyXwZQ77IleacM3t6IU4orPqBCYq2n/scW87+50AuxG3osmblFIeINR1N3qviTtSd0BXNZPQIEaS4SL/CY3PCCII8KZ1KxqKZ5AvJ2GBUNdZd3J/cN9w5ILdgMg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=+PkXyo2iEtMoKBjb0aQ39OUcv/aCLxIZxRZxEETqNH0=;
+ b=iaB3Pq/FM14sjPJoAEHo0+W2dI1VOVtlkj7GuffuueCdm+tLqDbxOED1w/GWPFiBIZlaIDrQmTjbk0IPgf+VS5XjNaJEVyJvQpi1TaPFxBAQZHFqechkQscQrskGXU+B7LdS/S2Suew11JySBV/Nx/k29rLVhXZWOiD47wzFBT2gJbdLMhMCCuf6pDOueE4k3il1izfImJkV7L5HLQebMKTs7rTctR36CcUB/ZcLJXUEm/s8TvkxUawOsOVd1hmOtw9d0C1ifk8Rd+WPSF2uDR2tz8WoghC15g62hhte9UuKKBC/kEGjdh9QtkkF1dxq1k3P4cBRaVRJizbIzwaoNQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=+PkXyo2iEtMoKBjb0aQ39OUcv/aCLxIZxRZxEETqNH0=;
+ b=SfYHLluCHurwTEIIs2mEvPwr0mKiMESh+raR9A0yaV/bnNIHsdnk2hKHD3h8ljOuo1t4jYD0CcG/tGa7SZZG0w26dGeHN3N1dBggiXV5N7XQPDebk2yUbPvMyjkrZmCXuW9/Mi4EbT/goxJ5yAPMbDlytG5l2U75qlJA3uFcTzuwqnP226fKDDVAZmOkSvZNsN33I63wNUpakPaLc1IWY56L9IM9jlasW07NlTsjgOBagp+RXu3klSSUAKuT51BHXJE6zI5cZJWUWdk22voui1Zi0BbIeCSdjwgGwFvVTOIqV3R6J+W6USnvJVxG1rf0w92xy5h6vs8o7QJlURn6ng==
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com (2603:10b6:510:d4::15)
+ by PH0PR12MB5482.namprd12.prod.outlook.com (2603:10b6:510:ea::18)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4755.16; Thu, 2 Dec
+ 2021 03:32:26 +0000
+Received: from PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::5ce0:ef86:a707:3c51]) by PH0PR12MB5481.namprd12.prod.outlook.com
+ ([fe80::5ce0:ef86:a707:3c51%7]) with mapi id 15.20.4755.016; Thu, 2 Dec 2021
+ 03:32:26 +0000
+To: Eli Cohen <elic@nvidia.com>, "mst@redhat.com" <mst@redhat.com>,
+ "jasowang@redhat.com" <jasowang@redhat.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>
+Subject: RE: [PATCH 1/7] vdpa: Allow to configure max data virtqueues
+Thread-Topic: [PATCH 1/7] vdpa: Allow to configure max data virtqueues
+Thread-Index: AQHX5u3YwwZGwe8VQ06DL5pVTy5xdqweitgg
+Date: Thu, 2 Dec 2021 03:32:25 +0000
+Message-ID: <PH0PR12MB54810B8C4147AF8069064512DC699@PH0PR12MB5481.namprd12.prod.outlook.com>
+References: <20211201195724.17503-1-elic@nvidia.com>
+ <20211201195724.17503-2-elic@nvidia.com>
+In-Reply-To: <20211201195724.17503-2-elic@nvidia.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: b650a75d-e195-4620-96ca-08d9b5445c46
+x-ms-traffictypediagnostic: PH0PR12MB5482:
+x-microsoft-antispam-prvs: <PH0PR12MB5482877353E86F52B3401C60DC699@PH0PR12MB5482.namprd12.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:2449;
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: BwNF4FKBYRfs/Mc6FDUakU5pGrUntjMLODpse+mbXk/yCVebnnv+HbVvAW2O7+A+T+sQrmhIzufxutwjrLBdczbTmL9rkmehxCknxNGzIW/YdEEWE3mXgcF43HSzaZOZevUUYPu5cfvVPG/6wtsHtgG0SC0BDRqsZno1ZXWCSYP5fvQm9kTIm+DDkujBnlohdm4h/tV6G6KpuiVVjh3NaIILuImQCcyTnmexBCzVtFMAk52ajSR3vOcscsxojnuasHE2tKkmN+Mu6/bZmKZ13uftk4mtF/Vm9qO5l2bajKo/HM4QrqqjIqfOVOn6GEY5wniLnVZLgKmDV3AI7ZsKGv6UPz6gsymXqCFKPNcZRrZnHnedDTpt45bsVZVuhY10AKajvuLm6m7wz+q9T4OWZItDUCKMcdc9fD7xIUVFvWXbERfHfEpWhYKS7+9D8yOIzYktkvcIToiVCw1oFUwvAcrTxs3JPVa4MvrWOcfGpG+OdAi7qstkC0GsI9HcuXbIiHBlG64UoNITfNezmvy1EpF6/jmzR7EGWHJd1tFbsN9xFZcaLCAuPVA821UhsaxItlXspDfQQC2jr7htNXfid2XaZ/F7xdyaY6VpZLkZeURTshgJdLwc0PPkP51xKZcGRWOjBhpDjIa0YtFY8mdEKUSsq4HSMCoRITYJXP33UHNjFe8fRmERQlxDc4MyFV4J8eT+ga+Xy2SkrTwbeHE6PQ==
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:PH0PR12MB5481.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(4636009)(366004)(83380400001)(71200400001)(508600001)(52536014)(122000001)(38070700005)(110136005)(6506007)(316002)(38100700002)(7696005)(66946007)(66446008)(66556008)(8936002)(4326008)(186003)(64756008)(26005)(33656002)(66476007)(5660300002)(76116006)(8676002)(2906002)(9686003)(86362001)(55016003)(54906003);
+ DIR:OUT; SFP:1101; 
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?yw41IJEzB/El2VNNdmndRSUv7V999zt0FxB0yGxMYiElBPZE1WJV3FxBBwFy?=
+ =?us-ascii?Q?obPCLdSD2CFYsaG5K6L/MtNvPXhHy5RhrJ3sxsBvfTkU6yoH7EIh8DMRDysR?=
+ =?us-ascii?Q?f0mMW48GJ8/fNtaPYkMdRc2jj7eHTDVMmtdwvl7N3WEOYJHWYVjyebf9ZhY9?=
+ =?us-ascii?Q?BEvl9BCi4MmfKY78PLwLiQ1ye1zjyHgYsYlyhbJqGMb+rzWZVlmrcqnvDFzb?=
+ =?us-ascii?Q?KGPzB8O7bfbSRTPQDr2I6LDWl0PxHPWFxN8SeP4I/7CL6x+cD/ipoqOGjlau?=
+ =?us-ascii?Q?99RXV4glPtPNAyWgeAS8k+BLsZTmhkr/GEXCQl12JsjnuvLk721SjUUc7ppZ?=
+ =?us-ascii?Q?mWvjAM+QVHESPZ1HmxH0BI5jqrQfnSX4RcvcTzC9CvhgP2R74n6Rj9Ccx43K?=
+ =?us-ascii?Q?jzxVkvSPKtTZeoNlO2/fVWAbnMGuZ+d/kkkuuvEwN4n202DrkqEXh75ITXCA?=
+ =?us-ascii?Q?hXYKfyOPPk5i86a0RxBOpAAVzxFo0FZy4s5RUWkbpF7bAuv1ZLx2QFaXung0?=
+ =?us-ascii?Q?IYlE075EFNswMaoBnmqfNLo/WlXFqC3SJr8XrjSuNJmZtBUZAsbFXOtIM4Ed?=
+ =?us-ascii?Q?bPJBZh4PFPMEoN99LhcSTvQJrqnT7ga25rmFb9rR8qRPfLyt15WZ/0QN1m9p?=
+ =?us-ascii?Q?T9JZRjV7fHZmTNQSrP5VuzsE+7IRdRKVcXa2etPqyK4dU87DIokFms/zNoas?=
+ =?us-ascii?Q?QxfPPk89VUVRZqvijQKxxrcB2wJMLNrHlbqu4zL267Z9Kb5c3tTjuzcNrO0r?=
+ =?us-ascii?Q?TxBqGpIP2KXZUoBhJevXYrglIrPAF0X9cFht0spIAUtb1P/YZsYp1GbBJvHU?=
+ =?us-ascii?Q?V97jHGdTtluvQGoEBg37s4Fa18u0sVkUbZ+0rTQo9Ka7QbWbJdwgrIsqGAPT?=
+ =?us-ascii?Q?h1Qux82uXl4bYwoSdA3lbOX28hmbettK0tst8m6YNbii1lQJLfwSljXQOY++?=
+ =?us-ascii?Q?JoPgdme4yfXpsRjE+q47kFXmqOuRdyhWFZ4f9hXOlbkOV4ZH0WvKgjbEh0Hv?=
+ =?us-ascii?Q?6n5mcVEuZuAkWi/eup0Jdm/m6xQw44k5OM2OLjPqe0SsC4N2Yf4VYh2B2AKR?=
+ =?us-ascii?Q?RC77pTyo/9p8zX6zcPwVIjmeeqS7ASqyh4r+MAhs4D3/CmscuqgTv6ltxXEO?=
+ =?us-ascii?Q?QdIx6mvKc2qZB2F7CWer/df+MObdRPgQ0cI2565hi+B/i3ZkWz/mReOxTV6q?=
+ =?us-ascii?Q?bOEvYw8IPIEpDfAby58Ngt9goxMLHI7hhO0OCLI4cdYtnwZ7Lm7iNmWN35kI?=
+ =?us-ascii?Q?CNIp3yHmWriANesQ4mp1Ai4NNU3ExZSrU6wgHSe0abl7DjgQYIVtQH2mNwea?=
+ =?us-ascii?Q?isL9ISMekQiBe00kL0ApenSytht2FOTJB0xswgitBzFb/MpOx9Vb543Q1kfc?=
+ =?us-ascii?Q?bD8P8umS74/2PY1Y0/yiYnStliKkQUEnTHXuH8ll3V7PoTeC2ihjS+jW2IIx?=
+ =?us-ascii?Q?W6xZi1p/oq0FXwg6WaRQa8Bi8zknYefqRQzxm2YLG/JPb8U/mUyDMyI2fbmG?=
+ =?us-ascii?Q?S9BrIBvTH/gPg4fG7em7TIadHm1Kd4VgmLrkYNo7R3THdhayAJvqJTBqPZl5?=
+ =?us-ascii?Q?0f7f9wOy8KLl6UnNc6AaC6D7p3v0gojmo/YWIv+r4LWTmXfJq51hxjqXfAln?=
+ =?us-ascii?Q?ahO7u45FrKHxPpdXz0t+Rdc=3D?=
 MIME-Version: 1.0
-References: <20211201112018.25276-1-will@kernel.org>
-In-Reply-To: <20211201112018.25276-1-will@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 2 Dec 2021 11:12:25 +0800
-Message-ID: <CACGkMEtPaJQQxYOCP2TXXuOdtA5TLCxJQVyjNV6xzsTvycbdog@mail.gmail.com>
-Subject: Re: [PATCH] virtio_ring: Fix querying of maximum DMA mapping size for
- virtio device
-To: Will Deacon <will@kernel.org>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: Marc Zyngier <maz@kernel.org>, Quentin Perret <qperret@google.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- virtualization <virtualization@lists.linux-foundation.org>
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: PH0PR12MB5481.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b650a75d-e195-4620-96ca-08d9b5445c46
+X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Dec 2021 03:32:25.8805 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: VrbwOX+2OCvuLhh8u6QAtxONfZxDXIQnpJ9pH52+ipbELc5oxCTpURmMKLZxcaE9EJBvFt7AGPXphc14ImFJhQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB5482
+Cc: "lvivier@redhat.com" <lvivier@redhat.com>,
+ "eperezma@redhat.com" <eperezma@redhat.com>,
+ "si-wei.liu@oracle.com" <si-wei.liu@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,56 +151,77 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Parav Pandit via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Parav Pandit <parav@nvidia.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Dec 1, 2021 at 7:20 PM Will Deacon <will@kernel.org> wrote:
->
-> virtio_max_dma_size() returns the maximum DMA mapping size of the virtio
-> device by querying dma_max_mapping_size() for the device when the DMA
-> API is in use for the vring. Unfortunately, the device passed is
-> initialised by register_virtio_device() and does not inherit the DMA
-> configuration from its parent, resulting in SWIOTLB errors when bouncing
-> is enabled and the default 256K mapping limit (IO_TLB_SEGSIZE) is not
-> respected:
->
->   | virtio-pci 0000:00:01.0: swiotlb buffer is full (sz: 294912 bytes), total 1024 (slots), used 725 (slots)
->
-> Follow the pattern used elsewhere in the virtio_ring code when calling
-> into the DMA layer and pass the parent device to dma_max_mapping_size()
-> instead.
->
-> Cc: Marc Zyngier <maz@kernel.org>
-> Cc: Quentin Perret <qperret@google.com>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Will Deacon <will@kernel.org>
 
-Acked-by: Jason Wang <jasowang@redhat.com>
-
+> From: Eli Cohen <elic@nvidia.com>
+> Sent: Thursday, December 2, 2021 1:27 AM
+> 
+> Add netlink support to configure the max virtqueue pairs for a device.
+> At least one pair is required. The maximum is dictated by the device.
+> 
+> Signed-off-by: Eli Cohen <elic@nvidia.com>
 > ---
->  drivers/virtio/virtio_ring.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 6d2614e34470..028b05d44546 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -268,7 +268,7 @@ size_t virtio_max_dma_size(struct virtio_device *vdev)
->         size_t max_segment_size = SIZE_MAX;
->
->         if (vring_use_dma_api(vdev))
-> -               max_segment_size = dma_max_mapping_size(&vdev->dev);
-> +               max_segment_size = dma_max_mapping_size(vdev->dev.parent);
->
->         return max_segment_size;
->  }
-> --
-> 2.34.0.rc2.393.gf8c9666880-goog
->
+>  drivers/vdpa/vdpa.c  | 14 +++++++++++++-  include/linux/vdpa.h |  1 +
+>  2 files changed, 14 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c index
+> 7332a74a4b00..f06f949d5fa1 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -480,7 +480,8 @@ vdpa_nl_cmd_mgmtdev_get_dumpit(struct sk_buff
+> *msg, struct netlink_callback *cb)  }
+> 
+>  #define VDPA_DEV_NET_ATTRS_MASK ((1 <<
+> VDPA_ATTR_DEV_NET_CFG_MACADDR) | \
+> -				 (1 << VDPA_ATTR_DEV_NET_CFG_MTU))
+> +				 (1 << VDPA_ATTR_DEV_NET_CFG_MTU) | \
+> +				 (1 <<
+> VDPA_ATTR_DEV_NET_CFG_MAX_VQP))
+> 
+>  static int vdpa_nl_cmd_dev_add_set_doit(struct sk_buff *skb, struct
+> genl_info *info)  { @@ -506,6 +507,17 @@ static int
+> vdpa_nl_cmd_dev_add_set_doit(struct sk_buff *skb, struct genl_info *i
+> 
+> 	nla_get_u16(nl_attrs[VDPA_ATTR_DEV_NET_CFG_MTU]);
+>  		config.mask |= (1 << VDPA_ATTR_DEV_NET_CFG_MTU);
+>  	}
+> +	if (nl_attrs[VDPA_ATTR_DEV_NET_CFG_MAX_VQP]) {
+> +		config.max_vq_pairs =
+> +
+I think you need to add to the vdpa_nl_policy[] array so that it gets validated for min and max range range.
 
+> 	nla_get_u16(nl_attrs[VDPA_ATTR_DEV_NET_CFG_MAX_VQP]);
+> +		if (!config.max_vq_pairs) {
+This will go away one you nl_policy is use for NLA_U16_RANGE(1, 32768) for this attribute.
+
+> +			NL_SET_ERR_MSG_MOD(info->extack,
+> +					   "At list one pair of VQs is required");
+> +			err = -EINVAL;
+> +			goto err;
+> +		}
+> +		config.mask |=
+> BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MAX_VQP);
+> +	}
+> 
+>  	/* Skip checking capability if user didn't prefer to configure any
+>  	 * device networking attributes. It is likely that user might have used
+> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h index
+> c3011ccda430..820621c59365 100644
+> --- a/include/linux/vdpa.h
+> +++ b/include/linux/vdpa.h
+> @@ -101,6 +101,7 @@ struct vdpa_dev_set_config {
+>  		u16 mtu;
+>  	} net;
+>  	u64 mask;
+> +	u16 max_vq_pairs;
+This is net only field. Please move it inside the net struct above.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
