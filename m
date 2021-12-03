@@ -4,92 +4,93 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D5FAAC433F5
-	for <virtualization@archiver.kernel.org>; Fri,  3 Dec 2021 17:01:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9FABDC433EF
+	for <virtualization@archiver.kernel.org>; Fri,  3 Dec 2021 17:05:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 7AC9C60B9B;
-	Fri,  3 Dec 2021 17:01:52 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 3C5DE60BA3;
+	Fri,  3 Dec 2021 17:05:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UUuz303yrTKp; Fri,  3 Dec 2021 17:01:51 +0000 (UTC)
+	with ESMTP id XITPGPlYL4ea; Fri,  3 Dec 2021 17:05:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 4C2B360B99;
-	Fri,  3 Dec 2021 17:01:51 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTPS id E253A60B86;
+	Fri,  3 Dec 2021 17:05:29 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 28BB1C006E;
-	Fri,  3 Dec 2021 17:01:51 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [IPv6:2605:bc80:3010::137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 759ABC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B6C32C006E;
+	Fri,  3 Dec 2021 17:05:29 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C97F9C0012
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 17:01:49 +0000 (UTC)
+ Fri,  3 Dec 2021 17:05:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 637D640996
+ by smtp2.osuosl.org (Postfix) with ESMTP id AF63E40263
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 17:01:49 +0000 (UTC)
+ Fri,  3 Dec 2021 17:05:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (2048-bit key) header.d=gmail.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id c9890tHMZFJY
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id eULN5Eg2rCod
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 17:01:48 +0000 (UTC)
+ Fri,  3 Dec 2021 17:05:26 +0000 (UTC)
 X-Greylist: whitelisted by SQLgrey-1.8.0
-Received: from mail-oi1-x234.google.com (mail-oi1-x234.google.com
- [IPv6:2607:f8b0:4864:20::234])
- by smtp4.osuosl.org (Postfix) with ESMTPS id C7BFD40993
+Received: from mail-ot1-x32a.google.com (mail-ot1-x32a.google.com
+ [IPv6:2607:f8b0:4864:20::32a])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 78CC240157
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 17:01:48 +0000 (UTC)
-Received: by mail-oi1-x234.google.com with SMTP id 7so6929569oip.12
+ Fri,  3 Dec 2021 17:05:26 +0000 (UTC)
+Received: by mail-ot1-x32a.google.com with SMTP id
+ x19-20020a9d7053000000b0055c8b39420bso4152049otj.1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 03 Dec 2021 09:01:48 -0800 (PST)
+ Fri, 03 Dec 2021 09:05:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
  h=message-id:date:mime-version:user-agent:subject:content-language:to
  :cc:references:from:in-reply-to:content-transfer-encoding;
- bh=tbEwySXb6yGxG6N7AFD65uHpUF9qIsmwiRZG3EFyfoQ=;
- b=d9FGTw97nQD8RVohATVwa6tURsiCtdhyWxDCP+26+2Ikkr/XRh+pPSWCpeCH4rnVYB
- oGUBk4yopd0Z2OEEVwiP6lupdhrTzce9hz+z6ulzORp22FeRLLgxy7Qwt7Ir/tlNU8UF
- PX5IeZYu+ttbrZXG/yR0aT9/nYTAQZLkzBoUEPi38eMUUHove2S0H1Ur2ktHHBn1mDVw
- tSUr0UrwAqJOC0zj0ruLb3Rije4TpUP+E2xxIxDanNTN9MH3lBPNANxZJs9WEePWjb/e
- wwfLzWtMjNbobR2ybnomh9q+0ZFKzDfTwQYP8v04m6zlboke0kD5otrmDN2uvbTCKbUm
- Ts7w==
+ bh=utEWWJWCkIkBpnfbd0GlEWSSdXyFrxBmwVjIY7e8ZOk=;
+ b=QOgYXXrH89NVmvg1JknUCwAtXYQETcJIXfkETH/lKpXH48TIx/5VkG+X3WHOPrZD7J
+ YMXS5X8IPUoK+ZoJXdX6FJ1gG8XI7/6JTwTjFEUV5mj84ArSl0230nhlqpAoDsyg3PZ8
+ n4ez55Vw9+6xol6gNhLvhcCcapGhtIIXrY8TLOfHmabllUmhxXD5qOWS4yBLz9TpoOtp
+ VLUJMmujA3VIPU94tGNlYDU7VQzbivSNt8r7xSmsEGSatvubYDMAKu97XXFkso4nakYO
+ 1aoAR2efqZkU70eYrP6sjpuOXei7gdaPMmkRI59vPCW8CxABmwh5lFSQ1M99hVOpQSJB
+ XREQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
  :content-language:to:cc:references:from:in-reply-to
  :content-transfer-encoding;
- bh=tbEwySXb6yGxG6N7AFD65uHpUF9qIsmwiRZG3EFyfoQ=;
- b=TszexH+V9tmPN2VE2NwvgLAQJ7kaz6KL0eSZerAtlVWW2z83Iy74hXbVi41qMdVWc+
- 11f36Q0UsdbFhUPmKafwpAjwcf88ehmc4RO9TfuGO5nNBKonpxHJfuH5aBmyyEi5/Gvq
- K4dopZ/Jhgxubphy8/+48fuOb/McNCCVBtKs1cA4oWYyE58FXaflEwqLuU0Eh5PXUeLW
- A2VtZkCa63XXm1o8BlooLjGlKT1/7S1OaU7rjHBDqNex6jDZHCkTwWeZjM1dc9BJE7s3
- YMoXyrCdwRR7mjkrGZSi+7o+u5tvPVlGuh2cMy8ops+QnuBMoOpioEVRHokkWjzfzGk4
- JA6w==
-X-Gm-Message-State: AOAM5335sQVHy/cSJPULo8O9NLCPl/mneuqYNZUg/sIOpA5zeha4RQzA
- 1OVF2w+ovVREZQejLvbFU5s=
-X-Google-Smtp-Source: ABdhPJwA0bZvUL3WcE1oyAKNlsn3/8Ee5b6FzsxNUmDJeKAM1vTb6I7OCxXwldT3drUiGwTyvxNX4w==
-X-Received: by 2002:a05:6808:aa7:: with SMTP id
- r7mr10976017oij.120.1638550907915; 
- Fri, 03 Dec 2021 09:01:47 -0800 (PST)
+ bh=utEWWJWCkIkBpnfbd0GlEWSSdXyFrxBmwVjIY7e8ZOk=;
+ b=eDK6jE8qoeml9Kpx71jcyQ49QPjIPmA7F1U/3/Wp1zg4VskISknNYsnOJ7xAy8kKIr
+ 16tbIrSjqVkIdt2KOvxWO4cT/IedW3TRO56lBNmUtT5SOOi7XkcSAE/gJH3+zT3ZXizW
+ lcetepTFBsFpk7rNecUsH7D2TjJr+PD77llUYvHUKPPc9q9MU+Vm+DTbgTlkmjL5Qcaf
+ YW2WunZm0cSUWpQ9ThjucXMZedWWvGybRfqUl3vSg2mr25Wg89XECEJBUOxNzBtSfD27
+ ++WfEGVKVhosooYXcWJUFcFqh4TipvNO5f9lEmbM70L5MKlTvC/aeduRbzxAuLXX/VV/
+ doHw==
+X-Gm-Message-State: AOAM532qZkTGLzWp8AO648vzV8vYxrsFiN+bPGEX5ZJ2ogRfr1cw4FcG
+ +KZI3kYNm9bETVfFRWO54Q8=
+X-Google-Smtp-Source: ABdhPJxTQr22OYqI+8MVVWX2lPRrsqqfuOBij7hFh8aXcoar0mz8cpSccgVfGj2Djx64YxbporFoXA==
+X-Received: by 2002:a05:6830:1e97:: with SMTP id
+ n23mr16892839otr.4.1638551125619; 
+ Fri, 03 Dec 2021 09:05:25 -0800 (PST)
 Received: from [172.16.0.2] ([8.48.134.30])
- by smtp.googlemail.com with ESMTPSA id 69sm704731otf.33.2021.12.03.09.01.47
+ by smtp.googlemail.com with ESMTPSA id o6sm704286oou.41.2021.12.03.09.05.24
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Fri, 03 Dec 2021 09:01:47 -0800 (PST)
-Message-ID: <778b1eb5-3f46-2489-4de8-17fda15d3dd5@gmail.com>
-Date: Fri, 3 Dec 2021 10:01:46 -0700
+ Fri, 03 Dec 2021 09:05:25 -0800 (PST)
+Message-ID: <3cbabdb5-8c45-68e0-e60e-7bf16fe19f54@gmail.com>
+Date: Fri, 3 Dec 2021 10:05:24 -0700
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
  Gecko/20100101 Thunderbird/91.3.2
-Subject: Re: [iproute2-next 4/4] vdpa: Enable user to set mtu of the vdpa
+Subject: Re: [iproute2-next 3/4] vdpa: Enable user to set mac address of vdpa
  device
 Content-Language: en-US
 To: Parav Pandit <parav@nvidia.com>, stephen@networkplumber.org,
  netdev@vger.kernel.org
 References: <20211202042239.2454-1-parav@nvidia.com>
- <20211202042239.2454-5-parav@nvidia.com>
+ <20211202042239.2454-4-parav@nvidia.com>
 From: David Ahern <dsahern@gmail.com>
-In-Reply-To: <20211202042239.2454-5-parav@nvidia.com>
+In-Reply-To: <20211202042239.2454-4-parav@nvidia.com>
 Cc: mst@redhat.com, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -108,25 +109,27 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On 12/1/21 9:22 PM, Parav Pandit wrote:
-> @@ -154,6 +156,31 @@ static int vdpa_argv_mac(struct vdpa *vdpa, int argc, char **argv, char *mac)
->  	return 0;
->  }
+> @@ -233,6 +254,15 @@ static int vdpa_argv_parse(struct vdpa *vdpa, int argc, char **argv,
 >  
-> +static int strtouint16_t(const char *str, uint16_t *p_val)
-> +{
-> +	char *endptr;
-> +	unsigned long int val;
-> +
-> +	val = strtoul(str, &endptr, 10);
-> +	if (endptr == str || *endptr != '\0')
-> +		return -EINVAL;
-> +	if (val > USHRT_MAX)
-> +		return -ERANGE;
-> +	*p_val = val;
-> +	return 0;
-> +}
+>  			NEXT_ARG_FWD();
+>  			o_found |= VDPA_OPT_VDEV_MGMTDEV_HANDLE;
+> +		} else if ((matches(*argv, "mac")  == 0) &&
 
-duplicates get_u16
+use strcmp; we are not taking any more uses of matches() for parameters.
+
+
+> +			   (o_all & VDPA_OPT_VDEV_MAC)) {
+> +			NEXT_ARG_FWD();
+> +			err = vdpa_argv_mac(vdpa, argc, argv, opts->mac);
+> +			if (err)
+> +				return err;
+> +
+> +			NEXT_ARG_FWD();
+> +			o_found |= VDPA_OPT_VDEV_MAC;
+>  		} else {
+>  			fprintf(stderr, "Unknown option \"%s\"\n", *argv);
+>  			return -EINVAL;
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
