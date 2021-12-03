@@ -1,89 +1,92 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id DA9FDC433EF
-	for <virtualization@archiver.kernel.org>; Fri,  3 Dec 2021 02:21:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 16249C433F5
+	for <virtualization@archiver.kernel.org>; Fri,  3 Dec 2021 02:29:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 4FC6583410;
-	Fri,  3 Dec 2021 02:21:01 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id B506C6063A;
+	Fri,  3 Dec 2021 02:29:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
-	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id PXkFdx_fvGmb; Fri,  3 Dec 2021 02:21:00 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 0107683412;
-	Fri,  3 Dec 2021 02:21:00 +0000 (UTC)
+Received: from smtp3.osuosl.org ([127.0.0.1])
+	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 2tKQwqK1pDSO; Fri,  3 Dec 2021 02:29:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 31A8060629;
+	Fri,  3 Dec 2021 02:29:19 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D3134C0012;
-	Fri,  3 Dec 2021 02:20:59 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 38E0BC000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 01A33C0012;
+	Fri,  3 Dec 2021 02:29:19 +0000 (UTC)
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6D748C000A
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 02:20:59 +0000 (UTC)
+ Fri,  3 Dec 2021 02:29:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 2835483412
+ by smtp4.osuosl.org (Postfix) with ESMTP id 562BF4049B
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 02:20:59 +0000 (UTC)
+ Fri,  3 Dec 2021 02:29:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lV6Qy91U5jEx
+Authentication-Results: smtp4.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VyR8_Z_XBCGn
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 02:20:57 +0000 (UTC)
+ Fri,  3 Dec 2021 02:29:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id C4F2983410
+ by smtp4.osuosl.org (Postfix) with ESMTPS id EA02740448
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 02:20:57 +0000 (UTC)
+ Fri,  3 Dec 2021 02:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1638498056;
+ s=mimecast20190719; t=1638498554;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=B939E1I3InUJP/mUE6XG84CgxBtTe2OjIi5E6fRGXbE=;
- b=IolThux9+MPyI+7soMiL22T/t+0J5EdBIWf6/6o1qDo/oUj6IXzOyorPkXdm6fyFfmtLxo
- kYoOGOUW3cMd4NX4Aw9lgSWLT2tsdAwF3s6Jj4nlSSSrOtm5z3eNTbW3+pd8BeQnk3e6gj
- X/6RHdoYwGyzqcdgAkcf2vQOmXAPVq8=
-Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
- [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=Ci4QunVbZvAQNwrLd8tRseNLB1DpnIg+IQ9HEZHuc6o=;
+ b=TuIXMyWqnXlZaF2gRsw+dAJc5PjUbzl7aPwLoeg2YNQ06yCYNgovFsgpLuqWr8z7EfwZL8
+ uEpsusQP1jHp/ln5w2BVNfEnw3H2y4BHkDnnYy/cY/ihtyMcgI6l/TIifHWHTOr0a10Ci+
+ aXPiRc0lMtAGvlqUicefVVNdpGX5l7Q=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-202-TlRo4t4rNciQUtpG2pP8Tw-1; Thu, 02 Dec 2021 21:20:55 -0500
-X-MC-Unique: TlRo4t4rNciQUtpG2pP8Tw-1
-Received: by mail-lj1-f200.google.com with SMTP id
- p18-20020a2eb7d2000000b0021ba3ea3c42so608783ljo.5
+ us-mta-388-i_91c_S8OnuAnvEdQd47lw-1; Thu, 02 Dec 2021 21:29:13 -0500
+X-MC-Unique: i_91c_S8OnuAnvEdQd47lw-1
+Received: by mail-lf1-f72.google.com with SMTP id
+ g38-20020a0565123ba600b004036147023bso482012lfv.10
  for <virtualization@lists.linux-foundation.org>;
- Thu, 02 Dec 2021 18:20:55 -0800 (PST)
+ Thu, 02 Dec 2021 18:29:13 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=B939E1I3InUJP/mUE6XG84CgxBtTe2OjIi5E6fRGXbE=;
- b=100a1Jwx9E8wbFh+ElL3kaTcHP0idOgQGviTtJTwCp2bGw91xTzcBxe9bqpKkYCfNT
- dntiMQNBdDP8sGP/m015fLTdGjh0JOfeaiZb1iLP4kDi1sarf7WSxVugDFPI7o56U/50
- 5FFUMPfxT6reb3siFiewYuyDjayoHYpuWKQbVgpUetxQQCZnQOhWOEk2pdsEQwVFAib6
- sJru3KfmqAw95OKBshAxOFka7e3nCLPynBHXrBJJqJqnoN++EOPqcJMR/OTV19bjvn5J
- GFJeKWKLA+VcKJPMytXsGU+6B6yL4Sr8m2KfQ6DUMUJQI0fD+V+uvqEU7welyAiYcRpK
- G8sg==
-X-Gm-Message-State: AOAM531Pn8w3EiFUWTk54smWsUt2IjhWvycfV+8qqwzItQ15wlhxgLdH
- 69oYnDh4Gk6mGavDNvfnrDntS902W1LBFRMA8IC6spmVjImBLRW1S0DKpiCEuDMItY5aHIQIsiX
- KsJ8hspK4UNbweWhdnexee6rKTdiQ0PODl0D7vYkamzUSX055lgw8ZZXw1w==
-X-Received: by 2002:a2e:8507:: with SMTP id j7mr15281192lji.307.1638498054023; 
- Thu, 02 Dec 2021 18:20:54 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJw08rddZN8Hjb+B+f+JYaVHYkUpE1BM68G24hHa4MfYdwSthygePe6KVsLPyzWIj6SDOGYvZlRTLqF2n7bD0zc=
-X-Received: by 2002:a2e:8507:: with SMTP id j7mr15281177lji.307.1638498053850; 
- Thu, 02 Dec 2021 18:20:53 -0800 (PST)
+ bh=Ci4QunVbZvAQNwrLd8tRseNLB1DpnIg+IQ9HEZHuc6o=;
+ b=mrfGCEEornhMBGATKu4iRbsScjw1VsyDHRqrbC5ssT3edzBSQPei/9qjD/6WWA12ua
+ ku+BMv322tS+4DiNeHAU3U+00MBxRmpYsfJd33errj61KiHWo0mzsFchuasSWvbB3iwA
+ v2uF3j4LaHyuKplNHcHDTvm4S0XE5avi1Ms98IQue2wxVo59zYmnyqMQATp67qEO1XAF
+ f6iyiE+l7qtqe+ndd6oiDO7eZkOP9QaRHAQkYP0G6iYeqwrBacrxa9CN9xuF0NLSUvO3
+ AXU6ufjR3NCcta9PXEHREhDmvjpwWUZap0ncX77qZ5QPNQrE9V5tELhzdQwmNxCALtMf
+ oiDQ==
+X-Gm-Message-State: AOAM532Nx/BDWQDKnUCH54AM8HQhONIaWo5V4xhHtJm/UbCI5zRDMVWW
+ O38sxftbT1+xJkCScLpHHh065F03K8MkkV6aaBlIjqNE4F/gVxgmgIHYepJFuxtYm0rzsjGwp7L
+ TqDShBf/E0Mdo3qX4KezXjni67Z+E7q31HmK6Yg/4MBAwIMHTn+y3ElKd+w==
+X-Received: by 2002:a2e:b88d:: with SMTP id r13mr15316578ljp.362.1638498551826; 
+ Thu, 02 Dec 2021 18:29:11 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwD2ZlacIB3sTaa6CcAoU9I2PEwX8D9jPJ17XwTZEFT98b3JHwT3jgkCDvYi88Pz9AD0KCqhf1oN0g7Xx1CD7Y=
+X-Received: by 2002:a2e:b88d:: with SMTP id r13mr15316559ljp.362.1638498551592; 
+ Thu, 02 Dec 2021 18:29:11 -0800 (PST)
 MIME-Version: 1.0
 References: <20211201195724.17503-1-elic@nvidia.com>
- <20211201195724.17503-3-elic@nvidia.com>
-In-Reply-To: <20211201195724.17503-3-elic@nvidia.com>
+ <20211201195724.17503-4-elic@nvidia.com>
+In-Reply-To: <20211201195724.17503-4-elic@nvidia.com>
 From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 3 Dec 2021 10:20:43 +0800
-Message-ID: <CACGkMEto7hkx6ZCADBzFW0YXh633LnbzzEmFenmwGZKKohXyQw@mail.gmail.com>
-Subject: Re: [PATCH 2/7] vdpa/mlx5: Fix config_attr_mask assignment
+Date: Fri, 3 Dec 2021 10:29:00 +0800
+Message-ID: <CACGkMEvwV99zy06QQGmWg-gh_sqxBJKtQTEKEa8nJAx94C8d_Q@mail.gmail.com>
+Subject: Re: [PATCH 3/7] vdpa/mlx5: Support configuring max data virtqueue
+ pairs
 To: Eli Cohen <elic@nvidia.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
@@ -110,31 +113,123 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 On Thu, Dec 2, 2021 at 3:58 AM Eli Cohen <elic@nvidia.com> wrote:
 >
-> Fix VDPA_ATTR_DEV_NET_CFG_MACADDR assignment to be explicit 64 bit
-> assignment.
+> Check whether the max number of data virtqueue pairs was provided when a
+> adding a new device and verify the new value does not exceed device
+> capabilities.
 >
-> No issue was seen since the value is well below 64 bit max value.
-> Nevertheless it needs to be fixed.
+> In addition, change the arrays holding virtqueue and callback contexts
+> to be dynamically allocated.
 >
-> Fixes: a007d940040c ("vdpa/mlx5: Support configuration of MAC")
 > Signed-off-by: Eli Cohen <elic@nvidia.com>
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
 > ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 33 ++++++++++++++++++++-----------
+>  1 file changed, 21 insertions(+), 12 deletions(-)
 >
 > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index 63813fbb5f62..b66f41ccbac2 100644
+> index b66f41ccbac2..62aba5dbd8fa 100644
 > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
 > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -2676,7 +2676,7 @@ static int mlx5v_probe(struct auxiliary_device *adev,
+> @@ -131,11 +131,6 @@ struct mlx5_vdpa_virtqueue {
+>         struct mlx5_vq_restore_info ri;
+>  };
+>
+> -/* We will remove this limitation once mlx5_vdpa_alloc_resources()
+> - * provides for driver space allocation
+> - */
+> -#define MLX5_MAX_SUPPORTED_VQS 16
+> -
+>  static bool is_index_valid(struct mlx5_vdpa_dev *mvdev, u16 idx)
+>  {
+>         if (unlikely(idx > mvdev->max_idx))
+> @@ -148,8 +143,8 @@ struct mlx5_vdpa_net {
+>         struct mlx5_vdpa_dev mvdev;
+>         struct mlx5_vdpa_net_resources res;
+>         struct virtio_net_config config;
+> -       struct mlx5_vdpa_virtqueue vqs[MLX5_MAX_SUPPORTED_VQS];
+> -       struct vdpa_callback event_cbs[MLX5_MAX_SUPPORTED_VQS + 1];
+> +       struct mlx5_vdpa_virtqueue *vqs;
+> +       struct vdpa_callback *event_cbs;
+>
+>         /* Serialize vq resources creation and destruction. This is required
+>          * since memory map might change and we need to destroy and create
+> @@ -1218,7 +1213,7 @@ static void suspend_vqs(struct mlx5_vdpa_net *ndev)
+>  {
+>         int i;
+>
+> -       for (i = 0; i < MLX5_MAX_SUPPORTED_VQS; i++)
+> +       for (i = 0; i < ndev->mvdev.max_vqs; i++)
+>                 suspend_vq(ndev, &ndev->vqs[i]);
+>  }
+>
+> @@ -1245,7 +1240,7 @@ static int create_rqt(struct mlx5_vdpa_net *ndev)
+>         int i, j;
+>         int err;
+>
+> -       max_rqt = min_t(int, MLX5_MAX_SUPPORTED_VQS / 2,
+> +       max_rqt = min_t(int, ndev->mvdev.max_vqs  / 2,
+>                         1 << MLX5_CAP_GEN(ndev->mvdev.mdev, log_max_rqt_size));
+>         if (max_rqt < 1)
+>                 return -EOPNOTSUPP;
+> @@ -2235,7 +2230,7 @@ static int mlx5_vdpa_reset(struct vdpa_device *vdev)
+>         clear_vqs_ready(ndev);
+>         mlx5_vdpa_destroy_mr(&ndev->mvdev);
+>         ndev->mvdev.status = 0;
+> -       memset(ndev->event_cbs, 0, sizeof(ndev->event_cbs));
+> +       memset(ndev->event_cbs, 0, sizeof(*ndev->event_cbs) * (mvdev->max_vqs + 1));
+>         ndev->mvdev.actual_features = 0;
+>         ++mvdev->generation;
+>         if (MLX5_CAP_GEN(mvdev->mdev, umem_uid_0)) {
+> @@ -2308,6 +2303,8 @@ static void mlx5_vdpa_free(struct vdpa_device *vdev)
+>         }
+>         mlx5_vdpa_free_resources(&ndev->mvdev);
+>         mutex_destroy(&ndev->reslock);
+> +       kfree(ndev->event_cbs);
+> +       kfree(ndev->vqs);
+>  }
+>
+>  static struct vdpa_notification_area mlx5_get_vq_notification(struct vdpa_device *vdev, u16 idx)
+> @@ -2547,13 +2544,24 @@ static int mlx5_vdpa_dev_add(struct vdpa_mgmt_dev *v_mdev, const char *name,
+>
+>         /* we save one virtqueue for control virtqueue should we require it */
+>         max_vqs = MLX5_CAP_DEV_VDPA_EMULATION(mdev, max_num_virtio_queues);
+> -       max_vqs = min_t(u32, max_vqs, MLX5_MAX_SUPPORTED_VQS);
+> +       if (add_config->mask & BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MAX_VQP)) {
+> +               if (add_config->max_vq_pairs & (add_config->max_vq_pairs - 1) ||
+> +                   add_config->max_vq_pairs > max_vqs / 2)
+> +                       return -EINVAL;
+> +               max_vqs = min_t(u32, max_vqs, 2 * add_config->max_vq_pairs);
+> +       }
+
+Not for this patch, but this seems to mean without max_vqp, a vdpa
+with maximum number of qps are provisioned? Is this intended?
+
+>
+>         ndev = vdpa_alloc_device(struct mlx5_vdpa_net, mvdev.vdev, mdev->device, &mlx5_vdpa_ops,
+>                                  name, false);
+>         if (IS_ERR(ndev))
+>                 return PTR_ERR(ndev);
+>
+> +       ndev->vqs = kcalloc(max_vqs, sizeof(*ndev->vqs), GFP_KERNEL);
+> +       ndev->event_cbs = kcalloc(max_vqs + 1, sizeof(*ndev->event_cbs), GFP_KERNEL);
+> +       if (!ndev->vqs || !ndev->event_cbs) {
+
+Do we need to kfree if any of the two allocations succeeded?
+
+Thanks
+
+> +               err = -ENOMEM;
+> +               goto err_mtu;
+> +       }
+>         ndev->mvdev.max_vqs = max_vqs;
+>         mvdev = &ndev->mvdev;
+>         mvdev->mdev = mdev;
+> @@ -2676,7 +2684,8 @@ static int mlx5v_probe(struct auxiliary_device *adev,
 >         mgtdev->mgtdev.ops = &mdev_ops;
 >         mgtdev->mgtdev.device = mdev->device;
 >         mgtdev->mgtdev.id_table = id_table;
-> -       mgtdev->mgtdev.config_attr_mask = (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR);
-> +       mgtdev->mgtdev.config_attr_mask = BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MACADDR);
+> -       mgtdev->mgtdev.config_attr_mask = BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MACADDR);
+> +       mgtdev->mgtdev.config_attr_mask = BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MACADDR) |
+> +                                         BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MAX_VQP);
 >         mgtdev->madev = madev;
 >
 >         err = vdpa_mgmtdev_register(&mgtdev->mgtdev);
