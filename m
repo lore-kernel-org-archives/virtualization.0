@@ -1,110 +1,97 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 76168C433F5
-	for <virtualization@archiver.kernel.org>; Thu,  2 Dec 2021 17:54:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id DA9FDC433EF
+	for <virtualization@archiver.kernel.org>; Fri,  3 Dec 2021 02:21:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 3061E409AF;
-	Thu,  2 Dec 2021 17:54:42 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4FC6583410;
+	Fri,  3 Dec 2021 02:21:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id l14qgyzP-Mlx; Thu,  2 Dec 2021 17:54:41 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id D4F81408CE;
-	Thu,  2 Dec 2021 17:54:40 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id PXkFdx_fvGmb; Fri,  3 Dec 2021 02:21:00 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 0107683412;
+	Fri,  3 Dec 2021 02:21:00 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B08F5C001C;
-	Thu,  2 Dec 2021 17:54:40 +0000 (UTC)
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 75193C000A
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D3134C0012;
+	Fri,  3 Dec 2021 02:20:59 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 38E0BC000A
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Dec 2021 17:54:39 +0000 (UTC)
+ Fri,  3 Dec 2021 02:20:59 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp3.osuosl.org (Postfix) with ESMTP id 565356F4C0
+ by smtp1.osuosl.org (Postfix) with ESMTP id 2835483412
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Dec 2021 17:54:39 +0000 (UTC)
+ Fri,  3 Dec 2021 02:20:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp3.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BnFvjTPKLUIe
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id lV6Qy91U5jEx
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Dec 2021 17:54:38 +0000 (UTC)
+ Fri,  3 Dec 2021 02:20:57 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp3.osuosl.org (Postfix) with ESMTPS id 88CEE606D9
+ by smtp1.osuosl.org (Postfix) with ESMTPS id C4F2983410
  for <virtualization@lists.linux-foundation.org>;
- Thu,  2 Dec 2021 17:54:38 +0000 (UTC)
+ Fri,  3 Dec 2021 02:20:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1638467677;
- h=from:from:reply-to:reply-to:subject:subject:date:date:
- message-id:message-id:to:to:cc:cc:mime-version:mime-version:
- content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
+ s=mimecast20190719; t=1638498056;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=x5iEY5+Q7187HBYcbnsC6m7DW/GH259D3TwsIkdXcDU=;
- b=EVEUFkwMX1B2HHMjsMplGqKhaYgPXMDvWTgcjoo7kibAGNtFjZ52CUtb+DpvvtuEfDVBXJ
- kxdPp2NQz/aa4BDX/b5LyM70MuZitC06bexMZAz/9Qm6vvx935KdS8v8MgkeuMDdAa6lGJ
- u9EYfqX02pOWY8oFtWRGBJXWGJcIHD8=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=B939E1I3InUJP/mUE6XG84CgxBtTe2OjIi5E6fRGXbE=;
+ b=IolThux9+MPyI+7soMiL22T/t+0J5EdBIWf6/6o1qDo/oUj6IXzOyorPkXdm6fyFfmtLxo
+ kYoOGOUW3cMd4NX4Aw9lgSWLT2tsdAwF3s6Jj4nlSSSrOtm5z3eNTbW3+pd8BeQnk3e6gj
+ X/6RHdoYwGyzqcdgAkcf2vQOmXAPVq8=
+Received: from mail-lj1-f200.google.com (mail-lj1-f200.google.com
+ [209.85.208.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-204-dFyU2s7VN22YpPuoM7QsvA-1; Thu, 02 Dec 2021 12:54:34 -0500
-X-MC-Unique: dFyU2s7VN22YpPuoM7QsvA-1
-Received: by mail-wr1-f70.google.com with SMTP id
- d7-20020a5d6447000000b00186a113463dso54921wrw.10
+ us-mta-202-TlRo4t4rNciQUtpG2pP8Tw-1; Thu, 02 Dec 2021 21:20:55 -0500
+X-MC-Unique: TlRo4t4rNciQUtpG2pP8Tw-1
+Received: by mail-lj1-f200.google.com with SMTP id
+ p18-20020a2eb7d2000000b0021ba3ea3c42so608783ljo.5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 02 Dec 2021 09:54:34 -0800 (PST)
+ Thu, 02 Dec 2021 18:20:55 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:reply-to:subject:to:cc:references:from
- :message-id:date:user-agent:mime-version:in-reply-to
- :content-transfer-encoding:content-language;
- bh=x5iEY5+Q7187HBYcbnsC6m7DW/GH259D3TwsIkdXcDU=;
- b=dhc3b0/RB9Ww7v7nLLDbChSx5VLxag3clVdXS/d3boGxW/WU0g1AVfzEL6FJRNyDbi
- GtcvG/m1fABWaXNUXD4D69Y74kCM12y0bDXvleCYknC+B+ofD/UoUysw6MHGHQGHrIaQ
- kw4aJcIKgytWjO+h2oXm8Nh5xIJ0wee7ssd+kzsS3Cw9MYP6GG3rGTNdoFjhBHUPu8pA
- EIlc2XZC0nnECdqOGvicCJ5tJ+kAcSZvbad4tdKipIvB3vk2V+ohqDhzCvloWcHwDxh6
- YtsOyov8rmpMzAjr8Bmm5ba+C6/QTBw7UM8Y6YWaI8sgOQrZzk5QzFD9J8+2abnLtD47
- 6FYw==
-X-Gm-Message-State: AOAM530l3uN6gNMCUJmG/dQ33QeOHinZEGsA1CwHVW95naAgcuhpi64u
- 2Wvs3kxhIyYoDbmp9T4xFoaip7ENYk7KWJqVz+TLHCHTEIsVuvszIS4BBh3qggqtmdKbyfY6nI8
- spg4l3uqo+W78PD7YwPB7LQP5LJU4iDyZ1cX3cIzbTA==
-X-Received: by 2002:a5d:4b8a:: with SMTP id b10mr16195906wrt.413.1638467673511; 
- Thu, 02 Dec 2021 09:54:33 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwYTTWGt/H7jr5EqaJ/XAXM6YzxLjTMqvTL0UJNuYQt7GZE5bY2YOrYLBfllIbO3vd1+qeEuQ==
-X-Received: by 2002:a5d:4b8a:: with SMTP id b10mr16195883wrt.413.1638467673291; 
- Thu, 02 Dec 2021 09:54:33 -0800 (PST)
-Received: from ?IPv6:2a01:e0a:59e:9d80:527b:9dff:feef:3874?
- ([2a01:e0a:59e:9d80:527b:9dff:feef:3874])
- by smtp.gmail.com with ESMTPSA id m9sm403778wmq.1.2021.12.02.09.54.32
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Thu, 02 Dec 2021 09:54:32 -0800 (PST)
-Subject: Re: [PATCH v3 2/5] iommu/virtio: Support bypass domains
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>, joro@8bytes.org,
- will@kernel.org, mst@redhat.com, jasowang@redhat.com
-References: <20211201173323.1045819-1-jean-philippe@linaro.org>
- <20211201173323.1045819-3-jean-philippe@linaro.org>
-From: Eric Auger <eric.auger@redhat.com>
-Message-ID: <41ec5c11-3a75-dd0a-c2d8-70baaa3d338e@redhat.com>
-Date: Thu, 2 Dec 2021 18:54:31 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=B939E1I3InUJP/mUE6XG84CgxBtTe2OjIi5E6fRGXbE=;
+ b=100a1Jwx9E8wbFh+ElL3kaTcHP0idOgQGviTtJTwCp2bGw91xTzcBxe9bqpKkYCfNT
+ dntiMQNBdDP8sGP/m015fLTdGjh0JOfeaiZb1iLP4kDi1sarf7WSxVugDFPI7o56U/50
+ 5FFUMPfxT6reb3siFiewYuyDjayoHYpuWKQbVgpUetxQQCZnQOhWOEk2pdsEQwVFAib6
+ sJru3KfmqAw95OKBshAxOFka7e3nCLPynBHXrBJJqJqnoN++EOPqcJMR/OTV19bjvn5J
+ GFJeKWKLA+VcKJPMytXsGU+6B6yL4Sr8m2KfQ6DUMUJQI0fD+V+uvqEU7welyAiYcRpK
+ G8sg==
+X-Gm-Message-State: AOAM531Pn8w3EiFUWTk54smWsUt2IjhWvycfV+8qqwzItQ15wlhxgLdH
+ 69oYnDh4Gk6mGavDNvfnrDntS902W1LBFRMA8IC6spmVjImBLRW1S0DKpiCEuDMItY5aHIQIsiX
+ KsJ8hspK4UNbweWhdnexee6rKTdiQ0PODl0D7vYkamzUSX055lgw8ZZXw1w==
+X-Received: by 2002:a2e:8507:: with SMTP id j7mr15281192lji.307.1638498054023; 
+ Thu, 02 Dec 2021 18:20:54 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJw08rddZN8Hjb+B+f+JYaVHYkUpE1BM68G24hHa4MfYdwSthygePe6KVsLPyzWIj6SDOGYvZlRTLqF2n7bD0zc=
+X-Received: by 2002:a2e:8507:: with SMTP id j7mr15281177lji.307.1638498053850; 
+ Thu, 02 Dec 2021 18:20:53 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20211201173323.1045819-3-jean-philippe@linaro.org>
+References: <20211201195724.17503-1-elic@nvidia.com>
+ <20211201195724.17503-3-elic@nvidia.com>
+In-Reply-To: <20211201195724.17503-3-elic@nvidia.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 3 Dec 2021 10:20:43 +0800
+Message-ID: <CACGkMEto7hkx6ZCADBzFW0YXh633LnbzzEmFenmwGZKKohXyQw@mail.gmail.com>
+Subject: Re: [PATCH 2/7] vdpa/mlx5: Fix config_attr_mask assignment
+To: Eli Cohen <elic@nvidia.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=eric.auger@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: pasic@linux.ibm.com, iommu@lists.linux-foundation.org,
- sebastien.boeuf@intel.com, virtualization@lists.linux-foundation.org
+Cc: Laurent Vivier <lvivier@redhat.com>, mst <mst@redhat.com>,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ eperezma <eperezma@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,91 +103,44 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: eric.auger@redhat.com
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
-
-On 12/1/21 6:33 PM, Jean-Philippe Brucker wrote:
-> The VIRTIO_IOMMU_F_BYPASS_CONFIG feature adds a new flag to the ATTACH
-> request, that creates a bypass domain. Use it to enable identity
-> domains.
+On Thu, Dec 2, 2021 at 3:58 AM Eli Cohen <elic@nvidia.com> wrote:
 >
-> When VIRTIO_IOMMU_F_BYPASS_CONFIG is not supported by the device, we
-> currently fail attaching to an identity domain. Future patches will
-> instead create identity mappings in this case.
+> Fix VDPA_ATTR_DEV_NET_CFG_MACADDR assignment to be explicit 64 bit
+> assignment.
 >
-> Reviewed-by: Kevin Tian <kevin.tian@intel.com>
-> Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
+> No issue was seen since the value is well below 64 bit max value.
+> Nevertheless it needs to be fixed.
+>
+> Fixes: a007d940040c ("vdpa/mlx5: Support configuration of MAC")
+> Signed-off-by: Eli Cohen <elic@nvidia.com>
 
-Eric
+Acked-by: Jason Wang <jasowang@redhat.com>
+
 > ---
->  drivers/iommu/virtio-iommu.c | 20 +++++++++++++++++++-
->  1 file changed, 19 insertions(+), 1 deletion(-)
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index 80930ce04a16..14dfee76fd19 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -71,6 +71,7 @@ struct viommu_domain {
->  	struct rb_root_cached		mappings;
->  
->  	unsigned long			nr_endpoints;
-> +	bool				bypass;
->  };
->  
->  struct viommu_endpoint {
-> @@ -587,7 +588,9 @@ static struct iommu_domain *viommu_domain_alloc(unsigned type)
->  {
->  	struct viommu_domain *vdomain;
->  
-> -	if (type != IOMMU_DOMAIN_UNMANAGED && type != IOMMU_DOMAIN_DMA)
-> +	if (type != IOMMU_DOMAIN_UNMANAGED &&
-> +	    type != IOMMU_DOMAIN_DMA &&
-> +	    type != IOMMU_DOMAIN_IDENTITY)
->  		return NULL;
->  
->  	vdomain = kzalloc(sizeof(*vdomain), GFP_KERNEL);
-> @@ -630,6 +633,17 @@ static int viommu_domain_finalise(struct viommu_endpoint *vdev,
->  	vdomain->map_flags	= viommu->map_flags;
->  	vdomain->viommu		= viommu;
->  
-> +	if (domain->type == IOMMU_DOMAIN_IDENTITY) {
-> +		if (!virtio_has_feature(viommu->vdev,
-> +					VIRTIO_IOMMU_F_BYPASS_CONFIG)) {
-> +			ida_free(&viommu->domain_ids, vdomain->id);
-> +			vdomain->viommu = NULL;
-> +			return -EOPNOTSUPP;
-> +		}
-> +
-> +		vdomain->bypass = true;
-> +	}
-> +
->  	return 0;
->  }
->  
-> @@ -691,6 +705,9 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
->  		.domain		= cpu_to_le32(vdomain->id),
->  	};
->  
-> +	if (vdomain->bypass)
-> +		req.flags |= cpu_to_le32(VIRTIO_IOMMU_ATTACH_F_BYPASS);
-> +
->  	for (i = 0; i < fwspec->num_ids; i++) {
->  		req.endpoint = cpu_to_le32(fwspec->ids[i]);
->  
-> @@ -1132,6 +1149,7 @@ static unsigned int features[] = {
->  	VIRTIO_IOMMU_F_DOMAIN_RANGE,
->  	VIRTIO_IOMMU_F_PROBE,
->  	VIRTIO_IOMMU_F_MMIO,
-> +	VIRTIO_IOMMU_F_BYPASS_CONFIG,
->  };
->  
->  static struct virtio_device_id id_table[] = {
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index 63813fbb5f62..b66f41ccbac2 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -2676,7 +2676,7 @@ static int mlx5v_probe(struct auxiliary_device *adev,
+>         mgtdev->mgtdev.ops = &mdev_ops;
+>         mgtdev->mgtdev.device = mdev->device;
+>         mgtdev->mgtdev.id_table = id_table;
+> -       mgtdev->mgtdev.config_attr_mask = (1 << VDPA_ATTR_DEV_NET_CFG_MACADDR);
+> +       mgtdev->mgtdev.config_attr_mask = BIT_ULL(VDPA_ATTR_DEV_NET_CFG_MACADDR);
+>         mgtdev->madev = madev;
+>
+>         err = vdpa_mgmtdev_register(&mgtdev->mgtdev);
+> --
+> 2.33.1
+>
 
 _______________________________________________
 Virtualization mailing list
