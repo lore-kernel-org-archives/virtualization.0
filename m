@@ -1,102 +1,93 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id A5141C4332F
-	for <virtualization@archiver.kernel.org>; Fri,  3 Dec 2021 02:37:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 95696C433FE
+	for <virtualization@archiver.kernel.org>; Fri,  3 Dec 2021 04:39:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 2CB8340664;
-	Fri,  3 Dec 2021 02:37:53 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0BCD78175D;
+	Fri,  3 Dec 2021 04:39:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id loHyiA2hE9rl; Fri,  3 Dec 2021 02:37:52 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id B23A1405D6;
-	Fri,  3 Dec 2021 02:37:51 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 89342C0012;
-	Fri,  3 Dec 2021 02:37:51 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 752ACC000A
- for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 02:37:50 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 6C55683495
- for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 02:37:50 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id IP3CJNWJWVZS
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Vgq7Nn9MA1tV; Fri,  3 Dec 2021 04:39:24 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6FE6780E43;
+	Fri,  3 Dec 2021 04:39:23 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 46005C0012;
+	Fri,  3 Dec 2021 04:39:23 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C155EC000A
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 02:37:50 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id CF4E283490
+ Fri,  3 Dec 2021 04:39:22 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp3.osuosl.org (Postfix) with ESMTP id 9C6C960631
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 02:37:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1638499067;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=TzI3S6jLbjqCRmP0AD+xPnjjYGdclGIRvo1UazljKDQ=;
- b=iLGVhJptIjCc6bMHJSXgkr+bqna4HS1XFbQQeYvn7kdRJfWIjQyXVkltGBMfWVBQAI91MG
- epJ7r5dD2Tdx0HqTbOMgl8RKQUBIoF7k71530LYrzNooKuR88fy9tE1QEguUDmywKj/Ppg
- Ymryqhb+8J52h2MTDRXIRufDr4IxoPI=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-60-Opz2R6aUOOCegR2ORirjDw-1; Thu, 02 Dec 2021 21:37:45 -0500
-X-MC-Unique: Opz2R6aUOOCegR2ORirjDw-1
-Received: by mail-lf1-f69.google.com with SMTP id
- s18-20020ac25c52000000b004016bab6a12so474457lfp.21
+ Fri,  3 Dec 2021 04:39:22 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=linaro.org
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id taNhEiX6LLB3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 02 Dec 2021 18:37:45 -0800 (PST)
+ Fri,  3 Dec 2021 04:39:21 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com
+ [IPv6:2607:f8b0:4864:20::529])
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 9C4166062E
+ for <virtualization@lists.linux-foundation.org>;
+ Fri,  3 Dec 2021 04:39:21 +0000 (UTC)
+Received: by mail-pg1-x529.google.com with SMTP id 137so1877409pgg.3
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 02 Dec 2021 20:39:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to:user-agent;
+ bh=OcPdj+R92LM+0ZI0wmyCsSW46rzlUsrsE3LQQ/iEpLE=;
+ b=dBx99xt9ShaVFEHeymStBpp3iQP2Pd4gcfLkcVUqJ51OiRwy283uuc+wXxjnuh5TRT
+ XLuB2ZOWRzZJc1rFq/U1CatDfpn2yM5dM9335x3YCeZgZuRYxBwXnkOI7mdCi+j9iv3/
+ st8uatwl7bGGU6kchQ+vpyziRshakjMSllwWn2P8cEvHnB/aikDe6LFq0As/ZyclNFS+
+ DfUUTOvq0O9a6o4qxfONFuqK81srsX+D6BeQ8PvfxMdCGmd4+0HWDeC3c146CsUigE6G
+ S9aFXC7vr1ETdAAbooJxFIebB8dXtZo1z587/GVTcd0vOTeuZxtnNrMOSeO0gJ+HiBA/
+ RUJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=TzI3S6jLbjqCRmP0AD+xPnjjYGdclGIRvo1UazljKDQ=;
- b=dgSVkgNfIq+GNVPCxOMDNLVieBD4uM0nh2IKgqasytEEl1kP0vAJlKAvKud09WxPEn
- FgCne4IZpXPLAFmtbArQu6kp3aNfL3dx8RSl/Q9QccFvngeAv4MYd13d7UZl93x4YCkC
- zLd5qKEG8ze+s7HY5Fy30iRhaEMmMezRbJrorg9mWIKkmKa7KfOK60vk23+odGkAKLq7
- nV8OdxdBEk9ypn2IZQp3NslOy7I5og++jG+Oxa5bAuMHoJ/SM51Wrxxf1vr+Wy9G9nu/
- iwiAcuE0TzANIxje0eB9FG5d1OCYYfSaKfCjskcCyfLPF93mNa2AdouA4oe9FLIb/UC9
- APIQ==
-X-Gm-Message-State: AOAM532r8afyjYwxHa//u18dBlse3/tQWByw9+A7v2rheJnbfEvcc8bG
- BD0AGzxFH3YKQRdE5JvxWA3UnxucL2t2Ab8w2VT0VsDlCAXPaFdckhd8txbBTmoJN8igFekIjUd
- AYrSu/N8LB1xQDxfN1tywKnHkHOWIAR+jJHamqICqaUtkKJfAY0i9uR6MPQ==
-X-Received: by 2002:a05:6512:3b2b:: with SMTP id
- f43mr15405466lfv.629.1638499064382; 
- Thu, 02 Dec 2021 18:37:44 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJx/XJjW0jiXhkYE2FIsyAX9Eum3nax80wLh+Mmzlbc6Q4yLINzTuvAGl7JCw3cT0aEyWTwZcJkgFLgHQKQfknw=
-X-Received: by 2002:a05:6512:3b2b:: with SMTP id
- f43mr15405452lfv.629.1638499064205; 
- Thu, 02 Dec 2021 18:37:44 -0800 (PST)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to:user-agent;
+ bh=OcPdj+R92LM+0ZI0wmyCsSW46rzlUsrsE3LQQ/iEpLE=;
+ b=7TaQ9z6/V9OPzXKRxRx9A0Hl6sVeWROB5obCrzFZktnjWU43nheyv7/4I3EWpJrQX1
+ nHN2DM5uA22OW9NnThFJ90uVzWaT2dfSIJf/k8f6+ZjxDwjGZ7o3FPuqtKh1Fo3D0Vq2
+ mh2l4ap0XEHHM5twO2v+qS52YVz5pBvVgLKEqA0bMPhNm7DDIXbj819OzyBylFHZELEJ
+ oDpQpD4S8PY0rXOpL8sAmtLt8y2vzGU3IrTMjZcIpDTXBEqJFBTe3MEUQRciHhq7kGfS
+ YTcSVA7a+PTmWfIjpCCvtDy7AgnKrrPop3E15CIkJxpAMce7KVS8LcGZmdzLYO0vZXPh
+ 0vaQ==
+X-Gm-Message-State: AOAM530nVGBhu7YfT8TkNGpr4F2Ao0DEn2I/Q55CdipnZnQCr7CG8UCa
+ cAcu6QcG6enr2smHm9ogd794DA==
+X-Google-Smtp-Source: ABdhPJx3r5/a3LSEpyJfO3oVjqbl62c8FXOn/xd99G1hXtUmAXrpEYkc/n2bP7s/+FAWNOZxxXXI9A==
+X-Received: by 2002:aa7:9d81:0:b0:49f:e072:bfc7 with SMTP id
+ f1-20020aa79d81000000b0049fe072bfc7mr16975671pfq.48.1638506360976; 
+ Thu, 02 Dec 2021 20:39:20 -0800 (PST)
+Received: from localhost ([106.201.42.111])
+ by smtp.gmail.com with ESMTPSA id p2sm924575pja.55.2021.12.02.20.39.19
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 02 Dec 2021 20:39:20 -0800 (PST)
+Date: Fri, 3 Dec 2021 10:09:17 +0530
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Subject: Re: [PATCH v3] i2c: virtio: fix completion handling
+Message-ID: <20211203043917.z4njhql4y43tcbew@vireshk-i7>
+References: <20211202153215.31796-1-vincent.whitchurch@axis.com>
 MIME-Version: 1.0
-References: <20211201195724.17503-1-elic@nvidia.com>
- <20211201195724.17503-8-elic@nvidia.com>
-In-Reply-To: <20211201195724.17503-8-elic@nvidia.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 3 Dec 2021 10:37:33 +0800
-Message-ID: <CACGkMEt1+P0eyCdbXH=2wZ4N=gk-pZfovKSOamciHLXqBQKf_Q@mail.gmail.com>
-Subject: Re: [PATCH 7/7] vdpa/mlx5: Restore cur_num_vqs in case of failure in
- change_num_qps()
-To: Eli Cohen <elic@nvidia.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: Laurent Vivier <lvivier@redhat.com>, mst <mst@redhat.com>,
- virtualization <virtualization@lists.linux-foundation.org>,
- eperezma <eperezma@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>
+Content-Disposition: inline
+In-Reply-To: <20211202153215.31796-1-vincent.whitchurch@axis.com>
+User-Agent: NeoMutt/20180716-391-311a52
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, wsa@kernel.org, kernel@axis.com,
+ linux-i2c@vger.kernel.org, Conghui Chen <conghui.chen@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,37 +104,51 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Dec 2, 2021 at 3:58 AM Eli Cohen <elic@nvidia.com> wrote:
->
-> Restore ndev->cur_num_vqs to the original value in case change_num_qps()
-> fails.
->
-> Fixes: 52893733f2c5 ("vdpa/mlx5: Add multiqueue support")
-> Signed-off-by: Eli Cohen <elic@nvidia.com>
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
+On 02-12-21, 16:32, Vincent Whitchurch wrote:
+> The driver currently assumes that the notify callback is only received
+> when the device is done with all the queued buffers.
+> 
+> However, this is not true, since the notify callback could be called
+> without any of the queued buffers being completed (for example, with
+> virtio-pci and shared interrupts) or with only some of the buffers being
+> completed (since the driver makes them available to the device in
+> multiple separate virtqueue_add_sgs() calls).
+> 
+> This can lead to incorrect data on the I2C bus or memory corruption in
+> the guest if the device operates on buffers which are have been freed by
+> the driver.  (The WARN_ON in the driver is also triggered.)
+> 
+>  BUG kmalloc-128 (Tainted: G        W        ): Poison overwritten
+>  First byte 0x0 instead of 0x6b
+>  Allocated in i2cdev_ioctl_rdwr+0x9d/0x1de age=243 cpu=0 pid=28
+>  	memdup_user+0x2e/0xbd
+>  	i2cdev_ioctl_rdwr+0x9d/0x1de
+>  	i2cdev_ioctl+0x247/0x2ed
+>  	vfs_ioctl+0x21/0x30
+>  	sys_ioctl+0xb18/0xb41
+>  Freed in i2cdev_ioctl_rdwr+0x1bb/0x1de age=68 cpu=0 pid=28
+>  	kfree+0x1bd/0x1cc
+>  	i2cdev_ioctl_rdwr+0x1bb/0x1de
+>  	i2cdev_ioctl+0x247/0x2ed
+>  	vfs_ioctl+0x21/0x30
+>  	sys_ioctl+0xb18/0xb41
+> 
+> Fix this by calling virtio_get_buf() from the notify handler like other
+> virtio drivers and by actually waiting for all the buffers to be
+> completed.
+> 
+> Fixes: 3cfc88380413d20f ("i2c: virtio: add a virtio i2c frontend driver")
+> Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+> Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
 > ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index 81a602ff68b5..baeff15d4b95 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -1552,6 +1552,8 @@ static int change_num_qps(struct mlx5_vdpa_dev *mvdev, int newqps)
->         for (--i; i >= cur_qps; --i)
->                 teardown_vq(ndev, &ndev->vqs[i]);
->
-> +       ndev->cur_num_vqs = 2 * cur_qps;
-> +
->         return err;
->  }
->
-> --
-> 2.33.1
->
+> 
+> Notes:
+>     v3: Wait for all completions instead of only the last one.
 
+LGTM, thanks.
+
+-- 
+viresh
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
