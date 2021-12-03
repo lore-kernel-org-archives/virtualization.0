@@ -1,70 +1,94 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D0274C433F5
-	for <virtualization@archiver.kernel.org>; Fri,  3 Dec 2021 14:12:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 95F25C433F5
+	for <virtualization@archiver.kernel.org>; Fri,  3 Dec 2021 16:57:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 575E34046E;
-	Fri,  3 Dec 2021 14:12:08 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 3C425831D6;
+	Fri,  3 Dec 2021 16:57:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp4.osuosl.org ([127.0.0.1])
-	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id UTA0X6J1873K; Fri,  3 Dec 2021 14:12:04 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id BA9AE403FB;
-	Fri,  3 Dec 2021 14:12:03 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ePpXZLWHDc5a; Fri,  3 Dec 2021 16:57:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 6920982771;
+	Fri,  3 Dec 2021 16:57:01 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 90B23C006E;
-	Fri,  3 Dec 2021 14:12:03 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3073EC006E;
+	Fri,  3 Dec 2021 16:57:01 +0000 (UTC)
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [IPv6:2605:bc80:3010::133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8B909C0012
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2C489C0012
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 14:12:02 +0000 (UTC)
+ Fri,  3 Dec 2021 16:57:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 852DA4035C
+ by smtp2.osuosl.org (Postfix) with ESMTP id 0B27F40263
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 14:12:02 +0000 (UTC)
+ Fri,  3 Dec 2021 16:57:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (2048-bit key) header.d=gmail.com
 Received: from smtp2.osuosl.org ([127.0.0.1])
  by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gxCkZPtEu_Eq
+ with ESMTP id qxrlnrrHWjja
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 14:11:56 +0000 (UTC)
-X-Greylist: delayed 00:05:02 by SQLgrey-1.8.0
-Received: from albert.telenet-ops.be (albert.telenet-ops.be
- [IPv6:2a02:1800:110:4::f00:1a])
- by smtp2.osuosl.org (Postfix) with ESMTPS id 6E4B540106
+ Fri,  3 Dec 2021 16:56:58 +0000 (UTC)
+X-Greylist: whitelisted by SQLgrey-1.8.0
+Received: from mail-ot1-x330.google.com (mail-ot1-x330.google.com
+ [IPv6:2607:f8b0:4864:20::330])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id D6F8340157
  for <virtualization@lists.linux-foundation.org>;
- Fri,  3 Dec 2021 14:11:56 +0000 (UTC)
-Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed10:3191:9890:620a:6f4])
- by albert.telenet-ops.be with bizsmtp
- id Rq6p2600X3eLghq06q6pGr; Fri, 03 Dec 2021 15:06:51 +0100
-Received: from rox.of.borg ([192.168.97.57])
- by ramsan.of.borg with esmtps (TLS1.3) tls
- TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (Exim 4.93)
- (envelope-from <geert@linux-m68k.org>)
- id 1mt9D6-002LpO-U9; Fri, 03 Dec 2021 15:06:48 +0100
-Received: from geert by rox.of.borg with local (Exim 4.93)
- (envelope-from <geert@linux-m68k.org>)
- id 1mt9D6-000lfI-H9; Fri, 03 Dec 2021 15:06:48 +0100
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-To: Linus Walleij <linus.walleij@linaro.org>,
- Bartosz Golaszewski <brgl@bgdev.pl>,
- Viresh Kumar <viresh.kumar@linaro.org>,
- Enrico Weigelt metux IT consult <info@metux.net>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Arnd Bergmann <arnd@kernel.org>
-Subject: [PATCH resend] gpio: aggregator: Add interrupt support
-Date: Fri,  3 Dec 2021 15:06:44 +0100
-Message-Id: <ba7f82f348d77b6a65498dd13a92550949e69cc3.1638540167.git.geert+renesas@glider.be>
-X-Mailer: git-send-email 2.25.1
+ Fri,  3 Dec 2021 16:56:57 +0000 (UTC)
+Received: by mail-ot1-x330.google.com with SMTP id
+ x3-20020a05683000c300b0057a5318c517so4016170oto.13
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 03 Dec 2021 08:56:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20210112;
+ h=message-id:date:mime-version:user-agent:subject:content-language:to
+ :cc:references:from:in-reply-to:content-transfer-encoding;
+ bh=AJr6Qe8CmBog6fB3TwA4tpkEoCiIknifXdVOwalv0Bc=;
+ b=OhNb9hAXEFm2e3Pxw4XHiAx7MWclXGGkzrZzqvYL5vZyyw/qNDDf+xBQAYS5gNM5Dr
+ 1/C48dUw8hqrhP338+zra70ygAD/iGCLaCDhZRVjNUNUr5k9vCSzT0Uriido/tDcJHIV
+ HWwHbOdVziSn/jW8gu0qMRnQykQvQvJAlylVIZRocPO4yJxjRKs1Rrn3S9rn58b3mrTz
+ q6mzyQL0BPH2GuP0G9WuQ0cj3XxWAZhl0k+1gKMyCbRr26PguhYsaor4oMXogSPYQrfi
+ o+VDUD8uLo/h7S2FCjuH4HuSo4PFCbBxXj884jr4oNwEbkBX81onD8tt5ove3txL3bmD
+ G4Kg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20210112;
+ h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+ :content-language:to:cc:references:from:in-reply-to
+ :content-transfer-encoding;
+ bh=AJr6Qe8CmBog6fB3TwA4tpkEoCiIknifXdVOwalv0Bc=;
+ b=IvEVPZqJe3WnqSCuTxKUnO7i8asRAAmwKMzdNy1C92Ws16pVidlNqzUcZ16QzPMLv6
+ QnlZBFmKNwP0Ykykpc0i5EnsxVg3gBV/8MUtApd6Hzz4bCZaEbW3QGvbbTMmptq4/iZ+
+ pjKQc64hHoU590iuu60LGodmI4IuL9NGfyET5Hjgzz8fYvA/e0cHLlr62n08Bx11HV/K
+ Esb8/MR7R244PJzNsaq4ak6iN/wXsZ9u1j/2Jj7oCN5qoaI0ys0VY3Df4c/lwNhY7FxN
+ EYXPgb/c5upPMD/ePALr0oyi7PHVJ4pUI8ds3vqgAYVC9LRMVNSW5aJ4C3rf9H4QSmwX
+ VlCg==
+X-Gm-Message-State: AOAM530wGsU0PA9pPt0nTTagWShoAT4XfKGAchaoRMUEwxTEtnhUd9Y7
+ 8gmBxoPXd+XS3yUnLIt73GA=
+X-Google-Smtp-Source: ABdhPJyyNyVp+OanpDa2j57rmTai20OUB4w6oTfC93/56KQzNMqP4MdZ6hdhPhMqXf58ql3BraITZg==
+X-Received: by 2002:a9d:7758:: with SMTP id t24mr17437788otl.264.1638550616832; 
+ Fri, 03 Dec 2021 08:56:56 -0800 (PST)
+Received: from [172.16.0.2] ([8.48.134.30])
+ by smtp.googlemail.com with ESMTPSA id i3sm668960ooq.39.2021.12.03.08.56.56
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Fri, 03 Dec 2021 08:56:56 -0800 (PST)
+Message-ID: <7472fe36-b0a9-d731-8c2f-20be0411b96c@gmail.com>
+Date: Fri, 3 Dec 2021 09:56:55 -0700
 MIME-Version: 1.0
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-renesas-soc@vger.kernel.org,
- linux-gpio@vger.kernel.org, stratos-dev@op-lists.linaro.org
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.3.2
+Subject: Re: [iproute2-next 0/4] vdpa tool to query and set config layout
+Content-Language: en-US
+To: Parav Pandit <parav@nvidia.com>, stephen@networkplumber.org,
+ netdev@vger.kernel.org
+References: <20211202042239.2454-1-parav@nvidia.com>
+From: David Ahern <dsahern@gmail.com>
+In-Reply-To: <20211202042239.2454-1-parav@nvidia.com>
+Cc: mst@redhat.com, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -81,93 +105,50 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Currently the GPIO Aggregator does not support interrupts.  This means
-that kernel drivers going from a GPIO to an IRQ using gpiod_to_irq(),
-and userspace applications using line events do not work.
+On 12/1/21 9:22 PM, Parav Pandit wrote:
+> This series implements querying and setting of the mac address and mtu
+> device config fields of the vdpa device of type net.
+> 
+> An example of query and set as below.
+> 
+> $ vdpa dev add name bar mgmtdev vdpasim_net mac 00:11:22:33:44:55 mtu 9000
+> 
+> $ vdpa dev config show
+> bar: mac 00:11:22:33:44:55 link up link_announce false mtu 9000
+> 
+> $ vdpa dev config show -jp
+> {
+>     "config": {
+>         "bar": {
+>             "mac": "00:11:22:33:44:55",
+>             "link ": "up",
+>             "link_announce ": false,
+>             "mtu": 1500,
+>         }
+>     }
+> }
+> 
+> patch summary:
+> patch-1 updates the kernel headers
+> patch-2 implements the query command
+> patch-3 implements setting the mac address of vdpa dev config space
+> patch-4 implements setting the mtu of vdpa dev config space
+> 
+> 
+> Parav Pandit (4):
+>   vdpa: Update kernel headers
+>   vdpa: Enable user to query vdpa device config layout
+>   vdpa: Enable user to set mac address of vdpa device
+>   vdpa: Enable user to set mtu of the vdpa device
+> 
+>  include/uapi/linux/virtio_net.h |  81 +++++++++++++
+>  vdpa/include/uapi/linux/vdpa.h  |   7 ++
+>  vdpa/vdpa.c                     | 198 ++++++++++++++++++++++++++++++--
+>  3 files changed, 277 insertions(+), 9 deletions(-)
+>  create mode 100644 include/uapi/linux/virtio_net.h
+> 
 
-Add interrupt support by providing a gpio_chip.to_irq() callback, which
-just calls into the parent GPIO controller.
-
-Note that this does not implement full interrupt controller (irq_chip)
-support, so using e.g. gpio-keys with "interrupts" instead of "gpios"
-still does not work.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
----
-I would prefer to avoid implementing irq_chip support, until there is a
-real use case for this.
-
-This has been tested with gpio-keys and gpiomon on the Koelsch
-development board:
-
-  - gpio-keys, using a DT overlay[1]:
-
-	$ overlay add r8a7791-koelsch-keyboard-controlled-led
-	$ echo gpio-aggregator > /sys/devices/platform/frobnicator/driver_override
-	$ echo frobnicator > /sys/bus/platform/drivers/gpio-aggregator/bind
-
-	$ gpioinfo frobnicator
-	gpiochip12 - 3 lines:
-		line   0:      "light"      "light"  output  active-high [used]
-		line   1:         "on"         "On"   input   active-low [used]
-		line   2:        "off"        "Off"   input   active-low [used]
-
-	$ echo 255 > /sys/class/leds/light/brightness
-	$ echo 0 > /sys/class/leds/light/brightness
-
-	$ evtest /dev/input/event0
-
-  - gpiomon, using the GPIO sysfs API:
-
-	$ echo keyboard > /sys/bus/platform/drivers/gpio-keys/unbind
-	$ echo e6055800.gpio 2,6 > /sys/bus/platform/drivers/gpio-aggregator/new_device
-	$ gpiomon gpiochip12 0 1
-
-[1] "ARM: dts: koelsch: Add overlay for keyboard-controlled LED"
-    https://git.kernel.org/pub/scm/linux/kernel/git/geert/renesas-drivers.git/commit/?h=topic/renesas-overlays&id=c78d817869e63a3485bb4ab98aeea6ce368a396e
----
- drivers/gpio/gpio-aggregator.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpio/gpio-aggregator.c b/drivers/gpio/gpio-aggregator.c
-index e9671d1660ef4b40..869dc952cf45218b 100644
---- a/drivers/gpio/gpio-aggregator.c
-+++ b/drivers/gpio/gpio-aggregator.c
-@@ -371,6 +371,13 @@ static int gpio_fwd_set_config(struct gpio_chip *chip, unsigned int offset,
- 	return gpiod_set_config(fwd->descs[offset], config);
- }
- 
-+static int gpio_fwd_to_irq(struct gpio_chip *chip, unsigned int offset)
-+{
-+	struct gpiochip_fwd *fwd = gpiochip_get_data(chip);
-+
-+	return gpiod_to_irq(fwd->descs[offset]);
-+}
-+
- /**
-  * gpiochip_fwd_create() - Create a new GPIO forwarder
-  * @dev: Parent device pointer
-@@ -411,7 +418,8 @@ static struct gpiochip_fwd *gpiochip_fwd_create(struct device *dev,
- 	for (i = 0; i < ngpios; i++) {
- 		struct gpio_chip *parent = gpiod_to_chip(descs[i]);
- 
--		dev_dbg(dev, "%u => gpio-%d\n", i, desc_to_gpio(descs[i]));
-+		dev_dbg(dev, "%u => gpio %d irq %d\n", i,
-+			desc_to_gpio(descs[i]), gpiod_to_irq(descs[i]));
- 
- 		if (gpiod_cansleep(descs[i]))
- 			chip->can_sleep = true;
-@@ -429,6 +437,7 @@ static struct gpiochip_fwd *gpiochip_fwd_create(struct device *dev,
- 	chip->get_multiple = gpio_fwd_get_multiple_locked;
- 	chip->set = gpio_fwd_set;
- 	chip->set_multiple = gpio_fwd_set_multiple_locked;
-+	chip->to_irq = gpio_fwd_to_irq;
- 	chip->base = -1;
- 	chip->ngpio = ngpios;
- 	fwd->descs = descs;
--- 
-2.25.1
-
+please update man page(s)
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
