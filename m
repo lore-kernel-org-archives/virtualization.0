@@ -1,174 +1,91 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 55B7DC433EF
-	for <virtualization@archiver.kernel.org>; Mon,  6 Dec 2021 10:45:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 55280C433F5
+	for <virtualization@archiver.kernel.org>; Mon,  6 Dec 2021 11:16:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id D069C4020C;
-	Mon,  6 Dec 2021 10:45:22 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id DCEB1408C9;
+	Mon,  6 Dec 2021 11:16:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3nVBZQ88ImEB; Mon,  6 Dec 2021 10:45:21 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 177E5401FE;
-	Mon,  6 Dec 2021 10:45:21 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D404EC001E;
-	Mon,  6 Dec 2021 10:45:20 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3F8C9C0012
- for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Dec 2021 10:45:20 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 2811F406AA
- for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Dec 2021 10:45:20 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
- dkim=pass (2048-bit key) header.d=oracle.com header.b="WOdHECeE";
- dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com
- header.b="ltk5R2EY"
 Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id C-ZoZYj7LMuc
+	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id ttIIeprseua4; Mon,  6 Dec 2021 11:16:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 57EFC408C6;
+	Mon,  6 Dec 2021 11:16:31 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3993DC002F;
+	Mon,  6 Dec 2021 11:16:31 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 15D38C0012
  for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Dec 2021 10:45:19 +0000 (UTC)
+ Mon,  6 Dec 2021 11:16:30 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by smtp2.osuosl.org (Postfix) with ESMTP id F109B400A4
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  6 Dec 2021 11:16:29 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=suse.de header.b="uNKSmiJa";
+ dkim=neutral reason="invalid (unsupported algorithm ed25519-sha256)"
+ header.d=suse.de header.b="sbErUmmG"
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id kLfxpQ5xEcvN
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  6 Dec 2021 11:16:28 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com
- [205.220.165.32])
- by smtp4.osuosl.org (Postfix) with ESMTPS id CE2E140664
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 90BE740297
  for <virtualization@lists.linux-foundation.org>;
- Mon,  6 Dec 2021 10:45:18 +0000 (UTC)
-Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
- by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1B69g1Hx011580; 
- Mon, 6 Dec 2021 10:43:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
- h=date : from : to : cc
- : subject : message-id : references : content-type : in-reply-to :
- mime-version; s=corp-2021-07-09;
- bh=XLBvJVTLQE05qyeqQNCFwbU7hQSfnxHKzA+XEmf8+C0=;
- b=WOdHECeEfNrECMn+YrWlQ2x1Ur+YAnX3tpTVpaGuV97ho76sBr8Ldfkzf3acOFIq6tqk
- D0+cvYEL7PyOPZayZVkXfT2fGe1FiaE93B1pmmqLu0Y6ojQW8x8zQcVL1uTyjLxPn1qj
- coiNtwIjb7uv1Tll/Xs+71jZiFSZhZChLb7lOcNuuIgbi5JwlaFx+DQAfOpO8VWtorTo
- UFcX808Pzob51SvmhN7dlaQQ1MxA2XNT9NLCTscpw++xWX9aI68rNLIIupGwIndxGNX6
- 7Oy8oAB4KRu3wYzHYbwS3WWuLtT/XwVDTOEIR4ggNmlOvktZYt1Hcekjmx+6VNhG+Vd0 zg== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
- by mx0b-00069f02.pphosted.com with ESMTP id 3csctwh7tj-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 06 Dec 2021 10:43:04 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
- by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 1B6AZ9g2113679;
- Mon, 6 Dec 2021 10:43:03 GMT
-Received: from nam11-co1-obe.outbound.protection.outlook.com
- (mail-co1nam11lp2172.outbound.protection.outlook.com [104.47.56.172])
- by aserp3030.oracle.com with ESMTP id 3csc4rkmmp-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Mon, 06 Dec 2021 10:43:03 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=OGjXHcVVqRas/hjhlHq5Uyr0Zj1gbWER51a1hMx0NaX5o0faUsM58fc8ojdTfpXtViZ6eV3ifyqYVf3aztCAqHx7oQkPV6r8AwVJ7IBb4pgWLIFwoTLGacDEGHD0mgH0O71f2wL4RTRydvdgscOwm8FC89LKwDhLb6LaIvQWUiaPYhKKwfoTQAGhxy0+sbpfym7E4HhH0Q/cPA3I2so7tTAaRrMeNGryM/4Z2idrxXvotPXpZcILDAHHRcDdicy5HHKGTHYiI7O525odDp6QBUX7HXwRgI6GjS2kRuMNXdznfw7/cQLQFdpY7oegnC3RhkX3RHU4dfbd8DGfTP81Gw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=XLBvJVTLQE05qyeqQNCFwbU7hQSfnxHKzA+XEmf8+C0=;
- b=CWNQMVvYXSqAzlAO1zsqng2BLpAXtqIWO0oEWUeeWwbZ7AURvX7eEX7pfjVWF7i4AZQNLIwZKbGHOfoKEsvKl8N1Eji2+aEOnW7pGezninmtqoDylg+eVlVu1r1wdNr9pUVdFMrkmPM5Riwdba7AfYxgn5/X2lH/lJfsSN+Z1YzofoqzjKW+hSPmQ4yjs5+SfzhX/XISn8SNUfMfx5PEq3sKNijw7aGNtMONlosMxgCUxdQVS2D5V48czfkvvOelSo5PA/lMFVMt2no8gYxD5i8WxtI4X2gz44GH7NNDkkkFyqOwy0/e4jZYWSwRBnwjpH8/U4GwsaZBpgPYo3lJKg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=XLBvJVTLQE05qyeqQNCFwbU7hQSfnxHKzA+XEmf8+C0=;
- b=ltk5R2EYnVZL5+TyweaHMVN6MmdNcNm4N7n6MtjNFIYtlkA3rMDDBa4JEtn+5/6aOSoYWfeOaMKzSRF/zbaXUmLL4RyBRUYadVILvsV9iuO0RhHkxZ/Lnp9xmeIHIuvqJub4CGpHJqK0eqNwmokBPWkSApQiwlfiraQhJNUOunM=
-Authentication-Results: suse.de; dkim=none (message not signed)
- header.d=none;suse.de; dmarc=none action=none header.from=oracle.com;
-Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
- (2603:10b6:301:2d::28) by MW5PR10MB5713.namprd10.prod.outlook.com
- (2603:10b6:303:19a::12) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4523.15; Mon, 6 Dec
- 2021 10:43:01 +0000
-Received: from MWHPR1001MB2365.namprd10.prod.outlook.com
- ([fe80::7194:c377:36cc:d9f0]) by MWHPR1001MB2365.namprd10.prod.outlook.com
- ([fe80::7194:c377:36cc:d9f0%6]) with mapi id 15.20.4755.021; Mon, 6 Dec 2021
- 10:43:00 +0000
-Date: Mon, 6 Dec 2021 13:42:33 +0300
-From: Dan Carpenter <dan.carpenter@oracle.com>
-To: Thomas Zimmermann <tzimmermann@suse.de>
+ Mon,  6 Dec 2021 11:16:28 +0000 (UTC)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by smtp-out2.suse.de (Postfix) with ESMTPS id D3B6A1FD54;
+ Mon,  6 Dec 2021 11:16:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+ t=1638789385; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=T8jQ8QG5yfyovABTsMwzloL81Lw8VmQNtebtZoCYYFQ=;
+ b=uNKSmiJarb6VyZvwlMLbG5SEHLBUqrku86v5aCFZutccjE/li/91njyYEimcFk9Cl8qBt/
+ Bp/clpeArneU7iqBVXHbx6Pk0MXEqn49cTy0PuSzppRV3lTVqSWA3ZGk0vbDVbiaARDhc8
+ wPlh/byU1Evwpnn8iH+TsqLITjVKJyU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+ s=susede2_ed25519; t=1638789385;
+ h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=T8jQ8QG5yfyovABTsMwzloL81Lw8VmQNtebtZoCYYFQ=;
+ b=sbErUmmGlhyCbfsCBm8kMWeu4jBptM3zZrTK22KB3pIL+KMeGQtgqs0Rt93SySidmzqLyi
+ P3drltobQg7/gfCA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+ (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+ key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+ (No client certificate requested)
+ by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 7138B13B2C;
+ Mon,  6 Dec 2021 11:16:25 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+ by imap2.suse-dmz.suse.de with ESMTPSA id +5SNGgnxrWENXgAAMHmgww
+ (envelope-from <tzimmermann@suse.de>); Mon, 06 Dec 2021 11:16:25 +0000
+Message-ID: <4fa29fcb-f936-b590-7691-90f0579a54ae@suse.de>
+Date: Mon, 6 Dec 2021 12:16:24 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.2
 Subject: Re: [PATCH] drm: Return error codes from struct
  drm_driver.gem_create_object
-Message-ID: <20211206104233.GD1978@kadam>
+Content-Language: en-US
+To: Dan Carpenter <dan.carpenter@oracle.com>
 References: <20211130095255.26710-1-tzimmermann@suse.de>
-Content-Disposition: inline
-In-Reply-To: <20211130095255.26710-1-tzimmermann@suse.de>
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-ClientProxiedBy: JN2P275CA0018.ZAFP275.PROD.OUTLOOK.COM (2603:1086:0:3::30)
- To MWHPR1001MB2365.namprd10.prod.outlook.com
- (2603:10b6:301:2d::28)
-MIME-Version: 1.0
-Received: from kadam (102.222.70.114) by
- JN2P275CA0018.ZAFP275.PROD.OUTLOOK.COM (2603:1086:0:3::30) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4755.16 via Frontend Transport; Mon, 6 Dec 2021 10:42:49 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 1119a3d5-612f-41e3-cb87-08d9b8a52c2c
-X-MS-TrafficTypeDiagnostic: MW5PR10MB5713:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <MW5PR10MB5713BA2E678A380A2685255A8E6D9@MW5PR10MB5713.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:758;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: C/McohBiVwXoxH/eAnqzr3FaeAWspHI8z14drKy4FGWJghOVjqrN1ITJt/S7x3Q1mCKRRvMs2004AKU+JNFPjnq53pJZqq3XoTRBochZJma50tkzYUidczjmYIqs/yd4MwR0IW7OgdUrl/aFOmKvo2HpZyQ2TyLdoEqroU4Ikf1t1ROcfwWlYJAfo2AjKxXJklynbX5Z0AD4gH+08WgFsl4Wl0/6GF9iV9L0PC45+yUCqZC1ZEYq6M0Sy9bHTlEwey9BhDK+kH3iiG+aXtR4fTBNpB1REiVnP1jdvw3cQ7hzdupkNGgJGmgjuDIM6ZTxcIart6HUP1f0eIVFGMpv+YNvmk1WPyuXnz25Z6ghQbwW8O+gcNsZdLJCzboFtZY4wxpUL4FbgFYR+cYP4fIqq86WclbtlQWBv6I3Qk+dNCy1HskOUmVqzOv+bjJrAcnfwbeX1ke1tG2S+dpmxJYvYWta3QzVGVQu6d2biBn6bef8s4K3KICpZBH+2ACAo8ufiCsK3VC0rpUXnP2zRxHINme/v4CQCc3/pPy2pOC9mI+GxlVKy79wXxUQP+lV5giH9Qv7WsHgYCIimzxxMo/decT9EwlggDlpKUK+3HvVqYRv7NB3d9orRaV21nqKueNxdMwi+TfKceTd23qe4IbTlW5XEn7SQOhWAgQh3hY/o2ZFlHhI0CL7SxehDSWT4LZGqG70UOkWwwZ9r3SjUYMEGmBsE1Ulm3SVw+Q51AO1T3/WHqP31LvX14/7xowAKv0FxRCKqDHvr/1zuniYj9AvT9EKEGdHsXxR0ApJsJnQ1zM=
-X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
- IPV:NLI; SFV:NSPM; H:MWHPR1001MB2365.namprd10.prod.outlook.com; PTR:; CAT:NONE;
- SFS:(366004)(966005)(316002)(38350700002)(508600001)(186003)(52116002)(6916009)(33716001)(956004)(26005)(6666004)(7416002)(38100700002)(44832011)(8676002)(4326008)(86362001)(1076003)(66476007)(66946007)(33656002)(6496006)(66556008)(2906002)(9576002)(55016003)(83380400001)(9686003)(8936002)(5660300002);
- DIR:OUT; SFP:1101; 
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?/1apE2//IyD5Pid6pW8p4dptnkbQESX93wCYBP0kiz7CAZ6qu9xDTyp0Q1mC?=
- =?us-ascii?Q?k7fMCIINLxLoa0fz8DLS2sMLepsQidkSG7exemxsvK7NuB7ttsyune63Lnui?=
- =?us-ascii?Q?fzAMJCn9Zs/pCghC5aFXBtXCjbgqrLf64otW3aSmZMbDOaQPzlXl6UYQ1Dyp?=
- =?us-ascii?Q?9FpdVyYzWBkL/KALrkVfFqg4QrqCiy8Jjujk3aNMctCxTNKZY++ja0bxZiQx?=
- =?us-ascii?Q?3EvhhebPnewKNG5WzM0vEVea+x9lrtP5Y+uUEoJ8oSjiTkAhU7kq9fivjvyT?=
- =?us-ascii?Q?ITLT+jJWMpRdqCWu4LudncLwTAatdNe1iwiTQwOVGUkF2YJysbQ4KhKZCIet?=
- =?us-ascii?Q?jaFj0YM4uonjROO069z5M5q5R2qdSbAZFrZl/wBdY55xjDd0uFjlae0NCyQN?=
- =?us-ascii?Q?Fv4qEatwkbzhO9Ag6t4bm6q22gltSUOgpQBZPeTWZjF7Vm4KFCtdzelkRYyE?=
- =?us-ascii?Q?8W2deEz7r9bIvBUOkJIgb/tOL58/dCDlrZVBBUHn0rzR50eeddgckbX7sl7s?=
- =?us-ascii?Q?KBQ1BCfE42akcqyh8Wt+c6ss81Q6WikTv+UvRfc67WuUqJRLjdOhcHhq7Gpr?=
- =?us-ascii?Q?7CUPZwnctpRDiyEmYwRH3PbYou2xiAHWnIH9CGPLxds2ulQHBUF5pwcwRDKT?=
- =?us-ascii?Q?gpnqLQdaChhnm/w5Qi3ktUsZGl8P+rj4l9h+05Gee061DYpvHv9lbFePTAem?=
- =?us-ascii?Q?o4gMZhWwGtW/pXhv3SIR1sbQQN0ms++qVmBJVaimBy1ObPYjYKZ7uPXdWVZc?=
- =?us-ascii?Q?JVs++HnxY5diKNc0zK2N6Wp9texYJEzfRL2BPsjNYd/Z9EVon24e1VVN9gd1?=
- =?us-ascii?Q?Ag0rvcuo2QcHzI9hLwY9hCmH4GUqljeJV0C2sawPffj2f6xUm1uVASYJu1wv?=
- =?us-ascii?Q?yny/Wwm5jRtwluDeggb3XhiiCmCeLg51cn+3At4FYxZ6zfdbIXzynxozbjCY?=
- =?us-ascii?Q?d8gpl8Km3jdP7/na00N1ehNkqqleB+FhmPn6KMQeAtUu9rVK/lqQVk//qqGT?=
- =?us-ascii?Q?dUWvvqA1cf5ZyA988fohsIf7j5ICiR8/FeVwovrOT6zH1EnWh8gQKcXM3kNO?=
- =?us-ascii?Q?KojfFvEZ/1jcc1bT2+hco3tI8kLoqr21809AoBPHDD3hpvXf3LkthxHc+W7A?=
- =?us-ascii?Q?jnpNWyExENZXYlzuMGVi3COT6jwWW3SgybO1u3siQjk9oRi3BXsAiLnbcRGG?=
- =?us-ascii?Q?dirJmXMC2YXkN8lEdJP4ltAJyMipAlH9cIm2BwmpVbYK4x22PlvIxT1Aif0D?=
- =?us-ascii?Q?JlLiveOpgB1vF36pr7xyUv+8BG9Eb9QwuHc8QsFz6NEYL1RmyzRPKTS6bo+Q?=
- =?us-ascii?Q?uYClhj446hNMv+uhMHy08HM5?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1119a3d5-612f-41e3-cb87-08d9b8a52c2c
-X-MS-Exchange-CrossTenant-AuthSource: MWHPR1001MB2365.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Dec 2021 10:43:00.4850 (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: xrHGvX65aZ8kWIHLYjw2fzmXOqnnxxemlG/CVaDdYGdh6o9LPhGFJ3oEApS2M62q03hKpG7ovZ1i3CRxRxZ0oZUa1RmC5R1J1/GC6RG4qug=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW5PR10MB5713
-X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10189
- signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0
- mlxlogscore=999
- phishscore=0 bulkscore=0 malwarescore=0 spamscore=0 suspectscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2110150000 definitions=main-2112060062
-X-Proofpoint-ORIG-GUID: qAXim2-umxVOa4QjvieQBHK10eWCG4sY
-X-Proofpoint-GUID: qAXim2-umxVOa4QjvieQBHK10eWCG4sY
+ <20211206104233.GD1978@kadam>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+In-Reply-To: <20211206104233.GD1978@kadam>
 Cc: robh@kernel.org, emma@anholt.net, tomeu.vizoso@collabora.com,
  airlied@linux.ie, dri-devel@lists.freedesktop.org,
  maarten.lankhorst@linux.intel.com, mripard@kernel.org, steven.price@arm.com,
@@ -186,44 +103,113 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============0060293973504744191=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Nov 30, 2021 at 10:52:55AM +0100, Thomas Zimmermann wrote:
-> GEM helper libraries use struct drm_driver.gem_create_object to let
-> drivers override GEM object allocation. On failure, the call returns
-> NULL.
-> 
-> Change the semantics to make the calls return a pointer-encoded error.
-> This aligns the callback with its callers. Fixes the ingenic driver,
-> which already returns an error pointer.
-> 
-> Also update the callers to handle the involved types more strictly.
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> ---
-> There is an alternative patch at [1] that updates the value returned
-> by ingenics' gem_create_object to NULL. Fixing the interface to return
-> an errno code is more consistent with the rest of the GEM functions.
-> 
-> [1] https://lore.kernel.org/dri-devel/20211118111522.GD1147@kili/ 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============0060293973504744191==
+Content-Language: en-US
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------oH0RlGTbsvofw0BB3mvWo040"
 
-My fix was already applied and backported to -stable etc...  Your
-patch is not developed against a current tree so you broke it.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------oH0RlGTbsvofw0BB3mvWo040
+Content-Type: multipart/mixed; boundary="------------tti0ytzmBu0adVQa9Gb8zCmd";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@linux.ie,
+ daniel@ffwll.ch, yuq825@gmail.com, robh@kernel.org,
+ tomeu.vizoso@collabora.com, steven.price@arm.com,
+ alyssa.rosenzweig@collabora.com, emma@anholt.net, kraxel@redhat.com,
+ gurchetansingh@chromium.org, olvaffe@gmail.com,
+ dri-devel@lists.freedesktop.org, lima@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org
+Message-ID: <4fa29fcb-f936-b590-7691-90f0579a54ae@suse.de>
+Subject: Re: [PATCH] drm: Return error codes from struct
+ drm_driver.gem_create_object
+References: <20211130095255.26710-1-tzimmermann@suse.de>
+ <20211206104233.GD1978@kadam>
+In-Reply-To: <20211206104233.GD1978@kadam>
 
-That's the tricky thing with changing the API because say people wrote
-their code last week where returning NULL was correct.  When they submit
-their driver upstream, everything will merge and build but it will break
-at runtime.
+--------------tti0ytzmBu0adVQa9Gb8zCmd
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-For now, it's only vc4_create_object() which is broken.
+SGkNCg0KQW0gMDYuMTIuMjEgdW0gMTE6NDIgc2NocmllYiBEYW4gQ2FycGVudGVyOg0KPiBP
+biBUdWUsIE5vdiAzMCwgMjAyMSBhdCAxMDo1Mjo1NUFNICswMTAwLCBUaG9tYXMgWmltbWVy
+bWFubiB3cm90ZToNCj4+IEdFTSBoZWxwZXIgbGlicmFyaWVzIHVzZSBzdHJ1Y3QgZHJtX2Ry
+aXZlci5nZW1fY3JlYXRlX29iamVjdCB0byBsZXQNCj4+IGRyaXZlcnMgb3ZlcnJpZGUgR0VN
+IG9iamVjdCBhbGxvY2F0aW9uLiBPbiBmYWlsdXJlLCB0aGUgY2FsbCByZXR1cm5zDQo+PiBO
+VUxMLg0KPj4NCj4+IENoYW5nZSB0aGUgc2VtYW50aWNzIHRvIG1ha2UgdGhlIGNhbGxzIHJl
+dHVybiBhIHBvaW50ZXItZW5jb2RlZCBlcnJvci4NCj4+IFRoaXMgYWxpZ25zIHRoZSBjYWxs
+YmFjayB3aXRoIGl0cyBjYWxsZXJzLiBGaXhlcyB0aGUgaW5nZW5pYyBkcml2ZXIsDQo+PiB3
+aGljaCBhbHJlYWR5IHJldHVybnMgYW4gZXJyb3IgcG9pbnRlci4NCj4+DQo+PiBBbHNvIHVw
+ZGF0ZSB0aGUgY2FsbGVycyB0byBoYW5kbGUgdGhlIGludm9sdmVkIHR5cGVzIG1vcmUgc3Ry
+aWN0bHkuDQo+Pg0KPj4gU2lnbmVkLW9mZi1ieTogVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1t
+ZXJtYW5uQHN1c2UuZGU+DQo+PiAtLS0NCj4+IFRoZXJlIGlzIGFuIGFsdGVybmF0aXZlIHBh
+dGNoIGF0IFsxXSB0aGF0IHVwZGF0ZXMgdGhlIHZhbHVlIHJldHVybmVkDQo+PiBieSBpbmdl
+bmljcycgZ2VtX2NyZWF0ZV9vYmplY3QgdG8gTlVMTC4gRml4aW5nIHRoZSBpbnRlcmZhY2Ug
+dG8gcmV0dXJuDQo+PiBhbiBlcnJubyBjb2RlIGlzIG1vcmUgY29uc2lzdGVudCB3aXRoIHRo
+ZSByZXN0IG9mIHRoZSBHRU0gZnVuY3Rpb25zLg0KPj4NCj4+IFsxXSBodHRwczovL2xvcmUu
+a2VybmVsLm9yZy9kcmktZGV2ZWwvMjAyMTExMTgxMTE1MjIuR0QxMTQ3QGtpbGkvDQo+IA0K
+PiBNeSBmaXggd2FzIGFscmVhZHkgYXBwbGllZCBhbmQgYmFja3BvcnRlZCB0byAtc3RhYmxl
+IGV0Yy4uLiAgWW91cg0KPiBwYXRjaCBpcyBub3QgZGV2ZWxvcGVkIGFnYWluc3QgYSBjdXJy
+ZW50IHRyZWUgc28geW91IGJyb2tlIGl0Lg0KDQpEbyB5b3UgaGF2ZSBhIHNwZWNpZmljIGxp
+bms/IEkganVzdCBjaGVja2VkIHRoZSBzdGFibGUgdHJlZSBhdCBbMV0gYW5kIA0KdGhlcmUg
+bm8gdHJhY2Ugb2YgeW91ciBwYXRjaC4NCg0KUGF0Y2hlcyBmb3IgRFJNIHNob3VsZCBnbyB0
+aHJvdWdoIHRocm91Z2ggRFJNIHRyZWVzOyBkcm0tbWlzYy1maXhlcyBpbiANCnRoaXMgY2Fz
+ZS4gRXhjZXB0aW9ucyBzaG91bGQgYXQgbGVhc3QgYmUgYW5ub3VuY2Ugb24gZHJpLWRldmVs
+LiBOZWl0aGVyIA0KaXMgdGhlIGNhc2UgaGVyZS4NCg0KQmVzdCByZWdhcmRzDQpUaG9tYXMN
+Cg0KWzFdIA0KaHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9n
+aXQvc3RhYmxlL2xpbnV4LmdpdC90cmVlL2RyaXZlcnMvZ3B1L2RybS9pbmdlbmljL2luZ2Vu
+aWMtZHJtLWRydi5jDQoNCj4gDQo+IFRoYXQncyB0aGUgdHJpY2t5IHRoaW5nIHdpdGggY2hh
+bmdpbmcgdGhlIEFQSSBiZWNhdXNlIHNheSBwZW9wbGUgd3JvdGUNCj4gdGhlaXIgY29kZSBs
+YXN0IHdlZWsgd2hlcmUgcmV0dXJuaW5nIE5VTEwgd2FzIGNvcnJlY3QuICBXaGVuIHRoZXkg
+c3VibWl0DQo+IHRoZWlyIGRyaXZlciB1cHN0cmVhbSwgZXZlcnl0aGluZyB3aWxsIG1lcmdl
+IGFuZCBidWlsZCBidXQgaXQgd2lsbCBicmVhaw0KPiBhdCBydW50aW1lLg0KPiANCj4gRm9y
+IG5vdywgaXQncyBvbmx5IHZjNF9jcmVhdGVfb2JqZWN0KCkgd2hpY2ggaXMgYnJva2VuLg0K
+PiANCj4gcmVnYXJkcywNCj4gZGFuIGNhcnBlbnRlcg0KPiANCg0KLS0gDQpUaG9tYXMgWmlt
+bWVybWFubg0KR3JhcGhpY3MgRHJpdmVyIERldmVsb3Blcg0KU1VTRSBTb2Z0d2FyZSBTb2x1
+dGlvbnMgR2VybWFueSBHbWJIDQpNYXhmZWxkc3RyLiA1LCA5MDQwOSBOw7xybmJlcmcsIEdl
+cm1hbnkNCihIUkIgMzY4MDksIEFHIE7DvHJuYmVyZykNCkdlc2Now6RmdHNmw7xocmVyOiBJ
+dm8gVG90ZXYNCg==
 
-regards,
-dan carpenter
+--------------tti0ytzmBu0adVQa9Gb8zCmd--
+
+--------------oH0RlGTbsvofw0BB3mvWo040
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmGt8QgFAwAAAAAACgkQlh/E3EQov+BM
+Yw/9HICOZ7UpUzcT5OmJTyjStySM5OgcJRv4h8o9a0T2Z/PVehzxMjdlUsunz7tXlWggTo7lB5eW
+wOgkg30hl9BrmBOMpyqnhiPoJEd5GCtSa/aey8IAv/WTHUjOrzVmMwMA60QyGzhSthhx+nXOx8zq
+QwbBCoO32AhCn4biTv7E3mJpqvDM0nwP7J0++N3VYBXiv5sGvsZ62AEj3KK4nqiSTzR72sVZ9+KB
+W2welh/Ok4OZPIbV3KbCq2H7jwROaUEHzbuuGC4wkCs03Ygf3nUI3Ls9VHdm7kGTTz8y33xHc8C5
+mAF5d29Am5thR5YOT/6uvFHodJ0jzXnWMT3FXng+f3q/uYciqTqsHU+us46GJ+BntMBs8OVx28rI
+iH66z0CNEln8/lYKHTJyQU7Yyr2pELOgWmAV7Pp+BFtn1cqYkOGwji/7wHE94JjcR7tbqwZwq8OW
+2zcCWeq8M8Rlnxh5MOAViPitZyapdobRFACtQK49PZapxnW7XUvgrAaarXvHv5o7pcauQK3XwYqF
+A1jDOP1RBSV7tAWC1MHSuqTy8SPQsJxxQSx1yaU+pjUtmgH+eJ7kOSJ7+WuND2QdNPBmBOni0LSS
+i2xAzo6yga0OR5deMwwcYRE+XYArhUlD8hcSga7k7YqBGBgPfp34B5xnduYkdNguYUXfEEEIz9dm
+Ess=
+=g1AO
+-----END PGP SIGNATURE-----
+
+--------------oH0RlGTbsvofw0BB3mvWo040--
+
+--===============0060293973504744191==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============0060293973504744191==--
