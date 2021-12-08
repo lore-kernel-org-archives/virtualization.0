@@ -1,104 +1,103 @@
 Return-Path: <virtualization-bounces@lists.linux-foundation.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id AE4A7C433F5
-	for <virtualization@archiver.kernel.org>; Wed,  8 Dec 2021 19:56:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 638A1C433F5
+	for <virtualization@archiver.kernel.org>; Wed,  8 Dec 2021 20:07:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 40EFF4021C;
-	Wed,  8 Dec 2021 19:56:28 +0000 (UTC)
+	by smtp1.osuosl.org (Postfix) with ESMTP id 0799F83DFC;
+	Wed,  8 Dec 2021 20:07:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
-	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id e23lIqB_RYpl; Wed,  8 Dec 2021 19:56:27 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 89B4B400FC;
-	Wed,  8 Dec 2021 19:56:26 +0000 (UTC)
+Received: from smtp1.osuosl.org ([127.0.0.1])
+	by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id qVSxuTnSCkDD; Wed,  8 Dec 2021 20:07:44 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 8CDF1826C8;
+	Wed,  8 Dec 2021 20:07:43 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5EEE2C002F;
-	Wed,  8 Dec 2021 19:56:26 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 51503C002F;
+	Wed,  8 Dec 2021 20:07:43 +0000 (UTC)
 Received: from smtp1.osuosl.org (smtp1.osuosl.org [IPv6:2605:bc80:3010::138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4A81EC0012
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CEE57C0012
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Dec 2021 19:56:25 +0000 (UTC)
+ Wed,  8 Dec 2021 20:07:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 25A1E837AC
+ by smtp1.osuosl.org (Postfix) with ESMTP id A8A408333E
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Dec 2021 19:56:25 +0000 (UTC)
+ Wed,  8 Dec 2021 20:07:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
- dkim=pass (1024-bit key) header.d=redhat.com
 Received: from smtp1.osuosl.org ([127.0.0.1])
  by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VKQa1F-S9Goc
+ with ESMTP id 4mQ7DVPMz-rf
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Dec 2021 19:56:24 +0000 (UTC)
+ Wed,  8 Dec 2021 20:07:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id D0A918343F
+ (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id BD770826C8
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Dec 2021 19:56:23 +0000 (UTC)
+ Wed,  8 Dec 2021 20:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1638993382;
+ s=mimecast20190719; t=1638994059;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=qG4PVtbNoLN8AVmrX8I4VEzhm2Rfsmwm+zKfClLGO8w=;
- b=Zl6r3PyKlMbSTFFAwDw+NatHJwsqT/tS1MVQ5TFpeIeiHmjOdA/XQBXncsNfwb2Coc03Nl
- BGVXyFeTj+HzaAw5sbFKHzQB9il7iAivRKq78fj9IqXQHRWMqgiAAwtalLzdMUNgZXNAHZ
- GHvTMbCw6nEYBjxGy3g534hiQCi5NzY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=AqVrYQB6IYThObwYsN3Ysnelbtxn76UrY966KqMR9l4=;
+ b=Es1aHAuvWb6Ss5nqzHS0zU25eGdpwYQlJ4Ztgx7VdxcwXLwLT6/v+J5LhFvtzpUu/uG90/
+ RSvoT2ewU6IPM0vGdT1hWoFkQPIPkSfA38oWpjcY9qEnbWB6u/cNygNe6xSuBEbsW6ughP
+ pLYvTVp6OrWspV6IqGDqzpF+eMO2Uwo=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-576-d1KWEc4OPbm1h6sE5SMkNQ-1; Wed, 08 Dec 2021 14:56:21 -0500
-X-MC-Unique: d1KWEc4OPbm1h6sE5SMkNQ-1
-Received: by mail-wm1-f72.google.com with SMTP id
- 201-20020a1c04d2000000b003335bf8075fso1861653wme.0
+ us-mta-87-mwDynIDgORu7NohLbEwRCA-1; Wed, 08 Dec 2021 15:07:38 -0500
+X-MC-Unique: mwDynIDgORu7NohLbEwRCA-1
+Received: by mail-wr1-f69.google.com with SMTP id
+ o4-20020adfca04000000b0018f07ad171aso669673wrh.20
  for <virtualization@lists.linux-foundation.org>;
- Wed, 08 Dec 2021 11:56:21 -0800 (PST)
+ Wed, 08 Dec 2021 12:07:38 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=qG4PVtbNoLN8AVmrX8I4VEzhm2Rfsmwm+zKfClLGO8w=;
- b=IpPncz0Wp66FfmXMaTwuCyIHWbigbhnoW9UVSZVsC09YCzzAUEtzGw97lhfxlRm/Hi
- JhBbryVO11BfTr7iHUoDuUhMlai1/jDZc+dchR27QN9uQMuDWIK40bZ+UP6v5sCy4oek
- fhPNBwBjBou1LbuZ3/lxl0hpWRYSix1YC7EAInfsv23T7rrmDwZmnP9Te0N2sLgvIGgF
- jfczfvDh8H65Oir/eCSMg7auUz7UCy3b54H/bBBdVhpny+c/3ePsWKWPN4DfH9NtkHFe
- Z54kRidh8DFeRagv/XhVeFblPCu1nzfJESGxR4D4aREt7Aud5YENcqGhgoGkUCcebzMh
- ED4A==
-X-Gm-Message-State: AOAM532zR6jG4G3UvTlvLFjcTYFDbuqjv/8jt3bjlHG2qsI3j4AjG/MZ
- owhcqmoR9c7O2fXraHqBBSHni0+PkmEXDWLCQAR2fxGnY7wHKvqSpr1LagGLGKLtQqh52NMuc8V
- HGCpzKa7wIeGEwMmIUwN9pNPgl+jV37jK103Nj91kgg==
-X-Received: by 2002:a5d:6dc3:: with SMTP id d3mr891098wrz.159.1638993380128;
- Wed, 08 Dec 2021 11:56:20 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxGLz8QJuT+yslhyH4pgav06KTCxu5937pbGMbW3hVwzuMPBhu7Mm6xS6Af8u9XCeDE2JmTJw==
-X-Received: by 2002:a5d:6dc3:: with SMTP id d3mr891083wrz.159.1638993379958;
- Wed, 08 Dec 2021 11:56:19 -0800 (PST)
+ bh=AqVrYQB6IYThObwYsN3Ysnelbtxn76UrY966KqMR9l4=;
+ b=CU+8ScoESpr/ODgOSwiniJocu9GFu7pSAVorY08piycZsMdTMBn7c6C+AHKSaeXvPC
+ jIQ+Z5d51gPYbDeragWpWvTrkH4G1Qcm/XkUDGAnmG26n5PO/e+7vAP72vmv0GzFNc53
+ VpcuXgShBzl7AYqt1OopuNn+34vISgXz3x+FT5mqKV2o9K92NsTOzX/+36DkJdWjT6Jl
+ 1lJ/8098j7hlzRmcnKWtz+7wA++2RLBnjbnT/kbxmeeXVFKiL1vjTphp2FR5BC3f3Fa/
+ DR/OKScwhQwCsR9m2ccl5tg16eQk0iEeB5WaK9G4ols6IMpv7xgoQ2IRyct8MOdHK0dy
+ jc2A==
+X-Gm-Message-State: AOAM533zxAICw7lxzEUYenj1j7DMXxNGqtjvu+NCHI3ryXkSU7cllzO3
+ rBgmbgNOtk8C6zs3SOCKBMCHsVC1jE5RntYYBqaAmRdVim8hcHjSwmzJBJ+QESKbTMXzl2kSRG1
+ W8W5KlNZ/WbXdaTcxiZESQ7kMEZlmjv8c4Apw/3yASQ==
+X-Received: by 2002:a05:6000:1862:: with SMTP id
+ d2mr991536wri.251.1638994056982; 
+ Wed, 08 Dec 2021 12:07:36 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxMe+OzBN7ps64fhjV4As/puLs1aM8Ikcm/yhU0jchXPrem/2NmGhLT+fDCWXYyROGgDBpnPA==
+X-Received: by 2002:a05:6000:1862:: with SMTP id
+ d2mr991498wri.251.1638994056674; 
+ Wed, 08 Dec 2021 12:07:36 -0800 (PST)
 Received: from redhat.com ([2.55.18.120])
- by smtp.gmail.com with ESMTPSA id y15sm4921076wry.72.2021.12.08.11.56.17
+ by smtp.gmail.com with ESMTPSA id t8sm3824236wrv.30.2021.12.08.12.07.34
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 08 Dec 2021 11:56:18 -0800 (PST)
-Date: Wed, 8 Dec 2021 14:56:15 -0500
+ Wed, 08 Dec 2021 12:07:36 -0800 (PST)
+Date: Wed, 8 Dec 2021 15:07:31 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Arnd Bergmann <arnd@kernel.org>
-Subject: Re: [PATCH] eni_vdpa: alibaba: select VIRTIO_PCI_LIB
-Message-ID: <20211208144916-mutt-send-email-mst@kernel.org>
-References: <20211203185522.692489-1-arnd@kernel.org>
+To: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Subject: Re: [PATCH v3] i2c: virtio: fix completion handling
+Message-ID: <20211208150710-mutt-send-email-mst@kernel.org>
+References: <20211202153215.31796-1-vincent.whitchurch@axis.com>
 MIME-Version: 1.0
-In-Reply-To: <20211203185522.692489-1-arnd@kernel.org>
+In-Reply-To: <20211202153215.31796-1-vincent.whitchurch@axis.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Max Gurtovoy <mgurtovoy@nvidia.com>, Arnd Bergmann <arnd@arndb.de>,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Xie Yongji <xieyongji@bytedance.com>,
- Wu Zongyong <wuzongyong@linux.alibaba.com>, Eli Cohen <elic@nvidia.com>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, wsa@kernel.org, kernel@axis.com,
+ linux-i2c@vger.kernel.org, Conghui Chen <conghui.chen@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,59 +114,160 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Dec 03, 2021 at 07:55:14PM +0100, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
+On Thu, Dec 02, 2021 at 04:32:14PM +0100, Vincent Whitchurch wrote:
+> The driver currently assumes that the notify callback is only received
+> when the device is done with all the queued buffers.
 > 
-> When VIRTIO_PCI_LIB is not built-in but the alibaba driver is, the
-> kernel runs into a link error:
+> However, this is not true, since the notify callback could be called
+> without any of the queued buffers being completed (for example, with
+> virtio-pci and shared interrupts) or with only some of the buffers being
+> completed (since the driver makes them available to the device in
+> multiple separate virtqueue_add_sgs() calls).
 > 
-> x86_64-linux-ld: drivers/vdpa/alibaba/eni_vdpa.o: in function `eni_vdpa_set_features':
-> eni_vdpa.c:(.text+0x23f): undefined reference to `vp_legacy_set_features'
-> x86_64-linux-ld: drivers/vdpa/alibaba/eni_vdpa.o: in function `eni_vdpa_set_vq_state':
-> eni_vdpa.c:(.text+0x2fe): undefined reference to `vp_legacy_get_queue_enable'
-> x86_64-linux-ld: drivers/vdpa/alibaba/eni_vdpa.o: in function `eni_vdpa_set_vq_address':
-> eni_vdpa.c:(.text+0x376): undefined reference to `vp_legacy_set_queue_address'
-> x86_64-linux-ld: drivers/vdpa/alibaba/eni_vdpa.o: in function `eni_vdpa_set_vq_ready':
-> eni_vdpa.c:(.text+0x3b4): undefined reference to `vp_legacy_set_queue_address'
-> x86_64-linux-ld: drivers/vdpa/alibaba/eni_vdpa.o: in function `eni_vdpa_free_irq':
-> eni_vdpa.c:(.text+0x460): undefined reference to `vp_legacy_queue_vector'
-> x86_64-linux-ld: eni_vdpa.c:(.text+0x4b7): undefined reference to `vp_legacy_config_vector'
-> x86_64-linux-ld: drivers/vdpa/alibaba/eni_vdpa.o: in function `eni_vdpa_reset':
+> This can lead to incorrect data on the I2C bus or memory corruption in
+> the guest if the device operates on buffers which are have been freed by
+> the driver.  (The WARN_ON in the driver is also triggered.)
 > 
-> Selecting VIRTIO_PCI_LIB_LEGACY is not sufficient here since that is
-> only part of the VIRTIO_PCI_LIB support.
+>  BUG kmalloc-128 (Tainted: G        W        ): Poison overwritten
+>  First byte 0x0 instead of 0x6b
+>  Allocated in i2cdev_ioctl_rdwr+0x9d/0x1de age=243 cpu=0 pid=28
+>  	memdup_user+0x2e/0xbd
+>  	i2cdev_ioctl_rdwr+0x9d/0x1de
+>  	i2cdev_ioctl+0x247/0x2ed
+>  	vfs_ioctl+0x21/0x30
+>  	sys_ioctl+0xb18/0xb41
+>  Freed in i2cdev_ioctl_rdwr+0x1bb/0x1de age=68 cpu=0 pid=28
+>  	kfree+0x1bd/0x1cc
+>  	i2cdev_ioctl_rdwr+0x1bb/0x1de
+>  	i2cdev_ioctl+0x247/0x2ed
+>  	vfs_ioctl+0x21/0x30
+>  	sys_ioctl+0xb18/0xb41
 > 
-> Fixes: e85087beedca ("eni_vdpa: add vDPA driver for Alibaba ENI")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Fix this by calling virtio_get_buf() from the notify handler like other
+> virtio drivers and by actually waiting for all the buffers to be
+> completed.
+> 
+> Fixes: 3cfc88380413d20f ("i2c: virtio: add a virtio i2c frontend driver")
+> Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+> Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
 
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-Confused. These are all part of
-drivers/virtio/virtio_pci_legacy_dev.c
-
-and
-obj-$(CONFIG_VIRTIO_PCI_LIB_LEGACY) += virtio_pci_legacy_dev.o
-
-what gives?
-
+who's queueing this?
 
 > ---
->  drivers/vdpa/Kconfig | 1 +
->  1 file changed, 1 insertion(+)
 > 
-> diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
-> index 50f45d037611..04466603021f 100644
-> --- a/drivers/vdpa/Kconfig
-> +++ b/drivers/vdpa/Kconfig
-> @@ -80,6 +80,7 @@ config VP_VDPA
+> Notes:
+>     v3: Wait for all completions instead of only the last one.
+>     v2: Add Acked-by and Fixes tags.
+> 
+>  drivers/i2c/busses/i2c-virtio.c | 32 ++++++++++++--------------------
+>  1 file changed, 12 insertions(+), 20 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
+> index 95378780da6d..41eb0dcc3204 100644
+> --- a/drivers/i2c/busses/i2c-virtio.c
+> +++ b/drivers/i2c/busses/i2c-virtio.c
+> @@ -22,24 +22,24 @@
+>  /**
+>   * struct virtio_i2c - virtio I2C data
+>   * @vdev: virtio device for this controller
+> - * @completion: completion of virtio I2C message
+>   * @adap: I2C adapter for this controller
+>   * @vq: the virtio virtqueue for communication
+>   */
+>  struct virtio_i2c {
+>  	struct virtio_device *vdev;
+> -	struct completion completion;
+>  	struct i2c_adapter adap;
+>  	struct virtqueue *vq;
+>  };
 >  
->  config ALIBABA_ENI_VDPA
->  	tristate "vDPA driver for Alibaba ENI"
-> +	select VIRTIO_PCI_LIB
->  	select VIRTIO_PCI_LIB_LEGACY
->  	depends on PCI_MSI && X86
->  	help
+>  /**
+>   * struct virtio_i2c_req - the virtio I2C request structure
+> + * @completion: completion of virtio I2C message
+>   * @out_hdr: the OUT header of the virtio I2C message
+>   * @buf: the buffer into which data is read, or from which it's written
+>   * @in_hdr: the IN header of the virtio I2C message
+>   */
+>  struct virtio_i2c_req {
+> +	struct completion completion;
+>  	struct virtio_i2c_out_hdr out_hdr	____cacheline_aligned;
+>  	uint8_t *buf				____cacheline_aligned;
+>  	struct virtio_i2c_in_hdr in_hdr		____cacheline_aligned;
+> @@ -47,9 +47,11 @@ struct virtio_i2c_req {
+>  
+>  static void virtio_i2c_msg_done(struct virtqueue *vq)
+>  {
+> -	struct virtio_i2c *vi = vq->vdev->priv;
+> +	struct virtio_i2c_req *req;
+> +	unsigned int len;
+>  
+> -	complete(&vi->completion);
+> +	while ((req = virtqueue_get_buf(vq, &len)))
+> +		complete(&req->completion);
+>  }
+>  
+>  static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
+> @@ -62,6 +64,8 @@ static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
+>  	for (i = 0; i < num; i++) {
+>  		int outcnt = 0, incnt = 0;
+>  
+> +		init_completion(&reqs[i].completion);
+> +
+>  		/*
+>  		 * Only 7-bit mode supported for this moment. For the address
+>  		 * format, Please check the Virtio I2C Specification.
+> @@ -106,21 +110,15 @@ static int virtio_i2c_complete_reqs(struct virtqueue *vq,
+>  				    struct virtio_i2c_req *reqs,
+>  				    struct i2c_msg *msgs, int num)
+>  {
+> -	struct virtio_i2c_req *req;
+>  	bool failed = false;
+> -	unsigned int len;
+>  	int i, j = 0;
+>  
+>  	for (i = 0; i < num; i++) {
+> -		/* Detach the ith request from the vq */
+> -		req = virtqueue_get_buf(vq, &len);
+> +		struct virtio_i2c_req *req = &reqs[i];
+>  
+> -		/*
+> -		 * Condition req == &reqs[i] should always meet since we have
+> -		 * total num requests in the vq. reqs[i] can never be NULL here.
+> -		 */
+> -		if (!failed && (WARN_ON(req != &reqs[i]) ||
+> -				req->in_hdr.status != VIRTIO_I2C_MSG_OK))
+> +		wait_for_completion(&req->completion);
+> +
+> +		if (!failed && req->in_hdr.status != VIRTIO_I2C_MSG_OK)
+>  			failed = true;
+>  
+>  		i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], !failed);
+> @@ -156,12 +154,8 @@ static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+>  	 * remote here to clear the virtqueue, so we can try another set of
+>  	 * messages later on.
+>  	 */
+> -
+> -	reinit_completion(&vi->completion);
+>  	virtqueue_kick(vq);
+>  
+> -	wait_for_completion(&vi->completion);
+> -
+>  	count = virtio_i2c_complete_reqs(vq, reqs, msgs, count);
+>  
+>  err_free:
+> @@ -210,8 +204,6 @@ static int virtio_i2c_probe(struct virtio_device *vdev)
+>  	vdev->priv = vi;
+>  	vi->vdev = vdev;
+>  
+> -	init_completion(&vi->completion);
+> -
+>  	ret = virtio_i2c_setup_vqs(vi);
+>  	if (ret)
+>  		return ret;
 > -- 
-> 2.29.2
+> 2.33.1
 
 _______________________________________________
 Virtualization mailing list
