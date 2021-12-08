@@ -4,100 +4,106 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 56B09C433EF
-	for <virtualization@archiver.kernel.org>; Wed,  8 Dec 2021 06:29:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 1618AC433EF
+	for <virtualization@archiver.kernel.org>; Wed,  8 Dec 2021 07:23:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 9F97640002;
-	Wed,  8 Dec 2021 06:29:45 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTP id 9B306409F2;
+	Wed,  8 Dec 2021 07:23:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp2.osuosl.org ([127.0.0.1])
 	by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mbmnytUk794Q; Wed,  8 Dec 2021 06:29:44 +0000 (UTC)
+	with ESMTP id YkFopInlhiti; Wed,  8 Dec 2021 07:23:12 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id E441E400B9;
-	Wed,  8 Dec 2021 06:29:43 +0000 (UTC)
+	by smtp2.osuosl.org (Postfix) with ESMTPS id A8CF24011D;
+	Wed,  8 Dec 2021 07:23:11 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AE966C001E;
-	Wed,  8 Dec 2021 06:29:43 +0000 (UTC)
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3F659C0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6C7B4C002F;
+	Wed,  8 Dec 2021 07:23:11 +0000 (UTC)
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3316CC0012
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Dec 2021 06:29:42 +0000 (UTC)
+ Wed,  8 Dec 2021 07:23:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp2.osuosl.org (Postfix) with ESMTP id 19723400B9
+ by smtp1.osuosl.org (Postfix) with ESMTP id 1AB9584B2B
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Dec 2021 06:29:42 +0000 (UTC)
+ Wed,  8 Dec 2021 07:23:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BUvP-CYEyatf
+Authentication-Results: smtp1.osuosl.org (amavisd-new);
+ dkim=pass (1024-bit key) header.d=redhat.com
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id FdqjF5Lu1vNa
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Dec 2021 06:29:38 +0000 (UTC)
+ Wed,  8 Dec 2021 07:23:09 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [170.10.129.124])
- by smtp2.osuosl.org (Postfix) with ESMTPS id C89C840002
+ (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+ by smtp1.osuosl.org (Postfix) with ESMTPS id DCBE584B1F
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Dec 2021 06:29:37 +0000 (UTC)
+ Wed,  8 Dec 2021 07:23:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1638944976;
+ s=mimecast20190719; t=1638948186;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=J4iVUv2eTosWO8gDMypPZhpUPZDwc/PETxwmcbkHizM=;
- b=H/yhcWZqJn7PxTy8HaKxpeLONaFkcMFPt4gNXTIfTRYotIlnRBZlsuzI64znCXztUbo8qa
- cTYF3ZRMNfPCiTDDapiht6QtL5FKfcX16LL3TgZWKmdNnmRaYklZbFJ6S77boyQrbetyih
- wLXS84OI41eqIzgaVNpzocwbfeq7LWY=
-Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
- [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=3thlSuxgxJVb1tUf+MaBSf1hCp/SSFCI7BQN+d2CnYY=;
+ b=SCGAfoRFUQef5y/AAGfqzizGqObi5AUmoAFubqFRe0nRQDc+TD36ay13G1WEWF9qr3QQf3
+ kJEtJQ8Ke7W52V7JabrWy20ZFoAz5tcoLdiYbgvUwAkHp/ubAiaiQHjKDOmezGmc9OOQZe
+ pvMLWMaEjXvATjjw+tcTTTq54+MgoeY=
+Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
+ [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-455-7HRF-P3bOr6H4LDSMf4cpg-1; Wed, 08 Dec 2021 01:29:32 -0500
-X-MC-Unique: 7HRF-P3bOr6H4LDSMf4cpg-1
-Received: by mail-lj1-f197.google.com with SMTP id
- p21-20020a2e9ad5000000b00219ee503efeso415794ljj.14
+ us-mta-562-LyDc9mhuP-2hWJf_YV77aQ-1; Wed, 08 Dec 2021 02:23:05 -0500
+X-MC-Unique: LyDc9mhuP-2hWJf_YV77aQ-1
+Received: by mail-ed1-f69.google.com with SMTP id
+ p4-20020aa7d304000000b003e7ef120a37so1323375edq.16
  for <virtualization@lists.linux-foundation.org>;
- Tue, 07 Dec 2021 22:29:31 -0800 (PST)
+ Tue, 07 Dec 2021 23:23:05 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=J4iVUv2eTosWO8gDMypPZhpUPZDwc/PETxwmcbkHizM=;
- b=g2shAgS76RlTQzDva+BLwf4SDq1YPf0piIDd/mk0+AkUsSsRyYTO0PlFIXxLi2yfri
- 0Z9bY56Mp+U7bet8qX5T8Byrw4HgK/hwUCgV6AgSs91yNPEcvaFXpcfC5luG0qGeNzjM
- 5Y1HTnR3+7XrKix+vwgE2/949fYr8WGWVOEh16GO7pNa5lhwbsWjdvIeq4Jd9Vcgm/jB
- BoUfWVjkVHLI9nst9Jo/AZeV5+zIqyEpJ6fJ5CEBsQlmr8is7u4rebCDZQNhAVrMs3Ph
- HZtAwQS8sWmhYkSewqtPcVmG3teXxlwLj1XcGzWPVyP3nK9Y0QA0FMzKGtJypnweqL6a
- pgPg==
-X-Gm-Message-State: AOAM5313VZaJSEX0zFAAN8CoDOpkPNvFG+NiDKjK+8OtRoGuix5mquWI
- xieZ6+zyAnCIg3o7hAcuLUPkjq2P2I2k1GEkqDRRnszi7vbxl4aD6uioderg7y1OA/Y8v0g7AoM
- ZSIOexBcURcYR6+s9U2qoexbRiM0bxEenlXy8EOwpUEcxASau8mSXrET+OA==
-X-Received: by 2002:a2e:2ac1:: with SMTP id
- q184mr47516141ljq.420.1638944970646; 
- Tue, 07 Dec 2021 22:29:30 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzvFQ88wD64KWY1XT+Oj8aZLgB8ScW4WEGaS313ll/Vp9TGCeFs2+YL5/bQ+/Ap8FQwlWEWOgCv8M9fXIf8hAQ=
-X-Received: by 2002:a2e:2ac1:: with SMTP id
- q184mr47516115ljq.420.1638944970402; 
- Tue, 07 Dec 2021 22:29:30 -0800 (PST)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=3thlSuxgxJVb1tUf+MaBSf1hCp/SSFCI7BQN+d2CnYY=;
+ b=sJokIuLDqweDn0Xd2kQcKWLmfBFGBsBvww6sCdghAVImH690vZ6f00E8OUIXB58nkB
+ mCokwOpAuKsLWSmbGrNgmx/a/ZJV7xpKvxwxiHyUfA6R8kn9BYyY/As/GHEaPh7pvPnW
+ 6DFrfJhadKlbLKrh6ppqLLQmwXVrP5shjFtrUZwiKbVxAv4JLeb6w9TrQBW0rhCg2oEi
+ 9/EmnaeJDAh3GFR9va5zgGESi+PKVrImJmOZme70KU9VK/aacdvu6GVO9N75OyIDzj76
+ b9z3ySPP063bnKjbfyi38UnrlwZn6u9aM+Hg48SK+ftY1I8yH1qH9DOlbjYDSxQJlQNs
+ 5h0w==
+X-Gm-Message-State: AOAM532OeJiUMYdhfj4YJG4JYKBGXnOybc3ta3OAuwNGqX7fQRSrP/z4
+ +8zwUHgwi2hDO2Fgyu+HnD1VMZWeTMInfMDP2PPpbzxODNQL5pocARJOaNHYLKQbGM7S1EZ6vl5
+ 8ekQZrGXAvbrSKAr9pPu2+NbhcxwApkvPORWejQdcaQ==
+X-Received: by 2002:a17:906:b304:: with SMTP id
+ n4mr5534800ejz.116.1638948184418; 
+ Tue, 07 Dec 2021 23:23:04 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx8fXmI2eQ4qLExw30n20BX0hhCuV0j8jCtUu6YqJCm4I3Lf9fKB5w67aZxdmFwHaxkpaof4Q==
+X-Received: by 2002:a17:906:b304:: with SMTP id
+ n4mr5534779ejz.116.1638948184203; 
+ Tue, 07 Dec 2021 23:23:04 -0800 (PST)
+Received: from redhat.com ([2a03:c5c0:107e:ebdb:5cc6:c351:b05:514f])
+ by smtp.gmail.com with ESMTPSA id jg32sm1059703ejc.43.2021.12.07.23.23.02
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 07 Dec 2021 23:23:03 -0800 (PST)
+Date: Wed, 8 Dec 2021 02:23:00 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: =?utf-8?B?546L6LSH?= <yun.wang@linux.alibaba.com>
+Subject: Re: [RFC PATCH] virtio: make sure legacy pci device gain 32bit-pfn vq
+Message-ID: <20211208021947-mutt-send-email-mst@kernel.org>
+References: <b50fff4d-9f05-76b3-eba7-91241c351751@linux.alibaba.com>
+ <20211207031217-mutt-send-email-mst@kernel.org>
+ <8bbfd029-d969-4632-cb8e-482481d65a2f@linux.alibaba.com>
 MIME-Version: 1.0
-References: <20211201195724.17503-1-elic@nvidia.com>
- <20211201195724.17503-6-elic@nvidia.com>
- <CACGkMEsB2x2tX_bPdZRSFMU+pOAB6g3eYNeGerSGasVOu-8wrw@mail.gmail.com>
- <20211207075732.GC15767@mtl-vdi-166.wap.labs.mlnx>
- <CACGkMEs0cKfiQjRf=dFcS81shECHDeXb5rzsjJQJu3Dx+H0Ptw@mail.gmail.com>
- <20211208060721.GA59227@mtl-vdi-166.wap.labs.mlnx>
-In-Reply-To: <20211208060721.GA59227@mtl-vdi-166.wap.labs.mlnx>
-From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 8 Dec 2021 14:29:19 +0800
-Message-ID: <CACGkMEtiXzti2iVfcT91xYEMqfDr1vnwkxB0=GcmbXv67C75KQ@mail.gmail.com>
-Subject: Re: [PATCH 5/7] vdpa: Add support for querying control virtqueue index
-To: Eli Cohen <elic@nvidia.com>
+In-Reply-To: <8bbfd029-d969-4632-cb8e-482481d65a2f@linux.alibaba.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Laurent Vivier <lvivier@redhat.com>, mst <mst@redhat.com>,
- virtualization <virtualization@lists.linux-foundation.org>,
- eperezma <eperezma@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>
+Content-Disposition: inline
+Cc: open list <linux-kernel@vger.kernel.org>,
+ "open list:VIRTIO CORE AND NET DRIVERS"
+ <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -109,153 +115,71 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Dec 8, 2021 at 2:07 PM Eli Cohen <elic@nvidia.com> wrote:
->
-> On Wed, Dec 08, 2021 at 11:25:01AM +0800, Jason Wang wrote:
-> > On Tue, Dec 7, 2021 at 3:57 PM Eli Cohen <elic@nvidia.com> wrote:
-> > >
-> > > On Fri, Dec 03, 2021 at 10:35:30AM +0800, Jason Wang wrote:
-> > > > On Thu, Dec 2, 2021 at 3:58 AM Eli Cohen <elic@nvidia.com> wrote:
-> > > > >
-> > > > > Add netlink attribute and callback function to query the control VQ
-> > > > > index of a device.
-> > > >
-> > > > It's better to explain the motivation of this. Actually we can deduce
-> > > > it from the max_virtqueue_paris if I was not wrong.
-> > > Right, we can deduce it. But I think, let's let the kernel deduce it.
-> > > e.g., we can avoid the new get_ctrl_vq_idx() callback, but still return
-> > > the value to userspace with VDPA_ATTR_DEV_CTRL_VQ_IDX.
-> > >
-> > > > So it means the
-> > > > value varies depending on if VIRTIO_NET_F_MQ
-> > > I guest you meant VIRTIO_NET_F_CTRL_VQ
-> > > > is negotiated which can
-> > > > be changed after a query. This may probably confuse the userspace
-> > > > sometime.
-> > >
-> > > No sure I follow you on this. The CVQ index is dictated after the call
-> > > to _vdpa_register_device() and cannot change. Whether there is a CVQ or
-> > > isn't depends on VIRTIO_NET_F_CTRL_VQ but the index doesn't change.
-> >
-> > Looks not, according to the spec, consider we have a device with 2
-> > queue pairs plus cvq.
-> >
-> > When MQ is negotiated, cvq index is 4.
-> > When MQ is not negotiated, cvq index is 2.
-> >
->
-> When you say MQ negotiated, do you mean both ways or just offered by the
-> upstream driver?
-
-I meant MQ feature is enabled from the driver and accepted by the device.
-
->
-> I think I saw different behavior and I am going to check again.
->
-> BTW, could you send reference to where the specs refers to the index of
-> the control virtqueue?
-
-You may refer spec chapter 5.1.2:
-https://docs.oasis-open.org/virtio/virtio/v1.1/csprd01/virtio-v1.1-csprd01.html#x1-1960002
-
-Thanks
-
->
-> > Thanks
-> >
-> > >
-> > > >
-> > > > Thanks
-> > > >
-> > > > >
-> > > > > Signed-off-by: Eli Cohen <elic@nvidia.com>
-> > > > > ---
-> > > > >  drivers/vdpa/vdpa.c       | 18 ++++++++++++++++++
-> > > > >  include/linux/vdpa.h      |  1 +
-> > > > >  include/uapi/linux/vdpa.h |  1 +
-> > > > >  3 files changed, 20 insertions(+)
-> > > > >
-> > > > > diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-> > > > > index f06f949d5fa1..ca3ab0f46188 100644
-> > > > > --- a/drivers/vdpa/vdpa.c
-> > > > > +++ b/drivers/vdpa/vdpa.c
-> > > > > @@ -712,6 +712,20 @@ static int vdpa_nl_cmd_dev_get_dumpit(struct sk_buff *msg, struct netlink_callba
-> > > > >         return msg->len;
-> > > > >  }
-> > > > >
-> > > > > +static int vdpa_dev_net_ctrl_vq_fill(struct vdpa_device *vdev,
-> > > > > +                                    struct sk_buff *msg, u64 features)
-> > > > > +{
-> > > > > +       u16 val_u16 = 0;
-> > > > > +
-> > > > > +       if (features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ) &&
-> > > > > +           vdev->config->get_ctrl_vq_idx) {
-> > > > > +               val_u16 = vdev->config->get_ctrl_vq_idx(vdev);
-> > > > > +               return nla_put_u16(msg, VDPA_ATTR_DEV_CTRL_VQ_IDX, val_u16);
-> > > > > +       }
-> > > > > +
-> > > > > +       return 0;
-> > > > > +}
-> > > > > +
-> > > > >  static int vdpa_dev_net_mq_config_fill(struct vdpa_device *vdev,
-> > > > >                                        struct sk_buff *msg, u64 features,
-> > > > >                                        const struct virtio_net_config *config)
-> > > > > @@ -730,6 +744,7 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
-> > > > >         struct virtio_net_config config = {};
-> > > > >         u64 features;
-> > > > >         u16 val_u16;
-> > > > > +       int err;
-> > > > >
-> > > > >         vdpa_get_config(vdev, 0, &config, sizeof(config));
-> > > > >
-> > > > > @@ -746,6 +761,9 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
-> > > > >                 return -EMSGSIZE;
-> > > > >
-> > > > >         features = vdev->config->get_features(vdev);
-> > > > > +       err = vdpa_dev_net_ctrl_vq_fill(vdev, msg, features);
-> > > > > +       if (err)
-> > > > > +               return err;
-> > > > >
-> > > > >         return vdpa_dev_net_mq_config_fill(vdev, msg, features, &config);
-> > > > >  }
-> > > > > diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-> > > > > index 820621c59365..fca9bfeed9ba 100644
-> > > > > --- a/include/linux/vdpa.h
-> > > > > +++ b/include/linux/vdpa.h
-> > > > > @@ -274,6 +274,7 @@ struct vdpa_config_ops {
-> > > > >         (*get_vq_notification)(struct vdpa_device *vdev, u16 idx);
-> > > > >         /* vq irq is not expected to be changed once DRIVER_OK is set */
-> > > > >         int (*get_vq_irq)(struct vdpa_device *vdev, u16 idx);
-> > > > > +       u16 (*get_ctrl_vq_idx)(struct vdpa_device *vdev);
-> > > > >
-> > > > >         /* Device ops */
-> > > > >         u32 (*get_vq_align)(struct vdpa_device *vdev);
-> > > > > diff --git a/include/uapi/linux/vdpa.h b/include/uapi/linux/vdpa.h
-> > > > > index a252f06f9dfd..2e3a7f89f42d 100644
-> > > > > --- a/include/uapi/linux/vdpa.h
-> > > > > +++ b/include/uapi/linux/vdpa.h
-> > > > > @@ -34,6 +34,7 @@ enum vdpa_attr {
-> > > > >         VDPA_ATTR_DEV_MAX_VQS,                  /* u32 */
-> > > > >         VDPA_ATTR_DEV_MAX_VQ_SIZE,              /* u16 */
-> > > > >         VDPA_ATTR_DEV_MIN_VQ_SIZE,              /* u16 */
-> > > > > +       VDPA_ATTR_DEV_CTRL_VQ_IDX,              /* u16 */
-> > > > >
-> > > > >         VDPA_ATTR_DEV_NET_CFG_MACADDR,          /* binary */
-> > > > >         VDPA_ATTR_DEV_NET_STATUS,               /* u8 */
-> > > > > --
-> > > > > 2.33.1
-> > > > >
-> > > >
-> > >
-> >
->
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVHVlLCBEZWMgMDcsIDIwMjEgYXQgMDU6MDk6NTZQTSArMDgwMCwg546L6LSHIHdyb3RlOgo+
+IAo+IAo+IOWcqCAyMDIxLzEyLzcg5LiL5Y2INDoxMywgTWljaGFlbCBTLiBUc2lya2luIOWGmemB
+kzoKPiA+IE9uIFR1ZSwgRGVjIDA3LCAyMDIxIGF0IDAzOjUxOjQ1UE0gKzA4MDAsIOeOi+i0hyB3
+cm90ZToKPiA+ID4gV2Ugb2JzZXJ2ZWQgaXNzdWVzIGxpa2U6Cj4gPiA+ICAgIHZpcnRpby1wY2kg
+MDAwMDoxNDowMC4wOiBwbGF0Zm9ybSBidWc6IGxlZ2FjeSB2aXJ0aW8tbW1pbyBtdXN0Cj4gPiA+
+ICAgIG5vdCBiZSB1c2VkIHdpdGggUkFNIGFib3ZlIDB4NDAwMEdCCj4gPiA+IAo+ID4gPiB3aGVu
+IHdlIGhhdmUgYSBsZWdhY3kgcGNpIGRldmljZSB3aGljaCBkZXNpcmVkIDMyYml0LXBmbiB2cQo+
+ID4gPiBidXQgZ2FpbiA2NGJpdC1wZm4gaW5zdGVhZCwgbGVhZCBpbnRvIHRoZSBmYWlsdXJlIG9m
+IHByb2JlLgo+ID4gPiAKPiA+ID4gdnJpbmdfdXNlX2RtYV9hcGkoKSBpcyBwbGF5aW5nIHRoZSBr
+ZXkgcm9sZSBpbiBoZXJlLCB0byBoZWxwIHRoZQo+ID4gPiBhbGxvY2F0aW9uIHByb2Nlc3MgdW5k
+ZXJzdGFuZCB3aGljaCBraW5kIG9mIHZxIGl0IHNob3VsZCBhbGxvYywKPiA+ID4gaG93ZXZlciwg
+aXQgZmFpbGVkIHRvIHRha2UgY2FyZSB0aGUgbGVnYWN5IHBjaSBkZXZpY2UsIHdoaWNoIG9ubHkK
+PiA+ID4gaGF2ZSAzMmJpdCBmZWF0dXJlIGZsYWcgYW5kIGNhbiBuZXZlciBoYXZlIFZJUlRJT19G
+X0FDQ0VTU19QTEFURk9STQo+ID4gPiBzZXR0ZWQuCj4gPiA+IAo+ID4gPiBUaGlzIHBhdGNoIGlu
+dHJvZHVjZSBmb3JjZV9kbWEgZmxhZyB0byBoZWxwIHZyaW5nX3VzZV9kbWFfYXBpKCkKPiA+ID4g
+dW5kZXJzdGFuZGluZyB0aGUgcmVxdWlyZW1lbnQgYmV0dGVyLCB0byBhdm9pZCB0aGUgZmFpbGlu
+Zy4KPiA+ID4gCj4gPiA+IFNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgV2FuZyA8eXVuLndhbmdAbGlu
+dXguYWxpYmFiYS5jb20+Cj4gPiAKPiA+IFRoaXMgd2lsbCBicmVhayBjb25maWdzIHdoZXJlIHRo
+ZSBkZXZpY2UgYXBwZWFycyBiZWhpbmQKPiA+IGEgdmlydHVhbCBpb21tdSwgc28gdGhpcyB3b24n
+dCBmbHkuCj4gPiBKdXN0IG1ha2UgeW91ciBkZXZpY2Ugc3VwcG9ydCAxLjAsIGVoPwo+IAo+IEhp
+LCBNaWNoYWVsCj4gCj4gVGhhbmtzIGZvciB0aGUgY29tbWVudCwgdW5mb3J0dW5hdGVseSBtb2Rp
+ZnkgZGV2aWNlIGlzIG5vdCBhbiBvcHRpb24gZm9yIHVzCj4gOi0oCj4gCj4gSXMgdGhlcmUgYW55
+IGlkZWEgb24gaG93IHRvIHNvbHZlIHRoaXMgaXNzdWUgcHJvcGVybHk/Cj4gCj4gUmVnYXJkcywK
+PiBNaWNoYWVsIFdhbmcKCkJ5IHRoZSB3YXksIHRoZXJlIGlzIGEgYnVnIGluIHRoZSBlcnJvciBt
+ZXNzYWdlLiBXYW50IHRvIGZpeCB0aGF0PwoKCj4gPiAKPiA+ID4gLS0tCj4gPiA+ICAgZHJpdmVy
+cy92aXJ0aW8vdmlydGlvX3BjaV9sZWdhY3kuYyB8IDEwICsrKysrKysrKysKPiA+ID4gICBkcml2
+ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jICAgICAgIHwgIDMgKysrCj4gPiA+ICAgaW5jbHVkZS9s
+aW51eC92aXJ0aW8uaCAgICAgICAgICAgICB8ICAxICsKPiA+ID4gICAzIGZpbGVzIGNoYW5nZWQs
+IDE0IGluc2VydGlvbnMoKykKPiA+ID4gCj4gPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRp
+by92aXJ0aW9fcGNpX2xlZ2FjeS5jCj4gPiA+IGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3BjaV9s
+ZWdhY3kuYwo+ID4gPiBpbmRleCBkNjJlOTgzLi4xMWYyZWJmIDEwMDY0NAo+ID4gPiAtLS0gYS9k
+cml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2xlZ2FjeS5jCj4gPiA+ICsrKyBiL2RyaXZlcnMvdmly
+dGlvL3ZpcnRpb19wY2lfbGVnYWN5LmMKPiA+ID4gQEAgLTI2Myw2ICsyNjMsMTYgQEAgaW50IHZp
+cnRpb19wY2lfbGVnYWN5X3Byb2JlKHN0cnVjdCB2aXJ0aW9fcGNpX2RldmljZQo+ID4gPiAqdnBf
+ZGV2KQo+ID4gPiAgIAl2cF9kZXYtPnNldHVwX3ZxID0gc2V0dXBfdnE7Cj4gPiA+ICAgCXZwX2Rl
+di0+ZGVsX3ZxID0gZGVsX3ZxOwo+ID4gPiAKPiA+ID4gKwkvKgo+ID4gPiArCSAqIFRoZSBsZWdh
+Y3kgcGNpIGRldmljZSByZXF1cmUgMzJiaXQtcGZuIHZxLAo+ID4gPiArCSAqIG9yIHNldHVwX3Zx
+KCkgd2lsbCBmYWlsZWQuCj4gPiA+ICsJICoKPiA+ID4gKwkgKiBUaHVzIHdlIG1ha2Ugc3VyZSB2
+cmluZ191c2VfZG1hX2FwaSgpIHdpbGwKPiA+ID4gKwkgKiByZXR1cm4gdHJ1ZSBkdXJpbmcgdGhl
+IGFsbG9jYXRpb24gYnkgbWFya2luZwo+ID4gPiArCSAqIGZvcmNlX2RtYSBoZXJlLgo+ID4gPiAr
+CSAqLwo+ID4gPiArCXZwX2Rldi0+dmRldi5mb3JjZV9kbWEgPSB0cnVlOwo+ID4gPiArCj4gPiA+
+ICAgCXJldHVybiAwOwo+ID4gPiAKPiA+ID4gICBlcnJfaW9tYXA6Cj4gPiA+IGRpZmYgLS1naXQg
+YS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3Jp
+bmcuYwo+ID4gPiBpbmRleCAzMDM1YmI2Li42NTYyZTAxIDEwMDY0NAo+ID4gPiAtLS0gYS9kcml2
+ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gPiA+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRp
+b19yaW5nLmMKPiA+ID4gQEAgLTI0NSw2ICsyNDUsOSBAQCBzdGF0aWMgaW5saW5lIGJvb2wgdmly
+dHF1ZXVlX3VzZV9pbmRpcmVjdChzdHJ1Y3QKPiA+ID4gdmlydHF1ZXVlICpfdnEsCj4gPiA+IAo+
+ID4gPiAgIHN0YXRpYyBib29sIHZyaW5nX3VzZV9kbWFfYXBpKHN0cnVjdCB2aXJ0aW9fZGV2aWNl
+ICp2ZGV2KQo+ID4gPiAgIHsKPiA+ID4gKwlpZiAodmRldi0+Zm9yY2VfZG1hKQo+ID4gPiArCQly
+ZXR1cm4gdHJ1ZTsKPiA+ID4gKwo+ID4gPiAgIAlpZiAoIXZpcnRpb19oYXNfZG1hX3F1aXJrKHZk
+ZXYpKQo+ID4gPiAgIAkJcmV0dXJuIHRydWU7Cj4gPiA+IAo+ID4gPiBkaWZmIC0tZ2l0IGEvaW5j
+bHVkZS9saW51eC92aXJ0aW8uaCBiL2luY2x1ZGUvbGludXgvdmlydGlvLmgKPiA+ID4gaW5kZXgg
+NDFlZGJjMC4uYTRlYjI5ZCAxMDA2NDQKPiA+ID4gLS0tIGEvaW5jbHVkZS9saW51eC92aXJ0aW8u
+aAo+ID4gPiArKysgYi9pbmNsdWRlL2xpbnV4L3ZpcnRpby5oCj4gPiA+IEBAIC0xMDksNiArMTA5
+LDcgQEAgc3RydWN0IHZpcnRpb19kZXZpY2Ugewo+ID4gPiAgIAlib29sIGZhaWxlZDsKPiA+ID4g
+ICAJYm9vbCBjb25maWdfZW5hYmxlZDsKPiA+ID4gICAJYm9vbCBjb25maWdfY2hhbmdlX3BlbmRp
+bmc7Cj4gPiA+ICsJYm9vbCBmb3JjZV9kbWE7Cj4gPiA+ICAgCXNwaW5sb2NrX3QgY29uZmlnX2xv
+Y2s7Cj4gPiA+ICAgCXNwaW5sb2NrX3QgdnFzX2xpc3RfbG9jazsgLyogUHJvdGVjdHMgVlFzIGxp
+c3QgYWNjZXNzICovCj4gPiA+ICAgCXN0cnVjdCBkZXZpY2UgZGV2Owo+ID4gPiAtLSAKPiA+ID4g
+MS44LjMuMQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
+VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
+dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
+c3RpbmZvL3ZpcnR1YWxpemF0aW9u
