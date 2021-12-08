@@ -4,93 +4,97 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 35681C433F5
-	for <virtualization@archiver.kernel.org>; Wed,  8 Dec 2021 03:37:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id D3EFFC4332F
+	for <virtualization@archiver.kernel.org>; Wed,  8 Dec 2021 03:43:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 9A45A60EFF;
-	Wed,  8 Dec 2021 03:37:45 +0000 (UTC)
+	by smtp3.osuosl.org (Postfix) with ESMTP id 82DFA6061F;
+	Wed,  8 Dec 2021 03:43:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp3.osuosl.org ([127.0.0.1])
 	by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xXRADzOIc98F; Wed,  8 Dec 2021 03:37:44 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 43F4E60EE5;
-	Wed,  8 Dec 2021 03:37:44 +0000 (UTC)
+	with ESMTP id JKJMr7mAs2Ty; Wed,  8 Dec 2021 03:43:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [IPv6:2605:bc80:3010:104::8cd3:938])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 28E80605BC;
+	Wed,  8 Dec 2021 03:43:34 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 188FDC001E;
-	Wed,  8 Dec 2021 03:37:44 +0000 (UTC)
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B310CC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F2E1AC001E;
+	Wed,  8 Dec 2021 03:43:33 +0000 (UTC)
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5E5B7C0012
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Dec 2021 03:37:42 +0000 (UTC)
+ Wed,  8 Dec 2021 03:43:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp4.osuosl.org (Postfix) with ESMTP id 81BBF41D97
+ by smtp2.osuosl.org (Postfix) with ESMTP id 37AFE40144
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Dec 2021 03:37:42 +0000 (UTC)
+ Wed,  8 Dec 2021 03:43:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp4.osuosl.org (amavisd-new);
+Authentication-Results: smtp2.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1XrQrK4f5Leq
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fAHi_cgcKtGZ
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Dec 2021 03:37:41 +0000 (UTC)
+ Wed,  8 Dec 2021 03:43:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp4.osuosl.org (Postfix) with ESMTPS id AC27B41D94
+ by smtp2.osuosl.org (Postfix) with ESMTPS id 45333400C7
  for <virtualization@lists.linux-foundation.org>;
- Wed,  8 Dec 2021 03:37:41 +0000 (UTC)
+ Wed,  8 Dec 2021 03:43:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1638934660;
+ s=mimecast20190719; t=1638935009;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=YoWCBDATnCTqCRKDv0jegkvjLSP1FmG7gIBbLloAqMw=;
- b=OBaq6pa5KP0QplCxKWC1C7rDcORh65MEzgbUKigL89Y2GyPQq3r7xedTuu/YFx4jO+FhXy
- cpfDqTcQV5ORK9BwOqSIGQ8Q8ednNMs05XO0yUQeFr3NC4X8maOhpNefRS1/4kLPUNc7dF
- 94wfpaxte2QOj4BWq/JRgQopxiYb7es=
-Received: from mail-lf1-f69.google.com (mail-lf1-f69.google.com
- [209.85.167.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ bh=sffol2sjF3kR5DyO351++++uXmiYwv8fKQzdh/YzKIo=;
+ b=aTPwa2RI9pw2qX9wpvV38MMq/mTJ/ss+v1NJS4Z66gQpeMe/xwwamGwrnjv4PASWWsP/6E
+ /B0YjfYFFww2jKpBxryed8TVRy8X1PqIVaTsnSwparHFHKauuWXQYWhLyVaOgsOSGXjfcF
+ V7n2GCew/iluIT04FmoaFvKZ6H9ksUY=
+Received: from mail-lj1-f197.google.com (mail-lj1-f197.google.com
+ [209.85.208.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-536-IeuPdhTNNKiC__j0HEcq1Q-1; Tue, 07 Dec 2021 22:37:39 -0500
-X-MC-Unique: IeuPdhTNNKiC__j0HEcq1Q-1
-Received: by mail-lf1-f69.google.com with SMTP id
- u20-20020a056512129400b0040373ffc60bso485229lfs.15
+ us-mta-194-9SJBSd0jOPSUvEKO65CFuQ-1; Tue, 07 Dec 2021 22:43:27 -0500
+X-MC-Unique: 9SJBSd0jOPSUvEKO65CFuQ-1
+Received: by mail-lj1-f197.google.com with SMTP id
+ b3-20020a2ebc03000000b0021ffe75b14cso373456ljf.5
  for <virtualization@lists.linux-foundation.org>;
- Tue, 07 Dec 2021 19:37:39 -0800 (PST)
+ Tue, 07 Dec 2021 19:43:27 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=YoWCBDATnCTqCRKDv0jegkvjLSP1FmG7gIBbLloAqMw=;
- b=IpKAUng53WRZqeQ+EuRKP8F1WVRMMGSVhapmY6S0KgmS8HMq0v04riRzmvzUgadgO0
- ZW7N5ojZdk1/tYXxGdH73cxX/R+4VMRfYSjMH8D86L1ROdbkCSJRQf94NumVtoxgdmfM
- fztLWgIdDqzATyeF83jKccdfIsshfdxGJHlCQHGaFEkcfQZbs5IDN01/FE1Y0q7pduUM
- XcHJzoiDKqerHFxMKAu1/CSWmKNk9mgY21UA3kVMzsO2yCC3aQ8t2EoEDJYl9ZcZAdc+
- KFMqtNNmd7XIQvkpFQRmVZFrs8hSRllJNTPSq1sAMctzawmDWr5gvhZGyP0KHqZzj6Oi
- rlVw==
-X-Gm-Message-State: AOAM5321rfyc/gpHiaYWQU4satHae16AUALi6c37nRh0wchbs6TsFxvT
- kRnqKBmroGdMFxnZ8qD3BVR2gp1vJ1Kik3/kzElW8EM5Or+7sLSkK1iIBmC+i9pW7tqEwJdcfvR
- obJRGCiLvMJaz8j1MY4LBOJhFn2ye5exCkMvqmcgsincQjPOz8DJiDSXNaQ==
-X-Received: by 2002:a2e:3012:: with SMTP id w18mr44874192ljw.217.1638934657819; 
- Tue, 07 Dec 2021 19:37:37 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxK3AMU73RgafnBq0DfPV3Zj0KlTTUA4HXXX7DBC8jmIm9wvrhyNCZRWXFsBd8QQHihhPOV7qcPksgNfrZSSe8=
-X-Received: by 2002:a2e:3012:: with SMTP id w18mr44874174ljw.217.1638934657576; 
- Tue, 07 Dec 2021 19:37:37 -0800 (PST)
+ bh=sffol2sjF3kR5DyO351++++uXmiYwv8fKQzdh/YzKIo=;
+ b=DlCcBjmw6QHtUS6QF4qB2QYbHwK0wfAYoGNrI2PLgutYLOwz6BchjJEtAEUsJ6YArJ
+ F6kwlSvNpTyHdFVNDplWtLXbCKWPiwzF77MzUo15c5bML6shukwRK2t3yRDgamKq06fX
+ esuHDCAuPL68rrvf+zkkUFXacrApIb3DtG/fiawEWpLOPLD7UW3ulFdREMyUPDhM7ctF
+ ARghKBsz5GqPOzbLrZjI0YPDlTIP6xR1nVHktQ96ajMOBStjBar5wC4f6yU/o5mxvPKR
+ 41FrmapLv1jHplme2sMYpJ3uLvlFtXX8JNv/Q+85imRvXKRpmlxlM+IHMSeiRrmeyCiN
+ EXdg==
+X-Gm-Message-State: AOAM531Hc5E9241IsbCb5TA1wltTWzG30dbPsPBWFF8cyScBYlKAkq72
+ Hwu5R2tzlWlBnK5IAD9GL+aETwirCwSgmp+jzaLRP7tbrRpgvDMNSPOhFGZAukMmO3yVNw3++le
+ gJFHapw5zGpk2iPmrY79UmS14JDRCWLbCNmxEJ/8EtQzeI4fcUl5tSIyIHQ==
+X-Received: by 2002:ac2:518b:: with SMTP id u11mr44956655lfi.498.1638935006234; 
+ Tue, 07 Dec 2021 19:43:26 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwifyGeIctLq/WSdi2cAyKfVee7XdSfSCq6roNZPyfverU2yuaLd4tEDEZgqNhNbHIML6RhXCXYaXAxVT6/rSw=
+X-Received: by 2002:ac2:518b:: with SMTP id u11mr44956640lfi.498.1638935006028; 
+ Tue, 07 Dec 2021 19:43:26 -0800 (PST)
 MIME-Version: 1.0
-References: <20211207130333.GA27606@mtl-vdi-166.wap.labs.mlnx>
-In-Reply-To: <20211207130333.GA27606@mtl-vdi-166.wap.labs.mlnx>
+References: <20211207114835.GA31153@kili>
+In-Reply-To: <20211207114835.GA31153@kili>
 From: Jason Wang <jasowang@redhat.com>
-Date: Wed, 8 Dec 2021 11:37:26 +0800
-Message-ID: <CACGkMEsjGF1dv9=__CjXPfeQNjbUwbqu9iY+pm_oCs0ksk23Hw@mail.gmail.com>
-Subject: Re: [PATCH] vdpa: Provide means to read configured features
-To: Eli Cohen <elic@nvidia.com>
+Date: Wed, 8 Dec 2021 11:43:15 +0800
+Message-ID: <CACGkMEsvLwSb_DexsQ8JLGF02AidOY0cMkfxuGK0QjKDkwP3UA@mail.gmail.com>
+Subject: Re: [PATCH v3] vduse: vduse: check that offsets are within bounds
+To: Dan Carpenter <dan.carpenter@oracle.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: virtualization <virtualization@lists.linux-foundation.org>
+Cc: kvm <kvm@vger.kernel.org>, Tiwei Bie <tiwei.bie@intel.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, kernel-janitors@vger.kernel.org,
+ virtualization <virtualization@lists.linux-foundation.org>,
+ Xie Yongji <xieyongji@bytedance.com>, Eli Cohen <elic@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,75 +111,66 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Dec 7, 2021 at 9:03 PM Eli Cohen <elic@nvidia.com> wrote:
+On Tue, Dec 7, 2021 at 7:49 PM Dan Carpenter <dan.carpenter@oracle.com> wrote:
 >
-> Hi Jason,
+> In vduse_dev_ioctl(), the "config.offset" comes from the user.  There
+> needs to a check to prevent it being out of bounds.  The "config.offset"
+> and "dev->config_size" variables are both type u32.  So if the offset is
+> out of bounds then the "dev->config_size - config.offset" subtraction
+> results in a very high u32 value.
 >
-> I noticed the lack of interface to get the currently configured
-> features.
+> The vhost_vdpa_config_validate() function has a similar issue, but there
+> the "size" is long type so the subtraction works on 64bit system and
+> this change only affects 32bit systems.
 >
-> Does the below patch make sense to you? If so I can post it along with
-> a patch that implements the function for all current vdpa drivers.
+> Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
+> Fixes: 4c8cf31885f6 ("vhost: introduce vDPA-based backend")
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 
-Yes.
+Stable candidate.
 
->
->
->
-> Current code relys on features published by the uplink driver to build
-> configuration information. These features are not necessarily the
-> configured features.
->
-> Introduce a callback to provide the configured features.
->
-> Fixes: ad69dd0bf26b ("vdpa: Introduce query of device config layout")
-> Signed-off-by: Eli Cohen <elic@nvidia.com>
-> ---
->  drivers/vdpa/vdpa.c  | 4 +++-
->  include/linux/vdpa.h | 1 +
->  2 files changed, 4 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-> index 7332a74a4b00..41486c6bce2f 100644
-> --- a/drivers/vdpa/vdpa.c
-> +++ b/drivers/vdpa/vdpa.c
-> @@ -733,8 +733,10 @@ static int vdpa_dev_net_config_fill(struct vdpa_device *vdev, struct sk_buff *ms
->         if (nla_put_u16(msg, VDPA_ATTR_DEV_NET_CFG_MTU, val_u16))
->                 return -EMSGSIZE;
->
-> -       features = vdev->config->get_features(vdev);
-> +       if (!vdev->config->get_cur_features)
-> +               return -EOPNOTSUPP;
->
-> +       features = vdev->config->get_cur_features(vdev);
-
-To be aligned with the virito spec, I think we need name it as
-
-get_driver_features(), and while at it, rename
-
-1) set_features() to set_driver_features()
-and
-2) get_features() to get_device_features()
+Patch looks good to me but I think we need to use separate patches to
+ease the backporting.
 
 Thanks
 
->         return vdpa_dev_net_mq_config_fill(vdev, msg, features, &config);
->  }
+> ---
+> v2: the first version had a reversed if statement
+> v3: fix vhost_vdpa_config_validate() as pointed out by Yongji Xie.
 >
-> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-> index c3011ccda430..daf22aed1006 100644
-> --- a/include/linux/vdpa.h
-> +++ b/include/linux/vdpa.h
-> @@ -278,6 +278,7 @@ struct vdpa_config_ops {
->         u32 (*get_vq_align)(struct vdpa_device *vdev);
->         u64 (*get_features)(struct vdpa_device *vdev);
->         int (*set_features)(struct vdpa_device *vdev, u64 features);
-> +       u64 (*get_cur_features)(struct vdpa_device *vdev);
->         void (*set_config_cb)(struct vdpa_device *vdev,
->                               struct vdpa_callback *cb);
->         u16 (*get_vq_num_max)(struct vdpa_device *vdev);
+>  drivers/vdpa/vdpa_user/vduse_dev.c | 3 ++-
+>  drivers/vhost/vdpa.c               | 2 +-
+>  2 files changed, 3 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+> index c9204c62f339..1a206f95d73a 100644
+> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> @@ -975,7 +975,8 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
+>                         break;
+>
+>                 ret = -EINVAL;
+> -               if (config.length == 0 ||
+> +               if (config.offset > dev->config_size ||
+> +                   config.length == 0 ||
+>                     config.length > dev->config_size - config.offset)
+>                         break;
+>
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 29cced1cd277..e3c4f059b21a 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -197,7 +197,7 @@ static int vhost_vdpa_config_validate(struct vhost_vdpa *v,
+>         struct vdpa_device *vdpa = v->vdpa;
+>         long size = vdpa->config->get_config_size(vdpa);
+>
+> -       if (c->len == 0)
+> +       if (c->len == 0 || c->off > size)
+>                 return -EINVAL;
+>
+>         if (c->len > size - c->off)
 > --
-> 2.32.0
+> 2.20.1
 >
 
 _______________________________________________
