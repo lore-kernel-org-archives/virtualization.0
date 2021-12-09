@@ -4,98 +4,97 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 4384EC433EF
-	for <virtualization@archiver.kernel.org>; Thu,  9 Dec 2021 07:56:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id F0419C433F5
+	for <virtualization@archiver.kernel.org>; Thu,  9 Dec 2021 07:57:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id E6995409B2;
-	Thu,  9 Dec 2021 07:56:11 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTP id ADAD9409C2;
+	Thu,  9 Dec 2021 07:57:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from smtp4.osuosl.org ([127.0.0.1])
 	by localhost (smtp4.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ZaCRoN41WlRV; Thu,  9 Dec 2021 07:56:11 +0000 (UTC)
+	with ESMTP id Txp4teWqrNtc; Thu,  9 Dec 2021 07:57:46 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 8CAF0404CA;
-	Thu,  9 Dec 2021 07:56:10 +0000 (UTC)
+	by smtp4.osuosl.org (Postfix) with ESMTPS id 0EDA4409B4;
+	Thu,  9 Dec 2021 07:57:45 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 65155C001E;
-	Thu,  9 Dec 2021 07:56:10 +0000 (UTC)
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3A9FCC0012
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C29AAC001E;
+	Thu,  9 Dec 2021 07:57:45 +0000 (UTC)
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 793B7C0012
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 07:56:09 +0000 (UTC)
+ Thu,  9 Dec 2021 07:57:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by smtp1.osuosl.org (Postfix) with ESMTP id 2288B82CDD
+ by smtp3.osuosl.org (Postfix) with ESMTP id 66BC36076C
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 07:56:09 +0000 (UTC)
+ Thu,  9 Dec 2021 07:57:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Authentication-Results: smtp1.osuosl.org (amavisd-new);
+Authentication-Results: smtp3.osuosl.org (amavisd-new);
  dkim=pass (1024-bit key) header.d=redhat.com
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id TOFYfoDtfg36
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id fOq3hbOOZzyk
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 07:56:08 +0000 (UTC)
+ Thu,  9 Dec 2021 07:57:43 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.8.0
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [170.10.133.124])
- by smtp1.osuosl.org (Postfix) with ESMTPS id E34B582CF1
+ by smtp3.osuosl.org (Postfix) with ESMTPS id 8AB0A60769
  for <virtualization@lists.linux-foundation.org>;
- Thu,  9 Dec 2021 07:56:07 +0000 (UTC)
+ Thu,  9 Dec 2021 07:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1639036566;
+ s=mimecast20190719; t=1639036662;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=S66C8CNSKnx/Z7swhzNHa3UhZIUtvxjrYYA62uAg628=;
- b=bqqAscmSYdiVoCENq6+OVrkxwKvNWmhJsinq7yjmuTeBawr6WcJ6KZ4sUaqf51RVmK3qyN
- KixIAqcqY3e2ebuKp0DSYi4Tgp8pBlNFaKiMG8xcueiqd0GTCr62PgfiVYKm6dxQ8FAYZK
- 8M/HfmaT7QFtN1P62zrP8ykuCPGGihw=
+ bh=OCchJqXlkcPKFU5BGgoX3zpc0zrMK5iqRL4iPWX0udg=;
+ b=Puf2zSZwQpI/Ojmd0fz8hyuyeFwrs/zrW7MmlnwPc/U3OC/UYgml96DQuVwMGttrMcAfY2
+ 3sYPXZCsvCKBqbwfJC08AOhwGdynBWVvtu8MSmMgTSdFrJNuciEryRXQY2Dn7vTMR+AMGD
+ RzU19tISXvpsD7PGMdreeO7gCHlJBxc=
 Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
  [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-492-lFJsogHQNQ2mClqdkLDMxg-1; Thu, 09 Dec 2021 02:56:05 -0500
-X-MC-Unique: lFJsogHQNQ2mClqdkLDMxg-1
+ us-mta-324-xFgAlmaGPA6zgdXQZRW1qA-1; Thu, 09 Dec 2021 02:57:41 -0500
+X-MC-Unique: xFgAlmaGPA6zgdXQZRW1qA-1
 Received: by mail-lf1-f72.google.com with SMTP id
- u20-20020ac24c34000000b0041fcb2ca86eso92530lfq.0
+ s11-20020a195e0b000000b0041c0a47fb77so2292165lfb.20
  for <virtualization@lists.linux-foundation.org>;
- Wed, 08 Dec 2021 23:56:05 -0800 (PST)
+ Wed, 08 Dec 2021 23:57:41 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20210112;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=S66C8CNSKnx/Z7swhzNHa3UhZIUtvxjrYYA62uAg628=;
- b=U3k13jfpDFMOD3LRKfzcnJcG3a0122EPBLBw5v6rUs9dAYzcA2MCZ0hs2+PwDCk+zT
- rUkeSDAxbs+z4vJZGjldlcKKEu0ZGnezdc9TNQ+UnUAPo2jGOvZnV9RNTWfwLSvvdC5O
- pReMo+yY3aPdyswFPwhjE+U8Z14Zr9aj7KghMhNA3VSJnhGGjbjf0sVQaed7WQU9tWWs
- EBQyGCoTJWNR9uBBBCvf3/s+zrZhunaXdotV5u/ulVogLrLDDp3Moxku6eGTHMwF5dha
- tIC6fKrYLGyd8SVpke28dJ76/fznpoHKZIeyTOoUUlqPSp6/9lZ27sQFIOIXPvCrRNOo
- XJaQ==
-X-Gm-Message-State: AOAM532lzu1naqdxnpM6eoD32pYiaAkF5agVkFrQyn3gqwF3v4nfCXTX
- VyRzAfd8JxKUd35hBRwW5OYwG+JJ0DQy8So74elTsQjjs58pjeS+YDFFQ9jj8vgcbnLRUhe84hh
- 1TmIF59tdePabYLHxDUEa8w0fdEr6p13XnTi11cnvsKj8RnaVD1cNwp1k5w==
-X-Received: by 2002:a2e:9f55:: with SMTP id v21mr4680092ljk.420.1639036563942; 
- Wed, 08 Dec 2021 23:56:03 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJz8UkUhP3zFfRJtYQZxLVzVzPMYYjaFa7amL06Dm1gdoXcpF4WeSzI+TE+iNnEJvSyyJNJQ0nzMLuTET+RzAik=
-X-Received: by 2002:a2e:9f55:: with SMTP id v21mr4680069ljk.420.1639036563733; 
- Wed, 08 Dec 2021 23:56:03 -0800 (PST)
+ bh=OCchJqXlkcPKFU5BGgoX3zpc0zrMK5iqRL4iPWX0udg=;
+ b=vTW0RQyAONggRSzUutm1Ggh5lqejRXx+RlZws8EemeWy6WI0ksTJls2ID06L8XlYEi
+ xcSrwY0dwatyUsfwTbXvFIB7CVC8GFXNOl3C/OgKJbZcHpQw++zi06Zl1ghk6YlroVHC
+ PBH105Y6itKQhjupi8rcoT/IvDfq4/d7RVrFX1VTONMYON7nG/9gnRol2oa5pRyaGeko
+ Lgn3FXyvkMOh8+25uACJH67h50Rfw29cS6F+w0Cdm0+2JdkSnWSVM3DMCZ4gfqLRFDle
+ pG2BllXFhTUYoq44eo3TLp8rGjkXFVswPdaoR/uBmNdyQOrvYlbRc77zGGyqFHfFMANX
+ SdHw==
+X-Gm-Message-State: AOAM533//tL/l51wRrO7Xi2AQ3N2yMN+THZUg2jny8bRAO9NsKnKR7Xy
+ L8O9BrNEIjngU36XOTdfJ1kZ8JpW5jHOII9LE14AzXObd4rS+d1EMgLxCOwb/Y6tsjxAmIfe08J
+ 6B3vC571lYj6I86mzuzSaI7OgbgKgid6NMnmb/DrnC1ubp2kydRWKI147pQ==
+X-Received: by 2002:a2e:915a:: with SMTP id q26mr4464191ljg.277.1639036659850; 
+ Wed, 08 Dec 2021 23:57:39 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwlrR2u2AzX8ydVKKQ6AlXap6y6RZ+sD0Jjw3+YUukSsKKUjBU09U/YBMhNgB1VKj/LJTNTrklmuM7IzfjUSkY=
+X-Received: by 2002:a2e:915a:: with SMTP id q26mr4464165ljg.277.1639036659555; 
+ Wed, 08 Dec 2021 23:57:39 -0800 (PST)
 MIME-Version: 1.0
-References: <20211208201430.73720-1-elic@nvidia.com>
- <20211208201430.73720-2-elic@nvidia.com>
- <CACGkMEsa82RV2-Yp3V3fYEPgNogfaG_0s-_tGYR6QYmgqB65HQ@mail.gmail.com>
- <20211209070654.GD108239@mtl-vdi-166.wap.labs.mlnx>
-In-Reply-To: <20211209070654.GD108239@mtl-vdi-166.wap.labs.mlnx>
+References: <20211126044102.18374-1-jasowang@redhat.com>
+ <20211208151801-mutt-send-email-mst@kernel.org>
+ <CACGkMEs-ah8VAULcDumPH_u9C2DZQh9SKJ_2bykX5aBCTxnwsA@mail.gmail.com>
+ <20211209015205-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20211209015205-mutt-send-email-mst@kernel.org>
 From: Jason Wang <jasowang@redhat.com>
-Date: Thu, 9 Dec 2021 15:55:53 +0800
-Message-ID: <CACGkMEvcptE733sE_C4D3dx2WfScCxxn4cSB_f=3K-0OCTtyZA@mail.gmail.com>
-Subject: Re: [PATCH v1 1/7] vdpa: Provide interface to read driver features
-To: Eli Cohen <elic@nvidia.com>
+Date: Thu, 9 Dec 2021 15:57:28 +0800
+Message-ID: <CACGkMEu89hnGKgQBSuwCA1FPkwpFyXX-MTsuHwUu3vEP2p-EVw@mail.gmail.com>
+Subject: Re: [PATCH V2] virtio-mmio: harden interrupt
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=jasowang@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Laurent Vivier <lvivier@redhat.com>, mst <mst@redhat.com>,
- virtualization <virtualization@lists.linux-foundation.org>,
- eperezma <eperezma@redhat.com>, Si-Wei Liu <si-wei.liu@oracle.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+ virtualization <virtualization@lists.linux-foundation.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -112,76 +111,160 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Dec 9, 2021 at 3:07 PM Eli Cohen <elic@nvidia.com> wrote:
+On Thu, Dec 9, 2021 at 2:55 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 >
-> On Thu, Dec 09, 2021 at 01:33:01PM +0800, Jason Wang wrote:
-> > On Thu, Dec 9, 2021 at 4:14 AM Eli Cohen <elic@nvidia.com> wrote:
+> On Thu, Dec 09, 2021 at 10:06:34AM +0800, Jason Wang wrote:
+> > On Thu, Dec 9, 2021 at 4:27 AM Michael S. Tsirkin <mst@redhat.com> wrote:
 > > >
-> > > Provide an interface to read the negotiated features. This is needed
-> > > when building the netlink message in vdpa_dev_net_config_fill().
+> > > On Fri, Nov 26, 2021 at 12:41:02PM +0800, Jason Wang wrote:
+> > > > This patch tries to make sure the virtio interrupt handler for MMIO
+> > > > won't be called after a reset and before virtio_device_ready(). We
+> > > > can't use IRQF_NO_AUTOEN since we're using shared interrupt
+> > > > (IRQF_SHARED). So this patch tracks the interrupt enabling status in a
+> > > > new intr_soft_enabled variable and toggle it during in
+> > > > vm_disable/enable_interrupts(). The MMIO interrupt handler will check
+> > > > intr_soft_enabled before processing the actual interrupt.
+> > > >
+> > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > > ---
+> > > > Changes since V1:
+> > > > - Silent compling warnings
+> > > >  drivers/virtio/virtio_mmio.c | 37 ++++++++++++++++++++++++++++++++++++
+> > > >  1 file changed, 37 insertions(+)
+> > > >
+> > > > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> > > > index 56128b9c46eb..c517afdd2cc5 100644
+> > > > --- a/drivers/virtio/virtio_mmio.c
+> > > > +++ b/drivers/virtio/virtio_mmio.c
+> > > > @@ -90,6 +90,7 @@ struct virtio_mmio_device {
+> > > >       /* a list of queues so we can dispatch IRQs */
+> > > >       spinlock_t lock;
+> > > >       struct list_head virtqueues;
+> > > > +     bool intr_soft_enabled;
+> > > >  };
+> > > >
+> > > >  struct virtio_mmio_vq_info {
+> > > > @@ -100,7 +101,37 @@ struct virtio_mmio_vq_info {
+> > > >       struct list_head node;
+> > > >  };
+> > > >
+> > > > +/* disable irq handlers */
+> > > > +static void vm_disable_cbs(struct virtio_device *vdev)
+> > > > +{
+> > > > +     struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+> > > > +     int irq = platform_get_irq(vm_dev->pdev, 0);
+> > > >
+> > > > +     /*
+> > > > +      * The below synchronize() guarantees that any
+> > > > +      * interrupt for this line arriving after
+> > > > +      * synchronize_irq() has completed is guaranteed to see
+> > > > +      * intx_soft_enabled == false.
+> > > > +      */
+> > > > +     WRITE_ONCE(vm_dev->intr_soft_enabled, false);
+> > > > +     synchronize_irq(irq);
+> > > > +}
+> > > > +
+> > > > +/* enable irq handlers */
+> > > > +static void vm_enable_cbs(struct virtio_device *vdev)
+> > > > +{
+> > > > +     struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+> > > > +     int irq = platform_get_irq(vm_dev->pdev, 0);
+> > > > +
+> > > > +     disable_irq(irq);
+> > > > +     /*
+> > > > +      * The above disable_irq() provides TSO ordering and
+> > > > +      * as such promotes the below store to store-release.
+> > > > +      */
+> > > > +     WRITE_ONCE(vm_dev->intr_soft_enabled, true);
+> > > > +     enable_irq(irq);
+> > > > +     return;
+> > > > +}
+> > > >
+> > > >  /* Configuration interface */
+> > > >
+> > > > @@ -262,6 +293,8 @@ static void vm_reset(struct virtio_device *vdev)
+> > > >
+> > > >       /* 0 status means a reset. */
+> > > >       writel(0, vm_dev->base + VIRTIO_MMIO_STATUS);
 > > >
-> > > Also fix the implementation of vdpa_dev_net_config_fill() to use the
-> > > negotiated features instead of the device features.
-> > >
-> > > To make APIs clearer, make the following name changes to struct
-> > > vdpa_config_ops so they better describe their operations:
-> > >
-> > > get_features -> get_device_features
-> > > set_features -> set_driver_features
-
-[...]
-
-> > > + * @get_driver_features:       Get virtio features in action
+> > > There was a discussion about reading status to make sure it is clear.
+> > > The spec says we should, this can't hurt as a further hardening measure.
+> > > In fact, let's do it in the core maybe? Spec says it applies to all
+> > > devices ...
 > >
-> > Maybe "Get virtio driver features .." is better.
+> > We can do that, but I'm not sure if we break some existing device.
 >
-> I hope the name does not become too long.
-> Which one would you favor?
+> Hmm. Have anything specific in mind?
+
+No, I can send a patch to do that.
+
 >
-> get_vio_driver_features
-> get_virtio_drv_features
-> get_virtio_driver_features
+> > >
+> > > > +     /* Disable VQ/configuration callbacks. */
+> > > > +     vm_disable_cbs(vdev);
+> > > >  }
+> > > >
+> > > >
+> > > > @@ -288,6 +321,9 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
+> > > >       unsigned long flags;
+> > > >       irqreturn_t ret = IRQ_NONE;
+> > > >
+> > > > +     if (!READ_ONCE(vm_dev->intr_soft_enabled))
+> > > > +             return IRQ_NONE;
+> > > > +
+> > >
+> > > So if the write is seen before reset happened (should not happen, but we
+> > > are talking a buggy device) then it won't be acknowledged and device
+> > > will keep pulling the interrupt. I think as long as we are hardening
+> > > this, let's go the full mile and try to avoid DoS if we can, do the
+> > > check before invoking the callback, but do not skip the read.
+> > > Whether to still return IRQ_NONE is a good question.
+> >
+> > Did you mean something like this:
+> >
+> >         /* Read and acknowledge interrupts */
+> >         status = readl(vm_dev->base + VIRTIO_MMIO_INTERRUPT_STATUS);
+> >         writel(status, vm_dev->base + VIRTIO_MMIO_INTERRUPT_ACK);
+> >
+> >         if (status)
+> >                 ret = IRQ_HANDLED;
+> >
+> >        if (!READ_ONCE(vm_dev->intr_soft_enabled))
+> >                return ret;
+> >
+> > Thanks
+>
+> Maybe. Or is
+>
+>         if (!READ_ONCE(vm_dev->intr_soft_enabled))
+>                 return IRQ_NONE;
+>
+> better here?
 
-The name is fine, I mean the comment might be
-
-"Get the virtio driver features in action"
+Yes, I just paste part of the code, the ret is initialized to IRQ_NONE.
 
 Thanks
 
 >
-> >
-> > Thanks
-> >
-> > > + *                             @vdev: vdpa device
-> > > + *                             Returns the virtio features accepted
-> > >   * @set_config_cb:             Set the config interrupt callback
-> > >   *                             @vdev: vdpa device
-> > >   *                             @cb: virtio-vdev interrupt callback structure
-> > > @@ -276,8 +279,9 @@ struct vdpa_config_ops {
+>
 > > >
-> > >         /* Device ops */
-> > >         u32 (*get_vq_align)(struct vdpa_device *vdev);
-> > > -       u64 (*get_features)(struct vdpa_device *vdev);
-> > > -       int (*set_features)(struct vdpa_device *vdev, u64 features);
-> > > +       u64 (*get_device_features)(struct vdpa_device *vdev);
-> > > +       int (*set_driver_features)(struct vdpa_device *vdev, u64 features);
-> > > +       u64 (*get_driver_features)(struct vdpa_device *vdev);
-> > >         void (*set_config_cb)(struct vdpa_device *vdev,
-> > >                               struct vdpa_callback *cb);
-> > >         u16 (*get_vq_num_max)(struct vdpa_device *vdev);
-> > > @@ -395,7 +399,7 @@ static inline int vdpa_set_features(struct vdpa_device *vdev, u64 features)
-> > >         const struct vdpa_config_ops *ops = vdev->config;
 > > >
-> > >         vdev->features_valid = true;
-> > > -       return ops->set_features(vdev, features);
-> > > +       return ops->set_driver_features(vdev, features);
-> > >  }
 > > >
-> > >  void vdpa_get_config(struct vdpa_device *vdev, unsigned int offset,
-> > > --
-> > > 2.33.1
 > > >
-> >
+> > > >       /* Read and acknowledge interrupts */
+> > > >       status = readl(vm_dev->base + VIRTIO_MMIO_INTERRUPT_STATUS);
+> > > >       writel(status, vm_dev->base + VIRTIO_MMIO_INTERRUPT_ACK);
+> > > > @@ -529,6 +565,7 @@ static bool vm_get_shm_region(struct virtio_device *vdev,
+> > > >  }
+> > > >
+> > > >  static const struct virtio_config_ops virtio_mmio_config_ops = {
+> > > > +     .enable_cbs     = vm_enable_cbs,
+> > > >       .get            = vm_get,
+> > > >       .set            = vm_set,
+> > > >       .generation     = vm_generation,
+> > > > --
+> > > > 2.25.1
+> > >
 >
 
 _______________________________________________
